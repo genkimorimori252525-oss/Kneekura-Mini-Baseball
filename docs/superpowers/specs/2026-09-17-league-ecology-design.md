@@ -21,6 +21,7 @@ League Identity =
 + stadium distribution
 + ball / environment
 + rules / umpire environment
++ slow cultural priors
 + history
 ```
 
@@ -166,7 +167,8 @@ LeagueEcologyProfile
   - defender population distribution
   - development tendencies
   - scouting / roster selection tendencies
-  - tactical tendencies
+  - slow LeagueCultureState
+  - current LeagueTacticalTrend
   - stadium distribution
   - ball / environment profile
   - umpire / zone environment
@@ -212,9 +214,9 @@ LeagueEcologyProfile
 
 ---
 
-## 6. League Culture
+## 6. League Culture と Tactical Trend
 
-「パワーバッターが評価される」「バントを多用する」などの文化は試合中の直接バフにしない。
+「パワーバッターが評価される」「バントを多用する」「フォーク系を決め球として好む」などの文化は試合中の直接バフにしない。
 
 文化は主に外側の選択へ作用する。
 
@@ -245,7 +247,134 @@ more power hitters receive playing time
 league HR environment changes
 ```
 
-これにより、リーグ文化は長期的に自己強化・変化し得る。
+### 6.1 LeagueCultureState: 長期文化層
+
+文化は短期成績では簡単に変えない。数年から数十年単位で残る、強い慣性を持つ prior として扱う。
+
+概念例:
+
+```ts
+type LeagueCultureState = {
+  pitchDevelopmentPreferences: PreferenceDistribution;
+  hitterDevelopmentPreferences: PreferenceDistribution;
+  scoutingPreferences: PreferenceDistribution;
+  tacticalPriors: PreferenceDistribution;
+  coachingTraditions: CoachingTraditionState;
+  institutionalInertia: number;
+};
+```
+
+文化層が影響するのは、主に以下である。
+
+- どの球種・投球スタイルを若手へ教えやすいか
+- どのタイプの選手を高く評価しやすいか
+- どの能力をドラフト・補強で重視しやすいか
+- どの戦術を初期候補として採用しやすいか
+- 成功した元選手・指導者の考えが次世代へ継承される度合い
+
+文化そのものを「フォーク+10」「高め速球-10」の試合補正へ変換してはならない。
+
+### 6.2 LeagueTacticalTrend: 短中期の流行層
+
+その時代に有効と観測された戦術は、文化より速く変化できる。
+
+例:
+
+```text
+league hitters currently struggle with high fastballs
+      ↓
+pitchers / teams observe the exploit
+      ↓
+high-fastball usage increases
+      ↓
+hitters accumulate exposure and counter-adjust
+```
+
+`LeagueTacticalTrend` は概ねシーズン内から数年単位の適応を表す。
+
+概念例:
+
+```ts
+type LeagueTacticalTrend = {
+  observedExploits: readonly TacticalExploit[];
+  pitchUsageTrends: TrendDistribution;
+  offensiveTrends: TrendDistribution;
+  defensiveTrends: TrendDistribution;
+  confidence: number;
+  observedAt: SeasonTime;
+};
+```
+
+TrendはMatch Coreへの直接能力補正ではない。チーム・選手AIが戦術候補を選ぶ際の情報・priorとして使う。
+
+### 6.3 文化と流行を混同しない
+
+短期的な成功だけでLeagueCultureStateを書き換えない。
+
+```text
+one elite pitcher succeeds with high fastball
+      ↓
+Tactical Trend may move quickly
+      ↓
+Culture remains mostly unchanged
+```
+
+文化が本当に変化するには、複数年にわたる持続的成功や、複数球団への普及、育成・スカウト・コーチングへの浸透などを必要とする。
+
+概念フロー:
+
+```text
+repeated multi-season success
++ adoption across organizations
++ player-development adoption
++ coaching turnover / diffusion
+      ↓
+slow cultural update
+```
+
+### 6.4 文化にはヒステリシスと自己保存性を持たせる
+
+文化層は単純な移動平均ではなく、履歴依存性を持つ。
+
+```text
+successful local tradition
+      ↓
+players copy it
+      ↓
+coaches teach it
+      ↓
+scouts value it
+      ↓
+more players of that type enter the league
+      ↓
+tradition reinforces itself
+```
+
+この自己強化により、リーグらしい特徴が長期間残り得る。
+
+一方で、文化を永久固定もしない。十分に大きく長い外力があればゆっくり変化できる。
+
+### 6.5 珍しい戦術のライフサイクル
+
+リーグ内で珍しい球種・配球・打撃戦術が成功した場合は、次の順序を基本とする。
+
+```text
+rare tactic enters league
+      ↓
+low familiarity -> initial advantage
+      ↓
+opponents identify the pattern
+      ↓
+tactical adoption / countermeasures spread
+      ↓
+familiarity increases
+      ↓
+only robust advantages remain
+      ↓
+if success persists for years, culture may slowly absorb it
+```
+
+これにより「珍しいから効く」「流行する」「対策される」「それでも強いものだけ文化に残る」を因果的に再現する。
 
 ---
 
@@ -336,6 +465,8 @@ league adaptation improves
 
 この相互作用によってリーグ環境は時間とともに進化する。
 
+ただし短期の弱点発見はまず `LeagueTacticalTrend` へ作用し、LeagueCultureStateは十分な持続性と普及が確認されるまで大きく変更しない。
+
 ---
 
 ## 10. Observed League Profile
@@ -350,6 +481,7 @@ type LeagueObservedProfile = {
   defenseEnvironment: DefenseEnvironmentSummary;
   parkEnvironment: ParkEnvironmentSummary;
   tacticalEnvironment: TacticalEnvironmentSummary;
+  cultureSummary: CultureSummary;
 };
 ```
 
@@ -375,8 +507,10 @@ LeagueObservedProfile
 Career / League World
       ↓
 League Ecology
+  ├─ slow culture
+  └─ tactical trend
       ↓
-players + learned exposure + environment
+players + learned exposure + environment + tactical priors
       ↓
 Match Inputs
       ↓
@@ -389,6 +523,8 @@ Match Coreは「MLB」「NPB」「KBO」という名前を見て能力補正を�
 
 Coreが読むのは具体的な選手能力、経験状態、球場、ボール、ルール、審判、戦術、試合状態である。
 
+文化やTrendは、試合中の物理値を直接書き換えず、外側で育成・獲得・戦術候補・事前方針へ作用する。
+
 ---
 
 ## 12. 決定論
@@ -399,6 +535,7 @@ League Ecologyを導入しても同一season state / player state / match input 
 - season progressionの乱数streamをMatch Physicsと分離する
 - roster / development乱数が試合中のphysics RNGへ波及しない
 - league aggregationは試合結果を後付け補正しない
+- culture / trend更新はseason stateの明示的な更新として行い、試合途中に暗黙変更しない
 
 ---
 
@@ -412,7 +549,11 @@ League Ecologyを導入しても同一season state / player state / match input 
 - 同じ選手が新環境へ継続出場すると、定義された学習範囲で適応する
 - 元MLB/元NPB等のリーグ履歴ラベルだけでは直接ボーナス・ペナルティが発生しない
 - LeagueObservedProfileを変更しても、それが原因としてMatch Coreへ直接作用しない
-- league culture変更は短期の能力補正ではなく、長期の選手獲得・育成・起用分布へ作用する
+- Tactical Trendは短期の戦術候補・usageを変え得るが、true abilityを直接変えない
+- 1シーズンの極端な成功だけではLeagueCultureStateが急変しない
+- 複数年の成功・複数球団採用・育成浸透が揃うと、定義された遅い速度でCultureが変化し得る
+- Culture変更は短期の能力補正ではなく、長期の選手獲得・育成・起用・戦術priorへ作用する
+- 同じculture stateと同じseason inputsなら、culture/trendの更新結果を再現できる
 
 ---
 
@@ -425,6 +566,12 @@ League Ecologyを導入しても同一season state / player state / match input 
 - Familiarityは成績を直接補正せず、認識・予測・タイミング等の中間量へ作用する
 - リーグ特徴はLeague Ecologyから自然発生させる
 - League Cultureはスカウト、育成、起用、戦術等を通じて長期的に人口分布へ作用する
+- LeagueCultureStateは数年〜数十年単位の強い慣性を持つ長期層とする
+- LeagueTacticalTrendはシーズン内〜数年単位で動ける短中期層とする
+- 短期の成功だけで文化を上書きしない
+- 文化変化には持続的成功、複数組織への普及、育成・コーチングへの浸透を要求する
+- 文化にはヒステリシスと自己保存性を持たせる
+- 珍しい戦術は、初期優位→流行→対策→定着/衰退というライフサイクルを持ち得る
 - League Strengthを単一倍率として使わない
 - LeagueObservedProfileは結果の集計であり原因ではない
 - Cross-League Transferでは能力と経験履歴を保持し、相手・環境だけが変わる
@@ -438,6 +585,10 @@ League Ecologyを導入しても同一season state / player state / match input 
 - 適応速度と年齢・経験・コーチングの関係
 - pitch-shape clustering方式
 - league population集計周期
+- Culture update cadence / inertia係数
+- Tactical Trendの観測窓と減衰速度
+- 文化変化に必要な普及率・持続年数の具体値
+- coaching lineage / tradition伝播モデル
 - development / scouting preferenceモデル
 - park / ball / climateデータの出典
 - 実在リーグの年度別ObservedProfileの生成方法
