@@ -31,17 +31,17 @@
 - Consumes: `LiveBallState`, `GloveWorldState`, `Vec3`.
 - Produces: `evaluateCatchRetentionLoad(contact, parameters)` and diagnostic energy/capacity values used by the resolver.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Add tests proving that relative translational kinetic energy contributes to load, ball spin contributes rotational kinetic energy, body instability reduces effective capacity, and an off-center pocket contact reduces effective capacity without any random draw.
 
-- [ ] **Step 2: Run verification and confirm RED**
+- [x] **Step 2: Run verification and confirm RED**
 
 Run: `npm run verify`
 
 Expected: typecheck/test failure because `CatchRetention` does not exist yet.
 
-- [ ] **Step 3: Implement the minimal deterministic evaluator**
+- [x] **Step 3: Implement the minimal deterministic evaluator**
 
 Use:
 
@@ -57,13 +57,13 @@ effectiveCapacityJ = centerRetentionCapacityJ * bodyStability * pocketFactor
 
 Validate finite vectors, positive mass/radii/capacity, `bodyStability` in `[0, 1]`, and non-negative pocket offset.
 
-- [ ] **Step 4: Run verification and confirm GREEN**
+- [x] **Step 4: Run verification and confirm GREEN**
 
 Run: `npm run verify`
 
 Expected: all existing tests plus the new load/capacity tests pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 Commit message: `feat: model deterministic catch retention load`
 
@@ -79,17 +79,17 @@ Commit message: `feat: model deterministic catch retention load`
 - Consumes: load/capacity diagnostics from Task 1, `createSecuredCatchOutcome`, `quantizeEventTick`.
 - Produces: `resolveCatchRetention(contact, parameters)` returning `CatchRetentionResolution`.
 
-- [ ] **Step 1: Write the failing secure-path test**
+- [x] **Step 1: Write the failing secure-path test**
 
 Use an explicit fixture where a centered, stable contact has `7.25 J` translational load, `10 J` capacity, and `725 W` capture dissipation power. Require secure possession exactly `10,000 us` after contact.
 
-- [ ] **Step 2: Run verification and confirm RED**
+- [x] **Step 2: Run verification and confirm RED**
 
 Run: `npm run verify`
 
 Expected: failure because `resolveCatchRetention` is not implemented.
 
-- [ ] **Step 3: Implement minimal secure resolution**
+- [x] **Step 3: Implement minimal secure resolution**
 
 When `retentionLoadJ <= effectiveCapacityJ`, compute:
 
@@ -100,13 +100,13 @@ secureTick = quantizeEventTick(contactTick, settleSeconds, ticksPerSecond)
 
 Return `createSecuredCatchOutcome(contactTick, secureTick)` plus diagnostics. Zero load secures at the contact tick. Do not introduce a fixed catch delay.
 
-- [ ] **Step 4: Run verification and confirm GREEN**
+- [x] **Step 4: Run verification and confirm GREEN**
 
 Run: `npm run verify`
 
 Expected: secure path and all prior tests pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 Commit message: `feat: resolve secure catch settling time`
 
@@ -122,29 +122,29 @@ Commit message: `feat: resolve secure catch settling time`
 - Consumes: contact normal, ball/glove contact-time states, failure calibration values.
 - Produces: `createLiveBallCatchOutcome(contactTick, postContactBall)` with deterministic velocity/spin.
 
-- [ ] **Step 1: Write failing failure-path tests**
+- [x] **Step 1: Write failing failure-path tests**
 
 Cover three causal flips: lower body stability, large pocket offset, and added spin can each turn the same basic catch into a failed retention. Add one exact deflection test proving the returned ball remains live at `contactTick` with deterministic post-contact velocity/spin.
 
-- [ ] **Step 2: Run verification and confirm RED**
+- [x] **Step 2: Run verification and confirm RED**
 
 Run: `npm run verify`
 
 Expected: tests fail because failure resolution is absent.
 
-- [ ] **Step 3: Implement deterministic deflection**
+- [x] **Step 3: Implement deterministic deflection**
 
 Normalize `contactNormal`. Split relative velocity into normal and tangential components. For an approaching normal component, apply `failedContactRestitution` to reverse/dampen the normal component; apply `failedTangentialDamping` to the tangential component; then add glove velocity back. Apply `failedSpinDamping` to spin. All three calibration values must be in `[0, 1]`.
 
 Return a `live-ball` outcome at `contactTick`; do not delete or summarize the ball as a result-only failure.
 
-- [ ] **Step 4: Run verification and confirm GREEN**
+- [x] **Step 4: Run verification and confirm GREEN**
 
 Run: `npm run verify`
 
 Expected: all catch-retention and existing tests pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 Commit message: `feat: continue live ball after failed retention`
 
@@ -160,17 +160,17 @@ Commit message: `feat: continue live ball after failed retention`
 - Consumes: `resolveCatchRetention`, `evaluateCatchRetentionLoad`.
 - Produces: stable shared Core exports for later body/fielding simulation integration.
 
-- [ ] **Step 1: Add failing Core API export test**
+- [x] **Step 1: Add failing Core API export test**
 
 Require both new functions through `src/core/index.ts`.
 
-- [ ] **Step 2: Run verification and confirm RED**
+- [x] **Step 2: Run verification and confirm RED**
 
 Run: `npm run verify`
 
 Expected: typecheck failure for missing exports.
 
-- [ ] **Step 3: Export the module**
+- [x] **Step 3: Export the module**
 
 Add:
 
@@ -178,12 +178,16 @@ Add:
 export * from './sim/fielding/CatchRetention';
 ```
 
-- [ ] **Step 4: Run the full verification gate**
+- [x] **Step 4: Run the full verification gate**
 
 Run: `npm run verify`
 
 Expected: `tsc --noEmit` succeeds and every Vitest file/test passes.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 Commit message: `feat: export catch retention physics from Core`
+
+## Execution Record
+
+Implementation completed on `jolly/core-realism-2026-09-18`. Final implementation verification at commit `e1e0472a07f7a219f5450981b8b09c1d889d1d6d` passed `tsc --noEmit` and 22 Vitest files / 85 tests.
