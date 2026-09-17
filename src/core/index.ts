@@ -9,4 +9,5 @@ export * from './sim/SimulationClock';
 export * from './sim/ExactEventTime';
 export * from './sim/contact/BatBallContact';
 export * from './sim/ball/BallFlight';
+export * from './sim/fielding/GloveBallContact';
 export * from './sim/plateAppearance/ContactVerticalSlice';
