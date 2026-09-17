@@ -54,7 +54,7 @@ describe('findRunnerBaseTouchTick', () => {
       { tick: 0, position: v(0, 0), velocity: v(0, 0) },
       straightBase,
       2_000_000,
-      1_000_000,
+      { ticksPerSecond: 1_000_000 },
     )).toBeNull();
 
     expect(findRunnerBaseTouchTick(
