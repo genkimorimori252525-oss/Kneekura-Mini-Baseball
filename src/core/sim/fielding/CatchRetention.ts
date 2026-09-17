@@ -1,6 +1,7 @@
 import type { Vec3 } from '../../model/geometry';
 import { quantizeEventTick } from '../ExactEventTime';
 import {
+  createLiveBallCatchOutcome,
   createSecuredCatchOutcome,
   type CatchOutcome,
 } from './CatchOutcome';
@@ -10,7 +11,7 @@ export type CatchRetentionContact = Readonly<{
   contactTick: number;
   ball: LiveBallState;
   glove: GloveWorldState;
-  /** Unit-length outward normal from glove toward ball at physical contact. */
+  /** Outward normal from glove toward ball at physical contact. */
   contactNormal: Vec3;
   /** Distance from the effective pocket center supplied by glove/body geometry. */
   pocketOffsetMeters: number;
@@ -60,6 +61,29 @@ const subtract = (first: Vec3, second: Vec3): Vec3 => ({
   z: first.z - second.z,
 });
 
+const add = (first: Vec3, second: Vec3): Vec3 => ({
+  x: first.x + second.x,
+  y: first.y + second.y,
+  z: first.z + second.z,
+});
+
+const scale = (value: Vec3, scalar: number): Vec3 => ({
+  x: value.x * scalar,
+  y: value.y * scalar,
+  z: value.z * scalar,
+});
+
+const dot = (first: Vec3, second: Vec3): number =>
+  first.x * second.x + first.y * second.y + first.z * second.z;
+
+const normalize = (value: Vec3): Vec3 => {
+  const lengthSquared = magnitudeSquared(value);
+  if (!Number.isFinite(lengthSquared) || lengthSquared <= 0) {
+    throw new Error('contactNormal must have a finite non-zero length');
+  }
+  return scale(value, 1 / Math.sqrt(lengthSquared));
+};
+
 const validateUnitInterval = (value: number, name: string): void => {
   if (!isFiniteNumber(value) || value < 0 || value > 1) {
     throw new Error(`${name} must be a finite number in [0, 1]`);
@@ -97,7 +121,8 @@ const validateContact = (contact: CatchRetentionContact): void => {
   if (contact.ball.tick !== contact.contactTick || contact.glove.tick !== contact.contactTick) {
     throw new Error('ball and glove states must be sampled at contactTick');
   }
-  if (!isFiniteVec3(contact.ball.velocity) || !isFiniteVec3(contact.ball.spin) ||
+  if (!isFiniteVec3(contact.ball.position) || !isFiniteVec3(contact.ball.velocity) ||
+      !isFiniteVec3(contact.ball.spin) || !isFiniteVec3(contact.glove.position) ||
       !isFiniteVec3(contact.glove.velocity) || !isFiniteVec3(contact.contactNormal)) {
     throw new Error('catch retention vectors must contain finite components');
   }
@@ -149,8 +174,13 @@ export const evaluateCatchRetentionLoad = (
 };
 
 /**
- * Resolves the secure-possession path from retention energy and dissipation rate.
- * Failed-retention live-ball deflection is intentionally added by the next TDD slice.
+ * Resolves physical retention after glove-ball contact.
+ *
+ * A retained ball becomes securely possessed only after the incoming energy has been
+ * dissipated. A failed retention remains a live canonical ball: its normal velocity is
+ * reflected/damped by restitution, tangential velocity is damped by the failed contact,
+ * and spin is damped independently. Calibration values are explicit inputs rather than
+ * hidden success probabilities.
  */
 export const resolveCatchRetention = (
   contact: CatchRetentionContact,
@@ -172,5 +202,31 @@ export const resolveCatchRetention = (
     };
   }
 
-  throw new Error('failed catch retention resolution is not implemented yet');
+  const normal = normalize(contact.contactNormal);
+  const normalSpeed = dot(diagnostics.relativeVelocity, normal);
+  const normalVelocity = scale(normal, normalSpeed);
+  const tangentialVelocity = subtract(diagnostics.relativeVelocity, normalVelocity);
+
+  const postNormalVelocity = normalSpeed < 0
+    ? scale(normal, -parameters.failedContactRestitution * normalSpeed)
+    : normalVelocity;
+  const postTangentialVelocity = scale(
+    tangentialVelocity,
+    1 - parameters.failedTangentialDamping,
+  );
+  const postRelativeVelocity = add(postNormalVelocity, postTangentialVelocity);
+  const postVelocity = add(contact.glove.velocity, postRelativeVelocity);
+  const postSpin = scale(contact.ball.spin, 1 - parameters.failedSpinDamping);
+
+  const liveBall: LiveBallState = {
+    ...contact.ball,
+    tick: contact.contactTick,
+    velocity: postVelocity,
+    spin: postSpin,
+  };
+
+  return {
+    outcome: createLiveBallCatchOutcome(contact.contactTick, liveBall),
+    diagnostics,
+  };
 };
