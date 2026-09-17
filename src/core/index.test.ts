@@ -1,16 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import {
   CORE_PROTOCOL_VERSION,
+  advanceRunnerMotion,
   createLiveBallCatchOutcome,
   createSecuredCatchOutcome,
   evaluateCatchRetentionLoad,
   findBaseTouchTick,
   findFirstTrueTick,
   findGloveBallContactTick,
+  findRunnerBaseTouchTick,
   findSecureCatchTick,
   findTagContactTick,
   findThrowReleaseTick,
+  projectRunnerWorldState,
   resolveCatchRetention,
+  sampleRunnerPhysicalTouchPoint,
+  sampleRunnerRoute,
 } from './index';
 
 describe('core package', () => {
@@ -42,6 +47,14 @@ describe('core package', () => {
 
   it('exposes exact base touch timing through the shared Core API', () => {
     expect(typeof findBaseTouchTick).toBe('function');
+  });
+
+  it('exposes deterministic runner physical movement through the shared Core API', () => {
+    expect(typeof advanceRunnerMotion).toBe('function');
+    expect(typeof sampleRunnerRoute).toBe('function');
+    expect(typeof sampleRunnerPhysicalTouchPoint).toBe('function');
+    expect(typeof findRunnerBaseTouchTick).toBe('function');
+    expect(typeof projectRunnerWorldState).toBe('function');
   });
 
   it('exposes exact physical tag contact timing through the shared Core API', () => {
