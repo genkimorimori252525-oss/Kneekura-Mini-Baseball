@@ -106,4 +106,60 @@ describe('resolveCatchRetention', () => {
       secureTick: 2_000_000,
     });
   });
+
+  it('fails retention when body instability lowers capacity below impact load', () => {
+    const result = resolveCatchRetention(contact({ bodyStability: 0.5 }), parameters);
+
+    expect(result.outcome.kind).toBe('live-ball');
+  });
+
+  it('fails retention when contact lands too far from the pocket center', () => {
+    const result = resolveCatchRetention(contact({ pocketOffsetMeters: 0.08 }), parameters);
+
+    expect(result.outcome.kind).toBe('live-ball');
+  });
+
+  it('allows spin energy to flip an otherwise retained catch into a failure', () => {
+    const marginalParameters = {
+      ...parameters,
+      centerRetentionCapacityJ: 7.5,
+    };
+    const noSpin = resolveCatchRetention(contact(), marginalParameters);
+    const highSpin = resolveCatchRetention(
+      contact({
+        ball: {
+          ...contact().ball,
+          spin: v(0, 100, 0),
+        },
+      }),
+      marginalParameters,
+    );
+
+    expect(noSpin.outcome.kind).toBe('secured');
+    expect(highSpin.outcome.kind).toBe('live-ball');
+  });
+
+  it('returns a deterministic post-contact live ball after failed retention', () => {
+    const incoming = contact({
+      bodyStability: 0.5,
+      ball: {
+        ...contact().ball,
+        velocity: v(5, 0, -10),
+        spin: v(0, 10, 0),
+      },
+    });
+
+    const result = resolveCatchRetention(incoming, parameters);
+
+    expect(result.outcome).toEqual({
+      kind: 'live-ball',
+      gloveContactTick: 2_000_000,
+      ball: {
+        tick: 2_000_000,
+        position: v(0, 1.2, 0),
+        velocity: v(3, 0, 2.5),
+        spin: v(0, 8, 0),
+      },
+    });
+  });
 });
