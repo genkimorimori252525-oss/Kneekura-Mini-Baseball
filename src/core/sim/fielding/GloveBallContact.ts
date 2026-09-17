@@ -1,4 +1,5 @@
 import type { Vec3 } from '../../model/geometry';
+import { quantizeEventTick } from '../ExactEventTime';
 
 export type LiveBallState = Readonly<{
   tick: number;
@@ -20,7 +21,6 @@ export type GloveBallContactParameters = Readonly<{
 }>;
 
 const EPSILON = 1e-12;
-const INTEGER_TICK_TOLERANCE = 1e-9;
 
 const subtract = (a: Vec3, b: Vec3): Vec3 => ({
   x: a.x - b.x,
@@ -37,15 +37,6 @@ const validateParameters = (parameters: GloveBallContactParameters): void => {
   if (parameters.ballRadius <= 0 || parameters.gloveContactRadius <= 0) {
     throw new Error('ballRadius and gloveContactRadius must be positive');
   }
-};
-
-const quantizeEntryTick = (seconds: number, ticksPerSecond: number): number => {
-  const rawTicks = seconds * ticksPerSecond;
-  const nearestInteger = Math.round(rawTicks);
-  if (Math.abs(rawTicks - nearestInteger) <= INTEGER_TICK_TOLERANCE) {
-    return nearestInteger;
-  }
-  return Math.ceil(rawTicks);
 };
 
 export const findGloveBallContactTick = (
@@ -105,10 +96,14 @@ export const findGloveBallContactTick = (
   }
 
   const contactSeconds = Math.max(0, entrySeconds);
-  const offsetTicks = quantizeEntryTick(contactSeconds, parameters.ticksPerSecond);
-  if (offsetTicks > deltaTicks) {
+  const contactTick = quantizeEventTick(
+    ball.tick,
+    contactSeconds,
+    parameters.ticksPerSecond,
+  );
+  if (contactTick - ball.tick > deltaTicks) {
     return null;
   }
 
-  return ball.tick + offsetTicks;
+  return contactTick;
 };
