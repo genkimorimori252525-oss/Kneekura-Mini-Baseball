@@ -6,3 +6,6 @@ export * from './model/CanonicalMatchState';
 export * from './model/CanonicalWorldSnapshot';
 export * from './model/TimedMatchEvent';
 export * from './sim/SimulationClock';
+export * from './sim/contact/BatBallContact';
+export * from './sim/ball/BallFlight';
+export * from './sim/plateAppearance/ContactVerticalSlice';
