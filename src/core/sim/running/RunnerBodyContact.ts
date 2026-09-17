@@ -20,6 +20,8 @@ const validateLead = (name: string, value: number): void => {
   }
 };
 
+const canonicalZero = (value: number): number => value === 0 ? 0 : value;
+
 export const sampleRunnerPhysicalTouchPoint = (
   motion: RunnerMotionState,
   route: RunnerRoute,
@@ -41,8 +43,8 @@ export const sampleRunnerPhysicalTouchPoint = (
     routeDistanceMeters,
     position: routeSample.position,
     velocity: {
-      x: routeSample.tangent.x * motion.speedMps,
-      z: routeSample.tangent.z * motion.speedMps,
+      x: canonicalZero(routeSample.tangent.x * motion.speedMps),
+      z: canonicalZero(routeSample.tangent.z * motion.speedMps),
     },
   };
 };
