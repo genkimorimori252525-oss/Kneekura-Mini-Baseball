@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
   CORE_PROTOCOL_VERSION,
+  createLiveBallCatchOutcome,
+  createSecuredCatchOutcome,
   findBaseTouchTick,
   findFirstTrueTick,
   findGloveBallContactTick,
+  findSecureCatchTick,
   findTagContactTick,
   findThrowReleaseTick,
 } from './index';
@@ -19,6 +22,15 @@ describe('core package', () => {
 
   it('exposes exact glove-ball contact timing through the shared Core API', () => {
     expect(typeof findGloveBallContactTick).toBe('function');
+  });
+
+  it('exposes exact secure catch timing through the shared Core API', () => {
+    expect(typeof findSecureCatchTick).toBe('function');
+  });
+
+  it('exposes catch outcomes that preserve secured and live-ball continuations', () => {
+    expect(typeof createSecuredCatchOutcome).toBe('function');
+    expect(typeof createLiveBallCatchOutcome).toBe('function');
   });
 
   it('exposes exact base touch timing through the shared Core API', () => {
