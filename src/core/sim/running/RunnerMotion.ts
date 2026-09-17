@@ -25,9 +25,21 @@ export type RunnerMotionParameters = Readonly<{
   topSpeedMps: number;
 }>;
 
-type IntegratedMotion = Readonly<{
-  routeDistanceMeters: number;
-  speedMps: number;
+export type RunnerMotionTrajectorySegment = Readonly<{
+  /** Continuous elapsed seconds from the input state's authoritative tick. */
+  startElapsedSeconds: number;
+  endElapsedSeconds: number;
+  startRouteDistanceMeters: number;
+  startSpeedMps: number;
+  /** Constant signed acceleration over this analytic segment. */
+  accelerationMps2: number;
+  driveDirection: RunnerDriveDirection;
+  bodyMode: RunnerBodyMode;
+}>;
+
+export type RunnerMotionTrajectory = Readonly<{
+  segments: readonly RunnerMotionTrajectorySegment[];
+  endState: RunnerMotionState;
 }>;
 
 type ActiveRunnerControl = Readonly<{
@@ -35,11 +47,20 @@ type ActiveRunnerControl = Readonly<{
   bodyMode: RunnerBodyMode;
 }>;
 
+type MutableTrajectoryCursor = {
+  elapsedSeconds: number;
+  routeDistanceMeters: number;
+  speedMps: number;
+  control: ActiveRunnerControl;
+};
+
 const EPSILON = 1e-12;
 
 const isDriveDirection = (value: number): value is RunnerDriveDirection => (
   value === -1 || value === 0 || value === 1
 );
+
+const canonicalZero = (value: number): number => value === 0 || Math.abs(value) <= EPSILON ? 0 : value;
 
 const validateFinite = (name: string, value: number): void => {
   if (!Number.isFinite(value)) {
@@ -108,202 +129,184 @@ const controlForIntent = (intent: RunnerMotionIntent): ActiveRunnerControl => {
   }
 };
 
-const integrateHold = (
-  routeDistanceMeters: number,
-  speedMps: number,
+const appendSegment = (
+  segments: RunnerMotionTrajectorySegment[],
+  cursor: MutableTrajectoryCursor,
+  durationSeconds: number,
+  accelerationMps2: number,
+): void => {
+  if (durationSeconds <= EPSILON) {
+    return;
+  }
+
+  segments.push({
+    startElapsedSeconds: cursor.elapsedSeconds,
+    endElapsedSeconds: cursor.elapsedSeconds + durationSeconds,
+    startRouteDistanceMeters: cursor.routeDistanceMeters,
+    startSpeedMps: cursor.speedMps,
+    accelerationMps2,
+    driveDirection: cursor.control.driveDirection,
+    bodyMode: cursor.control.bodyMode,
+  });
+
+  cursor.routeDistanceMeters +=
+    cursor.speedMps * durationSeconds
+    + 0.5 * accelerationMps2 * durationSeconds * durationSeconds;
+  cursor.speedMps = canonicalZero(cursor.speedMps + accelerationMps2 * durationSeconds);
+  cursor.elapsedSeconds += durationSeconds;
+};
+
+const appendStationary = (
+  segments: RunnerMotionTrajectorySegment[],
+  cursor: MutableTrajectoryCursor,
+  durationSeconds: number,
+): void => {
+  appendSegment(segments, cursor, durationSeconds, 0);
+};
+
+const appendBrakingToZero = (
+  segments: RunnerMotionTrajectorySegment[],
+  cursor: MutableTrajectoryCursor,
   durationSeconds: number,
   brakingMps2: number,
-): IntegratedMotion => {
-  const speedMagnitude = Math.abs(speedMps);
-  if (durationSeconds <= 0 || speedMagnitude <= EPSILON) {
-    return {
-      routeDistanceMeters,
-      speedMps: speedMagnitude <= EPSILON ? 0 : speedMps,
-    };
+): void => {
+  const speedMagnitude = Math.abs(cursor.speedMps);
+  if (speedMagnitude <= EPSILON) {
+    cursor.speedMps = 0;
+    appendStationary(segments, cursor, durationSeconds);
+    return;
   }
 
-  const direction = Math.sign(speedMps);
+  const direction = Math.sign(cursor.speedMps);
   const stopSeconds = speedMagnitude / brakingMps2;
-  if (durationSeconds >= stopSeconds) {
-    const displacement = direction * (
-      speedMagnitude * stopSeconds
-      - 0.5 * brakingMps2 * stopSeconds * stopSeconds
-    );
-    return {
-      routeDistanceMeters: routeDistanceMeters + displacement,
-      speedMps: 0,
-    };
-  }
-
-  const acceleration = -direction * brakingMps2;
-  return {
-    routeDistanceMeters:
-      routeDistanceMeters
-      + speedMps * durationSeconds
-      + 0.5 * acceleration * durationSeconds * durationSeconds,
-    speedMps: speedMps + acceleration * durationSeconds,
-  };
-};
-
-const integrateFromRestTowardDrive = (
-  routeDistanceMeters: number,
-  driveDirection: -1 | 1,
-  durationSeconds: number,
-  parameters: RunnerMotionParameters,
-): IntegratedMotion => {
-  if (durationSeconds <= 0) {
-    return { routeDistanceMeters, speedMps: 0 };
-  }
-
-  const timeToTopSpeed = parameters.topSpeedMps / parameters.accelerationMps2;
-  if (durationSeconds <= timeToTopSpeed) {
-    const acceleration = driveDirection * parameters.accelerationMps2;
-    return {
-      routeDistanceMeters:
-        routeDistanceMeters + 0.5 * acceleration * durationSeconds * durationSeconds,
-      speedMps: acceleration * durationSeconds,
-    };
-  }
-
-  const acceleratedDisplacement = driveDirection * (
-    0.5
-    * parameters.accelerationMps2
-    * timeToTopSpeed
-    * timeToTopSpeed
+  const brakingSeconds = Math.min(durationSeconds, stopSeconds);
+  appendSegment(
+    segments,
+    cursor,
+    brakingSeconds,
+    -direction * brakingMps2,
   );
-  const cruiseSeconds = durationSeconds - timeToTopSpeed;
-  return {
-    routeDistanceMeters:
-      routeDistanceMeters
-      + acceleratedDisplacement
-      + driveDirection * parameters.topSpeedMps * cruiseSeconds,
-    speedMps: driveDirection * parameters.topSpeedMps,
-  };
+
+  const remainingSeconds = durationSeconds - brakingSeconds;
+  if (remainingSeconds > EPSILON) {
+    cursor.speedMps = 0;
+    appendStationary(segments, cursor, remainingSeconds);
+  }
 };
 
-const integrateDrive = (
-  routeDistanceMeters: number,
-  speedMps: number,
-  driveDirection: RunnerDriveDirection,
+const appendAccelerationTowardDrive = (
+  segments: RunnerMotionTrajectorySegment[],
+  cursor: MutableTrajectoryCursor,
   durationSeconds: number,
+  driveDirection: -1 | 1,
   parameters: RunnerMotionParameters,
-): IntegratedMotion => {
-  if (durationSeconds <= 0) {
-    return { routeDistanceMeters, speedMps };
+): void => {
+  if (durationSeconds <= EPSILON) {
+    return;
   }
 
+  const speedMagnitude = Math.abs(cursor.speedMps);
+  const remainingSpeed = Math.max(0, parameters.topSpeedMps - speedMagnitude);
+  const timeToTopSpeed = remainingSpeed / parameters.accelerationMps2;
+  const accelerationSeconds = Math.min(durationSeconds, timeToTopSpeed);
+
+  if (accelerationSeconds > EPSILON) {
+    appendSegment(
+      segments,
+      cursor,
+      accelerationSeconds,
+      driveDirection * parameters.accelerationMps2,
+    );
+  }
+
+  const remainingSeconds = durationSeconds - accelerationSeconds;
+  if (remainingSeconds > EPSILON) {
+    cursor.speedMps = driveDirection * parameters.topSpeedMps;
+    appendSegment(segments, cursor, remainingSeconds, 0);
+  }
+};
+
+const appendUprightDrive = (
+  segments: RunnerMotionTrajectorySegment[],
+  cursor: MutableTrajectoryCursor,
+  durationSeconds: number,
+  parameters: RunnerMotionParameters,
+): void => {
+  const driveDirection = cursor.control.driveDirection;
   if (driveDirection === 0) {
-    return integrateHold(
-      routeDistanceMeters,
-      speedMps,
+    appendBrakingToZero(
+      segments,
+      cursor,
       durationSeconds,
       parameters.brakingMps2,
     );
+    return;
   }
 
-  if (Math.abs(speedMps) <= EPSILON) {
-    return integrateFromRestTowardDrive(
-      routeDistanceMeters,
-      driveDirection,
-      durationSeconds,
-      parameters,
+  if (Math.abs(cursor.speedMps) > EPSILON && Math.sign(cursor.speedMps) !== driveDirection) {
+    const stopSeconds = Math.abs(cursor.speedMps) / parameters.brakingMps2;
+    const brakingSeconds = Math.min(durationSeconds, stopSeconds);
+    appendSegment(
+      segments,
+      cursor,
+      brakingSeconds,
+      driveDirection * parameters.brakingMps2,
     );
-  }
 
-  if (Math.sign(speedMps) !== driveDirection) {
-    const speedMagnitude = Math.abs(speedMps);
-    const stopSeconds = speedMagnitude / parameters.brakingMps2;
-    if (durationSeconds <= stopSeconds) {
-      const acceleration = driveDirection * parameters.brakingMps2;
-      return {
-        routeDistanceMeters:
-          routeDistanceMeters
-          + speedMps * durationSeconds
-          + 0.5 * acceleration * durationSeconds * durationSeconds,
-        speedMps: speedMps + acceleration * durationSeconds,
-      };
+    const remainingSeconds = durationSeconds - brakingSeconds;
+    if (remainingSeconds <= EPSILON) {
+      return;
     }
-
-    const brakingAcceleration = driveDirection * parameters.brakingMps2;
-    const stopDisplacement =
-      speedMps * stopSeconds
-      + 0.5 * brakingAcceleration * stopSeconds * stopSeconds;
-    return integrateFromRestTowardDrive(
-      routeDistanceMeters + stopDisplacement,
+    cursor.speedMps = 0;
+    appendAccelerationTowardDrive(
+      segments,
+      cursor,
+      remainingSeconds,
       driveDirection,
-      durationSeconds - stopSeconds,
       parameters,
     );
+    return;
   }
 
-  const speedMagnitude = Math.min(Math.abs(speedMps), parameters.topSpeedMps);
-  const timeToTopSpeed = (
-    parameters.topSpeedMps - speedMagnitude
-  ) / parameters.accelerationMps2;
-
-  if (timeToTopSpeed <= EPSILON) {
-    return {
-      routeDistanceMeters:
-        routeDistanceMeters + driveDirection * parameters.topSpeedMps * durationSeconds,
-      speedMps: driveDirection * parameters.topSpeedMps,
-    };
+  if (Math.abs(cursor.speedMps) <= EPSILON) {
+    cursor.speedMps = 0;
   }
-
-  if (durationSeconds <= timeToTopSpeed) {
-    const acceleration = driveDirection * parameters.accelerationMps2;
-    return {
-      routeDistanceMeters:
-        routeDistanceMeters
-        + speedMps * durationSeconds
-        + 0.5 * acceleration * durationSeconds * durationSeconds,
-      speedMps: speedMps + acceleration * durationSeconds,
-    };
-  }
-
-  const acceleration = driveDirection * parameters.accelerationMps2;
-  const acceleratedDisplacement =
-    speedMps * timeToTopSpeed
-    + 0.5 * acceleration * timeToTopSpeed * timeToTopSpeed;
-  const cruiseSeconds = durationSeconds - timeToTopSpeed;
-  return {
-    routeDistanceMeters:
-      routeDistanceMeters
-      + acceleratedDisplacement
-      + driveDirection * parameters.topSpeedMps * cruiseSeconds,
-    speedMps: driveDirection * parameters.topSpeedMps,
-  };
-};
-
-const integrateActiveControl = (
-  routeDistanceMeters: number,
-  speedMps: number,
-  control: ActiveRunnerControl,
-  durationSeconds: number,
-  parameters: RunnerMotionParameters,
-): IntegratedMotion => {
-  if (control.bodyMode === 'sliding') {
-    return integrateHold(
-      routeDistanceMeters,
-      speedMps,
-      durationSeconds,
-      parameters.slideDecelerationMps2,
-    );
-  }
-  return integrateDrive(
-    routeDistanceMeters,
-    speedMps,
-    control.driveDirection,
+  appendAccelerationTowardDrive(
+    segments,
+    cursor,
     durationSeconds,
+    driveDirection,
     parameters,
   );
 };
 
-export const advanceRunnerMotion = (
+const appendControlMotion = (
+  segments: RunnerMotionTrajectorySegment[],
+  cursor: MutableTrajectoryCursor,
+  durationSeconds: number,
+  parameters: RunnerMotionParameters,
+): void => {
+  if (durationSeconds <= EPSILON) {
+    return;
+  }
+  if (cursor.control.bodyMode === 'sliding') {
+    appendBrakingToZero(
+      segments,
+      cursor,
+      durationSeconds,
+      parameters.slideDecelerationMps2,
+    );
+    return;
+  }
+  appendUprightDrive(segments, cursor, durationSeconds, parameters);
+};
+
+export const buildRunnerMotionTrajectory = (
   state: RunnerMotionState,
   intent: RunnerMotionIntent,
   deltaTicks: number,
   parameters: RunnerMotionParameters,
-): RunnerMotionState => {
+): RunnerMotionTrajectory => {
   validateParameters(parameters);
   validateState(state, parameters);
   validateIntent(intent);
@@ -319,55 +322,58 @@ export const advanceRunnerMotion = (
     throw new Error('runner intent reaction tick must be a safe integer');
   }
 
-  let routeDistanceMeters = state.routeDistanceMeters;
-  let speedMps = state.speedMps;
-  let control: ActiveRunnerControl = {
-    driveDirection: state.driveDirection,
-    bodyMode: state.bodyMode,
+  const totalSeconds = deltaTicks / parameters.ticksPerSecond;
+  const segments: RunnerMotionTrajectorySegment[] = [];
+  const cursor: MutableTrajectoryCursor = {
+    elapsedSeconds: 0,
+    routeDistanceMeters: state.routeDistanceMeters,
+    speedMps: state.speedMps,
+    control: {
+      driveDirection: state.driveDirection,
+      bodyMode: state.bodyMode,
+    },
   };
-  let cursorTick = state.tick;
 
-  if (cursorTick < reactionTick) {
-    const oldControlEndTick = Math.min(endTick, reactionTick);
-    const durationSeconds = (oldControlEndTick - cursorTick) / parameters.ticksPerSecond;
-    const integrated = integrateActiveControl(
-      routeDistanceMeters,
-      speedMps,
-      control,
-      durationSeconds,
+  if (reactionTick <= state.tick) {
+    cursor.control = controlForIntent(intent);
+    appendControlMotion(segments, cursor, totalSeconds, parameters);
+  } else if (reactionTick >= endTick) {
+    appendControlMotion(segments, cursor, totalSeconds, parameters);
+    if (reactionTick === endTick) {
+      cursor.control = controlForIntent(intent);
+    }
+  } else {
+    const oldControlSeconds = (reactionTick - state.tick) / parameters.ticksPerSecond;
+    appendControlMotion(segments, cursor, oldControlSeconds, parameters);
+    cursor.control = controlForIntent(intent);
+    appendControlMotion(
+      segments,
+      cursor,
+      totalSeconds - oldControlSeconds,
       parameters,
     );
-    routeDistanceMeters = integrated.routeDistanceMeters;
-    speedMps = integrated.speedMps;
-    cursorTick = oldControlEndTick;
-  }
-
-  if (cursorTick >= reactionTick) {
-    control = controlForIntent(intent);
-  }
-
-  if (cursorTick < endTick) {
-    const durationSeconds = (endTick - cursorTick) / parameters.ticksPerSecond;
-    const integrated = integrateActiveControl(
-      routeDistanceMeters,
-      speedMps,
-      control,
-      durationSeconds,
-      parameters,
-    );
-    routeDistanceMeters = integrated.routeDistanceMeters;
-    speedMps = integrated.speedMps;
-  }
-
-  if (Math.abs(speedMps) <= EPSILON) {
-    speedMps = 0;
   }
 
   return {
-    tick: endTick,
-    routeDistanceMeters,
-    speedMps,
-    driveDirection: control.driveDirection,
-    bodyMode: control.bodyMode,
+    segments,
+    endState: {
+      tick: endTick,
+      routeDistanceMeters: cursor.routeDistanceMeters,
+      speedMps: canonicalZero(cursor.speedMps),
+      driveDirection: cursor.control.driveDirection,
+      bodyMode: cursor.control.bodyMode,
+    },
   };
 };
+
+export const advanceRunnerMotion = (
+  state: RunnerMotionState,
+  intent: RunnerMotionIntent,
+  deltaTicks: number,
+  parameters: RunnerMotionParameters,
+): RunnerMotionState => buildRunnerMotionTrajectory(
+  state,
+  intent,
+  deltaTicks,
+  parameters,
+).endState;
