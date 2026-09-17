@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Vec3 } from '../../model/geometry';
 import {
   DEFAULT_CONTACT_PARAMETERS,
+  findBatBallContactTick,
   resolveBatBallContact,
   type BatterSwingState,
   type PitchWorldState,
@@ -67,5 +68,44 @@ describe('resolveBatBallContact', () => {
     expect(speed(normalSwing!.exitVelocity)).toBeGreaterThan(speed(bunt!.exitVelocity));
     expect(normalSwing!.tick).toBe(inputPitch.tick);
     expect(bunt!.tick).toBe(inputPitch.tick);
+  });
+
+  it('finds contact that begins and ends inside one coarse integration interval', () => {
+    const inputPitch: PitchWorldState = {
+      tick: 1_463_000,
+      position: v(0, 1, 0.2),
+      velocity: v(0, 0, -60),
+      spin: v(0, 0, 0),
+    };
+    const inputSwing = swing(0);
+
+    expect(
+      resolveBatBallContact(
+        {
+          ...inputPitch,
+          tick: inputPitch.tick + 5_000,
+          position: v(0, 1, -0.1),
+        },
+        inputSwing,
+        DEFAULT_CONTACT_PARAMETERS,
+      ),
+    ).toBeNull();
+
+    expect(
+      findBatBallContactTick(inputPitch, inputSwing, 5_000, DEFAULT_CONTACT_PARAMETERS),
+    ).toBe(1_465_174);
+  });
+
+  it('uses bat translation when refining the authoritative contact tick', () => {
+    const inputPitch: PitchWorldState = {
+      tick: 1_463_000,
+      position: v(0, 1, 0.2),
+      velocity: v(0, 0, -35),
+      spin: v(0, 0, 0),
+    };
+
+    expect(
+      findBatBallContactTick(inputPitch, swing(20), 5_000, DEFAULT_CONTACT_PARAMETERS),
+    ).toBe(1_465_371);
   });
 });
