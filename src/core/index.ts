@@ -10,6 +10,8 @@ export * from './sim/ExactEventTime';
 export * from './sim/contact/BatBallContact';
 export * from './sim/ball/BallFlight';
 export * from './sim/fielding/GloveBallContact';
+export * from './sim/fielding/SecureCatch';
+export * from './sim/fielding/CatchOutcome';
 export * from './sim/fielding/TagContact';
 export * from './sim/fielding/ThrowRelease';
 export * from './sim/running/BaseTouch';
