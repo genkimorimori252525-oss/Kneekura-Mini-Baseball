@@ -4,6 +4,8 @@ import {
   findBaseTouchTick,
   findFirstTrueTick,
   findGloveBallContactTick,
+  findTagContactTick,
+  findThrowReleaseTick,
 } from './index';
 
 describe('core package', () => {
@@ -21,5 +23,13 @@ describe('core package', () => {
 
   it('exposes exact base touch timing through the shared Core API', () => {
     expect(typeof findBaseTouchTick).toBe('function');
+  });
+
+  it('exposes exact physical tag contact timing through the shared Core API', () => {
+    expect(typeof findTagContactTick).toBe('function');
+  });
+
+  it('exposes exact throw release timing through the shared Core API', () => {
+    expect(typeof findThrowReleaseTick).toBe('function');
   });
 });
