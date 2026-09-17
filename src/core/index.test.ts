@@ -3,12 +3,14 @@ import {
   CORE_PROTOCOL_VERSION,
   createLiveBallCatchOutcome,
   createSecuredCatchOutcome,
+  evaluateCatchRetentionLoad,
   findBaseTouchTick,
   findFirstTrueTick,
   findGloveBallContactTick,
   findSecureCatchTick,
   findTagContactTick,
   findThrowReleaseTick,
+  resolveCatchRetention,
 } from './index';
 
 describe('core package', () => {
@@ -31,6 +33,11 @@ describe('core package', () => {
   it('exposes catch outcomes that preserve secured and live-ball continuations', () => {
     expect(typeof createSecuredCatchOutcome).toBe('function');
     expect(typeof createLiveBallCatchOutcome).toBe('function');
+  });
+
+  it('exposes deterministic catch-retention physics through the shared Core API', () => {
+    expect(typeof evaluateCatchRetentionLoad).toBe('function');
+    expect(typeof resolveCatchRetention).toBe('function');
   });
 
   it('exposes exact base touch timing through the shared Core API', () => {
