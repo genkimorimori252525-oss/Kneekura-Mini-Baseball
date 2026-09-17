@@ -3,6 +3,7 @@ import type { BattedBallInitialState } from '../contact/BatBallContact';
 import {
   DEFAULT_BALL_FLIGHT_PARAMETERS,
   advanceBallState,
+  findGroundContactTick,
   sampleBallFlight,
 } from './BallFlight';
 
@@ -26,6 +27,22 @@ describe('minimal ball flight', () => {
     expect(a.velocity.y).toBeLessThan(state.velocity.y);
   });
 
+  it('finds the authoritative ground contact tick inside an integration step', () => {
+    const state = initial({
+      position: { x: 0, y: 0.04, z: 0 },
+      velocity: { x: 8, y: -1, z: 12 },
+    });
+
+    const contactTick = findGroundContactTick(
+      state,
+      10_000,
+      DEFAULT_BALL_FLIGHT_PARAMETERS,
+    );
+
+    expect(contactTick).toBe(1_466_346);
+    expect(contactTick).not.toBe(state.tick + DEFAULT_BALL_FLIGHT_PARAMETERS.integrationStepTicks);
+  });
+
   it('keeps the ball above the ground and damps horizontal speed on impact', () => {
     const state = initial({
       position: { x: 0, y: 0.04, z: 0 },
@@ -37,6 +54,31 @@ describe('minimal ball flight', () => {
     expect(result.position.y).toBeGreaterThanOrEqual(DEFAULT_BALL_FLIGHT_PARAMETERS.ballRadius);
     expect(Math.abs(result.velocity.x)).toBeLessThan(8);
     expect(Math.abs(result.velocity.z)).toBeLessThan(12);
+  });
+
+  it('does not move ground impact to a different time when integration step size changes', () => {
+    const state = initial({
+      position: { x: 0, y: 0.04, z: 0 },
+      velocity: { x: 8, y: -1, z: 12 },
+    });
+    const fine = {
+      ...DEFAULT_BALL_FLIGHT_PARAMETERS,
+      integrationStepTicks: 2_000,
+    };
+    const coarse = {
+      ...DEFAULT_BALL_FLIGHT_PARAMETERS,
+      integrationStepTicks: 5_000,
+    };
+
+    const fineResult = advanceBallState(state, 10_000, fine);
+    const coarseResult = advanceBallState(state, 10_000, coarse);
+
+    expect(coarseResult.position.x).toBeCloseTo(fineResult.position.x, 9);
+    expect(coarseResult.position.y).toBeCloseTo(fineResult.position.y, 9);
+    expect(coarseResult.position.z).toBeCloseTo(fineResult.position.z, 9);
+    expect(coarseResult.velocity.x).toBeCloseTo(fineResult.velocity.x, 9);
+    expect(coarseResult.velocity.y).toBeCloseTo(fineResult.velocity.y, 9);
+    expect(coarseResult.velocity.z).toBeCloseTo(fineResult.velocity.z, 9);
   });
 
   it('samples an exact deterministic sequence at the requested cadence', () => {
