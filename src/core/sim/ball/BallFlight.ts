@@ -1,4 +1,3 @@
-import type { Vec3 } from '../../model/geometry';
 import { findFirstTrueTick } from '../ExactEventTime';
 import type { BattedBallInitialState } from '../contact/BatBallContact';
 
