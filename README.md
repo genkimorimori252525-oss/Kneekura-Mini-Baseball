@@ -12,6 +12,7 @@ Mini Baseball は Natural Baseball の簡易ルール版ではなく、将来の
 - [試合体験・監督モード・表示設計](docs/game-design/01-manager-experience.md)
 - [NPB規則・能力査定・守備シミュレーション設計](docs/game-design/02-rules-ratings-defense.md)
 - [実装ロードマップと検証計画](docs/game-design/03-roadmap.md)
+- [守備能力・運動モデル設計](docs/game-design/04-defense-ratings.md)
 
 ## 現在の方針
 
@@ -23,4 +24,5 @@ Mini Baseball は Natural Baseball の簡易ルール版ではなく、将来の
 - 監督は打者傾向の真値を読まず、スカウティングから得た推定と不確実性に基づいて守備配置を決める。
 - 守備シフトの効果は安打率への直接補正ではなく、野手の初期位置と到達時間の違いから自然に成績へ反映する。
 - 選手能力は、分かりやすい公開査定と、現実のプレー差を担保する隠し査定に分離する。
+- 守備内部能力は、既存案に `acceleration` と `situationalAwareness` を追加し、それ以外の細分化は独立した必要性を検証してから行う。
 - 守備判断は、チーム性格ではなく勝敗条件を最優先する共通方針とする。サヨナラ負けになる失点を「許容する」判断は作らない。
