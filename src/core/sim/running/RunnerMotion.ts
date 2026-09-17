@@ -1,4 +1,5 @@
 export type RunnerDriveDirection = -1 | 0 | 1;
+export type RunnerBodyMode = 'upright' | 'sliding';
 
 export type RunnerMotionState = Readonly<{
   tick: number;
@@ -7,10 +8,11 @@ export type RunnerMotionState = Readonly<{
   speedMps: number;
   /** Motor command currently active in the body, before any newly issued intent reacts. */
   driveDirection: RunnerDriveDirection;
+  bodyMode: RunnerBodyMode;
 }>;
 
 export type RunnerMotionIntent = Readonly<{
-  kind: 'advance' | 'retreat' | 'hold';
+  kind: 'advance' | 'retreat' | 'hold' | 'slide';
   issuedTick: number;
 }>;
 
@@ -19,12 +21,18 @@ export type RunnerMotionParameters = Readonly<{
   reactionDelayTicks: number;
   accelerationMps2: number;
   brakingMps2: number;
+  slideDecelerationMps2: number;
   topSpeedMps: number;
 }>;
 
 type IntegratedMotion = Readonly<{
   routeDistanceMeters: number;
   speedMps: number;
+}>;
+
+type ActiveRunnerControl = Readonly<{
+  driveDirection: RunnerDriveDirection;
+  bodyMode: RunnerBodyMode;
 }>;
 
 const EPSILON = 1e-12;
@@ -51,6 +59,12 @@ const validateState = (
   if (!isDriveDirection(state.driveDirection)) {
     throw new Error('state.driveDirection must be -1, 0, or 1');
   }
+  if (state.bodyMode !== 'upright' && state.bodyMode !== 'sliding') {
+    throw new Error("state.bodyMode must be 'upright' or 'sliding'");
+  }
+  if (state.bodyMode === 'sliding' && state.driveDirection !== 0) {
+    throw new Error('sliding runner state must not have an active drive direction');
+  }
   if (Math.abs(state.speedMps) - parameters.topSpeedMps > EPSILON) {
     throw new Error('state.speedMps must not exceed topSpeedMps');
   }
@@ -72,6 +86,7 @@ const validateParameters = (parameters: RunnerMotionParameters): void => {
   for (const [name, value] of [
     ['accelerationMps2', parameters.accelerationMps2],
     ['brakingMps2', parameters.brakingMps2],
+    ['slideDecelerationMps2', parameters.slideDecelerationMps2],
     ['topSpeedMps', parameters.topSpeedMps],
   ] as const) {
     if (!Number.isFinite(value) || value <= 0) {
@@ -80,14 +95,16 @@ const validateParameters = (parameters: RunnerMotionParameters): void => {
   }
 };
 
-const driveForIntent = (intent: RunnerMotionIntent): RunnerDriveDirection => {
+const controlForIntent = (intent: RunnerMotionIntent): ActiveRunnerControl => {
   switch (intent.kind) {
     case 'advance':
-      return 1;
+      return { driveDirection: 1, bodyMode: 'upright' };
     case 'retreat':
-      return -1;
+      return { driveDirection: -1, bodyMode: 'upright' };
     case 'hold':
-      return 0;
+      return { driveDirection: 0, bodyMode: 'upright' };
+    case 'slide':
+      return { driveDirection: 0, bodyMode: 'sliding' };
   }
 };
 
@@ -257,6 +274,30 @@ const integrateDrive = (
   };
 };
 
+const integrateActiveControl = (
+  routeDistanceMeters: number,
+  speedMps: number,
+  control: ActiveRunnerControl,
+  durationSeconds: number,
+  parameters: RunnerMotionParameters,
+): IntegratedMotion => {
+  if (control.bodyMode === 'sliding') {
+    return integrateHold(
+      routeDistanceMeters,
+      speedMps,
+      durationSeconds,
+      parameters.slideDecelerationMps2,
+    );
+  }
+  return integrateDrive(
+    routeDistanceMeters,
+    speedMps,
+    control.driveDirection,
+    durationSeconds,
+    parameters,
+  );
+};
+
 export const advanceRunnerMotion = (
   state: RunnerMotionState,
   intent: RunnerMotionIntent,
@@ -280,34 +321,37 @@ export const advanceRunnerMotion = (
 
   let routeDistanceMeters = state.routeDistanceMeters;
   let speedMps = state.speedMps;
-  let driveDirection = state.driveDirection;
+  let control: ActiveRunnerControl = {
+    driveDirection: state.driveDirection,
+    bodyMode: state.bodyMode,
+  };
   let cursorTick = state.tick;
 
   if (cursorTick < reactionTick) {
-    const oldDriveEndTick = Math.min(endTick, reactionTick);
-    const durationSeconds = (oldDriveEndTick - cursorTick) / parameters.ticksPerSecond;
-    const integrated = integrateDrive(
+    const oldControlEndTick = Math.min(endTick, reactionTick);
+    const durationSeconds = (oldControlEndTick - cursorTick) / parameters.ticksPerSecond;
+    const integrated = integrateActiveControl(
       routeDistanceMeters,
       speedMps,
-      driveDirection,
+      control,
       durationSeconds,
       parameters,
     );
     routeDistanceMeters = integrated.routeDistanceMeters;
     speedMps = integrated.speedMps;
-    cursorTick = oldDriveEndTick;
+    cursorTick = oldControlEndTick;
   }
 
   if (cursorTick >= reactionTick) {
-    driveDirection = driveForIntent(intent);
+    control = controlForIntent(intent);
   }
 
   if (cursorTick < endTick) {
     const durationSeconds = (endTick - cursorTick) / parameters.ticksPerSecond;
-    const integrated = integrateDrive(
+    const integrated = integrateActiveControl(
       routeDistanceMeters,
       speedMps,
-      driveDirection,
+      control,
       durationSeconds,
       parameters,
     );
@@ -323,6 +367,7 @@ export const advanceRunnerMotion = (
     tick: endTick,
     routeDistanceMeters,
     speedMps,
-    driveDirection,
+    driveDirection: control.driveDirection,
+    bodyMode: control.bodyMode,
   };
 };
