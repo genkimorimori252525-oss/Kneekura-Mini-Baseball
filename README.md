@@ -15,6 +15,7 @@ Mini Baseball は Natural Baseball の簡易ルール版ではなく、将来の
 - [守備能力・運動モデル設計](docs/game-design/04-defense-ratings.md)
 - [心理・性格・感情マーク設計](docs/game-design/05-psychology-emotion.md)
 - [将来システム設計メモ](docs/game-design/06-future-systems.md)
+- [ドローンアート映像・細密グリッド表示設計](docs/game-design/07-drone-art-presentation.md)
 
 ## 現在の方針
 
@@ -32,3 +33,4 @@ Mini Baseball は Natural Baseball の簡易ルール版ではなく、将来の
 - 感情マークは監督の実用情報であり、演出用の偽マークは出さない。表示は原則1人1個で、最も強く行動へ影響している感情を示す。
 - ポストシーズン、国際大会、優勝直前、首位攻防などの重要度は手動フラグではなく、大会段階・順位・残り試合・優勝/敗退条件などから自動算出し、感情発火のしやすさへ反映する。
 - ABS/チャレンジ、乱闘、PlayCapsule/ハイライト、調子予測、移籍欲求、ドラフト、大会、音響、マルチコメントなどはMatch Coreへ直書きせず、将来の独立サブシステムとして接続する。
+- 打球後のMini表示は **4px細密グリッド・55ms/表示コマ・位置補間なし** を基準とする。滑らかさは見た目用Tweenではなく正史状態の高頻度サンプリングで出し、野手は通常単色、役割色分けはデバッグ時のみ使用する。
