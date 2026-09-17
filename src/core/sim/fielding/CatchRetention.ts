@@ -1,4 +1,9 @@
 import type { Vec3 } from '../../model/geometry';
+import { quantizeEventTick } from '../ExactEventTime';
+import {
+  createSecuredCatchOutcome,
+  type CatchOutcome,
+} from './CatchOutcome';
 import type { GloveWorldState, LiveBallState } from './GloveBallContact';
 
 export type CatchRetentionContact = Readonly<{
@@ -34,6 +39,11 @@ export type CatchRetentionLoadDiagnostics = Readonly<{
   retentionLoadJ: number;
   pocketFactor: number;
   effectiveCapacityJ: number;
+}>;
+
+export type CatchRetentionResolution = Readonly<{
+  outcome: CatchOutcome;
+  diagnostics: CatchRetentionLoadDiagnostics;
 }>;
 
 const isFiniteNumber = (value: number): boolean => Number.isFinite(value);
@@ -136,4 +146,31 @@ export const evaluateCatchRetentionLoad = (
     pocketFactor,
     effectiveCapacityJ,
   };
+};
+
+/**
+ * Resolves the secure-possession path from retention energy and dissipation rate.
+ * Failed-retention live-ball deflection is intentionally added by the next TDD slice.
+ */
+export const resolveCatchRetention = (
+  contact: CatchRetentionContact,
+  parameters: CatchRetentionParameters,
+): CatchRetentionResolution => {
+  const diagnostics = evaluateCatchRetentionLoad(contact, parameters);
+
+  if (diagnostics.retentionLoadJ <= diagnostics.effectiveCapacityJ) {
+    const settleSeconds = diagnostics.retentionLoadJ / parameters.captureDissipationPowerW;
+    const secureTick = quantizeEventTick(
+      contact.contactTick,
+      settleSeconds,
+      parameters.ticksPerSecond,
+    );
+
+    return {
+      outcome: createSecuredCatchOutcome(contact.contactTick, secureTick),
+      diagnostics,
+    };
+  }
+
+  throw new Error('failed catch retention resolution is not implemented yet');
 };
