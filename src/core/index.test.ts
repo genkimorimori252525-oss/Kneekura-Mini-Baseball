@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   CORE_PROTOCOL_VERSION,
+  findBaseTouchTick,
   findFirstTrueTick,
   findGloveBallContactTick,
 } from './index';
@@ -16,5 +17,9 @@ describe('core package', () => {
 
   it('exposes exact glove-ball contact timing through the shared Core API', () => {
     expect(typeof findGloveBallContactTick).toBe('function');
+  });
+
+  it('exposes exact base touch timing through the shared Core API', () => {
+    expect(typeof findBaseTouchTick).toBe('function');
   });
 });
