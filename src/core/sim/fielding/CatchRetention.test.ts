@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Vec3 } from '../../model/geometry';
 import {
   evaluateCatchRetentionLoad,
+  resolveCatchRetention,
   type CatchRetentionContact,
   type CatchRetentionParameters,
 } from './CatchRetention';
@@ -73,5 +74,36 @@ describe('evaluateCatchRetentionLoad', () => {
 
     expect(result.pocketFactor).toBeCloseTo(0.6, 12);
     expect(result.effectiveCapacityJ).toBeCloseTo(3, 12);
+  });
+});
+
+describe('resolveCatchRetention', () => {
+  it('establishes secure possession from physical energy dissipation time', () => {
+    const result = resolveCatchRetention(contact(), parameters);
+
+    expect(result.outcome).toEqual({
+      kind: 'secured',
+      gloveContactTick: 2_000_000,
+      secureTick: 2_010_000,
+    });
+    expect(result.diagnostics.retentionLoadJ).toBeCloseTo(7.25, 12);
+    expect(result.diagnostics.effectiveCapacityJ).toBeCloseTo(10, 12);
+  });
+
+  it('secures zero relative-energy contact at the contact tick', () => {
+    const still = contact({
+      ball: {
+        ...contact().ball,
+        velocity: v(0, 0, 0),
+      },
+    });
+
+    const result = resolveCatchRetention(still, parameters);
+
+    expect(result.outcome).toEqual({
+      kind: 'secured',
+      gloveContactTick: 2_000_000,
+      secureTick: 2_000_000,
+    });
   });
 });
