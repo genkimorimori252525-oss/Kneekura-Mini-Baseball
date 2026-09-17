@@ -52,6 +52,7 @@ export type BatBallContactResult = Readonly<{
 }>;
 
 const EPSILON = 1e-12;
+const TICKS_PER_SECOND = 1_000_000;
 
 const add = (a: Vec3, b: Vec3): Vec3 => ({
   x: a.x + b.x,
@@ -122,6 +123,114 @@ const validateParameters = (parameters: ContactParameters): void => {
   if (parameters.spinTransfer < 0) {
     throw new Error('spinTransfer must be non-negative');
   }
+};
+
+const advancePitchForContactSweep = (
+  pitch: PitchWorldState,
+  offsetTicks: number,
+): PitchWorldState => {
+  const dt = offsetTicks / TICKS_PER_SECOND;
+  return {
+    tick: pitch.tick + offsetTicks,
+    position: add(pitch.position, scale(pitch.velocity, dt)),
+    velocity: pitch.velocity,
+    spin: pitch.spin,
+  };
+};
+
+const advanceSwingForContactSweep = (
+  swing: BatterSwingState,
+  offsetTicks: number,
+): BatterSwingState => {
+  const dt = offsetTicks / TICKS_PER_SECOND;
+  const gripTranslation = scale(swing.linearVelocity, dt);
+  const batAxis = subtract(swing.pose.tip, swing.pose.grip);
+  const tipAngularTranslation = scale(cross(swing.angularVelocity, batAxis), dt);
+
+  return {
+    pose: {
+      grip: add(swing.pose.grip, gripTranslation),
+      tip: add(add(swing.pose.tip, gripTranslation), tipAngularTranslation),
+    },
+    linearVelocity: swing.linearVelocity,
+    angularVelocity: swing.angularVelocity,
+  };
+};
+
+const contactSeparation = (
+  pitch: PitchWorldState,
+  swing: BatterSwingState,
+  parameters: ContactParameters,
+): number => {
+  const nearest = closestPointOnSegment(
+    pitch.position,
+    swing.pose.grip,
+    swing.pose.tip,
+  );
+  return magnitude(subtract(pitch.position, nearest.point)) -
+    (parameters.ballRadius + parameters.batRadius);
+};
+
+const maximumContactClosingSpeed = (
+  pitch: PitchWorldState,
+  swing: BatterSwingState,
+): number => {
+  const relativeTranslation = magnitude(subtract(pitch.velocity, swing.linearVelocity));
+  const batLength = magnitude(subtract(swing.pose.tip, swing.pose.grip));
+  return relativeTranslation + magnitude(swing.angularVelocity) * batLength;
+};
+
+export const findBatBallContactTick = (
+  pitch: PitchWorldState,
+  swing: BatterSwingState,
+  deltaTicks: number,
+  parameters: ContactParameters = DEFAULT_CONTACT_PARAMETERS,
+): number | null => {
+  validateParameters(parameters);
+  if (!Number.isSafeInteger(pitch.tick) || pitch.tick < 0) {
+    throw new Error('pitch.tick must be a non-negative safe integer tick');
+  }
+  if (!Number.isInteger(deltaTicks) || deltaTicks < 0) {
+    throw new Error('deltaTicks must be a non-negative integer');
+  }
+  if (!Number.isSafeInteger(pitch.tick + deltaTicks)) {
+    throw new Error('contact search end tick must be a safe integer');
+  }
+
+  if (resolveBatBallContact(pitch, swing, parameters) !== null) {
+    return pitch.tick;
+  }
+  if (deltaTicks === 0) {
+    return null;
+  }
+
+  const maximumClosingSpeed = maximumContactClosingSpeed(pitch, swing);
+  if (maximumClosingSpeed <= EPSILON) {
+    return null;
+  }
+
+  let offsetTicks = 0;
+  while (offsetTicks < deltaTicks) {
+    const sampledPitch = advancePitchForContactSweep(pitch, offsetTicks);
+    const sampledSwing = advanceSwingForContactSweep(swing, offsetTicks);
+    const separation = contactSeparation(sampledPitch, sampledSwing, parameters);
+
+    if (separation <= 0 && resolveBatBallContact(sampledPitch, sampledSwing, parameters) !== null) {
+      return sampledPitch.tick;
+    }
+
+    const safeAdvanceTicks = separation > 0
+      ? Math.floor((separation / maximumClosingSpeed) * TICKS_PER_SECOND) - 1
+      : 1;
+    const advanceTicks = Math.max(1, safeAdvanceTicks);
+    offsetTicks = Math.min(deltaTicks, offsetTicks + advanceTicks);
+  }
+
+  const sampledPitch = advancePitchForContactSweep(pitch, deltaTicks);
+  const sampledSwing = advanceSwingForContactSweep(swing, deltaTicks);
+  return resolveBatBallContact(sampledPitch, sampledSwing, parameters) === null
+    ? null
+    : sampledPitch.tick;
 };
 
 export const resolveBatBallContact = (
