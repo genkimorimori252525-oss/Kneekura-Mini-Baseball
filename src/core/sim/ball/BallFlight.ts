@@ -65,7 +65,7 @@ const advanceStep = (
     };
   }
 
-  const nextPosition: Vec3 = {
+  let nextPosition: Vec3 = {
     x: state.position.x + state.velocity.x * dt,
     y: state.position.y + state.velocity.y * dt + 0.5 * parameters.gravityY * dt * dt,
     z: state.position.z + state.velocity.z * dt,
@@ -77,7 +77,11 @@ const advanceStep = (
   };
 
   if (nextPosition.y < parameters.ballRadius) {
-    nextPosition.y = parameters.ballRadius;
+    nextPosition = {
+      x: nextPosition.x,
+      y: parameters.ballRadius,
+      z: nextPosition.z,
+    };
     if (nextVelocity.y < 0) {
       const reflectedY = -nextVelocity.y * parameters.groundRestitution;
       nextVelocity = {
