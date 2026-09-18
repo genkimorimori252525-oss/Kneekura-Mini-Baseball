@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   CORE_PROTOCOL_VERSION,
+  NPB_2026_RULE_PROFILE,
   advanceDefenderMotion,
   advanceRunnerMotion,
   assessPerceivedGloveTarget,
@@ -22,6 +23,8 @@ import {
   createSecuredCatchOutcome,
   createTagContactPrimitiveFromDefenderPrimitive,
   applyCatchExecutionTargetError,
+  asRuleProfileId,
+  assertMatchRuleProfile,
   applyForceOutRuleResultToState,
   evaluateCatchBodyStability,
   evaluateCatchRetentionLoad,
@@ -29,6 +32,8 @@ import {
   evaluateTagUpCompliance,
   decideDefensiveIntent,
   deriveCatchRetentionParameters,
+  evaluateTagUpComplianceForMatch,
+  getRuleProfile,
   evaluateObservationGeometry,
   estimateOcclusionVisibility,
   findAcceleratedGloveBallContactTick,
@@ -40,6 +45,7 @@ import {
   findNextDefensiveReplanTick,
   findFirstTrueTick,
   createAppealWindow,
+  createRuleContext,
   createRunnerPrecedence,
   createAppealScoringOption,
   createThirdOutScoringOption,
@@ -70,6 +76,8 @@ import {
   resolveThirdOutScoring,
   resolveTagArrival,
   resolveTagUpAppeal,
+  resolveTagUpAppealForMatch,
+  resolveAdvantageousFourthOutForMatch,
   resolveTagOutScoringRule,
   resolveDefensiveDecisionTiming,
   resolveCommunicationReception,
@@ -188,6 +196,17 @@ describe('core package', () => {
     expect(typeof resolveBatterRunnerFirstBase).toBe('function');
     expect(typeof resolveThirdOutScoring).toBe('function');
     expect(typeof resolveGroundBallFirstBaseRule).toBe('function');
+  });
+
+  it('exposes the versioned NPB 2026 RuleProfile boundary through Core', () => {
+    expect(asRuleProfileId('npb-2026')).toBe('npb-2026');
+    expect(getRuleProfile(asRuleProfileId('npb-2026')))
+      .toBe(NPB_2026_RULE_PROFILE);
+    expect(typeof createRuleContext).toBe('function');
+    expect(typeof assertMatchRuleProfile).toBe('function');
+    expect(typeof evaluateTagUpComplianceForMatch).toBe('function');
+    expect(typeof resolveTagUpAppealForMatch).toBe('function');
+    expect(typeof resolveAdvantageousFourthOutForMatch).toBe('function');
   });
 
   it('exposes runner-precedence-aware advantageous fourth-out scoring through Core', () => {
