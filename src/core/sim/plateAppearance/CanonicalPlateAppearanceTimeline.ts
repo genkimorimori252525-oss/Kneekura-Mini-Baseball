@@ -24,6 +24,9 @@ import type {
 import type {
   TakenPitchPhysicalResult,
 } from '../pitching/TakenPitchPhysicalResult';
+import type {
+  SwingingPitchPhysicalResult,
+} from '../pitching/SwingingPitchPhysicalResult';
 
 export type CountedPitchAdjudication =
   | Readonly<{ kind: 'ball' }>
@@ -106,6 +109,13 @@ export type CanonicalTakenPitchPhysicalEventPayload = Readonly<{
   result: TakenPitchPhysicalResult;
 }>;
 
+export type CanonicalSwingingMissPhysicalEventPayload = Readonly<{
+  result: Extract<
+    SwingingPitchPhysicalResult,
+    { kind: 'swinging_miss' }
+  >;
+}>;
+
 export type CanonicalLiveBallPlayEndEventPayload = Readonly<{
   playEnd: PlayEndFact;
 }>;
@@ -114,6 +124,10 @@ export type CanonicalPlateAppearanceEvent =
   | TimedMatchEvent<
       'TakenPitchPlateCrossed',
       CanonicalTakenPitchPhysicalEventPayload
+    >
+  | TimedMatchEvent<
+      'SwingCompletedWithoutContact',
+      CanonicalSwingingMissPhysicalEventPayload
     >
   | TimedMatchEvent<
       'PitchAdjudicated',
