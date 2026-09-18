@@ -14,6 +14,9 @@ import type { ForceOutRuleResult } from './ForceOutRule';
 import type { TagArrivalResult } from './TagArrivalRule';
 import { finalizePendingRunsAtPlayEnd, type PlayRunFinalization } from './PlayRunFinalization';
 import type { PlayEndFact } from './PhysicalRuleFacts';
+import { evaluateSustainedTagUpAppealScoring } from './AppealOutScoring';
+import { createAppealScoringOption, selectAdvantageousInningEndingOut, type AdvantageousInningEndingOutResult, type InningEndingScoringOption, type InningEndingScoringOptionSource } from './AdvantageousFourthOut';
+import type { RunnerPrecedence } from './RunnerPrecedence';
 
 export type GroundBallFirstBaseRuleInput = Readonly<{
   outsAtStart: number;
@@ -290,4 +293,31 @@ export const finalizeRulePendingRuns = (
 ): PlayRunFinalization => finalizePendingRunsAtPlayEnd(
   result.pendingHomeTouches,
   playEnd,
+);
+
+
+export type TagUpAppealInningEndingOptionInput = Readonly<{
+  optionId: string;
+  source: InningEndingScoringOptionSource;
+  precedence: RunnerPrecedence;
+  appealOut: Extract<TagUpAppealResult, { kind: 'out' }>;
+  homeTouches: readonly RunnerBaseTouchFact[];
+}>;
+
+export const createTagUpAppealInningEndingOption = (
+  input: TagUpAppealInningEndingOptionInput,
+): InningEndingScoringOption => createAppealScoringOption(
+  input.optionId,
+  input.source,
+  evaluateSustainedTagUpAppealScoring({
+    precedence: input.precedence,
+    appealOut: input.appealOut,
+    homeTouches: input.homeTouches,
+  }),
+);
+
+export const resolveAdvantageousAppealOutOptions = (
+  options: readonly InningEndingScoringOption[],
+): AdvantageousInningEndingOutResult => (
+  selectAdvantageousInningEndingOut(options)
 );
