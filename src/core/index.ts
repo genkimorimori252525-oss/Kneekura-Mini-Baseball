@@ -169,3 +169,7 @@ export * from './validation/CanonicalEvidenceFingerprint';
 export * from './validation/FixedSeedRegressionCorpus';
 export * from './validation/FixedSeedRegressionRunner';
 export * from './validation/CausalDebugTrace';
+export * from './validation/SameContactAlignmentComparison';
+export * from './validation/BatchValidationStatistics';
+export * from './validation/ValidationPerformanceHarness';
+export * from './validation/NaturalReadOnlySnapshot';
