@@ -5,8 +5,15 @@ import type {
   PitchAgainstBatterInput,
 } from '../pitching/PitchAgainstBatter';
 import {
+  advancePlateAppearancePitchSequenceToMatchState,
   resolvePlateAppearancePitchSequenceToMatchState,
 } from './PlateAppearanceSequenceCoordinator';
+import {
+  resolvePlateAppearancePitchSequence,
+} from './PlateAppearancePitchSequence';
+import {
+  recordFoulBattedBall,
+} from './CanonicalPlateAppearanceTimeline';
 
 const match = (
   balls: number,
@@ -161,6 +168,63 @@ describe('PlateAppearanceSequenceCoordinator', () => {
       kind: 'active',
       count: { balls: 0, strikes: 1 },
     });
+  });
+
+  it('resumes the same physical plate appearance after a foul and carries a later strikeout into MatchState', () => {
+    const before = match(0, 1, 1);
+    const contacted = resolvePlateAppearancePitchSequence({
+      match: before,
+      startedAtTick: 1_900_000,
+      pitches: [swinging(2_000_000, 0)],
+    });
+    expect(contacted.kind).toBe('batted_ball_pending');
+    if (contacted.kind !== 'batted_ball_pending') {
+      throw new Error('fixture must produce pending contact');
+    }
+
+    const afterFoul = recordFoulBattedBall(
+      contacted.timeline,
+      2_010_000,
+      false,
+      {
+        kind: 'not_caught',
+        batterRunnerId: 'batter',
+        firstFielderTouchTick: 2_005_000,
+        firstGroundContactTick: 2_010_000,
+        secureCatchTick: 2_020_000,
+      },
+    );
+    expect(afterFoul.status).toEqual({
+      kind: 'active',
+      count: { balls: 0, strikes: 2 },
+    });
+
+    const result = advancePlateAppearancePitchSequenceToMatchState({
+      match: before,
+      batterRunnerId: 'batter',
+      timeline: afterFoul,
+      pitches: [swinging(3_000_000, 1)],
+    });
+
+    expect(result.kind).toBe('complete');
+    if (result.kind !== 'complete') {
+      throw new Error('fixture must complete after resumed strikeout');
+    }
+    expect(result.terminalKind).toBe('strikeout');
+    expect(result.nextMatchState).toEqual({
+      ...before,
+      outs: 2,
+      balls: 0,
+      strikes: 0,
+      playId: 5,
+    });
+    expect(result.timeline.events.map((event) => event.kind))
+      .toEqual([
+        'BatBallContact',
+        'FoulBattedBallResolved',
+        'SwingCompletedWithoutContact',
+        'PitchAdjudicated',
+      ]);
   });
 
   it('returns batted-ball pending without applying a match result before fair/foul and fielding resolve', () => {
