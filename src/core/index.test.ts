@@ -17,7 +17,9 @@ import {
   createControlledRunnerTagFact,
   createDefensiveAppealAttemptFact,
   createDefenderFootPlacementFact,
+  createFirstPostPitchInfielderTouchFact,
   createLiveBallCatchOutcome,
+  createNaturalPlayAdvancementResult,
   createObservationSample,
   createPlayEndFact,
   createRunnerBaseDepartureFact,
@@ -68,11 +70,14 @@ import {
   projectDefenderBodyKinematicsSegment,
   projectDefenderWorldState,
   projectRunnerWorldState,
+  normalizeInningInfieldSideLockViolation,
   resolveCatchRetention,
   resolveAdvantageousAppealOutOptions,
   resolveBatterRunnerFirstBase,
+  resolveDefensiveAlignmentViolationPenaltyForMatch,
   resolveDefensiveMovementTarget,
   resolveGroundBallFirstBaseRule,
+  resolveNPB2026AlignmentViolationPenalty,
   resolveFlyCatch,
   resolveForceOutAtTarget,
   resolveForceOutScoringRule,
@@ -203,6 +208,14 @@ describe('core package', () => {
     expect(typeof resolveBatterRunnerFirstBase).toBe('function');
     expect(typeof resolveThirdOutScoring).toBe('function');
     expect(typeof resolveGroundBallFirstBaseRule).toBe('function');
+  });
+
+  it('exposes NPB 2026 defensive alignment penalty resolution through Core', () => {
+    expect(typeof createFirstPostPitchInfielderTouchFact).toBe('function');
+    expect(typeof normalizeInningInfieldSideLockViolation).toBe('function');
+    expect(typeof createNaturalPlayAdvancementResult).toBe('function');
+    expect(typeof resolveNPB2026AlignmentViolationPenalty).toBe('function');
+    expect(typeof resolveDefensiveAlignmentViolationPenaltyForMatch).toBe('function');
   });
 
   it('exposes NPB half-inning infield side locking through Core', () => {
