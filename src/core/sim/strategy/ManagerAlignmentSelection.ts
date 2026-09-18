@@ -8,6 +8,9 @@ import {
   type DefensiveAlignmentSelectionInput,
   type DefensiveAlignmentSelectionResult,
 } from './DefensiveAlignmentSelection';
+import type {
+  ManagerDefensiveStrategyRatings,
+} from './ManagerDefensiveStrategy';
 
 export type ManagerAlignmentComparisonCalibration = Readonly<{
   minimumComparisonErrorMeters: number;
@@ -145,3 +148,19 @@ export const selectDefensiveAlignmentCandidateForManager = (
     comparisonErrorScaleMeters,
   };
 };
+
+
+export const selectRatedDefensiveAlignmentCandidateForManager = (
+  input: Omit<
+    ManagerAlignmentSelectionInput,
+    'alignmentComparison'
+  > & Readonly<{
+    managerRatings: ManagerDefensiveStrategyRatings;
+  }>,
+): ManagerAlignmentSelectionResult => (
+  selectDefensiveAlignmentCandidateForManager({
+    ...input,
+    alignmentComparison:
+      input.managerRatings.alignmentComparison,
+  })
+);
