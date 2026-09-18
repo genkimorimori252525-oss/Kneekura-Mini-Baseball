@@ -1,5 +1,7 @@
 # Catch Execution Skill Foundation Plan
 
+**Status:** IMPLEMENTATION COMPLETE; repository CI verification blocked because GitHub Actions jobs stop before creating steps.
+
 **Goal:** Make catching/body-control abilities affect physical execution error and difficult-pose stability without introducing a direct catch-success probability.
 
 **Source:** Approved `2026-09-17-time-running-catching-perception-umpire-design.md` §5.3:
@@ -106,3 +108,31 @@ Run full `npm run verify` and record exact test counts.
 - jump/dive stability;
 - catching ability -> retention capacity / impact-spin tolerance calibration;
 - fatigue/context modifiers.
+
+
+---
+
+## Implementation Evidence
+
+Implemented through HEAD `7e3e7d5b5a4634b1ee1f22caa8306f4e5668dad2`:
+- deterministic catching-ability target execution error;
+- caller-supplied calibration range with no hard-coded player error widths;
+- same RNG sample scales continuously with catching ability;
+- target error remains separate from perceived-ball error;
+- body-control ability maps to difficult-reach stability;
+- reach beyond the physical envelope produces zero stability;
+- integration test feeds execution centering + body stability into existing `CatchRetention`;
+- shared Core API exports.
+
+Independent verification while GitHub Actions is unable to start jobs:
+- TypeScript 5.8 source-level check of `CatchExecutionSkill`: success;
+- deterministic numerical integration check: success;
+- same physical incoming ball produced the same retention load (~4.65554 J) for both skill levels;
+- sample low-skill effective retention capacity: ~3.16687 J;
+- sample high-skill effective retention capacity: ~7.35624 J.
+
+Repository CI state:
+- last normal successful P0 Core run: `35301599943` at `4c4b8de0a5ac8845f9aebb4dd138d1d2fd3d495e`;
+- starting with run `35301673476`, jobs fail before any workflow step is created (`steps=null`);
+- the same pre-step failure continues through implementation HEAD run `35302190978`;
+- therefore full repository test count is intentionally not claimed for this phase yet.
