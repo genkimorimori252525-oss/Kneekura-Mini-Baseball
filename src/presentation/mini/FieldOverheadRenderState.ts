@@ -113,7 +113,7 @@ const validateCamera = (
   }
 };
 
-const projectWorldPoint = (
+export const projectFieldOverheadWorldPoint = (
   world: Vec2,
   camera: FieldOverheadCameraCalibration,
 ): MiniScreenPoint => ({
@@ -196,7 +196,7 @@ export const buildFieldOverheadRenderState = (
           x: defender.position.x,
           z: defender.position.z,
         },
-        screenPosition: projectWorldPoint(
+        screenPosition: projectFieldOverheadWorldPoint(
           defender.position,
           input.camera,
         ),
@@ -220,7 +220,7 @@ export const buildFieldOverheadRenderState = (
           x: runner.position.x,
           z: runner.position.z,
         },
-        screenPosition: projectWorldPoint(
+        screenPosition: projectFieldOverheadWorldPoint(
           runner.position,
           input.camera,
         ),
@@ -245,7 +245,7 @@ export const buildFieldOverheadRenderState = (
             y: input.sample.world.ball.position.y,
             z: input.sample.world.ball.position.z,
           },
-          screenPosition: projectWorldPoint(
+          screenPosition: projectFieldOverheadWorldPoint(
             {
               x: input.sample.world.ball.position.x,
               z: input.sample.world.ball.position.z,
