@@ -93,9 +93,15 @@ const serializeCanonicalValue = (
     unknown
   >;
   const keys = Object.keys(record).sort(
-    (first, second) => (
-      first.localeCompare(second)
-    ),
+    (first, second) => {
+      if (first < second) {
+        return -1;
+      }
+      if (first > second) {
+        return 1;
+      }
+      return 0;
+    },
   );
 
   return (

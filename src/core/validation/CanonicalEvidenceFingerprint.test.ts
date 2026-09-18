@@ -141,6 +141,15 @@ describe('CanonicalEvidenceFingerprint', () => {
     );
   });
 
+  it('uses locale-independent code-unit ordering for object keys', () => {
+    expect(canonicalizeEvidence({
+      'ä': 2,
+      z: 1,
+    })).toBe(
+      '{"z":1,"ä":2}',
+    );
+  });
+
   it('returns a fixed-width hexadecimal regression fingerprint', () => {
     expect(
       createCanonicalEvidenceFingerprint({

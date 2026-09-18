@@ -1,4 +1,5 @@
 import {
+  canonicalizeEvidence,
   createCanonicalEvidenceFingerprint,
 } from './CanonicalEvidenceFingerprint';
 import type {
@@ -41,6 +42,14 @@ export type FixedSeedCorpusRunResult = Readonly<{
   matched: number;
   mismatched: number;
 }>;
+
+const cloneCanonical = <T>(
+  value: T,
+): T => (
+  JSON.parse(
+    canonicalizeEvidence(value),
+  ) as T
+);
 
 const createFingerprintEnvelope = (
   scenario: FixedSeedRegressionScenario,
@@ -86,7 +95,26 @@ export const runFixedSeedRegressionCorpus = (
         );
       }
 
-      const evidence = builder(scenario);
+      const scenarioFingerprintBefore =
+        createCanonicalEvidenceFingerprint(
+          scenario,
+        );
+      const evaluationScenario =
+        cloneCanonical(scenario);
+      const evidence = builder(
+        evaluationScenario,
+      );
+
+      if (
+        createCanonicalEvidenceFingerprint(
+          evaluationScenario,
+        ) !== scenarioFingerprintBefore
+      ) {
+        throw new Error(
+          'fixed-seed scenario builder must not mutate scenario input',
+        );
+      }
+
       const observedFingerprint =
         createCanonicalEvidenceFingerprint(
           createFingerprintEnvelope(

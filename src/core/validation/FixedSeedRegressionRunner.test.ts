@@ -158,6 +158,41 @@ describe('FixedSeedRegressionRunner', () => {
     expect(result.mismatched).toBe(1);
   });
 
+  it('rejects a builder that mutates its scenario input without altering the corpus', () => {
+    const corpus = createFixedSeedRegressionCorpus([
+      {
+        scenarioId: 'mutation-guard',
+        matchSeed: 7,
+        startingMatchState,
+        scenarioBuilderId: 'mutating:v1',
+        evidenceClass: 'rules',
+        expectedFingerprint: null,
+      },
+    ]);
+
+    expect(() => runFixedSeedRegressionCorpus(
+      corpus,
+      {
+        'mutating:v1': (scenario) => {
+          (scenario.startingMatchState.score as {
+            away: number;
+            home: number;
+          }).away = 99;
+
+          return {
+            result: 'mutated',
+          };
+        },
+      },
+    )).toThrow(
+      'fixed-seed scenario builder must not mutate scenario input',
+    );
+
+    expect(
+      corpus.scenarios[0].startingMatchState.score.away,
+    ).toBe(0);
+  });
+
   it('fails explicitly when a corpus references an unregistered scenario builder', () => {
     const corpus = createFixedSeedRegressionCorpus([
       {
