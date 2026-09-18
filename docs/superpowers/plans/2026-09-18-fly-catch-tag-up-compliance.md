@@ -1,5 +1,7 @@
 # Fly Catch and Tag-Up Compliance Foundation Plan
 
+**Status:** IMPLEMENTATION COMPLETE; full repository CI remains blocked before workflow steps start.
+
 **Goal:** Add the physical/correct-rule foundation for caught fly balls and runner tag-up compliance while preserving the distinction between first fielder touch, secure catch, and appeal-based outs.
 
 ## Rule-critical timing
@@ -111,3 +113,30 @@ Companion:
 - Infield Fly declaration;
 - dead-ball catch awards;
 - runner leaving a base and later re-touching after multiple intermediate contacts.
+
+
+---
+
+## Implementation Evidence
+
+Implemented through HEAD `11e08e163e3e3a07854e72493ad6423c68da7469`:
+- fly-ball first-fielder-touch physical fact;
+- runner base-departure physical fact;
+- secured fly-catch rule separated from first touch and ground contact;
+- same-tick ground contact/secure-possession treated as not caught;
+- tag-up compliance keyed to first fielder touch rather than secure catch;
+- early departure represented as `appealable_early_departure`, never automatic out;
+- retouch at/after first fielder touch restores compliance;
+- vertical slice proving legal departure during a juggled catch before secure possession;
+- shared Core API exports.
+
+Independent verification:
+- TypeScript 5.8 source-level rules typecheck: success;
+- runtime fly-catch/tag-up fixture: success;
+- first touch 1,000,000; secure catch 1,150,000; departure 1,050,000 => compliant;
+- departure 990,000 without retouch => appealable;
+- retouch 1,010,000 => compliant.
+
+Repository CI:
+- P0 Core run `35306366422` still failed before workflow steps were created;
+- full repository GREEN remains intentionally unclaimed.
