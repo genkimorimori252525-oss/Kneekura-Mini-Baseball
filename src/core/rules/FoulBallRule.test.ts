@@ -38,6 +38,23 @@ describe('FoulBallRule', () => {
     });
   });
 
+  it('resolves a grounded foul without inventing a fielder touch or fly-catch result', () => {
+    expect(resolveFoulBallRule({
+      territory: 'foul',
+      buntAttempt: false,
+      count: { balls: 0, strikes: 1 },
+      flyCatch: null,
+    })).toEqual({
+      kind: 'uncaught_foul',
+      ballDead: true,
+      countResult: {
+        kind: 'continue',
+        count: { balls: 0, strikes: 2 },
+        cause: 'foul',
+      },
+    });
+  });
+
   it('turns an uncaught foul into a dead-ball foul count transition', () => {
     expect(resolveFoulBallRule({
       territory: 'foul',
