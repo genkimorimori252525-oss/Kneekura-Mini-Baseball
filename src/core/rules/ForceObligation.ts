@@ -7,6 +7,7 @@ export type ForceParticipant = Readonly<{
   runnerId: string;
   startBase: ForceParticipantBase;
   active: boolean;
+  obligationSatisfied: boolean;
 }>;
 
 export type ForceObligationState = Readonly<{
@@ -28,6 +29,7 @@ const participantFor = (
   runnerId,
   startBase,
   active: true,
+  obligationSatisfied: false,
 });
 
 export const createInitialForceObligationState = (
@@ -78,12 +80,15 @@ export const deriveCurrentForceObligations = (
     return [];
   }
 
-  const obligations: ForceObligation[] = [{
-    runnerId: batter.runnerId,
-    fromBase: 0,
-    targetBase: 1,
-    classification: 'batter_runner_before_first',
-  }];
+  const obligations: ForceObligation[] = [];
+  if (!batter.obligationSatisfied) {
+    obligations.push({
+      runnerId: batter.runnerId,
+      fromBase: 0,
+      targetBase: 1,
+      classification: 'batter_runner_before_first',
+    });
+  }
 
   for (const fromBase of [1, 2, 3] as const) {
     const previous = activeAtBase(
@@ -96,12 +101,14 @@ export const deriveCurrentForceObligations = (
       break;
     }
 
-    obligations.push({
-      runnerId: current.runnerId,
-      fromBase,
-      targetBase: (fromBase + 1) as BaseballBase,
-      classification: 'force',
-    });
+    if (!current.obligationSatisfied) {
+      obligations.push({
+        runnerId: current.runnerId,
+        fromBase,
+        targetBase: (fromBase + 1) as BaseballBase,
+        classification: 'force',
+      });
+    }
   }
 
   return obligations;
@@ -123,6 +130,38 @@ export const retireForceParticipant = (
     participants: state.participants.map((candidate) => (
       candidate.runnerId === runnerId
         ? { ...candidate, active: false }
+        : candidate
+    )),
+  };
+};
+
+
+export const satisfyForceParticipantObligation = (
+  state: ForceObligationState,
+  runnerId: string,
+): ForceObligationState => {
+  const participant = state.participants.find(
+    (candidate) => candidate.runnerId === runnerId,
+  );
+  if (participant === undefined || !participant.active) {
+    throw new Error('cannot satisfy inactive or unknown force participant');
+  }
+  if (participant.obligationSatisfied) {
+    throw new Error('force participant obligation is already satisfied');
+  }
+
+  const obligation = deriveCurrentForceObligations(state).find(
+    (candidate) => candidate.runnerId === runnerId,
+  );
+  if (obligation === undefined) {
+    throw new Error('cannot satisfy participant without a current obligation');
+  }
+
+  return {
+    batterRunnerId: state.batterRunnerId,
+    participants: state.participants.map((candidate) => (
+      candidate.runnerId === runnerId
+        ? { ...candidate, obligationSatisfied: true }
         : candidate
     )),
   };
