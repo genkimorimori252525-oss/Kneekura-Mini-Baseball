@@ -57,3 +57,6 @@ export * from './rules/FlyCatchRule';
 export * from './rules/TagUpCompliance';
 export * from './rules/AppealWindow';
 export * from './rules/TagUpAppealRule';
+export * from './rules/RunnerPrecedence';
+export * from './rules/AppealOutScoring';
+export * from './rules/AdvantageousFourthOut';
