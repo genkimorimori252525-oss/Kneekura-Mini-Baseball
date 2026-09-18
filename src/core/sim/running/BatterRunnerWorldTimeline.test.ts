@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type { CanonicalWorldSnapshot } from '../../model/CanonicalWorldSnapshot';
 import {
   createBatterRunnerFirstBaseFrame,
   createBatterRunnerFirstBaseRoute,
@@ -10,6 +11,7 @@ import {
   sampleBatterSwingExitRecoveryTrajectory,
 } from './BatterSwingExitRecoveryTrajectory';
 import {
+  applyBatterRunnerWorldTimelineToSnapshot,
   buildBatterRunnerWorldTimeline,
   sampleBatterRunnerWorldTimeline,
 } from './BatterRunnerWorldTimeline';
@@ -193,6 +195,101 @@ describe('unified batter-runner world timeline', () => {
       built.endTick + 1,
     )).toThrow(
       'batter-runner timeline sample tick must lie inside the timeline interval',
+    );
+  });
+
+  it('upserts the authoritative batter runner into a canonical snapshot without changing unrelated world state', () => {
+    const built = timeline();
+    const tick = 1_800_000;
+    const snapshot: CanonicalWorldSnapshot = {
+      tick,
+      defenders: [{
+        playerId: 'pitcher',
+        registeredPosition: 'P',
+        position: { x: 0, z: 18.44 },
+        velocity: { x: 0, z: 0 },
+        assignment: { kind: 'hold' },
+      }],
+      runners: [{
+        playerId: 'r1',
+        position: { x: 10, z: 10 },
+        velocity: { x: 0, z: 0 },
+      }],
+      ball: {
+        position: { x: 2, y: 1, z: 8 },
+        velocity: { x: 12, y: 3, z: 18 },
+        spin: { x: 0, y: 20, z: 0 },
+      },
+    };
+
+    const result = applyBatterRunnerWorldTimelineToSnapshot(
+      snapshot,
+      built,
+    );
+    const expectedBatter = sampleBatterRunnerWorldTimeline(
+      built,
+      tick,
+    ).world;
+
+    expect(result.tick).toBe(snapshot.tick);
+    expect(result.defenders).toBe(snapshot.defenders);
+    expect(result.ball).toBe(snapshot.ball);
+    expect(result.runners).toEqual([
+      snapshot.runners[0],
+      expectedBatter,
+    ]);
+  });
+
+  it('replaces one existing batter entry rather than duplicating it', () => {
+    const built = timeline();
+    const tick = built.recovery.transition.launchTick + 100_000;
+    const snapshot: CanonicalWorldSnapshot = {
+      tick,
+      defenders: [],
+      runners: [{
+        playerId: 'batter',
+        position: { x: 999, z: 999 },
+        velocity: { x: 999, z: 999 },
+      }],
+      ball: null,
+    };
+
+    const result = applyBatterRunnerWorldTimelineToSnapshot(
+      snapshot,
+      built,
+    );
+
+    expect(result.runners).toHaveLength(1);
+    expect(result.runners[0]).toEqual(
+      sampleBatterRunnerWorldTimeline(built, tick).world,
+    );
+  });
+
+  it('rejects an ambiguous snapshot with duplicate batter-runner identities', () => {
+    const built = timeline();
+    const snapshot: CanonicalWorldSnapshot = {
+      tick: 1_800_000,
+      defenders: [],
+      runners: [
+        {
+          playerId: 'batter',
+          position: { x: 0, z: 0 },
+          velocity: { x: 0, z: 0 },
+        },
+        {
+          playerId: 'batter',
+          position: { x: 1, z: 1 },
+          velocity: { x: 0, z: 0 },
+        },
+      ],
+      ball: null,
+    };
+
+    expect(() => applyBatterRunnerWorldTimelineToSnapshot(
+      snapshot,
+      built,
+    )).toThrow(
+      'canonical snapshot must not contain duplicate batter-runner ids',
     );
   });
 
