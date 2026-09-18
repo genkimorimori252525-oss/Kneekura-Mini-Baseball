@@ -8,6 +8,7 @@
 - `docs/game-design/11-world-competition-architecture.md`
 - `docs/game-design/12-competition-identity-hosting.md`
 - `docs/game-design/13-domestic-league-championships.md`
+- `docs/game-design/15-season-events-and-deadlines.md`
 
 ---
 
