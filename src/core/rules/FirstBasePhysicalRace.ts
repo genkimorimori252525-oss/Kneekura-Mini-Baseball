@@ -75,9 +75,42 @@ export type GroundBallFirstBasePhysicalRaceResult = Readonly<{
   ruleEngine: GroundBallFirstBaseRuleEngineResult;
 }>;
 
+const validateSharedPhysicalClock = (
+  input: FirstBasePhysicalRaceInput,
+): void => {
+  const ticksPerSecond =
+    input.timeline.runnerMotionParameters.ticksPerSecond;
+  if (
+    input.defender.reception.glovePrimitive.ticksPerSecond
+      !== ticksPerSecond
+    || input.defender.retentionParameters.ticksPerSecond
+      !== ticksPerSecond
+    || input.defender.contactPrimitives.some(
+      (primitive) => primitive.ticksPerSecond !== ticksPerSecond,
+    )
+  ) {
+    throw new Error(
+      'first-base physical race subsystems must share ticksPerSecond',
+    );
+  }
+
+  if (
+    Math.abs(
+      input.defender.reception.ballRadiusMeters
+      - input.defender.retentionParameters.ballRadiusMeters
+    ) > 1e-12
+  ) {
+    throw new Error(
+      'throw-reception and catch-retention ball radius must match',
+    );
+  }
+};
+
 export const resolveFirstBasePhysicalRace = (
   input: FirstBasePhysicalRaceInput,
 ): FirstBasePhysicalRaceResult => {
+  validateSharedPhysicalClock(input);
+
   const receptionContact =
     createCatchRetentionContactFromAcceleratedReception(
       input.defender.reception,
