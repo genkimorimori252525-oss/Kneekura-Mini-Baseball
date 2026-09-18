@@ -19,6 +19,7 @@ import {
   createBattedBallFlightEvidence,
   createBattedBallFirstFielderTouchTerritory,
   createFairTerritoryWedge,
+  createFairFoulBaseGateGeometry,
   createRunnerMotionStateFromSwingExitTransition,
   buildBatterSwingExitRecoveryTrajectory,
   applyBatterRunnerWorldTimelineToSnapshot,
@@ -75,6 +76,7 @@ import {
   findPitchPlateCrossing,
   classifyFirstGroundContactTerritory,
   findFirstTrueTick,
+  findFirstBaseGatePassageAfterGroundContact,
   createAppealWindow,
   createRuleContext,
   createRunnerPrecedence,
@@ -127,6 +129,7 @@ import {
   resolveInfieldFlyRule,
   resolveWalkForcedAdvancement,
   resolveUntouchedGroundContactBeyondBases,
+  resolveUntouchedBaseGatePassageTerritory,
   createResolvedLiveBallPlateAppearanceFromGroundBallFirstBaseRule,
   completeGroundBallFirstBasePlateAppearance,
   resolveForceOutAtTarget,
@@ -146,6 +149,7 @@ import {
   resolveTakenPitchPhysicalResult,
   resolveAndRecordPitchAgainstBatter,
   resolveAndRecordUntouchedGroundContactBeyondBases,
+  resolveAndRecordPostBounceBaseGatePassage,
   resolveAndRecordFirstFielderTouchTerritory,
   resolvePlateAppearancePitchSequence,
   resolvePlateAppearancePitchSequenceToMatchState,
@@ -155,6 +159,7 @@ import {
   resolveBatterSwingExitRunTransition,
   resolveBatterSwingExitRunTransitionAfterContact,
   recordBatBallContact,
+  recordBattedBallBaseGatePassage,
   recordCountedPitch,
   recordFairBattedBall,
   recordFoulBattedBall,
@@ -349,6 +354,14 @@ describe('core package', () => {
     expect(typeof createBattedBallFirstFielderTouchTerritory).toBe('function');
     expect(typeof resolveFirstFielderTouchTerritory).toBe('function');
     expect(typeof resolveAndRecordFirstFielderTouchTerritory).toBe('function');
+  });
+
+  it('exposes post-bounce base-gate fair-foul chronology through Core', () => {
+    expect(typeof createFairFoulBaseGateGeometry).toBe('function');
+    expect(typeof findFirstBaseGatePassageAfterGroundContact).toBe('function');
+    expect(typeof resolveUntouchedBaseGatePassageTerritory).toBe('function');
+    expect(typeof recordBattedBallBaseGatePassage).toBe('function');
+    expect(typeof resolveAndRecordPostBounceBaseGatePassage).toBe('function');
   });
 
   it('exposes limited physical fair-foul ground adjudication through Core', () => {
