@@ -36,10 +36,18 @@ export type GroundBallFirstBaseCorrectRuleResult =
     kind: 'resolved';
     batterRunnerFirstBase: ResolvedFirstBaseResult;
     outsAfter: number;
-    thirdOut: boolean;
+    thirdOut: false;
+    pendingHomeTouches: readonly RunnerBaseTouchFact[];
+    thirdOutScoring: null;
+  }>
+  | Readonly<{
+    kind: 'resolved';
+    batterRunnerFirstBase: Extract<BatterRunnerFirstBaseResult, { kind: 'out' }>;
+    outsAfter: 3;
+    thirdOut: true;
     runsScored: readonly RunnerBaseTouchFact[];
     runsSuppressed: readonly RunnerBaseTouchFact[];
-    thirdOutScoring: ThirdOutScoringResult | null;
+    thirdOutScoring: Extract<ThirdOutScoringResult, { kind: 'resolved' }>;
   }>
   | Readonly<{
     kind: 'unresolved';
@@ -107,8 +115,7 @@ export const resolveGroundBallFirstBaseRule = (
         batterRunnerFirstBase: firstBase,
         outsAfter: input.outsAtStart,
         thirdOut: false,
-        runsScored: [...input.homeTouches],
-        runsSuppressed: [],
+        pendingHomeTouches: [...input.homeTouches],
         thirdOutScoring: null,
       },
     };
@@ -123,8 +130,7 @@ export const resolveGroundBallFirstBaseRule = (
         batterRunnerFirstBase: firstBase,
         outsAfter,
         thirdOut: false,
-        runsScored: [...input.homeTouches],
-        runsSuppressed: [],
+        pendingHomeTouches: [...input.homeTouches],
         thirdOutScoring: null,
       },
     };
