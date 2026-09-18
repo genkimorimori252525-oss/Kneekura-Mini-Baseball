@@ -52,3 +52,4 @@ export * from './rules/ForceObligation';
 export * from './rules/ForceOutRule';
 export * from './rules/ForceObligationTransition';
 export * from './rules/TagArrivalRule';
+export * from './rules/PlayRunFinalization';
