@@ -409,6 +409,11 @@ describe('P5 team coverage physical vertical slice', () => {
       );
 
     expect(contactTick).not.toBeNull();
+    if (contactTick === null) {
+      throw new Error(
+        'fixture must physically contact first base',
+      );
+    }
     expect(contactTick).toBeLessThan(
       foot.endTick,
     );
