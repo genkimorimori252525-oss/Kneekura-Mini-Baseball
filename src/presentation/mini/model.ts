@@ -43,7 +43,10 @@ export type CanonicalPresentationSample = Readonly<{
   pitcherHandedness?: BatterHandedness;
 }>;
 
-export type MiniCameraMode = 'BATTER_POV' | 'FIELD_OVERHEAD';
+export type MiniCameraMode =
+  | 'BATTER_POV'
+  | 'PITCHER_POV'
+  | 'FIELD_OVERHEAD';
 
 export type MiniPresentationFrame = Readonly<{
   tick: number;
