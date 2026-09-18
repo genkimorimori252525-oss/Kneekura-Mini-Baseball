@@ -4,6 +4,7 @@ import {
   DEFAULT_BALL_FLIGHT_PARAMETERS,
   advanceBallState,
   findGroundContactTick,
+  findGroundRollingStopTick,
   sampleBallFlight,
 } from './BallFlight';
 
@@ -54,6 +55,99 @@ describe('minimal ball flight', () => {
     expect(result.position.y).toBeGreaterThanOrEqual(DEFAULT_BALL_FLIGHT_PARAMETERS.ballRadius);
     expect(Math.abs(result.velocity.x)).toBeLessThan(8);
     expect(Math.abs(result.velocity.z)).toBeLessThan(12);
+  });
+
+  it('decelerates a rolling ground ball continuously instead of letting it roll forever', () => {
+    const state = initial({
+      position: { x: 0, y: DEFAULT_BALL_FLIGHT_PARAMETERS.ballRadius, z: 0 },
+      velocity: { x: 3, y: 0, z: 4 },
+    });
+
+    const result = advanceBallState(
+      state,
+      500_000,
+      {
+        ...DEFAULT_BALL_FLIGHT_PARAMETERS,
+        groundRollingDecelerationMps2: 4,
+      },
+    );
+
+    expect(Math.hypot(
+      result.velocity.x,
+      result.velocity.z,
+    )).toBeCloseTo(3, 12);
+    expect(Math.hypot(
+      result.position.x,
+      result.position.z,
+    )).toBeCloseTo(2, 12);
+  });
+
+  it('finds the authoritative rolling stop tick and remains stopped afterward', () => {
+    const state = initial({
+      tick: 2_000_000,
+      position: { x: 0, y: DEFAULT_BALL_FLIGHT_PARAMETERS.ballRadius, z: 0 },
+      velocity: { x: 3, y: 0, z: 4 },
+    });
+    const parameters = {
+      ...DEFAULT_BALL_FLIGHT_PARAMETERS,
+      groundRollingDecelerationMps2: 4,
+    };
+
+    expect(findGroundRollingStopTick(
+      state,
+      2_000_000,
+      parameters,
+    )).toBe(3_250_000);
+
+    const stopped = advanceBallState(
+      state,
+      2_000_000,
+      parameters,
+    );
+    expect(stopped.tick).toBe(4_000_000);
+    expect(stopped.velocity).toEqual({
+      x: 0,
+      y: 0,
+      z: 0,
+    });
+    expect(Math.hypot(
+      stopped.position.x,
+      stopped.position.z,
+    )).toBeCloseTo(3.125, 12);
+  });
+
+  it('keeps rolling-stop position independent of integration step size', () => {
+    const state = initial({
+      position: { x: 0, y: DEFAULT_BALL_FLIGHT_PARAMETERS.ballRadius, z: 0 },
+      velocity: { x: 6, y: 0, z: 8 },
+    });
+    const fine = {
+      ...DEFAULT_BALL_FLIGHT_PARAMETERS,
+      groundRollingDecelerationMps2: 5,
+      integrationStepTicks: 1_000,
+    };
+    const coarse = {
+      ...fine,
+      integrationStepTicks: 50_000,
+    };
+
+    const fineResult = advanceBallState(
+      state,
+      3_000_000,
+      fine,
+    );
+    const coarseResult = advanceBallState(
+      state,
+      3_000_000,
+      coarse,
+    );
+
+    expect(coarseResult.position.x)
+      .toBeCloseTo(fineResult.position.x, 10);
+    expect(coarseResult.position.z)
+      .toBeCloseTo(fineResult.position.z, 10);
+    expect(coarseResult.velocity)
+      .toEqual(fineResult.velocity);
   });
 
   it('does not move ground impact to a different time when integration step size changes', () => {
