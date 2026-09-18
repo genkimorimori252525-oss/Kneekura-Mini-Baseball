@@ -12,6 +12,7 @@ import {
   recordBatBallContact,
   recordBattedBallFirstGroundContact,
   recordBattedBallBaseGatePassage,
+  recordBattedBallSettlingEvidence,
   recordBattedBallFirstFielderTouch,
   recordCountedPitch,
   recordFairBattedBall,
@@ -218,6 +219,41 @@ describe('CanonicalPlateAppearanceTimeline', () => {
     )).toThrow(
       'plate appearance event tick must not precede the previous event',
     );
+  });
+
+  it('records settled-ball evidence without adjudicating by itself', () => {
+    const contact = physicalContact(3_000_000);
+    let timeline = recordBatBallContact(
+      createCanonicalPlateAppearanceTimeline(
+        match(0, 1),
+        2_900_000,
+      ),
+      contact,
+    );
+
+    timeline = recordBattedBallSettlingEvidence(
+      timeline,
+      {
+        tick: 3_500_000,
+        state: {
+          tick: 3_500_000,
+          position: { x: 0, y: 0.0366, z: 8 },
+          velocity: { x: 0, y: 0, z: 0 },
+          spin: { x: 0, y: 0, z: 0 },
+        },
+        territory: {
+          kind: 'inside_fair_wedge',
+          firstBaseLineSignedSide: 1,
+          thirdBaseLineSignedSide: 1,
+        },
+      },
+    );
+
+    expect(timeline.status.kind).toBe('batted_ball_pending');
+    expect(timeline.events.at(-1)).toMatchObject({
+      tick: 3_500_000,
+      kind: 'BattedBallSettled',
+    });
   });
 
   it('records post-bounce base-gate passage evidence without adjudicating by itself', () => {
