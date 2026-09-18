@@ -36,6 +36,7 @@ export * from './sim/running/RunnerBodyContact';
 export * from './sim/running/RunnerBaseTouch';
 export * from './sim/running/RunnerWorldProjection';
 export * from './sim/running/BatterStanceFirstBaseGeometry';
+export * from './sim/running/BatterSwingExitRunTransition';
 export * from './sim/perception/Observation';
 export * from './sim/perception/ObservationMemory';
 export * from './sim/perception/Communication';
