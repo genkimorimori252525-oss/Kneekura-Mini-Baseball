@@ -62,6 +62,52 @@ const validateTick = (
   }
 };
 
+const DEFENSIVE_POSITIONS = [
+  'P',
+  'C',
+  '1B',
+  '2B',
+  '3B',
+  'SS',
+  'LF',
+  'CF',
+  'RF',
+] as const satisfies readonly DefensivePosition[];
+
+const validateIntent = (
+  intent: DefensiveIntent,
+): void => {
+  switch (intent.kind) {
+    case 'relay':
+    case 'backup':
+    case 'deep_coverage':
+      if (
+        !Number.isFinite(intent.target.x)
+        || !Number.isFinite(intent.target.z)
+      ) {
+        throw new Error(
+          'coverage intent target coordinates must be finite',
+        );
+      }
+      return;
+    case 'base_cover':
+      if (
+        intent.base !== 1
+        && intent.base !== 2
+        && intent.base !== 3
+        && intent.base !== 4
+      ) {
+        throw new Error(
+          'coverage base must be 1, 2, 3, or 4',
+        );
+      }
+      return;
+    case 'ball_handler':
+    case 'hold':
+      return;
+  }
+};
+
 const canonicalIntentKey = (
   intent: DefensiveIntent,
 ): string => {
@@ -179,6 +225,7 @@ const validateInput = (
   }
 
   const seenPlayerIds = new Set<string>();
+  const seenPositions = new Set<DefensivePosition>();
   for (const defender of input.defenders) {
     if (defender.playerId.length === 0) {
       throw new Error(
@@ -192,6 +239,13 @@ const validateInput = (
     }
     seenPlayerIds.add(defender.playerId);
 
+    if (seenPositions.has(defender.registeredPosition)) {
+      throw new Error(
+        'team coverage plan must contain each registered defensive position exactly once',
+      );
+    }
+    seenPositions.add(defender.registeredPosition);
+
     if (defender.candidates.length === 0) {
       throw new Error(
         'every team coverage defender requires at least one intent candidate',
@@ -201,7 +255,18 @@ const validateInput = (
     for (const candidate of defender.candidates) {
       validatePriority(candidate.localPriority);
       validateTick(candidate.evidenceAvailableAt);
+      validateIntent(candidate.intent);
     }
+  }
+
+  if (
+    DEFENSIVE_POSITIONS.some(
+      (position) => !seenPositions.has(position),
+    )
+  ) {
+    throw new Error(
+      'team coverage plan must contain each registered defensive position exactly once',
+    );
   }
 
   return [...input.defenders].sort(
