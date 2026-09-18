@@ -55,6 +55,7 @@ export * from './sim/plateAppearance/ContactVerticalSlice';
 export * from './rules/PhysicalRuleFacts';
 export * from './rules/PitchCountRule';
 export * from './rules/InfieldFlyRule';
+export * from './rules/FoulBallRule';
 export * from './rules/BatterRunnerFirstBaseRule';
 export * from './rules/BatterRunnerFirstBasePhysicalAdapter';
 export * from './rules/FirstBasePhysicalRace';
