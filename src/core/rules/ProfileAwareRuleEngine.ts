@@ -29,6 +29,12 @@ import {
   type PitchReleaseInfieldSideResult,
 } from './PitchReleaseInfieldSideRule';
 import {
+  evaluatePitchingMotionInfieldBoundary,
+  type PitchingMotionInfieldBoundaryInput,
+  type PitchingMotionInfieldBoundaryParameters,
+  type PitchingMotionInfieldBoundaryResult,
+} from './PitchingMotionInfieldBoundaryRule';
+import {
   resolveTagUpAppeal,
   type TagUpAppealInput,
   type TagUpAppealResult,
@@ -122,6 +128,48 @@ export const resolveAdvantageousFourthOutForMatch = (
   }
 
   return selectAdvantageousInningEndingOut(options);
+};
+
+export type ProfileAwarePitchingMotionInfieldBoundaryInput =
+  Omit<PitchingMotionInfieldBoundaryInput, 'parameters'>
+  & Readonly<{
+    parameters: Omit<
+      PitchingMotionInfieldBoundaryParameters,
+      'requiredInfielderCount'
+    >;
+  }>;
+
+export const evaluatePitchingMotionInfieldBoundaryForMatch = (
+  match: CanonicalMatchState,
+  context: RuleContext,
+  input: ProfileAwarePitchingMotionInfieldBoundaryInput,
+): PitchingMotionInfieldBoundaryResult => {
+  assertMatchRuleProfile(match, context);
+
+  const policy = context.profile.defensiveAlignment.infieldBoundary;
+  if (!policy.enabled) {
+    throw new Error(
+      'active rule profile does not enable the infield-boundary restriction',
+    );
+  }
+  if (
+    policy.evaluationMoment !== 'pitching_related_motion_start'
+    || policy.geometrySource !== 'stadium_profile'
+  ) {
+    throw new Error(
+      'unsupported infield-boundary alignment semantics',
+    );
+  }
+
+  return evaluatePitchingMotionInfieldBoundary({
+    ...input,
+    parameters: {
+      requiredInfielderCount:
+        context.profile.defensiveAlignment.requiredInfielderCount,
+      footContactRadiusMeters:
+        input.parameters.footContactRadiusMeters,
+    },
+  });
 };
 
 export const evaluatePitchReleaseInfieldSideForMatch = (
