@@ -4,6 +4,9 @@ import type {
 import type {
   PitchReleaseInfieldSideResult,
 } from './PitchReleaseInfieldSideRule';
+import type {
+  PitchingMotionInfieldBoundaryResult,
+} from './PitchingMotionInfieldBoundaryRule';
 
 export type DefensiveAlignmentViolation =
   | Readonly<{
@@ -79,6 +82,28 @@ export const normalizeInningInfieldSideLockViolation = (
   if (ids.length === 0) {
     throw new Error(
       'alignment lock violation must identify at least one player',
+    );
+  }
+
+  return {
+    kind: 'violation',
+    identity: 'concrete_players',
+    violatingPlayerIds: ids,
+  };
+};
+
+
+export const normalizeInfieldBoundaryViolation = (
+  result: PitchingMotionInfieldBoundaryResult,
+): DefensiveAlignmentViolation => {
+  if (result.kind === 'legal') {
+    return { kind: 'no_violation' };
+  }
+
+  const ids = unique(result.invalidInfielders);
+  if (ids.length === 0) {
+    throw new Error(
+      'infield boundary violation must identify at least one player',
     );
   }
 
