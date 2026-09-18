@@ -1,5 +1,7 @@
 # NPB 2026 Defensive Alignment Violation Penalty Plan
 
+**Status:** IMPLEMENTATION COMPLETE; GitHub Actions remains pre-step blocked.
+
 **Goal:** Resolve the NPB 2026 5.02(c) penalty from an already-established alignment violation, the first post-pitch infielder ball touch, and the natural play advancement result, without rewriting physical truth.
 
 ## Official 2026 penalty branches
@@ -141,3 +143,28 @@ Fixtures:
 - team-only raw 3+1 violation cannot be penalty-resolved without identity evidence.
 
 Run strict TypeScript/runtime verification and retry P0 CI without claiming full repository GREEN while jobs remain pre-step blocked.
+
+
+---
+
+## Completion evidence
+
+Implemented through HEAD `259c0dface31e5615f267fb453bad57a85bcd779`:
+
+- normalized concrete/team-only defensive-alignment violations;
+- first-post-pitch infielder-touch facts;
+- deterministic natural-play advancement analysis;
+- NPB 2026 5.02(c) penalty resolution for play-stands, offense-choice, and ball/dead-ball branches;
+- profile-aware `resolveDefensiveAlignmentViolationPenaltyForMatch` with explicit rejection of unsupported policy ids;
+- shared Core API exports for the alignment-penalty foundation.
+
+TDD checkpoints:
+- `4f92d2b64069f677a4ca06b41d49c4837fed1372` added the profile-aware RED fixture;
+- `aa6ee8e775470163e07cae4b17a770d8393732e7` implemented the RuleProfile-aware resolver;
+- `69b927c5dd4f868fada0bffc2e6776e024a5ed7c` added Core API exposure requirements;
+- `259c0dface31e5615f267fb453bad57a85bcd779` exported the penalty modules through Core.
+
+Repository CI:
+- P0 Core run `35312921359` for HEAD `259c0dfa...` failed before any workflow command executed;
+- job `105498472963` reports `steps=[]`;
+- therefore this phase does not claim full-repository GREEN.
