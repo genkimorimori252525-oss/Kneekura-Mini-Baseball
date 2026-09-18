@@ -22,6 +22,7 @@ import {
   canonicalizeEvidence,
   createCanonicalEvidenceFingerprint,
   createFixedSeedRegressionCorpus,
+  runFixedSeedRegressionCorpus,
   createBatterTrueTendency,
   buildScoutingEstimate,
   createDefensiveAlignment,
@@ -392,6 +393,7 @@ describe('core package', () => {
     expect(typeof canonicalizeEvidence).toBe('function');
     expect(typeof createCanonicalEvidenceFingerprint).toBe('function');
     expect(typeof createFixedSeedRegressionCorpus).toBe('function');
+    expect(typeof runFixedSeedRegressionCorpus).toBe('function');
   });
 
   it('exposes P7 one-command plate-appearance adapter through Core', () => {
