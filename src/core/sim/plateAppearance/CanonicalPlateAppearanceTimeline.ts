@@ -15,11 +15,17 @@ import {
   type PitchCountAdjudication,
   type PitchCountState,
 } from '../../rules/PitchCountRule';
+import {
+  resolveFoulBallRule,
+} from '../../rules/FoulBallRule';
+import type {
+  FlyCatchRuleResult,
+} from '../../rules/FlyCatchRule';
 
-export type CountedPitchAdjudication = Exclude<
-  PitchCountAdjudication,
-  Readonly<{ kind: 'ball_in_play' }>
->;
+export type CountedPitchAdjudication =
+  | Readonly<{ kind: 'ball' }>
+  | Readonly<{ kind: 'called_strike' }>
+  | Readonly<{ kind: 'swinging_strike' }>;
 
 export type CanonicalPlateAppearanceStatus =
   | Readonly<{
@@ -41,15 +47,28 @@ export type CanonicalPlateAppearanceStatus =
     }>;
   }>
   | Readonly<{
+    kind: 'batted_ball_pending';
+    count: PitchCountState;
+    contactTick: number;
+  }>
+  | Readonly<{
     kind: 'live_ball';
     count: PitchCountState;
     contactTick: number;
+    fairDeterminationTick: number;
   }>
   | Readonly<{
     kind: 'live_ball_complete';
     count: PitchCountState;
     contactTick: number;
+    fairDeterminationTick: number;
     playEndTick: number;
+  }>
+  | Readonly<{
+    kind: 'caught_foul_out';
+    count: PitchCountState;
+    contactTick: number;
+    outTick: number;
   }>;
 
 export type PitchAdjudicatedEventPayload = Readonly<{
@@ -61,6 +80,15 @@ export type PitchAdjudicatedEventPayload = Readonly<{
 export type CanonicalBatBallContactEventPayload = Readonly<{
   countBefore: PitchCountState;
   contact: BatBallContactResult;
+}>;
+
+export type CanonicalFairBattedBallEventPayload = Readonly<{
+  contactTick: number;
+}>;
+
+export type CanonicalFoulBattedBallEventPayload = Readonly<{
+  contactTick: number;
+  resolution: ReturnType<typeof resolveFoulBallRule>;
 }>;
 
 export type CanonicalLiveBallPlayEndEventPayload = Readonly<{
@@ -75,6 +103,14 @@ export type CanonicalPlateAppearanceEvent =
   | TimedMatchEvent<
       'BatBallContact',
       CanonicalBatBallContactEventPayload
+    >
+  | TimedMatchEvent<
+      'BattedBallDeclaredFair',
+      CanonicalFairBattedBallEventPayload
+    >
+  | TimedMatchEvent<
+      'FoulBattedBallResolved',
+      CanonicalFoulBattedBallEventPayload
     >
   | TimedMatchEvent<
       'LiveBallPlayEnded',
@@ -168,11 +204,14 @@ export const recordCountedPitch = (
   assertMonotonicTick(timeline, tick);
 
   if (
-    (adjudication as PitchCountAdjudication).kind
-    === 'ball_in_play'
+    ![
+      'ball',
+      'called_strike',
+      'swinging_strike',
+    ].includes((adjudication as PitchCountAdjudication).kind)
   ) {
     throw new Error(
-      'counted pitch adjudication must not be ball_in_play',
+      'counted pitch adjudication must be a non-contact pitch result',
     );
   }
 
@@ -229,16 +268,6 @@ export const recordBatBallContact = (
   const active = assertActive(timeline);
   assertMonotonicTick(timeline, contact.tick);
 
-  const result = resolvePitchCountRule(
-    active.count,
-    { kind: 'ball_in_play' },
-  );
-  if (result.kind !== 'ball_in_play') {
-    throw new Error(
-      'physical bat-ball contact must resolve to ball_in_play',
-    );
-  }
-
   const event: CanonicalPlateAppearanceEvent = {
     tick: contact.tick,
     sequence: timeline.nextSequence,
@@ -254,14 +283,132 @@ export const recordBatBallContact = (
     lastEventTick: contact.tick,
     nextSequence: timeline.nextSequence + 1,
     status: {
-      kind: 'live_ball',
-      count: result.count,
+      kind: 'batted_ball_pending',
+      count: active.count,
       contactTick: contact.tick,
     },
     events: [...timeline.events, event],
   };
 };
 
+
+export const recordFairBattedBall = (
+  timeline: CanonicalPlateAppearanceTimeline,
+  determinationTick: number,
+): CanonicalPlateAppearanceTimeline => {
+  if (timeline.status.kind !== 'batted_ball_pending') {
+    throw new Error(
+      'fair-ball disposition requires a pending batted ball',
+    );
+  }
+  assertMonotonicTick(timeline, determinationTick);
+
+  const event: CanonicalPlateAppearanceEvent = {
+    tick: determinationTick,
+    sequence: timeline.nextSequence,
+    kind: 'BattedBallDeclaredFair',
+    payload: {
+      contactTick: timeline.status.contactTick,
+    },
+  };
+
+  return {
+    ...timeline,
+    lastEventTick: determinationTick,
+    nextSequence: timeline.nextSequence + 1,
+    status: {
+      kind: 'live_ball',
+      count: timeline.status.count,
+      contactTick: timeline.status.contactTick,
+      fairDeterminationTick: determinationTick,
+    },
+    events: [...timeline.events, event],
+  };
+};
+
+export const recordFoulBattedBall = (
+  timeline: CanonicalPlateAppearanceTimeline,
+  resolutionTick: number,
+  buntAttempt: boolean,
+  flyCatch: FlyCatchRuleResult,
+): CanonicalPlateAppearanceTimeline => {
+  if (timeline.status.kind !== 'batted_ball_pending') {
+    throw new Error(
+      'foul-ball disposition requires a pending batted ball',
+    );
+  }
+  assertMonotonicTick(timeline, resolutionTick);
+
+  const resolution = resolveFoulBallRule({
+    territory: 'foul',
+    buntAttempt,
+    count: timeline.status.count,
+    flyCatch,
+  });
+  if (
+    resolution.kind === 'not_foul'
+    || resolution.kind === 'unresolved_foul_fly'
+  ) {
+    throw new Error(
+      'foul ball must be resolved before timeline recording',
+    );
+  }
+
+  const event: CanonicalPlateAppearanceEvent = {
+    tick: resolutionTick,
+    sequence: timeline.nextSequence,
+    kind: 'FoulBattedBallResolved',
+    payload: {
+      contactTick: timeline.status.contactTick,
+      resolution,
+    },
+  };
+
+  if (resolution.kind === 'caught_foul_fly') {
+    return {
+      ...timeline,
+      lastEventTick: resolutionTick,
+      nextSequence: timeline.nextSequence + 1,
+      status: {
+        kind: 'caught_foul_out',
+        count: timeline.status.count,
+        contactTick: timeline.status.contactTick,
+        outTick: resolution.outTick,
+      },
+      events: [...timeline.events, event],
+    };
+  }
+
+  if (resolution.countResult.kind === 'continue') {
+    return {
+      ...timeline,
+      lastEventTick: resolutionTick,
+      nextSequence: timeline.nextSequence + 1,
+      status: {
+        kind: 'active',
+        count: resolution.countResult.count,
+      },
+      events: [...timeline.events, event],
+    };
+  }
+
+  if (resolution.countResult.kind === 'strikeout') {
+    return {
+      ...timeline,
+      lastEventTick: resolutionTick,
+      nextSequence: timeline.nextSequence + 1,
+      status: {
+        kind: 'strikeout',
+        terminalCount: resolution.countResult.terminalCount,
+      },
+      events: [...timeline.events, event],
+    };
+  }
+
+  throw new Error(
+    'uncaught foul produced an invalid count result',
+  );
+};
 
 export const recordLiveBallPlayEnd = (
   timeline: CanonicalPlateAppearanceTimeline,
@@ -296,6 +443,8 @@ export const recordLiveBallPlayEnd = (
       kind: 'live_ball_complete',
       count: timeline.status.count,
       contactTick: timeline.status.contactTick,
+      fairDeterminationTick:
+        timeline.status.fairDeterminationTick,
       playEndTick: playEnd.tick,
     },
     events: [...timeline.events, event],
