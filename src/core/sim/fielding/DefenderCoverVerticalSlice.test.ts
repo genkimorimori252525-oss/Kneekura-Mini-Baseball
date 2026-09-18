@@ -94,6 +94,12 @@ const landmarks: DefensiveFieldLandmarks = {
     3: { x: 0, z: 27.43 },
     4: { x: 0, z: 0 },
   },
+  baseCoverBodyPositions: {
+    1: { x: 26.6, z: 0 },
+    2: { x: 26.9, z: 26.9 },
+    3: { x: 0.15, z: 26.6 },
+    4: { x: 0.6, z: 0.6 },
+  },
 };
 
 describe('individual first-base cover physical vertical slice', () => {
@@ -109,7 +115,7 @@ describe('individual first-base cover physical vertical slice', () => {
       perceivedWorld,
       landmarks,
     );
-    expect(target).toEqual({ x: 27.43, z: 0 });
+    expect(target).toEqual({ x: 26.6, z: 0 });
 
     const commonTick = 1_500_000;
     const fast = advanceDefenderMotion({
