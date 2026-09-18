@@ -34,6 +34,9 @@ import type {
   BattedBallSettlingEvidence,
 } from '../ball/BattedBallSettlingEvidence';
 import type {
+  RollingBattedBallBaseContactEvidence,
+} from '../ball/BattedBallBaseContact';
+import type {
   BattedBallFirstFielderTouchTerritory,
 } from '../fielding/BattedBallFirstFielderTouchTerritory';
 import type {
@@ -133,6 +136,10 @@ export type CanonicalSettledBallEventPayload = Readonly<{
   evidence: BattedBallSettlingEvidence;
 }>;
 
+export type CanonicalFirstThirdBaseContactEventPayload = Readonly<{
+  evidence: RollingBattedBallBaseContactEvidence;
+}>;
+
 export type CanonicalTakenPitchPhysicalEventPayload = Readonly<{
   result: TakenPitchPhysicalResult;
 }>;
@@ -180,6 +187,10 @@ export type CanonicalPlateAppearanceEvent =
   | TimedMatchEvent<
       'BattedBallSettled',
       CanonicalSettledBallEventPayload
+    >
+  | TimedMatchEvent<
+      'BattedBallFirstThirdBaseContact',
+      CanonicalFirstThirdBaseContactEventPayload
     >
   | TimedMatchEvent<
       'BattedBallDeclaredFair',
@@ -488,6 +499,39 @@ export const recordBattedBallSettlingEvidence = (
     tick: evidence.tick,
     sequence: timeline.nextSequence,
     kind: 'BattedBallSettled',
+    payload: {
+      evidence,
+    },
+  };
+
+  return {
+    ...timeline,
+    lastEventTick: evidence.tick,
+    nextSequence: timeline.nextSequence + 1,
+    events: [...timeline.events, event],
+  };
+};
+
+export const recordBattedBallFirstThirdBaseContact = (
+  timeline: CanonicalPlateAppearanceTimeline,
+  evidence: RollingBattedBallBaseContactEvidence,
+): CanonicalPlateAppearanceTimeline => {
+  if (timeline.status.kind !== 'batted_ball_pending') {
+    throw new Error(
+      'first/third-base contact evidence requires a pending batted ball',
+    );
+  }
+  if (evidence.tick < timeline.status.contactTick) {
+    throw new Error(
+      'first/third-base contact must not precede bat-ball contact',
+    );
+  }
+  assertMonotonicTick(timeline, evidence.tick);
+
+  const event: CanonicalPlateAppearanceEvent = {
+    tick: evidence.tick,
+    sequence: timeline.nextSequence,
+    kind: 'BattedBallFirstThirdBaseContact',
     payload: {
       evidence,
     },
