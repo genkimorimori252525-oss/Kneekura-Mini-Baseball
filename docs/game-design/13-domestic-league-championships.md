@@ -115,6 +115,43 @@ Qualification priority:
 
 重複Clubはskipする。
 
+## 3.2.1 EURO_TOP4
+
+欧州用の「年間順位表重視 + 短いPostseason」型。
+
+Regular Season 1位を独立した正史タイトルとして保存する。
+
+```text
+Regular Season
+ -> 1st = RegularSeasonChampion
+
+top 4
+ -> SF: 1st vs 4th  best-of-3
+ -> SF: 2nd vs 3rd  best-of-3
+ -> Final best-of-5
+ -> DomesticChampion
+```
+
+Regular Seasonの価値を消さないため、上位seedへ以下を与える。
+
+- semifinal home-field advantage
+- Final home-field priority
+- Continental qualification priority
+- RegularSeasonChampion title / historical record
+
+Continental qualification priority:
+
+```text
+1. DomesticChampion
+2. RegularSeasonChampion
+3. ChampionshipRunnerUp
+4+. Regular Season standing
+```
+
+同一Club重複はskipする。
+
+Postseasonは「年間順位を無意味にするリセット」ではなく、上位4だけが進めるSeason Finaleとして扱う。
+
 ## 3.3 CONFERENCE_SERIES
 
 複数League / Conference / Zoneから代表を決め、国内Championship Seriesを行う。
@@ -433,9 +470,9 @@ AmBCL qualification:
 
 ---
 
-# 6. Europe — TABLE_TITLE Family
+# 6. Europe — EURO_TOP4 Family
 
-欧州7 Full Leaguesは初期Competition CultureとしてTABLE_TITLEを共通採用する。
+欧州7 Full Leaguesは、初期Competition Cultureとして **EURO_TOP4** を共通採用する。
 
 対象:
 - Netherlands
@@ -446,25 +483,68 @@ AmBCL qualification:
 - Italy
 - Russia
 
-各Leagueの年間table 1位がDomesticChampion。Postseasonなし。
+## Regular Season
 
-EBCL qualification:
+各Leagueは年間順位表を持ち、1位を **RegularSeasonChampion** として正史保存する。
+
+これはPostseason結果とは独立したタイトル。
+
+## Postseason
+
+上位4Clubのみ進出。
 
 ```text
-1st -> automatic champion berth
-2nd -> first coefficient berth
-3rd -> second coefficient berth
-4th -> third coefficient berth
-5th -> fourth coefficient berth
+Semifinal
+1st vs 4th  best-of-3
+2nd vs 3rd  best-of-3
+
+Final
+best-of-5
 ```
 
-理由:
-- Player MarketだけでなくCompetition CultureにもFootball influenceを持たせる
-- 一年間のleague tableに重みがある
-- EBCL qualificationが直感的
-- League title raceとContinental raceを同時に楽しめる
+Final勝者がDomesticChampion。
 
-Domestic Cupは将来候補だが初期設計には入れない。
+Regular Season上位にはhome-field advantageを与える。
+
+## EBCL qualification
+
+CoefficientによるそのLeagueのberth数に応じて:
+
+```text
+1. DomesticChampion
+2. RegularSeasonChampion
+3. ChampionshipRunnerUp
+4+. Regular Season standing
+```
+
+重複Clubはskipする。
+
+例:
+
+```text
+2 berths:
+DomesticChampion
+RegularSeasonChampion
+
+3 berths:
++ ChampionshipRunnerUp
+
+4 berths:
++ highest remaining Regular Season club
+```
+
+## 理由
+
+欧州ではFootball influenceを残しながら、野球ゲームとしてのSeason Finaleも持たせる。
+
+- 年間tableの価値を残す
+- 1位には独立タイトルが残る
+- Top 4以外はPSへ進めない
+- 短いseriesで野球らしい投手層・rotationも問える
+- EBCL出場争いがRegular Season終盤まで続く
+- 国内王者と年間1位が別Clubになる歴史も生まれる
+
+Domestic Cupは将来候補だが、初期設計には入れない。
 
 ---
 
@@ -543,13 +623,13 @@ OBCL initial qualification:
 | Americas | Venezuela | 8 | Top-4 Series |
 | Americas | Puerto Rico | 6 | Top-4 Series |
 | Americas | Cuba | 16 | Conference Series |
-| Europe | Netherlands | 10 | Table Title |
-| Europe | Germany | 12 | Table Title |
-| Europe | France | 10 | Table Title |
-| Europe | Spain | 10 | Table Title |
-| Europe | United Kingdom | 10 | Table Title |
-| Europe | Italy | 12 | Table Title |
-| Europe | Russia | 10 | Table Title |
+| Europe | Netherlands | 10 | Europe Top-4 |
+| Europe | Germany | 12 | Europe Top-4 |
+| Europe | France | 10 | Europe Top-4 |
+| Europe | Spain | 10 | Europe Top-4 |
+| Europe | United Kingdom | 10 | Europe Top-4 |
+| Europe | Italy | 12 | Europe Top-4 |
+| Europe | Russia | 10 | Europe Top-4 |
 | Africa | Pan-African | 12 | Table Title |
 | Oceania | Australia | 8 | Top-4 Series |
 | Oceania | New Zealand / Pacific | 8 | Table Title |
@@ -674,8 +754,8 @@ China 10 -> 14 clubs
 1. DomesticChampionとRegularSeasonWinnerを必要に応じて分離
 2. Asia / Americas / EuropeのDomesticChampionはContinental automatic berth
 3. LeagueCoefficientがberth数、Domestic Resultが出場clubを決める
-4. Europe 7 leaguesはTABLE_TITLE / no postseason
-5. West/South Asia、Pan-Africa、NZ/PacificもTABLE_TITLE
+4. Europe 7 leaguesはEURO_TOP4。Regular Season 1位を独立タイトルとして残し、上位4で短期Postseason
+5. West/South Asia、Pan-Africa、NZ/PacificはTABLE_TITLE
 6. Japan / North America / Mexico / CubaはCONFERENCE_SERIES
 7. KoreaはLADDER
 8. DominicanはWINTER_ROUND_ROBIN
@@ -686,6 +766,20 @@ China 10 -> 14 clubs
 13. Domestic title / pennant / continental qualificationを長期履歴として別保存
 
 ---
+
+## 16.1 Europe Postseason safeguard
+
+欧州PS導入後も、Regular Seasonを無価値化しない。
+
+最低条件:
+
+- PS進出は上位4のみ
+- 1位はRegularSeasonChampionとして独立記録
+- 1位はSFのhome-field advantage
+- 1位はEBCL qualification orderで上位
+- 1位とDomesticChampionが別Clubでも両方を歴史上評価する
+
+これにより「一年の順位表」と「最後の短期決戦」の両方を楽しめる。
 
 # 17. 後続校正
 
