@@ -1,5 +1,7 @@
 # Perceived Glove Reach Foundation Plan
 
+**Status:** COMPLETE — implemented and verified on 2026-09-18.
+
 **Goal:** Turn a defender's own perceived ball state into a physically bounded glove target and executable reach segment, without reading canonical ball truth and without turning reachability into catch success.
 
 **Source:** Approved catching design requires Contact Feasibility to depend on defender body position/velocity, glove reachable region, glove target position, perceived ball motion, and reaction/route/acceleration. Catching skill must not directly become success probability.
@@ -109,3 +111,22 @@ Run full `npm run verify` and record exact test counts.
 - jump/dive/crouch body-origin motion;
 - catching-skill target error distribution;
 - pose stability and body-control coupling into CatchRetention.
+
+
+---
+
+## Completion Evidence
+
+Implemented:
+- perceived-ball-only future glove target assessment;
+- explicit geometric reach-envelope evaluation;
+- physically bounded constant-acceleration glove reach execution;
+- speed and acceleration feasibility limits without direct success probability;
+- integration proof that perception error alone can turn the same canonical ball into contact versus physical miss;
+- shared Core API exports.
+
+Verification at implementation HEAD `4c4b8de0a5ac8845f9aebb4dd138d1d2fd3d495e`:
+- `tsc --noEmit`: success
+- Vitest: 49 test files passed
+- Vitest: 240 tests passed
+- P0 Core run: `35301599943` success
