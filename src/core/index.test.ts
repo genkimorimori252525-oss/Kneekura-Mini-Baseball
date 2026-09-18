@@ -19,6 +19,8 @@ import {
   createPlayerPhysicalProfile,
   createDefensiveRatings,
   createDefensiveRatingProfile,
+  canonicalizeEvidence,
+  createCanonicalEvidenceFingerprint,
   createBatterTrueTendency,
   buildScoutingEstimate,
   createDefensiveAlignment,
@@ -383,6 +385,11 @@ describe('core package', () => {
     expect(typeof buildPerceivedPickoffThreatCue).toBe('function');
     expect(typeof buildStealDefenseTimeline).toBe('function');
     expect(typeof createControlledTagFactFromStealDefense).toBe('function');
+  });
+
+  it('exposes P9 canonical evidence fingerprint through Core', () => {
+    expect(typeof canonicalizeEvidence).toBe('function');
+    expect(typeof createCanonicalEvidenceFingerprint).toBe('function');
   });
 
   it('exposes P7 one-command plate-appearance adapter through Core', () => {
