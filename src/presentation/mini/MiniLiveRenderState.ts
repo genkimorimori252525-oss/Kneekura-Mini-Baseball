@@ -9,6 +9,10 @@ import {
   type BatterPovRenderState,
 } from './BatterPovRenderState';
 import {
+  buildPitcherPovRenderState,
+  type PitcherPovRenderState,
+} from './PitcherPovRenderState';
+import {
   buildFieldOverheadRenderState,
   type FieldOverheadCameraCalibration,
   type FieldOverheadRenderState,
@@ -24,6 +28,10 @@ export type MiniLiveRenderState =
   | Readonly<{
       cameraMode: 'BATTER_POV';
       render: BatterPovRenderState;
+    }>
+  | Readonly<{
+      cameraMode: 'PITCHER_POV';
+      render: PitcherPovRenderState;
     }>
   | Readonly<{
       cameraMode: 'FIELD_OVERHEAD';
@@ -49,6 +57,15 @@ export const buildMiniLiveRenderState = (
     return {
       cameraMode: 'BATTER_POV',
       render: buildBatterPovRenderState(
+        input.frame.sample,
+      ),
+    };
+  }
+
+  if (input.frame.cameraMode === 'PITCHER_POV') {
+    return {
+      cameraMode: 'PITCHER_POV',
+      render: buildPitcherPovRenderState(
         input.frame.sample,
       ),
     };
