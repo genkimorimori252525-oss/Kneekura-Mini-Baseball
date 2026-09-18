@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { BaseTouchRegion } from '../sim/running/BaseTouch';
+import { createSecuredCatchOutcome } from '../sim/fielding/CatchOutcome';
+import type { DefenderPhysicalPrimitiveSegment } from '../sim/fielding/DefenderPhysicalPrimitive';
 import type { RunnerBodyContactParameters } from '../sim/running/RunnerBodyContact';
 import {
   buildBatterSwingExitRecoveryTrajectory,
@@ -18,7 +20,9 @@ import {
 } from './PhysicalRuleFacts';
 import {
   createBatterRunnerFirstBaseTouchFactFromTimeline,
+  resolveBatterRunnerFirstBaseFromPhysicalRace,
   resolveBatterRunnerFirstBaseFromTimeline,
+  resolveGroundBallFirstBaseRuleFromPhysicalRace,
   resolveGroundBallFirstBaseRuleFromTimeline,
 } from './BatterRunnerFirstBasePhysicalAdapter';
 
@@ -56,6 +60,21 @@ const bodyParameters: RunnerBodyContactParameters = {
   uprightLeadMeters: 0.25,
   slideLeadMeters: 0.6,
 };
+
+const footOnFirst = (): DefenderPhysicalPrimitiveSegment => ({
+  role: 'left_foot',
+  radius: 0.12,
+  startTick: 0,
+  endTick: 6_000_000,
+  ticksPerSecond: 1_000_000,
+  startCenter: {
+    x: firstBase.center.x,
+    y: 0,
+    z: firstBase.center.z,
+  },
+  startVelocity: { x: 0, y: 0, z: 0 },
+  acceleration: { x: 0, y: 0, z: 0 },
+});
 
 const timeline = () => {
   const recovery = buildBatterSwingExitRecoveryTrajectory(
@@ -174,6 +193,109 @@ describe('BatterRunnerFirstBasePhysicalAdapter', () => {
       runnerId: 'batter',
       base: 1,
       tick: touchTick,
+    });
+  });
+
+  it('resolves a fully physical first-base race OUT when secure possession occurs one tick before runner touch', () => {
+    const built = timeline();
+    const touchTick = findBatterRunnerPostLaunchBaseTouchTick(
+      built,
+      firstBase,
+      bodyParameters,
+    ) as number;
+
+    expect(resolveBatterRunnerFirstBaseFromPhysicalRace({
+      timeline: built,
+      firstBase,
+      bodyParameters,
+      defender: {
+        defenderId: 'first-baseman',
+        securedCatch: createSecuredCatchOutcome(
+          touchTick - 10_000,
+          touchTick - 1,
+        ),
+        controlThroughTick: touchTick + 100_000,
+        contactPrimitives: [footOnFirst()],
+      },
+    })).toMatchObject({
+      kind: 'out',
+      runnerId: 'batter',
+      defenderControlTick: touchTick - 1,
+      runnerTouchTick: touchTick,
+    });
+  });
+
+  it('resolves a fully physical first-base race SAFE when runner touch occurs one tick before secure possession', () => {
+    const built = timeline();
+    const touchTick = findBatterRunnerPostLaunchBaseTouchTick(
+      built,
+      firstBase,
+      bodyParameters,
+    ) as number;
+
+    expect(resolveBatterRunnerFirstBaseFromPhysicalRace({
+      timeline: built,
+      firstBase,
+      bodyParameters,
+      defender: {
+        defenderId: 'first-baseman',
+        securedCatch: createSecuredCatchOutcome(
+          touchTick - 10_000,
+          touchTick + 1,
+        ),
+        controlThroughTick: touchTick + 100_000,
+        contactPrimitives: [footOnFirst()],
+      },
+    })).toMatchObject({
+      kind: 'safe',
+      runnerId: 'batter',
+      touchTick,
+      defenderControlTick: touchTick + 1,
+    });
+  });
+
+  it('keeps two-out batter-runner-before-first scoring semantics in the fully physical race path', () => {
+    const built = timeline();
+    const touchTick = findBatterRunnerPostLaunchBaseTouchTick(
+      built,
+      firstBase,
+      bodyParameters,
+    ) as number;
+    const homeTouch = createRunnerBaseTouchFact(
+      'r3',
+      4,
+      touchTick - 50_000,
+    );
+
+    const result = resolveGroundBallFirstBaseRuleFromPhysicalRace({
+      timeline: built,
+      firstBase,
+      bodyParameters,
+      defender: {
+        defenderId: 'first-baseman',
+        securedCatch: createSecuredCatchOutcome(
+          touchTick - 10_000,
+          touchTick - 1,
+        ),
+        controlThroughTick: touchTick + 100_000,
+        contactPrimitives: [footOnFirst()],
+      },
+      outsAtStart: 2,
+      homeTouches: [homeTouch],
+    });
+
+    expect(result.correctRuleResult).toMatchObject({
+      kind: 'resolved',
+      outsAfter: 3,
+      thirdOut: true,
+      runsScored: [],
+      runsSuppressed: [homeTouch],
+    });
+    expect(result.physicalFacts.defenderControl).toMatchObject({
+      kind: 'controlled_base_contact',
+      defenderId: 'first-baseman',
+      base: 1,
+      tick: touchTick - 1,
     });
   });
 
