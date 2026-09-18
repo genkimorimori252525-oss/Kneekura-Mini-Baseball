@@ -17,6 +17,7 @@ import {
   createControlledBaseContactFactFromDefenderPhysics,
   createBatterStanceGeometry,
   createBattedBallFlightEvidence,
+  createBattedBallFirstFielderTouchTerritory,
   createFairTerritoryWedge,
   createRunnerMotionStateFromSwingExitTransition,
   buildBatterSwingExitRecoveryTrajectory,
@@ -119,6 +120,7 @@ import {
   resolvePitchCountRule,
   resolveFlyCatch,
   resolveFoulBallRule,
+  resolveFirstFielderTouchTerritory,
   resolveHalfInningTransition,
   resolveInfieldFlyRule,
   resolveWalkForcedAdvancement,
@@ -142,6 +144,7 @@ import {
   resolveTakenPitchPhysicalResult,
   resolveAndRecordPitchAgainstBatter,
   resolveAndRecordUntouchedGroundContactBeyondBases,
+  resolveAndRecordFirstFielderTouchTerritory,
   resolvePlateAppearancePitchSequence,
   resolvePlateAppearancePitchSequenceToMatchState,
   resolveSwingingPitchPhysicalResult,
@@ -334,6 +337,12 @@ describe('core package', () => {
     expect(typeof resolveFoulBallRule).toBe('function');
     expect(typeof resolveInfieldFlyRule).toBe('function');
     expect(typeof resolveHalfInningTransition).toBe('function');
+  });
+
+  it('exposes first-fielder-touch fair-foul physical path through Core', () => {
+    expect(typeof createBattedBallFirstFielderTouchTerritory).toBe('function');
+    expect(typeof resolveFirstFielderTouchTerritory).toBe('function');
+    expect(typeof resolveAndRecordFirstFielderTouchTerritory).toBe('function');
   });
 
   it('exposes limited physical fair-foul ground adjudication through Core', () => {
