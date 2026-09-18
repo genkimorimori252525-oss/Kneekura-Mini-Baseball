@@ -139,9 +139,7 @@ describe('SameContactAlignmentComparison', () => {
           evidence: {},
         };
       },
-    })).toThrow(
-      'alignment evaluator must not mutate contact evidence',
-    );
+    })).toThrow();
   });
 
   it('rejects an evaluator that mutates the compared defensive alignment', () => {
@@ -163,9 +161,31 @@ describe('SameContactAlignmentComparison', () => {
           evidence: {},
         };
       },
-    })).toThrow(
-      'alignment evaluator must not mutate defensive alignment',
-    );
+    })).toThrow();
+  });
+
+  it('passes recursively frozen canonical clones to the evaluator', () => {
+    compareSameContactDefensiveAlignments({
+      contacts,
+      alignments: [
+        { alignmentId: 'normal', alignment: normal },
+      ],
+      evaluator: ({ contact, alignment }) => {
+        expect(Object.isFrozen(contact)).toBe(true);
+        expect(Object.isFrozen(contact.evidence)).toBe(true);
+        expect(Object.isFrozen(contact.evidence.target)).toBe(true);
+        expect(Object.isFrozen(alignment)).toBe(true);
+        expect(Object.isFrozen(alignment.defenders)).toBe(true);
+        expect(Object.isFrozen(alignment.defenders[0].start)).toBe(true);
+
+        return {
+          classification: 'out',
+          runsAllowed: 0,
+          extraBasesAllowed: 0,
+          evidence: {},
+        };
+      },
+    });
   });
 
   it('keeps home runs out of fieldable hit-rate denominator', () => {

@@ -184,13 +184,41 @@ describe('FixedSeedRegressionRunner', () => {
           };
         },
       },
-    )).toThrow(
-      'fixed-seed scenario builder must not mutate scenario input',
-    );
+    )).toThrow();
 
     expect(
       corpus.scenarios[0].startingMatchState.score.away,
     ).toBe(0);
+  });
+
+  it('passes a recursively frozen canonical scenario clone to builders', () => {
+    const corpus = createFixedSeedRegressionCorpus([
+      {
+        scenarioId: 'frozen-input',
+        matchSeed: 7,
+        startingMatchState,
+        scenarioBuilderId: 'frozen:v1',
+        evidenceClass: 'rules',
+        expectedFingerprint: null,
+      },
+    ]);
+
+    runFixedSeedRegressionCorpus(
+      corpus,
+      {
+        'frozen:v1': (scenario) => {
+          expect(Object.isFrozen(scenario)).toBe(true);
+          expect(Object.isFrozen(scenario.startingMatchState))
+            .toBe(true);
+          expect(Object.isFrozen(scenario.startingMatchState.score))
+            .toBe(true);
+
+          return {
+            result: 'observed',
+          };
+        },
+      },
+    );
   });
 
   it('fails explicitly when a corpus references an unregistered scenario builder', () => {

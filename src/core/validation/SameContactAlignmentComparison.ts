@@ -104,6 +104,29 @@ const cloneCanonical = <T>(
   ) as T
 );
 
+const deepFreeze = <T>(
+  value: T,
+): T => {
+  if (
+    value === null
+    || typeof value !== 'object'
+    || Object.isFrozen(value)
+  ) {
+    return value;
+  }
+
+  const record = value as Record<
+    string,
+    unknown
+  >;
+
+  for (const key of Object.keys(record)) {
+    deepFreeze(record[key]);
+  }
+
+  return Object.freeze(value);
+};
+
 const validateNonNegativeFinite = (
   name: string,
   value: number,
@@ -266,9 +289,13 @@ export const compareSameContactDefensiveAlignments = <
             );
 
           const evaluationContact =
-            cloneCanonical(contact);
+            deepFreeze(
+              cloneCanonical(contact),
+            );
           const evaluationAlignment =
-            cloneCanonical(candidate.alignment);
+            deepFreeze(
+              cloneCanonical(candidate.alignment),
+            );
 
           const result = input.evaluator({
             contact: evaluationContact,

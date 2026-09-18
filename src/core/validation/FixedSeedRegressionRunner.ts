@@ -51,6 +51,29 @@ const cloneCanonical = <T>(
   ) as T
 );
 
+const deepFreeze = <T>(
+  value: T,
+): T => {
+  if (
+    value === null
+    || typeof value !== 'object'
+    || Object.isFrozen(value)
+  ) {
+    return value;
+  }
+
+  const record = value as Record<
+    string,
+    unknown
+  >;
+
+  for (const key of Object.keys(record)) {
+    deepFreeze(record[key]);
+  }
+
+  return Object.freeze(value);
+};
+
 const createFingerprintEnvelope = (
   scenario: FixedSeedRegressionScenario,
   evidence: unknown,
@@ -100,7 +123,9 @@ export const runFixedSeedRegressionCorpus = (
           scenario,
         );
       const evaluationScenario =
-        cloneCanonical(scenario);
+        deepFreeze(
+          cloneCanonical(scenario),
+        );
       const evidence = builder(
         evaluationScenario,
       );
