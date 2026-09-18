@@ -56,6 +56,7 @@ import {
   createThirdOutScoringOption,
   createTagUpAppealInningEndingOption,
   createExistingThirdOutInningEndingOption,
+  createInfieldBoundaryRegion,
   createInitialForceObligationState,
   deriveCurrentForceObligations,
   findGloveBallContactTick,
@@ -70,6 +71,7 @@ import {
   projectDefenderBodyKinematicsSegment,
   projectDefenderWorldState,
   projectRunnerWorldState,
+  normalizeInfieldBoundaryViolation,
   normalizeInningInfieldSideLockViolation,
   resolveCatchRetention,
   resolveAdvantageousAppealOutOptions,
@@ -89,6 +91,8 @@ import {
   evaluatePitchReleaseInfieldSideForMatch,
   establishInningInfieldSideAssignment,
   evaluateInningInfieldSideLock,
+  evaluatePitchingMotionInfieldBoundary,
+  evaluatePitchingMotionInfieldBoundaryForMatch,
   evaluateInningInfieldSideLockForMatch,
   resolveTagOutScoringRule,
   resolveDefensiveDecisionTiming,
@@ -208,6 +212,13 @@ describe('core package', () => {
     expect(typeof resolveBatterRunnerFirstBase).toBe('function');
     expect(typeof resolveThirdOutScoring).toBe('function');
     expect(typeof resolveGroundBallFirstBaseRule).toBe('function');
+  });
+
+  it('exposes NPB 2026 stadium infield boundary rules through Core', () => {
+    expect(typeof createInfieldBoundaryRegion).toBe('function');
+    expect(typeof evaluatePitchingMotionInfieldBoundary).toBe('function');
+    expect(typeof evaluatePitchingMotionInfieldBoundaryForMatch).toBe('function');
+    expect(typeof normalizeInfieldBoundaryViolation).toBe('function');
   });
 
   it('exposes NPB 2026 defensive alignment penalty resolution through Core', () => {
