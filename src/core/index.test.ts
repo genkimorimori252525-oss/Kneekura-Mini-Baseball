@@ -15,6 +15,8 @@ import {
   createObservationSample,
   createSecuredCatchOutcome,
   createTagContactPrimitiveFromDefenderPrimitive,
+  applyCatchExecutionTargetError,
+  evaluateCatchBodyStability,
   evaluateCatchRetentionLoad,
   decideDefensiveIntent,
   evaluateObservationGeometry,
@@ -119,6 +121,11 @@ describe('core package', () => {
     expect(typeof composeDefenderPhysicalPrimitiveSegment).toBe('function');
     expect(typeof createGloveContactInputFromDefenderPrimitive).toBe('function');
     expect(typeof createTagContactPrimitiveFromDefenderPrimitive).toBe('function');
+  });
+
+  it('exposes catch execution skill physics through the shared Core API', () => {
+    expect(typeof applyCatchExecutionTargetError).toBe('function');
+    expect(typeof evaluateCatchBodyStability).toBe('function');
   });
 
   it('exposes perception-driven glove reach through the shared Core API', () => {
