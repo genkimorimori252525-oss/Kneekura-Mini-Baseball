@@ -948,6 +948,14 @@ development update
 
 ---
 
+## 12.1 Competition Architecture
+
+21リーグを入力とするクラブ・代表の世界大会設計候補は以下へ分離する。
+
+- `docs/game-design/11-world-competition-architecture.md`
+
+11は現在設計候補版であり、ユーザー承認後にCompetition設計の正史文書へ昇格する。
+
 # 13. Competition設計への入力
 
 このWorld League Catalogを前提に、次のCompetition設計を行う。
