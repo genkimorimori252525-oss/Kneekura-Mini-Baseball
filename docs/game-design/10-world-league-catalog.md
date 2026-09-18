@@ -7,6 +7,7 @@
 - `docs/superpowers/specs/2026-09-17-league-ecology-design.md`
 - `docs/game-design/06-future-systems.md`
 - `docs/game-design/09-player-trait-catalog.md`
+- `docs/game-design/13-domestic-league-championships.md`
 
 ---
 
