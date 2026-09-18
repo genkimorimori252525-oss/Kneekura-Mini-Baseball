@@ -59,6 +59,8 @@ export * from './sim/plateAppearance/GroundBallPlateAppearanceCoordinator';
 export * from './sim/pitching/PitchTrajectory';
 export * from './sim/pitching/TakenPitchPhysicalResult';
 export * from './sim/pitching/TakenPitchTimelineAdapter';
+export * from './sim/pitching/SwingingPitchPhysicalResult';
+export * from './sim/pitching/SwingingPitchTimelineAdapter';
 export * from './rules/PhysicalRuleFacts';
 export * from './rules/PitchCountRule';
 export * from './rules/InfieldFlyRule';
