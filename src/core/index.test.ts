@@ -19,6 +19,7 @@ import {
   evaluateCatchBodyStability,
   evaluateCatchRetentionLoad,
   decideDefensiveIntent,
+  deriveCatchRetentionParameters,
   evaluateObservationGeometry,
   estimateOcclusionVisibility,
   findAcceleratedGloveBallContactTick,
@@ -67,6 +68,10 @@ describe('core package', () => {
   it('exposes catch outcomes that preserve secured and live-ball continuations', () => {
     expect(typeof createSecuredCatchOutcome).toBe('function');
     expect(typeof createLiveBallCatchOutcome).toBe('function');
+  });
+
+  it('exposes catch retention skill calibration through the shared Core API', () => {
+    expect(typeof deriveCatchRetentionParameters).toBe('function');
   });
 
   it('exposes deterministic catch-retention physics through the shared Core API', () => {
