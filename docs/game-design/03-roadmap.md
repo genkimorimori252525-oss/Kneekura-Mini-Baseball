@@ -1,7 +1,7 @@
 # 実装ロードマップと検証計画
 
 更新日: 2026-09-18
-状態: P0 完了。P1/P2/P3/P4/P5/P6 は実装完了（CI外部ブロッカー）。P7 を主進行へ移行。P8 は表示基盤・試作のみ、P9 は未着手。
+状態: P0 完了。P1/P2/P3/P4/P5/P6/P7 は実装完了（CI外部ブロッカー）。P8 を主進行へ移行。P9 は未着手。
 
 ## 前提
 
@@ -28,7 +28,7 @@ Mini Baseball は将来の Natural Baseball と別の簡易試合ロジックを
 | P4 | **実装完了（CI外部ブロッカー）** | 真の打者傾向と守備側推定を分離し、`ScoutingEstimate`、不確実性/鮮度、監督情報処理、任意座標9人配置、候補比較、Canonical world投影を受入fixture化 |
 | P5 | **実装完了（CI外部ブロッカー）** | 9人全体の`TeamCoveragePlan`、競合解消、position suitability役割境界、任意シフトworld適用、明示tick再計画、`DefenseContext`、サヨナラ優先`ThrowPlan`、coverage receiver整合、P3 rated 3D throw launch接続を受入fixture化 |
 | P6 | **実装完了（CI外部ブロッカー）** | RunnerDecision/Timing、局面RiskPolicy、守備ギャップ反応、コーチ情報、タッグアップ待機/帰塁、盗塁/牽制知覚、ランダウン、StealDefenseTimeline、物理TagContact→TagArrivalを受入fixture化 |
-| P7 | **本格未着手** | 一打席命令を投球/打撃/走塁intentへ統合するCore adapterが未完 |
+| P7 | **実装完了（CI外部ブロッカー）** | 一打席命令schema、playId拘束session、投手狙い/打者take-swing/timing/走者posture adapter、1命令→複数球正史進行、MatchState更新、risk/no-effect説明を受入fixture化 |
 | P8 | **表示基盤・試作** | Presentation Adapter、Batter POV等は存在するが、最終Mini表示仕様はCore完成後に再接続する。表示を理由にCoreを変更しない |
 | P9 | **未着手** | 大量固定seed検証、Natural読み取り専用契約、統計校正 |
 
@@ -45,8 +45,9 @@ Mini Baseball は将来の Natural Baseball と別の簡易試合ロジックを
 5. ~~P4 スカウティング/守備配置~~ **実装完了**（Actionsは`steps=[]`で未実行）。真値と推定を分離し、任意座標配置・監督比較を実装。
 6. ~~P5 9人守備全体計画~~ **実装完了**（Actionsは`steps=[]`で未実行）。CoveragePlan、ThrowPlan、期待損失比較、物理送球接続を実装。
 7. ~~P6 個別走塁と特殊プレー~~ **実装完了**（Actionsは`steps=[]`で未実行）。走者知覚/判断、盗塁・牽制・ランダウン・コーチ情報を既存RunnerMotion/RuleEngineへ接続。
-8. **現在の主作業: P7 一打席采配接続**。一打席命令を一度だけ受理し、投手/打者/走者intentへ変換しつつP2の各球正史を省略しない。
-9. P8でMiniの点描表示を正史観測者として完成させ、P9でNatural移行と統計を固定する。
+8. ~~P7 一打席采配接続~~ **実装完了**（Actionsは`steps=[]`で未実行）。一度だけ受理した采配をP2/P6の物理intentへ展開し、各球正史とMatchState更新を保持。
+9. **現在の主作業: P8 Miniライブ観測表示**。CanonicalWorldSnapshotを読み取り専用で観測し、点描の選手・ボール・走者・coverage movementを表示する。表示設定はCore結果へ逆流させない。
+10. P9でNatural移行と統計を固定する。
 
 このguardrailにより、今後の守備物理追加は「P5全体のどの受入条件を閉じるか」を明示してから行う。
 
