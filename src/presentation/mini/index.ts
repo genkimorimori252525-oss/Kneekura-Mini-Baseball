@@ -13,3 +13,4 @@ export * from './FieldOverheadProjection';
 export * from './MiniBallTrail';
 export * from './MiniLineScoreState';
 export * from './MiniCommandBandState';
+export * from './MiniPlayerCardState';
