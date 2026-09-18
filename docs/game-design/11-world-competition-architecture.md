@@ -681,18 +681,33 @@ Total floor: 16
 
 本大会4枠を決めるGlobal Qualifierは **16 nations** を基本とする。
 
+予選から全試合 **single-game elimination** とする。
+
 ```text
 16 nations
- -> 4 groups x 4
- -> single round robin
- -> each group winner qualifies
+ -> 4 qualifying pods x 4 nations
+
+each pod:
+  semifinal A: single game
+  semifinal B: single game
+  final: single game
+  winner qualifies
+
+4 pod winners
+ -> WBC-class World Championship
 ```
+
+各国は最大2試合で本大会出場を決める。
+
+「予選だから総当たりで実力を平均化する」のではなく、本大会と同じく一発勝負の緊張感を持たせる。
 
 参加国は各Regional Championshipのdirect berth直下の成績、World Ranking、地域最低保証を組み合わせて選ぶ。
 
 Global Qualifierは一地域だけで埋めない。
 
 少なくとも4地域から参加国を含めることを原則とする。
+
+各Podは原則4地域の混成、または地理・移動負担を考慮した2〜4地域混成とする。
 
 ## 14.3 Format
 
@@ -1112,7 +1127,7 @@ Player:
 11. PrizePoolIndexを初期相対経済尺度として採用
 12. official national-team release obligationを採用
 13. Club World qualificationは直前大陸王者 + 4-year performance ranking方式
-14. WBC Global Qualifierは16 nations -> 4 group winners
+14. WBC Global Qualifierは16 nations -> 4 single-elimination pods -> 4 winners
 15. Major world eventsはContinental / Domesticよりcalendar priorityを持つ
 
 # 24.1 Competition敵対監査
@@ -1120,6 +1135,7 @@ Player:
 確認済み:
 
 - WBC 24 nationsは `12 group top-two + best four third-place = 16` でKnockout数が一致
+- WBC Global Qualifierは4つの4-team Podで、準決勝・決勝ともsingle game
 - Club Worldは `7 automatic + 9 performance = 16`
 - 4年間の大陸王者20クラブを全自動出場させる矛盾を排除
 - 冬季leagueはSeasonIdでqualification yearを扱う
