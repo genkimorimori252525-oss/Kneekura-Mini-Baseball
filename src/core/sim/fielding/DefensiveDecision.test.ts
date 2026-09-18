@@ -1,12 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import type { PlayerPerceivedWorldState } from '../perception/PlayerPerceivedWorldState';
 import {
+  chooseDefensiveIntentCandidate,
+  decideDefensiveIntent,
   generateDefensiveIntentCandidates,
   type DefensiveDecisionInput,
+  type DefensiveIntentCandidate,
   type DefensiveKnownContext,
   type DefensivePerceivedCue,
   type PrePlayDefensivePlan,
 } from './DefensiveDecision';
+import type { DefensiveDecisionTimingParameters } from './DefensiveDecisionTiming';
 
 const perceivedWorld = (): PlayerPerceivedWorldState<DefensiveKnownContext> => ({
   observerId: 'pitcher',
@@ -75,6 +79,12 @@ const input = (
   perceivedCues,
   minimumCueConfidence: 0.5,
 });
+
+const timing: DefensiveDecisionTimingParameters = {
+  minimumDecisionDelayTicks: 40_000,
+  maximumDecisionDelayTicks: 240_000,
+  fixedProcessingOffsetTicks: 10_000,
+};
 
 describe('DefensiveDecision candidate generation', () => {
   it('generates first-base cover from locally perceived teammate commitment and coverage need', () => {
@@ -149,5 +159,60 @@ describe('DefensiveDecision candidate generation', () => {
     ));
 
     expect(ballHandler?.localPriority).toBeCloseTo(0.28, 10);
+  });
+});
+
+describe('DefensiveDecision local choice', () => {
+  it('lets the pitcher independently choose first-base cover from its local candidates', () => {
+    expect(decideDefensiveIntent(input(cues), 0.8, timing)).toEqual({
+      intent: { kind: 'base_cover', base: 1 },
+      selectedPriority: 0.72,
+      evidenceAvailableAt: 1_130_000,
+      decisionTick: 1_220_000,
+    });
+  });
+
+  it('changes only the decision tick when situational awareness changes', () => {
+    const fast = decideDefensiveIntent(input(cues), 0.8, timing);
+    const slow = decideDefensiveIntent(input(cues), 0.2, timing);
+
+    expect(fast.intent).toEqual({ kind: 'base_cover', base: 1 });
+    expect(slow.intent).toEqual(fast.intent);
+    expect(fast.selectedPriority).toBe(slow.selectedPriority);
+    expect(fast.evidenceAvailableAt).toBe(slow.evidenceAvailableAt);
+    expect(fast.decisionTick).toBe(1_220_000);
+    expect(slow.decisionTick).toBe(1_340_000);
+  });
+
+  it('does not globally repair a missed teammate commitment', () => {
+    expect(decideDefensiveIntent(input([cues[1]]), 1, timing).intent).toEqual({
+      kind: 'hold',
+    });
+  });
+
+  it('uses a stable intent key for exact local-priority ties, independent of candidate order', () => {
+    const candidates: readonly DefensiveIntentCandidate[] = [
+      {
+        intent: { kind: 'hold' },
+        localPriority: 0.5,
+        evidenceAvailableAt: 2_000_000,
+        evidenceKinds: ['pre_play_plan'],
+      },
+      {
+        intent: { kind: 'base_cover', base: 1 },
+        localPriority: 0.5,
+        evidenceAvailableAt: 2_000_000,
+        evidenceKinds: ['base_needs_cover'],
+      },
+    ];
+
+    expect(chooseDefensiveIntentCandidate(candidates).intent).toEqual({
+      kind: 'base_cover',
+      base: 1,
+    });
+    expect(chooseDefensiveIntentCandidate([...candidates].reverse()).intent).toEqual({
+      kind: 'base_cover',
+      base: 1,
+    });
   });
 });
