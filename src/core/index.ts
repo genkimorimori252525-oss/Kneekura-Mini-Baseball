@@ -55,3 +55,5 @@ export * from './rules/TagArrivalRule';
 export * from './rules/PlayRunFinalization';
 export * from './rules/FlyCatchRule';
 export * from './rules/TagUpCompliance';
+export * from './rules/AppealWindow';
+export * from './rules/TagUpAppealRule';
