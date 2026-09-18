@@ -129,3 +129,46 @@ export const classifyPointAgainstFairTerritory = (
     thirdBaseLineSignedSide,
   };
 };
+
+export const classifyBallAgainstFairTerritory = (
+  field: FairTerritoryWedge,
+  center: Vec2,
+  ballRadiusMeters: number,
+): FairTerritoryPointClassification => {
+  if (
+    !Number.isFinite(ballRadiusMeters)
+    || ballRadiusMeters <= 0
+  ) {
+    throw new Error(
+      'ballRadiusMeters must be finite and positive',
+    );
+  }
+  validateVec2('center', center);
+  const normalizedField = createFairTerritoryWedge(field);
+  const relative = subtract(
+    center,
+    normalizedField.homePlate,
+  );
+
+  const firstBaseLineSignedSide = cross(
+    normalizedField.firstBaseLineUnit,
+    relative,
+  );
+  const thirdBaseLineSignedSide = cross(
+    relative,
+    normalizedField.thirdBaseLineUnit,
+  );
+
+  return {
+    kind: (
+      firstBaseLineSignedSide
+        >= -ballRadiusMeters - SIDE_TOLERANCE
+      && thirdBaseLineSignedSide
+        >= -ballRadiusMeters - SIDE_TOLERANCE
+    )
+      ? 'inside_fair_wedge'
+      : 'outside_fair_wedge',
+    firstBaseLineSignedSide,
+    thirdBaseLineSignedSide,
+  };
+};
