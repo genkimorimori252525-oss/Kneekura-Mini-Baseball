@@ -11,10 +11,12 @@ import {
   createRunnerMotionStateFromSwingExitTransition,
 } from './BatterSwingExitRunTransition';
 import {
-  advanceRunnerMotion,
+  buildRunnerMotionTrajectory,
+  sampleRunnerMotionTrajectory,
   type RunnerMotionIntent,
   type RunnerMotionParameters,
   type RunnerMotionState,
+  type RunnerMotionTrajectory,
 } from './RunnerMotion';
 import {
   projectRunnerWorldState,
@@ -32,6 +34,7 @@ export type BatterRunnerWorldTimeline = Readonly<{
   postLaunchIntent: RunnerMotionIntent;
   runnerMotionParameters: RunnerMotionParameters;
   launchState: RunnerMotionState;
+  postLaunchTrajectory: RunnerMotionTrajectory;
   startTick: number;
   endTick: number;
 }>;
@@ -140,6 +143,13 @@ export const buildBatterRunnerWorldTimeline = (
     );
   }
 
+  const postLaunchTrajectory = buildRunnerMotionTrajectory(
+    launchState,
+    input.postLaunchIntent,
+    input.endTick - launchTick,
+    input.runnerMotionParameters,
+  );
+
   return {
     playerId: input.playerId,
     route: input.route,
@@ -147,6 +157,7 @@ export const buildBatterRunnerWorldTimeline = (
     postLaunchIntent: input.postLaunchIntent,
     runnerMotionParameters: input.runnerMotionParameters,
     launchState,
+    postLaunchTrajectory,
     startTick: input.recovery.startTick,
     endTick: input.endTick,
   };
@@ -183,11 +194,9 @@ export const sampleBatterRunnerWorldTimeline = (
     };
   }
 
-  const motion = advanceRunnerMotion(
-    timeline.launchState,
-    timeline.postLaunchIntent,
-    tick - launchTick,
-    timeline.runnerMotionParameters,
+  const motion = sampleRunnerMotionTrajectory(
+    timeline.postLaunchTrajectory,
+    tick,
   );
 
   return {
