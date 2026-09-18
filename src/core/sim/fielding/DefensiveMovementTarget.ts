@@ -4,6 +4,7 @@ import type { DefensiveIntent } from './DefensiveDecision';
 
 export type DefensiveFieldLandmarks = Readonly<{
   basePositions: Readonly<Record<1 | 2 | 3 | 4, Vec2>>;
+  baseCoverBodyPositions: Readonly<Record<1 | 2 | 3 | 4, Vec2>>;
 }>;
 
 const validateVec2 = (name: string, value: Vec2): void => {
@@ -18,7 +19,14 @@ export const resolveDefensiveMovementTarget = <TKnownContext>(
   landmarks: DefensiveFieldLandmarks,
 ): Vec2 | null => {
   for (const base of [1, 2, 3, 4] as const) {
-    validateVec2(`basePositions[${base}]`, landmarks.basePositions[base]);
+    validateVec2(
+      `basePositions[${base}]`,
+      landmarks.basePositions[base],
+    );
+    validateVec2(
+      `baseCoverBodyPositions[${base}]`,
+      landmarks.baseCoverBodyPositions[base],
+    );
   }
 
   switch (intent.kind) {
@@ -33,7 +41,7 @@ export const resolveDefensiveMovementTarget = <TKnownContext>(
       return target;
     }
     case 'base_cover':
-      return landmarks.basePositions[intent.base];
+      return landmarks.baseCoverBodyPositions[intent.base];
     case 'relay':
     case 'backup':
     case 'deep_coverage':
