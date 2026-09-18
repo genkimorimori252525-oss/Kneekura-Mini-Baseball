@@ -8,10 +8,10 @@ const EPSILON = 1e-12;
 const ROOT_TOLERANCE_SECONDS = 1e-10;
 const BOUNDARY_TOLERANCE_METERS = 1e-9;
 
-type PlanarKinematics = Readonly<{
-  position: Readonly<{ x: number; z: number }>;
-  velocity: Readonly<{ x: number; z: number }>;
-  acceleration: Readonly<{ x: number; z: number }>;
+type BaseLocalKinematics = Readonly<{
+  position: Readonly<{ x: number; y: number; z: number }>;
+  velocity: Readonly<{ x: number; y: number; z: number }>;
+  acceleration: Readonly<{ x: number; y: number; z: number }>;
 }>;
 
 const validateFinite = (
@@ -55,10 +55,13 @@ const validatePrimitive = (
 
   for (const [name, value] of [
     ['startCenter.x', primitive.startCenter.x],
+    ['startCenter.y', primitive.startCenter.y],
     ['startCenter.z', primitive.startCenter.z],
     ['startVelocity.x', primitive.startVelocity.x],
+    ['startVelocity.y', primitive.startVelocity.y],
     ['startVelocity.z', primitive.startVelocity.z],
     ['acceleration.x', primitive.acceleration.x],
+    ['acceleration.y', primitive.acceleration.y],
     ['acceleration.z', primitive.acceleration.z],
   ] as const) {
     validateFinite(`primitive.${name}`, value);
@@ -95,7 +98,8 @@ const rotateWorldToBase = (
 const localKinematics = (
   primitive: DefenderPhysicalPrimitiveSegment,
   base: BaseTouchRegion,
-): PlanarKinematics => {
+  baseSurfaceHeightMeters: number,
+): BaseLocalKinematics => {
   const cosine = Math.cos(base.rotationRadians);
   const sine = Math.sin(base.rotationRadians);
 
@@ -119,9 +123,21 @@ const localKinematics = (
   );
 
   return {
-    position,
-    velocity,
-    acceleration,
+    position: {
+      x: position.x,
+      y: primitive.startCenter.y - baseSurfaceHeightMeters,
+      z: position.z,
+    },
+    velocity: {
+      x: velocity.x,
+      y: primitive.startVelocity.y,
+      z: velocity.z,
+    },
+    acceleration: {
+      x: acceleration.x,
+      y: primitive.acceleration.y,
+      z: acceleration.z,
+    },
   };
 };
 
@@ -201,7 +217,7 @@ const uniqueSorted = (
 };
 
 const isInsideBase = (
-  local: PlanarKinematics,
+  local: BaseLocalKinematics,
   base: BaseTouchRegion,
   seconds: number,
 ): boolean => {
@@ -209,6 +225,12 @@ const isInsideBase = (
     local.position.x,
     local.velocity.x,
     local.acceleration.x,
+    seconds,
+  );
+  const y = evaluateCoordinate(
+    local.position.y,
+    local.velocity.y,
+    local.acceleration.y,
     seconds,
   );
   const z = evaluateCoordinate(
@@ -221,17 +243,23 @@ const isInsideBase = (
   return (
     Math.abs(x) <= base.halfSize.x + BOUNDARY_TOLERANCE_METERS
     && Math.abs(z) <= base.halfSize.z + BOUNDARY_TOLERANCE_METERS
+    && Math.abs(y) <= BOUNDARY_TOLERANCE_METERS
   );
 };
 
 export const findDefenderFootBaseContactTick = (
   primitive: DefenderPhysicalPrimitiveSegment,
   base: BaseTouchRegion,
+  baseSurfaceHeightMeters: number,
   searchStartTick: number,
   searchEndTick: number,
 ): number | null => {
   validatePrimitive(primitive);
   validateBase(base);
+  validateFinite(
+    'baseSurfaceHeightMeters',
+    baseSurfaceHeightMeters,
+  );
 
   if (
     !Number.isSafeInteger(searchStartTick)
@@ -251,7 +279,11 @@ export const findDefenderFootBaseContactTick = (
   const endSeconds = (
     searchEndTick - primitive.startTick
   ) / primitive.ticksPerSecond;
-  const local = localKinematics(primitive, base);
+  const local = localKinematics(
+    primitive,
+    base,
+    baseSurfaceHeightMeters,
+  );
 
   const candidates: number[] = [
     startSeconds,
@@ -287,6 +319,15 @@ export const findDefenderFootBaseContactTick = (
     local.velocity.z,
     local.acceleration.z,
     -base.halfSize.z,
+  )) {
+    addCandidate(candidates, root, startSeconds, endSeconds);
+  }
+
+  for (const root of rootsAtCoordinate(
+    local.position.y,
+    local.velocity.y,
+    local.acceleration.y,
+    0,
   )) {
     addCandidate(candidates, root, startSeconds, endSeconds);
   }
