@@ -14,6 +14,13 @@ export type ControlledBaseContactFact = Readonly<{
   tick: number;
 }>;
 
+export type ControlledRunnerTagFact = Readonly<{
+  kind: 'controlled_runner_tag';
+  defenderId: string;
+  runnerId: string;
+  tick: number;
+}>;
+
 const validateTick = (tick: number): void => {
   if (!Number.isSafeInteger(tick) || tick < 0) {
     throw new Error('physical rule fact tick must be a non-negative safe integer');
@@ -52,6 +59,23 @@ export const createControlledBaseContactFact = (
     kind: 'controlled_base_contact',
     defenderId,
     base,
+    tick,
+  };
+};
+
+
+export const createControlledRunnerTagFact = (
+  defenderId: string,
+  runnerId: string,
+  tick: number,
+): ControlledRunnerTagFact => {
+  validateId('defenderId', defenderId);
+  validateId('runnerId', runnerId);
+  validateTick(tick);
+  return {
+    kind: 'controlled_runner_tag',
+    defenderId,
+    runnerId,
     tick,
   };
 };
