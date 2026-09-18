@@ -10,6 +10,7 @@ import {
   resolveThirdOutScoring,
   type ThirdOutScoringResult,
 } from './ThirdOutScoring';
+import type { ForceOutRuleResult } from './ForceOutRule';
 
 export type GroundBallFirstBaseRuleInput = Readonly<{
   outsAtStart: number;
@@ -155,5 +156,53 @@ export const resolveGroundBallFirstBaseRule = (
       runsSuppressed: thirdOutScoring.suppressed,
       thirdOutScoring,
     },
+  };
+};
+
+
+export type ForceOutScoringRuleInput = Readonly<{
+  outsAtStart: number;
+  forceOut: Extract<ForceOutRuleResult, { kind: 'out' }>;
+  homeTouches: readonly RunnerBaseTouchFact[];
+}>;
+
+export type ForceOutScoringRuleResult = Readonly<{
+  outsAfter: number;
+  thirdOut: boolean;
+  pendingHomeTouches: readonly RunnerBaseTouchFact[];
+  thirdOutScoring: ThirdOutScoringResult | null;
+}>;
+
+export const resolveForceOutScoringRule = (
+  input: ForceOutScoringRuleInput,
+): ForceOutScoringRuleResult => {
+  validateOuts(input.outsAtStart);
+  validateHomeTouches(input.homeTouches);
+
+  const outsAfter = input.outsAtStart + 1;
+  if (outsAfter < 3) {
+    return {
+      outsAfter,
+      thirdOut: false,
+      pendingHomeTouches: [...input.homeTouches],
+      thirdOutScoring: null,
+    };
+  }
+
+  const thirdOutScoring = resolveThirdOutScoring({
+    outsAtStart: input.outsAtStart,
+    thirdOutCandidate: {
+      runnerId: input.forceOut.runnerId,
+      outTick: input.forceOut.outTick,
+      classification: 'force',
+    },
+    homeTouches: input.homeTouches,
+  });
+
+  return {
+    outsAfter,
+    thirdOut: true,
+    pendingHomeTouches: [],
+    thirdOutScoring,
   };
 };
