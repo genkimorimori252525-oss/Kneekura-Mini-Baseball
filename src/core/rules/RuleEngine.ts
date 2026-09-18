@@ -157,7 +157,7 @@ export const resolveGroundBallFirstBaseRule = (
     correctRuleResult: {
       kind: 'resolved',
       batterRunnerFirstBase: firstBase,
-      outsAfter,
+      outsAfter: 3,
       thirdOut: true,
       runsScored: thirdOutScoring.scored,
       runsSuppressed: thirdOutScoring.suppressed,
