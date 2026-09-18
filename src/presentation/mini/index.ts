@@ -15,3 +15,5 @@ export * from './MiniLineScoreState';
 export * from './MiniCommandBandState';
 export * from './MiniPlayerCardState';
 export * from './MiniReplaySequence';
+export * from './PitcherPovCamera';
+export * from './PitcherPovRenderState';
