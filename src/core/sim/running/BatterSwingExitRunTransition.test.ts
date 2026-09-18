@@ -106,6 +106,27 @@ describe('batter swing-exit run transition', () => {
     expect(result.initialRouteSpeedMps).toBeCloseTo(0, 12);
   });
 
+  it('pays backward swing-exit momentum as braking time without creating negative route distance', () => {
+    const result = resolveBatterSwingExitRunTransition(
+      {
+        tick: 1_500_000,
+        planarVelocity: {
+          x: -routeTangent.x * 1.6,
+          z: -routeTangent.z * 1.6,
+        },
+        bodyForwardUnit: routeTangent,
+      },
+      route,
+      parameters,
+    );
+
+    expect(result.backwardRecoverySeconds).toBeCloseTo(0.4, 12);
+    expect(result.recoverySeconds).toBeCloseTo(0.4, 12);
+    expect(result.launchTick).toBe(1_900_000);
+    expect(result.launchRouteDistanceMeters).toBe(0);
+    expect(result.initialRouteSpeedMps).toBe(0);
+  });
+
   it('retains positive route momentum while recovery removes only off-axis motion', () => {
     const result = resolveBatterSwingExitRunTransition(
       {
