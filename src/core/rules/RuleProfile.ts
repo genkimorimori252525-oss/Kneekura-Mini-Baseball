@@ -5,19 +5,23 @@ import {
 
 export type RuleProfile = Readonly<{
   id: RuleProfileId;
-  jurisdiction: 'NPB';
+  jurisdiction: string;
   season: number;
   rulesRevision: string;
   tagUp: Readonly<{
-    legalReleaseBasis: 'first_fielder_touch';
+    legalReleaseBasis: 'first_fielder_touch' | 'secure_catch';
     earlyDepartureRequiresAppeal: boolean;
   }>;
   appeal: Readonly<{
     nextPitchOrPlayClosesWindow: boolean;
     defenseLeavingFieldClosesInningEndingWindow: boolean;
-    sameTickWindowCloseResolution: 'unresolved';
+    sameTickWindowCloseResolution:
+      | 'unresolved'
+      | 'appeal_wins'
+      | 'window_close_wins';
     advantageousFourthOutPolicy:
-      'defense_may_elect_advantageous_out';
+      | 'defense_may_elect_advantageous_out'
+      | 'disabled';
   }>;
   thirdOutScoring: Readonly<{
     batterRunnerBeforeFirstSuppressesRuns: boolean;
@@ -25,11 +29,11 @@ export type RuleProfile = Readonly<{
     precedingRunnerAppealSuppressesFollowingRuns: boolean;
   }>;
   defensiveAlignment: Readonly<{
-    requiredInfielderCount: 4;
-    evaluationMoment: 'pitch_release';
-    minimumInfieldersEachSideOfSecondBase: 2;
-    sideDeterminedBy: 'both_feet';
-    violationPolicyId: 'npb_2026_5_02_c';
+    requiredInfielderCount: number;
+    evaluationMoment: 'pitch_release' | 'pitching_motion_start';
+    minimumInfieldersEachSideOfSecondBase: number;
+    sideDeterminedBy: 'both_feet' | 'body_center';
+    violationPolicyId: string;
   }>;
 }>;
 
