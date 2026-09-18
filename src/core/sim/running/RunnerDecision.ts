@@ -23,8 +23,7 @@ export type RunnerKnownContext = Readonly<{
         originBase: 1 | 2 | 3;
       }>
     | Readonly<{
-        kind: 'hold_until_first_touch';
-        legalAdvanceFromTick: number;
+        kind: 'awaiting_first_touch';
       }>;
 }>;
 
@@ -130,14 +129,6 @@ const validateContext = (
     );
   }
 
-  if (
-    context.tagUp.kind === 'hold_until_first_touch'
-  ) {
-    validateTick(
-      'tagUp.legalAdvanceFromTick',
-      context.tagUp.legalAdvanceFromTick,
-    );
-  }
 };
 
 const validateCue = (
@@ -326,11 +317,7 @@ const chooseRunnerAction = (
     };
   }
 
-  if (
-    context.tagUp.kind === 'hold_until_first_touch'
-    && observationTime
-      < context.tagUp.legalAdvanceFromTick
-  ) {
+  if (context.tagUp.kind === 'awaiting_first_touch') {
     return {
       kind: 'hold',
       reason: 'tag_up_wait',
