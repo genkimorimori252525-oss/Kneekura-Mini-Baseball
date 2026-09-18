@@ -111,6 +111,22 @@ describe('RunnerDecision', () => {
     expect(result.motionIntent.kind).toBe('advance');
   });
 
+  it('holds while the runner is still awaiting perceived first fielder touch', () => {
+    const result = decideRunnerMotionIntent(
+      input({
+        perceivedWorld: world({
+          ...baseContext,
+          tagUp: {
+            kind: 'awaiting_first_touch',
+          },
+        }),
+      }),
+    );
+
+    expect(result.reason).toBe('tag_up_wait');
+    expect(result.motionIntent.kind).toBe('hold');
+  });
+
   it('retreats to satisfy tag-up retouch before considering an advance signal', () => {
     const coach = {
       event: {
