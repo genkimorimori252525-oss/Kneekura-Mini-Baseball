@@ -133,6 +133,7 @@ import {
   evaluateInningInfieldSideLockForMatch,
   resolveTagOutScoringRule,
   resolveTakenPitchPhysicalResult,
+  resolveAndRecordPitchAgainstBatter,
   resolveSwingingPitchPhysicalResult,
   resolveDefensiveDecisionTiming,
   resolveBatterStanceWorldPosition,
@@ -325,12 +326,13 @@ describe('core package', () => {
     expect(typeof resolveHalfInningTransition).toBe('function');
   });
 
-  it('exposes physical pitch crossing, taken pitches, and swinging pitches through Core', () => {
+  it('exposes physical pitch crossing and unified batter-facing pitch resolution through Core', () => {
     expect(typeof findPitchPlateCrossing).toBe('function');
     expect(typeof resolveTakenPitchPhysicalResult).toBe('function');
     expect(typeof recordTakenPitchPhysicalResult).toBe('function');
     expect(typeof resolveSwingingPitchPhysicalResult).toBe('function');
     expect(typeof recordSwingingPitchPhysicalResult).toBe('function');
+    expect(typeof resolveAndRecordPitchAgainstBatter).toBe('function');
   });
 
   it('exposes the canonical plate-appearance timeline through Core', () => {
