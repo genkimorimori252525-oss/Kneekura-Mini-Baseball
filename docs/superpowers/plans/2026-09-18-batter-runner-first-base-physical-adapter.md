@@ -1,6 +1,6 @@
 # Batter-Runner First-Base Physical Fact Adapter Plan
 
-**Status:** IMPLEMENTATION IN PROGRESS.
+**Status:** IMPLEMENTATION COMPLETE; GitHub Actions remains pre-step blocked.
 
 **Goal:** Convert exact first-base touch timing from the unified batter-runner timeline into the existing RunnerBaseTouchFact and feed existing first-base / ground-ball RuleEngine entry points without introducing new rule semantics.
 
@@ -58,3 +58,33 @@ Require:
 ### Task 4: Core API + evidence
 
 Export through Core, retry P0 Core CI, and preserve the external `steps=[]` blocker distinction if it recurs.
+
+
+---
+
+## Completion evidence
+
+Implemented through HEAD `a49db64e60ba331ba6136c587407396e6227da23`:
+
+- exact first-base touch from the unified batter-runner timeline is converted through the existing `createRunnerBaseTouchFact`;
+- `resolveBatterRunnerFirstBaseFromTimeline` delegates only to the existing `BatterRunnerFirstBaseRule`;
+- `resolveGroundBallFirstBaseRuleFromTimeline` delegates only to the existing GroundBallFirstBase RuleEngine;
+- OUT / SAFE / simultaneous semantics remain unchanged;
+- two-out batter-runner-before-first run suppression remains unchanged and is regression-covered through the existing RuleEngine;
+- defender controlled-base contact remains a separately supplied physical fact;
+- shared Core API exposes all three adapters.
+
+TDD / implementation checkpoints:
+- `c55f0f33...`: physical-fact / existing-rule RED fixtures;
+- `b7ef74dc...`: timeline-to-first-base-rule adapter implementation;
+- `f33a4d3f...`: shared Core export;
+- `a49db64e...`: shared Core API coverage.
+
+Repository CI:
+- P0 Core run `35321915030` for `a49db64e...` failed before any workflow command executed;
+- job `105526086225` reports `steps=[]`;
+- full-repository GREEN is not claimed.
+
+## Next physical gap
+
+The runner side of the first-base race is now trajectory-derived end-to-end. The remaining physical input to the rule is `ControlledBaseContactFact`: the tick at which a defender both controls the ball and physically satisfies the first-base contact requirement. The next slice should derive that fact from defender/ball/base physical state rather than constructing it directly in rule-facing code.
