@@ -49,6 +49,7 @@ const liveFrame = {
     pitcher: null,
   },
   commandBand: null,
+  commandOptions: null,
   playerCards: {
     batter: null,
     pitcher: null,
