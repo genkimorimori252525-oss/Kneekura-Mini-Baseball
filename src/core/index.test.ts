@@ -69,6 +69,8 @@ import {
   deriveCurrentForceObligations,
   findGloveBallContactTick,
   findRunnerBaseTouchTick,
+  findRunnerBaseTouchTickOnTrajectory,
+  findBatterRunnerPostLaunchBaseTouchTick,
   findSecureCatchTick,
   findTagContactTick,
   findThrowReleaseTick,
@@ -185,6 +187,8 @@ describe('core package', () => {
     expect(typeof sampleRunnerRoute).toBe('function');
     expect(typeof sampleRunnerPhysicalTouchPoint).toBe('function');
     expect(typeof findRunnerBaseTouchTick).toBe('function');
+    expect(typeof findRunnerBaseTouchTickOnTrajectory).toBe('function');
+    expect(typeof findBatterRunnerPostLaunchBaseTouchTick).toBe('function');
     expect(typeof projectRunnerWorldState).toBe('function');
   });
 
