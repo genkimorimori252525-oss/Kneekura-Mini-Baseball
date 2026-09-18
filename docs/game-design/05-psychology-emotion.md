@@ -163,6 +163,41 @@ MatchImportance = f(
 
 これにより、通常は極めて冷静な選手でも、WBC級の大舞台、優勝直前、敗退のかかった局面などでは初めて感情マークが付く可能性がある。
 
+## 5.1 Club RivalryはPersonalStakeの入力
+
+Club間Rivalryの詳細は `docs/game-design/16-club-economy-rivalry-design.md` を正とする。
+
+Rivalryは有向であり、相互である必要はない。
+
+```text
+Club A -> Club B = high rivalry
+Club B -> Club A = low rivalry
+```
+
+を許可する。
+
+試合時はClub-level rivalryを全選手へ直接Buffとして配らず、
+
+```text
+directed club rivalry
++ player club identification
++ tenure / academy history
++ personality
++ personal history
+      ↓
+PersonalStake
+      ↓
+Appraisal / EmotionPressure
+      ↓
+ActiveEmotion only if threshold crossed
+```
+
+へ接続する。
+
+したがって「宿敵戦だから全員好調」は禁止する。
+
+同じRivalryでも、選手ごとにやる気・怒り・焦り・恐怖・無反応があり得る。
+
 ## 6. 発火・維持・解除
 
 感情マークのちらつきを防ぐため、発火閾値と解除閾値を分離する。
