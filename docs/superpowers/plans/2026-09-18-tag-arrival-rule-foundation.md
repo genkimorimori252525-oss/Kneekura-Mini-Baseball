@@ -1,5 +1,7 @@
 # Tag Arrival Rule Foundation Plan
 
+**Status:** IMPLEMENTATION COMPLETE; full repository CI remains blocked before workflow steps start.
+
 **Goal:** Add the non-force arrival-play counterpart to ForceOutRule: a runner approaching an entitled target base is out only if a defender with secure ball control physically tags the runner before the runner touches that base.
 
 ## Architecture
@@ -66,3 +68,28 @@ Fixture:
 - a physical tag before their next base touch can retire them through TagArrivalRule.
 
 ### Task 5: Core API + local verification, with P0 CI retried but no full GREEN claim while workflow steps remain unavailable.
+
+
+---
+
+## Implementation Evidence
+
+Implemented through HEAD `fa8af4befea809b3d15b4e6dc5c92a3baea9259e`:
+- controlled runner-tag physical fact;
+- tag-arrival correct-rule result;
+- exact tag-before-touch / touch-before-tag / simultaneous handling;
+- time-play third-out scoring integration;
+- force-dissolution companion proving base contact alone is insufficient after force disappears;
+- shared Core API export;
+- corrected non-third-out ground-ball behavior so home touches remain pending until the play can be finalized.
+
+Independent verification:
+- TypeScript 5.8 source-level rules typecheck: success;
+- runtime tag-arrival fixture: success;
+- force-dissolution -> physical tag out: success;
+- time-play third-out scoring: earlier home touch scores, later touch is suppressed;
+- same-tick time-play remains unresolved.
+
+Repository CI:
+- P0 Core run `35305910092` at HEAD still failed before workflow steps were created;
+- full repository GREEN is intentionally not claimed while the repository-wide pre-step `steps=null` condition persists.
