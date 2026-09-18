@@ -8,15 +8,7 @@ import {
 import type {
   DefenderPhysicalPrimitiveSegment,
 } from './DefenderPhysicalPrimitive';
-import {
-  createControlledBaseContactFact,
-  type BaseballBase,
-  type ControlledBaseContactFact,
-} from '../../rules/PhysicalRuleFacts';
-
 export type DefenderControlledBaseContactInput = Readonly<{
-  defenderId: string;
-  base: BaseballBase;
   baseRegion: BaseTouchRegion;
   securedCatch: SecuredCatchOutcome;
   controlThroughTick: number;
@@ -34,13 +26,9 @@ const validateTick = (
   }
 };
 
-export const createControlledBaseContactFactFromDefenderPhysics = (
+export const findDefenderControlledBaseContactTick = (
   input: DefenderControlledBaseContactInput,
-): ControlledBaseContactFact | null => {
-  if (input.defenderId.length === 0) {
-    throw new Error('defenderId must not be empty');
-  }
-
+): number | null => {
   validateTick(
     'glove contact tick',
     input.securedCatch.gloveContactTick,
@@ -110,11 +98,5 @@ export const createControlledBaseContactFactFromDefenderPhysics = (
     }
   }
 
-  return earliestTick === null
-    ? null
-    : createControlledBaseContactFact(
-        input.defenderId,
-        input.base,
-        earliestTick,
-      );
+  return earliestTick;
 };
