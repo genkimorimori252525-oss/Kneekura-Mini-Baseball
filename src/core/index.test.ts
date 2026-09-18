@@ -33,6 +33,10 @@ import {
   createRatedTeamCoveragePlan,
   applyTeamCoveragePlanToWorld,
   replanTeamCoveragePlan,
+  createDefenseContext,
+  selectThrowPlan,
+  selectThrowPlanForCoverage,
+  createCoverageThrowLaunch,
   getPublicDefensiveRatings,
   createNormalizedRating,
   deriveRatedDefenderMotionParameters,
@@ -360,6 +364,10 @@ describe('core package', () => {
     expect(typeof createRatedTeamCoveragePlan).toBe('function');
     expect(typeof applyTeamCoveragePlanToWorld).toBe('function');
     expect(typeof replanTeamCoveragePlan).toBe('function');
+    expect(typeof createDefenseContext).toBe('function');
+    expect(typeof selectThrowPlan).toBe('function');
+    expect(typeof selectThrowPlanForCoverage).toBe('function');
+    expect(typeof createCoverageThrowLaunch).toBe('function');
   });
 
   it('exposes P4 scouting and defensive strategy foundations through Core', () => {
