@@ -178,6 +178,13 @@ describe('core package', () => {
     expect(typeof resolveGroundBallFirstBaseRule).toBe('function');
   });
 
+  it('exposes explicit tag-up appeal rules through the shared Core API', () => {
+    expect(typeof createDefensiveAppealAttemptFact).toBe('function');
+    expect(typeof createAppealWindow).toBe('function');
+    expect(typeof closeAppealWindow).toBe('function');
+    expect(typeof resolveTagUpAppeal).toBe('function');
+  });
+
   it('exposes fly-catch and tag-up compliance through the shared Core API', () => {
     expect(typeof createFlyBallFirstFielderTouchFact).toBe('function');
     expect(typeof createRunnerBaseDepartureFact).toBe('function');
