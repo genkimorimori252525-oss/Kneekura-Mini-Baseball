@@ -102,11 +102,11 @@ export const deriveRunnerAdvanceRiskPolicy = (
     );
   }
 
-  const battingTeam = (
+  const battingTeam: 'home' | 'away' = (
     match.half === 'top'
       ? 'away'
       : 'home'
-  ) as const;
+  );
   const battingRuns = (
     battingTeam === 'away'
       ? match.score.away
