@@ -41,6 +41,10 @@ import {
   buildMiniCommandBandState,
   type MiniCommandBandState,
 } from './MiniCommandBandState';
+import {
+  buildMiniPlayerCardState,
+  type MiniPlayerCardState,
+} from './MiniPlayerCardState';
 
 export type MiniGameLiveFrame = Readonly<{
   tick: number;
@@ -50,6 +54,10 @@ export type MiniGameLiveFrame = Readonly<{
     pitcher: MiniHandednessBadge | null;
   }>;
   commandBand: MiniCommandBandState | null;
+  playerCards: Readonly<{
+    batter: MiniPlayerCardState | null;
+    pitcher: MiniPlayerCardState | null;
+  }>;
   live: MiniLiveRenderState;
 }>;
 
@@ -57,6 +65,16 @@ export type MiniGameLiveFrameInput = Readonly<{
   match: CanonicalMatchState;
   lineScore?: CanonicalLineScoreSnapshot;
   currentCommand?: PlateAppearanceCommand;
+  matchupPlayers?: Readonly<{
+    batter?: Readonly<{
+      playerId: string;
+      displayName?: string;
+    }>;
+    pitcher?: Readonly<{
+      playerId: string;
+      displayName?: string;
+    }>;
+  }>;
   frame: MiniPresentationFrame;
   overheadCamera: FieldOverheadCameraCalibration;
   playerPhysicalProfiles?: Readonly<
@@ -70,6 +88,50 @@ export type MiniGameLiveFrameInput = Readonly<{
     event: TimedMatchEvent,
   ) => number | null;
 }>;
+
+const buildPlayerCards = (
+  input: MiniGameLiveFrameInput,
+): MiniGameLiveFrame['playerCards'] => {
+  const batterMeta = input.matchupPlayers?.batter;
+  const pitcherMeta = input.matchupPlayers?.pitcher;
+
+  const batter = batterMeta === undefined
+    ? null
+    : buildMiniPlayerCardState({
+        role: 'batter',
+        playerId: batterMeta.playerId,
+        displayName: batterMeta.displayName,
+        handedness:
+          input.frame.sample.batter.handedness,
+      });
+
+  if (
+    pitcherMeta !== undefined
+    && input.frame.sample.pitcherHandedness === undefined
+  ) {
+    throw new Error(
+      'pitcher player card requires pitcherHandedness in the presentation sample',
+    );
+  }
+
+  const pitcher = (
+    pitcherMeta === undefined
+    || input.frame.sample.pitcherHandedness === undefined
+  )
+    ? null
+    : buildMiniPlayerCardState({
+        role: 'pitcher',
+        playerId: pitcherMeta.playerId,
+        displayName: pitcherMeta.displayName,
+        handedness:
+          input.frame.sample.pitcherHandedness,
+      });
+
+  return {
+    batter,
+    pitcher,
+  };
+};
 
 const validateFrame = (
   frame: MiniPresentationFrame,
@@ -139,6 +201,7 @@ export const buildMiniGameLiveFrame = (
         : buildMiniCommandBandState(
             input.currentCommand,
           ),
+    playerCards: buildPlayerCards(input),
     live: buildMiniLiveRenderState({
       frame: input.frame,
       overheadCamera: input.overheadCamera,
