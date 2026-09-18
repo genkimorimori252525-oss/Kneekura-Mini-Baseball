@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   advanceRunnerMotion,
+  buildRunnerMotionTrajectory,
+  sampleRunnerMotionTrajectory,
   type RunnerMotionParameters,
   type RunnerMotionState,
 } from './RunnerMotion';
@@ -21,6 +23,133 @@ const state = (overrides: Partial<RunnerMotionState> = {}): RunnerMotionState =>
   driveDirection: 0,
   bodyMode: 'upright',
   ...overrides,
+});
+
+describe('sampleRunnerMotionTrajectory', () => {
+  it('samples existing analytic segments and gives the exact reaction boundary to the new control', () => {
+    const trajectory = buildRunnerMotionTrajectory(
+      state(),
+      { kind: 'advance', issuedTick: 1_000_000 },
+      300_000,
+      parameters,
+    );
+
+    expect(sampleRunnerMotionTrajectory(
+      trajectory,
+      1_050_000,
+    )).toEqual({
+      tick: 1_050_000,
+      routeDistanceMeters: 0,
+      speedMps: 0,
+      driveDirection: 0,
+      bodyMode: 'upright',
+    });
+
+    expect(sampleRunnerMotionTrajectory(
+      trajectory,
+      1_100_000,
+    )).toEqual({
+      tick: 1_100_000,
+      routeDistanceMeters: 0,
+      speedMps: 0,
+      driveDirection: 1,
+      bodyMode: 'upright',
+    });
+
+    const afterReaction = sampleRunnerMotionTrajectory(
+      trajectory,
+      1_150_000,
+    );
+    expect(afterReaction.driveDirection).toBe(1);
+    expect(afterReaction.speedMps).toBeCloseTo(0.2, 12);
+    expect(afterReaction.routeDistanceMeters).toBeCloseTo(0.005, 12);
+  });
+
+  it('uses endState at the exact end tick, including a reaction gate that opens there', () => {
+    const trajectory = buildRunnerMotionTrajectory(
+      state({ speedMps: 1, driveDirection: 1 }),
+      { kind: 'retreat', issuedTick: 1_000_000 },
+      500_000,
+      { ...parameters, reactionDelayTicks: 500_000 },
+    );
+
+    expect(sampleRunnerMotionTrajectory(
+      trajectory,
+      1_500_000,
+    )).toEqual(trajectory.endState);
+    expect(trajectory.endState.driveDirection).toBe(-1);
+  });
+
+  it('gives the later cruise segment ownership of an exact acceleration-to-top-speed boundary', () => {
+    const trajectory = buildRunnerMotionTrajectory(
+      state(),
+      { kind: 'advance', issuedTick: 1_000_000 },
+      3_000_000,
+      { ...parameters, reactionDelayTicks: 0 },
+    );
+
+    const atTopSpeed = sampleRunnerMotionTrajectory(
+      trajectory,
+      3_000_000,
+    );
+
+    expect(atTopSpeed.driveDirection).toBe(1);
+    expect(atTopSpeed.speedMps).toBeCloseTo(8, 12);
+    expect(atTopSpeed.routeDistanceMeters).toBeCloseTo(8, 12);
+  });
+
+  it('matches independently advanced RunnerMotion at arbitrary authoritative ticks', () => {
+    const start = state({ speedMps: 1, driveDirection: 1 });
+    const intent = {
+      kind: 'retreat' as const,
+      issuedTick: 1_000_000,
+    };
+    const duration = 800_000;
+    const localParameters = {
+      ...parameters,
+      reactionDelayTicks: 200_000,
+    };
+    const trajectory = buildRunnerMotionTrajectory(
+      start,
+      intent,
+      duration,
+      localParameters,
+    );
+
+    for (const deltaTicks of [0, 50_000, 200_000, 350_000, 800_000]) {
+      expect(sampleRunnerMotionTrajectory(
+        trajectory,
+        start.tick + deltaTicks,
+      )).toEqual(advanceRunnerMotion(
+        start,
+        intent,
+        deltaTicks,
+        localParameters,
+      ));
+    }
+  });
+
+  it('rejects ticks outside the built trajectory interval', () => {
+    const trajectory = buildRunnerMotionTrajectory(
+      state(),
+      { kind: 'advance', issuedTick: 1_000_000 },
+      100_000,
+      parameters,
+    );
+
+    expect(() => sampleRunnerMotionTrajectory(
+      trajectory,
+      999_999,
+    )).toThrow(
+      'runner motion trajectory sample tick must lie inside the trajectory interval',
+    );
+    expect(() => sampleRunnerMotionTrajectory(
+      trajectory,
+      1_100_001,
+    )).toThrow(
+      'runner motion trajectory sample tick must lie inside the trajectory interval',
+    );
+  });
 });
 
 describe('advanceRunnerMotion', () => {
