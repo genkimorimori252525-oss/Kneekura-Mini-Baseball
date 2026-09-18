@@ -18,6 +18,7 @@ import {
   buildBatterSwingExitRecoveryTrajectory,
   applyBatterRunnerWorldTimelineToSnapshot,
   buildBatterRunnerWorldTimeline,
+  createCanonicalPlateAppearanceTimeline,
   capturePlanarObservation,
   captureSpatialObservation,
   closeAppealWindow,
@@ -127,6 +128,8 @@ import {
   resolveBatterStanceWorldPosition,
   resolveBatterSwingExitRunTransition,
   resolveBatterSwingExitRunTransitionAfterContact,
+  recordBatBallContact,
+  recordCountedPitch,
   resolveCommunicationReception,
   retireForceParticipant,
   sampleRunnerPhysicalTouchPoint,
@@ -305,6 +308,12 @@ describe('core package', () => {
     expect(typeof resolveFoulBallRule).toBe('function');
     expect(typeof resolveInfieldFlyRule).toBe('function');
     expect(typeof resolveHalfInningTransition).toBe('function');
+  });
+
+  it('exposes the canonical plate-appearance timeline through Core', () => {
+    expect(typeof createCanonicalPlateAppearanceTimeline).toBe('function');
+    expect(typeof recordCountedPitch).toBe('function');
+    expect(typeof recordBatBallContact).toBe('function');
   });
 
   it('exposes the first Correct Rule Result foundation through the shared Core API', () => {
