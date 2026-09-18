@@ -1,6 +1,18 @@
 import type {
   AppealOutScoringResult,
 } from './AppealOutScoring';
+import type {
+  ThirdOutScoringResult,
+} from './ThirdOutScoring';
+
+export type ResolvedInningEndingThirdOutScoring = Extract<
+  ThirdOutScoringResult,
+  { kind: 'resolved' | 'simultaneous_unresolved' }
+>;
+
+export type InningEndingRunScoringResult =
+  | AppealOutScoringResult
+  | ResolvedInningEndingThirdOutScoring;
 
 export type InningEndingScoringOptionSource =
   | 'apparent_third_out'
@@ -9,7 +21,7 @@ export type InningEndingScoringOptionSource =
 export type InningEndingScoringOption = Readonly<{
   optionId: string;
   source: InningEndingScoringOptionSource;
-  scoring: AppealOutScoringResult;
+  scoring: InningEndingRunScoringResult;
 }>;
 
 export type AdvantageousInningEndingOutResult =
@@ -35,6 +47,22 @@ export const createAppealScoringOption = (
   return {
     optionId,
     source,
+    scoring,
+  };
+};
+
+
+export const createThirdOutScoringOption = (
+  optionId: string,
+  scoring: ResolvedInningEndingThirdOutScoring,
+): InningEndingScoringOption => {
+  if (optionId.length === 0) {
+    throw new Error('inning-ending scoring option id must not be empty');
+  }
+
+  return {
+    optionId,
+    source: 'apparent_third_out',
     scoring,
   };
 };
