@@ -1,5 +1,7 @@
 # RuleProfile NPB 2026 Foundation Plan
 
+**Status:** IMPLEMENTATION COMPLETE; full repository CI remains blocked before workflow steps start.
+
 **Goal:** Make the authoritative match explicitly bind to a versioned rules profile and move year/jurisdiction-sensitive rule policy out of implicit Core assumptions.
 
 **Source:** Adopted project decision D-005 requires NPB 2026 as the initial rules profile and requires rules to be version-managed through `RuleProfile`. The 2026 NPB amendments also add/modify rules such as the infield positioning restriction in 5.02(c), demonstrating why the profile must be explicit.
@@ -104,3 +106,36 @@ Retry P0 Core CI; do not claim full repository GREEN while Actions remains pre-s
 - DH/extra-inning/substitution profile differences;
 - custom tournament profiles;
 - migration tooling for replay files from future profile versions.
+
+
+---
+
+## Implementation Evidence
+
+Implemented through HEAD `333293fd101717e744d04df1608e309039c1cde0`:
+- branded `RuleProfileId` model reference with non-empty validation;
+- required `CanonicalMatchState.ruleProfileId`;
+- versioned `NPB_2026_RULE_PROFILE`;
+- explicit NPB 2026 tag-up, appeal, third-out scoring, and defensive-alignment policy fields;
+- profile registry with explicit failure for unsupported profile ids;
+- `RuleContext` binding canonical state to adjudication profile;
+- profile-aware tag-up compliance, tag-up appeal, and advantageous fourth-out entry points;
+- explicit failure on unsupported semantics instead of silently applying NPB 2026 behavior;
+- shared Core API exports.
+
+Independent verification:
+- TypeScript 5.8.3 strict source-level check of the RuleProfile boundary: success;
+- runtime profile resolution: `npb-2026`;
+- runtime canonical match/profile binding: success;
+- runtime early-departure -> explicit appeal out: success;
+- runtime advantageous-fourth-out profile gate: success.
+
+Official 2026 profile evidence:
+- NPB 2026 5.02(c) evaluates the four infielders when the pitch leaves the pitcher's hand;
+- two infielders must be positioned on each side of second base with both feet on that side;
+- violation handling differs based on whether the violating infielder first touches the pitched ball in play.
+
+Repository CI:
+- P0 Core run `35311110942` at HEAD failed before workflow steps were created;
+- job `105493164348` had `steps=null`;
+- full repository GREEN is intentionally not claimed.
