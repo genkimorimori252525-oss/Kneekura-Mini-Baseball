@@ -47,6 +47,7 @@ import {
   resolveDefensiveMovementTarget,
   resolveGroundBallFirstBaseRule,
   resolveForceOutAtTarget,
+  resolveForceOutScoringRule,
   resolveThirdOutScoring,
   resolveDefensiveDecisionTiming,
   resolveCommunicationReception,
