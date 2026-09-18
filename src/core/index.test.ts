@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   CORE_PROTOCOL_VERSION,
+  advanceDefenderMotion,
   advanceRunnerMotion,
+  buildDefenderMotionTrajectory,
   buildPlayerPerceivedWorldState,
   capturePlanarObservation,
   captureSpatialObservation,
@@ -24,8 +26,10 @@ import {
   isObservationRefreshDue,
   predictPlanarObservationMemory,
   generateDefensiveIntentCandidates,
+  projectDefenderWorldState,
   projectRunnerWorldState,
   resolveCatchRetention,
+  resolveDefensiveMovementTarget,
   resolveDefensiveDecisionTiming,
   resolveCommunicationReception,
   sampleRunnerPhysicalTouchPoint,
@@ -92,6 +96,13 @@ describe('core package', () => {
     expect(typeof resolveDefensiveDecisionTiming).toBe('function');
     expect(typeof generateDefensiveIntentCandidates).toBe('function');
     expect(typeof decideDefensiveIntent).toBe('function');
+  });
+
+  it('exposes defender physical movement through the shared Core API', () => {
+    expect(typeof resolveDefensiveMovementTarget).toBe('function');
+    expect(typeof buildDefenderMotionTrajectory).toBe('function');
+    expect(typeof advanceDefenderMotion).toBe('function');
+    expect(typeof projectDefenderWorldState).toBe('function');
   });
 
   it('exposes exact physical tag contact timing through the shared Core API', () => {
