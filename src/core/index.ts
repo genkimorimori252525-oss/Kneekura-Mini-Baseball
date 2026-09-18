@@ -32,6 +32,8 @@ export * from './sim/fielding/DefensiveDecisionTiming';
 export * from './sim/fielding/DefenderFirstStepTiming';
 export * from './sim/fielding/BallTransferTiming';
 export * from './sim/fielding/TagActionTiming';
+export * from './sim/fielding/BattedBallReadSkill';
+export * from './sim/fielding/DefenderRoutePlan';
 export * from './sim/fielding/DefensiveDecision';
 export * from './sim/fielding/DefensiveMovementTarget';
 export * from './sim/fielding/DefenderMotion';
