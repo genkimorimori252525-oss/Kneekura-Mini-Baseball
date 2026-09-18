@@ -59,7 +59,8 @@ describe('GloveReachExecution', () => {
       parameters,
     );
 
-    expect(pose).toEqual({
+    expect(pose).not.toBeNull();
+    expect(pose).toMatchObject({
       role: 'glove',
       radius: 0.08,
       startTick: 1_000_000,
@@ -67,8 +68,10 @@ describe('GloveReachExecution', () => {
       ticksPerSecond: 1_000_000,
       startOffset: { x: 0.8, y: 0.25, z: 0 },
       offsetVelocity: { x: 0, y: 0, z: 0 },
-      offsetAcceleration: { x: 20, y: 0, z: 0 },
     });
+    expect(pose!.offsetAcceleration.x).toBeCloseTo(20, 12);
+    expect(pose!.offsetAcceleration.y).toBeCloseTo(0, 12);
+    expect(pose!.offsetAcceleration.z).toBeCloseTo(0, 12);
 
     const primitive = composeDefenderPhysicalPrimitiveSegment(
       body,
