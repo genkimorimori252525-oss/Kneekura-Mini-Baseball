@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  normalizeInfieldBoundaryViolation,
   normalizeInningInfieldSideLockViolation,
   normalizePitchReleaseInfieldSideViolation,
 } from './DefensiveAlignmentViolation';
@@ -9,6 +10,9 @@ import type {
 import type {
   InningInfieldSideLockResult,
 } from './InningInfieldSideAssignment';
+import type {
+  PitchingMotionInfieldBoundaryResult,
+} from './PitchingMotionInfieldBoundaryRule';
 
 const raw = (
   overrides: Partial<PitchReleaseInfieldSideResult> = {},
@@ -87,6 +91,46 @@ describe('DefensiveAlignmentViolation', () => {
       kind: 'violation',
       identity: 'team_only',
       violatingPlayerIds: [],
+    });
+  });
+
+  it('preserves concrete offending-player identity from the infield boundary rule', () => {
+    const boundary: PitchingMotionInfieldBoundaryResult = {
+      kind: 'violation',
+      pitchingRelatedMotionStartTick: 1_900_000,
+      invalidInfielders: ['ss'],
+      placements: [
+        {
+          playerId: '1b',
+          registeredPosition: '1B',
+          leftFootFullyInside: true,
+          rightFootFullyInside: true,
+        },
+        {
+          playerId: '2b',
+          registeredPosition: '2B',
+          leftFootFullyInside: true,
+          rightFootFullyInside: true,
+        },
+        {
+          playerId: 'ss',
+          registeredPosition: 'SS',
+          leftFootFullyInside: false,
+          rightFootFullyInside: false,
+        },
+        {
+          playerId: '3b',
+          registeredPosition: '3B',
+          leftFootFullyInside: true,
+          rightFootFullyInside: true,
+        },
+      ],
+    };
+
+    expect(normalizeInfieldBoundaryViolation(boundary)).toEqual({
+      kind: 'violation',
+      identity: 'concrete_players',
+      violatingPlayerIds: ['ss'],
     });
   });
 
