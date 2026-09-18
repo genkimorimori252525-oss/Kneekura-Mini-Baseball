@@ -1,5 +1,7 @@
 # Play-End Pending Run Finalization Plan
 
+**Status:** IMPLEMENTATION COMPLETE; full repository CI remains blocked before workflow steps start.
+
 **Goal:** Finalize home touches that remain pending because no third out has yet invalidated them, but only after the simulation establishes an authoritative end-of-play boundary.
 
 ## Why this layer exists
@@ -69,3 +71,25 @@ Companion:
 - if a later tag becomes the third out before play end, the existing third-out scoring path is used instead and this finalizer is not invoked.
 
 ### Task 4: Core API + local verification and P0 CI retry.
+
+
+---
+
+## Implementation Evidence
+
+Implemented through HEAD `ee147f0f5ca61bdb3fc786e61d550362cfa92b33`:
+- authoritative `PlayEndFact` with explicit end reason;
+- pending home-touch finalization at or before the play-end tick;
+- rejection of home touches after the authoritative play-end boundary;
+- RuleEngine helper typed to accept only non-third-out resolved pending-run states;
+- non-third-out ground-ball, force-out, and tag-out result types now discriminate `thirdOut: false` from `thirdOut: true`;
+- non-third-out ground-ball home touches are no longer finalized prematurely.
+
+Independent verification:
+- TypeScript 5.8 source-level rules typecheck: success;
+- runtime pending-run finalization fixture: success;
+- force-dissolution/tag-arrival fixture remains green;
+- third-out and no-third-out run paths remain separated.
+
+Repository CI:
+- full repository GREEN remains intentionally unclaimed while P0 Core jobs continue to fail before workflow steps are created.
