@@ -58,17 +58,25 @@ export type CanonicalPlateAppearanceStatus =
     fairDeterminationTick: number;
   }>
   | Readonly<{
-    kind: 'live_ball_complete';
-    count: PitchCountState;
-    contactTick: number;
-    fairDeterminationTick: number;
-    playEndTick: number;
-  }>
-  | Readonly<{
-    kind: 'caught_foul_out';
+    kind: 'caught_foul_live';
     count: PitchCountState;
     contactTick: number;
     outTick: number;
+  }>
+  | Readonly<{
+    kind: 'live_ball_complete';
+    count: PitchCountState;
+    contactTick: number;
+    playEndTick: number;
+    disposition:
+      | Readonly<{
+          kind: 'fair';
+          fairDeterminationTick: number;
+        }>
+      | Readonly<{
+          kind: 'caught_foul';
+          outTick: number;
+        }>;
   }>;
 
 export type PitchAdjudicatedEventPayload = Readonly<{
@@ -365,12 +373,17 @@ export const recordFoulBattedBall = (
   };
 
   if (resolution.kind === 'caught_foul_fly') {
+    if (resolutionTick < resolution.outTick) {
+      throw new Error(
+        'caught foul resolution tick must not precede the catch out tick',
+      );
+    }
     return {
       ...timeline,
       lastEventTick: resolutionTick,
       nextSequence: timeline.nextSequence + 1,
       status: {
-        kind: 'caught_foul_out',
+        kind: 'caught_foul_live',
         count: timeline.status.count,
         contactTick: timeline.status.contactTick,
         outTick: resolution.outTick,
@@ -414,17 +427,20 @@ export const recordLiveBallPlayEnd = (
   timeline: CanonicalPlateAppearanceTimeline,
   playEnd: PlayEndFact,
 ): CanonicalPlateAppearanceTimeline => {
-  if (timeline.status.kind !== 'live_ball') {
+  if (
+    timeline.status.kind !== 'live_ball'
+    && timeline.status.kind !== 'caught_foul_live'
+  ) {
     throw new Error(
       'live-ball play end requires an active live-ball timeline',
     );
   }
-  assertMonotonicTick(timeline, playEnd.tick);
   if (playEnd.tick < timeline.status.contactTick) {
     throw new Error(
       'live-ball play end must not precede bat-ball contact',
     );
   }
+  assertMonotonicTick(timeline, playEnd.tick);
 
   const event: CanonicalPlateAppearanceEvent = {
     tick: playEnd.tick,
@@ -443,9 +459,17 @@ export const recordLiveBallPlayEnd = (
       kind: 'live_ball_complete',
       count: timeline.status.count,
       contactTick: timeline.status.contactTick,
-      fairDeterminationTick:
-        timeline.status.fairDeterminationTick,
       playEndTick: playEnd.tick,
+      disposition: timeline.status.kind === 'live_ball'
+        ? {
+            kind: 'fair',
+            fairDeterminationTick:
+              timeline.status.fairDeterminationTick,
+          }
+        : {
+            kind: 'caught_foul',
+            outTick: timeline.status.outTick,
+          },
     },
     events: [...timeline.events, event],
   };
