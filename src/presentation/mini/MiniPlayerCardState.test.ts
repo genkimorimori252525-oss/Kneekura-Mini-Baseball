@@ -9,11 +9,21 @@ describe('MiniPlayerCardState', () => {
       role: 'batter',
       playerId: 'batter-1',
       displayName: 'Batter One',
+      jerseyNumber: 7,
+      publicMetrics: [
+        { label: '打撃', value: 82 },
+        { label: '走力', value: 74 },
+      ],
       handedness: 'R',
     })).toEqual({
       role: 'batter',
       playerId: 'batter-1',
       displayName: 'Batter One',
+      jerseyNumber: 7,
+      publicMetrics: [
+        { label: '打撃', value: 82 },
+        { label: '走力', value: 74 },
+      ],
       handedness: {
         role: 'batter',
         handedness: 'R',
@@ -32,6 +42,8 @@ describe('MiniPlayerCardState', () => {
       role: 'pitcher',
       playerId: 'pitcher-1',
       displayName: null,
+      jerseyNumber: null,
+      publicMetrics: [],
       handedness: {
         role: 'pitcher',
         handedness: 'L',
