@@ -1544,13 +1544,13 @@ G -> 赤
 
 ここまで完了したら、具体的な効果量・閾値・数式・保存最適化は後続実装設計へ委譲し、この文書自身は「計画完了」として扱える。
 
-### 15.50 同一Trait Familyは排他的な単一状態とする
+### 15.49 同一Trait Familyは排他的な単一状態とする
 
-同じFamilyに属する赤 / 通常 / 青 / 金、またはA〜G / Gold段階は同時に有効化しない。
+同じFamilyに属する赤 / 通常 / 青 / 金、A〜G / Gold段階、Named Negative Extreme、または排他的Behavior Variantは同時に有効化しない。
 
 ```text
 TraitFamily
-  -> one effective tier only
+  -> one effective state only
 ```
 
 例:
@@ -1574,17 +1574,52 @@ good:
 effectiveTier = GOLD
 ```
 
-同様に、同一Family内でAとB、FとG、正側と負側を同時保持しない。
+同様に、同一Family内でAとB、FとG、正側と負側、または速球中心 / 変化球中心のような反対Variantを同時保持しない。Familyは順序Tier型と排他的Variant型の両方を許す。
 
 独立したFamily同士は共存可能である。
 
-### 15.49 最終Traitカタログは09へ分離する
+### 15.50 Pressure TraitはActiveEmotionと二重計上しない
+
+チャンス、対ピンチ、要所等のPressure系Traitを、重要場面だから直接能力を上下させる別Buffとして扱わない。
+
+心理由来の差は `05-psychology-emotion.md` のAppraisal / EmotionPressure / ActiveEmotionへ接続する。
+
+```text
+stable pressure-response state
++ MatchImportance
++ PersonalStake
++ RecentHistory
+      ↓
+Appraisal / EmotionPressure
+      ↓
+ActiveEmotion
+      ↓
+defined behavior / execution change
+```
+
+同じ精神安定性、経験、勝負欲等をPressure TraitとActiveEmotionの双方から再加算しない。
+
+### 15.51 公開RatingとTraitのsource of truthを共有できる
+
+同じ能力を公開RatingとTraitの両方で説明する場合、simulation上は一つのsource of truthしか持たない。
+
+例:
+
+- 盗塁能力 ↔ 盗塁A〜G / 電光石火
+- 走塁能力 ↔ 走塁A〜G / 高速ベースラン
+- バント能力 ↔ バント○ / バント職人
+- 回復能力 ↔ 回復A〜G / ガソリンタンク
+- 肩力 ↔ レーザービーム系Descriptor
+
+複数のUI Projectionが存在しても、Match Coreへ複数能力として入力しない。
+
+### 15.52 最終Traitカタログは09へ分離する
 
 具体的なG〜S境界、A〜G Graded Family、投手・野手・捕手・Green・Blue-Red・Named Red候補の全仕分けは、以下の伴走文書へ分離する。
 
 - `docs/game-design/09-player-trait-catalog.md`
 
-08は設計原則と完成条件を保持し、09は具体カタログと最終未決事項を保持する。
+08は設計原則と完成条件を保持し、09は具体カタログ、Family対応、最終設計判断を保持する。
 
 09が承認され、最終敵対監査を通過した時点で、本08も探索シードから承認候補版へ昇格できる。
 
@@ -1592,8 +1627,8 @@ effectiveTier = GOLD
 
 この節はTODOではなく、**設計開始時に捨ててはいけない論点一覧**である。
 
-1. 赤特の意味を「青の逆」に限定するか、それとも独立した欠点・癖も含むか。
-2. 金特と青特の対応関係をどこまで厳密にするか。
+1. **解決済み:** 赤はGraded Familyの負側と独立Named Negativeの両方を許す。09参照。
+2. **解決済み:** 対応する金 / 青 / 赤 / A〜Gは同一Familyの排他的状態とし、独立Familyのみ共存可能。09参照。
 3. Derived Traitと実際に作用するTraitをUI上で区別するか。
 4. Traitを公開情報にするか、スカウト推定対象を含めるか。
 5. 新人・外国人・未知リーグ選手のTraitをどこまで観測できるか。
@@ -1601,8 +1636,8 @@ effectiveTier = GOLD
 7. 成績Evidenceを観測へ使う際、自己強化ループを起こさない具体的な統計設計。
 8. ○○キラー表示のEvidence閾値、減衰、Relationship粒度をどう定義するか。
 9. 特定選手キラー、球種キラー、球場適性などRelationship Traitをどこまで一般化するか。
-10. 一人が持てるTrait数に上限を置くか。
-11. 相反するTraitを同時保持できるか。
+10. **方向性確定:** 固定上限は設けず、独立した実在差だけをAdmission Gateで追加する。具体的UI密度は後続Presentation設計で調整。
+11. **解決済み:** 同一Familyの相反状態は共存不可。別Familyなら因果的に両立する限り共存可能。09参照。
 12. 青赤と緑が同じ行動へ作用するときの優先順位。
 13. 監督指示・本人傾向・信頼・遵守傾向を最終Decisionへ統合する具体式。
 14. 怪我・疲労・Condition・ActiveEmotionとの合成順序。
@@ -1617,8 +1652,8 @@ effectiveTier = GOLD
 23. 自動試合と描画試合で完全に同じTrait処理を使えるか。
 24. 過去試合Replayで当時のTrait stateを再現する方法。
 25. バランス調整でTrait Definitionが変わった際、既存セーブをどう扱うか。
-26. Trait名称・説明文をどこまで独自化するか。
-27. パワプロ由来の具体的名称・効果をそのまま依存しないための最終的な独自カタログ設計。
+26. **方向性確定:** internal family idとUI名称を分離し、一般野球語は維持可能、固有色の強い名称は独自化可能。09参照。
+27. **解決済み:** 09でADOPT / REINTERPRET / MERGE / MOVE / REJECTへ仕分け。最終UI文言は後続ローカライズで確定。
 28. リーグ相対0〜100を導出する際のリーグ全体分布・期間・基準点をどう定義するか。
 29. 移籍後、新リーグ相対評価の観測不足をどの期間・サンプル数で解消するか。
 30. 変化球図の基準軌道、plate-plane測定方法、単位、矢印量子化方式をどう定義するか。
@@ -1652,9 +1687,8 @@ effectiveTier = GOLD
 
 ## 17. 現時点で決めないこと
 
-以下は今この文書で確定しない。
+以下はカタログ方針確定後も、後続実装設計まで確定しない。
 
-- 得能一覧
 - 数値補正量
 - 発動確率
 - 獲得閾値
@@ -1667,7 +1701,6 @@ effectiveTier = GOLD
 - 初期選手へのTrait割当方式
 - CPU生成選手へのTrait生成方式
 - セーブ互換方式
-- 赤特一覧
 - 具体的なキラー判定式
 
 これらを未確定のまま残すこと自体が、本設計シードの目的である。
