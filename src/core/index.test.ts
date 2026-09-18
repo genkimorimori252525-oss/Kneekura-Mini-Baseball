@@ -17,6 +17,7 @@ import {
   createControlledBaseContactFactFromDefenderPhysics,
   createBatterStanceGeometry,
   createBattedBallFlightEvidence,
+  findBattedBallSettlingEvidence,
   createBattedBallFirstFielderTouchTerritory,
   createFairTerritoryWedge,
   createFairFoulBaseGateGeometry,
@@ -130,6 +131,7 @@ import {
   resolveWalkForcedAdvancement,
   resolveUntouchedGroundContactBeyondBases,
   resolveUntouchedBaseGatePassageTerritory,
+  resolveUntouchedSettledBattedBallTerritory,
   createResolvedLiveBallPlateAppearanceFromGroundBallFirstBaseRule,
   completeGroundBallFirstBasePlateAppearance,
   resolveForceOutAtTarget,
@@ -150,6 +152,7 @@ import {
   resolveAndRecordPitchAgainstBatter,
   resolveAndRecordUntouchedGroundContactBeyondBases,
   resolveAndRecordPostBounceBaseGatePassage,
+  resolveAndRecordSettledBeforeBaseTerritory,
   resolveAndRecordFirstFielderTouchTerritory,
   resolvePlateAppearancePitchSequence,
   resolvePlateAppearancePitchSequenceToMatchState,
@@ -160,6 +163,7 @@ import {
   resolveBatterSwingExitRunTransitionAfterContact,
   recordBatBallContact,
   recordBattedBallBaseGatePassage,
+  recordBattedBallSettlingEvidence,
   recordCountedPitch,
   recordFairBattedBall,
   recordFoulBattedBall,
@@ -354,6 +358,13 @@ describe('core package', () => {
     expect(typeof createBattedBallFirstFielderTouchTerritory).toBe('function');
     expect(typeof resolveFirstFielderTouchTerritory).toBe('function');
     expect(typeof resolveAndRecordFirstFielderTouchTerritory).toBe('function');
+  });
+
+  it('exposes finite ground-ball settling and settled fair-foul chronology through Core', () => {
+    expect(typeof findBattedBallSettlingEvidence).toBe('function');
+    expect(typeof resolveUntouchedSettledBattedBallTerritory).toBe('function');
+    expect(typeof recordBattedBallSettlingEvidence).toBe('function');
+    expect(typeof resolveAndRecordSettledBeforeBaseTerritory).toBe('function');
   });
 
   it('exposes post-bounce base-gate fair-foul chronology through Core', () => {
