@@ -38,6 +38,8 @@ export type RunnerMotionTrajectorySegment = Readonly<{
 }>;
 
 export type RunnerMotionTrajectory = Readonly<{
+  startTick: number;
+  ticksPerSecond: number;
   segments: readonly RunnerMotionTrajectorySegment[];
   endState: RunnerMotionState;
 }>;
@@ -355,6 +357,8 @@ export const buildRunnerMotionTrajectory = (
   }
 
   return {
+    startTick: state.tick,
+    ticksPerSecond: parameters.ticksPerSecond,
     segments,
     endState: {
       tick: endTick,
@@ -363,6 +367,88 @@ export const buildRunnerMotionTrajectory = (
       driveDirection: cursor.control.driveDirection,
       bodyMode: cursor.control.bodyMode,
     },
+  };
+};
+
+export const sampleRunnerMotionTrajectory = (
+  trajectory: RunnerMotionTrajectory,
+  tick: number,
+): RunnerMotionState => {
+  if (!Number.isSafeInteger(tick) || tick < 0) {
+    throw new Error(
+      'runner motion trajectory sample tick must be a non-negative safe integer',
+    );
+  }
+  if (
+    tick < trajectory.startTick
+    || tick > trajectory.endState.tick
+  ) {
+    throw new Error(
+      'runner motion trajectory sample tick must lie inside the trajectory interval',
+    );
+  }
+
+  if (tick === trajectory.endState.tick) {
+    return trajectory.endState;
+  }
+
+  const elapsedSeconds = (
+    tick - trajectory.startTick
+  ) / trajectory.ticksPerSecond;
+
+  let segment: RunnerMotionTrajectorySegment | undefined;
+  for (
+    let index = trajectory.segments.length - 1;
+    index >= 0;
+    index -= 1
+  ) {
+    const candidate = trajectory.segments[index];
+    if (
+      elapsedSeconds + EPSILON >= candidate.startElapsedSeconds
+      && elapsedSeconds <= candidate.endElapsedSeconds + EPSILON
+    ) {
+      segment = candidate;
+      break;
+    }
+  }
+
+  if (segment === undefined) {
+    if (trajectory.segments.length === 0) {
+      return trajectory.endState;
+    }
+    throw new Error(
+      'runner motion trajectory does not cover the requested tick',
+    );
+  }
+
+  const durationSeconds = (
+    segment.endElapsedSeconds
+    - segment.startElapsedSeconds
+  );
+  const localSeconds = Math.max(
+    0,
+    Math.min(
+      durationSeconds,
+      elapsedSeconds - segment.startElapsedSeconds,
+    ),
+  );
+
+  return {
+    tick,
+    routeDistanceMeters: (
+      segment.startRouteDistanceMeters
+      + segment.startSpeedMps * localSeconds
+      + 0.5
+        * segment.accelerationMps2
+        * localSeconds
+        * localSeconds
+    ),
+    speedMps: canonicalZero(
+      segment.startSpeedMps
+      + segment.accelerationMps2 * localSeconds,
+    ),
+    driveDirection: segment.driveDirection,
+    bodyMode: segment.bodyMode,
   };
 };
 
