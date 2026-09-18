@@ -44,3 +44,7 @@ export * from './sim/perception/Occlusion';
 export * from './sim/perception/ObservationQuality';
 export * from './sim/perception/ObservationCapture';
 export * from './sim/plateAppearance/ContactVerticalSlice';
+export * from './rules/PhysicalRuleFacts';
+export * from './rules/BatterRunnerFirstBaseRule';
+export * from './rules/ThirdOutScoring';
+export * from './rules/RuleEngine';
