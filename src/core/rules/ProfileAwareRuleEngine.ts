@@ -14,6 +14,11 @@ import {
   type TagUpComplianceResult,
 } from './TagUpCompliance';
 import {
+  evaluatePitchReleaseInfieldSide,
+  type PitchReleaseInfieldSideInput,
+  type PitchReleaseInfieldSideResult,
+} from './PitchReleaseInfieldSideRule';
+import {
   resolveTagUpAppeal,
   type TagUpAppealInput,
   type TagUpAppealResult,
@@ -107,4 +112,38 @@ export const resolveAdvantageousFourthOutForMatch = (
   }
 
   return selectAdvantageousInningEndingOut(options);
+};
+
+
+export const evaluatePitchReleaseInfieldSideForMatch = (
+  match: CanonicalMatchState,
+  context: RuleContext,
+  input: Omit<PitchReleaseInfieldSideInput, 'parameters'>,
+): PitchReleaseInfieldSideResult => {
+  assertMatchRuleProfile(match, context);
+
+  const policy = context.profile.defensiveAlignment.secondBaseSide;
+  if (!policy.enabled) {
+    throw new Error(
+      'active rule profile does not enable the second-base side restriction',
+    );
+  }
+  if (
+    policy.evaluationMoment !== 'pitch_release'
+    || policy.sideDeterminedBy !== 'both_feet'
+  ) {
+    throw new Error(
+      'unsupported second-base side alignment semantics',
+    );
+  }
+
+  return evaluatePitchReleaseInfieldSide({
+    ...input,
+    parameters: {
+      requiredInfielderCount:
+        context.profile.defensiveAlignment.requiredInfielderCount,
+      minimumInfieldersEachSideOfSecondBase:
+        policy.minimumInfieldersEachSideOfSecondBase,
+    },
+  });
 };
