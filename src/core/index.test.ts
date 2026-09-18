@@ -11,6 +11,7 @@ import {
   composeDefenderPhysicalPrimitiveSegment,
   composeObservationQuality,
   createGloveContactInputFromDefenderPrimitive,
+  createControlledRunnerTagFact,
   createLiveBallCatchOutcome,
   createObservationSample,
   createSecuredCatchOutcome,
@@ -50,6 +51,8 @@ import {
   resolveForceOutAtTarget,
   resolveForceOutScoringRule,
   resolveThirdOutScoring,
+  resolveTagArrival,
+  resolveTagOutScoringRule,
   resolveDefensiveDecisionTiming,
   resolveCommunicationReception,
   retireForceParticipant,
@@ -166,6 +169,12 @@ describe('core package', () => {
     expect(typeof resolveBatterRunnerFirstBase).toBe('function');
     expect(typeof resolveThirdOutScoring).toBe('function');
     expect(typeof resolveGroundBallFirstBaseRule).toBe('function');
+  });
+
+  it('exposes tag-arrival time-play rules through the shared Core API', () => {
+    expect(typeof createControlledRunnerTagFact).toBe('function');
+    expect(typeof resolveTagArrival).toBe('function');
+    expect(typeof resolveTagOutScoringRule).toBe('function');
   });
 
   it('exposes exact physical tag contact timing through the shared Core API', () => {
