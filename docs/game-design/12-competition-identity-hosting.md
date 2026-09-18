@@ -300,7 +300,6 @@ regional rotation priority
 + hosting capability
 + previous hosting recency
 + infrastructure
-+ bid quality
 ```
 
 で選ぶ。
@@ -475,51 +474,64 @@ WBCよりcompactで、elite-onlyの大会感を出す。
 
 ---
 
-# 14. Host Selection is a World System
+# 14. Host Selection — Simple Automatic Score
 
-Hostingを単なるrandom city選択にしない。
+開催地選定はユーザー操作対象にしない。
 
-概念:
+大会主催側が、開催候補都市の既存データから `HostScore` を自動計算し、上位候補から開催地を決定する。
+
+初期候補:
 
 ```ts
-type HostBid = {
-  applicant: AssociationId | CityId;
-  stadiumScore: number;
-  transportScore: number;
-  accommodationScore: number;
-  broadcastScore: number;
-  financialGuarantee: number;
-  fanDemandEstimate: number;
-  developmentValue: number;
-  rotationPriority: number;
+type HostScoreInput = {
+  stadiumQuality: number;
+  stadiumCapacity: number;
+  transportQuality: number;
+  accommodationCapacity: number;
+  broadcastReadiness: number;
+  hostingRecencyPenalty: number;
 };
 ```
 
-Competition OrganizerがHostBidを評価する。
-
-## 14.1 Development hosting
-
-常に最大市場だけを開催地にすると世界が固定化する。
-
-一定大会では:
+初期の重み候補:
 
 ```text
-developmentValue
+stadiumQuality       30
+stadiumCapacity      20
+transportQuality     15
+accommodation        15
+broadcastReadiness   15
+hostingRecency        5
+-----------------------
+total               100
 ```
 
-を評価し、新興地域へ大会を与えることができる。
+`hostingRecency` は最近同じ都市・地域で開催された場合の減点として扱う。
 
-開催経験:
+最終的な開催地はCompetition Organizer AI / deterministic ruleが決める。
 
-- stadium investment
-- federation revenue
-- fan interest
-- youth participation
-- sponsor interest
+ユーザーは:
 
-へ長期的に波及し得る。
+- 入札しない
+- 開催都市を直接選ばない
+- Host Scoreへ資金を投入しない
+- 開催権獲得のための別ミニゲームを行わない
 
-ただし「開催したから選手能力+5」は禁止。
+開催地決定はWorld Simulationの背景処理とする。
+
+また、開催成功を直接:
+
+```text
+crowd
+ -> sponsor
+ -> academy growth
+```
+
+へ自動接続する仕組みは初期設計から外す。
+
+将来Career Economyで必要になった場合のみ、開催収益や観客実績を通常の経済入力として再検討する。
+
+開催そのものがLeague Ecologyや選手能力を直接成長させることはない。
 
 ---
 
@@ -693,7 +705,7 @@ Presentationは正史を観測するだけで、Match Coreへ影響しない。
 7. WBC Qualifierは4つのsingle-elimination Pod
 8. WBCはPool Hosts + Final City
 9. Premier 12は2 Group Hosts + Final Four
-10. Hostingはrotation + bid quality + development value
+10. Hostingは既存インフラから算出する自動Host Score + recent-hosting penalty
 11. 大会Awardsを歴史保存
 12. PrestigeはHistoryから変化するがcanonical roleとは分離
 
@@ -703,7 +715,7 @@ Presentationは正史を観測するだけで、Match Coreへ影響しない。
 
 - 大会の最終正式名称
 - trophy名称・意匠
-- host bid exact scoring
+- Host Score exact weights
 - home-credit balancing weight
 - Quarterfinal rematch constraints
 - exact rest-day rules
@@ -711,4 +723,3 @@ Presentationは正史を観測するだけで、Match Coreへ影響しない。
 - award voting weights
 - audience / fan simulation
 - rivalry threshold
-- host-city infrastructure investment model
