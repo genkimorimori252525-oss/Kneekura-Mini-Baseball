@@ -2,6 +2,8 @@ import type {
   BaserunnerWorldState,
   CanonicalWorldSnapshot,
 } from '../../model/CanonicalWorldSnapshot';
+import type { BaseTouchRegion } from './BaseTouch';
+import type { RunnerBodyContactParameters } from './RunnerBodyContact';
 import {
   projectBatterSwingExitRecoveryRunnerWorldState,
   sampleBatterSwingExitRecoveryTrajectory,
@@ -22,6 +24,7 @@ import {
   projectRunnerWorldState,
 } from './RunnerWorldProjection';
 import type { RunnerRoute } from './RunnerRoute';
+import { findRunnerBaseTouchTickOnTrajectory } from './RunnerBaseTouch';
 
 export type BatterRunnerWorldTimelinePhase =
   | 'swing_exit_recovery'
@@ -244,3 +247,15 @@ export const applyBatterRunnerWorldTimelineToSnapshot = (
     ball: snapshot.ball,
   };
 };
+
+
+export const findBatterRunnerPostLaunchBaseTouchTick = (
+  timeline: BatterRunnerWorldTimeline,
+  base: BaseTouchRegion,
+  bodyParameters: RunnerBodyContactParameters,
+): number | null => findRunnerBaseTouchTickOnTrajectory(
+  timeline.postLaunchTrajectory,
+  timeline.route,
+  base,
+  bodyParameters,
+);
