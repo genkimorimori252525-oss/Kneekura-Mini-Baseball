@@ -110,17 +110,11 @@ Goldは「青Traitへ追加される別Buff」ではなく、同じFamilyの上�
 ```ts
 type TraitFamilyProjection = {
   familyId: string;
-  effectiveTier:
-    | 'G'
-    | 'F'
-    | 'E'
-    | 'D'
-    | 'C'
-    | 'B'
-    | 'A'
-    | 'GOLD';
+  effectiveStateId: string; // grade, named tier, or exclusive variant
 };
 ```
+
+具体的なFamily Definition側が、`G..A / GOLD / RED_EXTREME` のような順序Tier、または `FASTBALL_BIAS / BALANCED / BREAKING_BALL_BIAS` のような排他的Variantを定義する。
 
 Named Blue / GoldのFamilyでも同じ。
 
@@ -243,6 +237,35 @@ A〜G型Traitは一つの正負を持つFamilyとする。
 UI上のA〜Gが共通でも、内部source of truthはFamilyごとに異なる。
 
 ---
+
+## 3.3 公開RatingとTraitが同じsourceを指す場合は一つの能力として扱う
+
+公開0〜100 / G〜S RatingとTrait表示が同じ原因能力を要約する場合、それらを別能力としてMatch Coreへ入力しない。
+
+```text
+one source of truth
+  -> optional public rating projection
+  -> optional Trait projection
+  -> one simulation effect
+```
+
+特に注意する候補:
+
+- バント能力 ↔ バント○ / バント職人
+- 盗塁能力 ↔ 盗塁A〜G / 電光石火
+- 走塁能力 ↔ 走塁A〜G / 高速ベースラン
+- 回復能力 ↔ 回復A〜G / ガソリンタンク
+- 肩力 ↔ レーザービーム系
+- raw power ↔ パワーヒッター / アーチスト
+
+扱いはFamilyごとに決める。
+
+- 盗塁 / 走塁等のA〜G Familyは、それ自体を人間向けの主要Skill Projectionとして扱える。別の「盗塁G〜S」をさらに重ねない。
+- バントをHeadline Ratingとして表示する場合、バントTraitは同じBuntSkillから導出し追加Buffを持たない。UI上の重複が強い場合はどちらか一方をPrimary表示にする。
+- レーザービームは肩力そのものではなく、送球速度・軌道・transfer等の特徴を説明するDescriptorであり、肩力を再加算しない。
+- パワーヒッター / アーチストはraw power値そのものではなく、power swing時のlaunch / transfer技術を表す。raw powerと同じ原因だけで成立させない。
+
+Presentation上で複数表示する場合も、「独立した長所が複数ある」と誤認させないdrill-down関係を持たせる。
 
 # 4. 投手Trait カタログ候補
 
@@ -502,7 +525,7 @@ Relationship / Familiarity Evidence
 
 ---
 
-# 5.11 Green / Neutralの排他的Behavior Family
+## 5.11 Green / Neutralの排他的Behavior Family
 
 GreenやNeutralでも同一意思決定軸の反対傾向は共存させない。
 
@@ -764,6 +787,7 @@ stable internal family id
 - Condition / CurrentFatigue / Stamina / Recoveryが同じ原因を二重適用しない
 - Pressure / Relationship / Reputationが結果へ直接Buffを掛けない
 - Descriptor Traitが元となる物理・技能を再加算しない
+- 同じsource of truthを公開RatingとTraitの両方から二重入力していない
 - RuleProfile依存Traitがルールを無視して常時発動しない
 - Career / Historical DescriptorがMatch能力へ逆流しない
 - source conflict項目を推測で実装しない
