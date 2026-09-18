@@ -256,6 +256,36 @@ describe('BatterRunnerFirstBasePhysicalAdapter', () => {
     });
   });
 
+  it('preserves a fully physical simultaneous first-base race without inventing precedence', () => {
+    const built = timeline();
+    const touchTick = findBatterRunnerPostLaunchBaseTouchTick(
+      built,
+      firstBase,
+      bodyParameters,
+    ) as number;
+
+    expect(resolveBatterRunnerFirstBaseFromPhysicalRace({
+      timeline: built,
+      firstBase,
+      bodyParameters,
+      defender: {
+        defenderId: 'first-baseman',
+        baseSurfaceHeightMeters: 0,
+        securedCatch: createSecuredCatchOutcome(
+          touchTick - 10_000,
+          touchTick,
+        ),
+        controlThroughTick: touchTick + 100_000,
+        contactPrimitives: [footOnFirst()],
+      },
+    })).toEqual({
+      kind: 'simultaneous',
+      runnerId: 'batter',
+      base: 1,
+      tick: touchTick,
+    });
+  });
+
   it('keeps two-out batter-runner-before-first scoring semantics in the fully physical race path', () => {
     const built = timeline();
     const touchTick = findBatterRunnerPostLaunchBaseTouchTick(
