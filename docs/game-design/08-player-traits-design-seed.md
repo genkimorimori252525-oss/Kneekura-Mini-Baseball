@@ -1190,6 +1190,237 @@ actual performance expression
 
 したがって、役割適性が低いからスタミナ値を下げるのではなく、同じ身体能力をその役割でどれだけ安定して発揮できるかを変える。
 
+### 15.34 Capability Projection と Observed League Fit を分離する
+
+リーグ相対の公開能力値と、実際の新環境への適応度を同じ概念へ混ぜない。
+
+- `CapabilityProjection`: 真の基礎能力を、そのリーグの能力分布へ照らして人間向けに換算した評価
+- `ObservedLeagueFit`: 実戦、Exposure / Familiarity、環境適応、役割、観測サンプルを含めて「そのリーグで現在どれだけ力を発揮できているか」を表す観測・適応側の状態
+
+```text
+true capability
+      ↓
+CapabilityProjection
+      ↓
+league-relative public rating
+
+true capability
++ exposure / familiarity
++ environment
++ role / usage
++ observed games
+      ↓
+ObservedLeagueFit / Estimate
+```
+
+CapabilityProjectionをMatch Coreへの能力補正として使わない。
+
+移籍直後に「新リーグでどれだけ通用するか」が未知でも、真能力そのものは既に存在する。未知なのは主にKnowledge / Fit側である。
+
+最終UIでどの値を主要0〜100として見せるかはPresentation設計で選べるが、内部データモデルでは両者を分離して保持できるようにする。
+
+### 15.35 リーグ相対能力の尺度と一覧フィルタを分離する
+
+一軍 / 二軍、守備位置、先発 / 中継ぎ / 抑え等は、原則として能力尺度そのものを変える母集団ではなく、一覧・ランキング・比較のフィルタとして扱う。
+
+```text
+same league rating scale
+  ├─ all players
+  ├─ first team
+  ├─ farm / reserve
+  ├─ catcher
+  ├─ shortstop
+  └─ starter / reliever / closer
+```
+
+これにより、昇格・降格・役割変更だけでパワー72が85になるような再スケールを避ける。
+
+必要であれば「捕手内2位」「先発内上位10%」等を補助情報として表示する。
+
+### 15.36 Condition / Fatigue / Stamina / Recovery は別原因として一度だけ作用させる
+
+同じ原因を複数レイヤーから再加算しない。
+
+- `Condition`: 当日の身体・技術の噛み合い、感覚、短期的な発揮状態
+- `CurrentFatigue`: 累積負荷の結果として現在残っている疲労
+- `WorkCapacity / Stamina`: 一度の活動で出力を維持する絶対身体能力
+- `RecoveryCapacity`: 活動後に回復する絶対身体能力
+
+禁止例:
+
+```text
+fatigue accumulates
+  -> velocity decreases
+  -> Condition also worsens only because of the same fatigue
+  -> velocity decreases again
+```
+
+採用する考え方:
+
+```text
+independent causes
+  -> distinct state updates
+  -> composed once into effective execution
+```
+
+疲労がConditionへ影響する設計を将来採用する場合も、同じ原因を二重に性能へ掛けない因果グラフを要求する。
+
+### 15.37 Suitability は汎用身体能力を再加算しない
+
+守備位置適性・投手役割適性は、走力、肩力、スタミナ等の汎用能力をもう一度補正する値にしない。
+
+Suitabilityの主対象は、その役割固有の習熟・判断・ルーティン・技術運用とする。
+
+例:
+
+- 遊撃適性: 遊撃固有の読み、足運び、ベースカバー、送球選択、併殺動作
+- 捕手適性: 捕手固有の受球、ブロッキング、配球理解、投手連携
+- 先発適性: ペース配分、打順巡回への対応、長い登板の組み立て
+- 中継ぎ適性: 短い準備時間、登板時刻の不確実性、短時間出力への適応
+- 抑え適性: 終盤ルーティン、高レバレッジ下の準備・意思決定
+
+```text
+generic physical ability
++ role-specific suitability
+      ↓
+actual execution
+```
+
+という構造にし、同じスタミナ不足を「スタミナ」と「先発適性」の両方で罰しない。
+
+### 15.38 公開スタミナは一登板・一活動の持続力を主意味とする
+
+公開UIの「スタミナ」は、主に一度の登板・試合で品質をどれだけ長く維持できるかを表す絶対身体能力として扱う。
+
+回復速度は別の内部能力 `RecoveryCapacity` とし、必要に応じて「回復○」等のDescriptor Traitで要約する。
+
+これにより、
+
+- 一度は長く投げられるが回復が遅い
+- 一度の登板は短いが連投には強い
+
+を区別できる。
+
+年間を通じた耐久性は、スタミナ・回復力・日程・起用・CurrentFatigueの相互作用から自然発生させる。
+
+### 15.39 Presentation Projection Invariance を必須テストにする
+
+UI用ProjectionはMatch Coreへ逆流してはならない。
+
+以下のみを変更した比較実行で、同一true state・同一Match input・同一seedならCanonical Eventsと最終結果が完全一致することを要求する。
+
+- 0〜100への換算式
+- G〜S境界
+- Trait表示名
+- Trait色
+- リーグ比較母集団
+- 説明文
+- 表示順
+- UI上の変化量量子化
+
+これはPresentation Projectionの安全柵として、将来のAcceptance Testへ追加する。
+
+### 15.40 Trait Admission / Reject Gate を設ける
+
+特殊能力カタログへ新Traitを追加する際は、「元ネタに存在する」「ゲームとして分かりやすい」だけでは採用しない。
+
+最低限、以下を説明できることを要求する。
+
+```text
+real-world cause
+  -> internal state / skill / behavior / context
+  -> affected intermediate quantity
+  -> observable baseball difference
+  -> human-readable Trait
+```
+
+説明できない候補は、
+
+- 不採用
+- Descriptor Traitへ再解釈
+- Behavior Traitへ再解釈
+- Relationship / Contextへ移動
+- 別の実在能力へ統合
+
+のいずれかを選ぶ。
+
+またRuleProfile依存性を確認し、ルール環境が変われば意味を失うTraitは自動Buffとして残さない。
+
+### 15.41 変化量0〜10の厳密な基準軌道はPitch Physicsまで保留する
+
+ユーザー向けには「どれくらい曲がるか」を0〜10で簡潔に示す方針を維持する。
+
+ただし、厳密な基準軌道は現時点で固定しない。
+
+比較候補:
+
+- release directionをそのまま延長した幾何学的直線
+- 同初速・同release条件でspin / aerodynamic movementを除いた基準球
+- gravity-only reference trajectory
+
+遅い球で単なる重力落下を過大に「変化」と数えないこと、フォーク等の直感的な「落ち」を損なわないことの両方を検証し、Pitch Physics設計時に決定する。
+
+### 15.42 Relationship Trait は対象名ではなく構成Evidenceから生じる
+
+「○○キラー」のUI表示は球団名等を使ってよいが、原因側を単一Team IDへ閉じ込めない。
+
+原因Evidence候補:
+
+- 実際に対戦した選手群
+- pitch / swing shape clusters
+- tactical patterns
+- stadium / environment
+- coaching / roster tendencies
+- recent matchup history
+
+ロースターや戦術が大きく変化すれば、過去のFamiliarityが自然に有効性を失うようにする。
+
+Team identityは表示・履歴の対象であり、魔法的な相性Buffのsource of truthにはしない。
+
+### 15.43 KnowledgeEstimate を共通境界として使う
+
+新人、外国人、移籍直後、ドラフト候補、スカウト対象等で別々の「???システム」を作らず、TruthとKnowledgeを共通構造で分離する。
+
+概念:
+
+```ts
+type KnowledgeEstimate<T> = {
+  estimate: T;
+  uncertainty: number;
+  evidenceCount: number;
+  observedAt: SeasonTime;
+  source: KnowledgeSource;
+};
+```
+
+用途:
+
+- Scout Estimate
+- Coach Estimate
+- 移籍後の新リーグ評価
+- 未知選手の能力推定
+- 相手傾向のScoutingEstimate
+
+「能力が低い」と「まだ分からない」を同じ低評価へ潰さない。
+
+### 15.44 0〜10000指数もsource of truthではなく高精度Projectionとする
+
+0〜10000は生成・保存・比較・補間に便利な高精度指数として利用してよいが、万能な真能力値としてMatch Physicsへ直接戻さない。
+
+例:
+
+```text
+bat speed / swing path / power transfer / body state
+        ↓
+high-resolution ability index (0..10000)
+        ↓
+public projection (0..100 / G..S)
+```
+
+試合計算のsource of truthは、可能な限り原因となる物理・技能・認知・行動状態である。
+
+0〜10000値を変更しただけで、対応する原因状態なしに物理結果が変化する設計は避ける。
+
 ## 16. 将来設計で必ず再検討する問題
 
 この節はTODOではなく、**設計開始時に捨ててはいけない論点一覧**である。
@@ -1221,34 +1452,34 @@ actual performance expression
 25. バランス調整でTrait Definitionが変わった際、既存セーブをどう扱うか。
 26. Trait名称・説明文をどこまで独自化するか。
 27. パワプロ由来の具体的名称・効果をそのまま依存しないための最終的な独自カタログ設計。
-28. 一軍/二軍、ポジション、投手役割等の比較母集団を、公開ランク算出時にどの優先順位・条件で選ぶか。
+28. リーグ相対0〜100を導出する際のリーグ全体分布・期間・基準点をどう定義するか。
 29. 移籍後、新リーグ相対評価の観測不足をどの期間・サンプル数で解消するか。
 30. 変化球図の基準軌道、plate-plane測定方法、単位、矢印量子化方式をどう定義するか。
 31. 球種ごとの平均値だけを表示するか、ばらつき・再現性・疲労時変化までどの階層で見せるか。
 32. 月次更新だけで十分か、重大イベント時の臨時再評価条件をどこまで許可するか。
-33. Condition 1〜5が各“発揮しやすい能力”へ作用する具体的な感度・上限・下限をどうするか。
+33. Condition / CurrentFatigue / ActiveEmotion等を二重計上せず合成する具体的な因果グラフと感度をどう定義するか。
 34. 調子安定 / 調子極端 / 季節TraitがCondition分布へどう作用するか。
 35. Scouting対象の真能力・推定能力・不確実性をどの粒度で保存するか。
 36. Scout内部能力をどの軸まで分解し、UIへどの軸だけ公開するか。
 37. Traitの1段目説明と、さらに深いEvidence / provenance表示をどこまで分けるか。
 38. 複数内部能力を一つのTraitへ圧縮する際の重み付けと、同じTraitでも異なる内部構成を許すか。
-39. 一つの内部能力が複数Trait・ランク・図へ投影される場合、過大評価を生まない表示ルールをどうするか。
+39. 同一原因を複数のTrait・ランク・図へ表示する際、ユーザーが独立した長所と誤認しないPresentation規則をどうするか。
 40. 現在の真能力、月次評価値、直近実測、シーズン平均、キャリア傾向をどの階層で使い分けるか。
 41. 過去シーズンの選手画面を開いた際、「当時の評価」を表示するか、現在のprojectionルールで再評価するか。
 42. Projection Definition更新で同じ選手の表示ランクが変わる場合、セーブ・履歴・Replayでどのversionを正とするか。
 43. 深い分析情報を全選手へ常時保存するか、集約統計・オンデマンド計算・PlayCapsule等へ分担するか。
-44. UI用の簡略評価がAI監督・CPU判断へ逆流しない境界をどこで保証するか。
+44. Presentation Projection Invarianceテストをどのテスト階層・CIで恒常的に保証するか。
 45. Scout Estimateで「能力が低い」と「まだ分からない」を明確に区別する表示・データ構造。
 46. 通常UIではカラーのみを主表示とし、Mechanism分類を詳細画面や分析モードへどこまで露出するか。
 47. 月次Projection更新を大量リーグ・大量選手へ適用しても軽量に保つキャッシュ / 差分更新設計。
 48. 300年規模の履歴保持を目標に、詳細投球・打球・守備Evidenceをどこまで保持し、どこから集約・圧縮するか。
-49. どの公開能力をLEAGUE_RELATIVE、ABSOLUTE、SUITABILITYへ分類するかの最終カタログ。
+49. 各公開能力をLEAGUE_RELATIVE / ABSOLUTE_PHYSICAL / SUITABILITY等へ分類する最終カタログ。
 50. 守備位置適性の内部要因を、経験・技術・判断・身体条件のどこまで含めるか。
-51. 先発 / 中継ぎ / 抑え適性を、独立した査定値にするか、疲労・回復・準備・球種構成等から完全導出するか。
+51. 先発 / 中継ぎ / 抑え適性のうち、役割固有の習熟・判断・ルーティンをどこまで独立状態として持つか。
 52. Role Suitabilityが複数高い選手（先発A / 中継ぎA等）をどのように表示・運用するか。
 53. 適性Aだが能力不足、適性Dだが能力が非常に高い、といったケースをUIで誤解なく伝える方法。
-54. 肩力・走力・スタミナ等の絶対身体能力を、どの物理量・複合指標から公開0〜100へ投影するか。スタミナ公開値へWorkCapacity / FatigueResistance / RecoveryCapacityをどう要約するか。
-55. 内部0〜10000指数を保存・学習・生成の共通規格にする場合、各能力で同じ意味の距離尺度を保証する必要があるか。
+54. 肩力・走力・スタミナ等の絶対身体能力を、どの物理量・複合指標から公開0〜100へ投影するか。公開スタミナはWorkCapacity中心とし、境界・尺度をどう定義するか。
+55. 高精度0〜10000 Projectionを保存・生成・補間へ使う場合、各能力で同じ意味の距離尺度を保証する必要があるか。
 56. CurrentFatigueの蓄積・回復を、試合数、登板間隔、移動、練習、睡眠等のどこまでモデル化するか。
 57. 疲労時に球速・変化量・制球・守備実行等がどの順序・感度で崩れるかを個人差としてどう持つか。
 
@@ -1295,6 +1526,13 @@ actual performance expression
   Scouting UIが選手UI以上に複雑化していないか
   適性と能力を混同していないか
   リーグ相対にすべきでない事実・状態・適合性まで再スケールしていないか
+  Capability ProjectionとObserved League Fitを混同していないか
+  Condition / CurrentFatigue / Stamina / Recoveryを同じ原因で二重計上していないか
+  Suitabilityが汎用身体能力を再加算していないか
+  UI Projectionの変更だけでCanonical Eventsが変化していないか
+  Trait候補に因果説明とAdmission Gateがあるか
+  Team名そのものをRelationship Buffの原因にしていないか
+  0〜10000指数を万能な真能力として物理へ戻していないか
 ```
 
 本書はその時点で更新・分割・破棄してよい。
