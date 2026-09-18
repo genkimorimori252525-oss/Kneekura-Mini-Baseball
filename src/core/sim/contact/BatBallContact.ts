@@ -43,6 +43,7 @@ export type BattedBallInitialState = Readonly<{
 
 export type BatBallContactResult = Readonly<{
   tick: number;
+  ballCenter: Vec3;
   point: Vec3;
   batPoint: Vec3;
   normal: Vec3;
@@ -302,6 +303,7 @@ export const resolveBatBallContact = (
 
   return {
     tick: pitch.tick,
+    ballCenter: pitch.position,
     point: contactPoint,
     batPoint: nearest.point,
     normal,
@@ -310,3 +312,12 @@ export const resolveBatBallContact = (
     exitSpin,
   };
 };
+
+export const createBattedBallInitialStateFromContact = (
+  contact: BatBallContactResult,
+): BattedBallInitialState => ({
+  tick: contact.tick,
+  position: contact.ballCenter,
+  velocity: contact.exitVelocity,
+  spin: contact.exitSpin,
+});
