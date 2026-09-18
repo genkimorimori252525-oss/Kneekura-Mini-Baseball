@@ -49,5 +49,5 @@ export type MiniPresentationFrame = Readonly<{
   cameraMode: MiniCameraMode;
   sample: CanonicalPresentationSample;
   events: readonly TimedMatchEvent[];
-  cutReason?: 'live_batted_ball_contact';
+  cutReason?: 'fair_batted_ball_declared';
 }>;
