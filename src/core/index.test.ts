@@ -10,6 +10,7 @@ import {
   createBatterRunnerFirstBaseFrame,
   createBatterRunnerFirstBaseRoute,
   createBatterRunnerFirstBaseTouchFactFromTimeline,
+  createCatchRetentionContactFromAcceleratedReception,
   createControlledBaseContactFactFromCatchOutcomePhysics,
   createControlledBaseContactFactFromDefenderPhysics,
   createBatterStanceGeometry,
@@ -262,6 +263,10 @@ describe('core package', () => {
     expect(typeof resolveForceOutAtTarget).toBe('function');
     expect(typeof resolveForceOutScoringRule).toBe('function');
     expect(typeof applyForceOutRuleResultToState).toBe('function');
+  });
+
+  it('exposes physical throw-reception contact through Core', () => {
+    expect(typeof createCatchRetentionContactFromAcceleratedReception).toBe('function');
   });
 
   it('exposes defender controlled-base physics through Core', () => {
