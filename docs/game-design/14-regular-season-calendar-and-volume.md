@@ -252,7 +252,7 @@ Balanced schedule:
 - Postseason: **late October–early November**
 - ABCL: **November Flex Window**
 - density: **STANDARD**
-- target: 約3.2 games / week
+- target: 約4.1 games / week
 
 Balanced:
 
@@ -381,11 +381,11 @@ Base matrix:
 ## 5.3 Dominican League
 
 - games: **100**
-- Regular Season: **September–December**
-- Championship Round + Final: **December–January**
+- Regular Season: **August–December**
+- Championship Round + Final: **January**
 - AmBCL: **February**
 - density: **STANDARD**
-- target: 約4.0〜4.5 games / week
+- target: 約4.5 games / week
 
 Balanced:
 
@@ -401,11 +401,11 @@ Balanced:
 ## 5.4 Venezuela League
 
 - games: **112**
-- Regular Season: **September–December**
+- Regular Season: **August–December**
 - Postseason: **January**
 - AmBCL: **February**
 - density: **STANDARD**
-- target: 約4.5 games / week
+- target: 約5.0 games / week
 
 Balanced:
 
@@ -421,11 +421,11 @@ Balanced:
 ## 5.5 Puerto Rico League
 
 - games: **100**
-- Regular Season: **September–December**
+- Regular Season: **August–December**
 - Postseason: **January**
 - AmBCL: **February**
 - density: **STANDARD**
-- target: 約4.5〜5.0 games / week
+- target: 約4.5 games / week
 
 Balanced:
 
@@ -441,11 +441,11 @@ Balanced:
 ## 5.6 Cuba League
 
 - games: **120**
-- Regular Season: **September–December**
+- Regular Season: **August–December**
 - Postseason: **January**
 - AmBCL: **February**
 - density: **STANDARD_DENSE**
-- target: 約5.0〜5.5 games / week
+- target: 約5.5 games / week
 
 Balanced:
 
@@ -476,7 +476,7 @@ ZoneはPostseason path / rivalry identityのために保持する。
 - Postseason: **September**
 - EBCL: **October**
 - density: **STANDARD_DENSE**
-- target: 約4.8 games / week
+- target: 約4.1 games / week
 
 ```text
 9 opponents x 12
@@ -491,7 +491,7 @@ ZoneはPostseason path / rivalry identityのために保持する。
 - Postseason: **September**
 - EBCL: **October**
 - density: **STANDARD_DENSE**
-- target: 約3.3 games / week
+- target: 約4.2 games / week
 
 ```text
 11 x 10
@@ -546,7 +546,7 @@ Cycle Year 2はWBC windowを優先。
 - Postseason: **September**
 - EBCL: **October**
 - density: **STANDARD_DENSE**
-- target: 約3.2 games / week
+- target: 約4.1 games / week
 
 短いclimate windowのため、他の欧州Leagueより平日seriesを使用しやすい。
 
@@ -562,7 +562,7 @@ Cycle Year 2はWBC windowを優先。
 - Postseason: none
 - AfBCL: **April**
 - density: **STANDARD**
-- target: 約5.0 games / week
+- target: 約4.2 games / week
 
 Balanced:
 
@@ -587,11 +587,11 @@ Balanced:
 
 - clubs: 8
 - games: **112**
-- Regular Season: **October–January**
+- Regular Season: **September–January**
 - Postseason: **February**
 - OBCL: **March**
 - density: **STANDARD_DENSE**
-- target: 約3.5 games / week
+- target: 約5.1 games / week
 
 Balanced:
 
@@ -606,11 +606,11 @@ Balanced:
 
 - clubs: 8
 - games: **112**
-- Regular Season: **October–February**
+- Regular Season: **September–February**
 - Postseason: none
 - OBCL: **March**
 - density: **STANDARD_DENSE**
-- target: 約2.7 games / week
+- target: 約4.3 games / week
 
 Balanced:
 
@@ -634,10 +634,10 @@ Pacific travelを考慮し、away seriesをblock化する。
 | Asia | West / South Asia | 110 | Oct–Mar | none |
 | Americas | North America | 162 | Mar–Sep | Oct |
 | Americas | Mexico | 120 | Apr–Aug | Sep |
-| Americas | Dominican | 100 | Sep–Dec | Jan |
-| Americas | Venezuela | 112 | Sep–Dec | Jan |
-| Americas | Puerto Rico | 100 | Sep–Dec | Jan |
-| Americas | Cuba | 120 | Sep–Dec | Jan |
+| Americas | Dominican | 100 | Aug–Dec | Jan |
+| Americas | Venezuela | 112 | Aug–Dec | Jan |
+| Americas | Puerto Rico | 100 | Aug–Dec | Jan |
+| Americas | Cuba | 120 | Aug–Dec | Jan |
 | Europe | Netherlands | 108 | Mar–Aug | Sep |
 | Europe | Germany | 110 | Mar–Aug | Sep |
 | Europe | France | 108 | Mar–Aug | Sep |
@@ -646,8 +646,8 @@ Pacific travelを考慮し、away seriesをblock化する。
 | Europe | Italy | 110 | Mar–Aug | Sep |
 | Europe | Russia | 108 | Mar–Aug | Sep |
 | Africa | Pan-African | 110 | Oct–Mar | none |
-| Oceania | Australia | 112 | Oct–Jan | Feb |
-| Oceania | New Zealand / Pacific | 112 | Oct–Feb | none |
+| Oceania | Australia | 112 | Sep–Jan | Feb |
+| Oceania | New Zealand / Pacific | 112 | Sep–Feb | none |
 
 ---
 
@@ -841,6 +841,22 @@ North America 162とMexico 120はunbalanced / rivalry opponent matrixを含む�
 
 
 ---
+
+## 16.1 Statistical readability target
+
+100試合最低ラインの主目的は、ユーザーがSeason Statsから選手像を読み取りやすくすること。
+
+特に:
+
+- 打率 / 出塁率 / 長打率
+- HR / RBI / SB等のcounting stats
+- ERA / WHIP / K / BB
+- fielding opportunities
+- platoon / pitch-type splits
+
+について、極端に短いSeasonより十分な観測量を持たせる。
+
+ただしSeason成績はtrue abilityそのものではなく、対戦相手・球場・環境・起用・Familiarity・Condition等を含む実戦結果である。
 
 # 17. 今回の初期採用値
 
