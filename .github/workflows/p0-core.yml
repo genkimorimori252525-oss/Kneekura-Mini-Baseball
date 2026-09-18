@@ -29,7 +29,10 @@ jobs:
           node-version: '22'
       - name: Install dependencies
         shell: powershell
-        run: npm install
+        # npm ci, not npm install: install resolves the tree again on every run, so the same
+        # commit could be verified against different dependency versions on different days.
+        # ci installs exactly what package-lock.json records and fails if the two disagree.
+        run: npm ci
       - name: Verify
         shell: powershell
         run: npm run verify

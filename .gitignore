@@ -1,0 +1,3 @@
+# Dependencies come from package-lock.json (npm ci). The installed tree is never committed:
+# it is huge, platform-specific, and would make the lockfile stop being the source of truth.
+node_modules/
