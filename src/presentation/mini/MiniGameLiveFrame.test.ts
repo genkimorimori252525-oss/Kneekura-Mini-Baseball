@@ -188,6 +188,20 @@ describe('MiniGameLiveFrame', () => {
       batter: ['積極', '早め'],
       runners: ['標準'],
     });
+    expect(result.commandOptions?.scrollAxis)
+      .toBe('horizontal');
+    expect(
+      result.commandOptions?.groups
+        .find(
+          (group) => (
+            group.kind
+              === 'pitcher_attack_zone'
+          ),
+        )
+        ?.options
+        .find((option) => option.selected)
+        ?.value,
+    ).toBe('outside');
     expect(result.playerCards.batter).toEqual({
       role: 'batter',
       playerId: 'batter-40',
