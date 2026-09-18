@@ -1,5 +1,7 @@
 # Catch Retention Skill Calibration Plan
 
+**Status:** IMPLEMENTATION COMPLETE; full repository CI verification blocked before workflow steps start.
+
 **Goal:** Let catching ability influence secure-possession tolerance and settling speed through explicit calibrated physical parameters, without changing incoming ball energy and without adding direct catch probability.
 
 **Source:** Approved catching design says catching ability acts on secure-possession tolerance and impact/spin tolerance rather than direct success percentage. Existing `CatchRetention` already resolves success/failure deterministically from contact energy, pocket centering, body stability, and retention capacity.
@@ -62,3 +64,28 @@ With identical contact:
 Export the derivation through `src/core/index.ts`.
 Run local source/type/numeric verification.
 Retry P0 Core CI; only claim full repository GREEN if GitHub Actions actually creates steps and completes.
+
+
+---
+
+## Implementation Evidence
+
+Implemented through HEAD `209c0cad59722357dcd464503e00a9cf0ccb4702`:
+- pure catching-ability retention parameter derivation;
+- caller-supplied monotonic calibration for centered retention capacity;
+- caller-supplied monotonic calibration for capture-energy dissipation power;
+- immutable base parameter handling;
+- integration fixture preserving identical incoming physical energy while changing retention capability;
+- deterministic boundary fixture that flips from live-ball to secured without a random success roll;
+- deterministic secure-possession timing fixture;
+- shared Core API export.
+
+Independent verification:
+- TypeScript 5.8 source-level typecheck: success;
+- 9 J boundary fixture: low capacity 7 J, high capacity 11.5 J;
+- 5 J retained fixture: low secure tick 2,008,929; high secure tick 2,005,953.
+
+Repository CI:
+- P0 Core run `35302465987` at the implementation HEAD failed before workflow steps were created;
+- this matches the repository-wide `steps=null` condition that began after the last normal success `35301599943`;
+- full repository GREEN is intentionally not claimed until Actions can actually start the job.
