@@ -1,5 +1,7 @@
 # Appeal Scoring and Advantageous Fourth-Out Foundation Plan
 
+**Status:** IMPLEMENTATION COMPLETE; full repository CI remains blocked before workflow steps start.
+
 **Goal:** Resolve inning-ending tag-up appeal scoring with runner precedence and support an advantageous apparent fourth out without collapsing appeal outs into generic time plays.
 
 ## Rule basis
@@ -130,3 +132,37 @@ Do not yet implement defensive AI deciding whether to request a second appeal; C
 Export precedence/scoring/fourth-out foundation from `src/core/index.ts`.
 Run local TypeScript/runtime fixtures.
 Retry P0 Core CI; do not claim full repository GREEN while Actions jobs still fail before steps.
+
+
+---
+
+## Implementation Evidence
+
+Implemented through HEAD `9dc3b2ff33d4750d7b5ea8e2a7fb7b8ada45199a`:
+- immutable play-start runner precedence metadata;
+- precedence-aware sustained tag-up appeal scoring;
+- appealed runner's own run suppression;
+- preceding-runner appeal suppression of following-runner runs;
+- following-runner appeal handled as a time play for preceding scorers;
+- exact same-tick scoring preserved as unresolved;
+- advantageous apparent fourth-out evaluator minimizing counted runs;
+- tied advantageous options preserved without array-order tie breaking;
+- unresolved scoring options block automatic advantageous selection;
+- generic support for a normal apparent third out followed by an appeal fourth out;
+- RuleEngine adapters for normal third-out and sustained-appeal scoring options;
+- shared Core API exports.
+
+Independent verification:
+- TypeScript 5.8 local source-level rules typecheck: success;
+- appeal-only fourth-out runtime fixture: success;
+- normal time-play third out -> later appeal fourth out runtime fixture: success;
+- example consequence: apparent third out leaves 1 run; later appeal against scoring runner yields 0 runs and is selected as advantageous.
+
+Rule basis verified against current official material:
+- appeal decisions can take precedence over the apparent third out in the same inning-ending play;
+- multiple inning-ending appeals permit the defense to elect the advantageous out;
+- runner precedence matters for appeal-scoring exceptions.
+
+Repository CI:
+- P0 Core run `35307181500` at HEAD still failed before workflow steps were created;
+- full repository GREEN remains intentionally unclaimed.
