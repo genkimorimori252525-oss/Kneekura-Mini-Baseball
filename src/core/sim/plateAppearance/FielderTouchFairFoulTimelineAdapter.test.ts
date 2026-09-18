@@ -85,6 +85,7 @@ const pendingWithTouch = (
       fielderId: 'right-fielder',
       tick: 1_100_000,
       ballCenter: { x, y: 1.2, z },
+      ballRadiusMeters: 0.0366,
       classification: {
         kind: Math.abs(x) <= z
           ? 'inside_fair_wedge'
