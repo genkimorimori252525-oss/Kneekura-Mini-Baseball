@@ -106,8 +106,8 @@ WBCとClub Worldは別系統のC1であり、どちらが「上」という単�
 - Club World Championship: **16 clubs / 4年に1回**
 - Premier 12-class: **12 nations固定**。名称を維持する限り拡大しない
 - Regional / WBC / Premierの代表決勝トーナメント: **single-game knockoutを基本**
-- Club competitionは野球らしいseries制を維持
-- Club World Finalのみ **best-of-7**
+- Club competitionのGroup Stageは3-game seriesを維持
+- Continental CL / Club Worldとも、**Knockout Stageは準々決勝以降すべてsingle game**
 - Continental Club Championsは毎年開催
 - 4年周期は `Cycle Year 1〜4` と明記する
 
@@ -151,19 +151,23 @@ Asia / Americas / Europeは原則 **16 clubs**。
 
 ### Knockout
 
-- Quarterfinal: best-of-3
-- Semifinal: best-of-3
-- Final: best-of-5
+決勝トーナメントへ入った後はすべて **single game elimination**。
 
-Champion最大試合数:
+- Quarterfinal: single game
+- Semifinal: single game
+- Final: single game
+
+Champion試合数:
 
 ```text
-9 + 3 + 3 + 5 = 20 games
+9 group-stage games
++ 1 QF
++ 1 SF
++ 1 Final
+= 12 games
 ```
 
-これは最大値であり、2勝決着等では少なくなる。
-
-国内リーグと両立可能な「野球らしい短期シリーズ」を優先する。
+Group Stageでは3-game seriesによって一定の実力反映を残し、Knockoutでは「今日負けたら終わり」の緊張感を優先する。
 
 ## 5.2 Tie-break
 
@@ -178,6 +182,26 @@ Group standings候補:
 大量得点狙いを防ぐため、run differentialには1試合あたり上限を設ける候補とする。
 
 ---
+
+## 5.3 Knockout Stage Philosophy
+
+Continental CLとClub Worldでは、Group StageとKnockout Stageの役割を分ける。
+
+```text
+Group Stage
+  -> 3-game series
+  -> 一試合の偶然性を少しならす
+  -> club depth / rotation / adaptationも見る
+
+Knockout Stage
+  -> single game
+  -> 一発勝負
+  -> upset / pressure / managerial decisionの重みを最大化
+```
+
+この差は意図的なCompetition Designであり、Match Coreの能力補正ではない。
+
+Knockoutで強豪が一試合で敗退することも正しい結果として受け入れる。
 
 # 6. Asia — ABCL
 
@@ -348,8 +372,8 @@ Regional qualifier例:
 8 clubs
  -> 2 groups x 4
  -> top 2 each
- -> semifinals best-of-3
- -> final best-of-5
+ -> semifinal single game
+ -> final single game
 ```
 
 Group stageは3-game series x 3 = 9 games。
@@ -501,14 +525,18 @@ duplicate automatic berth
 16 clubs
  -> 4 groups x 4
  -> top 2
- -> QF best-of-3
- -> SF best-of-5
- -> Final best-of-7
+ -> QF single game
+ -> SF single game
+ -> Final single game
 ```
 
 Group stageは各対戦3-game series、一クラブ9試合。
 
-Club WorldだけFinalをbest-of-7とし、世界王者決定の重みを持たせる。
+Knockout Stageは準々決勝からすべてsingle gameとする。
+
+世界王者決定戦も一発勝負とし、シリーズ長ではなく短期決戦の重圧・番狂わせ・歴史的瞬間を大会価値として重視する。
+
+Championは本大会最大12試合。
 
 ## 12.3 Window
 
@@ -1071,7 +1099,7 @@ Player:
 
 以下をCompetition Architectureの基本設計として確定する。
 
-1. Continental club competitionは3-game series group + short series playoff
+1. Continental club competitionは3-game series Group Stage + single-game Knockout
 2. Asia / Americas / Europeは16 clubs
 3. Africa / Oceaniaは8 clubsから開始
 4. Club Worldは16 clubs / 4年ごと
@@ -1080,7 +1108,7 @@ Player:
 7. Premier 12-classは12 nations固定
 8. 4-year cycleを採用し、`Cycle Year 1〜4` と表記
 9. National knockoutはsingle game中心
-10. Club World Finalのみbest-of-7
+10. Continental CL / Club WorldのKnockoutは準々決勝以降すべてsingle game
 11. PrizePoolIndexを初期相対経済尺度として採用
 12. official national-team release obligationを採用
 13. Club World qualificationは直前大陸王者 + 4-year performance ranking方式
@@ -1100,6 +1128,7 @@ Player:
 - 大会格・Coefficient・Ranking・Prizeをtrue abilityへ逆流させない
 - Continental Club大会と世界大会の月衝突はFlex Windowで解消
 - 8 / 12 / 16 nation regional formatsで決勝T進出数が整合
+- Continental CL / Club WorldはGroup Stageの3-game seriesとKnockoutのsingle-game eliminationを明確に分離
 - Full League外の国・クラブにもQualifier routeを残す
 
 重大な構造矛盾は現時点で確認されない。
