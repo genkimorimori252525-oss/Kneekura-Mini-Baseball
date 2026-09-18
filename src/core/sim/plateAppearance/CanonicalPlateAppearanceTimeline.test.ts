@@ -288,8 +288,11 @@ describe('CanonicalPlateAppearanceTimeline', () => {
       kind: 'live_ball_complete',
       count: { balls: 0, strikes: 0 },
       contactTick: 4_500_000,
-      fairDeterminationTick: 4_500_000,
       playEndTick: 5_000_000,
+      disposition: {
+        kind: 'fair',
+        fairDeterminationTick: 4_500_000,
+      },
     });
     expect(complete.events[2]).toEqual({
       tick: 5_000_000,
@@ -305,41 +308,76 @@ describe('CanonicalPlateAppearanceTimeline', () => {
     );
   });
 
-  it('rejects a play end before physical contact', () => {
-    const pitch: PitchWorldState = {
-      tick: 4_500_000,
-      position: { x: 0, y: 1, z: 0.06 },
-      velocity: { x: 0, y: -1.5, z: -35 },
-      spin: { x: 0, y: 0, z: 0 },
-    };
-    const swing: BatterSwingState = {
-      pose: {
-        grip: { x: -0.42, y: 1, z: 0 },
-        tip: { x: 0.42, y: 1, z: 0 },
+  it('keeps a caught foul fly live for runner action until play end', () => {
+    let timeline = createCanonicalPlateAppearanceTimeline(
+      match(0, 1),
+      4_600_000,
+    );
+    timeline = recordBatBallContact(
+      timeline,
+      physicalContact(4_700_000),
+    );
+    timeline = recordFoulBattedBall(
+      timeline,
+      4_750_000,
+      false,
+      {
+        kind: 'caught',
+        batterRunnerId: 'batter',
+        firstFielderTouchTick: 4_720_000,
+        outTick: 4_750_000,
+        secureCatchTick: 4_750_000,
       },
-      linearVelocity: { x: 0, y: 0, z: 22 },
-      angularVelocity: { x: 0, y: 0, z: 0 },
-    };
-    const contact = resolveBatBallContact(pitch, swing);
-    if (contact === null) {
-      throw new Error('fixture must produce physical contact');
-    }
-    const live = recordBatBallContact(
-      createCanonicalPlateAppearanceTimeline(
-        match(),
-        4_400_000,
+    );
+
+    expect(timeline.status).toEqual({
+      kind: 'caught_foul_live',
+      count: { balls: 0, strikes: 1 },
+      contactTick: 4_700_000,
+      outTick: 4_750_000,
+    });
+
+    const playEnd = createPlayEndFact(
+      4_900_000,
+      'live_action_complete',
+    );
+    const complete = recordLiveBallPlayEnd(
+      timeline,
+      playEnd,
+    );
+    expect(complete.status).toEqual({
+      kind: 'live_ball_complete',
+      count: { balls: 0, strikes: 1 },
+      contactTick: 4_700_000,
+      playEndTick: 4_900_000,
+      disposition: {
+        kind: 'caught_foul',
+        outTick: 4_750_000,
+      },
+    });
+  });
+
+  it('rejects a play end before the latest live-ball disposition event', () => {
+    const contact = physicalContact(4_500_000);
+    const live = recordFairBattedBall(
+      recordBatBallContact(
+        createCanonicalPlateAppearanceTimeline(
+          match(),
+          4_400_000,
+        ),
+        contact,
       ),
-      contact,
+      4_510_000,
     );
 
     expect(() => recordLiveBallPlayEnd(
       live,
       createPlayEndFact(
-        4_499_999,
+        4_505_000,
         'live_action_complete',
       ),
     )).toThrow(
-      'live-ball play end must not precede bat-ball contact',
+      'plate appearance event tick must not precede the previous event',
     );
   });
 
