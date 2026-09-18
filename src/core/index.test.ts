@@ -122,6 +122,7 @@ import {
   resolveHalfInningTransition,
   resolveInfieldFlyRule,
   resolveWalkForcedAdvancement,
+  resolveUntouchedGroundContactBeyondBases,
   createResolvedLiveBallPlateAppearanceFromGroundBallFirstBaseRule,
   completeGroundBallFirstBasePlateAppearance,
   resolveForceOutAtTarget,
@@ -140,6 +141,7 @@ import {
   resolveTagOutScoringRule,
   resolveTakenPitchPhysicalResult,
   resolveAndRecordPitchAgainstBatter,
+  resolveAndRecordUntouchedGroundContactBeyondBases,
   resolvePlateAppearancePitchSequence,
   resolvePlateAppearancePitchSequenceToMatchState,
   resolveSwingingPitchPhysicalResult,
@@ -332,6 +334,11 @@ describe('core package', () => {
     expect(typeof resolveFoulBallRule).toBe('function');
     expect(typeof resolveInfieldFlyRule).toBe('function');
     expect(typeof resolveHalfInningTransition).toBe('function');
+  });
+
+  it('exposes limited physical fair-foul ground adjudication through Core', () => {
+    expect(typeof resolveUntouchedGroundContactBeyondBases).toBe('function');
+    expect(typeof resolveAndRecordUntouchedGroundContactBeyondBases).toBe('function');
   });
 
   it('exposes batted-ball timeline physical evidence integration through Core', () => {
