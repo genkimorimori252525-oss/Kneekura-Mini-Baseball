@@ -38,6 +38,8 @@ export type MiniLiveRenderStateInput = Readonly<{
   >;
   dotCalibration?: MiniPlayerDotSizeCalibration;
   ballHeightCalibration?: MiniBallHeightCalibration;
+  historySamples?: readonly MiniPresentationFrame['sample'][];
+  maximumBallTrailPoints?: number;
 }>;
 
 export const buildMiniLiveRenderState = (
@@ -62,6 +64,9 @@ export const buildMiniLiveRenderState = (
       dotCalibration: input.dotCalibration,
       ballHeightCalibration:
         input.ballHeightCalibration,
+      historySamples: input.historySamples,
+      maximumBallTrailPoints:
+        input.maximumBallTrailPoints,
     }),
   };
 };
