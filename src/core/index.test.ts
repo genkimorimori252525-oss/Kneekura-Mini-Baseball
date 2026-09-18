@@ -17,6 +17,7 @@ import {
   createRunnerMotionStateFromSwingExitTransition,
   buildBatterSwingExitRecoveryTrajectory,
   applyBatterRunnerWorldTimelineToSnapshot,
+  applyStrikeoutPlateAppearanceToMatchState,
   buildBatterRunnerWorldTimeline,
   createCanonicalPlateAppearanceTimeline,
   capturePlanarObservation,
@@ -314,6 +315,7 @@ describe('core package', () => {
     expect(typeof createCanonicalPlateAppearanceTimeline).toBe('function');
     expect(typeof recordCountedPitch).toBe('function');
     expect(typeof recordBatBallContact).toBe('function');
+    expect(typeof applyStrikeoutPlateAppearanceToMatchState).toBe('function');
   });
 
   it('exposes the first Correct Rule Result foundation through the shared Core API', () => {
