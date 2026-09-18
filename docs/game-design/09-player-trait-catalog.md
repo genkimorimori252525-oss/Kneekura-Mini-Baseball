@@ -145,6 +145,37 @@ Named Blue / GoldのFamilyでも同じ。
 
 重要なのは、同一原因を複数ラベルで二重計上しないことである。
 
+## 2.4 Named Negative Extremeも同一Family内の排他的Tierとして扱う
+
+同じFamilyにNamed Negative Traitが存在する場合、それもA〜G / Goldと排他的に扱う。
+
+例:
+
+```text
+対ピンチ:
+  RED_EXTREME  ノミの心臓
+  G
+  F
+  E
+  D
+  C
+  B
+  A
+  GOLD         強心臓
+```
+
+```text
+two-strike adjustment:
+  RED          三振
+  RED_EXTREME  扇風機
+```
+
+`RED_EXTREME` は「Gへさらにデバフを重ねる」のではなく、そのFamilyの最下位Named Tierである。
+
+したがって `対ピンチG + ノミの心臓` や `三振 + 扇風機` を同時適用しない。
+
+内部表現は固定enumへ限定せず、Family Definitionが順序付きTierを持てる構造を優先する。
+
 ## 3. A〜G型Trait Family
 
 A〜G型Traitは一つの正負を持つFamilyとする。
@@ -223,7 +254,7 @@ UI上のA〜Gが共通でも、内部source of truthはFamilyごとに異なる�
 | 緩急○ / 変幻自在 | MERGE | pitch-speed separationとsequencing skill |
 | 奪三振 / ドクターK | REINTERPRET | two-strike put-away pitch selection / execution Family |
 | 対強打者○ / 主砲キラー | REINTERPRET | 強打者ラベルによるBuffではなく、高難度相手へのDecision / pressure response / learned matchup |
-| 要所○ | REINTERPRET | high-leverage execution stability |
+| 要所○ | REINTERPRET | Pressure / High-Leverage Familyへ統合候補。MatchImportance / Appraisalと同じ原因を二重適用しない |
 | 安全圏○ | MOVE | Pressure / Psychology側へ。独立Traitとして必要か再検討 |
 | ギアチェンジ | REINTERPRET | opponent/contextに応じたeffort allocation / pitch usage |
 | 完全燃焼 / 全開 | MERGE | max-effort output上昇とfatigue costが不可分なTradeoff Family |
@@ -240,7 +271,7 @@ UI上のA〜Gが共通でも、内部source of truthはFamilyごとに異なる�
 | 緊急登板○ | MOVE | rapid warm-up / emergency-entry Role Suitability |
 | 火消し | REINTERPRET | inherited-runner / emergency-entry pressure + readiness |
 | ガソリンタンク | MERGE | Recovery A〜GのGold Tier候補。RecoveryCapacityから導出 |
-| 鉄腕 | MERGE | Condition sensitivity / 投手調子安定のMaster Tier候補 |
+| 鉄腕 | MERGE | Condition Sensitivity FamilyのGold / Master Tier。投手調子安定と同時保持・同時適用しない |
 
 ## 4.5 Runner Control / Pitcher Defense
 
@@ -257,7 +288,7 @@ UI上のA〜Gが共通でも、内部source of truthはFamilyごとに異なる�
 
 | 参照候補 | 判定 | Kneekuraでの扱い |
 | --- | --- | --- |
-| 対ピンチ A〜G / 強心臓 / ノミの心臓 | MERGE | pressure-context executionのGraded Family + Gold / Negative extreme |
+| 対ピンチ A〜G / 強心臓 / ノミの心臓 | MERGE | pressure-context response Graded Family。Appraisal / ActiveEmotion発火・影響感度、高圧下の再現性へ接続し、同じ心理原因を直接能力Buffとして再加算しない |
 | 打たれ強さ A〜G / 不屈の魂 | MERGE | negative-event後のemotional / execution recovery Family |
 | 対左打者 A〜G / 左キラー | MERGE | platoon matchup Family。左右ラベルだけの魔法Buffは禁止 |
 | 短気 | REINTERPRET | Appraisal -> anger / ActiveEmotion -> executionへの因果経路 |
@@ -274,12 +305,14 @@ UI上のA〜Gが共通でも、内部source of truthはFamilyごとに異なる�
 
 ## 4.8 投手 Green / Neutral Behavior
 
-**Green採用候補**
+**Green採用**
 - 速球中心
 - 変化球中心
 - テンポ○
 - 投手調子安定
 - 投手調子極端
+
+`投手調子安定 / 投手調子極端 / 鉄腕` はCondition Sensitivity Familyとして同じsource of truthを共有する。鉄腕が有効なら投手調子安定を別に重ねない。
 
 **Neutral / setup候補**
 - 投球位置左
@@ -291,7 +324,7 @@ UI上のA〜Gが共通でも、内部source of truthはFamilyごとに異なる�
 
 | 参照候補 | 判定 | 扱い |
 | --- | --- | --- |
-| 荒れ球 | REINTERPRET | stuff / unpredictability benefitとcommand variance costのTradeoff |
+| 荒れ球 | REINTERPRET | high stuff / movement等の実在する球質 benefitとcommand variance costが同居するTradeoff Descriptor。「予測不能」そのものへ追加Buffを与えない |
 | 全開 | MERGE | 完全燃焼Family |
 | 力配分 | ADOPT | output reduction ↔ fatigue saving |
 | ゴロピッチャー | MOVE | actual batted-ball distributionから導出するNeutral Descriptor |
@@ -364,11 +397,11 @@ UI上のA〜Gが共通でも、内部source of truthはFamilyごとに異なる�
 
 | 参照候補 | 判定 | 扱い |
 | --- | --- | --- |
-| チャンス A〜G / 勝負師 | MERGE | pressure-context hitting Graded Family + Gold |
+| チャンス A〜G / 勝負師 | MERGE | pressure-context response Graded Family + Gold。主にAppraisal / ActiveEmotion発火・影響感度や高圧下の再現性のsourceとなり、同じ心理原因から別の直接打力Buffを重ねない |
 | 満塁男 / 恐怖の満塁男 | MERGE | Pressure / High-Leverage Familyへ統合。極端で持続的なbases-loaded specialization Evidenceがある場合のみ追加Descriptor候補 |
 | サヨナラ男 / 伝説のサヨナラ男 | MERGE | Pressure / High-Leverage Familyへ統合。walk-off専用の魔法Buffは作らない |
 | 決勝打 / 渾身の決勝打 | MERGE | Pressure / High-Leverage Familyへ統合。勝ち越し結果そのものを能力上昇条件にしない |
-| 逆境○ / 火事場の馬鹿力 | REINTERPRET | trailing-game pressure / motivation response |
+| 逆境○ / 火事場の馬鹿力 | REINTERPRET | trailing-game Appraisal / motivation response。点差ラベルから直接打力を上げない |
 | 対エース○ / エースキラー | REINTERPRET | 「エース」ラベルBuffではなく高品質pitch / learned matchupへの適応 |
 | 代打○ / 代打の神様 | MERGE | pinch-hit readiness / Role Suitability Family |
 | ダメ押し | REJECT | 大量リードという結果状態から直接能力上昇する必要性が薄い |
@@ -453,6 +486,8 @@ Relationship / Familiarity Evidence
 - 投手調子安定
 - 投手調子極端
 
+Condition Sensitivity Familyでは `投手調子極端 < 通常 < 投手調子安定 < 鉄腕` のような単一有効状態へ投影できるが、具体的な閾値は後続実装設計で校正する。色が異なっても同一Familyなら共存させない。
+
 **Neutral setupへ移動**
 - 投球位置左
 - 投球位置右
@@ -470,7 +505,6 @@ Relationship / Familiarity Evidence
 - 積極守備
 - チームプレイ○
 - チームプレイ×
-- フル出場
 - 野手調子安定
 - 野手調子極端
 - 春男
@@ -478,6 +512,7 @@ Relationship / Familiarity Evidence
 - 秋男
 
 **Greenから外す**
+- フル出場 -> RoleUsagePreference / manager usage policy。選手能力Buffではない
 - 選球眼 -> actual recognition / discipline ability
 - 人気者 -> Career / Presentation
 - 国際大会○ -> Competition / Pressure Context
@@ -491,7 +526,7 @@ Greenは能力値上昇ではなくDecision / preference / condition-distributio
 
 ## 7.1 投手
 
-- 荒れ球 -> stuff / unpredictability benefit ↔ command variance cost
+- 荒れ球 -> high stuff / movement等の実在する球質 benefit ↔ command variance cost。variance自体を魔法的な追加benefitにしない
 - 全開 / 完全燃焼 -> max effort ↔ fatigue cost
 - 力配分 -> output saving ↔ immediate quality cost
 
@@ -503,7 +538,7 @@ Greenは能力値上昇ではなくDecision / preference / condition-distributio
 ## 7.2 野手
 
 - 悪球打ち -> expanded contact/chase behavior benefit ↔ chase / weak-contact risk
-- 死球集中 -> plate-crowding / avoidance tendencyへREINTERPRET。Blue-Redに残すかNeutral Behaviorにするか最終監査対象
+- 死球集中 -> **Blue-Redから外す。** plate-crowding / avoidance tendencyを表すNeutral Behavior候補。死球率そのものを直接変更しない
 
 ---
 
@@ -599,6 +634,39 @@ Greenは能力値上昇ではなくDecision / preference / condition-distributio
 ユーザーが表面で理解しやすいことを優先しつつ、内部Evidenceは細分化可能とする。
 
 ---
+
+# 10.1 敵対監査で追加した安全柵
+
+### PressureとActiveEmotion
+
+Pressure系Traitは「重要場面なので打力+X」の別系統Buffにしない。
+
+```text
+stable pressure-response traits
++ MatchImportance
++ personal stake
++ recent events
+      ↓
+Appraisal / EmotionPressure
+      ↓
+ActiveEmotion if threshold crossed
+      ↓
+execution / decision changes
+```
+
+同じ精神安定性・勝負欲等を、Pressure TraitとActiveEmotionから二重に性能へ掛けない。
+
+### Condition Sensitivity
+
+`投手調子安定 / 投手調子極端 / 鉄腕` のように同じCondition感度を表す表示は、色がGreen / Goldで異なっても同一Familyとして排他的にする。
+
+### Usage preference
+
+`フル出場` のように「交代されにくい」を意味するものは、選手のMatch能力ではなくRoleUsagePreference / manager policyへ移す。
+
+### Tradeoff Descriptor
+
+`荒れ球` は、実在する球質向上とcommand varianceの組み合わせを要約する。command variance自体に「読みにくいから能力低下」等の別Buffを付けない。
 
 # 11. 最終設計判断
 
