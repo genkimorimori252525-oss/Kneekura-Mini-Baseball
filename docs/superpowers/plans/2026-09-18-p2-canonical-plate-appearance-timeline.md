@@ -77,9 +77,10 @@ Require:
 ### Task 3: Physical contact boundary
 
 Require:
-- actual `resolveBatBallContact` result can start live-ball state;
-- contact event preserves contact tick/point/exit velocity/spin;
-- counted-pitch API cannot accept `ball_in_play`.
+- actual `resolveBatBallContact` result creates `batted_ball_pending`, never immediate `live_ball`;
+- contact event preserves contact tick/ball center/contact point/exit velocity/spin;
+- only later physical fair/foul evidence may promote the pending ball to `live_ball` or return it to foul-count semantics;
+- counted-pitch API cannot accept `ball_in_play`, `foul`, or `foul_bunt`.
 
 ### Task 4: Match-state application stages
 
@@ -287,3 +288,138 @@ Latest CI evidence at this checkpoint:
 - `steps=[]`
 
 Repository GREEN is still not claimed because workflow commands never executed.
+
+
+---
+
+## Implementation checkpoint — 2026-09-18 fair/foul continuation
+
+The before-base fair/foul gap has advanced substantially.
+
+### First fielder touch
+
+Implemented:
+
+```text
+physical first fielder contact
+  -> ball-center + ball-radius territory evidence
+  -> fair/foul rule
+  -> fair: live_ball
+  -> foul: pending catch resolution
+```
+
+The fielder's own standing position is not used to decide fair/foul; the physical ball position is.
+
+Caught foul play-end can now be applied to `CanonicalMatchState` while preserving runner/tag-up finalization.
+
+### Ball radius at foul lines
+
+Fair/foul geometry now evaluates the projected ball disk, not only the center point.
+
+A ball whose center is slightly outside but whose radius still overlaps the foul line remains geometrically over fair territory.
+
+The ball radius is carried through:
+- flight evidence;
+- first-ground territory evidence;
+- first-fielder-touch evidence;
+- rule adapters.
+
+### Before-base bounce continuation
+
+The engine no longer stops at `not_decisive` after a first bounce between home and first/third.
+
+Base-gate geometry was extracted into the simulation layer so rules do not own coordinate math.
+
+Implemented:
+
+```text
+first ground contact before both gates
+  -> continue the SAME BallFlight
+  -> exact first authoritative tick beyond first/third gate
+  -> ball-radius fair/foul geometry
+  -> explicit no-prior-fielder-touch
+  -> explicit no-prior-first/third-base-touch
+  -> fair OR foul
+  -> canonical timeline
+```
+
+Key modules:
+- `FairFoulBaseGateGeometry`
+- `BattedBallBaseGatePassage`
+- `FairFoulBaseGatePassageRule`
+- `BaseGateFairFoulTimelineAdapter`
+
+### Finite ground-ball rolling
+
+A physical gap in `BallFlight` was found and fixed.
+
+Previously, once a ball entered the on-ground state with horizontal velocity, it could roll forever at constant speed.
+
+Current behavior:
+
+```text
+ground impact
+  -> horizontal rolling velocity
+  -> configurable continuous rolling deceleration
+  -> exact authoritative stop tick
+  -> zero velocity thereafter
+```
+
+`groundRollingDecelerationMps2` is a calibration parameter, not a result bonus. It can later become surface-dependent (grass/dirt/stadium) without changing the causal boundary.
+
+### Settled before-base fair/foul
+
+Finite rolling made another official fair/foul condition physically representable.
+
+Implemented:
+
+```text
+first ground contact before both gates
+  -> same BallFlight continues
+  -> exact settled tick
+  -> settled ball-center + radius territory
+  -> require no earlier fielder touch
+  -> require no first/third-base touch
+  -> require no earlier base-gate passage
+  -> fair OR foul
+  -> canonical timeline
+```
+
+Key modules:
+- `BattedBallSettlingEvidence`
+- `FairFoulSettledBallRule`
+- `SettledBallFairFoulTimelineAdapter`
+- canonical `BattedBallSettled` event
+
+### Static correction caught during this pass
+
+`CanonicalPlateAppearanceTimeline` referenced
+`CanonicalFirstGroundContactEventPayload` and
+`CanonicalFirstFielderTouchEventPayload` without definitions.
+
+Those payload types were restored while adding
+`BattedBallBaseGatePassed`.
+
+### Current remaining fair/foul work
+
+The major unresolved physical decision paths are now narrower:
+
+1. **direct first/third-base touch by the batted ball** — touching the bag is a decisive fair condition and needs 3D ball/base contact evidence;
+2. foul pole / out-of-park fair/foul geometry;
+3. any remaining umpire-judgment/replay layer above canonical physical truth.
+
+After those, return to:
+- full fair live-ball -> fielding/running chronology without duplicate simulation;
+- deterministic whole-plate-appearance replay acceptance;
+- then the parent P2 completion audit.
+
+### Latest CI evidence
+
+GitHub Actions:
+- run `35342610706`
+- job `105591750528`
+- `steps=[]`
+
+The workflow still terminates before commands execute, so repository GREEN is not claimed.
+
+A direct local clone/test attempt was also blocked by the execution environment's lack of DNS/network access to GitHub. This is separate from the repository code.
