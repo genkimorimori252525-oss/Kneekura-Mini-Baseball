@@ -84,8 +84,7 @@ describe('RuleEngine ground-ball first-base vertical slice', () => {
       kind: 'resolved',
       outsAfter: 2,
       thirdOut: false,
-      runsScored: [home],
-      runsSuppressed: [],
+      pendingHomeTouches: [home],
       thirdOutScoring: null,
     });
   });
@@ -124,8 +123,7 @@ describe('RuleEngine ground-ball first-base vertical slice', () => {
       },
       outsAfter: 2,
       thirdOut: false,
-      runsScored: [home],
-      runsSuppressed: [],
+      pendingHomeTouches: [home],
       thirdOutScoring: null,
     });
   });
