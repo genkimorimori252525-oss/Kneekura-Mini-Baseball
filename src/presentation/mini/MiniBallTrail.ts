@@ -8,7 +8,7 @@ import {
   projectFieldOverheadWorldPoint,
   type FieldOverheadCameraCalibration,
   type MiniScreenPoint,
-} from './FieldOverheadRenderState';
+} from './FieldOverheadProjection';
 
 export type MiniBallTrailPoint = Readonly<{
   tick: number;
