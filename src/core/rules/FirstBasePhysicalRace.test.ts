@@ -285,6 +285,69 @@ describe('end-to-end first-base physical race', () => {
     });
   });
 
+  it('rejects mismatched authoritative clocks before comparing race ticks', () => {
+    const built = timeline();
+    const runnerTouchTick = findBatterRunnerPostLaunchBaseTouchTick(
+      built,
+      firstBase,
+      runnerBody,
+    ) as number;
+    const input = inputAtReceptionStart(
+      runnerTouchTick - 8_000,
+    );
+
+    expect(() => resolveFirstBasePhysicalRace({
+      ...input,
+      defender: {
+        ...input.defender,
+        retentionParameters: {
+          ...input.defender.retentionParameters,
+          ticksPerSecond: 500_000,
+        },
+      },
+    })).toThrow(
+      'first-base physical race subsystems must share ticksPerSecond',
+    );
+
+    expect(() => resolveFirstBasePhysicalRace({
+      ...input,
+      defender: {
+        ...input.defender,
+        contactPrimitives: [{
+          ...plantedFoot(),
+          ticksPerSecond: 500_000,
+        }],
+      },
+    })).toThrow(
+      'first-base physical race subsystems must share ticksPerSecond',
+    );
+  });
+
+  it('rejects inconsistent ball radius between collision and retention physics', () => {
+    const built = timeline();
+    const runnerTouchTick = findBatterRunnerPostLaunchBaseTouchTick(
+      built,
+      firstBase,
+      runnerBody,
+    ) as number;
+    const input = inputAtReceptionStart(
+      runnerTouchTick - 8_000,
+    );
+
+    expect(() => resolveFirstBasePhysicalRace({
+      ...input,
+      defender: {
+        ...input.defender,
+        retentionParameters: {
+          ...input.defender.retentionParameters,
+          ballRadiusMeters: 0.04,
+        },
+      },
+    })).toThrow(
+      'throw-reception and catch-retention ball radius must match',
+    );
+  });
+
   it('feeds the same physical facts into existing two-out ground-ball scoring', () => {
     const built = timeline();
     const runnerTouchTick = findBatterRunnerPostLaunchBaseTouchTick(
