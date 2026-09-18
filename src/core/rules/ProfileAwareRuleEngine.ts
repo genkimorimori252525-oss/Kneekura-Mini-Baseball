@@ -5,6 +5,11 @@ import {
   type InningEndingScoringOption,
 } from './AdvantageousFourthOut';
 import {
+  resolveNPB2026AlignmentViolationPenalty,
+  type NPB2026AlignmentViolationPenaltyInput,
+  type NPB2026AlignmentViolationPenaltyResult,
+} from './NPB2026AlignmentViolationPenalty';
+import {
   assertMatchRuleProfile,
   type RuleContext,
 } from './RuleContext';
@@ -119,7 +124,6 @@ export const resolveAdvantageousFourthOutForMatch = (
   return selectAdvantageousInningEndingOut(options);
 };
 
-
 export const evaluatePitchReleaseInfieldSideForMatch = (
   match: CanonicalMatchState,
   context: RuleContext,
@@ -153,7 +157,6 @@ export const evaluatePitchReleaseInfieldSideForMatch = (
   });
 };
 
-
 export const evaluateInningInfieldSideLockForMatch = (
   match: CanonicalMatchState,
   context: RuleContext,
@@ -184,4 +187,21 @@ export const evaluateInningInfieldSideLockForMatch = (
     assignment,
     current,
   );
+};
+
+export const resolveDefensiveAlignmentViolationPenaltyForMatch = (
+  match: CanonicalMatchState,
+  context: RuleContext,
+  input: NPB2026AlignmentViolationPenaltyInput,
+): NPB2026AlignmentViolationPenaltyResult => {
+  assertMatchRuleProfile(match, context);
+
+  const policyId = context.profile.defensiveAlignment.violationPolicyId;
+  if (policyId !== 'npb_2026_5_02_c') {
+    throw new Error(
+      `unsupported defensive alignment violation policy: ${policyId}`,
+    );
+  }
+
+  return resolveNPB2026AlignmentViolationPenalty(input);
 };
