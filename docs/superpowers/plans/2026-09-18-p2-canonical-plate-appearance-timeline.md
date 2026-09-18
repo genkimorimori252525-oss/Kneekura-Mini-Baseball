@@ -81,3 +81,68 @@ Follow-up slices after the ledger:
 ### Task 5: P2 replay/determinism acceptance
 
 Same initial state + same resolved physical inputs must produce the same timeline events and state transitions independent of Presentation cadence.
+
+
+---
+
+## Implementation checkpoint — 2026-09-18
+
+Implemented so far:
+
+- `CanonicalPlateAppearanceTimeline`
+  - immutable event ledger per `playId`;
+  - monotonic authoritative ticks;
+  - stable `TimedMatchEvent.sequence`;
+  - counted pitches delegate to P1 `PitchCountRule`;
+  - terminal walk/strikeout/live-ball states reject later pitches;
+  - `ball_in_play` cannot enter through counted-pitch API;
+  - actual `BatBallContactResult` is required to enter live-ball state;
+  - deterministic identical-input regression.
+
+- `PlateAppearanceMatchState`
+  - strikeout -> out increment;
+  - third strikeout out -> P1 half-inning transition;
+  - B/S reset;
+  - bases preserved before third out / cleared on half-inning transition;
+  - `playId` advances once a plate appearance ends.
+
+- `WalkAdvancementRule`
+  - only contiguous forced runners advance;
+  - bases-loaded walk forces the runner from third home;
+  - duplicate runner identities are rejected.
+
+- walk -> `CanonicalMatchState`
+  - forced base advancement;
+  - batting-side score update;
+  - B/S reset;
+  - `playId` advance.
+
+Key checkpoints:
+- `7874c500...` / `6afc5aa6...`: canonical plate-appearance timeline RED/GREEN;
+- `4ccc18a4...` / `054f45ba...`: strikeout MatchState application RED/GREEN;
+- `93ebee23...` / `a25ecf4d...`: walk forced-advancement RED/GREEN;
+- `be5345b8...` / `399dfb86...`: walk MatchState application RED/GREEN;
+- `6e9d2ab0...`: shared Core API coverage.
+
+Latest GitHub Actions evidence:
+- run `35331301516`
+- job `105556017156`
+- `steps=[]`
+
+The workflow still fails before commands execute, so repository GREEN is not claimed.
+
+### Next P2 slice
+
+Apply an existing resolved live-ball play result to `CanonicalMatchState` without inventing a second fielding/running engine.
+
+Target boundary:
+
+```text
+CanonicalPlateAppearanceTimeline(status = live_ball)
+  + existing Correct Rule Result / play-end facts
+        ↓
+CanonicalMatchState
+  score / outs / bases / inning-half / count reset / next playId
+```
+
+After that, connect the existing physical contact/ball-flight/fielding slices into one chronological plate-appearance coordinator.
