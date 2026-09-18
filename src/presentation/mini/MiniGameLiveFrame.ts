@@ -2,6 +2,12 @@ import type {
   CanonicalMatchState,
 } from '../../core/model/CanonicalMatchState';
 import type {
+  CanonicalLineScoreSnapshot,
+} from '../../core/model/CanonicalLineScoreSnapshot';
+import type {
+  PlateAppearanceCommand,
+} from '../../core/sim/plateAppearance/PlateAppearanceCommand';
+import type {
   PlayerPhysicalProfile,
 } from '../../core/model/PlayerPhysicalProfile';
 import type {
@@ -27,15 +33,30 @@ import type {
 import type {
   MiniBallHeightCalibration,
 } from './MiniBallHeightProfile';
+import {
+  buildMiniHandednessBadge,
+  type MiniHandednessBadge,
+} from './MiniHandednessBadge';
+import {
+  buildMiniCommandBandState,
+  type MiniCommandBandState,
+} from './MiniCommandBandState';
 
 export type MiniGameLiveFrame = Readonly<{
   tick: number;
   hud: MiniHudState;
+  matchup: Readonly<{
+    batter: MiniHandednessBadge;
+    pitcher: MiniHandednessBadge | null;
+  }>;
+  commandBand: MiniCommandBandState | null;
   live: MiniLiveRenderState;
 }>;
 
 export type MiniGameLiveFrameInput = Readonly<{
   match: CanonicalMatchState;
+  lineScore?: CanonicalLineScoreSnapshot;
+  currentCommand?: PlateAppearanceCommand;
   frame: MiniPresentationFrame;
   overheadCamera: FieldOverheadCameraCalibration;
   playerPhysicalProfiles?: Readonly<
@@ -95,7 +116,29 @@ export const buildMiniGameLiveFrame = (
 
   return {
     tick: input.frame.tick,
-    hud: buildMiniHudState(input.match),
+    hud: buildMiniHudState(
+      input.match,
+      input.lineScore,
+    ),
+    matchup: {
+      batter: buildMiniHandednessBadge(
+        'batter',
+        input.frame.sample.batter.handedness,
+      ),
+      pitcher:
+        input.frame.sample.pitcherHandedness === undefined
+          ? null
+          : buildMiniHandednessBadge(
+              'pitcher',
+              input.frame.sample.pitcherHandedness,
+            ),
+    },
+    commandBand:
+      input.currentCommand === undefined
+        ? null
+        : buildMiniCommandBandState(
+            input.currentCommand,
+          ),
     live: buildMiniLiveRenderState({
       frame: input.frame,
       overheadCamera: input.overheadCamera,
