@@ -17,6 +17,13 @@ import {
   createControlledBaseContactFactFromDefenderPhysics,
   createBatterStanceGeometry,
   createPlayerPhysicalProfile,
+  createDefensiveRatings,
+  createNormalizedRating,
+  deriveRatedDefenderMotionParameters,
+  resolveRatedCatchExecutionTarget,
+  deriveRatedCatchRetentionParameters,
+  resolveRatedDefensiveDecisionTiming,
+  getRatedPositionSuitability,
   getPlayerHeightScale,
   deriveDefenderPhysicalReachCalibration,
   createBattedBallFlightEvidence,
@@ -323,6 +330,16 @@ describe('core package', () => {
 
   it('exposes physical throw-reception contact through Core', () => {
     expect(typeof createCatchRetentionContactFromAcceleratedReception).toBe('function');
+  });
+
+  it('exposes P3 normalized defensive ratings and owned adapters through Core', () => {
+    expect(typeof createDefensiveRatings).toBe('function');
+    expect(typeof createNormalizedRating).toBe('function');
+    expect(typeof deriveRatedDefenderMotionParameters).toBe('function');
+    expect(typeof resolveRatedCatchExecutionTarget).toBe('function');
+    expect(typeof deriveRatedCatchRetentionParameters).toBe('function');
+    expect(typeof resolveRatedDefensiveDecisionTiming).toBe('function');
+    expect(typeof getRatedPositionSuitability).toBe('function');
   });
 
   it('exposes P3 player physical profile calibration through Core', () => {
