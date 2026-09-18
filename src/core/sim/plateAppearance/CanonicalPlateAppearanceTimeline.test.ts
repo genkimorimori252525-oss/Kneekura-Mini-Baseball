@@ -11,6 +11,8 @@ import {
   createCanonicalPlateAppearanceTimeline,
   recordBatBallContact,
   recordCountedPitch,
+  recordFairBattedBall,
+  recordFoulBattedBall,
   recordLiveBallPlayEnd,
   type CountedPitchAdjudication,
 } from './CanonicalPlateAppearanceTimeline';
@@ -37,6 +39,30 @@ const match = (
   playId: 7,
 });
 
+const physicalContact = (
+  tick: number,
+) => {
+  const pitch: PitchWorldState = {
+    tick,
+    position: { x: 0, y: 1, z: 0.06 },
+    velocity: { x: 0, y: -1.5, z: -35 },
+    spin: { x: 0, y: 0, z: 0 },
+  };
+  const swing: BatterSwingState = {
+    pose: {
+      grip: { x: -0.42, y: 1, z: 0 },
+      tip: { x: 0.42, y: 1, z: 0 },
+    },
+    linearVelocity: { x: 0, y: 0, z: 22 },
+    angularVelocity: { x: 0, y: 0, z: 0 },
+  };
+  const contact = resolveBatBallContact(pitch, swing);
+  if (contact === null) {
+    throw new Error('fixture must produce physical bat-ball contact');
+  }
+  return contact;
+};
+
 describe('CanonicalPlateAppearanceTimeline', () => {
   it('records one deterministic count chronology through a strikeout', () => {
     let timeline = createCanonicalPlateAppearanceTimeline(
@@ -49,25 +75,15 @@ describe('CanonicalPlateAppearanceTimeline', () => {
       1_100_000,
       { kind: 'ball' },
     );
-    expect(timeline.status).toEqual({
-      kind: 'active',
-      count: { balls: 1, strikes: 0 },
-    });
-
     timeline = recordCountedPitch(
       timeline,
       1_200_000,
-      { kind: 'foul' },
+      { kind: 'called_strike' },
     );
     timeline = recordCountedPitch(
       timeline,
       1_300_000,
-      { kind: 'foul' },
-    );
-    timeline = recordCountedPitch(
-      timeline,
-      1_400_000,
-      { kind: 'foul' },
+      { kind: 'swinging_strike' },
     );
     expect(timeline.status).toEqual({
       kind: 'active',
@@ -76,7 +92,7 @@ describe('CanonicalPlateAppearanceTimeline', () => {
 
     timeline = recordCountedPitch(
       timeline,
-      1_500_000,
+      1_400_000,
       { kind: 'swinging_strike' },
     );
 
@@ -93,16 +109,75 @@ describe('CanonicalPlateAppearanceTimeline', () => {
       { tick: 1_200_000, sequence: 1, kind: 'PitchAdjudicated' },
       { tick: 1_300_000, sequence: 2, kind: 'PitchAdjudicated' },
       { tick: 1_400_000, sequence: 3, kind: 'PitchAdjudicated' },
-      { tick: 1_500_000, sequence: 4, kind: 'PitchAdjudicated' },
     ]);
 
     expect(() => recordCountedPitch(
       timeline,
-      1_600_000,
+      1_500_000,
       { kind: 'ball' },
     )).toThrow(
       'plate appearance timeline is terminal and cannot accept another pitch',
     );
+  });
+
+  it('returns a physical uncaught foul to the count and keeps two strikes capped', () => {
+    let timeline = createCanonicalPlateAppearanceTimeline(
+      match(0, 2),
+      1_600_000,
+    );
+    const contact = physicalContact(1_700_000);
+    timeline = recordBatBallContact(timeline, contact);
+    expect(timeline.status).toEqual({
+      kind: 'batted_ball_pending',
+      count: { balls: 0, strikes: 2 },
+      contactTick: 1_700_000,
+    });
+
+    timeline = recordFoulBattedBall(
+      timeline,
+      1_710_000,
+      false,
+      {
+        kind: 'not_caught',
+        batterRunnerId: 'batter',
+        firstFielderTouchTick: 1_705_000,
+        firstGroundContactTick: 1_710_000,
+        secureCatchTick: 1_720_000,
+      },
+    );
+
+    expect(timeline.status).toEqual({
+      kind: 'active',
+      count: { balls: 0, strikes: 2 },
+    });
+  });
+
+  it('turns a physical two-strike foul bunt into strike three', () => {
+    let timeline = createCanonicalPlateAppearanceTimeline(
+      match(0, 2),
+      1_800_000,
+    );
+    timeline = recordBatBallContact(
+      timeline,
+      physicalContact(1_900_000),
+    );
+    timeline = recordFoulBattedBall(
+      timeline,
+      1_910_000,
+      true,
+      {
+        kind: 'not_caught',
+        batterRunnerId: 'batter',
+        firstFielderTouchTick: 1_905_000,
+        firstGroundContactTick: 1_910_000,
+        secureCatchTick: 1_920_000,
+      },
+    );
+
+    expect(timeline.status).toEqual({
+      kind: 'strikeout',
+      terminalCount: { balls: 0, strikes: 3 },
+    });
   });
 
   it('records a walk as a terminal plate-appearance count result', () => {
@@ -142,28 +217,9 @@ describe('CanonicalPlateAppearanceTimeline', () => {
     );
   });
 
-  it('enters live-ball state only from an actual BatBallContactResult', () => {
-    const pitch: PitchWorldState = {
-      tick: 4_000_000,
-      position: { x: 0, y: 1, z: 0.06 },
-      velocity: { x: 0, y: -1.5, z: -35 },
-      spin: { x: 0, y: 0, z: 0 },
-    };
-    const swing: BatterSwingState = {
-      pose: {
-        grip: { x: -0.42, y: 1, z: 0 },
-        tip: { x: 0.42, y: 1, z: 0 },
-      },
-      linearVelocity: { x: 0, y: 0, z: 22 },
-      angularVelocity: { x: 0, y: 0, z: 0 },
-    };
-    const contact = resolveBatBallContact(pitch, swing);
-    expect(contact).not.toBeNull();
-    if (contact === null) {
-      throw new Error('fixture must produce physical bat-ball contact');
-    }
-
-    const timeline = recordBatBallContact(
+  it('keeps physical contact pending until a fair-ball disposition makes it live', () => {
+    const contact = physicalContact(4_000_000);
+    const contacted = recordBatBallContact(
       createCanonicalPlateAppearanceTimeline(
         match(2, 1),
         3_900_000,
@@ -171,12 +227,22 @@ describe('CanonicalPlateAppearanceTimeline', () => {
       contact,
     );
 
+    expect(contacted.status).toEqual({
+      kind: 'batted_ball_pending',
+      count: { balls: 2, strikes: 1 },
+      contactTick: 4_000_000,
+    });
+
+    const timeline = recordFairBattedBall(
+      contacted,
+      4_010_000,
+    );
     expect(timeline.status).toEqual({
       kind: 'live_ball',
       count: { balls: 2, strikes: 1 },
       contactTick: 4_000_000,
+      fairDeterminationTick: 4_010_000,
     });
-    expect(timeline.events).toHaveLength(1);
     expect(timeline.events[0]).toMatchObject({
       tick: 4_000_000,
       sequence: 0,
@@ -186,34 +252,28 @@ describe('CanonicalPlateAppearanceTimeline', () => {
         contact,
       },
     });
+    expect(timeline.events[1]).toEqual({
+      tick: 4_010_000,
+      sequence: 1,
+      kind: 'BattedBallDeclaredFair',
+      payload: {
+        contactTick: 4_000_000,
+      },
+    });
   });
 
   it('records authoritative play end after physical contact and closes the live-ball timeline', () => {
-    const pitch: PitchWorldState = {
-      tick: 4_500_000,
-      position: { x: 0, y: 1, z: 0.06 },
-      velocity: { x: 0, y: -1.5, z: -35 },
-      spin: { x: 0, y: 0, z: 0 },
-    };
-    const swing: BatterSwingState = {
-      pose: {
-        grip: { x: -0.42, y: 1, z: 0 },
-        tip: { x: 0.42, y: 1, z: 0 },
-      },
-      linearVelocity: { x: 0, y: 0, z: 22 },
-      angularVelocity: { x: 0, y: 0, z: 0 },
-    };
-    const contact = resolveBatBallContact(pitch, swing);
-    if (contact === null) {
-      throw new Error('fixture must produce physical contact');
-    }
-
-    const live = recordBatBallContact(
+    const contact = physicalContact(4_500_000);
+    const contacted = recordBatBallContact(
       createCanonicalPlateAppearanceTimeline(
         match(),
         4_400_000,
       ),
       contact,
+    );
+    const live = recordFairBattedBall(
+      contacted,
+      4_500_000,
     );
     const playEnd = createPlayEndFact(
       5_000_000,
@@ -228,11 +288,12 @@ describe('CanonicalPlateAppearanceTimeline', () => {
       kind: 'live_ball_complete',
       count: { balls: 0, strikes: 0 },
       contactTick: 4_500_000,
+      fairDeterminationTick: 4_500_000,
       playEndTick: 5_000_000,
     });
-    expect(complete.events[1]).toEqual({
+    expect(complete.events[2]).toEqual({
       tick: 5_000_000,
-      sequence: 1,
+      sequence: 2,
       kind: 'LiveBallPlayEnded',
       payload: { playEnd },
     });
@@ -288,13 +349,15 @@ describe('CanonicalPlateAppearanceTimeline', () => {
       5_000_000,
     );
 
-    expect(() => recordCountedPitch(
-      timeline,
-      5_100_000,
-      { kind: 'ball_in_play' } as unknown as CountedPitchAdjudication,
-    )).toThrow(
-      'counted pitch adjudication must not be ball_in_play',
-    );
+    for (const kind of ['ball_in_play', 'foul', 'foul_bunt'] as const) {
+      expect(() => recordCountedPitch(
+        timeline,
+        5_100_000,
+        { kind } as unknown as CountedPitchAdjudication,
+      )).toThrow(
+        'counted pitch adjudication must be a non-contact pitch result',
+      );
+    }
   });
 
   it('is deterministic for identical authoritative inputs', () => {
