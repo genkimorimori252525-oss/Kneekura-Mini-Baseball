@@ -98,6 +98,7 @@ describe('FielderTouchTimelinePhysicalAdapter', () => {
       fielderId: 'right-fielder',
       contact: gloveContact(0, 40),
       field,
+      ballRadiusMeters: 0.0366,
       isFirstFielderTouch: true,
     });
 
@@ -122,6 +123,7 @@ describe('FielderTouchTimelinePhysicalAdapter', () => {
       fielderId: 'right-fielder',
       contact: gloveContact(0, 40),
       field,
+      ballRadiusMeters: 0.0366,
       isFirstFielderTouch: true,
     })).toThrow(
       'fielder-touch physical evidence requires a pending batted ball',
