@@ -234,7 +234,6 @@ describe('CanonicalPlateAppearanceTimeline', () => {
       {
         tick: 3_250_000,
         position: { x: 0.2, z: 3 },
-        ballRadiusMeters: 0.0366,
         classification: {
           kind: 'inside_fair_wedge',
           firstBaseLineSignedSide: 1,
