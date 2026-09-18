@@ -38,7 +38,7 @@ Presentation observes that truth. It does not create it.
 | Roadmap | Workstream | 2026-09-18 state |
 | --- | --- | --- |
 | P0 | Core boundary / determinism | Complete |
-| P1 | Correct NPB rule result | Advanced partial |
+| P1 | Correct NPB rule result | Implementation complete; CI pre-step blocked |
 | P2 | Canonical time / world / plate appearance | Advanced partial |
 | P3 | Ratings / physical calibration | Foundation only |
 | P4 | Scouting / pre-play alignment | Foundation only |
@@ -94,7 +94,7 @@ Implemented foundations include:
 - defender body-cover target separated from physical base center;
 - bounded defender foot reach from body kinematics.
 
-The immediate local checkpoint still to close is:
+The base-cover integration checkpoint is now closed by regression `958c768f...`:
 
 ```text
 base-cover decision
@@ -105,29 +105,33 @@ base-cover decision
   -> actual base contact
 ```
 
-Once this regression is fixed, do not continue expanding first-base anatomy by default.
+This satisfies the defender-anatomy stop condition. Do not continue expanding first-base anatomy by default.
 
 ## 5. Next Core focus rotation
 
-### A. Close P1 rule gap audit
+### A. P1 rule gap audit — closed
 
-Inventory every P1 acceptance item against current tests.
+P1 roadmap implementation is now complete for the core acceptance set.
 
-Known substantial foundations already exist for:
-
+Added/confirmed:
 - RuleProfile / NPB 2026;
-- force obligations;
+- pitch-count terminal rules;
+- ordinary foul vs foul-bunt semantics;
+- caught/uncaught foul-fly rule integration;
+- force obligations and force dissolution;
 - first-base force result;
 - third-out scoring;
 - runner precedence;
 - tag arrival;
 - tag-up / appeal;
 - advantageous fourth out;
-- defensive alignment rules.
+- infield-fly batter-out/force-removal semantics;
+- half-inning transition;
+- consolidated `P1RuleAcceptanceMatrix`.
 
-Do not mark P1 complete until the full required rule set, including remaining foul / infield-fly and other roadmap acceptance cases, has explicit evidence.
+CI still fails before workflow steps execute, so this is an implementation-complete status rather than a repository-GREEN claim.
 
-### B. Build the P2 canonical plate-appearance timeline
+### B. CURRENT FOCUS — Build the P2 canonical plate-appearance timeline
 
 Current causal pieces must become one authoritative play progression:
 
