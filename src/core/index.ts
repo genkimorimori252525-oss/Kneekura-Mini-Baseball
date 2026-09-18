@@ -41,6 +41,7 @@ export * from './sim/fielding/TeamCoveragePlan';
 export * from './sim/fielding/CoveragePositionSuitability';
 export * from './sim/fielding/RatedTeamCoveragePlan';
 export * from './sim/fielding/TeamCoverageWorldAdapter';
+export * from './sim/fielding/TeamCoverageReplan';
 export * from './sim/fielding/DefenderMotion';
 export * from './sim/fielding/DefenderWorldProjection';
 export * from './sim/fielding/DefenderBodyKinematics';
