@@ -5,6 +5,10 @@ import type { Vec2 } from '../../model/geometry';
 import type {
   PlayerPerceivedWorldState,
 } from '../perception/PlayerPerceivedWorldState';
+import {
+  resolveDefensiveDecisionTiming,
+  type DefensiveDecisionTimingParameters,
+} from './DefensiveDecisionTiming';
 
 export type DefensiveKnownContext = Readonly<{
   outs: number;
@@ -310,4 +314,89 @@ export const generateDefensiveIntentCandidates = (
   });
 
   return candidates;
+};
+
+
+export type DefensiveIntentDecision = Readonly<{
+  intent: DefensiveIntent;
+  selectedPriority: number;
+  evidenceAvailableAt: number;
+  decisionTick: number;
+}>;
+
+const normalizePriority = (value: number): number => (
+  Math.round(value * 1_000_000_000_000) / 1_000_000_000_000
+);
+
+const canonicalIntentKey = (intent: DefensiveIntent): string => {
+  const normalizeZero = (value: number): number => (
+    Object.is(value, -0) ? 0 : value
+  );
+
+  switch (intent.kind) {
+    case 'ball_handler':
+      return 'ball_handler';
+    case 'base_cover':
+      return `base_cover:${intent.base}`;
+    case 'relay':
+      return `relay:${normalizeZero(intent.target.x)}:${normalizeZero(intent.target.z)}`;
+    case 'backup':
+      return `backup:${normalizeZero(intent.target.x)}:${normalizeZero(intent.target.z)}`;
+    case 'deep_coverage':
+      return `deep_coverage:${normalizeZero(intent.target.x)}:${normalizeZero(intent.target.z)}`;
+    case 'hold':
+      return 'hold';
+  }
+};
+
+export const chooseDefensiveIntentCandidate = (
+  candidates: readonly DefensiveIntentCandidate[],
+): DefensiveIntentCandidate => {
+  if (candidates.length === 0) {
+    throw new Error('at least one defensive intent candidate is required');
+  }
+
+  for (const candidate of candidates) {
+    if (!Number.isFinite(candidate.localPriority) || candidate.localPriority < 0) {
+      throw new Error('candidate localPriority must be finite and non-negative');
+    }
+    validateTick('candidate.evidenceAvailableAt', candidate.evidenceAvailableAt);
+  }
+
+  return [...candidates].sort((a, b) => {
+    const priorityOrder = b.localPriority - a.localPriority;
+    if (priorityOrder !== 0) return priorityOrder;
+
+    const keyOrder = canonicalIntentKey(a.intent).localeCompare(
+      canonicalIntentKey(b.intent),
+    );
+    if (keyOrder !== 0) return keyOrder;
+
+    const evidenceOrder = a.evidenceAvailableAt - b.evidenceAvailableAt;
+    if (evidenceOrder !== 0) return evidenceOrder;
+
+    return a.evidenceKinds.join('|').localeCompare(b.evidenceKinds.join('|'));
+  })[0];
+};
+
+export const decideDefensiveIntent = (
+  input: DefensiveDecisionInput,
+  situationalAwareness: number,
+  timingParameters: DefensiveDecisionTimingParameters,
+): DefensiveIntentDecision => {
+  const selected = chooseDefensiveIntentCandidate(
+    generateDefensiveIntentCandidates(input),
+  );
+  const timing = resolveDefensiveDecisionTiming(
+    selected.evidenceAvailableAt,
+    situationalAwareness,
+    timingParameters,
+  );
+
+  return {
+    intent: selected.intent,
+    selectedPriority: normalizePriority(selected.localPriority),
+    evidenceAvailableAt: selected.evidenceAvailableAt,
+    decisionTick: timing.decisionTick,
+  };
 };
