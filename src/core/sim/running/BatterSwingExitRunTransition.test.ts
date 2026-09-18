@@ -52,8 +52,8 @@ const lateralUnit = {
 const parameters = {
   ticksPerSecond: 1_000_000,
   maximumBodyTurnRateRadiansPerSecond: Math.PI,
-  lateralVelocityDampingMps2: 3,
-  backwardVelocityBrakingMps2: 4,
+  lateralRealignmentAccelerationMps2: 3,
+  backwardRecoveryAccelerationMps2: 4,
 } as const;
 
 describe('batter swing-exit run transition', () => {
@@ -99,9 +99,15 @@ describe('batter swing-exit run transition', () => {
 
     expect(result.requiredTurnRadians).toBeCloseTo(Math.PI / 2, 12);
     expect(result.turnRecoverySeconds).toBeCloseTo(0.5, 12);
-    expect(result.lateralRecoverySeconds).toBeCloseTo(0.4, 12);
-    expect(result.recoverySeconds).toBeCloseTo(0.5, 12);
-    expect(result.launchTick).toBe(2_000_000);
+    expect(result.lateralRecoverySeconds).toBeCloseTo(
+      (1 + Math.SQRT2) * 1.2 / 3,
+      12,
+    );
+    expect(result.recoverySeconds).toBeCloseTo(
+      (1 + Math.SQRT2) * 1.2 / 3,
+      12,
+    );
+    expect(result.launchTick).toBe(2_465_686);
     expect(result.launchRouteDistanceMeters).toBeCloseTo(0, 12);
     expect(result.initialRouteSpeedMps).toBeCloseTo(0, 12);
   });
@@ -120,9 +126,15 @@ describe('batter swing-exit run transition', () => {
       parameters,
     );
 
-    expect(result.backwardRecoverySeconds).toBeCloseTo(0.4, 12);
-    expect(result.recoverySeconds).toBeCloseTo(0.4, 12);
-    expect(result.launchTick).toBe(1_900_000);
+    expect(result.backwardRecoverySeconds).toBeCloseTo(
+      (1 + Math.SQRT2) * 1.6 / 4,
+      12,
+    );
+    expect(result.recoverySeconds).toBeCloseTo(
+      (1 + Math.SQRT2) * 1.6 / 4,
+      12,
+    );
+    expect(result.launchTick).toBe(2_465_686);
     expect(result.launchRouteDistanceMeters).toBe(0);
     expect(result.initialRouteSpeedMps).toBe(0);
   });
@@ -141,8 +153,14 @@ describe('batter swing-exit run transition', () => {
       parameters,
     );
 
-    expect(result.recoverySeconds).toBeCloseTo(0.5, 12);
-    expect(result.launchRouteDistanceMeters).toBeCloseTo(0.5, 12);
+    expect(result.recoverySeconds).toBeCloseTo(
+      (1 + Math.SQRT2) * 0.9 / 3,
+      12,
+    );
+    expect(result.launchRouteDistanceMeters).toBeCloseTo(
+      (1 + Math.SQRT2) * 0.9 / 3,
+      12,
+    );
     expect(result.initialRouteSpeedMps).toBeCloseTo(1.0, 12);
   });
 
