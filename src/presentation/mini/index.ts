@@ -8,3 +8,4 @@ export * from './MiniLiveRenderState';
 export * from './MiniHudState';
 export * from './MiniGameLiveFrame';
 export * from './MiniHandednessBadge';
+export * from './MiniBallHeightProfile';
