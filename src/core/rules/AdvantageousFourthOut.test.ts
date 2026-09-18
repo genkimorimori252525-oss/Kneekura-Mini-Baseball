@@ -5,8 +5,10 @@ import {
   evaluateSustainedTagUpAppealScoring,
 } from './AppealOutScoring';
 import type { TagUpAppealResult } from './TagUpAppealRule';
+import { resolveThirdOutScoring } from './ThirdOutScoring';
 import {
   createAppealScoringOption,
+  createThirdOutScoringOption,
   selectAdvantageousInningEndingOut,
 } from './AdvantageousFourthOut';
 
@@ -184,4 +186,52 @@ describe('AdvantageousFourthOut', () => {
       },
     ])).toThrow('inning-ending scoring option ids must be unique');
   });
+
+  it('can replace a normal time-play apparent third out with an advantageous appeal fourth out', () => {
+    const home = createRunnerBaseTouchFact(
+      'r3',
+      4,
+      1_100_000,
+    );
+
+    const normalThird = resolveThirdOutScoring({
+      outsAtStart: 2,
+      thirdOutCandidate: {
+        runnerId: 'r2',
+        outTick: 1_200_000,
+        classification: 'time_play',
+      },
+      homeTouches: [home],
+    });
+    expect(normalThird.kind).toBe('resolved');
+    if (normalThird.kind !== 'resolved') {
+      throw new Error('fixture must resolve the apparent third out');
+    }
+
+    const fourthAppeal = evaluateSustainedTagUpAppealScoring({
+      precedence,
+      appealOut: appealOut('r3', 3, 1_300_000),
+      homeTouches: [home],
+    });
+
+    const apparent = createThirdOutScoringOption(
+      'normal-tag-third',
+      normalThird,
+    );
+    const fourth = createAppealScoringOption(
+      'appeal-r3-fourth',
+      'sustained_appeal',
+      fourthAppeal,
+    );
+
+    expect(selectAdvantageousInningEndingOut([
+      apparent,
+      fourth,
+    ])).toEqual({
+      kind: 'resolved',
+      minimumRuns: 0,
+      advantageousOptions: [fourth],
+    });
+  });
+
 });
