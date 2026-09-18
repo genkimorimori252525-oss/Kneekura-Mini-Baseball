@@ -5,6 +5,7 @@ import {
   advanceDefenderMotion,
   advanceRunnerMotion,
   advancePlateAppearancePitchSequence,
+  advancePlateAppearancePitchSequenceToMatchState,
   assessPerceivedGloveTarget,
   buildDefenderMotionTrajectory,
   buildPlayerPerceivedWorldState,
@@ -339,6 +340,7 @@ describe('core package', () => {
     expect(typeof resolvePlateAppearancePitchSequence).toBe('function');
     expect(typeof advancePlateAppearancePitchSequence).toBe('function');
     expect(typeof resolvePlateAppearancePitchSequenceToMatchState).toBe('function');
+    expect(typeof advancePlateAppearancePitchSequenceToMatchState).toBe('function');
   });
 
   it('exposes the canonical plate-appearance timeline through Core', () => {
