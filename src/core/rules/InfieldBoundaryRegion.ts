@@ -38,8 +38,7 @@ export const createInfieldBoundaryRegion = (
     validateVec2(`vertices[${index}]`, vertex);
     const next = vertices[(index + 1) % vertices.length];
     if (
-      index < vertices.length - 1
-      && Math.hypot(next.x - vertex.x, next.z - vertex.z) <= EPSILON
+      Math.hypot(next.x - vertex.x, next.z - vertex.z) <= EPSILON
     ) {
       throw new Error('infield boundary polygon must not contain zero-length edges');
     }
