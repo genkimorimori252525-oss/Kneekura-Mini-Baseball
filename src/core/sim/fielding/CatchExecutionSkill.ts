@@ -4,6 +4,7 @@ import type {
   PerceivedGloveTargetAssessment,
 } from './PerceivedGloveTarget';
 
+/** Calibration is supplied by the caller; Core does not hard-code player error widths. */
 export type CatchExecutionErrorCalibration = Readonly<{
   minimumTargetErrorMeters: number;
   maximumTargetErrorMeters: number;
