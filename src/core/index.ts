@@ -25,4 +25,8 @@ export * from './sim/perception/Observation';
 export * from './sim/perception/ObservationMemory';
 export * from './sim/perception/Communication';
 export * from './sim/perception/PlayerPerceivedWorldState';
+export * from './sim/perception/ObservationGeometry';
+export * from './sim/perception/Occlusion';
+export * from './sim/perception/ObservationQuality';
+export * from './sim/perception/ObservationCapture';
 export * from './sim/plateAppearance/ContactVerticalSlice';
