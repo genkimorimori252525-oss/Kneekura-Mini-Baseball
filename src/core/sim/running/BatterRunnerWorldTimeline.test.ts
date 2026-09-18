@@ -214,6 +214,54 @@ describe('unified batter-runner world timeline', () => {
     );
   });
 
+  it('rejects a route that does not match the recovery launch boundary', () => {
+    const currentRecovery = recovery();
+    const mismatchedRoute = createBatterRunnerFirstBaseRoute(
+      frame,
+      createBatterStanceGeometry(
+        'right',
+        6 * INCHES_TO_METERS + 2 * FEET_TO_METERS,
+        0.45,
+      ),
+      3,
+    );
+
+    expect(() => buildBatterRunnerWorldTimeline({
+      playerId: 'batter',
+      route: mismatchedRoute,
+      recovery: currentRecovery,
+      postLaunchIntent: {
+        kind: 'advance',
+        issuedTick: currentRecovery.transition.launchTick,
+      },
+      runnerMotionParameters: runnerParameters,
+      endTick: currentRecovery.transition.launchTick + 1_000_000,
+    })).toThrow(
+      'recovery launch boundary must match the post-launch RunnerRoute',
+    );
+  });
+
+  it('rejects RunnerMotion calibration below inherited launch speed', () => {
+    const currentRecovery = recovery();
+
+    expect(() => buildBatterRunnerWorldTimeline({
+      playerId: 'batter',
+      route,
+      recovery: currentRecovery,
+      postLaunchIntent: {
+        kind: 'advance',
+        issuedTick: currentRecovery.transition.launchTick,
+      },
+      runnerMotionParameters: {
+        ...runnerParameters,
+        topSpeedMps: 0.5,
+      },
+      endTick: currentRecovery.transition.launchTick + 1_000_000,
+    })).toThrow(
+      'RunnerMotion topSpeedMps must not be lower than inherited launch speed',
+    );
+  });
+
   it('rejects incompatible clock rates and end-before-launch timelines', () => {
     const currentRecovery = recovery();
 
