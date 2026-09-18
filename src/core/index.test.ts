@@ -10,9 +10,11 @@ import {
   createObservationSample,
   createSecuredCatchOutcome,
   evaluateCatchRetentionLoad,
+  decideDefensiveIntent,
   evaluateObservationGeometry,
   estimateOcclusionVisibility,
   findBaseTouchTick,
+  findNextDefensiveReplanTick,
   findFirstTrueTick,
   findGloveBallContactTick,
   findRunnerBaseTouchTick,
@@ -21,8 +23,10 @@ import {
   findThrowReleaseTick,
   isObservationRefreshDue,
   predictPlanarObservationMemory,
+  generateDefensiveIntentCandidates,
   projectRunnerWorldState,
   resolveCatchRetention,
+  resolveDefensiveDecisionTiming,
   resolveCommunicationReception,
   sampleRunnerPhysicalTouchPoint,
   sampleRunnerRoute,
@@ -81,6 +85,13 @@ describe('core package', () => {
     expect(typeof composeObservationQuality).toBe('function');
     expect(typeof capturePlanarObservation).toBe('function');
     expect(typeof captureSpatialObservation).toBe('function');
+  });
+
+  it('exposes individual defender decision foundations through the shared Core API', () => {
+    expect(typeof findNextDefensiveReplanTick).toBe('function');
+    expect(typeof resolveDefensiveDecisionTiming).toBe('function');
+    expect(typeof generateDefensiveIntentCandidates).toBe('function');
+    expect(typeof decideDefensiveIntent).toBe('function');
   });
 
   it('exposes exact physical tag contact timing through the shared Core API', () => {
