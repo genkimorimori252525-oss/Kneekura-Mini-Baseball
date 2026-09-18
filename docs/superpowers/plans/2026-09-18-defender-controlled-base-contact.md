@@ -1,6 +1,6 @@
 # Defender Controlled Base Contact Physical Foundation
 
-**Status:** IMPLEMENTATION IN PROGRESS.
+**Status:** IMPLEMENTATION COMPLETE; GitHub Actions remains pre-step blocked.
 
 **Goal:** Derive ControlledBaseContactFact from the overlap of secure ball possession and actual defender body/base contact, with explicit foot primitives and deterministic contact timing.
 
@@ -90,3 +90,42 @@ Require:
 ### Task 5: Core API + evidence
 
 Export through Core, retry P0 Core CI, and retain the external `steps=[]` blocker distinction if it recurs.
+
+
+---
+
+## Completion evidence
+
+Implemented through HEAD `6b04856e5d4d772fb7b285663c35c61bf798b564`:
+
+- explicit `left_foot` / `right_foot` defender physical primitive roles;
+- exact accelerated foot-contact-point vs rotated base rectangle timing;
+- explicit base-surface world Y height;
+- X/Z overlap alone is insufficient: sole representative point must coincide with base-surface Y at the same authoritative instant;
+- secure-possession and base-contact remain separate physical conditions;
+- controlled-base timing is resolved only inside the explicit `secureTick ... controlThroughTick` window;
+- left/right feet compete by exact tick and earliest valid controlled contact wins;
+- glove/body/tag-hand primitives are intentionally ignored for base contact in this first slice rather than approximated from body-center geometry;
+- physics layer returns only the controlled-contact tick;
+- Rule-layer adapter converts that tick into the existing `ControlledBaseContactFact`, preserving dependency direction;
+- fully physical first-base race regression covers defender-first by one tick, runner-first by one tick, and exact simultaneity.
+
+Important correction made during implementation:
+- the initial X/Z-only foot/base solver was rejected because it could count a foot floating above the base;
+- vertical surface coincidence is now required;
+- primitive radius is still not reused as a rectangle-expansion shortcut, avoiding false corner contacts.
+
+Key checkpoints:
+- `2e0a6ab9...` / `146d91f9...`: defender foot primitive RED/GREEN;
+- `b4c0d5a6...` / `318eb07f...`: initial analytic foot/base contact RED/GREEN;
+- `f6b580ef...` / `a01a9281...`: secure-possession overlap RED/GREEN;
+- `d2dcacef...` / `fbbdfca9...`: physics/rules dependency-direction correction;
+- `ff842bf3...` / `b47efe92...`: Rule-layer controlled-base fact adapter;
+- `1efbe9d7...` / `aa897948...`: fully physical first-base race RED/GREEN;
+- `b70448ca...` / `6c05f84a...` / `da17c6b8...`: vertical contact requirement plan/RED/GREEN;
+- `6b04856e...`: fully physical simultaneous-race regression.
+
+Repository CI:
+- P0 Core run `35326140555` for `6b04856e...` failed before any workflow command executed;
+- job `105539511967` reports `steps=[]`;
+- full-repository GREEN is not claimed.
