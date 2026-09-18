@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   createControlledBaseContactFact,
+  createControlledRunnerTagFact,
   createFlyBallFirstFielderTouchFact,
   createRunnerBaseDepartureFact,
   createRunnerBaseTouchFact,
@@ -34,6 +35,9 @@ import {
 import {
   evaluateTagUpCompliance,
 } from './TagUpCompliance';
+import {
+  resolveTagArrival,
+} from './TagArrivalRule';
 import {
   resolveHalfInningTransition,
 } from './HalfInningTransitionRule';
@@ -234,6 +238,26 @@ describe('P1 NPB rule acceptance matrix', () => {
       deriveCurrentForceObligations(after)
         .some((item) => item.runnerId === 'r2'),
     ).toBe(false);
+
+    expect(resolveTagArrival({
+      runnerId: 'r2',
+      targetBase: 3,
+      controlledTag: createControlledRunnerTagFact(
+        'third-baseman',
+        'r2',
+        1_205_000,
+      ),
+      runnerTouch: createRunnerBaseTouchFact(
+        'r2',
+        3,
+        1_220_000,
+      ),
+    })).toMatchObject({
+      kind: 'out',
+      classification: 'time_play',
+      tagTick: 1_205_000,
+      runnerTouchTick: 1_220_000,
+    });
   });
 
   it('R-07: an early departure remains appealable until a legal retouch after first fielder touch', () => {
