@@ -34,6 +34,7 @@ describe('findDefenderControlledBaseContactTick', () => {
   it('uses secureTick when the foot is already contacting the base at secure possession', () => {
     expect(findDefenderControlledBaseContactTick({
       baseRegion: base,
+      baseSurfaceHeightMeters: 0,
       securedCatch: createSecuredCatchOutcome(
         1_300_000,
         1_450_000,
@@ -48,6 +49,7 @@ describe('findDefenderControlledBaseContactTick', () => {
   it('uses the later exact foot-contact tick when possession is secure first', () => {
     expect(findDefenderControlledBaseContactTick({
       baseRegion: base,
+      baseSurfaceHeightMeters: 0,
       securedCatch: createSecuredCatchOutcome(
         900_000,
         1_000_000,
@@ -62,6 +64,7 @@ describe('findDefenderControlledBaseContactTick', () => {
   it('returns null when the foot left the base before secure possession began', () => {
     expect(findDefenderControlledBaseContactTick({
       baseRegion: base,
+      baseSurfaceHeightMeters: 0,
       securedCatch: createSecuredCatchOutcome(
         900_000,
         1_000_000,
@@ -76,6 +79,7 @@ describe('findDefenderControlledBaseContactTick', () => {
   it('returns null when foot contact occurs only after the known control window ends', () => {
     expect(findDefenderControlledBaseContactTick({
       baseRegion: base,
+      baseSurfaceHeightMeters: 0,
       securedCatch: createSecuredCatchOutcome(
         900_000,
         1_000_000,
@@ -90,6 +94,7 @@ describe('findDefenderControlledBaseContactTick', () => {
   it('ignores glove/body primitives rather than inventing body-base contact geometry', () => {
     expect(findDefenderControlledBaseContactTick({
       baseRegion: base,
+      baseSurfaceHeightMeters: 0,
       securedCatch: createSecuredCatchOutcome(
         900_000,
         1_000_000,
@@ -106,6 +111,7 @@ describe('findDefenderControlledBaseContactTick', () => {
   it('chooses the earliest exact contact among left and right feet', () => {
     expect(findDefenderControlledBaseContactTick({
       baseRegion: base,
+      baseSurfaceHeightMeters: 0,
       securedCatch: createSecuredCatchOutcome(
         800_000,
         900_000,
@@ -121,6 +127,7 @@ describe('findDefenderControlledBaseContactTick', () => {
   it('rejects an invalid secure/control chronology', () => {
     expect(() => findDefenderControlledBaseContactTick({
       baseRegion: base,
+      baseSurfaceHeightMeters: 0,
       securedCatch: createSecuredCatchOutcome(
         1_100_000,
         1_000_000,
@@ -135,6 +142,7 @@ describe('findDefenderControlledBaseContactTick', () => {
 
     expect(() => findDefenderControlledBaseContactTick({
       baseRegion: base,
+      baseSurfaceHeightMeters: 0,
       securedCatch: createSecuredCatchOutcome(
         900_000,
         1_000_000,
