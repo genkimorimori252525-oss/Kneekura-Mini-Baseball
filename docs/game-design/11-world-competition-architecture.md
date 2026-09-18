@@ -5,6 +5,7 @@
 
 関連:
 - `docs/game-design/10-world-league-catalog.md`
+- `docs/game-design/12-competition-identity-hosting.md`
 - `docs/superpowers/specs/2026-09-17-league-ecology-design.md`
 - `docs/game-design/06-future-systems.md`
 - `docs/game-design/09-player-trait-catalog.md`
