@@ -52,6 +52,7 @@ export * from './sim/perception/Occlusion';
 export * from './sim/perception/ObservationQuality';
 export * from './sim/perception/ObservationCapture';
 export * from './sim/plateAppearance/ContactVerticalSlice';
+export * from './sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 export * from './rules/PhysicalRuleFacts';
 export * from './rules/PitchCountRule';
 export * from './rules/InfieldFlyRule';
