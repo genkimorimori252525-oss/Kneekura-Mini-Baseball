@@ -8,6 +8,7 @@ export type CorePhase =
   | 'batted_ball'
   | 'fielding'
   | 'baserunning'
+  | 'perception'
   | 'rules';
 
 export class SeedRoot {
@@ -23,5 +24,13 @@ export class SeedRoot {
 
   phaseRng(playId: number, phase: CorePhase): DeterministicRng {
     return new DeterministicRng(this.phaseSeed(playId, phase));
+  }
+
+  streamSeed(playId: number, phase: CorePhase, streamKey: string): number {
+    return fmix32((this.phaseSeed(playId, phase) ^ fnv1a32(streamKey)) >>> 0);
+  }
+
+  streamRng(playId: number, phase: CorePhase, streamKey: string): DeterministicRng {
+    return new DeterministicRng(this.streamSeed(playId, phase, streamKey));
   }
 }
