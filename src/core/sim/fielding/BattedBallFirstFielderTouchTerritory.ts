@@ -4,7 +4,7 @@ import type {
   FairTerritoryWedge,
 } from '../ball/FairTerritoryGeometry';
 import {
-  classifyPointAgainstFairTerritory,
+  classifyBallAgainstFairTerritory,
 } from '../ball/FairTerritoryGeometry';
 import type {
   CatchRetentionContact,
@@ -14,6 +14,7 @@ export type BattedBallFirstFielderTouchTerritory = Readonly<{
   fielderId: string;
   tick: number;
   ballCenter: Vec3;
+  ballRadiusMeters: number;
   classification: FairTerritoryPointClassification;
 }>;
 
@@ -21,6 +22,7 @@ export type BattedBallFirstFielderTouchTerritoryInput = Readonly<{
   fielderId: string;
   contact: CatchRetentionContact;
   field: FairTerritoryWedge;
+  ballRadiusMeters: number;
   isFirstFielderTouch: true;
 }>;
 
@@ -29,6 +31,14 @@ export const createBattedBallFirstFielderTouchTerritory = (
 ): BattedBallFirstFielderTouchTerritory => {
   if (input.fielderId.length === 0) {
     throw new Error('fielderId must not be empty');
+  }
+  if (
+    !Number.isFinite(input.ballRadiusMeters)
+    || input.ballRadiusMeters <= 0
+  ) {
+    throw new Error(
+      'ballRadiusMeters must be finite and positive',
+    );
   }
   if (input.isFirstFielderTouch !== true) {
     throw new Error(
@@ -50,12 +60,14 @@ export const createBattedBallFirstFielderTouchTerritory = (
     fielderId: input.fielderId,
     tick: input.contact.contactTick,
     ballCenter,
-    classification: classifyPointAgainstFairTerritory(
+    ballRadiusMeters: input.ballRadiusMeters,
+    classification: classifyBallAgainstFairTerritory(
       input.field,
       {
         x: ballCenter.x,
         z: ballCenter.z,
       },
+      input.ballRadiusMeters,
     ),
   };
 };
