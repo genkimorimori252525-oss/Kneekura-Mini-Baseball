@@ -31,6 +31,9 @@ import type {
   BattedBallBaseGatePassage,
 } from '../ball/BattedBallBaseGatePassage';
 import type {
+  BattedBallSettlingEvidence,
+} from '../ball/BattedBallSettlingEvidence';
+import type {
   BattedBallFirstFielderTouchTerritory,
 } from '../fielding/BattedBallFirstFielderTouchTerritory';
 import type {
@@ -126,6 +129,10 @@ export type CanonicalBaseGatePassageEventPayload = Readonly<{
   evidence: BattedBallBaseGatePassage;
 }>;
 
+export type CanonicalSettledBallEventPayload = Readonly<{
+  evidence: BattedBallSettlingEvidence;
+}>;
+
 export type CanonicalTakenPitchPhysicalEventPayload = Readonly<{
   result: TakenPitchPhysicalResult;
 }>;
@@ -169,6 +176,10 @@ export type CanonicalPlateAppearanceEvent =
   | TimedMatchEvent<
       'BattedBallBaseGatePassed',
       CanonicalBaseGatePassageEventPayload
+    >
+  | TimedMatchEvent<
+      'BattedBallSettled',
+      CanonicalSettledBallEventPayload
     >
   | TimedMatchEvent<
       'BattedBallDeclaredFair',
@@ -444,6 +455,39 @@ export const recordBattedBallBaseGatePassage = (
     tick: evidence.tick,
     sequence: timeline.nextSequence,
     kind: 'BattedBallBaseGatePassed',
+    payload: {
+      evidence,
+    },
+  };
+
+  return {
+    ...timeline,
+    lastEventTick: evidence.tick,
+    nextSequence: timeline.nextSequence + 1,
+    events: [...timeline.events, event],
+  };
+};
+
+export const recordBattedBallSettlingEvidence = (
+  timeline: CanonicalPlateAppearanceTimeline,
+  evidence: BattedBallSettlingEvidence,
+): CanonicalPlateAppearanceTimeline => {
+  if (timeline.status.kind !== 'batted_ball_pending') {
+    throw new Error(
+      'settled-ball evidence requires a pending batted ball',
+    );
+  }
+  if (evidence.tick < timeline.status.contactTick) {
+    throw new Error(
+      'settled-ball evidence must not precede bat-ball contact',
+    );
+  }
+  assertMonotonicTick(timeline, evidence.tick);
+
+  const event: CanonicalPlateAppearanceEvent = {
+    tick: evidence.tick,
+    sequence: timeline.nextSequence,
+    kind: 'BattedBallSettled',
     payload: {
       evidence,
     },
