@@ -158,6 +158,47 @@ describe('P2 plate-appearance replay acceptance', () => {
     });
   });
 
+  it('replays the same seeded physical pitch sequence into the same canonical ledger and MatchState', () => {
+    const run = (matchSeed: number) => {
+      const before = match(0, 0, 1);
+      const root = new SeedRoot(matchSeed);
+      const rng = root.streamRng(
+        before.playId,
+        'pitch',
+        'p2-plate-appearance-acceptance',
+      );
+
+      const pitches = Array.from(
+        { length: 4 },
+        (_, index) => taken(
+          4_000_000 + index * 1_000_000,
+          0.3 + rng.nextFloat() * 0.1,
+        ),
+      );
+
+      return resolvePlateAppearancePitchSequenceToMatchState({
+        match: before,
+        batterRunnerId: 'batter',
+        startedAtTick: 3_900_000,
+        pitches,
+      });
+    };
+
+    const first = run(20260918);
+    const second = run(20260918);
+
+    expect(first).toEqual(second);
+    expect(first.kind).toBe('complete');
+    if (first.kind !== 'complete') {
+      throw new Error('seeded fixture must end in a walk');
+    }
+    expect(first.terminalKind).toBe('walk');
+    expect(first.pitchesConsumed).toBe(4);
+    expect(first.timeline.events.filter(
+      (event) => event.kind === 'TakenPitchPlateCrossed',
+    )).toHaveLength(4);
+  });
+
   it('replays a physical bases-loaded walk into the same forced-run MatchState', () => {
     const run = () => {
       const before: CanonicalMatchState = {
