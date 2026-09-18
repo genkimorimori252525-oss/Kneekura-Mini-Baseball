@@ -26,4 +26,48 @@ describe('deterministic RNG', () => {
     const root = new SeedRoot(77);
     expect(root.phaseSeed(1, 'fielding')).not.toBe(root.phaseSeed(2, 'fielding'));
   });
+
+  it('replays the same named perception stream exactly', () => {
+    const root = new SeedRoot(991);
+    const a = root.streamRng(14, 'perception', 'observer:runner-1|target:ball');
+    const b = root.streamRng(14, 'perception', 'observer:runner-1|target:ball');
+
+    expect([a.nextUint32(), a.nextUint32(), a.nextUint32()]).toEqual([
+      b.nextUint32(), b.nextUint32(), b.nextUint32(),
+    ]);
+  });
+
+  it('separates observer-target perception streams', () => {
+    const root = new SeedRoot(991);
+
+    expect(
+      root.streamSeed(14, 'perception', 'observer:runner-1|target:ball'),
+    ).not.toBe(
+      root.streamSeed(14, 'perception', 'observer:runner-2|target:ball'),
+    );
+
+    expect(
+      root.streamSeed(14, 'perception', 'observer:runner-1|target:ball'),
+    ).not.toBe(
+      root.streamSeed(14, 'perception', 'observer:runner-1|target:defender-6'),
+    );
+  });
+
+  it('keeps named streams independent from draw counts in sibling streams', () => {
+    const root = new SeedRoot(991);
+    const ballA = root.streamRng(14, 'perception', 'observer:runner-1|target:ball');
+    const defender = root.streamRng(
+      14,
+      'perception',
+      'observer:runner-1|target:defender-6',
+    );
+
+    defender.nextUint32();
+    defender.nextUint32();
+    defender.nextUint32();
+    defender.nextUint32();
+
+    const ballB = root.streamRng(14, 'perception', 'observer:runner-1|target:ball');
+    expect(ballA.nextUint32()).toBe(ballB.nextUint32());
+  });
 });
