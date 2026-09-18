@@ -64,3 +64,5 @@ export * from './model/RuleProfileRef';
 export * from './rules/RuleProfile';
 export * from './rules/RuleContext';
 export * from './rules/ProfileAwareRuleEngine';
+export * from './rules/DefensiveAlignmentFacts';
+export * from './rules/PitchReleaseInfieldSideRule';
