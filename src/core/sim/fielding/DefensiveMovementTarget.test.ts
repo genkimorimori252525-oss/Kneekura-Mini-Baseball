@@ -13,6 +13,12 @@ const landmarks: DefensiveFieldLandmarks = {
     3: { x: 0, z: 27.43 },
     4: { x: 0, z: 0 },
   },
+  baseCoverBodyPositions: {
+    1: { x: 26.6, z: 0.15 },
+    2: { x: 26.9, z: 26.9 },
+    3: { x: 0.15, z: 26.6 },
+    4: { x: 0.6, z: 0.6 },
+  },
 };
 
 const world = (
@@ -44,7 +50,19 @@ describe('DefensiveMovementTarget', () => {
       { kind: 'base_cover', base: 1 },
       world(),
       landmarks,
-    )).toEqual({ x: 27.43, z: 0 });
+    )).toEqual({ x: 26.6, z: 0.15 });
+  });
+
+  it('keeps the physical first-base landmark distinct from the defender body cover target', () => {
+    expect(landmarks.basePositions[1]).toEqual({
+      x: 27.43,
+      z: 0,
+    });
+    expect(resolveDefensiveMovementTarget(
+      { kind: 'base_cover', base: 1 },
+      world(),
+      landmarks,
+    )).not.toEqual(landmarks.basePositions[1]);
   });
 
   it('uses the defender perceived ball estimate for ball handling', () => {
