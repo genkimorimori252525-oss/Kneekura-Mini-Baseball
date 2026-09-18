@@ -571,22 +571,43 @@ direct berth直下の上位国はGlobal Qualifierへの優先出場権を得る�
 
 代表大会ではクラブより試合数を抑える。
 
-例 16-team:
+### 16 nations
 
 ```text
 4 groups x 4
-single round robin = 3 games
-top 2
-QF single game
-SF single game
-Final single game
+ -> 3 games each
+ -> top 2
+ -> QF
+ -> SF
+ -> Final
 ```
 
-ただしFinalのみbest-of-3を採用するProfileも許可。
+### 12 nations
 
-初期推奨は **single-game knockout**。
+```text
+3 groups x 4
+ -> 3 games each
+ -> top 2 + best two third-place teams
+ -> QF
+ -> SF
+ -> Final
+```
+
+### 8 nations
+
+```text
+2 groups x 4
+ -> 3 games each
+ -> top 2
+ -> SF
+ -> Final
+```
+
+Knockoutは原則 **single game**。
 
 国際短期決戦の偶然性と番狂わせを残す。
+
+Final best-of-3はCompetitionProfileの将来optionとして保持できるが、初期標準にはしない。
 
 ---
 
@@ -652,7 +673,8 @@ Global Qualifierは一地域だけで埋めない。
 ```text
 6 groups x 4
  -> 3 games each
- -> top 2 + best third-place teams
+ -> top 2 (12 nations)
+ -> best four third-place teams
  -> 16-team knockout
 ```
 
@@ -871,7 +893,15 @@ NationalEligibilityPolicy
 
 としてCompetition / World Rules側に置く。
 
-## 19.2 Call-up does not change affiliation
+## 19.2 National-team representation
+
+一つのCompetition editionでは、一選手は一代表だけに登録できる。
+
+複数代表資格を持つ選手の国変更規則、senior official appearance後のlock条件等は `NationalEligibilityPolicy` に置く。
+
+国籍・所属league・公開Rating Contextを同一概念にしない。
+
+## 19.3 Call-up does not change affiliation
 
 代表招集中も:
 
@@ -880,11 +910,30 @@ affiliationLeagueId unchanged
 ratingContextLeagueId unchanged
 ```
 
-## 19.3 Official release window
+## 19.4 Official release window
 
 WBC / Premier / Regional Championshipはofficial national-team window。
 
 参加資格を持つクラブは原則 **release obligationを負う**。これは代表大会をクラブ都合だけで形骸化させないための世界共通Competition Ruleとする。
+
+ただし、
+
+```text
+club must release
+  != player must always accept call-up
+```
+
+とする。
+
+選手本人は、CompetitionPolicyが認める範囲で以下により辞退し得る。
+
+- injury / medical unavailability
+- personal reason
+- retirement from national team
+- exceptional CareerMotivation / relationship state
+- eligibility dispute
+
+単なる「所属クラブが嫌がったから辞退」は原則認めない。
 
 Career Economy側で:
 
@@ -894,7 +943,7 @@ Career Economy側で:
 
 を持てる。
 
-## 19.4 National roster
+## 19.5 National roster
 
 初期候補:
 
@@ -922,6 +971,10 @@ Career Economy側で:
 | Regional National Championship | 60 |
 | Premier 12-class | 140 |
 | WBC-class | 250 |
+
+`PrizePoolIndex` は**金銭規模**だけを表し、Prestige順位ではない。
+
+したがってClub WorldのPrizePoolIndexがWBCより大きくても、WBCの代表世界最高峰という名誉を下げる意味にはならない。
 
 National competition prizeは主にFederationへ入り、選手bonus / development fundingへ配分可能。
 
@@ -1033,6 +1086,23 @@ Player:
 13. Club World qualificationは直前大陸王者 + 4-year performance ranking方式
 14. WBC Global Qualifierは16 nations -> 4 group winners
 15. Major world eventsはContinental / Domesticよりcalendar priorityを持つ
+
+# 24.1 Competition敵対監査
+
+確認済み:
+
+- WBC 24 nationsは `12 group top-two + best four third-place = 16` でKnockout数が一致
+- Club Worldは `7 automatic + 9 performance = 16`
+- 4年間の大陸王者20クラブを全自動出場させる矛盾を排除
+- 冬季leagueはSeasonIdでqualification yearを扱う
+- WBC / Premier / Regional call-upでaffiliation / rating contextを変更しない
+- release obligationとplayer本人の辞退可能性を分離
+- 大会格・Coefficient・Ranking・Prizeをtrue abilityへ逆流させない
+- Continental Club大会と世界大会の月衝突はFlex Windowで解消
+- 8 / 12 / 16 nation regional formatsで決勝T進出数が整合
+- Full League外の国・クラブにもQualifier routeを残す
+
+重大な構造矛盾は現時点で確認されない。
 
 # 25. 後続で校正する事項
 
