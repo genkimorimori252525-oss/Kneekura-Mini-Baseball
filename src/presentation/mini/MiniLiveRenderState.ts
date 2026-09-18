@@ -16,6 +16,9 @@ import {
 import type {
   MiniPlayerDotSizeCalibration,
 } from './PlayerDotProfile';
+import type {
+  MiniBallHeightCalibration,
+} from './MiniBallHeightProfile';
 
 export type MiniLiveRenderState =
   | Readonly<{
@@ -34,6 +37,7 @@ export type MiniLiveRenderStateInput = Readonly<{
     Partial<Record<string, PlayerPhysicalProfile>>
   >;
   dotCalibration?: MiniPlayerDotSizeCalibration;
+  ballHeightCalibration?: MiniBallHeightCalibration;
 }>;
 
 export const buildMiniLiveRenderState = (
@@ -56,6 +60,8 @@ export const buildMiniLiveRenderState = (
       playerPhysicalProfiles:
         input.playerPhysicalProfiles,
       dotCalibration: input.dotCalibration,
+      ballHeightCalibration:
+        input.ballHeightCalibration,
     }),
   };
 };
