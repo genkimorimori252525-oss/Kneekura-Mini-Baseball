@@ -1,6 +1,9 @@
 import type {
   MiniGameLiveFrame,
 } from './MiniGameLiveFrame';
+import {
+  buildMiniBaseDiamondState,
+} from './MiniBaseDiamondState';
 
 export type MiniPortraitRegionKind =
   | 'scoreboard'
@@ -41,6 +44,10 @@ export const buildMiniPortraitScreenState = (
         half: frame.hud.half,
         count: frame.hud.count,
         bases: frame.hud.bases,
+        baseDiamond:
+          buildMiniBaseDiamondState(
+            frame.hud.bases,
+          ),
       },
     },
     {
