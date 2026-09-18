@@ -7,7 +7,7 @@ import type {
   DefenderPhysicalPrimitiveSegment,
 } from './DefenderPhysicalPrimitive';
 import {
-  createControlledBaseContactFactFromDefenderPhysics,
+  findDefenderControlledBaseContactTick,
 } from './DefenderControlledBaseContact';
 
 const base: BaseTouchRegion = {
@@ -30,11 +30,9 @@ const primitive = (
   acceleration: { x: 0, y: 0, z: 0 },
 });
 
-describe('createControlledBaseContactFactFromDefenderPhysics', () => {
+describe('findDefenderControlledBaseContactTick', () => {
   it('uses secureTick when the foot is already contacting the base at secure possession', () => {
-    expect(createControlledBaseContactFactFromDefenderPhysics({
-      defenderId: 'first-baseman',
-      base: 1,
+    expect(findDefenderControlledBaseContactTick({
       baseRegion: base,
       securedCatch: createSecuredCatchOutcome(
         1_300_000,
@@ -44,18 +42,11 @@ describe('createControlledBaseContactFactFromDefenderPhysics', () => {
       contactPrimitives: [
         primitive('left_foot', 2),
       ],
-    })).toEqual({
-      kind: 'controlled_base_contact',
-      defenderId: 'first-baseman',
-      base: 1,
-      tick: 1_450_000,
-    });
+    })).toBe(1_450_000);
   });
 
   it('uses the later exact foot-contact tick when possession is secure first', () => {
-    expect(createControlledBaseContactFactFromDefenderPhysics({
-      defenderId: 'first-baseman',
-      base: 1,
+    expect(findDefenderControlledBaseContactTick({
       baseRegion: base,
       securedCatch: createSecuredCatchOutcome(
         900_000,
@@ -65,13 +56,11 @@ describe('createControlledBaseContactFactFromDefenderPhysics', () => {
       contactPrimitives: [
         primitive('left_foot', 2),
       ],
-    })?.tick).toBe(1_400_000);
+    })).toBe(1_400_000);
   });
 
   it('returns null when the foot left the base before secure possession began', () => {
-    expect(createControlledBaseContactFactFromDefenderPhysics({
-      defenderId: 'first-baseman',
-      base: 1,
+    expect(findDefenderControlledBaseContactTick({
       baseRegion: base,
       securedCatch: createSecuredCatchOutcome(
         900_000,
@@ -85,9 +74,7 @@ describe('createControlledBaseContactFactFromDefenderPhysics', () => {
   });
 
   it('returns null when foot contact occurs only after the known control window ends', () => {
-    expect(createControlledBaseContactFactFromDefenderPhysics({
-      defenderId: 'first-baseman',
-      base: 1,
+    expect(findDefenderControlledBaseContactTick({
       baseRegion: base,
       securedCatch: createSecuredCatchOutcome(
         900_000,
@@ -101,9 +88,7 @@ describe('createControlledBaseContactFactFromDefenderPhysics', () => {
   });
 
   it('ignores glove/body primitives rather than inventing body-base contact geometry', () => {
-    expect(createControlledBaseContactFactFromDefenderPhysics({
-      defenderId: 'first-baseman',
-      base: 1,
+    expect(findDefenderControlledBaseContactTick({
       baseRegion: base,
       securedCatch: createSecuredCatchOutcome(
         900_000,
@@ -119,9 +104,7 @@ describe('createControlledBaseContactFactFromDefenderPhysics', () => {
   });
 
   it('chooses the earliest exact contact among left and right feet', () => {
-    expect(createControlledBaseContactFactFromDefenderPhysics({
-      defenderId: 'first-baseman',
-      base: 1,
+    expect(findDefenderControlledBaseContactTick({
       baseRegion: base,
       securedCatch: createSecuredCatchOutcome(
         800_000,
@@ -132,13 +115,11 @@ describe('createControlledBaseContactFactFromDefenderPhysics', () => {
         primitive('left_foot', 2),
         primitive('right_foot', 2.5),
       ],
-    })?.tick).toBe(1_120_000);
+    })).toBe(1_120_000);
   });
 
   it('rejects an invalid secure/control chronology', () => {
-    expect(() => createControlledBaseContactFactFromDefenderPhysics({
-      defenderId: 'first-baseman',
-      base: 1,
+    expect(() => findDefenderControlledBaseContactTick({
       baseRegion: base,
       securedCatch: createSecuredCatchOutcome(
         1_100_000,
@@ -152,9 +133,7 @@ describe('createControlledBaseContactFactFromDefenderPhysics', () => {
       'secure possession tick must be at or after glove contact tick',
     );
 
-    expect(() => createControlledBaseContactFactFromDefenderPhysics({
-      defenderId: 'first-baseman',
-      base: 1,
+    expect(() => findDefenderControlledBaseContactTick({
       baseRegion: base,
       securedCatch: createSecuredCatchOutcome(
         900_000,
