@@ -63,7 +63,7 @@ describe('pitching-motion infield boundary rule', () => {
       facts: [
         fact('1b', '1B', 4, 2),
         fact('2b', '2B', 2, 3),
-        fact('ss', 'SS', 9.9, 0),
+        fact('ss', 'SS', 10.0, 0),
         fact('3b', '3B', -4, 2),
       ],
       boundary,
