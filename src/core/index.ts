@@ -66,3 +66,4 @@ export * from './rules/RuleContext';
 export * from './rules/ProfileAwareRuleEngine';
 export * from './rules/DefensiveAlignmentFacts';
 export * from './rules/PitchReleaseInfieldSideRule';
+export * from './rules/InningInfieldSideAssignment';
