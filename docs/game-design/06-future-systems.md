@@ -376,3 +376,7 @@ type KnowledgeEstimate<T> = {
 
 Season events and deadlines:
 - `docs/game-design/15-season-events-and-deadlines.md`
+
+
+Club economy / football motif / directed rivalry:
+- `docs/game-design/16-club-economy-rivalry-design.md`
