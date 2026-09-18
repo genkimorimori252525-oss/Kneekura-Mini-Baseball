@@ -111,8 +111,8 @@ const fixture = (
       position: { x: 0, z: 10 },
       classification: {
         kind: 'inside_fair_wedge',
-        firstBaseLineSignedSide: expect.any(Number) as unknown as number,
-        thirdBaseLineSignedSide: expect.any(Number) as unknown as number,
+        firstBaseLineSignedSide: 1,
+        thirdBaseLineSignedSide: 1,
       },
     },
   );
