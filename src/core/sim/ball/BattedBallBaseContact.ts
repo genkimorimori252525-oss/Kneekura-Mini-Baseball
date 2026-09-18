@@ -28,6 +28,7 @@ export type RollingBattedBallBaseContactEvidence = Readonly<{
   base: 1 | 3;
   tick: number;
   rollingStartTick: number;
+  elapsedSecondsFromRollingStart: number;
   travelDistanceMeters: number;
   continuousContactCenter: Vec3;
   authoritativeState: BattedBallInitialState;
@@ -439,6 +440,7 @@ export const findFirstRollingBattedBallBaseContact = (
     base: input.base,
     tick,
     rollingStartTick,
+    elapsedSecondsFromRollingStart: elapsedSeconds,
     travelDistanceMeters,
     continuousContactCenter: {
       x: rollingState.position.x
@@ -453,4 +455,56 @@ export const findFirstRollingBattedBallBaseContact = (
       input.parameters,
     ),
   };
+};
+
+
+export type RollingBattedBallFirstThirdBaseContactInput = Readonly<{
+  flight: BattedBallFlightEvidence;
+  firstBasePrism: BattedBallBasePrism;
+  thirdBasePrism: BattedBallBasePrism;
+  searchDurationTicks: number;
+  parameters: BallFlightParameters;
+}>;
+
+export const findFirstRollingBattedBallFirstThirdBaseContact = (
+  input: RollingBattedBallFirstThirdBaseContactInput,
+): RollingBattedBallBaseContactEvidence | null => {
+  const firstBaseContact = findFirstRollingBattedBallBaseContact({
+    flight: input.flight,
+    base: 1,
+    basePrism: input.firstBasePrism,
+    searchDurationTicks: input.searchDurationTicks,
+    parameters: input.parameters,
+  });
+  const thirdBaseContact = findFirstRollingBattedBallBaseContact({
+    flight: input.flight,
+    base: 3,
+    basePrism: input.thirdBasePrism,
+    searchDurationTicks: input.searchDurationTicks,
+    parameters: input.parameters,
+  });
+
+  if (firstBaseContact === null) {
+    return thirdBaseContact;
+  }
+  if (thirdBaseContact === null) {
+    return firstBaseContact;
+  }
+
+  if (
+    firstBaseContact.rollingStartTick
+    !== thirdBaseContact.rollingStartTick
+  ) {
+    return firstBaseContact.rollingStartTick
+      < thirdBaseContact.rollingStartTick
+      ? firstBaseContact
+      : thirdBaseContact;
+  }
+
+  return (
+    firstBaseContact.elapsedSecondsFromRollingStart
+    <= thirdBaseContact.elapsedSecondsFromRollingStart
+  )
+    ? firstBaseContact
+    : thirdBaseContact;
 };
