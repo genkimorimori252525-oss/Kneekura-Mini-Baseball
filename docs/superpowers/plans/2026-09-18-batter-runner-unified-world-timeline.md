@@ -1,6 +1,6 @@
 # Batter-Runner Unified World Timeline Plan
 
-**Status:** IMPLEMENTATION IN PROGRESS.
+**Status:** IMPLEMENTATION COMPLETE; GitHub Actions remains pre-step blocked.
 
 **Goal:** Compose swing-exit recovery and post-launch RunnerMotion behind one authoritative sampling boundary so CanonicalWorldSnapshot / Presentation never chooses which running subsystem owns a tick.
 
@@ -89,3 +89,38 @@ Reject:
 ### Task 4: Core API + evidence
 
 Export through Core, add shared API coverage, retry P0 Core CI, and preserve the existing `steps=[]` external-blocker distinction if it recurs.
+
+
+---
+
+## Completion evidence
+
+Implemented through HEAD `bb75dbeb793ee8bc63784ced34b8c829c2dbd5c1`:
+
+- one phase-aware sampler owns every tick from swing-exit recovery through configured post-launch RunnerMotion;
+- `launchTick` remains recovery-owned and ownership switches to RunnerMotion only on the next tick;
+- post-launch motion reuses `advanceRunnerMotion` and `projectRunnerWorldState` instead of duplicating equations;
+- recovery / RunnerMotion clock-rate compatibility is validated;
+- inherited launch speed is validated against RunnerMotion top speed;
+- recovery launch world position/velocity is checked against the supplied post-launch RunnerRoute before timeline construction succeeds;
+- sampling outside the authoritative interval fails explicitly;
+- canonical snapshot upsert replaces one existing batter entry or appends one new entry while preserving defenders, ball, and unrelated runners;
+- duplicate batter-runner identities in an input snapshot fail explicitly;
+- shared Core API coverage includes timeline build/sample and snapshot projection.
+
+TDD / implementation checkpoints:
+- `ab4ed92b...`: unified timeline RED fixtures;
+- `e7b2715f...`: first unified timeline implementation;
+- `83d40ca5...` / `205bdb87...`: route-boundary and inherited-speed guards;
+- `946d669b...` / `16b26d20...`: shared Core API RED/GREEN;
+- `a90c444c...` / `5e7e39b1...`: canonical snapshot upsert RED/GREEN;
+- `bb75dbeb...`: snapshot projection API coverage.
+
+Repository CI:
+- P0 Core run `35321154278` for `bb75dbeb...` failed before any workflow command executed;
+- job `105523707667` reports `steps=[]`;
+- full-repository GREEN is not claimed.
+
+## Remaining explicit gap
+
+The post-launch sampler currently calls `advanceRunnerMotion` from the launch state for each queried tick. This is deterministic and correct by construction, but repeated Presentation sampling rebuilds the same analytic trajectory prefix. The next slice should expose generic sampling of `RunnerMotionTrajectory` and let the unified batter-runner timeline build the post-launch trajectory once.
