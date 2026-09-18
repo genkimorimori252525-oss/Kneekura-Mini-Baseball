@@ -1,0 +1,52 @@
+# Defensive Base-Cover Body Target Separation Plan
+
+**Status:** IMPLEMENTATION IN PROGRESS.
+
+**Goal:** Stop sending defender body centers directly to the physical base center. Separate the immutable base landmark from the defender body cover target so body motion and foot/base contact can coexist physically.
+
+## Architecture
+
+```text
+DefensiveFieldLandmarks
+  basePositions              = actual bag geometry landmark
+  baseCoverBodyPositions     = body-center cover anchor
+        ↓
+base_cover intent
+        ↓
+DefenderMotion toward body cover anchor
+        ↓
+DefenderBodyKinematics
+        ↓
+DefenderBaseFootReach
+        ↓
+foot reaches actual BaseTouchRegion
+```
+
+## Constraints
+
+- `basePositions` remain actual physical base centers.
+- `baseCoverBodyPositions` are explicit field/tactical calibration, not computed from a hidden fixed offset in Core.
+- `resolveDefensiveMovementTarget(base_cover)` returns the body-cover target, never the physical base center.
+- Foot/base adjudication continues to use the actual base geometry.
+- Existing ball-handler / relay / backup / deep-coverage targets are unchanged.
+- No probability is added.
+- The separation must work for arbitrary defensive shifts and future alternate cover geometry.
+
+### Task 1: Landmark boundary
+
+Add required `baseCoverBodyPositions` to `DefensiveFieldLandmarks`.
+
+### Task 2: Target semantics
+
+Change `base_cover` target resolution to the body-cover position and validate all cover landmarks.
+
+### Task 3: Vertical-slice regression
+
+Update the first-base cover fixture so:
+- defender body moves toward a point offset from first base;
+- the foot reach planner can then reach the actual first-base center;
+- body target and physical base are demonstrably different.
+
+### Task 4: Core evidence
+
+Preserve shared API and retry P0 Core CI.
