@@ -32,7 +32,7 @@ export const DEFAULT_MINI_BALL_HEIGHT_CALIBRATION:
     tier2AtMeters: 1.25,
     tier3AtMeters: 3.5,
     tier4AtMeters: 7,
-    tierDiametersPixels: [3, 4, 5, 6, 7],
+    tierDiametersPixels: [3, 4, 5, 6, 7] as const,
   });
 
 const validateCalibration = (

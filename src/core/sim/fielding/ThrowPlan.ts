@@ -58,14 +58,14 @@ const probabilityAtLeastRuns = (
     return 0;
   }
 
-  let distribution = Array.from(
+  let distribution: number[] = Array.from(
     { length: probabilities.length + 1 },
     (_, index) => index === 0 ? 1 : 0,
   );
 
   let processed = 0;
   for (const probability of probabilities) {
-    const next = Array.from(
+    const next: number[] = Array.from(
       { length: probabilities.length + 1 },
       () => 0,
     );

@@ -31,6 +31,7 @@ const field = createFairTerritoryWedge({
 });
 
 const bases = {
+  homePlate: { x: 0, z: 0 },
   firstBase: { x: 27.432, z: 27.432 },
   secondBase: { x: 0, z: 54.864 },
   thirdBase: { x: -27.432, z: 27.432 },

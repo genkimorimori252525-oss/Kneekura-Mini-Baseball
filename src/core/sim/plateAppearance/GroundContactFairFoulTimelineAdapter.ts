@@ -22,21 +22,22 @@ export type GroundContactFairFoulTimelineInput = Readonly<{
   noPriorFielderTouch: true;
 }>;
 
+type ResolvedGroundContactBeyondBasesResult = Extract<
+  UntouchedGroundContactBeyondBasesResult,
+  { kind: 'resolved' }
+>;
+
 export type GroundContactFairFoulTimelineResult =
   | Readonly<{
       kind: 'fair';
-      rule: Extract<
-        UntouchedGroundContactBeyondBasesResult,
-        { kind: 'resolved'; territory: 'fair' }
-      >;
+      rule: ResolvedGroundContactBeyondBasesResult
+        & Readonly<{ territory: 'fair' }>;
       timeline: CanonicalPlateAppearanceTimeline;
     }>
   | Readonly<{
       kind: 'foul';
-      rule: Extract<
-        UntouchedGroundContactBeyondBasesResult,
-        { kind: 'resolved'; territory: 'foul' }
-      >;
+      rule: ResolvedGroundContactBeyondBasesResult
+        & Readonly<{ territory: 'foul' }>;
       timeline: CanonicalPlateAppearanceTimeline;
     }>
   | Readonly<{
@@ -90,7 +91,10 @@ export const resolveAndRecordUntouchedGroundContactBeyondBases = (
   if (rule.territory === 'fair') {
     return {
       kind: 'fair',
-      rule,
+      rule: {
+        ...rule,
+        territory: 'fair',
+      },
       timeline: recordFairBattedBall(
         input.timeline,
         rule.decisiveTick,
@@ -100,7 +104,10 @@ export const resolveAndRecordUntouchedGroundContactBeyondBases = (
 
   return {
     kind: 'foul',
-    rule,
+    rule: {
+      ...rule,
+      territory: 'foul',
+    },
     timeline: recordFoulBattedBall(
       input.timeline,
       rule.decisiveTick,

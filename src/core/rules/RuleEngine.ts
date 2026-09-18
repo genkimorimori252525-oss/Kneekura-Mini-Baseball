@@ -17,6 +17,7 @@ import type { PlayEndFact } from './PhysicalRuleFacts';
 import { evaluateSustainedTagUpAppealScoring } from './AppealOutScoring';
 import { createAppealScoringOption, createThirdOutScoringOption, selectAdvantageousInningEndingOut, type AdvantageousInningEndingOutResult, type InningEndingScoringOption, type InningEndingScoringOptionSource, type ResolvedInningEndingThirdOutScoring } from './AdvantageousFourthOut';
 import type { RunnerPrecedence } from './RunnerPrecedence';
+import type { TagUpAppealResult } from './TagUpAppealRule';
 
 export type GroundBallFirstBaseRuleInput = Readonly<{
   outsAtStart: number;

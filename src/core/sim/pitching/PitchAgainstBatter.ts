@@ -47,6 +47,12 @@ export type PitchAgainstBatterInput =
   | TakePitchAgainstBatterInput
   | SwingPitchAgainstBatterInput;
 
+const isTakePitchAgainstBatterInput = (
+  input: PitchAgainstBatterInput,
+): input is TakePitchAgainstBatterInput => (
+  input.action.kind === 'take'
+);
+
 export type PitchAgainstBatterPhysicalResult =
   | Readonly<{
       kind: 'taken';
@@ -73,7 +79,7 @@ export const resolveAndRecordPitchAgainstBatter = (
   timeline: CanonicalPlateAppearanceTimeline,
   input: PitchAgainstBatterInput,
 ): PitchAgainstBatterResolution => {
-  if (input.action.kind === 'take') {
+  if (isTakePitchAgainstBatterInput(input)) {
     const physical = resolveTakenPitchPhysicalResult({
       trajectory: input.trajectory,
       plateZ: input.plateZ,

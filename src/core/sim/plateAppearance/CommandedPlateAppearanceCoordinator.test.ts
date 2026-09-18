@@ -207,6 +207,9 @@ describe('CommandedPlateAppearanceCoordinator', () => {
       });
 
     expect(result.kind).toBe('active');
+    if (result.kind !== 'active') {
+      throw new Error('fixture must remain active');
+    }
     expect(result.pitchesGenerated).toBe(1);
     expect(result.matchState).toEqual(baseMatch);
   });

@@ -15,6 +15,20 @@ export type {
   FairFoulBaseGateGeometry,
 } from '../sim/ball/FairFoulBaseGateGeometry';
 
+const validateVec2 = (
+  name: string,
+  value: Vec2,
+): void => {
+  if (
+    !Number.isFinite(value.x)
+    || !Number.isFinite(value.z)
+  ) {
+    throw new Error(
+      `${name} must contain finite coordinates`,
+    );
+  }
+};
+
 export type UntouchedGroundContactBeyondBasesInput = Readonly<{
   firstGroundContact: FirstGroundContactTerritory;
   field: FairTerritoryWedge;

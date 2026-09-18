@@ -7,6 +7,7 @@ import {
 } from '../sim/strategy/DefensiveAlignment';
 import {
   compareSameContactDefensiveAlignments,
+  type SameContactComparisonContact,
 } from './SameContactAlignmentComparison';
 
 const normal = createDefensiveAlignment([
@@ -33,7 +34,14 @@ const shifted = createDefensiveAlignment([
   { playerId: 'rf', registeredPosition: 'RF', start: { x: 30, z: 55 } },
 ]);
 
-const contacts = [
+type ContactEvidence = Readonly<{
+  target: Readonly<{ x: number; z: number }>;
+  fieldingWindowTicks: number;
+}>;
+
+const contacts: readonly SameContactComparisonContact<
+  ContactEvidence
+>[] = [
   {
     contactId: 'pull-1',
     evidence: {
@@ -48,7 +56,7 @@ const contacts = [
       fieldingWindowTicks: 1_000_000,
     },
   },
-] as const;
+];
 
 describe('SameContactAlignmentComparison', () => {
   it('feeds the exact same contact evidence through each alignment and aggregates only evaluator results', () => {

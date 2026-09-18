@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { CanonicalMatchState } from '../../model/CanonicalMatchState';
 import { asRuleProfileId } from '../../model/RuleProfileRef';
+import { SeedRoot } from '../../rng/SeedRoot';
 import type {
   PitchAgainstBatterInput,
 } from '../pitching/PitchAgainstBatter';

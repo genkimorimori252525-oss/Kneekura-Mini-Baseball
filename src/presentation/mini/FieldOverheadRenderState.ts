@@ -18,6 +18,16 @@ import {
   deriveMiniPlayerDotPresentationProfile,
   type MiniPlayerDotSizeCalibration,
 } from './PlayerDotProfile';
+import {
+  DEFAULT_MINI_BALL_HEIGHT_CALIBRATION,
+  deriveMiniBallHeightPresentationProfile,
+  type MiniBallHeightCalibration,
+  type MiniBallHeightTier,
+} from './MiniBallHeightProfile';
+import {
+  buildMiniBallTrail,
+  type MiniBallTrailPoint,
+} from './MiniBallTrail';
 
 import {
   projectFieldOverheadWorldPoint,

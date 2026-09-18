@@ -447,6 +447,12 @@ describe('core package', () => {
     expect(typeof getPublicDefensiveRatings).toBe('function');
     expect(typeof createNormalizedRating).toBe('function');
     expect(typeof deriveRatedDefenderMotionParameters).toBe('function');
+    expect(typeof resolveRatedDefenderFirstStepTiming).toBe('function');
+    expect(typeof resolveRatedBallTransferTiming).toBe('function');
+    expect(typeof createDefensiveRatedThrowLaunch).toBe('function');
+    expect(typeof resolveRatedTagActionTiming).toBe('function');
+    expect(typeof applyRatedBattedBallRead).toBe('function');
+    expect(typeof planRatedDefenderRoute).toBe('function');
     expect(typeof resolveRatedCatchExecutionTarget).toBe('function');
     expect(typeof deriveRatedCatchRetentionParameters).toBe('function');
     expect(typeof resolveRatedDefensiveDecisionTiming).toBe('function');

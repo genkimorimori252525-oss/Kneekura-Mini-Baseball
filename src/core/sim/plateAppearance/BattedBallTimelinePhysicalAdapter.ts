@@ -46,11 +46,13 @@ export const deriveAndRecordFirstGroundContactEvidence = (
     );
   }
 
+  const contactTick =
+    input.timeline.status.contactTick;
   const contactEvent = [...input.timeline.events]
     .reverse()
     .find((event) => (
       event.kind === 'BatBallContact'
-      && event.tick === input.timeline.status.contactTick
+      && event.tick === contactTick
     ));
 
   if (

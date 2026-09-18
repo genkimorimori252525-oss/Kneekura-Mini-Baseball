@@ -351,7 +351,7 @@ describe('end-to-end first-base physical race', () => {
       defender: {
         ...input.defender,
         contactPrimitives: [{
-          ...plantedFoot(),
+          ...plannedFootForRunnerTouch(runnerTouchTick),
           ticksPerSecond: 500_000,
         }],
       },
