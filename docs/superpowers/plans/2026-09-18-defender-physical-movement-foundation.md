@@ -1,5 +1,7 @@
 # Defender Physical Movement Foundation Plan
 
+**Status:** COMPLETE — implemented and verified on 2026-09-18.
+
 **Goal:** Convert an individually selected `DefensiveIntent` into deterministic canonical defender movement without reintroducing a central post-contact planner.
 
 **Source:** `2026-09-17-causal-contact-and-individual-defense-design.md` section 4.4: `DefensiveIntent -> movement / catch / throw / cover`.
@@ -97,3 +99,23 @@ Export target resolver and defender motion through `src/core/index.ts`, add regr
 - throw-body mechanics;
 - dive/jump body modes;
 - calibration from baseball tracking data.
+
+
+---
+
+## Completion Evidence
+
+Implemented:
+- local `DefensiveIntent` -> world-space movement target resolution;
+- perceived-ball-only targeting for `ball_handler`;
+- deterministic 2D acceleration, finite turning, braking, and top-speed motion;
+- explicit constant-acceleration trajectory segments for future continuous contact;
+- first-base-cover decision timing -> physical position vertical slice;
+- canonical `DefenderWorldState` projection;
+- shared Core API exports.
+
+Verification at implementation HEAD `27a0419004bf3e1959c86b1b05666331fe503f77`:
+- `tsc --noEmit`: success
+- Vitest: 42 test files passed
+- Vitest: 196 tests passed
+- P0 Core run: `35299472938` success
