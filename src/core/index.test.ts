@@ -28,6 +28,8 @@ import {
   findBaseTouchTick,
   findNextDefensiveReplanTick,
   findFirstTrueTick,
+  createInitialForceObligationState,
+  deriveCurrentForceObligations,
   findGloveBallContactTick,
   findRunnerBaseTouchTick,
   findSecureCatchTick,
@@ -44,9 +46,11 @@ import {
   resolveBatterRunnerFirstBase,
   resolveDefensiveMovementTarget,
   resolveGroundBallFirstBaseRule,
+  resolveForceOutAtTarget,
   resolveThirdOutScoring,
   resolveDefensiveDecisionTiming,
   resolveCommunicationReception,
+  retireForceParticipant,
   sampleRunnerPhysicalTouchPoint,
   sampleRunnerRoute,
 } from './index';
@@ -145,6 +149,14 @@ describe('core package', () => {
     expect(typeof findAcceleratedSphereContactTick).toBe('function');
     expect(typeof findAcceleratedGloveBallContactTick).toBe('function');
     expect(typeof findAcceleratedTagContactTick).toBe('function');
+  });
+
+  it('exposes dynamic force obligations through the shared Core API', () => {
+    expect(typeof createInitialForceObligationState).toBe('function');
+    expect(typeof deriveCurrentForceObligations).toBe('function');
+    expect(typeof retireForceParticipant).toBe('function');
+    expect(typeof resolveForceOutAtTarget).toBe('function');
+    expect(typeof resolveForceOutScoringRule).toBe('function');
   });
 
   it('exposes the first Correct Rule Result foundation through the shared Core API', () => {
