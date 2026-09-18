@@ -7,6 +7,9 @@ import {
   assessPerceivedGloveTarget,
   buildDefenderMotionTrajectory,
   buildPlayerPerceivedWorldState,
+  createBatterRunnerFirstBaseFrame,
+  createBatterRunnerFirstBaseRoute,
+  createBatterStanceGeometry,
   capturePlanarObservation,
   captureSpatialObservation,
   closeAppealWindow,
@@ -38,6 +41,7 @@ import {
   deriveCatchRetentionParameters,
   evaluateTagUpComplianceForMatch,
   evaluatePitchReleaseInfieldSide,
+  getBatterRunnerDistanceToFirstBase,
   getRuleProfile,
   evaluateObservationGeometry,
   estimateOcclusionVisibility,
@@ -96,6 +100,7 @@ import {
   evaluateInningInfieldSideLockForMatch,
   resolveTagOutScoringRule,
   resolveDefensiveDecisionTiming,
+  resolveBatterStanceWorldPosition,
   resolveCommunicationReception,
   retireForceParticipant,
   sampleRunnerPhysicalTouchPoint,
@@ -136,6 +141,14 @@ describe('core package', () => {
 
   it('exposes exact base touch timing through the shared Core API', () => {
     expect(typeof findBaseTouchTick).toBe('function');
+  });
+
+  it('exposes batter stance to first-base geometry through the shared Core API', () => {
+    expect(typeof createBatterRunnerFirstBaseFrame).toBe('function');
+    expect(typeof createBatterStanceGeometry).toBe('function');
+    expect(typeof resolveBatterStanceWorldPosition).toBe('function');
+    expect(typeof getBatterRunnerDistanceToFirstBase).toBe('function');
+    expect(typeof createBatterRunnerFirstBaseRoute).toBe('function');
   });
 
   it('exposes deterministic runner physical movement through the shared Core API', () => {
