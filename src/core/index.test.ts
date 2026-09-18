@@ -9,6 +9,7 @@ import {
   buildPlayerPerceivedWorldState,
   createBatterRunnerFirstBaseFrame,
   createBatterRunnerFirstBaseRoute,
+  createBatterRunnerFirstBaseTouchFactFromTimeline,
   createBatterStanceGeometry,
   createRunnerMotionStateFromSwingExitTransition,
   buildBatterSwingExitRecoveryTrajectory,
@@ -87,6 +88,8 @@ import {
   resolveCatchRetention,
   resolveAdvantageousAppealOutOptions,
   resolveBatterRunnerFirstBase,
+  resolveBatterRunnerFirstBaseFromTimeline,
+  resolveGroundBallFirstBaseRuleFromTimeline,
   resolveDefensiveAlignmentViolationPenaltyForMatch,
   resolveDefensiveMovementTarget,
   resolveGroundBallFirstBaseRule,
@@ -252,6 +255,12 @@ describe('core package', () => {
     expect(typeof resolveForceOutAtTarget).toBe('function');
     expect(typeof resolveForceOutScoringRule).toBe('function');
     expect(typeof applyForceOutRuleResultToState).toBe('function');
+  });
+
+  it('exposes batter-runner physical-to-rule first-base adapters through Core', () => {
+    expect(typeof createBatterRunnerFirstBaseTouchFactFromTimeline).toBe('function');
+    expect(typeof resolveBatterRunnerFirstBaseFromTimeline).toBe('function');
+    expect(typeof resolveGroundBallFirstBaseRuleFromTimeline).toBe('function');
   });
 
   it('exposes the first Correct Rule Result foundation through the shared Core API', () => {
