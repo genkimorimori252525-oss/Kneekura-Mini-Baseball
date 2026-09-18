@@ -133,7 +133,7 @@ export function buildMiniPresentationTimeline(
     });
 
     if (
-      cameraMode === 'BATTER_POV'
+      cameraMode !== 'FIELD_OVERHEAD'
       && fairDeclaration
     ) {
       cameraMode = 'FIELD_OVERHEAD';
