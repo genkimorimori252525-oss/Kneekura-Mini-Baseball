@@ -62,6 +62,11 @@ export type DefensivePerceivedCue =
       target: Vec2;
     }>);
 
+export type DefensiveCommunicationContent = Readonly<{
+  kind: 'cover_base';
+  base: 1 | 2 | 3 | 4;
+}>;
+
 export type DefensiveIntent =
   | Readonly<{ kind: 'ball_handler' }>
   | Readonly<{ kind: 'base_cover'; base: 1 | 2 | 3 | 4 }>
@@ -83,6 +88,7 @@ export type DefensiveDecisionInput = Readonly<{
   prePlayPlan: PrePlayDefensivePlan;
   perceivedCues: readonly DefensivePerceivedCue[];
   minimumCueConfidence: number;
+  communicationTrust: number;
 }>;
 
 const validateUnit = (name: string, value: number): void => {
@@ -204,6 +210,7 @@ export const generateDefensiveIntentCandidates = (
   }
   validateTick('observationTime', input.perceivedWorld.observationTime);
   validateUnit('minimumCueConfidence', input.minimumCueConfidence);
+  validateUnit('communicationTrust', input.communicationTrust);
   validatePlan(input.prePlayPlan);
   for (const cue of input.perceivedCues) {
     validateCue(cue, input.perceivedWorld.observationTime);
@@ -304,6 +311,70 @@ export const generateDefensiveIntentCandidates = (
       default:
         break;
     }
+  }
+
+  const isCommunicationForSelf = (
+    targetScope: { kind: string; playerId?: string },
+  ): boolean => (
+    targetScope.kind !== 'player'
+    || targetScope.playerId === input.self.playerId
+  );
+
+  const parseDefensiveCommunication = (
+    value: unknown,
+  ): DefensiveCommunicationContent | null => {
+    if (typeof value !== 'object' || value === null) return null;
+    const record = value as { kind?: unknown; base?: unknown };
+    if (record.kind !== 'cover_base') return null;
+    if (
+      record.base !== 1
+      && record.base !== 2
+      && record.base !== 3
+      && record.base !== 4
+    ) {
+      return null;
+    }
+    return {
+      kind: 'cover_base',
+      base: record.base,
+    };
+  };
+
+  for (const received of input.perceivedWorld.communications) {
+    validateTick('communication.receivedAt', received.receivedAt);
+    validateUnit('communication.confidence', received.confidence);
+
+    if (
+      received.receivedAt > input.perceivedWorld.observationTime
+      || received.confidence < input.minimumCueConfidence
+      || input.communicationTrust <= 0
+      || !isCommunicationForSelf(received.event.targetScope)
+    ) {
+      continue;
+    }
+
+    const communication = parseDefensiveCommunication(received.event.content);
+    if (communication === null) continue;
+
+    const coverPriority = input.prePlayPlan.baseCoverPriorities.find(
+      (entry) => entry.base === communication.base,
+    )?.priority ?? 0;
+
+    if (coverPriority <= 0) continue;
+
+    candidates.push({
+      intent: { kind: 'base_cover', base: communication.base },
+      localPriority: (
+        coverPriority
+        * received.confidence
+        * input.communicationTrust
+      ),
+      evidenceAvailableAt: received.receivedAt,
+      evidenceKinds: [
+        'communication:cover_base',
+        'pre_play_plan',
+      ],
+    });
   }
 
   candidates.push({
