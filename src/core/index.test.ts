@@ -10,6 +10,7 @@ import {
   createBatterRunnerFirstBaseFrame,
   createBatterRunnerFirstBaseRoute,
   createBatterRunnerFirstBaseTouchFactFromTimeline,
+  createControlledBaseContactFactFromCatchOutcomePhysics,
   createControlledBaseContactFactFromDefenderPhysics,
   createBatterStanceGeometry,
   createRunnerMotionStateFromSwingExitTransition,
@@ -91,6 +92,7 @@ import {
   resolveCatchRetention,
   resolveAdvantageousAppealOutOptions,
   resolveBatterRunnerFirstBase,
+  resolveBatterRunnerFirstBaseFromPhysicalCatchRace,
   resolveBatterRunnerFirstBaseFromPhysicalRace,
   resolveBatterRunnerFirstBaseFromTimeline,
   resolveGroundBallFirstBaseRuleFromPhysicalRace,
@@ -266,12 +268,14 @@ describe('core package', () => {
     expect(typeof findDefenderFootBaseContactTick).toBe('function');
     expect(typeof findDefenderControlledBaseContactTick).toBe('function');
     expect(typeof createControlledBaseContactFactFromDefenderPhysics).toBe('function');
+    expect(typeof createControlledBaseContactFactFromCatchOutcomePhysics).toBe('function');
   });
 
   it('exposes batter-runner physical-to-rule first-base adapters through Core', () => {
     expect(typeof createBatterRunnerFirstBaseTouchFactFromTimeline).toBe('function');
     expect(typeof resolveBatterRunnerFirstBaseFromTimeline).toBe('function');
     expect(typeof resolveBatterRunnerFirstBaseFromPhysicalRace).toBe('function');
+    expect(typeof resolveBatterRunnerFirstBaseFromPhysicalCatchRace).toBe('function');
     expect(typeof resolveGroundBallFirstBaseRuleFromTimeline).toBe('function');
     expect(typeof resolveGroundBallFirstBaseRuleFromPhysicalRace).toBe('function');
   });
