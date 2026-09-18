@@ -28,6 +28,14 @@ import {
   selectDefensiveAlignmentCandidateForManager,
   selectRatedDefensiveAlignmentCandidateForManager,
   createDefenderWorldStatesFromAlignment,
+  createPlateAppearanceCommand,
+  createPlateAppearanceCommandSession,
+  assertCommandSessionCanDriveTimeline,
+  createCommandedPitchAgainstBatterInput,
+  resolveCommandedPlateAppearanceSequence,
+  resolveCommandedPlateAppearanceToMatchState,
+  applyPlateAppearanceRunnerPosture,
+  validatePlateAppearanceCommandContext,
   resolveRunnerDecisionTiming,
   decideRunnerMotionIntent,
   deriveRunnerAdvanceRiskPolicy,
@@ -375,6 +383,17 @@ describe('core package', () => {
     expect(typeof buildPerceivedPickoffThreatCue).toBe('function');
     expect(typeof buildStealDefenseTimeline).toBe('function');
     expect(typeof createControlledTagFactFromStealDefense).toBe('function');
+  });
+
+  it('exposes P7 one-command plate-appearance adapter through Core', () => {
+    expect(typeof createPlateAppearanceCommand).toBe('function');
+    expect(typeof createPlateAppearanceCommandSession).toBe('function');
+    expect(typeof assertCommandSessionCanDriveTimeline).toBe('function');
+    expect(typeof createCommandedPitchAgainstBatterInput).toBe('function');
+    expect(typeof resolveCommandedPlateAppearanceSequence).toBe('function');
+    expect(typeof resolveCommandedPlateAppearanceToMatchState).toBe('function');
+    expect(typeof applyPlateAppearanceRunnerPosture).toBe('function');
+    expect(typeof validatePlateAppearanceCommandContext).toBe('function');
   });
 
   it('exposes P5 coordinated team coverage foundations through Core', () => {
