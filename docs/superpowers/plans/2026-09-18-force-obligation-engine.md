@@ -1,5 +1,7 @@
 # Force Obligation Engine Plan
 
+**Status:** IMPLEMENTATION COMPLETE for play-start/retirement force dynamics; safe-advancement occupancy transitions remain intentionally deferred.
+
 **Goal:** Represent and recompute runner force obligations causally from play-start base occupancy and active participants, so a force can disappear when a following runner is retired.
 
 **Rule basis:** NPB's official scorer explanation states that a runner loses the right to the currently occupied base when the batter becoming a runner creates a force, and that if a following runner is retired first on a force play, the preceding runner's force condition disappears. The 2026 rules revisions continue to reference Definition 30 (Force Play). This phase implements that state transition without relying on presentation/event-array order.
@@ -105,3 +107,31 @@ Do not yet implement every double-play sequence or safe-advancement base transit
 Export ForceObligation/ForceOutRule from `src/core/index.ts`.
 Run local TypeScript and deterministic fixtures.
 Retry P0 Core CI; full repository GREEN remains unclaimed unless workflow steps actually run.
+
+
+---
+
+## Implementation Evidence
+
+Implemented through HEAD `cadce872b0646c17fdbaa81488b00cdd2dc734ca`:
+- initial force participant state from canonical base occupancy;
+- batter-runner first-base obligation kept distinct from generic `force`;
+- contiguous force-chain derivation;
+- immutable participant retirement and force recomputation;
+- current-obligation-only force-out resolver;
+- exact safe/out/simultaneous comparison from authoritative ticks;
+- retirement vertical slice proving downstream force dissolution;
+- RuleEngine force-out scoring boundary using `classification: 'force'`;
+- non-third-out home touches remain pending rather than prematurely finalized;
+- shared Core API exports.
+
+Independent verification:
+- TypeScript 5.8 source-level rules typecheck: success;
+- loaded-bases force chain: batter->1, R1->2, R2->3, R3->home;
+- R1 force-out then retirement: R2/R3 forces dissolve;
+- force third out suppresses an earlier home touch;
+- no `sequence` ordering is used to break same-tick physical ties.
+
+Repository CI:
+- P0 Core run `35303189820` at HEAD failed before workflow steps were created;
+- full repository GREEN remains intentionally unclaimed while the repository-wide `steps=null` condition persists.
