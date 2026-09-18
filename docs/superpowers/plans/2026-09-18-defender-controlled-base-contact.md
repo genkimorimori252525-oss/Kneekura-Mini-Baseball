@@ -37,8 +37,9 @@ existing first-base RuleEngine
   Hand/body base contact remains explicit future work rather than being approximated from body-center spheres.
 - For a foot-role primitive, the primitive center is the authoritative representative sole contact point for base-touch adjudication.
 - Primitive radius is deliberately not reused as a rectangle-expansion shortcut because that would create false corner contacts for a circular footprint.
-- Foot contact uses the existing planar BaseTouchRegion and the foot contact point's existing constant-acceleration analytic trajectory.
-- Earliest contact is solved deterministically from quadratic boundary roots, not Presentation frames.
+- Foot contact uses the existing planar BaseTouchRegion **plus an explicit base-surface world Y height** and the foot contact point's existing 3D constant-acceleration analytic trajectory.
+- X/Z overlap alone is insufficient: the sole contact point must be on the base surface in Y at the same authoritative instant.
+- Earliest contact is solved deterministically from quadratic X/Z boundary roots plus Y=base-surface roots, not Presentation frames.
 - Multiple eligible primitives compete by exact tick; earliest valid contact wins.
 - A primitive contact before secure possession does not count unless contact still exists at/after secureTick.
 - A contact after `controlThroughTick` does not count.
