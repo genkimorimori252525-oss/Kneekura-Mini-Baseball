@@ -80,6 +80,27 @@ EmotionPressure
 
 性格・心理に関係する内部特性も増やしすぎない。必要な差は、既存の判断能力、経験、集中、精神安定性、自信、勝負欲、自己中心性、攻撃性など少数の軸から派生させる。
 
+### 3.1 Pressure系Traitとの境界
+
+`チャンス`、`対ピンチ`、`要所`等の長期的なPressure Response Traitを導入する場合、それらを `ActiveEmotion` とは別の直接能力Buffとして重ねない。
+
+```text
+stable pressure-response state / Trait
++ MatchImportance
++ PersonalStake
++ RecentHistory
+        ↓
+Appraisal / EmotionPressure
+        ↓
+ActiveEmotion
+        ↓
+defined decision / execution change
+```
+
+Pressure Traitは主に、Appraisalの受け取り方、発火しやすさ、発火後の影響感度、高圧下の再現性等のsource of truthを人間向けに要約する。
+
+同じ精神安定性・勝負欲・経験を、`チャンスA` と `ActiveEmotion` の双方から二重に能力へ加算しない。
+
 ## 4. Appraisal: 同じ出来事でも反応を変える
 
 試合イベントから直接「怒り +20」のように決めない。
