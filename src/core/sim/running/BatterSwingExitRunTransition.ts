@@ -16,8 +16,8 @@ export type SwingExitBodyState = Readonly<{
 export type BatterSwingExitRunTransitionParameters = Readonly<{
   ticksPerSecond: number;
   maximumBodyTurnRateRadiansPerSecond: number;
-  lateralVelocityDampingMps2: number;
-  backwardVelocityBrakingMps2: number;
+  lateralRealignmentAccelerationMps2: number;
+  backwardRecoveryAccelerationMps2: number;
 }>;
 
 export type BatterSwingExitRunTransitionResult = Readonly<{
@@ -98,12 +98,12 @@ const validateParameters = (
       parameters.maximumBodyTurnRateRadiansPerSecond,
     ],
     [
-      'lateralVelocityDampingMps2',
-      parameters.lateralVelocityDampingMps2,
+      'lateralRealignmentAccelerationMps2',
+      parameters.lateralRealignmentAccelerationMps2,
     ],
     [
-      'backwardVelocityBrakingMps2',
-      parameters.backwardVelocityBrakingMps2,
+      'backwardRecoveryAccelerationMps2',
+      parameters.backwardRecoveryAccelerationMps2,
     ],
   ] as const) {
     if (!Number.isFinite(value) || value <= 0) {
@@ -154,13 +154,22 @@ export const resolveBatterSwingExitRunTransition = (
     requiredTurnRadians
     / parameters.maximumBodyTurnRateRadiansPerSecond
   );
+  // Minimum-time bounded-acceleration recovery that both cancels the
+  // adverse velocity component and returns the body to the intended
+  // route line/origin with zero residual adverse velocity.
+  //
+  // For initial speed v and acceleration limit a, the two-phase
+  // bang-bang solution has total duration (1 + sqrt(2)) * v / a.
+  const recoveryFactor = 1 + Math.SQRT2;
   const lateralRecoverySeconds = (
-    lateralVelocityMps
-    / parameters.lateralVelocityDampingMps2
+    recoveryFactor
+    * lateralVelocityMps
+    / parameters.lateralRealignmentAccelerationMps2
   );
   const backwardRecoverySeconds = (
-    backwardVelocityMps
-    / parameters.backwardVelocityBrakingMps2
+    recoveryFactor
+    * backwardVelocityMps
+    / parameters.backwardRecoveryAccelerationMps2
   );
   const recoverySeconds = Math.max(
     turnRecoverySeconds,
