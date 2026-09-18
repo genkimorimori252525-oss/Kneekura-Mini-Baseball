@@ -30,9 +30,25 @@ export type RuleProfile = Readonly<{
   }>;
   defensiveAlignment: Readonly<{
     requiredInfielderCount: number;
-    evaluationMoment: 'pitch_release' | 'pitching_motion_start';
-    minimumInfieldersEachSideOfSecondBase: number;
-    sideDeterminedBy: 'both_feet' | 'body_center';
+    infieldBoundary: Readonly<{
+      enabled: boolean;
+      evaluationMoment:
+        | 'pitching_related_motion_start'
+        | 'pitch_release';
+      geometrySource:
+        | 'stadium_profile'
+        | 'fixed_reference';
+    }>;
+    secondBaseSide: Readonly<{
+      enabled: boolean;
+      evaluationMoment:
+        | 'pitch_release'
+        | 'pitching_related_motion_start';
+      minimumInfieldersEachSideOfSecondBase: number;
+      sideDeterminedBy:
+        | 'both_feet'
+        | 'body_center';
+    }>;
     violationPolicyId: string;
   }>;
 }>;
@@ -60,9 +76,17 @@ export const NPB_2026_RULE_PROFILE: RuleProfile = {
   },
   defensiveAlignment: {
     requiredInfielderCount: 4,
-    evaluationMoment: 'pitch_release',
-    minimumInfieldersEachSideOfSecondBase: 2,
-    sideDeterminedBy: 'both_feet',
+    infieldBoundary: {
+      enabled: true,
+      evaluationMoment: 'pitching_related_motion_start',
+      geometrySource: 'stadium_profile',
+    },
+    secondBaseSide: {
+      enabled: true,
+      evaluationMoment: 'pitch_release',
+      minimumInfieldersEachSideOfSecondBase: 2,
+      sideDeterminedBy: 'both_feet',
+    },
     violationPolicyId: 'npb_2026_5_02_c',
   },
 };
