@@ -1,6 +1,6 @@
 # P1 NPB Rule Gap Audit — 2026-09-18
 
-**Status:** ACTIVE GAP-CLOSURE PLAN.
+**Status:** IMPLEMENTATION COMPLETE; GitHub Actions remains pre-step blocked.
 
 **Parent roadmap:** P1 — NPB rule core.
 
@@ -10,14 +10,14 @@ This audit compares the current `jolly/core-realism-2026-09-18` implementation a
 
 | Requirement | State | Current evidence | Remaining gap |
 | --- | --- | --- | --- |
-| R-01 4 balls / 3 strikes / 3 outs | **partial** | `CanonicalMatchState` carries balls/strikes/outs | no authoritative pitch-count transition rule; no half-inning transition boundary |
-| R-02 foul / two-strike foul / foul bunt | **missing** | none dedicated | add count semantics: ordinary foul cannot create strike three; two-strike foul bunt can |
-| R-03 foul fly | **partial** | `FlyCatchRule` separates secured catch vs ground contact | no fair/foul territory fact integrated with fly-catch result |
-| R-04 force obligations | **advanced** | `ForceObligation`, transition/satisfaction, force-out vertical slices | retain audit coverage |
-| R-05 tag after force dissolves | **advanced** | `TagArrivalRule`, force-dissolution/tag-arrival regressions | retain audit coverage |
-| R-06 third out / scoring | **advanced** | batter-runner-before-first, force/time-play scoring, pending-run finalization | retain audit coverage |
-| R-07 tag-up / appeal | **advanced** | fly-catch/tag-up vertical slice, appeal window/scoring, fourth-out handling | retain audit coverage |
-| R-08 infield fly | **missing** | no dedicated rule module found | add applicability, batter-out declaration, force-removal semantics, dropped-ball runner state |
+| R-01 4 balls / 3 strikes / 3 outs | **implemented** | `PitchCountRule`, `HalfInningTransitionRule`, `CanonicalMatchState` | CI execution still externally blocked |
+| R-02 foul / two-strike foul / foul bunt | **implemented** | `PitchCountRule` | CI execution still externally blocked |
+| R-03 foul fly | **implemented** | `FlyCatchRule` + `FoulBallRule` | P2 still owns physical fair/foul fact generation |
+| R-04 force obligations | **implemented** | `ForceObligation`, transition/satisfaction, force-out vertical slices | covered by P1 acceptance matrix |
+| R-05 tag after force dissolves | **implemented** | `TagArrivalRule`, force-dissolution/tag-arrival regressions | covered by P1 acceptance matrix |
+| R-06 third out / scoring | **implemented** | batter-runner-before-first, force/time-play scoring, pending-run finalization | covered by P1 acceptance matrix |
+| R-07 tag-up / appeal | **implemented** | fly-catch/tag-up vertical slice, appeal window/scoring, fourth-out handling | covered by P1 acceptance matrix |
+| R-08 infield fly | **implemented** | `InfieldFlyRule` | P2/umpire layers still own physical/judgment inputs |
 
 Additional NPB-2026 RuleProfile / defensive-alignment work is already substantially implemented but does not substitute for the above P1 acceptance cases.
 
@@ -54,3 +54,44 @@ Do not implement a second pitch simulator inside P1.
 ## Current CI caveat
 
 GitHub Actions continues to fail before workflow steps execute (`steps=[]`). P1 gap work may advance with TDD/source evidence, but repository GREEN must not be claimed until CI executes commands successfully.
+
+
+## Completion evidence
+
+Gap-closing implementation:
+- `20400587...` / `9f5b025e...`: pitch-count/foul semantics RED/GREEN;
+- `fa50b660...` / `9967b050...`: infield-fly semantics RED/GREEN;
+- `531f7a20...` / `90af2d0a...`: foul-fly + foul-count integration RED/GREEN;
+- `af356a8b...` / `de18817b...`: third-out half-inning transition RED/GREEN;
+- `cd32362f...` / `236c2394...`: P1 acceptance matrix and explicit post-force tag requirement;
+- `83625eca...`: continuing foul-bunt type correction.
+
+The P1 acceptance matrix now explicitly covers:
+- four balls / three strikes;
+- ordinary two-strike foul vs two-strike foul bunt;
+- caught vs uncaught foul fly;
+- force obligations and a one-out bases-loaded double-play scoring sequence;
+- tag requirement after force dissolution;
+- tag-up early departure / legal retouch;
+- infield-fly batter out + batter-created-force removal;
+- third-out half-inning transition.
+
+GitHub Actions remains externally blocked before workflow commands execute. The latest completed verify evidence before this closeout still reports `steps=[]`; therefore repository GREEN is not claimed.
+
+## P2 handoff
+
+P1 owns the correct rule transformations and is now implementation-complete for the roadmap's core acceptance set.
+
+P2 must now supply those rules with one canonical chronological plate-appearance stream:
+
+```text
+pitch
+  -> take / swing
+  -> ball / strike / foul / foul bunt / contact
+  -> count transition OR live ball
+  -> fielding + running
+  -> play end
+  -> CanonicalMatchState transition
+```
+
+Do not reopen P1 to implement a second pitch simulator.
