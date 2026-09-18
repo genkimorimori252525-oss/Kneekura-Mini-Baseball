@@ -28,6 +28,14 @@ import {
   selectDefensiveAlignmentCandidateForManager,
   selectRatedDefensiveAlignmentCandidateForManager,
   createDefenderWorldStatesFromAlignment,
+  resolveRunnerDecisionTiming,
+  decideRunnerMotionIntent,
+  deriveRunnerAdvanceRiskPolicy,
+  decideRundownMotionIntent,
+  buildPerceivedStealRaceCue,
+  buildPerceivedPickoffThreatCue,
+  buildStealDefenseTimeline,
+  createControlledTagFactFromStealDefense,
   createTeamCoveragePlan,
   applyPositionSuitabilityToCoverageCandidates,
   createRatedTeamCoveragePlan,
@@ -356,6 +364,17 @@ describe('core package', () => {
 
   it('exposes physical throw-reception contact through Core', () => {
     expect(typeof createCatchRetentionContactFromAcceleratedReception).toBe('function');
+  });
+
+  it('exposes P6 runner decision and special-play foundations through Core', () => {
+    expect(typeof resolveRunnerDecisionTiming).toBe('function');
+    expect(typeof decideRunnerMotionIntent).toBe('function');
+    expect(typeof deriveRunnerAdvanceRiskPolicy).toBe('function');
+    expect(typeof decideRundownMotionIntent).toBe('function');
+    expect(typeof buildPerceivedStealRaceCue).toBe('function');
+    expect(typeof buildPerceivedPickoffThreatCue).toBe('function');
+    expect(typeof buildStealDefenseTimeline).toBe('function');
+    expect(typeof createControlledTagFactFromStealDefense).toBe('function');
   });
 
   it('exposes P5 coordinated team coverage foundations through Core', () => {
