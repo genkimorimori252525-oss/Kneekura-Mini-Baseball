@@ -35,6 +35,24 @@ import {
 import type {
   PerceivedGloveTargetAssessment,
 } from './PerceivedGloveTarget';
+import {
+  resolveBallTransferTiming,
+  type BallTransferTiming,
+  type BallTransferTimingParameters,
+} from './BallTransferTiming';
+import {
+  createRatedThrowLaunch,
+  type ThrowLaunch,
+  type ThrowLaunchCalibration,
+} from './ThrowLaunch';
+import {
+  resolveTagActionTiming,
+  type TagActionTiming,
+  type TagActionTimingParameters,
+} from './TagActionTiming';
+import type {
+  Vec3,
+} from '../../model/geometry';
 
 export type DefenderAccelerationRatingCalibration = Readonly<{
   lowestAbilityAccelerationMps2: number;
@@ -142,6 +160,53 @@ export const resolveRatedDefenderFirstStepTiming = (
   resolveDefenderFirstStepTiming(
     recognitionTick,
     ratings.firstStep,
+    parameters,
+  )
+);
+
+
+export const resolveRatedBallTransferTiming = (
+  securedPossessionTick: number,
+  ratings: DefensiveRatings,
+  parameters: BallTransferTimingParameters,
+): BallTransferTiming => (
+  resolveBallTransferTiming(
+    securedPossessionTick,
+    ratings.transfer,
+    parameters,
+  )
+);
+
+export const createDefensiveRatedThrowLaunch = (
+  input: Readonly<{
+    releaseTick: number;
+    origin: Vec3;
+    intendedTarget: Vec3;
+    ratings: DefensiveRatings;
+    rng: DeterministicRng;
+    calibration: ThrowLaunchCalibration;
+  }>,
+): ThrowLaunch => (
+  createRatedThrowLaunch({
+    releaseTick: input.releaseTick,
+    origin: input.origin,
+    intendedTarget: input.intendedTarget,
+    armStrength: input.ratings.armStrength,
+    throwingAccuracy:
+      input.ratings.throwingAccuracy,
+    rng: input.rng,
+    calibration: input.calibration,
+  })
+);
+
+export const resolveRatedTagActionTiming = (
+  possessionReadyTick: number,
+  ratings: DefensiveRatings,
+  parameters: TagActionTimingParameters,
+): TagActionTiming => (
+  resolveTagActionTiming(
+    possessionReadyTick,
+    ratings.tagSkill,
     parameters,
   )
 );
