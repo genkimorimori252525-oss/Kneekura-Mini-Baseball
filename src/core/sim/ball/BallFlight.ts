@@ -1,4 +1,4 @@
-import { findFirstTrueTick } from '../ExactEventTime';
+import { findFirstTrueTick, quantizeEventTick } from '../ExactEventTime';
 import type { BattedBallInitialState } from '../contact/BatBallContact';
 
 export type BallFlightParameters = Readonly<{
