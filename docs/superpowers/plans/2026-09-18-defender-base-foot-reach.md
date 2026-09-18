@@ -2,6 +2,10 @@
 
 **Status:** IMPLEMENTATION IN PROGRESS.
 
+**Parent roadmap:** P5 (Nine-defender decisions / coverage / throws), with P2 physical-world dependencies.
+
+**Stop condition:** This sub-plan exists only to prove `base-cover decision -> body cover position -> body kinematics -> bounded foot reach -> actual base contact`. Once that vertical boundary is regression-fixed, do not deepen defender anatomy here. Return to the master focus rotation in `2026-09-18-core-realism-master-progress.md` (P1 gap audit, then P2 canonical plate-appearance timeline).
+
 **Goal:** Generate left/right foot physical primitives for base contact from canonical defender body kinematics plus a bounded relative leg/foot reach, instead of hand-placing a foot primitive on the base.
 
 ## Architecture
