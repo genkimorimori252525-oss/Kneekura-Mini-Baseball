@@ -281,6 +281,7 @@ describe('CanonicalPlateAppearanceTimeline', () => {
         fielderId: 'right-fielder',
         tick: 3_750_000,
         ballCenter: { x: 0, y: 1.2, z: 40 },
+        ballRadiusMeters: 0.0366,
         classification: {
           kind: 'inside_fair_wedge',
           firstBaseLineSignedSide: 10,
@@ -303,6 +304,7 @@ describe('CanonicalPlateAppearanceTimeline', () => {
           fielderId: 'right-fielder',
           tick: 3_750_000,
           ballCenter: { x: 0, y: 1.2, z: 40 },
+          ballRadiusMeters: 0.0366,
           classification: {
             kind: 'inside_fair_wedge',
             firstBaseLineSignedSide: 10,
