@@ -15,6 +15,9 @@ import {
   resolveRatedCatchExecutionTarget,
   resolveRatedDefensiveDecisionTiming,
   resolveRatedDefenderFirstStepTiming,
+  resolveRatedBallTransferTiming,
+  createDefensiveRatedThrowLaunch,
+  resolveRatedTagActionTiming,
 } from './DefensiveRatingAdapters';
 
 const baseInput: DefensiveRatingsInput = {
@@ -139,6 +142,37 @@ const subsystemProjection = (
       fixedMotorOffsetTicks: 10_000,
     },
   ),
+  transfer: resolveRatedBallTransferTiming(
+    2_000_000,
+    value,
+    {
+      minimumTransferDelayTicks: 80_000,
+      maximumTransferDelayTicks: 260_000,
+      fixedGripOffsetTicks: 20_000,
+    },
+  ),
+  throwLaunch: createDefensiveRatedThrowLaunch({
+    releaseTick: 3_000_000,
+    origin: { x: 0, y: 1.5, z: 0 },
+    intendedTarget: { x: 20, y: 1, z: 0 },
+    ratings: value,
+    rng: new DeterministicRng(321),
+    calibration: {
+      minimumReleaseSpeedMps: 20,
+      maximumReleaseSpeedMps: 40,
+      minimumTargetErrorMeters: 0.02,
+      maximumTargetErrorMeters: 0.42,
+    },
+  }),
+  tag: resolveRatedTagActionTiming(
+    4_000_000,
+    value,
+    {
+      minimumTagActionDelayTicks: 30_000,
+      maximumTagActionDelayTicks: 140_000,
+      fixedPossessionOffsetTicks: 10_000,
+    },
+  ),
 });
 
 describe('P3 defensive rating separation acceptance', () => {
@@ -199,6 +233,86 @@ describe('P3 defensive rating separation acceptance', () => {
       .not.toBe(high.catchExecution.errorScaleMeters);
     expect(low.retention.centerRetentionCapacityJ)
       .not.toBe(high.retention.centerRetentionCapacityJ);
+  });
+
+  it('transfer changes only throw-ready timing', () => {
+    const low = subsystemProjection(
+      ratings({ transfer: 0 }),
+    );
+    const high = subsystemProjection(
+      ratings({ transfer: 1 }),
+    );
+
+    expect(low.transfer.throwReadyTick)
+      .not.toBe(high.transfer.throwReadyTick);
+    expect(low.motion).toEqual(high.motion);
+    expect(low.catchExecution).toEqual(high.catchExecution);
+    expect(low.retention).toEqual(high.retention);
+    expect(low.decision).toEqual(high.decision);
+    expect(low.firstStep).toEqual(high.firstStep);
+    expect(low.throwLaunch).toEqual(high.throwLaunch);
+    expect(low.tag).toEqual(high.tag);
+  });
+
+  it('arm strength changes only physical throw speed', () => {
+    const low = subsystemProjection(
+      ratings({ armStrength: 0 }),
+    );
+    const high = subsystemProjection(
+      ratings({ armStrength: 1 }),
+    );
+
+    expect(low.throwLaunch.releaseSpeedMps)
+      .not.toBe(high.throwLaunch.releaseSpeedMps);
+    expect(low.throwLaunch.targetError)
+      .toEqual(high.throwLaunch.targetError);
+    expect(low.transfer).toEqual(high.transfer);
+    expect(low.tag).toEqual(high.tag);
+    expect(low.motion).toEqual(high.motion);
+    expect(low.catchExecution).toEqual(high.catchExecution);
+    expect(low.retention).toEqual(high.retention);
+    expect(low.decision).toEqual(high.decision);
+    expect(low.firstStep).toEqual(high.firstStep);
+  });
+
+  it('throwing accuracy changes only the aimed throw target error', () => {
+    const low = subsystemProjection(
+      ratings({ throwingAccuracy: 0 }),
+    );
+    const high = subsystemProjection(
+      ratings({ throwingAccuracy: 1 }),
+    );
+
+    expect(low.throwLaunch.releaseSpeedMps)
+      .toBe(high.throwLaunch.releaseSpeedMps);
+    expect(low.throwLaunch.targetErrorScaleMeters)
+      .not.toBe(high.throwLaunch.targetErrorScaleMeters);
+    expect(low.transfer).toEqual(high.transfer);
+    expect(low.tag).toEqual(high.tag);
+    expect(low.motion).toEqual(high.motion);
+    expect(low.catchExecution).toEqual(high.catchExecution);
+    expect(low.retention).toEqual(high.retention);
+    expect(low.decision).toEqual(high.decision);
+    expect(low.firstStep).toEqual(high.firstStep);
+  });
+
+  it('tag skill changes only tag-action start timing', () => {
+    const low = subsystemProjection(
+      ratings({ tagSkill: 0 }),
+    );
+    const high = subsystemProjection(
+      ratings({ tagSkill: 1 }),
+    );
+
+    expect(low.tag.tagActionStartTick)
+      .not.toBe(high.tag.tagActionStartTick);
+    expect(low.transfer).toEqual(high.transfer);
+    expect(low.throwLaunch).toEqual(high.throwLaunch);
+    expect(low.motion).toEqual(high.motion);
+    expect(low.catchExecution).toEqual(high.catchExecution);
+    expect(low.retention).toEqual(high.retention);
+    expect(low.decision).toEqual(high.decision);
+    expect(low.firstStep).toEqual(high.firstStep);
   });
 
   it('situational awareness changes only the existing decision-time intermediate', () => {
