@@ -1,6 +1,10 @@
 import type {
+  BaseOccupancy,
   CanonicalMatchState,
 } from '../../model/CanonicalMatchState';
+import type {
+  PlayEndFact,
+} from '../../rules/PhysicalRuleFacts';
 import {
   resolveHalfInningTransition,
 } from '../../rules/HalfInningTransitionRule';
@@ -118,5 +122,138 @@ export const applyWalkPlateAppearanceToMatchState = (
           home: match.score.home + runs,
         },
     playId: nextPlayId(match.playId),
+  };
+};
+
+
+export type ResolvedLiveBallPlateAppearance = Readonly<{
+  playEnd: PlayEndFact;
+  outsAfter: number;
+  basesAfter: BaseOccupancy;
+  scoredRunnerIds: readonly string[];
+}>;
+
+const validateUniqueFinalBases = (
+  bases: BaseOccupancy,
+): readonly string[] => {
+  const occupied = [
+    bases.first,
+    bases.second,
+    bases.third,
+  ].filter((runnerId): runnerId is string => runnerId !== null);
+
+  if (occupied.some((runnerId) => runnerId.length === 0)) {
+    throw new Error(
+      'live-ball final bases must contain non-empty runner ids',
+    );
+  }
+  if (new Set(occupied).size !== occupied.length) {
+    throw new Error(
+      'live-ball final bases must contain unique runner ids',
+    );
+  }
+
+  return occupied;
+};
+
+const validateScoredRunnerIds = (
+  scoredRunnerIds: readonly string[],
+  occupied: readonly string[],
+): void => {
+  if (
+    scoredRunnerIds.some((runnerId) => runnerId.length === 0)
+    || new Set(scoredRunnerIds).size !== scoredRunnerIds.length
+  ) {
+    throw new Error(
+      'live-ball scoredRunnerIds must contain unique non-empty runner ids',
+    );
+  }
+  if (
+    scoredRunnerIds.some((runnerId) => occupied.includes(runnerId))
+  ) {
+    throw new Error(
+      'a scored runner cannot remain on a final base',
+    );
+  }
+};
+
+export const applyResolvedLiveBallPlateAppearanceToMatchState = (
+  match: CanonicalMatchState,
+  timeline: CanonicalPlateAppearanceTimeline,
+  resolution: ResolvedLiveBallPlateAppearance,
+): CanonicalMatchState => {
+  if (timeline.playId !== match.playId) {
+    throw new Error(
+      'plate appearance timeline playId must match CanonicalMatchState.playId',
+    );
+  }
+  if (timeline.status.kind !== 'live_ball') {
+    throw new Error(
+      'live-ball match-state application requires a live-ball timeline',
+    );
+  }
+  if (resolution.playEnd.tick < timeline.status.contactTick) {
+    throw new Error(
+      'live-ball play end must not precede bat-ball contact',
+    );
+  }
+  if (
+    !Number.isInteger(resolution.outsAfter)
+    || resolution.outsAfter < match.outs
+    || resolution.outsAfter > 3
+  ) {
+    throw new Error(
+      'live-ball outsAfter must be between current outs and 3',
+    );
+  }
+
+  const occupied = validateUniqueFinalBases(
+    resolution.basesAfter,
+  );
+  validateScoredRunnerIds(
+    resolution.scoredRunnerIds,
+    occupied,
+  );
+
+  const runs = resolution.scoredRunnerIds.length;
+  const score = match.half === 'top'
+    ? {
+        away: match.score.away + runs,
+        home: match.score.home,
+      }
+    : {
+        away: match.score.away,
+        home: match.score.home + runs,
+      };
+
+  const transition = resolveHalfInningTransition({
+    inning: match.inning,
+    half: match.half,
+    outsAfterPlay: resolution.outsAfter,
+  });
+  const playId = nextPlayId(match.playId);
+
+  if (transition.kind === 'half_inning_continues') {
+    return {
+      ...match,
+      outs: transition.outs,
+      balls: 0,
+      strikes: 0,
+      bases: resolution.basesAfter,
+      score,
+      playId,
+    };
+  }
+
+  return {
+    ruleProfileId: match.ruleProfileId,
+    inning: transition.nextInning,
+    half: transition.nextHalf,
+    outs: transition.reset.outs,
+    balls: transition.reset.balls,
+    strikes: transition.reset.strikes,
+    bases: transition.reset.bases,
+    score,
+    playId,
   };
 };
