@@ -24,6 +24,9 @@ import type {
 import type {
   MiniPlayerDotSizeCalibration,
 } from './PlayerDotProfile';
+import type {
+  MiniBallHeightCalibration,
+} from './MiniBallHeightProfile';
 
 export type MiniGameLiveFrame = Readonly<{
   tick: number;
@@ -39,6 +42,7 @@ export type MiniGameLiveFrameInput = Readonly<{
     Partial<Record<string, PlayerPhysicalProfile>>
   >;
   dotCalibration?: MiniPlayerDotSizeCalibration;
+  ballHeightCalibration?: MiniBallHeightCalibration;
   eventPlayIdResolver?: (
     event: TimedMatchEvent,
   ) => number | null;
@@ -96,6 +100,8 @@ export const buildMiniGameLiveFrame = (
       playerPhysicalProfiles:
         input.playerPhysicalProfiles,
       dotCalibration: input.dotCalibration,
+      ballHeightCalibration:
+        input.ballHeightCalibration,
     }),
   };
 };
