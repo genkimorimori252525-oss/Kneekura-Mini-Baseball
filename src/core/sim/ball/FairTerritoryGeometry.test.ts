@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  classifyBallAgainstFairTerritory,
   classifyPointAgainstFairTerritory,
   createFairTerritoryWedge,
 } from './FairTerritoryGeometry';
@@ -50,6 +51,25 @@ describe('FairTerritoryGeometry', () => {
       field,
       { x: -10, z: 10 },
     ).kind).toBe('inside_fair_wedge');
+  });
+
+  it('treats a ball whose physical radius overlaps a foul line as inside fair territory', () => {
+    expect(classifyPointAgainstFairTerritory(
+      field,
+      { x: 1.04, z: 1 },
+    ).kind).toBe('outside_fair_wedge');
+
+    expect(classifyBallAgainstFairTerritory(
+      field,
+      { x: 1.04, z: 1 },
+      0.0366,
+    ).kind).toBe('inside_fair_wedge');
+
+    expect(classifyBallAgainstFairTerritory(
+      field,
+      { x: 1.06, z: 1 },
+      0.0366,
+    ).kind).toBe('outside_fair_wedge');
   });
 
   it('supports translated field coordinates', () => {
