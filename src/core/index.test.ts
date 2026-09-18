@@ -14,6 +14,7 @@ import {
   createControlledRunnerTagFact,
   createLiveBallCatchOutcome,
   createObservationSample,
+  createPlayEndFact,
   createSecuredCatchOutcome,
   createTagContactPrimitiveFromDefenderPrimitive,
   applyCatchExecutionTargetError,
@@ -26,6 +27,8 @@ import {
   estimateOcclusionVisibility,
   findAcceleratedGloveBallContactTick,
   findAcceleratedSphereContactTick,
+  finalizePendingRunsAtPlayEnd,
+  finalizeRulePendingRuns,
   findAcceleratedTagContactTick,
   findBaseTouchTick,
   findNextDefensiveReplanTick,
@@ -169,6 +172,12 @@ describe('core package', () => {
     expect(typeof resolveBatterRunnerFirstBase).toBe('function');
     expect(typeof resolveThirdOutScoring).toBe('function');
     expect(typeof resolveGroundBallFirstBaseRule).toBe('function');
+  });
+
+  it('exposes authoritative play-end run finalization through the shared Core API', () => {
+    expect(typeof createPlayEndFact).toBe('function');
+    expect(typeof finalizePendingRunsAtPlayEnd).toBe('function');
+    expect(typeof finalizeRulePendingRuns).toBe('function');
   });
 
   it('exposes tag-arrival time-play rules through the shared Core API', () => {
