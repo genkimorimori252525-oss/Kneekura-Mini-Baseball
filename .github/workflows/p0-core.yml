@@ -24,9 +24,12 @@ jobs:
       # The shell is named explicitly: this machine has no PowerShell 7, and the default
       # shell for a Windows runner is pwsh.
       - uses: actions/checkout@v4
+      # The runtime and @types/node must agree, because the types describe the runtime. The
+      # development machine is node 26 and the types are @types/node 26, so the runtime here is
+      # 26 too; while this was 22 the type checker accepted APIs that node 22 does not have.
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '26'
       - name: Install dependencies
         shell: powershell
         # npm ci, not npm install: install resolves the tree again on every run, so the same
