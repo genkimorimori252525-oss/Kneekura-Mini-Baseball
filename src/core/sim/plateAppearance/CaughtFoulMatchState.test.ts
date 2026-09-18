@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { CanonicalMatchState } from '../../model/CanonicalMatchState';
 import { asRuleProfileId } from '../../model/RuleProfileRef';
+import type { CanonicalPlateAppearanceTimeline } from './CanonicalPlateAppearanceTimeline';
 import {
   createPlayEndFact,
 } from '../../rules/PhysicalRuleFacts';
@@ -176,12 +177,15 @@ describe('CaughtFoulMatchState', () => {
   it('rejects a completed fair-ball timeline', () => {
     const before = match(1);
     const timeline = caughtFoulTimeline(before);
-    const wrong = {
+    const wrong: CanonicalPlateAppearanceTimeline = {
       ...timeline,
       status: {
-        ...timeline.status,
+        kind: 'live_ball_complete',
+        count: { balls: 1, strikes: 1 },
+        contactTick: 10_000_000,
+        playEndTick: 10_400_000,
         disposition: {
-          kind: 'fair' as const,
+          kind: 'fair',
           fairDeterminationTick: 10_050_000,
         },
       },
