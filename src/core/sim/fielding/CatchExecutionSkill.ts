@@ -10,6 +10,16 @@ export type CatchExecutionErrorCalibration = Readonly<{
   maximumTargetErrorMeters: number;
 }>;
 
+export type CatchBodyStabilityCalibration = Readonly<{
+  lowestAbilityFullReachStability: number;
+  highestAbilityFullReachStability: number;
+}>;
+
+export type CatchReachEffort = Readonly<{
+  reachDistanceMeters: number;
+  maximumReachMeters: number;
+}>;
+
 export type CatchExecutionTargetAssessment =
   PerceivedGloveTargetAssessment & Readonly<{
     errorScaleMeters: number;
@@ -98,4 +108,57 @@ export const applyCatchExecutionTargetError = (
     executionError,
     aimedGlovePosition,
   };
+};
+
+
+export const evaluateCatchBodyStability = (
+  reach: CatchReachEffort,
+  bodyControlAbility: number,
+  calibration: CatchBodyStabilityCalibration,
+): number => {
+  validateUnit('bodyControlAbility', bodyControlAbility);
+  validateUnit(
+    'lowestAbilityFullReachStability',
+    calibration.lowestAbilityFullReachStability,
+  );
+  validateUnit(
+    'highestAbilityFullReachStability',
+    calibration.highestAbilityFullReachStability,
+  );
+  if (
+    calibration.highestAbilityFullReachStability
+    < calibration.lowestAbilityFullReachStability
+  ) {
+    throw new Error(
+      'highestAbilityFullReachStability must be at least lowestAbilityFullReachStability',
+    );
+  }
+  if (
+    !Number.isFinite(reach.reachDistanceMeters)
+    || reach.reachDistanceMeters < 0
+  ) {
+    throw new Error('reachDistanceMeters must be finite and non-negative');
+  }
+  if (
+    !Number.isFinite(reach.maximumReachMeters)
+    || reach.maximumReachMeters <= 0
+  ) {
+    throw new Error('maximumReachMeters must be finite and positive');
+  }
+  if (reach.reachDistanceMeters > reach.maximumReachMeters) {
+    return 0;
+  }
+
+  const fullReachStability = (
+    calibration.lowestAbilityFullReachStability
+    + (
+      calibration.highestAbilityFullReachStability
+      - calibration.lowestAbilityFullReachStability
+    ) * bodyControlAbility
+  );
+  const reachEffort = (
+    reach.reachDistanceMeters / reach.maximumReachMeters
+  );
+
+  return 1 - (1 - fullReachStability) * reachEffort;
 };
