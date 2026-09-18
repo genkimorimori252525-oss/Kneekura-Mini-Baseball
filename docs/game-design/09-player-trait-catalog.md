@@ -1,7 +1,7 @@
-# Player Rating / Trait Catalog — 承認候補版
+# Player Rating / Trait Catalog — 設計承認版
 
 更新日: 2026-09-19  
-状態: **承認候補版。設計判断承認済み・最終敵対監査前。実装禁止。**  
+状態: **設計承認済み。実装前。具体的な効果量・閾値・保存形式は後続実装設計で確定する。**  
 親設計: `docs/game-design/08-player-traits-design-seed.md`
 
 ## 1. 目的
@@ -267,7 +267,7 @@ one source of truth
 
 Presentation上で複数表示する場合も、「独立した長所が複数ある」と誤認させないdrill-down関係を持たせる。
 
-# 4. 投手Trait カタログ候補
+# 4. 投手Trait カタログ
 
 ## 4.1 球質 / 軌道 / Release
 
@@ -406,7 +406,7 @@ Presentation上で複数表示する場合も、「独立した長所が複数�
 
 ---
 
-# 5. 野手 / 打者 / 捕手Trait カタログ候補
+# 5. 野手 / 打者 / 捕手Trait カタログ
 
 ## 5.1 Contact / Power / Batted-ball Skill
 
@@ -544,7 +544,7 @@ GreenやNeutralでも同一意思決定軸の反対傾向は共存させない�
 
 一方、`積極走塁` と `積極守備` のように作用先が異なるBehaviorは別Familyなので共存可能。
 
-# 6. Green Trait カタログ候補
+# 6. Green Trait カタログ
 
 ## 6.1 投手
 
@@ -591,7 +591,7 @@ Greenは能力値上昇ではなくDecision / preference / condition-distributio
 
 ---
 
-# 7. Blue-Red Trait カタログ候補
+# 7. Blue-Red Trait カタログ
 
 ## 7.1 投手
 
@@ -611,7 +611,7 @@ Greenは能力値上昇ではなくDecision / preference / condition-distributio
 
 ---
 
-# 8. Named Red Trait カタログ候補
+# 8. Named Red Trait カタログ
 
 ## 8.1 投手
 
@@ -793,3 +793,38 @@ stable internal family id
 - source conflict項目を推測で実装しない
 
 重大な矛盾がなければ08 / 09を設計承認済みへ昇格する。
+
+
+## 14. 最終敵対監査結果
+
+2026-09-19、以下の関連設計を横断して最終監査を実施した。
+
+- `01-manager-experience.md`
+- `02-rules-ratings-defense.md`
+- `05-psychology-emotion.md`
+- `06-future-systems.md`
+- `08-player-traits-design-seed.md`
+- 本09
+- `2026-09-17-league-ecology-design.md`
+
+確認項目:
+
+- Family単位の排他
+- Named Negative Extreme
+- Rating / Trait二重計上
+- Pressure / ActiveEmotion二重計上
+- Condition / Fatigue / Stamina / Recovery境界
+- ABSOLUTE_PHYSICAL / LEAGUE_RELATIVE / SUITABILITY境界
+- League labelからMatch Coreへの直接補正禁止
+- Presentation Projectionの逆流禁止
+- Psychology UI境界
+- source conflictの隔離
+
+結果: **PASS**
+
+重大な設計矛盾は確認されなかった。
+
+唯一の既知source conflictである赤版「対ランナー」は、意味を推測せずカタログ採用保留・実装対象外とするため、承認を阻害しない。
+
+この文書はここで計画完了とする。後続では、ここで確定した境界を変更せず、具体式・閾値・データ構造・テスト実装を設計する。
+
