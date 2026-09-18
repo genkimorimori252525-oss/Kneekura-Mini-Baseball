@@ -1,5 +1,7 @@
 # Defender Body / Pose Physical Primitives Plan
 
+**Status:** COMPLETE — implemented and verified on 2026-09-18.
+
 **Goal:** Bridge canonical defender body motion to actual physical glove / tagging-hand contact primitives without treating the defender body center as the hand.
 
 **Source:** Approved causal-defense design requires `DefensiveIntent -> movement / catch / throw / cover`. The exact body/pose representation was intentionally left unspecified; this plan adds that missing physical boundary without changing the approved principles.
@@ -92,3 +94,23 @@ Run full `npm run verify` and record exact test counts.
 - reach planning and pose selection from perceived ball/runner trajectories;
 - empirical calibration of reach speed, extension, stability, and handedness;
 - throwing-arm / release end-effector mechanics.
+
+
+---
+
+## Completion Evidence
+
+Implemented:
+- exact 3D body-origin kinematics projected from canonical 2D defender motion;
+- effective glove / tag-hand / body pose primitive segments;
+- additive body + end-effector position, velocity, and acceleration composition;
+- vertical end-effector motion independent of 2D body movement;
+- semantic contact adapters for glove and tag primitives;
+- integration proof that glove/tag-hand contact can occur while body center remains separated;
+- shared Core API exports.
+
+Verification at implementation HEAD `2c9c853c075ced0d7907902ad18a1c8e9947d690`:
+- `tsc --noEmit`: success
+- Vitest: 46 test files passed
+- Vitest: 226 tests passed
+- P0 Core run: `35300842776` success
