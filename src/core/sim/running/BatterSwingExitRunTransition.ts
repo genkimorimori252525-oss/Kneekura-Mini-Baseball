@@ -197,6 +197,30 @@ export const resolveBatterSwingExitRunTransition = (
   };
 };
 
+export const resolveBatterSwingExitRunTransitionAfterContact = (
+  contactTick: number,
+  state: SwingExitBodyState,
+  route: RunnerRoute,
+  parameters: BatterSwingExitRunTransitionParameters,
+): BatterSwingExitRunTransitionResult => {
+  if (!Number.isSafeInteger(contactTick) || contactTick < 0) {
+    throw new Error(
+      'contactTick must be a non-negative safe integer',
+    );
+  }
+  if (state.tick < contactTick) {
+    throw new Error(
+      'swing-exit body state must not precede bat-ball contact',
+    );
+  }
+
+  return resolveBatterSwingExitRunTransition(
+    state,
+    route,
+    parameters,
+  );
+};
+
 export const createRunnerMotionStateFromSwingExitTransition = (
   transition: BatterSwingExitRunTransitionResult,
 ): RunnerMotionState => ({
