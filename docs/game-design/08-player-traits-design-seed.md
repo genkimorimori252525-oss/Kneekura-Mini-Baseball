@@ -1544,6 +1544,40 @@ G -> 赤
 
 ここまで完了したら、具体的な効果量・閾値・数式・保存最適化は後続実装設計へ委譲し、この文書自身は「計画完了」として扱える。
 
+### 15.50 同一Trait Familyは排他的な単一状態とする
+
+同じFamilyに属する赤 / 通常 / 青 / 金、またはA〜G / Gold段階は同時に有効化しない。
+
+```text
+TraitFamily
+  -> one effective tier only
+```
+
+例:
+
+```text
+盗塁A -> 電光石火
+ノビA -> 怪童
+対ピンチA -> 強心臓
+送球A -> ストライク送球
+```
+
+Goldへ到達した場合、下位の青・A表示は消える。
+
+これは単なるUI省略ではなく、内部効果の二重適用も禁止する。
+
+```text
+bad:
+盗塁A effect + 電光石火 effect
+
+good:
+effectiveTier = GOLD
+```
+
+同様に、同一Family内でAとB、FとG、正側と負側を同時保持しない。
+
+独立したFamily同士は共存可能である。
+
 ### 15.49 最終Traitカタログは09へ分離する
 
 具体的なG〜S境界、A〜G Graded Family、投手・野手・捕手・Green・Blue-Red・Named Red候補の全仕分けは、以下の伴走文書へ分離する。
