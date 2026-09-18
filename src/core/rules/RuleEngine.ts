@@ -12,6 +12,8 @@ import {
 } from './ThirdOutScoring';
 import type { ForceOutRuleResult } from './ForceOutRule';
 import type { TagArrivalResult } from './TagArrivalRule';
+import { finalizePendingRunsAtPlayEnd, type PlayRunFinalization } from './PlayRunFinalization';
+import type { PlayEndFact } from './PhysicalRuleFacts';
 
 export type GroundBallFirstBaseRuleInput = Readonly<{
   outsAtStart: number;
@@ -173,12 +175,19 @@ export type ForceOutScoringRuleInput = Readonly<{
   homeTouches: readonly RunnerBaseTouchFact[];
 }>;
 
-export type ForceOutScoringRuleResult = Readonly<{
-  outsAfter: number;
-  thirdOut: boolean;
-  pendingHomeTouches: readonly RunnerBaseTouchFact[];
-  thirdOutScoring: ThirdOutScoringResult | null;
-}>;
+export type ForceOutScoringRuleResult =
+  | Readonly<{
+    outsAfter: number;
+    thirdOut: false;
+    pendingHomeTouches: readonly RunnerBaseTouchFact[];
+    thirdOutScoring: null;
+  }>
+  | Readonly<{
+    outsAfter: 3;
+    thirdOut: true;
+    pendingHomeTouches: readonly [];
+    thirdOutScoring: ThirdOutScoringResult;
+  }>;
 
 export const resolveForceOutScoringRule = (
   input: ForceOutScoringRuleInput,
@@ -207,7 +216,7 @@ export const resolveForceOutScoringRule = (
   });
 
   return {
-    outsAfter,
+    outsAfter: 3,
     thirdOut: true,
     pendingHomeTouches: [],
     thirdOutScoring,
@@ -221,12 +230,19 @@ export type TagOutScoringRuleInput = Readonly<{
   homeTouches: readonly RunnerBaseTouchFact[];
 }>;
 
-export type TagOutScoringRuleResult = Readonly<{
-  outsAfter: number;
-  thirdOut: boolean;
-  pendingHomeTouches: readonly RunnerBaseTouchFact[];
-  thirdOutScoring: ThirdOutScoringResult | null;
-}>;
+export type TagOutScoringRuleResult =
+  | Readonly<{
+    outsAfter: number;
+    thirdOut: false;
+    pendingHomeTouches: readonly RunnerBaseTouchFact[];
+    thirdOutScoring: null;
+  }>
+  | Readonly<{
+    outsAfter: 3;
+    thirdOut: true;
+    pendingHomeTouches: readonly [];
+    thirdOutScoring: ThirdOutScoringResult;
+  }>;
 
 export const resolveTagOutScoringRule = (
   input: TagOutScoringRuleInput,
@@ -255,9 +271,23 @@ export const resolveTagOutScoringRule = (
   });
 
   return {
-    outsAfter,
+    outsAfter: 3,
     thirdOut: true,
     pendingHomeTouches: [],
     thirdOutScoring,
   };
 };
+
+
+export type PendingRunRuleResult =
+  | Extract<GroundBallFirstBaseCorrectRuleResult, { kind: 'resolved'; thirdOut: false }>
+  | Extract<ForceOutScoringRuleResult, { thirdOut: false }>
+  | Extract<TagOutScoringRuleResult, { thirdOut: false }>;
+
+export const finalizeRulePendingRuns = (
+  result: PendingRunRuleResult,
+  playEnd: PlayEndFact,
+): PlayRunFinalization => finalizePendingRunsAtPlayEnd(
+  result.pendingHomeTouches,
+  playEnd,
+);
