@@ -7,10 +7,13 @@ import {
   buildPlayerPerceivedWorldState,
   capturePlanarObservation,
   captureSpatialObservation,
+  composeDefenderPhysicalPrimitiveSegment,
   composeObservationQuality,
+  createGloveContactInputFromDefenderPrimitive,
   createLiveBallCatchOutcome,
   createObservationSample,
   createSecuredCatchOutcome,
+  createTagContactPrimitiveFromDefenderPrimitive,
   evaluateCatchRetentionLoad,
   decideDefensiveIntent,
   evaluateObservationGeometry,
@@ -29,6 +32,7 @@ import {
   isObservationRefreshDue,
   predictPlanarObservationMemory,
   generateDefensiveIntentCandidates,
+  projectDefenderBodyKinematicsSegment,
   projectDefenderWorldState,
   projectRunnerWorldState,
   resolveCatchRetention,
@@ -106,6 +110,13 @@ describe('core package', () => {
     expect(typeof buildDefenderMotionTrajectory).toBe('function');
     expect(typeof advanceDefenderMotion).toBe('function');
     expect(typeof projectDefenderWorldState).toBe('function');
+  });
+
+  it('exposes defender body and pose physical primitives through the shared Core API', () => {
+    expect(typeof projectDefenderBodyKinematicsSegment).toBe('function');
+    expect(typeof composeDefenderPhysicalPrimitiveSegment).toBe('function');
+    expect(typeof createGloveContactInputFromDefenderPrimitive).toBe('function');
+    expect(typeof createTagContactPrimitiveFromDefenderPrimitive).toBe('function');
   });
 
   it('exposes acceleration-aware physical contact through the shared Core API', () => {
