@@ -103,6 +103,7 @@ import {
   resolveDefensiveDecisionTiming,
   resolveBatterStanceWorldPosition,
   resolveBatterSwingExitRunTransition,
+  resolveBatterSwingExitRunTransitionAfterContact,
   resolveCommunicationReception,
   retireForceParticipant,
   sampleRunnerPhysicalTouchPoint,
@@ -147,6 +148,7 @@ describe('core package', () => {
 
   it('exposes batter swing-exit run transition physics through the shared Core API', () => {
     expect(typeof resolveBatterSwingExitRunTransition).toBe('function');
+    expect(typeof resolveBatterSwingExitRunTransitionAfterContact).toBe('function');
     expect(typeof createRunnerMotionStateFromSwingExitTransition).toBe('function');
   });
 
