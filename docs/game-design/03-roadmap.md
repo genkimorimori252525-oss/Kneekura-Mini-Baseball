@@ -1,7 +1,7 @@
 # 実装ロードマップと検証計画
 
 更新日: 2026-09-18
-状態: P0 完了。P1/P2/P3/P4/P5/P6/P7 は実装完了（CI外部ブロッカー）。P8 を主進行へ移行。P9 は未着手。
+状態: P0 完了。P1/P2/P3/P4/P5/P6/P7/P8 は実装完了（CI外部ブロッカー）。P9 を主進行へ移行。
 
 ## 前提
 
@@ -29,7 +29,7 @@ Mini Baseball は将来の Natural Baseball と別の簡易試合ロジックを
 | P5 | **実装完了（CI外部ブロッカー）** | 9人全体の`TeamCoveragePlan`、競合解消、position suitability役割境界、任意シフトworld適用、明示tick再計画、`DefenseContext`、サヨナラ優先`ThrowPlan`、coverage receiver整合、P3 rated 3D throw launch接続を受入fixture化 |
 | P6 | **実装完了（CI外部ブロッカー）** | RunnerDecision/Timing、局面RiskPolicy、守備ギャップ反応、コーチ情報、タッグアップ待機/帰塁、盗塁/牽制知覚、ランダウン、StealDefenseTimeline、物理TagContact→TagArrivalを受入fixture化 |
 | P7 | **実装完了（CI外部ブロッカー）** | 一打席命令schema、playId拘束session、投手狙い/打者take-swing/timing/走者posture adapter、1命令→複数球正史進行、MatchState更新、risk/no-effect説明を受入fixture化 |
-| P8 | **表示基盤・試作** | Presentation Adapter、Batter POV等は存在するが、最終Mini表示仕様はCore完成後に再接続する。表示を理由にCoreを変更しない |
+| P8 | **実装完了（CI外部ブロッカー）** | Canonical点描overhead、Batter POV、捕手後方のPitcher POV、正史tickカメラ切替、9回+延長R/H/E、B/S/O、3塁走者ダイヤ、右赤/左青、公開player card、横command band、portrait shell、canonical replay、ball height/trail、表示非干渉を受入fixture化 |
 | P9 | **未着手** | 大量固定seed検証、Natural読み取り専用契約、統計校正 |
 
 ### Focus guardrail
@@ -46,8 +46,8 @@ Mini Baseball は将来の Natural Baseball と別の簡易試合ロジックを
 6. ~~P5 9人守備全体計画~~ **実装完了**（Actionsは`steps=[]`で未実行）。CoveragePlan、ThrowPlan、期待損失比較、物理送球接続を実装。
 7. ~~P6 個別走塁と特殊プレー~~ **実装完了**（Actionsは`steps=[]`で未実行）。走者知覚/判断、盗塁・牽制・ランダウン・コーチ情報を既存RunnerMotion/RuleEngineへ接続。
 8. ~~P7 一打席采配接続~~ **実装完了**（Actionsは`steps=[]`で未実行）。一度だけ受理した采配をP2/P6の物理intentへ展開し、各球正史とMatchState更新を保持。
-9. **現在の主作業: P8 Miniライブ観測表示**。CanonicalWorldSnapshotを読み取り専用で観測し、点描の選手・ボール・走者・coverage movementを表示する。表示設定はCore結果へ逆流させない。
-10. P9でNatural移行と統計を固定する。
+9. ~~P8 Miniライブ観測表示~~ **実装完了**（Actionsは`steps=[]`で未実行）。Canonical live/replay、Batter/Pitcher/Overhead、R/H/E、走者ダイヤ、カード、命令帯、体格点サイズ分離を実装。
+10. **現在の主作業: P9 統計検証とNatural移行境界**。固定seed corpus、同一打球集合の守備配置比較、因果debug trace、性能、Natural読み取り専用契約を固定する。
 
 このguardrailにより、今後の守備物理追加は「P5全体のどの受入条件を閉じるか」を明示してから行う。
 
