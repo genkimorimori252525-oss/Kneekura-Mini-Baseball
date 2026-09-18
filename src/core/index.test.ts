@@ -28,6 +28,11 @@ import {
   selectDefensiveAlignmentCandidateForManager,
   selectRatedDefensiveAlignmentCandidateForManager,
   createDefenderWorldStatesFromAlignment,
+  createTeamCoveragePlan,
+  applyPositionSuitabilityToCoverageCandidates,
+  createRatedTeamCoveragePlan,
+  applyTeamCoveragePlanToWorld,
+  replanTeamCoveragePlan,
   getPublicDefensiveRatings,
   createNormalizedRating,
   deriveRatedDefenderMotionParameters,
@@ -347,6 +352,14 @@ describe('core package', () => {
 
   it('exposes physical throw-reception contact through Core', () => {
     expect(typeof createCatchRetentionContactFromAcceleratedReception).toBe('function');
+  });
+
+  it('exposes P5 coordinated team coverage foundations through Core', () => {
+    expect(typeof createTeamCoveragePlan).toBe('function');
+    expect(typeof applyPositionSuitabilityToCoverageCandidates).toBe('function');
+    expect(typeof createRatedTeamCoveragePlan).toBe('function');
+    expect(typeof applyTeamCoveragePlanToWorld).toBe('function');
+    expect(typeof replanTeamCoveragePlan).toBe('function');
   });
 
   it('exposes P4 scouting and defensive strategy foundations through Core', () => {
