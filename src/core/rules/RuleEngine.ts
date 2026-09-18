@@ -15,7 +15,7 @@ import type { TagArrivalResult } from './TagArrivalRule';
 import { finalizePendingRunsAtPlayEnd, type PlayRunFinalization } from './PlayRunFinalization';
 import type { PlayEndFact } from './PhysicalRuleFacts';
 import { evaluateSustainedTagUpAppealScoring } from './AppealOutScoring';
-import { createAppealScoringOption, selectAdvantageousInningEndingOut, type AdvantageousInningEndingOutResult, type InningEndingScoringOption, type InningEndingScoringOptionSource } from './AdvantageousFourthOut';
+import { createAppealScoringOption, createThirdOutScoringOption, selectAdvantageousInningEndingOut, type AdvantageousInningEndingOutResult, type InningEndingScoringOption, type InningEndingScoringOptionSource, type ResolvedInningEndingThirdOutScoring } from './AdvantageousFourthOut';
 import type { RunnerPrecedence } from './RunnerPrecedence';
 
 export type GroundBallFirstBaseRuleInput = Readonly<{
@@ -320,4 +320,12 @@ export const resolveAdvantageousAppealOutOptions = (
   options: readonly InningEndingScoringOption[],
 ): AdvantageousInningEndingOutResult => (
   selectAdvantageousInningEndingOut(options)
+);
+
+
+export const createExistingThirdOutInningEndingOption = (
+  optionId: string,
+  scoring: ResolvedInningEndingThirdOutScoring,
+): InningEndingScoringOption => (
+  createThirdOutScoringOption(optionId, scoring)
 );
