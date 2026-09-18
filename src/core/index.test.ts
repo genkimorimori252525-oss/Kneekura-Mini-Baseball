@@ -12,6 +12,7 @@ import {
   createBatterStanceGeometry,
   createRunnerMotionStateFromSwingExitTransition,
   buildBatterSwingExitRecoveryTrajectory,
+  buildBatterRunnerWorldTimeline,
   capturePlanarObservation,
   captureSpatialObservation,
   closeAppealWindow,
@@ -110,6 +111,7 @@ import {
   retireForceParticipant,
   sampleRunnerPhysicalTouchPoint,
   sampleBatterSwingExitRecoveryTrajectory,
+  sampleBatterRunnerWorldTimeline,
   sampleRunnerRoute,
   selectAdvantageousInningEndingOut,
 } from './index';
@@ -147,6 +149,11 @@ describe('core package', () => {
 
   it('exposes exact base touch timing through the shared Core API', () => {
     expect(typeof findBaseTouchTick).toBe('function');
+  });
+
+  it('exposes the unified batter-runner world timeline through the shared Core API', () => {
+    expect(typeof buildBatterRunnerWorldTimeline).toBe('function');
+    expect(typeof sampleBatterRunnerWorldTimeline).toBe('function');
   });
 
   it('exposes batter swing-exit recovery world trajectory through the shared Core API', () => {
