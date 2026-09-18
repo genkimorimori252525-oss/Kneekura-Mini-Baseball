@@ -319,10 +319,11 @@ type KnowledgeEstimate<T> = {
 
 ## 17. 選手特殊能力 / Trait System
 
-選手の特殊能力・行動傾向・状況適性・Relationship Traitについては、探索中の設計シードを別文書で保持する。
+選手の特殊能力・行動傾向・状況適性・Relationship Traitについては、承認済みの設計文書を別文書で保持する。
 
 - `docs/game-design/08-player-traits-design-seed.md`
+- `docs/game-design/09-player-trait-catalog.md`
 
-現時点では実装仕様ではない。特にペナント、選手成長、対戦履歴、Exposure / Familiarity、移籍、シーズン間更新との境界が未設計であるため、先に具体的な獲得条件や効果量を固定しない。
+設計原則とTraitカタログは承認済みだが、まだ実装仕様ではない。具体的な獲得閾値、効果量、成長・減衰式、保存形式はPlayer / Career / Pennant / Development実装設計で確定する。
 
 将来 `Player / Career / Pennant / Development` を設計する際には、この設計シードを入力として参照し、得能のEvidence、獲得・消失、Relationship履歴を後から表現不能にするデータ構造を避ける。
