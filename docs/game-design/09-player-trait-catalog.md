@@ -69,6 +69,82 @@ Rank文字自体をMatch Coreへ入力しない。
 
 ---
 
+## 2.3 同一Trait Familyは常に一つだけ表示・適用する
+
+同じTrait Familyの段階・正負・Gold Tierは共存しない。
+
+```text
+one Trait Family
+  -> exactly one effective display state
+```
+
+例:
+
+```text
+盗塁G
+盗塁F
+盗塁E
+盗塁D
+盗塁C
+盗塁B
+盗塁A
+電光石火 (Gold / Master Tier)
+```
+
+この中から同時に有効になるのは一つだけである。
+
+したがって、
+
+```text
+盗塁A + 電光石火
+盗塁A + 盗塁B
+盗塁G + 電光石火
+```
+
+のような共存は禁止する。
+
+Goldは「青Traitへ追加される別Buff」ではなく、同じFamilyの上位Master Tierである。
+
+概念:
+
+```ts
+type TraitFamilyProjection = {
+  familyId: string;
+  effectiveTier:
+    | 'G'
+    | 'F'
+    | 'E'
+    | 'D'
+    | 'C'
+    | 'B'
+    | 'A'
+    | 'GOLD';
+};
+```
+
+Named Blue / GoldのFamilyでも同じ。
+
+例:
+
+```text
+パワーヒッター -> アーチスト
+流し打ち -> 芸術的流し打ち
+キレ○ -> 驚異の切れ味
+ノビA -> 怪童
+クイックA -> 走者釘付
+盗塁A -> 電光石火
+走塁A -> 高速ベースラン
+送球A -> ストライク送球
+ケガしにくさA -> 鉄人
+対ピンチA -> 強心臓
+```
+
+上位Tierへ昇格した時点で下位表示は消える。
+
+逆に能力低下・状態更新・再評価によってGold条件を満たさなくなれば、同じFamily内のA/B/...へ降格し得る。
+
+重要なのは、同一原因を複数ラベルで二重計上しないことである。
+
 ## 3. A〜G型Trait Family
 
 A〜G型Traitは一つの正負を持つFamilyとする。
