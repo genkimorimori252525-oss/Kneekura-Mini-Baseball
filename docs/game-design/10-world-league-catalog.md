@@ -279,7 +279,7 @@ KnowledgeEstimate uncertainty decreases
 ## 4.4 China League
 
 - clubs: **10**
-- season: **April–September**
+- season: **March–September**
 - market: **GROWTH_FRANCHISE_HYBRID**
 - continental region: Asia
 
@@ -306,7 +306,7 @@ KnowledgeEstimate uncertainty decreases
 ## 4.5 West / South Asia League
 
 - clubs: **12**
-- season: **November–March**
+- season: **October–March**
 - market: **GROWTH_FRANCHISE_HYBRID + FOOTBALL_TRANSFER_ACADEMY**
 - continental region: Asia
 
@@ -403,7 +403,7 @@ KnowledgeEstimate uncertainty decreases
 ## 5.3 Dominican League
 
 - clubs: **6**
-- season: **October–January**
+- season: **August–January**
 - market: **WINTER_OPEN_MARKET**
 - continental region: Americas
 
@@ -432,7 +432,7 @@ KnowledgeEstimate uncertainty decreases
 ## 5.4 Venezuela League
 
 - clubs: **8**
-- season: **October–January**
+- season: **August–January**
 - market: **WINTER_OPEN_MARKET**
 - continental region: Americas
 
@@ -459,7 +459,7 @@ KnowledgeEstimate uncertainty decreases
 ## 5.5 Puerto Rico League
 
 - clubs: **6**
-- season: **November–January**
+- season: **August–January**
 - market: **WINTER_OPEN_MARKET**
 - continental region: Americas
 
@@ -486,7 +486,7 @@ KnowledgeEstimate uncertainty decreases
 ## 5.6 Cuba League
 
 - clubs: **16**
-- season: **September–January**
+- season: **August–January**
 - market: **DOMESTIC_DEVELOPMENT_HYBRID**
 - continental region: Americas
 
@@ -539,7 +539,7 @@ KnowledgeEstimate uncertainty decreases
 ## 6.1 Netherlands League
 
 - clubs: **10**
-- season: **April–September**
+- season: **March–September**
 - market: **FOOTBALL_TRANSFER_ACADEMY**
 - continental region: Europe
 
@@ -565,7 +565,7 @@ KnowledgeEstimate uncertainty decreases
 ## 6.2 Germany League
 
 - clubs: **12**
-- season: **April–September**
+- season: **March–September**
 - market: **FOOTBALL_TRANSFER_ACADEMY**
 - continental region: Europe
 
@@ -592,7 +592,7 @@ KnowledgeEstimate uncertainty decreases
 ## 6.3 France League
 
 - clubs: **10**
-- season: **April–September**
+- season: **March–September**
 - market: **FOOTBALL_TRANSFER_ACADEMY**
 - continental region: Europe
 
@@ -619,7 +619,7 @@ KnowledgeEstimate uncertainty decreases
 ## 6.4 Spain League
 
 - clubs: **10**
-- season: **March–August**
+- season: **March–September**
 - market: **FOOTBALL_TRANSFER_ACADEMY**
 - continental region: Europe
 
@@ -645,7 +645,7 @@ KnowledgeEstimate uncertainty decreases
 ## 6.5 United Kingdom League
 
 - clubs: **10**
-- season: **April–September**
+- season: **March–September**
 - market: **FOOTBALL_TRANSFER_ACADEMY**
 - continental region: Europe
 
@@ -701,7 +701,7 @@ KnowledgeEstimate uncertainty decreases
 ## 6.7 Russia League
 
 - clubs: **10**
-- season: **May–September**
+- season: **March–September**
 - market: **FOOTBALL_TRANSFER_ACADEMY**
 - continental region: Europe
 
@@ -732,7 +732,7 @@ KnowledgeEstimate uncertainty decreases
 ## 7.1 Pan-African League
 
 - clubs: **12**
-- season: **November–March**
+- season: **October–March**
 - market: **FOOTBALL_TRANSFER_ACADEMY + GROWTH_FRANCHISE_HYBRID**
 - continental region: Africa
 
@@ -770,7 +770,7 @@ KnowledgeEstimate uncertainty decreases
 ## 8.1 Australia League
 
 - clubs: **8**
-- season: **November–February**
+- season: **September–February**
 - market: **HYBRID_OPEN_MARKET**
 - continental region: Oceania
 
@@ -799,7 +799,7 @@ KnowledgeEstimate uncertainty decreases
 ## 8.2 New Zealand / Pacific League
 
 - clubs: **8**
-- season: **November–February**
+- season: **September–February**
 - market: **FOOTBALL_TRANSFER_ACADEMY + WINTER_OPEN_MARKET**
 - continental region: Oceania
 
