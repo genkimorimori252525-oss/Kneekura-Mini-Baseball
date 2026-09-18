@@ -46,6 +46,8 @@ export type TagUpAppealResult =
 export const resolveTagUpAppeal = (
   input: TagUpAppealInput,
 ): TagUpAppealResult => {
+  const appealWindow = input.window;
+
   if (input.appeal.reason !== 'tag_up_early_departure') {
     throw new Error('tag-up appeal requires tag_up_early_departure reason');
   }
@@ -65,7 +67,7 @@ export const resolveTagUpAppeal = (
   }
 
   const timing = evaluateAppealTiming(
-    input.window,
+    appealWindow,
     input.appeal.tick,
   );
 
@@ -81,7 +83,7 @@ export const resolveTagUpAppeal = (
   }
 
   if (timing === 'expired') {
-    if (input.window.closedAtTick === null) {
+    if (appealWindow.closedAtTick === null) {
       throw new Error('expired appeal requires a closed appeal window');
     }
     return {
@@ -89,7 +91,7 @@ export const resolveTagUpAppeal = (
       runnerId: input.compliance.runnerId,
       appealedBase: input.appeal.base,
       appealTick: input.appeal.tick,
-      windowClosedAtTick: input.window.closedAtTick,
+      windowClosedAtTick: appealWindow.closedAtTick,
     };
   }
 
