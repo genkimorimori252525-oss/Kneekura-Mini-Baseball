@@ -91,7 +91,35 @@ dense schedule
 
 `gamesPerWeek`を直接能力Debuffへ変換しない。
 
-## 2.5 試合数はLeague Identity
+## 2.5 Full LeagueはRegular Season最低100試合
+
+Full Simulation Leagueでは、年間成績を能力評価・スカウティング・記録比較に十分使いやすくするため、Regular Seasonを原則 **100試合以上** とする。
+
+理由:
+
+- batting average / OBP / SLG等の短期ブレを抑える
+- pitcher ERA / K / BB等を長期サンプルで観測できる
+- counting statsにSeasonとしての厚みを持たせる
+- Player Knowledge / Scout EstimateのEvidence量を確保する
+- 1〜2か月の好不調だけで年間評価が決まりにくくする
+
+これは「100試合で真の能力が完全に分かる」という意味ではない。
+
+Match Coreは一試合ごとの因果を維持し、Season Statisticsはその結果を蓄積した観測値である。
+
+球団数に応じたbalanced scheduleの基準候補:
+
+```text
+6 clubs  -> 100 games = 5 opponents x 20
+8 clubs  -> 112 games = 7 opponents x 16
+10 clubs -> 108 games = 9 opponents x 12
+12 clubs -> 110 games = 11 opponents x 10
+16 clubs -> 120 games = 15 opponents x 8
+```
+
+North America等、既にこれより長いLeagueはその文化を維持する。
+
+## 2.6 試合数はLeague Identity
 
 162-game leagueと42-game leagueは同じ「年間成績」の意味を持たない。
 
@@ -108,15 +136,16 @@ dense schedule
 
 # 3. Schedule Density Classes
 
+全Full Leagueが100試合以上となるため、従来のWEEKEND_SERIES中心設計は廃止する。
+
 ## LONG_DENSE
 
 目安:
 - 5.5〜6.5 games / week
-- 長いRegular Season
-- rotation depth / bench depthの価値が高い
 
 対象:
 - North America
+- Caribbean winter leaguesの一部
 
 ## STANDARD_DENSE
 
@@ -128,33 +157,22 @@ dense schedule
 - Korea
 - Mexico
 - Cuba
+- Europe
+- Oceania
+- West / South Asia
+- Pan-Africa
 
 ## STANDARD
 
 目安:
-- 3.5〜4.5 games / week
+- 4.0〜5.0 games / week
 
 対象:
 - Taiwan
 - China
-- West / South Asia
-- Dominican
-- Venezuela
-- Puerto Rico
-- Pan-Africa
 
-## WEEKEND_SERIES
+Leagueごとにoff-day / travel blockを調整し、100試合以上でもCalendarが破綻しないようSeason Windowを十分に取る。
 
-目安:
-- 2.5〜3.5 games / week
-- 3-game weekend series中心
-
-対象:
-- Europe
-- Australia
-- New Zealand / Pacific
-
-これはschedule generation用のtargetであり、毎週必ず同じ試合数にする規則ではない。
 
 ---
 
@@ -229,8 +247,8 @@ Balanced schedule:
 
 ## 4.3 Taiwan League
 
-- games: **98**
-- Regular Season: **March–October**
+- games: **112**
+- Regular Season: **March–September**
 - Postseason: **late October–early November**
 - ABCL: **November Flex Window**
 - density: **STANDARD**
@@ -239,11 +257,11 @@ Balanced schedule:
 Balanced:
 
 ```text
-7 opponents x 14
-= 98
+7 opponents x 16
+= 112
 ```
 
-7 home / 7 away。
+8 home / 8 away。
 
 ABCL出場Clubの日程が重なる場合、ABCLをlate November / early Decemberへshift可能。
 
@@ -251,8 +269,8 @@ ABCL出場Clubの日程が重なる場合、ABCLをlate November / early Decembe
 
 ## 4.4 China League
 
-- games: **90**
-- Regular Season: **April–August**
+- games: **108**
+- Regular Season: **March–August**
 - Postseason: **September**
 - ABCL preparation: **October**
 - ABCL: **November**
@@ -262,18 +280,18 @@ ABCL出場Clubの日程が重なる場合、ABCLをlate November / early Decembe
 Balanced:
 
 ```text
-9 opponents x 10
-= 90
+9 opponents x 12
+= 108
 ```
 
-5 home / 5 away。
+6 home / 6 away。
 
 ---
 
 ## 4.5 West / South Asia League
 
-- games: **66**
-- Regular Season: **late November–March**
+- games: **110**
+- Regular Season: **October–March**
 - postseason: none
 - density: **STANDARD**
 - target: 約3.5〜4.0 games / week
@@ -281,11 +299,11 @@ Balanced:
 Balanced:
 
 ```text
-11 opponents x 6
-= 66
+11 opponents x 10
+= 110
 ```
 
-3 home / 3 away。
+10 home / 10 away。
 
 ### ABCL conflict
 
@@ -342,7 +360,7 @@ Cycle Year 2はWBC終了後にRegular Season開幕。
 ## 5.2 Mexico League
 
 - games: **120**
-- Regular Season: **April–August**
+- Regular Season: **March–August**
 - Postseason: **September**
 - AmBCL: **February next qualification window**
 - density: **STANDARD_DENSE**
@@ -362,8 +380,8 @@ Base matrix:
 
 ## 5.3 Dominican League
 
-- games: **50**
-- Regular Season: **October–December**
+- games: **100**
+- Regular Season: **September–December**
 - Championship Round + Final: **December–January**
 - AmBCL: **February**
 - density: **STANDARD**
@@ -372,18 +390,18 @@ Base matrix:
 Balanced:
 
 ```text
-5 opponents x 10
-= 50
+5 opponents x 20
+= 100
 ```
 
-5 home / 5 away。
+6 home / 6 away。
 
 ---
 
 ## 5.4 Venezuela League
 
-- games: **56**
-- Regular Season: **October–December**
+- games: **112**
+- Regular Season: **September–December**
 - Postseason: **January**
 - AmBCL: **February**
 - density: **STANDARD**
@@ -392,18 +410,18 @@ Balanced:
 Balanced:
 
 ```text
-7 opponents x 8
-= 56
+7 opponents x 16
+= 112
 ```
 
-4 home / 4 away。
+8 home / 8 away。
 
 ---
 
 ## 5.5 Puerto Rico League
 
-- games: **40**
-- Regular Season: **November–December**
+- games: **100**
+- Regular Season: **September–December**
 - Postseason: **January**
 - AmBCL: **February**
 - density: **STANDARD**
@@ -412,17 +430,17 @@ Balanced:
 Balanced:
 
 ```text
-5 opponents x 8
-= 40
+5 opponents x 20
+= 100
 ```
 
-4 home / 4 away。
+8 home / 8 away。
 
 ---
 
 ## 5.6 Cuba League
 
-- games: **90**
+- games: **120**
 - Regular Season: **September–December**
 - Postseason: **January**
 - AmBCL: **February**
@@ -432,11 +450,11 @@ Balanced:
 Balanced:
 
 ```text
-15 opponents x 6
-= 90
+15 opponents x 8
+= 120
 ```
 
-3 home / 3 away。
+10 home / 10 away。
 
 ZoneはPostseason path / rivalry identityのために保持する。
 
@@ -446,95 +464,88 @@ ZoneはPostseason path / rivalry identityのために保持する。
 
 欧州7LeagueはRegular Season + EURO_TOP4 Postseason。
 
-基本リズムは**週末3連戦中心**。
+基本リズムは**週4〜5試合の長期野球シーズン**。
 
-平日試合は:
-
-- makeup
-- holiday fixture
-- schedule compression
-- special rivalry
-
-で使用可能。
+3-game seriesを中心に、平日・週末の両方を使用する。サッカー型の週末中心Calendarは採用しない。
 
 ## 6.1 Netherlands
 
 - clubs: 10
-- games: **54**
-- Regular Season: **April–August**
+- games: **108**
+- Regular Season: **March–August**
 - Postseason: **September**
 - EBCL: **October**
-- density: **WEEKEND_SERIES**
-- target: 約2.7 games / week
+- density: **STANDARD_DENSE**
+- target: 約4.8 games / week
 
 ```text
-9 opponents x 6
-= 54
+9 opponents x 12
+= 108
 ```
 
 ## 6.2 Germany
 
 - clubs: 12
-- games: **66**
-- Regular Season: **April–August**
+- games: **110**
+- Regular Season: **March–August**
 - Postseason: **September**
 - EBCL: **October**
-- density: **WEEKEND_SERIES**
+- density: **STANDARD_DENSE**
 - target: 約3.3 games / week
 
 ```text
-11 x 6
-= 66
+11 x 10
+= 110
 ```
 
 ## 6.3 France
 
 - clubs: 10
-- games: **54**
-- Regular Season: **April–August**
+- games: **108**
+- Regular Season: **March–August**
 - Postseason: **September**
 - EBCL: **October**
-- density: **WEEKEND_SERIES**
+- density: **STANDARD_DENSE**
 
 ## 6.4 Spain
 
 - clubs: 10
-- games: **54**
+- games: **108**
 - Regular Season: **late March–August**
 - Postseason: **September**
 - EBCL: **October**
-- density: **WEEKEND_SERIES**
+- density: **STANDARD_DENSE**
 
 Cycle Year 2ではWBC後にOpening Dayをshift可能。
 
 ## 6.5 United Kingdom
 
 - clubs: 10
-- games: **54**
-- Regular Season: **April–August**
+- games: **108**
+- Regular Season: **March–August**
 - Postseason: **September**
 - EBCL: **October**
-- density: **WEEKEND_SERIES**
+- density: **STANDARD_DENSE**
 
 ## 6.6 Italy
 
 - clubs: 12
-- games: **66**
+- games: **110**
 - Regular Season: **March–August**
 - Postseason: **September**
 - EBCL: **October**
-- density: **WEEKEND_SERIES**
+- density: **STANDARD_DENSE**
 
 Cycle Year 2はWBC windowを優先。
 
 ## 6.7 Russia
 
 - clubs: 10
-- games: **54**
-- Regular Season: **May–August**
+- games: **108**
+- Regular Season: **March–August**
 - Postseason: **September**
 - EBCL: **October**
-- density: **WEEKEND_SERIES**
+- density: **STANDARD_DENSE**
 - target: 約3.2 games / week
 
 短いclimate windowのため、他の欧州Leagueより平日seriesを使用しやすい。
@@ -546,18 +557,18 @@ Cycle Year 2はWBC windowを優先。
 ## 7.1 Pan-African League
 
 - clubs: 12
-- games: **66**
-- Regular Season: **November–March**
+- games: **110**
+- Regular Season: **October–March**
 - Postseason: none
 - AfBCL: **April**
 - density: **STANDARD**
-- target: 約3.5 games / week
+- target: 約5.0 games / week
 
 Balanced:
 
 ```text
-11 x 6
-= 66
+11 x 10
+= 110
 ```
 
 長距離移動を抑えるため:
@@ -575,37 +586,37 @@ Balanced:
 ## 8.1 Australia League
 
 - clubs: 8
-- games: **42**
-- Regular Season: **November–January**
+- games: **112**
+- Regular Season: **October–January**
 - Postseason: **February**
 - OBCL: **March**
-- density: **WEEKEND_SERIES**
+- density: **STANDARD_DENSE**
 - target: 約3.5 games / week
 
 Balanced:
 
 ```text
-7 x 6
-= 42
+7 x 16
+= 112
 ```
 
-3 home / 3 away。
+10 home / 10 away。
 
 ## 8.2 New Zealand / Pacific League
 
 - clubs: 8
-- games: **42**
-- Regular Season: **November–February**
+- games: **112**
+- Regular Season: **October–February**
 - Postseason: none
 - OBCL: **March**
-- density: **WEEKEND_SERIES**
+- density: **STANDARD_DENSE**
 - target: 約2.7 games / week
 
 Balanced:
 
 ```text
-7 x 6
-= 42
+7 x 16
+= 112
 ```
 
 Pacific travelを考慮し、away seriesをblock化する。
@@ -618,25 +629,25 @@ Pacific travelを考慮し、away seriesをblock化する。
 | --- | --- | ---: | --- | --- |
 | Asia | Japan | 120 | Mar–Sep | Oct |
 | Asia | Korea | 126 | Mar–Sep | Oct |
-| Asia | Taiwan | 98 | Mar–Oct | Oct–Nov |
-| Asia | China | 90 | Apr–Aug | Sep |
-| Asia | West / South Asia | 66 | Nov–Mar | none |
+| Asia | Taiwan | 112 | Mar–Sep | Oct–Nov |
+| Asia | China | 108 | Mar–Aug | Sep |
+| Asia | West / South Asia | 110 | Oct–Mar | none |
 | Americas | North America | 162 | Mar–Sep | Oct |
 | Americas | Mexico | 120 | Apr–Aug | Sep |
-| Americas | Dominican | 50 | Oct–Dec | Dec–Jan |
-| Americas | Venezuela | 56 | Oct–Dec | Jan |
-| Americas | Puerto Rico | 40 | Nov–Dec | Jan |
-| Americas | Cuba | 90 | Sep–Dec | Jan |
-| Europe | Netherlands | 54 | Apr–Aug | Sep |
-| Europe | Germany | 66 | Apr–Aug | Sep |
-| Europe | France | 54 | Apr–Aug | Sep |
-| Europe | Spain | 54 | Mar–Aug | Sep |
-| Europe | United Kingdom | 54 | Apr–Aug | Sep |
-| Europe | Italy | 66 | Mar–Aug | Sep |
-| Europe | Russia | 54 | May–Aug | Sep |
-| Africa | Pan-African | 66 | Nov–Mar | none |
-| Oceania | Australia | 42 | Nov–Jan | Feb |
-| Oceania | New Zealand / Pacific | 42 | Nov–Feb | none |
+| Americas | Dominican | 100 | Sep–Dec | Jan |
+| Americas | Venezuela | 112 | Sep–Dec | Jan |
+| Americas | Puerto Rico | 100 | Sep–Dec | Jan |
+| Americas | Cuba | 120 | Sep–Dec | Jan |
+| Europe | Netherlands | 108 | Mar–Aug | Sep |
+| Europe | Germany | 110 | Mar–Aug | Sep |
+| Europe | France | 108 | Mar–Aug | Sep |
+| Europe | Spain | 108 | Mar–Aug | Sep |
+| Europe | United Kingdom | 108 | Mar–Aug | Sep |
+| Europe | Italy | 110 | Mar–Aug | Sep |
+| Europe | Russia | 108 | Mar–Aug | Sep |
+| Africa | Pan-African | 110 | Oct–Mar | none |
+| Oceania | Australia | 112 | Oct–Jan | Feb |
+| Oceania | New Zealand / Pacific | 112 | Oct–Feb | none |
 
 ---
 
@@ -687,11 +698,6 @@ Schedule Generatorはgame単位でランダム配置せず、series blockを基�
 
 - 週2前後off-day
 - 長距離移動後はadditional recovery候補
-
-## WEEKEND_SERIES
-
-- 平日をrest / training / travelへ使う
-- makeupで平日試合が増える場合はfatigueへ自然反映
 
 `off-day`は完全回復イベントではない。
 
@@ -809,27 +815,30 @@ Schedule RNGはMatch Physics RNGから完全分離する。
 
 確認:
 
-- Japan 120 = 90 same-league + 30 interleague
-- Korea 126 = 9 x 14
-- Taiwan 98 = 7 x 14
-- China 90 = 9 x 10
-- West / South Asia 66 = 11 x 6
-- Mexico 120 = 114 base + 6 additional
-- Dominican 50 = 5 x 10
-- Venezuela 56 = 7 x 8
-- Puerto Rico 40 = 5 x 8
-- Cuba 90 = 15 x 6
-- Europe 10-club leagues 54 = 9 x 6
-- Europe 12-club leagues 66 = 11 x 6
-- Pan-Africa 66 = 11 x 6
-- Oceania 42 = 7 x 6
-- Domestic Champions are decided before their target Continental window
-- WBC / Premier / Club World have explicit domestic-calendar escape rules
+- Full Simulation Leagueは全21リーグ100試合以上
+- Japan 120
+- Korea 126
+- Taiwan 112 = 7 x 16
+- China 108 = 9 x 12
+- West / South Asia 110 = 11 x 10
+- North America 162
+- Mexico 120
+- Dominican 100 = 5 x 20
+- Venezuela 112 = 7 x 16
+- Puerto Rico 100 = 5 x 20
+- Cuba 120 = 15 x 8
+- Europe 10-club leagues 108 = 9 x 12
+- Europe 12-club leagues 110 = 11 x 10
+- Pan-Africa 110 = 11 x 10
+- Oceania 112 = 7 x 16
+- Domestic Champions are decided before target Continental window
+- WBC / Premier / Club World have domestic-calendar escape rules
 - no schedule density directly modifies true ability
 
-North America 162はunbalanced opponent matrixのため、詳細matrixをSchedule Generator設計へ委譲する。
+North America 162とMexico 120はunbalanced / rivalry opponent matrixを含むため詳細matrixをSchedule Generator設計へ委譲する。
 
 重大な算術矛盾は現時点でない。
+
 
 ---
 
@@ -839,25 +848,25 @@ North America 162はunbalanced opponent matrixのため、詳細matrixをSchedul
 | --- | ---: |
 | Japan | 120 |
 | Korea | 126 |
-| Taiwan | 98 |
-| China | 90 |
-| West / South Asia | 66 |
+| Taiwan | 112 |
+| China | 108 |
+| West / South Asia | 110 |
 | North America | 162 |
 | Mexico | 120 |
-| Dominican | 50 |
-| Venezuela | 56 |
-| Puerto Rico | 40 |
-| Cuba | 90 |
-| Netherlands | 54 |
-| Germany | 66 |
-| France | 54 |
-| Spain | 54 |
-| United Kingdom | 54 |
-| Italy | 66 |
-| Russia | 54 |
-| Pan-African | 66 |
-| Australia | 42 |
-| New Zealand / Pacific | 42 |
+| Dominican | 100 |
+| Venezuela | 112 |
+| Puerto Rico | 100 |
+| Cuba | 120 |
+| Netherlands | 108 |
+| Germany | 110 |
+| France | 108 |
+| Spain | 108 |
+| United Kingdom | 108 |
+| Italy | 110 |
+| Russia | 108 |
+| Pan-African | 110 |
+| Australia | 112 |
+| New Zealand / Pacific | 112 |
 
 ---
 
