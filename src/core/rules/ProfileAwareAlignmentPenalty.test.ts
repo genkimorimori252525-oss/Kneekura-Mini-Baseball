@@ -4,9 +4,12 @@ import { asRuleProfileId } from '../model/RuleProfileRef';
 import {
   createFirstPostPitchInfielderTouchFact,
 } from './AlignmentPenaltyFacts';
+import { createDefenderFootPlacementFact } from './DefensiveAlignmentFacts';
 import {
+  normalizeInfieldBoundaryViolation,
   normalizeInningInfieldSideLockViolation,
 } from './DefensiveAlignmentViolation';
+import { createInfieldBoundaryRegion } from './InfieldBoundaryRegion';
 import {
   createNaturalPlayAdvancementResult,
 } from './OffenseAdvancementResult';
@@ -16,6 +19,7 @@ import {
 } from './RuleProfile';
 import { createRuleContext } from './RuleContext';
 import {
+  evaluatePitchingMotionInfieldBoundaryForMatch,
   resolveDefensiveAlignmentViolationPenaltyForMatch,
 } from './ProfileAwareRuleEngine';
 
@@ -81,6 +85,68 @@ describe('profile-aware NPB 2026 alignment penalty', () => {
           targetBase: 2,
         }],
       },
+    });
+  });
+
+  it('feeds a concrete stadium-boundary violator into the existing NPB 2026 penalty resolver', () => {
+    const boundaryTick = 1_900_000;
+    const footFact = (
+      playerId: string,
+      position: '1B' | '2B' | '3B' | 'SS',
+      x: number,
+    ) => createDefenderFootPlacementFact(
+      playerId,
+      position,
+      boundaryTick,
+      { x: x - 0.05, z: 0 },
+      { x: x + 0.05, z: 0 },
+    );
+    const boundaryResult = evaluatePitchingMotionInfieldBoundaryForMatch(
+      match(),
+      createRuleContext(NPB_2026_RULE_PROFILE),
+      {
+        pitchingRelatedMotionStartTick: boundaryTick,
+        facts: [
+          footFact('1b', '1B', 3),
+          footFact('2b', '2B', 2),
+          footFact('ss', 'SS', 5),
+          footFact('3b', '3B', -3),
+        ],
+        boundary: createInfieldBoundaryRegion([
+          { x: -5, z: -5 },
+          { x: 5, z: -5 },
+          { x: 5, z: 5 },
+          { x: -5, z: 5 },
+        ]),
+        parameters: {
+          footContactRadiusMeters: 0.1,
+        },
+      },
+    );
+    const violation = normalizeInfieldBoundaryViolation(boundaryResult);
+    const naturalPlay = createNaturalPlayAdvancementResult(
+      match().bases,
+      'batter',
+      false,
+      [{ runnerId: 'r1', outcome: 'retired' }],
+    );
+
+    expect(resolveDefensiveAlignmentViolationPenaltyForMatch(
+      match(),
+      createRuleContext(NPB_2026_RULE_PROFILE),
+      {
+        violation,
+        firstInfielderTouch: createFirstPostPitchInfielderTouchFact(
+          'ss',
+          'SS',
+          2_100_000,
+        ),
+        prePitchBases: match().bases,
+        naturalPlay,
+      },
+    )).toMatchObject({
+      kind: 'offense_choice_required',
+      violatingFirstToucherId: 'ss',
     });
   });
 
