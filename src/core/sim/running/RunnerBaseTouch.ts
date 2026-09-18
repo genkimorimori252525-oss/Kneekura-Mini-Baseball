@@ -7,6 +7,7 @@ import {
   type RunnerMotionIntent,
   type RunnerMotionParameters,
   type RunnerMotionState,
+  type RunnerMotionTrajectory,
   type RunnerMotionTrajectorySegment,
 } from './RunnerMotion';
 import {
@@ -327,53 +328,80 @@ const firstBoundaryInTravel = (
   return null;
 };
 
-export const findRunnerBaseTouchTick = (
-  start: RunnerMotionState,
-  intent: RunnerMotionIntent,
+export const findRunnerBaseTouchTickOnTrajectory = (
+  trajectory: RunnerMotionTrajectory,
   route: RunnerRoute,
   base: BaseTouchRegion,
-  deltaTicks: number,
-  motionParameters: RunnerMotionParameters,
   bodyParameters: RunnerBodyContactParameters,
 ): number | null => {
   validateBase(base);
   validateBodyParameters(bodyParameters);
   const frame = baseFrame(base);
-  const trajectory = buildRunnerMotionTrajectory(start, intent, deltaTicks, motionParameters);
-  const boundaries = collectBaseBoundaryRouteDistances(route, base, frame);
+  const boundaries = collectBaseBoundaryRouteDistances(
+    route,
+    base,
+    frame,
+  );
 
-  const initialPoint = sampleRunnerRoute(route, start.routeDistanceMeters).position;
+  const initialRouteDistance = (
+    trajectory.segments[0]?.startRouteDistanceMeters
+    ?? trajectory.endState.routeDistanceMeters
+  );
+  const initialPoint = sampleRunnerRoute(
+    route,
+    initialRouteDistance,
+  ).position;
   if (isInsideBase(initialPoint, base, frame)) {
-    return start.tick;
+    return trajectory.startTick;
   }
 
   for (const segment of trajectory.segments) {
     const direction = segmentTravelDirection(segment);
     if (direction === 0) {
-      const stationaryPoint = sampleRunnerRoute(route, segment.startRouteDistanceMeters).position;
+      const stationaryPoint = sampleRunnerRoute(
+        route,
+        segment.startRouteDistanceMeters,
+      ).position;
       if (isInsideBase(stationaryPoint, base, frame)) {
         return quantizeEventTick(
-          start.tick,
+          trajectory.startTick,
           segment.startElapsedSeconds,
-          motionParameters.ticksPerSecond,
+          trajectory.ticksPerSecond,
         );
       }
       continue;
     }
 
-    const leadMeters = leadMetersForSegment(segment, bodyParameters);
-    const segmentDurationSeconds = segment.endElapsedSeconds - segment.startElapsedSeconds;
-    const centerStartDistance = segment.startRouteDistanceMeters;
-    const centerEndDistance = evaluateSegmentDistance(segment, segmentDurationSeconds);
-    const touchStartDistance = centerStartDistance + direction * leadMeters;
-    const touchEndDistance = centerEndDistance + direction * leadMeters;
+    const leadMeters = leadMetersForSegment(
+      segment,
+      bodyParameters,
+    );
+    const segmentDurationSeconds = (
+      segment.endElapsedSeconds
+      - segment.startElapsedSeconds
+    );
+    const centerStartDistance =
+      segment.startRouteDistanceMeters;
+    const centerEndDistance = evaluateSegmentDistance(
+      segment,
+      segmentDurationSeconds,
+    );
+    const touchStartDistance = (
+      centerStartDistance + direction * leadMeters
+    );
+    const touchEndDistance = (
+      centerEndDistance + direction * leadMeters
+    );
 
-    const touchStartPoint = sampleRunnerRoute(route, touchStartDistance).position;
+    const touchStartPoint = sampleRunnerRoute(
+      route,
+      touchStartDistance,
+    ).position;
     if (isInsideBase(touchStartPoint, base, frame)) {
       return quantizeEventTick(
-        start.tick,
+        trajectory.startTick,
         segment.startElapsedSeconds,
-        motionParameters.ticksPerSecond,
+        trajectory.ticksPerSecond,
       );
     }
 
@@ -387,17 +415,45 @@ export const findRunnerBaseTouchTick = (
       continue;
     }
 
-    const targetCenterDistance = boundary - direction * leadMeters;
-    const localSeconds = solveSegmentSecondsForDistance(segment, targetCenterDistance);
+    const targetCenterDistance = (
+      boundary - direction * leadMeters
+    );
+    const localSeconds = solveSegmentSecondsForDistance(
+      segment,
+      targetCenterDistance,
+    );
     if (localSeconds === null) {
       continue;
     }
     return quantizeEventTick(
-      start.tick,
+      trajectory.startTick,
       segment.startElapsedSeconds + localSeconds,
-      motionParameters.ticksPerSecond,
+      trajectory.ticksPerSecond,
     );
   }
 
   return null;
+};
+
+export const findRunnerBaseTouchTick = (
+  start: RunnerMotionState,
+  intent: RunnerMotionIntent,
+  route: RunnerRoute,
+  base: BaseTouchRegion,
+  deltaTicks: number,
+  motionParameters: RunnerMotionParameters,
+  bodyParameters: RunnerBodyContactParameters,
+): number | null => {
+  const trajectory = buildRunnerMotionTrajectory(
+    start,
+    intent,
+    deltaTicks,
+    motionParameters,
+  );
+  return findRunnerBaseTouchTickOnTrajectory(
+    trajectory,
+    route,
+    base,
+    bodyParameters,
+  );
 };
