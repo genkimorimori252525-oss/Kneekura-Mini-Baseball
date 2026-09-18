@@ -49,6 +49,33 @@ describe('buildMiniPresentationTimeline', () => {
     expect(frames[3].cutReason).toBe('fair_batted_ball_declared');
   });
 
+  it('supports catcher-eye pitcher POV before the same canonical fair-ball cut', () => {
+    const before = sample(945_000);
+    const fair = sample(1_020_000);
+    const after = sample(1_055_000);
+
+    const frames = buildMiniPresentationTimeline(
+      [before, fair, after],
+      [{
+        tick: 1_020_000,
+        sequence: 0,
+        kind: 'BattedBallDeclaredFair',
+        payload: { contactTick: 1_000_000 },
+      }],
+      'PITCHER_POV',
+    );
+
+    expect(frames.map((frame) => [
+      frame.tick,
+      frame.cameraMode,
+    ])).toEqual([
+      [945_000, 'PITCHER_POV'],
+      [1_020_000, 'PITCHER_POV'],
+      [1_020_000, 'FIELD_OVERHEAD'],
+      [1_055_000, 'FIELD_OVERHEAD'],
+    ]);
+  });
+
   it('does not cut for raw contact without a fair declaration', () => {
     const contact = sample(1_000_000);
     const frames = buildMiniPresentationTimeline(
