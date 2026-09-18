@@ -42,6 +42,17 @@ export type RunnerBaseDepartureFact = Readonly<{
   tick: number;
 }>;
 
+export type DefensiveAppealReason = 'tag_up_early_departure';
+
+export type DefensiveAppealAttemptFact = Readonly<{
+  kind: 'defensive_appeal_attempt';
+  defenderId: string;
+  runnerId: string;
+  base: BaseballBase;
+  reason: DefensiveAppealReason;
+  tick: number;
+}>;
+
 const validateTick = (tick: number): void => {
   if (!Number.isSafeInteger(tick) || tick < 0) {
     throw new Error('physical rule fact tick must be a non-negative safe integer');
@@ -139,6 +150,27 @@ export const createRunnerBaseDepartureFact = (
     kind: 'runner_base_departure',
     runnerId,
     base,
+    tick,
+  };
+};
+
+
+export const createDefensiveAppealAttemptFact = (
+  defenderId: string,
+  runnerId: string,
+  base: BaseballBase,
+  reason: DefensiveAppealReason,
+  tick: number,
+): DefensiveAppealAttemptFact => {
+  validateId('defenderId', defenderId);
+  validateId('runnerId', runnerId);
+  validateTick(tick);
+  return {
+    kind: 'defensive_appeal_attempt',
+    defenderId,
+    runnerId,
+    base,
+    reason,
     tick,
   };
 };
