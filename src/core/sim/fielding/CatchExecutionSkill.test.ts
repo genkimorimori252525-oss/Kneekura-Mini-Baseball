@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { DeterministicRng } from '../../rng/DeterministicRng';
 import {
   applyCatchExecutionTargetError,
+  evaluateCatchBodyStability,
+  type CatchBodyStabilityCalibration,
   type CatchExecutionErrorCalibration,
 } from './CatchExecutionSkill';
 import type {
@@ -165,6 +167,101 @@ describe('CatchExecutionSkill target error', () => {
       },
     )).toThrow(
       'maximumTargetErrorMeters must be finite and at least minimumTargetErrorMeters',
+    );
+  });
+});
+
+
+describe('CatchExecutionSkill body stability', () => {
+  const stabilityCalibration: CatchBodyStabilityCalibration = {
+    lowestAbilityFullReachStability: 0.2,
+    highestAbilityFullReachStability: 0.8,
+  };
+
+  it('keeps an unextended catch posture fully stable', () => {
+    expect(evaluateCatchBodyStability(
+      {
+        reachDistanceMeters: 0,
+        maximumReachMeters: 1.5,
+      },
+      0,
+      stabilityCalibration,
+    )).toBe(1);
+
+    expect(evaluateCatchBodyStability(
+      {
+        reachDistanceMeters: 0,
+        maximumReachMeters: 1.5,
+      },
+      1,
+      stabilityCalibration,
+    )).toBe(1);
+  });
+
+  it('maps full-reach stability through externally calibrated body-control ability', () => {
+    expect(evaluateCatchBodyStability(
+      {
+        reachDistanceMeters: 1.5,
+        maximumReachMeters: 1.5,
+      },
+      0,
+      stabilityCalibration,
+    )).toBeCloseTo(0.2, 12);
+
+    expect(evaluateCatchBodyStability(
+      {
+        reachDistanceMeters: 1.5,
+        maximumReachMeters: 1.5,
+      },
+      1,
+      stabilityCalibration,
+    )).toBeCloseTo(0.8, 12);
+  });
+
+  it('continuously interpolates from neutral posture to full-reach stability', () => {
+    expect(evaluateCatchBodyStability(
+      {
+        reachDistanceMeters: 0.75,
+        maximumReachMeters: 1.5,
+      },
+      0.5,
+      stabilityCalibration,
+    )).toBeCloseTo(0.75, 12);
+  });
+
+  it('returns zero stability for a target beyond physical reach', () => {
+    expect(evaluateCatchBodyStability(
+      {
+        reachDistanceMeters: 1.500001,
+        maximumReachMeters: 1.5,
+      },
+      1,
+      stabilityCalibration,
+    )).toBe(0);
+  });
+
+  it('rejects invalid body-control ability and stability calibration', () => {
+    expect(() => evaluateCatchBodyStability(
+      {
+        reachDistanceMeters: 0.5,
+        maximumReachMeters: 1.5,
+      },
+      -0.01,
+      stabilityCalibration,
+    )).toThrow('bodyControlAbility must be finite and within [0, 1]');
+
+    expect(() => evaluateCatchBodyStability(
+      {
+        reachDistanceMeters: 0.5,
+        maximumReachMeters: 1.5,
+      },
+      0.5,
+      {
+        lowestAbilityFullReachStability: 0.9,
+        highestAbilityFullReachStability: 0.8,
+      },
+    )).toThrow(
+      'highestAbilityFullReachStability must be at least lowestAbilityFullReachStability',
     );
   });
 });
