@@ -71,7 +71,7 @@ Rank文字自体をMatch Coreへ入力しない。
 
 ## 2.3 同一Trait Familyは常に一つだけ表示・適用する
 
-同じTrait Familyの段階・正負・Gold Tierは共存しない。
+同じTrait Familyの段階・正負・Gold Tier・排他的Variantは共存しない。Familyは必ずしも単純な強弱順である必要はない。
 
 ```text
 one Trait Family
@@ -145,7 +145,36 @@ Named Blue / GoldのFamilyでも同じ。
 
 重要なのは、同一原因を複数ラベルで二重計上しないことである。
 
-## 2.4 Named Negative Extremeも同一Family内の排他的Tierとして扱う
+## 2.4 Trait Familyには「順序Tier」と「排他的Variant」の両方を許す
+
+同一Familyの状態は必ず一つだけ有効だが、すべてを「弱い→強い」の一本道へ並べる必要はない。
+
+例:
+
+```text
+Ordered Tier Family:
+  盗塁G ... 盗塁A -> 電光石火
+
+Exclusive Variant Family:
+  pitch approach
+    FASTBALL_BIAS
+    BALANCED
+    BREAKING_BALL_BIAS
+```
+
+Condition Sensitivityも後者に近い。
+
+```text
+ConditionResponseProfile:
+  EXTREME_SENSITIVE
+  NORMAL
+  STABLE
+  MASTER_STABLE (鉄腕相当)
+```
+
+`EXTREME_SENSITIVE` は「能力が低い」ことを意味せず、好調時の上振れ・不調時の下振れが大きいProfileである。
+
+## 2.5 Named Negative Extremeも同一Family内の排他的Tierとして扱う
 
 同じFamilyにNamed Negative Traitが存在する場合、それもA〜G / Goldと排他的に扱う。
 
@@ -222,7 +251,7 @@ UI上のA〜Gが共通でも、内部source of truthはFamilyごとに異なる�
 | 参照候補 | 判定 | Kneekuraでの扱い |
 | --- | --- | --- |
 | ノビ A〜G / 怪童 | MERGE | fastball movement / velocity retention / release等から導出するGraded Descriptor + Gold Tier |
-| 重い球 / 怪物球威 | REINTERPRET | **残す。** velocity・movement・approach angle等がcontact qualityへ与える実際の影響を要約するDescriptor Family。Traitから打球を直接減速しない |
+| 軽い球 / 重い球 / 怪物球威 | MERGE | **同一Pitch Contact Quality Family。** 軽い球=Negative、重い球=Positive、怪物球威=Gold。velocity・movement・approach angle等がcontact qualityへ与える実際の影響から導出し、Traitから打球を直接変更しない |
 | ジャイロボール / ハイスピンジャイロ | ADOPT | spin axis / trajectory由来のPhysical Descriptor |
 | ナチュラルシュート | REINTERPRET | fastballの恒常的arm-side runを表すNeutral Descriptor候補。青Buffとはしない |
 | 真っスラ | REINTERPRET | fastballの恒常的glove-side movementを表すNeutral Descriptor候補 |
@@ -238,13 +267,11 @@ UI上のA〜Gが共通でも、内部source of truthはFamilyごとに異なる�
 | 低め○ / 精密機械 | MERGE | low-zone command skill Family |
 | 内角攻め / 内角無双 | MERGE | inside command skill Family |
 | クロスファイヤー / クロスキャノン | REINTERPRET | release geometry + diagonal command technique |
-| 逃げ球 / 本塁打厳禁 | REINTERPRET | miss distributionが危険中央へ集まりにくい特性 |
-| 一発 | ADOPT |失投時に危険中央へ集まりやすいmiss distribution |
+| 一発 / 逃げ球 / 本塁打厳禁 | MERGE | **同一Dangerous Miss Family。** 一発=Negative、逃げ球=Positive、本塁打厳禁=Gold。失投時のlocation error distributionから導出 |
 | 抜け球 | ADOPT | delivery failure時の特定方向へのmiss pattern |
 | 乱調 | ADOPT | command / release reproducibilityの短期的高variance |
 | 四球 | REINTERPRET | raw controlとは別に、zone entry / nibbling / count behaviorから生じるwalk-prone特性。制球との二重計上禁止 |
-| ボール先行 | REINTERPRET | early-count zone-entry tendency。BehaviorとCommandを分離 |
-| ストライク先行 | REINTERPRET | early-count strike-seeking tendency。必要なら緑Behaviorへ移す |
+| ボール先行 / ストライク先行 | MERGE | **同一Early-count Approach Variant Family。** BALL_FIRST / NEUTRAL / STRIKE_FIRST等の排他的Behavior。command能力そのものとは分離 |
 | シュート回転 | MOVE | **原則Neutral pitch-shape Descriptor。** side movement自体を欠点扱いしない。意図せぬ抜け・release errorは別Negative Traitで表現する |
 
 ## 4.3 Sequencing / Put-away / Context Execution
@@ -266,7 +293,7 @@ UI上のA〜Gが共通でも、内部source of truthはFamilyごとに異なる�
 | --- | --- | --- |
 | 根性○ / ド根性 | MERGE | fatigue下でのmechanical execution resilience。疲労そのものを消さない |
 | 尻上がり / 終盤力 | MERGE | pacing / late-game quality maintenance |
-| 立ち上がり○ / トップギア | MERGE | warm-up / early-game readiness |
+| スロースターター / 立ち上がり○ / トップギア | MERGE | **同一Early-game Readiness Family。** Negative / Positive / Goldを排他的に投影し、warm-up / early-game reproducibilityから導出 |
 | 回またぎ○ | MOVE | relief multi-inning Role Suitability / workload handling |
 | 緊急登板○ | MOVE | rapid warm-up / emergency-entry Role Suitability |
 | 火消し | REINTERPRET | inherited-runner / emergency-entry pressure + readiness |
@@ -288,7 +315,7 @@ UI上のA〜Gが共通でも、内部source of truthはFamilyごとに異なる�
 
 | 参照候補 | 判定 | Kneekuraでの扱い |
 | --- | --- | --- |
-| 対ピンチ A〜G / 強心臓 / ノミの心臓 | MERGE | pressure-context response Graded Family。Appraisal / ActiveEmotion発火・影響感度、高圧下の再現性へ接続し、同じ心理原因を直接能力Buffとして再加算しない |
+| 対ピンチ A〜G / 強心臓 / ノミの心臓 | MERGE | pressure-context response Graded Family。心理由来の差はAppraisal / ActiveEmotion発火・影響感度へ接続し、ActiveEmotion未成立時に同じ心理原因から別の直接能力Buffを掛けない |
 | 打たれ強さ A〜G / 不屈の魂 | MERGE | negative-event後のemotional / execution recovery Family |
 | 対左打者 A〜G / 左キラー | MERGE | platoon matchup Family。左右ラベルだけの魔法Buffは禁止 |
 | 短気 | REINTERPRET | Appraisal -> anger / ActiveEmotion -> executionへの因果経路 |
@@ -334,11 +361,11 @@ UI上のA〜Gが共通でも、内部source of truthはFamilyごとに異なる�
 ## 4.10 投手 Named Red候補
 
 **採用 / 再解釈**
-- 一発
-- 軽い球
+- 一発 -> Dangerous Miss FamilyのNegative tier
+- 軽い球 -> Pitch Contact Quality FamilyのNegative tier
 - 四球
 - 抜け球
-- スロースターター
+- スロースターター -> Early-game Readiness FamilyのNegative tier
 - 寸前
 - 短気
 - 乱調
@@ -397,8 +424,8 @@ UI上のA〜Gが共通でも、内部source of truthはFamilyごとに異なる�
 
 | 参照候補 | 判定 | 扱い |
 | --- | --- | --- |
-| チャンス A〜G / 勝負師 | MERGE | pressure-context response Graded Family + Gold。主にAppraisal / ActiveEmotion発火・影響感度や高圧下の再現性のsourceとなり、同じ心理原因から別の直接打力Buffを重ねない |
-| 満塁男 / 恐怖の満塁男 | MERGE | Pressure / High-Leverage Familyへ統合。極端で持続的なbases-loaded specialization Evidenceがある場合のみ追加Descriptor候補 |
+| チャンス A〜G / 勝負師 | MERGE | pressure-context response Graded Family + Gold。心理由来の差は主にAppraisal / ActiveEmotion発火・影響感度のsourceとなり、ActiveEmotion未成立時に同じ心理原因から別の直接打力Buffを重ねない |
+| 満塁男 / 恐怖の満塁男 | MERGE | 基本Pressure / High-Leverage Familyへ統合。極端で持続的なbases-loaded specializationを別表示する場合は、generic Clutchを再加算しない独立Subfamily Descriptorとする |
 | サヨナラ男 / 伝説のサヨナラ男 | MERGE | Pressure / High-Leverage Familyへ統合。walk-off専用の魔法Buffは作らない |
 | 決勝打 / 渾身の決勝打 | MERGE | Pressure / High-Leverage Familyへ統合。勝ち越し結果そのものを能力上昇条件にしない |
 | 逆境○ / 火事場の馬鹿力 | REINTERPRET | trailing-game Appraisal / motivation response。点差ラベルから直接打力を上げない |
@@ -475,6 +502,25 @@ Relationship / Familiarity Evidence
 
 ---
 
+# 5.11 Green / Neutralの排他的Behavior Family
+
+GreenやNeutralでも同一意思決定軸の反対傾向は共存させない。
+
+| Family | 排他的状態例 |
+| --- | --- |
+| Pitch Approach | 速球中心 / Balanced / 変化球中心 |
+| Mound Position | 投球位置左 / 中央 / 投球位置右 |
+| Swing Mode Preference | 強振多用 / Balanced / ミート多用 |
+| Plate Aggression | 積極打法 / Balanced / 慎重打法 |
+| Steal Aggression | 積極盗塁 / Balanced / 慎重盗塁 |
+| Team-play Preference | チームプレイ○ / Neutral / チームプレイ× |
+| Pitcher Condition Response | 投手調子極端 / Normal / 投手調子安定 / 鉄腕相当 |
+| Batter Condition Response | 野手調子極端 / Normal / 野手調子安定 |
+
+同じFamilyの反対Variantを複数表示しない。
+
+一方、`積極走塁` と `積極守備` のように作用先が異なるBehaviorは別Familyなので共存可能。
+
 # 6. Green Trait カタログ候補
 
 ## 6.1 投手
@@ -486,7 +532,7 @@ Relationship / Familiarity Evidence
 - 投手調子安定
 - 投手調子極端
 
-Condition Sensitivity Familyでは `投手調子極端 < 通常 < 投手調子安定 < 鉄腕` のような単一有効状態へ投影できるが、具体的な閾値は後続実装設計で校正する。色が異なっても同一Familyなら共存させない。
+Condition Response Familyは `EXTREME_SENSITIVE / NORMAL / STABLE / MASTER_STABLE(鉄腕相当)` 等の排他的Profileへ投影する。`EXTREME_SENSITIVE` を単純な下位能力とはみなさない。色が異なっても同一Familyなら共存させない。
 
 **Neutral setupへ移動**
 - 投球位置左
@@ -663,6 +709,19 @@ execution / decision changes
 ### Usage preference
 
 `フル出場` のように「交代されにくい」を意味するものは、選手のMatch能力ではなくRoleUsagePreference / manager policyへ移す。
+
+### Family exclusivity across colors
+
+色分類よりFamily identityを優先する。
+
+- 軽い球 / 重い球 / 怪物球威
+- 一発 / 逃げ球 / 本塁打厳禁
+- スロースターター / 立ち上がり○ / トップギア
+- 投手調子極端 / 投手調子安定 / 鉄腕
+- 速球中心 / 変化球中心
+- 強振多用 / ミート多用
+
+等は、色が違っても同一Familyなら一つだけ有効にする。
 
 ### Tradeoff Descriptor
 
