@@ -4,6 +4,9 @@ import type {
 import {
   resolveHalfInningTransition,
 } from '../../rules/HalfInningTransitionRule';
+import {
+  resolveWalkForcedAdvancement,
+} from '../../rules/WalkAdvancementRule';
 import type {
   CanonicalPlateAppearanceTimeline,
 } from './CanonicalPlateAppearanceTimeline';
@@ -65,5 +68,55 @@ export const applyStrikeoutPlateAppearanceToMatchState = (
     bases: transition.reset.bases,
     score: match.score,
     playId,
+  };
+};
+
+
+export const applyWalkPlateAppearanceToMatchState = (
+  match: CanonicalMatchState,
+  timeline: CanonicalPlateAppearanceTimeline,
+  batterRunnerId: string,
+): CanonicalMatchState => {
+  if (timeline.playId !== match.playId) {
+    throw new Error(
+      'plate appearance timeline playId must match CanonicalMatchState.playId',
+    );
+  }
+  if (timeline.status.kind !== 'walk') {
+    throw new Error(
+      'walk match-state application requires a walk timeline',
+    );
+  }
+  if (
+    !Number.isInteger(match.outs)
+    || match.outs < 0
+    || match.outs > 2
+  ) {
+    throw new Error(
+      'walk match-state application requires outs from 0 through 2',
+    );
+  }
+
+  const advancement = resolveWalkForcedAdvancement({
+    batterRunnerId,
+    bases: match.bases,
+  });
+  const runs = advancement.scoredRunnerIds.length;
+
+  return {
+    ...match,
+    balls: 0,
+    strikes: 0,
+    bases: advancement.bases,
+    score: match.half === 'top'
+      ? {
+          away: match.score.away + runs,
+          home: match.score.home,
+        }
+      : {
+          away: match.score.away,
+          home: match.score.home + runs,
+        },
+    playId: nextPlayId(match.playId),
   };
 };
