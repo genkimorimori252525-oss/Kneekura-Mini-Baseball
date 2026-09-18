@@ -25,6 +25,7 @@ import {
   applyStrikeoutPlateAppearanceToMatchState,
   applyWalkPlateAppearanceToMatchState,
   applyResolvedLiveBallPlateAppearanceToMatchState,
+  applyCaughtFoulPlateAppearanceToMatchState,
   buildBatterRunnerWorldTimeline,
   createCanonicalPlateAppearanceTimeline,
   capturePlanarObservation,
@@ -387,6 +388,7 @@ describe('core package', () => {
     expect(typeof applyWalkPlateAppearanceToMatchState).toBe('function');
     expect(typeof resolveWalkForcedAdvancement).toBe('function');
     expect(typeof applyResolvedLiveBallPlateAppearanceToMatchState).toBe('function');
+    expect(typeof applyCaughtFoulPlateAppearanceToMatchState).toBe('function');
     expect(typeof createResolvedLiveBallPlateAppearanceFromGroundBallFirstBaseRule).toBe('function');
     expect(typeof completeGroundBallFirstBasePlateAppearance).toBe('function');
   });
