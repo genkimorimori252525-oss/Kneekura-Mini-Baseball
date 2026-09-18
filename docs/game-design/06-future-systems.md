@@ -94,6 +94,8 @@ CoachEstimate + uncertainty
 - コーチ能力が高いほど推定が正確になる。
 - 「絶好調予想」が外れることもある。
 - 真の調子と推定調子を分離する考え方は、監督のスカウティング推定と共通化する。
+- `ConditionState` と `CurrentFatigue` は別状態とする。Conditionは当日の発揮状態、CurrentFatigueは累積負荷の結果であり、同じ原因を二重に能力低下へ掛けない。
+- Stamina / WorkCapacity、FatigueResistance、RecoveryCapacityは選手本人の絶対身体能力として扱い、リーグ移籍だけで再スケールしない。
 
 ## 5. リプレイ・ハイライト・年間ベストプレー
 
@@ -271,6 +273,21 @@ PresentationBadge / FontDecoration
 - 真の投球位置/ルール判定 vs UmpireCall
 - 真の誤審有無 vs 選手/監督のChallengeEstimate
 - 真のドラフト能力 vs ScoutEstimate
+- 真の能力 vs 移籍後の新リーグKnowledge / Fit Estimate
+
+推定系は用途ごとに別実装へ分裂させず、将来的に共通の `KnowledgeEstimate<T>` 境界へ寄せる。
+
+```ts
+type KnowledgeEstimate<T> = {
+  estimate: T;
+  uncertainty: number;
+  evidenceCount: number;
+  observedAt: SeasonTime;
+  source: KnowledgeSource;
+};
+```
+
+新人、外国人、ドラフト候補、移籍直後の選手、対戦相手の傾向推定で、「能力が低い」と「まだ分からない」を同じ低評価へ潰さない。
 
 ### 結果を直接補正しない
 
@@ -279,6 +296,8 @@ PresentationBadge / FontDecoration
 ### 表示は観測者
 
 リプレイ、ハイライト、音、コメント、写真、タイトル装飾は正史データを観測・表現する。表示の都合で過去の試合結果を作り直さない。
+
+公開0〜100、G〜S、Trait表示、リーグ相対Projection等も同じ原則に従う。表示式や境界を変更しただけでMatch CoreのCanonical Eventsが変化してはならない。
 
 ## 16. 実装順序
 
