@@ -144,8 +144,10 @@ export const resolveBatterSwingExitRunTransition = (
     -1,
     1,
   );
-  const requiredTurnRadians = canonicalZero(
-    Math.acos(facingDot),
+  const requiredTurnRadians = (
+    1 - facingDot <= UNIT_TOLERANCE
+      ? 0
+      : Math.acos(facingDot)
   );
 
   const turnRecoverySeconds = (
