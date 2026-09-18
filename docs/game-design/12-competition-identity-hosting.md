@@ -6,6 +6,7 @@
 関連:
 - `docs/game-design/10-world-league-catalog.md`
 - `docs/game-design/11-world-competition-architecture.md`
+- `docs/game-design/13-domestic-league-championships.md`
 - `docs/superpowers/specs/2026-09-17-league-ecology-design.md`
 
 ---
