@@ -11,6 +11,7 @@ import {
   composeDefenderPhysicalPrimitiveSegment,
   composeObservationQuality,
   createGloveContactInputFromDefenderPrimitive,
+  createFlyBallFirstFielderTouchFact,
   createControlledRunnerTagFact,
   createLiveBallCatchOutcome,
   createObservationSample,
@@ -21,6 +22,7 @@ import {
   applyForceOutRuleResultToState,
   evaluateCatchBodyStability,
   evaluateCatchRetentionLoad,
+  evaluateTagUpCompliance,
   decideDefensiveIntent,
   deriveCatchRetentionParameters,
   evaluateObservationGeometry,
@@ -51,6 +53,7 @@ import {
   resolveBatterRunnerFirstBase,
   resolveDefensiveMovementTarget,
   resolveGroundBallFirstBaseRule,
+  resolveFlyCatch,
   resolveForceOutAtTarget,
   resolveForceOutScoringRule,
   resolveThirdOutScoring,
@@ -172,6 +175,13 @@ describe('core package', () => {
     expect(typeof resolveBatterRunnerFirstBase).toBe('function');
     expect(typeof resolveThirdOutScoring).toBe('function');
     expect(typeof resolveGroundBallFirstBaseRule).toBe('function');
+  });
+
+  it('exposes fly-catch and tag-up compliance through the shared Core API', () => {
+    expect(typeof createFlyBallFirstFielderTouchFact).toBe('function');
+    expect(typeof createRunnerBaseDepartureFact).toBe('function');
+    expect(typeof resolveFlyCatch).toBe('function');
+    expect(typeof evaluateTagUpCompliance).toBe('function');
   });
 
   it('exposes authoritative play-end run finalization through the shared Core API', () => {
