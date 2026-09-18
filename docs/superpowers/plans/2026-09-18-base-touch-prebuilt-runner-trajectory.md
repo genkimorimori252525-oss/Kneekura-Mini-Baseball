@@ -1,6 +1,6 @@
 # Base Touch on Prebuilt RunnerMotionTrajectory Plan
 
-**Status:** IMPLEMENTATION IN PROGRESS.
+**Status:** IMPLEMENTATION COMPLETE; GitHub Actions remains pre-step blocked.
 
 **Goal:** Resolve exact base-touch timing directly from an already-built RunnerMotionTrajectory so world sampling and rule-relevant contact timing consume the same authoritative motion object.
 
@@ -45,3 +45,34 @@ Require the unified batter-runner timeline's stored `postLaunchTrajectory` to pr
 ### Task 4: Core API + evidence
 
 Expose the prebuilt-trajectory solver through Core, retry P0 Core CI, and keep the `steps=[]` external-blocker distinction if it recurs.
+
+
+---
+
+## Completion evidence
+
+Implemented through HEAD `4ed2b474f21a16446ceac76b9f167bf63d933a68`:
+
+- `findRunnerBaseTouchTickOnTrajectory` resolves exact base touch directly from an existing `RunnerMotionTrajectory`;
+- the solver uses the trajectory's own `startTick` and `ticksPerSecond`;
+- existing base geometry, lead-distance semantics, segment ordering, and exact tick quantization are preserved;
+- legacy `findRunnerBaseTouchTick` now only builds the trajectory and delegates;
+- unified batter-runner timeline exposes `findBatterRunnerPostLaunchBaseTouchTick`, which consumes the exact same stored post-launch trajectory used by world sampling;
+- regression requires the timeline/prebuilt result to equal the legacy wrapper tick;
+- shared Core API coverage exposes both prebuilt-trajectory base-touch entry points.
+
+TDD / implementation checkpoints:
+- `a409c020...`: prebuilt trajectory base-touch RED fixture;
+- `97863051...`: exact solver extraction and legacy wrapper delegation;
+- `40294a08...`: unified timeline base-touch consistency RED;
+- `c8c205b2...`: timeline base-touch adapter;
+- `4ed2b474...`: shared Core API coverage.
+
+Repository CI:
+- P0 Core run `35321657067` for `4ed2b474...` failed before any workflow command executed;
+- job `105525287693` reports `steps=[]`;
+- full-repository GREEN is not claimed.
+
+## Next boundary
+
+The exact runner touch tick can now come from the same trajectory used for Presentation. The next slice should convert that tick into the existing `RunnerBaseTouchFact` and feed the already-existing `BatterRunnerFirstBaseRule` / `RuleEngine` without adding any new rule semantics.
