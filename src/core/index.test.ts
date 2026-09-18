@@ -3,6 +3,7 @@ import {
   CORE_PROTOCOL_VERSION,
   advanceDefenderMotion,
   advanceRunnerMotion,
+  assessPerceivedGloveTarget,
   buildDefenderMotionTrajectory,
   buildPlayerPerceivedWorldState,
   capturePlanarObservation,
@@ -30,6 +31,7 @@ import {
   findTagContactTick,
   findThrowReleaseTick,
   isObservationRefreshDue,
+  planGloveReachPoseSegment,
   predictPlanarObservationMemory,
   generateDefensiveIntentCandidates,
   projectDefenderBodyKinematicsSegment,
@@ -117,6 +119,11 @@ describe('core package', () => {
     expect(typeof composeDefenderPhysicalPrimitiveSegment).toBe('function');
     expect(typeof createGloveContactInputFromDefenderPrimitive).toBe('function');
     expect(typeof createTagContactPrimitiveFromDefenderPrimitive).toBe('function');
+  });
+
+  it('exposes perception-driven glove reach through the shared Core API', () => {
+    expect(typeof assessPerceivedGloveTarget).toBe('function');
+    expect(typeof planGloveReachPoseSegment).toBe('function');
   });
 
   it('exposes acceleration-aware physical contact through the shared Core API', () => {
