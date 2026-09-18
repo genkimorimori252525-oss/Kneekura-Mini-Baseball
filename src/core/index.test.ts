@@ -16,6 +16,7 @@ import {
   createSecuredCatchOutcome,
   createTagContactPrimitiveFromDefenderPrimitive,
   applyCatchExecutionTargetError,
+  applyForceOutRuleResultToState,
   evaluateCatchBodyStability,
   evaluateCatchRetentionLoad,
   decideDefensiveIntent,
@@ -158,6 +159,7 @@ describe('core package', () => {
     expect(typeof retireForceParticipant).toBe('function');
     expect(typeof resolveForceOutAtTarget).toBe('function');
     expect(typeof resolveForceOutScoringRule).toBe('function');
+    expect(typeof applyForceOutRuleResultToState).toBe('function');
   });
 
   it('exposes the first Correct Rule Result foundation through the shared Core API', () => {
