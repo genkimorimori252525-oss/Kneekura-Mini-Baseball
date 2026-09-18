@@ -23,6 +23,11 @@ import {
   createCanonicalEvidenceFingerprint,
   createFixedSeedRegressionCorpus,
   runFixedSeedRegressionCorpus,
+  createCausalDebugTrace,
+  compareSameContactDefensiveAlignments,
+  aggregateValidationOutcomes,
+  measureValidationBatchPerformance,
+  createNaturalReadOnlySnapshot,
   createBatterTrueTendency,
   buildScoutingEstimate,
   createDefensiveAlignment,
@@ -394,6 +399,11 @@ describe('core package', () => {
     expect(typeof createCanonicalEvidenceFingerprint).toBe('function');
     expect(typeof createFixedSeedRegressionCorpus).toBe('function');
     expect(typeof runFixedSeedRegressionCorpus).toBe('function');
+    expect(typeof createCausalDebugTrace).toBe('function');
+    expect(typeof compareSameContactDefensiveAlignments).toBe('function');
+    expect(typeof aggregateValidationOutcomes).toBe('function');
+    expect(typeof measureValidationBatchPerformance).toBe('function');
+    expect(typeof createNaturalReadOnlySnapshot).toBe('function');
   });
 
   it('exposes P7 one-command plate-appearance adapter through Core', () => {
