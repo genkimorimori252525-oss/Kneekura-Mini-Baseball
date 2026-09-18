@@ -1,7 +1,7 @@
-# Player Rating / Trait Catalog — 最終候補ドラフト
+# Player Rating / Trait Catalog — 承認候補版
 
 更新日: 2026-09-19  
-状態: **最終候補ドラフト。ユーザー承認前。実装禁止。**  
+状態: **承認候補版。設計判断承認済み・最終敵対監査前。実装禁止。**  
 親設計: `docs/game-design/08-player-traits-design-seed.md`
 
 ## 1. 目的
@@ -20,7 +20,7 @@
 
 ---
 
-## 2. 公開0〜100 / G〜S境界 最終候補
+## 2. 公開0〜100 / G〜S境界
 
 | Rank | Public value | 基本意味 |
 | --- | ---: | --- |
@@ -35,7 +35,7 @@
 
 ### 2.1 LEAGUE_RELATIVE
 
-- リーグ基準域は概ね50〜55付近を中心候補とする。
+- リーグ基準域は概ね50〜55付近を中心とする。
 - 50 = 常に厳密な平均、とは固定しない。分布の歪み・対象能力・シーズン基準により多少ずれてよい。
 - Sは「上位10%」等の順位ラベルではない。
 - 0〜100はパーセンタイルではなく、リーグ基準からの能力差を圧縮したPresentation Projectionとする。
@@ -191,7 +191,7 @@ UI上のA〜Gが共通でも、内部source of truthはFamilyごとに異なる�
 | 参照候補 | 判定 | Kneekuraでの扱い |
 | --- | --- | --- |
 | ノビ A〜G / 怪童 | MERGE | fastball movement / velocity retention / release等から導出するGraded Descriptor + Gold Tier |
-| 重い球 / 怪物球威 | REINTERPRET | velocity・movement・approach angle等がcontact qualityへ与える実際の影響を要約。Traitから打球を直接減速しない |
+| 重い球 / 怪物球威 | REINTERPRET | **残す。** velocity・movement・approach angle等がcontact qualityへ与える実際の影響を要約するDescriptor Family。Traitから打球を直接減速しない |
 | ジャイロボール / ハイスピンジャイロ | ADOPT | spin axis / trajectory由来のPhysical Descriptor |
 | ナチュラルシュート | REINTERPRET | fastballの恒常的arm-side runを表すNeutral Descriptor候補。青Buffとはしない |
 | 真っスラ | REINTERPRET | fastballの恒常的glove-side movementを表すNeutral Descriptor候補 |
@@ -214,7 +214,7 @@ UI上のA〜Gが共通でも、内部source of truthはFamilyごとに異なる�
 | 四球 | REINTERPRET | raw controlとは別に、zone entry / nibbling / count behaviorから生じるwalk-prone特性。制球との二重計上禁止 |
 | ボール先行 | REINTERPRET | early-count zone-entry tendency。BehaviorとCommandを分離 |
 | ストライク先行 | REINTERPRET | early-count strike-seeking tendency。必要なら緑Behaviorへ移す |
-| シュート回転 | REINTERPRET | 単なるside movementならNeutral Descriptor。意図せぬ harmful release errorの場合のみNegative候補 |
+| シュート回転 | MOVE | **原則Neutral pitch-shape Descriptor。** side movement自体を欠点扱いしない。意図せぬ抜け・release errorは別Negative Traitで表現する |
 
 ## 4.3 Sequencing / Put-away / Context Execution
 
@@ -312,7 +312,7 @@ UI上のA〜Gが共通でも、内部source of truthはFamilyごとに異なる�
 - ノミの心臓
 - ボール先行
 
-**Neutralへ再解釈候補**
+**Neutral Descriptorへ移動**
 - シュート回転
 
 **Match Traitから外す**
@@ -365,9 +365,9 @@ UI上のA〜Gが共通でも、内部source of truthはFamilyごとに異なる�
 | 参照候補 | 判定 | 扱い |
 | --- | --- | --- |
 | チャンス A〜G / 勝負師 | MERGE | pressure-context hitting Graded Family + Gold |
-| 満塁男 / 恐怖の満塁男 | MERGE | Clutch Familyのbases-loaded specialization候補。Trait過多なら統合 |
-| サヨナラ男 / 伝説のサヨナラ男 | MERGE | high-leverage / walk-off context。Clutch Familyへ統合候補 |
-| 決勝打 / 渾身の決勝打 | MERGE | high-leverage execution。Clutch Familyへ統合候補 |
+| 満塁男 / 恐怖の満塁男 | MERGE | Pressure / High-Leverage Familyへ統合。極端で持続的なbases-loaded specialization Evidenceがある場合のみ追加Descriptor候補 |
+| サヨナラ男 / 伝説のサヨナラ男 | MERGE | Pressure / High-Leverage Familyへ統合。walk-off専用の魔法Buffは作らない |
+| 決勝打 / 渾身の決勝打 | MERGE | Pressure / High-Leverage Familyへ統合。勝ち越し結果そのものを能力上昇条件にしない |
 | 逆境○ / 火事場の馬鹿力 | REINTERPRET | trailing-game pressure / motivation response |
 | 対エース○ / エースキラー | REINTERPRET | 「エース」ラベルBuffではなく高品質pitch / learned matchupへの適応 |
 | 代打○ / 代打の神様 | MERGE | pinch-hit readiness / Role Suitability Family |
@@ -600,15 +600,45 @@ Greenは能力値上昇ではなくDecision / preference / condition-distributio
 
 ---
 
-# 11. 最終承認前の残件
+# 11. 最終設計判断
 
-1. G〜S境界 `G 0-19 / F 20-39 / E 40-49 / D 50-59 / C 60-69 / B 70-79 / A 80-89 / S 90-100` を確定するか。
-2. LEAGUE_RELATIVEの基準域を50〜55周辺とするか。
-3. Pressure系（チャンス / 満塁 / サヨナラ / 決勝打等）をどこまで一Familyへ統合するか。
-4. 「軽い球 / 重い球」を独立Traitとして残すか、球質詳細のDescriptorだけにするか。
-5. 「シュート回転」をNegativeではなくNeutral pitch-shape Descriptorとするか。
-6. 赤版「対ランナー」の元効果矛盾をどう扱うか。
-7. 「死球集中」をBlue-Redとして残すか、plate-crowding Neutral Behaviorへ移すか。
-8. 最終UI名称を参照元名称からどこまで独自化するか。
+以下を採用済みとする。
 
-これらを確定し、敵対監査を通過した時点で08 / 09を承認候補版へ昇格できる。
+1. G〜S境界は `G 0-19 / F 20-39 / E 40-49 / D 50-59 / C 60-69 / B 70-79 / A 80-89 / S 90-100`。
+2. LEAGUE_RELATIVEの基準域は概ね50〜55付近。
+3. チャンス / 満塁 / サヨナラ / 決勝打等はPressure / High-Leverage Familyへ統合を優先し、極端で持続的な専門性だけ追加Descriptor候補とする。
+4. 軽い球 / 重い球は残すが、球質・軌道・contact結果から導出するDescriptorとし、直接Buff / Debuffにしない。
+5. シュート回転は原則Neutral pitch-shape Descriptorへ移す。意図せぬ抜け・release errorは別Negative Trait。
+6. 赤版「対ランナー」は、提示された赤分類と説明文が矛盾するため、意味を推測せず**カタログ採用保留 / source conflict**とする。確認されるまで実装しない。
+7. 死球集中はBlue-Redから外し、plate-crowding / avoidance等のNeutral Behavior候補へ移す。
+8. 参照元名称は設計上の対応ラベルとし、最終UI名称はKneekura独自名称を許可する。ただし一般野球語として自然な名称を無理に改名しない。
+
+## 12. 名称ポリシー
+
+Traitの内部ID、Family ID、UI表示名を分離する。
+
+```text
+stable internal family id
+  -> localization / UI display name
+  -> explanation text
+```
+
+参照元名称の一致をデータ互換性の条件にしない。
+
+一般的な野球用語はそのまま利用できるが、固有色の強い名称についてはKneekura側で独自名称へ変更可能とする。
+
+## 13. 最終敵対監査の合格条件
+
+- 同一Trait FamilyのGold / A〜G / Named tierが同時適用されない
+- Trait表示値がMatch Coreのsource of truthになっていない
+- LEAGUE_RELATIVEの値を真能力へ逆算していない
+- ABSOLUTE_PHYSICALがリーグ移籍で再スケールされない
+- Suitabilityが汎用身体能力を二重計上しない
+- Condition / CurrentFatigue / Stamina / Recoveryが同じ原因を二重適用しない
+- Pressure / Relationship / Reputationが結果へ直接Buffを掛けない
+- Descriptor Traitが元となる物理・技能を再加算しない
+- RuleProfile依存Traitがルールを無視して常時発動しない
+- Career / Historical DescriptorがMatch能力へ逆流しない
+- source conflict項目を推測で実装しない
+
+重大な矛盾がなければ08 / 09を設計承認済みへ昇格する。
