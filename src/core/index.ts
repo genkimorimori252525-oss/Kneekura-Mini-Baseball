@@ -11,6 +11,8 @@ export * from './sim/contact/BatBallContact';
 export * from './sim/collision/AcceleratedSphereContact';
 export * from './sim/ball/BallFlight';
 export * from './sim/ball/BattedBallFlightEvidence';
+export * from './sim/ball/FairTerritoryGeometry';
+export * from './sim/ball/FirstGroundContactTerritory';
 export * from './sim/fielding/GloveBallContact';
 export * from './sim/fielding/SecureCatch';
 export * from './sim/fielding/CatchOutcome';
