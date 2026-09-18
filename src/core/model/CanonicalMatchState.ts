@@ -1,3 +1,5 @@
+import type { RuleProfileId } from './RuleProfileRef';
+
 export type HalfInning = 'top' | 'bottom';
 
 export type BaseOccupancy = Readonly<{
@@ -7,6 +9,7 @@ export type BaseOccupancy = Readonly<{
 }>;
 
 export type CanonicalMatchState = Readonly<{
+  ruleProfileId: RuleProfileId;
   inning: number;
   half: HalfInning;
   outs: number;
