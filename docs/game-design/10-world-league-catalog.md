@@ -9,6 +9,7 @@
 - `docs/game-design/09-player-trait-catalog.md`
 - `docs/game-design/13-domestic-league-championships.md`
 - `docs/game-design/14-regular-season-calendar-and-volume.md`
+- `docs/game-design/15-season-events-and-deadlines.md`
 
 ---
 
