@@ -18,6 +18,7 @@ export type FielderTouchTimelinePhysicalAdapterInput = Readonly<{
   fielderId: string;
   contact: CatchRetentionContact;
   field: FairTerritoryWedge;
+  ballRadiusMeters: number;
   isFirstFielderTouch: true;
 }>;
 
@@ -39,6 +40,7 @@ export const deriveAndRecordFirstFielderTouchEvidence = (
     fielderId: input.fielderId,
     contact: input.contact,
     field: input.field,
+    ballRadiusMeters: input.ballRadiusMeters,
     isFirstFielderTouch: input.isFirstFielderTouch,
   });
 
