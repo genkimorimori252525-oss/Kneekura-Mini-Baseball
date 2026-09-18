@@ -18,6 +18,8 @@ import {
   resolveRatedBallTransferTiming,
   createDefensiveRatedThrowLaunch,
   resolveRatedTagActionTiming,
+  applyRatedBattedBallRead,
+  planRatedDefenderRoute,
 } from './DefensiveRatingAdapters';
 
 const baseInput: DefensiveRatingsInput = {
@@ -173,9 +175,86 @@ const subsystemProjection = (
       fixedPossessionOffsetTicks: 10_000,
     },
   ),
+  read: applyRatedBattedBallRead(
+    {
+      estimate: {
+        position: { x: 10, y: 3, z: 20 },
+        velocity: { x: 4, y: -1, z: 8 },
+      },
+      sourceObservedAt: 900_000,
+      predictedAt: 1_000_000,
+      confidence: 0.82,
+    },
+    value,
+    new DeterministicRng(777),
+    {
+      minimumPositionErrorMeters: 0.02,
+      maximumPositionErrorMeters: 1.2,
+      minimumVelocityErrorMps: 0.05,
+      maximumVelocityErrorMps: 2.5,
+    },
+  ),
+  route: planRatedDefenderRoute({
+    start: { x: 0, z: 0 },
+    target: { x: 10, z: 0 },
+    ratings: value,
+    preferredSide: 1,
+    calibration: {
+      maximumLateralDetourMeters: 3,
+    },
+  }),
 });
 
 describe('P3 defensive rating separation acceptance', () => {
+  it('batted-ball read changes only perceived motion interpretation', () => {
+    const low = subsystemProjection(
+      ratings({ battedBallRead: 0 }),
+    );
+    const high = subsystemProjection(
+      ratings({ battedBallRead: 1 }),
+    );
+
+    expect(low.read.positionErrorScaleMeters)
+      .not.toBe(high.read.positionErrorScaleMeters);
+    expect(low.read.velocityErrorScaleMps)
+      .not.toBe(high.read.velocityErrorScaleMps);
+    expect(low.read.prediction.confidence)
+      .toBe(high.read.prediction.confidence);
+    expect(low.read.prediction.sourceObservedAt)
+      .toBe(high.read.prediction.sourceObservedAt);
+    expect(low.motion).toEqual(high.motion);
+    expect(low.catchExecution).toEqual(high.catchExecution);
+    expect(low.retention).toEqual(high.retention);
+    expect(low.decision).toEqual(high.decision);
+    expect(low.firstStep).toEqual(high.firstStep);
+    expect(low.transfer).toEqual(high.transfer);
+    expect(low.throwLaunch).toEqual(high.throwLaunch);
+    expect(low.tag).toEqual(high.tag);
+    expect(low.route).toEqual(high.route);
+  });
+
+  it('route efficiency changes only planned path geometry', () => {
+    const low = subsystemProjection(
+      ratings({ routeEfficiency: 0 }),
+    );
+    const high = subsystemProjection(
+      ratings({ routeEfficiency: 1 }),
+    );
+
+    expect(low.route.plannedDistanceMeters)
+      .toBeGreaterThan(high.route.plannedDistanceMeters);
+    expect(low.route.target).toEqual(high.route.target);
+    expect(low.motion).toEqual(high.motion);
+    expect(low.catchExecution).toEqual(high.catchExecution);
+    expect(low.retention).toEqual(high.retention);
+    expect(low.decision).toEqual(high.decision);
+    expect(low.firstStep).toEqual(high.firstStep);
+    expect(low.transfer).toEqual(high.transfer);
+    expect(low.throwLaunch).toEqual(high.throwLaunch);
+    expect(low.tag).toEqual(high.tag);
+    expect(low.read).toEqual(high.read);
+  });
+
   it('first step changes only movement-start timing', () => {
     const low = subsystemProjection(
       ratings({ firstStep: 0 }),
