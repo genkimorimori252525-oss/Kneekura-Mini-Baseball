@@ -4,6 +4,7 @@ import {
   NPB_2026_RULE_PROFILE,
   advanceDefenderMotion,
   advanceRunnerMotion,
+  advancePlateAppearancePitchSequence,
   assessPerceivedGloveTarget,
   buildDefenderMotionTrajectory,
   buildPlayerPerceivedWorldState,
@@ -335,6 +336,7 @@ describe('core package', () => {
     expect(typeof recordSwingingPitchPhysicalResult).toBe('function');
     expect(typeof resolveAndRecordPitchAgainstBatter).toBe('function');
     expect(typeof resolvePlateAppearancePitchSequence).toBe('function');
+    expect(typeof advancePlateAppearancePitchSequence).toBe('function');
   });
 
   it('exposes the canonical plate-appearance timeline through Core', () => {
