@@ -1,5 +1,7 @@
 # Rule Engine Third-Out Scoring Foundation Plan
 
+**Status:** IMPLEMENTATION COMPLETE; full repository CI remains blocked before workflow steps start.
+
 **Goal:** Introduce the first Correct Rule Result layer above canonical physical truth, beginning with batter-runner first-base outs and third-out scoring.
 
 **Authoritative basis:** Current NPB official explanation confirms that when the third out is a force out, a run does not score even if the runner touched home earlier; a non-force timing play is instead decided by event time. This matches project rule priority R-06.
@@ -96,3 +98,30 @@ Companion fixtures:
 Export the rule foundation from `src/core/index.ts`.
 Run local TypeScript/numeric tests.
 Retry P0 Core CI, but do not claim full repository GREEN while Actions jobs fail before workflow steps.
+
+
+---
+
+## Implementation Evidence
+
+Implemented through HEAD `97f952d1b6f0c23468097d8d7db242a0ee12a9e9`:
+- physical runner-base and controlled-base facts;
+- batter-runner first-base correct-rule result;
+- exact simultaneous first-base state without serialization precedence;
+- third-out scoring classification for batter-runner-before-first, force, and time-play outs;
+- force/batter-runner third-out run suppression regardless earlier home touch;
+- time-play scoring from authoritative physical ticks;
+- simultaneous time-play home touch preserved as unresolved;
+- ground-ball first-base RuleEngine vertical slice returning `physicalFacts` separately from `correctRuleResult`;
+- shared Core API exports.
+
+Independent verification:
+- TypeScript 5.8 source-level typecheck: success;
+- two-out ground-ball first-base third-out fixture: earlier home touch suppressed;
+- one-out companion fixture: third-out suppression not applied;
+- time-play earlier home touch: scored;
+- equal authoritative tick: `simultaneous_unresolved`.
+
+Repository CI:
+- P0 Core run `35302808815` at the implementation HEAD failed before workflow steps were created;
+- full repository GREEN is intentionally not claimed while the repository remains in the same `steps=null` condition.
