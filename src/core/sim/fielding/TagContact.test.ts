@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import type { Vec3 } from '../../model/geometry';
 import {
+  findAcceleratedTagContactTick,
   findTagContactTick,
+  type AcceleratedTagContactPrimitiveState,
   type TagContactParameters,
   type TagContactPrimitiveState,
 } from './TagContact';
@@ -70,5 +72,62 @@ describe('findTagContactTick', () => {
         parameters,
       ),
     ).toBeNull();
+  });
+});
+
+
+describe('findAcceleratedTagContactTick', () => {
+  const accelerated = (
+    base: TagContactPrimitiveState,
+    acceleration: Vec3,
+  ): AcceleratedTagContactPrimitiveState => ({
+    ...base,
+    acceleration,
+  });
+
+  it('matches the existing tag contact time when both accelerations are zero', () => {
+    expect(findAcceleratedTagContactTick(
+      accelerated(tagger(), v(0, 0, 0)),
+      accelerated(runnerPrimitive(), v(0, 0, 0)),
+      5_000,
+      parameters,
+    )).toBe(findTagContactTick(
+      tagger(),
+      runnerPrimitive(),
+      5_000,
+      parameters,
+    ));
+  });
+
+  it('lets an accelerating tagging primitive create physical contact', () => {
+    expect(findAcceleratedTagContactTick(
+      accelerated(tagger({
+        center: v(0, 1, 0),
+        radius: 0.5,
+      }), v(2, 0, 0)),
+      accelerated(runnerPrimitive({
+        center: v(2, 1, 0),
+        velocity: v(0, 0, 0),
+        radius: 0.5,
+      }), v(0, 0, 0)),
+      1_500_000,
+      parameters,
+    )).toBe(5_000_000);
+  });
+
+  it('accounts for runner acceleration when resolving physical tag time', () => {
+    expect(findAcceleratedTagContactTick(
+      accelerated(tagger({
+        center: v(0, 1, 0),
+        radius: 0.5,
+      }), v(0, 0, 0)),
+      accelerated(runnerPrimitive({
+        center: v(2, 1, 0),
+        velocity: v(0, 0, 0),
+        radius: 0.5,
+      }), v(-8, 0, 0)),
+      1_000_000,
+      parameters,
+    )).toBe(4_500_000);
   });
 });
