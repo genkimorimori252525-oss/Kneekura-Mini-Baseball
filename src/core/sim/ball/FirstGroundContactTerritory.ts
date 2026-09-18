@@ -3,7 +3,7 @@ import type {
   BattedBallFlightEvidence,
 } from './BattedBallFlightEvidence';
 import {
-  classifyPointAgainstFairTerritory,
+  classifyBallAgainstFairTerritory,
   type FairTerritoryPointClassification,
   type FairTerritoryWedge,
 } from './FairTerritoryGeometry';
@@ -30,9 +30,10 @@ export const classifyFirstGroundContactTerritory = (
   return {
     tick: evidence.firstGroundContact.tick,
     position,
-    classification: classifyPointAgainstFairTerritory(
+    classification: classifyBallAgainstFairTerritory(
       field,
       position,
+      evidence.ballRadiusMeters,
     ),
   };
 };
