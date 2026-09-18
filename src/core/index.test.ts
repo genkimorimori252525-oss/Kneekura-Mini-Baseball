@@ -111,6 +111,7 @@ import {
   resolveCommunicationReception,
   retireForceParticipant,
   sampleRunnerPhysicalTouchPoint,
+  sampleRunnerMotionTrajectory,
   sampleBatterSwingExitRecoveryTrajectory,
   sampleBatterRunnerWorldTimeline,
   sampleRunnerRoute,
@@ -180,6 +181,7 @@ describe('core package', () => {
 
   it('exposes deterministic runner physical movement through the shared Core API', () => {
     expect(typeof advanceRunnerMotion).toBe('function');
+    expect(typeof sampleRunnerMotionTrajectory).toBe('function');
     expect(typeof sampleRunnerRoute).toBe('function');
     expect(typeof sampleRunnerPhysicalTouchPoint).toBe('function');
     expect(typeof findRunnerBaseTouchTick).toBe('function');
