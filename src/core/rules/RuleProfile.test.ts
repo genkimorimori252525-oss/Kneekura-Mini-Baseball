@@ -31,9 +31,17 @@ describe('RuleProfile', () => {
       },
       defensiveAlignment: {
         requiredInfielderCount: 4,
-        evaluationMoment: 'pitch_release',
-        minimumInfieldersEachSideOfSecondBase: 2,
-        sideDeterminedBy: 'both_feet',
+        infieldBoundary: {
+          enabled: true,
+          evaluationMoment: 'pitching_related_motion_start',
+          geometrySource: 'stadium_profile',
+        },
+        secondBaseSide: {
+          enabled: true,
+          evaluationMoment: 'pitch_release',
+          minimumInfieldersEachSideOfSecondBase: 2,
+          sideDeterminedBy: 'both_feet',
+        },
         violationPolicyId: 'npb_2026_5_02_c',
       },
     });
