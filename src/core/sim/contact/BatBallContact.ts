@@ -138,11 +138,18 @@ const advancePitchForContactSweep = (
   };
 };
 
-const advanceSwingForContactSweep = (
+export const sampleBatterSwingState = (
   swing: BatterSwingState,
   offsetTicks: number,
+  ticksPerSecond: number = TICKS_PER_SECOND,
 ): BatterSwingState => {
-  const dt = offsetTicks / TICKS_PER_SECOND;
+  if (!Number.isSafeInteger(offsetTicks) || offsetTicks < 0) {
+    throw new Error('swing sample offsetTicks must be a non-negative safe integer');
+  }
+  if (!Number.isSafeInteger(ticksPerSecond) || ticksPerSecond <= 0) {
+    throw new Error('swing sample ticksPerSecond must be a positive safe integer');
+  }
+  const dt = offsetTicks / ticksPerSecond;
   const gripTranslation = scale(swing.linearVelocity, dt);
   const batAxis = subtract(swing.pose.tip, swing.pose.grip);
   const tipAngularTranslation = scale(cross(swing.angularVelocity, batAxis), dt);
@@ -157,11 +164,12 @@ const advanceSwingForContactSweep = (
   };
 };
 
-const contactSeparation = (
+export const measureBatBallContactSeparation = (
   pitch: PitchWorldState,
   swing: BatterSwingState,
-  parameters: ContactParameters,
+  parameters: ContactParameters = DEFAULT_CONTACT_PARAMETERS,
 ): number => {
+  validateParameters(parameters);
   const nearest = closestPointOnSegment(
     pitch.position,
     swing.pose.grip,
@@ -212,8 +220,8 @@ export const findBatBallContactTick = (
   let offsetTicks = 0;
   while (offsetTicks < deltaTicks) {
     const sampledPitch = advancePitchForContactSweep(pitch, offsetTicks);
-    const sampledSwing = advanceSwingForContactSweep(swing, offsetTicks);
-    const separation = contactSeparation(sampledPitch, sampledSwing, parameters);
+    const sampledSwing = sampleBatterSwingState(swing, offsetTicks);
+    const separation = measureBatBallContactSeparation(sampledPitch, sampledSwing, parameters);
 
     if (separation <= 0 && resolveBatBallContact(sampledPitch, sampledSwing, parameters) !== null) {
       return sampledPitch.tick;
@@ -227,7 +235,7 @@ export const findBatBallContactTick = (
   }
 
   const sampledPitch = advancePitchForContactSweep(pitch, deltaTicks);
-  const sampledSwing = advanceSwingForContactSweep(swing, deltaTicks);
+  const sampledSwing = sampleBatterSwingState(swing, deltaTicks);
   return resolveBatBallContact(sampledPitch, sampledSwing, parameters) === null
     ? null
     : sampledPitch.tick;
