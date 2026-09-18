@@ -1,6 +1,6 @@
 # P9 Statistical Validation / Natural Boundary — 2026-09-19
 
-**Status:** IMPLEMENTATION COMPLETE FOR FOUNDATION; CI PRE-STEP BLOCKED.
+**Status:** FOUNDATION CLOSED AND VERIFIED; FIXED-SEED BASELINE FROZEN; INITIAL BATCH CALIBRATION GREEN.
 
 ## Goal
 
@@ -55,7 +55,7 @@ Corpus entries should identify:
 
 The corpus is data, not a list of hard-coded baseball results.
 
-Expected fingerprints may be frozen only after the repository verify job actually executes successfully.
+Expected fingerprints may be frozen only after the repository verify job actually executes successfully. That condition is now satisfied: the unfrozen corpus reproduced identical values on run `35394466844` attempts 1 and 2, the baseline was frozen at `c3a409cf...`, and run `35395593056` verified all frozen expectations as matches.
 
 ## Alignment comparison
 
@@ -88,9 +88,19 @@ Natural must not:
 
 ## Completion direction
 
-P9 closes when:
-- fixed-seed evidence is reproducible;
+P9 foundation is closed because:
+- fixed-seed evidence is reproducible across repeated full CI executions;
 - causal traces explain representative outcomes;
 - same-contact alignment comparisons produce aggregate differences only through physical results;
 - renderer ON/OFF and Mini/Natural adapters preserve canonical fingerprints;
-- batch performance is measured separately from simulation semantics.
+- batch performance is measured separately from simulation semantics;
+- an initial 1,024-contact deterministic calibration probe executes real `DefenderMotion` and records outs / hits / extra-base hits / runs without Presentation input.
+
+Verification anchors:
+- unfrozen fixed-seed head `83d01d52...`: run `35394466844` attempts 1 and 2, 228 files / 1065 tests green with identical fingerprints;
+- frozen baseline head `c3a409cf...`: run `35395593056`, 228 files / 1065 tests green with all three scenarios matching;
+- batch calibration head `8b306a15...`: run `35396396378`, 229 files / 1068 tests green;
+- batch contact fingerprint `2f545c9acac3ab71`;
+- batch calibration fingerprint `f5058efd2d23784c`.
+
+The calibration result buckets remain validation-only. They are not a substitute for a future production path that causally resolves every hit type and run outcome.

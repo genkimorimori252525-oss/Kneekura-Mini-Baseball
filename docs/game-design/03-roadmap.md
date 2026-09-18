@@ -1,7 +1,7 @@
 # 実装ロードマップと検証計画
 
 更新日: 2026-09-18
-状態: P0 完了。P1/P2/P3/P4/P5/P6/P7/P8/P9 は実装完了（CI外部ブロッカー）。現在はロードマップ後の検証・校正待ち。
+状態: P0〜P9 のロードマップ基盤は実装・CI検証完了。fixed-seed baseline凍結と初期1,024-contact統計校正まで完了。現在はロードマップ後のproduction結果経路拡張・大規模校正・Natural描画へ移行する。
 
 ## 前提
 
@@ -22,15 +22,15 @@ Mini Baseball は将来の Natural Baseball と別の簡易試合ロジックを
 | Phase | 2026-09-18 時点 | 主な実装済み／未完 |
 | --- | --- | --- |
 | P0 | **完了** | Headless Core、決定論、整数tick、Canonical state境界 |
-| P1 | **実装完了（CI外部ブロッカー）** | `RuleProfile`、NPB 2026配置規則、フォース、第三アウト得点、タグ到達、タッグアップ/アピール、第四アウト、pitch count、ファウル、ファウル飛球、インフィールドフライ、半回遷移。`P1RuleAcceptanceMatrix`で代表受入ケースを集約 |
-| P2 | **実装完了（CI外部ブロッカー）** | physical pitch/take/swing/contact、canonical plate-appearance ledger、fair/foul evidence、live-ball play end、MatchState遷移、same-seed replay、30/60fps・描画OFF非干渉を受入fixture化。高レベル采配→各球intentはP7、球場固有edge geometryは拡張扱い |
-| P3 | **実装完了（CI外部ブロッカー）** | `PlayerPhysicalProfile`、公開/内部守備査定schema、firstStep/acceleration/read/route/catching/transfer/arm/accuracy/awareness/tagの独立中間量、9/10/11px Presentation分離を受入fixture化 |
-| P4 | **実装完了（CI外部ブロッカー）** | 真の打者傾向と守備側推定を分離し、`ScoutingEstimate`、不確実性/鮮度、監督情報処理、任意座標9人配置、候補比較、Canonical world投影を受入fixture化 |
-| P5 | **実装完了（CI外部ブロッカー）** | 9人全体の`TeamCoveragePlan`、競合解消、position suitability役割境界、任意シフトworld適用、明示tick再計画、`DefenseContext`、サヨナラ優先`ThrowPlan`、coverage receiver整合、P3 rated 3D throw launch接続を受入fixture化 |
-| P6 | **実装完了（CI外部ブロッカー）** | RunnerDecision/Timing、局面RiskPolicy、守備ギャップ反応、コーチ情報、タッグアップ待機/帰塁、盗塁/牽制知覚、ランダウン、StealDefenseTimeline、物理TagContact→TagArrivalを受入fixture化 |
-| P7 | **実装完了（CI外部ブロッカー）** | 一打席命令schema、playId拘束session、投手狙い/打者take-swing/timing/走者posture adapter、1命令→複数球正史進行、MatchState更新、risk/no-effect説明を受入fixture化 |
-| P8 | **実装完了（CI外部ブロッカー）** | Canonical点描overhead、Batter POV、捕手後方のPitcher POV、正史tickカメラ切替、9回+延長R/H/E、B/S/O、3塁走者ダイヤ、右赤/左青、公開player card、横command band、portrait shell、canonical replay、ball height/trail、表示非干渉を受入fixture化 |
-| P9 | **実装完了（CI外部ブロッカー）** | canonical fingerprint、fixed-seed corpus/runner、causal trace、同一打球alignment比較、batch統計、性能計測、Natural read-only snapshot、Mini/Natural/renderer-off非干渉を受入fixture化。期待fingerprint凍結のみverify実行後へ保留 |
+| P1 | **実装完了・CI検証済み** | `RuleProfile`、NPB 2026配置規則、フォース、第三アウト得点、タグ到達、タッグアップ/アピール、第四アウト、pitch count、ファウル、ファウル飛球、インフィールドフライ、半回遷移。`P1RuleAcceptanceMatrix`で代表受入ケースを集約 |
+| P2 | **実装完了・CI検証済み** | physical pitch/take/swing/contact、canonical plate-appearance ledger、fair/foul evidence、live-ball play end、MatchState遷移、same-seed replay、30/60fps・描画OFF非干渉を受入fixture化。高レベル采配→各球intentはP7、球場固有edge geometryは拡張扱い |
+| P3 | **実装完了・CI検証済み** | `PlayerPhysicalProfile`、公開/内部守備査定schema、firstStep/acceleration/read/route/catching/transfer/arm/accuracy/awareness/tagの独立中間量、9/10/11px Presentation分離を受入fixture化 |
+| P4 | **実装完了・CI検証済み** | 真の打者傾向と守備側推定を分離し、`ScoutingEstimate`、不確実性/鮮度、監督情報処理、任意座標9人配置、候補比較、Canonical world投影を受入fixture化 |
+| P5 | **実装完了・CI検証済み** | 9人全体の`TeamCoveragePlan`、競合解消、position suitability役割境界、任意シフトworld適用、明示tick再計画、`DefenseContext`、サヨナラ優先`ThrowPlan`、coverage receiver整合、P3 rated 3D throw launch接続を受入fixture化 |
+| P6 | **実装完了・CI検証済み** | RunnerDecision/Timing、局面RiskPolicy、守備ギャップ反応、コーチ情報、タッグアップ待機/帰塁、盗塁/牽制知覚、ランダウン、StealDefenseTimeline、物理TagContact→TagArrivalを受入fixture化 |
+| P7 | **実装完了・CI検証済み** | 一打席命令schema、playId拘束session、投手狙い/打者take-swing/timing/走者posture adapter、1命令→複数球正史進行、MatchState更新、risk/no-effect説明を受入fixture化 |
+| P8 | **実装完了・CI検証済み** | Canonical点描overhead、Batter POV、捕手後方のPitcher POV、正史tickカメラ切替、9回+延長R/H/E、B/S/O、3塁走者ダイヤ、右赤/左青、公開player card、横command band、portrait shell、canonical replay、ball height/trail、表示非干渉を受入fixture化 |
+| P9 | **実装完了・CI検証済み** | canonical fingerprint、fixed-seed corpus/runner、causal trace、同一打球alignment比較、batch統計、性能計測、Natural read-only snapshot、Mini/Natural/renderer-off非干渉を受入fixture化。期待fingerprint凍結のみverify実行後へ保留 |
 
 ### Focus guardrail
 
@@ -39,15 +39,15 @@ Mini Baseball は将来の Natural Baseball と別の簡易試合ロジックを
 当面の順序は次を正とする。
 
 1. ~~base-cover body target → body kinematics → foot reach → actual base contact~~ **完了**。
-2. ~~P1 gap audit / P1 core acceptance~~ **実装完了**（Actionsは`steps=[]`で未実行）。
-3. ~~P2 canonical plate-appearance timeline~~ **実装完了**（Actionsは`steps=[]`で未実行）。投球→打撃→接触/見逃し/ファウル→live ball→play end→MatchState更新を一つの正史進行へ統合し、same-seed / presentation-cadence受入fixtureを追加。
-4. ~~P3 rating/physical profile foundation~~ **実装完了**（Actionsは`steps=[]`で未実行）。体格・公開/内部守備査定・独立中間量を導入。
-5. ~~P4 スカウティング/守備配置~~ **実装完了**（Actionsは`steps=[]`で未実行）。真値と推定を分離し、任意座標配置・監督比較を実装。
-6. ~~P5 9人守備全体計画~~ **実装完了**（Actionsは`steps=[]`で未実行）。CoveragePlan、ThrowPlan、期待損失比較、物理送球接続を実装。
-7. ~~P6 個別走塁と特殊プレー~~ **実装完了**（Actionsは`steps=[]`で未実行）。走者知覚/判断、盗塁・牽制・ランダウン・コーチ情報を既存RunnerMotion/RuleEngineへ接続。
-8. ~~P7 一打席采配接続~~ **実装完了**（Actionsは`steps=[]`で未実行）。一度だけ受理した采配をP2/P6の物理intentへ展開し、各球正史とMatchState更新を保持。
-9. ~~P8 Miniライブ観測表示~~ **実装完了**（Actionsは`steps=[]`で未実行）。Canonical live/replay、Batter/Pitcher/Overhead、R/H/E、走者ダイヤ、カード、命令帯、体格点サイズ分離を実装。
-10. ~~P9 統計検証とNatural移行境界~~ **実装完了**（Actionsは`steps=[]`で未実行）。fixed-seed/corpus、因果trace、同一打球alignment比較、batch統計、性能計測、Natural read-only境界、renderer非干渉を固定。期待fingerprintの凍結はverify実行成功後に行う。
+2. ~~P1 gap audit / P1 core acceptance~~ **実装完了**（self-hosted Actionsでfull verify済み）。
+3. ~~P2 canonical plate-appearance timeline~~ **実装完了**（self-hosted Actionsでfull verify済み）。投球→打撃→接触/見逃し/ファウル→live ball→play end→MatchState更新を一つの正史進行へ統合し、same-seed / presentation-cadence受入fixtureを追加。
+4. ~~P3 rating/physical profile foundation~~ **実装完了**（self-hosted Actionsでfull verify済み）。体格・公開/内部守備査定・独立中間量を導入。
+5. ~~P4 スカウティング/守備配置~~ **実装完了**（self-hosted Actionsでfull verify済み）。真値と推定を分離し、任意座標配置・監督比較を実装。
+6. ~~P5 9人守備全体計画~~ **実装完了**（self-hosted Actionsでfull verify済み）。CoveragePlan、ThrowPlan、期待損失比較、物理送球接続を実装。
+7. ~~P6 個別走塁と特殊プレー~~ **実装完了**（self-hosted Actionsでfull verify済み）。走者知覚/判断、盗塁・牽制・ランダウン・コーチ情報を既存RunnerMotion/RuleEngineへ接続。
+8. ~~P7 一打席采配接続~~ **実装完了**（self-hosted Actionsでfull verify済み）。一度だけ受理した采配をP2/P6の物理intentへ展開し、各球正史とMatchState更新を保持。
+9. ~~P8 Miniライブ観測表示~~ **実装完了**（self-hosted Actionsでfull verify済み）。Canonical live/replay、Batter/Pitcher/Overhead、R/H/E、走者ダイヤ、カード、命令帯、体格点サイズ分離を実装。
+10. ~~P9 統計検証とNatural移行境界~~ **実装完了**（self-hosted Actionsでfull verify済み）。fixed-seed/corpus、因果trace、同一打球alignment比較、batch統計、性能計測、Natural read-only境界、renderer非干渉を固定。代表fixed-seed fingerprintは再現性確認後に凍結済み。初期1,024-contact校正も同一canonical contact集合を複数配置へ流してCI検証済み。
 11. **ロードマップ後**: CI実行復旧 → full verify → fingerprint凍結 → 大規模統計校正 → Natural renderer実装。
 
 このguardrailにより、今後の守備物理追加は「P5全体のどの受入条件を閉じるか」を明示してから行う。
@@ -226,6 +226,14 @@ P0時点では野球結果の物理・規則・守備能力式はまだ実装し
 - Miniのレンダラを外してもCoreのテストがすべて通る。
 - 3D描画側が野球結果を再計算せず、正史ワールド状態だけから同じプレーを表現できる契約になっている。
 - Miniの点サイズ、Naturalの3Dモデル身長・骨格表示を変更しても、同じ `PlayerPhysicalProfile` とCore入力なら正史イベント列が同一である。
+
+検証クローズ証拠:
+
+- fixed-seed未凍結head `83d01d52...` をActions run `35394466844` attempt 1/2で再実行し、228 files / 1065 testsが双方GREEN、3 fingerprintが完全一致。
+- `c3a409cf...` で3 fingerprintを凍結し、run `35395593056` で全3件 `match`。
+- `8b306a15...` のrun `35396396378` で229 files / 1068 tests GREEN。
+- 同runの1,024-contact校正はcontact fingerprint `2f545c9acac3ab71`、calibration fingerprint `f5058efd2d23784c`。
+- 校正bucketは検証専用であり、productionのhit/result engineではない。描画状態・点サイズ・Natural metadataは校正入力へ入れない。
 
 ## 実装の優先順位
 

@@ -1,6 +1,6 @@
 # Core Realism Master Progress — 2026-09-18
 
-**Status:** ACTIVE MASTER PLAN.
+**Status:** P0-P9 FOUNDATION COMPLETE AND VERIFIED; POST-ROADMAP CALIBRATION ACTIVE.
 
 This document is the parent progress map for Shared Match Core realism work on `jolly/core-realism-2026-09-18`.
 
@@ -38,15 +38,15 @@ Presentation observes that truth. It does not create it.
 | Roadmap | Workstream | 2026-09-18 state |
 | --- | --- | --- |
 | P0 | Core boundary / determinism | Complete |
-| P1 | Correct NPB rule result | Implementation complete; CI pre-step blocked |
-| P2 | Canonical time / world / plate appearance | Advanced partial |
-| P3 | Ratings / physical calibration | Foundation only |
-| P4 | Scouting / pre-play alignment | Foundation only |
-| P5 | Nine-defender decisions / coverage / throws | Advanced partial |
-| P6 | Individual baserunning / special plays | Partial |
-| P7 | Manager plate-appearance commands | Not yet integrated |
-| P8 | Mini observation renderer | Prototype/foundation only |
-| P9 | Statistical validation / Natural contract | Not started |
+| P1 | Correct NPB rule result | Implementation complete; full CI verified |
+| P2 | Canonical time / world / plate appearance | Implementation complete for roadmap foundation; full CI verified |
+| P3 | Ratings / physical calibration | Roadmap foundation complete; full CI verified |
+| P4 | Scouting / pre-play alignment | Roadmap foundation complete; full CI verified |
+| P5 | Nine-defender decisions / coverage / throws | Roadmap foundation complete; full CI verified |
+| P6 | Individual baserunning / special plays | Roadmap foundation complete; full CI verified |
+| P7 | Manager plate-appearance commands | Roadmap foundation complete; full CI verified |
+| P8 | Mini observation renderer | Roadmap foundation complete; full CI verified |
+| P9 | Statistical validation / Natural contract | Foundation complete; fixed-seed frozen; initial batch calibration verified |
 
 ## 3. Why recent work looked like a defense-only project
 
@@ -107,75 +107,30 @@ base-cover decision
 
 This satisfies the defender-anatomy stop condition. Do not continue expanding first-base anatomy by default.
 
-## 5. Next Core focus rotation
+## 5. Roadmap closure and next Core focus
 
-### A. P1 rule gap audit — closed
+The original P0-P9 roadmap foundation is now implemented and verified.
 
-P1 roadmap implementation is now complete for the core acceptance set.
+Verification closure includes:
 
-Added/confirmed:
-- RuleProfile / NPB 2026;
-- pitch-count terminal rules;
-- ordinary foul vs foul-bunt semantics;
-- caught/uncaught foul-fly rule integration;
-- force obligations and force dissolution;
-- first-base force result;
-- third-out scoring;
-- runner precedence;
-- tag arrival;
-- tag-up / appeal;
-- advantageous fourth out;
-- infield-fly batter-out/force-removal semantics;
-- half-inning transition;
-- consolidated `P1RuleAcceptanceMatrix`.
+- full self-hosted GitHub Actions execution rather than pre-step failure;
+- representative fixed-seed evidence reproduced on the exact same source head across two CI attempts;
+- frozen fixed-seed expectations verified after the freeze commit;
+- renderer OFF / Mini / Natural presentation isolation;
+- deterministic 1,024-contact batch calibration using the same contact corpus through multiple defensive alignments;
+- no Presentation state used as Core or calibration input.
 
-CI still fails before workflow steps execute, so this is an implementation-complete status rather than a repository-GREEN claim.
+The next work is no longer "finish P2" or "start P9".
 
-### B. CURRENT FOCUS — Build the P2 canonical plate-appearance timeline
+Post-roadmap priorities are:
 
-Current causal pieces must become one authoritative play progression:
+1. broaden production causal outcome resolution where validation-only buckets still stand in for incomplete game paths;
+2. calibrate larger deterministic corpora against explicit baseball targets rather than tuning to a preferred result;
+3. measure full-game / season-scale throughput;
+4. preserve fixed-seed regression fingerprints while statistical calibration changes;
+5. build Natural Presentation strictly as an observer of canonical world / event state.
 
-```text
-pitch
- -> batter decision/action
- -> bat-ball contact OR take/miss/foul
- -> count transition OR live ball
- -> fielding/running
- -> play end
- -> CanonicalMatchState transition
-```
-
-This is the next large non-defense integration target.
-
-### C. Start P3 unified ratings and physical profile
-
-Introduce a player-owned calibration boundary rather than passing anonymous fixture numbers forever.
-
-Planned shape:
-
-```text
-PlayerPhysicalProfile
-  heightMeters
-  optional armSpanMeters
-  optional legLengthMeters
-  ...
-        |
-        +--> Core calibration
-        |      bodyOriginHeight
-        |      maximumLegReach
-        |      glove/tag reachable region
-        |
-        +--> Presentation calibration
-               Mini dot-size scale
-```
-
-Important:
-
-- height is not a direct success bonus;
-- height is not the only possible reach determinant;
-- future arm span / leg length can override simple proportional assumptions;
-- no skeleton or 3D character model is required for Core;
-- physical primitives remain numerical state only.
+The existing first-base and defensive vertical slices remain useful regression evidence, but should not become a reason to keep deepening one subsystem without a new acceptance target.
 
 ## 6. Anthropometrics and point rendering
 
@@ -254,7 +209,20 @@ What is explicitly deferred:
 
 If a new task only makes one local subsystem more anatomically detailed but closes no roadmap acceptance condition, defer it until P9 evidence demonstrates that the approximation is inadequate.
 
-## 9. CI evidence caveat
+## 9. CI recovery and verification evidence
+
+The historical GitHub Actions pre-step blocker is resolved for the current validation path.
+
+Key evidence:
+
+- `35394466844` attempt 1 and attempt 2 on `83d01d52...`: 228 files / 1065 tests green and identical unfrozen fixed-seed fingerprints;
+- `35395593056` on `c3a409cf...`: 228 files / 1065 tests green with all frozen fixed-seed expectations matching;
+- `35396396378` attempt 1 on `8b306a15...`: 229 files / 1068 tests green including the deterministic 1,024-contact batch calibration;
+- calibration fingerprint: `f5058efd2d23784c`.
+
+Implementation status and CI status are now aligned for the P0-P9 foundation.
+
+
 
 GitHub Actions is currently repeatedly terminating the P0 Core verify job before workflow steps execute (`steps=[]`).
 
