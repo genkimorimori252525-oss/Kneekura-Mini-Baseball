@@ -8,6 +8,7 @@
 - `docs/game-design/11-world-competition-architecture.md`
 - `docs/game-design/12-competition-identity-hosting.md`
 - `docs/game-design/14-regular-season-calendar-and-volume.md`
+- `docs/game-design/15-season-events-and-deadlines.md`
 
 ---
 
