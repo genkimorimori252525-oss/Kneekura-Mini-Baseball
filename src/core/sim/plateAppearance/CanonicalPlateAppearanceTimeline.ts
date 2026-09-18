@@ -21,6 +21,9 @@ import {
 import type {
   FlyCatchRuleResult,
 } from '../../rules/FlyCatchRule';
+import type {
+  TakenPitchPhysicalResult,
+} from '../pitching/TakenPitchPhysicalResult';
 
 export type CountedPitchAdjudication =
   | Readonly<{ kind: 'ball' }>
@@ -99,11 +102,19 @@ export type CanonicalFoulBattedBallEventPayload = Readonly<{
   resolution: ReturnType<typeof resolveFoulBallRule>;
 }>;
 
+export type CanonicalTakenPitchPhysicalEventPayload = Readonly<{
+  result: TakenPitchPhysicalResult;
+}>;
+
 export type CanonicalLiveBallPlayEndEventPayload = Readonly<{
   playEnd: PlayEndFact;
 }>;
 
 export type CanonicalPlateAppearanceEvent =
+  | TimedMatchEvent<
+      'TakenPitchPlateCrossed',
+      CanonicalTakenPitchPhysicalEventPayload
+    >
   | TimedMatchEvent<
       'PitchAdjudicated',
       PitchAdjudicatedEventPayload
