@@ -561,6 +561,80 @@ Power B  [MLB基準]
 
 ---
 
+### 8.4 世界のリーグ層は Full 18 を基準とする
+
+Competition設計へ進む前提として、初期世界の詳細シミュレーション対象リーグ数を **18 Full Leagues** とする。
+
+これは「世界に18リーグしか存在しない」という意味ではない。
+
+```text
+World Baseball Ecosystem
+  ├─ Full Simulation Leagues: 18
+  │    ├─ full roster
+  │    ├─ full player development
+  │    ├─ full transfer market
+  │    ├─ full League Ecology
+  │    ├─ full history / records
+  │    └─ continental club competition eligibility
+  │
+  ├─ Lightweight Regional Leagues
+  │    ├─ simplified roster / results
+  │    ├─ prospect generation
+  │    ├─ national-team player pool
+  │    └─ optional competition qualification
+  │
+  └─ National Baseball Pools
+       ├─ no full domestic league simulation required
+       └─ national-team / scouting candidate generation
+```
+
+初期地域配分の基準:
+
+| Region | Full Leagues |
+| --- | ---: |
+| Asia | 5 |
+| Americas | 5 |
+| Europe | 4 |
+| Africa | 2 |
+| Oceania | 2 |
+| **Total** | **18** |
+
+具体的な18リーグ名は別のWorld League Catalogで確定する。
+
+### 8.5 冬季リーグも主所属リーグとして扱う
+
+開催時期が冬であることを理由に、リーグを副次所属・短期所属・補助リーグ扱いしない。
+
+```text
+league season timing
+  != affiliation priority
+```
+
+冬季開催リーグでも、選手がそのリーグへ登録されているなら、
+
+```text
+affiliationLeagueId = winterLeagueId
+ratingContextLeagueId = winterLeagueId
+```
+
+とできる。
+
+したがって、冬季リーグ所属選手も通常のFull League所属選手として以下を持つ。
+
+- league-relative public ratings
+- club affiliation
+- season statistics
+- player development
+- transfer history
+- League Ecology / Culture / Tactical Trend
+- continental club competition eligibility
+
+「夏リーグが本所属で、冬季リーグは自動的に副所属」という特別ルールは設けない。
+
+同一選手が別リーグへ移る場合は、季節に関係なく通常のTransfer / Loan / Temporary Registration等の別制度として明示的に扱う。
+
+初期設計では複雑さを避けるため、Full League所属は原則1つのprimary affiliationを持つ。
+
 ---
 
 ## 9. 新しい弱点の発生
@@ -679,6 +753,8 @@ League Ecologyを導入しても同一season state / player state / match input 
 - 同じ選手を代表戦・国際大会へ登録しただけではLEAGUE_RELATIVE公開値が変化しない
 - 同じ代表Roster内で異なるratingContextLeagueIdを持つ選手が共存できる
 - CompetitionProfileを変えてもplayer affiliationが同じならRatingContextは変化しない
+- 冬季開催という理由だけでaffiliationLeagueIdが別リーグへ置換されない
+- Full League所属選手は原則一つのprimary affiliationを持つ
 
 ---
 
@@ -703,6 +779,8 @@ League Ecologyを導入しても同一season state / player state / match input 
 - 代表戦・国際大会・大陸大会等への一時参加では所属リーグ基準の公開Ratingを再基準化しない
 - RatingContextはCompetitionではなくAffiliationへ紐づける
 - 異なる所属リーグ尺度の選手が同一国際大会Rosterへ共存することを許す
+- 初期世界のFull Simulation Leagueは18を基準とする
+- 冬季リーグも開催時期に関係なく主所属リーグになり得る
 - リーグ全体の弱点は時代・選手人口・経験分布から観測され、固定定義しない
 - Mini / Naturalは同じLeague Ecology入力とShared Match Coreを利用する
 
