@@ -1,5 +1,7 @@
 # Individual Defender Decision Foundation Plan
 
+**Status:** COMPLETE — implemented and verified on 2026-09-18.
+
 **Goal:** Implement the approved individual-defense decision boundary so each defender replans from its own perceived world, pre-play plan, and abilities without any post-contact central commander.
 
 **Source specs**
@@ -111,3 +113,23 @@ Choice uses explicit local priority inputs and stable deterministic tie-breaking
 ### Task 6: Shared Core API and regression
 
 Export the replan, timing, and decision foundation through `src/core/index.ts`. Add Core API tests and run full `npm run verify`.
+
+
+---
+
+## Completion Evidence
+
+Implemented:
+- meaningful defender replan triggers based on perceived event time;
+- situational-awareness decision latency without physical-ability coupling;
+- non-omniscient local candidate generation from `PlayerPerceivedWorldState`;
+- pitcher -> first-base-cover vertical slice;
+- stable local candidate selection independent of evaluation order;
+- communication as non-forcing evidence with explicit trust;
+- shared Core API exports.
+
+Verification at implementation HEAD `fdc5ff318ab16b94e679c07b116085c719a57b16`:
+- `tsc --noEmit`: success
+- Vitest: 38 test files passed
+- Vitest: 177 tests passed
+- P0 Core run: `35298321745` success
