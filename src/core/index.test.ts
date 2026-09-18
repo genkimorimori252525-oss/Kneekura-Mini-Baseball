@@ -19,6 +19,15 @@ import {
   createPlayerPhysicalProfile,
   createDefensiveRatings,
   createDefensiveRatingProfile,
+  createBatterTrueTendency,
+  buildScoutingEstimate,
+  createDefensiveAlignment,
+  selectDefensiveAlignmentCandidate,
+  createManagerDefensiveStrategyRatings,
+  deriveManagerScoutingParameters,
+  selectDefensiveAlignmentCandidateForManager,
+  selectRatedDefensiveAlignmentCandidateForManager,
+  createDefenderWorldStatesFromAlignment,
   getPublicDefensiveRatings,
   createNormalizedRating,
   deriveRatedDefenderMotionParameters,
@@ -338,6 +347,18 @@ describe('core package', () => {
 
   it('exposes physical throw-reception contact through Core', () => {
     expect(typeof createCatchRetentionContactFromAcceleratedReception).toBe('function');
+  });
+
+  it('exposes P4 scouting and defensive strategy foundations through Core', () => {
+    expect(typeof createBatterTrueTendency).toBe('function');
+    expect(typeof buildScoutingEstimate).toBe('function');
+    expect(typeof createDefensiveAlignment).toBe('function');
+    expect(typeof selectDefensiveAlignmentCandidate).toBe('function');
+    expect(typeof createManagerDefensiveStrategyRatings).toBe('function');
+    expect(typeof deriveManagerScoutingParameters).toBe('function');
+    expect(typeof selectDefensiveAlignmentCandidateForManager).toBe('function');
+    expect(typeof selectRatedDefensiveAlignmentCandidateForManager).toBe('function');
+    expect(typeof createDefenderWorldStatesFromAlignment).toBe('function');
   });
 
   it('exposes P3 normalized defensive ratings and owned adapters through Core', () => {
