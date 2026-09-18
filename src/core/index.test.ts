@@ -10,6 +10,7 @@ import {
   createBatterRunnerFirstBaseFrame,
   createBatterRunnerFirstBaseRoute,
   createBatterStanceGeometry,
+  createRunnerMotionStateFromSwingExitTransition,
   capturePlanarObservation,
   captureSpatialObservation,
   closeAppealWindow,
@@ -101,6 +102,7 @@ import {
   resolveTagOutScoringRule,
   resolveDefensiveDecisionTiming,
   resolveBatterStanceWorldPosition,
+  resolveBatterSwingExitRunTransition,
   resolveCommunicationReception,
   retireForceParticipant,
   sampleRunnerPhysicalTouchPoint,
@@ -141,6 +143,11 @@ describe('core package', () => {
 
   it('exposes exact base touch timing through the shared Core API', () => {
     expect(typeof findBaseTouchTick).toBe('function');
+  });
+
+  it('exposes batter swing-exit run transition physics through the shared Core API', () => {
+    expect(typeof resolveBatterSwingExitRunTransition).toBe('function');
+    expect(typeof createRunnerMotionStateFromSwingExitTransition).toBe('function');
   });
 
   it('exposes batter stance to first-base geometry through the shared Core API', () => {
