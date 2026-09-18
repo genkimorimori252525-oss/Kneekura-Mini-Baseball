@@ -26,16 +26,6 @@ export type MiniHudState = Readonly<{
     away: number;
     home: number;
   }>;
-  teamPanels: Readonly<{
-    left: Readonly<{
-      team: 'away';
-      accent: 'blue';
-    }>;
-    right: Readonly<{
-      team: 'home';
-      accent: 'red';
-    }>;
-  }>;
   playId: number;
 }>;
 
@@ -66,16 +56,6 @@ export const buildMiniHudState = (
   score: {
     away: match.score.away,
     home: match.score.home,
-  },
-  teamPanels: {
-    left: {
-      team: 'away',
-      accent: 'blue',
-    },
-    right: {
-      team: 'home',
-      accent: 'red',
-    },
   },
   playId: match.playId,
 });
