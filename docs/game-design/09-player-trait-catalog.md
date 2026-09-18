@@ -42,6 +42,33 @@
 - 同じ真能力でもリーグ尺度が異なれば公開値は変わり得る。
 - 一軍 / 二軍、守備位置、先発 / 中継ぎ / 抑えは原則として尺度変更ではなく比較フィルタ。
 
+### 2.1.1 LEAGUE_RELATIVEのRating Contextは所属リーグに固定する
+
+`LEAGUE_RELATIVE` のHeadline Ratingは、現在参加している大会ではなく、選手の所属リーグを評価文脈とする。
+
+```text
+ratingContextLeagueId = affiliationLeagueId
+```
+
+代表招集、大陸大会、国際クラブ大会、世界大会等への一時参加では再基準化しない。
+
+例:
+
+```text
+domestic league Power S
+  + national-team selection
+  + international tournament
+      -> Power S remains displayed
+```
+
+大会で相手が強くてもRatingをその場で下げない。実際の相手との能力差はMatch Coreの真能力・物理・Familiarity・Condition等から試合結果へ現れる。
+
+異なる所属リーグの選手を同時に表示する場合、必要なら `[所属リーグ基準]` を添える。
+
+世界共通比較が必要な場合は別Projectionを使用し、Headline Ratingを上書きしない。
+
+実際の移籍で `affiliationLeagueId` が変わった場合のみ、新しいリーグ文脈へRating Contextを切り替える。移籍直後の新リーグ評価にはKnowledge / Fit uncertaintyを許す。
+
 ### 2.2 ABSOLUTE_PHYSICAL / SUITABILITY
 
 同じG〜S境界を表示に再利用してよいが、0〜100の生成元は異なる。
@@ -782,6 +809,8 @@ stable internal family id
 - 同一Trait FamilyのGold / A〜G / Named tierが同時適用されない
 - Trait表示値がMatch Coreのsource of truthになっていない
 - LEAGUE_RELATIVEの値を真能力へ逆算していない
+- 国際大会・代表招集・対外大会への参加だけでratingContextLeagueIdを変更していない
+- Headline Ratingの基準はCompetitionではなくAffiliationに紐づいている
 - ABSOLUTE_PHYSICALがリーグ移籍で再スケールされない
 - Suitabilityが汎用身体能力を二重計上しない
 - Condition / CurrentFatigue / Stamina / Recoveryが同じ原因を二重適用しない
