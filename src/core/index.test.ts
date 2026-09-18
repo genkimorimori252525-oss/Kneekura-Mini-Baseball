@@ -55,6 +55,7 @@ import {
   evaluateTagUpCompliance,
   decideDefensiveIntent,
   deriveCatchRetentionParameters,
+  deriveAndRecordFirstGroundContactEvidence,
   evaluateTagUpComplianceForMatch,
   evaluatePitchReleaseInfieldSide,
   getBatterRunnerDistanceToFirstBase,
@@ -331,6 +332,10 @@ describe('core package', () => {
     expect(typeof resolveFoulBallRule).toBe('function');
     expect(typeof resolveInfieldFlyRule).toBe('function');
     expect(typeof resolveHalfInningTransition).toBe('function');
+  });
+
+  it('exposes batted-ball timeline physical evidence integration through Core', () => {
+    expect(typeof deriveAndRecordFirstGroundContactEvidence).toBe('function');
   });
 
   it('exposes batted-ball fair-territory physical evidence through Core', () => {
