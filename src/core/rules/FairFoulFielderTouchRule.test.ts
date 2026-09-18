@@ -29,6 +29,7 @@ const evidence = (
   fielderId: 'right-fielder',
   tick: 2_000_000,
   ballCenter: { x, y: 1.2, z },
+  ballRadiusMeters: 0.0366,
   classification: {
     kind: label,
     firstBaseLineSignedSide: 0,
