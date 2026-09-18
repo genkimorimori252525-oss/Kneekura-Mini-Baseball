@@ -94,8 +94,10 @@ import {
   resolveAdvantageousAppealOutOptions,
   resolveBatterRunnerFirstBase,
   resolveBatterRunnerFirstBaseFromPhysicalCatchRace,
+  resolveFirstBasePhysicalRace,
   resolveBatterRunnerFirstBaseFromPhysicalRace,
   resolveBatterRunnerFirstBaseFromTimeline,
+  resolveGroundBallFirstBasePhysicalRace,
   resolveGroundBallFirstBaseRuleFromPhysicalRace,
   resolveGroundBallFirstBaseRuleFromTimeline,
   resolveDefensiveAlignmentViolationPenaltyForMatch,
@@ -274,6 +276,11 @@ describe('core package', () => {
     expect(typeof findDefenderControlledBaseContactTick).toBe('function');
     expect(typeof createControlledBaseContactFactFromDefenderPhysics).toBe('function');
     expect(typeof createControlledBaseContactFactFromCatchOutcomePhysics).toBe('function');
+  });
+
+  it('exposes the end-to-end first-base physical race through Core', () => {
+    expect(typeof resolveFirstBasePhysicalRace).toBe('function');
+    expect(typeof resolveGroundBallFirstBasePhysicalRace).toBe('function');
   });
 
   it('exposes batter-runner physical-to-rule first-base adapters through Core', () => {
