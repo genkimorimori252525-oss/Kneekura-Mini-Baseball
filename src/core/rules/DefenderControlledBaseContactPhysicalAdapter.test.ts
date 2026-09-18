@@ -62,7 +62,7 @@ describe('DefenderControlledBaseContactPhysicalAdapter', () => {
       ),
       controlThroughTick: 1_900_000,
       contactPrimitives: [foot],
-    }))?.toMatchObject({
+    })).toMatchObject({
       kind: 'controlled_base_contact',
       tick: 1_400_000,
     });
