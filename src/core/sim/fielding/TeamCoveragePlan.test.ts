@@ -219,6 +219,58 @@ describe('TeamCoveragePlan', () => {
     );
   });
 
+  it('requires each registered defensive position exactly once', () => {
+    const duplicatePosition = ordinaryFixture().map(
+      (entry) => (
+        entry.playerId === 'rf'
+          ? {
+              ...entry,
+              registeredPosition: 'CF' as const,
+            }
+          : entry
+      ),
+    );
+
+    expect(() => createTeamCoveragePlan({
+      defenders: duplicatePosition,
+      requireBallHandler: true,
+    })).toThrow(
+      'team coverage plan must contain each registered defensive position exactly once',
+    );
+  });
+
+  it('rejects non-finite explicit role targets', () => {
+    const invalid = ordinaryFixture().map(
+      (entry) => (
+        entry.playerId === 'ss'
+          ? {
+              ...entry,
+              candidates: [
+                candidate(
+                  {
+                    kind: 'relay',
+                    target: {
+                      x: Number.NaN,
+                      z: 10,
+                    },
+                  },
+                  0.9,
+                ),
+                candidate({ kind: 'hold' }, 0.1),
+              ],
+            }
+          : entry
+      ),
+    );
+
+    expect(() => createTeamCoveragePlan({
+      defenders: invalid,
+      requireBallHandler: true,
+    })).toThrow(
+      'coverage intent target coordinates must be finite',
+    );
+  });
+
   it('requires exactly nine unique defenders', () => {
     expect(() => createTeamCoveragePlan({
       defenders: ordinaryFixture().slice(0, 8),
