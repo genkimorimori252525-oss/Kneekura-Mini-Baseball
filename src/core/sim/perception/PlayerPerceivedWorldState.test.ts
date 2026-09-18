@@ -70,7 +70,7 @@ describe('PlayerPerceivedWorldState', () => {
 
     expect(state.observerId).toBe('runner-3');
     expect(state.ball?.predictedAt).toBe(2_000_000);
-    expect(state.players[0]?.memory.confidence).toBe(0.6);
+    expect(state.players[0]?.memory.confidence).toBeCloseTo(0.6, 12);
     expect(state.communications).toEqual([received]);
     expect(state.knownContext).toEqual({ outs: 1, scoreDifference: -1 });
     expect(state).not.toHaveProperty('intent');
