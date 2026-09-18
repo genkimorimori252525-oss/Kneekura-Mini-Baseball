@@ -619,6 +619,10 @@ canonicalRole = NATIONAL_WORLD_CHAMPIONSHIP
 
 # 17. Rivalries
 
+Club Rivalryのsource-of-truth設計は `docs/game-design/16-club-economy-rivalry-design.md` を正とする。
+
+Club Rivalryは**有向関係**であり、相互性を要求しない。
+
 同じclubs / nationsが大舞台で繰り返し対戦するとRivalry Historyを形成できる。
 
 入力例:
@@ -629,17 +633,22 @@ canonicalRole = NATIONAL_WORLD_CHAMPIONSHIP
 - controversial calls
 - player transfer history
 - geographic / historical sporting rivalry
+- repeated title races
+- dominant-club targeting
 
 Rivalryは:
 
 - fan interest
 - media importance
 - MatchImportance
+- PersonalStake
 - Relationship / appraisal
 
 へ作用可能。
 
-true abilityへのBuffは禁止。
+true abilityへの直接Buffは禁止。
+
+多数Clubが一つのdominant Clubを一方向に強く意識する状態も許可する。
 
 ---
 
