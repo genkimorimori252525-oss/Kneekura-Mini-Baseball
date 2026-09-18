@@ -243,6 +243,7 @@ CompetitionProfile
 大会体系の具体案は以下の設計候補版へ分離する。
 
 - `docs/game-design/11-world-competition-architecture.md`
+- `docs/game-design/12-competition-identity-hosting.md`
 
 内容はContinental Club Champions、Club World、Regional National Championships、Premier 12-class、WBC-class、および4年周期Calendarを対象とする。
 
