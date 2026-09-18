@@ -118,3 +118,39 @@ export const createDefensiveRatings = (
     createNormalizedRating(input.situationalAwareness),
   tagSkill: createNormalizedRating(input.tagSkill),
 });
+
+
+export type DefensiveRatingProfile = Readonly<{
+  publicDefenseRating: NormalizedRating;
+  internal: DefensiveRatings;
+}>;
+
+export type PublicDefensiveRatings = Readonly<{
+  defense: NormalizedRating;
+  armStrength: NormalizedRating;
+  positionSuitability: PositionSuitabilityMap;
+}>;
+
+export type DefensiveRatingProfileInput = Readonly<{
+  publicDefenseRating: number;
+  internal: DefensiveRatings;
+}>;
+
+export const createDefensiveRatingProfile = (
+  input: DefensiveRatingProfileInput,
+): DefensiveRatingProfile => ({
+  publicDefenseRating:
+    createNormalizedRating(
+      input.publicDefenseRating,
+    ),
+  internal: input.internal,
+});
+
+export const getPublicDefensiveRatings = (
+  profile: DefensiveRatingProfile,
+): PublicDefensiveRatings => ({
+  defense: profile.publicDefenseRating,
+  armStrength: profile.internal.armStrength,
+  positionSuitability:
+    profile.internal.positionSuitability,
+});
