@@ -27,6 +27,7 @@ export * from './sim/fielding/DefenderPhysicalPrimitive';
 export * from './sim/fielding/DefenderPhysicalContactAdapters';
 export * from './sim/fielding/DefenderBaseContact';
 export * from './sim/fielding/DefenderControlledBaseContact';
+export * from './sim/fielding/DefenderThrowReceptionContact';
 export * from './sim/fielding/PerceivedGloveTarget';
 export * from './sim/fielding/GloveReachExecution';
 export * from './sim/fielding/CatchExecutionSkill';
