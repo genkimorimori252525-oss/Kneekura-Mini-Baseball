@@ -8,8 +8,20 @@ import {
 import type { DefensiveDecisionTimingParameters } from './DefensiveDecisionTiming';
 import {
   advanceDefenderMotion,
+  buildDefenderMotionTrajectory,
   type DefenderMotionParameters,
 } from './DefenderMotion';
+import {
+  projectDefenderBodyKinematicsSegment,
+  sampleDefenderBodyKinematicsSegment,
+} from './DefenderBodyKinematics';
+import {
+  planDefenderBaseFootReachPrimitive,
+} from './DefenderBaseFootReach';
+import {
+  findDefenderFootBaseContactTick,
+} from './DefenderBaseContact';
+import type { BaseTouchRegion } from '../running/BaseTouch';
 import {
   resolveDefensiveMovementTarget,
   type DefensiveFieldLandmarks,
@@ -134,6 +146,98 @@ describe('individual first-base cover physical vertical slice', () => {
     expect(fast.position.x).toBeCloseTo(0.1568, 8);
     expect(slow.position.x).toBeCloseTo(0.0512, 8);
     expect(fast.position.x).toBeGreaterThan(slow.position.x);
+  });
+
+  it('carries one base-cover decision through body motion, body kinematics, foot reach, and actual base contact', () => {
+    const decision = decideDefensiveIntent(
+      {
+        ...decisionInput,
+        self: {
+          ...decisionInput.self,
+          position: { x: 26.1, z: 0 },
+        },
+      },
+      0.8,
+      timing,
+    );
+    expect(decision.intent).toEqual({
+      kind: 'base_cover',
+      base: 1,
+    });
+
+    const bodyTarget = resolveDefensiveMovementTarget(
+      decision.intent,
+      perceivedWorld,
+      landmarks,
+    );
+    expect(bodyTarget).toEqual({ x: 26.6, z: 0 });
+    expect(bodyTarget).not.toEqual(landmarks.basePositions[1]);
+
+    const coverMotion = buildDefenderMotionTrajectory(
+      {
+        tick: decision.decisionTick,
+        position: { x: 26.1, z: 0 },
+        velocity: { x: 0, z: 0 },
+      },
+      bodyTarget,
+      500_000,
+      {
+        ...motion,
+        maxIntegrationStepTicks: 500_000,
+      },
+    );
+    expect(coverMotion).toHaveLength(1);
+
+    const body = projectDefenderBodyKinematicsSegment(
+      coverMotion[0],
+      1,
+    );
+    const bodyAtTargetTick = sampleDefenderBodyKinematicsSegment(
+      body,
+      body.endTick,
+    );
+    expect(bodyAtTargetTick.position.x).toBeCloseTo(26.6, 12);
+    expect(bodyAtTargetTick.position.y).toBe(1);
+    expect(bodyAtTargetTick.position.z).toBe(0);
+
+    const firstBase: BaseTouchRegion = {
+      center: landmarks.basePositions[1],
+      halfSize: { x: 0.2, z: 0.2 },
+      rotationRadians: 0,
+    };
+    const foot = planDefenderBaseFootReachPrimitive({
+      body,
+      footState: {
+        tick: body.startTick,
+        offset: { x: 0.4, y: -1, z: 0 },
+        velocity: { x: 0, y: 0, z: 0 },
+      },
+      role: 'left_foot',
+      targetTick: body.endTick,
+      base: firstBase,
+      baseLocalContactPoint: { x: 0, z: 0 },
+      baseSurfaceHeightMeters: 0,
+      parameters: {
+        footRadiusMeters: 0.12,
+        maximumLegReachMeters: 1.5,
+        maxRelativeReachSpeedMps: 3,
+        maxRelativeReachAccelerationMps2: 4,
+      },
+    });
+    expect(foot).not.toBeNull();
+    if (foot === null) {
+      throw new Error('fixture must produce a reachable base-cover foot');
+    }
+
+    const contactTick = findDefenderFootBaseContactTick(
+      foot,
+      firstBase,
+      0,
+      foot.startTick,
+      foot.endTick,
+    );
+    expect(contactTick).toBe(decision.decisionTick + 442_986);
+    expect(contactTick).toBeLessThan(foot.endTick);
   });
 
   it('does not globally invent cover movement when the pitcher missed teammate commitment', () => {
