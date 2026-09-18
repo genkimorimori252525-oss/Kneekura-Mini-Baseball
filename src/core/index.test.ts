@@ -10,6 +10,7 @@ import {
   createBatterRunnerFirstBaseFrame,
   createBatterRunnerFirstBaseRoute,
   createBatterRunnerFirstBaseTouchFactFromTimeline,
+  createControlledBaseContactFactFromDefenderPhysics,
   createBatterStanceGeometry,
   createRunnerMotionStateFromSwingExitTransition,
   buildBatterSwingExitRecoveryTrajectory,
@@ -72,6 +73,8 @@ import {
   findRunnerBaseTouchTick,
   findRunnerBaseTouchTickOnTrajectory,
   findBatterRunnerPostLaunchBaseTouchTick,
+  findDefenderControlledBaseContactTick,
+  findDefenderFootBaseContactTick,
   findSecureCatchTick,
   findTagContactTick,
   findThrowReleaseTick,
@@ -88,7 +91,9 @@ import {
   resolveCatchRetention,
   resolveAdvantageousAppealOutOptions,
   resolveBatterRunnerFirstBase,
+  resolveBatterRunnerFirstBaseFromPhysicalRace,
   resolveBatterRunnerFirstBaseFromTimeline,
+  resolveGroundBallFirstBaseRuleFromPhysicalRace,
   resolveGroundBallFirstBaseRuleFromTimeline,
   resolveDefensiveAlignmentViolationPenaltyForMatch,
   resolveDefensiveMovementTarget,
@@ -257,10 +262,18 @@ describe('core package', () => {
     expect(typeof applyForceOutRuleResultToState).toBe('function');
   });
 
+  it('exposes defender controlled-base physics through Core', () => {
+    expect(typeof findDefenderFootBaseContactTick).toBe('function');
+    expect(typeof findDefenderControlledBaseContactTick).toBe('function');
+    expect(typeof createControlledBaseContactFactFromDefenderPhysics).toBe('function');
+  });
+
   it('exposes batter-runner physical-to-rule first-base adapters through Core', () => {
     expect(typeof createBatterRunnerFirstBaseTouchFactFromTimeline).toBe('function');
     expect(typeof resolveBatterRunnerFirstBaseFromTimeline).toBe('function');
+    expect(typeof resolveBatterRunnerFirstBaseFromPhysicalRace).toBe('function');
     expect(typeof resolveGroundBallFirstBaseRuleFromTimeline).toBe('function');
+    expect(typeof resolveGroundBallFirstBaseRuleFromPhysicalRace).toBe('function');
   });
 
   it('exposes the first Correct Rule Result foundation through the shared Core API', () => {
