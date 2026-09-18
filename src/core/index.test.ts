@@ -19,6 +19,7 @@ import {
   applyBatterRunnerWorldTimelineToSnapshot,
   applyStrikeoutPlateAppearanceToMatchState,
   applyWalkPlateAppearanceToMatchState,
+  applyResolvedLiveBallPlateAppearanceToMatchState,
   buildBatterRunnerWorldTimeline,
   createCanonicalPlateAppearanceTimeline,
   capturePlanarObservation,
@@ -113,6 +114,7 @@ import {
   resolveHalfInningTransition,
   resolveInfieldFlyRule,
   resolveWalkForcedAdvancement,
+  createResolvedLiveBallPlateAppearanceFromGroundBallFirstBaseRule,
   resolveForceOutAtTarget,
   resolveForceOutScoringRule,
   resolveThirdOutScoring,
@@ -133,6 +135,9 @@ import {
   resolveBatterSwingExitRunTransitionAfterContact,
   recordBatBallContact,
   recordCountedPitch,
+  recordFairBattedBall,
+  recordFoulBattedBall,
+  recordLiveBallPlayEnd,
   resolveCommunicationReception,
   retireForceParticipant,
   sampleRunnerPhysicalTouchPoint,
@@ -317,9 +322,14 @@ describe('core package', () => {
     expect(typeof createCanonicalPlateAppearanceTimeline).toBe('function');
     expect(typeof recordCountedPitch).toBe('function');
     expect(typeof recordBatBallContact).toBe('function');
+    expect(typeof recordFairBattedBall).toBe('function');
+    expect(typeof recordFoulBattedBall).toBe('function');
+    expect(typeof recordLiveBallPlayEnd).toBe('function');
     expect(typeof applyStrikeoutPlateAppearanceToMatchState).toBe('function');
     expect(typeof applyWalkPlateAppearanceToMatchState).toBe('function');
     expect(typeof resolveWalkForcedAdvancement).toBe('function');
+    expect(typeof applyResolvedLiveBallPlateAppearanceToMatchState).toBe('function');
+    expect(typeof createResolvedLiveBallPlateAppearanceFromGroundBallFirstBaseRule).toBe('function');
   });
 
   it('exposes the first Correct Rule Result foundation through the shared Core API', () => {
