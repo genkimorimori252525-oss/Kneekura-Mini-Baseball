@@ -2,13 +2,17 @@ import { describe, expect, it } from 'vitest';
 import type { Vec2 } from '../../model/geometry';
 import { findBaseTouchTick, type BaseTouchRegion } from './BaseTouch';
 import type { RunnerBodyContactParameters } from './RunnerBodyContact';
-import type {
-  RunnerMotionIntent,
+import {
+  buildRunnerMotionTrajectory,
+  type RunnerMotionIntent,
   RunnerMotionParameters,
   RunnerMotionState,
 } from './RunnerMotion';
 import type { RunnerRoute } from './RunnerRoute';
-import { findRunnerBaseTouchTick } from './RunnerBaseTouch';
+import {
+  findRunnerBaseTouchTick,
+  findRunnerBaseTouchTickOnTrajectory,
+} from './RunnerBaseTouch';
 
 const v = (x: number, z: number): Vec2 => ({ x, z });
 
@@ -64,6 +68,47 @@ describe('findRunnerBaseTouchTick', () => {
       straightBase,
       2_000_000,
       acceleratingParameters,
+      bodyParameters,
+    )).toBe(1_549_194);
+  });
+
+  it('returns the same exact touch tick when resolving the already-built RunnerMotion trajectory', () => {
+    const route: RunnerRoute = {
+      segments: [{ kind: 'line', start: v(0, 0), end: v(20, 0) }],
+    };
+    const start: RunnerMotionState = {
+      tick: 0,
+      routeDistanceMeters: 0,
+      speedMps: 0,
+      driveDirection: 0,
+      bodyMode: 'upright',
+    };
+    const deltaTicks = 2_000_000;
+    const trajectory = buildRunnerMotionTrajectory(
+      start,
+      advanceIntent,
+      deltaTicks,
+      acceleratingParameters,
+    );
+
+    expect(findRunnerBaseTouchTickOnTrajectory(
+      trajectory,
+      route,
+      straightBase,
+      bodyParameters,
+    )).toBe(findRunnerBaseTouchTick(
+      start,
+      advanceIntent,
+      route,
+      straightBase,
+      deltaTicks,
+      acceleratingParameters,
+      bodyParameters,
+    ));
+    expect(findRunnerBaseTouchTickOnTrajectory(
+      trajectory,
+      route,
+      straightBase,
       bodyParameters,
     )).toBe(1_549_194);
   });
