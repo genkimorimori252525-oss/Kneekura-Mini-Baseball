@@ -18,6 +18,8 @@ import {
   createBatterStanceGeometry,
   createPlayerPhysicalProfile,
   createDefensiveRatings,
+  createDefensiveRatingProfile,
+  getPublicDefensiveRatings,
   createNormalizedRating,
   deriveRatedDefenderMotionParameters,
   resolveRatedCatchExecutionTarget,
@@ -334,6 +336,8 @@ describe('core package', () => {
 
   it('exposes P3 normalized defensive ratings and owned adapters through Core', () => {
     expect(typeof createDefensiveRatings).toBe('function');
+    expect(typeof createDefensiveRatingProfile).toBe('function');
+    expect(typeof getPublicDefensiveRatings).toBe('function');
     expect(typeof createNormalizedRating).toBe('function');
     expect(typeof deriveRatedDefenderMotionParameters).toBe('function');
     expect(typeof resolveRatedCatchExecutionTarget).toBe('function');
