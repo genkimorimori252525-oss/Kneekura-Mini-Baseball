@@ -1,6 +1,6 @@
 # NPB 2026 Infield Boundary Rule Plan
 
-**Status:** IMPLEMENTATION IN PROGRESS.
+**Status:** IMPLEMENTATION COMPLETE; GitHub Actions remains pre-step blocked.
 
 **Goal:** Complete the remaining NPB 2026 RuleProfile defensive-alignment semantics by evaluating whether all four registered infielders have both feet fully inside the stadium-provided infield boundary when the pitcher begins the motion related to delivering the pitch.
 
@@ -94,3 +94,36 @@ A boundary violation always produces `DefensiveAlignmentViolation` with `identit
 Expose the new boundary modules through Core and add API coverage.
 
 Retry P0 Core CI. Do not claim repository GREEN while the Actions runner continues to terminate with no executed workflow steps.
+
+
+---
+
+## Completion evidence
+
+Implemented through HEAD `6cb08100f6bc2814d862eceb9ea5407fb2b4a1bd`:
+
+- stadium-supplied polygonal `InfieldBoundaryRegion`;
+- finite circular foot-contact containment with strict boundary handling;
+- four-registered-infielder evaluation at `pitchingRelatedMotionStartTick`;
+- concrete offending-player identity for boundary violations;
+- RuleProfile-aware boundary entry point requiring `pitching_related_motion_start` and `stadium_profile`;
+- Core API exports;
+- integration fixture proving boundary violator identity feeds the existing NPB 2026 5.02(c) penalty resolver.
+
+TDD checkpoints include:
+- `67e056ab...` boundary geometry RED;
+- `890ab099...` boundary geometry implementation;
+- `8aa156f0...` isolated four-infielder RED fixture;
+- `79685132...` boundary evaluator implementation;
+- `6e5dd130...` concrete violation identity RED;
+- `1d246452...` normalization implementation;
+- `a8fd4c4b...` RuleProfile RED;
+- `102c370a...` RuleProfile-aware implementation;
+- `09126756...` Core API RED;
+- `2dc77135...` Core API export;
+- `6cb08100...` end-to-end boundary-to-penalty regression fixture.
+
+Repository CI:
+- P0 Core run `35313374831` for HEAD `6cb08100...` failed before any workflow command executed;
+- job `105499786025` reports `steps=[]`;
+- full-repository GREEN is not claimed.
