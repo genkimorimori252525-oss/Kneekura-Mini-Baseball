@@ -1,7 +1,12 @@
 import type { Vec3 } from '../../model/geometry';
 import type { DefenderBodyKinematicsSegment } from './DefenderBodyKinematics';
 
-export type DefenderPhysicalPrimitiveRole = 'glove' | 'tag_hand' | 'body';
+export type DefenderPhysicalPrimitiveRole =
+  | 'glove'
+  | 'tag_hand'
+  | 'body'
+  | 'left_foot'
+  | 'right_foot';
 
 export type DefenderPosePrimitiveSegment = Readonly<{
   role: DefenderPhysicalPrimitiveRole;
