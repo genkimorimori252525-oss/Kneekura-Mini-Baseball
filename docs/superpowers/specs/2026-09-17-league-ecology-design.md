@@ -439,6 +439,128 @@ new league common pitch   -> initial struggle
 
 だけでなく、その逆も自然発生する。
 
+### 8.1 対外大会・国際大会では公開リーグ評価を再基準化しない
+
+リーグへ移籍せず、一時的に別Competitionへ参加するだけでは、選手の `LEAGUE_RELATIVE` 公開評価の基準リーグを変更しない。
+
+対象例:
+
+- 地域別クラブ大会
+- 大陸クラブ大会
+- 国際クラブ大会
+- 代表戦
+- WBSC系国際大会
+- WBC級の世界大会
+
+概念:
+
+```text
+player affiliation league
+        ↓
+RatingContextLeagueId
+        ↓
+public LEAGUE_RELATIVE ratings
+
+temporary Competition participation
+        ↓
+does NOT replace RatingContextLeagueId
+```
+
+例えば台湾国内リーグ所属選手が、その所属リーグ基準である能力をSと評価されているなら、代表招集されて世界大会へ出場しても、その表示はSのままとする。
+
+大会参加によって、
+
+```text
+Taiwan league S
+  -> international tournament C
+```
+
+のような自動再査定は行わない。
+
+国際大会でより強い相手へ苦戦した場合、その差は以下から実際の試合結果として現れる。
+
+- opponent true ability
+- actual pitch / batted-ball physics
+- Exposure / Familiarity
+- Stadium / ball / environment
+- RuleProfile / umpire environment
+- Condition / fatigue
+- Pressure / ActiveEmotion
+- tactical matchup
+
+つまり、国際大会そのものを「世界基準能力値への変換装置」にしない。
+
+### 8.2 公開評価の所属文脈はCompetitionではなくAffiliationに紐づく
+
+公開リーグ相対評価の基準は、原則として選手の現在の所属リーグに紐づける。
+
+概念候補:
+
+```ts
+type PlayerRatingContext = {
+  affiliationLeagueId: LeagueId;
+  ratingContextLeagueId: LeagueId;
+};
+```
+
+通常は:
+
+```text
+ratingContextLeagueId = affiliationLeagueId
+```
+
+とする。
+
+代表招集や短期大会登録はAffiliationを変更しないため、RatingContextも変わらない。
+
+一方、実際の移籍により所属リーグが変わった場合は、新しいリーグをRatingContextへ切り替える。
+
+ただし既存設計どおり、移籍直後の新リーグ評価はKnowledge / Fitの観測不足を持ち得る。
+
+```text
+permanent / registered transfer
+      ↓
+affiliation league changes
+      ↓
+rating context changes
+      ↓
+new-league projection may begin with uncertainty
+      ↓
+evidence accumulates
+      ↓
+confidence increases
+```
+
+したがって「現実を見る」のは対外大会へ出た瞬間ではなく、所属環境そのものを移した後である。
+
+### 8.3 異なるリーグ尺度の選手が同一大会に共存してよい
+
+代表チームや国際大会では、異なる所属リーグ基準の公開値を持つ選手が同じRosterに存在してよい。
+
+例えば:
+
+```text
+Player A: Taiwan league Power S
+Player B: NPB Power A
+Player C: MLB Power B
+```
+
+これらの文字ランクは同一の世界絶対尺度ではないため、単純な大小比較を保証しない。
+
+UIでは必要に応じて小さく評価文脈を示せる。
+
+```text
+Power S  [CPBL基準]
+Power A  [NPB基準]
+Power B  [MLB基準]
+```
+
+ただし大会参加中に一つの「世界共通G〜S」へ上書きしない。
+
+世界比較が必要な分析画面では、別のScout Estimate、absolute metrics、または専用比較Projectionを表示してよいが、所属リーグ基準のHeadline Ratingを置換しない。
+
+---
+
 ---
 
 ## 9. 新しい弱点の発生
@@ -554,6 +676,9 @@ League Ecologyを導入しても同一season state / player state / match input 
 - 複数年の成功・複数球団採用・育成浸透が揃うと、定義された遅い速度でCultureが変化し得る
 - Culture変更は短期の能力補正ではなく、長期の選手獲得・育成・起用・戦術priorへ作用する
 - 同じculture stateと同じseason inputsなら、culture/trendの更新結果を再現できる
+- 同じ選手を代表戦・国際大会へ登録しただけではLEAGUE_RELATIVE公開値が変化しない
+- 同じ代表Roster内で異なるratingContextLeagueIdを持つ選手が共存できる
+- CompetitionProfileを変えてもplayer affiliationが同じならRatingContextは変化しない
 
 ---
 
@@ -575,6 +700,9 @@ League Ecologyを導入しても同一season state / player state / match input 
 - League Strengthを単一倍率として使わない
 - LeagueObservedProfileは結果の集計であり原因ではない
 - Cross-League Transferでは能力と経験履歴を保持し、相手・環境だけが変わる
+- 代表戦・国際大会・大陸大会等への一時参加では所属リーグ基準の公開Ratingを再基準化しない
+- RatingContextはCompetitionではなくAffiliationへ紐づける
+- 異なる所属リーグ尺度の選手が同一国際大会Rosterへ共存することを許す
 - リーグ全体の弱点は時代・選手人口・経験分布から観測され、固定定義しない
 - Mini / Naturalは同じLeague Ecology入力とShared Match Coreを利用する
 
