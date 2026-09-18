@@ -1,4 +1,5 @@
 import type { Vec3 } from '../../model/geometry';
+import { findAcceleratedSphereContactTick } from '../collision/AcceleratedSphereContact';
 import { findMovingSphereContactTick } from '../collision/MovingSphereContact';
 
 /**
@@ -11,6 +12,10 @@ export type TagContactPrimitiveState = Readonly<{
   center: Vec3;
   velocity: Vec3;
   radius: number;
+}>;
+
+export type AcceleratedTagContactPrimitiveState = TagContactPrimitiveState & Readonly<{
+  acceleration: Vec3;
 }>;
 
 export type TagContactParameters = Readonly<{
@@ -29,6 +34,31 @@ export const findTagContactTick = (
 ): number | null => findMovingSphereContactTick(
   taggerPrimitive,
   runnerPrimitive,
+  deltaTicks,
+  parameters,
+);
+
+
+export const findAcceleratedTagContactTick = (
+  taggerPrimitive: AcceleratedTagContactPrimitiveState,
+  runnerPrimitive: AcceleratedTagContactPrimitiveState,
+  deltaTicks: number,
+  parameters: TagContactParameters,
+): number | null => findAcceleratedSphereContactTick(
+  {
+    tick: taggerPrimitive.tick,
+    center: taggerPrimitive.center,
+    velocity: taggerPrimitive.velocity,
+    acceleration: taggerPrimitive.acceleration,
+    radius: taggerPrimitive.radius,
+  },
+  {
+    tick: runnerPrimitive.tick,
+    center: runnerPrimitive.center,
+    velocity: runnerPrimitive.velocity,
+    acceleration: runnerPrimitive.acceleration,
+    radius: runnerPrimitive.radius,
+  },
   deltaTicks,
   parameters,
 );
