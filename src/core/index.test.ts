@@ -106,6 +106,8 @@ import {
   resolveGroundBallFirstBaseRule,
   resolveNPB2026AlignmentViolationPenalty,
   resolveFlyCatch,
+  resolveFoulBallRule,
+  resolveInfieldFlyRule,
   resolveForceOutAtTarget,
   resolveForceOutScoringRule,
   resolveThirdOutScoring,
@@ -297,8 +299,10 @@ describe('core package', () => {
     expect(typeof resolveGroundBallFirstBaseRuleFromPhysicalRace).toBe('function');
   });
 
-  it('exposes pitch-count and foul semantics through the shared Core API', () => {
+  it('exposes pitch-count, foul-ball, and infield-fly semantics through the shared Core API', () => {
     expect(typeof resolvePitchCountRule).toBe('function');
+    expect(typeof resolveFoulBallRule).toBe('function');
+    expect(typeof resolveInfieldFlyRule).toBe('function');
   });
 
   it('exposes the first Correct Rule Result foundation through the shared Core API', () => {
