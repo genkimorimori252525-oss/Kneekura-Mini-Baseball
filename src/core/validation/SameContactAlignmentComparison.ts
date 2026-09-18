@@ -2,6 +2,7 @@ import type {
   DefensiveAlignment,
 } from '../sim/strategy/DefensiveAlignment';
 import {
+  canonicalizeEvidence,
   createCanonicalEvidenceFingerprint,
 } from './CanonicalEvidenceFingerprint';
 
@@ -94,6 +95,14 @@ export type SameContactAlignmentComparisonInput<
   evaluator:
     SameContactAlignmentEvaluator<TEvidence>;
 }>;
+
+const cloneCanonical = <T>(
+  value: T,
+): T => (
+  JSON.parse(
+    canonicalizeEvidence(value),
+  ) as T
+);
 
 const validateNonNegativeFinite = (
   name: string,
@@ -256,11 +265,16 @@ export const compareSameContactDefensiveAlignments = <
               candidate.alignment,
             );
 
+          const evaluationContact =
+            cloneCanonical(contact);
+          const evaluationAlignment =
+            cloneCanonical(candidate.alignment);
+
           const result = input.evaluator({
-            contact,
+            contact: evaluationContact,
             alignmentId:
               candidate.alignmentId,
-            alignment: candidate.alignment,
+            alignment: evaluationAlignment,
           });
 
           validateNonNegativeFinite(
@@ -274,7 +288,7 @@ export const compareSameContactDefensiveAlignments = <
 
           const contactFingerprintAfter =
             createCanonicalEvidenceFingerprint(
-              contact.evidence,
+              evaluationContact.evidence,
             );
           if (
             contactFingerprintAfter
@@ -287,7 +301,7 @@ export const compareSameContactDefensiveAlignments = <
 
           const alignmentFingerprintAfter =
             createCanonicalEvidenceFingerprint(
-              candidate.alignment,
+              evaluationAlignment,
             );
           if (
             alignmentFingerprintAfter
