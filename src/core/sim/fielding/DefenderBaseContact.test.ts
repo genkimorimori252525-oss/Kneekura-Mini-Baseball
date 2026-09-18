@@ -33,6 +33,7 @@ describe('findDefenderFootBaseContactTick', () => {
       foot(),
       base,
       0,
+      0,
       2_000_000,
     )).toBe(1_400_000);
   });
@@ -41,6 +42,7 @@ describe('findDefenderFootBaseContactTick', () => {
     expect(findDefenderFootBaseContactTick(
       foot(),
       base,
+      0,
       1_450_000,
       2_000_000,
     )).toBe(1_450_000);
@@ -50,6 +52,7 @@ describe('findDefenderFootBaseContactTick', () => {
     expect(findDefenderFootBaseContactTick(
       foot({ startVelocity: { x: 4, y: 0, z: 0 } }),
       base,
+      0,
       1_000_000,
       2_000_000,
     )).toBeNull();
@@ -63,8 +66,35 @@ describe('findDefenderFootBaseContactTick', () => {
       }),
       base,
       0,
+      0,
       2_000_000,
     )).toBe(1_673_321);
+  });
+
+  it('does not count a foot that is horizontally over the base but vertically above its surface', () => {
+    expect(findDefenderFootBaseContactTick(
+      foot({
+        startCenter: { x: 3, y: 0.25, z: 0 },
+        startVelocity: { x: 0, y: 0, z: 0 },
+      }),
+      base,
+      0,
+      0,
+      2_000_000,
+    )).toBeNull();
+  });
+
+  it('finds the exact instant a descending sole point reaches the base surface while horizontally inside', () => {
+    expect(findDefenderFootBaseContactTick(
+      foot({
+        startCenter: { x: 3, y: 0.4, z: 0 },
+        startVelocity: { x: 0, y: -1, z: 0 },
+      }),
+      base,
+      0,
+      0,
+      2_000_000,
+    )).toBe(400_000);
   });
 
   it('preserves an isolated tangential touch instead of requiring a positive-duration overlap', () => {
@@ -82,6 +112,7 @@ describe('findDefenderFootBaseContactTick', () => {
       }),
       tangentBase,
       0,
+      0,
       2_000_000,
     )).toBe(1_000_000);
   });
@@ -91,6 +122,7 @@ describe('findDefenderFootBaseContactTick', () => {
       foot({ role: 'glove' }),
       base,
       0,
+      0,
       2_000_000,
     )).toThrow(
       'defender base contact requires a left_foot or right_foot primitive',
@@ -99,6 +131,7 @@ describe('findDefenderFootBaseContactTick', () => {
     expect(() => findDefenderFootBaseContactTick(
       foot(),
       base,
+      0,
       0,
       2_000_001,
     )).toThrow(
