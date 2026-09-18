@@ -68,12 +68,16 @@ describe('DefensiveRatings', () => {
   });
 
   it('requires explicit suitability for all nine defensive positions', () => {
-    const missingRf: Partial<
-      typeof positionSuitability
-    > = {
-      ...positionSuitability,
+    const missingRf = {
+      P: 0.2,
+      C: 0.1,
+      '1B': 0.7,
+      '2B': 0.8,
+      '3B': 0.9,
+      SS: 1,
+      LF: 0.6,
+      CF: 0.5,
     };
-    delete missingRf.RF;
 
     expect(() => createDefensiveRatings({
       positionSuitability:
