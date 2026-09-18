@@ -73,6 +73,36 @@ describe('DefenderPhysicalPrimitive', () => {
     });
   });
 
+  it('supports explicit left/right foot primitives through the existing pose composition path', () => {
+    const leftFoot = composeDefenderPhysicalPrimitiveSegment(
+      body(),
+      pose({
+        role: 'left_foot',
+        radius: 0.12,
+        startOffset: { x: -0.12, y: -0.9, z: 0.08 },
+      }),
+    );
+    const rightFoot = composeDefenderPhysicalPrimitiveSegment(
+      body(),
+      pose({
+        role: 'right_foot',
+        radius: 0.12,
+        startOffset: { x: 0.12, y: -0.9, z: 0.08 },
+      }),
+    );
+
+    expect(leftFoot.role).toBe('left_foot');
+    expect(rightFoot.role).toBe('right_foot');
+    expect(sampleDefenderPhysicalPrimitiveSegment(
+      leftFoot,
+      leftFoot.startTick,
+    ).role).toBe('left_foot');
+    expect(sampleDefenderPhysicalPrimitiveSegment(
+      rightFoot,
+      rightFoot.startTick,
+    ).role).toBe('right_foot');
+  });
+
   it('allows vertical glove motion independently of 2D body motion', () => {
     const primitive = composeDefenderPhysicalPrimitiveSegment(
       body(),
