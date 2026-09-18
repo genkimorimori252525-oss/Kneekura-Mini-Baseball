@@ -64,6 +64,7 @@ import {
   findAcceleratedTagContactTick,
   findBaseTouchTick,
   findNextDefensiveReplanTick,
+  findPitchPlateCrossing,
   findFirstTrueTick,
   createAppealWindow,
   createRuleContext,
@@ -131,6 +132,7 @@ import {
   evaluatePitchingMotionInfieldBoundaryForMatch,
   evaluateInningInfieldSideLockForMatch,
   resolveTagOutScoringRule,
+  resolveTakenPitchPhysicalResult,
   resolveDefensiveDecisionTiming,
   resolveBatterStanceWorldPosition,
   resolveBatterSwingExitRunTransition,
@@ -140,6 +142,7 @@ import {
   recordFairBattedBall,
   recordFoulBattedBall,
   recordLiveBallPlayEnd,
+  recordTakenPitchPhysicalResult,
   resolveCommunicationReception,
   retireForceParticipant,
   sampleRunnerPhysicalTouchPoint,
@@ -318,6 +321,12 @@ describe('core package', () => {
     expect(typeof resolveFoulBallRule).toBe('function');
     expect(typeof resolveInfieldFlyRule).toBe('function');
     expect(typeof resolveHalfInningTransition).toBe('function');
+  });
+
+  it('exposes physical pitch crossing and taken-pitch causality through Core', () => {
+    expect(typeof findPitchPlateCrossing).toBe('function');
+    expect(typeof resolveTakenPitchPhysicalResult).toBe('function');
+    expect(typeof recordTakenPitchPhysicalResult).toBe('function');
   });
 
   it('exposes the canonical plate-appearance timeline through Core', () => {
