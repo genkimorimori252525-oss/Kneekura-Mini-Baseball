@@ -109,6 +109,7 @@ import {
   resolveDefensiveMovementTarget,
   resolveGroundBallFirstBaseRule,
   resolveNPB2026AlignmentViolationPenalty,
+  resolvePitchCountRule,
   resolveFlyCatch,
   resolveFoulBallRule,
   resolveHalfInningTransition,
