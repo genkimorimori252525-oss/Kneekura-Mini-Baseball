@@ -10,6 +10,7 @@ import type {
 } from './DefenderPhysicalPrimitive';
 export type DefenderControlledBaseContactInput = Readonly<{
   baseRegion: BaseTouchRegion;
+  baseSurfaceHeightMeters: number;
   securedCatch: SecuredCatchOutcome;
   controlThroughTick: number;
   contactPrimitives: readonly DefenderPhysicalPrimitiveSegment[];
@@ -84,6 +85,7 @@ export const findDefenderControlledBaseContactTick = (
     const contactTick = findDefenderFootBaseContactTick(
       primitive,
       input.baseRegion,
+      input.baseSurfaceHeightMeters,
       searchStartTick,
       searchEndTick,
     );
