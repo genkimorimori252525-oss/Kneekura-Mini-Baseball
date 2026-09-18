@@ -4,6 +4,7 @@ import {
   chooseDefensiveIntentCandidate,
   decideDefensiveIntent,
   generateDefensiveIntentCandidates,
+  type DefensiveCommunicationContent,
   type DefensiveDecisionInput,
   type DefensiveIntentCandidate,
   type DefensiveKnownContext,
@@ -78,6 +79,7 @@ const input = (
   prePlayPlan: plan,
   perceivedCues,
   minimumCueConfidence: 0.5,
+  communicationTrust: 1,
 });
 
 const timing: DefensiveDecisionTimingParameters = {
@@ -214,5 +216,111 @@ describe('DefensiveDecision local choice', () => {
       kind: 'base_cover',
       base: 1,
     });
+  });
+});
+
+
+describe('DefensiveDecision communication evidence', () => {
+  const coverCall = (
+    receivedAt: number,
+    confidence: number,
+  ) => ({
+    event: {
+      sourceId: 'first-baseman',
+      targetScope: { kind: 'player' as const, playerId: 'pitcher' },
+      kind: 'callout' as const,
+      issuedAt: 1_100_000,
+      content: {
+        kind: 'cover_base' as const,
+        base: 1 as const,
+      } satisfies DefensiveCommunicationContent,
+    },
+    receivedAt,
+    confidence,
+  });
+
+  it('can add a local first-base cover candidate after a recognized callout arrives', () => {
+    const world = perceivedWorld();
+    const decisionInput: DefensiveDecisionInput = {
+      ...input([]),
+      communicationTrust: 0.8,
+      perceivedWorld: {
+        ...world,
+        communications: [coverCall(1_150_000, 0.9)],
+      },
+    };
+
+    const candidates = generateDefensiveIntentCandidates(decisionInput);
+    const cover = candidates.find((candidate) => (
+      candidate.intent.kind === 'base_cover' && candidate.intent.base === 1
+    ));
+
+    expect(cover).toEqual({
+      intent: { kind: 'base_cover', base: 1 },
+      localPriority: 0.6480000000000001,
+      evidenceAvailableAt: 1_150_000,
+      evidenceKinds: ['communication:cover_base', 'pre_play_plan'],
+    });
+    expect(decideDefensiveIntent(decisionInput, 1, timing).intent).toEqual({
+      kind: 'base_cover',
+      base: 1,
+    });
+  });
+
+  it('does not expose a callout before its receivedAt tick', () => {
+    const world = perceivedWorld();
+    const decisionInput: DefensiveDecisionInput = {
+      ...input([]),
+      perceivedWorld: {
+        ...world,
+        communications: [coverCall(1_200_001, 1)],
+      },
+    };
+
+    expect(generateDefensiveIntentCandidates(decisionInput).some((candidate) => (
+      candidate.intent.kind === 'base_cover'
+    ))).toBe(false);
+  });
+
+  it('does not force obedience when another local candidate has higher priority', () => {
+    const world = perceivedWorld();
+    const decisionInput: DefensiveDecisionInput = {
+      ...input([]),
+      communicationTrust: 0.5,
+      prePlayPlan: {
+        ...plan,
+        holdPriority: 0.8,
+      },
+      perceivedWorld: {
+        ...world,
+        communications: [coverCall(1_150_000, 0.9)],
+      },
+    };
+
+    expect(decideDefensiveIntent(decisionInput, 1, timing).intent).toEqual({
+      kind: 'hold',
+    });
+  });
+
+  it('ignores a player-targeted callout meant for someone else', () => {
+    const world = perceivedWorld();
+    const wrongTarget = {
+      ...coverCall(1_150_000, 1),
+      event: {
+        ...coverCall(1_150_000, 1).event,
+        targetScope: { kind: 'player' as const, playerId: 'shortstop' },
+      },
+    };
+    const decisionInput: DefensiveDecisionInput = {
+      ...input([]),
+      perceivedWorld: {
+        ...world,
+        communications: [wrongTarget],
+      },
+    };
+
+    expect(generateDefensiveIntentCandidates(decisionInput).some((candidate) => (
+      candidate.intent.kind === 'base_cover'
+    ))).toBe(false);
   });
 });
