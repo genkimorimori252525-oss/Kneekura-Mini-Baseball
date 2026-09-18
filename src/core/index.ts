@@ -53,6 +53,7 @@ export * from './sim/perception/ObservationQuality';
 export * from './sim/perception/ObservationCapture';
 export * from './sim/plateAppearance/ContactVerticalSlice';
 export * from './rules/PhysicalRuleFacts';
+export * from './rules/PitchCountRule';
 export * from './rules/BatterRunnerFirstBaseRule';
 export * from './rules/BatterRunnerFirstBasePhysicalAdapter';
 export * from './rules/FirstBasePhysicalRace';
