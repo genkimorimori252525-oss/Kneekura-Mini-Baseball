@@ -33,9 +33,8 @@ The realism branch `jolly/core-realism-2026-09-18` is explicitly included in the
 
 Latest checked run:
 
-- run: `35368689869`
-- head: `a375f17c7ed628106e058c75ca084a01f5ae99a4`
-- job: `105677225393`
+- run: `35374605319`
+- head: `15e3add70d71b2bde29d3969cf48a374a302f019`
 - conclusion: `failure`
 - category: `billing_or_budget_restriction`
 - source: `check_annotation`
@@ -65,6 +64,34 @@ So there are currently two independent execution blockers:
 2. Local isolated Love-Github workspace: Docker Desktop Linux engine unavailable.
 
 Neither is evidence of a P9 source failure.
+
+## Bounded manual source validation
+
+Even though the Docker-backed Love-Github workspace is unavailable, the latest P9 hardening files and their real direct Core dependencies were read from exact head `15e3add70d71b2bde29d3969cf48a374a302f019` and reconstructed into a temporary local check directory.
+
+The environment has Node 22.16.0 and TypeScript 5.8.3.
+
+Results:
+
+- strict TypeScript subset typecheck: **PASS**;
+- runtime smoke: **PASS** (`P9_SMOKE_OK`).
+
+The smoke explicitly checked:
+
+- locale-independent canonical object-key ordering;
+- recursive corpus freezing;
+- fixed-seed builder mutation rejection;
+- alignment evaluator mutation rejection;
+- rejection of a seed that would wrap past uint32.
+
+This evidence is useful for the newly changed P9 modules, but it is not equivalent to:
+
+- `npm install`;
+- repository `npm run typecheck`;
+- full Vitest;
+- GitHub Actions acceptance.
+
+Therefore fingerprint freezing remains prohibited.
 
 ## Recovery condition
 

@@ -10,11 +10,11 @@
 | --- | --- | --- | --- |
 | canonical evidence serialization | **implemented** | `CanonicalEvidenceFingerprint` | sorted object keys, ordered arrays, exact integer ticks, finite numbers only |
 | deterministic regression fingerprint | **implemented** | 16-hex regression fingerprint | regression identity only; not cryptographic security |
-| fixed-seed corpus contract | **implemented** | `FixedSeedRegressionCorpus` | scenario data separated from expected results |
+| fixed-seed corpus contract | **implemented + hardened** | `FixedSeedRegressionCorpus` | uint32 seed domain, recursive freeze, scenario data separated from expected results |
 | fixed-seed corpus runner | **implemented** | `FixedSeedRegressionRunner` | reports unfrozen / match / mismatch without rewriting baseline |
 | causal debug trace | **implemented** | `CausalDebugTrace` | ordered input→perception→strategy→decision→execution→rules→final evidence |
 | same-contact alignment comparison | **implemented** | `SameContactAlignmentComparison` | exact same canonical contact set reused across alignments |
-| evaluator mutation guard | **implemented** | canonical clone + pre/post fingerprint | alignment/contact evidence cannot be altered to create a false shift effect |
+| evaluator mutation guard | **implemented + hardened** | canonical clone + recursive freeze + pre/post fingerprint | transient or persistent alignment/contact mutation cannot be used to create a false shift effect |
 | batch aggregate statistics | **implemented** | `BatchValidationStatistics` | outs/hits/TB/runs/extra bases/fieldable hit rate |
 | performance measurement | **implemented** | `ValidationPerformanceHarness` | wall clock is measurement-only and never passed into scenario execution |
 | Natural read-only contract | **implemented** | `NaturalReadOnlySnapshot` | canonical clone + deep runtime freeze |
@@ -263,16 +263,62 @@ The canonical source fingerprint remains identical.
 
 This closes the core requirement that rendering does not influence baseball results.
 
+## Post-foundation determinism hardening
+
+Before any expected fingerprint is frozen, the P9 validation boundary was tightened further.
+
+Candidate source head after hardening:
+
+- `15e3add70d71b2bde29d3969cf48a374a302f019`
+
+Changes:
+
+1. canonical object keys no longer use `localeCompare`; ordering now uses locale-independent JavaScript string code-unit comparison;
+2. fixed-seed builders receive recursively frozen canonical clones rather than writable clones;
+3. same-contact alignment evaluators receive recursively frozen contact/alignment clones;
+4. post-evaluation fingerprints remain as a second mutation-detection layer;
+5. fixed-seed `matchSeed` is restricted to the same unsigned 32-bit domain consumed by Core RNG;
+6. constructed fixed-seed corpora are recursively frozen so baseline identity cannot drift after creation.
+
+These are source hardening changes, not a frozen behavioral baseline.
+
+### Partial local validation
+
+Because GitHub Actions still does not start, a bounded local check was performed from source files read at exact head `15e3add7...`.
+
+The checked subset included:
+
+- `CanonicalEvidenceFingerprint`;
+- `FixedSeedRegressionCorpus`;
+- `FixedSeedRegressionRunner`;
+- `SameContactAlignmentComparison`;
+- their real direct Core type dependencies.
+
+Evidence:
+
+- TypeScript 5.8.3 strict/no-unused local subset typecheck: **PASS**;
+- Node runtime smoke for locale-independent canonical ordering: **PASS**;
+- recursive fixed-seed corpus freeze: **PASS**;
+- fixed-seed builder mutation rejection: **PASS**;
+- alignment evaluator mutation rejection: **PASS**;
+- uint32 wrapped-seed rejection: **PASS**;
+- smoke marker: `P9_SMOKE_OK`.
+
+This is deliberately **not** treated as `npm run verify`, Vitest full-suite acceptance, or repository GREEN.
+
 ## CI caveat
 
 Latest GitHub Actions evidence:
 
-- run `35368386921`;
-- head `c03a42ae96371a7ccf8e242694ec70bb7c4dca89`;
-- verify job `105676242863`;
-- `steps=[]`.
+- run `35374605319`;
+- head `15e3add70d71b2bde29d3969cf48a374a302f019`;
+- conclusion: `failure`;
+- category: `billing_or_budget_restriction`;
+- source: GitHub check annotation.
 
-The workflow still fails before repository commands execute.
+GitHub reports that the job was not started because recent account payments failed or the spending limit needs to be increased.
+
+The workflow therefore still fails before repository commands execute.
 
 Therefore:
 - repository GREEN is **not** claimed;
