@@ -13,8 +13,13 @@ CanonicalMatchState
         ↓
 createCanonicalPlateAppearanceTimeline
         ↓
-[counted pitch adjudication]
-  ball / called strike / swinging strike / foul / foul bunt
+physical PitchTrajectory
+        ↓
+take / swing
+        ↓
+plate crossing OR BatBallContact
+        ↓
+ball / called strike / swinging strike
         ↓
 existing PitchCountRule
         ↓
@@ -22,27 +27,33 @@ continue | walk | strikeout
 
 OR
 
-existing BatBallContactResult
+BatBallContact
         ↓
-recordBatBallContact
+batted_ball_pending
         ↓
-live_ball
+BallFlight / first-ground / fielder-touch evidence
         ↓
-existing ball / fielding / running / rule slices
+fair / foul disposition
+        ├─ foul -> existing PitchCountRule
+        └─ fair -> live_ball
+                    ↓
+              fielding / running / RuleEngine
+                    ↓
+                 play end
 ```
 
 ## Permanent constraints
 
 - P2 does not create a second pitch/contact physics implementation.
-- Counted non-contact pitch outcomes enter through an explicit adjudication boundary.
-- `ball_in_play` cannot be injected through that counted-pitch boundary.
-- The only first-slice route into `live_ball` is an actual existing `BatBallContactResult`.
+- Counted non-contact pitch outcomes are limited to physical take/swing results: `ball`, `called_strike`, `swinging_strike`.
+- `ball_in_play`, `foul`, and `foul_bunt` cannot be injected through that counted-pitch boundary.
+- `BatBallContactResult` creates `batted_ball_pending`, not `live_ball`; physical fair/foul disposition must occur before a fair ball becomes live.
 - Timeline event ticks never move backward.
 - `TimedMatchEvent.sequence` provides stable storage ordering only; equal ticks remain physically simultaneous.
-- A terminal walk/strikeout/live-ball timeline rejects further pitch records.
+- A terminal walk/strikeout or non-active batted-ball timeline rejects further pitch records; an uncaught foul may return the same ledger to `active` and resume the same plate appearance.
 - The timeline owns a single `playId` inherited from `CanonicalMatchState`.
 - P1 rule modules remain the only source of count semantics.
-- This first slice does not yet advance batting order, force runners on a walk, or mutate score/bases after a live play. Those are later P2 state-application stages.
+- Walk force advancement, strikeout state application, live-ball state application, and `playId` progression are implemented. Batting-order ownership remains a later P2/P7 boundary.
 - Presentation is a read-only consumer.
 
 ### Task 1: Canonical plate-appearance event ledger
@@ -146,3 +157,133 @@ CanonicalMatchState
 ```
 
 After that, connect the existing physical contact/ball-flight/fielding slices into one chronological plate-appearance coordinator.
+
+
+---
+
+## Implementation checkpoint — 2026-09-18 later pass
+
+P2 has advanced beyond the original first-slice plan.
+
+### Physical pitch path
+
+Implemented:
+
+```text
+PitchTrajectory
+  -> exact plate crossing
+  -> geometric strike-zone overlap
+  -> TakenPitchPhysicalResult
+  -> TakenPitchPlateCrossed event
+  -> PitchCountRule
+```
+
+and:
+
+```text
+PitchTrajectory
+  + BatterSwingWindow
+  -> shared BatBallContact equation
+  -> contact OR swinging miss
+  -> canonical timeline
+```
+
+The same pitch/contact physics is used rather than adding a result-probability path.
+
+### Multi-pitch plate appearance
+
+Implemented:
+- `PitchAgainstBatter`;
+- `PlateAppearancePitchSequence`;
+- `PlateAppearanceSequenceCoordinator`;
+- continued pitch processing after a physical foul returns the timeline to `active`;
+- physical strikeout/walk through to the next `CanonicalMatchState`;
+- active/pending/unresolved states do not mutate match state prematurely.
+
+A single plate appearance can now carry multiple physical pitch events in one ledger.
+
+### Contact disposition correction
+
+An architectural error was caught and fixed:
+
+```text
+WRONG:
+BatBallContact -> live_ball
+
+CURRENT:
+BatBallContact
+  -> batted_ball_pending
+  -> physical disposition evidence
+  -> fair -> live_ball
+  -> foul -> count / caught-foul live action
+```
+
+The legacy `ContactVerticalSlice` no longer marks raw contact as `liveBattedBall=true`.
+
+`BatBallContactResult` now preserves the physical ball center and can directly create a `BattedBallInitialState`.
+
+### Batted-ball physical evidence
+
+Implemented:
+
+```text
+BatBallContact
+  -> BattedBallInitialState
+  -> BallFlight
+  -> exact first ground contact
+  -> FairTerritoryGeometry
+  -> BattedBallFirstGroundContact event
+```
+
+The first-ground physical fact does not itself decide fair/foul.
+
+### Limited safe fair/foul automation
+
+Implemented the rule-safe subset for an untouched batted ball whose **first ground contact occurs beyond first or third base**.
+
+For that subset:
+
+```text
+first ground contact
+  + foul-line geometry
+  + first/second/third-base gates
+  + explicit no-prior-fielder-touch guarantee
+        ↓
+fair OR foul
+        ↓
+fair -> live_ball
+foul -> dead-ball foul count semantics
+```
+
+A first ground contact before the first/third-base gates remains `not_decisive`; the engine does not guess. It still needs later evidence such as crossing/passing a base in fair territory, settling, or fielder touch.
+
+Grounded foul handling no longer requires inventing a fake fly-catch/fielder-touch result.
+
+### Ground-ball live-play completion
+
+Implemented:
+- existing `GroundBallFirstBaseRuleEngineResult` -> resolved live-ball state adapter;
+- pending-run finalization at authoritative play end;
+- third-out run suppression preservation;
+- completed live-ball timeline required before MatchState application;
+- final bases come from authoritative running evidence, not P2 inference;
+- `GroundBallPlateAppearanceCoordinator` closes fair live-ball play through next `CanonicalMatchState`.
+
+### Current continuation point
+
+Do **not** return to defender anatomy.
+
+Continue P2 fair/foul + batted-ball chronology:
+
+1. resolve before-base first-ground cases using later physical evidence rather than first landing alone;
+2. add first-fielder-touch territory evidence as another decisive fair/foul path;
+3. connect fair disposition to full BallFlight / fielding chronology without duplicate simulation;
+4. cover caught-foul play-end -> MatchState including tag-up/runs;
+5. finish deterministic whole-plate-appearance replay acceptance.
+
+Latest CI evidence at this checkpoint:
+- run `35336211983`
+- job `105571527953`
+- `steps=[]`
+
+Repository GREEN is still not claimed because workflow commands never executed.
