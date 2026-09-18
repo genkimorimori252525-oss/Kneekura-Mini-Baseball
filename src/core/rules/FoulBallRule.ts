@@ -11,7 +11,7 @@ export type FoulBallRuleInput = Readonly<{
   territory: FoulBallTerritory;
   buntAttempt: boolean;
   count: PitchCountState;
-  flyCatch: FlyCatchRuleResult;
+  flyCatch: FlyCatchRuleResult | null;
 }>;
 
 export type FoulBallRuleResult =
@@ -42,6 +42,21 @@ export const resolveFoulBallRule = (
   if (input.territory === 'fair') {
     return {
       kind: 'not_foul',
+    };
+  }
+
+  if (input.flyCatch === null) {
+    return {
+      kind: 'uncaught_foul',
+      ballDead: true,
+      countResult: resolvePitchCountRule(
+        input.count,
+        {
+          kind: input.buntAttempt
+            ? 'foul_bunt'
+            : 'foul',
+        },
+      ),
     };
   }
 
