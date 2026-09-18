@@ -134,6 +134,7 @@ import {
   resolveTagOutScoringRule,
   resolveTakenPitchPhysicalResult,
   resolveAndRecordPitchAgainstBatter,
+  resolvePlateAppearancePitchSequence,
   resolveSwingingPitchPhysicalResult,
   resolveDefensiveDecisionTiming,
   resolveBatterStanceWorldPosition,
@@ -333,6 +334,7 @@ describe('core package', () => {
     expect(typeof resolveSwingingPitchPhysicalResult).toBe('function');
     expect(typeof recordSwingingPitchPhysicalResult).toBe('function');
     expect(typeof resolveAndRecordPitchAgainstBatter).toBe('function');
+    expect(typeof resolvePlateAppearancePitchSequence).toBe('function');
   });
 
   it('exposes the canonical plate-appearance timeline through Core', () => {
