@@ -87,6 +87,8 @@ export function createMiniPresentationSampleSchedule(
 export function buildMiniPresentationTimeline(
   samples: readonly CanonicalPresentationSample[],
   events: readonly TimedMatchEvent[],
+  preContactCameraMode:
+    'BATTER_POV' | 'PITCHER_POV' = 'BATTER_POV',
 ): readonly MiniPresentationFrame[] {
   assertStrictlyIncreasingSamples(samples);
 
@@ -114,7 +116,7 @@ export function buildMiniPresentationTimeline(
 
   const frames: MiniPresentationFrame[] = [];
   let cameraMode: MiniPresentationFrame['cameraMode'] =
-    'BATTER_POV';
+    preContactCameraMode;
 
   for (const sample of samples) {
     const tick = sample.world.tick;
