@@ -82,6 +82,9 @@ import {
   resolveTagUpAppealForMatch,
   resolveAdvantageousFourthOutForMatch,
   evaluatePitchReleaseInfieldSideForMatch,
+  establishInningInfieldSideAssignment,
+  evaluateInningInfieldSideLock,
+  evaluateInningInfieldSideLockForMatch,
   resolveTagOutScoringRule,
   resolveDefensiveDecisionTiming,
   resolveCommunicationReception,
@@ -200,6 +203,12 @@ describe('core package', () => {
     expect(typeof resolveBatterRunnerFirstBase).toBe('function');
     expect(typeof resolveThirdOutScoring).toBe('function');
     expect(typeof resolveGroundBallFirstBaseRule).toBe('function');
+  });
+
+  it('exposes NPB half-inning infield side locking through Core', () => {
+    expect(typeof establishInningInfieldSideAssignment).toBe('function');
+    expect(typeof evaluateInningInfieldSideLock).toBe('function');
+    expect(typeof evaluateInningInfieldSideLockForMatch).toBe('function');
   });
 
   it('exposes NPB 2026 pitch-release defensive alignment rules through Core', () => {
