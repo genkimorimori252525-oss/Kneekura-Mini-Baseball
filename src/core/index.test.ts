@@ -16,6 +16,9 @@ import {
   createControlledBaseContactFactFromCatchOutcomePhysics,
   createControlledBaseContactFactFromDefenderPhysics,
   createBatterStanceGeometry,
+  createPlayerPhysicalProfile,
+  getPlayerHeightScale,
+  deriveDefenderPhysicalReachCalibration,
   createBattedBallFlightEvidence,
   findBattedBallSettlingEvidence,
   findFirstRollingBattedBallFirstThirdBaseContact,
@@ -320,6 +323,12 @@ describe('core package', () => {
 
   it('exposes physical throw-reception contact through Core', () => {
     expect(typeof createCatchRetentionContactFromAcceleratedReception).toBe('function');
+  });
+
+  it('exposes P3 player physical profile calibration through Core', () => {
+    expect(typeof createPlayerPhysicalProfile).toBe('function');
+    expect(typeof getPlayerHeightScale).toBe('function');
+    expect(typeof deriveDefenderPhysicalReachCalibration).toBe('function');
   });
 
   it('exposes defender base-foot reach physics through Core', () => {
