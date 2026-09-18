@@ -7,6 +7,7 @@ import {
 import {
   createCanonicalPlateAppearanceTimeline,
   recordBatBallContact,
+  recordFairBattedBall,
   recordLiveBallPlayEnd,
 } from './CanonicalPlateAppearanceTimeline';
 import {
@@ -61,12 +62,16 @@ const liveTimeline = (
   if (contact === null) {
     throw new Error('fixture must produce physical contact');
   }
-  return recordBatBallContact(
+  const contacted = recordBatBallContact(
     createCanonicalPlateAppearanceTimeline(
       match,
       59_900_000,
     ),
     contact,
+  );
+  return recordFairBattedBall(
+    contacted,
+    contact.tick,
   );
 };
 
