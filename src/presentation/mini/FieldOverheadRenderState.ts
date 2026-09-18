@@ -61,6 +61,7 @@ export type FieldOverheadRenderState = Readonly<{
   defenders: readonly FieldOverheadDefenderPoint[];
   runners: readonly FieldOverheadRunnerPoint[];
   ball: FieldOverheadBallPoint | null;
+  ballTrail: readonly MiniBallTrailPoint[];
 }>;
 
 export type FieldOverheadRenderStateInput = Readonly<{
@@ -71,6 +72,8 @@ export type FieldOverheadRenderStateInput = Readonly<{
   >;
   dotCalibration?: MiniPlayerDotSizeCalibration;
   ballHeightCalibration?: MiniBallHeightCalibration;
+  historySamples?: readonly CanonicalPresentationSample[];
+  maximumBallTrailPoints?: number;
 }>;
 
 const validateFinite = (
@@ -259,10 +262,19 @@ export const buildFieldOverheadRenderState = (
         };
       })();
 
+  const ballTrail = buildMiniBallTrail({
+    history: input.historySamples ?? [],
+    currentTick: input.sample.world.tick,
+    camera: input.camera,
+    maximumTrailPoints:
+      input.maximumBallTrailPoints ?? 4,
+  });
+
   return {
     tick: input.sample.world.tick,
     defenders,
     runners,
     ball,
+    ballTrail,
   };
 };
