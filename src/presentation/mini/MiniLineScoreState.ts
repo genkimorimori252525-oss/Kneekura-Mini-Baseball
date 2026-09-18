@@ -46,23 +46,29 @@ export const buildMiniLineScoreState = (
     options.minimumInningColumns,
   );
 
-  const latestRecordedInning = (
+  const latestSlotInning = (
     snapshot.innings.at(-1)?.inning ?? 0
   );
 
-  if (
-    options.currentInning
-    < latestRecordedInning
-  ) {
+  const impossibleFutureScore =
+    snapshot.innings.some((inning) => (
+      inning.inning > options.currentInning
+      && (
+        inning.awayRuns !== null
+        || inning.homeRuns !== null
+      )
+    ));
+
+  if (impossibleFutureScore) {
     throw new Error(
-      'currentInning must not precede the latest recorded line-score inning',
+      'line-score cannot contain recorded future-inning runs after currentInning',
     );
   }
 
   const displayColumns = Math.max(
     options.minimumInningColumns,
     options.currentInning,
-    latestRecordedInning,
+    latestSlotInning,
   );
 
   const byInning = new Map(
