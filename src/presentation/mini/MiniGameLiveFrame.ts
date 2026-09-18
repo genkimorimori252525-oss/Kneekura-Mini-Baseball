@@ -43,6 +43,8 @@ export type MiniGameLiveFrameInput = Readonly<{
   >;
   dotCalibration?: MiniPlayerDotSizeCalibration;
   ballHeightCalibration?: MiniBallHeightCalibration;
+  historySamples?: readonly MiniPresentationFrame['sample'][];
+  maximumBallTrailPoints?: number;
   eventPlayIdResolver?: (
     event: TimedMatchEvent,
   ) => number | null;
@@ -102,6 +104,9 @@ export const buildMiniGameLiveFrame = (
       dotCalibration: input.dotCalibration,
       ballHeightCalibration:
         input.ballHeightCalibration,
+      historySamples: input.historySamples,
+      maximumBallTrailPoints:
+        input.maximumBallTrailPoints,
     }),
   };
 };
