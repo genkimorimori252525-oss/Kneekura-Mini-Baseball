@@ -54,6 +54,7 @@ export * from './sim/plateAppearance/ContactVerticalSlice';
 export * from './rules/PhysicalRuleFacts';
 export * from './rules/BatterRunnerFirstBaseRule';
 export * from './rules/BatterRunnerFirstBasePhysicalAdapter';
+export * from './rules/FirstBasePhysicalRace';
 export * from './rules/DefenderControlledBaseContactPhysicalAdapter';
 export * from './rules/ThirdOutScoring';
 export * from './rules/RuleEngine';
