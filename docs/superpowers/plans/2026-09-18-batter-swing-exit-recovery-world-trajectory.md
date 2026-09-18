@@ -1,6 +1,6 @@
 # Batter Swing-Exit Recovery World Trajectory Plan
 
-**Status:** IMPLEMENTATION IN PROGRESS.
+**Status:** IMPLEMENTATION COMPLETE; GitHub Actions remains pre-step blocked.
 
 **Goal:** Expose deterministic world-space body motion throughout the swing-exit recovery interval so Presentation never invents or interpolates batter movement that the Match Core did not calculate.
 
@@ -67,3 +67,53 @@ Prove:
 ### Task 4: Core API + evidence
 
 Export through Core and retry P0 Core CI without claiming repository GREEN while Actions remains pre-step blocked.
+
+
+---
+
+## Completion evidence
+
+Implemented through HEAD `89832b89c44c5184ff7561ecee88646d05ad88bd`:
+
+- analytic swing-exit recovery trajectory in canonical world X/Z;
+- deterministic sampling by authoritative tick;
+- continuous positive route-directed residual motion;
+- two-phase bounded-acceleration lateral excursion and return to the route line;
+- two-phase bounded-acceleration backward excursion and return to the route origin;
+- continuous signed body-facing rotation toward the first-base route tangent;
+- launch-tick clamping to the exact physical recovery duration when integer tick quantization rounds upward;
+- projection to `BaserunnerWorldState`;
+- explicit initial-straight-route validation for the current batter-to-first slice;
+- regression proving the trajectory launch sample and existing `RunnerMotion` launch projection have matching position and velocity, so no spatial/velocity snap occurs;
+- shared Core API export.
+
+TDD checkpoints:
+- `2356bd2b...`: recovery-world-trajectory RED fixtures;
+- `d16bf7db...`: analytic trajectory implementation;
+- `9b72017d...`: shared Core API RED;
+- `89832b89...`: shared Core API export.
+
+Repository CI:
+- P0 Core run `35319788600` for `89832b89...` failed before any workflow command executed;
+- job `105519499252` reports `steps=[]`;
+- full-repository GREEN is not claimed.
+
+## Resulting physical chain
+
+```text
+bat-ball contact
+  ↓
+swing-exit body state
+  ↓
+analytic recovery world trajectory
+  ↓
+route-aligned launch boundary
+  ↓
+RunnerMotion
+  ↓
+RunnerBaseTouch
+  ↓
+exact first-base touch
+```
+
+This chain now exposes world-space motion throughout the previously missing transition interval rather than forcing Presentation to invent it.
