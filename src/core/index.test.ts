@@ -41,7 +41,10 @@ import {
   projectDefenderWorldState,
   projectRunnerWorldState,
   resolveCatchRetention,
+  resolveBatterRunnerFirstBase,
   resolveDefensiveMovementTarget,
+  resolveGroundBallFirstBaseRule,
+  resolveThirdOutScoring,
   resolveDefensiveDecisionTiming,
   resolveCommunicationReception,
   sampleRunnerPhysicalTouchPoint,
@@ -142,6 +145,12 @@ describe('core package', () => {
     expect(typeof findAcceleratedSphereContactTick).toBe('function');
     expect(typeof findAcceleratedGloveBallContactTick).toBe('function');
     expect(typeof findAcceleratedTagContactTick).toBe('function');
+  });
+
+  it('exposes the first Correct Rule Result foundation through the shared Core API', () => {
+    expect(typeof resolveBatterRunnerFirstBase).toBe('function');
+    expect(typeof resolveThirdOutScoring).toBe('function');
+    expect(typeof resolveGroundBallFirstBaseRule).toBe('function');
   });
 
   it('exposes exact physical tag contact timing through the shared Core API', () => {
