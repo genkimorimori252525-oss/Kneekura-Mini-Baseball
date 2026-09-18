@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { CanonicalWorldSnapshot } from '../../model/CanonicalWorldSnapshot';
+import type { BaseTouchRegion } from './BaseTouch';
+import type { RunnerBodyContactParameters } from './RunnerBodyContact';
 import {
   createBatterRunnerFirstBaseFrame,
   createBatterRunnerFirstBaseRoute,
@@ -13,6 +15,7 @@ import {
 import {
   applyBatterRunnerWorldTimelineToSnapshot,
   buildBatterRunnerWorldTimeline,
+  findBatterRunnerPostLaunchBaseTouchTick,
   sampleBatterRunnerWorldTimeline,
 } from './BatterRunnerWorldTimeline';
 import {
@@ -23,6 +26,7 @@ import {
   createRunnerMotionStateFromSwingExitTransition,
 } from './BatterSwingExitRunTransition';
 import { projectRunnerWorldState } from './RunnerWorldProjection';
+import { findRunnerBaseTouchTick } from './RunnerBaseTouch';
 import { sampleRunnerRoute } from './RunnerRoute';
 
 const FEET_TO_METERS = 0.3048;
@@ -179,6 +183,48 @@ describe('unified batter-runner world timeline', () => {
 
     expect(sampled.phase).toBe('runner_motion');
     expect(sampled.world).toEqual(directWorld);
+  });
+
+  it('resolves post-launch first-base touch from the same prebuilt trajectory used for world sampling', () => {
+    const currentRecovery = recovery();
+    const built = buildBatterRunnerWorldTimeline({
+      playerId: 'batter',
+      route,
+      recovery: currentRecovery,
+      postLaunchIntent: {
+        kind: 'advance',
+        issuedTick: currentRecovery.transition.launchTick,
+      },
+      runnerMotionParameters: runnerParameters,
+      endTick: currentRecovery.transition.launchTick + 4_000_000,
+    });
+    const base: BaseTouchRegion = {
+      center: frame.firstBaseCenter,
+      halfSize: { x: 0.2, z: 0.2 },
+      rotationRadians: 0,
+    };
+    const body: RunnerBodyContactParameters = {
+      uprightLeadMeters: 0.25,
+      slideLeadMeters: 0.6,
+    };
+
+    const timelineTouch = findBatterRunnerPostLaunchBaseTouchTick(
+      built,
+      base,
+      body,
+    );
+    const wrapperTouch = findRunnerBaseTouchTick(
+      built.launchState,
+      built.postLaunchIntent,
+      built.route,
+      base,
+      built.endTick - built.recovery.transition.launchTick,
+      built.runnerMotionParameters,
+      body,
+    );
+
+    expect(timelineTouch).not.toBeNull();
+    expect(timelineTouch).toBe(wrapperTouch);
   });
 
   it('rejects sampling outside the configured authoritative interval', () => {
