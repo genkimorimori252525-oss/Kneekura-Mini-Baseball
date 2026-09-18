@@ -7,6 +7,9 @@ import type {
 import type {
   BatBallContactResult,
 } from '../contact/BatBallContact';
+import type {
+  PlayEndFact,
+} from '../../rules/PhysicalRuleFacts';
 import {
   resolvePitchCountRule,
   type PitchCountAdjudication,
@@ -41,6 +44,12 @@ export type CanonicalPlateAppearanceStatus =
     kind: 'live_ball';
     count: PitchCountState;
     contactTick: number;
+  }>
+  | Readonly<{
+    kind: 'live_ball_complete';
+    count: PitchCountState;
+    contactTick: number;
+    playEndTick: number;
   }>;
 
 export type PitchAdjudicatedEventPayload = Readonly<{
@@ -54,6 +63,10 @@ export type CanonicalBatBallContactEventPayload = Readonly<{
   contact: BatBallContactResult;
 }>;
 
+export type CanonicalLiveBallPlayEndEventPayload = Readonly<{
+  playEnd: PlayEndFact;
+}>;
+
 export type CanonicalPlateAppearanceEvent =
   | TimedMatchEvent<
       'PitchAdjudicated',
@@ -62,6 +75,10 @@ export type CanonicalPlateAppearanceEvent =
   | TimedMatchEvent<
       'BatBallContact',
       CanonicalBatBallContactEventPayload
+    >
+  | TimedMatchEvent<
+      'LiveBallPlayEnded',
+      CanonicalLiveBallPlayEndEventPayload
     >;
 
 export type CanonicalPlateAppearanceTimeline = Readonly<{
@@ -240,6 +257,46 @@ export const recordBatBallContact = (
       kind: 'live_ball',
       count: result.count,
       contactTick: contact.tick,
+    },
+    events: [...timeline.events, event],
+  };
+};
+
+
+export const recordLiveBallPlayEnd = (
+  timeline: CanonicalPlateAppearanceTimeline,
+  playEnd: PlayEndFact,
+): CanonicalPlateAppearanceTimeline => {
+  if (timeline.status.kind !== 'live_ball') {
+    throw new Error(
+      'live-ball play end requires an active live-ball timeline',
+    );
+  }
+  assertMonotonicTick(timeline, playEnd.tick);
+  if (playEnd.tick < timeline.status.contactTick) {
+    throw new Error(
+      'live-ball play end must not precede bat-ball contact',
+    );
+  }
+
+  const event: CanonicalPlateAppearanceEvent = {
+    tick: playEnd.tick,
+    sequence: timeline.nextSequence,
+    kind: 'LiveBallPlayEnded',
+    payload: {
+      playEnd,
+    },
+  };
+
+  return {
+    ...timeline,
+    lastEventTick: playEnd.tick,
+    nextSequence: timeline.nextSequence + 1,
+    status: {
+      kind: 'live_ball_complete',
+      count: timeline.status.count,
+      contactTick: timeline.status.contactTick,
+      playEndTick: playEnd.tick,
     },
     events: [...timeline.events, event],
   };
