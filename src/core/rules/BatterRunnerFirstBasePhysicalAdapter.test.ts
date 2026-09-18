@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { BaseTouchRegion } from '../sim/running/BaseTouch';
 import { createSecuredCatchOutcome } from '../sim/fielding/CatchOutcome';
+import {
+  resolveCatchRetention,
+  type CatchRetentionContact,
+  type CatchRetentionParameters,
+} from '../sim/fielding/CatchRetention';
 import type { DefenderPhysicalPrimitiveSegment } from '../sim/fielding/DefenderPhysicalPrimitive';
 import type { RunnerBodyContactParameters } from '../sim/running/RunnerBodyContact';
 import {
@@ -20,6 +25,7 @@ import {
 } from './PhysicalRuleFacts';
 import {
   createBatterRunnerFirstBaseTouchFactFromTimeline,
+  resolveBatterRunnerFirstBaseFromPhysicalCatchRace,
   resolveBatterRunnerFirstBaseFromPhysicalRace,
   resolveBatterRunnerFirstBaseFromTimeline,
   resolveGroundBallFirstBaseRuleFromPhysicalRace,
@@ -75,6 +81,42 @@ const footOnFirst = (): DefenderPhysicalPrimitiveSegment => ({
   startVelocity: { x: 0, y: 0, z: 0 },
   acceleration: { x: 0, y: 0, z: 0 },
 });
+
+const retentionParameters: CatchRetentionParameters = {
+  ticksPerSecond: 1_000_000,
+  ballMassKg: 0.145,
+  ballRadiusMeters: 0.0366,
+  pocketRadiusMeters: 0.1,
+  centerRetentionCapacityJ: 10,
+  captureDissipationPowerW: 700,
+  failedContactRestitution: 0.25,
+  failedTangentialDamping: 0.4,
+  failedSpinDamping: 0.2,
+};
+
+const retentionAt = (
+  tick: number,
+  ballSpeedMps: number,
+) => {
+  const contact: CatchRetentionContact = {
+    contactTick: tick,
+    ball: {
+      tick,
+      position: { x: 1, y: 1, z: 1 },
+      velocity: { x: ballSpeedMps, y: 0, z: 0 },
+      spin: { x: 0, y: 0, z: 0 },
+    },
+    glove: {
+      tick,
+      position: { x: 1, y: 1, z: 1 },
+      velocity: { x: 0, y: 0, z: 0 },
+    },
+    contactNormal: { x: 1, y: 0, z: 0 },
+    pocketOffsetMeters: 0,
+    bodyStability: 1,
+  };
+  return resolveCatchRetention(contact, retentionParameters);
+};
 
 const timeline = () => {
   const recovery = buildBatterSwingExitRecoveryTrajectory(
@@ -283,6 +325,62 @@ describe('BatterRunnerFirstBasePhysicalAdapter', () => {
       runnerId: 'batter',
       base: 1,
       tick: touchTick,
+    });
+  });
+
+  it('propagates actual catch-retention success into a fully physical first-base OUT', () => {
+    const built = timeline();
+    const touchTick = findBatterRunnerPostLaunchBaseTouchTick(
+      built,
+      firstBase,
+      bodyParameters,
+    ) as number;
+    const retention = retentionAt(touchTick - 1, 0);
+    expect(retention.outcome.kind).toBe('secured');
+
+    expect(resolveBatterRunnerFirstBaseFromPhysicalCatchRace({
+      timeline: built,
+      firstBase,
+      bodyParameters,
+      defender: {
+        defenderId: 'first-baseman',
+        baseSurfaceHeightMeters: 0,
+        catchOutcome: retention.outcome,
+        controlThroughTick: touchTick + 100_000,
+        contactPrimitives: [footOnFirst()],
+      },
+    })).toMatchObject({
+      kind: 'out',
+      defenderControlTick: touchTick - 1,
+      runnerTouchTick: touchTick,
+    });
+  });
+
+  it('propagates failed catch retention as missing defender control rather than inventing an out', () => {
+    const built = timeline();
+    const touchTick = findBatterRunnerPostLaunchBaseTouchTick(
+      built,
+      firstBase,
+      bodyParameters,
+    ) as number;
+    const retention = retentionAt(touchTick - 1, 50);
+    expect(retention.outcome.kind).toBe('live-ball');
+
+    expect(resolveBatterRunnerFirstBaseFromPhysicalCatchRace({
+      timeline: built,
+      firstBase,
+      bodyParameters,
+      defender: {
+        defenderId: 'first-baseman',
+        baseSurfaceHeightMeters: 0,
+        catchOutcome: retention.outcome,
+        controlThroughTick: touchTick + 100_000,
+        contactPrimitives: [footOnFirst()],
+      },
+    })).toEqual({
+      kind: 'unresolved',
+      runnerId: 'batter',
+      reason: 'missing_defender_control',
     });
   });
 
