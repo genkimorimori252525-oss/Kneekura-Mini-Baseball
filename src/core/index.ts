@@ -71,3 +71,5 @@ export * from './rules/AlignmentPenaltyFacts';
 export * from './rules/DefensiveAlignmentViolation';
 export * from './rules/OffenseAdvancementResult';
 export * from './rules/NPB2026AlignmentViolationPenalty';
+export * from './rules/InfieldBoundaryRegion';
+export * from './rules/PitchingMotionInfieldBoundaryRule';
