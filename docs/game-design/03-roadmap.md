@@ -1,7 +1,7 @@
 # 実装ロードマップと検証計画
 
 更新日: 2026-09-18
-状態: P0 完了。P1/P2 は大幅進行、P5/P6 は縦スライス先行実装中。P3/P4/P7 は本格着手前、P8 は表示基盤・試作のみ、P9 は未着手。
+状態: P0 完了。P1 は実装完了（CI外部ブロッカー）。P2 を主進行へ移行。P5/P6 は先行縦スライスを保持。P3/P4/P7 は本格着手前、P8 は表示基盤・試作のみ、P9 は未着手。
 
 ## 前提
 
@@ -22,7 +22,7 @@ Mini Baseball は将来の Natural Baseball と別の簡易試合ロジックを
 | Phase | 2026-09-18 時点 | 主な実装済み／未完 |
 | --- | --- | --- |
 | P0 | **完了** | Headless Core、決定論、整数tick、Canonical state境界 |
-| P1 | **大幅進行・未完** | `RuleProfile`、NPB 2026配置規則、フォース、第三アウト得点、タグ到達、タッグアップ/アピール、第四アウト等。ファウル/インフィールドフライ等を含むP1全受入条件の総点検は未完 |
+| P1 | **実装完了（CI外部ブロッカー）** | `RuleProfile`、NPB 2026配置規則、フォース、第三アウト得点、タグ到達、タッグアップ/アピール、第四アウト、pitch count、ファウル、ファウル飛球、インフィールドフライ、半回遷移。`P1RuleAcceptanceMatrix`で代表受入ケースを集約 |
 | P2 | **大幅進行・未完** | causal bat-ball contact、BallFlight、精密イベント時刻、Runner/Defender motion、glove contact/retention、world projection。一打席全投球を統合する正史進行は未完 |
 | P3 | **部分的な物理校正hookのみ** | catching/retention skill等の局所校正はあるが、公開/隠し査定の統一schemaと `PlayerPhysicalProfile` は未実装 |
 | P4 | **基礎のみ** | 任意配置を許すworld/alignmentとNPB合法性は進行。ScoutingEstimate・不確実性・監督の配置候補比較は未実装 |
@@ -38,9 +38,9 @@ Mini Baseball は将来の Natural Baseball と別の簡易試合ロジックを
 
 当面の順序は次を正とする。
 
-1. 現在進行中の「base-cover body target → body kinematics → foot reach → actual base contact」縦スライスを、依存境界の証明まで閉じる。
-2. **P1 gap audit**: NPB規則核の未完項目を一覧化し、P1完了条件を閉じる。
-3. **P2 canonical plate-appearance timeline**: 投球→打撃→接触/見逃し/ファウル→live ball→play end を一つの正史進行へ統合する。
+1. ~~base-cover body target → body kinematics → foot reach → actual base contact~~ **完了**。
+2. ~~P1 gap audit / P1 core acceptance~~ **実装完了**（Actionsは`steps=[]`で未実行）。
+3. **現在の主作業: P2 canonical plate-appearance timeline**。投球→打撃→接触/見逃し/ファウル→live ball→play end→MatchState更新を一つの正史進行へ統合する。
 4. **P3 rating/physical profile foundation**: 査定schemaと `PlayerPhysicalProfile` を導入し、体格・リーチ・速度等の校正入力を選手データへ接続する。
 5. P4のスカウティング/配置、P5の9人守備全体計画、P6の特殊走塁、P7の采配を順に閉じる。
 6. P8でMiniの点描表示を正史観測者として完成させ、P9でNatural移行と統計を固定する。
