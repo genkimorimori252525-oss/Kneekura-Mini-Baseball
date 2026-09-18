@@ -2,6 +2,10 @@
 
 **Status:** IMPLEMENTATION IN PROGRESS.
 
+**Parent roadmap:** P5 (Nine-defender decisions / coverage / throws), with P2 physical-world dependencies.
+
+**Stop condition:** This sub-plan exists only to prove `base-cover decision -> body cover position -> body kinematics -> bounded foot reach -> actual base contact`. Once that vertical boundary is regression-fixed, do not deepen defender anatomy here. Return to the master focus rotation in `2026-09-18-core-realism-master-progress.md` (P1 gap audit, then P2 canonical plate-appearance timeline).
+
 **Goal:** Stop sending defender body centers directly to the physical base center. Separate the immutable base landmark from the defender body cover target so body motion and foot/base contact can coexist physically.
 
 ## Architecture
