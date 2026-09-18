@@ -166,6 +166,8 @@ describe('FieldOverheadRenderState', () => {
       worldPosition: { x: 24, y: 1.2, z: 19 },
       screenPosition: { x: 123, y: 58 },
       altitudeMeters: 1.2,
+      heightTier: 1,
+      diameterPixels: 4,
     });
   });
 
