@@ -3,10 +3,15 @@ import {
   CORE_PROTOCOL_VERSION,
   advanceRunnerMotion,
   buildPlayerPerceivedWorldState,
+  capturePlanarObservation,
+  captureSpatialObservation,
+  composeObservationQuality,
   createLiveBallCatchOutcome,
   createObservationSample,
   createSecuredCatchOutcome,
   evaluateCatchRetentionLoad,
+  evaluateObservationGeometry,
+  estimateOcclusionVisibility,
   findBaseTouchTick,
   findFirstTrueTick,
   findGloveBallContactTick,
@@ -68,6 +73,14 @@ describe('core package', () => {
     expect(typeof predictPlanarObservationMemory).toBe('function');
     expect(typeof resolveCommunicationReception).toBe('function');
     expect(typeof buildPlayerPerceivedWorldState).toBe('function');
+  });
+
+  it('exposes observation geometry, occlusion, quality, and capture through the shared Core API', () => {
+    expect(typeof evaluateObservationGeometry).toBe('function');
+    expect(typeof estimateOcclusionVisibility).toBe('function');
+    expect(typeof composeObservationQuality).toBe('function');
+    expect(typeof capturePlanarObservation).toBe('function');
+    expect(typeof captureSpatialObservation).toBe('function');
   });
 
   it('exposes exact physical tag contact timing through the shared Core API', () => {
