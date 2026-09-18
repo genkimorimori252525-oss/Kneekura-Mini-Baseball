@@ -94,7 +94,42 @@ describe('MiniLineScoreState', () => {
     expect(snapshot).toEqual(before);
   });
 
-  it('rejects a current inning that predates authoritative recorded slots', () => {
+  it('allows future inning slots when they are still null', () => {
+    const padded = createCanonicalLineScoreSnapshot({
+      innings: [
+        { inning: 1, awayRuns: 1, homeRuns: 0 },
+        { inning: 2, awayRuns: 0, homeRuns: 2 },
+        { inning: 3, awayRuns: 0, homeRuns: 0 },
+        { inning: 4, awayRuns: 2, homeRuns: 0 },
+        { inning: 5, awayRuns: 0, homeRuns: 1 },
+        { inning: 6, awayRuns: null, homeRuns: null },
+        { inning: 7, awayRuns: null, homeRuns: null },
+        { inning: 8, awayRuns: null, homeRuns: null },
+        { inning: 9, awayRuns: null, homeRuns: null },
+      ],
+      totals: {
+        away: { runs: 3, hits: 7, errors: 1 },
+        home: { runs: 3, hits: 6, errors: 0 },
+      },
+    });
+
+    const result = buildMiniLineScoreState(
+      padded,
+      {
+        currentInning: 5,
+        minimumInningColumns: 9,
+      },
+    );
+
+    expect(result.innings).toHaveLength(9);
+    expect(result.innings[8]).toEqual({
+      inning: 9,
+      awayRuns: null,
+      homeRuns: null,
+    });
+  });
+
+  it('rejects authoritative scoring recorded after the current inning', () => {
     expect(() => buildMiniLineScoreState(
       snapshot,
       {
@@ -102,7 +137,7 @@ describe('MiniLineScoreState', () => {
         minimumInningColumns: 9,
       },
     )).toThrow(
-      'currentInning must not precede the latest recorded line-score inning',
+      'line-score cannot contain recorded future-inning runs after currentInning',
     );
   });
 });
