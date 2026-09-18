@@ -16,6 +16,7 @@ import {
   createLiveBallCatchOutcome,
   createObservationSample,
   createPlayEndFact,
+  createRunnerBaseDepartureFact,
   createSecuredCatchOutcome,
   createTagContactPrimitiveFromDefenderPrimitive,
   applyCatchExecutionTargetError,
