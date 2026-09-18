@@ -1,6 +1,6 @@
 # Defender Base Foot Reach Plan
 
-**Status:** IMPLEMENTATION IN PROGRESS.
+**Status:** IMPLEMENTATION COMPLETE; GitHub Actions remains pre-step blocked.
 
 **Parent roadmap:** P5 (Nine-defender decisions / coverage / throws), with P2 physical-world dependencies.
 
@@ -69,3 +69,32 @@ Replace hand-placed foot fixture in the end-to-end first-base physical race with
 ### Task 4: Core API + evidence
 
 Export through Core and retry P0 Core CI while preserving the external pre-step-blocker distinction if applicable.
+
+
+---
+
+## Completion evidence
+
+Closed by vertical regression `958c768f236404257712eaa9fb25ec00fc38294c`.
+
+The regression proves one causal chain:
+
+```text
+individual base-cover decision
+  -> baseCoverBodyPositions target
+  -> DefenderMotion segment
+  -> projected DefenderBodyKinematics
+  -> bounded foot reach
+  -> exact first contact with the actual BaseTouchRegion
+```
+
+The body-cover target remains distinct from the physical base center. The defender body reaches the cover anchor while the generated foot primitive reaches the actual bag; no body-center teleport to the base is used.
+
+Latest P0 Core GitHub Actions attempt:
+- run `35329767846`
+- job `105551167231`
+- `steps=[]`
+
+The workflow failed before commands executed, so full-repository GREEN is not claimed.
+
+Per the parent stop condition, this closes the current defender-anatomy/base-cover deep-dive. Further defender realism work should only resume when it closes an explicit P5 acceptance requirement. The next master focus is P1 rule gap audit, followed by P2 canonical plate-appearance timeline.
