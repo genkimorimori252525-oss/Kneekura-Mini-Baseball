@@ -221,13 +221,3 @@ Key evidence:
 - calibration fingerprint: `f5058efd2d23784c`.
 
 Implementation status and CI status are now aligned for the P0-P9 foundation.
-
-
-
-GitHub Actions is currently repeatedly terminating the P0 Core verify job before workflow steps execute (`steps=[]`).
-
-Until that infrastructure blocker is resolved:
-
-- local/TDD design evidence can advance;
-- do not claim full-repository GREEN from GitHub Actions;
-- keep implementation and CI-infrastructure status separate.
