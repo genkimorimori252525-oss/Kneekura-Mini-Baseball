@@ -65,8 +65,14 @@ export const buildMiniPortraitScreenState = (
     },
     {
       kind: 'command_band',
-      visible: frame.commandBand !== null,
-      payload: frame.commandBand,
+      visible: (
+        frame.commandBand !== null
+        || frame.commandOptions !== null
+      ),
+      payload: {
+        selected: frame.commandBand,
+        options: frame.commandOptions,
+      },
     },
   ],
 });
