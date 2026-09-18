@@ -4,8 +4,11 @@ import type {
   CatchRetentionParameters,
 } from '../sim/fielding/CatchRetention';
 import type {
-  DefenderPhysicalPrimitiveSegment,
-} from '../sim/fielding/DefenderPhysicalPrimitive';
+  DefenderBodyKinematicsSegment,
+} from '../sim/fielding/DefenderBodyKinematics';
+import {
+  planDefenderBaseFootReachPrimitive,
+} from '../sim/fielding/DefenderBaseFootReach';
 import type { RunnerBodyContactParameters } from '../sim/running/RunnerBodyContact';
 import {
   buildBatterSwingExitRecoveryTrajectory,
@@ -95,20 +98,46 @@ const timeline = () => {
   });
 };
 
-const plantedFoot = (): DefenderPhysicalPrimitiveSegment => ({
-  role: 'left_foot',
-  radius: 0.12,
-  startTick: 0,
-  endTick: 7_000_000,
-  ticksPerSecond: 1_000_000,
-  startCenter: {
-    x: firstBase.center.x,
-    y: 0,
-    z: firstBase.center.z,
-  },
-  startVelocity: { x: 0, y: 0, z: 0 },
-  acceleration: { x: 0, y: 0, z: 0 },
-});
+const plannedFootForRunnerTouch = (
+  runnerTouchTick: number,
+) => {
+  const targetTick = runnerTouchTick + 100_000;
+  const body: DefenderBodyKinematicsSegment = {
+    startTick: targetTick - 1_000_000,
+    endTick: targetTick,
+    ticksPerSecond: 1_000_000,
+    startPosition: {
+      x: firstBase.center.x - 0.8,
+      y: 1,
+      z: firstBase.center.z,
+    },
+    startVelocity: { x: 0, y: 0, z: 0 },
+    acceleration: { x: 0, y: 0, z: 0 },
+  };
+  const primitive = planDefenderBaseFootReachPrimitive({
+    body,
+    footState: {
+      tick: body.startTick,
+      offset: { x: 0.4, y: -1, z: 0 },
+      velocity: { x: 0, y: 0, z: 0 },
+    },
+    role: 'left_foot',
+    targetTick,
+    base: firstBase,
+    baseLocalContactPoint: { x: 0, z: 0 },
+    baseSurfaceHeightMeters: 0,
+    parameters: {
+      footRadiusMeters: 0.12,
+      maximumLegReachMeters: 1.5,
+      maxRelativeReachSpeedMps: 3,
+      maxRelativeReachAccelerationMps2: 4,
+    },
+  });
+  if (primitive === null) {
+    throw new Error('fixture must produce a reachable base foot primitive');
+  }
+  return primitive;
+};
 
 const receptionStartingAt = (
   startTick: number,
@@ -141,6 +170,14 @@ const inputAtReceptionStart = (
   retentionParameters: CatchRetentionParameters = retention,
 ) => {
   const built = timeline();
+  const runnerTouchTick = findBatterRunnerPostLaunchBaseTouchTick(
+    built,
+    firstBase,
+    runnerBody,
+  );
+  if (runnerTouchTick === null) {
+    throw new Error('fixture must produce runner first-base touch');
+  }
   return {
     timeline: built,
     firstBase,
@@ -149,7 +186,7 @@ const inputAtReceptionStart = (
       defenderId: 'first-baseman',
       baseSurfaceHeightMeters: 0,
       controlThroughTick: built.endTick,
-      contactPrimitives: [plantedFoot()],
+      contactPrimitives: [plannedFootForRunnerTouch(runnerTouchTick)],
       reception: receptionStartingAt(receptionStartTick),
       retentionParameters,
     },
