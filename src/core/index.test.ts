@@ -17,6 +17,7 @@ import {
   createControlledBaseContactFactFromDefenderPhysics,
   createBatterStanceGeometry,
   createBattedBallFlightEvidence,
+  createFairTerritoryWedge,
   createRunnerMotionStateFromSwingExitTransition,
   buildBatterSwingExitRecoveryTrajectory,
   applyBatterRunnerWorldTimelineToSnapshot,
@@ -68,6 +69,7 @@ import {
   findBaseTouchTick,
   findNextDefensiveReplanTick,
   findPitchPlateCrossing,
+  classifyFirstGroundContactTerritory,
   findFirstTrueTick,
   createAppealWindow,
   createRuleContext,
@@ -329,6 +331,11 @@ describe('core package', () => {
     expect(typeof resolveFoulBallRule).toBe('function');
     expect(typeof resolveInfieldFlyRule).toBe('function');
     expect(typeof resolveHalfInningTransition).toBe('function');
+  });
+
+  it('exposes batted-ball fair-territory physical evidence through Core', () => {
+    expect(typeof createFairTerritoryWedge).toBe('function');
+    expect(typeof classifyFirstGroundContactTerritory).toBe('function');
   });
 
   it('exposes contact-to-ground batted-ball flight evidence through Core', () => {
