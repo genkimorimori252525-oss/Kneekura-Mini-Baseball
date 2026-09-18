@@ -18,6 +18,7 @@ import {
   createBatterStanceGeometry,
   createBattedBallFlightEvidence,
   findBattedBallSettlingEvidence,
+  findFirstRollingBattedBallFirstThirdBaseContact,
   createBattedBallFirstFielderTouchTerritory,
   createFairTerritoryWedge,
   createFairFoulBaseGateGeometry,
@@ -132,6 +133,7 @@ import {
   resolveUntouchedGroundContactBeyondBases,
   resolveUntouchedBaseGatePassageTerritory,
   resolveUntouchedSettledBattedBallTerritory,
+  resolveFirstThirdBaseContactFairBall,
   createResolvedLiveBallPlateAppearanceFromGroundBallFirstBaseRule,
   completeGroundBallFirstBasePlateAppearance,
   resolveForceOutAtTarget,
@@ -153,6 +155,7 @@ import {
   resolveAndRecordUntouchedGroundContactBeyondBases,
   resolveAndRecordPostBounceBaseGatePassage,
   resolveAndRecordSettledBeforeBaseTerritory,
+  resolveAndRecordRollingFirstThirdBaseContact,
   resolveAndRecordFirstFielderTouchTerritory,
   resolvePlateAppearancePitchSequence,
   resolvePlateAppearancePitchSequenceToMatchState,
@@ -164,6 +167,7 @@ import {
   recordBatBallContact,
   recordBattedBallBaseGatePassage,
   recordBattedBallSettlingEvidence,
+  recordBattedBallFirstThirdBaseContact,
   recordCountedPitch,
   recordFairBattedBall,
   recordFoulBattedBall,
@@ -358,6 +362,13 @@ describe('core package', () => {
     expect(typeof createBattedBallFirstFielderTouchTerritory).toBe('function');
     expect(typeof resolveFirstFielderTouchTerritory).toBe('function');
     expect(typeof resolveAndRecordFirstFielderTouchTerritory).toBe('function');
+  });
+
+  it('exposes rolling first-third base contact as decisive fair-ball chronology through Core', () => {
+    expect(typeof findFirstRollingBattedBallFirstThirdBaseContact).toBe('function');
+    expect(typeof resolveFirstThirdBaseContactFairBall).toBe('function');
+    expect(typeof recordBattedBallFirstThirdBaseContact).toBe('function');
+    expect(typeof resolveAndRecordRollingFirstThirdBaseContact).toBe('function');
   });
 
   it('exposes finite ground-ball settling and settled fair-foul chronology through Core', () => {
