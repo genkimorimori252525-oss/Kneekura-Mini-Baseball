@@ -61,6 +61,7 @@ export * from './sim/plateAppearance/GroundBallLiveBallResolution';
 export * from './sim/plateAppearance/GroundBallPlateAppearanceCoordinator';
 export * from './sim/plateAppearance/PlateAppearancePitchSequence';
 export * from './sim/plateAppearance/PlateAppearanceSequenceCoordinator';
+export * from './sim/plateAppearance/BattedBallTimelinePhysicalAdapter';
 export * from './sim/pitching/PitchTrajectory';
 export * from './sim/pitching/TakenPitchPhysicalResult';
 export * from './sim/pitching/TakenPitchTimelineAdapter';
