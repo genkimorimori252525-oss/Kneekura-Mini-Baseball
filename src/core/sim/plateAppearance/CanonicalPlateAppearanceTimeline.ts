@@ -28,6 +28,9 @@ import type {
   FirstGroundContactTerritory,
 } from '../ball/FirstGroundContactTerritory';
 import type {
+  BattedBallBaseGatePassage,
+} from '../ball/BattedBallBaseGatePassage';
+import type {
   BattedBallFirstFielderTouchTerritory,
 } from '../fielding/BattedBallFirstFielderTouchTerritory';
 import type {
@@ -111,6 +114,18 @@ export type CanonicalFoulBattedBallEventPayload = Readonly<{
   resolution: ReturnType<typeof resolveFoulBallRule>;
 }>;
 
+export type CanonicalFirstGroundContactEventPayload = Readonly<{
+  evidence: FirstGroundContactTerritory;
+}>;
+
+export type CanonicalFirstFielderTouchEventPayload = Readonly<{
+  evidence: BattedBallFirstFielderTouchTerritory;
+}>;
+
+export type CanonicalBaseGatePassageEventPayload = Readonly<{
+  evidence: BattedBallBaseGatePassage;
+}>;
+
 export type CanonicalTakenPitchPhysicalEventPayload = Readonly<{
   result: TakenPitchPhysicalResult;
 }>;
@@ -150,6 +165,10 @@ export type CanonicalPlateAppearanceEvent =
   | TimedMatchEvent<
       'BattedBallFirstFielderTouch',
       CanonicalFirstFielderTouchEventPayload
+    >
+  | TimedMatchEvent<
+      'BattedBallBaseGatePassed',
+      CanonicalBaseGatePassageEventPayload
     >
   | TimedMatchEvent<
       'BattedBallDeclaredFair',
@@ -392,6 +411,39 @@ export const recordBattedBallFirstGroundContact = (
     tick: evidence.tick,
     sequence: timeline.nextSequence,
     kind: 'BattedBallFirstGroundContact',
+    payload: {
+      evidence,
+    },
+  };
+
+  return {
+    ...timeline,
+    lastEventTick: evidence.tick,
+    nextSequence: timeline.nextSequence + 1,
+    events: [...timeline.events, event],
+  };
+};
+
+export const recordBattedBallBaseGatePassage = (
+  timeline: CanonicalPlateAppearanceTimeline,
+  evidence: BattedBallBaseGatePassage,
+): CanonicalPlateAppearanceTimeline => {
+  if (timeline.status.kind !== 'batted_ball_pending') {
+    throw new Error(
+      'base-gate passage evidence requires a pending batted ball',
+    );
+  }
+  if (evidence.tick < timeline.status.contactTick) {
+    throw new Error(
+      'base-gate passage must not precede bat-ball contact',
+    );
+  }
+  assertMonotonicTick(timeline, evidence.tick);
+
+  const event: CanonicalPlateAppearanceEvent = {
+    tick: evidence.tick,
+    sequence: timeline.nextSequence,
+    kind: 'BattedBallBaseGatePassed',
     payload: {
       evidence,
     },
