@@ -202,6 +202,29 @@ DecisionBias
 
 スカウトは候補の真能力を直接表示しない。監督スカウティングと同様、能力推定値と不確実性を返す。
 
+## 9.1 World League Catalog
+
+Full Simulation対象の21リーグ、初期球団数、開催時期、Culture Seed、Player Marketは以下を正とする。
+
+- `docs/game-design/10-world-league-catalog.md`
+
+初期構成:
+
+```text
+Asia       5
+Americas   6
+Europe     7
+Africa     1
+Oceania    2
+----------------
+Full      21
+Clubs    240
+```
+
+野球が主要競技ではない地域では、Academy / Transfer Fee / Loan / Training Compensation / Solidarity / Trial等のサッカー型Player MarketをCareer Economyへ採用可能とする。
+
+これらは能力補正ではなく、選手移動・育成投資・Knowledge・Exposureを介してLeague Ecologyへ作用する。
+
 ## 10. 大会・リーグ
 
 ペナント、国際大会、地域別クラブ大会、独自の高難度大会などは `CompetitionProfile` として表現する。
