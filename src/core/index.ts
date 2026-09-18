@@ -28,6 +28,7 @@ export * from './sim/fielding/TagContact';
 export * from './sim/fielding/ThrowRelease';
 export * from './sim/fielding/DefensiveReplan';
 export * from './sim/fielding/DefensiveDecisionTiming';
+export * from './sim/fielding/DefenderFirstStepTiming';
 export * from './sim/fielding/DefensiveDecision';
 export * from './sim/fielding/DefensiveMovementTarget';
 export * from './sim/fielding/DefenderMotion';
