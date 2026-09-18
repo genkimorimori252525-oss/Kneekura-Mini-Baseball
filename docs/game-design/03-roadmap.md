@@ -1,7 +1,7 @@
 # 実装ロードマップと検証計画
 
 更新日: 2026-09-18
-状態: P0 完了。P1/P2/P3/P4/P5/P6/P7/P8 は実装完了（CI外部ブロッカー）。P9 を主進行へ移行。
+状態: P0 完了。P1/P2/P3/P4/P5/P6/P7/P8/P9 は実装完了（CI外部ブロッカー）。現在はロードマップ後の検証・校正待ち。
 
 ## 前提
 
@@ -30,7 +30,7 @@ Mini Baseball は将来の Natural Baseball と別の簡易試合ロジックを
 | P6 | **実装完了（CI外部ブロッカー）** | RunnerDecision/Timing、局面RiskPolicy、守備ギャップ反応、コーチ情報、タッグアップ待機/帰塁、盗塁/牽制知覚、ランダウン、StealDefenseTimeline、物理TagContact→TagArrivalを受入fixture化 |
 | P7 | **実装完了（CI外部ブロッカー）** | 一打席命令schema、playId拘束session、投手狙い/打者take-swing/timing/走者posture adapter、1命令→複数球正史進行、MatchState更新、risk/no-effect説明を受入fixture化 |
 | P8 | **実装完了（CI外部ブロッカー）** | Canonical点描overhead、Batter POV、捕手後方のPitcher POV、正史tickカメラ切替、9回+延長R/H/E、B/S/O、3塁走者ダイヤ、右赤/左青、公開player card、横command band、portrait shell、canonical replay、ball height/trail、表示非干渉を受入fixture化 |
-| P9 | **未着手** | 大量固定seed検証、Natural読み取り専用契約、統計校正 |
+| P9 | **実装完了（CI外部ブロッカー）** | canonical fingerprint、fixed-seed corpus/runner、causal trace、同一打球alignment比較、batch統計、性能計測、Natural read-only snapshot、Mini/Natural/renderer-off非干渉を受入fixture化。期待fingerprint凍結のみverify実行後へ保留 |
 
 ### Focus guardrail
 
@@ -47,7 +47,8 @@ Mini Baseball は将来の Natural Baseball と別の簡易試合ロジックを
 7. ~~P6 個別走塁と特殊プレー~~ **実装完了**（Actionsは`steps=[]`で未実行）。走者知覚/判断、盗塁・牽制・ランダウン・コーチ情報を既存RunnerMotion/RuleEngineへ接続。
 8. ~~P7 一打席采配接続~~ **実装完了**（Actionsは`steps=[]`で未実行）。一度だけ受理した采配をP2/P6の物理intentへ展開し、各球正史とMatchState更新を保持。
 9. ~~P8 Miniライブ観測表示~~ **実装完了**（Actionsは`steps=[]`で未実行）。Canonical live/replay、Batter/Pitcher/Overhead、R/H/E、走者ダイヤ、カード、命令帯、体格点サイズ分離を実装。
-10. **現在の主作業: P9 統計検証とNatural移行境界**。固定seed corpus、同一打球集合の守備配置比較、因果debug trace、性能、Natural読み取り専用契約を固定する。
+10. ~~P9 統計検証とNatural移行境界~~ **実装完了**（Actionsは`steps=[]`で未実行）。fixed-seed/corpus、因果trace、同一打球alignment比較、batch統計、性能計測、Natural read-only境界、renderer非干渉を固定。期待fingerprintの凍結はverify実行成功後に行う。
+11. **ロードマップ後**: CI実行復旧 → full verify → fingerprint凍結 → 大規模統計校正 → Natural renderer実装。
 
 このguardrailにより、今後の守備物理追加は「P5全体のどの受入条件を閉じるか」を明示してから行う。
 
