@@ -1,4 +1,5 @@
 import type { Vec3 } from '../../model/geometry';
+import { findAcceleratedSphereContactTick } from '../collision/AcceleratedSphereContact';
 import { findMovingSphereContactTick } from '../collision/MovingSphereContact';
 
 export type LiveBallState = Readonly<{
@@ -47,6 +48,37 @@ export const findGloveBallContactTick = (
       tick: glove.tick,
       center: glove.position,
       velocity: glove.velocity,
+      radius: parameters.gloveContactRadius,
+    },
+    deltaTicks,
+    { ticksPerSecond: parameters.ticksPerSecond },
+  );
+};
+
+
+export const findAcceleratedGloveBallContactTick = (
+  ball: LiveBallState,
+  ballAcceleration: Vec3,
+  glove: GloveWorldState,
+  gloveAcceleration: Vec3,
+  deltaTicks: number,
+  parameters: GloveBallContactParameters,
+): number | null => {
+  validateParameters(parameters);
+
+  return findAcceleratedSphereContactTick(
+    {
+      tick: ball.tick,
+      center: ball.position,
+      velocity: ball.velocity,
+      acceleration: ballAcceleration,
+      radius: parameters.ballRadius,
+    },
+    {
+      tick: glove.tick,
+      center: glove.position,
+      velocity: glove.velocity,
+      acceleration: gloveAcceleration,
       radius: parameters.gloveContactRadius,
     },
     deltaTicks,
