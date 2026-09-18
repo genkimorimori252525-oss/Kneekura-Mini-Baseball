@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { CanonicalMatchState } from '../../model/CanonicalMatchState';
 import { asRuleProfileId } from '../../model/RuleProfileRef';
+import { createPlayEndFact } from '../../rules/PhysicalRuleFacts';
 import {
   resolveBatBallContact,
   type BatterSwingState,
@@ -10,6 +11,7 @@ import {
   createCanonicalPlateAppearanceTimeline,
   recordBatBallContact,
   recordCountedPitch,
+  recordLiveBallPlayEnd,
   type CountedPitchAdjudication,
 } from './CanonicalPlateAppearanceTimeline';
 
@@ -184,6 +186,100 @@ describe('CanonicalPlateAppearanceTimeline', () => {
         contact,
       },
     });
+  });
+
+  it('records authoritative play end after physical contact and closes the live-ball timeline', () => {
+    const pitch: PitchWorldState = {
+      tick: 4_500_000,
+      position: { x: 0, y: 1, z: 0.06 },
+      velocity: { x: 0, y: -1.5, z: -35 },
+      spin: { x: 0, y: 0, z: 0 },
+    };
+    const swing: BatterSwingState = {
+      pose: {
+        grip: { x: -0.42, y: 1, z: 0 },
+        tip: { x: 0.42, y: 1, z: 0 },
+      },
+      linearVelocity: { x: 0, y: 0, z: 22 },
+      angularVelocity: { x: 0, y: 0, z: 0 },
+    };
+    const contact = resolveBatBallContact(pitch, swing);
+    if (contact === null) {
+      throw new Error('fixture must produce physical contact');
+    }
+
+    const live = recordBatBallContact(
+      createCanonicalPlateAppearanceTimeline(
+        match(),
+        4_400_000,
+      ),
+      contact,
+    );
+    const playEnd = createPlayEndFact(
+      5_000_000,
+      'live_action_complete',
+    );
+    const complete = recordLiveBallPlayEnd(
+      live,
+      playEnd,
+    );
+
+    expect(complete.status).toEqual({
+      kind: 'live_ball_complete',
+      count: { balls: 0, strikes: 0 },
+      contactTick: 4_500_000,
+      playEndTick: 5_000_000,
+    });
+    expect(complete.events[1]).toEqual({
+      tick: 5_000_000,
+      sequence: 1,
+      kind: 'LiveBallPlayEnded',
+      payload: { playEnd },
+    });
+    expect(() => recordLiveBallPlayEnd(
+      complete,
+      playEnd,
+    )).toThrow(
+      'live-ball play end requires an active live-ball timeline',
+    );
+  });
+
+  it('rejects a play end before physical contact', () => {
+    const pitch: PitchWorldState = {
+      tick: 4_500_000,
+      position: { x: 0, y: 1, z: 0.06 },
+      velocity: { x: 0, y: -1.5, z: -35 },
+      spin: { x: 0, y: 0, z: 0 },
+    };
+    const swing: BatterSwingState = {
+      pose: {
+        grip: { x: -0.42, y: 1, z: 0 },
+        tip: { x: 0.42, y: 1, z: 0 },
+      },
+      linearVelocity: { x: 0, y: 0, z: 22 },
+      angularVelocity: { x: 0, y: 0, z: 0 },
+    };
+    const contact = resolveBatBallContact(pitch, swing);
+    if (contact === null) {
+      throw new Error('fixture must produce physical contact');
+    }
+    const live = recordBatBallContact(
+      createCanonicalPlateAppearanceTimeline(
+        match(),
+        4_400_000,
+      ),
+      contact,
+    );
+
+    expect(() => recordLiveBallPlayEnd(
+      live,
+      createPlayEndFact(
+        4_499_999,
+        'live_action_complete',
+      ),
+    )).toThrow(
+      'live-ball play end must not precede bat-ball contact',
+    );
   });
 
   it('does not permit ball_in_play to bypass the physical contact boundary', () => {
