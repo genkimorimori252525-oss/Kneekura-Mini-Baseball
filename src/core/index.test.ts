@@ -25,6 +25,7 @@ import {
   applyForceOutRuleResultToState,
   evaluateCatchBodyStability,
   evaluateCatchRetentionLoad,
+  evaluateSustainedTagUpAppealScoring,
   evaluateTagUpCompliance,
   decideDefensiveIntent,
   deriveCatchRetentionParameters,
@@ -39,6 +40,11 @@ import {
   findNextDefensiveReplanTick,
   findFirstTrueTick,
   createAppealWindow,
+  createRunnerPrecedence,
+  createAppealScoringOption,
+  createThirdOutScoringOption,
+  createTagUpAppealInningEndingOption,
+  createExistingThirdOutInningEndingOption,
   createInitialForceObligationState,
   deriveCurrentForceObligations,
   findGloveBallContactTick,
@@ -54,6 +60,7 @@ import {
   projectDefenderWorldState,
   projectRunnerWorldState,
   resolveCatchRetention,
+  resolveAdvantageousAppealOutOptions,
   resolveBatterRunnerFirstBase,
   resolveDefensiveMovementTarget,
   resolveGroundBallFirstBaseRule,
@@ -69,6 +76,7 @@ import {
   retireForceParticipant,
   sampleRunnerPhysicalTouchPoint,
   sampleRunnerRoute,
+  selectAdvantageousInningEndingOut,
 } from './index';
 
 describe('core package', () => {
@@ -180,6 +188,17 @@ describe('core package', () => {
     expect(typeof resolveBatterRunnerFirstBase).toBe('function');
     expect(typeof resolveThirdOutScoring).toBe('function');
     expect(typeof resolveGroundBallFirstBaseRule).toBe('function');
+  });
+
+  it('exposes runner-precedence-aware advantageous fourth-out scoring through Core', () => {
+    expect(typeof createRunnerPrecedence).toBe('function');
+    expect(typeof evaluateSustainedTagUpAppealScoring).toBe('function');
+    expect(typeof createAppealScoringOption).toBe('function');
+    expect(typeof createThirdOutScoringOption).toBe('function');
+    expect(typeof selectAdvantageousInningEndingOut).toBe('function');
+    expect(typeof createTagUpAppealInningEndingOption).toBe('function');
+    expect(typeof createExistingThirdOutInningEndingOption).toBe('function');
+    expect(typeof resolveAdvantageousAppealOutOptions).toBe('function');
   });
 
   it('exposes explicit tag-up appeal rules through the shared Core API', () => {
