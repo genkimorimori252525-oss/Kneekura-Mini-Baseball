@@ -16,6 +16,7 @@ import {
   createControlledBaseContactFactFromCatchOutcomePhysics,
   createControlledBaseContactFactFromDefenderPhysics,
   createBatterStanceGeometry,
+  createBattedBallFlightEvidence,
   createRunnerMotionStateFromSwingExitTransition,
   buildBatterSwingExitRecoveryTrajectory,
   applyBatterRunnerWorldTimelineToSnapshot,
@@ -328,6 +329,10 @@ describe('core package', () => {
     expect(typeof resolveFoulBallRule).toBe('function');
     expect(typeof resolveInfieldFlyRule).toBe('function');
     expect(typeof resolveHalfInningTransition).toBe('function');
+  });
+
+  it('exposes contact-to-ground batted-ball flight evidence through Core', () => {
+    expect(typeof createBattedBallFlightEvidence).toBe('function');
   });
 
   it('exposes physical pitch crossing and unified batter-facing pitch resolution through Core', () => {
