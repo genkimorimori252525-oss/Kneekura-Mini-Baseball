@@ -33,6 +33,7 @@ describe('DefenderControlledBaseContactPhysicalAdapter', () => {
       defenderId: 'first-baseman',
       base: 1,
       baseRegion: base,
+      baseSurfaceHeightMeters: 0,
       securedCatch: createSecuredCatchOutcome(
         900_000,
         1_000_000,
@@ -52,6 +53,7 @@ describe('DefenderControlledBaseContactPhysicalAdapter', () => {
       defenderId: 'first-baseman',
       base: 1,
       baseRegion: base,
+      baseSurfaceHeightMeters: 0,
       securedCatch: createSecuredCatchOutcome(
         900_000,
         1_000_000,
