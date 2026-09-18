@@ -7,6 +7,7 @@ import {
 import {
   createCanonicalPlateAppearanceTimeline,
   recordBatBallContact,
+  recordLiveBallPlayEnd,
 } from './CanonicalPlateAppearanceTimeline';
 import {
   applyResolvedLiveBallPlateAppearanceToMatchState,
@@ -69,19 +70,30 @@ const liveTimeline = (
   );
 };
 
+const completedTimeline = (
+  match: CanonicalMatchState,
+  playEnd = createPlayEndFact(
+    61_000_000,
+    'live_action_complete',
+  ),
+) => ({
+  timeline: recordLiveBallPlayEnd(
+    liveTimeline(match),
+    playEnd,
+  ),
+  playEnd,
+});
+
 describe('PlateAppearanceMatchState live-ball application', () => {
   it('applies authoritative outs, final bases, runs, count reset, and next playId', () => {
     const before = baseMatch(1, 'top');
-    const timeline = liveTimeline(before);
+    const { timeline, playEnd } = completedTimeline(before);
 
     expect(applyResolvedLiveBallPlateAppearanceToMatchState(
       before,
       timeline,
       {
-        playEnd: createPlayEndFact(
-          61_000_000,
-          'live_action_complete',
-        ),
+        playEnd,
         outsAfter: 2,
         basesAfter: {
           first: 'batter',
@@ -110,16 +122,13 @@ describe('PlateAppearanceMatchState live-ball application', () => {
 
   it('uses the P1 half-inning transition and clears bases when live play creates the third out', () => {
     const before = baseMatch(2, 'bottom');
-    const timeline = liveTimeline(before);
+    const { timeline, playEnd } = completedTimeline(before);
 
     expect(applyResolvedLiveBallPlateAppearanceToMatchState(
       before,
       timeline,
       {
-        playEnd: createPlayEndFact(
-          61_000_000,
-          'live_action_complete',
-        ),
+        playEnd,
         outsAfter: 3,
         basesAfter: {
           first: 'batter',
@@ -147,16 +156,13 @@ describe('PlateAppearanceMatchState live-ball application', () => {
 
   it('credits live-ball runs to the batting side', () => {
     const before = baseMatch(0, 'bottom');
-    const timeline = liveTimeline(before);
+    const { timeline, playEnd } = completedTimeline(before);
 
     const after = applyResolvedLiveBallPlateAppearanceToMatchState(
       before,
       timeline,
       {
-        playEnd: createPlayEndFact(
-          61_000_000,
-          'live_action_complete',
-        ),
+        playEnd,
         outsAfter: 0,
         basesAfter: {
           first: 'batter',
@@ -173,16 +179,16 @@ describe('PlateAppearanceMatchState live-ball application', () => {
     });
   });
 
-  it('rejects play-end evidence before physical contact', () => {
+  it('rejects resolution evidence that does not match the timeline play end', () => {
     const before = baseMatch();
-    const timeline = liveTimeline(before);
+    const { timeline } = completedTimeline(before);
 
     expect(() => applyResolvedLiveBallPlateAppearanceToMatchState(
       before,
       timeline,
       {
         playEnd: createPlayEndFact(
-          59_999_999,
+          61_000_001,
           'live_action_complete',
         ),
         outsAfter: 1,
@@ -190,22 +196,19 @@ describe('PlateAppearanceMatchState live-ball application', () => {
         scoredRunnerIds: [],
       },
     )).toThrow(
-      'live-ball play end must not precede bat-ball contact',
+      'live-ball resolution playEnd must match the timeline play end',
     );
   });
 
   it('rejects impossible out rollback and duplicate/final-base runner identities', () => {
     const before = baseMatch(1);
-    const timeline = liveTimeline(before);
+    const { timeline, playEnd } = completedTimeline(before);
 
     expect(() => applyResolvedLiveBallPlateAppearanceToMatchState(
       before,
       timeline,
       {
-        playEnd: createPlayEndFact(
-          61_000_000,
-          'live_action_complete',
-        ),
+        playEnd,
         outsAfter: 0,
         basesAfter: before.bases,
         scoredRunnerIds: [],
@@ -218,10 +221,7 @@ describe('PlateAppearanceMatchState live-ball application', () => {
       before,
       timeline,
       {
-        playEnd: createPlayEndFact(
-          61_000_000,
-          'live_action_complete',
-        ),
+        playEnd,
         outsAfter: 1,
         basesAfter: {
           first: 'r1',
@@ -238,10 +238,7 @@ describe('PlateAppearanceMatchState live-ball application', () => {
       before,
       timeline,
       {
-        playEnd: createPlayEndFact(
-          61_000_000,
-          'live_action_complete',
-        ),
+        playEnd,
         outsAfter: 1,
         basesAfter: {
           first: 'r1',
@@ -257,7 +254,7 @@ describe('PlateAppearanceMatchState live-ball application', () => {
 
   it('requires a live-ball timeline from the same playId', () => {
     const before = baseMatch();
-    const timeline = liveTimeline(before);
+    const { timeline, playEnd } = completedTimeline(before);
 
     expect(() => applyResolvedLiveBallPlateAppearanceToMatchState(
       before,
@@ -266,10 +263,7 @@ describe('PlateAppearanceMatchState live-ball application', () => {
         playId: timeline.playId + 1,
       },
       {
-        playEnd: createPlayEndFact(
-          61_000_000,
-          'live_action_complete',
-        ),
+        playEnd,
         outsAfter: 1,
         basesAfter: before.bases,
         scoredRunnerIds: [],
