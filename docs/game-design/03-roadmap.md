@@ -1,7 +1,7 @@
 # 実装ロードマップと検証計画
 
-更新日: 2026-09-17
-状態: P0 実装・検証済み。P1 以降は未着手。
+更新日: 2026-09-18
+状態: P0 完了。P1/P2 は大幅進行、P5/P6 は縦スライス先行実装中。P3/P4/P7 は本格着手前、P8 は表示基盤・試作のみ、P9 は未着手。
 
 ## 前提
 
@@ -12,6 +12,40 @@ Mini Baseball は将来の Natural Baseball と別の簡易試合ロジックを
 各フェーズは前フェーズの回帰テストが通ることを開始条件とする。表示の都合で規則、物理、守備判断を変更しない。
 
 ## フェーズ
+
+## 2026-09-18 進捗再整理
+
+現在の `jolly/core-realism-2026-09-18` は、元のP0〜P9ロードマップを置き換える別計画ではない。
+
+直近の一塁クロスプレー／守備物理作業は、主に **P2（正史時間・物理ワールド）＋P5（守備）＋P6（走塁）＋P1（Correct Rule Result）を一本の因果縦スライスで接続する作業** である。守備はShared Match Core全体の一部であり、守備完成だけをCore完成とはみなさない。
+
+| Phase | 2026-09-18 時点 | 主な実装済み／未完 |
+| --- | --- | --- |
+| P0 | **完了** | Headless Core、決定論、整数tick、Canonical state境界 |
+| P1 | **大幅進行・未完** | `RuleProfile`、NPB 2026配置規則、フォース、第三アウト得点、タグ到達、タッグアップ/アピール、第四アウト等。ファウル/インフィールドフライ等を含むP1全受入条件の総点検は未完 |
+| P2 | **大幅進行・未完** | causal bat-ball contact、BallFlight、精密イベント時刻、Runner/Defender motion、glove contact/retention、world projection。一打席全投球を統合する正史進行は未完 |
+| P3 | **部分的な物理校正hookのみ** | catching/retention skill等の局所校正はあるが、公開/隠し査定の統一schemaと `PlayerPhysicalProfile` は未実装 |
+| P4 | **基礎のみ** | 任意配置を許すworld/alignmentとNPB合法性は進行。ScoutingEstimate・不確実性・監督の配置候補比較は未実装 |
+| P5 | **大幅進行・未完** | 個人知覚、判断時刻、DefenderMotion、base cover、glove reach、catch、throw reception、base contact。一方、9人全体のCoveragePlan/ThrowPlan/期待損失比較は未完 |
+| P6 | **部分実装** | RunnerMotion、base rounding、base touch、tag-up/force関連は進行。盗塁・牽制・ランダウン・コーチ情報を含む個人走塁判断は未完 |
+| P7 | **本格未着手** | 一打席命令を投球/打撃/走塁intentへ統合するCore adapterが未完 |
+| P8 | **表示基盤・試作** | Presentation Adapter、Batter POV等は存在するが、最終Mini表示仕様はCore完成後に再接続する。表示を理由にCoreを変更しない |
+| P9 | **未着手** | 大量固定seed検証、Natural読み取り専用契約、統計校正 |
+
+### Focus guardrail
+
+局所的な縦スライスは、他フェーズの境界を実証するために許可する。ただし、一つのサブシステムを無期限に深掘りしてロードマップ全体を忘れない。
+
+当面の順序は次を正とする。
+
+1. 現在進行中の「base-cover body target → body kinematics → foot reach → actual base contact」縦スライスを、依存境界の証明まで閉じる。
+2. **P1 gap audit**: NPB規則核の未完項目を一覧化し、P1完了条件を閉じる。
+3. **P2 canonical plate-appearance timeline**: 投球→打撃→接触/見逃し/ファウル→live ball→play end を一つの正史進行へ統合する。
+4. **P3 rating/physical profile foundation**: 査定schemaと `PlayerPhysicalProfile` を導入し、体格・リーチ・速度等の校正入力を選手データへ接続する。
+5. P4のスカウティング/配置、P5の9人守備全体計画、P6の特殊走塁、P7の采配を順に閉じる。
+6. P8でMiniの点描表示を正史観測者として完成させ、P9でNatural移行と統計を固定する。
+
+このguardrailにより、今後の守備物理追加は「P5全体のどの受入条件を閉じるか」を明示してから行う。
 
 ### P0: 共有Coreの境界を確定する
 
@@ -81,6 +115,8 @@ P0時点では野球結果の物理・規則・守備能力式はまだ実装し
 - 走塁判断、捕手能力の最初の実装
 - 監督の傾向推定・情報更新・サンプル評価を表す査定候補
 - 能力の導入根拠・影響箇所・比較テストの査定台帳
+- `PlayerPhysicalProfile` の基礎。初期は `heightMeters` を持ち、必要に応じて `armSpanMeters` / `legLengthMeters` 等を独立値として追加する
+- 体格から `maximumLegReachMeters`、glove/tag reach、body origin height 等の物理校正値を導出する境界。成功率への直接補正は禁止する
 
 守備能力の詳細契約は `04-defense-ratings.md` を正とする。方向転換、フットワーク、壁際守備、中継技術などは初期から独立査定にせず、既存能力の組み合わせで不足が確認された場合にのみ追加する。
 
@@ -89,6 +125,7 @@ P0時点では野球結果の物理・規則・守備能力式はまだ実装し
 - 能力を一つ変更したときの影響が、重複せずテストで説明できる。
 - `firstStep`、`acceleration`、`battedBallRead`、`routeEfficiency`、`catching`、`transfer`、`armStrength`、`throwingAccuracy`、`situationalAwareness`、`tagSkill` の分離テストが成立する。
 - UI に隠し能力・心理ゲージ・監督の内部推定確率を漏らさない。
+- 平均体格Profileと大小体格Profileで、足/腕の到達可能範囲が物理中間量として説明可能に変化し、表示サイズから物理値を逆算しない。
 
 ### P4: スカウティングと打席前守備配置を作る
 
@@ -157,6 +194,7 @@ P0時点では野球結果の物理・規則・守備能力式はまだ実装し
 - ゲームボーイ風・ドローンアート風のドット／点描球場レンダラ
 - `CanonicalWorldSnapshot` を追従するライブ表示
 - 同じ正史状態を使うリプレイ
+- 選手体格を小幅な点サイズ差へ写像するPresentation profile。既存の約10pxを平均体格の基準とし、初期候補は9/10/11px程度の離散tierとする
 
 完了条件:
 
@@ -164,6 +202,7 @@ P0時点では野球結果の物理・規則・守備能力式はまだ実装し
 - ボール、走者、守備9人の画面上位置が正史ワールド座標から導かれる。
 - カバー、中継、バックアップへ動く野手も表示できる。
 - 表示切替・FPS・補間方法によって試合のイベント列・最終状態が変化しない。
+- 身長/体格による点サイズ差をON/OFFまたは再校正してもCoreの接触・リーチ・アウト/セーフ結果は変化しない。点サイズはCore当たり判定の入力にしない。
 
 ### P9: 統計検証と Natural 移行境界を固定する
 
@@ -181,6 +220,7 @@ P0時点では野球結果の物理・規則・守備能力式はまだ実装し
 - シフトによるBABIP等の差が直接デバフではなく、捕球・送球結果の差から説明できる。
 - Miniのレンダラを外してもCoreのテストがすべて通る。
 - 3D描画側が野球結果を再計算せず、正史ワールド状態だけから同じプレーを表現できる契約になっている。
+- Miniの点サイズ、Naturalの3Dモデル身長・骨格表示を変更しても、同じ `PlayerPhysicalProfile` とCore入力なら正史イベント列が同一である。
 
 ## 実装の優先順位
 
