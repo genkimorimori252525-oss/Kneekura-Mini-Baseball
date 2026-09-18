@@ -19,3 +19,4 @@ export * from './PitcherPovCamera';
 export * from './PitcherPovRenderState';
 export * from './MiniPortraitScreenState';
 export * from './MiniBaseDiamondState';
+export * from './MiniCommandOptionBandState';
