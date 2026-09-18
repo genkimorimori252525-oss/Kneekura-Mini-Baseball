@@ -41,6 +41,11 @@ describe('RuleProfile', () => {
           evaluationMoment: 'pitch_release',
           minimumInfieldersEachSideOfSecondBase: 2,
           sideDeterminedBy: 'both_feet',
+          assignmentLock: {
+            enabled: true,
+            establishedAt: 'inning_first_pitch_release',
+            duration: 'half_inning',
+          },
         },
         violationPolicyId: 'npb_2026_5_02_c',
       },
