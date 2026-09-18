@@ -176,12 +176,8 @@ describe('FieldOverheadRenderState', () => {
       sample,
       camera,
       playerPhysicalProfiles: {
-        cf: createPlayerPhysicalProfile({
-          heightMeters: 1.65,
-        }),
-        p: createPlayerPhysicalProfile({
-          heightMeters: 1.95,
-        }),
+        cf: createPlayerPhysicalProfile(1.65),
+        p: createPlayerPhysicalProfile(1.95),
       },
     });
 
@@ -206,18 +202,14 @@ describe('FieldOverheadRenderState', () => {
       sample,
       camera,
       playerPhysicalProfiles: {
-        cf: createPlayerPhysicalProfile({
-          heightMeters: 1.65,
-        }),
+        cf: createPlayerPhysicalProfile(1.65),
       },
     });
     const second = buildFieldOverheadRenderState({
       sample,
       camera,
       playerPhysicalProfiles: {
-        cf: createPlayerPhysicalProfile({
-          heightMeters: 1.65,
-        }),
+        cf: createPlayerPhysicalProfile(1.65),
       },
       dotCalibration: {
         smallBelowHeightScale: 0.95,
