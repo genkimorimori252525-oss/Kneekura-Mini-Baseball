@@ -17,6 +17,7 @@ export type FirstGroundContactEvidence = Readonly<{
 export type BattedBallFlightEvidence = Readonly<{
   contact: BatBallContactResult;
   initialBall: BattedBallInitialState;
+  ballRadiusMeters: number;
   firstGroundContact: FirstGroundContactEvidence | null;
 }>;
 
@@ -61,6 +62,7 @@ export const createBattedBallFlightEvidence = (
   return {
     contact: input.contact,
     initialBall,
+    ballRadiusMeters: input.parameters.ballRadius,
     firstGroundContact,
   };
 };
