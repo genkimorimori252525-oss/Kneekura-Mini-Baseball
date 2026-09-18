@@ -244,6 +244,7 @@ CompetitionProfile
 
 - `docs/game-design/11-world-competition-architecture.md`
 - `docs/game-design/12-competition-identity-hosting.md`
+- `docs/game-design/14-regular-season-calendar-and-volume.md`
 
 内容はContinental Club Champions、Club World、Regional National Championships、Premier 12-class、WBC-class、および4年周期Calendarを対象とする。
 
