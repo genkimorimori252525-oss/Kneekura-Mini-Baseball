@@ -9,14 +9,25 @@ import {
   applyWalkPlateAppearanceToMatchState,
 } from './PlateAppearanceMatchState';
 import {
+  advancePlateAppearancePitchSequence,
   resolvePlateAppearancePitchSequence,
   type PlateAppearancePitchSequenceResult,
 } from './PlateAppearancePitchSequence';
+import type {
+  CanonicalPlateAppearanceTimeline,
+} from './CanonicalPlateAppearanceTimeline';
 
 export type PlateAppearanceSequenceCoordinatorInput = Readonly<{
   match: CanonicalMatchState;
   batterRunnerId: string;
   startedAtTick: number;
+  pitches: readonly PitchAgainstBatterInput[];
+}>;
+
+export type AdvancePlateAppearanceSequenceCoordinatorInput = Readonly<{
+  match: CanonicalMatchState;
+  batterRunnerId: string;
+  timeline: CanonicalPlateAppearanceTimeline;
   pitches: readonly PitchAgainstBatterInput[];
 }>;
 
@@ -61,29 +72,31 @@ export type PlateAppearanceSequenceCoordinatorResult =
       matchState: CanonicalMatchState;
     }>;
 
-export const resolvePlateAppearancePitchSequenceToMatchState = (
-  input: PlateAppearanceSequenceCoordinatorInput,
+const applyPitchSequenceResultToMatchState = (
+  match: CanonicalMatchState,
+  batterRunnerId: string,
+  sequence: PlateAppearancePitchSequenceResult,
 ): PlateAppearanceSequenceCoordinatorResult => {
-  if (input.batterRunnerId.length === 0) {
+  if (batterRunnerId.length === 0) {
     throw new Error('batterRunnerId must not be empty');
   }
 
-  const sequence = resolvePlateAppearancePitchSequence({
-    match: input.match,
-    startedAtTick: input.startedAtTick,
-    pitches: input.pitches,
-  });
+  if (sequence.timeline.playId !== match.playId) {
+    throw new Error(
+      'plate appearance timeline playId must match CanonicalMatchState.playId',
+    );
+  }
 
   if (sequence.kind === 'terminal') {
     const nextMatchState = sequence.terminalKind === 'strikeout'
       ? applyStrikeoutPlateAppearanceToMatchState(
-          input.match,
+          match,
           sequence.timeline,
         )
       : applyWalkPlateAppearanceToMatchState(
-          input.match,
+          match,
           sequence.timeline,
-          input.batterRunnerId,
+          batterRunnerId,
         );
 
     return {
@@ -100,7 +113,7 @@ export const resolvePlateAppearancePitchSequenceToMatchState = (
       kind: 'active',
       pitchesConsumed: sequence.pitchesConsumed,
       timeline: sequence.timeline,
-      matchState: input.match,
+      matchState: match,
     };
   }
 
@@ -109,7 +122,7 @@ export const resolvePlateAppearancePitchSequenceToMatchState = (
       kind: 'batted_ball_pending',
       pitchesConsumed: sequence.pitchesConsumed,
       timeline: sequence.timeline,
-      matchState: input.match,
+      matchState: match,
     };
   }
 
@@ -119,6 +132,33 @@ export const resolvePlateAppearancePitchSequenceToMatchState = (
     pitchIndex: sequence.pitchIndex,
     pitchesConsumed: sequence.pitchesConsumed,
     timeline: sequence.timeline,
-    matchState: input.match,
+    matchState: match,
   };
 };
+
+export const resolvePlateAppearancePitchSequenceToMatchState = (
+  input: PlateAppearanceSequenceCoordinatorInput,
+): PlateAppearanceSequenceCoordinatorResult => (
+  applyPitchSequenceResultToMatchState(
+    input.match,
+    input.batterRunnerId,
+    resolvePlateAppearancePitchSequence({
+      match: input.match,
+      startedAtTick: input.startedAtTick,
+      pitches: input.pitches,
+    }),
+  )
+);
+
+export const advancePlateAppearancePitchSequenceToMatchState = (
+  input: AdvancePlateAppearanceSequenceCoordinatorInput,
+): PlateAppearanceSequenceCoordinatorResult => (
+  applyPitchSequenceResultToMatchState(
+    input.match,
+    input.batterRunnerId,
+    advancePlateAppearancePitchSequence(
+      input.timeline,
+      input.pitches,
+    ),
+  )
+);
