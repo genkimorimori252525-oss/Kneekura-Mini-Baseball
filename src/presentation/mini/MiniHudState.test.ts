@@ -79,6 +79,7 @@ describe('MiniHudState', () => {
         home: 5,
       },
       playId: 88,
+      lineScore: null,
     });
   });
 
