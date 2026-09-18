@@ -8,6 +8,7 @@ export * from './model/TimedMatchEvent';
 export * from './sim/SimulationClock';
 export * from './sim/ExactEventTime';
 export * from './sim/contact/BatBallContact';
+export * from './sim/collision/AcceleratedSphereContact';
 export * from './sim/ball/BallFlight';
 export * from './sim/fielding/GloveBallContact';
 export * from './sim/fielding/SecureCatch';
