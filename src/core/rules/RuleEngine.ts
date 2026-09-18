@@ -11,6 +11,7 @@ import {
   type ThirdOutScoringResult,
 } from './ThirdOutScoring';
 import type { ForceOutRuleResult } from './ForceOutRule';
+import type { TagArrivalResult } from './TagArrivalRule';
 
 export type GroundBallFirstBaseRuleInput = Readonly<{
   outsAtStart: number;
@@ -195,6 +196,54 @@ export const resolveForceOutScoringRule = (
       runnerId: input.forceOut.runnerId,
       outTick: input.forceOut.outTick,
       classification: 'force',
+    },
+    homeTouches: input.homeTouches,
+  });
+
+  return {
+    outsAfter,
+    thirdOut: true,
+    pendingHomeTouches: [],
+    thirdOutScoring,
+  };
+};
+
+
+export type TagOutScoringRuleInput = Readonly<{
+  outsAtStart: number;
+  tagOut: Extract<TagArrivalResult, { kind: 'out' }>;
+  homeTouches: readonly RunnerBaseTouchFact[];
+}>;
+
+export type TagOutScoringRuleResult = Readonly<{
+  outsAfter: number;
+  thirdOut: boolean;
+  pendingHomeTouches: readonly RunnerBaseTouchFact[];
+  thirdOutScoring: ThirdOutScoringResult | null;
+}>;
+
+export const resolveTagOutScoringRule = (
+  input: TagOutScoringRuleInput,
+): TagOutScoringRuleResult => {
+  validateOuts(input.outsAtStart);
+  validateHomeTouches(input.homeTouches);
+
+  const outsAfter = input.outsAtStart + 1;
+  if (outsAfter < 3) {
+    return {
+      outsAfter,
+      thirdOut: false,
+      pendingHomeTouches: [...input.homeTouches],
+      thirdOutScoring: null,
+    };
+  }
+
+  const thirdOutScoring = resolveThirdOutScoring({
+    outsAtStart: input.outsAtStart,
+    thirdOutCandidate: {
+      runnerId: input.tagOut.runnerId,
+      outTick: input.tagOut.outTick,
+      classification: 'time_play',
     },
     homeTouches: input.homeTouches,
   });
