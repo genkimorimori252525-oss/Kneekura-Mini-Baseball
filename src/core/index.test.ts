@@ -58,6 +58,7 @@ import {
   decideDefensiveIntent,
   deriveCatchRetentionParameters,
   deriveAndRecordFirstGroundContactEvidence,
+  deriveAndRecordFirstFielderTouchEvidence,
   evaluateTagUpComplianceForMatch,
   evaluatePitchReleaseInfieldSide,
   getBatterRunnerDistanceToFirstBase,
@@ -338,6 +339,10 @@ describe('core package', () => {
     expect(typeof resolveFoulBallRule).toBe('function');
     expect(typeof resolveInfieldFlyRule).toBe('function');
     expect(typeof resolveHalfInningTransition).toBe('function');
+  });
+
+  it('exposes first-fielder-touch timeline physical integration through Core', () => {
+    expect(typeof deriveAndRecordFirstFielderTouchEvidence).toBe('function');
   });
 
   it('exposes first-fielder-touch fair-foul physical path through Core', () => {
