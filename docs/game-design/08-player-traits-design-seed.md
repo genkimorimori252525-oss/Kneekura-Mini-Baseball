@@ -1421,6 +1421,129 @@ public projection (0..100 / G..S)
 
 0〜10000値を変更しただけで、対応する原因状態なしに物理結果が変化する設計は避ける。
 
+### 15.45 Graded Trait Family はA〜Gの正負を色で表現する
+
+A〜G段階を持つTraitは、「青Traitの中にA〜Gを並べる」のではなく、一つの連続Trait Familyとして扱う。
+
+UI分類候補:
+
+```text
+A -> 青
+B -> 青
+C -> 通常
+D -> 通常
+E -> 通常
+F -> 赤
+G -> 赤
+```
+
+したがって、例えば `チャンスG` を青Trait欄へ表示しない。
+
+これは以下のようなA〜G型Traitへ適用候補とする。
+
+投手:
+- 対ピンチ
+- 対左打者
+- 打たれ強さ
+- ノビ
+- クイック
+
+野手:
+- チャンス
+- 対左投手
+- キャッチャー
+- 盗塁
+- 走塁
+- 送球
+- ケガしにくさ
+- 回復
+
+ただし、UI上の段階が共通でもsource of truthは別でよい。
+
+例:
+
+- ノビ -> fastball physical / release descriptor
+- クイック -> set position / release-time technique
+- 回復 -> RecoveryCapacity
+- チャンス -> pressure-context execution stability
+
+### 15.46 赤Traitは二系統を許す
+
+赤Traitは次の二系統を許可する。
+
+1. Graded Trait Familyの負側
+   - 例: チャンスF / G、送球F / G、対ピンチF / G
+2. 名前付きNegative Trait
+   - 例: 一発、軽い球、四球、抜け球、スロースターター、短気、乱調、三振、扇風機、併殺、ムード×等
+
+名前付きNegative TraitもAdmission Gateを通し、原因不明の直接デバフは禁止する。
+
+例:
+
+```text
+抜け球
+  -> delivery / release failure tendency
+  -> specific miss direction
+  -> observable high-arm-side miss
+
+短気
+  -> appraisal
+  -> anger / ActiveEmotion
+  -> command reproducibility changes
+
+乱調
+  -> inning-transition reproducibility instability
+
+三振 / 扇風機
+  -> two-strike recognition / adjustment / contact weakness
+```
+
+一方、`負け運` のように現実的な原因が説明できないものは、そのままMatch Traitへ採用しない。
+必要ならCareer Descriptor / historical labelへ再解釈する。
+
+`ムード×` はチーム全員への直接デバフではなく、Relationship / Trust / Conflict / Team Chemistry等の実在状態の要約候補とする。
+
+### 15.47 Trait UI色の最終基本構造候補
+
+```text
+金
+  -> 卓越した上位Tier / master-level Trait
+
+青
+  -> Named Positive Trait
+  -> Graded Trait A / B
+
+通常
+  -> Graded Trait C / D / E
+
+赤
+  -> Named Negative Trait
+  -> Graded Trait F / G
+
+青赤
+  -> Benefit + Cost が不可分
+
+緑
+  -> Behavior / Preference / Decision tendency
+```
+
+内部Mechanism分類とUI色分類は引き続き別物とする。
+
+### 15.48 設計シード完成条件
+
+本設計シードは、次を満たした時点で探索段階を終了し、Trait / Rating設計の承認候補版とする。
+
+1. 公開G〜S境界を確定
+2. 投手Traitを最終カタログへ仕分け
+3. 野手Traitを最終カタログへ仕分け
+4. 各Traitを `採用 / 再解釈 / 統合 / 別システムへ移動 / 不採用` のいずれかへ分類
+5. A〜G Graded Familyの表示規則を確定
+6. 名前付きNegative Traitの因果的再解釈を確認
+7. Trait Admission / Reject Gateを全候補へ適用
+8. 最終敵対監査で重大な二重計上・Projection逆流・リーグ補正の誤用がないことを確認
+
+ここまで完了したら、具体的な効果量・閾値・数式・保存最適化は後続実装設計へ委譲し、この文書自身は「計画完了」として扱える。
+
 ## 16. 将来設計で必ず再検討する問題
 
 この節はTODOではなく、**設計開始時に捨ててはいけない論点一覧**である。
