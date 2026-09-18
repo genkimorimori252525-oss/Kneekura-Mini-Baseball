@@ -48,6 +48,15 @@ export type RuleProfile = Readonly<{
       sideDeterminedBy:
         | 'both_feet'
         | 'body_center';
+      assignmentLock: Readonly<{
+        enabled: boolean;
+        establishedAt:
+          | 'inning_first_pitch_release'
+          | 'every_pitch_release';
+        duration:
+          | 'half_inning'
+          | 'single_pitch';
+      }>;
     }>;
     violationPolicyId: string;
   }>;
@@ -86,6 +95,11 @@ export const NPB_2026_RULE_PROFILE: RuleProfile = {
       evaluationMoment: 'pitch_release',
       minimumInfieldersEachSideOfSecondBase: 2,
       sideDeterminedBy: 'both_feet',
+      assignmentLock: {
+        enabled: true,
+        establishedAt: 'inning_first_pitch_release',
+        duration: 'half_inning',
+      },
     },
     violationPolicyId: 'npb_2026_5_02_c',
   },
