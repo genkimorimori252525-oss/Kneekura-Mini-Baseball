@@ -81,6 +81,7 @@ import {
   findTagContactTick,
   findThrowReleaseTick,
   isObservationRefreshDue,
+  planDefenderBaseFootReachPrimitive,
   planGloveReachPoseSegment,
   predictPlanarObservationMemory,
   generateDefensiveIntentCandidates,
@@ -269,6 +270,10 @@ describe('core package', () => {
 
   it('exposes physical throw-reception contact through Core', () => {
     expect(typeof createCatchRetentionContactFromAcceleratedReception).toBe('function');
+  });
+
+  it('exposes defender base-foot reach physics through Core', () => {
+    expect(typeof planDefenderBaseFootReachPrimitive).toBe('function');
   });
 
   it('exposes defender controlled-base physics through Core', () => {
