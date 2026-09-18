@@ -21,6 +21,7 @@ import {
   createDefensiveRatingProfile,
   canonicalizeEvidence,
   createCanonicalEvidenceFingerprint,
+  createFixedSeedRegressionCorpus,
   createBatterTrueTendency,
   buildScoutingEstimate,
   createDefensiveAlignment,
@@ -390,6 +391,7 @@ describe('core package', () => {
   it('exposes P9 canonical evidence fingerprint through Core', () => {
     expect(typeof canonicalizeEvidence).toBe('function');
     expect(typeof createCanonicalEvidenceFingerprint).toBe('function');
+    expect(typeof createFixedSeedRegressionCorpus).toBe('function');
   });
 
   it('exposes P7 one-command plate-appearance adapter through Core', () => {
