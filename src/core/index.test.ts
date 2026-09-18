@@ -15,6 +15,9 @@ import {
   decideDefensiveIntent,
   evaluateObservationGeometry,
   estimateOcclusionVisibility,
+  findAcceleratedGloveBallContactTick,
+  findAcceleratedSphereContactTick,
+  findAcceleratedTagContactTick,
   findBaseTouchTick,
   findNextDefensiveReplanTick,
   findFirstTrueTick,
@@ -103,6 +106,12 @@ describe('core package', () => {
     expect(typeof buildDefenderMotionTrajectory).toBe('function');
     expect(typeof advanceDefenderMotion).toBe('function');
     expect(typeof projectDefenderWorldState).toBe('function');
+  });
+
+  it('exposes acceleration-aware physical contact through the shared Core API', () => {
+    expect(typeof findAcceleratedSphereContactTick).toBe('function');
+    expect(typeof findAcceleratedGloveBallContactTick).toBe('function');
+    expect(typeof findAcceleratedTagContactTick).toBe('function');
   });
 
   it('exposes exact physical tag contact timing through the shared Core API', () => {
