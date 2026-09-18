@@ -210,6 +210,7 @@ describe('BatterRunnerFirstBasePhysicalAdapter', () => {
       bodyParameters,
       defender: {
         defenderId: 'first-baseman',
+        baseSurfaceHeightMeters: 0,
         securedCatch: createSecuredCatchOutcome(
           touchTick - 10_000,
           touchTick - 1,
@@ -239,6 +240,7 @@ describe('BatterRunnerFirstBasePhysicalAdapter', () => {
       bodyParameters,
       defender: {
         defenderId: 'first-baseman',
+        baseSurfaceHeightMeters: 0,
         securedCatch: createSecuredCatchOutcome(
           touchTick - 10_000,
           touchTick + 1,
@@ -273,6 +275,7 @@ describe('BatterRunnerFirstBasePhysicalAdapter', () => {
       bodyParameters,
       defender: {
         defenderId: 'first-baseman',
+        baseSurfaceHeightMeters: 0,
         securedCatch: createSecuredCatchOutcome(
           touchTick - 10_000,
           touchTick - 1,
