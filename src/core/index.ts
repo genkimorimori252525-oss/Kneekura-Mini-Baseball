@@ -3,6 +3,7 @@ export * from './rng/DeterministicRng';
 export * from './rng/SeedRoot';
 export * from './model/geometry';
 export * from './model/CanonicalMatchState';
+export * from './model/CanonicalLineScoreSnapshot';
 export * from './model/CanonicalWorldSnapshot';
 export * from './model/TimedMatchEvent';
 export * from './model/PlayerPhysicalProfile';
