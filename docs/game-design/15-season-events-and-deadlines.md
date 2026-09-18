@@ -489,6 +489,10 @@ Season Historyへ保存:
 
 # 17. 次フェーズ — Club Design
 
+基礎設計:
+
+- `docs/game-design/16-club-economy-rivalry-design.md`
+
 この文書完了後、次の設計対象を**球団そのもの**へ移す。
 
 候補:
