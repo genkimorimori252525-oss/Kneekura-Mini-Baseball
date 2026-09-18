@@ -1,7 +1,7 @@
 # 実装ロードマップと検証計画
 
 更新日: 2026-09-18
-状態: P0 完了。P1/P2 は実装完了（CI外部ブロッカー）。P3 を主進行へ移行。P5/P6 は先行縦スライスを保持。P4/P7 は本格着手前、P8 は表示基盤・試作のみ、P9 は未着手。
+状態: P0 完了。P1/P2/P3 は実装完了（CI外部ブロッカー）。P4 を主進行へ移行。P5/P6 は先行縦スライスを保持。P7 は本格着手前、P8 は表示基盤・試作のみ、P9 は未着手。
 
 ## 前提
 
@@ -24,7 +24,7 @@ Mini Baseball は将来の Natural Baseball と別の簡易試合ロジックを
 | P0 | **完了** | Headless Core、決定論、整数tick、Canonical state境界 |
 | P1 | **実装完了（CI外部ブロッカー）** | `RuleProfile`、NPB 2026配置規則、フォース、第三アウト得点、タグ到達、タッグアップ/アピール、第四アウト、pitch count、ファウル、ファウル飛球、インフィールドフライ、半回遷移。`P1RuleAcceptanceMatrix`で代表受入ケースを集約 |
 | P2 | **実装完了（CI外部ブロッカー）** | physical pitch/take/swing/contact、canonical plate-appearance ledger、fair/foul evidence、live-ball play end、MatchState遷移、same-seed replay、30/60fps・描画OFF非干渉を受入fixture化。高レベル采配→各球intentはP7、球場固有edge geometryは拡張扱い |
-| P3 | **部分的な物理校正hookのみ** | catching/retention skill等の局所校正はあるが、公開/隠し査定の統一schemaと `PlayerPhysicalProfile` は未実装 |
+| P3 | **実装完了（CI外部ブロッカー）** | `PlayerPhysicalProfile`、公開/内部守備査定schema、firstStep/acceleration/read/route/catching/transfer/arm/accuracy/awareness/tagの独立中間量、9/10/11px Presentation分離を受入fixture化 |
 | P4 | **基礎のみ** | 任意配置を許すworld/alignmentとNPB合法性は進行。ScoutingEstimate・不確実性・監督の配置候補比較は未実装 |
 | P5 | **大幅進行・未完** | 個人知覚、判断時刻、DefenderMotion、base cover、glove reach、catch、throw reception、base contact。一方、9人全体のCoveragePlan/ThrowPlan/期待損失比較は未完 |
 | P6 | **部分実装** | RunnerMotion、base rounding、base touch、tag-up/force関連は進行。盗塁・牽制・ランダウン・コーチ情報を含む個人走塁判断は未完 |
@@ -41,8 +41,8 @@ Mini Baseball は将来の Natural Baseball と別の簡易試合ロジックを
 1. ~~base-cover body target → body kinematics → foot reach → actual base contact~~ **完了**。
 2. ~~P1 gap audit / P1 core acceptance~~ **実装完了**（Actionsは`steps=[]`で未実行）。
 3. ~~P2 canonical plate-appearance timeline~~ **実装完了**（Actionsは`steps=[]`で未実行）。投球→打撃→接触/見逃し/ファウル→live ball→play end→MatchState更新を一つの正史進行へ統合し、same-seed / presentation-cadence受入fixtureを追加。
-4. **現在の主作業: P3 rating/physical profile foundation**。査定schemaと `PlayerPhysicalProfile` を導入し、体格・リーチ・速度等の校正入力を選手データへ接続する。
-5. P4のスカウティング/配置、P5の9人守備全体計画、P6の特殊走塁、P7の采配を順に閉じる。
+4. ~~P3 rating/physical profile foundation~~ **実装完了**（Actionsは`steps=[]`で未実行）。体格・公開/内部守備査定・独立中間量を導入。
+5. **現在の主作業: P4 スカウティング/守備配置**。真の打者傾向と守備側推定を分離し、不確実性を持つ `ScoutingEstimate` と任意座標 `DefensiveAlignment`、候補配置比較を作る。その後P5の9人守備全体計画、P6の特殊走塁、P7の采配を順に閉じる。
 6. P8でMiniの点描表示を正史観測者として完成させ、P9でNatural移行と統計を固定する。
 
 このguardrailにより、今後の守備物理追加は「P5全体のどの受入条件を閉じるか」を明示してから行う。
