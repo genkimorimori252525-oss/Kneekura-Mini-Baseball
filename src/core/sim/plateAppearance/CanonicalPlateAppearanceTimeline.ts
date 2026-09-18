@@ -28,6 +28,9 @@ import type {
   FirstGroundContactTerritory,
 } from '../ball/FirstGroundContactTerritory';
 import type {
+  BattedBallFirstFielderTouchTerritory,
+} from '../fielding/BattedBallFirstFielderTouchTerritory';
+import type {
   SwingingPitchPhysicalResult,
 } from '../pitching/SwingingPitchPhysicalResult';
 
@@ -143,6 +146,10 @@ export type CanonicalPlateAppearanceEvent =
   | TimedMatchEvent<
       'BattedBallFirstGroundContact',
       CanonicalFirstGroundContactEventPayload
+    >
+  | TimedMatchEvent<
+      'BattedBallFirstFielderTouch',
+      CanonicalFirstFielderTouchEventPayload
     >
   | TimedMatchEvent<
       'BattedBallDeclaredFair',
@@ -331,6 +338,39 @@ export const recordBatBallContact = (
   };
 };
 
+
+export const recordBattedBallFirstFielderTouch = (
+  timeline: CanonicalPlateAppearanceTimeline,
+  evidence: BattedBallFirstFielderTouchTerritory,
+): CanonicalPlateAppearanceTimeline => {
+  if (timeline.status.kind !== 'batted_ball_pending') {
+    throw new Error(
+      'first-fielder-touch evidence requires a pending batted ball',
+    );
+  }
+  if (evidence.tick < timeline.status.contactTick) {
+    throw new Error(
+      'first-fielder touch must not precede bat-ball contact',
+    );
+  }
+  assertMonotonicTick(timeline, evidence.tick);
+
+  const event: CanonicalPlateAppearanceEvent = {
+    tick: evidence.tick,
+    sequence: timeline.nextSequence,
+    kind: 'BattedBallFirstFielderTouch',
+    payload: {
+      evidence,
+    },
+  };
+
+  return {
+    ...timeline,
+    lastEventTick: evidence.tick,
+    nextSequence: timeline.nextSequence + 1,
+    events: [...timeline.events, event],
+  };
+};
 
 export const recordBattedBallFirstGroundContact = (
   timeline: CanonicalPlateAppearanceTimeline,
