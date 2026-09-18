@@ -21,6 +21,14 @@ export type ControlledRunnerTagFact = Readonly<{
   tick: number;
 }>;
 
+export type PlayEndReason = 'live_action_complete' | 'dead_ball';
+
+export type PlayEndFact = Readonly<{
+  kind: 'play_end';
+  tick: number;
+  reason: PlayEndReason;
+}>;
+
 const validateTick = (tick: number): void => {
   if (!Number.isSafeInteger(tick) || tick < 0) {
     throw new Error('physical rule fact tick must be a non-negative safe integer');
@@ -77,5 +85,18 @@ export const createControlledRunnerTagFact = (
     defenderId,
     runnerId,
     tick,
+  };
+};
+
+
+export const createPlayEndFact = (
+  tick: number,
+  reason: PlayEndReason,
+): PlayEndFact => {
+  validateTick(tick);
+  return {
+    kind: 'play_end',
+    tick,
+    reason,
   };
 };
