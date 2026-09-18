@@ -42,6 +42,10 @@ import {
   type MiniCommandBandState,
 } from './MiniCommandBandState';
 import {
+  buildMiniCommandOptionBandState,
+  type MiniCommandOptionBandState,
+} from './MiniCommandOptionBandState';
+import {
   buildMiniPlayerCardState,
   type MiniPlayerCardState,
 } from './MiniPlayerCardState';
@@ -54,6 +58,8 @@ export type MiniGameLiveFrame = Readonly<{
     pitcher: MiniHandednessBadge | null;
   }>;
   commandBand: MiniCommandBandState | null;
+  commandOptions:
+    MiniCommandOptionBandState | null;
   playerCards: Readonly<{
     batter: MiniPlayerCardState | null;
     pitcher: MiniPlayerCardState | null;
@@ -213,6 +219,12 @@ export const buildMiniGameLiveFrame = (
       input.currentCommand === undefined
         ? null
         : buildMiniCommandBandState(
+            input.currentCommand,
+          ),
+    commandOptions:
+      input.currentCommand === undefined
+        ? null
+        : buildMiniCommandOptionBandState(
             input.currentCommand,
           ),
     playerCards: buildPlayerCards(input),
