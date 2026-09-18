@@ -10,6 +10,7 @@ import {
 import {
   createCanonicalPlateAppearanceTimeline,
   recordBatBallContact,
+  recordBattedBallFirstGroundContact,
   recordCountedPitch,
   recordFairBattedBall,
   recordFoulBattedBall,
@@ -215,6 +216,52 @@ describe('CanonicalPlateAppearanceTimeline', () => {
     )).toThrow(
       'plate appearance event tick must not precede the previous event',
     );
+  });
+
+  it('records first-ground territory evidence without prematurely deciding fair or foul', () => {
+    const contact = physicalContact(3_500_000);
+    const contacted = recordBatBallContact(
+      createCanonicalPlateAppearanceTimeline(
+        match(1, 1),
+        3_400_000,
+      ),
+      contact,
+    );
+
+    const withGround = recordBattedBallFirstGroundContact(
+      contacted,
+      {
+        tick: 3_550_000,
+        position: { x: 0.2, z: 3 },
+        classification: {
+          kind: 'inside_fair_wedge',
+          firstBaseLineSignedSide: 1,
+          thirdBaseLineSignedSide: 1,
+        },
+      },
+    );
+
+    expect(withGround.status).toEqual({
+      kind: 'batted_ball_pending',
+      count: { balls: 1, strikes: 1 },
+      contactTick: 3_500_000,
+    });
+    expect(withGround.events.at(-1)).toEqual({
+      tick: 3_550_000,
+      sequence: 1,
+      kind: 'BattedBallFirstGroundContact',
+      payload: {
+        evidence: {
+          tick: 3_550_000,
+          position: { x: 0.2, z: 3 },
+          classification: {
+            kind: 'inside_fair_wedge',
+            firstBaseLineSignedSide: 1,
+            thirdBaseLineSignedSide: 1,
+          },
+        },
+      },
+    });
   });
 
   it('keeps physical contact pending until a fair-ball disposition makes it live', () => {
