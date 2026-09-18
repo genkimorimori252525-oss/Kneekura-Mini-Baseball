@@ -73,13 +73,13 @@ describe('batter swing-exit run transition', () => {
     expect(result).toMatchObject({
       launchTick: 1_500_000,
       launchRouteDistanceMeters: 0,
-      initialRouteSpeedMps: 1.2,
       requiredTurnRadians: 0,
       turnRecoverySeconds: 0,
       lateralRecoverySeconds: 0,
       backwardRecoverySeconds: 0,
       recoverySeconds: 0,
     });
+    expect(result.initialRouteSpeedMps).toBeCloseTo(1.2, 12);
   });
 
   it('requires mechanical recovery for a sideways follow-through with lateral residual velocity', () => {
