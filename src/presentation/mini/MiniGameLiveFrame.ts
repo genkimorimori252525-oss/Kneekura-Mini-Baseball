@@ -69,10 +69,20 @@ export type MiniGameLiveFrameInput = Readonly<{
     batter?: Readonly<{
       playerId: string;
       displayName?: string;
+      jerseyNumber?: string | number;
+      publicMetrics?: readonly Readonly<{
+        label: string;
+        value: string | number;
+      }>[];
     }>;
     pitcher?: Readonly<{
       playerId: string;
       displayName?: string;
+      jerseyNumber?: string | number;
+      publicMetrics?: readonly Readonly<{
+        label: string;
+        value: string | number;
+      }>[];
     }>;
   }>;
   frame: MiniPresentationFrame;
@@ -101,6 +111,8 @@ const buildPlayerCards = (
         role: 'batter',
         playerId: batterMeta.playerId,
         displayName: batterMeta.displayName,
+        jerseyNumber: batterMeta.jerseyNumber,
+        publicMetrics: batterMeta.publicMetrics,
         handedness:
           input.frame.sample.batter.handedness,
       });
@@ -123,6 +135,8 @@ const buildPlayerCards = (
         role: 'pitcher',
         playerId: pitcherMeta.playerId,
         displayName: pitcherMeta.displayName,
+        jerseyNumber: pitcherMeta.jerseyNumber,
+        publicMetrics: pitcherMeta.publicMetrics,
         handedness:
           input.frame.sample.pitcherHandedness,
       });
