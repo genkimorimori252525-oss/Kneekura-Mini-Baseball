@@ -11,6 +11,7 @@ import {
   createBatterRunnerFirstBaseRoute,
   createBatterStanceGeometry,
   createRunnerMotionStateFromSwingExitTransition,
+  buildBatterSwingExitRecoveryTrajectory,
   capturePlanarObservation,
   captureSpatialObservation,
   closeAppealWindow,
@@ -76,6 +77,7 @@ import {
   projectDefenderBodyKinematicsSegment,
   projectDefenderWorldState,
   projectRunnerWorldState,
+  projectBatterSwingExitRecoveryRunnerWorldState,
   normalizeInfieldBoundaryViolation,
   normalizeInningInfieldSideLockViolation,
   resolveCatchRetention,
@@ -107,6 +109,7 @@ import {
   resolveCommunicationReception,
   retireForceParticipant,
   sampleRunnerPhysicalTouchPoint,
+  sampleBatterSwingExitRecoveryTrajectory,
   sampleRunnerRoute,
   selectAdvantageousInningEndingOut,
 } from './index';
@@ -144,6 +147,12 @@ describe('core package', () => {
 
   it('exposes exact base touch timing through the shared Core API', () => {
     expect(typeof findBaseTouchTick).toBe('function');
+  });
+
+  it('exposes batter swing-exit recovery world trajectory through the shared Core API', () => {
+    expect(typeof buildBatterSwingExitRecoveryTrajectory).toBe('function');
+    expect(typeof sampleBatterSwingExitRecoveryTrajectory).toBe('function');
+    expect(typeof projectBatterSwingExitRecoveryRunnerWorldState).toBe('function');
   });
 
   it('exposes batter swing-exit run transition physics through the shared Core API', () => {
