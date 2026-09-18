@@ -1,3 +1,4 @@
+import type { CatchOutcome } from '../sim/fielding/CatchOutcome';
 import {
   findDefenderControlledBaseContactTick,
   type DefenderControlledBaseContactInput,
@@ -30,4 +31,32 @@ export const createControlledBaseContactFactFromDefenderPhysics = (
         input.base,
         tick,
       );
+};
+
+
+export type DefenderControlledBaseContactFromCatchOutcomeInput =
+  Omit<
+    DefenderControlledBaseContactPhysicalAdapterInput,
+    'securedCatch'
+  >
+  & Readonly<{
+    catchOutcome: CatchOutcome;
+  }>;
+
+export const createControlledBaseContactFactFromCatchOutcomePhysics = (
+  input: DefenderControlledBaseContactFromCatchOutcomeInput,
+): ControlledBaseContactFact | null => {
+  if (input.catchOutcome.kind !== 'secured') {
+    return null;
+  }
+
+  return createControlledBaseContactFactFromDefenderPhysics({
+    defenderId: input.defenderId,
+    base: input.base,
+    baseRegion: input.baseRegion,
+    baseSurfaceHeightMeters: input.baseSurfaceHeightMeters,
+    securedCatch: input.catchOutcome,
+    controlThroughTick: input.controlThroughTick,
+    contactPrimitives: input.contactPrimitives,
+  });
 };
