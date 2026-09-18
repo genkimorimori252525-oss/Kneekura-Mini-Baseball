@@ -7,6 +7,7 @@ import {
 } from './BallFlight';
 import {
   findFirstRollingBattedBallBaseContact,
+  findFirstRollingBattedBallFirstThirdBaseContact,
   type BattedBallBasePrism,
 } from './BattedBallBaseContact';
 
@@ -154,6 +155,50 @@ describe('BattedBallBaseContact', () => {
         groundRollingDecelerationMps2: 0,
       },
     })).toBeNull();
+  });
+
+  it('supports rotated base prisms without changing sphere-corner semantics', () => {
+    const rotated: BattedBallBasePrism = {
+      region: {
+        center: { x: 3, z: 0 },
+        halfSize: { x: 0.2, z: 0.2 },
+        rotationRadians: Math.PI / 4,
+      },
+      bottomY: 0,
+      topY: 0.05,
+    };
+
+    const result = findFirstRollingBattedBallBaseContact({
+      flight: flight(0, 0, 4, 0),
+      base: 1,
+      basePrism: rotated,
+      searchDurationTicks: 1_000_000,
+      parameters: {
+        ...DEFAULT_BALL_FLIGHT_PARAMETERS,
+        groundRollingDecelerationMps2: 0,
+      },
+    });
+
+    expect(result).not.toBeNull();
+    expect(result?.continuousContactCenter.x)
+      .toBeLessThan(3);
+  });
+
+  it('chooses the physically earlier of first-base and third-base contacts before tick quantization can hide ordering', () => {
+    const result = findFirstRollingBattedBallFirstThirdBaseContact({
+      flight: flight(0, 0, 4, 0),
+      firstBasePrism: base(2, 0),
+      thirdBasePrism: base(3, 0),
+      searchDurationTicks: 1_000_000,
+      parameters: {
+        ...DEFAULT_BALL_FLIGHT_PARAMETERS,
+        groundRollingDecelerationMps2: 0,
+      },
+    });
+
+    expect(result?.base).toBe(1);
+    expect(result?.continuousContactCenter.x)
+      .toBeCloseTo(2 - 0.2 - 0.0366, 12);
   });
 
   it('returns null when the ball stops before reaching the base', () => {
