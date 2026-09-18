@@ -111,6 +111,32 @@
 - シフトの評価は「当たり判定を何%変えたか」ではなく、同一打球集合を異なる守備配置で処理したときのアウト・進塁・失点・成績差で検証する。
 - 打者が守備配置に対して打撃意図を変える機能を将来導入する場合も、打撃AIの意思決定として実装し、守備側から打球結果を直接書き換えない。
 
+## D-014: 選手体格はCore物理と点描表示へ別々に投影する
+
+- Mini Baseball の守備・走塁・打撃で、脚・腕・グラブ・身体の判定に3Dキャラクターモデルや骨格アニメーションを必須としない。
+- Core は選手身体を、必要な局面だけ `body / glove / tag_hand / left_foot / right_foot` 等の数値primitive（位置、速度、加速度、接触半径、相対リーチ）として扱う。
+- 一歩ごとの脚運びや筋骨格シミュレーションは要求しない。Natural Baseball が将来3Dモデルを表示しても、3Dモデルの骨・メッシュを試合結果の正史計算へ逆入力しない。
+- 選手体格は将来 `PlayerPhysicalProfile` として、最低限 `heightMeters` を持てる設計にする。必要性が確認された場合は `armSpanMeters`、`legLengthMeters` 等を独立値として追加し、身長だけですべてを決めない。
+- 体格は成功率を直接補正せず、`maximumLegReachMeters`、グラブ到達範囲、タグ到達範囲、身体基準高さ等の中間物理量へ作用させる。
+- Mini の点描表示では、現在の野手・走者コマ約10pxを「平均的なPhysical Profile」の基準サイズとして扱う予定とする。
+- 初期の体格差表示は視認性を壊さない小幅な離散段階（例: 9px / 10px / 11px）を候補とし、P8の視認性試験で最終校正する。具体的な身長閾値は現時点では固定しない。
+- Batter POV 等で遠近によるdot size変化がある場合、体格由来のvisual scaleとカメラ距離由来のapparent scaleをPresentation内で合成・量子化する。
+- **表示上の点サイズから物理当たり判定・リーチを逆算することを禁止する。** `PlayerPhysicalProfile` からCore物理とPresentation表示へ別々に派生させる。
+
+```text
+PlayerPhysicalProfile
+  height / optional arm span / leg length
+        │
+        ├──> Core physical calibration
+        │      leg reach / glove reach / tag reach / body origin
+        │
+        └──> Mini Presentation calibration
+               average dot ≈ 10px
+               small visual size tiers
+```
+
+この分離により、Mini が点だけで選手を描いても内部では身体接触を因果計算でき、Natural が将来3Dモデルへ移行しても同じCore結果を再利用できる。
+
 ## 未決定事項
 
 - NPB 2026 プロファイルに含める延長戦、予告先発、登録・交代制限の対象モード
