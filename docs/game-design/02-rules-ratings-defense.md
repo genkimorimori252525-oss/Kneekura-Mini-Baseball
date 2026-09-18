@@ -101,6 +101,8 @@ Render Clock
 
 公開値は能力の完全な説明ではない。例えば「守備力」が同じでも、初動、打球判断、送球の正確さまで同じにしない。
 
+この表は「プレイヤーへ公開できる情報」の例であり、すべてを同じG〜S Headline Ratingとして同時表示する意味ではない。例えば盗塁・走塁等はA〜G Graded Trait Familyを主要Projectionとして使える。バント等でRatingとTraitの両方を表示する場合も、同じsource of truthを別能力として二重入力しない。
+
 また、公開値はすべて同じ尺度とは限らない。
 
 - ミート、パワー、守備力、制球等はリーグ文脈を持つPresentation Projection候補
