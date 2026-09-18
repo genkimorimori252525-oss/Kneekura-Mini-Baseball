@@ -1,5 +1,7 @@
 # Accelerated Physical Contact Foundation Plan
 
+**Status:** COMPLETE — implemented and verified on 2026-09-18.
+
 **Goal:** Extend physical contact timing so accelerating defender/glove/tag primitives can participate in authoritative contact without being flattened back to constant velocity.
 
 **Context**
@@ -89,3 +91,23 @@ Run full `npm run verify` and record test counts.
 - body/pose model that turns defender body trajectory into actual glove/hand trajectories;
 - runner curved-route primitive segmentation for fully accelerated tag geometry;
 - catch possession and RuleEngine remain separate consumers.
+
+
+---
+
+## Completion Evidence
+
+Implemented:
+- generic constant-acceleration sphere contact with continuous quartic separation analysis;
+- deterministic stationary-point isolation and earliest-root refinement;
+- zero-relative-acceleration compatibility with existing `MovingSphereContact`;
+- accelerated glove-ball contact with explicit ball/glove acceleration;
+- accelerated tag contact with explicit physical primitive acceleration;
+- contact remains separate from catch possession and rule result;
+- shared Core API export.
+
+Verification at implementation HEAD `a4d733dd845a8c373a0da9124f59cab8c7b41a53`:
+- `tsc --noEmit`: success
+- Vitest: 43 test files passed
+- Vitest: 210 tests passed
+- P0 Core run: `35300132623` success
