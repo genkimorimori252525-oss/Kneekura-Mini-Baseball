@@ -36,6 +36,17 @@ describe('infield boundary region', () => {
     )).toBe(false);
   });
 
+  it('rejects a repeated closing vertex instead of accepting a zero-length closing edge', () => {
+    expect(() => createInfieldBoundaryRegion([
+      { x: 0, z: 0 },
+      { x: 5, z: 0 },
+      { x: 5, z: 5 },
+      { x: 0, z: 0 },
+    ])).toThrow(
+      'infield boundary polygon must not contain zero-length edges',
+    );
+  });
+
   it('rejects degenerate stadium boundary geometry', () => {
     expect(() => createInfieldBoundaryRegion([
       { x: 0, z: 0 },
