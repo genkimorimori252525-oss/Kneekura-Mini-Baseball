@@ -65,6 +65,7 @@ export * from './sim/plateAppearance/PlateAppearanceSequenceCoordinator';
 export * from './sim/plateAppearance/BattedBallTimelinePhysicalAdapter';
 export * from './sim/plateAppearance/GroundContactFairFoulTimelineAdapter';
 export * from './sim/plateAppearance/FielderTouchFairFoulTimelineAdapter';
+export * from './sim/plateAppearance/FielderTouchTimelinePhysicalAdapter';
 export * from './sim/plateAppearance/CaughtFoulMatchState';
 export * from './sim/pitching/PitchTrajectory';
 export * from './sim/pitching/TakenPitchPhysicalResult';
