@@ -1,12 +1,12 @@
 # GitHub Actions Pre-Step Blocker — 2026-09-19
 
-**Status:** EXTERNAL / PRE-STEP BLOCKER.
+**Status:** CONFIRMED EXTERNAL / PRE-STEP BLOCKER.
 
 ## Summary
 
-The repository workflow file is valid and contains normal executable steps, but GitHub Actions jobs terminate before the first step starts.
+The repository workflow is valid and contains normal executable steps, but GitHub Actions is refusing to start the job before checkout.
 
-This is not currently treated as a repository-code failure.
+This is now confirmed as an account billing / spending-limit restriction rather than a repository-code failure.
 
 ## Workflow checked
 
@@ -27,63 +27,72 @@ jobs:
       - run: npm run verify
 ```
 
-The realism branch is explicitly included in the push trigger.
+The realism branch `jolly/core-realism-2026-09-18` is explicitly included in the push trigger.
 
-## Observed evidence
+## Confirmed GitHub diagnosis
 
-Representative run:
+Latest checked run:
 
-- run: `35368386921`
-- job: `105676242863`
-- conclusion: failure
-- step list: `[]`
-- job-log download: `BlobNotFound`
+- run: `35368689869`
+- head: `a375f17c7ed628106e058c75ca084a01f5ae99a4`
+- job: `105677225393`
+- conclusion: `failure`
+- category: `billing_or_budget_restriction`
+- source: `check_annotation`
 
-Latest explicit rerun:
+GitHub's annotation says:
 
-- run: `35368503102`
-- attempt: `2`
-- job: `105676977156`
-- conclusion: failure
-- step list: `null`
+> The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings
 
-The rerun request itself succeeded, but the new attempt again terminated before any workflow step existed.
+This means the failure happens before runner execution. Repository checkout, Node setup, dependency installation, TypeScript, Vitest, and `npm run verify` have not executed for this run.
 
-The commit combined-status endpoint also returned no ordinary commit statuses for the checked head.
+Earlier evidence showing `steps=[]` / `steps=null` is consistent with this diagnosis.
 
-## Interpretation
+## Secondary local verification path
 
-Current evidence is consistent with failure before runner execution, for example:
+A Love-Github isolated workspace was also attempted as a temporary way to expose real TypeScript/test failures without treating it as a substitute for CI.
 
-- repository / organization Actions policy;
-- account or billing restriction;
-- GitHub-hosted runner allocation refusal;
-- installation / platform-side Actions restriction.
+That path is currently unavailable because its synthetic baseline cannot start Docker:
 
-The repository workflow itself should not be rewritten merely to make `steps=[]` disappear.
+```text
+failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine
+The system cannot find the file specified.
+```
+
+So there are currently two independent execution blockers:
+
+1. GitHub-hosted Actions: billing / spending-limit restriction.
+2. Local isolated Love-Github workspace: Docker Desktop Linux engine unavailable.
+
+Neither is evidence of a P9 source failure.
 
 ## Recovery condition
 
 Do not freeze P9 expected fingerprints until all of the following are true:
 
-1. the `verify` job contains real step records;
-2. checkout actually starts;
-3. `npm install` runs;
-4. `npm run verify` runs;
-5. TypeScript and Vitest results are visible;
-6. the same fixed-seed evidence reproduces across reruns.
+1. the GitHub billing / spending-limit restriction is cleared;
+2. the `verify` job contains real step records;
+3. checkout actually starts;
+4. `npm install` runs;
+5. `npm run verify` runs;
+6. TypeScript and Vitest results are visible;
+7. the same fixed-seed evidence reproduces across repeated successful runs.
+
+The optional isolated workspace can be used for earlier debugging once Docker Desktop is available, but it does not replace the GitHub Actions acceptance gate for fingerprint freezing.
 
 ## First actions after recovery
 
-1. run full `npm run verify`;
-2. fix any real TypeScript/test failures;
-3. rerun the P9 fixed-seed corpus;
-4. freeze expected fingerprints only after successful repeated runs;
-5. record actual batch-performance measurements;
-6. begin statistical calibration / Natural renderer work.
+1. rerun `P0 Core` on exact realism head;
+2. confirm checkout / setup-node / install / verify all execute;
+3. fix only genuine TypeScript/test failures;
+4. repeat the full verify on the repaired exact head;
+5. run the P9 fixed-seed corpus repeatedly;
+6. freeze expected fingerprints only after reproducibility is demonstrated;
+7. record actual batch-performance measurements;
+8. begin statistical calibration / Natural renderer work.
 
 ## Roadmap relation
 
-P0-P9 source foundations are implemented.
+P0-P9 source foundations remain implemented.
 
-This CI blocker prevents runtime verification and baseline freezing, but does not reopen the architectural phases by itself.
+The verified external execution blocker prevents repository-GREEN status and baseline freezing, but does not reopen the architectural phases by itself.
