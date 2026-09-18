@@ -16,10 +16,12 @@ import {
   createFlyBallFirstFielderTouchFact,
   createControlledRunnerTagFact,
   createDefensiveAppealAttemptFact,
+  createDefenderFootPlacementFact,
   createLiveBallCatchOutcome,
   createObservationSample,
   createPlayEndFact,
   createRunnerBaseDepartureFact,
+  createSecondBaseDivisionReference,
   createSecuredCatchOutcome,
   createTagContactPrimitiveFromDefenderPrimitive,
   applyCatchExecutionTargetError,
@@ -33,6 +35,7 @@ import {
   decideDefensiveIntent,
   deriveCatchRetentionParameters,
   evaluateTagUpComplianceForMatch,
+  evaluatePitchReleaseInfieldSide,
   getRuleProfile,
   evaluateObservationGeometry,
   estimateOcclusionVisibility,
@@ -78,6 +81,7 @@ import {
   resolveTagUpAppeal,
   resolveTagUpAppealForMatch,
   resolveAdvantageousFourthOutForMatch,
+  evaluatePitchReleaseInfieldSideForMatch,
   resolveTagOutScoringRule,
   resolveDefensiveDecisionTiming,
   resolveCommunicationReception,
@@ -196,6 +200,13 @@ describe('core package', () => {
     expect(typeof resolveBatterRunnerFirstBase).toBe('function');
     expect(typeof resolveThirdOutScoring).toBe('function');
     expect(typeof resolveGroundBallFirstBaseRule).toBe('function');
+  });
+
+  it('exposes NPB 2026 pitch-release defensive alignment rules through Core', () => {
+    expect(typeof createDefenderFootPlacementFact).toBe('function');
+    expect(typeof createSecondBaseDivisionReference).toBe('function');
+    expect(typeof evaluatePitchReleaseInfieldSide).toBe('function');
+    expect(typeof evaluatePitchReleaseInfieldSideForMatch).toBe('function');
   });
 
   it('exposes the versioned NPB 2026 RuleProfile boundary through Core', () => {
