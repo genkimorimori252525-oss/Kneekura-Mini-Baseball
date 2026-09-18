@@ -18,6 +18,7 @@ import {
   buildBatterSwingExitRecoveryTrajectory,
   applyBatterRunnerWorldTimelineToSnapshot,
   applyStrikeoutPlateAppearanceToMatchState,
+  applyWalkPlateAppearanceToMatchState,
   buildBatterRunnerWorldTimeline,
   createCanonicalPlateAppearanceTimeline,
   capturePlanarObservation,
@@ -111,6 +112,7 @@ import {
   resolveFoulBallRule,
   resolveHalfInningTransition,
   resolveInfieldFlyRule,
+  resolveWalkForcedAdvancement,
   resolveForceOutAtTarget,
   resolveForceOutScoringRule,
   resolveThirdOutScoring,
@@ -316,6 +318,8 @@ describe('core package', () => {
     expect(typeof recordCountedPitch).toBe('function');
     expect(typeof recordBatBallContact).toBe('function');
     expect(typeof applyStrikeoutPlateAppearanceToMatchState).toBe('function');
+    expect(typeof applyWalkPlateAppearanceToMatchState).toBe('function');
+    expect(typeof resolveWalkForcedAdvancement).toBe('function');
   });
 
   it('exposes the first Correct Rule Result foundation through the shared Core API', () => {
