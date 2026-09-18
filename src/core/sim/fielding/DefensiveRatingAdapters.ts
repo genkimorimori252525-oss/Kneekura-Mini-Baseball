@@ -51,8 +51,23 @@ import {
   type TagActionTimingParameters,
 } from './TagActionTiming';
 import type {
+  Vec2,
   Vec3,
 } from '../../model/geometry';
+import {
+  applyBattedBallReadPredictionError,
+  type BattedBallReadCalibration,
+  type BattedBallReadPredictionAssessment,
+} from './BattedBallReadSkill';
+import {
+  planDefenderRoute,
+  type DefenderRoutePlan,
+  type DefenderRoutePlanCalibration,
+} from './DefenderRoutePlan';
+import type {
+  RememberedPrediction,
+  SpatialMotionEstimate,
+} from '../perception/ObservationMemory';
 
 export type DefenderAccelerationRatingCalibration = Readonly<{
   lowestAbilityAccelerationMps2: number;
@@ -209,4 +224,39 @@ export const resolveRatedTagActionTiming = (
     ratings.tagSkill,
     parameters,
   )
+);
+
+
+export const applyRatedBattedBallRead = (
+  perceivedBall:
+    RememberedPrediction<SpatialMotionEstimate>,
+  ratings: DefensiveRatings,
+  rng: DeterministicRng,
+  calibration: BattedBallReadCalibration,
+): BattedBallReadPredictionAssessment => (
+  applyBattedBallReadPredictionError(
+    perceivedBall,
+    ratings.battedBallRead,
+    rng,
+    calibration,
+  )
+);
+
+export const planRatedDefenderRoute = (
+  input: Readonly<{
+    start: Vec2;
+    target: Vec2;
+    ratings: DefensiveRatings;
+    preferredSide: -1 | 1;
+    calibration: DefenderRoutePlanCalibration;
+  }>,
+): DefenderRoutePlan => (
+  planDefenderRoute({
+    start: input.start,
+    target: input.target,
+    routeEfficiency:
+      input.ratings.routeEfficiency,
+    preferredSide: input.preferredSide,
+    calibration: input.calibration,
+  })
 );
