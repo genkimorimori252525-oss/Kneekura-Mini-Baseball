@@ -9,3 +9,5 @@ export * from './MiniHudState';
 export * from './MiniGameLiveFrame';
 export * from './MiniHandednessBadge';
 export * from './MiniBallHeightProfile';
+export * from './FieldOverheadProjection';
+export * from './MiniBallTrail';
