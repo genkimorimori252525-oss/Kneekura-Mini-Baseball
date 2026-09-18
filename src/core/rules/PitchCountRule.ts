@@ -19,7 +19,8 @@ export type PitchCountRuleResult =
       | 'ball'
       | 'called_strike'
       | 'swinging_strike'
-      | 'foul';
+      | 'foul'
+      | 'foul_bunt';
   }>
   | Readonly<{
     kind: 'walk';
