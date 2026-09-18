@@ -52,6 +52,8 @@ export type FieldOverheadBallPoint = Readonly<{
   worldPosition: Vec3;
   screenPosition: MiniScreenPoint;
   altitudeMeters: number;
+  heightTier: MiniBallHeightTier;
+  diameterPixels: number;
 }>;
 
 export type FieldOverheadRenderState = Readonly<{
@@ -68,6 +70,7 @@ export type FieldOverheadRenderStateInput = Readonly<{
     Partial<Record<string, PlayerPhysicalProfile>>
   >;
   dotCalibration?: MiniPlayerDotSizeCalibration;
+  ballHeightCalibration?: MiniBallHeightCalibration;
 }>;
 
 const validateFinite = (
@@ -228,22 +231,33 @@ export const buildFieldOverheadRenderState = (
 
   const ball = input.sample.world.ball === null
     ? null
-    : {
-        worldPosition: {
-          x: input.sample.world.ball.position.x,
-          y: input.sample.world.ball.position.y,
-          z: input.sample.world.ball.position.z,
-        },
-        screenPosition: projectWorldPoint(
-          {
+    : (() => {
+        const height =
+          deriveMiniBallHeightPresentationProfile(
+            input.sample.world.ball.position.y,
+            input.ballHeightCalibration
+              ?? DEFAULT_MINI_BALL_HEIGHT_CALIBRATION,
+          );
+
+        return {
+          worldPosition: {
             x: input.sample.world.ball.position.x,
+            y: input.sample.world.ball.position.y,
             z: input.sample.world.ball.position.z,
           },
-          input.camera,
-        ),
-        altitudeMeters:
-          input.sample.world.ball.position.y,
-      };
+          screenPosition: projectWorldPoint(
+            {
+              x: input.sample.world.ball.position.x,
+              z: input.sample.world.ball.position.z,
+            },
+            input.camera,
+          ),
+          altitudeMeters:
+            input.sample.world.ball.position.y,
+          heightTier: height.heightTier,
+          diameterPixels: height.diameterPixels,
+        };
+      })();
 
   return {
     tick: input.sample.world.tick,
