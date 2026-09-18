@@ -38,10 +38,14 @@ describe('BattedBallReadSkill', () => {
       calibration,
     );
 
-    expect(low.positionErrorScaleMeters).toBe(1.2);
-    expect(high.positionErrorScaleMeters).toBe(0.02);
-    expect(low.velocityErrorScaleMps).toBe(2.5);
-    expect(high.velocityErrorScaleMps).toBe(0.05);
+    expect(low.positionErrorScaleMeters)
+      .toBeCloseTo(1.2, 12);
+    expect(high.positionErrorScaleMeters)
+      .toBeCloseTo(0.02, 12);
+    expect(low.velocityErrorScaleMps)
+      .toBeCloseTo(2.5, 12);
+    expect(high.velocityErrorScaleMps)
+      .toBeCloseTo(0.05, 12);
     expect(low.positionError).not.toEqual(high.positionError);
     expect(low.velocityError).not.toEqual(high.velocityError);
   });

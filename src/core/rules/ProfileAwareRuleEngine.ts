@@ -57,6 +57,8 @@ const assertAppealSemantics = (
   context: RuleContext,
   input: TagUpAppealInput,
 ): void => {
+  const appealWindow = input.window;
+
   if (!context.profile.tagUp.earlyDepartureRequiresAppeal) {
     throw new Error(
       'active rule profile does not require an appeal for early departure',
@@ -72,7 +74,7 @@ const assertAppealSemantics = (
   }
 
   if (
-    input.window.closeReason === 'next_pitch_or_play'
+    appealWindow.closeReason === 'next_pitch_or_play'
     && !context.profile.appeal.nextPitchOrPlayClosesWindow
   ) {
     throw new Error(
@@ -80,7 +82,7 @@ const assertAppealSemantics = (
     );
   }
   if (
-    input.window.closeReason === 'defense_left_field'
+    appealWindow.closeReason === 'defense_left_field'
     && !context.profile.appeal
       .defenseLeavingFieldClosesInningEndingWindow
   ) {

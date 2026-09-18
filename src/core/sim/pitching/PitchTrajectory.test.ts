@@ -25,16 +25,12 @@ describe('PitchTrajectory', () => {
     );
 
     expect(state.tick).toBe(1_250_000);
-    expect(state.position).toEqual({
-      x: 0.05,
-      y: 1.084375,
-      z: 8.44,
-    });
-    expect(state.velocity).toEqual({
-      x: 0,
-      y: -0.125,
-      z: -40,
-    });
+    expect(state.position.x).toBeCloseTo(0.05, 12);
+    expect(state.position.y).toBeCloseTo(1.084375, 12);
+    expect(state.position.z).toBeCloseTo(8.44, 12);
+    expect(state.velocity.x).toBeCloseTo(0, 12);
+    expect(state.velocity.y).toBeCloseTo(-0.125, 12);
+    expect(state.velocity.z).toBeCloseTo(-40, 12);
     expect(state.spin).toEqual({
       x: 0,
       y: 150,

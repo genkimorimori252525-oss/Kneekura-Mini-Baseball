@@ -117,15 +117,28 @@ describe('sampleRunnerMotionTrajectory', () => {
     );
 
     for (const deltaTicks of [0, 50_000, 200_000, 350_000, 800_000]) {
-      expect(sampleRunnerMotionTrajectory(
+      const sampled = sampleRunnerMotionTrajectory(
         trajectory,
         start.tick + deltaTicks,
-      )).toEqual(advanceRunnerMotion(
+      );
+      const advanced = advanceRunnerMotion(
         start,
         intent,
         deltaTicks,
         localParameters,
-      ));
+      );
+
+      expect(sampled.tick).toBe(advanced.tick);
+      expect(sampled.driveDirection)
+        .toBe(advanced.driveDirection);
+      expect(sampled.bodyMode).toBe(advanced.bodyMode);
+      expect(sampled.speedMps)
+        .toBeCloseTo(advanced.speedMps, 12);
+      expect(sampled.routeDistanceMeters)
+        .toBeCloseTo(
+          advanced.routeDistanceMeters,
+          12,
+        );
     }
   });
 

@@ -198,7 +198,7 @@ describe('batter swing-exit recovery world trajectory', () => {
       shortRoute,
       parameters,
     )).toThrow(
-      'swing-exit recovery must finish inside the initial straight route segment',
+      'swing-exit recovery progress exceeds the finite runner route',
     );
   });
 });

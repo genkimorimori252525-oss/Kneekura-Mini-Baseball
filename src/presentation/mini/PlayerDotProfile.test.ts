@@ -30,13 +30,13 @@ describe('Mini PlayerDotProfile', () => {
       heightScale: 0.9,
     });
 
-    expect(deriveMiniPlayerDotPresentationProfile(
-      createPlayerPhysicalProfile(1.98),
-    )).toEqual({
-      sizeTier: 'large',
-      diameterPixels: 11,
-      heightScale: 1.1,
-    });
+    const tall =
+      deriveMiniPlayerDotPresentationProfile(
+        createPlayerPhysicalProfile(1.98),
+      );
+    expect(tall.sizeTier).toBe('large');
+    expect(tall.diameterPixels).toBe(11);
+    expect(tall.heightScale).toBeCloseTo(1.1, 12);
   });
 
   it('keeps modest height differences at the 10px reference tier', () => {
