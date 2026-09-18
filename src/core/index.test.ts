@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import {
   CORE_PROTOCOL_VERSION,
   advanceRunnerMotion,
+  buildPlayerPerceivedWorldState,
   createLiveBallCatchOutcome,
+  createObservationSample,
   createSecuredCatchOutcome,
   evaluateCatchRetentionLoad,
   findBaseTouchTick,
@@ -12,8 +14,11 @@ import {
   findSecureCatchTick,
   findTagContactTick,
   findThrowReleaseTick,
+  isObservationRefreshDue,
+  predictPlanarObservationMemory,
   projectRunnerWorldState,
   resolveCatchRetention,
+  resolveCommunicationReception,
   sampleRunnerPhysicalTouchPoint,
   sampleRunnerRoute,
 } from './index';
@@ -55,6 +60,14 @@ describe('core package', () => {
     expect(typeof sampleRunnerPhysicalTouchPoint).toBe('function');
     expect(typeof findRunnerBaseTouchTick).toBe('function');
     expect(typeof projectRunnerWorldState).toBe('function');
+  });
+
+  it('exposes the non-omniscient perception substrate through the shared Core API', () => {
+    expect(typeof createObservationSample).toBe('function');
+    expect(typeof isObservationRefreshDue).toBe('function');
+    expect(typeof predictPlanarObservationMemory).toBe('function');
+    expect(typeof resolveCommunicationReception).toBe('function');
+    expect(typeof buildPlayerPerceivedWorldState).toBe('function');
   });
 
   it('exposes exact physical tag contact timing through the shared Core API', () => {
