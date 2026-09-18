@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Vec3 } from '../../model/geometry';
 import {
   DEFAULT_CONTACT_PARAMETERS,
+  createBattedBallInitialStateFromContact,
   findBatBallContactTick,
   measureBatBallContactSeparation,
   resolveBatBallContact,
@@ -39,6 +40,27 @@ describe('resolveBatBallContact', () => {
     );
 
     expect(result).toBeNull();
+  });
+
+  it('preserves the physical ball center and can create BallFlight initial state directly from contact', () => {
+    const inputPitch = pitch(v(0.08, 1, 0.06));
+    const result = resolveBatBallContact(
+      inputPitch,
+      swing(20),
+      DEFAULT_CONTACT_PARAMETERS,
+    );
+    expect(result).not.toBeNull();
+    if (result === null) {
+      throw new Error('fixture must produce contact');
+    }
+
+    expect(result.ballCenter).toEqual(inputPitch.position);
+    expect(createBattedBallInitialStateFromContact(result)).toEqual({
+      tick: result.tick,
+      position: inputPitch.position,
+      velocity: result.exitVelocity,
+      spin: result.exitSpin,
+    });
   });
 
   it('is deterministic for identical inputs', () => {
