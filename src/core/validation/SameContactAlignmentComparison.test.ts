@@ -38,7 +38,7 @@ const contacts = [
     contactId: 'pull-1',
     evidence: {
       target: { x: -18, z: 36 },
-      fieldingWindowTicks: 1_000_000,
+      fieldingWindowTicks: 1_200_000,
     },
   },
   {
