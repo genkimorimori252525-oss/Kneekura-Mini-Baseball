@@ -139,6 +139,16 @@ describe('MiniGameLiveFrame', () => {
       match,
       lineScore,
       currentCommand: command,
+      matchupPlayers: {
+        batter: {
+          playerId: 'batter-40',
+          displayName: 'Batter Forty',
+        },
+        pitcher: {
+          playerId: 'pitcher-40',
+          displayName: 'Pitcher Forty',
+        },
+      },
       frame: sourceFrame,
       overheadCamera: {
         worldOrigin: { x: 0, z: 0 },
@@ -170,6 +180,47 @@ describe('MiniGameLiveFrame', () => {
       batter: ['積極', '早め'],
       runners: ['標準'],
     });
+    expect(result.playerCards.batter).toEqual({
+      role: 'batter',
+      playerId: 'batter-40',
+      displayName: 'Batter Forty',
+      handedness: {
+        role: 'batter',
+        handedness: 'R',
+        label: '右打',
+        accent: 'red',
+      },
+    });
+    expect(result.playerCards.pitcher).toEqual({
+      role: 'pitcher',
+      playerId: 'pitcher-40',
+      displayName: 'Pitcher Forty',
+      handedness: {
+        role: 'pitcher',
+        handedness: 'L',
+        label: '左投',
+        accent: 'blue',
+      },
+    });
+  });
+
+  it('rejects a pitcher card request when canonical presentation metadata lacks pitcher handedness', () => {
+    expect(() => buildMiniGameLiveFrame({
+      match,
+      frame,
+      matchupPlayers: {
+        pitcher: {
+          playerId: 'pitcher-40',
+        },
+      },
+      overheadCamera: {
+        worldOrigin: { x: 0, z: 0 },
+        viewportCenter: { x: 75, y: 96 },
+        logicalPixelsPerMeter: 2,
+      },
+    })).toThrow(
+      'pitcher player card requires pitcherHandedness in the presentation sample',
+    );
   });
 
   it('preserves both source objects exactly', () => {
