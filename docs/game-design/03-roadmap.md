@@ -1,7 +1,7 @@
 # 実装ロードマップと検証計画
 
 更新日: 2026-09-18
-状態: P0 完了。P1/P2/P3/P4 は実装完了（CI外部ブロッカー）。P5 を主進行へ移行。P6 は先行縦スライスを保持。P7 は本格着手前、P8 は表示基盤・試作のみ、P9 は未着手。
+状態: P0 完了。P1/P2/P3/P4/P5 は実装完了（CI外部ブロッカー）。P6 を主進行へ移行。P7 は本格着手前、P8 は表示基盤・試作のみ、P9 は未着手。
 
 ## 前提
 
@@ -26,7 +26,7 @@ Mini Baseball は将来の Natural Baseball と別の簡易試合ロジックを
 | P2 | **実装完了（CI外部ブロッカー）** | physical pitch/take/swing/contact、canonical plate-appearance ledger、fair/foul evidence、live-ball play end、MatchState遷移、same-seed replay、30/60fps・描画OFF非干渉を受入fixture化。高レベル采配→各球intentはP7、球場固有edge geometryは拡張扱い |
 | P3 | **実装完了（CI外部ブロッカー）** | `PlayerPhysicalProfile`、公開/内部守備査定schema、firstStep/acceleration/read/route/catching/transfer/arm/accuracy/awareness/tagの独立中間量、9/10/11px Presentation分離を受入fixture化 |
 | P4 | **実装完了（CI外部ブロッカー）** | 真の打者傾向と守備側推定を分離し、`ScoutingEstimate`、不確実性/鮮度、監督情報処理、任意座標9人配置、候補比較、Canonical world投影を受入fixture化 |
-| P5 | **大幅進行・未完** | 個人知覚、判断時刻、DefenderMotion、base cover、glove reach、catch、throw reception、base contact。一方、9人全体のCoveragePlan/ThrowPlan/期待損失比較は未完 |
+| P5 | **実装完了（CI外部ブロッカー）** | 9人全体の`TeamCoveragePlan`、競合解消、position suitability役割境界、任意シフトworld適用、明示tick再計画、`DefenseContext`、サヨナラ優先`ThrowPlan`、coverage receiver整合、P3 rated 3D throw launch接続を受入fixture化 |
 | P6 | **部分実装** | RunnerMotion、base rounding、base touch、tag-up/force関連は進行。盗塁・牽制・ランダウン・コーチ情報を含む個人走塁判断は未完 |
 | P7 | **本格未着手** | 一打席命令を投球/打撃/走塁intentへ統合するCore adapterが未完 |
 | P8 | **表示基盤・試作** | Presentation Adapter、Batter POV等は存在するが、最終Mini表示仕様はCore完成後に再接続する。表示を理由にCoreを変更しない |
@@ -43,8 +43,9 @@ Mini Baseball は将来の Natural Baseball と別の簡易試合ロジックを
 3. ~~P2 canonical plate-appearance timeline~~ **実装完了**（Actionsは`steps=[]`で未実行）。投球→打撃→接触/見逃し/ファウル→live ball→play end→MatchState更新を一つの正史進行へ統合し、same-seed / presentation-cadence受入fixtureを追加。
 4. ~~P3 rating/physical profile foundation~~ **実装完了**（Actionsは`steps=[]`で未実行）。体格・公開/内部守備査定・独立中間量を導入。
 5. ~~P4 スカウティング/守備配置~~ **実装完了**（Actionsは`steps=[]`で未実行）。真値と推定を分離し、任意座標配置・監督比較を実装。
-6. **現在の主作業: P5 9人守備全体計画**。全員へ競合しない処理・塁カバー・中継・バックアップ・後方カバー/待機を割り当て、任意シフトから同じ物理Coreへ接続する。その後P6の特殊走塁、P7の采配を順に閉じる。
-6. P8でMiniの点描表示を正史観測者として完成させ、P9でNatural移行と統計を固定する。
+6. ~~P5 9人守備全体計画~~ **実装完了**（Actionsは`steps=[]`で未実行）。CoveragePlan、ThrowPlan、期待損失比較、物理送球接続を実装。
+7. **現在の主作業: P6 個別走塁と特殊プレー**。走者知覚、進塁/帰塁、盗塁、牽制、ランダウン、コーチ情報を既存RunnerMotion/RuleEngineへ接続する。その後P7の采配を閉じる。
+8. P8でMiniの点描表示を正史観測者として完成させ、P9でNatural移行と統計を固定する。
 
 このguardrailにより、今後の守備物理追加は「P5全体のどの受入条件を閉じるか」を明示してから行う。
 
