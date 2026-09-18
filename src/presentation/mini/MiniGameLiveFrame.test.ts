@@ -143,10 +143,18 @@ describe('MiniGameLiveFrame', () => {
         batter: {
           playerId: 'batter-40',
           displayName: 'Batter Forty',
+          jerseyNumber: 7,
+          publicMetrics: [
+            { label: '打撃', value: 82 },
+          ],
         },
         pitcher: {
           playerId: 'pitcher-40',
           displayName: 'Pitcher Forty',
+          jerseyNumber: 18,
+          publicMetrics: [
+            { label: '球威', value: 88 },
+          ],
         },
       },
       frame: sourceFrame,
@@ -184,6 +192,10 @@ describe('MiniGameLiveFrame', () => {
       role: 'batter',
       playerId: 'batter-40',
       displayName: 'Batter Forty',
+      jerseyNumber: 7,
+      publicMetrics: [
+        { label: '打撃', value: 82 },
+      ],
       handedness: {
         role: 'batter',
         handedness: 'R',
@@ -195,6 +207,10 @@ describe('MiniGameLiveFrame', () => {
       role: 'pitcher',
       playerId: 'pitcher-40',
       displayName: 'Pitcher Forty',
+      jerseyNumber: 18,
+      publicMetrics: [
+        { label: '球威', value: 88 },
+      ],
       handedness: {
         role: 'pitcher',
         handedness: 'L',
