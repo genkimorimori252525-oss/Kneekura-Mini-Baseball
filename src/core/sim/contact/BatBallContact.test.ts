@@ -3,7 +3,9 @@ import type { Vec3 } from '../../model/geometry';
 import {
   DEFAULT_CONTACT_PARAMETERS,
   findBatBallContactTick,
+  measureBatBallContactSeparation,
   resolveBatBallContact,
+  sampleBatterSwingState,
   type BatterSwingState,
   type PitchWorldState,
 } from './BatBallContact';
@@ -68,6 +70,43 @@ describe('resolveBatBallContact', () => {
     expect(speed(normalSwing!.exitVelocity)).toBeGreaterThan(speed(bunt!.exitVelocity));
     expect(normalSwing!.tick).toBe(inputPitch.tick);
     expect(bunt!.tick).toBe(inputPitch.tick);
+  });
+
+  it('samples the same deterministic swing kinematics used by contact refinement', () => {
+    const sampled = sampleBatterSwingState(
+      swing(20),
+      5_000,
+      1_000_000,
+    );
+
+    expect(sampled.pose.grip).toEqual({
+      x: -0.42,
+      y: 1,
+      z: 0.1,
+    });
+    expect(sampled.pose.tip).toEqual({
+      x: 0.42,
+      y: 1,
+      z: 0.1,
+    });
+  });
+
+  it('exposes geometric bat-ball separation without changing contact semantics', () => {
+    const inputPitch = pitch(v(0, 1, 0.2));
+    const inputSwing = swing(0);
+    const separation = measureBatBallContactSeparation(
+      inputPitch,
+      inputSwing,
+      DEFAULT_CONTACT_PARAMETERS,
+    );
+
+    expect(separation).toBeCloseTo(
+      0.2
+      - DEFAULT_CONTACT_PARAMETERS.ballRadius
+      - DEFAULT_CONTACT_PARAMETERS.batRadius,
+      12,
+    );
+    expect(separation).toBeGreaterThan(0);
   });
 
   it('finds contact that begins and ends inside one coarse integration interval', () => {
