@@ -193,6 +193,82 @@ underlying ability -> Trait label -> same ability buff
 
 という循環を禁止する。
 
+### 5.1 Progressive Baseball Disclosure: 表面は簡潔、奥は深く
+
+本作の選手情報は、内部情報量を減らすのではなく、**必要な人だけが段階的に深く掘れる構造**を目指す。
+
+固定レイアウトや画面デザインは本書で決めない。ここで決めるのは情報の階層と、表示が正史データへどう接続されるべきかだけである。
+
+概念:
+
+```text
+Canonical / Career Player State
+        ↓
+Presentation Projection
+        ├─ Level 1: 一目で理解できる主要能力・主要Trait
+        ├─ Level 2: 球種図、得意領域、行動傾向など視覚的要約
+        ├─ Level 3: 根拠となる詳細能力・代表値・分布
+        └─ Level 4: 対戦履歴、時系列、条件別分析、Evidence
+```
+
+ユーザーは深い数値を見る**権利**を持てるが、通常プレイのために深い数値を見る**義務**を負わない。
+
+重要原則:
+
+- Level 1だけでも選手像を理解して運用できる。
+- 深い階層へ進むほど、上位表示の根拠が確認できる。
+- 上位表示と詳細データは同じsource of truthから導出し、互いに矛盾させない。
+- 詳細画面を見たことで新しい能力Buffが発生することはない。
+- 情報量を隠すためではなく、人間が理解できる密度へ圧縮するためにTrait・段階評価・図を使う。
+
+### 5.2 Visualizationも正史データから導出する
+
+変化球方向・変化量、打球傾向、送球傾向などを図示する場合も、図そのものをゲーム内能力の原因にしない。
+
+例:
+
+```text
+actual pitch trajectory / movement distribution
+        ↓
+projection / quantization
+        ↓
+human-readable pitch movement diagram
+```
+
+「変化量4だから実軌道を4相当にする」のではなく、**実際の軌道を解析した結果としてUI上の変化量4相当へ要約する**方向を原則とする。
+
+同様に、
+
+```text
+actual swing / contact distribution
+  -> spray / launch summary
+
+actual throwing behavior
+  -> arm / accuracy / laser-style summary
+
+actual baserunning behavior
+  -> steal / running descriptor
+```
+
+のように、UI表現はSimulation / Career stateのprojection（投影・要約）とする。
+
+### 5.3 Presentation Projection Contract候補
+
+将来、Traitや能力表示ごとに最低限以下を説明できるようにする。
+
+```text
+display id
+source of truth
+projection inputs
+projection method / version
+scope
+time basis
+confidence / uncertainty policy
+drill-down source
+```
+
+これにより、同じ内部状態から「能力ランク」「Trait」「図」「詳細統計」が別々のロジックで矛盾することを防ぐ。
+
 ## 6. 金特は青特の上位Tier候補
 
 金と対応する青が存在する場合は、同一TraitFamilyの異なるTierとして扱う案を優先する。
@@ -550,6 +626,18 @@ player generation
 
 キラーTrait自体を未来成績への追加Buffにせず、実際のFamiliarity / learned model / matchup adaptation等が原因となり、その状態を人間向けに要約表示する。
 
+### 15.9 選手情報は段階的開示を採用する
+
+UIの具体的な見た目・配置は別設計へ委譲するが、情報設計として以下を暫定採用する。
+
+- 最上位では主要能力・主要Trait・視覚的要約だけで選手像を理解できるようにする
+- ユーザーが望めば、その表示の根拠となる内部データや履歴へ段階的に掘り下げられる
+- 能力ランク、Trait、球種図等は同一の内部状態から導出する
+- 図やランクは正史能力の入力ではなく、正史状態のhuman-readable projectionとする
+- 表示に使うprojectionルールは将来version管理できる構造にする
+
+特に変化球図などは、内部の実軌道・分布を簡略化して見せる役割とし、図上の段階値を先に決めて物理を合わせる方式を原則禁止する。
+
 ## 16. 将来設計で必ず再検討する問題
 
 この節はTODOではなく、**設計開始時に捨ててはいけない論点一覧**である。
@@ -581,6 +669,25 @@ player generation
 25. バランス調整でTrait Definitionが変わった際、既存セーブをどう扱うか。
 26. Trait名称・説明文をどこまで独自化するか。
 27. パワプロ由来の具体的名称・効果をそのまま依存しないための最終的な独自カタログ設計。
+28. 能力ランク・Trait・図を導出するprojection基準を、絶対基準・リーグ相対・役割相対のどれにするか。
+29. 同じ内部値でもリーグ環境が変わった際、UIランクを維持するか相対評価として変化させるか。
+30. 変化球図の矢印が具体的に何を表すか。総変位、重力基準のmovement、平均軌道、代表クラスタ等のどれを採用するか。
+31. 球種ごとの平均値だけを表示するか、ばらつき・再現性・疲労時変化まで掘れるようにするか。
+32. Descriptor Traitの閾値付近で表示が頻繁に出入りしないためのhysteresis（境界付近で表示を安定させる仕組み）をどう設計するか。
+33. 一時的なCondition変化でDescriptor Trait表示まで変えるか、恒常能力表示と当日状態を別レイヤーにするか。
+34. 自軍選手・対戦相手・新人・外国人で、表示情報の確度と深さをどう変えるか。
+35. 「真の能力」「コーチ/スカウトの推定」「公開されている実績」をUI上でどう区別するか。
+36. 推定情報に、点推定・幅・信頼度・未知のどの表現を許すか。
+37. Traitをクリック等で掘ったとき、どこまで「なぜこのTraitなのか」というEvidence / provenanceをユーザーへ説明するか。
+38. 複数内部能力を一つのTraitへ圧縮する際の重み付けと、同じTraitでも異なる内部構成を許すか。
+39. 逆に一つの内部能力が複数Trait・ランク・図へ投影される場合の重複表示ルール。
+40. 現在値、直近期間の実測値、シーズン平均、キャリア傾向をどの階層で使い分けるか。
+41. 過去シーズンの選手画面を開いた際、「当時の評価」を表示するか、現在のprojectionルールで再評価するか。
+42. Projection Definition更新で同じ選手の表示ランクが変わる場合、セーブ・履歴・Replayでどのversionを正とするか。
+43. 深い分析情報を全選手へ常時保存するか、集約統計・オンデマンド計算・PlayCapsule等へ分担するか。
+44. UI用の簡略評価がAI監督・CPU判断へ逆流しない境界をどこで保証するか。
+45. 「能力の低さ」と「観測不足」を同じ低ランク表示にしないための未知状態表現。
+46. Traitカラー（金・青・赤・青赤・緑）とMechanism分類を、ユーザーがどこまで意識する必要があるか。
 
 ## 17. 現時点で決めないこと
 
@@ -616,6 +723,10 @@ player generation
   Behavior Traitを能力Buffへ変えていないか
   Relationship Traitを固定球団名へ焼き込んでいないか
   将来の獲得・消失・再評価を不可能にしていないか
+  UIの段階評価・Trait・図が同じsource of truthから導出されているか
+  UI用の簡略値をSimulationやAI判断へ逆流させていないか
+  未知と低能力を混同していないか
+  深掘り時に上位表示の根拠へ到達できる余地があるか
 ```
 
 本書はその時点で更新・分割・破棄してよい。
