@@ -25,11 +25,11 @@
 - Modify: `src/core/rng/SeedRoot.ts`
 - Modify/Test: `src/core/rng/SeedRoot.test.ts`
 
-- [ ] Add `perception` to `CorePhase`.
-- [ ] Add deterministic named substream derivation:
+- [x] Add `perception` to `CorePhase`.
+- [x] Add deterministic named substream derivation:
   `streamSeed(playId, phase, streamKey)` and `streamRng(...)`.
-- [ ] Prove same key reproduces exactly, different observer/target keys differ, and consuming one stream does not perturb another.
-- [ ] Run `npm run verify` RED -> GREEN.
+- [x] Prove same key reproduces exactly, different observer/target keys differ, and consuming one stream does not perturb another.
+- [x] Run `npm run verify` RED -> GREEN.
 
 ### Task 2: Attention and observation samples
 
@@ -125,3 +125,12 @@ The following remain explicit follow-up work and are not silently hard-coded her
 - perception/awareness rating curves;
 - crowd-noise/hearing curves;
 - strategic runner and defender decision policies.
+
+
+## Delivered Improvements
+
+- Added a dedicated `perception` RNG phase plus named substreams so observer/target draw counts cannot perturb sibling perception streams or physics RNG.
+- Preserved epistemic age explicitly: memory predictions keep both `sourceObservedAt` and `predictedAt`, so a predicted current estimate is never mislabeled as a fresh observation.
+- Communication remains perceived information. Recognition quality controls whether information is recognized, while deterministic RNG is used for recognition-delay jitter rather than direct obedience or action success.
+- The generic `PlayerPerceivedWorldState` builder intentionally has no `CanonicalWorldSnapshot` input, closing the most obvious omniscient-AI shortcut at the type boundary.
+- Exact FOV, occlusion, distance/relative-speed observation quality, awareness curves, and strategic decisions remain deferred calibration/next-phase work rather than hidden constants.
