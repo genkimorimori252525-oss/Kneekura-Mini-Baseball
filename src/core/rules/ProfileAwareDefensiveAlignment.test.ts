@@ -10,8 +10,11 @@ import {
   type RuleProfile,
 } from './RuleProfile';
 import { createRuleContext } from './RuleContext';
+import { establishInningInfieldSideAssignment } from './InningInfieldSideAssignment';
+import { evaluatePitchReleaseInfieldSide } from './PitchReleaseInfieldSideRule';
 import {
   evaluatePitchReleaseInfieldSideForMatch,
+  evaluateInningInfieldSideLockForMatch,
 } from './ProfileAwareRuleEngine';
 
 const match = (
@@ -144,4 +147,99 @@ describe('profile-aware defensive alignment', () => {
       'active rule profile does not enable the second-base side restriction',
     );
   });
+
+  it('applies the half-inning player-side assignment lock from the active profile', () => {
+    const baseInput = {
+      pitchReleaseTick: tick,
+      facts: [
+        fact('1b', '1B', 3),
+        fact('2b', '2B', 2),
+        fact('ss', 'SS', -2),
+        fact('3b', '3B', -3),
+      ],
+      reference: createSecondBaseDivisionReference(
+        { x: 0, z: 0 },
+        { x: 1, z: 0 },
+      ),
+    } as const;
+
+    const initial = evaluatePitchReleaseInfieldSideForMatch(
+      match(),
+      createRuleContext(NPB_2026_RULE_PROFILE),
+      baseInput,
+    );
+    const assignment = establishInningInfieldSideAssignment(initial);
+
+    const swapped = evaluatePitchReleaseInfieldSide({
+      ...baseInput,
+      facts: [
+        fact('1b', '1B', 3),
+        fact('2b', '2B', -2),
+        fact('ss', 'SS', 2),
+        fact('3b', '3B', -3),
+      ],
+      parameters: {
+        requiredInfielderCount: 4,
+        minimumInfieldersEachSideOfSecondBase: 2,
+      },
+    });
+    expect(swapped.kind).toBe('legal');
+
+    expect(evaluateInningInfieldSideLockForMatch(
+      match(),
+      createRuleContext(NPB_2026_RULE_PROFILE),
+      assignment,
+      swapped,
+    )).toEqual({
+      kind: 'violation',
+      movedPlayers: ['2b', 'ss'],
+      invalidPlayers: [],
+    });
+  });
+
+  it('refuses the lock evaluator when the profile disables inning side locking', () => {
+    const disabled: RuleProfile = {
+      ...NPB_2026_RULE_PROFILE,
+      id: asRuleProfileId('lock-disabled'),
+      defensiveAlignment: {
+        ...NPB_2026_RULE_PROFILE.defensiveAlignment,
+        secondBaseSide: {
+          ...NPB_2026_RULE_PROFILE.defensiveAlignment.secondBaseSide,
+          assignmentLock: {
+            ...NPB_2026_RULE_PROFILE.defensiveAlignment.secondBaseSide.assignmentLock,
+            enabled: false,
+          },
+        },
+      },
+    };
+
+    const current = evaluatePitchReleaseInfieldSide({
+      pitchReleaseTick: tick,
+      facts: [
+        fact('1b', '1B', 3),
+        fact('2b', '2B', 2),
+        fact('ss', 'SS', -2),
+        fact('3b', '3B', -3),
+      ],
+      reference: createSecondBaseDivisionReference(
+        { x: 0, z: 0 },
+        { x: 1, z: 0 },
+      ),
+      parameters: {
+        requiredInfielderCount: 4,
+        minimumInfieldersEachSideOfSecondBase: 2,
+      },
+    });
+    const assignment = establishInningInfieldSideAssignment(current);
+
+    expect(() => evaluateInningInfieldSideLockForMatch(
+      match(disabled.id),
+      createRuleContext(disabled),
+      assignment,
+      current,
+    )).toThrow(
+      'active rule profile does not enable inning infield side locking',
+    );
+  });
+
 });
