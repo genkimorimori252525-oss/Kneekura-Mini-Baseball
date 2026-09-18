@@ -297,6 +297,10 @@ describe('core package', () => {
     expect(typeof resolveGroundBallFirstBaseRuleFromPhysicalRace).toBe('function');
   });
 
+  it('exposes pitch-count and foul semantics through the shared Core API', () => {
+    expect(typeof resolvePitchCountRule).toBe('function');
+  });
+
   it('exposes the first Correct Rule Result foundation through the shared Core API', () => {
     expect(typeof resolveBatterRunnerFirstBase).toBe('function');
     expect(typeof resolveThirdOutScoring).toBe('function');
