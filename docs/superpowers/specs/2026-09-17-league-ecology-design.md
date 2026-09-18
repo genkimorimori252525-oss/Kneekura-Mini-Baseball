@@ -561,15 +561,15 @@ Power B  [MLB基準]
 
 ---
 
-### 8.4 世界のリーグ層は Full 18 を基準とする
+### 8.4 世界のリーグ層は Full 21 を基準とする
 
-Competition設計へ進む前提として、初期世界の詳細シミュレーション対象リーグ数を **18 Full Leagues** とする。
+Competition設計へ進む前提として、初期世界の詳細シミュレーション対象リーグ数を **21 Full Leagues** とする。
 
-これは「世界に18リーグしか存在しない」という意味ではない。
+これは「世界に21リーグしか存在しない」という意味ではない。
 
 ```text
 World Baseball Ecosystem
-  ├─ Full Simulation Leagues: 18
+  ├─ Full Simulation Leagues: 21
   │    ├─ full roster
   │    ├─ full player development
   │    ├─ full transfer market
@@ -593,13 +593,13 @@ World Baseball Ecosystem
 | Region | Full Leagues |
 | --- | ---: |
 | Asia | 5 |
-| Americas | 5 |
-| Europe | 4 |
-| Africa | 2 |
+| Americas | 6 |
+| Europe | 7 |
+| Africa | 1 |
 | Oceania | 2 |
-| **Total** | **18** |
+| **Total** | **21** |
 
-具体的な18リーグ名は別のWorld League Catalogで確定する。
+具体的な21リーグ、初期球団数、開催時期、Culture Seed、Player Marketは `docs/game-design/10-world-league-catalog.md` を正とする。
 
 ### 8.5 冬季リーグも主所属リーグとして扱う
 
@@ -779,7 +779,7 @@ League Ecologyを導入しても同一season state / player state / match input 
 - 代表戦・国際大会・大陸大会等への一時参加では所属リーグ基準の公開Ratingを再基準化しない
 - RatingContextはCompetitionではなくAffiliationへ紐づける
 - 異なる所属リーグ尺度の選手が同一国際大会Rosterへ共存することを許す
-- 初期世界のFull Simulation Leagueは18を基準とする
+- 初期世界のFull Simulation Leagueは21を基準とする
 - 冬季リーグも開催時期に関係なく主所属リーグになり得る
 - リーグ全体の弱点は時代・選手人口・経験分布から観測され、固定定義しない
 - Mini / Naturalは同じLeague Ecology入力とShared Match Coreを利用する
