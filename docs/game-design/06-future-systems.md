@@ -296,3 +296,14 @@ PresentationBadge / FontDecoration
 8. Online Presentation / Asset / 音響拡張
 
 この順序は確定ロードマップではなく、依存関係を示す整理である。
+
+
+## 17. 選手特殊能力 / Trait System
+
+選手の特殊能力・行動傾向・状況適性・Relationship Traitについては、探索中の設計シードを別文書で保持する。
+
+- `docs/game-design/08-player-traits-design-seed.md`
+
+現時点では実装仕様ではない。特にペナント、選手成長、対戦履歴、Exposure / Familiarity、移籍、シーズン間更新との境界が未設計であるため、先に具体的な獲得条件や効果量を固定しない。
+
+将来 `Player / Career / Pennant / Development` を設計する際には、この設計シードを入力として参照し、得能のEvidence、獲得・消失、Relationship履歴を後から表現不能にするデータ構造を避ける。
