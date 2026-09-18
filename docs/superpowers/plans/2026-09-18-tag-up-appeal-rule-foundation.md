@@ -1,5 +1,7 @@
 # Tag-Up Appeal Rule Foundation Plan
 
+**Status:** IMPLEMENTATION COMPLETE; appeal scoring/fourth-out handling intentionally deferred to the next rule phase.
+
 **Goal:** Convert an outstanding tag-up violation into a Correct Rule Result only when the defense makes a timely, explicit appeal.
 
 ## Architecture
@@ -101,3 +103,34 @@ Companions:
 - missed-base appeals unrelated to tag-up;
 - dead-ball appeal procedures;
 - human umpire recognition/call error for appeal plays.
+
+
+---
+
+## Implementation Evidence
+
+Implemented through HEAD `4ff357837e89b64e04b9151d43857b9d31d9fc25`:
+- explicit defensive appeal attempt fact;
+- immutable appeal-window state and close reasons;
+- exact timely / expired / simultaneous-close timing;
+- tag-up appeal rule separated from the underlying early-departure violation;
+- timely explicit appeal produces a Correct Rule Result out;
+- expired appeal produces no out;
+- same-tick close/appeal remains unresolved;
+- compliant/retouched runner remains `no_violation`;
+- shared Core API exports.
+
+Independent verification:
+- TypeScript 5.8 source-level rules typecheck: success;
+- runtime timely appeal fixture: success;
+- runtime expired appeal fixture: success;
+- runtime retouch/no-violation fixture: success.
+
+Scoring boundary discovered during verification:
+- a tag-up appeal third out cannot be reduced to a generic timestamp comparison in every case;
+- Rule 5.08(a) has a preceding-runner missed-base exception;
+- advantageous apparent-fourth-out appeals can supersede the apparent third out;
+- therefore appeal scoring is explicitly deferred rather than approximated.
+
+Repository CI:
+- full repository GREEN remains intentionally unclaimed while P0 Core jobs continue to fail before workflow steps are created.
