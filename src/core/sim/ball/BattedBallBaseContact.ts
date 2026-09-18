@@ -7,6 +7,7 @@ import {
 } from '../ExactEventTime';
 import {
   advanceBallState,
+  DEFAULT_BALL_FLIGHT_PARAMETERS,
   type BallFlightParameters,
 } from './BallFlight';
 import type {
@@ -268,6 +269,7 @@ const rollingDeceleration = (
   parameters: BallFlightParameters,
 ): number => (
   parameters.groundRollingDecelerationMps2
+  ?? DEFAULT_BALL_FLIGHT_PARAMETERS.groundRollingDecelerationMps2
   ?? 0
 );
 
