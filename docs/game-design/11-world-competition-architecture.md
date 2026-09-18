@@ -6,6 +6,7 @@
 関連:
 - `docs/game-design/10-world-league-catalog.md`
 - `docs/game-design/12-competition-identity-hosting.md`
+- `docs/game-design/13-domestic-league-championships.md`
 - `docs/superpowers/specs/2026-09-17-league-ecology-design.md`
 - `docs/game-design/06-future-systems.md`
 - `docs/game-design/09-player-trait-catalog.md`
@@ -541,7 +542,7 @@ Championは本大会最大12試合。
 
 ## 12.3 Window
 
-**December, Cycle Cycle Year 3**
+**December, Cycle Year 3**
 
 - summer leagues are原則offseason
 - active winter leaguesにはofficial Club World Breakを設定
