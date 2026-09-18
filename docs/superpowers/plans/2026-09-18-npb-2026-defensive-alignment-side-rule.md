@@ -1,5 +1,7 @@
 # NPB 2026 Defensive Alignment Side Rule Plan
 
+**Status:** IMPLEMENTATION COMPLETE for per-pitch 2+2/both-feet side legality; inning-side assignment lock is a follow-up phase.
+
 **Goal:** Enforce the NPB 2026 second-base side restriction at pitch release from authoritative left/right foot placement facts, without approximating feet from defender center coordinates.
 
 ## RuleProfile refinement
@@ -99,3 +101,31 @@ Fixtures:
 - rotated field division axis => same logical result.
 
 Run local TypeScript/runtime verification and retry P0 CI without claiming full repository GREEN while jobs remain pre-step blocked.
+
+
+---
+
+## Implementation Evidence
+
+Implemented through the current branch:
+- authoritative left/right defender foot-placement facts;
+- explicit second-base division reference independent of world X/Z axes;
+- pure pitch-release evaluator for registered 1B/2B/3B/SS;
+- strict both-feet same-side classification;
+- 2+2 legality and 3+1 violation;
+- straddling/on-divider violation;
+- shifted CF ignored for the four-infielder count;
+- profile-aware NPB 2026 match entry point;
+- NPB 2026 profile now separately declares the infield-boundary requirement and pitch-release second-base-side requirement;
+- infield-boundary execution remains deferred to StadiumProfile geometry.
+
+Independent verification:
+- TypeScript 5.8.3 strict source-level check: success;
+- runtime 2+2 fixture: legal;
+- runtime 3+1 fixture: violation;
+- runtime shifted-CF fixture: only 1B/2B/3B/SS counted.
+
+Follow-up discovered from the unchanged 5.02(c)(iii):
+- a legal 2+2 count is not sufficient after the inning's first pitch;
+- the two infielders established on each side cannot later switch to the opposite side during that inning;
+- this assignment-lock rule is implemented in a separate follow-up phase rather than silently approximated here.
