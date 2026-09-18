@@ -27,6 +27,11 @@ import {
 import type {
   DefenderMotionParameters,
 } from './DefenderMotion';
+import {
+  resolveDefenderFirstStepTiming,
+  type DefenderFirstStepTiming,
+  type DefenderFirstStepTimingParameters,
+} from './DefenderFirstStepTiming';
 import type {
   PerceivedGloveTargetAssessment,
 } from './PerceivedGloveTarget';
@@ -126,4 +131,17 @@ export const getRatedPositionSuitability = (
   position: DefensivePosition,
 ): number => (
   ratings.positionSuitability[position]
+);
+
+
+export const resolveRatedDefenderFirstStepTiming = (
+  recognitionTick: number,
+  ratings: DefensiveRatings,
+  parameters: DefenderFirstStepTimingParameters,
+): DefenderFirstStepTiming => (
+  resolveDefenderFirstStepTiming(
+    recognitionTick,
+    ratings.firstStep,
+    parameters,
+  )
 );
