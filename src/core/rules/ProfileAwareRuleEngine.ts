@@ -14,6 +14,11 @@ import {
   type TagUpComplianceResult,
 } from './TagUpCompliance';
 import {
+  evaluateInningInfieldSideLock,
+  type InningInfieldSideAssignment,
+  type InningInfieldSideLockResult,
+} from './InningInfieldSideAssignment';
+import {
   evaluatePitchReleaseInfieldSide,
   type PitchReleaseInfieldSideInput,
   type PitchReleaseInfieldSideResult,
@@ -146,4 +151,37 @@ export const evaluatePitchReleaseInfieldSideForMatch = (
         policy.minimumInfieldersEachSideOfSecondBase,
     },
   });
+};
+
+
+export const evaluateInningInfieldSideLockForMatch = (
+  match: CanonicalMatchState,
+  context: RuleContext,
+  assignment: InningInfieldSideAssignment,
+  current: PitchReleaseInfieldSideResult,
+): InningInfieldSideLockResult => {
+  assertMatchRuleProfile(match, context);
+
+  const policy = (
+    context.profile.defensiveAlignment
+      .secondBaseSide.assignmentLock
+  );
+  if (!policy.enabled) {
+    throw new Error(
+      'active rule profile does not enable inning infield side locking',
+    );
+  }
+  if (
+    policy.establishedAt !== 'inning_first_pitch_release'
+    || policy.duration !== 'half_inning'
+  ) {
+    throw new Error(
+      'unsupported inning infield side-lock semantics',
+    );
+  }
+
+  return evaluateInningInfieldSideLock(
+    assignment,
+    current,
+  );
 };
