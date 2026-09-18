@@ -11,6 +11,7 @@ import {
   createCanonicalPlateAppearanceTimeline,
   recordBatBallContact,
   recordBattedBallFirstGroundContact,
+  recordBattedBallFirstFielderTouch,
   recordCountedPitch,
   recordFairBattedBall,
   recordFoulBattedBall,
@@ -258,6 +259,54 @@ describe('CanonicalPlateAppearanceTimeline', () => {
             kind: 'inside_fair_wedge',
             firstBaseLineSignedSide: 1,
             thirdBaseLineSignedSide: 1,
+          },
+        },
+      },
+    });
+  });
+
+  it('records first-fielder-touch territory evidence without collapsing catch/drop semantics', () => {
+    const contact = physicalContact(3_700_000);
+    const contacted = recordBatBallContact(
+      createCanonicalPlateAppearanceTimeline(
+        match(1, 1),
+        3_600_000,
+      ),
+      contact,
+    );
+
+    const withTouch = recordBattedBallFirstFielderTouch(
+      contacted,
+      {
+        fielderId: 'right-fielder',
+        tick: 3_750_000,
+        ballCenter: { x: 0, y: 1.2, z: 40 },
+        classification: {
+          kind: 'inside_fair_wedge',
+          firstBaseLineSignedSide: 10,
+          thirdBaseLineSignedSide: 10,
+        },
+      },
+    );
+
+    expect(withTouch.status).toEqual({
+      kind: 'batted_ball_pending',
+      count: { balls: 1, strikes: 1 },
+      contactTick: 3_700_000,
+    });
+    expect(withTouch.events.at(-1)).toEqual({
+      tick: 3_750_000,
+      sequence: 1,
+      kind: 'BattedBallFirstFielderTouch',
+      payload: {
+        evidence: {
+          fielderId: 'right-fielder',
+          tick: 3_750_000,
+          ballCenter: { x: 0, y: 1.2, z: 40 },
+          classification: {
+            kind: 'inside_fair_wedge',
+            firstBaseLineSignedSide: 10,
+            thirdBaseLineSignedSide: 10,
           },
         },
       },
