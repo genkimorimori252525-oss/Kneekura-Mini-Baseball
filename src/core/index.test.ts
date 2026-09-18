@@ -115,6 +115,7 @@ import {
   resolveInfieldFlyRule,
   resolveWalkForcedAdvancement,
   createResolvedLiveBallPlateAppearanceFromGroundBallFirstBaseRule,
+  completeGroundBallFirstBasePlateAppearance,
   resolveForceOutAtTarget,
   resolveForceOutScoringRule,
   resolveThirdOutScoring,
@@ -330,6 +331,7 @@ describe('core package', () => {
     expect(typeof resolveWalkForcedAdvancement).toBe('function');
     expect(typeof applyResolvedLiveBallPlateAppearanceToMatchState).toBe('function');
     expect(typeof createResolvedLiveBallPlateAppearanceFromGroundBallFirstBaseRule).toBe('function');
+    expect(typeof completeGroundBallFirstBasePlateAppearance).toBe('function');
   });
 
   it('exposes the first Correct Rule Result foundation through the shared Core API', () => {
