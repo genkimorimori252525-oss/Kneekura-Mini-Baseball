@@ -60,3 +60,7 @@ export * from './rules/TagUpAppealRule';
 export * from './rules/RunnerPrecedence';
 export * from './rules/AppealOutScoring';
 export * from './rules/AdvantageousFourthOut';
+export * from './model/RuleProfileRef';
+export * from './rules/RuleProfile';
+export * from './rules/RuleContext';
+export * from './rules/ProfileAwareRuleEngine';
