@@ -1,5 +1,5 @@
 import {
-  classifyPointAgainstFairTerritory,
+  classifyBallAgainstFairTerritory,
   type FairTerritoryWedge,
 } from '../sim/ball/FairTerritoryGeometry';
 import type {
@@ -21,12 +21,13 @@ export type FirstFielderTouchTerritoryRuleResult = Readonly<{
 export const resolveFirstFielderTouchTerritory = (
   input: FirstFielderTouchTerritoryRuleInput,
 ): FirstFielderTouchTerritoryRuleResult => {
-  const classification = classifyPointAgainstFairTerritory(
+  const classification = classifyBallAgainstFairTerritory(
     input.field,
     {
       x: input.evidence.ballCenter.x,
       z: input.evidence.ballCenter.z,
     },
+    input.evidence.ballRadiusMeters,
   );
 
   return {
