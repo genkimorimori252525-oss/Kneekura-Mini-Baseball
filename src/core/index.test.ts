@@ -107,6 +107,7 @@ import {
   resolveNPB2026AlignmentViolationPenalty,
   resolveFlyCatch,
   resolveFoulBallRule,
+  resolveHalfInningTransition,
   resolveInfieldFlyRule,
   resolveForceOutAtTarget,
   resolveForceOutScoringRule,
@@ -303,6 +304,7 @@ describe('core package', () => {
     expect(typeof resolvePitchCountRule).toBe('function');
     expect(typeof resolveFoulBallRule).toBe('function');
     expect(typeof resolveInfieldFlyRule).toBe('function');
+    expect(typeof resolveHalfInningTransition).toBe('function');
   });
 
   it('exposes the first Correct Rule Result foundation through the shared Core API', () => {
