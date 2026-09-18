@@ -25,6 +25,30 @@ export type FixedSeedRegressionCorpus = Readonly<{
 }>;
 
 const FINGERPRINT_PATTERN = /^[0-9a-f]{16}$/;
+const UINT32_MAX = 0xffff_ffff;
+
+const deepFreeze = <T>(
+  value: T,
+): T => {
+  if (
+    value === null
+    || typeof value !== 'object'
+    || Object.isFrozen(value)
+  ) {
+    return value;
+  }
+
+  const record = value as Record<
+    string,
+    unknown
+  >;
+
+  for (const key of Object.keys(record)) {
+    deepFreeze(record[key]);
+  }
+
+  return Object.freeze(value);
+};
 
 const cloneMatchState = (
   state: CanonicalMatchState,
@@ -55,9 +79,13 @@ const validateScenario = (
       'scenarioId must not be empty',
     );
   }
-  if (!Number.isSafeInteger(scenario.matchSeed)) {
+  if (
+    !Number.isInteger(scenario.matchSeed)
+    || scenario.matchSeed < 0
+    || scenario.matchSeed > UINT32_MAX
+  ) {
     throw new Error(
-      'matchSeed must be a safe integer',
+      'matchSeed must be an unsigned 32-bit integer',
     );
   }
   if (
@@ -103,7 +131,7 @@ export const createFixedSeedRegressionCorpus = (
     seenScenarioIds.add(scenario.scenarioId);
   }
 
-  return {
+  return deepFreeze({
     version: 1,
     scenarios: scenarios.map((scenario) => ({
       scenarioId: scenario.scenarioId,
@@ -117,5 +145,5 @@ export const createFixedSeedRegressionCorpus = (
       expectedFingerprint:
         scenario.expectedFingerprint,
     })),
-  };
+  });
 };

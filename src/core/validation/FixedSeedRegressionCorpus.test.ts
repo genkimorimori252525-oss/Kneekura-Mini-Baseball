@@ -51,6 +51,57 @@ describe('FixedSeedRegressionCorpus', () => {
     });
   });
 
+  it('uses the same unsigned 32-bit seed domain as the deterministic RNG', () => {
+    expect(() => createFixedSeedRegressionCorpus([
+      {
+        scenarioId: 'negative-seed',
+        matchSeed: -1,
+        startingMatchState,
+        scenarioBuilderId: 'builder:v1',
+        evidenceClass: 'rules',
+        expectedFingerprint: null,
+      },
+    ])).toThrow(
+      'matchSeed must be an unsigned 32-bit integer',
+    );
+
+    expect(() => createFixedSeedRegressionCorpus([
+      {
+        scenarioId: 'wrapped-seed',
+        matchSeed: 0x1_0000_0000,
+        startingMatchState,
+        scenarioBuilderId: 'builder:v1',
+        evidenceClass: 'rules',
+        expectedFingerprint: null,
+      },
+    ])).toThrow(
+      'matchSeed must be an unsigned 32-bit integer',
+    );
+  });
+
+  it('returns a recursively frozen corpus so regression identity cannot drift after creation', () => {
+    const corpus = createFixedSeedRegressionCorpus([
+      {
+        scenarioId: 'immutable',
+        matchSeed: 42,
+        startingMatchState,
+        scenarioBuilderId: 'builder:v1',
+        evidenceClass: 'rules',
+        expectedFingerprint: null,
+      },
+    ]);
+
+    expect(Object.isFrozen(corpus)).toBe(true);
+    expect(Object.isFrozen(corpus.scenarios)).toBe(true);
+    expect(Object.isFrozen(corpus.scenarios[0])).toBe(true);
+    expect(Object.isFrozen(
+      corpus.scenarios[0].startingMatchState,
+    )).toBe(true);
+    expect(Object.isFrozen(
+      corpus.scenarios[0].startingMatchState.score,
+    )).toBe(true);
+  });
+
   it('requires unique scenario IDs and stable builder IDs', () => {
     expect(() => createFixedSeedRegressionCorpus([
       {
