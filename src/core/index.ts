@@ -67,3 +67,7 @@ export * from './rules/ProfileAwareRuleEngine';
 export * from './rules/DefensiveAlignmentFacts';
 export * from './rules/PitchReleaseInfieldSideRule';
 export * from './rules/InningInfieldSideAssignment';
+export * from './rules/AlignmentPenaltyFacts';
+export * from './rules/DefensiveAlignmentViolation';
+export * from './rules/OffenseAdvancementResult';
+export * from './rules/NPB2026AlignmentViolationPenalty';
