@@ -423,3 +423,122 @@ GitHub Actions:
 The workflow still terminates before commands execute, so repository GREEN is not claimed.
 
 A direct local clone/test attempt was also blocked by the execution environment's lack of DNS/network access to GitHub. This is separate from the repository code.
+
+
+---
+
+## Implementation checkpoint — 2026-09-18 rolling/settling + replay
+
+Additional P2 work completed after the previous checkpoint:
+
+### Shared base-gate geometry
+
+The first/third-base "beyond" test is now a simulation geometry primitive rather than private Rule code:
+
+- `FairFoulBaseGateGeometry`
+- `classifyPointBeyondFirstThirdBaseGates`
+
+`FairFoulGroundRule` delegates to this shared geometry. This keeps coordinate math below the Rule layer.
+
+### Post-bounce base-gate passage
+
+For an untouched batted ball whose first ground contact was before both gates:
+
+```text
+first ground contact
+  -> SAME BallFlight continues
+  -> exact authoritative first gate-passage tick
+  -> BattedBallBaseGatePassed event
+  -> ball-radius foul-line classification
+  -> require no prior fielder touch
+  -> require no prior first/third-base touch
+  -> fair OR foul
+  -> canonical timeline
+```
+
+Key commits:
+- `9302369d...`: physical gate-passage evidence;
+- `04dd372a...`: gate-passage fair/foul Rule;
+- `e938ed09...`: canonical gate-passage event + missing payload type repair;
+- `95271006...`: timeline fair/foul adapter.
+
+### Ground rolling now stops physically
+
+`BallFlight` now has tunable continuous ground rolling deceleration:
+
+```text
+groundRollingDecelerationMps2
+```
+
+The rolling solution is analytic within each on-ground step:
+- horizontal speed decreases continuously;
+- exact stop distance is preserved;
+- stop tick is authoritative;
+- once stopped, velocity remains zero;
+- result is intended to be integration-step independent.
+
+Key commits:
+- `ce94eb14...`: rolling deceleration implementation;
+- `364ff8be...`: exact stop-tick quantizer import.
+
+This is a physical calibration hook, not a result bonus. Future grass/dirt/stadium surface models may supply different values.
+
+### Settled before-base fair/foul
+
+The canonical engine can now represent the official condition where an untouched batted ball settles before first/third:
+
+```text
+first ground contact before both gates
+  -> SAME BallFlight continues
+  -> exact BattedBallSettled tick
+  -> projected ball-radius territory
+  -> require no earlier fielder touch
+  -> require no first/third-base touch
+  -> require no earlier gate passage
+  -> fair OR foul
+  -> canonical timeline
+```
+
+Key modules:
+- `BattedBallSettlingEvidence`
+- `FairFoulSettledBallRule`
+- `SettledBallFairFoulTimelineAdapter`
+
+Key commits:
+- `0b931ddf...`
+- `6a74d821...`
+- `72f08fcd...`
+- `7f6cf979...`
+
+### Whole plate-appearance deterministic replay fixture
+
+Added `P2PlateAppearanceReplayAcceptance.test.ts`.
+
+It fixes two end-to-end deterministic source fixtures:
+
+1. physical contact -> foul -> same ledger resumes -> swinging strikeout -> next `CanonicalMatchState`;
+2. physical fourth ball with bases loaded -> forced advancement/run -> next `CanonicalMatchState`.
+
+Identical authoritative inputs must produce identical event ledgers and state transitions.
+
+Commit:
+- `4262cd50...`
+
+Because Actions still never executes steps, this is source-level acceptance evidence rather than an executed GREEN claim.
+
+### Current next target
+
+Do not reopen defender anatomy.
+
+The next fair/foul physical gap is:
+
+1. **direct first/third-base contact by the batted ball**;
+2. then foul pole / out-of-park geometry if needed for P2 completion;
+3. then run the parent P2 completion audit and connect the remaining fair live-ball chronology without duplicate simulation.
+
+Latest CI evidence:
+- run `35342763530`
+- job `105592244809`
+- `steps=[]`
+
+Repository GREEN remains unclaimed.
