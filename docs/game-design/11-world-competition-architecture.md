@@ -1,7 +1,7 @@
 # World Competition Architecture — Club & National Teams
 
 更新日: 2026-09-19  
-状態: **設計候補版。ユーザー確認後に承認版へ昇格する。実装前。**
+状態: **設計承認候補版。主要大会骨格は採用方針。細かな登録人数・賞金額・日付は後続校正。実装前。**
 
 関連:
 - `docs/game-design/10-world-league-catalog.md`
@@ -97,6 +97,21 @@ continent name
 Tierはprestige / economics / qualification用であり、試合中能力へ直接作用しない。
 
 WBCとClub Worldは別系統のC1であり、どちらが「上」という単一順位にしない。
+
+## 3.1 今回固定する大会骨格
+
+以下をCompetition Architectureの基本形として採用する。
+
+- WBC-class World Championship: **24 nations / 4年に1回**
+- Club World Championship: **16 clubs / 4年に1回**
+- Premier 12-class: **12 nations固定**。名称を維持する限り拡大しない
+- Regional / WBC / Premierの代表決勝トーナメント: **single-game knockoutを基本**
+- Club competitionは野球らしいseries制を維持
+- Club World Finalのみ **best-of-7**
+- Continental Club Championsは毎年開催
+- 4年周期は `Cycle Year 1〜4` と明記する
+
+代表大会の一発勝負は「実力を正確に測る」ためではなく、短期国際大会特有の番狂わせ・緊張・歴史的瞬間を作るためのCompetition Ruleである。
 
 ---
 
@@ -420,33 +435,65 @@ LeagueCoefficientは「そのリーグの真の強さ」ではなく、近年の
 
 ## 12.1 Qualification
 
-### Automatic
+Club Worldは「4年間に大陸大会を一度でも優勝すれば自動出場」という方式にはしない。5大陸×4年で20枠になり、16クラブ大会と両立しないためである。
 
-- 5 continental champions from the qualification cycle: 5
-- previous Club World champion: 1
-- host association / host league champion slot: 1
+### Automatic — 7 clubs
 
-### Performance berths
+- **直前editionの5 Continental Club Champions**: 5
+- **defending Club World champion**: 1
+- **host-region berth**: 1
 
-残り **9** を `WorldClubCoefficient` から地域へ配分。
+host-region berthは開催地域の `RegionalClubWorldQualificationRanking` 最上位の未出場クラブへ与える。
 
-各Region:
+### Performance — 9 clubs
 
-- minimum additional berth: 1
-- maximum additional berth: 3
+残り **9** を、直近4seasonの大陸大会実績から作る `ClubWorldQualificationRanking` で配分する。
 
-これにより、
+二段階:
 
 ```text
-Asia is permanently 3
-Europe is permanently 4
+4-year continental results
+   ↓
+Regional World Performance Coefficient
+   ↓
+9 performance berths are allocated to regions
+   ↓
+Regional Club World Qualification Ranking
+   ↓
+clubs qualify
 ```
 
-のような固定世界序列を作らない。
+各Regionはperformance berthを最低1枠持つ。
 
-初回大会だけはseed allocationを設定し、その後actual Club World performanceで更新する。
+一地域へのperformance berth上限は4を初期候補とする。
 
-重複資格は次順位クラブ / regional performance berthへcascade。
+したがって開催地域・大陸王者等を含めた総出場数は時代によって変わるが、特定地域へ永久固定しない。
+
+### Qualification Ranking source
+
+Clubの4年間の大陸大会成績を使用する。
+
+- title
+- final / semifinal / knockout advancement
+- series wins
+- group-stage results
+- recency weighting
+
+Domestic League順位そのものはClub World rankingへ直接加算しない。ただし大陸大会出場資格を得るために国内成績が必要。
+
+### Duplicate qualification
+
+同じclubが複数条件を満たした場合:
+
+```text
+duplicate automatic berth
+  -> corresponding regional performance berth
+  -> next eligible club in regional qualification ranking
+```
+
+へcascadeする。
+
+これにより、直前の大陸王者は必ず世界大会へ出られ、同時に4年間継続して強かったクラブも評価される。
 
 ## 12.2 Format
 
@@ -465,7 +512,7 @@ Club WorldだけFinalをbest-of-7とし、世界王者決定の重みを持た�
 
 ## 12.3 Window
 
-**December, Year 3 of the four-year cycle**
+**December, Cycle Cycle Year 3**
 
 - summer leagues are原則offseason
 - active winter leaguesにはofficial Club World Breakを設定
@@ -485,7 +532,7 @@ Working names:
 - African National Championship
 - Oceania National Championship
 
-開催: **4年に1回 / Year 1**
+開催: **4年に1回 / Cycle Year 1**
 
 WBC-class championshipの主要qualificationを兼ねる。
 
@@ -503,7 +550,24 @@ National TeamはFull Leagueを持たない国でも参加可能。
 
 予選はNational Baseball Poolを含む。
 
-## 13.2 Tournament format
+## 13.2 WBC qualification connection
+
+各Regional Championshipで、その地域へ割り当てられたWBC direct berth数だけ上位国が直接出場権を得る。
+
+例:
+
+```text
+Asia direct berths = 5
+  -> Asian Championship top 5 qualify directly
+```
+
+順位決定が必要な場合はplacement game / tournament placement rulesを使用する。
+
+direct berth直下の上位国はGlobal Qualifierへの優先出場権を得る。
+
+これによりWorld RankingだけでWBC本大会を決めず、「その周期の地域大会で勝つ」意味を残す。
+
+## 13.3 Tournament format
 
 代表大会ではクラブより試合数を抑える。
 
@@ -530,7 +594,7 @@ Final single game
 
 代表世界最高峰。
 
-開催: **4年に1回 / Year 2**
+開催: **4年に1回 / Cycle Year 2**
 
 本大会: **24 nations**
 
@@ -564,7 +628,24 @@ Total floor: 16
 
 世界大会経験の少ない国にも本大会進出経路を残す。
 
-## 14.2 Format
+## 14.2 Global Qualifier
+
+本大会4枠を決めるGlobal Qualifierは **16 nations** を基本とする。
+
+```text
+16 nations
+ -> 4 groups x 4
+ -> single round robin
+ -> each group winner qualifies
+```
+
+参加国は各Regional Championshipのdirect berth直下の成績、World Ranking、地域最低保証を組み合わせて選ぶ。
+
+Global Qualifierは一地域だけで埋めない。
+
+少なくとも4地域から参加国を含めることを原則とする。
+
+## 14.3 Format
 
 24 nations:
 
@@ -584,9 +665,9 @@ Total floor: 16
 
 候補としてFinal best-of-3を許可するが、初期推奨はsingle game。
 
-## 14.3 Window
+## 14.4 Window
 
-**March, Year 2**
+**March, Cycle Year 2**
 
 Full League calendarはWBC windowを予約する。
 
@@ -594,7 +675,7 @@ Full League calendarはWBC windowを予約する。
 
 # 15. Premier 12-class Tournament
 
-開催: **4年に1回 / Year 4**
+開催: **4年に1回 / Cycle Year 4**
 
 本大会: **12 nations**
 
@@ -641,28 +722,42 @@ knockoutはsingle game。
 
 ## 15.3 Window
 
-**November, Year 4**
+**November, Cycle Year 4**
 
 ---
 
 # 16. Four-year Global Cycle
 
-推奨cycle:
+`Cycle Year` は西暦を意味せず、4年周期の中で何年目かを表す。
+
+例:
 
 ```text
-YEAR 1
+2031 = Cycle Year 1
+2032 = Cycle Year 2
+2033 = Cycle Year 3
+2034 = Cycle Year 4
+2035 = next Cycle Year 1
+```
+
+実際の開始西暦はCareer World開始年から導出する。
+
+採用cycle:
+
+```text
+CYCLE YEAR 1
   Annual Continental Club Championships
   Regional National Championships / WBC qualification
 
-YEAR 2
+CYCLE YEAR 2
   Annual Continental Club Championships
   March: WBC-class World Championship
 
-YEAR 3
+CYCLE YEAR 3
   Annual Continental Club Championships
   December: Club World Championship
 
-YEAR 4
+CYCLE YEAR 4
   Annual Continental Club Championships
   November: Premier 12-class Tournament
 ```
@@ -677,7 +772,34 @@ Premier 12はWBCとは異なる「現在の上位12代表だけ」の大会に�
 
 # 17. Competition Calendar Principle
 
-## 17.1 season yearではなくSeasonIdを使う
+## 17.1 Major-event calendar priority
+
+世界大会・代表大会とAnnual Continental Club Competitionが同月に衝突する場合、以下の優先順位でwindowを確保する。
+
+```text
+1. WBC-class World Championship
+2. Club World Championship
+3. Premier 12-class
+4. Regional National Championship
+5. Continental Club Champions
+6. Domestic League
+```
+
+これは大会格が能力へ影響するという意味ではなく、日程編成上の優先順位である。
+
+Continental Club Championsは既定月の前後に **Flex Window** を持つ。
+
+例:
+
+- ABCL default November
+- Cycle Year 1 regional-national conflict -> late October / early Decemberへshift可能
+- Cycle Year 4 Premier conflict -> October / Decemberへshift可能
+- OBCL default March
+- Cycle Year 2 WBC conflict -> February / Aprilへshift可能
+
+国内leagueはWorld Calendar公開時点でbreak / makeup datesを確保する。
+
+## 17.2 season yearではなくSeasonIdを使う
 
 冬季leagueを含むため、calendar yearだけでqualificationを決めない。
 
@@ -689,7 +811,7 @@ type CompetitionQualificationEntry = {
 };
 ```
 
-## 17.2 Official Competition Window
+## 17.3 Official Competition Window
 
 代表・Club World等はWorld Calendarに予約済みwindowを持つ。
 
@@ -701,7 +823,7 @@ window中は必要な国内leagueが:
 
 を利用できる。
 
-## 17.3 No hidden fatigue reset
+## 17.4 No hidden fatigue reset
 
 大会windowだから疲労が消えることはない。
 
@@ -762,7 +884,7 @@ ratingContextLeagueId unchanged
 
 WBC / Premier / Regional Championshipはofficial national-team window。
 
-参加資格を持つクラブは原則release obligationを負う候補。
+参加資格を持つクラブは原則 **release obligationを負う**。これは代表大会をクラブ都合だけで形骸化させないための世界共通Competition Ruleとする。
 
 Career Economy側で:
 
@@ -791,7 +913,7 @@ Career Economy側で:
 
 代わりに `PrizePoolIndex` を使用する。
 
-初期相対値候補:
+初期相対値:
 
 | Competition | PrizePoolIndex |
 | --- | ---: |
@@ -892,21 +1014,45 @@ Player:
 
 ---
 
-# 24. Open Decisions
+# 24. 今回確定する事項
 
-ユーザー確認後に確定したいもの:
+以下をCompetition Architectureの基本設計として確定する。
 
-1. Continental club formatをこの「3-game series group + short playoff」で採用するか
-2. Europe / Asia / Americasを16 clubsで統一するか
-3. Africa / Oceaniaを8 clubsから開始するか
-4. Club World 16 clubs / 4年ごとを採用するか
-5. Regional National ChampionshipをWBC主要予選にするか
-6. WBCを24 nationsとするか
-7. Premier 12を12固定とするか
-8. 4-year cycleを採用するか
-9. National knockoutをsingle game中心にするか
-10. Club World finalだけbest-of-7とするか
-11. PrizePoolIndexの相対比を採用するか
-12. official national-team release obligationを設けるか
+1. Continental club competitionは3-game series group + short series playoff
+2. Asia / Americas / Europeは16 clubs
+3. Africa / Oceaniaは8 clubsから開始
+4. Club Worldは16 clubs / 4年ごと
+5. Regional National ChampionshipをWBC主要予選にする
+6. WBC本大会は24 nations
+7. Premier 12-classは12 nations固定
+8. 4-year cycleを採用し、`Cycle Year 1〜4` と表記
+9. National knockoutはsingle game中心
+10. Club World Finalのみbest-of-7
+11. PrizePoolIndexを初期相対経済尺度として採用
+12. official national-team release obligationを採用
+13. Club World qualificationは直前大陸王者 + 4-year performance ranking方式
+14. WBC Global Qualifierは16 nations -> 4 group winners
+15. Major world eventsはContinental / Domesticよりcalendar priorityを持つ
 
-これらが承認されたら、本書を設計承認版へ昇格する。
+# 25. 後続で校正する事項
+
+設計思想ではなく、実装・経済・RuleProfile段階で決める。
+
+- exact tournament dates
+- host selection procedure
+- exact roster size / pitcher minimum
+- injury replacement cutoff
+- cup-tied ruleを常時有効にするか
+- run differential cap
+- coefficient point formula / decay weights
+- PrizePoolIndexから実通貨への換算
+- broadcast / solidarity pool比率
+- national-team insurance / club compensation額
+- player bonus distribution
+- Global Qualifier regional allocation exact counts
+- regional championship placement rules
+- host automatic berthの例外
+- expansion thresholds
+- competition branding / final names
+
+これらはCompetitionの構造を変更せず校正可能である。
