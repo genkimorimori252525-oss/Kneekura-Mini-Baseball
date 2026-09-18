@@ -403,7 +403,7 @@ export const recordFoulBattedBall = (
   timeline: CanonicalPlateAppearanceTimeline,
   resolutionTick: number,
   buntAttempt: boolean,
-  flyCatch: FlyCatchRuleResult,
+  flyCatch: FlyCatchRuleResult | null,
 ): CanonicalPlateAppearanceTimeline => {
   if (timeline.status.kind !== 'batted_ball_pending') {
     throw new Error(
