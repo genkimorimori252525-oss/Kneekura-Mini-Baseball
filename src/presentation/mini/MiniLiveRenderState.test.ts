@@ -7,7 +7,10 @@ import {
 } from './MiniLiveRenderState';
 
 const frame = (
-  cameraMode: 'BATTER_POV' | 'FIELD_OVERHEAD',
+  cameraMode:
+    | 'BATTER_POV'
+    | 'PITCHER_POV'
+    | 'FIELD_OVERHEAD',
 ): MiniPresentationFrame => ({
   tick: 2_000_000,
   cameraMode,
@@ -58,6 +61,31 @@ describe('MiniLiveRenderState', () => {
     expect(result.render.tick).toBe(2_000_000);
     expect(result.render.defenders[0].playerId)
       .toBe('cf');
+  });
+
+  it('uses catcher-eye pitcher POV when the canonical pre-contact camera mode requests it', () => {
+    const source = frame('PITCHER_POV');
+    const baseline = structuredClone(source);
+
+    const result = buildMiniLiveRenderState({
+      frame: source,
+      overheadCamera: {
+        worldOrigin: { x: 0, z: 0 },
+        viewportCenter: { x: 75, y: 96 },
+        logicalPixelsPerMeter: 2,
+      },
+    });
+
+    expect(result.cameraMode).toBe('PITCHER_POV');
+    if (result.cameraMode !== 'PITCHER_POV') {
+      throw new Error('fixture must use pitcher POV');
+    }
+
+    expect(result.render.tick).toBe(2_000_000);
+    expect(result.render.ball).not.toBeNull();
+    expect(result.render.defenders[0].playerId)
+      .toBe('cf');
+    expect(source).toEqual(baseline);
   });
 
   it('uses canonical field-overhead projection after the cut', () => {
