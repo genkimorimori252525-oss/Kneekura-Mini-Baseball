@@ -73,28 +73,26 @@ const resultForStoppedTimeline = (
   }
 };
 
-export const resolvePlateAppearancePitchSequence = (
-  input: PlateAppearancePitchSequenceInput,
+export const advancePlateAppearancePitchSequence = (
+  initialTimeline: CanonicalPlateAppearanceTimeline,
+  pitches: readonly PitchAgainstBatterInput[],
 ): PlateAppearancePitchSequenceResult => {
-  let timeline = createCanonicalPlateAppearanceTimeline(
-    input.match,
-    input.startedAtTick,
-  );
+  if (initialTimeline.status.kind !== 'active') {
+    throw new Error(
+      'plate appearance pitch sequence requires an active timeline',
+    );
+  }
+
+  let timeline = initialTimeline;
 
   for (
     let pitchIndex = 0;
-    pitchIndex < input.pitches.length;
+    pitchIndex < pitches.length;
     pitchIndex += 1
   ) {
-    if (stoppedAcceptingPitches(timeline)) {
-      throw new Error(
-        'pitch sequence contains entries after the plate appearance stopped accepting pitches',
-      );
-    }
-
     const result = resolveAndRecordPitchAgainstBatter(
       timeline,
-      input.pitches[pitchIndex],
+      pitches[pitchIndex],
     );
     if (result.kind === 'unresolved') {
       return {
@@ -110,7 +108,7 @@ export const resolvePlateAppearancePitchSequence = (
 
     if (
       stoppedAcceptingPitches(timeline)
-      && pitchIndex + 1 < input.pitches.length
+      && pitchIndex + 1 < pitches.length
     ) {
       throw new Error(
         'pitch sequence contains entries after the plate appearance stopped accepting pitches',
@@ -121,13 +119,25 @@ export const resolvePlateAppearancePitchSequence = (
   if (timeline.status.kind === 'active') {
     return {
       kind: 'active',
-      pitchesConsumed: input.pitches.length,
+      pitchesConsumed: pitches.length,
       timeline,
     };
   }
 
   return resultForStoppedTimeline(
     timeline,
-    input.pitches.length,
+    pitches.length,
   );
 };
+
+export const resolvePlateAppearancePitchSequence = (
+  input: PlateAppearancePitchSequenceInput,
+): PlateAppearancePitchSequenceResult => (
+  advancePlateAppearancePitchSequence(
+    createCanonicalPlateAppearanceTimeline(
+      input.match,
+      input.startedAtTick,
+    ),
+    input.pitches,
+  )
+);
