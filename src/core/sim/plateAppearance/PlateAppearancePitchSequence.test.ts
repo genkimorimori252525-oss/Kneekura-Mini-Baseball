@@ -5,8 +5,12 @@ import type {
   PitchAgainstBatterInput,
 } from '../pitching/PitchAgainstBatter';
 import {
+  advancePlateAppearancePitchSequence,
   resolvePlateAppearancePitchSequence,
 } from './PlateAppearancePitchSequence';
+import {
+  recordFoulBattedBall,
+} from './CanonicalPlateAppearanceTimeline';
 
 const match = (
   balls = 0,
@@ -217,6 +221,82 @@ describe('PlateAppearancePitchSequence', () => {
       ],
     })).toThrow(
       'pitch sequence contains entries after the plate appearance stopped accepting pitches',
+    );
+  });
+
+  it('resumes the same canonical timeline after a physical foul returns the count to active', () => {
+    const contacted = resolvePlateAppearancePitchSequence({
+      match: match(),
+      startedAtTick: 900_000,
+      pitches: [
+        swingingContact(1_000_000),
+      ],
+    });
+    expect(contacted.kind).toBe('batted_ball_pending');
+    if (contacted.kind !== 'batted_ball_pending') {
+      throw new Error('fixture must produce pending contact');
+    }
+
+    const afterFoul = recordFoulBattedBall(
+      contacted.timeline,
+      1_010_000,
+      false,
+      {
+        kind: 'not_caught',
+        batterRunnerId: 'batter',
+        firstFielderTouchTick: 1_005_000,
+        firstGroundContactTick: 1_010_000,
+        secureCatchTick: 1_020_000,
+      },
+    );
+    expect(afterFoul.status).toEqual({
+      kind: 'active',
+      count: { balls: 0, strikes: 1 },
+    });
+
+    const continued = advancePlateAppearancePitchSequence(
+      afterFoul,
+      [
+        taken(2_000_000, 0.4),
+        swingingMiss(3_000_000),
+      ],
+    );
+
+    expect(continued.kind).toBe('active');
+    expect(continued.timeline.status).toEqual({
+      kind: 'active',
+      count: { balls: 1, strikes: 2 },
+    });
+    expect(continued.timeline.events.map((event) => event.sequence))
+      .toEqual([0, 1, 2, 3, 4, 5]);
+    expect(continued.timeline.events.map((event) => event.kind))
+      .toEqual([
+        'BatBallContact',
+        'FoulBattedBallResolved',
+        'TakenPitchPlateCrossed',
+        'PitchAdjudicated',
+        'SwingCompletedWithoutContact',
+        'PitchAdjudicated',
+      ]);
+  });
+
+  it('refuses to resume pitch processing from a non-active timeline', () => {
+    const contacted = resolvePlateAppearancePitchSequence({
+      match: match(),
+      startedAtTick: 900_000,
+      pitches: [
+        swingingContact(1_000_000),
+      ],
+    });
+    if (contacted.kind !== 'batted_ball_pending') {
+      throw new Error('fixture must produce pending contact');
+    }
+
+    expect(() => advancePlateAppearancePitchSequence(
+      contacted.timeline,
+      [taken(2_000_000, 0.4)],
+    )).toThrow(
+      'plate appearance pitch sequence requires an active timeline',
     );
   });
 
