@@ -1,5 +1,6 @@
 import type {
   BaserunnerWorldState,
+  CanonicalWorldSnapshot,
 } from '../../model/CanonicalWorldSnapshot';
 import {
   projectBatterSwingExitRecoveryRunnerWorldState,
@@ -197,5 +198,40 @@ export const sampleBatterRunnerWorldTimeline = (
       motion,
       timeline.route,
     ),
+  };
+};
+
+
+export const applyBatterRunnerWorldTimelineToSnapshot = (
+  snapshot: CanonicalWorldSnapshot,
+  timeline: BatterRunnerWorldTimeline,
+): CanonicalWorldSnapshot => {
+  const matches = snapshot.runners.filter(
+    (runner) => runner.playerId === timeline.playerId,
+  ).length;
+  if (matches > 1) {
+    throw new Error(
+      'canonical snapshot must not contain duplicate batter-runner ids',
+    );
+  }
+
+  const authoritativeRunner = sampleBatterRunnerWorldTimeline(
+    timeline,
+    snapshot.tick,
+  ).world;
+
+  const runners = matches === 0
+    ? [...snapshot.runners, authoritativeRunner]
+    : snapshot.runners.map((runner) => (
+        runner.playerId === timeline.playerId
+          ? authoritativeRunner
+          : runner
+      ));
+
+  return {
+    tick: snapshot.tick,
+    defenders: snapshot.defenders,
+    runners,
+    ball: snapshot.ball,
   };
 };
