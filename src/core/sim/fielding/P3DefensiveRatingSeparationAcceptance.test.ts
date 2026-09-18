@@ -14,6 +14,7 @@ import {
   deriveRatedDefenderMotionParameters,
   resolveRatedCatchExecutionTarget,
   resolveRatedDefensiveDecisionTiming,
+  resolveRatedDefenderFirstStepTiming,
 } from './DefensiveRatingAdapters';
 
 const baseInput: DefensiveRatingsInput = {
@@ -129,9 +130,37 @@ const subsystemProjection = (
     value,
     timingParameters,
   ),
+  firstStep: resolveRatedDefenderFirstStepTiming(
+    1_000_000,
+    value,
+    {
+      minimumFirstStepDelayTicks: 30_000,
+      maximumFirstStepDelayTicks: 150_000,
+      fixedMotorOffsetTicks: 10_000,
+    },
+  ),
 });
 
 describe('P3 defensive rating separation acceptance', () => {
+  it('first step changes only movement-start timing', () => {
+    const low = subsystemProjection(
+      ratings({ firstStep: 0 }),
+    );
+    const high = subsystemProjection(
+      ratings({ firstStep: 1 }),
+    );
+
+    expect(low.firstStep.movementStartTick)
+      .not.toBe(high.firstStep.movementStartTick);
+    expect(low.firstStep.recognitionTick)
+      .toBe(high.firstStep.recognitionTick);
+    expect(low.motion).toEqual(high.motion);
+    expect(low.catchExecution)
+      .toEqual(high.catchExecution);
+    expect(low.retention).toEqual(high.retention);
+    expect(low.decision).toEqual(high.decision);
+  });
+
   it('acceleration changes motion acceleration while catch and decision outputs stay identical', () => {
     const low = subsystemProjection(
       ratings({ acceleration: 0 }),
@@ -152,6 +181,7 @@ describe('P3 defensive rating separation acceptance', () => {
       .toEqual(high.catchExecution);
     expect(low.retention).toEqual(high.retention);
     expect(low.decision).toEqual(high.decision);
+    expect(low.firstStep).toEqual(high.firstStep);
   });
 
   it('catching changes catch execution/retention while motion and decision stay identical', () => {
@@ -164,6 +194,7 @@ describe('P3 defensive rating separation acceptance', () => {
 
     expect(low.motion).toEqual(high.motion);
     expect(low.decision).toEqual(high.decision);
+    expect(low.firstStep).toEqual(high.firstStep);
     expect(low.catchExecution.errorScaleMeters)
       .not.toBe(high.catchExecution.errorScaleMeters);
     expect(low.retention.centerRetentionCapacityJ)
@@ -182,6 +213,7 @@ describe('P3 defensive rating separation acceptance', () => {
     expect(low.catchExecution)
       .toEqual(high.catchExecution);
     expect(low.retention).toEqual(high.retention);
+    expect(low.firstStep).toEqual(high.firstStep);
     expect(low.decision.decisionTick)
       .not.toBe(high.decision.decisionTick);
     expect(low.decision.evidenceAvailableAt)
