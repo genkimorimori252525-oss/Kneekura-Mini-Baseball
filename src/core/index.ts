@@ -168,3 +168,4 @@ export * from './rules/PitchingMotionInfieldBoundaryRule';
 export * from './validation/CanonicalEvidenceFingerprint';
 export * from './validation/FixedSeedRegressionCorpus';
 export * from './validation/FixedSeedRegressionRunner';
+export * from './validation/CausalDebugTrace';
