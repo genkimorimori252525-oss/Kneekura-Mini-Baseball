@@ -240,6 +240,12 @@ CompetitionProfile
   └─ rewards / records
 ```
 
+大会体系の具体案は以下の設計候補版へ分離する。
+
+- `docs/game-design/11-world-competition-architecture.md`
+
+内容はContinental Club Champions、Club World、Regional National Championships、Premier 12-class、WBC-class、および4年周期Calendarを対象とする。
+
 特定の大会名をMatch Coreの条件分岐に埋め込まない。
 
 また、`CompetitionProfile` は選手の所属リーグ基準の公開能力値を上書きしない。
