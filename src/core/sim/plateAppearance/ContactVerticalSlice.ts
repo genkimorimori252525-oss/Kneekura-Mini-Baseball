@@ -7,6 +7,7 @@ import type { TimedMatchEvent } from '../../model/TimedMatchEvent';
 import type { Vec3 } from '../../model/geometry';
 import {
   DEFAULT_CONTACT_PARAMETERS,
+  createBattedBallInitialStateFromContact,
   resolveBatBallContact,
   type BatBallContactResult,
   type BatterSwingState,
@@ -22,7 +23,7 @@ import {
 
 export type BatBallContactEventPayload = Readonly<{
   point: Vec3;
-  liveBattedBall: true;
+  battedBallPendingDisposition: true;
 }>;
 
 export type ContactVerticalSliceInput = Readonly<{
@@ -56,12 +57,8 @@ export const simulateContactVerticalSlice = (
     throw new Error('contact vertical slice requires a physical bat-ball contact');
   }
 
-  const initialBall: BattedBallInitialState = {
-    tick: input.pitch.tick,
-    position: input.pitch.position,
-    velocity: contact.exitVelocity,
-    spin: contact.exitSpin,
-  };
+  const initialBall: BattedBallInitialState =
+    createBattedBallInitialStateFromContact(contact);
 
   const flightSamples = sampleBallFlight(
     initialBall,
@@ -87,7 +84,7 @@ export const simulateContactVerticalSlice = (
     kind: 'BatBallContact',
     payload: {
       point: contact.point,
-      liveBattedBall: true,
+      battedBallPendingDisposition: true,
     },
   };
 
