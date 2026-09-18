@@ -7,6 +7,7 @@ import {
 } from './CanonicalPlateAppearanceTimeline';
 import {
   applyStrikeoutPlateAppearanceToMatchState,
+  applyWalkPlateAppearanceToMatchState,
 } from './PlateAppearanceMatchState';
 
 const match = (
@@ -118,6 +119,107 @@ describe('PlateAppearanceMatchState strikeout application', () => {
       walk,
     )).toThrow(
       'strikeout match-state application requires a strikeout timeline',
+    );
+  });
+});
+
+
+describe('PlateAppearanceMatchState walk application', () => {
+  it('applies a walk to bases, resets the count, and advances playId', () => {
+    const before: CanonicalMatchState = {
+      ...match(1),
+      balls: 3,
+      strikes: 1,
+      bases: {
+        first: 'r1',
+        second: null,
+        third: 'r3',
+      },
+    };
+    const walk = recordCountedPitch(
+      createCanonicalPlateAppearanceTimeline(
+        before,
+        30_000_000,
+      ),
+      30_100_000,
+      { kind: 'ball' },
+    );
+
+    expect(applyWalkPlateAppearanceToMatchState(
+      before,
+      walk,
+      'batter',
+    )).toEqual({
+      ...before,
+      balls: 0,
+      strikes: 0,
+      bases: {
+        first: 'batter',
+        second: 'r1',
+        third: 'r3',
+      },
+      playId: 13,
+    });
+  });
+
+  it('scores the forced runner from third on a bases-loaded walk for the batting team', () => {
+    const before: CanonicalMatchState = {
+      ...match(2, 'bottom'),
+      balls: 3,
+      strikes: 2,
+      bases: {
+        first: 'r1',
+        second: 'r2',
+        third: 'r3',
+      },
+    };
+    const walk = recordCountedPitch(
+      createCanonicalPlateAppearanceTimeline(
+        before,
+        40_000_000,
+      ),
+      40_100_000,
+      { kind: 'ball' },
+    );
+
+    expect(applyWalkPlateAppearanceToMatchState(
+      before,
+      walk,
+      'batter',
+    )).toEqual({
+      ...before,
+      balls: 0,
+      strikes: 0,
+      bases: {
+        first: 'batter',
+        second: 'r1',
+        third: 'r2',
+      },
+      score: {
+        away: 2,
+        home: 2,
+      },
+      playId: 13,
+    });
+  });
+
+  it('rejects applying a non-walk timeline as a walk', () => {
+    const before = match(0);
+    const active = recordCountedPitch(
+      createCanonicalPlateAppearanceTimeline(
+        before,
+        50_000_000,
+      ),
+      50_100_000,
+      { kind: 'ball' },
+    );
+
+    expect(() => applyWalkPlateAppearanceToMatchState(
+      before,
+      active,
+      'batter',
+    )).toThrow(
+      'walk match-state application requires a walk timeline',
     );
   });
 });
