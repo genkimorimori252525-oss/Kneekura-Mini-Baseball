@@ -21,10 +21,14 @@ export type DirectionAnchorMap = Readonly<
   Record<BattedBallDirectionBucket, Vec2>
 >;
 
+export type DirectionDistanceMap = Readonly<
+  Record<BattedBallDirectionBucket, number>
+>;
+
 export type DefensiveAlignmentEvaluation = Readonly<{
   id: string;
   expectedNearestDistanceMeters: number;
-  nearestDistanceByDirection: DirectionDistribution;
+  nearestDistanceByDirection: DirectionDistanceMap;
 }>;
 
 export type DefensiveAlignmentSelectionResult = Readonly<{
@@ -247,9 +251,7 @@ export const selectDefensiveAlignmentCandidate = (
       return {
         id: candidate.id,
         expectedNearestDistanceMeters,
-        nearestDistanceByDirection:
-          nearestDistanceByDirection
-            as DirectionDistribution,
+        nearestDistanceByDirection,
       };
     });
 
