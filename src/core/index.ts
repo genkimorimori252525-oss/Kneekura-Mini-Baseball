@@ -37,6 +37,7 @@ export * from './sim/fielding/BattedBallReadSkill';
 export * from './sim/fielding/DefenderRoutePlan';
 export * from './sim/fielding/DefensiveDecision';
 export * from './sim/fielding/DefensiveMovementTarget';
+export * from './sim/fielding/TeamCoveragePlan';
 export * from './sim/fielding/DefenderMotion';
 export * from './sim/fielding/DefenderWorldProjection';
 export * from './sim/fielding/DefenderBodyKinematics';
