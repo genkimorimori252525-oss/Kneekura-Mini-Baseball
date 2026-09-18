@@ -40,6 +40,7 @@ export type CanonicalPresentationSample = Readonly<{
   world: CanonicalWorldSnapshot;
   batter: BatterPresentationState;
   pitcherPose?: PitcherPresentationPose;
+  pitcherHandedness?: BatterHandedness;
 }>;
 
 export type MiniCameraMode = 'BATTER_POV' | 'FIELD_OVERHEAD';
