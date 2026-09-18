@@ -21,4 +21,8 @@ export * from './sim/running/RunnerRoute';
 export * from './sim/running/RunnerBodyContact';
 export * from './sim/running/RunnerBaseTouch';
 export * from './sim/running/RunnerWorldProjection';
+export * from './sim/perception/Observation';
+export * from './sim/perception/ObservationMemory';
+export * from './sim/perception/Communication';
+export * from './sim/perception/PlayerPerceivedWorldState';
 export * from './sim/plateAppearance/ContactVerticalSlice';
