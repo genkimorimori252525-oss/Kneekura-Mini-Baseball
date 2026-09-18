@@ -372,3 +372,7 @@ type KnowledgeEstimate<T> = {
 設計原則とTraitカタログは承認済みだが、まだ実装仕様ではない。具体的な獲得閾値、効果量、成長・減衰式、保存形式はPlayer / Career / Pennant / Development実装設計で確定する。
 
 将来 `Player / Career / Pennant / Development` を設計する際には、この設計シードを入力として参照し、得能のEvidence、獲得・消失、Relationship履歴を後から表現不能にするデータ構造を避ける。
+
+
+Season events and deadlines:
+- `docs/game-design/15-season-events-and-deadlines.md`
