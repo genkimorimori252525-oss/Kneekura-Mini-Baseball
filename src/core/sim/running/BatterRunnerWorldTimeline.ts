@@ -51,6 +51,17 @@ export type BatterRunnerWorldTimelineSample = Readonly<{
 }>;
 
 const EPSILON = 1e-12;
+const BOUNDARY_TOLERANCE = 1e-9;
+
+const worldBoundaryMatches = (
+  first: BaserunnerWorldState,
+  second: BaserunnerWorldState,
+): boolean => (
+  Math.abs(first.position.x - second.position.x) <= BOUNDARY_TOLERANCE
+  && Math.abs(first.position.z - second.position.z) <= BOUNDARY_TOLERANCE
+  && Math.abs(first.velocity.x - second.velocity.x) <= BOUNDARY_TOLERANCE
+  && Math.abs(first.velocity.z - second.velocity.z) <= BOUNDARY_TOLERANCE
+);
 
 export const buildBatterRunnerWorldTimeline = (
   input: BatterRunnerWorldTimelineInput,
@@ -78,6 +89,14 @@ export const buildBatterRunnerWorldTimeline = (
       'recovery and RunnerMotion must use the same ticksPerSecond',
     );
   }
+  if (
+    !Number.isSafeInteger(input.postLaunchIntent.issuedTick)
+    || input.postLaunchIntent.issuedTick < 0
+  ) {
+    throw new Error(
+      'post-launch runner intent issuedTick must be a non-negative safe integer',
+    );
+  }
   if (input.postLaunchIntent.issuedTick < launchTick) {
     throw new Error(
       'post-launch runner intent must not be issued before launchTick',
@@ -94,6 +113,29 @@ export const buildBatterRunnerWorldTimeline = (
   ) {
     throw new Error(
       'RunnerMotion topSpeedMps must not be lower than inherited launch speed',
+    );
+  }
+
+  const recoveryLaunchWorld = (
+    projectBatterSwingExitRecoveryRunnerWorldState(
+      input.playerId,
+      sampleBatterSwingExitRecoveryTrajectory(
+        input.recovery,
+        launchTick,
+      ),
+    )
+  );
+  const runnerLaunchWorld = projectRunnerWorldState(
+    input.playerId,
+    launchState,
+    input.route,
+  );
+  if (!worldBoundaryMatches(
+    recoveryLaunchWorld,
+    runnerLaunchWorld,
+  )) {
+    throw new Error(
+      'recovery launch boundary must match the post-launch RunnerRoute',
     );
   }
 
