@@ -23,6 +23,10 @@ import {
   createControlledBaseContactFactFromDefenderPhysics,
   type DefenderControlledBaseContactPhysicalAdapterInput,
 } from './DefenderControlledBaseContactPhysicalAdapter';
+import {
+  createControlledBaseContactFactFromCatchOutcomePhysics,
+  type DefenderControlledBaseContactFromCatchOutcomeInput,
+} from './DefenderControlledBaseContactPhysicalAdapter';
 
 export type BatterRunnerFirstBasePhysicalInput = Readonly<{
   timeline: BatterRunnerWorldTimeline;
@@ -60,6 +64,26 @@ export type GroundBallFirstBaseRuleFromPhysicalRaceInput =
   BatterRunnerFirstBasePhysicalInput
   & Readonly<{
     defender: BatterRunnerFirstBasePhysicalRaceDefenderInput;
+    outsAtStart: number;
+    homeTouches: readonly RunnerBaseTouchFact[];
+  }>;
+
+
+export type BatterRunnerFirstBasePhysicalCatchRaceDefenderInput = Omit<
+  DefenderControlledBaseContactFromCatchOutcomeInput,
+  'base' | 'baseRegion'
+>;
+
+export type BatterRunnerFirstBaseFromPhysicalCatchRaceInput =
+  BatterRunnerFirstBasePhysicalInput
+  & Readonly<{
+    defender: BatterRunnerFirstBasePhysicalCatchRaceDefenderInput;
+  }>;
+
+export type GroundBallFirstBaseRuleFromPhysicalCatchRaceInput =
+  BatterRunnerFirstBasePhysicalInput
+  & Readonly<{
+    defender: BatterRunnerFirstBasePhysicalCatchRaceDefenderInput;
     outsAtStart: number;
     homeTouches: readonly RunnerBaseTouchFact[];
   }>;
@@ -146,3 +170,37 @@ export const resolveGroundBallFirstBaseRuleFromPhysicalRace = (
     homeTouches: input.homeTouches,
   });
 };
+
+
+export const resolveBatterRunnerFirstBaseFromPhysicalCatchRace = (
+  input: BatterRunnerFirstBaseFromPhysicalCatchRaceInput,
+): BatterRunnerFirstBaseResult => resolveBatterRunnerFirstBase({
+  batterRunnerId: input.timeline.playerId,
+  defenderControl:
+    createControlledBaseContactFactFromCatchOutcomePhysics({
+      ...input.defender,
+      base: 1,
+      baseRegion: input.firstBase,
+    }),
+  runnerTouch: createBatterRunnerFirstBaseTouchFactFromTimeline(
+    input,
+  ),
+});
+
+export const resolveGroundBallFirstBaseRuleFromPhysicalCatchRace = (
+  input: GroundBallFirstBaseRuleFromPhysicalCatchRaceInput,
+): GroundBallFirstBaseRuleEngineResult => (
+  resolveGroundBallFirstBaseRule({
+    outsAtStart: input.outsAtStart,
+    batterRunnerId: input.timeline.playerId,
+    defenderControl:
+      createControlledBaseContactFactFromCatchOutcomePhysics({
+        ...input.defender,
+        base: 1,
+        baseRegion: input.firstBase,
+      }),
+    batterRunnerTouch:
+      createBatterRunnerFirstBaseTouchFactFromTimeline(input),
+    homeTouches: input.homeTouches,
+  })
+);
