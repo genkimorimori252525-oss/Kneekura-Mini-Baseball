@@ -217,7 +217,7 @@ Key evidence:
 
 - `35394466844` attempt 1 and attempt 2 on `83d01d52...`: 228 files / 1065 tests green and identical unfrozen fixed-seed fingerprints;
 - `35395593056` on `c3a409cf...`: 228 files / 1065 tests green with all frozen fixed-seed expectations matching;
-- `35396396378` attempt 1 on `8b306a15...`: 229 files / 1068 tests green including the deterministic 1,024-contact batch calibration;
+- `35396396378` attempts 1 and 2 on `8b306a15...`: 229 files / 1068 tests green on both attempts, with identical deterministic 1,024-contact batch calibration evidence;
 - calibration fingerprint: `f5058efd2d23784c`.
 
 Implementation status and CI status are now aligned for the P0-P9 foundation.

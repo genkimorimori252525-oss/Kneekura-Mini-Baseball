@@ -99,7 +99,7 @@ P9 foundation is closed because:
 Verification anchors:
 - unfrozen fixed-seed head `83d01d52...`: run `35394466844` attempts 1 and 2, 228 files / 1065 tests green with identical fingerprints;
 - frozen baseline head `c3a409cf...`: run `35395593056`, 228 files / 1065 tests green with all three scenarios matching;
-- batch calibration head `8b306a15...`: run `35396396378`, 229 files / 1068 tests green;
+- batch calibration head `8b306a15...`: run `35396396378` attempts 1 and 2, 229 files / 1068 tests green on both attempts with identical batch evidence;
 - batch contact fingerprint `2f545c9acac3ab71`;
 - batch calibration fingerprint `f5058efd2d23784c`.
 

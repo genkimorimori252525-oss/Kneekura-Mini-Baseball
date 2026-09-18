@@ -173,7 +173,7 @@ The same immutable contact corpus is evaluated through two defensive alignments 
 
 The validation-only classification buckets are deliberately not the production hit/result engine. They exist to turn physical reach evidence into stable aggregate calibration evidence without introducing batter debuffs or a hidden result modifier.
 
-Verified run `35396396378` on source head `8b306a155ff6bf802ad8866dc3c0e516adef23b6` produced:
+Verified run `35396396378` attempts 1 and 2 on source head `8b306a155ff6bf802ad8866dc3c0e516adef23b6` reproduced the same batch exactly. The observed distribution was:
 
 | Alignment | Outs | Hits | XBH | Runs allowed | Out rate | Calibration evidence |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
@@ -342,7 +342,7 @@ Verified CI evidence:
 - run `35394466844`, attempt 2, exact same head: **228 test files / 1065 tests passed** and the same three observed fingerprints were reproduced;
 - freeze commit `c3a409cffd6aa1950deb83f5efd38da5946664d8`;
 - run `35395593056` on the freeze commit: **228 test files / 1065 tests passed**, all three fixed-seed scenarios reported `expectation: "match"`;
-- run `35396396378`, attempt 1, head `8b306a155ff6bf802ad8866dc3c0e516adef23b6`: **229 test files / 1068 tests passed**, including the 1,024-contact batch calibration probe.
+- run `35396396378`, attempts 1 and 2, head `8b306a155ff6bf802ad8866dc3c0e516adef23b6`: **229 test files / 1068 tests passed** on both attempts; contact, evaluation, distribution, and calibration fingerprints reproduced exactly.
 
 Therefore:
 

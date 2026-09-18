@@ -231,7 +231,7 @@ P0時点では野球結果の物理・規則・守備能力式はまだ実装し
 
 - fixed-seed未凍結head `83d01d52...` をActions run `35394466844` attempt 1/2で再実行し、228 files / 1065 testsが双方GREEN、3 fingerprintが完全一致。
 - `c3a409cf...` で3 fingerprintを凍結し、run `35395593056` で全3件 `match`。
-- `8b306a15...` のrun `35396396378` で229 files / 1068 tests GREEN。
+- `8b306a15...` のrun `35396396378` attempt 1/2で229 files / 1068 testsが双方GREEN、1,024-contact校正結果も完全一致。
 - 同runの1,024-contact校正はcontact fingerprint `2f545c9acac3ab71`、calibration fingerprint `f5058efd2d23784c`。
 - 校正bucketは検証専用であり、productionのhit/result engineではない。描画状態・点サイズ・Natural metadataは校正入力へ入れない。
 
