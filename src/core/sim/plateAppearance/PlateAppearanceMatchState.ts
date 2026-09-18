@@ -187,14 +187,23 @@ export const applyResolvedLiveBallPlateAppearanceToMatchState = (
       'plate appearance timeline playId must match CanonicalMatchState.playId',
     );
   }
-  if (timeline.status.kind !== 'live_ball') {
+  if (timeline.status.kind !== 'live_ball_complete') {
     throw new Error(
-      'live-ball match-state application requires a live-ball timeline',
+      'live-ball match-state application requires a completed live-ball timeline',
     );
   }
-  if (resolution.playEnd.tick < timeline.status.contactTick) {
+  const timelinePlayEndEvent = [...timeline.events]
+    .reverse()
+    .find((event) => event.kind === 'LiveBallPlayEnded');
+  if (
+    timelinePlayEndEvent === undefined
+    || timelinePlayEndEvent.payload.playEnd.tick
+      !== resolution.playEnd.tick
+    || timelinePlayEndEvent.payload.playEnd.reason
+      !== resolution.playEnd.reason
+  ) {
     throw new Error(
-      'live-ball play end must not precede bat-ball contact',
+      'live-ball resolution playEnd must match the timeline play end',
     );
   }
   if (
