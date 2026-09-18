@@ -62,7 +62,7 @@ const run = (batSpeedZ: number) => simulateContactVerticalSlice({
 const speed = (velocity: Vec3): number => Math.hypot(velocity.x, velocity.y, velocity.z);
 
 describe('simulateContactVerticalSlice', () => {
-  it('creates an exact contact snapshot and live BatBallContact event', () => {
+  it('creates an exact contact snapshot and pending-disposition BatBallContact event', () => {
     const result = run(22);
 
     expect(result.snapshots.map((snapshot) => snapshot.tick)).toEqual([
@@ -77,7 +77,7 @@ describe('simulateContactVerticalSlice', () => {
       sequence: 0,
       kind: 'BatBallContact',
       payload: {
-        liveBattedBall: true,
+        battedBallPendingDisposition: true,
       },
     });
   });
