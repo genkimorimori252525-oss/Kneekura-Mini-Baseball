@@ -7,6 +7,7 @@ export type BallFlightParameters = Readonly<{
   ballRadius: number;
   groundRestitution: number;
   groundFriction: number;
+  groundRollingDecelerationMps2?: number;
   integrationStepTicks: number;
   restingVerticalSpeed: number;
 }>;
@@ -17,6 +18,7 @@ export const DEFAULT_BALL_FLIGHT_PARAMETERS: BallFlightParameters = Object.freez
   ballRadius: 0.0366,
   groundRestitution: 0.35,
   groundFriction: 0.78,
+  groundRollingDecelerationMps2: 4,
   integrationStepTicks: 2_000,
   restingVerticalSpeed: 0.5,
 });
@@ -38,6 +40,18 @@ const validateParameters = (parameters: BallFlightParameters): void => {
   }
   if (parameters.groundFriction < 0 || parameters.groundFriction > 1) {
     throw new Error('groundFriction must be within [0, 1]');
+  }
+  const rollingDeceleration =
+    parameters.groundRollingDecelerationMps2
+    ?? DEFAULT_BALL_FLIGHT_PARAMETERS.groundRollingDecelerationMps2
+    ?? 0;
+  if (
+    !Number.isFinite(rollingDeceleration)
+    || rollingDeceleration < 0
+  ) {
+    throw new Error(
+      'groundRollingDecelerationMps2 must be finite and non-negative',
+    );
   }
   if (parameters.restingVerticalSpeed < 0) {
     throw new Error('restingVerticalSpeed must be non-negative');
@@ -103,6 +117,153 @@ export const findGroundContactTick = (
   });
 };
 
+const getGroundRollingDeceleration = (
+  parameters: BallFlightParameters,
+): number => (
+  parameters.groundRollingDecelerationMps2
+  ?? DEFAULT_BALL_FLIGHT_PARAMETERS.groundRollingDecelerationMps2
+  ?? 0
+);
+
+const isOnGround = (
+  state: BattedBallInitialState,
+  parameters: BallFlightParameters,
+): boolean => (
+  state.position.y <= parameters.ballRadius + GROUND_EPSILON
+  && Math.abs(state.velocity.y) <= GROUND_EPSILON
+);
+
+const advanceGroundRoll = (
+  state: BattedBallInitialState,
+  stepTicks: number,
+  parameters: BallFlightParameters,
+): BattedBallInitialState => {
+  const speed = Math.hypot(
+    state.velocity.x,
+    state.velocity.z,
+  );
+  if (speed <= GROUND_EPSILON) {
+    return {
+      ...state,
+      tick: state.tick + stepTicks,
+      position: {
+        ...state.position,
+        y: parameters.ballRadius,
+      },
+      velocity: {
+        x: 0,
+        y: 0,
+        z: 0,
+      },
+    };
+  }
+
+  const deceleration =
+    getGroundRollingDeceleration(parameters);
+  const durationSeconds =
+    stepTicks / parameters.ticksPerSecond;
+
+  if (deceleration <= GROUND_EPSILON) {
+    return {
+      tick: state.tick + stepTicks,
+      position: {
+        x: state.position.x
+          + state.velocity.x * durationSeconds,
+        y: parameters.ballRadius,
+        z: state.position.z
+          + state.velocity.z * durationSeconds,
+      },
+      velocity: {
+        x: state.velocity.x,
+        y: 0,
+        z: state.velocity.z,
+      },
+      spin: state.spin,
+    };
+  }
+
+  const directionX = state.velocity.x / speed;
+  const directionZ = state.velocity.z / speed;
+  const stopSeconds = speed / deceleration;
+  const travelSeconds = Math.min(
+    durationSeconds,
+    stopSeconds,
+  );
+  const distance = (
+    speed * travelSeconds
+    - 0.5
+      * deceleration
+      * travelSeconds
+      * travelSeconds
+  );
+  const remainingSpeed = Math.max(
+    0,
+    speed - deceleration * durationSeconds,
+  );
+
+  return {
+    tick: state.tick + stepTicks,
+    position: {
+      x: state.position.x + directionX * distance,
+      y: parameters.ballRadius,
+      z: state.position.z + directionZ * distance,
+    },
+    velocity: remainingSpeed <= GROUND_EPSILON
+      ? {
+          x: 0,
+          y: 0,
+          z: 0,
+        }
+      : {
+          x: directionX * remainingSpeed,
+          y: 0,
+          z: directionZ * remainingSpeed,
+        },
+    spin: state.spin,
+  };
+};
+
+export const findGroundRollingStopTick = (
+  state: BattedBallInitialState,
+  deltaTicks: number,
+  parameters: BallFlightParameters = DEFAULT_BALL_FLIGHT_PARAMETERS,
+): number | null => {
+  validateParameters(parameters);
+  if (!Number.isInteger(deltaTicks) || deltaTicks < 0) {
+    throw new Error(
+      'deltaTicks must be a non-negative integer',
+    );
+  }
+  if (!isOnGround(state, parameters)) {
+    return null;
+  }
+
+  const speed = Math.hypot(
+    state.velocity.x,
+    state.velocity.z,
+  );
+  if (speed <= GROUND_EPSILON) {
+    return state.tick;
+  }
+
+  const deceleration =
+    getGroundRollingDeceleration(parameters);
+  if (deceleration <= GROUND_EPSILON) {
+    return null;
+  }
+
+  const stopSeconds = speed / deceleration;
+  const stopTick = quantizeEventTick(
+    state.tick,
+    stopSeconds,
+    parameters.ticksPerSecond,
+  );
+
+  return stopTick - state.tick <= deltaTicks
+    ? stopTick
+    : null;
+};
+
 const advanceStep = (
   state: BattedBallInitialState,
   stepTicks: number,
@@ -112,22 +273,12 @@ const advanceStep = (
   let remaining = stepTicks;
 
   while (remaining > 0) {
-    const onGround =
-      current.position.y <= parameters.ballRadius + GROUND_EPSILON &&
-      current.velocity.y === 0;
-
-    if (onGround) {
-      const dt = remaining / parameters.ticksPerSecond;
-      return {
-        tick: current.tick + remaining,
-        position: {
-          x: current.position.x + current.velocity.x * dt,
-          y: parameters.ballRadius,
-          z: current.position.z + current.velocity.z * dt,
-        },
-        velocity: current.velocity,
-        spin: current.spin,
-      };
+    if (isOnGround(current, parameters)) {
+      return advanceGroundRoll(
+        current,
+        remaining,
+        parameters,
+      );
     }
 
     const contactTick = findGroundContactTick(current, remaining, parameters);
