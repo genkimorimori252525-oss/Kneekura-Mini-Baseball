@@ -12,8 +12,10 @@ import {
 import { createRuleContext } from './RuleContext';
 import { establishInningInfieldSideAssignment } from './InningInfieldSideAssignment';
 import { evaluatePitchReleaseInfieldSide } from './PitchReleaseInfieldSideRule';
+import { createInfieldBoundaryRegion } from './InfieldBoundaryRegion';
 import {
   evaluatePitchReleaseInfieldSideForMatch,
+  evaluatePitchingMotionInfieldBoundaryForMatch,
   evaluateInningInfieldSideLockForMatch,
 } from './ProfileAwareRuleEngine';
 
@@ -53,6 +55,75 @@ const fact = (
 );
 
 describe('profile-aware defensive alignment', () => {
+  it('applies the NPB 2026 stadium infield boundary at pitching-related-motion start', () => {
+    const result = evaluatePitchingMotionInfieldBoundaryForMatch(
+      match(),
+      createRuleContext(NPB_2026_RULE_PROFILE),
+      {
+        pitchingRelatedMotionStartTick: tick,
+        facts: [
+          fact('1b', '1B', 3),
+          fact('2b', '2B', 2),
+          fact('ss', 'SS', 5),
+          fact('3b', '3B', -3),
+        ],
+        boundary: createInfieldBoundaryRegion([
+          { x: -5, z: -5 },
+          { x: 5, z: -5 },
+          { x: 5, z: 5 },
+          { x: -5, z: 5 },
+        ]),
+        parameters: {
+          footContactRadiusMeters: 0.1,
+        },
+      },
+    );
+
+    expect(result).toMatchObject({
+      kind: 'violation',
+      invalidInfielders: ['ss'],
+    });
+  });
+
+  it('fails explicitly if the active profile does not use stadium geometry at pitching-related-motion start', () => {
+    const unsupported: RuleProfile = {
+      ...NPB_2026_RULE_PROFILE,
+      id: asRuleProfileId('unsupported-infield-boundary'),
+      defensiveAlignment: {
+        ...NPB_2026_RULE_PROFILE.defensiveAlignment,
+        infieldBoundary: {
+          ...NPB_2026_RULE_PROFILE.defensiveAlignment.infieldBoundary,
+          geometrySource: 'fixed_reference',
+        },
+      },
+    };
+
+    expect(() => evaluatePitchingMotionInfieldBoundaryForMatch(
+      match(unsupported.id),
+      createRuleContext(unsupported),
+      {
+        pitchingRelatedMotionStartTick: tick,
+        facts: [
+          fact('1b', '1B', 3),
+          fact('2b', '2B', 2),
+          fact('ss', 'SS', -2),
+          fact('3b', '3B', -3),
+        ],
+        boundary: createInfieldBoundaryRegion([
+          { x: -5, z: -5 },
+          { x: 5, z: -5 },
+          { x: 5, z: 5 },
+          { x: -5, z: 5 },
+        ]),
+        parameters: {
+          footContactRadiusMeters: 0.1,
+        },
+      },
+    )).toThrow(
+      'unsupported infield-boundary alignment semantics',
+    );
+  });
+
   it('applies the NPB 2026 pitch-release both-feet 2+2 rule', () => {
     const result = evaluatePitchReleaseInfieldSideForMatch(
       match(),
