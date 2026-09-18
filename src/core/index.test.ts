@@ -12,6 +12,7 @@ import {
   createBatterStanceGeometry,
   createRunnerMotionStateFromSwingExitTransition,
   buildBatterSwingExitRecoveryTrajectory,
+  applyBatterRunnerWorldTimelineToSnapshot,
   buildBatterRunnerWorldTimeline,
   capturePlanarObservation,
   captureSpatialObservation,
@@ -153,6 +154,7 @@ describe('core package', () => {
 
   it('exposes the unified batter-runner world timeline through the shared Core API', () => {
     expect(typeof buildBatterRunnerWorldTimeline).toBe('function');
+    expect(typeof applyBatterRunnerWorldTimelineToSnapshot).toBe('function');
     expect(typeof sampleBatterRunnerWorldTimeline).toBe('function');
   });
 
