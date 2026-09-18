@@ -16,15 +16,18 @@ const fingerprintsOf = (
 );
 
 describe('P9FixedSeedBaseline', () => {
-  it('repeats the same real-Core evidence within one process before any baseline is frozen', () => {
+  it('matches the frozen real-Core fingerprints and remains repeatable within one process', () => {
     const first = runP9FixedSeedBaseline();
     const second = runP9FixedSeedBaseline();
 
-    expect(first.unfrozen).toBe(3);
-    expect(first.matched).toBe(0);
+    expect(first.unfrozen).toBe(0);
+    expect(first.matched).toBe(3);
     expect(first.mismatched).toBe(0);
     expect(fingerprintsOf(first))
       .toEqual(fingerprintsOf(second));
+    expect(first.scenarios.map(
+      (scenario) => scenario.expectation,
+    )).toEqual(['match', 'match', 'match']);
 
     expect(
       first.scenarios[2].evidence,
@@ -42,6 +45,9 @@ describe('P9FixedSeedBaseline', () => {
           scenarioId: scenario.scenarioId,
           observedFingerprint:
             scenario.observedFingerprint,
+          expectedFingerprint:
+            scenario.expectedFingerprint,
+          expectation: scenario.expectation,
         })),
       ),
     );

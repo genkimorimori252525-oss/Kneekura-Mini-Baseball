@@ -69,7 +69,7 @@ export const P9_FIXED_SEED_BASELINE_CORPUS =
       scenarioBuilderId:
         'p9:fielding:batted-ball-read:v1',
       evidenceClass: 'fielding',
-      expectedFingerprint: null,
+      expectedFingerprint: '0d6e8aefd4601e9a',
     },
     {
       scenarioId: 'p9-baserunning-retreat-20260920',
@@ -78,7 +78,7 @@ export const P9_FIXED_SEED_BASELINE_CORPUS =
       scenarioBuilderId:
         'p9:baserunning:runner-motion:v1',
       evidenceClass: 'baserunning',
-      expectedFingerprint: null,
+      expectedFingerprint: '8c3db4d6447bcad5',
     },
     {
       scenarioId: 'p9-rules-tag-up-appeal-20260921',
@@ -87,7 +87,7 @@ export const P9_FIXED_SEED_BASELINE_CORPUS =
       scenarioBuilderId:
         'p9:rules:tag-up-appeal:v1',
       evidenceClass: 'rules',
-      expectedFingerprint: null,
+      expectedFingerprint: 'd49f585e4b33fb17',
     },
   ]);
 
