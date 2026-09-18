@@ -129,11 +129,15 @@ describe('DefensiveRatingAdapters', () => {
 
   it('uses catching for retention capacity without changing the supplied base geometry', () => {
     const base = {
-      gloveRadiusMeters: 0.08,
+      ticksPerSecond: 1_000_000,
+      ballMassKg: 0.145,
       ballRadiusMeters: 0.0366,
+      pocketRadiusMeters: 0.08,
       centerRetentionCapacityJ: 8,
       captureDissipationPowerW: 20,
-      edgeRetentionFactor: 0.6,
+      failedContactRestitution: 0.3,
+      failedTangentialDamping: 0.4,
+      failedSpinDamping: 0.2,
     } as const;
     const calibration = {
       lowAbilityCenterRetentionCapacityMultiplier: 0.5,
@@ -153,8 +157,8 @@ describe('DefensiveRatingAdapters', () => {
       calibration,
     );
 
-    expect(low.gloveRadiusMeters).toBe(base.gloveRadiusMeters);
-    expect(high.gloveRadiusMeters).toBe(base.gloveRadiusMeters);
+    expect(low.pocketRadiusMeters).toBe(base.pocketRadiusMeters);
+    expect(high.pocketRadiusMeters).toBe(base.pocketRadiusMeters);
     expect(low.ballRadiusMeters).toBe(base.ballRadiusMeters);
     expect(high.ballRadiusMeters).toBe(base.ballRadiusMeters);
     expect(low.centerRetentionCapacityJ).toBe(4);
