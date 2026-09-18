@@ -11,8 +11,8 @@ SecuredCatchOutcome.secureTick
         +
 known ball-control window end
         +
-defender contact primitives
-  left_foot / right_foot / body / tag_hand
+defender foot contact primitives
+  left_foot / right_foot
         +
 BaseTouchRegion
         ↓
@@ -33,10 +33,11 @@ existing first-base RuleEngine
 - The control window is explicit: `secureTick ... controlThroughTick`.
   The adapter does not assume possession continues forever.
 - Add `left_foot` and `right_foot` to defender physical primitive roles.
-- Base-contact-eligible roles in this slice are `left_foot`, `right_foot`, `body`, and `tag_hand`.
-  `glove` alone is not treated as body/base contact.
-- Primitive/base contact uses the existing planar BaseTouchRegion and a finite primitive radius.
-- The base rectangle is expanded by primitive radius; the primitive center then follows its existing constant-acceleration analytic trajectory.
+- Base-contact-eligible roles in this first slice are `left_foot` and `right_foot` only.
+  Hand/body base contact remains explicit future work rather than being approximated from body-center spheres.
+- For a foot-role primitive, the primitive center is the authoritative representative sole contact point for base-touch adjudication.
+- Primitive radius is deliberately not reused as a rectangle-expansion shortcut because that would create false corner contacts for a circular footprint.
+- Foot contact uses the existing planar BaseTouchRegion and the foot contact point's existing constant-acceleration analytic trajectory.
 - Earliest contact is solved deterministically from quadratic boundary roots, not Presentation frames.
 - Multiple eligible primitives compete by exact tick; earliest valid contact wins.
 - A primitive contact before secure possession does not count unless contact still exists at/after secureTick.
@@ -82,6 +83,7 @@ Require:
 - foot leaves before secure possession => no controlled base contact;
 - contact after control window => no controlled base contact;
 - glove-only base intersection => ignored;
+- non-foot body/tag-hand primitives are ignored in this first slice;
 - left/right foot competition chooses earliest exact tick.
 
 ### Task 5: Core API + evidence
