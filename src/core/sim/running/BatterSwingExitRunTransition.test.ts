@@ -8,6 +8,7 @@ import {
 import {
   createRunnerMotionStateFromSwingExitTransition,
   resolveBatterSwingExitRunTransition,
+  resolveBatterSwingExitRunTransitionAfterContact,
 } from './BatterSwingExitRunTransition';
 import type {
   RunnerMotionIntent,
@@ -194,6 +195,37 @@ describe('batter swing-exit run transition', () => {
     expect(alignedTouch).not.toBeNull();
     expect(sidewaysTouch).not.toBeNull();
     expect(alignedTouch as number).toBeLessThan(sidewaysTouch as number);
+  });
+
+  it('binds the mechanical transition to the contact timeline', () => {
+    const result = resolveBatterSwingExitRunTransitionAfterContact(
+      1_463_000,
+      {
+        tick: 1_500_000,
+        planarVelocity: {
+          x: routeTangent.x * 1.2,
+          z: routeTangent.z * 1.2,
+        },
+        bodyForwardUnit: routeTangent,
+      },
+      route,
+      parameters,
+    );
+
+    expect(result.launchTick).toBe(1_500_000);
+
+    expect(() => resolveBatterSwingExitRunTransitionAfterContact(
+      1_463_000,
+      {
+        tick: 1_462_999,
+        planarVelocity: { x: 0, z: 0 },
+        bodyForwardUnit: routeTangent,
+      },
+      route,
+      parameters,
+    )).toThrow(
+      'swing-exit body state must not precede bat-ball contact',
+    );
   });
 
   it('rejects a non-unit body-forward direction', () => {
