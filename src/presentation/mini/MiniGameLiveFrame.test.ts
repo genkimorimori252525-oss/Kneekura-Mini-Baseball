@@ -2,12 +2,48 @@ import { describe, expect, it } from 'vitest';
 import {
   asRuleProfileId,
 } from '../../core/model/RuleProfileRef';
+import {
+  createCanonicalLineScoreSnapshot,
+} from '../../core/model/CanonicalLineScoreSnapshot';
+import {
+  createPlateAppearanceCommand,
+} from '../../core/sim/plateAppearance/PlateAppearanceCommand';
 import type {
   MiniPresentationFrame,
 } from './model';
 import {
   buildMiniGameLiveFrame,
 } from './MiniGameLiveFrame';
+
+
+const lineScore = createCanonicalLineScoreSnapshot({
+  innings: [
+    { inning: 1, awayRuns: 0, homeRuns: 1 },
+    { inning: 2, awayRuns: 1, homeRuns: 0 },
+    { inning: 3, awayRuns: 0, homeRuns: 0 },
+    { inning: 4, awayRuns: 0, homeRuns: 2 },
+    { inning: 5, awayRuns: 1, homeRuns: 0 },
+  ],
+  totals: {
+    away: { runs: 2, hits: 5, errors: 0 },
+    home: { runs: 3, hits: 6, errors: 1 },
+  },
+});
+
+const command = createPlateAppearanceCommand({
+  pitcher: {
+    attackZone: 'outside',
+    verticalPlan: 'low',
+    aggression: 'balanced',
+  },
+  batter: {
+    approach: 'aggressive',
+    swingBias: 'early',
+  },
+  runners: {
+    posture: 'balanced',
+  },
+});
 
 const match = {
   ruleProfileId: asRuleProfileId('npb-2026'),
@@ -88,6 +124,52 @@ describe('MiniGameLiveFrame', () => {
     });
     expect(result.live.cameraMode)
       .toBe('FIELD_OVERHEAD');
+  });
+
+  it('combines authoritative R/H/E, handedness badges, and the current plate-appearance command into the same read-only live frame', () => {
+    const sourceFrame: MiniPresentationFrame = {
+      ...frame,
+      sample: {
+        ...frame.sample,
+        pitcherHandedness: 'L',
+      },
+    };
+
+    const result = buildMiniGameLiveFrame({
+      match,
+      lineScore,
+      currentCommand: command,
+      frame: sourceFrame,
+      overheadCamera: {
+        worldOrigin: { x: 0, z: 0 },
+        viewportCenter: { x: 75, y: 96 },
+        logicalPixelsPerMeter: 2,
+      },
+    });
+
+    expect(result.hud.lineScore?.innings).toHaveLength(9);
+    expect(result.hud.lineScore?.totals.home).toEqual({
+      runs: 3,
+      hits: 6,
+      errors: 1,
+    });
+    expect(result.matchup.batter).toEqual({
+      role: 'batter',
+      handedness: 'R',
+      label: '右打',
+      accent: 'red',
+    });
+    expect(result.matchup.pitcher).toEqual({
+      role: 'pitcher',
+      handedness: 'L',
+      label: '左投',
+      accent: 'blue',
+    });
+    expect(result.commandBand).toEqual({
+      pitcher: ['外角', '低め', 'バランス'],
+      batter: ['積極', '早め'],
+      runners: ['標準'],
+    });
   });
 
   it('preserves both source objects exactly', () => {
