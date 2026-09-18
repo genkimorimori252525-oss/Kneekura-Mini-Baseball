@@ -58,16 +58,6 @@ describe('MiniHudState', () => {
         away: 4,
         home: 5,
       },
-      teamPanels: {
-        left: {
-          team: 'away',
-          accent: 'blue',
-        },
-        right: {
-          team: 'home',
-          accent: 'red',
-        },
-      },
       playId: 88,
     });
   });
