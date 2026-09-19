@@ -7,6 +7,7 @@
 - `docs/game-design/16-club-economy-rivalry-design.md`
 - `docs/game-design/17-europe-real-club-catalog.md`
 - `docs/game-design/18-club-state-lifecycle.md`
+- `docs/game-design/20-simple-surface-deep-simulation.md`
 
 ---
 
@@ -556,6 +557,35 @@ type ClubStructuralSnapshot = {
 - every MEGA -> LOW transition has an explainable event / state history
 
 ---
+
+# 18.1 Player-facing boundary
+
+本書のStructural Capital / Recovery Capacity / Crisis Levelは、原則としてBackground Simulation用。
+
+ユーザーに:
+
+- supporterCapital
+- financingAccess
+- commercialNetworkCapital
+- debt-service model
+- crisis equation
+
+等を直接操作させない。
+
+ユーザー画面では必要に応じて:
+
+```text
+資金力
+人気
+育成
+スカウト
+財政状態
+補強予算
+```
+
+等へ要約する。
+
+詳細値は検証用 / 詳細閲覧用であり、通常Gameplayの必須理解項目にしない。
 
 # 19. 今回確定する事項
 
