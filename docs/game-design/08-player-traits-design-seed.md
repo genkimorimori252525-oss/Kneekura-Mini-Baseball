@@ -1989,3 +1989,12 @@ User-approved direction:
 
 Detailed draft:
 - `docs/game-design/50-popularity-reputation-architecture-DRAFT.md`
+
+
+Star / Superstar high-pressure mechanics:
+- `docs/game-design/51-star-superstar-big-stage-architecture-DRAFT.md`
+
+Boundary:
+- `人気者` remains fan-facing.
+- `Star / Superstar` may have Tactical Gravity and high-salience Condition behavior.
+- no direct raw ability buff.
