@@ -367,3 +367,52 @@ vs 読売
 - Dynamic threatはPennant履歴から更新
 - 伝統RivalryはSlow State
 - 「包囲網」はmultiple directed threatの観測結果
+
+---
+
+# 18. PENDING USER DECISION — Emergent Rivalry Lifecycle
+
+状態: **未決定 / 未承認。**
+
+ユーザーから次の設計候補が提示されている。
+
+```text
+Historical Initial Rivalry
+ -> permanent core / permanent floor
+
+Emergent Rivalry
+ -> events raise score
+ -> inactivity / irrelevance can reduce score
+ -> may decay to zero and disappear
+```
+
+目的は、Pennantを長期間進めた結果:
+
+> 全世界のClubが全員ライバル
+
+になることを防ぐこと。
+
+候補Event:
+- repeated title race
+- postseason elimination
+- controversial incident
+- major transfer grievance
+- humiliating defeat
+- repeated close games
+- dominant-club targeting
+
+候補Decay要因:
+- many seasons without meaningful meetings
+- competitive separation
+- no title / qualification relevance
+- generation turnover
+- no new incidents
+
+ただし:
+- 初期Historical Rivalryの永久floorを何点にするか
+- emergent scoreの半減期
+- eventごとの加点
+- threshold以下edgeを削除するか
+- geographic derbyを全て永久扱いするか
+
+は**ユーザーと次回相談してから決定する。**
