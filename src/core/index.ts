@@ -105,6 +105,7 @@ export * from './sim/plateAppearance/CommandedPlateAppearanceCoordinator';
 export * from './sim/plateAppearance/PlateAppearanceRunnerPosture';
 export * from './sim/plateAppearance/PlateAppearanceCommandValidation';
 export * from './sim/plateAppearance/ContactVerticalSlice';
+export * from './sim/plateAppearance/ReducedOrderContactFlightSlice';
 export * from './sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 export * from './sim/plateAppearance/PlateAppearanceMatchState';
 export * from './sim/plateAppearance/GroundBallLiveBallResolution';
