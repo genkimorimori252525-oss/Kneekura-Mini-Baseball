@@ -922,3 +922,58 @@ Front Office itself has imperfect candidate-evaluation skill. CPU Clubs must not
 
 Draft:
 - `docs/game-design/42-manager-market-and-front-office-selection-DRAFT.md`
+
+
+Detailed emergent strategy architecture (USER REVIEW REQUIRED):
+- `docs/game-design/43-manager-strategy-evolution-architecture-DRAFT.md`
+
+
+---
+
+# 36. CURRENT DRAFT — Emergent Manager Strategy Evolution
+
+2026-09-20 current design:
+
+The remaining Manager evolution topics are organized as one seven-layer causal architecture:
+
+```text
+Baseball Environment
+ -> Tactical Primitives
+ -> Manager Belief Model
+ -> Strategy Hypotheses
+ -> Experiment / Learning
+ -> Strategy Diffusion / Lineage
+ -> League Meta / Counter-Strategy
+ -> future hypotheses
+```
+
+Key candidate principles:
+- future tactics are not hard-coded named unlocks
+- a Strategy is a set of Context -> Action / Threshold policy rules
+- named tactics such as opener are descriptors over actual policies
+- CPU managers hold uncertain beliefs, not World Truth
+- invention is bounded local mutation / recombination of existing policies, not random genius
+- Experiment Budget prevents constant gimmick play
+- evidence updates intermediate baseball outcomes, not only win/loss
+- Analysis reads evidence; Adaptation changes beliefs/policies; Tactical Judgment chooses actions now
+- Strategy lifecycle: IDEA -> HYPOTHESIS -> LIMITED_TRIAL -> PROVISIONAL -> ESTABLISHED -> DEFAULT -> OBSOLETE/DORMANT
+- user-created repeated policies can be observed and imitated by CPU
+- CPU-created policies can be copied by user
+- Coaching Tree transfers ideas / priors, never Manager Skill
+- League Meta is a derived distribution of actual strategies, not a global buff
+- widespread strategies provoke counter-strategies
+- future baseball emerges from rules, player population, information technology, economics and accumulated tactical knowledge
+- innovations may fail; League Meta can temporarily follow bad ideas
+- strategy history / lineage can be recorded as optional Save history
+- computational search is sparse and local, not exhaustive
+
+Draft:
+- `docs/game-design/43-manager-strategy-evolution-architecture-DRAFT.md`
+
+Recommended approval order:
+1. Tactical Primitives + Context Patterns
+2. Manager Beliefs + Strategy Hypothesis lifecycle
+3. bounded Experiment / Learning
+4. Diffusion + Coaching Tree
+5. League Meta + Counter-Strategy
+6. historical reconstruction + future-emergence soak
