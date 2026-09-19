@@ -1084,3 +1084,34 @@ Important additions:
 
 Draft:
 - `docs/game-design/45-manager-decision-engine-and-temperament-DRAFT.md`
+
+
+Rare tactics / psychological play / Manager Decision Log (USER REVIEW REQUIRED):
+- `docs/game-design/46-manager-rare-tactics-psychological-play-and-decision-log-DRAFT.md`
+
+
+---
+
+# 39. CURRENT DRAFT — Rare Tactics / Psychological Play / Decision Logs
+
+2026-09-20:
+
+Historical motif verified in public reporting:
+Ichiro later asked Sadaharu Oh about being intentionally walked from the first inning during his BlueWave period; Oh explained that if the unusual treatment disturbed Ichiro's normal composure, that itself would benefit the Hawks.
+
+Design consequence:
+- Manager tactics may have uncertain psychological / information objectives in addition to direct baseball objectives.
+- No action directly applies an opponent mental debuff.
+- Visible unusual actions become stimuli; the opponent Player's own Appraisal / Emotion system determines reaction.
+- Psychological targeting may work, do nothing, or backfire.
+- Deliberative Search gets at most one bounded Rare Candidate; no random "crazy move" roll.
+- Surprise decays as opponents observe repeated use.
+
+New Manager Decision Log:
+- stores trigger, observed context, manager beliefs, candidates, expected benefits/costs, objectives, horizon, philosophy/temperament influence, chosen action, opponent response, outcome, and learning update.
+- User-facing log exposes reasons, not hidden World Truth.
+- Opponent full thought logs are postgame by default; live full traces are reserved for optional Spectator / Research Mode.
+- Important decisions are surfaced via a derived Importance score rather than dumping every routine decision.
+
+Draft:
+- `docs/game-design/46-manager-rare-tactics-psychological-play-and-decision-log-DRAFT.md`
