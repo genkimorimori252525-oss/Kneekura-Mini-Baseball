@@ -3,6 +3,10 @@ import {
   REFERENCE_BASEBALL_AERODYNAMICS,
 } from '../ball/BaseballAerodynamics';
 import {
+  IDENTITY_QUATERNION,
+  rotateVectorByQuaternion,
+} from './BaseballOrientation';
+import {
   findAerodynamicPitchPlateCrossing,
   sampleAerodynamicPitchTrajectory,
   type AerodynamicPitchTrajectory,
@@ -149,6 +153,38 @@ describe('aerodynamic pitch trajectory', () => {
     );
 
     expect(late.spin).toEqual(releaseSpin);
+  });
+
+  it('carries seam/material orientation to the plate crossing', () => {
+    const input: AerodynamicPitchTrajectory = {
+      ...trajectory({
+        x: 100,
+        y: 0,
+        z: 0,
+      }),
+      releaseOrientation: IDENTITY_QUATERNION,
+    };
+    const crossing = findAerodynamicPitchPlateCrossing(
+      input,
+      0,
+    );
+
+    expect(crossing).not.toBeNull();
+    expect(crossing!.orientation)
+      .toBeDefined();
+
+    const releaseMarker = {
+      x: 0,
+      y: 1,
+      z: 0,
+    };
+    const crossedMarker = rotateVectorByQuaternion(
+      releaseMarker,
+      crossing!.orientation!,
+    );
+
+    expect(crossedMarker)
+      .not.toEqual(releaseMarker);
   });
 
   it('is deterministic for identical inputs', () => {
