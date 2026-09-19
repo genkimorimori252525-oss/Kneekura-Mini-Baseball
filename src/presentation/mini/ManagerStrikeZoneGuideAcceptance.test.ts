@@ -1,9 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
+  createPlayerPhysicalProfile,
+} from '../../core/model/PlayerPhysicalProfile';
+import {
   asRuleProfileId,
 } from '../../core/model/RuleProfileRef';
 import {
-  resolveRulebookStrikeZoneRegion,
+  HEIGHT_RATIO_V1_BOTTOM_FRACTION,
+  HEIGHT_RATIO_V1_TOP_FRACTION,
 } from '../../core/sim/pitching/RulebookStrikeZone';
 import {
   resolveTakenPitchPhysicalResult,
@@ -38,7 +42,8 @@ const match = {
 };
 
 const frame = (
-  cameraMode: 'BATTER_POV' | 'PITCHER_POV',
+  cameraMode:
+    'BATTER_POV' | 'PITCHER_POV',
 ): MiniPresentationFrame => ({
   tick: 1_000_000,
   cameraMode,
@@ -48,8 +53,16 @@ const frame = (
       defenders: [],
       runners: [],
       ball: {
-        position: { x: 0, y: 1.1, z: 8 },
-        velocity: { x: 0, y: 0, z: -20 },
+        position: {
+          x: 0,
+          y: 1.1,
+          z: 8,
+        },
+        velocity: {
+          x: 0,
+          y: 0,
+          z: -20,
+        },
         spin: { x: 0, y: 0, z: 0 },
       },
     },
@@ -69,23 +82,11 @@ const overheadCamera = {
   logicalPixelsPerMeter: 2,
 } as const;
 
-const compactZone = resolveRulebookStrikeZoneRegion({
-  plateCenterX: 0,
-  landmarks: {
-    shoulderTopY: 1.48,
-    uniformPantsTopY: 0.94,
-    kneecapBottomY: 0.5,
+const batterMeta = {
+  batter: {
+    playerId: 'batter-1',
   },
-});
-
-const tallZone = resolveRulebookStrikeZoneRegion({
-  plateCenterX: 0,
-  landmarks: {
-    shoulderTopY: 1.82,
-    uniformPantsTopY: 1.14,
-    kneecapBottomY: 0.52,
-  },
-});
+} as const;
 
 const guidePixelHeight = (
   guide: {
@@ -96,10 +97,12 @@ const guidePixelHeight = (
   guide.lowerLeft.y - guide.upperLeft.y,
 );
 
-const pitchTrajectory = (): PitchTrajectorySegment => ({
+const pitchTrajectory = (
+  y: number,
+): PitchTrajectorySegment => ({
   start: {
     tick: 1_000_000,
-    position: { x: 0, y: 1.2, z: 10 },
+    position: { x: 0, y, z: 10 },
     velocity: { x: 0, y: 0, z: -20 },
     spin: { x: 0, y: 0, z: 0 },
   },
@@ -109,140 +112,194 @@ const pitchTrajectory = (): PitchTrajectorySegment => ({
 });
 
 describe('manager strike-zone guide acceptance', () => {
-  it('requires a rule-derived guide for manager Batter/Pitcher POV frames', () => {
+  it('derives Height-Ratio V1 automatically for both manager POVs', () => {
+    const profile =
+      createPlayerPhysicalProfile(1.8);
+
     for (const cameraMode of [
       'BATTER_POV',
       'PITCHER_POV',
     ] as const) {
-      expect(() => buildMiniGameLiveFrame({
-        match,
-        frame: frame(cameraMode),
-        overheadCamera,
-      })).toThrow(
-        'manager POV frame requires strikeZoneGuide',
+      const result =
+        buildMiniGameLiveFrame({
+          match,
+          frame: frame(cameraMode),
+          overheadCamera,
+          matchupPlayers: batterMeta,
+          playerPhysicalProfiles: {
+            'batter-1': profile,
+          },
+        });
+
+      if (
+        result.live.cameraMode
+          !== cameraMode
+        || result.live.cameraMode
+          === 'FIELD_OVERHEAD'
+        || result.live.render
+          .strikeZoneGuide === null
+      ) {
+        throw new Error(
+          'fixture must expose manager POV strike zone',
+        );
+      }
+
+      expect(
+        result.live.render
+          .strikeZoneGuide.source.region.lowerY,
+      ).toBeCloseTo(
+        profile.heightMeters
+        * HEIGHT_RATIO_V1_BOTTOM_FRACTION,
+        12,
+      );
+      expect(
+        result.live.render
+          .strikeZoneGuide.source.region.upperY,
+      ).toBeCloseTo(
+        profile.heightMeters
+        * HEIGHT_RATIO_V1_TOP_FRACTION,
+        12,
       );
     }
   });
 
-  it('projects the same per-batter rulebook zone into Batter POV and Pitcher POV', () => {
-    const guide = {
-      plateZ: 0,
-      region: tallZone,
-    } as const;
-
-    const batter = buildMiniGameLiveFrame({
-      match,
-      frame: frame('BATTER_POV'),
-      overheadCamera,
-      strikeZoneGuide: guide,
-    });
-    const pitcher = buildMiniGameLiveFrame({
-      match,
-      frame: frame('PITCHER_POV'),
-      overheadCamera,
-      strikeZoneGuide: guide,
-    });
-
-    expect(batter.live.cameraMode).toBe('BATTER_POV');
-    expect(pitcher.live.cameraMode).toBe('PITCHER_POV');
-
-    if (
-      batter.live.cameraMode !== 'BATTER_POV'
-      || pitcher.live.cameraMode !== 'PITCHER_POV'
-    ) {
-      throw new Error('fixtures must remain POV');
-    }
-
-    expect(batter.live.render.strikeZoneGuide?.source)
-      .toEqual(guide);
-    expect(pitcher.live.render.strikeZoneGuide?.source)
-      .toEqual(guide);
-    expect(
-      batter.live.render.strikeZoneGuide,
-    ).not.toBeNull();
-    expect(
-      pitcher.live.render.strikeZoneGuide,
-    ).not.toBeNull();
-  });
-
-  it('changes displayed zone height when the batter/stance rulebook landmarks change', () => {
-    const compact = buildMiniGameLiveFrame({
-      match,
-      frame: frame('PITCHER_POV'),
-      overheadCamera,
-      strikeZoneGuide: {
-        plateZ: 0,
-        region: compactZone,
-      },
-    });
-    const tall = buildMiniGameLiveFrame({
-      match,
-      frame: frame('PITCHER_POV'),
-      overheadCamera,
-      strikeZoneGuide: {
-        plateZ: 0,
-        region: tallZone,
-      },
-    });
+  it('changes displayed zone size and vertical position with player height', () => {
+    const shorter =
+      buildMiniGameLiveFrame({
+        match,
+        frame: frame('PITCHER_POV'),
+        overheadCamera,
+        matchupPlayers: batterMeta,
+        playerPhysicalProfiles: {
+          'batter-1':
+            createPlayerPhysicalProfile(1.7),
+        },
+      });
+    const taller =
+      buildMiniGameLiveFrame({
+        match,
+        frame: frame('PITCHER_POV'),
+        overheadCamera,
+        matchupPlayers: batterMeta,
+        playerPhysicalProfiles: {
+          'batter-1':
+            createPlayerPhysicalProfile(1.9),
+        },
+      });
 
     if (
-      compact.live.cameraMode !== 'PITCHER_POV'
-      || tall.live.cameraMode !== 'PITCHER_POV'
-      || compact.live.render.strikeZoneGuide === null
-      || tall.live.render.strikeZoneGuide === null
+      shorter.live.cameraMode
+        !== 'PITCHER_POV'
+      || taller.live.cameraMode
+        !== 'PITCHER_POV'
+      || shorter.live.render
+        .strikeZoneGuide === null
+      || taller.live.render
+        .strikeZoneGuide === null
     ) {
-      throw new Error('fixtures must expose guides');
+      throw new Error(
+        'fixtures must expose guides',
+      );
     }
 
-    expect(guidePixelHeight(
-      tall.live.render.strikeZoneGuide,
-    )).toBeGreaterThan(
+    expect(
+      taller.live.render
+        .strikeZoneGuide.source.region.lowerY,
+    ).toBeGreaterThan(
+      shorter.live.render
+        .strikeZoneGuide.source.region.lowerY,
+    );
+    expect(
+      taller.live.render
+        .strikeZoneGuide.source.region.upperY,
+    ).toBeGreaterThan(
+      shorter.live.render
+        .strikeZoneGuide.source.region.upperY,
+    );
+    expect(
       guidePixelHeight(
-        compact.live.render.strikeZoneGuide,
+        taller.live.render.strikeZoneGuide,
+      ),
+    ).toBeGreaterThan(
+      guidePixelHeight(
+        shorter.live.render.strikeZoneGuide,
       ),
     );
-    expect(
-      tall.live.render.strikeZoneGuide.source.region.halfWidth,
-    ).toBe(
-      compact.live.render.strikeZoneGuide.source.region.halfWidth,
-    );
   });
 
-  it('keeps pitch adjudication identical before and after manager guide projection', () => {
-    const sourceGuide = {
-      plateZ: 0,
-      region: tallZone,
-    } as const;
-    const beforeGuide = structuredClone(sourceGuide);
-
-    const before = resolveTakenPitchPhysicalResult({
-      trajectory: pitchTrajectory(),
-      plateZ: 0,
-      strikeZone: tallZone,
-      ballRadiusMeters: 0.0366,
-    });
-
-    buildMiniGameLiveFrame({
+  it('requires enough batter metadata to derive the current policy when no explicit guide is supplied', () => {
+    expect(() => buildMiniGameLiveFrame({
       match,
       frame: frame('BATTER_POV'),
       overheadCamera,
-      strikeZoneGuide: sourceGuide,
-    });
+    })).toThrow(
+      'manager POV frame requires batter identity or explicit strikeZoneGuide',
+    );
+
+    expect(() => buildMiniGameLiveFrame({
+      match,
+      frame: frame('BATTER_POV'),
+      overheadCamera,
+      matchupPlayers: batterMeta,
+    })).toThrow(
+      'manager POV frame requires batter physical profile or explicit strikeZoneGuide',
+    );
+  });
+
+  it('keeps physical pitch adjudication unchanged by manager guide projection', () => {
+    const profile =
+      createPlayerPhysicalProfile(1.9);
+    const result =
+      buildMiniGameLiveFrame({
+        match,
+        frame: frame('BATTER_POV'),
+        overheadCamera,
+        matchupPlayers: batterMeta,
+        playerPhysicalProfiles: {
+          'batter-1': profile,
+        },
+      });
+
+    if (
+      result.live.cameraMode
+        !== 'BATTER_POV'
+      || result.live.render
+        .strikeZoneGuide === null
+    ) {
+      throw new Error(
+        'fixture must expose batter guide',
+      );
+    }
+
+    const region =
+      result.live.render
+        .strikeZoneGuide.source.region;
+    const before =
+      resolveTakenPitchPhysicalResult({
+        trajectory: pitchTrajectory(1.0),
+        plateZ: 0,
+        strikeZone: region,
+        ballRadiusMeters: 0.0366,
+      });
+
     buildMiniGameLiveFrame({
       match,
       frame: frame('PITCHER_POV'),
       overheadCamera,
-      strikeZoneGuide: sourceGuide,
+      matchupPlayers: batterMeta,
+      playerPhysicalProfiles: {
+        'batter-1': profile,
+      },
     });
 
-    const after = resolveTakenPitchPhysicalResult({
-      trajectory: pitchTrajectory(),
-      plateZ: 0,
-      strikeZone: tallZone,
-      ballRadiusMeters: 0.0366,
-    });
+    const after =
+      resolveTakenPitchPhysicalResult({
+        trajectory: pitchTrajectory(1.0),
+        plateZ: 0,
+        strikeZone: region,
+        ballRadiusMeters: 0.0366,
+      });
 
     expect(after).toEqual(before);
-    expect(sourceGuide).toEqual(beforeGuide);
   });
 });
