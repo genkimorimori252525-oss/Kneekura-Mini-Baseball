@@ -248,21 +248,21 @@ Balanced schedule:
 
 ## 4.3 Taiwan League
 
-- games: **112**
+- games: **100**
 - Regular Season: **March–September**
 - Postseason: **late October–early November**
 - ABCL: **November Flex Window**
 - density: **STANDARD**
-- target: 約4.1 games / week
+- target: 約3.7 games / week
 
 Balanced:
 
 ```text
-7 opponents x 16
-= 112
+5 opponents x 20
+= 100
 ```
 
-8 home / 8 away。
+10 home / 10 away。
 
 ABCL出場Clubの日程が重なる場合、ABCLをlate November / early Decemberへshift可能。
 
@@ -630,7 +630,7 @@ Pacific travelを考慮し、away seriesをblock化する。
 | --- | --- | ---: | --- | --- |
 | Asia | Japan | 120 | Mar–Sep | Oct |
 | Asia | Korea | 126 | Mar–Sep | Oct |
-| Asia | Taiwan | 112 | Mar–Sep | Oct–Nov |
+| Asia | Taiwan | 100 | Mar–Sep | Oct–Nov |
 | Asia | China | 108 | Mar–Aug | Sep |
 | Asia | West / South Asia | 110 | Oct–Mar | none |
 | Americas | North America | 162 | Mar–Sep | Oct |
@@ -819,7 +819,7 @@ Schedule RNGはMatch Physics RNGから完全分離する。
 - Full Simulation Leagueは全21リーグ100試合以上
 - Japan 120
 - Korea 126
-- Taiwan 112 = 7 x 16
+- Taiwan 100 = 5 x 20
 - China 108 = 9 x 12
 - West / South Asia 110 = 11 x 10
 - North America 162
@@ -865,7 +865,7 @@ North America 162とMexico 120はunbalanced / rivalry opponent matrixを含む�
 | --- | ---: |
 | Japan | 120 |
 | Korea | 126 |
-| Taiwan | 112 |
+| Taiwan | 100 |
 | China | 108 |
 | West / South Asia | 110 |
 | North America | 162 |
