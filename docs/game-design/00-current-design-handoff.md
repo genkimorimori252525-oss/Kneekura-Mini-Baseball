@@ -620,3 +620,43 @@ Next intended design order:
 2. Team Mood
 3. Manager Ability
 4. Popularity / Reputation
+
+
+---
+
+# 27. APPROVED — Anti-Monocausal Principle
+
+2026-09-20 ユーザー承認。
+
+重要な恒久原則:
+
+> **一つの便利なSystemだけで、複雑な長期現象を全部説明しない。**
+
+特にTeam Traitは:
+
+```text
+proximate-state layer
+= 今どう噛み合っている / 崩れているか
+```
+
+であり、
+
+```text
+universal root cause
+= なぜ10年・20年弱いか
+```
+
+ではない。
+
+長期低迷は:
+
+- Scouting
+- Development
+- Roster Construction
+- Manager / Front Office
+- Economy / Institutional State
+- Player Retention / Succession
+
+等の上流原因を必要とする。
+
+この原則をTeam Mood / Manager Ability / Popularity設計にも適用する。
