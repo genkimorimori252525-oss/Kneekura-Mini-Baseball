@@ -239,4 +239,34 @@ describe('RivalryLifecycle v1', () => {
     expect(graph.edges.length).toBeLessThan(20);
     expect(graph.edges.length).toBeLessThan(234 * 233);
   });
+
+  it('deduplicates identical source events and one-per-season event kinds', () => {
+    const titleOne = createCalibratedRivalryMemory({
+      sourceEventId: 'title-1',
+      kind: 'TITLE_RACE',
+      createdSeason: 2,
+    });
+    let state = appendRivalryMemory(emergent(), titleOne);
+    state = appendRivalryMemory(state, titleOne);
+    state = appendRivalryMemory(state, createCalibratedRivalryMemory({
+      sourceEventId: 'title-2',
+      kind: 'TITLE_RACE',
+      createdSeason: 2,
+    }));
+    expect(state.memories).toHaveLength(1);
+  });
+
+  it('does not persist ordinary meetings or mass dominant-club targeting as rivalry edges', () => {
+    const graph = createRivalrySparseGraph();
+    const threats = Array.from({ length: 233 }, (_, index) => (
+      createDirectedCompetitiveThreatSignal({
+        fromClubId: 'club-' + index,
+        toClubId: 'dominant-club',
+        currentCompetitiveThreat: 80,
+      })
+    ));
+    expect(threats).toHaveLength(233);
+    expect(graph.edges).toHaveLength(0);
+  });
+
 });
