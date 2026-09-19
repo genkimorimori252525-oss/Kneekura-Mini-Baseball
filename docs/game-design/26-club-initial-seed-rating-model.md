@@ -443,3 +443,7 @@ type SeedConfidence =
 9. Rivalryは0〜100の有向値
 10. Catalogの文章強度を数値へ変換する
 11. 詳細経営はBackground Simulation
+
+
+Scouting / recruitment system:
+- `docs/game-design/31-scouting-recruitment-system.md`
