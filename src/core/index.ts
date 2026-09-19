@@ -133,6 +133,7 @@ export * from './sim/pitching/SwingingPitchPhysicalResult';
 export * from './sim/pitching/AerodynamicSwingingPitchPhysicalResult';
 export * from './sim/pitching/SwingingPitchTimelineAdapter';
 export * from './sim/pitching/PitchAgainstBatter';
+export * from './sim/pitching/AerodynamicPitchAgainstBatter';
 export * from './rules/PhysicalRuleFacts';
 export * from './rules/PitchCountRule';
 export * from './rules/InfieldFlyRule';
