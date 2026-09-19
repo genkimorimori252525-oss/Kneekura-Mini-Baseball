@@ -808,3 +808,39 @@ Initial philosophy families include:
 
 Draft:
 - `docs/game-design/39-manager-philosophy-and-command-architecture-DRAFT.md`
+
+
+Manager ratings / era / strategy evolution (USER REVIEW REQUIRED):
+- `docs/game-design/40-manager-ratings-era-and-strategy-evolution-DRAFT.md`
+
+
+---
+
+# 33. CURRENT DRAFT — Manager Ratings / Era / Strategy Evolution
+
+2026-09-20 design direction:
+
+Public CPU Manager ratings are proposed as six simple S–G grades:
+
+```text
+采配 / 分析 / 適応 / 選手眼 / 運用 / 統率
+```
+
+Internal values remain 0–100 and project to the same S–G boundaries as Player Ratings.
+
+Important candidate principles:
+- no overall Manager rating
+- Philosophy and Skill are separate
+- Era is Context, not Ability
+- old-era managers are not inherently weaker
+- each Era changes information availability, rules, staff tools, league priors and Meta
+- managers may be ahead of their time through Analysis + Adaptation + experimentation + correct hypothesis + roster fit
+- tactics are built from atomic decision primitives rather than only named historical classes
+- CPU can form Strategy Hypotheses, test them, update beliefs, and gradually create new tactical patterns
+- successful innovations can diffuse through assistants, coaching trees and opponent observation
+- opponents can imitate and counter, causing Strategy Edge to shrink over time
+- a user who copies a causally strong CPU Manager strategy should be able to improve when roster/context fit, but copying does not guarantee success
+- future baseball should emerge from the strategy search space rather than a hard-coded 2100 meta
+
+Draft:
+- `docs/game-design/40-manager-ratings-era-and-strategy-evolution-DRAFT.md`
