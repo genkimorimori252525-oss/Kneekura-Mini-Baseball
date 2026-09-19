@@ -10,6 +10,7 @@
 - `docs/game-design/15-season-events-and-deadlines.md`
 - `docs/game-design/17-europe-real-club-catalog.md`
 - `docs/game-design/18-club-state-lifecycle.md`
+- `docs/game-design/19-club-structural-dominance-and-decline.md`
 
 ---
 
@@ -245,6 +246,8 @@ richClub = true
 ```
 
 Moneyは選手のbat speedやpitch velocityを直接変更しない。
+
+巨大Clubの持続性・Recovery Capacity・Historic Collapse条件は `docs/game-design/19-club-structural-dominance-and-decline.md` を正とする。
 
 ---
 
