@@ -14,6 +14,9 @@
 - `docs/game-design/17-europe-real-club-catalog.md`
 - `docs/game-design/21-world-club-source-policy.md`
 - `docs/game-design/22-east-asia-club-catalog.md`
+- `docs/game-design/25-australia-pacific-africa-club-catalog.md`
+- `docs/game-design/24-americas-real-baseball-club-catalog.md`
+- `docs/game-design/23-west-south-asia-club-catalog.md`
 
 ---
 
@@ -60,13 +63,13 @@ Full Simulation Leagueは **21**。
 
 | Competition Region | Full Leagues | Clubs |
 | --- | ---: | ---: |
-| Asia-Pacific | 7 | 66 |
+| Asia-Pacific | 7 | 62 |
 | Americas | 6 | 86 |
 | Europe | 7 | 74 |
 | Africa | 1 | 12 |
-| **Total** | **21** | **238** |
+| **Total** | **21** | **234** |
 
-238球団が現時点の初期構成。REAL_BASEBALL_CLUB採用Leagueでは現行実在Club数へ合わせるため、Catalog整備に伴って総数は再校正可能。
+234球団が現時点の初期構成。REAL_BASEBALL_CLUB採用Leagueでは現行実在Club数へ合わせるため、Catalog整備に伴って総数は再校正可能。
 
 Competition Regionは4つ。Australia / New Zealand / Pacificは地理的にはOceaniaだが、国際クラブ・代表大会では `Asia-Pacific` に所属する。
 
@@ -780,7 +783,7 @@ KnowledgeEstimate uncertainty decreases
 
 ## 8.1 Australia League
 
-- clubs: **8**
+- clubs: **4**
 - season: **September–February**
 - market: **HYBRID_OPEN_MARKET**
 - continental competition region: Asia-Pacific
@@ -860,7 +863,7 @@ KnowledgeEstimate uncertainty decreases
 | Pan-Africa | 12 | Nov–Mar | Football Transfer + Growth |
 | Australia | 8 | Nov–Feb | Hybrid Open Market |
 | New Zealand/Pacific | 8 | Nov–Feb | Football Transfer + Winter |
-| **Total** | **238** | — | — |
+| **Total** | **234** | — | — |
 
 ---
 
