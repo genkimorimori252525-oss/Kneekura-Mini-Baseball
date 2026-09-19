@@ -122,11 +122,10 @@ WBCとClub Worldは別系統のC1であり、どちらが「上」という単�
 
 Working names:
 
-- Asian Baseball Champions League — ABCL
+- Asia-Pacific Baseball Champions League — APBCL
 - Americas Baseball Champions League — AmBCL
 - European Baseball Champions League — EBCL
 - African Baseball Champions League — AfBCL
-- Oceania Baseball Champions League — OBCL
 
 最終名称は独自ブランドへ変更可能。
 
@@ -136,7 +135,7 @@ Working names:
 
 ## 5.1 16-club standard
 
-Asia / Americas / Europeは原則 **16 clubs**。
+Asia-Pacific / Americas / Europeは原則 **16 clubs**。
 
 ### Group Stage
 
@@ -206,7 +205,7 @@ Knockout Stage
 
 Knockoutで強豪が一試合で敗退することも正しい結果として受け入れる。
 
-# 6. Asia — ABCL
+# 6. Asia-Pacific — APBCL
 
 Full Leagues:
 
@@ -215,15 +214,17 @@ Full Leagues:
 - Taiwan
 - China
 - West / South Asia
+- Australia
+- New Zealand / Pacific
 
 本大会: **16 clubs**
 
 ### Base qualification
 
-- 各Full League champion: 5
-- defending ABCL champion: 1
-- coefficient berths: 7
-- continental qualifiers: 3
+- 各Full League champion: 7
+- defending APBCL champion: 1
+- coefficient berths: 6
+- Asia-Pacific qualifiers: 2
 
 Total: 16
 
@@ -234,21 +235,33 @@ defending championが国内順位でも出場権を得た場合、その重複�
 5-season rolling coefficientを利用。
 
 - 各Full League minimum additional berth: 0
-- maximum total berth per Full League: 5
-- 過去のABCL成績で7枠を配分
-- League name / true abilityから固定配分しない
+- maximum total berth per Full League: 4
+- 過去のAPBCL成績で6枠を配分
+- League name / geography / true abilityから固定配分しない
 
 ### Qualifier route
 
-Lightweight Asian leagues / National club structuresから3枠。
+Lightweight Asian / Pacific leagues、National club structuresから2枠。
+
+Australia / New Zealand / Pacificを地理上Asiaへ変更するわけではない。
+
+```text
+geographicRegion = OCEANIA
+competitionRegion = ASIA_PACIFIC
+```
+
+を許可する。
 
 ### Target window
 
 **November**
 
-East Asia主要リーグの終了後を基本とする。
+Japan / Korea等のseason終了後を基本とする。
 
-West / South Asia Leagueはこの期間をContinental Breakとして予約する。
+West / South Asia、Australia、New Zealand / Pacific等のactive winter-season LeagueはAPBCL期間を**Continental Break**として予約する。
+
+Australia / NZ-Pacificのqualificationはcalendar yearではなく `QualificationSeasonId` で前回完了seasonと紐づける。
+
 
 ---
 
@@ -389,35 +402,6 @@ Pan-African League終了後を基本とする。
 
 ---
 
-# 10. Oceania — OBCL
-
-Full Leagues:
-
-- Australia
-- New Zealand / Pacific
-
-本大会: **8 clubs**
-
-### Qualification
-
-- Australia top 3
-- NZ / Pacific top 3
-- Pacific Lightweight qualifier: 1
-- defending champion: 1
-
-重複時はqualifier / coefficientへcascade。
-
-### Format
-
-Africaと同じ8-club format。
-
-### Target window
-
-**March**
-
-Oceania冬季league終了後。
-
----
 
 # 11. Continental Club Coefficient
 
@@ -462,19 +446,19 @@ LeagueCoefficientは「そのリーグの真の強さ」ではなく、近年の
 
 ## 12.1 Qualification
 
-Club Worldは「4年間に大陸大会を一度でも優勝すれば自動出場」という方式にはしない。5大陸×4年で20枠になり、16クラブ大会と両立しないためである。
+Club Worldは「4年間に大陸大会を一度でも優勝すれば自動出場」という方式にはしない。4地域×4年で16枠を単純自動化すると、前回世界王者や開催地域枠、継続成績枠を共存させにくいためである。
 
-### Automatic — 7 clubs
+### Automatic — 6 clubs
 
-- **直前editionの5 Continental Club Champions**: 5
+- **直前editionの4 Regional Club Champions**: 4
 - **defending Club World champion**: 1
 - **host-region berth**: 1
 
 host-region berthは開催地域の `RegionalClubWorldQualificationRanking` 最上位の未出場クラブへ与える。
 
-### Performance — 9 clubs
+### Performance — 10 clubs
 
-残り **9** を、直近4seasonの大陸大会実績から作る `ClubWorldQualificationRanking` で配分する。
+残り **10** を、直近4seasonの地域クラブ大会実績から作る `ClubWorldQualificationRanking` で配分する。
 
 二段階:
 
@@ -483,7 +467,7 @@ host-region berthは開催地域の `RegionalClubWorldQualificationRanking` 最�
    ↓
 Regional World Performance Coefficient
    ↓
-9 performance berths are allocated to regions
+10 performance berths are allocated to regions
    ↓
 Regional Club World Qualification Ranking
    ↓
@@ -492,7 +476,7 @@ clubs qualify
 
 各Regionはperformance berthを最低1枠持つ。
 
-一地域へのperformance berth上限は4を初期候補とする。
+一地域へのperformance berth上限は4を初期候補とする。4地域すべてにperformance berthを最低1枠保証する。
 
 したがって開催地域・大陸王者等を含めた総出場数は時代によって変わるが、特定地域へ永久固定しない。
 
@@ -557,11 +541,10 @@ Championは本大会最大12試合。
 
 Working names:
 
-- Asian National Championship
+- Asia-Pacific National Championship
 - Americas National Championship
 - European National Championship
 - African National Championship
-- Oceania National Championship
 
 開催: **4年に1回 / Cycle Year 1**
 
@@ -573,11 +556,10 @@ National TeamはFull Leagueを持たない国でも参加可能。
 
 | Region | Finals |
 | --- | ---: |
-| Asia | 12 nations |
+| Asia-Pacific | 16 nations |
 | Americas | 16 nations |
 | Europe | 16 nations |
 | Africa | 12 nations |
-| Oceania | 8 nations |
 
 予選はNational Baseball Poolを含む。
 
@@ -588,8 +570,8 @@ National TeamはFull Leagueを持たない国でも参加可能。
 例:
 
 ```text
-Asia direct berths = 5
-  -> Asian Championship top 5 qualify directly
+Asia-Pacific direct berths = 5
+  -> Asia-Pacific Championship top 5 qualify directly
 ```
 
 順位決定が必要な場合はplacement game / tournament placement rulesを使用する。
@@ -658,11 +640,10 @@ Final best-of-3はCompetitionProfileの将来optionとして保持できるが�
 
 最低保証:
 
-- Asia: 4
+- Asia-Pacific: 5
 - Americas: 5
 - Europe: 4
 - Africa: 2
-- Oceania: 1
 
 Total floor: 16
 
@@ -708,9 +689,9 @@ each pod:
 
 Global Qualifierは一地域だけで埋めない。
 
-少なくとも4地域から参加国を含めることを原則とする。
+4 Competition Regionsすべてから参加国を含めることを原則とする。
 
-各Podは原則4地域の混成、または地理・移動負担を考慮した2〜4地域混成とする。
+各Podは原則4地域混成を目標とする。ただし地理・移動負担を考慮して2〜4地域混成を許可する。
 
 ## 14.3 Format
 
@@ -859,11 +840,9 @@ Continental Club Championsは既定月の前後に **Flex Window** を持つ。
 
 例:
 
-- ABCL default November
+- APBCL default November
 - Cycle Year 1 regional-national conflict -> late October / early Decemberへshift可能
 - Cycle Year 4 Premier conflict -> October / Decemberへshift可能
-- OBCL default March
-- Cycle Year 2 WBC conflict -> February / Aprilへshift可能
 
 国内leagueはWorld Calendar公開時点でbreak / makeup datesを確保する。
 
