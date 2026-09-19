@@ -1,4 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import {
+  createPlayerPhysicalProfile,
+} from '../../model/PlayerPhysicalProfile';
 import type {
   PitchTrajectorySegment,
 } from './PitchTrajectory';
@@ -6,8 +9,12 @@ import {
   resolveTakenPitchPhysicalResult,
 } from './TakenPitchPhysicalResult';
 import {
+  HEIGHT_RATIO_V1_BOTTOM_FRACTION,
+  HEIGHT_RATIO_V1_TOP_FRACTION,
   HOME_PLATE_WIDTH_METERS,
-  resolveRulebookStrikeZoneRegion,
+  resolveHeightRatioStrikeZoneRegion,
+  resolveLandmarkStrikeZoneRegion,
+  resolveStrikeZoneRegion,
 } from './RulebookStrikeZone';
 
 const trajectoryAtHeight = (
@@ -24,111 +31,146 @@ const trajectoryAtHeight = (
   ticksPerSecond: 1_000_000,
 });
 
-describe('RulebookStrikeZone', () => {
-  it('uses home-plate width and batting-stance body landmarks instead of a fixed visual rectangle', () => {
-    const zone = resolveRulebookStrikeZoneRegion({
-      plateCenterX: 0,
-      landmarks: {
-        shoulderTopY: 1.62,
-        uniformPantsTopY: 1.02,
-        kneecapBottomY: 0.46,
-      },
-    });
+describe('RulebookStrikeZone geometry policies', () => {
+  it('uses Height-Ratio V1 as a deterministic per-player zone source', () => {
+    const profile =
+      createPlayerPhysicalProfile(1.8);
+    const zone =
+      resolveHeightRatioStrikeZoneRegion({
+        plateCenterX: 0,
+        playerPhysicalProfile: profile,
+      });
 
-    expect(zone).toEqual({
+    expect(zone.centerX).toBe(0);
+    expect(zone.halfWidth).toBe(
+      HOME_PLATE_WIDTH_METERS / 2,
+    );
+    expect(zone.lowerY).toBeCloseTo(
+      1.8
+      * HEIGHT_RATIO_V1_BOTTOM_FRACTION,
+      12,
+    );
+    expect(zone.upperY).toBeCloseTo(
+      1.8
+      * HEIGHT_RATIO_V1_TOP_FRACTION,
+      12,
+    );
+  });
+
+  it('moves both size and vertical position with player height', () => {
+    const shorter =
+      resolveHeightRatioStrikeZoneRegion({
+        plateCenterX: 0,
+        playerPhysicalProfile:
+          createPlayerPhysicalProfile(1.7),
+      });
+    const taller =
+      resolveHeightRatioStrikeZoneRegion({
+        plateCenterX: 0,
+        playerPhysicalProfile:
+          createPlayerPhysicalProfile(1.9),
+      });
+
+    expect(taller.lowerY)
+      .toBeGreaterThan(shorter.lowerY);
+    expect(taller.upperY)
+      .toBeGreaterThan(shorter.upperY);
+    expect(
+      taller.upperY - taller.lowerY,
+    ).toBeGreaterThan(
+      shorter.upperY - shorter.lowerY,
+    );
+    expect(taller.halfWidth)
+      .toBe(shorter.halfWidth);
+  });
+
+  it('feeds the height-derived region into the same physical pitch adjudication contract', () => {
+    const shorter =
+      resolveHeightRatioStrikeZoneRegion({
+        plateCenterX: 0,
+        playerPhysicalProfile:
+          createPlayerPhysicalProfile(1.7),
+      });
+    const taller =
+      resolveHeightRatioStrikeZoneRegion({
+        plateCenterX: 0,
+        playerPhysicalProfile:
+          createPlayerPhysicalProfile(1.9),
+      });
+
+    const shorterResult =
+      resolveTakenPitchPhysicalResult({
+        trajectory: trajectoryAtHeight(0.99),
+        plateZ: 0,
+        strikeZone: shorter,
+        ballRadiusMeters: 0.0366,
+      });
+    const tallerResult =
+      resolveTakenPitchPhysicalResult({
+        trajectory: trajectoryAtHeight(0.99),
+        plateZ: 0,
+        strikeZone: taller,
+        ballRadiusMeters: 0.0366,
+      });
+
+    expect(shorterResult?.kind).toBe('ball');
+    expect(tallerResult?.kind)
+      .toBe('called_strike');
+  });
+
+  it('preserves the form-aware landmark resolver behind the same StrikeZoneRegion boundary', () => {
+    const landmark =
+      resolveLandmarkStrikeZoneRegion({
+        plateCenterX: 0,
+        landmarks: {
+          shoulderTopY: 1.62,
+          uniformPantsTopY: 1.02,
+          kneecapBottomY: 0.46,
+        },
+      });
+    const generic =
+      resolveStrikeZoneRegion({
+        policy: 'batting_stance_landmarks',
+        plateCenterX: 0,
+        landmarks: {
+          shoulderTopY: 1.62,
+          uniformPantsTopY: 1.02,
+          kneecapBottomY: 0.46,
+        },
+      });
+
+    expect(landmark).toEqual({
       centerX: 0,
-      halfWidth: HOME_PLATE_WIDTH_METERS / 2,
+      halfWidth:
+        HOME_PLATE_WIDTH_METERS / 2,
       lowerY: 0.46,
       upperY: 1.32,
     });
+    expect(generic).toEqual(landmark);
   });
 
-  it('produces different vertical zones for different batters and batting stances while preserving plate width', () => {
-    const compact = resolveRulebookStrikeZoneRegion({
-      plateCenterX: 0,
-      landmarks: {
-        shoulderTopY: 1.48,
-        uniformPantsTopY: 0.94,
-        kneecapBottomY: 0.5,
-      },
-    });
-    const tall = resolveRulebookStrikeZoneRegion({
-      plateCenterX: 0,
-      landmarks: {
-        shoulderTopY: 1.82,
-        uniformPantsTopY: 1.14,
-        kneecapBottomY: 0.52,
-      },
-    });
-
-    expect(compact.halfWidth).toBe(tall.halfWidth);
-    expect(compact.upperY).toBe(1.21);
-    expect(tall.upperY).toBe(1.48);
-    expect(
-      tall.upperY - tall.lowerY,
-    ).toBeGreaterThan(
-      compact.upperY - compact.lowerY,
-    );
-  });
-
-  it('feeds the same resolved StrikeZoneRegion into physical pitch adjudication', () => {
-    const compact = resolveRulebookStrikeZoneRegion({
-      plateCenterX: 0,
-      landmarks: {
-        shoulderTopY: 1.48,
-        uniformPantsTopY: 0.94,
-        kneecapBottomY: 0.5,
-      },
-    });
-    const tall = resolveRulebookStrikeZoneRegion({
-      plateCenterX: 0,
-      landmarks: {
-        shoulderTopY: 1.82,
-        uniformPantsTopY: 1.14,
-        kneecapBottomY: 0.52,
-      },
-    });
-
-    const compactResult =
-      resolveTakenPitchPhysicalResult({
-        trajectory: trajectoryAtHeight(1.44),
-        plateZ: 0,
-        strikeZone: compact,
-        ballRadiusMeters: 0.0366,
-      });
-    const tallResult =
-      resolveTakenPitchPhysicalResult({
-        trajectory: trajectoryAtHeight(1.44),
-        plateZ: 0,
-        strikeZone: tall,
-        ballRadiusMeters: 0.0366,
-      });
-
-    expect(compactResult?.kind).toBe('ball');
-    expect(tallResult?.kind).toBe('called_strike');
-  });
-
-  it('rejects invalid or non-physical landmark ordering', () => {
-    expect(() => resolveRulebookStrikeZoneRegion({
-      plateCenterX: 0,
-      landmarks: {
-        shoulderTopY: 1,
-        uniformPantsTopY: 1,
-        kneecapBottomY: 0.5,
-      },
-    })).toThrow(
-      'shoulderTopY must be greater than uniformPantsTopY',
+  it('rejects invalid height-ratio inputs', () => {
+    expect(() =>
+      resolveHeightRatioStrikeZoneRegion({
+        plateCenterX: 0,
+        playerPhysicalProfile: {
+          heightMeters: Number.NaN,
+        },
+      }),
+    ).toThrow(
+      'playerPhysicalProfile.heightMeters must be finite and positive',
     );
 
-    expect(() => resolveRulebookStrikeZoneRegion({
-      plateCenterX: 0,
-      landmarks: {
-        shoulderTopY: 1.5,
-        uniformPantsTopY: 0.9,
-        kneecapBottomY: 0.95,
-      },
-    })).toThrow(
-      'uniformPantsTopY must be greater than kneecapBottomY',
+    expect(() =>
+      resolveHeightRatioStrikeZoneRegion({
+        plateCenterX: 0,
+        playerPhysicalProfile:
+          createPlayerPhysicalProfile(1.8),
+        topFraction: 0.2,
+        bottomFraction: 0.3,
+      }),
+    ).toThrow(
+      'strike-zone height fractions must be finite with topFraction > bottomFraction >= 0',
     );
   });
 });

@@ -7,6 +7,9 @@ import type {
 import type {
   PlateAppearanceCommand,
 } from '../../core/sim/plateAppearance/PlateAppearanceCommand';
+import {
+  resolveHeightRatioStrikeZoneRegion,
+} from '../../core/sim/pitching/RulebookStrikeZone';
 import type {
   PlayerPhysicalProfile,
 } from '../../core/model/PlayerPhysicalProfile';
@@ -97,11 +100,20 @@ export type MiniGameLiveFrameInput = Readonly<{
   frame: MiniPresentationFrame;
   overheadCamera: FieldOverheadCameraCalibration;
   /**
-   * Required for manager-mode Batter/Pitcher POV frames.
-   * Geometry must come from the same rulebook StrikeZoneRegion used by
-   * Core pitch adjudication.
+   * Optional explicit guide override. Current manager mode otherwise
+   * derives Height-Ratio V1 from matchupPlayers.batter + the matching
+   * PlayerPhysicalProfile. Future form-aware policies may also provide
+   * an explicit canonical StrikeZoneRegion through this seam.
    */
   strikeZoneGuide?: StrikeZoneGuideGeometry;
+  /**
+   * Canonical pitching coordinate-frame location of the zone plane.
+   * Mini's current plate-centered frame defaults to x=0, z=0.
+   */
+  strikeZonePlate?: Readonly<{
+    centerX: number;
+    plateZ: number;
+  }>;
   playerPhysicalProfiles?: Readonly<
     Partial<Record<string, PlayerPhysicalProfile>>
   >;
@@ -172,20 +184,49 @@ const validateFrame = (
   }
 };
 
-const validateManagerStrikeZoneGuide = (
+const resolveManagerStrikeZoneGuide = (
   input: MiniGameLiveFrameInput,
-): void => {
+): StrikeZoneGuideGeometry | undefined => {
   if (
-    (
-      input.frame.cameraMode === 'BATTER_POV'
-      || input.frame.cameraMode === 'PITCHER_POV'
-    )
-    && input.strikeZoneGuide === undefined
+    input.frame.cameraMode !== 'BATTER_POV'
+    && input.frame.cameraMode !== 'PITCHER_POV'
   ) {
+    return input.strikeZoneGuide;
+  }
+
+  if (input.strikeZoneGuide !== undefined) {
+    return input.strikeZoneGuide;
+  }
+
+  const batterId =
+    input.matchupPlayers?.batter?.playerId;
+  if (batterId === undefined) {
     throw new Error(
-      'manager POV frame requires strikeZoneGuide',
+      'manager POV frame requires batter identity or explicit strikeZoneGuide',
     );
   }
+
+  const profile =
+    input.playerPhysicalProfiles?.[batterId];
+  if (profile === undefined) {
+    throw new Error(
+      'manager POV frame requires batter physical profile or explicit strikeZoneGuide',
+    );
+  }
+
+  const plate = input.strikeZonePlate ?? {
+    centerX: 0,
+    plateZ: 0,
+  };
+
+  return {
+    plateZ: plate.plateZ,
+    region:
+      resolveHeightRatioStrikeZoneRegion({
+        plateCenterX: plate.centerX,
+        playerPhysicalProfile: profile,
+      }),
+  };
 };
 
 const validateEventPlayIds = (
@@ -215,7 +256,8 @@ export const buildMiniGameLiveFrame = (
   input: MiniGameLiveFrameInput,
 ): MiniGameLiveFrame => {
   validateFrame(input.frame);
-  validateManagerStrikeZoneGuide(input);
+  const strikeZoneGuide =
+    resolveManagerStrikeZoneGuide(input);
   validateEventPlayIds(
     input.match,
     input.frame,
@@ -257,7 +299,7 @@ export const buildMiniGameLiveFrame = (
     live: buildMiniLiveRenderState({
       frame: input.frame,
       overheadCamera: input.overheadCamera,
-      strikeZoneGuide: input.strikeZoneGuide,
+      strikeZoneGuide,
       playerPhysicalProfiles:
         input.playerPhysicalProfiles,
       dotCalibration: input.dotCalibration,

@@ -84,38 +84,44 @@ FIELD_OVERHEAD first frame
 
 2026-09-20 のユーザー決定により、監督モードの `BATTER_POV` / `PITCHER_POV` ではストライクゾーンガイドを表示対象とする。
 
-ガイドは固定画面矩形ではなく、Core の規則ジオメトリから受け取る。
+現時点では、フォーム再現をまだ製品要件として確定していないため、**Height-Ratio V1** を暫定の自動生成ポリシーとする。
 
 ```text
-batter batting-stance body landmarks
-  shoulderTopY
-  uniformPantsTopY
-  kneecapBottomY
+PlayerPhysicalProfile.heightMeters
         ↓
-RulebookStrikeZone
-  upperY = midpoint(shoulderTopY, uniformPantsTopY)
-  lowerY = kneecapBottomY
-  width  = home plate width (17 in / 0.4318 m)
+Height-Ratio V1
+  upperY = height × 0.535
+  lowerY = height × 0.270
+  width  = home plate width
         ↓
 StrikeZoneRegion
-        ├─ taken-pitch physical adjudication
+        ├─ physical pitch adjudication contract
         └─ read-only Presentation guide
               ↓
         Batter / Pitcher POV projection
 ```
 
-重要事項:
+- 横幅は本塁の物理幅 17インチ / 0.4318m。
+- 打者身長が違えば、ゾーンの高さだけでなく上下位置も変わる。
+- 固定された画面矩形をストライクゾーン真値として使わない。
+- 53.5% / 27% は2026 MLB ABSを参考にした**暫定Product Policy**であり、NPB人間球審の規則定義そのものとは扱わない。
+- 監督モードは `matchupPlayers.batter.playerId` と対応する `PlayerPhysicalProfile` があればHeight-Ratio V1を自動生成する。
+- リプレイも同じ打者profileから同じゾーンを再生成できる。
+- 将来フォームを正史化する場合は `batting_stance_landmarks` policyへ切替可能とし、肩上端 / ズボン上端 / 膝頭下端を使うlandmark resolverを保持する。
+- どちらの生成方式でも下流は同じ `StrikeZoneRegion` を受け取り、投球判定・審判・描画の契約を変えない。
+- 明示的な `strikeZoneGuide` は将来のフォーム対応 / 保存済みリプレイ等のcanonical override seamとして残す。
+- ガイド表示は人間球審の `OnFieldCall` そのものではない。人間の実効ゾーンが心理・知覚で揺れても、表示ガイドのcanonical zoneは別に保持する。
+- Presentationの線種・濃度・装飾は Work の領域であり、表示からCore判定へ逆流させない。
 
-- 上下限は**打者が投球を打つための姿勢**における身体ランドマークから決める。
-- 身長だけに一定比率を掛けた固定近似を規則上の真値として扱わない。
-- 選手・構えが違えば、上限・下限および表示上の高さも変わる。
-- 横幅は本塁の物理幅を使用する。
-- 監督モードの pre-contact POV frame は `strikeZoneGuide` を必須とする。
-- `FIELD_OVERHEAD` へ切り替わった後は同ガイドを要求しない。
-- ガイドは `StrikeZoneRegion` をカメラへ投影した観測情報であり、表示側で別のゾーンを作らない。
-- ガイドの線種・濃度・装飾は Work のPresentationデザイン領域だが、監督モードでゾーン自体を欠落させない。
-- ガイド表示は審判員の人間的な `OnFieldCall` そのものではない。将来の審判誤審・レビュー層とも分離する。
-- Presentationの投影・色・線幅・表示ON/OFFロジックを、投球物理やストライク/ボール判定へ逆流させない。
+将来フォーム対応の推奨進化順:
+
+```text
+Height-Ratio V1
+      ↓
+height + stance offsets
+      ↓
+batting-stance body landmarks
+```
 
 ## Rendering invariants
 
@@ -138,6 +144,7 @@ StrikeZoneRegion
 - live `BatBallContact` では exact tick に Batter POV と Field Overhead の2フレームを生成する。
 - exact contact sample が欠けている場合は補間せずエラーにする。
 - non-live contact / miss / take は Batter POV を継続する。
-- 監督モードの Batter/Pitcher POV は rule-derived `strikeZoneGuide` を必須とする。
-- 異なる打者の batting-stance landmarks から異なるゾーン高が得られる。
+- 監督モードの Batter/Pitcher POV は打者identity + PlayerPhysicalProfileからHeight-Ratio V1を自動解決できる。
+- 異なる身長からゾーンの上下位置・高さが変化する。
+- explicit strikeZoneGuide を与えた場合は同じStrikeZoneRegion seamで将来のform-aware policyを利用できる。
 - 同じ `StrikeZoneRegion` を投球判定とPresentation投影で共有でき、投影前後で投球判定は不変である。
