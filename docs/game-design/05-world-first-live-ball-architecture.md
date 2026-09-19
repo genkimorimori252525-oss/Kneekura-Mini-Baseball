@@ -142,9 +142,26 @@ It may determine:
 
 Rules do not rewrite the physical past to manufacture the expected baseball result.
 
-### 2.6 Official ruling and scoring
+### 2.6 Official ruling
 
-Official ruling / scoring is downstream of physical truth and rule adjudication.
+When human umpire/review behavior is modeled, preserve the existing four-layer separation:
+
+```text
+Physical Truth
+  -> Correct Rule Result
+  -> OnFieldCall / Review
+  -> Final Official Ruling
+```
+
+A wrong call must not rewrite the physical trace.
+
+The official match state may follow the Final Official Ruling when that adjudication layer is enabled, while the underlying Physical Truth and Correct Rule Result remain available for replay/debug/review evidence.
+
+The current bounded production ground-ball slice applies the correct RuleEngine result directly because the umpire/review layer is not yet connected to that coordinator. That implementation shortcut is not a permanent architecture rule.
+
+### 2.7 Official scoring
+
+Official scoring is downstream of physical truth, rule adjudication and—where relevant—the Final Official Ruling.
 
 Examples:
 
@@ -158,7 +175,7 @@ A scoring label must never be used as a locomotion command.
 
 It is valid for the Core to know that a runner physically reached second while official scoring is still unsupported or unresolved.
 
-### 2.7 Validation and Presentation
+### 2.8 Validation and Presentation
 
 Validation and Presentation are observers.
 
@@ -282,6 +299,38 @@ type CanonicalWorldEffect =
 
 These exact APIs are not required now.
 
+### 4.1 Effect authority and provenance
+
+A generic arbitrary world-effect API must not become a normal production-result input.
+
+Every discontinuous effect must carry provenance/authority sufficient to explain why it exists, conceptually such as:
+
+- `physical_engine`: collision/impulse produced by ordinary simulation;
+- `rule_system`: a RuleProfile-authorized dead-ball/award/reposition operation;
+- `debug_test`: adversarial instrumentation available only in explicit debug/test execution.
+
+A caller that merely wants a runner to be safe or reach a base may not submit `teleport`, `forced_reposition`, or equivalent world mutation as a shortcut.
+
+Debug/test effects must be impossible to enable accidentally in ordinary production match resolution.
+
+### 4.2 Discontinuous contact semantics
+
+A discontinuous position change does not imply a swept path through the space between old and new positions.
+
+For example:
+
+```text
+runner at first-side position
+  -> debug teleport
+  -> runner physically near third
+```
+
+must **not** fabricate a second-base touch merely because a straight line between the two coordinates crosses second.
+
+The effect event must state whether motion was continuous or discontinuous. Only continuous physical motion may generate intermediate collision/base-touch facts from swept geometry.
+
+After a discontinuity, the old motion plan is invalidated and future movement rebases from the exact new canonical state. Historical touch/possession/rule events remain immutable.
+
 The architectural rule is:
 
 ```text
@@ -307,6 +356,11 @@ If a debug effect places a runner on second without touching first, the physical
 
 Base touch is a physical event.
 
+Keep two concepts distinguishable:
+
+- **physical/base-relation truth**: where the runner is and which base contacts actually happened;
+- **official match participation/occupancy**: which runner remains legally active/placed after applicable rule and umpire/review adjudication.
+
 Occupancy/entitlement is derived from:
 
 - actual touch history;
@@ -314,7 +368,9 @@ Occupancy/entitlement is derived from:
 - retouch state;
 - runner retirement/scoring;
 - applicable RuleProfile;
-- official ruling where human adjudication is modeled.
+- Final Official Ruling where human adjudication is modeled.
+
+An official OUT call may retire a runner in official match state without erasing the physical evidence that the runner actually touched first before the tag/control event.
 
 ### 5.2 Final occupancy is never injected from result labels
 
@@ -378,18 +434,27 @@ It does not mean:
 
 A future general live-action finalizer must inspect canonical facts, not a named play bucket.
 
+It must evaluate an **action frontier** that includes more than current velocity. At minimum the frontier must account for:
+
+- in-flight ball/player motion;
+- already-issued intents whose motor/reaction delay has not completed;
+- scheduled possession/reception/tag/base-contact consequences;
+- pending perception/communication updates that can still cause a supported agent to choose a new action in this play;
+- unresolved appeal/review/rule windows that the configured RuleProfile treats as part of the current play;
+- eligible offensive/defensive actors whose current policy still permits a new action before the next reset/pitch.
+
 A play may be operationally complete when one of the rule/profile-supported completion conditions applies, for example:
 
 - the ball becomes dead by rule;
 - a terminal rule event ends the plate appearance/live action;
 - all offensive actors relevant to the play are retired or scored;
-- surviving runners are physically stabilized with no pending legal movement/appeal/action selected by supported agents;
+- surviving runners are physically stabilized and the action frontier proves no supported pending/new action can still change this play;
 - defense has stable possession/control where required;
-- no scheduled or already-issued supported action at an earlier/equal canonical tick can change the result.
+- no scheduled or already-issued supported event at an earlier/equal canonical tick can invalidate finalization.
 
-The exact quiescence policy must be deterministic and RuleProfile-aware.
+The exact quiescence/action-frontier policy must be deterministic and RuleProfile-aware.
 
-"Nobody moved for N arbitrary seconds" is not sufficient by itself unless that duration is explicitly part of a modeled agent/action policy.
+"Nobody moved for N arbitrary seconds", "all current intents are hold", or "the current trajectory horizon ended" is not sufficient by itself unless the modeled agent/action policy proves that no new play-changing action can still arise.
 
 ## 7. Decisions do not own truth
 
@@ -530,7 +595,56 @@ A second test is:
 
 If yes, the authority boundary is broken.
 
-## 13. Short form
+## 13. Adversarial reconciliation audit — 2026-09-20
+
+The unified contract was attacked after reconciliation with the existing plans.
+
+### Finding W-1 — HIGH — arbitrary world-effect could become outcome injection
+
+**Attack:** a flexible teleport/forced-reposition API could let production callers bypass physics and manufacture desired base outcomes.
+
+**Resolution:** every discontinuous effect requires explicit authority/provenance; debug/test effects are not ordinary production match inputs; a desired SAFE/base result is never sufficient authority for a world mutation.
+
+### Finding W-2 — HIGH — teleport could fabricate intermediate base touches
+
+**Attack:** projecting a discontinuous old->new position as a continuous segment could accidentally generate touches/collisions through every crossed region.
+
+**Resolution:** discontinuities explicitly have no swept path. Intermediate contacts are generated only by continuous motion. Historical touch facts remain immutable and future motion rebases from the destination state.
+
+### Finding W-3 — HIGH — quiescence could end a play before delayed decisions arrive
+
+**Attack:** zero velocity or current `hold` intents do not prove that a coach signal, perception update, reaction-delayed intent, pending throw, or appeal can no longer change the play.
+
+**Resolution:** PlayEnd must consult an explicit action frontier covering in-flight physics, delayed intents, pending perception/communication/decision work, rule windows and actor eligibility.
+
+### Finding W-4 — MEDIUM — official ruling and official scoring were too closely grouped
+
+**Attack:** grouping them can obscure the case where Physical Truth / Correct Rule Result differs from an umpire/review Final Official Ruling.
+
+**Resolution:** the layers are now separate. Official match state may follow Final Official Ruling when enabled; official scoring describes the adjudicated play and still cannot rewrite physical truth.
+
+### Finding W-5 — MEDIUM — physical base relation and official occupancy can diverge
+
+**Attack:** an erroneous OUT call or appeal can retire a runner officially while the physical trace still shows a base touch.
+
+**Resolution:** physical/base-relation truth and official participation/occupancy are explicitly distinct.
+
+### Residual implementation risks
+
+No known HIGH-severity design contradiction remains.
+
+The current implementation still lacks:
+
+- a general runner route-rebase orchestrator;
+- arbitrary-target/free world-space runner locomotion beyond the current route-distance model;
+- an action-frontier/general PlayEnd implementation;
+- multi-runner production orchestration;
+- umpire/review integration in the new production ground-ball coordinator;
+- broad official scoring.
+
+These are implementation gaps of the same architecture, not reasons to create separate result engines.
+
+## 14. Short form
 
 ```text
 WORLD
@@ -545,8 +659,11 @@ PHYSICAL EVENTS
 RULES
   interpret those events
 
+OFFICIAL RULING
+  applies umpire/review adjudication when modeled without erasing truth
+
 OFFICIAL SCORING
-  describes the completed rule/physical outcome
+  describes the completed adjudicated/physical outcome
 
 VALIDATION / PRESENTATION
   observe everything above

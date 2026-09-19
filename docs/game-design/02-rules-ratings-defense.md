@@ -62,7 +62,8 @@ PitchIntent / BatterIntent
   → DefenderWorldState[9] + BaserunnerWorldState[]
   → FieldingIntent / CoverageIntent / ThrowIntent
   → TimedMatchEvent[]
-  → RuleEngine が規則上のアウト・得点可否・フォース等を解釈
+  → RuleEngine がCorrect Rule Result（アウト・得点可否・フォース等）を解釈
+  → Umpire / Review が有効な場合は Final Official Ruling を確定
   → OfficialScoring が対応済み範囲の記録を後段で記述
 ```
 
@@ -71,7 +72,7 @@ PitchIntent / BatterIntent
 - 守備側9人はそれぞれワールド位置、速度、移動目標、現在の役割を持つ。
 - `TimedMatchEvent` は野手の到達、捕球、処理、送球、塁タッチ/離塁、タグ、ボール状態変化など、実際に起きた正史イベントを時刻順に持つ。得点は物理イベントとして先に置かず、RuleEngineがタッチ履歴・アウト種別・時刻から解釈する。
 - 走者の正史位置・速度と、`currentBase / nextBase` のような判断用base contextを分離する。base contextや安打分類が走者の位置を直接書き換えてはならない。
-- 規則判定は正史イベントを解釈する。失策・野選・安打等の公式記録は対応済み証拠を後段で記述し、物理結果を作らない。表示やカメラはこれらの出力を読むだけである。
+- 規則判定は正史イベントを解釈する。審判・レビューをモデル化する場合は Physical Truth / Correct Rule Result / OnFieldCall / Final Official Ruling を分離し、誤審でも物理履歴を消さない。失策・野選・安打等の公式記録は対応済み証拠を後段で記述し、物理結果を作らない。表示やカメラはこれらの出力を読むだけである。
 - 乱数は試合シード、打席シード、必要に応じてプレーシードを保存して再現可能にする。
 
 ### 3.1 シミュレーション時間
