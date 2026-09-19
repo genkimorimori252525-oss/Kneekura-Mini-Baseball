@@ -943,3 +943,7 @@ UIの具体表示、閾値、carryover率の数値校正は後続実装設計で
 6. Team MoodのRank / 数値をユーザーへどこまで見せるか
 7. Offseason carryover率を具体的に決めるか
 8. Manager TrustをMood外の上流Stateとして扱うか
+
+
+Manager intervention layer for Team Mood (USER REVIEW REQUIRED):
+- `docs/game-design/38-team-mood-manager-interventions-DRAFT.md`
