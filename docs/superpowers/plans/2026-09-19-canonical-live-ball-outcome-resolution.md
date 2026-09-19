@@ -170,9 +170,11 @@ This preserves explainability and adversarial auditability.
 
 Do not attempt all baseball at once.
 
-The first production slice is:
+The first production slice is deliberately narrower after adversarial review:
 
-**ordinary fair ground ball with a batter-runner race to first base, with no pre-pitch runners.**
+**ordinary fair ground ball, no pre-pitch runners, ending in a physically supported force out of the batter-runner at first.**
+
+The first milestone does not finalize a SAFE-at-first play. SAFE is a valid first-base race result, but it is not by itself an authoritative end-of-play fact because the batter-runner could still advance and the defense could still act.
 
 Why this slice:
 
@@ -184,50 +186,64 @@ Why this slice:
 Required causal chain:
 
 ```text
-fair ground-ball evidence
-  -> designated ball handler / supported pickup state
+fair ground-ball flight/roll evidence
+  -> defender perceived/assigned ball-handler action
+  -> physical glove/ball contact on the live batted ball
+  -> catch-retention / secure ground-ball possession
+  -> rated transfer timing
+  -> internally derived throw-launch tick
   -> selected first-base throw
   -> physical throw launch
   -> physical reception + retention
   -> receiver controlled-base contact
   -> batter-runner physical first-base touch
   -> existing first-base RuleEngine
-  -> OUT or SAFE
-  -> derived empty/first-base occupancy
+  -> terminal OUT before first
+  -> derived empty occupancy
   -> authoritative play end
   -> CanonicalLiveBallOutcome
   -> PlateAppearanceMatchState
 ```
 
+There is currently no single production ground-ball-pickup orchestrator. Phase 2 must close that gap by composing existing live-ball/glove contact and catch-retention primitives; it must not accept an injected pickup/possession tick.
+
+There is also no complete throwing-arm constraint model. The production coordinator must not accept a raw release tick from its public input. It must derive the launch boundary from secure possession and existing rated transfer timing. Until a full hand/arm constraint model exists, using `throwReadyTick` as the launch tick is an explicit zero-duration ready-to-release approximation, not hidden caller authority.
+
 For this first slice:
 
-- OUT => batter-runner retired, bases empty.
-- SAFE => batter-runner occupies first.
-- simultaneous/unresolved => the play must remain unresolved; never guess.
-- failed reception/retention => no artificial defender control fact; the bounded slice may remain unresolved until a supported continuation exists.
+- physically secured first-base force OUT => batter-runner retired, bases empty, terminal play;
+- SAFE => first-base race evidence is preserved, but no `PlayEndFact`, final occupancy, or completed plate appearance is published yet;
+- simultaneous/unresolved => the play remains unresolved; never guess;
+- failed ground-ball possession, throw reception, or retention => the ball remains live and the bounded slice does not manufacture a result.
 
-The initial slice does **not** manufacture a single if the defense fails. A later slice will model live-ball continuation and extra-base advancement before descriptive hit classification is expanded.
+The initial slice does **not** manufacture a single if the defense fails or the runner is safe. A later continuation slice must model subsequent runner/defender action before final occupancy and descriptive hit classification are expanded.
 
 ## 7. Play-end rule for the first slice
 
 The hardest authority risk is premature play end.
 
-For the bounded no-runner first-base race, play end may be emitted only when:
+For the first milestone, play end may be emitted only for the terminal no-runner force-out case.
 
-1. the existing RuleEngine has a resolved first-base result; and
-2. the supported runner state is terminal for the bounded slice; and
-3. no already-scheduled supported physical event at an earlier/equal canonical tick can change that result.
+Required conditions:
 
-If any of these conditions are not satisfied, no `PlayEndFact` is created.
+1. the existing RuleEngine resolves the batter-runner OUT before first;
+2. first-base control is backed by secured possession plus physical base contact;
+3. no other offensive runner exists;
+4. equal-tick runner/base contact has not produced the existing simultaneous/unresolved result; and
+5. no already-scheduled supported physical event at an earlier or equal canonical tick can invalidate the terminal state.
 
-The general future live-ball play-end policy must handle additional runners, relays, tags, dead balls, and voluntary stopping. That is explicitly deferred.
+For this case, all offensive runners are retired while the defense securely controls the ball, so the play can end at the authoritative out/control boundary.
+
+A SAFE-at-first result is explicitly non-terminal in milestone 1. `BatterRunnerWorldTimeline.endTick` is a simulation horizon supplied by the caller and must never be interpreted as evidence that live action ended.
+
+The general future live-ball play-end policy must handle safe runners stopping/advancing, additional runners, relays, tags, dead balls, and voluntary stopping. That is explicitly deferred.
 
 ## 8. Final-base derivation rule for the first slice
 
-Final occupancy is derived from the resolved physical/rule result:
+Final occupancy is published only for a terminal supported play:
 
-- first-base OUT -> no batter-runner occupancy;
-- first-base SAFE -> batter-runner at first;
+- terminal first-base OUT with no pre-pitch runners -> bases empty;
+- SAFE -> no completed final occupancy yet in milestone 1;
 - unresolved/simultaneous -> no final occupancy is published.
 
 The resolver must not accept `basesAfter` as input for this production entry point.
@@ -236,12 +252,13 @@ Existing lower-level adapters that accept `basesAfter` may remain for compatibil
 
 ## 9. Official-result boundary
 
-The first slice should use a narrow descriptive classification such as:
+The first completed slice uses the narrow descriptive classification:
 
 - `batter_runner_out_before_first`
-- `batter_runner_safe_at_first`
 
-Do not yet label every safe result as an official single. A safe-at-first result can later depend on error/fielder's-choice/other scoring evidence.
+A SAFE race result may be exposed only as non-terminal evidence until continuation is modeled.
+
+Do not label a safe result as an official single. A safe-at-first result can later depend on error/fielder's-choice/other scoring evidence.
 
 This prevents the new architecture from recreating the old validation shortcut under a more official-sounding name.
 
@@ -363,3 +380,41 @@ The first milestone is complete only when a real supported ground-ball play reac
 - a statistical hit bucket.
 
 The physical/rule chain must be able to explain why the final state exists.
+
+## 15. Adversarial design audit A — 2026-09-19
+
+The first hostile review found three high-severity architecture risks and two important boundary risks.
+
+### A-1 — HIGH — missing causal ground-ball possession bridge
+
+**Attack:** the first draft said "supported pickup state" without proving where it comes from. That wording could permit a caller to inject possession and skip the hardest fielding transition.
+
+**Resolution:** the design now requires the production coordinator to derive rolling/live batted-ball glove contact and catch retention from existing physical primitives. No public pickup tick or possession boolean is accepted.
+
+### A-2 — HIGH — SAFE was incorrectly close to a play-end shortcut
+
+**Attack:** a runner reaching first safely does not imply the live ball is over. The runner may continue and the defense may continue.
+
+**Resolution:** milestone 1 is narrowed to the terminal no-pre-pitch-runner force-out-at-first path. SAFE remains non-terminal evidence and cannot produce final occupancy or `PlayEndFact` yet.
+
+### A-3 — HIGH — raw throw release tick could remain hidden caller authority
+
+**Attack:** `CoverageThrowExecution` accepts `releaseTick`; if the top-level production path forwards an injected value, the simulation still skips causal transfer/release timing.
+
+**Resolution:** the top-level production coordinator may accept calibration/rating inputs but not a raw release tick. Secure possession feeds rated ball-transfer timing. Until a full arm/hand constraint model exists, `throwReadyTick` is used as an explicitly documented zero-duration ready-to-release launch approximation.
+
+### A-4 — MEDIUM — simulation horizon is not play-end evidence
+
+`BatterRunnerWorldTimeline.endTick` is a caller-selected horizon. It cannot create or justify a `PlayEndFact`.
+
+This prohibition is now explicit.
+
+### A-5 — MEDIUM — decision probability leakage
+
+`ThrowPlan` probabilities remain valid only for selecting an action. The implementation audit must reject any code path that copies them into out/run/base/result facts.
+
+### Gate A result
+
+After the revisions above, no known high-severity design finding remains unresolved.
+
+The remaining model approximation is the zero-duration ready-to-release launch boundary. It is explicit, deterministic, downstream of secure possession/transfer timing, and must be replaceable by a future hand/arm constraint model without changing RuleEngine semantics.
