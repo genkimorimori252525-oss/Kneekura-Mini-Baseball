@@ -1998,3 +1998,9 @@ Boundary:
 - `人気者` remains fan-facing.
 - `Star / Superstar` may have Tactical Gravity and high-salience Condition behavior.
 - no direct raw ability buff.
+
+
+Star / Superstar genesis model (CANONICAL):
+- `docs/game-design/52-star-superstar-genesis-v1.md`
+
+Star / Superstar status is Career-evidence-derived, but rare latent candidate predispositions can exist from Person generation. Candidate flags are never read by Match Core.
