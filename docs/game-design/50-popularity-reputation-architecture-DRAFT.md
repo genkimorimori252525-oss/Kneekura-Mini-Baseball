@@ -1,7 +1,7 @@
 # Popularity / Star Status Architecture — DRAFT
 
 更新日: 2026-09-20  
-状態: **設計候補。USER REVIEW REQUIRED。実装前。**
+状態: **CANONICAL / DESIGN FROZEN v1。実装前。**
 
 関連:
 - `docs/game-design/08-player-traits-design-seed.md`
@@ -720,3 +720,27 @@ Superstar
 
 Detailed draft:
 - `docs/game-design/51-star-superstar-big-stage-architecture-DRAFT.md`
+
+
+---
+
+# 28. 本書の確定範囲
+
+2026-09-20 user approved v1.
+
+Canonical:
+
+- 人気者 / Fan Favorite is fan-affection / presentation focused.
+- Fan Favorite does not affect Manager tactical decisions.
+- Crowd / attendance interest / merchandise / presentation are secondary effects.
+- Clubhouse Influence is a separate Team Mood / Relationship source of truth.
+- Star / Superstar are not one popularity ladder.
+- Star / Superstar detailed competitive / big-stage mechanics are defined in:
+  - `docs/game-design/51-star-superstar-big-stage-architecture-DRAFT.md`
+
+Deferred:
+- detailed Media simulation
+- sponsor economics
+- Hall / Legacy mechanics
+- exact attendance / merchandise formulas
+- exact Public Appeal calibration
