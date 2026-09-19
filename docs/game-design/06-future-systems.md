@@ -384,3 +384,7 @@ Club economy / football motif / directed rivalry:
 
 Europe real club catalog:
 - `docs/game-design/17-europe-real-club-catalog.md`
+
+
+Club state lifecycle / pennant save boundary:
+- `docs/game-design/18-club-state-lifecycle.md`
