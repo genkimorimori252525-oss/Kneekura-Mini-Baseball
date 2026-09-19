@@ -657,6 +657,228 @@ one iconic moment
 
 ---
 
+# 22.1 Rarity Is a Design Requirement
+
+Star / Superstarは大量生産しない。
+
+重要:
+
+> **Starであること自体が難しく、Superstarはさらに極端に希少。**
+
+人数QuotaをSource of Truthにしない。
+
+禁止:
+
+```text
+every team gets one Star
+every league gets one Superstar
+top 10 players auto-Star
+top 1 player auto-Superstar
+```
+
+代わりに成立条件を厳しくし、
+結果として希少になるよう校正する。
+
+---
+
+# 22.2 Star Gate
+
+Star候補には最低限:
+
+- high competitive prominence relative to current league
+- sustained high-level performance
+- central competitive role
+- meaningful opponent attention
+- broad league awareness
+- evidence persistence
+
+を要求。
+
+```text
+one hot month
+ -> NOT Star
+
+one great season
+ -> possible Star candidate
+ -> not automatically Star
+```
+
+Starは「一軍主力」や「能力A以上」の別名ではない。
+
+Strong regular playersが多数いても、
+Starはその中の限られた中心人物だけ。
+
+---
+
+# 22.3 Superstar Gate
+
+Superstar候補はStar条件を満たした上で、
+さらに複数のExceptional Evidenceを要求。
+
+候補:
+
+```text
+historic-level competitive dominance
+OR
+exceptional iconic salience
+
+AND
+
+sustained elite relevance
++ broad / cross-audience recognition
++ major-stage evidence
++ historical persistence
+```
+
+重要:
+
+```text
+Star for several years
+ -> automatic Superstar
+```
+
+は禁止。
+
+Starを長く続けても、
+SuperstarにならずCareerを終えるPlayerが大多数。
+
+---
+
+# 22.4 No Guaranteed Superstar Era
+
+World Simulationは:
+
+```text
+this era must have a Superstar
+```
+
+を要求しない。
+
+可能:
+
+```text
+Era A
+ -> no active Superstar
+
+Era B
+ -> one iconic Superstar
+
+Era C
+ -> two or three historically exceptional players overlap
+```
+
+歴史の密度をScriptしない。
+
+---
+
+# 22.5 Rarity Calibration Target
+
+具体人数は実装Soakで校正する。
+
+設計目標:
+
+- most regular players are neither Star nor Superstar
+- even strong starters often remain non-Star
+- a league normally has only a small number of active Stars
+- Superstar is much rarer than Star
+- the entire active baseball world may sometimes have zero or only a few Superstars
+- Superstar overlap should feel historically notable
+
+Hard capは置かない。
+
+Rare outcomeはEvidence Gate + persistenceで作る。
+
+---
+
+# 22.6 Relative and Absolute Evidence
+
+Starは主に:
+
+```text
+league-relative competitive prominence
+```
+
+を重視。
+
+Superstarはそれだけでは不十分。
+
+```text
+league-relative dominance
++ broader historical / cross-league significance
+```
+
+を要求。
+
+弱いLeagueのトップPlayerが即Global Superstarになることを防ぐ。
+
+ただしInternational competition / transfer / cross-league success等で
+broader evidenceを得ればSuperstar candidateになれる。
+
+---
+
+# 22.7 Persistence / Revalidation
+
+Star statusは永続称号ではない。
+
+```text
+current performance declines
++ role centrality declines
++ opponent attention declines
+        ↓
+current Star status may fade
+```
+
+SuperstarもCurrent StatusとLegacyを分ける。
+
+```text
+Current Superstar
+Legacy Superstar
+```
+
+現役能力が落ちてもLegacyは残り得る。
+
+---
+
+# 22.8 False Star Prevention
+
+Popularity / Media aloneではStarになれない。
+
+```text
+huge popularity
++ ordinary competitive importance
+ -> Fan Favorite / celebrity
+ -> NOT Star
+```
+
+また:
+
+```text
+huge single-season hype
++ insufficient persistence
+ -> breakout / star candidate
+ -> NOT guaranteed Star
+```
+
+---
+
+# 22.9 Superstar Historical Weight
+
+Superstar成立後はWorld History上でも重大Event。
+
+候補:
+
+- era summary
+- league history
+- retirement presentation
+- record / legacy screen
+- cross-generation comparison
+
+ただしGameplay Buffへ変換しない。
+
+Superstarの希少性はPresentationでも感じられるようにする。
+
+---
+
 # 23. UI
 
 通常:
