@@ -4,7 +4,7 @@
 
 現在は **P0〜P9のロードマップ基盤まで実装・CI検証済み** で、ロードマップ後の最初のproduction causal live-ball結果境界（無走者ゴロ→一塁フォースアウト）と、runner controller / explicit rebase基盤まで実装済みです。一方、一般multi-runner、ActionFrontier / OfficialPlayClosure、完成ゲームUI、心理・Trait・ペナント/世界リーグ等は未実装または設計段階です。最新の区分は [2026-09-20 03:30 JST Current State Snapshot](docs/project-status/2026-09-20-0330-current-state.md) を参照してください。
 
-Mini Baseball は Natural Baseball の簡易ルール版ではなく、将来の Natural Baseball でも再利用できる試合計算Coreを先に磨く製品です。Miniではゲームボーイ風・ドローンアート風の軽量表示で正史ワールド状態を観測し、将来は同じ状態を3D描画へ接続できる設計を目指します。
+Mini Baseball は Natural Baseball の簡易ルール版ではなく、将来の Natural Baseball でも再利用できる試合計算Coreを先に磨く製品です。Miniは同じ正史ワールド状態を軽量なPresentationで観測し、将来は同じ状態をNaturalの3D描画へ接続できる設計を目指します。具体的な見た目・画面構成・演出はCore仕様ではなく、承認済みのWorkデザインに従います。
 
 ## 設計文書
 
@@ -15,7 +15,7 @@ Mini Baseball は Natural Baseball の簡易ルール版ではなく、将来の
 - [守備能力・運動モデル設計](docs/game-design/04-defense-ratings.md)
 - [心理・性格・感情マーク設計](docs/game-design/05-psychology-emotion.md)
 - [将来システム設計メモ](docs/game-design/06-future-systems.md)
-- [ドローンアート映像・細密グリッド表示設計](docs/game-design/07-drone-art-presentation.md)
+- [旧ドローンアート映像・細密グリッド表示（LEGACY REFERENCE）](docs/game-design/07-drone-art-presentation.md)
 
 ## AI / デザイン作業境界
 
@@ -37,6 +37,7 @@ UI/UX・ビジュアル・Presentationのデザイン方向は **ChatGPT Work担
 - 感情マークは監督の実用情報であり、演出用の偽マークは出さない。表示は原則1人1個で、最も強く行動へ影響している感情を示す。
 - ポストシーズン、国際大会、優勝直前、首位攻防などの重要度は手動フラグではなく、大会段階・順位・残り試合・優勝/敗退条件などから自動算出し、感情発火のしやすさへ反映する。
 - ABS/チャレンジ、乱闘、PlayCapsule/ハイライト、調子予測、移籍欲求、ドラフト、大会、音響、マルチコメントなどはMatch Coreへ直書きせず、将来の独立サブシステムとして接続する。
-- 打球後のMini表示は **4px細密グリッド・55ms/表示コマ・位置補間なし** を基準とする。滑らかさは見た目用Tweenではなく正史状態の高頻度サンプリングで出す。
-- ドローンアート上の選手は、守備側を守備チームカラー、打者・走者を攻撃チームカラーで識別する。処理・塁カバー・中継・バックアップ等の役割色はデバッグ限定とする。
-- ボールの平面位置は正史 `(x,z)` から、表示サイズは正史高度 `ball.y` から離散的に決める。ゴロ・ライナー・フライという分類で軌道演出を切り替えず、バウンドも接地・反発・摩擦などの正史物理から自然に表示する。
+- Mini/Naturalの表示は正史World/Eventを読む **observer** とする。画面都合で選手・ボール・アウト/セーフ・得点を作り直さない。
+- ASCII / Drone-Art / 4px固定グリッド / 55ms固定表示テンポ等は現行の強制仕様ではない。旧試作の参考値としてのみ扱う。
+- Batter POV / catcher-behind Pitcher POV / fair-ball後のfield-overheadというカメラ役割は保持するが、具体的な構図・色・密度・補間・演出・UIレイアウトはWorkのデザイン領域とする。
+- ボールや選手の可視化はCanonical Worldの位置・速度・高さ・イベントから導出する。表示用の加工は正史へ逆流させない。
