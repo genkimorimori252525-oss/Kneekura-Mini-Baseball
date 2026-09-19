@@ -857,3 +857,7 @@ stable internal family id
 
 この文書はここで計画完了とする。後続では、ここで確定した境界を変更せず、具体式・閾値・データ構造・テスト実装を設計する。
 
+
+
+Team traits / player relationship design candidate (USER REVIEW REQUIRED):
+- `docs/game-design/34-team-traits-and-relationship-network-DRAFT.md`
