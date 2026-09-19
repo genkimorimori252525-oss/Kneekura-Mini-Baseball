@@ -322,7 +322,38 @@ validated seam-wake force
 
 No seam-shifted-wake force is created merely because seam orientation state now exists.
 
-### 3.4.5 Still missing from pitching
+### 3.4.5 Aerodynamic pitch interaction with the batter
+
+The realistic pitch path now reaches both take and swing decisions.
+
+Implemented:
+
+- `AerodynamicSwingingPitchPhysicalResult`
+  - searches bat/ball contact along the continuously integrated aerodynamic pitch path;
+  - uses conservative advancement based on an upper bound on pitch/ball geometric closing speed rather than renderer cadence;
+  - therefore lateral/vertical pitch movement changes the actual contact geometry and timing;
+  - intentionally reuses the frozen legacy contact response after contact is found, until the reduced-order rigid collision has completed calibration;
+- `AerodynamicPitchAgainstBatter`
+  - records aerodynamic taken pitches and aerodynamic swing/contact results through the existing canonical plate-appearance timeline;
+  - preserves the existing rule/count adapters rather than creating a second rules engine.
+
+The boundary is therefore:
+
+```text
+release mechanics
+        ↓
+aerodynamic pitch flight
+        ↓
+actual take/swing geometry
+        ↓
+canonical pitch/contact event
+        ↓
+existing rules
+```
+
+There is still only one authoritative rules timeline.
+
+### 3.4.6 Still missing from pitching
 
 - experimentally calibrated speed/spin-dependent drag over the pitch-speed range;
 - seam-orientation-dependent lift/drag;
@@ -330,7 +361,8 @@ No seam-shifted-wake force is created merely because seam orientation state now 
 - calibrated angular-speed decay;
 - knuckleball unsteady seam-force model;
 - full upstream pitcher biomechanics that generate finger impulses from arm/hand state rather than accepting final finger impulses as input;
-- full realistic swing/contact search against the aerodynamic pitch trajectory.
+- calibration of the new aerodynamic swing-search path;
+- replacement of its temporary legacy contact response with the calibrated reduced-order rigid bat contact model.
 
 ## 4. Phase B — bat-ball collision
 
