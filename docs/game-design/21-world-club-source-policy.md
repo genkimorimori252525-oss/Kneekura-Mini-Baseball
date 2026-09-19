@@ -195,16 +195,16 @@ verified finance
 3. Korea
 4. Taiwan
 5. China
-6. West / South Asia
-7. North America
-8. Mexico
-9. Dominican
-10. Venezuela
-11. Puerto Rico
-12. Cuba
-13. Australia
-14. New Zealand / Pacific
-15. Pan-African refinement
+6. West / South Asia — completed in 23
+7. North America — completed in 24
+8. Mexico — completed in 24
+9. Dominican — completed in 24
+10. Venezuela — completed in 24
+11. Puerto Rico — completed in 24
+12. Cuba — completed in 24
+13. Australia — completed in 25
+14. New Zealand / Pacific — completed in 25
+15. Pan-African refinement — completed in 25
 
 Europe 7は17で整備済み。
 
@@ -218,5 +218,10 @@ Europe 7は17で整備済み。
 - KBO: 10 first-team clubs
 - CPBL: 6 current clubs
 - China: 2026 professional football clubsをChina baseball-world Club sourceに使用
+- ABL: 2026 season is a 4-club competition; Australia Full League is recalibrated to 4 clubs
 
 Source snapshotはCatalog metadataとしてversion固定する。
+
+- `docs/game-design/23-west-south-asia-club-catalog.md`
+- `docs/game-design/24-americas-real-baseball-club-catalog.md`
+- `docs/game-design/25-australia-pacific-africa-club-catalog.md`
