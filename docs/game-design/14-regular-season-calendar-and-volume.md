@@ -185,7 +185,7 @@ Leagueごとにoff-day / travel blockを調整し、100試合以上でもCalenda
 - Regular Season games / club: **120**
 - Regular Season: **late March–late September**
 - Postseason: **October**
-- ABCL: **November**
+- APBCL: **November**
 - density: **STANDARD_DENSE**
 - target: 約4.4 games / week
 
@@ -229,7 +229,7 @@ WBC参加選手へhidden fatigue resetは与えない。
 - games: **126**
 - Regular Season: **late March–September**
 - Postseason: **October**
-- ABCL: **November**
+- APBCL: **November**
 - density: **STANDARD_DENSE**
 - target: 約4.7 games / week
 
@@ -251,7 +251,7 @@ Balanced schedule:
 - games: **100**
 - Regular Season: **March–September**
 - Postseason: **late October–early November**
-- ABCL: **November Flex Window**
+- APBCL: **November Flex Window**
 - density: **STANDARD**
 - target: 約3.7 games / week
 
@@ -264,7 +264,7 @@ Balanced:
 
 10 home / 10 away。
 
-ABCL出場Clubの日程が重なる場合、ABCLをlate November / early Decemberへshift可能。
+APBCL出場Clubの日程が重なる場合、APBCLをlate November / early Decemberへshift可能。
 
 ---
 
@@ -273,8 +273,8 @@ ABCL出場Clubの日程が重なる場合、ABCLをlate November / early Decembe
 - games: **108**
 - Regular Season: **March–August**
 - Postseason: **September**
-- ABCL preparation: **October**
-- ABCL: **November**
+- APBCL preparation: **October**
+- APBCL: **November**
 - density: **STANDARD**
 - target: 約4.0 games / week
 
@@ -306,14 +306,14 @@ Balanced:
 
 10 home / 10 away。
 
-### ABCL conflict
+### APBCL conflict
 
-ABCLは原則November。
+APBCLは原則November。
 
-このLeagueのABCL参加Clubについては:
+このLeagueのAPBCL参加Clubについては:
 
 ```text
-ABCL
+APBCL
  -> delayed domestic opening
  -> protected makeup windows
 ```
@@ -590,7 +590,7 @@ Balanced:
 - games: **112**
 - Regular Season: **September–January**
 - Postseason: **February**
-- OBCL: **March**
+- APBCL: **November**
 - density: **STANDARD_DENSE**
 - target: 約5.1 games / week
 
@@ -609,7 +609,7 @@ Balanced:
 - games: **112**
 - Regular Season: **September–February**
 - Postseason: none
-- OBCL: **March**
+- APBCL: **March**
 - density: **STANDARD_DENSE**
 - target: 約4.3 games / week
 
@@ -621,6 +621,13 @@ Balanced:
 ```
 
 Pacific travelを考慮し、away seriesをblock化する。
+
+
+APBCLはNovember開催。
+
+Australiaの出場Clubは直前に完了したDomestic Seasonの `QualificationSeasonId` で決める。
+
+September開始の次Season中にAPBCLへ出場する場合、そのClubの日程へContinental Breakを入れる。
 
 ---
 
@@ -831,7 +838,7 @@ Schedule RNGはMatch Physics RNGから完全分離する。
 - Europe 10-club leagues 108 = 9 x 12
 - Europe 12-club leagues 110 = 11 x 10
 - Pan-Africa 110 = 11 x 10
-- Oceania 112 = 7 x 16
+- Australia / NZ-Pacific 112 = 7 x 16
 - Domestic Champions are decided before target Continental window
 - WBC / Premier / Club World have domestic-calendar escape rules
 - no schedule density directly modifies true ability
@@ -891,7 +898,7 @@ North America 162とMexico 120はunbalanced / rivalry opponent matrixを含む�
 
 - North America exact 162-game opponent matrix
 - Mexico extra 6 rivalry-game allocation
-- Taiwan / ABCL exact November collision handling
+- Taiwan / APBCL exact November collision handling
 - rainout / doubleheader rules
 - exact travel-cost optimization
 - weekday / weekend preferences per league
