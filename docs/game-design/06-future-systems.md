@@ -218,7 +218,7 @@ Africa     1
 Oceania    2
 ----------------
 Full      21
-Clubs    240
+Clubs    238
 ```
 
 野球が主要競技ではない地域では、Academy / Transfer Fee / Loan / Training Compensation / Solidarity / Trial等のサッカー型Player MarketをCareer Economyへ採用可能とする。
@@ -396,3 +396,8 @@ Club structural dominance / decline:
 
 Simple surface / deep simulation UX:
 - `docs/game-design/20-simple-surface-deep-simulation.md`
+
+
+World club source policy / East Asia catalog:
+- `docs/game-design/21-world-club-source-policy.md`
+- `docs/game-design/22-east-asia-club-catalog.md`
