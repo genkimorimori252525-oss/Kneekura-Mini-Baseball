@@ -416,3 +416,382 @@ Team Traitは結果一発で即付与しない。
 5. Team Moodと重なるTraitをどこまでTeam Trait側へ残すか
 6. 「暗黒期」をNarrativeだけにするか、UI上のDerived Badgeを出すか
 7. Durationの具体的な日数 / Evidence閾値
+
+---
+
+# 21. Season Boundary Policy
+
+Team TraitはSeason終了時に一律resetしない。
+
+ただし「Trait表示」と「Underlying Evidence」を分離する。
+
+```text
+Trait Label
+ !=
+Relationship / Coordination / Adaptation / Memory
+```
+
+Season BoundaryではTraitごとに次の3Policyを使う。
+
+## 21.1 CARRYOVER_ELIGIBLE
+
+翌SeasonへTrait自体を持ち越せる。
+
+条件:
+
+- sourceがRelationship / Coordination / persistent adaptation
+- 対象Player / Unitが維持される
+- roleが大きく崩れていない
+- underlying evidenceが閾値以上
+
+代表:
+
+- 呼応打線
+- 共鳴砲
+- バッテリー結束
+- 阿吽のバッテリー
+- 守備連携
+- 二遊間連携
+- 阿吽の二遊間
+- 外野連携
+- 中継網
+- 完全中継網
+- 挟殺連携
+- 走者警戒網
+- 声掛け徹底
+- 本拠地要塞
+- 遠征巧者
+
+Red側では:
+
+- バッテリー不信
+- 二遊間ぎこちない
+- 外野譲り合い
+- 新戦力ぎこちない
+
+等の**実際の人間関係 / coordination問題**だけ持ち越し可能。
+
+重要:
+
+```text
+same roster / same pair / same role
+ -> carryover possible
+
+player leaves / role changes / unit broken
+ -> re-evaluate immediately
+```
+
+---
+
+## 21.2 REVALIDATE_NEXT_SEASON
+
+Underlying Evidenceは持ち越すが、Trait Labelはいったん非Activeへ戻す。
+
+Preseason / Opening weeksで再確認し、条件を満たせば早期復活できる。
+
+対象:
+
+- role confidence
+- organizational preparation
+- environment adaptation
+- bullpen trust
+- lineup identity
+- routine familiarity
+
+代表Blue / Gold:
+
+- 鉄壁リリーフ陣
+- 継投呼応
+- 守護神への信頼
+- 先発の安心感
+- 立て直し上手
+- 四球後の切替
+- 黄金打線
+- 鉄壁ブルペン
+- 勝負所の結束
+- 鉄の切替
+- ホームの鬼
+- デイゲーム巧者
+- ナイター巧者
+- 遠征慣れ
+- 初見対応
+- 初見看破
+- データ共有
+- 大観衆慣れ
+- 首位攻防慣れ
+
+代表Red:
+
+- ブルペン不信
+- 守護神不安
+- 継投迷走
+- 初物苦手
+- ビジター萎縮
+- デイゲーム苦手
+- 大観衆萎縮
+- 首位攻防硬直
+
+これらは:
+
+```text
+2026 season evidence
+ -> retained partially
+ -> 2027 preseason revalidation
+ -> may return quickly
+```
+
+とする。
+
+「去年そうだったから今年も自動発動」にはしない。
+
+---
+
+## 21.3 SEASON_ONLY
+
+Season終了でTrait Labelを強制終了。
+
+原則として翌SeasonへActive状態を持ち越さない。
+
+対象:
+
+- streak
+- current-season momentum
+- current-season scoring pressure
+- current-season comeback confidence
+- symbolic standings pressure
+- short-term fatigue / travel disruption
+
+代表Blue:
+
+- 打線連鎖
+- 連弾の気配
+- 好機必打
+- 逆境オーラ
+- 追撃の波
+- 終盤集中
+- 初回攻勢
+- 先頭出塁の波
+- つなぎの意識
+- 代打陣の信頼
+- 火消し連鎖
+- 一点防衛
+- カード勝ち越し
+- 連敗ストッパー
+- 不屈の逆転劇
+
+代表Red:
+
+- タイムリー欠乏症
+- あと一本病
+- 満塁硬直
+- 追撃失速
+- 連打断絶
+- 初回沈黙
+- 終盤焦燥
+- 代打硬直
+- 終盤恐怖症
+- 四球連鎖
+- 火消し恐怖
+- 失点引きずり
+- サヨナラ負け癖
+- 逆転負け癖
+- 連敗病
+- 5割の壁
+- 遠征疲れ
+- カード取りこぼし
+
+新Seasonは新しいPennant Storyとして始める。
+
+---
+
+# 22. Offseason Echo
+
+SEASON_ONLYでも、内部Memoryを完全消去する必要はない。
+
+ただし翌年へ**Traitとしては持ち越さない**。
+
+候補:
+
+```text
+Season ends
+ -> active Team Trait expires
+ -> 10〜30%程度のlatent memoryだけ残る場合がある
+ -> Opening weeksの新Evidenceで上書きされやすい
+```
+
+例:
+
+```text
+2026: サヨナラ負け癖
+season end -> Trait expires
+
+2027 opening month:
+  no walk-off losses
+    -> latent memory disappears quickly
+
+  repeated walk-off losses again
+    -> reacquisition threshold becomes slightly easier
+```
+
+これにより「去年の悪夢を少し引きずる」は可能だが、Opening Dayから赤Traitを背負わせない。
+
+---
+
+# 23. New Season Reset Philosophy
+
+新Seasonは心理的に一定のresetを与える。
+
+特にRed Team Traitは:
+
+> 去年弱かったから今年も最初から弱い
+
+を禁止する。
+
+したがって:
+
+```text
+performance-derived Red
+ -> Season endでActive解除
+
+relationship / coordination-derived Red
+ -> 当事者関係が変わらなければcarryover可
+
+organizational / routine Red
+ -> revalidate
+```
+
+とする。
+
+---
+
+# 24. Roster Turnover Effects
+
+Season跨ぎのTrait維持にはRoster Continuityを必ず見る。
+
+例:
+
+```text
+Gold: 共鳴砲
+A + B pair
+
+A remains
+B transferred
+    ↓
+Trait ends immediately
+```
+
+```text
+Gold: 阿吽の二遊間
+SS + 2B both remain
+same roles
+    ↓
+carryover eligible
+```
+
+```text
+Blue: 鉄壁リリーフ陣
+closer / setup / manager / catcher大幅変更
+    ↓
+preseason revalidation required
+```
+
+---
+
+# 25. Manager Change Effects
+
+Manager changeで全Traitを消さない。
+
+影響が大きいのは:
+
+- tactical preparation
+- bullpen roles
+- defensive alignment
+- communication rules
+- lineup role expectations
+
+したがって:
+
+```text
+Relationship-derived
+ -> mostly preserved
+
+Coordination-derived
+ -> preserved if personnel / roles stable
+
+Tactical / Role-derived
+ -> revalidate or partially reset
+
+Momentum / Slump-derived
+ -> season reset
+```
+
+---
+
+# 26. Gold Carryover Rule
+
+Goldだから自動で翌年へ残るわけではない。
+
+Goldもsource familyで判定する。
+
+### Carryover eligible Gold
+
+- 共鳴砲
+- 阿吽のバッテリー
+- 阿吽の二遊間
+- 鉄壁連携
+- 完全中継網
+- 本拠地要塞
+- 遠征巧者
+
+### Revalidate Gold
+
+- 黄金打線
+- 勝負所の結束
+- 鉄壁ブルペン
+- 初見看破
+- 鉄の切替
+
+### Season-only Gold
+
+- 不屈の逆転劇
+
+Goldの希少性を保つため、carryover eligibleでもOffseasonのroster / role changeで条件を失えば即消失する。
+
+---
+
+# 27. UI at Season Start
+
+Opening Day時点では:
+
+```text
+持越し
+[金] 阿吽の二遊間
+[青] バッテリー結束
+
+再評価中
+[青候補] 鉄壁リリーフ陣
+[青候補] ホームの鬼
+
+昨季終了で解除
+サヨナラ負け癖
+連敗病
+タイムリー欠乏症
+```
+
+のように整理可能。
+
+通常UIでは「再評価中」を必須表示しなくてもよい。
+
+---
+
+# 28. Approved Direction Candidate
+
+Season Boundaryの基本方針候補:
+
+1. **関係 / 連携は翌Seasonへ残る**
+2. **組織習慣 / 役割 / 環境適応はEvidenceのみ残して再評価**
+3. **勢い / 連敗 / 得点圧力 / 暗い空気はSeason終了で解除**
+4. **Redは原則、新SeasonのOpening Dayへ直接持ち越さない**
+5. **ただし関係・連携由来Redだけは例外的にcarryover可能**
+6. **SEASON_ONLYでもlatent memoryは少量だけ残せる**
+7. **Goldも色ではなくsource familyで持越し判定する**
