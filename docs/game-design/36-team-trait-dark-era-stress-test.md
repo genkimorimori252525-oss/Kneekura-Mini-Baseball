@@ -401,3 +401,19 @@ Team Traitは一つの層にすぎない。
 Team Trait must remain a **proximate-state layer**, not the universal root cause of losing.
 
 The architecture is realistic precisely because some famous Dark Eras are highly explainable by Team Traits, while others require Roster / Scouting / Development / Economy / Management layers.
+
+
+---
+
+# 12. Approved Design Principle
+
+2026-09-20 ユーザー承認。
+
+> 有名な暗黒期を全部Team Traitで説明できるなら、むしろTeam Traitが強すぎる。
+
+このStress TestのPASS条件として正式採用する。
+
+長期的な勝敗史はMulti-causalでなければならない。
+
+Team Traitは「どう失敗しているか」を説明し、
+Scouting / Development / Roster / Manager / Economyは「なぜその状態が繰り返されるか」を説明する。
