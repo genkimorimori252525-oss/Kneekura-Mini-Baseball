@@ -49,6 +49,9 @@ import {
   buildMiniPlayerCardState,
   type MiniPlayerCardState,
 } from './MiniPlayerCardState';
+import type {
+  StrikeZoneGuideGeometry,
+} from './StrikeZoneGuide';
 
 export type MiniGameLiveFrame = Readonly<{
   tick: number;
@@ -93,6 +96,12 @@ export type MiniGameLiveFrameInput = Readonly<{
   }>;
   frame: MiniPresentationFrame;
   overheadCamera: FieldOverheadCameraCalibration;
+  /**
+   * Required for manager-mode Batter/Pitcher POV frames.
+   * Geometry must come from the same rulebook StrikeZoneRegion used by
+   * Core pitch adjudication.
+   */
+  strikeZoneGuide?: StrikeZoneGuideGeometry;
   playerPhysicalProfiles?: Readonly<
     Partial<Record<string, PlayerPhysicalProfile>>
   >;
@@ -163,6 +172,22 @@ const validateFrame = (
   }
 };
 
+const validateManagerStrikeZoneGuide = (
+  input: MiniGameLiveFrameInput,
+): void => {
+  if (
+    (
+      input.frame.cameraMode === 'BATTER_POV'
+      || input.frame.cameraMode === 'PITCHER_POV'
+    )
+    && input.strikeZoneGuide === undefined
+  ) {
+    throw new Error(
+      'manager POV frame requires strikeZoneGuide',
+    );
+  }
+};
+
 const validateEventPlayIds = (
   match: CanonicalMatchState,
   frame: MiniPresentationFrame,
@@ -190,6 +215,7 @@ export const buildMiniGameLiveFrame = (
   input: MiniGameLiveFrameInput,
 ): MiniGameLiveFrame => {
   validateFrame(input.frame);
+  validateManagerStrikeZoneGuide(input);
   validateEventPlayIds(
     input.match,
     input.frame,
@@ -231,6 +257,7 @@ export const buildMiniGameLiveFrame = (
     live: buildMiniLiveRenderState({
       frame: input.frame,
       overheadCamera: input.overheadCamera,
+      strikeZoneGuide: input.strikeZoneGuide,
       playerPhysicalProfiles:
         input.playerPhysicalProfiles,
       dotCalibration: input.dotCalibration,

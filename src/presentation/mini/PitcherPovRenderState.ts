@@ -14,6 +14,11 @@ import type {
   BatterHandedness,
   CanonicalPresentationSample,
 } from './model';
+import {
+  projectStrikeZoneGuide,
+  type ProjectedStrikeZoneGuide,
+  type StrikeZoneGuideGeometry,
+} from './StrikeZoneGuide';
 
 export type PitcherPovProjectedDefender =
   Readonly<{
@@ -40,6 +45,7 @@ export type PitcherPovRenderState = Readonly<{
   ball: ProjectedPoint | null;
   ballPixelSize: 1 | 2 | 3 | 4;
   bat: ProjectedBatPose | null;
+  strikeZoneGuide: ProjectedStrikeZoneGuide | null;
   defenders:
     readonly PitcherPovProjectedDefender[];
   runners:
@@ -96,6 +102,7 @@ const ballPixelSize = (
 
 export const buildPitcherPovRenderState = (
   sample: CanonicalPresentationSample,
+  strikeZoneGuide?: StrikeZoneGuideGeometry,
 ): PitcherPovRenderState => {
   const ball = sample.world.ball === null
     ? null
@@ -116,6 +123,12 @@ export const buildPitcherPovRenderState = (
       ? null
       : projectBatPoseToPitcherPov(
           sample.batter.bat,
+        ),
+    strikeZoneGuide: strikeZoneGuide === undefined
+      ? null
+      : projectStrikeZoneGuide(
+          strikeZoneGuide,
+          projectWorldToPitcherPov,
         ),
     defenders: sample.world.defenders.map(
       (defender) => {

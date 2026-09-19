@@ -1,6 +1,11 @@
 import type { Vec2 } from '../../core/model/geometry';
 import { projectBatPoseToBatterPov, projectWorldToBatterPov, type ProjectedBatPose, type ProjectedPoint } from './BatterPovCamera';
 import type { BatActionType, BatterHandedness, CanonicalPresentationSample } from './model';
+import {
+  projectStrikeZoneGuide,
+  type ProjectedStrikeZoneGuide,
+  type StrikeZoneGuideGeometry,
+} from './StrikeZoneGuide';
 
 export type ProjectedDefender = Readonly<{
   playerId: string;
@@ -23,6 +28,7 @@ export type BatterPovRenderState = Readonly<{
   ball: ProjectedPoint | null;
   ballPixelSize: 1 | 2 | 3 | 4;
   bat: ProjectedBatPose | null;
+  strikeZoneGuide: ProjectedStrikeZoneGuide | null;
   defenders: readonly ProjectedDefender[];
   runners: readonly ProjectedRunner[];
 }>;
@@ -47,7 +53,10 @@ function ballPixelSize(projected: ProjectedPoint | null): 1 | 2 | 3 | 4 {
   return 4;
 }
 
-export function buildBatterPovRenderState(sample: CanonicalPresentationSample): BatterPovRenderState {
+export function buildBatterPovRenderState(
+  sample: CanonicalPresentationSample,
+  strikeZoneGuide?: StrikeZoneGuideGeometry,
+): BatterPovRenderState {
   const handedness = sample.batter.handedness;
   const ball = sample.world.ball
     ? projectWorldToBatterPov(sample.world.ball.position, handedness)
@@ -60,6 +69,15 @@ export function buildBatterPovRenderState(sample: CanonicalPresentationSample): 
     ball,
     ballPixelSize: ballPixelSize(ball),
     bat: sample.batter.bat ? projectBatPoseToBatterPov(sample.batter.bat, handedness) : null,
+    strikeZoneGuide: strikeZoneGuide === undefined
+      ? null
+      : projectStrikeZoneGuide(
+          strikeZoneGuide,
+          (point) => projectWorldToBatterPov(
+            point,
+            handedness,
+          ),
+        ),
     defenders: sample.world.defenders.map((defender) => {
       const projected = projectGroundPoint(defender.position, handedness);
       return {

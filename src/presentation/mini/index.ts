@@ -20,3 +20,5 @@ export * from './PitcherPovRenderState';
 export * from './MiniPortraitScreenState';
 export * from './MiniBaseDiamondState';
 export * from './MiniCommandOptionBandState';
+
+export * from './StrikeZoneGuide';

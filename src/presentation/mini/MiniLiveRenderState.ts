@@ -23,6 +23,9 @@ import type {
 import type {
   MiniBallHeightCalibration,
 } from './MiniBallHeightProfile';
+import type {
+  StrikeZoneGuideGeometry,
+} from './StrikeZoneGuide';
 
 export type MiniLiveRenderState =
   | Readonly<{
@@ -41,6 +44,7 @@ export type MiniLiveRenderState =
 export type MiniLiveRenderStateInput = Readonly<{
   frame: MiniPresentationFrame;
   overheadCamera: FieldOverheadCameraCalibration;
+  strikeZoneGuide?: StrikeZoneGuideGeometry;
   playerPhysicalProfiles?: Readonly<
     Partial<Record<string, PlayerPhysicalProfile>>
   >;
@@ -58,6 +62,7 @@ export const buildMiniLiveRenderState = (
       cameraMode: 'BATTER_POV',
       render: buildBatterPovRenderState(
         input.frame.sample,
+        input.strikeZoneGuide,
       ),
     };
   }
@@ -67,6 +72,7 @@ export const buildMiniLiveRenderState = (
       cameraMode: 'PITCHER_POV',
       render: buildPitcherPovRenderState(
         input.frame.sample,
+        input.strikeZoneGuide,
       ),
     };
   }
