@@ -418,3 +418,92 @@ This prohibition is now explicit.
 After the revisions above, no known high-severity design finding remains unresolved.
 
 The remaining model approximation is the zero-duration ready-to-release launch boundary. It is explicit, deterministic, downstream of secure possession/transfer timing, and must be replaceable by a future hand/arm constraint model without changing RuleEngine semantics.
+
+## 16. Adversarial implementation audit B — 2026-09-19
+
+Gate B was run against the first production no-runner ground-ball force-out vertical slice. The review intentionally attacked evidence identity, causal timing, caller authority, decision-probability leakage, nonterminal SAFE handling, failed possession, clock consistency, final occupancy invariants, determinism, and Presentation/P9 isolation.
+
+### B-1 — HIGH — swappable BallFlight evidence
+
+**Attack:** the first implementation accepted a `BattedBallFlightEvidence` object without proving that its contact and initial ball state belonged to the current `CanonicalPlateAppearanceTimeline`. A caller could therefore replay physical evidence from a different contact against the current play.
+
+**Resolution:** `GroundBallFlightEvidenceBinding` now binds the carried flight evidence to the authoritative timeline `BatBallContact`, verifies the initial ball state, and verifies that any reported first-ground-contact tick/state is reproducible from canonical ball physics.
+
+**Fix commit:** `e5e4d67d389a7fdf917ddb3523125e60a69bb5f0`.
+
+### B-2 — HIGH — cross-play batter-runner evidence substitution
+
+**Attack:** a physically valid `BatterRunnerWorldTimeline` from another play could be supplied to the coordinator and change the first-base race.
+
+**Resolution:** `GroundBallRunnerEvidenceBinding` requires the runner timeline and recovery origin to start at the current authoritative bat-ball contact tick and preserves the canonical recovery-to-launch boundary.
+
+**Fix commit:** `cc14c147fd29839c50c39a9d978b16a01739e61e`.
+
+### B-3 — HIGH — future defensive evidence could influence past action
+
+**Attack:** `TeamCoveragePlan` already records `evidenceAvailableAt`, but the initial coordinator did not reject a ball-handler or first-base-cover assignment whose evidence arrived after the physical pickup or throw-ready boundary. This allowed a future observation to justify an earlier action.
+
+**Resolution:** `GroundBallCoverageEvidenceTiming` requires ball-handler evidence no later than physical pickup contact and selected first-base-cover evidence no later than the derived throw-ready tick.
+
+**Fix commit:** `e581fbc5f54c277bdf36b5d5e9fa2f79bd7ddb57`.
+
+### B-4 — authority-regression guards
+
+The production input is protected by compile-time hostile checks. Reintroducing caller-supplied `releaseTick`, `pickupTick`, possession boolean, `basesAfter`, `PlayEndFact`, or official outcome fields causes type verification to fail.
+
+**Guard commit:** `d19cf2ed0c9323cec7f41ed9bcd02ece3304b9c9`.
+
+### B-5 — advisory probability / subsystem isolation
+
+The production coordinator is guarded against directly consuming `outProbability`, `scoreProbability`, or `expectedExtraBasesAllowed` as authoritative truth. These values remain legal inside `ThrowPlan` for action selection only. Source guards also reject P9 batch/statistics and Presentation dependencies in the production coordinator.
+
+The integration fixture additionally reruns the same physical play with the same RNG seed and requires exact result equality. With the same single selected throw action, changing only advisory `outProbability` also requires the exact same physical/rule result.
+
+### B-6 — nonterminal and physical-failure hostile cases
+
+The production vertical slice now explicitly verifies:
+
+- a slower physical throw that resolves SAFE at first remains `live_ball_continues` and does not publish a completed final occupancy;
+- failed ground-ball retention remains live and does not create transfer, throw, race, or result facts;
+- mismatched subsystem clocks are rejected before comparing race events;
+- existing first-base physical-race tests preserve exact simultaneous arrival as unresolved;
+- missing reception and failed receiver retention do not invent defender control.
+
+### B-7 — third-out scoring and occupancy contradictions
+
+Existing `FirstBasePhysicalRace` integration proves that a two-out batter-runner-before-first out feeds the same physical facts into `RuleEngine` and suppresses an earlier home touch as required.
+
+`PlateAppearanceMatchStateLiveBallAdversarial.test.ts` additionally rejects:
+
+- the same runner occupying two final bases;
+- a scored runner simultaneously remaining on a final base.
+
+The new production coordinator does not accept final base occupancy from its caller at all; these lower-level guards remain for compatibility paths and future multi-runner expansion.
+
+### Gate B verification
+
+Latest code verification before this documentation update:
+
+- exact head: `bd4e2d1fe9af801fdaddafc9ddc717462a8871d5`;
+- GitHub Actions run: `35433533614`;
+- test files: **236 passed / 236**;
+- tests: **1086 passed / 1086**;
+- frozen P9 fingerprints remained:
+  - `0d6e8aefd4601e9a`;
+  - `8c3db4d6447bcad5`;
+  - `d49f585e4b33fb17`;
+- P9 batch calibration fingerprint remained `f5058efd2d23784c`.
+
+No known HIGH-severity Gate B finding remains unresolved.
+
+### Remaining bounded risks / explicit deferrals
+
+The following are not treated as completed capabilities:
+
+- SAFE-at-first continuation is still intentionally nonterminal; advance/stop/throw continuation must be modeled before final occupancy or official hit classification.
+- Pre-pitch runners remain outside this first production slice.
+- `throwReadyTick` is still the documented zero-duration ready-to-release approximation until a physical hand/arm constraint model owns release.
+- Throw flight still receives an explicit physical acceleration vector. It is not an outcome field and cannot directly declare OUT/SAFE, but a dedicated throw-flight model should eventually own gravity/aerodynamic calibration instead of exposing a raw per-play vector.
+- Defender/runner physical primitives are accepted as upstream canonical physical evidence. As world orchestration expands, their provenance should continue to be bound to the same play/state rather than replaced by result shortcuts.
+
+Gate B therefore permits expansion only from the verified causal boundary; it does not permit reintroducing statistical-result shortcuts.
