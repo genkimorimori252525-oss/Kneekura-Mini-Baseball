@@ -497,3 +497,7 @@ Scouting / recruitment system:
 
 Unapproved roster / development draft (USER REVIEW REQUIRED):
 - `docs/game-design/32-roster-development-architecture-DRAFT.md`
+
+
+Team traits / player relationship design candidate (USER REVIEW REQUIRED):
+- `docs/game-design/34-team-traits-and-relationship-network-DRAFT.md`
