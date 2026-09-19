@@ -1,8 +1,155 @@
-# 選手特殊能力 / Trait System 設計シード
+# 特殊能力 / Trait System 設計計画
 
-更新日: 2026-09-19  
-状態: **設計承認済み。実装前。具体式・閾値・保存形式は後続実装設計で確定する。**  
-目的: 将来の選手データ、ペナント、育成、試合Core設計を始める際に参照する承認済み設計種。具体的な効果量・獲得条件・成長式・保存形式は後続実装設計で確定する。具体Traitカタログは `09-player-trait-catalog.md` を正とする。
+更新日: 2026-09-20  
+状態: **特殊能力システムMaster Plan。Player Trait部分は設計承認済み。Team Traitは設計中。Team Mood / Manager Ability / Popularityは後続設計。実装前。**  
+目的: Mini Baseballの「得能」系UIを、Player / Team / Manager / Careerの複数source-of-truthへ安全に接続するMaster Plan。Player Traitカタログは `09-player-trait-catalog.md`、Team Trait設計は `34-team-traits-and-relationship-network-DRAFT.md`、Team Traitカタログは `35-team-trait-catalog-DRAFT.md` を参照する。
+
+
+## 0. 2026-09-20 Master Plan Expansion
+
+従来この文書はPlayer Traitのみを対象としていたが、設計範囲を「特殊能力システム全体」へ拡張する。
+
+UI上は得能として並ぶ場合があっても、内部では以下を分離する。
+
+```text
+SPECIAL ABILITY PRESENTATION
+        │
+        ├─ Player Traits
+        │    └─ 個人の技能 / 特性 / 行動 / Context
+        │
+        ├─ Team Traits
+        │    └─ 集団関係 / 共有経験 / 連携 / 一時Team State
+        │
+        ├─ Team Mood
+        │    └─ チーム全体の心理・雰囲気
+        │
+        ├─ Manager Ability
+        │    └─ 監督本人の判断・戦術・人心掌握・運用能力
+        │
+        └─ Popularity / Reputation
+             └─ Career / Fan / Media / Presentation
+```
+
+**得能UIが共通でも、source of truthを共通化しない。**
+
+---
+
+### 0.1 Current Design Order
+
+2026-09-20時点の設計順:
+
+1. Player Traits — 基本設計 / Catalog完了
+2. Team Traits + Player Relationship — 設計中
+3. Team Mood — 次
+4. Manager Ability — その次
+5. Popularity / Reputation — その次
+
+---
+
+### 0.2 Team Trait Color Contract
+
+Team TraitはPlayer Traitより絞り、UI色は:
+
+- **Blue**: 有利な一時Team Trait
+- **Red**: 不利な一時Team Trait
+- **Gold**: Blue Familyの最高Tier
+
+を採用する。
+
+Team TraitへGreen / Blue-Redを無理に持ち込まない。
+
+Goldと同FamilyのBlueは二重適用しない。
+
+---
+
+### 0.3 Player Relationship Contract
+
+Player間Relationshipは:
+
+```text
+好感 / Affinity
+信頼 / Trust
+連携 / Coordination
+```
+
+の3軸へ分離する。
+
+- 好感: 親しさ / positive emotional contagion
+- 信頼: 相手への期待 / 判断を任せる感覚
+- 連携: 共同作業のshared timing / procedure familiarity
+
+特に:
+
+```text
+bad relationship
+ -> batting rating debuff
+```
+
+は禁止。
+
+打撃では好感 / 信頼をpositive-sideの共鳴へ使う。
+守備等の共同作業では信頼 / 連携の低さが実際のcoordination errorへつながり得る。
+
+---
+
+### 0.4 Team Trait Scope
+
+Team Traitは必ずしもTeam全員へ作用しない。
+
+候補scope:
+
+```text
+TEAM_ALL
+BATTING_UNIT
+PITCHING_UNIT
+DEFENSE_UNIT
+PAIR
+CLUSTER
+CONTEXTUAL_ELIGIBLE
+```
+
+ON砲型の共鳴はPAIR / CLUSTER。
+守備連携はDEFENSE_UNIT。
+逆境オーラはTEAM_ALL / CONTEXTUAL_ELIGIBLE。
+
+---
+
+### 0.5 Batting Resonance Rule
+
+仲間の成功内容をコピーしない。
+
+```text
+teammate success
++ strong affinity / trust
+        ↓
+positive emotional stimulus
+        ↓
+receiver's own offensive profile determines expression
+```
+
+Power hitterならPower系共鳴、Contact hitterならContact系共鳴へ翻訳する。
+
+Relationが本来ない能力を作ってはいけない。
+
+---
+
+### 0.6 Temporary Team State
+
+Team Traitは原則恒久ではない。
+
+```text
+EVIDENCE
+ -> CANDIDATE
+ -> ACTIVE
+ -> FADING
+ -> EXPIRED
+```
+
+Pennant中に付与 / 消失できる。
+
+Historical Club IdentityとTeam Traitを混同しない。
+
+---
 
 ## 1. この文書の位置づけ
 
