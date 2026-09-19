@@ -977,3 +977,49 @@ Recommended approval order:
 4. Diffusion + Coaching Tree
 5. League Meta + Counter-Strategy
 6. historical reconstruction + future-emergence soak
+
+
+Real-world manager tactical stress tests (USER REVIEW REQUIRED):
+- `docs/game-design/44-manager-real-world-tactical-stress-tests-DRAFT.md`
+
+
+---
+
+# 37. CURRENT DRAFT — Real-world Manager Tactical Stress Tests
+
+2026-09-20:
+
+Historical stress tests were added for Manager Architecture.
+
+Key cases:
+- 栗山英樹: 1番・投手 大谷翔平
+- 落合博満: 山井8回完全 -> 岩瀬9回
+- 星野仙一: 前日160球の田中将大をGame 7の9回へ
+- 渡辺久信: 岸孝之を中2日Long Relief
+- 長嶋茂雄: 10.8三本柱継投
+- 梨田昌孝: 代打・北川博敏
+- 原辰徳: 内野5人シフト
+- 工藤公康: 第2先発 / 日替わりLineup / 強打者Bunt
+- Bobby Valentine: extreme lineup variation / YFK
+- 岡田彰布: JFK
+- 近藤貞雄: スーパーカートリオ / Green Light
+- 緒方孝市: タナキクマル / Role Clarity / buster / squeeze / double steal
+- 野村克也: 遠山・葛西の投手↔一塁switch / 松井-specific role development
+- 王貞治: no-hit pitcherへ代打してplanned bullpen
+- 西本幸雄: 江夏の21球でのsqueeze decision
+
+Major architecture requirements revealed:
+- Series Horizon
+- secondary objectives such as records / symbolism
+- Player willingness as advisory input
+- arbitrary defensive coordinates
+- between-pitch alignment changes
+- opponent counter-action
+- era-specific substitution legality
+- pitcher-field-position switches when legal
+- Green Light autonomy directives
+- role reassignment
+- sign inference / deception
+
+Draft:
+- `docs/game-design/44-manager-real-world-tactical-stress-tests-DRAFT.md`
