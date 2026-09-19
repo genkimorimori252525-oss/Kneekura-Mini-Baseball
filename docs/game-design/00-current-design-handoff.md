@@ -1562,3 +1562,66 @@ Important:
 - Clubhouse Influence remains separate from Popularity.
 
 Remaining work is implementation and calibration, not architecture.
+
+
+---
+
+# 49. CANONICAL — Star / Superstar Genesis v1
+
+2026-09-20 user approved the generation-first rare candidate model.
+
+Canonical:
+- `docs/game-design/52-star-superstar-genesis-v1.md`
+
+Core rule:
+
+```text
+Star / Superstar Candidate
+= rare hidden generation predisposition
+
+Star / Superstar Status
+= later Career evidence / recognition
+```
+
+Candidate is not destiny.
+
+A rare genesis profile may bias:
+- Spotlight Potential
+- Pressure Stability Potential
+- Pressure Conversion Potential
+- Iconic Potential
+- Public Magnetism Potential
+
+Hard boundary:
+- Match Core never reads STAR_CANDIDATE / SUPERSTAR_CANDIDATE.
+- Match only reads realized Spotlight Response, Condition, Appraisal, ActiveEmotion, actual ability and Match Salience.
+
+Superstar emergence:
+
+```text
+latent predisposition
+× baseball ability
+× development
+× opportunity
+× major-stage access
+× actual outcomes
+× public reach
+× era context
+× luck
+ -> observed Career
+```
+
+Consequences:
+- a Superstar candidate may never become a Star
+- a non-candidate may rarely become a Star
+- ordinary baseline -> fully acquired Superstar is extremely rare
+- some eras may have no realized Superstar
+- user normally discovers exceptional players through repeated Career evidence, not a visible destiny badge
+
+This permits a Nagashima-type player:
+elite but not necessarily the statistical #1, exceptional under spotlight, repeatedly successful on major stages, culturally iconic.
+
+It also permits dominant Complete Superstars with historic true ability + production + broad recognition + major-stage success.
+
+Canonical commit:
+- `3097c562cda3bc67caf0a4bdebc956a86f900d4f`
