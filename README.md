@@ -2,7 +2,7 @@
 
 軽量な自動試合エンジンを土台に、采配と野球らしい結果の因果関係を中心に据える野球ゲームです。
 
-現在は **P0の共有Core基盤まで実装・検証済み** で、P1以降の野球規則・一球計算・能力査定・9人守備・走塁は段階的に実装予定です。描画の見栄えより先に、試合結果を説明・再現できる計算構造を固めます。
+現在は **P0〜P9のロードマップ基盤まで実装・CI検証済み** で、ロードマップ後の最初のproduction causal live-ball結果境界（無走者ゴロ→一塁フォースアウト）と、runner controller / explicit rebase基盤まで実装済みです。一方、一般multi-runner、ActionFrontier / OfficialPlayClosure、完成ゲームUI、心理・Trait・ペナント/世界リーグ等は未実装または設計段階です。最新の区分は [2026-09-20 03:30 JST Current State Snapshot](docs/project-status/2026-09-20-0330-current-state.md) を参照してください。
 
 Mini Baseball は Natural Baseball の簡易ルール版ではなく、将来の Natural Baseball でも再利用できる試合計算Coreを先に磨く製品です。Miniではゲームボーイ風・ドローンアート風の軽量表示で正史ワールド状態を観測し、将来は同じ状態を3D描画へ接続できる設計を目指します。
 
@@ -16,6 +16,10 @@ Mini Baseball は Natural Baseball の簡易ルール版ではなく、将来の
 - [心理・性格・感情マーク設計](docs/game-design/05-psychology-emotion.md)
 - [将来システム設計メモ](docs/game-design/06-future-systems.md)
 - [ドローンアート映像・細密グリッド表示設計](docs/game-design/07-drone-art-presentation.md)
+
+## AI / デザイン作業境界
+
+UI/UX・ビジュアル・Presentationのデザイン方向は **ChatGPT Work担当** とし、通常の実装エージェントは独自に再設計しません。詳細は [AGENTS.md](AGENTS.md) を参照してください。旧ASCII / Drone-Art / 固定グリッド案は現行の正仕様ではありません。
 
 ## 現在の方針
 
