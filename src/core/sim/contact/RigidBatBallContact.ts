@@ -329,25 +329,105 @@ const axisGeometry = (
   };
 };
 
-const closestPointOnAxis = (
+const closestPointOnTaperedBat = (
   point: Vec3,
-  pose: BatPose,
+  bat: RigidBatState,
 ): Readonly<{
   point: Vec3;
   t: number;
+  localRadiusM: number;
+  surfaceSeparationM: number;
 }> => {
-  const segment = subtract(pose.tip, pose.grip);
-  const lengthSquared = dot(segment, segment);
-  if (lengthSquared <= EPSILON) {
-    throw new Error('bat pose grip and tip must not be identical');
-  }
-  const t = clamp01(
-    dot(subtract(point, pose.grip), segment) / lengthSquared,
+  const { axis, lengthM } = axisGeometry(bat.pose);
+  const fromGrip = subtract(
+    point,
+    bat.pose.grip,
   );
-  return {
-    point: add(pose.grip, scale(segment, t)),
-    t,
+  const projectedS = dot(
+    fromGrip,
+    axis,
+  );
+  const perpendicular = subtract(
+    fromGrip,
+    scale(axis, projectedS),
+  );
+  const perpendicularDistance = magnitude(
+    perpendicular,
+  );
+
+  let best: Readonly<{
+    point: Vec3;
+    t: number;
+    localRadiusM: number;
+    surfaceSeparationM: number;
+  }> | null = null;
+
+  const consider = (candidateT: number): void => {
+    const t = clamp01(candidateT);
+    const axisPoint = add(
+      bat.pose.grip,
+      scale(axis, t * lengthM),
+    );
+    const localRadiusM = sampleBatRadius(
+      bat.physical.radiusProfile,
+      t,
+    );
+    const surfaceSeparationM =
+      magnitude(subtract(point, axisPoint))
+      - localRadiusM;
+
+    if (
+      best === null
+      || surfaceSeparationM < best.surfaceSeparationM
+    ) {
+      best = {
+        point: axisPoint,
+        t,
+        localRadiusM,
+        surfaceSeparationM,
+      };
+    }
   };
+
+  const knots = bat.physical.radiusProfile.knots;
+  for (let index = 1; index < knots.length; index += 1) {
+    const left = knots[index - 1]!;
+    const right = knots[index]!;
+    consider(left.t);
+    consider(right.t);
+
+    const intervalLengthM =
+      (right.t - left.t) * lengthM;
+    const radiusSlope =
+      (right.radiusM - left.radiusM)
+      / intervalLengthM;
+
+    // Within a linear-radius interval, minimize
+    // sqrt(d^2 + (s-s0)^2) - r(s) analytically.
+    if (Math.abs(radiusSlope) < 1) {
+      const longitudinalOffsetM =
+        radiusSlope
+        * perpendicularDistance
+        / Math.sqrt(
+          1 - radiusSlope * radiusSlope,
+        );
+      const candidateS =
+        projectedS + longitudinalOffsetM;
+      const candidateT =
+        candidateS / lengthM;
+      if (
+        candidateT >= left.t
+        && candidateT <= right.t
+      ) {
+        consider(candidateT);
+      }
+    }
+  }
+
+  if (best === null) {
+    throw new Error('bat radius profile produced no contact candidates');
+  }
+  return best;
 };
 
 const batCenterOfMassPoint = (
@@ -527,24 +607,20 @@ export const resolveRigidBatBallContact = (
   validateContactParameters(parameters);
 
   const { axis: batAxis } = axisGeometry(bat.pose);
-  const nearest = closestPointOnAxis(
+  const nearest = closestPointOnTaperedBat(
     pitch.position,
-    bat.pose,
+    bat,
   );
-  const localBatRadiusM = sampleBatRadius(
-    bat.physical.radiusProfile,
-    nearest.t,
-  );
+  const localBatRadiusM =
+    nearest.localRadiusM;
 
   const axisToBall = subtract(
     pitch.position,
     nearest.point,
   );
   const centerDistance = magnitude(axisToBall);
-  const contactDistance =
-    localBatRadiusM + ball.radiusM;
 
-  if (centerDistance > contactDistance) {
+  if (nearest.surfaceSeparationM > ball.radiusM) {
     return null;
   }
 
