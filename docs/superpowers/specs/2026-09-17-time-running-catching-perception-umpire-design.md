@@ -237,6 +237,21 @@ Runner decision
 
 走者本人の判断を自動的に置換する機構も持たせない。
 
+### 4.6 World-first 走塁境界
+
+`currentBase / nextBase`、advance / retreat / hold、`RunnerRoute` は通常の野球判断・身体運動を効率よく表すための層であり、正史ワールド位置より上位の真実ではない。
+
+恒久原則:
+
+- 走者の物理的位置・速度を正史とする。
+- base contextは知覚/判断/規則の文脈として保持し、位置を直接決めない。
+- `RunnerRoute` は交換可能なmotion planである。
+- 衝突、方向転換、経路再計画、外力、debug teleport等で正史状態が不連続に変わった場合、以後の運動は新しい正史位置・速度からrebaseする。
+- 二塁へ物理的に到達しても一塁タッチ履歴が無ければ、その矛盾を保存したままRuleEngine/appeal処理へ渡せる。
+- 「単打だから一塁」「二塁打だから二塁」のような記録分類から身体運動を生成しない。
+
+詳細な上位契約は `docs/game-design/05-world-first-live-ball-architecture.md` を正とする。
+
 ---
 
 ## 5. 捕球モデル

@@ -3,7 +3,10 @@
 **Date:** 2026-09-19  
 **Branch:** `jolly/core-realism-2026-09-18`  
 **Starting HEAD:** `5d9e1dfa162fc466bf924d50f7bf82e0d3b62ef4`  
-**Durable workflow:** `04286db135aa47d1b3b57f1834ba943e`
+**Durable workflow:** `04286db135aa47d1b3b57f1834ba943e`  
+**World-first governing contract:** `docs/game-design/05-world-first-live-ball-architecture.md`
+
+This plan records the first causal production milestone. Future expansion follows the single continuous world-first contract; the milestone sections below do not define separate result engines.
 
 ## 1. Parent objective
 
@@ -311,35 +314,28 @@ Before calling the phase complete:
 - review every new API for outcome injection;
 - record remaining medium/low risks.
 
-## 11. Implementation phases
+## 11. Continuous capability frontier
 
-### Phase 1 — authority-preserving outcome model
+There is one production live-ball architecture, not a sequence of separate Phase 1 / Phase 2 result engines.
 
-Add the minimal canonical outcome/evidence types and invariants. No broad official scoring yet.
+The first milestone established the authority boundary. From here, implementation may add whichever missing physical/action/rule capability is dependency-ready while preserving the same direction:
 
-### Phase 2 — no-runner ground-ball production coordinator
+- SAFE continuation and post-base movement;
+- runner stopping, retreating, route replacement and arbitrary world-space targeting;
+- pre-pitch runners and independent multi-runner world state;
+- force transitions, tags, rundowns, relays and possession loss;
+- general rule/action-based PlayEnd;
+- causal final occupancy derivation;
+- production-result statistics observation;
+- downstream hit/error/fielder's-choice and other official scoring.
 
-Compose existing physical first-base race + RuleEngine + causal final-base derivation + bounded play end + match-state application.
+No capability may use a generic "advance N bases because result=double" rule.
 
-### Phase 3 — adversarial hardening
+`RunnerRoute`, `currentBase/nextBase`, and result labels may be useful planning or descriptive abstractions, but canonical runner position/touch history remains authoritative. If a physical or debug discontinuity moves a runner off the planned route, future motion must rebase from the new canonical world state.
 
-Add hostile fixtures and remove any hidden caller authority discovered by Gate B.
+Statistics remain observers. They cannot feed back into Core resolution.
 
-### Phase 4 — occupied-base extension
-
-Introduce pre-pitch runners one bounded case at a time using existing runner decisions/motion, force/tag rules, home-touch facts, and pending-run finalization.
-
-Do not use a generic "advance N bases because result=double" rule.
-
-### Phase 5 — production statistics bridge
-
-Map completed production outcomes into `BatchValidationStatistics` only after the supported production result exists.
-
-Statistics are observers. They cannot feed back into Core resolution.
-
-### Phase 6 — later official scoring
-
-Hit/error/fielder's-choice classification is a downstream scorer consuming completed physical/rule evidence. It is not required to complete the first causal slice.
+Official scoring remains a downstream description of completed physical/rule evidence.
 
 ## 12. Explicit deferrals
 
@@ -597,4 +593,4 @@ physics / decisions / rules
 
 Never the reverse.
 
-The next production expansion should begin from SAFE continuation or a bounded occupied-base case, while preserving this verified one-way authority boundary.
+The next production expansion may add SAFE continuation, occupied-base/multi-runner behavior, route rebasing, or another dependency-ready item from the continuous capability frontier. None of these creates a separate architecture; all preserve the same verified one-way authority boundary.

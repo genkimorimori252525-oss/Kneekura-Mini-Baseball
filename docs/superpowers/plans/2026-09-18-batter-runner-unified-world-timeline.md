@@ -8,7 +8,7 @@
 
 The current Core has authoritative batter body state beginning at `SwingExitBodyState.tick`. It does **not** yet have a full-body swing trajectory from bat-ball contact to that body-state tick.
 
-Therefore this phase deliberately starts at `SwingExitBodyState.tick`.
+Therefore this bounded implementation deliberately starts at `SwingExitBodyState.tick`.
 
 It must not invent motion for:
 
@@ -44,7 +44,7 @@ CanonicalWorldSnapshot / Presentation
 
 ## Permanent constraints
 
-- One public sampler owns every tick from `SwingExitBodyState.tick` through the configured timeline end.
+- One public sampler owns every tick from `SwingExitBodyState.tick` through the configured timeline end **while this prebuilt trajectory remains the active canonical motion plan**.
 - Presentation must not branch on recovery-vs-RunnerMotion itself.
 - At `launchTick`, recovery is authoritative; the next tick is owned by RunnerMotion.
 - The RunnerMotion launch state comes only from `createRunnerMotionStateFromSwingExitTransition`.
@@ -57,7 +57,11 @@ CanonicalWorldSnapshot / Presentation
 - Sampling outside the timeline interval fails explicitly.
 - The sampled world state at `launchTick` and `launchTick + 1` must be spatially continuous.
 - The unified timeline does not modify `CanonicalWorldSnapshot`; it supplies the runner world state that snapshot composition can consume.
+- A later canonical discontinuity (collision/re-plan/forced displacement/debug effect) invalidates the obsolete future route ownership. Future general orchestration must rebase a new motion plan from the actual canonical position/velocity rather than snapping the runner back onto this timeline.
+- `RunnerRoute` is therefore a bounded deterministic trajectory tool, not the universal definition of where a runner is allowed to exist.
 - Contact-to-swing-exit full-body motion remains unresolved rather than guessed.
+
+This compatibility rule is governed by `docs/game-design/05-world-first-live-ball-architecture.md`.
 
 ### Task 1: Unified timeline boundary
 

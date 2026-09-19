@@ -46,6 +46,8 @@ type RuleProfile = {
 
 ## 3. 正史状態とプレー時系列
 
+この節の上位契約は `05-world-first-live-ball-architecture.md` とする。既存の守備・走塁設計は、結果ラベルではなく正史世界を動かす限りそのまま利用する。
+
 Mini Baseball は結果を先に抽選して映像を後付けするゲームにはしない。内部では一球ずつ投球を解決し、コンタクト後は打球、守備9人、走者、送球を同じ正史時間軸で進める。
 
 ```text
@@ -60,14 +62,16 @@ PitchIntent / BatterIntent
   → DefenderWorldState[9] + BaserunnerWorldState[]
   → FieldingIntent / CoverageIntent / ThrowIntent
   → TimedMatchEvent[]
-  → RuleEngine が得点・アウト・記録を確定
+  → RuleEngine が規則上のアウト・得点可否・フォース等を解釈
+  → OfficialScoring が対応済み範囲の記録を後段で記述
 ```
 
 - `PitchWorldState` は投球ごとの球速、軌道、位置、時間を持ち、ボールカウントだけを結果として抽選しない。
 - `BattedBallPath` は位置・速度・回転・地面／壁との衝突を持つ。
 - 守備側9人はそれぞれワールド位置、速度、移動目標、現在の役割を持つ。
-- `TimedMatchEvent` は野手の到達、捕球、処理、送球、塁到達、タグ、得点を時刻順に持つ。
-- 規則判定はイベント順で行う。表示やカメラはこの出力を読むだけである。
+- `TimedMatchEvent` は野手の到達、捕球、処理、送球、塁タッチ/離塁、タグ、ボール状態変化など、実際に起きた正史イベントを時刻順に持つ。得点は物理イベントとして先に置かず、RuleEngineがタッチ履歴・アウト種別・時刻から解釈する。
+- 走者の正史位置・速度と、`currentBase / nextBase` のような判断用base contextを分離する。base contextや安打分類が走者の位置を直接書き換えてはならない。
+- 規則判定は正史イベントを解釈する。失策・野選・安打等の公式記録は対応済み証拠を後段で記述し、物理結果を作らない。表示やカメラはこれらの出力を読むだけである。
 - 乱数は試合シード、打席シード、必要に応じてプレーシードを保存して再現可能にする。
 
 ### 3.1 シミュレーション時間

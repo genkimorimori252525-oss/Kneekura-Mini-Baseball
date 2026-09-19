@@ -11,6 +11,16 @@ Mini Baseball は将来の Natural Baseball と別の簡易試合ロジックを
 
 各フェーズは前フェーズの回帰テストが通ることを開始条件とする。表示の都合で規則、物理、守備判断を変更しない。
 
+### World-first post-roadmap contract
+
+P0〜P9は歴史的な実装ロードマップとして残す。ロードマップ後のlive-ball拡張は新たな「段階1 / 段階2」結果エンジンへ分割せず、`05-world-first-live-ball-architecture.md` の一つの連続Coreを拡張する。
+
+```text
+正史世界 -> 意思/行動 -> 物理イベント -> 規則解釈 -> 公式記録 -> 検証/描画
+```
+
+走者の `currentBase / nextBase` や `RunnerRoute` は通常プレーの判断・運動計画として利用できるが、正史位置そのものではない。予期しない変位・経路変更が起きた場合は、その時点の正史位置/速度から運動計画を再構築する。
+
 ## フェーズ
 
 ## 2026-09-18 進捗再整理
@@ -48,7 +58,7 @@ Mini Baseball は将来の Natural Baseball と別の簡易試合ロジックを
 8. ~~P7 一打席采配接続~~ **実装完了**（self-hosted Actionsでfull verify済み）。一度だけ受理した采配をP2/P6の物理intentへ展開し、各球正史とMatchState更新を保持。
 9. ~~P8 Miniライブ観測表示~~ **実装完了**（self-hosted Actionsでfull verify済み）。Canonical live/replay、Batter/Pitcher/Overhead、R/H/E、走者ダイヤ、カード、命令帯、体格点サイズ分離を実装。
 10. ~~P9 統計検証とNatural移行境界~~ **実装完了**（self-hosted Actionsでfull verify済み）。fixed-seed/corpus、因果trace、同一打球alignment比較、batch統計、性能計測、Natural read-only境界、renderer非干渉を固定。代表fixed-seed fingerprintは再現性確認後に凍結済み。初期1,024-contact校正も同一canonical contact集合を複数配置へ流してCI検証済み。
-11. **ロードマップ後**: ~~CI実行復旧 → full verify → fingerprint凍結~~ 完了。~~最初のproduction causal live-ball結果境界~~ 完了（無走者ゴロ→一塁フォースアウト、one-way statistics bridge、敵対監査A/B/C）。次は SAFE継続 → occupied-base/multi-runner因果経路 → production結果由来の大規模統計校正 → Natural renderer の順で拡張する。
+11. **ロードマップ後**: ~~CI実行復旧 / full verify / fingerprint凍結 / 最初のproduction causal live-ball結果境界~~ 完了。以後は一つの continuous capability frontier として、SAFE継続、任意経路へのrebase、occupied-base/multi-runner、force/tag/rundown/relay、一般PlayEnd、公式記録、production結果由来統計校正、Natural observer を依存関係に応じて同じCoreへ追加する。
 
 このguardrailにより、今後の守備物理追加は「P5全体のどの受入条件を閉じるか」を明示してから行う。
 
@@ -102,7 +112,7 @@ P0時点では野球結果の物理・規則・守備能力式はまだ実装し
 - 一打席命令を受けつつ、内部では一球ずつ解決する投球進行
 - ワールド座標・時刻を持つ投球、打球、野手、走者、送球のモデル
 - 守備側9人の `DefenderWorldState`
-- 走者ごとの状態（塁、方向、意思決定、到達予定）
+- 走者ごとの正史ワールド状態（位置・速度・方向）と、塁タッチ/義務/意思決定/到達予測を分離した状態
 - 固定 Simulation Clock と `CanonicalWorldSnapshot`
 - 時刻付きイベント列と、ルール確定状態の分離
 
@@ -298,4 +308,4 @@ SAFE、同時到達、捕球・保持失敗などは未対応結果へ丸めず�
 - P9 calibration fingerprint `f5058efd2d23784c` 不変;
 - Presentation/P9/validation統計からproduction結果への逆流なし。
 
-次の優先対象は、SAFE後の継続または限定したoccupied-baseケースである。既存P9 1,024-contact bucketは引き続きvalidation-onlyであり、production結果統計と呼び替えない。
+次の実装は、SAFE後の継続・route rebase・occupied-base/multi-runner・一般PlayEndなど、world-first contract上の不足能力から依存関係に応じて選ぶ。これらを別々の結果エンジンにはしない。既存P9 1,024-contact bucketは引き続きvalidation-onlyであり、production結果統計と呼び替えない。

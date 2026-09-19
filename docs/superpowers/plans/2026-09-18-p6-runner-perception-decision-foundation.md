@@ -16,6 +16,14 @@ Reuse:
 
 Do not replace those systems.
 
+## World-first compatibility
+
+The P6 `currentBase / nextBase`, `next_base_race`, and advance/retreat/hold/slide vocabulary remains a convenient decision abstraction for ordinary baseball situations.
+
+It is not canonical location authority. A runner may physically exist between, beyond, or away from bases, and a future route may be rebuilt from the actual world state after a discontinuity. P6 decisions choose actions; they do not award bases or write final occupancy.
+
+The governing contract is `docs/game-design/05-world-first-live-ball-architecture.md`.
+
 ## Causal path
 
 ```text
@@ -47,7 +55,7 @@ route / base touch / tag physics
 - coach signals are advice, not telepathy or guaranteed correct action;
 - final safe/out remains physical + RuleEngine, never a decision-layer roll.
 
-## First slice
+## Initial implemented decision boundary
 
 1. RunnerDecisionTiming;
 2. RunnerKnownContext;
@@ -58,7 +66,7 @@ route / base touch / tag physics
    retreat / advance / hold / slide;
 7. output directly as existing `RunnerMotionIntent`.
 
-## Later P6 slices
+## Continuous P6 capability extensions
 
 - steal authorization and start timing;
 - pickoff throw/reception/return race;

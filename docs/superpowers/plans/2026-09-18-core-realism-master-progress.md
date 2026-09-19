@@ -33,6 +33,23 @@ The Core owns baseball truth:
 
 Presentation observes that truth. It does not create it.
 
+## 1.1 Governing world-first contract
+
+All post-roadmap live-ball, baserunning, fielding, PlayEnd and official-scoring expansion is governed by `docs/game-design/05-world-first-live-ball-architecture.md`.
+
+The permanent direction is:
+
+```text
+canonical world
+  -> intent/action
+  -> physical events
+  -> rules
+  -> official scoring
+  -> validation/presentation
+```
+
+Existing P0-P9 work is preserved where it already follows this direction. In particular, `RunnerRoute` and `currentBase/nextBase` remain useful bounded controller/decision abstractions but are not promoted above canonical world-space state.
+
 ## 2. Parent roadmap mapping
 
 | Roadmap | Workstream | 2026-09-18 state |
@@ -195,19 +212,22 @@ Natural Baseball may later visualize a human model whose limbs are aesthetically
 
 ## 8. Focus discipline
 
-Before creating a new realism sub-plan, identify its parent roadmap phase and acceptance condition.
+Do not create a new staged sub-plan by default. Expand the one world-first Core continuously.
 
-Template:
+Before changing a subsystem, record:
 
 ```text
-Parent phase:
-Acceptance condition closed:
-Why existing Core cannot satisfy it:
-Minimal new physical/rule boundary:
-What is explicitly deferred:
+Canonical world fact or action capability missing:
+Why existing Core cannot represent it:
+Minimal new physical / decision / rule boundary:
+How old world state rebases if the new event is discontinuous:
+What remains explicitly unsupported:
+Regression evidence that must remain unchanged:
 ```
 
-If a new task only makes one local subsystem more anatomically detailed but closes no roadmap acceptance condition, defer it until P9 evidence demonstrates that the approximation is inadequate.
+If a task only makes one local subsystem more anatomically detailed, does not add a missing world/action/rule capability, and is not demanded by evidence, defer it.
+
+Likewise, do not implement a special result engine for SAFE, double plays, extra-base hits, or other named outcomes. Add the underlying world events/actions/rules so those outcomes can emerge from the same Core.
 
 ## 9. CI recovery and verification evidence
 
@@ -252,4 +272,4 @@ Exact closure evidence:
 - fixed-seed fingerprints unchanged;
 - P9 calibration fingerprint remains `f5058efd2d23784c`.
 
-This is not complete general live-ball orchestration. SAFE continuation, occupied-base/multi-runner play, relays/rundowns, broader official scoring, and production-driven batch calibration remain subsequent post-roadmap work.
+This is not complete general live-ball orchestration. SAFE continuation, occupied-base/multi-runner play, route rebasing after discontinuities, relays/rundowns, general PlayEnd, broader official scoring, and production-driven batch calibration remain capabilities to add to the same continuous world-first Core.
