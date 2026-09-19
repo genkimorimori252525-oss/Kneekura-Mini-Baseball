@@ -14,6 +14,7 @@ export * from './sim/ExactEventTime';
 export * from './sim/contact/BatBallContact';
 export * from './sim/collision/AcceleratedSphereContact';
 export * from './sim/ball/BallFlight';
+export * from './sim/ball/BaseballAerodynamics';
 export * from './sim/ball/BattedBallFlightEvidence';
 export * from './sim/ball/FairTerritoryGeometry';
 export * from './sim/ball/FairFoulBaseGateGeometry';
