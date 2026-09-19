@@ -11,6 +11,7 @@
 - `docs/game-design/14-regular-season-calendar-and-volume.md`
 - `docs/game-design/15-season-events-and-deadlines.md`
 - `docs/game-design/16-club-economy-rivalry-design.md`
+- `docs/game-design/17-europe-real-club-catalog.md`
 
 ---
 
