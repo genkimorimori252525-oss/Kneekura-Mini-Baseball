@@ -217,7 +217,7 @@ Europe       7
 Africa       1
 ----------------
 Full        21
-Clubs      238
+Clubs      234
 ```
 
 Competition Regionは4地域（Asia-Pacific / Americas / Europe / Africa）。Australia / NZ-Pacificは地理上OceaniaのままAsia-Pacific大会系統へ参加する。
@@ -402,3 +402,9 @@ Simple surface / deep simulation UX:
 World club source policy / East Asia catalog:
 - `docs/game-design/21-world-club-source-policy.md`
 - `docs/game-design/22-east-asia-club-catalog.md`
+
+
+Remaining world club catalogs:
+- `docs/game-design/23-west-south-asia-club-catalog.md`
+- `docs/game-design/24-americas-real-baseball-club-catalog.md`
+- `docs/game-design/25-australia-pacific-africa-club-catalog.md`
