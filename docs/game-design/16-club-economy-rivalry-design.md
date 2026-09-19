@@ -931,3 +931,8 @@ Small Clubもexcellent academy / scoutingで上昇できる。
 を保持する。
 
 実額未確認Clubへ精密な架空値は入れない。
+
+
+World club source / East Asia catalogs:
+- `docs/game-design/21-world-club-source-policy.md`
+- `docs/game-design/22-east-asia-club-catalog.md`
