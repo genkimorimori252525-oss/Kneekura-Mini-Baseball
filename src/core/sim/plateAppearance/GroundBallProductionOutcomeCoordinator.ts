@@ -87,6 +87,9 @@ import {
   assertBatterRunnerTimelineMatchesPlateAppearance,
 } from './GroundBallRunnerEvidenceBinding';
 import {
+  assertGroundBallCoverageEvidenceTiming,
+} from './GroundBallCoverageEvidenceTiming';
+import {
   completeGroundBallFirstBasePlateAppearance,
   type GroundBallFirstBasePlateAppearanceCompletionResult,
 } from './GroundBallPlateAppearanceCoordinator';
@@ -480,6 +483,13 @@ export const resolveCanonicalGroundBallFirstBaseOutcome = (
       'canonical ground-ball outcome throw selection must match handler and first-base receiver',
     );
   }
+  assertGroundBallCoverageEvidenceTiming({
+    coverage: input.coverage,
+    handlerId: input.handler.playerId,
+    receiverId: input.firstBaseReceiver.playerId,
+    pickupContactTick: pickup.contact.contactTick,
+    throwReadyTick: transfer.throwReadyTick,
+  });
 
   const throwExecution = createCoverageThrowLaunch({
     selection,
