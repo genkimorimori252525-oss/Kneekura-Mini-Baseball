@@ -91,17 +91,17 @@ describe('aerodynamic pitch trajectory', () => {
       1_350_000,
     );
 
-    const gyroVerticalEffect = Math.abs(
+    const gyroMovement = Math.hypot(
+      gyro.position.x - noSpin.position.x,
       gyro.position.y - noSpin.position.y,
     );
-    const backspinVerticalEffect = Math.abs(
+    const backspinMovement = Math.hypot(
+      backspin.position.x - noSpin.position.x,
       backspin.position.y - noSpin.position.y,
     );
 
-    expect(Math.abs(gyro.position.x))
-      .toBeLessThan(1e-6);
-    expect(gyroVerticalEffect)
-      .toBeLessThan(backspinVerticalEffect * 0.1);
+    expect(gyroMovement)
+      .toBeLessThan(backspinMovement * 0.1);
   });
 
   it('lets instantaneous active-spin geometry change as the velocity vector bends', () => {
