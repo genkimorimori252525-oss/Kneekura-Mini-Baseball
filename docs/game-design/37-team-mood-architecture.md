@@ -947,3 +947,192 @@ UIの具体表示、閾値、carryover率の数値校正は後続実装設計で
 
 Manager intervention layer for Team Mood (USER REVIEW REQUIRED):
 - `docs/game-design/38-team-mood-manager-interventions-DRAFT.md`
+
+---
+
+# 36. Mood Rarity and Gameplay Gate
+
+2026-09-20 ユーザー承認。
+
+Team Moodは通常時の勝敗を支配するSystemにしない。
+
+## 36.1 Normal Range = No Meaningful Match Effect
+
+ほとんどのClub / ほとんどのSeason区間では、Team Moodは通常域にある。
+
+```text
+ordinary interpersonal friction
+ordinary friendship
+ordinary confidence fluctuation
+ordinary clubhouse noise
+        ↓
+NO meaningful Match effect
+```
+
+通常域ではMood Vectorが内部で変化しても、Match Coreへ実質的な影響を流さない。
+
+人間関係に多少の好き嫌いが存在するだけで勝敗が変わる設計は禁止。
+
+## 36.2 Extreme-State Gate
+
+Team MoodがMatchへ影響するのは、原則として:
+
+```text
+exceptionally positive collective state
+OR
+seriously dysfunctional collective state
+```
+
+のどちらか。
+
+候補:
+
+- unusually high Cohesion
+- unusually high Confidence + Energy
+- severe Tension
+- severe Role Harmony collapse
+- active factionalization
+- unresolved central-player conflict
+
+この状態でもraw abilityは変更しない。
+
+作用先は既存どおり:
+
+- Appraisal
+- emotional contagion
+- recovery
+- communication willingness
+- ambiguity hesitation
+- role acceptance
+
+に限定する。
+
+## 36.3 Team Trait Remains the Main Proximate Baseball Layer
+
+勝敗に近いSeason内状態の説明は、原則Team Traitを主役とする。
+
+```text
+Team Trait
+ = baseball-facing proximate state
+
+Team Mood
+ = rare social-psychological environment
+```
+
+例:
+
+```text
+タイムリー欠乏症
+ブルペン不信
+守備連携
+投打不協和
+```
+
+等はTeam Trait側。
+
+Team Mood単独で「暗黒期」「黄金期」を説明しない。
+
+## 36.4 Mood Cannot Create Team Trait by Itself
+
+Team MoodはTeam Traitのsupporting inputにはなれるが、
+MoodだけでTraitを成立させない。
+
+禁止:
+
+```text
+Cohesion = S
+ -> 黄金打線 auto-granted
+```
+
+必要:
+
+```text
+high Cohesion
++ actual shared success
++ baseball evidence
++ relevant relationship / coordination
+        ↓
+Team Trait candidate
+```
+
+Red側も同様。
+
+```text
+bad Mood
+ -> 連敗病 auto-granted
+```
+
+は禁止。
+
+実際の連敗 / pressure / role breakdown等の独立Evidenceが必要。
+
+## 36.5 Match Influence Priority
+
+原則的な重要度:
+
+```text
+Player True Ability / Physical State
+        ↓
+Baseball Context / Tactics / Matchup
+        ↓
+Player Traits / Team Traits
+        ↓
+ActiveEmotion / Individual Condition
+        ↓
+Extreme Team Mood influence
+```
+
+Team Moodは通常、上位層を上書きしない。
+
+特に:
+
+```text
+great player + bad mood
+ -> still a great player
+```
+
+```text
+weak player + great mood
+ -> still a weak player
+```
+
+を守る。
+
+## 36.6 UI Default
+
+通常時はMoodを大げさに表示しない。
+
+候補:
+
+```text
+チームムード: 平常
+```
+
+だけ。
+
+重大状態になった時のみ:
+
+```text
+不穏
+上昇気流
+内紛
+強い一体感
+```
+
+等を強調する。
+
+これによりMood表示そのものがイベントになる。
+
+## 36.7 Calibration Goal
+
+実装時のLong-run simulationでは:
+
+- 大半のteam-daysがNormal Range
+- severe Mood stateはrare
+- exceptional positive Moodもrare
+- Mood aloneによるstandings swingは小さい
+- Team Traits / roster / manager / scouting / developmentがlong-term resultの主因
+
+を検証する。
+
+具体的な発生率はMonte Carlo / soakで校正し、設計段階では固定しない。
