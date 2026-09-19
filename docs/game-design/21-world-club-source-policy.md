@@ -48,13 +48,15 @@ Footballの勝敗・選手能力は移植しない。
 
 # 3. League-by-League Source Matrix
 
+この表のRegionは**Competition Region**。Australia / New Zealand / Pacificの地理分類はOceaniaのままだが、大会上はAsia-Pacificに含める。
+
 | Region | League | Source |
 | --- | --- | --- |
-| Asia | Japan | REAL_BASEBALL_CLUB |
-| Asia | Korea | REAL_BASEBALL_CLUB |
-| Asia | Taiwan | REAL_BASEBALL_CLUB |
-| Asia | China | REAL_FOOTBALL_CLUB_AS_BASEBALL_CLUB |
-| Asia | West / South Asia | REAL_FOOTBALL_CLUB_AS_BASEBALL_CLUB |
+| Asia-Pacific | Japan | REAL_BASEBALL_CLUB |
+| Asia-Pacific | Korea | REAL_BASEBALL_CLUB |
+| Asia-Pacific | Taiwan | REAL_BASEBALL_CLUB |
+| Asia-Pacific | China | REAL_FOOTBALL_CLUB_AS_BASEBALL_CLUB |
+| Asia-Pacific | West / South Asia | REAL_FOOTBALL_CLUB_AS_BASEBALL_CLUB |
 | Americas | North America | REAL_BASEBALL_CLUB |
 | Americas | Mexico | REAL_BASEBALL_CLUB |
 | Americas | Dominican | REAL_BASEBALL_CLUB |
@@ -69,8 +71,8 @@ Footballの勝敗・選手能力は移植しない。
 | Europe | Italy | REAL_FOOTBALL_CLUB_AS_BASEBALL_CLUB |
 | Europe | Russia | REAL_FOOTBALL_CLUB_AS_BASEBALL_CLUB |
 | Africa | Pan-African | REAL_FOOTBALL_CLUB_AS_BASEBALL_CLUB |
-| Oceania | Australia | REAL_BASEBALL_CLUB |
-| Oceania | New Zealand / Pacific | REAL_FOOTBALL_CLUB_AS_BASEBALL_CLUB |
+| Asia-Pacific | Australia | REAL_BASEBALL_CLUB |
+| Asia-Pacific | New Zealand / Pacific | REAL_FOOTBALL_CLUB_AS_BASEBALL_CLUB |
 
 ---
 
