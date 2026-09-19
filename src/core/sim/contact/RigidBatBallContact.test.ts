@@ -85,6 +85,37 @@ describe('rigid bat-ball reduced-order contact', () => {
   });
 
 
+  it('finds contact on the tapered surface rather than only at the axis projection', () => {
+    const taperedBat: RigidBatState = {
+      ...bat(),
+      physical: {
+        ...bat().physical,
+        radiusProfile: {
+          knots: [
+            { t: 0, radiusM: 0.02 },
+            { t: 1, radiusM: 0.04 },
+          ],
+        },
+      },
+    };
+    const inputPitch: PitchWorldState = {
+      tick: 2_000_000,
+      position: v(0, 1, 0.066),
+      velocity: v(0, 0, -40),
+      spin: v(0, 0, 0),
+    };
+
+    const result = resolveRigidBatBallContact(
+      inputPitch,
+      taperedBat,
+      REFERENCE_BASEBALL_RIGID_BODY,
+      parameters,
+    );
+
+    expect(result).not.toBeNull();
+    expect(result!.segmentT).toBeGreaterThan(0.5);
+  });
+
   it('interpolates an empirical dynamic effective-mass profile without deformation state', () => {
     const effectiveMassProfile = {
       knots: [
