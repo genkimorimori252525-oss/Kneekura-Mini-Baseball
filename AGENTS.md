@@ -24,7 +24,8 @@ Implementation agents must not, without an explicit approved design handoff:
 - redesign HUD/layout/navigation;
 - revive an old prototype because it is easy to implement;
 - treat a render-state test fixture as final product design;
-- turn a legacy ASCII/Drone-Art document into current authority.
+- revive ASCII as the product direction;
+- discard or weaken confirmed Work inputs such as Drone-Art, the 4px fixed display grid, or the 55ms standard Presentation cadence.
 
 If a task requires a new visual/UI/UX decision and no approved Work design is present, **stop at the design boundary**. Preserve the data/API seam and leave the design decision to Work/user review.
 
@@ -34,7 +35,7 @@ The following are currently established constraints and must be preserved unless
 
 1. **World-first causality.** The world/physics/actors move first; rules interpret what happened.
 2. **Presentation is read-only.** Presentation observes canonical state/events and must not decide OUT/SAFE, possession, runner movement, scoring, or any other Core truth.
-3. **ASCII / fixed Drone-Art / fixed-grid is not the current product direction.** Those prototypes are legacy reference only.
+3. **ASCII is not the current product direction.** However, **Drone-Art, the 4px fixed display grid, and the 55ms standard Presentation cadence are confirmed product-design requirements to hand to ChatGPT Work.** They are Presentation requirements, not Match Core physics/time-step authority.
 4. **Camera role contract already exists.**
    - offensive at-bat observation: Batter POV;
    - defensive/pitcher-operation observation: catcher-behind Pitcher POV;
@@ -58,7 +59,7 @@ When documents conflict, use this order:
 4. current approved design handoff/future-system documents on `jolly/core-foundation-plan-2026-09-17` for areas that are explicitly marked design-only;
 5. older prototypes/reference documents.
 
-In particular, `docs/game-design/07-drone-art-presentation.md` is explicitly **LEGACY REFERENCE** and cannot override newer direction.
+`docs/game-design/07-drone-art-presentation.md` is the current detailed source for the confirmed Drone-Art / 4px-grid / 55ms Presentation requirements, subject to the latest user instruction and approved Work handoff. Its Presentation rules must never be reinterpreted as Match Core physics or result authority.
 
 ## 4. Implementation status is not the same as design status
 

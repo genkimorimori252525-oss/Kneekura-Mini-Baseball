@@ -15,11 +15,11 @@ Mini Baseball は Natural Baseball の簡易ルール版ではなく、将来の
 - [守備能力・運動モデル設計](docs/game-design/04-defense-ratings.md)
 - [心理・性格・感情マーク設計](docs/game-design/05-psychology-emotion.md)
 - [将来システム設計メモ](docs/game-design/06-future-systems.md)
-- [旧ドローンアート映像・細密グリッド表示（LEGACY REFERENCE）](docs/game-design/07-drone-art-presentation.md)
+- [Drone-Art・細密グリッド表示の確定デザイン要件](docs/game-design/07-drone-art-presentation.md)
 
 ## AI / デザイン作業境界
 
-UI/UX・ビジュアル・Presentationのデザイン方向は **ChatGPT Work担当** とし、通常の実装エージェントは独自に再設計しません。詳細は [AGENTS.md](AGENTS.md) を参照してください。旧ASCII / Drone-Art / 固定グリッド案は現行の正仕様ではありません。
+UI/UX・ビジュアル・Presentationのデザイン方向は **ChatGPT Work担当** とし、通常の実装エージェントは独自に再設計しません。詳細は [AGENTS.md](AGENTS.md) を参照してください。**ASCIIは廃止**ですが、**Drone-Art・4px固定グリッド・55ms標準表示テンポはWorkへ渡す確定デザイン要件**です。
 
 ## 現在の方針
 
@@ -38,6 +38,6 @@ UI/UX・ビジュアル・Presentationのデザイン方向は **ChatGPT Work担
 - ポストシーズン、国際大会、優勝直前、首位攻防などの重要度は手動フラグではなく、大会段階・順位・残り試合・優勝/敗退条件などから自動算出し、感情発火のしやすさへ反映する。
 - ABS/チャレンジ、乱闘、PlayCapsule/ハイライト、調子予測、移籍欲求、ドラフト、大会、音響、マルチコメントなどはMatch Coreへ直書きせず、将来の独立サブシステムとして接続する。
 - Mini/Naturalの表示は正史World/Eventを読む **observer** とする。画面都合で選手・ボール・アウト/セーフ・得点を作り直さない。
-- ASCII / Drone-Art / 4px固定グリッド / 55ms固定表示テンポ等は現行の強制仕様ではない。旧試作の参考値としてのみ扱う。
+- **ASCII表現は現行方針ではない。** 一方、**Drone-Art、基準4px固定グリッド、標準55ms/表示コマは確定したPresentationデザイン要件**としてWorkへ引き渡す。これらをCoreの物理刻み・正史座標・結果判定へ逆流させない。
 - Batter POV / catcher-behind Pitcher POV / fair-ball後のfield-overheadというカメラ役割は保持するが、具体的な構図・色・密度・補間・演出・UIレイアウトはWorkのデザイン領域とする。
 - ボールや選手の可視化はCanonical Worldの位置・速度・高さ・イベントから導出する。表示用の加工は正史へ逆流させない。
