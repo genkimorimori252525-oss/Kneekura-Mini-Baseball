@@ -1,7 +1,7 @@
 # Star / Superstar Big-Stage Architecture — DRAFT
 
 更新日: 2026-09-20  
-状態: **USER DIRECTION APPROVED / 詳細MechanicsはDRAFT。実装前。**
+状態: **CANONICAL / DESIGN FROZEN v1。実装前。**
 
 関連:
 - `docs/game-design/05-psychology-emotion.md`
@@ -987,3 +987,52 @@ not:
 Superstar label
  -> magic performance buff
 ```
+
+
+---
+
+# 27. Final v1 Freeze
+
+2026-09-20 user approved.
+
+Canonical:
+
+```text
+Fan Favorite
+= affection / crowd / presentation
+
+Star
+= rare competitive-center status
++ tactical gravity
+
+Superstar
+= historically exceptional Star
++ broad recognition
++ iconic salience
++ strong high-stage evidence
+```
+
+Frozen principles:
+
+1. Star itself is rare.
+2. Superstar is extremely rare.
+3. no per-team / per-league quota.
+4. some eras may have zero active Superstar.
+5. multiple Superstars may coexist in exceptional eras.
+6. Star / Superstar labels never grant raw ability.
+7. tactical response is still chosen by Manager Belief / scouting / data / context.
+8. big-stage performance routes through Match Salience + Spotlight Response -> Condition / Appraisal.
+9. Star can struggle under pressure.
+10. Superstar can fail in the biggest game.
+11. statistical greatness and iconic greatness remain separable.
+12. current status may fade while Legacy remains.
+
+Deferred:
+- exact numeric thresholds
+- exact persistence windows
+- exact Star / Superstar frequency calibration
+- exact Spotlight Response distributions
+- Legacy / Hall implementation
+- UI styling
+
+These are implementation / soak-calibration tasks, not open architecture questions.
