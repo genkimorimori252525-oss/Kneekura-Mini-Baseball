@@ -1,0 +1,626 @@
+import type { Vec3 } from '../../model/geometry';
+import type { BatPose, PitchWorldState } from './BatBallContact';
+
+export type BatRadiusKnot = Readonly<{
+  t: number;
+  radiusM: number;
+}>;
+
+export type BatRadiusProfile = Readonly<{
+  knots: readonly BatRadiusKnot[];
+}>;
+
+export type RigidBatPhysicalProperties = Readonly<{
+  massKg: number;
+  centerOfMassT: number;
+  transverseMomentOfInertiaKgM2: number;
+  axialMomentOfInertiaKgM2: number;
+  radiusProfile: BatRadiusProfile;
+}>;
+
+export type RigidBatState = Readonly<{
+  pose: BatPose;
+  centerOfMassVelocity: Vec3;
+  angularVelocity: Vec3;
+  physical: RigidBatPhysicalProperties;
+}>;
+
+export type RigidBaseballProperties = Readonly<{
+  massKg: number;
+  radiusM: number;
+  rotationalInertiaFactor: number;
+}>;
+
+export const REFERENCE_BASEBALL_RIGID_BODY: RigidBaseballProperties =
+  Object.freeze({
+    massKg: 0.145,
+    radiusM: 0.0366,
+    rotationalInertiaFactor: 0.4,
+  });
+
+export type RigidBatBallContactParameters = Readonly<{
+  normalRestitution: number;
+  tangentialRestitution: number;
+  frictionCoefficient: number;
+}>;
+
+export type RigidBatBallContactResult = Readonly<{
+  tick: number;
+  segmentT: number;
+  localBatRadiusM: number;
+  normal: Vec3;
+  batSurfacePoint: Vec3;
+  ballSurfacePoint: Vec3;
+  normalRelativeSpeedBeforeMps: number;
+  tangentialRelativeSpeedBeforeMps: number;
+  normalImpulseNs: number;
+  tangentialImpulseNs: Vec3;
+  totalImpulseNs: Vec3;
+  effectiveNormalMassKg: number;
+  exitVelocity: Vec3;
+  exitSpin: Vec3;
+  batExitCenterOfMassVelocity: Vec3;
+  batExitAngularVelocity: Vec3;
+}>;
+
+const EPSILON = 1e-12;
+
+const add = (a: Vec3, b: Vec3): Vec3 => ({
+  x: a.x + b.x,
+  y: a.y + b.y,
+  z: a.z + b.z,
+});
+
+const subtract = (a: Vec3, b: Vec3): Vec3 => ({
+  x: a.x - b.x,
+  y: a.y - b.y,
+  z: a.z - b.z,
+});
+
+const scale = (value: Vec3, scalar: number): Vec3 => ({
+  x: value.x * scalar,
+  y: value.y * scalar,
+  z: value.z * scalar,
+});
+
+const dot = (a: Vec3, b: Vec3): number =>
+  a.x * b.x + a.y * b.y + a.z * b.z;
+
+const cross = (a: Vec3, b: Vec3): Vec3 => ({
+  x: a.y * b.z - a.z * b.y,
+  y: a.z * b.x - a.x * b.z,
+  z: a.x * b.y - a.y * b.x,
+});
+
+const magnitude = (value: Vec3): number =>
+  Math.hypot(value.x, value.y, value.z);
+
+const normalize = (value: Vec3): Vec3 => {
+  const length = magnitude(value);
+  if (length <= EPSILON) {
+    throw new Error('cannot normalize a zero-length vector');
+  }
+  return scale(value, 1 / length);
+};
+
+const clamp01 = (value: number): number =>
+  Math.max(0, Math.min(1, value));
+
+const validateRadiusProfile = (
+  profile: BatRadiusProfile,
+): void => {
+  if (profile.knots.length < 2) {
+    throw new Error('bat radius profile requires at least two knots');
+  }
+  let previousT = -Infinity;
+  for (const knot of profile.knots) {
+    if (!Number.isFinite(knot.t) || knot.t < 0 || knot.t > 1) {
+      throw new Error('bat radius knot t must be finite within [0, 1]');
+    }
+    if (!Number.isFinite(knot.radiusM) || knot.radiusM <= 0) {
+      throw new Error('bat radius knot radiusM must be finite and positive');
+    }
+    if (knot.t <= previousT) {
+      throw new Error('bat radius knots must be strictly increasing');
+    }
+    previousT = knot.t;
+  }
+  if (
+    profile.knots[0]!.t !== 0
+    || profile.knots[profile.knots.length - 1]!.t !== 1
+  ) {
+    throw new Error('bat radius profile must include t=0 and t=1 endpoints');
+  }
+};
+
+const validateBat = (bat: RigidBatState): void => {
+  const p = bat.physical;
+  if (!Number.isFinite(p.massKg) || p.massKg <= 0) {
+    throw new Error('bat massKg must be finite and positive');
+  }
+  if (
+    !Number.isFinite(p.centerOfMassT)
+    || p.centerOfMassT < 0
+    || p.centerOfMassT > 1
+  ) {
+    throw new Error('bat centerOfMassT must be finite within [0, 1]');
+  }
+  if (
+    !Number.isFinite(p.transverseMomentOfInertiaKgM2)
+    || p.transverseMomentOfInertiaKgM2 <= 0
+    || !Number.isFinite(p.axialMomentOfInertiaKgM2)
+    || p.axialMomentOfInertiaKgM2 <= 0
+  ) {
+    throw new Error('bat moments of inertia must be finite and positive');
+  }
+  validateRadiusProfile(p.radiusProfile);
+};
+
+const validateBall = (ball: RigidBaseballProperties): void => {
+  if (!Number.isFinite(ball.massKg) || ball.massKg <= 0) {
+    throw new Error('ball massKg must be finite and positive');
+  }
+  if (!Number.isFinite(ball.radiusM) || ball.radiusM <= 0) {
+    throw new Error('ball radiusM must be finite and positive');
+  }
+  if (
+    !Number.isFinite(ball.rotationalInertiaFactor)
+    || ball.rotationalInertiaFactor <= 0
+  ) {
+    throw new Error(
+      'ball rotationalInertiaFactor must be finite and positive',
+    );
+  }
+};
+
+const validateContactParameters = (
+  parameters: RigidBatBallContactParameters,
+): void => {
+  for (const [name, value] of [
+    ['normalRestitution', parameters.normalRestitution],
+    ['tangentialRestitution', parameters.tangentialRestitution],
+  ] as const) {
+    if (!Number.isFinite(value) || value < 0 || value > 1) {
+      throw new Error(`${name} must be finite within [0, 1]`);
+    }
+  }
+  if (
+    !Number.isFinite(parameters.frictionCoefficient)
+    || parameters.frictionCoefficient < 0
+  ) {
+    throw new Error('frictionCoefficient must be finite and non-negative');
+  }
+};
+
+export const sampleBatRadius = (
+  profile: BatRadiusProfile,
+  t: number,
+): number => {
+  validateRadiusProfile(profile);
+  if (!Number.isFinite(t)) {
+    throw new Error('bat radius sample t must be finite');
+  }
+  const clamped = clamp01(t);
+
+  for (let index = 1; index < profile.knots.length; index += 1) {
+    const right = profile.knots[index]!;
+    if (clamped > right.t) {
+      continue;
+    }
+    const left = profile.knots[index - 1]!;
+    const span = right.t - left.t;
+    const local = span <= EPSILON
+      ? 0
+      : (clamped - left.t) / span;
+    return left.radiusM
+      + (right.radiusM - left.radiusM) * local;
+  }
+
+  return profile.knots[profile.knots.length - 1]!.radiusM;
+};
+
+const axisGeometry = (
+  pose: BatPose,
+): Readonly<{
+  axis: Vec3;
+  lengthM: number;
+}> => {
+  const delta = subtract(pose.tip, pose.grip);
+  const lengthM = magnitude(delta);
+  if (lengthM <= EPSILON) {
+    throw new Error('bat pose grip and tip must not be identical');
+  }
+  return {
+    axis: scale(delta, 1 / lengthM),
+    lengthM,
+  };
+};
+
+const closestPointOnAxis = (
+  point: Vec3,
+  pose: BatPose,
+): Readonly<{
+  point: Vec3;
+  t: number;
+}> => {
+  const segment = subtract(pose.tip, pose.grip);
+  const lengthSquared = dot(segment, segment);
+  if (lengthSquared <= EPSILON) {
+    throw new Error('bat pose grip and tip must not be identical');
+  }
+  const t = clamp01(
+    dot(subtract(point, pose.grip), segment) / lengthSquared,
+  );
+  return {
+    point: add(pose.grip, scale(segment, t)),
+    t,
+  };
+};
+
+const batCenterOfMassPoint = (
+  bat: RigidBatState,
+): Vec3 => add(
+  bat.pose.grip,
+  scale(
+    subtract(bat.pose.tip, bat.pose.grip),
+    bat.physical.centerOfMassT,
+  ),
+);
+
+const applyBatInverseInertia = (
+  value: Vec3,
+  batAxis: Vec3,
+  physical: RigidBatPhysicalProperties,
+): Vec3 => {
+  const parallel = scale(batAxis, dot(value, batAxis));
+  const perpendicular = subtract(value, parallel);
+  return add(
+    scale(parallel, 1 / physical.axialMomentOfInertiaKgM2),
+    scale(
+      perpendicular,
+      1 / physical.transverseMomentOfInertiaKgM2,
+    ),
+  );
+};
+
+const applyBallInverseInertia = (
+  value: Vec3,
+  ball: RigidBaseballProperties,
+): Vec3 => {
+  const inertia =
+    ball.rotationalInertiaFactor
+    * ball.massKg
+    * ball.radiusM
+    * ball.radiusM;
+  return scale(value, 1 / inertia);
+};
+
+const pointVelocity = (
+  centerVelocity: Vec3,
+  angularVelocity: Vec3,
+  leverArm: Vec3,
+): Vec3 => add(
+  centerVelocity,
+  cross(angularVelocity, leverArm),
+);
+
+type MutableRigidState = {
+  ballVelocity: Vec3;
+  ballSpin: Vec3;
+  batVelocity: Vec3;
+  batAngularVelocity: Vec3;
+};
+
+const applyImpulse = (
+  state: MutableRigidState,
+  impulseOnBall: Vec3,
+  ballLeverArm: Vec3,
+  batLeverArm: Vec3,
+  ball: RigidBaseballProperties,
+  bat: RigidBatState,
+  batAxis: Vec3,
+): void => {
+  state.ballVelocity = add(
+    state.ballVelocity,
+    scale(impulseOnBall, 1 / ball.massKg),
+  );
+  state.ballSpin = add(
+    state.ballSpin,
+    applyBallInverseInertia(
+      cross(ballLeverArm, impulseOnBall),
+      ball,
+    ),
+  );
+
+  const impulseOnBat = scale(impulseOnBall, -1);
+  state.batVelocity = add(
+    state.batVelocity,
+    scale(impulseOnBat, 1 / bat.physical.massKg),
+  );
+  state.batAngularVelocity = add(
+    state.batAngularVelocity,
+    applyBatInverseInertia(
+      cross(batLeverArm, impulseOnBat),
+      batAxis,
+      bat.physical,
+    ),
+  );
+};
+
+const relativeSurfaceVelocity = (
+  state: MutableRigidState,
+  ballLeverArm: Vec3,
+  batLeverArm: Vec3,
+): Vec3 => subtract(
+  pointVelocity(
+    state.ballVelocity,
+    state.ballSpin,
+    ballLeverArm,
+  ),
+  pointVelocity(
+    state.batVelocity,
+    state.batAngularVelocity,
+    batLeverArm,
+  ),
+);
+
+const effectiveInverseMassAlong = (
+  direction: Vec3,
+  ballLeverArm: Vec3,
+  batLeverArm: Vec3,
+  ball: RigidBaseballProperties,
+  bat: RigidBatState,
+  batAxis: Vec3,
+): number => {
+  const ballAngular = dot(
+    direction,
+    cross(
+      applyBallInverseInertia(
+        cross(ballLeverArm, direction),
+        ball,
+      ),
+      ballLeverArm,
+    ),
+  );
+  const batAngular = dot(
+    direction,
+    cross(
+      applyBatInverseInertia(
+        cross(batLeverArm, direction),
+        batAxis,
+        bat.physical,
+      ),
+      batLeverArm,
+    ),
+  );
+
+  return (
+    1 / ball.massKg
+    + 1 / bat.physical.massKg
+    + ballAngular
+    + batAngular
+  );
+};
+
+export const resolveRigidBatBallContact = (
+  pitch: PitchWorldState,
+  bat: RigidBatState,
+  ball: RigidBaseballProperties,
+  parameters: RigidBatBallContactParameters,
+): RigidBatBallContactResult | null => {
+  validateBat(bat);
+  validateBall(ball);
+  validateContactParameters(parameters);
+
+  const { axis: batAxis } = axisGeometry(bat.pose);
+  const nearest = closestPointOnAxis(
+    pitch.position,
+    bat.pose,
+  );
+  const localBatRadiusM = sampleBatRadius(
+    bat.physical.radiusProfile,
+    nearest.t,
+  );
+
+  const axisToBall = subtract(
+    pitch.position,
+    nearest.point,
+  );
+  const centerDistance = magnitude(axisToBall);
+  const contactDistance =
+    localBatRadiusM + ball.radiusM;
+
+  if (centerDistance > contactDistance) {
+    return null;
+  }
+
+  const centerOfMass = batCenterOfMassPoint(bat);
+  const fallbackRelative = subtract(
+    pitch.velocity,
+    bat.centerOfMassVelocity,
+  );
+  const normal = centerDistance > EPSILON
+    ? scale(axisToBall, 1 / centerDistance)
+    : normalize(scale(fallbackRelative, -1));
+
+  const batSurfacePoint = add(
+    nearest.point,
+    scale(normal, localBatRadiusM),
+  );
+  const ballSurfacePoint = add(
+    pitch.position,
+    scale(normal, -ball.radiusM),
+  );
+  const batLeverArm = subtract(
+    batSurfacePoint,
+    centerOfMass,
+  );
+  const ballLeverArm = subtract(
+    ballSurfacePoint,
+    pitch.position,
+  );
+
+  const state: MutableRigidState = {
+    ballVelocity: pitch.velocity,
+    ballSpin: pitch.spin,
+    batVelocity: bat.centerOfMassVelocity,
+    batAngularVelocity: bat.angularVelocity,
+  };
+
+  const relativeBefore = relativeSurfaceVelocity(
+    state,
+    ballLeverArm,
+    batLeverArm,
+  );
+  const normalRelativeSpeed = dot(
+    relativeBefore,
+    normal,
+  );
+
+  if (normalRelativeSpeed >= 0) {
+    return null;
+  }
+
+  const tangentBefore = subtract(
+    relativeBefore,
+    scale(normal, normalRelativeSpeed),
+  );
+  const tangentialRelativeSpeedBeforeMps =
+    magnitude(tangentBefore);
+
+  const normalInverseMass = effectiveInverseMassAlong(
+    normal,
+    ballLeverArm,
+    batLeverArm,
+    ball,
+    bat,
+    batAxis,
+  );
+  if (normalInverseMass <= EPSILON) {
+    throw new Error('normal effective inverse mass must be positive');
+  }
+
+  const normalImpulseNs =
+    -(1 + parameters.normalRestitution)
+    * normalRelativeSpeed
+    / normalInverseMass;
+  const normalImpulse = scale(
+    normal,
+    normalImpulseNs,
+  );
+
+  applyImpulse(
+    state,
+    normalImpulse,
+    ballLeverArm,
+    batLeverArm,
+    ball,
+    bat,
+    batAxis,
+  );
+
+  let tangentialImpulseNs: Vec3 = {
+    x: 0,
+    y: 0,
+    z: 0,
+  };
+
+  if (
+    parameters.frictionCoefficient > 0
+    && tangentialRelativeSpeedBeforeMps > EPSILON
+  ) {
+    const relativeAfterNormal = relativeSurfaceVelocity(
+      state,
+      ballLeverArm,
+      batLeverArm,
+    );
+    const normalAfterNormal = dot(
+      relativeAfterNormal,
+      normal,
+    );
+    const tangentAfterNormal = subtract(
+      relativeAfterNormal,
+      scale(normal, normalAfterNormal),
+    );
+    const tangentSpeedAfterNormal =
+      magnitude(tangentAfterNormal);
+
+    if (tangentSpeedAfterNormal > EPSILON) {
+      const tangentDirection = scale(
+        tangentAfterNormal,
+        1 / tangentSpeedAfterNormal,
+      );
+      const tangentialInverseMass =
+        effectiveInverseMassAlong(
+          tangentDirection,
+          ballLeverArm,
+          batLeverArm,
+          ball,
+          bat,
+          batAxis,
+        );
+
+      if (tangentialInverseMass <= EPSILON) {
+        throw new Error(
+          'tangential effective inverse mass must be positive',
+        );
+      }
+
+      const targetImpulseMagnitude =
+        (1 + parameters.tangentialRestitution)
+        * tangentSpeedAfterNormal
+        / tangentialInverseMass;
+      const frictionLimit =
+        parameters.frictionCoefficient
+        * normalImpulseNs;
+      const tangentialImpulseMagnitude =
+        Math.min(
+          targetImpulseMagnitude,
+          frictionLimit,
+        );
+
+      tangentialImpulseNs = scale(
+        tangentDirection,
+        -tangentialImpulseMagnitude,
+      );
+
+      applyImpulse(
+        state,
+        tangentialImpulseNs,
+        ballLeverArm,
+        batLeverArm,
+        ball,
+        bat,
+        batAxis,
+      );
+    }
+  }
+
+  const totalImpulseNs = add(
+    normalImpulse,
+    tangentialImpulseNs,
+  );
+
+  return {
+    tick: pitch.tick,
+    segmentT: nearest.t,
+    localBatRadiusM,
+    normal,
+    batSurfacePoint,
+    ballSurfacePoint,
+    normalRelativeSpeedBeforeMps:
+      normalRelativeSpeed,
+    tangentialRelativeSpeedBeforeMps,
+    normalImpulseNs,
+    tangentialImpulseNs,
+    totalImpulseNs,
+    effectiveNormalMassKg:
+      1 / normalInverseMass,
+    exitVelocity: state.ballVelocity,
+    exitSpin: state.ballSpin,
+    batExitCenterOfMassVelocity:
+      state.batVelocity,
+    batExitAngularVelocity:
+      state.batAngularVelocity,
+  };
+};
