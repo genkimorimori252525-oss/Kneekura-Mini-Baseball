@@ -2,12 +2,27 @@ import { describe, expect, it } from 'vitest';
 import {
   asRuleProfileId,
 } from '../../core/model/RuleProfileRef';
+import {
+  resolveRulebookStrikeZoneRegion,
+} from '../../core/sim/pitching/RulebookStrikeZone';
 import type {
   MiniPresentationFrame,
 } from './model';
 import {
   buildMiniReplaySequence,
 } from './MiniReplaySequence';
+
+const replayStrikeZoneGuide = {
+  plateZ: 0,
+  region: resolveRulebookStrikeZoneRegion({
+    plateCenterX: 0,
+    landmarks: {
+      shoulderTopY: 1.62,
+      uniformPantsTopY: 1.02,
+      kneecapBottomY: 0.46,
+    },
+  }),
+} as const;
 
 const match = {
   ruleProfileId: asRuleProfileId('npb-2026'),
@@ -125,6 +140,7 @@ describe('MiniReplaySequence', () => {
             2,
             'BATTER_POV',
           ),
+          strikeZoneGuide: replayStrikeZoneGuide,
         },
         {
           match,
@@ -148,6 +164,12 @@ describe('MiniReplaySequence', () => {
       'BATTER_POV',
       'FIELD_OVERHEAD',
     ]);
+
+    if (result[0].live.cameraMode !== 'BATTER_POV') {
+      throw new Error('first replay frame must use batter POV');
+    }
+    expect(result[0].live.render.strikeZoneGuide?.source)
+      .toEqual(replayStrikeZoneGuide);
   });
 
   it('changes only projected render coordinates when replay camera calibration changes', () => {
