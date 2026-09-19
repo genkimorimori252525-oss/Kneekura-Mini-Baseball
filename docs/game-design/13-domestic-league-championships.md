@@ -616,7 +616,7 @@ OBCL initial qualification:
 | --- | --- | ---: | --- |
 | Asia | Japan | 12 | Conference Series |
 | Asia | Korea | 10 | Ladder |
-| Asia | Taiwan | 8 | Top-4 Series |
+| Asia | Taiwan | 6 | Top-4 Series |
 | Asia | China | 10 | Top-4 Series |
 | Asia | West / South Asia | 12 | Table Title |
 | Americas | North America | 30 | Conference Series |
