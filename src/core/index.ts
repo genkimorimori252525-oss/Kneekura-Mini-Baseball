@@ -124,6 +124,7 @@ export * from './sim/pitching/PitchTrajectory';
 export * from './sim/pitching/AerodynamicPitchTrajectory';
 export * from './sim/pitching/PitchSpinPhysics';
 export * from './sim/pitching/TakenPitchPhysicalResult';
+export * from './sim/pitching/AerodynamicTakenPitchPhysicalResult';
 export * from './sim/pitching/TakenPitchTimelineAdapter';
 export * from './sim/pitching/SwingingPitchPhysicalResult';
 export * from './sim/pitching/SwingingPitchTimelineAdapter';
