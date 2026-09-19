@@ -691,3 +691,37 @@ Next review questions:
 - approve catalyst model for Mood Maker
 - decide UI visibility
 - decide offseason carryover calibration
+
+
+Manager intervention layer for Team Mood (USER REVIEW REQUIRED):
+- `docs/game-design/38-team-mood-manager-interventions-DRAFT.md`
+
+
+---
+
+# 29. CURRENT DRAFT — Team Mood Manager Interventions
+
+User feedback: current Team Mood model felt too cold because the manager had no satisfying way to intervene.
+
+Current candidate principle:
+
+> User does not manipulate Mood directly. User acts on the causes of Mood through ordinary baseball / personnel decisions.
+
+Candidate actions:
+- clarify roles
+- individual meeting
+- delegate mediation to a trusted leader
+- stabilize lineup / defensive pairings
+- rest / temporarily remove a player
+- introduce new blood via call-up / signing / trade
+- encourage competition
+- deliberately wait / do nothing
+
+Every action has tradeoffs and requires time. No button gives direct `Mood +10`.
+
+Mild issues may improve in several games; moderate issues take weeks; severe conflicts may require roster or leadership changes.
+
+Draft:
+- `docs/game-design/38-team-mood-manager-interventions-DRAFT.md`
+
+This draft still requires user approval before becoming canonical.
