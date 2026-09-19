@@ -185,3 +185,6 @@ export * from './validation/SameContactAlignmentComparison';
 export * from './validation/BatchValidationStatistics';
 export * from './validation/ValidationPerformanceHarness';
 export * from './validation/NaturalReadOnlySnapshot';
+export * from './sim/pitching/PitchMovementSignature';
+export * from './sim/pitching/PitchNameRegistry';
+export * from './sim/pitching/PitchArsenalProfile';
