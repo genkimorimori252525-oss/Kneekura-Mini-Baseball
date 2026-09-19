@@ -58,16 +58,17 @@ observed league strengths / weaknesses emerge
 
 Full Simulation Leagueは **21**。
 
-| Region | Full Leagues | Clubs |
+| Competition Region | Full Leagues | Clubs |
 | --- | ---: | ---: |
-| Asia | 5 | 50 |
+| Asia-Pacific | 7 | 66 |
 | Americas | 6 | 86 |
 | Europe | 7 | 74 |
 | Africa | 1 | 12 |
-| Oceania | 2 | 16 |
 | **Total** | **21** | **238** |
 
 238球団が現時点の初期構成。REAL_BASEBALL_CLUB採用Leagueでは現行実在Club数へ合わせるため、Catalog整備に伴って総数は再校正可能。
+
+Competition Regionは4つ。Australia / New Zealand / Pacificは地理的にはOceaniaだが、国際クラブ・代表大会では `Asia-Pacific` に所属する。
 
 Full League以外にも、
 
@@ -199,7 +200,7 @@ KnowledgeEstimate uncertainty decreases
 
 ---
 
-# 4. Asia — 5 Full Leagues
+# 4. Asia-Pacific — Asian Subregion / 5 Full Leagues
 
 ## 4.1 Japan League
 
@@ -208,7 +209,7 @@ KnowledgeEstimate uncertainty decreases
 - clubs: **12**
 - season: **March–October**
 - market: **EAST_ASIA_HYBRID**
-- continental region: Asia
+- continental competition region: Asia-Pacific
 
 ### Initial Culture Seed
 
@@ -236,7 +237,7 @@ KnowledgeEstimate uncertainty decreases
 - clubs: **10**
 - season: **March–October**
 - market: **EAST_ASIA_HYBRID**
-- continental region: Asia
+- continental competition region: Asia-Pacific
 
 ### Initial Culture Seed
 
@@ -264,7 +265,7 @@ KnowledgeEstimate uncertainty decreases
 - clubs: **6**
 - season: **March–November**
 - market: **EAST_ASIA_HYBRID**
-- continental region: Asia
+- continental competition region: Asia-Pacific
 
 ### Initial Culture Seed
 
@@ -290,7 +291,7 @@ KnowledgeEstimate uncertainty decreases
 - club source: **REAL_FOOTBALL_CLUB_AS_BASEBALL_CLUB**
 - season: **March–September**
 - market: **GROWTH_FRANCHISE_HYBRID**
-- continental region: Asia
+- continental competition region: Asia-Pacific
 
 ### Initial Culture Seed
 
@@ -317,7 +318,7 @@ KnowledgeEstimate uncertainty decreases
 - clubs: **12**
 - season: **October–March**
 - market: **GROWTH_FRANCHISE_HYBRID + FOOTBALL_TRANSFER_ACADEMY**
-- continental region: Asia
+- continental competition region: Asia-Pacific
 
 対象世界観:
 - West Asia
@@ -358,7 +359,7 @@ KnowledgeEstimate uncertainty decreases
 - clubs: **30**
 - season: **March–October**
 - market: **CONTROLLED_DRAFT_TRADE**
-- continental region: Americas
+- continental competition region: Americas
 
 ### Initial Culture Seed
 
@@ -387,7 +388,7 @@ KnowledgeEstimate uncertainty decreases
 - clubs: **20**
 - season: **April–September**
 - market: **HYBRID_OPEN_MARKET**
-- continental region: Americas
+- continental competition region: Americas
 
 ### Initial Culture Seed
 
@@ -414,7 +415,7 @@ KnowledgeEstimate uncertainty decreases
 - clubs: **6**
 - season: **August–January**
 - market: **WINTER_OPEN_MARKET**
-- continental region: Americas
+- continental competition region: Americas
 
 ### Initial Culture Seed
 
@@ -443,7 +444,7 @@ KnowledgeEstimate uncertainty decreases
 - clubs: **8**
 - season: **August–January**
 - market: **WINTER_OPEN_MARKET**
-- continental region: Americas
+- continental competition region: Americas
 
 ### Initial Culture Seed
 
@@ -470,7 +471,7 @@ KnowledgeEstimate uncertainty decreases
 - clubs: **6**
 - season: **August–January**
 - market: **WINTER_OPEN_MARKET**
-- continental region: Americas
+- continental competition region: Americas
 
 ### Initial Culture Seed
 
@@ -497,7 +498,7 @@ KnowledgeEstimate uncertainty decreases
 - clubs: **16**
 - season: **August–January**
 - market: **DOMESTIC_DEVELOPMENT_HYBRID**
-- continental region: Americas
+- continental competition region: Americas
 
 ### Initial Culture Seed
 
@@ -550,7 +551,7 @@ KnowledgeEstimate uncertainty decreases
 - clubs: **10**
 - season: **March–September**
 - market: **FOOTBALL_TRANSFER_ACADEMY**
-- continental region: Europe
+- continental competition region: Europe
 
 ### Initial Culture Seed
 
@@ -576,7 +577,7 @@ KnowledgeEstimate uncertainty decreases
 - clubs: **12**
 - season: **March–September**
 - market: **FOOTBALL_TRANSFER_ACADEMY**
-- continental region: Europe
+- continental competition region: Europe
 
 ### Initial Culture Seed
 
@@ -603,7 +604,7 @@ KnowledgeEstimate uncertainty decreases
 - clubs: **10**
 - season: **March–September**
 - market: **FOOTBALL_TRANSFER_ACADEMY**
-- continental region: Europe
+- continental competition region: Europe
 
 ### Initial Culture Seed
 
@@ -630,7 +631,7 @@ KnowledgeEstimate uncertainty decreases
 - clubs: **10**
 - season: **March–September**
 - market: **FOOTBALL_TRANSFER_ACADEMY**
-- continental region: Europe
+- continental competition region: Europe
 
 ### Initial Culture Seed
 
@@ -656,7 +657,7 @@ KnowledgeEstimate uncertainty decreases
 - clubs: **10**
 - season: **March–September**
 - market: **FOOTBALL_TRANSFER_ACADEMY**
-- continental region: Europe
+- continental competition region: Europe
 
 ### Initial Culture Seed
 
@@ -685,7 +686,7 @@ KnowledgeEstimate uncertainty decreases
 - clubs: **12**
 - season: **March–September**
 - market: **FOOTBALL_TRANSFER_ACADEMY**
-- continental region: Europe
+- continental competition region: Europe
 
 ### Initial Culture Seed
 
@@ -713,7 +714,7 @@ KnowledgeEstimate uncertainty decreases
 - club source: **REAL_FOOTBALL_CLUB_AS_BASEBALL_CLUB**
 - season: **March–September**
 - market: **FOOTBALL_TRANSFER_ACADEMY**
-- continental region: Europe
+- continental competition region: Europe
 
 ### Initial Culture Seed
 
@@ -744,7 +745,7 @@ KnowledgeEstimate uncertainty decreases
 - clubs: **12**
 - season: **October–March**
 - market: **FOOTBALL_TRANSFER_ACADEMY + GROWTH_FRANCHISE_HYBRID**
-- continental region: Africa
+- continental competition region: Africa
 
 複数国のクラブが参加する越境Full League。
 
@@ -775,14 +776,14 @@ KnowledgeEstimate uncertainty decreases
 
 ---
 
-# 8. Oceania — 2 Full Leagues
+# 8. Asia-Pacific — Oceania Subregion / 2 Full Leagues
 
 ## 8.1 Australia League
 
 - clubs: **8**
 - season: **September–February**
 - market: **HYBRID_OPEN_MARKET**
-- continental region: Oceania
+- continental competition region: Asia-Pacific
 
 ### Initial Culture Seed
 
@@ -811,7 +812,7 @@ KnowledgeEstimate uncertainty decreases
 - clubs: **8**
 - season: **September–February**
 - market: **FOOTBALL_TRANSFER_ACADEMY + WINTER_OPEN_MARKET**
-- continental region: Oceania
+- continental competition region: Asia-Pacific
 
 ### Initial Culture Seed
 
@@ -859,7 +860,7 @@ KnowledgeEstimate uncertainty decreases
 | Pan-Africa | 12 | Nov–Mar | Football Transfer + Growth |
 | Australia | 8 | Nov–Feb | Hybrid Open Market |
 | New Zealand/Pacific | 8 | Nov–Feb | Football Transfer + Winter |
-| **Total** | **240** | — | — |
+| **Total** | **238** | — | — |
 
 ---
 
