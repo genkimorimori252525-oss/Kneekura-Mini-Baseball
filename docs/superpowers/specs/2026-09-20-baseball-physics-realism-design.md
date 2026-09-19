@@ -50,6 +50,51 @@ Primary references for this work:
 
 The references do not imply that one universal coefficient exactly describes every baseball. Real balls vary, and aerodynamic coefficients depend on speed, spin, seam orientation, atmosphere, and ball properties. The Core must expose those physical inputs rather than hide the variation in outcome tuning.
 
+## 2.1 Permanent no-deformation boundary
+
+This project deliberately does **not** put explicit bat or ball deformation into the authoritative Match Core.
+
+The canonical contact model remains a rigid-body / reduced-order model.
+
+Forbidden as authoritative result-producing physics:
+
+- finite-element bat flex;
+- explicit ball compression meshes or shape states;
+- local seam deformation;
+- high-degree-of-freedom elastic-body contact;
+- a separate deformation solver for Natural presentation.
+
+This is not a claim that real bats and baseballs do not deform. They do. The design choice is to represent the **observable consequences** of that deformation through experimentally calibrated reduced parameters:
+
+- normal coefficient of restitution;
+- effective tangential response;
+- contact friction;
+- effective mass and moment of inertia;
+- impact location;
+- measured aerodynamic coefficients.
+
+The governing rule is:
+
+```text
+real deformation and vibration
+        ↓ laboratory measurement
+reduced contact coefficients / rigid-body properties
+        ↓
+authoritative deterministic collision
+```
+
+Never:
+
+```text
+authoritative finite-element deformation
+        ↓
+different Mini/Natural result paths
+```
+
+Natural may later render visual bat flex or ball compression, but those effects are presentation-only and must not feed back into canonical velocity, spin, trajectory, or adjudication.
+
+This permanently preserves the 2026-09-17 causal-contact decision while still allowing the reduced model to become substantially more faithful to measured baseball behavior.
+
 ## 3. Phase A — aerodynamic flight
 
 ### 3.1 Implemented foundation
@@ -177,7 +222,7 @@ Incoming pitch spin then affects the tangential collision itself rather than bei
 Replace the single heuristic `tangentialRetention/spinTransfer` pair with a measured oblique-collision model using:
 
 - normal coefficient of restitution;
-- tangential compliance / tangential COR;
+- effective tangential response / tangential COR calibrated from deformation-inclusive experiments;
 - ball rotational inertia;
 - bat recoil;
 - contact offset.
@@ -260,7 +305,7 @@ Requirements:
 The preferred order is:
 
 1. finish and verify Phase A reference aerodynamics;
-2. implement tapered bat geometry + effective-mass contact;
+2. implement tapered bat geometry + rigid-body effective-mass contact without explicit deformation;
 3. replace heuristic tangential spin transfer with measured oblique collision response;
 4. add surface-specific bounce/skid/roll;
 5. adopt spin/speed/orientation-dependent aerodynamic coefficients after calibration against the 2022 measurements;
