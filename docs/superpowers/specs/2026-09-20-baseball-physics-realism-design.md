@@ -199,7 +199,31 @@ The next model should use:
 - swing angular velocity;
 - effective mass at the impact point.
 
-This creates a real sweet-spot performance curve along the barrel instead of an arbitrary sweet-spot bonus.
+The rigid-body effective-mass calculation is a required baseline, but it is **not by itself the final bat-performance model**. Published bat measurements show that vibration changes the effective mass seen by the ball and that the difference from the perfectly rigid value depends on impact location.
+
+The Core must capture that consequence without simulating deformation explicitly. The planned reduced-order representation is an optional measured/calibrated dynamic effective-mass profile:
+
+```text
+impact location s
+        ↓
+M_eff,dynamic(s)
+```
+
+When such a profile is available, it may replace the perfectly-rigid normal effective mass for the ball's normal impulse calculation. It is a coefficient/profile obtained from experiment or a validated bat model, not a finite-element state.
+
+Therefore the permanent hierarchy is:
+
+```text
+rigid-body mass / COM / inertia
+        ↓ baseline effective mass
+
+measured vibration consequences
+        ↓ optional dynamic-effective-mass correction
+
+NO explicit flex/compression state in canonical Core
+```
+
+This allows ordinary and torpedo-style mass distributions to differ physically without creating an arbitrary named `sweetSpotBonus`.
 
 ### 4.3 Ball surface velocity and incoming spin
 
