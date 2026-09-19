@@ -741,3 +741,116 @@ H/E classification remains explicit unsupported
 ```
 
 No guessed single/error is required.
+
+---
+
+## 17. Adversarial deep-design closure audit — 2026-09-20
+
+The combined world/runtime/adjudication design was attacked against ordinary and irregular play.
+
+### D-1 — HIGH — stale route future can overwrite a rebased runner
+
+**Attack:** a prebuilt `BatterRunnerWorldTimeline` or `RunnerMotionTrajectory` may still contain samples after a collision, teleport, or route change. If later sampled, it could snap the runner back to obsolete geometry.
+
+**Resolution:** controller basis + `motionRevision` is mandatory. Rebase invalidates all old future samples at/after the rebase boundary. A stale controller must fail closed.
+
+### D-2 — HIGH — discontinuity can fabricate crossed-base history
+
+**Attack:** treating old/new positions as a continuous segment after teleport/reposition can create false second-base touches, tags, or collisions.
+
+**Resolution:** every transition declares continuity. Discontinuous transitions have no swept path and create no intermediate contacts.
+
+### D-3 — HIGH — physical PlayEnd can freeze official state too early
+
+**Attack:** an apparent third out or quiescent live action can be followed by a timely appeal, advantageous fourth out, or review.
+
+**Resolution:** `PlayEndFact` closes physical action only. `OfficialPlayClosure` is the durable official-state fence.
+
+### D-4 — HIGH — next-pitch command can accidentally destroy an appeal/review window
+
+**Attack:** incrementing `playId` or applying next-play MatchState before closing official-state windows makes later appeal/review impossible.
+
+**Resolution:** next-pitch acceptance is a transactional fence: close windows -> resolve same-tick ambiguity -> produce OfficialPlayClosure -> apply MatchState -> prepare world reset -> activate next play.
+
+### D-5 — HIGH — post-play adjudication can mutate a completed physical timeline
+
+**Attack:** appending appeals/reviews to `CanonicalPlateAppearanceTimeline` after `LiveBallPlayEnded` would reopen or blur physical history.
+
+**Resolution:** a separate append-only `PlayAdjudicationLedger(playId)` references immutable physical evidence.
+
+### D-6 — HIGH — on-field call feedback can become retroactive physics authority
+
+**Attack:** because players legitimately react to umpire calls, an implementation could incorrectly use the call itself to rewrite the earlier tag/touch order.
+
+**Resolution:** calls are canonical information events. They may influence future perception/intent only after information availability; prior physical facts remain immutable.
+
+### D-7 — MEDIUM — two runners at one base can be rejected too early
+
+**Attack:** using `BaseOccupancy` as a live-world invariant would make legal/real transient states unrepresentable.
+
+**Resolution:** live world permits conflicting physical proximity/touch. Entitlement is resolved before official ledger creation. If unsupported, closure remains unresolved rather than overwriting one runner.
+
+### D-8 — MEDIUM — rule award can be confused with physical touch
+
+**Attack:** walk/dead-ball/review placement might manufacture touch history merely to populate `BaseOccupancy`.
+
+**Resolution:** physical touch and rule award are distinct acquisition facts. Between-play placement may follow an award without inventing historical running.
+
+### D-9 — MEDIUM — provisional score can leak into durable MatchState
+
+**Attack:** Presentation or an apparent third-out calculation can expose a run before appeal/review closes, and a careless path may write it to durable score.
+
+**Resolution:** durable `CanonicalMatchState` stays at the last OfficialPlayClosure while adjudication is open. Provisional display state is separate.
+
+### D-10 — MEDIUM — unsupported official scoring can block gameplay unnecessarily
+
+**Attack:** lack of hit/error/fielder's-choice classification could prevent the next pitch despite outs/runs/bases being officially settled.
+
+**Resolution:** OfficialPlayClosure is sufficient for next-play gameplay state. Official scoring is downstream and may remain explicit `unsupported`.
+
+### D-11 — MEDIUM — between-play reset can start next play with inconsistent physical actors
+
+**Attack:** OfficialPlayClosure may place a runner on second while the physical world still contains the old runner/controller elsewhere.
+
+**Resolution:** next-play activation additionally requires a canonical between-play setup consistent with official BaseOccupancy and no stale previous-play controllers.
+
+### Closure result
+
+No known HIGH-severity design contradiction remains after these fixes.
+
+Residual implementation risks remain intentionally visible:
+
+- current `BaserunnerWorldState` lacks motion revision/body-mode fields and will need an actor/controller envelope rather than an in-place semantic overload;
+- current route-distance motion cannot exactly represent arbitrary off-route velocity without a free-kinematic/transition controller;
+- runner-runner collision/path negotiation is not yet implemented;
+- general force/entitlement derivation for multi-runner final occupancy is not yet implemented;
+- ActionFrontier and event-queue watermark are design-only;
+- post-PlayEnd adjudication ledger / OfficialPlayClosure is design-only;
+- umpire perception/review placement is design-only;
+- broad official scoring remains unimplemented;
+- current bounded `CanonicalLiveBallFinalResult.officialOutcome` naming remains compatibility debt and must not be reused as FinalOfficialRuling.
+
+### Next dependency-ready code capability
+
+The next code change should be the smallest seam that enables later flexibility without changing existing baseball outcomes:
+
+```text
+Canonical runner kinematics
+  + motionRevision
+  + controller basis binding
+  + route-following adapter over existing RunnerMotion
+  + explicit rebase operation
+```
+
+Required acceptance:
+
+- existing no-rebase runner trajectories remain exactly reproducible;
+- existing P9/fixed-seed evidence remains unchanged;
+- rebase at tick T makes every old future controller sample after T non-authoritative;
+- rebase begins from the exact canonical position/velocity at T;
+- discontinuous rebase creates no intermediate base-touch fact;
+- stale motionRevision/controller basis is rejected;
+- no Presentation, scoring, validation or desired outcome can invoke production rebase authority;
+- the current no-runner ground-ball production outcome remains behaviorally unchanged when no rebase occurs.
+
+This is one capability added to the same engine, not a new implementation phase.
