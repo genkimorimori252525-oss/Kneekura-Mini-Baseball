@@ -8,6 +8,7 @@
 - `docs/game-design/10-world-league-catalog.md`
 - `docs/game-design/12-competition-identity-hosting.md`
 - `docs/game-design/15-season-events-and-deadlines.md`
+- `docs/game-design/17-europe-real-club-catalog.md`
 
 ---
 
