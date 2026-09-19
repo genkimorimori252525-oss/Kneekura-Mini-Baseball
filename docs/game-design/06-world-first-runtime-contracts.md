@@ -678,6 +678,8 @@ Post-play appeal/review/adjudication windows may still be open.
 
 The next pitch/play must not begin from a durable new `CanonicalMatchState` until an `OfficialPlayClosure` (defined in `07-world-first-adjudication-contracts.md`) has resolved the official outs/runs/base ledger.
 
+Post-play adjudication details are defined in that separate contract and are not appended back into the physically completed plate-appearance timeline.
+
 The current bounded no-runner first-base OUT path may collapse both boundaries because it has no supported post-play appeal/review ambiguity. That is a compatibility shortcut, not the general architecture.
 
 ---

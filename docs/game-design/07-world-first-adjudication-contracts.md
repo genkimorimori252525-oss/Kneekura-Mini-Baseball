@@ -235,6 +235,37 @@ type PlayAdjudicationState =
 
 Transitions must be monotonic.
 
+### 4.1 Separate adjudication ledger
+
+Do not reopen or append post-play adjudication into a physically completed `CanonicalPlateAppearanceTimeline`.
+
+Use a separate append-only ledger/state keyed by the same `playId`, conceptually:
+
+```ts
+type PlayAdjudicationLedger = Readonly<{
+  playId: number;
+  lastRevision: number;
+  events: readonly PlayAdjudicationEvent[];
+  state: PlayAdjudicationState;
+}>;
+```
+
+It may reference immutable physical timeline/event ids, but it cannot modify them.
+
+This allows:
+
+```text
+CanonicalPlateAppearanceTimeline
+  -> LiveBallPlayEnded
+  -> physical timeline complete
+
+PlayAdjudicationLedger(playId)
+  -> appeal attempt
+  -> umpire call
+  -> challenge/review
+  -> OfficialPlayClosure
+```
+
 Once `official_closed`, later scoring/statistical analysis may add descriptive records but may not alter that closure unless the RuleProfile explicitly models an extraordinary correction mechanism.
 
 ---
@@ -336,6 +367,14 @@ Represent it as:
 
 Never insert fake historical base touches to justify the placement.
 
+### 6.4 Same-tick information ordering
+
+An umpire call or review announcement can influence only decisions whose information availability is at or after that canonical call/announcement event.
+
+It cannot retroactively alter physical contacts already established at the same tick.
+
+Where physical events are truly simultaneous, preserve simultaneity. Use deterministic event sequence only for information delivery/controller processing that is semantically orderable.
+
 ---
 
 ## 7. Correct-rule state may evolve before closure
@@ -421,6 +460,14 @@ CanonicalMatchState for next play
 
 It should not become the place that decides appeals, umpire calls, occupancy entitlement, or official scoring.
 
+### 8.3 Durable state stays old until closure
+
+While adjudication is still open, the durable `CanonicalMatchState` remains the last officially closed state.
+
+Provisional outs/runs/base placements belong to the play adjudication state, not to the durable next-play ledger.
+
+Presentation may display a provisional call/review state explicitly, but the next pitch cannot consume it as settled MatchState.
+
 ---
 
 ## 9. Between-play world reset
@@ -450,6 +497,20 @@ This reset has `rule_system` provenance.
 It may be represented as discontinuous canonical setup because it occurs outside the closed live action.
 
 Presentation may animate the reset, but animation does not create the official entitlement.
+
+### 9.1 Reset completion gate
+
+`OfficialPlayClosure` makes the official next-play ledger valid, but the next physical play must also start from a world snapshot consistent with that ledger.
+
+Therefore next-play activation requires:
+
+- official closure exists;
+- between-play reset/setup has produced canonical runner/defender/ball starting state;
+- every runner in `CanonicalMatchState.bases` has exactly one corresponding next-play world actor at the expected base/setup state;
+- retired/scored runners are absent from active next-play runner actors;
+- no stale previous-play controller remains active.
+
+The reset animation may lag visually, but the next Core play cannot begin from a physically inconsistent setup.
 
 ---
 

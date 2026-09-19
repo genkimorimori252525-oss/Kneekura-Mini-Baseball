@@ -37,6 +37,8 @@ Presentation observes that truth. It does not create it.
 
 All post-roadmap live-ball, baserunning, fielding, PlayEnd and official-scoring expansion is governed by `docs/game-design/05-world-first-live-ball-architecture.md`.
 
+Implementation-ready runtime details are in `docs/game-design/06-world-first-runtime-contracts.md`; post-PlayEnd adjudication / OfficialPlayClosure / official-scoring boundaries are in `docs/game-design/07-world-first-adjudication-contracts.md`.
+
 The permanent direction is:
 
 ```text
@@ -272,4 +274,6 @@ Exact closure evidence:
 - fixed-seed fingerprints unchanged;
 - P9 calibration fingerprint remains `f5058efd2d23784c`.
 
-This is not complete general live-ball orchestration. SAFE continuation, occupied-base/multi-runner play, route rebasing after discontinuities, relays/rundowns, general PlayEnd, broader official scoring, and production-driven batch calibration remain capabilities to add to the same continuous world-first Core.
+This is not complete general live-ball orchestration. Runner controller revision/rebase, SAFE continuation, occupied-base/multi-runner play, relays/rundowns, ActionFrontier PlayEnd, a separate playId-bound adjudication ledger / OfficialPlayClosure, broader official scoring, and production-driven batch calibration remain capabilities to add to the same continuous world-first Core.
+
+The smallest dependency-ready implementation seam is runner canonical kinematics + controller basis/revision + route-following adapter + explicit rebase. It can be added while preserving current no-rebase fingerprints and before general multi-runner/PlayEnd orchestration.

@@ -4,7 +4,9 @@
 **Branch:** `jolly/core-realism-2026-09-18`  
 **Starting HEAD:** `5d9e1dfa162fc466bf924d50f7bf82e0d3b62ef4`  
 **Durable workflow:** `04286db135aa47d1b3b57f1834ba943e`  
-**World-first governing contract:** `docs/game-design/05-world-first-live-ball-architecture.md`
+**World-first governing contract:** `docs/game-design/05-world-first-live-ball-architecture.md`  
+**World-first runtime contract:** `docs/game-design/06-world-first-runtime-contracts.md`  
+**Adjudication/closure contract:** `docs/game-design/07-world-first-adjudication-contracts.md`
 
 This plan records the first causal production milestone. Future expansion follows the single continuous world-first contract; the milestone sections below do not define separate result engines.
 
@@ -325,7 +327,8 @@ The first milestone established the authority boundary. From here, implementatio
 - pre-pitch runners and independent multi-runner world state;
 - force transitions, tags, rundowns, relays and possession loss;
 - general rule/action-based PlayEnd;
-- causal final occupancy derivation;
+- post-PlayEnd adjudication / OfficialPlayClosure;
+- causal final official occupancy derivation;
 - production-result statistics observation;
 - downstream hit/error/fielder's-choice and other official scoring.
 
@@ -537,7 +540,9 @@ No Presentation, P9 bucket, validation statistic, advisory probability, caller-s
 
 ### C-2 — official classification remains downstream-only
 
-`CanonicalLiveBallFinalResult.officialOutcome` is the single official-classification authority for the new boundary.
+`CanonicalLiveBallFinalResult.officialOutcome` is the single **bounded descriptive classification** authority for the first production slice.
+
+Despite the legacy field name, it is not the future umpire/review `FinalOfficialRuling`. General adjudication uses the separate contract in `07-world-first-adjudication-contracts.md` and must not overload this field.
 
 The first supported classification is intentionally only:
 

@@ -13,7 +13,7 @@ Mini Baseball は将来の Natural Baseball と別の簡易試合ロジックを
 
 ### World-first post-roadmap contract
 
-P0〜P9は歴史的な実装ロードマップとして残す。ロードマップ後のlive-ball拡張は新たな「段階1 / 段階2」結果エンジンへ分割せず、`05-world-first-live-ball-architecture.md` の一つの連続Coreを拡張する。
+P0〜P9は歴史的な実装ロードマップとして残す。ロードマップ後のlive-ball拡張は新たな「段階1 / 段階2」結果エンジンへ分割せず、`05-world-first-live-ball-architecture.md` の一つの連続Coreを拡張する。実装境界は `06-world-first-runtime-contracts.md`、判定/公式状態境界は `07-world-first-adjudication-contracts.md` を正とする。
 
 ```text
 正史世界 -> 意思/行動 -> 物理イベント -> 規則解釈 -> 公式記録 -> 検証/描画
@@ -58,7 +58,7 @@ P0〜P9は歴史的な実装ロードマップとして残す。ロードマッ�
 8. ~~P7 一打席采配接続~~ **実装完了**（self-hosted Actionsでfull verify済み）。一度だけ受理した采配をP2/P6の物理intentへ展開し、各球正史とMatchState更新を保持。
 9. ~~P8 Miniライブ観測表示~~ **実装完了**（self-hosted Actionsでfull verify済み）。Canonical live/replay、Batter/Pitcher/Overhead、R/H/E、走者ダイヤ、カード、命令帯、体格点サイズ分離を実装。
 10. ~~P9 統計検証とNatural移行境界~~ **実装完了**（self-hosted Actionsでfull verify済み）。fixed-seed/corpus、因果trace、同一打球alignment比較、batch統計、性能計測、Natural read-only境界、renderer非干渉を固定。代表fixed-seed fingerprintは再現性確認後に凍結済み。初期1,024-contact校正も同一canonical contact集合を複数配置へ流してCI検証済み。
-11. **ロードマップ後**: ~~CI実行復旧 / full verify / fingerprint凍結 / 最初のproduction causal live-ball結果境界~~ 完了。以後は一つの continuous capability frontier として、SAFE継続、任意経路へのrebase、occupied-base/multi-runner、force/tag/rundown/relay、一般PlayEnd、公式記録、production結果由来統計校正、Natural observer を依存関係に応じて同じCoreへ追加する。
+11. **ロードマップ後**: ~~CI実行復旧 / full verify / fingerprint凍結 / 最初のproduction causal live-ball結果境界~~ 完了。以後は一つの continuous capability frontier として、runner controller revision/rebase、任意経路/自由world-space状態、occupied-base/multi-runner、force/tag/rundown/relay、ActionFrontier PlayEnd、post-PlayEnd adjudication / OfficialPlayClosure、公式記録、production結果由来統計校正、Natural observer を依存関係に応じて同じCoreへ追加する。
 
 このguardrailにより、今後の守備物理追加は「P5全体のどの受入条件を閉じるか」を明示してから行う。
 

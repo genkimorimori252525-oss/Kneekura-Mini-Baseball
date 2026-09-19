@@ -37,10 +37,17 @@ Canonical World State
   -> perception / intent / action
   -> physical movement and contact
   -> canonical physical events
-  -> rule interpretation
-  -> official ruling / scoring description
+  -> correct rule interpretation
+  -> on-field/review adjudication when modeled
+  -> final official play state
+  -> official scoring description
   -> validation / presentation observers
 ```
+
+Detailed runtime and adjudication contracts live in:
+
+- `06-world-first-runtime-contracts.md`;
+- `07-world-first-adjudication-contracts.md`.
 
 This document is not a new staged roadmap. It is the continuous architecture contract that all remaining live-ball work must obey.
 
@@ -439,9 +446,11 @@ It must evaluate an **action frontier** that includes more than current velocity
 - in-flight ball/player motion;
 - already-issued intents whose motor/reaction delay has not completed;
 - scheduled possession/reception/tag/base-contact consequences;
-- pending perception/communication updates that can still cause a supported agent to choose a new action in this play;
-- unresolved appeal/review/rule windows that the configured RuleProfile treats as part of the current play;
-- eligible offensive/defensive actors whose current policy still permits a new action before the next reset/pitch.
+- pending perception/communication updates that can still cause a supported agent to choose a new **physical live-action** command;
+- unresolved rule/action windows that specifically require the current physical live action to remain open;
+- eligible offensive/defensive actors whose current policy still permits a new physical action before live-action quiescence.
+
+Post-play appeal/review windows are different: they may survive after `PlayEndFact` and block `OfficialPlayClosure` instead.
 
 A play may be operationally complete when one of the rule/profile-supported completion conditions applies, for example:
 
@@ -508,7 +517,8 @@ The same architecture expands continuously to cover, in any implementation order
 - wild throws and possession loss;
 - dead-ball/award states;
 - general PlayEnd/quiescence;
-- final occupancy derivation;
+- post-PlayEnd adjudication / OfficialPlayClosure;
+- final official occupancy derivation;
 - broader official scoring;
 - production-derived statistical calibration.
 
@@ -629,6 +639,24 @@ The unified contract was attacked after reconciliation with the existing plans.
 
 **Resolution:** physical/base-relation truth and official participation/occupancy are explicitly distinct.
 
+### Finding W-6 — HIGH — physical PlayEnd and official closure could be conflated
+
+**Attack:** appeals, advantageous fourth-out logic and review can change official outs/runs/base placement after physical live action has stopped. Treating `PlayEndFact` as durable MatchState closure would freeze the result too early.
+
+**Resolution:** `PlayEndFact` now means physical live-action end only. `OfficialPlayClosure` is a distinct later fence for durable next-play state. Post-play appeal/review windows block official closure, not physical PlayEnd.
+
+### Finding W-7 — HIGH — post-play adjudication could be forced into a completed plate-appearance timeline
+
+**Attack:** `CanonicalPlateAppearanceTimeline` becomes `live_ball_complete` at PlayEnd. Appending later appeal/review state there would either violate timeline semantics or reopen physical history.
+
+**Resolution:** post-play adjudication uses a separate playId-bound adjudication ledger/state machine. The completed physical timeline remains immutable.
+
+### Finding W-8 — MEDIUM — current `officialOutcome` name can be mistaken for umpire Final Official Ruling
+
+**Attack:** the bounded production type `CanonicalLiveBallFinalResult.officialOutcome` currently carries only the supported descriptive classification `batter_runner_out_before_first`. Its name could be misread as the future umpire/review ruling authority.
+
+**Resolution:** treat the existing field as bounded descriptive outcome compatibility data. It is not the future `FinalOfficialRuling`. General adjudication must use separate types and must not overload this field.
+
 ### Residual implementation risks
 
 No known HIGH-severity design contradiction remains.
@@ -638,6 +666,7 @@ The current implementation still lacks:
 - a general runner route-rebase orchestrator;
 - arbitrary-target/free world-space runner locomotion beyond the current route-distance model;
 - an action-frontier/general PlayEnd implementation;
+- a playId-bound post-PlayEnd adjudication ledger and OfficialPlayClosure implementation;
 - multi-runner production orchestration;
 - umpire/review integration in the new production ground-ball coordinator;
 - broad official scoring.
