@@ -392,3 +392,7 @@ Club state lifecycle / pennant save boundary:
 
 Club structural dominance / decline:
 - `docs/game-design/19-club-structural-dominance-and-decline.md`
+
+
+Simple surface / deep simulation UX:
+- `docs/game-design/20-simple-surface-deep-simulation.md`
