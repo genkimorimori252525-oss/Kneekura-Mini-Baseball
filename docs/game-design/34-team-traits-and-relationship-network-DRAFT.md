@@ -1225,3 +1225,151 @@ B transferred
 RelationshipはPlayer間Historyであり、Team Traitより長寿命。
 
 Team TraitのSeason Boundary policyは `35-team-trait-catalog-DRAFT.md` を参照する。
+
+---
+
+# 29. Team Synchrony / 投打の噛み合い
+
+ユーザーが重視する現象:
+
+> 個々の戦力は悪くないのに、投手が抑える日は打線が沈黙し、打線が点を取る日は投手が崩れる。
+
+この現象をDirect Outcome Modifierで作らない。
+
+禁止:
+
+```text
+投打不協和
+ -> 勝率 -10%
+ -> offense goodならpitching bad
+```
+
+代わりに二層へ分ける。
+
+## 29.1 Synchrony Descriptor
+
+実際のGame Historyから「投打が同じ日に噛み合ったか」を測る。
+
+```text
+actual runs scored by game
++ actual runs allowed by game
++ leverage / game context
+        ↓
+Team Synchrony Analysis
+        ↓
+Blue / Red Derived Descriptor
+```
+
+候補:
+
+- Blue: 投打好循環
+- Red: 投打不協和
+- Red sub-descriptor: 好投見殺し
+- Red sub-descriptor: 援護直後失点
+
+これらは**DESCRIPTOR_ONLY**。
+
+Trait Label自体から追加効果を出さない。
+
+## 29.2 Why Descriptor-only
+
+「投手が抑えたから打者が打てなくなる」「打者が点を取ったから投手が失点する」という物理的因果は存在しない。
+
+したがって、投打の噛み合わなさそのものを原因化しない。
+
+実際の原因は別Familyに存在する。
+
+例:
+
+```text
+タイムリー欠乏症
++ 終盤恐怖症
++ ブルペン不信
++ 継投迷走
++ 失点引きずり
++ Team Mood pressure
++ Manager usage / role decisions
+        ↓
+individual games fail in different ways
+        ↓
+season-level result:
+投打不協和
+```
+
+つまり「投打不協和」は診断名 / 観測結果。
+
+## 29.3 Support Mismatch Metrics
+
+実装候補として、単なる得失点差だけでなく**日ごとの組み合わせ**を見る。
+
+候補指標:
+
+```text
+Pitching Gem Wasted Rate
+ = strong run-prevention games that ended in loss / no-decision due to low support
+
+Support Squander Rate
+ = high run-support games lost due to high runs allowed
+
+Offense-Pitching Alignment
+ = actual game-level alignment compared with independent pairing baseline
+```
+
+特にAlignmentは、同Seasonの得点列と失点列を独立に再組み合わせた場合の期待勝利数と、実際の勝利数との差を利用できる。
+
+```text
+same offensive distribution
+same pitching distribution
+but timing shuffled
+        ↓
+expected wins if units were independent
+
+actual wins - shuffled expectation
+        ↓
+Alignment Residual
+```
+
+大きくnegativeなら「同じ戦力分布の割に噛み合っていない」。
+
+これは能力Buff/Debuffではなく説明用のDerived Evidence。
+
+## 29.4 Three-season Persistence
+
+3年連続で同じ現象が出る場合も、`投打不協和` Traitを3年固定しない。
+
+毎Season:
+
+```text
+persistent organizational roots
++ manager / role structure
++ team mood tendencies
++ player relationships
++ unit-specific Red Traits
+        ↓
+new season games
+        ↓
+Synchrony Descriptor reacquired if evidence returns
+```
+
+つまり3年連続最下位のような長期不振は、**毎年再び同じ根本原因が残っていたために同じDescriptorが再発する**構造とする。
+
+Season BoundaryではDescriptor自体はresetする。
+
+## 29.5 Anti-cheese Rule
+
+本当に強いRosterを`投打不協和`一個だけで3年最下位へ落とすのは禁止。
+
+長期低迷には複数の実原因が必要。
+
+例:
+
+- scoring creation不足
+- roster fit / role mismatch
+- bullpen role instability
+- manager decision quality
+- negative Team Mood
+- unit-specific Red Team Traits
+- injuries / availability
+- poor sequencing / timing variance
+
+これらが実際のPlayを通して結果へ出て初めて長期低迷になる。
