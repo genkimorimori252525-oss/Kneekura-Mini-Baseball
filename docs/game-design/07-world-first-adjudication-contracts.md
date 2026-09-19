@@ -820,7 +820,7 @@ No known HIGH-severity design contradiction remains after these fixes.
 
 Residual implementation risks remain intentionally visible:
 
-- current `BaserunnerWorldState` lacks motion revision/body-mode fields and will need an actor/controller envelope rather than an in-place semantic overload;
+- the runner actor/controller envelope now exists outside the compact `BaserunnerWorldState` snapshot shape; the snapshot type remains intentionally unchanged for compatibility;
 - current route-distance motion cannot exactly represent arbitrary off-route velocity without a free-kinematic/transition controller;
 - runner-runner collision/path negotiation is not yet implemented;
 - general force/entitlement derivation for multi-runner final occupancy is not yet implemented;
@@ -830,9 +830,9 @@ Residual implementation risks remain intentionally visible:
 - broad official scoring remains unimplemented;
 - current bounded `CanonicalLiveBallFinalResult.officialOutcome` naming remains compatibility debt and must not be reused as FinalOfficialRuling.
 
-### Next dependency-ready code capability
+### Closed dependency-ready code capability — 2026-09-20
 
-The next code change should be the smallest seam that enables later flexibility without changing existing baseball outcomes:
+The capability previously named here has now been implemented and verified:
 
 ```text
 Canonical runner kinematics
@@ -842,15 +842,18 @@ Canonical runner kinematics
   + explicit rebase operation
 ```
 
-Required acceptance:
+Closure evidence:
 
-- existing no-rebase runner trajectories remain exactly reproducible;
-- existing P9/fixed-seed evidence remains unchanged;
-- rebase at tick T makes every old future controller sample after T non-authoritative;
-- rebase begins from the exact canonical position/velocity at T;
-- discontinuous rebase creates no intermediate base-touch fact;
-- stale motionRevision/controller basis is rejected;
-- no Presentation, scoring, validation or desired outcome can invoke production rebase authority;
-- the current no-runner ground-ball production outcome remains behaviorally unchanged when no rebase occurs.
+- exact implementation head: `a3b1f4ce3aea1fd2fce1df60b5f5a6868fd604de`;
+- self-hosted P0 Core run `35459687617`: success;
+- **239 / 239** test files and **1102 / 1102** tests passed;
+- no-rebase route behavior remains reproducible;
+- all three frozen P9 fingerprints remain unchanged;
+- rebase invalidates stale future controller authority;
+- replacement control begins from the exact canonical state at the rebase tick;
+- discontinuous rebase produces no swept intermediate base-touch fact;
+- stale `motionRevision` / controller basis is rejected;
+- production rebase provenance rejects Presentation/validation/scoring/desired-result authority;
+- the existing no-runner ground-ball production path remains green.
 
-This is one capability added to the same engine, not a new implementation phase.
+This closes the implementation target that this design audit explicitly selected. The residual implementation risks listed above remain visible, but **none is promoted here into a new task or “next capability.”** Any further implementation requires a separately approved scope.

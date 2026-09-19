@@ -769,3 +769,32 @@ Acceptance for that seam should prove:
 - Presentation and RuleEngine outputs are unchanged for plays with no rebase.
 
 The general PlayEnd/multi-runner orchestrator should consume this seam rather than inventing a second locomotion model.
+
+### 13.1 Implementation closure — 2026-09-20
+
+The explicit seam above is now implemented and verified. This closes the implementation target named by this contract; it does **not** authorize starting another residual capability automatically.
+
+Implemented on `jolly/core-realism-2026-09-18`:
+
+- exact implementation head: `a3b1f4ce3aea1fd2fce1df60b5f5a6868fd604de`;
+- `CanonicalRunnerKinematics` with monotonic `motionRevision`;
+- `RunnerControllerBasis` binding;
+- `RouteFollowingController` over the existing `RunnerMotion` / `RunnerRoute` / `RunnerWorldProjection` / `RunnerBaseTouch` primitives;
+- explicit continuous/discontinuous rebase;
+- stale controller and stale base-touch authority rejection;
+- discontinuous rebase with no swept intermediate base touch;
+- production provenance fencing against Presentation/validation/scoring/desired-result authority.
+
+Verification evidence:
+
+- self-hosted P0 Core run `35459687617`: success;
+- `npm run verify`: **239 / 239 test files**, **1102 / 1102 tests**;
+- `RunnerLocomotionController.test.ts`: 5 passed;
+- `RunnerLocomotionControllerAuthority.test.ts`: 8 passed;
+- P9 fixed-seed fingerprints unchanged:
+  - `0d6e8aefd4601e9a`;
+  - `8c3db4d6447bcad5`;
+  - `d49f585e4b33fb17`;
+- existing ground-ball production outcome authority/isolation/coordinator regressions remained green.
+
+The remaining contracts in this document—multi-runner state, final occupancy derivation, ActionFrontier, general PlayEnd, free-kinematic transition support, and related orchestration—remain design capabilities only until separately approved for implementation.
