@@ -956,3 +956,15 @@ Unapproved roster / development draft (USER REVIEW REQUIRED):
 
 Rivalry lifecycle approval candidate (USER APPROVAL REQUIRED):
 - `docs/game-design/33-rivalry-lifecycle-model-DRAFT.md`
+
+
+## Rivalry Label Provenance
+
+初期Real-world seed由来のRivalryと、Career開始後に生まれたEmergent Rivalryを区別する。
+
+- Initial Historical Edge: 「伝統」「歴史的」「Derby」等のLabelを許可
+- Emergent Edge: 「因縁」「近年のライバル」「近年の宿敵」等で表示
+
+Intensityが同じでもLabel provenanceを混同しない。
+
+詳細な形成・減衰・Event Memoryモデルは `docs/game-design/33-rivalry-lifecycle-model-DRAFT.md` を正とする。
