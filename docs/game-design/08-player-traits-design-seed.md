@@ -1891,3 +1891,56 @@ defined behavior / execution change
 
 Team traits / player relationship design candidate (USER REVIEW REQUIRED):
 - `docs/game-design/34-team-traits-and-relationship-network-DRAFT.md`
+
+
+---
+
+## Anti-Monocausal Design Principle
+
+Mini Baseballでは、複雑な長期現象を一つの便利なSystemだけで説明しない。
+
+禁止例:
+
+```text
+20-year dark era
+ -> Team Trait
+
+all recruitment success
+ -> Scouting
+
+all winning
+ -> Manager Ability
+
+all player growth
+ -> Development Facility
+```
+
+長期結果は複数層の因果連鎖から生じる。
+
+```text
+Institution / Economy
++ Scouting / Recruitment
++ Development
++ Roster Construction
++ Manager Decisions
++ Relationships / Team Mood
++ Temporary Team Traits
++ Player Ability
++ Variance
+        ↓
+Observed Team History
+```
+
+各Systemは、自分が説明すべき層だけを担当する。
+
+特にTeam Traitは **proximate-state layer** とする。
+
+```text
+Team Trait
+ = how the team is currently functioning / failing
+
+NOT
+ = universal root cause of long-term success or failure
+```
+
+この原則は今後のTeam Mood / Manager Ability / Popularity設計にも適用する。
