@@ -1946,5 +1946,5 @@ NOT
 この原則は今後のTeam Mood / Manager Ability / Popularity設計にも適用する。
 
 
-Team Mood design candidate (USER REVIEW REQUIRED):
-- `docs/game-design/37-team-mood-architecture-DRAFT.md`
+Team Mood design (APPROVED):
+- `docs/game-design/37-team-mood-architecture.md`
