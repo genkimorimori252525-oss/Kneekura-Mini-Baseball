@@ -56,7 +56,7 @@ LeagueCoefficientが高いからClubの能力値が上がることはない。
 
 ## 2.3 Domestic Championは原則Continental automatic berth
 
-Asia / Americas / Europeでは、各Full LeagueのDomesticChampionが次回Continental CL本大会へのautomatic berthを持つ。Africa / Oceaniaは11で定義した地域固有枠に従う。
+Asia-Pacific / Americas / Europeでは、各Full LeagueのDomesticChampionが次回Continental CL本大会へのautomatic berthを持つ。Africaは11で定義した地域固有枠に従う。
 
 ## 2.4 Duplicate berthは次順位へcascade
 
@@ -206,7 +206,7 @@ top 2
 
 ---
 
-# 4. Asia
+# 4. Asia-Pacific — Asian subregion
 
 ## 4.1 Japan League — CONFERENCE_SERIES
 
@@ -240,7 +240,7 @@ League A Champion vs League B Champion
 - League B Champion
 - Japan Domestic Champion
 
-ABCL qualification priority:
+APBCL qualification priority:
 
 ```text
 1. Japan Domestic Champion
@@ -274,7 +274,7 @@ winner vs 1st
 
 Regular Season 1位はFinalへ直行。
 
-ABCL priority:
+APBCL priority:
 
 ```text
 1. DomesticChampion
@@ -285,7 +285,7 @@ ABCL priority:
 
 ## 4.3 Taiwan League — TOP4_SERIES
 
-8 clubs、Single annual table。
+6 clubs、Single annual table。
 
 - 1st vs 4th: best-of-5
 - 2nd vs 3rd: best-of-5
@@ -293,9 +293,9 @@ ABCL priority:
 
 Split-season champion制は初期標準にしない。将来Competition Reformとして導入可能。
 
-ABCL qualificationはTOP4_SERIES共通order。
+APBCL qualificationはTOP4_SERIES共通order。
 
-Taiwan seasonはNovemberまでを許すが、ABCL windowと衝突するeditionでは11のFlex Windowを使う。
+Taiwan seasonはNovemberまでを許すが、APBCL windowと衝突するeditionでは11のFlex Windowを使う。
 
 ## 4.4 China League — TOP4_SERIES
 
@@ -304,7 +304,7 @@ Taiwan seasonはNovemberまでを許すが、ABCL windowと衝突するedition�
 - SF best-of-5
 - Final best-of-7
 
-ABCL qualificationはTOP4_SERIES共通order。
+APBCL qualificationはTOP4_SERIES共通order。
 
 14Club以上へ拡大した場合はTop6化をCompetition Reform候補とする。
 
@@ -314,7 +314,7 @@ ABCL qualificationはTOP4_SERIES共通order。
 
 年間table 1位がDomesticChampion。
 
-ABCL qualification:
+APBCL qualification:
 
 ```text
 1st
@@ -571,7 +571,7 @@ AfBCL initial qualification:
 
 ---
 
-# 8. Oceania
+# 8. Asia-Pacific — Oceania subregion
 
 ## 8.1 Australia League — TOP4_SERIES
 
@@ -582,17 +582,18 @@ AfBCL initial qualification:
 
 short-season leagueなのでAmericas / East Asiaよりseriesを短くする。
 
-OBCL initial qualification: Australia 3 clubs。
-
-Priority:
+APBCL qualification priority:
 
 ```text
 1. DomesticChampion
 2. RegularSeasonWinner
 3. ChampionshipRunnerUp
+4+. Regular Season standing
 ```
 
-重複時はRegular Season次順位。
+DomesticChampionはAsia-Pacificの7 Full League champion枠でautomatic qualification。
+
+追加枠はAPBCL LeagueCoefficientによってAustralia Leagueへ与えられた場合のみ、この順で埋める。
 
 ## 8.2 New Zealand / Pacific League — TABLE_TITLE
 
@@ -600,13 +601,14 @@ Priority:
 
 年間table 1位がDomesticChampion。
 
-OBCL initial qualification:
+APBCL qualification:
 
 ```text
-1st
-2nd
-3rd
+1st = DomesticChampion automatic berth
+2nd+ = coefficient berth candidates
 ```
+
+New Zealand / Pacificも他のAsia-Pacific Full Leagueと同じAPBCL qualification contractを使う。
 
 ---
 
@@ -614,11 +616,11 @@ OBCL initial qualification:
 
 | Region | League | Clubs | Domestic format |
 | --- | --- | ---: | --- |
-| Asia | Japan | 12 | Conference Series |
-| Asia | Korea | 10 | Ladder |
-| Asia | Taiwan | 6 | Top-4 Series |
-| Asia | China | 10 | Top-4 Series |
-| Asia | West / South Asia | 12 | Table Title |
+| Asia-Pacific | Japan | 12 | Conference Series |
+| Asia-Pacific | Korea | 10 | Ladder |
+| Asia-Pacific | Taiwan | 6 | Top-4 Series |
+| Asia-Pacific | China | 10 | Top-4 Series |
+| Asia-Pacific | West / South Asia | 12 | Table Title |
 | Americas | North America | 30 | Conference Series |
 | Americas | Mexico | 20 | Conference Series |
 | Americas | Dominican | 6 | Winter Round Robin |
@@ -633,8 +635,8 @@ OBCL initial qualification:
 | Europe | Italy | 12 | Europe Top-4 |
 | Europe | Russia | 10 | Europe Top-4 |
 | Africa | Pan-African | 12 | Table Title |
-| Oceania | Australia | 8 | Top-4 Series |
-| Oceania | New Zealand / Pacific | 8 | Table Title |
+| Asia-Pacific | Australia | 8 | Top-4 Series |
+| Asia-Pacific | New Zealand / Pacific | 8 | Table Title |
 
 ---
 
@@ -708,10 +710,10 @@ Home advantageはStadiumProfile、travel、crowd、venue familiarityなど実際
 Domestic seasonはContinental WindowまでにChampion / qualification orderを確定できるよう設計する。
 
 - Europe domestic season ends -> October EBCL
-- Japan / Korea postseason -> November ABCL
+- Japan / Korea postseason -> November APBCL
 - Americas summer + winter qualification seasons -> February AmBCL
 - Pan-Africa -> April AfBCL
-- Australia / NZ-Pacific -> March OBCL
+- Australia / NZ-Pacific -> November APBCL, using the preceding completed domestic `QualificationSeasonId`; active domestic season takes a Continental Break
 
 台湾やWest/South Asia等でwindowが衝突する場合は11のFlex Window / Continental Breakを使う。
 
@@ -754,7 +756,7 @@ China 10 -> 14 clubs
 # 16. 今回の設計判断
 
 1. DomesticChampionとRegularSeasonWinnerを必要に応じて分離
-2. Asia / Americas / EuropeのDomesticChampionはContinental automatic berth
+2. Asia-Pacific / Americas / EuropeのDomesticChampionはContinental automatic berth
 3. LeagueCoefficientがberth数、Domestic Resultが出場clubを決める
 4. Europe 7 leaguesはEURO_TOP4。Regular Season 1位を独立タイトルとして残し、上位4で短期Postseason
 5. West/South Asia、Pan-Africa、NZ/PacificはTABLE_TITLE
