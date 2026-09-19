@@ -418,5 +418,5 @@ Emergent Rivalry
 は**ユーザーと次回相談してから決定する。**
 
 
-Rivalry lifecycle approval candidate (USER APPROVAL REQUIRED):
-- `docs/game-design/33-rivalry-lifecycle-model-DRAFT.md`
+Rivalry lifecycle design (APPROVED):
+- `docs/game-design/33-rivalry-lifecycle-model.md`
