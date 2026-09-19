@@ -1194,3 +1194,27 @@ Psychological intent is modeled as an uncertain secondary forecast. It can help,
 
 Decision Trace / user-facing log design:
 - `docs/game-design/46-manager-rare-tactics-psychological-play-and-decision-log-DRAFT.md`
+
+
+Manager candidate evaluation / gimmick-control design (USER REVIEW REQUIRED):
+- `docs/game-design/47-manager-candidate-evaluation-and-gimmick-control-DRAFT.md`
+
+
+---
+
+# 50. Candidate Valuation Dependency
+
+Candidate selection must use the same subjective valuation framework for ordinary and rare actions.
+
+Important split:
+
+```text
+Candidate Admission
+ !=
+Candidate Selection
+```
+
+A novelty-loving manager may think of many unusual options without choosing all of them.
+
+Detailed valuation / anti-gimmick design:
+- `docs/game-design/47-manager-candidate-evaluation-and-gimmick-control-DRAFT.md`
