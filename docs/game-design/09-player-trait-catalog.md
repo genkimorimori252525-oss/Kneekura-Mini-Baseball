@@ -865,3 +865,13 @@ Team traits / player relationship design candidate (USER REVIEW REQUIRED):
 
 Team Trait Catalog (USER REVIEW REQUIRED):
 - `docs/game-design/35-team-trait-catalog-DRAFT.md`
+
+
+---
+
+## Popularity / Reputation follow-up
+
+`人気者`、`威圧感 / 存在感` の移管先設計:
+- `docs/game-design/50-popularity-reputation-architecture-DRAFT.md`
+
+Catalog上のMOVE判断は維持し、詳細Source of Truthは同文書で設計する。
