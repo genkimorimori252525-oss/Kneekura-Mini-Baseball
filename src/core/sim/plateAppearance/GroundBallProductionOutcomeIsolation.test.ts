@@ -45,6 +45,8 @@ describe('GroundBallProductionOutcomeCoordinator isolation', () => {
     const forbiddenSubsystemTokens = [
       'P9BatchCalibration',
       'BatchValidationStatistics',
+      '../../validation/',
+      '../validation/',
       '/presentation/',
       '../presentation/',
       '../../presentation/',

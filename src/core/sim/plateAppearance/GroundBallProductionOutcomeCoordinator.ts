@@ -93,6 +93,10 @@ import {
   completeGroundBallFirstBasePlateAppearance,
   type GroundBallFirstBasePlateAppearanceCompletionResult,
 } from './GroundBallPlateAppearanceCoordinator';
+import {
+  createCanonicalLiveBallFinalResult,
+  type CanonicalLiveBallFinalResult,
+} from './CanonicalLiveBallOutcome';
 
 export type GroundBallHandlerPhysicalInput = Readonly<{
   playerId: string;
@@ -141,6 +145,7 @@ export type GroundBallPickupEvidence = Readonly<{
 export type CanonicalGroundBallFirstBaseCompletedOutcome = Readonly<{
   kind: 'completed';
   classification: 'batter_runner_out_before_first';
+  canonicalResult: CanonicalLiveBallFinalResult;
   pickup: GroundBallPickupEvidence;
   transfer: BallTransferTiming;
   throwExecution: CoverageThrowExecution;
@@ -589,9 +594,18 @@ export const resolveCanonicalGroundBallFirstBaseOutcome = (
       },
     });
 
+  const canonicalResult = createCanonicalLiveBallFinalResult(
+    completion.resolution,
+    {
+      kind: 'supported',
+      classification: 'batter_runner_out_before_first',
+    },
+  );
+
   return {
     kind: 'completed',
     classification: 'batter_runner_out_before_first',
+    canonicalResult,
     pickup,
     transfer,
     throwExecution,
