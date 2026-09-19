@@ -40,8 +40,8 @@ SPECIAL ABILITY PRESENTATION
 
 1. Player Traits — 基本設計 / Catalog完了
 2. Team Traits + Player Relationship — 設計中
-3. Team Mood — 次
-4. Manager Ability — その次
+3. Team Mood — 基本設計承認済み
+4. Manager Ability / Philosophy — 設計中
 5. Popularity / Reputation — その次
 
 ---
@@ -1959,3 +1959,7 @@ Team Moodはrare-impact layer。
 重大なpositive / negative stateのみGameplayへ接続し、Season内の勝敗説明ではTeam Traitを主役とする。
 
 Team MoodはTeam Traitを単独生成できない。独立したBaseball Evidenceを必要とする。
+
+
+Manager philosophy / command architecture (USER REVIEW REQUIRED):
+- `docs/game-design/39-manager-philosophy-and-command-architecture-DRAFT.md`
