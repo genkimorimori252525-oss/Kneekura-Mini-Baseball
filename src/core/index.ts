@@ -64,6 +64,7 @@ export * from './sim/fielding/CatchExecutionSkill';
 export * from './sim/fielding/CatchRetentionSkill';
 export * from './sim/running/BaseTouch';
 export * from './sim/running/RunnerMotion';
+export * from './sim/running/RunnerLocomotionController';
 export * from './sim/running/RunnerDecisionTiming';
 export * from './sim/running/RunnerDecision';
 export * from './sim/running/RunnerRiskPolicy';

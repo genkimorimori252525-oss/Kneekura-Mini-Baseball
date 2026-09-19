@@ -13,13 +13,18 @@ import {
   createRunnerMotionStateFromSwingExitTransition,
 } from './BatterSwingExitRunTransition';
 import {
-  buildRunnerMotionTrajectory,
-  sampleRunnerMotionTrajectory,
   type RunnerMotionIntent,
   type RunnerMotionParameters,
   type RunnerMotionState,
   type RunnerMotionTrajectory,
 } from './RunnerMotion';
+import {
+  buildRouteFollowingController,
+  createCanonicalRunnerKinematicsFromRouteMotion,
+  sampleRouteFollowingController,
+  type CanonicalRunnerKinematics,
+  type RouteFollowingController,
+} from './RunnerLocomotionController';
 import {
   projectRunnerWorldState,
 } from './RunnerWorldProjection';
@@ -37,6 +42,8 @@ export type BatterRunnerWorldTimeline = Readonly<{
   postLaunchIntent: RunnerMotionIntent;
   runnerMotionParameters: RunnerMotionParameters;
   launchState: RunnerMotionState;
+  launchKinematics: CanonicalRunnerKinematics;
+  postLaunchController: RouteFollowingController;
   postLaunchTrajectory: RunnerMotionTrajectory;
   startTick: number;
   endTick: number;
@@ -146,12 +153,21 @@ export const buildBatterRunnerWorldTimeline = (
     );
   }
 
-  const postLaunchTrajectory = buildRunnerMotionTrajectory(
+  const launchKinematics = createCanonicalRunnerKinematicsFromRouteMotion(
+    input.playerId,
     launchState,
-    input.postLaunchIntent,
-    input.endTick - launchTick,
-    input.runnerMotionParameters,
+    input.route,
+    0,
   );
+  const postLaunchController = buildRouteFollowingController({
+    canonical: launchKinematics,
+    startMotion: launchState,
+    route: input.route,
+    intent: input.postLaunchIntent,
+    parameters: input.runnerMotionParameters,
+    endTick: input.endTick,
+  });
+  const postLaunchTrajectory = postLaunchController.trajectory;
 
   return {
     playerId: input.playerId,
@@ -160,6 +176,8 @@ export const buildBatterRunnerWorldTimeline = (
     postLaunchIntent: input.postLaunchIntent,
     runnerMotionParameters: input.runnerMotionParameters,
     launchState,
+    launchKinematics,
+    postLaunchController,
     postLaunchTrajectory,
     startTick: input.recovery.startTick,
     endTick: input.endTick,
@@ -197,19 +215,20 @@ export const sampleBatterRunnerWorldTimeline = (
     };
   }
 
-  const motion = sampleRunnerMotionTrajectory(
-    timeline.postLaunchTrajectory,
+  const canonical = sampleRouteFollowingController(
+    timeline.postLaunchController,
+    timeline.launchKinematics,
     tick,
   );
 
   return {
     tick,
     phase: 'runner_motion',
-    world: projectRunnerWorldState(
-      timeline.playerId,
-      motion,
-      timeline.route,
-    ),
+    world: {
+      playerId: canonical.playerId,
+      position: canonical.position,
+      velocity: canonical.velocity,
+    },
   };
 };
 
