@@ -1036,3 +1036,21 @@ Deferred:
 - UI styling
 
 These are implementation / soak-calibration tasks, not open architecture questions.
+
+
+---
+
+# Canonical Genesis Supplement
+
+2026-09-20 user approved the rare hidden genesis-candidate model.
+
+Canonical source:
+- `docs/game-design/52-star-superstar-genesis-v1.md`
+
+Important:
+- Star / Superstar candidate predisposition may exist from Person generation.
+- candidate flags never enter Match Core.
+- actual Match effects route through realized Spotlight Response / Condition / Appraisal.
+- Star / Superstar status is earned from Career evidence.
+- Superstar-level innate predisposition is extremely rare.
+- late-blooming Star remains possible; fully acquired Superstar from ordinary baseline is extremely rare.
