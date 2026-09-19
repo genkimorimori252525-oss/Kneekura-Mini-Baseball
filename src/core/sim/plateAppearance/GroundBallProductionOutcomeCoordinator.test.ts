@@ -365,6 +365,65 @@ describe('GroundBallProductionOutcomeCoordinator', () => {
     expect(replay).toEqual(result);
     expect(advisoryProbabilityVariant).toEqual(result);
 
+    const safeAtFirstVariant =
+      resolveCanonicalGroundBallFirstBaseOutcome({
+        ...scenario,
+        rng: new DeterministicRng(20260919),
+        throwCalibration: {
+          ...scenario.throwCalibration,
+          minimumReleaseSpeedMps: 8,
+          maximumReleaseSpeedMps: 8,
+        },
+      });
+    expect(safeAtFirstVariant).toMatchObject({
+      kind: 'live_ball_continues',
+      reason: 'first_base_race_non_terminal',
+    });
+    if (
+      safeAtFirstVariant.kind === 'live_ball_continues'
+      && safeAtFirstVariant.physicalRace !== null
+    ) {
+      expect(
+        safeAtFirstVariant.physicalRace.race.correctRuleResult.kind,
+      ).toBe('safe');
+    }
+
+    const failedPickupVariant =
+      resolveCanonicalGroundBallFirstBaseOutcome({
+        ...scenario,
+        handler: {
+          ...scenario.handler,
+          pickupRetentionParameters: {
+            ...scenario.handler.pickupRetentionParameters,
+            centerRetentionCapacityJ: 1e-12,
+          },
+        },
+        rng: new DeterministicRng(20260919),
+      });
+    expect(failedPickupVariant).toMatchObject({
+      kind: 'live_ball_continues',
+      reason: 'pickup_not_secured',
+      transfer: null,
+      throwExecution: null,
+      physicalRace: null,
+    });
+
+    expect(() =>
+      resolveCanonicalGroundBallFirstBaseOutcome({
+        ...scenario,
+        firstBaseReceiver: {
+          ...scenario.firstBaseReceiver,
+          receptionRetentionParameters: {
+            ...scenario.firstBaseReceiver.receptionRetentionParameters,
+            ticksPerSecond: 500_000,
+          },
+        },
+        rng: new DeterministicRng(20260919),
+      })
+    ).toThrow(
+      'canonical ground-ball outcome subsystems must share ticksPerSecond',
+    );
+
     expect(result.kind).toBe('completed');
     if (result.kind !== 'completed') {
       return;
