@@ -12,6 +12,8 @@
 - `docs/game-design/15-season-events-and-deadlines.md`
 - `docs/game-design/16-club-economy-rivalry-design.md`
 - `docs/game-design/17-europe-real-club-catalog.md`
+- `docs/game-design/21-world-club-source-policy.md`
+- `docs/game-design/22-east-asia-club-catalog.md`
 
 ---
 
@@ -58,14 +60,14 @@ Full Simulation Leagueは **21**。
 
 | Region | Full Leagues | Clubs |
 | --- | ---: | ---: |
-| Asia | 5 | 52 |
+| Asia | 5 | 50 |
 | Americas | 6 | 86 |
 | Europe | 7 | 74 |
 | Africa | 1 | 12 |
 | Oceania | 2 | 16 |
-| **Total** | **21** | **240** |
+| **Total** | **21** | **238** |
 
-240球団はゲーム世界の初期既定値であり、現実の各リーグの現在球団数を厳密に再現するものではない。
+238球団が現時点の初期構成。REAL_BASEBALL_CLUB採用Leagueでは現行実在Club数へ合わせるため、Catalog整備に伴って総数は再校正可能。
 
 Full League以外にも、
 
@@ -202,6 +204,7 @@ KnowledgeEstimate uncertainty decreases
 ## 4.1 Japan League
 
 - working reference: NPB
+- club source: **REAL_BASEBALL_CLUB**
 - clubs: **12**
 - season: **March–October**
 - market: **EAST_ASIA_HYBRID**
@@ -229,6 +232,7 @@ KnowledgeEstimate uncertainty decreases
 ## 4.2 Korea League
 
 - working reference: KBO
+- club source: **REAL_BASEBALL_CLUB**
 - clubs: **10**
 - season: **March–October**
 - market: **EAST_ASIA_HYBRID**
@@ -256,7 +260,8 @@ KnowledgeEstimate uncertainty decreases
 ## 4.3 Taiwan League
 
 - working reference: CPBL
-- clubs: **8**
+- club source: **REAL_BASEBALL_CLUB**
+- clubs: **6**
 - season: **March–November**
 - market: **EAST_ASIA_HYBRID**
 - continental region: Asia
@@ -282,6 +287,7 @@ KnowledgeEstimate uncertainty decreases
 ## 4.4 China League
 
 - clubs: **10**
+- club source: **REAL_FOOTBALL_CLUB_AS_BASEBALL_CLUB**
 - season: **March–September**
 - market: **GROWTH_FRANCHISE_HYBRID**
 - continental region: Asia
@@ -704,6 +710,7 @@ KnowledgeEstimate uncertainty decreases
 ## 6.7 Russia League
 
 - clubs: **10**
+- club source: **REAL_FOOTBALL_CLUB_AS_BASEBALL_CLUB**
 - season: **March–September**
 - market: **FOOTBALL_TRANSFER_ACADEMY**
 - continental region: Europe
@@ -833,7 +840,7 @@ KnowledgeEstimate uncertainty decreases
 | --- | ---: | --- | --- |
 | Japan | 12 | Mar–Oct | East Asia Hybrid |
 | Korea | 10 | Mar–Oct | East Asia Hybrid |
-| Taiwan | 8 | Mar–Nov | East Asia Hybrid |
+| Taiwan | 6 | Mar–Nov | East Asia Hybrid |
 | China | 10 | Apr–Sep | Growth Franchise Hybrid |
 | West/South Asia | 12 | Nov–Mar | Football Transfer + Growth |
 | North America | 30 | Mar–Oct | Controlled Draft/Trade |
