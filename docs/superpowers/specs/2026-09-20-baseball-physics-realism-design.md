@@ -242,14 +242,94 @@ add hidden arm-side break
 
 Until a validated seam-orientation model is available, the realistic pitch path is explicitly **Magnus + drag + gravity + wind**, not a claim to reproduce all seam-shifted-wake movement.
 
-### 3.4.3 Still missing from pitching
+### 3.4.3 Reduced-order release mechanics
+
+The next implemented layer now begins before aerodynamic flight.
+
+Published pitching biomechanics support several important constraints:
+
+- Kinoshita et al. (2017), *Finger forces in fastball baseball pitching*: index/middle finger forces show strong late-release peaks, with summed shear force supplying a kinetic source for backspin.
+  - https://pubmed.ncbi.nlm.nih.gov/28500954/
+- Kinoshita et al. (2017), *Middle finger and ball movements around ball release during baseball fastball pitching*: the ball begins rolling toward the fingertip only several milliseconds before release, while substantial force remains applied.
+  - https://pubmed.ncbi.nlm.nih.gov/28632054/
+- Nagami et al. (2011), *Factors determining the spin axis of a pitched fastball in baseball*: spin-axis direction correlates strongly with hand orientation immediately before release.
+  - https://pubmed.ncbi.nlm.nih.gov/21400344/
+- Recent friction work shows greater fingertip slip is associated with lower ball speed and lower spin rate.
+  - https://pubmed.ncbi.nlm.nih.gov/40148381/
+
+The Core therefore represents release through physical impulses rather than a pitch-type lookup:
+
+```text
+ball pre-release linear velocity
++ ball pre-release angular velocity
++ seam/material orientation
++ finger contact locations on ball
++ time-integrated finger forces
+        ↓
+ΣJ
+Σ(r × J)
+        ↓
+release velocity
+release spin vector
+release seam orientation
+        ↓
+aerodynamic pitch flight
+```
+
+Implemented modules:
+
+- `BaseballOrientation`
+  - normalized quaternion material orientation;
+  - body-space seam/grip directions -> world-space directions;
+  - deterministic seam-phase advance from the physical angular-velocity vector;
+- `PitchReleaseMechanics`
+  - individual finger/contact impulses;
+  - `Δv = J / m`;
+  - `Δω = I^-1 (r × J)`;
+  - force-duration helper so measured force pulses can be represented as physical impulse;
+  - no explicit finger/ball deformation state;
+- `PitchReleaseFlightSlice`
+  - connects finger-generated release velocity/spin/orientation directly to aerodynamic flight and plate crossing;
+  - enforces identical ball mass/radius between release and aerodynamic models.
+
+This is deliberately a **reduced-order release boundary**, not a claim to simulate the full arm, hand, tendon, skin, or ball deformation process.
+
+The model accepts the final hand/finger impulses as physical inputs. A future pitcher biomechanics layer may generate those impulses from wrist/forearm/finger state, but it must remain upstream and cannot bypass the release impulse equations with hidden pitch-type movement bonuses.
+
+### 3.4.4 Seam orientation is state, not yet force
+
+The material orientation of the baseball is now preserved and advanced through flight. This gives the Core a real seam phase/orientation state for later seam-aware aerodynamics.
+
+However, the current aerodynamic force remains Magnus + drag + gravity + wind. Seam orientation is currently **observed state only**.
+
+This distinction is intentional:
+
+```text
+now:
+release grip/seam orientation
+        ↓
+material orientation through flight
+        ↓
+recorded / available for validation
+
+later, after calibration:
+material seam orientation
++ spin phase
++ velocity
+        ↓
+validated seam-wake force
+```
+
+No seam-shifted-wake force is created merely because seam orientation state now exists.
+
+### 3.4.5 Still missing from pitching
 
 - experimentally calibrated speed/spin-dependent drag over the pitch-speed range;
 - seam-orientation-dependent lift/drag;
 - generative seam-shifted-wake force;
 - calibrated angular-speed decay;
 - knuckleball unsteady seam-force model;
-- pitcher/grip/release mechanics that generate the release spin vector rather than accepting it as an input;
+- full upstream pitcher biomechanics that generate finger impulses from arm/hand state rather than accepting final finger impulses as input;
 - full realistic swing/contact search against the aerodynamic pitch trajectory.
 
 ## 4. Phase B — bat-ball collision
