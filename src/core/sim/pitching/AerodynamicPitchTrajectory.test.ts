@@ -77,7 +77,7 @@ describe('aerodynamic pitch trajectory', () => {
       .toBeGreaterThan(Math.abs(noSpin.position.x));
   });
 
-  it('gives pure gyrospin essentially no Magnus movement', () => {
+  it('gives release-axis gyrospin far less movement than true backspin', () => {
     const noSpin = sampleAerodynamicPitchTrajectory(
       trajectory(),
       1_350_000,
@@ -86,11 +86,39 @@ describe('aerodynamic pitch trajectory', () => {
       trajectory({ x: 0, y: 0, z: -220 }),
       1_350_000,
     );
+    const backspin = sampleAerodynamicPitchTrajectory(
+      trajectory({ x: 220, y: 0, z: 0 }),
+      1_350_000,
+    );
 
-    expect(gyro.position.x)
-      .toBeCloseTo(noSpin.position.x, 10);
-    expect(gyro.position.y)
-      .toBeCloseTo(noSpin.position.y, 10);
+    const gyroVerticalEffect = Math.abs(
+      gyro.position.y - noSpin.position.y,
+    );
+    const backspinVerticalEffect = Math.abs(
+      backspin.position.y - noSpin.position.y,
+    );
+
+    expect(Math.abs(gyro.position.x))
+      .toBeLessThan(1e-6);
+    expect(gyroVerticalEffect)
+      .toBeLessThan(backspinVerticalEffect * 0.1);
+  });
+
+  it('lets instantaneous active-spin geometry change as the velocity vector bends', () => {
+    const input = trajectory({
+      x: 0,
+      y: 0,
+      z: -220,
+    });
+    const release = input.start;
+    const late = sampleAerodynamicPitchTrajectory(
+      input,
+      1_350_000,
+    );
+
+    expect(release.velocity.y).toBe(0);
+    expect(late.velocity.y).toBeLessThan(0);
+    expect(late.spin).toEqual(release.spin);
   });
 
   it('finds the plate crossing under changing aerodynamic acceleration', () => {
