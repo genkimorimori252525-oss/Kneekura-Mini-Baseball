@@ -168,6 +168,90 @@ Do not silently pretend these are solved:
 
 The 2022 Lyu/Smith/Kensrud measurements should be the next source for replacing the single reference `Cd` with a measured baseball-specific coefficient model.
 
+## 3.4 Pitch-flight physics from the supplied reference images
+
+The supplied reference images are useful for three concepts that now have explicit Core representation:
+
+1. Magnus force acts perpendicular to the instantaneous flight direction and active spin axis;
+2. total spin must be split into true/active spin and gyro spin;
+3. the force direction can evolve during flight because the **velocity direction** evolves, even when the physical spin vector remains nearly fixed.
+
+The implementation must not infer more than the images establish. In particular, diagrams showing a changing force direction are **not** treated as proof that a pitched baseball's spin axis should be manually precessed through a large angle.
+
+External checks used for this boundary:
+
+- Jinji & Sakurai, *Direction of spin axis and spin rate of the pitched baseball* (Sports Biomechanics, 2006): lift correlates with the spin component perpendicular to velocity and is greatest when spin and translational velocity are perpendicular.
+  - https://pubmed.ncbi.nlm.nih.gov/16939153/
+- Alan Nathan, *Determining the 3D Spin Axis from Statcast Data*: formalizes drag, Magnus and active-spin geometry for pitched baseballs.
+  - https://baseball.physics.illinois.edu/trackman/SpinAxis.pdf
+- MLB Statcast Active Spin: defines Active Spin as the spin that contributes to movement and Gyro Spin as the component aligned with the flight direction.
+  - https://baseballsavant.mlb.com/leaderboard/active-spin
+- Hasegawa et al., *Measurement of rotational characteristics of a baseball in flight* (2019): measured spin axis was nearly constant during flight, while spin rate decreased modestly.
+  - https://doi.org/10.1299/transjsme.18-00440
+- Smith & Smith, *Using baseball seams to alter a pitch direction: The seam shifted wake* (2020/2021): seam orientation can generate an additional non-Magnus force by shifting the wake.
+  - https://doi.org/10.1177/1754337120961609
+
+### 3.4.1 Implemented pitching foundation
+
+The opt-in realistic pitch path now contains:
+
+- `PitchSpinPhysics`
+  - decomposes the full 3D angular-velocity vector into active/true spin and gyro spin relative to the **instantaneous** velocity vector;
+  - reports active-spin fraction and gyro-spin fraction;
+  - derives the instantaneous Magnus direction;
+- `AerodynamicPitchTrajectory`
+  - gravity;
+  - baseball drag;
+  - Magnus acceleration from active spin only;
+  - wind through air-relative velocity;
+  - deterministic fourth-order Runge-Kutta integration;
+  - exact authoritative integer-tick plate-crossing search with sub-tick interpolation for crossing geometry;
+- `AerodynamicTakenPitchPhysicalResult`
+  - uses the aerodynamic plate crossing directly for strike-zone geometry instead of a preselected pitch result.
+
+The spin vector is currently held fixed in inertial space during an ordinary pitch. Active/gyro decomposition is recomputed continuously from the changing velocity direction.
+
+Therefore a pitch released with nearly pure gyro spin can acquire a small active component later as gravity and aerodynamic forces bend the velocity vector, without inventing a large physical precession of the ball's spin axis.
+
+### 3.4.2 Seam-shifted wake boundary
+
+Do **not** force every observed pitch movement into the Magnus model.
+
+Hawkeye/Statcast and laboratory work support non-Magnus movement associated with seam orientation. The current implementation deliberately leaves this unimplemented rather than introducing an arbitrary `movementBonus`.
+
+The future generative path should be:
+
+```text
+release seam orientation
++ 3D spin axis
++ spin phase
++ velocity / Reynolds number
+        ↓
+validated seam/wake force model
+        ↓
+non-Magnus aerodynamic force
+```
+
+Never:
+
+```text
+pitch type name = sinker
+        ↓
+add hidden arm-side break
+```
+
+Until a validated seam-orientation model is available, the realistic pitch path is explicitly **Magnus + drag + gravity + wind**, not a claim to reproduce all seam-shifted-wake movement.
+
+### 3.4.3 Still missing from pitching
+
+- experimentally calibrated speed/spin-dependent drag over the pitch-speed range;
+- seam-orientation-dependent lift/drag;
+- generative seam-shifted-wake force;
+- calibrated angular-speed decay;
+- knuckleball unsteady seam-force model;
+- pitcher/grip/release mechanics that generate the release spin vector rather than accepting it as an input;
+- full realistic swing/contact search against the aerodynamic pitch trajectory.
+
 ## 4. Phase B — bat-ball collision
 
 The current capsule collision remains useful, but the realistic model should add the physical quantities that materially change batted-ball speed and spin.
@@ -353,10 +437,12 @@ Requirements:
 The preferred order is:
 
 1. finish and verify Phase A reference aerodynamics;
-2. implement tapered bat geometry + rigid-body effective-mass contact without explicit deformation;
-3. replace heuristic tangential spin transfer with measured oblique collision response;
-4. add surface-specific bounce/skid/roll;
-5. adopt spin/speed/orientation-dependent aerodynamic coefficients after calibration against the 2022 measurements;
-6. build a deterministic physics-validation corpus against published laboratory and Statcast observables.
+2. finish the realistic pitch-flight path and validate active/gyro movement against published pitch data;
+3. implement tapered bat geometry + rigid-body effective-mass contact without explicit deformation;
+4. replace heuristic tangential spin transfer with measured oblique collision response;
+5. add surface-specific bounce/skid/roll;
+6. adopt spin/speed/orientation-dependent aerodynamic coefficients after calibration against the 2022 measurements;
+7. add seam-orientation / seam-shifted-wake physics only after a validated generative model is available;
+8. build a deterministic physics-validation corpus against published laboratory and Statcast observables.
 
 This order attacks the largest current physical omissions without destabilizing the already-verified causal rule/fielding architecture.
