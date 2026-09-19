@@ -74,10 +74,12 @@ export const decomposePitchSpin = (
     spinRadPerSecond,
     velocityDirection,
   );
-  const gyroSpin = scale(
-    velocityDirection,
-    signedGyroRate,
-  );
+  const gyroSpin = Math.abs(signedGyroRate) <= EPSILON
+    ? { x: 0, y: 0, z: 0 } as const
+    : scale(
+        velocityDirection,
+        signedGyroRate,
+      );
   const activeSpin = subtract(
     spinRadPerSecond,
     gyroSpin,
