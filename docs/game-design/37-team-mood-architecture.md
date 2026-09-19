@@ -1136,3 +1136,50 @@ weak player + great mood
 を検証する。
 
 具体的な発生率はMonte Carlo / soakで校正し、設計段階では固定しない。
+
+
+---
+
+# 37. No Social Chore Principle
+
+2026-09-20 ユーザー承認。
+
+Team Mood / Relationshipは、ユーザーへ日常的な人間関係メンテナンスを強制しない。
+
+禁止:
+
+```text
+毎週面談しない -> 好感低下
+毎月交流しない -> 結束低下
+全選手の機嫌取りが必要
+会話イベントを消化しない -> Mood悪化
+```
+
+通常状態では、関係は自然維持される。
+
+```text
+ordinary training
+ordinary games
+ordinary clubhouse life
+        ↓
+relationship maintenance happens in background simulation
+```
+
+ユーザー介入が必要になるのは、意味のある異常状態だけ。
+
+例:
+
+- central-player conflict
+- severe role dissatisfaction
+- prolonged isolation
+- manager trust collapse
+- factionalization
+- serious unresolved incident
+
+つまり:
+
+> Relationshipは管理資源ではなく、世界の中で時々表面化する人間的Event。
+
+とする。
+
+ユーザーが娯楽時間の中で「全員の人間関係を維持する義務」を負わないことを恒久原則とする。
