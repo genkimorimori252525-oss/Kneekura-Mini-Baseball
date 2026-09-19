@@ -861,7 +861,7 @@ KnowledgeEstimate uncertainty decreases
 | Italy | 12 | Mar–Sep | Football Transfer Academy |
 | Russia | 10 | May–Sep | Football Transfer Academy |
 | Pan-Africa | 12 | Nov–Mar | Football Transfer + Growth |
-| Australia | 8 | Nov–Feb | Hybrid Open Market |
+| Australia | 4 | Sep–Feb | Hybrid Open Market |
 | New Zealand/Pacific | 8 | Nov–Feb | Football Transfer + Winter |
 | **Total** | **234** | — | — |
 
