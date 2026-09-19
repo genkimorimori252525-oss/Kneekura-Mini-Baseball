@@ -1047,3 +1047,7 @@ Finally validate:
 - long-run future-emergence soak
 - user imitation of CPU strategy
 - CPU imitation of user strategy
+
+
+Real-world manager tactical stress tests (USER REVIEW REQUIRED):
+- `docs/game-design/44-manager-real-world-tactical-stress-tests-DRAFT.md`
