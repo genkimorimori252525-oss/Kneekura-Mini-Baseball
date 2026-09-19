@@ -1520,3 +1520,45 @@ Updated draft:
 
 Refinement commit:
 - `5e9ad9b8d25709a42eac307b9050fba0d7bc07bd`
+
+
+---
+
+# 48. CANONICAL — Popularity / Star / Superstar v1
+
+2026-09-20 user approved and froze the design.
+
+Canonical files:
+- `docs/game-design/50-popularity-reputation-architecture-DRAFT.md`
+- `docs/game-design/51-star-superstar-big-stage-architecture-DRAFT.md`
+
+Final distinction:
+
+```text
+人気者 / Fan Favorite
+= affection / crowd / presentation
+
+Star
+= rare competitive-center status
++ tactical gravity
+
+Superstar
+= historically exceptional Star
++ broad recognition
++ iconic salience
++ strong high-stage evidence
+```
+
+Important:
+- Fan Favorite does not affect tactical decisions.
+- Star / Superstar can matter tactically, but actual decisions remain owned by Manager Belief / scouting / data / context.
+- no label gives a raw ability buff.
+- high-pressure performance uses Match Salience + Spotlight Response -> Condition / Appraisal.
+- Star itself is rare; Superstar is extremely rare.
+- no fixed quota; some eras may have zero Superstar.
+- exceptional eras may contain multiple Superstars.
+- Superstar is not compensation for weak ability.
+- Current status and Legacy status may diverge.
+- Clubhouse Influence remains separate from Popularity.
+
+Remaining work is implementation and calibration, not architecture.
