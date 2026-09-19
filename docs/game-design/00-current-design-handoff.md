@@ -1421,3 +1421,43 @@ Draft:
 Commits:
 - `eda18e2e4f900f150e04aee25e541e40612291cf`
 - `a6246897d1eea914f1441356831212201a377454`
+
+
+---
+
+# 46. REFINEMENT — Superstar Archetypes
+
+2026-09-20 user clarified that Superstar must not be framed as "iconicity instead of ability."
+
+Superstar can include overwhelming competitive greatness.
+
+Three useful derived archetypes:
+
+```text
+Dominant Superstar
+= historic-level competitive ability / production
++ broad recognition
+
+Iconic Superstar
+= elite competitive level
++ exceptional cultural / memorable salience
+
+Complete Superstar
+= historic competitive dominance
++ broad / global recognition
++ iconic salience
++ repeated major-stage success
+```
+
+Important:
+- Superstar is never a substitute for weak ability.
+- A minimum Star-level competitive floor is required.
+- publicity alone does not create Superstar.
+- different Superstars can have different shapes across competitive dominance / iconic salience / spotlight evidence / public reach.
+- Superstar label remains derived and never grants raw ability.
+
+Updated draft:
+- `docs/game-design/51-star-superstar-big-stage-architecture-DRAFT.md`
+
+Refinement commit:
+- `d0080e55c7613abfb50cb75bd6e569d2d3ebe422`
