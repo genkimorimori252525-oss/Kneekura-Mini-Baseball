@@ -225,3 +225,10 @@ Source snapshotはCatalog metadataとしてversion固定する。
 - `docs/game-design/23-west-south-asia-club-catalog.md`
 - `docs/game-design/24-americas-real-baseball-club-catalog.md`
 - `docs/game-design/25-australia-pacific-africa-club-catalog.md`
+
+Club initial gameplay seeds:
+- `docs/game-design/26-club-initial-seed-rating-model.md`
+- `docs/game-design/27-asia-pacific-club-initial-seeds.md`
+- `docs/game-design/28-americas-club-initial-seeds.md`
+- `docs/game-design/29-europe-africa-club-initial-seeds.md`
+- `docs/game-design/30-initial-directed-rivalry-graph.md`
