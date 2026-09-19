@@ -882,3 +882,43 @@ Club AI must not read Manager True Skill directly.
 
 Draft:
 - `docs/game-design/41-manager-appointment-and-incompetence-DRAFT.md`
+
+
+Manager market / Front Office selection (USER REVIEW REQUIRED):
+- `docs/game-design/42-manager-market-and-front-office-selection-DRAFT.md`
+
+
+---
+
+# 35. CURRENT DRAFT — Manager Market / Front Office Selection
+
+2026-09-20 current direction:
+
+Manager ability and Manager appointment are separate systems.
+
+```text
+Manager True Skill
+ !=
+Manager Hiring Value
+```
+
+A Club does not know Manager True Skill directly. It evaluates candidates from career evidence, reputation, Club/OB relationship, interviews, tactical fit, salary, availability, ownership preference and Front Office estimates.
+
+Candidate paths include:
+- Club OB / former player
+- external proven manager
+- assistant / specialist coach
+- farm / minor-team manager
+- low-profile former player with a strong coaching career
+
+Important concept:
+> **監督は、なってみるまで分からない部分が大きい。**
+
+Therefore genuinely weak first-time managers can be hired without randomness or cheating.
+
+Club hiring styles can differ: OB tradition, proven-winner preference, development-first, innovator-seeking, stability-first, owner-driven etc.
+
+Front Office itself has imperfect candidate-evaluation skill. CPU Clubs must not read hidden Manager True Skill.
+
+Draft:
+- `docs/game-design/42-manager-market-and-front-office-selection-DRAFT.md`
