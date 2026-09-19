@@ -550,3 +550,39 @@ Intervention UIを強く提示するのは:
 軽微な揺れは自然回復 / 通常の野球運用に任せる。
 
 これによりTeam Mood managementを常時作業化しない。
+
+
+---
+
+# 16. No Relationship Maintenance Grind
+
+監督介入は「問題が起きた時の判断」であって、日課ではない。
+
+通常は:
+
+```text
+no issue
+ -> no action
+ -> no penalty
+```
+
+を基本とする。
+
+ユーザーが何もしなかったこと自体をNegative Eventとして扱わない。
+
+特に禁止:
+
+- weekly relationship chores
+- mandatory one-on-one rotation
+- gift / social spam
+- hidden affection decay from inactivity
+- morale tax for not clicking dialogue
+- “everyone must be kept happy” optimization
+
+Relationship / Moodは背景Simulationが通常運転を担当する。
+
+ユーザーは重大な分岐点だけ扱う。
+
+設計目標:
+
+> **人間関係を楽しめるが、人間関係を維持させられない。**
