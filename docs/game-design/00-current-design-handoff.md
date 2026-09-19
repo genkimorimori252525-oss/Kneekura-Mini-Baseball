@@ -662,15 +662,15 @@ universal root cause
 この原則をTeam Mood / Manager Ability / Popularity設計にも適用する。
 
 
-Team Mood design candidate (USER REVIEW REQUIRED):
-- `docs/game-design/37-team-mood-architecture-DRAFT.md`
+Team Mood design (APPROVED):
+- `docs/game-design/37-team-mood-architecture.md`
 
 
 ---
 
-# 28. CURRENT DESIGN — Team Mood
+# 28. APPROVED — Team Mood
 
-2026-09-20 current draft:
+2026-09-20 approved design:
 
 - Team Mood is a social-psychological environment, not a team ability buff.
 - Mood is a vector: Confidence / Cohesion / Energy / Tension / Role Harmony.
@@ -684,7 +684,7 @@ Team Mood design candidate (USER REVIEW REQUIRED):
 - Anti-Monocausal Principle applies: Team Mood alone never explains a 100-loss turnaround or star-heavy collapse.
 
 Draft:
-- `docs/game-design/37-team-mood-architecture-DRAFT.md`
+- `docs/game-design/37-team-mood-architecture.md`
 
 Next review questions:
 - approve the five Mood axes
