@@ -660,3 +660,34 @@ universal root cause
 等の上流原因を必要とする。
 
 この原則をTeam Mood / Manager Ability / Popularity設計にも適用する。
+
+
+Team Mood design candidate (USER REVIEW REQUIRED):
+- `docs/game-design/37-team-mood-architecture-DRAFT.md`
+
+
+---
+
+# 28. CURRENT DESIGN — Team Mood
+
+2026-09-20 current draft:
+
+- Team Mood is a social-psychological environment, not a team ability buff.
+- Mood is a vector: Confidence / Cohesion / Energy / Tension / Role Harmony.
+- Mood Maker is a **catalyst, not a battery**.
+- A star arrival may create Hope, but sustained mood change requires actual performance + credibility + social integration + diffusion.
+- Once positive state diffuses into collective confidence / relationships / routines, the catalyst can be absent without instant collapse.
+- Public Popularity is separate from Clubhouse Influence.
+- Multiple Mood Makers have diminishing returns; they may also conflict.
+- Team Mood feeds Player Appraisal / emotional contagion / recovery / communication willingness, never raw batting or pitching ratings.
+- Team Mood and Team Traits must not create circular self-amplifying modifiers.
+- Anti-Monocausal Principle applies: Team Mood alone never explains a 100-loss turnaround or star-heavy collapse.
+
+Draft:
+- `docs/game-design/37-team-mood-architecture-DRAFT.md`
+
+Next review questions:
+- approve the five Mood axes
+- approve catalyst model for Mood Maker
+- decide UI visibility
+- decide offseason carryover calibration
