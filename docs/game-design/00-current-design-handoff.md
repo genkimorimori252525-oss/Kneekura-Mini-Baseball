@@ -1299,3 +1299,45 @@ Canonical file:
 
 Canonical refinement commit:
 - `4379927cdae5b337b3f74b50f878608e9894acf7`
+
+
+---
+
+# 43. CURRENT DRAFT — Popularity / Reputation
+
+2026-09-20 design started.
+
+Draft:
+- `docs/game-design/50-popularity-reputation-architecture-DRAFT.md`
+
+Core separation:
+
+```text
+Exposure / Awareness
+= how widely a person is known
+
+Public Favorability
+= how positively a specific audience sees the person
+
+Reputation
+= what observers believe the person is like
+
+Clubhouse Influence
+= internal social influence; separate Team Mood / Relationship source
+```
+
+Important candidate principles:
+- Popularity is derived from Awareness + positive Favorability; not a raw baseball ability.
+- Popularity is audience-specific rather than one global scalar.
+- very famous + disliked and locally beloved + globally unknown are both possible.
+- Reputation is observer belief, not Truth; it can be accurate, exaggerated, outdated, or wrong.
+- `人気者` becomes a Career / Presentation descriptor derived from AudienceStanding.
+- `威圧感 / 存在感` route through Reputation -> Opponent Appraisal / tactical response, never direct opponent ability debuff.
+- Public Popularity remains separate from Clubhouse Influence.
+- crowd reaction can become a Player Psychology stimulus, but Popularity never directly modifies batting/pitching ability.
+- local / league / national / international awareness scopes are supported.
+- transfers preserve audience history rather than resetting popularity.
+- popularity / media maintenance chores are prohibited.
+
+First open decision:
+whether a slow `Public Appeal` person factor is needed to help explain why equally successful players can differ in fan popularity.
