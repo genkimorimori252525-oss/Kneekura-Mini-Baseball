@@ -1,6 +1,6 @@
 # Core Realism Master Progress — 2026-09-18
 
-**Status:** P0-P9 FOUNDATION COMPLETE AND VERIFIED; FIRST POST-ROADMAP CAUSAL OUTCOME MILESTONE VERIFIED.
+**Status:** P0-P9 FOUNDATION COMPLETE AND VERIFIED; FIRST POST-ROADMAP CAUSAL OUTCOME MILESTONE VERIFIED; DOCUMENTED RUNNER CONTROLLER/REBASE SEAM IMPLEMENTED AND CLOSED.
 
 This document is the parent progress map for Shared Match Core realism work on `jolly/core-realism-2026-09-18`.
 
@@ -277,3 +277,36 @@ Exact closure evidence:
 This is not complete general live-ball orchestration. Runner controller revision/rebase, SAFE continuation, occupied-base/multi-runner play, relays/rundowns, ActionFrontier PlayEnd, a separate playId-bound adjudication ledger / OfficialPlayClosure, broader official scoring, and production-driven batch calibration remain capabilities to add to the same continuous world-first Core.
 
 The smallest dependency-ready implementation seam is runner canonical kinematics + controller basis/revision + route-following adapter + explicit rebase. It can be added while preserving current no-rebase fingerprints and before general multi-runner/PlayEnd orchestration.
+
+## 11. Runner controller / rebase seam closure — 2026-09-20
+
+The dependency-ready implementation seam explicitly selected by the World-First runtime/adjudication contracts is now implemented and verified.
+
+Closed scope:
+
+- canonical runner kinematics;
+- monotonic `motionRevision`;
+- controller basis binding;
+- `RouteFollowingController` adapter over the existing `RunnerMotion` / `RunnerRoute` path;
+- explicit continuous/discontinuous rebase;
+- stale future controller rejection;
+- exact-state replacement at the rebase tick;
+- discontinuous transition semantics with no fabricated swept base touch;
+- production provenance fencing against Presentation, validation, scoring, or desired-result authority.
+
+Implementation evidence:
+
+- implementation head: `a3b1f4ce3aea1fd2fce1df60b5f5a6868fd604de`;
+- self-hosted P0 Core run: `35459687617` — success;
+- `npm run verify`: **239 / 239 test files**, **1102 / 1102 tests**;
+- frozen P9 fingerprints remain:
+  - `0d6e8aefd4601e9a`;
+  - `8c3db4d6447bcad5`;
+  - `d49f585e4b33fb17`;
+- existing ground-ball production outcome authority/isolation/coordinator regressions remain green.
+
+This closes the specific implementation target named at the end of the World-First design audit.
+
+The remaining continuous-frontier capabilities—including SAFE continuation, pre-pitch/multi-runner orchestration, final occupancy derivation, ActionFrontier / general PlayEnd, OfficialPlayClosure/adjudication ledger, umpire/review placement, free-kinematic off-route transition support, broader official scoring, and production-driven statistical calibration—remain **explicitly unimplemented/deferred**.
+
+This document intentionally does **not** select a new “next implementation capability.” Further work from that residual list requires a separately approved scope rather than assistant-driven discovery.
