@@ -1101,3 +1101,7 @@ Managerは重要だが:
 7. Manager Skill 8軸をどう整理するか
 8. PhilosophyのCareer driftを許すか
 9. UIは少数summary + optional detailsでよいか
+
+
+Manager ratings / era / strategy evolution (USER REVIEW REQUIRED):
+- `docs/game-design/40-manager-ratings-era-and-strategy-evolution-DRAFT.md`
