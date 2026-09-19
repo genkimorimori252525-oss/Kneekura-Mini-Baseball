@@ -395,11 +395,11 @@ Team Traitは結果一発で即付与しない。
 
 初期カタログ候補:
 
-- Blue: 31
+- Blue: 41
 - Gold: 13
-- Red: 29
+- Red: 37
 
-合計 **73 Team Trait候補**。
+合計 **91 Team Trait候補**。
 
 最終採用時に重複Familyを整理し、名前を調整してよい。
 
