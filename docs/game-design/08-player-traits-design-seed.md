@@ -1963,3 +1963,7 @@ Team MoodはTeam Traitを単独生成できない。独立したBaseball Evidenc
 
 Manager philosophy / command architecture (USER REVIEW REQUIRED):
 - `docs/game-design/39-manager-philosophy-and-command-architecture-DRAFT.md`
+
+
+Manager ratings / era / strategy evolution (USER REVIEW REQUIRED):
+- `docs/game-design/40-manager-ratings-era-and-strategy-evolution-DRAFT.md`
