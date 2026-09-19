@@ -520,3 +520,7 @@ Userのボタン選択をランダムで別Actionへ変えることは禁止。
 > **監督職は能力保証ではない。就任は選抜結果であり、選抜も不完全。**
 
 これをManager Market / Front Office設計へ接続する。
+
+
+Manager market / Front Office selection (USER REVIEW REQUIRED):
+- `docs/game-design/42-manager-market-and-front-office-selection-DRAFT.md`
