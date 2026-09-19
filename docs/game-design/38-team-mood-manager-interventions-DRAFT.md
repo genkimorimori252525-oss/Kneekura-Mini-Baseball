@@ -520,3 +520,33 @@ Team Moodは:
 6. Severityで必要介入量を変える
 7. Manager Abilityは同じActionの成功確率 / 受け止められ方へ影響
 8. UIは原因候補と少数Actionだけ提示
+
+---
+
+# 15. Intervention Rarity
+
+Team Moodへの監督介入は日常業務として頻繁に発生させない。
+
+通常:
+
+```text
+Mood = normal
+ -> no intervention needed
+```
+
+ユーザーに毎週面談・会議を要求しない。
+
+Intervention UIを強く提示するのは:
+
+- severe role conflict
+- central-player dispute
+- prolonged high tension
+- clear newcomer isolation
+- manager trust collapse
+- repeated evidence of social dysfunction
+
+等の意味ある状態だけ。
+
+軽微な揺れは自然回復 / 通常の野球運用に任せる。
+
+これによりTeam Mood managementを常時作業化しない。
