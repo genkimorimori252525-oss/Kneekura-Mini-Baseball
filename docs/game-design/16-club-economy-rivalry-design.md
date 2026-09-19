@@ -9,6 +9,7 @@
 - `docs/game-design/12-competition-identity-hosting.md`
 - `docs/game-design/15-season-events-and-deadlines.md`
 - `docs/game-design/17-europe-real-club-catalog.md`
+- `docs/game-design/18-club-state-lifecycle.md`
 
 ---
 
@@ -141,32 +142,24 @@ Clubは一枚の`overallStrength`をsource of truthにしない。
 概念:
 
 ```ts
-type ClubProfile = {
+type ClubIdentityCore = {
   clubId: ClubId;
-  leagueId: LeagueId;
-  homeRegionId: RegionId;
-  homeCityId?: CityId;
-  stadiumId: StadiumId;
-  identity: ClubIdentity;
-  ownershipModel: OwnershipModel;
-  developmentModel: DevelopmentModel;
-  marketModel: ClubMarketModel;
-  foundedSeason: SeasonId;
+  canonicalOriginId: string;
+  sourceArchetype: ClubSourceArchetype;
+  foundingIdentity: ClubFoundingIdentity;
 };
 
 type ClubWorldState = {
-  economy: ClubEconomyState;
-  organization: ClubOrganizationState;
-  facilities: ClubFacilityState;
-  fanbase: ClubFanbaseState;
-  reputation: ClubReputationState;
-  roster: ClubRosterState;
-  relationships: DirectedClubRelation[];
+  institutional: ClubInstitutionalState;
+  season: ClubSeasonState;
+  live: ClubLiveState;
   history: ClubHistoryState;
 };
 ```
 
 `ClubPower`のような総合値はUI用のDerived Summaryなら許可するが、試合結果の入力には使わない。
+
+Club Stateの固定/可変境界は `docs/game-design/18-club-state-lifecycle.md` を正とする。
 
 ---
 
