@@ -12,7 +12,6 @@ on:
     branches:
       - jolly/core-foundation-plan-2026-09-17
       - jolly/core-realism-2026-09-18
-      - jolly/baseball-physics-realism-2026-09-20
 
 permissions:
   contents: read
