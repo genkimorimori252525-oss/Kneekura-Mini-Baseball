@@ -814,3 +814,7 @@ Overall Ratingは原則作らない。
 - 逆にSkillが高くてもRoster / Era / Contextへ合わなければ成果は限定される。
 
 Manager hiringの不完全性は `41-manager-appointment-and-incompetence-DRAFT.md` で設計する。
+
+
+Detailed emergent strategy architecture (USER REVIEW REQUIRED):
+- `docs/game-design/43-manager-strategy-evolution-architecture-DRAFT.md`
