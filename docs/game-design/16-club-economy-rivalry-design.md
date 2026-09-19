@@ -936,3 +936,11 @@ Small Clubもexcellent academy / scoutingで上昇できる。
 World club source / East Asia catalogs:
 - `docs/game-design/21-world-club-source-policy.md`
 - `docs/game-design/22-east-asia-club-catalog.md`
+
+
+Club initial gameplay seeds:
+- `docs/game-design/26-club-initial-seed-rating-model.md`
+- `docs/game-design/27-asia-pacific-club-initial-seeds.md`
+- `docs/game-design/28-americas-club-initial-seeds.md`
+- `docs/game-design/29-europe-africa-club-initial-seeds.md`
+- `docs/game-design/30-initial-directed-rivalry-graph.md`
