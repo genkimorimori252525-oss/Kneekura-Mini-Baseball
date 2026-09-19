@@ -42,7 +42,7 @@ SPECIAL ABILITY PRESENTATION
 2. Team Traits + Player Relationship — 設計中
 3. Team Mood — 基本設計承認済み
 4. Manager Ability / Philosophy — 設計中
-5. Popularity / Reputation — その次
+5. Popularity / Reputation — 設計開始
 
 ---
 
@@ -1967,3 +1967,7 @@ Manager philosophy / command architecture (USER REVIEW REQUIRED):
 
 Manager ratings / era / strategy evolution (USER REVIEW REQUIRED):
 - `docs/game-design/40-manager-ratings-era-and-strategy-evolution-DRAFT.md`
+
+
+Popularity / Reputation architecture (USER REVIEW REQUIRED):
+- `docs/game-design/50-popularity-reputation-architecture-DRAFT.md`
