@@ -952,3 +952,7 @@ Scouting / recruitment system:
 
 Unapproved roster / development draft (USER REVIEW REQUIRED):
 - `docs/game-design/32-roster-development-architecture-DRAFT.md`
+
+
+Rivalry lifecycle approval candidate (USER APPROVAL REQUIRED):
+- `docs/game-design/33-rivalry-lifecycle-model-DRAFT.md`
