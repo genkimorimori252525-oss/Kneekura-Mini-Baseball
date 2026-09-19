@@ -1176,3 +1176,7 @@ named team trait
 6. Rally Resonanceの発動にlineup adjacencyを必須とするか、同一試合内なら離れた打順でも成立させるか
 7. POWER / CONTACT / ON_BASE / SPEED_PRESSUREのChannel境界値をどう定義するか
 8. Gold Team Traitの取得条件をshared success回数 / relation / current evidenceでどう組むか
+
+
+Team Trait Catalog (USER REVIEW REQUIRED):
+- `docs/game-design/35-team-trait-catalog-DRAFT.md`
