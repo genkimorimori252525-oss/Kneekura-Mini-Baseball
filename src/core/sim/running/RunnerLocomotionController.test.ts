@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Vec2 } from '../../model/geometry';
+import type { BaseTouchRegion } from './BaseTouch';
+import type { RunnerBodyContactParameters } from './RunnerBodyContact';
 import {
   advanceRunnerMotion,
   type RunnerMotionIntent,
@@ -11,6 +13,8 @@ import { projectRunnerWorldState } from './RunnerWorldProjection';
 import {
   buildRouteFollowingController,
   createCanonicalRunnerKinematicsFromRouteMotion,
+  findRouteFollowingControllerBaseTouchTick,
+  rebaseCanonicalRunnerKinematics,
   sampleRouteFollowingController,
 } from './RunnerLocomotionController';
 
@@ -109,5 +113,150 @@ describe('RouteFollowingController', () => {
     })).toThrow(
       'route-following controller start must match canonical runner position and velocity',
     );
+  });
+});
+
+describe('runner canonical rebase', () => {
+  const buildLongController = () => {
+    const canonical = createCanonicalRunnerKinematicsFromRouteMotion(
+      'runner-1',
+      start,
+      route,
+      7,
+    );
+    return {
+      canonical,
+      controller: buildRouteFollowingController({
+        canonical,
+        startMotion: start,
+        route,
+        intent,
+        parameters,
+        endTick: 4_000_000,
+      }),
+    };
+  };
+
+  it('accepts a later canonical state on the same revision before sampling farther ahead', () => {
+    const { canonical, controller } = buildLongController();
+    const later = sampleRouteFollowingController(
+      controller,
+      canonical,
+      1_500_000,
+    );
+
+    expect(sampleRouteFollowingController(
+      controller,
+      later,
+      2_000_000,
+    )).toEqual(sampleRouteFollowingController(
+      controller,
+      canonical,
+      2_000_000,
+    ));
+  });
+
+  it('invalidates old controller futures and starts replacement control exactly at the rebased state', () => {
+    const { canonical, controller } = buildLongController();
+    const rebaseTick = 1_500_000;
+    const beforeRebase = sampleRouteFollowingController(
+      controller,
+      canonical,
+      rebaseTick,
+    );
+    const rebased = rebaseCanonicalRunnerKinematics(beforeRebase, {
+      position: v(10, 0),
+      velocity: v(2, 0),
+      bodyMode: 'upright',
+      continuity: 'discontinuous',
+      provenance: 'physical_engine',
+      scope: 'production',
+    });
+
+    expect(rebased.current.motionRevision).toBe(8);
+    expect(() => sampleRouteFollowingController(
+      controller,
+      rebased.current,
+      2_000_000,
+    )).toThrow(
+      'route-following controller motionRevision does not match canonical runner',
+    );
+
+    const replacementRoute: RunnerRoute = {
+      segments: [{ kind: 'line', start: v(10, 0), end: v(30, 0) }],
+    };
+    const replacementMotion: RunnerMotionState = {
+      tick: rebaseTick,
+      routeDistanceMeters: 0,
+      speedMps: 2,
+      driveDirection: 1,
+      bodyMode: 'upright',
+    };
+    const replacement = buildRouteFollowingController({
+      canonical: rebased.current,
+      startMotion: replacementMotion,
+      route: replacementRoute,
+      intent: { kind: 'advance', issuedTick: rebaseTick },
+      parameters,
+      endTick: 3_000_000,
+    });
+
+    expect(sampleRouteFollowingController(
+      replacement,
+      rebased.current,
+      rebaseTick,
+    )).toEqual(rebased.current);
+  });
+
+  it('does not synthesize a base touch through a discontinuous skipped region', () => {
+    const { canonical, controller } = buildLongController();
+    const rebaseTick = 1_100_000;
+    const beforeRebase = sampleRouteFollowingController(
+      controller,
+      canonical,
+      rebaseTick,
+    );
+    const rebased = rebaseCanonicalRunnerKinematics(beforeRebase, {
+      position: v(10, 0),
+      velocity: v(1, 0),
+      bodyMode: 'upright',
+      continuity: 'discontinuous',
+      provenance: 'debug_test',
+      scope: 'debug_test',
+    });
+    const replacementRoute: RunnerRoute = {
+      segments: [{ kind: 'line', start: v(10, 0), end: v(20, 0) }],
+    };
+    const replacementMotion: RunnerMotionState = {
+      tick: rebaseTick,
+      routeDistanceMeters: 0,
+      speedMps: 1,
+      driveDirection: 1,
+      bodyMode: 'upright',
+    };
+    const replacement = buildRouteFollowingController({
+      canonical: rebased.current,
+      startMotion: replacementMotion,
+      route: replacementRoute,
+      intent: { kind: 'advance', issuedTick: rebaseTick },
+      parameters: { ...parameters, topSpeedMps: 1 },
+      endTick: rebaseTick + 2_000_000,
+    });
+    const skippedBase: BaseTouchRegion = {
+      center: v(5, 0),
+      halfSize: v(0.2, 0.2),
+      rotationRadians: 0,
+    };
+    const body: RunnerBodyContactParameters = {
+      uprightLeadMeters: 0,
+      slideLeadMeters: 0,
+    };
+
+    expect(findRouteFollowingControllerBaseTouchTick(
+      replacement,
+      rebased.current,
+      skippedBase,
+      body,
+    )).toBeNull();
   });
 });

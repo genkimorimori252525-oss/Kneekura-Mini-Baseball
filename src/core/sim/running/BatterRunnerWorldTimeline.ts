@@ -21,6 +21,7 @@ import {
 import {
   buildRouteFollowingController,
   createCanonicalRunnerKinematicsFromRouteMotion,
+  findRouteFollowingControllerBaseTouchTick,
   sampleRouteFollowingController,
   type CanonicalRunnerKinematics,
   type RouteFollowingController,
@@ -29,7 +30,6 @@ import {
   projectRunnerWorldState,
 } from './RunnerWorldProjection';
 import type { RunnerRoute } from './RunnerRoute';
-import { findRunnerBaseTouchTickOnTrajectory } from './RunnerBaseTouch';
 
 export type BatterRunnerWorldTimelinePhase =
   | 'swing_exit_recovery'
@@ -272,9 +272,9 @@ export const findBatterRunnerPostLaunchBaseTouchTick = (
   timeline: BatterRunnerWorldTimeline,
   base: BaseTouchRegion,
   bodyParameters: RunnerBodyContactParameters,
-): number | null => findRunnerBaseTouchTickOnTrajectory(
-  timeline.postLaunchTrajectory,
-  timeline.route,
+): number | null => findRouteFollowingControllerBaseTouchTick(
+  timeline.postLaunchController,
+  timeline.launchKinematics,
   base,
   bodyParameters,
 );
