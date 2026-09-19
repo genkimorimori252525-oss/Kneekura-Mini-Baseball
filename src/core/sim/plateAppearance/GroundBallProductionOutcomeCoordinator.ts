@@ -81,6 +81,9 @@ import type {
   CanonicalPlateAppearanceTimeline,
 } from './CanonicalPlateAppearanceTimeline';
 import {
+  assertBattedBallFlightEvidenceMatchesTimeline,
+} from './GroundBallFlightEvidenceBinding';
+import {
   completeGroundBallFirstBasePlateAppearance,
   type GroundBallFirstBasePlateAppearanceCompletionResult,
 } from './GroundBallPlateAppearanceCoordinator';
@@ -393,6 +396,11 @@ export const resolveCanonicalGroundBallFirstBaseOutcome = (
 ): CanonicalGroundBallFirstBaseOutcome => {
   validateFairLiveBall(input);
   validateSharedClock(input);
+  assertBattedBallFlightEvidenceMatchesTimeline(
+    input.timeline,
+    input.flight,
+    input.ballFlightParameters,
+  );
 
   if (hasPrePitchRunner(input.match)) {
     return {
