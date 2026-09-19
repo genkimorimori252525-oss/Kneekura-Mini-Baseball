@@ -425,22 +425,28 @@ Superstar
 
 ---
 
-# 16. No Tactical Responsibility
+# 16. Tactical Responsibility Boundary — Revised
 
 重要な責任分界。
 
 ```text
-Popularity / Star Status
+Fan Favorite / 人気者
  -> NO Manager tactical input
+
+Star / Superstar
+ -> may create Tactical Gravity
+ -> Manager still owns the decision
 ```
 
-Managerの警戒:
+Managerの警戒は:
 
 ```text
 scouting
 + performance data
 + current player estimate
 + matchup history
++ role centrality
++ Star / Superstar-level competitive prominence
 + context
         ↓
 Manager Belief
@@ -448,7 +454,19 @@ Manager Belief
 tactical decision
 ```
 
-StarやSuperstarというLabelをManagerが読んで敬遠判断することは禁止。
+Star / Superstarは戦術上の重要人物になり得る。
+
+ただし:
+
+```text
+Superstar label
+ -> automatic intentional walk
+```
+
+は禁止。
+
+詳細:
+- `docs/game-design/51-star-superstar-big-stage-architecture-DRAFT.md`
 
 ---
 
@@ -579,19 +597,33 @@ Star / SuperstarはLegacyへ接続可能。
 
 ---
 
-# 23. No Match Buff Contract
+# 23. Match Effect Boundary — Revised
 
-Popularity / Star / Superstarはいずれも:
+Fan Favorite / 人気者はMatch能力へ作用しない。
 
-- Contact
-- Power
-- Speed
-- Fielding
-- Velocity
-- Command
-- win probability
+Star / Superstarもraw abilityを直接変更しない。
 
-を直接変更しない。
+ただしStar / Superstarには別Source of Truthとして:
+
+```text
+Match Salience
++ Spotlight Response
+ -> Condition / Appraisal distribution
+ -> actual execution
+```
+
+を認める。
+
+したがって大舞台で調子が上向きやすいPlayerは存在可能。
+
+禁止:
+
+- Contact / Power / Velocity等への固定加算
+- Superstar labelそのものからの自動Buff
+- guaranteed clutch success
+
+詳細:
+- `docs/game-design/51-star-superstar-big-stage-architecture-DRAFT.md`
 
 ---
 
@@ -672,3 +704,19 @@ Superstar
 8. Public Appealは人気形成のslow inputとして1軸だけ残す。
 9. Reputation / 威圧感はPopularityから切り離し、別設計へ戻す。
 10. 人気者は「強い選手」の別名にしない。
+
+
+---
+
+## Star / Superstar big-stage follow-up
+
+2026-09-20 user clarified:
+
+- `人気者` is largely secondary / fan-facing.
+- `Star / Superstar` can matter tactically.
+- Star / Superstar can also differ in high-pressure / big-stage Condition response.
+- Manager still owns the tactical decision through scouting / data / Manager Belief.
+- Superstar big-stage performance must route through underlying `Spotlight Response`, not a magic label buff.
+
+Detailed draft:
+- `docs/game-design/51-star-superstar-big-stage-architecture-DRAFT.md`
