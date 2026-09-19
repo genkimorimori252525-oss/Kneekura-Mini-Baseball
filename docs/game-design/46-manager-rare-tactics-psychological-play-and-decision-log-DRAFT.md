@@ -750,3 +750,31 @@ At the time:
 10. decision quality is not equal to outcome.
 11. personality is legible from repeated decisions and logs.
 12. user can learn real tactical reasoning from CPU logs.
+
+
+Manager candidate evaluation / gimmick-control design (USER REVIEW REQUIRED):
+- `docs/game-design/47-manager-candidate-evaluation-and-gimmick-control-DRAFT.md`
+
+
+---
+
+# 32. Novelty-Seeking Extension
+
+Rare Candidate frequency is influenced by:
+
+- Novelty Seeking
+- Decisiveness
+- Experimentation Tendency
+- Openness
+- Analysis / uncertainty calibration
+
+No hard one-per-game limit.
+
+A manager with extreme novelty seeking and poor calibration may generate several odd decisions in one game.
+
+This is treated as a derived failure pattern, not a comedy random event.
+
+Repeated novelty loses Surprise and adds execution / complexity load.
+
+Detailed design:
+- `docs/game-design/47-manager-candidate-evaluation-and-gimmick-control-DRAFT.md`
