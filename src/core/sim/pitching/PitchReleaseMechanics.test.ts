@@ -84,7 +84,7 @@ describe('pitch release mechanics', () => {
       .toBeCloseTo(0, 12);
   });
 
-  it('creates backspin from a tangential fingertip impulse above the ball center', () => {
+  it('creates backspin from an off-center tangential fingertip impulse', () => {
     const result = resolvePitchReleaseMechanics({
       ...base(),
       fingerImpulses: [
@@ -92,7 +92,7 @@ describe('pitch release mechanics', () => {
           fingerId: 'middle',
           contactDirectionBody: {
             x: 0,
-            y: 1,
+            y: -1,
             z: 0,
           },
           impulseWorldNs: {
@@ -105,8 +105,6 @@ describe('pitch release mechanics', () => {
     });
 
     expect(result.state.spin.x)
-      .toBeLessThan(0);
-    expect(Math.abs(result.state.spin.x))
       .toBeGreaterThan(0);
   });
 
