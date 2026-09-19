@@ -787,3 +787,30 @@ results
 5. Coaching Tree / Idea Lineageまで入れるか
 6. League Meta diffusion / counter-adaptationを採用するか
 7. 「強いCPU監督の真似が本当に効く」ことをAcceptance Testにするか
+
+
+---
+
+# 29. User-approved Rating Direction — 2026-09-20
+
+公開Manager Abilityは、現時点で以下6軸を採用方向とする。
+
+- 采配
+- 分析
+- 適応
+- 選手眼
+- 運用
+- 統率
+
+表示はS–G。
+
+Overall Ratingは原則作らない。
+
+重要追加:
+
+- D / E / F / G級の弱いManagerも存在可能。
+- Manager職は能力保証ではない。
+- Philosophyが優れていてもSkillが低ければ実行に失敗し得る。
+- 逆にSkillが高くてもRoster / Era / Contextへ合わなければ成果は限定される。
+
+Manager hiringの不完全性は `41-manager-appointment-and-incompetence-DRAFT.md` で設計する。
