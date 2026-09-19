@@ -1,4 +1,10 @@
 import { describe, expect, it } from 'vitest';
+import type {
+  CanonicalMatchState,
+} from '../../model/CanonicalMatchState';
+import {
+  asRuleProfileId,
+} from '../../model/RuleProfileRef';
 import {
   REFERENCE_BASEBALL_AERODYNAMICS,
 } from '../ball/BaseballAerodynamics';
@@ -11,6 +17,25 @@ import type {
 import {
   resolveAndRecordAerodynamicPitchAgainstBatter,
 } from './AerodynamicPitchAgainstBatter';
+
+const match = (): CanonicalMatchState => ({
+  ruleProfileId: asRuleProfileId('npb-2026'),
+  inning: 1,
+  half: 'top',
+  outs: 0,
+  balls: 0,
+  strikes: 0,
+  bases: {
+    first: null,
+    second: null,
+    third: null,
+  },
+  score: {
+    away: 0,
+    home: 0,
+  },
+  playId: 1,
+});
 
 const trajectory = (): AerodynamicPitchTrajectory => ({
   start: {
@@ -44,6 +69,7 @@ describe('aerodynamic pitch against batter', () => {
   it('records a taken aerodynamic plate crossing through the canonical timeline', () => {
     const timeline =
       createCanonicalPlateAppearanceTimeline(
+        match(),
         900_000,
       );
     const result =
