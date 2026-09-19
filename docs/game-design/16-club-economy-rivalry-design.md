@@ -39,11 +39,11 @@
 
 球団の着想元を二系統に分ける。
 
-## 2.1 REAL_BASEBALL_REFERENCE
+## 2.1 REAL_BASEBALL_CLUB
 
-野球文化・既存のプロ野球クラブが十分に存在するLeagueでは、実在野球球団をworking referenceとして使える。
+野球文化・既存のプロ野球クラブが十分に存在するLeagueでは、実在野球球団を基本とする。
 
-初期候補:
+初期対象:
 
 - Japan
 - Korea
@@ -56,11 +56,11 @@
 - Cuba
 - Australia
 
-球団数がゲーム世界のLeague規模と一致しない場合は、統合・追加・架空Expansionで調整可能。
+ゲーム世界のClub数と実在League構成が一致しない場合だけ、追加Club / League再編を個別設計する。
 
-## 2.2 FOOTBALL_INSPIRED_FICTIONAL
+## 2.2 REAL_FOOTBALL_CLUB_AS_BASEBALL_CLUB
 
-野球が主要競技ではない地域では、その地域のFootball Club Cultureを野球へ移植した架空球団を作る。
+野球が主要競技ではない地域では、実在Football Clubを**同名・同都市・同経済規模・同ブランド階層の野球Club**として使用する。
 
 初期対象:
 
@@ -70,29 +70,66 @@
 - Pan-African League
 - New Zealand / Pacific
 
-特にEuropeでは、
+Europeでは「Bayern-like」「PSG-like」「Real-like」のような別名motifを作らず、原則として実在Club名そのものを使う。
 
-- Real Madrid-like
-- Barcelona-like
-- Bayern-like
-- PSG-like
-- Manchester / Liverpool-like
-- Milan / Turin-like
-- Dutch academy-powerhouse-like
+例:
 
-等の勢力構造・都市・クラブ哲学・経済モデルをモチーフにできる。
+```text
+FC Bayern München
+Paris Saint-Germain
+Real Madrid CF
+FC Barcelona
+Liverpool FC
+Manchester United
+Juventus
+FC Internazionale Milano
+```
 
-重要:
+### Private-project policy
 
-> モチーフは能力補正ではない。
+本Projectは現時点で私的利用を前提としているため、設計データでは実在Club名をそのまま使用する。
 
-Runtimeが`BAYERN_LIKE`等のlabelを読んで強くすることは禁止する。
+将来配布・公開・商用化する場合だけ、名称・ロゴ・商標・ライセンスを別途見直す。
 
-### Public-release note
+## 2.3 Economyも実在Clubをreference sourceにする
 
-開発中のworking referenceとして実在球団名を使うことと、公開製品で名称・ロゴ・紋章をそのまま使用することは別問題。
+Football-inspired Clubの経済を架空の「Bayern型」数値で作らない。
 
-配布・商用化時は権利関係に応じて、必要なら架空名称・独自ロゴへ置換する。
+```text
+real football club financial snapshot
+ -> baseball-world initial economy seed
+```
+
+を原則とする。
+
+可能なら以下をsnapshotとして保存する。
+
+- annual operating revenue
+- wage / payroll scale
+- transfer spending capacity
+- cash / debt pressure
+- commercial scale
+- matchday scale
+- ownership funding capacity
+- academy / scouting investment scale
+- stadium / fanbase scale
+
+数値のsnapshot year / sourceを記録する。
+
+公開情報が確認できない項目を、精密な実額のように捏造しない。
+
+確認不能項目は:
+
+```text
+UNKNOWN
+or
+RELATIVE_BAND_ONLY
+```
+
+として保持し、後続データ入力で埋める。
+
+RuntimeがClub名を読んで能力Buffを与えることは禁止する。
+
 
 ---
 
@@ -297,72 +334,51 @@ Match Coreへ直接Buffしない。
 
 ---
 
-# 8. Football-inspired Economic Archetypes
+# 8. Real Football Economy Snapshot
 
-以下は**実在クラブの現在値ではなく、ゲーム開始時のモチーフ用economic seed例**。
+欧州Clubの初期経済は実在Football Clubの財務snapshotを参照する。
 
-## 8.1 Bayern-like — Self-sustaining Giant
+基準snapshotの初期候補は **2024/25 season / 2026 published financial sources**。
 
-```text
-RecurringRevenueRatio   2.5
-PayrollPowerRatio       2.2
-TransferPowerRatio      2.0
-CommercialStrength      very high
-DebtPressure            low
-AcademyInvestment       high
-OwnerInjectionReliance  low–medium
-```
+Deloitte Football Money League 2026で確認できる代表例:
 
-強さの源:
+| Club | 2024/25 revenue |
+| --- | ---: |
+| Real Madrid CF | €1,161m |
+| FC Barcelona | €974.8m |
+| FC Bayern München | €860.6m |
+| Paris Saint-Germain | €837.0m |
+| Liverpool FC | €836.1m |
+| Manchester City | €829.3m |
+| Arsenal | €821.7m |
+| Manchester United | €793.1m |
+| Tottenham Hotspur | €672.6m |
+| Chelsea | €584.1m |
+| FC Internazionale Milano | €537.5m |
+| Borussia Dortmund | €531.3m |
+| Atlético de Madrid | €454.5m |
+| Aston Villa | €450.2m |
+| AC Milan | €410.4m |
+| Juventus | €401.7m |
+| Newcastle United | €398.4m |
+| VfB Stuttgart | €296.3m |
 
-- 大規模商業収入
-- 強い国内ブランド
-- 継続的CL収入
-- 高い選手保持力
-- 安定経営
+この差をそのまま初期経済格差のEvidenceとして利用できる。
 
-## 8.2 PSG-like — Capital-backed Giant
-
-```text
-RecurringRevenueRatio   2.0
-PayrollPowerRatio       3.0
-TransferPowerRatio      4.0
-OwnerFundingCapacity    very high
-CommercialStrength      very high
-AcademyInvestment       high
-```
-
-強さの源:
-
-- owner capital
-- star acquisition
-- very high wages
-- global brand growth
-
-## 8.3 Real-like — Global Commercial Giant
+ただしFootball revenueをそのままBaseball player wageへ1:1変換する必要はない。
 
 ```text
-RecurringRevenueRatio   3.0
-PayrollPowerRatio       2.6
-TransferPowerRatio      2.7
-MatchdayRevenueRatio    very high
-GlobalReputation        very high
-OwnerInjectionReliance  low
+RealFootballFinancialSnapshot
+ -> EconomyNormalization
+ -> BaseballWorldBudget
 ```
 
-## 8.4 Barcelona-like — Giant with Financial Risk
+という変換層を置く。
 
-```text
-RecurringRevenueRatio   2.6
-PayrollPowerRatio       2.5
-AcademyInvestment       very high
-DebtPressure            high
-CommercialStrength      very high
-```
+重要なのは**相対的な資金力・継続収入・負債・投資余力の差を保存すること**。
 
-強豪でもDebt / bad contractsによって補強余力を失い得る。
+下位Clubについて確かな実額が未取得の場合は、実額を推測で埋めず、real-club reference + relative bandで開始する。
 
-したがって「名門だから永久に強い」にはならない。
 
 ---
 
@@ -868,29 +884,29 @@ Small Clubもexcellent academy / scoutingで上昇できる。
 
 # 24. 今回確定する事項
 
-1. Baseball-strong regionsは実在野球Clubをworking referenceにできる
-2. Baseball-minor regionsはFootball-inspired fictional baseball clubsを基本とする
-3. Europe 7 Full Leaguesは特にFootball Club hierarchyを強く参照する
+1. Baseball-strong regionsは実在野球Clubを基本とする
+2. Baseball-minor regionsは実在Football Clubを同名の野球Clubとして使用する
+3. Europe 7 Full Leaguesは実在Football Club名・都市・経済階層を直接参照する
 4. Club strengthを単一Buffで表現しない
 5. Rich-club dominanceはRevenue / Payroll / Transfer / Facilities等の数値で説明する
 6. Football-inspired Leagueはhard salary capを初期標準にしない
 7. EconomicPowerはLeague median比をUIで可視化可能
-8. Bayern / PSG / Real / Barcelona等はeconomic archetype motifとして扱う
+8. Bayern / PSG / Real / Barcelona等は実在Clubそのものとして登録し、実財務snapshotを経済seedに使う
 9. Rivalryはdirectionalであり相互性を要求しない
 10. Dominant Clubは多数Clubから一方向に狙われ得る
 11. RivalryはPersonalStake -> Appraisal -> ActiveEmotionへ接続する
 12. Rivalryによる直接`能力+X`は禁止
 13. Managerのエース投入 / 捨て試合 / 包囲網は別Tactical Designで詰める
 14. 包囲網は各Clubの独立判断の集積として自然発生させる
-15. Club Catalogはeconomic hierarchyを先に作り、名前・モチーフを後から当てる
+15. Europe Club Catalogは実在Club名を先に固定し、各Clubの実財務snapshot / relative economic bandを対応付ける
 
 ---
 
 # 25. 次に決めるもの
 
-次のClub設計では、Leagueごとの具体的な球団一覧へ進む。
+次のClub設計ではEurope 74球団の実在Club Catalogを作成する。
 
-最初はEuropeから:
+対象:
 
 - Netherlands 10
 - Germany 12
@@ -900,15 +916,20 @@ Small Clubもexcellent academy / scoutingで上昇できる。
 - Italy 12
 - Russia 10
 
-計74球団について、
+計74球団。
 
+各Clubについて:
+
+- real club name
 - home city
-- football motif
-- fictional baseball club name
-- economic tier
-- ownership style
-- stadium scale
+- economy reference snapshot
+- revenue if verified
+- relative economic band
+- ownership / funding style
+- stadium / fanbase scale
 - academy strength
-- initial rivalries
+- initial directed rivalries
 
-を決める。
+を保持する。
+
+実額未確認Clubへ精密な架空値は入れない。
