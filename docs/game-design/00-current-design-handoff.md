@@ -1381,3 +1381,43 @@ Updated draft:
 
 Refinement commit:
 - `9f436e9a93ec70487162afddcee70164c4156c28`
+
+
+---
+
+# 45. APPROVED DIRECTION — Star / Superstar Big-stage Mechanics
+
+2026-09-20 user clarified that Fan Favorite and Star/Superstar have different responsibilities.
+
+```text
+人気者 / Fan Favorite
+= affection / crowd / secondary Career presentation
+
+Star
+= competitive prominence / tactical gravity
+
+Superstar
+= exceptional Star
+ + broad recognition
+ + iconic salience
+ + strong high-stage evidence
+```
+
+Important:
+- Fan Favorite does not affect Manager tactical decisions.
+- Star / Superstar may influence opponent preparation and tactical attention through Manager Belief.
+- Manager remains the owner of actual decisions such as intentional walk, matchup relief, defensive positioning, etc.
+- Star / Superstar labels never directly modify raw ability.
+- Big-stage performance uses a separate underlying `Spotlight Response` profile.
+- high Match Salience (title-deciding games, elimination games, WBC/international, major rivalry, legacy moments) can shift Condition / Appraisal.
+- strong Spotlight Response makes good Condition / positive activation more likely under pressure, but does not guarantee success.
+- Superstar status is derived from elite competitive prominence + broad recognition + iconic/high-stage evidence. The label does not feed back as a magic buff.
+- statistical greatness and iconic greatness must remain distinguishable.
+- Shigeo Nagashima and Shohei Ohtani are validation motifs, not hard-coded persons.
+
+Draft:
+- `docs/game-design/51-star-superstar-big-stage-architecture-DRAFT.md`
+
+Commits:
+- `eda18e2e4f900f150e04aee25e541e40612291cf`
+- `a6246897d1eea914f1441356831212201a377454`
