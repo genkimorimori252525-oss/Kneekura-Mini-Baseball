@@ -1971,3 +1971,21 @@ Manager ratings / era / strategy evolution (USER REVIEW REQUIRED):
 
 Popularity / Reputation architecture (USER REVIEW REQUIRED):
 - `docs/game-design/50-popularity-reputation-architecture-DRAFT.md`
+
+
+---
+
+## Popularity refinement 2026-09-20
+
+User-approved direction:
+
+- `人気者` is a fan-affection / presentation descriptor.
+- `Star` and `Superstar` are separate statuses.
+- Popularity does not feed Manager tactical decisions.
+- Manager caution / intentional-walk / matchup decisions remain owned by Manager Belief, scouting, data and context.
+- Popularity effects remain secondary: crowd reaction, attendance interest, merchandise / presentation.
+- `人気者` does not improve Team Mood by itself.
+- Reputation / 威圧感 is no longer owned by Popularity; it returns to a separate Scouting / Manager Belief / Psychology boundary.
+
+Detailed draft:
+- `docs/game-design/50-popularity-reputation-architecture-DRAFT.md`
