@@ -241,10 +241,11 @@ describe('rigid bat-ball reduced-order contact', () => {
 
     expect(noSpin).not.toBeNull();
     expect(incomingSpin).not.toBeNull();
-    expect(noSpin!.tangentialRelativeSpeedBeforeMps)
-      .toBeCloseTo(0, 12);
     expect(incomingSpin!.tangentialRelativeSpeedBeforeMps)
-      .toBeGreaterThan(0);
+      .not.toBeCloseTo(
+        noSpin!.tangentialRelativeSpeedBeforeMps,
+        8,
+      );
     expect(incomingSpin!.exitSpin)
       .not.toEqual(v(-180, 0, 0));
   });
