@@ -1,12 +1,13 @@
 # Europe Real Club Catalog — 74 Clubs
 
 更新日: 2026-09-20  
-状態: **初期クラブ構成 v1。私的利用前提。財務値はsnapshot sourceを固定し、未確認値は捏造しない。**
+状態: **初期Seed Catalog v1。私的利用前提。Career開始後の現在状態ではない。財務値はsnapshot sourceを固定し、未確認値は捏造しない。**
 
 関連:
 - `docs/game-design/10-world-league-catalog.md`
 - `docs/game-design/13-domestic-league-championships.md`
 - `docs/game-design/16-club-economy-rivalry-design.md`
+- `docs/game-design/18-club-state-lifecycle.md`
 
 ---
 
@@ -29,6 +30,26 @@ Europe 7 Full Leaguesでは、架空のFootball-inspired Club名を作らない�
 ただしBaseball roster / baseball stadium / baseball resultsはゲーム世界側で生成する。
 
 Football成績をBaseball勝敗へ直接コピーしない。
+
+## 1.1 この文書はInitial Seedである
+
+本書のBand / finance / fanbase / academy / rivalry情報は、Career作成時の初期状態を生成するためのSeed。
+
+Pennant開始後は `docs/game-design/18-club-state-lifecycle.md` に従い、Save内の歴史だけで変化する。
+
+```text
+catalog says Bayern = MEGA at start
+          ↓
+Career begins
+          ↓
+current Bayern economy becomes simulation state
+          ↓
+MEGA / ELITE / HIGH... are recalculated over time
+```
+
+したがって本書を参照して2035年のBayernを再びMEGAへ戻すことは禁止する。
+
+Club名・origin reference等のIdentityと、Economic Band等の初期状態を区別する。
 
 ---
 
@@ -60,7 +81,7 @@ Economic seedは実在Football Clubの財務snapshotを参照する。
 | MID | 国内中位規模 |
 | LOW | 小市場 / 小規模 |
 
-Band自体はMatch Core Buffではない。
+Band自体はMatch Core Buffではない。またPennant中の永久属性でもなく、Career開始後はCurrent Economyから再計算する。
 
 ---
 
