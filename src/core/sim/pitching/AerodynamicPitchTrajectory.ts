@@ -11,6 +11,11 @@ import {
   decomposePitchSpin,
   type PitchSpinDecomposition,
 } from './PitchSpinPhysics';
+import {
+  advanceBaseballOrientation,
+  normalizeQuaternion,
+  type Quaternion,
+} from './BaseballOrientation';
 
 export type AerodynamicPitchTrajectoryParameters = Readonly<{
   ticksPerSecond: number;
@@ -23,6 +28,11 @@ export type AerodynamicPitchTrajectory = Readonly<{
   start: PitchWorldState;
   endTick: number;
   parameters: AerodynamicPitchTrajectoryParameters;
+  /**
+   * Material/seam orientation at release. Optional until seam-aware force
+   * models are enabled; when present it is advanced from the physical spin.
+   */
+  releaseOrientation?: Quaternion;
 }>;
 
 export type AerodynamicPitchPlateCrossing = Readonly<{
@@ -32,6 +42,7 @@ export type AerodynamicPitchPlateCrossing = Readonly<{
   velocity: Vec3;
   spin: Vec3;
   spinDecomposition: PitchSpinDecomposition;
+  orientation?: Quaternion;
 }>;
 
 const EPSILON = 1e-12;
@@ -268,6 +279,31 @@ export const sampleAerodynamicPitchTrajectory = (
   );
 };
 
+export const sampleAerodynamicPitchOrientation = (
+  trajectory: AerodynamicPitchTrajectory,
+  elapsedSeconds: number,
+): Quaternion | undefined => {
+  if (trajectory.releaseOrientation === undefined) {
+    return undefined;
+  }
+  if (
+    !Number.isFinite(elapsedSeconds)
+    || elapsedSeconds < 0
+  ) {
+    throw new Error(
+      'pitch orientation elapsedSeconds must be finite and non-negative',
+    );
+  }
+
+  return advanceBaseballOrientation(
+    normalizeQuaternion(
+      trajectory.releaseOrientation,
+    ),
+    trajectory.start.spin,
+    elapsedSeconds,
+  );
+};
+
 const crossedPlate = (
   startZ: number,
   currentZ: number,
@@ -304,6 +340,10 @@ export const findAerodynamicPitchPlateCrossing = (
       spinDecomposition: decomposePitchSpin(
         trajectory.start.velocity,
         trajectory.start.spin,
+      ),
+      orientation: sampleAerodynamicPitchOrientation(
+        trajectory,
+        0,
       ),
     };
   }
@@ -354,6 +394,10 @@ export const findAerodynamicPitchPlateCrossing = (
       spinDecomposition: decomposePitchSpin(
         trajectory.start.velocity,
         trajectory.start.spin,
+      ),
+      orientation: sampleAerodynamicPitchOrientation(
+        trajectory,
+        0,
       ),
     };
   }
@@ -408,6 +452,11 @@ export const findAerodynamicPitchPlateCrossing = (
     spinDecomposition: decomposePitchSpin(
       velocity,
       trajectory.start.spin,
+    ),
+    orientation: sampleAerodynamicPitchOrientation(
+      trajectory,
+      elapsedTicks
+        / trajectory.parameters.ticksPerSecond,
     ),
   };
 };
