@@ -871,7 +871,9 @@ Team Trait Catalog (USER REVIEW REQUIRED):
 
 ## Popularity / Reputation follow-up
 
-`人気者`、`威圧感 / 存在感` の移管先設計:
+`人気者` の移管先設計:
 - `docs/game-design/50-popularity-reputation-architecture-DRAFT.md`
 
-Catalog上のMOVE判断は維持し、詳細Source of Truthは同文書で設計する。
+`人気者` はFan Affection / Career / Presentationへ移す。
+
+`威圧感 / 存在感` はPopularityから切り離し、Scouting / Manager Belief / Psychology側で別途扱う。Popularity labelをManager tactical inputにしない。
