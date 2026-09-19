@@ -1115,3 +1115,57 @@ New Manager Decision Log:
 
 Draft:
 - `docs/game-design/46-manager-rare-tactics-psychological-play-and-decision-log-DRAFT.md`
+
+
+Manager candidate evaluation / gimmick-control design (USER REVIEW REQUIRED):
+- `docs/game-design/47-manager-candidate-evaluation-and-gimmick-control-DRAFT.md`
+
+
+---
+
+# 40. CURRENT DRAFT — Candidate Evaluation / Gimmick Control
+
+2026-09-20:
+
+Candidate actions are evaluated from Manager Belief, never World Truth.
+
+Subjective valuation includes:
+- immediate baseball value
+- future resource value
+- health cost
+- roster opportunity cost
+- role/social cost
+- opponent response risk
+- uncertainty
+- complexity
+- information gain
+- surprise
+- psychological value
+- symbolic value
+
+Important distinction:
+```text
+Candidate Admission = does the manager think of the option?
+Candidate Selection = does the manager actually choose it?
+```
+
+New personality tendency:
+- Novelty Seeking = tendency to admit unfamiliar / unusual candidates
+- it is not a Skill
+
+A derived "gimmick addiction" pattern can emerge from:
+```text
+high Novelty Seeking
++ high Decisiveness
++ high Experimentation
++ low Analysis
++ poor uncertainty calibration
++ Result Bias
+```
+
+Such a manager can make several unusual decisions in one game, but there is no random comedy roll and no fixed hidden penalty.
+
+Repeated weird tactics naturally lose Surprise and can accumulate execution complexity / opponent-learning costs.
+
+Draft:
+- `docs/game-design/47-manager-candidate-evaluation-and-gimmick-control-DRAFT.md`
