@@ -588,22 +588,22 @@ Australia / New Zealand / Pacificは地理上Oceaniaだが、国際大会のComp
 
 ## 8.1 Australia League
 
-- clubs: 8
-- games: **112**
+- clubs: 4
+- games: **108**
 - Regular Season: **September–January**
 - Postseason: **February**
 - APBCL: **November**
 - density: **STANDARD_DENSE**
-- target: 約5.1 games / week
+- target: 約5.0 games / week
 
 Balanced:
 
 ```text
-7 opponents x 16
-= 112
+3 opponents x 36
+= 108
 ```
 
-各opponentと8 home / 8 away。
+各opponentと18 home / 18 away。
 
 APBCL出場Clubは直前に完了したDomestic Seasonの `QualificationSeasonId` で決める。
 
@@ -659,7 +659,7 @@ active domestic season中のAPBCL参加ClubにはContinental Breakを設定す�
 | Europe | Italy | 110 | Mar–Aug | Sep |
 | Europe | Russia | 108 | Mar–Aug | Sep |
 | Africa | Pan-African | 110 | Oct–Mar | none |
-| Asia-Pacific | Australia | 112 | Sep–Jan | Feb |
+| Asia-Pacific | Australia | 108 | Sep–Jan | Feb |
 | Asia-Pacific | New Zealand / Pacific | 112 | Sep–Feb | none |
 
 ---
@@ -843,7 +843,8 @@ Schedule RNGはMatch Physics RNGから完全分離する。
 - Europe 10-club leagues 108 = 9 x 12
 - Europe 12-club leagues 110 = 11 x 10
 - Pan-Africa 110 = 11 x 10
-- Australia / NZ-Pacific 112 = 7 x 16
+- Australia 108 = 3 x 36
+- NZ-Pacific 112 = 7 x 16
 - Domestic Champions are decided before target Continental window
 - WBC / Premier / Club World have domestic-calendar escape rules
 - no schedule density directly modifies true ability
@@ -894,7 +895,7 @@ North America 162とMexico 120はunbalanced / rivalry opponent matrixを含む�
 | Italy | 110 |
 | Russia | 108 |
 | Pan-African | 110 |
-| Australia | 112 |
+| Australia | 108 |
 | New Zealand / Pacific | 112 |
 
 ---
