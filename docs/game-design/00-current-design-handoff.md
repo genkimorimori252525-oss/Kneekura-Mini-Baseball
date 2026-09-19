@@ -590,3 +590,33 @@ Rivalry lifecycle design (APPROVED):
 
 Team traits / player relationship design candidate (USER REVIEW REQUIRED):
 - `docs/game-design/34-team-traits-and-relationship-network-DRAFT.md`
+
+
+Team Trait Catalog (USER REVIEW REQUIRED):
+- `docs/game-design/35-team-trait-catalog-DRAFT.md`
+
+
+---
+
+# 26. CURRENT DESIGN — Team Traits / Relationship
+
+2026-09-20 current work:
+
+- `08-player-traits-design-seed.md` was expanded into the Special Ability / Trait System Master Plan.
+- Player Relationship axes approved: `Affinity / Trust / Coordination`.
+- Team Trait colors approved: `Blue / Red / Gold`.
+- Negative relationship alone must not lower batting true ability.
+- Batting resonance expresses the receiver's own archetype; teammate success never grants an incompatible ability.
+- Defensive coordination may degrade from low coordination / communication because defense is joint action.
+- Team Traits are temporary Pennant states and may be acquired / fade / expire.
+- Team Trait Catalog draft contains 91 candidates across offense, pitching, defense, context, environment, relationship and negative team-state families.
+
+Current files:
+- `docs/game-design/34-team-traits-and-relationship-network-DRAFT.md`
+- `docs/game-design/35-team-trait-catalog-DRAFT.md`
+
+Next intended design order:
+1. review / trim Team Trait Catalog
+2. Team Mood
+3. Manager Ability
+4. Popularity / Reputation
