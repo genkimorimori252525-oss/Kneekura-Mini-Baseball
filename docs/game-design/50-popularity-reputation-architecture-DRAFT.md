@@ -1,946 +1,674 @@
-# Popularity & Reputation Architecture — DRAFT
+# Popularity / Star Status Architecture — DRAFT
 
 更新日: 2026-09-20  
 状態: **設計候補。USER REVIEW REQUIRED。実装前。**
 
 関連:
-- `docs/game-design/05-psychology-emotion.md`
 - `docs/game-design/08-player-traits-design-seed.md`
 - `docs/game-design/09-player-trait-catalog.md`
-- `docs/game-design/34-team-traits-and-relationship-network-DRAFT.md`
+- `docs/game-design/20-simple-surface-deep-simulation.md`
 - `docs/game-design/37-team-mood-architecture.md`
 - `docs/game-design/49-manager-architecture-v1.md`
-- `docs/game-design/20-simple-surface-deep-simulation.md`
 
 ---
 
-# 1. Goal
+# 1. Revised Goal
 
-PowerPro系の「人気者」「威圧感」「存在感」等を、
-謎のMatch Buffではなく、
+「人気者」を野球能力・采配・対戦警戒から切り離す。
 
-- fans
-- media / public attention
-- opponent beliefs
-- career history
-- presentation
+Popularity Systemの責務は:
 
-へ因果的に接続する。
+- 観客の集まりやすさ
+- 歓声 / ブーイング / 応援演出
+- グッズ / ファンイベント等の二次的なCareer表現
+- 世間での注目
+- 放送 / Presentation上の扱い
+
+まで。
+
+禁止:
+
+```text
+人気者
+ -> 相手投手が警戒
+ -> 敬遠率上昇
+```
+
+相手を警戒するかどうかはManager / Player側の:
+
+- data
+- scouting
+- opponent history
+- current ability estimate
+- game context
+
+から決める。
+
+PopularityはManager Decision Engineへ入力しない。
+
+---
+
+# 2. Three Separate Public Statuses
+
+```text
+人気者
+Star
+Superstar
+```
+
+を別概念にする。
+
+---
+
+# 3. 人気者 / Fan Favorite
+
+定義:
+
+> **能力や格とは独立して、ファンから親しまれ、応援されやすい人物。**
 
 重要:
 
-> **Popularityは能力ではない。  
-> ReputationはTruthではない。  
-> Clubhouse InfluenceはPopularityではない。**
-
----
-
-# 2. Core Separation
-
-最低限、以下を分離する。
-
 ```text
-Exposure / Awareness
-= どれだけ知られているか
-
-Public Favorability
-= そのAudienceからどれだけ好意的に見られているか
-
-Reputation
-= どんな人物 / 選手だと思われているか
-
-Clubhouse Influence
-= Team内部でどれだけ人へ影響するか
+人気者
+ != Star
+ != Superstar
 ```
 
-最後のClubhouse InfluenceはTeam Mood / Relationship側のSource of Truth。
+例として想定する人物像:
 
-Popularity側へ複製しない。
+- 明るく親しみやすい
+- ファンサービスで愛される
+- 独特なキャラクター
+- 長く球団に在籍
+- 地元との結びつきが強い
+- ベンチ / 球場を盛り上げる存在
+- 成績以上にファンから好かれる
+
+川崎宗則やAlex Ramirezのような「人そのものを見たくなる」タイプを設計Motifとする。
+
+ただし実在人物固有のTraitをhard-codeしない。
 
 ---
 
-# 3. Popularity is Derived
+# 4. Fan Favorite Effects
 
-「人気」を単一の先天Statにしない。
+人気者の効果は原則Presentation / Career side effectのみ。
 
-概念:
+候補:
+
+- home attendance interest slightly rises
+- player introduction cheers become louder
+- fan signs / chants / banners appear more often
+- merchandise demand rises
+- fan-event salience rises
+- retirement / return appearances receive stronger reaction
+- broadcast camera / commentary may feature the player more often
+
+これらはすべて二次的。
+
+禁止:
+
+- batting / pitching / fielding buff
+- teammate buff
+- opponent debuff
+- manager tactical change
+- hidden clutch bonus
+- automatic Team Mood improvement
+
+---
+
+# 5. Popularity Does Not Need Baseball Greatness
 
 ```text
-Awareness
-+ positive Favorability
-+ audience relevance
+role player
++ strong fan affection
+ -> 人気者
+```
+
+可能。
+
+逆に:
+
+```text
+elite player
++ low fan attachment
+ -> not necessarily 人気者
+```
+
+も可能。
+
+これにより「人気者」を競技力の別名にしない。
+
+---
+
+# 6. Star
+
+定義:
+
+> **現在の競技世界で、中心選手として広く注目される存在。**
+
+Star成立はPopularityではなく主に:
+
+- current performance
+- role importance
+- awards / records
+- playing time
+- memorable baseball moments
+- league visibility
+- sustained relevance
+
+からDerivedする。
+
+```text
+high competitive prominence
++ broad awareness
+        ↓
+Star
+```
+
+Starだからファンに好かれるとは限らない。
+
+---
+
+# 7. Superstar
+
+定義:
+
+> **Starの中でも、競技上の卓越性と広い認知が長期間・広範囲で成立した象徴的存在。**
+
+候補条件:
+
+- elite competitive prominence
+- sustained performance
+- major awards / records
+- league-wide or national awareness
+- repeated high-salience events
+- broad cross-audience recognition
+
+場合によっては国際的認知も含む。
+
+```text
+Star
++ exceptional sustained prominence
++ very broad awareness
+        ↓
+Superstar
+```
+
+ただしSuperstarはPopularityの上位Tierではない。
+
+---
+
+# 8. Orthogonal Relationship
+
+三者は独立。
+
+```text
+人気者 = affection axis
+Star = competitive prominence + recognition
+Superstar = extreme sustained star status
+```
+
+例:
+
+## A
+
+```text
+人気者: YES
+Star: NO
+Superstar: NO
+```
+
+愛されるRole Player。
+
+## B
+
+```text
+人気者: YES
+Star: YES
+Superstar: NO
+```
+
+人気も実力もある主力。
+
+## C
+
+```text
+人気者: NO
+Star: YES
+Superstar: NO
+```
+
+強いがFan Favoriteとは限らない。
+
+## D
+
+```text
+人気者: YES / NO
+Star: YES
+Superstar: YES
+```
+
+SuperstarでもFan Favoriteかどうかは別。
+
+---
+
+# 9. Popularity Internal State
+
+Popularityは単純な1bit Traitではなく、
+内部ではAudienceごとのFan Affectionを持てる。
+
+候補:
+
+```ts
+type FanStanding = {
+  audience: AudienceKey;
+  awareness: number;
+  affection: number;
+};
+```
+
+ただし通常UIでは複雑に見せない。
+
+Audience候補:
+
+- current club fans
+- former club fans
+- local region
+- league-wide fans
+- national audience
+- international audience
+
+意味のあるAudienceのみSparse保存。
+
+---
+
+# 10. Awareness and Affection
+
+## Awareness
+
+どれだけ知られているか。
+
+## Affection
+
+どれだけ「応援したい / 見たい / 好き」と思われているか。
+
+人気者は:
+
+```text
+sufficient Awareness
++ high Affection
+        ↓
+Fan Favorite descriptor
+```
+
+ただしScope依存。
+
+```text
+local hero
+nationally unknown
+```
+
+も可能。
+
+---
+
+# 11. Why Popularity Changes
+
+候補入力:
+
+- public personality
+- fan interaction
+- distinctive character
+- long tenure
+- local identity
+- memorable moments
+- comeback story
+- underdog story
+- ceremonial moments
+- media exposure
+
+成績もExposureを増やす一因にはなれるが、
+人気そのものを自動生成しない。
+
+---
+
+# 12. Public Appeal
+
+前DraftのPublic Appeal案は簡素化して残す候補。
+
+目的:
+
+> 同じ程度に知られていても、人によって「好かれやすさ」が違うことを説明する。
+
+候補:
+
+```text
+Public Appeal
+```
+
+単一slow factor。
+
+ただし直接:
+
+```text
+Public Appeal 90
+ -> 人気者
+```
+
+にはしない。
+
+実際のExposure / fan responseが必要。
+
+詳細なCharisma / Humor / Looks / Media Skill等への分解はv1では行わない。
+
+---
+
+# 13. Popularity Update
+
+```text
+Career / Public Event
+        ↓
+Exposure
+        ↓
+Relevant Audience
+        ↓
+Fan response
+        ↓
+Awareness / Affection update
         ↓
 Popularity presentation
 ```
 
-したがって:
+「ホームラン1本 = 人気+3」の固定加算は禁止。
+
+---
+
+# 14. Star Status Update
+
+Star StatusはPopularityとは別に:
 
 ```text
-very famous + disliked
- -> famous, but not "人気者"
-
-locally known + strongly loved
- -> local 人気者
-
-internationally known + broadly liked
- -> global star-level popularity
-```
-
-が可能。
-
----
-
-# 4. Audience-specific Standing
-
-Popularityは世界共通一個の数値にしない。
-
-同じPersonでもAudienceごとに違う。
-
-候補:
-
-```ts
-type AudienceStanding = {
-  audience: AudienceKey;
-  awareness: number;
-  favorability: number;
-  confidence: number;
-};
-```
-
-AudienceKeyはsparse。
-
-候補:
-
-- current club supporters
-- former club supporters
-- local / regional audience
-- league-wide neutral audience
-- rival supporters
-- national general audience
-- international / competition-region audience
-
-全Person × 全Audienceのdense matrixは禁止。
-
-意味のあるAudienceだけ保存する。
-
----
-
-# 5. Awareness != Favorability
-
-## Awareness
-
-「知っている人の多さ / 認知の強さ」。
-
-増加要因候補:
-
-- playing time
-- league visibility
-- performance
-- memorable events
-- awards / records
-- postseason / international competition
-- media exposure
-- transfers
-- rivalry
-- unusual style / distinctive identity
-
-Awarenessは比較的slow decay。
-
-## Favorability
-
-「好かれている / 応援したいと思われる程度」。
-
-入力候補:
-
-- performance relative to expectations
-- loyalty / long tenure
-- underdog story
-- public behavior
-- memorable hero moments
-- local identity
-- fan interaction / media persona
-- controversy / conflict
-- rival identity
-
-FavorabilityはAwarenessより速く変化可能。
-
----
-
-# 6. No Fixed "Home Run = Popularity +X"
-
-Eventから直接Popularityを足さない。
-
-```text
-Canonical Event
-+ salience
-+ match importance
-+ audience relevance
-+ prior narrative / expectations
-+ media reach
+competitive performance
++ role importance
++ sustained visibility
++ major achievements
         ↓
-Public Exposure
-        ↓
-Audience Appraisal
-        ↓
-Awareness / Favorability update
+Star evidence
 ```
 
-例:
+で更新。
 
-```text
-solo HR in 10-0 game
- !=
-walk-off HR in championship game
-```
+StarはBaseball Career Descriptor。
 
-同じHRでもPublic impactが異なる。
+Popularity systemと二重加算しない。
 
 ---
 
-# 7. Public Appeal — Optional Slow Input
+# 15. Superstar Status Update
 
-能力だけでPopularityが決まらないよう、
-Person側に「注目を好意へ変換しやすい個性」を持たせる余地を残す。
+Superstarは短期爆発だけでは成立しにくい。
 
 候補:
 
 ```text
-Public Appeal
-```
-
-ただし:
-
-```text
-Public Appeal
- -> automatic popularity
-```
-
-は禁止。
-
-Exposureがなければ知られない。
-
-Public AppealはAudience Appraisalへのsmall input候補。
-
-詳細軸へ分解するかは未確定。
-
-v1では単一slow factorでもよい。
-
----
-
-# 8. Reputation != Popularity
-
-Reputationは:
-
-> **そのPersonについて、観測者が「こういう人 / 選手だ」と信じている内容。**
-
-人気とは別。
-
-例:
-
-```text
-Awareness: very high
-Favorability: low
-Reputation:
-  feared slugger
-  selfish
-  clutch
-```
-
-のような状態も可能。
-
----
-
-# 9. Reputation Is Observer Belief
-
-ReputationはTruthを直接読まない。
-
-```text
-actual events
-+ statistics
-+ media narratives
-+ repeated observation
-+ hearsay / public discourse
+Star status
++ sustained elite performance
++ major achievements
++ broad recognition
++ persistence
         ↓
-Reputation Belief
+Superstar
 ```
 
-したがって:
-
-- accurate reputation
-- exaggerated reputation
-- outdated reputation
-- unfair reputation
-- small-sample myth
-
-が存在可能。
+一週間の大活躍でSuperstarにはしない。
 
 ---
 
-# 10. Reputation Evidence
+# 16. No Tactical Responsibility
 
-候補モデル:
+重要な責任分界。
 
-```ts
-type ReputationSignal = {
-  topic: ReputationTopic;
-  direction: number;
-  strength: number;
-  confidence: number;
-  evidence: number;
-  lastUpdatedAt: SeasonTime;
-};
+```text
+Popularity / Star Status
+ -> NO Manager tactical input
 ```
 
-Topic候補は必要以上に増やさない。
+Managerの警戒:
 
-初期Family候補:
+```text
+scouting
++ performance data
++ current player estimate
++ matchup history
++ context
+        ↓
+Manager Belief
+        ↓
+tactical decision
+```
 
-## Baseball Threat / Quality
+StarやSuperstarというLabelをManagerが読んで敬遠判断することは禁止。
+
+---
+
+# 17. Reputation Split Off
+
+前DraftでPopularityと一緒に扱っていた:
 
 - feared hitter
-- ace
-- difficult baserunner
-- defensive specialist
-- dangerous in clutch situations
+- clutch reputation
+- tactical reputation
+- 威圧感 / 存在感
 
-## Reliability / Professionalism
+はPopularity Systemから外す。
 
-- dependable
-- inconsistent
-- injury concern
-- disciplined / prepared
+これらは将来:
 
-## Social / Leadership
+```text
+Scouting / Manager Belief / Psychology / Public Reputation
+```
 
-- leader
-- mentor
-- selfish
-- difficult teammate
+の境界で別途整理する。
 
-## Public Persona
-
-- entertainer
-- quiet professional
-- controversial
-- fan-friendly
-
-## Tactical / Manager Reputation
-
-Managerにも同じArchitectureを再利用できる。
-
-- aggressive tactician
-- conservative
-- innovator
-- stubborn
-- strong postseason reputation
-
-ただしManager Truth SkillをReputationから生成しない。
+少なくともPopularityからManager Decisionへ流さない。
 
 ---
 
-# 11. Reputation Descriptor, Not Ability
+# 18. Crowd Presentation
 
-禁止:
+人気者:
 
-```text
-"勝負強いと評判"
- -> Contact +5
-```
+- cheering volume
+- chant frequency
+- signs / towels / banners
+- fan reaction on introduction
+- stronger homecoming reception
 
-Reputationは:
+Star:
 
-- public presentation
-- opponent belief
-- manager belief if evidence is limited
-- media narrative
-- market / career context
+- broadcast focus
+- pregame introductions
+- featured matchup presentation
+- media headline priority
 
-へ作用し得る。
+Superstar:
 
-True Abilityは別。
+- event-like arrival
+- league / national spotlight
+- larger away-game attention
+- milestone presentation
 
----
+これらはPresentation。
 
-# 12. "威圧感 / 存在感" Reinterpretation
-
-既存Player Trait Catalogの判断を採用する。
-
-```text
-actual sustained threat
-+ opponent observation
-+ league-wide reputation
-+ current context
-        ↓
-opponent Appraisal
-        ↓
-pitch / swing / tactical decision
-        ↓
-possible ActiveEmotion
-```
-
-禁止:
-
-```text
-威圧感
- -> opponent ability -10
-```
-
-例:
-
-強打者へのReputationが高いPitcher / Managerなら:
-
-- avoid zone more
-- intentional-walk candidate more likely
-- careful pitch selection
-- defensive positioning changes
-
-等が起こり得る。
-
-その結果として:
-
-- walk増加
-- hitter-friendly counts
-- fewer pitches in zone
-
-等が生じる可能性はある。
-
-これはReputationの実在する因果結果。
+Match abilityへ直接フィードバックしない。
 
 ---
 
-# 13. Reputation Can Be Wrong
+# 19. Attendance
 
-重要Stress Test:
-
-```text
-small-sample success
-+ huge media exposure
-        ↓
-"clutch hitter" reputation
-
-but
-true clutch-specific ability = ordinary
-```
-
-Opponentがその評判を信じれば:
-
-```text
-more cautious approach
- -> actual pitch distribution changes
-```
-
-可能。
-
-しかしPlayer abilityは変わらない。
-
----
-
-# 14. Popularity != Clubhouse Influence
-
-Team Mood設計の承認済み境界を維持。
-
-```text
-Public Popularity
- !=
-Clubhouse Influence
-```
-
-例:
-
-```text
-superstar
-Popularity S
-Clubhouse Influence D
-```
-
-可能。
-
-逆:
-
-```text
-quiet veteran catcher
-Popularity D
-Clubhouse Influence S
-```
-
-可能。
-
-「人気者」だからTeam Mood上昇は禁止。
-
----
-
-# 15. Popularity != Reputation
-
-さらに:
-
-```text
-popular
- != respected by opponents
-
-feared
- != liked by fans
-
-famous
- != good
-```
-
-を守る。
-
----
-
-# 16. Popularity Descriptor — "人気者"
-
-PowerPro的「人気者」はCareer / Presentation Derived Descriptorとする。
-
-成立候補:
-
-```text
-meaningful Awareness
-+ clearly positive Favorability
-within relevant fan audience
-        ↓
-"人気者"
-```
-
-Trait自体は追加効果を持たない。
-
-Source of Truth:
-
-```text
-AudienceStanding
- -> presentation projection
- -> 人気者
-```
-
----
-
-# 17. Scope-specific Popularity
-
-PopularityはScopeを表示できる。
-
-候補:
-
-- 地元人気
-- 球団人気
-- リーグ人気
-- 全国人気
-- 国際人気
-
-ただし通常UIでは全部並べない。
-
-例:
-
-```text
-人気: A
-主な支持: 地元 / 球団ファン
-```
-
-Optional detailでAudience別。
-
----
-
-# 18. Star Status is Derived
-
-「スター性」を独立Magic Statにしない。
-
-候補:
-
-```text
-high Awareness
-+ strong recent relevance
-+ major performance / narrative
-+ sustained visibility
-        ↓
-Star Status descriptor
-```
-
-Star Statusが能力を上げない。
-
----
-
-# 19. Infamy / Villainy
-
-High Awareness + Negative Favorabilityも価値ある状態。
-
-```text
-high awareness
-+ strong negative favorability
-        ↓
-infamous / villain-like public status
-```
-
-これにより:
-
-- away boos
-- rivalry salience
-- media attention
-- opponent emotional significance
-
-等が出せる。
-
-Popularity modelを「好かれるほど有名」という一方向にしない。
-
----
-
-# 20. Crowd Reaction
-
-AudienceStandingからPresentationへ:
-
-- cheers
-- boos
-- louder introduction
-- banner / chant probability
-- camera / broadcast focus
-- retirement tribute
-- return-to-former-club reaction
-
-等を生成可能。
-
-Crowd reaction itselfはMatch ability buffではない。
-
-ただしPlayerが実際にCrowd EventをAppraiseすれば、
-05 Psychology経由でEmotionPressureへ作用可能。
-
----
-
-# 21. Media / Headline Salience
-
-Awareness / Reputationにより:
-
-- media coverage probability
-- headline prominence
-- storyline persistence
-
-が変わり得る。
-
-ただしMedia Systemの詳細は別設計。
-
-Popularity側は:
-
-```text
-salience input / output contract
-```
-
-だけ持つ。
-
----
-
-# 22. Career Consequences
-
-将来接続候補:
-
-- fan-vote all-star selection where competition rules permit
-- jersey / merchandise demand
-- attendance interest
-- sponsor / commercial demand
-- ceremonial role
-- retirement attention
-- Hall / legacy narrative
-- club willingness to retain icon
-- trade backlash / excitement
+人気者 / Star / SuperstarはAttendance interestの入力になれる。
 
 ただし:
 
 ```text
-Popularity
- -> salary +X automatically
+one popular player
+ -> stadium always sold out
 ```
 
 は禁止。
 
-Front Office / EconomyがPopularityを一入力として評価する。
+Attendanceは将来:
 
-Userへcommercial micromanagementを要求しない。
+- club popularity
+- team performance
+- stadium
+- opponent
+- day / event
+- ticket environment
+- player draw
 
----
+等の複合結果。
 
-# 23. Transfer / Trade Behavior
-
-移籍でPopularityをresetしない。
-
-例:
-
-```text
-old club supporters:
-  attachment / nostalgia persists
-
-new club supporters:
-  awareness may already be high
-  favorability starts from expectations / prior reputation
-```
-
-Rival transferなら:
-
-- old audience favorability drop
-- new audience excitement
-- rival salience
-
-等がEvent-drivenで発生可能。
-
-固定ルールにはしない。
+Popularityは小さな一入力。
 
 ---
 
-# 24. Local Hero
+# 20. Merchandise / Commercial Side Effects
 
-小規模League / Clubでも人気者は成立。
+候補:
 
-```text
-global awareness low
-+ local awareness high
-+ local favorability very high
-        ↓
-local hero
-```
+- jersey sales
+- merchandise
+- fan-event demand
+- sponsor visibility
+- player-feature content
 
-世界的知名度が低いこととPopularityは矛盾しない。
+ただしFront Office micromanagementへはしない。
 
----
-
-# 25. Breakout Star
-
-```text
-low Awareness
-+ unexpected performance
-+ high-salience moments
-        ↓
-rapid Exposure
-        ↓
-Audience Appraisal
-        ↓
-Popularity may rise
-```
-
-ただし一週間の好調だけで全国Starへ瞬間昇格させない。
-
-ExposureのScopeとpersistenceを要求。
+UserはPopularity meterを育成するために毎週営業活動をしない。
 
 ---
 
-# 26. Decline / Retirement
+# 21. Transfer
 
-成績低下でPopularityを即消去しない。
+移籍してもPopularity履歴は残る。
 
 ```text
-current relevance declines
-but
-historical attachment / legacy persists
+old club fans
+ -> affection / nostalgia may persist
+
+new club fans
+ -> awareness carries over
+ -> affection develops separately
 ```
 
-Reputationは:
+Star / Superstar statusも原則resetしない。
 
-- current reputation
-- legacy reputation
-
-を将来分ける余地を持つ。
-
-Retired legendのPopularity / Reputationを保存可能。
+ただし新LeagueではAwareness Scopeが変わり得る。
 
 ---
 
-# 27. League / Region Boundaries
+# 22. Retirement / Legacy
 
-PopularityもDoctrineと同様、地域差を持つ。
+人気者は引退後も「愛された選手」として残り得る。
 
-```text
-domestic star
- != automatically global star
-```
+Star / SuperstarはLegacyへ接続可能。
 
-Cross-region Awareness growthには:
-
-- international competition
-- transfer
-- global media exposure
-- records
-- exceptional events
-
-等のbridgeが必要。
-
-ただし現代 / futureのMedia Environmentでbridge strengthは変わり得る。
+ただしHall / Legacy詳細は将来設計。
 
 ---
 
-# 28. Audience Appraisal
+# 23. No Match Buff Contract
 
-同じEventでもAudienceごとに違う。
+Popularity / Star / Superstarはいずれも:
 
-例: rivalry walk-off HR
+- Contact
+- Power
+- Speed
+- Fielding
+- Velocity
+- Command
+- win probability
 
-```text
-home supporters
- -> strong positive
-
-opponent supporters
- -> strong negative
-
-neutral fans
- -> excitement / increased awareness
-```
-
-EventからGlobal Popularityへ直接加点しない。
+を直接変更しない。
 
 ---
 
-# 29. Public Standing Update
-
-候補flow:
-
-```text
-Canonical Career / Match Event
-        ↓
-Exposure Event
-        ↓
-Relevant Audiences selected
-        ↓
-Audience-specific Appraisal
-        ↓
-Awareness / Favorability update
-        ↓
-Reputation Evidence update
-        ↓
-Presentation / Career consequences
-```
-
----
-
-# 30. Anti-Monocausal Rule
-
-Popularity単独で:
-
-- player ability
-- team winning
-- development
-- clubhouse mood
-- contract success
-
-を説明しない。
-
-Reputation単独でも同様。
-
-```text
-Player Ability
-+ Performance
-+ Exposure
-+ Audience
-+ Career Context
-+ Media
-        ↓
-public history
-```
-
----
-
-# 31. Simple Surface
-
-通常Player UI候補:
-
-```text
-人気: A
-知名度: 全国級
-
-評判
-・強打者として警戒されている
-・ファン人気が高い
-```
-
-またはPowerPro-like Trait UIでは:
+# 24. No Team Mood Shortcut
 
 ```text
 人気者
-威圧感
+ -> Team Mood +
 ```
 
-のみ表示し、
-詳細画面で根拠へ掘れる。
+は禁止。
+
+Clubhouse Influenceは別System。
+
+人気者がClubhouseでも愛される場合は、
+Relationship側に独立Evidenceが必要。
 
 ---
 
-# 32. Optional Deep View
+# 25. Simple UI
+
+通常:
+
+```text
+人気者
+スター
+スーパースター
+```
+
+のDescriptor表示で十分。
+
+Optional:
 
 ```text
 人気
-  球団ファン      S
-  リーグ一般      A
-  全国            B
-  海外            D
+  球団ファン: とても高い
+  全国: 高い
 
-評判
-  強打者          Very High confidence
-  勝負強さ        Medium confidence
-  リーダー        Low confidence
+Star Status
+  League Star
+
+Superstar
+  No
 ```
 
-UI数値や文言は後続。
+程度。
 
 ---
 
-# 33. No Popularity Chore
+# 26. Stress Tests
 
-Userへ:
-
-- SNS更新
-- 毎週ファンサ
-- Media interview spam
-- popularity meter grinding
-
-を要求しない。
-
-PopularityはCareer世界の結果として動く。
-
-将来Media Eventを追加しても、
-通常進行の必須Maintenanceにはしない。
-
-Simple Surface, Deep Simulationを守る。
+1. beloved bench player can be 人気者 without being Star.
+2. elite Star can exist without 人気者.
+3. Superstar can be polarizing.
+4. local 人気者 can remain nationally obscure.
+5. transfer preserves former-club affection.
+6. popularity raises cheers / fan interest but not tactical caution.
+7. Manager does not use Popularity / Star labels for matchup decisions.
+8. popular player does not automatically improve Team Mood.
+9. Star status comes from competitive prominence, not affection.
+10. Superstar requires sustained broad prominence.
+11. all three statuses can coexist independently.
+12. no status directly changes Match ability.
 
 ---
 
-# 34. Determinism / Evidence
+# 27. Current Recommended Decisions
 
-Popularity / Reputation updateもCareer simulationの正史。
+推奨:
 
-同じ:
-
-- events
-- audience state
-- media environment
-- seed
-
-なら同じ更新を再現可能。
-
-重要Event / aggregate Evidenceを保存し、
-全SNS投稿等のmicro-event保存は要求しない。
-
----
-
-# 35. Initial Stress Tests
-
-1. superstar with huge fame but low favorability
-2. beloved local role player with low national awareness
-3. quiet veteran with low popularity but high clubhouse influence
-4. famous player with weak clubhouse influence
-5. feared slugger who is disliked by rival fans
-6. false "clutch" reputation from small sample
-7. reputation changes opponent approach without changing raw ability
-8. transfer preserves old-club audience history
-9. retired legend remains famous after current ability disappears
-10. breakout player gains exposure without instantly becoming global icon
-11. domestic star remains relatively unknown abroad until bridge event
-12. popularity never directly grants wins / batting / pitching skill
-
----
-
-# 36. First Review Decisions
-
-最初に確定したいのは以下。
-
-1. Popularityを単一値にせず `Awareness + Favorability` へ分ける
-2. Audience-specific Standingを採用する
-3. ReputationをObserver Beliefとして分離する
-4. Clubhouse Influenceを完全に別source of truthにする
-5. 「人気者」をDerived Presentation Descriptorにする
-6. 「威圧感 / 存在感」をReputation -> Opponent Appraisalへ接続する
-7. Public Appealをslow inputとして持つか
-8. local / league / national / international scopeを持たせる
-9. PopularityはCareer / Presentation中心で、MatchへはCrowd / Appraisal経由のみ
-10. Popularity maintenance choresを作らない
+1. `人気者 / Star / Superstar` を別Descriptorにする。
+2. 人気者はFan Affection中心。
+3. StarはCompetitive Prominence + Awareness。
+4. Superstarは長期・広域の極端なStar Status。
+5. PopularityはManager Decisionへ接続しない。
+6. Crowd / Attendance / Merchandise / Presentation程度の二次効果に限定。
+7. Clubhouse Influenceとは完全分離。
+8. Public Appealは人気形成のslow inputとして1軸だけ残す。
+9. Reputation / 威圧感はPopularityから切り離し、別設計へ戻す。
+10. 人気者は「強い選手」の別名にしない。
