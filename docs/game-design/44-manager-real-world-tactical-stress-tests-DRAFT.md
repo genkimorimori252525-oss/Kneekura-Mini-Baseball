@@ -1,5 +1,10 @@
 # Manager Real-world Tactical Stress Tests — DRAFT
 
+> **Manager Architecture v1 canonical note:** This file is now **VALIDATION CATALOG**.
+> Canonical Manager semantics are defined by `docs/game-design/49-manager-architecture-v1.md`.
+> If this file conflicts with v1, the canonical v1 document wins.
+
+
 更新日: 2026-09-20  
 状態: **設計検証用。USER REVIEW REQUIRED。実装前。**
 
