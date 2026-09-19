@@ -576,3 +576,7 @@ later-emergent rivalry
 - 後天的因縁は無関係な年月が続けば薄れる
 
 **この案をまだ採用済みとして扱わない。次回ユーザーと数式・減衰条件・恒久floorを相談すること。**
+
+
+Rivalry lifecycle approval candidate (USER APPROVAL REQUIRED):
+- `docs/game-design/33-rivalry-lifecycle-model-DRAFT.md`
