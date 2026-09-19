@@ -1169,3 +1169,81 @@ Repeated weird tactics naturally lose Surprise and can accumulate execution comp
 
 Draft:
 - `docs/game-design/47-manager-candidate-evaluation-and-gimmick-control-DRAFT.md`
+
+
+---
+
+# 41. CANONICAL — Manager Architecture v1
+
+2026-09-20 adversarial audit completed.
+
+Audit:
+- `docs/game-design/48-manager-architecture-adversarial-audit.md`
+
+Canonical design:
+- `docs/game-design/49-manager-architecture-v1.md`
+
+Status:
+> **Manager Architecture v1 is DESIGN FROZEN.**
+
+The adversarial audit found that the core causal direction was sound, but normalized several overlapping concepts before freeze.
+
+Final Manager source of truth:
+
+```text
+STATIC / SLOW
+  Skill
+  Philosophy
+  Temperament
+
+DYNAMIC
+  Belief State
+  Strategy Memory
+
+EXTERNAL
+  Rules / Environment
+  Staff Advice
+  Manager-Player Relationships
+  Match / Series / Season Context
+```
+
+Public six skills remain:
+```text
+采配 / 分析 / 適応 / 選手眼 / 運用 / 統率
+```
+
+Important corrections from the audit:
+- Adaptation is a Skill, not a duplicate top-level system.
+- Knowledge is the dynamic Belief State.
+- Authority / Trust is relationship-derived, not a personal Manager stat.
+- Temperament is frozen to five value-neutral axes:
+  Risk Appetite / Decision Pace / Policy Persistence / Novelty Appetite / Consultation Style.
+- Openness / Experimentation / Novelty Seeking are merged into Novelty Appetite.
+- Giant 12-term scalar utility is rejected. Candidate comparison uses six forecast channels + dominance pruning + context/horizon evaluation.
+- `Rare Candidate` is no longer a special action class. Unusualness is candidate metadata.
+- in-world `Experiment Budget` is removed. Exploration uses a causal Exploration Gate.
+- Surprise is not a standalone reward; it affects opponent uncertainty / preparation.
+- psychological tactics must route through the existing Player Appraisal / ActiveEmotion architecture.
+- Manager Decision Log is immutable structured trace from decision time, never post-hoc narrative invention.
+- full routine traces are not permanently stored; only meaningful / key decisions persist.
+- public S–G Manager ratings are observed estimates of hidden True Skill, so first-time managers can remain uncertain.
+- automatic strategy invention is constrained by a Tactical Grammar and RuleEngine legality.
+- League Meta is a derived description, not a global tactical buff.
+- Coaching Tree transfers ideas / priors, never Manager Skill.
+- User / CPU same Legal Action Space and no direct Manager buffs are frozen principles.
+
+Historical Stress Test remains a validation catalog:
+- `docs/game-design/44-manager-real-world-tactical-stress-tests-DRAFT.md`
+
+Pre-freeze draft files 39 / 40 / 43 / 45 / 46 / 47 are archived design work. Their useful detail may remain as rationale, but 49 is authoritative where conflicts exist.
+
+Required future validation before implementation sign-off:
+- 10 / 50 / 100+ season multi-seed soak tests
+- tactical diversity / convergence
+- rare tactic frequency
+- manager identity stability
+- meta turnover
+- manager-vs-roster contribution
+- compute / save growth
+
+Front Office / Manager hiring docs 41 / 42 remain separate DRAFT work and are **not** included in the Manager Architecture v1 freeze.
