@@ -725,3 +725,24 @@ Draft:
 - `docs/game-design/38-team-mood-manager-interventions-DRAFT.md`
 
 This draft still requires user approval before becoming canonical.
+
+---
+
+# 30. APPROVED — Team Mood Rarity Boundary
+
+2026-09-20 ユーザー承認。
+
+重要原則:
+
+> **Team Moodは勝敗の主役にしない。**
+
+- most teams / most days = normal mood, no meaningful Match effect
+- ordinary friendship / friction does not change winning ability
+- only exceptional cohesion or serious dysfunction can materially affect Appraisal / contagion / communication / recovery
+- raw player ability is never changed by Mood
+- Team Traits remain the main baseball-facing proximate state
+- Mood alone cannot grant Blue / Red Team Traits; independent baseball evidence is required
+- Mood intervention should be rare enough not to become routine management work
+- long-term winners / dark eras are still explained primarily by roster, scouting, development, manager, economy and Team Traits
+
+Team Mood is a rare **social-psychological exception layer**, not a second team-rating system.
