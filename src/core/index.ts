@@ -121,6 +121,8 @@ export * from './sim/plateAppearance/FielderTouchFairFoulTimelineAdapter';
 export * from './sim/plateAppearance/FielderTouchTimelinePhysicalAdapter';
 export * from './sim/plateAppearance/CaughtFoulMatchState';
 export * from './sim/pitching/PitchTrajectory';
+export * from './sim/pitching/AerodynamicPitchTrajectory';
+export * from './sim/pitching/PitchSpinPhysics';
 export * from './sim/pitching/TakenPitchPhysicalResult';
 export * from './sim/pitching/TakenPitchTimelineAdapter';
 export * from './sim/pitching/SwingingPitchPhysicalResult';
