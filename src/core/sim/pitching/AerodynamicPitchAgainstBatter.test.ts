@@ -103,6 +103,7 @@ describe('aerodynamic pitch against batter', () => {
   it('records aerodynamic swing contact through the existing canonical adapter', () => {
     const timeline =
       createCanonicalPlateAppearanceTimeline(
+        match(),
         900_000,
       );
     const result =
