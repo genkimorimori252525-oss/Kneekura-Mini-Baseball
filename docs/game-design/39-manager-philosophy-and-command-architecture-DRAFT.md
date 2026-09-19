@@ -1105,3 +1105,22 @@ Managerは重要だが:
 
 Manager ratings / era / strategy evolution (USER REVIEW REQUIRED):
 - `docs/game-design/40-manager-ratings-era-and-strategy-evolution-DRAFT.md`
+
+
+---
+
+# 29. User-approved Core Decisions — 2026-09-20
+
+以下を正式方向として採用する。
+
+1. Managerを Philosophy / Skill / Knowledge / Authority / Adaptation に分ける。
+2. 公開Manager Abilityは「好み」ではなく性能を表す。
+3. PhilosophyとSkillを混同しない。
+4. Default Philosophy / Game Plan / Immediate Command の3層を採用する。
+5. Hard Sign / Soft Directive / Default Philosophyを区別する。
+6. Player Final IntentはManager instructionだけでなく、Player tendency / trust / tactical understanding / autonomy / emotion / contextとの合成で決まる。
+7. Manager指示がPlayer能力を新規生成することを禁止する。
+8. Human Userの戦術選択をManager IQ rollで勝手に改変しない。
+9. UserとCPUは同じLegal Baseball Action Spaceを使う。
+
+具体式・内部Skill分解・UIは後続設計で調整可能。
