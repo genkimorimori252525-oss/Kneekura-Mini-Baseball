@@ -106,7 +106,7 @@ Match Coreの能力値は変更しない。
 
 # 3. Continental CL — Group Stage Hosting
 
-Asia / Americas / Europeの16-club大会を基準とする。
+Asia-Pacific / Americas / Europeの16-club大会を基準とする.
 
 各クラブはGroup Stageで3 opponentsと3-game seriesを1回ずつ戦う。
 
@@ -246,9 +246,9 @@ StadiumProfile / crowd composition等の現実的環境のみ作用する。
 
 ---
 
-# 6. Africa / Oceania Continental CL
+# 6. Africa Continental CL
 
-8-club大会。
+Africaは8-club大会。
 
 Group Stage:
 
@@ -263,7 +263,7 @@ Group hostingは、移動費を抑えるため **Group Hub** 方式を初期標�
 
 Semifinal / FinalはそのeditionのFinal Host Cityへ移動、または同一hubで継続。
 
-長期的に経済規模が成長した場合、club-home modelへ移行可能。
+長期的に経済規模が成長した場合、club-home modelへ移行可能。Australia / New Zealand / Pacificはこの8-club modelではなくAsia-Pacific CLへ参加する。
 
 ---
 
@@ -284,13 +284,12 @@ Club WorldはCLとは違い、原則**集中開催**。
 
 ## 7.2 Host rotation
 
-5 Regions:
+4 Competition Regions:
 
-- Asia
+- Asia-Pacific
 - Americas
 - Europe
 - Africa
-- Oceania
 
 をrotation candidateとする。
 
@@ -333,7 +332,8 @@ Draw constraints:
 
 - 同一League同Groupを可能な限り回避
 - 同一Regionは1Group最大2club
-- 4大陸以上が各Groupへ入ることを目標にするが、資格構成上のhard requirementにはしない
+- 可能なら各Groupへ4 Competition Regionsを分散させる
+- qualification構成上不可能な場合はhard requirementにしない
 
 世界大会なので地域間対戦を最大化する。
 
@@ -709,7 +709,7 @@ Presentationは正史を観測するだけで、Match Coreへ影響しない。
 1. Continental CL Group Stageはclub stadium
 2. Continental CL QFはGroup winner home
 3. Continental CL SF / Finalはneutral Final Four
-4. Africa / Oceaniaは初期Group Hub方式
+4. Africaは初期Group Hub方式
 5. Club Worldは集中開催
 6. Club World SF / FinalはFinal Four City
 7. WBC Qualifierは4つのsingle-elimination Pod
