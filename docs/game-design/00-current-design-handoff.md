@@ -575,7 +575,7 @@ later-emergent rivalry
 - Title race / elimination / incident等から新しい因縁を作れる
 - 後天的因縁は無関係な年月が続けば薄れる
 
-**正式設計は `docs/game-design/33-rivalry-lifecycle-model-DRAFT.md` を正とする。**
+**正式設計は `docs/game-design/33-rivalry-lifecycle-model.md` を正とする。**
 
 重要追加原則:
 - 初期Real-world rivalryと後天Game-world rivalryを同じ歴史Labelで表示しない
@@ -584,5 +584,5 @@ later-emergent rivalry
 - 異地域間Rivalryも実際のSave Historyが十分なら成立可能
 
 
-Rivalry lifecycle approval candidate (USER APPROVAL REQUIRED):
-- `docs/game-design/33-rivalry-lifecycle-model-DRAFT.md`
+Rivalry lifecycle design (APPROVED):
+- `docs/game-design/33-rivalry-lifecycle-model.md`
