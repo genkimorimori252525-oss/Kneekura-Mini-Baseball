@@ -130,7 +130,8 @@ const maximumGeometricClosingSpeed = (
   input: AerodynamicSwingingPitchPhysicalInput,
 ): number => {
   const durationSeconds = (
-    input.swing.endTick - input.swing.startTick
+    input.swing.endTick
+    - input.trajectory.start.tick
   ) / input.swing.ticksPerSecond;
 
   const wind =
