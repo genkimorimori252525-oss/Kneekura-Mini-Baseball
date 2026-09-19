@@ -296,6 +296,69 @@ Superstarは「単に能力S」の別名ではない。
 
 ---
 
+# 10.1 Superstar Archetypes
+
+Superstarを一つの型へ固定しない。
+
+候補:
+
+## Dominant Superstar
+
+```text
+historic-level competitive ability / production
++ sustained elite results
++ broad recognition
+        ↓
+Superstar
+```
+
+実力そのものが時代を代表する型。
+
+## Iconic Superstar
+
+```text
+elite competitive level
++ exceptional memorable moments
++ huge cultural salience
++ strong public recognition
+        ↓
+Superstar
+```
+
+統計的な圧倒性だけでは説明できない象徴性が強い型。
+
+## Complete Superstar
+
+```text
+historic competitive dominance
++ broad / global recognition
++ iconic salience
++ repeated major-stage success
+        ↓
+Superstar
+```
+
+実力・認知・象徴性がすべて極端に高い型。
+
+重要:
+
+```text
+Superstar
+ != compensation for weaker ability
+```
+
+Superstar StatusはPlayer Abilityの代用品ではない。
+
+同じSuperstarでも:
+- competitive dominance
+- iconic salience
+- spotlight evidence
+- public reach
+
+の形が違ってよい。
+
+---
+
 # 11. Iconic Salience
 
 長嶋茂雄型を説明するための重要概念。
@@ -339,6 +402,33 @@ Player B
 Superstar Presentationの質が違ってよい。
 
 「記録」と「記憶」を一つの数字へ潰さない。
+
+---
+
+# 12.1 Superstar Minimum Competitive Floor
+
+Superstarには最低限、Starとして成立する十分な競技力 / 実績を要求する。
+
+```text
+high publicity
++ weak competitive importance
+ -> celebrity / popular figure
+ -> NOT Superstar
+```
+
+一方で:
+
+```text
+historic ability
++ sustained elite results
++ broad recognition
+ -> Superstar candidate
+```
+
+となる。
+
+Iconic Salienceは実力の代替ではなく、
+Superstarを「ただの高能力Player」から区別する追加軸。
 
 ---
 
