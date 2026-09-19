@@ -8,6 +8,7 @@
 - `docs/game-design/13-domestic-league-championships.md`
 - `docs/game-design/16-club-economy-rivalry-design.md`
 - `docs/game-design/18-club-state-lifecycle.md`
+- `docs/game-design/19-club-structural-dominance-and-decline.md`
 
 ---
 
