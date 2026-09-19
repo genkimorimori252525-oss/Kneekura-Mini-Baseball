@@ -954,8 +954,8 @@ Unapproved roster / development draft (USER REVIEW REQUIRED):
 - `docs/game-design/32-roster-development-architecture-DRAFT.md`
 
 
-Rivalry lifecycle approval candidate (USER APPROVAL REQUIRED):
-- `docs/game-design/33-rivalry-lifecycle-model-DRAFT.md`
+Rivalry lifecycle design (APPROVED):
+- `docs/game-design/33-rivalry-lifecycle-model.md`
 
 
 ## Rivalry Label Provenance
@@ -967,4 +967,4 @@ Rivalry lifecycle approval candidate (USER APPROVAL REQUIRED):
 
 Intensityが同じでもLabel provenanceを混同しない。
 
-詳細な形成・減衰・Event Memoryモデルは `docs/game-design/33-rivalry-lifecycle-model-DRAFT.md` を正とする。
+詳細な形成・減衰・Event Memoryモデルは `docs/game-design/33-rivalry-lifecycle-model.md` を正とする。
