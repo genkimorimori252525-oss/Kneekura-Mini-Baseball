@@ -393,6 +393,7 @@ Implemented modules:
   - keeps coordinate sign separate from human “left/right” display convention;
 - `PitchNameRegistry`
   - builds pitch-name archetypes from labeled calibration samples;
+  - calibration data must use one explicit horizontal coordinate frame; raw right/left-handed samples must not be mixed without mirroring into a common pitcher-relative arm-side/glove-side frame;
   - names a physical pitch by nearest movement centroid;
   - first gates by the broad movement family, then chooses the nearest numeric movement centroid;
   - stores registry version and classification distance so naming can be recalibrated without changing old physics;
