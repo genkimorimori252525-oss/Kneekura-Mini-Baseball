@@ -948,3 +948,7 @@ Club initial gameplay seeds:
 
 Scouting / recruitment system:
 - `docs/game-design/31-scouting-recruitment-system.md`
+
+
+Unapproved roster / development draft (USER REVIEW REQUIRED):
+- `docs/game-design/32-roster-development-architecture-DRAFT.md`
