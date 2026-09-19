@@ -416,3 +416,7 @@ Emergent Rivalry
 - geographic derbyを全て永久扱いするか
 
 は**ユーザーと次回相談してから決定する。**
+
+
+Rivalry lifecycle approval candidate (USER APPROVAL REQUIRED):
+- `docs/game-design/33-rivalry-lifecycle-model-DRAFT.md`
