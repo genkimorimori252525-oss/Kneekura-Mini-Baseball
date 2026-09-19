@@ -380,3 +380,7 @@ Season events and deadlines:
 
 Club economy / football motif / directed rivalry:
 - `docs/game-design/16-club-economy-rivalry-design.md`
+
+
+Europe real club catalog:
+- `docs/game-design/17-europe-real-club-catalog.md`
