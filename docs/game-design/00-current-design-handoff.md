@@ -1247,3 +1247,55 @@ Required future validation before implementation sign-off:
 - compute / save growth
 
 Front Office / Manager hiring docs 41 / 42 remain separate DRAFT work and are **not** included in the Manager Architecture v1 freeze.
+
+
+---
+
+# 42. CANONICAL REFINEMENT — League-local Doctrine Diffusion
+
+2026-09-20 user requested that manager doctrine / tactical ideas should diffuse much more easily inside a league than across leagues.
+
+This is now part of Manager Architecture v1.
+
+Canonical rule:
+
+```text
+same club / staff tree
+ -> strongest transfer
+
+same league / frequent opponents
+ -> strong
+
+same competition region
+ -> medium
+
+cross-league / cross-region
+ -> weak by default
+```
+
+Cross-league spread requires actual bridges such as:
+- manager / coach movement
+- player movement
+- analyst / staff movement
+- international competition
+- public video / statistical evidence
+- deliberate study
+- independent rediscovery
+
+Imported doctrine is always re-evaluated under local:
+- rules
+- player population
+- ball / park environment
+- roster construction
+- opponent meta
+- available information
+
+League tactical culture is Derived from actual policies, never a hard-coded buff or permanent identity.
+
+This allows one league to remain bunt / small-ball heavy while another becomes air-ball / power oriented, without preventing later convergence or independent tactical discovery.
+
+Canonical file:
+- `docs/game-design/49-manager-architecture-v1.md`
+
+Canonical refinement commit:
+- `4379927cdae5b337b3f74b50f878608e9894acf7`
