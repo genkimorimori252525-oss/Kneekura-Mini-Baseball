@@ -204,6 +204,31 @@ top 2
  -> Championship Series best-of-7
 ```
 
+## 3.6 TOP2_FINAL
+
+小規模4Club League向け。
+
+```text
+Regular Season
+ -> top 2
+
+Final
+ -> best-of-5
+```
+
+Regular Season 1位は独立した `RegularSeasonChampion`。
+
+DomesticChampion = Final winner。
+
+Continental qualification priority:
+
+```text
+1. DomesticChampion
+2. RegularSeasonChampion
+3+. Regular Season standing
+```
+
+
 ---
 
 # 4. Asia-Pacific — Asian subregion
@@ -573,27 +598,29 @@ AfBCL initial qualification:
 
 # 8. Asia-Pacific — Oceania subregion
 
-## 8.1 Australia League — TOP4_SERIES
+## 8.1 Australia League — TOP2_FINAL
 
-8 clubs。
+4 clubs。2026 ABL実在Club構成へ合わせる。
 
-- SF best-of-3
-- Final best-of-5
+```text
+Regular Season
+ -> top 2
 
-short-season leagueなのでAmericas / East Asiaよりseriesを短くする。
+Final
+ -> best-of-5
+```
+
+Regular Season 1位は独立したRegularSeasonChampion。
 
 APBCL qualification priority:
 
 ```text
 1. DomesticChampion
-2. RegularSeasonWinner
-3. ChampionshipRunnerUp
-4+. Regular Season standing
+2. RegularSeasonChampion
+3+. Regular Season standing
 ```
 
-DomesticChampionはAsia-Pacificの7 Full League champion枠でautomatic qualification。
-
-追加枠はAPBCL LeagueCoefficientによってAustralia Leagueへ与えられた場合のみ、この順で埋める。
+DomesticChampionはautomatic APBCL berth。
 
 ## 8.2 New Zealand / Pacific League — TABLE_TITLE
 
@@ -635,7 +662,7 @@ New Zealand / Pacificも他のAsia-Pacific Full Leagueと同じAPBCL qualificati
 | Europe | Italy | 12 | Europe Top-4 |
 | Europe | Russia | 10 | Europe Top-4 |
 | Africa | Pan-African | 12 | Table Title |
-| Asia-Pacific | Australia | 8 | Top-4 Series |
+| Asia-Pacific | Australia | 4 | Top-2 Final |
 | Asia-Pacific | New Zealand / Pacific | 8 | Table Title |
 
 ---
@@ -763,7 +790,7 @@ China 10 -> 14 clubs
 6. Japan / North America / Mexico / CubaはCONFERENCE_SERIES
 7. KoreaはLADDER
 8. DominicanはWINTER_ROUND_ROBIN
-9. Taiwan / China / Venezuela / Puerto Rico / AustraliaはTOP4_SERIES
+9. Taiwan / China / Venezuela / Puerto RicoはTOP4_SERIES。Australiaは4ClubのTOP2_FINAL
 10. Domestic postseasonはseries制を許し、国際Knockoutのsingle-game philosophyとは分離
 11. CL qualification duplicateはnext eligible clubへcascade
 12. Regular Season上位の価値をhome-field / bye / qualification orderで保証
