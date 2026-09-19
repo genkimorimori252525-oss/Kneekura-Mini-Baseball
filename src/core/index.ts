@@ -12,6 +12,7 @@ export * from './model/BatterTendency';
 export * from './sim/SimulationClock';
 export * from './sim/ExactEventTime';
 export * from './sim/contact/BatBallContact';
+export * from './sim/contact/RigidBatBallContact';
 export * from './sim/collision/AcceleratedSphereContact';
 export * from './sim/ball/BallFlight';
 export * from './sim/ball/BaseballAerodynamics';
