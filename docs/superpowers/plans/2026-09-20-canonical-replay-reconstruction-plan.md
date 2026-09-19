@@ -354,6 +354,18 @@ This relationship must be reconciled against the actual implemented contracts wh
 
 ---
 
+## 12.1 Companion plan: Broadcast Camera Network + Replay Director
+
+The future replay presentation/orchestration layer is recorded separately in:
+
+`docs/superpowers/plans/2026-09-20-broadcast-camera-network-replay-director-plan.md`
+
+That companion plan covers virtual ballpark camera rigs, multi-angle replay selection, slow motion, zoom/close-up and deterministic replay shot sequencing. It consumes reconstructed canonical replay truth and does not alter the persistence/reconstruction authority defined here.
+
+Its existence does not authorize implementation.
+
+---
+
 ## 13. Work boundary
 
 This plan is **not a ChatGPT Work visual-design task**.
