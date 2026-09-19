@@ -1341,3 +1341,43 @@ Important candidate principles:
 
 First open decision:
 whether a slow `Public Appeal` person factor is needed to help explain why equally successful players can differ in fan popularity.
+
+
+---
+
+# 44. APPROVED DIRECTION — Fan Favorite / Star / Superstar Split
+
+2026-09-20 user corrected the Popularity boundary.
+
+Canonical direction for the ongoing Popularity design:
+
+```text
+人気者
+= fan affection / lovable public figure
+
+Star
+= competitive prominence + broad recognition
+
+Superstar
+= exceptional, sustained, wide-scope Star status
+```
+
+These are not one progression ladder.
+
+Important:
+- a beloved role player can be `人気者` without being a Star
+- an elite Star may not be a `人気者`
+- a Superstar may be polarizing
+- Popularity / Star labels never feed Manager tactical decisions
+- opponent caution / intentional walks / matchup planning remain driven by scouting, data, opponent history and Manager Belief
+- Popularity effects are secondary: attendance interest, cheers, fan presentation, merchandise / event salience
+- no direct Match buff
+- no automatic Team Mood increase
+- Clubhouse Influence remains separate
+- Reputation / 威圧感 is removed from Popularity ownership and deferred back to Scouting / Manager Belief / Psychology
+
+Updated draft:
+- `docs/game-design/50-popularity-reputation-architecture-DRAFT.md`
+
+Refinement commit:
+- `9f436e9a93ec70487162afddcee70164c4156c28`
