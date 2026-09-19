@@ -766,3 +766,45 @@ Team Mood is a rare **social-psychological exception layer**, not a second team-
 - manager intervention appears only for meaningful dysfunction / opportunity
 
 Team Mood / Relationship should add human texture without turning entertainment into social-maintenance labor.
+
+
+Manager philosophy / command architecture (USER REVIEW REQUIRED):
+- `docs/game-design/39-manager-philosophy-and-command-architecture-DRAFT.md`
+
+
+---
+
+# 32. CURRENT DRAFT — Manager Philosophy / Commands
+
+2026-09-20 current design work:
+
+Core split:
+
+```text
+Manager Philosophy = what the manager prefers
+Manager Skill      = how well the manager executes it
+Manager Knowledge  = what the manager knows / believes
+Manager Authority  = how well instructions are understood / accepted
+Manager Adaptation = how the manager updates from new evidence
+```
+
+Important candidate principles:
+- User and CPU managers use the same legal baseball action space.
+- CPU has no hidden True Ability access.
+- Human user's tactical choice is not overwritten by a fake Manager IQ roll.
+- Manager philosophy is not inherently good/bad: aggressive steals, complete-game preference, data-heavy, intuition-heavy, youth-first, veteran-first etc. are context-dependent.
+- Instructions have three levels: Default Philosophy / Game Plan / Immediate Command.
+- Player final intent derives from manager instruction + player tendency + trust + tactical understanding + autonomy + context + emotion.
+- Instructions never create player abilities the player does not possess.
+- Manager traits do not directly add win probability or raw batting/pitching ability.
+
+Initial philosophy families include:
+- offense: running aggression, steal emphasis, power/contact, patience, small ball, lineup stability, platoon use, hot hand vs track record
+- pitching: starter leash, bullpen role model, matchup relief, zone/chase, fastball/breaking, inside/outside, intentional walk
+- defense: shift aggression, data positioning, run-prevention posture, arm/range preference
+- roster: veteran/youth, promotion-demotion churn, rest policy, star privilege/equality, development/win-now
+- information: data/intuition, pregame/adaptive, opponent/self-style, evidence patience, risk tolerance
+- human management: autonomy/control, role stability/competition, intervention/hands-off, public accountability
+
+Draft:
+- `docs/game-design/39-manager-philosophy-and-command-architecture-DRAFT.md`
