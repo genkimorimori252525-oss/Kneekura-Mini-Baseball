@@ -476,3 +476,8 @@ Does player need to control this?
 10. CPU Clubも同じ経済ルールを使う
 11. 新機能は「必要なSimulationか」と「Userが触る必要があるか」を別判定する
 12. Baseball Decisionをゲームの主役にする
+
+
+World club source / East Asia catalogs:
+- `docs/game-design/21-world-club-source-policy.md`
+- `docs/game-design/22-east-asia-club-catalog.md`
