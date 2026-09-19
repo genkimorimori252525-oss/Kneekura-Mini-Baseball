@@ -403,6 +403,53 @@ Pan-African League終了後を基本とする。
 ---
 
 
+# 10. Four Competition Regions
+
+国際大会の地域単位は以下の4つに固定する。
+
+```text
+ASIA_PACIFIC
+AMERICAS
+EUROPE
+AFRICA
+```
+
+Asia-Pacificには:
+
+- Japan
+- Korea
+- Taiwan
+- China
+- West / South Asia
+- Australia
+- New Zealand / Pacific
+
+を含む。
+
+これは大会所属の分類であり、地理分類を上書きしない。
+
+特に:
+
+```text
+Australia / New Zealand / Pacific
+geographicRegion = OCEANIA
+competitionRegion = ASIA_PACIFIC
+```
+
+を正式に許可する。
+
+この4地域モデルを:
+
+- Continental Club Champions
+- Regional National Championships
+- Club World regional coefficients
+- WBC regional berth allocation
+- hosting rotation
+
+へ共通利用する。
+
+---
+
 # 11. Continental Club Coefficient
 
 ## 11.1 League Coefficient
