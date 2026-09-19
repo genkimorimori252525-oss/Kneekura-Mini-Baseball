@@ -134,8 +134,6 @@ describe('manager strike-zone guide acceptance', () => {
       if (
         result.live.cameraMode
           !== cameraMode
-        || result.live.cameraMode
-          === 'FIELD_OVERHEAD'
         || result.live.render
           .strikeZoneGuide === null
       ) {
