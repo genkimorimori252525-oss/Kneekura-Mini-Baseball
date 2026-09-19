@@ -1,6 +1,6 @@
 # Time, Running, Catching, Perception, and Umpire Design
 
-更新日: 2026-09-17
+更新日: 2026-09-20
 状態: 設計承認済み。実装前。
 
 ## 1. 目的
@@ -463,6 +463,173 @@ OnFieldCall: SAFE
 
 これにより誤審は演出ではなく、人間知覚の失敗として因果的に発生する。
 
+
+### 7.4 球審のボール / ストライク判定も知覚モデルに含める
+
+球審のストライク判定でも、**真のストライクゾーンそのものを動かさない**。
+
+```text
+Canonical Pitch Crossing
+        +
+Canonical StrikeZoneRegion
+        ↓
+Correct Ball/Strike Result
+        ↓
+Human Umpire Pitch Perception
+        ↓
+personal tendency / uncertainty
+        ↓
+count-sensitive decision bias
+        ↓
+OnFieldCall
+```
+
+`StrikeZoneRegion` は物理 / 規則上の基準であり、人間球審が2ストライクだから縮めたり3ボールだから広げたりする正史ジオメトリではない。
+
+人間球審側で持つ候補情報:
+
+- perceived plate-crossing position;
+- observation uncertainty;
+- umpire-specific horizontal / vertical tendency;
+- zone-edge specific tendency;
+- consistency / noise;
+- batter handednessに対する視角差;
+- pitch speed / movement / late break;
+- catcher / batter / umpireによる遮蔽;
+- attention / anticipation;
+- receiving / framing cuesを将来採用する場合の知覚影響;
+- count / leverage context.
+
+捕手フレーミングを将来入れる場合も、ボールの真の通過位置やABS truthは変えず、**球審が位置をどう知覚するか**へ作用させる。
+
+### 7.5 境界球にだけ効く count-sensitive pivotal-call bias
+
+2026-09-20 のユーザー提示例では、
+
+- 2ストライク時に実効的な人間ストライクゾーンが狭く見える;
+- 3ボール時に実効的な人間ストライクゾーンが広く見える;
+
+という考え方が示された。
+
+この漫画表現は**設計着想**として保存するが、実証データそのものとしては扱わない。
+
+外部研究として、Green / Daniels が2009–2011年MLBの100万球超を分析した研究では、境界球について、
+
+- 2ストライク時にはストライクを宣告しにくくなる;
+- 3ボール時にはストライクを宣告しやすくなる;
+
+傾向が報告されている。
+
+この効果は「正しいゾーンが変化した」と実装しない。
+
+代わりに、真の境界からの符号付き距離と知覚不確実性を使い、**曖昧な球ほど count bias が効き、明白な球ではほぼ効かない**モデルにする。
+
+概念:
+
+```text
+true signed margin from canonical zone
+        ↓
+umpire-perceived margin
+        ↓
+uncertainty / personal tendency
+        ↓
+borderline weight
+        ↓
+count-sensitive call threshold
+        ↓
+BALL / STRIKE OnFieldCall
+```
+
+要求:
+
+- 深くゾーン内の球は2ストライクでも高確率でSTRIKE;
+- 大きく外れた球は3ボールでも高確率でBALL;
+- biasは主に境界帯で発生する;
+- `twoStrikeBias` は境界球でSTRIKE宣告を抑える方向;
+- `threeBallBias` は境界球でSTRIKE宣告を押す方向;
+- 個々の審判でbias強度を変えられる;
+- bias値を「誤審率+N%」として直接結果へ足さない。
+
+数値幅は対象リーグ / 時代の実データで校正する。2009–2011年MLB研究の効果量を2026年NPB等へそのまま移植しない。
+
+### 7.6 フルカウントは単純相殺しない
+
+3ボール2ストライクでは、STRIKEでも三振、BALLでも四球となり、どちらも打席終了のpivotal callになり得る。
+
+したがって、
+
+```text
+twoStrikeBias + threeBallBias = 0
+```
+
+のような単純加算 / 相殺は禁止する。
+
+`3-2` は独立した decision context として扱い、将来の校正では少なくとも以下を検討する。
+
+- strikeoutを宣告する心理コスト;
+- walkを宣告する心理コスト;
+- perceived marginの符号 / 大きさ;
+- umpire個人差;
+- inning / score / leverage;
+- pitch sequence / recent-call memoryを採用するか.
+
+最初の実装では、十分な実データが無い限りフルカウント専用の過大な補正を推測で入れない。
+
+### 7.7 UmpirePitchPerception の概念契約
+
+将来実装候補:
+
+```ts
+type UmpirePitchPerception = {
+  trueCrossing: Vec3;
+  perceivedCrossing: Vec3;
+  signedTrueMargin: number;
+  signedPerceivedMargin: number;
+  uncertainty: number;
+  borderlineWeight: number;
+};
+
+type UmpirePitchCallContext = {
+  balls: number;
+  strikes: number;
+  batterHandedness: 'L' | 'R';
+  leverageClass?: string;
+};
+
+type UmpireCallTendency = {
+  horizontalBias: number;
+  verticalBias: number;
+  consistency: number;
+  twoStrikePivotalBias: number;
+  threeBallPivotalBias: number;
+  fullCountPolicy: 'separate_calibration';
+};
+```
+
+これは概念型であり、実装APIを現時点で固定しない。
+
+重要なのは、
+
+> **真実のゾーンと、人間が実際に宣告する実効ゾーンを別物として保存する。**
+
+ことである。
+
+### 7.8 参考資料と適用範囲
+
+設計根拠:
+
+- MLB 2026 ABS Challenge System: 17-inch幅、上端=選手身長53.5%、下端=27%、プレート中央の2D plane。
+  - https://www.mlb.com/news/ball-strike-challenge-system-2026
+  - https://www.mlb.com/press-release/press-release-mlb-announces-abs-challenge-system-coming-to-the-major-leagues-beginning-in-the-2026-season
+- Stanford GSB summary of Green / Daniels research: 2009–2011年MLBの100万球超で、2ストライク時のzone shrink / 3ボール時のzone expansionに整合する人間判定傾向。
+  - https://www.gsb.stanford.edu/insights/research-do-we-shy-away-pivotal-calls
+
+注意:
+
+- MLB 2026 ABSの53.5% / 27%はMini Baseballの**暫定Height-Ratio V1生成ポリシーの参考値**であり、NPB人間球審の規則定義そのものだと主張しない。
+- Green / Daniels研究は古いMLB期間の観測であり、現在 / NPBの具体的効果量を直接表さない。
+- ユーザー提示の漫画は心理モデルの着想例であり、実証根拠は上記の外部資料と将来の対象リーグデータで別途確認する。
+
 ---
 
 ## 8. リクエスト / チャレンジ
@@ -509,7 +676,32 @@ Is there sufficient evidence to overturn?
 
 ABS等の機械判定が採用される Rule / Competition Profile では、許可された正史計測値を直接用いてよい。
 
-ただし、ABS truthそのものを監督能力・捕手能力・性格などで変化させない。
+```text
+Canonical Pitch Crossing
+        +
+Competition-defined ABS Zone
+        ↓
+ABS Truth
+```
+
+ABSはHuman Umpire Perceptionを経由しない。したがって、
+
+- 2ストライク / 3ボールのpivotal-call bias;
+- umpire個人の広い / 狭いゾーン;
+- 捕手フレーミング;
+- human observation noise;
+
+でABS truthを変化させない。
+
+一方、Human OnFieldCallはこれらの影響を受け得るため、チャレンジ時に
+
+```text
+Human OnFieldCall != ABS Truth
+```
+
+が自然に発生する。
+
+どの選手がチャレンジ可能か、回数、成功時保持、対象判定、ABS zone定義はCompetition / RuleProfileで管理する。特定リーグの2026年運用を全大会へ直書きしない。
 
 ### 8.4 ChallengePolicy
 
@@ -590,8 +782,12 @@ type AdjudicatedPlay = {
 - 明白なプレーは誤審率が低い
 - 僅差・遮蔽・悪角度で誤審可能性が上がる
 - Physical TruthとOnFieldCallを別々に保存できる
-- 真実は誤審でも、リプレイ証拠不足なら判定維持が可能
-- ABSプロファイルでは許可されたtruth計測を使い、監督能力で結果が変わらない
+- 深いストライク / 明白なボールではcount biasがほぼ結果を変えない
+- 境界球では2ストライク時のSTRIKE抑制、3ボール時のSTRIKE促進を校正可能にする
+- 3-2をtwo-strike / three-ball補正の単純相殺で処理しない
+- umpire tendency / perceptionだけを変えてもCanonical StrikeZoneRegionとCorrect Rule Resultは変わらない
+- 真実は誤審でも、通常リプレイ証拠不足なら判定維持が可能
+- ABSプロファイルでは許可されたtruth計測を使い、人間審判のbiasや監督能力でABS truthが変わらない
 - 同一seedで誤審・challenge・review結果まで再現できる
 
 ---
@@ -613,6 +809,9 @@ type AdjudicatedPlay = {
 - 審判もCanonical Truthを直接読まず、人間知覚からOnFieldCallを出す
 - Physical Truth / Correct Rule Result / OnFieldCall / Official Rulingを分離する
 - 誤審を許可する
+- 球審のBALL/STRIKEもCanonical StrikeZoneとHuman OnFieldCallを分離する
+- 2ストライク / 3ボール等のカウント心理は真のゾーンを変更せず、境界球での人間判定thresholdへ作用させる
+- 3-2は独立したpivotal-call contextとして扱い、単純な補正相殺を禁止する
 - 監督は誤審可能性とチャレンジ価値を推定してChallengeIntentを出す
 - 通常映像リプレイは証拠のみを見て覆すか決め、Canonical Truthを直接読むとは限らない
 - ABS等の機械判定はRule/Competition Profileに応じて許可されたtruth計測を利用できる
@@ -632,6 +831,11 @@ type AdjudicatedPlay = {
 - Communication遅延・聞こえやすさ
 - umpire能力軸
 - umpire positioning model
+- pitch-call observation uncertainty model
+- zone-edge / handedness別 umpire tendency
+- two-strike / three-ball pivotal-call bias magnitude
+- full-count専用のcalibration policy
+- catcher framingをUmpire Perceptionへ入れるか
 - challenge decision threshold
 - replay camera / evidence model
 - CompetitionごとのChallengePolicy
