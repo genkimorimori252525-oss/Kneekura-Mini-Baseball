@@ -586,3 +586,7 @@ later-emergent rivalry
 
 Rivalry lifecycle design (APPROVED):
 - `docs/game-design/33-rivalry-lifecycle-model.md`
+
+
+Team traits / player relationship design candidate (USER REVIEW REQUIRED):
+- `docs/game-design/34-team-traits-and-relationship-network-DRAFT.md`
