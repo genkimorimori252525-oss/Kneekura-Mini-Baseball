@@ -142,6 +142,15 @@ Team Traitだからといって全選手へ作用させない。
 
 ---
 
+
+### Derived Synchrony Descriptor
+
+以下はBlue表示だが追加効果を持たない。
+
+| UI名 | Family | Scope | 主なEvidence | 因果的な作用 | Duration |
+| --- | --- | --- | --- | --- | --- |
+| 投打好循環 | team_synchrony | TEAM_ALL | game-level offense/pitching alignment | **DESCRIPTOR_ONLY**: 投打が同じ日に噛み合っている状態の要約 | SEASON_ONLY |
+
 # 8. Gold — Master Team Traits
 
 GoldはBlue Familyの最高Tier。
@@ -228,6 +237,17 @@ GoldはBlue Familyの最高Tier。
 | 新戦力ぎこちない | newcomer_integration_delay | CLUSTER | trust / coordination形成不足 | newcomerとの共同作業だけcoordination低下 | SHORT / MEDIUM |
 
 ---
+
+
+### Derived Synchrony Red Descriptors
+
+以下はRed表示だが、Trait自体から悪影響を追加しない。
+
+| UI名 | Family | Scope | 主なEvidence | 因果的な悪影響 | Duration |
+| --- | --- | --- | --- | --- | --- |
+| 投打不協和 | team_synchrony | TEAM_ALL | negative game-level alignment residual | **DESCRIPTOR_ONLY**: 投打の成功日が噛み合っていない状態の要約 | SEASON_ONLY |
+| 好投見殺し | wasted_pitching_gems | TEAM_ALL | strong run prevention + repeated low support | **DESCRIPTOR_ONLY**: 好投が勝利へ変換されない傾向の要約 | SEASON_ONLY |
+| 援護空回り | squandered_run_support | TEAM_ALL | high run support + repeated high runs allowed | **DESCRIPTOR_ONLY**: 得点した試合で投手側が崩れる傾向の要約 | SEASON_ONLY |
 
 # 13. Family Exclusivity
 
@@ -395,11 +415,11 @@ Team Traitは結果一発で即付与しない。
 
 初期カタログ候補:
 
-- Blue: 41
+- Blue: 42
 - Gold: 13
-- Red: 37
+- Red: 40
 
-合計 **91 Team Trait候補**。
+合計 **95 Team Trait候補**。
 
 最終採用時に重複Familyを整理し、名前を調整してよい。
 
