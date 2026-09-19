@@ -10,12 +10,27 @@ export type BatRadiusProfile = Readonly<{
   knots: readonly BatRadiusKnot[];
 }>;
 
+export type BatEffectiveMassKnot = Readonly<{
+  t: number;
+  effectiveMassKg: number;
+}>;
+
+export type BatEffectiveMassProfile = Readonly<{
+  knots: readonly BatEffectiveMassKnot[];
+}>;
+
 export type RigidBatPhysicalProperties = Readonly<{
   massKg: number;
   centerOfMassT: number;
   transverseMomentOfInertiaKgM2: number;
   axialMomentOfInertiaKgM2: number;
   radiusProfile: BatRadiusProfile;
+  /**
+   * Optional reduced-order measurement/calibration of the normal effective
+   * mass seen by the ball. It may include vibration consequences, but never
+   * introduces deformation state into the authoritative Core.
+   */
+  normalEffectiveMassProfile?: BatEffectiveMassProfile;
 }>;
 
 export type RigidBatState = Readonly<{
@@ -57,6 +72,9 @@ export type RigidBatBallContactResult = Readonly<{
   tangentialImpulseNs: Vec3;
   totalImpulseNs: Vec3;
   effectiveNormalMassKg: number;
+  batNormalEffectiveMassKg: number;
+  normalEffectiveMassSource: 'rigid_body' | 'dynamic_profile';
+  batRecoilModel: 'rigid_body' | 'rigid_projection_only';
   exitVelocity: Vec3;
   exitSpin: Vec3;
   batExitCenterOfMassVelocity: Vec3;
@@ -133,6 +151,46 @@ const validateRadiusProfile = (
   }
 };
 
+const validateEffectiveMassProfile = (
+  profile: BatEffectiveMassProfile,
+): void => {
+  if (profile.knots.length < 2) {
+    throw new Error(
+      'bat effective-mass profile requires at least two knots',
+    );
+  }
+  let previousT = -Infinity;
+  for (const knot of profile.knots) {
+    if (!Number.isFinite(knot.t) || knot.t < 0 || knot.t > 1) {
+      throw new Error(
+        'bat effective-mass knot t must be finite within [0, 1]',
+      );
+    }
+    if (
+      !Number.isFinite(knot.effectiveMassKg)
+      || knot.effectiveMassKg <= 0
+    ) {
+      throw new Error(
+        'bat effective-mass knot value must be finite and positive',
+      );
+    }
+    if (knot.t <= previousT) {
+      throw new Error(
+        'bat effective-mass knots must be strictly increasing',
+      );
+    }
+    previousT = knot.t;
+  }
+  if (
+    profile.knots[0]!.t !== 0
+    || profile.knots[profile.knots.length - 1]!.t !== 1
+  ) {
+    throw new Error(
+      'bat effective-mass profile must include t=0 and t=1 endpoints',
+    );
+  }
+};
+
 const validateBat = (bat: RigidBatState): void => {
   const p = bat.physical;
   if (!Number.isFinite(p.massKg) || p.massKg <= 0) {
@@ -154,6 +212,11 @@ const validateBat = (bat: RigidBatState): void => {
     throw new Error('bat moments of inertia must be finite and positive');
   }
   validateRadiusProfile(p.radiusProfile);
+  if (p.normalEffectiveMassProfile !== undefined) {
+    validateEffectiveMassProfile(
+      p.normalEffectiveMassProfile,
+    );
+  }
 };
 
 const validateBall = (ball: RigidBaseballProperties): void => {
@@ -217,6 +280,36 @@ export const sampleBatRadius = (
   }
 
   return profile.knots[profile.knots.length - 1]!.radiusM;
+};
+
+export const sampleBatEffectiveMass = (
+  profile: BatEffectiveMassProfile,
+  t: number,
+): number => {
+  validateEffectiveMassProfile(profile);
+  if (!Number.isFinite(t)) {
+    throw new Error('bat effective-mass sample t must be finite');
+  }
+  const clamped = clamp01(t);
+
+  for (let index = 1; index < profile.knots.length; index += 1) {
+    const right = profile.knots[index]!;
+    if (clamped > right.t) {
+      continue;
+    }
+    const left = profile.knots[index - 1]!;
+    const span = right.t - left.t;
+    const local = span <= EPSILON
+      ? 0
+      : (clamped - left.t) / span;
+    return left.effectiveMassKg
+      + (
+        right.effectiveMassKg
+        - left.effectiveMassKg
+      ) * local;
+  }
+
+  return profile.knots[profile.knots.length - 1]!.effectiveMassKg;
 };
 
 const axisGeometry = (
@@ -364,15 +457,12 @@ const relativeSurfaceVelocity = (
   ),
 );
 
-const effectiveInverseMassAlong = (
+const ballInverseMassContributionAlong = (
   direction: Vec3,
   ballLeverArm: Vec3,
-  batLeverArm: Vec3,
   ball: RigidBaseballProperties,
-  bat: RigidBatState,
-  batAxis: Vec3,
 ): number => {
-  const ballAngular = dot(
+  const angular = dot(
     direction,
     cross(
       applyBallInverseInertia(
@@ -382,7 +472,16 @@ const effectiveInverseMassAlong = (
       ballLeverArm,
     ),
   );
-  const batAngular = dot(
+  return 1 / ball.massKg + angular;
+};
+
+const rigidBatInverseMassContributionAlong = (
+  direction: Vec3,
+  batLeverArm: Vec3,
+  bat: RigidBatState,
+  batAxis: Vec3,
+): number => {
+  const angular = dot(
     direction,
     cross(
       applyBatInverseInertia(
@@ -393,14 +492,29 @@ const effectiveInverseMassAlong = (
       batLeverArm,
     ),
   );
-
-  return (
-    1 / ball.massKg
-    + 1 / bat.physical.massKg
-    + ballAngular
-    + batAngular
-  );
+  return 1 / bat.physical.massKg + angular;
 };
+
+const effectiveInverseMassAlong = (
+  direction: Vec3,
+  ballLeverArm: Vec3,
+  batLeverArm: Vec3,
+  ball: RigidBaseballProperties,
+  bat: RigidBatState,
+  batAxis: Vec3,
+): number => (
+  ballInverseMassContributionAlong(
+    direction,
+    ballLeverArm,
+    ball,
+  )
+  + rigidBatInverseMassContributionAlong(
+    direction,
+    batLeverArm,
+    bat,
+    batAxis,
+  )
+);
 
 export const resolveRigidBatBallContact = (
   pitch: PitchWorldState,
@@ -488,14 +602,36 @@ export const resolveRigidBatBallContact = (
   const tangentialRelativeSpeedBeforeMps =
     magnitude(tangentBefore);
 
-  const normalInverseMass = effectiveInverseMassAlong(
-    normal,
-    ballLeverArm,
-    batLeverArm,
-    ball,
-    bat,
-    batAxis,
-  );
+  const rigidBatNormalInverseMass =
+    rigidBatInverseMassContributionAlong(
+      normal,
+      batLeverArm,
+      bat,
+      batAxis,
+    );
+  const rigidBatNormalEffectiveMassKg =
+    1 / rigidBatNormalInverseMass;
+  const dynamicProfile =
+    bat.physical.normalEffectiveMassProfile;
+  const batNormalEffectiveMassKg =
+    dynamicProfile === undefined
+      ? rigidBatNormalEffectiveMassKg
+      : sampleBatEffectiveMass(
+          dynamicProfile,
+          nearest.t,
+        );
+  const normalEffectiveMassSource =
+    dynamicProfile === undefined
+      ? 'rigid_body' as const
+      : 'dynamic_profile' as const;
+
+  const normalInverseMass =
+    ballInverseMassContributionAlong(
+      normal,
+      ballLeverArm,
+      ball,
+    )
+    + 1 / batNormalEffectiveMassKg;
   if (normalInverseMass <= EPSILON) {
     throw new Error('normal effective inverse mass must be positive');
   }
@@ -616,6 +752,12 @@ export const resolveRigidBatBallContact = (
     totalImpulseNs,
     effectiveNormalMassKg:
       1 / normalInverseMass,
+    batNormalEffectiveMassKg,
+    normalEffectiveMassSource,
+    batRecoilModel:
+      normalEffectiveMassSource === 'rigid_body'
+        ? 'rigid_body'
+        : 'rigid_projection_only',
     exitVelocity: state.ballVelocity,
     exitSpin: state.ballSpin,
     batExitCenterOfMassVelocity:
