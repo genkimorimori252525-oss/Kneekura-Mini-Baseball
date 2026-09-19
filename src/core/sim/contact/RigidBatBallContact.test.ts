@@ -4,6 +4,7 @@ import type { PitchWorldState } from './BatBallContact';
 import {
   REFERENCE_BASEBALL_RIGID_BODY,
   resolveRigidBatBallContact,
+  sampleBatEffectiveMass,
   sampleBatRadius,
   type BatRadiusProfile,
   type RigidBatState,
@@ -81,6 +82,71 @@ describe('rigid bat-ball reduced-order contact', () => {
     expect(sampleBatRadius(profile, 0.525)).toBeCloseTo(0.0305, 12);
     expect(sampleBatRadius(profile, 0.7)).toBeCloseTo(0.034, 12);
     expect(sampleBatRadius(profile, 1)).toBeCloseTo(0.033, 12);
+  });
+
+
+  it('interpolates an empirical dynamic effective-mass profile without deformation state', () => {
+    const effectiveMassProfile = {
+      knots: [
+        { t: 0, effectiveMassKg: 0.4 },
+        { t: 0.5, effectiveMassKg: 0.7 },
+        { t: 1, effectiveMassKg: 0.5 },
+      ],
+    } as const;
+
+    expect(
+      sampleBatEffectiveMass(
+        effectiveMassProfile,
+        0.25,
+      ),
+    ).toBeCloseTo(0.55, 12);
+    expect(
+      sampleBatEffectiveMass(
+        effectiveMassProfile,
+        0.75,
+      ),
+    ).toBeCloseTo(0.6, 12);
+  });
+
+  it('can use measured dynamic effective mass instead of pretending the bat is perfectly rigid', () => {
+    const inputPitch = pitchAt(0.09);
+    const rigid = resolveRigidBatBallContact(
+      inputPitch,
+      bat(),
+      REFERENCE_BASEBALL_RIGID_BODY,
+      parameters,
+    );
+    const reducedDynamicBat: RigidBatState = {
+      ...bat(),
+      physical: {
+        ...bat().physical,
+        normalEffectiveMassProfile: {
+          knots: [
+            { t: 0, effectiveMassKg: 0.45 },
+            { t: 1, effectiveMassKg: 0.45 },
+          ],
+        },
+      },
+    };
+    const dynamic = resolveRigidBatBallContact(
+      inputPitch,
+      reducedDynamicBat,
+      REFERENCE_BASEBALL_RIGID_BODY,
+      parameters,
+    );
+
+    expect(rigid).not.toBeNull();
+    expect(dynamic).not.toBeNull();
+    expect(rigid!.normalEffectiveMassSource)
+      .toBe('rigid_body');
+    expect(dynamic!.normalEffectiveMassSource)
+      .toBe('dynamic_profile');
+    expect(dynamic!.batRecoilModel)
+      .toBe('rigid_projection_only');
+    expect(dynamic!.batNormalEffectiveMassKg)
+      .toBeCloseTo(0.45, 12);
+    expect(dynamic!.normalImpulseNs)
+      .toBeLessThan(rigid!.normalImpulseNs);
   });
 
   it('is deterministic for identical physical inputs', () => {
