@@ -8,6 +8,7 @@
 - `docs/game-design/16-club-economy-rivalry-design.md`
 - `docs/game-design/17-europe-real-club-catalog.md`
 - `docs/game-design/19-club-structural-dominance-and-decline.md`
+- `docs/game-design/20-simple-surface-deep-simulation.md`
 
 ---
 
