@@ -1051,3 +1051,26 @@ Finally validate:
 
 Real-world manager tactical stress tests (USER REVIEW REQUIRED):
 - `docs/game-design/44-manager-real-world-tactical-stress-tests-DRAFT.md`
+
+
+Manager decision engine / temperament (USER REVIEW REQUIRED):
+- `docs/game-design/45-manager-decision-engine-and-temperament-DRAFT.md`
+
+
+---
+
+# 46. Decision Engine Dependency
+
+Strategy Hypothesis / Experimentは、実戦Actionを直接決めない。
+
+```text
+Strategy Hypothesis
+ -> Candidate source / Forecast input
+ -> Manager Decision Engine
+ -> actual action
+```
+
+詳細:
+- `docs/game-design/45-manager-decision-engine-and-temperament-DRAFT.md`
+
+これにより「新戦術を信じている」ことと「今この局面で使う」ことを分離する。
