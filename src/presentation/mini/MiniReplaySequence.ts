@@ -30,6 +30,9 @@ import type {
 import type {
   MiniBallHeightCalibration,
 } from './MiniBallHeightProfile';
+import type {
+  StrikeZoneGuideGeometry,
+} from './StrikeZoneGuide';
 
 export type MiniReplaySource = Readonly<{
   match: CanonicalMatchState;
@@ -39,6 +42,11 @@ export type MiniReplaySource = Readonly<{
     'matchupPlayers'
   ];
   frame: MiniPresentationFrame;
+  /**
+   * Required when this source renders a manager-mode Batter/Pitcher POV.
+   * Stored per source because replay may span different batters/stances.
+   */
+  strikeZoneGuide?: StrikeZoneGuideGeometry;
 }>;
 
 export type MiniReplaySequenceInput = Readonly<{
@@ -90,6 +98,8 @@ export const buildMiniReplaySequence = (
         frame: source.frame,
         overheadCamera:
           input.overheadCamera,
+        strikeZoneGuide:
+          source.strikeZoneGuide,
         playerPhysicalProfiles:
           input.playerPhysicalProfiles,
         dotCalibration:
