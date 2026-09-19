@@ -474,7 +474,7 @@ Regional Club World Qualification Ranking
 clubs qualify
 ```
 
-各Regionはperformance berthを最低1枠持つ。
+各Regionはperformance berthを最低1枠持つ。Competition RegionはAsia-Pacific / Americas / Europe / Africaの4つ。
 
 一地域へのperformance berth上限は4を初期候補とする。4地域すべてにperformance berthを最低1枠保証する。
 
@@ -1097,8 +1097,8 @@ Player:
 以下をCompetition Architectureの基本設計として確定する。
 
 1. Continental club competitionは3-game series Group Stage + single-game Knockout
-2. Asia / Americas / Europeは16 clubs
-3. Africa / Oceaniaは8 clubsから開始
+2. Asia-Pacific / Americas / Europeは16 clubs
+3. Africaは8 clubsから開始
 4. Club Worldは16 clubs / 4年ごと
 5. Regional National ChampionshipをWBC主要予選にする
 6. WBC本大会は24 nations
@@ -1108,7 +1108,7 @@ Player:
 10. Continental CL / Club WorldのKnockoutは準々決勝以降すべてsingle game
 11. PrizePoolIndexを初期相対経済尺度として採用
 12. official national-team release obligationを採用
-13. Club World qualificationは直前大陸王者 + 4-year performance ranking方式
+13. Club World qualificationは直前4地域王者 + defending world champion + host-region berth + 4-year performance ranking方式
 14. WBC Global Qualifierは16 nations -> 4 single-elimination pods -> 4 winners
 15. Major world eventsはContinental / Domesticよりcalendar priorityを持つ
 
@@ -1118,7 +1118,7 @@ Player:
 
 - WBC 24 nationsは `12 group top-two + best four third-place = 16` でKnockout数が一致
 - WBC Global Qualifierは4つの4-team Podで、準決勝・決勝ともsingle game
-- Club Worldは `7 automatic + 9 performance = 16`
+- Club Worldは `6 automatic + 10 performance = 16`
 - 4年間の大陸王者20クラブを全自動出場させる矛盾を排除
 - 冬季leagueはSeasonIdでqualification yearを扱う
 - WBC / Premier / Regional call-upでaffiliation / rating contextを変更しない
