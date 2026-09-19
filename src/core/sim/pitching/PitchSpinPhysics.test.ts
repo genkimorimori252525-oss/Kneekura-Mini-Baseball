@@ -7,7 +7,7 @@ describe('pitch spin physics', () => {
   it('treats spin perpendicular to flight as fully active', () => {
     const result = decomposePitchSpin(
       { x: 0, y: 0, z: -40 },
-      { x: -200, y: 0, z: 0 },
+      { x: 200, y: 0, z: 0 },
     );
 
     expect(result.activeSpinFraction)
@@ -39,7 +39,7 @@ describe('pitch spin physics', () => {
   it('decomposes mixed spin without changing total spin', () => {
     const result = decomposePitchSpin(
       { x: 0, y: 0, z: -40 },
-      { x: -120, y: 0, z: -160 },
+      { x: 120, y: 0, z: -160 },
     );
 
     expect(result.totalSpinRadPerSecond)
