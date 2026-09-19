@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   DORMANT_INTENSITY,
+  adaptInitialDirectedRivalrySeed,
   appendRivalryMemory,
   createCalibratedRivalryMemory,
   createDirectedCompetitiveThreatSignal,
@@ -267,6 +268,34 @@ describe('RivalryLifecycle v1', () => {
     ));
     expect(threats).toHaveLength(233);
     expect(graph.edges).toHaveLength(0);
+  });
+
+
+  it('migrates legacy dominant-target seeds into fast threat instead of permanent history', () => {
+    const dominant = adaptInitialDirectedRivalrySeed({
+      fromClubId: 'challenger',
+      toClubId: 'dominant',
+      currentSeason: 0,
+      intensity: 76,
+      reason: 'DOMINANT_CLUB_TARGET',
+    });
+    const title = adaptInitialDirectedRivalrySeed({
+      fromClubId: 'challenger',
+      toClubId: 'title-rival',
+      currentSeason: 0,
+      intensity: 74,
+      reason: 'TITLE_RIVAL',
+    });
+
+    expect(dominant.kind).toBe('COMPETITIVE_THREAT');
+    if (dominant.kind === 'COMPETITIVE_THREAT') {
+      expect(dominant.threat.currentCompetitiveThreat).toBe(76);
+    }
+    expect(title.kind).toBe('HISTORICAL_EDGE');
+    if (title.kind === 'HISTORICAL_EDGE') {
+      expect(title.edge.historicalReason).toBe('COMPETITIVE_RIVAL');
+      expect(title.edge.historicalFloor).toBe(30);
+    }
   });
 
 });

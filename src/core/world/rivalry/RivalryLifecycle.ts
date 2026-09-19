@@ -72,6 +72,16 @@ export type DirectedCompetitiveThreatSignal = Readonly<{
   currentCompetitiveThreat: number;
 }>;
 
+export type AdaptedInitialRivalrySeed =
+  | Readonly<{
+    kind: 'HISTORICAL_EDGE';
+    edge: DirectedRivalryState;
+  }>
+  | Readonly<{
+    kind: 'COMPETITIVE_THREAT';
+    threat: DirectedCompetitiveThreatSignal;
+  }>;
+
 type MemorySpec = Readonly<{
   weight: number;
   halfLifeSeasons: number;
@@ -319,6 +329,7 @@ export const isEmergentRivalryActive = (
   if (intensity < ACTIVE_INTENSITY) return false;
   const recent = state.memories.filter((memory) => (
     memory.kind !== 'INITIAL_CONTEXT'
+    && memory.kind !== 'REPEATED_ELIMINATION'
     && memory.createdSeason <= currentSeason
     && currentSeason - memory.createdSeason <= MULTI_EVENT_WINDOW_SEASONS
   ));
@@ -466,6 +477,41 @@ export const createDirectedCompetitiveThreatSignal = (
       input.currentCompetitiveThreat,
       'currentCompetitiveThreat',
     ),
+  });
+};
+
+export const adaptInitialDirectedRivalrySeed = (
+  input: Readonly<{
+    fromClubId: ClubId;
+    toClubId: ClubId;
+    currentSeason: SeasonId;
+    intensity: number;
+    reason: InitialRivalryReason;
+    sourceEventId?: RivalryEventId;
+    historicalFloorOverride?: number;
+  }>,
+): AdaptedInitialRivalrySeed => {
+  if (input.reason === 'DOMINANT_CLUB_TARGET') {
+    return Object.freeze({
+      kind: 'COMPETITIVE_THREAT',
+      threat: createDirectedCompetitiveThreatSignal({
+        fromClubId: input.fromClubId,
+        toClubId: input.toClubId,
+        currentCompetitiveThreat: input.intensity,
+      }),
+    });
+  }
+  return Object.freeze({
+    kind: 'HISTORICAL_EDGE',
+    edge: createHistoricalRivalryFromInitialSeed({
+      fromClubId: input.fromClubId,
+      toClubId: input.toClubId,
+      currentSeason: input.currentSeason,
+      effectiveIntensity: input.intensity,
+      reason: input.reason,
+      sourceEventId: input.sourceEventId,
+      historicalFloorOverride: input.historicalFloorOverride,
+    }),
   });
 };
 
