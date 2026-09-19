@@ -567,14 +567,27 @@ Zero velocity does not imply settled.
 
 A runner standing on first may be stationary but still `decision_pending` about second.
 
-### 9.5 Rule windows
+### 9.5 Live-action rule windows versus post-play adjudication windows
 
-RuleProfile may keep the play open for supported:
+Do not make one `PlayEnd` boundary carry two different meanings.
 
-- appeal attempts;
-- dead-ball award completion;
-- review/challenge flow where modeled as part of current play;
-- other explicit rule windows.
+The live-action frontier contains only rule windows/actions that still require the current physical live action to remain open.
+
+Examples:
+
+- a currently executing appeal/tag/throw action whose physical completion matters;
+- a dead-ball transition not yet established;
+- a rule-mandated live action that is already causally active.
+
+Some windows survive **after physical live action ends** and therefore do not block `PlayEndFact` itself.
+
+Examples:
+
+- an appeal window that remains open until the next pitch/play or defense leaving the field;
+- manager challenge/review where the configured competition profile permits it;
+- adjudication of a previously made on-field call.
+
+These post-play windows block `OfficialPlayClosure`, not physical PlayEnd.
 
 Do not invent generic timeouts.
 
@@ -633,11 +646,13 @@ A live ball may be operationally complete only when:
 
 - no pending physical work;
 - no committed intent waiting to execute;
-- no causally in-flight information that can change the play;
-- no decision pending for a relevant actor;
-- no open supported rule window;
+- no causally in-flight information that can still change the physical live action;
+- no decision pending for a relevant actor's current live action;
+- no open rule/action window that specifically requires physical live action to remain open;
 - all relevant actors are `settled_for_play`;
 - event queue is settled through the proposed PlayEnd tick.
+
+A post-play appeal/review window may remain open after this point. That prevents official closure, not physical PlayEnd.
 
 This models the practical end of a play without pretending the baseball itself necessarily became dead.
 
@@ -652,6 +667,18 @@ result = live_ball_continues / unsupported horizon
 ```
 
 not PlayEnd.
+
+### 10.4 PlayEnd is not OfficialPlayClosure
+
+`PlayEndFact` means the current physical live action has ended.
+
+It does **not** guarantee that the official consequences can no longer change.
+
+Post-play appeal/review/adjudication windows may still be open.
+
+The next pitch/play must not begin from a durable new `CanonicalMatchState` until an `OfficialPlayClosure` (defined in `07-world-first-adjudication-contracts.md`) has resolved the official outs/runs/base ledger.
+
+The current bounded no-runner first-base OUT path may collapse both boundaries because it has no supported post-play appeal/review ambiguity. That is a compatibility shortcut, not the general architecture.
 
 ---
 
