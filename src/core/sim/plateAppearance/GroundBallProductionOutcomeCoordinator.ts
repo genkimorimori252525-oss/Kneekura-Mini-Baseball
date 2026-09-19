@@ -84,6 +84,9 @@ import {
   assertBattedBallFlightEvidenceMatchesTimeline,
 } from './GroundBallFlightEvidenceBinding';
 import {
+  assertBatterRunnerTimelineMatchesPlateAppearance,
+} from './GroundBallRunnerEvidenceBinding';
+import {
   completeGroundBallFirstBasePlateAppearance,
   type GroundBallFirstBasePlateAppearanceCompletionResult,
 } from './GroundBallPlateAppearanceCoordinator';
@@ -400,6 +403,10 @@ export const resolveCanonicalGroundBallFirstBaseOutcome = (
     input.timeline,
     input.flight,
     input.ballFlightParameters,
+  );
+  assertBatterRunnerTimelineMatchesPlateAppearance(
+    input.timeline,
+    input.runnerTimeline,
   );
 
   if (hasPrePitchRunner(input.match)) {
