@@ -976,6 +976,165 @@ visible behavior
 
 ---
 
+# 31.1 League-local Doctrine Diffusion — CANONICAL
+
+Strategy / doctrine diffusion is **not globally uniform**.
+
+Default topology:
+
+```text
+same club / staff tree
+        strongest
+
+same league / frequent opponents
+        strong
+
+same competition region
+        medium
+
+cross-league / cross-region
+        weak by default
+```
+
+Reason:
+
+- managers repeatedly observe opponents in their own league
+- local media / analysts study the same competition
+- coaches and players move more often inside familiar markets
+- shared rules / schedules / ballparks create comparable evidence
+- the same tactical idea may have different value under different player populations
+
+Therefore:
+
+```text
+successful MLB policy
+ != immediate NPB adoption
+
+successful NPB policy
+ != immediate MLB adoption
+```
+
+Cross-league doctrine transfer requires an actual bridge.
+
+Bridge examples:
+
+- manager / coach moves leagues
+- player with tactical knowledge moves leagues
+- analyst / front-office staff movement
+- international tournament exposure
+- interleague / exhibition competition
+- public statistical / video evidence
+- deliberate study by a high-Novelty / high-Analysis staff
+- independent rediscovery
+
+Each bridge transfers only observable / communicable knowledge.
+
+No league receives the source Manager's hidden beliefs or exact calibrated confidence.
+
+## Portability Friction
+
+Even when a doctrine is learned, its local value must be re-evaluated.
+
+```text
+foreign doctrine
+        ↓
+local rules
++ local player population
++ ball / park environment
++ roster construction
++ opponent meta
++ available data
+        ↓
+local hypothesis
+        ↓
+adopt / modify / reject
+```
+
+This prevents a globally successful tactic from becoming an automatic universal optimum.
+
+## League Tactical Culture is Derived
+
+A league may be described as:
+
+- bunt-heavy
+- power-oriented
+- aggressive-running
+- leverage-bullpen-heavy
+- starter-heavy
+
+only after actual Manager policies produce that distribution.
+
+League tactical culture is not a direct Modifier.
+
+```text
+local repeated success
++ local coaching lineage
++ local evidence
++ slow cross-league transfer
+        ↓
+persistent but changeable league doctrine
+```
+
+## Cross-league Transfer Delay
+
+The Engine may model transfer probability / evidence accumulation through a League Knowledge Network.
+
+Candidate conceptual edge:
+
+```ts
+type StrategyKnowledgeEdge = {
+  fromCompetition: CompetitionId;
+  toCompetition: CompetitionId;
+
+  observationStrength: number;
+  staffMobility: number;
+  playerMobility: number;
+  sharedDataAvailability: number;
+  ruleSimilarity: number;
+};
+```
+
+This is **not** a direct strategy-strength multiplier.
+
+It only affects:
+
+- whether another league notices the idea
+- how accurately it is inferred
+- how quickly enough evidence accumulates to test it
+
+The edge must remain dynamic and may strengthen through globalization, staff movement, international competition or technology.
+
+## Independent Development
+
+A league does not need to import every idea.
+
+The same tactical concept may emerge independently because similar constraints create similar hypotheses.
+
+Thus:
+
+```text
+MLB invention
+        X no direct transfer
+NPB independent discovery
+        ↓
+similar observable doctrine
+```
+
+is valid.
+
+## Acceptance Tests
+
+1. a successful doctrine can dominate one league for years without instant global adoption.
+2. neighboring / highly connected leagues learn faster than isolated leagues.
+3. a coach moving leagues can accelerate transfer.
+4. imported doctrine may fail because local roster / rules / environment differ.
+5. another league may independently discover a similar tactic.
+6. no league has a permanent hard-coded baseball philosophy.
+7. long-run globalization may increase cross-league convergence, but never forces it.
+8. league-local tactical identities can persist while still evolving.
+
+---
+
 # 32. Coaching Tree
 
 継承可能:
