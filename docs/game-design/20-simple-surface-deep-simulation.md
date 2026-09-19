@@ -489,3 +489,7 @@ Club initial gameplay seeds:
 - `docs/game-design/28-americas-club-initial-seeds.md`
 - `docs/game-design/29-europe-africa-club-initial-seeds.md`
 - `docs/game-design/30-initial-directed-rivalry-graph.md`
+
+
+Scouting / recruitment system:
+- `docs/game-design/31-scouting-recruitment-system.md`
