@@ -877,3 +877,17 @@ Team Trait Catalog (USER REVIEW REQUIRED):
 `人気者` はFan Affection / Career / Presentationへ移す。
 
 `威圧感 / 存在感` はPopularityから切り離し、Scouting / Manager Belief / Psychology側で別途扱う。Popularity labelをManager tactical inputにしない。
+
+
+### Star / Superstar follow-up
+
+`人気者` remains Career / Presentation.
+
+`Star / Superstar` are separate Career/competition statuses and may connect to:
+- Tactical Gravity
+- high-salience Condition / Psychology
+
+through:
+- `docs/game-design/51-star-superstar-big-stage-architecture-DRAFT.md`
+
+No direct raw ability modifier is granted by the label.
