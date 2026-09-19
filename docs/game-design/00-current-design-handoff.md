@@ -1023,3 +1023,64 @@ Major architecture requirements revealed:
 
 Draft:
 - `docs/game-design/44-manager-real-world-tactical-stress-tests-DRAFT.md`
+
+
+Manager decision engine / temperament (USER REVIEW REQUIRED):
+- `docs/game-design/45-manager-decision-engine-and-temperament-DRAFT.md`
+
+
+---
+
+# 38. CURRENT DRAFT — Manager Decision Engine / Temperament
+
+2026-09-20:
+
+Manager personality is now explicitly separated from ability and baseball philosophy.
+
+```text
+Skill       = how well the manager reasons / executes
+Philosophy  = what kind of baseball the manager prefers
+Temperament = how the manager decides under uncertainty / pressure
+```
+
+Candidate Temperament axes:
+- decisiveness
+- conviction
+- composure
+- openness
+- consultative style
+
+These do not provide direct buffs.
+
+Decision Engine candidate flow:
+
+```text
+Decision Trigger
+ -> Observed Situation
+ -> Manager Belief Slice
+ -> Legal Action Set
+ -> Candidate Generation
+ -> Manager Forecast
+ -> Objective / Horizon Evaluation
+ -> Risk + Philosophy + Temperament
+ -> Bounded Decision
+ -> Instruction Encoding
+ -> Player Interpretation
+ -> Canonical Match Simulation
+ -> Decision Memory / Learning
+```
+
+Important additions:
+- Fast Policy Path for routine decisions
+- Deliberative Search for high-leverage / unusual situations
+- Decision Horizon Stack: pitch / at-bat / game / series / season / development
+- Objective Vector: win-now / future resources / health / development / role stability / milestone / symbolic value
+- low Manager Skill creates plausible reasoning defects, never random idiocy rolls
+- Manager Forecast uses Beliefs, never Match Core hidden truth
+- opponent responses are modeled sequentially
+- hidden signs remain hidden; opponent may infer from observable cues
+- outcome quality and decision quality are separated
+- CPU decision reasons can be surfaced in simple user-facing explanations
+
+Draft:
+- `docs/game-design/45-manager-decision-engine-and-temperament-DRAFT.md`
