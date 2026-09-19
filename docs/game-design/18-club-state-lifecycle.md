@@ -7,6 +7,7 @@
 - `docs/game-design/05-psychology-emotion.md`
 - `docs/game-design/16-club-economy-rivalry-design.md`
 - `docs/game-design/17-europe-real-club-catalog.md`
+- `docs/game-design/19-club-structural-dominance-and-decline.md`
 
 ---
 
@@ -372,7 +373,7 @@ MEGA
 
 ---
 
-# 12. Economic Bandは動く
+# 12. Economic Bandは動くが、単年度では崩れない
 
 17で使っている:
 
@@ -385,25 +386,46 @@ MEGA
 
 は**初期snapshotの説明用**。
 
-Pennant中は毎年再計算可能。
+Pennant中は現在状態から再計算するが、単年度Revenueだけでは決めない。
+
+正しい入力は:
+
+- rolling multi-year recurring revenue
+- cash / debt burden
+- financing access
+- owner backing
+- supporter / brand capital
+- commercial network
+- stadium revenue capacity
+- committed wage burden
+
+等。
+
+したがって:
+
+```text
+one bad year
+ -> MEGA remains plausible
+
+multi-year sporting + financial + institutional decline
+ -> gradual downgrade
+```
+
+とする。
 
 例:
 
 ```text
 2026 PSG = MEGA
-2040 PSG = HIGH
+2040 PSG = ELITE
 2065 PSG = MID
-
-2026 Rennes = UPPER
-2040 Rennes = ELITE
-2065 Rennes = MEGA
 ```
 
-を合法とする。
+まで落ちるなら、その間にStructural Capitalを削る履歴が必要。
 
-この変化に特別Eventは不要。
+逆にRennesが長期成功と投資を積み上げればUPPER -> ELITE -> MEGAへ成長可能。
 
-実際のRevenue / Budget / Debt等が変わった結果としてBandが変わる。
+詳細な強豪持続・崩壊条件は19を正とする。
 
 ---
 
