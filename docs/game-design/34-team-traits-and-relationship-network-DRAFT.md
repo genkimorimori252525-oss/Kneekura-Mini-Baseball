@@ -1417,5 +1417,5 @@ Dark Era
 Team TraitはSeasonごとの症状として再発してよいが、上流原因を置き換えない。
 
 
-Team Mood design candidate (USER REVIEW REQUIRED):
-- `docs/game-design/37-team-mood-architecture-DRAFT.md`
+Team Mood design (APPROVED):
+- `docs/game-design/37-team-mood-architecture.md`
