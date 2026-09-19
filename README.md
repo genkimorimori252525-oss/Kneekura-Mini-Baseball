@@ -17,6 +17,7 @@ Mini Baseball は Natural Baseball の簡易ルール版ではなく、将来の
 - [将来システム設計メモ](docs/game-design/06-future-systems.md)
 - [Drone-Art・細密グリッド表示の確定デザイン要件](docs/game-design/07-drone-art-presentation.md)
 - [ChatGPT Work向け Drone-Art Broadcast Camera 引き継ぎ](docs/presentation/2026-09-20-work-handoff-drone-art-broadcast-camera.md)
+- [将来Replay Core計画 — Canonical Replay Reconstruction](docs/superpowers/plans/2026-09-20-canonical-replay-reconstruction-plan.md)（将来参照・未実装）
 
 ## AI / デザイン作業境界
 
