@@ -1180,3 +1180,48 @@ named team trait
 
 Team Trait Catalog (USER REVIEW REQUIRED):
 - `docs/game-design/35-team-trait-catalog-DRAFT.md`
+
+---
+
+# 28. Offseason Relationship Carryover
+
+Player Relationship自体はSeason終了でresetしない。
+
+## Affinity / 好感
+
+- 原則carryover
+- off-seasonだけで急落しない
+- 長期間の疎遠 / conflict / transfer context等でslow change
+
+## Trust / 信頼
+
+- 原則carryover
+- role change / repeated failure / betrayal-like event等で変化
+- 同じClubに残れば比較的維持しやすい
+
+## Coordination / 連携
+
+- carryover可能だが、3軸で最もrole依存
+- 同じ守備位置 / battery / unitなら高く維持
+- role change / long separation / new tactical systemでdecay
+- transferした場合はactive coordinationからDormant Shared Experienceへ移行可能
+
+例:
+
+```text
+SS A + 2B B
+5 seasons together
+coordination = high
+
+B transferred
+ -> pair coordination no longer active
+ -> shared experience is not erased
+
+3 years later reunion
+ -> starts above zero
+ -> faster re-synchronization possible
+```
+
+RelationshipはPlayer間Historyであり、Team Traitより長寿命。
+
+Team TraitのSeason Boundary policyは `35-team-trait-catalog-DRAFT.md` を参照する。
