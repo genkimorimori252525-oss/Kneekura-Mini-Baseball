@@ -1373,3 +1373,45 @@ Season BoundaryではDescriptor自体はresetする。
 - poor sequencing / timing variance
 
 これらが実際のPlayを通して結果へ出て初めて長期低迷になる。
+
+
+---
+
+# 30. Anti-Monocausal Guardrail
+
+ユーザー承認済み設計原則。
+
+有名なDark Eraを全てTeam Traitで説明できる状態は**設計失敗**とみなす。
+
+Team Traitは:
+
+- current pressure
+- current coordination
+- current collective expectation
+- current relationship expression
+- current momentum / slump
+
+等の近接状態を説明する。
+
+一方、複数Seasonにまたがる長期低迷は:
+
+- scouting
+- development
+- roster construction
+- succession
+- retention
+- manager / front-office decisions
+- finance / structural capacity
+
+等の上流原因を必要とする。
+
+したがって:
+
+```text
+Dark Era
+ -> one permanent Red Team Trait
+```
+
+は禁止。
+
+Team TraitはSeasonごとの症状として再発してよいが、上流原因を置き換えない。
