@@ -1171,3 +1171,26 @@ After this document is reviewed:
 4. approve Objective Vector
 5. approve two-path Fast Policy / Deliberative Search
 6. then connect this Engine to Strategy Hypothesis learning in document 43
+
+
+Rare tactics / psychological play / Manager Decision Log (USER REVIEW REQUIRED):
+- `docs/game-design/46-manager-rare-tactics-psychological-play-and-decision-log-DRAFT.md`
+
+
+---
+
+# 49. Rare Tactical Candidate Extension
+
+Deliberative Search may include at most one Rare Candidate generated from:
+
+- relevant Strategy Hypothesis
+- extreme Context
+- high-salience opponent target
+- staff / player suggestion
+
+Rare Candidate is never random weirdness.
+
+Psychological intent is modeled as an uncertain secondary forecast. It can help, do nothing, or backfire.
+
+Decision Trace / user-facing log design:
+- `docs/game-design/46-manager-rare-tactics-psychological-play-and-decision-log-DRAFT.md`
