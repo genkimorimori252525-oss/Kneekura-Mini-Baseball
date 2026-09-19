@@ -45,6 +45,7 @@ import {
 } from './CanonicalPlateAppearanceTimeline';
 import {
   resolveCanonicalGroundBallFirstBaseOutcome,
+  type CanonicalGroundBallFirstBaseOutcomeInput,
 } from './GroundBallProductionOutcomeCoordinator';
 
 const ratings = createDefensiveRatings({
@@ -267,7 +268,7 @@ describe('GroundBallProductionOutcomeCoordinator', () => {
       acceleration: { x: 0, y: 0, z: 0 },
     };
 
-    const result = resolveCanonicalGroundBallFirstBaseOutcome({
+    const scenario: CanonicalGroundBallFirstBaseOutcomeInput = {
       match: before,
       timeline,
       flight,
@@ -340,7 +341,29 @@ describe('GroundBallProductionOutcomeCoordinator', () => {
         maximumTargetErrorMeters: 0,
       },
       throwBallAcceleration: { x: 0, y: 0, z: 0 },
+    };
+    const result = resolveCanonicalGroundBallFirstBaseOutcome(
+      scenario,
+    );
+    const replay = resolveCanonicalGroundBallFirstBaseOutcome({
+      ...scenario,
+      rng: new DeterministicRng(20260919),
     });
+    const advisoryProbabilityVariant =
+      resolveCanonicalGroundBallFirstBaseOutcome({
+        ...scenario,
+        throwCandidates: scenario.throwCandidates.map(
+          (candidate) => ({
+            ...candidate,
+            outProbability:
+              candidate.outProbability === 0 ? 1 : 0,
+          }),
+        ),
+        rng: new DeterministicRng(20260919),
+      });
+
+    expect(replay).toEqual(result);
+    expect(advisoryProbabilityVariant).toEqual(result);
 
     expect(result.kind).toBe('completed');
     if (result.kind !== 'completed') {
