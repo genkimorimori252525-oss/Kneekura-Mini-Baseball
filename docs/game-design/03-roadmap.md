@@ -1,7 +1,7 @@
 # 実装ロードマップと検証計画
 
-更新日: 2026-09-18
-状態: P0〜P9 のロードマップ基盤は実装・CI検証完了。fixed-seed baseline凍結と初期1,024-contact統計校正まで完了。現在はロードマップ後のproduction結果経路拡張・大規模校正・Natural描画へ移行する。
+更新日: 2026-09-19
+状態: P0〜P9 のロードマップ基盤は実装・CI検証完了。fixed-seed baseline凍結と初期1,024-contact統計校正まで完了。ロードマップ後の最初のproduction causal live-ball結果境界（無走者ゴロ→一塁フォースアウト）も実装・敵対監査・CI検証完了。次はSAFE継続／塁上走者ありの因果経路を拡張する。
 
 ## 前提
 
@@ -48,7 +48,7 @@ Mini Baseball は将来の Natural Baseball と別の簡易試合ロジックを
 8. ~~P7 一打席采配接続~~ **実装完了**（self-hosted Actionsでfull verify済み）。一度だけ受理した采配をP2/P6の物理intentへ展開し、各球正史とMatchState更新を保持。
 9. ~~P8 Miniライブ観測表示~~ **実装完了**（self-hosted Actionsでfull verify済み）。Canonical live/replay、Batter/Pitcher/Overhead、R/H/E、走者ダイヤ、カード、命令帯、体格点サイズ分離を実装。
 10. ~~P9 統計検証とNatural移行境界~~ **実装完了**（self-hosted Actionsでfull verify済み）。fixed-seed/corpus、因果trace、同一打球alignment比較、batch統計、性能計測、Natural read-only境界、renderer非干渉を固定。代表fixed-seed fingerprintは再現性確認後に凍結済み。初期1,024-contact校正も同一canonical contact集合を複数配置へ流してCI検証済み。
-11. **ロードマップ後**: CI実行復旧 → full verify → fingerprint凍結 → 大規模統計校正 → Natural renderer実装。
+11. **ロードマップ後**: ~~CI実行復旧 → full verify → fingerprint凍結~~ 完了。~~最初のproduction causal live-ball結果境界~~ 完了（無走者ゴロ→一塁フォースアウト、one-way statistics bridge、敵対監査A/B/C）。次は SAFE継続 → occupied-base/multi-runner因果経路 → production結果由来の大規模統計校正 → Natural renderer の順で拡張する。
 
 このguardrailにより、今後の守備物理追加は「P5全体のどの受入条件を閉じるか」を明示してから行う。
 
@@ -264,3 +264,38 @@ P0時点では野球結果の物理・規則・守備能力式はまだ実装し
 - 監督能力を増やしすぎると、選手能力との責任境界が曖昧になる。打球前の推定・配置と、打球後の選手実行をテストで分離する。
 - 極端シフトでは通常位置が空くため、カバーAIが固定守備位置を暗黙に仮定していないことを継続的に検証する。
 - 先行エンジンに既存の不整合があっても、その挙動を互換仕様として移植しない。P1以降の新しい契約と回帰テストを正とする。
+
+## 2026-09-19 Post-roadmap causal outcome milestone
+
+最初のproduction結果経路は、検証専用の距離bucketではなく、実際の物理・判断・規則証拠から終端結果を作る境界として成立した。
+
+現在productionで完結できる範囲は、**無走者のフェアなゴロが物理的な一塁フォースアウトで終わるケース**に限定する。
+
+```text
+BatBallContact
+  -> BallFlight
+  -> ground-ball pickup / secure possession
+  -> coverage / transfer
+  -> physical throw / reception
+  -> base control vs runner touch
+  -> RuleEngine
+  -> terminal OUT
+  -> PlayEnd / final bases / MatchState
+  -> CanonicalLiveBallFinalResult
+  -> validation observer
+```
+
+SAFE、同時到達、捕球・保持失敗などは未対応結果へ丸めず、live-ball continuationとして残す。
+
+公式分類も現時点では `batter_runner_out_before_first` のみをsupportedとし、単打・二塁打・三塁打・本塁打・失策・野選等は証拠が揃うまで推測しない。
+
+検証証拠:
+
+- exact head `6d126b8e0e501b513f33ec586ec151e30657e241`;
+- self-hosted Actions run `35433883430`;
+- 237 test files / 1089 tests GREEN;
+- fixed-seed 3 fingerprint不変;
+- P9 calibration fingerprint `f5058efd2d23784c` 不変;
+- Presentation/P9/validation統計からproduction結果への逆流なし。
+
+次の優先対象は、SAFE後の継続または限定したoccupied-baseケースである。既存P9 1,024-contact bucketは引き続きvalidation-onlyであり、production結果統計と呼び替えない。

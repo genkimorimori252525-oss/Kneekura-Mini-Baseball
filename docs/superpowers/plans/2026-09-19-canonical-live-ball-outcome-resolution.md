@@ -507,3 +507,94 @@ The following are not treated as completed capabilities:
 - Defender/runner physical primitives are accepted as upstream canonical physical evidence. As world orchestration expands, their provenance should continue to be bound to the same play/state rather than replaced by result shortcuts.
 
 Gate B therefore permits expansion only from the verified causal boundary; it does not permit reintroducing statistical-result shortcuts.
+
+## 17. Adversarial closure audit C — 2026-09-19
+
+Gate C replayed the original authority map against the implemented production path and the exact verified source head.
+
+### C-1 — implemented authority chain
+
+The supported production slice now follows this one-way chain:
+
+```text
+authoritative BatBallContact
+  -> bound BallFlight evidence
+  -> rolling-ball / glove physical contact
+  -> CatchRetention secure possession
+  -> causally-timed TeamCoverage evidence
+  -> rated transfer timing
+  -> derived throw-ready / launch boundary
+  -> physical throw launch
+  -> receiver glove contact + retention
+  -> receiver controlled-base contact
+  -> batter-runner physical first-base touch
+  -> existing FirstBasePhysicalRace / RuleEngine
+  -> terminal no-runner OUT only
+  -> internally-created PlayEndFact
+  -> derived empty final occupancy
+  -> CanonicalLiveBallFinalResult
+  -> PlateAppearanceMatchState
+  -> optional read-only validation observation
+```
+
+No Presentation, P9 bucket, validation statistic, advisory probability, caller-supplied OUT/SAFE, caller-supplied final bases, caller-supplied possession, or caller-supplied release tick is authoritative in this chain.
+
+### C-2 — official classification remains downstream-only
+
+`CanonicalLiveBallFinalResult.officialOutcome` is the single official-classification authority for the new boundary.
+
+The first supported classification is intentionally only:
+
+- `batter_runner_out_before_first`.
+
+Nonterminal and unsupported cases remain explicit. The validation bridge may observe supported production truth, but production does not import the bridge, `BatchValidationStatistics`, P9 calibration buckets, or Presentation state.
+
+### C-3 — exact regression evidence
+
+Closure verification:
+
+- exact head: `6d126b8e0e501b513f33ec586ec151e30657e241`;
+- self-hosted GitHub Actions run: `35433883430`;
+- TypeScript typecheck: passed;
+- test files: **237 passed / 237**;
+- tests: **1089 passed / 1089**;
+- fixed-seed fingerprints:
+  - fielding: `0d6e8aefd4601e9a`;
+  - baserunning: `8c3db4d6447bcad5`;
+  - rules: `d49f585e4b33fb17`;
+- P9 contacts fingerprint: `2f545c9acac3ab71`;
+- P9 normal evaluations fingerprint: `bf334bb3105106fc`;
+- P9 pull-heavy evaluations fingerprint: `c9dfd271c5b04152`;
+- P9 calibration fingerprint: `f5058efd2d23784c`.
+
+No evidence-version migration was required.
+
+### C-4 — residual medium / low risks and explicit deferrals
+
+No known HIGH-severity issue remains for the bounded slice.
+
+Remaining risks are intentionally not hidden:
+
+- **MEDIUM — SAFE continuation:** SAFE at first is physical race evidence, not a completed play. Runner continuation, stopping, further throws, and final occupancy still require a causal continuation orchestrator.
+- **MEDIUM — occupied-base / multi-runner orchestration:** pre-pitch runners remain unsupported by this production coordinator. Force transitions, tags, relays, run timing, and play-end policy must be added one bounded case at a time.
+- **MEDIUM — throw release approximation:** `throwReadyTick` remains the documented zero-duration ready-to-release approximation until a hand/arm constraint model owns the actual release boundary.
+- **MEDIUM — upstream primitive provenance:** defender/runner physical primitives are accepted as canonical upstream evidence. As orchestration broadens, their identity/provenance must continue to be bound to the same play rather than becoming caller-controlled result shortcuts.
+- **LOW/MEDIUM — throw acceleration ownership:** the coordinator still accepts an explicit physical throw-acceleration vector. A dedicated throw-flight model should eventually own gravity/aerodynamic calibration.
+- **MEDIUM — official scoring breadth:** hit/error/fielder's-choice and extra-base official classifications are not implemented here. They must remain `unsupported` until downstream scoring evidence is sufficient.
+- **MEDIUM — calibration bridge breadth:** the new production statistics bridge is architecturally valid but the existing 1,024-contact P9 batch remains the older validation-only reach-bucket calibration. It must not be relabeled as production batting statistics until enough production live-ball outcomes are supported.
+
+### Gate C result
+
+The first post-roadmap causal live-ball production milestone is closed.
+
+It proves the authority direction, not complete baseball coverage:
+
+```text
+physics / decisions / rules
+        -> canonical production outcome
+        -> validation / presentation observers
+```
+
+Never the reverse.
+
+The next production expansion should begin from SAFE continuation or a bounded occupied-base case, while preserving this verified one-way authority boundary.

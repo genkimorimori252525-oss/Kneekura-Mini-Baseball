@@ -1,6 +1,6 @@
 # Core Realism Master Progress — 2026-09-18
 
-**Status:** P0-P9 FOUNDATION COMPLETE AND VERIFIED; POST-ROADMAP CALIBRATION ACTIVE.
+**Status:** P0-P9 FOUNDATION COMPLETE AND VERIFIED; FIRST POST-ROADMAP CAUSAL OUTCOME MILESTONE VERIFIED.
 
 This document is the parent progress map for Shared Match Core realism work on `jolly/core-realism-2026-09-18`.
 
@@ -221,3 +221,35 @@ Key evidence:
 - calibration fingerprint: `f5058efd2d23784c`.
 
 Implementation status and CI status are now aligned for the P0-P9 foundation.
+
+## 10. Post-roadmap causal outcome checkpoint — 2026-09-19
+
+The first production causal live-ball result boundary is now implemented and verified.
+
+Completed scope:
+
+- ordinary fair ground ball;
+- no pre-pitch runners;
+- physical ground-ball pickup and secure possession;
+- rated transfer and internally-derived throw-ready boundary;
+- physical throw/reception/retention;
+- controlled first-base contact versus batter-runner touch;
+- existing RuleEngine OUT adjudication;
+- terminal no-runner batter-runner-before-first OUT;
+- internally-derived play end and empty final occupancy;
+- canonical final result with one downstream official classification;
+- one-way production-result -> validation-statistics observation.
+
+The production API does not accept final bases, PlayEndFact, OUT/SAFE, pickup/possession tick, release tick, or statistical hit bucket as authoritative inputs.
+
+Adversarial Gates A/B/C are closed with no known HIGH-severity finding remaining.
+
+Exact closure evidence:
+
+- head `6d126b8e0e501b513f33ec586ec151e30657e241`;
+- Actions run `35433883430`;
+- 237/237 test files and 1089/1089 tests passed;
+- fixed-seed fingerprints unchanged;
+- P9 calibration fingerprint remains `f5058efd2d23784c`.
+
+This is not complete general live-ball orchestration. SAFE continuation, occupied-base/multi-runner play, relays/rundowns, broader official scoring, and production-driven batch calibration remain subsequent post-roadmap work.
