@@ -660,3 +660,7 @@ Organizationも成長 / 退化できる。
 10. Department詳細はBackground Simulation
 11. Rich Clubの補強大失敗とSmall Clubの大成功を両方許可
 12. 26のScouting SeedはCareer開始時Department Seedとして使用
+
+
+Unapproved roster / development draft (USER REVIEW REQUIRED):
+- `docs/game-design/32-roster-development-architecture-DRAFT.md`
