@@ -195,3 +195,7 @@ type MatchPresentationSnapshot = {
 - `playbackTime`: 表示・リプレイ側の時間であり、試合結果を決定しない
 
 この境界を守ることで、Mini の点描表示を改良しても野球結果は変わらず、将来 Natural Baseball の3D表示へ交換しても同じプレーを描ける。
+
+
+Manager philosophy / command architecture (USER REVIEW REQUIRED):
+- `docs/game-design/39-manager-philosophy-and-command-architecture-DRAFT.md`
