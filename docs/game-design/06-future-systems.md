@@ -211,15 +211,16 @@ Full Simulation対象の21リーグ、初期球団数、開催時期、Culture S
 初期構成:
 
 ```text
-Asia       5
-Americas   6
-Europe     7
-Africa     1
-Oceania    2
+Asia-Pacific 7
+Americas     6
+Europe       7
+Africa       1
 ----------------
-Full      21
-Clubs    238
+Full        21
+Clubs      238
 ```
+
+Competition Regionは4地域（Asia-Pacific / Americas / Europe / Africa）。Australia / NZ-Pacificは地理上OceaniaのままAsia-Pacific大会系統へ参加する。
 
 野球が主要競技ではない地域では、Academy / Transfer Fee / Loan / Training Compensation / Solidarity / Trial等のサッカー型Player MarketをCareer Economyへ採用可能とする。
 
