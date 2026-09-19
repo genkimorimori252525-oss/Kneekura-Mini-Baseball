@@ -1,7 +1,7 @@
-# Rivalry Lifecycle Model — DRAFT FOR USER APPROVAL
+# Rivalry Lifecycle Model
 
 更新日: 2026-09-20  
-状態: **承認候補。USER APPROVAL REQUIRED。未確定。**
+状態: **設計承認版。2026-09-20ユーザー承認。実装前。**
 
 関連:
 - `docs/game-design/05-psychology-emotion.md`
@@ -28,6 +28,88 @@ all clubs eventually become rivals with everyone
 - A -> B と B -> A は別々に育つ
 
 を同時に満たす。
+
+---
+
+# 1.1 Reality Anchoring Principle
+
+この設計の目的は、単にRivalry Graphを疎に保つことではない。
+
+Mini Baseballは現実のClub identityを初期世界へ持ち込むため、ユーザーはClub名から現実世界の歴史・地域・文化を強く連想する。
+
+したがって、内部Simulation上は因果的に成立していても:
+
+```text
+FC Bayern München
+vs
+阪神タイガース
+```
+
+のような組み合わせを、数十年後にいきなり「伝統の宿敵」と表示すると強い違和感が生じ得る。
+
+この問題を避けるため、次を恒久原則とする。
+
+```text
+Real-world seeded history
+ !=
+Game-world emergent relationship
+```
+
+初期Seedに存在するRivalryだけが:
+
+- historical rivalry
+- traditional rivalry
+- derby
+- century / legacy rivalry
+
+等の**歴史由来Label**を持てる。
+
+Career開始後に形成された関係は、どれだけIntensityが高くても原則:
+
+- 因縁
+- 競争関係
+- 近年のライバル
+- 宿敵関係
+
+等の**ゲーム世界内で形成されたLabel**として扱う。
+
+後天的Rivalryが長期間続いても、現実由来の「伝統」をretroactively捏造しない。
+
+---
+
+# 1.2 Plausibility Through History, Not Restriction
+
+上記は「異なる地域のClub同士はRivalryになれない」という意味ではない。
+
+実際にGame Worldで:
+
+- Club World Finalを何度も戦う
+- repeated eliminationが起きる
+- major transfer grievanceが起きる
+- controversial incidentが起きる
+
+なら、Bayernと阪神の間にも強い**Emergent Rivalry**は成立してよい。
+
+ただし、その関係は必ずSave Historyから説明できなければならない。
+
+```text
+2038 Club World Final
+2042 Club World SF
+2046 controversial transfer
+2050 Club World Final
+        ↓
+strong emergent rivalry
+```
+
+のような履歴があって初めて成立する。
+
+```text
+famous club
++ famous club
+ -> rivalry
+```
+
+は禁止する。
 
 ---
 
@@ -492,6 +574,41 @@ currentCompetitiveThreat
 
 ---
 
+# 19.1 Rivalry Label Provenance
+
+UI LabelはIntensityだけで決めない。
+
+同じ90でも意味が違う。
+
+```text
+Historical Edge 90
+ -> 伝統の宿敵 / 歴史的ライバル
+
+Emergent Edge 90
+ -> 強い因縁 / 近年の宿敵
+```
+
+`permanentHistoricalEdge` の有無をLabel provenanceとして必ず参照する。
+
+禁止:
+
+```text
+emergent Bayern -> Hanshin = 95
+ -> "伝統の宿敵"
+```
+
+許可:
+
+```text
+emergent Bayern -> Hanshin = 95
+ -> "近年の宿敵"
+ -> "Club Worldで続く因縁"
+```
+
+これにより数理的に自然な未来を許しながら、現実由来Club identityとの連続性を壊さない。
+
+---
+
 # 20. UI Thresholds
 
 通常UI候補:
@@ -626,9 +743,9 @@ Decayは毎日tickせず、Season boundary / relevant access時に経過Season�
 
 ---
 
-# 27. Approval Candidate
+# 27. Approved Model
 
-今回の中心案:
+2026-09-20にユーザー承認された中心案:
 
 1. Initial RivalryだけPermanent Historical Edge
 2. Permanent EdgeはHistorical Floorを持つ
