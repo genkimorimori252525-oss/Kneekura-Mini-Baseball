@@ -520,3 +520,59 @@ Current natural next candidates:
 Use the same rule:
 
 > Simulation may be deep. User control should remain simple.
+
+---
+
+# 24. USER REVIEW REQUIRED — Roster / Development Draft
+
+新規draft:
+- `docs/game-design/32-roster-development-architecture-DRAFT.md`
+
+これは**未承認**。
+
+将来このテーマへ触れるSessionは、実装・正史化・詳細設計の前に必ずユーザーへ:
+
+> このRoster / Reserve / Farm / Academy仮設計を採用してよいか
+
+を確認すること。
+
+確認前にapproved扱いしない。
+
+Draftの主な候補:
+- First Team
+- Reserve / Second Team
+- Farm / Development
+- Academy
+- Loan / External Assignment
+- Club RightsとCurrent Assignmentの分離
+- DevelopmentはPlaying Time / Coaching / Environmentから因果的に発生
+- CPUもHidden Potentialを直接読まない
+- exact roster人数やFA / Draft細則は未決定
+
+---
+
+# 25. NEXT USER DECISION — Rivalry Lifecycle
+
+次にユーザーが詰めたいテーマ。
+
+現時点では**未決定**。
+
+ユーザー案:
+
+```text
+initial / historical rivalry
+ -> permanent historical core
+
+later-emergent rivalry
+ -> event-driven increase
+ -> can also decay over time
+ -> eventually may disappear if no longer meaningful
+```
+
+狙い:
+- 後天的Rivalryが増え続けて全Clubが宿敵になるのを防ぐ
+- 伝統的Derbyは消えない
+- Title race / elimination / incident等から新しい因縁を作れる
+- 後天的因縁は無関係な年月が続けば薄れる
+
+**この案をまだ採用済みとして扱わない。次回ユーザーと数式・減衰条件・恒久floorを相談すること。**
