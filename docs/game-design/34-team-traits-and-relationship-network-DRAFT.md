@@ -1,7 +1,7 @@
 # Team Traits & Player Relationship Network — DRAFT
 
 更新日: 2026-09-20  
-状態: **設計候補。USER REVIEW REQUIRED。実装前。**
+状態: **部分承認済み設計候補。USER REVIEW REQUIRED。実装前。**
 
 > この文書は、チーム特殊能力 / 選手間関係値の初期設計案。
 > ユーザー承認前に正史化しない。
@@ -13,6 +13,21 @@
 - `docs/game-design/20-simple-surface-deep-simulation.md`
 - `docs/game-design/31-scouting-recruitment-system.md`
 - `docs/game-design/33-rivalry-lifecycle-model.md`
+
+---
+
+# 0. User-approved Decisions — 2026-09-20
+
+以下はユーザー承認済み。
+
+1. Team Traitの色分類は **Blue / Red / Gold** を採用する。
+2. Player Relationshipは **好感 / 信頼 / 連携** の3軸へ分ける。
+3. 悪いRelationshipだけで打者のBase Batting Abilityを低下させない。
+4. Relation由来の打撃効果は原則positive-sideに限定する。
+5. 守備等の共同作業では低い連携が実際の連携ミスへつながり得る。
+6. Team TraitはPennant中に取得・発動・減衰・消失できる。
+
+文書全体はまだDRAFTであり、具体Trait一覧・閾値・式は追加監修が必要。
 
 ---
 
@@ -83,9 +98,10 @@ type PlayerRelationshipState = {
   fromPlayerId: PlayerId;
   toPlayerId: PlayerId;
 
-  affinity: number;
-  trust: number;
-  communicationFamiliarity: number;
+  affinity: number;      // 好感: 0..100
+  trust: number;         // 信頼: 0..100
+  coordination: number;  // 連携: 0..100
+
   sharedSuccessMemory: number;
   conflictMemory: number;
 
@@ -96,6 +112,76 @@ type PlayerRelationshipState = {
 A -> B と B -> A は完全同値でなくてよい。
 
 ただし守備連携のようなshared coordinationは双方の観測からDerivedしてよい。
+
+## 3.1 好感 / Affinity
+
+感情的な親しさ・好意。
+
+主な作用先:
+
+- positive emotional contagion
+- teammate successへの喜び / 刺激
+- clubhouse interaction
+- conflict recovery
+
+低いだけではBase Abilityを下げない。
+
+## 3.2 信頼 / Trust
+
+「この相手なら任せられる」という期待。
+
+主な作用先:
+
+- teammate callを信じてcommitするか
+- mistake後も相手を信頼して次のplayへ入れるか
+- catcher / pitcher decision acceptance
+- tactical communication acceptance
+
+信頼は好感と別。
+
+仲が良くなくてもProfessional Trustが高いpairは成立する。
+
+## 3.3 連携 / Coordination
+
+一緒に動く時のshared timing / procedure familiarity。
+
+主な作用先:
+
+- fielding responsibility resolution
+- cut-off relay
+- double play
+- cover movement
+- rundown
+- battery coordination
+- selected baserunning cooperation
+
+連携は最もjoint-action寄りの軸。
+
+単なる友人関係では上がらない。
+
+shared reps / practice / successful executionから主に形成する。
+
+## 3.4 Directionality
+
+好感と信頼は原則directional。
+
+```text
+A -> B affinity = 90
+B -> A affinity = 62
+```
+
+を許可する。
+
+連携は実装上directional evidenceを持ってもよいが、共同作業時は双方の連携・shared repsからPair CoordinationをDerivedする。
+
+候補:
+
+```text
+PairCoordination
+ = f(A->B coordination, B->A coordination, shared reps, role familiarity)
+```
+
+
 
 ---
 
@@ -191,6 +277,183 @@ Rally Resonance
 UI名称は後で確定。
 
 ---
+
+
+# 6.1 Batting Resonance Eligibility — 重要な線引き
+
+Team Relationshipから生じる打撃連鎖は、**成功内容をそのまま相手へコピーしない。**
+
+禁止:
+
+```text
+Slugger A hits HR
+        ↓
+Contact hitter B gets HR bonus
+```
+
+Bが本来持っていないPower / launch / bat-speed能力をRelationが作ってはいけない。
+
+正しい構造:
+
+```text
+A succeeds
++ B has strong affinity / trust with A
+        ↓
+B receives positive emotional stimulus
+        ↓
+B's own offensive archetype determines expression
+```
+
+例:
+
+```text
+A = home-run slugger
+B = home-run slugger
+        ↓
+HR event may activate POWER_RESONANCE in B
+        ↓
+B may choose / execute own existing power approach more confidently
+```
+
+一方:
+
+```text
+A = home-run slugger
+B = contact / line-drive hitter
+        ↓
+B receives positive contagion
+BUT
+HR-specific resonance is ineligible
+        ↓
+B may instead express CONTACT_RALLY / LINE_DRIVE confidence
+```
+
+RelationはPlayer Archetypeを変えない。
+
+---
+
+# 6.2 Resonance Channel
+
+打撃共鳴はPlayerのTrue Profileからeligible channelを選ぶ。
+
+候補:
+
+```ts
+type OffensiveResonanceChannel =
+  | "POWER"
+  | "CONTACT"
+  | "ON_BASE"
+  | "SPEED_PRESSURE"
+  | "NONE";
+```
+
+Channel判定候補:
+
+- underlying power / bat speed
+- launch-angle tendency
+- hard-contact ability
+- contact precision
+- plate discipline
+- baserunning aggression
+- player behavior / swing preference
+
+**Relation scoreからChannelを決めない。**
+
+---
+
+# 6.3 POWER Resonance
+
+ON砲のような「片方が本塁打を打つと、もう片方もその試合で長打モードへ入りやすい」体験の候補。
+
+必要条件候補:
+
+```text
+A hits HR
+AND
+B has POWER-eligible offensive profile
+AND
+A <-> B relationship is strong enough
+AND
+B meaningfully appraises A's success
+        ↓
+POWER_RESONANCE pressure
+```
+
+作用先候補:
+
+- positive ActiveEmotion activation probability
+- confidence in existing power swing decision
+- willingness to use existing launch / pull-power approach
+- hesitation reduction
+
+禁止:
+
+- raw Power increase
+- bat speed increase beyond true capability
+- exit velocity bonus
+- forced HR probability modifier
+
+つまり、Bが元から持つPowerを**発揮しやすい心理 / 選択状態**へ入れるだけ。
+
+---
+
+# 6.4 Contact / Other Resonance
+
+同じtriggerでも受け手のProfileが違えば違う形で出る。
+
+例:
+
+```text
+Slugger A HR
+        ↓
+Contact hitter B
+        ↓
+CONTACT_RALLY
+        ↓
+positive confidence / timing commitment
+        ↓
+BはBらしくhitを狙う
+```
+
+```text
+Contact hitter A gets clutch single
+        ↓
+Slugger B
+        ↓
+positive contagion may occur
+BUT
+Aのsingleを理由にBへContact能力を付与しない
+```
+
+**成功の形式ではなく、成功による感情刺激を共有する。最終的な表現は受け手自身の能力Profileが決める。**
+
+---
+
+# 6.5 Highest Batter Relationship Expression
+
+高い好感・信頼・共有成功記憶を持つPower-compatible pair / clusterでは、Gold Team Trait候補として:
+
+- 共鳴砲
+- 連弾
+- 双砲共鳴
+
+等を表示可能。
+
+これはTeam Traitだがscopeは全打者ではない。
+
+```ts
+type TeamTraitScope =
+  | { kind: "TEAM_ALL" }
+  | { kind: "UNIT"; unitId: string }
+  | { kind: "PAIR"; playerIds: [PlayerId, PlayerId] }
+  | { kind: "CLUSTER"; playerIds: readonly PlayerId[] }
+  | { kind: "CONTEXTUAL_ELIGIBLE" };
+```
+
+POWER系共鳴は原則PAIR / CLUSTER scope。
+
+チーム全員へHR resonanceを配らない。
+
 
 # 7. No Negative Batting Chain from Relationship Alone
 
@@ -302,6 +565,59 @@ Source families候補:
 - CONTEXT_DERIVED
 
 ---
+
+
+# 10.1 Team Trait Color Contract — Approved
+
+Team TraitはBlue / Red / Goldの3分類。
+
+## Blue
+
+有利な一時Team State。
+
+例:
+
+- 打線連鎖
+- 守備連携
+- 逆境オーラ
+- 好機必打
+- 鉄壁リリーフ陣
+
+## Red
+
+不利なTeam State / 悪い空気 / coordination breakdown。
+
+例:
+
+- タイムリー欠乏症
+- 終盤恐怖症
+- サヨナラ負け癖
+- 初物苦手
+- 5割の壁
+- 連敗病
+
+RedもDirect Outcome Debuffは禁止。
+
+## Gold
+
+Blue Familyのexceptional / master tier。
+
+Goldと同FamilyのBlueは二重適用しない。
+
+例:
+
+```text
+Blue: 打線連鎖
+Gold: 共鳴打線 / 共鳴砲
+```
+
+```text
+Blue: 守備連携
+Gold: 鉄壁連携
+```
+
+Goldも魔法Buffではなく、非常に強いunderlying evidence / shared stateの表示とする。
+
 
 # 11. Team Trait is not Source of Truth
 
@@ -853,10 +1169,10 @@ named team trait
 次にユーザーと詰める点:
 
 1. RelationのPublic UIを数値表示するか、段階表示だけにするか
-2. BattingのPositive Relationship効果をActiveEmotion経由に限定するか
-3. Defensive CoordinationをRelationから分離した別値にするか
-4. Team TraitのBlue / Red / Gold分類を採用するか
-5. Team Traitの有効期限をSHORT / MEDIUM / SEASON / EVIDENCE_BASEDで持つか
-6. 「暗黒期」を独立Traitにせず、複数Red Traitの重なりとして扱うか
-7. negative relationshipのPenaltyを共同作業 / 当事者心理だけに限定するか
-8. Rally Resonanceの発動をlineup adjacency + relation clusterから作るか
+2. Batting ResonanceをActiveEmotion + own-archetype expressionで確定するか
+3. Pair / Cluster Team Trait Scopeを正式採用するか
+4. Team Traitの有効期限をSHORT / MEDIUM / SEASON / EVIDENCE_BASEDで持つか
+5. 「暗黒期」を独立Traitにせず、複数Red Traitの重なりとして扱うか
+6. Rally Resonanceの発動にlineup adjacencyを必須とするか、同一試合内なら離れた打順でも成立させるか
+7. POWER / CONTACT / ON_BASE / SPEED_PRESSUREのChannel境界値をどう定義するか
+8. Gold Team Traitの取得条件をshared success回数 / relation / current evidenceでどう組むか
