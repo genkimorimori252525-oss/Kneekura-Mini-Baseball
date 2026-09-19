@@ -551,11 +551,11 @@ Draftの主な候補:
 
 ---
 
-# 25. NEXT USER DECISION — Rivalry Lifecycle
+# 25. APPROVED — Rivalry Lifecycle
 
 次にユーザーが詰めたいテーマ。
 
-現時点では**未決定**。
+2026-09-20にユーザー承認。
 
 ユーザー案:
 
@@ -575,7 +575,13 @@ later-emergent rivalry
 - Title race / elimination / incident等から新しい因縁を作れる
 - 後天的因縁は無関係な年月が続けば薄れる
 
-**この案をまだ採用済みとして扱わない。次回ユーザーと数式・減衰条件・恒久floorを相談すること。**
+**正式設計は `docs/game-design/33-rivalry-lifecycle-model-DRAFT.md` を正とする。**
+
+重要追加原則:
+- 初期Real-world rivalryと後天Game-world rivalryを同じ歴史Labelで表示しない
+- Emergent Rivalryは強くても「近年の宿敵 / 因縁」と表示する
+- Historical / Traditional LabelはInitial Seed由来だけに許可する
+- 異地域間Rivalryも実際のSave Historyが十分なら成立可能
 
 
 Rivalry lifecycle approval candidate (USER APPROVAL REQUIRED):
