@@ -9,7 +9,6 @@ import {
 
 const completedOut = (): CanonicalGroundBallFirstBaseOutcome => ({
   kind: 'completed',
-  classification: 'batter_runner_out_before_first',
   canonicalResult: {
     playEnd: {
       kind: 'play_end',

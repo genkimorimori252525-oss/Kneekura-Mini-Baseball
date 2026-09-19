@@ -144,7 +144,6 @@ export type GroundBallPickupEvidence = Readonly<{
 
 export type CanonicalGroundBallFirstBaseCompletedOutcome = Readonly<{
   kind: 'completed';
-  classification: 'batter_runner_out_before_first';
   canonicalResult: CanonicalLiveBallFinalResult;
   pickup: GroundBallPickupEvidence;
   transfer: BallTransferTiming;
@@ -604,7 +603,6 @@ export const resolveCanonicalGroundBallFirstBaseOutcome = (
 
   return {
     kind: 'completed',
-    classification: 'batter_runner_out_before_first',
     canonicalResult,
     pickup,
     transfer,

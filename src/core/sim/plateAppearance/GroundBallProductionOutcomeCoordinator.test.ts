@@ -429,8 +429,10 @@ describe('GroundBallProductionOutcomeCoordinator', () => {
       return;
     }
 
-    expect(result.classification)
-      .toBe('batter_runner_out_before_first');
+    expect(result.canonicalResult.officialOutcome).toEqual({
+      kind: 'supported',
+      classification: 'batter_runner_out_before_first',
+    });
     expect(result.physicalRace.race.correctRuleResult.kind)
       .toBe('out');
     expect(result.completion.resolution.basesAfter).toEqual({
