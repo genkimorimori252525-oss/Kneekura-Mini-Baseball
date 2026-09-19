@@ -259,6 +259,49 @@ describe('rigid bat-ball reduced-order contact', () => {
       .toBeGreaterThan(squared!.exitVelocity.y);
   });
 
+  it('makes squared contact faster and lower-spin than a glancing contact', () => {
+    const squaredPitch = pitchAt(0.09);
+    const localRadius = sampleBatRadius(
+      profile,
+      (0.09 + 0.45) / 0.9,
+    );
+    const combinedRadius =
+      localRadius + REFERENCE_BASEBALL_RIGID_BODY.radiusM;
+    const yOffset = 0.03;
+    const zOffset = Math.sqrt(
+      combinedRadius * combinedRadius
+      - yOffset * yOffset,
+    );
+    const glancingPitch: PitchWorldState = {
+      ...squaredPitch,
+      position: v(
+        0.09,
+        1 + yOffset,
+        zOffset - 1e-6,
+      ),
+    };
+
+    const squared = resolveRigidBatBallContact(
+      squaredPitch,
+      bat(),
+      REFERENCE_BASEBALL_RIGID_BODY,
+      parameters,
+    );
+    const glancing = resolveRigidBatBallContact(
+      glancingPitch,
+      bat(),
+      REFERENCE_BASEBALL_RIGID_BODY,
+      parameters,
+    );
+
+    expect(squared).not.toBeNull();
+    expect(glancing).not.toBeNull();
+    expect(speed(squared!.exitVelocity))
+      .toBeGreaterThan(speed(glancing!.exitVelocity));
+    expect(speed(squared!.exitSpin))
+      .toBeLessThan(speed(glancing!.exitSpin));
+  });
+
   it('recoils the bat instead of treating it as an infinite-mass velocity source', () => {
     const result = resolveRigidBatBallContact(
       pitchAt(0.38),
