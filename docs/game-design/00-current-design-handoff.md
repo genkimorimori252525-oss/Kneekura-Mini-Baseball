@@ -844,3 +844,41 @@ Important candidate principles:
 
 Draft:
 - `docs/game-design/40-manager-ratings-era-and-strategy-evolution-DRAFT.md`
+
+
+---
+
+# 34. APPROVED DIRECTION — Manager Core / Incompetent Managers
+
+2026-09-20 user accepted the proposed Manager core direction.
+
+Approved direction:
+- public Manager ratings use six S–G axes: 采配 / 分析 / 適応 / 選手眼 / 運用 / 統率
+- no single Overall Manager rating
+- Philosophy and Skill are separate
+- User / CPU share the same legal baseball action space
+- Manager instructions use Default Philosophy / Game Plan / Immediate Command
+- Player final intent combines Manager instruction with Player tendency / trust / tactical understanding / autonomy / emotion / context
+- Human User tactical choices are not randomly overwritten by a low Manager IQ stat
+- Manager instructions never create abilities the Player does not possess
+
+Important new requirement:
+> **Manager employment does not guarantee competence.**
+
+Weak managers can genuinely exist, including multiple D/E/F/G axes.
+
+An incompetent manager can still be hired because Club hiring is an imperfect information process involving:
+- reputation
+- famous playing career
+- internal promotion
+- owner/front-office preference
+- cost
+- availability
+- ideology fit
+- emergency interim appointment
+- mistaken evaluation
+
+Club AI must not read Manager True Skill directly.
+
+Draft:
+- `docs/game-design/41-manager-appointment-and-incompetence-DRAFT.md`
