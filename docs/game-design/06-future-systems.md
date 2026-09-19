@@ -388,3 +388,7 @@ Europe real club catalog:
 
 Club state lifecycle / pennant save boundary:
 - `docs/game-design/18-club-state-lifecycle.md`
+
+
+Club structural dominance / decline:
+- `docs/game-design/19-club-structural-dominance-and-decline.md`
