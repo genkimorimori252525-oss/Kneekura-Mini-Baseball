@@ -1740,3 +1740,7 @@ defined behavior / execution change
 本書はその時点で更新・分割・破棄してよい。
 
 重要なのは現在の案を永久固定することではなく、**後から設計余地が必要だったと気づいた時には既にデータ構造が閉じていた、という失敗を防ぐこと**である。
+
+
+Team traits / player relationship design candidate (USER REVIEW REQUIRED):
+- `docs/game-design/34-team-traits-and-relationship-network-DRAFT.md`
