@@ -1074,3 +1074,34 @@ Strategy Hypothesis
 - `docs/game-design/45-manager-decision-engine-and-temperament-DRAFT.md`
 
 これにより「新戦術を信じている」ことと「今この局面で使う」ことを分離する。
+
+
+Rare tactics / psychological play / Manager Decision Log (USER REVIEW REQUIRED):
+- `docs/game-design/46-manager-rare-tactics-psychological-play-and-decision-log-DRAFT.md`
+
+
+---
+
+# 47. Psychological / Information Strategy Extension
+
+Strategy Hypotheses may target more than direct Run Expectancy.
+
+Allowed secondary channels:
+- psychological disruption
+- information gain
+- signaling
+- surprise
+- tempo control
+
+These never apply direct ability modifiers.
+
+They must operate through:
+- observable actions
+- opponent Belief
+- Player Appraisal / EmotionPressure
+- preparation / reaction timing
+
+Repeated use reduces Surprise as opponents accumulate evidence.
+
+Detailed draft:
+- `docs/game-design/46-manager-rare-tactics-psychological-play-and-decision-log-DRAFT.md`
