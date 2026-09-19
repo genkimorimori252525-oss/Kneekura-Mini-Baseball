@@ -499,3 +499,38 @@ Green Light盗塁軍団
 ```
 
 が同じ generic systemから出ること。
+
+
+Manager decision engine / temperament (USER REVIEW REQUIRED):
+- `docs/game-design/45-manager-decision-engine-and-temperament-DRAFT.md`
+
+
+---
+
+# 23. Decision Engine Stress-test Mapping
+
+Real-world examples are now expected to pass through the generic Decision Engine:
+
+```text
+Trigger
+ -> Belief
+ -> Legal Actions
+ -> Candidates
+ -> Forecast
+ -> Objectives / Horizon
+ -> Risk / Philosophy / Temperament
+ -> Decision
+ -> Player response
+ -> Match Core
+```
+
+Especially:
+- 内野5人: extreme one-run objective + spatial risk tradeoff
+- 山井→岩瀬: championship + record + closer trust
+- 田中救援: title horizon + health cost + player request
+- 10.8: future resource value collapse
+- スクイズ: hard sign + opponent inference
+- Green Light: soft directive + player autonomy
+
+詳細:
+- `docs/game-design/45-manager-decision-engine-and-temperament-DRAFT.md`
