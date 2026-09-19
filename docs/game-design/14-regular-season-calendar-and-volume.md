@@ -177,7 +177,7 @@ Leagueごとにoff-day / travel blockを調整し、100試合以上でもCalenda
 
 ---
 
-# 4. Asia
+# 4. Asia-Pacific — Asian Subregion
 
 ## 4.1 Japan League
 
@@ -582,7 +582,9 @@ Balanced:
 
 ---
 
-# 8. Oceania
+# 8. Asia-Pacific — Oceania Subregion
+
+Australia / New Zealand / Pacificは地理上Oceaniaだが、国際大会のCompetition RegionはAsia-Pacific。
 
 ## 8.1 Australia League
 
@@ -597,11 +599,15 @@ Balanced:
 Balanced:
 
 ```text
-7 x 16
+7 opponents x 16
 = 112
 ```
 
-10 home / 10 away。
+各opponentと8 home / 8 away。
+
+APBCL出場Clubは直前に完了したDomestic Seasonの `QualificationSeasonId` で決める。
+
+September開始の次Season中にAPBCLへ出場する場合、そのClubの日程へContinental Breakを入れる。
 
 ## 8.2 New Zealand / Pacific League
 
@@ -609,37 +615,36 @@ Balanced:
 - games: **112**
 - Regular Season: **September–February**
 - Postseason: none
-- APBCL: **March**
+- APBCL: **November**
 - density: **STANDARD_DENSE**
 - target: 約4.3 games / week
 
 Balanced:
 
 ```text
-7 x 16
+7 opponents x 16
 = 112
 ```
 
+各opponentと8 home / 8 away。
+
 Pacific travelを考慮し、away seriesをblock化する。
 
+APBCL出場Clubは直前に完了したDomestic Seasonの `QualificationSeasonId` で決める。
 
-APBCLはNovember開催。
-
-Australiaの出場Clubは直前に完了したDomestic Seasonの `QualificationSeasonId` で決める。
-
-September開始の次Season中にAPBCLへ出場する場合、そのClubの日程へContinental Breakを入れる。
+active domestic season中のAPBCL参加ClubにはContinental Breakを設定する。
 
 ---
 
 # 9. 21-League Volume Summary
 
-| Region | League | Games | Regular Season | Postseason |
+| Competition Region | League | Games | Regular Season | Postseason |
 | --- | --- | ---: | --- | --- |
-| Asia | Japan | 120 | Mar–Sep | Oct |
-| Asia | Korea | 126 | Mar–Sep | Oct |
-| Asia | Taiwan | 100 | Mar–Sep | Oct–Nov |
-| Asia | China | 108 | Mar–Aug | Sep |
-| Asia | West / South Asia | 110 | Oct–Mar | none |
+| Asia-Pacific | Japan | 120 | Mar–Sep | Oct |
+| Asia-Pacific | Korea | 126 | Mar–Sep | Oct |
+| Asia-Pacific | Taiwan | 100 | Mar–Sep | Oct–Nov |
+| Asia-Pacific | China | 108 | Mar–Aug | Sep |
+| Asia-Pacific | West / South Asia | 110 | Oct–Mar | none |
 | Americas | North America | 162 | Mar–Sep | Oct |
 | Americas | Mexico | 120 | Apr–Aug | Sep |
 | Americas | Dominican | 100 | Aug–Dec | Jan |
@@ -654,8 +659,8 @@ September開始の次Season中にAPBCLへ出場する場合、そのClubの日�
 | Europe | Italy | 110 | Mar–Aug | Sep |
 | Europe | Russia | 108 | Mar–Aug | Sep |
 | Africa | Pan-African | 110 | Oct–Mar | none |
-| Oceania | Australia | 112 | Sep–Jan | Feb |
-| Oceania | New Zealand / Pacific | 112 | Sep–Feb | none |
+| Asia-Pacific | Australia | 112 | Sep–Jan | Feb |
+| Asia-Pacific | New Zealand / Pacific | 112 | Sep–Feb | none |
 
 ---
 
