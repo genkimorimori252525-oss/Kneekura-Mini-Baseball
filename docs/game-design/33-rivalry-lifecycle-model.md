@@ -281,7 +281,7 @@ permanent historical core
 
 | Initial reason | Historical Floor |
 | --- | ---: |
-| iconic historical / century rivalry | 65 |
+| iconic historical / century rivalry | 70 |
 | HISTORICAL_RIVAL | 55 |
 | LOCAL_DERBY | 50 |
 | NATIONAL_RIVAL | 45 |
@@ -310,7 +310,7 @@ Floorは`関係が存在し続ける最低値`であり、現在の熱量では�
 
 ```text
 INITIAL_CONTEXT
-half-life = 4 seasons
+half-life = 6 seasons
 ```
 
 historicalFloorと合成した結果が現在のSeed intensityになるようinitialWeightを決める。
@@ -328,9 +328,9 @@ no new history for many seasons
 
 ---
 
-# 9. Event Weights — Candidate v1
+# 9. Event Weights — Calibrated v1
 
-数値はSimulation Testで校正可能だが、初期設計候補を置く。
+長期Simulationの膨張防止と再燃速度を基準に、v1設計値を固定する。
 
 | Event | Primary direction | Weight | Half-life |
 | --- | --- | ---: | ---: |
@@ -341,13 +341,50 @@ no new history for many seasons
 | winner after eliminating rival | winner -> loser | +7 | 4 |
 | repeated elimination bonus | victim -> opponent | +8 | 6 |
 | continental / world knockout elimination | loser -> winner | +18 | 6 |
-| major controversial incident | affected -> opponent | +15 to +30 | 6–10 |
+| major controversial incident | affected -> opponent | +18 / +24 / +30 by severity | 6 / 8 / 10 |
 | star transfer grievance | former club -> destination | +12 | 5 |
 | manager / staff poaching grievance | former club -> destination | +8 | 4 |
 | repeated high-stake close series | both | +6 | 3 |
 | humiliating high-stake defeat | loser -> winner | +6 | 2 |
 
 Regular Seasonの普通の1勝1敗だけではRivalryMemoryを作らない。
+
+### 9.1 Competitive memory cap
+
+同一pair・同一seasonの通常競争Eventを無制限stackさせない。
+
+```text
+TITLE_RACE
+HEAD_TO_HEAD_DECIDER
+POSTSEASON / FINAL ELIMINATION
+CLOSE_SERIES
+HUMILIATING_RESULT
+```
+
+による**通常競争Memory**は、各directionについて1 season最大 **30** とする。
+
+ただし以下は別枠:
+
+- REPEATED_ELIMINATION
+- MAJOR_INCIDENT
+- TRANSFER_GRIEVANCE
+- STAFF_POACHING
+
+これにより、一つの激しいseasonだけでRivalryが100近くまで跳ねることを防ぐ一方、複数年の歴史や重大事件は強く残せる。
+
+### 9.2 Calibration intent
+
+v1では概ね次の速度を狙う。
+
+- 一度の通常PO敗退だけではActive Rivalryにならない
+- 2回のPO敗退が数年内に重なるとActive Rivalryへ届きやすい
+- 優勝争い + Championship Finalのような濃い1 seasonはIntensity 30前後まで到達可能
+- 重大事件(weight 30)は単独でもRivalry発生条件を満たせる
+- 2回のFinal敗退 + repeated bonus級なら50以上の明確なRivalryへ育つ
+- Eventが止まれば10年前後で後天的Rivalryが大幅に冷える
+- Initial Historical Rivalryは6-season Initial Context half-lifeにより現実の2026熱量から急落しない
+
+
 
 ---
 
@@ -428,7 +465,7 @@ AND
 (
   at least 2 meaningful events within 4 seasons
   OR
-  one severe event with weight >= 25
+  one severe event with weight >= 24
 )
 ```
 
@@ -759,3 +796,72 @@ Decayは毎日tickせず、Season boundary / relevant access時に経過Season�
 10. Emergent Rivalryを自動で永久Historicalへ昇格させない
 11. Directionalityを維持
 12. RivalryはPsychology / Manager Priorityへの入力であり能力Buffではない
+
+---
+
+# 28. Final Calibration v1
+
+2026-09-20最終校正。
+
+## Historical layer
+
+- iconic historical floor: **70**
+- HISTORICAL_RIVAL: **55**
+- LOCAL_DERBY: **50**
+- NATIONAL_RIVAL: **45**
+- CONTINENTAL_RIVAL: **40**
+- initial COMPETITIVE_RIVAL: **30**
+- Initial Context Memory half-life: **6 seasons**
+
+## Emergent activation
+
+```text
+effectiveIntensity >= 30
+AND
+(
+  meaningful events >= 2 within 4 seasons
+  OR
+  one severe event weight >= 24
+)
+```
+
+## Dormancy / deletion
+
+- 15–29: DORMANT
+- <15 + 5 seasons meaningful-eventなし: delete emergent edge
+- Permanent Historical Edge: never delete
+
+## Anti-inflation
+
+- ordinary regular-season result: no memory
+- routine competitive memories: max 30 / direction / pair / season
+- Dominant Club Target alone: no RivalryMemory
+- Emergent rivalry never auto-promotes to Historical
+- decay is derived from event age; no daily tick required
+
+## Calibration examples
+
+```text
+one postseason elimination
+ -> 16
+ -> not yet active rivalry
+
+second elimination two seasons later
+ + repeated elimination memory
+ -> mid-30s
+ -> rivalry becomes visible
+
+one intense title/final season
+ -> routine competitive cap around 30
+ -> possible new rivalry, but not instant "宿敵"
+
+two major finals within several seasons
+ -> 50+ range
+ -> clear recent rivalry
+
+no new events
+ -> memories halve according to event half-life
+ -> emergent rivalry eventually becomes dormant / disappears
+```
+
+このv1値はDesign Contractとして扱う。実装時の長期Monte Carlo / soakで300-year sparse-graph invariantを破る場合のみ再校正し、個別Clubを意図した手調整には使わない。
