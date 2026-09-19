@@ -746,3 +746,23 @@ This draft still requires user approval before becoming canonical.
 - long-term winners / dark eras are still explained primarily by roster, scouting, development, manager, economy and Team Traits
 
 Team Mood is a rare **social-psychological exception layer**, not a second team-rating system.
+
+
+---
+
+# 31. APPROVED — No Social Chore Principle
+
+2026-09-20 ユーザー承認。
+
+重要原則:
+
+> **人間関係は“育てる義務”ではなく、“時々起こる意味のある出来事”として扱う。**
+
+- ordinary relationships maintain themselves in background simulation
+- no weekly meeting chores
+- no hidden affection decay because the user did not click social actions
+- no “keep everyone happy” optimization loop
+- most relationship fluctuations do not require user action
+- manager intervention appears only for meaningful dysfunction / opportunity
+
+Team Mood / Relationship should add human texture without turning entertainment into social-maintenance labor.
