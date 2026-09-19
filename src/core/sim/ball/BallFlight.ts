@@ -1,5 +1,11 @@
+import type { Vec3 } from '../../model/geometry';
 import { findFirstTrueTick, quantizeEventTick } from '../ExactEventTime';
 import type { BattedBallInitialState } from '../contact/BatBallContact';
+import {
+  REFERENCE_BASEBALL_AERODYNAMICS,
+  calculateBaseballAerodynamics,
+  type BaseballAerodynamicsParameters,
+} from './BaseballAerodynamics';
 
 export type BallFlightParameters = Readonly<{
   ticksPerSecond: number;
@@ -10,6 +16,7 @@ export type BallFlightParameters = Readonly<{
   groundRollingDecelerationMps2?: number;
   integrationStepTicks: number;
   restingVerticalSpeed: number;
+  aerodynamics?: BaseballAerodynamicsParameters | null;
 }>;
 
 export const DEFAULT_BALL_FLIGHT_PARAMETERS: BallFlightParameters = Object.freeze({
@@ -21,9 +28,39 @@ export const DEFAULT_BALL_FLIGHT_PARAMETERS: BallFlightParameters = Object.freez
   groundRollingDecelerationMps2: 4,
   integrationStepTicks: 2_000,
   restingVerticalSpeed: 0.5,
+  aerodynamics: null,
 });
 
+export const REALISTIC_BASEBALL_FLIGHT_PARAMETERS: BallFlightParameters =
+  Object.freeze({
+    ...DEFAULT_BALL_FLIGHT_PARAMETERS,
+    aerodynamics: REFERENCE_BASEBALL_AERODYNAMICS,
+  });
+
 const GROUND_EPSILON = 1e-12;
+
+const add = (a: Vec3, b: Vec3): Vec3 => ({
+  x: a.x + b.x,
+  y: a.y + b.y,
+  z: a.z + b.z,
+});
+
+const scale = (value: Vec3, scalar: number): Vec3 => ({
+  x: value.x * scalar,
+  y: value.y * scalar,
+  z: value.z * scalar,
+});
+
+const weightedSum = (
+  a: Vec3,
+  b: Vec3,
+  c: Vec3,
+  d: Vec3,
+): Vec3 => ({
+  x: a.x + 2 * b.x + 2 * c.x + d.x,
+  y: a.y + 2 * b.y + 2 * c.y + d.y,
+  z: a.z + 2 * b.z + 2 * c.z + d.z,
+});
 
 const validateParameters = (parameters: BallFlightParameters): void => {
   if (!Number.isInteger(parameters.ticksPerSecond) || parameters.ticksPerSecond <= 0) {
@@ -56,6 +93,115 @@ const validateParameters = (parameters: BallFlightParameters): void => {
   if (parameters.restingVerticalSpeed < 0) {
     throw new Error('restingVerticalSpeed must be non-negative');
   }
+  if (
+    parameters.aerodynamics !== null
+    && parameters.aerodynamics !== undefined
+    && Math.abs(parameters.aerodynamics.ballRadiusM - parameters.ballRadius) > 1e-9
+  ) {
+    throw new Error(
+      'aerodynamics.ballRadiusM must match ballRadius',
+    );
+  }
+};
+
+const calculateFreeFlightAcceleration = (
+  velocity: Vec3,
+  spin: Vec3,
+  parameters: BallFlightParameters,
+): Vec3 => {
+  const gravity = { x: 0, y: parameters.gravityY, z: 0 } as const;
+  if (
+    parameters.aerodynamics === null
+    || parameters.aerodynamics === undefined
+  ) {
+    return gravity;
+  }
+
+  return add(
+    gravity,
+    calculateBaseballAerodynamics(
+      velocity,
+      spin,
+      parameters.aerodynamics,
+    ).totalAcceleration,
+  );
+};
+
+const advanceAerodynamicFreeFlight = (
+  state: BattedBallInitialState,
+  stepTicks: number,
+  parameters: BallFlightParameters,
+): BattedBallInitialState => {
+  const dt = stepTicks / parameters.ticksPerSecond;
+
+  const k1Position = state.velocity;
+  const k1Velocity = calculateFreeFlightAcceleration(
+    state.velocity,
+    state.spin,
+    parameters,
+  );
+
+  const k2VelocityInput = add(
+    state.velocity,
+    scale(k1Velocity, dt / 2),
+  );
+  const k2Position = k2VelocityInput;
+  const k2Velocity = calculateFreeFlightAcceleration(
+    k2VelocityInput,
+    state.spin,
+    parameters,
+  );
+
+  const k3VelocityInput = add(
+    state.velocity,
+    scale(k2Velocity, dt / 2),
+  );
+  const k3Position = k3VelocityInput;
+  const k3Velocity = calculateFreeFlightAcceleration(
+    k3VelocityInput,
+    state.spin,
+    parameters,
+  );
+
+  const k4VelocityInput = add(
+    state.velocity,
+    scale(k3Velocity, dt),
+  );
+  const k4Position = k4VelocityInput;
+  const k4Velocity = calculateFreeFlightAcceleration(
+    k4VelocityInput,
+    state.spin,
+    parameters,
+  );
+
+  return {
+    tick: state.tick + stepTicks,
+    position: add(
+      state.position,
+      scale(
+        weightedSum(
+          k1Position,
+          k2Position,
+          k3Position,
+          k4Position,
+        ),
+        dt / 6,
+      ),
+    ),
+    velocity: add(
+      state.velocity,
+      scale(
+        weightedSum(
+          k1Velocity,
+          k2Velocity,
+          k3Velocity,
+          k4Velocity,
+        ),
+        dt / 6,
+      ),
+    ),
+    spin: state.spin,
+  };
 };
 
 const advanceFreeFlight = (
@@ -63,6 +209,17 @@ const advanceFreeFlight = (
   stepTicks: number,
   parameters: BallFlightParameters,
 ): BattedBallInitialState => {
+  if (
+    parameters.aerodynamics !== null
+    && parameters.aerodynamics !== undefined
+  ) {
+    return advanceAerodynamicFreeFlight(
+      state,
+      stepTicks,
+      parameters,
+    );
+  }
+
   const dt = stepTicks / parameters.ticksPerSecond;
   return {
     tick: state.tick + stepTicks,
@@ -108,6 +265,18 @@ export const findGroundContactTick = (
     if (tick === state.tick) {
       return false;
     }
+
+    if (
+      parameters.aerodynamics !== null
+      && parameters.aerodynamics !== undefined
+    ) {
+      return advanceFreeFlight(
+        state,
+        tick - state.tick,
+        parameters,
+      ).position.y <= parameters.ballRadius;
+    }
+
     const dt = (tick - state.tick) / parameters.ticksPerSecond;
     const y =
       state.position.y +
