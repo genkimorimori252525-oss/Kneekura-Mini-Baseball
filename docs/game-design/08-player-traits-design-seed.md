@@ -1948,3 +1948,14 @@ NOT
 
 Team Mood design (APPROVED):
 - `docs/game-design/37-team-mood-architecture.md`
+
+
+### 0.7 Team Mood Rarity Boundary
+
+Team Moodはrare-impact layer。
+
+通常の人間関係・普通のClubhouse fluctuationはMatchへ意味ある影響を与えない。
+
+重大なpositive / negative stateのみGameplayへ接続し、Season内の勝敗説明ではTeam Traitを主役とする。
+
+Team MoodはTeam Traitを単独生成できない。独立したBaseball Evidenceを必要とする。
