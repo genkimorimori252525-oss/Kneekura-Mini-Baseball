@@ -861,3 +861,7 @@ stable internal family id
 
 Team traits / player relationship design candidate (USER REVIEW REQUIRED):
 - `docs/game-design/34-team-traits-and-relationship-network-DRAFT.md`
+
+
+Team Trait Catalog (USER REVIEW REQUIRED):
+- `docs/game-design/35-team-trait-catalog-DRAFT.md`
