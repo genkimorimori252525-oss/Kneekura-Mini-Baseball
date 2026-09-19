@@ -16,6 +16,7 @@ Mini Baseball は Natural Baseball の簡易ルール版ではなく、将来の
 - [心理・性格・感情マーク設計](docs/game-design/05-psychology-emotion.md)
 - [将来システム設計メモ](docs/game-design/06-future-systems.md)
 - [Drone-Art・細密グリッド表示の確定デザイン要件](docs/game-design/07-drone-art-presentation.md)
+- [ChatGPT Work向け Drone-Art Broadcast Camera 引き継ぎ](docs/presentation/2026-09-20-work-handoff-drone-art-broadcast-camera.md)
 
 ## AI / デザイン作業境界
 

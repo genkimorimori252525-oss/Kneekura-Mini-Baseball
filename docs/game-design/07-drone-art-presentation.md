@@ -3,6 +3,8 @@
 更新日: 2026-09-20
 状態: **Workへ引き渡す確定Presentationデザイン要件。P8のrenderer-neutral基盤と併用する。**
 
+Work向けの上位説明・意図は `docs/presentation/2026-09-20-work-handoff-drone-art-broadcast-camera.md` を参照する。本書は具体的な表示契約、handoff文書は「正史世界を意図的に粗いカメラで中継する」という製品/デザイン思想を担当する。
+
 > ## 2026-09-20 確認
 >
 > 最新のユーザー決定により、**ASCII表現は廃止**する一方、次の3点はMini Baseballの確定デザイン要件として維持する。

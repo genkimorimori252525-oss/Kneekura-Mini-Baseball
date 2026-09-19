@@ -61,6 +61,12 @@ When documents conflict, use this order:
 
 `docs/game-design/07-drone-art-presentation.md` is the current detailed source for the confirmed Drone-Art / 4px-grid / 55ms Presentation requirements, subject to the latest user instruction and approved Work handoff. Its Presentation rules must never be reinterpreted as Match Core physics or result authority.
 
+For Work-facing product intent and the camera metaphor, use:
+
+`docs/presentation/2026-09-20-work-handoff-drone-art-broadcast-camera.md`
+
+This handoff defines the approved interpretation: **a real canonical baseball world observed through an intentionally coarse Drone-Art broadcast camera**.
+
 ## 4. Implementation status is not the same as design status
 
 The repository currently has two important streams:
