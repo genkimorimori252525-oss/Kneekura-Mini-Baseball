@@ -43,4 +43,5 @@ UI/UX・ビジュアル・Presentationのデザイン方向は **ChatGPT Work担
 - Mini/Naturalの表示は正史World/Eventを読む **observer** とする。画面都合で選手・ボール・アウト/セーフ・得点を作り直さない。
 - **ASCII表現は現行方針ではない。** 一方、**Drone-Art、基準4px固定グリッド、標準55ms/表示コマは確定したPresentationデザイン要件**としてWorkへ引き渡す。これらをCoreの物理刻み・正史座標・結果判定へ逆流させない。
 - Batter POV / catcher-behind Pitcher POV / fair-ball後のfield-overheadというカメラ役割は保持するが、具体的な構図・色・密度・補間・演出・UIレイアウトはWorkのデザイン領域とする。
+- 監督モードの Batter POV / Pitcher POV では、打者の打撃姿勢における肩上端・ズボン上端・膝頭下端から規定通り解決した `StrikeZoneRegion` をストライクゾーンガイドとして投影する。選手・構えごとに縦寸法は変化し、固定画面矩形では代用しない。
 - ボールや選手の可視化はCanonical Worldの位置・速度・高さ・イベントから導出する。表示用の加工は正史へ逆流させない。
