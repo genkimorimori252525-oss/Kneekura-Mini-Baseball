@@ -1461,3 +1461,62 @@ Updated draft:
 
 Refinement commit:
 - `d0080e55c7613abfb50cb75bd6e569d2d3ebe422`
+
+
+---
+
+# 47. REFINEMENT — Star / Superstar Rarity
+
+2026-09-20 user clarified that even Star status should be difficult to earn, and Superstar should be extremely rare.
+
+Design rule:
+
+```text
+Star
+= rare competitive-center status
+
+Superstar
+= historically exceptional status
+```
+
+No hard quotas:
+
+```text
+one Star per club
+one Superstar per league
+top-N auto assignment
+```
+
+are prohibited.
+
+Instead strict evidence gates create rarity.
+
+Star Gate requires:
+- high league-relative competitive prominence
+- sustained high-level performance
+- central competitive role
+- meaningful opponent attention
+- broad league awareness
+- persistence
+
+Superstar Gate requires Star-level foundation plus exceptional evidence such as:
+- historic competitive dominance OR exceptional iconic salience
+- sustained elite relevance
+- broad / cross-audience recognition
+- major-stage evidence
+- historical persistence
+
+Important:
+- several years as a Star does not automatically create Superstar
+- some eras may have no active Superstar
+- rare eras may contain multiple overlapping Superstars
+- most strong regular players remain non-Star
+- Superstar rarity is calibrated through multi-season soak, not hard caps
+- Star is mainly league-relative; Superstar requires broader historical / cross-league significance
+- current Star/Superstar status can fade while Legacy status persists
+
+Updated draft:
+- `docs/game-design/51-star-superstar-big-stage-architecture-DRAFT.md`
+
+Refinement commit:
+- `5e9ad9b8d25709a42eac307b9050fba0d7bc07bd`
