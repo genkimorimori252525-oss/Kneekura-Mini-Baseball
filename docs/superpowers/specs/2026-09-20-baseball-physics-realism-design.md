@@ -490,7 +490,93 @@ name attached to a physical pitch cluster, but it must never rewrite the
 underlying `pitchSkillId`, release history, movement history, or canonical
 trajectory.
 
-### 3.4.8 Still missing from pitching
+### 3.4.8 Pitcher-specific learned pitch skills
+
+Pitch identity now has an upstream player-owned physical state.
+
+A learned pitch is represented by a stable `pitchSkillId`, not by a pitch
+type name. Its physical state contains:
+
+- a learned release template:
+  - release-point offset;
+  - pre-release linear velocity;
+  - pre-release angular velocity;
+  - ball/seam material orientation;
+  - finger contact directions;
+  - finger impulses;
+- repeatability expressed as physical standard deviations for those same
+  release quantities.
+
+The per-pitch chain is now:
+
+```text
+pitcherId
++ pitchSkillId
++ learned release template
++ physical repeatability
++ deterministic pitch RNG stream
+        ↓
+one sampled release
+        ↓
+finger / impulse mechanics
+        ↓
+aerodynamic flight
+        ↓
+movement signature
+        ↓
+multiple observations
+        ↓
+arsenal aggregate
+        ↓
+human-readable registered pitch name
+```
+
+Implemented modules:
+
+- `PitchSkillProfile`
+  - owns the stable player-specific `pitchSkillId`;
+  - stores the learned release template and repeatability in physical units;
+  - samples per-pitch deviations from a stable deterministic
+    `SeedRoot(...).streamRng(..., 'pitch', ...)` stream;
+  - normal variation therefore changes release point, velocity, spin,
+    orientation, finger contact and impulse before flight, rather than adding
+    random movement after the trajectory exists;
+- `PitchSkillFlightSample`
+  - connects one sampled skill release through release mechanics and
+    aerodynamic flight into one measured `PitchMovementSignature`;
+- `PitchSkillArsenalAdapter`
+  - requires repeated observations with the same `pitcherId` and
+    `pitchSkillId`;
+  - only then passes their physical movement signatures into the downstream
+    arsenal/name registry;
+- `PitchSkillDevelopment`
+  - lets one stable `pitchSkillId` move toward a new physical release target;
+  - repeatability can improve by reducing physical release variance;
+  - no pitch name participates in the development transition.
+
+This supports the intended distinction:
+
+```text
+two pitchers
+  both eventually registered as "slider"
+        ↓
+different release templates
+different spin / velocity
+different movement means
+different repeatability
+        ↓
+different actual sliders
+```
+
+Development remains deliberately uncalibrated at the career/training level.
+`adaptPitchSkillTowardPhysicalTarget(..., adaptationRate)` is only a
+physical interpolation primitive. It does **not** decide how many training
+sessions produce a given adaptation rate, how age/fatigue changes learning,
+or whether a pitcher can successfully acquire a new release pattern. Those
+rules require separate empirical/game-design calibration and must not be
+smuggled into the physics layer.
+
+### 3.4.9 Still missing from pitching
 
 - experimentally calibrated speed/spin-dependent drag over the pitch-speed range;
 - seam-orientation-dependent lift/drag;
