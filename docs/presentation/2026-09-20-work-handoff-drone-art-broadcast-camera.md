@@ -1,5 +1,8 @@
 # ChatGPT Work Handoff — Drone-Art Broadcast Camera
 
+> **Work更新（改訂11）:** 白球＋赤い縫い目、重なった球をストライクゾーンより優先する。[観測姿勢の受け取り口と未接続事項](2026-09-21-observed-baseball-surface-contract.md)を確認する。Coreの物理・結果・Canonical型は変更していない。
+
+
 **Date:** 2026-09-20  
 **Status:** **APPROVED PRESENTATION DESIGN BRIEF**  
 **Owner for visual/UI realization:** ChatGPT Work  
