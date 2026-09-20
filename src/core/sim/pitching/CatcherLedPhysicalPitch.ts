@@ -8,6 +8,7 @@ import type {
   AerodynamicPitchTrajectoryParameters,
 } from './AerodynamicPitchTrajectory';
 import {
+  createCatcherLeadCount,
   createCatcherPitchCall,
   type CatcherLeadProfile,
   type CatcherPitchCall,
@@ -90,12 +91,10 @@ export const simulateCatcherLedPhysicalPitch = (
   const call = createCatcherPitchCall({
     session: input.managerSession,
     profile: input.catcherLead,
-    count: {
-      balls:
-        input.timeline.status.count.balls,
-      strikes:
-        input.timeline.status.count.strikes,
-    },
+    count: createCatcherLeadCount(
+      input.timeline.status.count.balls,
+      input.timeline.status.count.strikes,
+    ),
     pitchOrdinal:
       input.sampling.pitchOrdinal,
     availablePitchSkillIds,
