@@ -1,5 +1,7 @@
 # ChatGPT Work Handoff — Drone-Art Broadcast Camera
 
+> **Work更新（改訂13）:** 配球履歴は球種・方向別の記号をゾーン上に残す配球図。採用B1・カメラ・白球・スコア等を[試合形式HTML](2026-09-21-integrated-match-preview.md)へ統合。固定の架空観測入力であり、実Core接続は未完了。
+
 > **Work更新（改訂12）:** ストライクゾーンは黄色。確定した投球の番号・位置・球速・球種・結果を表示し、次の打席開始時にリセットする。[配球履歴の入力契約と試作状態](2026-09-21-pitch-history-presentation-contract.md)を確認する。
 
 > **Work更新（改訂11）:** 白球＋赤い縫い目、重なった球をストライクゾーンより優先する。[観測姿勢の受け取り口と未接続事項](2026-09-21-observed-baseball-surface-contract.md)を確認する。Coreの物理・結果・Canonical型は変更していない。
