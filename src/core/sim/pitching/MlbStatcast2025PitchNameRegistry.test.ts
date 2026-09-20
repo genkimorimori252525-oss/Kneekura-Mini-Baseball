@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
+  MLB_STATCAST_2025_GROUPED_PITCH_COUNTS,
   MLB_STATCAST_2025_PITCH_NAME_REGISTRY,
   MLB_STATCAST_2025_PITCH_NAME_REGISTRY_VERSION,
+  MLB_STATCAST_2025_SEED_MIN_PITCHES,
   statcastCatcherXToArmSidePositiveInches,
 } from './MlbStatcast2025PitchNameRegistry';
 
@@ -115,6 +117,21 @@ describe('MLB Statcast 2025 pitch-name registry', () => {
         knuckleCurve!.inducedHorizontalM,
         10,
       );
+  });
+
+  it('excludes the low-sample MLB forkball from the first seed rather than overclaiming calibration quality', () => {
+    expect(
+      MLB_STATCAST_2025_GROUPED_PITCH_COUNTS.FO,
+    ).toBeLessThan(
+      MLB_STATCAST_2025_SEED_MIN_PITCHES,
+    );
+    expect(
+      MLB_STATCAST_2025_PITCH_NAME_REGISTRY
+        .archetypes
+        .some((pitch) =>
+          pitch.pitchNameId === 'FO',
+        ),
+    ).toBe(false);
   });
 
   it('contains only the common, sufficiently represented pitch labels selected for the seed registry', () => {
