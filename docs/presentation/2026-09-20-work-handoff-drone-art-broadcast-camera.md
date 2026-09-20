@@ -1,5 +1,7 @@
 # ChatGPT Work Handoff — Drone-Art Broadcast Camera
 
+> **Work更新（改訂12）:** ストライクゾーンは黄色。確定した投球の番号・位置・球速・球種・結果を表示し、次の打席開始時にリセットする。[配球履歴の入力契約と試作状態](2026-09-21-pitch-history-presentation-contract.md)を確認する。
+
 > **Work更新（改訂11）:** 白球＋赤い縫い目、重なった球をストライクゾーンより優先する。[観測姿勢の受け取り口と未接続事項](2026-09-21-observed-baseball-surface-contract.md)を確認する。Coreの物理・結果・Canonical型は変更していない。
 
 
