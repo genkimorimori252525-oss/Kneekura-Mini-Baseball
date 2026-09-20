@@ -200,3 +200,4 @@ export * from './sim/pitching/CatcherLeadCommandAdapter';
 export * from './sim/pitching/CatcherLedPlateAppearanceSequence';
 export * from './sim/pitching/PitchSkillCommandResponse';
 export * from './sim/pitching/CatcherCalledPitchSkillFlight';
+export * from './sim/pitching/CatcherLedPhysicalPitch';
