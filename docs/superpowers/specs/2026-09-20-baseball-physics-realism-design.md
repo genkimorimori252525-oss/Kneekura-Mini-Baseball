@@ -436,7 +436,61 @@ The name is therefore allowed to change when the player's physical pitch evolves
 
 For player-specific individuality, the arsenal profile also keeps dispersion (variation) rather than only the mean. Two pitchers may both have a registered “slider” while having materially different mean movement, velocity, spin, active-spin efficiency, and repeatability.
 
-### 3.4.7 Still missing from pitching
+### 3.4.7 2025 MLB Statcast seed registry
+
+A first real-data pitch-name calibration registry now exists as
+`MlbStatcast2025PitchNameRegistry`.
+
+The source is the 2025 Baseball Savant / Statcast-derived grouped movement
+artifact in `Jakeyv22/mlb-season-pitching-dashboard`, cross-checked against
+the official Baseball Savant CSV definitions for `pfx_x` and `pfx_z`.
+
+The hand-split source rows are normalized from catcher-view horizontal movement
+into one pitcher-relative frame:
+
+```text
+positive horizontal = arm side
+negative horizontal = glove side
+positive vertical   = induced rise / less drop than zero-spin reference
+negative vertical   = induced drop
+```
+
+Both LHP and RHP source rows are kept as separate calibration samples before
+the centroid is formed. This prevents the archetype from being biased merely
+because one throwing hand supplied more MLB pitches.
+
+The first seed includes only pitch labels with at least 500 pitches in the
+published grouped 2025 artifact:
+
+- Four-Seam Fastball (FF)
+- Sinker (SI)
+- Cutter (FC)
+- Slider (SL)
+- Sweeper (ST)
+- Curveball (CU)
+- Knuckle Curve (KC)
+- Changeup (CH)
+- Split-Finger (FS)
+- Slurve (SV)
+
+Forkball (FO) is **not** included yet. The MLB grouped artifact contains only
+139 forkballs, which is too thin a base to pretend that it is a strong
+universal forkball archetype. Because this project targets Japanese baseball
+as well, an NPB/Hawkeye forkball calibration should be added separately when
+a reliable dataset is available.
+
+This is an intentionally versioned registry:
+
+```text
+mlb-statcast-2025-arm-side-v1
+```
+
+Recalibrating or replacing the registry may change the human-readable pitch
+name attached to a physical pitch cluster, but it must never rewrite the
+underlying `pitchSkillId`, release history, movement history, or canonical
+trajectory.
+
+### 3.4.8 Still missing from pitching
 
 - experimentally calibrated speed/spin-dependent drag over the pitch-speed range;
 - seam-orientation-dependent lift/drag;
