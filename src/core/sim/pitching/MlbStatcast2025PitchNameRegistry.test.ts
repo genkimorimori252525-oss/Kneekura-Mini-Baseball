@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { registerNearestPitchName } from './PitchNameRegistry';
 import {
   MLB_STATCAST_2025_GROUPED_PITCH_COUNTS,
   MLB_STATCAST_2025_PITCH_NAME_REGISTRY,
@@ -132,6 +133,52 @@ describe('MLB Statcast 2025 pitch-name registry', () => {
           pitch.pitchNameId === 'FO',
         ),
     ).toBe(false);
+  });
+
+  it('distinguishes a 2025-style slider from a sweeper by numeric glove-side movement', () => {
+    const slider = registerNearestPitchName(
+      {
+        inducedHorizontalM: -4.8 * 0.0254,
+        inducedVerticalM: 1.8 * 0.0254,
+        directionFamily: 'x_negative',
+      },
+      MLB_STATCAST_2025_PITCH_NAME_REGISTRY,
+    );
+    const sweeper = registerNearestPitchName(
+      {
+        inducedHorizontalM: -13.8 * 0.0254,
+        inducedVerticalM: 1.1 * 0.0254,
+        directionFamily: 'x_negative',
+      },
+      MLB_STATCAST_2025_PITCH_NAME_REGISTRY,
+    );
+
+    expect(slider.pitchNameId).toBe('SL');
+    expect(slider.displayName).toBe('スライダー');
+    expect(sweeper.pitchNameId).toBe('ST');
+    expect(sweeper.displayName).toBe('スイーパー');
+  });
+
+  it('distinguishes curve and knuckle-curve inside the same down/glove-side family', () => {
+    const curve = registerNearestPitchName(
+      {
+        inducedHorizontalM: -9.4 * 0.0254,
+        inducedVerticalM: -9.5 * 0.0254,
+        directionFamily: 'down_x_negative',
+      },
+      MLB_STATCAST_2025_PITCH_NAME_REGISTRY,
+    );
+    const knuckleCurve = registerNearestPitchName(
+      {
+        inducedHorizontalM: -6.3 * 0.0254,
+        inducedVerticalM: -9.0 * 0.0254,
+        directionFamily: 'down_x_negative',
+      },
+      MLB_STATCAST_2025_PITCH_NAME_REGISTRY,
+    );
+
+    expect(curve.pitchNameId).toBe('CU');
+    expect(knuckleCurve.pitchNameId).toBe('KC');
   });
 
   it('contains only the common, sufficiently represented pitch labels selected for the seed registry', () => {
