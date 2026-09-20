@@ -13,6 +13,34 @@ export type CatcherLeadCount = Readonly<{
   strikes: 0 | 1 | 2;
 }>;
 
+export const createCatcherLeadCount = (
+  balls: number,
+  strikes: number,
+): CatcherLeadCount => {
+  if (
+    !Number.isInteger(balls)
+    || balls < 0
+    || balls > 3
+  ) {
+    throw new Error(
+      'catcher lead balls must be an integer within [0, 3]',
+    );
+  }
+  if (
+    !Number.isInteger(strikes)
+    || strikes < 0
+    || strikes > 2
+  ) {
+    throw new Error(
+      'catcher lead strikes must be an integer within [0, 2]',
+    );
+  }
+  return {
+    balls: balls as 0 | 1 | 2 | 3,
+    strikes: strikes as 0 | 1 | 2,
+  };
+};
+
 export type CatcherLeadCountAdjustment = Readonly<{
   balls?: CatcherLeadCount['balls'];
   strikes?: CatcherLeadCount['strikes'];
@@ -306,16 +334,18 @@ const multiply = <
   multipliers: Partial<Record<T, number>>,
 ): void => {
   for (
-    const [key, multiplier]
-    of Object.entries(multipliers)
+    const key
+    of Object.keys(multipliers) as T[]
   ) {
+    const multiplier =
+      multipliers[key];
     if (
-      multiplier === undefined
-      || weights[key as T] === undefined
+      typeof multiplier !== 'number'
+      || weights[key] === undefined
     ) {
       continue;
     }
-    weights[key as T] *= multiplier;
+    weights[key] *= multiplier;
   }
 };
 
