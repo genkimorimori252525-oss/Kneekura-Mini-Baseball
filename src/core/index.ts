@@ -195,3 +195,6 @@ export * from './sim/pitching/PitchSkillProfile';
 export * from './sim/pitching/PitchSkillFlightSample';
 export * from './sim/pitching/PitchSkillArsenalAdapter';
 export * from './sim/pitching/PitchSkillDevelopment';
+export * from './sim/pitching/CatcherLead';
+export * from './sim/pitching/CatcherLeadCommandAdapter';
+export * from './sim/pitching/CatcherLedPlateAppearanceSequence';
