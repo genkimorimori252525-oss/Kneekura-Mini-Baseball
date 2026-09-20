@@ -190,3 +190,8 @@ export * from './sim/pitching/PitchNameRegistry';
 export * from './sim/pitching/PitchArsenalProfile';
 export * from './sim/pitching/MlbStatcast2025PitchNameRegistry';
 export * from './world/rivalry/RivalryLifecycle';
+
+export * from './sim/pitching/PitchSkillProfile';
+export * from './sim/pitching/PitchSkillFlightSample';
+export * from './sim/pitching/PitchSkillArsenalAdapter';
+export * from './sim/pitching/PitchSkillDevelopment';
