@@ -22,9 +22,14 @@ export type PitchNameArchetype = Readonly<{
   calibrationSamples: number;
 }>;
 
+export type PitchNameHorizontalFrame =
+  | 'core_world_x'
+  | 'pitcher_arm_side_positive';
+
 export type PitchNameRegistry = Readonly<{
   version: string;
   neutralThresholdM: number;
+  horizontalFrame: PitchNameHorizontalFrame;
   archetypes: readonly PitchNameArchetype[];
 }>;
 
@@ -32,6 +37,7 @@ export type PitchNameRegistration = Readonly<{
   pitchNameId: string;
   displayName: string;
   registryVersion: string;
+  horizontalFrame: PitchNameHorizontalFrame;
   directionFamily: PitchMovementDirectionFamily;
   movementDistanceM: number;
   secondBestDistanceM: number | null;
@@ -67,6 +73,8 @@ export const calibratePitchNameRegistry = (
   version: string,
   samples: readonly PitchNameCalibrationSample[],
   neutralThresholdM: number = 0.01,
+  horizontalFrame: PitchNameHorizontalFrame =
+    'core_world_x',
 ): PitchNameRegistry => {
   if (version.length === 0) {
     throw new Error(
@@ -172,6 +180,7 @@ export const calibratePitchNameRegistry = (
   return {
     version,
     neutralThresholdM,
+    horizontalFrame,
     archetypes,
   };
 };
@@ -245,6 +254,7 @@ export const registerNearestPitchName = (
     displayName:
       best.archetype.displayName,
     registryVersion: registry.version,
+    horizontalFrame: registry.horizontalFrame,
     directionFamily:
       signature.directionFamily,
     movementDistanceM: best.distance,
