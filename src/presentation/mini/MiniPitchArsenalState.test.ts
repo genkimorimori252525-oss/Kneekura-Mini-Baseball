@@ -68,7 +68,7 @@ describe('MiniPitchArsenalState', () => {
 
     expect(state.pitches[0]).toMatchObject({
       pitchName: 'スライダー',
-      direction: 'down_right',
+      direction: 'right',
       meanHorizontalBreakCm: 25,
       meanVerticalBreakCm: -8,
       meanReleaseSpeedKph: 145.8,
@@ -107,10 +107,10 @@ describe('MiniPitchArsenalState', () => {
 
     expect(
       rightPositive.pitches[0]!.direction,
-    ).toBe('down_right');
+    ).toBe('right');
     expect(
       leftPositive.pitches[0]!.direction,
-    ).toBe('down_left');
+    ).toBe('left');
     expect(
       leftPositive.pitches[0]!
         .meanHorizontalBreakCm,
