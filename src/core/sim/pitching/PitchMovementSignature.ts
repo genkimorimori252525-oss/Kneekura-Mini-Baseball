@@ -167,17 +167,21 @@ export const displayPitchMovementDirection = (
     case 'x_negative':
       return negativeSide;
     case 'up_x_positive':
-      return `up_${positiveSide}`
-        as PitchMovementDirectionDisplay;
+      return positiveIsRight
+        ? 'up_right'
+        : 'up_left';
     case 'up_x_negative':
-      return `up_${negativeSide}`
-        as PitchMovementDirectionDisplay;
+      return positiveIsRight
+        ? 'up_left'
+        : 'up_right';
     case 'down_x_positive':
-      return `down_${positiveSide}`
-        as PitchMovementDirectionDisplay;
+      return positiveIsRight
+        ? 'down_right'
+        : 'down_left';
     case 'down_x_negative':
-      return `down_${negativeSide}`
-        as PitchMovementDirectionDisplay;
+      return positiveIsRight
+        ? 'down_left'
+        : 'down_right';
     default:
       throw new Error(
         'unreachable pitch movement display family',
