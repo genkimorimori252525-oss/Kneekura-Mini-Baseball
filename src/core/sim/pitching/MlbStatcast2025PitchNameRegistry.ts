@@ -35,6 +35,23 @@ export const MLB_STATCAST_2025_SOURCE = Object.freeze({
 
 const INCHES_TO_METERS = 0.0254;
 
+export const MLB_STATCAST_2025_GROUPED_PITCH_COUNTS =
+  Object.freeze({
+    CH: 15175,
+    CU: 9233,
+    FC: 11379,
+    FF: 46161,
+    FO: 139,
+    FS: 5530,
+    KC: 2070,
+    SI: 22369,
+    SL: 21746,
+    ST: 10727,
+    SV: 560,
+  } as const);
+
+export const MLB_STATCAST_2025_SEED_MIN_PITCHES = 500 as const;
+
 const COMMON_PITCH_TYPES = Object.freeze([
   'FF',
   'SI',
@@ -47,6 +64,11 @@ const COMMON_PITCH_TYPES = Object.freeze([
   'FS',
   'SV',
 ] as const);
+
+// FO (Forkball) is retained in the source counts but excluded from this
+// first MLB seed registry because only 139 such pitches appear in the
+// grouped 2025 artifact. NPB-specific calibration should be added rather
+// than pretending this MLB sample is a strong forkball reference.
 
 type CommonPitchType =
   (typeof COMMON_PITCH_TYPES)[number];
