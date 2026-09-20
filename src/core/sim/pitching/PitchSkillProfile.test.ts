@@ -217,12 +217,49 @@ describe('pitch skill profile', () => {
       skill(0).releaseTemplate
         .preReleaseSpinRadPerSecond,
     );
-    expect(
-      sampled.release.fingerImpulses,
-    ).toEqual(
+    const nominal =
       skill(0).releaseTemplate
-        .fingerImpulses,
+        .fingerImpulses;
+
+    expect(
+      sampled.release
+        .fingerImpulses
+        .map((finger) => ({
+          fingerId: finger.fingerId,
+          impulseWorldNs:
+            finger.impulseWorldNs,
+        })),
+    ).toEqual(
+      nominal.map((finger) => ({
+        fingerId: finger.fingerId,
+        impulseWorldNs:
+          finger.impulseWorldNs,
+      })),
     );
+
+    for (
+      let index = 0;
+      index < nominal.length;
+      index += 1
+    ) {
+      const expected =
+        nominal[index]!
+          .contactDirectionBody;
+      const length = Math.hypot(
+        expected.x,
+        expected.y,
+        expected.z,
+      );
+      expect(
+        sampled.release
+          .fingerImpulses[index]!
+          .contactDirectionBody,
+      ).toEqual({
+        x: expected.x / length,
+        y: expected.y / length,
+        z: expected.z / length,
+      });
+    }
   });
 
   it('rejects repeatability entries for fingers that are not part of the learned release', () => {
