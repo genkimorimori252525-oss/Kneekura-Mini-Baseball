@@ -10,6 +10,7 @@ import type {
   PlateAppearanceCommandSession,
 } from '../plateAppearance/PlateAppearanceCommandSession';
 import {
+  createCatcherLeadCount,
   createCatcherPitchCall,
   type CatcherLeadProfile,
   type CatcherPitchCall,
@@ -78,12 +79,10 @@ export const createCatcherLedCommandedPitch = (
   const call = createCatcherPitchCall({
     session: input.managerSession,
     profile: input.catcherLead,
-    count: {
-      balls:
-        input.timeline.status.count.balls,
-      strikes:
-        input.timeline.status.count.strikes,
-    },
+    count: createCatcherLeadCount(
+      input.timeline.status.count.balls,
+      input.timeline.status.count.strikes,
+    ),
     pitchOrdinal:
       input.environment.pitchOrdinal,
     availablePitchSkillIds:
