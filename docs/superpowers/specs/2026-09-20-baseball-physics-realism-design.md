@@ -652,7 +652,20 @@ hard-coded slider trajectory
 
 The catcher's repertoire choices are made by `pitchSkillId`. Human-readable registered pitch names remain presentation/scouting metadata downstream of physical pitch behavior.
 
-The current command adapter still ends in the legacy commanded-pitch trajectory for compatibility. The next physical integration step is to convert the catcher's coarse call into a pitcher-specific release adjustment for the selected `PitchSkillProfile`, then feed that sampled release into the aerodynamic pitch path. The catcher should choose *what to try*; the pitcher's motor skill and repeatability should determine what actually happens.
+The compatibility command path still exists, but the catcher call now also has a fully physical execution route:
+
+- `PitchSkillCommandResponse`
+  - maps the catcher's coarse horizontal/vertical/aggression call into pitcher-specific **physical release-space deltas**;
+  - adjusts release point, release velocity, release spin, orientation and/or finger contact/impulse;
+  - never receives an exact plate coordinate and never changes a human-readable pitch name;
+  - preserves the pitch's stable `pitchSkillId` and its repeatability model;
+- `CatcherCalledPitchSkillFlight`
+  - applies the catcher call to the selected `PitchSkillProfile`;
+  - then applies the pitcher's deterministic execution variance;
+  - then runs finger/release mechanics and aerodynamic flight;
+  - therefore two identical catcher calls can still be executed differently by two pitchers because their learned physical skills differ.
+
+The catcher chooses *what to try*; the pitcher's learned motor plan and repeatability determine what actually happens.
 
 Pitcher shake-off / disagreement is also intentionally not hidden inside the catcher model. If added, it should be a separate battery interaction layer so that catcher lead quality and pitcher willingness remain distinct causes.
 
