@@ -60,7 +60,7 @@ describe('pitch name registry', () => {
     expect(slider).toMatchObject({
       displayName: 'スライダー',
       calibrationSamples: 2,
-      directionFamily: 'down_x_negative',
+      directionFamily: 'x_negative',
     });
     expect(slider!.inducedHorizontalM)
       .toBeCloseTo(-0.29, 12);
@@ -75,7 +75,7 @@ describe('pitch name registry', () => {
           inducedHorizontalM: -0.27,
           inducedVerticalM: -0.08,
           directionFamily:
-            'down_x_negative',
+            'x_negative',
         },
         registry,
       );
