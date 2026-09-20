@@ -189,3 +189,4 @@ export * from './sim/pitching/PitchMovementSignature';
 export * from './sim/pitching/PitchNameRegistry';
 export * from './sim/pitching/PitchArsenalProfile';
 export * from './sim/pitching/MlbStatcast2025PitchNameRegistry';
+export * from './world/rivalry/RivalryLifecycle';

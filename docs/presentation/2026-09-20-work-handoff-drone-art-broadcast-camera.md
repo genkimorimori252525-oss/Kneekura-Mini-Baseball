@@ -1,5 +1,12 @@
 # ChatGPT Work Handoff — Drone-Art Broadcast Camera
 
+> **Work更新（改訂13）:** 配球履歴は球種・方向別の記号をゾーン上に残す配球図。採用B1・カメラ・白球・スコア等を[試合形式HTML](2026-09-21-integrated-match-preview.md)へ統合。固定の架空観測入力であり、実Core接続は未完了。
+
+> **Work更新（改訂12）:** ストライクゾーンは黄色。確定した投球の番号・位置・球速・球種・結果を表示し、次の打席開始時にリセットする。[配球履歴の入力契約と試作状態](2026-09-21-pitch-history-presentation-contract.md)を確認する。
+
+> **Work更新（改訂11）:** 白球＋赤い縫い目、重なった球をストライクゾーンより優先する。[観測姿勢の受け取り口と未接続事項](2026-09-21-observed-baseball-surface-contract.md)を確認する。Coreの物理・結果・Canonical型は変更していない。
+
+
 **Date:** 2026-09-20  
 **Status:** **APPROVED PRESENTATION DESIGN BRIEF**  
 **Owner for visual/UI realization:** ChatGPT Work  
@@ -341,3 +348,10 @@ A Work design is aligned when the answer to all of these is yes:
 6. Would the same underlying play still make sense if a future Natural 3D renderer observed it instead?
 
 If yes, the design is preserving the intended Mini Baseball presentation architecture.
+
+
+## 12. Work amendment — 2026-09-21
+
+Apply [Observed motion / B1 / name plates / field markings](2026-09-21-observed-motion-b1-field-markings-principles.md) for the user-directed concrete rendering design. B1 is a faceless body style; actual observed grip/tip positions drive the bat and hand placement. Six pitching and four batting base poses do not limit the number of observed motion samples. Names use perspective-scaled translucent black plates. Both batter boxes and regulation field markings are projected from shared geometry.
+
+The amendment records independent HTML prototype revision 8 and its known limits. It does not claim production Core integration, complete ballpark compliance, or authorization to implement Ballpark Builder.
