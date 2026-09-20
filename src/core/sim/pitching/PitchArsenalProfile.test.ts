@@ -6,6 +6,9 @@ import {
   calibratePitchNameRegistry,
 } from './PitchNameRegistry';
 import {
+  MLB_STATCAST_2025_PITCH_NAME_REGISTRY,
+} from './MlbStatcast2025PitchNameRegistry';
+import {
   buildPitchArsenalEntry,
   buildPitcherPitchArsenalProfile,
 } from './PitchArsenalProfile';
@@ -136,6 +139,44 @@ describe('pitch arsenal profile', () => {
       .toBe('slider');
     expect(entry.physical.meanInducedHorizontalM)
       .toBeCloseTo(-0.28, 12);
+  });
+
+  it('can mirror Core horizontal movement into an arm-side-positive naming registry without changing stored physics', () => {
+    const worldHorizontalM = 4.8 * 0.0254;
+    const entry = buildPitchArsenalEntry({
+      pitchSkillId: 'rhp-slider-world-frame',
+      registry:
+        MLB_STATCAST_2025_PITCH_NAME_REGISTRY,
+      namingHorizontalMultiplier: -1,
+      samples: [
+        {
+          inducedHorizontalM:
+            worldHorizontalM,
+          inducedVerticalM:
+            1.8 * 0.0254,
+          inducedMagnitudeM:
+            Math.hypot(
+              worldHorizontalM,
+              1.8 * 0.0254,
+            ),
+          directionFamily:
+            'x_positive',
+          releaseSpeedMps: 38,
+          plateSpeedMps: 35,
+          totalSpinRadPerSecond: 220,
+          activeSpinFractionAtRelease: 0.35,
+          activeSpinFractionAtPlate: 0.34,
+        },
+      ],
+    });
+
+    expect(
+      entry.physical.meanInducedHorizontalM,
+    ).toBeCloseTo(worldHorizontalM, 12);
+    expect(entry.registeredName.pitchNameId)
+      .toBe('SL');
+    expect(entry.registeredName.horizontalFrame)
+      .toBe('pitcher_arm_side_positive');
   });
 
   it('builds player data with stable internal pitch identity and readable registered names', () => {
