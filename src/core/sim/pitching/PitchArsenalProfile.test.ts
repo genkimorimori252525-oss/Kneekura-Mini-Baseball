@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import type {
-  PitchMovementSignature,
+import {
+  classifyPitchMovementDirection,
+  type PitchMovementSignature,
 } from './PitchMovementSignature';
 import {
   calibratePitchNameRegistry,
@@ -55,11 +56,10 @@ const sample = (
     vertical,
   ),
   directionFamily:
-    horizontal < -0.05
-      ? 'down_x_negative'
-      : vertical < 0
-        ? 'down'
-        : 'up',
+    classifyPitchMovementDirection(
+      horizontal,
+      vertical,
+    ),
   releaseSpeedMps: speed,
   plateSpeedMps: speed - 3,
   totalSpinRadPerSecond: 180,
@@ -82,7 +82,7 @@ describe('pitch arsenal profile', () => {
     expect(entry.pitchSkillId)
       .toBe('pitch-skill-17');
     expect(entry.physical.directionFamily)
-      .toBe('down_x_negative');
+      .toBe('x_negative');
     expect(entry.registeredName.displayName)
       .toBe('スライダー');
     expect(entry.physical.samples)
