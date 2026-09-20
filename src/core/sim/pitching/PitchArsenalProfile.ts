@@ -44,6 +44,12 @@ export type BuildPitchArsenalEntryInput = Readonly<{
   pitchSkillId: string;
   samples: readonly PitchMovementSignature[];
   registry: PitchNameRegistry;
+  /**
+   * Projects Core/world horizontal movement into the registry's naming frame.
+   * Use -1 when the player's arm-side-positive frame is mirrored relative to
+   * Core +X. Defaults to +1 for registries calibrated directly in Core X.
+   */
+  namingHorizontalMultiplier?: -1 | 1;
 }>;
 
 const mean = (
@@ -175,15 +181,27 @@ export const buildPitchArsenalEntry = (
       ),
   };
 
+  const namingHorizontalMultiplier =
+    input.namingHorizontalMultiplier ?? 1;
+  const namingHorizontalM =
+    physical.meanInducedHorizontalM
+    * namingHorizontalMultiplier;
+  const namingDirectionFamily =
+    classifyPitchMovementDirection(
+      namingHorizontalM,
+      physical.meanInducedVerticalM,
+      input.registry.neutralThresholdM,
+    );
+
   const registeredName =
     registerNearestPitchName(
       {
         inducedHorizontalM:
-          physical.meanInducedHorizontalM,
+          namingHorizontalM,
         inducedVerticalM:
           physical.meanInducedVerticalM,
         directionFamily:
-          physical.directionFamily,
+          namingDirectionFamily,
       },
       input.registry,
     );
