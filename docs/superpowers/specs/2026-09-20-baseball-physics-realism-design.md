@@ -576,7 +576,87 @@ or whether a pitcher can successfully acquire a new release pattern. Those
 rules require separate empirical/game-design calibration and must not be
 smuggled into the physics layer.
 
-### 3.4.9 Still missing from pitching
+### 3.4.9 Manager macro intent and catcher-led pitch calling
+
+Manager mode must not require the player to choose every pitch.
+
+The manager command remains a plate-appearance-level macro instruction:
+
+```text
+manager
+  - inside / middle / outside
+  - low / middle / high
+  - challenge / balanced / waste
+        ↓
+broad bias only
+```
+
+The catcher owns the pitch-by-pitch lead inside that boundary.
+
+Implemented modules:
+
+- `CatcherLead`
+  - selects one stable pitcher-owned `pitchSkillId`;
+  - selects one coarse horizontal/vertical target and aggression level;
+  - uses the current canonical count;
+  - uses deterministic battery-specific pitch RNG;
+  - supports catcher/pitcher learned pitch preferences;
+  - supports count-specific multipliers;
+  - supports sequence memory so a battery may avoid or intentionally repeat the previous pitch/location;
+  - treats the manager directive as a **weight multiplier**, never as an exact mandatory call;
+- `CatcherLeadCommandAdapter`
+  - reads the current count from the canonical plate-appearance timeline;
+  - turns the catcher's single-pitch call into a per-pitch command session;
+  - preserves the original manager session unchanged;
+  - carries the selected `pitchSkillId` beside the existing commanded pitch input;
+- `CatcherLedPlateAppearanceSequence`
+  - keeps one manager macro command for the plate appearance;
+  - lets the catcher generate each successive call from the evolving count;
+  - records those pitches through the existing canonical rules timeline;
+  - carries previous-call memory between pitches.
+
+The intended dependency is:
+
+```text
+manager macro intent
+        ↓ bias
+catcher + pitcher battery plan
++ current count
++ sequence memory
++ available pitchSkillIds
+        ↓
+catcher call
+  pitchSkillId
+  coarse target
+        ↓
+pitcher execution / physical release
+        ↓
+actual trajectory
+```
+
+Never:
+
+```text
+manager clicks every pitch
+        ↓
+exact pitch + exact coordinate
+```
+
+Nor:
+
+```text
+catcher says "slider"
+        ↓
+hard-coded slider trajectory
+```
+
+The catcher's repertoire choices are made by `pitchSkillId`. Human-readable registered pitch names remain presentation/scouting metadata downstream of physical pitch behavior.
+
+The current command adapter still ends in the legacy commanded-pitch trajectory for compatibility. The next physical integration step is to convert the catcher's coarse call into a pitcher-specific release adjustment for the selected `PitchSkillProfile`, then feed that sampled release into the aerodynamic pitch path. The catcher should choose *what to try*; the pitcher's motor skill and repeatability should determine what actually happens.
+
+Pitcher shake-off / disagreement is also intentionally not hidden inside the catcher model. If added, it should be a separate battery interaction layer so that catcher lead quality and pitcher willingness remain distinct causes.
+
+### 3.4.10 Still missing from pitching
 
 - experimentally calibrated speed/spin-dependent drag over the pitch-speed range;
 - seam-orientation-dependent lift/drag;
