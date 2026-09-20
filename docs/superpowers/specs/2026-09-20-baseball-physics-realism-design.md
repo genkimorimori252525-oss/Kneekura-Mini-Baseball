@@ -663,7 +663,13 @@ The compatibility command path still exists, but the catcher call now also has a
   - applies the catcher call to the selected `PitchSkillProfile`;
   - then applies the pitcher's deterministic execution variance;
   - then runs finger/release mechanics and aerodynamic flight;
-  - therefore two identical catcher calls can still be executed differently by two pitchers because their learned physical skills differ.
+  - therefore two identical catcher calls can still be executed differently by two pitchers because their learned physical skills differ;
+- `CatcherLedPhysicalPitch`
+  - reads the current canonical count;
+  - lets the catcher choose from the pitcher's actual available `pitchSkillId` repertoire;
+  - resolves the matching pitcher-specific command-response profile;
+  - executes the selected skill through the full physical release/flight chain;
+  - provides the direct manager macro -> catcher call -> pitcher skill -> physical pitch bridge.
 
 The catcher chooses *what to try*; the pitcher's learned motor plan and repeatability determine what actually happens.
 
