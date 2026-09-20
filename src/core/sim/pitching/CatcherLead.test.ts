@@ -144,7 +144,7 @@ describe('catcher lead', () => {
     const strongManager =
       createCatcherPitchCall({
         session: session('inside'),
-        profile: profile(1000),
+        profile: profile(1e100),
         count: {
           balls: 1,
           strikes: 0,
@@ -164,10 +164,28 @@ describe('catcher lead', () => {
   });
 
   it('can change its per-pitch call from count context without changing manager command', () => {
+    const contextual: CatcherLeadProfile = {
+      ...profile(),
+      pitchSkillWeights: {
+        'skill-fast': 1e20,
+        'skill-break': 1,
+        'skill-split': 1,
+      },
+      countAdjustments: [
+        {
+          balls: 0,
+          strikes: 2,
+          pitchSkillMultipliers: {
+            'skill-break': 1e40,
+          },
+        },
+      ],
+    };
+
     const neutral =
       createCatcherPitchCall({
         session: session(),
-        profile: profile(),
+        profile: contextual,
         count: {
           balls: 0,
           strikes: 0,
@@ -182,7 +200,7 @@ describe('catcher lead', () => {
     const twoStrike =
       createCatcherPitchCall({
         session: session(),
-        profile: profile(),
+        profile: contextual,
         count: {
           balls: 0,
           strikes: 2,
@@ -195,42 +213,46 @@ describe('catcher lead', () => {
         ],
       });
 
+    expect(neutral.pitchSkillId)
+      .toBe('skill-fast');
+    expect(twoStrike.pitchSkillId)
+      .toBe('skill-break');
     expect(twoStrike.managerDirective)
       .toEqual(neutral.managerDirective);
-    expect(
-      [
-        twoStrike.pitchSkillId,
-        twoStrike.aggression,
-      ],
-    ).not.toEqual([
-      neutral.pitchSkillId,
-      neutral.aggression,
-    ]);
   });
 
   it('can use sequence memory to reduce immediate repetition', () => {
-    const previous =
-      createCatcherPitchCall({
-        session: session(),
-        profile: profile(),
-        count: {
-          balls: 0,
-          strikes: 0,
-        },
-        pitchOrdinal: 0,
-        availablePitchSkillIds: [
-          'skill-fast',
-          'skill-break',
-          'skill-split',
-        ],
-      });
+    const previous = {
+      catcherId: 'catcher-2',
+      pitcherId: 'pitcher-7',
+      pitchOrdinal: 0,
+      pitchSkillId: 'skill-fast',
+      attackZone: 'inside',
+      verticalPlan: 'low',
+      aggression: 'balanced',
+      count: {
+        balls: 0,
+        strikes: 0,
+      },
+      managerDirective: {
+        attackZone: 'inside',
+        verticalPlan: 'low',
+        aggression: 'balanced',
+      },
+    } as const;
+
     const next =
       createCatcherPitchCall({
         session: session(),
         profile: {
           ...profile(),
+          pitchSkillWeights: {
+            'skill-fast': 1,
+            'skill-break': 1e20,
+            'skill-split': 1e20,
+          },
           repeatPitchSkillMultiplier:
-            0.000001,
+            1e-30,
         },
         count: {
           balls: 0,
@@ -246,6 +268,6 @@ describe('catcher lead', () => {
       });
 
     expect(next.pitchSkillId)
-      .not.toBe(previous.pitchSkillId);
+      .not.toBe('skill-fast');
   });
 });
