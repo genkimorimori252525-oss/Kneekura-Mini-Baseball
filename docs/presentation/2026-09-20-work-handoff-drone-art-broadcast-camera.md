@@ -341,3 +341,10 @@ A Work design is aligned when the answer to all of these is yes:
 6. Would the same underlying play still make sense if a future Natural 3D renderer observed it instead?
 
 If yes, the design is preserving the intended Mini Baseball presentation architecture.
+
+
+## 12. Work amendment — 2026-09-21
+
+Apply [Observed motion / B1 / name plates / field markings](2026-09-21-observed-motion-b1-field-markings-principles.md) for the user-directed concrete rendering design. B1 is a faceless body style; actual observed grip/tip positions drive the bat and hand placement. Six pitching and four batting base poses do not limit the number of observed motion samples. Names use perspective-scaled translucent black plates. Both batter boxes and regulation field markings are projected from shared geometry.
+
+The amendment records independent HTML prototype revision 8 and its known limits. It does not claim production Core integration, complete ballpark compliance, or authorization to implement Ballpark Builder.
