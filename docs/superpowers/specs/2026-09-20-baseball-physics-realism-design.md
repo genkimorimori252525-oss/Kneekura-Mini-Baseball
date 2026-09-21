@@ -849,6 +849,50 @@ curve**. Ball COR/stiffness, bat properties, impact location and test protocol
 matter, so production speed-dependence must be fitted against a broader
 versioned dataset rather than assuming a two-point linear law.
 
+### 4.0.3 High-speed oblique spin/slip calibration
+
+Nathan et al. (2012) extended the oblique fixed-wood-cylinder experiment to
+baseball incident speeds up to 120 mph.
+
+For the non-gross-slip portion of the data they fitted:
+
+```text
+normal COR ey = 0.52
+tangential COR ex = 0.30 +/- 0.02
+D ~= 0
+```
+
+For sufficiently oblique impacts, the data enter gross slip and the measured
+tangential/normal impulse ratio saturates at approximately:
+
+```text
+mu ~= 0.15
+```
+
+The `NATHAN_2012_HIGH_SPEED_OBLIQUE_WOOD_CONTACT` calibration fixture maps
+those measurements directly onto the reduced-order contact variables:
+
+- normal restitution 0.52;
+- tangential restitution 0.30;
+- Coulomb friction cap 0.15.
+
+The existing impulse solver then produces the experimentally required
+piecewise behavior without an explicit deformation state:
+
+```text
+moderate oblique angle
+  -> tangential COR target reached
+  -> overspin
+
+steep oblique angle
+  -> friction cap reached
+  -> gross slip
+```
+
+This substantially strengthens the high-speed tangential/contact calibration.
+It does **not** remove the permanent no-deformation boundary: the measured
+effect of tangential compliance is represented by the fitted tangential COR.
+
 ### 4.1 Tapered bat geometry
 
 A real bat is not a constant-radius capsule.
