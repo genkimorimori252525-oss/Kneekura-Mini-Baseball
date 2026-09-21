@@ -68,7 +68,7 @@ describe('ground ball skid-to-roll motion', () => {
             z: 0,
           },
         },
-        500_000,
+        1_000_000,
         parameters,
       );
 
