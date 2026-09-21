@@ -8,6 +8,7 @@ import {
 } from '../contact/RigidBatBallContact';
 import {
   resolveAerodynamicRigidBatSwing,
+  type RigidBatSwingWindow,
 } from './AerodynamicRigidBatSwingingPitchPhysicalResult';
 import type {
   AerodynamicPitchTrajectory,
@@ -67,7 +68,7 @@ const trajectory =
 
 const swing = (
   xOffset = 0,
-) => ({
+): RigidBatSwingWindow => ({
   startTick: 1_000_000,
   endTick: 1_006_000,
   ticksPerSecond: 1_000_000,
