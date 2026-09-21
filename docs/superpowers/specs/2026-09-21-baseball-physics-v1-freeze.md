@@ -130,6 +130,35 @@ therefore exposes its tangential/friction assumptions and reports
 boundary-limited fits rather than pretending the data uniquely identify a
 material.
 
+## 5.1 Validation-corpus boundary
+
+`PhysicsObservableValidation` now defines the production-closure evidence
+format.
+
+A validation case contains only physical observables such as:
+
+- pitch plate position/speed;
+- exit velocity;
+- launch/spray angle;
+- spin;
+- hang time/apex/landing distance;
+- ground rebound speed/transit/roll distance;
+- wall rebound speed.
+
+Every target must carry:
+
+- source id;
+- source version;
+- explicit absolute and/or relative tolerance.
+
+The Core does **not** invent a default tolerance. The tolerance belongs to the
+measurement/evidence contract.
+
+A multi-case corpus receives a deterministic canonical fingerprint. This lets
+the final promotion decision be reproducible while still preventing league
+outcomes such as batting average, ERA or home-run rate from becoming hidden
+physics targets.
+
 ## 6. Promotion rule
 
 The v1 causal architecture is now frozen.
