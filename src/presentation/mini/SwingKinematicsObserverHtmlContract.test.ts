@@ -38,17 +38,23 @@ describe('swing kinematics v1 observer HTML contract', () => {
       );
     const embedded =
       extractEmbeddedFixture(html);
-    const expected =
-      createCompactSwingKinematicsObserverFixtureV1();
-    const decoded =
-      JSON.parse(
-        Buffer.from(
-          embedded,
-          'base64',
-        ).toString('utf8'),
+    const expectedJson =
+      JSON.stringify(
+        createCompactSwingKinematicsObserverFixtureV1(),
       );
+    const decodedJson =
+      Buffer.from(
+        embedded,
+        'base64',
+      ).toString('utf8');
 
-    expect(decoded).toEqual(expected);
+    /**
+     * Compare the serialized Core artifact byte-for-byte.
+     * JSON intentionally canonicalizes JavaScript -0 to 0; comparing parsed
+     * objects would therefore reject a correct snapshot only because Object.is
+     * distinguishes signed zero.
+     */
+    expect(decodedJson).toBe(expectedJson);
     expect(html)
       .toContain(
         'data-observer-contract="v16"',
