@@ -1,5 +1,9 @@
 import type { Vec3 } from '../../model/geometry';
-import type { BatPose, PitchWorldState } from './BatBallContact';
+import type {
+  BatterSwingState,
+  BatPose,
+  PitchWorldState,
+} from './BatBallContact';
 
 export type BatRadiusKnot = Readonly<{
   t: number;
@@ -624,6 +628,71 @@ const effectiveInverseMassAlong = (
     batAxis,
   )
 );
+
+export const createRigidBatStateFromBatterSwingState = (
+  swing: BatterSwingState,
+  physical: RigidBatPhysicalProperties,
+): RigidBatState => {
+  validateBat({
+    pose: swing.pose,
+    centerOfMassVelocity: {
+      x: 0,
+      y: 0,
+      z: 0,
+    },
+    angularVelocity:
+      swing.angularVelocity,
+    physical,
+  });
+
+  const centerOfMassPoint = add(
+    swing.pose.grip,
+    scale(
+      subtract(
+        swing.pose.tip,
+        swing.pose.grip,
+      ),
+      physical.centerOfMassT,
+    ),
+  );
+  const gripToCenterOfMass = subtract(
+    centerOfMassPoint,
+    swing.pose.grip,
+  );
+
+  return {
+    pose: swing.pose,
+    centerOfMassVelocity: add(
+      swing.linearVelocity,
+      cross(
+        swing.angularVelocity,
+        gripToCenterOfMass,
+      ),
+    ),
+    angularVelocity:
+      swing.angularVelocity,
+    physical,
+  };
+};
+
+export const measureRigidBatBallSurfaceSeparation = (
+  pitch: PitchWorldState,
+  bat: RigidBatState,
+  ball: RigidBaseballProperties,
+): number => {
+  validateBat(bat);
+  validateBall(ball);
+
+  const nearest =
+    closestPointOnTaperedBat(
+      pitch.position,
+      bat,
+    );
+  return (
+    nearest.surfaceSeparationM
+    - ball.radiusM
+  );
+};
 
 export const calculateRigidBatDirectionalEffectiveMass = (
   bat: RigidBatState,
