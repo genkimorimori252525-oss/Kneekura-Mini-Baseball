@@ -7,6 +7,7 @@ import {
 } from '../ball/BallFlight';
 import {
   REALISTIC_BASEBALL_RIGID_BODY,
+  type RigidBatBallContactKinematics,
   type RigidBatPhysicalProperties,
 } from '../contact/RigidBatBallContact';
 import {
@@ -169,10 +170,8 @@ describe('aerodynamic rigid contact -> batted-ball flight slice', () => {
       ball:
         REALISTIC_BASEBALL_RIGID_BODY,
       parameterResolver:
-        (kinematics: {
-          normalApproachSpeedMps:
-            number;
-        }) =>
+        (kinematics:
+          RigidBatBallContactKinematics) =>
           createEvidenceBackedWoodBatContactParameters({
             relativeImpactSpeedMps:
               kinematics
