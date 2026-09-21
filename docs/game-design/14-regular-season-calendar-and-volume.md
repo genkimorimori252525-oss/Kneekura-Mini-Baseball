@@ -313,7 +313,7 @@ Balanced:
 = 108
 ```
 
-10 home / 10 away。
+各opponentと6 home / 6 away。
 
 ---
 
@@ -443,7 +443,7 @@ Balanced:
 = 112
 ```
 
-10 home / 10 away。
+各opponentと8 home / 8 away。
 
 ---
 
