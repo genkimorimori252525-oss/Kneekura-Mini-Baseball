@@ -646,7 +646,7 @@ Rivalry lifecycle design (APPROVED):
 - `docs/game-design/33-rivalry-lifecycle-model.md`
 
 
-Team traits / player relationship design candidate (USER REVIEW REQUIRED):
+Team traits / player relationship architecture (CANONICAL / DESIGN FROZEN v1):
 - `docs/game-design/34-team-traits-and-relationship-network-DRAFT.md`
 
 

@@ -299,11 +299,11 @@ Team Trait名そのものをMatch resultの原因にしない。
 evidence / relationship / coordination / recent history
         ↓
 underlying team state
-        ↓
-Team Trait label
-        ↓
-causal intermediate variables
-        ↓
+   ├───────────────┐
+   ↓               ↓
+causal intermediate Team Trait
+variables           descriptor
+   ↓
 actual play
 ```
 
