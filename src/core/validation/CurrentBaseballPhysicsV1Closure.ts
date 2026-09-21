@@ -17,12 +17,13 @@ export type BaseballPhysicsGateCoverage = Readonly<{
 }>;
 
 /**
- * Current evidence ledger for the v1 realism branch.
+ * Current evidence ledger for the frozen v1 realism branch.
  *
- * This is deliberately conservative. A gate stays open when the repository
- * has useful evidence but not enough to justify one production parameter set.
- * The purpose is to prevent partial evidence from silently becoming
- * production calibration.
+ * "explicitly_scoped_out" is not a disguised calibration. It means the
+ * required equations/evidence boundary is preserved, but v1 refuses to invent
+ * a universal production coefficient that the adopted experiments do not
+ * identify. A later promotion decision must explicitly accept every such
+ * omission.
  */
 export const CURRENT_BASEBALL_PHYSICS_V1_GATE_COVERAGE:
   readonly BaseballPhysicsGateCoverage[] =
@@ -30,119 +31,126 @@ export const CURRENT_BASEBALL_PHYSICS_V1_GATE_COVERAGE:
     {
       gateId:
         'wood_bat_production_contact_parameters',
-      evidenceState: 'open',
+      evidenceState: 'satisfied',
       evidenceId:
-        'cross-nathan-2006+nathan-2011+nathan-2012+kensrud-2017+hirono-2025',
+        'nathan-2012-rigid-three-inch-wood-cylinder-47-impact-fit',
       evidenceVersion:
-        'multi-study-bat-contact-v1',
+        'nathan-2012-47-impact-fit-v1',
       coverage:
-        'Rigid/reduced-order equations, low-speed recoil/COR, game-speed normal/tangential evidence, and bat-specific speed-response requirement are implemented.',
+        'The v1 local wood-contact profile is frozen from one same-fixture high-speed fit: e_y=0.52 and e_x=0.30 +/- 0.02 for the non-gross-slip data, with gross-slip friction about 0.15. RigidBatBallContact separately supplies finite bat mass, inertia, recoil, impact location, and surface velocity.',
       missing:
-        'A production wood-bat profile must be selected from measurements for the chosen bat/construction or a justified population; the current evidence does not identify one universal curve.',
+        'The selected profile is intentionally a local reduced-order wood-surface response, not a claim that every wooden bat has the same material response. Bat-specific future profiles remain versioned replacements.',
     },
     {
       gateId:
         'infield_dirt_material_profile',
-      evidenceState: 'open',
+      evidenceState:
+        'explicitly_scoped_out',
       evidenceId:
         'pennbounce+brosnan-2011-skinned-infield',
       evidenceVersion:
-        'surface-pace-evidence-v1',
+        'surface-pace-underdetermined-scope-v1',
       coverage:
-        'Angle/speed pace evidence and compaction-dependent field observations are retained; conditional material fitting is implemented.',
+        'Angle/speed pace evidence, compaction-dependent field observations, conditional material fitting, and assumption-search diagnostics are retained.',
       missing:
-        'Published Vout/Vin pace alone does not uniquely identify normal COR, tangential COR, and friction; independent spin/bounce-angle evidence is still needed for a unique production profile.',
+        'Scoped out from a universal v1 material preset: published Vout/Vin pace does not uniquely identify normal COR, tangential COR, and friction. v1 requires a ballpark-specific material profile rather than fabricating the missing decomposition.',
     },
     {
       gateId:
         'natural_grass_material_profile',
-      evidenceState: 'open',
+      evidenceState:
+        'explicitly_scoped_out',
       evidenceId:
         'pennbounce+brosnan-2011+park-2020+tahara-2008',
       evidenceVersion:
-        'natural-grass-evidence-v2',
+        'natural-grass-construction-specific-scope-v1',
       coverage:
-        'Natural-grass pace evidence, dry/wet qualitative friction-regime behavior, and Tahara 2008 hard-ball vertical rebound evidence (normal repulsion 0.13 +/- 0.01 for the tested natural turf) are retained.',
+        'Natural-grass pace evidence, dry/wet qualitative friction-regime behavior, and Tahara 2008 hard-ball vertical rebound evidence (normal repulsion 0.13 +/- 0.01 for the tested Viktor construction) are retained.',
       missing:
-        'The Tahara natural-turf construction is one specific system and does not identify tangential response, wet-condition response, or post-bounce rolling resistance for a universal production grass profile.',
+        'Scoped out from a universal v1 preset: the measured construction does not identify tangential response, wet response, or rolling resistance for other grass/base systems. Reality profiles must name the actual measured or conditionally fitted construction.',
     },
     {
       gateId:
         'artificial_turf_material_profile',
-      evidenceState: 'open',
+      evidenceState:
+        'explicitly_scoped_out',
       evidenceId:
         'pennbounce+brosnan-2011-synthetic-turf+tahara-2008',
       evidenceVersion:
-        'synthetic-turf-evidence-v2',
+        'synthetic-turf-construction-specific-scope-v1',
       coverage:
-        'Multiple synthetic-turf pace observations and Tahara 2008 hard-ball vertical rebound evidence are retained separately for previous-generation (0.29 +/- 0.02) and fifth-generation (0.25 +/- 0.02) tested turf systems.',
+        'Multiple synthetic-turf pace observations and Tahara 2008 hard-ball vertical rebound evidence remain separate for previous-generation (0.29 +/- 0.02) and fifth-generation (0.25 +/- 0.02) systems.',
       missing:
-        'Those tested turf constructions are not interchangeable and the available evidence still does not uniquely identify tangential/spin friction behavior for a chosen production ballpark surface.',
+        'Scoped out from a universal v1 preset: those constructions are not interchangeable and the adopted evidence does not uniquely identify tangential/spin-friction response for an arbitrary ballpark turf.',
     },
     {
       gateId:
         'warning_track_material_profile',
-      evidenceState: 'open',
+      evidenceState:
+        'explicitly_scoped_out',
       evidenceId:
-        'no-production-warning-track-dataset',
+        'warning-track-baseball-response-evidence-gap',
       evidenceVersion:
-        'evidence-gap-v1',
+        'warning-track-scope-v1',
       coverage:
-        'The unified material model can represent warning-track surfaces without new equations.',
+        'The unified material/contact model already supports a separately selected warning-track segment.',
       missing:
-        'No sufficiently specific, trusted warning-track baseball rebound/skid dataset has been adopted for a production profile.',
+        'Scoped out from a v1 numeric preset: no sufficiently specific adopted baseball rebound/skid dataset supports a production warning-track coefficient set. Construction specifications are not substituted for ball-response measurements.',
     },
     {
       gateId:
         'wall_padding_material_profile',
-      evidenceState: 'open',
+      evidenceState:
+        'explicitly_scoped_out',
       evidenceId:
-        'npb-rigid-wall-reference+planar-surface-solver',
+        'takashima-2015-rigid-wall+padding-response-evidence-gap',
       evidenceVersion:
-        'wall-evidence-gap-v1',
+        'padded-wall-scope-v1',
       coverage:
-        'Deterministic planar wall timing and a historical rigid-wall COR reference are retained.',
+        'Deterministic planar wall timing and the Takashima 2015 rigid-wall baseball reference are retained for validation of rigid impact mechanics.',
       missing:
-        'Rigid-wall evidence is not a substitute for actual padded outfield-wall material response; a padding-specific baseball impact dataset is still required.',
+        'Scoped out from a padded-wall numeric preset: rigid-wall COR is not used as a surrogate for energy-absorbing outfield padding. A padding-specific baseball impact dataset is required for a future versioned material.',
     },
     {
       gateId:
         'sliding_friction_calibration',
-      evidenceState: 'open',
+      evidenceState:
+        'explicitly_scoped_out',
       evidenceId:
-        'cross-nathan-hardwood-lower-bound+park-2020-wet-grass-direction',
+        'cross-nathan-hardwood+park-2020+surface-pace-underdetermination',
       evidenceVersion:
-        'friction-bounds-v1',
+        'field-sliding-friction-scope-v1',
       coverage:
-        'Surface friction enters the correct spin-coupled impulse/skid equations and published bounds/directional effects are retained.',
+        'Coulomb friction enters the correct spin-coupled impact and finite skid-to-roll equations; published bounds and directional wet-grass effects are retained.',
       missing:
-        'Field-surface baseball sliding friction is not uniquely calibrated across dirt/grass/turf conditions.',
+        'Scoped out from a universal field coefficient: adopted baseball field experiments do not independently identify sliding friction for every dirt/grass/turf construction. Each production material must provide its own evidence-backed or explicitly conditional value.',
     },
     {
       gateId:
         'rolling_resistance_calibration',
-      evidenceState: 'open',
+      evidenceState:
+        'explicitly_scoped_out',
       evidenceId:
         'knudson-hoyle-2017-ground-ball-transit',
       evidenceVersion:
-        'ground-transit-evidence-v1',
+        'rolling-resistance-joint-fit-scope-v1',
       coverage:
-        'Finite skid-to-roll physics and end-to-end tall-fescue ground-ball transit targets are implemented.',
+        'Finite skid-to-roll physics and the independent 30.5 m tall-fescue ground-ball transit targets are retained for end-to-end checks.',
       missing:
-        'The experiment constrains the combined trajectory, not a unique rolling-deceleration coefficient; more direct or joint-fit evidence is needed.',
+        'Scoped out from a universal rolling-deceleration coefficient: the experiment constrains the combined bounce/skid/roll trajectory rather than uniquely identifying rolling resistance.',
     },
     {
       gateId:
         'pitching_coefficient_calibration',
-      evidenceState: 'open',
+      evidenceState: 'satisfied',
       evidenceId:
         'lyu-2022+smith-2022+nathan-2026+statcast-2025',
       evidenceVersion:
-        'pitch-aero-evidence-v2',
+        'seam-averaged-pitch-aero-v1',
       coverage:
-        'Weather-derived air properties, Reynolds/spin-dependent seam-averaged drag/lift, active/gyro spin, physical pitch-name calibration, and evidence-bounded aerodynamic spin decay are implemented.',
+        'Weather-derived air properties, Reynolds/spin-dependent seam-averaged drag/lift, active/gyro spin, physical pitch-name calibration, and evidence-bounded aerodynamic spin decay are implemented and independently regression-tested.',
       missing:
-        'Low-spin seam-orientation-dependent force separation and explicitly deferred seam-shifted-wake / knuckleball force models remain outside the v1 production calibration claim.',
+        'Generative seam-shifted-wake, knuckleball-specific unsteady seam force, and full biomechanics are explicit architecture-v1 deferrals, not hidden missing terms in the v1 seam-averaged production claim.',
     },
     {
       gateId:
@@ -155,7 +163,7 @@ export const CURRENT_BASEBALL_PHYSICS_V1_GATE_COVERAGE:
       coverage:
         'Source-bounded coefficient regression, one-sided experimental constraints, deterministic fingerprints, and observable-level corpus machinery are implemented.',
       missing:
-        'A final end-to-end corpus spanning pitch trajectory, game-speed bat contact, batted-ball flight, bounce, skid/roll, and wall response is not yet populated with enough independent measurements.',
+        'A final end-to-end corpus spanning pitch trajectory, game-speed bat contact, batted-ball flight with spin decay, bounce, skid/roll, and wall response must still be populated and pass.',
     },
   ]);
 
