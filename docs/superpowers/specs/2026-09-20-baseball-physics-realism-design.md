@@ -1101,13 +1101,44 @@ speed-dependent response profile, but requires exactly one. This adds the
 necessary calibration degree of freedom without inventing field coefficients
 before they have been fitted.
 
+Phase C now also includes:
+
+- `BallSurfaceResponseGrid`
+  - versioned response over **incident speed and incidence angle**;
+  - deterministic interpolation across both dimensions;
+  - edge clamping rather than silent extrapolation;
+- `PennbounceSurfaceCalibrationObjective`
+  - scores a candidate response grid against all four published angle × speed
+    combinations for one material;
+  - reports RMSE, bias and maximum absolute error;
+  - deliberately does not pretend total rebound-speed ratio uniquely
+    identifies normal COR, tangential COR and friction;
+- `GroundBallMotion`
+  - computes bottom-point slip from translation + spin;
+  - applies finite-duration Coulomb skid rather than instantly snapping every
+    settled bounce to rolling;
+  - transfers linear momentum into spin until no-slip rolling is reached;
+  - then applies independent rolling resistance;
+  - naturally allows excessive topspin to accelerate COM translation while
+    spin is reduced;
+- `GroundBallTransitCalibration`
+  - retains Knudson/Hoyle 2017 tall-fescue 30.5 m ground-ball transit targets;
+  - stores the 2.5/5.0/7.6 cm mowing-height means (1.77/2.08/1.88 s);
+  - does not back-solve them into a fake single rolling-friction coefficient
+    because the experiment is end-to-end launch/bounce/skid/roll evidence.
+
+The aerodynamic first-ground-contact search also now samples the same composed
+RK4 integration cadence used by canonical flight, removing the previous
+large-window/single-step numerical mismatch.
+
 Still required before Phase C can close:
 
 - fit/version infield dirt contact parameters against surface-pace data;
 - fit/version natural grass and artificial-turf parameters;
 - warning-track profile;
 - padded / hard-wall profiles;
-- continuous post-bounce skid-to-roll / rolling resistance refinement.
+- calibrate sliding friction and rolling resistance against end-to-end
+  ground-ball observations.
 
 ## 6. Phase D — empirical calibration
 
