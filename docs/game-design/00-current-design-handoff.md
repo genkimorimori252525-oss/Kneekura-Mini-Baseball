@@ -19,13 +19,12 @@ AI / Agent向け強制ルール:
 
 ### 現在、USER REVIEW REQUIREDとして残る設計
 
-- `34-team-traits-and-relationship-network-DRAFT.md`
 - `35-team-trait-catalog-DRAFT.md`
 - `38-team-mood-manager-interventions-DRAFT.md`
 - `41-manager-appointment-and-incompetence-DRAFT.md`
 - `42-manager-market-and-front-office-selection-DRAFT.md`
 
-`32-roster-development-architecture-DRAFT.md` は2026-09-22にユーザー承認され、**CANONICAL / DESIGN FROZEN v1** へ昇格した。
+`32-roster-development-architecture-DRAFT.md` と `34-team-traits-and-relationship-network-DRAFT.md` は2026-09-22にユーザー承認され、**CANONICAL / DESIGN FROZEN v1** へ昇格した。
 
 ### 旧計画 / 後継へ統合済み
 
@@ -49,6 +48,7 @@ AI / Agent向け強制ルール:
 以下はファイル名に `-DRAFT` が残っているが、内容は **CANONICAL / DESIGN FROZEN v1**。未確定計画として数えない。
 
 - `32-roster-development-architecture-DRAFT.md`
+- `34-team-traits-and-relationship-network-DRAFT.md`
 - `50-popularity-reputation-architecture-DRAFT.md`
 - `51-star-superstar-big-stage-architecture-DRAFT.md`
 
@@ -656,7 +656,29 @@ Team Trait Catalog (USER REVIEW REQUIRED):
 
 ---
 
-# 26. CURRENT DESIGN — Team Traits / Relationship
+# 26. CANONICAL — Team Traits / Player Relationship Architecture v1
+
+2026-09-22 user approved and froze `34-team-traits-and-relationship-network-DRAFT.md`.
+
+Current Source of Truth:
+- Public axes: 好感 / 信頼 / 連携
+- Affinity / Trust = directional sparse Relationship edges
+- Coordination = role/task-specific joint-action state
+- bad relationship alone never lowers raw batting ability
+- batting resonance = the batter can express their own existing batting strength more fully
+- no direct HR / hit / walk modifier; no relationship-created Plate Discipline
+- Pair / Cluster scopes are derived, not magical permanent groups
+- Team Trait labels never become Source of Truth
+- Gold is a master-tier descriptor, not a multiplier
+- evidence double-counting is prohibited
+- synchrony labels such as 投打不協和 are ANALYTIC_DESCRIPTOR only and add zero gameplay effect
+- Relationship carries across seasons; Coordination may decay with dormant shared experience retained
+- Mood/Trait direct feedback loops are prohibited
+- no routine social-maintenance chores for the User
+
+Exact Trait catalog / thresholds / duration calibration remains in `35-team-trait-catalog-DRAFT.md`.
+
+Historical 2026-09-20 development notes follow:
 
 2026-09-20 current work:
 
