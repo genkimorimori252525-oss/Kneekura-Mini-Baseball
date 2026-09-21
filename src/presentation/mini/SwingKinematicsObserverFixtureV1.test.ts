@@ -128,35 +128,6 @@ describe('swing kinematics observer fixture v1', () => {
     );
   });
 
-  it('emits deterministic fixture chunks for repository snapshot generation', () => {
-    const encoded =
-      Buffer.from(
-        JSON.stringify(
-          createSwingKinematicsObserverFixtureV1(),
-        ),
-        'utf8',
-      ).toString('base64');
-    const chunkSize = 800;
-
-    for (
-      let offset = 0, index = 0;
-      offset < encoded.length;
-      offset += chunkSize, index += 1
-    ) {
-      console.log(
-        'SWING_OBSERVER_FIXTURE_CHUNK '
-        + String(index).padStart(4, '0')
-        + ' '
-        + encoded.slice(
-          offset,
-          offset + chunkSize,
-        ),
-      );
-    }
-
-    expect(encoded.length)
-      .toBeGreaterThan(0);
-  });
 
   it('emits a compact Core-generated observer artifact in bounded chunks', () => {
     const compact =
@@ -179,7 +150,7 @@ describe('swing kinematics observer fixture v1', () => {
         JSON.stringify(compact),
         'utf8',
       ).toString('base64');
-    const chunkSize = 6_000;
+    const chunkSize = 1_000;
 
     for (
       let offset = 0, index = 0;
