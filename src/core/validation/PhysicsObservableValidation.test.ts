@@ -104,6 +104,63 @@ describe('physics observable validation', () => {
     ).toBe(2);
   });
 
+  it('preserves one-sided experimental lower bounds without treating them as symmetric means', () => {
+    const passing =
+      evaluatePhysicsValidationCase({
+        caseId: 'friction-lower-bound',
+        targets: [
+          {
+            observableId:
+              'friction_coefficient',
+            sourceId:
+              'floor-experiment',
+            sourceVersion: 'v1',
+            targetValue: 0.31,
+            constraint: 'minimum',
+            absoluteTolerance: 0.02,
+          },
+        ],
+        measurements: [
+          {
+            observableId:
+              'friction_coefficient',
+            observedValue: 0.30,
+          },
+        ],
+      });
+
+    const failing =
+      evaluatePhysicsValidationCase({
+        caseId: 'friction-below-bound',
+        targets: [
+          {
+            observableId:
+              'friction_coefficient',
+            sourceId:
+              'floor-experiment',
+            sourceVersion: 'v1',
+            targetValue: 0.31,
+            constraint: 'minimum',
+            absoluteTolerance: 0.02,
+          },
+        ],
+        measurements: [
+          {
+            observableId:
+              'friction_coefficient',
+            observedValue: 0.28,
+          },
+        ],
+      });
+
+    expect(passing.passed).toBe(true);
+    expect(
+      passing.evaluations[0]!
+        .constraint,
+    ).toBe('minimum');
+    expect(failing.passed).toBe(false);
+  });
+
   it('produces deterministic fingerprints for a final multi-case validation corpus', () => {
     const cases = [
       {
