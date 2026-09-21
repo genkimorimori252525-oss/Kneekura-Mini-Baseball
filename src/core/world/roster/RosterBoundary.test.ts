@@ -77,7 +77,7 @@ describe('runtime malformed-input boundary', () => {
 
   it.each([null, undefined, {}, { changes: [] }])('rejects malformed commands %s', value => {
     const state = createRosterState(rosterFixture());
-    const result = applyRosterChange(state, value as RosterChangeCommand);
+    const result = applyRosterChange(state, value as unknown as RosterChangeCommand);
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.rejection.code).toBe('INVALID_INPUT');
     expect(result.state).toBe(state);
