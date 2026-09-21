@@ -161,6 +161,24 @@ physics targets.
 
 ## 6. Promotion rule
 
+`BaseballPhysicsProductionReadiness` now makes promotion mechanical rather
+than conversational.
+
+Default promotion requires:
+
+- the frozen `baseball-physics-architecture-v1`;
+- one explicit evidence record for every v1 calibration gate;
+- no gate left `open`;
+- a passing `PhysicsObservableValidation` corpus;
+- explicit acknowledgement before any gate marked
+  `explicitly_scoped_out` can count as closed.
+
+There is no implicit “good enough” state. Missing evidence is an error, and
+league outcomes are not accepted as substitutes for physical-observable
+validation.
+
+
+
 The v1 causal architecture is now frozen.
 
 The new physical paths remain opt-in until empirical calibration gates are
