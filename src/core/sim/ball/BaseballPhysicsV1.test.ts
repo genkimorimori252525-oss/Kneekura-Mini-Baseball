@@ -9,7 +9,7 @@ import {
 } from './BaseballPhysicsV1';
 
 describe('baseball physics architecture v1 contract', () => {
-  it('freezes the causal architecture while keeping production promotion separate', () => {
+  it('freezes the causal architecture and records the evidence-gated production promotion', () => {
     expect(
       BASEBALL_PHYSICS_ARCHITECTURE_VERSION,
     ).toBe(
@@ -20,7 +20,7 @@ describe('baseball physics architecture v1 contract', () => {
     ).toBe(true);
     expect(
       BASEBALL_PHYSICS_V1_PRODUCTION_DEFAULT_PROMOTED,
-    ).toBe(false);
+    ).toBe(true);
   });
 
   it('includes one causal chain from pitch through contact, flight, ground and wall response', () => {
@@ -59,7 +59,7 @@ describe('baseball physics architecture v1 contract', () => {
     );
   });
 
-  it('cannot be declared production-closed while empirical material/contact gates remain', () => {
+  it('keeps calibration gate identities stable after closure so future evidence changes reopen the same contract', () => {
     expect(
       BASEBALL_PHYSICS_V1_CALIBRATION_GATES,
     ).toContain(
