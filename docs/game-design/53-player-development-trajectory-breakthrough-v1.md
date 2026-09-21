@@ -550,7 +550,7 @@ type TraitAcquisitionProfile = {
   sourceStateRequirements: readonly SourceStateRequirement[];
   evidencePolicy: TraitEvidencePolicy;
   consolidationPolicy?: ConsolidationPolicy;
-  coachTeachability: "NONE" | "INDIRECT" | "DIRECT";
+  coachTeachability: "NONE" | "INDIRECT" | "DIRECT" | "CONTEXT_DEPENDENT";
   experienceLearnability: "NONE" | "LOW" | "MEDIUM" | "HIGH";
   reversible: boolean;
   goldTierRule?: GoldTierRule;
@@ -574,47 +574,47 @@ AcquisitionKind:
 
 | Trait Family / UI | Kind | 主なCatalyst | Source / 定着条件 | Coach | Experience |
 | --- | --- | --- | --- | --- | --- |
-| **ノビ G〜A -> Gold 怪童** | TECHNICAL + RECOGNITION | technical discovery, mentor, rehab reconstruction, successful fastball hypothesis | fastball movement / velocity retention / release sourceが実際に改善し再現 | INDIRECT/DIRECT | MEDIUM |
-| 軽い球 / 重い球 -> 怪物球威 | RECOGNITION + TECHNICAL | form / pitch-shape change, strength change | actual velocity / movement / approach-angle / contact-quality source | INDIRECT | MEDIUM |
-| ジャイロ / ハイスピンジャイロ | RECOGNITION + TECHNICAL | grip discovery, coach, data insight | stable spin-axis / trajectory source | DIRECT | MEDIUM |
-| ナチュラルシュート / 真っスラ / シュート回転 | RECOGNITION + TECHNICAL | form evolution, grip, injury compensation | stable pitch-shape evidence; Neutral where defined | DIRECT | MEDIUM |
-| 球速安定 | TECHNICAL + PHYSICAL | routine, conditioning, mechanics | velocity variance / reproducibility improves | DIRECT | MEDIUM |
-| キレ -> 驚異の切れ味 | TECHNICAL + RECOGNITION | grip, release discovery, mentor | breaking-ball movement / late movement / reproducibility | DIRECT | HIGH |
-| 球持ち -> ディレイドアーム | TECHNICAL + RECOGNITION | mechanics, coach, rehab | extension / visibility / release source | DIRECT | MEDIUM |
-| リリース○ | TECHNICAL | coach, video/data insight | pitch-type release similarity improves | DIRECT | HIGH |
-| 低め○ -> 精密機械 | TECHNICAL | command training, coach, repeated execution | low-zone command source improves | DIRECT | HIGH |
-| 内角攻め -> 内角無双 | TECHNICAL + BEHAVIOR | role, catcher/coach, success/failure | inside command + willingness / sequencing stable | DIRECT | HIGH |
-| クロスファイヤー -> クロスキャノン | TECHNICAL | release geometry discovery | diagonal command technique stable | DIRECT | MEDIUM |
-| 一発 / 逃げ球 -> 本塁打厳禁 | TECHNICAL + RECOGNITION | miss review, coach, failure catalyst | dangerous-miss distribution actually changes | DIRECT | HIGH |
-| 抜け球 | RECOGNITION / NEGATIVE DEVELOPMENT | injury, fatigue habit, mechanics failure | recurrent specific release-failure pattern | INDIRECT | MEDIUM |
-| 乱調 | RECOGNITION / NEGATIVE DEVELOPMENT | stress, mechanics inconsistency | short-window command/release variance source persists enough | INDIRECT | MEDIUM |
-| 四球 | RECOGNITION + BEHAVIOR | repeated nibbling / count failures | zone-entry / count behavior remains walk-prone beyond raw control | INDIRECT | HIGH |
+| **ノビ G〜A -> Gold 怪童** | TECHNICAL_DEVELOPMENT + RECOGNITION | technical discovery, mentor, rehab reconstruction, successful fastball hypothesis | fastball movement / velocity retention / release sourceが実際に改善し再現 | CONTEXT_DEPENDENT | MEDIUM |
+| 軽い球 / 重い球 -> 怪物球威 | RECOGNITION + TECHNICAL_DEVELOPMENT | form / pitch-shape change, strength change | actual velocity / movement / approach-angle / contact-quality source | INDIRECT | MEDIUM |
+| ジャイロ / ハイスピンジャイロ | RECOGNITION + TECHNICAL_DEVELOPMENT | grip discovery, coach, data insight | stable spin-axis / trajectory source | DIRECT | MEDIUM |
+| ナチュラルシュート / 真っスラ / シュート回転 | RECOGNITION + TECHNICAL_DEVELOPMENT | form evolution, grip, injury compensation | stable pitch-shape evidence; Neutral where defined | DIRECT | MEDIUM |
+| 球速安定 | TECHNICAL_DEVELOPMENT + PHYSICAL_DEVELOPMENT | routine, conditioning, mechanics | velocity variance / reproducibility improves | DIRECT | MEDIUM |
+| キレ -> 驚異の切れ味 | TECHNICAL_DEVELOPMENT + RECOGNITION | grip, release discovery, mentor | breaking-ball movement / late movement / reproducibility | DIRECT | HIGH |
+| 球持ち -> ディレイドアーム | TECHNICAL_DEVELOPMENT + RECOGNITION | mechanics, coach, rehab | extension / visibility / release source | DIRECT | MEDIUM |
+| リリース○ | TECHNICAL_DEVELOPMENT | coach, video/data insight | pitch-type release similarity improves | DIRECT | HIGH |
+| 低め○ -> 精密機械 | TECHNICAL_DEVELOPMENT | command training, coach, repeated execution | low-zone command source improves | DIRECT | HIGH |
+| 内角攻め -> 内角無双 | TECHNICAL_DEVELOPMENT + BEHAVIOR_PREFERENCE | role, catcher/coach, success/failure | inside command + willingness / sequencing stable | DIRECT | HIGH |
+| クロスファイヤー -> クロスキャノン | TECHNICAL_DEVELOPMENT | release geometry discovery | diagonal command technique stable | DIRECT | MEDIUM |
+| 一発 / 逃げ球 -> 本塁打厳禁 | TECHNICAL_DEVELOPMENT + RECOGNITION | miss review, coach, failure catalyst | dangerous-miss distribution actually changes | DIRECT | HIGH |
+| 抜け球 | RECOGNITION + TECHNICAL_DEVELOPMENT | injury, fatigue habit, mechanics failure | recurrent specific release-failure pattern | INDIRECT | MEDIUM |
+| 乱調 | RECOGNITION + TECHNICAL_DEVELOPMENT | stress, mechanics inconsistency | short-window command/release variance source persists enough | INDIRECT | MEDIUM |
+| 四球 | RECOGNITION + BEHAVIOR_PREFERENCE | repeated nibbling / count failures | zone-entry / count behavior remains walk-prone beyond raw control | INDIRECT | HIGH |
 | ボール先行 / ストライク先行 | BEHAVIOR_PREFERENCE | catcher/coach plan, role, repeated outcomes | early-count approach becomes stable preference | DIRECT | HIGH |
-| 緩急○ -> 変幻自在 | TECHNICAL + EXPERIENCE | elite exposure, sequencing success, coach | speed separation + sequencing skill improve | DIRECT | HIGH |
-| 奪三振 -> ドクターK | TECHNICAL + EXPERIENCE | two-strike success/failure, opponent puzzle | put-away pitch selection / execution becomes stable | DIRECT | HIGH |
-| 対強打者 -> 主砲キラー | EXPERIENCE + RELATIONSHIP | repeated elite matchups | learned high-quality opponent response; not `Star` label bonus | INDIRECT | HIGH |
+| 緩急○ -> 変幻自在 | TECHNICAL_DEVELOPMENT + EXPERIENCE_ADAPTATION | elite exposure, sequencing success, coach | speed separation + sequencing skill improve | DIRECT | HIGH |
+| 奪三振 -> ドクターK | TECHNICAL_DEVELOPMENT + EXPERIENCE_ADAPTATION | two-strike success/failure, opponent puzzle | put-away pitch selection / execution becomes stable | DIRECT | HIGH |
+| 対強打者 -> 主砲キラー | EXPERIENCE_ADAPTATION + RELATIONSHIP_FAMILIARITY | repeated elite matchups | learned high-quality opponent response; not `Star` label bonus | INDIRECT | HIGH |
 | 対ピンチ G〜A -> 強心臓 / ノミの心臓 | EXPERIENCE_ADAPTATION | high leverage, blown lead, escape, comeback | stable pressure appraisal / execution evidence across opportunities | INDIRECT | HIGH |
 | 打たれ強さ G〜A -> 不屈の魂 | EXPERIENCE_ADAPTATION | HR allowed, error behind pitcher, comeback inning | negative-event reset / execution recovery becomes stable | INDIRECT | HIGH |
-| 対左打者 G〜A -> 左キラー | TECHNICAL + EXPERIENCE | repeated platoon matchup | pitch mix / execution / recognition evidence | DIRECT | HIGH |
-| ギアチェンジ | BEHAVIOR + EXPERIENCE | role demand, leverage exposure | context-dependent effort allocation stable | INDIRECT | HIGH |
-| 全開 / 完全燃焼 | BEHAVIOR + ROLE | emergency / major stage / short outing role | max-effort policy + fatigue tradeoff actually used | INDIRECT | HIGH |
-| 力配分 | BEHAVIOR + ROLE | long season, starter role, fatigue management | output-saving policy stable | DIRECT | HIGH |
-| 根性 -> ド根性 | PHYSICAL + EXPERIENCE | fatigue exposure, workload adaptation | mechanical execution resilience under fatigue improves | INDIRECT | MEDIUM |
-| 尻上がり -> 終盤力 | ROLE + EXPERIENCE | starter repetitions | pacing / late-game maintenance evidence | DIRECT | HIGH |
-| スロースターター / 立ち上がり -> トップギア | RECOGNITION + TECHNICAL | warm-up routine, early-inning evidence | early-game readiness source changes / stabilizes | DIRECT | HIGH |
+| 対左打者 G〜A -> 左キラー | TECHNICAL_DEVELOPMENT + EXPERIENCE_ADAPTATION | repeated platoon matchup | pitch mix / execution / recognition evidence | DIRECT | HIGH |
+| ギアチェンジ | BEHAVIOR_PREFERENCE + EXPERIENCE_ADAPTATION | role demand, leverage exposure | context-dependent effort allocation stable | INDIRECT | HIGH |
+| 全開 / 完全燃焼 | BEHAVIOR_PREFERENCE + ROLE_SUITABILITY | emergency / major stage / short outing role | max-effort policy + fatigue tradeoff actually used | INDIRECT | HIGH |
+| 力配分 | BEHAVIOR_PREFERENCE + ROLE_SUITABILITY | long season, starter role, fatigue management | output-saving policy stable | DIRECT | HIGH |
+| 根性 -> ド根性 | PHYSICAL_DEVELOPMENT + EXPERIENCE_ADAPTATION | fatigue exposure, workload adaptation | mechanical execution resilience under fatigue improves | INDIRECT | MEDIUM |
+| 尻上がり -> 終盤力 | ROLE_SUITABILITY + EXPERIENCE_ADAPTATION | starter repetitions | pacing / late-game maintenance evidence | DIRECT | HIGH |
+| スロースターター / 立ち上がり -> トップギア | RECOGNITION + TECHNICAL_DEVELOPMENT | warm-up routine, early-inning evidence | early-game readiness source changes / stabilizes | DIRECT | HIGH |
 | 回またぎ | ROLE_SUITABILITY | relief multi-inning usage | actual workload/readiness adaptation | DIRECT | HIGH |
 | 緊急登板 | ROLE_SUITABILITY | emergency entry repetitions | rapid warm-up / entry routine stable | DIRECT | HIGH |
-| 火消し | ROLE + EXPERIENCE | inherited-runner emergencies | pressure + readiness performance persists | INDIRECT | HIGH |
-| 回復 G〜A -> ガソリンタンク | PHYSICAL + RECOGNITION | workload, rehab, conditioning | actual RecoveryCapacity source changes / evidenced | INDIRECT | MEDIUM |
-| 投手調子極端 / 安定 -> 鉄腕 | RECOGNITION + PHYSICAL/ROUTINE | routine, workload, conditioning | Condition response distribution source changes | INDIRECT | MEDIUM |
-| クイック G〜A -> 走者釘付 | TECHNICAL | runner pressure, coach, repeated steal attempts | set-position release / repeatability improves | DIRECT | HIGH |
-| 牽制○ | TECHNICAL | runner exposure, coach | pickoff technique actually improves | DIRECT | HIGH |
-| 対ランナー○ | EXPERIENCE + TECHNICAL | repeated runner-on-base situations | attention allocation / execution stability | DIRECT | HIGH |
-| 打球反応○ | TECHNICAL + PHYSICAL | pitcher-fielding reps | reaction / first move / fielding source improves | DIRECT | HIGH |
-| 短気 | BEHAVIOR / PSYCHOLOGY RECOGNITION | provocation, repeated frustration | stable anger-appraisal tendency evidenced; no direct command debuff label | NONE | HIGH |
-| 闘志 / 闘魂 | PSYCHOLOGY RECOGNITION | rivalry, major stage, comeback | stable motivational appraisal pattern; effects route through Emotion | NONE | HIGH |
+| 火消し | ROLE_SUITABILITY + EXPERIENCE_ADAPTATION | inherited-runner emergencies | pressure + readiness performance persists | INDIRECT | HIGH |
+| 回復 G〜A -> ガソリンタンク | PHYSICAL_DEVELOPMENT + RECOGNITION | workload, rehab, conditioning | actual RecoveryCapacity source changes / evidenced | INDIRECT | MEDIUM |
+| 投手調子極端 / 安定 -> 鉄腕 | RECOGNITION + PHYSICAL_DEVELOPMENT + BEHAVIOR_PREFERENCE | routine, workload, conditioning | Condition response distribution source changes | INDIRECT | MEDIUM |
+| クイック G〜A -> 走者釘付 | TECHNICAL_DEVELOPMENT | runner pressure, coach, repeated steal attempts | set-position release / repeatability improves | DIRECT | HIGH |
+| 牽制○ | TECHNICAL_DEVELOPMENT | runner exposure, coach | pickoff technique actually improves | DIRECT | HIGH |
+| 対ランナー○ | EXPERIENCE_ADAPTATION + TECHNICAL_DEVELOPMENT | repeated runner-on-base situations | attention allocation / execution stability | DIRECT | HIGH |
+| 打球反応○ | TECHNICAL_DEVELOPMENT + PHYSICAL_DEVELOPMENT | pitcher-fielding reps | reaction / first move / fielding source improves | DIRECT | HIGH |
+| 短気 | BEHAVIOR_PREFERENCE + RECOGNITION | provocation, repeated frustration | stable anger-appraisal tendency evidenced; no direct command debuff label | NONE | HIGH |
+| 闘志 / 闘魂 | RECOGNITION + EXPERIENCE_ADAPTATION | rivalry, major stage, comeback | stable motivational appraisal pattern; effects route through Emotion | NONE | HIGH |
 | 速球中心 / 変化球中心 | BEHAVIOR_PREFERENCE | catcher/coach plan, pitch success | pitch-selection preference stable | DIRECT | HIGH |
-| テンポ○ | BEHAVIOR / ROUTINE | role, coach, success | pace/routine preference stable | DIRECT | HIGH |
+| テンポ○ | BEHAVIOR_PREFERENCE | role, coach, success | pace/routine preference stable | DIRECT | HIGH |
 | 荒れ球 | RECOGNITION | actual stuff + command-variance combination | both benefit/cost sources evidenced; label itself is not learned | NONE | MEDIUM |
 
 **表記確定:** `ノビ` は `G〜A` Graded Family。`ノビ○` はCanonical表記に使わない。Aより上のGold Tierは **怪童**。
@@ -625,45 +625,45 @@ AcquisitionKind:
 
 | Trait Family / UI | Kind | 主なCatalyst | Source / 定着条件 | Coach | Experience |
 | --- | --- | --- | --- | --- | --- |
-| アベレージヒッター -> 安打製造機 | TECHNICAL + RECOGNITION | coach, role, repeated contact success | contact precision / batted-ball quality technique | DIRECT | HIGH |
-| パワーヒッター -> アーチスト | TECHNICAL + PHYSICAL + RECOGNITION | strength/form development, role | power-swing launch / transfer source improves | DIRECT | HIGH |
-| 流し打ち -> 芸術的流し打ち | TECHNICAL | outside-pitch struggle, coach, opponent puzzle | opposite-field timing / bat path improves | DIRECT | HIGH |
-| 広角打法 -> 広角砲 | TECHNICAL | pitch-location challenge, elite model | multi-direction hard-contact technique stable | DIRECT | HIGH |
-| プルヒッター / 引っ張り屋 | TECHNICAL + BEHAVIOR | role, success, coach | pull-side transfer + preference stable | DIRECT | HIGH |
-| ラインドライブ | RECOGNITION + TECHNICAL | swing change | launch distribution source evidenced | INDIRECT | MEDIUM |
-| カット打ち | TECHNICAL | two-strike failure, coach | late-contact / foul-extension skill improves | DIRECT | HIGH |
-| 粘り打ち | TECHNICAL + EXPERIENCE | repeated two-strike battles | foul-survival / adjustment skill improves | DIRECT | HIGH |
-| 内角 / 外角 / 高球 / 低球 Family -> Master tier | TECHNICAL + EXPERIENCE | repeated location challenge, coach | zone-specific timing / mechanics improve | DIRECT | HIGH |
-| 対ストレート○ / 対変化球○ | TECHNICAL + EXPERIENCE | repeated failures, video, elite exposure | pitch-family recognition / timing / adjustment source improves | DIRECT | HIGH |
-| 初球○ -> 一球入魂 | BEHAVIOR + TECHNICAL | role, first-pitch success/failure | first-pitch approach + execution stable | DIRECT | HIGH |
+| アベレージヒッター -> 安打製造機 | TECHNICAL_DEVELOPMENT + RECOGNITION | coach, role, repeated contact success | contact precision / batted-ball quality technique | DIRECT | HIGH |
+| パワーヒッター -> アーチスト | TECHNICAL_DEVELOPMENT + PHYSICAL_DEVELOPMENT + RECOGNITION | strength/form development, role | power-swing launch / transfer source improves | DIRECT | HIGH |
+| 流し打ち -> 芸術的流し打ち | TECHNICAL_DEVELOPMENT | outside-pitch struggle, coach, opponent puzzle | opposite-field timing / bat path improves | DIRECT | HIGH |
+| 広角打法 -> 広角砲 | TECHNICAL_DEVELOPMENT | pitch-location challenge, elite model | multi-direction hard-contact technique stable | DIRECT | HIGH |
+| プルヒッター / 引っ張り屋 | TECHNICAL_DEVELOPMENT + BEHAVIOR_PREFERENCE | role, success, coach | pull-side transfer + preference stable | DIRECT | HIGH |
+| ラインドライブ | RECOGNITION + TECHNICAL_DEVELOPMENT | swing change | launch distribution source evidenced | INDIRECT | MEDIUM |
+| カット打ち | TECHNICAL_DEVELOPMENT | two-strike failure, coach | late-contact / foul-extension skill improves | DIRECT | HIGH |
+| 粘り打ち | TECHNICAL_DEVELOPMENT + EXPERIENCE_ADAPTATION | repeated two-strike battles | foul-survival / adjustment skill improves | DIRECT | HIGH |
+| 内角 / 外角 / 高球 / 低球 Family -> Master tier | TECHNICAL_DEVELOPMENT + EXPERIENCE_ADAPTATION | repeated location challenge, coach | zone-specific timing / mechanics improve | DIRECT | HIGH |
+| 対ストレート○ / 対変化球○ | TECHNICAL_DEVELOPMENT + EXPERIENCE_ADAPTATION | repeated failures, video, elite exposure | pitch-family recognition / timing / adjustment source improves | DIRECT | HIGH |
+| 初球○ -> 一球入魂 | BEHAVIOR_PREFERENCE + TECHNICAL_DEVELOPMENT | role, first-pitch success/failure | first-pitch approach + execution stable | DIRECT | HIGH |
 | 窮地○ -> ヒートアップ | EXPERIENCE_ADAPTATION | two-strike pressure / comeback AB | narrowing-option adaptation stable | INDIRECT | HIGH |
-| 三振 -> 扇風機 | RECOGNITION / NEGATIVE DEVELOPMENT | repeated two-strike failure | recognition / adjustment weakness persists | INDIRECT | HIGH |
+| 三振 -> 扇風機 | RECOGNITION + TECHNICAL_DEVELOPMENT | repeated two-strike failure | recognition / adjustment weakness persists | INDIRECT | HIGH |
 | リベンジ / 逆襲 | EXPERIENCE_ADAPTATION | previous-AB failure, opponent puzzle | in-game adjustment speed / learned matchup improves | INDIRECT | HIGH |
 | チャンス G〜A -> 勝負師 | EXPERIENCE_ADAPTATION | scoring-position/high-leverage repetitions | stable Pressure-response evidence; Emotion double-count forbidden | INDIRECT | HIGH |
-| 満塁男 -> 恐怖の満塁男 | EXPERIENCE_SPECIALIZATION | repeated bases-loaded opportunities | persistent bases-loaded specialization beyond generic Pressure evidence | NONE | HIGH |
-| サヨナラ男 -> 伝説のサヨナラ男 | EXPERIENCE_SPECIALIZATION | walk-off opportunities / success/failure | repeated extreme-leverage response; one walk-off is only a Catalyst | NONE | HIGH |
-| 決勝打 -> 渾身の決勝打 | EXPERIENCE_SPECIALIZATION | tie/go-ahead opportunities | persistent go-ahead execution evidence, no direct result buff | NONE | HIGH |
+| 満塁男 -> 恐怖の満塁男 | EXPERIENCE_ADAPTATION | repeated bases-loaded opportunities | persistent bases-loaded specialization beyond generic Pressure evidence | NONE | HIGH |
+| サヨナラ男 -> 伝説のサヨナラ男 | EXPERIENCE_ADAPTATION | walk-off opportunities / success/failure | repeated extreme-leverage response; one walk-off is only a Catalyst | NONE | HIGH |
+| 決勝打 -> 渾身の決勝打 | EXPERIENCE_ADAPTATION | tie/go-ahead opportunities | persistent go-ahead execution evidence, no direct result buff | NONE | HIGH |
 | 逆境○ -> 火事場の馬鹿力 | EXPERIENCE_ADAPTATION | trailing games, comeback, humiliation | challenge-oriented appraisal / execution becomes stable | INDIRECT | HIGH |
-| 対エース○ -> エースキラー | EXPERIENCE + RELATIONSHIP | repeated high-quality opponent exposure | actual high-quality pitch adaptation / matchup evidence | INDIRECT | HIGH |
+| 対エース○ -> エースキラー | EXPERIENCE_ADAPTATION + RELATIONSHIP_FAMILIARITY | repeated high-quality opponent exposure | actual high-quality pitch adaptation / matchup evidence | INDIRECT | HIGH |
 | 代打○ -> 代打の神様 | ROLE_SUITABILITY + EXPERIENCE | bench role, emergency chances | pinch-hit readiness / routine / evidence stable | DIRECT | HIGH |
-| 対左投手 G〜A -> 左腕キラー | TECHNICAL + EXPERIENCE | platoon matchup repetitions | matchup technique / recognition source improves | DIRECT | HIGH |
-| バント○ -> バント職人 | TECHNICAL | role demand, coach | bunt contact / placement source improves | DIRECT | HIGH |
-| 内野安打○ -> ロケットスタート | RECOGNITION + TECHNICAL/PHYSICAL | sprint/start training, usage | bat-to-run transition / first-step source improves | DIRECT | MEDIUM |
-| 盗塁 G〜A -> 電光石火 | TECHNICAL + EXPERIENCE | attempts, catcher/pitcher study, coach | lead / start / acceleration / slide source improves | DIRECT | HIGH |
-| 走塁 G〜A -> 高速ベースラン | TECHNICAL + EXPERIENCE | baserunning repetitions | route / read / extra-base decision improves | DIRECT | HIGH |
+| 対左投手 G〜A -> 左腕キラー | TECHNICAL_DEVELOPMENT + EXPERIENCE_ADAPTATION | platoon matchup repetitions | matchup technique / recognition source improves | DIRECT | HIGH |
+| バント○ -> バント職人 | TECHNICAL_DEVELOPMENT | role demand, coach | bunt contact / placement source improves | DIRECT | HIGH |
+| 内野安打○ -> ロケットスタート | RECOGNITION + TECHNICAL_DEVELOPMENT/PHYSICAL | sprint/start training, usage | bat-to-run transition / first-step source improves | DIRECT | MEDIUM |
+| 盗塁 G〜A -> 電光石火 | TECHNICAL_DEVELOPMENT + EXPERIENCE_ADAPTATION | attempts, catcher/pitcher study, coach | lead / start / acceleration / slide source improves | DIRECT | HIGH |
+| 走塁 G〜A -> 高速ベースラン | TECHNICAL_DEVELOPMENT + EXPERIENCE_ADAPTATION | baserunning repetitions | route / read / extra-base decision improves | DIRECT | HIGH |
 | ヘッドスライディング / 気迫ヘッド | BEHAVIOR_PREFERENCE | role, mentor, success/failure | slide-style preference stable; no speed bonus | INDIRECT | HIGH |
-| かく乱 -> トリックスター | TECHNICAL + BEHAVIOR | runner role, opponent reaction evidence | threat / timing / deception behavior stable | INDIRECT | HIGH |
-| 守備職人 -> 魔術師 | TECHNICAL + EXPERIENCE | huge fielding reps, mentor, position role | route / first move / transfer / decision improves | DIRECT | HIGH |
-| 高速チャージ | TECHNICAL | bunt/slow-ball reps | charge/read/transfer technique improves | DIRECT | HIGH |
-| 送球 G〜A -> ストライク送球 | TECHNICAL | coach, error, position reps | throwing accuracy / transfer source improves | DIRECT | HIGH |
-| レーザービーム -> 高速レーザー | RECOGNITION + TECHNICAL/PHYSICAL | throwing development | arm velocity / trajectory / transfer evidence | INDIRECT | MEDIUM |
-| ホーム死守 -> 鉄の壁 | TECHNICAL + EXPERIENCE | tag/block situations | tag-and-block execution source improves | DIRECT | HIGH |
-| ブロッキング | TECHNICAL | catcher training | block technique / read source improves | DIRECT | HIGH |
-| フレーミング -> upper tier | TECHNICAL + RECOGNITION | receiving coach, game reps | receiving / call-influence source improves; RuleProfile aware | DIRECT | HIGH |
-| キャッチャー G〜A -> 球界の頭脳 | TECHNICAL + COGNITIVE + EXPERIENCE | game calling, pitcher relationships, mentor | handling / communication / game-calling source improves | DIRECT | HIGH |
-| バズーカ送球 | RECOGNITION + TECHNICAL/PHYSICAL | catcher throw training | pop-time + velocity + accuracy source evidenced | DIRECT | MEDIUM |
-| ケガしにくさ G〜A -> 鉄人 | PHYSICAL + RECOGNITION | conditioning / medical history | actual injury-resistance source; injury itself does not grant it | INDIRECT | LOW |
-| 回復 G〜A | PHYSICAL + RECOGNITION | workload / rehab / conditioning | actual RecoveryCapacity source | INDIRECT | MEDIUM |
+| かく乱 -> トリックスター | TECHNICAL_DEVELOPMENT + BEHAVIOR_PREFERENCE | runner role, opponent reaction evidence | threat / timing / deception behavior stable | INDIRECT | HIGH |
+| 守備職人 -> 魔術師 | TECHNICAL_DEVELOPMENT + EXPERIENCE_ADAPTATION | huge fielding reps, mentor, position role | route / first move / transfer / decision improves | DIRECT | HIGH |
+| 高速チャージ | TECHNICAL_DEVELOPMENT | bunt/slow-ball reps | charge/read/transfer technique improves | DIRECT | HIGH |
+| 送球 G〜A -> ストライク送球 | TECHNICAL_DEVELOPMENT | coach, error, position reps | throwing accuracy / transfer source improves | DIRECT | HIGH |
+| レーザービーム -> 高速レーザー | RECOGNITION + TECHNICAL_DEVELOPMENT/PHYSICAL | throwing development | arm velocity / trajectory / transfer evidence | INDIRECT | MEDIUM |
+| ホーム死守 -> 鉄の壁 | TECHNICAL_DEVELOPMENT + EXPERIENCE_ADAPTATION | tag/block situations | tag-and-block execution source improves | DIRECT | HIGH |
+| ブロッキング | TECHNICAL_DEVELOPMENT | catcher training | block technique / read source improves | DIRECT | HIGH |
+| フレーミング -> upper tier | TECHNICAL_DEVELOPMENT + RECOGNITION | receiving coach, game reps | receiving / call-influence source improves; RuleProfile aware | DIRECT | HIGH |
+| キャッチャー G〜A -> 球界の頭脳 | TECHNICAL_DEVELOPMENT + EXPERIENCE_ADAPTATION | game calling, pitcher relationships, mentor | handling / communication / game-calling source improves | DIRECT | HIGH |
+| バズーカ送球 | RECOGNITION + TECHNICAL_DEVELOPMENT/PHYSICAL | catcher throw training | pop-time + velocity + accuracy source evidenced | DIRECT | MEDIUM |
+| ケガしにくさ G〜A -> 鉄人 | PHYSICAL_DEVELOPMENT + RECOGNITION | conditioning / medical history | actual injury-resistance source; injury itself does not grant it | INDIRECT | LOW |
+| 回復 G〜A | PHYSICAL_DEVELOPMENT + RECOGNITION | workload / rehab / conditioning | actual RecoveryCapacity source | INDIRECT | MEDIUM |
 | Team Killer / ○○キラー | RELATIONSHIP_FAMILIARITY | repeated specific opponent meetings | current opponent overlap + familiarity evidence; roster changes can invalidate | NONE | HIGH |
 
 ---
@@ -843,7 +843,7 @@ CPUもHidden Triggerを読まない。
 
 ```text
 山田が今季、大きな成長を遂げている
-``
+```
 
 等を表示可能。
 
