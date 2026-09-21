@@ -2,7 +2,9 @@
 
 Date: 2026-09-22
 
-Status: **implementation-authorized; upstream extension of frozen baseball-physics-architecture-v1**
+Status: **FROZEN — Swing Kinematics v1 trajectory architecture and current evidence-bounded default profile are accepted for the aerodynamic rigid-bat path**
+
+Successor closure: `docs/superpowers/specs/2026-09-22-swing-kinematics-v1-production-closure.md` records final CI, observer evidence, compatibility boundaries, and the remaining legacy plate-appearance migration boundary.
 
 Version:
 

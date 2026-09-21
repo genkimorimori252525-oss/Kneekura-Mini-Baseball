@@ -75,6 +75,13 @@ export type PitchAgainstBatterResolution =
       timeline: CanonicalPlateAppearanceTimeline;
     }>;
 
+/**
+ * Legacy/simple-trajectory plate-appearance coordinator.
+ *
+ * This coordinator remains for PitchTrajectorySegment compatibility and uses
+ * the historical first-order swing path. It is not the authoritative Swing
+ * Kinematics v1 aerodynamic rigid-bat entry.
+ */
 export const resolveAndRecordPitchAgainstBatter = (
   timeline: CanonicalPlateAppearanceTimeline,
   input: PitchAgainstBatterInput,
