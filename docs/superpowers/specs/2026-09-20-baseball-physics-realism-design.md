@@ -719,7 +719,11 @@ Thus a pitcher ignoring a sign can help or hurt with no special bonus. If the ba
 
 ### 3.4.11 Pitching physics closure gate
 
-The **architecture** of realistic pitching is now close to freeze: release skill, per-pitch repeatability, catcher lead, pitcher autonomy, batter anticipation, spin decomposition, aerodynamic flight and canonical adjudication all have explicit causal boundaries.
+The **architecture** of realistic pitching is now frozen as `pitching-physics-architecture-v1`: release skill, per-pitch repeatability, catcher lead, pitcher autonomy, batter anticipation, spin decomposition, aerodynamic flight and canonical adjudication all have explicit causal boundaries.
+
+The freeze contract is recorded in `docs/superpowers/specs/2026-09-21-pitching-physics-v1-freeze.md` and exported by `PitchingPhysicsV1`.
+
+Architecture freeze does not freeze coefficient calibration.
 
 However, the pitching **physics calibration** is not ready to declare closed until the following are either implemented or explicitly frozen as future optional extensions:
 
@@ -874,6 +878,55 @@ Realistic ground interaction should distinguish:
 The collision should couple translational and rotational state so topspin/backspin and sidespin affect bounce, skid, and roll.
 
 Do not encode named outcomes such as `high_chop` or `slow_roller`. They must emerge from the same state transition.
+
+### 5.1 Implemented generic surface-contact foundation
+
+A generic reduced-order ball/surface collision solver now exists as
+`BallSurfaceContact`.
+
+It applies the same rigid spinning-ball impulse model to any planar surface:
+
+```text
+ball COM velocity
++ ball spin
++ contact radius
++ surface normal / velocity
+        ↓
+normal relative velocity
+tangential surface slip
+        ↓
+normal restitution impulse
++ friction-limited tangential impulse
+        ↓
+new translation + new spin
+```
+
+This single solver can represent ground or wall impact by changing only the
+surface normal and calibrated material parameters.
+
+The solver includes:
+
+- normal coefficient of restitution;
+- tangential coefficient of restitution;
+- Coulomb friction impulse cap;
+- translational/rotational coupling through the baseball moment of inertia;
+- explicit detection of whether the desired tangential response was reached
+  or remained friction-limited sliding;
+- moving-surface support.
+
+A low-speed hardwood validation fixture is included from Cross & Nathan (2006):
+normal COR 0.59, tangential COR 0.17, and friction coefficient 0.31 used only
+as the reported lower-bound fixture. It is **not** treated as a grass/dirt
+field calibration.
+
+Still required before Phase C can close:
+
+- calibrated infield dirt profile;
+- calibrated grass / artificial-turf profile;
+- warning-track profile;
+- padded / hard-wall profiles;
+- continuous post-bounce skid-to-roll / rolling resistance integration;
+- integration of the new surface solver into authoritative `BallFlight`.
 
 ## 6. Phase D — empirical calibration
 
