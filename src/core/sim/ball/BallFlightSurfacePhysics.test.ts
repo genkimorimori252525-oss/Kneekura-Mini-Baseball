@@ -230,6 +230,109 @@ describe('surface-aware ball flight', () => {
     ).toBeCloseTo(0.2, 6);
   });
 
+  it('can resolve a different response for shallow versus steep impact angle at the same speed', () => {
+    const responseGrid = {
+      profileId: 'angle-speed-fixture',
+      version: 'v1',
+      angleRows: [
+        {
+          incidenceAngleRadians: 0.4,
+          speedKnots: [
+            {
+              incidentSpeedMps: 20,
+              contact: {
+                normalRestitution: 0.6,
+                tangentialRestitution: 0,
+                frictionCoefficient: 0,
+              },
+            },
+          ],
+        },
+        {
+          incidenceAngleRadians: 0.8,
+          speedKnots: [
+            {
+              incidentSpeedMps: 20,
+              contact: {
+                normalRestitution: 0.2,
+                tangentialRestitution: 0,
+                frictionCoefficient: 0,
+              },
+            },
+          ],
+        },
+      ],
+    } as const;
+
+    const parameters: BallFlightParameters = {
+      ...DEFAULT_BALL_FLIGHT_PARAMETERS,
+      restingVerticalSpeed: 0.01,
+      groundSurfacePhysics: {
+        ball: REFERENCE_BASEBALL_RIGID_BODY,
+        responseGrid,
+      },
+    };
+
+    const speed = 20;
+    const shallowAngle = 0.4;
+    const steepAngle = 0.8;
+
+    const shallow = advanceBallState(
+      {
+        tick: 0,
+        position: {
+          x: 0,
+          y: REFERENCE_BASEBALL_RIGID_BODY.radiusM,
+          z: 0,
+        },
+        velocity: {
+          x: speed * Math.cos(shallowAngle),
+          y: -speed * Math.sin(shallowAngle),
+          z: 0,
+        },
+        spin: {
+          x: 0,
+          y: 0,
+          z: 0,
+        },
+      },
+      1,
+      parameters,
+    );
+
+    const steep = advanceBallState(
+      {
+        tick: 0,
+        position: {
+          x: 0,
+          y: REFERENCE_BASEBALL_RIGID_BODY.radiusM,
+          z: 0,
+        },
+        velocity: {
+          x: speed * Math.cos(steepAngle),
+          y: -speed * Math.sin(steepAngle),
+          z: 0,
+        },
+        spin: {
+          x: 0,
+          y: 0,
+          z: 0,
+        },
+      },
+      1,
+      parameters,
+    );
+
+    expect(
+      shallow.velocity.y
+      / (speed * Math.sin(shallowAngle)),
+    ).toBeCloseTo(0.6, 6);
+    expect(
+      steep.velocity.y
+      / (speed * Math.sin(steepAngle)),
+    ).toBeCloseTo(0.2, 6);
+  });
+
   it('rejects inconsistent physical ball radius at the flight boundary', () => {
     expect(() =>
       advanceBallState(
