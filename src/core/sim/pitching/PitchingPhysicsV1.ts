@@ -11,6 +11,7 @@ export const PITCHING_PHYSICS_V1_INCLUDED_CAUSAL_LAYERS =
     'finger_impulse_release',
     'active_gyro_spin_decomposition',
     'aerodynamic_drag_magnus_wind_gravity',
+    'aerodynamic_spin_decay',
     'seam_material_orientation_state',
     'catcher_lead',
     'pitcher_sign_autonomy',
@@ -23,7 +24,6 @@ export const PITCHING_PHYSICS_V1_EXPLICITLY_DEFERRED =
   Object.freeze([
     'seam_shifted_wake_force',
     'knuckleball_unsteady_seam_force',
-    'calibrated_spin_decay',
     'full_arm_hand_biomechanics',
   ] as const);
 
