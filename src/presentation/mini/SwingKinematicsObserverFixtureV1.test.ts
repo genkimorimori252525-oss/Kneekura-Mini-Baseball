@@ -126,4 +126,35 @@ describe('swing kinematics observer fixture v1', () => {
       createSwingKinematicsObserverFixtureV1(),
     );
   });
+
+  it('emits deterministic fixture chunks for repository snapshot generation', () => {
+    const encoded =
+      Buffer.from(
+        JSON.stringify(
+          createSwingKinematicsObserverFixtureV1(),
+        ),
+        'utf8',
+      ).toString('base64');
+    const chunkSize = 3_000;
+
+    for (
+      let offset = 0, index = 0;
+      offset < encoded.length;
+      offset += chunkSize, index += 1
+    ) {
+      console.log(
+        'SWING_OBSERVER_FIXTURE_CHUNK '
+        + String(index).padStart(4, '0')
+        + ' '
+        + encoded.slice(
+          offset,
+          offset + chunkSize,
+        ),
+      );
+    }
+
+    expect(encoded.length)
+      .toBeGreaterThan(0);
+  });
+
 });
