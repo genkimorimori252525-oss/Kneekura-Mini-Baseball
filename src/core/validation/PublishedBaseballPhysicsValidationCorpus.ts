@@ -47,7 +47,7 @@ export const createPublishedCoefficientRegressionCases =
             targets: [
               {
                 observableId:
-                  'exit_speed_mps',
+                  'normal_coefficient_of_restitution',
                 sourceId:
                   target.source,
                 sourceVersion:
@@ -61,7 +61,7 @@ export const createPublishedCoefficientRegressionCases =
             measurements: [
               {
                 observableId:
-                  'exit_speed_mps',
+                  'normal_coefficient_of_restitution',
                 observedValue:
                   resolveWoodBatNormalRestitution(
                     target
@@ -83,7 +83,7 @@ export const createPublishedCoefficientRegressionCases =
         targets: [
           {
             observableId:
-              'spin_rate_rad_per_second',
+              'tangential_coefficient_of_restitution',
             sourceId:
               'Kensrud, Nathan & Smith 2017 swinging wood bat',
             sourceVersion:
@@ -98,7 +98,7 @@ export const createPublishedCoefficientRegressionCases =
         measurements: [
           {
             observableId:
-              'spin_rate_rad_per_second',
+              'tangential_coefficient_of_restitution',
             observedValue:
               findKensrud2016TangentialReference(
                 'wood',
@@ -118,7 +118,7 @@ export const createPublishedCoefficientRegressionCases =
             targets: [
               {
                 observableId:
-                  'pitch_plate_y_m',
+                  'lift_coefficient',
                 sourceId:
                   'Lyu et al. 2022 Table 1 seam-average lift',
                 sourceVersion:
@@ -134,7 +134,7 @@ export const createPublishedCoefficientRegressionCases =
             measurements: [
               {
                 observableId:
-                  'pitch_plate_y_m',
+                  'lift_coefficient',
                 observedValue:
                   resolveBaseballAerodynamicCoefficients(
                     LYU_2022_SEAM_AVERAGED_AERO_PROFILE,
@@ -155,9 +155,8 @@ export const createPublishedCoefficientRegressionCases =
 
 /**
  * This corpus is a coefficient/evidence regression gate, not the final
- * end-to-end production corpus. Observable IDs are reused only as generic
- * scalar slots because PhysicsObservableValidation intentionally has no
- * coefficient-specific result category.
+ * end-to-end production corpus. Coefficient observables are explicit so
+ * calibration evidence cannot masquerade as a trajectory measurement.
  */
 export const evaluatePublishedCoefficientRegressionCorpus =
   (): PhysicsValidationCorpusResult => (
