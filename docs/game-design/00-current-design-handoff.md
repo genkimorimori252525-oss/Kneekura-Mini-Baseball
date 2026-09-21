@@ -35,9 +35,9 @@ AI / Agent向け強制ルール:
 - `15-season-events-and-deadlines.md` — **CANONICAL / DESIGN FROZEN v1**
 - `16-club-economy-rivalry-design.md` — **CANONICAL / DESIGN FROZEN v1**
 - `18-club-state-lifecycle.md` — **CANONICAL / DESIGN FROZEN v1**
+- `19-club-structural-dominance-and-decline.md` — **CANONICAL / DESIGN FROZEN v1**
 
 残る最終監査対象:
-- `19-club-structural-dominance-and-decline.md`
 - `20-simple-surface-deep-simulation.md`
 - `26-club-initial-seed-rating-model.md`
 - `31-scouting-recruitment-system.md`
@@ -201,6 +201,25 @@ Key freeze decisions:
 - structural changes preserve provenance using Current Snapshot + Event Log/checkpoints.
 - ClubSeasonSnapshot is historical, not live authority.
 - catalog/seed versions are pinned per Save; migration never rewrites Save history.
+
+---
+# 0.8 CANONICAL — Club Structural Dominance & Decline v1
+
+2026-09-22 user approved and froze:
+- `docs/game-design/19-club-structural-dominance-and-decline.md`
+
+Key freeze decisions:
+- giant persistence is caused by multiple L1 structural states, never a single hidden giant/big-club stat.
+- Structural Revenue Base is persistent but mutable through long-term causal history.
+- Recovery Capacity / Economic Band / Crisis Level / Giant / Dynasty are Derived evaluations/descriptors.
+- Crisis Levels never generate penalties themselves.
+- sustained collapse requires real financial/institutional/supporter/staff/facility deterioration.
+- random drift cannot directly collapse a giant; stochastic world events are allowed only through concrete causal state changes.
+- named clubs have different initial structural compositions, not permanent club-name rules.
+- challengers can become giants by compounding their own success without hidden debuffs to incumbents.
+- Fast/Medium/Slow are characteristic timescales, not fixed timers.
+- structural rise/decline is explainable through 18's structural event provenance and season snapshots.
+- normal UI remains the five public axes; budget/wage room/financial state are detail/offseason summaries.
 
 ---
 # 1. Game Slogan
