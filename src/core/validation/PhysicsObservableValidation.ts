@@ -3,6 +3,12 @@ import {
 } from './CanonicalEvidenceFingerprint';
 
 export type PhysicsObservableId =
+  | 'normal_coefficient_of_restitution'
+  | 'tangential_coefficient_of_restitution'
+  | 'drag_coefficient'
+  | 'lift_coefficient'
+  | 'surface_pace_ratio'
+  | 'rotational_inertia_factor'
   | 'pitch_plate_x_m'
   | 'pitch_plate_y_m'
   | 'pitch_plate_speed_mps'
