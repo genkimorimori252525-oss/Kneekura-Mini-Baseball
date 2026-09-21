@@ -862,10 +862,23 @@ synthesis**:
 
 Important limitation: Cross & Nathan explicitly caution against directly
 assuming low-speed coefficients remain valid at game speed, and the high-speed
-normal/tangential evidence comes from different experimental designs. This
-checkpoint validates the **equations, effective-mass geometry and evidence
-plumbing**; the synthesis remains opt-in until a single production calibration
-is selected and validated.
+normal/tangential evidence comes from different experimental designs.
+
+Modern wooden-bat evidence strengthens that warning. Hirono, Murata & Nakamura
+(2025) measured commercial wooden bats and found that BBCOR speed dependence
+**differed by bat**; some bats decreased monotonically with speed while others
+did not show the same monotonic decrease through 180 km/h. Therefore the Core
+does not promote a universal wooden-bat power law.
+
+`WoodBatSpeedResponseProfile` requires at least two speed knots belonging to
+one explicitly identified bat/profile (or a separately justified population)
+and carries stable evidence IDs. It interpolates only inside that measured
+series and clamps outside it. The older cross-study two-anchor synthesis
+remains calibration research only, not a production wood-bat law.
+
+This checkpoint validates the **equations, effective-mass geometry and
+evidence plumbing**; production wood-bat calibration remains open until
+same-profile game-speed measurements are selected.
 
 ### 4.0.2 High-speed wood-bat restitution anchor
 
