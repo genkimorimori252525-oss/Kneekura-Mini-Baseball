@@ -79,8 +79,12 @@
 
 ## Task 3 — Publication and integration evidence
 
-- [ ] Record exact source/test hashes and limits. Verify no existing simulation/rules/presentation file changed.
-- [ ] Publish on a dedicated continuation branch from PR #26; open a stacked PR, do not merge the shared branches.
-- [ ] Run existing `npm run verify` on the complete repository where available. Native connector has no workflow-dispatch action; any task-specific validation workflow must retain read-only permissions, exact branch routing and the repository-specific runner label. Never rerun an old commit and claim it validates new code.
-- [ ] Record actual results, not expected totals. If publication or full execution is unavailable, preserve the complete patch/bundle and disclose that boundary.
-- [ ] Keep physics and traits visible in the remaining queue; do not mark their independent work complete from memory.
+- [x] Record exact source/test hashes and limits. Verify no existing simulation/rules/presentation file changed.
+- [x] Publish on a dedicated continuation branch from PR #26; open a stacked PR, do not merge the shared branches.
+- [x] Run existing `npm run verify` on the complete repository where available. Native connector has no workflow-dispatch action; any task-specific validation workflow must retain read-only permissions, exact branch routing and the repository-specific runner label. Never rerun an old commit and claim it validates new code.
+- [x] Record actual results, not expected totals. If publication or full execution is unavailable, preserve the complete patch/bundle and disclose that boundary.
+- [x] Keep physics and traits visible in the remaining queue; do not mark their independent work complete from memory.
+
+## Completion ledger
+
+Tasks 1–3 complete for this bounded slice. Source commit `bcced59c7255b5d539b8a9dc69191c1494c8767b` was verified by native run `35664397763` (job `106546766547`): typecheck and 247 files / 1,246 tests passed. PR #28 is stacked on #26, not merged. All 13 published file hashes match the local files. Documentation-only closure gets its own push verification; final results belong in the PR conversation. Dependency audit and runtime warnings are explicitly recorded in the project-status document, not silently repaired.

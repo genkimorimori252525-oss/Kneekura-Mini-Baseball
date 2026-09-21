@@ -33,7 +33,13 @@ Local tooling: Node 22.16.0 and TypeScript 5.8.3. For local execution only, temp
 
 Dedicated branch: `jolly/confirmed-headless-control-2026-09-22`, stacked on the PR #26 branch. No existing source files are changed. A narrowly scoped additive `.github/workflows/headless-control-verify.yml` runs the existing `npm ci` / `npm run verify` commands only for pushes to this branch. It retains read-only contents permission and the repository-specific Windows `minibaseball` runner labels, with no pull-request trigger. Existing `p0-core.yml` is untouched.
 
-At the time of this initial publication document, native full-repository verification is **pending**. Record the resulting exact commit/run/job and actual totals before declaring it verified. The baseline's successful #1498 run must not be reused as evidence for these new files.
+**Native full-repository verification succeeded for source commit `bcced59c7255b5d539b8a9dc69191c1494c8767b`.** Run `35664397763` / job `106546766547`, Headless Control Verification #1, on Jolly-MiniBaseball: Node 26.9.0, npm 11.19.1, repository-locked TypeScript and Vitest 2.1.9. `npm ci` and `npm run verify` both succeeded. The decoded log reports **247 test files / 1,246 tests passed**, including 28 HumanControl and 37 ControlledDecision tests. No test failures were omitted.
+
+PR **#28** is open, non-draft, stacked on #26; no shared branch is merged. All 13 initially published file blob hashes were checked against the local artifact manifest; the diff is additions only. This final documentation update does not change product or test source. Its own push-triggered verification must be checked separately before claiming verification of the final documentation commit.
+
+### Known warnings, not resolved by this feature
+
+`npm ci` reports **5 vulnerabilities: 3 moderate, 1 high, 1 critical** in the unchanged dependency tree. It also warns about the esbuild install script's allowScripts coverage. Actions reports deprecated Node 20 action targets running under Node 24, and a punycode deprecation warning. The project verification itself uses Node 26.9.0 and passes. This PR changes neither package.json nor package-lock.json, does not investigate exploitability, and does not run `npm audit fix --force`. Dependency/security maintenance is a separate follow-up, not a claim that the repository is warning-free.
 
 ## Remaining queue and next slice
 
