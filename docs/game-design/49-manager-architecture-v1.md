@@ -1,6 +1,6 @@
 # Manager Architecture v1 — CANONICAL
 
-更新日: 2026-09-20  
+更新日: 2026-09-22  
 状態: **CANONICAL / DESIGN FROZEN v1。実装前。**
 
 監査:
