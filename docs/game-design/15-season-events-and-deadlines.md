@@ -1,7 +1,10 @@
-# Season Events & Deadlines
+# Season Events & Deadlines — CANONICAL v1
 
-更新日: 2026-09-19  
-状態: **設計承認候補版。実装前。**
+更新日: 2026-09-22  
+状態: **CANONICAL / DESIGN FROZEN v1。2026-09-22ユーザー承認。実装前。**
+
+> Season EventのFamily / Profile境界 / Deadline責務はv1としてFreeze済み。
+> exact日付・Roster人数・Vote比率・Waiver細則等はLeagueProfile / LeagueRosterProfile / implementation calibrationであり、open architectureではない。
 
 関連:
 - `docs/game-design/10-world-league-catalog.md`
@@ -29,25 +32,61 @@
 
 ---
 
-# 2. 共通Calendar比率
+# 2. World Default Event Timing — CANONICAL
 
-絶対日付より、まずRegular Season進行率で定義する。
+Season Eventは共通Familyを持つが、全Leagueへ全Eventを強制しない。
+
+実在野球Leagueでは対象年度の公式制度・日付を第一参照する。
+実在Leagueがない / football-derived等のLeagueではWorld Defaultを基礎にする。
+
+World Default:
 
 ```text
 0%      Opening Day
-45–55%  All-Star Break
-70–75%  Market Deadline
-85%     Late-season Roster Expansion begins
-90%     Postseason Eligibility Cutoff
+50%     All-Star reference point
+72%     Market reference point
+85%     Roster Expansion reference point
+90%     Postseason Eligibility reference point
 100%    Regular Season ends
 ```
 
-実際の日付はLeagueCalendarProfileから決める。
+実際の日付はLeagueCalendarProfile / LeagueSeasonEventProfileから決める。
+WBC / Premier / Club World等との衝突時はWorld Competition Windowを優先する。
 
-WBC / Premier / Club World等との衝突時は、World Competition Windowを優先する。
+> **Profileごとの実規定・ON/OFFがWorld Defaultより優先する。**
+
+## 2.1 LeagueSeasonEventProfile — CANONICAL
+
+Season Eventの採用可否・時期・Policyはversioned Profileで持つ。
+
+```ts
+type MarketWindowType = "TRADE_DEADLINE" | "REGISTRATION_WINDOW_CLOSE" | "HYBRID";
+
+type MarketWindowPolicy = {
+  type: MarketWindowType;
+  progress?: number;
+  calendarDate?: CalendarDate;
+  policyVersion: string;
+};
+
+type LeagueSeasonEventProfile = {
+  version: string;
+  allStarEnabled: boolean;
+  allStarProgress?: number;
+  marketWindows: readonly MarketWindowPolicy[];
+  rosterExpansionEnabled: boolean;
+  rosterExpansionProgress?: number;
+  postseasonEligibilityPolicyVersion?: string;
+  awardSelectionPolicyVersion: string;
+};
+```
+
+Market Window自体を持たないLeagueは `marketWindows = []` で表現する。
+単一enumへ世界を押し込めず、Leagueによって複数Market Windowを持つ余地を残す。
+
+Profile変更は新versionとして将来Seasonから適用し、過去SeasonのEvent履歴を書き換えない。
 
 ---
-
 # 3. Opening Day
 
 Regular Seasonの公式開始日。
@@ -70,15 +109,10 @@ Opening Day時点のRosterは、そのSeasonの最初の公式Club状態とし�
 
 # 4. All-Star Break
 
-全Full Leagueに初期標準でAll-Star Eventを持たせる。
+World DefaultではFull LeagueにAll-Star Eventを持たせるが、`allStarEnabled` によりLeagueごとにOFFを許可する。
 
-開催時期:
-
-```text
-Regular Season 45–55%
-```
-
-を目安とする。
+World Default開催時期はRegular Season 50%前後。
+実在Leagueでは年度公式日程を優先し、Profileで個別設定する。
 
 ## 4.1 Format
 
@@ -124,9 +158,18 @@ true abilityへ直接Buffしない。
 
 ---
 
-# 5. Market Deadline
+# 5. Market Windows
 
-リーグごとの市場文化に合わせ、二種類へ分ける。
+リーグごとの市場文化に合わせ、Market Windowを0..N個持てる。
+
+主要v1種類:
+- TRADE_DEADLINE
+- REGISTRATION_WINDOW_CLOSE
+- HYBRID
+
+Market Windowが存在しないLeagueも許可する。
+
+HYBRIDはTrade / Registration / Loan / FA等の複数制限が同時または段階的に発効するProfile。
 
 ## 5.1 TRADE_DEADLINE
 
@@ -140,11 +183,8 @@ true abilityへ直接Buffしない。
 - Caribbean Hybrid leagues
 - Australia
 
-時期:
-
-```text
-Regular Season 70–75%
-```
+World Default referenceはRegular Season 72%付近。
+実在Leagueでは年度公式日付を優先する。
 
 締切後:
 
@@ -206,9 +246,24 @@ Football Transfer市場を参考にするが、ルールはBaseball Calendarへ�
 
 ---
 
+## 5.3 HYBRID
+
+Trade / Registration / Loan / FA等の複数Market restrictionを一つのLeague文化として扱うProfile。
+
+例:
+- Trade deadline closes club-to-club trade
+- Registration window remains open for limited free agents
+- Loan window may close on a separate date
+
+HYBRIDは魔法の別市場ではなく、複数の既存Transaction Ruleをversioned Market Window Policyとして束ねる。
+
+---
 # 6. Late-season Roster Expansion
 
-Regular Season終盤、おおむね残り15%からRoster登録枠を少し広げる。
+Roster Expansionは**Optional League Rule**。
+
+World Default referenceはRegular Season 85%付近だが、全Leagueへ強制しない。
+実在Leagueでは年度の公式Roster規定を第一参照する。
 
 目的:
 
@@ -227,7 +282,7 @@ type LateSeasonRosterExpansion = {
 };
 ```
 
-正確なActive Roster人数は次のClub / Roster設計で決める。
+正確なActive Roster人数・増加数・eligible assignmentは `LeagueRosterProfile` の年度別規定をSource of Truthとする。
 
 重要:
 
@@ -235,30 +290,42 @@ type LateSeasonRosterExpansion = {
 
 ---
 
-# 7. Postseason Eligibility Cutoff
+# 7. Competition Eligibility Cutoff — OPTIONAL / SCOPED
 
-Regular Season約90%地点で、Postseasonへ出場可能なPlayer Poolを確定する。
+Postseason Eligibility Cutoffは全League共通Hard Ruleにしない。
+
+World Default referenceはRegular Season 90%付近。
+実在Leagueでは年度公式規定を優先する。
+
+EligibilityはCompetition scopeを分ける。
 
 ```text
-registered before cutoff
- -> postseason eligible
-
-registered after cutoff
- -> normally postseason ineligible
+DOMESTIC_POSTSEASON
+CONTINENTAL
+OTHER_COMPETITION
 ```
 
-ただし怪我人代替は例外。
+各scopeで:
+
+```text
+registered before applicable cutoff
+ -> eligible candidate
+
+registered after cutoff
+ -> normally ineligible unless profile exception
+```
+
+怪我人代替等の例外はLeague / Competition Profileに置く。
 
 目的:
-
 - Postseason直前だけ大量補強する抜け道を防ぐ
 - Seasonを通じたRoster構築を評価する
 - Cup-tied / Competition roster rulesとの整合
 
-国内PSを持たないTABLE_TITLE Leagueでは、このCutoffをContinental roster eligibility用へ転用できる。
+国内PSを持たないTABLE_TITLE LeagueへDomestic Postseason Cutoffを無理に作らない。
+Continental roster eligibilityは別scopeのCompetition ruleとして定義する。
 
 ---
-
 # 8. Waiver / Free Agent after Deadline
 
 初期設計では複雑なWaiver市場を主役にしない。
@@ -341,50 +408,55 @@ Awardは:
 
 ---
 
-# 11. Trade / Transfer AI
+# 10.3 Award Selection Policy — CANONICAL
 
-Club AIはDeadline前にMarket Decisionを行う。
+League Awardの選考文化はversioned `AwardSelectionPolicy` として持つ。
 
-概念:
+入力候補:
+- Season statistics
+- workload
+- fielding
+- baserunning
+- leverage
+- team context
+- expert / media / fan component
 
-```ts
-type ClubMarketPosture =
-  | "BUY"
-  | "HOLD"
-  | "SELL"
-  | "DEVELOP";
+exact weightsはCalibration。
 
-type MarketDecisionContext = {
-  standingsState: StandingsState;
-  postseasonChanceEstimate: number;
-  rosterNeeds: RosterNeed[];
-  prospectDepth: ProspectDepth;
-  contractState: ContractState;
-  financeState: ClubFinanceState;
-  clubStrategy: ClubStrategyState;
-};
+過去SeasonのMVP等を現在の選考Policyで再判定しない。
+Award受賞LabelからPlayer true abilityへBuffを与えない。
+
+---
+# 11. Market Decision Trigger Boundary
+
+15が所有するのは、Market Windowが近づいた / 開いた / 閉じたという**Calendar Trigger**まで。
+
+```text
+Season Event / Market Window
+ -> Club AI receives MarketDecisionTrigger
 ```
 
-重要:
+実際のBUY / HOLD / SELL / DEVELOP、target selection、negotiationはClub / Front Office / Recruitment system側が決める。
+
+判断入力候補:
+- standings / postseason chance estimate
+- roster needs
+- prospect depth
+- contracts
+- finances
+- owner / front-office policy
+- long-term club objective
+
+順位だけの固定if文にしない。
 
 ```text
 4th place
  -> BUY
 ```
 
-のような固定if文だけにしない。
-
-同じ順位でも、
-
-- 老齢Win-now club
-- young rebuilding club
-- cash-rich contender
-- low-budget seller
-
-で判断が変わる。
+は禁止。
 
 ---
-
 # 12. User Interaction
 
 ユーザーが球団を監督・GMとして操作する場合も、イベント数を増やしすぎない。
@@ -404,35 +476,23 @@ Market Deadlineではユーザー自身が補強判断を行える。
 
 ---
 
-# 13. League Event Profiles
+# 13. League Event Profile Application
 
-各Leagueは以下だけ上書き可能。
+`LeagueSeasonEventProfile` はSection 2.1をSource of Truthとする。
 
-```ts
-type LeagueSeasonEventProfile = {
-  allStarEnabled: boolean;
-  allStarProgress: number;
-  marketDeadlineType:
-    | "TRADE_DEADLINE"
-    | "REGISTRATION_WINDOW_CLOSE";
-  marketDeadlineProgress: number;
-  rosterExpansionEnabled: boolean;
-  rosterExpansionProgress: number;
-  postseasonEligibilityProgress: number;
-};
-```
-
-初期default:
+World Default reference:
 
 ```text
 All-Star              50%
-Market Deadline       72%
-Roster Expansion      85%
-PS Eligibility Cutoff 90%
+Market                 72%
+Roster Expansion       85%
+PS Eligibility         90%
 ```
 
----
+ただし実在Leagueの年度規則・日付、およびProfileのenabled / disabledが優先する。
+Eventを持たないLeagueへdummy eventを生成しない。
 
+---
 # 14. Market Type Mapping
 
 初期の大分類:
@@ -441,53 +501,71 @@ PS Eligibility Cutoff 90%
 | --- | --- |
 | North America | Trade Deadline |
 | Japan / Korea / Taiwan | Trade Deadline |
-| Mexico / Caribbean | Trade Deadline / Hybrid |
+| Mexico / Caribbean | Trade Deadline / Hybrid (Profile-defined) |
 | Europe 7 | Registration Window Close |
 | China | Registration Window Close |
 | West / South Asia | Registration Window Close |
 | Pan-African | Registration Window Close |
-| Australia | Trade Deadline / Hybrid |
+| Australia | Trade Deadline / Hybrid (Profile-defined) |
 | NZ / Pacific | Registration Window Close |
 
 細かなLoan / FA例外はPlayer Market実装時に決める。
 
 ---
 
-# 15. Historical Records
+# 15. Historical Records & Event Snapshot
 
-Season Historyへ保存:
+Season Historyへ重要Eventを保存する。
 
-- Opening Day roster
-- All-Star selections
-- All-Star MVP
+- Opening Day roster snapshot
+- All-Star selections / MVP
+- actual market-window dates
 - deadline trades / transfers
-- roster expansion promotions
+- roster expansion promotions where enabled
+- eligibility roster snapshots by Competition scope
 - awards
-- postseason eligibility roster
-- manager / GM market posture snapshot
+- manager / GM market posture snapshot where retained
 
-300年SimulationでもSeason Summaryから重要イベントだけ復元できるようにする。
+さらに:
+
+```ts
+type LeagueSeasonEventSnapshot = {
+  seasonId: SeasonId;
+  leagueId: LeagueId;
+  eventProfileVersion: string;
+  actualOpeningDay: CalendarDate;
+  allStarEventId?: string;
+  marketWindowSnapshots: readonly MarketWindowSnapshot[];
+  rosterExpansionSnapshot?: RosterExpansionSnapshot;
+  eligibilitySnapshots: readonly CompetitionEligibilitySnapshot[];
+  awardPolicyVersion: string;
+};
+```
+
+14のLeague Season Calendar Snapshotとlinkし、制度変更後も過去SeasonのEvent timing / ruleを当時の状態で復元する。
+300年SimulationでもSeason Summaryから重要Eventだけを圧縮保持可能にする。
 
 ---
+# 16. Final Approved Decisions — v1
 
-# 16. 今回確定する事項
-
-1. Full League共通のSeason Eventは6系統に絞る
-2. All-StarはRegular Season中間付近
-3. Market Deadlineは70〜75%
-4. Market文化に応じTrade Deadline / Registration Windowを分ける
-5. Late-season Roster Expansionを85%付近に置く
-6. Postseason Eligibility Cutoffを90%付近に置く
-7. All-Star / Awardsは公開Ratingだけで決めない
-8. All-Star Breakで全員を完全回復させない
-9. Deadline後のWaiver詳細は初期必須要件にしない
-10. AwardはRegular Season / Postseason / Internationalで分離
-11. Market AIは順位だけでBUY / SELLを決めない
-12. Roster人数そのものは次のClub / Roster設計で確定する
+1. Opening Day / All-Star / Market Window / Roster Expansion / Eligibility Cutoff / Awardsを共通Event familyとして採用する。
+2. 全Leagueへ全Eventを強制しない。
+3. `LeagueSeasonEventProfile` をversion管理する。
+4. 実在Leagueは年度ごとの公式制度・日付を第一参照する。
+5. fictional / football-derived LeagueのWorld Default referenceは50% / 72% / 85% / 90%。
+6. Market WindowはTRADE_DEADLINE / REGISTRATION_WINDOW_CLOSE / HYBRIDを扱え、0..N個持てる。
+7. Roster ExpansionはOptionalで、人数・eligible rosterはLeagueRosterProfileがSource of Truth。
+8. Eligibility CutoffはOptionalかつCompetition scope別。
+9. All-Star / Awardsは公開Ratingだけで決めずactual performance等のEvidenceを使う。
+10. All-Star Breakは全員完全回復Eventではない。
+11. DeadlineはClub AIへのMarket Decision Triggerであり、BUY/SELL判断自体はClub / Front Office側が所有する。
+12. Waiver詳細はv1必須要件にしない。
+13. AwardSelectionPolicyをversion管理し、過去Awardを現行基準で再判定しない。
+14. Userへは重要なSeason節目だけを通知し、Event management choreにしない。
+15. 各SeasonのEvent Profile / actual dates / eligibility snapshots / award policyを履歴保存する。
 
 ---
-
-# 17. 次フェーズ — Club Design
+# 17. Historical Next-phase Note
 
 基礎設計:
 
@@ -516,3 +594,11 @@ Season Historyへ保存:
 - expansion / relocation
 
 ただし全部を一度に作らず、まず`ClubProfile`のsource-of-truth境界から決める。
+
+---
+
+# 18. Final v1 Status
+
+**Season Events & Deadlines v1は2026-09-22にユーザー承認され、DESIGN FROZEN。**
+
+Remaining exact dates / roster counts / vote weights / waiver rules are versioned LeagueProfile or implementation calibration, not open architecture.

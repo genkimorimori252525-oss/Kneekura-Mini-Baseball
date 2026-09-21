@@ -32,9 +32,9 @@ AI / Agent向け強制ルール:
 - `12-competition-identity-hosting.md` — **CANONICAL / DESIGN FROZEN v1**
 - `13-domestic-league-championships.md` — **CANONICAL / DESIGN FROZEN v1**
 - `14-regular-season-calendar-and-volume.md` — **CANONICAL / DESIGN FROZEN v1**
+- `15-season-events-and-deadlines.md` — **CANONICAL / DESIGN FROZEN v1**
 
 残る最終監査対象:
-- `15-season-events-and-deadlines.md`
 - `16-club-economy-rivalry-design.md`
 - `18-club-state-lifecycle.md`
 - `19-club-structural-dominance-and-decline.md`
@@ -143,6 +143,25 @@ Key freeze decisions:
 - CalendarProfile / opponent matrix / generator are versioned and historical schedules are never regenerated under new rules.
 - arithmetic fixes at freeze: West/South Asia 5/5, Dominican 10/10, Puerto Rico 10/10, Cuba 4/4 home-away per opponent; Mexico window April–August.
 - All-Star / deadline / roster-expansion event policy belongs to doc 15.
+
+---
+# 0.5 CANONICAL — Season Events & Deadlines v1
+
+2026-09-22 user approved and froze:
+- `docs/game-design/15-season-events-and-deadlines.md`
+
+Key freeze decisions:
+- six common event families exist, but no League is forced to enable all of them.
+- real leagues prioritize official year-specific rules/dates; World Defaults are reference values.
+- LeagueSeasonEventProfile is versioned.
+- market windows may be TRADE / REGISTRATION / HYBRID and may be absent or multiple.
+- roster expansion and competition eligibility cutoffs are optional Profile rules.
+- roster counts remain owned by LeagueRosterProfile.
+- All-Star/Awards are evidence-based and never direct ability buffs.
+- Market Window events trigger Club AI; BUY/SELL strategy remains Club/Front Office responsibility.
+- AwardSelectionPolicy is versioned.
+- each season stores event-profile provenance, actual dates, eligibility snapshots and award-policy version.
+- user surface remains a few meaningful season notifications, not an event-management chore loop.
 
 ---
 # 1. Game Slogan
