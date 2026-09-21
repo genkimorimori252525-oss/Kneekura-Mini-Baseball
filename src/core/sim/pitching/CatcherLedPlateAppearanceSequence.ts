@@ -2,27 +2,69 @@ import type {
   CanonicalMatchState,
 } from '../../model/CanonicalMatchState';
 import {
-  resolveAndRecordPitchAgainstBatter,
-} from './PitchAgainstBatter';
-import {
   createCanonicalPlateAppearanceTimeline,
   type CanonicalPlateAppearanceTimeline,
 } from '../plateAppearance/CanonicalPlateAppearanceTimeline';
 import type {
-  CommandPitchEnvironment,
-  CommandedPitchAgainstBatter,
-} from '../plateAppearance/PlateAppearanceCommandPitchAdapter';
+  CommandSwingKinematicsV1BatterCalibration,
+} from '../plateAppearance/CommandedSwingKinematicsV1PitchAdapter';
+import {
+  createCommandedSwingKinematicsV1PitchInput,
+  type CommandedSwingKinematicsV1Pitch,
+} from '../plateAppearance/CommandedSwingKinematicsV1PitchAdapter';
 import {
   assertCommandSessionCanDriveTimeline,
   type PlateAppearanceCommandSession,
 } from '../plateAppearance/PlateAppearanceCommandSession';
 import {
-  createCatcherLedCommandedPitch,
-} from './CatcherLeadCommandAdapter';
+  resolveAndRecordSwingKinematicsV1PitchAgainstBatter,
+  type SwingKinematicsV1BatterRuntime,
+  type SwingKinematicsV1PitchAgainstBatterResolution,
+} from './SwingKinematicsV1PitchAgainstBatter';
 import type {
   CatcherLeadProfile,
   CatcherPitchCall,
 } from './CatcherLead';
+import {
+  simulateCatcherLedPhysicalPitch,
+  type CatcherLedPhysicalPitch,
+} from './CatcherLedPhysicalPitch';
+import type {
+  PitchSkillCommandResponseProfile,
+} from './PitchSkillCommandResponse';
+import type {
+  PitcherPitchSkillProfile,
+  PitchSkillSamplingContext,
+} from './PitchSkillProfile';
+import type {
+  AerodynamicPitchTrajectoryParameters,
+} from './AerodynamicPitchTrajectory';
+import type {
+  PitcherSignBehaviorProfile,
+} from './PitcherSignDecision';
+import type {
+  BatterPitchAnticipation,
+} from './BatterPitchAnticipation';
+import type {
+  BatterAnticipationTimingCalibration,
+} from './BatterAnticipationSwingAdapter';
+import type {
+  StrikeZoneRegion,
+} from './TakenPitchPhysicalResult';
+
+export type CatcherLedPhysicalPlateAppearanceEnvironment =
+  Readonly<{
+    sampling:
+      PitchSkillSamplingContext;
+    endTick: number;
+    plateZ: number;
+    strikeZone:
+      StrikeZoneRegion;
+    batterCalibration:
+      CommandSwingKinematicsV1BatterCalibration;
+    batter:
+      SwingKinematicsV1BatterRuntime;
+  }>;
 
 export type CatcherLedPlateAppearanceSequenceInput =
   Readonly<{
@@ -33,9 +75,32 @@ export type CatcherLedPlateAppearanceSequenceInput =
       CatcherLeadProfile;
     startedAtTick: number;
     environments:
-      readonly CommandPitchEnvironment[];
-    availablePitchSkillIds:
-      readonly string[];
+      readonly CatcherLedPhysicalPlateAppearanceEnvironment[];
+    pitcherSkills:
+      PitcherPitchSkillProfile;
+    commandResponses:
+      readonly PitchSkillCommandResponseProfile[];
+    trajectoryParameters:
+      AerodynamicPitchTrajectoryParameters;
+    pitcherSignBehavior?:
+      PitcherSignBehaviorProfile;
+    batterAnticipation?:
+      BatterPitchAnticipation;
+    anticipationTimingCalibration?:
+      BatterAnticipationTimingCalibration;
+  }>;
+
+export type CatcherLedResolvedPitch =
+  Readonly<{
+    physicalPitch:
+      CatcherLedPhysicalPitch;
+    commanded:
+      CommandedSwingKinematicsV1Pitch;
+    batterResolution:
+      Exclude<
+        SwingKinematicsV1PitchAgainstBatterResolution,
+        { kind: 'unresolved' }
+      >;
   }>;
 
 export type CatcherLedPlateAppearanceSequenceResult =
@@ -44,34 +109,49 @@ export type CatcherLedPlateAppearanceSequenceResult =
     unusedEnvironmentCount: number;
     catcherCalls:
       readonly CatcherPitchCall[];
+    finalCalls:
+      readonly CatcherPitchCall[];
     generatedPitches:
-      readonly CommandedPitchAgainstBatter[];
+      readonly CatcherLedResolvedPitch[];
     timeline:
       CanonicalPlateAppearanceTimeline;
   }>;
 
 const validateEnvironmentOrdinals = (
   environments:
-    readonly CommandPitchEnvironment[],
+    readonly CatcherLedPhysicalPlateAppearanceEnvironment[],
 ): void => {
   for (
     let index = 0;
     index < environments.length;
     index += 1
   ) {
+    const sampling =
+      environments[index]!.sampling;
     if (
-      environments[index]!.pitchOrdinal
+      sampling.pitchOrdinal
       !== index
     ) {
       throw new Error(
-        'catcher-led pitch environments must use contiguous ordinals starting at zero',
+        'catcher-led physical pitch environments must use contiguous ordinals starting at zero',
       );
     }
   }
 };
 
+/**
+ * Active catcher-led plate-appearance sequence.
+ *
+ * The catcher/pitcher side first produces a real pitch-skill aerodynamic
+ * trajectory. Batter decision, timing bias, anticipation delay and contact are
+ * then resolved through the single Swing Kinematics v1 physical bat authority.
+ *
+ * No PitchAgainstBatter / PitchTrajectorySegment / historical BatterSwingWindow
+ * participates in this active path.
+ */
 export const resolveCatcherLedPlateAppearanceSequence = (
-  input: CatcherLedPlateAppearanceSequenceInput,
+  input:
+    CatcherLedPlateAppearanceSequenceInput,
 ): CatcherLedPlateAppearanceSequenceResult => {
   if (
     input.managerSession.playId
@@ -82,11 +162,24 @@ export const resolveCatcherLedPlateAppearanceSequence = (
     );
   }
   if (
-    input.catcherLead.pitcherId.length === 0
-    || input.catcherLead.catcherId.length === 0
+    input.catcherLead.pitcherId.length
+      === 0
+    || input.catcherLead.catcherId.length
+      === 0
   ) {
     throw new Error(
       'catcher lead requires pitcher and catcher ids',
+    );
+  }
+  if (
+    input.batterAnticipation
+      !== undefined
+    && input
+      .anticipationTimingCalibration
+      === undefined
+  ) {
+    throw new Error(
+      'batter anticipation requires an explicit timing calibration',
     );
   }
 
@@ -107,8 +200,10 @@ export const resolveCatcherLedPlateAppearanceSequence = (
 
   const catcherCalls:
     CatcherPitchCall[] = [];
+  const finalCalls:
+    CatcherPitchCall[] = [];
   const generatedPitches:
-    CommandedPitchAgainstBatter[] = [];
+    CatcherLedResolvedPitch[] = [];
 
   let previousCall:
     CatcherPitchCall | undefined;
@@ -129,44 +224,104 @@ export const resolveCatcherLedPlateAppearanceSequence = (
       timeline,
     );
 
-    const catcherLed =
-      createCatcherLedCommandedPitch({
+    const physicalPitch =
+      simulateCatcherLedPhysicalPitch({
         managerSession:
           input.managerSession,
         timeline,
         catcherLead:
           input.catcherLead,
-        environment,
-        availablePitchSkillIds:
-          input.availablePitchSkillIds,
+        pitcherSkills:
+          input.pitcherSkills,
+        commandResponses:
+          input.commandResponses,
         previousCall,
+        pitcherSignBehavior:
+          input.pitcherSignBehavior,
+        batterAnticipation:
+          input.batterAnticipation,
+        sampling:
+          environment.sampling,
+        trajectoryParameters:
+          input.trajectoryParameters,
+        endTick:
+          environment.endTick,
+        plateZ:
+          environment.plateZ,
       });
 
-    const resolution =
-      resolveAndRecordPitchAgainstBatter(
+    const anticipation =
+      physicalPitch.batterAnticipation
+        === null
+        ? undefined
+        : {
+            resolution:
+              physicalPitch
+                .batterAnticipation,
+            calibration:
+              input
+                .anticipationTimingCalibration!,
+          };
+
+    const commanded =
+      createCommandedSwingKinematicsV1PitchInput({
+        session:
+          input.managerSession,
+        environment: {
+          pitchOrdinal:
+            environment.sampling
+              .pitchOrdinal,
+          actualTrajectory:
+            physicalPitch
+              .execution.physical
+              .flight.trajectory,
+          plateZ:
+            environment.plateZ,
+          strikeZone:
+            environment.strikeZone,
+          batterCalibration:
+            environment
+              .batterCalibration,
+          batter:
+            environment.batter,
+          anticipation,
+        },
+      });
+
+    const batterResolution =
+      resolveAndRecordSwingKinematicsV1PitchAgainstBatter(
         timeline,
-        catcherLed.commanded.input,
+        commanded.input,
       );
 
     if (
-      resolution.kind
+      batterResolution.kind
       === 'unresolved'
     ) {
       throw new Error(
-        'catcher-led pitch must physically reach the plate',
+        `catcher-led physical pitch unresolved: ${batterResolution.reason}`,
       );
     }
 
     catcherCalls.push(
-      catcherLed.call,
+      physicalPitch.catcherCall,
     );
-    generatedPitches.push(
-      catcherLed.commanded,
+    finalCalls.push(
+      physicalPitch.finalCall,
     );
+    generatedPitches.push({
+      physicalPitch,
+      commanded,
+      batterResolution,
+    });
     timeline =
-      resolution.timeline;
+      batterResolution
+        .resolution.timeline;
+
+    // Preserve the catcher's previous-call memory rather than turning a
+    // pitcher shake-off into a fictional previous catcher call.
     previousCall =
-      catcherLed.call;
+      physicalPitch.catcherCall;
   }
 
   return {
@@ -176,6 +331,7 @@ export const resolveCatcherLedPlateAppearanceSequence = (
       input.environments.length
       - generatedPitches.length,
     catcherCalls,
+    finalCalls,
     generatedPitches,
     timeline,
   };

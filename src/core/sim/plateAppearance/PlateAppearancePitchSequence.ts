@@ -73,6 +73,10 @@ const resultForStoppedTimeline = (
   }
 };
 
+/**
+ * @deprecated Compatibility-only historical path. Active production plate
+ * appearances use the aerodynamic rigid-bat Swing Kinematics v1 path.
+ */
 export const advancePlateAppearancePitchSequence = (
   initialTimeline: CanonicalPlateAppearanceTimeline,
   pitches: readonly PitchAgainstBatterInput[],

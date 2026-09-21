@@ -51,6 +51,10 @@ export type AnticipationAwareAerodynamicSwingResult =
  * a Swing Kinematics v1 trajectory requires shifting the whole trajectory and
  * is a separate integration task; do not partially shift only its time interval.
  */
+/**
+ * @deprecated Compatibility-only historical path. Active production plate
+ * appearances use the aerodynamic rigid-bat Swing Kinematics v1 path.
+ */
 export const resolveAnticipationAwareAerodynamicSwing = (
   input: AnticipationAwareAerodynamicSwingInput,
 ): AnticipationAwareAerodynamicSwingResult => {

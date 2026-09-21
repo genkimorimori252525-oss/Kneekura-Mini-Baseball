@@ -18,6 +18,37 @@ export type BatterAnticipationSwingAdjustment = Readonly<{
   adjustedSwing: BatterSwingWindow;
 }>;
 
+
+export const resolveBatterAnticipationRecognitionDelayTicks = (
+  resolution:
+    BatterPitchAnticipationResolution,
+  calibration:
+    BatterAnticipationTimingCalibration,
+  maximumAvailableDelayTicks: number,
+): number => {
+  if (
+    !Number.isSafeInteger(
+      maximumAvailableDelayTicks,
+    )
+    || maximumAvailableDelayTicks < 0
+  ) {
+    throw new Error(
+      'maximumAvailableDelayTicks must be a non-negative safe integer',
+    );
+  }
+
+  const desiredDelay = Math.round(
+    calibration.maxRecognitionDelayTicks
+    * resolution
+      .confidenceWeightedSurprise,
+  );
+
+  return Math.min(
+    desiredDelay,
+    maximumAvailableDelayTicks,
+  );
+};
+
 export const applyBatterAnticipationToSwingWindow = (
   swing: BatterSwingWindow,
   resolution:
@@ -48,14 +79,10 @@ export const applyBatterAnticipationToSwingWindow = (
     );
   }
 
-  const desiredDelay = Math.round(
-    calibration.maxRecognitionDelayTicks
-    * resolution
-      .confidenceWeightedSurprise,
-  );
   const recognitionDelayTicks =
-    Math.min(
-      desiredDelay,
+    resolveBatterAnticipationRecognitionDelayTicks(
+      resolution,
+      calibration,
       latestAllowedEndTick
         - swing.endTick,
     );

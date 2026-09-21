@@ -54,6 +54,10 @@ const createPerPitchSession = (
   },
 });
 
+/**
+ * @deprecated Compatibility-only historical path. Active production plate
+ * appearances use the aerodynamic rigid-bat Swing Kinematics v1 path.
+ */
 export const createCatcherLedCommandedPitch = (
   input: CatcherLedCommandedPitchInput,
 ): CatcherLedCommandedPitch => {

@@ -11,15 +11,39 @@ import {
 import {
   createPlateAppearanceCommandSession,
 } from '../plateAppearance/PlateAppearanceCommandSession';
-import type {
-  CommandPitchEnvironment,
-} from '../plateAppearance/PlateAppearanceCommandPitchAdapter';
 import {
-  resolveCatcherLedPlateAppearanceSequence,
-} from './CatcherLedPlateAppearanceSequence';
+  REFERENCE_BASEBALL_AERODYNAMICS,
+} from '../ball/BaseballAerodynamics';
+import {
+  REALISTIC_BASEBALL_RIGID_BODY,
+  type RigidBatPhysicalProperties,
+} from '../contact/RigidBatBallContact';
+import {
+  NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1,
+} from '../contact/WoodBatProductionProfileV1';
+import {
+  resolveWoodBatSpeedResponse,
+} from '../contact/WoodBatSpeedResponseProfile';
+import {
+  IDENTITY_QUATERNION,
+} from './BaseballOrientation';
 import type {
   CatcherLeadProfile,
 } from './CatcherLead';
+import {
+  resolveCatcherLedPlateAppearanceSequence,
+  type CatcherLedPhysicalPlateAppearanceEnvironment,
+} from './CatcherLedPlateAppearanceSequence';
+import type {
+  PitchSkillCommandResponseProfile,
+} from './PitchSkillCommandResponse';
+import {
+  createPitcherPitchSkillProfile,
+  type PitchSkillProfile,
+} from './PitchSkillProfile';
+import type {
+  SwingKinematicsV1BatterRuntime,
+} from './SwingKinematicsV1PitchAgainstBatter';
 
 const match = (): CanonicalMatchState => ({
   ruleProfileId:
@@ -38,150 +62,229 @@ const match = (): CanonicalMatchState => ({
     away: 0,
     home: 0,
   },
-  playId: 31,
+  playId: 50,
 });
 
-const managerSession =
-  createPlateAppearanceCommandSession({
-    playId: 31,
-    batterRunnerId: 'batter-31',
-    acceptedAtTick: 900_000,
-    matchSeed: 20260921,
-    command:
-      createPlateAppearanceCommand({
-        pitcher: {
-          attackZone: 'outside',
-          verticalPlan: 'low',
-          aggression: 'balanced',
-        },
-        batter: {
-          approach: 'take',
-          swingBias: 'neutral',
-        },
-        runners: {
-          posture: 'balanced',
-        },
-      }),
-  });
+const skill: PitchSkillProfile = {
+  pitchSkillId: 'skill-physical-1',
+  releaseTemplate: {
+    releasePositionOffsetM: {
+      x: 0,
+      y: 0,
+      z: 0,
+    },
+    preReleaseVelocityMps: {
+      x: 0,
+      y: 0,
+      z: -39,
+    },
+    preReleaseSpinRadPerSecond: {
+      x: 0,
+      y: 0,
+      z: 0,
+    },
+    orientation:
+      IDENTITY_QUATERNION,
+    fingerImpulses: [],
+  },
+  repeatability: {
+    releasePositionStdDevM: {
+      x: 0,
+      y: 0,
+      z: 0,
+    },
+    preReleaseVelocityStdDevMps: {
+      x: 0,
+      y: 0,
+      z: 0,
+    },
+    preReleaseSpinStdDevRadPerSecond: {
+      x: 0,
+      y: 0,
+      z: 0,
+    },
+    orientationStdDevRad: {
+      x: 0,
+      y: 0,
+      z: 0,
+    },
+    fingers: [],
+  },
+};
 
 const catcherLead:
   CatcherLeadProfile = {
     catcherId: 'catcher-1',
     pitcherId: 'pitcher-1',
     pitchSkillWeights: {
-      'skill-fast': 4,
-      'skill-break': 3,
-      'skill-split': 2,
+      'skill-physical-1': 1,
     },
-    defaultPitchSkillWeight: 1,
+    defaultPitchSkillWeight: 0,
     attackZoneWeights: {
-      inside: 1,
+      inside: 0,
       middle: 1,
-      outside: 1,
+      outside: 0,
     },
     verticalPlanWeights: {
-      low: 2,
+      low: 0,
       middle: 1,
-      high: 1,
+      high: 0,
     },
     aggressionWeights: {
       challenge: 1,
-      balanced: 3,
-      waste: 1,
+      balanced: 0,
+      waste: 0,
     },
-    managerDirectiveMultiplier: 3,
-    repeatPitchSkillMultiplier: 0.25,
-    repeatAttackZoneMultiplier: 0.5,
-    repeatVerticalPlanMultiplier: 0.5,
-    countAdjustments: [
-      {
-        strikes: 2,
-        pitchSkillMultipliers: {
-          'skill-break': 5,
-          'skill-split': 5,
-        },
-      },
-    ],
+    managerDirectiveMultiplier: 1,
+    repeatPitchSkillMultiplier: 1,
+    repeatAttackZoneMultiplier: 1,
+    repeatVerticalPlanMultiplier: 1,
+    countAdjustments: [],
   };
+
+const response:
+  PitchSkillCommandResponseProfile = {
+    pitchSkillId:
+      'skill-physical-1',
+    attackZone: {
+      inside: {},
+      middle: {},
+      outside: {},
+    },
+    verticalPlan: {
+      low: {},
+      middle: {},
+      high: {},
+    },
+    aggression: {
+      challenge: {},
+      balanced: {},
+      waste: {},
+    },
+  };
+
+const batPhysical:
+  RigidBatPhysicalProperties = {
+    massKg: 0.9,
+    centerOfMassT: 0.58,
+    transverseMomentOfInertiaKgM2:
+      0.055,
+    axialMomentOfInertiaKgM2:
+      0.0005,
+    radiusProfile: {
+      knots: [
+        { t: 0, radiusM: 0.025 },
+        { t: 0.55, radiusM: 0.031 },
+        { t: 1, radiusM: 0.033 },
+      ],
+    },
+  };
+
+const batter:
+  SwingKinematicsV1BatterRuntime = {
+    handedness: 'R',
+    centerOfMass: {
+      x: -0.78,
+      y: 1,
+      z: -0.16,
+    },
+    batPhysical,
+    ball:
+      REALISTIC_BASEBALL_RIGID_BODY,
+    contactParameterResolver:
+      (kinematics) =>
+        resolveWoodBatSpeedResponse(
+          NATHAN_2012_WOOD_LOCAL_CONTACT_PROFILE_V1,
+          kinematics
+            .normalApproachSpeedMps,
+        ),
+  };
+
+const managerSession = (
+  approach:
+    'take'
+    | 'balanced'
+    | 'aggressive',
+) => createPlateAppearanceCommandSession({
+  playId: 50,
+  batterRunnerId: 'batter-1',
+  acceptedAtTick: 900_000,
+  matchSeed: 20260921,
+  command:
+    createPlateAppearanceCommand({
+      pitcher: {
+        attackZone: 'middle',
+        verticalPlan: 'middle',
+        aggression: 'challenge',
+      },
+      batter: {
+        approach,
+        swingBias: 'neutral',
+      },
+      runners: {
+        posture: 'balanced',
+      },
+    }),
+});
 
 const environment = (
   pitchOrdinal: number,
-): CommandPitchEnvironment => ({
-  pitchStartTick:
+): CatcherLedPhysicalPlateAppearanceEnvironment => {
+  const tick =
     1_000_000
-    + pitchOrdinal * 600_000,
-  pitchOrdinal,
-  ticksPerSecond: 1_000_000,
-  pitchDurationTicks: 500_000,
-  releasePosition: {
-    x: 0,
-    y: 1.0,
-    z: 10,
-  },
-  acceleration: {
-    x: 0,
-    y: 0,
-    z: 0,
-  },
-  plateZ: 0,
-  strikeZone: {
-    centerX: 0,
-    halfWidth: 0.2159,
-    lowerY: 0.5,
-    upperY: 1.5,
-  },
-  ballRadiusMeters: 0.0366,
-  insideXDirection: -1,
-  targetCalibration: {
-    challengeHorizontalZoneFraction:
-      0.3,
-    balancedHorizontalZoneFraction:
-      0.6,
-    wasteHorizontalZoneFraction:
-      1.1,
-    lowVerticalZoneFraction: 0.3,
-    middleVerticalZoneFraction: 0.5,
-    highVerticalZoneFraction: 0.7,
-  },
-  batterCalibration: {
-    balancedSwingProbability: 0,
-    aggressiveSwingProbability: 0,
-    earlyTimingOffsetTicks: -20_000,
-    lateTimingOffsetTicks: 20_000,
-    swingWindowHalfWidthTicks: 40_000,
-  },
-  swingStateAtWindowStart: {
-    pose: {
-      grip: {
-        x: -0.42,
-        y: 1,
-        z: 0,
+    + pitchOrdinal * 1_000_000;
+  return {
+    sampling: {
+      matchSeed: 20260921,
+      playId: 50,
+      pitchOrdinal,
+      tick,
+      releaseAnchorPosition: {
+        x: 0,
+        y: 0.87,
+        z: 15,
       },
-      tip: {
-        x: 0.42,
-        y: 1,
-        z: 0,
-      },
+      ball:
+        REALISTIC_BASEBALL_RIGID_BODY,
     },
-    linearVelocity: {
-      x: 0,
-      y: 0,
-      z: 0,
+    endTick:
+      tick + 800_000,
+    plateZ: 0,
+    strikeZone: {
+      centerX: 0,
+      halfWidth: 0.2159,
+      lowerY: 0.5,
+      upperY: 1.1,
     },
-    angularVelocity: {
-      x: 0,
-      y: 0,
-      z: 0,
+    batterCalibration: {
+      balancedSwingProbability: 0.5,
+      aggressiveSwingProbability: 1,
+      earlyTimingOffsetTicks:
+        -20_000,
+      lateTimingOffsetTicks:
+        20_000,
     },
-  },
-});
+    batter,
+  };
+};
 
-describe('catcher-led plate appearance sequence', () => {
-  it('keeps one manager macro instruction while catcher produces the pitch-by-pitch sequence', () => {
+const trajectoryParameters = {
+  ticksPerSecond: 1_000_000,
+  integrationStepTicks: 1_000,
+  gravityY: 0,
+  aerodynamics: {
+    ...REFERENCE_BASEBALL_AERODYNAMICS,
+    airDensityKgM3: 0,
+  },
+} as const;
+
+describe('catcher-led physical plate appearance sequence', () => {
+  it('uses pitch-skill aerodynamic execution for taken-pitch canonical count flow', () => {
     const result =
       resolveCatcherLedPlateAppearanceSequence({
         match: match(),
-        managerSession,
+        managerSession:
+          managerSession('take'),
         catcherLead,
         startedAtTick: 900_000,
         environments: [
@@ -189,82 +292,163 @@ describe('catcher-led plate appearance sequence', () => {
           environment(1),
           environment(2),
         ],
-        availablePitchSkillIds: [
-          'skill-fast',
-          'skill-break',
-          'skill-split',
+        pitcherSkills:
+          createPitcherPitchSkillProfile(
+            'pitcher-1',
+            [skill],
+          ),
+        commandResponses: [
+          response,
         ],
+        trajectoryParameters,
       });
 
+    expect(result.pitchesGenerated)
+      .toBe(3);
     expect(
-      managerSession.command.pitcher,
-    ).toEqual({
-      attackZone: 'outside',
-      verticalPlan: 'low',
-      aggression: 'balanced',
-    });
-    expect(result.catcherCalls.length)
-      .toBe(result.pitchesGenerated);
+      result.timeline.status.kind,
+    ).toBe('strikeout');
     expect(
-      result.catcherCalls.every(
-        (call) =>
-          call.managerDirective
-            .attackZone === 'outside',
+      result.generatedPitches.every(
+        (entry) =>
+          entry.commanded
+            .input.actualTrajectory
+          === entry.physicalPitch
+            .execution.physical
+            .flight.trajectory,
       ),
     ).toBe(true);
   });
 
-  it('uses the evolving canonical count on each catcher call', () => {
+  it('routes an aggressive batter through Swing Kinematics v1 rigid contact', () => {
     const result =
       resolveCatcherLedPlateAppearanceSequence({
         match: match(),
-        managerSession,
+        managerSession:
+          managerSession('aggressive'),
         catcherLead,
         startedAtTick: 900_000,
         environments: [
           environment(0),
-          environment(1),
-          environment(2),
         ],
-        availablePitchSkillIds: [
-          'skill-fast',
-          'skill-break',
-          'skill-split',
+        pitcherSkills:
+          createPitcherPitchSkillProfile(
+            'pitcher-1',
+            [skill],
+          ),
+        commandResponses: [
+          response,
         ],
+        trajectoryParameters,
       });
 
-    expect(result.catcherCalls[0]!.count)
-      .toEqual({
-        balls: 0,
-        strikes: 0,
-      });
-    if (
-      result.catcherCalls.length > 1
-    ) {
-      expect(
-        result.catcherCalls[1]!.count,
-      ).not.toEqual(
-        result.catcherCalls[0]!.count,
-      );
-    }
+    expect(result.pitchesGenerated)
+      .toBe(1);
+    expect(
+      result.generatedPitches[0]!
+        .commanded.input.action.kind,
+    ).toBe('swing');
+    expect(
+      result.generatedPitches[0]!
+        .batterResolution.kind,
+    ).toBe('recorded_swing');
+    expect(
+      result.timeline.status.kind,
+    ).toBe('batted_ball_pending');
   });
 
-  it('is deterministic for the same game state, catcher, pitcher and manager intent', () => {
+  it('applies anticipation mismatch as whole-v1-trajectory recognition delay', () => {
+    const result =
+      resolveCatcherLedPlateAppearanceSequence({
+        match: match(),
+        managerSession:
+          managerSession('aggressive'),
+        catcherLead,
+        startedAtTick: 900_000,
+        environments: [
+          environment(0),
+        ],
+        pitcherSkills:
+          createPitcherPitchSkillProfile(
+            'pitcher-1',
+            [skill],
+          ),
+        commandResponses: [
+          response,
+        ],
+        trajectoryParameters,
+        batterAnticipation: {
+          anticipatedPitchSkillId:
+            'wrong-skill',
+          anticipatedAttackZone:
+            'outside',
+          anticipatedVerticalPlan:
+            'high',
+          confidence: 1,
+        },
+        anticipationTimingCalibration: {
+          maxRecognitionDelayTicks:
+            12_000,
+        },
+      });
+
+    const resolved =
+      result.generatedPitches[0]!
+        .batterResolution;
+    expect(resolved.kind)
+      .toBe('recorded_swing');
+    if (
+      resolved.kind
+      !== 'recorded_swing'
+    ) {
+      throw new Error(
+        'fixture must record a swing',
+      );
+    }
+    expect(
+      resolved.timing
+        .recognitionDelayTicks,
+    ).toBe(12_000);
+    expect(
+      resolved.timing
+        .shiftedTrajectory.startTick
+      - resolved.timing
+        .baseTrajectory.startTick,
+    ).toBe(12_000);
+    expect(
+      resolved.timing
+        .shiftedTrajectory.contactTick
+      - resolved.timing
+        .baseTrajectory.contactTick,
+    ).toBe(12_000);
+    expect(
+      resolved.timing
+        .shiftedTrajectory.endTick
+      - resolved.timing
+        .baseTrajectory.endTick,
+    ).toBe(12_000);
+  });
+
+  it('is deterministic for the same battery/player numerical state', () => {
     const input = {
       match: match(),
-      managerSession,
+      managerSession:
+        managerSession('take'),
       catcherLead,
       startedAtTick: 900_000,
       environments: [
         environment(0),
         environment(1),
-        environment(2),
       ],
-      availablePitchSkillIds: [
-        'skill-fast',
-        'skill-break',
-        'skill-split',
+      pitcherSkills:
+        createPitcherPitchSkillProfile(
+          'pitcher-1',
+          [skill],
+        ),
+      commandResponses: [
+        response,
       ],
+      trajectoryParameters,
     } as const;
 
     expect(

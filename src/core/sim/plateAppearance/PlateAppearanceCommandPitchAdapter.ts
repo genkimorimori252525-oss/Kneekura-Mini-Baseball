@@ -415,6 +415,11 @@ const createTrajectory = (
   };
 };
 
+/**
+ * @deprecated Compatibility-only exact-target/simple-trajectory adapter.
+ * Active production plate appearances use
+ * createCommandedSwingKinematicsV1PitchInput() and Swing Kinematics v1.
+ */
 export const createCommandedPitchAgainstBatterInput = (
   input: Readonly<{
     session: PlateAppearanceCommandSession;

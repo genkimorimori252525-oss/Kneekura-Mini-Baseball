@@ -2,8 +2,8 @@ import type {
   CanonicalMatchState,
 } from '../../model/CanonicalMatchState';
 import {
-  resolveAndRecordPitchAgainstBatter,
-} from '../pitching/PitchAgainstBatter';
+  resolveAndRecordSwingKinematicsV1PitchAgainstBatter,
+} from '../pitching/SwingKinematicsV1PitchAgainstBatter';
 import {
   createCanonicalPlateAppearanceTimeline,
   type CanonicalPlateAppearanceTimeline,
@@ -16,16 +16,21 @@ import {
   type PlateAppearanceCommandSession,
 } from './PlateAppearanceCommandSession';
 import {
-  createCommandedPitchAgainstBatterInput,
-  type CommandedPitchAgainstBatter,
-  type CommandPitchEnvironment,
-} from './PlateAppearanceCommandPitchAdapter';
+  createCommandedSwingKinematicsV1PitchInput,
+  type CommandedPhysicalPitchEnvironmentV1,
+  type CommandedSwingKinematicsV1Pitch,
+} from './CommandedSwingKinematicsV1PitchAdapter';
 
 export type CommandedPlateAppearanceSequenceInput = Readonly<{
   match: CanonicalMatchState;
   session: PlateAppearanceCommandSession;
   startedAtTick: number;
-  environments: readonly CommandPitchEnvironment[];
+  /**
+   * Production physical pitches. Pitcher/catcher mechanics are resolved
+   * upstream; this sequence resolves batter decisions and canonical outcome.
+   */
+  environments:
+    readonly CommandedPhysicalPitchEnvironmentV1[];
 }>;
 
 export type CommandedPlateAppearanceSequenceResult = Readonly<{
@@ -33,12 +38,13 @@ export type CommandedPlateAppearanceSequenceResult = Readonly<{
   pitchesGenerated: number;
   unusedEnvironmentCount: number;
   generatedPitches:
-    readonly CommandedPitchAgainstBatter[];
+    readonly CommandedSwingKinematicsV1Pitch[];
   timeline: CanonicalPlateAppearanceTimeline;
 }>;
 
 const validateEnvironmentOrdinals = (
-  environments: readonly CommandPitchEnvironment[],
+  environments:
+    readonly CommandedPhysicalPitchEnvironmentV1[],
 ): void => {
   for (
     let index = 0;
@@ -46,20 +52,31 @@ const validateEnvironmentOrdinals = (
     index += 1
   ) {
     if (
-      environments[index].pitchOrdinal
+      environments[index]!.pitchOrdinal
       !== index
     ) {
       throw new Error(
-        'commanded pitch environments must use contiguous ordinals starting at zero',
+        'commanded physical pitch environments must use contiguous ordinals starting at zero',
       );
     }
   }
 };
 
+/**
+ * Active commanded plate-appearance sequence.
+ *
+ * No legacy PitchAgainstBatter or first-order BatterSwingWindow is used here.
+ * The supplied physical aerodynamic pitch is resolved against Swing Kinematics
+ * v1 for swing decisions, while taken pitches use the same aerodynamic plate
+ * crossing.
+ */
 export const resolveCommandedPlateAppearanceSequence = (
   input: CommandedPlateAppearanceSequenceInput,
 ): CommandedPlateAppearanceSequenceResult => {
-  if (input.session.playId !== input.match.playId) {
+  if (
+    input.session.playId
+    !== input.match.playId
+  ) {
     throw new Error(
       'command session playId must match CanonicalMatchState.playId',
     );
@@ -81,10 +98,17 @@ export const resolveCommandedPlateAppearanceSequence = (
   );
 
   const generatedPitches:
-    CommandedPitchAgainstBatter[] = [];
+    CommandedSwingKinematicsV1Pitch[] =
+      [];
 
-  for (const environment of input.environments) {
-    if (timeline.status.kind !== 'active') {
+  for (
+    const environment
+    of input.environments
+  ) {
+    if (
+      timeline.status.kind
+      !== 'active'
+    ) {
       break;
     }
 
@@ -94,34 +118,41 @@ export const resolveCommandedPlateAppearanceSequence = (
     );
 
     const generated =
-      createCommandedPitchAgainstBatterInput({
+      createCommandedSwingKinematicsV1PitchInput({
         session: input.session,
         environment,
       });
 
     const resolution =
-      resolveAndRecordPitchAgainstBatter(
+      resolveAndRecordSwingKinematicsV1PitchAgainstBatter(
         timeline,
         generated.input,
       );
 
-    if (resolution.kind === 'unresolved') {
+    if (
+      resolution.kind
+      === 'unresolved'
+    ) {
       throw new Error(
-        'commanded pitch must physically reach the plate',
+        `commanded physical pitch unresolved: ${resolution.reason}`,
       );
     }
 
-    generatedPitches.push(generated);
-    timeline = resolution.timeline;
+    generatedPitches.push(
+      generated,
+    );
+    timeline =
+      resolution.resolution.timeline;
   }
 
   return {
-    command: input.session.command,
-    pitchesGenerated: generatedPitches.length,
-    unusedEnvironmentCount: (
+    command:
+      input.session.command,
+    pitchesGenerated:
+      generatedPitches.length,
+    unusedEnvironmentCount:
       input.environments.length
-      - generatedPitches.length
-    ),
+      - generatedPitches.length,
     generatedPitches,
     timeline,
   };

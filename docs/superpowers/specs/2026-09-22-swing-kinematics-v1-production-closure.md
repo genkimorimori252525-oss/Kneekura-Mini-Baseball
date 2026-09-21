@@ -351,15 +351,14 @@ pixel-art Presentation
 Do not insert a skeletal, torque, muscle or motion-capture authority between
 player ratings and Swing Kinematics.
 
-### Remaining required migration
+### PitchAgainstBatter migration status
 
-The only remaining swing-path integration task from this closure is migration
-of legacy `PitchAgainstBatter` / historical first-order swing callers onto the
-new aerodynamic rigid-bat Swing Kinematics v1 path.
+The required migration of active legacy `PitchAgainstBatter` /
+historical first-order swing callers to the aerodynamic rigid-bat
+Swing Kinematics v1 path is **complete**.
 
-That migration is required for consistency so that real match flow does not
-sometimes use the compatibility sampler while diagnostics use the new physical
-trajectory.
+Active commanded and catcher-led plate-appearance flows now use the v1 rigid
+path. Historical modules remain only as explicit compatibility/test surfaces.
 
-This migration should preserve the existing product boundary above. It must
-not be used as an excuse to introduce body biomechanics simulation.
+The migration preserved the product boundary above and did not introduce body
+biomechanics simulation.
