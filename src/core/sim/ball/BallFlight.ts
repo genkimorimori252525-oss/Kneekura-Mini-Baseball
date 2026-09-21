@@ -23,6 +23,9 @@ import {
   validateBallSurfaceResponseGrid,
   type BallSurfaceResponseGrid,
 } from './BallSurfaceResponseGrid';
+import {
+  advanceGroundBallMotion,
+} from './GroundBallMotion';
 
 export type GroundSurfacePhysics = Readonly<{
   ball: RigidBaseballProperties;
@@ -33,6 +36,12 @@ export type GroundSurfacePhysics = Readonly<{
   contact?: BallSurfaceContactParameters;
   responseProfile?: BallSurfaceResponseProfile;
   responseGrid?: BallSurfaceResponseGrid;
+  /**
+   * Post-impact kinetic sliding friction used to evolve residual bottom-point
+   * slip into no-slip rolling. Omit to preserve the earlier immediate rolling
+   * projection behavior.
+   */
+  slidingFrictionCoefficient?: number;
   enforceRollingConstraint?: boolean;
 }>;
 
@@ -199,6 +208,20 @@ const validateParameters = (parameters: BallFlightParameters): void => {
     ) {
       validateBallSurfaceResponseGrid(
         surface.responseGrid,
+      );
+    }
+    if (
+      surface.slidingFrictionCoefficient
+      !== undefined
+      && (
+        !Number.isFinite(
+          surface.slidingFrictionCoefficient,
+        )
+        || surface.slidingFrictionCoefficient < 0
+      )
+    ) {
+      throw new Error(
+        'groundSurfacePhysics.slidingFrictionCoefficient must be finite and non-negative',
       );
     }
   }
@@ -433,6 +456,33 @@ const advanceGroundRoll = (
   stepTicks: number,
   parameters: BallFlightParameters,
 ): BattedBallInitialState => {
+  const surface =
+    parameters.groundSurfacePhysics;
+  if (
+    surface !== null
+    && surface !== undefined
+    && surface.slidingFrictionCoefficient
+      !== undefined
+  ) {
+    return advanceGroundBallMotion(
+      state,
+      stepTicks,
+      {
+        ticksPerSecond:
+          parameters.ticksPerSecond,
+        gravityMagnitudeMps2:
+          Math.abs(parameters.gravityY),
+        ball: surface.ball,
+        slidingFrictionCoefficient:
+          surface.slidingFrictionCoefficient,
+        rollingDecelerationMps2:
+          getGroundRollingDeceleration(
+            parameters,
+          ),
+      },
+    ).state;
+  }
+
   const speed = Math.hypot(
     state.velocity.x,
     state.velocity.z,
@@ -671,7 +721,12 @@ const advanceStep = (
         spin: contact.exitSpin,
       };
 
-      if (settled) {
+      if (
+        settled
+        && surface
+          .slidingFrictionCoefficient
+          === undefined
+      ) {
         current =
           applyRollingSpinConstraint(
             current,
