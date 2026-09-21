@@ -333,6 +333,69 @@ describe('surface-aware ball flight', () => {
     ).toBeCloseTo(0.2, 6);
   });
 
+  it('lets settled balls skid for physical time before reaching no-slip rolling', () => {
+    const parameters: BallFlightParameters = {
+      ...DEFAULT_BALL_FLIGHT_PARAMETERS,
+      groundSurfacePhysics: {
+        ball: REFERENCE_BASEBALL_RIGID_BODY,
+        contact: {
+          normalRestitution: 0.4,
+          tangentialRestitution: 0,
+          frictionCoefficient: 0.3,
+        },
+        slidingFrictionCoefficient: 0.15,
+        enforceRollingConstraint: true,
+      },
+    };
+
+    const initial = {
+      tick: 0,
+      position: {
+        x: 0,
+        y: REFERENCE_BASEBALL_RIGID_BODY.radiusM,
+        z: 0,
+      },
+      velocity: {
+        x: 8,
+        y: 0,
+        z: 0,
+      },
+      spin: {
+        x: 0,
+        y: 0,
+        z: 0,
+      },
+    };
+
+    const early = advanceBallState(
+      initial,
+      10_000,
+      parameters,
+    );
+    const earlySlip =
+      early.velocity.x
+      + REFERENCE_BASEBALL_RIGID_BODY.radiusM
+        * early.spin.z;
+
+    expect(Math.abs(earlySlip))
+      .toBeGreaterThan(0.1);
+
+    const late = advanceBallState(
+      early,
+      1_000_000,
+      parameters,
+    );
+    const lateSlip =
+      late.velocity.x
+      + REFERENCE_BASEBALL_RIGID_BODY.radiusM
+        * late.spin.z;
+
+    expect(Math.abs(lateSlip))
+      .toBeLessThan(1e-8);
+    expect(late.velocity.x)
+      .toBeLessThan(early.velocity.x);
+  });
+
   it('rejects inconsistent physical ball radius at the flight boundary', () => {
     expect(() =>
       advanceBallState(
