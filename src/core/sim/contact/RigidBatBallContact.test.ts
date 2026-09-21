@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import type { Vec3 } from '../../model/geometry';
 import type { PitchWorldState } from './BatBallContact';
 import {
+  MEASURED_BASEBALL_ROTATIONAL_INERTIA_FACTOR,
+  REALISTIC_BASEBALL_RIGID_BODY,
   REFERENCE_BASEBALL_RIGID_BODY,
   resolveRigidBatBallContact,
   sampleBatEffectiveMass,
@@ -77,6 +79,20 @@ const speed = (value: Vec3): number =>
   Math.hypot(value.x, value.y, value.z);
 
 describe('rigid bat-ball reduced-order contact', () => {
+  it('offers a measured baseball rotational-inertia profile without breaking the legacy reference fixture', () => {
+    expect(
+      MEASURED_BASEBALL_ROTATIONAL_INERTIA_FACTOR,
+    ).toBeCloseTo(0.378, 12);
+    expect(
+      REALISTIC_BASEBALL_RIGID_BODY
+        .rotationalInertiaFactor,
+    ).toBeCloseTo(0.378, 12);
+    expect(
+      REFERENCE_BASEBALL_RIGID_BODY
+        .rotationalInertiaFactor,
+    ).toBeCloseTo(0.4, 12);
+  });
+
   it('interpolates a tapered/torpedo-capable radius profile', () => {
     expect(sampleBatRadius(profile, 0)).toBeCloseTo(0.025, 12);
     expect(sampleBatRadius(profile, 0.525)).toBeCloseTo(0.0305, 12);
