@@ -1,6 +1,6 @@
 # ChatGPT Work Handoff — Drone-Art Broadcast Camera
 
-> **最新追記・改訂14**: 採用原画8点を台帳へ整理。打者の視点別反転・腕変形を撤去し、打者カメラを下げ、0:00で止まる再生を修正。左オーバー原画は未照合で暫定表示。詳細は `docs/presentation/2026-09-21-integrated-match-preview.md` と `2026-09-21-approved-player-art-manifest.md`。実Coreは未接続。
+> **最新追記・改訂16**: 投手目線B1は原画のバット込み4コマへ変更。物理バットの入力・運動は保持し、連続バットの描画のみ不可視にする。絵のバットに判定は付けない。打者・捕手・俯瞰とAの光点は従来の軌道表示。詳細は `docs/presentation/2026-09-21-observed-motion-b1-field-markings-principles.md` と `2026-09-21-integrated-match-preview.md`。実Coreは未接続。
 
 > **Work更新（改訂13）:** 配球履歴は球種・方向別の記号をゾーン上に残す配球図。採用B1・カメラ・白球・スコア等を[試合形式HTML](2026-09-21-integrated-match-preview.md)へ統合。固定の架空観測入力であり、実Core接続は未完了。
 
