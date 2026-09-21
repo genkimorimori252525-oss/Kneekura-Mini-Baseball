@@ -1,7 +1,10 @@
-# Club Initial Seed Rating Model
+# Club Initial Seed Rating Model — CANONICAL v1
 
-更新日: 2026-09-20  
-状態: **設計承認候補版。全234 ClubのCareer開始時Seedをゲーム用数値へ変換する。**
+更新日: 2026-09-22  
+状態: **CANONICAL / DESIGN FROZEN v1。2026-09-22ユーザー承認。234 ClubのCareer Creation用Seed Calibration Contract。**
+
+> 5軸はCareer開始時のInitial Seed Target / Calibration Summary。Pennant開始後のClub stateのSource of Truthではない。
+> 現在5軸は18のL4 Derived ViewとしてSave内のcurrent causal stateから再計算する。
 
 関連:
 - `docs/game-design/16-club-economy-rivalry-design.md`
@@ -26,13 +29,38 @@
 球場・設備
 ```
 
-内部では0〜100のSeed Indexを持つ。
+Career Creation / calibration用として0〜100のSeed Indexを持つ。Runtimeのcurrent Club abilityではない。
 
 これらは**Match Core能力Buffではない**。
 
 ---
 
-# 2. Five Public Club Axes
+# 1.1 Seed Lifecycle Boundary — CANONICAL
+
+```text
+External Evidence / Catalog Data
++ League Prior
++ Club-specific Evidence
++ Five-axis Seed Target
++ Seed Transform Version
+        ↓
+Initial causal ClubWorldState
+        ↓
+Career / Pennant begins
+        ↓
+Initial Seed stops being runtime authority
+        ↓
+current L1/L2/L3 state
+        ↓
+L4 current five-axis Derived View
+```
+
+**Career開始時だけ Seed -> State。Pennant開始後は State -> View。**
+
+Initial Seed値やS〜G Rankを、将来のBudget / Development / Match outcomeへ原因Statとして逆流させない。
+
+---
+# 2. Five Public Club Axes — INITIAL SEED TARGETS
 
 ```ts
 type ClubInitialSeed = {
@@ -100,11 +128,15 @@ type ClubInitialSeed = {
 
 を要約。
 
+`球場・設備` RankはPublic Summaryであり、実際のballpark geometry / surface / wall等の物理値を置き換えない。
+
 ---
 
 # 3. Public Rank
 
 ユーザー通常画面では数値を必須表示しない。
+
+Career開始時はInitial Seedから、Pennant開始後は18のL4 current stateから同じS〜G表現へ変換できる。
 
 Player Ratingと同じ読み方を使う。
 
@@ -135,7 +167,7 @@ FC Bayern München
 
 ---
 
-# 4. Initial Economic Band Conversion
+# 4. Initial Economic Band Conversion — CAREER CREATION ONLY
 
 既存CatalogのEconomic BandをFinance Seedの第一入力にする。
 
@@ -152,11 +184,16 @@ verified finance / ownership evidenceがある場合は±5程度の個別校正�
 
 ただし`MEGA = 96`そのものをPennant中の状態へ固定しない。
 
+Pennant開始後は19のEconomic BandがDerivedであることを優先し、Derived BandからFinance Seedへ再変換しない。
+
 ---
 
-# 5. League Environment Baselines
+# 5. League Environment Priors — INITIAL FALLBACK
 
 Finance以外は、Club個別Evidence + Leagueの初期環境からSeedする。
+
+League値は**Initial Prior / fallback**であり、League所属による永久Buffではない。
+Club-specific Evidenceがある場合はそちらを優先する。
 
 これはLeague Buffではない。
 
@@ -190,7 +227,7 @@ Club固有の育成文化・国際ネットワーク・施設規模が確認で�
 
 ---
 
-# 6. Initial Seed Only
+# 6. Initial Seed Only — RUNTIME AUTHORITY ENDS AT CAREER CREATION
 
 これらの数値はCareer開始時だけ。
 
@@ -211,9 +248,11 @@ investment / staff / facilities / history
 
 `Ajaxだからdevelopment 94へ戻す`ことは禁止。
 
+Catalog / Seed Datasetが後日更新されても既存Saveを再Seedしない。新Datasetは新規Careerにだけ使用する。
+
 ---
 
-# 7. Under-the-Hood Expansion
+# 7. Seed Transform into Causal State — CAREER CREATION ONLY
 
 5項目は内部構造のSummary Seed。
 
@@ -246,6 +285,9 @@ Venue Seed
 ```
 
 細分値は小さなdeterministic varianceを許可するが、5項目のSummaryから大きく逸脱させない。
+
+この展開はInitial State生成時のSeed Transform。
+Career開始後のcurrent state更新では、5軸から下位Stateを再生成しない。
 
 ---
 
@@ -281,73 +323,18 @@ development
 
 ---
 
-# 9. Rivalry Numeric Scale
+# 9. Rivalry Responsibility Boundary
 
-Directed Rivalryは0〜100。
+Rivalry Seed / Lifecycleは本書のSource of Truthから外す。
 
-既存Catalogの文章表現を初期値へ変換する。
+- Initial Directed Rivalry Data -> `30-initial-directed-rivalry-graph.md`
+- Rivalry Memory / historical floor / decay / dormancy / emergent activation / label provenance -> `33-rivalry-lifecycle-model.md`
 
-| Label | Seed |
-| --- | ---: |
-| very high | 92 |
-| high | 80 |
-| medium-high | 68 |
-| medium | 55 |
-| low-medium | 42 |
-| low | 30 |
+26はClub five-axis Initial Seedだけを所有する。
 
-双方向表記 `A <-> B` は初期Seed作成時に:
-
-```text
-A -> B
-B -> A
-```
-
-へ展開する。
-
-Pennant開始後は左右独立に動く。
+特に `Dominant Club Target = Rivalry Memory` のような古い解釈をしない。Current Competitive ThreatとRivalry Memoryは33に従って分離する。
 
 ---
-
-# 10. Rivalry Components
-
-`effectiveIntensity` を永久保存しない。
-
-初期Seed:
-
-```ts
-type InitialDirectedRivalrySeed = {
-  fromClubId: ClubId;
-  toClubId: ClubId;
-  historicalBase: number;
-  competitiveThreat: number;
-};
-```
-
-原則:
-
-```text
-traditional derby
- -> historicalBase high
-
-recent / dominant-club target
- -> competitiveThreat high
-```
-
-現在値は:
-
-```text
-historicalBase
-+ current competitiveThreat
-+ recentHistory
-+ incidents
- -> effectiveIntensity
-```
-
-で作る。
-
----
-
 # 11. Popularity is not Finance
 
 同じFinanceでもPopularityは違ってよい。
@@ -368,82 +355,97 @@ popularity = S
 
 ---
 
-# 12. Club-specific Overrides
+# 12. Club-specific Overrides — EVIDENCE REQUIRED
 
-個別overrideは「強くしたいから」ではなく、初期Club identityを表現するために使う。
+個別overrideは「強くしたいから」ではなく、Initial Club identityを表現するEvidenceがある場合だけ使う。
 
-候補:
-
-- historically exceptional supporter scale
-- exceptional academy reputation
-- exceptional international scouting
-- exceptional stadium / infrastructure
+候補Evidence:
+- exceptional supporter scale
+- academy / development history
+- international scouting reach
+- stadium / infrastructure scale
 - owner-backed finance
 - documented financial stress
+- verified or supported Club-specific institutional information
 
-Overrideは±15程度を上限目安とする。
+固定の `±15` をArchitecture上限にはしない。幅はCalibration。
+ただしoverrideにはsource / reason / confidence provenanceを残す。
 
 ---
+# 13. Seed Provenance — CANONICAL
 
-# 13. Seed Confidence
+Initial Seedには再校正可能性を追跡するprovenanceを持たせる。
 
-デバッグ用に任意で保持可能。
+概念:
 
 ```ts
-type SeedConfidence =
-  | "VERIFIED"
-  | "SUPPORTED"
-  | "DESIGN_ESTIMATE";
+type ClubInitialSeedProvenance = {
+  datasetVersion: string;
+  sourceSnapshotIds: readonly string[];
+  transformVersion: string;
+  confidenceClass: SeedConfidence;
+  overrideReason?: string;
+};
 ```
 
-ユーザーUIには通常表示しない。
+`SeedConfidence` の具体分類はCalibrationでよいが、`VERIFIED / SUPPORTED / DESIGN_ESTIMATE` 等を利用できる。
 
-目的は後から現実Dataを追加した時に、どのSeedを再校正すべきか判断すること。
+通常User UIには表示しない。Debug / data audit / future recalibration用。
+
+27〜29の234 Club値は **Initial Seed Dataset v1** として扱い、Architecture未決定ではない。
+
+Dataset v2等へ更新しても既存Saveを再Seedしない。
 
 ---
-
 # 14. Simple Surface Rule
 
-ユーザーに:
-
-- structural capital
-- financing access
-- commercial network
-- supporter inertia
-- seed confidence
-
-を理解させる必要はない。
-
-通常UI:
+通常Club UIは5軸だけで遊べる。
 
 ```text
-資金力      A
-人気        S
-育成        B
-スカウト    A
-球場・設備  A
+資金力
+人気
+育成
+スカウト
+球場・設備
 ```
 
-だけで遊べる。
+通常はS〜G等のRank表示。Initial raw seed数値 / Seed Provenanceは不要。
 
-詳細画面は閲覧用。
+必要な時だけ20のDetail / Offseason Briefとして:
+
+```text
+補強予算
+人件費余裕
+財政状態
+```
+
+を表示する。
+
+Structural Capital / financing access / commercial network / supporter inertia / seed confidence等はOptional Audit View。
+
+---
+# 15. Final Approved Decisions — v1
+
+1. Club Initial Seed ModelはCareer Creation専用のSeed Calibration Contract。
+2. Public five axesは `資金力 / 人気 / 育成 / スカウト / 球場・設備`。
+3. Initial Seedは0〜100、通常表示はS〜G。
+4. Five-axis SeedはInitial ClubWorldState生成時のみ使用し、Pennant開始後のSource of Truthにはしない。
+5. Career CreationではExternal Evidence + Catalog Data + League Prior + Club-specific Evidence + Five-axis Seed Target + versioned Seed Transformから初期Causal Stateを生成する。
+6. Pennant開始後の現在5軸は18のL4 Derived Viewとしてcurrent stateから再計算する。
+7. League baselineはInitial Prior / fallbackでありLeague Buffではない。
+8. Club-specific overrideにはEvidence / provenanceを要求し、固定±15制限はArchitectureにしない。
+9. Economic Band -> Finance変換はInitial Seed専用。Pennant中のDerived BandからSeedへ逆変換しない。
+10. Development / Scouting / Venue等からMatch Coreへの直接Buffは禁止。
+11. `球場・設備` はPublic Summaryであり、actual ballpark geometry / facilities stateを置換しない。
+12. Seed Dataset / source snapshot / transform version / confidence / override reasonをprovenanceとして保存する。
+13. 27〜29の234 Club数値はInitial Seed Dataset v1。将来Dataset更新は新規Careerだけに適用する。
+14. Rivalry Seed / Lifecycleは30 / 33をSource of Truthとし、26の責務から外す。
+15. Initial Seed / S〜G Rank / five-axis ViewをRuntime原因Statへ逆流させない。
 
 ---
 
-# 15. 今回確定する事項
+# 16. Final v1 Status
 
-1. Clubの通常表示は5軸
-2. 内部Seedは0〜100
-3. 表示RankはS〜G
-4. Financeは既存Economic Bandを主入力にする
-5. Development / Scouting / VenueはLeague baseline + Club override
-6. PopularityはFinanceと独立
-7. 5軸はInitial Seedであり永久値ではない
-8. Match Coreへの直接補正は禁止
-9. Rivalryは0〜100の有向値
-10. Catalogの文章強度を数値へ変換する
-11. 詳細経営はBackground Simulation
+**Club Initial Seed Rating Model v1は2026-09-22にユーザー承認され、DESIGN FROZEN。**
 
-
-Scouting / recruitment system:
-- `docs/game-design/31-scouting-recruitment-system.md`
+Remaining exact baselines / transform weights / confidence labels / per-Club data corrections are Dataset / Calibration work, not open architecture.
