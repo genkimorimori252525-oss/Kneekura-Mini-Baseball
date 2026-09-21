@@ -222,3 +222,5 @@ export * from './sim/contact/WoodBatContactResponse';
 export * from './sim/pitching/AerodynamicRigidBatSwingingPitchPhysicalResult';
 export * from './sim/ball/BallSurfaceMaterial';
 export * from './sim/plateAppearance/AerodynamicRigidContactFlightSlice';
+export * from './sim/pitching/RigidBatContactCanonicalAdapter';
+export * from './sim/pitching/AerodynamicRigidPitchAgainstBatter';
