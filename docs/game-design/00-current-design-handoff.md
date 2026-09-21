@@ -30,9 +30,9 @@ AI / Agent向け強制ルール:
 完了:
 - `11-world-competition-architecture.md` — **CANONICAL / DESIGN FROZEN v1**
 - `12-competition-identity-hosting.md` — **CANONICAL / DESIGN FROZEN v1**
+- `13-domestic-league-championships.md` — **CANONICAL / DESIGN FROZEN v1**
 
 残る最終監査対象:
-- `13-domestic-league-championships.md`
 - `14-regular-season-calendar-and-volume.md`
 - `15-season-events-and-deadlines.md`
 - `16-club-economy-rivalry-design.md`
@@ -108,6 +108,23 @@ Key freeze decisions:
 - Prestige evolves historically but does not automatically rewrite canonical competition role.
 - explicit Competition Reform / Succession is required to transfer a canonical role.
 - hosting/draw/award/prestige provenance is retained in the Competition Edition snapshot.
+
+---
+# 0.3 CANONICAL — Domestic Championships & Continental Qualification v1
+
+2026-09-22 user approved and froze:
+- `docs/game-design/13-domestic-league-championships.md`
+
+Key freeze decisions:
+- the documented domestic format of all 21 Full Leagues is LeagueCompetitionProfile v1.
+- RegularSeasonChampion and DomesticChampion may coexist as separate canonical titles.
+- League coefficient determines berth count; domestic profile determines candidate order.
+- DomesticChampion has an automatic route but still passes normal eligibility.
+- duplicate/ineligible berths cascade deterministically with stored qualification provenance.
+- postseason series structures in the document are v1 rules, not deferred guesses.
+- tiebreak / qualification / home-field policies are versioned.
+- reforms create new LeagueCompetitionProfile versions for future seasons.
+- each season stores a snapshot of the historical domestic competition rules and qualification provenance.
 
 ---
 # 1. Game Slogan

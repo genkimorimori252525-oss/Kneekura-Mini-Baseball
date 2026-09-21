@@ -1,7 +1,10 @@
-# Domestic League Championships & Continental Qualification
+# Domestic League Championships & Continental Qualification — CANONICAL v1
 
-更新日: 2026-09-19  
-状態: **設計承認候補版。実装前。正確な試合数・ロスター人数・日付は後続校正。**
+更新日: 2026-09-22  
+状態: **CANONICAL / DESIGN FROZEN v1。2026-09-22ユーザー承認。実装前。**
+
+> 21 Full LeaguesのDomestic Championship方式・Continental Qualification順・Title保存境界はv1としてFreeze済み。
+> exact Regular Season game count / calendar / rainout / roster expansion等は14 / 15 / LeagueProfile calibrationであり、open architectureではない。
 
 関連:
 - `docs/game-design/10-world-league-catalog.md`
@@ -68,6 +71,28 @@ Asia-Pacific / Americas / Europeでは、各Full LeagueのDomesticChampionが次
 
 ---
 
+# 2.6 LeagueCompetitionProfile — CANONICAL
+
+各Full Leagueの優勝決定方式・Postseason構造・qualification orderはversioned `LeagueCompetitionProfile` として保持する。
+
+概念:
+
+```ts
+type LeagueCompetitionProfile = {
+  version: string;
+  championshipFormat: DomesticChampionshipArchetype;
+  postseasonSeriesPolicy: PostseasonSeriesPolicy;
+  qualificationOrderPolicy: QualificationOrderPolicy;
+  standingsTiebreakPolicyVersion: string;
+  homeFieldPolicyVersion: string;
+};
+```
+
+初期21 Leagueの本書記載方式を **v1 Profile** として採用する。
+
+将来のClub数変更・League改革・Postseason変更はProfileをin-place mutationせず、新versionとして次Season以降へ適用する。
+
+---
 # 3. Domestic Championship Archetypes
 
 ## 3.1 TABLE_TITLE
@@ -746,6 +771,71 @@ Domestic seasonはContinental WindowまでにChampion / qualification orderを�
 
 ---
 
+# 13.1 Continental Qualification Provenance — CANONICAL
+
+Continental berthは最終出場Clubだけでなく、**なぜそのClubが出場したか**を保存する。
+
+概念:
+
+```ts
+type ContinentalQualificationProvenance = {
+  competitionEditionId: CompetitionEditionId;
+  leagueId: LeagueId;
+  sourceType:
+    | "DOMESTIC_CHAMPION"
+    | "REGULAR_SEASON_CHAMPION"
+    | "RUNNER_UP"
+    | "LEAGUE_COEFFICIENT_BERTH"
+    | "DEFENDING_CHAMPION_CASCADE"
+    | "OTHER_PROFILE_DEFINED";
+  originalCandidateClubId: ClubId;
+  eligibilityResult: EligibilityResult;
+  cascadeReason?: string;
+  finalRecipientClubId: ClubId;
+};
+```
+
+DomesticChampionは原則automatic qualification routeを持つが、通常のCompetition eligibility checkは通す。
+
+```text
+Domestic Champion
+ -> automatic route
+ -> eligibility check
+ -> entrant
+    or deterministic cascade
+```
+
+将来Club消滅 / registration failure / sanction / rule-profile上のineligibility等があっても、資格を無理に貫通させない。
+
+Duplicate berthのskip / cascadeもprovenanceへ残す。
+
+---
+
+# 13.2 Domestic Competition Season Snapshot — CANONICAL
+
+各League Seasonは、その年の制度を再現できるSnapshotを保持する。
+
+概念:
+
+```ts
+type DomesticCompetitionSeasonSnapshot = {
+  seasonId: SeasonId;
+  leagueId: LeagueId;
+  competitionProfileVersion: string;
+  clubMembershipSnapshot: readonly ClubId[];
+  alignmentSnapshot: unknown;
+  postseasonFormatVersion: string;
+  standingsTiebreakPolicyVersion: string;
+  qualificationPolicyVersion: string;
+  regularSeasonTitleSnapshot: unknown;
+  domesticChampionSnapshot: unknown;
+  continentalQualificationProvenance: readonly ContinentalQualificationProvenance[];
+};
+```
+
+現在のLeague制度変更で過去Seasonを再計算・再解釈しない。
+
+---
 # 14. Historical Records
 
 国内記録として別々に保存する。
@@ -763,9 +853,12 @@ Domestic seasonはContinental WindowまでにChampion / qualification orderを�
 
 ---
 
-# 15. Competition Reform
+# 15. Competition Reform — VERSIONED
 
 World simulation中にLeague expansion / contractionが起きた場合、Domestic formatは明示的なCompetition Reformで変更可能。
+
+Reformは必ず新しい `LeagueCompetitionProfile.version` を作り、原則として将来Seasonから適用する。
+過去Season Snapshotを新制度へ書き換えない。
 
 例:
 
@@ -795,6 +888,12 @@ China 10 -> 14 clubs
 11. CL qualification duplicateはnext eligible clubへcascade
 12. Regular Season上位の価値をhome-field / bye / qualification orderで保証
 13. Domestic title / pennant / continental qualificationを長期履歴として別保存
+14. 21 Full Leaguesの現行Domestic formatをversioned LeagueCompetitionProfile v1として固定
+15. Continental berthはqualification source / eligibility / cascade provenanceを保存
+16. DomesticChampion automatic berthはeligibility checkを通す
+17. Tiebreak / qualification / home-field policyはLeagueCompetitionProfileでversion管理
+18. Competition Reformは新Profile versionを将来Seasonから適用
+19. 各Seasonは当時のCompetition Profile / alignment / title / qualification provenanceをSnapshot保存
 
 ---
 
@@ -812,11 +911,11 @@ China 10 -> 14 clubs
 
 これにより「一年の順位表」と「最後の短期決戦」の両方を楽しめる。
 
-# 17. 後続校正
+# 17. Implementation / Calendar Calibration — NOT OPEN ARCHITECTURE
 
 - exact regular-season game counts
 - balanced vs unbalanced schedules
-- division alignment
+- future division / conference realignment details (current v1 alignment is preserved until explicit reform)
 - Japan two-league names
 - North America conference / division names
 - series home-game patterns
@@ -825,3 +924,24 @@ China 10 -> 14 clubs
 - roster expansion rules
 - tiebreak-game scheduling
 - future domestic cups
+
+---
+
+# 18. Final v1 Status
+
+**Domestic League Championships & Continental Qualification v1は2026-09-22にユーザー承認され、DESIGN FROZEN。**
+
+Frozen core:
+- 21 Full Leaguesの本書記載Domestic Championship方式をLeagueCompetitionProfile v1として採用
+- RegularSeasonChampionとDomesticChampionを必要に応じて別Titleとして保存
+- LeagueCoefficientはberth数、LeagueCompetitionProfileは出場候補順を決定
+- DomesticChampionは原則automatic route + eligibility check
+- duplicate / ineligible berthはdeterministic cascade + provenance保存
+- Domestic postseasonのv1 Series length / structureは本書記載値を採用
+- Regular Season上位の価値はtitle / bye / home-field / qualification priorityで保持
+- home-fieldは実環境のみで作用しhidden ability buffは禁止
+- Tiebreak / qualification / home-field ruleはversioned LeagueCompetitionProfile policy
+- Reformはnew profile versionとして将来Seasonから適用
+- DomesticCompetitionSeasonSnapshotで過去制度・タイトル・qualification provenanceを保存
+
+Remaining exact Regular Season game counts / calendar / rainout / roster expansion等は14 / 15 / implementation calibrationでありopen architectureではない。
