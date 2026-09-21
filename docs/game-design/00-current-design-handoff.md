@@ -36,9 +36,9 @@ AI / Agent向け強制ルール:
 - `16-club-economy-rivalry-design.md` — **CANONICAL / DESIGN FROZEN v1**
 - `18-club-state-lifecycle.md` — **CANONICAL / DESIGN FROZEN v1**
 - `19-club-structural-dominance-and-decline.md` — **CANONICAL / DESIGN FROZEN v1**
+- `20-simple-surface-deep-simulation.md` — **CANONICAL / DESIGN FROZEN v1**
 
 残る最終監査対象:
-- `20-simple-surface-deep-simulation.md`
 - `26-club-initial-seed-rating-model.md`
 - `31-scouting-recruitment-system.md`
 
@@ -220,6 +220,30 @@ Key freeze decisions:
 - Fast/Medium/Slow are characteristic timescales, not fixed timers.
 - structural rise/decline is explainable through 18's structural event provenance and season snapshots.
 - normal UI remains the five public axes; budget/wage room/financial state are detail/offseason summaries.
+
+---
+# 0.9 CANONICAL — Simple Surface, Deep Simulation v1
+
+2026-09-22 user approved and froze:
+- `docs/game-design/20-simple-surface-deep-simulation.md`
+
+Top-level Product Rule:
+> **一見シンプルだが、奥深い。**
+
+Key freeze decisions:
+- User controls understandable Baseball Decisions; accounting/company management stays background.
+- normal Club surface is only the five axes `資金力 / 人気 / 育成 / スカウト / 球場・設備`.
+- `補強予算 / 人件費余裕 / 財政状態` are detail/offseason summaries; deeper finance is optional audit.
+- opening no detail/audit views must never disadvantage normal play.
+- User plays baseball; Mood/Relationships happen underneath with no dedicated social chore loop.
+- Development surface uses priority/assignment/usage, not training micromanagement.
+- Scouting surface uses requests/shortlists while evidence/uncertainty stays background.
+- legal HUMAN_OVERRIDE is never silently replaced by Manager/Board AI.
+- background simulation may constrain legal action space through actual budgets/rules/injury/availability.
+- Delegation/policy presets reduce input burden; they are not buffs.
+- CPU clubs use the same world/economy/baseball rules and proper information boundaries.
+- notifications are limited to actionable or significant changes.
+- all future user-facing features must pass the Feature Admission Gate.
 
 ---
 # 1. Game Slogan
