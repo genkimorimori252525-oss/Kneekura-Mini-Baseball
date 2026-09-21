@@ -24,6 +24,16 @@ import type {
   PitcherPitchSkillProfile,
   PitchSkillSamplingContext,
 } from './PitchSkillProfile';
+import {
+  resolvePitcherSignDecision,
+  type PitcherSignBehaviorProfile,
+  type PitcherSignDecision,
+} from './PitcherSignDecision';
+import {
+  resolveBatterPitchAnticipation,
+  type BatterPitchAnticipation,
+  type BatterPitchAnticipationResolution,
+} from './BatterPitchAnticipation';
 
 export type CatcherLedPhysicalPitchInput =
   Readonly<{
@@ -38,6 +48,10 @@ export type CatcherLedPhysicalPitchInput =
     commandResponses:
       readonly PitchSkillCommandResponseProfile[];
     previousCall?: CatcherPitchCall;
+    pitcherSignBehavior?:
+      PitcherSignBehaviorProfile;
+    batterAnticipation?:
+      BatterPitchAnticipation;
     sampling:
       PitchSkillSamplingContext;
     trajectoryParameters:
@@ -48,7 +62,16 @@ export type CatcherLedPhysicalPitchInput =
 
 export type CatcherLedPhysicalPitch =
   Readonly<{
+    /**
+     * Compatibility alias for the catcher's original call.
+     */
     call: CatcherPitchCall;
+    catcherCall: CatcherPitchCall;
+    finalCall: CatcherPitchCall;
+    signDecision:
+      PitcherSignDecision | null;
+    batterAnticipation:
+      BatterPitchAnticipationResolution | null;
     execution:
       CatcherCalledPitchSkillFlight;
   }>;
@@ -101,15 +124,35 @@ export const simulateCatcherLedPhysicalPitch = (
     previousCall: input.previousCall,
   });
 
+  const signDecision =
+    input.pitcherSignBehavior
+      === undefined
+      ? null
+      : resolvePitcherSignDecision({
+          matchSeed:
+            input.managerSession
+              .matchSeed,
+          playId:
+            input.managerSession.playId,
+          availablePitchSkillIds,
+          catcherCall: call,
+          behavior:
+            input.pitcherSignBehavior,
+        });
+
+  const finalCall =
+    signDecision?.finalCall
+    ?? call;
+
   const skill =
     input.pitcherSkills.skills.find(
       (candidate) =>
         candidate.pitchSkillId
-        === call.pitchSkillId,
+        === finalCall.pitchSkillId,
     );
   if (skill === undefined) {
     throw new Error(
-      'catcher selected pitchSkillId missing from pitcher skill profile',
+      'final pitchSkillId missing from pitcher skill profile',
     );
   }
 
@@ -117,17 +160,17 @@ export const simulateCatcherLedPhysicalPitch = (
     input.commandResponses.find(
       (candidate) =>
         candidate.pitchSkillId
-        === call.pitchSkillId,
+        === finalCall.pitchSkillId,
     );
   if (response === undefined) {
     throw new Error(
-      'catcher selected pitchSkillId requires a physical command response profile',
+      'final pitchSkillId requires a physical command response profile',
     );
   }
 
   const execution =
     simulateCatcherCalledPitchSkillFlight({
-      call,
+      call: finalCall,
       skill,
       response,
       sampling: input.sampling,
@@ -137,8 +180,21 @@ export const simulateCatcherLedPhysicalPitch = (
       plateZ: input.plateZ,
     });
 
+  const batterAnticipation =
+    input.batterAnticipation
+      === undefined
+      ? null
+      : resolveBatterPitchAnticipation(
+          input.batterAnticipation,
+          finalCall,
+        );
+
   return {
     call,
+    catcherCall: call,
+    finalCall,
+    signDecision,
+    batterAnticipation,
     execution,
   };
 };
