@@ -228,3 +228,4 @@ export * from './sim/ball/PennbounceEquivalentSurfaceFit';
 export * from './sim/ball/BaseballPhysicsV1';
 export * from './sim/ball/PennbounceSurfaceAssumptionSearch';
 export * from './validation/PhysicsObservableValidation';
+export * from './validation/BaseballPhysicsProductionReadiness';
