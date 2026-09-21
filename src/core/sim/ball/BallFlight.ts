@@ -8,6 +8,9 @@ import {
   type BaseballAerodynamicsParameters,
 } from './BaseballAerodynamics';
 import {
+  calculateBaseballSpinDecayDerivative,
+} from './BaseballSpinDecay';
+import {
   resolveBallSurfaceContact,
   type BallSurfaceContactParameters,
 } from './BallSurfaceContact';
@@ -280,6 +283,42 @@ const calculateFreeFlightAcceleration = (
   );
 };
 
+const calculateFreeFlightSpinDerivative = (
+  velocity: Vec3,
+  spin: Vec3,
+  parameters: BallFlightParameters,
+): Vec3 => {
+  const aerodynamics =
+    parameters.aerodynamics;
+  if (
+    aerodynamics === null
+    || aerodynamics === undefined
+    || aerodynamics.spinDecay === undefined
+  ) {
+    return {
+      x: 0,
+      y: 0,
+      z: 0,
+    };
+  }
+
+  return calculateBaseballSpinDecayDerivative(
+    spin,
+    {
+      x:
+        velocity.x
+        - aerodynamics.windVelocityMps.x,
+      y:
+        velocity.y
+        - aerodynamics.windVelocityMps.y,
+      z:
+        velocity.z
+        - aerodynamics.windVelocityMps.z,
+    },
+    aerodynamics.spinDecay,
+  );
+};
+
 const advanceAerodynamicFreeFlight = (
   state: BattedBallInitialState,
   stepTicks: number,
@@ -293,39 +332,75 @@ const advanceAerodynamicFreeFlight = (
     state.spin,
     parameters,
   );
+  const k1Spin =
+    calculateFreeFlightSpinDerivative(
+      state.velocity,
+      state.spin,
+      parameters,
+    );
 
   const k2VelocityInput = add(
     state.velocity,
     scale(k1Velocity, dt / 2),
   );
+  const k2SpinInput = add(
+    state.spin,
+    scale(k1Spin, dt / 2),
+  );
   const k2Position = k2VelocityInput;
   const k2Velocity = calculateFreeFlightAcceleration(
     k2VelocityInput,
-    state.spin,
+    k2SpinInput,
     parameters,
   );
+  const k2Spin =
+    calculateFreeFlightSpinDerivative(
+      k2VelocityInput,
+      k2SpinInput,
+      parameters,
+    );
 
   const k3VelocityInput = add(
     state.velocity,
     scale(k2Velocity, dt / 2),
   );
+  const k3SpinInput = add(
+    state.spin,
+    scale(k2Spin, dt / 2),
+  );
   const k3Position = k3VelocityInput;
   const k3Velocity = calculateFreeFlightAcceleration(
     k3VelocityInput,
-    state.spin,
+    k3SpinInput,
     parameters,
   );
+  const k3Spin =
+    calculateFreeFlightSpinDerivative(
+      k3VelocityInput,
+      k3SpinInput,
+      parameters,
+    );
 
   const k4VelocityInput = add(
     state.velocity,
     scale(k3Velocity, dt),
   );
+  const k4SpinInput = add(
+    state.spin,
+    scale(k3Spin, dt),
+  );
   const k4Position = k4VelocityInput;
   const k4Velocity = calculateFreeFlightAcceleration(
     k4VelocityInput,
-    state.spin,
+    k4SpinInput,
     parameters,
   );
+  const k4Spin =
+    calculateFreeFlightSpinDerivative(
+      k4VelocityInput,
+      k4SpinInput,
+      parameters,
+    );
 
   return {
     tick: state.tick + stepTicks,
@@ -353,7 +428,18 @@ const advanceAerodynamicFreeFlight = (
         dt / 6,
       ),
     ),
-    spin: state.spin,
+    spin: add(
+      state.spin,
+      scale(
+        weightedSum(
+          k1Spin,
+          k2Spin,
+          k3Spin,
+          k4Spin,
+        ),
+        dt / 6,
+      ),
+    ),
   };
 };
 
