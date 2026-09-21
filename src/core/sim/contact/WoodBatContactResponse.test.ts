@@ -5,7 +5,9 @@ import {
   type RigidBatState,
 } from './RigidBatBallContact';
 import {
+  WOOD_BAT_CONSERVATIVE_FRICTION_CANDIDATE,
   WOOD_BAT_CONTACT_RESPONSE_CANDIDATE_VERSION,
+  createConservativeEvidenceBackedWoodBatContactParameters,
   createEvidenceBackedWoodBatContactParameters,
   resolveEvidenceBackedWoodBatBallContact,
   resolveWoodBatNormalRestitution,
@@ -202,6 +204,21 @@ describe('evidence-backed wood bat contact response', () => {
       .toBeGreaterThan(
         fastApparentCor,
       );
+  });
+
+  it('exposes 0.15 only as an explicit conservative friction candidate backed by two game-speed evidence bounds', () => {
+    expect(
+      WOOD_BAT_CONSERVATIVE_FRICTION_CANDIDATE,
+    ).toBeCloseTo(0.15, 12);
+
+    const parameters =
+      createConservativeEvidenceBackedWoodBatContactParameters(
+        50,
+      );
+
+    expect(
+      parameters.frictionCoefficient,
+    ).toBeCloseTo(0.15, 12);
   });
 
   it('is explicitly versioned as a provisional evidence synthesis', () => {
