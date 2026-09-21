@@ -71,6 +71,9 @@ Two concurrent pure calculations are not two authorized database commits.
 Cross-club assignment changes and terminating an external assignment are rejected with
 `EXTERNAL_TRANSACTION_REQUIRED`. Within an already-represented external destination,
 local promotion/demotion is allowed and original rights remain unchanged.
+Existing edition registrations retain their club identity. New edition registrations may
+be added only at the assigned club, or the rights holder when unassigned. Rebinding an
+edition's club requires its external transaction owner, not this local roster command.
 This API does not negotiate/approve loans, transfer rights or rewrite a pinned policy.
 Restoring/creating a snapshot is a trusted world-service boundary, not a public bypass
 for contracts, medical clearance, migration or registration legality.
@@ -108,6 +111,9 @@ Future consumers can submit commands, inspect their result, query participation,
 read the separate ownership/assignment sets. Reason codes and canonical IDs are data;
 localization, screen counts, buttons, notification policy, confirmation flows and visual
 composition belong to the design/UI owner. No screen is required by this module.
+Because the operation is pure, a caller may also evaluate a candidate batch and inspect
+its rejection/next-state result without committing it. A preview must not persist its
+returned event; use the same expected-revision check when the host actually commits.
 
 ## Not completed by this slice
 

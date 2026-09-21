@@ -14,61 +14,62 @@
 
 - Session principle: implement confirmed functions and tests; do not connect to design, rendering, UI, screens, buttons, or Work prototypes.
 - Implementation base: `7af4dfd7fca518fbd2fac423a7d7c9077e402704` on `jolly/core-realism-2026-09-18`.
-- Task branch: `jolly/confirmed-headless-roster-2026-09-22`; no direct writes to shared implementation/design branches or unrelated PR merges.
+- Task branch: `jolly/confirmed-headless-roster-2026-09-22`; no direct writes to the shared implementation/design branches and no unrelated PR merges.
 - One global player reference per membership record. No roster-tier player copies.
 - Five assignment kinds are semantic categories, not five fixed storage slots. Multiple development levels are supported.
-- Assignment changes are not automatic registration, recovery, contracts, transfers, ability improvements, or match results.
-- No real-league roster counts are invented. Numeric policy tests are explicitly synthetic.
-- Historical competition-edition policies are stored in the snapshot; new external seeds cannot silently alter an existing career.
-- This is a roster-only participation gate, not full competition legality or a RuleEngine replacement.
-- Pure APIs; no clock, RNG, DOM, renderer, UI dependency, or production state singleton.
+- An assignment change is not an automatic registration, recovery, contract, transfer, ability improvement, or match result.
+- No real-league roster counts are invented. All numeric policy tests are explicitly synthetic.
+- Historical competition-edition policies are stored in the snapshot. New external seed/profile data cannot silently alter an existing career.
+- This is a roster-only participation gate, not full competition legality or a replacement for RuleEngine.
+- Pure APIs; no clock, RNG, DOM, renderer, UI dependency, or new production state singleton.
 
 ## Review Focus
 
-1. Full active-roster exchanges validate the final state, not the transient incoming-player step.
-2. Injury must not secretly deactivate registration; assignment must not heal or activate a player.
-3. A loaned player stays one player with original rights while local assignment can change at the agreed destination.
-4. Mutable input and later external policy updates cannot rewrite historical snapshots or leak hidden player truth.
-5. Stale commands cannot create duplicate history; malformed runtime inputs fail explicitly.
+1. Full active-roster exchanges must validate the final state, not reject a legal batch because the incoming player was processed first.
+2. An injury must not secretly deactivate registration, and an assignment must not heal a player or silently activate them.
+3. A loaned player must remain one player with original rights while local assignment can change at the agreed destination.
+4. Mutable input or later external profile updates must not rewrite snapshot/history or leak hidden player truth into roster queries.
+5. Replayed/stale commands must not create duplicate history; malformed serialized/runtime inputs must fail explicitly.
 
 ## Task 1: Unique state and pinned policy boundary
 
-Files: `src/core/world/roster/RosterTypes.ts`, `RosterState.ts`, `RosterValidation.ts`, `index.ts`, `RosterTestFixtures.ts`, `RosterState.test.ts`.
+Files: create `src/core/world/roster/RosterTypes.ts`, `RosterState.ts`, `RosterValidation.ts`, `index.ts`, `RosterTestFixtures.ts`, and `RosterState.test.ts`.
 
 Interfaces:
 - `createRosterState(input: RosterStateInput): RosterState`
 - `RosterValidationError.issue: RosterIssue`
-- Independent `PlayerClubState`, `AssignmentUnit`, `RosterCompetitionProfile`, `RosterState`.
+- Independent `PlayerClubState`, `AssignmentUnit`, `RosterCompetitionProfile`, and `RosterState` contracts.
 
-- [ ] Write real synthetic snapshot tests and observe missing-feature failure before implementation.
-- [ ] Validate IDs, safe counters/limits, enums, duplicate references, registration references, unit/club consistency and final active capacity.
-- [ ] Copy defined roster fields and deep-freeze snapshots; support save roundtrip, null assignment/rights and represented agreed external assignments.
-- [ ] Run tests and full project verification through the existing runner.
+- [x] Write tests using real synthetic snapshots; observe missing feature failure before production implementation.
+- [x] Validate nonempty IDs, safe integer counters/limits, enum values, duplicate player/unit/edition IDs, registration references, unit/club consistency, and final active capacity.
+- [x] Copy only defined roster fields and deep-freeze snapshots. Support save roundtrip, null assignment/rights, and represented authorized external assignments.
+- [x] Run focused tests plus the project's full verification through the existing runner.
 
-Concrete test contract (complete executable cases: `RosterState.test.ts`):
+Concrete test contract (complete executable cases are in `RosterState.test.ts`):
 ```ts
 const state = createRosterState(rosterFixture());
-expect(state.units.filter(u => u.clubId === 'a' && u.kind === 'DEVELOPMENT')).toHaveLength(2);
+expect(state.units.filter(u => u.clubId === 'a' && u.kind === 'DEVELOPMENT'))
+  .toHaveLength(2);
 expect(Object.isFrozen(state.profiles[0].allowedAssignmentKinds)).toBe(true);
 ```
 
 ## Task 2: Atomic mutations and renderer-neutral queries
 
-Files: `RosterCommands.ts`, `RosterQueries.ts`, `RosterCommands.test.ts`; extend the new local `index.ts`.
+Files: create `src/core/world/roster/RosterCommands.ts`, `RosterQueries.ts`, and `RosterCommands.test.ts`; extend the new local `index.ts`.
 
 Interfaces:
 - `applyRosterChange(state: RosterState, command: RosterChangeCommand): RosterChangeResult`
 - `evaluateRosterParticipation(state: RosterState, query: RosterParticipationQuery): RosterParticipationResult`
 - `getClubRoster(state: RosterState, clubId: string): ClubRosterSummary`
 
-- [ ] Test promotion without registration, final-state capacity swap, atomic rejection, injury/rehab policy, revision/day rejection, external transaction boundary, no-op and deterministic detached events.
-- [ ] Implement an expected-revision guarded pure batch reducer; change assignment, availability and supplied edition registration entries only, never rights or profiles.
-- [ ] Emit revision-derived event identity and caller command/cause provenance only on success.
-- [ ] Reject new cross-club assignments requiring an unimplemented loan/transfer transaction, while allowing local changes at an already-agreed destination.
-- [ ] Expose roster-only participation reasons and pinned policy reference; distinguish rights-held from assigned player lists.
-- [ ] Run full `npm run verify` through `p0-core.yml` at exact branch SHA.
+- [x] Write executable cases for promotion without registration, final-state active swap, atomic rejection, injury/rehab policy, revision/day rejection, external transaction boundary, no-op, deterministic event, and detached command input.
+- [x] Implement an expected-revision guarded pure batch reducer. A command can update assignment, availability, and explicitly supplied per-edition registration entries only. It cannot mutate rights or profiles.
+- [x] Generate revision-derived event identity plus caller command/cause provenance; return an event only on success.
+- [x] Reject cross-club assignment changes that require an unimplemented transfer/loan transaction rather than inventing that transaction. Existing agreed external assignments remain representable and locally mutable.
+- [x] Expose roster-only participation with ordered reason codes and pinned profile reference. Keep assigned players separate from rights-held players in club summaries.
+- [x] Run full `npm run verify` through `p0-core.yml` at exact branch SHA.
 
-Concrete atomicity contract (complete executable cases: `RosterCommands.test.ts`):
+Concrete atomicity test (complete executable cases are in `RosterCommands.test.ts`):
 ```ts
 const result = applyRosterChange(state, command([
   { playerId: 'p2', registrations: [active] },
@@ -82,13 +83,17 @@ expect(result.state.revision).toBe(1);
 
 Files: `docs/core/roster-v1-headless-api.md`, `docs/project-status/2026-09-22-confirmed-headless-implementation.md`.
 
-- [ ] Review the complete diff for validation, immutability, final-state semantics and forbidden design integration.
-- [ ] Record exact RED/GREEN commands, SHAs, run IDs, test counts and review corrections.
-- [ ] Publish a PR against the implementation branch; leave shared branches untouched.
-- [ ] Document API examples, limitations and the remaining dependency queue. Do not claim all roster/career simulation complete.
+- [x] Review the whole change for input validation, immutability, final-state capacity semantics, and forbidden design integration.
+- [x] Record exact RED/GREEN commands, SHAs, run IDs, test counts, and any review corrections.
+- [x] Publish a PR against `jolly/core-realism-2026-09-18` and leave shared branches untouched.
+- [x] Document API examples, reason semantics, scope limits, and the dependency queue. Never call all of roster/career simulation implemented.
 
 ## Execution rulings
 
-- Native workspace creation failed on an existing oversized visual artifact; container GitHub DNS is unavailable. Use a dedicated exact-SHA GitHub branch, atomic commits and the configured repository-specific self-hosted runner. Do not delete or alter visual assets to fit a workspace.
-- Exact-base `P0 Core` run `35654541121` / #1483 succeeded.
-- Review is inline; no independent subagent reviewer is available.
+- Native disposable workspace creation failed on an existing oversized visual artifact. Container GitHub DNS is unavailable. Use an exact-SHA dedicated GitHub branch, atomic commits, and the already-configured repository-specific self-hosted runner; do not delete or alter visual assets to make a workspace fit.
+- Existing exact-base `P0 Core` run `35654541121` / #1483 is successful.
+- No independent subagent reviewer is available in this session. Review is inline and must not be reported as independent review.
+
+## Completion evidence
+
+The first administrative slice is implemented in PR #26, without UI/Work integration. Source/test commit `72ededa600621e3f49265b2ad59a3c98c82f3dd2` passed `npm run verify` on the existing Windows runner: P0 Core #1496 / run `35660292695`, 245 files / 1181 tests. New roster tests total 55. Full sequence including RED, review fixes, the test-only typing failure and all scope limits is recorded in `docs/core/roster-v1-review.md` and the project-status handoff. No broader doc32 completion or merge is claimed.
