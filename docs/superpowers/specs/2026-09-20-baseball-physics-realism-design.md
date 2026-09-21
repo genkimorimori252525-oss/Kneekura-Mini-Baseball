@@ -893,6 +893,33 @@ This substantially strengthens the high-speed tangential/contact calibration.
 It does **not** remove the permanent no-deformation boundary: the measured
 effect of tangential compliance is represented by the fitted tangential COR.
 
+### 4.0.4 Swinging-bat game-speed tangential calibration
+
+Kensrud, Nathan & Smith later measured oblique impacts using a **swinging bat**
+against a stationary baseball at bat speeds from about 28-39 m/s (63-88 mph),
+with 58 baseball impacts.
+
+The measured baseball tangential COR values are now retained as calibration
+evidence:
+
+```text
+all baseball bats: ex = 0.405 +/- 0.010
+wood bat:          ex = 0.464 +/- 0.014
+metal rough:       ex = 0.356 +/- 0.015
+metal smooth:      ex = 0.374 +/- 0.015
+```
+
+The experiment establishes only a lower bound of approximately 0.15 on the
+friction coefficient for its measured baseball impacts, so the code does
+**not** turn the tangential-COR table into a complete production contact
+preset by inventing a friction value.
+
+This is important because the player's actual bat motion and free-bat recoil
+are much closer to the intended game model than the fixed-cylinder validation
+experiment. It strengthens the evidence that positive tangential COR
+(overspin) belongs in the reduced-order production model, while explicit ball
+deformation still does not.
+
 ### 4.1 Tapered bat geometry
 
 A real bat is not a constant-radius capsule.
