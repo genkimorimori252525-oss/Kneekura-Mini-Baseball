@@ -99,6 +99,12 @@ const swing = (
 } as const);
 
 describe('aerodynamic rigid-bat swing contact', () => {
+  it('keeps the historical first-order window as an explicit compatibility path', () => {
+    expect(
+      swing().kinematicsV1,
+    ).toBeUndefined();
+  });
+
   it('finds tapered rigid contact along the aerodynamic pitch path', () => {
     let observedApproachSpeed:
       number | null = null;
