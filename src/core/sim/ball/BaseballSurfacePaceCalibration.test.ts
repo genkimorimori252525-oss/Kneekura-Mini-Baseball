@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  NPB_2015_RIGID_WALL_COR_REFERENCE,
   PENNBOUNCE_2005_ANGLE_TARGETS,
   PENNBOUNCE_2005_MEAN_SURFACE_PACE,
   PENNBOUNCE_2005_SURFACE_VELOCITY_TARGETS,
@@ -72,6 +73,17 @@ describe('Pennbounce baseball surface pace calibration targets', () => {
       PENNBOUNCE_2005_ANGLE_TARGETS[0]!
         .measuredSpeedRatio,
     );
+  });
+
+  it('keeps the historical NPB 75 m/s rigid-wall COR as a validation reference rather than a field-material preset', () => {
+    expect(
+      NPB_2015_RIGID_WALL_COR_REFERENCE
+        .incidentSpeedMps,
+    ).toBe(75);
+    expect(
+      NPB_2015_RIGID_WALL_COR_REFERENCE
+        .desiredNormalCor,
+    ).toBeCloseTo(0.4134, 12);
   });
 
   it('treats the calibration observable as total rebound-speed ratio, not an internal normal COR', () => {
