@@ -139,6 +139,13 @@ export type CourseAwareSwingPlanInputV1 =
      * by the preferred contact depth.
      */
     targetBallCenterAtPlate: Vec3;
+    /**
+     * Optional actual/predicted ball center at the preferred contact depth.
+     * When absent, x/y are copied from the plate target and z is synthesized
+     * from the preferred contact depth. Aerodynamic integration should supply
+     * this when curved-flight x/y at contact are known.
+     */
+    targetBallCenterAtContact?: Vec3;
     strikeZone:
       StrikeZoneRegion;
     contactTick: number;
@@ -584,33 +591,114 @@ export const planCourseAwareSwingKinematicsV1 = (
   const followThroughSeconds =
     profile.followThroughSeconds;
 
-  const intendedBallCenterAtContact = {
-    x:
-      input.targetBallCenterAtPlate.x,
-    y:
-      input.targetBallCenterAtPlate.y,
-    z:
-      input.batterCenterOfMass.z
-      + preferredContactDepthM,
-  };
+  const intendedBallCenterAtContact =
+    input.targetBallCenterAtContact
+    ?? {
+      x:
+        input.targetBallCenterAtPlate.x,
+      y:
+        input.targetBallCenterAtPlate.y,
+      z:
+        input.batterCenterOfMass.z
+        + preferredContactDepthM,
+    };
+
+  const expectedContactZ =
+    input.batterCenterOfMass.z
+    + preferredContactDepthM;
+  if (
+    input.targetBallCenterAtContact
+      !== undefined
+    && Math.abs(
+      input.targetBallCenterAtContact.z
+      - expectedContactZ,
+    ) > 0.01
+  ) {
+    throw new Error(
+      'course-aware contact target z must match preferred contact depth within 1 cm',
+    );
+  }
+
+  const towardPlateX =
+    localTowardPlateSignX(
+      input.handedness,
+    );
 
   /**
-   * Nominal contact normal points from bat centerline toward the pitcher
-   * (+z), matching the incoming pitch geometry. The real pitch and the real
-   * tapered bat still decide whether/where contact actually occurs.
+   * Hands remain body-relative while the barrel centerline is solved so the
+   * intended ball-center offset is perpendicular to the bat axis. This avoids
+   * treating a fixed z offset as a true surface normal when the bat itself has
+   * a z component.
    */
-  const intendedSweetSpotCenterAtContact = {
+  const handGuideAtContact = {
+    x:
+      input.batterCenterOfMass.x
+      + towardPlateX * 0.08,
+    y:
+      input.batterCenterOfMass.y
+      + 0.06
+      + course.heightNormalized
+        * 0.05,
+    z:
+      intendedBallCenterAtContact.z
+      - 0.18,
+  };
+  const pitcherNormal = {
+    x: 0,
+    y: 0,
+    z: 1,
+  } as const;
+
+  let intendedSweetSpotCenterAtContact = {
     ...intendedBallCenterAtContact,
     z:
       intendedBallCenterAtContact.z
       - profile
         .nominalContactSurfaceDistanceM,
   };
-
-  const towardPlateX =
-    localTowardPlateSignX(
-      input.handedness,
+  let contactAxis =
+    normalize(
+      subtract(
+        intendedSweetSpotCenterAtContact,
+        handGuideAtContact,
+      ),
     );
+
+  for (
+    let iteration = 0;
+    iteration < 8;
+    iteration += 1
+  ) {
+    const projectedNormal = subtract(
+      pitcherNormal,
+      scale(
+        contactAxis,
+        (
+          pitcherNormal.x * contactAxis.x
+          + pitcherNormal.y * contactAxis.y
+          + pitcherNormal.z * contactAxis.z
+        ),
+      ),
+    );
+    const contactNormal =
+      normalize(projectedNormal);
+    intendedSweetSpotCenterAtContact =
+      subtract(
+        intendedBallCenterAtContact,
+        scale(
+          contactNormal,
+          profile
+            .nominalContactSurfaceDistanceM,
+        ),
+      );
+    contactAxis =
+      normalize(
+        subtract(
+          intendedSweetSpotCenterAtContact,
+          handGuideAtContact,
+        ),
+      );
+  }
 
   const startGrip = add(
     input.batterCenterOfMass,
@@ -635,27 +723,6 @@ export const planCourseAwareSwingKinematicsV1 = (
         startAxis,
         profile.batLengthM
         * profile.sweetSpotT,
-      ),
-    );
-
-  const handGuideAtContact = {
-    x:
-      input.batterCenterOfMass.x
-      + towardPlateX * 0.08,
-    y:
-      input.batterCenterOfMass.y
-      + 0.06
-      + course.heightNormalized
-        * 0.05,
-    z:
-      intendedSweetSpotCenterAtContact.z
-      - 0.18,
-  };
-  const contactAxis =
-    normalize(
-      subtract(
-        intendedSweetSpotCenterAtContact,
-        handGuideAtContact,
       ),
     );
 

@@ -181,6 +181,46 @@ describe('course-aware swing kinematics v1', () => {
     );
   });
 
+  it('places the intended ball center one nominal surface distance from the contact bat axis', () => {
+    const planned =
+      plan('R', -0.6, 0.35);
+    const sample =
+      sampleSwingKinematicsV1(
+        planned.trajectory,
+        planned.trajectory
+          .contactTick,
+      );
+    const offset = {
+      x:
+        planned.intendedBallCenterAtContact.x
+        - sample.sweetSpotPosition.x,
+      y:
+        planned.intendedBallCenterAtContact.y
+        - sample.sweetSpotPosition.y,
+      z:
+        planned.intendedBallCenterAtContact.z
+        - sample.sweetSpotPosition.z,
+    };
+    const distance = Math.hypot(
+      offset.x,
+      offset.y,
+      offset.z,
+    );
+    const axial =
+      offset.x * sample.batAxis.x
+      + offset.y * sample.batAxis.y
+      + offset.z * sample.batAxis.z;
+
+    expect(distance)
+      .toBeCloseTo(
+        EVIDENCE_BOUNDED_SWING_COURSE_PROFILE_V1
+          .nominalContactSurfaceDistanceM,
+        8,
+      );
+    expect(axial)
+      .toBeCloseTo(0, 6);
+  });
+
   it('mirrors the physical pose between right and left batters while keeping y/z identical', () => {
     const right =
       plan('R', -0.5, 0.4);
