@@ -1,5 +1,10 @@
 import type { Vec3 } from '../../model/geometry';
 import {
+  NATHAN_2026_BASEBALL_SPIN_DECAY_ESTIMATE,
+  validateBaseballSpinDecayParameters,
+  type BaseballSpinDecayParameters,
+} from './BaseballSpinDecay';
+import {
   LYU_2022_SEAM_AVERAGED_AERO_PROFILE,
   resolveBaseballAerodynamicCoefficients,
   validateBaseballAerodynamicCoefficientProfile,
@@ -21,6 +26,11 @@ export type BaseballAerodynamicsParameters = Readonly<{
    * Needed only by Reynolds-aware coefficient profiles.
    */
   airKinematicViscosityM2PerSecond?: number;
+  /**
+   * Optional aerodynamic torque model. Legacy/reference paths may omit it;
+   * reality profiles opt into explicit versioned spin decay.
+   */
+  spinDecay?: BaseballSpinDecayParameters;
 }>;
 
 /**
@@ -52,6 +62,8 @@ export const REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS:
       LYU_2022_SEAM_AVERAGED_AERO_PROFILE,
     airKinematicViscosityM2PerSecond:
       1.5e-5,
+    spinDecay:
+      NATHAN_2026_BASEBALL_SPIN_DECAY_ESTIMATE,
   });
 
 const EPSILON = 1e-12;
@@ -107,6 +119,15 @@ const validateParameters = (
   ) {
     throw new Error('dragCoefficient must be finite and non-negative');
   }
+  if (
+    parameters.spinDecay
+    !== undefined
+  ) {
+    validateBaseballSpinDecayParameters(
+      parameters.spinDecay,
+    );
+  }
+
   if (
     parameters.coefficientProfile
     !== undefined
