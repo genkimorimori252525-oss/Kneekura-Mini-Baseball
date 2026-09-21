@@ -1,4 +1,7 @@
 import {
+  BASEBALL_PHYSICS_V1_PRODUCTION_PROFILE_ID,
+} from '../sim/ball/BaseballPhysicsV1';
+import {
   createBaseballRealityProfileV1,
   type BaseballRealityProfileV1,
   type BaseballRealityProfileV1Input,
@@ -11,7 +14,7 @@ import {
 } from './CurrentBaseballPhysicsV1Readiness';
 
 export const CURRENT_BASEBALL_PHYSICS_V1_PRODUCTION_PROFILE_ID =
-  'baseball-reality-profile-v1' as const;
+  BASEBALL_PHYSICS_V1_PRODUCTION_PROFILE_ID;
 
 export type CurrentBaseballPhysicsV1ProductionProfileInput =
   Omit<
