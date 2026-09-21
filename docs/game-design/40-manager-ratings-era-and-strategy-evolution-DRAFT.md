@@ -1,4 +1,7 @@
-# Manager Ratings, Era Context & Strategy Evolution — DRAFT
+# Manager Ratings, Era Context & Strategy Evolution — ARCHIVED / SUPERSEDED
+
+> **OLD PLAN / 旧計画 — DO NOT USE AS CURRENT DESIGN**  
+> この文書は履歴・設計理由の参照用にのみ保存する。現在のSource of Truthは `docs/game-design/49-manager-architecture-v1.md`。未確定計画・実装候補として数えない。
 
 > **Manager Architecture v1 canonical note:** This file is now **ARCHIVED DESIGN WORK**.
 > Canonical Manager semantics are defined by `docs/game-design/49-manager-architecture-v1.md`.
@@ -6,7 +9,7 @@
 
 
 更新日: 2026-09-20  
-状態: **設計候補。USER REVIEW REQUIRED。実装前。**
+状態: **ARCHIVED / SUPERSEDED（旧計画）。正史ではない。実装判断・未確定計画一覧に使用しない。**
 
 関連:
 - `docs/game-design/01-manager-experience.md`

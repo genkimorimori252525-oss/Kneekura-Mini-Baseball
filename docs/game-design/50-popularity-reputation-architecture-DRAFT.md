@@ -1,4 +1,7 @@
-# Popularity / Star Status Architecture — DRAFT
+# Popularity / Star Status Architecture — CANONICAL v1
+
+> **FILENAME LEGACY NOTE**  
+> ファイルパスの `-DRAFT` は履歴上残っているだけ。この文書は **CANONICAL / DESIGN FROZEN v1** であり、未確定計画として数えない。
 
 更新日: 2026-09-20  
 状態: **CANONICAL / DESIGN FROZEN v1。実装前。**

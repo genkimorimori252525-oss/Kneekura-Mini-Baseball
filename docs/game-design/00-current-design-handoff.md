@@ -5,6 +5,55 @@
 
 この文書は、新しいChatGPT / Jolly sessionが設計思想を最短で復元するためのhandoff。
 
+## Document Lifecycle / Source Precedence Guard — 2026-09-22
+
+このhandoffでは、**ファイル名ではなく文書内の現在Statusと後継Canonical文書を優先**する。
+
+AI / Agent向け強制ルール:
+
+1. ファイル名に `-DRAFT` が残っていても、それだけで「未確定」と判定しない。
+2. `ARCHIVED` / `SUPERSEDED` / `旧計画` は履歴資料であり、現在の設計候補・未確定計画として数えない。
+3. `VALIDATION CATALOG` は検証資料であり、現在の設計計画として数えない。
+4. 後継 `CANONICAL / DESIGN FROZEN` 文書がある場合、旧DRAFTより後継を優先する。
+5. 「まだ実装されていない」「数値校正が残っている」「Future Referenceである」ことと、「設計が未確定」であることを混同しない。
+
+### 現在、USER REVIEW REQUIREDとして残る設計
+
+- `32-roster-development-architecture-DRAFT.md`
+- `34-team-traits-and-relationship-network-DRAFT.md`
+- `35-team-trait-catalog-DRAFT.md`
+- `38-team-mood-manager-interventions-DRAFT.md`
+- `41-manager-appointment-and-incompetence-DRAFT.md`
+- `42-manager-market-and-front-office-selection-DRAFT.md`
+
+### 旧計画 / 後継へ統合済み
+
+以下は **旧計画**。未確定計画一覧へ入れない。
+
+- `39-manager-philosophy-and-command-architecture-DRAFT.md`
+- `40-manager-ratings-era-and-strategy-evolution-DRAFT.md`
+- `43-manager-strategy-evolution-architecture-DRAFT.md`
+- `45-manager-decision-engine-and-temperament-DRAFT.md`
+- `46-manager-rare-tactics-psychological-play-and-decision-log-DRAFT.md`
+- `47-manager-candidate-evaluation-and-gimmick-control-DRAFT.md`
+
+これらの後継Source of Truthは:
+
+- `49-manager-architecture-v1.md` — **CANONICAL / DESIGN FROZEN v1**
+
+`44-manager-real-world-tactical-stress-tests-DRAFT.md` は **VALIDATION CATALOG** であり、未確定計画ではない。
+
+### ファイル名だけDRAFTが残るCanonical文書
+
+以下はファイル名に `-DRAFT` が残っているが、内容は **CANONICAL / DESIGN FROZEN v1**。未確定計画として数えない。
+
+- `50-popularity-reputation-architecture-DRAFT.md`
+- `51-star-superstar-big-stage-architecture-DRAFT.md`
+
+補足:
+- `52-star-superstar-genesis-v1.md` はCanonical supplement。
+- 古い節に `CURRENT DRAFT` 等の時系列記録が残っていても、この節のSource Precedenceを優先する。
+
 ---
 
 # 1. Game Slogan
@@ -768,13 +817,13 @@ Team Mood is a rare **social-psychological exception layer**, not a second team-
 Team Mood / Relationship should add human texture without turning entertainment into social-maintenance labor.
 
 
-Manager philosophy / command architecture (USER REVIEW REQUIRED):
+Historical manager philosophy / command draft (SUPERSEDED / 旧計画):
 - `docs/game-design/39-manager-philosophy-and-command-architecture-DRAFT.md`
 
 
 ---
 
-# 32. CURRENT DRAFT — Manager Philosophy / Commands
+# 32. HISTORICAL DRAFT — SUPERSEDED BY Manager Architecture v1
 
 2026-09-20 current design work:
 
@@ -810,13 +859,13 @@ Draft:
 - `docs/game-design/39-manager-philosophy-and-command-architecture-DRAFT.md`
 
 
-Manager ratings / era / strategy evolution (USER REVIEW REQUIRED):
+Historical manager ratings / era / strategy draft (SUPERSEDED / 旧計画):
 - `docs/game-design/40-manager-ratings-era-and-strategy-evolution-DRAFT.md`
 
 
 ---
 
-# 33. CURRENT DRAFT — Manager Ratings / Era / Strategy Evolution
+# 33. HISTORICAL DRAFT — SUPERSEDED BY Manager Architecture v1
 
 2026-09-20 design direction:
 
@@ -924,13 +973,13 @@ Draft:
 - `docs/game-design/42-manager-market-and-front-office-selection-DRAFT.md`
 
 
-Detailed emergent strategy architecture (USER REVIEW REQUIRED):
+Historical emergent-strategy draft (SUPERSEDED / 旧計画):
 - `docs/game-design/43-manager-strategy-evolution-architecture-DRAFT.md`
 
 
 ---
 
-# 36. CURRENT DRAFT — Emergent Manager Strategy Evolution
+# 36. HISTORICAL DRAFT — SUPERSEDED BY Manager Architecture v1
 
 2026-09-20 current design:
 
@@ -979,13 +1028,13 @@ Recommended approval order:
 6. historical reconstruction + future-emergence soak
 
 
-Real-world manager tactical stress tests (USER REVIEW REQUIRED):
+Manager real-world tactical stress tests (VALIDATION CATALOG / not an open plan):
 - `docs/game-design/44-manager-real-world-tactical-stress-tests-DRAFT.md`
 
 
 ---
 
-# 37. CURRENT DRAFT — Real-world Manager Tactical Stress Tests
+# 37. VALIDATION CATALOG — NOT A CURRENT PLAN
 
 2026-09-20:
 
@@ -1025,13 +1074,13 @@ Draft:
 - `docs/game-design/44-manager-real-world-tactical-stress-tests-DRAFT.md`
 
 
-Manager decision engine / temperament (USER REVIEW REQUIRED):
+Historical manager decision-engine / temperament draft (SUPERSEDED / 旧計画):
 - `docs/game-design/45-manager-decision-engine-and-temperament-DRAFT.md`
 
 
 ---
 
-# 38. CURRENT DRAFT — Manager Decision Engine / Temperament
+# 38. HISTORICAL DRAFT — SUPERSEDED BY Manager Architecture v1
 
 2026-09-20:
 
@@ -1086,13 +1135,13 @@ Draft:
 - `docs/game-design/45-manager-decision-engine-and-temperament-DRAFT.md`
 
 
-Rare tactics / psychological play / Manager Decision Log (USER REVIEW REQUIRED):
+Historical rare-tactics / psychological-play / Decision Log draft (SUPERSEDED / 旧計画):
 - `docs/game-design/46-manager-rare-tactics-psychological-play-and-decision-log-DRAFT.md`
 
 
 ---
 
-# 39. CURRENT DRAFT — Rare Tactics / Psychological Play / Decision Logs
+# 39. HISTORICAL DRAFT — SUPERSEDED BY Manager Architecture v1
 
 2026-09-20:
 
@@ -1117,13 +1166,13 @@ Draft:
 - `docs/game-design/46-manager-rare-tactics-psychological-play-and-decision-log-DRAFT.md`
 
 
-Manager candidate evaluation / gimmick-control design (USER REVIEW REQUIRED):
+Historical candidate-evaluation / gimmick-control draft (SUPERSEDED / 旧計画):
 - `docs/game-design/47-manager-candidate-evaluation-and-gimmick-control-DRAFT.md`
 
 
 ---
 
-# 40. CURRENT DRAFT — Candidate Evaluation / Gimmick Control
+# 40. HISTORICAL DRAFT — SUPERSEDED BY Manager Architecture v1
 
 2026-09-20:
 
@@ -1303,11 +1352,11 @@ Canonical refinement commit:
 
 ---
 
-# 43. CURRENT DRAFT — Popularity / Reputation
+# 43. CANONICAL v1 — Popularity / Reputation
 
 2026-09-20 design started.
 
-Draft:
+Canonical v1 (legacy filename retains `-DRAFT`):
 - `docs/game-design/50-popularity-reputation-architecture-DRAFT.md`
 
 Core separation:
@@ -1376,7 +1425,7 @@ Important:
 - Clubhouse Influence remains separate
 - Reputation / 威圧感 is removed from Popularity ownership and deferred back to Scouting / Manager Belief / Psychology
 
-Updated draft:
+Canonical v1 file (legacy filename retains `-DRAFT`):
 - `docs/game-design/50-popularity-reputation-architecture-DRAFT.md`
 
 Refinement commit:
@@ -1415,7 +1464,7 @@ Important:
 - statistical greatness and iconic greatness must remain distinguishable.
 - Shigeo Nagashima and Shohei Ohtani are validation motifs, not hard-coded persons.
 
-Draft:
+Canonical v1 file (legacy filename retains `-DRAFT`):
 - `docs/game-design/51-star-superstar-big-stage-architecture-DRAFT.md`
 
 Commits:
