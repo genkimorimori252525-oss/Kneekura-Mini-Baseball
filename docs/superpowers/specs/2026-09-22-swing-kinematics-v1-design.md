@@ -366,3 +366,20 @@ bat-state boundary.
   numeric contract;
 - old compatibility tests remain green;
 - Presentation remains read-only.
+
+## 14. Product-level exclusion of body biomechanics
+
+The earlier v1 deferral list must not be interpreted as a roadmap promise.
+
+For Mini Baseball, the user has explicitly chosen **numerical player attributes
+plus Swing Kinematics** as the authoritative abstraction. Full skeletal
+dynamics, joint torque simulation, muscle/tendon simulation, ground-reaction
+forces and player-specific motion-capture reconstruction are intentionally
+outside the product scope because they would duplicate or conflict with the
+roles already held by player ratings, Swing Kinematics and Presentation.
+
+They are therefore **rejected by current product design**, not merely postponed.
+
+The one required follow-up remains migration of legacy `PitchAgainstBatter`
+callers to the Swing Kinematics v1 aerodynamic rigid-bat path so that one
+physical swing authority is used consistently.

@@ -296,3 +296,70 @@ legacy plate-appearance migration: SEPARATE INTEGRATION TASK
 The physical bat trajectory itself is no longer to be redesigned casually.
 Future improvements should arrive as evidence-backed profile revisions or a
 new upstream kinematics version, not as Presentation-side trajectory invention.
+
+## 10. Product scope decision — do not add human-body simulation
+
+User decision: **Mini Baseball does not need a skeletal / muscle / ground-reaction-force batting simulator.**
+
+The product intentionally represents player differences through baseball/player
+ratings and versioned swing parameters. The game does not need a second
+biomechanics simulation stack underneath those ratings merely to explain how a
+pixel-art batter generated the bat motion.
+
+Therefore the following are not backlog items for Swing Kinematics v1 and
+should not be implemented unless the product direction is explicitly changed
+in the future:
+
+- full-body skeletal dynamics;
+- pelvis / torso / shoulder / elbow / wrist torque simulation;
+- muscle / tendon force simulation;
+- ground-reaction-force simulation;
+- player-specific motion-capture reconstruction as an authoritative runtime
+  motion source.
+
+These features would add another source of authority for player movement and
+would overlap with or conflict with the existing responsibilities of:
+
+- player numerical ratings and physical profiles;
+- Swing Kinematics;
+- canonical bat-ball physics;
+- Presentation / B1 pixel-art observation.
+
+For Mini, player ratings are sufficient to parameterize differences in timing,
+bat speed, contact control, course handling, swing profile and other baseball
+behaviour. Swing Kinematics turns those numerical inputs into the physical bat
+trajectory. Presentation observes the resulting canonical state.
+
+The intended authority chain is therefore:
+
+```text
+player numerical attributes / ratings
+        ↓
+versioned swing parameters
+        ↓
+Swing Kinematics v1
+        ↓
+physical bat trajectory
+        ↓
+bat-ball contact
+        ↓
+canonical game state
+        ↓
+pixel-art Presentation
+```
+
+Do not insert a skeletal, torque, muscle or motion-capture authority between
+player ratings and Swing Kinematics.
+
+### Remaining required migration
+
+The only remaining swing-path integration task from this closure is migration
+of legacy `PitchAgainstBatter` / historical first-order swing callers onto the
+new aerodynamic rigid-bat Swing Kinematics v1 path.
+
+That migration is required for consistency so that real match flow does not
+sometimes use the compatibility sampler while diagnostics use the new physical
+trajectory.
+
+This migration should preserve the existing product boundary above. It must
+not be used as an excuse to introduce body biomechanics simulation.
