@@ -135,7 +135,7 @@ describe('swing kinematics observer fixture v1', () => {
         ),
         'utf8',
       ).toString('base64');
-    const chunkSize = 3_000;
+    const chunkSize = 800;
 
     for (
       let offset = 0, index = 0;
