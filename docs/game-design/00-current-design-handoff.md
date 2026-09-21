@@ -19,12 +19,11 @@ AI / Agent向け強制ルール:
 
 ### 現在、USER REVIEW REQUIREDとして残る設計
 
-- `35-team-trait-catalog-DRAFT.md`
 - `38-team-mood-manager-interventions-DRAFT.md`
 - `41-manager-appointment-and-incompetence-DRAFT.md`
 - `42-manager-market-and-front-office-selection-DRAFT.md`
 
-`32-roster-development-architecture-DRAFT.md` と `34-team-traits-and-relationship-network-DRAFT.md` は2026-09-22にユーザー承認され、**CANONICAL / DESIGN FROZEN v1** へ昇格した。
+`32-roster-development-architecture-DRAFT.md`、`34-team-traits-and-relationship-network-DRAFT.md`、`35-team-trait-catalog-DRAFT.md` は2026-09-22にユーザー承認され、**CANONICAL / DESIGN FROZEN v1** へ昇格した。
 
 ### 旧計画 / 後継へ統合済み
 
@@ -49,6 +48,7 @@ AI / Agent向け強制ルール:
 
 - `32-roster-development-architecture-DRAFT.md`
 - `34-team-traits-and-relationship-network-DRAFT.md`
+- `35-team-trait-catalog-DRAFT.md`
 - `50-popularity-reputation-architecture-DRAFT.md`
 - `51-star-superstar-big-stage-architecture-DRAFT.md`
 
@@ -650,7 +650,7 @@ Team traits / player relationship design candidate (USER REVIEW REQUIRED):
 - `docs/game-design/34-team-traits-and-relationship-network-DRAFT.md`
 
 
-Team Trait Catalog (USER REVIEW REQUIRED):
+Team Trait Catalog (CANONICAL / DESIGN FROZEN v1):
 - `docs/game-design/35-team-trait-catalog-DRAFT.md`
 
 
@@ -676,7 +676,7 @@ Current Source of Truth:
 - Mood/Trait direct feedback loops are prohibited
 - no routine social-maintenance chores for the User
 
-Exact Trait catalog / thresholds / duration calibration remains in `35-team-trait-catalog-DRAFT.md`.
+`35-team-trait-catalog-DRAFT.md` is now CANONICAL v1. Exact thresholds / duration days / decay rates remain calibration tasks, not open architecture.
 
 Historical 2026-09-20 development notes follow:
 

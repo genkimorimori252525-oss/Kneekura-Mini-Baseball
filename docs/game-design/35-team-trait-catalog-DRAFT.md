@@ -1,13 +1,278 @@
-# Team Trait Catalog — DRAFT
+# Team Trait Catalog — CANONICAL v1
 
-更新日: 2026-09-20  
-状態: **初期カタログ設計。USER REVIEW REQUIRED。実装前。名称・閾値は調整可能。**
+更新日: 2026-09-22  
+状態: **CANONICAL / DESIGN FROZEN v1。2026-09-22ユーザー承認。実装前。**
+
+> **FILENAME LEGACY NOTE**  
+> ファイルパスの `-DRAFT` は履歴上残っているだけ。この文書は未確定Draftではない。下記Canonical Freeze節を現在のSource of Truthとして扱い、後続の95候補一覧は歴史的Candidate Catalog / UI-name poolとして扱う。
 
 関連:
 - `docs/game-design/08-player-traits-design-seed.md`
 - `docs/game-design/09-player-trait-catalog.md`
 - `docs/game-design/34-team-traits-and-relationship-network-DRAFT.md`
 - `docs/game-design/05-psychology-emotion.md`
+
+---
+
+# Canonical Freeze v1 — 2026-09-22
+
+## 0.1 Catalog principle
+
+v1では **95個の独立Gameplay能力を実装しない**。
+
+品質・表現力は維持しつつ、内部Source of Truthを少数のCausal Familyへ正規化する。
+
+```text
+small causal family set
+        ↓
+context / scope / state / polarity
+        ↓
+rich Japanese UI trait name
+```
+
+UI名の多さは残してよい。
+ただし、名前が増えるたびに新しいGameplay stat / modifierを増やしてはいけない。
+
+## 0.2 Canonical causal families v1
+
+初期v1 Familyは概ね次の15系統をSource of Truthとする。
+
+1. `BATTING_RESONANCE`
+2. `SCORING_PRESSURE`
+3. `COMEBACK_RESPONSE`
+4. `BENCH_ROLE_CONFIDENCE`
+5. `BULLPEN_CONFIDENCE`
+6. `BULLPEN_HANDOFF`
+7. `BATTERY_COORDINATION`
+8. `PITCHING_RESET`
+9. `DEFENSE_COORDINATION`
+10. `ALIGNMENT_ADAPTATION`
+11. `ENVIRONMENT_ADAPTATION`
+12. `UNFAMILIAR_OPPONENT_PREPARATION`
+13. `PENNANT_PRESSURE_ADAPTATION`
+14. `SKID_RESET`
+15. `SHARED_PREPARATION`
+
+これはHard capではない。
+新Family追加には、既存Familyで説明不能・独立因果・重複なしを要求する。
+
+## 0.3 Blue / Red / Gold
+
+同じFamilyの内部状態を基本として:
+
+```text
+negative  <---- neutral ----> positive ----> exceptional
+  Red            none           Blue             Gold
+```
+
+と表現できる。
+
+- Blue / Redを別々の能力Sourceとして二重管理しない。
+- 同FamilyのBlue / Red / Goldは同時にGameplay作用しない。
+- GoldはBuff倍率ではなく、exceptional underlying stateのDescriptor。
+- Goldは全Familyに必須ではない。
+
+## 0.4 Context / subtype display
+
+狭い条件は新Familyを作らずContext / subtypeで表現する。
+
+例:
+
+```text
+SCORING_PRESSURE
+ + bases_loaded
+ -> UI: 満塁硬直
+
+SCORING_PRESSURE
+ + late_game
+ -> UI: 終盤焦燥
+
+PENNANT_PRESSURE_ADAPTATION
+ + .500 threshold
+ -> UI: 5割の壁
+```
+
+同じ根本原因を別名Traitとして重ね掛けしない。
+
+## 0.5 Defense normalization
+
+`DEFENSE_COORDINATION` のrole subtypeとして:
+
+- middle infield
+- outfield
+- relay
+- bunt defense
+- rundown
+- runner control
+- cover
+- communication
+
+等を扱う。
+
+表示名として:
+
+- 二遊間連携
+- 阿吽の二遊間
+- 外野連携
+- 外野譲り合い
+- 中継網
+- 中継混線
+- お見合い注意報
+
+等を維持してよい。
+
+内部能力をその数だけ増やさない。
+
+## 0.6 Environment normalization
+
+`ENVIRONMENT_ADAPTATION` のcontextとして:
+
+- HOME
+- AWAY
+- DAY
+- NIGHT
+- TRAVEL
+- WEATHER
+- CROWD
+
+等を扱う。
+
+ホームの鬼 / デイゲーム巧者 / デイゲーム苦手 / 遠征慣れ / 遠征疲れ / 大観衆萎縮等はUI表現として残せる。
+
+DAYとNIGHTは排他的な魔法能力ではない。両方に高適応するTeamも存在可能。
+
+## 0.7 Batting families
+
+主な整理:
+
+- `BATTING_RESONANCE`: 打線連鎖 / 呼応打線 / 連弾の気配 / 共鳴砲 / 黄金打線
+- `SCORING_PRESSURE`: 好機必打 / タイムリー欠乏症 / 満塁硬直 / 終盤焦燥
+- `COMEBACK_RESPONSE`: 逆境オーラ / 不屈の逆転劇
+- `BENCH_ROLE_CONFIDENCE`: 代打陣の信頼 / 代打硬直
+
+`あと一本病` は `タイムリー欠乏症` と別Gameplay Familyにせず、Commentary alias / alternate wordingとして扱う。
+
+`追撃の波` はBatting Resonanceのcontext表現へ統合する。
+
+`初回攻勢` / `先頭出塁の波` は基本的にAnalytic / tendency Descriptor寄りとし、独立Causal Familyにしない。
+
+`つなぎの意識` はManager strategy / role familiarity側のEvidenceを主とし、独立Team Trait Sourceにしない。
+
+`新戦力歓迎` はRelationship / Team Mood側の表現を主とし、Team Trait Gameplay Familyから外す。
+
+## 0.8 Pitching families
+
+主な整理:
+
+- `BULLPEN_CONFIDENCE`: 鉄壁リリーフ陣 / 鉄壁ブルペン / ブルペン不信 / 守護神への信頼 / 守護神不安
+- `BULLPEN_HANDOFF`: 継投呼応 / 継投迷走
+- `BATTERY_COORDINATION`: バッテリー結束 / 阿吽のバッテリー / バッテリー不信
+- `PITCHING_RESET`: 立て直し上手 / 失点引きずり / 四球後の切替 / 四球連鎖 / 火消し連鎖 / 火消し恐怖
+
+Closer / after-walk / inherited-runner等はscope/context subtype。
+
+## 0.9 Analytic descriptors
+
+以下はGameplay Effectを持たない:
+
+- 投打好循環
+- 投打不協和
+- 好投見殺し
+- 援護空回り
+
+これらは `ANALYTIC_DESCRIPTOR` としてSeason historyを説明する。
+
+削除するのではなく、Pennantの物語・分析として保持する。
+
+## 0.10 Gold v1
+
+Goldは希少な表示にする。
+
+v1で優先して残すGold候補:
+
+- 共鳴砲
+- 黄金打線
+- 不屈の逆転劇
+- 勝負所の結束
+- 鉄壁ブルペン
+- 阿吽のバッテリー
+- 鉄壁連携
+- 阿吽の二遊間
+- 鉄の切替
+
+以下はGold専用Familyにせず、Blue/context subtypeへ整理する候補:
+
+- 完全中継網
+- 本拠地要塞
+- 初見看破
+- 遠征巧者
+
+これらの名称自体を将来UIで使うことは禁止しない。
+ただしGold statusを乱発しない。
+
+## 0.11 Season boundary
+
+次の3Policyを正式採用する。
+
+- `CARRYOVER_ELIGIBLE`
+- `REVALIDATE_NEXT_SEASON`
+- `SEASON_ONLY`
+
+Relationship / Coordination由来はcarryover可能。
+Role / preparation / environment由来はrevalidate中心。
+Streak / current-season pressure / momentum由来はseason-only中心。
+
+Goldも色ではなくSource Familyでcarryover判定する。
+
+## 0.12 Offseason memory
+
+旧候補にある `10〜30% latent memory` の固定数値はv1設計から外す。
+
+Canonical rule:
+
+```text
+season end
+ -> active label may expire
+ -> underlying evidence may decay / persist
+ -> new-season evidence can erase / reactivate
+```
+
+exact decay rateはlong-run soak / calibrationで決める。
+
+## 0.13 UI density
+
+通常画面に全内部Stateを列挙しない。
+
+推奨:
+
+- Gold: activeなら原則表示
+- Blue / Red: significanceの高いものだけ表示
+- Analytic Descriptor: 別の「チーム傾向 / 分析」欄
+- Detail: source evidence / scope / duration / history
+
+Traitが付くこと自体を意味ある情報にする。
+
+## 0.14 Anti-quality-loss rule
+
+この正規化は表現を削るためではない。
+
+禁止:
+
+```text
+fewer families
+ -> fewer baseball situations expressible
+```
+
+正しい方針:
+
+```text
+fewer causal families
++ richer context/scope/descriptor vocabulary
+ -> same or greater expressive range
+ -> less duplication / double counting
+```
+
+旧95候補は削除せず、名前・motif・validation caseのpoolとして保持する。
 
 ---
 
@@ -411,9 +676,11 @@ Team Traitは結果一発で即付与しない。
 
 ---
 
-# 19. Catalog Size v1
+# 19. Historical Candidate Catalog Size
 
-初期カタログ候補:
+2026-09-20時点の初期候補数。Canonical v1ではこれらを独立Gameplay Family数として解釈しない。
+
+歴史的候補:
 
 - Blue: 42
 - Gold: 13
@@ -425,9 +692,11 @@ Team Traitは結果一発で即付与しない。
 
 ---
 
-# 20. Review Points
+# 20. Review Points — RESOLVED / MOVED TO CALIBRATION
 
-ユーザーと今後詰める点:
+Architecture / catalog normalizationは2026-09-22に承認済み。以下は旧Review項目であり、名称微調整・閾値・日数等はimplementation calibrationとして扱う。
+
+旧Review項目:
 
 1. 名称の好み
 2. Goldの数を増減するか
@@ -804,7 +1073,7 @@ Opening Day時点では:
 
 ---
 
-# 28. Approved Direction Candidate
+# 28. Season Boundary Direction — CANONICAL v1
 
 Season Boundaryの基本方針候補:
 
@@ -815,3 +1084,22 @@ Season Boundaryの基本方針候補:
 5. **ただし関係・連携由来Redだけは例外的にcarryover可能**
 6. **SEASON_ONLYでもlatent memoryは少量だけ残せる**
 7. **Goldも色ではなくsource familyで持越し判定する**
+
+---
+
+# 29. Final v1 Status
+
+**Team Trait Catalog v1は2026-09-22にユーザー承認され、DESIGN FROZEN。**
+
+Source of Truthは少数のCausal Family。
+旧95候補はUI名・Context名・Commentary alias・Analytic Descriptor・validation motifとして保持する。
+
+未確定なのは:
+
+- exact activation thresholds
+- exact duration days
+- evidence decay rates
+- significance ranking thresholds
+- UI wording polish
+
+等のcalibrationであり、Catalog architectureではない。
