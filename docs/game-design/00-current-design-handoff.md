@@ -19,10 +19,9 @@ AI / Agent向け強制ルール:
 
 ### 現在、USER REVIEW REQUIREDとして残る設計
 
-- `41-manager-appointment-and-incompetence-DRAFT.md`
 - `42-manager-market-and-front-office-selection-DRAFT.md`
 
-`32-roster-development-architecture-DRAFT.md`、`34-team-traits-and-relationship-network-DRAFT.md`、`35-team-trait-catalog-DRAFT.md`、`38-team-mood-manager-interventions-DRAFT.md` は2026-09-22にユーザー承認され、**CANONICAL / DESIGN FROZEN v1** へ昇格した。
+`32-roster-development-architecture-DRAFT.md`、`34-team-traits-and-relationship-network-DRAFT.md`、`35-team-trait-catalog-DRAFT.md`、`38-team-mood-manager-interventions-DRAFT.md`、`41-manager-appointment-and-incompetence-DRAFT.md` は2026-09-22にユーザー承認され、**CANONICAL / DESIGN FROZEN v1** へ昇格した。
 
 ### 旧計画 / 後継へ統合済み
 
@@ -49,6 +48,7 @@ AI / Agent向け強制ルール:
 - `34-team-traits-and-relationship-network-DRAFT.md`
 - `35-team-trait-catalog-DRAFT.md`
 - `38-team-mood-manager-interventions-DRAFT.md`
+- `41-manager-appointment-and-incompetence-DRAFT.md`
 - `50-popularity-reputation-architecture-DRAFT.md`
 - `51-star-superstar-big-stage-architecture-DRAFT.md`
 
@@ -932,48 +932,39 @@ Draft:
 
 ---
 
-# 34. APPROVED DIRECTION — Manager Core / Incompetent Managers
+# 34. CANONICAL — Manager Competence & Special Ability Architecture v1
 
-2026-09-20 user accepted the proposed Manager core direction.
-
-Approved direction:
-- public Manager ratings use six S–G axes: 采配 / 分析 / 適応 / 選手眼 / 運用 / 統率
-- no single Overall Manager rating
-- Philosophy and Skill are separate
-- User / CPU share the same legal baseball action space
-- Manager instructions use Default Philosophy / Game Plan / Immediate Command
-- Player final intent combines Manager instruction with Player tendency / trust / tactical understanding / autonomy / emotion / context
-- Human User tactical choices are not randomly overwritten by a low Manager IQ stat
-- Manager instructions never create abilities the Player does not possess
-
-Important new requirement:
-> **Manager employment does not guarantee competence.**
-
-Weak managers can genuinely exist, including multiple D/E/F/G axes.
-
-An incompetent manager can still be hired because Club hiring is an imperfect information process involving:
-- reputation
-- famous playing career
-- internal promotion
-- owner/front-office preference
-- cost
-- availability
-- ideology fit
-- emergency interim appointment
-- mistaken evaluation
-
-Club AI must not read Manager True Skill directly.
-
-Draft:
+2026-09-22 user approved and froze:
 - `docs/game-design/41-manager-appointment-and-incompetence-DRAFT.md`
 
+Core:
+- Manager employment does not guarantee competence.
+- six public axes remain 采配 / 分析 / 適応 / 選手眼 / 運用 / 統率; no Overall rating.
+- D/E/F/G can genuinely exist; Active Manager has no hard skill floor.
+- low Skill never directly modifies win probability.
+- weak managers still use the normal Manager Decision Engine and make explainable mistakes through bad beliefs / candidate generation / evaluation / adaptation.
+- True Skill / Public Grade / Reputation are separate.
+- first-time managers may show `?` or low-confidence public ratings.
+- competence and roster/philosophy/staff fit are separate.
+- Staff supplies information / support but does not directly buff Manager True Skill.
+- age itself does not cause decline; old priors + low Adaptation can create obsolescence.
+- HUMAN_OVERRIDE is never changed by Manager Rating; MANAGER_DELEGATED uses the original manager.
 
-Manager market / Front Office selection (USER REVIEW REQUIRED):
+Manager Special Ability layer:
+- six skills remain the underlying source; Blue / Red / Gold are readable derived descriptors.
+- Red examples: 頑固親父 / 恐怖政治 / 珍采配 / 負け運 / 聞く耳持たず / 結果論者 / 実績偏重 / 左右病 / バント病 / 完投病 / 固定観念 / 早とちり.
+- Blue examples: 柔軟采配 / 臨機応変 / 適材適所 / 慧眼 / 抜擢上手 / 用兵上手 / 継投巧者 / 修正上手 / データ活用 / 参謀活用 / 勝負所察知 / 役割運用○ / 育成眼 / 切替上手 / クジ運○.
+- Gold is rare; initial examples include 変幻自在 / 神算 / 名伯楽 / 用兵の魔術師 / 千里眼 / 不世出の策士 / 未来予知.
+- 負け運 is analytic only and never causes losses.
+- クジ運○ and its Gold counterpart 未来予知 are derived only from actual lottery history and never alter RNG.
+- descriptor names may be added later if existing canonical sources explain them; new labels must not create duplicate gameplay stats.
+
+Hiring / retention / firing / OB preference / ownership / market selection are delegated to doc 42.
+
+Manager Market / Front Office selection remains the only USER REVIEW REQUIRED manager draft:
 - `docs/game-design/42-manager-market-and-front-office-selection-DRAFT.md`
 
-
 ---
-
 # 35. CURRENT DRAFT — Manager Market / Front Office Selection
 
 2026-09-20 current direction:
@@ -1330,7 +1321,7 @@ Required future validation before implementation sign-off:
 - manager-vs-roster contribution
 - compute / save growth
 
-Front Office / Manager hiring docs 41 / 42 remain separate DRAFT work and are **not** included in the Manager Architecture v1 freeze.
+Manager hiring/market doc 42 remains separate USER REVIEW REQUIRED work. Doc 41 is now CANONICAL / DESIGN FROZEN v1.
 
 
 ---

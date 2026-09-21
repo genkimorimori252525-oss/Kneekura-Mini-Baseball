@@ -1,27 +1,26 @@
-# Manager Appointment & Incompetence — DRAFT
+# Manager Competence & Special Ability Architecture — CANONICAL v1
 
-更新日: 2026-09-20  
-状態: **設計候補。USER REVIEW REQUIRED。実装前。**
+更新日: 2026-09-22  
+状態: **CANONICAL / DESIGN FROZEN v1。2026-09-22ユーザー承認。実装前。**
+
+> **FILENAME LEGACY NOTE**  
+> ファイルパスの `41-manager-appointment-and-incompetence-DRAFT.md` は履歴上残っているだけ。
+> v1では本書の責務を **Manager Competence / Incompetence + readable Manager Special Abilities** に限定する。
+> 採用・続投・解任・市場評価は `42-manager-market-and-front-office-selection-DRAFT.md` へ委譲する。
 
 関連:
-- `docs/game-design/31-scouting-recruitment-system.md`
-- `docs/game-design/39-manager-philosophy-and-command-architecture-DRAFT.md`
-- `docs/game-design/40-manager-ratings-era-and-strategy-evolution-DRAFT.md`
-- `docs/game-design/19-club-structural-dominance-and-decline.md`
+- `docs/game-design/32-roster-development-architecture-DRAFT.md`
+- `docs/game-design/38-team-mood-manager-interventions-DRAFT.md`
+- `docs/game-design/49-manager-architecture-v1.md`
+- `docs/game-design/42-manager-market-and-front-office-selection-DRAFT.md`
 
 ---
 
-# 1. Core Principle
+# 1. Core Principle — Manager Employment Does Not Guarantee Competence
 
-全監督を有能にしない。
-
-```text
-Manager
- != minimum competence guaranteed
-```
+監督職に最低能力保証を置かない。
 
 公開6能力:
-
 - 采配
 - 分析
 - 適応
@@ -29,418 +28,260 @@ Manager
 - 運用
 - 統率
 
-には、実際にE / F / Gが存在してよい。
-
-複数軸が低い監督も存在可能。
+にはD / E / F / Gが実際に存在してよい。複数軸が低い監督も存在可能。
+ただしOverall Manager Ratingは持たない。
 
 ---
 
-# 2. No Single "Incompetent" Flag
+# 2. No `isBad` Flag
 
 禁止:
-
 ```text
 manager.isBad = true
  -> team loses
 ```
 
-無能さは複数の失敗様式として表現する。
+無能さは `49-manager-architecture-v1.md` の通常Decision Engine上で具体的な失敗として現れる。
+
+- 采配が弱い → candidate comparison / leverage recognition / risk assessmentが弱い
+- 分析が弱い → sample / uncertainty / noiseの読み違い
+- 適応が弱い → failed prior / outdated policyの更新が遅い
+- 選手眼が弱い → readiness / role fit / decline / improvementを誤認
+- 運用が弱い → bullpen / rest / promotion / role usageが不安定
+- 統率が弱い → instruction acceptance / role credibility / Manager Trust形成が弱い
+
+能力値から勝率補正を直接掛けない。
+
+---
+
+# 3. Poor Manager Still Thinks
+
+低能力監督をRandom Idiot Generatorにしない。
+
+全Managerは通常どおり:
+```text
+Belief
+ -> Candidate Admission
+ -> Forecast
+ -> Comparison
+ -> Decision
+```
+を通る。
+
+失敗はwrong belief / missing candidate / bad uncertainty calibration / stale prior / poor risk comparison / weak player estimate等から生じる。
+Decision Logを見れば、迷采配にも本人なりの理由を追跡できる。
+
+---
+
+# 4. True Skill / Public Rating / Reputation Are Separate
+
+```text
+Manager True Skill
+ != Public Manager Grade
+ != Reputation
+```
+
+公開S〜GはEvidenceからの観測推定。
+初監督・役割変更直後は不確実性が高く、`?` を許可する。
 
 例:
+```text
+采配 ?
+分析 B?
+適応 ?
+選手眼 B
+運用 C?
+統率 A?
+```
 
-## Tactical incompetence
-
-- poor action evaluation
-- late substitution
-- bad risk assessment
-- weak leverage recognition
-
-## Analytical incompetence
-
-- bad sample interpretation
-- overfitting
-- ignores uncertainty
-- reads noisy trends as signal
-
-## Adaptive incompetence
-
-- repeats failed plan
-- reacts too slowly
-- refuses to abandon outdated assumption
-
-## Player-evaluation incompetence
-
-- misreads readiness
-- misidentifies role fit
-- overvalues reputation
-- misses decline / improvement
-
-## Operational incompetence
-
-- bullpen overuse
-- poor rest cycles
-- unstable promotion / demotion
-- role churn
-
-## Leadership incompetence
-
-- unclear communication
-- poor role explanation
-- escalates conflict
-- loses trust
-
-これらが実際のDecision / Player Appraisalへつながる。
+Season / Career Evidenceが増えるにつれて評価confidenceが上がる。
+CPU Clubも公開GradeをTrue Skillとして読まない。
 
 ---
 
-# 3. Why an Incompetent Manager Can Be Hired
+# 5. Competence and Fit Are Separate
 
-ClubもManager True Skillを完全には読めない。
+高能力監督でもRoster / Club / Eraと合わず失敗し得る。
 
 ```text
-manager true skill
+True Skill
++ Philosophy Fit
++ Roster Fit
++ Staff
++ Environment
++ Variance
         ↓
-career evidence
-reputation
-interviews
-staff references
-past results
-playing career
-public image
-organizational fit
-cost
-availability
-        ↓
-Club Manager Estimate
-        ↓
-hiring decision
+Observed Results
 ```
 
-したがって採用ミスが起こり得る。
+優勝 = 名将、最下位 = 無能、とはしない。
+弱い監督でもElite Roster / strong staff / stable rolesなら勝てる。
+優秀な監督でも弱いRosterからTalentを魔法生成できない。
 
 ---
 
-# 4. Appointment Motives
+# 6. Staff Compensation Boundary
 
-CPU Clubは必ず「最高能力の監督」を採らない。
-
-候補要因:
-
-- strong past reputation
-- famous former player
-- internal promotion
-- assistant / coach continuity
-- owner / front-office preference
-- tactical ideology fit
-- player trust
-- low salary
-- limited candidate pool
-- emergency interim appointment
-- rebuilding fit
-- media / supporter acceptability
-- loyalty / organizational history
-- success in a previous role that does not transfer to managing
-
-これにより低能力監督でも就任可能。
-
----
-
-# 5. Reputation != Current Skill
-
-重要:
-
-```text
-Reputation
- != True Manager Skill
-```
-
-過去の成功が現在の能力を保証しない。
-
-例:
-
-```text
-historically successful manager
-+ low Adaptation
-+ changed league meta
-        ↓
-current decisions become outdated
-```
-
-逆に無名の新人が高能力でも、実績不足で採用されにくいことがある。
-
----
-
-# 6. Famous Player Bias
-
-現役時代のStar StatusはManager Skillではない。
-
-```text
-great player
- -> higher hiring visibility / credibility
- != automatically good manager
-```
-
-元スターは:
-
-- supporter excitement
-- player respect
-- public legitimacy
-
-を得やすい可能性はある。
-
-しかし:
-
-- tactical judgment
-- analysis
-- adaptation
-- workload management
-
-は別能力。
-
----
-
-# 7. Internal Promotion Risk
-
-Coach / assistantからの昇格は自然な経路。
-
-利点:
-
-- organization knowledge
-- player familiarity
-- existing trust
-- system continuity
-
-Risk:
-
-- manager role requires broader skill set
-- excellent specialist coach may be poor head manager
-
-```text
-great pitching coach
- != great manager
-```
-
-を許可する。
-
----
-
-# 8. Interim Managers
-
-緊急時は候補市場を待てない。
-
-```text
-manager fired / resigns
- -> interim appointment
-```
-
-Interimは:
-
-- current staff availability
-- trust
-- continuity
-
-を優先し、能力が低くても就任し得る。
-
-成功すれば正式昇格もある。
-
-短期成功がSmall Sampleなら、正式採用後に失敗する可能性もある。
-
----
-
-# 9. Club Hiring Skill
-
-Manager採用の質はFront Office側にも依存する。
-
-候補:
-
-- candidate evaluation quality
-- interview quality
-- reference network
-- tactical literacy
-- long-term planning
-- willingness to challenge reputation
-- budget
-
-したがって:
-
-```text
-bad club manager hire
- != manager system failure
-```
-
-上流のFront Office decisionとして説明できる。
-
----
-
-# 10. Bad Manager Does Not Auto-Lose
-
-Anti-Monocausal Principleを適用。
-
-```text
-weak manager
-+ elite roster
-+ strong staff
-+ simple stable roles
-        ↓
-can still win
-```
-
-逆に:
-
-```text
-great manager
-+ very weak roster
-        ↓
-cannot create talent
-```
-
-Managerは重要だがUniversal Win Modifierではない。
-
----
-
-# 11. Staff Can Mask Weakness
-
-監督が全て一人でやらない。
-
-例:
+StaffはManager Abilityを直接Buffしない。
 
 ```text
 Manager Analysis E
-+ elite analytics staff
++ Analytics Staff A
         ↓
-game-plan input can still be strong
+high-quality report exists
 ```
 
-ただし最終的に監督が:
-
-- trust the staff?
-- understand the recommendation?
-- implement it?
-- communicate it?
-
-で差が出る。
-
-これにより「弱点を優秀な参謀が補う」が可能。
+その後に理解・信頼・Candidate採用・実行するかはManager側。
+優秀な参謀で弱点を補う監督と、優秀Staffを無駄にする監督の両方を表現する。
 
 ---
 
-# 12. Strong Staff Can Also Be Wasted
+# 7. Era Obsolescence
+
+年齢だけでManager Skillを下げない。
 
 ```text
-elite analysts
-+ Manager distrusts analytics
+old priors
++ low Adaptation
++ changed rules / data / player population / meta
         ↓
-information exists
-but decision does not use it
+belief-policy mismatch
 ```
 
-Staff能力とManager Philosophy / Adaptationを分離する。
+から時代遅れが生じる。高齢でもAdaptationが高ければ現代野球へ対応可能。
 
 ---
 
-# 13. Era Obsolescence
+# 8. Human Control Boundary
 
-年齢そのものを能力Debuffにしない。
+`32-roster-development-architecture-DRAFT.md` と `38-team-mood-manager-interventions-DRAFT.md` を優先する。
 
-代わりに:
+## HUMAN_OVERRIDE
+Userが明示したBaseball decisionはManager Ratingで勝手に別Actionへ変えない。
 
+## MANAGER_DELEGATED
+おまかせDomainでは元監督のTrue Skill / Philosophy / Temperament / Belief / Strategy Memoryから通常どおり判断する。
+
+---
+
+# 9. Manager Special Ability Layer
+
+6能力だけでは人物像が読みづらいため、ManagerにもBlue / Red / Goldの特殊能力表示を持てる。
+ただし特殊能力はSource of Truthではない。
+
+```text
+Skill / Philosophy / Temperament / Belief / Career Evidence / actual behavior
+        ↓
+Manager Special Ability Descriptor
+```
+
+禁止:
+```text
+頑固親父 acquired
+ -> Adaptation -10
+```
+
+正しくは:
 ```text
 low Adaptation
-+ strong old priors
-+ league meta changes
++ very high Policy Persistence
++ repeated refusal to update failed policy
         ↓
-effective decision quality declines
+[赤] 頑固親父
 ```
 
-とする。
-
-これは若い監督にも起こり得る。
+既存Sourceで説明可能なら、新しい特殊能力名を足しても新しいGameplay statを増やさない。
 
 ---
 
-# 14. Failure Persistence
+# 10. Red Manager Traits — v1 Initial Catalog
 
-低能力監督がすぐ解任されるとは限らない。
-
-継続理由候補:
-
-- long contract
-- past reputation
-- ownership loyalty
-- rebuild excuse
-- injuries blamed
-- fan popularity
-- lack of alternatives
-- front office shares same philosophy
-- small sample uncertainty
-- recent partial improvement
-
-ただしClubにもToleranceがあり、長期失敗で解任圧力は上がる。
+- **頑固親父** — 低Adaptation + 極端なPolicy Persistence + Evidence後も方針修正が遅い。
+- **恐怖政治** — 実際の起用・役割・Manager Trust・background communicationの積み重ねから広範な低Trust / fear-based acceptanceが成立した状態。LabelからMood Debuffを配らない。
+- **珍采配** — Novelty Appetiteが高いだけでは付かず、unusual candidate admission + weak evaluation / calibration等による低品質な非標準Decisionの反復。
+- **負け運** — ANALYTIC_DESCRIPTOR。説明しきれない接戦敗北や不利な結果の偏りを要約。敗北率を変更しない。
+- **聞く耳持たず** — 質の高いStaff inputを継続的に採用しにくい。
+- **結果論者** — Decision qualityとOutcomeを混同し、good decision + bad resultを過剰修正しやすい。
+- **実績偏重** — 現在Evidenceより過去実績・知名度を過剰評価する。
+- **左右病** — 左右Matchupを他Evidenceより過剰評価する。左右起用自体は悪ではない。
+- **バント病** — Bunt candidateをContext以上に過剰Admission / 選択する。バント自体へhidden penaltyは置かない。
+- **完投病** — Starter continuationを疲労・Matchup・Bullpen alternativeより過剰評価する。
+- **固定観念** — Lineup / role / tactical policyの変更Thresholdが不適切に高い。
+- **早とちり** — Small sample / noisy evidenceからBeliefを強く更新しすぎる。
 
 ---
 
-# 15. Manager Evaluation by Club
+# 11. Blue Manager Traits — v1 Initial Catalog
 
-Clubは結果だけで判断しない。
-
-候補:
-
-```text
-wins vs expectation
-player development
-clubhouse stability
-tactical quality estimate
-roster constraints
-injuries
-long-term objective
-public pressure
-contract cost
-        ↓
-retain / extend / fire
-```
-
-「最下位 = 必ず解任」ではない。
+- **柔軟采配** — Evidence変化に応じてPolicyを適切に更新できる。
+- **臨機応変** — 想定外Contextでも有力な代替Candidateを見つけ、評価できる。
+- **適材適所** — Playerの現在能力・役割・Roster contextを適切に組み合わせる。
+- **慧眼** — Player readiness / role fit / improvement / declineの推定誤差が小さい。
+- **抜擢上手** — 実績の少ないPlayerでも十分なEvidenceがあれば候補へ入れられる。
+- **用兵上手** — Bench / Bullpen / Rest / Role等の有限Resource運用が上手い。
+- **継投巧者** — Pitcher state / Matchup / future resourceを高品質に比較できる。
+- **修正上手** — 失敗後に原因を取り違えず、必要なPolicyだけを更新しやすい。
+- **データ活用** — Analytics / Staff Evidenceを理解しBeliefへ適切に統合できる。
+- **参謀活用** — 自分の弱点をStaff inputで補える。Staff能力をManager Skillへ加算しない。
+- **勝負所察知** — High-leverage situationを適切に認識し、必要なDeliberative Searchを起動しやすい。
+- **役割運用○** — 無意味なRole churnが少なく、UsageとExpectationの整合が高い。
+- **育成眼** — 現在能力・成長段階・適切なCompetition levelを混同しにくい。
+- **切替上手** — 悪いOutcomeだけで良いPolicyを捨てず、必要Evidenceだけを更新できる。
+- **クジ運○** — ANALYTIC_DESCRIPTOR。十分な履歴で実際に強いDraft lottery運が観測された時だけ表示。抽選乱数を変更しない。
 
 ---
 
-# 16. Public User View
+# 12. Gold Manager Traits — v1 Initial Catalog
 
-ユーザーはCPU監督の公開S–G能力を見られる。
-
-例:
-
-```text
-監督プロフィール
-
-采配 D
-分析 E
-適応 F
-選手眼 C
-運用 D
-統率 B
-
-野球観
-・完投重視
-・固定打線
-・ベテラン重視
-・直感重視
-```
-
-これにより:
-
-> 「この監督、統率だけはあるが采配・分析が弱い」
-
-程度は一目で理解できる。
-
-内部の細かいFailure MechanismはOptional。
-
----
-
-# 17. Rating Distribution
-
-全員をB以上にしない。
+Goldは希少。Blueの効果倍率ではなく、極端に強いUnderlying Evidence / Career Patternの表示。
 
 初期候補:
+- 変幻自在
+- 神算
+- 名伯楽
+- 用兵の魔術師
+- 千里眼
+- 不世出の策士
+- **未来予知**
+
+## 未来予知
+
+`クジ運○` のGold counterpart。
+長い抽選履歴の中で、歴史的に異常なほど強いDraft lottery運が実際に観測された場合の愛称的Descriptor。
+
+```text
+未来予知
+ -> lottery RNG manipulation
+```
+は禁止。
+
+```text
+actual lottery history
+ -> extraordinary observed luck
+ -> [金] 未来予知
+```
+
+の一方向。本当に未来を読む能力ではない。
+
+---
+
+# 13. Trait Lifecycle
+
+Manager特殊能力にはslow/stable descriptors / current-career descriptors / analytic luck-result descriptorsが混在してよい。
+
+例:
+```text
+柔軟采配
+ -> success fixation + low adaptation over years
+ -> descriptor may disappear
+ -> 頑固親父 may emerge
+```
+
+Traitが先にPersonを変えるのではなく、Person / Careerが変化した結果としてTrait表示が変わる。
+
+---
+
+# 14. Rating Distribution
 
 - S: rare
 - A: uncommon
@@ -449,78 +290,48 @@ retain / extend / fire
 - E/F: poor
 - G: extreme weakness
 
-ただし各Axisの分布であり、
-監督全体を一つのTierへ分類しない。
-
-複数D/Eでも就任可能。
+ただしActive ManagerへHard Floorを置かない。
+自然なCandidate / Hiring selectionで上澄みになりやすくてよいが、E/F/Gが就任することをSystem上禁止しない。
+exact分布率はmulti-season soak / calibrationで決める。
 
 ---
 
-# 18. Hiring Uncertainty
+# 15. Hiring Boundary
 
-CPU Clubは公開GradeをTrue値として直接読まない。
+本書は「なぜその監督が採用されたか」を決めない。
+`42-manager-market-and-front-office-selection-DRAFT.md` がCandidate Market / OB bias / former-star visibility / internal promotion / ownership preference / salary / availability / Front Office estimation / retain / extend / fire / interim appointmentを担当する。
 
-公開GradeはUser-facing projection。
+---
 
-Club内部では:
+# 16. Acceptance Tests
+
+1. D/E/F/Gを含む本当に弱いManagerが存在できる。
+2. low Skillがdirect loss modifierにならない。
+3. low Skill ManagerもDecision Engineを通り、理由のある迷采配をする。
+4. Decision Logから失敗のBelief / Candidate / evaluation原因を追える。
+5. True SkillとPublic Gradeが分離される。
+6. First-time Managerの公開能力に`?`を持てる。
+7. Strong Manager + bad fit と Weak Manager + elite rosterを区別できる。
+8. Staffは情報を改善してもManager True SkillをBuffしない。
+9. HUMAN_OVERRIDEをlow Manager Ratingが改変しない。
+10. MANAGER_DELEGATEDでは元監督能力が実際にDecisionへ反映される。
+11. Manager特殊能力Labelを直接Gameplay modifierとして使わない。
+12. `負け運` は敗北率を変更しない。
+13. `クジ運○` / `未来予知` は抽選乱数を変更しない。
+14. 赤特・青特・金特は既存Source / actual historyからDerivedできる。
+
+---
+
+# 17. Final v1 Status
+
+**Manager Competence & Special Ability Architecture v1は2026-09-22にユーザー承認され、DESIGN FROZEN。**
 
 ```text
-candidate estimate
-+ uncertainty
+True Skill / Philosophy / Temperament / Belief / Career
+        ↓
+actual decisions / history
+        ├-> baseball outcome
+        └-> readable Blue / Red / Gold Manager descriptors
 ```
 
-を持つ。
-
-これにより:
-
-- userから見ると「なんでEの監督を採った？」
-- world側では「ClubはB相当だと誤認していた」
-
-という説明が可能。
-
----
-
-# 19. User Manager Boundary
-
-User自身の戦術Decisionは低いManager Ratingで改変しない。
-
-ただしUser側のManager avatar / career能力を導入する場合:
-
-- information quality
-- communication
-- player acceptance
-- workload support
-- conflict mediation
-
-等にはRatingを作用させられる。
-
-Userのボタン選択をランダムで別Actionへ変えることは禁止。
-
----
-
-# 20. Stress Tests
-
-1. genuinely poor managers can exist.
-2. poor managers can be hired for explainable reasons.
-3. famous former players are not automatically good managers.
-4. great specialist coaches can fail as head managers.
-5. strong staff can partially compensate for a weak manager.
-6. a weak manager with elite roster can still win.
-7. a great manager cannot make a weak roster elite by magic.
-8. low Adaptation can make previously successful philosophy obsolete.
-9. clubs can retain a weak manager for non-random reasons.
-10. user can understand the weakness from simple public S–G ratings.
-
----
-
-# 21. Review Point
-
-このDraftの中心判断:
-
-> **監督職は能力保証ではない。就任は選抜結果であり、選抜も不完全。**
-
-これをManager Market / Front Office設計へ接続する。
-
-
-Manager market / Front Office selection (USER REVIEW REQUIRED):
-- `docs/game-design/42-manager-market-and-front-office-selection-DRAFT.md`
+Hiring / Market / Retentionは42へ委譲する。
