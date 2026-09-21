@@ -1,7 +1,10 @@
-# Club State Lifecycle — Static, Slow, Seasonal & Derived
+# Club State Lifecycle — Static, Slow, Seasonal & Derived — CANONICAL v1
 
-更新日: 2026-09-20  
-状態: **設計承認候補版。Club Pennant長期Simulationの保存境界。実装前。**
+更新日: 2026-09-22  
+状態: **CANONICAL / DESIGN FROZEN v1。2026-09-22ユーザー承認。実装前。**
+
+> ClubのExternal Seed / L0-L4保存境界・Snapshot・Structural Event provenanceをv1としてFreezeする。
+> Roster内部構造は32、Rivalry lifecycleは33、Structural dominance/declineは19、Simple Surfaceは20をSource of Truthとする。
 
 関連:
 - `docs/game-design/05-psychology-emotion.md`
@@ -30,6 +33,30 @@ L4  Derived View         保存せず再計算
 
 ---
 
+# 1.1 Responsibility Boundary — CANONICAL
+
+本書は **Club stateをどの時間層で保存・更新・導出するか** を所有する。
+
+```text
+ExternalReferenceSeed  Career creation only
+L0 Identity Core       identity continuity
+L1 Institutional       slow multi-season state
+L2 Seasonal            season-plan / season-open snapshot state
+L3 Live                mutable in-season current state
+L4 Derived View        recomputable summaries / labels
+```
+
+詳細責務:
+- Roster / Rights / Registration / Assignment / Availability -> 32
+- Rivalry Memory / decay / dormancy / label provenance -> 33
+- Giant persistence / decline / recovery capacity -> 19
+- User-facing surface hierarchy -> 20
+- Initial five-axis seed values -> 26–30
+- Manager/Staff internal person state -> Person / Manager architecture, including 49
+
+本書は後継SubsystemのSource of Truthを複製しない。
+
+---
 # 2. 最重要原則 — 現実データはInitial Seedでしかない
 
 Europeの実在Football Club財務等は、Career / Pennant開始時の初期値を作るEvidenceとして使う。
@@ -53,6 +80,8 @@ REAL WORLD IS NO LONGER CONSULTED
 2035年になって現実世界のBayernに新オーナーや新売上が発生しても、既存Saveへ自動同期しない。
 
 Save内のBayernは、そのSave内の歴史だけで変化する。
+
+Catalog / finance snapshot / seed-transform versionはSave metadataへ固定し、Catalog更新は既存Saveへretroactiveに適用しない。
 
 ---
 
@@ -83,6 +112,8 @@ type ClubIdentityCore = {
 - Club Historyの連続性
 
 これらを変える場合は「同じClubの通常変化」ではなく、Franchise extinction / phoenix club / split / merge等の特殊World Eventとして扱う。
+
+それらは通常のrename / relocationと区別した **Club Lineage Event** として、旧Club / 新Club / history continuity ruleを明示する。
 
 ---
 
@@ -267,56 +298,52 @@ current academy environment
 
 # 9. L2 — Seasonal State
 
-Season開始〜終了で大きく変化する経営状態。
+Season開始時に確定・承認され、そのSeasonの計画・基準点として保持する状態。
+
+例:
+- season objectives
+- approved payroll / acquisition / development / scouting / facility budgets
+- competition entries
+- season policy/profile references
+- Opening Day / opening registration snapshot references
+- initial board expectations
+
+概念:
 
 ```ts
 type ClubSeasonState = {
   seasonId: SeasonId;
-
-  finance: {
-    openingCash: Money;
-    projectedRevenue: Money;
-    payrollBudget: Money;
-    transferBudget: Money;
-    academyBudget: Money;
-    scoutingBudget: Money;
-    facilityBudget: Money;
-  };
-
+  approvedBudgets: ApprovedClubBudgets;
   objectives: ClubSeasonObjectives;
-  managerId: PersonId;
-  sportingDirectorId?: PersonId;
-  registeredRoster: ClubRosterRegistration;
   competitionEntries: CompetitionEntry[];
+  openingRegistrationSnapshotId?: string;
+  openingManagerPersonId?: PersonId;
+  policyVersionRefs: ClubSeasonPolicyRefs;
 };
 ```
 
-Season開始時にBoard / Owner / EconomyからBudgetを承認する。
+`openingManagerPersonId` はSeason開始時Snapshotの履歴値であり、現在ManagerのSource of Truthではない。
+
+Manager / Coach / ScoutはGlobal Personであり、Season途中で就任・退任・異動し得る。
+
+Roster内部構造は32を正とし、L2はOpening / Competition Registration Snapshotへの参照だけを持つ。
 
 ---
-
 # 10. L3 — Live State
 
-Season中に常時変動する。
+Season中に常時変動する現在状態。
 
 例:
-
-- current cash
-- actual revenue received
-- wages already paid
-- transfer spending
-- debt drawdown
-- roster
-- contracts
-- injuries
+- current cash / debt
+- actual revenue received / commitments
 - standings
-- current form
 - current fan demand
-- current manager confidence
-- transfer negotiations
-- current rivalry threat
-- title threat
-- postseason odds estimate
+- current PlayerClubState references
+- injuries / availability links
+- current Person-role / employment links
+- transfer / contract negotiations
+- current title / postseason threat estimates
+- current competitive-opponent threat references
 
 概念:
 
@@ -324,29 +351,31 @@ Season中に常時変動する。
 type ClubLiveState = {
   cash: Money;
   currentDebt: Money;
-  currentRoster: ClubRosterState;
   standingsState: StandingsState;
   currentRevenue: ClubRevenueLedger;
   currentCommitments: ClubCommitmentLedger;
   fanDemandState: FanDemandState;
-  relationState: DirectedClubRelationState[];
+  playerClubStateRefs: readonly PlayerClubStateRef[];
+  currentStaffRoleLinks: readonly ClubPersonRoleLink[];
+  relationStateRefs: readonly DirectedClubRelationStateRef[];
 };
 ```
 
-Save/Loadはこの現在値を保持する。
+RosterをClub側へcopyして二重Source of Truthにしない。Player Rights / Registration / Assignment / Availabilityは32のGlobal Player stateを参照する。
+
+Manager / StaffもClub固定能力ではなくGlobal Personへの現在Role linkとして保持する。
+
+Save/Loadはこの現在値と必要なSubsystem stateを保持する。
 
 ---
-
 # 11. L4 — Derived View
 
-保存しなくてよい、またはcache扱いにする。
+L4は保存原因ではなく、L0-L3 / Subsystem stateから再計算可能な表示・分析用View。
 
-例:
-
+代表例:
+- current public five-axis Club view
 - Economic Band
-- PayrollPowerRatio
-- TransferPowerRatio
-- ClubPower
+- PayrollPowerRatio / TransferPowerRatio
 - Title Threat
 - Current Giant
 - Selling Club
@@ -355,25 +384,46 @@ Save/Loadはこの現在値を保持する。
 - Richest Club ranking
 - Academy Club label
 
+通常Club UIの現在5軸:
+
 ```text
-current state
-   ↓
-derived UI label
+資金力
+人気
+育成
+スカウト
+球場・設備
 ```
 
-とする。
+26の数値はCareer開始時Seed。L4の現在5軸は、Save内のcurrent institutional/economic stateから再計算する。
+
+例:
+
+```text
+2026 Finance Seed = S
+ -> years of debt / owner change / revenue decline
+ -> Current Finance View = B
+```
+
+必要時のDetail / Offseason View:
+
+```text
+補強予算
+人件費余裕
+財政状態
+```
+
+さらにRevenue / Debt / Financing Access等はOptional detail / audit view。
 
 禁止:
 
 ```text
-MEGA
- -> next season budget forced to MEGA
+Derived label
+ -> future causal state forced by the label
 ```
 
-`MEGA` は結果を表すラベルであり、原因ではない。
+`MEGA / S / Dynasty / Encirclement` 等は結果を説明するLabelであり、原因ではない。
 
 ---
-
 # 12. Economic Bandは動くが、単年度では崩れない
 
 17で使っている:
@@ -467,115 +517,30 @@ FanDemandは:
 
 ---
 
-# 14. RivalryもStatic + Dynamicへ分ける
+# 14. Rivalry / Competitive Threat Boundary
 
-Rivalry全体を一つの変動値にしない。
+Rivalry内部StateのSource of Truthは33 `Rivalry Lifecycle Model`。
 
-```ts
-type DirectedClubRivalryState = {
-  fromClubId: ClubId;
-  toClubId: ClubId;
+本書ではClub state層として、relation stateへの参照と時間層だけを扱う。
 
-  historicalBase: number;
-  culturalInertia: number;
-
-  competitiveThreat: number;
-  recentHistory: number;
-  incidentWeight: number;
-
-  effectiveIntensity: number;
-};
-```
-
-## historicalBase
-
-Slow / almost static。
-
-例:
-
-- El Clásico
-- Old Firm
-- Derby della Madonnina
-- local derby
-
-数十年低迷しても完全には消えにくい。
-
-## competitiveThreat
-
-Dynamic。
+恒久分離:
 
 ```text
-same title race
-repeated postseason meeting
-dominant club
-direct CL berth rival
+Historical Rivalry Memory
+!=
+Current Competitive Threat
 ```
 
-等で上下。
+Dominant Clubだから狙われる状態はcurrent threat / opponent priorityへ入り得るが、それだけでRivalry Memoryを生成しない。
 
-したがって:
+Real-world rivalryはCareer creation時のInitial Historical Seedまで。
+Pennant開始後の新しい現実世界の事件をSaveへ注入しない。
 
-```text
-Barcelona -> Real Madrid
-historicalBase high
-competitiveThreat medium
+RivalryがUser/Playerへ与える具体的なMemory / decay / dormancy / label provenanceは33を優先する。
 
-Rennes -> PSG
-historicalBase low
-competitiveThreat very high
-```
-
-のような違いを作れる。
+Encirclement / dominant-target等の観測LabelはL4 Derived Viewであり、能力Debuffや永続Traitにしない。
 
 ---
-
-# 15. Dominant Club TargetはDerived / Dynamic
-
-`DOMINANT_CLUB_TARGET` を固定Traitにしない。
-
-League内の:
-
-- recent titles
-- current table
-- payroll dominance
-- repeated elimination
-- title threat
-- media attention
-
-等から各Clubが相手をどう見るかで発生する。
-
-```text
-Bayern dominates
-↓
-Dortmund -> Bayern high
-Leverkusen -> Bayern high
-Freiburg -> Bayern medium
-Bayern -> Freiburg low
-```
-
-数十年後に別Clubが支配すればTargetも移る。
-
----
-
-# 16. Traditional RivalryはSeedとして残す
-
-実在Football rivalryは初期Seedとして利用する。
-
-ただし:
-
-```text
-Real-world rivalry
- -> initial historicalBase
-```
-
-まで。
-
-Pennant開始後のintensityはSave内の歴史で更新する。
-
-現実世界の2028年Derby事件等を後からSaveへ注入しない。
-
----
-
 # 17. Club Philosophyも二層
 
 ```ts
@@ -601,7 +566,7 @@ Manager / Sporting Director / Ownerの変更でCurrentPolicyは比較的速く�
 
 ---
 
-# 18. StaffはClub属性ではなくPerson
+# 18. StaffはClub属性ではなくGlobal Person — CANONICAL
 
 Manager / Coach / Scoutを:
 
@@ -620,8 +585,11 @@ Club側が持つのは:
 - facilities
 - reputation / attractiveness
 - institutional know-how
+- current Person-role / employment links
 
 である。
+
+ManagerのDecision Engine / Strategy Memory等のPerson内部状態は49を正とし、Club属性へコピーしない。
 
 ---
 
@@ -650,7 +618,7 @@ Ajaxが将来Academy投資を怠れば弱くなり得る。
 
 ---
 
-# 20. 74 Europe Clubsへの適用
+# 20. Catalogs Are Initial Seeds
 
 17のClub Catalogは**Initial Seed Catalog**と位置付ける。
 
@@ -704,6 +672,15 @@ type ClubStructuralEvent =
 
 Current StateはEvent列からsnapshot化してよい。
 
+長期Saveでは毎回全Eventを0からReplayすることを要求しない。
+
+```text
+Current Structural Snapshot
++ append-only Structural Event Log / provenance
+```
+
+を許可し、checkpoint後のEventだけを適用してCurrent Stateを再構築できる。
+
 History UIでは、
 
 ```text
@@ -717,9 +694,9 @@ History UIでは、
 
 ---
 
-# 22. Season Snapshot
+# 22. Club Season Snapshot — HISTORY, NOT RUNTIME AUTHORITY
 
-毎Season終了時にClub summaryを保存する。
+毎Season終了時にClub summaryを歴史記録として保存する。
 
 ```ts
 type ClubSeasonSnapshot = {
@@ -730,24 +707,22 @@ type ClubSeasonSnapshot = {
   transferIncome: Money;
   closingCash: Money;
   closingDebt: Money;
-  economicBand: ClubEconomicBand;
-  domesticFinish: number;
-  domesticChampion: boolean;
+  publicFiveAxisSummary: ClubFiveAxisSummary;
+  domesticResult: DomesticSeasonResult;
   continentalResult?: CompetitionResult;
-  managerId: PersonId;
+  openingManagerPersonId?: PersonId;
+  closingManagerPersonId?: PersonId;
+  managerAppointmentEventIds: readonly EventId[];
   rosterSummary: RosterSummary;
   fanbaseSummary: FanbaseSummary;
 };
 ```
 
-300年後でも:
+これはRuntimeの現在StateのSource of Truthではなく、History UI / long-save analytics / provenance用のSeason-end snapshot。
 
-> 2030年代はPSG、2050年代はMarseille、2080年代はRennesがFranceの経済大国
-
-のような歴史を追える。
+300年後でもClub史を圧縮して追跡できるようにする。
 
 ---
-
 # 23. Save Compatibility
 
 ExternalReferenceSeed versionをSaveへ固定する。
@@ -764,32 +739,37 @@ type ClubSeedMetadata = {
 
 新規Careerだけ新しいCatalogを使用できる。
 
+Save migrationはschema / reference compatibilityの変換であり、既存Saveの歴史・Seed・結果を現在Catalogへ合わせて書き換える処理にしない。
+
 ---
 
-# 24. UIで「なぜ強いか」を説明する
+# 24. User-facing View Boundary
 
-Club画面ではDerived Bandだけでなく、その原因を出す。
-
-例:
+通常Club画面は16 / 20 / 26のSimple Surfaceに従い、5軸を基本表示する。
 
 ```text
-FC Bayern München
-Economic Band: MEGA
-
-Recurring Revenue       238% of league median
-Player Wage Budget      221%
-Transfer Capacity       194%
-Commercial Reach        247%
-Academy Investment      165%
-Debt Pressure            42%
+資金力
+人気
+育成
+スカウト
+球場・設備
 ```
 
-10年後に弱くなれば、この数字も実際に変わる。
+必要な時だけDetail / Offseason Briefで:
 
-「名門補正」という説明は使わない。
+```text
+補強予算
+人件費余裕
+財政状態
+```
+
+を表示する。
+
+Recurring Revenue / Wage Budget / Transfer Capacity / Debt Pressure等の因果説明はOptional Detail / Audit Viewへ置く。
+
+重要なのは、Userが詳細財務を理解しなくても「なぜ補強できる / できないか」を野球上の制約として理解できること。
 
 ---
-
 # 25. 初期固定 / 可変一覧
 
 | Data | Layer | Mutable? |
@@ -805,32 +785,45 @@ Debt Pressure            42%
 | academy infrastructure | Institution | Yes, slow |
 | scouting infrastructure | Institution | Yes, slow |
 | long-term fanbase | Institution | Yes, slow |
-| historical rivalry base | Institution / Relation | Very slow |
-| rivalry competitive threat | Live Relation | Yes |
+| historical rivalry state ref | Relation / successor 33 | versioned / memory-based |
+| current competitive threat ref | Live / Derived Relation | Yes |
 | reputation | Seasonal / Live | Yes |
 | economic band | Derived | Yes, recalculated |
 | revenue | Seasonal / Live | Yes |
 | payroll budget | Seasonal | Yes |
 | transfer budget | Seasonal | Yes |
 | cash / debt | Live | Yes |
-| manager / staff | Live Person links | Yes |
-| roster | Live | Yes |
+| current manager / staff role links | Live Person links | Yes |
+| player-club state references | Live reference to 32 | Yes |
 | standings | Live | Yes |
 | title-threat / encirclement label | Derived | Yes |
 
 ---
 
-# 26. 今回確定する事項
+# 26. Final Approved Decisions — v1
 
-1. Club dataをIdentity / Institution / Seasonal / Live / Derivedへ分ける
-2. 実在Club財務はInitial Seedであり永久能力ではない
-3. Career開始後は現実世界データと切り離す
-4. Economic Bandは毎年変化可能
-5. Owner / Stadium / Academy / Scouting / FanbaseはSlow State
-6. Budget / Revenue / Cash / Rosterは可変State
-7. Historical RivalryとCurrent Rivalry Threatを分離
-8. Dominant Club Target / EncirclementはDerived / Dynamic
-9. StaffはClub固定能力ではなくPerson
-10. Structural changeはEvent履歴を残す
-11. SeasonごとにClubSnapshotを保存
-12. Catalog更新で既存Saveを再初期化しない
+1. Club dataをExternalReferenceSeed / L0 Identity / L1 Institutional / L2 Seasonal / L3 Live / L4 Derivedへ分離する。
+2. ExternalReferenceSeedはCareer creation時のみ使用し、既存Saveを現実データへ再同期しない。
+3. L0はClub continuityのSource of Truth。renameは同一Clubを維持し、extinction / split / merge / phoenix等は明示的Club Lineage Event。
+4. L1はOwnership / Governance / Stadium / Facilities / Academy / Scouting / Long-term Fanbase / Commercial Reach等のSlow State。
+5. L2はSeason objectives / approved budgets / competition entries / opening registration snapshot等。
+6. L3はcash / debt / actual ledgers / standings / current PlayerClubState refs / current Person-role links等。
+7. Manager / Coach / ScoutはGlobal Person。Season途中の交代を許可し、Club固定能力へ変換しない。
+8. Roster内部構造は32をSource of Truthとし、ClubStateへcopyしない。
+9. Rivalry内部Stateは33をSource of Truthとし、Current Competitive ThreatとRivalry Memoryを分離する。
+10. L4はDerived Viewであり、現在の5軸 `資金力 / 人気 / 育成 / スカウト / 球場・設備` をcurrent stateから再計算する。
+11. `補強予算 / 人件費余裕 / 財政状態` はDetail / Offseason View。より深い財務はOptional Audit。
+12. Economic Band / Giant / Dynasty / Encirclement / five-axis Rank等のDerived Labelを原因へ逆流させない。
+13. Structural changesはEvent provenanceを残す。長期SaveではCurrent Snapshot + Event Log checkpoint方式を許可する。
+14. ClubSeasonSnapshotはSeason-end HistoryでありRuntime authorityではない。
+15. Catalog / Seed / transform versionをSaveへ固定し、Catalog更新で既存Saveを再初期化しない。
+16. Save migrationはschema互換変換でありSave historyを書き換えない。
+
+---
+
+# 27. Final v1 Status
+
+**Club State Lifecycle v1は2026-09-22にユーザー承認され、DESIGN FROZEN。**
+
+本書はClub stateの時間層・保存境界・Snapshot / Event provenanceをSource of Truthとする。
+Roster / Rivalry / Structural dominance等のSubsystem内部ロジックは後継Canonical文書を優先する。
