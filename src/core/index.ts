@@ -221,3 +221,4 @@ export * from './sim/ball/PlanarBallSurfaceImpact';
 export * from './sim/contact/WoodBatContactResponse';
 export * from './sim/pitching/AerodynamicRigidBatSwingingPitchPhysicalResult';
 export * from './sim/ball/BallSurfaceMaterial';
+export * from './sim/plateAppearance/AerodynamicRigidContactFlightSlice';
