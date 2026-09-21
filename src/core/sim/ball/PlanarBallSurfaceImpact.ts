@@ -15,6 +15,10 @@ import {
   type BallSurfaceContactParameters,
   type BallSurfaceContactResult,
 } from './BallSurfaceContact';
+import {
+  resolveBallSurfaceMaterialContact,
+  type BallSurfaceMaterialProfile,
+} from './BallSurfaceMaterial';
 
 export type PlanarBallSurface = Readonly<{
   point: Vec3;
@@ -277,4 +281,49 @@ export const resolvePlanarBallSurfaceImpact = (
     },
     contact,
   };
+};
+
+
+export const resolvePlanarBallSurfaceMaterialImpact = (
+  state: BattedBallInitialState,
+  deltaTicks: number,
+  flightParameters: BallFlightParameters,
+  ball: RigidBaseballProperties,
+  surface: PlanarBallSurface,
+  material: BallSurfaceMaterialProfile,
+): PlanarBallSurfaceImpact | null => {
+  const contactTick =
+    findPlanarBallSurfaceContactTick(
+      state,
+      deltaTicks,
+      flightParameters,
+      ball.radiusM,
+      surface,
+    );
+  if (contactTick === null) {
+    return null;
+  }
+
+  const preImpactState =
+    sampleUninterruptedBallFreeFlight(
+      state,
+      contactTick - state.tick,
+      flightParameters,
+    );
+
+  const materialContact =
+    resolveBallSurfaceMaterialContact(
+      material,
+      preImpactState.velocity,
+      surface.normal,
+    );
+
+  return resolvePlanarBallSurfaceImpact(
+    state,
+    deltaTicks,
+    flightParameters,
+    ball,
+    surface,
+    materialContact,
+  );
 };
