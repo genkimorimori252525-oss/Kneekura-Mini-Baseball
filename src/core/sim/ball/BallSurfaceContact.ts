@@ -40,16 +40,35 @@ export type BallSurfaceContactResult = Readonly<{
   relativeSurfaceVelocityAfter: Vec3;
 }>;
 
+export const CROSS_NATHAN_2006_HARDWOOD_FLOOR_EVIDENCE =
+  Object.freeze({
+    impactSpeedMps: 5.6,
+    impactSpeedUncertaintyMps: 0.3,
+    normalRestitution: 0.59,
+    normalRestitutionUncertainty: 0.01,
+    tangentialRestitution: 0.17,
+    tangentialRestitutionUncertainty: 0.03,
+    slidingFrictionLowerBound: 0.31,
+    slidingFrictionLowerBoundUncertainty: 0.02,
+    source:
+      'Cross & Nathan 2006, Scattering of a Baseball by a Bat, hardwood-floor control experiment',
+  } as const);
+
 export const CROSS_NATHAN_2006_HARDWOOD_LOW_SPEED_LOWER_BOUND_FIXTURE:
   BallSurfaceContactParameters = Object.freeze({
-    normalRestitution: 0.59,
-    tangentialRestitution: 0.17,
+    normalRestitution:
+      CROSS_NATHAN_2006_HARDWOOD_FLOOR_EVIDENCE
+        .normalRestitution,
+    tangentialRestitution:
+      CROSS_NATHAN_2006_HARDWOOD_FLOOR_EVIDENCE
+        .tangentialRestitution,
     /**
-     * Cross & Nathan report mu_k > 0.31 +/- 0.02 for their hardwood-floor
-     * test. 0.31 is therefore only a conservative lower-bound fixture, not a
-     * field-surface calibration.
+     * The experiment gives only a lower bound on sliding friction. The bound
+     * is kept as a validation fixture, not promoted as a unique coefficient.
      */
-    frictionCoefficient: 0.31,
+    frictionCoefficient:
+      CROSS_NATHAN_2006_HARDWOOD_FLOOR_EVIDENCE
+        .slidingFrictionLowerBound,
   });
 
 const EPSILON = 1e-12;
