@@ -654,50 +654,96 @@ export const calculateRigidBatDirectionalEffectiveMass = (
   return 1 / inverseMass;
 };
 
-export const resolveRigidBatBallContact = (
+export type RigidBatBallContactKinematics = Readonly<{
+  tick: number;
+  segmentT: number;
+  localBatRadiusM: number;
+  normal: Vec3;
+  batSurfacePoint: Vec3;
+  ballSurfacePoint: Vec3;
+  relativeSurfaceVelocityBefore: Vec3;
+  totalRelativeSurfaceSpeedMps: number;
+  normalRelativeSpeedBeforeMps: number;
+  normalApproachSpeedMps: number;
+  tangentialRelativeSpeedBeforeMps: number;
+}>;
+
+export type RigidBatBallContactParameterResolver = (
+  kinematics: RigidBatBallContactKinematics,
+) => RigidBatBallContactParameters;
+
+type PreparedRigidBatBallContact = Readonly<{
+  kinematics: RigidBatBallContactKinematics;
+  batAxis: Vec3;
+  batLeverArm: Vec3;
+  ballLeverArm: Vec3;
+  state: MutableRigidState;
+}>;
+
+const prepareRigidBatBallContact = (
   pitch: PitchWorldState,
   bat: RigidBatState,
   ball: RigidBaseballProperties,
-  parameters: RigidBatBallContactParameters,
-): RigidBatBallContactResult | null => {
+): PreparedRigidBatBallContact | null => {
   validateBat(bat);
   validateBall(ball);
-  validateContactParameters(parameters);
 
-  const { axis: batAxis } = axisGeometry(bat.pose);
-  const nearest = closestPointOnTaperedBat(
-    pitch.position,
-    bat,
-  );
+  const { axis: batAxis } =
+    axisGeometry(bat.pose);
+  const nearest =
+    closestPointOnTaperedBat(
+      pitch.position,
+      bat,
+    );
   const localBatRadiusM =
     nearest.localRadiusM;
+
+  if (
+    nearest.surfaceSeparationM
+    > ball.radiusM
+  ) {
+    return null;
+  }
 
   const axisToBall = subtract(
     pitch.position,
     nearest.point,
   );
-  const centerDistance = magnitude(axisToBall);
-
-  if (nearest.surfaceSeparationM > ball.radiusM) {
-    return null;
-  }
-
-  const centerOfMass = batCenterOfMassPoint(bat);
-  const fallbackRelative = subtract(
-    pitch.velocity,
-    bat.centerOfMassVelocity,
-  );
-  const normal = centerDistance > EPSILON
-    ? scale(axisToBall, 1 / centerDistance)
-    : normalize(scale(fallbackRelative, -1));
+  const centerDistance =
+    magnitude(axisToBall);
+  const centerOfMass =
+    batCenterOfMassPoint(bat);
+  const fallbackRelative =
+    subtract(
+      pitch.velocity,
+      bat.centerOfMassVelocity,
+    );
+  const normal =
+    centerDistance > EPSILON
+      ? scale(
+          axisToBall,
+          1 / centerDistance,
+        )
+      : normalize(
+          scale(
+            fallbackRelative,
+            -1,
+          ),
+        );
 
   const batSurfacePoint = add(
     nearest.point,
-    scale(normal, localBatRadiusM),
+    scale(
+      normal,
+      localBatRadiusM,
+    ),
   );
   const ballSurfacePoint = add(
     pitch.position,
-    scale(normal, -ball.radiusM),
+    scale(
+      normal,
+      -ball.radiusM,
+    ),
   );
   const batLeverArm = subtract(
     batSurfacePoint,
@@ -711,19 +757,23 @@ export const resolveRigidBatBallContact = (
   const state: MutableRigidState = {
     ballVelocity: pitch.velocity,
     ballSpin: pitch.spin,
-    batVelocity: bat.centerOfMassVelocity,
-    batAngularVelocity: bat.angularVelocity,
+    batVelocity:
+      bat.centerOfMassVelocity,
+    batAngularVelocity:
+      bat.angularVelocity,
   };
 
-  const relativeBefore = relativeSurfaceVelocity(
-    state,
-    ballLeverArm,
-    batLeverArm,
-  );
-  const normalRelativeSpeed = dot(
-    relativeBefore,
-    normal,
-  );
+  const relativeBefore =
+    relativeSurfaceVelocity(
+      state,
+      ballLeverArm,
+      batLeverArm,
+    );
+  const normalRelativeSpeed =
+    dot(
+      relativeBefore,
+      normal,
+    );
 
   if (normalRelativeSpeed >= 0) {
     return null;
@@ -731,14 +781,86 @@ export const resolveRigidBatBallContact = (
 
   const tangentBefore = subtract(
     relativeBefore,
-    scale(normal, normalRelativeSpeed),
+    scale(
+      normal,
+      normalRelativeSpeed,
+    ),
   );
   const tangentialRelativeSpeedBeforeMps =
     magnitude(tangentBefore);
 
+  return {
+    kinematics: {
+      tick: pitch.tick,
+      segmentT: nearest.t,
+      localBatRadiusM,
+      normal,
+      batSurfacePoint,
+      ballSurfacePoint,
+      relativeSurfaceVelocityBefore:
+        relativeBefore,
+      totalRelativeSurfaceSpeedMps:
+        magnitude(relativeBefore),
+      normalRelativeSpeedBeforeMps:
+        normalRelativeSpeed,
+      normalApproachSpeedMps:
+        -normalRelativeSpeed,
+      tangentialRelativeSpeedBeforeMps,
+    },
+    batAxis,
+    batLeverArm,
+    ballLeverArm,
+    state,
+  };
+};
+
+export const measureRigidBatBallContactKinematics = (
+  pitch: PitchWorldState,
+  bat: RigidBatState,
+  ball: RigidBaseballProperties,
+): RigidBatBallContactKinematics | null => (
+  prepareRigidBatBallContact(
+    pitch,
+    bat,
+    ball,
+  )?.kinematics
+  ?? null
+);
+
+export const resolveRigidBatBallContactWithParameterResolver = (
+  pitch: PitchWorldState,
+  bat: RigidBatState,
+  ball: RigidBaseballProperties,
+  parameterResolver:
+    RigidBatBallContactParameterResolver,
+): RigidBatBallContactResult | null => {
+  const prepared =
+    prepareRigidBatBallContact(
+      pitch,
+      bat,
+      ball,
+    );
+  if (prepared === null) {
+    return null;
+  }
+
+  const {
+    kinematics,
+    batAxis,
+    batLeverArm,
+    ballLeverArm,
+    state,
+  } = prepared;
+
+  const parameters =
+    parameterResolver(kinematics);
+  validateContactParameters(
+    parameters,
+  );
+
   const rigidBatNormalInverseMass =
     rigidBatInverseMassContributionAlong(
-      normal,
+      kinematics.normal,
       batLeverArm,
       bat,
       batAxis,
@@ -746,13 +868,14 @@ export const resolveRigidBatBallContact = (
   const rigidBatNormalEffectiveMassKg =
     1 / rigidBatNormalInverseMass;
   const dynamicProfile =
-    bat.physical.normalEffectiveMassProfile;
+    bat.physical
+      .normalEffectiveMassProfile;
   const batNormalEffectiveMassKg =
     dynamicProfile === undefined
       ? rigidBatNormalEffectiveMassKg
       : sampleBatEffectiveMass(
           dynamicProfile,
-          nearest.t,
+          kinematics.segmentT,
         );
   const normalEffectiveMassSource =
     dynamicProfile === undefined
@@ -761,21 +884,27 @@ export const resolveRigidBatBallContact = (
 
   const normalInverseMass =
     ballInverseMassContributionAlong(
-      normal,
+      kinematics.normal,
       ballLeverArm,
       ball,
     )
     + 1 / batNormalEffectiveMassKg;
   if (normalInverseMass <= EPSILON) {
-    throw new Error('normal effective inverse mass must be positive');
+    throw new Error(
+      'normal effective inverse mass must be positive',
+    );
   }
 
   const normalImpulseNs =
-    -(1 + parameters.normalRestitution)
-    * normalRelativeSpeed
+    -(
+      1
+      + parameters.normalRestitution
+    )
+    * kinematics
+      .normalRelativeSpeedBeforeMps
     / normalInverseMass;
   const normalImpulse = scale(
-    normal,
+    kinematics.normal,
     normalImpulseNs,
   );
 
@@ -797,25 +926,34 @@ export const resolveRigidBatBallContact = (
 
   if (
     parameters.frictionCoefficient > 0
-    && tangentialRelativeSpeedBeforeMps > EPSILON
+    && kinematics
+      .tangentialRelativeSpeedBeforeMps
+      > EPSILON
   ) {
-    const relativeAfterNormal = relativeSurfaceVelocity(
-      state,
-      ballLeverArm,
-      batLeverArm,
-    );
+    const relativeAfterNormal =
+      relativeSurfaceVelocity(
+        state,
+        ballLeverArm,
+        batLeverArm,
+      );
     const normalAfterNormal = dot(
       relativeAfterNormal,
-      normal,
+      kinematics.normal,
     );
     const tangentAfterNormal = subtract(
       relativeAfterNormal,
-      scale(normal, normalAfterNormal),
+      scale(
+        kinematics.normal,
+        normalAfterNormal,
+      ),
     );
     const tangentSpeedAfterNormal =
       magnitude(tangentAfterNormal);
 
-    if (tangentSpeedAfterNormal > EPSILON) {
+    if (
+      tangentSpeedAfterNormal
+      > EPSILON
+    ) {
       const tangentDirection = scale(
         tangentAfterNormal,
         1 / tangentSpeedAfterNormal,
@@ -830,18 +968,26 @@ export const resolveRigidBatBallContact = (
           batAxis,
         );
 
-      if (tangentialInverseMass <= EPSILON) {
+      if (
+        tangentialInverseMass
+        <= EPSILON
+      ) {
         throw new Error(
           'tangential effective inverse mass must be positive',
         );
       }
 
       const targetImpulseMagnitude =
-        (1 + parameters.tangentialRestitution)
+        (
+          1
+          + parameters
+            .tangentialRestitution
+        )
         * tangentSpeedAfterNormal
         / tangentialInverseMass;
       const frictionLimit =
-        parameters.frictionCoefficient
+        parameters
+          .frictionCoefficient
         * normalImpulseNs;
       const tangentialImpulseMagnitude =
         Math.min(
@@ -872,15 +1018,23 @@ export const resolveRigidBatBallContact = (
   );
 
   return {
-    tick: pitch.tick,
-    segmentT: nearest.t,
-    localBatRadiusM,
-    normal,
-    batSurfacePoint,
-    ballSurfacePoint,
+    tick: kinematics.tick,
+    segmentT:
+      kinematics.segmentT,
+    localBatRadiusM:
+      kinematics.localBatRadiusM,
+    normal:
+      kinematics.normal,
+    batSurfacePoint:
+      kinematics.batSurfacePoint,
+    ballSurfacePoint:
+      kinematics.ballSurfacePoint,
     normalRelativeSpeedBeforeMps:
-      normalRelativeSpeed,
-    tangentialRelativeSpeedBeforeMps,
+      kinematics
+        .normalRelativeSpeedBeforeMps,
+    tangentialRelativeSpeedBeforeMps:
+      kinematics
+        .tangentialRelativeSpeedBeforeMps,
     normalImpulseNs,
     tangentialImpulseNs,
     totalImpulseNs,
@@ -889,14 +1043,31 @@ export const resolveRigidBatBallContact = (
     batNormalEffectiveMassKg,
     normalEffectiveMassSource,
     batRecoilModel:
-      normalEffectiveMassSource === 'rigid_body'
+      normalEffectiveMassSource
+      === 'rigid_body'
         ? 'rigid_body'
         : 'rigid_projection_only',
-    exitVelocity: state.ballVelocity,
-    exitSpin: state.ballSpin,
+    exitVelocity:
+      state.ballVelocity,
+    exitSpin:
+      state.ballSpin,
     batExitCenterOfMassVelocity:
       state.batVelocity,
     batExitAngularVelocity:
       state.batAngularVelocity,
   };
 };
+
+export const resolveRigidBatBallContact = (
+  pitch: PitchWorldState,
+  bat: RigidBatState,
+  ball: RigidBaseballProperties,
+  parameters: RigidBatBallContactParameters,
+): RigidBatBallContactResult | null => (
+  resolveRigidBatBallContactWithParameterResolver(
+    pitch,
+    bat,
+    ball,
+    () => parameters,
+  )
+);
