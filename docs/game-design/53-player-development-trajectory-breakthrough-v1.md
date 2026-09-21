@@ -657,7 +657,7 @@ AcquisitionKind:
 | 代打○ -> 代打の神様 | ROLE_SUITABILITY + EXPERIENCE_ADAPTATION | bench role, emergency chances | pinch-hit readiness / routine / evidence stable | DIRECT | HIGH |
 | 対左投手 G〜A -> 左腕キラー | TECHNICAL_DEVELOPMENT + EXPERIENCE_ADAPTATION | platoon matchup repetitions | matchup technique / recognition source improves | DIRECT | HIGH |
 | バント○ -> バント職人 | TECHNICAL_DEVELOPMENT | role demand, coach | bunt contact / placement source improves | DIRECT | HIGH |
-| 内野安打○ -> ロケットスタート | RECOGNITION + TECHNICAL_DEVELOPMENT/PHYSICAL | sprint/start training, usage | bat-to-run transition / first-step source improves | DIRECT | MEDIUM |
+| 内野安打○ -> ロケットスタート | RECOGNITION + TECHNICAL_DEVELOPMENT + PHYSICAL_DEVELOPMENT | sprint/start training, usage | bat-to-run transition / first-step source improves | DIRECT | MEDIUM |
 | 盗塁 G〜A -> 電光石火 | TECHNICAL_DEVELOPMENT + EXPERIENCE_ADAPTATION | attempts, catcher/pitcher study, coach | lead / start / acceleration / slide source improves | DIRECT | HIGH |
 | 走塁 G〜A -> 高速ベースラン | TECHNICAL_DEVELOPMENT + EXPERIENCE_ADAPTATION | baserunning repetitions | route / read / extra-base decision improves | DIRECT | HIGH |
 | ヘッドスライディング / 気迫ヘッド | BEHAVIOR_PREFERENCE | role, mentor, success/failure | slide-style preference stable; no speed bonus | INDIRECT | HIGH |
@@ -665,12 +665,12 @@ AcquisitionKind:
 | 守備職人 -> 魔術師 | TECHNICAL_DEVELOPMENT + EXPERIENCE_ADAPTATION | huge fielding reps, mentor, position role | route / first move / transfer / decision improves | DIRECT | HIGH |
 | 高速チャージ | TECHNICAL_DEVELOPMENT | bunt/slow-ball reps | charge/read/transfer technique improves | DIRECT | HIGH |
 | 送球 G〜A -> ストライク送球 | TECHNICAL_DEVELOPMENT | coach, error, position reps | throwing accuracy / transfer source improves | DIRECT | HIGH |
-| レーザービーム -> 高速レーザー | RECOGNITION + TECHNICAL_DEVELOPMENT/PHYSICAL | throwing development | arm velocity / trajectory / transfer evidence | INDIRECT | MEDIUM |
+| レーザービーム -> 高速レーザー | RECOGNITION + TECHNICAL_DEVELOPMENT + PHYSICAL_DEVELOPMENT | throwing development | arm velocity / trajectory / transfer evidence | INDIRECT | MEDIUM |
 | ホーム死守 -> 鉄の壁 | TECHNICAL_DEVELOPMENT + EXPERIENCE_ADAPTATION | tag/block situations | tag-and-block execution source improves | DIRECT | HIGH |
 | ブロッキング | TECHNICAL_DEVELOPMENT | catcher training | block technique / read source improves | DIRECT | HIGH |
 | フレーミング -> upper tier | TECHNICAL_DEVELOPMENT + RECOGNITION | receiving coach, game reps | receiving / call-influence source improves; RuleProfile aware | DIRECT | HIGH |
 | キャッチャー G〜A -> 球界の頭脳 | TECHNICAL_DEVELOPMENT + EXPERIENCE_ADAPTATION | game calling, pitcher relationships, mentor | handling / communication / game-calling source improves | DIRECT | HIGH |
-| バズーカ送球 | RECOGNITION + TECHNICAL_DEVELOPMENT/PHYSICAL | catcher throw training | pop-time + velocity + accuracy source evidenced | DIRECT | MEDIUM |
+| バズーカ送球 | RECOGNITION + TECHNICAL_DEVELOPMENT + PHYSICAL_DEVELOPMENT | catcher throw training | pop-time + velocity + accuracy source evidenced | DIRECT | MEDIUM |
 | ケガしにくさ G〜A -> 鉄人 | PHYSICAL_DEVELOPMENT + RECOGNITION | conditioning / medical history | actual injury-resistance source; injury itself does not grant it | INDIRECT | LOW |
 | 回復 G〜A | PHYSICAL_DEVELOPMENT + RECOGNITION | workload / rehab / conditioning | actual RecoveryCapacity source | INDIRECT | MEDIUM |
 | Team Killer / ○○キラー | RELATIONSHIP_FAMILIARITY | repeated specific opponent meetings | current opponent overlap + familiarity evidence; roster changes can invalidate | NONE | HIGH |
