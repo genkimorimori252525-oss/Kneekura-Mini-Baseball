@@ -247,8 +247,8 @@ v1で扱う主要Family:
 | --- | --- |
 | UNEXPECTED_SUCCESS | 3者連続三振、初HR、初完封、まぐれの好守、強打者を抑える |
 | FAILURE_HUMILIATION | 大炎上、決勝エラー、三振連発、降格、スタメン落ち |
-| COMPETITIVE_PROVOCATION | 前打者敬遠、自分への敬遠、ライバルに完敗、ポジション争い |
-| INJURY_REHAB | 大怪我、手術、長期離脱、Rehab、身体制約によるフォーム再構築 |
+| COMPETITIVE_PROVOCATION | 前打者敬遠、自分への敬遠、死球・危険球後の対抗反応、ライバルに完敗、ポジション争い |
+| INJURY_REHAB | 大怪我、手術、死球等による負傷、長期離脱、Rehab、身体制約によるフォーム再構築 |
 | TECHNICAL_DISCOVERY | 偶然ハマった握り、打撃point発見、投球位置変更、新球種の手応え |
 | COACH_MENTOR | 相性の良いCoach、Veteran指導、恩師との再会、Mentorとの深い学習 |
 | ELITE_EXPOSURE | Star加入、All-Star、代表、国際大会、一流Playerの観察 |
@@ -370,6 +370,15 @@ Derived Career Event: 覚醒 / Breakthrough
 exact threshold / durationはcalibration。
 
 覚醒は能力を追加しない。すでに起きた成長をCareer History上で要約する。
+
+Breakthroughは**domain-bounded**。原因のない全能力一括上昇は禁止する。
+
+例:
+```text
+new pitch / release breakthrough
+ -> pitching-related source states may change
+ -> running / fielding / raw strength do not rise without their own cause
+```
 
 Micro breakthroughは比較的普通に起こり得るが、UIで「覚醒」と呼ぶMajor breakthroughは非常に稀。
 
@@ -593,7 +602,7 @@ AcquisitionKind:
 | 緩急○ -> 変幻自在 | TECHNICAL_DEVELOPMENT + EXPERIENCE_ADAPTATION | elite exposure, sequencing success, coach | speed separation + sequencing skill improve | DIRECT | HIGH |
 | 奪三振 -> ドクターK | TECHNICAL_DEVELOPMENT + EXPERIENCE_ADAPTATION | two-strike success/failure, opponent puzzle | put-away pitch selection / execution becomes stable | DIRECT | HIGH |
 | 対強打者 -> 主砲キラー | EXPERIENCE_ADAPTATION + RELATIONSHIP_FAMILIARITY | repeated elite matchups | learned high-quality opponent response; not `Star` label bonus | INDIRECT | HIGH |
-| 対ピンチ G〜A -> 強心臓 / ノミの心臓 | EXPERIENCE_ADAPTATION | high leverage, blown lead, escape, comeback | stable pressure appraisal / execution evidence across opportunities | INDIRECT | HIGH |
+| ノミの心臓 / 対ピンチ G〜A / 強心臓 | EXPERIENCE_ADAPTATION | high leverage, blown lead, escape, comeback | stable pressure appraisal / execution evidence across opportunities | INDIRECT | HIGH |
 | 打たれ強さ G〜A -> 不屈の魂 | EXPERIENCE_ADAPTATION | HR allowed, error behind pitcher, comeback inning | negative-event reset / execution recovery becomes stable | INDIRECT | HIGH |
 | 対左打者 G〜A -> 左キラー | TECHNICAL_DEVELOPMENT + EXPERIENCE_ADAPTATION | repeated platoon matchup | pitch mix / execution / recognition evidence | DIRECT | HIGH |
 | ギアチェンジ | BEHAVIOR_PREFERENCE + EXPERIENCE_ADAPTATION | role demand, leverage exposure | context-dependent effort allocation stable | INDIRECT | HIGH |
@@ -668,6 +677,26 @@ AcquisitionKind:
 
 ---
 
+# 18.1 Negative / Tradeoff / Moved Descriptor Acquisition Rules
+
+09で通常のPositive Technique Traitとは別扱いになっている候補も、表示条件を因果化する。
+
+| Trait / Descriptor | 扱い | Acquisition / Recognition condition |
+| --- | --- | --- |
+| 寸前 | Negative / pressure-readiness候補 | close/late situationでのpressure・fatigue・execution instabilityが反復Evidenceとして成立した場合のみ。単なる終盤失点数から直接付けない |
+| 悪球打ち | Blue-Red Behavior | expanded chase/contact preference + actual out-of-zone execution sourceが安定した場合。Benefitとweak-contact/chase riskを不可分に扱う |
+| エラー | Negative Descriptor | pressure/context下のfielding execution weaknessが通常守備力と独立して反復Evidence化した場合。失策数だけから直接生成しない |
+| 併殺 | Neutral/Negative Descriptor | ground-contact tendency + running speed + contextから実際に説明できる時だけ。併殺結果そのものを増やすTraitにしない |
+| 死球集中 | Neutral Behavior候補 | plate-crowding / avoidance tendencyが実際に安定している場合。HBP結果数を直接Sourceにせず、死球率Buffを持たない |
+| ゴロピッチャー / フライボールピッチャー | Neutral Descriptor | actual batted-ball distributionの十分なEvidenceからRecognition。Labelから打球分布を変更しない |
+| ポーカーフェイス | Psychology visibility Descriptor | outward emotional-expression patternの継続EvidenceからRecognition。内部Emotionを消さない |
+| 負け運 / 勝ち運 / 勝利の星 | Career Descriptor only | Match TraitとしてAcquireしない。必要ならCareer history / team-result contextから後付け表示のみ |
+| ムード○ / ムード× / 精神的支柱 | Team / Relationship Descriptor | 34/37/38のnetwork / mood sourceを利用。Player Match Traitとして直接取得しない |
+| 威圧感 / 存在感 | Psychology / Reputation boundary | opponent belief / reputation / actual evidence側。Trait Labelから相手能力を下げない |
+
+Reject / Movedとなった候補へ、53が独自のMatch効果を復活させない。
+
+---
 # 19. Green / Neutral Behavior Acquisition Matrix
 
 | Family | Main Catalysts | Required stabilization |
@@ -895,6 +924,7 @@ breakthrough
 22. User / CPUはHidden Catalyst Profileを利用してDecisionしない。
 23. Development RNG seed変更だけで過去Canonical Match Eventが変わらない。
 24. Major Breakthrough HistoryからCatalyst -> learning -> consolidationを説明できる。
+25. Major Breakthroughで原因のない別Domain能力が一括上昇しない。
 
 ---
 
@@ -921,7 +951,8 @@ breakthrough
 19. Gold Tierは同一FamilyのMaster Tier。
 20. **ノビはG〜A、Goldは怪童。**
 21. Awakening / Trait / Rating表示はSource Stateへ逆流しない。
-22. Exact curve coefficients / probabilities / thresholds / cooldownはimplementation calibration。
+22. Breakthroughはdomain-boundedで、原因のない全能力一括上昇は禁止。
+23. Exact curve coefficients / probabilities / thresholds / cooldownはimplementation calibration。
 
 ---
 
