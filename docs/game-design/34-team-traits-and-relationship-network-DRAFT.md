@@ -1,10 +1,10 @@
-# Team Traits & Player Relationship Network — DRAFT
+# Team Traits & Player Relationship Network — CANONICAL v1
 
-更新日: 2026-09-20  
-状態: **部分承認済み設計候補。USER REVIEW REQUIRED。実装前。**
+更新日: 2026-09-22  
+状態: **CANONICAL / DESIGN FROZEN v1。2026-09-22ユーザー承認。実装前。**
 
-> この文書は、チーム特殊能力 / 選手間関係値の初期設計案。
-> ユーザー承認前に正史化しない。
+> **FILENAME LEGACY NOTE**  
+> ファイルパスの `-DRAFT` は履歴上残っているだけ。この文書は未確定Draftではない。下記 `Canonical Freeze v1` を現在のSource of Truthとして扱い、後続の旧候補記述と矛盾する場合はFreeze節を優先する。
 
 関連:
 - `docs/game-design/05-psychology-emotion.md`
@@ -27,7 +27,87 @@
 5. 守備等の共同作業では低い連携が実際の連携ミスへつながり得る。
 6. Team TraitはPennant中に取得・発動・減衰・消失できる。
 
-文書全体はまだDRAFTであり、具体Trait一覧・閾値・式は追加監修が必要。
+Architecture v1は2026-09-22に承認済み。具体Trait一覧・名称・閾値・期間の数値校正は `35-team-trait-catalog-DRAFT.md` の審議範囲へ分離する。
+
+---
+
+# Canonical Freeze v1 — 2026-09-22
+
+この節は本書内の旧候補記述より優先する。
+
+## A. Relationship storage
+
+- Public UIは **好感 / 信頼 / 連携** の3軸を維持する。
+- 内部では Affinity / Trust をdirectionalなRelationship Edgeとして扱う。
+- Coordinationは単純な仲良し度ではなく、二遊間・Battery・Relay・Rundown等のrole / task-specific joint-action stateとして扱う。
+- Relationship NetworkはSparse Graphとし、意味のあるInteractionがない全Player Pairを保存しない。
+- Edgeなしは嫌悪や中立50点ではなく、意味のある関係Evidenceが未形成という意味。
+- 内部値は value に加えて evidence mass / recency / shared history を持てる。
+- Affinity / Trust / Coordinationは別Evidenceで更新し、単一Eventで3軸を同量変化させない。
+
+## B. Batting relationship — 打力の発揮
+
+- 打撃Relation効果は原則positive-side。低RelationshipだけでBase Batting Abilityを下げない。
+- 打撃共鳴は **その打者が本来持つ打力を一時的に強く発揮しやすい状態** と定義する。
+- True Contact / Power / bat speed / Plate Discipline等の基礎能力値をRelationshipが生成・増加させるわけではない。
+- HR率、安打率、四球率のどれかへ直接Modifierを掛けない。
+- 実際の結果は既存のPitch / Swing / Contact / PhysicsとPlayer自身の打撃Profileが決める。
+- HRにもHitにも凡打にも三振にもなり得る。
+- 特に **四球を選びやすくする効果ではない**。
+- 普段ほとんど四球を選ばない三振か長打型の打者が、味方HRへの刺激だけで突然選球型へ変化する挙動は禁止。
+- Plate Disciplineやwalk-takingはPitch recognition / zone judgement / discipline / Manager approach等の既存因果から生じる。
+- 成功の形式をReceiverへコピーしない。SluggerのHRを見たContact hitterへPower能力を付与しない。
+- Lineup adjacencyは刺激強度の一要因だが必須条件ではない。
+
+## C. Pair / Cluster
+
+- Pair / Cluster Scopeを正式採用する。
+- Clusterは固定された魔法Groupではなく、Relationship Graph・shared history・current contextからDerivedする。
+- role change / transfer / separation / new experienceでClusterは変化してよい。
+
+## D. Team Trait causal boundary
+
+- Team Trait LabelはSource of Truthではない。
+- Canonical flowは `Evidence -> Underlying State -> actual causal intermediate behavior`。
+- Labelは同じUnderlying Stateを人間向けに表現するDescriptor。
+- `Trait acquired -> stat +X` を禁止する。
+- GoldはBlue効果の倍率ではなく、極めて強いUnderlying Stateを示すMaster-tier Descriptor。
+- 同じEvidenceを複数Traitへ二重計上し、同じ効果を積み上げることを禁止する。
+
+## E. Descriptor modes
+
+- Team Traitは少なくとも CAUSAL_STATE_DESCRIPTOR と ANALYTIC_DESCRIPTOR を区別できる。
+- 守備連携・Battery結束・終盤恐怖等はUnderlying Stateを要約するCausal State Descriptorになり得る。
+- 投打不協和・投打好循環・好投見殺し等はANALYTIC_DESCRIPTOR。
+- ANALYTIC_DESCRIPTORは履歴の説明だけを行い、追加Gameplay Effectは完全にゼロ。
+
+## F. Lifecycle / long-term behavior
+
+- Duration familyは SHORT / MEDIUM / SEASON / EVIDENCE_BASED を採用する。
+- exact日数・発動回数・閾値はCatalog / implementation calibrationへ送る。
+- RelationshipはOffseasonで原則carryover。
+- Coordinationはrole / separationでdecayできるがDormant Shared Experienceを残し、再会時の再同期へ使える。
+- Dark Eraを一つの永久Red Traitで表現しない。
+
+## G. Mood / user boundary
+
+- Team MoodとTeam TraitのLabel同士を直接相互強化させるFeedback Loopを禁止する。
+- 相互作用が必要ならactual event / appraisal / communication / independent evidence updateを介する。
+- Relationship管理はBackground Simulation中心。
+- Userへ毎週の会話・食事・褒める等のSocial Maintenanceを要求しない。
+- 重大なConflict / Role / Leadership問題への介入は `38-team-mood-manager-interventions-DRAFT.md` で扱う。
+
+## H. Deferred to Team Trait Catalog
+
+- 具体Trait名
+- family分類
+- exact activation threshold
+- exact duration
+- Gold条件
+- UI文言
+- numerical calibration
+
+これらは `35-team-trait-catalog-DRAFT.md` の審議事項であり、34のArchitecture未確定事項ではない。
 
 ---
 
@@ -1164,9 +1244,11 @@ named team trait
 
 ---
 
-# 27. Approval Questions
+# 27. Architecture Review — RESOLVED 2026-09-22
 
-次にユーザーと詰める点:
+以下はFreeze前に使った旧確認項目。Architecture判断はすでに解決済みであり、現在の未確定事項として扱わない。
+
+旧確認項目:
 
 1. RelationのPublic UIを数値表示するか、段階表示だけにするか
 2. Batting ResonanceをActiveEmotion + own-archetype expressionで確定するか
@@ -1419,3 +1501,14 @@ Team TraitはSeasonごとの症状として再発してよいが、上流原因�
 
 Team Mood design (APPROVED):
 - `docs/game-design/37-team-mood-architecture.md`
+
+---
+
+# 31. Final v1 Status
+
+**Team Traits / Player Relationship Architecture v1は2026-09-22にユーザー承認され、DESIGN FROZEN。**
+
+特に打撃共鳴は、特定の結果確率を直接上げる仕組みではなく、本人の既存Profileの範囲で **打力を発揮しやすい状態** を作る。
+四球選択能力をRelationshipから付与しない。
+
+残る設計審議は `35-team-trait-catalog-DRAFT.md` のCatalog内容・名称・閾値・期間校正であり、34のArchitectureそのものではない。
