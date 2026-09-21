@@ -827,6 +827,28 @@ assuming these low-speed coefficients remain valid at game-speed baseball
 impacts. This checkpoint validates the **equations and effective-mass
 geometry**, not final MLB/NPB high-speed coefficients.
 
+### 4.0.2 High-speed wood-bat restitution anchor
+
+The collision calibration now also records a genuine high-speed wood-bat
+performance anchor from Nathan et al. (2011).
+
+The laboratory study fired baseballs at approximately 60.8 m/s (136 mph), a
+speed chosen to approximate the relative ball-bat collision speed in the
+batting-cage study. The wood-bat mean BBCOR reported in the combined
+field/laboratory analysis is:
+
+```text
+e = 0.452 +/- 0.005
+```
+
+This is stored in `WoodBatRestitutionCalibration` beside the Cross/Nathan
+low-speed normal-COR anchor.
+
+The two measurements are **calibration anchors, not an invented interpolation
+curve**. Ball COR/stiffness, bat properties, impact location and test protocol
+matter, so production speed-dependence must be fitted against a broader
+versioned dataset rather than assuming a two-point linear law.
+
 ### 4.1 Tapered bat geometry
 
 A real bat is not a constant-radius capsule.
