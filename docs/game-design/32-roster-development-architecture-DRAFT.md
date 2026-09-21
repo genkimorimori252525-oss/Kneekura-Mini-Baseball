@@ -444,6 +444,21 @@ Season Event設計のPostseason Eligibility Cutoffとも接続する。
 
 ---
 
+# 12.1 Player Development Trajectory Successor — CANONICAL
+
+年齢曲線 / 成長Timing / Breakthrough / Catalyst / Trait acquisitionの詳細は:
+- `docs/game-design/53-player-development-trajectory-breakthrough-v1.md`
+
+をSource of Truthとする。
+
+32の恒久原則は維持:
+- Pathway labelはdirect growth buffではない
+- Developmentはopportunity / coaching / environment / adaptationから生じる
+- Hidden true future potentialをUser / CPUが読まない
+
+53はこれを `5 maturity timings x 3 curve shapes` と因果的Catalyst architectureへ具体化する。
+
+---
 # 13. Development is Opportunity-dependent
 
 選手成長は「年齢曲線だけ」でも「施設Buffだけ」でもない。
@@ -1021,6 +1036,7 @@ User承認済み。
 23. HUMAN_OVERRIDEの采配を元監督自身のStrategy Memoryへ「自分が選んだ戦術」として学習させない。
 24. 実在野球Leagueは年度ごとの実規定を第一参照にRoster / Intake Profileを作る。
 25. 実在野球Leagueがない地域はWorld Defaultを基礎に、過剰にならない地域差を与える。
+26. Development Timing / Breakthrough / Catalyst / Trait Acquisitionは53 CANONICALをSource of Truthとする。
 
 ---
 

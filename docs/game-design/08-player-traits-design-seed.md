@@ -606,35 +606,35 @@ type TraitEvidenceState = {
 
 ただし具体式・閾値は未確定。
 
-## 12. 獲得・消失・昇格は未設計
+## 12. 獲得・消失・昇格 — 53でCANONICAL化
 
-将来候補:
+2026-09-22に後継:
+- `docs/game-design/53-player-development-trajectory-breakthrough-v1.md`
+
+でTrait Acquisition / Development Catalyst / Recognition / ConsolidationがDESIGN FROZENとなった。
+
+基本:
 
 ```text
-latent tendency / skill
-      ↓
-evidence accumulation
-      ↓
-blue Trait
-      ↓
-further stable mastery
-      ↓
-gold Trait
+actual source state
++ canonical career events
++ Trait Evidence
++ development / recognition provenance
+        ↓
+Trait projection
 ```
 
-また、
+- Recognition型とDevelopment型を分離
+- event一発のmagic unlock禁止
+- Coach instructionだけでTrait取得禁止
+- Pressure系はrepeated relevant experienceを要求
+- Green系はstable Behavior / Preference変化を要求
+- Goldは同一FamilyのMaster Tier
+- injury / age / form changeはsource stateを更新して再Projection
 
-- 加齢
-- 故障
-- フォーム変更
-- 長期間の不使用
-- 技術改善
-- 役割変更
+Family別Acquire条件は53 Section 17–19を正とする。
 
-などによりTraitが変化または消失する可能性も残す。
-
-しかし、Traitが技能そのものなのか、技能を表すラベルなのかによって更新方式は異なるため、現時点では一律ルールを作らない。
-
+---
 ## 13. Trait Resolver候補
 
 得能ロジックをPitch / Batting / Fieldingなどへ個別に散らさない。
