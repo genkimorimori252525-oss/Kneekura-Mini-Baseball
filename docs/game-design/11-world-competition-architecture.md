@@ -1,7 +1,10 @@
-# World Competition Architecture — Club & National Teams
+# World Competition Architecture — Club & National Teams — CANONICAL v1
 
-更新日: 2026-09-19  
-状態: **設計承認候補版。主要大会骨格は採用方針。細かな登録人数・賞金額・日付は後続校正。実装前。**
+更新日: 2026-09-22  
+状態: **CANONICAL / DESIGN FROZEN v1。2026-09-22ユーザー承認。実装前。**
+
+> 大会骨格・qualification構造・4年Cycle・Competition Region・大会間境界はv1としてFreeze済み。
+> exact日付・登録人数・賞金額・係数Weight等はCompetitionProfile / RuleProfile / economic calibrationであり、open architectureではない。
 
 関連:
 - `docs/game-design/10-world-league-catalog.md`
@@ -1139,6 +1142,90 @@ Player:
 
 ---
 
+# 23.1 CompetitionProfile / Variable Rule Boundary — CANONICAL
+
+大会ごとに変化し得る細則をWorld共通Hard Ruleへ固定しない。
+
+例:
+
+```ts
+type CupTiedPolicy =
+  | "NONE"
+  | "EDITION_LOCK"
+  | "REGISTRATION_LOCK";
+```
+
+CompetitionProfile / RuleProfileへ置けるもの:
+- cup-tied policy
+- exact roster size / pitcher minimum
+- injury replacement cutoff
+- run-differential tiebreak cap
+- exact rest-day rule
+- host / draw detail
+- edition-specific registration rule
+
+重要:
+
+> **Profile化は未決定を意味しない。v1 Architectureとして「大会ごとのversioned ruleで持つ」ことを確定する。**
+
+各大会のv1 exact default値は実装・RuleProfile校正で決められる。
+
+---
+
+# 23.2 Versioned Competition Reform — CANONICAL
+
+大会拡大・Format変更は無理由のin-place mutationにしない。
+
+```text
+World / Competition reform evidence
+        ↓
+Competition Reform Event
+        ↓
+new CompetitionFormatVersion
+        ↓
+future editionから適用
+```
+
+例:
+
+```text
+WBC Format v1 = 24 nations
+WBC Format v2 = 32 nations
+```
+
+過去EditionのFormatを新制度で書き換えない。
+
+Premier 12-classを12か国から拡張する場合は、名称・Identity変更を含むReformとして扱う。
+
+---
+
+# 23.3 Competition Edition Snapshot — CANONICAL
+
+各大会Editionは、当時の制度を再現できるSnapshotを保持する。
+
+概念例:
+
+```ts
+type CompetitionEditionSnapshot = {
+  competitionId: CompetitionId;
+  editionId: CompetitionEditionId;
+  formatVersion: string;
+  ruleProfileVersion: string;
+  qualificationSnapshot: CompetitionQualificationSnapshot;
+  participantIds: readonly TeamId[];
+  hostSnapshot: HostSnapshot;
+  calendarWindow: CompetitionWindowSnapshot;
+};
+```
+
+これにより:
+- 300年後でも過去大会を当時のFormatで説明できる
+- Save途中の制度改革が過去成績を書き換えない
+- replay / history / qualification provenanceを保持できる
+
+大会の現在ルールと、過去Editionのルールを混同しない。
+
+---
 # 24. 今回確定する事項
 
 以下をCompetition Architectureの基本設計として確定する。
@@ -1158,6 +1245,9 @@ Player:
 13. Club World qualificationは直前4地域王者 + defending world champion + host-region berth + 4-year performance ranking方式
 14. WBC Global Qualifierは16 nations -> 4 single-elimination pods -> 4 winners
 15. Major world eventsはContinental / Domesticよりcalendar priorityを持つ
+16. cup-tied等の可変細則はCompetitionProfile / RuleProfileへversioned ruleとして置く
+17. 大会改革はCompetition Reform Event + CompetitionFormatVersionとして将来Editionから適用する
+18. 各Competition EditionはFormat / Rule / Qualification / Host / CalendarのSnapshotを保持する
 
 # 24.1 Competition敵対監査
 
@@ -1178,15 +1268,16 @@ Player:
 
 重大な構造矛盾は現時点で確認されない。
 
-# 25. 後続で校正する事項
+# 25. Implementation / Profile Calibration — NOT OPEN ARCHITECTURE
 
-設計思想ではなく、実装・経済・RuleProfile段階で決める。
+以下は設計思想ではなく、実装・経済・CompetitionProfile / RuleProfile段階で決める。
+**これらが未確定であることを理由にWorld Competition Architecture v1を未承認扱いしない。**
 
 - exact tournament dates
 - host selection procedure
 - exact roster size / pitcher minimum
 - injury replacement cutoff
-- cup-tied ruleを常時有効にするか
+- 各Competition v1で採用するexact `cupTiedPolicy`
 - run differential cap
 - coefficient point formula / decay weights
 - PrizePoolIndexから実通貨への換算
@@ -1200,3 +1291,27 @@ Player:
 - competition branding / final names
 
 これらはCompetitionの構造を変更せず校正可能である。
+
+---
+
+# 26. Final v1 Status
+
+**World Competition Architecture v1は2026-09-22にユーザー承認され、DESIGN FROZEN。**
+
+Frozen core:
+- Club / National competition path separation
+- four Competition Regions
+- annual Continental Club Championships
+- 3-game-series Group Stage + single-game club Knockout
+- 16-club Club World / four-year cycle
+- 24-nation WBC-class / four-year cycle
+- 12-nation Premier 12-class
+- Regional Championships as principal WBC qualification
+- Club World 6 automatic + 10 performance berth structure
+- coefficient / ranking / prestige never modify true ability
+- official national-team release obligation
+- versioned CompetitionProfile / RuleProfile boundary
+- versioned Competition Reform
+- Competition Edition Snapshot
+
+Remaining exact dates / amounts / roster counts / coefficient weights / branding are calibration or content data, not open architecture.

@@ -23,6 +23,27 @@ AI / Agent向け強制ルール:
 
 2026-09-22時点で、今回整理対象だった `32 / 34 / 35 / 38 / 41 / 42` はすべてユーザー承認済みで、**CANONICAL / DESIGN FROZEN v1** へ昇格した。
 
+### 第二段階の最終Freeze監査 — 2026-09-22
+
+「方向性は承認済みだが、文書上の候補Statusや校正項目を最終整理する」対象を順次Freezeする。
+
+完了:
+- `11-world-competition-architecture.md` — **CANONICAL / DESIGN FROZEN v1**
+
+残る最終監査対象:
+- `12-competition-identity-hosting.md`
+- `13-domestic-league-championships.md`
+- `14-regular-season-calendar-and-volume.md`
+- `15-season-events-and-deadlines.md`
+- `16-club-economy-rivalry-design.md`
+- `18-club-state-lifecycle.md`
+- `19-club-structural-dominance-and-decline.md`
+- `20-simple-surface-deep-simulation.md`
+- `26-club-initial-seed-rating-model.md`
+- `31-scouting-recruitment-system.md`
+
+これらは白紙の未承認案ではない。既存の採用方向を監査し、Architectureとcalibration/contentを分離してFreezeするための対象。
+
 ### 旧計画 / 後継へ統合済み
 
 以下は **旧計画**。未確定計画一覧へ入れない。
@@ -59,6 +80,18 @@ AI / Agent向け強制ルール:
 
 ---
 
+# 0.1 CANONICAL — World Competition Architecture v1
+
+2026-09-22 user approved and froze:
+- `docs/game-design/11-world-competition-architecture.md`
+
+Key additions at freeze:
+- variable rules such as cup-tied are versioned CompetitionProfile / RuleProfile policy
+- competition expansion/reform creates a new CompetitionFormatVersion for future editions
+- every Competition Edition retains a snapshot of format/rules/qualification/host/calendar provenance
+- exact dates, money, roster counts, coefficient weights and branding remain calibration/content, not open architecture
+
+---
 # 1. Game Slogan
 
 > **一見シンプルだが、奥深い。**
