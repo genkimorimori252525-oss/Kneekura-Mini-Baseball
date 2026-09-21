@@ -36,6 +36,21 @@ Local environment is a source-only isolated workspace, not a complete clone. Nod
 
 Native verification is commit-scoped on the PR for the named head branch. Its PR result/comment records the exact published SHA, workflow run/job IDs, full-suite counts and warnings after execution. Do not infer native success solely from these local numbers. The additive workflow targets only this branch, uses the existing Windows/minibaseball self-hosted runner, grants contents:read and has no pull_request trigger. Existing source, CI, package and lock files are not modified.
 
+## Published native verification
+
+PR #29 is stacked on #28. Product/source commit: `481f4533ad4999c3dde87dc16fb565e182c97384`.
+GitHub Actions run `35668545976`, job `106559599227`, completed successfully on 2026-09-22 JST.
+The checkout log confirms that exact source SHA. Native `npm ci` and `npm run verify` succeeded:
+
+- Node26.9.0 / npm11.19.1 / Vitest2.1.9 on the existing Windows/minibaseball runner.
+- `tsc --noEmit`: success.
+- Full suite: **250 files / 1,337 tests passed**, including **91 new club tests** (26 seed, 27 finance, 38 lifecycle).
+- Published diff:19 additions only, no deletions or edits to existing files. Rebuilding the tree from all19 local blob IDs reproduced published tree `2e42385fd5bc9ccc01f862954c6bb056bd7dca41`.
+
+`npm ci` still reports **5 vulnerabilities:3 moderate,1 high,1 critical**. Their individual causes/exploitability were not investigated and no forced upgrades were made. Separate warnings concern esbuild install-script approval, action-host Node20 deprecation/Node24 fallback and punycode deprecation; no new approvals or warning bypasses were added.
+
+A documentation-only follow-up updates this ledger/plan. Its exact final SHA and fresh native verification are recorded in the PR verification comment; do not confuse first-source validation with final-head validation. No merge or game/UI integration is performed by this slice.
+
 ## Limits and next queue
 
 This is the club lifecycle/accounting boundary, not all of docs16/18/19/26 completed and not live game-service integration. No real financial source values are fabricated. Richer seed-to-structure calibration, economy-generated effects and current derived views remain explicit work.

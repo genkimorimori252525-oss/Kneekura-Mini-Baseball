@@ -99,9 +99,11 @@ Produces: `applyClubCommand`, `replayClubEvents`, `getCurrentClubManager`, accep
 ## Task 4 — Publish and verify
 
 - [x] Document the API, authority boundaries, exact validations and example lifecycle. Record remaining plans without marking entire doc16/18/19/26 complete.
-- [ ] Publish additions onto a dedicated branch stacked on PR #28; create a PR without merging or modifying shared branches.
-- [ ] Run native `npm ci` / `npm run verify` on the exact published commit using the existing repository-specific runner; record actual output and warnings.
-- [ ] Check published blob hashes, changed-file scope, PR base/head and final verification. Package report and exact additions.
+- [x] Publish additions onto a dedicated branch stacked on PR #28; create a PR without merging or modifying shared branches.
+- [x] Run native `npm ci` / `npm run verify` on the exact published commit using the existing repository-specific runner; record actual output and warnings.
+- [x] Check published blob hashes, changed-file scope, PR base/head and final verification. Package report and exact additions.
+
+Native source verification: PR #29, commit `481f4533ad4999c3dde87dc16fb565e182c97384`, run `35668545976`, job `106559599227`: typecheck and all250 files/1,337 tests pass. Final documentation-head verification and delivery archive are recorded in the PR comment and delivered report.
 
 ## Execution rulings
 
