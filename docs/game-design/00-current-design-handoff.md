@@ -33,9 +33,9 @@ AI / Agent向け強制ルール:
 - `13-domestic-league-championships.md` — **CANONICAL / DESIGN FROZEN v1**
 - `14-regular-season-calendar-and-volume.md` — **CANONICAL / DESIGN FROZEN v1**
 - `15-season-events-and-deadlines.md` — **CANONICAL / DESIGN FROZEN v1**
+- `16-club-economy-rivalry-design.md` — **CANONICAL / DESIGN FROZEN v1**
 
 残る最終監査対象:
-- `16-club-economy-rivalry-design.md`
 - `18-club-state-lifecycle.md`
 - `19-club-structural-dominance-and-decline.md`
 - `20-simple-surface-deep-simulation.md`
@@ -162,6 +162,25 @@ Key freeze decisions:
 - AwardSelectionPolicy is versioned.
 - each season stores event-profile provenance, actual dates, eligibility snapshots and award-policy version.
 - user surface remains a few meaningful season notifications, not an event-management chore loop.
+
+---
+# 0.6 CANONICAL — Club Economy / Identity v1
+
+2026-09-22 user approved and froze:
+- `docs/game-design/16-club-economy-rivalry-design.md`
+
+Key freeze decisions:
+- Club strength is causal and never a single hidden buff.
+- money influences acquisition/retention/staff/facilities/development opportunity, never direct Match ability.
+- Club source specifics are owned by 21; lifecycle by 18; structural persistence by 19; initial seeds by 26–30; rivalry lifecycle by 33; manager decisions by 49.
+- real-world finance/ownership is Career-start ExternalReferenceSeed only and never live-synced into an existing Save.
+- FinancialRegulationProfile is versioned by League/season.
+- normal Club UI shows only: `資金力 / 人気 / 育成 / スカウト / 球場・設備`.
+- `補強予算 / 人件費余裕 / 財政状態` may appear in detail view or an offseason brief.
+- deeper revenue/debt/financing information is optional detail/audit UI.
+- rivalry remains directional, but current competitive threat is separate from rivalry memory.
+- encirclement is an analytic descriptor from independent club decisions, never a debuff.
+- current initial world count is 234 Clubs.
 
 ---
 # 1. Game Slogan

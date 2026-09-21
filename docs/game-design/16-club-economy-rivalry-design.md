@@ -1,7 +1,10 @@
-# Club Economy, Identity & Directed Rivalry Design
+# Club Economy, Identity & Directed Rivalry Design — CANONICAL v1
 
-更新日: 2026-09-19  
-状態: **設計承認候補版。球団個別カタログ作成前。実装前。**
+更新日: 2026-09-22  
+状態: **CANONICAL / DESIGN FROZEN v1。2026-09-22ユーザー承認。実装前。**
+
+> 本書はClub Economy / Identity / economic causalityの親設計。
+> Club sourceの地域別決定は21、State lifecycleは18、Structural dominance / declineは19、initial gameplay seedは26–30、Rivalry lifecycleは33、Manager decisionは49をSource of Truthとする。
 
 関連:
 - `docs/game-design/05-psychology-emotion.md`
@@ -39,9 +42,34 @@
 
 ---
 
-# 2. Club Source Policy
+# 1.1 Responsibility Boundary — CANONICAL
+
+本書に残すSource of Truth:
+- Club strength is causal, never a single hidden buff
+- economy state and financial causality
+- money -> acquisition / retention / staff / facilities / development opportunity
+- economic power never directly modifies Match Core ability
+- user-facing economy surface boundary
+- rivalry is directional and never a direct ability buff
+- encirclement is an observed result of independent decisions, never a debuff state
+
+後継Canonicalへ委譲:
+- League-by-League Club source policy -> `21-world-club-source-policy.md`
+- Club L0-L4 state ownership / save lifecycle -> `18-club-state-lifecycle.md`
+- giant persistence / decline / recovery capacity -> `19-club-structural-dominance-and-decline.md`
+- simple user surface -> `20-simple-surface-deep-simulation.md`
+- initial 5-axis seeds -> `26` through `30`
+- Rivalry memory / historical floor / decay / dormancy / labels -> `33-rivalry-lifecycle-model.md`
+- Manager opponent prioritization / resource allocation -> `49-manager-architecture-v1.md`
+
+後継文書と矛盾する古い式・候補値は後継を優先する。
+
+---
+# 2. Club Source Policy — PRINCIPLE ONLY
 
 球団の着想元を二系統に分ける。
+
+**地域別の現在Source Matrix・Club数・explicit overrideは21を正とする。**
 
 ## 2.1 REAL_BASEBALL_CLUB
 
@@ -133,6 +161,10 @@ RELATIVE_BAND_ONLY
 として保持し、後続データ入力で埋める。
 
 RuntimeがClub名を読んで能力Buffを与えることは禁止する。
+
+現実財務・Ownership・Fanbase等はCareer開始時の `ExternalReferenceSeed` にのみ使用する。
+Pennant開始後のSaveは現実世界と切り離し、後年の現実データを既存Saveへ自動同期しない。
+このLifecycle境界は18を正とする。
 
 
 ---
@@ -287,52 +319,74 @@ Football-inspired Leagueでは、
 
 ---
 
-# 7. Economic Powerをユーザーへ数値で説明する
+# 6.1 Financial Regulation Profile — CANONICAL
 
-強豪を「なんとなく名門」と表示しない。
+`FinancialRegulationProfile` はLeague / season ruleとしてversion管理する。
 
-UIで少なくとも以下を比較可能にする。
-
-- annual revenue
-- player wage bill
-- transfer budget
-- net transfer spend
-- cash
-- debt
-- commercial revenue
-- matchday revenue
-- academy spending
-- scouting spending
-- facility spending
-- League median比
-
-Derived指標候補:
-
-```text
-PayrollPowerRatio
-  = club player wage budget / league median player wage budget
-
-TransferPowerRatio
-  = club approved transfer budget / league median
-
-RecurringRevenueRatio
-  = recurring revenue / league median
-
-SquadInvestmentCapacity
-  = available cash
-  + approved owner funding
-  + projected operating surplus
-  - committed costs
-  - minimum reserve
+```ts
+type FinancialRegulationProfile = {
+  version: string;
+  hardPayrollCap?: Money;
+  luxuryTaxThreshold?: Money;
+  squadCostRatioLimit?: number;
+  revenueSharingRate: number;
+  insolvencyRule: InsolvencyRule;
+  ownerFundingPolicy: OwnerFundingPolicy;
+};
 ```
 
-これらは説明・AI意思決定用。
+実在Leagueでは対象年度の実規定を第一参照する。
+Football-derived Leagueでは本書のno-hard-cap / limited-sharing / solvency-check / owner-funding-allowed方針をWorld Defaultとして使える。
 
-Match Coreへ直接Buffしない。
+制度改定は新Profile versionとして将来Seasonから適用し、過去Seasonへretroactiveに適用しない。
 
 ---
+# 7. User-facing Club Economy — SIMPLE SURFACE
 
-# 8. Real Football Economy Snapshot
+通常のClub画面では、経済・組織状態を**5軸だけ**で表示する。
+
+```text
+資金力
+人気
+育成
+スカウト
+球場・設備
+```
+
+Public表示は26の5-axis modelをSource of Truthとし、S〜G等の読みやすいRankでよい。
+
+通常Gameplayでannual revenue / debt / debt service / commercial revenue / owner funding等の詳細財務を理解することを要求しない。
+
+## 7.1 Detail / Offseason Surface
+
+必要な時だけ、詳細ボタンまたはオフシーズン開始時のSeason briefで次の3項目を追加表示できる。
+
+```text
+補強予算
+人件費余裕
+財政状態
+```
+
+`財政状態` は別能力ではなく、cash / debt / commitments / recurring revenue / owner backing等から導出されるDerived Summary。
+`資金力` も内部Economy Stateの要約であり、Match Core入力ではない。
+
+より詳細な:
+- annual revenue
+- wage bill
+- cash
+- debt
+- revenue breakdown
+- structural revenue base
+- financing access
+
+等はOptional detail / audit viewに限定する。
+
+原則:
+
+> **Userは経済モデルを操作するのではなく、野球上の制約として理解する。**
+
+---
+# 8. Real Football Economy Snapshot — INITIAL SEED EVIDENCE
 
 欧州Clubの初期経済は実在Football Clubの財務snapshotを参照する。
 
@@ -461,300 +515,84 @@ better analytics
 
 ---
 
-# 11. Directed Club Rivalry
+# 11. Directed Club Rivalry — BOUNDARY ONLY
 
-Rivalryは対称行列にしない。
-
-```ts
-type DirectedClubRivalry = {
-  fromClubId: ClubId;
-  toClubId: ClubId;
-  intensity: number; // 0..100
-  reasons: readonly RivalryReason[];
-  historicalWeight: number;
-  currentCompetitiveThreat: number;
-  lastUpdatedAt: SeasonTime;
-};
-```
-
-例:
+Rivalryは有向であり、相互性を要求しない。
 
 ```text
-Club A -> Club B = 90
-Club B -> Club A = 15
+A -> B
+B -> A
 ```
 
-を合法とする。
+は独立してよい。
 
-つまりAはBを宿敵と思っているが、BはAをそこまで意識していなくてもよい。
+ただし詳細なState model / historical floor / event memory / decay / dormancy / emergent activation / label provenanceは **33 Rivalry Lifecycle Model** をSource of Truthとする。
 
----
+## 11.1 Threat is not Rivalry Memory
 
-# 12. Rivalry Reasons
-
-初期候補:
-
-- LOCAL_DERBY
-- HISTORICAL_RIVAL
-- TITLE_RIVAL
-- REPEATED_PLAYOFF_LOSS
-- CONTINENTAL_RIVAL
-- PLAYER_TRANSFER_GRIEVANCE
-- MANAGER_HISTORY
-- RECENT_INCIDENT
-- DOMINANT_CLUB_TARGET
-- UPSET_TARGET
-- FAN_HOSTILITY
-
-複数理由を同時に持てる。
-
-`DOMINANT_CLUB_TARGET` は特に重要。
-
-Leagueを長期間支配するClubには、多数のClubから一方向Rivalryが集まり得る。
+強豪だから現在狙われていることを、永久Rivalryへ自動変換しない。
 
 ```text
-Club B dominates league for years
-        ↓
-A -> B 75
-C -> B 60
-D -> B 85
-E -> B 40
-...
+dominant club
+ -> current competitive threat rises
+ -> Manager may prioritize opponent
+ != permanent rivalry memory
 ```
 
-Bが全Clubを同じ強さでライバル視する必要はない。
+Title race / repeated elimination / transfer grievance / controversial incident等のGame World historyが生じた時だけ、33のRivalry Memory ruleに従ってEmergent Rivalryへ育ち得る。
 
----
-
-# 13. Rivalry is not a direct Buff
+## 11.2 Rivalry is not a direct Buff
 
 禁止:
 
 ```text
-rivalryIntensity 80
- -> all attributes +8
+rivalry intensity
+ -> all attributes +X
 ```
 
-正しい接続:
+許可される接続は既存Psychology経由。
 
 ```text
-directed rivalry
-+ player club attachment
-+ tenure
-+ personality
-+ recent history
-+ standings leverage
-        ↓
-PersonalStake
-        ↓
-Appraisal
-        ↓
-EmotionPressure
-        ↓
-threshold crossed?
-        ↓ yes
-ActiveEmotion
-        ↓
-actual decision / execution changes
+Directed Rivalry / Personal History / Club Identification
+ -> PersonalStake
+ -> Appraisal
+ -> EmotionPressure
+ -> threshold crossed?
+ -> ActiveEmotion
+ -> actual decision / execution effects
 ```
 
-つまりユーザーが希望する、
+同じRivalryでも、選手ごとに反応は異なる。
 
-> ライバル戦では調子が上がりやすい
+## 11.3 Manager Decision Boundary
 
-は、
+Opponent priority / ace allocation / rest / sacrifice-game-like resource allocationは49 Manager ArchitectureのDecision Engineへ委譲する。
 
-> `やる気`等のActiveEmotionが発火しやすくなる
-
-として表現する。
-
-全員が必ず好調になるわけではない。
-
-同じRivalryでも:
-
-- やる気になる
-- 怒る
-- 焦る
-- 恐怖を感じる
-- 何も発火しない
-
-が選手ごとにあり得る。
-
----
-
-# 14. Club RivalryとPlayer Attachment
-
-Club-level rivalryを全選手へ同じ強さでコピーしない。
-
-候補:
+Rivalry / current threat / standings leverage / fatigue / future schedule等は入力になり得るが、
 
 ```text
-EffectivePersonalRivalryStake
- =
- ClubDirectedRivalry
- x ClubIdentification
- x PlayerSensitivity
- + PersonalHistory
+rivalry high
+ -> always use ace
 ```
 
-ClubIdentificationへ影響し得るもの:
+の固定ルールにはしない。
 
-- club tenure
-- academy graduate
-- captaincy
-- fan affinity
-- childhood affiliation
-- recent transfer
-- loan status
+## 11.4 Encirclement is an Analytic Descriptor
 
-加入したばかりの外国人選手は、100年続くDerbyでも当初はPersonalStakeが低い場合がある。
+複数Clubが独立判断した結果として、dominant Clubへ強い先発・主力が集中することは許可する。
 
-一方Academy出身Captainは非常に高くなり得る。
+その観測結果をUIで `Encirclement / 包囲網` 等と呼ぶことはできる。
 
----
-
-# 15. Rivalry Formation & Decay
-
-Rivalryは初期Seedだけでなく歴史から変化する。
-
-増加候補:
-
-- repeated title races
-- direct elimination
-- controversial incidents
-- star transfers
-- frequent close games
-- repeated humiliating losses
-- opponent dynasty
-- fan conflict
-
-減少候補:
-
-- long period without meaningful games
-- league separation
-- rivalry generation turnover
-- competitive irrelevance
-
-Local Derby / century-old rivalry等は高いhistorical inertiaを持てる。
-
----
-
-# 16. Manager Strategy Boundary — Later Design
-
-監督AIの具体的な先発割当・捨て試合・包囲網は**別設計**で詰める。
-
-ただし入力境界だけ今決める。
-
-```ts
-type OpponentPrioritySignal = {
-  directedRivalry: number;
-  titleThreat: number;
-  standingsLeverage: number;
-  postseasonLeverage: number;
-  recentIncidentWeight: number;
-  fanExpectation: number;
-};
-```
-
-将来Manager AIはこれに、
-
-- rotation availability
-- fatigue
-- schedule density
-- expected win value
-- next opponents
-- manager personality
-- club objectives
-
-を加えて資源配分を決める。
-
----
-
-# 17. 「捨て試合」と「絶対勝ちたい」を自然発生させる
-
-例1:
+禁止:
 
 ```text
-Opponent = dominant club
-Rivalry high
-TitleThreat high
-FanExpectation high
-Ace available
-        ↓
-Manager may choose ace starter
+ENCIRCLEMENT state
+ -> target club ability -X
 ```
 
-例2:
-
-```text
-Opponent = dominant club
-Rivalry low
-Schedule tomorrow = direct playoff rival
-Ace tired
-Expected win probability low
-        ↓
-Manager may rest ace / use weaker lineup
-```
-
-どちらも正しい判断になり得る。
-
-Rivalryが高くても、監督が常に感情的に最善投手を使うとは限らない。
+包囲網は原因ではなく、複数の独立した因果判断から生じた観測Descriptor。
 
 ---
-
-# 18. Anti-dominant-club Encirclement
-
-「みんなが首位Clubへ良い投手を当てる包囲網」をLeague全体の特殊効果にはしない。
-
-自然発生:
-
-```text
-dominant Club X
-
-Club A independently:
- Rivalry + title threat -> high priority
-
-Club B independently:
- playoff leverage -> high priority
-
-Club C independently:
- fan expectation -> high priority
-
-Club D:
- low rivalry + tired ace -> low priority
-        ↓
-many opponents happen to allocate strong resources vs X
-```
-
-これを後から観測したものをUIで`Encirclement`等と呼ぶのはよい。
-
-しかし`EncirclementState -> X team -10`は禁止。
-
----
-
-# 19. Rivalry Reciprocity is Independent
-
-Opponentが「応じる」かどうかは完全に独立。
-
-```text
-A -> B = 90
-B -> A = 10
-```
-
-でもよい。
-
-数年後にAがBを何度も倒せば、
-
-```text
-B -> A
-```
-
-も上昇する可能性がある。
-
-逆にBがAを相手として重要視し続けなければ非対称のまま残る。
-
----
-
 # 20. Club Reputation and Fanbase
 
 ReputationとFanbaseもAbility Buffにしない。
@@ -794,7 +632,7 @@ type ClubFanbaseState = {
 
 # 21. Initial Club Catalog Workflow
 
-240 Clubを一気に適当に命名しない。
+現在の初期World 234 Clubを一気に適当に命名しない。
 
 順序:
 
@@ -824,7 +662,7 @@ type ClubFanbaseState = {
 
 ---
 
-# 22. Example: European League Power Structure
+# 22. Example: European League Power Structure — ILLUSTRATIVE CALIBRATION
 
 10-club League例:
 
@@ -880,91 +718,52 @@ Small Clubもexcellent academy / scoutingで上昇できる。
 
 ---
 
-# 24. 今回確定する事項
+# 24. Final Approved Decisions — v1
 
-1. Baseball-strong regionsは実在野球Clubを基本とする
-2. Baseball-minor regionsは実在Football Clubを同名の野球Clubとして使用する
-3. Europe 7 Full Leaguesは実在Football Club名・都市・経済階層を直接参照する
-4. Club strengthを単一Buffで表現しない
-5. Rich-club dominanceはRevenue / Payroll / Transfer / Facilities等の数値で説明する
-6. Football-inspired Leagueはhard salary capを初期標準にしない
-7. EconomicPowerはLeague median比をUIで可視化可能
-8. Bayern / PSG / Real / Barcelona等は実在Clubそのものとして登録し、実財務snapshotを経済seedに使う
-9. Rivalryはdirectionalであり相互性を要求しない
-10. Dominant Clubは多数Clubから一方向に狙われ得る
-11. RivalryはPersonalStake -> Appraisal -> ActiveEmotionへ接続する
-12. Rivalryによる直接`能力+X`は禁止
-13. Managerのエース投入 / 捨て試合 / 包囲網は別Tactical Designで詰める
-14. 包囲網は各Clubの独立判断の集積として自然発生させる
-15. Europe Club Catalogは実在Club名を先に固定し、各Clubの実財務snapshot / relative economic bandを対応付ける
+1. Club strengthを単一Overall / hidden Buffで表現しない。
+2. Club Economyはcash / debt / revenue / commitments / approved budgets等の実状態から因果的に動く。
+3. Rich Clubはacquisition / retention / staff / facilities / development opportunityへ資源を投入できるため長期的に強くなりやすい。MoneyからMatch abilityへの直接Buffは禁止。
+4. League-by-League Club source policy / current Club countは21をSource of Truthとする。
+5. 現実Clubの財務・ownership等はCareer開始時ExternalReferenceSeedのみ。Pennant開始後はSave内historyだけで進む。
+6. Initial gameplay seedの具体値は26–30へ委譲する。
+7. Club StateのL0-L4保存境界は18へ委譲する。
+8. Giant Club persistence / recovery / structural declineは19へ委譲する。
+9. Financial Regulationはversioned League `FinancialRegulationProfile`。
+10. Facilities / academy / scouting / medical / analyticsは中間因果を通じて作用し、直接Team Ability Buffを与えない。
+11. RivalryはDirected / asymmetric。詳細Lifecycleは33をSource of Truthとする。
+12. Current Competitive ThreatをRivalry Memoryと混同しない。
+13. RivalryのPlayer影響はPersonalStake -> Appraisal -> ActiveEmotionの既存Psychology経路。
+14. Managerのopponent prioritization / ace allocationは49へ委譲する。
+15. Encirclementは各Club独立判断の集積を観測したDescriptorであり、Debuffを持たない。
+16. 通常Club UIは `資金力 / 人気 / 育成 / スカウト / 球場・設備` の5軸のみ。
+17. `補強予算 / 人件費余裕 / 財政状態` は詳細表示またはオフシーズンbriefで提示可能。
+18. Revenue / debt / financing等の詳細財務はOptional detail / audit view。
+19. Userへspreadsheet managementを要求しない。
+20. 現在の初期Worldは234 Club。
 
 ---
 
-# 25. 次に決めるもの
+# 25. Successor Sources / Historical Handoff
 
-次のClub設計ではEurope 74球団の実在Club Catalogを作成する。
+本書作成後に以下が具体化・Canonical化されているため、それぞれの詳細は後継を優先する。
 
-対象:
+- Club source matrix / club counts: `21-world-club-source-policy.md` and regional catalogs
+- Club initial five-axis gameplay seeds: `26`–`30`
+- Club state lifecycle: `18-club-state-lifecycle.md`
+- Structural dominance / decline: `19-club-structural-dominance-and-decline.md`
+- Simple user surface: `20-simple-surface-deep-simulation.md`
+- Scouting / recruitment: `31-scouting-recruitment-system.md`
+- Roster / development: `32-roster-development-architecture-DRAFT.md` — **CANONICAL / DESIGN FROZEN v1**
+- Rivalry lifecycle: `33-rivalry-lifecycle-model.md`
+- Manager decision architecture: `49-manager-architecture-v1.md`
 
-- Netherlands 10
-- Germany 12
-- France 10
-- Spain 10
-- United Kingdom 10
-- Italy 12
-- Russia 10
+旧記述の「次にEurope Catalogを作る」「32はUSER REVIEW REQUIRED」等は履歴上obsoleteであり、現在状態を表さない。
 
-計74球団。
+---
 
-各Clubについて:
+# 26. Final v1 Status
 
-- real club name
-- home city
-- economy reference snapshot
-- revenue if verified
-- relative economic band
-- ownership / funding style
-- stadium / fanbase scale
-- academy strength
-- initial directed rivalries
+**Club Economy, Identity & Directed Rivalry Design v1は2026-09-22にユーザー承認され、DESIGN FROZEN。**
 
-を保持する。
-
-実額未確認Clubへ精密な架空値は入れない。
-
-
-World club source / East Asia catalogs:
-- `docs/game-design/21-world-club-source-policy.md`
-- `docs/game-design/22-east-asia-club-catalog.md`
-
-
-Club initial gameplay seeds:
-- `docs/game-design/26-club-initial-seed-rating-model.md`
-- `docs/game-design/27-asia-pacific-club-initial-seeds.md`
-- `docs/game-design/28-americas-club-initial-seeds.md`
-- `docs/game-design/29-europe-africa-club-initial-seeds.md`
-- `docs/game-design/30-initial-directed-rivalry-graph.md`
-
-
-Scouting / recruitment system:
-- `docs/game-design/31-scouting-recruitment-system.md`
-
-
-Unapproved roster / development draft (USER REVIEW REQUIRED):
-- `docs/game-design/32-roster-development-architecture-DRAFT.md`
-
-
-Rivalry lifecycle design (APPROVED):
-- `docs/game-design/33-rivalry-lifecycle-model.md`
-
-
-## Rivalry Label Provenance
-
-初期Real-world seed由来のRivalryと、Career開始後に生まれたEmergent Rivalryを区別する。
-
-- Initial Historical Edge: 「伝統」「歴史的」「Derby」等のLabelを許可
-- Emergent Edge: 「因縁」「近年のライバル」「近年の宿敵」等で表示
-
-Intensityが同じでもLabel provenanceを混同しない。
-
-詳細な形成・減衰・Event Memoryモデルは `docs/game-design/33-rivalry-lifecycle-model.md` を正とする。
+本書のSource of TruthはClub Economy / Identity / economic causalityと、そのuser-facing boundary。
+Rivalryの詳細計算やClub lifecycle等は上記後継Canonical文書を優先する。
