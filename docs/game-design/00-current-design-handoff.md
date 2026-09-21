@@ -34,9 +34,9 @@ AI / Agent向け強制ルール:
 - `14-regular-season-calendar-and-volume.md` — **CANONICAL / DESIGN FROZEN v1**
 - `15-season-events-and-deadlines.md` — **CANONICAL / DESIGN FROZEN v1**
 - `16-club-economy-rivalry-design.md` — **CANONICAL / DESIGN FROZEN v1**
+- `18-club-state-lifecycle.md` — **CANONICAL / DESIGN FROZEN v1**
 
 残る最終監査対象:
-- `18-club-state-lifecycle.md`
 - `19-club-structural-dominance-and-decline.md`
 - `20-simple-surface-deep-simulation.md`
 - `26-club-initial-seed-rating-model.md`
@@ -181,6 +181,26 @@ Key freeze decisions:
 - rivalry remains directional, but current competitive threat is separate from rivalry memory.
 - encirclement is an analytic descriptor from independent club decisions, never a debuff.
 - current initial world count is 234 Clubs.
+
+---
+# 0.7 CANONICAL — Club State Lifecycle v1
+
+2026-09-22 user approved and froze:
+- `docs/game-design/18-club-state-lifecycle.md`
+
+Key freeze decisions:
+- Club state layers are ExternalReferenceSeed + L0 Identity + L1 Institutional + L2 Seasonal + L3 Live + L4 Derived.
+- real-world seed data is Career-creation-only and never live-synced into existing Saves.
+- Club lineage events distinguish rename/relocation from extinction/split/merge/phoenix continuity changes.
+- L2 holds season plans/snapshots; L3 holds mutable current state.
+- Manager/Staff are Global Persons linked to the Club, not fixed Club attributes.
+- Roster internals are owned by 32; ClubState stores references/snapshots instead of copies.
+- Rivalry internals are owned by 33 and Current Competitive Threat is separate from Rivalry Memory.
+- L4 current public view is the five-axis `資金力 / 人気 / 育成 / スカウト / 球場・設備` summary.
+- `補強予算 / 人件費余裕 / 財政状態` are detail/offseason summaries.
+- structural changes preserve provenance using Current Snapshot + Event Log/checkpoints.
+- ClubSeasonSnapshot is historical, not live authority.
+- catalog/seed versions are pinned per Save; migration never rewrites Save history.
 
 ---
 # 1. Game Slogan
