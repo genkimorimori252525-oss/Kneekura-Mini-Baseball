@@ -212,3 +212,4 @@ export * from './sim/ball/BaseballSurfacePaceModel';
 export * from './sim/contact/WoodBatRestitutionCalibration';
 export * from './sim/contact/HighSpeedObliqueBatCalibration';
 export * from './sim/contact/Kensrud2016TangentialCalibration';
+export * from './sim/ball/BallSurfaceResponseProfile';
