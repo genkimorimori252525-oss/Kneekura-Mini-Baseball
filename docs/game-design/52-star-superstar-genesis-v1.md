@@ -143,6 +143,23 @@ Star / Superstar status
 
 ---
 
+# 6.1 Breakthrough / Awakening Boundary — 2026-09-22
+
+`53-player-development-trajectory-breakthrough-v1.md` のMajor Breakthrough / 覚醒はStar / Superstar Statusそのものではない。
+
+```text
+breakthrough
+ -> actual player state / behavior changes
+ -> later Career evidence may change
+ -> 51 / 52 Star rules evaluate the resulting Career
+```
+
+覚醒LabelからSTAR_CANDIDATE / SUPERSTAR_CANDIDATEを付与しない。
+
+一方、late-blooming PlayerがRare Breakthroughを経てStar級Careerへ到達することは許可する。
+Superstarはその後も51 / 52のmajor-stage / rarity / Career evidence条件を満たす必要がある。
+
+---
 # 7. Luck Is Required
 
 Superstar誕生は素質だけでは決まらない。

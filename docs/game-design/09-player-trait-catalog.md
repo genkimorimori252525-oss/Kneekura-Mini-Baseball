@@ -300,7 +300,7 @@ Presentation上で複数表示する場合も、「独立した長所が複数�
 
 | 参照候補 | 判定 | Kneekuraでの扱い |
 | --- | --- | --- |
-| ノビ A〜G / 怪童 | MERGE | fastball movement / velocity retention / release等から導出するGraded Descriptor + Gold Tier |
+| **ノビ G〜A / 怪童** | MERGE | fastball movement / velocity retention / release等から導出するGraded Descriptor + Gold Tier。Canonical表記はG〜A、Aより上のGoldが怪童。`ノビ○`は使わない |
 | 軽い球 / 重い球 / 怪物球威 | MERGE | **同一Pitch Contact Quality Family。** 軽い球=Negative、重い球=Positive、怪物球威=Gold。velocity・movement・approach angle等がcontact qualityへ与える実際の影響から導出し、Traitから打球を直接変更しない |
 | ジャイロボール / ハイスピンジャイロ | ADOPT | spin axis / trajectory由来のPhysical Descriptor |
 | ナチュラルシュート | REINTERPRET | fastballの恒常的arm-side runを表すNeutral Descriptor候補。青Buffとはしない |
@@ -891,3 +891,29 @@ through:
 - `docs/game-design/51-star-superstar-big-stage-architecture-DRAFT.md`
 
 No direct raw ability modifier is granted by the label.
+
+---
+
+## 14. 2026-09-22 CANONICAL REFINEMENT — Trait Acquisition
+
+Trait Family自体のSource of Truthは本09。
+
+取得・Recognition・成長・覚醒・CatalystのSource of Truthは:
+- `docs/game-design/53-player-development-trajectory-breakthrough-v1.md`
+
+とする。
+
+Family-level原則:
+- one dramatic resultだけでTraitをunlockしない
+- actual source state changeまたは十分なRecognition Evidenceを要求
+- Pressure系はAppraisal / ActiveEmotionと二重Buffしない
+- Green系はstable Behavior / Preferenceの変化から投影
+- Named Goldは同一FamilyのMaster Tierで下位Gradeと同時適用しない
+
+特に:
+
+```text
+ノビ G -> ... -> ノビ A -> 怪童
+```
+
+をCanonical tier structureとする。`ノビ○`はCanonical UI / data tierとして生成しない。

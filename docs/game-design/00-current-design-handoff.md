@@ -296,6 +296,8 @@ Current detailed contract: `docs/game-design/02-rules-ratings-defense.md` Sectio
 
 2026-09-22 user approved and froze:
 - `docs/game-design/31-scouting-recruitment-system.md`
+- `docs/game-design/53-player-development-trajectory-breakthrough-v1.md`
+- `docs/game-design/54-player-development-breakthrough-adversarial-audit.md`
 
 Key freeze decisions:
 - Scout is a Global Person; Scouting Department is a Club institution.
@@ -313,6 +315,34 @@ Key freeze decisions:
 - recruitment targets may show `☆000〜999` from Club Knowledge in the dynamic League Rating Context.
 - 26 Scouting Seed is Career Creation-only; current Scouting Rank derives from actual Department state.
 - recruitment success/failure labels are analytic descriptors and do not assign automatic blame/buffs.
+
+---
+# 0.13 CANONICAL — Player Development Trajectory & Breakthrough v1
+
+2026-09-22 user approved and adversarial audit passed:
+- `docs/game-design/53-player-development-trajectory-breakthrough-v1.md`
+- `docs/game-design/54-player-development-breakthrough-adversarial-audit.md`
+
+Key freeze decisions:
+- Development timing has five priors: `超早熟 / 早熟 / 普通 / 晩成 / 超晩成`.
+- each timing combines with `SHARP_PEAK / BROAD_PLATEAU / STEPWISE_WAVES`, producing 15 v1 trajectory templates.
+- timing/shape control development receptivity / peak prior / decline pressure, never age-based direct ability buffs.
+- pathway labels such as high school / university / company baseball do not directly modify growth.
+- each Player may have hidden catalyst sensitivities/signature motifs from Person generation, but they never guarantee a future event or awakening.
+- real Career events such as surprise success, failure, injury/rehab, mentor, elite exposure, role change, rivalry, promotion/demotion, major stage and technical discovery may become catalysts.
+- catalyst -> Appraisal -> learning hypothesis -> repetitions -> consolidation -> actual source-state change.
+- `覚醒` is a rare Derived Career Event summarizing unusually large sustained development; it is never `AWAKENED=true -> ability buff`.
+- per-training-repetition awakening rolls are prohibited; episode hazard uses novelty/saturation/cooldown and long-run calibration.
+- major injury is a real cost first; rare Rehab reconstruction may become a catalyst, but injury receives no growth reward.
+- Trait acquisition uses family-specific Acquisition Profiles; Recognition and Development are separate.
+- Pressure traits require repeated stable relevant evidence; one walk-off / one lucky outing is only a catalyst.
+- Green traits require stable behavior/preference change; one Manager instruction does not rewrite the Player.
+- Gold is the Master Tier of the same Trait Family.
+- **ノビ is G〜A; Gold tier is 怪童. `ノビ○` is not canonical.**
+- User/CPU never reads hidden trajectory/catalyst/future-potential truth.
+- Awakening does not automatically grant Star/Superstar status.
+
+Audit result: **PASS**.
 
 ---
 # 1. Game Slogan
