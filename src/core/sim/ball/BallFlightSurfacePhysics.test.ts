@@ -143,6 +143,93 @@ describe('surface-aware ball flight', () => {
       .toBeCloseTo(7, 8);
   });
 
+  it('can resolve different physical ground response at different incident speeds from a versioned profile', () => {
+    const responseProfile = {
+      profileId: 'speed-sensitive-fixture',
+      version: 'v1',
+      knots: [
+        {
+          incidentSpeedMps: 10,
+          contact: {
+            normalRestitution: 0.6,
+            tangentialRestitution: 0,
+            frictionCoefficient: 0,
+          },
+        },
+        {
+          incidentSpeedMps: 40,
+          contact: {
+            normalRestitution: 0.2,
+            tangentialRestitution: 0,
+            frictionCoefficient: 0,
+          },
+        },
+      ],
+    } as const;
+
+    const parameters: BallFlightParameters = {
+      ...DEFAULT_BALL_FLIGHT_PARAMETERS,
+      restingVerticalSpeed: 0.01,
+      groundSurfacePhysics: {
+        ball: REFERENCE_BASEBALL_RIGID_BODY,
+        responseProfile,
+      },
+    };
+
+    const slower = advanceBallState(
+      {
+        tick: 0,
+        position: {
+          x: 0,
+          y: REFERENCE_BASEBALL_RIGID_BODY.radiusM,
+          z: 0,
+        },
+        velocity: {
+          x: 0,
+          y: -10,
+          z: 0,
+        },
+        spin: {
+          x: 0,
+          y: 0,
+          z: 0,
+        },
+      },
+      1,
+      parameters,
+    );
+
+    const faster = advanceBallState(
+      {
+        tick: 0,
+        position: {
+          x: 0,
+          y: REFERENCE_BASEBALL_RIGID_BODY.radiusM,
+          z: 0,
+        },
+        velocity: {
+          x: 0,
+          y: -40,
+          z: 0,
+        },
+        spin: {
+          x: 0,
+          y: 0,
+          z: 0,
+        },
+      },
+      1,
+      parameters,
+    );
+
+    expect(
+      slower.velocity.y / 10,
+    ).toBeCloseTo(0.6, 6);
+    expect(
+      faster.velocity.y / 40,
+    ).toBeCloseTo(0.2, 6);
+  });
+
   it('rejects inconsistent physical ball radius at the flight boundary', () => {
     expect(() =>
       advanceBallState(
