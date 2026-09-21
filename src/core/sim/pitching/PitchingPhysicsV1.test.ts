@@ -27,6 +27,12 @@ describe('pitching physics architecture v1 contract', () => {
     ).toContain('batter_anticipation');
     expect(
       PITCHING_PHYSICS_V1_INCLUDED_CAUSAL_LAYERS,
+    ).toContain('aerodynamic_spin_decay');
+    expect(
+      PITCHING_PHYSICS_V1_EXPLICITLY_DEFERRED,
+    ).not.toContain('calibrated_spin_decay');
+    expect(
+      PITCHING_PHYSICS_V1_INCLUDED_CAUSAL_LAYERS,
     ).not.toContain('pitch_type_outcome_bonus');
   });
 
