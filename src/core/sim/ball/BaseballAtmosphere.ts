@@ -6,6 +6,10 @@ import {
 import type {
   BaseballAerodynamicsParameters,
 } from './BaseballAerodynamics';
+import {
+  NATHAN_2026_BASEBALL_SPIN_DECAY_ESTIMATE,
+  type BaseballSpinDecayParameters,
+} from './BaseballSpinDecay';
 
 export type BaseballAtmosphere = Readonly<{
   temperatureC: number;
@@ -205,6 +209,8 @@ export type BaseballAtmosphericAerodynamicsInput =
     coefficientProfile?:
       BaseballAerodynamicCoefficientProfile;
     compatibilityDragCoefficient?: number;
+    spinDecay?:
+      BaseballSpinDecayParameters | null;
   }>;
 
 export const createAtmosphericBaseballAerodynamics = (
@@ -233,5 +239,12 @@ export const createAtmosphericBaseballAerodynamics = (
     airKinematicViscosityM2PerSecond:
       properties
         .kinematicViscosityM2PerSecond,
+    spinDecay:
+      input.spinDecay === null
+        ? undefined
+        : (
+            input.spinDecay
+            ?? NATHAN_2026_BASEBALL_SPIN_DECAY_ESTIMATE
+          ),
   };
 };
