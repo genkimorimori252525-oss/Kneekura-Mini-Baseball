@@ -1,7 +1,10 @@
-# Club Structural Dominance & Decline
+# Club Structural Dominance & Decline — CANONICAL v1
 
-更新日: 2026-09-20  
-状態: **設計承認候補版。強豪の長期持続性と崩壊条件。実装前。**
+更新日: 2026-09-22  
+状態: **CANONICAL / DESIGN FROZEN v1。2026-09-22ユーザー承認。実装前。**
+
+> 巨大Clubの長期持続・Recovery・Declineを、L1 Structural Stateと因果的World Historyから説明するv1設計。
+> Recovery Capacity / Economic Band / Crisis Level / Giant / DynastyはDerived評価であり、原因Statや直接Buffではない。
 
 関連:
 - `docs/game-design/16-club-economy-rivalry-design.md`
@@ -45,6 +48,22 @@ long-term sporting dominance
 
 ---
 
+# 1.1 Responsibility Boundary — CANONICAL
+
+本書は **長期的なClub構造差がなぜ持続・上昇・崩壊するか** を所有する。
+
+状態の時間層・保存境界は18を正とし、Structural Capitalは主にL1 Institutional Stateへ置く。
+
+以下はDerivedでありSource of Truthではない:
+- Recovery Capacity
+- Economic Band
+- Crisis Level
+- Giant / Dynasty labels
+- Collapse / Recovery descriptors
+
+Club名・初期Catalog label・Derived descriptorをMatch CoreやBudgetへ直接フィードバックしない。
+
+---
 # 2. 現実から採るObservation
 
 ゲーム初期設計の根拠として、欧州Footballには上位Clubの強い持続性が存在する。
@@ -81,6 +100,8 @@ type ClubStructuralCapital = {
 これらはL1 Institutional State。
 
 毎年大きく上下しない。
+
+`ClubStructuralCapital` を一枚の総合値へ畳み込んで原因Statにしない。各componentはそれぞれの実State / Evidenceから更新する。
 
 ---
 
@@ -171,42 +192,46 @@ strong roster
 
 ---
 
-# 7. Recovery Capacity
+# 7. Recovery Capacity — DERIVED VIEW
 
-巨大Clubは失敗しても戻りやすい。
+巨大Clubが失敗後に戻りやすい現象は認めるが、`RecoveryCapacity` を独立した因果Statとして保存しない。
 
-```ts
-type ClubRecoveryCapacity = {
-  sustainableRevenueCapacity: number;
-  accessibleLiquidity: number;
-  financingAccess: number;
-  playerAttraction: number;
-  staffAttraction: number;
-  supporterTolerance: number;
-  commercialResilience: number;
-};
+Current Recovery Capacityは、実際のStateから導出する評価。
+
+```text
+recurring revenue
++ accessible cash / liquidity
++ financing access
++ player / staff attraction
++ supporter / commercial resilience
++ owner backing
+- debt burden
+- committed costs
+- institutional damage
+        ↓
+Derived Recovery Capacity
 ```
+
+復活の原因は上記の実Stateであり、Derived値そのものではない。
 
 例:
 
 ```text
 bad season
- -> no title
+ -> title lost
 
 but:
- large recurring revenue remains
- global reputation remains
- high wages still affordable
- elite player attraction remains
+ recurring revenue remains
+ financing remains available
+ attraction remains high
         ↓
-next recruitment cycle can repair roster
+next recruitment cycle can rebuild roster
 ```
 
-Small Clubは同じ補強失敗でも資金回復に時間がかかる。
+Small Clubは同じ補強失敗でも、基礎Stateが弱ければ回復に時間がかかり得る。
 
 ---
-
-# 8. Economic BandはSustainable Capacityから算出
+# 8. Economic Band is Derived from Sustainable Capacity
 
 `MEGA / ELITE / HIGH...` を単年度Revenueで決めない。
 
@@ -228,9 +253,13 @@ one bad year
 
 Economic Bandは毎年再計算するが、入力自体がSlow Stateを多く含むため自然にinertiaを持つ。
 
+`MEGA / ELITE / HIGH...` はL4 Derived Viewであり、翌年Budget・Recruitment・Match結果をLabel自体から強制しない。
+
 ---
 
-# 9. Giant Club Failure Levels
+# 9. Giant Club Failure Levels — DIAGNOSTIC DESCRIPTORS
+
+これらのLevelは**観測・説明用Descriptor**。`CrisisLevel = N` 自体からRevenue / Reputation / Match Ability等へPenaltyを発生させない。
 
 ## Level 0 — Normal Bad Season
 
@@ -292,6 +321,17 @@ Revenue growth slows / some reputation declines。
 
 ---
 
+
+原則:
+
+```text
+actual financial / institutional / sporting state
+ -> diagnostic crisis descriptor
+```
+
+であり、逆方向の `descriptor -> penalty` は禁止。
+
+---
 # 10. No Silent Collapse
 
 巨大Clubが:
@@ -320,6 +360,17 @@ structural decline
 
 単純なrandom driftだけで巨大Clubを崩壊させない。
 
+ただし因果的なWorld Eventそのものにstochastic occurrenceが含まれることは許可する。
+
+例: owner scandal / governance failure / stadium financing failure等が発生した場合、そのEventが具体的cash / debt / contract / governance / supporter stateへ作用し、その累積結果として衰退する。
+
+禁止:
+
+```text
+random roll
+ -> StructuralCapital -40
+```
+
 ---
 
 # 11. Bottom Finish vs Structural Collapse
@@ -347,7 +398,7 @@ one terrible season
 
 ---
 
-# 12. Club-specific Persistence Profiles
+# 12. Initial Structural Composition Examples — NOT PERMANENT CLUB RULES
 
 ## Bayern
 
@@ -406,6 +457,10 @@ one terrible season
 > ownership-capital + commercial giant
 
 PSGのOwner backingが消える場合はBayernよりEconomic Shockが大きくなり得る。
+
+ただしこれは `clubId == PSG` の永久ルールではない。Career開始時に異なるStructural compositionを持つという意味。
+
+100年後に各Clubの収益構造・Ownership依存・Institutional Stateが変化したなら、その時点の実Stateに従う。
 
 ---
 
@@ -490,6 +545,8 @@ Slow — 10–30+ seasons:
 
 巨大Clubの30年後を決めるのはSlow Stateの蓄積。
 
+Fast / Medium / Slowの年数はcharacteristic timescaleであり固定Timerではない。巨大な制度Shockや長期投資により通常より速い / 遅い変化もあり得る。
+
 ---
 
 # 16. Persistence does not guarantee titles
@@ -558,46 +615,59 @@ type ClubStructuralSnapshot = {
 
 ---
 
-# 18.1 Player-facing boundary
+# 18.1 Player-facing Boundary
 
-本書のStructural Capital / Recovery Capacity / Crisis Levelは、原則としてBackground Simulation用。
+Structural Capital / Derived Recovery Capacity / Crisis DescriptorはBackground Simulation用。
 
-ユーザーに:
-
-- supporterCapital
-- financingAccess
-- commercialNetworkCapital
-- debt-service model
-- crisis equation
-
-等を直接操作させない。
-
-ユーザー画面では必要に応じて:
+通常Club UIは16 / 18 / 20 / 26の決定に従い:
 
 ```text
 資金力
 人気
 育成
 スカウト
-財政状態
-補強予算
+球場・設備
 ```
 
-等へ要約する。
+のみを基本表示する。
 
-詳細値は検証用 / 詳細閲覧用であり、通常Gameplayの必須理解項目にしない。
+必要な時だけDetail / Offseason Briefで:
 
-# 19. 今回確定する事項
+```text
+補強予算
+人件費余裕
+財政状態
+```
 
-1. Giant persistenceをStructural Capitalで説明する
-2. Structural Capitalは複数Slow Stateであり単一名門Buffではない
-3. RevenueにStructural Revenue Baseを持たせる
-4. Economic Bandはsingle-year revenueだけで決めない
-5. 巨大ClubはRecovery Capacityが高い
-6. 1〜3年の低迷だけでは巨大基盤は大きく崩れない
-7. Sustained bottom-tier化にはLevel 3級の複合崩壊を要求する
-8. MEGA -> LOWをrandom driftだけで発生させない
-9. Bayern / Real / Barcelona / PSGでPersistence Sourceを分ける
-10. 強豪を倒す方法は incumbent collapse だけでなく challenger growth も認める
-11. Long-term structural changeは10〜30年以上の時間軸を持ち得る
-12. 全ての大転落はHistoryから説明可能にする
+を表示する。
+
+`supporterCapital` / `financingAccess` / `commercialNetworkCapital` / debt-service equation / crisis diagnosis等はOptional Audit View。
+
+ユーザーにClub survivalの会計ミニゲームを要求しない。
+
+---
+# 19. Final Approved Decisions — v1
+
+1. Giant persistenceを複数のL1 Structural Capital componentで説明する。
+2. Structural Capitalを単一名門Power / hidden Buffへ統合しない。
+3. RevenueにmutableなStructural Revenue Baseを持たせ、単年度順位だけで巨大収益基盤を消さない。
+4. Sporting Success feedback loopは許可するが直接勝率Buffは禁止。
+5. Recovery Capacityは実Stateから算出するL4 Derived評価であり、独立因果Statではない。
+6. Economic BandもDerived。
+7. Crisis Level 0–3はDiagnostic DescriptorでありPenalty state machineではない。
+8. Sustained bottom-tier化にはfinancial / institutional / supporter / staffing / facility等の実際の劣化履歴を要求する。
+9. Random driftだけによるMEGA -> LOWは禁止。ただし因果的World Eventが具体Stateへ作用するShockは許可する。
+10. Bayern / Real / Barcelona / PSG等の違いは初期Structural composition例であり、Club名による永久Persistence Ruleではない。
+11. Competitorはincumbent collapseなしでもacademy / scouting / ownership / repeated success等の複利的成長で巨大Club化できる。
+12. Fast / Medium / Slowはcharacteristic timescaleであり固定Timerではない。
+13. Giant / Dynasty / Crisis / Recovery Capacity等のDerived Labelを原因へ逆流させない。
+14. Structural changeは18のStructural Event provenance + Season Snapshotへ記録し、Rise / DeclineをHistoryから説明可能にする。
+15. 通常UIは5軸 `資金力 / 人気 / 育成 / スカウト / 球場・設備`。`補強予算 / 人件費余裕 / 財政状態` はDetail / Offseason View。
+
+---
+
+# 20. Final v1 Status
+
+**Club Structural Dominance & Decline v1は2026-09-22にユーザー承認され、DESIGN FROZEN。**
+
+Remaining exact decay rates / transition thresholds / economic weights are calibration parameters and must not become hidden club-name rules.
