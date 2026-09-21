@@ -72,6 +72,16 @@ export const PENNBOUNCE_2005_SURFACE_VELOCITY_TARGETS:
     },
   ]);
 
+export const NPB_2015_RIGID_WALL_COR_REFERENCE =
+  Object.freeze({
+    incidentSpeedMps: 75,
+    desiredNormalCor: 0.4134,
+    source:
+      'Takashima et al. 2015, JSME Sports and Human Dynamics',
+    note:
+      'Historical NPB regulation/reference reported by the paper; validation target only, not a 2026 rule assertion.',
+  } as const);
+
 export const PENNBOUNCE_2005_ANGLE_TARGETS =
   Object.freeze([
     {
