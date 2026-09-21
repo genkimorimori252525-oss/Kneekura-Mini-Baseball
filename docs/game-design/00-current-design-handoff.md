@@ -37,9 +37,9 @@ AI / Agent向け強制ルール:
 - `18-club-state-lifecycle.md` — **CANONICAL / DESIGN FROZEN v1**
 - `19-club-structural-dominance-and-decline.md` — **CANONICAL / DESIGN FROZEN v1**
 - `20-simple-surface-deep-simulation.md` — **CANONICAL / DESIGN FROZEN v1**
+- `26-club-initial-seed-rating-model.md` — **CANONICAL / DESIGN FROZEN v1**
 
 残る最終監査対象:
-- `26-club-initial-seed-rating-model.md`
 - `31-scouting-recruitment-system.md`
 
 これらは白紙の未承認案ではない。既存の採用方向を監査し、Architectureとcalibration/contentを分離してFreezeするための対象。
@@ -244,6 +244,25 @@ Key freeze decisions:
 - CPU clubs use the same world/economy/baseball rules and proper information boundaries.
 - notifications are limited to actionable or significant changes.
 - all future user-facing features must pass the Feature Admission Gate.
+
+---
+# 0.10 CANONICAL — Club Initial Seed Rating Model v1
+
+2026-09-22 user approved and froze:
+- `docs/game-design/26-club-initial-seed-rating-model.md`
+
+Key freeze decisions:
+- five axes are Career Creation seed targets/calibration summaries, not runtime club abilities.
+- Career creation flows Seed -> causal initial state; after Pennant begins the direction is current State -> L4 five-axis view.
+- public axes remain `資金力 / 人気 / 育成 / スカウト / 球場・設備`, raw seed 0-100 with S-G display.
+- league baselines are initial priors/fallbacks, never league buffs.
+- club overrides require evidence/provenance; no fixed ±15 architecture cap.
+- Economic Band -> Finance conversion is initial-seed-only.
+- Seed dataset/source/transform/confidence/override provenance is retained.
+- docs 27-29 are Initial Seed Dataset v1 data for 234 Clubs, not unresolved architecture.
+- dataset updates apply only to new Careers; existing Saves are never re-seeded.
+- rivalry seed/lifecycle belongs to 30/33, not 26.
+- initial seed values and S-G views never become runtime causal stats.
 
 ---
 # 1. Game Slogan
