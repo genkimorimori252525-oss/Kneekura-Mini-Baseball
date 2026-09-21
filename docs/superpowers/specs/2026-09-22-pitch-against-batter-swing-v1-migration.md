@@ -2,7 +2,7 @@
 
 Date: 2026-09-22
 
-Status: **implementation-authorized migration plan**
+Status: **COMPLETED — active production plate-appearance swing flow migrated to Swing Kinematics v1**
 
 Base:
 
@@ -228,3 +228,85 @@ Migration is complete when:
 5. production modules have no legacy first-order imports;
 6. compatibility modules stay explicitly labeled and tested;
 7. exact-head P0 Core is green.
+
+## 11. Migration closure
+
+The migration is complete on the active production plate-appearance paths.
+
+### Active commanded path
+
+```text
+CommandedPlateAppearanceCoordinator
+  -> CommandedPlateAppearanceSequence
+  -> CommandedSwingKinematicsV1PitchAdapter
+  -> resolveAndRecordSwingKinematicsV1PitchAgainstBatter
+  -> CourseAwareSwingKinematicsV1
+  -> SwingKinematicsV1
+  -> AerodynamicRigidPitchAgainstBatter
+  -> tapered rigid-bat contact
+  -> CanonicalPlateAppearanceTimeline
+```
+
+### Active catcher-led path
+
+```text
+CatcherLedPlateAppearanceSequence
+  -> simulateCatcherLedPhysicalPitch
+  -> AerodynamicPitchTrajectory
+  -> CommandedSwingKinematicsV1PitchAdapter
+  -> resolveAndRecordSwingKinematicsV1PitchAgainstBatter
+  -> Swing Kinematics v1 rigid-bat path
+  -> CanonicalPlateAppearanceTimeline
+```
+
+The old catcher command adapter no longer owns the active batter swing path.
+
+### Compatibility-only modules that intentionally remain
+
+The following historical APIs remain available for old fixtures, regression
+tests, and repository history, but they are not active production swing
+authority:
+
+- `PitchAgainstBatter`;
+- `SwingingPitchPhysicalResult`;
+- `AerodynamicPitchAgainstBatter`;
+- `AerodynamicSwingingPitchPhysicalResult`;
+- historical `AnticipationAwareAerodynamicSwing` / `BatterSwingWindow`;
+- `PlateAppearanceCommandPitchAdapter`;
+- `PlateAppearancePitchSequence`;
+- `PlateAppearanceSequenceCoordinator`;
+- `CatcherLeadCommandAdapter`;
+- `sampleCompatibilityBatterSwingState`.
+
+They are explicitly marked compatibility/deprecated where appropriate.
+
+`ProductionSwingPathIsolation.test.ts` protects the active path against
+regression by forbidding exact legacy imports and resolver calls from the
+production sequence/coordinator modules.
+
+### Product boundary preserved
+
+This migration adds no skeletal model, joint torque simulation, muscle/tendon
+simulation, ground-reaction-force model, or runtime motion-capture authority.
+
+Player differentiation remains numerical. Those values influence decisions,
+timing, and the versioned Swing Kinematics profile; the physical bat trajectory
+then determines contact geometrically.
+
+### Validation status
+
+The migration has passed:
+
+- active commanded sequence/coordinator tests;
+- catcher-led physical pitch integration tests;
+- whole-trajectory timing-shift tests;
+- deterministic canonical take/contact/miss behavior;
+- compatibility regressions;
+- production legacy-dependency isolation.
+
+P0 Core #1497 passed at
+`5ab6d8d04af242a7641ee8d751eb939bd02c3052` before this closure-only
+documentation update.
+
+A final exact-head P0 Core run after this documentation commit is required for
+branch closure.
