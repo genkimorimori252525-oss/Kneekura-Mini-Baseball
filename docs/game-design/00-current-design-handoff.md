@@ -19,12 +19,13 @@ AI / Agent向け強制ルール:
 
 ### 現在、USER REVIEW REQUIREDとして残る設計
 
-- `32-roster-development-architecture-DRAFT.md`
 - `34-team-traits-and-relationship-network-DRAFT.md`
 - `35-team-trait-catalog-DRAFT.md`
 - `38-team-mood-manager-interventions-DRAFT.md`
 - `41-manager-appointment-and-incompetence-DRAFT.md`
 - `42-manager-market-and-front-office-selection-DRAFT.md`
+
+`32-roster-development-architecture-DRAFT.md` は2026-09-22にユーザー承認され、**CANONICAL / DESIGN FROZEN v1** へ昇格した。
 
 ### 旧計画 / 後継へ統合済み
 
@@ -47,6 +48,7 @@ AI / Agent向け強制ルール:
 
 以下はファイル名に `-DRAFT` が残っているが、内容は **CANONICAL / DESIGN FROZEN v1**。未確定計画として数えない。
 
+- `32-roster-development-architecture-DRAFT.md`
 - `50-popularity-reputation-architecture-DRAFT.md`
 - `51-star-superstar-big-stage-architecture-DRAFT.md`
 
@@ -572,31 +574,38 @@ Use the same rule:
 
 ---
 
-# 24. USER REVIEW REQUIRED — Roster / Development Draft
+# 24. CANONICAL — Roster / Development Architecture v1
 
-新規draft:
+2026-09-22 user approved and froze:
+
 - `docs/game-design/32-roster-development-architecture-DRAFT.md`
 
-これは**未承認**。
+The filename retains `-DRAFT` only for history. The document is now **CANONICAL / DESIGN FROZEN v1**.
 
-将来このテーマへ触れるSessionは、実装・正史化・詳細設計の前に必ずユーザーへ:
+Frozen architecture:
 
-> このRoster / Reserve / Farm / Academy仮設計を採用してよいか
+- one Global Player Person; no roster copies
+- separate Club Rights / Registration / Assignment / Availability
+- five Assignment Kinds are semantic categories, not five fixed roster boxes
+- multiple Development / Farm levels are supported
+- injuries / rehab are Availability + Registration state, not a roster tier
+- official Reserve / Farm / Academy games use the same Canonical Match Core as First Team games
+- lower-tier games retain real standings, results and player statistics; performance is not randomly generated without games
+- speed comes from Renderer OFF / accelerated execution / bounded persistence, not an alternate outcome engine
+- regional Pre-Pro / Intake pathways are modeled separately
+- Japan-like pathways may include high school / university / company-amateur routes into Draft / contract
+- existing-pro reallocation mechanisms are transaction paths, not rookie intake
+- Academy is used where culturally appropriate and never directly generates stars
+- background Youth Population becomes concrete Global Player Persons when tracked / recruited / contracted
+- development arises causally from opportunity, coaching, maturation, health, role, competition and adaptation
+- priority development uses finite coaching attention, not magic fixed slots
+- Pennant User uses a Human Control Overlay over the original Manager Agent
+- delegated decisions still use the original manager's Skill / Philosophy / Temperament / Belief / Strategy Memory
+- HUMAN_OVERRIDE decisions are not learned into the original manager's Strategy Memory as self-chosen strategy evidence
+- real baseball leagues use season-specific real regulations as the primary Roster / Intake Profile reference
+- regions without a matching real baseball league use World Default plus modest regional identity
 
-を確認すること。
-
-確認前にapproved扱いしない。
-
-Draftの主な候補:
-- First Team
-- Reserve / Second Team
-- Farm / Development
-- Academy
-- Loan / External Assignment
-- Club RightsとCurrent Assignmentの分離
-- DevelopmentはPlaying Time / Coaching / Environmentから因果的に発生
-- CPUもHidden Potentialを直接読まない
-- exact roster人数やFA / Draft細則は未決定
+Remaining exact roster counts, service-time rules, quotas, draft eligibility and numeric formulas are implementation / League Profile calibration, not unresolved architecture.
 
 ---
 
