@@ -45,6 +45,11 @@ export type AnticipationAwareAerodynamicSwingResult =
  * delay, then lets ordinary bat/ball geometry decide contact or miss.
  *
  * There is no "surprise whiff" result flag: surprise only changes timing.
+ *
+ * Compatibility note: this adapter currently feeds the historical
+ * AerodynamicSwingingPitchPhysicalResult path. Moving anticipation timing onto
+ * a Swing Kinematics v1 trajectory requires shifting the whole trajectory and
+ * is a separate integration task; do not partially shift only its time interval.
  */
 export const resolveAnticipationAwareAerodynamicSwing = (
   input: AnticipationAwareAerodynamicSwingInput,

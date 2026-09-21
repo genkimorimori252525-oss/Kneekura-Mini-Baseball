@@ -8,6 +8,7 @@ import {
 } from '../contact/RigidBatBallContact';
 import {
   resolveAerodynamicRigidBatSwing,
+  type RigidBatSwingWindow,
 } from './AerodynamicRigidBatSwingingPitchPhysicalResult';
 import type {
   AerodynamicPitchTrajectory,
@@ -67,7 +68,7 @@ const trajectory =
 
 const swing = (
   xOffset = 0,
-) => ({
+): RigidBatSwingWindow => ({
   startTick: 1_000_000,
   endTick: 1_006_000,
   ticksPerSecond: 1_000_000,
@@ -99,6 +100,12 @@ const swing = (
 } as const);
 
 describe('aerodynamic rigid-bat swing contact', () => {
+  it('keeps the historical first-order window as an explicit compatibility path', () => {
+    expect(
+      swing().kinematicsV1,
+    ).toBeUndefined();
+  });
+
   it('finds tapered rigid contact along the aerodynamic pitch path', () => {
     let observedApproachSpeed:
       number | null = null;

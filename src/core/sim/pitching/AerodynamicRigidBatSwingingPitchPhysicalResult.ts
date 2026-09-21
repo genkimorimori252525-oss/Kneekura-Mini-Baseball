@@ -2,6 +2,13 @@ import type {
   BatterSwingState,
 } from '../contact/BatBallContact';
 import {
+  sampleCompatibilityBatterSwingState,
+} from '../contact/BatBallContact';
+import {
+  sampleSwingStateV1,
+  type SwingKinematicsTrajectoryV1,
+} from '../contact/SwingKinematicsV1';
+import {
   createRigidBatStateFromBatterSwingState,
   measureRigidBatBallSurfaceSeparation,
   resolveRigidBatBallContactWithParameterResolver,
@@ -11,21 +18,52 @@ import {
   type RigidBatPhysicalProperties,
 } from '../contact/RigidBatBallContact';
 import {
-  sampleBatterSwingState,
-} from '../contact/BatBallContact';
-import {
   advanceAerodynamicPitchState,
   sampleAerodynamicPitchTrajectory,
   type AerodynamicPitchTrajectory,
 } from './AerodynamicPitchTrajectory';
 
+export const SWING_KINEMATICS_V1_CONSERVATIVE_MAX_BAT_POINT_SPEED_MPS =
+  200 as const;
+
 export type RigidBatSwingWindow = Readonly<{
   startTick: number;
   endTick: number;
   ticksPerSecond: number;
+  /**
+   * Compatibility seed. When kinematicsV1 is present this is derived from the
+   * v1 trajectory by createRigidBatSwingWindowFromKinematicsV1().
+   */
   stateAtStart: BatterSwingState;
   physical: RigidBatPhysicalProperties;
+  /**
+   * Production swing path. When absent the frozen first-order compatibility
+   * sampler is used.
+   */
+  kinematicsV1?:
+    SwingKinematicsTrajectoryV1;
 }>;
+
+export const createRigidBatSwingWindowFromKinematicsV1 = (
+  kinematicsV1:
+    SwingKinematicsTrajectoryV1,
+  physical:
+    RigidBatPhysicalProperties,
+): RigidBatSwingWindow => ({
+  startTick:
+    kinematicsV1.startTick,
+  endTick:
+    kinematicsV1.endTick,
+  ticksPerSecond:
+    kinematicsV1.ticksPerSecond,
+  stateAtStart:
+    sampleSwingStateV1(
+      kinematicsV1,
+      kinematicsV1.startTick,
+    ),
+  physical,
+  kinematicsV1,
+});
 
 export type AerodynamicRigidBatSwingResult =
   | Readonly<{
@@ -146,7 +184,43 @@ const validate = (
       'rigid bat swing and aerodynamic pitch must share ticksPerSecond',
     );
   }
+
+  const kinematics =
+    swing.kinematicsV1;
+  if (
+    kinematics !== undefined
+    && (
+      kinematics.startTick
+        !== swing.startTick
+      || kinematics.endTick
+        !== swing.endTick
+      || kinematics.ticksPerSecond
+        !== swing.ticksPerSecond
+    )
+  ) {
+    throw new Error(
+      'swing kinematics v1 interval must exactly match rigid bat swing window',
+    );
+  }
 };
+
+const sampleSwing = (
+  swing: RigidBatSwingWindow,
+  tick: number,
+): BatterSwingState => (
+  swing.kinematicsV1
+  !== undefined
+    ? sampleSwingStateV1(
+        swing.kinematicsV1,
+        tick,
+      )
+    : sampleCompatibilityBatterSwingState(
+        swing.stateAtStart,
+        tick
+          - swing.startTick,
+        swing.ticksPerSecond,
+      )
+);
 
 const maximumClosingSpeed = (
   input: AerodynamicRigidBatSwingInput,
@@ -173,6 +247,21 @@ const maximumClosingSpeed = (
         .gravityY,
     ) * durationSeconds
     + magnitude(wind);
+
+  if (
+    input.swing.kinematicsV1
+    !== undefined
+  ) {
+    /**
+     * Numerical safety bound, not a player-performance coefficient.
+     * It intentionally exceeds plausible human bat-point speeds so
+     * conservative advancement cannot skip a v1 bat crossing.
+     */
+    return (
+      conservativePitchSpeed
+      + SWING_KINEMATICS_V1_CONSERVATIVE_MAX_BAT_POINT_SPEED_MPS
+    );
+  }
 
   const batAxis = subtract(
     input.swing.stateAtStart
@@ -203,13 +292,56 @@ const maximumClosingSpeed = (
     );
 };
 
+const validateV1PointSpeed = (
+  swing: RigidBatSwingWindow,
+  sampledSwing: BatterSwingState,
+): void => {
+  if (
+    swing.kinematicsV1
+    === undefined
+  ) {
+    return;
+  }
+
+  const batAxis =
+    subtract(
+      sampledSwing.pose.tip,
+      sampledSwing.pose.grip,
+    );
+  const gripSpeed =
+    magnitude(
+      sampledSwing.linearVelocity,
+    );
+  const tipSpeed =
+    magnitude(
+      add(
+        sampledSwing.linearVelocity,
+        cross(
+          sampledSwing.angularVelocity,
+          batAxis,
+        ),
+      ),
+    );
+
+  if (
+    Math.max(
+      gripSpeed,
+      tipSpeed,
+    )
+    > SWING_KINEMATICS_V1_CONSERVATIVE_MAX_BAT_POINT_SPEED_MPS
+  ) {
+    throw new Error(
+      'swing kinematics v1 exceeded conservative bat-point speed safety bound',
+    );
+  }
+};
+
 /**
  * Contact search for the calibrated rigid/reduced-order bat model on the
  * continuously integrated aerodynamic pitch path.
  *
- * This is the replacement path for the temporary legacy capsule response:
- * tapered bat geometry determines separation/contact, and collision
- * coefficients are resolved from the actual local pre-impact kinematics.
+ * Production swing windows carry Swing Kinematics v1. The old first-order
+ * state sampler remains only as an explicit compatibility fallback.
  */
 export const resolveAerodynamicRigidBatSwing = (
   input: AerodynamicRigidBatSwingInput,
@@ -230,12 +362,15 @@ export const resolveAerodynamicRigidBatSwing = (
     tick <= input.swing.endTick
   ) {
     const sampledSwing =
-      sampleBatterSwingState(
-        input.swing.stateAtStart,
-        tick
-          - input.swing.startTick,
-        input.swing.ticksPerSecond,
+      sampleSwing(
+        input.swing,
+        tick,
       );
+    validateV1PointSpeed(
+      input.swing,
+      sampledSwing,
+    );
+
     const rigidBat =
       createRigidBatStateFromBatterSwingState(
         sampledSwing,

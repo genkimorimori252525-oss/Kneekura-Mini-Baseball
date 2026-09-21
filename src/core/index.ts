@@ -244,3 +244,6 @@ export * from './sim/ball/Tahara2008SurfaceReboundEvidence';
 export * from './sim/ball/BaseballImpactRegionEvidence';
 export * from './validation/BaseballPhysicsV1ReleaseValidationCorpus';
 export * from './validation/CurrentBaseballPhysicsV1ProductionProfile';
+export * from './sim/contact/SwingKinematicsV1';
+export * from './sim/pitching/CourseAwareSwingKinematicsV1';
+export * from './sim/pitching/AerodynamicCourseAwareSwingV1';

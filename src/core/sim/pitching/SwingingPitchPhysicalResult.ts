@@ -139,6 +139,12 @@ const maximumGeometricClosingSpeed = (
   );
 };
 
+/**
+ * Compatibility-only first-order swing/contact path.
+ *
+ * New Swing Kinematics v1 production work must use the aerodynamic rigid-bat
+ * path rather than treating this seed-state sampler as a real 3D swing.
+ */
 export const resolveSwingingPitchPhysicalResult = (
   input: SwingingPitchPhysicalInput,
 ): SwingingPitchPhysicalResult => {

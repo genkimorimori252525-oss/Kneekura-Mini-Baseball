@@ -177,9 +177,11 @@ const maximumGeometricClosingSpeed = (
  * relative geometric closing speed, so curved pitches cannot tunnel through
  * the bat between samples merely because the renderer or UI samples slowly.
  *
- * This path intentionally reuses the frozen legacy contact response for now.
- * It upgrades pitch flight/contact timing without prematurely declaring the
- * new reduced-order bat collision calibrated.
+ * COMPATIBILITY BOUNDARY:
+ * This path intentionally reuses the frozen historical first-order swing and
+ * legacy contact response. It is retained for deterministic compatibility.
+ * New Swing Kinematics v1 production callers use
+ * resolveCourseAwareAerodynamicRigidSwingV1 -> resolveAerodynamicRigidBatSwing.
  */
 export const resolveAerodynamicSwingingPitchPhysicalResult = (
   input: AerodynamicSwingingPitchPhysicalInput,
