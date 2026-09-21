@@ -7,11 +7,11 @@ import {
 } from '../plateAppearance/CanonicalPlateAppearanceTimeline';
 import type {
   CommandSwingKinematicsV1BatterCalibration,
-} from '../plateAppearance/PlateAppearanceCommandPitchAdapter';
+} from '../plateAppearance/CommandedSwingKinematicsV1PitchAdapter';
 import {
   createCommandedSwingKinematicsV1PitchInput,
   type CommandedSwingKinematicsV1Pitch,
-} from '../plateAppearance/PlateAppearanceCommandPitchAdapter';
+} from '../plateAppearance/CommandedSwingKinematicsV1PitchAdapter';
 import {
   assertCommandSessionCanDriveTimeline,
   type PlateAppearanceCommandSession,

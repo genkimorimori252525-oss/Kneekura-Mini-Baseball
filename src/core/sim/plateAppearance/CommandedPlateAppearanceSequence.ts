@@ -19,7 +19,7 @@ import {
   createCommandedSwingKinematicsV1PitchInput,
   type CommandedPhysicalPitchEnvironmentV1,
   type CommandedSwingKinematicsV1Pitch,
-} from './PlateAppearanceCommandPitchAdapter';
+} from './CommandedSwingKinematicsV1PitchAdapter';
 
 export type CommandedPlateAppearanceSequenceInput = Readonly<{
   match: CanonicalMatchState;

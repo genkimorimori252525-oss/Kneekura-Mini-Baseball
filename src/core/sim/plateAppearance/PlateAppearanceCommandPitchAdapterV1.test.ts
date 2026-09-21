@@ -27,7 +27,7 @@ import {
 import {
   createCommandedSwingKinematicsV1PitchInput,
   type CommandedPhysicalPitchEnvironmentV1,
-} from './PlateAppearanceCommandPitchAdapter';
+} from './CommandedSwingKinematicsV1PitchAdapter';
 
 const batPhysical:
   RigidBatPhysicalProperties = {

@@ -17,19 +17,6 @@ import type {
   PitchTrajectorySegment,
 } from '../pitching/PitchTrajectory';
 import type {
-  AerodynamicPitchTrajectory,
-} from '../pitching/AerodynamicPitchTrajectory';
-import type {
-  SwingKinematicsV1BatterRuntime,
-  SwingKinematicsV1PitchAgainstBatterInput,
-} from '../pitching/SwingKinematicsV1PitchAgainstBatter';
-import type {
-  BatterPitchAnticipationResolution,
-} from '../pitching/BatterPitchAnticipation';
-import type {
-  BatterAnticipationTimingCalibration,
-} from '../pitching/BatterAnticipationSwingAdapter';
-import type {
   PlateAppearanceCommandSession,
 } from './PlateAppearanceCommandSession';
 
@@ -428,6 +415,11 @@ const createTrajectory = (
   };
 };
 
+/**
+ * @deprecated Compatibility-only exact-target/simple-trajectory adapter.
+ * Active production plate appearances use
+ * createCommandedSwingKinematicsV1PitchInput() and Swing Kinematics v1.
+ */
 export const createCommandedPitchAgainstBatterInput = (
   input: Readonly<{
     session: PlateAppearanceCommandSession;
@@ -527,213 +519,6 @@ export const createCommandedPitchAgainstBatterInput = (
         },
       },
       trajectory,
-    },
-  };
-};
-
-
-/**
- * Production command-resolution environment.
- *
- * The physical aerodynamic pitch must already have been generated upstream
- * from pitcher/catcher/player numerical inputs. This layer owns only the
- * deterministic batter take/swing decision and timing bias before handing the
- * pitch to Swing Kinematics v1.
- */
-export type CommandSwingKinematicsV1BatterCalibration =
-  Readonly<{
-    balancedSwingProbability: number;
-    aggressiveSwingProbability: number;
-    earlyTimingOffsetTicks: number;
-    lateTimingOffsetTicks: number;
-  }>;
-
-export type CommandedPhysicalPitchEnvironmentV1 =
-  Readonly<{
-    pitchOrdinal: number;
-    actualTrajectory:
-      AerodynamicPitchTrajectory;
-    predictedTrajectory?:
-      AerodynamicPitchTrajectory;
-    plateZ: number;
-    strikeZone: StrikeZoneRegion;
-    batterCalibration:
-      CommandSwingKinematicsV1BatterCalibration;
-    batter:
-      SwingKinematicsV1BatterRuntime;
-    anticipation?: Readonly<{
-      resolution:
-        BatterPitchAnticipationResolution;
-      calibration:
-        BatterAnticipationTimingCalibration;
-    }>;
-  }>;
-
-export type CommandedSwingKinematicsV1Pitch =
-  Readonly<{
-    pitchOrdinal: number;
-    batterDecisionRoll: number;
-    input:
-      SwingKinematicsV1PitchAgainstBatterInput;
-  }>;
-
-const validateProductionBatterCalibration = (
-  calibration:
-    CommandSwingKinematicsV1BatterCalibration,
-): void => {
-  validateProbability(
-    'balancedSwingProbability',
-    calibration.balancedSwingProbability,
-  );
-  validateProbability(
-    'aggressiveSwingProbability',
-    calibration.aggressiveSwingProbability,
-  );
-  if (
-    !Number.isSafeInteger(
-      calibration.earlyTimingOffsetTicks,
-    )
-    || !Number.isSafeInteger(
-      calibration.lateTimingOffsetTicks,
-    )
-  ) {
-    throw new Error(
-      'Swing Kinematics v1 timing offsets must be safe integer ticks',
-    );
-  }
-};
-
-const productionSwingProbability = (
-  session:
-    PlateAppearanceCommandSession,
-  calibration:
-    CommandSwingKinematicsV1BatterCalibration,
-): number => {
-  switch (
-    session.command.batter.approach
-  ) {
-    case 'take':
-      return 0;
-    case 'balanced':
-      return calibration
-        .balancedSwingProbability;
-    case 'aggressive':
-      return calibration
-        .aggressiveSwingProbability;
-  }
-};
-
-const productionSwingBiasTicks = (
-  session:
-    PlateAppearanceCommandSession,
-  calibration:
-    CommandSwingKinematicsV1BatterCalibration,
-): number => {
-  switch (
-    session.command.batter.swingBias
-  ) {
-    case 'early':
-      return calibration
-        .earlyTimingOffsetTicks;
-    case 'neutral':
-      return 0;
-    case 'late':
-      return calibration
-        .lateTimingOffsetTicks;
-  }
-};
-
-export const createCommandedSwingKinematicsV1PitchInput = (
-  input: Readonly<{
-    session:
-      PlateAppearanceCommandSession;
-    environment:
-      CommandedPhysicalPitchEnvironmentV1;
-  }>,
-): CommandedSwingKinematicsV1Pitch => {
-  const {
-    session,
-    environment,
-  } = input;
-
-  if (
-    !Number.isSafeInteger(
-      environment.pitchOrdinal,
-    )
-    || environment.pitchOrdinal < 0
-  ) {
-    throw new Error(
-      'production pitchOrdinal must be a non-negative safe integer',
-    );
-  }
-  validateProductionBatterCalibration(
-    environment.batterCalibration,
-  );
-
-  const rng = new SeedRoot(
-    session.matchSeed,
-  ).streamRng(
-    session.playId,
-    'batting',
-    `p7:pitch:${environment.pitchOrdinal}:decision`,
-  );
-  const batterDecisionRoll =
-    rng.nextFloat();
-  const shouldSwing =
-    batterDecisionRoll
-    < productionSwingProbability(
-      session,
-      environment.batterCalibration,
-    );
-
-  if (!shouldSwing) {
-    return {
-      pitchOrdinal:
-        environment.pitchOrdinal,
-      batterDecisionRoll,
-      input: {
-        action: {
-          kind: 'take',
-        },
-        actualTrajectory:
-          environment.actualTrajectory,
-        predictedTrajectory:
-          environment.predictedTrajectory,
-        plateZ:
-          environment.plateZ,
-        strikeZone:
-          environment.strikeZone,
-        ballRadiusMeters:
-          environment.batter.ball.radiusM,
-      },
-    };
-  }
-
-  return {
-    pitchOrdinal:
-      environment.pitchOrdinal,
-    batterDecisionRoll,
-    input: {
-      action: {
-        kind: 'swing',
-        timingOffsetTicks:
-          productionSwingBiasTicks(
-            session,
-            environment.batterCalibration,
-          ),
-        anticipation:
-          environment.anticipation,
-      },
-      actualTrajectory:
-        environment.actualTrajectory,
-      predictedTrajectory:
-        environment.predictedTrajectory,
-      plateZ:
-        environment.plateZ,
-      strikeZone:
-        environment.strikeZone,
-      batter:
-        environment.batter,
     },
   };
 };

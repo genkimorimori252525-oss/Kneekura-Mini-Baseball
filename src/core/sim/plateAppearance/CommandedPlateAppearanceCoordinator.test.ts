@@ -29,7 +29,7 @@ import {
 } from './PlateAppearanceCommandSession';
 import type {
   CommandedPhysicalPitchEnvironmentV1,
-} from './PlateAppearanceCommandPitchAdapter';
+} from './CommandedSwingKinematicsV1PitchAdapter';
 import {
   resolveCommandedPlateAppearanceToMatchState,
 } from './CommandedPlateAppearanceCoordinator';

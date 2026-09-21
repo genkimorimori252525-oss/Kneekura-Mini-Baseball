@@ -100,6 +100,7 @@ export * from './sim/strategy/DefensiveAlignmentWorldAdapter';
 export * from './sim/plateAppearance/PlateAppearanceCommand';
 export * from './sim/plateAppearance/PlateAppearanceCommandSession';
 export * from './sim/plateAppearance/PlateAppearanceCommandPitchAdapter';
+export * from './sim/plateAppearance/CommandedSwingKinematicsV1PitchAdapter';
 export * from './sim/plateAppearance/CommandedPlateAppearanceSequence';
 export * from './sim/plateAppearance/CommandedPlateAppearanceCoordinator';
 export * from './sim/plateAppearance/PlateAppearanceRunnerPosture';
