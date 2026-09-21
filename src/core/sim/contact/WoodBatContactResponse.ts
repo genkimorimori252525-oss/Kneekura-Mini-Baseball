@@ -1,5 +1,12 @@
 import type {
-  RigidBatBallContactParameters,
+  PitchWorldState,
+} from './BatBallContact';
+import {
+  resolveRigidBatBallContactWithParameterResolver,
+  type RigidBaseballProperties,
+  type RigidBatBallContactParameters,
+  type RigidBatBallContactResult,
+  type RigidBatState,
 } from './RigidBatBallContact';
 import {
   findKensrud2016TangentialReference,
@@ -152,3 +159,34 @@ export const createEvidenceBackedWoodBatContactParameters = (
       input.frictionCoefficient,
   };
 };
+
+
+export type EvidenceBackedWoodBatBallContactInput = Readonly<{
+  frictionCoefficient: number;
+}>;
+
+/**
+ * Opt-in contact adapter that resolves normal COR from the actual pre-impact
+ * normal approach speed at the contact point. This keeps speed dependence
+ * causal and local to the collision rather than selected by a batted-ball
+ * result label.
+ */
+export const resolveEvidenceBackedWoodBatBallContact = (
+  pitch: PitchWorldState,
+  bat: RigidBatState,
+  ball: RigidBaseballProperties,
+  input: EvidenceBackedWoodBatBallContactInput,
+): RigidBatBallContactResult | null => (
+  resolveRigidBatBallContactWithParameterResolver(
+    pitch,
+    bat,
+    ball,
+    (kinematics) =>
+      createEvidenceBackedWoodBatContactParameters({
+        relativeImpactSpeedMps:
+          kinematics.normalApproachSpeedMps,
+        frictionCoefficient:
+          input.frictionCoefficient,
+      }),
+  )
+);
