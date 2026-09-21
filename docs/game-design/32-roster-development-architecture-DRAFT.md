@@ -1,12 +1,10 @@
-# Roster / Reserve / Farm / Academy Architecture — DRAFT
+# Roster / Reserve / Farm / Academy Architecture — CANONICAL v1
 
-更新日: 2026-09-20  
-状態: **仮設計。USER REVIEW REQUIRED。未承認。実装禁止。**
+更新日: 2026-09-22  
+状態: **CANONICAL / DESIGN FROZEN v1。2026-09-22ユーザー承認。実装前。**
 
-> IMPORTANT:
-> この文書はユーザー監修前のJolly draft。
-> 将来この設計へ触れる際は、**実装・正史化・詳細化の前に必ずユーザーへ「この仮設計を採用してよいか」確認すること。**
-> 無言でapproved扱いしてはいけない。
+> **FILENAME LEGACY NOTE**  
+> ファイルパスの `-DRAFT` は履歴上残っているだけ。この文書は未確定Draftではない。Roster / Development Architecture v1のSource of Truthとして扱う。
 
 関連:
 - `docs/game-design/00-current-design-handoff.md`
@@ -41,14 +39,18 @@ Club側へ:
 
 # 2. 絶対原則 — Playerは一人だけ存在する
 
-RosterごとにPlayer copyを作らない。
+Roster / League / AssignmentごとにPlayer copyを作らない。
 
 ```text
 Global Player Person
       ↓
 Club Rights
       ↓
-Current Assignment
+Registration
+      ↓
+Assignment
+      ↓
+Availability
 ```
 
 Playerのtrue stateは一つ。
@@ -60,43 +62,74 @@ type PlayerClubState = {
   contractId?: ContractId;
   registration: PlayerRegistrationState;
   assignment: PlayerAssignment;
+  availability: PlayerAvailabilityState;
 };
 ```
 
-一軍へ上げても二軍へ落としても同一Player。
+一軍へ上げても二軍へ落としても、LoanしてもRehabへ入っても同一Player。
+
+`Rights`、`Registration`、`Assignment`、`Availability` は別責務とする。
 
 ---
 
-# 3. Club Player Layers
+# 3. Canonical Assignment Kinds — 5種類の意味、5個の固定箱ではない
 
-共通Coreでは5層を候補とする。
+共通Coreは、配置の意味を次の5種類へ整理する。
 
 ```text
-A. FIRST TEAM
-B. RESERVE / SECOND TEAM
-C. FARM / DEVELOPMENT
-D. ACADEMY
-E. EXTERNAL ASSIGNMENT
+FIRST_TEAM
+RESERVE
+DEVELOPMENT
+ACADEMY
+EXTERNAL
 ```
 
-Leagueによって使わない層があってよい。
+ただし、これは「Clubに最大5個のRoster箱がある」という意味ではない。
+
+一つのClub / Leagueが同じKindのAssignment Unitを複数持てる。
+
+例:
+
+```text
+DEVELOPMENT
+ ├─ Level A
+ ├─ Level B
+ └─ Level C
+```
+
+Canonical概念例:
+
+```ts
+type AssignmentUnit = {
+  unitId: AssignmentUnitId;
+  kind: "FIRST_TEAM" | "RESERVE" | "DEVELOPMENT" | "ACADEMY" | "EXTERNAL";
+  competitionId?: CompetitionId;
+  developmentLevel?: number;
+};
+
+type PlayerAssignment = {
+  unitId: AssignmentUnitId;
+  assignedClubId: ClubId;
+};
+```
+
+これにより、North America型の複数Farm階層、二軍、B Team、Academy、Loan先などを同じ境界で扱う。
+
+Leagueごとに存在しないKindがあってよい。
 
 ---
 
-# 4. A — First Team
+# 4. FIRST TEAM
 
 トップチーム。
 
-内部ではさらに:
+First Team内の出場可否や登録状態を、Assignment階層と混同しない。
 
 ```text
-FIRST_TEAM_ACTIVE
-FIRST_TEAM_INACTIVE
-INJURED_LIST
-REHAB_ASSIGNMENT
+Assignment = FIRST_TEAM
+Registration = active / inactive / competition-specific eligibility
+Availability = healthy / injured / rehab / other
 ```
-
-等へ分けられる。
 
 User-facingでは基本:
 
@@ -108,13 +141,11 @@ User-facingでは基本:
 
 程度でよい。
 
-Active人数等のexact limitは**未決定**。
-
-LeagueRosterProfileで後から定義する。
+Active人数等のexact limitは `LeagueRosterProfile` の年度別規定として与える。
 
 ---
 
-# 5. B — Reserve / Second Team
+# 5. RESERVE / SECOND TEAM
 
 Professional contractを持つが、一軍Activeではない選手の主要配置先。
 
@@ -131,7 +162,7 @@ Professional contractを持つが、一軍Activeではない選手の主要配�
 
 ```text
 actual practice
-+ actual reserve-game opportunities
++ actual reserve-game repetitions
 + coaching
 + health
 + competition
@@ -140,11 +171,13 @@ actual practice
 development evidence
 ```
 
-Reserve gameはBackground Simulation可能。
+Reserve / Second Teamは「成績を抽選する育成箱」ではない。
+
+公式戦が存在するLeagueでは実際にSeasonを戦ち、勝敗・順位・個人成績を残す。
 
 ---
 
-# 6. C — Farm / Development
+# 6. DEVELOPMENT / FARM
 
 League / Club CultureによりReserveと別組織を持てる。
 
@@ -160,23 +193,46 @@ League / Club CultureによりReserveと別組織を持てる。
 
 ```text
 Reserve = first-team-adjacent
-Farm / Development = longer-term professional development
+Development / Farm = longer-term professional development
 ```
 
-が概念上の違い。
+Development / Farmは複数Levelを持てる。
 
-ただし全Leagueへ強制しない。
+```text
+DEVELOPMENT Level 1
+DEVELOPMENT Level 2
+DEVELOPMENT Level 3
+...
+```
+
+Level数や名称を世界共通で固定しない。League Profileが実際の育成構造を定義する。
 
 ---
 
-# 7. D — Academy
+# 7. ACADEMY / REGIONAL PRE-PRO PATHWAY
 
-Academyは「毎年Talentを生成する装置」ではない。
+Academyは世界共通の新人生成方式ではない。
 
-正しい流れ候補:
+地域ごとに実際のProfessional Intake経路を表現する。
 
 ```text
-regional / global youth population
+World / Regional Talent Population
+        ↓
+regional pre-pro pathway
+        ↓
+scouting / recruitment / eligibility
+        ↓
+Tracked Prospect
+        ↓
+professional intake mechanism
+        ↓
+Global Player Person
+```
+
+Academyを持つ地域では:
+
+```text
+regional youth population
         ↓
 academy recruitment reach
 + scouting
@@ -187,27 +243,30 @@ academy intake
         ↓
 coaching / competition / facilities
         ↓
-development
-        ↓
 professional contract candidate
 ```
 
-`academyQuality 95 -> star generated`は禁止。
+とする。
 
-Academyが強いClubは:
+日本型ではAcademyを無理に中心へ置かず、高校・大学・社会人等の経路からDraft / 契約へ接続する。
 
-- more playersを見つけやすい
-- good prospectsを獲得しやすい
-- better learning environmentを提供しやすい
-- talentをprofessional levelへ移行させやすい
+重要:
 
-のであって、Talentそのものを魔法生成しない。
+- `academyQuality -> star generated`は禁止
+- `高校卒 -> 成長Buff`は禁止
+- `大学卒 -> 即戦力Buff`は禁止
+- 出身経路は、その時点までに得た年齢・身体成熟・実戦経験・指導履歴・観測Evidence・Projection uncertaintyへ反映する
+- 若い選手は成長余地が大きい場合がある一方、指導・負荷・役割・健康・環境によってCareerが大きく分岐し得る
+- 大学・社会人等で多くの競技Evidenceを持つ選手は、現在能力を比較的評価しやすく即戦力になり得るが、Label自体が能力を与えない
+
+世界中の未成年全員をPlayer Personとして常時保存する必要はない。
+候補として具体化・追跡される段階でGlobal Player Personへ昇格させる。
 
 ---
 
-# 8. E — External Assignment
+# 8. EXTERNAL ASSIGNMENT
 
-候補:
+代表例:
 
 ```text
 LOAN_OUT
@@ -218,7 +277,7 @@ AFFILIATE_ASSIGNMENT
 
 Football-derived LeagueではLoanを重要なdevelopment routeにできる。
 
-Baseball-derived LeagueでもLeague Profileが許可する場合のみ使用。
+Baseball-derived LeagueでもLeague Profileが許可する場合のみ使用する。
 
 Loan先での:
 
@@ -230,80 +289,111 @@ Loan先での:
 
 が成長へ作用する。
 
-Loan = development +X ではない。
+`Loan = development +X`は禁止。
+
+既にProfessional Playerである者を別Clubへ再配置する制度は、Amateur / Youth Intakeとは別のTransaction Pathとして扱う。
 
 ---
 
-# 9. League Development Path Profile
+# 9. League Roster / Development Profile
 
-世界中を同じ二軍制度にしない。
+世界中を同じ二軍・Farm・Academy制度にしない。
 
 ```ts
-type LeagueDevelopmentPathProfile = {
-  usesReserveTeam: boolean;
-  usesFarmSystem: boolean;
-  usesAcademy: boolean;
-  allowsLoans: boolean;
-  usesDraftPipeline: boolean;
-  usesDevelopmentContracts: boolean;
+type LeagueRosterProfile = {
+  profileSeason: number;
+  assignmentUnits: readonly AssignmentUnitDefinition[];
+  intakePathways: readonly IntakePathwayDefinition[];
+  transactionPathways: readonly TransactionPathwayDefinition[];
 
-  activeRosterLimit: number;           // TBD
-  firstTeamRegistrationLimit: number;  // TBD
-  reserveLimit?: number;               // TBD
-  academyRegistrationRule?: AcademyRule;
+  rosterRules: RosterRuleSet;
+  registrationRules: RegistrationRuleSet;
+  eligibilityRules: EligibilityRuleSet;
+
+  allowsLoans: boolean;
+  usesDevelopmentContracts: boolean;
 };
 ```
 
-exact人数はUSER REVIEW後に決める。
+Canonical policy:
+
+1. **実在する本格的な野球Leagueがある地域**  
+   その年度の実際のRoster / Registration / Draft / Development / Transaction制度を第一参照にする。
+2. **対応する実在野球Leagueがない地域**  
+   World Default Profileを基礎にし、地域のClub文化に沿った小さな特徴を与える。
+3. 規定値はLeague名による能力Buffではない。
+4. Career開始時のRule/Profile versionをSaveへ保存し、現実世界の翌年変更で既存Saveを勝手に書き換えない。
+
+exact人数・年数・Quota等は、各Profile作成時に公式規定を調査して校正する。
 
 ---
 
-# 10. Initial Family Candidates — NOT APPROVED
+# 10. Canonical Regional Pathway Families
 
-以下は実装値ではなく、構造候補。
+## Japan / NPB-like
 
-## Baseball-established profile
-
-Japan / Korea / Taiwan等:
+Conceptual pathway:
 
 ```text
+High School ─┐
+University ──┼→ Amateur / Draft Eligibility → Professional Draft / Contract
+Company /    │
+Industrial ──┘
+```
+
+高校・大学・社会人等を同じ「新人生成箱」に潰さない。
+
+それぞれ、それまでの:
+
+- age
+- physical maturation
+- game experience
+- coaching history
+- role history
+- competition evidence
+- scouting confidence
+- future projection uncertainty
+
+が異なる。
+
+既存Professional Playerを対象とする再配置制度（例: 現役選手向けDraft型制度）は新人Intakeではなく、Club間Transaction Pathとして扱う。
+
+## North America-like
+
+```text
+High School / College / Other Amateur
+        ↓
+Draft / International Intake
+        ↓
+Professional Rights
+        ↓
+multi-level Development / Farm
+        ↓
 First Team
-   ↕
-Second / Reserve Team
-   ↕
-Development / Young Players
 ```
 
-Academy / amateur intakeは別Pipelineから接続。
+Farm階層を複数Assignment Unitとして表現できる。
 
-## North America profile
-
-```text
-Major Roster
-   ↕
-Farm Organization
-   ↕
-Development Prospects
-   ↕
-Amateur / International Intake
-```
-
-Minor organization詳細を全てPlayable Full Leagueとして持つ必要はない。
-
-Background hierarchyとして持てる。
-
-## Football-derived profile
+## Football-derived baseball world
 
 ```text
+Regional Youth Population
+        ↓
+Academy / B Team
+        ↓
+Professional Contract
+        ↔
+Loan / Transfer
+        ↓
 First Team
-   ↕
-Reserve / B Team
-   ↕
-Academy
-   ↔ Loan
 ```
 
-Transfer Marketと強く接続。
+Academy・Loanを重要経路にできるが、TalentそのものをClubが魔法生成しない。
+
+## Other regions
+
+可能な限り現実のBaseball / Amateur / Club recruitment文化を調査してProfile化する。
+十分な実在制度がない場合のみWorld Defaultを使う。
 
 ---
 
@@ -467,19 +557,61 @@ Hidden true potentialで決めない。
 
 ---
 
-# 18. User Surface
+# 18. Human Control Overlay — ユーザー監督と元監督を両立する
 
-通常ユーザー操作候補:
+PennantのUserは、操作ClubのManager Agentを削除・置換しない。
 
-- 一軍へ昇格
-- 二軍 / Reserveへ降格
-- 故障者登録
-- Rehab assignment
-- 若手を重点育成対象へ指定
-- Loan / transfer candidate指定
-- Academyから昇格候補を見る
+内部では元のManager Agentが常に存在する。
 
-これ以上の細かな日次配置はBackground AIへ委譲する。
+```text
+Canonical Manager Agent
+        ↓
+Manager Decision Engine
+        ↓
+Human Control Overlay
+```
+
+各Decision DomainごとにOriginを分ける。
+
+```ts
+type DecisionOrigin =
+  | "MANAGER_AUTONOMOUS"
+  | "MANAGER_DELEGATED"
+  | "HUMAN_OVERRIDE";
+```
+
+- Userが明示的に操作した判断 → `HUMAN_OVERRIDE`
+- Userがおまかせした判断 → `MANAGER_DELEGATED`
+- 非操作Club → `MANAGER_AUTONOMOUS`
+
+`MANAGER_DELEGATED` は元監督のSkill / Philosophy / Temperament / Belief / Strategy Memoryで、他のCPU Clubと同じManager Architectureから判断する。
+
+Userは全部を操作する必要はない。
+
+例:
+
+```text
+Lineup = HUMAN_OVERRIDE
+Bullpen = MANAGER_DELEGATED
+Promotion / Demotion = MANAGER_DELEGATED
+In-game command = HUMAN_OVERRIDE
+```
+
+操作Clubを変更した場合、前のClubは元監督の表示名・AI制御へ戻る。
+元監督は内部では最初から消えていない。
+
+### Strategy Memory attribution rule
+
+**HUMAN_OVERRIDEの采配を、元監督自身が選択・実験したStrategyとしてStrategy Memoryへ学習させない。**
+
+```text
+Human chooses bunt 100 times
+ != original manager becomes a bunt believer
+```
+
+試合結果そのものはWorld Evidenceとして観測可能だが、元監督の「自分が選んだStrategy Evidence」へ偽装しない。
+
+これによりUserが別Clubへ移動した後も、元監督本来の野球観と学習履歴を維持できる。
 
 ---
 
@@ -508,28 +640,45 @@ True Potentialを表示しない。
 
 ---
 
-# 20. Priority Development
+# 20. Priority Development — 固定枠ではなく有限Attention
 
-Userが全員の練習表を管理しなくてよいよう、
+Userは:
 
 ```text
 重点育成
 ```
 
-の少数枠を候補とする。
+を指定できる。
 
-ただし意味は能力Buffではない。
+ただし、ゲーム共通の「重点育成3枠」のようなHard SlotをSource of Truthにしない。
+
+実際の指導密度は:
+
+```text
+Coaching Staff Capacity
++ Facilities
++ Coach specialties
++ Existing priority players
++ Player needs
++ Player receptiveness
+        ↓
+available coaching attention
+        ↓
+actual training / evaluation opportunity
+```
+
+から決まる。
+
+Priorityは能力Buffではない。
 
 ```text
 priority
- -> more coaching attention
- -> tailored practice
- -> more evaluation
+ -> attention allocation
+ -> tailored practice / evaluation
+ -> actual adaptation if successful
 ```
 
-へ接続。
-
-exact人数は未決定。
+重点指定を増やしすぎれば、一人あたりのAttentionが薄くなることもある。
 
 ---
 
@@ -611,28 +760,89 @@ Hidden anti-hoarding penaltyは置かない。
 
 ---
 
-# 24. Reserve / Academy Games
+# 24. Reserve / Farm / Academy Games — 同じCanonical Baseball
 
-すべての試合をFull Match Coreで重くSimulationする必要はない。
+公式競技として行われる一軍・二軍・Farm・Academy等の試合について、**結果だけを作る別エンジンを作らない。**
 
-候補:
+原則:
+
+```text
+First Team ───────┐
+Reserve / Second ─┤
+Farm / Development├→ SAME CANONICAL MATCH CORE
+Academy competition┘
+```
+
+同じ:
+
+- baseball rules
+- pitching
+- batting
+- fielding
+- baserunning
+- manager / player decision boundary
+- physical / causal outcome chain
+
+から試合を進める。
+
+軽量化するのはBaseball TruthではなくExecution / Persistence / Presentation。
 
 ```text
 First Team
- -> Full Match Core
+ -> Canonical Match Core
+ -> normal Presentation / replay policy
 
 Reserve / Farm / Academy
- -> lightweight causal simulation
- -> actual PA / IP / fielding / role / fatigue evidence retained
+ -> same Canonical Match Core
+ -> Renderer OFF by default
+ -> accelerated execution
+ -> reduced replay/detail persistence where safe
 ```
 
-ただし「試合をしていないのに成績だけ抽選」は避ける。
+保存する:
 
-必要なDevelopment Evidenceを生成できるSimulationにする。
+- actual games played
+- standings
+- team wins / losses
+- PA / AB / H / HR / etc.
+- IP / pitching outcomes
+- fielding evidence
+- role / usage
+- fatigue / health evidence
+- player season/career statistics
+
+禁止:
+
+```text
+no match happened
+ -> random batting average generated
+```
+
+二軍戦を重視するUserは成績・順位・選手の実際の出場履歴を追える。
 
 ---
 
-# 25. Injuries and Rehab
+# 25. Injuries / Rehab — Assignmentとは別のAvailability
+
+怪我やRehabをRoster階層そのものにしない。
+
+```text
+Rights
+Registration
+Assignment
+Availability
+```
+
+を分離する。
+
+例:
+
+```text
+rightsHolder = Club A
+assignment = Reserve
+availability = REHAB
+firstTeamRegistration = inactive
+```
 
 怪我中Playerの復帰をinstant resetにしない。
 
@@ -644,34 +854,46 @@ medical recovery
  -> first-team return
 ```
 
-Rehab assignmentでReserve gameへ参加可能。
+Rehab中にReserve gameへ参加しても、Player identityやClub Rightsは変わらない。
 
 医療設備は回復を魔法で加速するのではなく、診断・rehab quality・再発管理等へ接続する。
 
 ---
 
-# 26. Academy Graduation
+# 26. Pre-Pro → Professional Transition
 
-Academy Playerが一定年齢で自動一軍入り、にはしない。
+Academyだけを卒業経路としない。
 
-候補:
+地域Profileに応じて:
 
 ```text
-academy
- -> evaluation
- -> professional offer?
- -> accept?
- -> Development / Reserve
- -> eventual First Team
+High School
+University
+Company / Industrial
+Academy
+Other Amateur / Development Path
+        ↓
+evaluation / eligibility
+        ↓
+draft / offer / contract / other legal intake
+        ↓
+Professional Rights
+        ↓
+Reserve / Development / First Team
 ```
 
-契約できなければ:
+へ進む。
 
-- another club
-- amateur / lower league
-- release
+PlayerがProfessional入りできなければ:
 
-へ進み得る。
+- amateur / school / company path継続
+- another club / league
+- lower competition
+- career exit
+
+等へ進み得る。
+
+入団経路Label自体が成長率や即戦力性を直接変更しない。
 
 ---
 
@@ -738,9 +960,11 @@ GM / Sporting sideがその制約内でRosterを作る。
 
 ---
 
-# 30. What is intentionally NOT decided
+# 30. Frozen Architecture vs Deferred League Calibration
 
-USER REVIEW前なので、以下は決めない。
+v1で構造はFreezeする。
+
+以下のexact値は、設計未確定ではなく**League Profile / implementation calibration**として後続で決める。
 
 - exact active roster人数
 - exact total contracted player limit
@@ -754,59 +978,120 @@ USER REVIEW前なので、以下は決めない。
 - foreign-player quota
 - homegrown quota
 - loan人数
-- minor / reserve schedule試合数
+- reserve / farm schedule試合数
 - exact growth formula
 - exact training menu
 - exact promotion AI thresholds
 
-この文書を理由に勝手に確定しない。
+方針:
+
+- 実在野球League → 対象年度の公式制度を第一参照
+- 実在Leagueがない / football-derived世界 → World Default + modest regional identity
+- Profile値はSaveへversion固定
+- 数値をLeague strength Buffへ流用しない
 
 ---
 
-# 31. Proposed Approval Questions for User
+# 31. Final Approved Decisions — 2026-09-22
 
-将来この計画を再開したら、まずユーザーへ以下を確認する。
+User承認済み。
 
-1. 共通5層 `First / Reserve / Farm / Academy / External` でよいか
-2. Leagueごとに不要層を無効化する方式でよいか
-3. User操作は昇降格・重点育成程度に抑えるか
-4. Reserve / Academy試合をlightweight causal simulationにするか
-5. 重点育成枠を採用するか
-6. Football-derived ClubでLoanを重要Development Routeにするか
-7. AcademyをYouth PopulationからのRecruitment Pipelineとして扱うか
-8. exact roster countを現実League寄せにするか、ゲーム共通値を優先するか
+1. Player Personは世界に一人だけ存在する。
+2. Rights / Registration / Assignment / Availabilityを分離する。
+3. Five Assignment Kindsは採用するが、5個の固定Roster箱にはしない。
+4. DEVELOPMENT等は複数Assignment Unit / Levelを持てる。
+5. Leagueごとに不要なKindや独自の育成UnitをProfile化する。
+6. Injury / RehabはRoster階層ではなくAvailability / RegistrationとAssignmentの組み合わせで表す。
+7. Developmentはactual opportunity / coaching / environment / adaptationから因果的に発生する。
+8. 二軍・Farm等の公式戦も一軍と同じCanonical Match Coreで実際に試合を行う。
+9. 軽量化はRenderer OFF / 高速実行 / 保存密度で行い、別の結果抽選エンジンを作らない。
+10. 二軍等も順位・勝敗・個人成績・出場履歴を保持する。
+11. Academyを世界共通のTalent生成装置にしない。
+12. 地域ごとの実際のPre-Pro / Draft / Academy / Transfer経路を再現する。
+13. 日本型では高校・大学・社会人等をProfile上の別経路として扱える。
+14. Professional Player再配置制度は新人Intakeとは別のTransaction Pathにする。
+15. 出身経路Labelによる直接成長Buff / 即戦力Buffは禁止する。
+16. 若さ、成熟、実戦経験、指導履歴、観測Evidence等が結果として成長余地・即戦力性・評価確度へ影響する。
+17. 重点育成は固定人数枠ではなく有限Coaching Attentionを割り当てる。
+18. Depth Chart / Roster Needを昇降格・補強・Loan・Scoutingへ接続する。
+19. Prospect hoardingへHidden penaltyを置かず、出場機会・契約・不満・競争・移籍需要から自然に流動させる。
+20. Pennant UserはManager Agentを消さずHuman Control Overlayで上書きする。
+21. UserがおまかせしたDomainは元監督の能力・思想・性格・BeliefからAI判断する。
+22. 操作Clubを変えたら前Clubは元監督の表示・自律制御へ戻る。
+23. HUMAN_OVERRIDEの采配を元監督自身のStrategy Memoryへ「自分が選んだ戦術」として学習させない。
+24. 実在野球Leagueは年度ごとの実規定を第一参照にRoster / Intake Profileを作る。
+25. 実在野球Leagueがない地域はWorld Defaultを基礎に、過剰にならない地域差を与える。
 
 ---
 
-# 32. Current Draft Conclusion
+# 32. Final v1 Summary — DESIGN FROZEN
 
-仮の骨格:
+Canonical structure:
 
 ```text
-WORLD PLAYER
-    ↓
-CLUB RIGHTS
-    ↓
-REGISTRATION
-    ↓
-ASSIGNMENT
- ┌───────────────┬──────────────┬─────────────┐
- FIRST TEAM      RESERVE        DEVELOPMENT
-                                      ↕
-                                   ACADEMY
-                                      ↔
-                                LOAN / EXTERNAL
+WORLD / REGIONAL TALENT POPULATION
+              ↓
+      PRE-PRO PATHWAY
+  school / university / company
+  academy / other amateur paths
+              ↓
+      PROFESSIONAL INTAKE
+              ↓
+      GLOBAL PLAYER PERSON
+              ↓
+          CLUB RIGHTS
+              ↓
+        REGISTRATION
+              ↓
+     ASSIGNMENT UNIT
+      ├ FIRST_TEAM
+      ├ RESERVE
+      ├ DEVELOPMENT (0..N levels)
+      ├ ACADEMY (where applicable)
+      └ EXTERNAL
+              │
+              └ AVAILABILITY
+                  healthy / injured / rehab / ...
 ```
 
-Developmentは:
+Development:
 
 ```text
 actual opportunity
-+ coaching
++ coaching attention
++ competition evidence
++ physical maturation
++ health / fatigue
++ role
 + environment
 + player adaptation
+        ↓
+career development
 ```
 
-から生じる。
+Match truth:
 
-**この骨格は未承認。User確認前に実装してはいけない。**
+```text
+First Team / Reserve / Farm / Academy official games
+        ↓
+SAME CANONICAL MATCH CORE
+        ↓
+different presentation / execution / persistence policy only
+```
+
+Pennant control:
+
+```text
+Original Manager Agent remains alive
+        ↓
+Human Control Overlay
+   ├ HUMAN_OVERRIDE
+   └ MANAGER_DELEGATED
+```
+
+`HUMAN_OVERRIDE` is never falsely written into the original Manager's Strategy Memory as self-chosen strategy evidence.
+
+**Roster / Development Architecture v1は2026-09-22にユーザー承認され、DESIGN FROZEN。**
+残るexact人数・年度規則・式はLeague Profile / implementation calibrationであり、open architecture questionではない。
+
+---
