@@ -1,19 +1,19 @@
-import type { Vec3 } from '../model/geometry';
+import type { Vec3 } from '../../core/model/geometry';
 import {
   sampleSwingKinematicsV1,
   type SwingKinematicsPhaseV1,
-} from '../sim/contact/SwingKinematicsV1';
+} from '../../core/sim/contact/SwingKinematicsV1';
 import {
   planCourseAwareSwingKinematicsV1,
-} from '../sim/pitching/CourseAwareSwingKinematicsV1';
+} from '../../core/sim/pitching/CourseAwareSwingKinematicsV1';
 import {
   MINI_PRESENTATION_CADENCE_MICROS,
-} from '../../presentation/mini/model';
+} from './model';
 import {
   projectBatPoseToBatterPov,
   projectWorldToBatterPov,
   type ProjectedPoint,
-} from '../../presentation/mini/BatterPovCamera';
+} from './BatterPovCamera';
 
 export const SWING_KINEMATICS_OBSERVER_FIXTURE_V1_VERSION =
   'swing-kinematics-observer-fixture-v1' as const;
