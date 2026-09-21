@@ -1190,9 +1190,27 @@ Still required before Phase C can close:
 - calibrate sliding friction and rolling resistance against end-to-end
   ground-ball observations.
 
-The **surface-contact architecture itself is now close to freeze**. The
-remaining work is dominated by material calibration rather than new collision
-structure.
+The **surface-contact architecture itself is now frozen by the baseball v1
+contract**. The remaining work is dominated by material calibration rather than
+new collision structure.
+
+`BaseballFieldConditionEvidence` now also retains real field-condition
+variation that a single generic "grass" or "dirt" material would miss:
+
+- Brosnan et al. (2011) skinned-infield compaction observations:
+  - high / medium / low compaction pace at two sampling times;
+  - measured bulk-density and moisture context kept separately from collision
+    coefficients;
+- six synthetic-turf systems before/after grooming, preserving system-specific
+  pace instead of one artificial-turf constant;
+- the published result that the tested Kentucky-bluegrass cutting-height and
+  thatch ranges did not significantly alter pace;
+- Park et al. (2020) wet-grass evidence retained as a **directional**
+  friction-regime constraint only, because the available evidence does not
+  support inventing a numeric wet-grass coefficient.
+
+This evidence is intended to calibrate/version material variants and weather/
+maintenance state later without changing the collision equations.
 
 ## 6. Phase D — empirical calibration
 
