@@ -5,6 +5,9 @@ import {
   type BaseballAerodynamicsParameters,
 } from '../ball/BaseballAerodynamics';
 import {
+  calculateBaseballSpinDecayDerivative,
+} from '../ball/BaseballSpinDecay';
+import {
   findFirstTrueTick,
 } from '../ExactEventTime';
 import {
@@ -51,6 +54,12 @@ const add = (a: Vec3, b: Vec3): Vec3 => ({
   x: a.x + b.x,
   y: a.y + b.y,
   z: a.z + b.z,
+});
+
+const subtract = (a: Vec3, b: Vec3): Vec3 => ({
+  x: a.x - b.x,
+  y: a.y - b.y,
+  z: a.z - b.z,
 });
 
 const scale = (value: Vec3, scalar: number): Vec3 => ({
@@ -147,6 +156,32 @@ const accelerationAt = (
   };
 };
 
+const spinDerivativeAt = (
+  velocity: Vec3,
+  spin: Vec3,
+  parameters: AerodynamicPitchTrajectoryParameters,
+): Vec3 => {
+  const decay =
+    parameters.aerodynamics.spinDecay;
+  if (decay === undefined) {
+    return {
+      x: 0,
+      y: 0,
+      z: 0,
+    };
+  }
+
+  return calculateBaseballSpinDecayDerivative(
+    spin,
+    subtract(
+      velocity,
+      parameters.aerodynamics
+        .windVelocityMps,
+    ),
+    decay,
+  );
+};
+
 const advanceAerodynamicPitchStep = (
   state: PitchWorldState,
   stepTicks: number,
@@ -160,15 +195,29 @@ const advanceAerodynamicPitchStep = (
     state.spin,
     parameters,
   );
+  const k1Spin = spinDerivativeAt(
+    state.velocity,
+    state.spin,
+    parameters,
+  );
 
   const k2VelocityInput = add(
     state.velocity,
     scale(k1Velocity, dt / 2),
   );
+  const k2SpinInput = add(
+    state.spin,
+    scale(k1Spin, dt / 2),
+  );
   const k2Position = k2VelocityInput;
   const k2Velocity = accelerationAt(
     k2VelocityInput,
-    state.spin,
+    k2SpinInput,
+    parameters,
+  );
+  const k2Spin = spinDerivativeAt(
+    k2VelocityInput,
+    k2SpinInput,
     parameters,
   );
 
@@ -176,10 +225,19 @@ const advanceAerodynamicPitchStep = (
     state.velocity,
     scale(k2Velocity, dt / 2),
   );
+  const k3SpinInput = add(
+    state.spin,
+    scale(k2Spin, dt / 2),
+  );
   const k3Position = k3VelocityInput;
   const k3Velocity = accelerationAt(
     k3VelocityInput,
-    state.spin,
+    k3SpinInput,
+    parameters,
+  );
+  const k3Spin = spinDerivativeAt(
+    k3VelocityInput,
+    k3SpinInput,
     parameters,
   );
 
@@ -187,10 +245,19 @@ const advanceAerodynamicPitchStep = (
     state.velocity,
     scale(k3Velocity, dt),
   );
+  const k4SpinInput = add(
+    state.spin,
+    scale(k3Spin, dt),
+  );
   const k4Position = k4VelocityInput;
   const k4Velocity = accelerationAt(
     k4VelocityInput,
-    state.spin,
+    k4SpinInput,
+    parameters,
+  );
+  const k4Spin = spinDerivativeAt(
+    k4VelocityInput,
+    k4SpinInput,
     parameters,
   );
 
@@ -220,9 +287,20 @@ const advanceAerodynamicPitchStep = (
         dt / 6,
       ),
     ),
-    // Current evidence supports treating the spin axis as nearly inertially
-    // fixed through an ordinary pitch. Do not manufacture precession here.
-    spin: state.spin,
+    // Aerodynamic torque changes spin magnitude only in the current model;
+    // no unmeasured precession is manufactured.
+    spin: add(
+      state.spin,
+      scale(
+        weightedSum(
+          k1Spin,
+          k2Spin,
+          k3Spin,
+          k4Spin,
+        ),
+        dt / 6,
+      ),
+    ),
   };
 };
 
@@ -448,10 +526,18 @@ export const findAerodynamicPitchPlateCrossing = (
       z: plateZ,
     },
     velocity,
-    spin: trajectory.start.spin,
+    spin: lerpVec3(
+      before.spin,
+      after.spin,
+      interpolation,
+    ),
     spinDecomposition: decomposePitchSpin(
       velocity,
-      trajectory.start.spin,
+      lerpVec3(
+        before.spin,
+        after.spin,
+        interpolation,
+      ),
     ),
     orientation: sampleAerodynamicPitchOrientation(
       trajectory,
