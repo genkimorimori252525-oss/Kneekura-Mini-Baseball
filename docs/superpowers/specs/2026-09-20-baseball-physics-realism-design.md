@@ -778,6 +778,12 @@ Important boundary:
 
 The new path remains opt-in until calibration evidence is strong enough to replace the legacy contact model.
 
+A measured baseball rotational-inertia profile is also available. Brody reported
+`I/(mR^2) ~= 0.378` for a collegiate baseball, so realistic contact/surface
+calibration may use `REALISTIC_BASEBALL_RIGID_BODY` with 0.378 while the
+existing 0.4 solid-sphere reference remains available for compatibility
+fixtures.
+
 ### 4.0.1 Cross/Nathan low-speed validation checkpoint
 
 The reduced-order rigid collision now has a laboratory-geometry regression
