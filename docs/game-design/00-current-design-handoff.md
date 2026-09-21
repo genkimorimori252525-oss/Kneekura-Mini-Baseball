@@ -962,7 +962,7 @@ Manager Special Ability layer:
 
 Hiring / retention / firing / OB preference / ownership / market selection are delegated to doc 42.
 
-Manager Market / Front Office selection remains the only USER REVIEW REQUIRED manager draft:
+Manager Market / Front Office selection is now CANONICAL / DESIGN FROZEN v1:
 - `docs/game-design/42-manager-market-and-front-office-selection-DRAFT.md`
 
 ---
