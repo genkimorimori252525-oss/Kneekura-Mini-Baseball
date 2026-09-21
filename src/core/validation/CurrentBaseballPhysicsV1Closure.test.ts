@@ -30,19 +30,55 @@ describe('current baseball physics v1 closure ledger', () => {
     );
   });
 
-  it('does not silently mark a partially identified material or contact model as production-calibrated', () => {
+  it('closes only directly defensible v1 calibration claims and keeps the final corpus open', () => {
     const evidence =
       createCurrentBaseballPhysicsV1GateEvidence();
+    const byId =
+      new Map(
+        evidence.map(
+          (entry) => [
+            entry.gateId,
+            entry.state,
+          ] as const,
+        ),
+      );
 
     expect(
-      evidence.every(
-        (entry) =>
-          entry.state === 'open',
+      byId.get(
+        'wood_bat_production_contact_parameters',
       ),
-    ).toBe(true);
+    ).toBe('satisfied');
+    expect(
+      byId.get(
+        'pitching_coefficient_calibration',
+      ),
+    ).toBe('satisfied');
+    expect(
+      byId.get(
+        'end_to_end_validation_corpus',
+      ),
+    ).toBe('open');
+
+    const scopedOut = evidence
+      .filter(
+        (entry) =>
+          entry.state
+          === 'explicitly_scoped_out',
+      )
+      .map((entry) => entry.gateId);
+
+    expect(scopedOut).toEqual([
+      'infield_dirt_material_profile',
+      'natural_grass_material_profile',
+      'artificial_turf_material_profile',
+      'warning_track_material_profile',
+      'wall_padding_material_profile',
+      'sliding_friction_calibration',
+      'rolling_resistance_calibration',
+    ]);
   });
 
-  it('records both what is already physically implemented and what evidence is still missing', () => {
+  it('records both implemented coverage and the precise retained limitation for every gate', () => {
     for (
       const entry
       of CURRENT_BASEBALL_PHYSICS_V1_GATE_COVERAGE
@@ -51,6 +87,10 @@ describe('current baseball physics v1 closure ledger', () => {
         .toBeGreaterThan(20);
       expect(entry.missing.length)
         .toBeGreaterThan(20);
+      expect(entry.evidenceId.length)
+        .toBeGreaterThan(5);
+      expect(entry.evidenceVersion.length)
+        .toBeGreaterThan(5);
     }
   });
 });
