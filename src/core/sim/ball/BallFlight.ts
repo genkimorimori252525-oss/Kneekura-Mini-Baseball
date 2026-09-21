@@ -2,6 +2,7 @@ import type { Vec3 } from '../../model/geometry';
 import { findFirstTrueTick, quantizeEventTick } from '../ExactEventTime';
 import type { BattedBallInitialState } from '../contact/BatBallContact';
 import {
+  REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS,
   REFERENCE_BASEBALL_AERODYNAMICS,
   calculateBaseballAerodynamics,
   type BaseballAerodynamicsParameters,
@@ -89,6 +90,14 @@ export const REALISTIC_BASEBALL_FLIGHT_PARAMETERS: BallFlightParameters =
   Object.freeze({
     ...DEFAULT_BALL_FLIGHT_PARAMETERS,
     aerodynamics: REFERENCE_BASEBALL_AERODYNAMICS,
+  });
+
+export const REALISTIC_LYU_2022_BASEBALL_FLIGHT_PARAMETERS:
+  BallFlightParameters =
+  Object.freeze({
+    ...DEFAULT_BALL_FLIGHT_PARAMETERS,
+    aerodynamics:
+      REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS,
   });
 
 const GROUND_EPSILON = 1e-12;
