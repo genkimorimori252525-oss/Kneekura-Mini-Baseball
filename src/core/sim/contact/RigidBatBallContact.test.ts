@@ -5,6 +5,8 @@ import {
   MEASURED_BASEBALL_ROTATIONAL_INERTIA_FACTOR,
   REALISTIC_BASEBALL_RIGID_BODY,
   REFERENCE_BASEBALL_RIGID_BODY,
+  createRigidBatStateFromBatterSwingState,
+  measureRigidBatBallSurfaceSeparation,
   resolveRigidBatBallContact,
   sampleBatEffectiveMass,
   sampleBatRadius,
@@ -91,6 +93,64 @@ describe('rigid bat-ball reduced-order contact', () => {
       REFERENCE_BASEBALL_RIGID_BODY
         .rotationalInertiaFactor,
     ).toBeCloseTo(0.4, 12);
+  });
+
+  it('converts grip velocity into center-of-mass velocity before rigid contact', () => {
+    const rigid = createRigidBatStateFromBatterSwingState(
+      {
+        pose: {
+          grip: v(0, 0, 0),
+          tip: v(1, 0, 0),
+        },
+        linearVelocity: v(0, 0, 2),
+        angularVelocity: v(0, 1, 0),
+      },
+      {
+        massKg: 0.9,
+        centerOfMassT: 0.6,
+        transverseMomentOfInertiaKgM2: 0.06,
+        axialMomentOfInertiaKgM2: 0.00055,
+        radiusProfile: {
+          knots: [
+            { t: 0, radiusM: 0.03 },
+            { t: 1, radiusM: 0.03 },
+          ],
+        },
+      },
+    );
+
+    expect(rigid.centerOfMassVelocity)
+      .toEqual(v(0, 0, 1.4));
+  });
+
+  it('measures tapered bat-ball surface separation for conservative contact search', () => {
+    const inputBat = bat();
+    const x = 0.09;
+    const t = (x + 0.45) / 0.9;
+    const radius = sampleBatRadius(
+      profile,
+      t,
+    );
+    const pitch: PitchWorldState = {
+      tick: 1,
+      position: v(
+        x,
+        1,
+        radius
+          + REFERENCE_BASEBALL_RIGID_BODY.radiusM
+          + 0.012,
+      ),
+      velocity: v(0, 0, -40),
+      spin: v(0, 0, 0),
+    };
+
+    expect(
+      measureRigidBatBallSurfaceSeparation(
+        pitch,
+        inputBat,
+        REFERENCE_BASEBALL_RIGID_BODY,
+      ),
+    ).toBeCloseTo(0.012, 8);
   });
 
   it('interpolates a tapered/torpedo-capable radius profile', () => {
