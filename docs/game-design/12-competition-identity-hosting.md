@@ -1,7 +1,10 @@
-# Competition Identity, Hosting & Draw Design
+# Competition Identity, Hosting & Draw Design — CANONICAL v1
 
-更新日: 2026-09-19  
-状態: **設計候補版。実装前。**
+更新日: 2026-09-22  
+状態: **CANONICAL / DESIGN FROZEN v1。2026-09-22ユーザー承認。実装前。**
+
+> Hosting / Draw / Awards / Prestige / Identityの責務境界はv1としてFreeze済み。
+> exact weights / visual naming / revenue percentages等はCalibration / Contentであり、open architectureではない。
 
 関連:
 - `docs/game-design/10-world-league-catalog.md`
@@ -27,6 +30,22 @@
 - revenue / solidarityの基本方向
 
 Match Coreの能力値は変更しない。
+
+# 1.1 Host Location Hierarchy — CANONICAL
+
+Hostingを一つの`host`値へ潰さない。
+
+```text
+Host Region
+  -> Host Nation
+  -> Host City / Hub
+  -> Venue
+```
+
+Competitionごとに、どの階層を固定・選考・rotation対象とするかをCompetitionProfileで定義する。
+
+Host berthがある大会では、berth対象階層も明示する。
+Club World v1は11の設計どおり `hostBerthScope = REGION` を基本とする。
 
 ---
 
@@ -433,23 +452,41 @@ host advantageは実際のstadium / crowd / travelのみ。
 
 ---
 
-# 12. WBC Finals Hosting
+# 12. WBC Finals Hosting — UNITED STATES FIXED
+
+WBC-class World Championship本大会のHost Nationは **United States / アメリカ合衆国で固定**する。
+
+これはHostScoreやRegion Rotationで変更しない。
+
+```text
+Host Region = AMERICAS
+Host Nation = UNITED_STATES   // fixed
+Host Cities / Hubs = edition-specific
+Venues = edition-specific
+```
+
+WBC本大会にHost Nation automatic berthは作らない。
+アメリカ代表へ能力Buff・自動Seeding優遇を与えない。
+実際のcrowd / travel / stadium / routine等の環境だけが通常どおり作用する。
+
+なお、**WBC Global Qualifierは米国固定ではない**。
+4つのQualifier Podは従来どおり世界各地で開催可能。
 
 ## 12.1 Pool Stage
 
 24 nations = 6 groups x 4。
 
-6つのPool Host Cityを使える。
+6つのPool Host Cityを米国内で選定できる。
 
-1か国集中、複数国共同開催の両方をCompetitionProfileで許可。
+Pool host city / venueはEditionごとに変化してよい。
 
 ## 12.2 Round of 16 / Quarterfinal
 
-地域別の2〜4 knockout hubsへ集約。
+米国内の2〜4 knockout hubsへ集約する。
 
 ## 12.3 Final Four
 
-Semifinal + Finalは**World Final City**へ集約。
+Semifinal + Finalは米国内の**World Final City**へ集約。
 
 4年に一度、一都市が世界野球の中心になる。
 
@@ -475,67 +512,125 @@ WBCよりcompactで、elite-onlyの大会感を出す。
 
 ---
 
-# 14. Host Selection — Simple Automatic Score
+# 14. Host Selection — Eligibility → Suitability → Rotation
 
 開催地選定はユーザー操作対象にしない。
 
-大会主催側が、開催候補都市の既存データから `HostScore` を自動計算し、上位候補から開催地を決定する。
+Host Nation / City / Venueを自由な一つの点数だけで決めず、三段階で処理する。
 
-初期候補:
+## 14.1 Eligibility
 
-```ts
-type HostScoreInput = {
-  stadiumQuality: number;
-  stadiumCapacity: number;
-  transportQuality: number;
-  accommodationCapacity: number;
-  broadcastReadiness: number;
-  hostingRecencyPenalty: number;
-};
-```
+まず大会開催に必要な最低条件を満たす候補だけを残す。
 
-初期の重み候補:
+候補:
+- stadium licensing / safety
+- required capacity class
+- transport minimum
+- accommodation minimum
+- broadcast infrastructure minimum
+- competition-specific facility requirements
 
-```text
-stadiumQuality       30
-stadiumCapacity      20
-transportQuality     15
-accommodation        15
-broadcastReadiness   15
-hostingRecency        5
------------------------
-total               100
-```
+Eligibility未達の候補は、rotation上有利でも開催候補にしない。
 
-`hostingRecency` は最近同じ都市・地域で開催された場合の減点として扱う。
+## 14.2 Suitability
 
-最終的な開催地はCompetition Organizer AI / deterministic ruleが決める。
+Eligibility通過候補について開催適性を比較する。
 
-ユーザーは:
+候補入力:
+- stadium quality
+- stadium capacity
+- transport quality
+- accommodation capacity
+- broadcast readiness
+- operational/logistics quality
 
+これらは `HostSuitability` として扱える。
+
+exact weightsは実装CalibrationでありArchitecture未決定ではない。
+
+## 14.3 Rotation / Recency
+
+Suitabilityだけで同じ都市・地域へ永久固定しない。
+
+- recent hosting penalty
+- region / nation / city rotation priority
+- repeated-hosting avoidance
+
+を大会Profileに応じて加える。
+
+最終開催地はCompetition Organizer AI / deterministic ruleが決める。
+
+Userは:
 - 入札しない
 - 開催都市を直接選ばない
-- Host Scoreへ資金を投入しない
-- 開催権獲得のための別ミニゲームを行わない
+- HostScoreへ資金を投入しない
+- 開催権獲得ミニゲームを行わない
 
-開催地決定はWorld Simulationの背景処理とする。
+例外:
 
-また、開催成功を直接:
+> **WBC-class本大会はHost Nation = United States固定。**
 
-```text
-crowd
- -> sponsor
- -> academy growth
-```
+WBCではこのHost選定Systemを米国内のCity / Hub / Venue選定にだけ使う。
 
-へ自動接続する仕組みは初期設計から外す。
-
-将来Career Economyで必要になった場合のみ、開催収益や観客実績を通常の経済入力として再検討する。
-
-開催そのものがLeague Ecologyや選手能力を直接成長させることはない。
+開催成功そのものをLeague EcologyやPlayer true abilityへ直接成長させない。
 
 ---
 
+# 14.4 Draw Constraint Policy — CANONICAL
+
+Drawの「可能な限り」を明示的なConstraint Policyへする。
+
+概念:
+
+```text
+HARD
+  pot integrity / participant uniqueness / legal group size
+
+SOFT priority 1
+  same-league avoidance
+
+SOFT priority 2
+  regional diversity
+
+SOFT priority 3
+  travel balance / rematch avoidance
+```
+
+Hard Constraintは原則破らない。
+Soft Constraintが同時成立しない場合は、CompetitionProfileで定義した決定的Relaxation Orderに従って緩和する。
+
+Draw結果には必要に応じて:
+- applied constraints
+- relaxed constraints
+- final assignment provenance
+
+を記録する。
+
+これにより、後から「なぜ同League同組になったか」を説明できる。
+
+---
+
+# 14.5 Home Fairness Ledger — CANONICAL
+
+`ContinentalHomeCredit` はClubの永久資産・権利ではない。
+
+大会別の:
+
+```text
+HomeFairnessLedger
+```
+
+として最近の出場Editionのhome/away偏りを補正するEvidenceに使う。
+
+- Competition-specific
+- recent-edition weighted
+- old evidence may decay
+- does not guarantee future home games
+- coefficient / club fame does not buy home credit
+
+Group winner home等の明示的Competition RuleはFairness Ledgerより優先する。
+
+---
 # 15. Competition Awards
 
 大会ごとにAwardsを保存する。
@@ -702,6 +797,68 @@ Presentationは正史を観測するだけで、Match Coreへ影響しない。
 
 ---
 
+# 19.1 Awards Policy Versioning — CANONICAL
+
+Awardは公開RatingやPopularityだけで選ばない。
+
+CompetitionごとにAwardSelectionPolicyを持てる。
+
+例:
+- statistical-performance centered
+- leverage / championship-stage weighted
+- mixed expert panel
+- mixed media/fan component
+
+Award label自体がPlayer abilityを変更しない。
+そのEditionで使用したAward Policy VersionはHistoryへ保存する。
+
+---
+
+# 19.2 Prestige / Canonical Role Boundary — CANONICAL
+
+CompetitionPrestigeStateはHistoryから変化する。
+
+ただし:
+
+```text
+prestige decline
+ -> automatic loss of canonical role
+```
+
+は禁止する。
+
+WBC-classの `NATIONAL_WORLD_CHAMPIONSHIP` 等のCanonical RoleはInstitutional identityとして別管理する。
+
+300年規模のWorldで本当に大会体系が交代する場合だけ:
+
+```text
+formal Competition Reform / Succession Event
+ -> explicit role transfer / replacement
+```
+
+を許可する。
+
+PopularityやPrize Poolの一時低下だけで世界最高峰Roleを失わせない。
+
+---
+
+# 19.3 Hosting / Draw / Award Edition Snapshot — CANONICAL
+
+11の `CompetitionEditionSnapshot` を本書のIdentity情報まで拡張する。
+
+保存対象候補:
+- hostingPolicyVersion
+- drawPolicyVersion
+- awardPolicyVersion
+- host region / nation / cities / venues
+- draw result / constraint-relaxation trace
+- home-fairness state used
+- prestige snapshot
+- visual identity version reference
+
+現在のHosting / Drawルール変更で過去Editionを再解釈しない。
+
+---
 # 20. 初期採用方針
 
 以下を初期標準とする。
@@ -713,23 +870,50 @@ Presentationは正史を観測するだけで、Match Coreへ影響しない。
 5. Club Worldは集中開催
 6. Club World SF / FinalはFinal Four City
 7. WBC Qualifierは4つのsingle-elimination Pod
-8. WBCはPool Hosts + Final City
+8. WBC本大会は**United States固定開催**。米国内でPool Hosts + Knockout Hubs + World Final CityをEditionごとに選定
 9. Premier 12は2 Group Hosts + Final Four
 10. Hostingは既存インフラから算出する自動Host Score + recent-hosting penalty
 11. 大会Awardsを歴史保存
 12. PrestigeはHistoryから変化するがcanonical roleとは分離
+13. DrawはHard/Soft Constraint + deterministic Relaxation Orderを持つ
+14. Home balancingはCompetition-specific HomeFairnessLedgerとして扱う
+15. Hosting / Draw / Award / Prestige policyをEdition Snapshotへ保存
 
 ---
 
-# 21. 後続で決める事項
+# 21. Calibration / Content / Future Integration — NOT OPEN ARCHITECTURE
 
 - 大会の最終正式名称
 - trophy名称・意匠
-- Host Score exact weights
-- home-credit balancing weight
+- Host Suitability exact weights
+- HomeFairnessLedger exact recency / balancing weight
 - Quarterfinal rematch constraints
 - exact rest-day rules
 - broadcast distribution percentage
 - award voting weights
 - audience / fan simulation
 - rivalry threshold
+
+---
+
+# 22. Final v1 Status
+
+**Competition Identity, Hosting & Draw Design v1は2026-09-22にユーザー承認され、DESIGN FROZEN。**
+
+Frozen highlights:
+- Continental CL: club-home Group Stage / Group-winner-home QF / neutral Final Four
+- Africa v1: Group Hub; future change only through versioned Competition Reform
+- Club World: centralized host model
+- WBC-class finals: **United States fixed host nation**
+- WBC Global Qualifier: worldwide host pods remain allowed
+- Premier 12: compact group-host + Final Four identity
+- Host hierarchy: Region → Nation → City/Hub → Venue
+- Host selection: Eligibility → Suitability → Rotation/Recency
+- Draw: Hard/Soft Constraints + deterministic relaxation
+- Home fairness: Competition-specific ledger, not a permanent club right
+- Awards: evidence-based, versioned selection policy
+- Prestige != Canonical Role; role succession requires explicit reform
+- Hosting / Draw / Award / Prestige provenance saved per Competition Edition
+- Presentation identity remains read-only metadata relative to Match Core
+
+Remaining names / exact weights / percentages / artwork are calibration or content, not open architecture.
