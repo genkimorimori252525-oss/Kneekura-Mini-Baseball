@@ -49,7 +49,7 @@ export type AnticipationAwareAerodynamicSwingResult =
  * Compatibility note: this adapter currently feeds the historical
  * AerodynamicSwingingPitchPhysicalResult path. Moving anticipation timing onto
  * a Swing Kinematics v1 trajectory requires shifting the whole trajectory and
- * is a separate integration task; do not partially shift only its window.
+ * is a separate integration task; do not partially shift only its time interval.
  */
 export const resolveAnticipationAwareAerodynamicSwing = (
   input: AnticipationAwareAerodynamicSwingInput,
