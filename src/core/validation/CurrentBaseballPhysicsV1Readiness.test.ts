@@ -1,13 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
-  BASEBALL_PHYSICS_V1_CALIBRATION_GATES,
-} from '../sim/ball/BaseballPhysicsV1';
-import {
   evaluateCurrentBaseballPhysicsV1Readiness,
 } from './CurrentBaseballPhysicsV1Readiness';
 
 describe('current baseball physics v1 readiness', () => {
-  it('keeps architecture freeze separate from empirical production readiness', () => {
+  it('keeps default promotion closed until the final end-to-end corpus exists and scope-outs are accepted', () => {
     const result =
       evaluateCurrentBaseballPhysicsV1Readiness();
 
@@ -16,9 +13,20 @@ describe('current baseball physics v1 readiness', () => {
     expect(result.validationPassed)
       .toBe(true);
     expect(result.openGateIds)
-      .toEqual(
-        BASEBALL_PHYSICS_V1_CALIBRATION_GATES,
-      );
+      .toEqual([
+        'end_to_end_validation_corpus',
+      ]);
+    expect(
+      result.explicitlyScopedOutGateIds,
+    ).toEqual([
+      'infield_dirt_material_profile',
+      'natural_grass_material_profile',
+      'artificial_turf_material_profile',
+      'warning_track_material_profile',
+      'wall_padding_material_profile',
+      'sliding_friction_calibration',
+      'rolling_resistance_calibration',
+    ]);
     expect(
       result.readyForDefaultPromotion,
     ).toBe(false);
