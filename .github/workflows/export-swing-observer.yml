@@ -1,6 +1,8 @@
 name: Export Swing Observer HTML
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - jolly/export-swing-observer-html-2026-09-22
 jobs:
   export:
     runs-on: ubuntu-latest
