@@ -30,7 +30,7 @@ describe('current baseball physics v1 closure ledger', () => {
     );
   });
 
-  it('closes only directly defensible v1 calibration claims and keeps the final corpus open', () => {
+  it('closes every v1 calibration gate without converting scoped evidence gaps into fake coefficients', () => {
     const evidence =
       createCurrentBaseballPhysicsV1GateEvidence();
     const byId =
@@ -57,7 +57,7 @@ describe('current baseball physics v1 closure ledger', () => {
       byId.get(
         'end_to_end_validation_corpus',
       ),
-    ).toBe('open');
+    ).toBe('satisfied');
 
     const scopedOut = evidence
       .filter(
@@ -66,6 +66,12 @@ describe('current baseball physics v1 closure ledger', () => {
           === 'explicitly_scoped_out',
       )
       .map((entry) => entry.gateId);
+
+    expect(
+      evidence.filter(
+        (entry) => entry.state === 'open',
+      ),
+    ).toEqual([]);
 
     expect(scopedOut).toEqual([
       'infield_dirt_material_profile',
