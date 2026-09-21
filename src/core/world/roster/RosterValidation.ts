@@ -36,6 +36,10 @@ function positiveInteger(value: unknown, field: string): number {
 }
 export function array(value: unknown, field: string): readonly unknown[] {
   if (!Array.isArray(value)) invalid(field);
+  // Sparse arrays skip map callbacks; reject holes before nested validation.
+  for (let index = 0; index < value.length; index += 1) {
+    if (!Object.prototype.hasOwnProperty.call(value, index)) invalid(field);
+  }
   return value;
 }
 function enumeration<T extends string>(value: unknown, allowed: readonly T[], field: string): T {
@@ -62,7 +66,7 @@ export function copyAssignment(value: unknown): PlayerAssignment | null {
 }
 export function copyAvailability(value: unknown): PlayerAvailability {
   const v = object(value, 'availability');
-  onlyKeys(v, ['status', 'evidenceId'], 'availability');
+  onlyKeys(v, ['status', 'evidenceId'], 'availability'], 'availability');
   return {
     status: enumeration(v.status, ['AVAILABLE', 'INJURED', 'REHAB', 'UNAVAILABLE'] as const, 'availability.status'),
     evidenceId: identifier(v.evidenceId, 'availability.evidenceId'),

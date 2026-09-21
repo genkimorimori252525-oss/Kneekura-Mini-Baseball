@@ -49,6 +49,12 @@ function changePlayer(player: PlayerClubState, change: PlayerRosterChange): Play
   const registrations = [...player.registrations];
   for (const update of change.registrations ?? []) {
     const index = registrations.findIndex(entry => entry.competitionEditionId === update.competitionEditionId);
+    const registrationClub = index === -1
+      ? (player.assignment?.clubId ?? player.clubRights.rightsHolderClubId)
+      : registrations[index].clubId;
+    if (update.clubId !== registrationClub) {
+      throw new RosterValidationError({ code: 'EXTERNAL_TRANSACTION_REQUIRED', playerId: player.playerId });
+    }
     if (index === -1) registrations.push(update);
     else registrations[index] = update;
   }
