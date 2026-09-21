@@ -763,14 +763,11 @@ Team Mood design (APPROVED):
 - Team Mood and Team Traits must not create circular self-amplifying modifiers.
 - Anti-Monocausal Principle applies: Team Mood alone never explains a 100-loss turnaround or star-heavy collapse.
 
-Draft:
+Canonical:
 - `docs/game-design/37-team-mood-architecture.md`
 
-Next review questions:
-- approve the five Mood axes
-- approve catalyst model for Mood Maker
-- decide UI visibility
-- decide offseason carryover calibration
+The five Mood axes and Mood Maker catalyst model are already approved.
+Remaining UI wording / carryover rates are implementation calibration, not open architecture.
 
 
 Team Mood baseball-decision consequence layer (CANONICAL / DESIGN FROZEN v1):
