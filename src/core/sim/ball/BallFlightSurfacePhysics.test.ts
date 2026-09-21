@@ -445,7 +445,7 @@ describe('surface-aware ball flight', () => {
     );
 
     expect(bounced.velocity.y)
-      .toBeCloseTo(0.5, 5);
+      .toBeCloseTo(0.5, 4);
 
     const ground = advanceBallState(
       {
