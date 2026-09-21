@@ -3,7 +3,14 @@ import {
   findKensrud2016TangentialReference,
 } from './Kensrud2016TangentialCalibration';
 import type {
-  RigidBatBallContactParameters,
+  PitchWorldState,
+} from './BatBallContact';
+import {
+  resolveRigidBatBallContactWithParameterResolver,
+  type RigidBaseballProperties,
+  type RigidBatBallContactParameters,
+  type RigidBatBallContactResult,
+  type RigidBatState,
 } from './RigidBatBallContact';
 
 export const WOOD_BAT_GAME_SPEED_RESPONSE_VERSION =
@@ -107,3 +114,26 @@ export const createWoodBatGameSpeedContactCandidate = (
     frictionCoefficient,
   };
 };
+
+
+export const resolveWoodBatGameSpeedBallContact = (
+  pitch: PitchWorldState,
+  bat: RigidBatState,
+  ball: RigidBaseballProperties,
+  frictionCoefficient:
+    number =
+      KENSRUD_2016_GAME_SPEED_CONTEXT
+        .frictionCoefficientLowerBound,
+): RigidBatBallContactResult | null => (
+  resolveRigidBatBallContactWithParameterResolver(
+    pitch,
+    bat,
+    ball,
+    (kinematics) =>
+      createWoodBatGameSpeedContactCandidate({
+        relativeImpactSpeedMps:
+          kinematics.normalApproachSpeedMps,
+        frictionCoefficient,
+      }),
+  )
+);
