@@ -58,6 +58,12 @@ export type AerodynamicRigidPitchAgainstBatterInput =
   | AerodynamicRigidTakePitchAgainstBatterInput
   | AerodynamicRigidSwingPitchAgainstBatterInput;
 
+const isAerodynamicRigidTakePitchInput = (
+  input: AerodynamicRigidPitchAgainstBatterInput,
+): input is AerodynamicRigidTakePitchAgainstBatterInput => (
+  input.action.kind === 'take'
+);
+
 export type AerodynamicRigidPitchAgainstBatterResolution =
   | Readonly<{
       kind: 'recorded_take';
@@ -86,7 +92,7 @@ export const resolveAndRecordAerodynamicRigidPitchAgainstBatter = (
   timeline: CanonicalPlateAppearanceTimeline,
   input: AerodynamicRigidPitchAgainstBatterInput,
 ): AerodynamicRigidPitchAgainstBatterResolution => {
-  if (input.action.kind === 'take') {
+  if (isAerodynamicRigidTakePitchInput(input)) {
     const physical =
       resolveAerodynamicTakenPitchPhysicalResult({
         trajectory: input.trajectory,
