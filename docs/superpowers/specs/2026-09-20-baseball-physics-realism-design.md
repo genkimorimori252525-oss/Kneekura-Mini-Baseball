@@ -1086,6 +1086,21 @@ into `normalRestitution`. `BaseballSurfacePaceModel` explicitly converts
 the internal normal/tangential/friction model to the published total rebound
 speed ratio for fitting.
 
+The full Pennbounce Table 5 block observations are now retained as
+`PENNBOUNCE_2005_BLOCK_COMBINATION_TARGETS` rather than only the rounded
+surface/speed averages. The experiment found a significant surface × velocity
+interaction: for example, natural turfgrass became slower at the higher test
+speed while the skinned infield became faster. A constant, speed-independent
+impulse parameter set cannot reproduce such a material response because its
+dimensionless rebound ratio is speed-invariant at fixed angle.
+
+Therefore `BallSurfaceResponseProfile` provides a versioned, deterministic
+piecewise-linear mapping from incident speed to reduced-order contact
+parameters. `BallFlight` can use either a static compatibility contact or a
+speed-dependent response profile, but requires exactly one. This adds the
+necessary calibration degree of freedom without inventing field coefficients
+before they have been fitted.
+
 Still required before Phase C can close:
 
 - fit/version infield dirt contact parameters against surface-pace data;
