@@ -53,6 +53,21 @@ export const REFERENCE_BASEBALL_RIGID_BODY: RigidBaseballProperties =
     rotationalInertiaFactor: 0.4,
   });
 
+/**
+ * Brody's measured collegiate baseball had I/(mR^2) ~= 0.378 rather than the
+ * uniform-solid-sphere value 0.4. Keep the old 0.4 reference for compatibility
+ * fixtures, while realistic calibrated paths may opt into this measured value.
+ */
+export const MEASURED_BASEBALL_ROTATIONAL_INERTIA_FACTOR =
+  0.378 as const;
+
+export const REALISTIC_BASEBALL_RIGID_BODY: RigidBaseballProperties =
+  Object.freeze({
+    ...REFERENCE_BASEBALL_RIGID_BODY,
+    rotationalInertiaFactor:
+      MEASURED_BASEBALL_ROTATIONAL_INERTIA_FACTOR,
+  });
+
 export type RigidBatBallContactParameters = Readonly<{
   normalRestitution: number;
   tangentialRestitution: number;
