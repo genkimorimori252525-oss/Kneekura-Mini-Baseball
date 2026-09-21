@@ -24,6 +24,12 @@ import type {
   SwingKinematicsV1PitchAgainstBatterInput,
 } from '../pitching/SwingKinematicsV1PitchAgainstBatter';
 import type {
+  BatterPitchAnticipationResolution,
+} from '../pitching/BatterPitchAnticipation';
+import type {
+  BatterAnticipationTimingCalibration,
+} from '../pitching/BatterAnticipationSwingAdapter';
+import type {
   PlateAppearanceCommandSession,
 } from './PlateAppearanceCommandSession';
 
@@ -555,6 +561,12 @@ export type CommandedPhysicalPitchEnvironmentV1 =
       CommandSwingKinematicsV1BatterCalibration;
     batter:
       SwingKinematicsV1BatterRuntime;
+    anticipation?: Readonly<{
+      resolution:
+        BatterPitchAnticipationResolution;
+      calibration:
+        BatterAnticipationTimingCalibration;
+    }>;
   }>;
 
 export type CommandedSwingKinematicsV1Pitch =
@@ -709,6 +721,8 @@ export const createCommandedSwingKinematicsV1PitchInput = (
             session,
             environment.batterCalibration,
           ),
+        anticipation:
+          environment.anticipation,
       },
       actualTrajectory:
         environment.actualTrajectory,
