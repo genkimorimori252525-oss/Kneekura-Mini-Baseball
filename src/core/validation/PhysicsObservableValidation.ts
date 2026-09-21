@@ -8,6 +8,7 @@ export type PhysicsObservableId =
   | 'drag_coefficient'
   | 'lift_coefficient'
   | 'surface_pace_ratio'
+  | 'friction_coefficient'
   | 'rotational_inertia_factor'
   | 'pitch_plate_x_m'
   | 'pitch_plate_y_m'
@@ -24,11 +25,21 @@ export type PhysicsObservableId =
   | 'roll_distance_m'
   | 'wall_rebound_speed_mps';
 
+export type PhysicsObservableConstraint =
+  | 'approximately'
+  | 'minimum'
+  | 'maximum';
+
 export type PhysicsObservableTarget = Readonly<{
   observableId: PhysicsObservableId;
   sourceId: string;
   sourceVersion: string;
   targetValue: number;
+  /**
+   * Defaults to 'approximately'. Minimum/maximum preserve one-sided
+   * experimental bounds without turning them into fake central values.
+   */
+  constraint?: PhysicsObservableConstraint;
   absoluteTolerance?: number;
   relativeTolerance?: number;
 }>;
@@ -42,6 +53,7 @@ export type PhysicsObservableEvaluation = Readonly<{
   observableId: PhysicsObservableId;
   sourceId: string;
   sourceVersion: string;
+  constraint: PhysicsObservableConstraint;
   observedValue: number;
   targetValue: number;
   residual: number;
@@ -236,6 +248,31 @@ export const evaluatePhysicsValidationCase = (
         const allowedAbsoluteResidual =
           allowedResidual(target);
 
+        const constraint =
+          target.constraint
+          ?? 'approximately';
+
+        const passed =
+          constraint
+          === 'approximately'
+            ? (
+                absoluteResidual
+                <= allowedAbsoluteResidual
+              )
+            : constraint === 'minimum'
+              ? (
+                  measurement
+                    .observedValue
+                  >= target.targetValue
+                    - allowedAbsoluteResidual
+                )
+              : (
+                  measurement
+                    .observedValue
+                  <= target.targetValue
+                    + allowedAbsoluteResidual
+                );
+
         return {
           observableId:
             target.observableId,
@@ -243,6 +280,7 @@ export const evaluatePhysicsValidationCase = (
             target.sourceId,
           sourceVersion:
             target.sourceVersion,
+          constraint,
           observedValue:
             measurement.observedValue,
           targetValue:
@@ -250,9 +288,7 @@ export const evaluatePhysicsValidationCase = (
           residual,
           absoluteResidual,
           allowedAbsoluteResidual,
-          passed:
-            absoluteResidual
-            <= allowedAbsoluteResidual,
+          passed,
         };
       },
     );
