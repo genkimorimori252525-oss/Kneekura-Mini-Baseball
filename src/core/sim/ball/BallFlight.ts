@@ -6,6 +6,19 @@ import {
   calculateBaseballAerodynamics,
   type BaseballAerodynamicsParameters,
 } from './BaseballAerodynamics';
+import {
+  resolveBallSurfaceContact,
+  type BallSurfaceContactParameters,
+} from './BallSurfaceContact';
+import type {
+  RigidBaseballProperties,
+} from '../contact/RigidBatBallContact';
+
+export type GroundSurfacePhysics = Readonly<{
+  ball: RigidBaseballProperties;
+  contact: BallSurfaceContactParameters;
+  enforceRollingConstraint?: boolean;
+}>;
 
 export type BallFlightParameters = Readonly<{
   ticksPerSecond: number;
@@ -17,6 +30,11 @@ export type BallFlightParameters = Readonly<{
   integrationStepTicks: number;
   restingVerticalSpeed: number;
   aerodynamics?: BaseballAerodynamicsParameters | null;
+  /**
+   * Optional spin-coupled physical ground contact. Null preserves the frozen
+   * legacy ground response for compatibility.
+   */
+  groundSurfacePhysics?: GroundSurfacePhysics | null;
 }>;
 
 export const DEFAULT_BALL_FLIGHT_PARAMETERS: BallFlightParameters = Object.freeze({
@@ -29,6 +47,7 @@ export const DEFAULT_BALL_FLIGHT_PARAMETERS: BallFlightParameters = Object.freez
   integrationStepTicks: 2_000,
   restingVerticalSpeed: 0.5,
   aerodynamics: null,
+  groundSurfacePhysics: null,
 });
 
 export const REALISTIC_BASEBALL_FLIGHT_PARAMETERS: BallFlightParameters =
@@ -101,6 +120,36 @@ const validateParameters = (parameters: BallFlightParameters): void => {
     throw new Error(
       'aerodynamics.ballRadiusM must match ballRadius',
     );
+  }
+
+  const surface =
+    parameters.groundSurfacePhysics;
+  if (
+    surface !== null
+    && surface !== undefined
+  ) {
+    if (
+      Math.abs(
+        surface.ball.radiusM
+        - parameters.ballRadius,
+      ) > 1e-9
+    ) {
+      throw new Error(
+        'groundSurfacePhysics.ball.radiusM must match ballRadius',
+      );
+    }
+    if (
+      parameters.aerodynamics !== null
+      && parameters.aerodynamics !== undefined
+      && Math.abs(
+        surface.ball.massKg
+        - parameters.aerodynamics.ballMassKg,
+      ) > 1e-9
+    ) {
+      throw new Error(
+        'ground surface ball mass must match aerodynamic ball mass',
+      );
+    }
   }
 };
 
@@ -302,6 +351,32 @@ const isOnGround = (
   && Math.abs(state.velocity.y) <= GROUND_EPSILON
 );
 
+const applyRollingSpinConstraint = (
+  state: BattedBallInitialState,
+  parameters: BallFlightParameters,
+): BattedBallInitialState => {
+  const surface =
+    parameters.groundSurfacePhysics;
+  if (
+    surface === null
+    || surface === undefined
+    || surface.enforceRollingConstraint === false
+  ) {
+    return state;
+  }
+
+  return {
+    ...state,
+    spin: {
+      x: state.velocity.z
+        / parameters.ballRadius,
+      y: state.spin.y,
+      z: -state.velocity.x
+        / parameters.ballRadius,
+    },
+  };
+};
+
 const advanceGroundRoll = (
   state: BattedBallInitialState,
   stepTicks: number,
@@ -312,7 +387,7 @@ const advanceGroundRoll = (
     state.velocity.z,
   );
   if (speed <= GROUND_EPSILON) {
-    return {
+    return applyRollingSpinConstraint({
       ...state,
       tick: state.tick + stepTicks,
       position: {
@@ -324,7 +399,7 @@ const advanceGroundRoll = (
         y: 0,
         z: 0,
       },
-    };
+    }, parameters);
   }
 
   const deceleration =
@@ -333,7 +408,7 @@ const advanceGroundRoll = (
     stepTicks / parameters.ticksPerSecond;
 
   if (deceleration <= GROUND_EPSILON) {
-    return {
+    return applyRollingSpinConstraint({
       tick: state.tick + stepTicks,
       position: {
         x: state.position.x
@@ -348,7 +423,7 @@ const advanceGroundRoll = (
         z: state.velocity.z,
       },
       spin: state.spin,
-    };
+    }, parameters);
   }
 
   const directionX = state.velocity.x / speed;
@@ -370,7 +445,7 @@ const advanceGroundRoll = (
     speed - deceleration * durationSeconds,
   );
 
-  return {
+  return applyRollingSpinConstraint({
     tick: state.tick + stepTicks,
     position: {
       x: state.position.x + directionX * distance,
@@ -389,7 +464,7 @@ const advanceGroundRoll = (
           z: directionZ * remainingSpeed,
         },
     spin: state.spin,
-  };
+  }, parameters);
 };
 
 export const findGroundRollingStopTick = (
@@ -461,26 +536,100 @@ const advanceStep = (
         ? current
         : advanceFreeFlight(current, ticksToContact, parameters);
 
-    let impactVelocity = freeAtContact.velocity;
-    if (impactVelocity.y < 0) {
-      const reflectedY = -impactVelocity.y * parameters.groundRestitution;
-      impactVelocity = {
-        x: impactVelocity.x * parameters.groundFriction,
-        y: reflectedY < parameters.restingVerticalSpeed ? 0 : reflectedY,
-        z: impactVelocity.z * parameters.groundFriction,
+    const surface =
+      parameters.groundSurfacePhysics;
+
+    if (
+      surface !== null
+      && surface !== undefined
+      && freeAtContact.velocity.y < 0
+    ) {
+      const contact =
+        resolveBallSurfaceContact({
+          tick: contactTick,
+          ballCenter: {
+            x: freeAtContact.position.x,
+            y: parameters.ballRadius,
+            z: freeAtContact.position.z,
+          },
+          ballVelocity:
+            freeAtContact.velocity,
+          ballSpin:
+            freeAtContact.spin,
+          ball: surface.ball,
+          surfaceNormal: {
+            x: 0,
+            y: 1,
+            z: 0,
+          },
+          parameters:
+            surface.contact,
+        });
+
+      if (contact === null) {
+        throw new Error(
+          'ground surface contact unexpectedly resolved as separating',
+        );
+      }
+
+      const settled =
+        contact.exitVelocity.y
+        < parameters.restingVerticalSpeed;
+
+      current = {
+        tick: contactTick,
+        position: {
+          x: freeAtContact.position.x,
+          y: parameters.ballRadius,
+          z: freeAtContact.position.z,
+        },
+        velocity: {
+          x: contact.exitVelocity.x,
+          y: settled
+            ? 0
+            : contact.exitVelocity.y,
+          z: contact.exitVelocity.z,
+        },
+        spin: contact.exitSpin,
+      };
+
+      if (settled) {
+        current =
+          applyRollingSpinConstraint(
+            current,
+            parameters,
+          );
+      }
+    } else {
+      let impactVelocity =
+        freeAtContact.velocity;
+      if (impactVelocity.y < 0) {
+        const reflectedY =
+          -impactVelocity.y
+          * parameters.groundRestitution;
+        impactVelocity = {
+          x: impactVelocity.x
+            * parameters.groundFriction,
+          y: reflectedY
+            < parameters.restingVerticalSpeed
+            ? 0
+            : reflectedY,
+          z: impactVelocity.z
+            * parameters.groundFriction,
+        };
+      }
+
+      current = {
+        tick: contactTick,
+        position: {
+          x: freeAtContact.position.x,
+          y: parameters.ballRadius,
+          z: freeAtContact.position.z,
+        },
+        velocity: impactVelocity,
+        spin: freeAtContact.spin,
       };
     }
-
-    current = {
-      tick: contactTick,
-      position: {
-        x: freeAtContact.position.x,
-        y: parameters.ballRadius,
-        z: freeAtContact.position.z,
-      },
-      velocity: impactVelocity,
-      spin: freeAtContact.spin,
-    };
     remaining -= ticksToContact;
   }
 
