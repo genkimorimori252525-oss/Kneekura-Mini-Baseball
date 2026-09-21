@@ -778,6 +778,49 @@ Important boundary:
 
 The new path remains opt-in until calibration evidence is strong enough to replace the legacy contact model.
 
+### 4.0.1 Cross/Nathan low-speed validation checkpoint
+
+The reduced-order rigid collision now has a laboratory-geometry regression
+fixture based on Cross & Nathan (2006).
+
+The fixture uses the published modified Louisville Slugger properties:
+
+- bat mass 0.989 kg;
+- length 0.84 m;
+- transverse MOI 0.0460 kg m^2;
+- axial MOI 4.39e-4 kg m^2;
+- barrel diameter 0.0667 m;
+- COM 0.265 m from the barrel end;
+- representative impact 0.150 m from the barrel end;
+- baseball mass 0.145 kg and diameter 0.072 m.
+
+The rigid effective-mass calculation reproduces the paper's reported recoil
+geometry to rounding:
+
+```text
+normal recoil factor ry ~= 0.188
+tangential recoil factor rx ~= 0.159
+```
+
+The low-speed (~4 m/s) measured collision values are retained only as a
+validation fixture:
+
+```text
+normal COR ey ~= 0.63
+tangential COR ex ~= 0.16
+ball-bat sliding friction > 0.50
+```
+
+With those values, the current solver produces an apparent normal COR near the
+reported ~0.37-0.375 and an apparent tangential COR near zero through recoil
+and rotational effective mass rather than through an arbitrary spin-retention
+bonus.
+
+Important limitation: Cross & Nathan explicitly caution against directly
+assuming these low-speed coefficients remain valid at game-speed baseball
+impacts. This checkpoint validates the **equations and effective-mass
+geometry**, not final MLB/NPB high-speed coefficients.
+
 ### 4.1 Tapered bat geometry
 
 A real bat is not a constant-radius capsule.
