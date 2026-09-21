@@ -329,10 +329,17 @@ The realistic pitch path now reaches both take and swing decisions.
 Implemented:
 
 - `AerodynamicSwingingPitchPhysicalResult`
+  - remains the frozen compatibility path;
   - searches bat/ball contact along the continuously integrated aerodynamic pitch path;
   - uses conservative advancement based on an upper bound on pitch/ball geometric closing speed rather than renderer cadence;
   - therefore lateral/vertical pitch movement changes the actual contact geometry and timing;
-  - intentionally reuses the frozen legacy contact response after contact is found, until the reduced-order rigid collision has completed calibration;
+  - retains the legacy contact response after contact is found;
+- `AerodynamicRigidBatSwingingPitchPhysicalResult`
+  - is the opt-in replacement contact path;
+  - uses the tapered rigid/reduced-order bat geometry for contact separation and collision;
+  - converts the existing swing model's **grip** linear velocity into the rigid bat center-of-mass velocity before applying recoil/inertia;
+  - resolves collision coefficients from the actual local pre-impact kinematics;
+  - therefore an evidence-backed speed-dependent wood response can be selected by the real contact normal approach speed rather than by a pitch/batted-ball label;
 - `AerodynamicPitchAgainstBatter`
   - records aerodynamic taken pitches and aerodynamic swing/contact results through the existing canonical plate-appearance timeline;
   - preserves the existing rule/count adapters rather than creating a second rules engine.
