@@ -1,0 +1,14 @@
+name: Export Swing Observer HTML
+on:
+  workflow_dispatch:
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: swing-kinematics-v1-core-observer
+          path: docs/presentation/swing-kinematics-v1-core-observer.html
+          if-no-files-found: error
+          compression-level: 0
