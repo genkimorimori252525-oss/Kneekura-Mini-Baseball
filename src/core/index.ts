@@ -235,3 +235,4 @@ export * from './sim/ball/BaseballAerodynamicValidationEvidence';
 export * from './sim/contact/WoodBatSpeedResponseProfile';
 export * from './sim/ball/BaseballAtmosphere';
 export * from './validation/PublishedBaseballPhysicsValidationCorpus';
+export * from './sim/ball/BaseballRealityProfileV1';
