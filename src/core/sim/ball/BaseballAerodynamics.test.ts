@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Vec3 } from '../../model/geometry';
 import {
+  REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS,
   REFERENCE_BASEBALL_AERODYNAMICS,
   calculateBaseballAerodynamics,
   calculateBaseballLiftCoefficient,
@@ -67,6 +68,31 @@ describe('baseball aerodynamics', () => {
 
     expect(Math.abs(tailWind.dragAcceleration.z))
       .toBeLessThan(Math.abs(noWind.dragAcceleration.z));
+  });
+
+  it('can use the Lyu 2022 speed-spin profile instead of constant drag and bilinear lift', () => {
+    const result =
+      calculateBaseballAerodynamics(
+        v(0, 0, 35),
+        v(-180, 0, 0),
+        REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS,
+      );
+
+    expect(result.reynoldsNumber)
+      .not.toBeNull();
+    expect(
+      result.dragCoefficientUsed,
+    ).toBeGreaterThan(0);
+    expect(
+      result.liftCoefficientUsed,
+    ).toBeGreaterThan(0);
+    expect(
+      result.dragCoefficientUsed,
+    ).not.toBeCloseTo(
+      REFERENCE_BASEBALL_AERODYNAMICS
+        .dragCoefficient,
+      6,
+    );
   });
 
   it('scales aerodynamic force with air density', () => {
