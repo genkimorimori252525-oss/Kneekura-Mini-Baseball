@@ -201,3 +201,7 @@ export * from './sim/pitching/CatcherLedPlateAppearanceSequence';
 export * from './sim/pitching/PitchSkillCommandResponse';
 export * from './sim/pitching/CatcherCalledPitchSkillFlight';
 export * from './sim/pitching/CatcherLedPhysicalPitch';
+export * from './sim/pitching/PitcherSignDecision';
+export * from './sim/pitching/BatterPitchAnticipation';
+export * from './sim/pitching/BatterAnticipationSwingAdapter';
+export * from './sim/pitching/AnticipationAwareAerodynamicSwing';
