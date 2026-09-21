@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Swing Kinematics v1 — Core Observer / v16 Diagnostic</title>
+<style>
+:root{color-scheme:dark;--bg:#07090d;--panel:#0d1118;--panel2:#121925;--line:#2b3442;--text:#edf2f7;--muted:#99a7b8;--yellow:#f5c542;--white:#f4f1e8;--cyan:#76d5ff;--green:#8ee89a}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Noto Sans JP",monospace}
+body{padding:18px}.shell{max-width:1480px;margin:0 auto}.top{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;border:1px solid var(--line);background:#090d13;padding:14px 16px}
+h1{font-size:20px;margin:0 0 7px;color:var(--yellow);letter-spacing:.04em}.subtitle{color:var(--muted);font-size:12px;line-height:1.55;max-width:900px}
+.badges{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.badge{border:1px solid #4a5568;background:#121923;padding:5px 8px;font-size:11px;white-space:nowrap}.badge.hot{border-color:#9b7a16;color:#ffe27b}
+.layout{display:grid;grid-template-columns:280px 1fr;gap:12px;margin-top:12px}.panel{border:1px solid var(--line);background:var(--panel);padding:12px}.sectionTitle{font-size:12px;color:var(--yellow);margin:0 0 9px;letter-spacing:.06em}
+.courseGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.course{min-height:48px;border:1px solid #354153;background:#121925;color:#dfe7ef;padding:5px;font:inherit;font-size:11px;cursor:pointer}.course:hover{border-color:#65748a}.course.active{background:#332b12;border-color:var(--yellow);color:#ffe58b}
+.meta{margin-top:12px;border-top:1px solid #26303d;padding-top:10px;font-size:11px;line-height:1.75;color:var(--muted)}.meta strong{color:#e9eef5;font-weight:600}.controls{margin-top:12px;display:grid;gap:8px}.buttonRow{display:flex;gap:6px}.btn{flex:1;border:1px solid #3b4758;background:#151d29;color:#eef3f8;padding:7px 8px;font:inherit;font-size:11px;cursor:pointer}.btn:hover{border-color:#77869b}.btn.primary{border-color:#8f731c;color:#ffe58b}
+input[type=range]{width:100%;accent-color:var(--yellow)}.timeLine{font-size:10px;color:#9aa8b8;display:flex;justify-content:space-between}
+.content{display:grid;gap:12px}.auditGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.view{border:1px solid #273241;background:#090d13;padding:8px}.viewTitle{display:flex;justify-content:space-between;gap:10px;font-size:11px;color:#c8d2df;margin-bottom:6px}.viewTitle span:last-child{color:#78879a}
+.auditCanvas{width:100%;height:290px;display:block;background:#070a0f}.miniWrap{display:grid;grid-template-columns:minmax(620px,1fr) 260px;gap:12px;align-items:start}.miniStage{border:1px solid #3e3516;background:#050607;padding:10px}.miniCanvas{display:block;width:600px;height:432px;max-width:100%;aspect-ratio:150/108;image-rendering:pixelated;image-rendering:crisp-edges;background:#030405;border:1px solid #5e501d}
+.note{font-size:11px;line-height:1.7;color:#9ba8b8;border-left:2px solid #665719;padding-left:10px}.note strong{color:#e6edf5}.status{margin-top:10px;display:grid;gap:6px;font-size:10px}.status div{display:flex;justify-content:space-between;border-bottom:1px dotted #283242;padding-bottom:4px}.status b{color:#dde6ef;font-weight:500}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:7px;font-size:10px;color:#8f9daf}.sw{display:inline-block;width:12px;height:3px;margin-right:5px;vertical-align:middle}.foot{margin-top:12px;border:1px solid #2a3340;background:#090d13;padding:10px 12px;font-size:10px;line-height:1.65;color:#7f8b99}
+@media(max-width:1050px){.layout{grid-template-columns:1fr}.auditGrid{grid-template-columns:1fr}.miniWrap{grid-template-columns:1fr}.badges{justify-content:flex-start}.top{flex-direction:column}}
+</style>
+</head>
+<body data-observer-contract="v16" data-physics-source="core-generated-swing-kinematics-v1">
+<div class="shell">
+  <header class="top">
+    <div>
+      <h1>Swing Kinematics v1 — Core Observer</h1>
+      <div class="subtitle">物理バット軌道の診断専用ビュー。左はCoreが5ms間隔で出した実座標、右は同じ座標を既存Batter POVへ投影済みのv16 Mini観測。HTMLは物理を生成しない・軌道を補間しない・結果を変更しない。</div>
+    </div>
+    <div class="badges">
+      <div class="badge hot">CORE GENERATED</div>
+      <div class="badge">HF 5ms</div>
+      <div class="badge">MINI 4px / 55ms</div>
+      <div class="badge">v16 OBSERVER CONTRACT</div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="panel">
+      <div class="sectionTitle">COURSE / 9 REPRESENTATIVE SAMPLES</div>
+      <div id="courseGrid" class="courseGrid"></div>
+      <div id="meta" class="meta"></div>
+      <div class="controls">
+        <div class="buttonRow">
+          <button id="play" class="btn primary">再生</button>
+          <button id="pause" class="btn">停止</button>
+          <button id="reset" class="btn">先頭</button>
+        </div>
+        <input id="time" type="range" min="0" max="1000" value="0" step="1">
+        <div class="timeLine"><span id="timeText">0ms</span><span id="phaseText">PRE</span></div>
+      </div>
+    </aside>
+
+    <main class="content">
+      <section class="panel">
+        <div class="sectionTitle">HIGH-FIDELITY PHYSICAL AUDIT — STORED CORE SAMPLES ONLY</div>
+        <div class="auditGrid">
+          <div class="view">
+            <div class="viewTitle"><span>TOP / X-Z</span><span>5ms Core sample</span></div>
+            <canvas id="top" class="auditCanvas" width="620" height="290"></canvas>
+          </div>
+          <div class="view">
+            <div class="viewTitle"><span>SIDE / Z-Y</span><span>5ms Core sample</span></div>
+            <canvas id="side" class="auditCanvas" width="620" height="290"></canvas>
+          </div>
+        </div>
+        <div class="legend">
+          <span><i class="sw" style="background:#76d5ff"></i>sweet spot path</span>
+          <span><i class="sw" style="background:#f4f1e8"></i>physical bat grip→tip</span>
+          <span><i class="sw" style="background:#f5c542"></i>contact sample</span>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="sectionTitle">MINI v16 OBSERVATION — EXISTING BATTER POV / 150×108 LOGICAL → 4px DISPLAY</div>
+        <div class="miniWrap">
+          <div class="miniStage">
+            <canvas id="mini" class="miniCanvas" width="150" height="108"></canvas>
+          </div>
+          <div>
+            <div class="note"><strong>表示境界:</strong><br>ここではv16の連続物理バットを描く視点としてBatter POVを使用。Miniは55msの観測サンプルを次のサンプルまで保持する。投手目線B1だけは既定どおり物理バットを不可視にし、採用済み4コマ原画のバットを表示するが、物理・接触・この軌道データは変わらない。</div>
+            <div class="status">
+              <div><span>HF sample offset</span><b id="hfTick">-</b></div>
+              <div><span>Mini sample offset</span><b id="miniTick">-</b></div>
+              <div><span>Mini cadence</span><b>55,000µs</b></div>
+              <div><span>Logical raster</span><b>150×108</b></div>
+              <div><span>Display grid</span><b>4px</b></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="foot">診断専用。fixtureは <b>core-generated-swing-kinematics-v1</b> から生成され、HTMLには座標列のみを埋め込む。高精細側もMini側も保存済みサンプルを選ぶだけで、ブラウザ側にスイング計画・接触深度計算・attack angle計算・剛体積分・補間器は存在しない。</div>
+</div>
+
+<script id="fixture" type="application/octet-stream">eyJ2ZXJzaW9uIjoic3dpbmcta2luZW1hdGljcy1vYnNlcnZlci1jb21wYWN0LXYxIiwic291cmNlIjoiY29yZS1nZW5lcmF0ZWQtc3dpbmcta2luZW1hdGljcy12MSIsImhhbmRlZG5lc3MiOiJSIiwiaGlnaEZpZGVsaXR5U3RlcE1pY3JvcyI6NTAwMCwibWluaUNhZGVuY2VNaWNyb3MiOjU1MDAwLCJsb2dpY2FsV2lkdGgiOjE1MCwibG9naWNhbEhlaWdodCI6MTA4LCJwaXhlbFNjYWxlIjo0LCJzdHJpa2Vab25lQmF0dGVyUG92IjpbODIsNzIsOTUsNzEsODIsNTQsOTcsNTNdLCJjb3Vyc2VzIjpbeyJpZCI6ImhpZ2hfaW5zaWRlIiwibGFiZWwiOiLpq5jjgoHlhoXop5IiLCJoZWlnaHROb3JtYWxpemVkIjoxLCJpbnNpZGVPdXRzaWRlTm9ybWFsaXplZCI6LTEsInByZWZlcnJlZENvbnRhY3REZXB0aE0iOjAuNjIwNTQsImF0dGFja0FuZ2xlRGVnIjo3LCJhdHRhY2tEaXJlY3Rpb25QdWxsRGVnIjo2LCJjb250YWN0U3dlZXRTcG90U3BlZWRNcHMiOjMxLjQ0LCJwcmVDb250YWN0U2Vjb25kcyI6MC4xNzksImNvbnRhY3RPZmZzZXRNaWNyb3MiOjE3OTAwMCwiZHVyYXRpb25NaWNyb3MiOjMxNDAwMCwiaGlnaEZpZGVsaXR5IjpbWzAsMCwtMC43NCwxLjM0LC0wLjQsLTAuNjA1NDcyLDIuMTA1MTI3LC0wLjcxOTUwNCwtMC42NDMxNCwxLjg5MDg5MiwtMC42MzAwNDMsNjMsNDksNjgsMCw2NiwxOF0sWzUwMDAsMCwtMC43NDIwNjEsMS4zMjk4MTUsLTAuMzkyNjE0LC0wLjU5NTk2NCwyLjA5Mzg5NywtMC43MDk1MjcsLTAuNjM2ODcxLDEuODc5OTU0LC0wLjYyMDc5MSw2Myw0OSw2OSwxLDY3LDE5XSxbMTAwMDAsMCwtMC43NDM4MTQsMS4zMTY2MTIsLTAuMzkwMDM1LC0wLjU4MzQ1NywyLjA3ODk3NSwtMC43MDQxODMsLTAuNjI4MzU3LDEuODY1NTEzLC0wLjYxNjIyMSw2Myw1MCw3MCwzLDY3LDIwXSxbMTUwMDAsMCwtMC43NDU0MDgsMS4zMDA3MjgsLTAuMzkxODE1LC0wLjU2ODEyNiwyLjA2MDU4MiwtMC43MDI5MzIsLTAuNjE3NzY1LDEuODQ3ODIzLC0wLjYxNTgxOSw2Myw1MCw3MSw0LDY4LDIxXSxbMjAwMDAsMCwtMC43NDcwMDYsMS4yODI1MjMsLTAuMzk3NTEyLC0wLjU1MDE0MiwyLjAzODkzMSwtMC43MDUyMzIsLTAuNjA1MjY0LDEuODI3MTM3LC0wLjYxOTA3LDYzLDUxLDcyLDYsNjksMjNdLFsyNTAwMCwwLC0wLjc0ODc4MSwxLjI2MjM4MiwtMC40MDY2OTQsLTAuNTI5NjcyLDIuMDE0MjI3LC0wLjcxMDUzNywtMC41OTEwMjIsMS44MDM3MSwtMC42MjU0NjEsNjMsNTIsNzQsOCw3MCwyNF0sWzMwMDAwLDAsLTAuNzUwODk5LDEuMjQwNzEyLC0wLjQxODkzNywtMC41MDY4ODQsMS45ODY2NjEsLTAuNzE4Mjk4LC0wLjU3NTIwOCwxLjc3Nzc5NiwtMC42MzQ0NzcsNjIsNTMsNzUsMTAsNzEsMjZdLFszNTAwMCwwLC0wLjc1MzUxNCwxLjIxNzk0OSwtMC40MzM4MjgsLTAuNDgxOTUxLDEuOTU2NDIsLTAuNzI3OTYxLC0wLjU1Nzk4OSwxLjc0OTY0OCwtMC42NDU2MDQsNjIsNTUsNzcsMTIsNzIsMjddLFs0MDAwMCwwLC0wLjc1Njc1NywxLjE5NDU0OSwtMC40NTA5NjEsLTAuNDU1MDU4LDEuOTIzNjc3LC0wLjczODk3MiwtMC41Mzk1MzQsMS43MTk1MjEsLTAuNjU4MzI5LDYyLDU2LDc5LDE0LDczLDI5XSxbNDUwMDAsMCwtMC43NjA3MTcsMS4xNzA5ODcsLTAuNDY5OTM3LC0wLjQyNjQwMywxLjg4ODYsLTAuNzUwNzcsLTAuNTIwMDExLDEuNjg3NjY4LC0wLjY3MjEzNiw2Miw1Nyw4MSwxNyw3NCwzMV0sWzUwMDAwLDAsLTAuNzY1NDI5LDEuMTQ3NzUyLC0wLjQ5MDM2MSwtMC4zOTYyMDYsMS44NTEzNTMsLTAuNzYyNzk1LC0wLjQ5OTU4OCwxLjY1NDM0NCwtMC42ODY1MTMsNjIsNTksODMsMTksNzUsMzNdLFs1NTAwMCwwLC0wLjc3MDg2MywxLjEyNTMyOSwtMC41MTE4MzQsLTAuMzY0NzEyLDEuODEyMDk5LC0wLjc3NDQ4OSwtMC40Nzg0MzQsMS42MTk4MDMsLTAuNzAwOTQ2LDYxLDYwLDg1LDIyLDc3LDM1XSxbNjAwMDAsMCwtMC43NzY5MDUsMS4xMDQxODMsLTAuNTMzOTQ1LC0wLjMzMjE5OSwxLjc3MTAxLC0wLjc4NTI5OCwtMC40NTY3MTcsMS41ODQyOTksLTAuNzE0OTE5LDYxLDYxLDg3LDI1LDc4LDM4XSxbNjUwMDAsMCwtMC43ODMzNTYsMS4wODQ3MzksLTAuNTU2MjYyLC0wLjI5ODk3OSwxLjcyODI3NSwtMC43OTQ2NzUsLTAuNDM0NjA1LDEuNTQ4MDg1LC0wLjcyNzkxOSw2MSw2Myw4OSwyOCw4MCw0MF0sWzcwMDAwLDAsLTAuNzg5OTM0LDEuMDY3MzUzLC0wLjU3ODMxOCwtMC4yNjUzOTUsMS42ODQxMDcsLTAuODAyMDg4LC0wLjQxMjI2NiwxLjUxMTQxNiwtMC43Mzk0MzIsNjAsNjQsOTIsMzEsODEsNDJdLFs3NTAwMCwwLC0wLjc5NjI4NCwxLjA1MjI4MywtMC41OTk2LC0wLjIzMTgxOCwxLjYzODc1OSwtMC44MDcwMjMsLTAuMzg5ODY5LDEuNDc0NTQ2LC0wLjc0ODk0NSw2MCw2NSw5NCwzNCw4Miw0NV0sWzgwMDAwLDAsLTAuODAyMDA5LDEuMDM5NjcsLTAuNjE5NTQyLC0wLjE5ODYzNywxLjU5MjUyOCwtMC44MDg5ODYsLTAuMzY3NTgxLDEuNDM3NzI4LC0wLjc1NTk0Miw1OSw2Niw5NiwzNyw4NCw0N10sWzg1MDAwLDAsLTAuODA2NzEsMS4wMjk1MjcsLTAuNjM3NTE2LC0wLjE2NjI0LDEuNTQ1NzYzLC0wLjgwNzUwNywtMC4zNDU1NzIsMS40MDEyMTcsLTAuNzU5OTEsNTksNjcsOTcsNDAsODUsNDldLFs5MDAwMCwwLC0wLjgxMDAyOSwxLjAyMTczOCwtMC42NTI4NDIsLTAuMTM1LDEuNDk4ODYyLC0wLjgwMjEzNywtMC4zMjQwMDgsMS4zNjUyNjcsLTAuNzYwMzM0LDU5LDY4LDk5LDQzLDg2LDUxXSxbOTUwMDAsMCwtMC44MTE2OTUsMS4wMTYwODMsLTAuNjY0Nzk0LC0wLjEwNTI1NywxLjQ1MjI2MiwtMC43OTI0NDQsLTAuMzAzMDYsMS4zMzAxMzIsLTAuNzU2NzAyLDU5LDY4LDEwMCw0Niw4Nyw1M10sWzEwMDAwMCwwLC0wLjgxMTU1OSwxLjAxMjI3MiwtMC42NzI2MTgsLTAuMDc3MzAyLDEuNDA2NDI5LC0wLjc3ODAwNywtMC4yODI4OTQsMS4yOTYwNjUsLTAuNzQ4NDk4LDU5LDY5LDEwMSw0OSw4OCw1NV0sWzEwNTAwMCwwLC0wLjgwOTYxNSwxLjAwOTk4NSwtMC42NzU1NTQsLTAuMDUxMzcxLDEuMzYxODQxLC0wLjc1ODQwOCwtMC4yNjM2OCwxLjI2MzMyMSwtMC43MzUyMDksNTksNjksMTAyLDUxLDg5LDU2XSxbMTEwMDAwLDAsLTAuODA1OTk2LDEuMDA4OTIyLC0wLjY3Mjg1OCwtMC4wMjc2NDYsMS4zMTg5NjcsLTAuNzMzMjIyLC0wLjI0NTU4NCwxLjIzMjE1NCwtMC43MTYzMiw1OSw2OSwxMDIsNTMsODksNTddLFsxMTUwMDAsMCwtMC44MDA5NjMsMS4wMDg4MzUsLTAuNjYzODEyLC0wLjAwNjI2LDEuMjc4MjU2LC0wLjcwMjAxNCwtMC4yMjg3NzYsMS4yMDI4MTgsLTAuNjkxMzE4LDU5LDY5LDEwMiw1NCw5MCw1OV0sWzEyMDAwMCwwLC0wLjc5NDg3MSwxLjAwOTU1NCwtMC42NDc3NDIsMC4wMTI2OTQsMS4yNDAxMjcsLTAuNjY0MzM0LC0wLjIxMzQyNCwxLjE3NTU2NiwtMC42NTk2ODgsNjAsNjgsMTAyLDU2LDkwLDU5XSxbMTI1MDAwLDAsLTAuNzg4MTQ0LDEuMDExLC0wLjYyNDAxNiwwLjAyOTE0NCwxLjIwNDk2NCwtMC42MTk3MTIsLTAuMTk5Njk3LDEuMTUwNjU0LC0wLjYyMDkxNyw2MC

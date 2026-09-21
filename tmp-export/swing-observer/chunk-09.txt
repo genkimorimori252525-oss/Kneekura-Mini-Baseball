@@ -1,0 +1,77 @@
+inPath();
+  let first=true;
+  for(const f of course.highFidelity){const p=world(f).sweet;if(first){sc.moveTo(mz(p.z),my(p.y));first=false}else sc.lineTo(mz(p.z),my(p.y));}
+  sc.stroke();sc.globalAlpha=1;
+  const p=world(frame);
+  sc.strokeStyle="#f4f1e8";sc.lineWidth=4;sc.beginPath();sc.moveTo(mz(p.grip.z),my(p.grip.y));sc.lineTo(mz(p.tip.z),my(p.tip.y));sc.stroke();
+  sc.fillStyle=frame[1]===1?"#f5c542":"#76d5ff";sc.beginPath();sc.arc(mz(p.sweet.z),my(p.sweet.y),5,0,Math.PI*2);sc.fill();
+  sc.fillStyle="#738196";sc.font="11px monospace";sc.fillText("CATCHER ←  z  → PITCHER",12,16);
+}
+function drawMini(frame){
+  mc.fillStyle="#030405";mc.fillRect(0,0,150,108);
+  mc.strokeStyle="#111820";mc.lineWidth=1;
+  for(let x=0;x<150;x+=10){mc.beginPath();mc.moveTo(x,0);mc.lineTo(x,108);mc.stroke();}
+  for(let y=0;y<108;y+=10){mc.beginPath();mc.moveTo(0,y);mc.lineTo(150,y);mc.stroke();}
+  const z=data.strikeZoneBatterPov;
+  if(z.every(v=>v!==null)){
+    mc.strokeStyle="#f5c542";mc.lineWidth=1;
+    mc.beginPath();mc.moveTo(z[0],z[1]);mc.lineTo(z[2],z[3]);mc.lineTo(z[6],z[7]);mc.lineTo(z[4],z[5]);mc.closePath();mc.stroke();
+  }
+  const p=pov(frame);
+  if(p.grip&&p.tip){
+    mc.strokeStyle="#f4f1e8";mc.lineWidth=2;mc.beginPath();mc.moveTo(p.grip.x,p.grip.y);mc.lineTo(p.tip.x,p.tip.y);mc.stroke();
+    mc.fillStyle="#9a6732";mc.fillRect(Math.round(p.grip.x)-1,Math.round(p.grip.y)-1,2,2);
+  }
+  if(p.sweet){
+    mc.fillStyle=frame[1]===1?"#f5c542":"#76d5ff";mc.fillRect(Math.round(p.sweet.x)-1,Math.round(p.sweet.y)-1,3,3);
+  }
+  mc.fillStyle="#788694";mc.font="5px monospace";mc.fillText("BATTER POV / v16 OBSERVER",3,7);
+}
+function updateMeta(){
+  const c=currentCourse();
+  meta.innerHTML="<strong>"+c.label+"</strong><br>"+
+    "contact depth: <strong>"+c.preferredContactDepthM.toFixed(5)+" m</strong><br>"+
+    "attack angle: <strong>"+c.attackAngleDeg.toFixed(1)+"°</strong><br>"+
+    "attack direction: <strong>"+c.attackDirectionPullDeg.toFixed(1)+"°</strong><br>"+
+    "sweet spot speed: <strong>"+c.contactSweetSpotSpeedMps.toFixed(2)+" m/s</strong><br>"+
+    "pre-contact: <strong>"+(c.preContactSeconds*1000).toFixed(0)+" ms</strong><br>"+
+    "duration: <strong>"+(c.durationMicros/1000).toFixed(0)+" ms</strong>";
+}
+function render(){
+  const c=currentCourse();
+  currentUs=Math.max(0,Math.min(c.durationMicros,currentUs));
+  slider.max=String(c.durationMicros);
+  slider.value=String(Math.round(currentUs));
+  const hf=nearestStored(c.highFidelity,currentUs);
+  const mf=sampleAt(c.mini,currentUs);
+  drawTop(c,hf);drawSide(c,hf);drawMini(mf);
+  timeText.textContent=(currentUs/1000).toFixed(1)+"ms / "+(c.durationMicros/1000).toFixed(0)+"ms";
+  phaseText.textContent=phaseName[hf[1]];
+  hfTick.textContent=hf[0]+"µs";
+  miniTick.textContent=mf[0]+"µs";
+}
+function rebuildButtons(){
+  courseGrid.innerHTML="";
+  data.courses.forEach((c,i)=>{
+    const b=document.createElement("button");b.className="course"+(i===courseIndex?" active":"");
+    b.textContent=c.label;b.addEventListener("click",()=>{courseIndex=i;currentUs=0;playing=false;rebuildButtons();updateMeta();render();});
+    courseGrid.appendChild(b);
+  });
+}
+document.getElementById("play").addEventListener("click",()=>{playing=true;lastTime=performance.now();});
+document.getElementById("pause").addEventListener("click",()=>{playing=false;});
+document.getElementById("reset").addEventListener("click",()=>{playing=false;currentUs=0;render();});
+slider.addEventListener("input",()=>{playing=false;currentUs=Number(slider.value);render();});
+function loop(now){
+  if(playing){
+    const dt=Math.min(50,now-lastTime);lastTime=now;currentUs+=dt*1000;
+    if(currentUs>=currentCourse().durationMicros){currentUs=currentCourse().durationMicros;playing=false;}
+    render();
+  }
+  requestAnimationFrame(loop);
+}
+rebuildButtons();updateMeta();render();requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
