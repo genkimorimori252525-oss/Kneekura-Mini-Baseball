@@ -229,3 +229,5 @@ export * from './sim/ball/BaseballPhysicsV1';
 export * from './sim/ball/PennbounceSurfaceAssumptionSearch';
 export * from './validation/PhysicsObservableValidation';
 export * from './validation/BaseballPhysicsProductionReadiness';
+export * from './sim/ball/BaseballAerodynamicCoefficientProfile';
+export * from './sim/ball/BaseballFieldConditionEvidence';
