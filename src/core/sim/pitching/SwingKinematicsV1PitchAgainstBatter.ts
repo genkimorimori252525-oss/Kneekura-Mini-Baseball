@@ -155,6 +155,14 @@ export type SwingKinematicsV1PitchAgainstBatterResolution =
         CanonicalPlateAppearanceTimeline;
     }>;
 
+
+const isTakeInput = (
+  input:
+    SwingKinematicsV1PitchAgainstBatterInput,
+): input is SwingKinematicsV1TakePitchAgainstBatterInput => (
+  input.action.kind === 'take'
+);
+
 const validateTimingOffset = (
   value: number,
 ): void => {
@@ -196,7 +204,7 @@ export const resolveAndRecordSwingKinematicsV1PitchAgainstBatter = (
   input:
     SwingKinematicsV1PitchAgainstBatterInput,
 ): SwingKinematicsV1PitchAgainstBatterResolution => {
-  if (input.action.kind === 'take') {
+  if (isTakeInput(input)) {
     const resolution =
       resolveAndRecordAerodynamicRigidPitchAgainstBatter(
         timeline,
