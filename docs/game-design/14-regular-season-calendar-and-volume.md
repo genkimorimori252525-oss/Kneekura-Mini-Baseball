@@ -1,7 +1,10 @@
-# Regular Season Calendar & Game Volume
+# Regular Season Calendar & Game Volume — CANONICAL v1
 
-更新日: 2026-09-19  
-状態: **設計承認候補版。実装前。**
+更新日: 2026-09-22  
+状態: **CANONICAL / DESIGN FROZEN v1。2026-09-22ユーザー承認。実装前。**
+
+> 21 Full LeaguesのRegular Season volume / seasonal rhythm / calendar-generation boundaryはv1としてFreeze済み。
+> exact travel optimization / holiday preference / minor-league calendar等はimplementation calibrationであり、open architectureではない。
 
 関連:
 - `docs/game-design/10-world-league-catalog.md`
@@ -135,6 +138,31 @@ North America等、既にこれより長いLeagueはその文化を維持する�
 
 ---
 
+# 2.7 LeagueCalendarProfile v1 — CANONICAL
+
+各Full LeagueのRegular Season volume / seasonal windows / scheduling constraintsはversioned `LeagueCalendarProfile` で保持する。
+
+21 Full Leaguesの本書記載game countを **v1公式Regular Season volume** とする。
+
+```ts
+type LeagueCalendarProfile = {
+  version: string;
+  regularSeasonGamesPerClub: number;
+  regularSeasonWindow: DateWindow;
+  postseasonWindow?: DateWindow;
+  densityClass: ScheduleDensityClass;
+  preferredSeriesLength: number;
+  opponentMatrixVersion: string;
+  minimumOffDayPolicyVersion: string;
+  rainoutPolicyVersion: string;
+};
+```
+
+League expansion / contraction / calendar reformで試合数やWindowを変える場合は、Profileをin-place mutationせず新versionとして将来Seasonから適用する。
+
+過去Seasonの試合数・日程を新Profileへ書き換えない。
+
+---
 # 3. Schedule Density Classes
 
 全Full Leagueが100試合以上となるため、従来のWEEKEND_SERIES中心設計は廃止する。
@@ -285,7 +313,7 @@ Balanced:
 = 108
 ```
 
-6 home / 6 away。
+10 home / 10 away。
 
 ---
 
@@ -361,7 +389,7 @@ Cycle Year 2はWBC終了後にRegular Season開幕。
 ## 5.2 Mexico League
 
 - games: **120**
-- Regular Season: **March–August**
+- Regular Season: **April–August**
 - Postseason: **September**
 - AmBCL: **February next qualification window**
 - density: **STANDARD_DENSE**
@@ -415,7 +443,7 @@ Balanced:
 = 112
 ```
 
-8 home / 8 away。
+10 home / 10 away。
 
 ---
 
@@ -455,7 +483,7 @@ Balanced:
 = 120
 ```
 
-10 home / 10 away。
+4 home / 4 away。
 
 ZoneはPostseason path / rivalry identityのために保持する。
 
@@ -773,26 +801,36 @@ qualified clubが所属する冬季Leagueはofficial Club World Breakを設定�
 
 ---
 
-# 14. Schedule Generation Contract
+# 14. Schedule Generation Contract — CANONICAL
 
-概念:
+Domestic scheduleはseries blockを基本単位に生成する。
 
-```ts
-type LeagueCalendarProfile = {
-  regularSeasonGamesPerClub: number;
-  regularSeasonWindow: DateWindow;
-  postseasonWindow?: DateWindow;
-  densityClass: ScheduleDensityClass;
-  preferredSeriesLength: number;
-  opponentMatrix: OpponentMatrixPolicy;
-  continentalWindows: readonly DateWindow[];
-  nationalTeamWindows: readonly DateWindow[];
-  minimumOffDayPolicy: MinimumOffDayPolicy;
-  makeupReserveDates: readonly CalendarDate[];
-};
-```
+Schedule Generatorは **Hard Constraint** と **Soft Constraint** を分離する。
 
-生成順:
+## 14.1 Hard Constraints
+
+例:
+- 各Clubの公式Regular Season game countを満たす
+- 同じClubを同時刻に複数Gameへ登録しない
+- frozen World / Continental Competition Windowを侵食しない
+- Domestic postseason windowを確保する
+- opponent matrix / league membershipを満たす
+- RuleProfile上のminimum rest / travel impossibilityを破らない
+
+Hard Constraintを満たせないProfileは、試合数を勝手に減らして成立扱いにせず **Schedule Validation Failure** とする。
+
+## 14.2 Soft Constraints
+
+例:
+- preferred 3-game series
+- home / away balance
+- travel distance reduction
+- road-trip grouping
+- weekday / weekend preference
+- off-day preference
+- rivalry / marquee date preference
+
+Soft Constraintが同時に成立しない場合はversioned relaxation orderに従って緩和する。
 
 ```text
 World major competition windows
@@ -803,24 +841,76 @@ World major competition windows
  -> travel / off-day optimization
 ```
 
-この順序により、後から国際大会を国内scheduleへ無理やり挿入しない。
+後から国際大会を国内scheduleへ無理やり挿入しない。
 
 ---
 
+# 14.3 Base Schedule Snapshot + Revision Events — CANONICAL
+
+開幕前に生成されたBase ScheduleをSnapshotとして固定する。
+
+雨天・災害・施設事情・大会移動等による変更は、Season全体を再生成せず `ScheduleRevisionEvent` として差分保存する。
+
+```text
+Base Schedule Snapshot
++ Schedule Revision Event Log
+= Current Actual Calendar
+```
+
+例:
+
+```text
+Game 123 postponed
+ -> revision event
+ -> reserve date
+ -> doubleheader if legal
+ -> end-of-season reserve
+```
+
+現在のGenerator Version変更で過去日程を再計算しない。
+
+---
+
+# 14.4 League Season Calendar Snapshot — CANONICAL
+
+各Seasonは日程生成のprovenanceを保存する。
+
+概念:
+
+```ts
+type LeagueSeasonCalendarSnapshot = {
+  seasonId: SeasonId;
+  leagueId: LeagueId;
+  calendarProfileVersion: string;
+  generatorVersion: string;
+  scheduleSeed: string;
+  regularSeasonGamesPerClub: number;
+  opponentMatrixVersion: string;
+  baseScheduleSnapshotId: string;
+  revisionEventIds: readonly string[];
+  finalPlayedScheduleSnapshotId?: string;
+};
+```
+
+これにより長期Saveでも、そのSeasonの実際の日程を当時の制度で説明・再現できる。
+
+---
 # 15. Calendar Determinism
 
 同じ:
 
 - World start year
-- LeagueCalendarProfile
-- Competition calendar
-- club alignment
+- LeagueCalendarProfile version
+- Competition calendar snapshot
+- club alignment snapshot
 - schedule seed
 - calendar generator version
 
-なら同じScheduleを生成する。
+なら同じBase Scheduleを生成する。
 
 Schedule RNGはMatch Physics RNGから完全分離する。
+
+Season開始後の変更はBase Schedule再生成ではなくScheduleRevisionEventで表す。
 
 ---
 
@@ -872,7 +962,7 @@ North America 162とMexico 120はunbalanced / rivalry opponent matrixを含む�
 
 ただしSeason成績はtrue abilityそのものではなく、対戦相手・球場・環境・起用・Familiarity・Condition等を含む実戦結果である。
 
-# 17. 今回の初期採用値
+# 17. LeagueCalendarProfile v1 — Official Game Volumes
 
 | League | Games |
 | --- | ---: |
@@ -900,7 +990,27 @@ North America 162とMexico 120はunbalanced / rivalry opponent matrixを含む�
 
 ---
 
-# 18. 後続校正
+
+# 17.1 Frozen Calendar Principles
+
+1. Full Simulation Leagueはv1でRegular Season 100試合以上。
+2. 本書の21 League game countsをLeagueCalendarProfile v1として固定。
+3. Season WindowとRegular Season Windowを分離。
+4. World Competition WindowをDomestic scheduleより優先。
+5. International participationを理由にDomestic game countを削減しない。
+6. Schedule densityはCalendar planning用であり直接能力補正を行わない。
+7. Fatigueは実際の日程 / travel / recoveryから因果的に発生。
+8. Series blockをDomestic scheduleの基本単位とする。
+9. GeneratorはHard / Soft Constraintを分離。
+10. Hard Constraint不成立時はSchedule Validation Failure。
+11. Base Schedule Snapshotを開幕前に固定。
+12. 雨天・延期・移動はScheduleRevisionEventとして差分保存。
+13. Calendar / Opponent Matrix / Generatorをversion管理。
+14. Competition ReformによるCalendar変更は新Profileを将来Seasonから適用。
+15. All-Star / market deadline / roster expansionの意味・時期Policyは15が所有する。
+
+---
+# 18. Implementation Calibration / Event Integration — NOT OPEN ARCHITECTURE
 
 - North America exact 162-game opponent matrix
 - Mexico extra 6 rivalry-game allocation
@@ -910,8 +1020,21 @@ North America 162とMexico 120はunbalanced / rivalry opponent matrixを含む�
 - weekday / weekend preferences per league
 - public holiday scheduling
 - day / night game preferences
-- All-Star break
-- trade deadline
-- roster expansion date
+- All-Star / trade deadline / roster expansion exact placement (owned by 15 Season Event Profile)
 - minor / reserve league calendars
 - national-team regional championship exact window
+
+---
+
+# 19. Final v1 Status
+
+**Regular Season Calendar & Game Volume v1は2026-09-22にユーザー承認され、DESIGN FROZEN。**
+
+Arithmetic corrections included at freeze:
+- West / South Asia 110 = 11 opponents × 10 = 5 home / 5 away per opponent
+- Dominican 100 = 5 × 20 = 10 home / 10 away
+- Puerto Rico 100 = 5 × 20 = 10 home / 10 away
+- Cuba 120 = 15 × 8 = 4 home / 4 away
+- Mexico Regular Season window normalized to April–August
+
+Remaining travel weights / holiday preferences / minor calendars / exact event placements are implementation calibration or delegated profiles, not open architecture.
