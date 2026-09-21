@@ -155,15 +155,15 @@ export const CURRENT_BASEBALL_PHYSICS_V1_GATE_COVERAGE:
     {
       gateId:
         'end_to_end_validation_corpus',
-      evidenceState: 'open',
+      evidenceState: 'satisfied',
       evidenceId:
-        'physics-observable-validation+published-coefficient-regression',
+        'baseball-physics-v1-release-validation-v1',
       evidenceVersion:
-        'validation-framework-v1',
+        'published-coefficients+e2e-observables-v1',
       coverage:
-        'Source-bounded coefficient regression, one-sided experimental constraints, deterministic fingerprints, and observable-level corpus machinery are implemented.',
+        'The release corpus now combines source-level coefficient regression with deterministic integrated cases for pitch-path spin decay, game-speed wood contact, batted-ball spin decay, construction-specific ground bounce, no-slip rolling kinematics, and rigid-wall response.',
       missing:
-        'A final end-to-end corpus spanning pitch trajectory, game-speed bat contact, batted-ball flight with spin decay, bounce, skid/roll, and wall response must still be populated and pass.',
+        'Universal field-material presets remain intentionally outside this gate and are tracked by their own explicit scope-out records rather than hidden inside the validation corpus.',
     },
   ]);
 
