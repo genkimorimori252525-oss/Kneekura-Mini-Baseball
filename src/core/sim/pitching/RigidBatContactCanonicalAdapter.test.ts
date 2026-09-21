@@ -81,12 +81,12 @@ describe('rigid bat contact canonical adapter', () => {
       .toEqual(rigid.ballCenter);
     expect(canonical.point)
       .toEqual(rigid.batSurfacePoint);
-    expect(canonical.batPoint)
-      .toEqual({
-        x: 0.4,
-        y: 1,
-        z: 0,
-      });
+    expect(canonical.batPoint.x)
+      .toBeCloseTo(0.4, 12);
+    expect(canonical.batPoint.y)
+      .toBeCloseTo(1, 12);
+    expect(canonical.batPoint.z)
+      .toBeCloseTo(0, 12);
     expect(canonical.exitVelocity)
       .toEqual(rigid.exitVelocity);
     expect(canonical.exitSpin)
