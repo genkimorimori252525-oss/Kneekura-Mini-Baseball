@@ -13,10 +13,20 @@ import {
 import type {
   RigidBaseballProperties,
 } from '../contact/RigidBatBallContact';
+import {
+  resolveBallSurfaceResponse,
+  validateBallSurfaceResponseProfile,
+  type BallSurfaceResponseProfile,
+} from './BallSurfaceResponseProfile';
 
 export type GroundSurfacePhysics = Readonly<{
   ball: RigidBaseballProperties;
-  contact: BallSurfaceContactParameters;
+  /**
+   * Static compatibility form. Use responseProfile when empirical data show
+   * material response varies with incident speed.
+   */
+  contact?: BallSurfaceContactParameters;
+  responseProfile?: BallSurfaceResponseProfile;
   enforceRollingConstraint?: boolean;
 }>;
 
@@ -148,6 +158,24 @@ const validateParameters = (parameters: BallFlightParameters): void => {
     ) {
       throw new Error(
         'ground surface ball mass must match aerodynamic ball mass',
+      );
+    }
+
+    const hasStatic =
+      surface.contact !== undefined;
+    const hasProfile =
+      surface.responseProfile !== undefined;
+    if (hasStatic === hasProfile) {
+      throw new Error(
+        'groundSurfacePhysics requires exactly one of contact or responseProfile',
+      );
+    }
+    if (
+      surface.responseProfile
+      !== undefined
+    ) {
+      validateBallSurfaceResponseProfile(
+        surface.responseProfile,
       );
     }
   }
@@ -563,7 +591,17 @@ const advanceStep = (
             z: 0,
           },
           parameters:
-            surface.contact,
+            surface.responseProfile
+              === undefined
+              ? surface.contact!
+              : resolveBallSurfaceResponse(
+                  surface.responseProfile,
+                  Math.hypot(
+                    freeAtContact.velocity.x,
+                    freeAtContact.velocity.y,
+                    freeAtContact.velocity.z,
+                  ),
+                ),
         });
 
       if (contact === null) {
