@@ -1,0 +1,22 @@
+name: Headless Club Verification
+on:
+  push:
+    branches:
+      - jolly/confirmed-headless-club-2026-09-22
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: [self-hosted, Windows, X64, minibaseball]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+      - name: Install dependencies
+        shell: powershell
+        run: npm ci
+      - name: Verify
+        shell: powershell
+        run: npm run verify
