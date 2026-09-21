@@ -58,26 +58,26 @@ export const CURRENT_BASEBALL_PHYSICS_V1_GATE_COVERAGE:
         'natural_grass_material_profile',
       evidenceState: 'open',
       evidenceId:
-        'pennbounce+brosnan-2011+park-2020',
+        'pennbounce+brosnan-2011+park-2020+tahara-2008',
       evidenceVersion:
-        'natural-grass-evidence-v1',
+        'natural-grass-evidence-v2',
       coverage:
-        'Natural-grass pace evidence plus dry/wet qualitative friction-regime behavior are retained.',
+        'Natural-grass pace evidence, dry/wet qualitative friction-regime behavior, and Tahara 2008 hard-ball vertical rebound evidence (normal repulsion 0.13 +/- 0.01 for the tested natural turf) are retained.',
       missing:
-        'A quantitatively identified dry/wet material profile including tangential response and post-bounce rolling resistance remains unavailable.',
+        'The Tahara natural-turf construction is one specific system and does not identify tangential response, wet-condition response, or post-bounce rolling resistance for a universal production grass profile.',
     },
     {
       gateId:
         'artificial_turf_material_profile',
       evidenceState: 'open',
       evidenceId:
-        'pennbounce+brosnan-2011-synthetic-turf',
+        'pennbounce+brosnan-2011-synthetic-turf+tahara-2008',
       evidenceVersion:
-        'synthetic-turf-evidence-v1',
+        'synthetic-turf-evidence-v2',
       coverage:
-        'Multiple synthetic-turf pace observations and angle/speed calibration tooling are retained.',
+        'Multiple synthetic-turf pace observations and Tahara 2008 hard-ball vertical rebound evidence are retained separately for previous-generation (0.29 +/- 0.02) and fifth-generation (0.25 +/- 0.02) tested turf systems.',
       missing:
-        'A production profile needs one selected turf construction plus enough response data to identify spin/friction behavior, not only total pace.',
+        'Those tested turf constructions are not interchangeable and the available evidence still does not uniquely identify tangential/spin friction behavior for a chosen production ballpark surface.',
     },
     {
       gateId:
