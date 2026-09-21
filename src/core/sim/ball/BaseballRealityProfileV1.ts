@@ -24,12 +24,29 @@ import {
   type WoodBatSpeedResponseProfile,
 } from '../contact/WoodBatSpeedResponseProfile';
 
+export type SurfaceCalibrationStatus =
+  | 'measured'
+  | 'conditional_fit'
+  | 'provisional';
+
+export type EvidenceBackedSurfaceMaterial = Readonly<{
+  material: BallSurfaceMaterialProfile;
+  evidenceIds: readonly string[];
+  calibrationStatus:
+    SurfaceCalibrationStatus;
+}>;
+
 export type BaseballRealityFieldMaterialsV1 = Readonly<{
-  infieldDirt: BallSurfaceMaterialProfile;
-  naturalGrass: BallSurfaceMaterialProfile;
-  artificialTurf?: BallSurfaceMaterialProfile;
-  warningTrack: BallSurfaceMaterialProfile;
-  wall: BallSurfaceMaterialProfile;
+  infieldDirt:
+    EvidenceBackedSurfaceMaterial;
+  naturalGrass:
+    EvidenceBackedSurfaceMaterial;
+  artificialTurf?:
+    EvidenceBackedSurfaceMaterial;
+  warningTrack:
+    EvidenceBackedSurfaceMaterial;
+  wall:
+    EvidenceBackedSurfaceMaterial;
 }>;
 
 export type BaseballRealityProfileV1 = Readonly<{
@@ -78,8 +95,10 @@ const assertEvidenceIds = (
 
 const validateMaterial = (
   name: string,
-  material: BallSurfaceMaterialProfile,
+  backed:
+    EvidenceBackedSurfaceMaterial,
 ): void => {
+  const material = backed.material;
   if (
     material.materialId.length === 0
     || material.version.length === 0
@@ -88,6 +107,10 @@ const validateMaterial = (
       `${name} material id/version must not be empty`,
     );
   }
+  assertEvidenceIds(
+    name,
+    backed.evidenceIds,
+  );
 };
 
 export const createBaseballRealityProfileV1 = (
@@ -188,11 +211,11 @@ export const createBaseballRealityProfileV1 = (
 export const createRealityGroundFlightParameters = (
   profile: BaseballRealityProfileV1,
   material:
-    BallSurfaceMaterialProfile,
+    EvidenceBackedSurfaceMaterial,
 ): BallFlightParameters => ({
   ...profile.flightParameters,
   groundSurfacePhysics: {
     ball: profile.ball,
-    material,
+    material: material.material,
   },
 });
