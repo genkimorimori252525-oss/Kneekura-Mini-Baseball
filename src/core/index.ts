@@ -210,3 +210,4 @@ export * from './sim/ball/BallSurfaceContact';
 export * from './sim/ball/BaseballSurfacePaceCalibration';
 export * from './sim/ball/BaseballSurfacePaceModel';
 export * from './sim/contact/WoodBatRestitutionCalibration';
+export * from './sim/contact/HighSpeedObliqueBatCalibration';
