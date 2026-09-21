@@ -9,6 +9,7 @@ import {
   findPlanarBallSurfaceContactTick,
   measureSpherePlanarSurfaceSeparation,
   resolvePlanarBallSurfaceImpact,
+  resolvePlanarBallSurfaceMaterialImpact,
 } from './PlanarBallSurfaceImpact';
 
 const wall = {
@@ -138,6 +139,83 @@ describe('planar ball surface impact', () => {
     expect(
       impact!.contact.exitVelocity.x,
     ).toBeLessThan(0);
+  });
+
+  it('resolves wall response from a unified material profile at the actual incident angle and speed', () => {
+    const impact =
+      resolvePlanarBallSurfaceMaterialImpact(
+        {
+          tick: 0,
+          position: {
+            x: 4,
+            y: 1,
+            z: 0,
+          },
+          velocity: {
+            x: 8,
+            y: 0,
+            z: 6,
+          },
+          spin: {
+            x: 0,
+            y: 0,
+            z: 0,
+          },
+        },
+        300_000,
+        {
+          ...DEFAULT_BALL_FLIGHT_PARAMETERS,
+          gravityY: 0,
+        },
+        REALISTIC_BASEBALL_RIGID_BODY,
+        wall,
+        {
+          materialId: 'fixture-wall',
+          version: 'v1',
+          response: {
+            kind: 'angle_speed_grid',
+            grid: {
+              profileId: 'fixture-wall-grid',
+              version: 'v1',
+              angleRows: [
+                {
+                  incidenceAngleRadians: 0.5,
+                  speedKnots: [
+                    {
+                      incidentSpeedMps: 10,
+                      contact: {
+                        normalRestitution: 0.6,
+                        tangentialRestitution: 0,
+                        frictionCoefficient: 0,
+                      },
+                    },
+                  ],
+                },
+                {
+                  incidenceAngleRadians: 1.0,
+                  speedKnots: [
+                    {
+                      incidentSpeedMps: 10,
+                      contact: {
+                        normalRestitution: 0.2,
+                        tangentialRestitution: 0,
+                        frictionCoefficient: 0,
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        },
+      );
+
+    expect(impact).not.toBeNull();
+    expect(
+      Math.abs(
+        impact!.contact.exitVelocity.x,
+      ),
+    ).toBeLessThan(8);
   });
 
   it('returns null when the ball cannot reach the wall inside the interval', () => {
