@@ -239,3 +239,4 @@ export * from './sim/ball/BaseballRealityProfileV1';
 export * from './validation/CurrentBaseballPhysicsV1Closure';
 export * from './validation/CurrentBaseballPhysicsV1Readiness';
 export * from './sim/ball/Tahara2008SurfaceReboundEvidence';
+export * from './sim/ball/BaseballImpactRegionEvidence';
