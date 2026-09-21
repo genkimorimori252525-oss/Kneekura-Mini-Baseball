@@ -18,6 +18,11 @@ import {
   validateBallSurfaceResponseProfile,
   type BallSurfaceResponseProfile,
 } from './BallSurfaceResponseProfile';
+import {
+  resolveBallSurfaceResponseGrid,
+  validateBallSurfaceResponseGrid,
+  type BallSurfaceResponseGrid,
+} from './BallSurfaceResponseGrid';
 
 export type GroundSurfacePhysics = Readonly<{
   ball: RigidBaseballProperties;
@@ -27,6 +32,7 @@ export type GroundSurfacePhysics = Readonly<{
    */
   contact?: BallSurfaceContactParameters;
   responseProfile?: BallSurfaceResponseProfile;
+  responseGrid?: BallSurfaceResponseGrid;
   enforceRollingConstraint?: boolean;
 }>;
 
@@ -165,17 +171,34 @@ const validateParameters = (parameters: BallFlightParameters): void => {
       surface.contact !== undefined;
     const hasProfile =
       surface.responseProfile !== undefined;
-    if (hasStatic === hasProfile) {
+    const hasGrid =
+      surface.responseGrid !== undefined;
+    const responseKinds = [
+      hasStatic,
+      hasProfile,
+      hasGrid,
+    ].filter(Boolean).length;
+
+    if (responseKinds !== 1) {
       throw new Error(
-        'groundSurfacePhysics requires exactly one of contact or responseProfile',
+        'groundSurfacePhysics requires exactly one of contact, responseProfile, or responseGrid',
       );
     }
+
     if (
       surface.responseProfile
       !== undefined
     ) {
       validateBallSurfaceResponseProfile(
         surface.responseProfile,
+      );
+    }
+    if (
+      surface.responseGrid
+      !== undefined
+    ) {
+      validateBallSurfaceResponseGrid(
+        surface.responseGrid,
       );
     }
   }
@@ -591,17 +614,34 @@ const advanceStep = (
             z: 0,
           },
           parameters:
-            surface.responseProfile
-              === undefined
-              ? surface.contact!
-              : resolveBallSurfaceResponse(
-                  surface.responseProfile,
+            surface.responseGrid !== undefined
+              ? resolveBallSurfaceResponseGrid(
+                  surface.responseGrid,
                   Math.hypot(
                     freeAtContact.velocity.x,
                     freeAtContact.velocity.y,
                     freeAtContact.velocity.z,
                   ),
-                ),
+                  Math.atan2(
+                    Math.abs(
+                      freeAtContact.velocity.y,
+                    ),
+                    Math.hypot(
+                      freeAtContact.velocity.x,
+                      freeAtContact.velocity.z,
+                    ),
+                  ),
+                )
+              : surface.responseProfile !== undefined
+                ? resolveBallSurfaceResponse(
+                    surface.responseProfile,
+                    Math.hypot(
+                      freeAtContact.velocity.x,
+                      freeAtContact.velocity.y,
+                      freeAtContact.velocity.z,
+                    ),
+                  )
+                : surface.contact!,
         });
 
       if (contact === null) {
