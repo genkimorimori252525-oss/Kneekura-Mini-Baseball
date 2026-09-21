@@ -1,588 +1,328 @@
-# Team Mood — Manager Intervention Layer — DRAFT
+# Team Mood — Baseball Decision Consequence Layer — CANONICAL v1
 
-更新日: 2026-09-20  
-状態: **設計候補。USER REVIEW REQUIRED。実装前。**
+更新日: 2026-09-22  
+状態: **CANONICAL / DESIGN FROZEN v1。2026-09-22ユーザー承認。実装前。**
+
+> **FILENAME LEGACY NOTE**  
+> ファイルパスの `-DRAFT` と旧名 `Manager Intervention Layer` は履歴上残っているだけ。
+> v1ではUser向けのMood専用介入Systemを作らない。
 
 関連:
-- `docs/game-design/37-team-mood-architecture.md`
+- `docs/game-design/20-simple-surface-deep-simulation.md`
+- `docs/game-design/32-roster-development-architecture-DRAFT.md`
 - `docs/game-design/34-team-traits-and-relationship-network-DRAFT.md`
 - `docs/game-design/35-team-trait-catalog-DRAFT.md`
-- `docs/game-design/01-manager-experience.md`
-- `docs/game-design/20-simple-surface-deep-simulation.md`
+- `docs/game-design/37-team-mood-architecture.md`
+- `docs/game-design/49-manager-architecture-v1.md`
 
 ---
 
-# 1. Goal
+# 1. Core Product Rule — User Plays Baseball, Not Relationships
 
-Team Moodをユーザーが直接操作するSystemにはしない。
+Mini BaseballのPennantは **「一見シンプルだが、奥深い。」** を守る。
 
-禁止:
+Userが直接触るのは既存の野球上の面白い判断だけ。
 
-```text
-[チームミーティング]
- -> Cohesion +10
+- 打順
+- スタメン / 控え
+- 代打 / 代走 / 守備交代
+- 投手起用 / 継投 / bullpen role
+- 守備位置 / defensive assignment
+- 休養 / 起用継続
+- 一軍 / Reserve等の昇降格
+- Training / development方針
+- その他、Pennantに既に存在するBaseball / Roster / Development action
 
-[檄を飛ばす]
- -> Energy +15
-
-[ムード改善]
- -> Tension -20
-```
-
-ユーザーはMoodではなく、**Moodを生んでいる原因へ野球監督として介入する**。
-
----
-
-# 2. Intervention Principle
-
-```text
-Mood Problem
- -> Diagnose likely cause
- -> Baseball / personnel action
- -> Players appraise action
- -> Relationship / Role / Trust changes
- -> Mood changes over time
-```
-
-即時回復ボタンを置かない。
+Team Moodのためだけに新しい操作系を増やさない。
 
 ---
 
-# 3. Core User Actions
-
-## 3.1 役割を明確にする
-
-対象:
-- Role Harmony低下
-- closer / setup混乱
-- batting-order不満
-- position competition
-- star hierarchy ambiguity
-
-ユーザーAction:
-
-```text
-「この選手は今季ここで使う」
-「抑えはA」
-「Bは代打の切り札」
-「Cは二軍で毎日出す」
-```
-
-Potential benefit:
-- Role Harmony上昇
-- uncertainty低下
-- tactical trust上昇
-
-Tradeoff:
-- 外された選手の不満
-- flexibility低下
-- injury時に再調整必要
-
----
-
-## 3.2 個別面談
-
-対象:
-- 不満
-- conflict
-- confidence loss
-- role dissatisfaction
-- newcomer isolation
-
-ユーザーは数十種類の会話文を管理しない。
-
-簡易方針だけ選ぶ。
-
-```text
-[励ます]
-[役割を説明]
-[競争を促す]
-[休養を勧める]
-[本人に任せる]
-```
-
-結果は:
-- Player personality
-- manager trust
-- current performance
-- role expectation
-
-で変わる。
-
-同じ選択が全員に効くわけではない。
-
----
-
-## 3.3 リーダーへ任せる
-
-Captain / veteran / clubhouse central playerをmediatorとして使う。
-
-```text
-Manager
- -> asks Leader A
- -> Leader A talks to Cluster B/C
- -> effect depends on trust network
-```
-
-Potential:
-- Cohesion recovery
-- newcomer integration
-- conflict mediation
-
-Risk:
-- Leaderが当事者から信頼されていない
-- faction化
-- leader本人の負担
-
----
-
-## 3.4 起用を固定して共有経験を作る
-
-対象:
-- low Coordination
-- defensive miscommunication
-- battery distrust
-- lineup chemistry未形成
-
-Action:
-- same SS/2B pairを継続
-- catcher-pitcher pairingを固定
-- outfield unitを安定させる
-- batting-order clusterを一定期間継続
-
-Effect:
-- shared reps
-- coordination
-- trust
-- role clarity
-
-Tradeoff:
-- matchup flexibility低下
-- bench opportunity減少
-- fatigue risk
-
----
-
-## 3.5 休ませる / 一度外す
-
-対象:
-- high Tension
-- fatigue
-- repeated failure spiral
-- conflict escalation
-
-Action:
-- day off
-- bench
-- reserve / rehab / reset
-
-Potential:
-- tension cooling
-- emotional reset
-- role reassessment
-
-Risk:
-- Player interprets as punishment
-- role dissatisfaction
-- star hierarchy conflict
-
----
-
-## 3.6 新しい血を入れる
-
-対象:
-- Energy低下
-- stagnation
-- complacency
-
-Action:
-- prospect call-up
-- bench reshuffle
-- trade / signing
-- new reliever role
-
-Potential:
-- Energy rises
-- Hope signal
-- competition increases
-- new social links
-
-Risk:
-- Role Harmony worsens
-- veteran frustration
-- newcomer integration delay
-
----
-
-## 3.7 競争を促す
-
-対象:
-- low Energy
-- complacency
-- weak role accountability
-
-Action:
-
-```text
-「ポジションは競争」
-```
-
-Potential:
-- Energy / focus上昇
-- effort上昇
-
-Risk:
-- Tension上昇
-- Cohesion低下
-- role uncertainty
-
-競争は万能Positiveではない。
-
----
-
-## 3.8 あえて触らない
-
-重要なAction。
-
-小さな不調 / 小さなconflictに毎回介入すると逆に悪化し得る。
-
-```text
-[様子を見る]
-```
-
-が正解になる場合を作る。
-
-自然回復:
-- time
-- ordinary wins
-- peer support
-- conflict cooling
-
-を許可。
-
----
-
-# 4. No Perfect Diagnosis
-
-ユーザーはMood Stateの内部真値を完全には見ない。
-
-UI候補:
-
-```text
-チームムード: 不穏
-
-主な兆候
-- 抑え役割への不満
-- 新加入選手がまだ孤立
-- 直近5試合で逆転負け3回
-
-監督メモ
-「役割整理が必要かもしれない」
-```
-
-原因候補を提示するが、100%断定しない。
-
----
-
-# 5. Mood Problems Need Time
-
-Action即時解決は禁止。
-
-例:
-
-```text
-役割を明確化
- -> Role Harmony candidate improves
- -> 2〜10 gamesでPlayers appraise
- -> trust / acceptance形成
- -> Mood changes
-```
-
-重大Conflictは数週間〜数か月かかり得る。
-
----
-
-# 6. Severity Tiers
-
-## Mild
-
-- short slump
-- newcomer awkwardness
-- small role uncertainty
-
-1〜2 actions + timeで改善可能。
-
-## Moderate
-
-- repeated conflict
-- closer instability
-- strong losing-streak pressure
-- subgroup split
-
-複数週間 / several actions。
-
-## Severe
-
-- central stars in conflict
-- manager distrust
-- large factionalization
-- repeated public disputes
-- role structure collapse
-
-単一Actionでは解決しない。
-
-Roster move / role redesign / manager changeまで必要になる場合がある。
-
----
-
-# 7. Intervention Cost / Tradeoff
-
-Mood actionに無料万能解を作らない。
-
-```text
-stability
-<-> flexibility
-
-competition
-<-> security
-
-rest
-<-> playing time
-
-star protection
-<-> fairness
-
-veteran leadership
-<-> youth opportunity
-
-new blood
-<-> continuity
-```
-
-ユーザーは「どの問題を優先するか」を選ぶ。
-
----
-
-# 8. Manager Skill Interaction
-
-後続のManager Ability設計へ接続。
-
-ManagerはActionの成否を直接保証しない。
-
-候補Manager skills:
-
-- communication
-- conflict mediation
-- role clarity
-- emotional reading
-- leadership credibility
-- tactical consistency
-
-例:
-
-```text
-same "役割を説明" action
-
-Manager A:
-  clear communicator
-  high trust
- -> acceptance likely
-
-Manager B:
-  poor communicator
-  low trust
- -> Player may feel sidelined
-```
-
----
-
-# 9. User Experience Goal
-
-ユーザーに求めるのはMood管理Spreadsheetではない。
-
-基本Loop:
-
-```text
-1. 「最近なんか噛み合ってない」
-2. Mood summaryを見る
-3. 1つか2つの野球的なActionを選ぶ
-4. 数試合〜数週間様子を見る
-5. 改善 / 悪化 / 別問題が見える
-```
-
-これが中心。
-
----
-
-# 10. Why Mood Matters
-
-Moodが意味を持つのは、**勝敗を直接いじるからではなく、監督に「人を扱う仕事」を発生させるから**。
-
-野球監督の仕事を:
-
-```text
-打順
-継投
-守備位置
-```
-
-だけにしない。
-
-しかし:
-
-```text
-心理カウンセラーゲーム
-```
-
-にもならない。
-
-中間に置く。
-
----
-
-# 11. Anti-cheese
-
-禁止:
-
-- meeting spam
-- captain spam
-- all Mood Makers roster
-- same dialogue always correct
-- action cooldown onlyで機械的に管理
-- hidden guaranteed +Mood choices
-
-必要:
-
-- context
-- personality
-- tradeoffs
-- time
-- uncertainty
-- role consequence
-
----
-
-# 12. Suggested UI
-
-```text
-TEAM MOOD
-不穏
-
-自信      C
-結束      B
-活気      C
-緊張      A
-役割調和  D
-
-気になる点
-• 抑え役が定まっていない
-• 新加入2名がまだ孤立
-• 主力Aが起用法に不満
-
-監督アクション
-[役割を整理]
-[個別面談]
-[リーダーに任せる]
-[起用を固定]
-[休ませる]
-[様子を見る]
-```
-
-ユーザーは内部数式を知らなくてよい。
-
----
-
-# 13. Design Target
-
-Team Moodは:
-
-> **簡単には治らない。だが、監督として何もできないわけでもない。**
-
-を狙う。
-
-- Mildなら数試合
-- Moderateなら数週間
-- Severeなら構造変更
-
-という時間差を持たせる。
-
----
-
-# 14. Review Candidate
-
-ユーザー監修候補:
-
-1. Moodへ直接作用するボタンは禁止
-2. 監督Actionは原因へ作用
-3. ActionにはTradeoff
-4. 一部は「様子を見る」が正解
-5. Mood recoveryには時間が必要
-6. Severityで必要介入量を変える
-7. Manager Abilityは同じActionの成功確率 / 受け止められ方へ影響
-8. UIは原因候補と少数Actionだけ提示
-
----
-
-# 15. Intervention Rarity
-
-Team Moodへの監督介入は日常業務として頻繁に発生させない。
-
-通常:
-
-```text
-Mood = normal
- -> no intervention needed
-```
-
-ユーザーに毎週面談・会議を要求しない。
-
-Intervention UIを強く提示するのは:
-
-- severe role conflict
-- central-player dispute
-- prolonged high tension
-- clear newcomer isolation
-- manager trust collapse
-- repeated evidence of social dysfunction
-
-等の意味ある状態だけ。
-
-軽微な揺れは自然回復 / 通常の野球運用に任せる。
-
-これによりTeam Mood managementを常時作業化しない。
-
-
----
-
-# 16. No Relationship Maintenance Grind
-
-監督介入は「問題が起きた時の判断」であって、日課ではない。
-
-通常は:
-
-```text
-no issue
- -> no action
- -> no penalty
-```
-
-を基本とする。
-
-ユーザーが何もしなかったこと自体をNegative Eventとして扱わない。
-
-特に禁止:
-
+# 2. No Mood-management Buttons
+
+User向けには次を作らない。
+
+- チームミーティング
+- 檄を飛ばす
+- 励ます
+- 個別面談
+- 役割を説明する
+- リーダーに任せる
+- 競争を促す
+- ムード改善
+- Mood専用の様子を見る
 - weekly relationship chores
-- mandatory one-on-one rotation
 - gift / social spam
-- hidden affection decay from inactivity
-- morale tax for not clicking dialogue
-- “everyone must be kept happy” optimization
 
-Relationship / Moodは背景Simulationが通常運転を担当する。
+Userが一度もSocial UIを触らなくても不利益を受けない。
+そもそも通常User flowにSocial maintenance UIを置かない。
 
-ユーザーは重大な分岐点だけ扱う。
+---
 
-設計目標:
+# 3. Canonical Causal Flow
 
-> **人間関係を楽しめるが、人間関係を維持させられない。**
+```text
+User / Manager Baseball Decision
+        ↓
+actual world action
+        ↓
+affected Players observe what happened
+        ↓
+Player Appraisal
++ role expectation
++ personality
++ current relationship / trust
++ performance / context
+        ↓
+Relationship / Manager Trust / Role Harmony
++ Team Mood evidence
+        ↓
+background Mood evolution
+```
+
+Mood LabelやMood UIから逆向きに原因を作らない。
+
+---
+
+# 4. Baseball Actions Already Communicate
+
+専用会話Buttonがなくても、実際の起用そのものがPlayerへ情報を与える。
+
+例: Veteranを起用から外す。
+
+```text
+Veteran removed from lineup
+        ↓
+Player observes actual usage
+        ↓
+expected role + recent performance + trust + context
+        ↓
+acceptance / frustration / indifference
+        ↓
+Role Harmony / Tension / trust may change
+```
+
+同様に、若手昇格、休養、起用固定、守備位置変更、Training方針等も実際のWorld eventとして評価される。
+
+禁止:
+
+```text
+Rest -> Mood +5
+Bench veteran -> Tension +10
+```
+
+同じActionでもPlayerごとに受け取り方が違う。
+
+---
+
+# 5. Background Clubhouse Life
+
+User向けButtonがなくてもBackground Simulationでは必要に応じて:
+
+- ordinary teammate interaction
+- routine manager communication
+- veteran leadership
+- newcomer integration
+- natural conflict cooling
+- ordinary support
+- background disagreement
+
+等を扱ってよい。
+
+これは世界Simulationであり、別Game Loopではない。
+
+---
+
+# 6. Manager Architecture Connection
+
+新しいMood専用Manager能力を作らない。
+`49-manager-architecture-v1.md` の既存Sourceを使う。
+
+- 采配
+- 分析
+- 適応
+- 選手眼
+- 運用
+- 統率
+- Philosophy
+- Temperament
+- Belief State
+- Manager-Player Relationship
+
+Background communication / role handling等へ差が必要な場合も既存SourceからDerivedする。
+
+---
+
+# 7. Human Control Overlay
+
+`32-roster-development-architecture-DRAFT.md` のHuman Control Overlayへ接続する。
+
+## HUMAN_OVERRIDE
+
+UserがBaseball decisionを明示した場合、そのActionはそのまま正史Worldへ出る。
+元監督のManager Skillで打順・起用判断そのものを勝手に変更しない。
+
+## MANAGER_DELEGATED
+
+UserがおまかせしたDomainは元監督のSkill / Philosophy / Temperament / Belief / Strategy Memoryから他CPU Managerと同じように決定する。
+
+---
+
+# 8. HUMAN_OVERRIDE Social Consequence Rule
+
+HUMAN_OVERRIDEの意思決定帰属と、Worldで起きた社会的結果を分ける。
+
+```text
+User benches Veteran A
+        ↓
+HUMAN_OVERRIDE
+        ↓
+A appraises the real benching
+        ↓
+A's role acceptance / trust / tension may change
+```
+
+このWorld consequenceは保存する。
+
+一方、元監督のStrategy Memoryへ「自分がこの采配を選んだ」とは記録しない。
+
+> **Userの行動が生んだ世界の結果は正史。HUMAN_OVERRIDE自体は元監督の自己選択学習にしない。**
+
+Userが別Clubへ移動して元監督表示へ戻っても、既に起きたRelationship / trust / role historyは消さない。
+
+---
+
+# 9. No Mood Diagnosis Game
+
+UserへMood原因当てPuzzleを要求しない。
+Mood内部True Stateや数値を攻略対象にしない。
+
+Userは普通にBaseball decisionを行う。
+その判断が長期的にTeamへどう響いたかを、結果・Player状態・Team Trait・News / Commentary等から感じ取れる程度でよい。
+
+---
+
+# 10. Passive Information Only
+
+Team Moodを表示する場合も操作対象ではなく観測情報。
+
+通常画面へ必須の5軸S〜G表を置かない。
+
+候補:
+
+```text
+チーム状態: 平常
+```
+
+重大時のみ:
+
+```text
+チーム状態: 不穏
+・役割面で摩擦が見られる
+```
+
+程度のpassive summaryは許可する。
+
+表示からAction Buttonを生やさない。
+
+---
+
+# 11. Severity / Recovery
+
+Mild / Moderate / Severeを固定Gameplay tierにしない。
+必要ならpersistence / evidence mass / affected player count / network centrality / role importance / duration等からsignificanceをDerivedする。
+
+また固定Recovery timerを置かない。
+
+```text
+future usage + results + repeated evidence + appraisal + time
+        ↓
+new social state
+```
+
+から変化する。
+
+---
+
+# 12. Simple Surface / Deep Simulation Contract
+
+User Surface:
+
+```text
+lineup
+pitching
+defense
+usage
+training
+roster
+baseball decisions
+```
+
+Deep Simulation:
+
+```text
+relationship
+trust
+role acceptance
+team mood
+social diffusion
+manager credibility
+player appraisal
+```
+
+表面機能を増やさず、内部だけを深くする。
+
+---
+
+# 13. Acceptance Tests
+
+1. UserはSocial / Mood専用ButtonなしでPennantを完全に遊べる。
+2. 通常User flowに面談・励ます・Mood改善等のButtonが存在しない。
+3. Veteranを起用から外すだけで、そのUsageをPlayerがAppraiseできる。
+4. 同じ起用変更でもPlayerごとに反応が異なる。
+5. 起用固定で実際のshared repsが増え、Coordinationが変化し得る。
+6. Baseball decisionからMoodへDirect +X / -Xしない。
+7. HUMAN_OVERRIDEは元監督能力で勝手に変更されない。
+8. HUMAN_OVERRIDEが生んだRelationship / role historyはWorldに残る。
+9. HUMAN_OVERRIDEは元監督Strategy Memoryへ自己選択として学習されない。
+10. MANAGER_DELEGATEDでは元監督AIが通常どおり判断する。
+11. Userが別Clubへ移動しても前Clubの社会Historyは巻き戻らない。
+12. Team Moodはraw Contact / Power / Velocity / Fielding / direct win probabilityを変更しない。
+13. passive Mood表示の有無でSimulation結果を変えない。
+14. Social UIを操作しなかったことによるPenalty構造が存在しない。
+
+---
+
+# 14. Rejected Historical Candidate
+
+2026-09-20 DRAFTのMood専用介入UI案は2026-09-22 user reviewで不採用。
+
+旧候補:
+- 個別面談
+- 励ます
+- 役割説明
+- リーダー仲介
+- 競争促進
+- Mood対策としての休養
+- Mood対策としての新戦力投入
+- Mood専用の様子を見る
+
+休養・昇降格・起用固定等のBaseball Action自体は残る。
+ただしMoodを治すための重複Buttonにはしない。
+
+---
+
+# 15. Final v1 Status
+
+**Team Mood — Baseball Decision Consequence Layer v1は2026-09-22にユーザー承認され、DESIGN FROZEN。**
+
+```text
+User plays baseball
+        ↓
+real decisions happen in world
+        ↓
+players appraise them
+        ↓
+deep Relationship / Mood simulation reacts
+```
+
+これが「一見シンプルだが、奥深い。」のTeam Mood実装境界。

@@ -19,11 +19,10 @@ AI / Agent向け強制ルール:
 
 ### 現在、USER REVIEW REQUIREDとして残る設計
 
-- `38-team-mood-manager-interventions-DRAFT.md`
 - `41-manager-appointment-and-incompetence-DRAFT.md`
 - `42-manager-market-and-front-office-selection-DRAFT.md`
 
-`32-roster-development-architecture-DRAFT.md`、`34-team-traits-and-relationship-network-DRAFT.md`、`35-team-trait-catalog-DRAFT.md` は2026-09-22にユーザー承認され、**CANONICAL / DESIGN FROZEN v1** へ昇格した。
+`32-roster-development-architecture-DRAFT.md`、`34-team-traits-and-relationship-network-DRAFT.md`、`35-team-trait-catalog-DRAFT.md`、`38-team-mood-manager-interventions-DRAFT.md` は2026-09-22にユーザー承認され、**CANONICAL / DESIGN FROZEN v1** へ昇格した。
 
 ### 旧計画 / 後継へ統合済み
 
@@ -49,6 +48,7 @@ AI / Agent向け強制ルール:
 - `32-roster-development-architecture-DRAFT.md`
 - `34-team-traits-and-relationship-network-DRAFT.md`
 - `35-team-trait-catalog-DRAFT.md`
+- `38-team-mood-manager-interventions-DRAFT.md`
 - `50-popularity-reputation-architecture-DRAFT.md`
 - `51-star-superstar-big-stage-architecture-DRAFT.md`
 
@@ -773,41 +773,48 @@ Next review questions:
 - decide offseason carryover calibration
 
 
-Manager intervention layer for Team Mood (USER REVIEW REQUIRED):
+Team Mood baseball-decision consequence layer (CANONICAL / DESIGN FROZEN v1):
 - `docs/game-design/38-team-mood-manager-interventions-DRAFT.md`
 
 
 ---
 
-# 29. CURRENT DRAFT — Team Mood Manager Interventions
+# 29. CANONICAL — Team Mood as Baseball Decision Consequence Layer
 
-User feedback: current Team Mood model felt too cold because the manager had no satisfying way to intervene.
+2026-09-22 user rejected the remaining Social / Mood-management game loop.
 
-Current candidate principle:
+Canonical:
+- `docs/game-design/38-team-mood-manager-interventions-DRAFT.md`
 
-> User does not manipulate Mood directly. User acts on the causes of Mood through ordinary baseball / personnel decisions.
+Core rule:
 
-Candidate actions:
-- clarify roles
+> **User plays Pennant baseball. Relationship / Mood happens underneath.**
+
+User-facing Mood-specific actions are not part of v1.
+
+Rejected as dedicated buttons / chores:
 - individual meeting
-- delegate mediation to a trusted leader
-- stabilize lineup / defensive pairings
-- rest / temporarily remove a player
-- introduce new blood via call-up / signing / trade
+- encourage / pep talk
+- explain role
+- delegate mediation to leader
 - encourage competition
-- deliberately wait / do nothing
+- Mood-specific wait/observe action
+- Team meeting / Mood improvement action
+- routine social maintenance
 
-Every action has tradeoffs and requires time. No button gives direct `Mood +10`.
+Normal Baseball / Roster / Development decisions such as lineup, usage, pitching, defense, rest, promotion/demotion and training become actual World events.
+Players Appraise those events; Relationship / Manager Trust / Role Harmony / Team Mood then change in background simulation.
 
-Mild issues may improve in several games; moderate issues take weeks; severe conflicts may require roster or leadership changes.
+HUMAN_OVERRIDE decisions execute exactly; their social consequences remain in World history, but the original manager does not learn the override as self-chosen Strategy Memory.
+MANAGER_DELEGATED continues to use the original manager AI.
 
-Draft:
-- `docs/game-design/38-team-mood-manager-interventions-DRAFT.md`
+Mood may be shown passively when significant, but it is not a management meter and exposes no Mood-action menu.
 
-This draft still requires user approval before becoming canonical.
+This is a direct application of the project slogan:
+
+> **一見シンプルだが、奥深い。**
 
 ---
-
 # 30. APPROVED — Team Mood Rarity Boundary
 
 2026-09-20 ユーザー承認。
