@@ -822,10 +822,37 @@ reported ~0.37-0.375 and an apparent tangential COR near zero through recoil
 and rotational effective mass rather than through an arbitrary spin-retention
 bonus.
 
+Game-speed evidence is also retained separately:
+
+- Nathan et al. wood-bat BBCOR anchor:
+  - relative collision speed 60.8 m/s;
+  - effective normal restitution anchor 0.452 +/- 0.005;
+- Kensrud/Nathan/Smith swinging wood-bat tangential response:
+  - tangential COR 0.464 +/- 0.014;
+  - friction only constrained as >= 0.15 in that experiment;
+- Nathan et al. high-speed fixed wood-cylinder oblique study:
+  - non-slip normal COR about 0.52;
+  - tangential COR about 0.30 +/- 0.02;
+  - gross-slip friction coefficient about 0.15.
+
+`WoodBatContactResponse` now exposes a **versioned provisional evidence
+synthesis**:
+
+- normal restitution is interpolated only between explicit low/high-speed
+  anchors and clamped outside them;
+- game-speed wood tangential COR comes from the swinging-bat measurement;
+- friction remains an explicit caller-supplied value and is rejected below the
+  measured game-speed lower bound rather than silently invented;
+- `RigidBatBallContact` can now resolve contact coefficients from the actual
+  pre-impact local surface kinematics, so speed dependence is causal at the
+  collision point.
+
 Important limitation: Cross & Nathan explicitly caution against directly
-assuming these low-speed coefficients remain valid at game-speed baseball
-impacts. This checkpoint validates the **equations and effective-mass
-geometry**, not final MLB/NPB high-speed coefficients.
+assuming low-speed coefficients remain valid at game speed, and the high-speed
+normal/tangential evidence comes from different experimental designs. This
+checkpoint validates the **equations, effective-mass geometry and evidence
+plumbing**; the synthesis remains opt-in until a single production calibration
+is selected and validated.
 
 ### 4.0.2 High-speed wood-bat restitution anchor
 
