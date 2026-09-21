@@ -360,6 +360,52 @@ const advanceFreeFlight = (
   };
 };
 
+export const sampleUninterruptedBallFreeFlight = (
+  state: BattedBallInitialState,
+  deltaTicks: number,
+  parameters: BallFlightParameters =
+    DEFAULT_BALL_FLIGHT_PARAMETERS,
+): BattedBallInitialState => {
+  validateParameters(parameters);
+  if (
+    !Number.isSafeInteger(deltaTicks)
+    || deltaTicks < 0
+  ) {
+    throw new Error(
+      'uninterrupted free-flight deltaTicks must be a non-negative safe integer',
+    );
+  }
+
+  if (
+    parameters.aerodynamics === null
+    || parameters.aerodynamics === undefined
+  ) {
+    return advanceFreeFlight(
+      state,
+      deltaTicks,
+      parameters,
+    );
+  }
+
+  let current = state;
+  let remaining = deltaTicks;
+
+  while (remaining > 0) {
+    const stepTicks = Math.min(
+      parameters.integrationStepTicks,
+      remaining,
+    );
+    current = advanceFreeFlight(
+      current,
+      stepTicks,
+      parameters,
+    );
+    remaining -= stepTicks;
+  }
+
+  return current;
+};
+
 export const findGroundContactTick = (
   state: BattedBallInitialState,
   deltaTicks: number,
@@ -393,7 +439,7 @@ export const findGroundContactTick = (
       parameters.aerodynamics !== null
       && parameters.aerodynamics !== undefined
     ) {
-      return advanceFreeFlight(
+      return sampleUninterruptedBallFreeFlight(
         state,
         tick - state.tick,
         parameters,
