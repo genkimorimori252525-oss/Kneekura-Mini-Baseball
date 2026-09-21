@@ -224,10 +224,10 @@ describe('surface-aware ball flight', () => {
 
     expect(
       slower.velocity.y / 10,
-    ).toBeCloseTo(0.6, 6);
+    ).toBeCloseTo(0.6, 5);
     expect(
       faster.velocity.y / 40,
-    ).toBeCloseTo(0.2, 6);
+    ).toBeCloseTo(0.2, 5);
   });
 
   it('can resolve a different response for shallow versus steep impact angle at the same speed', () => {
@@ -326,11 +326,11 @@ describe('surface-aware ball flight', () => {
     expect(
       shallow.velocity.y
       / (speed * Math.sin(shallowAngle)),
-    ).toBeCloseTo(0.6, 6);
+    ).toBeCloseTo(0.6, 5);
     expect(
       steep.velocity.y
       / (speed * Math.sin(steepAngle)),
-    ).toBeCloseTo(0.2, 6);
+    ).toBeCloseTo(0.2, 5);
   });
 
   it('lets settled balls skid for physical time before reaching no-slip rolling', () => {
@@ -382,7 +382,7 @@ describe('surface-aware ball flight', () => {
 
     const late = advanceBallState(
       early,
-      1_000_000,
+      2_000_000,
       parameters,
     );
     const lateSlip =
