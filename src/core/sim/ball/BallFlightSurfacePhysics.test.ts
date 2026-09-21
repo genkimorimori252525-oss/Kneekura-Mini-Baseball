@@ -396,6 +396,84 @@ describe('surface-aware ball flight', () => {
       .toBeLessThan(early.velocity.x);
   });
 
+  it('can consume one unified material profile for bounce, skid, and rolling resistance', () => {
+    const material = {
+      materialId: 'fixture-ground',
+      version: 'v1',
+      response: {
+        kind: 'static',
+        contact: {
+          normalRestitution: 0.25,
+          tangentialRestitution: 0,
+          frictionCoefficient: 0.2,
+        },
+      },
+      slidingFrictionCoefficient: 0.1,
+      rollingDecelerationMps2: 0.5,
+    } as const;
+
+    const parameters: BallFlightParameters = {
+      ...DEFAULT_BALL_FLIGHT_PARAMETERS,
+      restingVerticalSpeed: 0.01,
+      groundSurfacePhysics: {
+        ball: REFERENCE_BASEBALL_RIGID_BODY,
+        material,
+      },
+    };
+
+    const bounced = advanceBallState(
+      {
+        tick: 0,
+        position: {
+          x: 0,
+          y: REFERENCE_BASEBALL_RIGID_BODY.radiusM,
+          z: 0,
+        },
+        velocity: {
+          x: 6,
+          y: -2,
+          z: 0,
+        },
+        spin: {
+          x: 0,
+          y: 0,
+          z: 0,
+        },
+      },
+      1,
+      parameters,
+    );
+
+    expect(bounced.velocity.y)
+      .toBeCloseTo(0.5, 5);
+
+    const ground = advanceBallState(
+      {
+        tick: 10,
+        position: {
+          x: 0,
+          y: REFERENCE_BASEBALL_RIGID_BODY.radiusM,
+          z: 0,
+        },
+        velocity: {
+          x: 6,
+          y: 0,
+          z: 0,
+        },
+        spin: {
+          x: 0,
+          y: 0,
+          z: -6 / REFERENCE_BASEBALL_RIGID_BODY.radiusM,
+        },
+      },
+      1_000_000,
+      parameters,
+    );
+
+    expect(ground.velocity.x)
+      .toBeCloseTo(5.5, 6);
+  });
+
   it('rejects inconsistent physical ball radius at the flight boundary', () => {
     expect(() =>
       advanceBallState(
