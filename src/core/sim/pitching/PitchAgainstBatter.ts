@@ -82,6 +82,10 @@ export type PitchAgainstBatterResolution =
  * the historical first-order swing path. It is not the authoritative Swing
  * Kinematics v1 aerodynamic rigid-bat entry.
  */
+/**
+ * @deprecated Compatibility-only historical path. Active production plate
+ * appearances use the aerodynamic rigid-bat Swing Kinematics v1 path.
+ */
 export const resolveAndRecordPitchAgainstBatter = (
   timeline: CanonicalPlateAppearanceTimeline,
   input: PitchAgainstBatterInput,
