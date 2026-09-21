@@ -2,7 +2,9 @@
 
 Date: 2026-09-21
 
-Status: **causal architecture frozen; calibration and production promotion still open**
+Status: **historical freeze snapshot; causal architecture frozen; calibration and production promotion were still open at this checkpoint**
+
+Successor closure: `docs/superpowers/specs/2026-09-22-baseball-physics-v1-production-closure.md` records the completed production-readiness gate and promoted v1 reality-profile entry point.
 
 Version:
 
