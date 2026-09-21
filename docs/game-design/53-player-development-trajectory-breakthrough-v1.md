@@ -499,9 +499,13 @@ Mentor引退 / teammate departure等の別れは:
 
 ---
 
-# 14. Role Change Can Change Behavior Faster Than Ability
+# 14. Role Change Can Change Behavior — But Green Is Still Slow
 
-Green / Neutral BehaviorはPhysical Skillより比較的変化しやすい。
+Green / Neutral BehaviorはPhysical Skillより**変更可能性は高い**が、日単位・週単位で振動するFast Stateではない。
+
+Greenは09の`GREEN_SLOW_PREFERENCE`。
+
+役割変更はCatalystになれるが、Trait変更には長期的な反復・本人の受諾 / Appraisal・内在化・hysteresisを要求する。
 
 例:
 
@@ -523,7 +527,11 @@ Green / Neutral BehaviorはPhysical Skillより比較的変化しやすい。
 
 ただしManager命令を受けただけで本人Preferenceを書き換えない。
 
+Manager命令は**その場のActual Intentを上書き・方向づけられる**。Greenは命令がない時のDefault Preference。
+
 継続的な実行・本人Appraisal・内在化Evidenceが必要。
+
+同一Green Familyはhysteresisを持ち、短期間に行ったり来たりさせない。
 
 ---
 
@@ -554,6 +562,7 @@ Catalystにより:
 ```ts
 type TraitAcquisitionProfile = {
   traitFamilyId: string;
+  lifecycleClass: TraitLifecycleClass; // 09 is Source of Truth
   acquisitionKinds: readonly TraitAcquisitionKind[];
   eligibleCatalystFamilies: readonly CatalystFamily[];
   sourceStateRequirements: readonly SourceStateRequirement[];
@@ -561,7 +570,6 @@ type TraitAcquisitionProfile = {
   consolidationPolicy?: ConsolidationPolicy;
   coachTeachability: "NONE" | "INDIRECT" | "DIRECT" | "CONTEXT_DEPENDENT";
   experienceLearnability: "NONE" | "LOW" | "MEDIUM" | "HIGH";
-  reversible: boolean;
   goldTierRule?: GoldTierRule;
 };
 ```
@@ -752,19 +760,20 @@ Coach instruction
 
 ---
 
-# 21. Trait Loss / Downgrade / Gold Tier
+# 21. Trait Lifecycle / Loss / Downgrade — 09 IS SOURCE OF TRUTH
 
-Traitを直接削除するのではなくSource Stateを再評価する。
+53はTrait名や色からLifecycleを推測しない。
+`09-player-trait-catalog.md` の `TraitLifecycleClass` に従う。
 
-```text
-aging / injury / disuse / role change / new evidence / technique loss
- -> source state changes
- -> Trait projection changes
-```
+## 21.1 GRADED_DYNAMIC
 
-Goldは同一FamilyのMaster Tier。
+G〜A Familyは現在Source StateのProjectionなので上下する。
 
-例:
+Canonical 13 Families:
+- 投手: 対ピンチ / 対左打者 / 打たれ強さ / ノビ / クイック
+- 野手・捕手: チャンス / 対左投手 / キャッチャー / 盗塁 / 走塁 / 送球 / ケガしにくさ / 回復
+
+GoldがあるFamilyではGoldもCurrent Master Tier。
 
 ```text
 ノビ G ... A -> 怪童
@@ -772,10 +781,46 @@ Goldは同一FamilyのMaster Tier。
 盗塁 G ... A -> 電光石火
 ```
 
-AとGoldを同時適用しない。
+Source State変化に応じてA/Goldから下位へ戻り得る。
+
+## 21.2 LEARNED_MASTERY_PERSISTENT
+
+Consolidation済みNamed Blue technique / masteryは原則としてCareer中に失わない。
+
+```text
+learned skill remains
++ current physical / cognitive feasibility
+ -> current expression
+```
+
+加齢・怪我・能力低下により効果量や実行可能性は落ち得るが、習得済み技術そのものを消去しない。
+
+Persistent Learned Blueに対応するGold Masteryも原則persistent。
+
+## 21.3 GREEN_SLOW_PREFERENCE
+
+GreenはSlow Preference。
+
+- 一回の試合結果で変えない
+- 一回のCoach / Manager命令で変えない
+- role / environment changeはCatalystにできる
+- repeated accepted behavior + internalization + persistenceを要求
+- display transitionにはhysteresisを持たせる
+
+Manager CommandはGreenを削除しないが、Actual Intentを優先的に方向づけられる。
+
+## 21.4 RED / DESCRIPTOR / RELATIONSHIP
+
+原因State / current contextに従って出現・消失・変化可能。
+
+## 21.5 Trait Density
+
+固定Trait所持数Capは置かない。
+代わりにNamed Trait AcquisitionのDistinctiveness / Consolidation thresholdを高くし、Family mergeと有限Opportunityで自然に抑える。
+
+普通のPlayerがCareerを重ねるだけで青特だらけになる場合はCalibration Failure。
 
 ---
-
 # 22. Development History & Provenance
 
 重要なCareer developmentはEvent Logへ残す。
@@ -925,6 +970,12 @@ breakthrough
 23. Development RNG seed変更だけで過去Canonical Match Eventが変わらない。
 24. Major Breakthrough HistoryからCatalyst -> learning -> consolidationを説明できる。
 25. Major Breakthroughで原因のない別Domain能力が一括上昇しない。
+26. Ordinary long-career PlayerがNamed Blueを大量収集して同質化しない。
+27. Consolidation済みNamed Blue masteryが一時的な不調や加齢だけで消えない。
+28. G〜A型13 Familyはsource state変化に応じて上下できる。
+29. Green TraitはManager Hard Signで削除されないが、通常の信頼関係ならActual IntentはHard Signへ従える。
+30. 指示がない時はGreen Default Preferenceが行動へ再び表れる。
+31. 同一Green Familyが通常Seasonで頻繁に往復しない。5回前後の変更はCalibration Failure。
 
 ---
 
@@ -952,7 +1003,13 @@ breakthrough
 20. **ノビはG〜A、Goldは怪童。**
 21. Awakening / Trait / Rating表示はSource Stateへ逆流しない。
 22. Breakthroughはdomain-boundedで、原因のない全能力一括上昇は禁止。
-23. Exact curve coefficients / probabilities / thresholds / cooldownはimplementation calibration。
+23. Trait Lifecycle Classは09を唯一の分類Sourceとする。
+24. Consolidation済みNamed Blue masteryは原則persistent。
+25. G〜A Graded Family / current-master Goldはdynamic。
+26. GreenはSlow Default Preference + hysteresis。
+27. Manager CommandはGreenを消さず、Actual Actionへ別入力として作用する。
+28. Trait Density Guardで特殊能力まみれを防ぐ。固定所持数Capは置かない。
+29. Exact curve coefficients / probabilities / thresholds / cooldown / density targetsはimplementation calibration。
 
 ---
 

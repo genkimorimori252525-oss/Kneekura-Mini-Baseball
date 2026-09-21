@@ -1,7 +1,7 @@
-# Player Rating / Trait Catalog — 設計承認版
+# Player Rating / Trait Catalog — CANONICAL v1
 
-更新日: 2026-09-19  
-状態: **設計承認済み。実装前。具体的な効果量・閾値・保存形式は後続実装設計で確定する。**  
+更新日: 2026-09-22  
+状態: **CANONICAL / DESIGN FROZEN v1。Trait Family / UI分類 / Lifecycle ClassのSource of Truth。実装前。**  
 親設計: `docs/game-design/08-player-traits-design-seed.md`
 
 ## 1. 目的
@@ -162,7 +162,12 @@ Named Blue / GoldのFamilyでも同じ。
 
 上位Tierへ昇格した時点で下位表示は消える。
 
-逆に能力低下・状態更新・再評価によってGold条件を満たさなくなれば、同じFamily内のA/B/...へ降格し得る。
+GoldのLifecycleはFamily Classを継承する。
+
+- `GRADED_DYNAMIC` のGoldはSource State低下でA/B/...へ降格し得る。
+- `LEARNED_MASTERY_PERSISTENT` のGoldはConsolidation済みMasteryとして原則消失・降格させない。
+
+色がGoldだから一律に同じLifecycleとはしない。
 
 重要なのは、同一原因を複数ラベルで二重計上しないことである。
 
@@ -226,6 +231,170 @@ two-strike adjustment:
 
 内部表現は固定enumへ限定せず、Family Definitionが順序付きTierを持てる構造を優先する。
 
+## 2.6 Trait Lifecycle Class — CANONICAL 2026-09-22
+
+**Traitの色や名前からLifecycleを推測しない。**
+
+`09-player-trait-catalog.md` のFamily DefinitionがLifecycle ClassのSource of Truth。
+`53-player-development-trajectory-breakthrough-v1.md` や実装側が `ノビ` 等の個別名だけを見て独自ルールを作ることを禁止する。
+
+概念:
+
+```ts
+type TraitLifecycleClass =
+  | "GRADED_DYNAMIC"
+  | "LEARNED_MASTERY_PERSISTENT"
+  | "GREEN_SLOW_PREFERENCE"
+  | "DYNAMIC_DESCRIPTOR"
+  | "CAUSAL_NEGATIVE_DYNAMIC"
+  | "RELATIONSHIP_CONTEXTUAL"
+  | "CAREER_HISTORY_DESCRIPTOR";
+```
+
+### GRADED_DYNAMIC
+
+Current Source Stateの段階Projection。G〜A、必要ならGold / Red Extremeまで**上下する**。
+
+Canonical Graded Families:
+
+投手:
+- 対ピンチ
+- 対左打者
+- 打たれ強さ
+- ノビ
+- クイック
+
+野手 / 捕手:
+- チャンス
+- 対左投手
+- キャッチャー
+- 盗塁
+- 走塁
+- 送球
+- ケガしにくさ
+- 回復
+
+合計13 Family。
+
+例:
+
+```text
+ノビ B -> ノビ A -> 怪童 -> ノビ B
+盗塁 C -> 盗塁 A -> 電光石火 -> 盗塁 B
+```
+
+はSource Stateが実際に変化すれば可能。
+
+Graded FamilyのGoldはCurrent Master Tierなので降格可能。
+
+### LEARNED_MASTERY_PERSISTENT
+
+練習 / 経験 / Coaching / self-discoveryから**本当に習得・ConsolidationしたNamed Blue技術**。
+
+一度Consolidation完了したら、Career中は原則として消失させない。
+
+例:
+- 流し打ち
+- カット打ち
+- 粘り打ち
+- バント○ / バント職人
+- 守備職人 / 魔術師
+- ブロッキング
+- 代打○ / 代打の神様
+- 技術習得型のNamed Blue / Gold Family
+
+ただしPersistent Masteryは:
+
+```text
+永遠に同じ結果を出せる
+永遠に身体能力を維持する
+```
+
+という意味ではない。
+
+```text
+learned technique remains
++ current physical / cognitive / health feasibility
++ current context
+ -> actual execution
+```
+
+加齢や大怪我で身体性能が低下しても習得技術そのものは失わないが、現在の身体が許さなければ効果の発揮量は低下し得る。
+
+Persistent Named Blueから派生するGold Masteryも原則persistent。
+
+### GREEN_SLOW_PREFERENCE
+
+本人の野球観 / Default Policy / Decision Preference。
+
+能力Buffではなく、**Managerから特別な指示がない時に選びやすい行動**を表す。
+
+例:
+- 強振多用 / ミート多用
+- 積極打法 / 慎重打法
+- 積極盗塁 / 慎重盗塁
+- 積極走塁
+- 積極守備
+- 速球中心 / 変化球中心
+- チームプレイ○ / ×
+
+GreenはSlow State。日々の結果や一回の命令で切り替えない。
+
+### DYNAMIC_DESCRIPTOR
+
+現在のPhysical / Technical / Statistical sourceを人間向けに説明するDescriptor。
+「習得した青特」とは別物。
+
+例:
+- ラインドライブ
+- ゴロピッチャー / フライボールピッチャー
+- pitch-shape Descriptor
+- 荒れ球
+
+Source State / Evidenceが変われば表示も変わり得る。
+
+### CAUSAL_NEGATIVE_DYNAMIC
+
+赤 / Negative Family。原因Stateが改善・悪化すれば出現 / 消失 / 段階変化できる。
+
+### RELATIONSHIP_CONTEXTUAL
+
+○○キラー等。対象・Roster・Familiarity等が変化すれば有効性も変わる。
+
+### CAREER_HISTORY_DESCRIPTOR
+
+負け運等、Match Buffとして採用せずCareer historyから後付け表示するもの。
+
+---
+
+## 2.7 Trait Density Guard — No Trait Collection Inflation
+
+Named Traitへ固定個数Capは置かない。
+
+ただし通常Playerが長期CareerでNamed Blueだらけになる設計も禁止する。
+
+Named learned Traitの取得には:
+- sufficiently distinct source skill / behavior
+- high consolidation threshold
+- enough relevant repetitions
+- finite training / coaching / playing opportunity
+- Family consolidation / merge
+- actual role exposure
+
+を要求する。
+
+同じ現象を細かく分解して複数Blueとして水増ししない。
+
+**人生の有限時間・役割・Coaching Attentionが自然な取得上限になる。**
+
+Long-run soakで以下をFailureとする:
+- ordinary active Playersの大半が大量のNamed Blueを持つ
+- aging aloneで全PlayerがBlueを単調累積して似たProfileになる
+- same-source Traitが複数Labelとして重複取得される
+
+具体的な平均個数 / percentileはCalibration。
+
+---
 ## 3. A〜G型Trait Family
 
 A〜G型Traitは一つの正負を持つFamilyとする。
@@ -618,6 +787,34 @@ Greenは能力値上昇ではなくDecision / preference / condition-distributio
 
 ---
 
+## 6.3 Green Stability / Hysteresis — CANONICAL
+
+GreenはFast Stateではない。
+
+内部Preferenceが少し揺れただけでUI Traitを変更しない。
+
+```text
+underlying preference
++ repeated voluntary / accepted behavior
++ role history
++ appraisal / internalization
++ time persistence
+        ↓
+hysteresis threshold
+        ↓
+Green display transition
+```
+
+同一Green Familyではenter threshold / leave thresholdを分け、短期往復を防ぐ。
+
+Manager / Coach交代、役割変更、長期的な成功・失敗等は変化Catalystになれるが、一度の出来事で即切替しない。
+
+Long-run Acceptance:
+- 通常Playerが同じGreen Familyを1 season中に何度も往復しない
+- **同じGreen Familyが1 seasonに5回前後変化する状態は明確なCalibration Failure**
+- Hard runtime capではなく、slow-state dynamics / hysteresis / evidence persistenceで自然に防ぐ
+
+---
 # 7. Blue-Red Trait カタログ
 
 ## 7.1 投手
@@ -917,3 +1114,16 @@ Family-level原則:
 ```
 
 をCanonical tier structureとする。`ノビ○`はCanonical UI / data tierとして生成しない。
+## 15. 2026-09-22 CANONICAL REFINEMENT — Trait Lifecycle & Command Interaction
+
+1. Trait Family分類は09のみをSource of Truthとし、53/実装側で名前から推測しない。
+2. G〜A型13 FamilyはCurrent Source Stateに応じて上下する。
+3. Graded Family GoldもCurrent Master Tierなので降格可能。
+4. Consolidation済みNamed Blue learned masteryは原則Career中に消失しない。
+5. Persistent Blue / Goldは身体能力を永久維持するBuffではなく、習得技術の保持。
+6. Greenは本人のSlow Default Preference。
+7. Green stored preferenceとActual Actionを分離する。
+8. explicit Manager instructionはGreen Traitを削除しないが、Actual Actionを優先的に方向づけられる。
+9. Red / Descriptor / Relationship Traitは各Source Stateに従って動的に変化できる。
+10. Fixed Trait count capは置かないが、Trait Density Guardと有限OpportunityでTraitまみれを防ぐ。
+11. Green transitionはhysteresisを持ち、頻繁なseason内往復をCalibration Failureとする。

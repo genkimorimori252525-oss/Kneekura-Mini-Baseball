@@ -1,6 +1,6 @@
 # 特殊能力 / Trait System 設計計画
 
-更新日: 2026-09-20  
+更新日: 2026-09-22  
 状態: **特殊能力システムMaster Plan。Player Trait部分は設計承認済み。Team Traitは設計中。Team Mood / Manager Ability / Popularityは後続設計。実装前。**  
 目的: Mini Baseballの「得能」系UIを、Player / Team / Manager / Careerの複数source-of-truthへ安全に接続するMaster Plan。Player Traitカタログは `09-player-trait-catalog.md`、Team Trait設計は `34-team-traits-and-relationship-network-DRAFT.md`、Team Traitカタログは `35-team-trait-catalog-DRAFT.md` を参照する。
 
@@ -494,20 +494,30 @@ zone discipline ↓
 
 ### 監督指示との衝突
 
-監督指示は緑Traitを上書きしない。
+監督指示は**保存されたGreen Trait / 本人Preferenceを削除・書換えしない**。
+
+ただしGreenは「命令より強い行動強制」でもない。
 
 ```text
-player tendency
+player default preference
 + manager instruction
++ instruction hardness
 + tactical understanding
 + trust / compliance
-+ personality
++ personality / autonomy
 + game context
       ↓
-final decision
+final intent
 ```
 
-したがって、本人が「強振多用」で監督がミート重視を指示しても、強振多用Trait自体は消えない。選手によっては監督指示を優先し、別の選手は自分の判断を優先し得る。
+原則:
+
+- 指示なし -> Greenが本人Defaultとして強く表れる。
+- Soft Directive -> Green + Manager方針を合成。
+- Hard Sign / Immediate Command -> Playerが理解・受諾できた場合は命令を優先する。
+- 命令不履行はGreen Traitそのものではなく、理解失敗 / trust / compliance / autonomy / communication / contextから説明する。
+
+したがって、本人が「強振多用」で監督がその打席だけミート重視を明示した場合、通常は実際の打席方針をミート寄りへ変更できる。しかし`強振多用`という本人のDefault Preferenceは消えず、次に指示がなければ再び表れやすい。
 
 命令に従わないこと自体を一回で「ムード×」へ変換しない。反復する独断、チームメイトとの摩擦、監督との信頼低下、集団への実際の悪影響などが蓄積した場合に、将来のRelationship / Team Chemistry設計から「ムード×」相当のDescriptorまたはBehavior Traitが成立する余地を残す。
 
@@ -629,6 +639,10 @@ Trait projection
 - Coach instructionだけでTrait取得禁止
 - Pressure系はrepeated relevant experienceを要求
 - Green系はstable Behavior / Preference変化を要求
+- Consolidation済みNamed Blue learned masteryは09 Lifecycle Classに従い原則persistent
+- G〜A Graded Familyはcurrent source stateに応じて上下可能
+- Greenはslow preference + hysteresisで頻繁な往復を防ぐ
+- Trait count hard capは置かないがTrait Density Guardを適用
 - Goldは同一FamilyのMaster Tier
 - injury / age / form changeはsource stateを更新して再Projection
 

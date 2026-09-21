@@ -566,6 +566,30 @@ Player own tendency / perception / tactical understandingと合成。
 
 ---
 
+# 14.1 Player Green Preference Boundary — CANONICAL REFINEMENT
+
+`09-player-trait-catalog.md` のGreen TraitはPlayer本人の**Default Policy / Slow Preference**。
+
+ManagerのInstructionとは別Source。
+
+```text
+no instruction
+ -> Player Green Preference is the main default prior
+
+Soft Directive
+ -> Manager preference + Player preference are blended
+
+Hard Sign / Immediate Command
+ -> command is normally intended to take precedence
+ -> comprehension / communication / trust / compliance / autonomy may still affect actual response
+```
+
+Hard Signを受けたからPlayerのGreen Traitを消去しない。
+反対にGreen Traitを理由にHard Signを自動無視させない。
+
+Userの明示Commandも同じHuman Control boundaryに従う。
+
+---
 # 15. Player Response
 
 ```text
