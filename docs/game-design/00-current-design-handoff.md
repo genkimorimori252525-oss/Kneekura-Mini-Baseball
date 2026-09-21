@@ -38,9 +38,10 @@ AI / Agent向け強制ルール:
 - `19-club-structural-dominance-and-decline.md` — **CANONICAL / DESIGN FROZEN v1**
 - `20-simple-surface-deep-simulation.md` — **CANONICAL / DESIGN FROZEN v1**
 - `26-club-initial-seed-rating-model.md` — **CANONICAL / DESIGN FROZEN v1**
+- `31-scouting-recruitment-system.md` — **CANONICAL / DESIGN FROZEN v1**
 
 残る最終監査対象:
-- `31-scouting-recruitment-system.md`
+**なし。第二段階の最終Freeze監査は完了。**
 
 これらは白紙の未承認案ではない。既存の採用方向を監査し、Architectureとcalibration/contentを分離してFreezeするための対象。
 
@@ -263,6 +264,55 @@ Key freeze decisions:
 - dataset updates apply only to new Careers; existing Saves are never re-seeded.
 - rivalry seed/lifecycle belongs to 30/33, not 26.
 - initial seed values and S-G views never become runtime causal stats.
+
+---
+# 0.11 CANONICAL REFINEMENT — Person Headline Rating Contract
+
+2026-09-22 user approved:
+
+### Players
+- all active / draft / recruitment-target Players may use `☆000〜999` as the one-glance Headline Player Rating.
+- `☆500` is the current Rating Context average benchmark.
+- `☆501〜999` uses a dark-red semantic text treatment so above-average players are immediately recognizable.
+- exact RGB / typography is Presentation-owned.
+- `☆` is a role-aware Derived Summary from public ability projections / suitability; it is not a Match Core stat.
+- detailed 0–100 / G–S projections remain available.
+- League-relative reference is generated from the **actual player population**, never from a hard-coded League-name strength modifier.
+- if a League's actual player quality changes across a long Save, its Rating Reference changes accordingly.
+- affiliated Players normally keep `ratingContextLeagueId = affiliationLeagueId`; temporary international competition does not rebase ratings.
+- draft / recruitment targets are evaluated in the destination/evaluating Club's League context unless an explicit comparison context is selected.
+- scouted target `☆` / detailed ratings come from that Club's Knowledge Estimate, not Hidden True State; low confidence may show `?` / ranges.
+
+### Non-player Persons
+- Manager / Scout / Coach / GM and other non-player staff may expose a Public Overall S–G.
+- Overall is a role-specific Derived Summary of observed detailed skills, never a new true ability stat.
+- Overall never directly modifies win probability, scout accuracy, player ability or any Core result.
+- detailed staff skills remain available for users who want depth.
+
+Current detailed contract: `docs/game-design/02-rules-ratings-defense.md` Section 4.0.
+
+---
+# 0.12 CANONICAL — Scouting & Recruitment v1
+
+2026-09-22 user approved and froze:
+- `docs/game-design/31-scouting-recruitment-system.md`
+
+Key freeze decisions:
+- Scout is a Global Person; Scouting Department is a Club institution.
+- scouting changes Club Knowledge, never Player Truth.
+- Discovery recognizes existing Global Players; it does not generate them.
+- PlayerKnowledgeRecord preserves observation time, evidence, evaluator, estimate, confidence and freshness.
+- RecruitmentDecisionRecord snapshots decision-time Knowledge / Need / Budget / Fit / Market / Offer context.
+- CPU/User Clubs never use hidden True Player State for recruitment.
+- Outcome != Scout correctness; post-hoc results do not rewrite original evaluation quality.
+- scouting budget acts through staff/coverage/travel/data/timeliness, not direct accuracy buffs.
+- Reports/organizational memory can become stale.
+- Recruitment Authority is governance-defined; Manager supplies need/fit/usage input.
+- User surface remains Director / simple emphasis / focused Player or Region request / shortlist.
+- Scout/Director Public Overall S–G is a Derived Summary; detailed skills/specialties remain the source.
+- recruitment targets may show `☆000〜999` from Club Knowledge in the dynamic League Rating Context.
+- 26 Scouting Seed is Career Creation-only; current Scouting Rank derives from actual Department state.
+- recruitment success/failure labels are analytic descriptors and do not assign automatic blame/buffs.
 
 ---
 # 1. Game Slogan
@@ -627,7 +677,7 @@ Scouts can:
 Age alone must not equal decline.
 
 Detailed design:
-- `31-scouting-recruitment-system.md`
+- `31-scouting-recruitment-system.md` — **CANONICAL / DESIGN FROZEN v1**
 
 ---
 
@@ -1146,7 +1196,7 @@ Draft:
 
 Core:
 - Manager employment does not guarantee competence.
-- six public axes remain 采配 / 分析 / 適応 / 選手眼 / 運用 / 統率; no Overall rating.
+- six public axes remain 采配 / 分析 / 適応 / 選手眼 / 運用 / 統率; a Public Overall S–G is now allowed as a Derived one-glance summary.
 - D/E/F/G can genuinely exist; Active Manager has no hard skill floor.
 - low Skill never directly modifies win probability.
 - weak managers still use the normal Manager Decision Engine and make explainable mistakes through bad beliefs / candidate generation / evaluation / adaptation.
@@ -1506,7 +1556,7 @@ Important corrections from the audit:
 - psychological tactics must route through the existing Player Appraisal / ActiveEmotion architecture.
 - Manager Decision Log is immutable structured trace from decision time, never post-hoc narrative invention.
 - full routine traces are not permanently stored; only meaningful / key decisions persist.
-- public S–G Manager ratings are observed estimates of hidden True Skill, so first-time managers can remain uncertain.
+- public S–G Manager skill ratings and Public Overall are observed estimates of hidden detailed skill evidence, so first-time managers can remain uncertain.
 - automatic strategy invention is constrained by a Tactical Grammar and RuleEngine legality.
 - League Meta is a derived description, not a global tactical buff.
 - Coaching Tree transfers ideas / priors, never Manager Skill.

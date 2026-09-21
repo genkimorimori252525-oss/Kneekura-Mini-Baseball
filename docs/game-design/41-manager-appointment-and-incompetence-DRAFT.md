@@ -29,7 +29,12 @@
 - 統率
 
 にはD / E / F / Gが実際に存在してよい。複数軸が低い監督も存在可能。
-ただしOverall Manager Ratingは持たない。
+
+2026-09-22 refinement:
+- User-facingには **Public Overall Manager Rating S〜G** を持たせる。
+- Overallは6能力等の公開観測推定をrole-specificに要約したDerived Summary。
+- Overall自体はManager True Skill / Decision Engine / win probabilityのSource of Truthではない。
+- 詳細を見たくないUserはOverallだけで一目比較でき、詳細Userは6能力を見る。
 
 ---
 
@@ -77,11 +82,12 @@ Decision Logを見れば、迷采配にも本人なりの理由を追跡でき�
 
 ```text
 Manager True Skill
- != Public Manager Grade
+ != Public Manager Overall
+ != Public Manager Skill Grades
  != Reputation
 ```
 
-公開S〜GはEvidenceからの観測推定。
+公開6能力S〜GとPublic Overall S〜GはいずれもEvidenceからの観測推定。
 初監督・役割変更直後は不確実性が高く、`?` を許可する。
 
 例:
@@ -309,7 +315,7 @@ exact分布率はmulti-season soak / calibrationで決める。
 2. low Skillがdirect loss modifierにならない。
 3. low Skill ManagerもDecision Engineを通り、理由のある迷采配をする。
 4. Decision Logから失敗のBelief / Candidate / evaluation原因を追える。
-5. True SkillとPublic Gradeが分離される。
+5. True SkillとPublic Overall / Public Skill Gradesが分離される。
 6. First-time Managerの公開能力に`?`を持てる。
 7. Strong Manager + bad fit と Weak Manager + elite rosterを区別できる。
 8. Staffは情報を改善してもManager True SkillをBuffしない。
@@ -319,6 +325,7 @@ exact分布率はmulti-season soak / calibrationで決める。
 12. `負け運` は敗北率を変更しない。
 13. `クジ運○` / `未来予知` は抽選乱数を変更しない。
 14. 赤特・青特・金特は既存Source / actual historyからDerivedできる。
+15. Public Overall S〜GはDerived Summaryであり、Decision Engineや直接勝率補正の入力にならない。
 
 ---
 

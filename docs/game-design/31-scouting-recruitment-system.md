@@ -1,7 +1,10 @@
-# Scouting & Recruitment System
+# Scouting & Recruitment System — CANONICAL v1
 
-更新日: 2026-09-20  
-状態: **設計承認候補版。Simple Surface / Deep Simulation準拠。実装前。**
+更新日: 2026-09-22  
+状態: **CANONICAL / DESIGN FROZEN v1。2026-09-22ユーザー承認。Simple Surface / Deep Simulation準拠。実装前。**
+
+> Scout / Department / Club Knowledge / Recruitment decision provenanceの責務をv1としてFreezeする。
+> Player Headline `☆000〜999` とNon-player Overall S〜Gは02 Section 4.0の共通Headline Rating Contractに従う。
 
 関連:
 - `docs/game-design/16-club-economy-rivalry-design.md`
@@ -43,6 +46,17 @@ Scoutが変えるのは**ClubがPlayerについて何を知るか**である。
 
 ---
 
+# 1.1 Canonical Boundaries
+
+1. Playerは32のGlobal Player Personとして先にWorldへ存在する。
+2. DiscoveryはPlayer生成ではなく、ClubがそのPlayerを認知・追跡し始めること。
+3. Scout / CPU / User ClubはHidden True Player Stateを直接読まない。
+4. ScoutingのSource of TruthはEvidence -> Club Knowledge Estimate。
+5. Recruitment decisionは**decision-time information**から説明可能でなければならない。
+6. OutcomeとScout/Decision qualityを分離する。
+7. User SurfaceはDirector / simple policy / focused request / shortlistまで。Detailed staff schedulingはBackground。
+
+---
 # 2. ScoutはPerson
 
 ScoutをClub固定能力にしない。
@@ -188,9 +202,34 @@ Club B estimate:
 
 ---
 
+# 5.1 Player Knowledge Report Provenance — CANONICAL
+
+Reportは「現在のPlayer真値」ではなく、**その観測時点までにClubが知っていたEvidence**を保存する。
+
+```ts
+type PlayerKnowledgeRecord = {
+  playerId: PlayerId;
+  clubId: ClubId;
+  observedAt: SeasonTime;
+  evidenceSourceIds: readonly EvidenceId[];
+  evaluatorPersonIds: readonly PersonId[];
+  estimate: PlayerEstimate;
+  confidence: KnowledgeConfidence;
+  freshness: KnowledgeFreshness;
+  lastUpdatedAt: SeasonTime;
+};
+```
+
+2030年Reportは新しい観測がなければ2034年に自動で最新Truthへ更新されない。
+
+Public `☆000〜999` / 0〜100能力Projectionを外部Playerへ表示する場合も、このClub Knowledgeから生成する。
+
+---
 # 6. Discovery
 
 全Playerを全Clubが最初から知っているわけではない。
+
+Player自体は32のWorld / regional pathway上に既に存在する。Scouting DiscoveryはGlobal Playerを新規生成する処理ではない。
 
 ```text
 regional coverage
@@ -258,6 +297,30 @@ Outcome
 
 ---
 
+# 7.1 Recruitment Decision Snapshot — CANONICAL
+
+Shortlist / bid / pass / acquisitionの重要Decisionでは、**その時点で利用可能だった情報**を保存する。
+
+```ts
+type RecruitmentDecisionRecord = {
+  decisionId: DecisionId;
+  playerId: PlayerId;
+  decidedAt: SeasonTime;
+  knowledgeSnapshotRefs: readonly KnowledgeSnapshotId[];
+  rosterNeedSnapshot: RosterNeedSnapshot;
+  budgetContext: RecruitmentBudgetContext;
+  fitEstimate: RecruitmentFitEstimate;
+  marketContext: RecruitmentMarketContext;
+  offeredTerms?: ContractOfferSnapshot;
+  decision: "SHORTLIST" | "BID" | "PASS" | "ACQUIRE";
+};
+```
+
+後からPlayerが大成 / 失敗してもDecision時点のKnowledgeをHidden Truthで書き換えない。
+
+これにより「なぜ獲った / 見送ったか」を当時のEvidenceで説明できる。
+
+---
 # 8. CPU Club Decision
 
 CPU ClubはPlayerのTrue Abilityを直接読まない。
@@ -316,6 +379,13 @@ Club philosophyによってManager influenceの強弱を変えてよい。
 
 ---
 
+# 9.1 Recruitment Authority Profile
+
+最終AuthorityはManager能力そのものではなくClub Governance / Recruitment Authority Profileで決める。
+
+ManagerはRoster Need / fit / expected usageのinputを提供できるが、Manager True Skillが高いだけで自動的に全補強権限を持たない。
+
+---
 # 10. Scouting Success and Failure
 
 強豪でも失敗する理由:
@@ -371,6 +441,10 @@ Player outcomeには:
 - luck
 
 も含まれるため、Scout自身の評価誤差と分離する。
+
+**Outcome != Scout correctness**。後続Evidenceを使う場合も、original estimate / uncertainty / opportunity / injury / environmentを分離してcalibration updateする。
+
+`Bargain` / `Major Failure`等の事後LabelからScout Skillを直接上下させない。
 
 ---
 
@@ -466,14 +540,18 @@ User-facing candidate:
 スカウト責任者
 
 総合評価     A
-国内発掘     A
-海外発掘     B
+発掘         A
+現能力評価   B
 将来予測     S
 データ活用   A
-得意地域     Japan / Korea
+得意領域     高校生打者 / Japan / Korea
 年俸         ...
 契約         ...
 ```
+
+`総合評価` はrole-specificな詳細SkillのPublic Observed Estimateから作るDerived Summary。Scout Accuracyの原因Statではない。
+
+「結局この人はどうか」を一目で見たいUserはOverallだけで比較でき、詳細を見たいUserだけ個別Skill / Specialtyを見る。
 
 配下Scout / AnalystはDepartment AIが自動管理可能。
 
@@ -518,6 +596,15 @@ Club scouting budget
 
 ただし金を使えば必ず成功ではない。
 
+禁止:
+
+```text
+scoutingBudget +20%
+ -> evaluation accuracy +20%
+```
+
+BudgetはStaff hiring / travel / data access / coverage / observation frequency / report timeliness等へ因果的に作用する。
+
 大型Departmentでも:
 
 - poor director synthesis
@@ -559,6 +646,8 @@ Scout takes:
 
 この差がStaff poachingを意味あるものにする。
 
+Clubに残るReport / video / databaseは観測時点を保持し、Scout退団後も自動で最新Truthへ更新されない。Organizational MemoryにもFreshness / source provenanceを持てる。
+
 ---
 
 # 19. Initial Club Scouting Seed
@@ -580,6 +669,8 @@ Club scouting = 70
 ```
 
 Pennant開始後はStaff hiring / departures / investmentで変化する。
+
+26のInitial `scouting` SeedはCareer Creation時点でauthorityを終了する。以後の現在Scouting Rankはactual Department Stateから18 L4へDerivedする。
 
 ---
 
@@ -606,7 +697,9 @@ Alternative Market Options
 
 しかしこのLabelも結果。
 
-Player abilityを変更しない。
+Player abilityを変更しない。Scout / Director / GM / Managerの責任もLabelだけで自動確定しない。
+
+例: Scout評価は妥当だったがGMがoverpayした、Playerは妥当だったがUsageが悪かった、という分離を許可する。
 
 ---
 
@@ -615,6 +708,8 @@ Player abilityを変更しない。
 CPU Clubは過去の補強結果から方針を調整できる。
 
 ただしPlayer True Stateをretroactively知ることはできない。
+
+Organization learningは当時のDecision Snapshotと、その後に合法的に得られたEvidenceだけから行う。
 
 例:
 
@@ -646,21 +741,35 @@ Organizationも成長 / 退化できる。
 
 ---
 
-# 23. 今回確定する事項
+# 23. Final Approved Decisions — v1
 
-1. Scoutは雇用されるPerson Staff
-2. Scouting DepartmentとScout Personを分離
-3. Scoutは成長 / 変化 / 退職 / 移籍可能
-4. 年齢だけで自動劣化させない
-5. Regional Networkはfreshnessを持つ
-6. ScoutingはTruthではなくKnowledge精度へ作用
-7. CPU ClubもClub Knowledgeだけで補強判断
-8. RecruitmentはScoutだけでなくDirector / GM / Manager / Budgetの連鎖
-9. UserはHead Scout / Scouting Director程度のSimple Surface
-10. Department詳細はBackground Simulation
-11. Rich Clubの補強大失敗とSmall Clubの大成功を両方許可
-12. 26のScouting SeedはCareer開始時Department Seedとして使用
+1. Scoutは雇用されるGlobal Person Staff。
+2. Scouting DepartmentはClub Institutional StateとしてScout Personと分離する。
+3. Scoutが変えるのはPlayer TruthではなくClub Knowledge。
+4. CPU / User ClubともHidden True Player Stateを直接読まず、そのClubが持つEvidence / Estimateを使う。
+5. Discoveryは既存Global PlayerをClubが認知・追跡することでありPlayer生成ではない。
+6. Player Knowledge Reportはevidence source / observation time / evaluator / estimate / confidence / freshnessを保持する。
+7. 古いReportを新観測なしに自動で最新Truthへ更新しない。
+8. RecruitmentはScout -> Knowledge -> Director synthesis -> Authority decision + Manager fit input -> Negotiation -> Acquisition -> Usage / Developmentの因果Pipeline。
+9. Recruitment Decision時点のKnowledge / Roster Need / Budget / Fit / Market / OfferをSnapshot保存する。
+10. Signing OutcomeとDecision Quality / Scout Evaluation Qualityを分離し、後知恵でHidden Truthを逆流させない。
+11. Scout Learningは後続Evidenceによるcalibrationであり、成功/失敗Labelから直接Skillを変更しない。
+12. Scouting Budgetはstaff / coverage / travel / data / timelinessへ作用し、直接Accuracy Buffは禁止。
+13. Personal / Organizational NetworkはFreshnessを持ち、Experienceそのものと分離する。
+14. 年齢だけでScoutを自動劣化させない。Adaptability / freshness / role fit等から変化する。
+15. Recruitment AuthorityはClub Governance Profileで決まり、ManagerはNeed / fit / usage inputを提供する。
+16. User SurfaceはScouting Director採用 / simple emphasis / Player or Region focused request / shortlist程度。Weekly Scout micromanagementは禁止。
+17. Scout / DirectorにはPublic Overall S〜Gを持たせる。OverallはDerived Summaryであり、詳細Skill / SpecialtyがSource。
+18. Player targetには02共通Contractの`☆000〜999` Headline RatingをClub Knowledge + dynamic League Rating Contextから表示できる。
+19. 26のScouting SeedはCareer Creation時Initial Department Seedだけ。以後はactual Department Stateからcurrent Scouting RankをDerivedする。
+20. Bargain / Fair / Disappointing / Major Failure等は事後Analytic Descriptorであり、Buff / Penaltyや責任を自動確定しない。
+21. 全Recruitment Decisionはその時点で利用可能だった情報から説明可能にする。
+22. UserにScouting数式や大量配置作業を要求しない。
 
+---
 
-Unapproved roster / development draft (USER REVIEW REQUIRED):
-- `docs/game-design/32-roster-development-architecture-DRAFT.md`
+# 24. Final v1 Status
+
+**Scouting & Recruitment System v1は2026-09-22にユーザー承認され、DESIGN FROZEN。**
+
+Roster / Developmentは32 CANONICAL、Player Headline Rating / Staff Overall表示は02 Section 4.0、Manager decisionは49を優先する。

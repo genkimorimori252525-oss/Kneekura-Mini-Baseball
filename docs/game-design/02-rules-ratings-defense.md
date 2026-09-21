@@ -1,6 +1,6 @@
 # NPB規則・能力査定・守備シミュレーション設計
 
-更新日: 2026-09-17
+更新日: 2026-09-22
 状態: 実装前の仕様。年度規則の原文照合とテストを前提とする。
 
 ## 1. 規則プロファイル
@@ -88,6 +88,119 @@ Render Clock
 
 ## 4. 公開査定と隠し査定
 
+### 4.0 共通Headline Rating Contract — CANONICAL REFINEMENT 2026-09-22
+
+人物の一目評価を二系統へ統一する。
+
+```text
+Player（現役 / Draft / Recruitment target）
+  -> ☆000〜999 Headline Player Rating
+
+Non-player Person（Manager / Scout / Coach / GM等）
+  -> Public Overall S〜G
+```
+
+どちらも**表示用Derived Summary**であり、True State / Decision Engine / Match Coreの入力へ戻さない。
+
+#### Player — ☆000〜999
+
+`☆` はPlayerのHeadline Overall Projection。
+
+- range: `☆000`〜`☆999`
+- `☆500` = 現在のRating Contextにおける平均Benchmark
+- `☆501〜999` = 平均以上を一目で判別する**dark-red semantic text**
+- `☆000〜500` = normal text
+- exact RGB / typographyはPresentation側で決める
+
+例:
+
+```text
+☆684
+ミート B
+パワー A
+選球眼 B
+守備力 B
+```
+
+`☆` は詳細能力の単純算術平均ではない。打者 / 投手 / 捕手 / 守備役割等のrole relevanceと、公開Projection / Suitabilityを用いたrole-aware aggregateから作る。exact weights / mapping curveはcalibration。
+
+既存の能力尺度区分は維持する。
+
+- ミート / パワー / 制球等: league-context Presentation Projection
+- 球速等: absolute physical fact / physical projection
+- 守備位置・投手役割適性: suitability
+- 球種 / 左右 / 年齢等: fact / attribute
+
+`☆` はこれらを適切な役割文脈で要約するだけで、物理量や役割適性を別能力として二重加算しない。
+
+#### Dynamic League Rating Reference
+
+League-relative Ratingの基準をLeague名へ固定しない。
+
+禁止:
+
+```text
+league == MLB
+ -> rating is always harsher
+```
+
+採用:
+
+```text
+actual current player population
+ -> versioned League Rating Reference
+ -> 0-100 / G-S public projections
+ -> role-aware ☆000-999 headline
+```
+
+**選手がLeague Levelを構成する。League名が能力尺度を固定しない。**
+
+したがって長期SaveでLeague全体のPlayer qualityが低下 / 上昇すれば、同じabsolute player stateでもleague-relative public projectionと`☆`は変化し得る。
+
+`LeagueRatingReference` は少なくともleague / player-population snapshot / projection versionをprovenanceとして持つ。exact population inclusion policy / refresh cadence / normalization curveはcalibrationし、League名による固定補正にはしない。
+
+既存の国際大会原則どおり、所属Playerは通常 `ratingContextLeagueId = affiliationLeagueId` を維持し、WBC / Continental / Club Worldへの一時参加だけで再基準化しない。
+
+未所属 / Draft / Recruitment targetを特定Clubが評価する場合は、原則として**評価先Clubの所属League Context**でHeadline Ratingを作る。Cross-league comparison UIが必要なら明示的なcomparison contextを選べる。
+
+#### Knowledge-bound Player Rating
+
+Draft / Trade / FA / Scouting targetの`☆`と詳細能力は、評価Clubの`Club Knowledge Estimate`から作る。Hidden True Player Stateを直接表示しない。
+
+```text
+Club A estimate -> ☆642?
+Club B estimate -> ☆571?
+same Player, different available evidence
+```
+
+低confidence時は `?` / estimate range等を補助表示できる。`☆`の一点表示はSimple Surface用summaryであり、uncertaintyを消去しない。
+
+#### Non-player — Public Overall S〜G
+
+Manager / Scout / Coach / GM等の非選手Personには、一目で「結局この人はどうか」を理解するための**Public Overall S〜G**を許可する。
+
+Overallはrole-specificな詳細能力のObserved EstimateからDerivedする。UniversalなStaff Power statではない。
+
+例:
+
+```text
+Scout Director
+総合評価 A
+発掘     A
+現能力評価 B
+将来予測 S
+データ活用 A
+```
+
+```text
+Manager
+総合評価 B
+采配 A / 分析 C / 適応 B / 選手眼 A / 運用 B / 統率 C
+```
+
+Overall自体からScout Accuracy / Manager win probability / Player ability等を変更しない。First-time / low-evidence non-playerは `?` / `B?` 等のconfidence表現を許可する。
+
+---
 ### 4.1 公開する能力
 
 プレイヤーが直感的に比較できる情報は少数にする。
