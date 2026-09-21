@@ -136,13 +136,13 @@ export const CURRENT_BASEBALL_PHYSICS_V1_GATE_COVERAGE:
         'pitching_coefficient_calibration',
       evidenceState: 'open',
       evidenceId:
-        'lyu-2022+smith-2022+statcast-2025',
+        'lyu-2022+smith-2022+nathan-2026+statcast-2025',
       evidenceVersion:
-        'pitch-aero-evidence-v1',
+        'pitch-aero-evidence-v2',
       coverage:
-        'Weather-derived air properties, Reynolds/spin-dependent seam-averaged drag/lift, active/gyro spin, and physical pitch-name calibration are implemented.',
+        'Weather-derived air properties, Reynolds/spin-dependent seam-averaged drag/lift, active/gyro spin, physical pitch-name calibration, and evidence-bounded aerodynamic spin decay are implemented.',
       missing:
-        'Low-spin seam-orientation split, calibrated spin decay, and explicitly deferred SSW/knuckleball forces prevent claiming complete production pitching calibration.',
+        'Low-spin seam-orientation-dependent force separation and explicitly deferred seam-shifted-wake / knuckleball force models remain outside the v1 production calibration claim.',
     },
     {
       gateId:
