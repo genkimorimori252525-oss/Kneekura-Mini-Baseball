@@ -26,6 +26,11 @@ import {
 import {
   advanceGroundBallMotion,
 } from './GroundBallMotion';
+import {
+  resolveBallSurfaceMaterialContact,
+  validateBallSurfaceMaterialProfile,
+  type BallSurfaceMaterialProfile,
+} from './BallSurfaceMaterial';
 
 export type GroundSurfacePhysics = Readonly<{
   ball: RigidBaseballProperties;
@@ -36,6 +41,11 @@ export type GroundSurfacePhysics = Readonly<{
   contact?: BallSurfaceContactParameters;
   responseProfile?: BallSurfaceResponseProfile;
   responseGrid?: BallSurfaceResponseGrid;
+  /**
+   * Unified material form for new callers. When present it replaces the
+   * contact/responseProfile/responseGrid compatibility forms above.
+   */
+  material?: BallSurfaceMaterialProfile;
   /**
    * Post-impact kinetic sliding friction used to evolve residual bottom-point
    * slip into no-slip rolling. Omit to preserve the earlier immediate rolling
@@ -182,15 +192,18 @@ const validateParameters = (parameters: BallFlightParameters): void => {
       surface.responseProfile !== undefined;
     const hasGrid =
       surface.responseGrid !== undefined;
+    const hasMaterial =
+      surface.material !== undefined;
     const responseKinds = [
       hasStatic,
       hasProfile,
       hasGrid,
+      hasMaterial,
     ].filter(Boolean).length;
 
     if (responseKinds !== 1) {
       throw new Error(
-        'groundSurfacePhysics requires exactly one of contact, responseProfile, or responseGrid',
+        'groundSurfacePhysics requires exactly one of contact, responseProfile, responseGrid, or material',
       );
     }
 
@@ -208,6 +221,14 @@ const validateParameters = (parameters: BallFlightParameters): void => {
     ) {
       validateBallSurfaceResponseGrid(
         surface.responseGrid,
+      );
+    }
+    if (
+      surface.material
+      !== undefined
+    ) {
+      validateBallSurfaceMaterialProfile(
+        surface.material,
       );
     }
     if (
@@ -458,7 +479,10 @@ export const findGroundContactTick = (
 const getGroundRollingDeceleration = (
   parameters: BallFlightParameters,
 ): number => (
-  parameters.groundRollingDecelerationMps2
+  parameters.groundSurfacePhysics
+    ?.material
+    ?.rollingDecelerationMps2
+  ?? parameters.groundRollingDecelerationMps2
   ?? DEFAULT_BALL_FLIGHT_PARAMETERS.groundRollingDecelerationMps2
   ?? 0
 );
@@ -507,8 +531,13 @@ const advanceGroundRoll = (
   if (
     surface !== null
     && surface !== undefined
-    && surface.slidingFrictionCoefficient
+    && (
+      surface.slidingFrictionCoefficient
       !== undefined
+      || surface.material
+        ?.slidingFrictionCoefficient
+        !== undefined
+    )
   ) {
     return advanceGroundBallMotion(
       state,
@@ -520,7 +549,9 @@ const advanceGroundRoll = (
           Math.abs(parameters.gravityY),
         ball: surface.ball,
         slidingFrictionCoefficient:
-          surface.slidingFrictionCoefficient,
+          surface.slidingFrictionCoefficient
+          ?? surface.material!
+            .slidingFrictionCoefficient!,
         rollingDecelerationMps2:
           getGroundRollingDeceleration(
             parameters,
@@ -710,34 +741,44 @@ const advanceStep = (
             z: 0,
           },
           parameters:
-            surface.responseGrid !== undefined
-              ? resolveBallSurfaceResponseGrid(
-                  surface.responseGrid,
-                  Math.hypot(
-                    freeAtContact.velocity.x,
-                    freeAtContact.velocity.y,
-                    freeAtContact.velocity.z,
-                  ),
-                  Math.atan2(
-                    Math.abs(
-                      freeAtContact.velocity.y,
-                    ),
-                    Math.hypot(
-                      freeAtContact.velocity.x,
-                      freeAtContact.velocity.z,
-                    ),
-                  ),
+            surface.material !== undefined
+              ? resolveBallSurfaceMaterialContact(
+                  surface.material,
+                  freeAtContact.velocity,
+                  {
+                    x: 0,
+                    y: 1,
+                    z: 0,
+                  },
                 )
-              : surface.responseProfile !== undefined
-                ? resolveBallSurfaceResponse(
-                    surface.responseProfile,
+              : surface.responseGrid !== undefined
+                ? resolveBallSurfaceResponseGrid(
+                    surface.responseGrid,
                     Math.hypot(
                       freeAtContact.velocity.x,
                       freeAtContact.velocity.y,
                       freeAtContact.velocity.z,
+                    ),
+                    Math.atan2(
+                      Math.abs(
+                        freeAtContact.velocity.y,
+                      ),
+                      Math.hypot(
+                        freeAtContact.velocity.x,
+                        freeAtContact.velocity.z,
+                      ),
                     ),
                   )
-                : surface.contact!,
+                : surface.responseProfile !== undefined
+                  ? resolveBallSurfaceResponse(
+                      surface.responseProfile,
+                      Math.hypot(
+                        freeAtContact.velocity.x,
+                        freeAtContact.velocity.y,
+                        freeAtContact.velocity.z,
+                      ),
+                    )
+                  : surface.contact!,
         });
 
       if (contact === null) {
@@ -771,6 +812,9 @@ const advanceStep = (
         settled
         && surface
           .slidingFrictionCoefficient
+          === undefined
+        && surface.material
+          ?.slidingFrictionCoefficient
           === undefined
       ) {
         current =
