@@ -31,9 +31,9 @@ AI / Agent向け強制ルール:
 - `11-world-competition-architecture.md` — **CANONICAL / DESIGN FROZEN v1**
 - `12-competition-identity-hosting.md` — **CANONICAL / DESIGN FROZEN v1**
 - `13-domestic-league-championships.md` — **CANONICAL / DESIGN FROZEN v1**
+- `14-regular-season-calendar-and-volume.md` — **CANONICAL / DESIGN FROZEN v1**
 
 残る最終監査対象:
-- `14-regular-season-calendar-and-volume.md`
 - `15-season-events-and-deadlines.md`
 - `16-club-economy-rivalry-design.md`
 - `18-club-state-lifecycle.md`
@@ -125,6 +125,24 @@ Key freeze decisions:
 - tiebreak / qualification / home-field policies are versioned.
 - reforms create new LeagueCompetitionProfile versions for future seasons.
 - each season stores a snapshot of the historical domestic competition rules and qualification provenance.
+
+---
+# 0.4 CANONICAL — Regular Season Calendar & Game Volume v1
+
+2026-09-22 user approved and froze:
+- `docs/game-design/14-regular-season-calendar-and-volume.md`
+
+Key freeze decisions:
+- all 21 documented Regular Season game counts are official LeagueCalendarProfile v1 values.
+- Full Simulation Leagues retain a v1 floor of 100 Regular Season games.
+- World/continental windows take priority without silently reducing domestic game counts.
+- schedule density never directly modifies player ability; fatigue is causal from actual calendar/travel/recovery.
+- schedule generation separates Hard and Soft Constraints.
+- impossible Hard Constraints produce Schedule Validation Failure rather than hidden game-count reduction.
+- each season freezes a Base Schedule Snapshot; later changes are ScheduleRevisionEvents.
+- CalendarProfile / opponent matrix / generator are versioned and historical schedules are never regenerated under new rules.
+- arithmetic fixes at freeze: West/South Asia 5/5, Dominican 10/10, Puerto Rico 10/10, Cuba 4/4 home-away per opponent; Mexico window April–August.
+- All-Star / deadline / roster-expansion event policy belongs to doc 15.
 
 ---
 # 1. Game Slogan
