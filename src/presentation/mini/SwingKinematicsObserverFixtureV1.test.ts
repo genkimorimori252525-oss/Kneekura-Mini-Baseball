@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  createCompactSwingKinematicsObserverFixtureV1,
   createSwingKinematicsObserverFixtureV1,
 } from './SwingKinematicsObserverFixtureV1';
 
@@ -145,6 +146,49 @@ describe('swing kinematics observer fixture v1', () => {
       console.log(
         'SWING_OBSERVER_FIXTURE_CHUNK '
         + String(index).padStart(4, '0')
+        + ' '
+        + encoded.slice(
+          offset,
+          offset + chunkSize,
+        ),
+      );
+    }
+
+    expect(encoded.length)
+      .toBeGreaterThan(0);
+  });
+
+  it('emits a compact Core-generated observer artifact in bounded chunks', () => {
+    const compact =
+      createCompactSwingKinematicsObserverFixtureV1();
+
+    expect(compact.courses)
+      .toHaveLength(9);
+    expect(compact.miniCadenceMicros)
+      .toBe(55_000);
+    expect(
+      compact.courses.every(
+        (course) =>
+          course.highFidelity.length
+          > course.mini.length,
+      ),
+    ).toBe(true);
+
+    const encoded =
+      Buffer.from(
+        JSON.stringify(compact),
+        'utf8',
+      ).toString('base64');
+    const chunkSize = 6_000;
+
+    for (
+      let offset = 0, index = 0;
+      offset < encoded.length;
+      offset += chunkSize, index += 1
+    ) {
+      console.log(
+        'SWING_OBSERVER_COMPACT_CHUNK '
+        + String(index).padStart(3, '0')
         + ' '
         + encoded.slice(
           offset,

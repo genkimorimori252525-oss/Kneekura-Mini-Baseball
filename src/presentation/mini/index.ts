@@ -22,3 +22,4 @@ export * from './MiniBaseDiamondState';
 export * from './MiniCommandOptionBandState';
 
 export * from './StrikeZoneGuide';
+export * from './SwingKinematicsObserverFixtureV1';

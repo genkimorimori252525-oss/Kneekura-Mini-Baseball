@@ -520,3 +520,235 @@ export const createSwingKinematicsObserverFixtureV1 =
         createCourse,
       ),
   });
+
+export type CompactSwingObserverFrameV1 =
+  readonly [
+    tickOffsetMicros: number,
+    phaseCode: 0 | 1 | 2,
+    gripX: number,
+    gripY: number,
+    gripZ: number,
+    tipX: number,
+    tipY: number,
+    tipZ: number,
+    sweetSpotX: number,
+    sweetSpotY: number,
+    sweetSpotZ: number,
+    povGripX: number | null,
+    povGripY: number | null,
+    povTipX: number | null,
+    povTipY: number | null,
+    povSweetSpotX: number | null,
+    povSweetSpotY: number | null,
+  ];
+
+export type CompactSwingObserverCourseV1 =
+  Readonly<{
+    id: SwingObserverCourseIdV1;
+    label: string;
+    heightNormalized: -1 | 0 | 1;
+    insideOutsideNormalized:
+      -1 | 0 | 1;
+    preferredContactDepthM: number;
+    attackAngleDeg: number;
+    attackDirectionPullDeg: number;
+    contactSweetSpotSpeedMps: number;
+    preContactSeconds: number;
+    contactOffsetMicros: number;
+    durationMicros: number;
+    highFidelity:
+      readonly CompactSwingObserverFrameV1[];
+    mini:
+      readonly CompactSwingObserverFrameV1[];
+  }>;
+
+export type CompactSwingKinematicsObserverFixtureV1 =
+  Readonly<{
+    version:
+      'swing-kinematics-observer-compact-v1';
+    source:
+      'core-generated-swing-kinematics-v1';
+    handedness: 'R';
+    highFidelityStepMicros: number;
+    miniCadenceMicros: number;
+    logicalWidth: 150;
+    logicalHeight: 108;
+    pixelScale: 4;
+    strikeZoneBatterPov: readonly [
+      lowerInsideX: number | null,
+      lowerInsideY: number | null,
+      lowerOutsideX: number | null,
+      lowerOutsideY: number | null,
+      upperInsideX: number | null,
+      upperInsideY: number | null,
+      upperOutsideX: number | null,
+      upperOutsideY: number | null,
+    ];
+    courses:
+      readonly CompactSwingObserverCourseV1[];
+  }>;
+
+const compactPhaseCode = (
+  phase: SwingKinematicsPhaseV1,
+): 0 | 1 | 2 => {
+  if (phase === 'pre_contact') {
+    return 0;
+  }
+  if (phase === 'contact') {
+    return 1;
+  }
+  return 2;
+};
+
+const compactCoordinate = (
+  value: number | null,
+): number | null => (
+  value === null
+    ? null
+    : roundNumber(value)
+);
+
+const compactFrame = (
+  frame: SwingObserverFrameV1,
+  startTick: number,
+): CompactSwingObserverFrameV1 => [
+  frame.tick - startTick,
+  compactPhaseCode(frame.phase),
+  frame.grip.x,
+  frame.grip.y,
+  frame.grip.z,
+  frame.tip.x,
+  frame.tip.y,
+  frame.tip.z,
+  frame.sweetSpot.x,
+  frame.sweetSpot.y,
+  frame.sweetSpot.z,
+  compactCoordinate(
+    frame.batterPov.grip?.x
+      ?? null,
+  ),
+  compactCoordinate(
+    frame.batterPov.grip?.y
+      ?? null,
+  ),
+  compactCoordinate(
+    frame.batterPov.tip?.x
+      ?? null,
+  ),
+  compactCoordinate(
+    frame.batterPov.tip?.y
+      ?? null,
+  ),
+  compactCoordinate(
+    frame.batterPov.sweetSpot?.x
+      ?? null,
+  ),
+  compactCoordinate(
+    frame.batterPov.sweetSpot?.y
+      ?? null,
+  ),
+];
+
+const projectedPair = (
+  value: RoundedProjectedPoint,
+): readonly [number | null, number | null] => (
+  value === null
+    ? [null, null]
+    : [value.x, value.y]
+);
+
+export const createCompactSwingKinematicsObserverFixtureV1 =
+  (): CompactSwingKinematicsObserverFixtureV1 => {
+    const fixture =
+      createSwingKinematicsObserverFixtureV1();
+    const lowerInside =
+      projectedPair(
+        fixture.strikeZoneBatterPov
+          .lowerInside,
+      );
+    const lowerOutside =
+      projectedPair(
+        fixture.strikeZoneBatterPov
+          .lowerOutside,
+      );
+    const upperInside =
+      projectedPair(
+        fixture.strikeZoneBatterPov
+          .upperInside,
+      );
+    const upperOutside =
+      projectedPair(
+        fixture.strikeZoneBatterPov
+          .upperOutside,
+      );
+
+    return {
+      version:
+        'swing-kinematics-observer-compact-v1',
+      source:
+        fixture.source,
+      handedness:
+        fixture.handedness,
+      highFidelityStepMicros:
+        fixture.highFidelityStepMicros,
+      miniCadenceMicros:
+        fixture.miniCadenceMicros,
+      logicalWidth: 150,
+      logicalHeight: 108,
+      pixelScale: 4,
+      strikeZoneBatterPov: [
+        ...lowerInside,
+        ...lowerOutside,
+        ...upperInside,
+        ...upperOutside,
+      ],
+      courses:
+        fixture.courses.map(
+          (course) => ({
+            id: course.id,
+            label: course.label,
+            heightNormalized:
+              course.heightNormalized,
+            insideOutsideNormalized:
+              course
+                .insideOutsideNormalized,
+            preferredContactDepthM:
+              course
+                .preferredContactDepthM,
+            attackAngleDeg:
+              course.attackAngleDeg,
+            attackDirectionPullDeg:
+              course
+                .attackDirectionPullDeg,
+            contactSweetSpotSpeedMps:
+              course
+                .contactSweetSpotSpeedMps,
+            preContactSeconds:
+              course.preContactSeconds,
+            contactOffsetMicros:
+              course.contactTick
+              - course.startTick,
+            durationMicros:
+              course.endTick
+              - course.startTick,
+            highFidelity:
+              course.highFidelityFrames
+                .map(
+                  (frame) =>
+                    compactFrame(
+                      frame,
+                      course.startTick,
+                    ),
+                ),
+            mini:
+              course.miniFrames.map(
+                (frame) =>
+                  compactFrame(
+                    frame,
+                    course.startTick,
+                  ),
+              ),
+          }),
+        ),
+    };
+  };
