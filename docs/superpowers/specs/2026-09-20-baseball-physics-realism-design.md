@@ -1234,6 +1234,14 @@ League-level output statistics may be used as a final validation layer only afte
 
 ## 7. Determinism and product boundary
 
+The complete causal architecture is now frozen as
+`baseball-physics-architecture-v1`. The freeze contract is recorded in
+`docs/superpowers/specs/2026-09-21-baseball-physics-v1-freeze.md` and
+exported by `BaseballPhysicsV1`.
+
+This freezes the dependency graph, not the remaining empirical calibration or
+the promotion of opt-in realistic profiles to production defaults.
+
 All realism work remains inside Shared Match Core.
 
 Requirements:
