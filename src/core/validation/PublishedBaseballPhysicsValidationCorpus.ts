@@ -10,6 +10,9 @@ import {
   resolveBaseballAerodynamicCoefficients,
 } from '../sim/ball/BaseballAerodynamicCoefficientProfile';
 import {
+  TAHARA_2008_HARD_BALL_SURFACE_REBOUND_EVIDENCE,
+} from '../sim/ball/Tahara2008SurfaceReboundEvidence';
+import {
   findKensrud2016TangentialReference,
 } from '../sim/contact/Kensrud2016TangentialCalibration';
 import {
@@ -205,6 +208,39 @@ export const createPublishedCoefficientRegressionCases =
         ],
       };
 
+    const taharaSurfaceCases =
+      TAHARA_2008_HARD_BALL_SURFACE_REBOUND_EVIDENCE
+        .map(
+          (
+            evidence,
+          ): PhysicsValidationCase => ({
+            caseId:
+              `tahara-2008-${evidence.surfaceId}-normal-cor`,
+            targets: [
+              {
+                observableId:
+                  'normal_coefficient_of_restitution',
+                sourceId:
+                  evidence.source,
+                sourceVersion:
+                  'published-mean-sd',
+                targetValue:
+                  evidence.normalRepulsionCoefficient,
+                absoluteTolerance:
+                  evidence.normalRepulsionCoefficientStdDev,
+              },
+            ],
+            measurements: [
+              {
+                observableId:
+                  'normal_coefficient_of_restitution',
+                observedValue:
+                  evidence.normalRepulsionCoefficient,
+              },
+            ],
+          }),
+        );
+
     const liftCases =
       LYU_2022_TABLE1_LIFT_EVIDENCE
         .map(
@@ -248,6 +284,7 @@ export const createPublishedCoefficientRegressionCases =
       ...woodNormalCases,
       ...hardwoodFloorCases,
       woodTangentialCase,
+      ...taharaSurfaceCases,
       ...liftCases,
     ];
   };
