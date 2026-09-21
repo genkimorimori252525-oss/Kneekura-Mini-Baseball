@@ -232,3 +232,4 @@ export * from './validation/BaseballPhysicsProductionReadiness';
 export * from './sim/ball/BaseballAerodynamicCoefficientProfile';
 export * from './sim/ball/BaseballFieldConditionEvidence';
 export * from './sim/ball/BaseballAerodynamicValidationEvidence';
+export * from './sim/contact/WoodBatSpeedResponseProfile';
