@@ -1,4 +1,10 @@
 import type { Vec3 } from '../../model/geometry';
+import {
+  LYU_2022_SEAM_AVERAGED_AERO_PROFILE,
+  resolveBaseballAerodynamicCoefficients,
+  validateBaseballAerodynamicCoefficientProfile,
+  type BaseballAerodynamicCoefficientProfile,
+} from './BaseballAerodynamicCoefficientProfile';
 
 export type BaseballAerodynamicsParameters = Readonly<{
   ballMassKg: number;
@@ -6,6 +12,15 @@ export type BaseballAerodynamicsParameters = Readonly<{
   airDensityKgM3: number;
   windVelocityMps: Vec3;
   dragCoefficient: number;
+  /**
+   * Optional empirical coefficient profile. When absent, the frozen constant
+   * drag + Nathan/Sawicki lift path is preserved.
+   */
+  coefficientProfile?: BaseballAerodynamicCoefficientProfile;
+  /**
+   * Needed only by Reynolds-aware coefficient profiles.
+   */
+  airKinematicViscosityM2PerSecond?: number;
 }>;
 
 /**
@@ -27,6 +42,16 @@ export const REFERENCE_BASEBALL_AERODYNAMICS: BaseballAerodynamicsParameters =
     airDensityKgM3: 1.225,
     windVelocityMps: Object.freeze({ x: 0, y: 0, z: 0 }),
     dragCoefficient: 0.35,
+  });
+
+export const REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS:
+  BaseballAerodynamicsParameters =
+  Object.freeze({
+    ...REFERENCE_BASEBALL_AERODYNAMICS,
+    coefficientProfile:
+      LYU_2022_SEAM_AVERAGED_AERO_PROFILE,
+    airKinematicViscosityM2PerSecond:
+      1.5e-5,
   });
 
 const EPSILON = 1e-12;
@@ -82,6 +107,29 @@ const validateParameters = (
   ) {
     throw new Error('dragCoefficient must be finite and non-negative');
   }
+  if (
+    parameters.coefficientProfile
+    !== undefined
+  ) {
+    validateBaseballAerodynamicCoefficientProfile(
+      parameters.coefficientProfile,
+    );
+    if (
+      !Number.isFinite(
+        parameters
+          .airKinematicViscosityM2PerSecond,
+      )
+      || (
+        parameters
+          .airKinematicViscosityM2PerSecond
+        ?? 0
+      ) <= 0
+    ) {
+      throw new Error(
+        'airKinematicViscosityM2PerSecond must be finite and positive when coefficientProfile is enabled',
+      );
+    }
+  }
   for (const component of [
     parameters.windVelocityMps.x,
     parameters.windVelocityMps.y,
@@ -115,6 +163,9 @@ export type BaseballAerodynamicState = Readonly<{
   relativeAirVelocity: Vec3;
   activeSpin: Vec3;
   spinFactor: number;
+  reynoldsNumber: number | null;
+  dragCoefficientUsed: number;
+  liftCoefficientUsed: number;
   dragAcceleration: Vec3;
   liftAcceleration: Vec3;
   totalAcceleration: Vec3;
@@ -140,6 +191,10 @@ export const calculateBaseballAerodynamics = (
       relativeAirVelocity,
       activeSpin: zero,
       spinFactor: 0,
+      reynoldsNumber: null,
+      dragCoefficientUsed:
+        parameters.dragCoefficient,
+      liftCoefficientUsed: 0,
       dragAcceleration: zero,
       liftAcceleration: zero,
       totalAcceleration: zero,
@@ -165,9 +220,42 @@ export const calculateBaseballAerodynamics = (
     * speed
     / parameters.ballMassKg;
 
+  const reynoldsNumber =
+    parameters.coefficientProfile
+    === undefined
+      ? null
+      : (
+          speed
+          * (
+            2
+            * parameters.ballRadiusM
+          )
+          / parameters
+            .airKinematicViscosityM2PerSecond!
+        );
+
+  const resolvedCoefficients =
+    parameters.coefficientProfile
+    === undefined
+      ? {
+          dragCoefficient:
+            parameters.dragCoefficient,
+          liftCoefficient:
+            calculateBaseballLiftCoefficient(
+              spinFactor,
+            ),
+        }
+      : resolveBaseballAerodynamicCoefficients(
+          parameters.coefficientProfile,
+          reynoldsNumber!,
+          spinFactor,
+        );
+
   const dragAcceleration = scale(
     velocityHat,
-    -dynamicAccelerationScale * parameters.dragCoefficient,
+    -dynamicAccelerationScale
+      * resolvedCoefficients
+        .dragCoefficient,
   );
 
   let liftAcceleration: Vec3 = { x: 0, y: 0, z: 0 };
@@ -176,12 +264,11 @@ export const calculateBaseballAerodynamics = (
     const liftDirectionRaw = cross(activeSpin, velocityHat);
     const liftDirectionMagnitude = magnitude(liftDirectionRaw);
     if (liftDirectionMagnitude > EPSILON) {
-      const liftCoefficient =
-        calculateBaseballLiftCoefficient(spinFactor);
       liftAcceleration = scale(
         liftDirectionRaw,
         dynamicAccelerationScale
-          * liftCoefficient
+          * resolvedCoefficients
+            .liftCoefficient
           / liftDirectionMagnitude,
       );
     }
@@ -191,6 +278,13 @@ export const calculateBaseballAerodynamics = (
     relativeAirVelocity,
     activeSpin,
     spinFactor,
+    reynoldsNumber,
+    dragCoefficientUsed:
+      resolvedCoefficients
+        .dragCoefficient,
+    liftCoefficientUsed:
+      resolvedCoefficients
+        .liftCoefficient,
     dragAcceleration,
     liftAcceleration,
     totalAcceleration: add(dragAcceleration, liftAcceleration),
