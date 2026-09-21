@@ -332,7 +332,7 @@ Balanced:
 = 110
 ```
 
-10 home / 10 away。
+各opponentと5 home / 5 away。
 
 ### APBCL conflict
 
@@ -423,7 +423,7 @@ Balanced:
 = 100
 ```
 
-6 home / 6 away。
+各opponentと10 home / 10 away。
 
 ---
 
@@ -463,7 +463,7 @@ Balanced:
 = 100
 ```
 
-8 home / 8 away。
+各opponentと10 home / 10 away。
 
 ---
 
