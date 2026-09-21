@@ -159,6 +159,29 @@ the final promotion decision be reproducible while still preventing league
 outcomes such as batting average, ERA or home-run rate from becoming hidden
 physics targets.
 
+## 5.2 Reality-profile boundary
+
+`BaseballRealityProfileV1` is the explicit configuration boundary for
+evidence-backed physical play.
+
+A reality profile must carry:
+
+- measured/weather-derived atmosphere;
+- the realistic baseball rigid-body properties;
+- a versioned, bat-specific wood-bat speed-response profile;
+- explicit field material profiles for infield dirt, natural grass, warning
+  track and wall, plus artificial turf when the ballpark uses it.
+
+The profile intentionally has **no universal field surface**. A batted ball
+must select the actual surface segment it is contacting.
+
+Likewise, the profile does not invent a generic wooden-bat speed law. The
+bat-speed response must come from one bat/construction or a justified
+population with explicit evidence ids.
+
+This boundary exists so that “reality mode” cannot silently fall back to
+compatibility constants while appearing to run the evidence-backed model.
+
 ## 6. Promotion rule
 
 `BaseballPhysicsProductionReadiness` now makes promotion mechanical rather
