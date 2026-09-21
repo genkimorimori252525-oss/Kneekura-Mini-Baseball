@@ -167,7 +167,7 @@ True Ability読取ではない。
 
 ---
 
-# 5. Public S–G Display
+# 5. Public S–G Display & Overall Summary
 
 Player Ratingと同じ境界を使用。
 
@@ -203,7 +203,25 @@ First-time / low-evidence manager:
 
 「監督はなってみるまで分からない」を守る。
 
-Overall Manager Ratingは作らない。
+2026-09-22 refinement: **Public Overall Manager Rating S〜Gを許可する。**
+
+```text
+6 public skill estimates
++ role-relevant observed evidence
+ -> Public Overall S〜G
+```
+
+OverallはSimple Surface用のDerived Summary。`ManagerAgentState`へ新しいOverall True Skillを追加しない。
+
+禁止:
+
+```text
+Overall A
+ -> decision quality +10%
+ -> win probability +X
+```
+
+詳細を見たくないUserはOverallで一目比較し、詳細Userは6能力 / Philosophy / Temperament / evidence confidenceを見る。First-time / low-evidence ManagerのOverallにも `?` / `B?` 等を許可する。
 
 ---
 
@@ -1517,6 +1535,8 @@ Manager personality resourceではない。
 Normal Manager Profile:
 
 ```text
+総合評価 A
+
 能力
 采配 A
 分析 B
@@ -1586,5 +1606,7 @@ Environment / Rules / Staff / Relationships
                 ↓
         Learning / Strategy History
 ```
+
+Public Overall S〜Gはこの構造を読みやすく要約するPresentation / observed estimateであり、上図のManager Agent Source of Truthへ追加しない。
 
 この構造をManager Architecture v1としてfreezeする。
