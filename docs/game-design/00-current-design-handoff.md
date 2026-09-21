@@ -29,9 +29,9 @@ AI / Agent向け強制ルール:
 
 完了:
 - `11-world-competition-architecture.md` — **CANONICAL / DESIGN FROZEN v1**
+- `12-competition-identity-hosting.md` — **CANONICAL / DESIGN FROZEN v1**
 
 残る最終監査対象:
-- `12-competition-identity-hosting.md`
 - `13-domestic-league-championships.md`
 - `14-regular-season-calendar-and-volume.md`
 - `15-season-events-and-deadlines.md`
@@ -90,6 +90,24 @@ Key additions at freeze:
 - competition expansion/reform creates a new CompetitionFormatVersion for future editions
 - every Competition Edition retains a snapshot of format/rules/qualification/host/calendar provenance
 - exact dates, money, roster counts, coefficient weights and branding remain calibration/content, not open architecture
+
+---
+# 0.2 CANONICAL — Competition Identity / Hosting / Draw v1
+
+2026-09-22 user approved and froze:
+- `docs/game-design/12-competition-identity-hosting.md`
+
+Key freeze decisions:
+- Host hierarchy is Region → Nation → City/Hub → Venue.
+- Host selection is Eligibility → Suitability → Rotation/Recency.
+- WBC-class World Championship finals are always hosted in the **United States**; only US cities/hubs/venues vary by Edition.
+- WBC Global Qualifier pods remain eligible for worldwide hosting.
+- Draw uses Hard/Soft Constraints with deterministic relaxation order and provenance.
+- Home balancing is a Competition-specific fairness ledger, not a permanent club entitlement.
+- Awards use versioned evidence-based selection policies.
+- Prestige evolves historically but does not automatically rewrite canonical competition role.
+- explicit Competition Reform / Succession is required to transfer a canonical role.
+- hosting/draw/award/prestige provenance is retained in the Competition Edition snapshot.
 
 ---
 # 1. Game Slogan
