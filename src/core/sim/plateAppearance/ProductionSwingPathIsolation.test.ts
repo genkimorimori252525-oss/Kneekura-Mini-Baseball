@@ -26,7 +26,9 @@ const forbiddenProductionTokens = [
   'SwingingPitchPhysicalResult',
   'AerodynamicSwingingPitchPhysicalResult',
   'sampleCompatibilityBatterSwingState',
-  'BatterSwingWindow',
+  'resolveAndRecordPitchAgainstBatter',
+  'resolveSwingingPitchPhysicalResult',
+  'resolveAerodynamicSwingingPitchPhysicalResult',
 ] as const;
 
 const readSource = (
