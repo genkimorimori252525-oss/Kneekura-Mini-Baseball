@@ -20,6 +20,17 @@ import {
 export const WOOD_BAT_CONTACT_RESPONSE_CANDIDATE_VERSION =
   'wood-bat-contact-evidence-synthesis-v1' as const;
 
+/**
+ * Conservative game-speed friction candidate.
+ *
+ * Nathan 2012 fitted about 0.15 for gross-slip high-speed wood contact, while
+ * Kensrud/Nathan/Smith established >=0.15 for their game-speed swinging-bat
+ * baseball impacts. The agreement makes 0.15 a defensible lower-bound
+ * candidate, not a uniquely identified production truth.
+ */
+export const WOOD_BAT_CONSERVATIVE_FRICTION_CANDIDATE =
+  0.15 as const;
+
 const lerp = (
   a: number,
   b: number,
@@ -188,5 +199,32 @@ export const resolveEvidenceBackedWoodBatBallContact = (
         frictionCoefficient:
           input.frictionCoefficient,
       }),
+  )
+);
+
+
+export const createConservativeEvidenceBackedWoodBatContactParameters = (
+  relativeImpactSpeedMps: number,
+): RigidBatBallContactParameters => (
+  createEvidenceBackedWoodBatContactParameters({
+    relativeImpactSpeedMps,
+    frictionCoefficient:
+      WOOD_BAT_CONSERVATIVE_FRICTION_CANDIDATE,
+  })
+);
+
+export const resolveConservativeEvidenceBackedWoodBatBallContact = (
+  pitch: PitchWorldState,
+  bat: RigidBatState,
+  ball: RigidBaseballProperties,
+): RigidBatBallContactResult | null => (
+  resolveEvidenceBackedWoodBatBallContact(
+    pitch,
+    bat,
+    ball,
+    {
+      frictionCoefficient:
+        WOOD_BAT_CONSERVATIVE_FRICTION_CANDIDATE,
+    },
   )
 );
