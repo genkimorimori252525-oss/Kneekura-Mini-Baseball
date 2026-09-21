@@ -236,6 +236,7 @@ export * from './sim/contact/WoodBatSpeedResponseProfile';
 export * from './sim/contact/WoodBatProductionProfileV1';
 export * from './sim/ball/BaseballAtmosphere';
 export * from './validation/PublishedBaseballPhysicsValidationCorpus';
+export * from './validation/EndToEndBaseballPhysicsValidationCorpus';
 export * from './sim/ball/BaseballRealityProfileV1';
 export * from './validation/CurrentBaseballPhysicsV1Closure';
 export * from './validation/CurrentBaseballPhysicsV1Readiness';
