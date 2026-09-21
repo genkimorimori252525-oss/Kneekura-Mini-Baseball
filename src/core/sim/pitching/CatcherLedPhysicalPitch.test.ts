@@ -265,6 +265,141 @@ describe('catcher-led physical pitch', () => {
     ).toBe('skill-physical-1');
   });
 
+  it('lets pitcher personality override an anticipated catcher lead, creating surprise without a direct outcome bonus', () => {
+    const timeline =
+      createCanonicalPlateAppearanceTimeline(
+        match(),
+        900_000,
+      );
+    const alternativeSkill: PitchSkillProfile = {
+      ...skill,
+      pitchSkillId: 'skill-physical-2',
+      releaseTemplate: {
+        ...skill.releaseTemplate,
+        preReleaseSpinRadPerSecond: {
+          x: 20,
+          y: 230,
+          z: -40,
+        },
+      },
+    };
+    const alternativeResponse:
+      PitchSkillCommandResponseProfile = {
+        ...response,
+        pitchSkillId: 'skill-physical-2',
+      };
+
+    const result =
+      simulateCatcherLedPhysicalPitch({
+        managerSession,
+        timeline,
+        catcherLead: {
+          ...catcherLead,
+          pitchSkillWeights: {
+            'skill-physical-1': 1,
+            'skill-physical-2': 0,
+          },
+          defaultPitchSkillWeight: 0,
+        },
+        pitcherSkills:
+          createPitcherPitchSkillProfile(
+            'pitcher-1',
+            [
+              skill,
+              alternativeSkill,
+            ],
+          ),
+        commandResponses: [
+          response,
+          alternativeResponse,
+        ],
+        pitcherSignBehavior: {
+          pitcherId: 'pitcher-1',
+          signAutonomy: 1,
+          pitchSkillWeights: {
+            'skill-physical-1': 0,
+            'skill-physical-2': 1,
+          },
+          defaultPitchSkillWeight: 0,
+          attackZoneWeights: {
+            inside: 1,
+            middle: 0,
+            outside: 0,
+          },
+          verticalPlanWeights: {
+            low: 0,
+            middle: 0,
+            high: 1,
+          },
+          aggressionWeights: {
+            challenge: 1,
+            balanced: 0,
+            waste: 0,
+          },
+          catcherCallRetentionMultiplier: 1,
+        },
+        batterAnticipation: {
+          anticipatedPitchSkillId:
+            'skill-physical-1',
+          anticipatedAttackZone:
+            'outside',
+          anticipatedVerticalPlan:
+            'low',
+          confidence: 1,
+        },
+        sampling: {
+          matchSeed: 20260921,
+          playId: 50,
+          pitchOrdinal: 0,
+          tick: 1_000_000,
+          releaseAnchorPosition: {
+            x: 0,
+            y: 1.8,
+            z: 16.5,
+          },
+          ball:
+            REFERENCE_BASEBALL_RIGID_BODY,
+        },
+        trajectoryParameters: {
+          ticksPerSecond: 1_000_000,
+          integrationStepTicks: 1_000,
+          gravityY: -9.81,
+          aerodynamics:
+            REFERENCE_BASEBALL_AERODYNAMICS,
+        },
+        endTick: 1_600_000,
+        plateZ: 0,
+      });
+
+    expect(result.catcherCall).toMatchObject({
+      pitchSkillId:
+        'skill-physical-1',
+      attackZone: 'outside',
+      verticalPlan: 'low',
+    });
+    expect(result.signDecision?.kind)
+      .toBe('pitcher_override');
+    expect(result.finalCall).toMatchObject({
+      pitchSkillId:
+        'skill-physical-2',
+      attackZone: 'inside',
+      verticalPlan: 'high',
+      aggression: 'challenge',
+    });
+    expect(
+      result.batterAnticipation
+        ?.mismatchedDimensions,
+    ).toBe(3);
+    expect(
+      result.batterAnticipation
+        ?.confidenceWeightedSurprise,
+    ).toBe(1);
+    expect(
+      result.execution.physical
+        .pitchSkillId,
+    ).toBe('skill-physical-2');
+  });
+
   it('is deterministic for the same battery state and pitch ordinal', () => {
     const timeline =
       createCanonicalPlateAppearanceTimeline(
