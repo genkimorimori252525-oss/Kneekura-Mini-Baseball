@@ -962,14 +962,38 @@ normal COR 0.59, tangential COR 0.17, and friction coefficient 0.31 used only
 as the reported lower-bound fixture. It is **not** treated as a grass/dirt
 field calibration.
 
+The physical surface solver is now also integrated as an **optional**
+`groundSurfacePhysics` path in `BallFlight`. The frozen legacy ground
+response remains the default compatibility path.
+
+Empirical calibration targets are now recorded separately from internal
+contact coefficients:
+
+- Pennbounce baseball playing-surface pace (Brosnan/McNitt et al.):
+  - Astroturf mean total-speed ratio: 0.562;
+  - skinned infield: 0.537;
+  - Fieldturf: 0.487;
+  - natural turfgrass: 0.378;
+  - 31.0 and 40.2 m/s hand-tested velocity targets are retained because the
+    surfaces show different speed dependence;
+  - 0.44 and 0.61 rad incidence-angle targets are retained because surface
+    pace changes materially with impact angle;
+- Takashima et al. (2015) historical NPB rigid-wall reference:
+  - 75 m/s;
+  - desired reported ball COR 0.4134.
+
+These published pace values are validation observables, **not** copied directly
+into `normalRestitution`. `BaseballSurfacePaceModel` explicitly converts
+the internal normal/tangential/friction model to the published total rebound
+speed ratio for fitting.
+
 Still required before Phase C can close:
 
-- calibrated infield dirt profile;
-- calibrated grass / artificial-turf profile;
+- fit/version infield dirt contact parameters against surface-pace data;
+- fit/version natural grass and artificial-turf parameters;
 - warning-track profile;
 - padded / hard-wall profiles;
-- continuous post-bounce skid-to-roll / rolling resistance integration;
-- integration of the new surface solver into authoritative `BallFlight`.
+- continuous post-bounce skid-to-roll / rolling resistance refinement.
 
 ## 6. Phase D — empirical calibration
 
