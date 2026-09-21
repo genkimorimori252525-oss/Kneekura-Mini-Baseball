@@ -206,3 +206,4 @@ export * from './sim/pitching/BatterPitchAnticipation';
 export * from './sim/pitching/BatterAnticipationSwingAdapter';
 export * from './sim/pitching/AnticipationAwareAerodynamicSwing';
 export * from './sim/pitching/PitchingPhysicsV1';
+export * from './sim/ball/BallSurfaceContact';
