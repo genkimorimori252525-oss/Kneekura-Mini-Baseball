@@ -56,4 +56,7 @@ export const BASEBALL_PHYSICS_V1_ARCHITECTURE_FROZEN =
   true as const;
 
 export const BASEBALL_PHYSICS_V1_PRODUCTION_DEFAULT_PROMOTED =
-  false as const;
+  true as const;
+
+export const BASEBALL_PHYSICS_V1_PRODUCTION_PROFILE_ID =
+  'baseball-reality-profile-v1' as const;
