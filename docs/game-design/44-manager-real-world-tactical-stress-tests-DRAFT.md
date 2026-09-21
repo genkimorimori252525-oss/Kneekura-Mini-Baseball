@@ -1,4 +1,7 @@
-# Manager Real-world Tactical Stress Tests — DRAFT
+# Manager Real-world Tactical Stress Tests — VALIDATION CATALOG
+
+> **VALIDATION ONLY — NOT A CURRENT DESIGN PLAN**  
+> これは `49-manager-architecture-v1.md` を実例で検証するための履歴カタログ。USER REVIEW REQUIREDな未確定計画として数えない。
 
 > **Manager Architecture v1 canonical note:** This file is now **VALIDATION CATALOG**.
 > Canonical Manager semantics are defined by `docs/game-design/49-manager-architecture-v1.md`.
@@ -6,7 +9,7 @@
 
 
 更新日: 2026-09-20  
-状態: **設計検証用。USER REVIEW REQUIRED。実装前。**
+状態: **VALIDATION CATALOG。設計候補ではない。Canonical Manager semanticsは `49-manager-architecture-v1.md` を正とする。**
 
 目的:
 実在の名采配・珍采配・役割設計を、Mini BaseballのManager Architectureで「専用イベントなし」に説明できるか検証する。
