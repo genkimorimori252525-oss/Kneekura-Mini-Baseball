@@ -806,3 +806,47 @@ export const sampleSwingStateV1 = (
     tick,
   ).swingState
 );
+
+export const shiftSwingKinematicsTrajectoryV1 = (
+  trajectory:
+    SwingKinematicsTrajectoryV1,
+  deltaTicks: number,
+): SwingKinematicsTrajectoryV1 => {
+  validateTrajectory(trajectory);
+  if (!Number.isSafeInteger(deltaTicks)) {
+    throw new Error(
+      'swing kinematics timing shift must be a safe integer tick delta',
+    );
+  }
+
+  const startTick =
+    trajectory.startTick
+    + deltaTicks;
+  const contactTick =
+    trajectory.contactTick
+    + deltaTicks;
+  const endTick =
+    trajectory.endTick
+    + deltaTicks;
+
+  if (
+    !Number.isSafeInteger(startTick)
+    || !Number.isSafeInteger(contactTick)
+    || !Number.isSafeInteger(endTick)
+    || startTick < 0
+  ) {
+    throw new Error(
+      'shifted swing kinematics ticks must remain non-negative safe integers',
+    );
+  }
+
+  const shifted:
+    SwingKinematicsTrajectoryV1 = {
+      ...trajectory,
+      startTick,
+      contactTick,
+      endTick,
+    };
+  validateTrajectory(shifted);
+  return shifted;
+};
