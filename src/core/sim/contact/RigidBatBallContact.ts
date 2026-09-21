@@ -59,6 +59,20 @@ export type RigidBatBallContactParameters = Readonly<{
   frictionCoefficient: number;
 }>;
 
+/**
+ * Low-speed (~4 m/s) wooden-bat fixture from Cross & Nathan (2006).
+ *
+ * ey ~= 0.63, ex ~= 0.16. The reported ball-bat sliding-friction result is
+ * only a lower bound (>0.50), so 0.50 is used here strictly as a conservative
+ * validation fixture. These are NOT MLB game-speed production coefficients.
+ */
+export const CROSS_NATHAN_2006_LOW_SPEED_BAT_CONTACT_FIXTURE:
+  RigidBatBallContactParameters = Object.freeze({
+    normalRestitution: 0.63,
+    tangentialRestitution: 0.16,
+    frictionCoefficient: 0.50,
+  });
+
 export type RigidBatBallContactResult = Readonly<{
   tick: number;
   segmentT: number;
@@ -595,6 +609,35 @@ const effectiveInverseMassAlong = (
     batAxis,
   )
 );
+
+export const calculateRigidBatDirectionalEffectiveMass = (
+  bat: RigidBatState,
+  contactPoint: Vec3,
+  direction: Vec3,
+): number => {
+  validateBat(bat);
+  const unitDirection =
+    normalize(direction);
+  const { axis: batAxis } =
+    axisGeometry(bat.pose);
+  const leverArm = subtract(
+    contactPoint,
+    batCenterOfMassPoint(bat),
+  );
+  const inverseMass =
+    rigidBatInverseMassContributionAlong(
+      unitDirection,
+      leverArm,
+      bat,
+      batAxis,
+    );
+  if (inverseMass <= EPSILON) {
+    throw new Error(
+      'rigid bat directional inverse mass must be positive',
+    );
+  }
+  return 1 / inverseMass;
+};
 
 export const resolveRigidBatBallContact = (
   pitch: PitchWorldState,
