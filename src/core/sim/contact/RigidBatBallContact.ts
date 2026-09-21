@@ -94,6 +94,7 @@ export const CROSS_NATHAN_2006_LOW_SPEED_BAT_CONTACT_FIXTURE:
 
 export type RigidBatBallContactResult = Readonly<{
   tick: number;
+  ballCenter: Vec3;
   segmentT: number;
   localBatRadiusM: number;
   normal: Vec3;
@@ -1088,6 +1089,7 @@ export const resolveRigidBatBallContactWithParameterResolver = (
 
   return {
     tick: kinematics.tick,
+    ballCenter: pitch.position,
     segmentT:
       kinematics.segmentT,
     localBatRadiusM:
