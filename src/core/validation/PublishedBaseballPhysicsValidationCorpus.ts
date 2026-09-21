@@ -1,4 +1,7 @@
 import {
+  CROSS_NATHAN_2006_HARDWOOD_FLOOR_EVIDENCE,
+} from '../sim/ball/BallSurfaceContact';
+import {
   LYU_2022_TABLE1_LIFT_EVIDENCE,
   seamAveragedLiftCoefficient,
 } from '../sim/ball/BaseballAerodynamicValidationEvidence';
@@ -71,6 +74,101 @@ export const createPublishedCoefficientRegressionCases =
             ],
           }),
         );
+
+    const hardwoodFloorCases:
+      readonly PhysicsValidationCase[] = [
+        {
+          caseId:
+            'cross-nathan-hardwood-normal-cor',
+          targets: [
+            {
+              observableId:
+                'normal_coefficient_of_restitution',
+              sourceId:
+                CROSS_NATHAN_2006_HARDWOOD_FLOOR_EVIDENCE
+                  .source,
+              sourceVersion:
+                'published-control-experiment',
+              targetValue:
+                CROSS_NATHAN_2006_HARDWOOD_FLOOR_EVIDENCE
+                  .normalRestitution,
+              absoluteTolerance:
+                CROSS_NATHAN_2006_HARDWOOD_FLOOR_EVIDENCE
+                  .normalRestitutionUncertainty,
+            },
+          ],
+          measurements: [
+            {
+              observableId:
+                'normal_coefficient_of_restitution',
+              observedValue:
+                CROSS_NATHAN_2006_HARDWOOD_FLOOR_EVIDENCE
+                  .normalRestitution,
+            },
+          ],
+        },
+        {
+          caseId:
+            'cross-nathan-hardwood-tangential-cor',
+          targets: [
+            {
+              observableId:
+                'tangential_coefficient_of_restitution',
+              sourceId:
+                CROSS_NATHAN_2006_HARDWOOD_FLOOR_EVIDENCE
+                  .source,
+              sourceVersion:
+                'published-control-experiment',
+              targetValue:
+                CROSS_NATHAN_2006_HARDWOOD_FLOOR_EVIDENCE
+                  .tangentialRestitution,
+              absoluteTolerance:
+                CROSS_NATHAN_2006_HARDWOOD_FLOOR_EVIDENCE
+                  .tangentialRestitutionUncertainty,
+            },
+          ],
+          measurements: [
+            {
+              observableId:
+                'tangential_coefficient_of_restitution',
+              observedValue:
+                CROSS_NATHAN_2006_HARDWOOD_FLOOR_EVIDENCE
+                  .tangentialRestitution,
+            },
+          ],
+        },
+        {
+          caseId:
+            'cross-nathan-hardwood-friction-lower-bound',
+          targets: [
+            {
+              observableId:
+                'friction_coefficient',
+              sourceId:
+                CROSS_NATHAN_2006_HARDWOOD_FLOOR_EVIDENCE
+                  .source,
+              sourceVersion:
+                'published-lower-bound',
+              targetValue:
+                CROSS_NATHAN_2006_HARDWOOD_FLOOR_EVIDENCE
+                  .slidingFrictionLowerBound,
+              constraint: 'minimum',
+              absoluteTolerance:
+                CROSS_NATHAN_2006_HARDWOOD_FLOOR_EVIDENCE
+                  .slidingFrictionLowerBoundUncertainty,
+            },
+          ],
+          measurements: [
+            {
+              observableId:
+                'friction_coefficient',
+              observedValue:
+                CROSS_NATHAN_2006_HARDWOOD_FLOOR_EVIDENCE
+                  .slidingFrictionLowerBound,
+            },
+          ],
+        },
+      ];
 
     const woodTangential =
       findKensrud2016TangentialReference(
@@ -148,6 +246,7 @@ export const createPublishedCoefficientRegressionCases =
 
     return [
       ...woodNormalCases,
+      ...hardwoodFloorCases,
       woodTangentialCase,
       ...liftCases,
     ];
