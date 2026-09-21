@@ -570,7 +570,6 @@ type TraitAcquisitionProfile = {
   consolidationPolicy?: ConsolidationPolicy;
   coachTeachability: "NONE" | "INDIRECT" | "DIRECT" | "CONTEXT_DEPENDENT";
   experienceLearnability: "NONE" | "LOW" | "MEDIUM" | "HIGH";
-  reversible: boolean;
   goldTierRule?: GoldTierRule;
 };
 ```

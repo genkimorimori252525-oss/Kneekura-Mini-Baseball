@@ -24,6 +24,9 @@
 - Trait / Emotion double count
 - hidden-truth CPU cheating
 - long-save instability
+- Trait collection inflation
+- Green preference churn
+- Manager command / Player preference responsibility confusion
 
 を持ち込まないか敵対監査する。
 

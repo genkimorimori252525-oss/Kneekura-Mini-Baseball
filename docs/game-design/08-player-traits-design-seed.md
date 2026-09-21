@@ -1,6 +1,6 @@
 # 特殊能力 / Trait System 設計計画
 
-更新日: 2026-09-20  
+更新日: 2026-09-22  
 状態: **特殊能力システムMaster Plan。Player Trait部分は設計承認済み。Team Traitは設計中。Team Mood / Manager Ability / Popularityは後続設計。実装前。**  
 目的: Mini Baseballの「得能」系UIを、Player / Team / Manager / Careerの複数source-of-truthへ安全に接続するMaster Plan。Player Traitカタログは `09-player-trait-catalog.md`、Team Trait設計は `34-team-traits-and-relationship-network-DRAFT.md`、Team Traitカタログは `35-team-trait-catalog-DRAFT.md` を参照する。
 

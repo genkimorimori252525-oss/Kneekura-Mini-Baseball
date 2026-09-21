@@ -308,7 +308,7 @@ Graded FamilyのGoldはCurrent Master Tierなので降格可能。
 ```text
 永遠に同じ結果を出せる
 永遠に身体能力を維持する
-``
+```
 
 という意味ではない。
 

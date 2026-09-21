@@ -1,6 +1,6 @@
 # Kneekura Mini Baseball — Current Design Handoff
 
-更新日: 2026-09-20  
+更新日: 2026-09-22  
 対象branch: `jolly/core-foundation-plan-2026-09-17`
 
 この文書は、新しいChatGPT / Jolly sessionが設計思想を最短で復元するためのhandoff。
