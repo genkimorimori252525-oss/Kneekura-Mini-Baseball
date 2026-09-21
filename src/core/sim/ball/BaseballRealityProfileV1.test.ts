@@ -7,18 +7,25 @@ import {
 const material = (
   id: string,
 ) => ({
-  materialId: id,
-  version: 'evidence-v1',
-  response: {
-    kind: 'static' as const,
-    contact: {
-      normalRestitution: 0.4,
-      tangentialRestitution: 0.2,
-      frictionCoefficient: 0.3,
+  material: {
+    materialId: id,
+    version: 'evidence-v1',
+    response: {
+      kind: 'static' as const,
+      contact: {
+        normalRestitution: 0.4,
+        tangentialRestitution: 0.2,
+        frictionCoefficient: 0.3,
+      },
     },
+    slidingFrictionCoefficient: 0.2,
+    rollingDecelerationMps2: 1,
   },
-  slidingFrictionCoefficient: 0.2,
-  rollingDecelerationMps2: 1,
+  evidenceIds: [
+    `evidence:${id}`,
+  ],
+  calibrationStatus:
+    'measured' as const,
 });
 
 describe('baseball reality profile v1', () => {
