@@ -337,12 +337,39 @@ Key freeze decisions:
 - Trait acquisition uses family-specific Acquisition Profiles; Recognition and Development are separate.
 - Pressure traits require repeated stable relevant evidence; one walk-off / one lucky outing is only a catalyst.
 - Green traits require stable behavior/preference change; one Manager instruction does not rewrite the Player.
-- Gold is the Master Tier of the same Trait Family.
+- Gold is the Master Tier of the same Trait Family; its persistence/downgrade follows the Family Lifecycle Class.
+- Consolidated Named Blue mastery is persistent; G〜A Graded families remain dynamic.
+- Green is a slow Player default preference, while Manager instruction separately controls Actual Intent.
 - **ノビ is G〜A; Gold tier is 怪童. `ノビ○` is not canonical.**
 - User/CPU never reads hidden trajectory/catalyst/future-potential truth.
 - Awakening does not automatically grant Star/Superstar status.
 
 Audit result: **PASS**.
+
+---
+# 0.14 CANONICAL REFINEMENT — Player Trait Lifecycle / Green Command Boundary
+
+2026-09-22 user approved:
+
+- `docs/game-design/09-player-trait-catalog.md` is the sole Trait Family / Lifecycle Class registry.
+- development/implementation must not infer lifecycle from a single Trait name such as `ノビ`.
+- 13 G〜A Graded Families are dynamic current-state projections:
+  - Pitcher: 対ピンチ / 対左打者 / 打たれ強さ / ノビ / クイック
+  - Batter/Fielder/Catcher: チャンス / 対左投手 / キャッチャー / 盗塁 / 走塁 / 送球 / ケガしにくさ / 回復
+- Graded-family Gold is a dynamic Current Master Tier and may downgrade with source state.
+- Consolidated Named Blue learned mastery is persistent for the Career by default.
+- Persistent Blue does not preserve lost physical ability; mastery and current execution feasibility are separate.
+- Persistent-blue Gold mastery is also persistent unless its Family is classified Graded Dynamic.
+- Green Trait is a Slow Default Preference, not an ability buff and not a command.
+- with no explicit instruction, Green strongly shapes the Player's default action.
+- Soft Directive blends Manager and Player preferences.
+- Hard Sign / Immediate Command normally takes precedence when understood/accepted; trust/compliance/communication can still matter.
+- Manager command changes Actual Intent, not the stored Green Trait.
+- Green uses hysteresis / persistence and should not flip repeatedly inside a season; ~5 same-family changes is a calibration failure.
+- no fixed Trait-count cap, but Distinctiveness / Consolidation / finite opportunity / Family merging must prevent ordinary Players from becoming Trait collections.
+- Red / Dynamic Descriptor / Relationship Context traits continue to follow their causal source states.
+
+`53` and adversarial audit `54` were refined to enforce these rules.
 
 ---
 # 1. Game Slogan
