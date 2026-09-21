@@ -68,7 +68,7 @@ const trajectory = (
       z: 0,
     },
   },
-  endTick: 1_500_000,
+  endTick: 1_800_000,
   parameters: {
     ticksPerSecond: 1_000_000,
     integrationStepTicks: 1_000,
