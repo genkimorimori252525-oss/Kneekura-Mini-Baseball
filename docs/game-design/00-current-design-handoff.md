@@ -19,9 +19,9 @@ AI / Agent向け強制ルール:
 
 ### 現在、USER REVIEW REQUIREDとして残る設計
 
-- `42-manager-market-and-front-office-selection-DRAFT.md`
+**なし。**
 
-`32-roster-development-architecture-DRAFT.md`、`34-team-traits-and-relationship-network-DRAFT.md`、`35-team-trait-catalog-DRAFT.md`、`38-team-mood-manager-interventions-DRAFT.md`、`41-manager-appointment-and-incompetence-DRAFT.md` は2026-09-22にユーザー承認され、**CANONICAL / DESIGN FROZEN v1** へ昇格した。
+2026-09-22時点で、今回整理対象だった `32 / 34 / 35 / 38 / 41 / 42` はすべてユーザー承認済みで、**CANONICAL / DESIGN FROZEN v1** へ昇格した。
 
 ### 旧計画 / 後継へ統合済み
 
@@ -49,6 +49,7 @@ AI / Agent向け強制ルール:
 - `35-team-trait-catalog-DRAFT.md`
 - `38-team-mood-manager-interventions-DRAFT.md`
 - `41-manager-appointment-and-incompetence-DRAFT.md`
+- `42-manager-market-and-front-office-selection-DRAFT.md`
 - `50-popularity-reputation-architecture-DRAFT.md`
 - `51-star-superstar-big-stage-architecture-DRAFT.md`
 
@@ -965,40 +966,38 @@ Manager Market / Front Office selection remains the only USER REVIEW REQUIRED ma
 - `docs/game-design/42-manager-market-and-front-office-selection-DRAFT.md`
 
 ---
-# 35. CURRENT DRAFT — Manager Market / Front Office Selection
+# 35. CANONICAL — Manager Market & Front Office Selection v1
 
-2026-09-20 current direction:
-
-Manager ability and Manager appointment are separate systems.
-
-```text
-Manager True Skill
- !=
-Manager Hiring Value
-```
-
-A Club does not know Manager True Skill directly. It evaluates candidates from career evidence, reputation, Club/OB relationship, interviews, tactical fit, salary, availability, ownership preference and Front Office estimates.
-
-Candidate paths include:
-- Club OB / former player
-- external proven manager
-- assistant / specialist coach
-- farm / minor-team manager
-- low-profile former player with a strong coaching career
-
-Important concept:
-> **監督は、なってみるまで分からない部分が大きい。**
-
-Therefore genuinely weak first-time managers can be hired without randomness or cheating.
-
-Club hiring styles can differ: OB tradition, proven-winner preference, development-first, innovator-seeking, stability-first, owner-driven etc.
-
-Front Office itself has imperfect candidate-evaluation skill. CPU Clubs must not read hidden Manager True Skill.
-
-Draft:
+2026-09-22 user approved and froze:
 - `docs/game-design/42-manager-market-and-front-office-selection-DRAFT.md`
 
+Core:
+- Manager True Skill != Hiring Value != Reputation != Public Grade.
+- Club never reads hidden Manager True Skill directly.
+- Manager Market is bilateral: Club chooses Manager and Manager may accept / reject Club.
+- Candidate Pool is dynamic across long saves: former players, coaches, assistants, farm managers, analysts, external managers and low-profile candidates can enter.
+- OB / former-star visibility can influence hiring information and preference, never Manager Skill.
+- Front Office uses imperfect estimates; better evaluation reduces uncertainty/bias rather than revealing Truth.
+- Interviews / references are evidence, not an oracle.
+- first-time managers retain high uncertainty.
+- hiring styles are derived from Club history / ownership / supporter / organizational context rather than magic archetype buffs.
+- contract length / salary / firing cost matter internally but do not become a contract-management minigame.
+- retain / extend / fire is expectation-adjusted, not standings-only.
+- failed managers may be re-hired elsewhere and can succeed in a different fit.
+- internal succession pipelines persist across generations.
+- User surface remains simple: appointment news + optional detailed profile.
 
+Human Control Overlay:
+- HUMAN_OVERRIDE outcomes remain real World history.
+- HUMAN_OVERRIDE decisions are not credited or blamed as the underlying manager's own decision-quality evidence.
+- only MANAGER_AUTONOMOUS / MANAGER_DELEGATED are primary manager-skill evidence.
+- during long User control, the underlying Delegate Manager is not frozen forever; contracts, retirement and market succession continue.
+- when User leaves a Club, the then-current Delegate Manager becomes the visible Manager.
+
+Status:
+> **The six USER REVIEW REQUIRED designs identified on 2026-09-22 are now all DESIGN FROZEN.**
+
+---
 Historical emergent-strategy draft (SUPERSEDED / 旧計画):
 - `docs/game-design/43-manager-strategy-evolution-architecture-DRAFT.md`
 
@@ -1321,7 +1320,7 @@ Required future validation before implementation sign-off:
 - manager-vs-roster contribution
 - compute / save growth
 
-Manager hiring/market doc 42 remains separate USER REVIEW REQUIRED work. Doc 41 is now CANONICAL / DESIGN FROZEN v1.
+Manager Competence doc 41 and Manager Market doc 42 are both CANONICAL / DESIGN FROZEN v1.
 
 
 ---

@@ -1,386 +1,91 @@
-# Manager Market & Front Office Selection — DRAFT
+# Manager Market & Front Office Selection — CANONICAL v1
 
-更新日: 2026-09-20  
-状態: **設計候補。USER REVIEW REQUIRED。実装前。**
+更新日: 2026-09-22  
+状態: **CANONICAL / DESIGN FROZEN v1。2026-09-22ユーザー承認。実装前。**
+
+> **FILENAME LEGACY NOTE**  
+> ファイルパスの `-DRAFT` は履歴上残っているだけ。この文書はManager Market / Front Office Selection v1のSource of Truth。
 
 関連:
-- `docs/game-design/31-scouting-recruitment-system.md`
-- `docs/game-design/39-manager-philosophy-and-command-architecture-DRAFT.md`
-- `docs/game-design/40-manager-ratings-era-and-strategy-evolution-DRAFT.md`
-- `docs/game-design/41-manager-appointment-and-incompetence-DRAFT.md`
 - `docs/game-design/19-club-structural-dominance-and-decline.md`
+- `docs/game-design/31-scouting-recruitment-system.md`
+- `docs/game-design/32-roster-development-architecture-DRAFT.md`
+- `docs/game-design/41-manager-appointment-and-incompetence-DRAFT.md`
+- `docs/game-design/49-manager-architecture-v1.md`
 
 ---
 
 # 1. Core Separation
 
-監督の「能力」と「採用される理由」を分ける。
+監督の能力と採用価値を分ける。
 
 ```text
 Manager True Skill
- !=
-Manager Hiring Value
+ != Manager Hiring Value
+ != Manager Reputation
+ != Public Manager Grade
 ```
 
-ClubはManager True Skillを直接読めない。
+ClubはManager True Skillを直接読まない。
 
-採用は:
+採用はCandidateについて当時利用可能な情報と、Club自身の目的・Bias・制約から決まる。
+
+---
+
+# 2. Manager Market Is a Bilateral Labor Market
+
+Manager MarketはClubが一方的に人を選ぶ一覧表ではない。
 
 ```text
-candidate reputation
-+ known career history
-+ club relationship
-+ interview impression
-+ tactical fit
-+ staff fit
-+ cost
-+ availability
-+ ownership preference
-+ front-office estimate
-        ↓
-Hiring Decision
+Club evaluates Manager
+        ↕
+Manager evaluates Club
 ```
 
-で決まる。
+Club側の主な入力:
+- candidate estimate
+- career evidence
+- reputation
+- philosophy / objective fit
+- Club / OB relationship
+- staff compatibility
+- salary / contract cost
+- availability
+- ownership preference
+- supporter / public acceptability
+
+Manager側の主な入力:
+- salary / contract length
+- Club reputation
+- roster quality
+- championship opportunity
+- expected autonomy
+- philosophy fit
+- staff environment
+- prior Club / person relationships
+- career ambition
+- job security
+- geographic / cultural preference where appropriate
+
+Big ClubのOfferでも必ずAcceptするとは限らない。
 
 ---
 
-# 2. Why Becoming Manager Does Not Prove Competence
-
-監督能力はHead Manager就任後に初めて露呈する部分が多い。
-
-例:
-
-- bullpen timing
-- crisis adaptation
-- role-management under pressure
-- losing-streak response
-- star conflict handling
-- season-long workload management
-- information filtering
-- tactical hypothesis quality
-
-Coach / Player時代の実績から完全には推定できない。
-
-したがって:
-
-> **監督は、なってみるまで分からない部分が大きい。**
-
-をSystemとして許可する。
-
----
-
-# 3. Candidate Backgrounds
-
-Manager Candidateは複数Career Pathから出る。
-
-## Club OB
-
-- franchise icon
-- ordinary former player
-- long-tenure role player
-- former captain
-- former catcher / field leader
-- former coach
-
-利点:
-- club familiarity
-- supporter acceptance
-- internal trust
-- cultural continuity
-
-Risk:
-- hiring may overvalue affiliation
-- managerial skill uncertain
-
-## External Proven Manager
-
-他Club / LeagueでHead Manager実績あり。
-
-利点:
-- large managerial evidence sample
-- known tactical identity
-
-Risk:
-- expensive
-- philosophy mismatch
-- previous success may not transfer
-- current skill may be outdated
-
-## External Coach / Assistant
-
-Head Manager未経験だが:
-
-- bench coach
-- pitching coach
-- hitting coach
-- farm manager
-- analyst / strategy staff
-
-等で実績。
-
-Potential:
-- undervalued future elite manager
-- specialist skill may not transfer to full management
-
-## Minor / Farm Manager
-
-Development team等でHead Manager経験。
-
-Evidence:
-- player handling
-- lineup / pitching management
-- development environment
-
-ただしFirst Team levelへのtransfer uncertaintyあり。
-
-## Unknown / Low-profile Candidate
-
-現役時代無名でも監督候補になれる。
-
-理由:
-- coaching career
-- tactical reputation
-- organization trust
-- minor-league success
-- staff recommendations
-- interview quality
-
-「現役Starでなかったから候補になれない」は禁止。
-
----
-
-# 4. Club Hiring Archetypes
-
-ClubごとにManager Hiring Philosophyを持てる。
-
-## OB Tradition
-
-```text
-Club Affiliation weight ↑
-Supporter familiarity ↑
-External candidate weight ↓
-```
-
-## Proven Winner
-
-```text
-Past Head Manager results ↑
-Experience ↑
-Cost tolerance ↑
-```
-
-## Development First
-
-```text
-Youth handling
-Player evaluation
-Patience
-Farm experience
-```
-
-## Tactical Innovator
-
-```text
-Analysis
-Adaptation
-Strategy fit
-Experimentation openness
-```
-
-## Stability First
-
-```text
-Leadership
-Role management
-Club familiarity
-Low conflict risk
-```
-
-## Owner's Choice
-
-Owner preference / reputation / symbolismのweightが高い。
-
-これ自体を「愚かなClub」とはしない。
-結果はCandidate fit次第。
-
----
-
-# 5. Front Office Evaluation Skill
-
-Manager採用にもFront Office能力を必要とする。
-
-候補内部能力:
-
-- candidate scouting
-- tactical literacy
-- interview interpretation
-- reputation de-biasing
-- role-fit evaluation
-- reference network
-- succession planning
-- risk calibration
-
-優秀なFront OfficeはManagerのTrue Skillを直接知るのではなく、
-**Estimateの誤差を小さくする**。
-
----
-
-# 6. Manager Candidate Estimate
-
-Clubごとに候補評価は違ってよい。
-
-```ts
-type ManagerCandidateEstimate = {
-  candidateId: ManagerId;
-
-  projectedTacticalJudgment: Estimate;
-  projectedAnalysis: Estimate;
-  projectedAdaptation: Estimate;
-  projectedPlayerEvaluation: Estimate;
-  projectedOperations: Estimate;
-  projectedLeadership: Estimate;
-
-  philosophyFit: Estimate;
-  clubCultureFit: Estimate;
-  playerAcceptance: Estimate;
-
-  uncertainty: number;
-};
-```
-
-同じCandidateを:
-
-```text
-Club A: A-grade candidate
-Club B: C-grade candidate
-```
-
-と見ることがある。
-
----
-
-# 7. OB Bias Must Be Explainable
-
-OB優先を固定Buff / Debuffにしない。
-
-```text
-former club player
-        ↓
-more known information
-more internal references
-more cultural familiarity
-possibly supporter legitimacy
-        ↓
-hiring probability changes
-```
-
-ただしManager Skillは変わらない。
-
----
-
-# 8. Unknown Candidate Advantage
-
-無名Candidateには:
-
-- low reputation
-- low hiring probability
-- high uncertainty
-
-がある。
-
-一方で:
-
-- hidden high Manager Skill
-- innovative philosophy
-- strong adaptability
-
-を持つ可能性がある。
-
-これにより:
-
-> 「なぜ誰もこの人を監督にしなかったんだ？」
-
-という後世評価がGame World内で起こり得る。
-
----
-
-# 9. Reputation Formation
-
-Manager Reputationは結果だけではない。
-
-入力候補:
-
-- previous wins vs roster expectation
-- postseason / tournament performance
-- player development reputation
-- clubhouse reputation
-- tactical innovation
-- media image
-- former playing career
-- assistant / coach achievements
-
-Reputationは真能力のNoise-heavy projection。
-
----
-
-# 10. First-time Manager Uncertainty
-
-初監督はuncertaintyを高くする。
-
-例:
-
-```text
-public reputation: B
-true tactical skill: A
-true leadership: D
-```
-
-Clubは就任前にこの歪みを完全には知れない。
-
-Seasonを重ねるほどEvidenceが増える。
-
----
-
-# 11. Hiring Success Is Not Immediate
-
-初年度結果だけでHiringが正しかった / 間違いだったと確定しない。
-
-```text
-Manager performance
-+ roster
-+ injuries
-+ schedule
-+ staff
-+ variance
-        ↓
-observed season result
-```
-
-ClubもUserもManager Skillを継続的に再評価する。
-
----
-
-# 12. Club Succession Pipeline
-
-Clubは将来のManager候補を内部育成できる。
-
-```text
-former player
- -> coach
- -> farm manager / bench coach
- -> first-team manager candidate
-```
-
-Club OB傾向の強い組織ではこのPipelineが太くなる。
-
-External hiring型Clubでは候補市場を広く見る。
-
----
-
-# 13. Coaching Career Matters More Than Playing Fame
-
-Playing CareerとManager Careerを分ける。
+# 3. Candidate Career Paths
+
+Manager Candidateは複数Career Pathから生まれる。
+
+- Club OB / former player
+- former captain / catcher / field leader
+- assistant / bench coach
+- pitching / hitting / fielding specialist coach
+- Reserve / Farm Manager
+- Development staff
+- Analyst / strategy staff
+- External proven Manager
+- Unknown / low-profile coach
+
+Playing fameはCandidate visibilityや初期credibilityへ影響し得るが、Manager Skillを作らない。
 
 ```text
 Playing Skill
@@ -388,179 +93,472 @@ Playing Skill
  != Manager Skill
 ```
 
-元Starでも低Manager Skillはあり得る。
-
-無名Playerでも:
-
-```text
-strong coaching career
-+ strong tactical learning
-+ leadership growth
-        ↓
-elite Manager candidate
-```
-
-になれる。
+元無名Playerでも長いCoaching Careerを通じてElite Manager candidateになれる。
 
 ---
 
-# 14. Front Office / Manager Philosophy Conflict
+# 4. Candidate Pool Is Dynamic
 
-採用時にFitを考える。
+Manager Marketは世代交代する。
+
+```text
+player retirement
+ -> coach / staff career
+ -> assistant / specialist
+ -> reserve / farm manager
+ -> first-team candidate
+ -> manager career
+ -> retirement / staff return / other role
+```
+
+Candidate Poolを固定初期リストにしない。
+
+長期Saveで新しい候補が生まれ、既存候補が成長・停滞・退職する。
+
+---
+
+# 5. Club Hiring Preference Is Derived, Not a Magic Archetype
+
+OB Tradition / Proven Winner / Development First / Tactical Innovator / Stability First / Owner-driven等の傾向は持てる。
+
+ただし固定Labelが採用率へ直接Bonusを配るのではない。
 
 例:
 
 ```text
-Front Office:
-  data-heavy
-  youth development
-
-Manager:
-  intuition-heavy
-  veteran-first
+club history
++ ownership philosophy
++ supporter expectation
++ previous hiring outcomes
++ internal network
+        ↓
+club-affiliated candidate preference
 ```
 
-採用されること自体は可能。
-
-その後:
-
-- roster recommendation conflict
-- playing-time conflict
-- staff conflict
-- role authority dispute
-
-へ発展する可能性がある。
-
-直接Mood penaltyにはしない。
+長期Save中にClubの採用文化が変化してよい。
 
 ---
 
-# 15. Appointment Authority
+# 6. OB / Former-star Boundary
 
-将来のClub Governance設計では:
+OBや元Starが採用されやすい場合、その理由を説明可能にする。
 
-- Owner
-- President / CEO
-- GM / Sporting Director
-- Baseball Operations
-- Manager
+候補:
+- known information
+- internal references
+- cultural familiarity
+- supporter legitimacy
+- initial player respect
+- ownership interest
+- media visibility
 
-の誰がManager appointmentへどの程度権限を持つかを分離可能。
-
-現時点では最低限:
+禁止:
 
 ```text
-Front Office Hiring Decision
-+ Ownership Influence
+former superstar
+ -> Manager Skill +20
 ```
 
-を要求する。
+OB / FameはHiring information / preferenceへ作用し、True Skillには作用しない。
 
 ---
 
-# 16. CPU Hiring Loop
+# 7. Front Office Evaluation Architecture
+
+Front OfficeもManager True Skillを読まない。
+
+Manager hiringだけのために巨大な8能力Systemを新設しない。
+
+概念的なSourceは少数へ整理する。
+
+- Evaluation Quality
+- Baseball / Tactical Literacy
+- Network Quality
+- Planning Horizon
+- Bias / Risk Calibration
+
+これらから:
+- candidate scouting
+- interview interpretation
+- reputation de-biasing
+- role-fit evaluation
+- reference quality
+- succession planning
+
+等をDerivedする。
+
+優秀Front OfficeはTruthを見るのではなく、Estimate uncertaintyやbiasを減らしやすい。
+
+---
+
+# 8. Club-specific Candidate Estimate
+
+同じCandidateでもClubごとに評価が違ってよい。
+
+```ts
+type ManagerCandidateEstimate = {
+  candidateId: ManagerId;
+  projectedSkills: ManagerSkillEstimate;
+  philosophyFit: Estimate;
+  rosterFit: Estimate;
+  staffFit: Estimate;
+  clubCultureFit: Estimate;
+  publicAcceptance: Estimate;
+  uncertainty: number;
+};
+```
+
+例:
+
+```text
+Club A: Analysis A? / Adaptation ? / Leadership C?
+Club B: Analysis B? / Adaptation B? / Leadership B?
+```
+
+両方ともWorld Truthではない。
+
+---
+
+# 9. Interview Is Evidence, Not an Oracle
+
+面接・会話・ReferenceはEstimate更新材料。
+
+禁止:
+
+```text
+interview completed
+ -> True Skill revealed
+```
+
+Interviewが上手いCandidateを低Quality Front Officeが過大評価することも可能。
+
+Candidate自身の自己評価もTruthとは限らない。
+
+---
+
+# 10. First-time Manager Uncertainty
+
+初監督はHead ManagerとしてのEvidenceが少ない。
+
+したがって:
+- Public Gradeに `?` が多い
+- Club estimate uncertaintyが大きい
+- Specialist successがHead Managerへtransferするか不明
+
+を許可する。
+
+監督は「なってみるまで分からない部分が大きい」。
+
+---
+
+# 11. Reputation
+
+Manager ReputationはTrue Skillではない。
+
+入力候補:
+- wins vs expectation
+- postseason / tournament history
+- development reputation
+- tactical innovation
+- staff / player reputation
+- media image
+- former playing fame
+- coach / assistant achievements
+- famous failures / successes
+
+ReputationはNoise-heavy public / organizational memory。
+
+昔の名将Reputationが残っていても、現在Public GradeやClub Estimateが低下してよい。
+
+逆に高評価の若手でもReputationはまだ小さいことがある。
+
+---
+
+# 12. Hiring Decision
+
+CPU Hiring Loop:
 
 ```text
 Vacancy
-↓
-Candidate Pool
-↓
-Club shortlisting
-↓
-Estimate / interviews / references
-↓
-Philosophy + objective fit
-↓
-salary / availability negotiation
-↓
-hire
-↓
-season evidence
-↓
-update Manager estimate
-↓
-retain / extend / fire
+ -> Candidate Pool
+ -> discovery / shortlist
+ -> Club-specific Estimate
+ -> fit / objective comparison
+ -> ownership / public / cost constraints
+ -> Manager-side interest
+ -> negotiation
+ -> hire / rejection
 ```
 
-CPU ClubもTrue Manager Skillを読まない。
+CPU ClubはHidden True Skillを使わない。
+
+採用結果は必ず当時の情報から説明可能にする。
 
 ---
 
-# 17. User-facing Simplicity
+# 13. Contract Boundary
 
-Userが他Clubの採用を見る時:
+Manager契約は意味を持つ。
+
+例:
+- salary
+- contract length
+- remaining term
+- firing cost
+- job security
+
+ただし詳細契約シミュレーターにはしない。
+
+通常User surfaceは:
+
+```text
+3年契約
+年俸: ...
+```
+
+程度でよい。
+
+---
+
+# 14. Retain / Extend / Fire Is Expectation-adjusted
+
+順位だけで解任を決めない。
+
+Clubが観測可能な範囲で:
+
+```text
+actual results
+vs expected results
++ roster constraints
++ injuries / availability
++ club objective
++ development progress
++ observable decision quality
++ philosophy / staff fit
++ ownership / supporter pressure
++ contract context
+        ↓
+retain / extend / fire
+```
+
+を見る。
+
+例:
+- rebuilding rosterで予想以上に勝つ5位 → 高評価になり得る
+- championship rosterで大幅期待未達の2位 → 低評価になり得る
+
+`最下位 = 必ず解任` は禁止。
+
+---
+
+# 15. Failed Manager Can Return
+
+一Clubでの失敗をTrue incompetence確定にはしない。
+
+失敗原因は:
+- bad fit
+- roster quality
+- injuries
+- staff conflict
+- timing / variance
+- actual competence
+
+が混ざる。
+
+別Clubが異なるEstimate / Fit判断で再雇用してよい。
+復活も再失敗もあり得る。
+
+---
+
+# 16. Internal Succession Pipeline
+
+Clubは将来のManager candidateをBackgroundで育てられる。
+
+```text
+former player / staff
+ -> coach
+ -> reserve / farm manager
+ -> bench / specialist role
+ -> first-team candidate
+```
+
+OB-heavy ClubはこのPipelineを重視しやすい。
+External hiring型ClubはMarket discoveryを広く使いやすい。
+
+Pipeline自体がSkill Buffを配らない。
+
+---
+
+# 17. Front Office / Manager Conflict
+
+採用時にFitを評価しても、Conflictは起こり得る。
+
+例:
+```text
+Front Office = data-heavy / youth-first
+Manager = intuition-heavy / veteran-first
+```
+
+採用後:
+- roster recommendation conflict
+- playing-time conflict
+- staff conflict
+- authority dispute
+
+が起こり得る。
+
+Conflict LabelからMood penaltyを直接配らず、実際のDecision / Appraisalへ接続する。
+
+---
+
+# 18. Human Control Overlay — Evaluation Attribution
+
+User操作中もDecision Originを保持する。
+
+```text
+MANAGER_AUTONOMOUS
+MANAGER_DELEGATED
+HUMAN_OVERRIDE
+```
+
+元監督自身のDecision-quality / Skill evidenceには原則:
+
+```text
+MANAGER_AUTONOMOUS
++ MANAGER_DELEGATED
+```
+
+だけを使う。
+
+HUMAN_OVERRIDEでUserが行った采配を、元監督の名采配・迷采配として評価しない。
+
+例:
+
+```text
+User controls lineup + bullpen for 162 games
+ -> club wins 100
+ -> world championship history is real
+ -> original manager does NOT receive '100-win tactical evidence' for user decisions
+```
+
+逆にUser操作で大敗しても元監督のDecision competenceへそのまま帰属させない。
+
+ただしWorldで生じたPlayer stats / titles / relationships / historyは正史。
+
+---
+
+# 19. Delegate Manager Lifecycle During User Control
+
+Human Control Overlay中も、裏Managerを最初の人物のまま永久冷凍しない。
+
+```text
+User controls Club
+        ↓
+Delegate Manager A remains real Person
+        ↓
+contract / aging / retirement / market transition
+        ↓
+Delegate Manager B may become current underlying Manager
+```
+
+Userが長期間同じClubを操作してもManager Marketは世界時間と共に進む。
+
+Userが別Clubへ移動 / Human Overlayを外した時:
+
+> **その時点のCurrent Delegate Managerが表の監督として戻る。**
+
+20年前にUserが操作開始した時のManagerを突然復活させない。
+
+Delegate Managerの採用・続投・解任評価にもHUMAN_OVERRIDEの采配成果を本人のDecision Evidenceとして使わない。
+
+---
+
+# 20. User-facing Simplicity
+
+CPU ClubのManager MarketをUserに管理させない。
+
+通常表示例:
 
 ```text
 新監督就任
 
-名前: XXXX
-経歴: 元球団OB / 二軍監督
-監督経験: なし
+山田 太郎
+前職: 二軍監督
+一軍監督経験: なし
 
-公開能力
+公開評価
 采配 ?
-分析 ?
+分析 B?
 適応 ?
-選手眼 B
+選手眼 A?
 運用 C
-統率 A
+統率 B?
 
-野球観
-若手重視 / 固定打線 / 早め継投
+青特
+育成眼
+抜擢上手
 ```
 
-初監督は一部能力を「?」表示してもよい。
+興味があるUserだけ詳細Profile / Career Historyを見られる。
 
-実績が増えると公開評価のconfidenceが上がる。
-
----
-
-# 18. Why This Matters
-
-このSystemにより:
-
-- OBだから選ぶClub
-- 外部実績を重視するClub
-- 無名コーチを抜擢するClub
-- 有名選手を過大評価するClub
-- 次世代の名将を発掘するClub
-- 何度も監督選びを外すClub
-
-が同じWorld Simulationから生まれる。
+CPU Clubが候補をどう比較したかを通常UIへSpreadsheet表示しない。
 
 ---
 
-# 19. Anti-Monocausal Rule
+# 21. Anti-Monocausal Rule
 
 Manager HiringだけでClub Successを説明しない。
 
-優秀なHiringでもRosterが弱ければ負ける。
+良いHiringでも弱いRosterなら負ける。
+悪いHiringでもElite Rosterで勝つことがある。
 
-悪いHiringでもElite Rosterで勝つことはある。
-
-Front Office自体も:
-
+Front Officeの責任はManager hiring以外にも:
 - scouting
 - development
 - finance
 - roster construction
-- manager hiring
+- staffing
 
-という複数責任を持つ。
+等がある。
 
 ---
 
-# 20. Design Direction
+# 22. Acceptance Tests
 
-Manager selectionはFront Office Systemへ接続する。
+1. CPU ClubはManager True Skillを直接読まない。
+2. 同じCandidateをClubごとに違う評価で見られる。
+3. InterviewでTrue Skillが完全開示されない。
+4. Former Star / OBは採用されやすくなり得るがManager Skillは上がらない。
+5. 無名Coach / Analyst / Farm ManagerがElite Managerへ成長できる。
+6. Manager本人がOfferを断れる。
+7. Big ClubのOfferが自動承諾にならない。
+8. Initial Manager poolが数十年後も固定されない。
+9. 結果だけでretain / fireを決定しない。
+10. 一Clubで失敗したManagerが別Clubで再起できる。
+11. HUMAN_OVERRIDEを元監督のDecision Skill evidenceへ帰属させない。
+12. User操作中でもDelegate Manager Marketが時間経過する。
+13. UserがClubを離れた時、current Delegate Managerが自然に表へ戻る。
+14. Manager MarketのSimulationを表示しなくても世界結果が同一。
+15. Hiring / firing LabelそのものがMatch CoreへBuff/Debuffを配らない。
 
-Manager Marketは独立したLabor Marketとして扱い、
-Clubは不完全情報下でCandidateを比較する。
+---
 
-Manager能力とManager採用を分離することで:
+# 23. Final v1 Status
 
-> **無能な監督が存在する理由**  
-> **なぜその監督が選ばれたか**  
-> **なぜ別のClubはその人を選ばなかったか**
+**Manager Market & Front Office Selection v1は2026-09-22にユーザー承認され、DESIGN FROZEN。**
 
-まで説明可能にする。
+```text
+Candidate World
+        ↓
+Club-specific imperfect estimate
+        ↕
+Manager-side career preference
+        ↓
+bilateral hiring decision
+        ↓
+real career evidence
+        ↓
+estimate / reputation update
+```
+
+これにより「なぜこの監督が選ばれたか」「なぜ外したか」「なぜ別Clubで再起したか」をWorld Historyから説明可能にする。
