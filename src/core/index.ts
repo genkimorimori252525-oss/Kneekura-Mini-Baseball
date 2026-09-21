@@ -218,3 +218,4 @@ export * from './sim/ball/GroundBallMotion';
 export * from './sim/ball/PennbounceSurfaceCalibrationObjective';
 export * from './sim/ball/GroundBallTransitCalibration';
 export * from './sim/ball/PlanarBallSurfaceImpact';
+export * from './sim/contact/WoodBatContactResponse';
