@@ -89,6 +89,14 @@ export const DEFAULT_BALL_FLIGHT_PARAMETERS: BallFlightParameters = Object.freez
   groundSurfacePhysics: null,
 });
 
+/**
+ * Explicit name for the pre-promotion low-level compatibility behavior.
+ * Production callers should enter through the guarded v1 reality profile;
+ * this alias remains for deterministic legacy fixtures and migrations.
+ */
+export const COMPATIBILITY_BALL_FLIGHT_PARAMETERS_V0:
+  BallFlightParameters = DEFAULT_BALL_FLIGHT_PARAMETERS;
+
 export const REALISTIC_BASEBALL_FLIGHT_PARAMETERS: BallFlightParameters =
   Object.freeze({
     ...DEFAULT_BALL_FLIGHT_PARAMETERS,
