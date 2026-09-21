@@ -182,6 +182,26 @@ population with explicit evidence ids.
 This boundary exists so that “reality mode” cannot silently fall back to
 compatibility constants while appearing to run the evidence-backed model.
 
+## 5.3 Current closure ledger
+
+`CurrentBaseballPhysicsV1Closure` records the present evidence state for every
+production calibration gate.
+
+The ledger intentionally distinguishes:
+
+- physics already implemented;
+- evidence already retained;
+- evidence still missing before a production coefficient/profile can be
+  defended.
+
+A gate remains `open` when the equations exist but the available experiments
+do not uniquely identify the required production parameters. This is
+especially important for field surfaces, where total surface pace alone cannot
+separate normal restitution, tangential restitution and friction.
+
+The current ledger therefore prevents architecture completion from being
+misreported as empirical calibration completion.
+
 ## 6. Promotion rule
 
 `BaseballPhysicsProductionReadiness` now makes promotion mechanical rather
