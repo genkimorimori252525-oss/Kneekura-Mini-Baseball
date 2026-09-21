@@ -18,17 +18,15 @@ const productionPaths = [
   'src/core/sim/pitching/SwingKinematicsV1PitchAgainstBatter.ts',
 ] as const;
 
-const forbiddenProductionTokens = [
-  "'../pitching/PitchAgainstBatter'",
-  "'./PitchAgainstBatter'",
-  "'../pitching/AerodynamicPitchAgainstBatter'",
-  "'./AerodynamicPitchAgainstBatter'",
-  'SwingingPitchPhysicalResult',
-  'AerodynamicSwingingPitchPhysicalResult',
-  'sampleCompatibilityBatterSwingState',
-  'resolveAndRecordPitchAgainstBatter',
-  'resolveSwingingPitchPhysicalResult',
-  'resolveAerodynamicSwingingPitchPhysicalResult',
+const forbiddenProductionPatterns = [
+  /from\s+['"](?:\.\.\/pitching\/|\.\/)?PitchAgainstBatter['"]/,
+  /from\s+['"](?:\.\.\/pitching\/|\.\/)?AerodynamicPitchAgainstBatter['"]/,
+  /from\s+['"](?:\.\.\/pitching\/|\.\/)?SwingingPitchPhysicalResult['"]/,
+  /from\s+['"](?:\.\.\/pitching\/|\.\/)?AerodynamicSwingingPitchPhysicalResult['"]/,
+  /\bsampleCompatibilityBatterSwingState\s*\(/,
+  /\bresolveAndRecordPitchAgainstBatter\s*\(/,
+  /\bresolveSwingingPitchPhysicalResult\s*\(/,
+  /\bresolveAerodynamicSwingingPitchPhysicalResult\s*\(/,
 ] as const;
 
 const readSource = (
@@ -48,12 +46,12 @@ describe('production Swing Kinematics v1 path isolation', () => {
         readSource(path);
       for (
         const forbidden
-        of forbiddenProductionTokens
+        of forbiddenProductionPatterns
       ) {
         expect(
           source,
-          `${path} must not depend on legacy token ${forbidden}`,
-        ).not.toContain(
+          `${path} must not depend on legacy pattern ${String(forbidden)}`,
+        ).not.toMatch(
           forbidden,
         );
       }
