@@ -673,9 +673,67 @@ The compatibility command path still exists, but the catcher call now also has a
 
 The catcher chooses *what to try*; the pitcher's learned motor plan and repeatability determine what actually happens.
 
-Pitcher shake-off / disagreement is also intentionally not hidden inside the catcher model. If added, it should be a separate battery interaction layer so that catcher lead quality and pitcher willingness remain distinct causes.
+`PitcherSignDecision` now provides that separate battery-interaction layer instead of hiding disagreement inside catcher quality.
 
-### 3.4.10 Still missing from pitching
+### 3.4.10 Pitcher sign autonomy and batter anticipation
+
+Pitcher personality may change whether a catcher call is accepted, but it must never add a direct good/bad outcome modifier.
+
+Implemented:
+
+- `PitcherSignDecision`
+  - stores pitcher-specific `signAutonomy` as a behavioral tendency;
+  - deterministically decides whether the catcher call is accepted or overridden;
+  - an override selects only from the pitcher's actual `pitchSkillId` repertoire and coarse location/aggression choices;
+  - outcome quality still comes entirely from the selected physical skill, execution error, flight and batter response;
+- `BatterPitchAnticipation`
+  - represents what the batter believed was coming, with explicit confidence;
+  - compares that belief with the **final** call after any pitcher override;
+  - produces mismatch/surprise evidence only; it does not manufacture a strike or miss;
+- `BatterAnticipationSwingAdapter`
+  - converts anticipation mismatch into an explicit calibrated recognition delay;
+  - calibration is passed in as data rather than hidden in the result engine;
+- `AnticipationAwareAerodynamicSwing`
+  - applies that timing delay to the real swing window;
+  - then ordinary aerodynamic pitch / bat geometry decides contact or swinging miss.
+
+The causal chain is therefore:
+
+```text
+catcher read
+        ↓
+pitcher accepts / overrides
+        ↓
+final physical pitch plan
+        ↓
+batter anticipation
+        ↓
+recognition timing
+        ↓
+real bat / ball geometry
+        ↓
+contact or miss
+```
+
+Thus a pitcher ignoring a sign can help or hurt with no special bonus. If the batter had correctly anticipated the catcher's original plan, an override may create timing surprise and a miss. If the override happens to produce a worse physical pitch or the batter anticipated the pitcher instead, it may be punished.
+
+### 3.4.11 Pitching physics closure gate
+
+The **architecture** of realistic pitching is now close to freeze: release skill, per-pitch repeatability, catcher lead, pitcher autonomy, batter anticipation, spin decomposition, aerodynamic flight and canonical adjudication all have explicit causal boundaries.
+
+However, the pitching **physics calibration** is not ready to declare closed until the following are either implemented or explicitly frozen as future optional extensions:
+
+- speed/spin-dependent baseball drag and lift calibration;
+- calibrated spin decay;
+- seam-orientation / seam-shifted-wake force, or a deliberate v1 decision to leave it out;
+- knuckleball-specific unsteady seam force, or a deliberate v1 exclusion;
+- calibration of pitcher-specific coarse-call -> release-space response;
+- calibration of anticipation -> recognition-delay timing;
+- final validation of aerodynamic swing/contact timing against measured data.
+
+Even after pitching is frozen, **baseball physics as a whole is not closed** until Phase B bat-ball collision calibration and Phase C ground/wall bounce-skid-roll physics are completed or explicitly scoped out.
+
+### 3.4.12 Still missing from pitching
 
 - experimentally calibrated speed/spin-dependent drag over the pitch-speed range;
 - seam-orientation-dependent lift/drag;
@@ -684,6 +742,8 @@ Pitcher shake-off / disagreement is also intentionally not hidden inside the cat
 - knuckleball unsteady seam-force model;
 - full upstream pitcher biomechanics that generate finger impulses from arm/hand state rather than accepting final finger impulses as input;
 - calibration of the new aerodynamic swing-search path;
+- calibration of pitcher coarse-call -> release-space response;
+- calibration of batter anticipation -> recognition-delay timing;
 - replacement of its temporary legacy contact response with the calibrated reduced-order rigid bat contact model.
 
 ## 4. Phase B — bat-ball collision
