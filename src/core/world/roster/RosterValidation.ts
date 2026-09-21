@@ -66,7 +66,7 @@ export function copyAssignment(value: unknown): PlayerAssignment | null {
 }
 export function copyAvailability(value: unknown): PlayerAvailability {
   const v = object(value, 'availability');
-  onlyKeys(v, ['status', 'evidenceId'], 'availability'], 'availability');
+  onlyKeys(v, ['status', 'evidenceId'], 'availability');
   return {
     status: enumeration(v.status, ['AVAILABLE', 'INJURED', 'REHAB', 'UNAVAILABLE'] as const, 'availability.status'),
     evidenceId: identifier(v.evidenceId, 'availability.evidenceId'),
