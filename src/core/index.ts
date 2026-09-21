@@ -225,3 +225,4 @@ export * from './sim/plateAppearance/AerodynamicRigidContactFlightSlice';
 export * from './sim/pitching/RigidBatContactCanonicalAdapter';
 export * from './sim/pitching/AerodynamicRigidPitchAgainstBatter';
 export * from './sim/ball/PennbounceEquivalentSurfaceFit';
+export * from './sim/ball/BaseballPhysicsV1';
