@@ -1,9 +1,83 @@
 import { describe, expect, it } from 'vitest';
 import {
+  REALISTIC_BASEBALL_RIGID_BODY,
+  measureRigidBatBallContactKinematics,
+  type RigidBatState,
+} from './RigidBatBallContact';
+import {
   WOOD_BAT_CONTACT_RESPONSE_CANDIDATE_VERSION,
   createEvidenceBackedWoodBatContactParameters,
+  resolveEvidenceBackedWoodBatBallContact,
   resolveWoodBatNormalRestitution,
 } from './WoodBatContactResponse';
+
+const bat: RigidBatState = {
+  pose: {
+    grip: {
+      x: -0.45,
+      y: 1,
+      z: 0,
+    },
+    tip: {
+      x: 0.45,
+      y: 1,
+      z: 0,
+    },
+  },
+  centerOfMassVelocity: {
+    x: 0,
+    y: 0,
+    z: 0,
+  },
+  angularVelocity: {
+    x: 0,
+    y: 0,
+    z: 0,
+  },
+  physical: {
+    massKg: 0.9,
+    centerOfMassT: 0.6,
+    transverseMomentOfInertiaKgM2: 0.06,
+    axialMomentOfInertiaKgM2: 0.00055,
+    radiusProfile: {
+      knots: [
+        {
+          t: 0,
+          radiusM: 0.033,
+        },
+        {
+          t: 1,
+          radiusM: 0.033,
+        },
+      ],
+    },
+  },
+};
+
+const pitchAtSpeed = (
+  speedMps: number,
+) => ({
+  tick: 1_000_000,
+  position: {
+    x: 0.09,
+    y: 1,
+    z:
+      0.033
+      + REALISTIC_BASEBALL_RIGID_BODY
+        .radiusM
+      - 1e-6,
+  },
+  velocity: {
+    x: 0,
+    y: 0,
+    z: -speedMps,
+  },
+  spin: {
+    x: 0,
+    y: 0,
+    z: 0,
+  },
+});
 
 describe('evidence-backed wood bat contact response', () => {
   it('preserves both measured normal-COR endpoints and clamps outside evidence', () => {
@@ -65,6 +139,69 @@ describe('evidence-backed wood bat contact response', () => {
     ).toThrow(
       'wood-bat frictionCoefficient must satisfy the game-speed experimental lower bound',
     );
+  });
+
+  it('uses the actual local normal approach speed to select collision elasticity', () => {
+    const slowPitch =
+      pitchAtSpeed(20);
+    const fastPitch =
+      pitchAtSpeed(60);
+
+    const slowKinematics =
+      measureRigidBatBallContactKinematics(
+        slowPitch,
+        bat,
+        REALISTIC_BASEBALL_RIGID_BODY,
+      );
+    const fastKinematics =
+      measureRigidBatBallContactKinematics(
+        fastPitch,
+        bat,
+        REALISTIC_BASEBALL_RIGID_BODY,
+      );
+
+    expect(slowKinematics).not.toBeNull();
+    expect(fastKinematics).not.toBeNull();
+    expect(
+      slowKinematics!
+        .normalApproachSpeedMps,
+    ).toBeCloseTo(20, 8);
+    expect(
+      fastKinematics!
+        .normalApproachSpeedMps,
+    ).toBeCloseTo(60, 8);
+
+    const slow =
+      resolveEvidenceBackedWoodBatBallContact(
+        slowPitch,
+        bat,
+        REALISTIC_BASEBALL_RIGID_BODY,
+        {
+          frictionCoefficient: 0.2,
+        },
+      );
+    const fast =
+      resolveEvidenceBackedWoodBatBallContact(
+        fastPitch,
+        bat,
+        REALISTIC_BASEBALL_RIGID_BODY,
+        {
+          frictionCoefficient: 0.2,
+        },
+      );
+
+    expect(slow).not.toBeNull();
+    expect(fast).not.toBeNull();
+
+    const slowApparentCor =
+      slow!.exitVelocity.z / 20;
+    const fastApparentCor =
+      fast!.exitVelocity.z / 60;
+
+    expect(slowApparentCor)
+      .toBeGreaterThan(
+        fastApparentCor,
+      );
   });
 
   it('is explicitly versioned as a provisional evidence synthesis', () => {
