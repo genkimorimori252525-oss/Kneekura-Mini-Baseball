@@ -63,6 +63,7 @@
 | A28 | One-size curveでphysical/technical/cognitiveが同時Peak | HIGH | domainOffsets導入 | PASS |
 | A29 | Career outcomeでScout/Coach評価を後知恵補正 | MEDIUM | separate decision/evidence provenance。Outcome != correctness | PASS |
 | A30 | Trait acquisition matrixが09のFamily分類と矛盾 | HIGH | 53は09 FamilyをSource of Truthにし、UI tierのみ参照 | PASS |
+| A31 | 覚醒が全能力一括上昇になる | CRITICAL | breakthroughはdomain-bounded。各Domainに独立したsource-state changeを要求 | PASS |
 
 ---
 

@@ -654,7 +654,7 @@ AcquisitionKind:
 | 決勝打 -> 渾身の決勝打 | EXPERIENCE_ADAPTATION | tie/go-ahead opportunities | persistent go-ahead execution evidence, no direct result buff | NONE | HIGH |
 | 逆境○ -> 火事場の馬鹿力 | EXPERIENCE_ADAPTATION | trailing games, comeback, humiliation | challenge-oriented appraisal / execution becomes stable | INDIRECT | HIGH |
 | 対エース○ -> エースキラー | EXPERIENCE_ADAPTATION + RELATIONSHIP_FAMILIARITY | repeated high-quality opponent exposure | actual high-quality pitch adaptation / matchup evidence | INDIRECT | HIGH |
-| 代打○ -> 代打の神様 | ROLE_SUITABILITY + EXPERIENCE | bench role, emergency chances | pinch-hit readiness / routine / evidence stable | DIRECT | HIGH |
+| 代打○ -> 代打の神様 | ROLE_SUITABILITY + EXPERIENCE_ADAPTATION | bench role, emergency chances | pinch-hit readiness / routine / evidence stable | DIRECT | HIGH |
 | 対左投手 G〜A -> 左腕キラー | TECHNICAL_DEVELOPMENT + EXPERIENCE_ADAPTATION | platoon matchup repetitions | matchup technique / recognition source improves | DIRECT | HIGH |
 | バント○ -> バント職人 | TECHNICAL_DEVELOPMENT | role demand, coach | bunt contact / placement source improves | DIRECT | HIGH |
 | 内野安打○ -> ロケットスタート | RECOGNITION + TECHNICAL_DEVELOPMENT/PHYSICAL | sprint/start training, usage | bat-to-run transition / first-step source improves | DIRECT | MEDIUM |
