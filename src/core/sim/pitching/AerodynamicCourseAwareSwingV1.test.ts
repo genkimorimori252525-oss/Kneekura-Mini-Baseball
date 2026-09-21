@@ -72,7 +72,7 @@ const trajectory = (
   parameters: {
     ticksPerSecond: 1_000_000,
     integrationStepTicks: 1_000,
-    gravityY: -9.81,
+    gravityY: 0,
     aerodynamics: {
       ...REFERENCE_BASEBALL_AERODYNAMICS,
       airDensityKgM3: 0,
