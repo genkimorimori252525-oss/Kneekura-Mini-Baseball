@@ -1,0 +1,55 @@
+name: Headless Two Strike Verification
+on:
+  push:
+    branches: [jolly/confirmed-headless-two-strike-2026-09-22]
+permissions:
+  contents: read
+concurrency:
+  group: headless-two-strike-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: [self-hosted, Windows, X64, minibaseball]
+    timeout-minutes: 15
+    env:
+      TRAIT_EVIDENCE: two-strike-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: source
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+      - name: Export exact feature source
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force "$env:TRAIT_EVIDENCE" | Out-Null
+          git -C source archive --format=zip -o "$pwd/$env:TRAIT_EVIDENCE/changes.zip" HEAD src/core/world/traits/twoStrike docs/core/two-strike-source-separation-v1-headless-api.md docs/project-status/2026-09-22-two-strike-source-separation.md docs/superpowers/plans/2026-09-22-two-strike-source-separation.md .github/workflows/headless-two-strike-verify.yml
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git -C source rev-parse HEAD | Out-File -Encoding utf8 "$env:TRAIT_EVIDENCE/source-sha.txt"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Install dependencies
+        working-directory: source
+        shell: cmd
+        run: |
+          call npm ci > ..\%TRAIT_EVIDENCE%\install.log 2>&1
+          set "result=%ERRORLEVEL%"
+          type ..\%TRAIT_EVIDENCE%\install.log
+          exit /b %result%
+      - name: Verify
+        working-directory: source
+        shell: cmd
+        run: |
+          call npm run verify > ..\%TRAIT_EVIDENCE%\verify.log 2>&1
+          set "result=%ERRORLEVEL%"
+          type ..\%TRAIT_EVIDENCE%\verify.log
+          exit /b %result%
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: two-strike-evidence-${{ github.sha }}
+          path: ${{ env.TRAIT_EVIDENCE }}/
+          retention-days: 7
+          if-no-files-found: error
