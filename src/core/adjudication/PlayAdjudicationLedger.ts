@@ -414,7 +414,7 @@ const freezeReview = (review: ReviewDecision): ReviewDecision => {
 };
 
 const openWindows = (replay: Replay): readonly OfficialStateWindow[] =>
-  Object.freeze([...replay.windows.values()].filter((window) => window.closedAtTick === null));
+  Object.freeze([...replay.windows.values()].filter((stateWindow) => stateWindow.closedAtTick === null));
 
 const latestCall = (replay: Replay): OnFieldCall | null =>
   replay.calls.length === 0 ? null : replay.calls[replay.calls.length - 1];
@@ -572,15 +572,15 @@ const replayLedger = (ledgerInput: PlayAdjudicationLedger): {
     if (event.kind === 'OfficialStateWindowOpened') {
       const windowId = id(event.windowId, 'windowId');
       if (replay.windows.has(windowId)) throw new Error('official-state window ids must be unique');
-      const window: OfficialStateWindow = Object.freeze({
+      const stateWindow: OfficialStateWindow = Object.freeze({
         windowId,
         windowKind: validateWindowKind(event.windowKind),
         openedAtTick: eventTick,
         closedAtTick: null,
         closeReason: null,
       });
-      replay.windows.set(windowId, window);
-      events.push(Object.freeze({ ...event, windowId, windowKind: window.windowKind }));
+      replay.windows.set(windowId, stateWindow);
+      events.push(Object.freeze({ ...event, windowId, windowKind: stateWindow.windowKind }));
       continue;
     }
 
@@ -785,9 +785,9 @@ export const closeOfficialStateWindow = (
   const eventId = ensureNewEventId(replay, request.eventId);
   const eventTick = requireEventTick(replay, request.tick);
   const windowId = id(request.windowId, 'windowId');
-  const window = replay.windows.get(windowId);
-  if (window === undefined) throw new Error('official-state window does not exist');
-  if (window.closedAtTick !== null) throw new Error('official-state window is already closed');
+  const stateWindow = replay.windows.get(windowId);
+  if (stateWindow === undefined) throw new Error('official-state window does not exist');
+  if (stateWindow.closedAtTick !== null) throw new Error('official-state window is already closed');
   return append(ledger, Object.freeze({
     kind: 'OfficialStateWindowClosed',
     eventId,
