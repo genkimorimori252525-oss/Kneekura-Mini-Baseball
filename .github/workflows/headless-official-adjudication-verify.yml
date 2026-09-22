@@ -1,0 +1,51 @@
+name: Headless Official Adjudication Verification
+on:
+  push:
+    branches: [jolly/confirmed-headless-official-adjudication-2026-09-23]
+permissions:
+  contents: read
+concurrency:
+  group: official-adjudication-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: [self-hosted, Windows, X64, minibaseball]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+      - name: Export exact feature source
+        shell: powershell
+        run: |
+          $dir = Join-Path $env:RUNNER_TEMP ("official-adjudication-" + $env:GITHUB_RUN_ID + "-" + $env:GITHUB_RUN_ATTEMPT)
+          New-Item -ItemType Directory -Force $dir | Out-Null
+          "EVIDENCE_DIR=$dir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          git archive --format=zip -o "$dir/changes.zip" HEAD src/core/adjudication docs/core/official-adjudication-v1-headless-api.md docs/superpowers/plans/2026-09-23-official-adjudication.md docs/project-status/2026-09-23-official-adjudication.md .github/workflows/headless-official-adjudication-verify.yml
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git rev-parse HEAD | Out-File -Encoding utf8 "$dir/source-sha.txt"
+      - name: Install dependencies
+        shell: cmd
+        run: |
+          call npm ci > "%EVIDENCE_DIR%\install.log" 2>&1
+          set "result=%ERRORLEVEL%"
+          type "%EVIDENCE_DIR%\install.log"
+          exit /b %result%
+      - name: Verify
+        shell: cmd
+        run: |
+          call npm run verify > "%EVIDENCE_DIR%\verify.log" 2>&1
+          set "result=%ERRORLEVEL%"
+          type "%EVIDENCE_DIR%\verify.log"
+          exit /b %result%
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: official-adjudication-evidence-${{ github.sha }}
+          path: ${{ env.EVIDENCE_DIR }}/
+          retention-days: 7
+          if-no-files-found: error
