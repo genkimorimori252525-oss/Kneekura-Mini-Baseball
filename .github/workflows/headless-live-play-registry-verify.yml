@@ -1,0 +1,27 @@
+name: Headless Live Play Registry Verification
+on:
+  push:
+    branches: [jolly/confirmed-headless-live-play-registry-2026-09-23]
+permissions:
+  contents: read
+concurrency:
+  group: live-play-registry-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: [self-hosted, Windows, X64, minibaseball]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+      - name: Install dependencies
+        shell: cmd
+        run: call npm ci
+      - name: Verify
+        shell: cmd
+        run: call npm run verify
