@@ -12,7 +12,7 @@ jobs:
     runs-on: [self-hosted, Windows, X64, minibaseball]
     timeout-minutes: 15
     env:
-      EVIDENCE_DIR: ${{ runner.temp }}/fielding-${{ github.run_id }}-${{ github.run_attempt }}
+      EVIDENCE_DIR: fielding-evidence-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - uses: actions/checkout@v4
         with:
