@@ -1,6 +1,9 @@
 import type { EmotionState } from '../EmotionTypes';
 import { same } from '../EmotionValidation';
 import type { EmotionExecutionAcceptance, ExecutionFrame } from '../execution/ExecutionTypes';
+import { acceptEmotionExecution } from '../execution/ExecutionAcceptance';
+import { cloneExecutionData } from '../execution/ExecutionValidation';
+import { acceptFieldingExecution } from '../fielding/FieldingExecution';
 import type { FieldingAcceptance } from '../fielding/FieldingTypes';
 import type { EventQueueSourceStatus } from '../../../sim/liveAction/EventQueueWatermark';
 import type { PendingIntentWork, PendingPhysicalWork } from '../../../sim/liveAction/ActionFrontier';
@@ -180,7 +183,50 @@ const timingStatus = (
   return 'DUE';
 };
 
-const runnerActionData = (accepted: EmotionExecutionAcceptance) => {
+const checkedRunnerAcceptance = (
+  input: EmotionExecutionAcceptance,
+): EmotionExecutionAcceptance => {
+  const accepted = cloneExecutionData(
+    input,
+    'connected.runnerAcceptance',
+  ) as EmotionExecutionAcceptance;
+  try {
+    const checked = acceptEmotionExecution(
+      accepted.proposal.request,
+      accepted.proposal,
+    );
+    if (!checked.ok || !same(checked.value, accepted)) {
+      throw new Error('runner acceptance no longer matches its recomputed receipt');
+    }
+    return checked.value;
+  } catch {
+    throw new Error('connected runner action requires an intact accepted receipt');
+  }
+};
+
+const checkedFieldingAcceptance = (
+  input: FieldingAcceptance,
+): FieldingAcceptance => {
+  const accepted = cloneExecutionData(
+    input,
+    'connected.fieldingAcceptance',
+  ) as FieldingAcceptance;
+  try {
+    const checked = acceptFieldingExecution(
+      accepted.proposal.request,
+      accepted.proposal,
+    );
+    if (!checked.ok || !same(checked.value, accepted)) {
+      throw new Error('fielding acceptance no longer matches its recomputed receipt');
+    }
+    return checked.value;
+  } catch {
+    throw new Error('connected fielding action requires an intact accepted receipt');
+  }
+};
+
+const runnerActionData = (input: EmotionExecutionAcceptance) => {
+  const accepted = checkedRunnerAcceptance(input);
   const source = accepted.proposal.request.runner;
   const execution = accepted.proposal.runner;
   if (source === null || execution === null) {
@@ -196,10 +242,11 @@ const runnerActionData = (accepted: EmotionExecutionAcceptance) => {
     accepted.executionId,
     source.decision.runnerId,
   ]);
-  return { source, execution, dueTick, actionKey };
+  return { accepted, source, execution, dueTick, actionKey };
 };
 
-const fieldingActionData = (accepted: FieldingAcceptance) => {
+const fieldingActionData = (input: FieldingAcceptance) => {
+  const accepted = checkedFieldingAcceptance(input);
   if (accepted.proposal.status !== 'READY' || accepted.proposal.plan === null) {
     throw new Error('fielding action adoption requires a ready accepted physical plan');
   }
@@ -209,6 +256,7 @@ const fieldingActionData = (accepted: FieldingAcceptance) => {
       dueTick: safeTick(accepted.proposal.plan.launch.releaseTick, 'throw release tick'),
       actionKey: accepted.actionKey,
       plan: accepted.proposal.plan,
+      accepted,
     };
   }
   return {
@@ -216,6 +264,7 @@ const fieldingActionData = (accepted: FieldingAcceptance) => {
     dueTick: safeTick(accepted.proposal.plan.movementStartTick, 'defensive replan movement tick'),
     actionKey: accepted.actionKey,
     plan: accepted.proposal.plan,
+    accepted,
   };
 };
 
@@ -258,7 +307,7 @@ export const projectFieldingActionFrontier = (
 ): ConnectedActionProjection => {
   const currentTick = safeTick(currentTickInput, 'fielding projection tick');
   const action = fieldingActionData(accepted);
-  const actorId = accepted.expectedFrame.scope.playerId;
+  const actorId = action.accepted.expectedFrame.scope.playerId;
   const sourceId = `fielding-action:${action.actionKey}`;
   const intents: PendingIntentWork[] = [{
     workId: `fielding-intent:${action.actionKey}`,
@@ -377,18 +426,24 @@ const invalidated = (
 export const adoptRunnerControlAtTick = (
   input: RunnerControlAdoptionInput,
 ): ConnectedActionAdoption => {
-  const { source, execution, dueTick, actionKey } = runnerActionData(input.accepted);
+  const {
+    accepted,
+    source,
+    execution,
+    dueTick,
+    actionKey,
+  } = runnerActionData(input.accepted);
   const sourceId = `runner-control:${actionKey}`;
   const currentTick = input.currentFrame.time.tick;
   const timing = beforeOrAfter(currentTick, dueTick, sourceId);
   if (timing !== null) return timing;
   const frameReason = frameInvalidation(
     input.currentFrame,
-    input.accepted.expectedFrame,
-    input.accepted.afterWorldRevision,
+    accepted.expectedFrame,
+    accepted.afterWorldRevision,
   );
   if (frameReason !== null) return invalidated(dueTick, currentTick, sourceId, frameReason);
-  if (!same(input.currentEmotion, input.accepted.proposal.appraisal.state)) {
+  if (!same(input.currentEmotion, accepted.proposal.appraisal.state)) {
     return invalidated(dueTick, currentTick, sourceId, 'EMOTION_SUPERSEDED');
   }
   const expected = sampleRunnerMotionTrajectory(execution.trajectory, dueTick);
@@ -444,27 +499,28 @@ export const adoptFieldingActionAtTick = (
   input: FieldingActionAdoptionInput,
 ): ConnectedActionAdoption => {
   const action = fieldingActionData(input.accepted);
+  const accepted = action.accepted;
   const sourceId = `fielding-action:${action.actionKey}`;
   const currentTick = input.currentFrame.time.tick;
   const timing = beforeOrAfter(currentTick, action.dueTick, sourceId);
   if (timing !== null) return timing;
   const frameReason = frameInvalidation(
     input.currentFrame,
-    input.accepted.expectedFrame,
-    input.accepted.afterWorldRevision,
+    accepted.expectedFrame,
+    accepted.afterWorldRevision,
   );
   if (frameReason !== null) return invalidated(action.dueTick, currentTick, sourceId, frameReason);
-  if (!same(input.currentEmotion, input.accepted.proposal.request.currentEmotion)) {
+  if (!same(input.currentEmotion, accepted.proposal.request.currentEmotion)) {
     return invalidated(action.dueTick, currentTick, sourceId, 'EMOTION_SUPERSEDED');
   }
   if (action.kind === 'THROW_RELEASE') {
     if (
       input.currentPhysical.kind !== 'THROW'
-      || input.accepted.proposal.request.source.kind !== 'THROW'
+      || accepted.proposal.request.source.kind !== 'THROW'
     ) {
       return invalidated(action.dueTick, currentTick, sourceId, 'PHYSICAL_STATE_CHANGED');
     }
-    const source = input.accepted.proposal.request.source;
+    const source = accepted.proposal.request.source;
     const current = input.currentPhysical;
     if (
       current.tick !== action.dueTick
@@ -510,7 +566,7 @@ export const adoptFieldingActionAtTick = (
 
   if (
     input.currentPhysical.kind !== 'REPLAN'
-    || input.accepted.proposal.request.source.kind !== 'REPLAN'
+    || accepted.proposal.request.source.kind !== 'REPLAN'
   ) {
     return invalidated(action.dueTick, currentTick, sourceId, 'PHYSICAL_STATE_CHANGED');
   }
@@ -525,7 +581,7 @@ export const adoptFieldingActionAtTick = (
     ? [{
         workId: `fielding-physical:${action.actionKey}`,
         kind: 'defender_motion',
-        actorId: input.accepted.expectedFrame.scope.playerId,
+        actorId: accepted.expectedFrame.scope.playerId,
         throughTick: action.plan.endState.tick,
         actionKey: action.actionKey,
       }]
@@ -534,7 +590,7 @@ export const adoptFieldingActionAtTick = (
     kind: 'DefenderReplanActivated',
     tick: action.dueTick,
     actionKey: action.actionKey,
-    playerId: input.accepted.expectedFrame.scope.playerId,
+    playerId: accepted.expectedFrame.scope.playerId,
     body: Object.freeze({ ...expected }),
     target: action.plan.target === null
       ? null
