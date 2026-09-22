@@ -166,10 +166,14 @@ describe('throw reception and secure possession', () => {
     expect(contact.queueAfter.nextPendingTick).toBe(forecast.retention.outcome.secureTick);
     expect(contact.physicalAfter[0]?.kind).toBe('possession_transition');
 
+    const contactEvent = contact.events.find((event) => event.kind === 'GloveBallContactOccurred');
+    expect(contactEvent?.kind).toBe('GloveBallContactOccurred');
+    if (contactEvent?.kind !== 'GloveBallContactOccurred') return;
     const secure = adoptSecurePossessionAtTick({
       forecast,
       currentTick: forecast.retention.outcome.secureTick,
       stillRetained: true,
+      contactEvent,
     });
     expect(secure.status).toBe('ADOPTED');
     if (secure.status === 'ADOPTED') {
@@ -182,10 +186,22 @@ describe('throw reception and secure possession', () => {
     const forecast = makeForecast()!;
     expect(forecast.retention.outcome.kind).toBe('secured');
     if (forecast.retention.outcome.kind !== 'secured') return;
+    const contact = adoptThrowReceptionContactAtTick({
+      forecast,
+      currentTick: forecast.contact.contactTick,
+      currentBall: forecast.contact.ball,
+      currentGlove: forecast.contact.glove,
+    });
+    expect(contact.status).toBe('ADOPTED');
+    if (contact.status !== 'ADOPTED') return;
+    const contactEvent = contact.events.find((event) => event.kind === 'GloveBallContactOccurred');
+    expect(contactEvent?.kind).toBe('GloveBallContactOccurred');
+    if (contactEvent?.kind !== 'GloveBallContactOccurred') return;
     expect(adoptSecurePossessionAtTick({
       forecast,
       currentTick: forecast.retention.outcome.secureTick,
       stillRetained: false,
+      contactEvent,
     })).toMatchObject({ status: 'INVALIDATED', reason: 'POSSESSION_CHANGED' });
   });
 

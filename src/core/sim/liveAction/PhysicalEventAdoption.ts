@@ -280,6 +280,14 @@ const gloveMatches = (a: GloveWorldState, b: GloveWorldState): boolean =>
   && vec3Matches(a.position, b.position)
   && vec3Matches(a.velocity, b.velocity);
 
+const contactMatches = (a: CatchRetentionContact, b: CatchRetentionContact): boolean =>
+  a.contactTick === b.contactTick
+  && ballMatches(a.ball, b.ball)
+  && gloveMatches(a.glove, b.glove)
+  && vec3Matches(a.contactNormal, b.contactNormal)
+  && closeNumber(a.pocketOffsetMeters, b.pocketOffsetMeters)
+  && closeNumber(a.bodyStability, b.bodyStability);
+
 const tagPrimitiveMatches = (
   a: TagContactPrimitiveState,
   b: TagContactPrimitiveState,
@@ -549,9 +557,29 @@ export const adoptSecurePossessionAtTick = (input: Readonly<{
   forecast: ThrowReceptionForecast;
   currentTick: number;
   stillRetained: boolean;
+  contactEvent: GloveBallContactOccurred;
 }>): PhysicalEventAdoption => {
   if (input.forecast.retention.outcome.kind !== 'secured') {
     throw new Error('secure-possession adoption requires a secured retention forecast');
+  }
+  if (
+    input.contactEvent === null
+    || input.contactEvent === undefined
+    || input.contactEvent.kind !== 'GloveBallContactOccurred'
+  ) {
+    throw new Error('secure possession requires its adopted glove contact');
+  }
+  if (
+    input.contactEvent.tick !== input.forecast.contact.contactTick
+    || input.contactEvent.ballId !== input.forecast.ballId
+    || input.contactEvent.receiverId !== input.forecast.receiverId
+    || !contactMatches(input.contactEvent.contact, input.forecast.contact)
+  ) {
+    return invalidated(
+      { forecastId: input.forecast.forecastId, dueTick: input.forecast.retention.outcome.secureTick },
+      input.currentTick,
+      'PHYSICAL_STATE_CHANGED',
+    );
   }
   const secureTick = input.forecast.retention.outcome.secureTick;
   const secureForecast = {
