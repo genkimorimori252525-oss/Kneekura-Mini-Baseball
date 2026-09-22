@@ -172,6 +172,69 @@ export type ControlledTagForecastInput = Readonly<{
   ticksPerSecond: number;
 }>;
 
+const cloneInertData = <T>(input: T, path = 'physicalEvent'): T => {
+  const ancestors = new Set<object>();
+  let nodes = 0;
+
+  const visit = (value: unknown, currentPath: string, depth: number): unknown => {
+    nodes += 1;
+    if (nodes > 100_000 || depth > 64) {
+      throw new Error(`${currentPath} exceeds inert-data depth or size limits`);
+    }
+    if (value === null || typeof value === 'string' || typeof value === 'boolean') return value;
+    if (typeof value === 'number') {
+      if (!Number.isFinite(value)) throw new Error(`${currentPath} must be finite`);
+      return value === 0 ? 0 : value;
+    }
+    if (typeof value !== 'object') {
+      throw new Error(`${currentPath} must contain inert data only`);
+    }
+    if (ancestors.has(value)) throw new Error(`${currentPath} must not contain cycles`);
+    ancestors.add(value);
+
+    let result: unknown;
+    if (Array.isArray(value)) {
+      if (Reflect.ownKeys(value).length !== value.length + 1) {
+        throw new Error(`${currentPath} must be a dense inert array`);
+      }
+      const array: unknown[] = [];
+      for (let index = 0; index < value.length; index += 1) {
+        const descriptor = Object.getOwnPropertyDescriptor(value, String(index));
+        if (!descriptor || !descriptor.enumerable || !('value' in descriptor)) {
+          throw new Error(`${currentPath} must not contain active array properties`);
+        }
+        array.push(visit(descriptor.value, `${currentPath}[${index}]`, depth + 1));
+      }
+      result = array;
+    } else {
+      const prototype = Object.getPrototypeOf(value);
+      if (prototype !== Object.prototype && prototype !== null) {
+        throw new Error(`${currentPath} must be a plain inert object`);
+      }
+      const record: Record<string, unknown> = {};
+      for (const key of Reflect.ownKeys(value)) {
+        if (typeof key !== 'string') throw new Error(`${currentPath} must not contain symbol properties`);
+        const descriptor = Object.getOwnPropertyDescriptor(value, key);
+        if (!descriptor || !descriptor.enumerable || !('value' in descriptor)) {
+          throw new Error(`${currentPath} must not contain active properties`);
+        }
+        Object.defineProperty(record, key, {
+          value: visit(descriptor.value, `${currentPath}.${key}`, depth + 1),
+          enumerable: true,
+          writable: true,
+          configurable: true,
+        });
+      }
+      result = record;
+    }
+
+    ancestors.delete(value);
+    return result;
+  };
+
+  return visit(input, path, 0) as T;
+};
+
 const validateTick = (value: number, name: string): number => {
   if (!Number.isSafeInteger(value) || value < 0) {
     throw new Error(`${name} must be a non-negative safe integer tick`);
@@ -450,21 +513,22 @@ export const adoptRunnerBaseTouchAtTick = (input: Readonly<{
   currentTick: number;
   currentBody: RunnerMotionState;
 }>): PhysicalEventAdoption => {
-  const earlyOrLate = beforeOrAfter(input.forecast, input.currentTick);
+  const request = cloneInertData(input, 'runnerBaseTouchAdoption');
+  const earlyOrLate = beforeOrAfter(request.forecast, request.currentTick);
   if (earlyOrLate !== null) return earlyOrLate;
-  if (!runnerMatches(input.currentBody, input.forecast.expectedBody)) {
-    return invalidated(input.forecast, input.currentTick, 'PHYSICAL_STATE_CHANGED');
+  if (!runnerMatches(request.currentBody, request.forecast.expectedBody)) {
+    return invalidated(request.forecast, request.currentTick, 'PHYSICAL_STATE_CHANGED');
   }
   const event = createRunnerBaseTouchFact(
-    input.forecast.runnerId,
-    input.forecast.base,
-    input.forecast.dueTick,
+    request.forecast.runnerId,
+    request.forecast.base,
+    request.forecast.dueTick,
   );
   return Object.freeze({
     status: 'ADOPTED',
-    dueTick: input.forecast.dueTick,
+    dueTick: request.forecast.dueTick,
     events: Object.freeze([event]),
-    queueAfter: closedQueue(input.forecast, input.forecast.dueTick),
+    queueAfter: closedQueue(request.forecast, request.forecast.dueTick),
     physicalAfter: Object.freeze([]),
   });
 };
@@ -475,78 +539,79 @@ export const adoptThrowReceptionContactAtTick = (input: Readonly<{
   currentBall: LiveBallState;
   currentGlove: GloveWorldState;
 }>): PhysicalEventAdoption => {
-  const earlyOrLate = beforeOrAfter(input.forecast, input.currentTick);
+  const request = cloneInertData(input, 'throwReceptionAdoption');
+  const earlyOrLate = beforeOrAfter(request.forecast, request.currentTick);
   if (earlyOrLate !== null) return earlyOrLate;
   if (
-    !ballMatches(input.currentBall, input.forecast.contact.ball)
-    || !gloveMatches(input.currentGlove, input.forecast.contact.glove)
+    !ballMatches(request.currentBall, request.forecast.contact.ball)
+    || !gloveMatches(request.currentGlove, request.forecast.contact.glove)
   ) {
-    return invalidated(input.forecast, input.currentTick, 'PHYSICAL_STATE_CHANGED');
+    return invalidated(request.forecast, request.currentTick, 'PHYSICAL_STATE_CHANGED');
   }
 
   const contactEvent: GloveBallContactOccurred = Object.freeze({
     kind: 'GloveBallContactOccurred',
-    tick: input.forecast.dueTick,
-    ballId: input.forecast.ballId,
-    receiverId: input.forecast.receiverId,
-    contact: input.forecast.contact,
+    tick: request.forecast.dueTick,
+    ballId: request.forecast.ballId,
+    receiverId: request.forecast.receiverId,
+    contact: request.forecast.contact,
   });
 
-  if (input.forecast.retention.outcome.kind === 'live-ball') {
+  if (request.forecast.retention.outcome.kind === 'live-ball') {
     const failed: CatchRetentionFailed = Object.freeze({
       kind: 'CatchRetentionFailed',
-      tick: input.forecast.dueTick,
-      ballId: input.forecast.ballId,
-      receiverId: input.forecast.receiverId,
-      ball: input.forecast.retention.outcome.ball,
+      tick: request.forecast.dueTick,
+      ballId: request.forecast.ballId,
+      receiverId: request.forecast.receiverId,
+      ball: request.forecast.retention.outcome.ball,
     });
     const handoff: PendingPhysicalWork = Object.freeze({
-      workId: `post-catch-ball-handoff:${input.forecast.forecastId}`,
+      workId: `post-catch-ball-handoff:${request.forecast.forecastId}`,
       kind: 'ball_motion',
-      throughTick: input.forecast.dueTick,
-      actionKey: input.forecast.actionKey,
+      throughTick: request.forecast.dueTick,
+      actionKey: request.forecast.actionKey,
     });
     return Object.freeze({
       status: 'ADOPTED',
-      dueTick: input.forecast.dueTick,
+      dueTick: request.forecast.dueTick,
       events: Object.freeze([contactEvent, failed]),
-      queueAfter: closedQueue(input.forecast, input.forecast.dueTick),
+      queueAfter: closedQueue(request.forecast, request.forecast.dueTick),
       physicalAfter: Object.freeze([handoff]),
     });
   }
 
-  const secureTick = input.forecast.retention.outcome.secureTick;
-  if (secureTick === input.forecast.dueTick) {
+  const secureTick = request.forecast.retention.outcome.secureTick;
+  if (secureTick === request.forecast.dueTick) {
     const secure: SecurePossessionEstablished = Object.freeze({
       kind: 'SecurePossessionEstablished',
       tick: secureTick,
-      ballId: input.forecast.ballId,
-      receiverId: input.forecast.receiverId,
-      gloveContactTick: input.forecast.dueTick,
+      ballId: request.forecast.ballId,
+      receiverId: request.forecast.receiverId,
+      gloveContactTick: request.forecast.dueTick,
     });
     return Object.freeze({
       status: 'ADOPTED',
-      dueTick: input.forecast.dueTick,
+      dueTick: request.forecast.dueTick,
       events: Object.freeze([contactEvent, secure]),
-      queueAfter: closedQueue(input.forecast, secureTick),
+      queueAfter: closedQueue(request.forecast, secureTick),
       physicalAfter: Object.freeze([]),
     });
   }
 
   const transition: PendingPhysicalWork = Object.freeze({
-    workId: `possession-transition:${input.forecast.forecastId}`,
+    workId: `possession-transition:${request.forecast.forecastId}`,
     kind: 'possession_transition',
-    actorId: input.forecast.receiverId,
+    actorId: request.forecast.receiverId,
     throughTick: secureTick,
-    actionKey: input.forecast.actionKey,
+    actionKey: request.forecast.actionKey,
   });
   return Object.freeze({
     status: 'ADOPTED',
-    dueTick: input.forecast.dueTick,
+    dueTick: request.forecast.dueTick,
     events: Object.freeze([contactEvent]),
     queueAfter: Object.freeze({
-      sourceId: sourceId(input.forecast),
-      settledThroughTick: input.forecast.dueTick,
+      sourceId: sourceId(request.forecast),
+      settledThroughTick: request.forecast.dueTick,
       nextPendingTick: secureTick,
     }),
     physicalAfter: Object.freeze([transition]),
@@ -559,44 +624,45 @@ export const adoptSecurePossessionAtTick = (input: Readonly<{
   stillRetained: boolean;
   contactEvent: GloveBallContactOccurred;
 }>): PhysicalEventAdoption => {
-  if (input.forecast.retention.outcome.kind !== 'secured') {
+  const request = cloneInertData(input, 'securePossessionAdoption');
+  if (request.forecast.retention.outcome.kind !== 'secured') {
     throw new Error('secure-possession adoption requires a secured retention forecast');
   }
   if (
-    input.contactEvent === null
-    || input.contactEvent === undefined
-    || input.contactEvent.kind !== 'GloveBallContactOccurred'
+    request.contactEvent === null
+    || request.contactEvent === undefined
+    || request.contactEvent.kind !== 'GloveBallContactOccurred'
   ) {
     throw new Error('secure possession requires its adopted glove contact');
   }
   if (
-    input.contactEvent.tick !== input.forecast.contact.contactTick
-    || input.contactEvent.ballId !== input.forecast.ballId
-    || input.contactEvent.receiverId !== input.forecast.receiverId
-    || !contactMatches(input.contactEvent.contact, input.forecast.contact)
+    request.contactEvent.tick !== request.forecast.contact.contactTick
+    || request.contactEvent.ballId !== request.forecast.ballId
+    || request.contactEvent.receiverId !== request.forecast.receiverId
+    || !contactMatches(request.contactEvent.contact, request.forecast.contact)
   ) {
     return invalidated(
-      { forecastId: input.forecast.forecastId, dueTick: input.forecast.retention.outcome.secureTick },
-      input.currentTick,
+      { forecastId: request.forecast.forecastId, dueTick: request.forecast.retention.outcome.secureTick },
+      request.currentTick,
       'PHYSICAL_STATE_CHANGED',
     );
   }
-  const secureTick = input.forecast.retention.outcome.secureTick;
+  const secureTick = request.forecast.retention.outcome.secureTick;
   const secureForecast = {
-    forecastId: input.forecast.forecastId,
+    forecastId: request.forecast.forecastId,
     dueTick: secureTick,
   };
-  const earlyOrLate = beforeOrAfter(secureForecast, input.currentTick);
+  const earlyOrLate = beforeOrAfter(secureForecast, request.currentTick);
   if (earlyOrLate !== null) return earlyOrLate;
-  if (!input.stillRetained) {
-    return invalidated(secureForecast, input.currentTick, 'POSSESSION_CHANGED');
+  if (!request.stillRetained) {
+    return invalidated(secureForecast, request.currentTick, 'POSSESSION_CHANGED');
   }
   const event: SecurePossessionEstablished = Object.freeze({
     kind: 'SecurePossessionEstablished',
     tick: secureTick,
-    ballId: input.forecast.ballId,
-    receiverId: input.forecast.receiverId,
-    gloveContactTick: input.forecast.contact.contactTick,
+    ballId: request.forecast.ballId,
+    receiverId: request.forecast.receiverId,
+    gloveContactTick: request.forecast.contact.contactTick,
   });
   return Object.freeze({
     status: 'ADOPTED',
@@ -614,27 +680,28 @@ export const adoptControlledTagAtTick = (input: Readonly<{
   currentTagger: TagContactPrimitiveState;
   currentRunner: TagContactPrimitiveState;
 }>): PhysicalEventAdoption => {
-  const earlyOrLate = beforeOrAfter(input.forecast, input.currentTick);
+  const request = cloneInertData(input, 'controlledTagAdoption');
+  const earlyOrLate = beforeOrAfter(request.forecast, request.currentTick);
   if (earlyOrLate !== null) return earlyOrLate;
-  if (!input.stillPossessed) {
-    return invalidated(input.forecast, input.currentTick, 'POSSESSION_CHANGED');
+  if (!request.stillPossessed) {
+    return invalidated(request.forecast, request.currentTick, 'POSSESSION_CHANGED');
   }
   if (
-    !tagPrimitiveMatches(input.currentTagger, input.forecast.expectedTagger)
-    || !tagPrimitiveMatches(input.currentRunner, input.forecast.expectedRunner)
+    !tagPrimitiveMatches(request.currentTagger, request.forecast.expectedTagger)
+    || !tagPrimitiveMatches(request.currentRunner, request.forecast.expectedRunner)
   ) {
-    return invalidated(input.forecast, input.currentTick, 'PHYSICAL_STATE_CHANGED');
+    return invalidated(request.forecast, request.currentTick, 'PHYSICAL_STATE_CHANGED');
   }
   const event = createControlledRunnerTagFact(
-    input.forecast.defenderId,
-    input.forecast.runnerId,
-    input.forecast.dueTick,
+    request.forecast.defenderId,
+    request.forecast.runnerId,
+    request.forecast.dueTick,
   );
   return Object.freeze({
     status: 'ADOPTED',
-    dueTick: input.forecast.dueTick,
+    dueTick: request.forecast.dueTick,
     events: Object.freeze([event]),
-    queueAfter: closedQueue(input.forecast, input.forecast.dueTick),
+    queueAfter: closedQueue(request.forecast, request.forecast.dueTick),
     physicalAfter: Object.freeze([]),
   });
 };
