@@ -491,19 +491,20 @@ export const adoptFieldingActionAtTick = (
       receiverId: action.plan.receiverId,
       launch: action.plan.launch,
     });
+    const physicalAfter: PendingPhysicalWork[] = [{
+      workId: `throw-flight-handoff:${action.actionKey}`,
+      kind: 'throw',
+      actorId: source.holderId,
+      throughTick: action.dueTick,
+      actionKey: action.actionKey,
+    }];
     return Object.freeze({
       status: 'ADOPTED',
       dueTick: action.dueTick,
       actionKey: action.actionKey,
       event,
       queueAfter: closedQueue(sourceId, action.dueTick),
-      physicalAfter: freezeItems([{
-        workId: `throw-flight-handoff:${action.actionKey}`,
-        kind: 'throw',
-        actorId: source.holderId,
-        throughTick: action.dueTick,
-        actionKey: action.actionKey,
-      }]),
+      physicalAfter: freezeItems(physicalAfter),
     });
   }
 
