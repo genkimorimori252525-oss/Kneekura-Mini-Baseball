@@ -77,11 +77,16 @@ export type ConnectedActionInvalidationReason =
 
 export type ConnectedActionAdoption =
   | Readonly<{ status: 'WAITING'; dueTick: number }>
-  | Readonly<{ status: 'MISSED_EVENT'; dueTick: number }>
+  | Readonly<{
+      status: 'MISSED_EVENT';
+      dueTick: number;
+      queueAfter: EventQueueSourceStatus;
+    }>
   | Readonly<{
       status: 'INVALIDATED';
       reason: ConnectedActionInvalidationReason;
       dueTick: number;
+      queueAfter: EventQueueSourceStatus;
     }>
   | Readonly<{
       status: 'ADOPTED';
@@ -151,12 +156,12 @@ const queueBeforeAdoption = (
   nextPendingTick: dueTick,
 });
 
-const queueAfterAdoption = (
+const closedQueue = (
   sourceId: string,
-  dueTick: number,
+  settledThroughTick: number,
 ): EventQueueSourceStatus => Object.freeze({
   sourceId,
-  settledThroughTick: dueTick,
+  settledThroughTick,
   nextPendingTick: null,
 });
 
@@ -317,6 +322,8 @@ const runnerKinematicsMatch = (
   current.tick === expected.tick
   && close(current.routeDistanceMeters, expected.routeDistanceMeters)
   && close(current.speedMps, expected.speedMps)
+  && current.driveDirection === expected.driveDirection
+  && current.bodyMode === expected.bodyMode
 );
 
 const vec3Match = (first: Vec3, second: Vec3): boolean => (
@@ -339,46 +346,55 @@ const defenderStateMatch = (
 const beforeOrAfter = (
   currentTick: number,
   dueTick: number,
+  sourceId: string,
 ): ConnectedActionAdoption | null => {
   const relation = timingStatus(currentTick, dueTick);
   if (relation === 'WAITING') {
     return Object.freeze({ status: 'WAITING', dueTick });
   }
   if (relation === 'MISSED_EVENT') {
-    return Object.freeze({ status: 'MISSED_EVENT', dueTick });
+    return Object.freeze({
+      status: 'MISSED_EVENT',
+      dueTick,
+      queueAfter: closedQueue(sourceId, currentTick),
+    });
   }
   return null;
 };
 
 const invalidated = (
   dueTick: number,
+  currentTick: number,
+  sourceId: string,
   reason: ConnectedActionInvalidationReason,
 ): ConnectedActionAdoption => Object.freeze({
   status: 'INVALIDATED',
   reason,
   dueTick,
+  queueAfter: closedQueue(sourceId, currentTick),
 });
 
 export const adoptRunnerControlAtTick = (
   input: RunnerControlAdoptionInput,
 ): ConnectedActionAdoption => {
   const { source, execution, dueTick, actionKey } = runnerActionData(input.accepted);
-  const timing = beforeOrAfter(input.currentFrame.time.tick, dueTick);
+  const sourceId = `runner-control:${actionKey}`;
+  const currentTick = input.currentFrame.time.tick;
+  const timing = beforeOrAfter(currentTick, dueTick, sourceId);
   if (timing !== null) return timing;
   const frameReason = frameInvalidation(
     input.currentFrame,
     input.accepted.expectedFrame,
     input.accepted.afterWorldRevision,
   );
-  if (frameReason !== null) return invalidated(dueTick, frameReason);
+  if (frameReason !== null) return invalidated(dueTick, currentTick, sourceId, frameReason);
   if (!same(input.currentEmotion, input.accepted.proposal.appraisal.state)) {
-    return invalidated(dueTick, 'EMOTION_SUPERSEDED');
+    return invalidated(dueTick, currentTick, sourceId, 'EMOTION_SUPERSEDED');
   }
   const expected = sampleRunnerMotionTrajectory(execution.trajectory, dueTick);
   if (!runnerKinematicsMatch(input.currentBody, expected)) {
-    return invalidated(dueTick, 'BODY_REBASED');
+    return invalidated(dueTick, currentTick, sourceId, 'BODY_REBASED');
   }
-  const sourceId = `runner-control:${actionKey}`;
   const physicalAfter: PendingPhysicalWork[] = execution.trajectory.endState.tick > dueTick
     ? [{
         workId: `runner-motion:${actionKey}`,
@@ -401,7 +417,7 @@ export const adoptRunnerControlAtTick = (
     dueTick,
     actionKey,
     event,
-    queueAfter: queueAfterAdoption(sourceId, dueTick),
+    queueAfter: closedQueue(sourceId, dueTick),
     physicalAfter: freezeItems(physicalAfter),
   });
 };
@@ -428,24 +444,25 @@ export const adoptFieldingActionAtTick = (
   input: FieldingActionAdoptionInput,
 ): ConnectedActionAdoption => {
   const action = fieldingActionData(input.accepted);
-  const timing = beforeOrAfter(input.currentFrame.time.tick, action.dueTick);
+  const sourceId = `fielding-action:${action.actionKey}`;
+  const currentTick = input.currentFrame.time.tick;
+  const timing = beforeOrAfter(currentTick, action.dueTick, sourceId);
   if (timing !== null) return timing;
   const frameReason = frameInvalidation(
     input.currentFrame,
     input.accepted.expectedFrame,
     input.accepted.afterWorldRevision,
   );
-  if (frameReason !== null) return invalidated(action.dueTick, frameReason);
+  if (frameReason !== null) return invalidated(action.dueTick, currentTick, sourceId, frameReason);
   if (!same(input.currentEmotion, input.accepted.proposal.request.currentEmotion)) {
-    return invalidated(action.dueTick, 'EMOTION_SUPERSEDED');
+    return invalidated(action.dueTick, currentTick, sourceId, 'EMOTION_SUPERSEDED');
   }
-  const sourceId = `fielding-action:${action.actionKey}`;
   if (action.kind === 'THROW_RELEASE') {
     if (
       input.currentPhysical.kind !== 'THROW'
       || input.accepted.proposal.request.source.kind !== 'THROW'
     ) {
-      return invalidated(action.dueTick, 'PHYSICAL_STATE_CHANGED');
+      return invalidated(action.dueTick, currentTick, sourceId, 'PHYSICAL_STATE_CHANGED');
     }
     const source = input.accepted.proposal.request.source;
     const current = input.currentPhysical;
@@ -454,16 +471,16 @@ export const adoptFieldingActionAtTick = (
       || current.ballId !== source.ballId
       || current.holderId !== source.holderId
     ) {
-      return invalidated(action.dueTick, 'POSSESSION_CHANGED');
+      return invalidated(action.dueTick, currentTick, sourceId, 'POSSESSION_CHANGED');
     }
     if (
       !vec3Match(current.origin, action.plan.launch.origin)
       || !vec3Match(current.holderVelocity, source.holderVelocity)
     ) {
-      return invalidated(action.dueTick, 'BODY_REBASED');
+      return invalidated(action.dueTick, currentTick, sourceId, 'BODY_REBASED');
     }
     if (source.holderId === null) {
-      return invalidated(action.dueTick, 'POSSESSION_CHANGED');
+      return invalidated(action.dueTick, currentTick, sourceId, 'POSSESSION_CHANGED');
     }
     const event: ThrowReleasedEvent = Object.freeze({
       kind: 'ThrowReleased',
@@ -479,8 +496,14 @@ export const adoptFieldingActionAtTick = (
       dueTick: action.dueTick,
       actionKey: action.actionKey,
       event,
-      queueAfter: queueAfterAdoption(sourceId, action.dueTick),
-      physicalAfter: Object.freeze([]),
+      queueAfter: closedQueue(sourceId, action.dueTick),
+      physicalAfter: freezeItems([{
+        workId: `throw-flight-handoff:${action.actionKey}`,
+        kind: 'throw',
+        actorId: source.holderId,
+        throughTick: action.dueTick,
+        actionKey: action.actionKey,
+      }]),
     });
   }
 
@@ -488,11 +511,11 @@ export const adoptFieldingActionAtTick = (
     input.currentPhysical.kind !== 'REPLAN'
     || input.accepted.proposal.request.source.kind !== 'REPLAN'
   ) {
-    return invalidated(action.dueTick, 'PHYSICAL_STATE_CHANGED');
+    return invalidated(action.dueTick, currentTick, sourceId, 'PHYSICAL_STATE_CHANGED');
   }
   const expected = defenderAtTick(input.accepted, action.dueTick);
   if (!defenderStateMatch(input.currentPhysical.body, expected)) {
-    return invalidated(action.dueTick, 'BODY_REBASED');
+    return invalidated(action.dueTick, currentTick, sourceId, 'BODY_REBASED');
   }
   const remainingSegments = action.plan.segments.filter(
     (segment) => segment.endTick > action.dueTick,
@@ -523,7 +546,7 @@ export const adoptFieldingActionAtTick = (
     dueTick: action.dueTick,
     actionKey: action.actionKey,
     event,
-    queueAfter: queueAfterAdoption(sourceId, action.dueTick),
+    queueAfter: closedQueue(sourceId, action.dueTick),
     physicalAfter: freezeItems(physicalAfter),
   });
 };
