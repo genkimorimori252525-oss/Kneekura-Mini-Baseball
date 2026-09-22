@@ -427,24 +427,28 @@ const invalidated = (
 export const adoptRunnerControlAtTick = (
   input: RunnerControlAdoptionInput,
 ): ConnectedActionAdoption => {
+  const request = cloneExecutionData(
+    input,
+    'connected.runnerAdoption',
+  ) as RunnerControlAdoptionInput;
   const {
     accepted,
     source,
     execution,
     dueTick,
     actionKey,
-  } = runnerActionData(input.accepted);
+  } = runnerActionData(request.accepted);
   const sourceId = `runner-control:${actionKey}`;
-  const currentTick = input.currentFrame.time.tick;
+  const currentTick = request.currentFrame.time.tick;
   const timing = beforeOrAfter(currentTick, dueTick, sourceId);
   if (timing !== null) return timing;
   const frameReason = frameInvalidation(
-    input.currentFrame,
+    request.currentFrame,
     accepted.expectedFrame,
     accepted.afterWorldRevision,
   );
   if (frameReason !== null) return invalidated(dueTick, currentTick, sourceId, frameReason);
-  if (!same(input.currentEmotion, accepted.proposal.appraisal.state)) {
+  if (!same(request.currentEmotion, accepted.proposal.appraisal.state)) {
     return invalidated(dueTick, currentTick, sourceId, 'EMOTION_SUPERSEDED');
   }
   const expected = sampleRunnerMotionTrajectory(execution.trajectory, dueTick);
@@ -452,7 +456,7 @@ export const adoptRunnerControlAtTick = (
   // control mode. The event below is what makes the newly accepted control
   // canonical. Position/speed must already match the planned trajectory,
   // but requiring the post-event drive mode here would make adoption circular.
-  if (!runnerActivationBasisMatches(input.currentBody, expected, source.body)) {
+  if (!runnerActivationBasisMatches(request.currentBody, expected, source.body)) {
     return invalidated(dueTick, currentTick, sourceId, 'BODY_REBASED');
   }
   const physicalAfter: PendingPhysicalWork[] = execution.trajectory.endState.tick > dueTick
@@ -503,30 +507,34 @@ const defenderAtTick = (
 export const adoptFieldingActionAtTick = (
   input: FieldingActionAdoptionInput,
 ): ConnectedActionAdoption => {
-  const action = fieldingActionData(input.accepted);
+  const request = cloneExecutionData(
+    input,
+    'connected.fieldingAdoption',
+  ) as FieldingActionAdoptionInput;
+  const action = fieldingActionData(request.accepted);
   const accepted = action.accepted;
   const sourceId = `fielding-action:${action.actionKey}`;
-  const currentTick = input.currentFrame.time.tick;
+  const currentTick = request.currentFrame.time.tick;
   const timing = beforeOrAfter(currentTick, action.dueTick, sourceId);
   if (timing !== null) return timing;
   const frameReason = frameInvalidation(
-    input.currentFrame,
+    request.currentFrame,
     accepted.expectedFrame,
     accepted.afterWorldRevision,
   );
   if (frameReason !== null) return invalidated(action.dueTick, currentTick, sourceId, frameReason);
-  if (!same(input.currentEmotion, accepted.proposal.request.currentEmotion)) {
+  if (!same(request.currentEmotion, accepted.proposal.request.currentEmotion)) {
     return invalidated(action.dueTick, currentTick, sourceId, 'EMOTION_SUPERSEDED');
   }
   if (action.kind === 'THROW_RELEASE') {
     if (
-      input.currentPhysical.kind !== 'THROW'
+      request.currentPhysical.kind !== 'THROW'
       || accepted.proposal.request.source.kind !== 'THROW'
     ) {
       return invalidated(action.dueTick, currentTick, sourceId, 'PHYSICAL_STATE_CHANGED');
     }
     const source = accepted.proposal.request.source;
-    const current = input.currentPhysical;
+    const current = request.currentPhysical;
     if (
       current.tick !== action.dueTick
       || current.ballId !== source.ballId
@@ -570,13 +578,13 @@ export const adoptFieldingActionAtTick = (
   }
 
   if (
-    input.currentPhysical.kind !== 'REPLAN'
+    request.currentPhysical.kind !== 'REPLAN'
     || accepted.proposal.request.source.kind !== 'REPLAN'
   ) {
     return invalidated(action.dueTick, currentTick, sourceId, 'PHYSICAL_STATE_CHANGED');
   }
-  const expected = defenderAtTick(input.accepted, action.dueTick);
-  if (!defenderStateMatch(input.currentPhysical.body, expected)) {
+  const expected = defenderAtTick(request.accepted, action.dueTick);
+  if (!defenderStateMatch(request.currentPhysical.body, expected)) {
     return invalidated(action.dueTick, currentTick, sourceId, 'BODY_REBASED');
   }
   const remainingSegments = action.plan.segments.filter(
