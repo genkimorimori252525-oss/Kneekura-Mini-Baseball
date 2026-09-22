@@ -139,7 +139,13 @@ const advancePitchForContactSweep = (
   };
 };
 
-export const sampleBatterSwingState = (
+/**
+ * Frozen first-order swing sampler retained for compatibility fixtures.
+ *
+ * This is not the production Swing Kinematics v1 path. It linearly advances
+ * the grip and applies one first-order angular displacement to the tip.
+ */
+export const sampleCompatibilityBatterSwingState = (
   swing: BatterSwingState,
   offsetTicks: number,
   ticksPerSecond: number = TICKS_PER_SECOND,
@@ -164,6 +170,13 @@ export const sampleBatterSwingState = (
     angularVelocity: swing.angularVelocity,
   };
 };
+
+/**
+ * Backward-compatible name for existing callers. New production swing motion
+ * must use SwingKinematicsV1 and sampleSwingStateV1 instead.
+ */
+export const sampleBatterSwingState =
+  sampleCompatibilityBatterSwingState;
 
 export const measureBatBallContactSeparation = (
   pitch: PitchWorldState,

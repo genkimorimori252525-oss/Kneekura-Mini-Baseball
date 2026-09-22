@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import { test } from 'vitest';
+import { selectPredictionAt, resolveMotorStart } from './BattingTiming';
+const observations=[{predictionId:'old',observedTick:10,availableTick:20},{predictionId:'new',observedTick:25,availableTick:30}];
+test('prediction requires delivery as well as observation before commitment',()=>assert.equal(selectPredictionAt(observations,26)?.predictionId,'old'));
+test('prediction available exactly at cutoff is usable',()=>assert.equal(selectPredictionAt(observations,30)?.predictionId,'new'));
+test('no observations is not actual-flight clairvoyance',()=>assert.equal(selectPredictionAt([],30),null));
+test('no delivered predictions yields no observation',()=>assert.equal(selectPredictionAt(observations,19),null));
+test('input order does not change most recent delivered observation',()=>assert.equal(selectPredictionAt([...observations].reverse(),30)?.predictionId,'new'));
+test('early commitment does not move preferred motor onset earlier',()=>assert.equal(resolveMotorStart(200,100,90,20),200));
+test('late commitment moves onset after fixed motor latency',()=>assert.equal(resolveMotorStart(200,250,90,20),270));
+test('physical readiness cannot be bypassed',()=>assert.equal(resolveMotorStart(200,100,230,20),230));
+test('older observation delivered later does not erase fresher knowledge',()=>assert.equal(selectPredictionAt([{predictionId:'a',observedTick:1,availableTick:40},{predictionId:'b',observedTick:20,availableTick:30}],40)?.predictionId,'b'));
+test('duplicate prediction identity rejects',()=>assert.throws(()=>selectPredictionAt([observations[0],observations[0]],50)));
+test('same observed instant cannot count as two independent predictions',()=>assert.throws(()=>selectPredictionAt([observations[0],{...observations[0],predictionId:'other'}],50)));
+test('information cannot be delivered before it was observed',()=>assert.throws(()=>selectPredictionAt([{predictionId:'a',observedTick:30,availableTick:20}],50)));
+test('unsafe motor tick addition rejects instead of rounding',()=>assert.throws(()=>resolveMotorStart(1,Number.MAX_SAFE_INTEGER,1,1)));
+for(const bad of [-1,NaN,Infinity,1.5])test('invalid motor time '+bad,()=>assert.throws(()=>resolveMotorStart(200,100,90,bad)));
