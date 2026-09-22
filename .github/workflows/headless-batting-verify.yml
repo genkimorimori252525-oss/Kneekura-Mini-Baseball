@@ -1,0 +1,62 @@
+name: Headless Batting Verification
+on:
+  push:
+    branches: [jolly/confirmed-headless-batting-2026-09-23]
+permissions:
+  contents: read
+concurrency:
+  group: headless-batting-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: [self-hosted, Windows, X64, minibaseball]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: source
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: 7b1b84aafa5d79499740d556fd44cef63b4f2c26
+          path: frozen-swing
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+      - name: Export exact source snapshots
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force "evidence-${{ github.run_id }}-${{ github.run_attempt }}" | Out-Null
+          $e = (Resolve-Path "evidence-${{ github.run_id }}-${{ github.run_attempt }}").Path
+          git -C source archive --format=zip -o "$e/source.zip" HEAD src data tools package.json package-lock.json tsconfig.json AGENTS.md
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git -C source ls-tree -r HEAD | Out-File -Encoding utf8 "$e/source-tree.txt"
+          git -C frozen-swing archive --format=zip -o "$e/swing.zip" HEAD src docs/superpowers/specs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git -C frozen-swing ls-tree -r HEAD | Out-File -Encoding utf8 "$e/swing-tree.txt"
+          git -C source rev-parse HEAD | Out-File -Encoding utf8 "$e/source-sha.txt"
+      - name: Install dependencies
+        working-directory: source
+        shell: cmd
+        run: |
+          call npm ci > ..\evidence-${{ github.run_id }}-${{ github.run_attempt }}\install.log 2>&1
+          set "result=%ERRORLEVEL%"
+          type ..\evidence-${{ github.run_id }}-${{ github.run_attempt }}\install.log
+          exit /b %result%
+      - name: Verify
+        working-directory: source
+        shell: cmd
+        run: |
+          call npm run verify > ..\evidence-${{ github.run_id }}-${{ github.run_attempt }}\verify.log 2>&1
+          set "result=%ERRORLEVEL%"
+          type ..\evidence-${{ github.run_id }}-${{ github.run_attempt }}\verify.log
+          exit /b %result%
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: batting-evidence-${{ github.sha }}
+          path: evidence-${{ github.run_id }}-${{ github.run_attempt }}/
+          retention-days: 7
+          if-no-files-found: error
