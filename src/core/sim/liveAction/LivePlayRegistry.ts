@@ -28,10 +28,16 @@ export type LivePlaySource = Readonly<{
   ruleWindows: readonly PendingRuleWindow[];
 }>;
 
+export type RetiredLivePlaySource = Readonly<{
+  sourceId: string;
+  revision: number;
+}>;
+
 export type LivePlayRegistry = Readonly<{
   playId: number;
   revision: number;
   sources: readonly LivePlaySource[];
+  retiredSources?: readonly RetiredLivePlaySource[];
 }>;
 
 export type ResolveLivePlayRegistryInput = Readonly<{
@@ -214,10 +220,32 @@ const copyRegistry = (input: LivePlayRegistry): LivePlayRegistry => {
     seen.add(copied.sourceId);
     return copied;
   });
+  const retiredInput = request.retiredSources ?? [];
+  if (!Array.isArray(retiredInput)) {
+    throw new Error('retiredSources must be an array');
+  }
+  const retiredSeen = new Set<string>();
+  const retiredSources = retiredInput.map((retired) => {
+    const sourceId = id(retired.sourceId, 'retired sourceId');
+    const retiredRevision = safeInteger(retired.revision, 'retired source revision');
+    if (retiredRevision === 0) {
+      throw new Error('retired source revision must be positive');
+    }
+    if (retiredSeen.has(sourceId)) {
+      throw new Error('retired live-play source ids must be unique');
+    }
+    retiredSeen.add(sourceId);
+    const active = sources.find((source) => source.sourceId === sourceId);
+    if (active !== undefined && active.revision <= retiredRevision) {
+      throw new Error('active source revision must exceed its retired revision');
+    }
+    return Object.freeze({ sourceId, revision: retiredRevision });
+  });
   return Object.freeze({
     playId,
     revision,
     sources: Object.freeze(sources),
+    retiredSources: Object.freeze(retiredSources),
   });
 };
 
@@ -242,14 +270,19 @@ export const upsertLivePlaySource = (
 ): LivePlayRegistry => {
   const registry = copyRegistry(registryInput);
   requireRegistryRevision(registry, expectedRevision);
-  const source = copySource(sourceInput);
+  const source = copySource(
+    cloneInertData(sourceInput, 'livePlay.source'),
+  );
   const existingIndex = registry.sources.findIndex(
     (candidate) => candidate.sourceId === source.sourceId,
   );
-  if (
-    existingIndex >= 0
-    && source.revision <= registry.sources[existingIndex].revision
-  ) {
+  const retiredRevision = registry.retiredSources
+    ?.find((candidate) => candidate.sourceId === source.sourceId)
+    ?.revision ?? 0;
+  const revisionFloor = existingIndex >= 0
+    ? Math.max(registry.sources[existingIndex].revision, retiredRevision)
+    : retiredRevision;
+  if (source.revision <= revisionFloor) {
     throw new Error('live-play source revision must increase monotonically');
   }
   const sources = [...registry.sources];
@@ -262,6 +295,7 @@ export const upsertLivePlaySource = (
     playId: registry.playId,
     revision: nextRevision(registry.revision, 'registry revision'),
     sources: Object.freeze(sources),
+    retiredSources: registry.retiredSources ?? Object.freeze([]),
   });
 };
 
@@ -279,13 +313,21 @@ export const removeLivePlaySource = (
   if (index < 0) {
     throw new Error('live-play source does not exist');
   }
+  const removed = registry.sources[index];
   const sources = registry.sources.filter(
     (candidate) => candidate.sourceId !== sourceId,
   );
+  const retiredSources = [
+    ...(registry.retiredSources ?? []).filter(
+      (candidate) => candidate.sourceId !== sourceId,
+    ),
+    Object.freeze({ sourceId, revision: removed.revision }),
+  ];
   return Object.freeze({
     playId: registry.playId,
     revision: nextRevision(registry.revision, 'registry revision'),
     sources: Object.freeze(sources),
+    retiredSources: Object.freeze(retiredSources),
   });
 };
 
