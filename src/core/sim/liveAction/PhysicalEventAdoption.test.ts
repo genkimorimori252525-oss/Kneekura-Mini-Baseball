@@ -189,6 +189,18 @@ describe('throw reception and secure possession', () => {
     })).toMatchObject({ status: 'INVALIDATED', reason: 'POSSESSION_CHANGED' });
   });
 
+  it('cannot establish secure possession without the matching adopted glove-contact event', () => {
+    const forecast = makeForecast()!;
+    expect(forecast.retention.outcome.kind).toBe('secured');
+    if (forecast.retention.outcome.kind !== 'secured') return;
+    expect(() => adoptSecurePossessionAtTick({
+      forecast,
+      currentTick: forecast.retention.outcome.secureTick,
+      stillRetained: true,
+      contactEvent: null,
+    } as any)).toThrow('secure possession requires its adopted glove contact');
+  });
+
   it('hands a failed catch back to live-ball physics at the contact tick', () => {
     const forecast = makeForecast(100)!;
     expect(forecast.retention.outcome.kind).toBe('live-ball');
