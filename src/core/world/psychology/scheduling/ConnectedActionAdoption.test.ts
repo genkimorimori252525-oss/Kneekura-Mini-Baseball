@@ -95,11 +95,12 @@ describe('runner action frontier and exact activation', () => {
       currentEmotion: accepted.proposal.appraisal.state,
       currentBody,
     });
-    assert.deepEqual(result, {
-      status: 'INVALIDATED',
-      reason: 'BODY_REBASED',
-      dueTick: due,
-    });
+    assert.equal(result.status, 'INVALIDATED');
+    if (result.status !== 'INVALIDATED') return;
+    assert.equal(result.reason, 'BODY_REBASED');
+    assert.equal(result.dueTick, due);
+    assert.equal(result.queueAfter.settledThroughTick, due);
+    assert.equal(result.queueAfter.nextPendingTick, null);
   });
 
   it('never backdates a runner-control event after the reaction tick was missed', () => {
@@ -115,10 +116,11 @@ describe('runner action frontier and exact activation', () => {
       currentEmotion: accepted.proposal.appraisal.state,
       currentBody: { ...currentBody, tick: due + 1 },
     });
-    assert.deepEqual(result, {
-      status: 'MISSED_EVENT',
-      dueTick: due,
-    });
+    assert.equal(result.status, 'MISSED_EVENT');
+    if (result.status !== 'MISSED_EVENT') return;
+    assert.equal(result.dueTick, due);
+    assert.equal(result.queueAfter.settledThroughTick, due + 1);
+    assert.equal(result.queueAfter.nextPendingTick, null);
   });
 });
 
@@ -182,11 +184,12 @@ describe('throw release frontier and exact adoption', () => {
         holderVelocity: source.holderVelocity,
       },
     });
-    assert.deepEqual(result, {
-      status: 'INVALIDATED',
-      reason: 'POSSESSION_CHANGED',
-      dueTick: due,
-    });
+    assert.equal(result.status, 'INVALIDATED');
+    if (result.status !== 'INVALIDATED') return;
+    assert.equal(result.reason, 'POSSESSION_CHANGED');
+    assert.equal(result.dueTick, due);
+    assert.equal(result.queueAfter.settledThroughTick, due);
+    assert.equal(result.queueAfter.nextPendingTick, null);
   });
 });
 
@@ -251,11 +254,12 @@ describe('defensive replan frontier and exact activation', () => {
         },
       },
     });
-    assert.deepEqual(result, {
-      status: 'INVALIDATED',
-      reason: 'BODY_REBASED',
-      dueTick: due,
-    });
+    assert.equal(result.status, 'INVALIDATED');
+    if (result.status !== 'INVALIDATED') return;
+    assert.equal(result.reason, 'BODY_REBASED');
+    assert.equal(result.dueTick, due);
+    assert.equal(result.queueAfter.settledThroughTick, due);
+    assert.equal(result.queueAfter.nextPendingTick, null);
   });
 
   it('invalidates a queued action when a newer emotion gate supersedes the accepted one', () => {
@@ -274,11 +278,12 @@ describe('defensive replan frontier and exact activation', () => {
         body: expectedAt(accepted, due),
       },
     });
-    assert.deepEqual(result, {
-      status: 'INVALIDATED',
-      reason: 'EMOTION_SUPERSEDED',
-      dueTick: due,
-    });
+    assert.equal(result.status, 'INVALIDATED');
+    if (result.status !== 'INVALIDATED') return;
+    assert.equal(result.reason, 'EMOTION_SUPERSEDED');
+    assert.equal(result.dueTick, due);
+    assert.equal(result.queueAfter.settledThroughTick, due);
+    assert.equal(result.queueAfter.nextPendingTick, null);
   });
 });
 
