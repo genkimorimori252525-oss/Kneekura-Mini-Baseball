@@ -29,7 +29,7 @@ jobs:
         shell: powershell
         run: |
           New-Item -ItemType Directory -Force evidence | Out-Null
-          git -C source archive --format=zip -o "$pwd/evidence/source.zip" HEAD
+          git -C source archive --format=zip -o "$pwd/evidence/source.zip" HEAD src package.json package-lock.json tsconfig.json AGENTS.md
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           git -C frozen-design archive --format=zip -o "$pwd/evidence/frozen-design.zip" HEAD docs/game-design
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -37,16 +37,20 @@ jobs:
           git -C frozen-design rev-parse HEAD | Out-File -Encoding utf8 evidence/design-sha.txt
       - name: Install dependencies
         working-directory: source
-        shell: powershell
+        shell: cmd
         run: |
-          npm ci 2>&1 | Tee-Object -FilePath ../evidence/install.log
-          exit $LASTEXITCODE
+          call npm ci > ..\evidence\install.log 2>&1
+          set "result=%ERRORLEVEL%"
+          type ..\evidence\install.log
+          exit /b %result%
       - name: Verify
         working-directory: source
-        shell: powershell
+        shell: cmd
         run: |
-          npm run verify 2>&1 | Tee-Object -FilePath ../evidence/verify.log
-          exit $LASTEXITCODE
+          call npm run verify > ..\evidence\verify.log 2>&1
+          set "result=%ERRORLEVEL%"
+          type ..\evidence\verify.log
+          exit /b %result%
       - uses: actions/upload-artifact@v4
         if: always()
         with:
