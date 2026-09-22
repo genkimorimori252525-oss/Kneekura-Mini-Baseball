@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "verify": "npm run typecheck && npm test",
     "pretypecheck": "node tools/catalog/compile-catalog.mjs",
-    "pretest": "node tools/catalog/compile-catalog.mjs"
+    "pretest": "node tools/catalog/compile-catalog.mjs",
+    "pretest:watch": "node tools/catalog/compile-catalog.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",

@@ -31,6 +31,10 @@ describe('catalog source compiler',()=>{
     assert.equal(pkg.scripts.pretypecheck,'node tools/catalog/compile-catalog.mjs');
     assert.equal(pkg.scripts.pretest,'node tools/catalog/compile-catalog.mjs');
   });
+  it('generates runtime literals before the existing watch-test command on a fresh checkout',()=>{
+    const pkg=JSON.parse(readFileSync(join(root,'package.json'),'utf8'));
+    assert.equal(pkg.scripts['pretest:watch'],'node tools/catalog/compile-catalog.mjs');
+  });
   it('checks the runtime literal against every exact frozen source byte',()=>{
     const r=compile(root,true);assert.equal(r.status,0,r.stdout+r.stderr);
   });
