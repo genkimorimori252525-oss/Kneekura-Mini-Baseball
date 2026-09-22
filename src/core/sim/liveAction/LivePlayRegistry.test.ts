@@ -109,6 +109,19 @@ describe('LivePlayRegistry', () => {
     expect(() => upsertLivePlaySource(registry, 4, runnerSource(2))).toThrow();
   });
 
+  it('does not resurrect a removed source at an old source revision', () => {
+    let registry = createLivePlayRegistry({
+      playId: 7,
+      revision: 0,
+      sources: [runnerSource(3)],
+    });
+    registry = removeLivePlaySource(registry, 0, 'runner-action');
+    expect(() => upsertLivePlaySource(registry, 1, runnerSource(3))).toThrow();
+
+    registry = upsertLivePlaySource(registry, 1, runnerSource(4));
+    expect(registry.sources[0].revision).toBe(4);
+  });
+
   it('combines multiple event-source watermarks and keeps the lowest bound', () => {
     const registry = createLivePlayRegistry({
       playId: 7,
