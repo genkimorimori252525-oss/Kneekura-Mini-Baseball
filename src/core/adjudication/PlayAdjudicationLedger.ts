@@ -916,14 +916,19 @@ export const deriveClosedLiveBallMatchState = (
   timeline: CanonicalPlateAppearanceTimeline,
   ledgerInput: PlayAdjudicationLedger,
 ): CanonicalMatchState => {
+  const matchState = cloneInertData(match, 'adjudication.matchState') as CanonicalMatchState;
+  const physicalTimeline = cloneInertData(
+    timeline,
+    'adjudication.physicalTimeline',
+  ) as CanonicalPlateAppearanceTimeline;
   const { ledger, replay } = replayLedger(ledgerInput);
   const closure = replay.closure;
   if (closure === null) throw new Error('official play must be closed before deriving next MatchState');
   if (closure.playEnd === null) throw new Error('live-ball MatchState derivation requires physical PlayEnd');
-  if (ledger.playId !== match.playId || timeline.playId !== ledger.playId) {
+  if (ledger.playId !== matchState.playId || physicalTimeline.playId !== ledger.playId) {
     throw new Error('adjudication playId must match MatchState and physical timeline');
   }
-  if (ledger.ruleProfileId !== match.ruleProfileId) {
+  if (ledger.ruleProfileId !== matchState.ruleProfileId) {
     throw new Error('adjudication rule profile must match CanonicalMatchState');
   }
   const resolution: ResolvedLiveBallPlateAppearance = {
@@ -933,8 +938,8 @@ export const deriveClosedLiveBallMatchState = (
     scoredRunnerIds: closure.officialDelta.scoredRunnerIds,
   };
   return applyResolvedLiveBallPlateAppearanceToMatchState(
-    match,
-    timeline,
+    matchState,
+    physicalTimeline,
     resolution,
   );
 };
