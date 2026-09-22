@@ -1,0 +1,52 @@
+name: Headless Catalog Verification
+on:
+  push:
+    branches: [jolly/confirmed-headless-catalog-2026-09-22]
+permissions:
+  contents: read
+concurrency:
+  group: headless-catalog-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: [self-hosted, Windows, X64, minibaseball]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: source
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+      - name: Export exact source
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force evidence | Out-Null
+          git -C source archive --format=zip -o "$pwd/evidence/source.zip" HEAD src data tools package.json package-lock.json tsconfig.json AGENTS.md
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git -C source rev-parse HEAD | Out-File -Encoding utf8 evidence/source-sha.txt
+      - name: Install dependencies
+        working-directory: source
+        shell: cmd
+        run: |
+          call npm ci > ..\evidence\install.log 2>&1
+          set "result=%ERRORLEVEL%"
+          type ..\evidence\install.log
+          exit /b %result%
+      - name: Verify
+        working-directory: source
+        shell: cmd
+        run: |
+          call npm run verify > ..\evidence\verify.log 2>&1
+          set "result=%ERRORLEVEL%"
+          type ..\evidence\verify.log
+          exit /b %result%
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: catalog-evidence-${{ github.sha }}
+          path: evidence/
+          retention-days: 7
+          if-no-files-found: error

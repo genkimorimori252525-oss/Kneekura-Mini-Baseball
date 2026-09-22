@@ -1,0 +1,65 @@
+{
+  "sourceRevision": "782f6b8ef2406839de5678b00040001111cd8f77",
+  "sources": [
+    {
+      "sourceId": "doc17",
+      "path": "docs/game-design/17-europe-real-club-catalog.md",
+      "blobSha": "b6a519be94ca8258a8694747ed47a2a9ad124664"
+    },
+    {
+      "sourceId": "doc21",
+      "path": "docs/game-design/21-world-club-source-policy.md",
+      "blobSha": "b6af09a30d9693707b47942cb404139bd73bd5d8"
+    },
+    {
+      "sourceId": "doc22",
+      "path": "docs/game-design/22-east-asia-club-catalog.md",
+      "blobSha": "150631b779a470053966e8faddc2e2c59d820d38"
+    },
+    {
+      "sourceId": "doc23",
+      "path": "docs/game-design/23-west-south-asia-club-catalog.md",
+      "blobSha": "0fc1fab3127138f168acdfebfb340c5d232fcdd2"
+    },
+    {
+      "sourceId": "doc24",
+      "path": "docs/game-design/24-americas-real-baseball-club-catalog.md",
+      "blobSha": "b0f647fd3054a935f19ed48157046e1a68e45ddd"
+    },
+    {
+      "sourceId": "doc25",
+      "path": "docs/game-design/25-australia-pacific-africa-club-catalog.md",
+      "blobSha": "9d03472c9e72d7d7e4c79cf8b8e285e417e8101f"
+    },
+    {
+      "sourceId": "doc26",
+      "path": "docs/game-design/26-club-initial-seed-rating-model.md",
+      "blobSha": "7b135432cbdae733ba87b8caf640c92cb88436a4"
+    },
+    {
+      "sourceId": "doc27",
+      "path": "docs/game-design/27-asia-pacific-club-initial-seeds.md",
+      "blobSha": "468c5b0b84648f559ba07ad4c0969ee1c3db7407"
+    },
+    {
+      "sourceId": "doc28",
+      "path": "docs/game-design/28-americas-club-initial-seeds.md",
+      "blobSha": "53fad1d20ae9806998cddd7b6cdcaedb6c1e21c5"
+    },
+    {
+      "sourceId": "doc29",
+      "path": "docs/game-design/29-europe-africa-club-initial-seeds.md",
+      "blobSha": "fc732777352d33d128e32e5334be9619a22d5f1a"
+    },
+    {
+      "sourceId": "doc30",
+      "path": "docs/game-design/30-initial-directed-rivalry-graph.md",
+      "blobSha": "a64580cbd595c700e1cc62bb0a10e311644c993c"
+    },
+    {
+      "sourceId": "doc33",
+      "path": "docs/game-design/33-rivalry-lifecycle-model.md",
+      "blobSha": "f490a12dd4701da9c9fc75daab1f36708674894c"
+    }
+  ]
+}
