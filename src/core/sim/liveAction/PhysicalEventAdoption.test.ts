@@ -193,9 +193,10 @@ describe('throw reception and secure possession', () => {
     const forecast = makeForecast()!;
     expect(forecast.retention.outcome.kind).toBe('secured');
     if (forecast.retention.outcome.kind !== 'secured') return;
+    const secureTick = forecast.retention.outcome.secureTick;
     expect(() => adoptSecurePossessionAtTick({
       forecast,
-      currentTick: forecast.retention.outcome.secureTick,
+      currentTick: secureTick,
       stillRetained: true,
       contactEvent: null,
     } as any)).toThrow('secure possession requires its adopted glove contact');
