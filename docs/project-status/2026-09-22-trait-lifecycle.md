@@ -46,3 +46,13 @@ This is a **lifecycle/projection and intent boundary**, not all Player Traits, f
 Next in the approved Trait group: explicit registry/source ownership for remaining dynamic descriptors, causal negative/contextual/history classes, then source-backed projection/effect consumers under08/09/53. Do not guess lifecycle from color/name or treat this subset registry as the complete catalog. Full Appraisal/MatchImportance and calibration remain explicit work before pressure-derived effects reach execution. Budget/production-world initialization, competitions/calendar, scouting/development, manager AI/market and team traits remain on the existing queue.
 
 Persistent technique does not freeze physical feasibility. Green state does not force an action over an accepted hard sign. A descriptor never directly grants a hit/out probability, flat skill buff or invisible emotion effect. All future UI/Work wiring stays outside this session.
+
+## Native publication record
+
+PR32 is stacked on PR31. Source commit **0bfcf3c87dcb009df9ac0d3940f547690a93a9fe** and tree **34fd1d74ec0cfa0ed50cec339e2d315a1774dd73** passed native validation in run **35712936693**, job **106697600625**. Actual downloaded install/verify logs show `npm ci` success, `tsc --noEmit` success, and **261 files / 1,637 tests passed**, including all140 added tests. Test start:2026-09-22 18:57:01 JST. Every reported test-file count was summed and matched the final total.
+
+Artifact10687615886 / SHA256 `2dcd6c06f705656e4697c71264085620f1d31493436729510e2d4198facde2ec` contains exactly4 top-level evidence files, not inherited catalog artifacts. `source-sha.txt` and the Git archive comment bind the export to0bfcf3c. All19 exported paths match the local tested manifest after CRLF-to-LF normalization; raw Windows archive bytes are not claimed equal to LF Git blobs. All19 original Git blob IDs independently reconstructed the published tree.
+
+The actual native install log still reports5 vulnerabilities (3 moderate,1 high,1 critical) and an esbuild install-script warning. No dependency upgrade, script approval or warning bypass was added.
+
+This final handoff update changes documentation only. Its own exact-head verification must be checked separately; the PR verification record carries that final run/commit evidence. No merge is performed. Resume at the next dependency review above, not at the already complete PR30/31 work.
