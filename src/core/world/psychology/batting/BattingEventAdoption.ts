@@ -152,7 +152,7 @@ export const battingForecastQueueStatus = (
     return Object.freeze({
       kind: 'UNRESOLVED_FORECAST',
       tick: currentTick,
-      settledThroughTick: currentTick,
+      settledThroughTick: Math.min(currentTick, base.lastEventTick),
       nextPendingTick: null,
     });
   }
