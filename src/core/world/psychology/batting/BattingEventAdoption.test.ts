@@ -97,3 +97,13 @@ test('unresolved pitch creates no canonical event adoption claim', () => {
   assert.equal(status.nextPendingTick, null);
   assert.equal(status.kind, 'UNRESOLVED_FORECAST');
 });
+
+
+test('unresolved forecast cannot advance the event watermark beyond canonical evidence', () => {
+  const f = forecast(change(physical(change(fixture(), (d) => { d.source.directive = 'TAKE'; })), (d) => {
+    d.actualTrajectory.start.velocity.z = 40;
+  }));
+  assert.equal(f.resolution.kind, 'unresolved');
+  const status = battingForecastQueueStatus(f, f.request.timeline, f.request.currentFrame.time.tick);
+  assert.equal(status.settledThroughTick, f.request.timeline.lastEventTick);
+});
