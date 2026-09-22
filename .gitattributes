@@ -1,0 +1,2 @@
+# Preserve frozen catalog provenance bytes on Windows and Unix.
+data/world-club-catalog-v1/** -text

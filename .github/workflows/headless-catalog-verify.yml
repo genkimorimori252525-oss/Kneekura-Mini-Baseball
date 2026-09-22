@@ -17,24 +17,16 @@ jobs:
           ref: ${{ github.sha }}
           path: source
           persist-credentials: false
-      - uses: actions/checkout@v4
-        with:
-          ref: 782f6b8ef2406839de5678b00040001111cd8f77
-          path: frozen-design
-          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 26
-      - name: Export exact source and frozen design
+      - name: Export exact source
         shell: powershell
         run: |
           New-Item -ItemType Directory -Force evidence | Out-Null
-          git -C source archive --format=zip -o "$pwd/evidence/source.zip" HEAD src package.json package-lock.json tsconfig.json AGENTS.md
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git -C frozen-design archive --format=zip -o "$pwd/evidence/frozen-design.zip" HEAD docs/game-design
+          git -C source archive --format=zip -o "$pwd/evidence/source.zip" HEAD src data tools package.json package-lock.json tsconfig.json AGENTS.md
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           git -C source rev-parse HEAD | Out-File -Encoding utf8 evidence/source-sha.txt
-          git -C frozen-design rev-parse HEAD | Out-File -Encoding utf8 evidence/design-sha.txt
       - name: Install dependencies
         working-directory: source
         shell: cmd
