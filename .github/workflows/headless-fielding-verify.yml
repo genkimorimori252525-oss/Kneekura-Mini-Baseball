@@ -1,0 +1,51 @@
+name: Headless Fielding Verification
+on:
+  push:
+    branches: [jolly/confirmed-headless-fielding-2026-09-22]
+permissions:
+  contents: read
+concurrency:
+  group: headless-fielding-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: [self-hosted, Windows, X64, minibaseball]
+    timeout-minutes: 15
+    env:
+      EVIDENCE_DIR: fielding-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+      - name: Export exact feature source
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force $env:EVIDENCE_DIR | Out-Null
+          git archive --format=zip -o "$env:EVIDENCE_DIR/changes.zip" HEAD src/core/world/psychology/fielding docs/core/emotion-fielding-consumers-v1-headless-api.md docs/project-status/2026-09-22-emotion-fielding-consumers.md docs/project-status/2026-09-22-approved-plan-coverage.md docs/superpowers/plans/2026-09-22-emotion-fielding-consumers.md .github/workflows/headless-fielding-verify.yml
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git rev-parse HEAD | Out-File -Encoding utf8 "$env:EVIDENCE_DIR/source-sha.txt"
+      - name: Install dependencies
+        shell: cmd
+        run: |
+          call npm ci > "%EVIDENCE_DIR%\install.log" 2>&1
+          set "result=%ERRORLEVEL%"
+          type "%EVIDENCE_DIR%\install.log"
+          exit /b %result%
+      - name: Verify
+        shell: cmd
+        run: |
+          call npm run verify > "%EVIDENCE_DIR%\verify.log" 2>&1
+          set "result=%ERRORLEVEL%"
+          type "%EVIDENCE_DIR%\verify.log"
+          exit /b %result%
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fielding-evidence-${{ github.sha }}
+          path: ${{ env.EVIDENCE_DIR }}/
+          retention-days: 7
+          if-no-files-found: error
