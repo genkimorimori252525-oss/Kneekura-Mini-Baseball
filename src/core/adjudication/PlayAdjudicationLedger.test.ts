@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { asRuleProfileId } from '../../model/RuleProfileRef';
-import type { CanonicalMatchState } from '../../model/CanonicalMatchState';
-import type { CanonicalPlateAppearanceTimeline } from '../plateAppearance/CanonicalPlateAppearanceTimeline';
+import { asRuleProfileId } from '../model/RuleProfileRef';
+import type { CanonicalMatchState } from '../model/CanonicalMatchState';
+import type { CanonicalPlateAppearanceTimeline } from '../sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 import {
   closeOfficialPlay,
   closeOfficialStateWindow,
