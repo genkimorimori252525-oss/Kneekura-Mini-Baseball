@@ -9,6 +9,7 @@ import {
 } from './PlayAdjudicationLedger';
 import {
   activateNextLiveBallPlay,
+  confirmDurableClosedLiveBallStateApplication,
 } from './NextPlayActivation';
 
 const ruleProfileId = asRuleProfileId('test-rules');
@@ -85,12 +86,34 @@ const closedLedger = () => {
   });
 };
 
+
+const applicationReceipt = (
+  oldMatch: CanonicalMatchState = match(),
+  oldTimeline: CanonicalPlateAppearanceTimeline = timeline(),
+  adjudication = closedLedger(),
+) => confirmDurableClosedLiveBallStateApplication({
+  match: oldMatch,
+  physicalTimeline: oldTimeline,
+  adjudication,
+  persistedMatchState: {
+    ...oldMatch,
+    outs: 2,
+    balls: 0,
+    strikes: 0,
+    bases: { first: null, second: 'r1', third: null },
+    playId: oldMatch.playId + 1,
+  },
+  applicationId: 'apply-closure-1',
+  durableRevision: 1,
+});
+
 describe('next live-ball play activation fence', () => {
   it('activates the next timeline only from an officially closed play and durable derived state', () => {
     const result = activateNextLiveBallPlay({
       match: match(),
       physicalTimeline: timeline(),
       adjudication: closedLedger(),
+      application: applicationReceipt(),
       nextStartedAtTick: 503,
     });
 
@@ -130,6 +153,7 @@ describe('next live-ball play activation fence', () => {
       match: match(),
       physicalTimeline: timeline(),
       adjudication: ledger,
+      application: null as any,
       nextStartedAtTick: 503,
     })).toThrow('official play must be closed');
   });
@@ -139,6 +163,7 @@ describe('next live-ball play activation fence', () => {
       match: match(),
       physicalTimeline: timeline(),
       adjudication: closedLedger(),
+      application: applicationReceipt(),
       nextStartedAtTick: 501,
     })).toThrow('next play cannot start before OfficialPlayClosure');
   });
@@ -149,16 +174,19 @@ describe('next live-ball play activation fence', () => {
     const ledger = closedLedger();
     const before = JSON.stringify({ oldMatch, oldTimeline, ledger });
 
+    const application = applicationReceipt(oldMatch, oldTimeline, ledger);
     const first = activateNextLiveBallPlay({
       match: oldMatch,
       physicalTimeline: oldTimeline,
       adjudication: ledger,
+      application,
       nextStartedAtTick: 503,
     });
     const second = activateNextLiveBallPlay({
       match: oldMatch,
       physicalTimeline: oldTimeline,
       adjudication: ledger,
+      application,
       nextStartedAtTick: 503,
     });
 

@@ -9,20 +9,39 @@ import {
   type PlayAdjudicationLedger,
 } from './PlayAdjudicationLedger';
 
+export type OfficialStateApplicationReceipt = Readonly<{
+  applicationId: string;
+  closureId: string;
+  previousPlayId: number;
+  durableRevision: number;
+  appliedMatchState: CanonicalMatchState;
+}>;
+
+export type ConfirmDurableClosedLiveBallStateApplicationInput = Readonly<{
+  match: CanonicalMatchState;
+  physicalTimeline: CanonicalPlateAppearanceTimeline;
+  adjudication: PlayAdjudicationLedger;
+  persistedMatchState: CanonicalMatchState;
+  applicationId: string;
+  durableRevision: number;
+}>;
+
 export type NextLiveBallPlayActivationInput = Readonly<{
   match: CanonicalMatchState;
   physicalTimeline: CanonicalPlateAppearanceTimeline;
   adjudication: PlayAdjudicationLedger;
+  application: OfficialStateApplicationReceipt;
   nextStartedAtTick: number;
 }>;
 
 export type NextLiveBallPlayActivation = Readonly<{
   previousPlayId: number;
   closureId: string;
+  applicationId: string;
+  durableRevision: number;
   nextMatchState: CanonicalMatchState;
   nextTimeline: CanonicalPlateAppearanceTimeline;
 }>;
-
 
 const cloneInertData = <T>(input: T, path = 'nextPlayActivation'): T => {
   const ancestors = new Set<object>();
@@ -38,9 +57,7 @@ const cloneInertData = <T>(input: T, path = 'nextPlayActivation'): T => {
       if (!Number.isFinite(value)) throw new Error(`${currentPath} must be finite`);
       return value === 0 ? 0 : value;
     }
-    if (typeof value !== 'object') {
-      throw new Error(`${currentPath} must contain inert data only`);
-    }
+    if (typeof value !== 'object') throw new Error(`${currentPath} must contain inert data only`);
     if (ancestors.has(value)) throw new Error(`${currentPath} must not contain cycles`);
     ancestors.add(value);
 
@@ -65,9 +82,7 @@ const cloneInertData = <T>(input: T, path = 'nextPlayActivation'): T => {
       }
       const record: Record<string, unknown> = {};
       for (const key of Reflect.ownKeys(value)) {
-        if (typeof key !== 'string') {
-          throw new Error(`${currentPath} must not contain symbol properties`);
-        }
+        if (typeof key !== 'string') throw new Error(`${currentPath} must not contain symbol properties`);
         const descriptor = Object.getOwnPropertyDescriptor(value, key);
         if (!descriptor || !descriptor.enumerable || !('value' in descriptor)) {
           throw new Error(`${currentPath} must not contain active properties`);
@@ -89,6 +104,75 @@ const cloneInertData = <T>(input: T, path = 'nextPlayActivation'): T => {
   return visit(input, path, 0) as T;
 };
 
+const nonEmptyId = (value: string, name: string): string => {
+  if (typeof value !== 'string' || value.length === 0) throw new Error(`${name} must not be empty`);
+  return value;
+};
+
+const nonNegativeRevision = (value: number, name: string): number => {
+  if (!Number.isSafeInteger(value) || value < 0) {
+    throw new Error(`${name} must be a non-negative safe integer`);
+  }
+  return value;
+};
+
+const sameMatchState = (first: CanonicalMatchState, second: CanonicalMatchState): boolean => (
+  first.ruleProfileId === second.ruleProfileId
+  && first.inning === second.inning
+  && first.half === second.half
+  && first.outs === second.outs
+  && first.balls === second.balls
+  && first.strikes === second.strikes
+  && first.bases.first === second.bases.first
+  && first.bases.second === second.bases.second
+  && first.bases.third === second.bases.third
+  && first.score.away === second.score.away
+  && first.score.home === second.score.home
+  && first.playId === second.playId
+);
+
+const freezeMatchState = (state: CanonicalMatchState): CanonicalMatchState => Object.freeze({
+  ...state,
+  bases: Object.freeze({ ...state.bases }),
+  score: Object.freeze({ ...state.score }),
+});
+
+const validateReceipt = (input: OfficialStateApplicationReceipt): OfficialStateApplicationReceipt => {
+  const receipt = cloneInertData(input, 'nextPlayActivation.application');
+  return Object.freeze({
+    applicationId: nonEmptyId(receipt.applicationId, 'applicationId'),
+    closureId: nonEmptyId(receipt.closureId, 'closureId'),
+    previousPlayId: nonNegativeRevision(receipt.previousPlayId, 'previousPlayId'),
+    durableRevision: nonNegativeRevision(receipt.durableRevision, 'durableRevision'),
+    appliedMatchState: freezeMatchState(receipt.appliedMatchState),
+  });
+};
+
+export const confirmDurableClosedLiveBallStateApplication = (
+  input: ConfirmDurableClosedLiveBallStateApplicationInput,
+): OfficialStateApplicationReceipt => {
+  const request = cloneInertData(input, 'durableOfficialStateApplication');
+  const closure = getOfficialPlayClosure(request.adjudication);
+  if (closure === null) {
+    throw new Error('official play must be closed before confirming durable MatchState application');
+  }
+  const expected = deriveClosedLiveBallMatchState(
+    request.match,
+    request.physicalTimeline,
+    request.adjudication,
+  );
+  if (!sameMatchState(expected, request.persistedMatchState)) {
+    throw new Error('persisted MatchState must match the officially derived state');
+  }
+  return Object.freeze({
+    applicationId: nonEmptyId(request.applicationId, 'applicationId'),
+    closureId: closure.closureId,
+    previousPlayId: request.match.playId,
+    durableRevision: nonNegativeRevision(request.durableRevision, 'durableRevision'),
+    appliedMatchState: freezeMatchState(request.persistedMatchState),
+  });
+};
+
 export const activateNextLiveBallPlay = (
   input: NextLiveBallPlayActivationInput,
 ): NextLiveBallPlayActivation => {
@@ -103,12 +187,28 @@ export const activateNextLiveBallPlay = (
   if (request.nextStartedAtTick < closure.closedAtTick) {
     throw new Error('next play cannot start before OfficialPlayClosure');
   }
+  if (request.application === null || request.application === undefined) {
+    throw new Error('durable official MatchState application is required');
+  }
 
-  const nextMatchState = deriveClosedLiveBallMatchState(
+  const application = validateReceipt(request.application);
+  if (
+    application.closureId !== closure.closureId
+    || application.previousPlayId !== request.match.playId
+  ) {
+    throw new Error('durable application receipt does not match OfficialPlayClosure');
+  }
+
+  const expected = deriveClosedLiveBallMatchState(
     request.match,
     request.physicalTimeline,
     request.adjudication,
   );
+  if (!sameMatchState(expected, application.appliedMatchState)) {
+    throw new Error('durable application receipt does not match the officially derived MatchState');
+  }
+
+  const nextMatchState = application.appliedMatchState;
   const nextTimeline = createCanonicalPlateAppearanceTimeline(
     nextMatchState,
     request.nextStartedAtTick,
@@ -117,6 +217,8 @@ export const activateNextLiveBallPlay = (
   return Object.freeze({
     previousPlayId: request.match.playId,
     closureId: closure.closureId,
+    applicationId: application.applicationId,
+    durableRevision: application.durableRevision,
     nextMatchState,
     nextTimeline,
   });
