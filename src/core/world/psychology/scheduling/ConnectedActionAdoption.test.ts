@@ -281,3 +281,109 @@ describe('defensive replan frontier and exact activation', () => {
     });
   });
 });
+
+
+describe('frontier handoff and cancellation settlement', () => {
+  it('keeps released throw as physical frontier work until a downstream flight owner replaces it', () => {
+    const accepted = fieldingAcceptance('THROW');
+    assert.ok(accepted.proposal.plan?.kind === 'THROW');
+    assert.ok(accepted.proposal.request.source.kind === 'THROW');
+    const plan = accepted.proposal.plan;
+    const source = accepted.proposal.request.source;
+    const due = plan.launch.releaseTick;
+    const result = adoptFieldingActionAtTick({
+      accepted,
+      currentFrame: runtimeFrame(accepted.expectedFrame, accepted.afterWorldRevision, due),
+      currentEmotion: accepted.proposal.request.currentEmotion,
+      currentPhysical: {
+        kind: 'THROW',
+        tick: due,
+        ballId: source.ballId,
+        holderId: source.holderId,
+        origin: plan.launch.origin,
+        holderVelocity: source.holderVelocity,
+      },
+    });
+    assert.equal(result.status, 'ADOPTED');
+    if (result.status !== 'ADOPTED') return;
+    assert.equal(result.physicalAfter.length, 1);
+    assert.equal(result.physicalAfter[0].kind, 'throw');
+    assert.equal(result.physicalAfter[0].throughTick, due);
+    assert.equal(result.physicalAfter[0].actionKey, accepted.actionKey);
+  });
+
+  it('returns a closed source watermark when a scheduled action is missed', () => {
+    const accepted = runnerAcceptance();
+    assert.ok(accepted.proposal.runner);
+    assert.ok(accepted.proposal.request.runner);
+    const due = accepted.proposal.runner.decision.motionIntent.issuedTick
+      + accepted.proposal.request.runner.parameters.reactionDelayTicks;
+    const expected = sampleRunnerMotionTrajectory(accepted.proposal.runner.trajectory, due);
+    const result = adoptRunnerControlAtTick({
+      accepted,
+      currentFrame: runtimeFrame(accepted.expectedFrame, accepted.afterWorldRevision, due + 1),
+      currentEmotion: accepted.proposal.appraisal.state,
+      currentBody: { ...expected, tick: due + 1 },
+    });
+    assert.equal(result.status, 'MISSED_EVENT');
+    if (result.status !== 'MISSED_EVENT') return;
+    assert.equal(result.queueAfter.nextPendingTick, null);
+    assert.equal(result.queueAfter.settledThroughTick, due + 1);
+  });
+
+  it('returns a closed source watermark when a scheduled action is invalidated at its due tick', () => {
+    const accepted = fieldingAcceptance('REPLAN');
+    assert.ok(accepted.proposal.plan?.kind === 'REPLAN');
+    assert.ok(accepted.proposal.request.source.kind === 'REPLAN');
+    const due = accepted.proposal.plan.movementStartTick;
+    const segment = [...accepted.proposal.plan.segments]
+      .reverse()
+      .find((item) => item.startTick <= due && due <= item.endTick);
+    const body = segment
+      ? sampleDefenderMotionSegment(segment, due)
+      : accepted.proposal.request.source.body;
+    const result = adoptFieldingActionAtTick({
+      accepted,
+      currentFrame: runtimeFrame(accepted.expectedFrame, accepted.afterWorldRevision + 1, due),
+      currentEmotion: accepted.proposal.request.currentEmotion,
+      currentPhysical: {
+        kind: 'REPLAN',
+        body: { ...body, position: { x: body.position.x + 1, z: body.position.z } },
+      },
+    });
+    assert.equal(result.status, 'INVALIDATED');
+    if (result.status !== 'INVALIDATED') return;
+    assert.equal(result.queueAfter.nextPendingTick, null);
+    assert.equal(result.queueAfter.settledThroughTick, due);
+  });
+
+  it('invalidates runner activation when body control mode changed despite identical position and speed', () => {
+    const accepted = runnerAcceptance();
+    assert.ok(accepted.proposal.runner);
+    assert.ok(accepted.proposal.request.runner);
+    const due = accepted.proposal.runner.decision.motionIntent.issuedTick
+      + accepted.proposal.request.runner.parameters.reactionDelayTicks;
+    const expected = sampleRunnerMotionTrajectory(accepted.proposal.runner.trajectory, due);
+    const changed = {
+      ...expected,
+      driveDirection: 0 as const,
+      bodyMode: 'sliding' as const,
+    };
+    const result = adoptRunnerControlAtTick({
+      accepted,
+      currentFrame: runtimeFrame(accepted.expectedFrame, accepted.afterWorldRevision + 1, due),
+      currentEmotion: accepted.proposal.appraisal.state,
+      currentBody: changed,
+    });
+    assert.deepEqual(result, {
+      status: 'INVALIDATED',
+      reason: 'BODY_REBASED',
+      dueTick: due,
+      queueAfter: {
+        sourceId: result.status === 'INVALIDATED' ? result.queueAfter.sourceId : '',
+        settledThroughTick: due,
+        nextPendingTick: null,
+      },
+    });
+  });
+});
