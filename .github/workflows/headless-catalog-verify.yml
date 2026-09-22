@@ -1,0 +1,56 @@
+name: Headless Catalog Verification
+on:
+  push:
+    branches: [jolly/confirmed-headless-catalog-2026-09-22]
+permissions:
+  contents: read
+concurrency:
+  group: headless-catalog-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: [self-hosted, Windows, X64, minibaseball]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: source
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: 782f6b8ef2406839de5678b00040001111cd8f77
+          path: frozen-design
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+      - name: Export exact source and frozen design
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force evidence | Out-Null
+          git -C source archive --format=zip -o "$pwd/evidence/source.zip" HEAD
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git -C frozen-design archive --format=zip -o "$pwd/evidence/frozen-design.zip" HEAD docs/game-design
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git -C source rev-parse HEAD | Out-File -Encoding utf8 evidence/source-sha.txt
+          git -C frozen-design rev-parse HEAD | Out-File -Encoding utf8 evidence/design-sha.txt
+      - name: Install dependencies
+        working-directory: source
+        shell: powershell
+        run: |
+          npm ci 2>&1 | Tee-Object -FilePath ../evidence/install.log
+          exit $LASTEXITCODE
+      - name: Verify
+        working-directory: source
+        shell: powershell
+        run: |
+          npm run verify 2>&1 | Tee-Object -FilePath ../evidence/verify.log
+          exit $LASTEXITCODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: catalog-evidence-${{ github.sha }}
+          path: evidence/
+          retention-days: 7
+          if-no-files-found: error
