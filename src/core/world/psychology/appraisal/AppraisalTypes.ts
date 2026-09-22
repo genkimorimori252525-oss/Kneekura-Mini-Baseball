@@ -1,0 +1,47 @@
+import type { EmotionAppraisal, EmotionDecisionEffects, EmotionEvaluationEvent, EmotionInfluence,
+  EmotionKind, EmotionPolicy, EmotionScope, EmotionState, EmotionTime } from '../EmotionTypes';
+export type SourceStamp = Readonly<{ sourceId: string; revision: number; time: EmotionTime }>;
+export const IMPORTANCE_AXES = ['stage','standings','championship','qualification','elimination','matchup','urgency','personal'] as const;
+export const RESPONSE_AXES = ['judgment','experience','concentration','stability','confidence','competitiveness','selfFocus','aggression'] as const;
+export const SITUATION_AXES = ['positiveSurprise','negativeSurprise','tacticalDeviation','recentSuccess','recentFailure','hostility','longTermStrain','personalStake','localLeverage'] as const;
+export type ImportanceAxis = typeof IMPORTANCE_AXES[number];
+export type ResponseAxis = typeof RESPONSE_AXES[number];
+export type SituationAxis = typeof SITUATION_AXES[number];
+export const COMPETITION_KINDS = ['REGULAR_SEASON','POSTSEASON','INTERNATIONAL'] as const;
+export const COMPETITION_STAGES = ['LEAGUE','GROUP','ROUND','SEMIFINAL','FINAL'] as const;
+export type CompetitionProjection = Readonly<{ rank: number | null; opponentRank: number | null;
+  champion: boolean; qualified: boolean; eliminated: boolean }>;
+export type ImportanceInput = Readonly<{
+  scope: EmotionScope; contextId: string; time: EmotionTime; clubId: string; opponentClubId: string;
+  competition: Readonly<{ stamp: SourceStamp; careerId: string; matchId: string; clubId: string; opponentClubId: string;
+    competitionId: string; kind: typeof COMPETITION_KINDS[number]; stage: typeof COMPETITION_STAGES[number];
+    participantCount: number; remainingGamesAfterMatch: number; win: CompetitionProjection; loss: CompetitionProjection }>;
+  personal: Readonly<{ stamp: SourceStamp; scope: EmotionScope; clubId: string; recordStake: number; returnStake: number;
+    historyStake: number; clubIdentification: number }>;
+  rivalry: Readonly<{ stamp: SourceStamp; careerId: string; fromClubId: string; toClubId: string; intensity: number }>;
+  model: Readonly<{ modelId: string; version: string; maxSourceAgeTicks: number;
+    kindLevels: Readonly<Record<typeof COMPETITION_KINDS[number],number>>;
+    stageLevels: Readonly<Record<typeof COMPETITION_STAGES[number],number>>;
+    weights: Readonly<Record<ImportanceAxis,number>> }>;
+}>;
+export type ImportanceResult = Readonly<{ value: number; components: Readonly<Record<ImportanceAxis,number>>;
+  personalComponents: Readonly<{ record: number; returning: number; history: number; rivalry: number }>;
+  provenance: ImportanceInput }>;
+export type AppraisalRow = Readonly<{ emotion: EmotionKind; bias: number;
+  situationWeights: Readonly<Record<SituationAxis,number>>; responseWeights: Readonly<Record<ResponseAxis,number>>;
+  stabilityDamping: number; effectsAtFullPressure: EmotionDecisionEffects }>;
+export type AppraisalInput = Readonly<{
+  importance: ImportanceInput; appraisalId: string; bundleId: string; evidenceEventIds: readonly string[];
+  expectedRevision: number; policy: EmotionPolicy;
+  player: Readonly<{ stamp: SourceStamp; scope: EmotionScope; response: Readonly<Record<ResponseAxis,number>>;
+    longTermStrain: number }>;
+  event: Readonly<{ stamp: SourceStamp; scope: EmotionScope; contextId: string; eventId: string;
+    expectedOutcome: number; perceivedOutcome: number; tacticalDeviation: number; localLeverage: number;
+    recentSuccess: number; recentFailure: number; hostility: number }>;
+  model: Readonly<{ modelId: string; version: string; maxSourceAgeTicks: number; importanceGain: number;
+    impactTickScale: number; rows: readonly AppraisalRow[] }>;
+}>;
+export type AppraisalComputation = Readonly<{ importance: ImportanceResult; situation: Readonly<Record<SituationAxis,number>>;
+  appraisal: EmotionAppraisal; provenance: AppraisalInput }>;
+export type AppliedAppraisal = Readonly<{ computation: AppraisalComputation; state: EmotionState;
+  event: EmotionEvaluationEvent; influence: EmotionInfluence }>;
