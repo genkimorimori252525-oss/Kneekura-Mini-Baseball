@@ -33,3 +33,6 @@ export type {
   ReviewDecisionInput,
   CloseOfficialPlayInput,
 } from './PlayAdjudicationLedger';
+
+export { activateNextLiveBallPlay, confirmDurableClosedLiveBallStateApplication } from './NextPlayActivation';
+export type { OfficialStateApplicationReceipt, ConfirmDurableClosedLiveBallStateApplicationInput, NextLiveBallPlayActivationInput, NextLiveBallPlayActivation } from './NextPlayActivation';
