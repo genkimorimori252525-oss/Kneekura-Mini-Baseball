@@ -47,6 +47,82 @@ export type LivePlayRegistryResolution = Readonly<{
   resolution: PlayEndResolution;
 }>;
 
+
+const cloneInertData = <T>(input: T, path = 'livePlay'): T => {
+  const ancestors = new Set<object>();
+  let nodes = 0;
+
+  const visit = (value: unknown, currentPath: string, depth: number): unknown => {
+    nodes += 1;
+    if (nodes > 100_000 || depth > 64) {
+      throw new Error(`${currentPath} exceeds inert-data depth or size limits`);
+    }
+    if (value === null || typeof value === 'string' || typeof value === 'boolean') return value;
+    if (typeof value === 'number') {
+      if (!Number.isFinite(value)) throw new Error(`${currentPath} must be finite`);
+      return value === 0 ? 0 : value;
+    }
+    if (typeof value !== 'object') {
+      throw new Error(`${currentPath} must contain inert data only`);
+    }
+    if (ancestors.has(value)) throw new Error(`${currentPath} must not contain cycles`);
+    ancestors.add(value);
+
+    let result: unknown;
+    if (Array.isArray(value)) {
+      if (Reflect.ownKeys(value).length !== value.length + 1) {
+        throw new Error(`${currentPath} must be a dense inert array`);
+      }
+      const array: unknown[] = [];
+      for (let index = 0; index < value.length; index += 1) {
+        const descriptor = Object.getOwnPropertyDescriptor(value, String(index));
+        if (!descriptor || !descriptor.enumerable || !('value' in descriptor)) {
+          throw new Error(`${currentPath} must not contain active array properties`);
+        }
+        array.push(visit(descriptor.value, `${currentPath}[${index}]`, depth + 1));
+      }
+      result = array;
+    } else {
+      const prototype = Object.getPrototypeOf(value);
+      if (prototype !== Object.prototype && prototype !== null) {
+        throw new Error(`${currentPath} must be a plain inert object`);
+      }
+      const record: Record<string, unknown> = {};
+      for (const key of Reflect.ownKeys(value)) {
+        if (typeof key !== 'string') throw new Error(`${currentPath} must not contain symbol properties`);
+        const descriptor = Object.getOwnPropertyDescriptor(value, key);
+        if (!descriptor || !descriptor.enumerable || !('value' in descriptor)) {
+          throw new Error(`${currentPath} must not contain active properties`);
+        }
+        Object.defineProperty(record, key, {
+          value: visit(descriptor.value, `${currentPath}.${key}`, depth + 1),
+          enumerable: true,
+          writable: true,
+          configurable: true,
+        });
+      }
+      result = record;
+    }
+
+    ancestors.delete(value);
+    return result;
+  };
+
+  return visit(input, path, 0) as T;
+};
+
+const readTerminal = (value: unknown): TerminalLiveActionCondition => {
+  if (
+    value !== 'none'
+    && value !== 'dead_ball'
+    && value !== 'all_offense_terminal'
+    && value !== 'terminal_rule_event'
+  ) {
+    throw new Error('unknown terminal live-action condition');
+  }
+  return value;
+};
+
 const safeInteger = (
   value: number,
   name: string,
@@ -123,13 +199,14 @@ const copySource = (source: LivePlaySource): LivePlaySource => {
 };
 
 const copyRegistry = (input: LivePlayRegistry): LivePlayRegistry => {
-  const playId = safeInteger(input.playId, 'playId');
-  const revision = safeInteger(input.revision, 'registry revision');
-  if (!Array.isArray(input.sources)) {
+  const request = cloneInertData(input, 'livePlay.registry');
+  const playId = safeInteger(request.playId, 'playId');
+  const revision = safeInteger(request.revision, 'registry revision');
+  if (!Array.isArray(request.sources)) {
     throw new Error('registry sources must be an array');
   }
   const seen = new Set<string>();
-  const sources = input.sources.map((source) => {
+  const sources = request.sources.map((source) => {
     const copied = copySource(source);
     if (seen.has(copied.sourceId)) {
       throw new Error('live-play source ids must be unique');
@@ -217,10 +294,12 @@ export const resolveLivePlayRegistry = (
   input: ResolveLivePlayRegistryInput,
 ): LivePlayRegistryResolution => {
   const registry = copyRegistry(registryInput);
-  const currentTick = safeInteger(input.tick, 'live-play tick');
-  if (!Array.isArray(input.actors)) {
+  const request = cloneInertData(input, 'livePlay.resolve');
+  const currentTick = safeInteger(request.tick, 'live-play tick');
+  if (!Array.isArray(request.actors)) {
     throw new Error('actors must be an array');
   }
+  const terminal = readTerminal(request.terminal);
 
   const queueSources = registry.sources.flatMap(
     (source) => source.queue === null ? [] : [source.queue],
@@ -237,13 +316,13 @@ export const resolveLivePlayRegistry = (
     information: registry.sources.flatMap((source) => [...source.information]),
     decisions: registry.sources.flatMap((source) => [...source.decisions]),
     ruleWindows: registry.sources.flatMap((source) => [...source.ruleWindows]),
-    actors: [...input.actors],
+    actors: [...request.actors],
     eventQueueSettledThroughTick: watermark.settledThroughTick,
   });
 
   const resolution = resolvePlayEndFromFrontier(
     frontier,
-    input.terminal,
+    terminal,
   );
 
   return Object.freeze({
