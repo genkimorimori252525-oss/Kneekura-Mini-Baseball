@@ -45,9 +45,7 @@ test('take adopts physical crossing and pitch adjudication atomically on the sam
 });
 
 test('swinging miss adopts miss evidence and strike adjudication atomically', () => {
-  const r = physical();
-  r.actualTrajectory.start.position.x = 3;
-  const f = forecast(r);
+  const f = forecast(change(physical(), (d) => { d.actualTrajectory.start.position.x = 3; }));
   assert.equal(f.resolution.kind, 'recorded_swing');
   if (f.resolution.kind !== 'recorded_swing' || f.resolution.physical.kind !== 'swinging_miss') return;
   const due = f.resolution.physical.adjudicationTick;
@@ -71,9 +69,9 @@ test('stale canonical cursor rejects adoption rather than overwriting history', 
   const f = forecast();
   assert.equal(f.resolution.kind, 'recorded_swing');
   if (f.resolution.kind !== 'recorded_swing' || f.resolution.physical.kind !== 'contact') return;
-  const stale = structuredClone(f.request.timeline);
-  stale.nextSequence += 1;
-  assert.throws(() => battingForecastQueueStatus(f, stale, f.resolution.physical.contact.tick));
+  const due = f.resolution.physical.contact.tick;
+  const stale = { ...f.request.timeline, nextSequence: f.request.timeline.nextSequence + 1 };
+  assert.throws(() => battingForecastQueueStatus(f, stale, due));
 });
 
 test('already adopted forecast reports no remaining event and is idempotent only as observation', () => {
@@ -91,9 +89,9 @@ test('already adopted forecast reports no remaining event and is idempotent only
 });
 
 test('unresolved pitch creates no canonical event adoption claim', () => {
-  const r = physical(change(fixture(), (d) => { d.source.directive = 'TAKE'; }));
-  r.actualTrajectory.start.velocity.z = 40;
-  const f = forecast(r);
+  const f = forecast(change(physical(change(fixture(), (d) => { d.source.directive = 'TAKE'; })), (d) => {
+    d.actualTrajectory.start.velocity.z = 40;
+  }));
   assert.equal(f.resolution.kind, 'unresolved');
   const status = battingForecastQueueStatus(f, f.request.timeline, f.request.currentFrame.time.tick);
   assert.equal(status.nextPendingTick, null);
