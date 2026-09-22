@@ -1,0 +1,20 @@
+import {it,describe} from 'vitest';
+import assert from 'node:assert/strict';
+import {prepareFieldingExecution,acceptFieldingExecution} from './FieldingExecution';
+import {fixture,change,value} from './FieldingFixtures.test-support';
+describe('current fielding event binding',()=>{
+ it('binds an existing accepted gate without changing it',()=>{const r=fixture(),p=value(prepareFieldingExecution(r));assert.equal(p.status,'READY');assert.deepEqual(p.request.currentEmotion,r.currentEmotion);});
+ it('waits before commitment without launching',()=>{const r=change(fixture(),d=>{d.currentFrame.time.tick--;d.source.frame.time.tick--;});const p=value(prepareFieldingExecution(r));assert.equal(p.status,'WAITING');assert.equal(p.plan,null);});
+ it('does not backdate a late event',()=>{const r=change(fixture(),d=>{d.currentFrame.time.tick++;d.source.frame.time.tick++;});const p=value(prepareFieldingExecution(r));assert.equal(p.status,'MISSED_COMMITMENT');assert.equal(p.plan,null);});
+ it('rejects changed gate state, even if the active label is unchanged',()=>{const r=change(fixture(),d=>d.currentEmotion.revision++);assert.equal(prepareFieldingExecution(r).ok,false);});
+ it('rejects a different player',()=>{const r=change(fixture(),d=>d.currentFrame.scope.playerId='other');assert.equal(prepareFieldingExecution(r).ok,false);});
+ it('rejects a different context',()=>{const r=change(fixture(),d=>d.currentFrame.contextId='other');assert.equal(prepareFieldingExecution(r).ok,false);});
+ it('rejects a world revision older than acceptance',()=>{const r=change(fixture(),d=>d.currentFrame.worldRevision=9);assert.equal(prepareFieldingExecution(r).ok,false);});
+ it('rejects a mismatched physical source frame',()=>{const r=change(fixture(),d=>d.source.frame.snapshotId='other');assert.equal(prepareFieldingExecution(r).ok,false);});
+ it('rejects forged original acceptance inputs',()=>{const r=change(fixture(),d=>d.acceptedExecution.proposal.inputs.throwAggression=1);assert.equal(prepareFieldingExecution(r).ok,false);});
+ it('rejects future observations',()=>{const r=change(fixture(),d=>d.source.observationTick=200);assert.equal(prepareFieldingExecution(r).ok,false);});
+ it('accepts a matching ready proposal with a separate action key',()=>{const r=fixture(),p=value(prepareFieldingExecution(r)),a=value(acceptFieldingExecution(r,p));assert.equal(a.afterWorldRevision,12);assert.equal(a.emotionRevision,r.currentEmotion.revision);assert.equal(a.proposal.status,'READY');});
+ it('rejects mutated physical output',()=>{const r=fixture(),p=change(value(prepareFieldingExecution(r)),d=>d.scheduledTick++);assert.equal(acceptFieldingExecution(r,p).ok,false);});
+ it('does not accept a waiting action',()=>{const r=change(fixture(),d=>{d.currentFrame.time.tick--;d.source.frame.time.tick--;});const p=value(prepareFieldingExecution(r));assert.equal(acceptFieldingExecution(r,p).ok,false);});
+ it('does not mutate or freeze caller-owned data',()=>{const r=fixture(),before=JSON.stringify(r),p=value(prepareFieldingExecution(r));assert.equal(JSON.stringify(r),before);assert.ok(!Object.isFrozen(r));assert.ok(Object.isFrozen(p.request.source));assert.notEqual(p.request.source,r.source);});
+});
