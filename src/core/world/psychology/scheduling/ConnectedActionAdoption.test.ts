@@ -393,14 +393,14 @@ describe('accepted receipt integrity at runtime adoption', () => {
   it('rejects a mutated runner acceptance instead of trusting rewritten future motion', () => {
     const accepted = structuredClone(runnerAcceptance());
     assert.ok(accepted.proposal.runner);
-    accepted.proposal.runner.trajectory.endState.routeDistanceMeters += 10;
+    (accepted as any).proposal.runner.trajectory.endState.routeDistanceMeters += 10;
     assert.throws(() => projectRunnerActionFrontier(accepted, accepted.expectedFrame.time.tick));
   });
 
   it('rejects a mutated fielding acceptance instead of trusting a rewritten release plan', () => {
     const accepted = structuredClone(fieldingAcceptance('THROW'));
     assert.ok(accepted.proposal.plan?.kind === 'THROW');
-    accepted.proposal.plan.launch.origin.x += 1;
+    (accepted as any).proposal.plan.launch.origin.x += 1;
     assert.throws(() => projectFieldingActionFrontier(accepted, accepted.expectedFrame.time.tick));
   });
 });
