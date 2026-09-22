@@ -364,15 +364,16 @@ const close = (first: number, second: number): boolean => (
   && Math.abs(first - second) <= EPSILON
 );
 
-const runnerKinematicsMatch = (
+const runnerActivationBasisMatches = (
   current: RunnerMotionState,
-  expected: RunnerMotionState,
+  expectedKinematics: RunnerMotionState,
+  preActivationControl: RunnerMotionState,
 ): boolean => (
-  current.tick === expected.tick
-  && close(current.routeDistanceMeters, expected.routeDistanceMeters)
-  && close(current.speedMps, expected.speedMps)
-  && current.driveDirection === expected.driveDirection
-  && current.bodyMode === expected.bodyMode
+  current.tick === expectedKinematics.tick
+  && close(current.routeDistanceMeters, expectedKinematics.routeDistanceMeters)
+  && close(current.speedMps, expectedKinematics.speedMps)
+  && current.driveDirection === preActivationControl.driveDirection
+  && current.bodyMode === preActivationControl.bodyMode
 );
 
 const vec3Match = (first: Vec3, second: Vec3): boolean => (
@@ -447,7 +448,11 @@ export const adoptRunnerControlAtTick = (
     return invalidated(dueTick, currentTick, sourceId, 'EMOTION_SUPERSEDED');
   }
   const expected = sampleRunnerMotionTrajectory(execution.trajectory, dueTick);
-  if (!runnerKinematicsMatch(input.currentBody, expected)) {
+  // At the activation tick the current canonical body still owns the old
+  // control mode. The event below is what makes the newly accepted control
+  // canonical. Position/speed must already match the planned trajectory,
+  // but requiring the post-event drive mode here would make adoption circular.
+  if (!runnerActivationBasisMatches(input.currentBody, expected, source.body)) {
     return invalidated(dueTick, currentTick, sourceId, 'BODY_REBASED');
   }
   const physicalAfter: PendingPhysicalWork[] = execution.trajectory.endState.tick > dueTick
