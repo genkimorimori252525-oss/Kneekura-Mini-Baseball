@@ -1,0 +1,175 @@
+{
+  "sourceCommit": "7b1b84aafa5d79499740d556fd44cef63b4f2c26",
+  "parentCommit": "a03bd4587d588135c0a0446dff22dd10fe8dcff5",
+  "policy": "Exact Git blob reuse at canonical paths; no renderer, no full PR merge. Existing compatibility name remains exported.",
+  "entries": [
+    {
+      "path": "src/core/sim/ball/BallSurfaceContact.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "fcf4e403252edddee40af9cb36619a67c992ac7a",
+      "change": "added"
+    },
+    {
+      "path": "src/core/sim/ball/BaseballAerodynamicCoefficientProfile.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e39039011b00c8e2ce02f5e75403db89074de3eb",
+      "change": "added"
+    },
+    {
+      "path": "src/core/sim/ball/BaseballAerodynamics.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "75a63a5fcf525e04bf5df1789d42885cb8347eda",
+      "change": "added"
+    },
+    {
+      "path": "src/core/sim/ball/BaseballSpinDecay.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ac4a38dfa497e0ae47860b5eddb7fb2bef81594d",
+      "change": "added"
+    },
+    {
+      "path": "src/core/sim/contact/HighSpeedObliqueBatCalibration.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "238efeeced5217395a52295fb599ee5bce0e6a9f",
+      "change": "added"
+    },
+    {
+      "path": "src/core/sim/contact/RigidBatBallContact.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "92697177fa5d158f5837e13f60dc7ab1a6ba464e",
+      "change": "added"
+    },
+    {
+      "path": "src/core/sim/contact/SwingKinematicsV1.test.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "6991c8475d347f3357fc79ff53a845b664b755b0",
+      "change": "added"
+    },
+    {
+      "path": "src/core/sim/contact/SwingKinematicsV1.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "0d495e849c5261a33ecfe371b6a805338fffd119",
+      "change": "added"
+    },
+    {
+      "path": "src/core/sim/contact/WoodBatProductionProfileV1.test.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "3307b57320f179ae27a9b6bc899508ec26a17159",
+      "change": "added"
+    },
+    {
+      "path": "src/core/sim/contact/WoodBatProductionProfileV1.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "6e6d0898eb47a7b9add074248e97dd253d4dafce",
+      "change": "added"
+    },
+    {
+      "path": "src/core/sim/contact/WoodBatSpeedResponseProfile.test.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4d5a691baa05c9a1856063f74efb4c0b7fbc5c35",
+      "change": "added"
+    },
+    {
+      "path": "src/core/sim/contact/WoodBatSpeedResponseProfile.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "6f70664e9ec743e71f51f674ba03743001a41039",
+      "change": "added"
+    },
+    {
+      "path": "src/core/sim/pitching/AerodynamicCourseAwareSwingV1.test.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a4883f01adf32c92fb826f055580cfbd01a7ad7a",
+      "change": "added"
+    },
+    {
+      "path": "src/core/sim/pitching/AerodynamicCourseAwareSwingV1.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e61f5c18156f36f24aab2631f1ec59bd01d925a4",
+      "change": "added"
+    },
+    {
+      "path": "src/core/sim/pitching/AerodynamicPitchTrajectory.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "1b18dd8fc35e645f417742dffd1c2f3732185f81",
+      "change": "added"
+    },
+    {
+      "path": "src/core/sim/pitching/AerodynamicRigidBatSwingingPitchPhysicalResult.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "59ec983172a1757ae89e764c2ee7e228e912275c",
+      "change": "added"
+    },
+    {
+      "path": "src/core/sim/pitching/AerodynamicRigidPitchAgainstBatter.test.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "0673dc225f98338a5793d71a72dbff3ddac09c85",
+      "change": "added"
+    },
+    {
+      "path": "src/core/sim/pitching/AerodynamicRigidPitchAgainstBatter.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a44b5480f7c5a6eb9650a7a03f216b2fed1e0010",
+      "change": "added"
+    },
+    {
+      "path": "src/core/sim/pitching/AerodynamicTakenPitchPhysicalResult.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "5e94fda17a437dca9524dfccfdf0faea6873c435",
+      "change": "added"
+    },
+    {
+      "path": "src/core/sim/pitching/BaseballOrientation.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9440b1b48d02f666072194393d2c362ea5fada79",
+      "change": "added"
+    },
+    {
+      "path": "src/core/sim/pitching/CourseAwareSwingKinematicsV1.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "254daabd5eb3ac85e8c4e6728727847a625c209d",
+      "change": "added"
+    },
+    {
+      "path": "src/core/sim/pitching/PitchSpinPhysics.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "64400f11af13281af2f96f4386a6752079745502",
+      "change": "added"
+    },
+    {
+      "path": "src/core/sim/pitching/RigidBatContactCanonicalAdapter.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2e235b967a7cb1f9113f3bcea9957577cd1dc205",
+      "change": "added"
+    },
+    {
+      "path": "src/core/sim/contact/BatBallContact.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e104371a0572d2b70235b2ae9b33e07dbc80a0b5",
+      "change": "modified"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+import assert from 'node:assert/strict';
+import { test } from 'vitest';
+import { fixture, value, change } from './BattingFixtures.test-support';
+import { prepareBattingExecution } from './BattingCommitment';
+import { planAerodynamicCourseAwareSwingV1 } from '../../../sim/pitching/AerodynamicCourseAwareSwingV1';
+const plan=(x=fixture())=>value(prepareBattingExecution(x));
+test('neutral commitment uses refined available perception',()=>{const p=plan();assert.equal(p.status,'READY');assert.equal(p.commitment?.predictionId,'refined');assert.equal(p.commitment?.action,'SWING');});
+test('earlier commitment cannot use later-delivered refinement',()=>assert.equal(plan(fixture('IMPATIENCE',{swingDecisionShiftTicks:-30000})).commitment?.predictionId,'coarse'));
+test('neutral physical plan is exactly the existing v1 planner output',()=>{
+ const f=fixture(),s=f.source,p=plan(f).commitment;const base=planAerodynamicCourseAwareSwingV1({predictedTrajectory:s.predictions[1].trajectory,plateZ:s.plateZ,strikeZone:s.strikeZone,
+ handedness:s.handedness,batterCenterOfMass:s.centerOfMass,physical:s.batPhysical,profile:s.profiles[0].profile});assert.ok(base);assert.deepEqual(p?.trajectory,base.swingPlan.trajectory);
+});
+test('late commitment adds motor delay to all trajectory phase ticks',()=>{const a=plan().commitment!,b=plan(fixture('IMPATIENCE',{swingDecisionShiftTicks:120000})).commitment!;assert.ok(b.motorDelayTicks>0);for(const k of ['startTick','contactTick','endTick'] as const)assert.equal(b.trajectory![k]-a.trajectory![k],b.motorDelayTicks);assert.deepEqual(a.trajectory!.contact,b.trajectory!.contact);});
+test('aggression selects a feasible strong swing, not an ability bonus',()=>assert.equal(plan(fixture('ANGER',{swingAggressionDelta:0.3})).commitment?.profileId,'strong'));
+test('low perceived swing score selects take',()=>assert.equal(plan(change(fixture(),d=>d.source.predictions[1].swingScore=0.2)).commitment?.action,'TAKE'));
+test('aggression changes only the source-owned decision threshold calculation',()=>assert.equal(plan(change(fixture('ANGER',{swingAggressionDelta:0.3}),d=>d.source.predictions[1].swingScore=0.4)).commitment?.action,'SWING'));
+test('explicit take remains take even under aggression',()=>assert.equal(plan(change(fixture('ANGER',{swingAggressionDelta:0.3}),d=>d.source.directive='TAKE')).commitment?.action,'TAKE'));
+test('explicit take needs no pitch prediction',()=>assert.equal(plan(change(fixture(),d=>{d.source.directive='TAKE';d.source.predictions=[];})).commitment?.action,'TAKE'));
+test('explicit swing still needs perceived geometry, not actual fallback',()=>assert.equal(plan(change(fixture(),d=>{d.source.directive='SWING';d.source.predictions=[];})).status,'NO_OBSERVATION'));
+test('missing observations do not imply a deliberate take',()=>assert.equal(plan(change(fixture(),d=>d.source.predictions=[])).status,'NO_OBSERVATION'));
+test('stale latest prediction is not replaced with actual flight',()=>assert.equal(plan(change(fixture(),d=>d.source.predictions[1].validUntilTick=155000)).status,'STALE_PREDICTION'));
+test('before decision event returns waiting without a plan',()=>{const p=plan(change(fixture(),d=>{d.currentFrame.time.tick--;d.source.frame=structuredClone(d.currentFrame);}));assert.equal(p.status,'WAITING');assert.equal(p.commitment,null);});
+test('missed decision is not backdated',()=>assert.equal(plan(change(fixture(),d=>{d.currentFrame.time.tick++;d.source.frame=structuredClone(d.currentFrame);})).status,'MISSED_COMMITMENT'));
+test('motor window exhaustion does not silently convert swing to take',()=>assert.equal(plan(change(fixture(),d=>d.source.latestMotorStartTick=170000)).status,'MOTOR_WINDOW_MISSED'));
+test('unresolved perceived plate crossing is explicit',()=>assert.equal(plan(change(fixture(),d=>d.source.predictions[1].trajectory.start.velocity.z=40)).status,'UNRESOLVED_PREDICTION'));
+test('body readiness delays onset without changing bat geometry',()=>{const p=plan(change(fixture(),d=>d.source.bodyReadyTick=300000)).commitment!;assert.equal(p.motorStartTick,300000);assert.ok(p.motorDelayTicks>0);});
+test('technical phase timing is independent of emotion decision timing',()=>{const a=plan().commitment!,b=plan(change(fixture(),d=>d.source.technicalTimingOffsetTicks=10000)).commitment!;assert.equal(a.decisionTick,b.decisionTick);assert.equal(b.trajectory!.contactTick-a.trajectory!.contactTick,10000);assert.equal(b.motorDelayTicks,0);});
+test('source inputs stay unchanged; returned data is detached and frozen',()=>{const f=fixture(),before=structuredClone(f),p=plan(f);assert.deepEqual(f,before);assert.ok(Object.isFrozen(p.commitment?.trajectory));assert.notEqual(p.request.source,f.source);});
+test('changed current gate rejects even if named emotion is unchanged',()=>assert.equal(prepareBattingExecution(change(fixture(),d=>d.currentEmotion.revision++)).ok,false));
+test('other player cannot consume acceptance',()=>assert.equal(prepareBattingExecution(change(fixture(),d=>d.currentFrame.scope.playerId='other')).ok,false));
+test('modified accepted numerical decision is rejected',()=>assert.equal(prepareBattingExecution(change(fixture(),d=>d.acceptedExecution.proposal.inputs.swingAggression=1)).ok,false));
+test('invalid body speed envelope rejects physical profile',()=>assert.equal(prepareBattingExecution(change(fixture(),d=>d.source.maximumSweetSpotSpeedMps=1)).ok,false));

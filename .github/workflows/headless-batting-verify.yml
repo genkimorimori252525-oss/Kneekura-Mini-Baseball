@@ -17,25 +17,17 @@ jobs:
           ref: ${{ github.sha }}
           path: source
           persist-credentials: false
-      - uses: actions/checkout@v4
-        with:
-          ref: 7b1b84aafa5d79499740d556fd44cef63b4f2c26
-          path: frozen-swing
-          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 26
-      - name: Export exact source snapshots
+      - name: Export exact source
         shell: powershell
         run: |
           New-Item -ItemType Directory -Force "evidence-${{ github.run_id }}-${{ github.run_attempt }}" | Out-Null
           $e = (Resolve-Path "evidence-${{ github.run_id }}-${{ github.run_attempt }}").Path
-          git -C source archive --format=zip -o "$e/source.zip" HEAD src data tools package.json package-lock.json tsconfig.json AGENTS.md
+          git -C source archive --format=zip -o "$e/source.zip" HEAD src data tools package.json package-lock.json tsconfig.json AGENTS.md docs/core/emotion-batting-consumer-v1-headless-api.md docs/core/emotion-batting-reused-sources-v1.json docs/project-status/2026-09-23-emotion-batting-consumer.md docs/superpowers/plans/2026-09-23-emotion-batting-consumer.md .github/workflows/headless-batting-verify.yml
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           git -C source ls-tree -r HEAD | Out-File -Encoding utf8 "$e/source-tree.txt"
-          git -C frozen-swing archive --format=zip -o "$e/swing.zip" HEAD src docs/superpowers/specs
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git -C frozen-swing ls-tree -r HEAD | Out-File -Encoding utf8 "$e/swing-tree.txt"
           git -C source rev-parse HEAD | Out-File -Encoding utf8 "$e/source-sha.txt"
       - name: Install dependencies
         working-directory: source
