@@ -11,6 +11,12 @@ export type GameCompletionPolicy = Readonly<{
   maximumInnings?: number;
   tiesAllowed: boolean;
 }>;
+export type OfficialGameVenueBinding = Readonly<{
+  gameId: string;
+  venueId: string;
+  fixtureEventId: string;
+  fixtureRevision: number;
+}>;
 export type OfficialGameResult = Readonly<{
   gameId: string;
   seasonId: string;
@@ -26,6 +32,7 @@ export type OfficialGameResult = Readonly<{
   applicationId: string;
   durableRevision: number;
   lineScore: CanonicalLineScoreSnapshot;
+  venueBinding?: OfficialGameVenueBinding;
 }>;
 export type OfficialGameBoundary =
   | Readonly<{ kind: 'GAME_CONTINUES'; nextMatchState: CanonicalMatchState }>
@@ -39,6 +46,7 @@ export type OfficialGameBoundaryInput = Readonly<{
   priorMatch: CanonicalMatchState;
   application: OfficialStateApplicationReceipt;
   lineScore: CanonicalLineScoreSnapshot;
+  venueBinding?: OfficialGameVenueBinding;
 }>;
 
 const positive = (value: number): boolean => Number.isSafeInteger(value) && value > 0;
@@ -63,6 +71,12 @@ export const resolveOfficialGameBoundary = (
     || typeof policy.tiesAllowed !== 'boolean'
     || (policy.maximumInnings !== undefined && !policy.tiesAllowed)
   ) throw new Error('invalid versioned game completion policy or identity');
+  if (input.venueBinding !== undefined && (
+    input.venueBinding.gameId !== input.gameId
+    || !input.venueBinding.venueId
+    || !input.venueBinding.fixtureEventId
+    || !nonnegative(input.venueBinding.fixtureRevision)
+  )) throw new Error('official venue binding must match its fixture');
   if (
     !application.applicationId || !application.closureId
     || !nonnegative(application.durableRevision)
@@ -155,6 +169,8 @@ export const resolveOfficialGameBoundary = (
       applicationId: application.applicationId,
       durableRevision: application.durableRevision,
       lineScore: frozenLineScore,
+      ...(input.venueBinding ? { venueBinding: Object.freeze({
+        ...input.venueBinding }) } : {}),
     }),
   });
 };

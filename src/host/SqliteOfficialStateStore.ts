@@ -24,6 +24,7 @@ import {
   resolveOfficialGameBoundary,
   type OfficialGameBoundaryInput,
   type OfficialGameResult,
+  type OfficialGameVenueBinding,
 } from '../core/world/competition/OfficialGameCompletion';
 import type { CanonicalWorldSnapshot } from '../core/model/CanonicalWorldSnapshot';
 import type { CanonicalPlateAppearanceTimeline } from '../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
@@ -86,6 +87,8 @@ export type PersistedMatch = Readonly<{
 
 type MatchRow = { durable_revision: number; state_json: string; activation_json: string | null };
 type ApplicationRow = { request_hash: string; result_json: string };
+type FixtureRow = { game_id: string; venue_id: string;
+  fixture_event_id: string; fixture_revision: number };
 
 const nonEmpty = (value: string, name: string): string => {
   if (typeof value !== 'string' || value.length === 0) throw new Error(`${name} must not be empty`);
@@ -202,7 +205,7 @@ export class SqliteOfficialStateStore {
     this.database = new DatabaseSync(path);
     this.database.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;');
     const version = this.database.prepare('PRAGMA user_version').get() as { user_version: number };
-    if (version.user_version > 1) {
+    if (version.user_version > 2) {
       this.database.close();
       throw new Error('unsupported official state store schema version');
     }
@@ -221,12 +224,62 @@ export class SqliteOfficialStateStore {
         result_json TEXT NOT NULL,
         UNIQUE(match_id, closure_id)
       );
-      PRAGMA user_version=1;
+      CREATE TABLE IF NOT EXISTS official_fixtures (
+        game_id TEXT PRIMARY KEY,
+        venue_id TEXT NOT NULL,
+        fixture_event_id TEXT NOT NULL UNIQUE,
+        fixture_revision INTEGER NOT NULL CHECK(fixture_revision >= 0)
+      );
+      PRAGMA user_version=2;
     `);
   }
 
   close(): void {
     this.database.close();
+  }
+
+  /** Pins an official venue before the match is initialized or played. */
+  registerOfficialFixture(input: OfficialGameVenueBinding):
+  OfficialGameVenueBinding {
+    const fixture = cloneInert(input);
+    nonEmpty(fixture.gameId, 'fixture gameId');
+    nonEmpty(fixture.venueId, 'fixture venueId');
+    nonEmpty(fixture.fixtureEventId, 'fixture eventId');
+    revision(fixture.fixtureRevision, 'fixture revision');
+    this.database.exec('BEGIN IMMEDIATE');
+    try {
+      const existing = this.getOfficialFixture(fixture.gameId);
+      if (existing) {
+        if (serialized(existing) !== serialized(fixture)) {
+          throw new Error('official fixture is already pinned differently');
+        }
+        this.database.exec('COMMIT');
+        return existing;
+      }
+      if (this.getMatch(fixture.gameId) !== null) {
+        throw new Error('official fixture must precede match initialization');
+      }
+      this.database.prepare(`
+        INSERT INTO official_fixtures(game_id, venue_id,
+          fixture_event_id, fixture_revision) VALUES (?, ?, ?, ?)
+      `).run(fixture.gameId, fixture.venueId,
+        fixture.fixtureEventId, fixture.fixtureRevision);
+      this.database.exec('COMMIT');
+      return Object.freeze({ ...fixture });
+    } catch (error) {
+      this.rollback();
+      throw error;
+    }
+  }
+
+  getOfficialFixture(gameId: string): OfficialGameVenueBinding | null {
+    const row = this.database.prepare(`
+      SELECT game_id, venue_id, fixture_event_id, fixture_revision
+      FROM official_fixtures WHERE game_id=?
+    `).get(nonEmpty(gameId, 'fixture gameId')) as FixtureRow | undefined;
+    return row ? Object.freeze({ gameId: row.game_id,
+      venueId: row.venue_id, fixtureEventId: row.fixture_event_id,
+      fixtureRevision: row.fixture_revision }) : null;
   }
 
   getMatch(matchId: string): PersistedMatch | null {
@@ -364,6 +417,12 @@ export class SqliteOfficialStateStore {
       const current = this.getMatch(request.matchId);
       if (current === null) throw new Error('match is not initialized');
       if (current.finalResult !== null) throw new Error('match is already finalized');
+      const fixture = this.getOfficialFixture(request.matchId);
+      if ((fixture === null) !== (request.game.venueBinding === undefined)
+        || (fixture !== null && serialized(fixture)
+          !== serialized(request.game.venueBinding))) {
+        throw new Error('official game venue must match pre-game durable fixture');
+      }
       const appliedClosure = this.database.prepare(`
         SELECT application_id FROM applications WHERE match_id=? AND closure_id=?
       `).get(request.matchId, prepared.receipt.closureId);

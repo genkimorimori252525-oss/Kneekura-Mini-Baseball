@@ -36,13 +36,24 @@ describe('official game completion', () => {
     const boundary = resolveOfficialGameBoundary({
       ...base, priorMatch: before, application: receipt(after),
       lineScore: lineScore(2, 3, null),
+      venueBinding: { gameId: 'game-9', venueId: 'neutral-venue',
+        fixtureEventId: 'fixture-9', fixtureRevision: 1 },
     });
     expect(boundary.kind).toBe('GAME_FINAL');
     if (boundary.kind !== 'GAME_FINAL') return;
     expect(boundary.result).toMatchObject({
       gameId: 'game-9', winnerClubId: 'home', completionReason: 'HOME_LEADS_AFTER_TOP',
       homeRuns: 3, awayRuns: 2, closureId: 'closure-9', durableRevision: 9,
+      venueBinding: { gameId: 'game-9', venueId: 'neutral-venue',
+        fixtureEventId: 'fixture-9', fixtureRevision: 1 },
     });
+    expect(Object.isFrozen(boundary.result.venueBinding)).toBe(true);
+    expect(() => resolveOfficialGameBoundary({
+      ...base, priorMatch: before, application: receipt(after),
+      lineScore: lineScore(2, 3, null),
+      venueBinding: { gameId: 'wrong-game', venueId: 'neutral-venue',
+        fixtureEventId: 'fixture-9', fixtureRevision: 1 },
+    })).toThrow('venue binding');
   });
 
   it('ends immediately on a durable bottom-ninth walkoff score', () => {
