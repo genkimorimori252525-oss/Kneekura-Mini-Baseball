@@ -384,10 +384,13 @@ export const recordBattedBallFirstFielderTouch = (
   timeline: CanonicalPlateAppearanceTimeline,
   evidence: BattedBallFirstFielderTouchTerritory,
 ): CanonicalPlateAppearanceTimeline => {
-  if (timeline.status.kind !== 'batted_ball_pending') {
+  if (timeline.status.kind !== 'batted_ball_pending' && timeline.status.kind !== 'live_ball') {
     throw new Error(
-      'first-fielder-touch evidence requires a pending batted ball',
+      'first-fielder-touch evidence requires a pending or live batted ball',
     );
+  }
+  if (timeline.events.some((event) => event.kind === 'BattedBallFirstFielderTouch')) {
+    throw new Error('first-fielder touch has already been recorded');
   }
   if (evidence.tick < timeline.status.contactTick) {
     throw new Error(

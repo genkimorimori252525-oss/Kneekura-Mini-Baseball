@@ -1,12 +1,22 @@
 import { describe, expect, it } from 'vitest';
+import type { CanonicalMatchState } from '../model/CanonicalMatchState';
 import { asRuleProfileId } from '../model/RuleProfileRef';
 import {
   createDefensiveAppealAttemptFact,
   createFlyBallFirstFielderTouchFact,
+  createPlayEndFact,
   createRunnerBaseDepartureFact,
   createRunnerBaseTouchFact,
 } from '../rules/PhysicalRuleFacts';
 import { NPB_2026_RULE_PROFILE, type RuleProfile } from '../rules/RuleProfile';
+import { resolveBatBallContact } from '../sim/contact/BatBallContact';
+import {
+  createCanonicalPlateAppearanceTimeline,
+  recordBatBallContact,
+  recordBattedBallFirstFielderTouch,
+  recordFairBattedBall,
+  recordLiveBallPlayEnd,
+} from '../sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 import {
   closeOfficialPlay,
   closeOfficialStateWindow,
@@ -15,7 +25,10 @@ import {
   recordOnFieldCall,
 } from './PlayAdjudicationLedger';
 import { advanceRuleProfileOfficialWindows, openRuleProfileOfficialStateWindow } from './OfficialWindowPolicy';
-import { orchestrateTagUpAppealAttempt } from './TagUpAppealOrchestration';
+import {
+  orchestrateTagUpAppealAttempt,
+  orchestrateTagUpAppealAttemptFromTimeline,
+} from './TagUpAppealOrchestration';
 
 const profile = NPB_2026_RULE_PROFILE;
 const ruling = {
@@ -44,7 +57,91 @@ const evidence = () => ({
 const attempt = (tick = 503) =>
   createDefensiveAppealAttemptFact('first-baseman', 'r1', 1, 'tag_up_early_departure', tick);
 
+const physicalTimeline = () => {
+  const match: CanonicalMatchState = {
+    ruleProfileId: profile.id, inning: 1, half: 'top', outs: 0, balls: 0, strikes: 0,
+    bases: { first: 'r1', second: null, third: null },
+    score: { away: 0, home: 0 }, playId: 7,
+  };
+  const contact = resolveBatBallContact(
+    {
+      tick: 150, position: { x: 0, y: 1, z: 0.06 },
+      velocity: { x: 0, y: -1.5, z: -35 }, spin: { x: 0, y: 0, z: 0 },
+    },
+    {
+      pose: { grip: { x: -0.42, y: 1, z: 0 }, tip: { x: 0.42, y: 1, z: 0 } },
+      linearVelocity: { x: 0, y: 0, z: 22 }, angularVelocity: { x: 0, y: 0, z: 0 },
+    },
+  );
+  if (contact === null) throw new Error('fixture must produce contact');
+  const contacted = recordBatBallContact(createCanonicalPlateAppearanceTimeline(match, 100), contact);
+  const touched = recordBattedBallFirstFielderTouch(contacted, {
+    fielderId: 'left-fielder', tick: 200,
+    ballCenter: { x: 0, y: 1.2, z: 40 }, ballRadiusMeters: 0.0366,
+    classification: {
+      kind: 'inside_fair_wedge', firstBaseLineSignedSide: 10, thirdBaseLineSignedSide: 10,
+    },
+  });
+  return recordLiveBallPlayEnd(recordFairBattedBall(touched, 210), createPlayEndFact(500, 'live_action_complete'));
+};
+
 describe('tag-up appeal attempt orchestration', () => {
+  it('uses the first fielder touch from the completed physical timeline', () => {
+    const { ledger, result } = orchestrateTagUpAppealAttemptFromTimeline(initial(), 2, {
+      profile, eventId: 'physical-appeal', windowId: 'appeal', attempt: attempt(),
+      physicalTimeline: physicalTimeline(),
+      complianceEvidence: {
+        runnerId: 'r1', originBase: 1,
+        departure: createRunnerBaseDepartureFact('r1', 1, 190), retouch: null,
+      },
+    });
+    expect(result.kind).toBe('out');
+    expect(ledger.events.at(-1)).toMatchObject({
+      kind: 'DefensiveAppealAttemptRecorded',
+      complianceEvidence: { firstTouch: { fielderId: 'left-fielder', tick: 200 } },
+    });
+  });
+
+  it('rejects a different play, missing or duplicate touch, and an incomplete timeline', () => {
+    const input = {
+      profile, eventId: 'physical-appeal', windowId: 'appeal', attempt: attempt(),
+      physicalTimeline: physicalTimeline(),
+      complianceEvidence: {
+        runnerId: 'r1', originBase: 1 as const,
+        departure: createRunnerBaseDepartureFact('r1', 1, 190), retouch: null,
+      },
+    };
+    expect(() => orchestrateTagUpAppealAttemptFromTimeline(initial(), 2, {
+      ...input, physicalTimeline: { ...input.physicalTimeline, playId: 8 },
+    })).toThrow('physical timeline playId must match adjudication ledger');
+    expect(() => orchestrateTagUpAppealAttemptFromTimeline(initial(), 2, {
+      ...input,
+      physicalTimeline: {
+        ...input.physicalTimeline,
+        events: input.physicalTimeline.events.filter((event) => event.kind !== 'BattedBallFirstFielderTouch'),
+      },
+    })).toThrow('exactly one first-fielder touch');
+    const touch = input.physicalTimeline.events.find((event) => event.kind === 'BattedBallFirstFielderTouch');
+    if (touch === undefined) throw new Error('fixture must contain first touch');
+    expect(() => orchestrateTagUpAppealAttemptFromTimeline(initial(), 2, {
+      ...input,
+      physicalTimeline: {
+        ...input.physicalTimeline,
+        events: [
+          ...input.physicalTimeline.events.slice(0, -1),
+          touch,
+          input.physicalTimeline.events.at(-1)!,
+        ],
+      },
+    })).toThrow('exactly one first-fielder touch');
+    expect(() => orchestrateTagUpAppealAttemptFromTimeline(initial(), 2, {
+      ...input,
+      physicalTimeline: {
+        ...input.physicalTimeline,
+        status: { kind: 'live_ball', count: { balls: 0, strikes: 0 }, contactTick: 150, fairDeterminationTick: 210 },
+      },
+    })).toThrow('completed live-ball physical timeline');
+  });
   it('records physical provenance, resolves through RuleEngine and fences closure until new evidence is ruled', () => {
     const { ledger, compliance, result } = orchestrateTagUpAppealAttempt(initial(), 2, {
       profile, eventId: 'attempt-1', windowId: 'appeal', attempt: attempt(), complianceEvidence: evidence(),

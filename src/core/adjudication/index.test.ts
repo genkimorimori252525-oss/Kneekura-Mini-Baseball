@@ -11,6 +11,7 @@ import {
   openOfficialStateWindow,
   openRuleProfileOfficialStateWindow,
   orchestrateTagUpAppealAttempt,
+  orchestrateTagUpAppealAttemptFromTimeline,
   recordCorrectRuleSnapshot,
   recordOnFieldCall,
   recordReviewDecision,
@@ -32,5 +33,6 @@ describe('official adjudication public seam', () => {
     expect(openRuleProfileOfficialStateWindow).toBeTypeOf('function');
     expect(advanceRuleProfileOfficialWindows).toBeTypeOf('function');
     expect(orchestrateTagUpAppealAttempt).toBeTypeOf('function');
+    expect(orchestrateTagUpAppealAttemptFromTimeline).toBeTypeOf('function');
   });
 });

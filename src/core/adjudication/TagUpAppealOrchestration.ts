@@ -1,4 +1,6 @@
 import type { RuleProfile } from '../rules/RuleProfile';
+import { createFlyBallFirstFielderTouchFact } from '../rules/PhysicalRuleFacts';
+import type { CanonicalPlateAppearanceTimeline } from '../sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 import { resolveTagUpAppeal, type TagUpAppealResult } from '../rules/TagUpAppealRule';
 import { evaluateTagUpCompliance, type TagUpComplianceResult } from '../rules/TagUpCompliance';
 import {
@@ -72,4 +74,58 @@ export const orchestrateTagUpAppealAttempt = (
     });
   }
   return Object.freeze({ ledger: next, compliance, result });
+};
+
+export type TimelineTagUpAppealAttemptInput = Omit<TagUpAppealAttemptInput, 'complianceEvidence'> & Readonly<{
+  physicalTimeline: CanonicalPlateAppearanceTimeline;
+  complianceEvidence: Omit<TagUpAppealAttemptInput['complianceEvidence'], 'firstTouch'>;
+}>;
+
+export const orchestrateTagUpAppealAttemptFromTimeline = (
+  ledgerInput: PlayAdjudicationLedger,
+  expectedRevision: number,
+  input: TimelineTagUpAppealAttemptInput,
+): TagUpAppealAttemptResolution => {
+  const ledger = cloneInert(ledgerInput);
+  const request = cloneInert(input);
+  const timeline = request.physicalTimeline;
+  if (timeline.playId !== ledger.playId) {
+    throw new Error('physical timeline playId must match adjudication ledger');
+  }
+  if (ledger.playEnd === null || timeline.status.kind !== 'live_ball_complete') {
+    throw new Error('appeal requires a completed live-ball physical timeline');
+  }
+  const end = timeline.events.at(-1);
+  if (
+    end?.kind !== 'LiveBallPlayEnded'
+    || end.tick !== timeline.status.playEndTick
+    || end.tick !== ledger.playEnd.tick
+    || end.payload.playEnd.tick !== ledger.playEnd.tick
+    || end.payload.playEnd.reason !== ledger.playEnd.reason
+  ) {
+    throw new Error('physical timeline PlayEnd must match adjudication ledger');
+  }
+  const touches = timeline.events.filter((event) => event.kind === 'BattedBallFirstFielderTouch');
+  if (touches.length !== 1) {
+    throw new Error('appeal requires exactly one first-fielder touch in physical timeline');
+  }
+  const touch = touches[0];
+  if (
+    touch.tick !== touch.payload.evidence.tick
+    || touch.tick < timeline.status.contactTick
+    || touch.tick > end.tick
+  ) {
+    throw new Error('physical timeline first-fielder touch is inconsistent');
+  }
+  const firstTouch = createFlyBallFirstFielderTouchFact(
+    touch.payload.evidence.fielderId,
+    touch.tick,
+  );
+  return orchestrateTagUpAppealAttempt(ledger, expectedRevision, {
+    profile: request.profile,
+    eventId: request.eventId,
+    windowId: request.windowId,
+    attempt: request.attempt,
+    complianceEvidence: { ...request.complianceEvidence, firstTouch },
+  });
 };
