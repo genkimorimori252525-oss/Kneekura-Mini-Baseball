@@ -21,6 +21,7 @@ Each source may contribute:
 - in-flight information;
 - pending actor decisions;
 - live rule windows.
+- an optional policy-owned completion event (`completedAtTick`, `basisEventId`).
 
 Source IDs are unique. Queue identity must equal the owning source ID.
 
@@ -42,6 +43,8 @@ Source IDs are unique. Queue identity must equal the owning source ID.
 
 A later legitimate re-registration must use a strictly newer source revision.
 
+`retireCompletedLivePlaySources(registry, expectedRevision, tick)` removes all sources that explicitly completed by `tick` in one CAS update and retains revision tombstones. Completion is rejected while any source work or next event remains pending, or while its event watermark is behind the completion tick. A completed active source cannot be reopened by a later upsert.
+
 ## Resolution
 
 `resolveLivePlayRegistry(registry, input)` performs the existing authority chain:
@@ -55,6 +58,8 @@ A later legitimate re-registration must use a strictly newer source revision.
 The registry does not resolve duplicate work IDs. If independent sources claim the same work ID, the existing ActionFrontier rejects the assembled frontier.
 
 An unresolved event source may keep `nextPendingTick: null` while its `settledThroughTick` remains behind the current tick. That still blocks PlayEnd through the global watermark.
+
+For ordinary quiescent PlayEnd, every still-active source also needs an explicit completion event. An active source without one yields a `pending_source` blocker even if its current work arrays are empty. Terminal conditions keep their existing semantics. Source completion never substitutes for an actor's independent `settled_for_play` disposition.
 
 ## Terminal conditions
 

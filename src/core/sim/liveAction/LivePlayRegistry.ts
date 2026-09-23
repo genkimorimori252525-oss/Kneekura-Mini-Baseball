@@ -8,6 +8,7 @@ import {
   type PendingIntentWork,
   type PendingPhysicalWork,
   type PendingRuleWindow,
+  type PlayEndBlocker,
   type PlayEndResolution,
   type TerminalLiveActionCondition,
 } from './ActionFrontier';
@@ -26,6 +27,7 @@ export type LivePlaySource = Readonly<{
   information: readonly PendingInformationWork[];
   decisions: readonly PendingDecisionWork[];
   ruleWindows: readonly PendingRuleWindow[];
+  completion?: Readonly<{ completedAtTick: number; basisEventId: string }>;
 }>;
 
 export type RetiredLivePlaySource = Readonly<{
@@ -192,15 +194,33 @@ const copySource = (source: LivePlaySource): LivePlaySource => {
   ) {
     throw new Error('live-play source work collections must be arrays');
   }
+  const queue = copyQueue(source.queue, sourceId);
+  const completion = source.completion === undefined ? undefined : Object.freeze({
+    completedAtTick: safeInteger(source.completion.completedAtTick, 'source completedAtTick'),
+    basisEventId: id(source.completion.basisEventId, 'source completion basisEventId'),
+  });
+  if (completion !== undefined) {
+    if (source.physical.length > 0 || source.intents.length > 0 || source.information.length > 0
+      || source.decisions.length > 0 || source.ruleWindows.length > 0) {
+      throw new Error('completed live-play source still has pending work');
+    }
+    if (queue !== null && queue.nextPendingTick !== null) {
+      throw new Error('completed live-play source still has a pending event');
+    }
+    if (queue !== null && queue.settledThroughTick < completion.completedAtTick) {
+      throw new Error('source completion exceeds its event watermark');
+    }
+  }
   return Object.freeze({
     sourceId,
     revision,
-    queue: copyQueue(source.queue, sourceId),
+    queue,
     physical: freezeItems(source.physical),
     intents: freezeItems(source.intents),
     information: freezeItems(source.information),
     decisions: freezeItems(source.decisions),
     ruleWindows: freezeItems(source.ruleWindows),
+    ...(completion === undefined ? {} : { completion }),
   });
 };
 
@@ -276,6 +296,10 @@ export const upsertLivePlaySource = (
   const existingIndex = registry.sources.findIndex(
     (candidate) => candidate.sourceId === source.sourceId,
   );
+  if (existingIndex >= 0 && registry.sources[existingIndex].completion !== undefined
+    && source.completion === undefined) {
+    throw new Error('completed live-play source cannot reopen');
+  }
   const retiredRevision = registry.retiredSources
     ?.find((candidate) => candidate.sourceId === source.sourceId)
     ?.revision ?? 0;
@@ -331,6 +355,29 @@ export const removeLivePlaySource = (
   });
 };
 
+export const retireCompletedLivePlaySources = (
+  registryInput: LivePlayRegistry,
+  expectedRevision: number,
+  currentTickInput: number,
+): LivePlayRegistry => {
+  const registry = copyRegistry(registryInput);
+  requireRegistryRevision(registry, expectedRevision);
+  const currentTick = safeInteger(currentTickInput, 'live-play tick');
+  const completed = registry.sources.filter((source) => source.completion !== undefined
+    && source.completion.completedAtTick <= currentTick);
+  if (completed.length === 0) return registry;
+  const completedIds = new Set(completed.map((source) => source.sourceId));
+  return Object.freeze({
+    playId: registry.playId,
+    revision: nextRevision(registry.revision, 'registry revision'),
+    sources: Object.freeze(registry.sources.filter((source) => !completedIds.has(source.sourceId))),
+    retiredSources: Object.freeze([
+      ...(registry.retiredSources ?? []),
+      ...completed.map((source) => Object.freeze({ sourceId: source.sourceId, revision: source.revision })),
+    ]),
+  });
+};
+
 export const resolveLivePlayRegistry = (
   registryInput: LivePlayRegistry,
   input: ResolveLivePlayRegistryInput,
@@ -362,10 +409,23 @@ export const resolveLivePlayRegistry = (
     eventQueueSettledThroughTick: watermark.settledThroughTick,
   });
 
-  const resolution = resolvePlayEndFromFrontier(
+  let resolution = resolvePlayEndFromFrontier(
     frontier,
     terminal,
   );
+  if (terminal === 'none') {
+    const unfinished: PlayEndBlocker[] = registry.sources
+      .filter((source) => source.completion === undefined)
+      .map((source) => Object.freeze({ kind: 'pending_source' as const, sourceId: source.sourceId }));
+    if (unfinished.length > 0) {
+      resolution = Object.freeze({
+        kind: 'continues', frontier,
+        blockers: Object.freeze([
+          ...(resolution.kind === 'continues' ? resolution.blockers : []), ...unfinished,
+        ]),
+      });
+    }
+  }
 
   return Object.freeze({
     registry,
