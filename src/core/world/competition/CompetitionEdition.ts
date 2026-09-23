@@ -16,6 +16,11 @@ export type CompetitionFormatProfile = Readonly<{
   effectiveAfterEditionId?: string;
 }>;
 
+export type FinalFourPairingPolicy = Readonly<{
+  version: string;
+  semifinalPairs: readonly (readonly [number, number])[];
+}>;
+
 export type CompetitionEditionInput = Readonly<{
   editionId: string;
   qualificationSnapshotId: string;
@@ -26,6 +31,7 @@ export type CompetitionEditionInput = Readonly<{
   prestigeAtEdition: number;
   /** Evaluated once while creating the edition, before its games begin. */
   finalFourHostCandidates?: readonly HostCandidate[];
+  finalFourPairingPolicy?: FinalFourPairingPolicy;
   groupHubs?: readonly Readonly<{ groupIndex: number; nationId: string;
     cityId: string; venueId: string }>[];
 }>;
@@ -85,6 +91,23 @@ export const createCompetitionEdition = (
     && input.finalFourHostCandidates === undefined) {
     throw new Error('continental CL edition requires a preselected final four host');
   }
+  if ((profile.canonicalRole === 'CONTINENTAL_CL'
+    || profile.canonicalRole === 'AFBCL')
+    && input.finalFourPairingPolicy === undefined) {
+    throw new Error('continental CL edition requires preselected semifinal pairings');
+  }
+  const pairing = input.finalFourPairingPolicy;
+  if (pairing !== undefined && (
+    !pairing.version || !Array.isArray(pairing.semifinalPairs)
+    || pairing.semifinalPairs.length !== 2
+    || pairing.semifinalPairs.some((pair) =>
+      !Array.isArray(pair) || pair.length !== 2
+      || pair.some((slot) => !Number.isSafeInteger(slot)))
+    || [...pairing.semifinalPairs.flat()].sort().join(',') !== '0,1,2,3'
+    || (profile.canonicalRole === 'AFBCL'
+      && pairing.semifinalPairs.some((pair) =>
+        Math.floor(pair[0] / 2) === Math.floor(pair[1] / 2)))
+  )) throw new Error('invalid edition semifinal pairing policy');
   if (profile.canonicalRole === 'AFBCL'
     && (!Array.isArray(input.groupHubs)
       || input.groupHubs.length !== 2)) {
@@ -123,6 +146,11 @@ export const createCompetitionEdition = (
     drawSnapshotId: input.drawSnapshotId,
     prestigeAtEdition: input.prestigeAtEdition,
     ...(finalFourHost ? { finalFourHost } : {}),
+    ...(pairing ? { finalFourPairingPolicy: Object.freeze({
+      version: pairing.version,
+      semifinalPairs: Object.freeze(pairing.semifinalPairs.map((pair) =>
+        Object.freeze([pair[0], pair[1]] as const))),
+    }) } : {}),
     ...(input.groupHubs ? { groupHubs: Object.freeze(input.groupHubs.map(
       (hub) => Object.freeze({ ...hub }))) } : {}),
   });

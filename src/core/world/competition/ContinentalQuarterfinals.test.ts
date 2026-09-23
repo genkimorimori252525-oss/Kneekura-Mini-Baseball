@@ -141,6 +141,8 @@ it('uses the edition host for two neutral semifinals and one official final', ()
     calendarWindow: { startsOnDay: 1, endsOnDay: 30 },
     drawSnapshotId: 'group-draw-2027', prestigeAtEdition: 1,
     finalFourHostCandidates: hostCandidates,
+    finalFourPairingPolicy: { version: 'sf-pairs-v1',
+      semifinalPairs: [[0, 1], [2, 3]] as const },
   }, registry);
   expect(() => createCompetitionEdition(profile, {
     editionId: draw.editionId,
@@ -188,5 +190,9 @@ it('uses the edition host for two neutral semifinals and one official final', ()
   expect(() => planContinentalFinalFour({ ...source,
     pairingPolicy: { version: 'bad-pairs',
       semifinalPairs: [[0, 0], [2, 3]] as const } }))
+    .toThrow('pairing');
+  expect(() => planContinentalFinalFour({ ...source,
+    pairingPolicy: { version: 'sf-pairs-v1',
+      semifinalPairs: [[0, 2], [1, 3]] as const } }))
     .toThrow('pairing');
 });
