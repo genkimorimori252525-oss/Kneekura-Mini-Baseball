@@ -2083,3 +2083,34 @@ Canonical implementation refinement:
   - catcher follows/supports the accepted pitcher call.
 - future NEGOTIATED/shake-off behavior must still resolve PitchCall ownership separately from Cadence ownership.
 - updated implementation plan commit: `5ca17ca770016d6ac34dfb994b99bfbf7b6f794f`.
+
+
+---
+
+## 2026-09-23 CANONICAL — Pitch Release Geometry v1
+
+Canonical:
+- `docs/game-design/55-pitch-release-geometry-v1.md`
+
+Frozen decisions:
+
+- Pitcher arm-slot classes are `OVERHAND / THREE_QUARTER / SIDEARM / UNDERHAND`.
+- Arm-slot label is not the physics Source of Truth.
+- Every pitcher has one player-specific continuous `PitcherReleaseGeometryProfile`.
+- Same arm-slot class may contain different release heights.
+- ReleaseHeightTier is ordered `VERY_LOW < LOW < LOW_MID < MID < HIGH_MID < HIGH < VERY_HIGH`, but is only a Projection over continuous geometry.
+- higher slots tend higher and lower slots tend lower; class ranges may overlap.
+- release geometry is fixed pitch-to-pitch. No random per-pitch height drift.
+- Pitch Timing ±50ms, QUICK, DELIBERATE and 緩急○ never move the Base Release Geometry.
+- BallFlight begins at the actual CanonicalReleasePosition.
+- high release can naturally look like a ball dropping from a roof; very low release can naturally look like a ball emerging from the ground, but physical body reach limits remain mandatory.
+- body dimensions + arm slot + posture + extension + player-specific geometry determine the actual world release point.
+- lateral offset / extension / arm-slot elevation / azimuth are also fixed v1 profile components.
+- ordinary pitch type changes do not rewrite Base Release Geometry.
+- Career-level explicit delivery/form changes may version the profile; ordinary pitches cannot.
+- Batter perception reacts to the real release point / trajectory, never to an UNDERHAND/OVERHAND difficulty modifier.
+- Mini and Natural consume the same release geometry.
+- Pitch Timing and Release Geometry join only at `CanonicalPitchRelease`: when = Timing, where = Geometry, how = Pitch Physics.
+
+Canonical design commit:
+- `fc16a9d5802ffc734a6a46ad49a414ae744fe820`
