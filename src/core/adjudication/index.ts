@@ -35,6 +35,8 @@ export type {
   OfficialScoringResult,
   SupportedOfficialScoringRecord,
 } from './OfficialScoring';
+export { prepareBetweenPlayWorld } from './BetweenPlayWorldReset';
+export type { BetweenPlayWorldSetup } from './BetweenPlayWorldReset';
 export type { TagUpAppealAttemptInput, TagUpAppealAttemptResolution } from './TagUpAppealOrchestration';
 
 export type {

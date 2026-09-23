@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { closeOfficialPlay, createPlayAdjudicationLedger, recordCorrectRuleSnapshot } from '../core/adjudication/PlayAdjudicationLedger';
 import type { CanonicalMatchState } from '../core/model/CanonicalMatchState';
 import { asRuleProfileId } from '../core/model/RuleProfileRef';
+import type { BetweenPlayWorldSetup } from '../core/adjudication/BetweenPlayWorldReset';
 import {
   createCanonicalPlateAppearanceTimeline,
   recordCountedPitch,
@@ -51,10 +52,23 @@ const liveAdjudication = () => {
   });
   return closeOfficialPlay(ledger, 1, { eventId: 'close', closureId: 'closure-1', tick: 502 });
 };
+const worldSetup = (): BetweenPlayWorldSetup => ({
+  baseCenters: {
+    first: { x: 27, z: 0 }, second: { x: 27, z: 27 }, third: { x: 0, z: 27 },
+  },
+  defenders: (['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF'] as const).map(
+    (registeredPosition, index) => ({
+      playerId: `defender-${index}`,
+      registeredPosition,
+      position: { x: index, z: index },
+    }),
+  ),
+  activePreviousPlayControllerIds: [],
+});
 const liveRequest = () => ({
   kind: 'live_ball' as const, matchId: 'game-1', applicationId: 'application-1',
   expectedDurableRevision: 0, match: match(), physicalTimeline: liveTimeline(),
-  adjudication: liveAdjudication(), nextStartedAtTick: 503,
+  adjudication: liveAdjudication(), nextStartedAtTick: 503, worldSetup: worldSetup(),
 });
 
 describe('SQLite official state store', () => {
@@ -68,9 +82,14 @@ describe('SQLite official state store', () => {
     });
     expect(result.activation.nextMatchState).toMatchObject({ playId: 8, outs: 2 });
     expect(result.activation.nextTimeline.playId).toBe(8);
+    expect(result.nextWorld).toMatchObject({
+      tick: 503, ball: null,
+      runners: [{ playerId: 'r1', position: { x: 27, z: 27 }, velocity: { x: 0, z: 0 } }],
+    });
     expect(store.getMatch('game-1')).toMatchObject({
       durableRevision: 1, matchState: { playId: 8, outs: 2 },
       activation: { applicationId: 'application-1' },
+      nextWorld: { runners: [{ playerId: 'r1' }] },
     });
     store.close();
     const reopened = new SqliteOfficialStateStore(path);
@@ -98,6 +117,22 @@ describe('SQLite official state store', () => {
     store.close();
   });
 
+  it('reads an older activation-only row without inventing a reset world', () => {
+    const path = pathForTest();
+    const store = new SqliteOfficialStateStore(path);
+    store.initializeMatch('game-1', match());
+    const result = store.applyAndActivate(liveRequest());
+    const DatabaseSync = (createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite')).DatabaseSync;
+    const external = new DatabaseSync(path);
+    external.prepare('UPDATE matches SET activation_json=? WHERE match_id=?')
+      .run(JSON.stringify(result.activation), 'game-1');
+    expect(store.getMatch('game-1')).toMatchObject({
+      activation: { applicationId: 'application-1' }, nextWorld: null,
+    });
+    external.close();
+    store.close();
+  });
+
   it('rolls back a failed official derivation before writing any application', () => {
     const store = new SqliteOfficialStateStore(pathForTest());
     store.initializeMatch('game-1', match());
@@ -105,6 +140,17 @@ describe('SQLite official state store', () => {
       .toThrow('next play cannot start before OfficialPlayClosure');
     expect(store.getMatch('game-1')).toMatchObject({ durableRevision: 0, matchState: { playId: 7 } });
     expect(store.applyAndActivate(liveRequest()).receipt.durableRevision).toBe(1);
+    store.close();
+  });
+
+  it('refuses activation while an old controller is active and preserves the durable revision', () => {
+    const store = new SqliteOfficialStateStore(pathForTest());
+    store.initializeMatch('game-1', match());
+    expect(() => store.applyAndActivate({
+      ...liveRequest(),
+      worldSetup: { ...worldSetup(), activePreviousPlayControllerIds: ['runner-r1'] },
+    })).toThrow('previous-play controllers must be retired');
+    expect(store.getMatch('game-1')).toMatchObject({ durableRevision: 0, nextWorld: null });
     store.close();
   });
 
@@ -164,7 +210,7 @@ describe('SQLite official state store', () => {
     const result = store.applyAndActivate({
       kind: 'non_live', matchId: 'game-1', applicationId: 'strikeout-1',
       expectedDurableRevision: 0, match: before, timeline, adjudication,
-      context: { kind: 'strikeout' }, nextStartedAtTick: 1103,
+      context: { kind: 'strikeout' }, nextStartedAtTick: 1103, worldSetup: worldSetup(),
     });
     expect(result.activation.nextMatchState).toMatchObject({ playId: 8, outs: 2, strikes: 0 });
     expect(store.getMatch('game-1')?.durableRevision).toBe(1);

@@ -45,6 +45,8 @@ Only then is a new CanonicalPlateAppearanceTimeline created from the already-app
 
 The activation result carries the application ID and durable revision for provenance.
 
+The SQLite host's `applyAndActivate` path also requires a `BetweenPlayWorldSetup`. It constructs and persists a reset `CanonicalWorldSnapshot` from the applied official bases, verifies all nine idle defenders and refuses any active previous-play controller. This physical setup is required by that durable host path before it returns next-play activation; direct pure activation callers must enforce the same world gate in their own host.
+
 ## Integrity
 
 All activation and confirmation inputs are descriptor-cloned before property access. Active getters/accessors, functions, symbols, cycles, malformed arrays, non-plain objects and non-finite numbers are rejected without caller code execution.
@@ -57,5 +59,5 @@ This slice does not implement:
 
 - database writes or transaction management inside Core;
 - HBP durable application;
-- official scoring classification;
+- full live-ball official scoring classification;
 - Presentation/UI/rendering.

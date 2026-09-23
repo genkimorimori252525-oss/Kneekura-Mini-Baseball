@@ -13,6 +13,7 @@ import {
   openRuleProfileOfficialStateWindow,
   orchestrateTagUpAppealAttempt,
   orchestrateTagUpAppealAttemptFromTimeline,
+  prepareBetweenPlayWorld,
   recordCorrectRuleSnapshot,
   recordOnFieldCall,
   recordReviewDecision,
@@ -36,5 +37,6 @@ describe('official adjudication public seam', () => {
     expect(orchestrateTagUpAppealAttempt).toBeTypeOf('function');
     expect(orchestrateTagUpAppealAttemptFromTimeline).toBeTypeOf('function');
     expect(classifyClosedPlayForOfficialScoring).toBeTypeOf('function');
+    expect(prepareBetweenPlayWorld).toBeTypeOf('function');
   });
 });
