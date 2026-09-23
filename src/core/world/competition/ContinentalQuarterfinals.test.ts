@@ -2,11 +2,17 @@ import { expect, it } from 'vitest';
 import { asRuleProfileId } from '../../model/RuleProfileRef';
 import type { OfficialGameResult } from './OfficialGameCompletion';
 import type { CompetitionDraw } from './CompetitionDraw';
+import { EMPTY_COMPETITION_DRAW_POLICY_REGISTRY,
+  registerCompetitionDrawPolicy } from './CompetitionDraw';
+import { createCompetitionEdition } from './CompetitionEdition';
+import type { HostCandidate } from './HostSelection';
 import { assignContinentalGroupHomeSeries,
   createHomeFairnessLedger } from './ContinentalHomeFairness';
 import { createContinentalGroupGamePlan } from './ContinentalGroupResults';
 import { planContinentalQuarterfinals,
   finalizeContinentalQuarterfinals } from './ContinentalQuarterfinals';
+import { planContinentalFinalFour, finalizeContinentalFinalFour }
+  from './ContinentalFinalFour';
 
 const draw: CompetitionDraw = {
   editionId: 'edition-2027', drawPolicyVersion: 'draw-v1',
@@ -100,4 +106,87 @@ it('draws cross-group winner-home quarterfinals and advances official winners on
   expect(() => planContinentalQuarterfinals({ ...input,
     groupOfficialResults: groupOfficialResults.slice(1) }))
     .toThrow('complete');
+});
+
+it('uses the edition host for two neutral semifinals and one official final', () => {
+  const quarterfinalSource = { groupPlan, groupOfficialResults,
+    groupTiebreakPolicy };
+  const quarterfinalPlan = planContinentalQuarterfinals({
+    ...quarterfinalSource, policyVersion: 'quarterfinal-v1',
+    drawSeed: 'seed-2027' });
+  const quarterfinalResults = quarterfinalPlan.games.map(result);
+  const hostCandidates: HostCandidate[] = [{ venueId: 'venue-1',
+    nationId: 'nation-1', cityId: 'city-1', regionId: 'region-1',
+    eligible: true, suitabilityScore: 10, rotationScore: 1 },
+  { venueId: 'venue-2', nationId: 'nation-1', cityId: 'city-2',
+    regionId: 'region-2', eligible: true, suitabilityScore: 5,
+    rotationScore: 1 }];
+  const profile = {
+    competitionId: 'continental-a',
+    formatVersion: 'continental-16-v1',
+    ruleProfileVersion: 'continental-rules-v1',
+    hostingPolicyVersion: 'final-four-host-v1',
+    drawPolicyVersion: 'draw-v1',
+    drawPolicy: { version: 'draw-v1',
+      relaxationOrder: draw.relaxationOrder },
+    awardPolicyVersion: 'award-v1', canonicalRole: 'CONTINENTAL_CL' };
+  const registry = registerCompetitionDrawPolicy(
+    EMPTY_COMPETITION_DRAW_POLICY_REGISTRY, profile.drawPolicy);
+  const edition = createCompetitionEdition(profile, {
+    editionId: draw.editionId,
+    qualificationSnapshotId: 'qualified-2027',
+    participantIds: groupPlan.groups.flatMap((group) => group.memberClubIds),
+    host: { nationId: 'nation-1', cityIds: ['city-1', 'city-2'],
+      venueIds: ['venue-1', 'venue-2'] },
+    calendarWindow: { startsOnDay: 1, endsOnDay: 30 },
+    drawSnapshotId: 'group-draw-2027', prestigeAtEdition: 1,
+    finalFourHostCandidates: hostCandidates,
+  }, registry);
+  expect(() => createCompetitionEdition(profile, {
+    editionId: draw.editionId,
+    qualificationSnapshotId: 'qualified-2027',
+    participantIds: groupPlan.groups.flatMap((group) => group.memberClubIds),
+    host: edition.host, calendarWindow: edition.calendarWindow,
+    drawSnapshotId: edition.drawSnapshotId, prestigeAtEdition: 1,
+  }, registry)).toThrow('preselected final four host');
+  const source = { edition, quarterfinalPlan,
+    quarterfinalResults, quarterfinalSource,
+    pairingPolicy: { version: 'sf-pairs-v1',
+      semifinalPairs: [[0, 1], [2, 3]] as const } };
+  hostCandidates[0] = { ...hostCandidates[0], suitabilityScore: -10 };
+  const plan = planContinentalFinalFour(source);
+  expect(edition.finalFourHost?.selectedVenueId).toBe('venue-1');
+  expect(plan.semifinalGames).toHaveLength(2);
+  expect(plan.semifinalGames.every((game) =>
+    game.neutralVenueId === 'venue-1')).toBe(true);
+  const withVenue = (game: Readonly<{ gameId: string;
+    homeClubId: string; awayClubId: string }>, index: number):
+  OfficialGameResult => ({ ...result(game, index),
+    venueBinding: { gameId: game.gameId, venueId: 'venue-1',
+      fixtureEventId: `fixture-${index}`,
+      fixtureRevision: index + 1 } });
+  const semifinals = plan.semifinalGames.map((game, index) =>
+    withVenue(game, index + 4));
+  const finalists = semifinals.map((game) => game.winnerClubId!);
+  const final = withVenue({ gameId: plan.finalGameId,
+    homeClubId: finalists[0], awayClubId: finalists[1] }, 6);
+  const outcome = finalizeContinentalFinalFour(plan, semifinals,
+    final, source);
+  expect(outcome.championClubId).toBe(final.winnerClubId);
+  expect(outcome.finalGame.neutralVenueId).toBe('venue-1');
+  expect('thirdPlaceGame' in outcome).toBe(false);
+  expect(() => finalizeContinentalFinalFour(plan, semifinals,
+    { ...final, applicationId: quarterfinalResults[0].applicationId },
+    source)).toThrow('application');
+  expect(() => finalizeContinentalFinalFour(plan, semifinals,
+    { ...final, venueBinding: { ...final.venueBinding!,
+      venueId: 'venue-2' } }, source)).toThrow('official');
+  expect(() => finalizeContinentalFinalFour(plan, semifinals,
+    { ...final, venueBinding: undefined }, source)).toThrow('official');
+  expect(() => planContinentalFinalFour({ ...source,
+    edition: { ...edition, finalFourHost: undefined } })).toThrow('host');
+  expect(() => planContinentalFinalFour({ ...source,
+    pairingPolicy: { version: 'bad-pairs',
+      semifinalPairs: [[0, 0], [2, 3]] as const } }))
+    .toThrow('pairing');
 });

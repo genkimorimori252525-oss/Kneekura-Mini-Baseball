@@ -72,6 +72,28 @@ const liveRequest = () => ({
 });
 
 describe('SQLite official state store', () => {
+  it('opens an existing version-one match store with the new fixture table', () => {
+    const path = pathForTest();
+    const DatabaseSync = (createRequire(import.meta.url)('node:sqlite') as
+      typeof import('node:sqlite')).DatabaseSync;
+    const legacy = new DatabaseSync(path);
+    legacy.exec(`CREATE TABLE matches (match_id TEXT PRIMARY KEY,
+      durable_revision INTEGER NOT NULL, state_json TEXT NOT NULL,
+      activation_json TEXT);
+      PRAGMA user_version=1;`);
+    legacy.prepare(`INSERT INTO matches(match_id, durable_revision,
+      state_json, activation_json) VALUES (?, 0, ?, NULL)`)
+      .run('legacy-game', JSON.stringify(match()));
+    legacy.close();
+    const store = new SqliteOfficialStateStore(path);
+    expect(store.getMatch('legacy-game')?.matchState).toEqual(match());
+    expect(store.getOfficialFixture('legacy-game')).toBeNull();
+    expect(store.registerOfficialFixture({ gameId: 'new-game',
+      venueId: 'neutral', fixtureEventId: 'fixture-new',
+      fixtureRevision: 1 }).venueId).toBe('neutral');
+    store.close();
+  });
+
   it('atomically persists application and next-play activation, including across restart', () => {
     const path = pathForTest();
     const store = new SqliteOfficialStateStore(path);
@@ -220,10 +242,23 @@ describe('SQLite official state store', () => {
   it('atomically finalizes a completed game without activating another play', () => {
     const path = pathForTest();
     const store = new SqliteOfficialStateStore(path);
+    const venueBinding = { gameId: 'game-1', venueId: 'neutral-venue',
+      fixtureEventId: 'fixture-game-1', fixtureRevision: 1 };
+    expect(store.registerOfficialFixture(venueBinding)).toEqual(venueBinding);
+    expect(store.registerOfficialFixture(venueBinding)).toEqual(venueBinding);
+    expect(() => store.registerOfficialFixture({ ...venueBinding,
+      venueId: 'other-venue' })).toThrow('pinned differently');
     const before: CanonicalMatchState = { ...match(), inning: 9, half: 'top', outs: 2,
       strikes: 2, bases: { first: null, second: null, third: null },
       score: { away: 1, home: 2 } };
     store.initializeMatch('game-1', before);
+    store.initializeMatch('game-unbound', before);
+    expect(() => store.registerOfficialFixture({ ...venueBinding,
+      gameId: 'game-unbound', fixtureEventId: 'fixture-late' }))
+      .toThrow('precede match initialization');
+    expect(() => store.registerOfficialFixture({ ...venueBinding,
+      gameId: 'game-2', fixtureEventId: 'fixture-game-2' }))
+      .not.toThrow();
     const timeline = recordCountedPitch(
       createCanonicalPlateAppearanceTimeline(before, 1000), 1100,
       { kind: 'swinging_strike' },
@@ -243,6 +278,7 @@ describe('SQLite official state store', () => {
       context: { kind: 'strikeout' as const },
       game: {
         seasonId: 'season-1', homeClubId: 'home', awayClubId: 'away',
+        venueBinding,
         policy: { version: 'game-v1', minimumInnings: 9, tiesAllowed: false },
         lineScore: { innings: Array.from({ length: 9 }, (_, index) => ({
           inning: index + 1, awayRuns: index === 0 ? 1 : 0,
@@ -256,6 +292,15 @@ describe('SQLite official state store', () => {
         ...request.game, policy: { ...request.game.policy, minimumInnings: 10 },
       },
     })).toThrow('does not complete');
+    expect(() => store.applyAndFinalize({ ...request,
+      game: { ...request.game, venueBinding: { ...venueBinding,
+        venueId: 'other-venue' } },
+    })).toThrow('durable fixture');
+    expect(() => store.applyAndFinalize({ ...request,
+      matchId: 'game-unbound', applicationId: 'unbound-final',
+      game: { ...request.game, venueBinding: { ...venueBinding,
+        gameId: 'game-unbound' } },
+    })).toThrow('durable fixture');
     expect(store.getMatch('game-1')?.durableRevision).toBe(0);
     const DatabaseSync = (createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite')).DatabaseSync;
     const external = new DatabaseSync(path);
@@ -268,6 +313,7 @@ describe('SQLite official state store', () => {
     const finalized = store.applyAndFinalize(request);
     expect(finalized.result).toMatchObject({
       gameId: 'game-1', winnerClubId: 'home', completionReason: 'HOME_LEADS_AFTER_TOP',
+      venueBinding,
     });
     expect(store.getMatch('game-1')).toMatchObject({
       durableRevision: 1, activation: null, nextWorld: null,
@@ -275,6 +321,7 @@ describe('SQLite official state store', () => {
     });
     store.close();
     const reopened = new SqliteOfficialStateStore(path);
+    expect(reopened.getOfficialFixture('game-1')).toEqual(venueBinding);
     expect(reopened.applyAndFinalize(request)).toEqual(finalized);
     expect(() => reopened.applyAndFinalize({ ...request, applicationId: 'final-again' }))
       .toThrow('finalized');

@@ -1,5 +1,7 @@
 import { requireRegisteredDrawPolicy, type CompetitionDrawPolicy,
   type CompetitionDrawPolicyRegistry } from './CompetitionDraw';
+import { selectCompetitionHost, type HostCandidate,
+  type HostSelection } from './HostSelection';
 
 export type CompetitionFormatProfile = Readonly<{
   competitionId: string;
@@ -22,9 +24,14 @@ export type CompetitionEditionInput = Readonly<{
   calendarWindow: Readonly<{ startsOnDay: number; endsOnDay: number }>;
   drawSnapshotId: string;
   prestigeAtEdition: number;
+  /** Evaluated once while creating the edition, before its games begin. */
+  finalFourHostCandidates?: readonly HostCandidate[];
 }>;
 
-export type CompetitionEditionSnapshot = Readonly<CompetitionFormatProfile & CompetitionEditionInput>;
+export type CompetitionEditionSnapshot = Readonly<CompetitionFormatProfile &
+  Omit<CompetitionEditionInput, 'finalFourHostCandidates'> & Readonly<{
+    finalFourHost?: HostSelection;
+  }>>;
 
 const nonempty = (name: string, value: string): void => {
   if (typeof value !== 'string' || value.length === 0) throw new Error(`${name} is required`);
@@ -71,6 +78,19 @@ export const createCompetitionEdition = (
   if (profile.effectiveAfterEditionId === input.editionId) {
     throw new Error('competition reform cannot rewrite its boundary edition');
   }
+  if (profile.canonicalRole === 'CONTINENTAL_CL'
+    && input.finalFourHostCandidates === undefined) {
+    throw new Error('continental CL edition requires a preselected final four host');
+  }
+  const finalFourHost = input.finalFourHostCandidates === undefined
+    ? undefined : selectCompetitionHost({ competitionKind: 'OTHER',
+      policyVersion: profile.hostingPolicyVersion,
+      candidates: input.finalFourHostCandidates });
+  if (finalFourHost && (finalFourHost.selectedNationId !== input.host.nationId
+    || !input.host.cityIds.includes(finalFourHost.selectedCityId)
+    || !input.host.venueIds.includes(finalFourHost.selectedVenueId))) {
+    throw new Error('final four host must be inside the edition host snapshot');
+  }
   return Object.freeze({
     ...profile,
     drawPolicy,
@@ -85,6 +105,7 @@ export const createCompetitionEdition = (
     calendarWindow: Object.freeze({ ...input.calendarWindow }),
     drawSnapshotId: input.drawSnapshotId,
     prestigeAtEdition: input.prestigeAtEdition,
+    ...(finalFourHost ? { finalFourHost } : {}),
   });
 };
 
