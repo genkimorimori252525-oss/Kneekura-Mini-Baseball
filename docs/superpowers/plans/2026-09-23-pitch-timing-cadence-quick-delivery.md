@@ -4,6 +4,7 @@
 状態: **IMPLEMENTATION PLAN — 実装前**  
 対象: Shared Match Core（Mini / Natural 共通）  
 非対象: UI、描画、4pxグリッド、具体的なスプライト制作、カメラ調整
+関連Canonical: `docs/game-design/55-pitch-release-geometry-v1.md`
 
 ## Goal
 
@@ -685,6 +686,54 @@ Acceptance:
 
 ---
 
+## Task 6.5 — Canonical release event join
+
+Pitch TimingとRelease Geometryをここでのみ合流させる。
+
+```text
+Pitch Timing
+ -> releaseUs
+
+Pitch Release Geometry
+ -> CanonicalReleasePosition
+
+Pitch Physics / execution
+ -> releaseVelocity
+ -> spin
+
+all four
+ -> CanonicalPitchRelease
+ -> BallFlight
+```
+
+候補contract:
+
+```ts
+type CanonicalPitchRelease = Readonly<{
+  releaseAtUs: number;
+  position: Vec3;
+  velocity: Vec3;
+  spin: Vec3;
+}>;
+```
+
+Hard boundary:
+
+- ±50ms timing jitterは `releaseAtUs` だけへ作用し、`position` を変えない。
+- QUICKは `releaseAtUs` へ作用し、Base Release Geometryを変えない。
+- DELIBERATE / 緩急○もBase Release Geometryを変えない。
+- same Pitcher + unchanged delivery profileでは毎球同じBase Release Geometryを使う。
+- Presentation frame位置からrelease pointを逆算しない。
+- ReleaseHeightTierやArmSlotClass labelをBallFlightへ直接入力しない。
+
+Acceptance:
+
+- same pitcherでNORMAL / QUICK / DELIBERATEを切り替えてもrelease positionは同一。
+- same physics inputsでrelease heightだけ異なるfixtureは、異なるworld originからBallFlightを開始する。
+- fixed release geometryにPresentationやRNGが侵入しない。
+
+---
+
 ## Task 7 — 盗塁 / 走者への接続contract
 
 **Create**
@@ -1097,6 +1146,8 @@ frames 2–4 = 表示滞在 / 遷移速度だけ調整
 - PitchCall ownershipとCadence ownershipは別責任として扱う
 - QUICKの自然揺らぎは既存±50msを共用する
 - Motion phase markersがCoreから出る
+- releaseUsとCanonicalReleasePositionをCanonicalPitchReleaseへ統合できる
+- Timing variation / QUICK / DELIBERATE / 緩急○でBase Release Geometryが変化しない
 - 4コマPresentationで速度変更するのは2～4コマ目だけ
 - Presentationはobserverのまま
 - UI / camera / sprite implementationは未接続
