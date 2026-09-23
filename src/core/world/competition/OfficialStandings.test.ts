@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest';
 import { asRuleProfileId } from '../../model/RuleProfileRef';
 import { createBaseScheduleSnapshot } from './LeagueSchedule';
-import { buildOfficialStandings } from './OfficialStandings';
+import { applyOfficialTiebreakGame, buildOfficialStandings } from './OfficialStandings';
 import type { OfficialGameResult } from './OfficialGameCompletion';
 
 const schedule = createBaseScheduleSnapshot({
@@ -63,4 +63,21 @@ it('leaves an exact unresolved tie open for a profile-defined tiebreak game', ()
   ], policy);
   expect(standings.orderedClubIds).toBeNull();
   expect(standings.unresolvedTieGroups).toEqual([['a', 'b']]);
+  const decidingGame: OfficialGameResult = {
+    ...result(0, 2, 1), gameId: 'tiebreak-1',
+    closureId: 'tiebreak-closure', applicationId: 'tiebreak-application',
+  };
+  const decided = applyOfficialTiebreakGame(standings, {
+    version: 'tiebreak-v1', gameId: 'tiebreak-1', seasonId: 'season-1',
+    homeClubId: 'a', awayClubId: 'b',
+  }, decidingGame);
+  expect(decided.orderedClubIds).toEqual(['a', 'b']);
+  expect(decided.tiebreakResolutions).toEqual([{
+    policyVersion: 'tiebreak-v1', gameId: 'tiebreak-1',
+    applicationId: 'tiebreak-application', winnerClubId: 'a', loserClubId: 'b',
+  }]);
+  expect(() => applyOfficialTiebreakGame(standings, {
+    version: 'tiebreak-v1', gameId: 'tiebreak-1', seasonId: 'wrong-season',
+    homeClubId: 'a', awayClubId: 'b',
+  }, decidingGame)).toThrow('season');
 });

@@ -80,14 +80,19 @@ export const resolveOfficialGameBoundary = (
 
   const lineScore = createCanonicalLineScoreSnapshot(input.lineScore);
   if (
-    lineScore.innings.length !== prior.inning
+    lineScore.innings.length < prior.inning
     || lineScore.totals.away.runs !== after.score.away
     || lineScore.totals.home.runs !== after.score.home
   ) throw new Error('official line score must match the durable MatchState score');
-  if (lineScore.innings.some((inning) => inning.awayRuns === null)) {
+  if (lineScore.innings.slice(prior.inning).some((inning) =>
+    inning.awayRuns !== null || inning.homeRuns !== null)) {
+    throw new Error('future inning must not contain official scoring');
+  }
+  const playedInnings = lineScore.innings.slice(0, prior.inning);
+  if (playedInnings.some((inning) => inning.awayRuns === null)) {
     throw new Error('played top half must have an official run count');
   }
-  if (lineScore.innings.slice(0, -1).some((inning) => inning.homeRuns === null)) {
+  if (playedInnings.slice(0, -1).some((inning) => inning.homeRuns === null)) {
     throw new Error('previously played bottom half must have an official run count');
   }
 
@@ -99,10 +104,10 @@ export const resolveOfficialGameBoundary = (
   if (!topEnded && !bottomEnded && !sameHalf) {
     throw new Error('durable MatchState has an invalid half-inning transition');
   }
-  if (prior.half === 'top' && lineScore.innings[prior.inning - 1].homeRuns !== null) {
+  if (prior.half === 'top' && playedInnings[prior.inning - 1].homeRuns !== null) {
     throw new Error('unplayed bottom half must remain null in official line score');
   }
-  if (prior.half === 'bottom' && lineScore.innings[prior.inning - 1].homeRuns === null) {
+  if (prior.half === 'bottom' && playedInnings[prior.inning - 1].homeRuns === null) {
     throw new Error('played bottom half must have an official run count');
   }
   let completionReason: OfficialGameResult['completionReason'] | null = null;
@@ -126,7 +131,7 @@ export const resolveOfficialGameBoundary = (
     });
   }
   const frozenLineScore = Object.freeze({
-    innings: Object.freeze(lineScore.innings.map((inning) => Object.freeze({ ...inning }))),
+    innings: Object.freeze(playedInnings.map((inning) => Object.freeze({ ...inning }))),
     totals: Object.freeze({
       away: Object.freeze({ ...lineScore.totals.away }),
       home: Object.freeze({ ...lineScore.totals.home }),

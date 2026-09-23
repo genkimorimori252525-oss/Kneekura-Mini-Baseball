@@ -116,4 +116,22 @@ describe('official game completion', () => {
       ...base, priorMatch: before, application: receipt(after), lineScore: invalid,
     })).toThrow('played top');
   });
+
+  it('accepts future empty inning slots but rejects future scoring', () => {
+    const before = prior('top', 2, 3);
+    const after = { ...before, half: 'bottom' as const, outs: 0, playId: 9 };
+    const score = lineScore(2, 3, null);
+    const future = { ...score, innings: [...score.innings,
+      { inning: 10, awayRuns: null, homeRuns: null }] };
+    const boundary = resolveOfficialGameBoundary({
+      ...base, priorMatch: before, application: receipt(after), lineScore: future,
+    });
+    expect(boundary.kind).toBe('GAME_FINAL');
+    if (boundary.kind === 'GAME_FINAL') expect(boundary.result.lineScore.innings).toHaveLength(9);
+    expect(() => resolveOfficialGameBoundary({
+      ...base, priorMatch: before, application: receipt(after),
+      lineScore: { ...future, innings: future.innings.map((inning) =>
+        inning.inning === 10 ? { ...inning, awayRuns: 0 } : inning) },
+    })).toThrow('future inning');
+  });
 });

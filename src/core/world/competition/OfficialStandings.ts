@@ -27,6 +27,20 @@ export type OfficialStandingsSnapshot = Readonly<{
   orderedClubIds: readonly string[] | null;
   unresolvedTieGroups: readonly (readonly string[])[];
   resultApplicationIds: readonly string[];
+  tiebreakResolutions: readonly Readonly<{
+    policyVersion: string;
+    gameId: string;
+    applicationId: string;
+    winnerClubId: string;
+    loserClubId: string;
+  }>[];
+}>;
+export type OfficialTiebreakGamePlan = Readonly<{
+  version: string;
+  gameId: string;
+  seasonId: string;
+  homeClubId: string;
+  awayClubId: string;
 }>;
 
 const compareText = (a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0;
@@ -123,7 +137,7 @@ export const buildOfficialStandings = (
   });
   let groups: typeof rows[] = [rows];
   groups = groupBy(groups, (row) => points(row.wins, row.ties), (a, b) => compareBig(b, a));
-  groups = groupBy(groups, (row, group) => {
+  const headToHead = (row: typeof rows[number], group: typeof rows) => {
     const tied = new Set(group.map((item) => item.clubId));
     let wins = 0; let ties = 0; let played = 0;
     for (const result of results) {
@@ -134,6 +148,14 @@ export const buildOfficialStandings = (
       else if (result.winnerClubId === null) ties += 1;
     }
     return { points: points(wins, ties), games: played };
+  };
+  groups = groupBy(groups, (row, group) => {
+    // A ratio with zero games is undefined. Skip this criterion for the
+    // whole tied group when its opponent matrix offers no comparison.
+    if (group.some((member) => headToHead(member, group).games === 0)) {
+      return { points: BigInt(0), games: 0 };
+    }
+    return headToHead(row, group);
   }, (a, b) => compareBig(b.points * BigInt(a.games), a.points * BigInt(b.games)));
   groups = groupBy(groups, (row) => row.cappedRunDifferential, (a, b) => b - a);
   groups = groupBy(groups, (row) => row.runsAgainst, (a, b) => a - b);
@@ -149,5 +171,54 @@ export const buildOfficialStandings = (
       : Object.freeze(groups.flat().map((row) => row.clubId)),
     unresolvedTieGroups: Object.freeze(unresolvedTieGroups),
     resultApplicationIds: Object.freeze(results.map((result) => result.applicationId)),
+    tiebreakResolutions: Object.freeze([]),
+  });
+};
+
+/** Applies one official deciding game to an unresolved two-club tie. */
+export const applyOfficialTiebreakGame = (
+  standings: OfficialStandingsSnapshot,
+  plan: OfficialTiebreakGamePlan,
+  result: OfficialGameResult,
+): OfficialStandingsSnapshot => {
+  const groupIndex = standings.unresolvedTieGroups.findIndex((group) =>
+    group.length === 2 && group.includes(plan.homeClubId) && group.includes(plan.awayClubId));
+  if (!plan.version || !plan.gameId || !plan.homeClubId || !plan.awayClubId
+    || plan.homeClubId === plan.awayClubId || groupIndex < 0) {
+    throw new Error('tiebreak game must resolve an official two-club tie');
+  }
+  if (plan.seasonId !== standings.seasonId || result.seasonId !== standings.seasonId) {
+    throw new Error('tiebreak game season must match official standings');
+  }
+  const winner = result.homeRuns > result.awayRuns ? result.homeClubId
+    : result.awayRuns > result.homeRuns ? result.awayClubId : null;
+  const lineScore = createCanonicalLineScoreSnapshot(result.lineScore);
+  if (result.gameId !== plan.gameId
+    || result.homeClubId !== plan.homeClubId || result.awayClubId !== plan.awayClubId
+    || !result.closureId || !result.applicationId
+    || standings.resultApplicationIds.includes(result.applicationId)
+    || standings.tiebreakResolutions.some((item) =>
+      item.gameId === result.gameId || item.applicationId === result.applicationId)
+    || winner === null || winner !== result.winnerClubId
+    || lineScore.totals.home.runs !== result.homeRuns
+    || lineScore.totals.away.runs !== result.awayRuns) {
+    throw new Error('tiebreak requires a unique decided official game result');
+  }
+  const loser = winner === plan.homeClubId ? plan.awayClubId : plan.homeClubId;
+  const positions = standings.rows.map((row) => row.clubId);
+  const first = positions.findIndex((clubId) => clubId === winner || clubId === loser);
+  if (first < 0 || positions[first + 1] !== (positions[first] === winner ? loser : winner)) {
+    throw new Error('unresolved tiebreak group must remain adjacent in official standings');
+  }
+  positions.splice(first, 2, winner, loser);
+  const rowsByClub = new Map(standings.rows.map((row) => [row.clubId, row]));
+  const unresolvedTieGroups = standings.unresolvedTieGroups.filter((_, index) => index !== groupIndex);
+  return Object.freeze({ ...standings,
+    rows: Object.freeze(positions.map((clubId) => rowsByClub.get(clubId)!)),
+    orderedClubIds: unresolvedTieGroups.length === 0 ? Object.freeze([...positions]) : null,
+    unresolvedTieGroups: Object.freeze(unresolvedTieGroups),
+    tiebreakResolutions: Object.freeze([...standings.tiebreakResolutions,
+      Object.freeze({ policyVersion: plan.version, gameId: plan.gameId,
+        applicationId: result.applicationId, winnerClubId: winner, loserClubId: loser })]),
   });
 };

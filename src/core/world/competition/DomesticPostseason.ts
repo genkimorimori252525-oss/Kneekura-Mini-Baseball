@@ -1,4 +1,5 @@
 import type { DomesticChampionshipFormat } from './LeagueProfiles';
+import type { OfficialStandingsSnapshot } from './OfficialStandings';
 import type { OfficialGameResult } from './OfficialGameCompletion';
 import { resolvePostseasonSeries, type PostseasonSeriesPlan,
   type PostseasonSeriesState } from './PostseasonSeries';
@@ -19,6 +20,7 @@ export type ExpectedPostseasonSeries = Readonly<{
   bestOf: number;
 }>;
 export type DomesticPostseasonState = Readonly<{
+  seasonId: string;
   format: DirectPostseasonFormat;
   status: 'PENDING' | 'COMPLETE';
   regularSeasonChampionClubId: string;
@@ -31,21 +33,31 @@ export type DomesticPostseasonState = Readonly<{
 /** A bracket advances only after each preceding official series has a winner. */
 export const resolveDomesticPostseason = (
   format: DirectPostseasonFormat,
-  orderedClubIds: readonly string[],
+  standings: OfficialStandingsSnapshot,
   entries: readonly DomesticPostseasonEntry[],
 ): DomesticPostseasonState => {
+  const orderedClubIds = standings.orderedClubIds;
+  if (!standings.seasonId || orderedClubIds === null
+    || standings.unresolvedTieGroups.length > 0) {
+    throw new Error('postseason cannot use unresolved official regular-season standings');
+  }
   const minimumClubs = format === 'TABLE_TITLE' ? 1 : format === 'TOP2_FINAL' ? 2
     : format === 'LADDER' ? 5 : 4;
   if (orderedClubIds.length < minimumClubs
     || orderedClubIds.some((clubId) => typeof clubId !== 'string' || !clubId)
-    || new Set(orderedClubIds).size !== orderedClubIds.length) {
+    || new Set(orderedClubIds).size !== orderedClubIds.length
+    || standings.rows.length !== orderedClubIds.length
+    || new Set(standings.rows.map((row) => row.clubId)).size !== orderedClubIds.length
+    || standings.rows.some((row) => !orderedClubIds.includes(row.clubId))) {
     throw new Error('postseason requires an ordered unique regular-season standing');
   }
   const entryByStage = new Map<DomesticPostseasonStage, DomesticPostseasonEntry>();
   const seasonIds = new Set<string>();
   for (const entry of entries) {
     if (entryByStage.has(entry.stage)) throw new Error('duplicate postseason stage');
-    if (!entry.plan.seasonId) throw new Error('postseason season identity is required');
+    if (!entry.plan.seasonId || entry.plan.seasonId !== standings.seasonId) {
+      throw new Error('postseason series season must match official standings');
+    }
     seasonIds.add(entry.plan.seasonId);
     entryByStage.set(entry.stage, entry);
   }
@@ -88,7 +100,7 @@ export const resolveDomesticPostseason = (
   let finalState: PostseasonSeriesState | null = null;
   if (format === 'TABLE_TITLE') {
     if (entries.length > 0) throw new Error('table title has no postseason series');
-    return Object.freeze({ format, status: 'COMPLETE',
+    return Object.freeze({ seasonId: standings.seasonId, format, status: 'COMPLETE',
       regularSeasonChampionClubId: orderedClubIds[0],
       championClubId: orderedClubIds[0], runnerUpClubId: null,
       series: Object.freeze([]), nextSeries: Object.freeze([]) });
@@ -116,7 +128,7 @@ export const resolveDomesticPostseason = (
   if ([...entryByStage.keys()].some((stage) => !allowedStages.has(stage))) {
     throw new Error('postseason stage does not belong to the selected format');
   }
-  return Object.freeze({ format,
+  return Object.freeze({ seasonId: standings.seasonId, format,
     status: finalState?.status === 'COMPLETE' ? 'COMPLETE' : 'PENDING',
     regularSeasonChampionClubId: orderedClubIds[0],
     championClubId: finalState?.winnerClubId ?? null,
