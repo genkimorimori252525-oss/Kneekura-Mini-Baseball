@@ -36,3 +36,16 @@ export type {
 
 export { activateNextLiveBallPlay, confirmDurableClosedLiveBallStateApplication } from './NextPlayActivation';
 export type { OfficialStateApplicationReceipt, ConfirmDurableClosedLiveBallStateApplicationInput, NextLiveBallPlayActivationInput, NextLiveBallPlayActivation } from './NextPlayActivation';
+
+export {
+  deriveClosedNonLiveMatchState,
+  confirmDurableClosedNonLiveStateApplication,
+  activateNextNonLivePlateAppearance,
+} from './NonLiveOfficialApplication';
+export type {
+  NonLiveOfficialContext,
+  DeriveClosedNonLiveMatchStateInput,
+  ConfirmDurableClosedNonLiveStateApplicationInput,
+  NextNonLivePlateAppearanceActivationInput,
+  NextNonLivePlateAppearanceActivation,
+} from './NonLiveOfficialApplication';
