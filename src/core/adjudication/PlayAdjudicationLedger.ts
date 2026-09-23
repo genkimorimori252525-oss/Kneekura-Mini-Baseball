@@ -1,6 +1,9 @@
 import type { BaseOccupancy, CanonicalMatchState } from '../model/CanonicalMatchState';
 import type { RuleProfileId } from '../model/RuleProfileRef';
 import type { PlayEndFact } from '../rules/PhysicalRuleFacts';
+import type { DefensiveAppealAttemptFact } from '../rules/PhysicalRuleFacts';
+import { evaluateTagUpCompliance, type TagUpComplianceInput } from '../rules/TagUpCompliance';
+import { NPB_2026_RULE_PROFILE } from '../rules/RuleProfile';
 import {
   applyResolvedLiveBallPlateAppearanceToMatchState,
   type ResolvedLiveBallPlateAppearance,
@@ -105,6 +108,14 @@ export type OfficialStateWindowClosed = EventBase & Readonly<{
   reason: OfficialStateWindowCloseReason;
 }>;
 
+export type DefensiveAppealAttemptRecorded = EventBase & Readonly<{
+  kind: 'DefensiveAppealAttemptRecorded';
+  windowId: string;
+  timing: 'timely' | 'expired' | 'simultaneous_unresolved';
+  attempt: DefensiveAppealAttemptFact;
+  complianceEvidence: TagUpComplianceInput;
+}>;
+
 export type OnFieldCallRecorded = EventBase & Readonly<{
   kind: 'OnFieldCallRecorded';
   call: OnFieldCall;
@@ -126,6 +137,7 @@ export type PlayAdjudicationEvent =
   | CorrectRuleSnapshotRecorded
   | OfficialStateWindowOpened
   | OfficialStateWindowClosed
+  | DefensiveAppealAttemptRecorded
   | OnFieldCallRecorded
   | ReviewDecisionRecorded
   | OfficialPlayClosed;
@@ -178,6 +190,14 @@ export type CloseOfficialStateWindowInput = Readonly<{
   reason: OfficialStateWindowCloseReason;
 }>;
 
+export type DefensiveAppealAttemptInput = Readonly<{
+  eventId: string;
+  windowId: string;
+  timing: DefensiveAppealAttemptRecorded['timing'];
+  attempt: DefensiveAppealAttemptFact;
+  complianceEvidence: TagUpComplianceInput;
+}>;
+
 export type OnFieldCallInput = Readonly<{
   eventId: string;
   tick: number;
@@ -215,6 +235,8 @@ type Replay = {
   snapshotIds: Set<string>;
   closure: OfficialPlayClosure | null;
   lastTick: number;
+  appealSnapshotPending: boolean;
+  appealCallPending: boolean;
 };
 
 const cloneInertData = <T>(input: T, path = 'adjudication'): T => {
@@ -355,6 +377,75 @@ const validateWindowKind = (value: OfficialStateWindowKind): OfficialStateWindow
     throw new Error('unknown official-state window kind');
   }
   return value;
+};
+
+const freezeAppealEvidence = (
+  attemptInput: DefensiveAppealAttemptFact,
+  evidenceInput: TagUpComplianceInput,
+  eventTick: number,
+): Pick<DefensiveAppealAttemptRecorded, 'attempt' | 'complianceEvidence'> => {
+  const attempt = cloneInertData(attemptInput, 'adjudication.appealAttempt');
+  const evidence = cloneInertData(evidenceInput, 'adjudication.appealEvidence');
+  const factId = (value: unknown, name: string): void => {
+    if (typeof value !== 'string' || value.length === 0) throw new Error(`${name} must not be empty`);
+  };
+  if (attempt.kind !== 'defensive_appeal_attempt' || attempt.reason !== 'tag_up_early_departure') {
+    throw new Error('tag-up appeal requires an actual defensive appeal attempt');
+  }
+  factId(attempt.defenderId, 'appeal defenderId');
+  factId(attempt.runnerId, 'appeal runnerId');
+  if (![1, 2, 3, 4].includes(attempt.base)) throw new Error('appeal base must be a baseball base');
+  if (tick(attempt.tick, 'appeal tick') !== eventTick) throw new Error('appeal attempt tick must match event tick');
+  factId(evidence.runnerId, 'tag-up runnerId');
+  if (![1, 2, 3, 4].includes(evidence.originBase)) throw new Error('tag-up origin must be a baseball base');
+  if (evidence.firstTouch.kind !== 'fly_ball_first_fielder_touch') throw new Error('firstTouch kind is invalid');
+  factId(evidence.firstTouch.fielderId, 'firstTouch fielderId');
+  tick(evidence.firstTouch.tick, 'firstTouch tick');
+  if (evidence.departure.kind !== 'runner_base_departure') throw new Error('departure kind is invalid');
+  factId(evidence.departure.runnerId, 'departure runnerId');
+  tick(evidence.departure.tick, 'departure tick');
+  if (evidence.retouch !== null) {
+    if (evidence.retouch.kind !== 'runner_base_touch') throw new Error('retouch kind is invalid');
+    factId(evidence.retouch.runnerId, 'retouch runnerId');
+    tick(evidence.retouch.tick, 'retouch tick');
+  }
+  if (attempt.runnerId !== evidence.runnerId) throw new Error('appeal must target the evaluated runner');
+  if (attempt.base !== evidence.originBase) throw new Error('appeal must target the tag-up origin base');
+  if (evidence.firstTouch.tick > eventTick || evidence.departure.tick > eventTick
+    || (evidence.retouch !== null && evidence.retouch.tick > eventTick)) {
+    throw new Error('tag-up evidence cannot occur after the appeal attempt');
+  }
+  evaluateTagUpCompliance(evidence);
+  return {
+    attempt: Object.freeze(attempt),
+    complianceEvidence: Object.freeze({
+      ...evidence,
+      firstTouch: Object.freeze(evidence.firstTouch),
+      departure: Object.freeze(evidence.departure),
+      retouch: evidence.retouch === null ? null : Object.freeze(evidence.retouch),
+    }),
+  };
+};
+
+const validateAppealAttemptTiming = (
+  stateWindow: OfficialStateWindow,
+  eventTick: number,
+  timing: DefensiveAppealAttemptRecorded['timing'],
+  ruleProfileId: RuleProfileId,
+): void => {
+  if (timing !== 'timely' && timing !== 'expired' && timing !== 'simultaneous_unresolved') {
+    throw new Error('unknown appeal attempt timing');
+  }
+  if (stateWindow.closedAtTick === null && timing !== 'timely') {
+    throw new Error('open appeal window requires timely attempt');
+  }
+  if (stateWindow.closedAtTick !== null && eventTick > stateWindow.closedAtTick && timing !== 'expired') {
+    throw new Error('closed appeal window requires expired attempt');
+  }
+  if (stateWindow.closedAtTick === eventTick && ruleProfileId === NPB_2026_RULE_PROFILE.id
+    && timing !== 'simultaneous_unresolved') {
+    throw new Error('NPB same-tick appeal must remain unresolved');
+  }
 };
 
 const validateCloseReason = (value: OfficialStateWindowCloseReason): OfficialStateWindowCloseReason => {
@@ -539,6 +630,8 @@ const replayLedger = (ledgerInput: PlayAdjudicationLedger): {
     snapshotIds: new Set(),
     closure: null,
     lastTick: playEnd?.tick ?? 0,
+    appealSnapshotPending: false,
+    appealCallPending: false,
   };
   const events: PlayAdjudicationEvent[] = [];
 
@@ -565,6 +658,7 @@ const replayLedger = (ledgerInput: PlayAdjudicationLedger): {
       }
       replay.snapshotIds.add(snapshot.snapshotId);
       replay.latestCorrect = snapshot;
+      replay.appealSnapshotPending = false;
       events.push(Object.freeze({ ...event, snapshot }));
       continue;
     }
@@ -599,6 +693,24 @@ const replayLedger = (ledgerInput: PlayAdjudicationLedger): {
       continue;
     }
 
+    if (event.kind === 'DefensiveAppealAttemptRecorded') {
+      const windowId = id(event.windowId, 'windowId');
+      const stateWindow = replay.windows.get(windowId);
+      if (stateWindow === undefined || stateWindow.windowKind !== 'appeal') {
+        throw new Error('appeal window does not exist');
+      }
+      if (playEnd === null || replay.latestCorrect === null) {
+        throw new Error('tag-up appeal requires physical PlayEnd and correct-rule snapshot');
+      }
+      const evidence = freezeAppealEvidence(event.attempt, event.complianceEvidence, eventTick);
+      validateAppealAttemptTiming(stateWindow, eventTick, event.timing, input.ruleProfileId);
+      replay.appealSnapshotPending = true;
+      if (event.timing === 'simultaneous_unresolved') replay.appealCallPending = true;
+      events.push(Object.freeze({ kind: event.kind, eventId: event.eventId, tick: eventTick,
+        windowId, timing: event.timing, ...evidence }));
+      continue;
+    }
+
     if (event.kind === 'OnFieldCallRecorded') {
       const call = freezeCall(event.call);
       if (replay.callIds.has(call.callId)) throw new Error('on-field call ids must be unique');
@@ -612,6 +724,7 @@ const replayLedger = (ledgerInput: PlayAdjudicationLedger): {
       }
       replay.callIds.add(call.callId);
       replay.calls.push(call);
+      if (!replay.appealSnapshotPending) replay.appealCallPending = false;
       events.push(Object.freeze({ ...event, call }));
       continue;
     }
@@ -638,6 +751,8 @@ const replayLedger = (ledgerInput: PlayAdjudicationLedger): {
     if (event.kind === 'OfficialPlayClosed') {
       id(event.closureId, 'closureId');
       if (openWindows(replay).length > 0) throw new Error('official-state window remains open');
+      if (replay.appealSnapshotPending) throw new Error('appeal attempt requires a newer correct-rule snapshot');
+      if (replay.appealCallPending) throw new Error('same-tick appeal requires an explicit on-field call');
       const finalRuling = deriveFinalRuling(replay);
       const close: OfficialPlayClosed = Object.freeze({
         kind: 'OfficialPlayClosed',
@@ -797,6 +912,31 @@ export const closeOfficialStateWindow = (
   }));
 };
 
+export const recordDefensiveAppealAttempt = (
+  ledgerInput: PlayAdjudicationLedger,
+  expectedRevision: number,
+  input: DefensiveAppealAttemptInput,
+): PlayAdjudicationLedger => {
+  const { ledger, replay } = requireOpen(ledgerInput, expectedRevision);
+  const request = cloneInertData(input, 'adjudication.appealAttempt');
+  const eventId = ensureNewEventId(replay, request.eventId);
+  const eventTick = requireEventTick(replay, request.attempt.tick);
+  const windowId = id(request.windowId, 'windowId');
+  const stateWindow = replay.windows.get(windowId);
+  if (stateWindow === undefined || stateWindow.windowKind !== 'appeal') {
+    throw new Error('appeal window does not exist');
+  }
+  if (ledger.playEnd === null || replay.latestCorrect === null) {
+    throw new Error('tag-up appeal requires physical PlayEnd and correct-rule snapshot');
+  }
+  const evidence = freezeAppealEvidence(request.attempt, request.complianceEvidence, eventTick);
+  validateAppealAttemptTiming(stateWindow, eventTick, request.timing, ledger.ruleProfileId);
+  return append(ledger, Object.freeze({
+    kind: 'DefensiveAppealAttemptRecorded', eventId, tick: eventTick,
+    windowId, timing: request.timing, ...evidence,
+  }));
+};
+
 export const recordOnFieldCall = (
   ledgerInput: PlayAdjudicationLedger,
   expectedRevision: number,
@@ -876,6 +1016,8 @@ export const closeOfficialPlay = (
   const eventId = ensureNewEventId(replay, request.eventId);
   const eventTick = requireEventTick(replay, request.tick);
   if (openWindows(replay).length > 0) throw new Error('official-state window remains open');
+  if (replay.appealSnapshotPending) throw new Error('appeal attempt requires a newer correct-rule snapshot');
+  if (replay.appealCallPending) throw new Error('same-tick appeal requires an explicit on-field call');
   const finalRuling = deriveFinalRuling(replay);
   return append(ledger, Object.freeze({
     kind: 'OfficialPlayClosed',

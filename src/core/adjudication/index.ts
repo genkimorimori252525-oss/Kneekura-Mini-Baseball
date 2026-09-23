@@ -24,12 +24,16 @@ export type {
   ProfiledWindowTiming,
 } from './OfficialWindowPolicy';
 
+export { orchestrateTagUpAppealAttempt } from './TagUpAppealOrchestration';
+export type { TagUpAppealAttemptInput, TagUpAppealAttemptResolution } from './TagUpAppealOrchestration';
+
 export type {
   OfficialGameplayRuling,
   CorrectRuleSnapshot,
   OfficialStateWindowKind,
   OfficialStateWindowCloseReason,
   OfficialStateWindow,
+  DefensiveAppealAttemptRecorded,
   OnFieldCall,
   ReviewDecisionKind,
   ReviewDecision,

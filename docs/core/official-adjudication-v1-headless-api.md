@@ -46,6 +46,10 @@ A newer snapshot must use a strictly newer evidence revision. Existing on-field 
 
 The NPB 2026 profile enables appeals and its existing appeal closure conditions. Review and challenge are unavailable until a specific profile supplies their policy. A custom profile may configure review/challenge expiration in integer simulation ticks; this is not a claim about an NPB time limit. Hosts must explicitly open legitimate opportunities and close resolved or declined windows. No appeal or review is inferred merely because it “would have happened”.
 
+`orchestrateTagUpAppealAttempt` accepts an actual `DefensiveAppealAttemptFact`, first fielder touch, departure, optional retouch, an appeal window ID and the matching profile. It records these facts in `DefensiveAppealAttemptRecorded`, evaluates tag-up compliance and calls the tag-up RuleEngine. The result reports an out, no violation, expired appeal or unresolved same-tick attempt. The event does not invent an appeal when the defense made none.
+
+After any recorded attempt, closure requires a newer correct-rule snapshot. For a same-tick NPB attempt at a window closure, closure also requires an explicit on-field call based on that newer snapshot. A next-play fence refuses to close an appeal window when a recorded attempt at that same tick would leave timing unresolved. The host must derive the new snapshot and any call from the facts; this API does not accept a free official MatchState delta.
+
 ## Calls and review
 
 An `OnFieldCall` is allowed to differ from the correct rule snapshot without changing physical or correct-rule history.
@@ -83,7 +87,7 @@ The host still owns:
 
 - producing the correct RuleEngine snapshot from canonical physical/rule facts;
 - deciding when a supported appeal/review/challenge opportunity actually arises, then using the profile-aware window API;
-- actual appeal-attempt provenance;
+- supplying canonical physical first-touch/departure/retouch/attempt facts and deriving the post-appeal correct-rule snapshot;
 - umpire/review policy and human-manager challenge intent;
 - atomic persistence / global exactly-once semantics;
 - official-scoring classification after closure;

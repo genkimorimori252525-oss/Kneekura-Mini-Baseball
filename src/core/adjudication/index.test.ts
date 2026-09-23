@@ -10,6 +10,7 @@ import {
   getPlayAdjudicationState,
   openOfficialStateWindow,
   openRuleProfileOfficialStateWindow,
+  orchestrateTagUpAppealAttempt,
   recordCorrectRuleSnapshot,
   recordOnFieldCall,
   recordReviewDecision,
@@ -30,5 +31,6 @@ describe('official adjudication public seam', () => {
     expect(getOfficialStateWindows).toBeTypeOf('function');
     expect(openRuleProfileOfficialStateWindow).toBeTypeOf('function');
     expect(advanceRuleProfileOfficialWindows).toBeTypeOf('function');
+    expect(orchestrateTagUpAppealAttempt).toBeTypeOf('function');
   });
 });
