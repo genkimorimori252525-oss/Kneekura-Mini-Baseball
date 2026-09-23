@@ -1,6 +1,7 @@
 import type { OfficialGameResult } from './OfficialGameCompletion';
-import type { LeagueGroupAlignment, OfficialGroupStandingsSnapshot,
-  OfficialStandingRow } from './OfficialStandings';
+import { captureOfficialStandingsBasis,
+  type LeagueGroupAlignment, type OfficialGroupStandingsSnapshot,
+  type OfficialStandingRow, type OfficialStandingsBasis } from './OfficialStandings';
 import { resolvePostseasonSeries, type PostseasonSeriesPlan,
   type PostseasonSeriesState } from './PostseasonSeries';
 
@@ -37,6 +38,7 @@ export type NorthAmericaConferenceInput = Readonly<{
 }>;
 export type NorthAmericaPostseasonState = Readonly<{
   seasonId: string;
+  regularSeasonBasis: OfficialStandingsBasis;
   policyVersion: string;
   status: 'PENDING' | 'COMPLETE';
   conferenceSeeds: readonly Readonly<{
@@ -121,6 +123,7 @@ export const resolveNorthAmericaPostseason = (
   const usedSeriesIds = new Set<string>();
   const usedGameIds = new Set<string>();
   const regularApplicationIds = conferences[0].standings.resultApplicationIds;
+  const regularSeasonBasis = captureOfficialStandingsBasis(conferences[0].standings, false);
   const usedApplicationIds = new Set(regularApplicationIds);
   const tiebreakByApplication = new Map<string, string>();
   for (const conference of conferences) {
@@ -309,7 +312,7 @@ export const resolveNorthAmericaPostseason = (
   } else if (championship !== null) {
     throw new Error('North America championship cannot start before conference champions');
   }
-  return Object.freeze({ seasonId, policyVersion: policy.version,
+  return Object.freeze({ seasonId, regularSeasonBasis, policyVersion: policy.version,
     status: championshipState?.status === 'COMPLETE' ? 'COMPLETE' : 'PENDING',
     conferenceSeeds: Object.freeze(conferenceSeeds),
     conferenceChampions: Object.freeze(conferenceChampions),

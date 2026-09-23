@@ -2,6 +2,8 @@ import type { OfficialGameResult } from './OfficialGameCompletion';
 import {
   applyOfficialTiebreakGame,
   buildOfficialStandings,
+  captureOfficialStandingsBasis,
+  type OfficialStandingsBasis,
   type OfficialStandingsSnapshot,
   type OfficialTiebreakGamePlan,
   type StandingsTiebreakPolicy,
@@ -29,6 +31,8 @@ export type WinterChampionshipInput = Readonly<{
 }>;
 export type WinterChampionshipState = Readonly<{
   seasonId: string;
+  regularSeasonBasis: OfficialStandingsBasis;
+  regularSeasonOrder: readonly string[];
   policyVersion: string;
   status: 'ROUND_TIE_UNRESOLVED' | 'PENDING' | 'COMPLETE';
   regularSeasonWinnerClubId: string;
@@ -58,6 +62,8 @@ export const resolveWinterChampionship = (
     throw new Error('winter championship requires resolved six-club regular-season standings');
   }
   const entrants = ranking.slice(0, 4);
+  const regularSeasonBasis = captureOfficialStandingsBasis(regular);
+  const regularSeasonOrder = Object.freeze([...ranking]);
   const entrantSet = new Set(entrants);
   const gameIds = new Set<string>();
   const occupied = new Set<string>();
@@ -108,7 +114,8 @@ export const resolveWinterChampionship = (
   const roundRanking = roundStandings.orderedClubIds;
   if (roundRanking === null) {
     if (final !== null) throw new Error('winter final cannot start before round ties are resolved');
-    return Object.freeze({ seasonId: regular.seasonId, policyVersion: input.version,
+    return Object.freeze({ seasonId: regular.seasonId,
+      regularSeasonBasis, regularSeasonOrder, policyVersion: input.version,
       status: 'ROUND_TIE_UNRESOLVED', regularSeasonWinnerClubId: ranking[0],
       championshipRoundStandings: roundStandings,
       championshipRoundWinnerClubId: null, nextFinal: null, final: null,
@@ -135,7 +142,8 @@ export const resolveWinterChampionship = (
     }
     finalState = resolvePostseasonSeries(final.plan, final.results);
   }
-  return Object.freeze({ seasonId: regular.seasonId, policyVersion: input.version,
+  return Object.freeze({ seasonId: regular.seasonId,
+    regularSeasonBasis, regularSeasonOrder, policyVersion: input.version,
     status: finalState?.status === 'COMPLETE' ? 'COMPLETE' : 'PENDING',
     regularSeasonWinnerClubId: ranking[0],
     championshipRoundStandings: roundStandings,
