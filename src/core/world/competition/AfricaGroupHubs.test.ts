@@ -6,6 +6,8 @@ import { createCompetitionEdition } from './CompetitionEdition';
 import type { OfficialGameResult } from './OfficialGameCompletion';
 import { createAfricaGroupHubPlan,
   finalizeAfricaGroupHubs } from './AfricaGroupHubs';
+import { planAfricaFinalFour, finalizeAfricaFinalFour }
+  from './AfricaFinalFour';
 
 const draw: CompetitionDraw = {
   editionId: 'afbcl-2027', drawPolicyVersion: 'draw-v1',
@@ -36,6 +38,8 @@ const editionInput = {
   finalFourHostCandidates: [{ venueId: 'venue-final',
     nationId: 'nation-final', cityId: 'city-final', regionId: 'region-final',
     eligible: true, suitabilityScore: 10, rotationScore: 1 }],
+  finalFourPairingPolicy: { version: 'afbcl-sf-v1',
+    semifinalPairs: [[0, 3], [1, 2]] as const },
   groupHubs: [{ groupIndex: 0, nationId: 'nation-north',
     cityId: 'city-north', venueId: 'venue-north' },
   { groupIndex: 1, nationId: 'nation-south',
@@ -72,6 +76,9 @@ it('pins two African group hubs and qualifies from 36 official games', () => {
   expect(() => createCompetitionEdition(profile,
     { ...editionInput, groupHubs: undefined }, registry))
     .toThrow('group hubs');
+  expect(() => createCompetitionEdition(profile,
+    { ...editionInput, finalFourPairingPolicy: undefined }, registry))
+    .toThrow('preselected semifinal pairings');
   const source = { edition, draw, hubPolicyVersion: 'africa-hubs-v1' };
   const plan = createAfricaGroupHubPlan(source);
   expect(plan.groups).toHaveLength(2);
@@ -110,4 +117,47 @@ it('pins two African group hubs and qualifies from 36 official games', () => {
   }));
   expect(finalizeAfricaGroupHubs(plan, tied, policy, source).groups
     .every((group) => group.qualifierClubIds === null)).toBe(true);
+});
+
+it('advances Africa semifinal and final winners at the preselected host', () => {
+  const groupSource = { edition, draw,
+    hubPolicyVersion: 'africa-hubs-v1' };
+  const groupPlan = createAfricaGroupHubPlan(groupSource);
+  const groupOfficialResults = groupPlan.groups.flatMap((group) => group.games)
+    .map(officialResult);
+  const source = { groupSource, groupPlan, groupOfficialResults,
+    groupTiebreakPolicy: policy,
+    pairingPolicy: { version: 'afbcl-sf-v1',
+      semifinalPairs: [[0, 3], [1, 2]] as const } };
+  const plan = planAfricaFinalFour(source);
+  expect(plan.semifinalGames).toHaveLength(2);
+  expect(plan.semifinalGames.every((game) =>
+    game.neutralVenueId === 'venue-final')).toBe(true);
+  const semifinals = plan.semifinalGames.map((game, index) =>
+    officialResult(game, index + 36));
+  const final = officialResult({ gameId: plan.finalGameId,
+    homeClubId: semifinals[0].winnerClubId!,
+    awayClubId: semifinals[1].winnerClubId!,
+    neutralVenueId: plan.hostVenueId }, 38);
+  const outcome = finalizeAfricaFinalFour(plan, semifinals, final, source);
+  expect(outcome.championClubId).toBe(final.winnerClubId);
+  expect(outcome.resultApplicationIds).toHaveLength(3);
+  expect(() => finalizeAfricaFinalFour(plan, semifinals,
+    { ...final, applicationId: groupOfficialResults[0].applicationId },
+    source)).toThrow('application');
+  expect(() => finalizeAfricaFinalFour(plan, semifinals,
+    { ...final, venueBinding: { ...final.venueBinding!,
+      venueId: 'venue-north' } }, source)).toThrow('venue');
+  expect(() => planAfricaFinalFour({ ...source,
+    pairingPolicy: { version: 'same-group',
+      semifinalPairs: [[0, 1], [2, 3]] as const } }))
+    .toThrow('cross-group');
+  expect(() => planAfricaFinalFour({ ...source,
+    pairingPolicy: { version: 'afbcl-sf-v1',
+      semifinalPairs: [[0, 2], [1, 3]] as const } }))
+    .toThrow('pairing');
+  const forged = structuredClone(plan);
+  (forged.semifinalGames[0] as { homeClubId: string }).homeClubId = 'x';
+  expect(() => finalizeAfricaFinalFour(forged, semifinals,
+    final, source)).toThrow('plan');
 });

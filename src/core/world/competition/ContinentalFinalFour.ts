@@ -81,12 +81,19 @@ export const planContinentalFinalFour = (
     throw new Error('final four host or edition contradicts group participants');
   }
   const policy = source.pairingPolicy;
+  const editionPairing = edition.finalFourPairingPolicy;
   if (!id(policy?.version) || !Array.isArray(policy.semifinalPairs)
     || policy.semifinalPairs.length !== 2
     || policy.semifinalPairs.some((pair) =>
       !Array.isArray(pair) || pair.length !== 2
       || pair.some((slot) => !Number.isSafeInteger(slot)))
-    || [...policy.semifinalPairs.flat()].sort().join(',') !== '0,1,2,3') {
+    || [...policy.semifinalPairs.flat()].sort().join(',') !== '0,1,2,3'
+    || !editionPairing || editionPairing.version !== policy.version
+    || !Array.isArray(editionPairing.semifinalPairs)
+    || editionPairing.semifinalPairs.length !== 2
+    || editionPairing.semifinalPairs.some((pair, index) =>
+      pair[0] !== policy.semifinalPairs[index][0]
+      || pair[1] !== policy.semifinalPairs[index][1])) {
     throw new Error('invalid versioned semifinal pairing');
   }
   const semifinals = policy.semifinalPairs.map((pair, index) =>
