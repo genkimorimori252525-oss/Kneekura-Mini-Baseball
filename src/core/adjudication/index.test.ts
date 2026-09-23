@@ -1,12 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import {
+  advanceRuleProfileOfficialWindows,
   closeOfficialPlay,
   closeOfficialStateWindow,
   createPlayAdjudicationLedger,
   deriveClosedLiveBallMatchState,
   getOfficialPlayClosure,
+  getOfficialStateWindows,
   getPlayAdjudicationState,
   openOfficialStateWindow,
+  openRuleProfileOfficialStateWindow,
   recordCorrectRuleSnapshot,
   recordOnFieldCall,
   recordReviewDecision,
@@ -24,5 +27,8 @@ describe('official adjudication public seam', () => {
     expect(getPlayAdjudicationState).toBeTypeOf('function');
     expect(getOfficialPlayClosure).toBeTypeOf('function');
     expect(deriveClosedLiveBallMatchState).toBeTypeOf('function');
+    expect(getOfficialStateWindows).toBeTypeOf('function');
+    expect(openRuleProfileOfficialStateWindow).toBeTypeOf('function');
+    expect(advanceRuleProfileOfficialWindows).toBeTypeOf('function');
   });
 });

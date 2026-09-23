@@ -8,8 +8,21 @@ export {
   closeOfficialPlay,
   getPlayAdjudicationState,
   getOfficialPlayClosure,
+  getOfficialStateWindows,
   deriveClosedLiveBallMatchState,
 } from './PlayAdjudicationLedger';
+
+export {
+  openRuleProfileOfficialStateWindow,
+  advanceRuleProfileOfficialWindows,
+  evaluateRuleProfileOfficialWindowTiming,
+} from './OfficialWindowPolicy';
+export type {
+  ProfiledWindowOpenInput,
+  OfficialWindowBoundary,
+  ProfiledWindowBoundaryInput,
+  ProfiledWindowTiming,
+} from './OfficialWindowPolicy';
 
 export type {
   OfficialGameplayRuling,
