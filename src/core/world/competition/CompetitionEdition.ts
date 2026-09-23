@@ -26,6 +26,8 @@ export type CompetitionEditionInput = Readonly<{
   prestigeAtEdition: number;
   /** Evaluated once while creating the edition, before its games begin. */
   finalFourHostCandidates?: readonly HostCandidate[];
+  groupHubs?: readonly Readonly<{ groupIndex: number; nationId: string;
+    cityId: string; venueId: string }>[];
 }>;
 
 export type CompetitionEditionSnapshot = Readonly<CompetitionFormatProfile &
@@ -78,10 +80,25 @@ export const createCompetitionEdition = (
   if (profile.effectiveAfterEditionId === input.editionId) {
     throw new Error('competition reform cannot rewrite its boundary edition');
   }
-  if (profile.canonicalRole === 'CONTINENTAL_CL'
+  if ((profile.canonicalRole === 'CONTINENTAL_CL'
+    || profile.canonicalRole === 'AFBCL')
     && input.finalFourHostCandidates === undefined) {
     throw new Error('continental CL edition requires a preselected final four host');
   }
+  if (profile.canonicalRole === 'AFBCL'
+    && (!Array.isArray(input.groupHubs)
+      || input.groupHubs.length !== 2)) {
+    throw new Error('AfBCL edition requires two preselected group hubs');
+  }
+  if (input.groupHubs !== undefined && (
+    profile.canonicalRole !== 'AFBCL'
+    || !Array.isArray(input.groupHubs)
+    || input.groupHubs.length !== 2
+    || input.groupHubs.some((hub, index) =>
+      hub.groupIndex !== index || !hub.nationId || !hub.cityId
+      || !hub.venueId || !input.host.cityIds.includes(hub.cityId)
+      || !input.host.venueIds.includes(hub.venueId))
+  )) throw new Error('invalid versioned group hubs');
   const finalFourHost = input.finalFourHostCandidates === undefined
     ? undefined : selectCompetitionHost({ competitionKind: 'OTHER',
       policyVersion: profile.hostingPolicyVersion,
@@ -106,6 +123,8 @@ export const createCompetitionEdition = (
     drawSnapshotId: input.drawSnapshotId,
     prestigeAtEdition: input.prestigeAtEdition,
     ...(finalFourHost ? { finalFourHost } : {}),
+    ...(input.groupHubs ? { groupHubs: Object.freeze(input.groupHubs.map(
+      (hub) => Object.freeze({ ...hub }))) } : {}),
   });
 };
 
