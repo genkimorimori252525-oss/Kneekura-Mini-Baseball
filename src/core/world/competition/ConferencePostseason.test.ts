@@ -75,6 +75,11 @@ it('advances Japanese league playoffs and championship only after official serie
   });
   expect(resolveConferencePostseason(policy, grouped, [...groups].reverse(), null)
     .qualificationPriorityGroupIds).toEqual(['group-a', 'group-b']);
+  const pinnedAlignment = resolveConferencePostseason(policy, grouped, groups, null)
+    .alignmentSnapshot;
+  expect(pinnedAlignment).toEqual(grouped);
+  expect(pinnedAlignment).not.toBe(grouped);
+  expect(Object.isFrozen(pinnedAlignment.groups[0].clubIds)).toBe(true);
   expect(resolveConferencePostseason(policy, { ...grouped,
     groups: [...grouped.groups].reverse() }, groups, null)
     .qualificationPriorityGroupIds).toEqual(['group-a', 'group-b']);

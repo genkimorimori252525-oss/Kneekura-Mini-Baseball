@@ -68,6 +68,10 @@ const wins = (series: PostseasonSeriesPlan, winner: string): OfficialGameResult[
 it('selects three division winners and three wild cards in each conference', () => {
   const state = resolveNorthAmericaPostseason(policy, conferenceAlignment,
     divisionAlignment, conferences, null);
+  expect(state.conferenceAlignmentSnapshot).toEqual(conferenceAlignment);
+  expect(state.divisionAlignmentSnapshot).toEqual(divisionAlignment);
+  expect(state.divisionAlignmentSnapshot).not.toBe(divisionAlignment);
+  expect(Object.isFrozen(state.divisionAlignmentSnapshot.groups[0].clubIds)).toBe(true);
   expect(state.conferenceSeeds[0]).toEqual({ conferenceId: 'a',
     divisionWinnerClubIds: ['a1', 'a6', 'a11'],
     wildCardClubIds: ['a2', 'a3', 'a4'],

@@ -7,13 +7,19 @@ import { deriveOfficialDomesticQualificationOrder } from './OfficialDomesticQual
 
 const profile = (leagueId: string) => LEAGUE_PROFILES_V1.find((item) =>
   item.leagueId === leagueId)!;
-const standings = (leagueId: string, clubs: readonly string[]): OfficialStandingsSnapshot => ({
-  seasonId: 'season-1', leagueId, tiebreakPolicyVersion: 'table-v1',
-  scheduleRevisionEventIds: [], orderedClubIds: clubs, unresolvedTieGroups: [],
-  resultApplicationIds: [], tiebreakResolutions: [],
-  rows: clubs.map((clubId) => ({ clubId, games: 0, wins: 0, losses: 0,
-    ties: 0, runsFor: 0, runsAgainst: 0, cappedRunDifferential: 0 })),
-});
+const standings = (leagueId: string, clubs: readonly string[]): OfficialStandingsSnapshot => {
+  const games = leagueId.endsWith(':championship-round') ? 6
+    : profile(leagueId).regularSeasonGamesPerClub;
+  return {
+    seasonId: 'season-1', leagueId, tiebreakPolicyVersion: 'table-v1',
+    scheduleRevisionEventIds: [], orderedClubIds: clubs, unresolvedTieGroups: [],
+    resultApplicationIds: Array.from({ length: clubs.length * games / 2 },
+      (_, index) => `application-${index}`), tiebreakResolutions: [],
+    rows: clubs.map((clubId) => ({ clubId, games, wins: games / 2,
+      losses: games / 2, ties: 0, runsFor: 0, runsAgainst: 0,
+      cappedRunDifferential: 0 })),
+  };
+};
 
 it('derives a table-title berth order only from matching completed official standings', () => {
   const league = profile('league-005');
@@ -30,6 +36,9 @@ it('derives a table-title berth order only from matching completed official stan
   expect(() => deriveOfficialDomesticQualificationOrder(league,
     { ...table, unresolvedTieGroups: [['club-1', 'club-2']], orderedClubIds: null },
     { kind: 'direct', state: outcome })).toThrow('resolved');
+  expect(() => deriveOfficialDomesticQualificationOrder(league,
+    { ...table, rows: table.rows.map((row) => ({ ...row, games: 1 })) },
+    { kind: 'direct', state: outcome })).toThrow('complete official regular season');
   expect(() => deriveOfficialDomesticQualificationOrder(league,
     { ...table, scheduleRevisionEventIds: ['later-revision'] },
     { kind: 'direct', state: outcome })).toThrow('complete');
@@ -64,6 +73,11 @@ it('uses official conference pennants after the national champion is settled', (
     seasonId: 'season-1', policyVersion: 'japan-v1', status: 'COMPLETE' as const,
     regularSeasonBasis: captureOfficialStandingsBasis(table),
     alignmentVersion: 'japan-alignment-v1',
+    alignmentSnapshot: { version: 'japan-alignment-v1', seasonId: 'season-1',
+      leagueId: league.leagueId, groups: [
+        { groupId: 'east', clubIds: clubs.slice(0, 6) },
+        { groupId: 'west', clubIds: clubs.slice(6) },
+      ] },
     qualificationPolicyVersion: 'japan-qualification-v1',
     qualificationPriorityGroupIds: ['east', 'west'],
     groupChampions: [{ groupId: 'east', clubId: clubs[2] },
@@ -129,6 +143,19 @@ it('uses national champion, runner-up, then overall official records in North Am
   const completed = {
     seasonId: 'season-1', policyVersion: 'na-v1', status: 'COMPLETE' as const,
     regularSeasonBasis: captureOfficialStandingsBasis(table),
+    conferenceAlignmentVersion: 'conference-alignment-v1',
+    divisionAlignmentVersion: 'division-alignment-v1',
+    conferenceAlignmentSnapshot: { version: 'conference-alignment-v1',
+      seasonId: 'season-1', leagueId: league.leagueId, groups: [
+        { groupId: 'a', clubIds: clubs.slice(0, 15) },
+        { groupId: 'b', clubIds: clubs.slice(15) },
+      ] },
+    divisionAlignmentSnapshot: { version: 'division-alignment-v1',
+      seasonId: 'season-1', leagueId: league.leagueId,
+      groups: Array.from({ length: 6 }, (_, index) => ({
+        groupId: `division-${index + 1}`,
+        clubIds: clubs.slice(index * 5, index * 5 + 5),
+      })) },
     conferenceSeeds: [], conferenceChampions: [
       { conferenceId: 'a', clubId: clubs[1] },
       { conferenceId: 'b', clubId: clubs[10] },
