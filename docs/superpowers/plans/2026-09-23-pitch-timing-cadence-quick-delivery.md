@@ -79,6 +79,137 @@ release
 
 を正しく表現できる。
 
+### 2.1 QUICK Gradeは厳密に単調とする
+
+Underlying Source Stateは `quickSpeedFactor` とし、
+
+```text
+quickSpeedFactor = NORMAL duration / QUICK duration
+```
+
+で定義する。
+
+したがって:
+
+```text
+G -> F -> E -> D -> C -> B -> A -> Gold
+slow ---------------------------------> fast
+```
+
+を**必須invariant**とする。
+
+- Gに近づくほど motion-to-release duration は長くなる。
+- Aに近づくほど motion-to-release duration は短くなる。
+- Gold / 走者釘付はAよりさらに速い上位Tier。
+- Grade projection thresholdは重ならず、逆転を許さない。
+- D付近をneutral source state（`quickSpeedFactor ≈ 1.0`）の基準候補とする。
+- G extreme = `quickSpeedFactor = 1 / 1.8`（NORMALの1.8倍の時間）。
+- A extreme = `quickSpeedFactor = 1.8`（NORMALの1/1.8の時間）。
+- Gold extreme = `quickSpeedFactor = 2.5`（NORMALの1/2.5の時間）。
+
+B〜Fのexact thresholdはCalibrationだが、**単調性はCalibration対象ではなく設計契約**とする。
+
+### 2.2 Battery authorityと緩急○を分離する
+
+緩急○ / 変幻自在はBatteryの配球主導権を奪わない。
+
+Pitch call（球種・コース・目的）とCadence plan（いつ始動するか）を別Decisionとして持つ。
+
+```text
+PitchCall
+  pitch family / target / tactical purpose
+
+CadencePlan
+  start interval / deliberate hold / rhythm manipulation
+```
+
+Batteryの主導関係に応じて責任を分ける。
+
+#### CATCHER_LED
+
+捕手の要求に従うBattery:
+
+```text
+catcher game-calling
+ -> PitchCall
+ -> pitcher accepts call
+ -> pitcher cadence skill chooses legal timing around that accepted call
+ -> delivery
+```
+
+この場合、投手の緩急○は:
+
+- 捕手が要求した球種 / コースを勝手に変更しない。
+- accepted PitchCallを維持したまま、投球始動間隔・DELIBERATE hold・テンポ変化を使う。
+- 「緩急○を使いたいから捕手の配球を上書きする」を禁止する。
+- 捕手の配球意図を壊さない範囲で、投手本人のtiming knowledgeを使う。
+
+#### PITCHER_LED
+
+捕手が投手の要求に従うBattery:
+
+```text
+pitcher sequencing decision
+ -> PitchCall
+ + pitcher cadence decision
+ -> catcher receives / supports call
+ -> delivery
+```
+
+この場合、投手は:
+
+- 球種 / コース / sequenceの選択
+- 投球始動間隔
+- DELIBERATE hold
+- rhythm change
+
+を一つの投球戦術として組み合わせられる。
+
+ただし緩急Trait自体が球種を魔法的に選ぶわけではない。PitchCallは通常のpitch-selection / scouting / game-plan / battery decisionを通す。
+
+#### NEGOTIATED / MIXEDへの拡張
+
+将来、shake-off / sign negotiation / game-plan overrideを入れても、
+
+```text
+who owns PitchCall?
+who owns CadencePlan?
+```
+
+を別々に解決する。
+
+片方の能力やTraitがもう片方の決定を暗黙に上書きしてはならない。
+
+### 2.3 Battery conflict invariant
+
+以下を禁止する。
+
+```text
+CATCHER_LED
++ catcher requests slider away
++ pitcher 緩急○
+ -> fastball insideへ勝手に変更
+```
+
+以下を許可する。
+
+```text
+CATCHER_LED
++ catcher requests slider away
++ pitcher 緩急○
+ -> slider away remains fixed
+ -> pitcher changes only start interval / hold timing
+```
+
+および:
+
+```text
+PITCHER_LED
++ pitcher decides slow pitch -> fastball sequence
++ pitcher also manipulates cadence
+ -> catcher follows that call
+```
+
 ### 3. 自然揺らぎと意図的な遅延を分離する
 
 自然な機械感回避:
@@ -279,6 +410,30 @@ type PitchTimingIntent = Readonly<{
 }>;
 ```
 
+Timing intent itself contains no pitch-family / location override.
+
+## BatteryPitchDecision
+
+Battery coordination is a separate contract:
+
+```ts
+type PitchCallAuthority =
+  | 'CATCHER_LED'
+  | 'PITCHER_LED'
+  | 'NEGOTIATED';
+
+type BatteryPitchDecision = Readonly<{
+  authority: PitchCallAuthority;
+  acceptedPitchCallId: string;
+  timingIntent: PitchTimingIntent;
+}>;
+```
+
+`acceptedPitchCallId` references an already-resolved legal PitchCall. The timing resolver may consume it for provenance, but **must not mutate the call**.
+
+In `CATCHER_LED`, cadence planning is constrained to the accepted catcher call.
+In `PITCHER_LED`, the pitcher-side decision system may choose both PitchCall and cadence before this resolver is invoked.
+
 Count / leverage / runner / emotion が intent をどう選ぶかはDecision layerの責任とする。
 
 Timing resolver が「3ボールだから必ずDELIBERATE」のような隠れAIを持たない。
@@ -330,6 +485,7 @@ Presentationはmarker時刻を使って2～4コマ目等の表示滞在時間を
   - phase weights > 0
   - phase weight sum normalization is deterministic
   - control / repeatability in 0..1
+  - quick source-state / grade projection is strictly monotonic: G < F < E < D < C < B < A < Gold in speed
 
 Acceptance:
 
@@ -655,6 +811,46 @@ Intentと実行と相手への実際のタイミング差を分離して残す�
 
 ---
 
+## Task 9.5 — Battery PitchCall / Cadence arbitration
+
+**Create**
+- `src/core/sim/pitch/BatteryPitchDecision.ts`
+- `src/core/sim/pitch/BatteryPitchDecision.test.ts`
+
+Responsibilities:
+
+1. Receive an already-legal `PitchCall`.
+2. Record who owns the call: `CATCHER_LED / PITCHER_LED / NEGOTIATED`.
+3. Resolve cadence separately.
+4. Never let `PitchTimingResolver` mutate pitch family / target / tactical purpose.
+
+CATCHER_LED:
+
+```text
+catcher call
+ -> accepted PitchCall
+ -> pitcher cadence choice constrained around that call
+```
+
+PITCHER_LED:
+
+```text
+pitcher chooses PitchCall
+ + pitcher cadence choice
+ -> catcher follows accepted pitcher call
+```
+
+Acceptance:
+
+- CATCHER_LEDで緩急○を有効にしてもPitchCall IDが変化しない。
+- CATCHER_LEDでもstart interval / deliberate holdは変化可能。
+- PITCHER_LEDではpitch-selection layerが配球とcadenceを同じ戦術意図から作れる。
+- cadence resolver単体はpitch type / locationを書き換えられない。
+- catcher game-calling skillとpitcher cadence skillが同じ変数を二重補正しない。
+- authorityを変更しても同じaccepted PitchCallを与えた場合、Timing Physics以外のBallFlight入力は不変。
+
+---
+
 ## Task 10 — Count / leverage / pressure Decision adapter
 
 Timing physicsへ状況判断を埋め込まない。
@@ -846,6 +1042,21 @@ frames 2–4 = 表示滞在 / 遷移速度だけ調整
 14. **RNG isolation**
     - pitch timing draws追加でcontact / fielding RNGが変わらない。
 
+15. **Quick monotonicity**
+    - every representative source sample satisfies G < F < E < D < C < B < A < Gold in speed.
+    - no threshold overlap can make F faster than E or B slower than C.
+
+16. **Catcher-led conflict**
+    - catcher-requested PitchCall is immutable after acceptance.
+    - pitcher cadence skill may alter timing only.
+
+17. **Pitcher-led sequencing**
+    - pitcher-owned PitchCall and cadence may be planned together.
+    - catcher compliance does not duplicate or reapply cadence effects.
+
+18. **Authority separation**
+    - changing `PitchCallAuthority` alone never changes pitch physics when accepted call + pitcher execution inputs are identical.
+
 ---
 
 # Suggested Commit Sequence
@@ -880,6 +1091,10 @@ frames 2–4 = 表示滞在 / 遷移速度だけ調整
 - 緩急Trait / cadence skillは球速・spin・movement・BallFlightを一切変更しない
 - 打者のsurpriseを強制せず、予測 / 適応次第で効果ゼロにもなれる
 - QUICK sourceはG extreme NORMAL×1.8 ～ A extreme NORMAL/1.8、Gold extreme NORMAL/2.5の範囲を扱える
+- G→F→E→D→C→B→A→Goldの速度単調性を必ず守る
+- CATCHER_LEDでは捕手のaccepted PitchCallを緩急○が変更しない
+- PITCHER_LEDでは投手が配球とcadenceを同じ戦術意図から計画できる
+- PitchCall ownershipとCadence ownershipは別責任として扱う
 - QUICKの自然揺らぎは既存±50msを共用する
 - Motion phase markersがCoreから出る
 - 4コマPresentationで速度変更するのは2～4コマ目だけ
