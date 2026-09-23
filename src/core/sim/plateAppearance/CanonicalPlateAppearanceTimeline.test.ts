@@ -400,6 +400,37 @@ describe('CanonicalPlateAppearanceTimeline', () => {
         },
       },
     });
+    expect(() => recordBattedBallFirstFielderTouch(withTouch, {
+      fielderId: 'center-fielder',
+      tick: 3_760_000,
+      ballCenter: { x: 0, y: 1.1, z: 42 },
+      ballRadiusMeters: 0.0366,
+      classification: {
+        kind: 'inside_fair_wedge',
+        firstBaseLineSignedSide: 10,
+        thirdBaseLineSignedSide: 10,
+      },
+    })).toThrow('first-fielder touch has already been recorded');
+  });
+
+  it('records a first fielder touch after an earlier fair-ball determination', () => {
+    const contact = physicalContact(3_700_000);
+    const contacted = recordBatBallContact(
+      createCanonicalPlateAppearanceTimeline(match(), 3_600_000),
+      contact,
+    );
+    const fair = recordFairBattedBall(contacted, 3_710_000);
+    const touched = recordBattedBallFirstFielderTouch(fair, {
+      fielderId: 'center-fielder', tick: 3_750_000,
+      ballCenter: { x: 0, y: 1.2, z: 40 }, ballRadiusMeters: 0.0366,
+      classification: {
+        kind: 'inside_fair_wedge', firstBaseLineSignedSide: 10, thirdBaseLineSignedSide: 10,
+      },
+    });
+    expect(touched.status).toEqual(fair.status);
+    expect(touched.events.at(-1)).toMatchObject({
+      kind: 'BattedBallFirstFielderTouch', tick: 3_750_000,
+    });
   });
 
   it('keeps physical contact pending until a fair-ball disposition makes it live', () => {

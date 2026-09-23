@@ -24,7 +24,11 @@ export type {
   ProfiledWindowTiming,
 } from './OfficialWindowPolicy';
 
-export { orchestrateTagUpAppealAttempt } from './TagUpAppealOrchestration';
+export {
+  orchestrateTagUpAppealAttempt,
+  orchestrateTagUpAppealAttemptFromTimeline,
+} from './TagUpAppealOrchestration';
+export type { TimelineTagUpAppealAttemptInput } from './TagUpAppealOrchestration';
 export type { TagUpAppealAttemptInput, TagUpAppealAttemptResolution } from './TagUpAppealOrchestration';
 
 export type {

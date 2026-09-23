@@ -48,6 +48,8 @@ The NPB 2026 profile enables appeals and its existing appeal closure conditions.
 
 `orchestrateTagUpAppealAttempt` accepts an actual `DefensiveAppealAttemptFact`, first fielder touch, departure, optional retouch, an appeal window ID and the matching profile. It records these facts in `DefensiveAppealAttemptRecorded`, evaluates tag-up compliance and calls the tag-up RuleEngine. The result reports an out, no violation, expired appeal or unresolved same-tick attempt. The event does not invent an appeal when the defense made none.
 
+`orchestrateTagUpAppealAttemptFromTimeline` derives the first fielder touch from a completed `CanonicalPlateAppearanceTimeline` for the same play and matching PlayEnd. It rejects missing or duplicate first-touch events. The canonical timeline accepts its first fielder touch either before or after an earlier fair-ball determination, but never a second first touch. The host still supplies authenticated runner departure/retouch facts, the actual defensive attempt, and fly-catch evidence; a first-touch event alone does not prove a catch.
+
 After any recorded attempt, closure requires a newer correct-rule snapshot. For a same-tick NPB attempt at a window closure, closure also requires an explicit on-field call based on that newer snapshot. A next-play fence refuses to close an appeal window when a recorded attempt at that same tick would leave timing unresolved. The host must derive the new snapshot and any call from the facts; this API does not accept a free official MatchState delta.
 
 ## Calls and review
