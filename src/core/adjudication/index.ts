@@ -9,6 +9,7 @@ export {
   getPlayAdjudicationState,
   getOfficialPlayClosure,
   deriveClosedLiveBallMatchState,
+  deriveClosedNonLiveMatchState,
 } from './PlayAdjudicationLedger';
 
 export type {
@@ -34,5 +35,5 @@ export type {
   CloseOfficialPlayInput,
 } from './PlayAdjudicationLedger';
 
-export { activateNextLiveBallPlay, confirmDurableClosedLiveBallStateApplication } from './NextPlayActivation';
-export type { OfficialStateApplicationReceipt, ConfirmDurableClosedLiveBallStateApplicationInput, NextLiveBallPlayActivationInput, NextLiveBallPlayActivation } from './NextPlayActivation';
+export { activateNextLiveBallPlay, confirmDurableClosedLiveBallStateApplication, activateNextNonLivePlateAppearance, confirmDurableClosedNonLiveStateApplication } from './NextPlayActivation';
+export type { OfficialStateApplicationReceipt, ConfirmDurableClosedLiveBallStateApplicationInput, NextLiveBallPlayActivationInput, NextLiveBallPlayActivation, ConfirmDurableClosedNonLiveStateApplicationInput, NextNonLivePlateAppearanceActivationInput, NextNonLivePlateAppearanceActivation } from './NextPlayActivation';

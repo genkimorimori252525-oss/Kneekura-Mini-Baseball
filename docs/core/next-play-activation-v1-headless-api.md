@@ -2,6 +2,8 @@
 
 This slice enforces the final transition between an officially closed live-ball play and activation of the next canonical play.
 
+The same durable fence now supports terminal non-live walks and strikeouts. `deriveClosedNonLiveMatchState` requires a closed ledger with no physical PlayEnd, a matching terminal count event, and an official ruling consistent with the existing walk/strikeout rule adapters. It uses `applyWalkPlateAppearanceToMatchState` or `applyStrikeoutPlateAppearanceToMatchState` for the actual state transition. A bases-loaded walk can award a run without fabricating physical base touches.
+
 The required sequence is:
 
 `OfficialPlayClosure`
@@ -51,13 +53,19 @@ All activation and confirmation inputs are descriptor-cloned before property acc
 
 Repeated pure calls with the same inputs return the same result. Persistent exactly-once activation remains a host transaction responsibility.
 
+## Non-live plate appearances
+
+For a walk or strikeout, the host first records the correct-rule snapshot and closes the `PlayAdjudicationLedger` after all official windows are resolved. It then persists the MatchState derived by `deriveClosedNonLiveMatchState` and calls `confirmDurableClosedNonLiveStateApplication` with the exact stored state, application ID, and durable revision. `activateNextNonLivePlateAppearance` requires that receipt and re-derives the result before creating the next timeline. A missing or rebound receipt, mismatched ruling, unclosed ledger, or start tick before closure is rejected.
+
+The existing pure plate-appearance coordinators and state appliers remain available for compatibility. A host using the durable official-state flow must use the fenced APIs before activating the next canonical play. HBP has no terminal timeline/state adapter in this implementation and is not accepted by this API.
+
 ## Excluded
 
 This slice does not implement:
 
 - database writes or transaction management;
 - global exactly-once storage;
-- non-live walk/strikeout/HBP durable application;
+- HBP durable application;
 - RuleProfile-specific appeal/review window policy;
 - official scoring classification;
 - Presentation/UI/rendering.

@@ -5,6 +5,7 @@ import {
 } from '../sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 import {
   deriveClosedLiveBallMatchState,
+  deriveClosedNonLiveMatchState,
   getOfficialPlayClosure,
   type PlayAdjudicationLedger,
 } from './PlayAdjudicationLedger';
@@ -42,6 +43,16 @@ export type NextLiveBallPlayActivation = Readonly<{
   nextMatchState: CanonicalMatchState;
   nextTimeline: CanonicalPlateAppearanceTimeline;
 }>;
+
+export type ConfirmDurableClosedNonLiveStateApplicationInput = ConfirmDurableClosedLiveBallStateApplicationInput & Readonly<{
+  batterRunnerId: string;
+}>;
+
+export type NextNonLivePlateAppearanceActivationInput = NextLiveBallPlayActivationInput & Readonly<{
+  batterRunnerId: string;
+}>;
+
+export type NextNonLivePlateAppearanceActivation = NextLiveBallPlayActivation;
 
 const cloneInertData = <T>(input: T, path = 'nextPlayActivation'): T => {
   const ancestors = new Set<object>();
@@ -214,6 +225,68 @@ export const activateNextLiveBallPlay = (
     request.nextStartedAtTick,
   );
 
+  return Object.freeze({
+    previousPlayId: request.match.playId,
+    closureId: closure.closureId,
+    applicationId: application.applicationId,
+    durableRevision: application.durableRevision,
+    nextMatchState,
+    nextTimeline,
+  });
+};
+
+export const confirmDurableClosedNonLiveStateApplication = (
+  input: ConfirmDurableClosedNonLiveStateApplicationInput,
+): OfficialStateApplicationReceipt => {
+  const request = cloneInertData(input, 'durableOfficialStateApplication');
+  const closure = getOfficialPlayClosure(request.adjudication);
+  if (closure === null) {
+    throw new Error('official play must be closed before confirming durable MatchState application');
+  }
+  const expected = deriveClosedNonLiveMatchState(
+    request.match, request.physicalTimeline, request.adjudication, request.batterRunnerId,
+  );
+  if (!sameMatchState(expected, request.persistedMatchState)) {
+    throw new Error('persisted MatchState must match the officially derived state');
+  }
+  return Object.freeze({
+    applicationId: nonEmptyId(request.applicationId, 'applicationId'),
+    closureId: closure.closureId,
+    previousPlayId: request.match.playId,
+    durableRevision: nonNegativeRevision(request.durableRevision, 'durableRevision'),
+    appliedMatchState: freezeMatchState(request.persistedMatchState),
+  });
+};
+
+export const activateNextNonLivePlateAppearance = (
+  input: NextNonLivePlateAppearanceActivationInput,
+): NextNonLivePlateAppearanceActivation => {
+  const request = cloneInertData(input);
+  const closure = getOfficialPlayClosure(request.adjudication);
+  if (closure === null) {
+    throw new Error('official play must be closed before activating the next play');
+  }
+  if (!Number.isSafeInteger(request.nextStartedAtTick) || request.nextStartedAtTick < 0) {
+    throw new Error('nextStartedAtTick must be a non-negative safe integer tick');
+  }
+  if (request.nextStartedAtTick < closure.closedAtTick) {
+    throw new Error('next play cannot start before OfficialPlayClosure');
+  }
+  if (request.application === null || request.application === undefined) {
+    throw new Error('durable official MatchState application is required');
+  }
+  const application = validateReceipt(request.application);
+  if (application.closureId !== closure.closureId || application.previousPlayId !== request.match.playId) {
+    throw new Error('durable application receipt does not match OfficialPlayClosure');
+  }
+  const expected = deriveClosedNonLiveMatchState(
+    request.match, request.physicalTimeline, request.adjudication, request.batterRunnerId,
+  );
+  if (!sameMatchState(expected, application.appliedMatchState)) {
+    throw new Error('durable application receipt does not match the officially derived MatchState');
+  }
+  const nextMatchState = application.appliedMatchState;
+  const nextTimeline = createCanonicalPlateAppearanceTimeline(nextMatchState, request.nextStartedAtTick);
   return Object.freeze({
     previousPlayId: request.match.playId,
     closureId: closure.closureId,

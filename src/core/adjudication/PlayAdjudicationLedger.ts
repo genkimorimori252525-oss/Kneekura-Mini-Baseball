@@ -2,9 +2,12 @@ import type { BaseOccupancy, CanonicalMatchState } from '../model/CanonicalMatch
 import type { RuleProfileId } from '../model/RuleProfileRef';
 import type { PlayEndFact } from '../rules/PhysicalRuleFacts';
 import {
+  applyStrikeoutPlateAppearanceToMatchState,
+  applyWalkPlateAppearanceToMatchState,
   applyResolvedLiveBallPlateAppearanceToMatchState,
   type ResolvedLiveBallPlateAppearance,
 } from '../sim/plateAppearance/PlateAppearanceMatchState';
+import { resolveWalkForcedAdvancement } from '../rules/WalkAdvancementRule';
 import type { CanonicalPlateAppearanceTimeline } from '../sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 
 export type OfficialGameplayRuling = Readonly<{
@@ -942,4 +945,67 @@ export const deriveClosedLiveBallMatchState = (
     physicalTimeline,
     resolution,
   );
+};
+
+export const deriveClosedNonLiveMatchState = (
+  match: CanonicalMatchState,
+  timeline: CanonicalPlateAppearanceTimeline,
+  ledgerInput: PlayAdjudicationLedger,
+  batterRunnerId: string,
+): CanonicalMatchState => {
+  const matchState = cloneInertData(match, 'adjudication.matchState') as CanonicalMatchState;
+  const physicalTimeline = cloneInertData(timeline, 'adjudication.physicalTimeline') as CanonicalPlateAppearanceTimeline;
+  const { ledger, replay } = replayLedger(ledgerInput);
+  const closure = replay.closure;
+  if (closure === null) throw new Error('official play must be closed before deriving next MatchState');
+  if (closure.playEnd !== null) throw new Error('non-live MatchState derivation requires no physical PlayEnd');
+  if (ledger.playId !== matchState.playId || physicalTimeline.playId !== ledger.playId) {
+    throw new Error('adjudication playId must match MatchState and physical timeline');
+  }
+  if (ledger.ruleProfileId !== matchState.ruleProfileId) {
+    throw new Error('adjudication rule profile must match CanonicalMatchState');
+  }
+  if (physicalTimeline.lastEventTick > closure.closedAtTick) {
+    throw new Error('OfficialPlayClosure must not precede the terminal plate appearance');
+  }
+
+  const status = physicalTimeline.status.kind;
+  if (status !== 'walk' && status !== 'strikeout') {
+    throw new Error('non-live MatchState derivation requires a walk or strikeout timeline');
+  }
+  const finalEvent = physicalTimeline.events.at(-1);
+  const countResult = finalEvent?.kind === 'PitchAdjudicated'
+    ? finalEvent.payload.result
+    : finalEvent?.kind === 'FoulBattedBallResolved' && finalEvent.payload.resolution.kind === 'uncaught_foul'
+      ? finalEvent.payload.resolution.countResult
+      : null;
+  if (
+    finalEvent?.tick !== physicalTimeline.lastEventTick
+    || countResult?.kind !== status
+    || countResult.terminalCount.balls !== physicalTimeline.status.terminalCount.balls
+    || countResult.terminalCount.strikes !== physicalTimeline.status.terminalCount.strikes
+  ) {
+    throw new Error('terminal plate appearance must match its final physical event');
+  }
+  const walkAdvancement = status === 'walk'
+    ? resolveWalkForcedAdvancement({ batterRunnerId, bases: matchState.bases })
+    : null;
+  const expectedRuling = walkAdvancement === null
+    ? { outsAfter: matchState.outs + 1, basesAfter: matchState.bases, scoredRunnerIds: [] as readonly string[] }
+    : { outsAfter: matchState.outs, basesAfter: walkAdvancement.bases, scoredRunnerIds: walkAdvancement.scoredRunnerIds };
+  const actual = closure.officialDelta;
+  if (
+    actual.outsAfter !== expectedRuling.outsAfter
+    || actual.basesAfter.first !== expectedRuling.basesAfter.first
+    || actual.basesAfter.second !== expectedRuling.basesAfter.second
+    || actual.basesAfter.third !== expectedRuling.basesAfter.third
+    || actual.scoredRunnerIds.length !== expectedRuling.scoredRunnerIds.length
+    || actual.scoredRunnerIds.some((runnerId, index) => runnerId !== expectedRuling.scoredRunnerIds[index])
+  ) {
+    throw new Error('official non-live ruling does not match the terminal plate appearance');
+  }
+
+  return status === 'walk'
+    ? applyWalkPlateAppearanceToMatchState(matchState, physicalTimeline, batterRunnerId)
+    : applyStrikeoutPlateAppearanceToMatchState(matchState, physicalTimeline);
 };
