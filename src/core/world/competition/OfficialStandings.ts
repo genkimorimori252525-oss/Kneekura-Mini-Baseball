@@ -1,5 +1,5 @@
 import { createCanonicalLineScoreSnapshot } from '../../model/CanonicalLineScoreSnapshot';
-import type { CurrentLeagueSchedule } from './LeagueSchedule';
+import type { ScheduleGame } from './LeagueSchedule';
 import type { OfficialGameResult } from './OfficialGameCompletion';
 
 export type StandingsTiebreakPolicy = Readonly<{
@@ -8,9 +8,16 @@ export type StandingsTiebreakPolicy = Readonly<{
   tieCreditDenominator: number;
   runDifferentialCapPerGame: number;
 }>;
-export type OfficialStandingsSchedule = Pick<CurrentLeagueSchedule,
-  'seasonId' | 'leagueId' | 'memberClubIds' | 'regularSeasonGamesPerClub'
-  | 'games' | 'revisionEventIds'>;
+/** Official ranking needs game identity and opponents, not a fabricated date. */
+export type OfficialStandingsSchedule = Readonly<{
+  seasonId: string;
+  leagueId: string;
+  memberClubIds: readonly string[];
+  regularSeasonGamesPerClub: number;
+  games: readonly Pick<ScheduleGame,
+    'gameId' | 'homeClubId' | 'awayClubId'>[];
+  revisionEventIds: readonly string[];
+}>;
 export type OfficialStandingRow = Readonly<{
   clubId: string;
   games: number;
