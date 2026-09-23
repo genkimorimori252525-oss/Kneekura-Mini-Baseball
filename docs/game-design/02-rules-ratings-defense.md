@@ -477,3 +477,23 @@ type StadiumProfile = {
 | Presentation | UI査定式、G〜S境界、Trait色・名称だけを変えても同一seedのCanonical Eventsが完全一致する |
 
 テストを満たさない「それらしく見える」アニメーションは完成とみなさない。逆に、Core が計算した動きを正しく描いた結果として見た目が不自然なら、表示を捏造するのではなく、Core の計算・査定・判断を修正する。
+
+---
+
+## 2026-09-23 CANONICAL REFINEMENT — Pitch Release Geometry
+
+Pitcher release geometryのSource of Truthは:
+- `docs/game-design/55-pitch-release-geometry-v1.md`
+
+Frozen boundary:
+- Arm-slot classは `OVERHAND / THREE_QUARTER / SIDEARM / UNDERHAND`。
+- class名そのものはMatch buffではない。
+- 各Pitcherは選手固有のfixed continuous release geometryを持つ。
+- 同じarm-slot classでもrelease heightは個体差を持つ。
+- `ReleaseHeightTier` はcontinuous heightのProjectionであり、Core物理はTier文字を入力にしない。
+- release geometryは通常の一球ごとには変化しない。
+- Pitch Timingの±50ms jitter / QUICK / DELIBERATE / 緩急○はrelease positionを変えない。
+- BallFlightはcanonical release positionから開始する。
+- extreme high / low deliveryの「投げ下ろし / 下から生える」感覚は実座標と軌道から生じる。
+- physical body envelope外のrelease pointは禁止。
+- Career-level form changeが成立した場合のみprofile更新を許す。
