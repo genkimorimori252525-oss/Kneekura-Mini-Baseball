@@ -1,4 +1,5 @@
 import { fnv1a32 } from '../../rng/DeterministicRng';
+import type { CompetitionFormatProfile } from './CompetitionEdition';
 
 export type DrawParticipant = Readonly<{
   teamId: string;
@@ -8,9 +9,20 @@ export type DrawParticipant = Readonly<{
 }>;
 export type DrawSoftConstraint =
   | 'SAME_LEAGUE_AVOIDANCE' | 'REGIONAL_DIVERSITY' | 'REMATCH_AVOIDANCE';
+export type CompetitionDrawPolicy = Readonly<{
+  version: string;
+  /** First constraint permitted to relax, through last. */
+  relaxationOrder: readonly DrawSoftConstraint[];
+}>;
+export type CompetitionDrawPolicyRegistry = Readonly<{
+  policies: readonly CompetitionDrawPolicy[];
+}>;
+/** Persist this registry with the career; one version cannot name two orders. */
+export const EMPTY_COMPETITION_DRAW_POLICY_REGISTRY: CompetitionDrawPolicyRegistry =
+  Object.freeze({ policies: Object.freeze([]) });
 export type CompetitionDrawInput = Readonly<{
   editionId: string;
-  drawPolicyVersion: string;
+  profile: Pick<CompetitionFormatProfile, 'drawPolicyVersion' | 'drawPolicy'>;
   drawSeed: string;
   groupCount: number;
   participants: readonly DrawParticipant[];
@@ -21,6 +33,7 @@ export type CompetitionDraw = Readonly<{
   drawPolicyVersion: string;
   drawSeed: string;
   groups: readonly (readonly DrawParticipant[])[];
+  relaxationOrder: readonly DrawSoftConstraint[];
   appliedConstraints: readonly string[];
   relaxedConstraints: readonly DrawSoftConstraint[];
   softViolationCounts: Readonly<{
@@ -38,8 +51,81 @@ const permutations = <T>(items: readonly T[]): T[][] => {
 };
 
 type Score = Readonly<{ sameLeague: number; sameRegion: number; rematch: number }>;
-const compareScore = (a: Score, b: Score): number =>
-  a.sameLeague - b.sameLeague || a.sameRegion - b.sameRegion || a.rematch - b.rematch;
+const SCORE_KEY: Readonly<Record<DrawSoftConstraint, keyof Score>> = {
+  SAME_LEAGUE_AVOIDANCE: 'sameLeague',
+  REGIONAL_DIVERSITY: 'sameRegion',
+  REMATCH_AVOIDANCE: 'rematch',
+};
+export const snapshotCompetitionDrawPolicy = (
+  policy: CompetitionDrawPolicy,
+): CompetitionDrawPolicy => {
+  const requestedOrder: unknown = policy?.relaxationOrder;
+  if (typeof policy?.version !== 'string' || policy.version.length === 0
+    || !Array.isArray(requestedOrder)
+    || requestedOrder.length !== 3 || new Set(requestedOrder).size !== 3
+    || requestedOrder.some((constraint) =>
+      typeof constraint !== 'string' || !Object.hasOwn(SCORE_KEY, constraint))) {
+    throw new Error('draw relaxation order requires a valid versioned policy');
+  }
+  return Object.freeze({ version: policy.version,
+    relaxationOrder: Object.freeze([...requestedOrder]) });
+};
+const readRegistry = (registry: CompetitionDrawPolicyRegistry):
+readonly CompetitionDrawPolicy[] => {
+  if (!Array.isArray(registry?.policies)) {
+    throw new Error('draw policy registry is required');
+  }
+  const policies: readonly CompetitionDrawPolicy[] = registry.policies;
+  const versions = new Set<string>();
+  for (const policy of policies) {
+    const snapshot = snapshotCompetitionDrawPolicy(policy);
+    if (versions.has(snapshot.version)) {
+      throw new Error('draw policy registry contains duplicate versions');
+    }
+    versions.add(snapshot.version);
+  }
+  return policies;
+};
+export const registerCompetitionDrawPolicy = (
+  registry: CompetitionDrawPolicyRegistry,
+  policy: CompetitionDrawPolicy,
+): CompetitionDrawPolicyRegistry => {
+  const policies = readRegistry(registry);
+  const snapshot = snapshotCompetitionDrawPolicy(policy);
+  const existing = policies.find((item) => item.version === snapshot.version);
+  if (existing) {
+    if (existing.relaxationOrder.length !== snapshot.relaxationOrder.length
+      || existing.relaxationOrder.some((item, index) =>
+        item !== snapshot.relaxationOrder[index])) {
+      throw new Error('draw policy version conflicts with registered relaxation order');
+    }
+    return registry;
+  }
+  return Object.freeze({ policies: Object.freeze([...policies,
+    snapshot]) });
+};
+export const requireRegisteredDrawPolicy = (
+  registry: CompetitionDrawPolicyRegistry,
+  policy: CompetitionDrawPolicy,
+): CompetitionDrawPolicy => {
+  const snapshot = snapshotCompetitionDrawPolicy(policy);
+  const registered = readRegistry(registry).find((item) =>
+    item.version === snapshot.version);
+  if (!registered || registered.relaxationOrder.length !== snapshot.relaxationOrder.length
+    || registered.relaxationOrder.some((item, index) =>
+      item !== snapshot.relaxationOrder[index])) {
+    throw new Error('draw policy must match the registered version');
+  }
+  return snapshot;
+};
+const compareScore = (a: Score, b: Score,
+  relaxationOrder: readonly DrawSoftConstraint[]): number => {
+  for (const constraint of [...relaxationOrder].reverse()) {
+    const difference = a[SCORE_KEY[constraint]] - b[SCORE_KEY[constraint]];
+    if (difference !== 0) return difference;
+  }
+  return 0;
+};
 
 const scoreGroups = (
   groups: readonly (readonly DrawParticipant[])[],
@@ -63,13 +149,19 @@ const scoreGroups = (
 };
 
 /** Hard pot rules never relax. Soft priorities use a bounded deterministic search. */
-export const drawCompetitionGroups = (input: CompetitionDrawInput): CompetitionDraw => {
-  if (!input.editionId || !input.drawPolicyVersion || !input.drawSeed
+export const drawCompetitionGroups = (input: CompetitionDrawInput,
+  registry: CompetitionDrawPolicyRegistry): CompetitionDraw => {
+  if (!input.editionId || !input.profile?.drawPolicyVersion || !input.drawSeed
     || !Number.isSafeInteger(input.groupCount) || input.groupCount < 2
     || input.groupCount > 6 || input.participants.length === 0
     || input.participants.length % input.groupCount !== 0) {
     throw new Error('invalid versioned competition draw');
   }
+  if (input.profile.drawPolicy?.version !== input.profile.drawPolicyVersion) {
+    throw new Error('draw policy must match its versioned competition profile');
+  }
+  const relaxationOrder = requireRegisteredDrawPolicy(
+    registry, input.profile.drawPolicy).relaxationOrder;
   const potCount = input.participants.length / input.groupCount;
   const teamIds = new Set<string>();
   const pots = Array.from({ length: potCount }, () => [] as DrawParticipant[]);
@@ -101,7 +193,8 @@ export const drawCompetitionGroups = (input: CompetitionDrawInput): CompetitionD
     const next = beam.flatMap((groups) => assignments.map((assignment) =>
       groups.map((group, index) => [...group, assignment[index]])));
     next.sort((a, b) => {
-      const priority = compareScore(scoreGroups(a, rematches), scoreGroups(b, rematches));
+      const priority = compareScore(scoreGroups(a, rematches),
+        scoreGroups(b, rematches), relaxationOrder);
       if (priority !== 0) return priority;
       const keyA = a.map((group) => group.map((team) => team.teamId).join(':')).join('|');
       const keyB = b.map((group) => group.map((team) => team.teamId).join(':')).join('|');
@@ -112,14 +205,13 @@ export const drawCompetitionGroups = (input: CompetitionDrawInput): CompetitionD
   }
   const groups = beam[0];
   const counts = scoreGroups(groups, rematches);
-  const relaxedConstraints: DrawSoftConstraint[] = [];
-  if (counts.sameLeague > 0) relaxedConstraints.push('SAME_LEAGUE_AVOIDANCE');
-  if (counts.sameRegion > 0) relaxedConstraints.push('REGIONAL_DIVERSITY');
-  if (counts.rematch > 0) relaxedConstraints.push('REMATCH_AVOIDANCE');
+  const relaxedConstraints = relaxationOrder.filter((constraint) =>
+    counts[SCORE_KEY[constraint]] > 0);
   return Object.freeze({
     editionId: input.editionId,
-    drawPolicyVersion: input.drawPolicyVersion,
+    drawPolicyVersion: input.profile.drawPolicyVersion,
     drawSeed: input.drawSeed,
+    relaxationOrder: Object.freeze([...relaxationOrder]),
     groups: Object.freeze(groups.map((group) => Object.freeze(group.map((team) =>
       Object.freeze({ ...team }))))),
     appliedConstraints: Object.freeze([

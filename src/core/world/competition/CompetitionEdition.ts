@@ -1,9 +1,13 @@
+import { requireRegisteredDrawPolicy, type CompetitionDrawPolicy,
+  type CompetitionDrawPolicyRegistry } from './CompetitionDraw';
+
 export type CompetitionFormatProfile = Readonly<{
   competitionId: string;
   formatVersion: string;
   ruleProfileVersion: string;
   hostingPolicyVersion: string;
   drawPolicyVersion: string;
+  drawPolicy: CompetitionDrawPolicy;
   awardPolicyVersion: string;
   canonicalRole: string;
   reformEventId?: string;
@@ -29,6 +33,7 @@ const nonempty = (name: string, value: string): void => {
 export const createCompetitionEdition = (
   profile: CompetitionFormatProfile,
   input: CompetitionEditionInput,
+  drawPolicyRegistry: CompetitionDrawPolicyRegistry,
 ): CompetitionEditionSnapshot => {
   for (const [name, value] of Object.entries({
     competitionId: profile.competitionId,
@@ -43,6 +48,11 @@ export const createCompetitionEdition = (
     drawSnapshotId: input.drawSnapshotId,
     hostNationId: input.host.nationId,
   })) nonempty(name, value);
+  if (profile.drawPolicy?.version !== profile.drawPolicyVersion) {
+    throw new Error('edition draw policy must match its versioned profile');
+  }
+  const drawPolicy = requireRegisteredDrawPolicy(drawPolicyRegistry,
+    profile.drawPolicy);
   if (
     input.participantIds.length === 0
     || new Set(input.participantIds).size !== input.participantIds.length
@@ -63,6 +73,7 @@ export const createCompetitionEdition = (
   }
   return Object.freeze({
     ...profile,
+    drawPolicy,
     editionId: input.editionId,
     qualificationSnapshotId: input.qualificationSnapshotId,
     participantIds: Object.freeze([...input.participantIds]),
