@@ -2035,3 +2035,24 @@ Frozen direction for implementation:
 - runner / steal systems consume actual release latency, never a direct `クイックA -> steal penalty` modifier.
 - Core emits motion phase markers; Presentation only observes them and may map them to 2–4 frame sprite timing.
 - no UI / camera / sprite implementation is part of this Core plan.
+
+
+## 2026-09-23 Pitch Timing refinement — cadence skill / quick scaling
+
+User clarified and approved the following refinement:
+
+- `緩急○ / 変幻自在` must **never** mutate pitch quality.
+- The cadence Trait represents learned knowledge/skill for intentionally varying the pre-pitch interval at effective moments to disturb the batter's real preparation / timing.
+- No automatic "off-speed then fastball = stronger fastball" behavior.
+- No forced batter surprise state. If the batter anticipates or adapts, the cadence move may have little or no effect.
+- pitch-speed separation remains a normal physical/timing phenomenon but is not the Source of Truth for `緩急○ / 変幻自在`.
+- Same Pitch Physics inputs must yield the same velocity / spin / movement / BallFlight regardless of cadence Trait.
+- For the 4-frame pitching-form Presentation, timing adjustments are applied to **frames 2–4 only**. Frame 1 is not stretched/compressed for QUICK or cadence matching.
+- QUICK remains separate from cadence manipulation.
+- QUICK uses a continuous source-state factor projected to `クイック G〜A / 走者釘付`:
+  - G extreme: motion-to-release may be up to NORMAL × 1.8 duration.
+  - A extreme: motion-to-release may be as short as NORMAL / 1.8.
+  - Gold / 走者釘付 extreme: as short as NORMAL / 2.5.
+  - B〜F are intermediate projections from continuous source state; the grade label itself never drives the multiplier.
+- QUICK reuses the previously approved natural timing variation bound of ±50 ms.
+- Updated implementation plan commit: `819bce9d40c9f5d0f6ffb9b8a4d98a72e07d6492`.
