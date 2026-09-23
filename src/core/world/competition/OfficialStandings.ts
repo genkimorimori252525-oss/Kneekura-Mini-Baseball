@@ -8,6 +8,9 @@ export type StandingsTiebreakPolicy = Readonly<{
   tieCreditDenominator: number;
   runDifferentialCapPerGame: number;
 }>;
+export type OfficialStandingsSchedule = Pick<CurrentLeagueSchedule,
+  'seasonId' | 'leagueId' | 'memberClubIds' | 'regularSeasonGamesPerClub'
+  | 'games' | 'revisionEventIds'>;
 export type OfficialStandingRow = Readonly<{
   clubId: string;
   games: number;
@@ -42,12 +45,81 @@ export type OfficialTiebreakGamePlan = Readonly<{
   homeClubId: string;
   awayClubId: string;
 }>;
+export type LeagueGroupAlignment = Readonly<{
+  version: string;
+  seasonId: string;
+  leagueId: string;
+  groups: readonly Readonly<{ groupId: string; clubIds: readonly string[] }>[];
+}>;
+export type OfficialGroupStandingsSnapshot = OfficialStandingsSnapshot & Readonly<{
+  groupId: string;
+  alignmentVersion: string;
+  memberClubIds: readonly string[];
+}>;
 
 const compareText = (a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0;
 
+const rankStandingRows = (
+  rows: readonly OfficialStandingRow[],
+  results: readonly OfficialGameResult[],
+  policy: StandingsTiebreakPolicy,
+): Pick<OfficialStandingsSnapshot, 'rows' | 'orderedClubIds' | 'unresolvedTieGroups'> => {
+  type RowGroup = OfficialStandingRow[];
+  const points = (wins: number, ties: number): bigint =>
+    BigInt(wins) * BigInt(policy.tieCreditDenominator)
+      + BigInt(ties) * BigInt(policy.tieCreditNumerator);
+  const compareBig = (a: bigint, b: bigint): number => a < b ? -1 : a > b ? 1 : 0;
+  const groupBy = <T>(
+    groups: RowGroup[],
+    value: (row: OfficialStandingRow, group: RowGroup) => T,
+    compare: (a: T, b: T) => number,
+  ): RowGroup[] => groups.flatMap((group) => {
+    if (group.length < 2) return [group];
+    const ranked = group.map((row) => ({ row, key: value(row, group) }))
+      .sort((a, b) => compare(a.key, b.key) || compareText(a.row.clubId, b.row.clubId));
+    const partitions: RowGroup[] = [];
+    for (const item of ranked) {
+      const last = partitions[partitions.length - 1];
+      if (!last || compare(value(last[0], group), item.key) !== 0) partitions.push([item.row]);
+      else last.push(item.row);
+    }
+    return partitions;
+  });
+  let groups: RowGroup[] = [[...rows]];
+  groups = groupBy(groups, (row) => points(row.wins, row.ties), (a, b) => compareBig(b, a));
+  const headToHead = (row: OfficialStandingRow, group: RowGroup) => {
+    const tied = new Set(group.map((item) => item.clubId));
+    let wins = 0; let ties = 0; let played = 0;
+    for (const result of results) {
+      if (!tied.has(result.homeClubId) || !tied.has(result.awayClubId)) continue;
+      if (result.homeClubId !== row.clubId && result.awayClubId !== row.clubId) continue;
+      played += 1;
+      if (result.winnerClubId === row.clubId) wins += 1;
+      else if (result.winnerClubId === null) ties += 1;
+    }
+    return { points: points(wins, ties), games: played };
+  };
+  groups = groupBy(groups, (row, group) => {
+    if (group.some((member) => headToHead(member, group).games === 0)) {
+      return { points: BigInt(0), games: 0 };
+    }
+    return headToHead(row, group);
+  }, (a, b) => compareBig(b.points * BigInt(a.games), a.points * BigInt(b.games)));
+  groups = groupBy(groups, (row) => row.cappedRunDifferential, (a, b) => b - a);
+  groups = groupBy(groups, (row) => row.runsAgainst, (a, b) => a - b);
+  const unresolvedTieGroups = groups.filter((group) => group.length > 1)
+    .map((group) => Object.freeze(group.map((row) => row.clubId).sort(compareText)));
+  return Object.freeze({
+    rows: Object.freeze(groups.flat().map((row) => Object.freeze({ ...row }))),
+    orderedClubIds: unresolvedTieGroups.length > 0 ? null
+      : Object.freeze(groups.flat().map((row) => row.clubId)),
+    unresolvedTieGroups: Object.freeze(unresolvedTieGroups),
+  });
+};
+
 /** Full-season ranking consumes only final results matched to scheduled games. */
 export const buildOfficialStandings = (
-  schedule: CurrentLeagueSchedule,
+  schedule: OfficialStandingsSchedule,
   results: readonly OfficialGameResult[],
   policy: StandingsTiebreakPolicy,
 ): OfficialStandingsSnapshot => {
@@ -114,73 +186,90 @@ export const buildOfficialStandings = (
   if ([...mutable.values()].some((row) => row.games !== schedule.regularSeasonGamesPerClub)) {
     throw new Error('official standings do not cover every club game');
   }
-  const rows = [...mutable.values()];
-  const points = (wins: number, ties: number): bigint =>
-    BigInt(wins) * BigInt(policy.tieCreditDenominator)
-      + BigInt(ties) * BigInt(policy.tieCreditNumerator);
-  const compareBig = (a: bigint, b: bigint): number => a < b ? -1 : a > b ? 1 : 0;
-  const groupBy = <T>(
-    groups: typeof rows[],
-    value: (row: typeof rows[number], group: typeof rows) => T,
-    compare: (a: T, b: T) => number,
-  ): typeof rows[] => groups.flatMap((group) => {
-    if (group.length < 2) return [group];
-    const ranked = group.map((row) => ({ row, key: value(row, group) }))
-      .sort((a, b) => compare(a.key, b.key) || compareText(a.row.clubId, b.row.clubId));
-    const partitions: typeof rows[] = [];
-    for (const item of ranked) {
-      const last = partitions[partitions.length - 1];
-      if (!last || compare(value(last[0], group), item.key) !== 0) partitions.push([item.row]);
-      else last.push(item.row);
-    }
-    return partitions;
-  });
-  let groups: typeof rows[] = [rows];
-  groups = groupBy(groups, (row) => points(row.wins, row.ties), (a, b) => compareBig(b, a));
-  const headToHead = (row: typeof rows[number], group: typeof rows) => {
-    const tied = new Set(group.map((item) => item.clubId));
-    let wins = 0; let ties = 0; let played = 0;
-    for (const result of results) {
-      if (!tied.has(result.homeClubId) || !tied.has(result.awayClubId)) continue;
-      if (result.homeClubId !== row.clubId && result.awayClubId !== row.clubId) continue;
-      played += 1;
-      if (result.winnerClubId === row.clubId) wins += 1;
-      else if (result.winnerClubId === null) ties += 1;
-    }
-    return { points: points(wins, ties), games: played };
-  };
-  groups = groupBy(groups, (row, group) => {
-    // A ratio with zero games is undefined. Skip this criterion for the
-    // whole tied group when its opponent matrix offers no comparison.
-    if (group.some((member) => headToHead(member, group).games === 0)) {
-      return { points: BigInt(0), games: 0 };
-    }
-    return headToHead(row, group);
-  }, (a, b) => compareBig(b.points * BigInt(a.games), a.points * BigInt(b.games)));
-  groups = groupBy(groups, (row) => row.cappedRunDifferential, (a, b) => b - a);
-  groups = groupBy(groups, (row) => row.runsAgainst, (a, b) => a - b);
-  const unresolvedTieGroups = groups.filter((group) => group.length > 1)
-    .map((group) => Object.freeze(group.map((row) => row.clubId).sort(compareText)));
+  const ranking = rankStandingRows([...mutable.values()], results, policy);
   return Object.freeze({
     seasonId: schedule.seasonId,
     leagueId: schedule.leagueId,
     tiebreakPolicyVersion: policy.version,
     scheduleRevisionEventIds: Object.freeze([...schedule.revisionEventIds]),
-    rows: Object.freeze(groups.flat().map((row) => Object.freeze({ ...row }))),
-    orderedClubIds: unresolvedTieGroups.length > 0 ? null
-      : Object.freeze(groups.flat().map((row) => row.clubId)),
-    unresolvedTieGroups: Object.freeze(unresolvedTieGroups),
+    ...ranking,
     resultApplicationIds: Object.freeze(results.map((result) => result.applicationId)),
     tiebreakResolutions: Object.freeze([]),
   });
 };
 
+export const createLeagueGroupAlignment = (
+  schedule: OfficialStandingsSchedule,
+  version: string,
+  groups: LeagueGroupAlignment['groups'],
+): LeagueGroupAlignment => {
+  const members = new Set(schedule.memberClubIds);
+  const assigned = new Set<string>();
+  const groupIds = new Set<string>();
+  if (!version || !schedule.seasonId || !schedule.leagueId
+    || groups.length < 2 || members.size !== schedule.memberClubIds.length) {
+    throw new Error('invalid versioned league group alignment');
+  }
+  for (const group of groups) {
+    if (!group.groupId || groupIds.has(group.groupId) || group.clubIds.length === 0) {
+      throw new Error('invalid league group identity or membership');
+    }
+    groupIds.add(group.groupId);
+    for (const clubId of group.clubIds) {
+      if (!members.has(clubId) || assigned.has(clubId)) {
+        throw new Error('league group alignment must partition league membership');
+      }
+      assigned.add(clubId);
+    }
+  }
+  if (assigned.size !== members.size) {
+    throw new Error('league group alignment must cover every league club');
+  }
+  return Object.freeze({ version, seasonId: schedule.seasonId,
+    leagueId: schedule.leagueId,
+    groups: Object.freeze(groups.map((group) => Object.freeze({
+      groupId: group.groupId, clubIds: Object.freeze([...group.clubIds]),
+    }))) });
+};
+
+/** Rank a division or zone using every validated game in its full league. */
+export const projectOfficialGroupStandings = (
+  schedule: OfficialStandingsSchedule,
+  results: readonly OfficialGameResult[],
+  policy: StandingsTiebreakPolicy,
+  alignment: LeagueGroupAlignment,
+  groupId: string,
+): OfficialGroupStandingsSnapshot => {
+  if (alignment.seasonId !== schedule.seasonId || alignment.leagueId !== schedule.leagueId) {
+    throw new Error('league group alignment season or league mismatch');
+  }
+  const normalized = createLeagueGroupAlignment(schedule, alignment.version, alignment.groups);
+  const group = normalized.groups.find((item) => item.groupId === groupId);
+  if (!group) throw new Error('group is absent from frozen league alignment');
+  const full = buildOfficialStandings(schedule, results, policy);
+  const selected = new Set(group.clubIds);
+  const ranking = rankStandingRows(full.rows.filter((row) => selected.has(row.clubId)),
+    results, policy);
+  return Object.freeze({
+    ...ranking,
+    seasonId: schedule.seasonId,
+    leagueId: schedule.leagueId,
+    groupId,
+    alignmentVersion: normalized.version,
+    memberClubIds: Object.freeze([...group.clubIds]),
+    tiebreakPolicyVersion: policy.version,
+    scheduleRevisionEventIds: full.scheduleRevisionEventIds,
+    resultApplicationIds: full.resultApplicationIds,
+    tiebreakResolutions: Object.freeze([]),
+  });
+};
+
 /** Applies one official deciding game to an unresolved two-club tie. */
-export const applyOfficialTiebreakGame = (
-  standings: OfficialStandingsSnapshot,
+export const applyOfficialTiebreakGame = <T extends OfficialStandingsSnapshot>(
+  standings: T,
   plan: OfficialTiebreakGamePlan,
   result: OfficialGameResult,
-): OfficialStandingsSnapshot => {
+): T => {
   const groupIndex = standings.unresolvedTieGroups.findIndex((group) =>
     group.length === 2 && group.includes(plan.homeClubId) && group.includes(plan.awayClubId));
   if (!plan.version || !plan.gameId || !plan.homeClubId || !plan.awayClubId
@@ -220,5 +309,5 @@ export const applyOfficialTiebreakGame = (
     tiebreakResolutions: Object.freeze([...standings.tiebreakResolutions,
       Object.freeze({ policyVersion: plan.version, gameId: plan.gameId,
         applicationId: result.applicationId, winnerClubId: winner, loserClubId: loser })]),
-  });
+  }) as T;
 };

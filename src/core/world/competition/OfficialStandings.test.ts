@@ -1,7 +1,8 @@
 import { expect, it } from 'vitest';
 import { asRuleProfileId } from '../../model/RuleProfileRef';
 import { createBaseScheduleSnapshot } from './LeagueSchedule';
-import { applyOfficialTiebreakGame, buildOfficialStandings } from './OfficialStandings';
+import { applyOfficialTiebreakGame, buildOfficialStandings,
+  createLeagueGroupAlignment, projectOfficialGroupStandings } from './OfficialStandings';
 import type { OfficialGameResult } from './OfficialGameCompletion';
 
 const schedule = createBaseScheduleSnapshot({
@@ -80,4 +81,50 @@ it('leaves an exact unresolved tie open for a profile-defined tiebreak game', ()
     version: 'tiebreak-v1', gameId: 'tiebreak-1', seasonId: 'wrong-season',
     homeClubId: 'a', awayClubId: 'b',
   }, decidingGame)).toThrow('season');
+});
+
+it('projects a group table from every official cross-group game in the full league', () => {
+  const crossSchedule = createBaseScheduleSnapshot({
+    seasonId: 'season-1', leagueId: 'cross-league',
+    calendarProfileVersion: 'calendar-v1', generatorVersion: 'generator-v1',
+    scheduleSeed: 'seed', opponentMatrixVersion: 'matrix-v1',
+    regularSeasonGamesPerClub: 2, memberClubIds: ['a', 'b', 'c', 'd'],
+    opponentMatrix: [
+      { homeClubId: 'a', awayClubId: 'c', gameCount: 2 },
+      { homeClubId: 'b', awayClubId: 'd', gameCount: 2 },
+    ],
+    allowedDays: [1, 2], reservedWindows: [],
+    series: [
+      { seriesId: 'ac', homeClubId: 'a', awayClubId: 'c', startsOnDay: 1, gameCount: 2 },
+      { seriesId: 'bd', homeClubId: 'b', awayClubId: 'd', startsOnDay: 1, gameCount: 2 },
+    ],
+  });
+  const crossResults = crossSchedule.games.map((game, index): OfficialGameResult => {
+    const homeRuns = index === 3 ? 1 : 2;
+    const awayRuns = index === 3 ? 2 : 1;
+    return {
+      gameId: game.gameId, seasonId: 'season-1',
+      homeClubId: game.homeClubId, awayClubId: game.awayClubId,
+      homeRuns, awayRuns,
+      winnerClubId: homeRuns > awayRuns ? game.homeClubId : game.awayClubId,
+      completionReason: 'BOTTOM_COMPLETE', ruleProfileId: asRuleProfileId('rules'),
+      gamePolicyVersion: 'game-v1', closureId: `closure-cross-${index}`,
+      applicationId: `apply-cross-${index}`, durableRevision: index + 1,
+      lineScore: { innings: [{ inning: 1, homeRuns, awayRuns }],
+        totals: { home: { runs: homeRuns, hits: 0, errors: 0 },
+          away: { runs: awayRuns, hits: 0, errors: 0 } } },
+    };
+  });
+  const alignment = createLeagueGroupAlignment(crossSchedule, 'alignment-v1', [
+    { groupId: 'east', clubIds: ['a', 'b'] },
+    { groupId: 'west', clubIds: ['c', 'd'] },
+  ]);
+  const projected = projectOfficialGroupStandings(
+    crossSchedule, crossResults, policy, alignment, 'east');
+  expect(projected).toMatchObject({ groupId: 'east', alignmentVersion: 'alignment-v1',
+    leagueId: 'cross-league', orderedClubIds: ['a', 'b'] });
+  expect(projected.resultApplicationIds).toHaveLength(4);
+  expect(() => projectOfficialGroupStandings(crossSchedule,
+    crossResults.slice(1), policy, alignment, 'east'))
+    .toThrow('complete official game results');
 });
