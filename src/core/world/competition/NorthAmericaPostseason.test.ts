@@ -175,6 +175,20 @@ it('retains home priority for the better seed when a lower seed has a bye', () =
     stage: 'division-1', higherSeedClubId: 'a1', lowerSeedClubId: 'a3', bestOf: 5 });
 });
 
+it('allows a match-scoped closure ID in different North America games', () => {
+  const first = plan('closure-wc-1', 'a11', 'a4', 3);
+  const second = plan('closure-wc-2', 'a2', 'a3', 3);
+  const firstResults = wins(first, 'a11');
+  const secondResults = wins(second, 'a2');
+  const repeated = { ...secondResults[0], closureId: firstResults[0].closureId };
+  expect(resolveNorthAmericaPostseason(policy, conferenceAlignment,
+    divisionAlignment, [{ ...conferences[0], series: [
+      { stage: 'wild-card-1', plan: first, results: firstResults },
+      { stage: 'wild-card-2', plan: second,
+        results: [repeated, ...secondResults.slice(1)] },
+    ] }, conferences[1]], null)).toMatchObject({ status: 'PENDING' });
+});
+
 it('does not reuse a division tiebreak application in a postseason series', () => {
   const wildCard = plan('tie-replay', 'a11', 'a4', 3);
   const first = { ...wins(wildCard, 'a4')[0], applicationId: 'tie-application' };

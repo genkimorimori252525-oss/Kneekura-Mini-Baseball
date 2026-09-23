@@ -138,7 +138,6 @@ export const buildOfficialStandings = (
   }
   const games = new Map(schedule.games.map((game) => [game.gameId, game]));
   const seenGames = new Set<string>();
-  const seenClosures = new Set<string>();
   const seenApplications = new Set<string>();
   const mutable = new Map(schedule.memberClubIds.map((clubId) => [clubId, {
     clubId, games: 0, wins: 0, losses: 0, ties: 0, runsFor: 0,
@@ -148,7 +147,7 @@ export const buildOfficialStandings = (
     const game = games.get(result.gameId);
     if (
       !game || seenGames.has(result.gameId)
-      || seenClosures.has(result.closureId) || seenApplications.has(result.applicationId)
+      || seenApplications.has(result.applicationId)
       || !result.closureId || !result.applicationId
       || result.seasonId !== schedule.seasonId
       || result.homeClubId !== game.homeClubId || result.awayClubId !== game.awayClubId
@@ -164,7 +163,6 @@ export const buildOfficialStandings = (
       || lineScore.totals.away.runs !== result.awayRuns
     ) throw new Error('official result contradicts its winner or line score');
     seenGames.add(result.gameId);
-    seenClosures.add(result.closureId);
     seenApplications.add(result.applicationId);
     const home = mutable.get(result.homeClubId)!;
     const away = mutable.get(result.awayClubId)!;

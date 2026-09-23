@@ -64,8 +64,12 @@ export const resolveDomesticPostseason = (
   if (seasonIds.size > 1) throw new Error('postseason series must belong to one season');
   const nextSeries: ExpectedPostseasonSeries[] = [];
   const series: { stage: DomesticPostseasonStage; state: PostseasonSeriesState }[] = [];
+  const usedSeriesIds = new Set<string>();
   const usedGames = new Set<string>();
-  const usedApplications = new Set<string>();
+  const usedApplications = new Set<string>([
+    ...standings.resultApplicationIds,
+    ...standings.tiebreakResolutions.map((item) => item.applicationId),
+  ]);
   const allowedStages = new Set<DomesticPostseasonStage>();
   const resolve = (
     stage: DomesticPostseasonStage, high: string | null, low: string | null, bestOf: number,
@@ -83,6 +87,10 @@ export const resolveDomesticPostseason = (
     }
     if (entry.plan.bestOf !== bestOf || entry.plan.higherSeedClubId !== high
       || entry.plan.lowerSeedClubId !== low) throw new Error('postseason series format or seeding mismatch');
+    if (usedSeriesIds.has(entry.plan.seriesId)) {
+      throw new Error('postseason series identity is reused');
+    }
+    usedSeriesIds.add(entry.plan.seriesId);
     for (const game of entry.plan.scheduledGames) {
       if (usedGames.has(game.gameId)) throw new Error('postseason game appears in multiple series');
       usedGames.add(game.gameId);

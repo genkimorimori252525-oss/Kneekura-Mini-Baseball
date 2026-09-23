@@ -86,6 +86,13 @@ it('advances Japanese league playoffs and championship only after official serie
   expect(() => resolveConferencePostseason(policy, grouped, [{
     ...groups[0], groupId: 'wrong-group',
   }, groups[1]], null)).toThrow('alignment');
+  const repeatedClosure = { ...wins(bPre, 'b3')[0],
+    closureId: wins(aPre, 'a2')[0].closureId };
+  expect(resolveConferencePostseason(policy, grouped, [groups[0], {
+    ...groups[1], series: [{ ...groups[1].series[0],
+      results: [repeatedClosure, ...wins(bPre, 'b3').slice(1)] },
+    groups[1].series[1]],
+  }], null)).toMatchObject({ status: 'PENDING' });
 });
 
 it('enforces the distinct Mexico and Cuba zone-final lengths', () => {

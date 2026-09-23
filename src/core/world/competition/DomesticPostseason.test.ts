@@ -95,3 +95,38 @@ it('resolves the Korean ladder and Australia top-two final with seed priority', 
     { stage: 'final', plan: australia, results: wins(australia, 'b') },
   ])).toMatchObject({ status: 'COMPLETE', championClubId: 'b', runnerUpClubId: 'a' });
 });
+
+it('rejects applications reused from official regular season and tiebreak games', () => {
+  const first = series('reused', 'a', 'd', 5);
+  const applicationId = wins(first, 'a')[0].applicationId;
+  expect(() => resolveDomesticPostseason('TOP4_SERIES', {
+    ...standings(['a', 'b', 'c', 'd']), resultApplicationIds: [applicationId],
+  }, [{ stage: 'semifinal-1', plan: first, results: wins(first, 'a') }]))
+    .toThrow('application');
+  expect(() => resolveDomesticPostseason('TOP4_SERIES', {
+    ...standings(['a', 'b', 'c', 'd']),
+    tiebreakResolutions: [{ policyVersion: 'tie-v1', gameId: 'tie-game',
+      applicationId, winnerClubId: 'a', loserClubId: 'b' }],
+  }, [{ stage: 'semifinal-1', plan: first, results: wins(first, 'a') }]))
+    .toThrow('application');
+});
+
+it('rejects a repeated series identity while allowing match-scoped closure IDs', () => {
+  const first = series('duplicate-series', 'a', 'd', 5);
+  const second = series('duplicate-series', 'b', 'c', 5);
+  const uniqueGameIds = { ...second, scheduledGames: second.scheduledGames.map((game, index) =>
+    ({ ...game, gameId: `unique-game-${index}` })) };
+  const firstResults = wins(first, 'a');
+  expect(() => resolveDomesticPostseason('TOP4_SERIES', standings(['a', 'b', 'c', 'd']), [
+    { stage: 'semifinal-1', plan: first, results: firstResults },
+    { stage: 'semifinal-2', plan: uniqueGameIds, results: [] },
+  ])).toThrow('series');
+  const other = series('other-series', 'b', 'c', 5);
+  const secondResults = wins(other, 'b');
+  const repeatedClosure = { ...secondResults[0], closureId: firstResults[0].closureId };
+  expect(resolveDomesticPostseason('TOP4_SERIES', standings(['a', 'b', 'c', 'd']), [
+    { stage: 'semifinal-1', plan: first, results: firstResults },
+    { stage: 'semifinal-2', plan: other,
+      results: [repeatedClosure, ...secondResults.slice(1)] },
+  ])).toMatchObject({ status: 'PENDING' });
+});
