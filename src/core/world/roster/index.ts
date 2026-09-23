@@ -3,3 +3,6 @@ export { RosterValidationError } from './RosterValidation';
 export { createRosterState } from './RosterState';
 export { applyRosterChange } from './RosterCommands';
 export { evaluateRosterParticipation, getClubRoster } from './RosterQueries';
+export { deriveSourceBackedRosterNeed } from './SourceBackedRosterNeed';
+export type { RosterNeedPlanningPolicy, RosterNeedRequest,
+  SourceBackedRosterNeed } from './SourceBackedRosterNeed';
