@@ -124,3 +124,34 @@ it('rejects invalid employment transitions and stale revisions', () => {
   expect(() => releaseScout(state, 0, 'scout-1', 6))
     .toThrow('employed');
 });
+
+it('rejects forged institutional knowledge at initialization', () => {
+  const knowledge = clubKnowledge();
+  expect(() => createScoutStaffState('career-1', [scout()], [
+    { ...knowledge, reports: [{ ...knowledge.reports[0],
+      clubId: 'club-b' }] },
+  ])).toThrow();
+  expect(() => createScoutStaffState('career-1', [scout()], [
+    { ...knowledge, futureTrueAbility: 99 } as typeof knowledge,
+  ])).toThrow();
+});
+
+it('requires report evaluators to belong to the recording department', () => {
+  const initialState = createScoutStaffState('career-1', [scout()], [
+    createClubScoutingKnowledge('career-1', 'club-a'),
+    createClubScoutingKnowledge('career-1', 'club-b'),
+  ]);
+  const hired = hireScout(initialState, 0, 'scout-1', 'club-b', 4);
+  const observed = appendDepartmentScoutingEvidence(hired, 1, 'club-a', {
+    evidenceId: 'e1', careerId: 'career-1', clubId: 'club-a',
+    playerId: 'player-1', observedAtDay: 4, availableAtDay: 5,
+    sourceEventId: 'game-1',
+  });
+  expect(() => appendDepartmentKnowledgeReport(observed, 2, 'club-a', {
+    reportId: 'r1', careerId: 'career-1', clubId: 'club-a',
+    playerId: 'player-1', observedAtDay: 4, availableAtDay: 5,
+    evidenceSourceIds: ['e1'], evaluatorPersonIds: ['scout-1'],
+    estimate: [{ domainId: 'contact', lower: 60, upper: 80 }],
+    confidence: 'MEDIUM',
+  })).toThrow('evaluator');
+});

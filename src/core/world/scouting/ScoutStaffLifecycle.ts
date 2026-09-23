@@ -1,5 +1,6 @@
 import { appendPlayerKnowledgeReport, appendScoutingEvidence,
-  frozenScoutingCopy, rejectUnknownScoutingFields,
+  createClubScoutingKnowledge, frozenScoutingCopy,
+  rejectUnknownScoutingFields,
   type ClubScoutingKnowledge, type PlayerKnowledgeReport,
   type ScoutingEvidenceRecord } from './ScoutingKnowledge';
 
@@ -40,6 +41,39 @@ const day = (value: number): boolean =>
   Number.isSafeInteger(value) && value >= 0;
 const unique = (values: readonly string[]): boolean =>
   new Set(values).size === values.length;
+
+const validateKnowledgeSnapshot = (
+  source: ClubScoutingKnowledge, careerId: string,
+): ClubScoutingKnowledge => {
+  rejectUnknownScoutingFields(source, ['careerId', 'clubId', 'revision',
+    'effectiveDay', 'evidence', 'reports'], 'scouting knowledge');
+  if (source.careerId !== careerId || !id(source.clubId)
+    || !Array.isArray(source.evidence) || !Array.isArray(source.reports)
+    || source.revision !== source.evidence.length + source.reports.length) {
+    throw new Error('invalid scouting knowledge snapshot');
+  }
+  const events = [
+    ...source.evidence.map((item, index) => ({ kind: 'EVIDENCE' as const,
+      availableAtDay: item.availableAtDay, index, item })),
+    ...source.reports.map((item, index) => ({ kind: 'REPORT' as const,
+      availableAtDay: item.availableAtDay, index, item })),
+  ].sort((left, right) => left.availableAtDay - right.availableAtDay
+    || (left.kind === right.kind ? left.index - right.index
+      : left.kind === 'EVIDENCE' ? -1 : 1));
+  let canonical = createClubScoutingKnowledge(careerId, source.clubId);
+  for (const event of events) {
+    canonical = event.kind === 'EVIDENCE'
+      ? appendScoutingEvidence(canonical, canonical.revision, event.item)
+      : appendPlayerKnowledgeReport(canonical, canonical.revision,
+        event.item);
+  }
+  if (canonical.effectiveDay !== source.effectiveDay
+    || JSON.stringify(canonical.evidence) !== JSON.stringify(source.evidence)
+    || JSON.stringify(canonical.reports) !== JSON.stringify(source.reports)) {
+    throw new Error('noncanonical scouting knowledge snapshot');
+  }
+  return canonical;
+};
 
 const validatePerson = (person: ScoutPersonState, careerId: string): void => {
   rejectUnknownScoutingFields(person, ['personId', 'careerId', 'careerState',
@@ -123,7 +157,8 @@ export const createScoutStaffState = (
     throw new Error('invalid scout staff state source');
   }
   const people = frozenScoutingCopy(scouts);
-  const clubKnowledge = frozenScoutingCopy(knowledge);
+  const clubKnowledge = knowledge.map((club) =>
+    validateKnowledgeSnapshot(frozenScoutingCopy(club), careerId));
   people.forEach((person) => validatePerson(person, careerId));
   if (!unique(people.map((person) => person.personId))
     || !unique(clubKnowledge.map((club) => club.clubId))
@@ -214,6 +249,13 @@ export const appendDepartmentKnowledgeReport = (
     throw new Error('stale scout staff revision');
   }
   const department = departmentAt(state, clubId);
+  if (!Array.isArray(report.evaluatorPersonIds)
+    || report.evaluatorPersonIds.some((personId) =>
+      !department.scoutIds.includes(personId)
+      || personAt(state, personId).employmentClubId !== clubId
+      || personAt(state, personId).careerState !== 'ACTIVE')) {
+    throw new Error('scouting report evaluator is not employed by department');
+  }
   const knowledge = appendPlayerKnowledgeReport(department.knowledge,
     department.knowledge.revision, report);
   if (knowledge.effectiveDay < state.effectiveDay) {
