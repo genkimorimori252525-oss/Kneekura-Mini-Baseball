@@ -37,7 +37,7 @@ const request = {
   horizon: 'NOW' as const, targetCount: 2, minimumEstimate: 0.3,
 };
 const policyFor = (input: RosterNeedRequest) => ({
-  version: input.policyVersion,
+  version: input.policyVersion, availableAtDay: 0,
   roles: [{ positionGroup: input.positionGroup, requiredRole: input.requiredRole,
     candidateDomainId: input.candidateDomainId,
     minimumCandidateEstimate: input.minimumCandidateEstimate,
@@ -194,7 +194,7 @@ describe('source-backed roster need', () => {
     expect(() => deriveSourceBackedRosterNeed(roster, knowledge,
       { ...request, targetCount: 0 })).toThrow();
     expect(() => deriveSourceBackedRosterNeed(roster, knowledge,
-      { ...request, asOfDay: 0 })).not.toThrow();
+      { ...request, asOfDay: 0 })).toThrow();
     expect(() => deriveSourceBackedRosterNeed(
       createRosterState({ ...rosterFixture(), effectiveDay: 4 }),
       knowledge, request)).toThrow();
@@ -204,6 +204,9 @@ describe('source-backed roster need', () => {
     const incompleteRole = { ...policyFor(request).roles[0] };
     delete (incompleteRole as Partial<typeof incompleteRole>).minimumEstimate;
     expect(() => deriveWithPolicy(roster, knowledge, request,
-      { version: request.policyVersion, roles: [incompleteRole] })).toThrow();
+      { version: request.policyVersion, availableAtDay: 0,
+        roles: [incompleteRole] })).toThrow();
+    expect(() => deriveWithPolicy(roster, knowledge, request,
+      { ...policyFor(request), availableAtDay: 4 })).toThrow();
   });
 });

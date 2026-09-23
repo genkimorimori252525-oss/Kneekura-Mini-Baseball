@@ -1,6 +1,10 @@
 import { frozenScoutingCopy, rejectUnknownScoutingFields,
   type ClubScoutingKnowledge,
   type PlayerKnowledgeReport } from './ScoutingKnowledge';
+import { deriveSourceBackedRosterNeed,
+  type RosterNeedPlanningPolicy, type RosterNeedRequest,
+  type SourceBackedRosterNeed } from '../roster/SourceBackedRosterNeed';
+import type { RosterState } from '../roster/RosterTypes';
 
 export type RecruitmentDecisionKind = 'SHORTLIST' | 'BID' | 'PASS' | 'ACQUIRE';
 export type RosterNeedSnapshot = Readonly<{
@@ -52,6 +56,7 @@ export type RecruitmentDecisionInput = Readonly<{
 }>;
 export type RecruitmentDecisionRecord = Readonly<RecruitmentDecisionInput & {
   knowledgeReports: readonly PlayerKnowledgeReport[];
+  sourceBackedRosterNeed?: SourceBackedRosterNeed;
 }>;
 export type RecruitmentDecisionLedger = Readonly<{
   careerId: string;
@@ -79,11 +84,12 @@ export const createRecruitmentDecisionLedger = (
 };
 
 /** Records the actual knowledge and context available at decision time. */
-export const appendRecruitmentDecision = (
+const appendRecruitmentDecisionInternal = (
   ledger: RecruitmentDecisionLedger,
   expectedRevision: number,
   knowledge: ClubScoutingKnowledge,
   source: RecruitmentDecisionInput,
+  sourceBackedRosterNeed?: SourceBackedRosterNeed,
 ): RecruitmentDecisionLedger => {
   if (expectedRevision !== ledger.revision) {
     throw new Error('stale recruitment decision revision');
@@ -171,8 +177,45 @@ export const appendRecruitmentDecision = (
     throw new Error('invalid recruitment decision offer or action');
   }
   const record = frozenScoutingCopy({ ...decision,
-    knowledgeReports: reports as PlayerKnowledgeReport[] });
+    knowledgeReports: reports as PlayerKnowledgeReport[],
+    ...(sourceBackedRosterNeed ? { sourceBackedRosterNeed } : {}) });
   return Object.freeze({ careerId: ledger.careerId, clubId: ledger.clubId,
     revision: ledger.revision + 1, effectiveDay: decision.decidedAtDay,
     decisions: Object.freeze([...ledger.decisions, record]) });
+};
+
+export const appendRecruitmentDecision = (
+  ledger: RecruitmentDecisionLedger,
+  expectedRevision: number,
+  knowledge: ClubScoutingKnowledge,
+  source: RecruitmentDecisionInput,
+): RecruitmentDecisionLedger => appendRecruitmentDecisionInternal(
+  ledger, expectedRevision, knowledge, source);
+
+/** Bind the recorded need to the same club's actual roster and as-of knowledge. */
+export const appendRecruitmentDecisionWithRosterNeed = (
+  ledger: RecruitmentDecisionLedger,
+  expectedRevision: number,
+  knowledge: ClubScoutingKnowledge,
+  roster: RosterState,
+  policy: RosterNeedPlanningPolicy,
+  needRequest: RosterNeedRequest,
+  source: Omit<RecruitmentDecisionInput, 'rosterNeedSnapshot'>,
+): RecruitmentDecisionLedger => {
+  if (needRequest.careerId !== source.careerId
+    || needRequest.clubId !== source.clubId
+    || needRequest.asOfDay > source.decidedAtDay) {
+    throw new Error('recruitment roster need scope or decision time mismatch');
+  }
+  const need = deriveSourceBackedRosterNeed(roster, knowledge,
+    needRequest, policy);
+  return appendRecruitmentDecisionInternal(ledger, expectedRevision, knowledge,
+    { ...source, rosterNeedSnapshot: {
+      snapshotId: need.snapshotId,
+      availableAtDay: need.asOfDay,
+      positionGroup: need.positionGroup,
+      horizon: need.horizon,
+      urgency: need.urgency,
+      requiredRole: need.requiredRole,
+    } }, need);
 };
