@@ -62,7 +62,9 @@ it('advances Japanese league playoffs and championship only after official serie
         { stage: 'group-final' as const, plan: bFinal, results: wins(bFinal, 'b1') }] },
   ];
   const policy = { version: 'japan-v1', format: 'JAPAN' as const,
-    championshipHigherSeedGroupId: 'group-b' };
+    championshipHigherSeedGroupId: 'group-b',
+    qualificationPolicyVersion: 'japan-qualification-v1',
+    qualificationPriorityGroupIds: ['group-a', 'group-b'] };
   const grouped = alignment('league-001', [
     { groupId: 'group-a', clubIds: a.memberClubIds },
     { groupId: 'group-b', clubIds: b.memberClubIds },
@@ -71,6 +73,14 @@ it('advances Japanese league playoffs and championship only after official serie
     status: 'PENDING', nextChampionship: { higherSeedClubId: 'b1',
       lowerSeedClubId: 'a2', bestOf: 7 },
   });
+  expect(resolveConferencePostseason(policy, grouped, [...groups].reverse(), null)
+    .qualificationPriorityGroupIds).toEqual(['group-a', 'group-b']);
+  expect(resolveConferencePostseason(policy, { ...grouped,
+    groups: [...grouped.groups].reverse() }, groups, null)
+    .qualificationPriorityGroupIds).toEqual(['group-a', 'group-b']);
+  expect(() => resolveConferencePostseason({ ...policy,
+    qualificationPriorityGroupIds: ['group-a', 'group-a'] },
+  grouped, groups, null)).toThrow('qualification');
   const final = plan('national', 'b1', 'a2', 7);
   expect(resolveConferencePostseason(policy, grouped, groups,
     { plan: final, results: wins(final, 'a2') }))
@@ -82,7 +92,8 @@ it('advances Japanese league playoffs and championship only after official serie
   }], { plan: final, results: wins(final, 'a2') })).toThrow('upstream');
   expect(() => resolveConferencePostseason(policy, grouped, [{
     ...groups[0], standings: { ...a, resultApplicationIds: ['apply-a-pre-0'] },
-  }, groups[1]], null)).toThrow('official application');
+  }, { ...groups[1], standings: { ...b,
+    resultApplicationIds: ['apply-a-pre-0'] } }], null)).toThrow('official application');
   expect(() => resolveConferencePostseason(policy, grouped, [{
     ...groups[0], groupId: 'wrong-group',
   }, groups[1]], null)).toThrow('alignment');
@@ -109,10 +120,14 @@ it('enforces the distinct Mexico and Cuba zone-final lengths', () => {
     { groupId: 'south', standings: south, series: [] },
   ];
   expect(resolveConferencePostseason({ version: 'mex-v1', format: 'MEXICO',
-    championshipHigherSeedGroupId: 'north' }, mexicoAlignment, groups, null))
+    championshipHigherSeedGroupId: 'north',
+    qualificationPolicyVersion: 'mex-qualification-v1',
+    qualificationPriorityGroupIds: ['north', 'south'] }, mexicoAlignment, groups, null))
     .toMatchObject({ status: 'PENDING' });
   expect(() => resolveConferencePostseason({ version: 'cuba-v1', format: 'CUBA',
-    championshipHigherSeedGroupId: 'north' }, mexicoAlignment, groups, null))
+    championshipHigherSeedGroupId: 'north',
+    qualificationPolicyVersion: 'cuba-qualification-v1',
+    qualificationPriorityGroupIds: ['north', 'south'] }, mexicoAlignment, groups, null))
     .toThrow('league');
   const west = standing('west', Array.from({ length: 8 }, (_, i) => `w${i + 1}`), 'league-013');
   const east = standing('east', Array.from({ length: 8 }, (_, i) => `e${i + 1}`), 'league-013');
@@ -124,7 +139,9 @@ it('enforces the distinct Mexico and Cuba zone-final lengths', () => {
   const second = plan('cuba-sf-2', 'w2', 'w3', 5);
   const wrongFinal = plan('cuba-final-wrong', 'w1', 'w2', 7);
   expect(() => resolveConferencePostseason({ version: 'cuba-v1', format: 'CUBA',
-    championshipHigherSeedGroupId: 'west' }, cubaAlignment, [
+    championshipHigherSeedGroupId: 'west',
+    qualificationPolicyVersion: 'cuba-qualification-v1',
+    qualificationPriorityGroupIds: ['west', 'east'] }, cubaAlignment, [
     { groupId: 'west', standings: west, series: [
       { stage: 'semifinal-1', plan: first, results: wins(first, 'w1') },
       { stage: 'semifinal-2', plan: second, results: wins(second, 'w2') },
@@ -171,7 +188,9 @@ it('accepts group tables projected from complete cross-group official games', ()
   const east = projectOfficialGroupStandings(schedule, results, policy, grouped, 'east');
   const west = projectOfficialGroupStandings(schedule, results, policy, grouped, 'west');
   expect(resolveConferencePostseason({ version: 'japan-v1', format: 'JAPAN',
-    championshipHigherSeedGroupId: 'east' }, grouped, [
+    championshipHigherSeedGroupId: 'east',
+    qualificationPolicyVersion: 'japan-qualification-v1',
+    qualificationPriorityGroupIds: ['east', 'west'] }, grouped, [
     { groupId: 'east', standings: east, series: [] },
     { groupId: 'west', standings: west, series: [] },
   ], null)).toMatchObject({ status: 'PENDING', nextGroupSeries: [

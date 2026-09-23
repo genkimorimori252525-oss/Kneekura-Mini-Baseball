@@ -1,5 +1,7 @@
 import type { OfficialGameResult } from './OfficialGameCompletion';
-import type { LeagueGroupAlignment, OfficialGroupStandingsSnapshot } from './OfficialStandings';
+import { captureOfficialStandingsBasis, matchesOfficialStandingsBasis,
+  type LeagueGroupAlignment, type OfficialGroupStandingsSnapshot,
+  type OfficialStandingsBasis } from './OfficialStandings';
 import { resolvePostseasonSeries, type PostseasonSeriesPlan,
   type PostseasonSeriesState } from './PostseasonSeries';
 
@@ -7,6 +9,9 @@ export type ConferencePostseasonPolicy = Readonly<{
   version: string;
   format: 'JAPAN' | 'MEXICO' | 'CUBA';
   championshipHigherSeedGroupId: string;
+  qualificationPolicyVersion: string;
+  /** Frozen League A/B, North/South, or West/East berth priority. */
+  qualificationPriorityGroupIds: readonly string[];
 }>;
 export type ConferenceStage = 'preliminary' | 'semifinal-1' | 'semifinal-2' | 'group-final';
 export type ConferenceSeriesEntry = Readonly<{
@@ -21,6 +26,10 @@ export type ConferenceGroupInput = Readonly<{
 }>;
 export type ConferencePostseasonState = Readonly<{
   seasonId: string;
+  regularSeasonBasis: OfficialStandingsBasis;
+  alignmentVersion: string;
+  qualificationPolicyVersion: string;
+  qualificationPriorityGroupIds: readonly string[];
   policyVersion: string;
   status: 'PENDING' | 'COMPLETE';
   groupChampions: readonly Readonly<{ groupId: string; clubId: string | null }>[];
@@ -59,12 +68,23 @@ export const resolveConferencePostseason = (
   }
   const expectedClubs = policy.format === 'JAPAN' ? 6 : policy.format === 'MEXICO' ? 10 : 8;
   const seasonId = alignment.seasonId;
+  const regularSeasonBasis = captureOfficialStandingsBasis(groups[0].standings, false);
   const allClubs = new Set<string>();
   if (alignment.groups.length !== 2
     || new Set(alignment.groups.map((group) => group.groupId)).size !== 2) {
     throw new Error('conference alignment must define two unique groups');
   }
+  if (!policy.qualificationPolicyVersion
+    || policy.qualificationPriorityGroupIds.length !== 2
+    || new Set(policy.qualificationPriorityGroupIds).size !== 2
+    || policy.qualificationPriorityGroupIds.some((groupId) =>
+      !alignment.groups.some((group) => group.groupId === groupId))) {
+    throw new Error('conference qualification policy must prioritize both aligned groups');
+  }
   for (const group of groups) {
+    if (!matchesOfficialStandingsBasis(group.standings, regularSeasonBasis)) {
+      throw new Error('conference group standings have different official season basis');
+    }
     const ranking = group.standings.orderedClubIds;
     const aligned = alignment.groups.find((item) => item.groupId === group.groupId);
     if (!aligned || group.standings.groupId !== group.groupId
@@ -193,7 +213,11 @@ export const resolveConferencePostseason = (
   } else if (championship !== null) {
     throw new Error('conference championship cannot start before upstream winners');
   }
-  return Object.freeze({ seasonId, policyVersion: policy.version,
+  return Object.freeze({ seasonId, regularSeasonBasis,
+    alignmentVersion: alignment.version,
+    qualificationPolicyVersion: policy.qualificationPolicyVersion,
+    qualificationPriorityGroupIds: Object.freeze([...policy.qualificationPriorityGroupIds]),
+    policyVersion: policy.version,
     status: championshipState?.status === 'COMPLETE' ? 'COMPLETE' : 'PENDING',
     groupChampions: Object.freeze(groupChampions),
     groupPennantWinners: Object.freeze(groupPennantWinners),

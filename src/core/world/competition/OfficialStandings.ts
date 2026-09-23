@@ -38,6 +38,56 @@ export type OfficialStandingsSnapshot = Readonly<{
     loserClubId: string;
   }>[];
 }>;
+export type OfficialStandingsBasis = Readonly<Pick<OfficialStandingsSnapshot,
+  'seasonId' | 'leagueId' | 'tiebreakPolicyVersion'
+  | 'scheduleRevisionEventIds' | 'resultApplicationIds'>> & Readonly<{
+  /** Group paths share regular results but can have separate deciding games. */
+  resolvedOrder?: readonly string[] | null;
+  tiebreakResolutions?: OfficialStandingsSnapshot['tiebreakResolutions'];
+}>;
+export const captureOfficialStandingsBasis = (
+  standings: OfficialStandingsSnapshot,
+  includeResolution = true,
+): OfficialStandingsBasis => Object.freeze({
+  seasonId: standings.seasonId, leagueId: standings.leagueId,
+  tiebreakPolicyVersion: standings.tiebreakPolicyVersion,
+  scheduleRevisionEventIds: Object.freeze([...standings.scheduleRevisionEventIds]),
+  resultApplicationIds: Object.freeze([...standings.resultApplicationIds].sort()),
+  ...(includeResolution ? {
+    resolvedOrder: standings.orderedClubIds === null ? null
+      : Object.freeze([...standings.orderedClubIds]),
+    tiebreakResolutions: Object.freeze(standings.tiebreakResolutions.map((item) =>
+      Object.freeze({ ...item }))),
+  } : {}),
+});
+export const matchesOfficialStandingsBasis = (
+  standings: OfficialStandingsSnapshot,
+  basis: OfficialStandingsBasis,
+): boolean => standings.seasonId === basis.seasonId
+  && standings.leagueId === basis.leagueId
+  && standings.tiebreakPolicyVersion === basis.tiebreakPolicyVersion
+  && standings.scheduleRevisionEventIds.length === basis.scheduleRevisionEventIds.length
+  && standings.scheduleRevisionEventIds.every((id, index) =>
+    id === basis.scheduleRevisionEventIds[index])
+  && standings.resultApplicationIds.length === basis.resultApplicationIds.length
+  && [...standings.resultApplicationIds].sort().every((id, index) =>
+    id === basis.resultApplicationIds[index])
+  && (basis.resolvedOrder === undefined || (
+    basis.resolvedOrder === null ? standings.orderedClubIds === null
+      : standings.orderedClubIds !== null
+        && standings.orderedClubIds.length === basis.resolvedOrder.length
+        && standings.orderedClubIds.every((id, index) =>
+          id === basis.resolvedOrder![index])))
+  && (basis.tiebreakResolutions === undefined
+    || (standings.tiebreakResolutions.length === basis.tiebreakResolutions.length
+      && standings.tiebreakResolutions.every((resolution, index) => {
+        const frozen = basis.tiebreakResolutions![index];
+        return resolution.policyVersion === frozen.policyVersion
+          && resolution.gameId === frozen.gameId
+          && resolution.applicationId === frozen.applicationId
+          && resolution.winnerClubId === frozen.winnerClubId
+          && resolution.loserClubId === frozen.loserClubId;
+      })));
 export type OfficialTiebreakGamePlan = Readonly<{
   version: string;
   gameId: string;

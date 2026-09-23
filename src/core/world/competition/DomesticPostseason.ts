@@ -1,5 +1,6 @@
 import type { DomesticChampionshipFormat } from './LeagueProfiles';
-import type { OfficialStandingsSnapshot } from './OfficialStandings';
+import { captureOfficialStandingsBasis,
+  type OfficialStandingsBasis, type OfficialStandingsSnapshot } from './OfficialStandings';
 import type { OfficialGameResult } from './OfficialGameCompletion';
 import { resolvePostseasonSeries, type PostseasonSeriesPlan,
   type PostseasonSeriesState } from './PostseasonSeries';
@@ -21,6 +22,8 @@ export type ExpectedPostseasonSeries = Readonly<{
 }>;
 export type DomesticPostseasonState = Readonly<{
   seasonId: string;
+  regularSeasonBasis: OfficialStandingsBasis;
+  regularSeasonOrder: readonly string[];
   format: DirectPostseasonFormat;
   status: 'PENDING' | 'COMPLETE';
   regularSeasonChampionClubId: string;
@@ -108,7 +111,10 @@ export const resolveDomesticPostseason = (
   let finalState: PostseasonSeriesState | null = null;
   if (format === 'TABLE_TITLE') {
     if (entries.length > 0) throw new Error('table title has no postseason series');
-    return Object.freeze({ seasonId: standings.seasonId, format, status: 'COMPLETE',
+    return Object.freeze({ seasonId: standings.seasonId,
+      regularSeasonBasis: captureOfficialStandingsBasis(standings),
+      regularSeasonOrder: Object.freeze([...orderedClubIds]),
+      format, status: 'COMPLETE',
       regularSeasonChampionClubId: orderedClubIds[0],
       championClubId: orderedClubIds[0], runnerUpClubId: null,
       series: Object.freeze([]), nextSeries: Object.freeze([]) });
@@ -136,7 +142,9 @@ export const resolveDomesticPostseason = (
   if ([...entryByStage.keys()].some((stage) => !allowedStages.has(stage))) {
     throw new Error('postseason stage does not belong to the selected format');
   }
-  return Object.freeze({ seasonId: standings.seasonId, format,
+  return Object.freeze({ seasonId: standings.seasonId,
+    regularSeasonBasis: captureOfficialStandingsBasis(standings),
+    regularSeasonOrder: Object.freeze([...orderedClubIds]), format,
     status: finalState?.status === 'COMPLETE' ? 'COMPLETE' : 'PENDING',
     regularSeasonChampionClubId: orderedClubIds[0],
     championClubId: finalState?.winnerClubId ?? null,
