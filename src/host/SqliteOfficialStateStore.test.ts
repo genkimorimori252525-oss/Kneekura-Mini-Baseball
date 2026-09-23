@@ -216,4 +216,64 @@ describe('SQLite official state store', () => {
     expect(store.getMatch('game-1')?.durableRevision).toBe(1);
     store.close();
   });
+
+  it('atomically finalizes a completed game without activating another play', () => {
+    const path = pathForTest();
+    const store = new SqliteOfficialStateStore(path);
+    const before: CanonicalMatchState = { ...match(), inning: 9, half: 'top', outs: 2,
+      strikes: 2, bases: { first: null, second: null, third: null },
+      score: { away: 1, home: 2 } };
+    store.initializeMatch('game-1', before);
+    const timeline = recordCountedPitch(
+      createCanonicalPlateAppearanceTimeline(before, 1000), 1100,
+      { kind: 'swinging_strike' },
+    );
+    let adjudication = createPlayAdjudicationLedger({ playId: 7,
+      ruleProfileId, playEnd: null });
+    adjudication = recordCorrectRuleSnapshot(adjudication, 0, {
+      eventId: 'rule-final', tick: 1101, snapshotId: 'rule-final', evidenceRevision: 1,
+      ruling: { outsAfter: 3, basesAfter: before.bases, scoredRunnerIds: [] },
+    });
+    adjudication = closeOfficialPlay(adjudication, 1, {
+      eventId: 'close-final', closureId: 'closure-final', tick: 1102,
+    });
+    const request = {
+      kind: 'non_live' as const, matchId: 'game-1', applicationId: 'final-1',
+      expectedDurableRevision: 0, match: before, timeline, adjudication,
+      context: { kind: 'strikeout' as const },
+      game: {
+        seasonId: 'season-1', homeClubId: 'home', awayClubId: 'away',
+        policy: { version: 'game-v1', minimumInnings: 9, tiesAllowed: false },
+        lineScore: { innings: Array.from({ length: 9 }, (_, index) => ({
+          inning: index + 1, awayRuns: index === 0 ? 1 : 0,
+          homeRuns: index === 0 ? 2 : index === 8 ? null : 0,
+        })), totals: { away: { runs: 1, hits: 4, errors: 0 },
+          home: { runs: 2, hits: 5, errors: 0 } } },
+      },
+    };
+    expect(() => store.applyAndFinalize({ ...request,
+      applicationId: 'premature-final', game: {
+        ...request.game, policy: { ...request.game.policy, minimumInnings: 10 },
+      },
+    })).toThrow('does not complete');
+    expect(store.getMatch('game-1')?.durableRevision).toBe(0);
+    const finalized = store.applyAndFinalize(request);
+    expect(finalized.result).toMatchObject({
+      gameId: 'game-1', winnerClubId: 'home', completionReason: 'HOME_LEADS_AFTER_TOP',
+    });
+    expect(store.getMatch('game-1')).toMatchObject({
+      durableRevision: 1, activation: null, nextWorld: null,
+      finalResult: { applicationId: 'final-1' },
+    });
+    store.close();
+    const reopened = new SqliteOfficialStateStore(path);
+    expect(reopened.applyAndFinalize(request)).toEqual(finalized);
+    expect(() => reopened.applyAndFinalize({ ...request, applicationId: 'final-again' }))
+      .toThrow('finalized');
+    expect(() => reopened.applyAndActivate({
+      ...liveRequest(), expectedDurableRevision: 1,
+      match: reopened.getMatch('game-1')!.matchState,
+    })).toThrow('finalized');
+    reopened.close();
+  });
 });

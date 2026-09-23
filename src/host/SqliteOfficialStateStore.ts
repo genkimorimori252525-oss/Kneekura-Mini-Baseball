@@ -20,6 +20,11 @@ import {
 } from '../core/adjudication/BetweenPlayWorldReset';
 import { deriveClosedLiveBallMatchState, type PlayAdjudicationLedger } from '../core/adjudication/PlayAdjudicationLedger';
 import type { CanonicalMatchState } from '../core/model/CanonicalMatchState';
+import {
+  resolveOfficialGameBoundary,
+  type OfficialGameBoundaryInput,
+  type OfficialGameResult,
+} from '../core/world/competition/OfficialGameCompletion';
 import type { CanonicalWorldSnapshot } from '../core/model/CanonicalWorldSnapshot';
 import type { CanonicalPlateAppearanceTimeline } from '../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 
@@ -46,6 +51,25 @@ export type PersistOfficialPlayInput =
       context: NonLiveOfficialContext;
     }>);
 
+type CommonFinalApplication = Pick<CommonApplication,
+  'matchId' | 'applicationId' | 'expectedDurableRevision' | 'match' | 'adjudication'>;
+export type PersistOfficialFinalInput =
+  | (CommonFinalApplication & Readonly<{
+      kind: 'live_ball';
+      physicalTimeline: CanonicalPlateAppearanceTimeline;
+      game: Omit<OfficialGameBoundaryInput, 'gameId' | 'priorMatch' | 'application'>;
+    }>)
+  | (CommonFinalApplication & Readonly<{
+      kind: 'non_live';
+      timeline: CanonicalPlateAppearanceTimeline;
+      context: NonLiveOfficialContext;
+      game: Omit<OfficialGameBoundaryInput, 'gameId' | 'priorMatch' | 'application'>;
+    }>);
+export type PersistOfficialFinalResult = Readonly<{
+  receipt: OfficialStateApplicationReceipt;
+  result: OfficialGameResult;
+}>;
+
 export type PersistOfficialPlayResult = Readonly<{
   receipt: OfficialStateApplicationReceipt;
   activation: NextLiveBallPlayActivation;
@@ -57,6 +81,7 @@ export type PersistedMatch = Readonly<{
   matchState: CanonicalMatchState;
   activation: NextLiveBallPlayActivation | null;
   nextWorld: CanonicalWorldSnapshot | null;
+  finalResult: OfficialGameResult | null;
 }>;
 
 type MatchRow = { durable_revision: number; state_json: string; activation_json: string | null };
@@ -141,6 +166,34 @@ const prepareApplication = (
   throw new Error('unknown official play kind');
 };
 
+const prepareFinalApplication = (
+  input: PersistOfficialFinalInput,
+  durableRevision: number,
+): PersistOfficialFinalResult => {
+  let receipt: OfficialStateApplicationReceipt;
+  if (input.kind === 'live_ball') {
+    const derived = deriveClosedLiveBallMatchState(input.match, input.physicalTimeline, input.adjudication);
+    receipt = confirmDurableClosedLiveBallStateApplication({
+      match: input.match, physicalTimeline: input.physicalTimeline, adjudication: input.adjudication,
+      persistedMatchState: derived, applicationId: input.applicationId, durableRevision,
+    });
+  } else {
+    const shared = { match: input.match, timeline: input.timeline,
+      adjudication: input.adjudication, context: input.context };
+    const derived = deriveClosedNonLiveMatchState(shared);
+    receipt = confirmDurableClosedNonLiveStateApplication({
+      ...shared, persistedMatchState: derived,
+      applicationId: input.applicationId, durableRevision,
+    });
+  }
+  const boundary = resolveOfficialGameBoundary({ ...input.game,
+    gameId: input.matchId, priorMatch: input.match, application: receipt });
+  if (boundary.kind !== 'GAME_FINAL') {
+    throw new Error('official play does not complete the game');
+  }
+  return Object.freeze({ receipt, result: boundary.result });
+};
+
 export class SqliteOfficialStateStore {
   private readonly database: DatabaseSyncType;
 
@@ -185,14 +238,18 @@ export class SqliteOfficialStateStore {
     const storedActivation = row.activation_json === null
       ? null : cloneInert(JSON.parse(row.activation_json) as
         | NextLiveBallPlayActivation
-        | { activation: NextLiveBallPlayActivation; nextWorld: CanonicalWorldSnapshot });
+        | { activation: NextLiveBallPlayActivation; nextWorld: CanonicalWorldSnapshot }
+        | { finalResult: OfficialGameResult });
+    const finalResult = storedActivation !== null && 'finalResult' in storedActivation
+      ? storedActivation.finalResult : null;
     return Object.freeze({
       durableRevision: revision(row.durable_revision, 'stored durable revision'),
       matchState: validateMatchState(cloneInert(JSON.parse(row.state_json) as CanonicalMatchState)),
-      activation: storedActivation === null ? null
+      activation: storedActivation === null || 'finalResult' in storedActivation ? null
         : 'activation' in storedActivation ? storedActivation.activation : storedActivation,
       nextWorld: storedActivation === null || !('activation' in storedActivation)
         ? null : storedActivation.nextWorld,
+      finalResult,
     });
   }
 
@@ -213,7 +270,8 @@ export class SqliteOfficialStateStore {
         INSERT INTO matches(match_id, durable_revision, state_json, activation_json) VALUES (?, 0, ?, NULL)
       `).run(id, serialized(match));
       this.database.exec('COMMIT');
-      return Object.freeze({ durableRevision: 0, matchState: match, activation: null, nextWorld: null });
+      return Object.freeze({ durableRevision: 0, matchState: match,
+        activation: null, nextWorld: null, finalResult: null });
     } catch (error) {
       this.rollback();
       throw error;
@@ -224,6 +282,10 @@ export class SqliteOfficialStateStore {
     const request = cloneInert(input);
     nonEmpty(request.matchId, 'matchId');
     nonEmpty(request.applicationId, 'applicationId');
+    const currentBeforePrepare = this.getMatch(request.matchId);
+    if (currentBeforePrepare?.finalResult) {
+      throw new Error('match is already finalized');
+    }
     const expected = revision(request.expectedDurableRevision, 'expectedDurableRevision');
     const nextRevision = revision(expected + 1, 'next durable revision');
     const result = prepareApplication(request, nextRevision);
@@ -247,6 +309,7 @@ export class SqliteOfficialStateStore {
       if (appliedClosure !== undefined) throw new Error('official closure was already applied');
       const current = this.getMatch(request.matchId);
       if (current === null) throw new Error('match is not initialized');
+      if (current.finalResult !== null) throw new Error('match is already finalized');
       if (current.durableRevision !== expected) throw new Error('stale durable MatchState revision');
       if (serialized(current.matchState) !== serialized(request.match)) {
         throw new Error('prior MatchState does not match durable state');
@@ -263,6 +326,56 @@ export class SqliteOfficialStateStore {
       `).run(request.applicationId, request.matchId, closureId, requestHash, serialized(result));
       this.database.exec('COMMIT');
       return result;
+    } catch (error) {
+      this.rollback();
+      throw error;
+    }
+  }
+
+  applyAndFinalize(input: PersistOfficialFinalInput): PersistOfficialFinalResult {
+    const request = cloneInert(input);
+    nonEmpty(request.matchId, 'matchId');
+    nonEmpty(request.applicationId, 'applicationId');
+    const expected = revision(request.expectedDurableRevision, 'expectedDurableRevision');
+    const nextRevision = revision(expected + 1, 'next durable revision');
+    const prepared = prepareFinalApplication(request, nextRevision);
+    const requestHash = hash({ kind: 'game_final', request });
+    this.database.exec('BEGIN IMMEDIATE');
+    try {
+      const prior = this.database.prepare(`
+        SELECT request_hash, result_json FROM applications WHERE application_id=?
+      `).get(request.applicationId) as ApplicationRow | undefined;
+      if (prior !== undefined) {
+        if (prior.request_hash !== requestHash) {
+          throw new Error('applicationId was already used for different input');
+        }
+        this.database.exec('COMMIT');
+        return cloneInert(JSON.parse(prior.result_json) as PersistOfficialFinalResult);
+      }
+      const current = this.getMatch(request.matchId);
+      if (current === null) throw new Error('match is not initialized');
+      if (current.finalResult !== null) throw new Error('match is already finalized');
+      const appliedClosure = this.database.prepare(`
+        SELECT application_id FROM applications WHERE match_id=? AND closure_id=?
+      `).get(request.matchId, prepared.receipt.closureId);
+      if (appliedClosure !== undefined) throw new Error('official closure was already applied');
+      if (current.durableRevision !== expected) throw new Error('stale durable MatchState revision');
+      if (serialized(current.matchState) !== serialized(request.match)) {
+        throw new Error('prior MatchState does not match durable state');
+      }
+      const updated = this.database.prepare(`
+        UPDATE matches SET durable_revision=?, state_json=?, activation_json=?
+        WHERE match_id=? AND durable_revision=?
+      `).run(nextRevision, serialized(prepared.receipt.appliedMatchState),
+        serialized({ finalResult: prepared.result }), request.matchId, expected);
+      if (updated.changes !== 1) throw new Error('stale durable MatchState revision');
+      this.database.prepare(`
+        INSERT INTO applications(application_id, match_id, closure_id, request_hash, result_json)
+        VALUES (?, ?, ?, ?, ?)
+      `).run(request.applicationId, request.matchId,
+        prepared.receipt.closureId, requestHash, serialized(prepared));
+      this.database.exec('COMMIT');
+      return prepared;
     } catch (error) {
       this.rollback();
       throw error;
