@@ -49,15 +49,13 @@ The activation result carries the application ID and durable revision for proven
 
 All activation and confirmation inputs are descriptor-cloned before property access. Active getters/accessors, functions, symbols, cycles, malformed arrays, non-plain objects and non-finite numbers are rejected without caller code execution.
 
-Repeated pure calls with the same inputs return the same result. Persistent exactly-once activation remains a host transaction responsibility.
+Repeated pure calls with the same inputs return the same result. The Node 26 SQLite host transaction adapter is documented in `sqlite-official-state-store-v1.md`.
 
 ## Excluded
 
 This slice does not implement:
 
-- database writes or transaction management;
-- global exactly-once storage;
-- non-live walk/strikeout/HBP durable application;
-- RuleProfile-specific appeal/review window policy;
+- database writes or transaction management inside Core;
+- HBP durable application;
 - official scoring classification;
 - Presentation/UI/rendering.
