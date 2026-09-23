@@ -8,6 +8,9 @@ export type StandingsTiebreakPolicy = Readonly<{
   tieCreditDenominator: number;
   runDifferentialCapPerGame: number;
 }>;
+export type OfficialStandingsSchedule = Pick<CurrentLeagueSchedule,
+  'seasonId' | 'leagueId' | 'memberClubIds' | 'regularSeasonGamesPerClub'
+  | 'games' | 'revisionEventIds'>;
 export type OfficialStandingRow = Readonly<{
   clubId: string;
   games: number;
@@ -47,7 +50,7 @@ const compareText = (a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0
 
 /** Full-season ranking consumes only final results matched to scheduled games. */
 export const buildOfficialStandings = (
-  schedule: CurrentLeagueSchedule,
+  schedule: OfficialStandingsSchedule,
   results: readonly OfficialGameResult[],
   policy: StandingsTiebreakPolicy,
 ): OfficialStandingsSnapshot => {
