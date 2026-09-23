@@ -222,6 +222,39 @@ describe('non-live official application', () => {
     })).toThrow('non-live official application requires playEnd: null');
   });
 
+  it('rejects an OfficialPlayClosure that predates the terminal non-live timeline event', () => {
+    const before = baseMatch();
+    const terminalTimeline = strikeoutTimeline(before);
+    let adjudication = createPlayAdjudicationLedger({
+      playId: before.playId,
+      ruleProfileId: before.ruleProfileId,
+      playEnd: null,
+    });
+    adjudication = recordCorrectRuleSnapshot(adjudication, 0, {
+      eventId: 'rule-early',
+      tick: 10,
+      snapshotId: 'rule-early-1',
+      evidenceRevision: 1,
+      ruling: {
+        outsAfter: before.outs + 1,
+        basesAfter: before.bases,
+        scoredRunnerIds: [],
+      },
+    });
+    adjudication = closeOfficialPlay(adjudication, 1, {
+      eventId: 'close-early',
+      closureId: 'closure-early',
+      tick: 11,
+    });
+
+    expect(() => deriveClosedNonLiveMatchState({
+      match: before,
+      timeline: terminalTimeline,
+      adjudication,
+      context: { kind: 'strikeout' },
+    })).toThrow('OfficialPlayClosure cannot precede the terminal non-live timeline event');
+  });
+
   it('does not allow a walk context to reinterpret a strikeout timeline', () => {
     const before = baseMatch();
     expect(() => deriveClosedNonLiveMatchState({
