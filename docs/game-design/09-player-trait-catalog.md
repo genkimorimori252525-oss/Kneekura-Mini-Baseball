@@ -497,7 +497,7 @@ Presentation上で複数表示する場合も、「独立した長所が複数�
 
 | 参照候補 | 判定 | Kneekuraでの扱い |
 | --- | --- | --- |
-| 緩急○ / 変幻自在 | MERGE | pitch-speed separationとsequencing skill |
+| 緩急○ / 変幻自在 | MERGE | pitch-speed separation + pitch-family sequencing + **intentional cadence manipulation（投球始動間隔の意図的操作）** のFamily。単なるrandom timing varianceでは成立させず、actual timing / execution / opponent timing-disturbance Evidenceから投影する |
 | 奪三振 / ドクターK | REINTERPRET | two-strike put-away pitch selection / execution Family |
 | 対強打者○ / 主砲キラー | REINTERPRET | 強打者ラベルによるBuffではなく、高難度相手へのDecision / pressure response / learned matchup |
 | 要所○ | REINTERPRET | Pressure / High-Leverage Familyへ統合候補。MatchImportance / Appraisalと同じ原因を二重適用しない |
