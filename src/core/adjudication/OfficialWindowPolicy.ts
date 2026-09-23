@@ -28,7 +28,7 @@ export type ProfiledWindowBoundaryInput = Readonly<{
 
 export type ProfiledWindowTiming = 'timely' | 'expired' | 'simultaneous_unresolved';
 
-const cloneInert = <T>(input: T): T => {
+export const cloneInert = <T>(input: T): T => {
   const ancestors = new Set<object>();
   let nodes = 0;
   const visit = (value: unknown, depth: number): unknown => {
@@ -160,6 +160,12 @@ export const advanceRuleProfileOfficialWindows = (
       throw new Error('official-state window remains open under RuleProfile');
     }
     if (reason !== null) {
+      if (stateWindow.windowKind === 'appeal'
+        && request.profile.appeal.sameTickWindowCloseResolution === 'unresolved'
+        && safeLedger.events.some((event) => event.kind === 'DefensiveAppealAttemptRecorded'
+          && event.windowId === stateWindow.windowId && event.tick === request.tick)) {
+        throw new Error('same-tick appeal boundary is unresolved');
+      }
       next = closeOfficialStateWindow(next, next.revision, {
         eventId: `${request.eventIdPrefix}:${stateWindow.windowId}`,
         tick: request.tick,
