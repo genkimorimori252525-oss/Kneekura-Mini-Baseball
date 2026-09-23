@@ -216,4 +216,113 @@ describe('SQLite official state store', () => {
     expect(store.getMatch('game-1')?.durableRevision).toBe(1);
     store.close();
   });
+
+  it('atomically finalizes a completed game without activating another play', () => {
+    const path = pathForTest();
+    const store = new SqliteOfficialStateStore(path);
+    const before: CanonicalMatchState = { ...match(), inning: 9, half: 'top', outs: 2,
+      strikes: 2, bases: { first: null, second: null, third: null },
+      score: { away: 1, home: 2 } };
+    store.initializeMatch('game-1', before);
+    const timeline = recordCountedPitch(
+      createCanonicalPlateAppearanceTimeline(before, 1000), 1100,
+      { kind: 'swinging_strike' },
+    );
+    let adjudication = createPlayAdjudicationLedger({ playId: 7,
+      ruleProfileId, playEnd: null });
+    adjudication = recordCorrectRuleSnapshot(adjudication, 0, {
+      eventId: 'rule-final', tick: 1101, snapshotId: 'rule-final', evidenceRevision: 1,
+      ruling: { outsAfter: 3, basesAfter: before.bases, scoredRunnerIds: [] },
+    });
+    adjudication = closeOfficialPlay(adjudication, 1, {
+      eventId: 'close-final', closureId: 'closure-final', tick: 1102,
+    });
+    const request = {
+      kind: 'non_live' as const, matchId: 'game-1', applicationId: 'final-1',
+      expectedDurableRevision: 0, match: before, timeline, adjudication,
+      context: { kind: 'strikeout' as const },
+      game: {
+        seasonId: 'season-1', homeClubId: 'home', awayClubId: 'away',
+        policy: { version: 'game-v1', minimumInnings: 9, tiesAllowed: false },
+        lineScore: { innings: Array.from({ length: 9 }, (_, index) => ({
+          inning: index + 1, awayRuns: index === 0 ? 1 : 0,
+          homeRuns: index === 0 ? 2 : index === 8 ? null : 0,
+        })), totals: { away: { runs: 1, hits: 4, errors: 0 },
+          home: { runs: 2, hits: 5, errors: 0 } } },
+      },
+    };
+    expect(() => store.applyAndFinalize({ ...request,
+      applicationId: 'premature-final', game: {
+        ...request.game, policy: { ...request.game.policy, minimumInnings: 10 },
+      },
+    })).toThrow('does not complete');
+    expect(store.getMatch('game-1')?.durableRevision).toBe(0);
+    const DatabaseSync = (createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite')).DatabaseSync;
+    const external = new DatabaseSync(path);
+    external.exec(`CREATE TRIGGER fail_final BEFORE INSERT ON applications
+      BEGIN SELECT RAISE(ABORT, 'injected final insert failure'); END;`);
+    expect(() => store.applyAndFinalize(request)).toThrow('injected final insert failure');
+    expect(store.getMatch('game-1')).toMatchObject({ durableRevision: 0, finalResult: null });
+    external.exec('DROP TRIGGER fail_final');
+    external.close();
+    const finalized = store.applyAndFinalize(request);
+    expect(finalized.result).toMatchObject({
+      gameId: 'game-1', winnerClubId: 'home', completionReason: 'HOME_LEADS_AFTER_TOP',
+    });
+    expect(store.getMatch('game-1')).toMatchObject({
+      durableRevision: 1, activation: null, nextWorld: null,
+      finalResult: { applicationId: 'final-1' },
+    });
+    store.close();
+    const reopened = new SqliteOfficialStateStore(path);
+    expect(reopened.applyAndFinalize(request)).toEqual(finalized);
+    expect(() => reopened.applyAndFinalize({ ...request, applicationId: 'final-again' }))
+      .toThrow('finalized');
+    expect(() => reopened.applyAndActivate({
+      ...liveRequest(), expectedDurableRevision: 1,
+      match: reopened.getMatch('game-1')!.matchState,
+    })).toThrow('finalized');
+    reopened.close();
+  });
+
+  it('replays an earlier successful activation after a later official game final', () => {
+    const path = pathForTest();
+    const store = new SqliteOfficialStateStore(path);
+    const firstRequest = { ...liveRequest(), match: { ...match(), inning: 9,
+      score: { away: 0, home: 1 } } };
+    store.initializeMatch('game-1', firstRequest.match);
+    const first = store.applyAndActivate(firstRequest);
+    const before = first.activation.nextMatchState;
+    let timeline = createCanonicalPlateAppearanceTimeline(before, 1000);
+    timeline = recordCountedPitch(timeline, 1100, { kind: 'swinging_strike' });
+    timeline = recordCountedPitch(timeline, 1110, { kind: 'swinging_strike' });
+    timeline = recordCountedPitch(timeline, 1120, { kind: 'swinging_strike' });
+    let adjudication = createPlayAdjudicationLedger({ playId: before.playId,
+      ruleProfileId, playEnd: null });
+    adjudication = recordCorrectRuleSnapshot(adjudication, 0, {
+      eventId: 'rule-final-2', tick: 1130, snapshotId: 'rule-final-2', evidenceRevision: 1,
+      ruling: { outsAfter: 3, basesAfter: before.bases, scoredRunnerIds: [] },
+    });
+    adjudication = closeOfficialPlay(adjudication, 1, {
+      eventId: 'close-final-2', closureId: 'closure-final-2', tick: 1140,
+    });
+    store.applyAndFinalize({
+      kind: 'non_live', matchId: 'game-1', applicationId: 'final-2',
+      expectedDurableRevision: 1, match: before, timeline, adjudication,
+      context: { kind: 'strikeout' },
+      game: { seasonId: 'season-1', homeClubId: 'home', awayClubId: 'away',
+        policy: { version: 'game-v1', minimumInnings: 9, tiesAllowed: false },
+        lineScore: { innings: Array.from({ length: 9 }, (_, index) => ({
+          inning: index + 1, awayRuns: 0,
+          homeRuns: index === 0 ? 1 : index === 8 ? null : 0,
+        })), totals: { away: { runs: 0, hits: 0, errors: 0 },
+          home: { runs: 1, hits: 1, errors: 0 } } },
+      },
+    });
+    expect(store.applyAndActivate(firstRequest)).toEqual(first);
+    store.close();
+    const reopened = new SqliteOfficialStateStore(path);
+    expect(reopened.applyAndActivate(firstRequest)).toEqual(first);
+    reopened.close();
+  });
 });
