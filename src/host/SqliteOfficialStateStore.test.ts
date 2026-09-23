@@ -1,0 +1,173 @@
+import { mkdtempSync, realpathSync, rmSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { tmpdir } from 'node:os';
+import { basename, join, sep } from 'node:path';
+import { afterEach, describe, expect, it } from 'vitest';
+import { closeOfficialPlay, createPlayAdjudicationLedger, recordCorrectRuleSnapshot } from '../core/adjudication/PlayAdjudicationLedger';
+import type { CanonicalMatchState } from '../core/model/CanonicalMatchState';
+import { asRuleProfileId } from '../core/model/RuleProfileRef';
+import {
+  createCanonicalPlateAppearanceTimeline,
+  recordCountedPitch,
+  type CanonicalPlateAppearanceTimeline,
+} from '../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
+import { SqliteOfficialStateStore } from './SqliteOfficialStateStore';
+
+const directories: string[] = [];
+const pathForTest = (): string => {
+  const directory = mkdtempSync(join(tmpdir(), 'kneekura-official-store-'));
+  directories.push(directory);
+  return join(directory, 'official.sqlite');
+};
+afterEach(() => {
+  const root = realpathSync(tmpdir());
+  for (const directory of directories.splice(0)) {
+    const target = realpathSync(directory);
+    if (!target.startsWith(`${root}${sep}`) || !basename(target).startsWith('kneekura-official-store-')) {
+      throw new Error('test cleanup target escaped its temporary directory');
+    }
+    rmSync(target, { recursive: true, force: true });
+  }
+});
+
+const ruleProfileId = asRuleProfileId('test-rules');
+const match = (): CanonicalMatchState => ({
+  ruleProfileId, inning: 1, half: 'top', outs: 1, balls: 0, strikes: 0,
+  bases: { first: 'r1', second: null, third: null },
+  score: { away: 0, home: 0 }, playId: 7,
+});
+const playEnd = { kind: 'play_end' as const, tick: 500, reason: 'live_action_complete' as const };
+const liveTimeline = (): CanonicalPlateAppearanceTimeline => ({
+  playId: 7, startedAtTick: 100, lastEventTick: 500, nextSequence: 1,
+  status: { kind: 'live_ball_complete', count: { balls: 0, strikes: 0 }, contactTick: 200,
+    playEndTick: 500, disposition: { kind: 'fair', fairDeterminationTick: 210 } },
+  events: [{ tick: 500, sequence: 0, kind: 'LiveBallPlayEnded', payload: { playEnd } }],
+});
+const liveAdjudication = () => {
+  let ledger = createPlayAdjudicationLedger({ playId: 7, ruleProfileId, playEnd });
+  ledger = recordCorrectRuleSnapshot(ledger, 0, {
+    eventId: 'rule', tick: 501, snapshotId: 'snapshot', evidenceRevision: 1,
+    ruling: { outsAfter: 2, basesAfter: { first: null, second: 'r1', third: null }, scoredRunnerIds: [] },
+  });
+  return closeOfficialPlay(ledger, 1, { eventId: 'close', closureId: 'closure-1', tick: 502 });
+};
+const liveRequest = () => ({
+  kind: 'live_ball' as const, matchId: 'game-1', applicationId: 'application-1',
+  expectedDurableRevision: 0, match: match(), physicalTimeline: liveTimeline(),
+  adjudication: liveAdjudication(), nextStartedAtTick: 503,
+});
+
+describe('SQLite official state store', () => {
+  it('atomically persists application and next-play activation, including across restart', () => {
+    const path = pathForTest();
+    const store = new SqliteOfficialStateStore(path);
+    store.initializeMatch('game-1', match());
+    const result = store.applyAndActivate(liveRequest());
+    expect(result.receipt).toMatchObject({
+      applicationId: 'application-1', closureId: 'closure-1', durableRevision: 1,
+    });
+    expect(result.activation.nextMatchState).toMatchObject({ playId: 8, outs: 2 });
+    expect(result.activation.nextTimeline.playId).toBe(8);
+    expect(store.getMatch('game-1')).toMatchObject({
+      durableRevision: 1, matchState: { playId: 8, outs: 2 },
+      activation: { applicationId: 'application-1' },
+    });
+    store.close();
+    const reopened = new SqliteOfficialStateStore(path);
+    expect(reopened.applyAndActivate(liveRequest())).toEqual(result);
+    expect(reopened.getMatch('game-1')?.durableRevision).toBe(1);
+    reopened.close();
+  });
+
+  it('rejects changed idempotency input, duplicate closure and stale revision without advancing state', () => {
+    const store = new SqliteOfficialStateStore(pathForTest());
+    store.initializeMatch('game-1', match());
+    store.applyAndActivate(liveRequest());
+    expect(() => store.applyAndActivate({ ...liveRequest(), nextStartedAtTick: 504 }))
+      .toThrow('applicationId was already used for different input');
+    expect(() => store.applyAndActivate({ ...liveRequest(), applicationId: 'application-2' }))
+      .toThrow('official closure was already applied');
+    expect(() => store.applyAndActivate({ ...liveRequest(), applicationId: 'application-3',
+      adjudication: closeOfficialPlay(recordCorrectRuleSnapshot(
+        createPlayAdjudicationLedger({ playId: 7, ruleProfileId, playEnd }), 0,
+        { eventId: 'rule-2', tick: 501, snapshotId: 'snapshot-2', evidenceRevision: 1,
+          ruling: { outsAfter: 2, basesAfter: { first: null, second: 'r1', third: null }, scoredRunnerIds: [] } },
+      ), 1, { eventId: 'close-2', closureId: 'closure-2', tick: 502 }),
+    })).toThrow('stale durable MatchState revision');
+    expect(store.getMatch('game-1')?.durableRevision).toBe(1);
+    store.close();
+  });
+
+  it('rolls back a failed official derivation before writing any application', () => {
+    const store = new SqliteOfficialStateStore(pathForTest());
+    store.initializeMatch('game-1', match());
+    expect(() => store.applyAndActivate({ ...liveRequest(), nextStartedAtTick: 501 }))
+      .toThrow('next play cannot start before OfficialPlayClosure');
+    expect(store.getMatch('game-1')).toMatchObject({ durableRevision: 0, matchState: { playId: 7 } });
+    expect(store.applyAndActivate(liveRequest()).receipt.durableRevision).toBe(1);
+    store.close();
+  });
+
+  it('rolls back a state update if the application insert fails inside the transaction', () => {
+    const path = pathForTest();
+    const store = new SqliteOfficialStateStore(path);
+    store.initializeMatch('game-1', match());
+    const DatabaseSync = (createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite')).DatabaseSync;
+    const external = new DatabaseSync(path);
+    external.exec(`CREATE TRIGGER fail_application BEFORE INSERT ON applications
+      BEGIN SELECT RAISE(ABORT, 'injected insert failure'); END;`);
+    expect(() => store.applyAndActivate(liveRequest())).toThrow('injected insert failure');
+    expect(store.getMatch('game-1')).toMatchObject({ durableRevision: 0, matchState: { playId: 7 } });
+    external.exec('DROP TRIGGER fail_application');
+    expect(store.applyAndActivate(liveRequest()).receipt.durableRevision).toBe(1);
+    external.close();
+    store.close();
+  });
+
+  it('serializes competing store instances around the durable revision', () => {
+    const path = pathForTest();
+    const first = new SqliteOfficialStateStore(path);
+    const second = new SqliteOfficialStateStore(path);
+    first.initializeMatch('game-1', match());
+    const result = first.applyAndActivate(liveRequest());
+    expect(second.applyAndActivate(liveRequest())).toEqual(result);
+    expect(() => second.applyAndActivate({ ...liveRequest(), applicationId: 'application-2' }))
+      .toThrow('official closure was already applied');
+    expect(second.getMatch('game-1')?.durableRevision).toBe(1);
+    first.close();
+    second.close();
+  });
+
+  it('rejects invalid initial state without creating a match row', () => {
+    const store = new SqliteOfficialStateStore(pathForTest());
+    expect(() => store.initializeMatch('game-1', { ...match(), outs: -1 }))
+      .toThrow('match outs is invalid');
+    expect(store.getMatch('game-1')).toBeNull();
+    store.close();
+  });
+
+  it('uses the same transaction for a non-live strikeout', () => {
+    const store = new SqliteOfficialStateStore(pathForTest());
+    const before = { ...match(), strikes: 2 };
+    store.initializeMatch('game-1', before);
+    const timeline = recordCountedPitch(
+      createCanonicalPlateAppearanceTimeline(before, 1000), 1100, { kind: 'swinging_strike' },
+    );
+    let adjudication = createPlayAdjudicationLedger({ playId: 7, ruleProfileId, playEnd: null });
+    adjudication = recordCorrectRuleSnapshot(adjudication, 0, {
+      eventId: 'rule-strikeout', tick: 1101, snapshotId: 'rule-strikeout', evidenceRevision: 1,
+      ruling: { outsAfter: 2, basesAfter: before.bases, scoredRunnerIds: [] },
+    });
+    adjudication = closeOfficialPlay(adjudication, 1, {
+      eventId: 'close-strikeout', closureId: 'closure-strikeout', tick: 1102,
+    });
+    const result = store.applyAndActivate({
+      kind: 'non_live', matchId: 'game-1', applicationId: 'strikeout-1',
+      expectedDurableRevision: 0, match: before, timeline, adjudication,
+      context: { kind: 'strikeout' }, nextStartedAtTick: 1103,
+    });
+    expect(result.activation.nextMatchState).toMatchObject({ playId: 8, outs: 2, strikes: 0 });
+    expect(store.getMatch('game-1')?.durableRevision).toBe(1);
+    store.close();
+  });
+});
