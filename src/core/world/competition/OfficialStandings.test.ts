@@ -56,6 +56,10 @@ it('ranks only a fully completed official season against the frozen schedule', (
   });
   expect(() => buildOfficialStandings(schedule, [result(0, 2, 1)], policy))
     .toThrow('complete official game results');
+  expect(buildOfficialStandings(schedule, [
+    result(0, 2, 1), { ...result(1, 3, 0), closureId: 'closure-0' },
+    result(2, 1, 2), result(3, 1, 0),
+  ], policy).orderedClubIds).toEqual(['a', 'b']);
 });
 
 it('leaves an exact unresolved tie open for a profile-defined tiebreak game', () => {

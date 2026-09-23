@@ -77,3 +77,10 @@ it('validates a double round robin and advances its top two to a best-of-seven f
     plan: finalPlan, results: [],
   })).toThrow('round ties');
 });
+
+it('allows a match-scoped closure ID in a distinct final game', () => {
+  const finalResult = official(finalPlan.scheduledGames[0], 'a');
+  expect(resolveWinterChampionship(input, { plan: finalPlan,
+    results: [{ ...finalResult, closureId: roundResults[0].closureId }],
+  })).toMatchObject({ status: 'PENDING' });
+});

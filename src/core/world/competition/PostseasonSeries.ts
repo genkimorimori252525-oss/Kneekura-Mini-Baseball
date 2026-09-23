@@ -54,7 +54,6 @@ export const resolvePostseasonSeries = (
   let lowerSeedWins = 0;
   const winsNeeded = Math.floor(plan.bestOf / 2) + 1;
   const applicationIds = new Set<string>();
-  const closureIds = new Set<string>();
   for (let index = 0; index < results.length; index += 1) {
     if (higherSeedWins === winsNeeded || lowerSeedWins === winsNeeded) {
       throw new Error('official game recorded after a series winner was settled');
@@ -70,12 +69,11 @@ export const resolvePostseasonSeries = (
       || result.awayClubId !== scheduled.awayClubId
       || result.winnerClubId === null || result.winnerClubId !== expectedWinner
       || !result.applicationId || applicationIds.has(result.applicationId)
-      || !result.closureId || closureIds.has(result.closureId)
+      || !result.closureId
       || lineScore.totals.home.runs !== result.homeRuns
       || lineScore.totals.away.runs !== result.awayRuns
     ) throw new Error('postseason series requires unique official decided games');
     applicationIds.add(result.applicationId);
-    closureIds.add(result.closureId);
     if (result.winnerClubId === plan.higherSeedClubId) higherSeedWins += 1;
     else lowerSeedWins += 1;
   }

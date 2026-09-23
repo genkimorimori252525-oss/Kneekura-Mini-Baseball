@@ -40,7 +40,10 @@ it('resolves a best-of-five from official game results and stops after three win
   expect(() => resolvePostseasonSeries(plan, [
     game(0, 'a'), game(1, 'b'), game(2, 'a'), game(3, 'a'), game(4, 'b'),
   ])).toThrow('after a series winner');
-  expect(() => resolvePostseasonSeries(plan, [
+  expect(resolvePostseasonSeries(plan, [
     game(0, 'a'), { ...game(1, 'b'), closureId: 'closure-0' },
+  ])).toMatchObject({ status: 'PENDING', higherSeedWins: 1, lowerSeedWins: 1 });
+  expect(() => resolvePostseasonSeries(plan, [
+    game(0, 'a'), { ...game(1, 'b'), applicationId: 'application-0' },
   ])).toThrow('unique official decided games');
 });
