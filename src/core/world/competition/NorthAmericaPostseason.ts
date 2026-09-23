@@ -1,5 +1,6 @@
 import type { OfficialGameResult } from './OfficialGameCompletion';
 import { captureOfficialStandingsBasis,
+  snapshotLeagueGroupAlignment,
   type LeagueGroupAlignment, type OfficialGroupStandingsSnapshot,
   type OfficialStandingRow, type OfficialStandingsBasis } from './OfficialStandings';
 import { resolvePostseasonSeries, type PostseasonSeriesPlan,
@@ -39,6 +40,10 @@ export type NorthAmericaConferenceInput = Readonly<{
 export type NorthAmericaPostseasonState = Readonly<{
   seasonId: string;
   regularSeasonBasis: OfficialStandingsBasis;
+  conferenceAlignmentSnapshot: LeagueGroupAlignment;
+  divisionAlignmentSnapshot: LeagueGroupAlignment;
+  conferenceAlignmentVersion: string;
+  divisionAlignmentVersion: string;
   policyVersion: string;
   status: 'PENDING' | 'COMPLETE';
   conferenceSeeds: readonly Readonly<{
@@ -312,7 +317,12 @@ export const resolveNorthAmericaPostseason = (
   } else if (championship !== null) {
     throw new Error('North America championship cannot start before conference champions');
   }
-  return Object.freeze({ seasonId, regularSeasonBasis, policyVersion: policy.version,
+  return Object.freeze({ seasonId, regularSeasonBasis,
+    conferenceAlignmentSnapshot: snapshotLeagueGroupAlignment(conferenceAlignment),
+    divisionAlignmentSnapshot: snapshotLeagueGroupAlignment(divisionAlignment),
+    conferenceAlignmentVersion: conferenceAlignment.version,
+    divisionAlignmentVersion: divisionAlignment.version,
+    policyVersion: policy.version,
     status: championshipState?.status === 'COMPLETE' ? 'COMPLETE' : 'PENDING',
     conferenceSeeds: Object.freeze(conferenceSeeds),
     conferenceChampions: Object.freeze(conferenceChampions),

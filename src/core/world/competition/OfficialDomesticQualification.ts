@@ -38,6 +38,16 @@ export const deriveOfficialDomesticQualificationOrder = (
     || standings.rows.some((row) => !order.includes(row.clubId))) {
     throw new Error('official qualification requires resolved full-league standings');
   }
+  const expectedGames = profile.clubCount * profile.regularSeasonGamesPerClub / 2;
+  if (!Number.isSafeInteger(expectedGames)
+    || standings.resultApplicationIds.length !== expectedGames
+    || new Set(standings.resultApplicationIds).size !== expectedGames
+    || standings.resultApplicationIds.some((id) => !id)
+    || standings.rows.some((row) =>
+      row.games !== profile.regularSeasonGamesPerClub
+      || row.wins + row.losses + row.ties !== row.games)) {
+    throw new Error('official qualification requires a complete official regular season');
+  }
   const state = outcome.state;
   if (state.seasonId !== standings.seasonId || state.status !== 'COMPLETE'
     || !state.championClubId

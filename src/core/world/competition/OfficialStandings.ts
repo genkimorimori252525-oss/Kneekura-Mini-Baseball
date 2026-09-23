@@ -101,6 +101,16 @@ export type LeagueGroupAlignment = Readonly<{
   leagueId: string;
   groups: readonly Readonly<{ groupId: string; clubIds: readonly string[] }>[];
 }>;
+/** Detach an accepted alignment before retaining it in postseason history. */
+export const snapshotLeagueGroupAlignment = (
+  alignment: LeagueGroupAlignment,
+): LeagueGroupAlignment => Object.freeze({
+  version: alignment.version, seasonId: alignment.seasonId,
+  leagueId: alignment.leagueId,
+  groups: Object.freeze(alignment.groups.map((group) => Object.freeze({
+    groupId: group.groupId, clubIds: Object.freeze([...group.clubIds]),
+  }))),
+});
 export type OfficialGroupStandingsSnapshot = OfficialStandingsSnapshot & Readonly<{
   groupId: string;
   alignmentVersion: string;

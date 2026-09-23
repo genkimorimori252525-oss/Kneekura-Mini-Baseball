@@ -1,5 +1,6 @@
 import type { OfficialGameResult } from './OfficialGameCompletion';
 import { captureOfficialStandingsBasis, matchesOfficialStandingsBasis,
+  snapshotLeagueGroupAlignment,
   type LeagueGroupAlignment, type OfficialGroupStandingsSnapshot,
   type OfficialStandingsBasis } from './OfficialStandings';
 import { resolvePostseasonSeries, type PostseasonSeriesPlan,
@@ -27,6 +28,7 @@ export type ConferenceGroupInput = Readonly<{
 export type ConferencePostseasonState = Readonly<{
   seasonId: string;
   regularSeasonBasis: OfficialStandingsBasis;
+  alignmentSnapshot: LeagueGroupAlignment;
   alignmentVersion: string;
   qualificationPolicyVersion: string;
   qualificationPriorityGroupIds: readonly string[];
@@ -214,6 +216,7 @@ export const resolveConferencePostseason = (
     throw new Error('conference championship cannot start before upstream winners');
   }
   return Object.freeze({ seasonId, regularSeasonBasis,
+    alignmentSnapshot: snapshotLeagueGroupAlignment(alignment),
     alignmentVersion: alignment.version,
     qualificationPolicyVersion: policy.qualificationPolicyVersion,
     qualificationPriorityGroupIds: Object.freeze([...policy.qualificationPriorityGroupIds]),
