@@ -3,6 +3,7 @@ import {
   advanceRuleProfileOfficialWindows,
   closeOfficialPlay,
   closeOfficialStateWindow,
+  classifyClosedPlayForOfficialScoring,
   createPlayAdjudicationLedger,
   deriveClosedLiveBallMatchState,
   getOfficialPlayClosure,
@@ -34,5 +35,6 @@ describe('official adjudication public seam', () => {
     expect(advanceRuleProfileOfficialWindows).toBeTypeOf('function');
     expect(orchestrateTagUpAppealAttempt).toBeTypeOf('function');
     expect(orchestrateTagUpAppealAttemptFromTimeline).toBeTypeOf('function');
+    expect(classifyClosedPlayForOfficialScoring).toBeTypeOf('function');
   });
 });
