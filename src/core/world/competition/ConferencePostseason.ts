@@ -1,5 +1,5 @@
 import type { OfficialGameResult } from './OfficialGameCompletion';
-import type { OfficialStandingsSnapshot } from './OfficialStandings';
+import type { LeagueGroupAlignment, OfficialGroupStandingsSnapshot } from './OfficialStandings';
 import { resolvePostseasonSeries, type PostseasonSeriesPlan,
   type PostseasonSeriesState } from './PostseasonSeries';
 
@@ -16,7 +16,7 @@ export type ConferenceSeriesEntry = Readonly<{
 }>;
 export type ConferenceGroupInput = Readonly<{
   groupId: string;
-  standings: OfficialStandingsSnapshot;
+  standings: OfficialGroupStandingsSnapshot;
   series: readonly ConferenceSeriesEntry[];
 }>;
 export type ConferencePostseasonState = Readonly<{
@@ -39,6 +39,7 @@ export type ConferencePostseasonState = Readonly<{
 /** Japan, Mexico and Cuba retain their distinct confirmed group paths. */
 export const resolveConferencePostseason = (
   policy: ConferencePostseasonPolicy,
+  alignment: LeagueGroupAlignment,
   groups: readonly ConferenceGroupInput[],
   championship: Readonly<{ plan: PostseasonSeriesPlan;
     results: readonly OfficialGameResult[] }> | null,
@@ -50,11 +51,29 @@ export const resolveConferencePostseason = (
     || !groups.some((group) => group.groupId === policy.championshipHigherSeedGroupId)) {
     throw new Error('invalid versioned conference postseason policy or groups');
   }
+  const expectedLeagueId = policy.format === 'JAPAN' ? 'league-001'
+    : policy.format === 'MEXICO' ? 'league-009' : 'league-013';
+  if (!alignment.version || !alignment.seasonId
+    || alignment.leagueId !== expectedLeagueId) {
+    throw new Error('conference alignment league or version mismatch');
+  }
   const expectedClubs = policy.format === 'JAPAN' ? 6 : policy.format === 'MEXICO' ? 10 : 8;
-  const seasonId = groups[0].standings.seasonId;
+  const seasonId = alignment.seasonId;
   const allClubs = new Set<string>();
+  if (alignment.groups.length !== 2
+    || new Set(alignment.groups.map((group) => group.groupId)).size !== 2) {
+    throw new Error('conference alignment must define two unique groups');
+  }
   for (const group of groups) {
     const ranking = group.standings.orderedClubIds;
+    const aligned = alignment.groups.find((item) => item.groupId === group.groupId);
+    if (!aligned || group.standings.groupId !== group.groupId
+      || group.standings.alignmentVersion !== alignment.version
+      || group.standings.leagueId !== alignment.leagueId
+      || group.standings.memberClubIds.length !== aligned.clubIds.length
+      || group.standings.memberClubIds.some((id) => !aligned.clubIds.includes(id))) {
+      throw new Error('conference standings do not match frozen group alignment');
+    }
     if (!seasonId || group.standings.seasonId !== seasonId
       || ranking === null || group.standings.unresolvedTieGroups.length > 0
       || ranking.length !== expectedClubs || group.standings.rows.length !== expectedClubs) {
@@ -62,6 +81,7 @@ export const resolveConferencePostseason = (
     }
     const rowClubs = new Set(group.standings.rows.map((row) => row.clubId));
     if (rowClubs.size !== expectedClubs || new Set(ranking).size !== expectedClubs
+      || ranking.some((clubId) => !aligned.clubIds.includes(clubId))
       || ranking.some((clubId) =>
       !clubId || !rowClubs.has(clubId) || allClubs.has(clubId))) {
       throw new Error('conference group memberships must be unique and complete');
@@ -70,7 +90,10 @@ export const resolveConferencePostseason = (
   }
   const usedSeriesIds = new Set<string>();
   const usedGameIds = new Set<string>();
-  const usedApplicationIds = new Set<string>();
+  const usedApplicationIds = new Set(groups.flatMap((group) => [
+    ...group.standings.resultApplicationIds,
+    ...group.standings.tiebreakResolutions.map((item) => item.applicationId),
+  ]));
   const validateUnique = (entry: { plan: PostseasonSeriesPlan;
     results: readonly OfficialGameResult[] }): void => {
     if (entry.plan.seasonId !== seasonId || usedSeriesIds.has(entry.plan.seriesId)) {
