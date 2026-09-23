@@ -282,14 +282,23 @@ export class SqliteOfficialStateStore {
     const request = cloneInert(input);
     nonEmpty(request.matchId, 'matchId');
     nonEmpty(request.applicationId, 'applicationId');
+    const expected = revision(request.expectedDurableRevision, 'expectedDurableRevision');
+    const nextRevision = revision(expected + 1, 'next durable revision');
+    const requestHash = hash(request);
+    const priorBeforePrepare = this.database.prepare(`
+      SELECT request_hash, result_json FROM applications WHERE application_id=?
+    `).get(request.applicationId) as ApplicationRow | undefined;
+    if (priorBeforePrepare !== undefined) {
+      if (priorBeforePrepare.request_hash !== requestHash) {
+        throw new Error('applicationId was already used for different input');
+      }
+      return cloneInert(JSON.parse(priorBeforePrepare.result_json) as PersistOfficialPlayResult);
+    }
     const currentBeforePrepare = this.getMatch(request.matchId);
     if (currentBeforePrepare?.finalResult) {
       throw new Error('match is already finalized');
     }
-    const expected = revision(request.expectedDurableRevision, 'expectedDurableRevision');
-    const nextRevision = revision(expected + 1, 'next durable revision');
     const result = prepareApplication(request, nextRevision);
-    const requestHash = hash(request);
     this.database.exec('BEGIN IMMEDIATE');
     try {
       const prior = this.database.prepare(`
