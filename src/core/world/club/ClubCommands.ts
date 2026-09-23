@@ -6,7 +6,8 @@ import { enumeration, evidenceIds, fail, index, integer, list, nullable, object,
 const literal = <T extends string>(value: T) => enumeration([value]);
 const moneyFields = { amount: positive, currency: text };
 const readers: Readonly<Record<string, Reader<ClubOperation>>> = {
-  RECORD_REVENUE: object({ kind: literal('RECORD_REVENUE'), receiptId: text, category: enumeration(REVENUE_CATEGORIES), ...moneyFields }),
+  RECORD_REVENUE: object({ kind: literal('RECORD_REVENUE'), receiptId: text,
+    category: enumeration(REVENUE_CATEGORIES), amount: integer, currency: text }),
   RECORD_COMMITMENT: object({ kind: literal('RECORD_COMMITMENT'), commitmentId: text, contractRef: text,
     category: enumeration(COST_CATEGORIES), budgetBucket: enumeration(BUDGET_BUCKETS), ...moneyFields }),
   SETTLE_COMMITMENT: object({ kind: literal('SETTLE_COMMITMENT'), receiptId: text, commitmentId: text, ...moneyFields }),
