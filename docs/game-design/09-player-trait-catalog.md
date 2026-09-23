@@ -497,7 +497,7 @@ Presentation上で複数表示する場合も、「独立した長所が複数�
 
 | 参照候補 | 判定 | Kneekuraでの扱い |
 | --- | --- | --- |
-| 緩急○ / 変幻自在 | MERGE | **intentional cadence manipulation（投球始動間隔の意図的操作）+ effective timing choice** のFamily。打者の予測・準備timingを実際に崩す技能として扱い、球速・spin・movement・BallFlightを直接強化しない。pitch-speed separationそのものはTrait Sourceに含めず、単なるrandom timing varianceでも成立させない。Intent / execution / observed cadence surprise / batter adaptation Evidenceから投影する |
+| 緩急○ / 変幻自在 | MERGE | **intentional cadence manipulation（投球始動間隔の意図的操作）+ effective timing choice** のFamily。打者の予測・準備timingを実際に崩す技能として扱い、球速・spin・movement・BallFlightを直接強化しない。pitch-speed separationそのものはTrait Sourceに含めず、単なるrandom timing varianceでも成立させない。**BatteryのPitchCall主導権を尊重し、CATCHER_LEDではaccepted PitchCallを変更せず間だけを操り、PITCHER_LEDでは通常のpitch-selection層で配球とcadenceを統合計画できる。** Intent / execution / observed cadence surprise / batter adaptation Evidenceから投影する |
 | 奪三振 / ドクターK | REINTERPRET | two-strike put-away pitch selection / execution Family |
 | 対強打者○ / 主砲キラー | REINTERPRET | 強打者ラベルによるBuffではなく、高難度相手へのDecision / pressure response / learned matchup |
 | 要所○ | REINTERPRET | Pressure / High-Leverage Familyへ統合候補。MatchImportance / Appraisalと同じ原因を二重適用しない |
@@ -523,7 +523,7 @@ Presentation上で複数表示する場合も、「独立した長所が複数�
 
 | 参照候補 | 判定 | Kneekuraでの扱い |
 | --- | --- | --- |
-| クイック A〜G / 走者釘付 | MERGE | set-position release time / repeatability Graded Family + Gold |
+| クイック A〜G / 走者釘付 | MERGE | set-position motion-to-release speed / repeatability Graded Family + Gold。Underlying speed sourceは **G→F→E→D→C→B→A→Gold の順に厳密に速くなる**。G extremeはNORMAL×1.8 duration、A extremeはNORMAL/1.8、Gold extremeはNORMAL/2.5を上限とし、表示Grade自体から倍率を再適用しない |
 | 牽制○ | ADOPT | pickoff technique |
 | 対ランナー○ | REINTERPRET | runner-on-base時のexecution stability / attention allocation |
 | 打球反応○ | ADOPT | pitcher fielding reaction skill |
