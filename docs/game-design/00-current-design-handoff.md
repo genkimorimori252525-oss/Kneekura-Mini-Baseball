@@ -2056,3 +2056,30 @@ User clarified and approved the following refinement:
   - B〜F are intermediate projections from continuous source state; the grade label itself never drives the multiplier.
 - QUICK reuses the previously approved natural timing variation bound of ±50 ms.
 - Updated implementation plan commit: `819bce9d40c9f5d0f6ffb9b8a4d98a72e07d6492`.
+
+
+## 2026-09-23 Battery / Cadence authority refinement
+
+Canonical implementation refinement:
+
+- QUICK grade/source ordering is strictly monotonic in speed:
+  `G < F < E < D < C < B < A < Gold`.
+- G-side source becomes progressively slower; A-side source becomes progressively faster.
+- endpoints remain:
+  - G extreme = NORMAL × 1.8 duration
+  - A extreme = NORMAL / 1.8 duration
+  - Gold / 走者釘付 extreme = NORMAL / 2.5 duration
+- exact B〜F thresholds remain calibration, but grade inversion is forbidden.
+- `緩急○ / 変幻自在` never overrides Battery pitch-call ownership.
+- Battery separates:
+  - `PitchCall` = pitch family / target / tactical purpose
+  - `CadencePlan` = start interval / hold / rhythm manipulation
+- CATCHER_LED:
+  - catcher chooses/owns the accepted PitchCall;
+  - pitcher may use cadence skill only within that call;
+  - cadence Trait cannot silently change pitch type/location.
+- PITCHER_LED:
+  - pitcher-side decision may plan PitchCall and cadence together;
+  - catcher follows/supports the accepted pitcher call.
+- future NEGOTIATED/shake-off behavior must still resolve PitchCall ownership separately from Cadence ownership.
+- updated implementation plan commit: `5ca17ca770016d6ac34dfb994b99bfbf7b6f794f`.
