@@ -77,6 +77,10 @@ It verifies play ID and RuleProfile identity, clones all caller inputs before re
 
 Non-live walk and strikeout closure application is provided separately by `NonLiveOfficialApplication`.
 
+## Official scoring
+
+`classifyClosedPlayForOfficialScoring` runs only after a valid `OfficialPlayClosure` and reuses the existing official MatchState derivation to check the physical and rule evidence. It returns a supported record for non-live base on balls and strikeout, with the official run count and zero hits/errors. Closed live-ball plays return an explicit `unsupported` result until hit, error and fielder's-choice evidence is available. Scoring classification neither changes the official gameplay ruling nor blocks next-play activation. The host owns scorebook persistence and must not infer H/E totals from the gameplay score.
+
 ## Integrity
 
 All public ledger and closed-play application inputs are descriptor-cloned before property access. Active getters/accessors, functions, symbols, cycles, malformed arrays, non-plain objects and non-finite values are rejected without executing caller code.

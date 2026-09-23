@@ -29,6 +29,12 @@ export {
   orchestrateTagUpAppealAttemptFromTimeline,
 } from './TagUpAppealOrchestration';
 export type { TimelineTagUpAppealAttemptInput } from './TagUpAppealOrchestration';
+export { classifyClosedPlayForOfficialScoring } from './OfficialScoring';
+export type {
+  OfficialScoringInput,
+  OfficialScoringResult,
+  SupportedOfficialScoringRecord,
+} from './OfficialScoring';
 export type { TagUpAppealAttemptInput, TagUpAppealAttemptResolution } from './TagUpAppealOrchestration';
 
 export type {
