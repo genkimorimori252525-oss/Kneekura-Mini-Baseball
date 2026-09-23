@@ -23,6 +23,11 @@ export type RuleProfile = Readonly<{
       | 'defense_may_elect_advantageous_out'
       | 'disabled';
   }>;
+  officialWindows?: Readonly<{
+    appeal?: Readonly<{ available: boolean }>;
+    review?: Readonly<{ available: boolean; expiresAfterTicks?: number }>;
+    challenge?: Readonly<{ available: boolean; expiresAfterTicks?: number }>;
+  }>;
   thirdOutScoring: Readonly<{
     batterRunnerBeforeFirstSuppressesRuns: boolean;
     forceThirdOutSuppressesRuns: boolean;
@@ -77,6 +82,9 @@ export const NPB_2026_RULE_PROFILE: RuleProfile = {
     sameTickWindowCloseResolution: 'unresolved',
     advantageousFourthOutPolicy:
       'defense_may_elect_advantageous_out',
+  },
+  officialWindows: {
+    appeal: { available: true },
   },
   thirdOutScoring: {
     batterRunnerBeforeFirstSuppressesRuns: true,

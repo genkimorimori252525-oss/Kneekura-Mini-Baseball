@@ -24,6 +24,9 @@ describe('RuleProfile', () => {
         advantageousFourthOutPolicy:
           'defense_may_elect_advantageous_out',
       },
+      officialWindows: {
+        appeal: { available: true },
+      },
       thirdOutScoring: {
         batterRunnerBeforeFirstSuppressesRuns: true,
         forceThirdOutSuppressesRuns: true,

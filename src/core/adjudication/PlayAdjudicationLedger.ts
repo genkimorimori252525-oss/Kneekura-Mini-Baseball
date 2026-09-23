@@ -891,6 +891,10 @@ export const getOfficialPlayClosure = (
   ledgerInput: PlayAdjudicationLedger,
 ): OfficialPlayClosure | null => replayLedger(ledgerInput).replay.closure;
 
+export const getOfficialStateWindows = (
+  ledgerInput: PlayAdjudicationLedger,
+): readonly OfficialStateWindow[] => Object.freeze([...replayLedger(ledgerInput).replay.windows.values()]);
+
 export const getPlayAdjudicationState = (
   ledgerInput: PlayAdjudicationLedger,
 ): PlayAdjudicationState => {

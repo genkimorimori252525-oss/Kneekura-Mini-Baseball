@@ -42,7 +42,9 @@ A newer snapshot must use a strictly newer evidence revision. Existing on-field 
 
 `closeOfficialPlay` is blocked while any supported official-state-changing window remains open.
 
-This layer does not infer an appeal/review because it “would have happened”. The host/RuleProfile layer owns whether a specific appeal/review/challenge is legally available and when its window opens/closes.
+`openRuleProfileOfficialStateWindow` checks availability against the ledger's `RuleProfile`. `advanceRuleProfileOfficialWindows` applies configured expiration, next-play, and inning-ending defense-left-field boundaries. A next-play fence rejects any window that remains open. `evaluateRuleProfileOfficialWindowTiming` reports timely, expired, or unresolved same-tick attempts; it respects an earlier explicit closure before a later configured deadline.
+
+The NPB 2026 profile enables appeals and its existing appeal closure conditions. Review and challenge are unavailable until a specific profile supplies their policy. A custom profile may configure review/challenge expiration in integer simulation ticks; this is not a claim about an NPB time limit. Hosts must explicitly open legitimate opportunities and close resolved or declined windows. No appeal or review is inferred merely because it “would have happened”.
 
 ## Calls and review
 
@@ -67,7 +69,7 @@ The closure includes an `OfficialMatchStateDelta`; it does not rewrite the physi
 
 It verifies play ID and RuleProfile identity, clones all caller inputs before reading them, and delegates to the existing `applyResolvedLiveBallPlateAppearanceToMatchState` path. The source MatchState and physical timeline are not mutated.
 
-This v1 does not yet provide the direct durable-state application adapter for non-live walk/strikeout/HBP closures.
+Non-live walk and strikeout closure application is provided separately by `NonLiveOfficialApplication`.
 
 ## Integrity
 
@@ -80,11 +82,10 @@ This is consistency/integrity validation, not a cryptographic persistence layer.
 The host still owns:
 
 - producing the correct RuleEngine snapshot from canonical physical/rule facts;
-- opening/closing RuleProfile-supported appeal/review/challenge windows;
+- deciding when a supported appeal/review/challenge opportunity actually arises, then using the profile-aware window API;
 - actual appeal-attempt provenance;
 - umpire/review policy and human-manager challenge intent;
 - atomic persistence / global exactly-once semantics;
-- non-live official-state application;
 - official-scoring classification after closure;
 - activating the next play only after closure + durable MatchState application.
 
