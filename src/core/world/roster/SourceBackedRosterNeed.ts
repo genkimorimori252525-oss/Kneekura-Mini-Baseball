@@ -6,6 +6,7 @@ import type { RosterState } from './RosterTypes';
 export type RosterNeedHorizon = 'NOW' | 'NEXT_SEASON' | 'LONG_TERM';
 export type RosterNeedPlanningPolicy = Readonly<{
   version: string;
+  availableAtDay: number;
   roles: readonly Readonly<Pick<RosterNeedRequest,
     'positionGroup' | 'requiredRole' | 'candidateDomainId'
     | 'minimumCandidateEstimate' | 'knowledgeDomainId'
@@ -32,6 +33,7 @@ export type RosterNeedRequest = Readonly<{
 }>;
 export type SourceBackedRosterNeed = Readonly<RosterNeedRequest & {
   coverageScope: 'DOCUMENTED_ROLE_CANDIDATES';
+  policyAvailableAtDay: number;
   rosterRevision: number;
   knowledgeRevision: number;
   confirmedPlayerIds: readonly string[];
@@ -75,8 +77,10 @@ export function deriveSourceBackedRosterNeed(
     'requiredRole', 'horizon', 'targetCount',
     'minimumEstimate'],
   'roster need request');
-  rejectUnknownScoutingFields(policy, ['version', 'roles'], 'roster need policy');
-  if (!validId(policy.version) || !Array.isArray(policy.roles)
+  rejectUnknownScoutingFields(policy, ['version', 'availableAtDay', 'roles'],
+    'roster need policy');
+  if (!validId(policy.version) || !validDay(policy.availableAtDay)
+    || !Array.isArray(policy.roles)
     || policy.roles.length === 0) {
     throw new Error('invalid roster need policy');
   }
@@ -113,6 +117,8 @@ export function deriveSourceBackedRosterNeed(
     || request.candidateDomainId === request.knowledgeDomainId
     || !validId(request.requiredRole)
     || !validDay(request.asOfDay) || roster.effectiveDay > request.asOfDay
+    || knowledge.effectiveDay > request.asOfDay
+    || policy.availableAtDay > request.asOfDay
     || !['NOW', 'NEXT_SEASON', 'LONG_TERM'].includes(request.horizon)
     || !Number.isSafeInteger(request.targetCount) || request.targetCount <= 0
     || !Number.isFinite(request.minimumEstimate)
@@ -181,6 +187,7 @@ export function deriveSourceBackedRosterNeed(
     request.targetCount - confirmedPlayerIds.length);
   return Object.freeze({ ...request,
     coverageScope: 'DOCUMENTED_ROLE_CANDIDATES' as const,
+    policyAvailableAtDay: policy.availableAtDay,
     rosterRevision: roster.revision,
     knowledgeRevision: knowledge.revision,
     confirmedPlayerIds: Object.freeze(confirmedPlayerIds),
