@@ -239,6 +239,11 @@ const deriveValidated = (
     throw new Error('non-live adjudication rule profile must match CanonicalMatchState');
   }
   validateContextMatchesTimeline(request.context, request.timeline);
+  if (closure.closedAtTick < request.timeline.lastEventTick) {
+    throw new Error(
+      'OfficialPlayClosure cannot precede the terminal non-live timeline event',
+    );
+  }
 
   const canonicalRuling = expectedRuling(request.match, request.context);
   if (!sameRuling(canonicalRuling, closure.finalRuling.gameplay)) {
