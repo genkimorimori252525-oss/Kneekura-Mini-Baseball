@@ -31,7 +31,7 @@ export const referencesReader = object({
 export const commitmentReader = object({ commitmentId: text, contractRef: text, category: enumeration(COST_CATEGORIES), budgetBucket: enumeration(BUDGET_BUCKETS),
   reservationSeason: integer, amount: positive, paidBeforeSeason: integer, paidThisSeason: integer, cancelledAmount: integer });
 export const receiptReader = object({ receiptId: text, season: integer, effectiveDay: integer,
-  kind: enumeration(['REVENUE', 'COMMITMENT_PAYMENT', 'DEBT_DRAW', 'DEBT_REPAYMENT']), amount: positive,
+  kind: enumeration(['REVENUE', 'COMMITMENT_PAYMENT', 'DEBT_DRAW', 'DEBT_REPAYMENT']), amount: integer,
   category: nullable(enumeration(REVENUE_CATEGORIES)), commitmentId: nullable(text), causeEventIds: evidenceIds });
 export const financeReader = object({ openingCash: integer, openingDebt: integer, cash: integer, debt: integer, revenue: revenueReader,
   commitments: list(commitmentReader, x => x.commitmentId), receipts: list(receiptReader, x => x.receiptId) });
@@ -70,6 +70,7 @@ export function validateState(state: ClubWorldState): void {
   const paid = new Map(f.commitments.map(c => [c.commitmentId, [] as number[]]));
   let cashCursor = f.openingCash, debtCursor = f.openingDebt, previousDay = plan.startsOnDay;
   for (const r of f.receipts) {
+    if (r.kind !== 'REVENUE' && r.amount === 0) fail('STATE_INCONSISTENT', 'receipts.amount');
     if (r.effectiveDay < previousDay) fail('STATE_INCONSISTENT', 'receipts.order');
     previousDay = r.effectiveDay;
     let debtDelta = 0;
