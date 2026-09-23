@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DeterministicRng } from './DeterministicRng';
-import { SeedRoot } from './SeedRoot';
+import { SeedRoot, type CorePhase } from './SeedRoot';
 
 describe('deterministic RNG', () => {
   it('repeats the same uint32 sequence for the same seed', () => {
@@ -20,6 +20,18 @@ describe('deterministic RNG', () => {
     batting.nextUint32();
     const fieldingB = root.phaseRng(12, 'fielding');
     expect(fieldingA.nextUint32()).toBe(fieldingB.nextUint32());
+  });
+
+  it('isolates the pitch timing stream from pitch physics and contact draws', () => {
+    const root = new SeedRoot(77);
+    const phase: CorePhase = 'pitch_timing';
+    const physicsA = root.phaseRng(12, 'pitch');
+    const contactA = root.phaseRng(12, 'contact');
+    const timing = root.phaseRng(12, phase);
+    for (let index = 0; index < 100; index += 1) timing.nextUint32();
+    expect(physicsA.nextUint32()).toBe(root.phaseRng(12, 'pitch').nextUint32());
+    expect(contactA.nextUint32()).toBe(root.phaseRng(12, 'contact').nextUint32());
+    expect(root.phaseSeed(12, phase)).not.toBe(root.phaseSeed(12, 'pitch'));
   });
 
   it('separates play ids', () => {

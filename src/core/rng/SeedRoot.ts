@@ -2,6 +2,7 @@ import { DeterministicRng, fmix32, fnv1a32 } from './DeterministicRng';
 
 export type CorePhase =
   | 'pitch'
+  | 'pitch_timing'
   | 'recognition'
   | 'batting'
   | 'contact'
