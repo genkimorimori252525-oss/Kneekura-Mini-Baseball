@@ -1127,3 +1127,25 @@ Family-level原則:
 9. Red / Descriptor / Relationship Traitは各Source Stateに従って動的に変化できる。
 10. Fixed Trait count capは置かないが、Trait Density Guardと有限OpportunityでTraitまみれを防ぐ。
 11. Green transitionはhysteresisを持ち、頻繁なseason内往復をCalibration Failureとする。
+
+---
+
+## 2026-09-23 CANONICAL REFINEMENT — Release Geometry Trait Boundary
+
+Canonical source:
+- `docs/game-design/55-pitch-release-geometry-v1.md`
+
+Release GeometryそのものはNeutral Physical / Delivery Factであり、Trait labelを原因に再加算しない。
+
+- `球持ち○ / ディレイドアーム`: extension / visibility等の実状態を要約可能。
+- `クロスファイヤー`: release geometry + diagonal command techniqueの要約候補。
+- `リリース○`: pitch-type間のform / release差の小ささ。
+
+禁止:
+```text
+release geometry
+ -> Trait label
+ -> same geometry buff again
+```
+
+Arm-slot classやReleaseHeightTierから直接、打者能力低下・球威上昇・変化量上昇を発生させない。
