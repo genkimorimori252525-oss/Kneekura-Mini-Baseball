@@ -6,7 +6,7 @@ import {
   createRunnerBaseDepartureFact,
   createRunnerBaseTouchFact,
 } from '../rules/PhysicalRuleFacts';
-import { NPB_2026_RULE_PROFILE } from '../rules/RuleProfile';
+import { NPB_2026_RULE_PROFILE, type RuleProfile } from '../rules/RuleProfile';
 import {
   closeOfficialPlay,
   closeOfficialStateWindow,
@@ -23,16 +23,16 @@ const ruling = {
   basesAfter: { first: 'r1', second: null, third: null },
   scoredRunnerIds: [] as string[],
 };
-const initial = () => {
+const initial = (rules: RuleProfile = profile) => {
   let ledger = createPlayAdjudicationLedger({
-    playId: 7, ruleProfileId: profile.id,
+    playId: 7, ruleProfileId: rules.id,
     playEnd: { kind: 'play_end', tick: 500, reason: 'live_action_complete' },
   });
   ledger = recordCorrectRuleSnapshot(ledger, 0, {
     eventId: 'rule-1', tick: 501, snapshotId: 'snapshot-1', evidenceRevision: 1, ruling,
   });
   return openRuleProfileOfficialStateWindow(ledger, 1, {
-    profile, eventId: 'open', tick: 502, windowId: 'appeal', windowKind: 'appeal',
+    profile: rules, eventId: 'open', tick: 502, windowId: 'appeal', windowKind: 'appeal',
   });
 };
 const evidence = () => ({
@@ -121,6 +121,24 @@ describe('tag-up appeal attempt orchestration', () => {
     expect(closeOfficialPlay(called, 6, {
       eventId: 'close', closureId: 'closure', tick: 506,
     }).revision).toBe(7);
+  });
+
+  it('uses an alternate profile to settle same-tick appeal timing', () => {
+    for (const [sameTick, expected] of [
+      ['appeal_wins', 'out'], ['window_close_wins', 'appeal_expired'],
+    ] as const) {
+      const alternate: RuleProfile = {
+        ...profile, id: asRuleProfileId(`same-tick-${sameTick}`),
+        appeal: { ...profile.appeal, sameTickWindowCloseResolution: sameTick },
+      };
+      const closed = closeOfficialStateWindow(initial(alternate), 2, {
+        eventId: 'fence', tick: 503, windowId: 'appeal', reason: 'next_play_fence',
+      });
+      expect(orchestrateTagUpAppealAttempt(closed, 3, {
+        profile: alternate, eventId: 'attempt-1', windowId: 'appeal',
+        attempt: attempt(), complianceEvidence: evidence(),
+      }).result.kind).toBe(expected);
+    }
   });
 
   it('rejects missing or mismatched provenance before appending any event', () => {
