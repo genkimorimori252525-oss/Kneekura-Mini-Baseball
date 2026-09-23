@@ -107,42 +107,65 @@ abs(outingBias + pitchJitter) <= 50 ms
 
 を保証し、自然揺らぎ合計がユーザー承認範囲を超えない。
 
-### 5. 緩急は時間差そのものから生じる
+### 5. 緩急○ / 変幻自在は「球質Buff」ではなく、間を使って打者の予測を崩す技術
+
+このFamilyのSource of Truthは、**投球間隔を意図的に変える判断・技術と、打者の準備タイミングを崩すための効果的な瞬間を選べること**とする。
 
 禁止:
 
 ```text
-緩急○ -> 打者能力 -5
-変幻自在 -> 空振り率 +10%
+緩急○を持つ
+ -> 次のストレートのvelocity / spin / movement / rise感を物理的に強化
+
+遅い球の次にストレート
+ -> 自動でfastball quality上昇
+
+緩急○
+ -> 打者を「不意を突かれた状態」に強制
+
+緩急○
+ -> 打者能力 -5 / 空振り率 +10%
 ```
 
 採用:
 
 ```text
-actual observed cadence
+batter observed cadence history
         ↓
-batter expectation
+batter expectation / preparation
         ↓
-intentional cadence change
+pitcher reads context and chooses an effective timing change
         ↓
-cadence surprise
+intentional start-interval change
+        ↓
+batter actually observes it
+        ↓
+cadence surprise (or no surprise)
         ↓
 recognition / preparation / swing timing
         ↓
-normal contact simulation
+normal pitch + contact simulation
 ```
 
-「間がバラバラ」だけでは緩急上手と判定しない。
+重要:
 
-意図した変化・実行精度・球速差・球種sequence・打者側への実際のtiming disturbanceをEvidenceとして扱う。
+- 同じストレート入力なら、緩急○の有無で **球速・回転・変化量・release geometry・BallFlightを変えない**。
+- 打者が変化を読んでいた / 適応していた場合、緩急○でもsurpriseが小さい、ゼロ、または逆効果になり得る。
+- 「遅い球の後だから次の直球が強くなる」という結果保証はしない。
+- pitch-speed separationそのものは通常の球速差として打者timingへ因果的に効き得るが、**緩急○ / 変幻自在のTrait Sourceには含めない**。
+- 「間がバラバラ」なだけでは緩急上手と判定しない。
+- Evidenceは intent / timing choice / execution accuracy / observed cadence surprise / batter adaptation を分離して保持する。
 
 ### 6. 既存Traitとの責任境界
 
 - **クイック A〜G / 走者釘付**
-  - set-position motion-to-release time と repeatability のProjection。
+  - set-position motion-to-release speed factor と repeatability のProjection。
   - Trait labelから時間を速くしない。
+  - underlying quick techniqueは通常フォーム時間に対する連続倍率で表し、表示Gradeはそこから投影する。
+  - G側は最大で通常より **1.8倍遅い duration**、A側は最大で **1.8倍速い motion**、Gold「走者釘付」は最大 **2.5倍速い motion** を上限とする。
 - **緩急○ / 変幻自在**
-  - pitch-speed separation + sequencing + cadence manipulation Evidence のProjection。
+  - intentional cadence manipulation / effective timing choice / batter timing-disturbance Evidence のProjection。
+  - pitch-speed separationはこのTraitのSourceにしない。
   - 単なるrandom varianceでは成立させない。
 - **球速安定**
   - pitch velocity variance / reproducibility。投球間隔とは別。
@@ -204,10 +227,11 @@ Presentationは timeline を読むだけで、Core timingを決めない。
 type PitchTimingProfile = Readonly<{
   baseStartIntervalUs: number;
   normalMotionToReleaseUs: number;
-  quickMotionToReleaseUs: number;
   followThroughUs: number;
 
+  quickSpeedFactor: number;
   cadenceExecutionControl: number; // 0..1
+  cadenceTimingKnowledge: number;  // 0..1
   quickRepeatability: number;      // 0..1
 
   normalPhaseWeights: PitchMotionPhaseWeights;
@@ -217,7 +241,34 @@ type PitchTimingProfile = Readonly<{
 
 時間値は整数microseconds。
 
-能力値は直接成功率ではなく、目標時間からの execution error 幅 / 再現性へ作用する。
+`quickSpeedFactor` は表示TraitではなくUnderlying Source Stateであり、QUICK時の基準時間を:
+
+```text
+quickTargetDurationUs = normalMotionToReleaseUs / quickSpeedFactor
+```
+
+として導出する。
+
+境界:
+
+```text
+G-side slow endpoint:
+  duration <= normal × 1.8
+  speedFactor >= 1 / 1.8
+
+neutral region:
+  speedFactor ≈ 1.0
+
+A-side fast endpoint:
+  speedFactor <= 1.8
+
+Gold / 走者釘付:
+  speedFactor <= 2.5
+```
+
+B〜F等の中間Gradeを直接倍率へ変換するのではなく、連続的なSource StateをGradeへ投影する。これにより `クイックAだから1.8倍` ではなく、実際のquick techniqueが高いためAとして表示される。
+
+能力値は直接成功率ではなく、目標時間・timing choice・execution error幅 / 再現性へ作用する。
 
 ## PitchTimingIntent
 
@@ -394,25 +445,49 @@ Acceptance:
 - `src/core/sim/pitch/PitchMotionTimeline.ts`
 - `src/core/sim/pitch/PitchMotionTimeline.test.ts`
 
-ResolverはdeliveryModeに応じて基準値を選択する。
+ResolverはdeliveryModeに応じて基準時間を決める。
 
 ```text
-NORMAL -> normalMotionToReleaseUs
-QUICK  -> quickMotionToReleaseUs
+NORMAL
+  -> normalMotionToReleaseUs
+
+QUICK
+  -> normalMotionToReleaseUs / quickSpeedFactor
+  -> add natural deviation within ±50 ms
 ```
 
-実行誤差は repeatability / control から導くが、最大自然偏差は既存±50ms boundary内へ収める。
+QUICKにもTask 3で定義した自然揺らぎをそのまま使用する。QUICK専用の別random幅を作らない。
+
+Source-state boundary:
+
+```text
+G extreme:
+  max duration = NORMAL × 1.8
+
+A extreme:
+  min duration = NORMAL / 1.8
+
+Gold / 走者釘付 extreme:
+  min duration = NORMAL / 2.5
+```
+
+中間のB〜Fはcontinuous quick source stateの途中をGrade Projectionする。Grade文字をresolverへ入力しない。
 
 重要:
 
 - QUICK Trait labelを入力しない
-- 実際のquick timeがSource of Truth
+- 実際のquick source state / actual durationがSource of Truth
 - runnerがいるだけで自動QUICKにはしない
 - QUICKを選択するのはDecision layer
+- QUICKは投球始動間隔を短くする能力ではない
+- DELIBERATE cadenceとQUICKは同時成立可能
 
 Acceptance:
 
-- QUICKが通常より速いprofileならrelease時刻も早くなる
+- G extremeでNORMALの最大1.8倍までmotion-to-releaseが遅くなり得る
+- A extremeでNORMALの最大1.8倍までmotion-to-releaseが速くなり得る
+- Gold extremeでNORMALの最大2.5倍までmotion-to-releaseが速くなり得る
+- QUICK自然揺らぎは±50ms以内
 - 同じprofileでdeliveryModeだけ変えた比較が可能
 - QUICKがstart intervalを勝手に短縮しない
 - long hold + quick deliveryが再現できる
@@ -437,10 +512,13 @@ NORMAL / QUICK は別々のphase weightを持つ。
 
 原則:
 
-- QUICKでは主にrelease前の初期phaseを短縮できる
-- release markerは `motionStart + motionToRelease` と厳密一致
-- follow-through短縮を盗塁時間へ加算しない
-- markerはPresentation frameではない
+- Core markerはPresentation frameそのものではない。
+- **4コマ投球フォームへ接続する際、時間変化を許可する表示コマは2～4コマ目だけ**とする。
+- 1コマ目の表示時間をQUICK / cadence補正で伸縮させない。
+- motion-to-releaseの時間差はPresentation adapterが2～4コマ目の滞在 / 遷移時間へ配分する。
+- QUICKでは主にrelease前のphaseを短縮する。
+- release markerは `motionStart + motionToRelease` と厳密一致。
+- follow-through短縮を盗塁時間へ加算しない。
 
 Acceptance:
 
@@ -557,12 +635,14 @@ type PitchSequencingEvidence = Readonly<{
 
 目的:
 
-`緩急○ / 変幻自在` の将来Projectionへ、以下を同じEvidenceから渡せるようにする。
+`緩急○ / 変幻自在` の将来Projectionへ、以下をEvidenceとして渡せるようにする。
 
-- speed separation
-- pitch-family sequencing
-- cadence manipulation
-- execution reproducibility
+- intentional cadence manipulation
+- effective timing choice
+- cadence execution reproducibility
+- batter's actually observed cadence surprise / adaptation
+
+**pitch-speed separation / pitch familyそのものは緩急TraitのSourceから外す。** 球速差・球種差は通常のPitch Physics / batter recognitionで独立して効く。
 
 禁止:
 
@@ -636,15 +716,23 @@ Player Trait systemへ以下のread-only projection sourceを公開する。
 
 ただし表示Traitはsimulationへ戻さない。
 
-### Pace / sequencing family
+### Cadence manipulation family
 
 入力候補:
 
-- pitch-speed separation
-- sequencing evidence
 - intentional cadence manipulation
-- execution quality
-- opponent timing disturbance evidence
+- effective timing-choice quality
+- cadence execution accuracy / reproducibility
+- opponent's actually observed timing disturbance
+- repeated-use adaptation evidence
+
+明示的に入力しないもの:
+
+- fastball velocity
+- pitch spin / movement
+- 「遅い球の次に直球を投げた」という事実だけ
+- pitch-speed separationだけ
+- batterへ強制した surprise flag
 
 出力:
 
@@ -671,12 +759,15 @@ Presentationは:
 ```text
 actual timeline
       ↓
-2～4コマ目の表示滞在時間を調整
+frame 1 = timing補正対象外
+frames 2–4 = 表示滞在 / 遷移速度だけ調整
       ↓
 4コマ投球フォーム
 ```
 
 とする。
+
+**可変対象は必ず2～4コマ目のみ。** 1コマ目をQUICKや緩急の速度合わせに使わない。
 
 重要:
 
@@ -728,15 +819,31 @@ actual timeline
    - cadence varianceが大きくてもsequencing mastery扱いしない。
 
 7. **Rhythm artist**
-   - intentional cadence changes + actual timing surpriseをEvidenceとして残せる。
+   - intentional cadence changes + effective choice + actual timing surpriseをEvidenceとして残せる。
 
-8. **Batter adaptation**
+8. **Batter anticipation**
+   - 打者がタイミング変更を読んでいる場合、緩急○でもsurpriseを強制生成しない。
+   - 「次はストレート」と待っている打者へ、Traitを理由にfastball qualityを強化しない。
+
+9. **Batter adaptation**
    - 同じ変化を繰り返すとobserved baseline側が更新され、同じ手が永久に効き続けない。
 
-9. **Presentation isolation**
-   - rendererを削除してもtimelineが同一。
+10. **No fireball mutation**
+    - 同一のPitch Physics入力なら、緩急Trait / cadence skillの有無でvelocity・spin・movement・BallFlightが完全一致する。
 
-10. **RNG isolation**
+11. **Quick grade endpoints**
+    - G extreme = duration最大NORMAL×1.8。
+    - A extreme = duration最小NORMAL/1.8。
+    - Gold extreme = duration最小NORMAL/2.5。
+    - いずれも自然揺らぎは±50ms以内。
+
+12. **Frame 2–4 only**
+    - 4-frame Presentation adapterではframe 1 durationを変更せず、2～4だけがtimeline差を吸収する。
+
+13. **Presentation isolation**
+    - rendererを削除してもtimelineが同一。
+
+14. **RNG isolation**
     - pitch timing draws追加でcontact / fielding RNGが変わらない。
 
 ---
@@ -769,8 +876,13 @@ actual timeline
 - long hold + quickが可能
 - actual release latencyを走者系へ渡せる
 - observed cadenceからsurpriseを算出できる
-- 緩急TraitへEvidenceを渡せるがTraitから結果を作らない
+- 緩急Traitは「意図的な間の操作 / 効果的timing choice」の技能としてEvidenceを受ける
+- 緩急Trait / cadence skillは球速・spin・movement・BallFlightを一切変更しない
+- 打者のsurpriseを強制せず、予測 / 適応次第で効果ゼロにもなれる
+- QUICK sourceはG extreme NORMAL×1.8 ～ A extreme NORMAL/1.8、Gold extreme NORMAL/2.5の範囲を扱える
+- QUICKの自然揺らぎは既存±50msを共用する
 - Motion phase markersがCoreから出る
+- 4コマPresentationで速度変更するのは2～4コマ目だけ
 - Presentationはobserverのまま
 - UI / camera / sprite implementationは未接続
 - same seed / same inputで完全再現
