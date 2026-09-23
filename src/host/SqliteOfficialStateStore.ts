@@ -14,8 +14,13 @@ import {
   type NonLiveOfficialContext,
 } from '../core/adjudication/NonLiveOfficialApplication';
 import { cloneInert } from '../core/adjudication/OfficialWindowPolicy';
+import {
+  prepareBetweenPlayWorld,
+  type BetweenPlayWorldSetup,
+} from '../core/adjudication/BetweenPlayWorldReset';
 import { deriveClosedLiveBallMatchState, type PlayAdjudicationLedger } from '../core/adjudication/PlayAdjudicationLedger';
 import type { CanonicalMatchState } from '../core/model/CanonicalMatchState';
+import type { CanonicalWorldSnapshot } from '../core/model/CanonicalWorldSnapshot';
 import type { CanonicalPlateAppearanceTimeline } from '../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 
 const DatabaseSync = (createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite')).DatabaseSync;
@@ -27,6 +32,7 @@ type CommonApplication = Readonly<{
   match: CanonicalMatchState;
   adjudication: PlayAdjudicationLedger;
   nextStartedAtTick: number;
+  worldSetup: BetweenPlayWorldSetup;
 }>;
 
 export type PersistOfficialPlayInput =
@@ -43,12 +49,14 @@ export type PersistOfficialPlayInput =
 export type PersistOfficialPlayResult = Readonly<{
   receipt: OfficialStateApplicationReceipt;
   activation: NextLiveBallPlayActivation;
+  nextWorld: CanonicalWorldSnapshot;
 }>;
 
 export type PersistedMatch = Readonly<{
   durableRevision: number;
   matchState: CanonicalMatchState;
   activation: NextLiveBallPlayActivation | null;
+  nextWorld: CanonicalWorldSnapshot | null;
 }>;
 
 type MatchRow = { durable_revision: number; state_json: string; activation_json: string | null };
@@ -113,7 +121,8 @@ const prepareApplication = (
       match: input.match, physicalTimeline: input.physicalTimeline, adjudication: input.adjudication,
       application: receipt, nextStartedAtTick: input.nextStartedAtTick,
     });
-    return Object.freeze({ receipt, activation });
+    const nextWorld = prepareBetweenPlayWorld(activation.nextMatchState, input.nextStartedAtTick, input.worldSetup);
+    return Object.freeze({ receipt, activation, nextWorld });
   }
   if (input.kind === 'non_live') {
     const shared = {
@@ -126,7 +135,8 @@ const prepareApplication = (
     const activation = activateNextNonLivePlateAppearance({
       ...shared, application: receipt, nextStartedAtTick: input.nextStartedAtTick,
     });
-    return Object.freeze({ receipt, activation });
+    const nextWorld = prepareBetweenPlayWorld(activation.nextMatchState, input.nextStartedAtTick, input.worldSetup);
+    return Object.freeze({ receipt, activation, nextWorld });
   }
   throw new Error('unknown official play kind');
 };
@@ -172,11 +182,17 @@ export class SqliteOfficialStateStore {
       SELECT durable_revision, state_json, activation_json FROM matches WHERE match_id=?
     `).get(id) as MatchRow | undefined;
     if (row === undefined) return null;
+    const storedActivation = row.activation_json === null
+      ? null : cloneInert(JSON.parse(row.activation_json) as
+        | NextLiveBallPlayActivation
+        | { activation: NextLiveBallPlayActivation; nextWorld: CanonicalWorldSnapshot });
     return Object.freeze({
       durableRevision: revision(row.durable_revision, 'stored durable revision'),
       matchState: validateMatchState(cloneInert(JSON.parse(row.state_json) as CanonicalMatchState)),
-      activation: row.activation_json === null
-        ? null : cloneInert(JSON.parse(row.activation_json) as NextLiveBallPlayActivation),
+      activation: storedActivation === null ? null
+        : 'activation' in storedActivation ? storedActivation.activation : storedActivation,
+      nextWorld: storedActivation === null || !('activation' in storedActivation)
+        ? null : storedActivation.nextWorld,
     });
   }
 
@@ -197,7 +213,7 @@ export class SqliteOfficialStateStore {
         INSERT INTO matches(match_id, durable_revision, state_json, activation_json) VALUES (?, 0, ?, NULL)
       `).run(id, serialized(match));
       this.database.exec('COMMIT');
-      return Object.freeze({ durableRevision: 0, matchState: match, activation: null });
+      return Object.freeze({ durableRevision: 0, matchState: match, activation: null, nextWorld: null });
     } catch (error) {
       this.rollback();
       throw error;
@@ -239,7 +255,7 @@ export class SqliteOfficialStateStore {
         UPDATE matches SET durable_revision=?, state_json=?, activation_json=?
         WHERE match_id=? AND durable_revision=?
       `).run(nextRevision, serialized(result.activation.nextMatchState),
-        serialized(result.activation), request.matchId, expected);
+        serialized({ activation: result.activation, nextWorld: result.nextWorld }), request.matchId, expected);
       if (updated.changes !== 1) throw new Error('stale durable MatchState revision');
       this.database.prepare(`
         INSERT INTO applications(application_id, match_id, closure_id, request_hash, result_json)
