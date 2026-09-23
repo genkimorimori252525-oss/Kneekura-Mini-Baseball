@@ -2012,3 +2012,26 @@ It also permits dominant Complete Superstars with historic true ability + produc
 
 Canonical commit:
 - `3097c562cda3bc67caf0a4bdebc956a86f900d4f`
+
+---
+
+# 50. APPROVED — Pitch Timing / Cadence / Quick Delivery Implementation Direction
+
+2026-09-23 user approved the causal pitch-timing direction and requested an implementation plan.
+
+Implementation plan:
+- `docs/superpowers/plans/2026-09-23-pitch-timing-cadence-quick-delivery.md`
+
+Frozen direction for implementation:
+- pre-pitch start interval and motion-to-release are separate canonical values.
+- NORMAL / QUICK delivery and STANDARD / DELIBERATE cadence are separate axes.
+- long hold + quick delivery is valid.
+- natural per-pitch timing deviation is bounded to ±50 ms total.
+- DELIBERATE adds a separate +100–400 ms hold component.
+- QUICK / 走者釘付 is projected from actual set-position motion-to-release and repeatability; Trait labels never speed the motion directly.
+- 緩急○ / 変幻自在 now includes intentional cadence manipulation in addition to pitch-speed separation and pitch-family sequencing.
+- random timing variance alone never qualifies as sequencing mastery.
+- batter-side cadence effect must route through observed timing expectation / surprise and then normal recognition / swing timing; no direct batting debuff.
+- runner / steal systems consume actual release latency, never a direct `クイックA -> steal penalty` modifier.
+- Core emits motion phase markers; Presentation only observes them and may map them to 2–4 frame sprite timing.
+- no UI / camera / sprite implementation is part of this Core plan.
