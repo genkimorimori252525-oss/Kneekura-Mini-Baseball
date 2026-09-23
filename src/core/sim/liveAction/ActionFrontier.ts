@@ -73,6 +73,7 @@ export type PlayEndBlocker =
   | Readonly<{ kind: 'pending_decision'; workId: string }>
   | Readonly<{ kind: 'pending_rule_window'; workId: string }>
   | Readonly<{ kind: 'actor_not_settled'; actorId: string }>
+  | Readonly<{ kind: 'pending_source'; sourceId: string }>
   | Readonly<{ kind: 'event_queue_unsettled'; settledThroughTick: number; requiredThroughTick: number }>;
 
 export type PlayEndResolution =
