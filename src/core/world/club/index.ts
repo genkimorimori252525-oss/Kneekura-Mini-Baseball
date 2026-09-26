@@ -9,6 +9,7 @@ export { getClubFinanceSummary } from './ClubFinance';
 export { evaluateClubPayrollPrecheck } from './ClubPayrollPrecheck';
 export type { ClubPayrollPrecheck, PlayerWageSeasonAllocation } from './ClubPayrollPrecheck';
 export { createClubWageScheduleLedger, appendClubWageSchedule,
+  appendClubWageScheduleAmendment,
   getClubSeasonWageAllocations } from './ClubWageScheduleLedger';
 export type { ClubWageSchedule, ClubWageScheduleInput,
   ClubWageScheduleLedger } from './ClubWageScheduleLedger';
