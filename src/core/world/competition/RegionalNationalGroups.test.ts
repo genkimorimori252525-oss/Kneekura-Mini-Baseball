@@ -7,6 +7,11 @@ import { finalizeRegionalNationalGroups,
   type RegionalNationalEdition,
   type RegionalNationalGroupGame }
   from './RegionalNationalGroups';
+import { finalizeRegionalNationalKnockout,
+  planRegionalNationalFinal, planRegionalNationalKnockout,
+  planRegionalNationalSemifinals,
+  type RegionalNationalKnockoutEdition }
+  from './RegionalNationalKnockout';
 
 const edition = (region: ClubWorldRegion,
   groupCount: 2 | 3 | 4): RegionalNationalEdition => ({
@@ -39,7 +44,8 @@ const authority = {
   nationCompetitionRegion: (nationId: string) =>
     nationId.split('-')[0] as ClubWorldRegion,
 };
-const result = (game: RegionalNationalGroupGame,
+const result = (game: Pick<RegionalNationalGroupGame,
+  'gameId' | 'homeNationId' | 'awayNationId' | 'venueId'>,
   index: number, editionId: string): OfficialGameResult => ({
   gameId: game.gameId, seasonId: editionId,
   homeClubId: game.homeNationId,
@@ -60,6 +66,72 @@ const result = (game: RegionalNationalGroupGame,
     homeRuns: 2, awayRuns: 1 }], totals: {
     home: { runs: 2, hits: 0, errors: 0 },
     away: { runs: 1, hits: 0, errors: 0 } } },
+});
+
+it('finishes regional national knockouts and ranks every entrant for WBC berths', () => {
+  for (const [region, groupCount] of [
+    ['ASIA_PACIFIC', 4], ['AFRICA', 3],
+    ['EUROPE', 2],
+  ] as const) {
+    const groupEdition = edition(region, groupCount);
+    const groupPlan = planRegionalNationalGroups(groupEdition, authority);
+    const groupResults = groupPlan.groups.flatMap((group) => group.games)
+      .map((game, index) => result(game, index, groupEdition.editionId));
+    const knockoutEdition: RegionalNationalKnockoutEdition = {
+      competitionId: groupEdition.competitionId,
+      editionId: groupEdition.editionId,
+      region, formatVersion: groupEdition.formatVersion,
+      ruleProfileVersion: groupEdition.ruleProfileVersion,
+      gamePolicyVersion: groupEdition.gamePolicyVersion,
+      qualificationSnapshotId: groupEdition.qualificationSnapshotId,
+      groupDrawSnapshotId: groupEdition.drawSnapshotId,
+      knockoutPolicyVersion: 'regional-national-knockout-v1',
+      openingPairs: groupCount === 2
+        ? [[0, 3], [1, 2]]
+        : [[0, 7], [1, 6], [2, 5], [3, 4]],
+      openingVenueIds: Array.from({ length: groupCount === 2 ? 2 : 4 },
+        (_, index) => `knockout-venue-${index}`),
+      semifinalVenueIds: ['semi-venue-0', 'semi-venue-1'],
+      finalVenueId: 'final-venue',
+      placementPolicy: { version: 'regional-placement-v1',
+        criteria: ['GROUP_WINS', 'GROUP_RUN_DIFFERENTIAL',
+          'GROUP_RUNS_AGAINST'], drawSeed: `placement-${region}` },
+    };
+    const source = { groupEdition, groupPlan, groupResults,
+      authority, knockoutEdition };
+    const plan = planRegionalNationalKnockout(source);
+    const quarterfinalResults = groupCount === 2 ? []
+      : plan.openingGames.map((game, index) => result(game,
+        groupResults.length + index, groupEdition.editionId));
+    const semifinalGames = groupCount === 2
+      ? plan.openingGames
+      : planRegionalNationalSemifinals(plan, quarterfinalResults, source);
+    const semifinalResults = semifinalGames.map((game, index) => result(game,
+      groupResults.length + quarterfinalResults.length + index,
+      groupEdition.editionId));
+    const finalGame = planRegionalNationalFinal(plan, quarterfinalResults,
+      semifinalResults, source);
+    const finalResult = result(finalGame,
+      groupResults.length + quarterfinalResults.length
+        + semifinalResults.length, groupEdition.editionId);
+    const complete = finalizeRegionalNationalKnockout(plan,
+      quarterfinalResults, semifinalResults, finalResult, source);
+    expect(complete.championNationId).toBe(finalGame.homeNationId);
+    expect(complete.placement.region).toBe(region);
+    expect(complete.placement.orderedNationIds)
+      .toHaveLength(groupCount * 4);
+    expect(new Set(complete.placement.orderedNationIds).size)
+      .toBe(groupCount * 4);
+    expect(complete.placement.orderedNationIds[0])
+      .toBe(complete.championNationId);
+    expect(complete.resultApplicationIds).toHaveLength(
+      groupResults.length + quarterfinalResults.length
+        + semifinalResults.length + 1);
+    expect(() => finalizeRegionalNationalKnockout(plan,
+      quarterfinalResults, semifinalResults,
+      { ...finalResult, winnerClubId: finalGame.awayNationId },
+      source)).toThrow('contradicts');
+  }
 });
 
 it('advances official 16, 12 and 8-nation regional formats', () => {
