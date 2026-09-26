@@ -85,6 +85,22 @@ export type WbcBerthAllocation = Readonly<{
   entrantNationIds: readonly string[];
   slots: readonly WbcBerthSlot[];
 }>;
+export type WbcDirectBerths = Readonly<{
+  editionId: string;
+  qualifierEditionId: string;
+  cycleId: string;
+  policyVersion: string;
+  cutoffSnapshotId: string;
+  cutoffDay: number;
+  directSnapshotId: string;
+  previousWorldEditionIds: readonly string[];
+  directBerthsByRegion: Readonly<Record<ClubWorldRegion, number>>;
+  coefficientSources: WbcBerthAllocation['coefficientSources'];
+  regionalPlacementSources: WbcBerthAllocation['regionalPlacementSources'];
+  placements: readonly WbcRegionalPlacement[];
+  entrantNationIds: readonly string[];
+  slots: readonly WbcBerthSlot[];
+}>;
 
 const id = (value: unknown): value is string =>
   typeof value === 'string' && value.length > 0;
@@ -125,11 +141,11 @@ export const registerWbcBerthPolicy = (
   return Object.freeze({ policies: Object.freeze([...policies, policy]) });
 };
 
-/** Twenty regional direct berths plus four official Global Qualifier winners. */
-export const allocateWbcBerths = (
+/** Resolves the twenty direct berths before Global Qualifier entrants are drawn. */
+export const planWbcDirectBerths = (
   input: WbcBerthInput,
-  authority: WbcBerthAuthority,
-): WbcBerthAllocation => {
+  authority: Omit<WbcBerthAuthority, 'qualifierPodWinner'>,
+): WbcDirectBerths => {
   const policy = snapshotPolicy(input?.policy);
   if (!Array.isArray(input.policyRegistry?.policies)) {
     throw new Error('WBC berth policy registry is required');
@@ -158,7 +174,6 @@ export const allocateWbcBerths = (
     || typeof authority?.editionCutoff !== 'function'
     || typeof authority.regionalCoefficient !== 'function'
     || typeof authority.regionalChampionship !== 'function'
-    || typeof authority.qualifierPodWinner !== 'function'
     || typeof authority.nationCompetitionRegion !== 'function') {
     throw new Error('invalid official WBC qualification source');
   }
@@ -167,7 +182,6 @@ export const allocateWbcBerths = (
     || !day(cutoff.day)) {
     throw new Error('WBC qualification cutoff must match its edition');
   }
-  const coefficientEvidence = new Set<string>();
   const coefficientSnapshots = new Set<string>();
   const placementSnapshots = new Set<string>();
   const allPlacedNations = new Set<string>();
@@ -206,8 +220,6 @@ export const allocateWbcBerths = (
       throw new Error('WBC regional results require official two-edition evidence');
     }
     coefficientSnapshots.add(coefficient.snapshotId);
-    coefficient.evidenceResultIds.forEach((resultId) =>
-      coefficientEvidence.add(resultId));
     placementSnapshots.add(placement.snapshotId);
     for (const nationId of placement.orderedNationIds) {
       if (authority.nationCompetitionRegion(nationId, cutoff.day)
@@ -256,31 +268,14 @@ export const allocateWbcBerths = (
       add('REGIONAL_PERFORMANCE', nationId, region,
         placement.snapshotId));
   }
-  const qualifierFinals = new Set<string>();
-  for (let podIndex = 0; podIndex < 4; podIndex += 1) {
-    const winner = authority.qualifierPodWinner(podIndex, cutoff.day);
-    if (!winner || winner.podIndex !== podIndex
-      || winner.qualifierEditionId !== input.qualifierEditionId
-      || !id(winner.nationId) || !REGIONS.includes(winner.region)
-      || authority.nationCompetitionRegion(winner.nationId,
-        cutoff.day) !== winner.region
-      || !id(winner.officialFinalApplicationId)
-      || qualifierFinals.has(winner.officialFinalApplicationId)
-      || coefficientEvidence.has(winner.officialFinalApplicationId)
-      || !day(winner.finalizedDay) || winner.finalizedDay > cutoff.day) {
-      throw new Error('four official Global Qualifier pod winners required');
-    }
-    qualifierFinals.add(winner.officialFinalApplicationId);
-    add('GLOBAL_QUALIFIER', winner.nationId, winner.region,
-      winner.officialFinalApplicationId);
-  }
-  if (slots.length !== 24 || selected.size !== 24) {
-    throw new Error('WBC finals require twenty-four unique nations');
+  if (slots.length !== 20 || selected.size !== 20) {
+    throw new Error('WBC direct qualification requires twenty nations');
   }
   return Object.freeze({ editionId: input.editionId,
+    qualifierEditionId: input.qualifierEditionId,
     cycleId: input.cycleId, policyVersion: policy.version,
-    cutoffSnapshotId: cutoff.snapshotId,
-    qualificationSnapshotId: JSON.stringify(['wbc-berths',
+    cutoffSnapshotId: cutoff.snapshotId, cutoffDay: cutoff.day,
+    directSnapshotId: JSON.stringify(['wbc-direct-berths',
       input.editionId, input.cycleId, policy.version, cutoff.snapshotId,
       ...coefficients.map((item) => item.snapshotId),
       ...placements.map((item) => item.snapshotId),
@@ -293,6 +288,66 @@ export const allocateWbcBerths = (
     regionalPlacementSources: Object.freeze(placements.map((item) =>
       Object.freeze({ region: item.region, editionId: item.editionId,
         snapshotId: item.snapshotId }))),
+    placements: Object.freeze(placements.map((item) =>
+      Object.freeze({ ...item,
+        orderedNationIds: Object.freeze([...item.orderedNationIds]) }))),
+    entrantNationIds: Object.freeze(slots.map((slot) => slot.nationId)),
+    slots: Object.freeze(slots) });
+};
+
+/** Adds four official Global Qualifier winners to the direct-berth snapshot. */
+export const allocateWbcBerths = (
+  input: WbcBerthInput,
+  authority: WbcBerthAuthority,
+): WbcBerthAllocation => {
+  if (typeof authority?.qualifierPodWinner !== 'function') {
+    throw new Error('four official Global Qualifier pod winners required');
+  }
+  const direct = planWbcDirectBerths(input, authority);
+  const coefficientEvidence = new Set(direct.coefficientSources.flatMap(
+    (item) => item.evidenceResultIds));
+  const selected = new Set(direct.entrantNationIds);
+  const slots: WbcBerthSlot[] = [...direct.slots];
+  const qualifierFinals = new Set<string>();
+  for (let podIndex = 0; podIndex < 4; podIndex += 1) {
+    const winner = authority.qualifierPodWinner(podIndex,
+      direct.cutoffDay);
+    if (!winner || winner.podIndex !== podIndex
+      || winner.qualifierEditionId !== input.qualifierEditionId
+      || !id(winner.nationId) || !REGIONS.includes(winner.region)
+      || authority.nationCompetitionRegion(winner.nationId,
+        direct.cutoffDay) !== winner.region
+      || !id(winner.officialFinalApplicationId)
+      || qualifierFinals.has(winner.officialFinalApplicationId)
+      || coefficientEvidence.has(winner.officialFinalApplicationId)
+      || !day(winner.finalizedDay)
+      || winner.finalizedDay > direct.cutoffDay) {
+      throw new Error('four official Global Qualifier pod winners required');
+    }
+    if (selected.has(winner.nationId)) {
+      throw new Error('duplicate WBC entrant');
+    }
+    qualifierFinals.add(winner.officialFinalApplicationId);
+    selected.add(winner.nationId);
+    slots.push(Object.freeze({ index: slots.length,
+      route: 'GLOBAL_QUALIFIER', nationId: winner.nationId,
+      region: winner.region,
+      sourceId: winner.officialFinalApplicationId }));
+  }
+  if (slots.length !== 24 || selected.size !== 24) {
+    throw new Error('WBC finals require twenty-four unique nations');
+  }
+  return Object.freeze({ editionId: direct.editionId,
+    cycleId: direct.cycleId, policyVersion: direct.policyVersion,
+    cutoffSnapshotId: direct.cutoffSnapshotId,
+    qualificationSnapshotId: JSON.stringify(['wbc-berths',
+      direct.directSnapshotId,
+      ...slots.slice(20).map((slot) =>
+        [slot.nationId, slot.region, slot.sourceId])]),
+    previousWorldEditionIds: direct.previousWorldEditionIds,
+    directBerthsByRegion: direct.directBerthsByRegion,
+    coefficientSources: direct.coefficientSources,
+    regionalPlacementSources: direct.regionalPlacementSources,
     entrantNationIds: Object.freeze(slots.map((slot) => slot.nationId)),
     slots: Object.freeze(slots) });
 };
