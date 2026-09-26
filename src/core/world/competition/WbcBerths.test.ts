@@ -12,6 +12,11 @@ import { finalizeWbcKnockout, planWbcFinal,
   planWbcKnockout, planWbcQuarterfinals, planWbcSemifinals,
   type WbcKnockoutEdition, type WbcKnockoutGame }
   from './WbcFinalsKnockout';
+import { buildWbcRegionalCoefficients,
+  deriveOfficialWbcWorldEdition,
+  EMPTY_WBC_REGIONAL_COEFFICIENT_POLICY_REGISTRY,
+  registerWbcRegionalCoefficientPolicy }
+  from './WbcRegionalCoefficients';
 
 const regions: readonly ClubWorldRegion[] = [
   'ASIA_PACIFIC', 'AMERICAS', 'EUROPE', 'AFRICA'];
@@ -83,6 +88,16 @@ it('fills 16 floor, four performance and four qualifier WBC berths', () => {
   expect(revisedSource.entrantNationIds).toEqual(result.entrantNationIds);
   expect(revisedSource.qualificationSnapshotId)
     .not.toBe(result.qualificationSnapshotId);
+  const sharedMatch = allocateWbcBerths(input, {
+    ...authority, regionalCoefficient: (region, day) => ({
+      ...authority.regionalCoefficient(region, day)!,
+      evidenceResultIds: region === 'AFRICA'
+        ? ['wbc-result-ASIA_PACIFIC-2024',
+          'wbc-result-AFRICA-2028']
+        : authority.regionalCoefficient(region, day)!.evidenceResultIds,
+    }),
+  });
+  expect(sharedMatch.entrantNationIds).toEqual(result.entrantNationIds);
 });
 
 it('rejects future, duplicate and foreign official qualification evidence', () => {
@@ -233,6 +248,55 @@ it('binds 24 allocated WBC nations to six US pools and 36 official games', () =>
   expect(champion.championNationId).toBe(finalResult.winnerClubId);
   expect(champion.resultApplicationIds).toHaveLength(15);
   expect(champion.finalGame.venueId).toBe('us-final-venue');
+  const officialEdition = deriveOfficialWbcWorldEdition(source,
+    roundOf16Results, quarterfinalResults, semifinalResults,
+    finalResult, nationRegion);
+  expect(officialEdition.games).toHaveLength(51);
+  const olderEdition = { ...officialEdition,
+    editionId: 'wbc-2028', snapshotId: 'official-wbc-2028',
+    completedAtDay: 90,
+    games: officialEdition.games.map((game) => ({ ...game,
+      applicationId: `${game.applicationId}-2028` })) };
+  const coefficientPolicy = { version: 'wbc-two-editions-v1',
+    olderEditionMultiplier: 1, newerEditionMultiplier: 2,
+    bestNationsPerRegion: 2,
+    winPoints: { GROUP: 1, ROUND_OF_16: 2,
+      QUARTERFINAL: 3, SEMIFINAL: 4, FINAL: 5 } };
+  const coefficientRegistry = registerWbcRegionalCoefficientPolicy(
+    EMPTY_WBC_REGIONAL_COEFFICIENT_POLICY_REGISTRY,
+    coefficientPolicy);
+  const coefficients = buildWbcRegionalCoefficients(olderEdition,
+    officialEdition, coefficientPolicy, coefficientRegistry);
+  expect(coefficients).toHaveLength(4);
+  expect(coefficients.every((item) =>
+    item.evidenceResultIds.length > 0 && item.score >= 0)).toBe(true);
+  expect(coefficients[0].previousWorldEditionIds)
+    .toEqual(['wbc-2028', 'wbc-2032']);
+  const nextBerths = allocateWbcBerths({ ...input,
+    editionId: 'wbc-2036',
+    previousWorldEditionIds: ['wbc-2028', 'wbc-2032'],
+    coefficientPolicyVersion: coefficientPolicy.version }, {
+    ...authority,
+    editionCutoff: () => ({ snapshotId: input.cutoffSnapshotId,
+      day: 200 }),
+    regionalCoefficient: (region) =>
+      coefficients.find((item) => item.region === region) ?? null,
+    qualifierPodWinner: (podIndex) => ({
+      podIndex, qualifierEditionId: input.qualifierEditionId,
+      nationId: `${regions[podIndex]}-7`,
+      region: regions[podIndex],
+      officialFinalApplicationId: `next-qualifier-${podIndex}`,
+      finalizedDay: 180 }),
+  });
+  expect(nextBerths.slots).toHaveLength(24);
+  expect(nextBerths.coefficientSources.map((item) => item.snapshotId))
+    .toEqual(coefficients.map((item) => item.snapshotId));
+  expect(() => buildWbcRegionalCoefficients(officialEdition,
+    officialEdition, coefficientPolicy, coefficientRegistry))
+    .toThrow('two-edition');
+  expect(() => registerWbcRegionalCoefficientPolicy(
+    coefficientRegistry, { ...coefficientPolicy,
+      newerEditionMultiplier: 3 })).toThrow('conflict');
   expect(() => finalizeWbcKnockout(knockoutPlan,
     roundOf16Results, quarterfinalResults, semifinalResults,
     { ...finalResult, applicationId: results[0].applicationId },
