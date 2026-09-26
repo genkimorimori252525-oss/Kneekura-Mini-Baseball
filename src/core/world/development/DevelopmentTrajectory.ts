@@ -1,3 +1,5 @@
+import { createDevelopmentRandom, UINT32_RANGE } from './DevelopmentRandom';
+
 /** Hidden person-generation priors. These do not add to ability or unlock traits. */
 export const MATURITY_TIMINGS = [
   'VERY_EARLY', 'EARLY', 'NORMAL', 'LATE', 'VERY_LATE',
@@ -44,7 +46,6 @@ export type DevelopmentTrajectoryProfile = Readonly<{
   }>;
 }>;
 
-const UINT32_RANGE = 0x1_0000_0000;
 const id = (value: unknown): value is string =>
   typeof value === 'string' && value.length > 0
     && value === value.trim();
@@ -88,15 +89,6 @@ const ranges = (value: unknown): DevelopmentTrajectoryPolicy['domainOffsetRanges
   })) as Record<DevelopmentDomain, Readonly<{ min: number; max: number }>>);
 };
 
-const mixedSeed = (seed: number): number => {
-  let value = seed ^ (seed >>> 16);
-  value = Math.imul(value, 0x7feb352d);
-  value ^= value >>> 15;
-  value = Math.imul(value, 0x846ca68b);
-  value ^= value >>> 16;
-  return value >>> 0 || 0x9e3779b9;
-};
-
 /** Uses an explicit career-development seed, never match physics RNG. */
 export const generateDevelopmentTrajectory = (
   input: DevelopmentTrajectoryGeneration,
@@ -106,10 +98,7 @@ export const generateDevelopmentTrajectory = (
     || !day(input.createdAtDay)) {
     throw new Error('invalid development generation scope');
   }
-  if (!Number.isSafeInteger(input.seed) || input.seed <= 0
-    || input.seed >= UINT32_RANGE) {
-    throw new Error('invalid development seed');
-  }
+  const next = createDevelopmentRandom(input.seed);
   const source = input.policy;
   if (!fields(source, ['policyId', 'profileVersion', 'availableAtDay',
     'timingWeights', 'shapeWeights', 'domainOffsetRanges'])
@@ -121,18 +110,10 @@ export const generateDevelopmentTrajectory = (
   const timingWeights = weights(source.timingWeights, MATURITY_TIMINGS);
   const shapeWeights = weights(source.shapeWeights, CURVE_SHAPES);
   const domainOffsetRanges = ranges(source.domainOffsetRanges);
-  let rngState = mixedSeed(input.seed);
-  const next = (): number => {
-    rngState ^= rngState << 13;
-    rngState ^= rngState >>> 17;
-    rngState ^= rngState << 5;
-    rngState >>>= 0;
-    return rngState;
-  };
   const choose = <T extends string>(names: readonly T[],
     distribution: Readonly<Record<T, number>>): T => {
     const total = names.reduce((sum, name) => sum + distribution[name], 0);
-    let slot = Math.floor((next() / UINT32_RANGE) * total);
+    let slot = Math.floor(next() * total);
     for (const name of names) {
       slot -= distribution[name];
       if (slot < 0) return name;
@@ -144,7 +125,7 @@ export const generateDevelopmentTrajectory = (
   const domainOffsets = Object.freeze(Object.fromEntries(
     DEVELOPMENT_DOMAINS.map((domain) => {
       const { min, max } = domainOffsetRanges[domain];
-      return [domain, min + Math.floor((next() / UINT32_RANGE)
+      return [domain, min + Math.floor(next()
         * (max - min + 1))];
     }))) as Record<DevelopmentDomain, number>;
   return Object.freeze({ careerId: input.careerId,
