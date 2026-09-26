@@ -20,6 +20,14 @@ export type FinalFourPairingPolicy = Readonly<{
   version: string;
   semifinalPairs: readonly (readonly [number, number])[];
 }>;
+export type ClubWorldQuarterfinalPolicy = Readonly<{
+  version: string;
+  /** Winner group index selects a runner from a different group. */
+  runnerGroupByWinnerGroup: readonly number[];
+  /** Administrative batting order only; all four games use neutral venues. */
+  groupWinnerBatsLast: boolean;
+  venueIds: readonly string[];
+}>;
 
 export type CompetitionEditionInput = Readonly<{
   editionId: string;
@@ -32,6 +40,7 @@ export type CompetitionEditionInput = Readonly<{
   /** Evaluated once while creating the edition, before its games begin. */
   finalFourHostCandidates?: readonly HostCandidate[];
   finalFourPairingPolicy?: FinalFourPairingPolicy;
+  clubWorldQuarterfinalPolicy?: ClubWorldQuarterfinalPolicy;
   groupHubs?: readonly Readonly<{ groupIndex: number; nationId: string;
     cityId: string; venueId: string }>[];
 }>;
@@ -118,6 +127,26 @@ export const createCompetitionEdition = (
       || input.groupHubs.length !== 4)) {
     throw new Error('Club World edition requires four preselected group hubs');
   }
+  const quarterfinal = input.clubWorldQuarterfinalPolicy;
+  if (profile.canonicalRole === 'CLUB_WORLD' && (
+    !quarterfinal || !quarterfinal.version
+    || !Array.isArray(quarterfinal.runnerGroupByWinnerGroup)
+    || quarterfinal.runnerGroupByWinnerGroup.length !== 4
+    || new Set(quarterfinal.runnerGroupByWinnerGroup).size !== 4
+    || quarterfinal.runnerGroupByWinnerGroup.some((runner, winner) =>
+      !Number.isSafeInteger(runner) || runner < 0 || runner > 3
+      || runner === winner)
+    || typeof quarterfinal.groupWinnerBatsLast !== 'boolean'
+    || !Array.isArray(quarterfinal.venueIds)
+    || quarterfinal.venueIds.length !== 4
+    || quarterfinal.venueIds.some((venueId) =>
+      !input.host.venueIds.includes(venueId)))) {
+    throw new Error('Club World edition requires versioned neutral quarterfinal pairings');
+  }
+  if (profile.canonicalRole !== 'CLUB_WORLD'
+    && quarterfinal !== undefined) {
+    throw new Error('Club World quarterfinal policy belongs to its edition');
+  }
   if (input.groupHubs !== undefined && (
     (profile.canonicalRole !== 'AFBCL'
       && profile.canonicalRole !== 'CLUB_WORLD')
@@ -161,6 +190,13 @@ export const createCompetitionEdition = (
       version: pairing.version,
       semifinalPairs: Object.freeze(pairing.semifinalPairs.map((pair) =>
         Object.freeze([pair[0], pair[1]] as const))),
+    }) } : {}),
+    ...(quarterfinal ? { clubWorldQuarterfinalPolicy: Object.freeze({
+      version: quarterfinal.version,
+      runnerGroupByWinnerGroup: Object.freeze([
+        ...quarterfinal.runnerGroupByWinnerGroup]),
+      groupWinnerBatsLast: quarterfinal.groupWinnerBatsLast,
+      venueIds: Object.freeze([...quarterfinal.venueIds]),
     }) } : {}),
     ...(input.groupHubs ? { groupHubs: Object.freeze(input.groupHubs.map(
       (hub) => Object.freeze({ ...hub }))) } : {}),
