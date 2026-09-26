@@ -11,7 +11,9 @@ and conflict memories across seasons. One evidence record changes at most one
 relationship dimension; a source event can provide separate records where justified.
 A single source event can be observed in both directions, but cannot be counted
 twice for the same ordered pair. Coordination changes only for authenticated joint
-practice or joint execution evidence with an explicit task.
+practice, joint execution or joint failure evidence with an explicit task. A
+failed joint play can lower only that task's coordination; it is not automatically
+a personal conflict or raw fielding penalty.
 
 The host authenticates evidence source IDs and persists the state/event together.
 Low affinity alone does not lower batting skill, and the network provides no ability

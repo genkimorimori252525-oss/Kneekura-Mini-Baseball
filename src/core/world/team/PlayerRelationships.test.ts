@@ -10,19 +10,21 @@ const policy = () => ({ policyId: 'synthetic-relationships',
     MUTUAL_SUPPORT: { affinity: 4, trust: 0, coordination: 0 },
     JOINT_REPETITION: { affinity: 0, trust: 0, coordination: 5 },
     JOINT_EXECUTION: { affinity: 0, trust: 0, coordination: 3 },
+    JOINT_FAILURE: { affinity: 0, trust: 0, coordination: -10 },
     CONFLICT: { affinity: -5, trust: 0, coordination: 0 },
     TRUST_BREACH: { affinity: 0, trust: -6, coordination: 0 },
     ROLE_COMPETITION: { affinity: -2, trust: 0, coordination: 0 },
   },
 });
 const evidence = (kind: 'SHARED_SUCCESS' | 'MUTUAL_SUPPORT'
-  | 'JOINT_REPETITION' | 'JOINT_EXECUTION'
+  | 'JOINT_REPETITION' | 'JOINT_EXECUTION' | 'JOINT_FAILURE'
   | 'CONFLICT' | 'TRUST_BREACH'
   | 'ROLE_COMPETITION', eventId: string, fromPlayerId: string,
   toPlayerId: string, atDay = 10) => ({ eventId,
   sourceEventId: `source-${eventId}`, atDay,
   fromPlayerId, toPlayerId, kind,
-  ...((kind === 'JOINT_REPETITION' || kind === 'JOINT_EXECUTION')
+  ...((kind === 'JOINT_REPETITION' || kind === 'JOINT_EXECUTION'
+    || kind === 'JOINT_FAILURE')
     ? { task: 'MIDDLE_INFIELD' as const } : {}),
 });
 
