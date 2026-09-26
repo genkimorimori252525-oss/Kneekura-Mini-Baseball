@@ -113,14 +113,25 @@ export const createCompetitionEdition = (
       || input.groupHubs.length !== 2)) {
     throw new Error('AfBCL edition requires two preselected group hubs');
   }
+  if (profile.canonicalRole === 'CLUB_WORLD'
+    && (!Array.isArray(input.groupHubs)
+      || input.groupHubs.length !== 4)) {
+    throw new Error('Club World edition requires four preselected group hubs');
+  }
   if (input.groupHubs !== undefined && (
-    profile.canonicalRole !== 'AFBCL'
+    (profile.canonicalRole !== 'AFBCL'
+      && profile.canonicalRole !== 'CLUB_WORLD')
     || !Array.isArray(input.groupHubs)
-    || input.groupHubs.length !== 2
+    || input.groupHubs.length
+      !== (profile.canonicalRole === 'CLUB_WORLD' ? 4 : 2)
     || input.groupHubs.some((hub, index) =>
       hub.groupIndex !== index || !hub.nationId || !hub.cityId
       || !hub.venueId || !input.host.cityIds.includes(hub.cityId)
       || !input.host.venueIds.includes(hub.venueId))
+    || (profile.canonicalRole === 'CLUB_WORLD' && (
+      input.groupHubs.some((hub) => hub.nationId !== input.host.nationId)
+      || new Set(input.groupHubs.map((hub) => hub.cityId)).size !== 4
+      || new Set(input.groupHubs.map((hub) => hub.venueId)).size !== 4))
   )) throw new Error('invalid versioned group hubs');
   const finalFourHost = input.finalFourHostCandidates === undefined
     ? undefined : selectCompetitionHost({ competitionKind: 'OTHER',
