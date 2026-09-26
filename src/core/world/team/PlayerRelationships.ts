@@ -1,6 +1,6 @@
 export const RELATIONSHIP_EVIDENCE_KINDS = [
   'SHARED_SUCCESS', 'MUTUAL_SUPPORT', 'JOINT_REPETITION',
-  'JOINT_EXECUTION',
+  'JOINT_EXECUTION', 'JOINT_FAILURE',
   'CONFLICT', 'TRUST_BREACH', 'ROLE_COMPETITION',
 ] as const;
 export type RelationshipEvidenceKind =
@@ -104,10 +104,12 @@ export const createPlayerRelationshipNetwork = (
     RELATIONSHIP_EVIDENCE_KINDS.map((kind) => {
       const delta = dimensions(input.deltas[kind], true);
       if (kind !== 'JOINT_REPETITION' && kind !== 'JOINT_EXECUTION'
+        && kind !== 'JOINT_FAILURE'
         && delta.coordination !== 0) {
-        throw new Error('coordination requires joint repetition');
+        throw new Error('coordination requires joint task evidence');
       }
-      if ((kind === 'JOINT_REPETITION' || kind === 'JOINT_EXECUTION')
+      if ((kind === 'JOINT_REPETITION' || kind === 'JOINT_EXECUTION'
+        || kind === 'JOINT_FAILURE')
         && (delta.affinity !== 0 || delta.trust !== 0)) {
         throw new Error('joint coordination needs distinct evidence');
       }
@@ -141,7 +143,8 @@ export const applyPlayerRelationshipEvidence = (
     || !fields(source, ['eventId', 'sourceEventId',
       'atDay', 'fromPlayerId', 'toPlayerId', 'kind',
       ...((source?.kind === 'JOINT_REPETITION'
-        || source?.kind === 'JOINT_EXECUTION') ? ['task'] : [])])
+        || source?.kind === 'JOINT_EXECUTION'
+        || source?.kind === 'JOINT_FAILURE') ? ['task'] : [])])
     || !id(source.eventId) || !id(source.sourceEventId)
     || !id(source.fromPlayerId) || !id(source.toPlayerId)
     || source.fromPlayerId === source.toPlayerId
@@ -150,7 +153,8 @@ export const applyPlayerRelationshipEvidence = (
     throw new Error('invalid relationship evidence');
   }
   const joint = source.kind === 'JOINT_REPETITION'
-    || source.kind === 'JOINT_EXECUTION';
+    || source.kind === 'JOINT_EXECUTION'
+    || source.kind === 'JOINT_FAILURE';
   if ((joint && !JOINT_TASKS.includes(source.task!))
     || (!joint && source.task !== undefined)) {
     throw new Error('invalid relationship task');

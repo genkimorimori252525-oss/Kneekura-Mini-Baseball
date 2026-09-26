@@ -58,6 +58,7 @@ const previousMood = () => {
       MUTUAL_SUPPORT: { affinity: 0, trust: 0, coordination: 0 },
       JOINT_REPETITION: { affinity: 0, trust: 0, coordination: 0 },
       JOINT_EXECUTION: { affinity: 0, trust: 0, coordination: 0 },
+      JOINT_FAILURE: { affinity: 0, trust: 0, coordination: 0 },
       CONFLICT: { affinity: 0, trust: 0, coordination: 0 },
       TRUST_BREACH: { affinity: 0, trust: 0, coordination: 0 },
       ROLE_COMPETITION: { affinity: 0, trust: 0, coordination: 0 },
