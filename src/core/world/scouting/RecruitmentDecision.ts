@@ -10,6 +10,8 @@ import type { ClubWorldState } from '../club/ClubTypes';
 import { evaluateClubPayrollPrecheck,
   type ClubPayrollPrecheck,
   type PlayerWageSeasonAllocation } from '../club/ClubPayrollPrecheck';
+import { getClubSeasonWageAllocations,
+  type ClubWageScheduleLedger } from '../club/ClubWageScheduleLedger';
 import { deriveRecruitmentFinance,
   type SourceBackedClubFinance } from './SourceBackedRecruitmentFinance';
 
@@ -400,3 +402,36 @@ export const appendRecruitmentDecisionWithPayrollPrecheck = (
       availableMinorUnits: precheckedPayrollHeadroom(precheck) } },
     undefined, finance.sourceBackedClubFinance, precheck);
 };
+
+/** Obtain existing wages from signed club events, not caller-supplied amounts. */
+export const appendRecruitmentDecisionWithWageScheduleLedger = (
+  ledger: RecruitmentDecisionLedger,
+  expectedRevision: number,
+  knowledge: ClubScoutingKnowledge,
+  club: ClubWorldState,
+  wageSchedules: ClubWageScheduleLedger,
+  proposedCurrentSeasonPayrollMinorUnits: number,
+  source: Omit<RecruitmentDecisionInput, 'budgetContext'>,
+): RecruitmentDecisionLedger => appendRecruitmentDecisionWithPayrollPrecheck(
+  ledger, expectedRevision, knowledge, club,
+  proposedCurrentSeasonPayrollMinorUnits, source,
+  getClubSeasonWageAllocations(wageSchedules, club));
+
+export const appendRecruitmentDecisionWithRosterNeedAndWageScheduleLedger = (
+  ledger: RecruitmentDecisionLedger,
+  expectedRevision: number,
+  knowledge: ClubScoutingKnowledge,
+  roster: RosterState,
+  policy: RosterNeedPlanningPolicy,
+  needRequest: RosterNeedRequest,
+  club: ClubWorldState,
+  wageSchedules: ClubWageScheduleLedger,
+  proposedCurrentSeasonPayrollMinorUnits: number,
+  source: Omit<RecruitmentDecisionInput,
+    'rosterNeedSnapshot' | 'budgetContext'>,
+): RecruitmentDecisionLedger =>
+  appendRecruitmentDecisionWithRosterNeedAndClubFinance(
+    ledger, expectedRevision, knowledge, roster, policy,
+    needRequest, club, 'payroll', source,
+    proposedCurrentSeasonPayrollMinorUnits,
+    getClubSeasonWageAllocations(wageSchedules, club));

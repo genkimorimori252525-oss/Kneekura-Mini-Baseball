@@ -1,10 +1,13 @@
 import { expect, it } from 'vitest';
 import { applyClubCommand, createClubFromSeed } from '../club';
 import { bootstrap, command } from '../club/ClubFixtures.test-support';
+import { appendClubWageSchedule, createClubWageScheduleLedger } from '../club/ClubWageScheduleLedger';
 import { createRosterState } from '../roster/RosterState';
 import { appendRecruitmentDecisionWithClubFinance,
   appendRecruitmentDecisionWithPayrollPrecheck,
+  appendRecruitmentDecisionWithWageScheduleLedger,
   appendRecruitmentDecisionWithRosterNeedAndClubFinance,
+  appendRecruitmentDecisionWithRosterNeedAndWageScheduleLedger,
   createRecruitmentDecisionLedger } from './RecruitmentDecision';
 import { appendPlayerKnowledgeReport, appendScoutingEvidence,
   createClubScoutingKnowledge } from './ScoutingKnowledge';
@@ -143,6 +146,13 @@ it('pins both roster need and finance evidence in one recruitment record', () =>
   expect(prechecked.payrollPrecheck).toMatchObject({
     outcome: 'WITHIN_COVERED_RULES', proposedMinorUnits: 100,
   });
+  const fromLedger = appendRecruitmentDecisionWithRosterNeedAndWageScheduleLedger(
+    createRecruitmentDecisionLedger('career-1', 'club-a'), 0,
+    knowledge, roster, policy, need, club(),
+    createClubWageScheduleLedger('career-1', 'club-a'), 100, source)
+    .decisions[0]!;
+  expect(fromLedger.sourceBackedRosterNeed?.snapshotId).toBe('need-1');
+  expect(fromLedger.payrollPrecheck?.wageAllocations).toEqual([]);
 });
 
 it('rejects bids beyond covered payroll limits and pins a permitted precheck', () => {
@@ -199,5 +209,33 @@ it('uses evidenced annual wages rather than total contract liability for bid hea
   expect(record.sourceBackedClubFinance?.summary.budgetHeadroom.payroll)
     .toBe(200);
   expect(record.payrollPrecheck?.allocatedPayrollBudget).toBe(100);
+  expect(record.budgetContext.availableMinorUnits).toBe(400);
+});
+
+it('takes a prechecked bid annual wage from the signed club event schedule', () => {
+  const initial = club();
+  const changed = applyClubCommand(initial, command([{
+    kind: 'RECORD_COMMITMENT', commitmentId: 'wage-1',
+    contractRef: 'signed-1', category: 'playerWages',
+    budgetBucket: 'payroll', amount: 300, currency: 'SIM',
+  }], initial, 'signed-event-1'));
+  if (!changed.ok) throw new Error(JSON.stringify(changed.reason));
+  const schedules = appendClubWageSchedule(
+    createClubWageScheduleLedger('career-1', 'club-a'), 0,
+    changed.state, changed.event, { commitmentId: 'wage-1',
+      contractRef: 'signed-1', annualAmounts: [
+        { season: 1, amount: 100 }, { season: 2, amount: 200 },
+      ] });
+  const ledger = createRecruitmentDecisionLedger('career-1', 'club-a');
+  expect(() => appendRecruitmentDecisionWithWageScheduleLedger(
+    ledger, 0, knowledge, changed.state,
+    createClubWageScheduleLedger('career-1', 'club-a'),
+    100, decision())).toThrow('schedule');
+  const record = appendRecruitmentDecisionWithWageScheduleLedger(
+    ledger, 0, knowledge, changed.state, schedules, 100, decision())
+    .decisions[0]!;
+  expect(record.payrollPrecheck?.wageAllocations).toMatchObject([{
+    annualMinorUnits: 100, sourceEventId: 'signed-event-1',
+  }]);
   expect(record.budgetContext.availableMinorUnits).toBe(400);
 });
