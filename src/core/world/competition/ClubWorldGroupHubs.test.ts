@@ -9,6 +9,8 @@ import { createClubWorldGroupHubPlan, finalizeClubWorldGroupHubs }
   from './ClubWorldGroupHubs';
 import { planClubWorldQuarterfinals, finalizeClubWorldQuarterfinals }
   from './ClubWorldQuarterfinals';
+import { planClubWorldFinalFour, finalizeClubWorldFinalFour }
+  from './ClubWorldFinalFour';
 
 const regions: readonly ClubWorldRegion[] = [
   'ASIA_PACIFIC', 'AMERICAS', 'EUROPE', 'AFRICA'];
@@ -37,6 +39,11 @@ const edition = createCompetitionEdition({ competitionId: 'club-world',
     runnerGroupByWinnerGroup: [1, 0, 3, 2],
     groupWinnerBatsLast: true,
     venueIds: ['venue-0', 'venue-1', 'venue-2', 'venue-3'] },
+  finalFourHostCandidates: [{ venueId: 'venue-3',
+    nationId: 'host-nation', cityId: 'city-3', regionId: 'AMERICAS',
+    eligible: true, suitabilityScore: 10, rotationScore: 1 }],
+  finalFourPairingPolicy: { version: 'world-sf-v1',
+    semifinalPairs: [[0, 3], [1, 2]] as const },
 }, registry);
 const berths: ClubWorldBerthAllocation = {
   editionId: edition.editionId, policyVersion: 'club-world-qualification-v1',
@@ -168,4 +175,45 @@ it('advances four decided neutral quarterfinals from official group qualificatio
   (forged.games[0] as { awayClubId: string }).awayClubId = 'forged';
   expect(() => finalizeClubWorldQuarterfinals(forged, results,
     quarterfinalSource)).toThrow('plan');
+});
+
+it('decides the world champion in a neutral semifinal and single-game final', () => {
+  const groupPlan = createClubWorldGroupHubPlan(source);
+  const groupOfficialResults = groupPlan.groups.flatMap((group) => group.games)
+    .map(officialResult);
+  const quarterfinalSource = { groupSource: source, groupPlan,
+    groupOfficialResults, groupTiebreakPolicy: policy };
+  const quarterfinalPlan = planClubWorldQuarterfinals(quarterfinalSource);
+  const quarterfinalResults = quarterfinalPlan.games.map((game, index) =>
+    officialResult(game, index + 72));
+  const finalSource = { quarterfinalSource, quarterfinalPlan,
+    quarterfinalResults };
+  const plan = planClubWorldFinalFour(finalSource);
+  expect(plan.semifinalGames).toHaveLength(2);
+  expect(plan.semifinalGames.every((game) =>
+    game.neutralVenueId === 'venue-3')).toBe(true);
+  const semifinals = plan.semifinalGames.map((game, index) =>
+    officialResult(game, index + 76));
+  const final = officialResult({ gameId: plan.finalGameId,
+    homeClubId: semifinals[0].winnerClubId!,
+    awayClubId: semifinals[1].winnerClubId!,
+    neutralVenueId: plan.hostVenueId,
+    fixtureEventId: plan.finalFixtureEventId }, 78);
+  const outcome = finalizeClubWorldFinalFour(plan, semifinals, final,
+    finalSource);
+  expect(outcome.championClubId).toBe(final.winnerClubId);
+  expect(outcome.resultApplicationIds).toHaveLength(3);
+  expect(() => finalizeClubWorldFinalFour(plan, semifinals,
+    { ...final, venueBinding: { ...final.venueBinding!,
+      venueId: 'venue-0' } }, finalSource)).toThrow('venue');
+  expect(() => finalizeClubWorldFinalFour(plan, semifinals,
+    { ...final, applicationId: groupOfficialResults[0].applicationId },
+    finalSource)).toThrow('application');
+  expect(() => finalizeClubWorldFinalFour(plan, semifinals,
+    { ...final, closureId: semifinals[0].closureId },
+    finalSource)).toThrow('application');
+  const forged = structuredClone(plan);
+  (forged.semifinalGames[0] as { awayClubId: string }).awayClubId = 'forged';
+  expect(() => finalizeClubWorldFinalFour(forged, semifinals, final,
+    finalSource)).toThrow('plan');
 });
