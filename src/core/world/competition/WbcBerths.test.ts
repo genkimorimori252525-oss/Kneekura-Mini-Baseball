@@ -8,6 +8,10 @@ import { allocateWbcBerths, EMPTY_WBC_BERTH_POLICY_REGISTRY,
 import { finalizeWbcFinalsGroups, planWbcFinalsGroups,
   type WbcFinalsGroupEdition, type WbcFinalsGroupGame }
   from './WbcFinalsGroups';
+import { finalizeWbcKnockout, planWbcFinal,
+  planWbcKnockout, planWbcQuarterfinals, planWbcSemifinals,
+  type WbcKnockoutEdition, type WbcKnockoutGame }
+  from './WbcFinalsKnockout';
 
 const regions: readonly ClubWorldRegion[] = [
   'ASIA_PACIFIC', 'AMERICAS', 'EUROPE', 'AFRICA'];
@@ -164,4 +168,73 @@ it('binds 24 allocated WBC nations to six US pools and 36 official games', () =>
     [{ ...results[0], venueBinding: {
       ...results[0].venueBinding!, venueId: 'foreign' } },
       ...results.slice(1)], edition, berths)).toThrow('venue-bound');
+  const knockoutEdition: WbcKnockoutEdition = {
+    competitionId: edition.competitionId, editionId: edition.editionId,
+    canonicalRole: 'NATIONAL_WORLD_CHAMPIONSHIP',
+    qualificationSnapshotId: edition.qualificationSnapshotId,
+    groupDrawSnapshotId: edition.drawSnapshotId,
+    ruleProfileVersion: edition.ruleProfileVersion,
+    gamePolicyVersion: edition.gamePolicyVersion,
+    knockoutPolicyVersion: 'wbc-knockout-v1',
+    hostNationId: 'US',
+    roundOf16Pairs: Array.from({ length: 8 }, (_, index) =>
+      [index * 2, index * 2 + 1] as const),
+    knockoutHubs: [{ cityId: 'us-hub-a', venueId: 'hub-a' },
+      { cityId: 'us-hub-b', venueId: 'hub-b' }],
+    roundOf16HubIndices: [0, 1, 0, 1, 0, 1, 0, 1],
+    quarterfinalHubIndices: [0, 1, 0, 1],
+    finalFourHost: { cityId: 'us-final-city',
+      venueId: 'us-final-venue' },
+  };
+  const source = { groupEdition: edition, groupPlan: plan,
+    groupResults: results, berths, knockoutEdition };
+  const knockoutPlan = planWbcKnockout(source);
+  const knockoutResult = (planned: WbcKnockoutGame,
+    index: number): OfficialGameResult => ({
+    gameId: planned.gameId, seasonId: edition.editionId,
+    homeClubId: planned.homeNationId,
+    awayClubId: planned.awayNationId,
+    homeRuns: 3, awayRuns: 1,
+    winnerClubId: planned.homeNationId,
+    completionReason: 'BOTTOM_COMPLETE',
+    ruleProfileId: asRuleProfileId(edition.ruleProfileVersion),
+    gamePolicyVersion: edition.gamePolicyVersion,
+    closureId: `wbc-knockout-closure-${index}`,
+    applicationId: `wbc-knockout-application-${index}`,
+    durableRevision: index + 37,
+    venueBinding: { gameId: planned.gameId,
+      venueId: planned.venueId,
+      fixtureEventId: `wbc-knockout-fixture-${index}`,
+      fixtureRevision: 1 },
+    lineScore: { innings: [{ inning: 1,
+      homeRuns: 3, awayRuns: 1 }], totals: {
+      home: { runs: 3, hits: 0, errors: 0 },
+      away: { runs: 1, hits: 0, errors: 0 } } },
+  });
+  const roundOf16Results = knockoutPlan.roundOf16Games
+    .map(knockoutResult);
+  expect(() => planWbcQuarterfinals(knockoutPlan,
+    [{ ...roundOf16Results[0], applicationId: results[0].applicationId },
+      ...roundOf16Results.slice(1)], source)).toThrow('unique');
+  const quarterfinalGames = planWbcQuarterfinals(knockoutPlan,
+    roundOf16Results, source);
+  const quarterfinalResults = quarterfinalGames.map((game, index) =>
+    knockoutResult(game, index + 8));
+  const semifinalGames = planWbcSemifinals(knockoutPlan,
+    roundOf16Results, quarterfinalResults, source);
+  const semifinalResults = semifinalGames.map((game, index) =>
+    knockoutResult(game, index + 12));
+  const finalGame = planWbcFinal(knockoutPlan,
+    roundOf16Results, quarterfinalResults, semifinalResults, source);
+  const finalResult = knockoutResult(finalGame, 14);
+  const champion = finalizeWbcKnockout(knockoutPlan,
+    roundOf16Results, quarterfinalResults,
+    semifinalResults, finalResult, source);
+  expect(champion.championNationId).toBe(finalResult.winnerClubId);
+  expect(champion.resultApplicationIds).toHaveLength(15);
+  expect(champion.finalGame.venueId).toBe('us-final-venue');
+  expect(() => finalizeWbcKnockout(knockoutPlan,
+    roundOf16Results, quarterfinalResults, semifinalResults,
+    { ...finalResult, applicationId: results[0].applicationId },
+    source)).toThrow('unique');
 });
