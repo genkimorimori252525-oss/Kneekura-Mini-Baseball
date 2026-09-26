@@ -1,5 +1,8 @@
 import { expect, it } from 'vitest';
 import { asRuleProfileId } from '../../model/RuleProfileRef';
+import { createWorldNationalRankingHistory,
+  recordPremierTwelveRankingResults }
+  from './WorldNationalRankingHistory';
 import type { OfficialGameResult } from './OfficialGameCompletion';
 import { finalizePremierTwelve, finalizePremierTwelveGroups,
   planPremierTwelveFinalFour, planPremierTwelveGroups,
@@ -88,6 +91,10 @@ it('selects ranking top twelve and decides group, bronze and final games', () =>
   expect(outcome.bronzeNationId).toBe(bronze.winnerClubId);
   expect(outcome.resultApplicationIds).toHaveLength(4);
   expect(outcome.medalGames.bronzeGame.venueId).toBe('venue-final');
+  const nationalHistory = recordPremierTwelveRankingResults(
+    createWorldNationalRankingHistory(), source,
+    semifinals, bronze, final);
+  expect(nationalHistory.editions[0].games).toHaveLength(34);
 });
 
 it('rejects non-top-twelve entrants and duplicate medal evidence', () => {
