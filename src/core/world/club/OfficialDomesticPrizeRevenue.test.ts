@@ -44,6 +44,7 @@ const club = () => {
   return created.value;
 };
 const policy = { policyId: 'prize-policy-1', version: 'v1',
+  careerId: 'career-a',
   leagueId: profile.leagueId, seasonId: 'season-2026',
   availableAtDay: 10, currency: 'SIM', awards: {
     DOMESTIC_CHAMPION: 300, RUNNER_UP: 100,
@@ -78,6 +79,9 @@ it('rejects a forged winner, wrong league, and future or mismatched policy', () 
     .toThrow('snapshot');
   expect(() => applyOfficialDomesticPrizeRevenue(club(), input,
     snapshot, { ...policy, leagueId: 'other' },
+    'DOMESTIC_CHAMPION', 'season-finalized-1', 20)).toThrow('policy');
+  expect(() => applyOfficialDomesticPrizeRevenue(club(), input,
+    snapshot, { ...policy, careerId: 'another-career' },
     'DOMESTIC_CHAMPION', 'season-finalized-1', 20)).toThrow('policy');
   expect(() => applyOfficialDomesticPrizeRevenue(club(), input,
     snapshot, { ...policy, availableAtDay: 21 },
