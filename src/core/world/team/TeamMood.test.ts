@@ -32,7 +32,7 @@ const networkPolicy = { policyId: 'relationships', version: 'v1',
     trust: 50, coordination: 50 },
   deltas: {
     SHARED_SUCCESS: { affinity: 0, trust: 0, coordination: 0 },
-    MUTUAL_SUPPORT: { affinity: 20, trust: 20, coordination: 0 },
+    MUTUAL_SUPPORT: { affinity: 20, trust: 0, coordination: 0 },
     JOINT_REPETITION: { affinity: 0, trust: 0, coordination: 0 },
     JOINT_EXECUTION: { affinity: 0, trust: 0, coordination: 0 },
     CONFLICT: { affinity: 0, trust: 0, coordination: 0 },
@@ -63,10 +63,10 @@ it('diffuses an appraised signal only through a receiving relationship', () => {
   expect(applied.state.players.find((item) =>
     item.playerId === 'p1')?.mood.energy).toBe(70);
   expect(applied.state.players.find((item) =>
-    item.playerId === 'p2')?.mood.energy).toBe(57);
+    item.playerId === 'p2')?.mood.energy).toBe(56);
   expect(applied.state.players.find((item) =>
     item.playerId === 'p3')?.mood.energy).toBe(50);
-  expect(applied.state.mood.energy).toBe(59);
+  expect(applied.state.mood.energy).toBeCloseTo(58.6666666667);
   expect(applied.event).toMatchObject({ sourceEventId: 'source-positive-1',
     affectedPlayerIds: ['p1', 'p2'] });
   expect(applied.state).not.toHaveProperty('battingModifier');
@@ -82,7 +82,7 @@ it('keeps an isolated player local and lets old energy recede without a battery'
     disconnected, signal('positive-1', 10, 20));
   expect(isolated.state.players.find((item) =>
     item.playerId === 'p2')?.mood.energy).toBe(50);
-  expect(isolated.state.mood.energy).toBeLessThan(59);
+  expect(isolated.state.mood.energy).toBeLessThan(58.6666666667);
   const later = applyTeamMoodSignal(isolated.state, currentRoster,
     disconnected, signal('neutral-2', 20, 0));
   expect(later.state.players.find((item) =>
