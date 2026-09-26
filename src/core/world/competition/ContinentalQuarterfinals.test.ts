@@ -15,6 +15,9 @@ import { planContinentalFinalFour, finalizeContinentalFinalFour }
   from './ContinentalFinalFour';
 import { deriveOfficialRegionalClubSeason }
   from './OfficialRegionalClubAchievement';
+import { completedRegionalClubSeason, createRegionalClubSeasonHistory,
+  latestRegionalClubChampion, recordRegionalClubSeason }
+  from './RegionalClubSeasonHistory';
 
 const draw: CompetitionDraw = {
   editionId: 'edition-2027', drawPolicyVersion: 'draw-v1',
@@ -186,6 +189,34 @@ it('uses the edition host for two neutral semifinals and one official final', ()
     event.kind === 'TITLE')).toBe(true);
   expect(achievements.clubs.every((club) =>
     club.resultApplicationIds.length >= 9)).toBe(true);
+  const history = createRegionalClubSeasonHistory([
+    { region: 'ASIA_PACIFIC', competitionId: 'continental-a' },
+    { region: 'AMERICAS', competitionId: 'continental-americas' },
+    { region: 'EUROPE', competitionId: 'continental-europe' },
+    { region: 'AFRICA', competitionId: 'afbcl' },
+  ]);
+  const seasonInput = { kind: 'STANDARD' as const,
+    region: 'ASIA_PACIFIC' as const, seasonId: 'winter-2026-27',
+    source, plan, semifinalResults: semifinals, finalResult: final };
+  const recorded = recordRegionalClubSeason(history, seasonInput);
+  expect(history.seasons).toHaveLength(0);
+  expect(completedRegionalClubSeason(recorded,
+    'ASIA_PACIFIC', 'winter-2026-27', 29)).toBeNull();
+  expect(completedRegionalClubSeason(recorded,
+    'ASIA_PACIFIC', 'winter-2026-27', 30)?.editionId)
+    .toBe(edition.editionId);
+  expect(completedRegionalClubSeason(recorded,
+    'AFRICA', 'winter-2026-27', 30)).toBeNull();
+  expect(latestRegionalClubChampion(recorded, 'ASIA_PACIFIC', 29))
+    .toBeNull();
+  expect(latestRegionalClubChampion(recorded, 'ASIA_PACIFIC', 30))
+    .toEqual({ editionId: edition.editionId,
+      clubId: outcome.championClubId,
+      officialTitleId: final.applicationId, titleFinalizedDay: 30 });
+  expect(() => recordRegionalClubSeason(recorded, seasonInput))
+    .toThrow('already recorded');
+  expect(() => recordRegionalClubSeason(history, {
+    ...seasonInput, region: 'EUROPE' })).toThrow('identity');
   expect(outcome.championClubId).toBe(final.winnerClubId);
   expect(outcome.finalGame.neutralVenueId).toBe('venue-1');
   expect('thirdPlaceGame' in outcome).toBe(false);
