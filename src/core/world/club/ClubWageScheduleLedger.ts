@@ -9,6 +9,7 @@ export type ClubWageSchedule = Readonly<{
   sourceClubEventId: string;
   sourceClubRevision: number;
   availableAtDay: number;
+  effectiveSeason: number;
   totalMinorUnits: number;
   annualAmounts: readonly Readonly<{ season: number; amount: number }>[];
 }>;
@@ -25,6 +26,45 @@ const identifier = (value: unknown): value is string =>
   typeof value === 'string' && value.length > 0;
 const onlyKeys = (value: object, keys: readonly string[]): boolean =>
   Object.keys(value).every((key) => keys.includes(key));
+const annualBefore = (amounts: ClubWageSchedule['annualAmounts'],
+  season: number) => amounts.filter((annual) => annual.season < season);
+
+const currentEvent = (club: ClubWorldState,
+  event: ClubTransitionEvent): boolean => Boolean(event
+    && event.kind === 'CLUB_CHANGED'
+    && event.command.careerId === club.careerId
+    && event.command.clubId === club.identity.clubId
+    && event.afterRevision === club.revision
+    && event.command.expectedRevision + 1 === club.revision
+    && event.command.effectiveDay === club.effectiveDay
+    && identifier(event.command.eventId));
+
+const validateAnnualAmounts = (
+  amounts: ClubWageScheduleInput['annualAmounts'],
+  earliestSeason: number,
+  total: number,
+): void => {
+  if (!Array.isArray(amounts) || amounts.length === 0) {
+    throw new Error('wage schedule requires annual amounts');
+  }
+  let priorSeason = earliestSeason - 1;
+  for (const annual of amounts) {
+    if (annual === null || typeof annual !== 'object'
+      || Object.keys(annual).some((field) =>
+        !['season', 'amount'].includes(field))
+      || !Number.isSafeInteger(annual.season)
+      || annual.season <= priorSeason
+      || !Number.isSafeInteger(annual.amount)
+      || annual.amount <= 0) {
+      throw new Error('invalid wage schedule annual amount');
+    }
+    priorSeason = annual.season;
+  }
+  if (exact(amounts.map((annual) => annual.amount),
+    'wageSchedule.total') !== total) {
+    throw new Error('wage schedule total does not match liability');
+  }
+};
 
 const validateLedger = (ledger: ClubWageScheduleLedger): void => {
   if (!ledger || typeof ledger !== 'object'
@@ -35,11 +75,12 @@ const validateLedger = (ledger: ClubWageScheduleLedger): void => {
     || ledger.revision !== ledger.schedules.length) {
     throw new Error('invalid wage schedule ledger');
   }
-  const ids = new Set<string>();
+  const latest = new Map<string, ClubWageSchedule>();
   for (const schedule of ledger.schedules) {
     if (!schedule || typeof schedule !== 'object'
       || !onlyKeys(schedule, ['commitmentId', 'contractRef',
         'sourceClubEventId', 'sourceClubRevision', 'availableAtDay',
+        'effectiveSeason',
         'totalMinorUnits', 'annualAmounts'])
       || !identifier(schedule.commitmentId)
       || !identifier(schedule.contractRef)
@@ -48,14 +89,28 @@ const validateLedger = (ledger: ClubWageScheduleLedger): void => {
       || schedule.sourceClubRevision <= 0
       || !Number.isSafeInteger(schedule.availableAtDay)
       || schedule.availableAtDay < 0
+      || !Number.isSafeInteger(schedule.effectiveSeason)
+      || schedule.effectiveSeason <= 0
       || !Number.isSafeInteger(schedule.totalMinorUnits)
       || schedule.totalMinorUnits <= 0
       || !Array.isArray(schedule.annualAmounts)
-      || schedule.annualAmounts.length === 0
-      || ids.has(schedule.commitmentId)) {
+      || schedule.annualAmounts.length === 0) {
       throw new Error('invalid wage schedule ledger record');
     }
-    ids.add(schedule.commitmentId);
+    const prior = latest.get(schedule.commitmentId);
+    if (prior && (schedule.contractRef !== prior.contractRef
+      || schedule.sourceClubEventId === prior.sourceClubEventId
+      || schedule.sourceClubRevision <= prior.sourceClubRevision
+      || schedule.availableAtDay < prior.availableAtDay
+      || schedule.effectiveSeason < prior.effectiveSeason
+      || schedule.totalMinorUnits >= prior.totalMinorUnits
+      || JSON.stringify(annualBefore(schedule.annualAmounts,
+        schedule.effectiveSeason))
+        !== JSON.stringify(annualBefore(prior.annualAmounts,
+          schedule.effectiveSeason)))) {
+      throw new Error('invalid wage schedule amendment history');
+    }
+    latest.set(schedule.commitmentId, schedule);
     let previousSeason = -1;
     for (const annual of schedule.annualAmounts) {
       if (!annual || typeof annual !== 'object'
@@ -72,6 +127,10 @@ const validateLedger = (ledger: ClubWageScheduleLedger): void => {
       annual.amount),
       'wageSchedule.total') !== schedule.totalMinorUnits) {
       throw new Error('wage schedule ledger total mismatch');
+    }
+    if (!prior && schedule.annualAmounts[0]!.season
+      < schedule.effectiveSeason) {
+      throw new Error('invalid wage schedule start season');
     }
   }
 };
@@ -116,13 +175,7 @@ export const appendClubWageSchedule = (
     schedule.commitmentId === source.commitmentId)) {
     throw new Error('duplicate wage schedule commitment');
   }
-  if (!event || event.kind !== 'CLUB_CHANGED'
-    || event.command.careerId !== club.careerId
-    || event.command.clubId !== club.identity.clubId
-    || event.afterRevision !== club.revision
-    || event.command.expectedRevision + 1 !== club.revision
-    || event.command.effectiveDay !== club.effectiveDay
-    || !identifier(event.command.eventId)) {
+  if (!currentEvent(club, event)) {
     throw new Error('wage schedule requires the current club event');
   }
   const matchingOperations = event.command.operations.filter((op) =>
@@ -144,34 +197,85 @@ export const appendClubWageSchedule = (
     || commitment.cancelledAmount !== 0) {
     throw new Error('wage schedule does not match signed liability');
   }
-  if (!Array.isArray(source.annualAmounts)
-    || source.annualAmounts.length === 0) {
-    throw new Error('wage schedule requires annual amounts');
-  }
-  let priorSeason = club.season.plan.season - 1;
-  for (const annual of source.annualAmounts) {
-    if (annual === null || typeof annual !== 'object'
-      || Object.keys(annual).some((field) =>
-        !['season', 'amount'].includes(field))
-      || !Number.isSafeInteger(annual.season)
-      || annual.season <= priorSeason
-      || !Number.isSafeInteger(annual.amount)
-      || annual.amount <= 0) {
-      throw new Error('invalid wage schedule annual amount');
-    }
-    priorSeason = annual.season;
-  }
-  if (exact(source.annualAmounts.map((annual) => annual.amount),
-    'wageSchedule.total') !== commitment.amount) {
-    throw new Error('wage schedule total does not match liability');
-  }
+  validateAnnualAmounts(source.annualAmounts,
+    club.season.plan.season, commitment.amount);
   const record: ClubWageSchedule = Object.freeze({
     commitmentId: source.commitmentId,
     contractRef: source.contractRef,
     sourceClubEventId: event.command.eventId,
     sourceClubRevision: club.revision,
     availableAtDay: club.effectiveDay,
+    effectiveSeason: club.season.plan.season,
     totalMinorUnits: commitment.amount,
+    annualAmounts: Object.freeze(source.annualAmounts.map((annual) =>
+      Object.freeze({ season: annual.season, amount: annual.amount }))),
+  });
+  return Object.freeze({ careerId: ledger.careerId, clubId: ledger.clubId,
+    revision: ledger.revision + 1,
+    schedules: Object.freeze([...ledger.schedules, record]) });
+};
+
+/** Preserve prior seasons while reconciling a legally released liability. */
+export const appendClubWageScheduleAmendment = (
+  ledger: ClubWageScheduleLedger,
+  expectedRevision: number,
+  input: ClubWorldState,
+  event: ClubTransitionEvent,
+  source: ClubWageScheduleInput,
+): ClubWageScheduleLedger => {
+  const club = readState(input);
+  validateLedger(ledger);
+  if (expectedRevision !== ledger.revision
+    || ledger.careerId !== club.careerId
+    || ledger.clubId !== club.identity.clubId
+    || club.season.closureRef !== null
+    || !source || !identifier(source.commitmentId)
+    || !identifier(source.contractRef)
+    || Object.keys(source).some((field) => ![
+      'commitmentId', 'contractRef', 'annualAmounts',
+    ].includes(field))
+    || !currentEvent(club, event)) {
+    throw new Error('invalid wage schedule amendment source');
+  }
+  const prior = [...ledger.schedules].reverse().find((item) =>
+    item.commitmentId === source.commitmentId);
+  const commitment = club.live.finance.commitments.find((item) =>
+    item.commitmentId === source.commitmentId);
+  const releases = event.command.operations.filter((op) =>
+    op.kind === 'RELEASE_COMMITMENT'
+      && op.commitmentId === source.commitmentId);
+  const release = releases[0];
+  if (!prior || !commitment || releases.length !== 1
+    || !release || release.kind !== 'RELEASE_COMMITMENT'
+    || source.contractRef !== prior.contractRef
+    || commitment.contractRef !== prior.contractRef
+    || commitment.category !== 'playerWages'
+    || commitment.budgetBucket !== 'payroll'
+    || release.currency !== club.season.plan.financialProfile.currency
+    || prior.totalMinorUnits - release.amount
+      !== commitment.amount - commitment.cancelledAmount
+    || club.revision <= prior.sourceClubRevision
+    || club.effectiveDay < prior.availableAtDay) {
+    throw new Error('wage amendment does not match released liability');
+  }
+  const totalMinorUnits = exact([
+    commitment.amount, -commitment.cancelledAmount,
+  ], 'wageSchedule.amendedTotal');
+  validateAnnualAmounts(source.annualAmounts,
+    prior.annualAmounts[0]!.season, totalMinorUnits);
+  if (JSON.stringify(annualBefore(source.annualAmounts,
+    club.season.plan.season))
+      !== JSON.stringify(annualBefore(prior.annualAmounts,
+        club.season.plan.season))) {
+    throw new Error('wage amendment cannot rewrite past seasons');
+  }
+  const record: ClubWageSchedule = Object.freeze({
+    commitmentId: source.commitmentId, contractRef: source.contractRef,
+    sourceClubEventId: event.command.eventId,
+    sourceClubRevision: club.revision,
+    availableAtDay: club.effectiveDay,
+    effectiveSeason: club.season.plan.season,
+    totalMinorUnits,
     annualAmounts: Object.freeze(source.annualAmounts.map((annual) =>
       Object.freeze({ season: annual.season, amount: annual.amount }))),
   });
@@ -195,12 +299,12 @@ export const getClubSeasonWageAllocations = (
   const allocations = club.live.finance.commitments
     .filter((commitment) => commitment.category === 'playerWages')
     .map((commitment): PlayerWageSeasonAllocation => {
-      const schedule = ledger.schedules.find((item) =>
+      const schedule = [...ledger.schedules].reverse().find((item) =>
         item.commitmentId === commitment.commitmentId);
       if (!schedule || schedule.contractRef !== commitment.contractRef
         || commitment.budgetBucket !== 'payroll'
-        || schedule.totalMinorUnits !== commitment.amount
-        || commitment.cancelledAmount !== 0
+        || schedule.totalMinorUnits
+          !== commitment.amount - commitment.cancelledAmount
         || schedule.sourceClubRevision > club.revision
         || schedule.availableAtDay > club.effectiveDay) {
         throw new Error('missing or stale wage schedule');
