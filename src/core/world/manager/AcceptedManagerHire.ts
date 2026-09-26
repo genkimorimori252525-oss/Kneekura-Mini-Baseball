@@ -2,6 +2,9 @@ import { financeSummary } from '../club/ClubFinance';
 import { applyClubCommand } from '../club/ClubLifecycle';
 import type { ClubTransitionEvent, ClubWorldState } from '../club/ClubTypes';
 import { same } from '../club/ClubValidation';
+import { appendClubWageSchedule,
+  getClubSeasonStaffWageAllocations } from '../club/ClubWageScheduleLedger';
+import type { ClubWageScheduleLedger } from '../club/ClubWageScheduleLedger';
 
 /** A club-specific observation record. It has no hidden true-skill field. */
 export type ManagerCandidateEstimateRef = Readonly<{
@@ -68,6 +71,8 @@ export const applyAcceptedManagerHire = (
   estimate: ManagerCandidateEstimateRef,
   offer: ManagerEmploymentOffer,
   acceptance: ManagerOfferAcceptance,
+  beforeSchedules: ClubWageScheduleLedger,
+  afterSchedules: ClubWageScheduleLedger,
 ): Readonly<{ state: ClubWorldState; event: ManagerHireEvent }> => {
   if (before.live.references.staffRoleLinks.some((link) =>
     link.roleKind === 'MANAGER')
@@ -175,6 +180,28 @@ export const applyAcceptedManagerHire = (
   }) || !same(references.references, after.live.references)) {
     throw new Error('manager appointment does not match acceptance');
   }
+  const schedule = afterSchedules.schedules.find((item) =>
+    item.commitmentId === liability.commitmentId);
+  if (!schedule || schedule.contractRef !== offer.contractId
+    || schedule.category !== 'staffWages'
+    || schedule.budgetBucket !== 'coaching'
+    || schedule.sourceClubEventId !== clubEvent.command.eventId
+    || schedule.annualAmounts.length !== offer.termSeasons
+    || schedule.annualAmounts.some((annual, index) =>
+      annual.season !== before.season.plan.season + index
+        || annual.amount !== offer.annualSalaryMinorUnits)) {
+    throw new Error('manager staff wage schedule does not match offer');
+  }
+  const derivedSchedules = appendClubWageSchedule(beforeSchedules,
+    beforeSchedules.revision, after, clubEvent, {
+      commitmentId: liability.commitmentId,
+      contractRef: offer.contractId,
+      annualAmounts: schedule.annualAmounts,
+    });
+  if (!same(derivedSchedules, afterSchedules)) {
+    throw new Error('manager staff wage schedule history mismatch');
+  }
+  getClubSeasonStaffWageAllocations(afterSchedules, after);
   const event: ManagerHireEvent = Object.freeze({
     type: 'MANAGER_HIRED',
     eventId: `manager-hire:${clubEvent.command.eventId}`,
