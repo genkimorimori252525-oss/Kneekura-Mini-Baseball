@@ -7,6 +7,9 @@ import { deriveSourceBackedRosterNeed,
 import type { RosterState } from '../roster/RosterTypes';
 import type { BudgetBucket } from '../club/ClubFinanceTypes';
 import type { ClubWorldState } from '../club/ClubTypes';
+import { evaluateClubPayrollPrecheck,
+  type ClubPayrollPrecheck,
+  type PlayerWageSeasonAllocation } from '../club/ClubPayrollPrecheck';
 import { deriveRecruitmentFinance,
   type SourceBackedClubFinance } from './SourceBackedRecruitmentFinance';
 
@@ -63,6 +66,7 @@ export type RecruitmentDecisionRecord = Readonly<RecruitmentDecisionInput & {
   knowledgeEvidence: readonly ScoutingEvidenceRecord[];
   sourceBackedRosterNeed?: SourceBackedRosterNeed;
   sourceBackedClubFinance?: SourceBackedClubFinance;
+  payrollPrecheck?: ClubPayrollPrecheck;
 }>;
 export type RecruitmentDecisionLedger = Readonly<{
   careerId: string;
@@ -97,6 +101,7 @@ const appendRecruitmentDecisionInternal = (
   source: RecruitmentDecisionInput,
   sourceBackedRosterNeed?: SourceBackedRosterNeed,
   sourceBackedClubFinance?: SourceBackedClubFinance,
+  payrollPrecheck?: ClubPayrollPrecheck,
 ): RecruitmentDecisionLedger => {
   if (expectedRevision !== ledger.revision) {
     throw new Error('stale recruitment decision revision');
@@ -237,7 +242,8 @@ const appendRecruitmentDecisionInternal = (
     knowledgeReports: reports as PlayerKnowledgeReport[],
     knowledgeEvidence: [...knowledgeEvidence.values()],
     ...(sourceBackedRosterNeed ? { sourceBackedRosterNeed } : {}),
-    ...(sourceBackedClubFinance ? { sourceBackedClubFinance } : {}) });
+    ...(sourceBackedClubFinance ? { sourceBackedClubFinance } : {}),
+    ...(payrollPrecheck ? { payrollPrecheck } : {}) });
   return Object.freeze({ careerId: ledger.careerId, clubId: ledger.clubId,
     revision: ledger.revision + 1, effectiveDay: decision.decidedAtDay,
     decisions: Object.freeze([...ledger.decisions, record]) });
@@ -307,6 +313,8 @@ export const appendRecruitmentDecisionWithRosterNeedAndClubFinance = (
   budgetBucket: BudgetBucket,
   source: Omit<RecruitmentDecisionInput,
     'rosterNeedSnapshot' | 'budgetContext'>,
+  proposedCurrentSeasonPayrollMinorUnits?: number,
+  wageAllocations: readonly PlayerWageSeasonAllocation[] = [],
 ): RecruitmentDecisionLedger => {
   if (needRequest.careerId !== source.careerId
     || needRequest.clubId !== source.clubId
@@ -317,12 +325,78 @@ export const appendRecruitmentDecisionWithRosterNeedAndClubFinance = (
     needRequest, policy);
   const finance = deriveRecruitmentFinance(club, source.careerId,
     source.clubId, source.decidedAtDay, budgetBucket);
+  if (proposedCurrentSeasonPayrollMinorUnits !== undefined
+    && budgetBucket !== 'payroll') {
+    throw new Error('payroll precheck requires the payroll budget');
+  }
+  if (proposedCurrentSeasonPayrollMinorUnits === undefined
+    && wageAllocations.length > 0) {
+    throw new Error('wage allocations require a payroll precheck');
+  }
+  const precheck = proposedCurrentSeasonPayrollMinorUnits === undefined
+    ? undefined : precheckOfferedPayroll(club, source,
+      finance.budgetContext.currency, proposedCurrentSeasonPayrollMinorUnits,
+      wageAllocations);
   return appendRecruitmentDecisionInternal(ledger, expectedRevision,
     knowledge, { ...source,
       rosterNeedSnapshot: {
         snapshotId: need.snapshotId, availableAtDay: need.asOfDay,
         positionGroup: need.positionGroup, horizon: need.horizon,
         urgency: need.urgency, requiredRole: need.requiredRole,
-      }, budgetContext: finance.budgetContext },
-    need, finance.sourceBackedClubFinance);
+      }, budgetContext: precheck ? { ...finance.budgetContext,
+        availableMinorUnits: precheckedPayrollHeadroom(precheck) }
+        : finance.budgetContext },
+    need, finance.sourceBackedClubFinance, precheck);
+};
+
+const precheckOfferedPayroll = (
+  club: ClubWorldState,
+  source: Pick<RecruitmentDecisionInput, 'decision' | 'offeredTerms'>,
+  currency: string,
+  proposedCurrentSeasonPayrollMinorUnits: number,
+  wageAllocations: readonly PlayerWageSeasonAllocation[],
+): ClubPayrollPrecheck => {
+  if (source.decision !== 'BID' && source.decision !== 'ACQUIRE') {
+    throw new Error('payroll precheck requires a bid or acquisition');
+  }
+  const offer = source.offeredTerms;
+  if (!offer || offer.currency !== currency
+    || proposedCurrentSeasonPayrollMinorUnits > offer.totalMinorUnits) {
+    throw new Error('payroll proposal does not match offered terms');
+  }
+  const precheck = evaluateClubPayrollPrecheck(club,
+    proposedCurrentSeasonPayrollMinorUnits, wageAllocations);
+  if (precheck.outcome !== 'WITHIN_COVERED_RULES') {
+    throw new Error(`payroll proposal ${precheck.outcome}`);
+  }
+  return precheck;
+};
+
+const precheckedPayrollHeadroom = (precheck: ClubPayrollPrecheck): number => {
+  if (precheck.allocatedPayrollBudget === null) {
+    throw new Error('missing prechecked payroll allocation');
+  }
+  return Math.max(0, precheck.approvedPayrollBudget
+    - precheck.allocatedPayrollBudget);
+};
+
+/** Rejects a current-season payroll offer outside the covered budget rules. */
+export const appendRecruitmentDecisionWithPayrollPrecheck = (
+  ledger: RecruitmentDecisionLedger,
+  expectedRevision: number,
+  knowledge: ClubScoutingKnowledge,
+  club: ClubWorldState,
+  proposedCurrentSeasonPayrollMinorUnits: number,
+  source: Omit<RecruitmentDecisionInput, 'budgetContext'>,
+  wageAllocations: readonly PlayerWageSeasonAllocation[] = [],
+): RecruitmentDecisionLedger => {
+  const finance = deriveRecruitmentFinance(club, source.careerId,
+    source.clubId, source.decidedAtDay, 'payroll');
+  const precheck = precheckOfferedPayroll(club, source,
+    finance.budgetContext.currency, proposedCurrentSeasonPayrollMinorUnits,
+    wageAllocations);
+  return appendRecruitmentDecisionInternal(ledger, expectedRevision,
+    knowledge, { ...source, budgetContext: { ...finance.budgetContext,
+      availableMinorUnits: precheckedPayrollHeadroom(precheck) } },
+    undefined, finance.sourceBackedClubFinance, precheck);
 };
