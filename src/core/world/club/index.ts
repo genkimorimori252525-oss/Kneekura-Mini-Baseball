@@ -14,6 +14,10 @@ export type { ClubPayrollPrecheck, PlayerWageSeasonAllocation } from './ClubPayr
 export { createClubWageScheduleLedger, appendClubWageSchedule,
   appendClubWageScheduleAmendment,
   getClubSeasonWageAllocations } from './ClubWageScheduleLedger';
+export { applyScheduledPlayerWagePayment } from './ScheduledPlayerWagePayment';
+export type { AnnualWagePaymentPolicy,
+  ScheduledPlayerWagePaymentBasis,
+  ScheduledPlayerWagePayment } from './ScheduledPlayerWagePayment';
 export type { ClubWageSchedule, ClubWageScheduleInput,
   ClubWageScheduleLedger } from './ClubWageScheduleLedger';
 export { replayClubEvents, getCurrentClubManager } from './ClubEvents';
