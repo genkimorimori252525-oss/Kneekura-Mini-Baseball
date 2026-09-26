@@ -4,6 +4,9 @@ import type { OfficialGameResult } from './OfficialGameCompletion';
 import { finalizeWbcGlobalQualifier, planWbcGlobalQualifier,
   type WbcGlobalQualifierEdition, type WbcQualifierGame }
   from './WbcGlobalQualifierPods';
+import { createNationalQualificationHistory,
+  latestWbcQualifierPodWinner, recordWbcGlobalQualifier }
+  from './NationalQualificationHistory';
 
 const regions = ['ASIA_PACIFIC', 'AMERICAS',
   'EUROPE', 'AFRICA'] as const;
@@ -61,6 +64,17 @@ it('qualifies four nations after exactly twelve official pod games', () => {
   expect(outcome.resultApplicationIds).toHaveLength(12);
   expect(outcome.winners.every((winner) =>
     winner.finalizedDay === 50)).toBe(true);
+  const history = createNationalQualificationHistory({
+    ASIA_PACIFIC: 'regional-ap', AMERICAS: 'regional-am',
+    EUROPE: 'regional-eu', AFRICA: 'regional-af',
+  });
+  const recorded = recordWbcGlobalQualifier(history,
+    edition, semifinals, finals);
+  expect(latestWbcQualifierPodWinner(recorded, 0, 49)).toBeNull();
+  expect(latestWbcQualifierPodWinner(recorded, 0, 50))
+    .toEqual(outcome.winners[0]);
+  expect(() => recordWbcGlobalQualifier(recorded,
+    edition, semifinals, finals)).toThrow('already recorded');
   expect(() => finalizeWbcGlobalQualifier(plan, semifinals,
     [{ ...finals[0], applicationId: semifinals[0].applicationId },
       ...finals.slice(1)], edition)).toThrow('unique');
