@@ -10,6 +10,7 @@ import { applyAcceptedManagerHire } from './AcceptedManagerHire';
 import { appendManagerCandidateObservation,
   createManagerCandidateEvidenceLedger,
   getManagerCandidateEstimate } from './ManagerCandidateEvidence';
+import { applyShortlistedManagerHire } from './ShortlistedManagerHire';
 
 const vacancy = (): ClubWorldState => {
   const initial = state();
@@ -58,7 +59,7 @@ const hire = (before: ClubWorldState) => {
       currency: offer.currency },
     { kind: 'UPDATE_REFERENCES', references }], before, 'hire-1'),
     causeEventIds: [estimate.estimateId, offer.offerId,
-      acceptance.sourceEventId],
+      acceptance.sourceEventId, 'hire-brief-1', 'interest-1'],
   });
   if (!changed.ok) throw new Error('failed to create manager hire');
   return changed;
@@ -150,4 +151,47 @@ it('rejects an occupied job and estimates unavailable when the offer was made', 
         analysis: { ...rating, mean: 1 } } },
     offer, acceptance, beforeSchedules,
     afterSchedules, evidence)).toThrow('estimate');
+});
+
+it('links the accepted hire to a dated bilateral market shortlist', () => {
+  const before = vacancy();
+  const after = hire(before);
+  const { beforeSchedules, afterSchedules } = schedules(after);
+  const brief = { briefId: 'hire-brief-1', careerId: 'career-a',
+    clubId: 'club-a', effectiveDay: 11,
+    priorityAxes: ['analysis' as const],
+    minimumLowerBounds: { analysis: 0.05 },
+    maximumAnnualSalaryMinorUnits: 30 };
+  const terms = { careerId: 'career-a', clubId: 'club-a',
+    managerId: 'manager-b', interestSourceEventId: 'interest-1',
+    interestObservedAtDay: 11, willingToNegotiate: true,
+    desiredAnnualSalaryMinorUnits: 20, termSeasons: 3 };
+  const result = applyShortlistedManagerHire(before, after.state,
+    after.event, offer, acceptance, beforeSchedules,
+    afterSchedules, evidence, brief, [terms]);
+  expect(result.event).toMatchObject({ type: 'MANAGER_HIRED',
+    managerId: 'manager-b' });
+  expect(result.selection).toEqual({ briefId: 'hire-brief-1',
+    estimateId: estimate.estimateId,
+    interestSourceEventId: 'interest-1' });
+  expect(() => applyShortlistedManagerHire(before, after.state,
+    after.event, offer, acceptance, beforeSchedules,
+    afterSchedules, evidence, brief,
+    [{ ...terms, willingToNegotiate: false }]))
+    .toThrow('shortlist');
+  expect(() => applyShortlistedManagerHire(before, after.state,
+    after.event, offer, acceptance, beforeSchedules,
+    afterSchedules, evidence, { ...brief, effectiveDay: 12 },
+    [terms])).toThrow('day');
+  expect(() => applyShortlistedManagerHire(before, after.state,
+    { ...after.event, command: { ...after.event.command,
+      causeEventIds: [estimate.estimateId, offer.offerId,
+        acceptance.sourceEventId, brief.briefId] } },
+    offer, acceptance, beforeSchedules, afterSchedules,
+    evidence, brief, [terms])).toThrow('provenance');
+  expect(applyShortlistedManagerHire(before, after.state,
+    after.event, offer, acceptance, beforeSchedules,
+    afterSchedules, evidence, brief,
+    [{ ...terms, desiredAnnualSalaryMinorUnits: 21 }])
+    .event.type).toBe('MANAGER_HIRED');
 });
