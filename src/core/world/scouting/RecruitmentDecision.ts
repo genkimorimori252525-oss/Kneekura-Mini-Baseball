@@ -14,6 +14,9 @@ import { getClubSeasonWageAllocations,
   type ClubWageScheduleLedger } from '../club/ClubWageScheduleLedger';
 import { deriveRecruitmentFinance,
   type SourceBackedClubFinance } from './SourceBackedRecruitmentFinance';
+import { deriveRecruitmentAuthority,
+  type RecruitmentAuthorityProfile,
+  type SourceBackedRecruitmentAuthority } from './RecruitmentAuthority';
 
 export type RecruitmentDecisionKind = 'SHORTLIST' | 'BID' | 'PASS' | 'ACQUIRE';
 export type RosterNeedSnapshot = Readonly<{
@@ -69,6 +72,7 @@ export type RecruitmentDecisionRecord = Readonly<RecruitmentDecisionInput & {
   sourceBackedRosterNeed?: SourceBackedRosterNeed;
   sourceBackedClubFinance?: SourceBackedClubFinance;
   payrollPrecheck?: ClubPayrollPrecheck;
+  sourceBackedAuthority?: SourceBackedRecruitmentAuthority;
 }>;
 export type RecruitmentDecisionLedger = Readonly<{
   careerId: string;
@@ -104,6 +108,7 @@ const appendRecruitmentDecisionInternal = (
   sourceBackedRosterNeed?: SourceBackedRosterNeed,
   sourceBackedClubFinance?: SourceBackedClubFinance,
   payrollPrecheck?: ClubPayrollPrecheck,
+  sourceBackedAuthority?: SourceBackedRecruitmentAuthority,
 ): RecruitmentDecisionLedger => {
   if (expectedRevision !== ledger.revision) {
     throw new Error('stale recruitment decision revision');
@@ -245,7 +250,8 @@ const appendRecruitmentDecisionInternal = (
     knowledgeEvidence: [...knowledgeEvidence.values()],
     ...(sourceBackedRosterNeed ? { sourceBackedRosterNeed } : {}),
     ...(sourceBackedClubFinance ? { sourceBackedClubFinance } : {}),
-    ...(payrollPrecheck ? { payrollPrecheck } : {}) });
+    ...(payrollPrecheck ? { payrollPrecheck } : {}),
+    ...(sourceBackedAuthority ? { sourceBackedAuthority } : {}) });
   return Object.freeze({ careerId: ledger.careerId, clubId: ledger.clubId,
     revision: ledger.revision + 1, effectiveDay: decision.decidedAtDay,
     decisions: Object.freeze([...ledger.decisions, record]) });
@@ -317,6 +323,7 @@ export const appendRecruitmentDecisionWithRosterNeedAndClubFinance = (
     'rosterNeedSnapshot' | 'budgetContext'>,
   proposedCurrentSeasonPayrollMinorUnits?: number,
   wageAllocations: readonly PlayerWageSeasonAllocation[] = [],
+  authorityProfile?: RecruitmentAuthorityProfile,
 ): RecruitmentDecisionLedger => {
   if (needRequest.careerId !== source.careerId
     || needRequest.clubId !== source.clubId
@@ -339,6 +346,10 @@ export const appendRecruitmentDecisionWithRosterNeedAndClubFinance = (
     ? undefined : precheckOfferedPayroll(club, source,
       finance.budgetContext.currency, proposedCurrentSeasonPayrollMinorUnits,
       wageAllocations);
+  const authority = authorityProfile === undefined ? undefined
+    : deriveRecruitmentAuthority(club, authorityProfile,
+      source.authorityPersonId, source.governanceProfileVersion,
+      source.decidedAtDay);
   return appendRecruitmentDecisionInternal(ledger, expectedRevision,
     knowledge, { ...source,
       rosterNeedSnapshot: {
@@ -348,7 +359,7 @@ export const appendRecruitmentDecisionWithRosterNeedAndClubFinance = (
       }, budgetContext: precheck ? { ...finance.budgetContext,
         availableMinorUnits: precheckedPayrollHeadroom(precheck) }
         : finance.budgetContext },
-    need, finance.sourceBackedClubFinance, precheck);
+    need, finance.sourceBackedClubFinance, precheck, authority);
 };
 
 const precheckOfferedPayroll = (
@@ -429,9 +440,36 @@ export const appendRecruitmentDecisionWithRosterNeedAndWageScheduleLedger = (
   proposedCurrentSeasonPayrollMinorUnits: number,
   source: Omit<RecruitmentDecisionInput,
     'rosterNeedSnapshot' | 'budgetContext'>,
+  authorityProfile?: RecruitmentAuthorityProfile,
 ): RecruitmentDecisionLedger =>
   appendRecruitmentDecisionWithRosterNeedAndClubFinance(
     ledger, expectedRevision, knowledge, roster, policy,
     needRequest, club, 'payroll', source,
     proposedCurrentSeasonPayrollMinorUnits,
+    getClubSeasonWageAllocations(wageSchedules, club),
+    authorityProfile);
+
+/** Pins live front-office authority alongside signed-wage evidence. */
+export const appendAuthorizedRecruitmentDecisionWithWageSchedule = (
+  ledger: RecruitmentDecisionLedger,
+  expectedRevision: number,
+  knowledge: ClubScoutingKnowledge,
+  club: ClubWorldState,
+  wageSchedules: ClubWageScheduleLedger,
+  authorityProfile: RecruitmentAuthorityProfile,
+  proposedCurrentSeasonPayrollMinorUnits: number,
+  source: Omit<RecruitmentDecisionInput, 'budgetContext'>,
+): RecruitmentDecisionLedger => {
+  const finance = deriveRecruitmentFinance(club, source.careerId,
+    source.clubId, source.decidedAtDay, 'payroll');
+  const precheck = precheckOfferedPayroll(club, source,
+    finance.budgetContext.currency, proposedCurrentSeasonPayrollMinorUnits,
     getClubSeasonWageAllocations(wageSchedules, club));
+  const authority = deriveRecruitmentAuthority(club, authorityProfile,
+    source.authorityPersonId, source.governanceProfileVersion,
+    source.decidedAtDay);
+  return appendRecruitmentDecisionInternal(ledger, expectedRevision,
+    knowledge, { ...source, budgetContext: { ...finance.budgetContext,
+      availableMinorUnits: precheckedPayrollHeadroom(precheck) } },
+    undefined, finance.sourceBackedClubFinance, precheck, authority);
+};
