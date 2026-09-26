@@ -3,6 +3,8 @@ import type { ClubWorldRegion } from './ClubWorldBerths';
 import { planWorldCompetitionCycle,
   type WorldCompetitionCycleInput }
   from './WorldCompetitionCycleCalendar';
+import { generateWorldBoundLeagueSchedule }
+  from './WorldLeagueSchedule';
 
 const regions: readonly ClubWorldRegion[] = [
   'ASIA_PACIFIC', 'AMERICAS', 'EUROPE', 'AFRICA'];
@@ -86,4 +88,42 @@ it('rejects missing Flex Window and misplaced fixed world event', () => {
         : event) };
   expect(() => planWorldCompetitionCycle(regionalConflict))
     .toThrow('Flex Window');
+});
+
+it('binds world windows to a domestic season without reducing game count', () => {
+  const cycle = planWorldCompetitionCycle(input(0));
+  const scheduleInput = {
+    seasonId: 'league-2032', leagueId: 'league-test',
+    calendarProfileVersion: 'calendar-v1',
+    generatorVersion: 'rounds-v1', scheduleSeed: 'seed-2032',
+    opponentMatrixVersion: 'matrix-v1',
+    regularSeasonGamesPerClub: 4,
+    memberClubIds: ['a', 'b'],
+    opponentMatrix: [
+      { homeClubId: 'a', awayClubId: 'b', gameCount: 2 },
+      { homeClubId: 'b', awayClubId: 'a', gameCount: 2 },
+    ],
+    allowedDays: Array.from({ length: 25 }, (_, index) =>
+      index + 10),
+    reservedWindows: [], preferredSeriesLength: 2 as const,
+    minimumDaysBetweenRounds: 0,
+  };
+  const bound = generateWorldBoundLeagueSchedule(scheduleInput,
+    cycle, 'ASIA_PACIFIC', '2032-02-20');
+  expect(bound.schedule.games).toHaveLength(4);
+  expect(bound.schedule.games.every((game) =>
+    game.day > 30)).toBe(true);
+  expect(bound.schedule.reservedWindows).toContainEqual({
+    kind: 'WORLD', startsOnDay: 11, endsOnDay: 30 });
+  expect(bound.worldWindowSnapshotId).toContain('world-league-calendar');
+  expect(() => generateWorldBoundLeagueSchedule({ ...scheduleInput,
+    allowedDays: scheduleInput.allowedDays.slice(0, -1) },
+    cycle, 'ASIA_PACIFIC', '2032-02-20'))
+    .toThrow('schedule validation failure');
+  const asiaFlex = generateWorldBoundLeagueSchedule({ ...scheduleInput,
+    allowedDays: Array.from({ length: 40 }, (_, index) =>
+      index + 1) }, cycle, 'ASIA_PACIFIC', '2034-10-01');
+  expect(asiaFlex.schedule.reservedWindows).toContainEqual({
+    kind: 'CONTINENTAL', startsOnDay: 20,
+    endsOnDay: 30 });
 });
