@@ -8,6 +8,8 @@ import { createAfricaGroupHubPlan,
   finalizeAfricaGroupHubs } from './AfricaGroupHubs';
 import { planAfricaFinalFour, finalizeAfricaFinalFour }
   from './AfricaFinalFour';
+import { deriveOfficialRegionalClubSeason }
+  from './OfficialRegionalClubAchievement';
 
 const draw: CompetitionDraw = {
   editionId: 'afbcl-2027', drawPolicyVersion: 'draw-v1',
@@ -140,6 +142,14 @@ it('advances Africa semifinal and final winners at the preselected host', () => 
     awayClubId: semifinals[1].winnerClubId!,
     neutralVenueId: plan.hostVenueId }, 38);
   const outcome = finalizeAfricaFinalFour(plan, semifinals, final, source);
+  const achievements = deriveOfficialRegionalClubSeason({
+    kind: 'AFRICA', region: 'AFRICA', seasonId: '2027',
+    source, plan, semifinalResults: semifinals, finalResult: final,
+  });
+  expect(achievements.clubs).toHaveLength(8);
+  expect(achievements.clubs.find((club) =>
+    club.clubId === outcome.championClubId)?.achievements.some((event) =>
+    event.kind === 'TITLE')).toBe(true);
   expect(outcome.championClubId).toBe(final.winnerClubId);
   expect(outcome.resultApplicationIds).toHaveLength(3);
   expect(() => finalizeAfricaFinalFour(plan, semifinals,
