@@ -11,6 +11,7 @@ import { appendManagerCandidateObservation,
   createManagerCandidateEvidenceLedger,
   getManagerCandidateEstimate } from './ManagerCandidateEvidence';
 import { applyShortlistedManagerHire } from './ShortlistedManagerHire';
+import { executeManagerHireTransaction } from './ManagerHireTransaction';
 
 const vacancy = (): ClubWorldState => {
   const initial = state();
@@ -194,4 +195,40 @@ it('links the accepted hire to a dated bilateral market shortlist', () => {
     afterSchedules, evidence, brief,
     [{ ...terms, desiredAnnualSalaryMinorUnits: 21 }])
     .event.type).toBe('MANAGER_HIRED');
+});
+
+it('constructs club, wage and manager records as one replayable hire transition', () => {
+  const before = vacancy();
+  const beforeSchedules = createClubWageScheduleLedger('career-a',
+    'club-a');
+  const brief = { briefId: 'hire-brief-1', careerId: 'career-a',
+    clubId: 'club-a', effectiveDay: 11,
+    priorityAxes: ['analysis' as const],
+    minimumLowerBounds: { analysis: 0.05 },
+    maximumAnnualSalaryMinorUnits: 30 };
+  const terms = { careerId: 'career-a', clubId: 'club-a',
+    managerId: 'manager-b', interestSourceEventId: 'interest-1',
+    interestObservedAtDay: 11, willingToNegotiate: true,
+    desiredAnnualSalaryMinorUnits: 20, termSeasons: 3 };
+  const result = executeManagerHireTransaction(before,
+    beforeSchedules, evidence, brief, [terms], offer,
+    acceptance, { clubEventId: 'hire-atomic-1',
+      commitmentId: 'manager-wage-atomic-1', effectiveDay: 12 });
+  expect(result.club.live.references.staffRoleLinks)
+    .toMatchObject([{ roleKind: 'MANAGER', personId: 'manager-b' }]);
+  expect(result.schedules.schedules[0]?.annualAmounts)
+    .toEqual([1, 2, 3].map((season) => ({ season, amount: 20 })));
+  expect(result.hire.event).toMatchObject({ type: 'MANAGER_HIRED',
+    commitmentId: 'manager-wage-atomic-1' });
+  expect(result.clubEvent.command.causeEventIds)
+    .toContain('interest-1');
+  expect(before.live.references.staffRoleLinks).toEqual([]);
+  expect(beforeSchedules.schedules).toEqual([]);
+  expect(() => executeManagerHireTransaction(before,
+    beforeSchedules, evidence, brief, [terms],
+    { ...offer, annualSalaryMinorUnits: 100 }, acceptance,
+    { clubEventId: 'hire-atomic-2',
+      commitmentId: 'manager-wage-atomic-2', effectiveDay: 12 }))
+    .toThrow();
+  expect(beforeSchedules.schedules).toEqual([]);
 });
