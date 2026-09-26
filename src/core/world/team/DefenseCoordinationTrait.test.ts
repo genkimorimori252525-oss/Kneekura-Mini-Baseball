@@ -5,6 +5,7 @@ import { applyPlayerRelationshipEvidence,
   createPlayerRelationshipNetwork } from './PlayerRelationships';
 import type { PlayerRelationshipNetwork } from './PlayerRelationships';
 import { deriveDefenseCoordinationTrait } from './DefenseCoordinationTrait';
+import { compareDefenseCoordinationTrait } from './DefenseCoordinationTraitLifecycle';
 
 const relationshipPolicy = { policyId: 'joint-task', version: 'v1',
   availableAtDay: 0,
@@ -102,4 +103,38 @@ it('requires both active club members and both directions of evidence', () => {
   expect(() => deriveDefenseCoordinationTrait(twoWay, roster(1),
     'club-a', 'p1', 'p2', 'MIDDLE_INFIELD', 1,
     { ...traitPolicy, blueThreshold: 50 })).toThrow('threshold');
+});
+
+it('records pair-trait acquisition, tier change and evidence expiry without a skill effect', () => {
+  const initial = createPlayerRelationshipNetwork('career-a',
+    relationshipPolicy);
+  const blue = both(initial, 'JOINT_REPETITION', 1);
+  const acquired = compareDefenseCoordinationTrait(initial,
+    roster(0), 0, blue, roster(1), 1,
+    'club-a', 'p1', 'p2', 'MIDDLE_INFIELD', traitPolicy);
+  expect(acquired).toMatchObject({ transition: 'ACQUIRED',
+    before: null, after: { tier: 'BLUE' } });
+  const gold = both(blue, 'JOINT_REPETITION', 2);
+  const changed = compareDefenseCoordinationTrait(blue,
+    roster(1), 1, gold, roster(2), 2,
+    'club-a', 'p1', 'p2', 'MIDDLE_INFIELD', traitPolicy);
+  expect(changed).toMatchObject({ transition: 'TIER_CHANGED',
+    before: { tier: 'BLUE' }, after: { tier: 'GOLD' } });
+  const expired = compareDefenseCoordinationTrait(gold,
+    roster(2), 2, gold, roster(10), 10,
+    'club-a', 'p1', 'p2', 'MIDDLE_INFIELD', traitPolicy);
+  expect(expired).toMatchObject({ transition: 'EXPIRED',
+    before: { tier: 'GOLD' }, after: null });
+  expect(expired).not.toHaveProperty('fieldingModifier');
+  expect(() => compareDefenseCoordinationTrait(gold,
+    roster(2), 2, blue, roster(1), 1,
+    'club-a', 'p1', 'p2', 'MIDDLE_INFIELD', traitPolicy))
+    .toThrow('history');
+  expect(() => compareDefenseCoordinationTrait(blue,
+    roster(1), 1, { ...gold, links: [
+      { ...gold.links[0]!, coordinationByTask: {
+        MIDDLE_INFIELD: 0 } }, ...gold.links.slice(1),
+    ] }, roster(2), 2,
+    'club-a', 'p1', 'p2', 'MIDDLE_INFIELD', traitPolicy))
+    .toThrow('history');
 });
