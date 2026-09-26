@@ -5,6 +5,10 @@ import { deriveSourceBackedRosterNeed,
   type RosterNeedPlanningPolicy, type RosterNeedRequest,
   type SourceBackedRosterNeed } from '../roster/SourceBackedRosterNeed';
 import type { RosterState } from '../roster/RosterTypes';
+import type { BudgetBucket } from '../club/ClubFinanceTypes';
+import type { ClubWorldState } from '../club/ClubTypes';
+import { deriveRecruitmentFinance,
+  type SourceBackedClubFinance } from './SourceBackedRecruitmentFinance';
 
 export type RecruitmentDecisionKind = 'SHORTLIST' | 'BID' | 'PASS' | 'ACQUIRE';
 export type RosterNeedSnapshot = Readonly<{
@@ -58,6 +62,7 @@ export type RecruitmentDecisionRecord = Readonly<RecruitmentDecisionInput & {
   knowledgeReports: readonly PlayerKnowledgeReport[];
   knowledgeEvidence: readonly ScoutingEvidenceRecord[];
   sourceBackedRosterNeed?: SourceBackedRosterNeed;
+  sourceBackedClubFinance?: SourceBackedClubFinance;
 }>;
 export type RecruitmentDecisionLedger = Readonly<{
   careerId: string;
@@ -91,6 +96,7 @@ const appendRecruitmentDecisionInternal = (
   knowledge: ClubScoutingKnowledge,
   source: RecruitmentDecisionInput,
   sourceBackedRosterNeed?: SourceBackedRosterNeed,
+  sourceBackedClubFinance?: SourceBackedClubFinance,
 ): RecruitmentDecisionLedger => {
   if (expectedRevision !== ledger.revision) {
     throw new Error('stale recruitment decision revision');
@@ -230,7 +236,8 @@ const appendRecruitmentDecisionInternal = (
   const record = frozenScoutingCopy({ ...decision,
     knowledgeReports: reports as PlayerKnowledgeReport[],
     knowledgeEvidence: [...knowledgeEvidence.values()],
-    ...(sourceBackedRosterNeed ? { sourceBackedRosterNeed } : {}) });
+    ...(sourceBackedRosterNeed ? { sourceBackedRosterNeed } : {}),
+    ...(sourceBackedClubFinance ? { sourceBackedClubFinance } : {}) });
   return Object.freeze({ careerId: ledger.careerId, clubId: ledger.clubId,
     revision: ledger.revision + 1, effectiveDay: decision.decidedAtDay,
     decisions: Object.freeze([...ledger.decisions, record]) });
@@ -270,4 +277,52 @@ export const appendRecruitmentDecisionWithRosterNeed = (
       urgency: need.urgency,
       requiredRole: need.requiredRole,
     } }, need);
+};
+
+/** Pins the actual club ledger and approved budget used for a recruitment decision. */
+export const appendRecruitmentDecisionWithClubFinance = (
+  ledger: RecruitmentDecisionLedger,
+  expectedRevision: number,
+  knowledge: ClubScoutingKnowledge,
+  club: ClubWorldState,
+  budgetBucket: BudgetBucket,
+  source: Omit<RecruitmentDecisionInput, 'budgetContext'>,
+): RecruitmentDecisionLedger => {
+  const finance = deriveRecruitmentFinance(club, source.careerId,
+    source.clubId, source.decidedAtDay, budgetBucket);
+  return appendRecruitmentDecisionInternal(ledger, expectedRevision,
+    knowledge, { ...source, budgetContext: finance.budgetContext },
+    undefined, finance.sourceBackedClubFinance);
+};
+
+/** Records both roster need and budget from the same club's causal state. */
+export const appendRecruitmentDecisionWithRosterNeedAndClubFinance = (
+  ledger: RecruitmentDecisionLedger,
+  expectedRevision: number,
+  knowledge: ClubScoutingKnowledge,
+  roster: RosterState,
+  policy: RosterNeedPlanningPolicy,
+  needRequest: RosterNeedRequest,
+  club: ClubWorldState,
+  budgetBucket: BudgetBucket,
+  source: Omit<RecruitmentDecisionInput,
+    'rosterNeedSnapshot' | 'budgetContext'>,
+): RecruitmentDecisionLedger => {
+  if (needRequest.careerId !== source.careerId
+    || needRequest.clubId !== source.clubId
+    || needRequest.asOfDay > source.decidedAtDay) {
+    throw new Error('recruitment roster need scope or decision time mismatch');
+  }
+  const need = deriveSourceBackedRosterNeed(roster, knowledge,
+    needRequest, policy);
+  const finance = deriveRecruitmentFinance(club, source.careerId,
+    source.clubId, source.decidedAtDay, budgetBucket);
+  return appendRecruitmentDecisionInternal(ledger, expectedRevision,
+    knowledge, { ...source,
+      rosterNeedSnapshot: {
+        snapshotId: need.snapshotId, availableAtDay: need.asOfDay,
+        positionGroup: need.positionGroup, horizon: need.horizon,
+        urgency: need.urgency, requiredRole: need.requiredRole,
+      }, budgetContext: finance.budgetContext },
+    need, finance.sourceBackedClubFinance);
 };
