@@ -26,5 +26,13 @@ not fixed by the design. The host authenticates the closed club/roster snapshots
 and persists the season event with the new state atomically. Role changes and
 unresolved conflicts require their own source-state evidence.
 
-Extreme-state gameplay gates, manager intervention, conflict severity and Team
-Trait projection remain separate work.
+`assessTeamMoodGate` applies a versioned extreme-state threshold policy to the
+current aggregate **and** a required fraction of aligned players. Ordinary
+fluctuations and one isolated player's extreme mood produce `NORMAL`. Its result
+only identifies eligibility for individual appraisal; it carries no match, raw
+ability or win-probability modifier. Threshold values and the aligned fraction
+need long-run calibration. Factionalization and unresolved central-player conflict
+are not inferred from the five-axis vector alone.
+
+The individual appraisal connection, manager intervention, conflict severity
+and Team Trait projection remain separate work.
