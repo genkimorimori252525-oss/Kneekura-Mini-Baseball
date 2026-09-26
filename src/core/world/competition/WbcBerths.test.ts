@@ -3,7 +3,8 @@ import { asRuleProfileId } from '../../model/RuleProfileRef';
 import type { ClubWorldRegion } from './ClubWorldBerths';
 import type { OfficialGameResult } from './OfficialGameCompletion';
 import { allocateWbcBerths, EMPTY_WBC_BERTH_POLICY_REGISTRY,
-  registerWbcBerthPolicy, type WbcBerthAuthority,
+  planWbcDirectBerths, registerWbcBerthPolicy,
+  type WbcBerthAuthority,
   type WbcBerthInput } from './WbcBerths';
 import { finalizeWbcFinalsGroups, planWbcFinalsGroups,
   type WbcFinalsGroupEdition, type WbcFinalsGroupGame }
@@ -17,6 +18,10 @@ import { buildWbcRegionalCoefficients,
   EMPTY_WBC_REGIONAL_COEFFICIENT_POLICY_REGISTRY,
   registerWbcRegionalCoefficientPolicy }
   from './WbcRegionalCoefficients';
+import { EMPTY_WBC_QUALIFIER_SELECTION_POLICY_REGISTRY,
+  registerWbcQualifierSelectionPolicy,
+  selectWbcGlobalQualifierEntrants }
+  from './WbcGlobalQualifierSelection';
 
 const regions: readonly ClubWorldRegion[] = [
   'ASIA_PACIFIC', 'AMERICAS', 'EUROPE', 'AFRICA'];
@@ -65,7 +70,54 @@ const authority: WbcBerthAuthority = {
 };
 
 it('fills 16 floor, four performance and four qualifier WBC berths', () => {
+  const direct = planWbcDirectBerths(input, {
+    editionCutoff: authority.editionCutoff,
+    regionalCoefficient: authority.regionalCoefficient,
+    regionalChampionship: authority.regionalChampionship,
+    nationCompetitionRegion: authority.nationCompetitionRegion,
+  });
+  expect(direct.entrantNationIds).toHaveLength(20);
+  expect(direct.placements).toHaveLength(4);
+  const selectionPolicy = { version: 'qualifier-selection-v1',
+    regionalPriorityPerRegion: 1,
+    rankingPolicyVersion: 'national-ranking-v1' };
+  const selectionRegistry = registerWbcQualifierSelectionPolicy(
+    EMPTY_WBC_QUALIFIER_SELECTION_POLICY_REGISTRY,
+    selectionPolicy);
+  const ranking = { snapshotId: 'national-ranking-2032',
+    policyVersion: selectionPolicy.rankingPolicyVersion,
+    asOfDay: 90,
+    orderedNationIds: regions.flatMap((region) =>
+      [8, 9, 10, 11].map((index) => `${region}-${index}`)),
+    evidenceResultIds: ['regional-national-result'] };
+  const eligibility = { snapshotId: 'eligible-qualifier-2032',
+    asOfDay: 90,
+    eligibleNationIds: regions.flatMap((region) =>
+      Array.from({ length: 12 }, (_, index) =>
+        `${region}-${index}`)) };
+  const selected = selectWbcGlobalQualifierEntrants(
+    input.qualifierEditionId, direct, ranking, eligibility,
+    selectionPolicy, selectionRegistry, nationRegion);
+  expect(selected.entrants).toHaveLength(16);
+  expect(selected.entrants.filter((entrant) =>
+    entrant.route === 'REGIONAL_PRIORITY')).toHaveLength(4);
+  expect(selected.entrants.filter((entrant) =>
+    entrant.route === 'WORLD_RANKING')).toHaveLength(12);
+  expect(selected.entrants.some((entrant) =>
+    direct.entrantNationIds.includes(entrant.nationId))).toBe(false);
+  expect(new Set(selected.entrants.map((entrant) =>
+    entrant.region)).size).toBe(4);
+  expect(() => selectWbcGlobalQualifierEntrants(
+    input.qualifierEditionId, direct, { ...ranking,
+      asOfDay: 101 }, eligibility, selectionPolicy,
+    selectionRegistry, nationRegion)).toThrow('cutoff');
+  expect(() => selectWbcGlobalQualifierEntrants(
+    'other-qualifier', direct, ranking, eligibility,
+    selectionPolicy, selectionRegistry, nationRegion))
+    .toThrow('cutoff');
   const result = allocateWbcBerths(input, authority);
+  expect(result.entrantNationIds.slice(0, 20))
+    .toEqual(direct.entrantNationIds);
   expect(result.slots).toHaveLength(24);
   expect(new Set(result.entrantNationIds).size).toBe(24);
   expect(result.slots.filter((slot) =>
