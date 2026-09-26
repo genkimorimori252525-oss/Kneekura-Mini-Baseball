@@ -34,6 +34,10 @@ export type ManagerActionBelief = Readonly<{
   styleTags: readonly string[];
   competitiveOutcome: ManagerEstimate;
   resourceHealth: ManagerEstimate;
+  executionFeasibility: ManagerEstimate;
+  opponentInformationResponse: ManagerEstimate;
+  humanRoleConsequence?: ManagerEstimate;
+  exceptionalObjectiveRelevance?: ManagerEstimate;
 }>;
 
 export type ManagerBeliefState = Readonly<{
@@ -69,11 +73,22 @@ function validateEstimate(estimate: ManagerEstimate): void {
 }
 
 function dominates(first: ManagerActionBelief, second: ManagerActionBelief): boolean {
-  const outcomeGap = first.competitiveOutcome.mean - first.competitiveOutcome.uncertainty
-    - second.competitiveOutcome.mean - second.competitiveOutcome.uncertainty;
-  const resourceGap = first.resourceHealth.mean - first.resourceHealth.uncertainty
-    - second.resourceHealth.mean - second.resourceHealth.uncertainty;
-  return outcomeGap >= 0 && resourceGap >= 0 && (outcomeGap > 0 || resourceGap > 0);
+  const required = ['competitiveOutcome', 'resourceHealth',
+    'executionFeasibility', 'opponentInformationResponse'] as const;
+  const optional = ['humanRoleConsequence',
+    'exceptionalObjectiveRelevance'] as const;
+  // An action-specific consequence needs evidence on both sides before pruning.
+  if (optional.some((channel) =>
+    Boolean(first[channel]) !== Boolean(second[channel]))) return false;
+  const channels = [...required,
+    ...optional.filter((channel) => first[channel] && second[channel])];
+  const gaps = channels.map((channel) => {
+    const a = first[channel]!;
+    const b = second[channel]!;
+    return a.mean - a.uncertainty - b.mean - b.uncertainty;
+  });
+  return gaps.every((gap) => gap >= 0)
+    && gaps.some((gap) => gap > 0);
 }
 
 /** Uses only observed beliefs and host-owned legal actions; it never forecasts with Match Core. */
@@ -91,6 +106,14 @@ export function chooseManagerAction(
     if (beliefs.has(belief.actionId)) throw new Error(`duplicate belief for ${belief.actionId}`);
     validateEstimate(belief.competitiveOutcome);
     validateEstimate(belief.resourceHealth);
+    validateEstimate(belief.executionFeasibility);
+    validateEstimate(belief.opponentInformationResponse);
+    if (belief.humanRoleConsequence) {
+      validateEstimate(belief.humanRoleConsequence);
+    }
+    if (belief.exceptionalObjectiveRelevance) {
+      validateEstimate(belief.exceptionalObjectiveRelevance);
+    }
     beliefs.set(belief.actionId, belief);
   }
   for (const actionId of legalActionIds) {

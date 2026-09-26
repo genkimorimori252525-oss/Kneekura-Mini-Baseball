@@ -21,10 +21,14 @@ function managerState(): ManagerAgentState {
     beliefs: { candidates: [
       { actionId: 'continue', styleTags: ['starter-leash'],
         competitiveOutcome: { mean: 2, uncertainty: 1, evidence: 3 },
-        resourceHealth: { mean: 1, uncertainty: 1, evidence: 3 } },
+        resourceHealth: { mean: 1, uncertainty: 1, evidence: 3 },
+        executionFeasibility: { mean: 5, uncertainty: 0, evidence: 3 },
+        opponentInformationResponse: { mean: 5, uncertainty: 0, evidence: 3 } },
       { actionId: 'relieve', styleTags: ['early-relief'],
         competitiveOutcome: { mean: 6, uncertainty: 1, evidence: 3 },
-        resourceHealth: { mean: 5, uncertainty: 1, evidence: 3 } },
+        resourceHealth: { mean: 5, uncertainty: 1, evidence: 3 },
+        executionFeasibility: { mean: 5, uncertainty: 0, evidence: 3 },
+        opponentInformationResponse: { mean: 5, uncertainty: 0, evidence: 3 } },
     ] },
     strategyMemory: { activePolicyActionIds: ['continue'] },
   };

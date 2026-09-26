@@ -19,10 +19,14 @@ function managerState(): ManagerAgentState {
     beliefs: { candidates: [
       { actionId: 'continue', styleTags: ['starter-leash'],
         competitiveOutcome: { mean: 2, uncertainty: 1, evidence: 3 },
-        resourceHealth: { mean: 1, uncertainty: 1, evidence: 3 } },
+        resourceHealth: { mean: 1, uncertainty: 1, evidence: 3 },
+        executionFeasibility: { mean: 5, uncertainty: 0, evidence: 3 },
+        opponentInformationResponse: { mean: 5, uncertainty: 0, evidence: 3 } },
       { actionId: 'relieve', styleTags: ['early-relief'],
         competitiveOutcome: { mean: 6, uncertainty: 1, evidence: 3 },
-        resourceHealth: { mean: 5, uncertainty: 1, evidence: 3 } },
+        resourceHealth: { mean: 5, uncertainty: 1, evidence: 3 },
+        executionFeasibility: { mean: 5, uncertainty: 0, evidence: 3 },
+        opponentInformationResponse: { mean: 5, uncertainty: 0, evidence: 3 } },
     ] },
     strategyMemory: { activePolicyActionIds: ['continue'] },
   };
@@ -43,7 +47,9 @@ describe('headless manager decision', () => {
       beliefs: { candidates: [...state.beliefs.candidates,
         { actionId: 'unavailable', styleTags: ['unknown'],
           competitiveOutcome: { mean: 100, uncertainty: 0, evidence: 10 },
-          resourceHealth: { mean: 100, uncertainty: 0, evidence: 10 } }] },
+          resourceHealth: { mean: 100, uncertainty: 0, evidence: 10 },
+          executionFeasibility: { mean: 100, uncertainty: 0, evidence: 10 },
+          opponentInformationResponse: { mean: 100, uncertainty: 0, evidence: 10 } }] },
       philosophy: { preferredStyleTags: ['unknown'] },
       strategyMemory: { activePolicyActionIds: ['unavailable'] },
     });
@@ -84,6 +90,43 @@ describe('headless manager decision', () => {
     assert.throws(() => chooseManagerAction(opportunity, {
       ...state, beliefs: { candidates: [state.beliefs.candidates[0]] },
     }), /missing belief.*relieve/);
+  });
+
+  it('preserves actions with better execution or exceptional objective evidence', () => {
+    const state = managerState();
+    const beliefs = { candidates: [
+      { ...state.beliefs.candidates[0]!,
+        executionFeasibility: { mean: 9, uncertainty: 0, evidence: 3 },
+        opponentInformationResponse: { mean: 5, uncertainty: 0, evidence: 3 },
+        exceptionalObjectiveRelevance: {
+          mean: 8, uncertainty: 0, evidence: 3 },
+      },
+      { ...state.beliefs.candidates[1]!,
+        executionFeasibility: { mean: 1, uncertainty: 0, evidence: 3 },
+        opponentInformationResponse: { mean: 5, uncertainty: 0, evidence: 3 },
+      },
+    ] };
+    const choice = chooseManagerAction(opportunity, {
+      ...state, beliefs,
+    });
+    assert.deepEqual(choice.viableActionIds, ['continue', 'relieve']);
+    assert.equal(choice.actionId, 'continue');
+  });
+
+  it('does not prune a role-specific consequence that the other action has not assessed', () => {
+    const state = managerState();
+    const relief = { ...state.beliefs.candidates[1]!,
+      humanRoleConsequence: {
+        mean: -4, uncertainty: 1, evidence: 2 },
+    };
+    const result = chooseManagerAction(opportunity, { ...state,
+      beliefs: { candidates: [state.beliefs.candidates[0]!, relief] } });
+    assert.deepEqual(result.viableActionIds, ['continue', 'relieve']);
+    assert.throws(() => chooseManagerAction(opportunity, { ...state,
+      beliefs: { candidates: [state.beliefs.candidates[0]!,
+        { ...relief, humanRoleConsequence: {
+          mean: NaN, uncertainty: 1, evidence: 2 } }] } }),
+    /estimate/);
   });
 
   it('does not change the manager state or depend on hidden outcome fields', () => {
