@@ -3,6 +3,8 @@ import { createCanonicalLineScoreSnapshot }
 import type { ClubWorldRegion } from './ClubWorldBerths';
 import type { OfficialGameResult } from './OfficialGameCompletion';
 import type { WbcQualifierPodWinner } from './WbcBerths';
+import type { WbcQualifierSelection }
+  from './WbcGlobalQualifierSelection';
 
 const REGIONS: readonly ClubWorldRegion[] = [
   'ASIA_PACIFIC', 'AMERICAS', 'EUROPE', 'AFRICA'];
@@ -127,6 +129,30 @@ export const planWbcGlobalQualifier = (
     pods: Object.freeze(pods) });
 };
 
+/** Binds the drawn pods to the approved sixteen-nation cutoff selection. */
+export const planSelectedWbcGlobalQualifier = (
+  edition: WbcGlobalQualifierEdition,
+  selection: WbcQualifierSelection,
+): WbcGlobalQualifierPlan => {
+  const plan = planWbcGlobalQualifier(edition);
+  if (!selection || selection.qualifierEditionId !== edition.editionId
+    || selection.qualificationSnapshotId
+      !== edition.qualificationSnapshotId
+    || !Array.isArray(selection.entrants)
+    || selection.entrants.length !== 16
+    || new Set(selection.entrants.map((item) =>
+      item.nationId)).size !== 16) {
+    throw new Error('WBC qualifier draw must match selected entrants');
+  }
+  const selected = new Map(selection.entrants.map((item) =>
+    [item.nationId, item.region]));
+  if (plan.pods.flatMap((pod) => pod.entrants).some((item) =>
+    selected.get(item.nationId) !== item.region)) {
+    throw new Error('WBC qualifier draw must match selected entrants');
+  }
+  return plan;
+};
+
 const officialWinner = (game: WbcQualifierGame,
   result: OfficialGameResult | undefined,
   edition: WbcGlobalQualifierEdition): string => {
@@ -206,4 +232,21 @@ export const finalizeWbcGlobalQualifier = (
     winners: Object.freeze(winners),
     resultApplicationIds: Object.freeze(allResults.map((result) =>
       result.applicationId)) });
+};
+
+/** Keeps the selection binding through official pod completion. */
+export const finalizeSelectedWbcGlobalQualifier = (
+  plan: WbcGlobalQualifierPlan,
+  semifinalResults: readonly OfficialGameResult[],
+  finalResults: readonly OfficialGameResult[],
+  edition: WbcGlobalQualifierEdition,
+  selection: WbcQualifierSelection,
+): WbcGlobalQualifierOutcome => {
+  const selectedPlan = planSelectedWbcGlobalQualifier(edition,
+    selection);
+  if (JSON.stringify(plan) !== JSON.stringify(selectedPlan)) {
+    throw new Error('WBC qualifier plan contradicts selected entrants');
+  }
+  return finalizeWbcGlobalQualifier(plan, semifinalResults,
+    finalResults, edition);
 };

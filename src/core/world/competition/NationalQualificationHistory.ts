@@ -4,9 +4,12 @@ import { finalizeRegionalNationalKnockout,
   planRegionalNationalKnockout,
   type RegionalNationalKnockoutSource }
   from './RegionalNationalKnockout';
-import { finalizeWbcGlobalQualifier, planWbcGlobalQualifier,
+import { finalizeSelectedWbcGlobalQualifier,
+  planSelectedWbcGlobalQualifier,
   type WbcGlobalQualifierEdition }
   from './WbcGlobalQualifierPods';
+import type { WbcQualifierSelection }
+  from './WbcGlobalQualifierSelection';
 import type { WbcQualifierPodWinner, WbcRegionalPlacement }
   from './WbcBerths';
 
@@ -28,6 +31,9 @@ export type NationalQualificationHistory = Readonly<{
     resultApplicationIds: readonly string[] }>[];
   qualifiers: readonly Readonly<{ editionId: string;
     completedAtDay: number;
+    qualificationSnapshotId: string;
+    directSnapshotId: string;
+    rankingSnapshotId: string;
     resultApplicationIds: readonly string[];
     winners: readonly WbcQualifierPodWinner[] }>[];
 }>;
@@ -82,6 +88,7 @@ export const recordRegionalNationalChampionship = (
 export const recordWbcGlobalQualifier = (
   history: NationalQualificationHistory,
   edition: WbcGlobalQualifierEdition,
+  selection: WbcQualifierSelection,
   semifinalResults: readonly OfficialGameResult[],
   finalResults: readonly OfficialGameResult[],
 ): NationalQualificationHistory => {
@@ -89,9 +96,9 @@ export const recordWbcGlobalQualifier = (
     || !Array.isArray(history.regional)) {
     throw new Error('national qualification history required');
   }
-  const plan = planWbcGlobalQualifier(edition);
-  const outcome = finalizeWbcGlobalQualifier(plan,
-    semifinalResults, finalResults, edition);
+  const plan = planSelectedWbcGlobalQualifier(edition, selection);
+  const outcome = finalizeSelectedWbcGlobalQualifier(plan,
+    semifinalResults, finalResults, edition, selection);
   if (history.qualifiers.some((item) =>
     item.editionId === edition.editionId)
     || usedApplications(history).some((applicationId) =>
@@ -102,6 +109,9 @@ export const recordWbcGlobalQualifier = (
     qualifiers: Object.freeze([...history.qualifiers,
       Object.freeze({ editionId: edition.editionId,
         completedAtDay: edition.calendarWindow.endsOnDay,
+        qualificationSnapshotId: selection.qualificationSnapshotId,
+        directSnapshotId: selection.directSnapshotId,
+        rankingSnapshotId: selection.rankingSnapshotId,
         resultApplicationIds: outcome.resultApplicationIds,
         winners: outcome.winners })]) });
 };
