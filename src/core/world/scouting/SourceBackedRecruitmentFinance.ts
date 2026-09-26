@@ -5,14 +5,14 @@ import { readState } from '../club/ClubSchemas';
 import type { ClubWorldState } from '../club/ClubTypes';
 
 export type SourceBackedClubFinance = Readonly<{
-  scope: 'CURRENT_SEASON_APPROVED_BUDGET';
+  scope: 'CURRENT_SEASON_RECORDED_RESERVATIONS_ONLY';
   budgetBucket: BudgetBucket;
   financialProfileId: string;
   financialProfileVersion: string;
   summary: ClubFinanceSummary;
 }>;
 
-/** A budget snapshot is evidence for a decision, not contract authorization. */
+/** Recorded reservations do not include unallocated carry-over wages. */
 export const deriveRecruitmentFinance = (
   input: ClubWorldState,
   careerId: string,
@@ -36,7 +36,7 @@ export const deriveRecruitmentFinance = (
   const summary = financeSummary(club);
   const financialProfile = club.season.plan.financialProfile;
   const sourceBackedClubFinance: SourceBackedClubFinance = {
-    scope: 'CURRENT_SEASON_APPROVED_BUDGET', budgetBucket,
+    scope: 'CURRENT_SEASON_RECORDED_RESERVATIONS_ONLY', budgetBucket,
     financialProfileId: financialProfile.profileId,
     financialProfileVersion: financialProfile.version, summary,
   };
