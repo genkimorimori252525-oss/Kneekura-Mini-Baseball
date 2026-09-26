@@ -84,6 +84,13 @@ Money is a nonnegative safe integer in one pinned currency. Exact BigInt accumul
 
 `ACCOUNTING_ONLY` summary exposes current balances, received revenue, cash-paid operating costs, outstanding commitments and allocation/headroom per budget bucket. Budget allocation means **obligations authorized in this season, including amounts already paid, minus cancellations**. Old unpaid obligations are exposed separately and are not re-authorized merely by opening another season. Therefore budgetHeadroom is not available cash, a wage-cap calculation, or a legal signing/registration decision. Long-term wages need authoritative installment/schedule records from contract services; this slice does not invent those schedules.
 
+Later headless services bind matchday revenue to official results and observed attendance,
+domestic prizes to finalized season outcomes and calibrated awards, and player-wage
+payments to signed annual schedules. `applyClubEconomyBatch` applies these sources in
+order against one replayed club history. A failure returns no partial result. The host
+still authenticates source events and commits the returned club state and all events
+atomically; this pure function does not write the database.
+
 A checkpoint is checked against opening balances, category totals and per-obligation current-season payments. Receipts must be chronologically nondecreasing, belong to the current period and stay within representable nonnegative cash/principal at every step, not just at the final total. This catches internal inconsistency; it does not prove that a bank transaction actually happened.
 
 ## Season history and continuation
@@ -104,8 +111,8 @@ Use checkpoint + subsequent accepted events for replay. The command is re-execut
 
 The host must authenticate producers; verify all cause, geometry, contract, registration and result references; ensure global event/receipt/commitment/snapshot ID uniqueness across checkpoints and retired periods; retain immutable historical data; serialize changes against the current world revision; and supply global version/appointment registries. IDs only present in retired snapshots cannot be deduplicated using this bounded live ledger alone.
 
-No UI connection is needed to use the six functions. Later services can translate structured rejection codes and returned values into their own presentation. This module does not choose screens, button labels, interactions, sorting rules, visual ranks or a user-facing financial-management workflow.
+No UI connection is needed to use these functions. Later services can translate structured rejection codes and returned values into their own presentation. This module does not choose screens, button labels, interactions, sorting rules, visual ranks or a user-facing financial-management workflow.
 
 ## Explicitly not completed
 
-Regional 234-club catalog loading and directed rivalry seed application; automatic income/expense generation; contract authorization and schedules; regulation enforcement; global persistence/transactions; autonomous structural rise/decline; computed L4 five-axis/economic-band calibration; lineage events; physics/swing; psychology/special abilities; team traits; competition/calendar orchestration; scouting/development; manager AI/market. These are not implicitly claimed complete by the functional lifecycle boundary.
+Uncovered income/expense source flows, complete contract authorization, regulation enforcement, global persistence/transactions, autonomous structural rise/decline, lineage events, team traits, whole-career competition orchestration, development and manager AI/market remain separate work. The source-backed functions above do not make these systems complete.

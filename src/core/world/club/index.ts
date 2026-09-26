@@ -2,6 +2,9 @@ export { createClubFromSeed, restoreClubState } from './ClubSeed';
 export type * from './ClubTypes';
 export type * from './ClubFinanceTypes';
 export { applyClubCommand } from './ClubLifecycle';
+export { applyClubEconomyBatch } from './ClubEconomyBatch';
+export type { ClubEconomySource, ClubEconomyApplication,
+  ClubEconomyBatchResult } from './ClubEconomyBatch';
 export { applyOfficialMatchdayRevenue } from './OfficialMatchdayRevenue';
 export { applyOfficialDomesticPrizeRevenue } from './OfficialDomesticPrizeRevenue';
 export type { DomesticPrizeAward, DomesticPrizePolicy,
