@@ -7,6 +7,8 @@ import type { OfficialGameResult } from './OfficialGameCompletion';
 import type { ClubWorldBerthAllocation, ClubWorldRegion } from './ClubWorldBerths';
 import { createClubWorldGroupHubPlan, finalizeClubWorldGroupHubs }
   from './ClubWorldGroupHubs';
+import { planClubWorldQuarterfinals, finalizeClubWorldQuarterfinals }
+  from './ClubWorldQuarterfinals';
 
 const regions: readonly ClubWorldRegion[] = [
   'ASIA_PACIFIC', 'AMERICAS', 'EUROPE', 'AFRICA'];
@@ -31,6 +33,10 @@ const edition = createCompetitionEdition({ competitionId: 'club-world',
   groupHubs: Array.from({ length: 4 }, (_, groupIndex) => ({ groupIndex,
     nationId: 'host-nation', cityId: `city-${groupIndex}`,
     venueId: `venue-${groupIndex}` })),
+  clubWorldQuarterfinalPolicy: { version: 'world-qf-v1',
+    runnerGroupByWinnerGroup: [1, 0, 3, 2],
+    groupWinnerBatsLast: true,
+    venueIds: ['venue-0', 'venue-1', 'venue-2', 'venue-3'] },
 }, registry);
 const berths: ClubWorldBerthAllocation = {
   editionId: edition.editionId, policyVersion: 'club-world-qualification-v1',
@@ -129,4 +135,37 @@ it('rejects a draw member from a different region or a hub outside the edition',
       ? { ...hub, venueId: 'outside' } : hub),
     },
   })).toThrow('hub');
+});
+
+it('advances four decided neutral quarterfinals from official group qualification', () => {
+  const groupPlan = createClubWorldGroupHubPlan(source);
+  const groupOfficialResults = groupPlan.groups.flatMap((group) => group.games)
+    .map(officialResult);
+  const quarterfinalSource = { groupSource: source, groupPlan,
+    groupOfficialResults, groupTiebreakPolicy: policy };
+  const plan = planClubWorldQuarterfinals(quarterfinalSource);
+  expect(plan.games).toHaveLength(4);
+  expect(plan.games.every((game) => game.neutralVenueId
+    === edition.clubWorldQuarterfinalPolicy!.venueIds[game.winnerGroupIndex]))
+    .toBe(true);
+  const results = plan.games.map((game, index) =>
+    officialResult(game, index + 72));
+  const outcome = finalizeClubWorldQuarterfinals(plan, results,
+    quarterfinalSource);
+  expect(outcome.winnerClubIds).toHaveLength(4);
+  expect(new Set(outcome.winnerClubIds).size).toBe(4);
+  expect(() => finalizeClubWorldQuarterfinals(plan,
+    [{ ...results[0], venueBinding: { ...results[0].venueBinding!,
+      venueId: 'wrong' } }, ...results.slice(1)],
+    quarterfinalSource)).toThrow('venue');
+  expect(() => finalizeClubWorldQuarterfinals(plan,
+    [{ ...results[0], applicationId: groupOfficialResults[0].applicationId },
+      ...results.slice(1)], quarterfinalSource)).toThrow('application');
+  expect(() => finalizeClubWorldQuarterfinals(plan,
+    [{ ...results[0], homeRuns: 1, awayRuns: 1, winnerClubId: null },
+      ...results.slice(1)], quarterfinalSource)).toThrow('decided');
+  const forged = structuredClone(plan);
+  (forged.games[0] as { awayClubId: string }).awayClubId = 'forged';
+  expect(() => finalizeClubWorldQuarterfinals(forged, results,
+    quarterfinalSource)).toThrow('plan');
 });
