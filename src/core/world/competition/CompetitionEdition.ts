@@ -96,12 +96,14 @@ export const createCompetitionEdition = (
     throw new Error('competition reform cannot rewrite its boundary edition');
   }
   if ((profile.canonicalRole === 'CONTINENTAL_CL'
-    || profile.canonicalRole === 'AFBCL')
+    || profile.canonicalRole === 'AFBCL'
+    || profile.canonicalRole === 'CLUB_WORLD')
     && input.finalFourHostCandidates === undefined) {
     throw new Error('continental CL edition requires a preselected final four host');
   }
   if ((profile.canonicalRole === 'CONTINENTAL_CL'
-    || profile.canonicalRole === 'AFBCL')
+    || profile.canonicalRole === 'AFBCL'
+    || profile.canonicalRole === 'CLUB_WORLD')
     && input.finalFourPairingPolicy === undefined) {
     throw new Error('continental CL edition requires preselected semifinal pairings');
   }
