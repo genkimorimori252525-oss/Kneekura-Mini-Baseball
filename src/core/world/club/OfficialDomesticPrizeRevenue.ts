@@ -13,6 +13,7 @@ export type DomesticPrizeAward = typeof DOMESTIC_PRIZE_AWARDS[number];
 export type DomesticPrizePolicy = Readonly<{
   policyId: string;
   version: string;
+  careerId: string;
   leagueId: string;
   seasonId: string;
   availableAtDay: number;
@@ -21,6 +22,7 @@ export type DomesticPrizePolicy = Readonly<{
 }>;
 export type DomesticPrizeBasis = Readonly<{
   award: DomesticPrizeAward;
+  careerId: string;
   recipientClubId: string;
   seasonId: string;
   leagueId: string;
@@ -61,7 +63,7 @@ export const applyOfficialDomesticPrizeRevenue = (
   if (!same(recomputed, snapshot)) {
     throw new Error('official domestic prize snapshot mismatch');
   }
-  if (!fields(policy, ['policyId', 'version', 'leagueId',
+  if (!fields(policy, ['policyId', 'version', 'careerId', 'leagueId',
     'seasonId', 'availableAtDay', 'currency', 'awards'])
     || !fields(policy.awards, DOMESTIC_PRIZE_AWARDS)
     || !id(policy.policyId) || !id(policy.version)
@@ -73,6 +75,7 @@ export const applyOfficialDomesticPrizeRevenue = (
         || policy.awards[kind] < 0)
     || !id(finalizationEventId) || !day(finalizedAtDay)
     || policy.availableAtDay > finalizedAtDay
+    || policy.careerId !== club.careerId
     || policy.leagueId !== snapshot.leagueId
     || policy.seasonId !== snapshot.seasonId
     || policy.currency !== club.season.plan.financialProfile.currency
@@ -98,6 +101,7 @@ export const applyOfficialDomesticPrizeRevenue = (
     throw new Error('DUPLICATE_ID: domestic prize already recorded');
   }
   const basis: DomesticPrizeBasis = Object.freeze({ award,
+    careerId: club.careerId,
     recipientClubId, seasonId: snapshot.seasonId,
     leagueId: snapshot.leagueId, finalizationEventId,
     policyId: policy.policyId, policyVersion: policy.version,
