@@ -1,11 +1,14 @@
 import { readState } from './ClubSchemas';
 import type { ClubTransitionEvent, ClubWorldState } from './ClubTypes';
 import { exact } from './ClubValidation';
+import type { BudgetBucket, CostCategory } from './ClubFinanceTypes';
 import type { PlayerWageSeasonAllocation } from './ClubPayrollPrecheck';
 
 export type ClubWageSchedule = Readonly<{
   commitmentId: string;
   contractRef: string;
+  category: Extract<CostCategory, 'playerWages' | 'staffWages'>;
+  budgetBucket: Extract<BudgetBucket, 'payroll' | 'coaching'>;
   sourceClubEventId: string;
   sourceClubRevision: number;
   availableAtDay: number;
@@ -79,11 +82,16 @@ const validateLedger = (ledger: ClubWageScheduleLedger): void => {
   for (const schedule of ledger.schedules) {
     if (!schedule || typeof schedule !== 'object'
       || !onlyKeys(schedule, ['commitmentId', 'contractRef',
+        'category', 'budgetBucket',
         'sourceClubEventId', 'sourceClubRevision', 'availableAtDay',
         'effectiveSeason',
         'totalMinorUnits', 'annualAmounts'])
       || !identifier(schedule.commitmentId)
       || !identifier(schedule.contractRef)
+      || !((schedule.category === 'playerWages'
+        && schedule.budgetBucket === 'payroll')
+        || (schedule.category === 'staffWages'
+          && schedule.budgetBucket === 'coaching'))
       || !identifier(schedule.sourceClubEventId)
       || !Number.isSafeInteger(schedule.sourceClubRevision)
       || schedule.sourceClubRevision <= 0
@@ -99,6 +107,8 @@ const validateLedger = (ledger: ClubWageScheduleLedger): void => {
     }
     const prior = latest.get(schedule.commitmentId);
     if (prior && (schedule.contractRef !== prior.contractRef
+      || schedule.category !== prior.category
+      || schedule.budgetBucket !== prior.budgetBucket
       || schedule.sourceClubEventId === prior.sourceClubEventId
       || schedule.sourceClubRevision <= prior.sourceClubRevision
       || schedule.availableAtDay < prior.availableAtDay
@@ -186,7 +196,10 @@ export const appendClubWageSchedule = (
     item.commitmentId === source.commitmentId);
   if (matchingOperations.length !== 1 || !op
     || op.kind !== 'RECORD_COMMITMENT' || !commitment
-    || op.category !== 'playerWages' || op.budgetBucket !== 'payroll'
+    || !((op.category === 'playerWages'
+      && op.budgetBucket === 'payroll')
+      || (op.category === 'staffWages'
+        && op.budgetBucket === 'coaching'))
     || op.contractRef !== source.contractRef
     || op.amount !== commitment.amount
     || op.currency !== club.season.plan.financialProfile.currency
@@ -202,6 +215,8 @@ export const appendClubWageSchedule = (
   const record: ClubWageSchedule = Object.freeze({
     commitmentId: source.commitmentId,
     contractRef: source.contractRef,
+    category: op.category as ClubWageSchedule['category'],
+    budgetBucket: op.budgetBucket as ClubWageSchedule['budgetBucket'],
     sourceClubEventId: event.command.eventId,
     sourceClubRevision: club.revision,
     availableAtDay: club.effectiveDay,
@@ -249,8 +264,8 @@ export const appendClubWageScheduleAmendment = (
     || !release || release.kind !== 'RELEASE_COMMITMENT'
     || source.contractRef !== prior.contractRef
     || commitment.contractRef !== prior.contractRef
-    || commitment.category !== 'playerWages'
-    || commitment.budgetBucket !== 'payroll'
+    || commitment.category !== prior.category
+    || commitment.budgetBucket !== prior.budgetBucket
     || release.currency !== club.season.plan.financialProfile.currency
     || prior.totalMinorUnits - release.amount
       !== commitment.amount - commitment.cancelledAmount
@@ -271,6 +286,7 @@ export const appendClubWageScheduleAmendment = (
   }
   const record: ClubWageSchedule = Object.freeze({
     commitmentId: source.commitmentId, contractRef: source.contractRef,
+    category: prior.category, budgetBucket: prior.budgetBucket,
     sourceClubEventId: event.command.eventId,
     sourceClubRevision: club.revision,
     availableAtDay: club.effectiveDay,
@@ -285,9 +301,11 @@ export const appendClubWageScheduleAmendment = (
 };
 
 /** An absent or stale legal schedule never becomes a guessed payroll value. */
-export const getClubSeasonWageAllocations = (
+const getClubSeasonWageAllocationsFor = (
   ledger: ClubWageScheduleLedger,
   input: ClubWorldState,
+  category: ClubWageSchedule['category'],
+  budgetBucket: ClubWageSchedule['budgetBucket'],
 ): readonly PlayerWageSeasonAllocation[] => {
   const club = readState(input);
   validateLedger(ledger);
@@ -297,12 +315,14 @@ export const getClubSeasonWageAllocations = (
   }
   const season = club.season.plan.season;
   const allocations = club.live.finance.commitments
-    .filter((commitment) => commitment.category === 'playerWages')
+    .filter((commitment) => commitment.category === category)
     .map((commitment): PlayerWageSeasonAllocation => {
       const schedule = [...ledger.schedules].reverse().find((item) =>
         item.commitmentId === commitment.commitmentId);
       if (!schedule || schedule.contractRef !== commitment.contractRef
-        || commitment.budgetBucket !== 'payroll'
+        || schedule.category !== category
+        || schedule.budgetBucket !== budgetBucket
+        || commitment.budgetBucket !== budgetBucket
         || schedule.totalMinorUnits
           !== commitment.amount - commitment.cancelledAmount
         || schedule.sourceClubRevision > club.revision
@@ -325,3 +345,19 @@ export const getClubSeasonWageAllocations = (
     });
   return Object.freeze(allocations);
 };
+
+/** Player payroll allocations exclude staff coaching wages. */
+export const getClubSeasonWageAllocations = (
+  ledger: ClubWageScheduleLedger,
+  input: ClubWorldState,
+): readonly PlayerWageSeasonAllocation[] =>
+  getClubSeasonWageAllocationsFor(ledger, input,
+    'playerWages', 'payroll');
+
+/** Staff wage allocations are a separate coaching-budget slice. */
+export const getClubSeasonStaffWageAllocations = (
+  ledger: ClubWageScheduleLedger,
+  input: ClubWorldState,
+): readonly PlayerWageSeasonAllocation[] =>
+  getClubSeasonWageAllocationsFor(ledger, input,
+    'staffWages', 'coaching');

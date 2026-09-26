@@ -2,6 +2,10 @@ import { expect, it } from 'vitest';
 import { applyClubCommand } from '../club/ClubLifecycle';
 import { command, state } from '../club/ClubFixtures.test-support';
 import type { ClubWorldState } from '../club/ClubTypes';
+import { appendClubWageSchedule,
+  createClubWageScheduleLedger,
+  getClubSeasonStaffWageAllocations,
+  getClubSeasonWageAllocations } from '../club/ClubWageScheduleLedger';
 import { applyAcceptedManagerHire } from './AcceptedManagerHire';
 
 const vacancy = (): ClubWorldState => {
@@ -45,12 +49,27 @@ const hire = (before: ClubWorldState) => {
   if (!changed.ok) throw new Error('failed to create manager hire');
   return changed;
 };
+const schedules = (after: ReturnType<typeof hire>) => {
+  const beforeSchedules = createClubWageScheduleLedger('career-a',
+    'club-a');
+  const afterSchedules = appendClubWageSchedule(beforeSchedules, 0,
+    after.state, after.event, {
+      commitmentId: 'manager-wage-1',
+      contractRef: offer.contractId,
+      annualAmounts: [1, 2, 3].map((season) => ({
+        season, amount: offer.annualSalaryMinorUnits,
+      })),
+    });
+  return { beforeSchedules, afterSchedules };
+};
 
 it('requires bilateral acceptance before a vacancy receives a manager and wage liability', () => {
   const before = vacancy();
   const after = hire(before);
+  const { beforeSchedules, afterSchedules } = schedules(after);
   const result = applyAcceptedManagerHire(before, after.state,
-    after.event, estimate, offer, acceptance);
+    after.event, estimate, offer, acceptance,
+    beforeSchedules, afterSchedules);
   expect(result.state).toBe(after.state);
   expect(result.event).toMatchObject({
     type: 'MANAGER_HIRED', managerId: 'manager-b',
@@ -63,32 +82,52 @@ it('requires bilateral acceptance before a vacancy receives a manager and wage l
     .toMatchObject({ category: 'staffWages',
       budgetBucket: 'coaching', amount: 60 });
   expect(result.state).not.toHaveProperty('managerTrueSkill');
+  expect(getClubSeasonStaffWageAllocations(afterSchedules,
+    after.state)).toMatchObject([{ annualMinorUnits: 20 }]);
+  expect(getClubSeasonWageAllocations(afterSchedules,
+    after.state)).toEqual([]);
 });
 
 it('rejects missing candidate consent, mismatched terms and forged club history', () => {
   const before = vacancy();
   const after = hire(before);
+  const { beforeSchedules, afterSchedules } = schedules(after);
   expect(() => applyAcceptedManagerHire(before, after.state,
     after.event, estimate, offer,
-    { ...acceptance, accepted: false as true })).toThrow('acceptance');
+    { ...acceptance, accepted: false as true },
+    beforeSchedules, afterSchedules)).toThrow('acceptance');
   expect(() => applyAcceptedManagerHire(before, after.state,
     after.event, estimate, { ...offer,
-      annualSalaryMinorUnits: 25 }, acceptance)).toThrow('liability');
+      annualSalaryMinorUnits: 25 }, acceptance,
+    beforeSchedules, afterSchedules)).toThrow('liability');
   expect(() => applyAcceptedManagerHire(before, after.state,
     { ...after.event, afterRevision: 999 }, estimate,
-    offer, acceptance)).toThrow('club event');
+    offer, acceptance, beforeSchedules,
+    afterSchedules)).toThrow('club event');
   const forgedEstimate = { ...estimate, trueSkill: 100 };
   expect(() => applyAcceptedManagerHire(before, after.state,
     after.event, forgedEstimate,
-    offer, acceptance)).toThrow('estimate');
+    offer, acceptance, beforeSchedules,
+    afterSchedules)).toThrow('estimate');
+  const wrongAnnual = { ...afterSchedules,
+    schedules: [{ ...afterSchedules.schedules[0]!,
+      annualAmounts: [{ season: 1, amount: 25 },
+        { season: 2, amount: 15 },
+        { season: 3, amount: 20 }] }] };
+  expect(() => applyAcceptedManagerHire(before, after.state,
+    after.event, estimate, offer, acceptance,
+    beforeSchedules, wrongAnnual)).toThrow('schedule');
 });
 
 it('rejects an occupied job and estimates unavailable when the offer was made', () => {
   const before = vacancy();
   const after = hire(before);
+  const { beforeSchedules, afterSchedules } = schedules(after);
   expect(() => applyAcceptedManagerHire(state(), after.state,
-    after.event, estimate, offer, acceptance)).toThrow('vacancy');
+    after.event, estimate, offer, acceptance,
+    beforeSchedules, afterSchedules)).toThrow('vacancy');
   expect(() => applyAcceptedManagerHire(before, after.state,
     after.event, { ...estimate, availableAtDay: 12 },
-    offer, acceptance)).toThrow('estimate');
+    offer, acceptance, beforeSchedules,
+    afterSchedules)).toThrow('estimate');
 });
