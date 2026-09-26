@@ -75,6 +75,7 @@ export type WbcBerthAllocation = Readonly<{
   cycleId: string;
   policyVersion: string;
   cutoffSnapshotId: string;
+  qualificationSnapshotId: string;
   previousWorldEditionIds: readonly string[];
   directBerthsByRegion: Readonly<Record<ClubWorldRegion, number>>;
   coefficientSources: readonly Readonly<{ region: ClubWorldRegion;
@@ -279,6 +280,11 @@ export const allocateWbcBerths = (
   return Object.freeze({ editionId: input.editionId,
     cycleId: input.cycleId, policyVersion: policy.version,
     cutoffSnapshotId: cutoff.snapshotId,
+    qualificationSnapshotId: JSON.stringify(['wbc-berths',
+      input.editionId, input.cycleId, policy.version, cutoff.snapshotId,
+      ...coefficients.map((item) => item.snapshotId),
+      ...placements.map((item) => item.snapshotId),
+      ...slots.map((slot) => [slot.route, slot.nationId, slot.sourceId])]),
     previousWorldEditionIds: Object.freeze([...input.previousWorldEditionIds]),
     directBerthsByRegion: Object.freeze(directBerthsByRegion),
     coefficientSources: Object.freeze(coefficients.map((item) =>
