@@ -2,6 +2,8 @@ export type * from './RosterTypes';
 export { RosterValidationError } from './RosterValidation';
 export { createRosterState } from './RosterState';
 export { applyRosterChange } from './RosterCommands';
+export { applyFreeAgentContract } from './FreeAgentContract';
+export type { FreeAgentAcceptance, FreeAgentRightsEvent } from './FreeAgentContract';
 export { evaluateRosterParticipation, getClubRoster } from './RosterQueries';
 export { deriveSourceBackedRosterNeed } from './SourceBackedRosterNeed';
 export type { RosterNeedPlanningPolicy, RosterNeedRequest,
