@@ -1,6 +1,6 @@
 import { frozenScoutingCopy, rejectUnknownScoutingFields,
   type ClubScoutingKnowledge,
-  type PlayerKnowledgeReport } from './ScoutingKnowledge';
+  type PlayerKnowledgeReport, type ScoutingEvidenceRecord } from './ScoutingKnowledge';
 import { deriveSourceBackedRosterNeed,
   type RosterNeedPlanningPolicy, type RosterNeedRequest,
   type SourceBackedRosterNeed } from '../roster/SourceBackedRosterNeed';
@@ -56,6 +56,7 @@ export type RecruitmentDecisionInput = Readonly<{
 }>;
 export type RecruitmentDecisionRecord = Readonly<RecruitmentDecisionInput & {
   knowledgeReports: readonly PlayerKnowledgeReport[];
+  knowledgeEvidence: readonly ScoutingEvidenceRecord[];
   sourceBackedRosterNeed?: SourceBackedRosterNeed;
 }>;
 export type RecruitmentDecisionLedger = Readonly<{
@@ -142,6 +143,56 @@ const appendRecruitmentDecisionInternal = (
     || report.availableAtDay > decision.decidedAtDay)) {
     throw new Error('recruitment decision knowledge is missing or from the future');
   }
+  const knowledgeEvidence = new Map<string, ScoutingEvidenceRecord>();
+  for (const report of reports as PlayerKnowledgeReport[]) {
+    rejectUnknownScoutingFields(report, ['reportId', 'careerId', 'clubId',
+      'playerId', 'observedAtDay', 'availableAtDay', 'evidenceSourceIds',
+      'evaluatorPersonIds', 'estimate', 'confidence'], 'knowledge report');
+    if (!day(report.observedAtDay) || !day(report.availableAtDay)
+      || report.observedAtDay > report.availableAtDay
+      || !Array.isArray(report.evidenceSourceIds)
+      || !unique(report.evidenceSourceIds)
+      || !Array.isArray(report.evaluatorPersonIds)
+      || !unique(report.evaluatorPersonIds)
+      || !Array.isArray(report.estimate) || report.estimate.length === 0
+      || !['LOW', 'MEDIUM', 'HIGH'].includes(report.confidence)) {
+      throw new Error('invalid recruitment decision knowledge report');
+    }
+    for (const estimate of report.estimate) {
+      rejectUnknownScoutingFields(estimate, ['domainId', 'lower', 'upper'],
+        'knowledge estimate');
+      if (!id(estimate.domainId) || !Number.isFinite(estimate.lower)
+        || !Number.isFinite(estimate.upper)
+        || estimate.lower > estimate.upper) {
+        throw new Error('invalid recruitment decision knowledge estimate');
+      }
+    }
+    const sources = report.evidenceSourceIds.map((evidenceId) =>
+      knowledge.evidence.find((item) => item.evidenceId === evidenceId));
+    if (sources.some((item) => !item)) {
+      throw new Error('recruitment decision knowledge evidence is missing');
+    }
+    for (const source of sources as ScoutingEvidenceRecord[]) {
+      rejectUnknownScoutingFields(source, ['evidenceId', 'careerId', 'clubId',
+        'playerId', 'observedAtDay', 'availableAtDay', 'sourceEventId'],
+      'knowledge evidence');
+      if (!id(source.evidenceId) || !id(source.sourceEventId)
+        || source.careerId !== ledger.careerId
+        || source.clubId !== ledger.clubId
+        || source.playerId !== decision.playerId
+        || !day(source.observedAtDay) || !day(source.availableAtDay)
+        || source.availableAtDay < source.observedAtDay
+        || source.availableAtDay > report.availableAtDay
+        || source.availableAtDay > decision.decidedAtDay) {
+        throw new Error('recruitment decision knowledge evidence is mismatched or future');
+      }
+      knowledgeEvidence.set(source.evidenceId, source);
+    }
+    if (Math.max(...sources.map((item) => item!.observedAtDay))
+      !== report.observedAtDay) {
+      throw new Error('recruitment decision knowledge observation mismatch');
+    }
+  }
   const need = decision.rosterNeedSnapshot;
   const budget = decision.budgetContext;
   const fit = decision.fitEstimate;
@@ -178,6 +229,7 @@ const appendRecruitmentDecisionInternal = (
   }
   const record = frozenScoutingCopy({ ...decision,
     knowledgeReports: reports as PlayerKnowledgeReport[],
+    knowledgeEvidence: [...knowledgeEvidence.values()],
     ...(sourceBackedRosterNeed ? { sourceBackedRosterNeed } : {}) });
   return Object.freeze({ careerId: ledger.careerId, clubId: ledger.clubId,
     revision: ledger.revision + 1, effectiveDay: decision.decidedAtDay,
