@@ -78,6 +78,15 @@ This API does not negotiate/approve loans, transfer rights or rewrite a pinned p
 Restoring/creating a snapshot is a trusted world-service boundary, not a public bypass
 for contracts, medical clearance, migration or registration legality.
 
+`applyFreeAgentContract` is a separate trusted transaction boundary for an unattached
+player. It requires an `ACQUIRE` decision with current front-office appointment and
+payroll evidence, a contract-owner acceptance cited by the club event, a replayable
+club event recording the matching wage commitment and player reference, and an annual
+wage schedule derived from that event. It changes only club rights. The host must
+commit the club, wage schedule, roster and events atomically with revision checks.
+The acceptance is supplied by the contract owner; this module does not negotiate
+terms or adjudicate a league's free-agent eligibility rules.
+
 ### Query result
 
 `evaluateRosterParticipation` returns `scope: ROSTER_ONLY`, `eligible`, ordered structured
@@ -117,8 +126,9 @@ returned event; use the same expected-revision check when the host actually comm
 
 ## Not completed by this slice
 
-Global Person population/generation, registration regulation evaluators, contracts,
-loan/transfer transactions, roster-building AI, scouting, medical simulation, development,
+Global Person population/generation, registration regulation evaluators, contract
+negotiation and league eligibility, loan/transfer transactions, roster-building AI,
+medical simulation, development,
 Human Control Overlay, season scheduling, lower-tier games/statistics and database/save
 migration are not implemented. All official games must eventually use the same existing
 Canonical Match Core. No substitute random-results engine or growth buff is added.
