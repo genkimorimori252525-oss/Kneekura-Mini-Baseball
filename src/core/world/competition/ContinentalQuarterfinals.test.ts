@@ -13,6 +13,8 @@ import { planContinentalQuarterfinals,
   finalizeContinentalQuarterfinals } from './ContinentalQuarterfinals';
 import { planContinentalFinalFour, finalizeContinentalFinalFour }
   from './ContinentalFinalFour';
+import { deriveOfficialRegionalClubSeason }
+  from './OfficialRegionalClubAchievement';
 
 const draw: CompetitionDraw = {
   editionId: 'edition-2027', drawPolicyVersion: 'draw-v1',
@@ -174,6 +176,16 @@ it('uses the edition host for two neutral semifinals and one official final', ()
     homeClubId: finalists[0], awayClubId: finalists[1] }, 6);
   const outcome = finalizeContinentalFinalFour(plan, semifinals,
     final, source);
+  const achievements = deriveOfficialRegionalClubSeason({
+    kind: 'STANDARD', region: 'ASIA_PACIFIC', seasonId: '2027',
+    source, plan, semifinalResults: semifinals, finalResult: final,
+  });
+  expect(achievements.clubs).toHaveLength(16);
+  expect(achievements.clubs.find((club) =>
+    club.clubId === outcome.championClubId)?.achievements.some((event) =>
+    event.kind === 'TITLE')).toBe(true);
+  expect(achievements.clubs.every((club) =>
+    club.resultApplicationIds.length >= 9)).toBe(true);
   expect(outcome.championClubId).toBe(final.winnerClubId);
   expect(outcome.finalGame.neutralVenueId).toBe('venue-1');
   expect('thirdPlaceGame' in outcome).toBe(false);
