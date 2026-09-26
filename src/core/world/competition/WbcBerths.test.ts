@@ -22,6 +22,9 @@ import { EMPTY_WBC_QUALIFIER_SELECTION_POLICY_REGISTRY,
   registerWbcQualifierSelectionPolicy,
   selectWbcGlobalQualifierEntrants }
   from './WbcGlobalQualifierSelection';
+import { createWorldNationalRankingHistory,
+  recordWbcNationalRankingResults }
+  from './WorldNationalRankingHistory';
 
 const regions: readonly ClubWorldRegion[] = [
   'ASIA_PACIFIC', 'AMERICAS', 'EUROPE', 'AFRICA'];
@@ -304,6 +307,11 @@ it('binds 24 allocated WBC nations to six US pools and 36 official games', () =>
     roundOf16Results, quarterfinalResults, semifinalResults,
     finalResult, nationRegion);
   expect(officialEdition.games).toHaveLength(51);
+  const nationalHistory = recordWbcNationalRankingResults(
+    createWorldNationalRankingHistory(), source,
+    roundOf16Results, quarterfinalResults, semifinalResults,
+    finalResult, nationRegion);
+  expect(nationalHistory.editions[0].games).toHaveLength(51);
   const olderEdition = { ...officialEdition,
     editionId: 'wbc-2028', snapshotId: 'official-wbc-2028',
     completedAtDay: 90,

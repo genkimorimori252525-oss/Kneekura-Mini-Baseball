@@ -16,6 +16,12 @@ import { createNationalQualificationHistory,
   latestRegionalNationalPlacement,
   recordRegionalNationalChampionship }
   from './NationalQualificationHistory';
+import { buildWorldNationalRanking,
+  createWorldNationalRankingHistory,
+  EMPTY_WORLD_NATIONAL_RANKING_POLICY_REGISTRY,
+  recordRegionalNationalRankingResults,
+  registerWorldNationalRankingPolicy }
+  from './WorldNationalRankingHistory';
 
 const edition = (region: ClubWorldRegion,
   groupCount: 2 | 3 | 4): RegionalNationalEdition => ({
@@ -150,6 +156,39 @@ it('finishes regional national knockouts and ranks every entrant for WBC berths'
     expect(() => recordRegionalNationalChampionship(recorded,
       source, quarterfinalResults, semifinalResults, finalResult))
       .toThrow('already recorded');
+    const rankingHistory = recordRegionalNationalRankingResults(
+      createWorldNationalRankingHistory(), source,
+      quarterfinalResults, semifinalResults, finalResult);
+    expect(rankingHistory.editions[0].games).toHaveLength(
+      groupResults.length + quarterfinalResults.length
+        + semifinalResults.length + 1);
+    if (groupCount === 4) {
+      const rankingPolicy = { version: 'national-ranking-v1',
+        winPoints: 2, tiePoints: 1,
+        tierWeights: { REGIONAL: 1, WBC: 3,
+          PREMIER_12: 2 },
+        stageWeights: { GROUP: 1, ROUND_OF_16: 2,
+          QUARTERFINAL: 3, SEMIFINAL: 4, BRONZE: 2,
+          FINAL: 5 },
+        recencyBands: [{ maxAgeDays: 20, multiplier: 2 },
+          { maxAgeDays: 100, multiplier: 1 }],
+        tieBreak: 'NATION_ID' as const };
+      const registry = registerWorldNationalRankingPolicy(
+        EMPTY_WORLD_NATIONAL_RANKING_POLICY_REGISTRY,
+        rankingPolicy);
+      const nationIds = groupPlan.groups.flatMap((group) =>
+        group.nationIds);
+      const ranking = buildWorldNationalRanking(rankingHistory,
+        30, nationIds, rankingPolicy, registry);
+      expect(ranking.orderedNationIds).toHaveLength(16);
+      expect(ranking.evidenceResultIds).toHaveLength(
+        rankingHistory.editions[0].games.length);
+      expect(() => buildWorldNationalRanking(rankingHistory,
+        29, nationIds, rankingPolicy, registry))
+        .toThrow('official national results');
+      expect(() => registerWorldNationalRankingPolicy(registry,
+        { ...rankingPolicy, winPoints: 3 })).toThrow('conflict');
+    }
   }
 });
 
