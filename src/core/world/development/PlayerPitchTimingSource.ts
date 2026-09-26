@@ -73,6 +73,21 @@ export const createPlayerPitchTimingSource = (input: Readonly<{
   });
 };
 
+/** Selects the current Career source for a future or same-day Match. */
+export const selectPlayerPitchTimingProfile = (
+  source: PlayerPitchTimingSource,
+  playerId: string,
+  atDay: number,
+): PitchTimingProfile => {
+  if (!id(playerId) || playerId !== source.playerId) {
+    throw new Error('pitch timing source player mismatch');
+  }
+  if (!day(atDay) || atDay < source.effectiveDay) {
+    throw new Error('pitch timing source unavailable at requested day');
+  }
+  return source.profile;
+};
+
 /** Uses paired standardized practice durations; a label or catalyst cannot change Match timing. */
 export const applyConsolidatedPitchTimingEvidence = (
   source: PlayerPitchTimingSource,

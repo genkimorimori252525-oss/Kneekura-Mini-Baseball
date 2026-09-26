@@ -8,7 +8,8 @@ import { appendDevelopmentLearningEvent,
   startDevelopmentLearningEpisode,
   type DevelopmentLearningEventKind } from './DevelopmentLearningEpisode';
 import { applyConsolidatedPitchTimingEvidence,
-  createPlayerPitchTimingSource } from './PlayerPitchTimingSource';
+  createPlayerPitchTimingSource,
+  selectPlayerPitchTimingProfile } from './PlayerPitchTimingSource';
 
 const profile: PitchTimingProfile = {
   baseStartIntervalUs: 10_000_000,
@@ -86,7 +87,8 @@ it('changes the Match timing source only after consolidation and measured repeti
   const changed = applyConsolidatedPitchTimingEvidence(initial,
     0, episode(true), evidence());
   expect(changed.profile.quickSpeedFactor).toBe(2);
-  expect(motion(changed.profile)).toBe(300_000);
+  expect(motion(selectPlayerPitchTimingProfile(changed,
+    'p2', 15))).toBe(300_000);
   expect(changed.profile.normalMotionToReleaseUs).toBe(600_000);
   expect(changed.profile.quickRepeatability).toBe(0.7);
   expect(changed.records[0]).toMatchObject({ episodeId: 'learning-1',
@@ -96,6 +98,10 @@ it('changes the Match timing source only after consolidation and measured repeti
   expect(Object.isFrozen(changed.profile)).toBe(true);
   expect(Object.isFrozen(changed.records)).toBe(true);
   expect(motion(initial.profile)).toBe(400_000);
+  expect(() => selectPlayerPitchTimingProfile(changed,
+    'other-player', 15)).toThrow('player');
+  expect(() => selectPlayerPitchTimingProfile(changed,
+    'p2', 14)).toThrow('day');
 });
 
 it('allows measured decline and same-value consolidation without an invented gain', () => {
