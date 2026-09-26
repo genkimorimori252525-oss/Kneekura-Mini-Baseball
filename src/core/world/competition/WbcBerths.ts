@@ -190,7 +190,7 @@ export const allocateWbcBerths = (
       || new Set(coefficient.evidenceResultIds).size
         !== coefficient.evidenceResultIds.length
       || coefficient.evidenceResultIds.some((resultId) =>
-        !id(resultId) || coefficientEvidence.has(resultId))
+        !id(resultId))
       || !placement || placement.region !== region
       || placement.editionId !== input.previousRegionalEditionIds[region]
       || !id(placement.snapshotId)
@@ -206,9 +206,9 @@ export const allocateWbcBerths = (
       throw new Error('WBC regional results require official two-edition evidence');
     }
     coefficientSnapshots.add(coefficient.snapshotId);
-    placementSnapshots.add(placement.snapshotId);
     coefficient.evidenceResultIds.forEach((resultId) =>
       coefficientEvidence.add(resultId));
+    placementSnapshots.add(placement.snapshotId);
     for (const nationId of placement.orderedNationIds) {
       if (authority.nationCompetitionRegion(nationId, cutoff.day)
         !== region) {
