@@ -12,6 +12,10 @@ import { finalizeRegionalNationalKnockout,
   planRegionalNationalSemifinals,
   type RegionalNationalKnockoutEdition }
   from './RegionalNationalKnockout';
+import { createNationalQualificationHistory,
+  latestRegionalNationalPlacement,
+  recordRegionalNationalChampionship }
+  from './NationalQualificationHistory';
 
 const edition = (region: ClubWorldRegion,
   groupCount: 2 | 3 | 4): RegionalNationalEdition => ({
@@ -131,6 +135,21 @@ it('finishes regional national knockouts and ranks every entrant for WBC berths'
       quarterfinalResults, semifinalResults,
       { ...finalResult, winnerClubId: finalGame.awayNationId },
       source)).toThrow('contradicts');
+    const identities = {
+      ASIA_PACIFIC: 'national-ASIA_PACIFIC',
+      AMERICAS: 'national-AMERICAS',
+      EUROPE: 'national-EUROPE', AFRICA: 'national-AFRICA',
+    };
+    const history = createNationalQualificationHistory(identities);
+    const recorded = recordRegionalNationalChampionship(history,
+      source, quarterfinalResults, semifinalResults, finalResult);
+    expect(latestRegionalNationalPlacement(recorded, region, 29))
+      .toBeNull();
+    expect(latestRegionalNationalPlacement(recorded, region, 30))
+      .toEqual(complete.placement);
+    expect(() => recordRegionalNationalChampionship(recorded,
+      source, quarterfinalResults, semifinalResults, finalResult))
+      .toThrow('already recorded');
   }
 });
 
