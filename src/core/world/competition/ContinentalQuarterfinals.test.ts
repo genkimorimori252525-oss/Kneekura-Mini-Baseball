@@ -16,7 +16,8 @@ import { planContinentalFinalFour, finalizeContinentalFinalFour }
 import { deriveOfficialRegionalClubSeason }
   from './OfficialRegionalClubAchievement';
 import { completedRegionalClubSeason, createRegionalClubSeasonHistory,
-  recordRegionalClubSeason } from './RegionalClubSeasonHistory';
+  latestRegionalClubChampion, recordRegionalClubSeason }
+  from './RegionalClubSeasonHistory';
 
 const draw: CompetitionDraw = {
   editionId: 'edition-2027', drawPolicyVersion: 'draw-v1',
@@ -206,6 +207,12 @@ it('uses the edition host for two neutral semifinals and one official final', ()
     .toBe(edition.editionId);
   expect(completedRegionalClubSeason(recorded,
     'AFRICA', 'winter-2026-27', 30)).toBeNull();
+  expect(latestRegionalClubChampion(recorded, 'ASIA_PACIFIC', 29))
+    .toBeNull();
+  expect(latestRegionalClubChampion(recorded, 'ASIA_PACIFIC', 30))
+    .toEqual({ editionId: edition.editionId,
+      clubId: outcome.championClubId,
+      officialTitleId: final.applicationId, titleFinalizedDay: 30 });
   expect(() => recordRegionalClubSeason(recorded, seasonInput))
     .toThrow('already recorded');
   expect(() => recordRegionalClubSeason(history, {

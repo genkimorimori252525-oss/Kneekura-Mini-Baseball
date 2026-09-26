@@ -79,3 +79,35 @@ export const completedRegionalClubSeason = (
     item.region === region && item.seasonId === seasonId);
   return season && season.completedAtDay <= beforeDay ? season : null;
 };
+
+/** Suitable for ClubWorldBerthAuthority.latestRegionalChampion. */
+export const latestRegionalClubChampion = (
+  history: RegionalClubSeasonHistory,
+  region: ClubWorldRegion,
+  beforeDay: number,
+): Readonly<{ editionId: string; clubId: string;
+  officialTitleId: string; titleFinalizedDay: number }> | null => {
+  if (!REGIONS.includes(region) || !Number.isSafeInteger(beforeDay)
+    || beforeDay < 0) {
+    throw new Error('invalid regional club champion lookup');
+  }
+  const completed = history.seasons.filter((season) =>
+    season.region === region && season.completedAtDay <= beforeDay)
+    .sort((left, right) => right.completedAtDay - left.completedAtDay);
+  if (completed.length === 0) return null;
+  if (completed.length > 1
+    && completed[0].completedAtDay === completed[1].completedAtDay) {
+    throw new Error('regional club title order is ambiguous');
+  }
+  const season = completed[0];
+  const titles = season.clubs.flatMap((club) =>
+    club.achievements.filter((event) => event.kind === 'TITLE')
+      .map((event) => ({ clubId: club.clubId,
+        officialTitleId: event.applicationId })));
+  if (titles.length !== 1) {
+    throw new Error('regional club season needs one official champion');
+  }
+  return Object.freeze({ editionId: season.editionId,
+    clubId: titles[0].clubId, officialTitleId: titles[0].officialTitleId,
+    titleFinalizedDay: season.completedAtDay });
+};
