@@ -86,3 +86,42 @@ it('rejects future knowledge/context, wrong club, duplicate and stale decisions'
   expect(() => appendRecruitmentDecision(once, 1, knowledge,
     decision())).toThrow('duplicate');
 });
+
+it('pins the evidence behind decision-time reports', () => {
+  const record = appendRecruitmentDecision(
+    createRecruitmentDecisionLedger('career-1', 'club-a'), 0,
+    knowledge, decision()).decisions[0];
+  expect(record.knowledgeEvidence).toEqual([{ evidenceId: 'match-1',
+    careerId: 'career-1', clubId: 'club-a', playerId: 'player-1',
+    observedAtDay: 8, availableAtDay: 10,
+    sourceEventId: 'official-match-1' }]);
+  expect(Object.isFrozen(record.knowledgeEvidence[0])).toBe(true);
+});
+
+it('rejects true ability or undocumented fields inside selected knowledge', () => {
+  const contaminated = { ...knowledge, reports: [{ ...knowledge.reports[0],
+    estimate: [{ ...knowledge.reports[0].estimate[0], trueAbility: 99 }] }] };
+  expect(() => appendRecruitmentDecision(
+    createRecruitmentDecisionLedger('career-1', 'club-a'), 0,
+    contaminated, decision())).toThrow('unknown');
+  const contaminatedEvidence = { ...knowledge, evidence: [{
+    ...knowledge.evidence[0], trueAbility: 99 }] };
+  expect(() => appendRecruitmentDecision(
+    createRecruitmentDecisionLedger('career-1', 'club-a'), 0,
+    contaminatedEvidence, decision())).toThrow('unknown');
+});
+
+it('rejects cross-club, missing and future evidence behind selected reports', () => {
+  const initial = createRecruitmentDecisionLedger('career-1', 'club-a');
+  const foreign = { ...knowledge, evidence: [{ ...knowledge.evidence[0],
+    clubId: 'club-b' }] };
+  expect(() => appendRecruitmentDecision(initial, 0, foreign, decision()))
+    .toThrow('knowledge');
+  const missing = { ...knowledge, evidence: [] };
+  expect(() => appendRecruitmentDecision(initial, 0, missing, decision()))
+    .toThrow('knowledge');
+  const future = { ...knowledge, evidence: [{ ...knowledge.evidence[0],
+    availableAtDay: 13 }] };
+  expect(() => appendRecruitmentDecision(initial, 0, future, decision()))
+    .toThrow('knowledge');
+});
