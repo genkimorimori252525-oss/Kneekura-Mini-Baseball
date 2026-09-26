@@ -5,6 +5,9 @@ import { same } from '../club/ClubValidation';
 import { appendClubWageSchedule,
   getClubSeasonStaffWageAllocations } from '../club/ClubWageScheduleLedger';
 import type { ClubWageScheduleLedger } from '../club/ClubWageScheduleLedger';
+import { getManagerCandidateEstimate } from './ManagerCandidateEvidence';
+import type { ManagerCandidateEvidenceLedger,
+  ManagerCandidateEstimate } from './ManagerCandidateEvidence';
 
 /** A club-specific observation record. It has no hidden true-skill field. */
 export type ManagerCandidateEstimateRef = Readonly<{
@@ -68,11 +71,12 @@ export const applyAcceptedManagerHire = (
   before: ClubWorldState,
   after: ClubWorldState,
   clubEvent: ClubTransitionEvent,
-  estimate: ManagerCandidateEstimateRef,
+  estimate: ManagerCandidateEstimate,
   offer: ManagerEmploymentOffer,
   acceptance: ManagerOfferAcceptance,
   beforeSchedules: ClubWageScheduleLedger,
   afterSchedules: ClubWageScheduleLedger,
+  evidence: ManagerCandidateEvidenceLedger,
 ): Readonly<{ state: ClubWorldState; event: ManagerHireEvent }> => {
   if (before.live.references.staffRoleLinks.some((link) =>
     link.roleKind === 'MANAGER')
@@ -80,7 +84,8 @@ export const applyAcceptedManagerHire = (
     throw new Error('manager hire requires an open-season vacancy');
   }
   if (!fields(estimate, ['estimateId', 'clubId',
-    'managerId', 'availableAtDay', 'sourceEventIds'])
+    'managerId', 'availableAtDay', 'sourceEventIds',
+    'projectedSkills', 'fit', 'uncertainty'])
     || !id(estimate.estimateId)
     || estimate.clubId !== before.identity.clubId
     || !id(estimate.managerId)
@@ -89,7 +94,11 @@ export const applyAcceptedManagerHire = (
     || estimate.sourceEventIds.length === 0
     || estimate.sourceEventIds.some((sourceId) => !id(sourceId))
     || new Set(estimate.sourceEventIds).size
-      !== estimate.sourceEventIds.length) {
+      !== estimate.sourceEventIds.length
+    || evidence.careerId !== before.careerId
+    || evidence.clubId !== before.identity.clubId
+    || !same(getManagerCandidateEstimate(evidence,
+      estimate.managerId, estimate.availableAtDay), estimate)) {
     throw new Error('invalid manager candidate estimate');
   }
   if (!fields(offer, ['offerId', 'estimateId', 'careerId',
