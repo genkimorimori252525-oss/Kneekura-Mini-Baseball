@@ -5,6 +5,12 @@ export const RELATIONSHIP_EVIDENCE_KINDS = [
 ] as const;
 export type RelationshipEvidenceKind =
   typeof RELATIONSHIP_EVIDENCE_KINDS[number];
+export const JOINT_TASKS = [
+  'BATTERY', 'MIDDLE_INFIELD', 'OUTFIELD', 'RELAY',
+  'RUNDOWN', 'BUNT_DEFENSE', 'RUNNER_CONTROL',
+  'COVER', 'COMMUNICATION',
+] as const;
+export type JointTask = typeof JOINT_TASKS[number];
 export type RelationshipDimensions = Readonly<{
   affinity: number;
   trust: number;
@@ -23,7 +29,7 @@ export type PlayerRelationshipLink = Readonly<{
   toPlayerId: string;
   affinity: number;
   trust: number;
-  coordination: number;
+  coordinationByTask: Readonly<Partial<Record<JointTask, number>>>;
   sharedSuccessMemory: number;
   conflictMemory: number;
   lastMeaningfulInteraction: number;
@@ -35,6 +41,7 @@ export type PlayerRelationshipEvidence = Readonly<{
   fromPlayerId: string;
   toPlayerId: string;
   kind: RelationshipEvidenceKind;
+  task?: JointTask;
 }>;
 export type PlayerRelationshipEvent = Readonly<{
   type: 'PLAYER_RELATIONSHIP_CHANGED';
@@ -45,6 +52,7 @@ export type PlayerRelationshipEvent = Readonly<{
   beforeRevision: number;
   afterRevision: number;
   kind: RelationshipEvidenceKind;
+  task: JointTask | null;
   before: PlayerRelationshipLink | null;
   after: PlayerRelationshipLink;
 }>;
@@ -99,6 +107,14 @@ export const createPlayerRelationshipNetwork = (
         && delta.coordination !== 0) {
         throw new Error('coordination requires joint repetition');
       }
+      if ((kind === 'JOINT_REPETITION' || kind === 'JOINT_EXECUTION')
+        && (delta.affinity !== 0 || delta.trust !== 0)) {
+        throw new Error('joint coordination needs distinct evidence');
+      }
+      if ([delta.affinity, delta.trust, delta.coordination]
+        .filter((value) => value !== 0).length > 1) {
+        throw new Error('one relationship dimension per evidence');
+      }
       return [kind, delta];
     }))) as Record<RelationshipEvidenceKind, RelationshipDimensions>;
   return Object.freeze({ careerId, revision: 0,
@@ -123,13 +139,21 @@ export const applyPlayerRelationshipEvidence = (
   if (!Array.isArray(state.events)
     || state.revision !== state.events.length
     || !fields(source, ['eventId', 'sourceEventId',
-      'atDay', 'fromPlayerId', 'toPlayerId', 'kind'])
+      'atDay', 'fromPlayerId', 'toPlayerId', 'kind',
+      ...((source?.kind === 'JOINT_REPETITION'
+        || source?.kind === 'JOINT_EXECUTION') ? ['task'] : [])])
     || !id(source.eventId) || !id(source.sourceEventId)
     || !id(source.fromPlayerId) || !id(source.toPlayerId)
     || source.fromPlayerId === source.toPlayerId
     || !day(source.atDay) || source.atDay < state.effectiveDay
     || !RELATIONSHIP_EVIDENCE_KINDS.includes(source.kind)) {
     throw new Error('invalid relationship evidence');
+  }
+  const joint = source.kind === 'JOINT_REPETITION'
+    || source.kind === 'JOINT_EXECUTION';
+  if ((joint && !JOINT_TASKS.includes(source.task!))
+    || (!joint && source.task !== undefined)) {
+    throw new Error('invalid relationship task');
   }
   if (state.events.some((event) => event.eventId === source.eventId
     || (event.sourceEventId === source.sourceEventId
@@ -141,16 +165,26 @@ export const applyPlayerRelationshipEvidence = (
     link.fromPlayerId === source.fromPlayerId
       && link.toPlayerId === source.toPlayerId) ?? null;
   const values = before ?? { fromPlayerId: source.fromPlayerId,
-    toPlayerId: source.toPlayerId, ...state.policy.baseline,
+    toPlayerId: source.toPlayerId,
+    affinity: state.policy.baseline.affinity,
+    trust: state.policy.baseline.trust,
+    coordinationByTask: Object.freeze({}) as Readonly<Partial<
+      Record<JointTask, number>>>,
     sharedSuccessMemory: 0, conflictMemory: 0,
     lastMeaningfulInteraction: source.atDay };
   const delta = state.policy.deltas[source.kind];
+  const coordinationByTask = joint
+    ? Object.freeze({ ...values.coordinationByTask,
+      [source.task!]: clamp((values.coordinationByTask[source.task!]
+        ?? state.policy.baseline.coordination)
+        + delta.coordination) })
+    : values.coordinationByTask;
   const after: PlayerRelationshipLink = Object.freeze({
     fromPlayerId: source.fromPlayerId,
     toPlayerId: source.toPlayerId,
     affinity: clamp(values.affinity + delta.affinity),
     trust: clamp(values.trust + delta.trust),
-    coordination: clamp(values.coordination + delta.coordination),
+    coordinationByTask,
     sharedSuccessMemory: values.sharedSuccessMemory
       + (source.kind === 'SHARED_SUCCESS' ? 1 : 0),
     conflictMemory: values.conflictMemory
@@ -167,7 +201,8 @@ export const applyPlayerRelationshipEvidence = (
     careerId: state.careerId, atDay: source.atDay,
     beforeRevision: state.revision,
     afterRevision: state.revision + 1,
-    kind: source.kind, before, after,
+    kind: source.kind, task: source.task ?? null,
+    before, after,
   });
   const next: PlayerRelationshipNetwork = Object.freeze({ ...state,
     revision: state.revision + 1, effectiveDay: source.atDay,
