@@ -1,8 +1,13 @@
 import { expect, it } from 'vitest';
+import { asRuleProfileId } from '../../model/RuleProfileRef';
 import type { ClubWorldRegion } from './ClubWorldBerths';
+import type { OfficialGameResult } from './OfficialGameCompletion';
 import { allocateWbcBerths, EMPTY_WBC_BERTH_POLICY_REGISTRY,
   registerWbcBerthPolicy, type WbcBerthAuthority,
   type WbcBerthInput } from './WbcBerths';
+import { finalizeWbcFinalsGroups, planWbcFinalsGroups,
+  type WbcFinalsGroupEdition, type WbcFinalsGroupGame }
+  from './WbcFinalsGroups';
 
 const regions: readonly ClubWorldRegion[] = [
   'ASIA_PACIFIC', 'AMERICAS', 'EUROPE', 'AFRICA'];
@@ -66,6 +71,14 @@ it('fills 16 floor, four performance and four qualifier WBC berths', () => {
   expect(result.coefficientSources).toHaveLength(4);
   expect(result.regionalPlacementSources).toHaveLength(4);
   expect(allocateWbcBerths(input, authority)).toEqual(result);
+  const revisedSource = allocateWbcBerths(input, {
+    ...authority, regionalCoefficient: (region, day) => ({
+      ...authority.regionalCoefficient(region, day)!,
+      snapshotId: `revised-coefficient-${region}` }),
+  });
+  expect(revisedSource.entrantNationIds).toEqual(result.entrantNationIds);
+  expect(revisedSource.qualificationSnapshotId)
+    .not.toBe(result.qualificationSnapshotId);
 });
 
 it('rejects future, duplicate and foreign official qualification evidence', () => {
@@ -88,4 +101,67 @@ it('rejects future, duplicate and foreign official qualification evidence', () =
   expect(() => allocateWbcBerths({ ...input,
     policy: { ...policy, version: 'unregistered' } }, authority))
     .toThrow('registered');
+});
+
+it('binds 24 allocated WBC nations to six US pools and 36 official games', () => {
+  const berths = allocateWbcBerths(input, authority);
+  const edition: WbcFinalsGroupEdition = {
+    competitionId: 'wbc', editionId: input.editionId,
+    canonicalRole: 'NATIONAL_WORLD_CHAMPIONSHIP',
+    formatVersion: 'wbc-24-v1', ruleProfileVersion: 'wbc-rules-v1',
+    gamePolicyVersion: 'wbc-group-game-v1',
+    hostingPolicyVersion: 'us-six-pools-v1',
+    drawPolicyVersion: 'wbc-draw-v1', drawSnapshotId: 'draw-2032',
+    qualificationSnapshotId: berths.qualificationSnapshotId,
+    hostNationId: 'US',
+    calendarWindow: { startsOnDay: 110, endsOnDay: 140 },
+    groupTiebreakPolicy: { version: 'wbc-groups-v1',
+      tieCreditNumerator: 0, tieCreditDenominator: 1,
+      runDifferentialCapPerGame: 5 },
+    thirdPlacePolicy: { version: 'wbc-third-v1',
+      criteria: ['WINS', 'CAPPED_RUN_DIFFERENTIAL',
+        'RUNS_AGAINST'], drawSeed: 'third-place-2032' },
+    groups: Array.from({ length: 6 }, (_, groupIndex) => ({ groupIndex,
+      hostCityId: `us-city-${groupIndex}`,
+      hostVenueId: `us-venue-${groupIndex}`,
+      nationIds: berths.entrantNationIds.slice(groupIndex * 4,
+        groupIndex * 4 + 4) })),
+  };
+  const plan = planWbcFinalsGroups(edition, berths);
+  expect(plan.groups.flatMap((group) => group.games)).toHaveLength(36);
+  const result = (game: WbcFinalsGroupGame,
+    index: number): OfficialGameResult => ({
+    gameId: game.gameId, seasonId: edition.editionId,
+    homeClubId: game.homeNationId, awayClubId: game.awayNationId,
+    homeRuns: 2, awayRuns: 1, winnerClubId: game.homeNationId,
+    completionReason: 'BOTTOM_COMPLETE',
+    ruleProfileId: asRuleProfileId(edition.ruleProfileVersion),
+    gamePolicyVersion: edition.gamePolicyVersion,
+    closureId: `wbc-closure-${index}`,
+    applicationId: `wbc-application-${index}`,
+    durableRevision: index + 1,
+    venueBinding: { gameId: game.gameId, venueId: game.venueId,
+      fixtureEventId: `wbc-fixture-${index}`, fixtureRevision: 1 },
+    lineScore: { innings: [{ inning: 1,
+      homeRuns: 2, awayRuns: 1 }], totals: {
+      home: { runs: 2, hits: 0, errors: 0 },
+      away: { runs: 1, hits: 0, errors: 0 } } },
+  });
+  const results = plan.groups.flatMap((group) => group.games).map(result);
+  const complete = finalizeWbcFinalsGroups(plan,
+    results, edition, berths);
+  expect(complete.groups).toHaveLength(6);
+  expect(complete.groups.every((group) =>
+    group.topTwoNationIds?.length === 2
+    && group.thirdPlaceNationId !== null)).toBe(true);
+  expect(complete.resultApplicationIds).toHaveLength(36);
+  expect(complete.qualifiedThirdPlaceNationIds).toHaveLength(4);
+  expect(complete.roundOf16NationIds).toHaveLength(16);
+  expect(new Set(complete.roundOf16NationIds).size).toBe(16);
+  expect(() => finalizeWbcFinalsGroups(plan, results.slice(1),
+    edition, berths)).toThrow('36');
+  expect(() => finalizeWbcFinalsGroups(plan,
+    [{ ...results[0], venueBinding: {
+      ...results[0].venueBinding!, venueId: 'foreign' } },
+      ...results.slice(1)], edition, berths)).toThrow('venue-bound');
 });
