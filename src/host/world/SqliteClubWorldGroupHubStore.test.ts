@@ -20,6 +20,8 @@ import { openSqliteClubWorldQuarterfinalStore } from
   './SqliteClubWorldQuarterfinalStore';
 import { openSqliteClubWorldFinalFourStore } from
   './SqliteClubWorldFinalFourStore';
+import { openSqliteClubWorldChampionHistoryStore } from
+  './SqliteClubWorldChampionHistoryStore';
 
 const { DatabaseSync }: typeof import('node:sqlite') =
   createRequire(import.meta.url)('node:sqlite');
@@ -206,6 +208,18 @@ it('pins four Club World hubs and replays 72 official Match finals', () => {
       edition.editionId)!;
     expect(champion.championClubId).toBe(
       finalPlan.semifinalGames[0].homeClubId);
+    const titleStore = openSqliteClubWorldChampionHistoryStore(path,
+      { finals: finalStore });
+    titleStore.initialize('career-1', edition.competitionId);
+    const titles = titleStore.record('career-1', edition.editionId);
+    expect(titles.champions).toHaveLength(1);
+    expect(titleStore.record('career-1', edition.editionId))
+      .toEqual(titles);
+    expect(titleStore.authority('career-1').defendingWorldChampion(29))
+      .toBeNull();
+    expect(titleStore.authority('career-1').defendingWorldChampion(30))
+      .toEqual(titles.champions[0]);
+    titleStore.close();
     finalStore.close();
     quarters.close();
     const reopenedQuarters = openSqliteClubWorldQuarterfinalStore(path,
