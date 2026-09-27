@@ -134,6 +134,8 @@ it('pins one Career seed and generates distinct hidden priors for accepted Perso
   const reopened = openSqlitePersonGenesisStore(path);
   stores.push(reopened);
   expect(reopened.read('intake-1')).toEqual(first);
+  expect(reopened.readDevelopmentSeed(genesisInput.careerId))
+    .toBe(genesisInput.careerSeed);
   expect(reopened.materialize('intake-2')).toEqual(second);
 });
 
