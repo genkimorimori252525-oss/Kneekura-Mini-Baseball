@@ -21,6 +21,11 @@ import { openSqliteWbcRegionalCoefficientStore } from
   './SqliteWbcRegionalCoefficientStore';
 import { openSqliteWorldNationalRankingHistoryStore } from
   './SqliteWorldNationalRankingHistoryStore';
+import { openSqliteWorldNationalRankingSnapshotStore } from
+  './SqliteWorldNationalRankingSnapshotStore';
+import { EMPTY_WORLD_NATIONAL_RANKING_POLICY_REGISTRY,
+  registerWorldNationalRankingPolicy } from
+  '../../core/world/competition/WorldNationalRankingHistory';
 import { EMPTY_WBC_REGIONAL_COEFFICIENT_POLICY_REGISTRY,
   registerWbcRegionalCoefficientPolicy } from
   '../../core/world/competition/WbcRegionalCoefficients';
@@ -235,6 +240,31 @@ it('freezes six WBC pools and replays 36 official Match finals', () => {
       path, rankingSources);
     expect(reopenedRanking.readHistory('career-1'))
       .toEqual(rankingHistory);
+    const rankingPolicy = { version: 'national-ranking-v1',
+      winPoints: 2, tiePoints: 1,
+      tierWeights: { REGIONAL: 1, WBC: 3, PREMIER_12: 2 },
+      stageWeights: { GROUP: 1, ROUND_OF_16: 2,
+        QUARTERFINAL: 3, SEMIFINAL: 4, BRONZE: 2,
+        FINAL: 5 },
+      recencyBands: [{ maxAgeDays: 100, multiplier: 1 }],
+      tieBreak: 'NATION_ID' as const };
+    const snapshotSources = { history: reopenedRanking };
+    const snapshotStore = openSqliteWorldNationalRankingSnapshotStore(
+      path, snapshotSources);
+    const ranking = snapshotStore.initialize({ careerId: 'career-1',
+      asOfDay: 140, nationIds, policy: rankingPolicy,
+      registry: registerWorldNationalRankingPolicy(
+        EMPTY_WORLD_NATIONAL_RANKING_POLICY_REGISTRY,
+        rankingPolicy) });
+    expect(ranking.evidenceResultIds).toHaveLength(51);
+    expect(snapshotStore.authority('career-1')
+      .worldNationalRanking(140)).toEqual(ranking);
+    snapshotStore.close();
+    const reopenedSnapshot = openSqliteWorldNationalRankingSnapshotStore(
+      path, snapshotSources);
+    expect(reopenedSnapshot.readRanking('career-1', 140))
+      .toEqual(ranking);
+    reopenedSnapshot.close();
     reopenedRanking.close();
     historyStore.close();
     const corruptHistory = new DatabaseSync(path);
