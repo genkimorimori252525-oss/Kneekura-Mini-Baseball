@@ -24,6 +24,8 @@ import { openSqlitePlayerPersonLinkStore } from
 import { openSqlitePlayerPitchTimingStore,
   type AcceptedPitchTimingLearning } from
   './SqlitePlayerPitchTimingStore';
+import { projectPitchTimingBreakthroughs } from
+  './PitchTimingBreakthroughFromAcceptedSources';
 import { openSqliteWorldSettlementStore } from
   './SqliteWorldSettlementStore';
 
@@ -180,6 +182,11 @@ it('persists a measured source change and replays it without live authority', ()
     .toBe(1.5);
   expect(timing.selectProfileAtDay('career-a', 'p2', 15).quickSpeedFactor)
     .toBe(2);
+  expect(timing.readDevelopmentEvidenceAtDay('career-a', 'p2', 14))
+    .toMatchObject({ source: { revision: 0 }, episodes: [] });
+  expect(timing.readDevelopmentEvidenceAtDay('career-a', 'p2', 15))
+    .toMatchObject({ source: { revision: 1 },
+      episodes: [{ episodeId: 'learning-1' }] });
   expect(() => timing.selectProfile('career-a', 'p2', 14))
     .toThrow('day');
   expect(() => timing.apply(acceptedBaseline.sourceId, 1))
@@ -191,6 +198,38 @@ it('persists a measured source change and replays it without live authority', ()
   stores.push(reopened);
   expect(reopened.readHead('career-a', 'p2')).toEqual(changed);
   expect(reopened.readDevelopmentHistory('career-a', 'p2')).toEqual(history);
+  expect(reopened.readDevelopmentEvidenceAtDay('career-a', 'p2', 15))
+    .toEqual({ source: changed, episodes: [evidence.episode] });
+  const breakthroughSources = { timing: reopened,
+    checkpoints: { readAcceptedCheckpoints: (_careerId: string,
+      _playerId: string, asOfDay: number) => [
+      { checkpointId: 'check-1', episodeId: 'learning-1',
+        atDay: 20, sourceRevision: 1,
+        actualQuickSpeedFactor: 2,
+        expectedQuickSpeedFactor: 1.6,
+        trajectorySourceId: 'expected-1',
+        trajectoryVersion: 'trajectory-v1' },
+      { checkpointId: 'check-2', episodeId: 'learning-1',
+        atDay: 120, sourceRevision: 1,
+        actualQuickSpeedFactor: 2,
+        expectedQuickSpeedFactor: 1.65,
+        trajectorySourceId: 'expected-2',
+        trajectoryVersion: 'trajectory-v1' },
+    ].filter(checkpoint => checkpoint.atDay <= asOfDay) },
+    policy: { readAcceptedPolicy: (sourceId: string) =>
+      sourceId === 'breakthrough-policy-1' ? {
+        policyId: 'major-quick-timing', version: 'v1',
+        effectiveDay: 1, minimumSourceGain: 0.3,
+        minimumDeviationAboveExpected: 0.3,
+        minimumPersistenceDays: 90,
+        minimumCheckpoints: 2 } : null } };
+  const projection = { careerId: 'career-a', playerId: 'p2',
+    asOfDay: 130, policySourceId: 'breakthrough-policy-1' };
+  expect(projectPitchTimingBreakthroughs(breakthroughSources,
+    { ...projection, asOfDay: 40 })).toEqual([]);
+  expect(projectPitchTimingBreakthroughs(breakthroughSources,
+    projection)).toMatchObject([{ kind: 'MAJOR_BREAKTHROUGH',
+      episodeId: 'learning-1', occurredAtDay: 120 }]);
   expect(reopened.selectProfileAtDay('career-a', 'p2', 14))
     .toEqual(profile);
   expect(reopened.apply(evidence.sourceId, 0)).toEqual(changed);
