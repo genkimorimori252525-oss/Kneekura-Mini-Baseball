@@ -1,6 +1,8 @@
 import { replayClubEvents } from '../../core/world/club/ClubEvents';
 import type { MatchdayClubHistory } from
   '../../core/world/club/OfficialMatchdayRevenue';
+import type { ClubWorldState } from
+  '../../core/world/club/ClubTypes';
 import type { OfficialGameVenueBinding } from
   '../../core/world/competition/OfficialGameCompletion';
 import type { SqliteOfficialStateStore } from
@@ -29,22 +31,16 @@ export type ContinentalGroupFixture = Readonly<{
   binding: OfficialGameVenueBinding;
 }>;
 
-/** Use the accepted home Club at the accepted game day, never a venue label. */
-export const bindContinentalGroupFixture = (input: Readonly<{
+/** Shared Club venue authority for group and winner-home knockout games. */
+export const readAcceptedContinentalHomeClub = (input: Readonly<{
   careerId: string;
   editionId: string;
-  competitionId: string;
-  gameId: string;
   gameDay: number;
   homeClubId: string;
-  drawPolicyVersion: string;
-  homeFairnessPolicyVersion: string;
   history: MatchdayClubHistory;
-}>): ContinentalGroupFixture => {
+}>): ClubWorldState => {
   const { history } = input;
-  if (!input.careerId || !input.editionId || !input.competitionId
-    || !input.gameId || !input.homeClubId
-    || !input.drawPolicyVersion || !input.homeFairnessPolicyVersion
+  if (!input.careerId || !input.editionId || !input.homeClubId
     || !Number.isSafeInteger(input.gameDay) || input.gameDay < 0
     || !history || !Array.isArray(history.acceptedEvents)
     || history.checkpoint.careerId !== input.careerId
@@ -70,6 +66,26 @@ export const bindContinentalGroupFixture = (input: Readonly<{
     || club.institutional.stadium.capacity <= 0) {
     throw new Error('continental group home Club or stadium mismatch');
   }
+  return club;
+};
+
+/** Use the accepted home Club at the accepted game day, never a venue label. */
+export const bindContinentalGroupFixture = (input: Readonly<{
+  careerId: string;
+  editionId: string;
+  competitionId: string;
+  gameId: string;
+  gameDay: number;
+  homeClubId: string;
+  drawPolicyVersion: string;
+  homeFairnessPolicyVersion: string;
+  history: MatchdayClubHistory;
+}>): ContinentalGroupFixture => {
+  if (!input.competitionId || !input.gameId
+    || !input.drawPolicyVersion || !input.homeFairnessPolicyVersion) {
+    throw new Error('invalid continental group fixture source');
+  }
+  const club = readAcceptedContinentalHomeClub(input);
   const basis = Object.freeze({ careerId: input.careerId,
     editionId: input.editionId, competitionId: input.competitionId,
     gameId: input.gameId, gameDay: input.gameDay,
