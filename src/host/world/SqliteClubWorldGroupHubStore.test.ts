@@ -18,6 +18,8 @@ import { openSqliteClubWorldGroupHubStore } from
   './SqliteClubWorldGroupHubStore';
 import { openSqliteClubWorldQuarterfinalStore } from
   './SqliteClubWorldQuarterfinalStore';
+import { openSqliteClubWorldFinalFourStore } from
+  './SqliteClubWorldFinalFourStore';
 
 const { DatabaseSync }: typeof import('node:sqlite') =
   createRequire(import.meta.url)('node:sqlite');
@@ -162,6 +164,49 @@ it('pins four Club World hubs and replays 72 official Match finals', () => {
       edition.editionId)!;
     expect(quarterOutcome.winnerClubIds)
       .toEqual(quarterPlan.games.map((game) => game.homeClubId));
+    const finalStore = openSqliteClubWorldFinalFourStore(path,
+      { quarterfinals: quarters, matches });
+    const finalPlan = finalStore.initialize('career-1', edition.editionId);
+    expect(finalPlan.semifinalGames).toHaveLength(2);
+    expect(finalStore.finalize('career-1', edition.editionId))
+      .toBeNull();
+    const putFinal = (game: { gameId: string; homeClubId: string;
+      awayClubId: string; neutralVenueId: string;
+      fixtureEventId: string }, index: number): void => {
+      const result: OfficialGameResult = {
+        gameId: game.gameId, seasonId: edition.editionId,
+        homeClubId: game.homeClubId, awayClubId: game.awayClubId,
+        homeRuns: 2, awayRuns: 1, winnerClubId: game.homeClubId,
+        completionReason: 'BOTTOM_COMPLETE',
+        ruleProfileId: asRuleProfileId('rules-v1'),
+        gamePolicyVersion: 'world-game-v1',
+        closureId: `final-closure-${index}`,
+        applicationId: `final-application-${index}`,
+        durableRevision: 1,
+        venueBinding: { gameId: game.gameId,
+          venueId: game.neutralVenueId,
+          fixtureEventId: game.fixtureEventId, fixtureRevision: 1 },
+        lineScore: { innings: [{ inning: 1,
+          homeRuns: 2, awayRuns: 1 }], totals: {
+          home: { runs: 2, hits: 0, errors: 0 },
+          away: { runs: 1, hits: 0, errors: 0 } } },
+      };
+      finals.set(game.gameId, result);
+      fixtures.set(game.gameId, result.venueBinding!);
+    };
+    finalPlan.semifinalGames.forEach(putFinal);
+    expect(finalStore.finalize('career-1', edition.editionId))
+      .toBeNull();
+    putFinal({ gameId: finalPlan.finalGameId,
+      homeClubId: finalPlan.semifinalGames[0].homeClubId,
+      awayClubId: finalPlan.semifinalGames[1].homeClubId,
+      neutralVenueId: finalPlan.hostVenueId,
+      fixtureEventId: finalPlan.finalFixtureEventId }, 2);
+    const champion = finalStore.finalize('career-1',
+      edition.editionId)!;
+    expect(champion.championClubId).toBe(
+      finalPlan.semifinalGames[0].homeClubId);
+    finalStore.close();
     quarters.close();
     const reopenedQuarters = openSqliteClubWorldQuarterfinalStore(path,
       { groups: store, matches });
