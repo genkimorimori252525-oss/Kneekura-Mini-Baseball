@@ -17,6 +17,11 @@ import { openSqliteWbcFinalsKnockoutStore } from
   './SqliteWbcFinalsKnockoutStore';
 import { openSqliteOfficialWbcHistoryStore } from
   './SqliteOfficialWbcHistoryStore';
+import { openSqliteWbcRegionalCoefficientStore } from
+  './SqliteWbcRegionalCoefficientStore';
+import { EMPTY_WBC_REGIONAL_COEFFICIENT_POLICY_REGISTRY,
+  registerWbcRegionalCoefficientPolicy } from
+  '../../core/world/competition/WbcRegionalCoefficients';
 import type { WbcKnockoutEdition, WbcKnockoutGame } from
   '../../core/world/competition/WbcFinalsKnockout';
 
@@ -187,6 +192,34 @@ it('freezes six WBC pools and replays 36 official Match finals', () => {
     expect(official.entrants).toHaveLength(24);
     expect(historyStore.readEdition('career-1', edition.editionId))
       .toEqual(official);
+    const older = { ...official, editionId: 'wbc-2028',
+      snapshotId: 'official-wbc-2028', completedAtDay: 100,
+      games: official.games.map((game) => ({ ...game,
+        applicationId: `older-${game.applicationId}` })) };
+    const coefficientPolicy = { version: 'wbc-regional-v1',
+      olderEditionMultiplier: 1, newerEditionMultiplier: 2,
+      bestNationsPerRegion: 3,
+      winPoints: { GROUP: 1, ROUND_OF_16: 2,
+        QUARTERFINAL: 3, SEMIFINAL: 4, FINAL: 5 } };
+    const coefficients = openSqliteWbcRegionalCoefficientStore(path, {
+      history: { readEdition: (_careerId, editionId) =>
+        editionId === older.editionId ? older
+          : historyStore.readEdition('career-1', editionId) },
+    });
+    const coefficientResult = coefficients.initialize({
+      careerId: 'career-1', olderEditionId: older.editionId,
+      newerEditionId: official.editionId,
+      policy: coefficientPolicy,
+      registry: registerWbcRegionalCoefficientPolicy(
+        EMPTY_WBC_REGIONAL_COEFFICIENT_POLICY_REGISTRY,
+        coefficientPolicy),
+    });
+    expect(coefficientResult).toHaveLength(4);
+    expect(coefficients.authority('career-1').regionalCoefficient(
+      'AFRICA', 139)).toBeNull();
+    expect(coefficients.authority('career-1').regionalCoefficient(
+      'AFRICA', 140)).toEqual(coefficientResult[3]);
+    coefficients.close();
     historyStore.close();
     const corruptHistory = new DatabaseSync(path);
     corruptHistory.prepare(`UPDATE world_official_wbc_editions
