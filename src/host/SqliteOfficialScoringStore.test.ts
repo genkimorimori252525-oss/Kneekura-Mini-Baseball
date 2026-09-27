@@ -13,7 +13,7 @@ import { asRuleProfileId } from '../core/model/RuleProfileRef';
 import { createPlayEndFact } from '../core/rules/PhysicalRuleFacts';
 import { resolveBatBallContact } from '../core/sim/contact/BatBallContact';
 import { createCanonicalPlateAppearanceTimeline, recordBatBallContact,
-  recordCountedPitch,
+  recordCountedPitch, recordFoulBattedBall,
   recordFairBattedBall, recordLiveBallPlayEnd } from
   '../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 import { SqliteOfficialStateStore,
@@ -144,6 +144,8 @@ it('rejects scoring that is not tied to the exact durable official request or ac
     readAcceptedOfficialScoringEvidence: (sourceEventId: string) =>
       sourceEventId === evidence.sourceEventId ? evidence : null,
   });
+  expect(() => scoring.apply({ scoringApplicationId: 'fair-without-scorer',
+    officialApplication })).toThrow('unsupported');
   expect(() => scoring.apply({ scoringApplicationId: 'bad-request',
     officialApplication: { ...officialApplication, nextStartedAtTick: 504 },
     sourceEventId: evidence.sourceEventId,
@@ -279,5 +281,57 @@ it('persists a non-live strikeout from the durable official application without 
   expect(() => reopened.apply({ ...request,
     scoringApplicationId: 'score-strikeout-duplicate' }))
     .toThrow('UNIQUE constraint');
+  reopened.close();
+});
+
+it('persists a caught foul out from the durable official ruling without scorer evidence', () => {
+  const path = databasePath();
+  const { officialApplication } = setup({ kind: 'base_hit' });
+  if (officialApplication.kind !== 'live_ball'
+    || 'game' in officialApplication) throw new Error('fixture');
+  const before = officialApplication.match;
+  const contact = resolveBatBallContact(
+    { tick: 150, position: { x: 0, y: 1, z: 0.06 },
+      velocity: { x: 0, y: -1.5, z: -35 }, spin: { x: 0, y: 0, z: 0 } },
+    { pose: { grip: { x: -0.42, y: 1, z: 0 },
+      tip: { x: 0.42, y: 1, z: 0 } },
+      linearVelocity: { x: 0, y: 0, z: 22 },
+      angularVelocity: { x: 0, y: 0, z: 0 } },
+  );
+  if (!contact) throw new Error('fixture requires contact');
+  const playEnd = createPlayEndFact(500, 'live_action_complete');
+  const timeline = recordLiveBallPlayEnd(recordFoulBattedBall(
+    recordBatBallContact(createCanonicalPlateAppearanceTimeline(before, 100),
+      contact), 300, false, { kind: 'caught', batterRunnerId: 'batter',
+      firstFielderTouchTick: 250, outTick: 300, secureCatchTick: 300 },
+  ), playEnd);
+  let adjudication = createPlayAdjudicationLedger({ playId: before.playId,
+    ruleProfileId: before.ruleProfileId, playEnd });
+  adjudication = recordCorrectRuleSnapshot(adjudication, 0, {
+    eventId: 'foul-rule', tick: 501, snapshotId: 'foul-rule',
+    evidenceRevision: 1, ruling: { outsAfter: 1,
+      basesAfter: before.bases, scoredRunnerIds: [] },
+  });
+  adjudication = closeOfficialPlay(adjudication, 1, {
+    eventId: 'foul-close', closureId: 'foul-closure', tick: 502,
+  });
+  const application: PersistOfficialPlayInput = {
+    ...officialApplication, physicalTimeline: timeline,
+    adjudication,
+  };
+  const official = new SqliteOfficialStateStore(path);
+  official.initializeMatch('game-1', before);
+  official.applyAndActivate(application);
+  official.close();
+  const scoring = openSqliteOfficialScoringStore(path);
+  const request = { scoringApplicationId: 'score-foul',
+    officialApplication: application };
+  const saved = scoring.apply(request);
+  expect(saved.record).toMatchObject({ classification: 'foul_out',
+    hitsCredited: 0, errorsCharged: 0 });
+  scoring.close();
+  const reopened = openSqliteOfficialScoringStore(path);
+  expect(reopened.readApplication('score-foul')).toEqual(saved);
+  expect(reopened.apply(request)).toEqual(saved);
   reopened.close();
 });

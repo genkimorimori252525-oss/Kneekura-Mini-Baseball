@@ -18,7 +18,8 @@ type OfficialInput = PersistOfficialPlayInput | PersistOfficialFinalInput;
 export type PersistOfficialScoringInput = Readonly<{
   scoringApplicationId: string;
   officialApplication: Extract<OfficialInput, { kind: 'live_ball' }>;
-  sourceEventId: string;
+  /** Omit only for a deterministic caught-foul out. Fair balls require scorer evidence. */
+  sourceEventId?: string;
 }> | Readonly<{
   scoringApplicationId: string;
   officialApplication: Extract<OfficialInput, { kind: 'non_live' }>;
@@ -71,7 +72,8 @@ const officialHash = (input: PersistOfficialScoringInput['officialApplication'])
 const scoringSourceId = (input: PersistOfficialScoringInput): string =>
   input.officialApplication.kind === 'non_live'
     ? `official-non-live:${input.officialApplication.applicationId}`
-    : 'sourceEventId' in input ? input.sourceEventId : '';
+    : 'sourceEventId' in input ? input.sourceEventId ?? ''
+      : `official-foul-out:${input.officialApplication.applicationId}`;
 
 /** Persists scoring after a durable official closure, without changing MatchState. */
 export const openSqliteOfficialScoringStore = (
@@ -159,7 +161,7 @@ export const openSqliteOfficialScoringStore = (
       : classifyClosedPlayForOfficialScoring({ kind: 'live_ball',
         match: official.match, timeline: official.physicalTimeline,
         adjudication: official.adjudication,
-        scoringEvidence: evidence ?? undefined });
+        ...(evidence ? { scoringEvidence: evidence } : {}) });
     if (result.kind !== 'supported') {
       throw new Error('official scoring evidence remains unsupported');
     }
@@ -185,9 +187,11 @@ export const openSqliteOfficialScoringStore = (
       const replayed = score(input, evidence, closureId);
       if (serialized(stored) !== row.request_json
         || serialized(result) !== row.result_json
+        || ('sourceEventId' in input
+          ? evidence?.sourceEventId !== row.source_event_id
+          : evidence !== null)
         || (input.officialApplication.kind === 'non_live'
-          ? evidence !== null || Object.hasOwn(input, 'sourceEventId')
-          : evidence?.sourceEventId !== row.source_event_id)
+          && Object.hasOwn(input, 'sourceEventId'))
         || input.scoringApplicationId !== row.scoring_application_id
         || scoringSourceId(input) !== row.source_event_id
         || input.officialApplication.matchId !== row.match_id
@@ -210,7 +214,7 @@ export const openSqliteOfficialScoringStore = (
       if (!input || !id(input.scoringApplicationId)
         || (input.officialApplication?.kind === 'non_live'
           ? Object.hasOwn(input, 'sourceEventId')
-          : !('sourceEventId' in input) || !id(input.sourceEventId))) {
+          : 'sourceEventId' in input && !id(input.sourceEventId))) {
         throw new Error('invalid official scoring application');
       }
       db.exec('BEGIN IMMEDIATE');
@@ -225,8 +229,8 @@ export const openSqliteOfficialScoringStore = (
           return decoded.result;
         }
         const closureId = requireOfficialApplication(input.officialApplication);
-        const evidence = input.officialApplication.kind === 'non_live'
-          ? null : acceptedEvidence(scoringSourceId(input));
+        const evidence = 'sourceEventId' in input
+          ? acceptedEvidence(scoringSourceId(input)) : null;
         const result = score(input, evidence, closureId);
         const requestJson = serialized({ input, evidence });
         const resultJson = serialized(result);
