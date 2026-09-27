@@ -23,7 +23,7 @@ import type { DurableOfficialWorldSettlementRequest,
   './SqliteOfficialWorldSettlementOutbox';
 import type { OfficialWorldSettlementResult } from
   './OfficialWorldSettlementDriver';
-import type { InitializeWorldSeason,
+import type { DurableWorldSeason, InitializeWorldSeason,
   SqliteWorldSettlementStore } from './SqliteWorldSettlementStore';
 
 export type DomesticSeasonStores = Readonly<{
@@ -35,6 +35,60 @@ export type PreparedDomesticMatch = Readonly<{
   fixture: DomesticFixtureVenue;
   match: PersistedMatch;
 }>;
+export type CompletedDomesticSeason = Readonly<{
+  archive: DurableDomesticSchedule;
+  world: DurableWorldSeason & Readonly<{
+    standings: Extract<DurableWorldSeason['standings'],
+      { kind: 'OFFICIAL' }>;
+  }>;
+}>;
+
+/** Read a season only after World standings and every Match final agree. */
+export const readCompletedDomesticSeason = (
+  stores: Readonly<{
+    world: Pick<SqliteWorldSettlementStore, 'readSeason'>;
+    archive: Pick<SqliteDomesticScheduleStore, 'read'>;
+    match: Pick<SqliteOfficialStateStore,
+      'getMatch' | 'getOfficialFixture'>;
+  }>,
+  careerId: string,
+  seasonId: string,
+): CompletedDomesticSeason | null => {
+  const archive = stores.archive.read(careerId, seasonId);
+  const world = stores.world.readSeason(careerId, seasonId);
+  if (!archive && !world) return null;
+  if (!archive || !world
+    || archive.careerId !== careerId
+    || archive.seasonId !== seasonId
+    || world.careerId !== careerId
+    || world.seasonId !== seasonId
+    || !isDeepStrictEqual(world.schedule,
+      captureOfficialStandingsSchedule(archive.baseSchedule,
+        archive.revisions))) {
+    throw new Error('domestic season archive and World disagree');
+  }
+  if (world.standings.kind !== 'OFFICIAL') return null;
+  if (world.results.length !== world.schedule.games.length) {
+    throw new Error('completed domestic season result count differs');
+  }
+  for (const fixture of world.schedule.games) {
+    const result = world.results.find(item =>
+      item.gameId === fixture.gameId);
+    const match = stores.match.getMatch(fixture.gameId);
+    const venue = stores.match.getOfficialFixture(fixture.gameId);
+    if (!result || result.seasonId !== seasonId
+      || result.homeClubId !== fixture.homeClubId
+      || result.awayClubId !== fixture.awayClubId
+      || !match || !match.finalResult
+      || !venue || !result.venueBinding
+      || !isDeepStrictEqual(match.finalResult, result)
+      || !isDeepStrictEqual(venue, result.venueBinding)) {
+      throw new Error('completed domestic season lacks durable Match final');
+    }
+  }
+  return Object.freeze({ archive,
+    world: world as CompletedDomesticSeason['world'] });
+};
 
 /** First commit the World head, then archive its exact base schedule. Both retry. */
 export const initializeDomesticSeason = (stores: DomesticSeasonStores,
