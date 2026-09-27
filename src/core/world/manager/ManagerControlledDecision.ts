@@ -23,6 +23,7 @@ export function selectManagerControlledDecision(
   opportunity: DecisionOpportunity,
   agent: ManagerDecisionAgent,
   traceId: string,
+  candidateActionIds?: readonly string[],
 ): ControlResult<ManagerControlledSelection> {
   try {
     const current = createHumanControlState(control);
@@ -38,9 +39,18 @@ export function selectManagerControlledDecision(
       return failure('HUMAN_INPUT_REQUIRED');
     }
     const reference = id(traceId, 'traceId');
+    const admitted = candidateActionIds ?? legalOpportunity.legalActionIds;
+    if (!Array.isArray(admitted) || admitted.length === 0
+      || new Set(admitted).size !== admitted.length
+      || admitted.some((actionId) =>
+        !legalOpportunity.legalActionIds.includes(id(actionId,
+          'candidateActionIds')))) {
+      return failure('INVALID_INPUT', 'candidateActionIds');
+    }
     let choice: ManagerActionChoice;
     try {
-      choice = chooseManagerAction(legalOpportunity, agent.state);
+      choice = chooseManagerAction({ ...legalOpportunity,
+        legalActionIds: admitted }, agent.state);
     } catch {
       return failure('INVALID_INPUT', 'managerBeliefs');
     }
