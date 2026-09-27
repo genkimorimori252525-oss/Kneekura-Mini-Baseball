@@ -33,6 +33,11 @@ export type SqliteRegionalNationalKnockoutStore = Readonly<{
     RegionalNationalKnockoutOutcome | null;
   readOutcome(careerId: string, editionId: string):
     RegionalNationalKnockoutOutcome | null;
+  readEvidence(careerId: string, editionId: string):
+    Readonly<{ source: RegionalNationalKnockoutSource;
+      quarterfinalResults: readonly OfficialGameResult[];
+      semifinalResults: readonly OfficialGameResult[];
+      finalResult: OfficialGameResult }> | null;
   close(): void;
 }>;
 type KnockoutRow = { edition_json: string; plan_json: string;
@@ -257,6 +262,25 @@ export const openSqliteRegionalNationalKnockoutStore = (
       assertScope(careerId, editionId);
       const stored = row(careerId, editionId);
       return stored ? replay(careerId, editionId, stored).outcome : null;
+    },
+    readEvidence(careerId: string, editionId: string) {
+      assertScope(careerId, editionId);
+      const stored = row(careerId, editionId);
+      if (!stored) return null;
+      const prior = replay(careerId, editionId, stored);
+      if (!prior.outcome) return null;
+      const source = readSource(careerId, prior.edition);
+      const quarterfinalResults = prior.plan.openingGames[0]?.stage
+        === 'QUARTERFINAL'
+        ? readComplete(prior.plan.openingGames) : Object.freeze([]);
+      const semifinalResults = readComplete(prior.outcome.semifinalGames);
+      const finalResult = readDurableOfficialGameResult(sources.matches,
+        prior.outcome.finalGame.gameId);
+      if (!quarterfinalResults || !semifinalResults || !finalResult) {
+        throw new Error('regional knockout evidence lost Match final');
+      }
+      return Object.freeze({ source, quarterfinalResults,
+        semifinalResults, finalResult });
     },
     close(): void {
       if (!closed) db.close();
