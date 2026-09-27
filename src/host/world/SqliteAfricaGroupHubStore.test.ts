@@ -14,6 +14,8 @@ import type { OfficialGameResult } from
 import type { PostseasonMatchSource } from './PostseasonResultsFromMatches';
 import { openSqliteAfricaGroupHubStore } from
   './SqliteAfricaGroupHubStore';
+import { openSqliteAfricaFinalFourStore } from
+  './SqliteAfricaFinalFourStore';
 
 const { DatabaseSync }: typeof import('node:sqlite') =
   createRequire(import.meta.url)('node:sqlite');
@@ -121,6 +123,56 @@ it('freezes both African hubs and replays all 36 Match finals', () => {
       .toEqual([['a', 'b'], ['e', 'f']]);
     expect(store.readResults('career-1', draw.editionId))
       .toHaveLength(36);
+    const finalsStore = openSqliteAfricaFinalFourStore(path,
+      { ...sources, groups: store });
+    const finalPlan = finalsStore.initialize('career-1', draw.editionId);
+    expect(finalPlan.hostVenueId).toBe('venue-final');
+    expect(finalsStore.finalize('career-1', draw.editionId))
+      .toBeNull();
+    const putKnockout = (game: { gameId: string;
+      homeClubId: string; awayClubId: string;
+      neutralVenueId: string }, index: number): void => {
+      const result: OfficialGameResult = {
+        gameId: game.gameId, seasonId: draw.editionId,
+        homeClubId: game.homeClubId,
+        awayClubId: game.awayClubId,
+        homeRuns: 2, awayRuns: 1,
+        winnerClubId: game.homeClubId,
+        completionReason: 'BOTTOM_COMPLETE',
+        ruleProfileId: asRuleProfileId('africa-rules-v1'),
+        gamePolicyVersion: 'afbcl-game-v1',
+        closureId: `knockout-closure-${index}`,
+        applicationId: `knockout-application-${index}`,
+        durableRevision: 1,
+        venueBinding: { gameId: game.gameId,
+          venueId: game.neutralVenueId,
+          fixtureEventId: `knockout-fixture-${index}`,
+          fixtureRevision: 1 },
+        lineScore: { innings: [{ inning: 1,
+          homeRuns: 2, awayRuns: 1 }], totals: {
+          home: { runs: 2, hits: 0, errors: 0 },
+          away: { runs: 1, hits: 0, errors: 0 } } },
+      };
+      finals.set(game.gameId, result);
+      fixtures.set(game.gameId, result.venueBinding!);
+    };
+    finalPlan.semifinalGames.forEach(putKnockout);
+    expect(finalsStore.finalize('career-1', draw.editionId))
+      .toBeNull();
+    putKnockout({ gameId: finalPlan.finalGameId,
+      homeClubId: finalPlan.semifinalGames[0].homeClubId,
+      awayClubId: finalPlan.semifinalGames[1].homeClubId,
+      neutralVenueId: finalPlan.hostVenueId }, 2);
+    const champion = finalsStore.finalize('career-1',
+      draw.editionId)!;
+    expect(champion.championClubId).toBe(
+      champion.finalGame.homeClubId);
+    finalsStore.close();
+    const reopenedFinals = openSqliteAfricaFinalFourStore(path,
+      { ...sources, groups: store });
+    expect(reopenedFinals.readOutcome('career-1', draw.editionId))
+      .toEqual(champion);
+    reopenedFinals.close();
     store.close();
     const reopened = openSqliteAfricaGroupHubStore(path, sources);
     expect(reopened.readOutcome('career-1', draw.editionId))
