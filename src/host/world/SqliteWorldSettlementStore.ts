@@ -14,6 +14,9 @@ import type { RegularSeasonGameSettlement } from
   '../../core/world/competition/OfficialSeasonEconomySettlement';
 import { projectProvisionalOfficialStandings } from
   '../../core/world/competition/ProvisionalOfficialStandings';
+import { appendAcceptedClubEvents, ensureClubEventJournalSchema,
+  initializeClubCheckpoint, readAcceptedClubHistory } from
+  './SqliteClubEventJournal';
 
 export type InitializeWorldSeason = Readonly<{
   careerId: string;
@@ -155,6 +158,7 @@ export const openSqliteWorldSettlementStore = (
     request_json TEXT NOT NULL, settlement_json TEXT NOT NULL,
     UNIQUE (career_id, season_id, game_id)
   );`);
+  ensureClubEventJournalSchema(db);
   const seasonStatement = db.prepare(`SELECT league_id, revision,
     schedule_json, policy_json, results_json, standings_json
     FROM world_season_heads WHERE career_id=? AND season_id=?`);
@@ -302,6 +306,7 @@ export const openSqliteWorldSettlementStore = (
               VALUES (?, ?, ?, ?)`).run(input.careerId,
               club.identity.clubId, club.revision, stateJson);
           }
+          initializeClubCheckpoint(db, club);
         }
       });
     },
@@ -425,6 +430,29 @@ export const openSqliteWorldSettlementStore = (
           throw new Error('world matchday application mismatch');
         }
         const beforeClub = readState(JSON.parse(currentClub.state_json));
+        const history = readAcceptedClubHistory(db, careerId,
+          result.homeClubId);
+        const venueRevision = basis && 'venueRevision' in basis
+          ? basis.venueRevision : null;
+        const observedAtDay = basis && 'observedAtDay' in basis
+          ? basis.observedAtDay : null;
+        const atVenue = history && Number.isSafeInteger(venueRevision)
+          ? replayClubEvents(history.checkpoint,
+            history.acceptedEvents.filter((entry) =>
+              entry.afterRevision <= venueRevision!)) : null;
+        const nextVenueEvent = history?.acceptedEvents.find((entry) =>
+          entry.afterRevision > (venueRevision ?? -1));
+        if (!history || !atVenue?.ok || !Number.isSafeInteger(observedAtDay)
+          || atVenue.value.revision !== venueRevision
+          || atVenue.value.effectiveDay > observedAtDay!
+          || nextVenueEvent && nextVenueEvent.command.effectiveDay
+            < observedAtDay!
+          || !('stadiumId' in basis!)
+          || basis.stadiumId !== atVenue.value.institutional.stadium.stadiumId
+          || !('venueCapacity' in basis)
+          || basis.venueCapacity !== atVenue.value.institutional.stadium.capacity) {
+          throw new Error('world matchday venue lacks accepted Club history');
+        }
         const replay = replayClubEvents(beforeClub,
           settlement.economy.events);
         if (!replay.ok || canonicalJson(replay.value)
@@ -442,6 +470,8 @@ export const openSqliteWorldSettlementStore = (
         if (!revision(nextSeasonRevision)) {
           throw new Error('world season revision overflow');
         }
+        appendAcceptedClubEvents(db, beforeClub,
+          settlement.economy.events, replay.value);
         const seasonUpdate = db.prepare(`UPDATE world_season_heads
           SET revision=?, results_json=?, standings_json=?
           WHERE career_id=? AND season_id=? AND revision=?`).run(

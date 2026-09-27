@@ -12,6 +12,7 @@ import { settleRegularSeasonGame } from
   '../../core/world/competition/OfficialSeasonEconomySettlement';
 import { openSqliteWorldSettlementStore,
   type SqliteWorldSettlementStore } from './SqliteWorldSettlementStore';
+import { openSqliteClubEventJournal } from './SqliteClubEventJournal';
 
 const directories: string[] = [];
 const stores: SqliteWorldSettlementStore[] = [];
@@ -104,6 +105,11 @@ it('atomically saves official results, standings, and club finance across restar
     revision: 1, state: { live: { finance: { revenue: {
       matchday: 600 } } } },
   });
+  const journal = openSqliteClubEventJournal(databasePath);
+  expect(journal.readHistory('career-a', 'club-a'))
+    .toEqual({ checkpoint: x.club,
+      acceptedEvents: x.settlement.economy.events });
+  journal.close();
   first.close();
   const reopened = open(databasePath);
   expect(reopened.readApplication('application-9')).toEqual(saved);
@@ -111,6 +117,10 @@ it('atomically saves official results, standings, and club finance across restar
   expect(reopened.readSeason('career-a', 'league-season-1')?.revision)
     .toBe(1);
   expect(reopened.readClub('career-a', 'club-a')?.revision).toBe(1);
+  const reopenedJournal = openSqliteClubEventJournal(databasePath);
+  expect(reopenedJournal.readHistory('career-a', 'club-a')
+    ?.acceptedEvents).toHaveLength(1);
+  reopenedJournal.close();
 });
 
 it('recovers provisional standings before the last scheduled game', () => {
@@ -128,6 +138,22 @@ it('recovers provisional standings before the last scheduled game', () => {
   });
   expect(reopened.readClub('career-a', 'club-a')?.state.live.finance
     .revenue.matchday).toBe(600);
+});
+
+it('rejects a matchday venue basis absent from accepted Club history', () => {
+  const x = fixture();
+  const store = open(path());
+  store.initialize({ careerId: 'career-a', schedule: x.schedule,
+    standingsPolicy: x.standingsPolicy, clubs: [x.club] });
+  const first = x.settlement.economy.applications[0]!;
+  const forged = { ...x.settlement, economy: {
+    ...x.settlement.economy,
+    applications: [{ ...first,
+      basis: { ...first.basis, venueCapacity: 99999 } }],
+  } };
+  expect(() => store.persist(forged, 0, x.club.revision))
+    .toThrow('venue lacks accepted Club history');
+  expect(store.readClub('career-a', 'club-a')?.revision).toBe(0);
 });
 
 it('rejects stale season or club revisions and changed application evidence', () => {

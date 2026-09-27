@@ -40,3 +40,12 @@ it('rejects a forged base game list and a forged schedule revision', () => {
     newDay: 1, reason: 'RAINOUT',
   }])).toThrow('simultaneous');
 });
+
+it('accepts a lossless archive with reordered object keys', () => {
+  const source = base();
+  const archived = JSON.parse(JSON.stringify(source, (_key, value: unknown) =>
+    value !== null && typeof value === 'object' && !Array.isArray(value)
+      ? Object.fromEntries(Object.entries(value).reverse()) : value));
+  expect(captureOfficialStandingsSchedule(archived, []))
+    .toEqual(captureOfficialStandingsSchedule(source, []));
+});
