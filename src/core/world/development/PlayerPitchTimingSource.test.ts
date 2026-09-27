@@ -7,9 +7,18 @@ import { rosterFixture } from '../roster/RosterTestFixtures';
 import { appendDevelopmentLearningEvent,
   startDevelopmentLearningEpisode,
   type DevelopmentLearningEventKind } from './DevelopmentLearningEpisode';
-import { applyConsolidatedPitchTimingEvidence,
+import { practiceBundleForEpisode } from './DevelopmentPracticeExposure.test-support';
+import { applyConsolidatedPitchTimingEvidence as applyMeasured,
   createPlayerPitchTimingSource,
   selectPlayerPitchTimingProfile } from './PlayerPitchTimingSource';
+
+const applyConsolidatedPitchTimingEvidence = (
+  source: Parameters<typeof applyMeasured>[0],
+  revision: number,
+  learning: Parameters<typeof applyMeasured>[2],
+  measurements: Parameters<typeof applyMeasured>[3],
+) => applyMeasured(source, revision, learning, measurements,
+  practiceBundleForEpisode(learning));
 
 const profile: PitchTimingProfile = {
   baseStartIntervalUs: 10_000_000,
@@ -94,7 +103,12 @@ it('changes the Match timing source only after consolidation and measured repeti
   expect(changed.records[0]).toMatchObject({ episodeId: 'learning-1',
     beforeQuickSpeedFactor: 1.5, afterQuickSpeedFactor: 2,
     practiceSourceEventIds: ['source-2', 'source-3', 'source-4'],
-    consolidationSourceEventId: 'source-6' });
+    consolidationSourceEventId: 'source-6',
+    practiceAssessment: { eligible: true,
+      policyId: 'practice-exposure-v1',
+      priorPolicyId: 'receptivity-v1' } });
+  expect(changed.records[0].practiceAssessment.effectiveExposure)
+    .toBeCloseTo(2.4);
   expect(Object.isFrozen(changed.profile)).toBe(true);
   expect(Object.isFrozen(changed.records)).toBe(true);
   expect(motion(initial.profile)).toBe(400_000);
@@ -161,4 +175,19 @@ it('rejects stale, duplicate, unrelated and uncalibrated evidence', () => {
     0, learned, evidence(Number.NaN))).toThrow('duration');
   expect(() => applyConsolidatedPitchTimingEvidence({ ...initial,
     playerId: 'someone-else' }, 0, learned, evidence())).toThrow('scope');
+});
+
+it('cannot convert measured repetitions into ability without causal practice opportunity', () => {
+  const learned = episode(true);
+  const initial = createPlayerPitchTimingSource({
+    careerId: learned.careerId, playerId: 'p2',
+    createdAtDay: 1, profile,
+  });
+  const valid = practiceBundleForEpisode(learned);
+  const noOpportunity = { ...valid,
+    repetitions: valid.repetitions.map((item) => ({ ...item,
+      opportunity: 0 })) };
+  expect(() => applyMeasured(initial, 0, learned,
+    evidence(), noOpportunity)).toThrow('exposure');
+  expect(initial.profile.quickSpeedFactor).toBe(1.5);
 });

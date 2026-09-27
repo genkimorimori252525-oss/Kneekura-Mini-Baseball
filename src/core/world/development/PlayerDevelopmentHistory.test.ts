@@ -5,6 +5,7 @@ import { createRosterState } from '../roster/RosterState';
 import { rosterFixture } from '../roster/RosterTestFixtures';
 import { appendDevelopmentLearningEvent,
   startDevelopmentLearningEpisode } from './DevelopmentLearningEpisode';
+import { practiceBundleForEpisode } from './DevelopmentPracticeExposure.test-support';
 import { derivePitchTimingDevelopmentHistory } from './PlayerDevelopmentHistory';
 import { applyConsolidatedPitchTimingEvidence,
   createPlayerPitchTimingSource } from './PlayerPitchTimingSource';
@@ -55,7 +56,7 @@ const scenario = (quickMotionToReleaseUs: number) => {
       practiceSourceEventId: `source-${index}`,
       normalMotionToReleaseUs: 600_000,
       quickMotionToReleaseUs,
-    })));
+    })), practiceBundleForEpisode(episode));
   return { episode, changed };
 };
 

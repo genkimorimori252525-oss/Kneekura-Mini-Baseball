@@ -37,6 +37,14 @@ const validateLink = (source: PlayerPitchTimingSource,
     || record.profileVersion !== episode.profileVersion
     || !sameIds(record.practiceSourceEventIds,
       episode.practiceSourceEventIds)
+    || record.practiceAssessment?.episodeId !== episode.episodeId
+    || record.practiceAssessment.careerId !== episode.careerId
+    || record.practiceAssessment.playerId !== episode.playerId
+    || record.practiceAssessment.atDay !== episode.effectiveDay
+    || record.practiceAssessment.domain !== episode.domain
+    || !record.practiceAssessment.eligible
+    || !sameIds(record.practiceAssessment.practiceSourceEventIds,
+      episode.practiceSourceEventIds)
     || episode.stage !== 'CONSOLIDATED'
     || episode.domain !== 'TECHNICAL'
     || !Array.isArray(episode.events)

@@ -5,6 +5,9 @@ import {
   type PitchTimingProfile,
 } from '../../sim/pitch/PitchTimingModel';
 import type { DevelopmentLearningEpisode } from './DevelopmentLearningEpisode';
+import { assessDevelopmentPracticeExposure,
+  type DevelopmentPracticeAssessment,
+  type DevelopmentPracticeBundle } from './DevelopmentPracticeExposure';
 
 export type PitchTimingPracticeMeasurement = Readonly<{
   practiceSourceEventId: string;
@@ -22,6 +25,7 @@ export type PitchTimingSourceChange = Readonly<{
   afterNormalMotionToReleaseUs: number;
   beforeQuickSpeedFactor: number;
   afterQuickSpeedFactor: number;
+  practiceAssessment: DevelopmentPracticeAssessment;
   changeKind: 'SOURCE_CHANGED' | 'NO_SOURCE_CHANGE';
 }>;
 
@@ -94,6 +98,7 @@ export const applyConsolidatedPitchTimingEvidence = (
   expectedRevision: number,
   episode: DevelopmentLearningEpisode,
   measurements: readonly PitchTimingPracticeMeasurement[],
+  practice: DevelopmentPracticeBundle,
 ): PlayerPitchTimingSource => {
   if (expectedRevision !== source.revision) {
     throw new Error('stale player pitch timing source revision');
@@ -142,6 +147,11 @@ export const applyConsolidatedPitchTimingEvidence = (
     || !duration(item.quickMotionToReleaseUs))) {
     throw new Error('invalid pitch timing practice duration');
   }
+  const practiceAssessment = assessDevelopmentPracticeExposure(
+    episode, practice);
+  if (!practiceAssessment.eligible) {
+    throw new Error('insufficient development practice exposure');
+  }
   const normal = median(measurements.map((item) =>
     item.normalMotionToReleaseUs));
   const quick = median(measurements.map((item) =>
@@ -164,6 +174,7 @@ export const applyConsolidatedPitchTimingEvidence = (
     afterNormalMotionToReleaseUs: normal,
     beforeQuickSpeedFactor: source.profile.quickSpeedFactor,
     afterQuickSpeedFactor: factor,
+    practiceAssessment,
     changeKind: factor === source.profile.quickSpeedFactor
       && normal === source.profile.normalMotionToReleaseUs
       ? 'NO_SOURCE_CHANGE' : 'SOURCE_CHANGED',
