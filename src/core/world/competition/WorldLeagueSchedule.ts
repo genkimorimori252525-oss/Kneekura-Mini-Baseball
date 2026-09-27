@@ -98,6 +98,7 @@ export const generateWorldBoundLeagueSchedule = (
     }),
   ]);
   const schedule = generateLeagueSchedule({ ...input,
+    worldWindowSnapshotId,
     reservedWindows: [...input.reservedWindows, ...windows] });
   return Object.freeze({ schedule, worldWindowSnapshotId });
 };
