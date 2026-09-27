@@ -116,6 +116,8 @@ it('binds world windows to a domestic season without reducing game count', () =>
   expect(bound.schedule.reservedWindows).toContainEqual({
     kind: 'WORLD', startsOnDay: 11, endsOnDay: 30 });
   expect(bound.worldWindowSnapshotId).toContain('world-league-calendar');
+  expect(bound.schedule.worldWindowSnapshotId)
+    .toBe(bound.worldWindowSnapshotId);
   expect(() => generateWorldBoundLeagueSchedule({ ...scheduleInput,
     allowedDays: scheduleInput.allowedDays.slice(0, -1) },
     cycle, 'ASIA_PACIFIC', '2032-02-20'))

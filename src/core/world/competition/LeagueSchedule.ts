@@ -29,6 +29,8 @@ export type LeagueScheduleInput = Readonly<{
   generatorVersion: string;
   scheduleSeed: string;
   opponentMatrixVersion: string;
+  /** Pins the accepted four-year World window selection, when bound. */
+  worldWindowSnapshotId?: string;
   regularSeasonGamesPerClub: number;
   memberClubIds: readonly string[];
   opponentMatrix: readonly OpponentMatrixEntry[];
@@ -100,6 +102,10 @@ export const createBaseScheduleSnapshot = (
     input.seasonId, input.leagueId, input.calendarProfileVersion,
     input.generatorVersion, input.scheduleSeed, input.opponentMatrixVersion,
   ]) if (!validId(value)) throw new Error('schedule provenance identifiers are required');
+  if (input.worldWindowSnapshotId !== undefined
+    && !validId(input.worldWindowSnapshotId)) {
+    throw new Error('world window snapshot identifier is invalid');
+  }
   if (
     !Number.isSafeInteger(input.regularSeasonGamesPerClub)
     || input.regularSeasonGamesPerClub <= 0
