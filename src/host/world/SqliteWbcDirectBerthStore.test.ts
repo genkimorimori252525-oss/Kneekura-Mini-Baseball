@@ -10,6 +10,11 @@ import { EMPTY_WBC_BERTH_POLICY_REGISTRY,
   '../../core/world/competition/WbcBerths';
 import { openSqliteWbcDirectBerthStore } from
   './SqliteWbcDirectBerthStore';
+import { openSqliteWbcQualifierSelectionStore } from
+  './SqliteWbcQualifierSelectionStore';
+import { EMPTY_WBC_QUALIFIER_SELECTION_POLICY_REGISTRY,
+  registerWbcQualifierSelectionPolicy } from
+  '../../core/world/competition/WbcGlobalQualifierSelection';
 
 const { DatabaseSync }: typeof import('node:sqlite') =
   createRequire(import.meta.url)('node:sqlite');
@@ -55,7 +60,7 @@ it('freezes twenty WBC direct slots from regional titles and coefficients', () =
         editionId: input.previousRegionalEditionIds[region],
         snapshotId: `placement-${region}`,
         completedAtDay: 70,
-        orderedNationIds: Array.from({ length: 8 }, (_, index) =>
+        orderedNationIds: Array.from({ length: 12 }, (_, index) =>
           `${region}-${index}`),
       }),
     }) },
@@ -72,7 +77,65 @@ it('freezes twenty WBC direct slots from regional titles and coefficients', () =
     expect(direct.placements).toHaveLength(4);
     expect(store.initialize({ careerId: 'career-1', input }))
       .toEqual(direct);
+    const selectionPolicy = { version: 'qualifier-selection-v1',
+      regionalPriorityPerRegion: 1,
+      rankingPolicyVersion: 'national-ranking-v1' };
+    let rankingChanged = false;
+    const selectionSources = { direct: store,
+      ranking: { readRanking: () => ({ snapshotId:
+        rankingChanged ? 'ranking-changed' : 'ranking-90',
+        policyVersion: 'national-ranking-v1',
+        asOfDay: rankingChanged ? 91 : 90,
+        orderedNationIds: regions.flatMap((region) =>
+          Array.from({ length: 12 }, (_, index) =>
+            `${region}-${index}`)),
+        evidenceResultIds: ['official-national-1'] }) },
+      nations: sources.nations };
+    const selectionStore = openSqliteWbcQualifierSelectionStore(path,
+      selectionSources);
+    const selectionRequest = { careerId: 'career-1',
+      wbcEditionId: input.editionId,
+      qualifierEditionId: input.qualifierEditionId,
+      rankingAsOfDay: 90,
+      eligibility: { snapshotId: 'eligible-90', asOfDay: 90,
+        eligibleNationIds: regions.flatMap((region) =>
+          Array.from({ length: 12 }, (_, index) =>
+            `${region}-${index}`)) },
+      policy: selectionPolicy,
+      registry: registerWbcQualifierSelectionPolicy(
+        EMPTY_WBC_QUALIFIER_SELECTION_POLICY_REGISTRY,
+        selectionPolicy) };
+    const selection = selectionStore.initialize(selectionRequest);
+    expect(selection.entrants).toHaveLength(16);
+    expect(selection.entrants.every((entrant) =>
+      !direct.entrantNationIds.includes(entrant.nationId)))
+      .toBe(true);
+    expect(() => selectionStore.initialize({ ...selectionRequest,
+      eligibility: { ...selectionRequest.eligibility,
+        snapshotId: 'changed' } })).toThrow('frozen differently');
+    selectionStore.close();
+    const reopenedSelection = openSqliteWbcQualifierSelectionStore(path,
+      selectionSources);
+    expect(reopenedSelection.readSelection('career-1',
+      input.qualifierEditionId)).toEqual(selection);
+    rankingChanged = true;
+    expect(() => reopenedSelection.readSelection('career-1',
+      input.qualifierEditionId))
+      .toThrow('corrupt WBC qualifier selection');
+    rankingChanged = false;
+    reopenedSelection.close();
     store.close();
+    const selectionDatabase = new DatabaseSync(path);
+    selectionDatabase.prepare(`UPDATE world_wbc_qualifier_selections
+      SET selection_json='{}' WHERE career_id='career-1'`).run();
+    selectionDatabase.close();
+    const tamperedSelection = openSqliteWbcQualifierSelectionStore(path,
+      { ...selectionSources, direct: {
+        readDirect: () => direct } });
+    expect(() => tamperedSelection.readSelection('career-1',
+      input.qualifierEditionId))
+      .toThrow('corrupt WBC qualifier selection');
+    tamperedSelection.close();
     const reopened = openSqliteWbcDirectBerthStore(path, sources);
     expect(reopened.readDirect('career-1', input.editionId))
       .toEqual(direct);
