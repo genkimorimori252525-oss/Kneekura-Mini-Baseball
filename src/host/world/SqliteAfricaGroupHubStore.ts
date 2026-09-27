@@ -24,6 +24,8 @@ export type SqliteAfricaGroupHubStore = Readonly<{
   initialize(input: AfricaGroupHubRequest): AfricaGroupHubPlan;
   readPlan(careerId: string, editionId: string):
     AfricaGroupHubPlan | null;
+  readTiebreakPolicy(careerId: string, editionId: string):
+    StandingsTiebreakPolicy | null;
   finalize(careerId: string, editionId: string):
     AfricaGroupHubResults | null;
   readOutcome(careerId: string, editionId: string):
@@ -173,6 +175,13 @@ export const openSqliteAfricaGroupHubStore = (
       assertScope(careerId, editionId);
       const stored = row(careerId, editionId);
       return stored ? replay(careerId, editionId, stored).plan : null;
+    },
+    readTiebreakPolicy(careerId: string, editionId: string):
+      StandingsTiebreakPolicy | null {
+      assertScope(careerId, editionId);
+      const stored = row(careerId, editionId);
+      return stored ? replay(careerId, editionId, stored)
+        .request.tiebreakPolicy : null;
     },
     finalize(careerId: string, editionId: string):
       AfricaGroupHubResults | null {
