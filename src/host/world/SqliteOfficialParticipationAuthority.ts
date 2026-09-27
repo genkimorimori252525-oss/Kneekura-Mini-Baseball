@@ -1,7 +1,11 @@
 import { isDeepStrictEqual } from 'node:util';
+import { replayClubEvents } from '../../core/world/club/ClubEvents';
+import type { MatchdayClubHistory } from
+  '../../core/world/club/OfficialMatchdayRevenue';
 import { applyScheduleRevisions } from
   '../../core/world/competition/LeagueSchedule';
-import { matchesDomesticFixtureRevision } from
+import { bindDomesticFixtureVenue,
+  matchesDomesticFixtureRevision } from
   '../../core/world/competition/DomesticFixtureVenue';
 import { captureOfficialStandingsSchedule } from
   '../../core/world/competition/OfficialStandingsScheduleSource';
@@ -17,6 +21,14 @@ import type { ParticipationAuthority } from
 
 const id = (value: unknown): value is string =>
   typeof value === 'string' && value.length > 0 && value === value.trim();
+const clubAtDay = (history: MatchdayClubHistory,
+  gameDay: number) => {
+  const accepted = history.acceptedEvents.filter((event) =>
+    event.command.effectiveDay <= gameDay);
+  const atDay = replayClubEvents(history.checkpoint, accepted);
+  return atDay.ok && atDay.value.effectiveDay <= gameDay
+    ? atDay.value : null;
+};
 
 /** Resolves the domestic competition from accepted World, schedule, and Match heads. */
 export const createDomesticParticipationAuthority = (sources: Readonly<{
@@ -54,22 +66,31 @@ export const createDomesticParticipationAuthority = (sources: Readonly<{
           sources.careerId, archive.baseSchedule, archive.revisions)) {
         return null;
       }
-      const home = sources.world.readClub(sources.careerId,
+      const homeHistory = sources.world.readClubHistory(sources.careerId,
         game.homeClubId);
-      const away = sources.world.readClub(sources.careerId,
+      const awayHistory = sources.world.readClubHistory(sources.careerId,
         game.awayClubId);
-      const venueParts = JSON.parse(fixture.fixtureEventId) as unknown[];
-      if (!home || !away || [home, away].some((club) =>
-        club.state.season.closureRef !== null
-        || club.state.effectiveDay > game.day
-        || club.state.season.plan.startsOnDay > game.day
-        || !club.state.season.plan.competitionEditionIds
+      if (!homeHistory || !awayHistory) return null;
+      const away = clubAtDay(awayHistory, game.day);
+      if (!away || away.identity.clubId !== game.awayClubId
+        || away.season.closureRef !== null
+        || away.season.plan.startsOnDay > game.day
+        || !away.season.plan.competitionEditionIds
           .includes(sources.seasonId)
-        || club.state.season.plan.financialProfile.leagueId
-          !== schedule.leagueId)
-        || home.state.institutional.stadium.stadiumId
-          !== fixture.venueId
-        || venueParts[venueParts.length - 2] !== home.revision) {
+        || away.season.plan.financialProfile.leagueId
+          !== schedule.leagueId) {
+        return null;
+      }
+      try {
+        const venueParts = JSON.parse(fixture.fixtureEventId) as unknown[];
+        const venueRevisionAtGame = venueParts[venueParts.length - 2];
+        if (typeof venueRevisionAtGame !== 'number'
+          || !isDeepStrictEqual(bindDomesticFixtureVenue({
+            baseSchedule: archive.baseSchedule,
+            revisions: archive.revisions, gameId,
+            venueRevisionAtGame, history: homeHistory,
+          }).binding, fixture)) return null;
+      } catch {
         return null;
       }
       return Object.freeze({ careerId: sources.careerId,
