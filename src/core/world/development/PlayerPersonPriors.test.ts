@@ -1,7 +1,8 @@
 import { expect, it } from 'vitest';
 import { CATALYST_FAMILIES } from './DevelopmentCatalyst';
 import { DEVELOPMENT_DOMAINS } from './DevelopmentTrajectory';
-import { generatePlayerPersonPriors } from './PlayerPersonPriors';
+import { derivePlayerPersonSeed, generatePlayerPersonPriors } from
+  './PlayerPersonPriors';
 import { STAR_GENESIS_POTENTIALS } from './StarGenesis';
 
 const offsets = Object.fromEntries(DEVELOPMENT_DOMAINS.map((domain) =>
@@ -40,12 +41,30 @@ it('creates all hidden priors for one Person under one Career scope', () => {
   expect(generatePlayerPersonPriors(input)).toEqual(profile);
   expect(profile).toMatchObject({ careerId: 'career-a',
     playerId: 'player-a', createdAtDay: 10,
-    trajectory: { generation: { seed: 12345 } },
-    catalyst: { generation: { seed: 12345 } },
-    star: { generation: { seed: 12345 } } });
+    trajectory: { generation: { seed: derivePlayerPersonSeed(
+      'career-a', 'player-a', 12345) } },
+    catalyst: { generation: { seed: derivePlayerPersonSeed(
+      'career-a', 'player-a', 12345) } },
+    star: { generation: { seed: derivePlayerPersonSeed(
+      'career-a', 'player-a', 12345) } } });
   expect(profile).not.toHaveProperty('ability');
   expect(profile).not.toHaveProperty('starStatus');
   expect(profile).not.toHaveProperty('matchModifier');
+});
+
+it('derives distinct reproducible Person streams from one Career seed', () => {
+  const first = generatePlayerPersonPriors(input);
+  const other = generatePlayerPersonPriors({ ...input,
+    playerId: 'player-b' });
+  expect(other).toEqual(generatePlayerPersonPriors({ ...input,
+    playerId: 'player-b' }));
+  expect(first.trajectory.generation.seed)
+    .not.toBe(other.trajectory.generation.seed);
+  expect(first.star.generation.seed)
+    .not.toBe(other.star.generation.seed);
+  expect(first.star).not.toEqual(other.star);
+  expect(() => derivePlayerPersonSeed('career-a', 'player-a', 0))
+    .toThrow('seed');
 });
 
 it('keeps the development priors unchanged by a star policy revision', () => {
