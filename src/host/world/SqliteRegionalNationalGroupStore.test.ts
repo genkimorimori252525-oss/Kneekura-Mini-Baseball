@@ -8,11 +8,15 @@ import type { OfficialGameResult } from
   '../../core/world/competition/OfficialGameCompletion';
 import type { RegionalNationalEdition } from
   '../../core/world/competition/RegionalNationalGroups';
+import type { RegionalNationalKnockoutEdition } from
+  '../../core/world/competition/RegionalNationalKnockout';
 import type { PostseasonMatchSource } from './PostseasonResultsFromMatches';
 import { openSqliteNationCompetitionRegionStore } from
   './SqliteNationCompetitionRegionStore';
 import { openSqliteRegionalNationalGroupStore } from
   './SqliteRegionalNationalGroupStore';
+import { openSqliteRegionalNationalKnockoutStore } from
+  './SqliteRegionalNationalKnockoutStore';
 
 const { DatabaseSync }: typeof import('node:sqlite') =
   createRequire(import.meta.url)('node:sqlite');
@@ -97,6 +101,71 @@ it('replays accepted regional draw and advances only venue-bound Match finals', 
     expect(outcome.knockoutNationIds).toHaveLength(4);
     expect(store.readResults('career-1', edition.editionId))
       .toHaveLength(12);
+    const knockoutEdition: RegionalNationalKnockoutEdition = {
+      competitionId: edition.competitionId,
+      editionId: edition.editionId, region: edition.region,
+      formatVersion: edition.formatVersion,
+      ruleProfileVersion: edition.ruleProfileVersion,
+      gamePolicyVersion: edition.gamePolicyVersion,
+      qualificationSnapshotId: edition.qualificationSnapshotId,
+      groupDrawSnapshotId: edition.drawSnapshotId,
+      knockoutPolicyVersion: 'knockout-v1',
+      openingPairs: [[0, 3], [1, 2]],
+      openingVenueIds: ['semi-venue-0', 'semi-venue-1'],
+      semifinalVenueIds: ['semi-venue-0', 'semi-venue-1'],
+      finalVenueId: 'final-venue',
+      placementPolicy: { version: 'placement-v1',
+        criteria: ['GROUP_WINS', 'GROUP_RUN_DIFFERENTIAL',
+          'GROUP_RUNS_AGAINST'], drawSeed: 'placement-seed' },
+    };
+    const knockout = openSqliteRegionalNationalKnockoutStore(path,
+      { groups: store, regions, matches });
+    const knockoutPlan = knockout.initialize('career-1',
+      knockoutEdition);
+    expect(knockoutPlan.openingGames).toHaveLength(2);
+    expect(knockout.readFinalGame('career-1', edition.editionId))
+      .toBeNull();
+    const putKnockout = (game: { gameId: string;
+      homeNationId: string; awayNationId: string;
+      venueId: string }, index: number): void => {
+      const result: OfficialGameResult = {
+        gameId: game.gameId, seasonId: edition.editionId,
+        homeClubId: game.homeNationId,
+        awayClubId: game.awayNationId,
+        homeRuns: 2, awayRuns: 1,
+        winnerClubId: game.homeNationId,
+        completionReason: 'BOTTOM_COMPLETE',
+        ruleProfileId: asRuleProfileId('national-rules-v1'),
+        gamePolicyVersion: 'national-games-v1',
+        closureId: `knockout-closure-${index}`,
+        applicationId: `knockout-application-${index}`,
+        durableRevision: 1,
+        venueBinding: { gameId: game.gameId,
+          venueId: game.venueId,
+          fixtureEventId: `knockout-fixture-${index}`,
+          fixtureRevision: 1 },
+        lineScore: { innings: [{ inning: 1,
+          homeRuns: 2, awayRuns: 1 }], totals: {
+          home: { runs: 2, hits: 1, errors: 0 },
+          away: { runs: 1, hits: 1, errors: 0 } } },
+      };
+      finals.set(game.gameId, result);
+      fixtures.set(game.gameId, result.venueBinding!);
+    };
+    knockoutPlan.openingGames.forEach(putKnockout);
+    const finalGame = knockout.readFinalGame('career-1',
+      edition.editionId)!;
+    expect(finalGame.venueId).toBe('final-venue');
+    expect(knockout.finalize('career-1', edition.editionId))
+      .toBeNull();
+    putKnockout(finalGame, 2);
+    const champion = knockout.finalize('career-1',
+      edition.editionId)!;
+    expect(champion.championNationId).toBe(finalGame.homeNationId);
+    expect(champion.placement.orderedNationIds).toHaveLength(8);
+    expect(knockout.readOutcome('career-1', edition.editionId))
+      .toEqual(champion);
+    knockout.close();
     expect(() => store.initialize('career-1', {
       ...edition, drawSnapshotId: 'other' }))
       .toThrow('already frozen differently');
