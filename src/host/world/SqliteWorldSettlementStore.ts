@@ -4,6 +4,8 @@ import { assessCurrentSeasonFinancialRegulation } from
 import { replayClubEvents } from '../../core/world/club/ClubEvents';
 import { readState } from '../../core/world/club/ClubSchemas';
 import type { ClubWorldState } from '../../core/world/club/ClubTypes';
+import type { MatchdayClubHistory } from
+  '../../core/world/club/OfficialMatchdayRevenue';
 import type { OfficialGameResult } from
   '../../core/world/competition/OfficialGameCompletion';
 import { buildOfficialStandings,
@@ -49,6 +51,8 @@ export type SqliteWorldSettlementStore = Readonly<{
   initialize(input: InitializeWorldSeason): void;
   readSeason(careerId: string, seasonId: string): DurableWorldSeason | null;
   readClub(careerId: string, clubId: string): DurableWorldClub | null;
+  readClubHistory(careerId: string,
+    clubId: string): MatchdayClubHistory | null;
   readApplication(applicationId: string): DurableWorldApplication | null;
   persist(settlement: RegularSeasonGameSettlement,
     expectedSeasonRevision: number,
@@ -341,6 +345,10 @@ export const openSqliteWorldSettlementStore = (
         throw new Error('corrupt durable world club head');
       }
       return { careerId, clubId, revision: row.revision, state };
+    },
+    readClubHistory(careerId: string,
+      clubId: string): MatchdayClubHistory | null {
+      return readAcceptedClubHistory(db, careerId, clubId);
     },
     readApplication(applicationId: string): DurableWorldApplication | null {
       if (!id(applicationId)) {

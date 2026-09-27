@@ -53,11 +53,18 @@ export const registerDomesticFixtureFromWorld = (
   const game = applyScheduleRevisions(baseSchedule,
     revisions).games.find((item) => item.gameId === input.gameId);
   if (!game) throw new Error('domestic venue requires a scheduled game');
-  const home = world.readClub(input.careerId, game.homeClubId);
-  if (!home) throw new Error('domestic fixture home Club is missing');
+  const clubHistory = world.readClubHistory(input.careerId,
+    game.homeClubId);
+  if (!clubHistory) {
+    throw new Error('domestic fixture home Club history is missing');
+  }
+  const acceptedByGameDay = clubHistory.acceptedEvents.filter((event) =>
+    event.command.effectiveDay <= game.day);
+  const venueRevisionAtGame = acceptedByGameDay.at(-1)?.afterRevision
+    ?? clubHistory.checkpoint.revision;
   return registerDomesticFixture(match, {
     baseSchedule, revisions,
-    gameId: input.gameId, venueRevisionAtGame: home.revision,
-    history: { checkpoint: home.state, acceptedEvents: [] },
+    gameId: input.gameId, venueRevisionAtGame,
+    history: clubHistory,
   });
 };

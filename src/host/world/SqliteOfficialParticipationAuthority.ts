@@ -26,7 +26,7 @@ export const createDomesticParticipationAuthority = (sources: Readonly<{
   schedule: SqliteDomesticScheduleStore;
   roster: SqliteManagerRosterDecisionStore;
   match: SqliteOfficialStateStore;
-  /** No general durable Player–Person store exists yet. */
+  /** The accepted global Player–Person link source. */
   personLinks: AcceptedPlayerPersonLinkAuthority;
 }>): ParticipationAuthority => {
   if (!sources || !id(sources.careerId) || !id(sources.seasonId)
