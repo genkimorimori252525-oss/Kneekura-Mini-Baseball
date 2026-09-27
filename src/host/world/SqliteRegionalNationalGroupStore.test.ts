@@ -17,6 +17,8 @@ import { openSqliteRegionalNationalGroupStore } from
   './SqliteRegionalNationalGroupStore';
 import { openSqliteRegionalNationalKnockoutStore } from
   './SqliteRegionalNationalKnockoutStore';
+import { openSqliteNationalQualificationHistoryStore } from
+  './SqliteNationalQualificationHistoryStore';
 
 const { DatabaseSync }: typeof import('node:sqlite') =
   createRequire(import.meta.url)('node:sqlite');
@@ -165,6 +167,42 @@ it('replays accepted regional draw and advances only venue-bound Match finals', 
     expect(champion.placement.orderedNationIds).toHaveLength(8);
     expect(knockout.readOutcome('career-1', edition.editionId))
       .toEqual(champion);
+    const qualification = openSqliteNationalQualificationHistoryStore(
+      path, { knockouts: knockout });
+    qualification.initialize('career-1', {
+      ASIA_PACIFIC: 'national-asia',
+      AMERICAS: 'national-americas',
+      EUROPE: edition.competitionId,
+      AFRICA: 'national-africa',
+    });
+    expect(qualification.regionalAuthority('career-1')
+      .regionalChampionship('EUROPE', 29)).toBeNull();
+    const history = qualification.recordRegional('career-1',
+      'EUROPE', edition.editionId);
+    expect(history.regional[0].placement)
+      .toEqual(champion.placement);
+    expect(qualification.recordRegional('career-1',
+      'EUROPE', edition.editionId)).toEqual(history);
+    expect(qualification.regionalAuthority('career-1')
+      .regionalChampionship('EUROPE', 30))
+      .toEqual(champion.placement);
+    qualification.close();
+    const reopenedQualification =
+      openSqliteNationalQualificationHistoryStore(path,
+        { knockouts: knockout });
+    expect(reopenedQualification.readHistory('career-1'))
+      .toEqual(history);
+    reopenedQualification.close();
+    const damagedHistory = new DatabaseSync(path);
+    damagedHistory.prepare(`UPDATE world_national_qualification_events
+      SET history_json='{}' WHERE career_id='career-1'`).run();
+    damagedHistory.close();
+    const tamperedQualification =
+      openSqliteNationalQualificationHistoryStore(path,
+        { knockouts: knockout });
+    expect(() => tamperedQualification.readHistory('career-1'))
+      .toThrow('corrupt national qualification history');
+    tamperedQualification.close();
     knockout.close();
     expect(() => store.initialize('career-1', {
       ...edition, drawSnapshotId: 'other' }))
