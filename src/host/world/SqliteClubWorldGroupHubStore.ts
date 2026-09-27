@@ -26,6 +26,13 @@ export type ClubWorldGroupHubRequest = Readonly<{
   rematchPairs: readonly (readonly [string, string])[];
   tiebreakPolicy: StandingsTiebreakPolicy;
 }>;
+export type ClubWorldGroupHubEvidence = Readonly<{
+  source: ClubWorldGroupHubSource;
+  plan: ClubWorldGroupHubPlan;
+  tiebreakPolicy: StandingsTiebreakPolicy;
+  results: readonly OfficialGameResult[];
+  outcome: ClubWorldGroupHubResults;
+}>;
 export type SqliteClubWorldGroupHubStore = Readonly<{
   initialize(request: ClubWorldGroupHubRequest): ClubWorldGroupHubPlan;
   readPlan(careerId: string, editionId: string):
@@ -40,6 +47,8 @@ export type SqliteClubWorldGroupHubStore = Readonly<{
     ClubWorldGroupHubResults | null;
   readResults(careerId: string, editionId: string):
     readonly OfficialGameResult[] | null;
+  readEvidence(careerId: string, editionId: string):
+    ClubWorldGroupHubEvidence | null;
   close(): void;
 }>;
 type Row = { request_json: string; plan_json: string;
@@ -239,6 +248,21 @@ export const openSqliteClubWorldGroupHubStore = (
       if (!stored) return null;
       const { plan, outcome } = replay(careerId, editionId, stored);
       return outcome ? readFinals(plan) : null;
+    },
+    readEvidence(careerId: string, editionId: string):
+      ClubWorldGroupHubEvidence | null {
+      assertScope(careerId, editionId);
+      const stored = row(careerId, editionId);
+      if (!stored) return null;
+      const { request, plan, outcome } = replay(careerId,
+        editionId, stored);
+      if (!outcome) return null;
+      const results = readFinals(plan);
+      if (!results) {
+        throw new Error('Club World group evidence lost Match finals');
+      }
+      return Object.freeze({ source: source(request), plan,
+        tiebreakPolicy: request.tiebreakPolicy, results, outcome });
     },
     close(): void {
       if (!closed) db.close();
