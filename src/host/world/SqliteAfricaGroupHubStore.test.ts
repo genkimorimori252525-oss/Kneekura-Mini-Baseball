@@ -16,6 +16,8 @@ import { openSqliteAfricaGroupHubStore } from
   './SqliteAfricaGroupHubStore';
 import { openSqliteAfricaFinalFourStore } from
   './SqliteAfricaFinalFourStore';
+import { openSqliteRegionalClubSeasonHistoryStore } from
+  './SqliteRegionalClubSeasonHistoryStore';
 
 const { DatabaseSync }: typeof import('node:sqlite') =
   createRequire(import.meta.url)('node:sqlite');
@@ -167,6 +169,43 @@ it('freezes both African hubs and replays all 36 Match finals', () => {
       draw.editionId)!;
     expect(champion.championClubId).toBe(
       champion.finalGame.homeClubId);
+    const identities = [
+      { region: 'ASIA_PACIFIC' as const, competitionId: 'cl-asia' },
+      { region: 'AMERICAS' as const, competitionId: 'cl-americas' },
+      { region: 'EUROPE' as const, competitionId: 'cl-europe' },
+      { region: 'AFRICA' as const, competitionId: 'afbcl' },
+    ];
+    const historyStore = openSqliteRegionalClubSeasonHistoryStore(path,
+      { continental: { readEvidence: () => null }, africa: finalsStore });
+    expect(historyStore.initialize('career-1', identities).seasons)
+      .toHaveLength(0);
+    const history = historyStore.record('career-1', 'AFRICA',
+      'season-2027', draw.editionId);
+    expect(history.seasons).toHaveLength(1);
+    expect(historyStore.record('career-1', 'AFRICA',
+      'season-2027', draw.editionId)).toEqual(history);
+    expect(historyStore.authority('career-1').latestRegionalChampion(
+      'AFRICA', 29)).toBeNull();
+    expect(historyStore.authority('career-1').latestRegionalChampion(
+      'AFRICA', 30)?.clubId).toBe(champion.championClubId);
+    expect(historyStore.authority('career-1').completedRegionalSeason(
+      'AFRICA', 'season-2027', 30)).toEqual(history.seasons[0]);
+    expect(() => historyStore.record('career-1', 'EUROPE',
+      'season-2027', draw.editionId)).toThrow('already bound differently');
+    historyStore.close();
+    const reopenedHistory = openSqliteRegionalClubSeasonHistoryStore(path,
+      { continental: { readEvidence: () => null }, africa: finalsStore });
+    expect(reopenedHistory.readHistory('career-1')).toEqual(history);
+    reopenedHistory.close();
+    const corruptHistory = new DatabaseSync(path);
+    corruptHistory.prepare(`UPDATE world_regional_club_history_events
+      SET history_json='{}' WHERE career_id='career-1'`).run();
+    corruptHistory.close();
+    const tamperedHistory = openSqliteRegionalClubSeasonHistoryStore(path,
+      { continental: { readEvidence: () => null }, africa: finalsStore });
+    expect(() => tamperedHistory.readHistory('career-1'))
+      .toThrow('corrupt regional club history');
+    tamperedHistory.close();
     finalsStore.close();
     const reopenedFinals = openSqliteAfricaFinalFourStore(path,
       { ...sources, groups: store });

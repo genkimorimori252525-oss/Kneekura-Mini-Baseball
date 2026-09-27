@@ -25,6 +25,8 @@ import { openSqliteContinentalQuarterfinalStore } from
   './SqliteContinentalQuarterfinalStore';
 import { openSqliteContinentalFinalFourStore } from
   './SqliteContinentalFinalFourStore';
+import { openSqliteRegionalClubSeasonHistoryStore } from
+  './SqliteRegionalClubSeasonHistoryStore';
 
 const { DatabaseSync }: typeof import('node:sqlite') =
   createRequire(import.meta.url)('node:sqlite');
@@ -288,6 +290,20 @@ it('replays the Edition-hosted final four through a Match champion', () => {
     const outcome = store.finalize('career-1', 'edition-1')!;
     expect(outcome.championClubId).toBe(outcome.finalGame.homeClubId);
     expect(store.readOutcome('career-1', 'edition-1')).toEqual(outcome);
+    const historyStore = openSqliteRegionalClubSeasonHistoryStore(path,
+      { continental: store, africa: { readEvidence: () => null } });
+    historyStore.initialize('career-1', [
+      { region: 'ASIA_PACIFIC', competitionId: 'continental-a' },
+      { region: 'AMERICAS', competitionId: 'continental-b' },
+      { region: 'EUROPE', competitionId: 'continental-c' },
+      { region: 'AFRICA', competitionId: 'afbcl' },
+    ]);
+    const history = historyStore.record('career-1', 'ASIA_PACIFIC',
+      'season-2027', 'edition-1');
+    expect(history.seasons).toHaveLength(1);
+    expect(historyStore.authority('career-1').latestRegionalChampion(
+      'ASIA_PACIFIC', 30)?.clubId).toBe(outcome.championClubId);
+    historyStore.close();
     store.close();
     const reopened = openSqliteContinentalFinalFourStore(path, {
       editions: { readEdition: () => edition }, quarterfinals, matches,

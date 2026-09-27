@@ -12,6 +12,15 @@ import type { SqliteCompetitionEditionStore } from
   './SqliteCompetitionEditionStore';
 import { readDurableOfficialGameResult,
   type PostseasonMatchSource } from './PostseasonResultsFromMatches';
+import type { OfficialGameResult } from
+  '../../core/world/competition/OfficialGameCompletion';
+
+export type AfricaFinalFourEvidence = Readonly<{
+  source: AfricaFinalFourSource;
+  plan: AfricaFinalFourPlan;
+  semifinalResults: readonly OfficialGameResult[];
+  finalResult: OfficialGameResult;
+}>;
 
 export type SqliteAfricaFinalFourStore = Readonly<{
   initialize(careerId: string, editionId: string):
@@ -22,6 +31,8 @@ export type SqliteAfricaFinalFourStore = Readonly<{
     AfricaFinalFourOutcome | null;
   readOutcome(careerId: string, editionId: string):
     AfricaFinalFourOutcome | null;
+  readEvidence(careerId: string, editionId: string):
+    AfricaFinalFourEvidence | null;
   close(): void;
 }>;
 type FinalRow = { plan_json: string; outcome_json: string | null };
@@ -197,6 +208,25 @@ export const openSqliteAfricaFinalFourStore = (
       assertScope(careerId, editionId);
       const stored = row(careerId, editionId);
       return stored ? replay(careerId, editionId, stored).outcome : null;
+    },
+    readEvidence(careerId: string, editionId: string):
+      AfricaFinalFourEvidence | null {
+      assertScope(careerId, editionId);
+      const stored = row(careerId, editionId);
+      if (!stored) return null;
+      const { plan, outcome } = replay(careerId, editionId, stored);
+      if (!outcome) return null;
+      const semifinalResults = plan.semifinalGames.map((game) =>
+        readDurableOfficialGameResult(sources.matches, game.gameId));
+      const finalResult = readDurableOfficialGameResult(sources.matches,
+        plan.finalGameId);
+      if (semifinalResults.some((result) => result === null)
+        || !finalResult) {
+        throw new Error('Africa final four evidence lost Match final');
+      }
+      return Object.freeze({ source: readSource(careerId, editionId), plan,
+        semifinalResults: semifinalResults.filter((result) =>
+          result !== null), finalResult });
     },
     close(): void {
       if (!closed) db.close();
