@@ -295,11 +295,27 @@ export class SqliteOfficialStateStore {
         | { finalResult: OfficialGameResult });
     const finalResult = storedActivation !== null && 'finalResult' in storedActivation
       ? storedActivation.finalResult : null;
+    const matchState = validateMatchState(cloneInert(
+      JSON.parse(row.state_json) as CanonicalMatchState));
+    const activation = storedActivation === null || 'finalResult' in storedActivation
+      ? null : 'activation' in storedActivation
+        ? storedActivation.activation : storedActivation;
+    if (activation !== null && (
+      activation.durableRevision !== row.durable_revision
+      || serialized(activation.nextMatchState) !== serialized(matchState))) {
+      throw new Error('durable activation does not match MatchState');
+    }
+    if (finalResult !== null && (
+      finalResult.gameId !== id
+      || finalResult.durableRevision !== row.durable_revision
+      || finalResult.awayRuns !== matchState.score.away
+      || finalResult.homeRuns !== matchState.score.home)) {
+      throw new Error('durable final result does not match MatchState');
+    }
     return Object.freeze({
       durableRevision: revision(row.durable_revision, 'stored durable revision'),
-      matchState: validateMatchState(cloneInert(JSON.parse(row.state_json) as CanonicalMatchState)),
-      activation: storedActivation === null || 'finalResult' in storedActivation ? null
-        : 'activation' in storedActivation ? storedActivation.activation : storedActivation,
+      matchState,
+      activation,
       nextWorld: storedActivation === null || !('activation' in storedActivation)
         ? null : storedActivation.nextWorld,
       finalResult,

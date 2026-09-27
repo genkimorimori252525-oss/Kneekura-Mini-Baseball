@@ -34,8 +34,16 @@ const officialResult = () => {
   if (boundary.kind !== 'GAME_FINAL') throw new Error('fixture not final');
   return boundary.result;
 };
-const signed = () => {
-  const created = createClubFromSeed(bootstrap());
+const signed = (hardPayrollCap: number | null = null,
+  luxuryTaxThreshold: number | null = null,
+  squadCostRatioLimit: number | null = null) => {
+  const seed = bootstrap();
+  const created = createClubFromSeed({ ...seed, initial: { ...seed.initial,
+    season: { ...seed.initial.season, financialProfile: {
+      ...seed.initial.season.financialProfile, hardPayrollCap,
+      luxuryTaxThreshold, squadCostRatioLimit,
+    } },
+  } });
   if (!created.ok) throw new Error(JSON.stringify(created.reason));
   const changed = applyClubCommand(created.value, command([{
     kind: 'RECORD_COMMITMENT', commitmentId: 'wage-1',
@@ -66,6 +74,17 @@ const wages = { kind: 'PLAYER_WAGE' as const,
     careerId: 'career-a', clubId: 'club-a', season: 1,
     availableAtDay: 10, dueAtDay: 13, currency: 'SIM',
   }, payrollRunEventId: 'payroll-run-1' };
+const structural = { kind: 'STRUCTURAL_REVENUE' as const,
+  fact: { factId: 'recurring-fact-1', careerId: 'career-a',
+    clubId: 'club-a', season: 1, category: 'commercial' as const,
+    settlementRef: 'sponsor-settlement-1',
+    sourceEventId: 'sponsor-paid-1', receivedAtDay: 13,
+    availableAtDay: 13, capacityRevisionAtReceipt: 2,
+    amount: 200, currency: 'SIM' },
+  policy: { policyId: 'recurring-policy', version: 'v1',
+    careerId: 'career-a', clubId: 'club-a', season: 1,
+    availableAtDay: 10, currency: 'SIM', maximumSeasonAmount: 700,
+    allowedCategories: ['commercial'] as const } };
 
 it('applies official income then the current-year wage as one ordered result', () => {
   const x = signed();
@@ -83,6 +102,30 @@ it('applies official income then the current-year wage as one ordered result', (
   expect(x.club.live.finance.revenue.matchday).toBe(0);
 });
 
+it('reports pinned financial regulation from the same official economy batch and wage ledger', () => {
+  const x = signed(80, 90, 0.5);
+  const result = applyClubEconomyBatch(x.club, {
+    checkpoint: x.club, acceptedEvents: [],
+  }, x.schedules, [matchday, wages]);
+  expect(result.financialRegulationAssessment).toMatchObject({
+    scope: 'CURRENT_SEASON_ASSESSMENT_ONLY',
+    clubRevision: result.state.revision,
+    availableAtDay: result.state.effectiveDay,
+    leagueId: 'league-a', season: 1, currency: 'SIM',
+    financialProfileId: 'profile-a', financialProfileVersion: 'rules-v1',
+    annualPlayerWages: 100,
+    wageAllocations: [{ commitmentId: 'wage-1',
+      sourceEventId: 'contract-1', annualMinorUnits: 100 }],
+    hardPayrollCap: { status: 'EXCEEDS_LIMIT', excessMinorUnits: 20 },
+    luxuryThreshold: { status: 'EXCESS_REPORTED',
+      excessMinorUnits: 10, taxMinorUnits: null },
+    squadCostRatio: { status: 'UNASSESSED',
+      reason: 'MISSING_EVIDENCE', ratio: null },
+  });
+  expect(result.state.live.finance.revenue.matchday).toBe(600);
+  expect(result.state.live.finance.commitments[0]?.paidThisSeason).toBe(100);
+});
+
 it('rejects the whole batch when the second source is invalid', () => {
   const x = signed();
   const before = structuredClone(x.club);
@@ -94,4 +137,44 @@ it('rejects the whole batch when the second source is invalid', () => {
   expect(() => applyClubEconomyBatch(x.club, {
     checkpoint: x.club, acceptedEvents: [],
   }, x.schedules, [matchday, matchday])).toThrow('DUPLICATE_ID');
+});
+
+it('adopts a received structural settlement after matchday with the accumulated Club history', () => {
+  const x = signed();
+  const result = applyClubEconomyBatch(x.club, {
+    checkpoint: x.club, acceptedEvents: [],
+  }, x.schedules, [matchday, structural, wages]);
+  expect(result.events.map((event) => event.command.eventId)).toEqual([
+    'matchday/league-season-1/game-1',
+    'structural/1/sponsor-settlement-1', 'wage/1/wage-1',
+  ]);
+  expect(result.state.live.finance.cash).toBe(x.club.live.finance.cash + 700);
+  expect(result.state.live.finance.revenue.commercial).toBe(200);
+  expect(result.applications[1]).toMatchObject({
+    kind: 'STRUCTURAL_REVENUE', basis: { factId: 'recurring-fact-1',
+      capacityRevision: 2, sourceEventId: 'sponsor-paid-1',
+      amount: 200 },
+  });
+  expect(result.state.live.finance.receipts.find((receipt) =>
+    receipt.category === 'commercial')?.causeEventIds)
+    .toEqual(['sponsor-paid-1']);
+});
+
+it('rejects stale or duplicate structural settlement within one atomic batch', () => {
+  const x = signed();
+  const before = structuredClone(x.club);
+  expect(() => applyClubEconomyBatch(x.club, {
+    checkpoint: x.club, acceptedEvents: [],
+  }, x.schedules, [matchday, { ...structural,
+    fact: { ...structural.fact,
+      capacityRevisionAtReceipt: 1 } }]))
+    .toThrow('capacity revision');
+  expect(() => applyClubEconomyBatch(x.club, {
+    checkpoint: x.club, acceptedEvents: [],
+  }, x.schedules, [matchday, structural, { ...structural,
+    fact: { ...structural.fact, factId: 'recurring-fact-2',
+      receivedAtDay: 14, availableAtDay: 14,
+      capacityRevisionAtReceipt: 3 } }]))
+    .toThrow('DUPLICATE_ID');
+  expect(x.club).toEqual(before);
 });
