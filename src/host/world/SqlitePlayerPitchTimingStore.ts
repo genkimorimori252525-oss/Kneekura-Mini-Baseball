@@ -46,6 +46,8 @@ export type SqlitePlayerPitchTimingStore = Readonly<{
     readonly PlayerDevelopmentHistoryEvent[] | null;
   selectProfile(careerId: string, playerId: string,
     atDay: number): PitchTimingProfile;
+  selectProfileAtDay(careerId: string, playerId: string,
+    atDay: number): PitchTimingProfile;
   apply(sourceId: string, expectedRevision: number):
     PlayerPitchTimingSource;
   close(): void;
@@ -267,6 +269,28 @@ export const openSqlitePlayerPitchTimingStore = (
       const current = replay(careerId, playerId);
       if (!current) throw new Error('pitch timing source is missing');
       return selectPlayerPitchTimingProfile(current, playerId, atDay);
+    },
+    selectProfileAtDay(careerId: string, playerId: string,
+      atDay: number): PitchTimingProfile {
+      if (!id(careerId) || !id(playerId) || !day(atDay)) {
+        throw new Error('invalid historical pitch timing scope');
+      }
+      // Replay validates every accepted update before historical selection.
+      if (!replay(careerId, playerId)) {
+        throw new Error('pitch timing source is missing');
+      }
+      const initial = baseline(careerId, playerId)!;
+      let selected = JSON.parse(initial.initial_json) as
+        PlayerPitchTimingSource;
+      for (const row of getUpdates.all(careerId,
+        playerId) as UpdateRow[]) {
+        const candidate = JSON.parse(row.state_json) as
+          PlayerPitchTimingSource;
+        if (candidate.effectiveDay > atDay) break;
+        selected = candidate;
+      }
+      return selectPlayerPitchTimingProfile(selected,
+        playerId, atDay);
     },
     apply(sourceId: string,
       expectedRevision: number): PlayerPitchTimingSource {

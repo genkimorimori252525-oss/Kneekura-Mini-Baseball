@@ -30,7 +30,9 @@ const input = { careerId: 'career-a', playerId: 'player-a', gameDay: 10,
 };
 
 it('uses one fixed release geometry through varied pitches and a later accepted change', () => {
-  const stores = { timing: { selectProfile: () => timingProfile },
+  const stores = { timing: { selectProfileAtDay: (_careerId: string,
+    _playerId: string, atDay: number) => atDay < 20 ? timingProfile
+      : { ...timingProfile, normalMotionToReleaseUs: 700_000 } },
     release: { selectAtDay: (_careerId: string, _playerId: string,
       atDay: number) => ({ sourceId: atDay < 20 ? 'baseline' : 'change',
       sourceVersion: 'v1', effectiveDay: atDay < 20 ? 1 : 20,
@@ -49,5 +51,7 @@ it('uses one fixed release geometry through varied pitches and a later accepted 
   const later = resolvePlayerPitchDeliveryFromWorld(stores,
     { ...input, gameDay: 20 });
   expect(later.release.position.y).toBeLessThan(early[0].release.position.y);
+  expect(later.timeline.motionToReleaseUs)
+    .toBeGreaterThan(early[0].timeline.motionToReleaseUs);
   expect(later.release.velocity).toEqual(input.physics.velocity);
 });
