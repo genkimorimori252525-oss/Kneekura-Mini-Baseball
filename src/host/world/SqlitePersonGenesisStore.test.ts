@@ -13,6 +13,8 @@ import { STAR_GENESIS_POTENTIALS } from
 import { createRosterState } from '../../core/world/roster/RosterState';
 import { openSqliteManagerRosterDecisionStore } from
   './SqliteManagerRosterDecisionStore';
+import { materializeAcceptedPlayerPerson } from
+  './PlayerMaterializationRuntime';
 import { openSqlitePersonGenesisStore } from
   './SqlitePersonGenesisStore';
 import { openSqlitePlayerIntakeStore } from
@@ -153,4 +155,21 @@ it('rejects future policies and detects altered hidden priors on read', () => {
     expect(() => genesis.read('intake-1'))
       .toThrow('corrupt durable Person priors');
   } finally { db.close(); }
+});
+
+it('retries Player intake and Person genesis after a gap between commits', () => {
+  const { path, intake } = setup();
+  const genesis = openSqlitePersonGenesisStore(path);
+  stores.push(genesis);
+  expect(() => materializeAcceptedPlayerPerson({ intake, genesis },
+    'intake-1')).toThrow('Career seed');
+  expect(intake.read('intake-1')?.rosterAfterRevision).toBe(1);
+  expect(genesis.read('intake-1')).toBeNull();
+  genesis.initializeCareer(genesisInput);
+  const materialized = materializeAcceptedPlayerPerson({ intake,
+    genesis }, 'intake-1');
+  expect(materialized.person).toMatchObject({
+    sourceId: 'intake-1', personId: 'person-1', playerId: 'player-1' });
+  expect(materializeAcceptedPlayerPerson({ intake, genesis },
+    'intake-1')).toEqual(materialized);
 });
