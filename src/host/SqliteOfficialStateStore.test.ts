@@ -120,6 +120,28 @@ describe('SQLite official state store', () => {
     reopened.close();
   });
 
+  it('rejects an activation that disagrees with the durable MatchState after restart', () => {
+    const path = pathForTest();
+    const store = new SqliteOfficialStateStore(path);
+    store.initializeMatch('game-1', match());
+    store.applyAndActivate(liveRequest());
+    store.close();
+    const DatabaseSync = (createRequire(import.meta.url)('node:sqlite') as
+      typeof import('node:sqlite')).DatabaseSync;
+    const external = new DatabaseSync(path);
+    const row = external.prepare(`SELECT activation_json FROM matches
+      WHERE match_id=?`).get('game-1') as { activation_json: string };
+    const stored = JSON.parse(row.activation_json);
+    stored.activation.nextMatchState.outs = 1;
+    external.prepare(`UPDATE matches SET activation_json=?
+      WHERE match_id=?`).run(JSON.stringify(stored), 'game-1');
+    external.close();
+    const reopened = new SqliteOfficialStateStore(path);
+    expect(() => reopened.getMatch('game-1'))
+      .toThrow('durable activation does not match MatchState');
+    reopened.close();
+  });
+
   it('rejects changed idempotency input, duplicate closure and stale revision without advancing state', () => {
     const store = new SqliteOfficialStateStore(pathForTest());
     store.initializeMatch('game-1', match());

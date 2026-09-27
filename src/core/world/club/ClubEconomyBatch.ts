@@ -11,11 +11,16 @@ import { applyOfficialMatchdayRevenue, type MatchdayAttendanceFact,
 import { applyOfficialDomesticPrizeRevenue,
   type DomesticPrizeAward, type DomesticPrizeBasis,
   type DomesticPrizePolicy } from './OfficialDomesticPrizeRevenue';
+import { applyReceivedStructuralRevenue,
+  type StructuralRevenueBasis, type StructuralRevenuePolicy,
+  type StructuralRevenueReceiptFact } from './ClubStructuralRevenue';
 import { applyScheduledPlayerWagePayment,
   type AnnualWagePaymentPolicy,
   type ScheduledPlayerWagePaymentBasis } from './ScheduledPlayerWagePayment';
 import { getClubSeasonWageAllocations,
   type ClubWageScheduleLedger } from './ClubWageScheduleLedger';
+import { assessCurrentSeasonFinancialRegulation,
+  type FinancialRegulationAssessment } from './FinancialRegulationAssessment';
 
 export type ClubEconomySource =
   | Readonly<{ kind: 'MATCHDAY'; result: OfficialGameResult;
@@ -26,18 +31,23 @@ export type ClubEconomySource =
     snapshot: DomesticCompetitionSeasonSnapshot;
     policy: DomesticPrizePolicy; award: DomesticPrizeAward;
     finalizationEventId: string; finalizedAtDay: number }>
+  | Readonly<{ kind: 'STRUCTURAL_REVENUE';
+    fact: StructuralRevenueReceiptFact;
+    policy: StructuralRevenuePolicy }>
   | Readonly<{ kind: 'PLAYER_WAGE'; commitmentId: string;
     policy: AnnualWagePaymentPolicy; payrollRunEventId: string }>;
 export type ClubEconomyApplication = Readonly<{
   kind: ClubEconomySource['kind'];
   event: ClubTransitionEvent;
   basis: MatchdayRevenueBasis | DomesticPrizeBasis
+    | StructuralRevenueBasis
     | ScheduledPlayerWagePaymentBasis;
 }>;
 export type ClubEconomyBatchResult = Readonly<{
   state: ClubWorldState;
   events: readonly ClubTransitionEvent[];
   applications: readonly ClubEconomyApplication[];
+  financialRegulationAssessment: FinancialRegulationAssessment;
 }>;
 
 /**
@@ -84,6 +94,16 @@ export const applyClubEconomyBatch = (
       events.push(applied.event);
       applications.push(Object.freeze({ kind: source.kind,
         event: applied.event, basis: applied.basis }));
+    } else if (source.kind === 'STRUCTURAL_REVENUE') {
+      const applied = applyReceivedStructuralRevenue(current,
+        source.fact, source.policy, {
+          checkpoint: history.checkpoint,
+          acceptedEvents: [...history.acceptedEvents, ...events],
+        });
+      current = applied.state;
+      events.push(applied.event);
+      applications.push(Object.freeze({ kind: source.kind,
+        event: applied.event, basis: applied.basis }));
     } else if (source.kind === 'PLAYER_WAGE') {
       const applied = applyScheduledPlayerWagePayment(current,
         wageSchedules, source.commitmentId, source.policy,
@@ -98,5 +118,7 @@ export const applyClubEconomyBatch = (
   }
   return Object.freeze({ state: current,
     events: Object.freeze(events),
-    applications: Object.freeze(applications) });
+    applications: Object.freeze(applications),
+    financialRegulationAssessment: assessCurrentSeasonFinancialRegulation(
+      current, getClubSeasonWageAllocations(wageSchedules, current)) });
 };
