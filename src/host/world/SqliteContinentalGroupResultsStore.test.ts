@@ -8,16 +8,23 @@ import type { OfficialGameResult } from
   '../../core/world/competition/OfficialGameCompletion';
 import type { CompetitionDraw } from
   '../../core/world/competition/CompetitionDraw';
+import type { CompetitionEditionSnapshot } from
+  '../../core/world/competition/CompetitionEdition';
 import { assignContinentalGroupHomeSeries,
   createHomeFairnessLedger } from
   '../../core/world/competition/ContinentalHomeFairness';
 import { createContinentalGroupGamePlan } from
   '../../core/world/competition/ContinentalGroupResults';
+import { finalizeContinentalQuarterfinals,
+  planContinentalQuarterfinals } from
+  '../../core/world/competition/ContinentalQuarterfinals';
 import type { PostseasonMatchSource } from './PostseasonResultsFromMatches';
 import { openSqliteContinentalGroupResultsStore } from
   './SqliteContinentalGroupResultsStore';
 import { openSqliteContinentalQuarterfinalStore } from
   './SqliteContinentalQuarterfinalStore';
+import { openSqliteContinentalFinalFourStore } from
+  './SqliteContinentalFinalFourStore';
 
 const { DatabaseSync }: typeof import('node:sqlite') =
   createRequire(import.meta.url)('node:sqlite');
@@ -190,6 +197,119 @@ it('draws from frozen group qualifiers and advances only decided Match finals', 
     });
     quarters.close();
     groups.close();
+    const root = realpathSync(tmpdir());
+    const target = realpathSync(directory);
+    if (!target.startsWith(`${root}${sep}`)
+      || !basename(target).startsWith('kneekura-groups-')) {
+      throw new Error('test cleanup target escaped its temporary directory');
+    }
+    rmSync(target, { recursive: true, force: true });
+  }
+});
+
+it('replays the Edition-hosted final four through a Match champion', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'kneekura-groups-'));
+  const path = join(directory, 'world.sqlite');
+  const quarterfinalSource = { groupPlan: plan,
+    groupOfficialResults: games.map((game) => finals.get(game.gameId)!),
+    groupTiebreakPolicy: request.tiebreakPolicy };
+  const quarterfinalPlan = planContinentalQuarterfinals({
+    ...quarterfinalSource, policyVersion: 'quarter-v1',
+    drawSeed: 'quarter-seed' });
+  const official = (game: { gameId: string; homeClubId: string;
+    awayClubId: string }, index: number,
+    venueId: string): OfficialGameResult => ({
+    ...game, seasonId: 'edition-1', homeRuns: 2, awayRuns: 1,
+    winnerClubId: game.homeClubId,
+    completionReason: 'BOTTOM_COMPLETE',
+    ruleProfileId: asRuleProfileId('continental-rules-v1'),
+    gamePolicyVersion: 'knockout-v1',
+    closureId: `knockout-closure-${index}`,
+    applicationId: `knockout-application-${index}`,
+    durableRevision: 1,
+    venueBinding: { gameId: game.gameId, venueId,
+      fixtureEventId: `knockout-fixture-${index}`,
+      fixtureRevision: 0 },
+    lineScore: { innings: [{ inning: 1,
+      homeRuns: 2, awayRuns: 1 }],
+      totals: { home: { runs: 2, hits: 1, errors: 0 },
+        away: { runs: 1, hits: 1, errors: 0 } } },
+  });
+  const quarterResults = quarterfinalPlan.games.map((game, index) =>
+    official(game, index, 'venue-1'));
+  const quarterfinalOutcome = finalizeContinentalQuarterfinals(
+    quarterfinalPlan, quarterResults, quarterfinalSource);
+  const edition = { competitionId: 'continental-a',
+    editionId: 'edition-1', canonicalRole: 'CONTINENTAL_CL',
+    formatVersion: 'format-v1', ruleProfileVersion: 'rules-v1',
+    drawPolicyVersion: 'draw-v1', drawPolicy: {
+      version: 'draw-v1', relaxationOrder: draw.relaxationOrder },
+    awardPolicyVersion: 'award-v1',
+    qualificationSnapshotId: 'qualifiers-v1',
+    calendarWindow: { startsOnDay: 1, endsOnDay: 30 },
+    drawSnapshotId: 'draw-edition-1', prestigeAtEdition: 1,
+    participantIds: plan.groups.flatMap((group) => group.memberClubIds),
+    hostingPolicyVersion: 'host-v1',
+    host: { nationId: 'nation-1', cityIds: ['city-1'],
+      venueIds: ['neutral-1'] },
+    finalFourHost: { policyVersion: 'host-v1',
+      selectedNationId: 'nation-1', selectedCityId: 'city-1',
+      selectedVenueId: 'neutral-1', selectedRegionId: 'region-1',
+      evaluations: [] },
+    finalFourPairingPolicy: { version: 'pair-v1',
+      semifinalPairs: [[0, 1], [2, 3]] },
+  } satisfies CompetitionEditionSnapshot;
+  const quarterfinals = {
+    readPlan: () => quarterfinalPlan,
+    readSource: () => quarterfinalSource,
+    readOutcome: () => quarterfinalOutcome,
+  };
+  const added: string[] = [];
+  const put = (final: OfficialGameResult): void => {
+    finals.set(final.gameId, final);
+    fixtures.set(final.gameId, final.venueBinding!);
+    added.push(final.gameId);
+  };
+  quarterResults.forEach(put);
+  const store = openSqliteContinentalFinalFourStore(path, {
+    editions: { readEdition: () => edition }, quarterfinals, matches,
+  });
+  try {
+    const finalFourPlan = store.initialize('career-1', 'edition-1');
+    expect(finalFourPlan.hostVenueId).toBe('neutral-1');
+    expect(store.finalize('career-1', 'edition-1')).toBeNull();
+    finalFourPlan.semifinalGames.forEach((game, index) =>
+      put(official(game, index + 4, 'neutral-1')));
+    expect(store.finalize('career-1', 'edition-1')).toBeNull();
+    put(official({ gameId: finalFourPlan.finalGameId,
+      homeClubId: finalFourPlan.semifinalGames[0].homeClubId,
+      awayClubId: finalFourPlan.semifinalGames[1].homeClubId },
+    6, 'neutral-1'));
+    const outcome = store.finalize('career-1', 'edition-1')!;
+    expect(outcome.championClubId).toBe(outcome.finalGame.homeClubId);
+    expect(store.readOutcome('career-1', 'edition-1')).toEqual(outcome);
+    store.close();
+    const reopened = openSqliteContinentalFinalFourStore(path, {
+      editions: { readEdition: () => edition }, quarterfinals, matches,
+    });
+    expect(reopened.readOutcome('career-1', 'edition-1')).toEqual(outcome);
+    reopened.close();
+    const database = new DatabaseSync(path);
+    database.prepare(`UPDATE world_continental_final_fours
+      SET outcome_json='{}' WHERE career_id='career-1'`).run();
+    database.close();
+    const tampered = openSqliteContinentalFinalFourStore(path, {
+      editions: { readEdition: () => edition }, quarterfinals, matches,
+    });
+    expect(() => tampered.readOutcome('career-1', 'edition-1'))
+      .toThrow('corrupt continental final four');
+    tampered.close();
+  } finally {
+    added.forEach((gameId) => {
+      finals.delete(gameId);
+      fixtures.delete(gameId);
+    });
+    store.close();
     const root = realpathSync(tmpdir());
     const target = realpathSync(directory);
     if (!target.startsWith(`${root}${sep}`)
