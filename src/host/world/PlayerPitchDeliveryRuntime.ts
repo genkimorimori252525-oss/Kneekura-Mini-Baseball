@@ -17,7 +17,7 @@ export type PlayerPitchDeliveryRequest = Readonly<{
 /** Match samples timing per pitch, while release geometry comes from Career history. */
 export const resolvePlayerPitchDeliveryFromWorld = (
   stores: Readonly<{
-    timing: Pick<SqlitePlayerPitchTimingStore, 'selectProfile'>;
+    timing: Pick<SqlitePlayerPitchTimingStore, 'selectProfileAtDay'>;
     release: Pick<SqlitePlayerReleaseGeometryStore, 'selectAtDay'>;
   }>,
   input: PlayerPitchDeliveryRequest,
@@ -29,7 +29,7 @@ export const resolvePlayerPitchDeliveryFromWorld = (
     || !Number.isSafeInteger(input.gameDay) || input.gameDay < 0) {
     throw new Error('invalid Player pitch delivery scope');
   }
-  const timingProfile = stores.timing.selectProfile(input.careerId,
+  const timingProfile = stores.timing.selectProfileAtDay(input.careerId,
     input.playerId, input.gameDay);
   const geometry = stores.release.selectAtDay(input.careerId,
     input.playerId, input.gameDay);

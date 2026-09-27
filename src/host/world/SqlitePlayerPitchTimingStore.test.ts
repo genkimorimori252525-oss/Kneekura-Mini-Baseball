@@ -176,6 +176,10 @@ it('persists a measured source change and replays it without live authority', ()
   });
   expect(timing.selectProfile('career-a', 'p2', 15).quickSpeedFactor)
     .toBe(2);
+  expect(timing.selectProfileAtDay('career-a', 'p2', 14).quickSpeedFactor)
+    .toBe(1.5);
+  expect(timing.selectProfileAtDay('career-a', 'p2', 15).quickSpeedFactor)
+    .toBe(2);
   expect(() => timing.selectProfile('career-a', 'p2', 14))
     .toThrow('day');
   expect(() => timing.apply(acceptedBaseline.sourceId, 1))
@@ -187,6 +191,8 @@ it('persists a measured source change and replays it without live authority', ()
   stores.push(reopened);
   expect(reopened.readHead('career-a', 'p2')).toEqual(changed);
   expect(reopened.readDevelopmentHistory('career-a', 'p2')).toEqual(history);
+  expect(reopened.selectProfileAtDay('career-a', 'p2', 14))
+    .toEqual(profile);
   expect(reopened.apply(evidence.sourceId, 0)).toEqual(changed);
   expect(() => reopened.apply('new-learning', 1)).toThrow('authority');
 });
