@@ -1,8 +1,11 @@
 import { mkdtempSync, realpathSync, rmSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { basename, join, sep } from 'node:path';
 import { afterEach, expect, it } from 'vitest';
-import { state } from '../core/world/club/ClubFixtures.test-support';
+import { command, state } from
+  '../core/world/club/ClubFixtures.test-support';
+import { applyClubCommand } from '../core/world/club/ClubLifecycle';
 import { createBaseScheduleSnapshot } from '../core/world/competition/LeagueSchedule';
 import { captureOfficialStandingsSchedule } from
   '../core/world/competition/OfficialStandingsScheduleSource';
@@ -13,6 +16,8 @@ import { openSqliteWorldSettlementStore } from
   './world/SqliteWorldSettlementStore';
 import { openSqliteDomesticScheduleStore } from
   './world/SqliteDomesticScheduleStore';
+import { appendAcceptedClubEvents } from
+  './world/SqliteClubEventJournal';
 
 const directories: string[] = [];
 const openStores: { close(): void }[] = [];
@@ -64,9 +69,10 @@ it('pins a source-backed domestic venue durably and rejects later divergence', (
 it('uses the durable World season and Club head as the fixture authority', () => {
   const directory = mkdtempSync(join(tmpdir(), 'kneekura-domestic-fixture-'));
   directories.push(directory);
-  const world = openSqliteWorldSettlementStore(join(directory, 'world.sqlite'));
+  const worldPath = join(directory, 'world.sqlite');
+  const world = openSqliteWorldSettlementStore(worldPath);
   const match = new SqliteOfficialStateStore(join(directory, 'match.sqlite'));
-  const archive = openSqliteDomesticScheduleStore(join(directory, 'world.sqlite'));
+  const archive = openSqliteDomesticScheduleStore(worldPath);
   openStores.push(world, match, archive);
   const baseSchedule = createBaseScheduleSnapshot({
     seasonId: 'league-season-1', leagueId: 'league-a',
@@ -91,6 +97,42 @@ it('uses the durable World season and Club head as the fixture authority', () =>
   expect(match.getOfficialFixture(input.gameId)).toEqual(result.binding);
   expect(registerDomesticFixtureFromWorld(world, archive, match, input))
     .toEqual(result);
+  const before = world.readClub('career-a', 'club-a')!;
+  const changed = applyClubCommand(before.state, {
+    ...command([{ kind: 'REPLACE_STADIUM', stadium: {
+      ...before.state.institutional.stadium,
+      stadiumId: 'stadium-b', geometryRef: 'geometry-b' } }],
+    before.state, 'future-stadium'), effectiveDay: 12,
+  });
+  if (!changed.ok) throw new Error('test Club event was rejected');
+  const Database = (createRequire(import.meta.url)('node:sqlite') as
+    typeof import('node:sqlite')).DatabaseSync;
+  const db = new Database(worldPath);
+  const canonicalJson = (value: unknown): string => JSON.stringify(value,
+    (_key, item: unknown) => item !== null && typeof item === 'object'
+      && !Array.isArray(item)
+      ? Object.fromEntries(Object.entries(item).sort(([a], [b]) =>
+        a < b ? -1 : a > b ? 1 : 0)) : item);
+  db.exec('BEGIN IMMEDIATE');
+  try {
+    appendAcceptedClubEvents(db, before.state,
+      [changed.event], changed.state);
+    db.prepare(`UPDATE world_club_heads SET revision=?, state_json=?
+      WHERE career_id=? AND club_id=? AND revision=?`).run(
+      changed.state.revision, canonicalJson(changed.state),
+      'career-a', 'club-a', before.revision);
+    db.exec('COMMIT');
+  } catch (error) {
+    db.exec('ROLLBACK');
+    throw error;
+  } finally {
+    db.close();
+  }
+  expect(registerDomesticFixtureFromWorld(world, archive, match, input))
+    .toEqual(result);
+  expect(registerDomesticFixtureFromWorld(world, archive, match,
+    { ...input, gameId: 'series-a:2' }).binding.venueId)
+    .toBe('stadium-b');
   expect(() => registerDomesticFixtureFromWorld(world, archive, match,
     { ...input, gameId: 'other-game' })).toThrow('scheduled');
 });
