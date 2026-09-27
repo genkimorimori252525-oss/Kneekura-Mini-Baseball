@@ -7,6 +7,9 @@ import type { DevelopmentTrajectoryPolicy,
 import { generateStarGenesis } from './StarGenesis';
 import type { StarGenesisPolicy,
   StarGenesisProfile } from './StarGenesis';
+import { UINT32_RANGE } from './DevelopmentRandom';
+
+export const PLAYER_PERSON_SEED_VERSION = 'player-person-seed-v1' as const;
 
 export type PlayerPersonPriorPolicies = Readonly<{
   trajectory: DevelopmentTrajectoryPolicy;
@@ -30,6 +33,24 @@ export type PlayerPersonPriors = Readonly<{
   star: StarGenesisProfile;
 }>;
 
+/** Stable, Person-specific stream; a Career seed is never reused verbatim. */
+export const derivePlayerPersonSeed = (careerId: string,
+  playerId: string, careerSeed: number): number => {
+  if (!careerId || !playerId || careerId.trim() !== careerId
+    || playerId.trim() !== playerId
+    || !Number.isSafeInteger(careerSeed)
+    || careerSeed <= 0 || careerSeed >= UINT32_RANGE) {
+    throw new Error('invalid Player Person seed scope');
+  }
+  let hash = (0x811c9dc5 ^ careerSeed) >>> 0;
+  const key = JSON.stringify([PLAYER_PERSON_SEED_VERSION,
+    careerId, playerId]);
+  for (let index = 0; index < key.length; index += 1) {
+    hash = Math.imul(hash ^ key.charCodeAt(index), 0x01000193) >>> 0;
+  }
+  return hash || 0x9e3779b9;
+};
+
 /** Generates independent salted streams from one Career seed and pinned policies. */
 export const generatePlayerPersonPriors = (
   input: PlayerPersonPriorGeneration,
@@ -41,7 +62,8 @@ export const generatePlayerPersonPriors = (
   }
   const common = { careerId: input.careerId,
     playerId: input.playerId, createdAtDay: input.createdAtDay,
-    seed: input.careerSeed };
+    seed: derivePlayerPersonSeed(input.careerId,
+      input.playerId, input.careerSeed) };
   const trajectory = generateDevelopmentTrajectory({ ...common,
     policy: input.policies.trajectory });
   const catalyst = generateDevelopmentCatalystProfile({ ...common,
