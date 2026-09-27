@@ -364,6 +364,11 @@ it('commits roster, event and execution evidence on the existing world DB across
   rosters.splice(rosters.indexOf(store), 1);
   const reopened = open(databasePath);
   expect(reopened.readExecution('execution-1')).toEqual(saved);
+  expect(reopened.readDevelopmentRosterChange('execution-1'))
+    .toMatchObject({ before: { revision: 0 },
+      after: { revision: 1 },
+      event: { eventId: saved.result.rosterEvent.eventId,
+        causeEventId: 'execution-1' } });
   expect(reopened.apply(request())).toEqual(saved);
   expect(reopened.readHead('career-a', 'club-a')?.roster.revision).toBe(1);
 });
