@@ -18,7 +18,8 @@ import { selectManagerControlledDecision } from
   '../../core/world/manager/ManagerControlledDecision';
 import { applyRosterChange } from '../../core/world/roster/RosterCommands';
 import { createRosterState } from '../../core/world/roster/RosterState';
-import type { RosterState } from '../../core/world/roster/RosterTypes';
+import type { RosterState, RosterTransitionEvent } from
+  '../../core/world/roster/RosterTypes';
 import type { ExecutedRosterDecisionMoodInput } from
   '../../core/world/team/ExecutedRosterDecisionMood';
 import type { TeamMoodState } from '../../core/world/team/TeamMood';
@@ -78,6 +79,11 @@ export type DurableRosterExecution = Readonly<{
   moodRevision: number | null;
   result: SelectedManagerRosterDispatch;
 }>;
+export type DurableDevelopmentRosterChange = Readonly<{
+  before: RosterState;
+  after: RosterState;
+  event: RosterTransitionEvent;
+}>;
 export type SqliteManagerRosterDecisionStore = Readonly<{
   initialize(input: InitializeRosterHead): void;
   readHead(careerId: string, clubId: string): DurableRosterHead | null;
@@ -86,6 +92,8 @@ export type SqliteManagerRosterDecisionStore = Readonly<{
   readOpportunity(careerId: string, clubId: string,
     decisionId: string): DurableRosterOpportunity | null;
   readExecution(executionId: string): DurableRosterExecution | null;
+  readDevelopmentRosterChange(executionId: string):
+    DurableDevelopmentRosterChange | null;
   apply(request: RosterExecutionRequest): DurableRosterExecution;
   close(): void;
 }>;
@@ -641,6 +649,26 @@ export const openSqliteManagerRosterDecisionStore = (
       if (!id(executionId)) throw new Error('invalid executionId');
       const row = executionRow(executionId);
       return row ? parsedExecution(executionId, row) : null;
+    },
+    readDevelopmentRosterChange(executionId: string):
+    DurableDevelopmentRosterChange | null {
+      if (!id(executionId)) throw new Error('invalid executionId');
+      const row = executionRow(executionId);
+      if (!row) return null;
+      const saved = parsedExecution(executionId, row);
+      const input = JSON.parse(row.input_json) as
+        SelectedManagerRosterDispatchInput;
+      const before = createRosterState(input.roster);
+      const after = createRosterState(saved.result.roster);
+      const event = saved.result.rosterEvent;
+      if (before.careerId !== saved.careerId
+        || after.careerId !== saved.careerId
+        || before.revision + 1 !== after.revision
+        || event.beforeRevision !== before.revision
+        || event.afterRevision !== after.revision) {
+        throw new Error('development roster source revision mismatch');
+      }
+      return Object.freeze({ before, after, event });
     },
     apply(request: RosterExecutionRequest): DurableRosterExecution {
       if (!request || !id(request.careerId)
