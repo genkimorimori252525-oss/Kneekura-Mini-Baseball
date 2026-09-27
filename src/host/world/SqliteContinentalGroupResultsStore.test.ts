@@ -16,6 +16,8 @@ import { createContinentalGroupGamePlan } from
 import type { PostseasonMatchSource } from './PostseasonResultsFromMatches';
 import { openSqliteContinentalGroupResultsStore } from
   './SqliteContinentalGroupResultsStore';
+import { openSqliteContinentalQuarterfinalStore } from
+  './SqliteContinentalQuarterfinalStore';
 
 const { DatabaseSync }: typeof import('node:sqlite') =
   createRequire(import.meta.url)('node:sqlite');
@@ -111,6 +113,83 @@ it('freezes only 72 fixture-bound Match finals and replays standings', () => {
       .toThrow('corrupt continental group results');
     tampered.close();
   } finally {
+    const root = realpathSync(tmpdir());
+    const target = realpathSync(directory);
+    if (!target.startsWith(`${root}${sep}`)
+      || !basename(target).startsWith('kneekura-groups-')) {
+      throw new Error('test cleanup target escaped its temporary directory');
+    }
+    rmSync(target, { recursive: true, force: true });
+  }
+});
+
+it('draws from frozen group qualifiers and advances only decided Match finals', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'kneekura-groups-'));
+  const path = join(directory, 'world.sqlite');
+  const groups = openSqliteContinentalGroupResultsStore(path,
+    { homes, matches });
+  const quarters = openSqliteContinentalQuarterfinalStore(path,
+    { homes, groups, matches });
+  const added: string[] = [];
+  try {
+    groups.finalize(request);
+    const input = { careerId: 'career-1', editionId: 'edition-1',
+      policyVersion: 'quarter-v1', drawSeed: 'quarter-seed' };
+    const quarterPlan = quarters.initialize(input);
+    expect(quarterPlan.games).toHaveLength(4);
+    expect(quarters.readPlan('career-1', 'edition-1')).toEqual(quarterPlan);
+    expect(() => quarters.initialize({ ...input,
+      drawSeed: 'changed' })).toThrow('already frozen differently');
+    expect(quarters.finalize('career-1', 'edition-1')).toBeNull();
+    quarterPlan.games.forEach((game, index) => {
+      const final: OfficialGameResult = {
+        ...game, seasonId: 'edition-1', homeRuns: 2, awayRuns: 1,
+        winnerClubId: game.homeClubId,
+        completionReason: 'BOTTOM_COMPLETE',
+        ruleProfileId: asRuleProfileId('continental-rules-v1'),
+        gamePolicyVersion: 'quarter-game-v1',
+        closureId: `quarter-closure-${index}`,
+        applicationId: `quarter-application-${index}`,
+        durableRevision: 1,
+        venueBinding: { gameId: game.gameId, venueId: 'venue-1',
+          fixtureEventId: `quarter-fixture-${index}`,
+          fixtureRevision: 0 },
+        lineScore: { innings: [{ inning: 1,
+          homeRuns: 2, awayRuns: 1 }],
+          totals: { home: { runs: 2, hits: 1, errors: 0 },
+            away: { runs: 1, hits: 1, errors: 0 } } },
+      };
+      finals.set(game.gameId, final);
+      fixtures.set(game.gameId, final.venueBinding!);
+      added.push(game.gameId);
+    });
+    const outcome = quarters.finalize('career-1', 'edition-1')!;
+    expect(outcome.winnerClubIds).toEqual(quarterPlan.games.map((game) =>
+      game.homeClubId));
+    expect(quarters.readOutcome('career-1', 'edition-1'))
+      .toEqual(outcome);
+    quarters.close();
+    const reopened = openSqliteContinentalQuarterfinalStore(path,
+      { homes, groups, matches });
+    expect(reopened.readOutcome('career-1', 'edition-1'))
+      .toEqual(outcome);
+    reopened.close();
+    const database = new DatabaseSync(path);
+    database.prepare(`UPDATE world_continental_quarterfinals
+      SET outcome_json='{}' WHERE career_id='career-1'`).run();
+    database.close();
+    const tampered = openSqliteContinentalQuarterfinalStore(path,
+      { homes, groups, matches });
+    expect(() => tampered.readOutcome('career-1', 'edition-1'))
+      .toThrow('corrupt continental quarterfinals');
+    tampered.close();
+  } finally {
+    added.forEach((gameId) => {
+      finals.delete(gameId);
+      fixtures.delete(gameId);
+    });
+    quarters.close();
+    groups.close();
     const root = realpathSync(tmpdir());
     const target = realpathSync(directory);
     if (!target.startsWith(`${root}${sep}`)
