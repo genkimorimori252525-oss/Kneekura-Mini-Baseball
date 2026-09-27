@@ -1,0 +1,122 @@
+import { mkdtempSync, realpathSync, rmSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { tmpdir } from 'node:os';
+import { basename, join, sep } from 'node:path';
+import { expect, it } from 'vitest';
+import { asRuleProfileId } from '../../core/model/RuleProfileRef';
+import type { OfficialGameResult } from
+  '../../core/world/competition/OfficialGameCompletion';
+import type { CompetitionDraw } from
+  '../../core/world/competition/CompetitionDraw';
+import { assignContinentalGroupHomeSeries,
+  createHomeFairnessLedger } from
+  '../../core/world/competition/ContinentalHomeFairness';
+import { createContinentalGroupGamePlan } from
+  '../../core/world/competition/ContinentalGroupResults';
+import type { PostseasonMatchSource } from './PostseasonResultsFromMatches';
+import { openSqliteContinentalGroupResultsStore } from
+  './SqliteContinentalGroupResultsStore';
+
+const { DatabaseSync }: typeof import('node:sqlite') =
+  createRequire(import.meta.url)('node:sqlite');
+const draw: CompetitionDraw = {
+  editionId: 'edition-1', drawPolicyVersion: 'draw-v1',
+  drawSeed: 'seed-1', relaxationOrder: ['REMATCH_AVOIDANCE',
+    'REGIONAL_DIVERSITY', 'SAME_LEAGUE_AVOIDANCE'],
+  groups: ['abcd', 'efgh', 'ijkl', 'mnop'].map((members) =>
+    [...members].map((teamId, index) => ({ teamId, pot: index + 1,
+      leagueId: `league-${teamId}`, regionId: `region-${teamId}` }))),
+  appliedConstraints: [], relaxedConstraints: [],
+  softViolationCounts: { sameLeague: 0, sameRegion: 0, rematch: 0 },
+};
+const assignment = assignContinentalGroupHomeSeries({
+  competitionId: 'continental-a', editionId: draw.editionId,
+  editionOrdinal: 0, expectedRevision: 0, draw,
+  ledger: createHomeFairnessLedger('continental-a'),
+  policy: { version: 'home-v1', recentEditionWeights: [1] },
+});
+const plan = createContinentalGroupGamePlan(assignment);
+const games = plan.groups.flatMap((group) => group.games);
+const finals = new Map(games.map((game, index):
+  [string, OfficialGameResult] => {
+  const homeWon = game.homeClubId < game.awayClubId;
+  const homeRuns = homeWon ? 2 : 1;
+  const awayRuns = homeWon ? 1 : 2;
+  return [game.gameId, { ...game, seasonId: draw.editionId,
+    homeRuns, awayRuns,
+    winnerClubId: homeWon ? game.homeClubId : game.awayClubId,
+    completionReason: 'BOTTOM_COMPLETE',
+    ruleProfileId: asRuleProfileId('continental-rules-v1'),
+    gamePolicyVersion: 'group-game-v1', closureId: `closure-${index}`,
+    applicationId: `application-${index}`, durableRevision: 1,
+    venueBinding: { gameId: game.gameId, venueId: 'venue-1',
+      fixtureEventId: `fixture-${index}`, fixtureRevision: 0 },
+    lineScore: { innings: [{ inning: 1, homeRuns, awayRuns }],
+      totals: { home: { runs: homeRuns, hits: 1, errors: 0 },
+        away: { runs: awayRuns, hits: 1, errors: 0 } } },
+  }];
+}));
+const fixtures = new Map([...finals].map(([gameId, result]) =>
+  [gameId, result.venueBinding!]));
+const matches = {
+  getMatch: (gameId: string) => {
+    const finalResult = finals.get(gameId);
+    return finalResult ? { finalResult } : null;
+  },
+  getOfficialFixture: (gameId: string) => fixtures.get(gameId) ?? null,
+} as PostseasonMatchSource;
+const homes = { readAssignment: (_careerId: string, editionId: string) =>
+  editionId === 'edition-1' ? { assignment, groupGamePlan: plan } : null };
+const request = { careerId: 'career-1', editionId: 'edition-1',
+  tiebreakPolicy: { version: 'group-tiebreak-v1',
+    tieCreditNumerator: 0, tieCreditDenominator: 1,
+    runDifferentialCapPerGame: 5 } };
+
+it('freezes only 72 fixture-bound Match finals and replays standings', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'kneekura-groups-'));
+  const path = join(directory, 'world.sqlite');
+  try {
+    const store = openSqliteContinentalGroupResultsStore(path,
+      { homes, matches });
+    const first = finals.get(games[0].gameId)!;
+    finals.delete(games[0].gameId);
+    expect(store.finalize(request)).toBeNull();
+    expect(store.readResults('career-1', 'edition-1')).toBeNull();
+    finals.set(games[0].gameId, first);
+    const value = store.finalize(request)!;
+    expect(value.groups.map((group) => group.qualifierClubIds))
+      .toEqual([['a', 'b'], ['e', 'f'], ['i', 'j'], ['m', 'n']]);
+    expect(store.finalize(request)).toEqual(value);
+    store.close();
+    const reopened = openSqliteContinentalGroupResultsStore(path,
+      { homes, matches });
+    expect(reopened.readResults('career-1', 'edition-1')).toEqual(value);
+    expect(() => reopened.finalize({ ...request,
+      tiebreakPolicy: { ...request.tiebreakPolicy,
+        version: 'changed' } })).toThrow('already frozen differently');
+    const corrupted = { ...first, venueBinding: { ...first.venueBinding!,
+      fixtureRevision: 1 } };
+    finals.set(first.gameId, corrupted);
+    expect(() => reopened.readResults('career-1', 'edition-1'))
+      .toThrow('corrupt continental group results');
+    finals.set(first.gameId, first);
+    reopened.close();
+    const database = new DatabaseSync(path);
+    database.prepare(`UPDATE world_continental_group_results
+      SET snapshot_json='{}' WHERE career_id='career-1'`).run();
+    database.close();
+    const tampered = openSqliteContinentalGroupResultsStore(path,
+      { homes, matches });
+    expect(() => tampered.readResults('career-1', 'edition-1'))
+      .toThrow('corrupt continental group results');
+    tampered.close();
+  } finally {
+    const root = realpathSync(tmpdir());
+    const target = realpathSync(directory);
+    if (!target.startsWith(`${root}${sep}`)
+      || !basename(target).startsWith('kneekura-groups-')) {
+      throw new Error('test cleanup target escaped its temporary directory');
+    }
+    rmSync(target, { recursive: true, force: true });
+  }
+});
