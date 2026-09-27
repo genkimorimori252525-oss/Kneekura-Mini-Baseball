@@ -1,4 +1,3 @@
-import { isDeepStrictEqual } from 'node:util';
 import { finalizeDomesticCompetitionSeason,
   type DomesticCompetitionSeasonInput,
   type DomesticCompetitionSeasonSnapshot } from
@@ -10,6 +9,8 @@ import { resolveDomesticPostseason,
 import { LEAGUE_PROFILES_V1 } from
   '../../core/world/competition/LeagueProfiles';
 import { readCompletedDomesticSeason } from './DomesticSeasonRuntime';
+import { readDurablePostseasonResults } from
+  './PostseasonResultsFromMatches';
 
 type CompletionStores = Parameters<typeof readCompletedDomesticSeason>[0];
 export type DirectDomesticCompetitionRequest = Readonly<{
@@ -29,29 +30,9 @@ export type DirectDomesticCompetitionProjection = Readonly<{
 export const readDurablePostseasonEntries = (
   matchStore: CompletionStores['match'],
   plans: DirectDomesticCompetitionRequest['postseasonPlans'],
-): readonly DomesticPostseasonEntry[] => Object.freeze(plans.map((entry) => {
-  const results: DomesticPostseasonEntry['results'][number][] = [];
-  let pending = false;
-  for (const game of entry.plan.scheduledGames) {
-    const match = matchStore.getMatch(game.gameId);
-    if (!match?.finalResult) {
-      pending = true;
-      continue;
-    }
-    if (pending) {
-      throw new Error('postseason Match final skips an earlier game');
-    }
-    const fixture = matchStore.getOfficialFixture(game.gameId);
-    if (!fixture || !match.finalResult.venueBinding
-      || !isDeepStrictEqual(fixture,
-        match.finalResult.venueBinding)) {
-      throw new Error('postseason result lacks durable Match fixture');
-    }
-    results.push(match.finalResult);
-  }
-  return Object.freeze({ stage: entry.stage, plan: entry.plan,
-    results: Object.freeze(results) });
-}));
+): readonly DomesticPostseasonEntry[] => Object.freeze(plans.map((entry) =>
+  Object.freeze({ stage: entry.stage, plan: entry.plan,
+    results: readDurablePostseasonResults(matchStore, entry.plan) })));
 
 /** Advance only from completed regular-season Match finals and accepted series finals. */
 export const projectDirectDomesticCompetitionFromWorld = (
