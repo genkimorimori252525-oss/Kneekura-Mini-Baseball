@@ -19,6 +19,8 @@ import { openSqliteOfficialWbcHistoryStore } from
   './SqliteOfficialWbcHistoryStore';
 import { openSqliteWbcRegionalCoefficientStore } from
   './SqliteWbcRegionalCoefficientStore';
+import { openSqliteWorldNationalRankingHistoryStore } from
+  './SqliteWorldNationalRankingHistoryStore';
 import { EMPTY_WBC_REGIONAL_COEFFICIENT_POLICY_REGISTRY,
   registerWbcRegionalCoefficientPolicy } from
   '../../core/world/competition/WbcRegionalCoefficients';
@@ -220,6 +222,20 @@ it('freezes six WBC pools and replays 36 official Match finals', () => {
     expect(coefficients.authority('career-1').regionalCoefficient(
       'AFRICA', 140)).toEqual(coefficientResult[3]);
     coefficients.close();
+    const rankingSources = { regional: { readEvidence: () => null },
+      wbc: knockout, nations: historySources.regions };
+    const rankingStore = openSqliteWorldNationalRankingHistoryStore(path,
+      rankingSources);
+    const rankingHistory = rankingStore.recordWbc('career-1',
+      edition.editionId);
+    expect(rankingHistory.editions).toHaveLength(1);
+    expect(rankingHistory.editions[0].games).toHaveLength(51);
+    rankingStore.close();
+    const reopenedRanking = openSqliteWorldNationalRankingHistoryStore(
+      path, rankingSources);
+    expect(reopenedRanking.readHistory('career-1'))
+      .toEqual(rankingHistory);
+    reopenedRanking.close();
     historyStore.close();
     const corruptHistory = new DatabaseSync(path);
     corruptHistory.prepare(`UPDATE world_official_wbc_editions
