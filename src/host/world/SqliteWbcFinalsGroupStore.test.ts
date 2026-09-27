@@ -15,6 +15,8 @@ import { openSqliteWbcFinalsGroupStore } from
   './SqliteWbcFinalsGroupStore';
 import { openSqliteWbcFinalsKnockoutStore } from
   './SqliteWbcFinalsKnockoutStore';
+import { openSqliteOfficialWbcHistoryStore } from
+  './SqliteOfficialWbcHistoryStore';
 import type { WbcKnockoutEdition, WbcKnockoutGame } from
   '../../core/world/competition/WbcFinalsKnockout';
 
@@ -171,6 +173,30 @@ it('freezes six WBC pools and replays 36 official Match finals', () => {
     expect(champion.championNationId).toBe(finalGame.homeNationId);
     expect(knockout.readEvidence('career-1',
       edition.editionId)?.outcome).toEqual(champion);
+    const historySources = { finals: knockout,
+      regions: { readRegion: (_careerId: string,
+        nationId: string) => {
+        const index = Number(nationId.split('-')[1]);
+        return (['ASIA_PACIFIC', 'AMERICAS', 'EUROPE',
+          'AFRICA'] as const)[index % 4] ?? null;
+      } } };
+    const historyStore = openSqliteOfficialWbcHistoryStore(path,
+      historySources);
+    const official = historyStore.record('career-1', edition.editionId);
+    expect(official.games).toHaveLength(51);
+    expect(official.entrants).toHaveLength(24);
+    expect(historyStore.readEdition('career-1', edition.editionId))
+      .toEqual(official);
+    historyStore.close();
+    const corruptHistory = new DatabaseSync(path);
+    corruptHistory.prepare(`UPDATE world_official_wbc_editions
+      SET snapshot_json='{}' WHERE career_id='career-1'`).run();
+    corruptHistory.close();
+    const tamperedHistory = openSqliteOfficialWbcHistoryStore(path,
+      historySources);
+    expect(() => tamperedHistory.readHistory('career-1'))
+      .toThrow('corrupt official WBC history');
+    tamperedHistory.close();
     knockout.close();
     store.close();
     const reopened = openSqliteWbcFinalsGroupStore(path, sources);
