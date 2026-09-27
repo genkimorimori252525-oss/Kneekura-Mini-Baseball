@@ -13,6 +13,10 @@ import type { OfficialGameResult } from
 import type { PostseasonMatchSource } from './PostseasonResultsFromMatches';
 import { openSqliteWbcFinalsGroupStore } from
   './SqliteWbcFinalsGroupStore';
+import { openSqliteWbcFinalsKnockoutStore } from
+  './SqliteWbcFinalsKnockoutStore';
+import type { WbcKnockoutEdition, WbcKnockoutGame } from
+  '../../core/world/competition/WbcFinalsKnockout';
 
 const { DatabaseSync }: typeof import('node:sqlite') =
   createRequire(import.meta.url)('node:sqlite');
@@ -98,6 +102,76 @@ it('freezes six WBC pools and replays 36 official Match finals', () => {
     });
     const outcome = store.finalize('career-1', edition.editionId)!;
     expect(outcome.roundOf16NationIds).toHaveLength(16);
+    const knockoutEdition: WbcKnockoutEdition = {
+      competitionId: edition.competitionId,
+      editionId: edition.editionId,
+      canonicalRole: 'NATIONAL_WORLD_CHAMPIONSHIP',
+      qualificationSnapshotId: edition.qualificationSnapshotId,
+      groupDrawSnapshotId: edition.drawSnapshotId,
+      ruleProfileVersion: edition.ruleProfileVersion,
+      gamePolicyVersion: edition.gamePolicyVersion,
+      knockoutPolicyVersion: 'wbc-knockout-v1',
+      hostNationId: 'US',
+      roundOf16Pairs: Array.from({ length: 8 }, (_, index) =>
+        [index * 2, index * 2 + 1] as const),
+      knockoutHubs: [{ cityId: 'us-hub-a', venueId: 'hub-a' },
+        { cityId: 'us-hub-b', venueId: 'hub-b' }],
+      roundOf16HubIndices: [0, 1, 0, 1, 0, 1, 0, 1],
+      quarterfinalHubIndices: [0, 1, 0, 1],
+      finalFourHost: { cityId: 'us-final-city',
+        venueId: 'us-final-venue' },
+    };
+    const knockout = openSqliteWbcFinalsKnockoutStore(path,
+      { groups: store, matches });
+    const knockoutPlan = knockout.initialize({
+      careerId: 'career-1', edition: knockoutEdition });
+    expect(knockoutPlan.roundOf16Games).toHaveLength(8);
+    expect(knockout.quarterfinalGames('career-1',
+      edition.editionId)).toBeNull();
+    const putKnockout = (game: WbcKnockoutGame,
+      index: number): void => {
+      const result: OfficialGameResult = {
+        gameId: game.gameId, seasonId: edition.editionId,
+        homeClubId: game.homeNationId,
+        awayClubId: game.awayNationId,
+        homeRuns: 3, awayRuns: 1,
+        winnerClubId: game.homeNationId,
+        completionReason: 'BOTTOM_COMPLETE',
+        ruleProfileId: asRuleProfileId(edition.ruleProfileVersion),
+        gamePolicyVersion: edition.gamePolicyVersion,
+        closureId: `knockout-closure-${index}`,
+        applicationId: `knockout-application-${index}`,
+        durableRevision: 1,
+        venueBinding: { gameId: game.gameId,
+          venueId: game.venueId,
+          fixtureEventId: `knockout-fixture-${index}`,
+          fixtureRevision: 1 },
+        lineScore: { innings: [{ inning: 1,
+          homeRuns: 3, awayRuns: 1 }], totals: {
+          home: { runs: 3, hits: 0, errors: 0 },
+          away: { runs: 1, hits: 0, errors: 0 } } },
+      };
+      finals.set(game.gameId, result);
+      fixtures.set(game.gameId, result.venueBinding!);
+    };
+    knockoutPlan.roundOf16Games.forEach(putKnockout);
+    const quarters = knockout.quarterfinalGames('career-1',
+      edition.editionId)!;
+    expect(quarters).toHaveLength(4);
+    quarters.forEach((game, index) => putKnockout(game, index + 8));
+    const semis = knockout.semifinalGames('career-1',
+      edition.editionId)!;
+    expect(semis).toHaveLength(2);
+    semis.forEach((game, index) => putKnockout(game, index + 12));
+    const finalGame = knockout.finalGame('career-1',
+      edition.editionId)!;
+    putKnockout(finalGame, 14);
+    const champion = knockout.finalize('career-1',
+      edition.editionId)!;
+    expect(champion.championNationId).toBe(finalGame.homeNationId);
+    expect(knockout.readEvidence('career-1',
+      edition.editionId)?.outcome).toEqual(champion);
+    knockout.close();
     store.close();
     const reopened = openSqliteWbcFinalsGroupStore(path, sources);
     expect(reopened.readEvidence('career-1', edition.editionId)?.outcome)
