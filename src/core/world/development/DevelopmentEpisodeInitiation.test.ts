@@ -124,3 +124,34 @@ it('rejects mismatched identity, future policy and stale appraisal', () => {
   expect(() => assessDevelopmentEpisodeInitiation({ ...input,
     careerDevelopmentSeed: 0 })).toThrow('seed');
 });
+
+it('bounds a ten-year same-motif stream without repetition-based draws', () => {
+  const initial = request();
+  let lastInitiatedDay: number | null = null;
+  let initiated = 0;
+  for (let index = 0; index < 3650; index += 1) {
+    const atDay = 10 + index;
+    const sourceEventId = `promotion-event-${index}`;
+    const episode = { ...initial.episode,
+      episodeId: `career-episode-${index}`,
+      startedAtDay: atDay, effectiveDay: atDay,
+      catalyst: { ...initial.episode.catalyst,
+        occurredAtDay: atDay, sourceEventId },
+      events: [{ ...initial.episode.events[0],
+        eventId: `career-episode-${index}:catalyst`,
+        atDay, sourceEventId }],
+    };
+    const input = { ...initial, episode,
+      prior: { ...initial.prior, atDay },
+      appraisal: { ...initial.appraisal,
+        sourceEventId: `appraisal-${index}`, atDay },
+      priorSameMotifAttempts: index, lastInitiatedDay };
+    const assessment = assessDevelopmentEpisodeInitiation(input);
+    expect(assessDevelopmentEpisodeInitiation(input)).toEqual(assessment);
+    if (assessment.initiated) {
+      initiated += 1;
+      lastInitiatedDay = atDay;
+    }
+  }
+  expect(initiated).toBeLessThan(20);
+});
