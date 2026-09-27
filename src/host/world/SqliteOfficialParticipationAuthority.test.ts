@@ -1,8 +1,10 @@
 import { afterEach, expect, it } from 'vitest';
+import { createRequire } from 'node:module';
 import { mkdtempSync, realpathSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join, sep } from 'node:path';
-import { bootstrap, state, value } from '../../core/world/club/ClubFixtures.test-support';
+import { bootstrap, command, state, value } from '../../core/world/club/ClubFixtures.test-support';
+import { applyClubCommand } from '../../core/world/club/ClubLifecycle';
 import { createClubFromSeed } from '../../core/world/club';
 import { createBaseScheduleSnapshot } from '../../core/world/competition/LeagueSchedule';
 import { captureOfficialStandingsSchedule } from
@@ -19,6 +21,7 @@ import { openSqliteDomesticScheduleStore } from './SqliteDomesticScheduleStore';
 import { openSqliteManagerRosterDecisionStore } from './SqliteManagerRosterDecisionStore';
 import { SqliteOfficialParticipationStore } from './SqliteOfficialParticipationStore';
 import { createDomesticParticipationAuthority } from './SqliteOfficialParticipationAuthority';
+import { appendAcceptedClubEvents } from './SqliteClubEventJournal';
 
 const directories: string[] = [];
 const stores: { close(): void }[] = [];
@@ -150,8 +153,51 @@ const setup = () => {
     careerId: 'career-a', seasonId: 'league-season-1',
     gameId: 'series-a:1',
   });
-  return { world, archive, roster, match, matchPath };
+  return { world, archive, roster, match, matchPath, worldPath };
 };
+
+it('retains participation authority for a pinned past venue after a later stadium change', () => {
+  const { world, archive, roster, match, worldPath } = setup();
+  const before = world.readClub('career-a', 'club-a')!;
+  const changed = applyClubCommand(before.state, {
+    ...command([{ kind: 'REPLACE_STADIUM', stadium: {
+      ...before.state.institutional.stadium,
+      stadiumId: 'stadium-later', geometryRef: 'geometry-later' } }],
+    before.state, 'future-stadium'), effectiveDay: 12,
+  });
+  if (!changed.ok) throw new Error('fixture event was rejected');
+  const Database = (createRequire(import.meta.url)('node:sqlite') as
+    typeof import('node:sqlite')).DatabaseSync;
+  const db = new Database(worldPath);
+  const canonicalJson = (value: unknown): string => JSON.stringify(value,
+    (_key, item: unknown) => item !== null && typeof item === 'object'
+      && !Array.isArray(item)
+      ? Object.fromEntries(Object.entries(item).sort(([a], [b]) =>
+        a < b ? -1 : a > b ? 1 : 0)) : item);
+  db.exec('BEGIN IMMEDIATE');
+  try {
+    appendAcceptedClubEvents(db, before.state, [changed.event], changed.state);
+    db.prepare(`UPDATE world_club_heads SET revision=?, state_json=?
+      WHERE career_id=? AND club_id=? AND revision=?`).run(
+        changed.state.revision, canonicalJson(changed.state),
+        'career-a', 'club-a', before.revision);
+    db.exec('COMMIT');
+  } catch (error) {
+    db.exec('ROLLBACK');
+    throw error;
+  } finally {
+    db.close();
+  }
+  const authority = createDomesticParticipationAuthority({
+    careerId: 'career-a', seasonId: 'league-season-1',
+    world, schedule: archive, roster, match,
+    personLinks: { readAcceptedPlayerPersonLink: () => null },
+  });
+  expect(authority.readGame('series-a:1')).toMatchObject({
+    gameDay: 11, homeClubId: 'club-a',
+    fixtureEventId: match.getOfficialFixture('series-a:1')?.fixtureEventId,
+  });
+});
 
 it('reads real World/Match SQLite heads and binds only an accepted person link', () => {
   const { world, archive, roster, match, matchPath } = setup();
