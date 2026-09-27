@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { createRosterState } from '../../core/world/roster/RosterState';
 import type { RosterState } from '../../core/world/roster/RosterTypes';
@@ -42,7 +43,7 @@ const canonicalJson = (value: unknown): string => JSON.stringify(
     item !== null && typeof item === 'object' && !Array.isArray(item)
       ? Object.fromEntries(Object.entries(item).sort(([a], [b]) =>
         a < b ? -1 : a > b ? 1 : 0)) : item);
-const validSource = (source: AcceptedPlayerIntakeSource | null,
+export const isAcceptedPlayerIntakeSource = (source: AcceptedPlayerIntakeSource | null,
   sourceId: string): source is AcceptedPlayerIntakeSource =>
   source !== null
     && Object.keys(source).sort().join('|') === [
@@ -56,6 +57,17 @@ const validSource = (source: AcceptedPlayerIntakeSource | null,
     && id(source.sourceVersion) && revision(source.acceptedRevision)
     && revision(source.acceptedAtDay)
     && revision(source.rosterRevision);
+
+export const ensurePlayerPersonLinkSchema = (db: DatabaseSync): void => {
+  db.exec(`CREATE TABLE IF NOT EXISTS world_player_person_links (
+    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL,
+    player_id TEXT NOT NULL, person_id TEXT NOT NULL,
+    roster_revision INTEGER NOT NULL CHECK(roster_revision >= 0),
+    accepted_at_day INTEGER NOT NULL CHECK(accepted_at_day >= 0),
+    source_json TEXT NOT NULL,
+    UNIQUE(career_id, player_id), UNIQUE(career_id, person_id)
+  );`);
+};
 
 /** First acceptance requires an intake authority; durable reads need only the stored snapshot. */
 export const openSqlitePlayerPersonLinkStore = (databasePath: string,
@@ -72,14 +84,7 @@ SqlitePlayerPersonLinkStore => {
     typeof import('node:sqlite')).DatabaseSync;
   const db = new Database(databasePath);
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
-  db.exec(`CREATE TABLE IF NOT EXISTS world_player_person_links (
-    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL,
-    player_id TEXT NOT NULL, person_id TEXT NOT NULL,
-    roster_revision INTEGER NOT NULL CHECK(roster_revision >= 0),
-    accepted_at_day INTEGER NOT NULL CHECK(accepted_at_day >= 0),
-    source_json TEXT NOT NULL,
-    UNIQUE(career_id, player_id), UNIQUE(career_id, person_id)
-  );`);
+  ensurePlayerPersonLinkSchema(db);
   const getLink = db.prepare(`SELECT source_id, career_id, player_id,
     person_id, roster_revision, accepted_at_day, source_json
     FROM world_player_person_links WHERE source_id=?`);
@@ -103,7 +108,7 @@ SqlitePlayerPersonLinkStore => {
     }
     const raw = authority.readAcceptedPlayerIntake(sourceId);
     const source = raw === null ? null : cloneInert(raw);
-    if (!validSource(source, sourceId)) {
+    if (!isAcceptedPlayerIntakeSource(source, sourceId)) {
       throw new Error('accepted intake source is absent or invalid');
     }
     return source;
@@ -113,7 +118,7 @@ SqlitePlayerPersonLinkStore => {
     const row = linkRow(sourceId);
     if (!row) return null;
     const stored = JSON.parse(row.source_json) as AcceptedPlayerIntakeSource;
-    if (!validSource(stored, sourceId)
+    if (!isAcceptedPlayerIntakeSource(stored, sourceId)
       || canonicalJson(stored) !== row.source_json
       || row.source_id !== stored.sourceId
       || row.career_id !== stored.careerId
