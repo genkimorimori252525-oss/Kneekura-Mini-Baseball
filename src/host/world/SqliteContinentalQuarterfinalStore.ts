@@ -26,6 +26,8 @@ export type SqliteContinentalQuarterfinalStore = Readonly<{
     ContinentalQuarterfinalPlan;
   readPlan(careerId: string, editionId: string):
     ContinentalQuarterfinalPlan | null;
+  readSource(careerId: string, editionId: string):
+    ContinentalQuarterfinalSource | null;
   finalize(careerId: string, editionId: string):
     ContinentalQuarterfinalOutcome | null;
   readOutcome(careerId: string, editionId: string):
@@ -188,6 +190,14 @@ export const openSqliteContinentalQuarterfinalStore = (
       assertScope(careerId, editionId);
       const stored = row(careerId, editionId);
       return stored ? replay(careerId, editionId, stored).plan : null;
+    },
+    readSource(careerId: string, editionId: string):
+      ContinentalQuarterfinalSource | null {
+      assertScope(careerId, editionId);
+      const stored = row(careerId, editionId);
+      if (!stored) return null;
+      replay(careerId, editionId, stored);
+      return readSource(careerId, editionId);
     },
     finalize(careerId: string, editionId: string):
       ContinentalQuarterfinalOutcome | null {
