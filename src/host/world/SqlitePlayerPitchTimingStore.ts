@@ -38,12 +38,18 @@ export type AcceptedPitchTimingAuthority = Readonly<{
   readAcceptedLearning(sourceId: string):
     AcceptedPitchTimingLearning | null;
 }>;
+export type DurablePitchTimingDevelopmentEvidence = Readonly<{
+  source: PlayerPitchTimingSource;
+  episodes: readonly DevelopmentLearningEpisode[];
+}>;
 export type SqlitePlayerPitchTimingStore = Readonly<{
   initialize(sourceId: string): PlayerPitchTimingSource;
   readHead(careerId: string, playerId: string):
     PlayerPitchTimingSource | null;
   readDevelopmentHistory(careerId: string, playerId: string):
     readonly PlayerDevelopmentHistoryEvent[] | null;
+  readDevelopmentEvidenceAtDay(careerId: string, playerId: string,
+    atDay: number): DurablePitchTimingDevelopmentEvidence | null;
   selectProfile(careerId: string, playerId: string,
     atDay: number): PitchTimingProfile;
   selectProfileAtDay(careerId: string, playerId: string,
@@ -260,6 +266,30 @@ export const openSqlitePlayerPitchTimingStore = (
         .map((row) => (JSON.parse(row.source_json) as
           AcceptedPitchTimingLearning).episode);
       return derivePitchTimingDevelopmentHistory(source, episodes);
+    },
+    readDevelopmentEvidenceAtDay(careerId: string,
+      playerId: string, atDay: number):
+    DurablePitchTimingDevelopmentEvidence | null {
+      if (!id(careerId) || !id(playerId) || !day(atDay)) {
+        throw new Error('invalid historical development evidence scope');
+      }
+      if (!replay(careerId, playerId)) return null;
+      const initial = baseline(careerId, playerId)!;
+      let selected = JSON.parse(initial.initial_json) as
+        PlayerPitchTimingSource;
+      if (selected.createdAtDay > atDay) return null;
+      const episodes: DevelopmentLearningEpisode[] = [];
+      for (const row of getUpdates.all(careerId,
+        playerId) as UpdateRow[]) {
+        const candidate = JSON.parse(row.state_json) as
+          PlayerPitchTimingSource;
+        if (candidate.effectiveDay > atDay) break;
+        selected = candidate;
+        episodes.push((JSON.parse(row.source_json) as
+          AcceptedPitchTimingLearning).episode);
+      }
+      return Object.freeze({ source: selected,
+        episodes: Object.freeze(episodes) });
     },
     selectProfile(careerId: string, playerId: string,
       atDay: number): PitchTimingProfile {
