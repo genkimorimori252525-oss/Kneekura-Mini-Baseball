@@ -11,6 +11,8 @@ import type { CanonicalMatchState } from
 import { state } from '../../core/world/club/ClubFixtures.test-support';
 import { createClubWageScheduleLedger } from
   '../../core/world/club/ClubWageScheduleLedger';
+import type { MatchdayAttendanceFact } from
+  '../../core/world/club/OfficialMatchdayRevenue';
 import { createBaseScheduleSnapshot } from
   '../../core/world/competition/LeagueSchedule';
 import { createCanonicalPlateAppearanceTimeline,
@@ -22,6 +24,8 @@ import { initializeDomesticSeason, prepareDomesticMatch,
   './DomesticSeasonRuntime';
 import { openSqliteDomesticScheduleStore } from
   './SqliteDomesticScheduleStore';
+import { openSqliteMatchdayAttendanceStore } from
+  './SqliteMatchdayAttendanceStore';
 import { openSqliteWorldSettlementStore } from
   './SqliteWorldSettlementStore';
 import { openSqliteOfficialWorldSettlementOutbox } from
@@ -57,7 +61,11 @@ it('initializes the frozen schedule and prepares a source-backed match', () => {
   const match = new SqliteOfficialStateStore(join(directory, 'match.sqlite'));
   const outbox = openSqliteOfficialWorldSettlementOutbox(
     join(directory, 'world.sqlite'));
-  stores.push(world, archive, match, outbox);
+  const accepted = new Map<string, MatchdayAttendanceFact>();
+  const attendance = openSqliteMatchdayAttendanceStore(
+    join(directory, 'world.sqlite'), { world, archive, match },
+    { readAcceptedGateCount: (factId) => accepted.get(factId) ?? null });
+  stores.push(world, archive, match, outbox, attendance);
   const baseSchedule = createBaseScheduleSnapshot({
     seasonId: 'league-season-1', leagueId: 'league-a',
     calendarProfileVersion: 'calendar-v1', generatorVersion: 'generator-v1',
@@ -68,7 +76,7 @@ it('initializes the frozen schedule and prepares a source-backed match', () => {
     series: [{ seriesId: 'series-a', homeClubId: 'club-a',
       awayClubId: 'club-b', startsOnDay: 11, gameCount: 2 }],
   });
-  const storesInput = { world, archive, match, outbox };
+  const storesInput = { world, archive, match, outbox, attendance };
   const eventProfile = { version: 'events-v1', allStarEnabled: false,
     marketWindows: [], rosterExpansionEnabled: false,
     awardSelectionPolicyVersion: 'award-v1' };
@@ -158,6 +166,29 @@ it('initializes the frozen schedule and prepares a source-backed match', () => {
       recognizedMinorUnitsPerAttendee: 5 }, finalizedAtDay: 11 };
   const request = { finalInput, worldInput, expectedSeasonRevision: 0,
     expectedClubRevision: 0 };
+  expect(() => settleDomesticGame(storesInput, request))
+    .toThrow('accepted gate count');
+  expect(() => attendance.accept('gate-1', 'league-season-1'))
+    .toThrow('absent');
+  accepted.set('gate-1', { ...worldInput.attendance,
+    observedAtDay: 12, availableAtDay: 12 });
+  expect(() => attendance.accept('gate-1', 'league-season-1'))
+    .toThrow('scheduled venue or day');
+  accepted.set('gate-1', { ...worldInput.attendance,
+    count: 10001 });
+  expect(() => attendance.accept('gate-1', 'league-season-1'))
+    .toThrow('stadium state');
+  accepted.set('gate-1', worldInput.attendance);
+  expect(attendance.accept('gate-1', 'league-season-1'))
+    .toEqual(worldInput.attendance);
+  accepted.set('gate-2', { ...worldInput.attendance,
+    factId: 'gate-2', sourceEventId: 'turnstile-2' });
+  expect(() => attendance.accept('gate-2', 'league-season-1'))
+    .toThrow();
+  expect(() => settleDomesticGame(storesInput, { ...request,
+    worldInput: { ...worldInput, attendance: {
+      ...worldInput.attendance, count: 121 } } }))
+    .toThrow('accepted gate count');
   expect(() => settleDomesticGame(storesInput, { ...request,
     finalInput: { ...finalInput, game: { ...finalInput.game,
       venueBinding: { ...prepared.fixture.binding,
@@ -166,4 +197,11 @@ it('initializes the frozen schedule and prepares a source-backed match', () => {
   expect(result.world).toMatchObject({ applicationId: 'final-1',
     seasonRevision: 1 });
   expect(settleDomesticGame(storesInput, request)).toEqual(result);
+  attendance.close();
+  const reopened = openSqliteMatchdayAttendanceStore(
+    join(directory, 'world.sqlite'), { world, archive, match });
+  stores.push(reopened);
+  expect(reopened.read('gate-1')).toEqual(worldInput.attendance);
+  expect(reopened.accept('gate-1', 'league-season-1'))
+    .toEqual(worldInput.attendance);
 });

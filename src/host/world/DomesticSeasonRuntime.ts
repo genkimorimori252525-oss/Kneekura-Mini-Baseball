@@ -16,6 +16,8 @@ import type { PersistedMatch,
   SqliteOfficialStateStore } from '../SqliteOfficialStateStore';
 import type { DurableDomesticSchedule,
   SqliteDomesticScheduleStore } from './SqliteDomesticScheduleStore';
+import type { SqliteMatchdayAttendanceStore } from
+  './SqliteMatchdayAttendanceStore';
 import type { DurableOfficialWorldSettlementRequest,
   SqliteOfficialWorldSettlementOutbox } from
   './SqliteOfficialWorldSettlementOutbox';
@@ -89,6 +91,7 @@ export const prepareDomesticMatch = (
 export const settleDomesticGame = (
   stores: DomesticSeasonStores & Readonly<{
     outbox: SqliteOfficialWorldSettlementOutbox;
+    attendance: SqliteMatchdayAttendanceStore;
   }>,
   request: DurableOfficialWorldSettlementRequest,
 ): OfficialWorldSettlementResult => {
@@ -105,6 +108,12 @@ export const settleDomesticGame = (
       captureOfficialStandingsSchedule(archive.baseSchedule,
         archive.revisions))) {
     throw new Error('domestic final lacks its durable schedule or fixture');
+  }
+  const acceptedAttendance = stores.attendance.read(
+    worldInput.attendance.factId);
+  if (!acceptedAttendance
+    || !isDeepStrictEqual(acceptedAttendance, worldInput.attendance)) {
+    throw new Error('domestic final lacks accepted gate count evidence');
   }
   return stores.outbox.submit(request, {
     matchStore: stores.match, worldStore: stores.world });
