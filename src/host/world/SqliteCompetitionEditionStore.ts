@@ -18,6 +18,13 @@ export type SqliteCompetitionEditionStore = Readonly<{
     editionId: string): CompetitionEditionSnapshot | null;
   close(): void;
 }>;
+export type AcceptedEditionQualificationAuthority = Readonly<{
+  readSnapshot(careerId: string, editionId: string): Readonly<{
+    qualificationSnapshotId: string;
+    competitionEditionId: string;
+    participantIds: readonly string[];
+  }> | null;
+}>;
 type EditionRow = { request_json: string; snapshot_json: string };
 type PolicyRow = { policy_json: string };
 type StoredRequest = Readonly<{ profile: CompetitionFormatProfile;
@@ -34,6 +41,7 @@ const canonicalJson = (value: unknown): string => JSON.stringify(
 /** Persist historical edition rules and draw policy without later reinterpretation. */
 export const openSqliteCompetitionEditionStore = (
   databasePath: string,
+  qualificationAuthority?: AcceptedEditionQualificationAuthority,
 ): SqliteCompetitionEditionStore => {
   if (!id(databasePath)) throw new Error('invalid edition database path');
   const sqlite: typeof import('node:sqlite') =
@@ -61,6 +69,19 @@ export const openSqliteCompetitionEditionStore = (
   const policyRow = (careerId: string, version: string):
     PolicyRow | null => (getPolicy.get(careerId, version) as
       PolicyRow | undefined) ?? null;
+  const requireQualification = (careerId: string,
+    input: CompetitionEditionInput): void => {
+    if (!qualificationAuthority) return;
+    const source = qualificationAuthority.readSnapshot(careerId,
+      input.editionId);
+    if (!source || source.competitionEditionId !== input.editionId
+      || source.qualificationSnapshotId
+        !== input.qualificationSnapshotId
+      || canonicalJson(source.participantIds)
+        !== canonicalJson(input.participantIds)) {
+      throw new Error('Edition lacks accepted qualification snapshot');
+    }
+  };
   const parse = (careerId: string, editionId: string,
     row: EditionRow): CompetitionEditionSnapshot => {
     try {
@@ -73,6 +94,7 @@ export const openSqliteCompetitionEditionStore = (
       const policy = JSON.parse(storedPolicy.policy_json) as
         CompetitionDrawPolicy;
       const checkedPolicy = snapshotCompetitionDrawPolicy(policy);
+      requireQualification(careerId, request.input);
       const replayed = createCompetitionEdition(request.profile,
         request.input, { policies: [checkedPolicy] });
       if (request.input.editionId !== editionId
@@ -98,6 +120,7 @@ export const openSqliteCompetitionEditionStore = (
       }
       const profile = cloneInert(rawProfile);
       const input = cloneInert(rawInput);
+      requireQualification(careerId, input);
       const edition = createCompetitionEdition(profile, input,
         registry);
       const policy = snapshotCompetitionDrawPolicy(profile.drawPolicy);

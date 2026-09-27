@@ -92,3 +92,21 @@ it('replays the historical edition after restart and keeps a reformed edition se
     rmSync(target, { recursive: true, force: true });
   }
 });
+
+it('rechecks the accepted qualification authority when an Edition is read', () => {
+  let accepted = { qualificationSnapshotId: 'qualification-2027',
+    competitionEditionId: 'wbc-2027',
+    participantIds: ['nation-jp', 'nation-us'] };
+  const store = openSqliteCompetitionEditionStore(':memory:', {
+    readSnapshot: () => accepted,
+  });
+  try {
+    store.initialize('career-1', profile, input, registry);
+    accepted = { ...accepted,
+      qualificationSnapshotId: 'changed-qualification' };
+    expect(() => store.readEdition('career-1', 'wbc-2027'))
+      .toThrow('corrupt competition edition');
+  } finally {
+    store.close();
+  }
+});
