@@ -33,6 +33,7 @@ export { classifyClosedPlayForOfficialScoring } from './OfficialScoring';
 export type {
   OfficialScoringInput,
   OfficialScoringResult,
+  OfficialFairBallScoringEvidence,
   SupportedOfficialScoringRecord,
 } from './OfficialScoring';
 export { prepareBetweenPlayWorld } from './BetweenPlayWorldReset';

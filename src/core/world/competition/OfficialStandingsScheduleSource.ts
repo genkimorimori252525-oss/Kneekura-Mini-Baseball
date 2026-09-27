@@ -8,7 +8,16 @@ export const captureOfficialStandingsSchedule = (
   revisions: readonly ScheduleRevisionEvent[],
 ): OfficialStandingsSchedule => {
   const reconstructed = createBaseScheduleSnapshot(base);
-  if (JSON.stringify(reconstructed.games) !== JSON.stringify(base.games)
+  if (reconstructed.games.length !== base.games.length
+    || reconstructed.games.some((game, index) => {
+      const stored = base.games[index];
+      return !stored || Object.keys(stored).length !== 5
+        || game.gameId !== stored.gameId
+        || game.seriesId !== stored.seriesId
+        || game.day !== stored.day
+        || game.homeClubId !== stored.homeClubId
+        || game.awayClubId !== stored.awayClubId;
+    })
     || JSON.stringify(reconstructed.revisionEventIds)
       !== JSON.stringify(base.revisionEventIds)) {
     throw new Error('standings base schedule does not match its series');
