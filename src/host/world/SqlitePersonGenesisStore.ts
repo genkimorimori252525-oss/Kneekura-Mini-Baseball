@@ -28,6 +28,7 @@ export type SqlitePersonGenesisStore = Readonly<{
   initializeCareer(input: CareerPersonGenesis): void;
   materialize(sourceId: string): DurablePersonPriors;
   read(sourceId: string): DurablePersonPriors | null;
+  readDevelopmentSeed(careerId: string): number | null;
   close(): void;
 }>;
 
@@ -229,6 +230,21 @@ export const openSqlitePersonGenesisStore = (
       }
     },
     read,
+    readDevelopmentSeed(careerId: string): number | null {
+      if (!id(careerId)) throw new Error('invalid Career development seed scope');
+      const pinned = career(careerId);
+      if (!pinned) return null;
+      if (!day(pinned.initialized_at_day)
+        || !Number.isSafeInteger(pinned.career_seed)
+        || pinned.career_seed <= 0
+        || pinned.career_seed >= UINT32_RANGE
+        || pinned.seed_derivation_version !== PLAYER_PERSON_SEED_VERSION
+        || canonicalJson(JSON.parse(pinned.policies_json))
+          !== pinned.policies_json) {
+        throw new Error('corrupt Career development seed');
+      }
+      return pinned.career_seed;
+    },
     close(): void { if (!closed) { db.close(); closed = true; } },
   });
 };

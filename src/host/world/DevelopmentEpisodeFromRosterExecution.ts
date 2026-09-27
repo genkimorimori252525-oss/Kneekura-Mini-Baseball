@@ -48,5 +48,9 @@ export const startDevelopmentEpisodeFromRosterExecution = (
   }
   return startDevelopmentLearningEpisode(input.episodeId,
     change.before, change.after, change.event, input.playerId,
-    person.priors.catalyst, input.policy);
+    { careerId: person.priors.catalyst.careerId,
+      playerId: person.priors.catalyst.playerId,
+      createdAtDay: person.priors.catalyst.createdAtDay,
+      profileVersion: person.priors.catalyst.profileVersion },
+    input.policy);
 };
