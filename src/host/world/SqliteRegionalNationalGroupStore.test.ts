@@ -17,6 +17,8 @@ import { openSqliteRegionalNationalGroupStore } from
   './SqliteRegionalNationalGroupStore';
 import { openSqliteRegionalNationalKnockoutStore } from
   './SqliteRegionalNationalKnockoutStore';
+import { openSqliteWorldNationalRankingHistoryStore } from
+  './SqliteWorldNationalRankingHistoryStore';
 import { openSqliteNationalQualificationHistoryStore } from
   './SqliteNationalQualificationHistoryStore';
 
@@ -167,6 +169,15 @@ it('replays accepted regional draw and advances only venue-bound Match finals', 
     expect(champion.placement.orderedNationIds).toHaveLength(8);
     expect(knockout.readOutcome('career-1', edition.editionId))
       .toEqual(champion);
+    const ranking = openSqliteWorldNationalRankingHistoryStore(path,
+      { regional: knockout,
+        wbc: { readEvidence: () => null },
+        nations: { readRegion: () => null } });
+    const rankedHistory = ranking.recordRegional('career-1',
+      edition.editionId);
+    expect(rankedHistory.editions).toHaveLength(1);
+    expect(rankedHistory.editions[0].tier).toBe('REGIONAL');
+    ranking.close();
     const qualification = openSqliteNationalQualificationHistoryStore(
       path, { knockouts: knockout });
     qualification.initialize('career-1', {
