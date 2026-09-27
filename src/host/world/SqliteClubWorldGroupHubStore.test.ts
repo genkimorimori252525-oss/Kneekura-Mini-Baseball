@@ -16,6 +16,8 @@ import type { OfficialGameResult } from
 import type { PostseasonMatchSource } from './PostseasonResultsFromMatches';
 import { openSqliteClubWorldGroupHubStore } from
   './SqliteClubWorldGroupHubStore';
+import { openSqliteClubWorldQuarterfinalStore } from
+  './SqliteClubWorldQuarterfinalStore';
 
 const { DatabaseSync }: typeof import('node:sqlite') =
   createRequire(import.meta.url)('node:sqlite');
@@ -128,6 +130,44 @@ it('pins four Club World hubs and replays 72 official Match finals', () => {
       group.qualifierClubIds?.length === 2)).toBe(true);
     expect(store.readResults('career-1', edition.editionId))
       .toHaveLength(72);
+    const quarters = openSqliteClubWorldQuarterfinalStore(path,
+      { groups: store, matches });
+    const quarterPlan = quarters.initialize('career-1', edition.editionId);
+    expect(quarterPlan.games).toHaveLength(4);
+    expect(quarters.finalize('career-1', edition.editionId))
+      .toBeNull();
+    quarterPlan.games.forEach((game, index) => {
+      const result: OfficialGameResult = {
+        gameId: game.gameId, seasonId: edition.editionId,
+        homeClubId: game.homeClubId, awayClubId: game.awayClubId,
+        homeRuns: 2, awayRuns: 1, winnerClubId: game.homeClubId,
+        completionReason: 'BOTTOM_COMPLETE',
+        ruleProfileId: asRuleProfileId('rules-v1'),
+        gamePolicyVersion: 'world-game-v1',
+        closureId: `quarter-closure-${index}`,
+        applicationId: `quarter-application-${index}`,
+        durableRevision: 1,
+        venueBinding: { gameId: game.gameId,
+          venueId: game.neutralVenueId,
+          fixtureEventId: game.fixtureEventId, fixtureRevision: 1 },
+        lineScore: { innings: [{ inning: 1,
+          homeRuns: 2, awayRuns: 1 }], totals: {
+          home: { runs: 2, hits: 0, errors: 0 },
+          away: { runs: 1, hits: 0, errors: 0 } } },
+      };
+      finals.set(game.gameId, result);
+      fixtures.set(game.gameId, result.venueBinding!);
+    });
+    const quarterOutcome = quarters.finalize('career-1',
+      edition.editionId)!;
+    expect(quarterOutcome.winnerClubIds)
+      .toEqual(quarterPlan.games.map((game) => game.homeClubId));
+    quarters.close();
+    const reopenedQuarters = openSqliteClubWorldQuarterfinalStore(path,
+      { groups: store, matches });
+    expect(reopenedQuarters.readOutcome('career-1', edition.editionId))
+      .toEqual(quarterOutcome);
+    reopenedQuarters.close();
     store.close();
     const reopened = openSqliteClubWorldGroupHubStore(path, sources);
     expect(reopened.readOutcome('career-1', edition.editionId))
