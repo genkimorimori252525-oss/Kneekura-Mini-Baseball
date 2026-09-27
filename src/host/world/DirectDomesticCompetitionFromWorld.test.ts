@@ -12,7 +12,8 @@ import { captureOfficialStandingsSchedule } from
   '../../core/world/competition/OfficialStandingsScheduleSource';
 import { projectProvisionalOfficialStandings } from
   '../../core/world/competition/ProvisionalOfficialStandings';
-import { projectDirectDomesticCompetitionFromWorld } from
+import { projectDirectDomesticCompetitionFromWorld,
+  readDurablePostseasonEntries } from
   './DirectDomesticCompetitionFromWorld';
 
 const clubs = Array.from({ length: 12 }, (_, index) => `club-${index + 1}`);
@@ -85,7 +86,7 @@ const stores = {
   },
 };
 const request = { careerId: 'career-1', seasonId: 'season-1',
-  postseasonEntries: [], qualificationPolicyVersion: 'qualification-v1',
+  postseasonPlans: [], qualificationPolicyVersion: 'qualification-v1',
   competitionEditionId: 'continental-2027', berthCount: 2,
   alreadyQualifiedClubIds: [],
   eligibilityByClubId: Object.fromEntries(clubs.map((clubId) =>
@@ -115,4 +116,22 @@ it('refuses advancement before World and each durable Match final agree', () => 
     match: { ...stores.match, getMatch: (gameId: string) =>
       gameId === results[0].gameId ? null : stores.match.getMatch(gameId) } },
   request)).toThrow('durable Match final');
+});
+
+it('takes postseason results only from a contiguous durable Match prefix', () => {
+  const games = results.slice(0, 3);
+  const plans = [{ stage: 'final' as const,
+    plan: { seriesId: 'final-1', seasonId: 'season-1', bestOf: 3,
+      higherSeedClubId: 'club-1', lowerSeedClubId: 'club-2',
+      scheduledGames: games.map((game) => ({ gameId: game.gameId,
+        homeClubId: game.homeClubId, awayClubId: game.awayClubId })) } }];
+  expect(readDurablePostseasonEntries(stores.match, plans)[0].results)
+    .toEqual(games);
+  expect(() => readDurablePostseasonEntries({ ...stores.match,
+    getMatch: (gameId: string) => gameId === games[0].gameId
+      ? null : stores.match.getMatch(gameId) }, plans))
+    .toThrow('skips an earlier game');
+  expect(() => readDurablePostseasonEntries({ ...stores.match,
+    getOfficialFixture: () => null }, plans))
+    .toThrow('durable Match fixture');
 });

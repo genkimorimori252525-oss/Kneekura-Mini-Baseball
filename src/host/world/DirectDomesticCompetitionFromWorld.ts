@@ -15,7 +15,8 @@ type CompletionStores = Parameters<typeof readCompletedDomesticSeason>[0];
 export type DirectDomesticCompetitionRequest = Readonly<{
   careerId: string;
   seasonId: string;
-  postseasonEntries: readonly DomesticPostseasonEntry[];
+  postseasonPlans: readonly Pick<DomesticPostseasonEntry,
+    'stage' | 'plan'>[];
 }> & Pick<DomesticCompetitionSeasonInput,
   'qualificationPolicyVersion' | 'competitionEditionId' | 'berthCount'
   | 'alreadyQualifiedClubIds' | 'eligibilityByClubId'>;
@@ -23,6 +24,34 @@ export type DirectDomesticCompetitionProjection = Readonly<{
   postseason: DomesticPostseasonState;
   snapshot: DomesticCompetitionSeasonSnapshot | null;
 }>;
+
+/** Derive the played prefix from Match; callers cannot supply claimed results. */
+export const readDurablePostseasonEntries = (
+  matchStore: CompletionStores['match'],
+  plans: DirectDomesticCompetitionRequest['postseasonPlans'],
+): readonly DomesticPostseasonEntry[] => Object.freeze(plans.map((entry) => {
+  const results: DomesticPostseasonEntry['results'][number][] = [];
+  let pending = false;
+  for (const game of entry.plan.scheduledGames) {
+    const match = matchStore.getMatch(game.gameId);
+    if (!match?.finalResult) {
+      pending = true;
+      continue;
+    }
+    if (pending) {
+      throw new Error('postseason Match final skips an earlier game');
+    }
+    const fixture = matchStore.getOfficialFixture(game.gameId);
+    if (!fixture || !match.finalResult.venueBinding
+      || !isDeepStrictEqual(fixture,
+        match.finalResult.venueBinding)) {
+      throw new Error('postseason result lacks durable Match fixture');
+    }
+    results.push(match.finalResult);
+  }
+  return Object.freeze({ stage: entry.stage, plan: entry.plan,
+    results: Object.freeze(results) });
+}));
 
 /** Advance only from completed regular-season Match finals and accepted series finals. */
 export const projectDirectDomesticCompetitionFromWorld = (
@@ -46,20 +75,11 @@ export const projectDirectDomesticCompetitionFromWorld = (
     || world.schedule.memberClubIds.length !== profile.clubCount) {
     throw new Error('completed season does not match frozen league profile');
   }
-  for (const entry of input.postseasonEntries) {
-    for (const result of entry.results) {
-      const match = stores.match.getMatch(result.gameId);
-      const fixture = stores.match.getOfficialFixture(result.gameId);
-      if (!match?.finalResult || !fixture || !result.venueBinding
-        || !isDeepStrictEqual(match.finalResult, result)
-        || !isDeepStrictEqual(fixture, result.venueBinding)) {
-        throw new Error('postseason result lacks durable Match final');
-      }
-    }
-  }
+  const entries = readDurablePostseasonEntries(stores.match,
+    input.postseasonPlans);
   const postseason = resolveDomesticPostseason(
     profile.championshipFormat, world.standings.snapshot,
-    input.postseasonEntries);
+    entries);
   const snapshot = postseason.status === 'COMPLETE'
     ? finalizeDomesticCompetitionSeason({
       profile, standings: world.standings.snapshot,
