@@ -157,6 +157,7 @@ it('persists a measured source change and replays it without live authority', ()
   expect(timing.initialize(acceptedBaseline.sourceId).revision).toBe(0);
   expect(timing.readHead('career-a', 'p2')?.profile.quickSpeedFactor)
     .toBe(1.5);
+  expect(timing.readDevelopmentHistory('career-a', 'p2')).toEqual([]);
   expect(timing.selectProfile('career-a', 'p2', 10).quickSpeedFactor)
     .toBe(1.5);
   const changed = timing.apply(evidence.sourceId, 0);
@@ -164,6 +165,15 @@ it('persists a measured source change and replays it without live authority', ()
     profile: { quickSpeedFactor: 2, normalMotionToReleaseUs: 600_000 },
     records: [{ episodeId: 'learning-1',
       changeKind: 'SOURCE_CHANGED' }] });
+  const history = timing.readDevelopmentHistory('career-a', 'p2');
+  expect(history?.map((event) => event.kind)).toEqual([
+    'CATALYST', 'HYPOTHESIS_FORMED', 'CONSOLIDATION_PROGRESS',
+    'SOURCE_STATE_CHANGED',
+  ]);
+  expect(history?.at(-1)).toMatchObject({
+    careerId: 'career-a', playerId: 'p2', episodeId: 'learning-1',
+    occurredAtDay: 15,
+  });
   expect(timing.selectProfile('career-a', 'p2', 15).quickSpeedFactor)
     .toBe(2);
   expect(() => timing.selectProfile('career-a', 'p2', 14))
@@ -176,6 +186,7 @@ it('persists a measured source change and replays it without live authority', ()
   const reopened = openSqlitePlayerPitchTimingStore(path, link);
   stores.push(reopened);
   expect(reopened.readHead('career-a', 'p2')).toEqual(changed);
+  expect(reopened.readDevelopmentHistory('career-a', 'p2')).toEqual(history);
   expect(reopened.apply(evidence.sourceId, 0)).toEqual(changed);
   expect(() => reopened.apply('new-learning', 1)).toThrow('authority');
 });

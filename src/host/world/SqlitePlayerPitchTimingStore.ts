@@ -7,6 +7,9 @@ import { applyConsolidatedPitchTimingEvidence,
   '../../core/world/development/PlayerPitchTimingSource';
 import type { DevelopmentLearningEpisode } from
   '../../core/world/development/DevelopmentLearningEpisode';
+import { derivePitchTimingDevelopmentHistory,
+  type PlayerDevelopmentHistoryEvent } from
+  '../../core/world/development/PlayerDevelopmentHistory';
 import type { DevelopmentPracticeBundle } from
   '../../core/world/development/DevelopmentPracticeExposure';
 import type { PitchTimingProfile } from
@@ -39,6 +42,8 @@ export type SqlitePlayerPitchTimingStore = Readonly<{
   initialize(sourceId: string): PlayerPitchTimingSource;
   readHead(careerId: string, playerId: string):
     PlayerPitchTimingSource | null;
+  readDevelopmentHistory(careerId: string, playerId: string):
+    readonly PlayerDevelopmentHistoryEvent[] | null;
   selectProfile(careerId: string, playerId: string,
     atDay: number): PitchTimingProfile;
   apply(sourceId: string, expectedRevision: number):
@@ -241,6 +246,18 @@ export const openSqlitePlayerPitchTimingStore = (
         throw new Error('invalid pitch timing source scope');
       }
       return replay(careerId, playerId);
+    },
+    readDevelopmentHistory(careerId: string,
+      playerId: string): readonly PlayerDevelopmentHistoryEvent[] | null {
+      if (!id(careerId) || !id(playerId)) {
+        throw new Error('invalid pitch timing development history scope');
+      }
+      const source = replay(careerId, playerId);
+      if (!source) return null;
+      const episodes = (getUpdates.all(careerId, playerId) as UpdateRow[])
+        .map((row) => (JSON.parse(row.source_json) as
+          AcceptedPitchTimingLearning).episode);
+      return derivePitchTimingDevelopmentHistory(source, episodes);
     },
     selectProfile(careerId: string, playerId: string,
       atDay: number): PitchTimingProfile {
