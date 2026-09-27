@@ -13,6 +13,7 @@ import { asRuleProfileId } from '../core/model/RuleProfileRef';
 import { createPlayEndFact } from '../core/rules/PhysicalRuleFacts';
 import { resolveBatBallContact } from '../core/sim/contact/BatBallContact';
 import { createCanonicalPlateAppearanceTimeline, recordBatBallContact,
+  recordCountedPitch,
   recordFairBattedBall, recordLiveBallPlayEnd } from
   '../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 import { SqliteOfficialStateStore,
@@ -233,4 +234,50 @@ it('scores a fair final play after the game-final application is durable', () =>
   expect(saved.record.classification).toBe('fielders_choice');
   expect(scoring.readApplication('scoring-final')).toEqual(saved);
   scoring.close();
+});
+
+it('persists a non-live strikeout from the durable official application without scorer evidence', () => {
+  const path = databasePath();
+  const { officialApplication } = setup({ kind: 'base_hit' });
+  const before = { ...officialApplication.match, strikes: 2 };
+  const timeline = recordCountedPitch(
+    createCanonicalPlateAppearanceTimeline(before, 1000), 1100,
+    { kind: 'swinging_strike' },
+  );
+  let adjudication = createPlayAdjudicationLedger({
+    playId: 7, ruleProfileId: before.ruleProfileId, playEnd: null,
+  });
+  adjudication = recordCorrectRuleSnapshot(adjudication, 0, {
+    eventId: 'strikeout-rule', tick: 1101, snapshotId: 'strikeout-rule',
+    evidenceRevision: 1, ruling: { outsAfter: 1,
+      basesAfter: before.bases, scoredRunnerIds: [] },
+  });
+  adjudication = closeOfficialPlay(adjudication, 1, {
+    eventId: 'strikeout-close', closureId: 'strikeout-closure', tick: 1102,
+  });
+  if ('game' in officialApplication) throw new Error('fixture');
+  const nonLive: PersistOfficialPlayInput = {
+    kind: 'non_live', matchId: 'game-1', applicationId: 'strikeout-1',
+    expectedDurableRevision: 0, match: before, timeline, adjudication,
+    context: { kind: 'strikeout' }, nextStartedAtTick: 1103,
+    worldSetup: officialApplication.worldSetup,
+  };
+  const official = new SqliteOfficialStateStore(path);
+  official.initializeMatch('game-1', before);
+  official.applyAndActivate(nonLive);
+  official.close();
+  const request = { scoringApplicationId: 'score-strikeout',
+    officialApplication: nonLive };
+  const scoring = openSqliteOfficialScoringStore(path);
+  const saved = scoring.apply(request);
+  expect(saved.record).toMatchObject({ classification: 'strikeout',
+    hitsCredited: 0, errorsCharged: 0, runsScored: 0 });
+  scoring.close();
+  const reopened = openSqliteOfficialScoringStore(path);
+  expect(reopened.readApplication('score-strikeout')).toEqual(saved);
+  expect(reopened.apply(request)).toEqual(saved);
+  expect(() => reopened.apply({ ...request,
+    scoringApplicationId: 'score-strikeout-duplicate' }))
+    .toThrow('UNIQUE constraint');
+  reopened.close();
 });
