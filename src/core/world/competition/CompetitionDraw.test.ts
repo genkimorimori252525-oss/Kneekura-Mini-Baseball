@@ -2,6 +2,29 @@ import { expect, it } from 'vitest';
 import { drawCompetitionGroups, EMPTY_COMPETITION_DRAW_POLICY_REGISTRY,
   registerCompetitionDrawPolicy } from './CompetitionDraw';
 
+it('preserves the accepted six-group seeded draw after candidate evaluation caching', () => {
+  const policy = { version: 'wbc-test-draw-v1', relaxationOrder: [
+    'REMATCH_AVOIDANCE', 'SAME_LEAGUE_AVOIDANCE', 'REGIONAL_DIVERSITY'] as const };
+  const input = { editionId: 'wbc-2032', profile: { drawPolicyVersion: policy.version, drawPolicy: policy },
+    drawSeed: 'seed-wbc', groupCount: 6,
+    participants: Array.from({ length: 24 }, (_, index) => ({ teamId: `nation-${index}`,
+      pot: Math.floor(index / 6) + 1, leagueId: JSON.stringify(['national-team', `nation-${index}`]),
+      regionId: ['ASIA_PACIFIC', 'AMERICAS', 'EUROPE', 'AFRICA'][index % 4] })),
+    rematchPairs: [] };
+  const result = drawCompetitionGroups(input, registerCompetitionDrawPolicy(
+    EMPTY_COMPETITION_DRAW_POLICY_REGISTRY, policy));
+  // Captured from the original canonical algorithm, before the caching change.
+  expect(result.groups.map((group) => group.map((team) => team.teamId))).toEqual([
+    ['nation-3', 'nation-8', 'nation-17', 'nation-22'],
+    ['nation-2', 'nation-11', 'nation-12', 'nation-21'],
+    ['nation-1', 'nation-6', 'nation-15', 'nation-20'],
+    ['nation-0', 'nation-7', 'nation-13', 'nation-18'],
+    ['nation-5', 'nation-10', 'nation-16', 'nation-19'],
+    ['nation-4', 'nation-9', 'nation-14', 'nation-23'],
+  ]);
+  expect(result.softViolationCounts).toEqual({ sameLeague: 0, sameRegion: 0, rematch: 0 });
+});
+
 it('keeps hard pot integrity and deterministically relaxes impossible soft constraints', () => {
   const participants = Array.from({ length: 8 }, (_, index) => ({
     teamId: `team-${index}`, pot: Math.floor(index / 4) + 1,

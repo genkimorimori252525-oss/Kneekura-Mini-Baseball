@@ -11,6 +11,7 @@ import type { OfficialGameResult } from
 import { readDurableOfficialGameResult,
   type PostseasonMatchSource } from './PostseasonResultsFromMatches';
 import type { SqliteNationalCompetitionSelectionStore } from './SqliteNationalCompetitionSelectionStore';
+import type { SqliteNationalCompetitionDrawStore } from './SqliteNationalCompetitionDrawStore';
 
 export type WbcFinalsGroupRequest = Readonly<{
   careerId: string;
@@ -55,6 +56,7 @@ export const openSqliteWbcFinalsGroupStore = (
       editionId: string): WbcBerthAllocation | null }>;
     matches: PostseasonMatchSource;
     selections?: Pick<SqliteNationalCompetitionSelectionStore, 'readSelection'>;
+    draws?: Pick<SqliteNationalCompetitionDrawStore, 'readDraw'>;
   }>,
 ): SqliteWbcFinalsGroupStore => {
   if (!id(databasePath)) {
@@ -90,8 +92,19 @@ export const openSqliteWbcFinalsGroupStore = (
     return allocation;
   };
   const projectPlan = (request: WbcFinalsGroupRequest):
-    WbcFinalsGroupPlan =>
-    planWbcFinalsGroups(request.edition, berths(request));
+    WbcFinalsGroupPlan => {
+    if (sources.draws) {
+      const draw = sources.draws.readDraw(request.careerId, request.edition.editionId);
+      if (!draw || draw.draw.editionId !== request.edition.editionId
+        || draw.drawSnapshotId !== request.edition.drawSnapshotId
+        || draw.draw.drawPolicyVersion !== request.edition.drawPolicyVersion
+        || canonicalJson(draw.draw.groups.map((group) => group.map((participant) => participant.teamId)))
+          !== canonicalJson(request.edition.groups.map((group) => group.nationIds))) {
+        throw new Error('WBC finals differ from accepted draw');
+      }
+    }
+    return planWbcFinalsGroups(request.edition, berths(request));
+  };
   const readFinals = (plan: WbcFinalsGroupPlan):
     readonly OfficialGameResult[] | null => {
     const results = plan.groups.flatMap((group) =>
