@@ -17,6 +17,15 @@ This records implementation evidence, not approval of another design.
   Two groups of six produce 30 games; the top two from each group advance
   to cross-group semifinals, a bronze game and a final. All 34 results feed
   national ranking history and later ranking snapshots.
+- National selection snapshots bind one WBC/Premier12 edition per frozen World
+  reservation to its actual calendar window and cutoff. They pin the career
+  calendar origin, including leap-year conversion. The Premier12 integration
+  consumes this real SQLite authority and rejects any different cutoff day
+  even when a valid ranking for that alternative day exists.
+- A historical WBC edition read replays that edition's source. Coefficient
+  reads and cutoff authority replay only the requested/eligible sources,
+  preventing later WBC qualification from recursively becoming a dependency
+  of its own earlier coefficient inputs.
 - A ranking snapshot replays official history through its own cutoff.
   Later tournaments cannot become dependencies of their earlier selection
   rankings. Premier12 validates the cutoff before reading that ranking and
@@ -30,16 +39,15 @@ repeated application, reopened stores, cutoff drift, fixture mismatch and saved
 outcome corruption. Its Match source provides synthetic official result and
 fixture records; it does not execute the physical Match engine.
 
-The full verification suite passed 483 files / 3,026 tests. The final ordering
-of the cutoff check was additionally verified with targeted tests and typecheck.
+The full verification suite passed 485 files / 3,028 tests. The final comparison
+of the saved cutoff day was additionally verified with targeted tests and typecheck.
 
 ## Remaining implementation boundaries
 
-- Persist and generate national edition cutoff/calendar/draw/hosting sources
+- Generate remaining national draw/hosting and accepted participation sources
   from accepted career and world-cycle state.
 - Connect complete national lifecycles to the durable Match pipeline and
-  actual career scheduler; complete WBC historical coefficient source replay
-  across multiple editions.
+  actual career scheduler and initialize historical WBC sources for new careers.
 - Continue other approved career/development/manager/economic integration
   and whole-match, long-career, performance and population verification.
 - Design, UI, art and presentation integration remain outside this work.

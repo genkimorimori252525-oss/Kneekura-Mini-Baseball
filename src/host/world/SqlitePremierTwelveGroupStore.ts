@@ -9,6 +9,8 @@ import type { OfficialGameResult } from
   '../../core/world/competition/OfficialGameCompletion';
 import type { SqliteWorldNationalRankingSnapshotStore } from
   './SqliteWorldNationalRankingSnapshotStore';
+import type { SqliteNationalCompetitionSelectionStore } from
+  './SqliteNationalCompetitionSelectionStore';
 import { readDurableOfficialGameResult,
   type PostseasonMatchSource } from './PostseasonResultsFromMatches';
 
@@ -52,6 +54,7 @@ export const openSqlitePremierTwelveGroupStore = (
   sources: Readonly<{
     rankings: Pick<SqliteWorldNationalRankingSnapshotStore, 'authority'>;
     editionCutoff: PremierTwelveAuthority['editionCutoff'];
+    selections?: Pick<SqliteNationalCompetitionSelectionStore, 'readSelection'>;
     matches: PostseasonMatchSource;
   }>,
 ): SqlitePremierTwelveGroupStore => {
@@ -74,12 +77,35 @@ export const openSqlitePremierTwelveGroupStore = (
     (get.get(careerId, editionId) as Row | undefined) ?? null;
   const authority = (request: PremierTwelveGroupRequest):
     PremierTwelveAuthority => Object.freeze({
-    editionCutoff: sources.editionCutoff,
+    editionCutoff: (editionId: string) => {
+      const cutoff = sources.editionCutoff(editionId);
+      if (sources.selections) {
+        const selection = sources.selections.readSelection(request.careerId, editionId);
+        if (!selection || canonicalJson(cutoff)
+          !== canonicalJson(selection.qualificationCutoff)) {
+          throw new Error('Premier12 cutoff differs from accepted World selection');
+        }
+      }
+      return cutoff;
+    },
     ...sources.rankings.authority(request.careerId),
   });
   const projectPlan = (request: PremierTwelveGroupRequest):
-    PremierTwelveGroupPlan =>
-    planPremierTwelveGroups(request.edition, authority(request));
+    PremierTwelveGroupPlan => {
+    if (sources.selections) {
+      const selection = sources.selections.readSelection(request.careerId,
+        request.edition.editionId);
+      if (!selection || selection.editionId !== request.edition.editionId
+        || selection.kind !== 'PREMIER_12'
+        || selection.qualificationCutoff.snapshotId
+          !== request.edition.qualificationCutoffSnapshotId
+        || canonicalJson(selection.calendarWindow)
+          !== canonicalJson(request.edition.calendarWindow)) {
+        throw new Error('Premier12 edition requires matching accepted World selection');
+      }
+    }
+    return planPremierTwelveGroups(request.edition, authority(request));
+  };
   const readFinals = (plan: PremierTwelveGroupPlan):
     readonly OfficialGameResult[] | null => {
     const results = plan.groups.flatMap((group) =>
