@@ -4,11 +4,17 @@ import type { ClubWorldRegion } from
   '../../core/world/competition/ClubWorldBerths';
 import { createNationalQualificationHistory,
   latestRegionalNationalPlacement,
+  latestWbcQualifierPodWinner, recordWbcGlobalQualifier,
   recordRegionalNationalChampionship,
   type NationalQualificationHistory } from
   '../../core/world/competition/NationalQualificationHistory';
-import type { WbcRegionalPlacement } from
+import type { WbcQualifierPodWinner,
+  WbcRegionalPlacement } from
   '../../core/world/competition/WbcBerths';
+import type { SqliteWbcGlobalQualifierPodStore } from
+  './SqliteWbcGlobalQualifierPodStore';
+import type { SqliteWbcQualifierSelectionStore } from
+  './SqliteWbcQualifierSelectionStore';
 import type { SqliteRegionalNationalKnockoutStore } from
   './SqliteRegionalNationalKnockoutStore';
 
@@ -20,10 +26,16 @@ export type SqliteNationalQualificationHistoryStore = Readonly<{
     NationalQualificationHistory;
   recordRegional(careerId: string, region: ClubWorldRegion,
     editionId: string): NationalQualificationHistory;
+  recordQualifier(careerId: string,
+    editionId: string): NationalQualificationHistory;
   readHistory(careerId: string): NationalQualificationHistory | null;
   regionalAuthority(careerId: string): Readonly<{
     regionalChampionship(region: ClubWorldRegion,
       beforeDay: number): WbcRegionalPlacement | null;
+  }>;
+  qualifierAuthority(careerId: string): Readonly<{
+    qualifierPodWinner(podIndex: number,
+      beforeDay: number): WbcQualifierPodWinner | null;
   }>;
   close(): void;
 }>;
@@ -32,6 +44,9 @@ type EventRow = { ordinal: number; request_json: string;
   history_json: string };
 type RegionalRequest = Readonly<{ kind: 'REGIONAL';
   region: ClubWorldRegion; editionId: string }>;
+type QualifierRequest = Readonly<{ kind: 'QUALIFIER';
+  editionId: string }>;
+type Request = RegionalRequest | QualifierRequest;
 const id = (value: unknown): value is string =>
   typeof value === 'string' && value.length > 0
   && value === value.trim();
@@ -47,6 +62,10 @@ export const openSqliteNationalQualificationHistoryStore = (
   sources: Readonly<{
     knockouts: Pick<SqliteRegionalNationalKnockoutStore,
       'readEvidence'>;
+    qualifiers?: Pick<SqliteWbcGlobalQualifierPodStore,
+      'readEvidence'>;
+    selections?: Pick<SqliteWbcQualifierSelectionStore,
+      'readSelection'>;
   }>,
 ): SqliteNationalQualificationHistoryStore => {
   if (!id(databasePath)) {
@@ -76,7 +95,23 @@ export const openSqliteNationalQualificationHistoryStore = (
   const events = (careerId: string): EventRow[] =>
     getEvents.all(careerId) as EventRow[];
   const project = (careerId: string, history: NationalQualificationHistory,
-    request: RegionalRequest): NationalQualificationHistory => {
+    request: Request): NationalQualificationHistory => {
+    if (request.kind === 'QUALIFIER') {
+      const evidence = sources.qualifiers?.readEvidence(careerId,
+        request.editionId);
+      const selection = sources.selections?.readSelection(careerId,
+        request.editionId);
+      if (!evidence || !selection) {
+        throw new Error('national qualification lacks official WBC qualifier');
+      }
+      if (evidence.edition.editionId !== request.editionId
+        || selection.qualifierEditionId !== request.editionId) {
+        throw new Error('national qualification WBC qualifier edition mismatch');
+      }
+      return recordWbcGlobalQualifier(history, evidence.edition,
+        selection, evidence.semifinalResults,
+        evidence.finalResults);
+    }
     const evidence = sources.knockouts.readEvidence(careerId,
       request.editionId);
     if (!evidence || evidence.source.groupEdition.region
@@ -87,7 +122,8 @@ export const openSqliteNationalQualificationHistoryStore = (
       evidence.source, evidence.quarterfinalResults,
       evidence.semifinalResults, evidence.finalResult);
   };
-  const replay = (careerId: string): NationalQualificationHistory | null => {
+  const replay = (careerId: string, includeQualifiers = true):
+    NationalQualificationHistory | null => {
     const stored = head(careerId);
     if (!stored) return null;
     try {
@@ -100,16 +136,28 @@ export const openSqliteNationalQualificationHistoryStore = (
       let history = createNationalQualificationHistory(
         competitionIds);
       events(careerId).forEach((row, index) => {
-        const request = JSON.parse(row.request_json) as
-          RegionalRequest;
-        if (row.ordinal !== index || request.kind !== 'REGIONAL'
-          || !REGIONS.includes(request.region)
+        const request = JSON.parse(row.request_json) as Request;
+        if (row.ordinal !== index
+          || (request.kind !== 'QUALIFIER'
+            && (request.kind !== 'REGIONAL'
+              || !REGIONS.includes(request.region)))
           || !id(request.editionId)
           || canonicalJson(request) !== row.request_json) {
           throw new Error('national qualification event order differs');
         }
-        history = project(careerId, history, request);
-        if (canonicalJson(history) !== row.history_json) {
+        // Direct berths depend only on regional results. Reading their
+        // downstream qualifier evidence here would recurse through selection.
+        if (includeQualifiers || request.kind === 'REGIONAL') {
+          history = project(careerId, history, request);
+        }
+        const saved = JSON.parse(row.history_json) as
+          NationalQualificationHistory;
+        if (canonicalJson(saved) !== row.history_json
+          || (includeQualifiers
+            ? canonicalJson(history) !== row.history_json
+            : canonicalJson(saved.regional) !== canonicalJson(history.regional)
+              || canonicalJson(saved.regionalCompetitionIds)
+                !== canonicalJson(history.regionalCompetitionIds))) {
           throw new Error('national qualification replay differs');
         }
       });
@@ -187,6 +235,37 @@ export const openSqliteNationalQualificationHistoryStore = (
         throw error;
       }
     },
+    recordQualifier(careerId: string,
+      editionId: string): NationalQualificationHistory {
+      assertCareer(careerId);
+      if (!id(editionId)) {
+        throw new Error('invalid WBC qualifier qualification request');
+      }
+      db.exec('BEGIN IMMEDIATE');
+      try {
+        const history = replay(careerId);
+        if (!history) throw new Error('national qualification head is missing');
+        const prior = history.qualifiers.find((item) =>
+          item.editionId === editionId);
+        if (prior) {
+          db.exec('COMMIT');
+          return history;
+        }
+        const request: QualifierRequest = { kind: 'QUALIFIER',
+          editionId };
+        const next = project(careerId, history, request);
+        db.prepare(`INSERT INTO world_national_qualification_events
+          (career_id, ordinal, edition_id, request_json, history_json)
+          VALUES (?, ?, ?, ?, ?)`).run(careerId,
+            history.regional.length + history.qualifiers.length,
+            editionId, canonicalJson(request), canonicalJson(next));
+        db.exec('COMMIT');
+        return next;
+      } catch (error) {
+        db.exec('ROLLBACK');
+        throw error;
+      }
+    },
     readHistory(careerId: string): NationalQualificationHistory | null {
       assertCareer(careerId);
       return replay(careerId);
@@ -195,9 +274,19 @@ export const openSqliteNationalQualificationHistoryStore = (
       assertCareer(careerId);
       return Object.freeze({ regionalChampionship: (
         region: ClubWorldRegion, beforeDay: number) => {
-        const history = replay(careerId);
+        const history = replay(careerId, false);
         return history
           ? latestRegionalNationalPlacement(history, region,
+            beforeDay) : null;
+      } });
+    },
+    qualifierAuthority(careerId: string) {
+      assertCareer(careerId);
+      return Object.freeze({ qualifierPodWinner: (
+        podIndex: number, beforeDay: number) => {
+        const history = replay(careerId);
+        return history
+          ? latestWbcQualifierPodWinner(history, podIndex,
             beforeDay) : null;
       } });
     },
