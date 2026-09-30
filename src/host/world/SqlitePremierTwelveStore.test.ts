@@ -24,6 +24,11 @@ import { openSqliteWorldNationalRankingHistoryStore } from
   './SqliteWorldNationalRankingHistoryStore';
 import { openSqliteWorldNationalRankingSnapshotStore } from
   './SqliteWorldNationalRankingSnapshotStore';
+import { openSqliteWorldCompetitionCycleStore } from
+  './SqliteWorldCompetitionCycleStore';
+import { openSqliteNationalCompetitionSelectionStore } from
+  './SqliteNationalCompetitionSelectionStore';
+import { worldCycleInput } from './WorldCompetitionCycleFixtures.test-support';
 import { openSqlitePremierTwelveGroupStore } from
   './SqlitePremierTwelveGroupStore';
 import { openSqlitePremierTwelveFinalFourStore,
@@ -55,7 +60,7 @@ const policy = { version: 'ranking-v1', winPoints: 2, tiePoints: 1,
   tierWeights: { REGIONAL: 1, WBC: 3, PREMIER_12: 2 },
   stageWeights: { GROUP: 1, ROUND_OF_16: 2, QUARTERFINAL: 3,
     SEMIFINAL: 4, BRONZE: 2, FINAL: 5 },
-  recencyBands: [{ maxAgeDays: 100, multiplier: 1 }],
+  recencyBands: [{ maxAgeDays: 2000, multiplier: 1 }],
   tieBreak: 'NATION_ID' as const };
 const registry = registerWorldNationalRankingPolicy(
   EMPTY_WORLD_NATIONAL_RANKING_POLICY_REGISTRY, policy);
@@ -124,6 +129,12 @@ it('replays regional ranking through all 34 Premier12 games and later rankings',
     put(regional.readFinalGame('career-1', regionalEdition.editionId)!,
       regionalEdition.editionId);
     regional.finalize('career-1', regionalEdition.editionId);
+    const cycle = track(openSqliteWorldCompetitionCycleStore(path));
+    cycle.initialize('career-1', worldCycleInput(0));
+    const selections = track(openSqliteNationalCompetitionSelectionStore(path, { cycle }));
+    const selection = selections.initialize({ careerId: 'career-1', editionId: 'premier-2034',
+      cycleOrdinal: 0, kind: 'PREMIER_12', careerDayOne: '2031-01-01', cutoffDay: 1300 });
+    const qualificationDay = selection.qualificationCutoff.day;
     let finalFour: SqlitePremierTwelveFinalFourStore | undefined;
     const history = track(openSqliteWorldNationalRankingHistoryStore(path, {
       regional, wbc: { readEvidence: () => null }, nations: regions,
@@ -134,13 +145,13 @@ it('replays regional ranking through all 34 Premier12 games and later rankings',
     const rankings = track(openSqliteWorldNationalRankingSnapshotStore(path,
       { history }));
     const ranking = rankings.initialize({ careerId: 'career-1',
-      asOfDay: 30, nationIds, policy, registry });
+      asOfDay: qualificationDay, nationIds, policy, registry });
     const edition: PremierTwelveEdition = {
       competitionId: 'premier12', editionId: 'premier-2034',
       canonicalRole: 'PREMIER_12', formatVersion: 'premier-v1',
       ruleProfileVersion: 'rules-v1', gamePolicyVersion: 'games-v1',
       rankingPolicyVersion: policy.version,
-      qualificationCutoffSnapshotId: 'cutoff-2034',
+      qualificationCutoffSnapshotId: selection.qualificationCutoff.snapshotId,
       rankingSnapshotId: ranking.snapshotId, drawSnapshotId: 'premier-draw',
       hostingPolicyVersion: 'premier-hosts-v1',
       tiebreakPolicy: regionalEdition.tiebreakPolicy,
@@ -153,12 +164,25 @@ it('replays regional ranking through all 34 Premier12 games and later rankings',
         venueId: 'medal-venue' },
       groups: [0, 1].map((groupIndex) => ({ groupIndex,
         nationIds: ranking.orderedNationIds.slice(groupIndex * 6, groupIndex * 6 + 6) })),
-      calendarWindow: { startsOnDay: 40, endsOnDay: 55 },
+      calendarWindow: selection.calendarWindow,
     };
-    let cutoff = { snapshotId: 'cutoff-2034', day: 30 };
-    const sources = { rankings, editionCutoff: () => cutoff, matches };
+    let cutoffOverride: typeof selection.qualificationCutoff | undefined;
+    const sources = { rankings, selections, matches,
+      editionCutoff: (editionId: string) => cutoffOverride
+        ?? selections.authority('career-1').editionCutoff(editionId) };
     const groups = track(openSqlitePremierTwelveGroupStore(path, sources));
     const request = { careerId: 'career-1', edition };
+    const earlierRanking = rankings.initialize({ careerId: 'career-1',
+      asOfDay: qualificationDay - 1, nationIds, policy, registry });
+    cutoffOverride = { ...selection.qualificationCutoff, day: qualificationDay - 1 };
+    expect(() => groups.initialize({ ...request, edition: { ...edition,
+      rankingSnapshotId: earlierRanking.snapshotId } }))
+      .toThrow('accepted World selection');
+    cutoffOverride = undefined;
+    expect(() => groups.initialize({ ...request, edition: { ...edition,
+      calendarWindow: { ...edition.calendarWindow,
+        endsOnDay: edition.calendarWindow.endsOnDay + 1 } } }))
+      .toThrow('accepted World selection');
     const plan = groups.initialize(request);
     expect(groups.initialize(request)).toEqual(plan);
     finalFour = track(openSqlitePremierTwelveFinalFourStore(path, { groups, matches }));
@@ -195,9 +219,9 @@ it('replays regional ranking through all 34 Premier12 games and later rankings',
     expect(rankedHistory.editions[1].tier).toBe('PREMIER_12');
     expect(rankedHistory.editions[1].games).toHaveLength(34);
     expect(history.recordPremier('career-1', edition.editionId)).toEqual(rankedHistory);
-    expect(rankings.readRanking('career-1', 30)).toEqual(ranking);
+    expect(rankings.readRanking('career-1', qualificationDay)).toEqual(ranking);
     const laterRanking = rankings.initialize({ careerId: 'career-1',
-      asOfDay: 55, nationIds, policy, registry });
+      asOfDay: edition.calendarWindow.endsOnDay, nationIds, policy, registry });
     expect(laterRanking.evidenceResultIds).toHaveLength(49);
     expect(history.readHistory('career-1')).toEqual(rankedHistory);
     finalFour.close();
@@ -206,17 +230,16 @@ it('replays regional ranking through all 34 Premier12 games and later rankings',
     expect(finalFour.readOutcome('career-1', edition.editionId)).toEqual(outcome);
     expect(() => reopenedGroups.initialize({ ...request,
       edition: { ...edition, drawSnapshotId: 'changed' } })).toThrow('frozen differently');
-    cutoff = { ...cutoff, day: 29 };
+    cutoffOverride = { ...selection.qualificationCutoff, day: qualificationDay - 1 };
     expect(() => finalFour!.readOutcome('career-1', edition.editionId)).toThrow('corrupt');
-    cutoff = { ...cutoff, day: 30 };
-    cutoff = { ...cutoff, day: 55 };
+    cutoffOverride = { ...selection.qualificationCutoff, day: edition.calendarWindow.endsOnDay };
     expect(() => reopenedGroups.readPlan('career-1', edition.editionId))
       .toThrow('corrupt');
-    cutoff = { ...cutoff, day: 30 };
+    cutoffOverride = undefined;
     const binding = fixtures.get(medals.finalGame.gameId)!;
     fixtures.set(medals.finalGame.gameId, { ...binding, venueId: 'wrong' });
     expect(() => history.readHistory('career-1')).toThrow('corrupt');
-    expect(rankings.readRanking('career-1', 30)).toEqual(ranking);
+    expect(rankings.readRanking('career-1', qualificationDay)).toEqual(ranking);
     fixtures.set(medals.finalGame.gameId, binding);
     const db = new DatabaseSync(path);
     db.prepare("UPDATE world_premier_twelve_final_four SET outcome_json='{}'").run();
