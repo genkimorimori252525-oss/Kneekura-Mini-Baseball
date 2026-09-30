@@ -64,11 +64,17 @@ export const openSqliteOfficialWbcHistoryStore = (
       (nationId) => sources.regions.readRegion(careerId,
         nationId, completedAtDay));
   };
-  const replay = (careerId: string): OfficialWbcWorldEdition[] => {
+  const replay = (careerId: string,
+    onlyEditionId?: string): OfficialWbcWorldEdition[] => {
     try {
-      return rows(careerId).map((row, index) => {
+      return rows(careerId).flatMap((row, index) => {
         if (row.ordinal !== index || !id(row.edition_id)) {
           throw new Error('WBC edition history order differs');
+        }
+        // A later edition can qualify using this historical source.
+        // Never traverse its dependent results while reading one ancestor.
+        if (onlyEditionId !== undefined && row.edition_id !== onlyEditionId) {
+          return [];
         }
         const saved = JSON.parse(row.snapshot_json) as
           OfficialWbcWorldEdition;
@@ -77,7 +83,7 @@ export const openSqliteOfficialWbcHistoryStore = (
           || canonicalJson(official) !== row.snapshot_json) {
           throw new Error('official WBC edition replay differs');
         }
-        return official;
+        return [official];
       });
     } catch (cause) {
       throw new Error(`corrupt official WBC history for ${careerId}`,
@@ -126,7 +132,7 @@ export const openSqliteOfficialWbcHistoryStore = (
       editionId: string): OfficialWbcWorldEdition | null {
       assertCareer(careerId);
       if (!id(editionId)) throw new Error('invalid official WBC edition');
-      return replay(careerId).find((item) =>
+      return replay(careerId, editionId).find((item) =>
         item.editionId === editionId) ?? null;
     },
     readHistory(careerId: string):
