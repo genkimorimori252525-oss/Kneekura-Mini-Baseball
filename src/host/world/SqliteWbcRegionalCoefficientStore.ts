@@ -78,25 +78,34 @@ export const openSqliteWbcRegionalCoefficientStore = (
     return buildWbcRegionalCoefficients(older, newer,
       request.policy, request.registry);
   };
-  const replay = (careerId: string): Readonly<{
+  const replay = (careerId: string, beforeDay = Number.MAX_SAFE_INTEGER,
+    onlyEditionId?: string): Readonly<{
     request: WbcCoefficientRequest;
     coefficients: readonly WbcRegionalCoefficient[];
   }>[] => {
     try {
-      return rows(careerId).map((row) => {
+      return rows(careerId).flatMap((row) => {
         const request = JSON.parse(row.request_json) as
           WbcCoefficientRequest;
         const saved = JSON.parse(row.coefficients_json) as
           WbcRegionalCoefficient[];
-        const coefficients = project(request);
         if (request.careerId !== careerId
           || request.newerEditionId !== row.newer_edition_id
           || canonicalJson(request) !== row.request_json
           || canonicalJson(saved) !== row.coefficients_json
-          || canonicalJson(coefficients) !== row.coefficients_json) {
+          || !Array.isArray(saved) || saved.length !== 4
+          || saved.some((item, index) => item.region !== REGIONS[index]
+            || !Number.isSafeInteger(item.completedAtDay) || item.completedAtDay < 0
+            || item.completedAtDay !== saved[0].completedAtDay)) {
           throw new Error('WBC regional coefficient replay differs');
         }
-        return Object.freeze({ request, coefficients });
+        if ((onlyEditionId !== undefined && row.newer_edition_id !== onlyEditionId)
+          || saved[0].completedAtDay > beforeDay) return [];
+        const coefficients = project(request);
+        if (canonicalJson(coefficients) !== row.coefficients_json) {
+          throw new Error('WBC regional coefficient replay differs');
+        }
+        return [Object.freeze({ request, coefficients })];
       });
     } catch (cause) {
       throw new Error(`corrupt WBC coefficients for ${careerId}`,
@@ -124,7 +133,8 @@ export const openSqliteWbcRegionalCoefficientStore = (
         const stored = rows(request.careerId).find((item) =>
           item.newer_edition_id === request.newerEditionId);
         if (stored) {
-          const prior = replay(request.careerId).find((item) =>
+          const prior = replay(request.careerId, Number.MAX_SAFE_INTEGER,
+            request.newerEditionId).find((item) =>
             item.request.newerEditionId === request.newerEditionId)!;
           if (stored.request_json !== canonicalJson(request)) {
             throw new Error('WBC coefficient source is frozen differently');
@@ -150,7 +160,7 @@ export const openSqliteWbcRegionalCoefficientStore = (
       if (!id(newerEditionId)) {
         throw new Error('invalid WBC coefficient edition');
       }
-      return replay(careerId).find((item) =>
+      return replay(careerId, Number.MAX_SAFE_INTEGER, newerEditionId).find((item) =>
         item.request.newerEditionId === newerEditionId)
         ?.coefficients ?? null;
     },
@@ -162,7 +172,7 @@ export const openSqliteWbcRegionalCoefficientStore = (
           || !Number.isSafeInteger(beforeDay) || beforeDay < 0) {
           throw new Error('invalid WBC coefficient cutoff');
         }
-        const eligible = replay(careerId).flatMap((item) =>
+        const eligible = replay(careerId, beforeDay).flatMap((item) =>
           item.coefficients.filter((coefficient) =>
             coefficient.region === region
             && coefficient.completedAtDay <= beforeDay))
