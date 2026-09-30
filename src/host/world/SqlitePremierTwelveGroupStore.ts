@@ -27,6 +27,7 @@ export type PremierTwelveGroupEvidence = Readonly<{
 }>;
 export type SqlitePremierTwelveGroupStore = Readonly<{
   initialize(request: PremierTwelveGroupRequest): PremierTwelveGroupPlan;
+  readEdition(careerId: string, editionId: string): PremierTwelveEdition | null;
   readPlan(careerId: string,
     editionId: string): PremierTwelveGroupPlan | null;
   finalize(careerId: string,
@@ -191,6 +192,11 @@ export const openSqlitePremierTwelveGroupStore = (
         db.exec('ROLLBACK');
         throw error;
       }
+    },
+    readEdition(careerId: string, editionId: string): PremierTwelveEdition | null {
+      assertScope(careerId, editionId);
+      const stored = row(careerId, editionId);
+      return stored ? replay(careerId, editionId, stored).request.edition : null;
     },
     readPlan(careerId: string, editionId: string):
       PremierTwelveGroupPlan | null {
