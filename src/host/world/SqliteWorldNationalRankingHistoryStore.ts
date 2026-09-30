@@ -14,6 +14,8 @@ import type { SqliteWbcFinalsKnockoutStore } from
   './SqliteWbcFinalsKnockoutStore';
 import type { SqlitePremierTwelveFinalFourStore } from
   './SqlitePremierTwelveFinalFourStore';
+import type { RegionalNationalEdition } from '../../core/world/competition/RegionalNationalGroups';
+import { createCompetitionSourceReader, withCompetitionSourceReadScope, withCompetitionSourceReadPhase } from './CompetitionSourceReadScope';
 
 type Kind = 'REGIONAL' | 'WBC' | 'PREMIER_12';
 type EventRow = { ordinal: number; kind: Kind;
@@ -39,6 +41,7 @@ export type SqliteWorldNationalRankingHistoryStore = Readonly<{
     editionId: string): WorldNationalRankingHistory;
   readHistory(careerId: string,
     beforeDay?: number): WorldNationalRankingHistory;
+  readRegionalEdition(careerId: string, editionId: string, beforeDay: number): RegionalNationalEdition | null;
   close(): void;
 }>;
 
@@ -56,6 +59,7 @@ export const openSqliteWorldNationalRankingHistoryStore = (
   if (!id(databasePath)) {
     throw new Error('invalid world national ranking database path');
   }
+  const readRegional = createCompetitionSourceReader(sources.regional.readEvidence, sources.regional);
   const sqlite: typeof import('node:sqlite') =
     createRequire(import.meta.url)('node:sqlite');
   const db = new sqlite.DatabaseSync(databasePath);
@@ -76,8 +80,7 @@ export const openSqliteWorldNationalRankingHistoryStore = (
     history: WorldNationalRankingHistory, kind: Kind,
     editionId: string): WorldNationalRankingHistory => {
     if (kind === 'REGIONAL') {
-      const evidence = sources.regional.readEvidence(careerId,
-        editionId);
+      const evidence = readRegional(careerId, editionId);
       if (!evidence) {
         throw new Error('ranking requires official regional final');
       }
@@ -149,7 +152,7 @@ export const openSqliteWorldNationalRankingHistoryStore = (
     }
   };
   const record = (careerId: string, kind: Kind,
-    editionId: string): WorldNationalRankingHistory => {
+    editionId: string): WorldNationalRankingHistory => withCompetitionSourceReadPhase(() => {
     assertCareer(careerId);
     if (!id(editionId)) {
       throw new Error('invalid national ranking edition');
@@ -177,7 +180,7 @@ export const openSqliteWorldNationalRankingHistoryStore = (
       db.exec('ROLLBACK');
       throw error;
     }
-  };
+  });
   return Object.freeze({
     recordRegional(careerId: string,
       editionId: string): WorldNationalRankingHistory {
@@ -196,6 +199,20 @@ export const openSqliteWorldNationalRankingHistoryStore = (
       assertCareer(careerId);
       if (!day(beforeDay)) throw new Error('invalid national ranking cutoff');
       return replay(careerId, beforeDay);
+    },
+    readRegionalEdition(careerId: string, editionId: string, beforeDay: number): RegionalNationalEdition | null {
+      return withCompetitionSourceReadScope(() => {
+        assertCareer(careerId);
+        if (!id(editionId) || !day(beforeDay)) throw new Error('invalid regional ranking Edition scope');
+        const accepted = replay(careerId, beforeDay).editions.find((entry) => entry.editionId === editionId && entry.tier === 'REGIONAL');
+        if (!accepted) return null;
+        const evidence = readRegional(careerId, editionId);
+        const edition = evidence?.source.groupEdition;
+        if (!edition || edition.editionId !== editionId || edition.calendarWindow.endsOnDay !== accepted.completedAtDay) {
+          throw new Error('regional ranking lacks accepted official Edition');
+        }
+        return edition;
+      });
     },
     close(): void {
       if (!closed) db.close();
