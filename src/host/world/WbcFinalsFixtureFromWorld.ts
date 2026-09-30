@@ -1,3 +1,4 @@
+import { withCompetitionSourceReadScope } from './CompetitionSourceReadScope';
 import { isDeepStrictEqual } from 'node:util';
 import type { OfficialGameVenueBinding } from '../../core/world/competition/OfficialGameCompletion';
 import type { WbcFinalsGroupEdition, WbcFinalsGroupGame } from '../../core/world/competition/WbcFinalsGroups';
@@ -24,7 +25,7 @@ export const registerWbcFinalsFixtureFromWorld = (
     matches: Pick<SqliteOfficialStateStore, 'registerOfficialFixture'>;
   }>,
   input: Readonly<{ careerId: string; editionId: string; gameId: string; gameDay: number }>,
-): WbcFinalsFixture => {
+): WbcFinalsFixture => withCompetitionSourceReadScope(() => {
   const edition = stores.groups.readEdition(input.careerId, input.editionId);
   const plan = stores.groups.readPlan(input.careerId, input.editionId);
   const schedule = stores.schedules.readSchedule(input.careerId, input.editionId);
@@ -74,4 +75,4 @@ export const registerWbcFinalsFixtureFromWorld = (
       schedule.policy.minimumOffDaysBetweenRounds, slot.stage, slot.roundIndex, slot.venueGameOrdinal]),
   });
   return Object.freeze({ edition, game, gameDay: input.gameDay, binding });
-};
+});

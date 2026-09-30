@@ -1,3 +1,4 @@
+import { createCompetitionSourceReader } from './CompetitionSourceReadScope';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { PremierTwelveAuthority,
@@ -48,6 +49,7 @@ export const openSqliteWorldNationalRankingSnapshotStore = (
   if (!id(databasePath)) {
     throw new Error('invalid world national ranking database path');
   }
+  const readHistory = createCompetitionSourceReader<[string, number], ReturnType<typeof sources.history.readHistory>>(sources.history.readHistory, sources.history);
   const sqlite: typeof import('node:sqlite') =
     createRequire(import.meta.url)('node:sqlite');
   const db = new sqlite.DatabaseSync(databasePath);
@@ -64,7 +66,7 @@ export const openSqliteWorldNationalRankingSnapshotStore = (
     (get.get(careerId, asOfDay) as Row | undefined) ?? null;
   const project = (request: WorldNationalRankingRequest):
     PremierTwelveRanking => buildWorldNationalRanking(
-      sources.history.readHistory(request.careerId, request.asOfDay),
+      readHistory(request.careerId, request.asOfDay),
       request.asOfDay, request.nationIds, request.policy,
       request.registry);
   const replay = (careerId: string, asOfDay: number,

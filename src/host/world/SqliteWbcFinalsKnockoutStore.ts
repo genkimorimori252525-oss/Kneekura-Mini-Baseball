@@ -1,3 +1,4 @@
+import { createCompetitionSourceReader, withCompetitionSourceReadScope } from './CompetitionSourceReadScope';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { finalizeWbcKnockout, planWbcFinal,
@@ -69,6 +70,8 @@ export const openSqliteWbcFinalsKnockoutStore = (
   if (!id(databasePath)) {
     throw new Error('invalid WBC knockout database path');
   }
+  const readEvidence = createCompetitionSourceReader(sources.groups.readEvidence, sources.groups);
+  const readWbcKnockoutEdition = sources.editions ? createCompetitionSourceReader(sources.editions.readWbcKnockoutEdition, sources.editions) : undefined;
   const sqlite: typeof import('node:sqlite') =
     createRequire(import.meta.url)('node:sqlite');
   const db = new sqlite.DatabaseSync(databasePath);
@@ -86,12 +89,12 @@ export const openSqliteWbcFinalsKnockoutStore = (
   const source = (request: WbcFinalsKnockoutRequest):
     WbcKnockoutSource => {
     if (sources.editions) {
-      const edition = sources.editions.readWbcKnockoutEdition(request.careerId, request.edition.editionId);
+      const edition = readWbcKnockoutEdition!(request.careerId, request.edition.editionId);
       if (!edition || canonicalJson(edition) !== canonicalJson(request.edition)) {
         throw new Error('WBC knockout differs from accepted national edition');
       }
     }
-    const evidence = sources.groups.readEvidence(request.careerId,
+    const evidence = readEvidence(request.careerId,
       request.edition.editionId);
     if (!evidence) {
       throw new Error('WBC knockout requires finalized groups');
@@ -232,29 +235,39 @@ export const openSqliteWbcFinalsKnockoutStore = (
       }
     },
     readEdition(careerId: string, editionId: string): WbcKnockoutEdition | null {
-      return read(careerId, editionId)?.request.edition ?? null;
+      return withCompetitionSourceReadScope(() => {
+        return read(careerId, editionId)?.request.edition ?? null;
+      });
     },
     readPlan(careerId: string, editionId: string):
       WbcKnockoutPlan | null {
-      return read(careerId, editionId)?.plan ?? null;
+      return withCompetitionSourceReadScope(() => {
+        return read(careerId, editionId)?.plan ?? null;
+      });
     },
     quarterfinalGames(careerId: string, editionId: string):
       readonly WbcKnockoutGame[] | null {
-      const prior = read(careerId, editionId);
-      return prior ? stages(prior.request,
-        prior.plan).quarterfinalGames : null;
+      return withCompetitionSourceReadScope(() => {
+        const prior = read(careerId, editionId);
+        return prior ? stages(prior.request,
+          prior.plan).quarterfinalGames : null;
+      });
     },
     semifinalGames(careerId: string, editionId: string):
       readonly WbcKnockoutGame[] | null {
-      const prior = read(careerId, editionId);
-      return prior ? stages(prior.request,
-        prior.plan).semifinalGames : null;
+      return withCompetitionSourceReadScope(() => {
+        const prior = read(careerId, editionId);
+        return prior ? stages(prior.request,
+          prior.plan).semifinalGames : null;
+      });
     },
     finalGame(careerId: string, editionId: string):
       WbcKnockoutGame | null {
-      const prior = read(careerId, editionId);
-      return prior ? stages(prior.request,
-        prior.plan).finalGame : null;
+      return withCompetitionSourceReadScope(() => {
+        const prior = read(careerId, editionId);
+        return prior ? stages(prior.request,
+          prior.plan).finalGame : null;
+      });
     },
     finalize(careerId: string, editionId: string):
       WbcKnockoutOutcome | null {
@@ -283,22 +296,26 @@ export const openSqliteWbcFinalsKnockoutStore = (
     },
     readOutcome(careerId: string, editionId: string):
       WbcKnockoutOutcome | null {
-      return read(careerId, editionId)?.outcome ?? null;
+      return withCompetitionSourceReadScope(() => {
+        return read(careerId, editionId)?.outcome ?? null;
+      });
     },
     readEvidence(careerId: string, editionId: string):
       WbcFinalsKnockoutEvidence | null {
-      const prior = read(careerId, editionId);
-      if (!prior?.outcome) return null;
-      const stage = stages(prior.request, prior.plan);
-      if (!stage.roundOf16Results || !stage.quarterfinalResults
-        || !stage.semifinalResults || !stage.finalResult) {
-        throw new Error('WBC knockout evidence lost Match finals');
-      }
-      return Object.freeze({ source: stage.source, plan: prior.plan,
-        roundOf16Results: stage.roundOf16Results,
-        quarterfinalResults: stage.quarterfinalResults,
-        semifinalResults: stage.semifinalResults,
-        finalResult: stage.finalResult, outcome: prior.outcome });
+      return withCompetitionSourceReadScope(() => {
+        const prior = read(careerId, editionId);
+        if (!prior?.outcome) return null;
+        const stage = stages(prior.request, prior.plan);
+        if (!stage.roundOf16Results || !stage.quarterfinalResults
+          || !stage.semifinalResults || !stage.finalResult) {
+          throw new Error('WBC knockout evidence lost Match finals');
+        }
+        return Object.freeze({ source: stage.source, plan: prior.plan,
+          roundOf16Results: stage.roundOf16Results,
+          quarterfinalResults: stage.quarterfinalResults,
+          semifinalResults: stage.semifinalResults,
+          finalResult: stage.finalResult, outcome: prior.outcome });
+      });
     },
     close(): void {
       if (!closed) db.close();

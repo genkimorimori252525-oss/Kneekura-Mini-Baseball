@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { createCompetitionSourceReader, withCompetitionSourceReadScope } from './CompetitionSourceReadScope';
+import { createCompetitionSourceReader, withCompetitionSourceReadScope, withCompetitionSourceReadPhase } from './CompetitionSourceReadScope';
 import { openSqliteNationCompetitionRegionStore } from './SqliteNationCompetitionRegionStore';
 
 it('reuses identical Native source reads only within one synchronous operation', () => {
@@ -72,6 +72,28 @@ it('retries failed Native reads in the same active scope', () => {
       expect(() => read('career-1', 'nation-1', -1)).toThrow('invalid');
       expect(() => read('career-1', 'nation-1', -1)).toThrow('invalid');
       expect(reads).toBe(2);
+    });
+  } finally { nations.close(); }
+});
+
+it('starts fresh writer phases and invalidates parent proofs even when a phase fails', () => {
+  const nations = openSqliteNationCompetitionRegionStore(':memory:');
+  const read = createCompetitionSourceReader(nations.readRegion, nations);
+  try {
+    withCompetitionSourceReadScope(() => {
+      expect(read('career-1', 'nation-1', 10)).toBeNull();
+      withCompetitionSourceReadPhase(() => {
+        nations.record({ careerId: 'career-1', nationId: 'nation-1', region: 'EUROPE',
+          effectiveFromDay: 0, sourceEventId: 'initial' });
+        expect(read('career-1', 'nation-1', 10)).toBe('EUROPE');
+      });
+      expect(read('career-1', 'nation-1', 10)).toBe('EUROPE');
+      expect(() => withCompetitionSourceReadPhase(() => {
+        nations.record({ careerId: 'career-1', nationId: 'nation-1', region: 'AMERICAS',
+          effectiveFromDay: 10, sourceEventId: 'changed' });
+        throw new Error('interrupted after write');
+      })).toThrow('interrupted after write');
+      expect(read('career-1', 'nation-1', 10)).toBe('AMERICAS');
     });
   } finally { nations.close(); }
 });

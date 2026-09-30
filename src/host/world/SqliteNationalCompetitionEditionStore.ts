@@ -1,3 +1,4 @@
+import { createCompetitionSourceReader, withCompetitionSourceReadScope } from './CompetitionSourceReadScope';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { selectNationalCompetitionHosts,
@@ -70,6 +71,8 @@ export const openSqliteNationalCompetitionEditionStore = (
   databasePath: string, sources: NationalCompetitionEditionSources,
 ): SqliteNationalCompetitionEditionStore => {
   if (!id(databasePath)) throw new Error('invalid national edition database path');
+  const readDraw = createCompetitionSourceReader(sources.draws.readDraw, sources.draws);
+  const readCandidates = createCompetitionSourceReader(sources.hosts.readCandidates, sources.hosts);
   const sqlite: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
   const db = new sqlite.DatabaseSync(databasePath);
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
@@ -90,14 +93,14 @@ export const openSqliteNationalCompetitionEditionStore = (
         profile.gamePolicyVersion, profile.hostingPolicyVersion].every(id)) {
       throw new Error('invalid national edition request');
     }
-    const draw = sources.draws.readDraw(request.careerId, request.editionId);
+    const draw = readDraw(request.careerId, request.editionId);
     if (!draw || draw.draw.editionId !== request.editionId
       || draw.source.selection.editionId !== request.editionId
       || draw.source.selection.kind !== profile.kind) {
       throw new Error('national edition requires accepted draw and World selection');
     }
     const selection = draw.source.selection;
-    const rawCandidates = sources.hosts.readCandidates(request.careerId, request.editionId,
+    const rawCandidates = readCandidates(request.careerId, request.editionId,
       selection.qualificationCutoff.day);
     if (!rawCandidates || !id(rawCandidates.snapshotId)
       || rawCandidates.asOfDay !== selection.qualificationCutoff.day
@@ -174,11 +177,11 @@ export const openSqliteNationalCompetitionEditionStore = (
     } catch (cause) { throw new Error(`corrupt national competition edition for ${careerId}`, { cause }); }
   };
   let closed = false;
-  const readSnapshot = (careerId: string, editionId: string): DurableNationalCompetitionEdition | null => {
+  const readSnapshot = createCompetitionSourceReader((careerId: string, editionId: string): DurableNationalCompetitionEdition | null => {
     if (closed || !id(careerId) || !id(editionId)) throw new Error('invalid national edition Career scope');
     const stored = row(careerId, editionId);
-    return stored ? parse(careerId, editionId, stored) : null;
-  };
+    return withCompetitionSourceReadScope(() => stored ? parse(careerId, editionId, stored) : null);
+  });
   return Object.freeze({
     initialize(rawRequest: NationalCompetitionEditionRequest): DurableNationalCompetitionEdition {
       if (closed) throw new Error('national edition store is closed');

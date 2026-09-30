@@ -10,6 +10,13 @@ export const withCompetitionSourceReadScope = <T>(read: () => T): T => {
   try { return read(); } finally { currentScope = null; }
 };
 
+/** A writer phase must not consume or leave proof reads from before its commits. */
+export const withCompetitionSourceReadPhase = <T>(phase: () => T): T => {
+  const parent = currentScope;
+  currentScope = new Map();
+  try { return phase(); } finally { parent?.clear(); currentScope = parent; }
+};
+
 /** Native competition readers use identifier/day arguments and immutable source results. */
 export const createCompetitionSourceReader = <Args extends readonly (string | number)[], T>(
   reader: (...args: Args) => T,
