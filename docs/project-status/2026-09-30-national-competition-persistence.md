@@ -8,6 +8,15 @@ This records implementation evidence, not approval of another design.
 
 - Regional national groups and knockout results feed persistent national
   qualification history and world national ranking history.
+- Qualification history and regional/qualifier authorities replay official
+  source callbacks only for editions completed by the requested cutoff.
+  Regional direct-berth reads also exclude qualifier callbacks. Saved journal
+  order, Edition metadata, serialization and eligible projected histories
+  remain checked, including nonchronological insertion. The existing tables
+  and stored request/history formats are preserved. Later saved payloads are
+  still validated; this excludes future source traversal, not future journal
+  corruption. Actual 118 regional and twelve qualifier Match tests cover
+  unavailable future sources, cutoff boundaries and eligible-source rejection.
 - Regional national selections now assign one Edition to each region's frozen
   World reservation and share the career calendar origin with WBC/Premier12.
   The existing selection table retains its old WBC/Premier12 keys and records
@@ -277,6 +286,15 @@ final regression rejects calibration whose known weights are all zero even
 when an unknown extra weight is positive; the complete suite passed after
 that guard. Access facts and calibration remain explicit accepted inputs,
 and this slice does not complete the entire qualification/career lifecycle.
+
+After qualification cutoff replay, final local verification passed 501 files /
+3,058 tests in 103.04 seconds, including catalog verification and type checking.
+Independent review found incomplete saved-payload structure checking. Actual
+Match regressions reproduced malformed future winners/result IDs and an extra
+root field; explicit saved structure and append-prefix guards repaired them.
+The final suite passed after that repair. Cutoff replay skips later source
+callbacks while checking their saved serialization, structure and journal
+prefix; it does not re-adjudicate future physical evidence at an earlier date.
 
 - Initialize production World facility/catalog evidence and generate
   regional/qualifier draw and accepted participation sources

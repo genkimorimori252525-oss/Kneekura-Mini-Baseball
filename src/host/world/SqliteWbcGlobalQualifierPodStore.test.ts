@@ -174,3 +174,61 @@ it('advances four qualifier pods only after durable official finals', () => {
     rmSync(directory, { recursive: true, force: true });
   }
 });
+
+it('reads eligible qualifier results even when a later completion was recorded first', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'wbc-history-prefix-'));
+  const path = join(directory, 'world.sqlite');
+  const finals = new Map<string, OfficialGameResult>();
+  const accepted = new Map<string, WbcQualifierSelection>();
+  const pods = openSqliteWbcGlobalQualifierPodStore(':memory:', {
+    selection: { readSelection: (_careerId, editionId) => accepted.get(editionId) ?? null },
+    matches: { getMatch: (gameId: string) => {
+      const finalResult = finals.get(gameId);
+      return finalResult ? { finalResult } : null;
+    }, getOfficialFixture: (gameId: string) => finals.get(gameId)?.venueBinding ?? null } as PostseasonMatchSource,
+  });
+  let laterSourceUnavailable = false;
+  const history = openSqliteNationalQualificationHistoryStore(path, {
+    knockouts: { readEvidence: () => null },
+    qualifiers: { readEvidence: (careerId, editionId) => {
+      if (laterSourceUnavailable && editionId === 'later') throw new Error('future source traversed');
+      return pods.readEvidence(careerId, editionId);
+    } }, selections: { readSelection: (_careerId, editionId) => accepted.get(editionId) ?? null },
+  });
+  try {
+    history.initialize('career-1', { ASIA_PACIFIC: 'regional-ap', AMERICAS: 'regional-am',
+      EUROPE: 'regional-eu', AFRICA: 'regional-af' });
+    for (const [editionId, completedAtDay] of [['later', 50], ['earlier', 30]] as const) {
+      const input = { ...edition, editionId,
+        calendarWindow: { startsOnDay: completedAtDay - 10, endsOnDay: completedAtDay } };
+      accepted.set(editionId, { ...selection, qualifierEditionId: editionId });
+      const plan = pods.initialize({ careerId: 'career-1', edition: input });
+      const put = (game: WbcQualifierGame, index: number): void => {
+        const original = result(game, index);
+        finals.set(game.gameId, { ...original, seasonId: editionId,
+          closureId: `${editionId}-closure-${index}`, applicationId: `${editionId}-application-${index}`,
+          venueBinding: { ...original.venueBinding!, fixtureEventId: `${editionId}-fixture-${index}` } });
+      };
+      plan.pods.flatMap((pod) => pod.semifinals).forEach(put);
+      pods.finalGames('career-1', editionId)!.forEach((game, index) => put(game, index + 8));
+      pods.finalize('career-1', editionId);
+      history.recordQualifier('career-1', editionId);
+    }
+    laterSourceUnavailable = true;
+    const eligible = history.readHistory('career-1', 30)!;
+    expect(eligible.qualifiers.map((item) => item.editionId)).toEqual(['earlier']);
+    expect(history.qualifierAuthority('career-1').qualifierPodWinner(0, 30)?.qualifierEditionId)
+      .toBe('earlier');
+    expect(() => history.readHistory('career-1', 50)).toThrow('corrupt');
+    const db = new DatabaseSync(path);
+    try {
+      const row = db.prepare('SELECT history_json FROM world_national_qualification_events WHERE ordinal=1').get()!;
+      const original = row.history_json as string;
+      const changed = JSON.parse(original);
+      changed.qualifiers[0].rankingSnapshotId = 'changed-prior-prefix';
+      db.prepare('UPDATE world_national_qualification_events SET history_json=? WHERE ordinal=1')
+        .run(JSON.stringify(changed));
+      expect(() => history.readHistory('career-1', 30)).toThrow('corrupt');
+    } finally { db.close(); }
+  } finally { history.close(); pods.close(); rmSync(directory, { recursive: true, force: true }); }
+});

@@ -129,6 +129,42 @@ it('plays twelve scheduled official Match games and preserves pending rounds thr
       EUROPE: 'regional-eu', AFRICA: 'regional-af' });
     const history = qualification.recordQualifier('career-1', edition.editionId);
     expect(history.qualifiers[0].winners).toEqual(outcome.winners);
+    let futureSourceUnavailable = true;
+    const cutoffHistory = track(openSqliteNationalQualificationHistoryStore(path,
+      { knockouts: { readEvidence: () => null },
+        qualifiers: { readEvidence: (careerId, editionId) => {
+          if (futureSourceUnavailable) throw new Error('later qualifier depends on an earlier cutoff');
+          return pods.readEvidence(careerId, editionId);
+        } }, selections: sources.selection }));
+    // An earlier berth read must not traverse the later qualifier's source.
+    expect(cutoffHistory.qualifierAuthority('career-1').qualifierPodWinner(0, 49)).toBeNull();
+    expect(cutoffHistory.readHistory('career-1', 49)?.qualifiers).toEqual([]);
+    expect(() => cutoffHistory.qualifierAuthority('career-1').qualifierPodWinner(0, 50)).toThrow('corrupt');
+    expect(() => cutoffHistory.readHistory('career-1')).toThrow('corrupt');
+    expect(() => cutoffHistory.qualifierAuthority('career-1').qualifierPodWinner(0, -1)).toThrow('invalid');
+    futureSourceUnavailable = false;
+    expect(cutoffHistory.qualifierAuthority('career-1').qualifierPodWinner(0, 50)).toEqual(outcome.winners[0]);
+    expect(cutoffHistory.readHistory('career-1', 50)).toEqual(history);
+    const { DatabaseSync: HistoryDatabase }: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
+    const historyDb = new HistoryDatabase(path);
+    const savedRow = historyDb.prepare('SELECT history_json FROM world_national_qualification_events').get()!;
+    const originalHistory = savedRow.history_json as string;
+    try {
+      futureSourceUnavailable = true;
+      for (const field of ['winners', 'resultApplicationIds']) {
+        const damaged = JSON.parse(originalHistory);
+        damaged.qualifiers[0][field] = null;
+        historyDb.prepare('UPDATE world_national_qualification_events SET history_json=?').run(JSON.stringify(damaged));
+        expect(() => cutoffHistory.readHistory('career-1', 49)).toThrow('corrupt');
+      }
+      futureSourceUnavailable = false;
+      const extra = { ...JSON.parse(originalHistory), zzUnexpected: true };
+      historyDb.prepare('UPDATE world_national_qualification_events SET history_json=?').run(JSON.stringify(extra));
+      expect(() => cutoffHistory.readHistory('career-1')).toThrow('corrupt');
+    } finally {
+      historyDb.prepare('UPDATE world_national_qualification_events SET history_json=?').run(originalHistory);
+      historyDb.close();
+    }
     qualification.close(); reopen();
     expect(pods.readOutcome('career-1', edition.editionId)).toEqual(outcome);
     const alternate = track(openSqliteWbcGlobalQualifierPodStore(':memory:', sources));
