@@ -10,6 +10,11 @@ import { EMPTY_WBC_BERTH_POLICY_REGISTRY,
   '../../core/world/competition/WbcBerths';
 import { openSqliteWbcDirectBerthStore } from
   './SqliteWbcDirectBerthStore';
+import { openSqliteWbcBerthStore } from './SqliteWbcBerthStore';
+import { openSqliteWbcFinalsGroupStore } from
+  './SqliteWbcFinalsGroupStore';
+import type { WbcFinalsGroupEdition } from
+  '../../core/world/competition/WbcFinalsGroups';
 import { openSqliteWbcQualifierSelectionStore } from
   './SqliteWbcQualifierSelectionStore';
 import { EMPTY_WBC_QUALIFIER_SELECTION_POLICY_REGISTRY,
@@ -110,6 +115,76 @@ it('freezes twenty WBC direct slots from regional titles and coefficients', () =
     expect(selection.entrants.every((entrant) =>
       !direct.entrantNationIds.includes(entrant.nationId)))
       .toBe(true);
+    let winnersAvailable = false;
+    const berthSources = { ...sources, direct: store,
+      qualifiers: { qualifierAuthority: () => ({
+        qualifierPodWinner: (podIndex: number) => {
+          const entrant = selection.entrants[podIndex];
+          return winnersAvailable && entrant ? {
+            podIndex, qualifierEditionId: input.qualifierEditionId,
+            nationId: entrant.nationId, region: entrant.region,
+            officialFinalApplicationId: `qualifier-final-${podIndex}`,
+            finalizedDay: 95 } : null;
+        },
+      }) } };
+    const berths = openSqliteWbcBerthStore(path, berthSources);
+    expect(() => berths.initialize({ careerId: 'career-1', input }))
+      .toThrow('Global Qualifier');
+    winnersAvailable = true;
+    const allocation = berths.initialize({ careerId: 'career-1', input });
+    expect(allocation.entrantNationIds).toHaveLength(24);
+    expect(allocation.entrantNationIds.slice(0, 20))
+      .toEqual(direct.entrantNationIds);
+    expect(allocation.slots.slice(20).map((slot) => slot.nationId))
+      .toEqual(selection.entrants.slice(0, 4).map((entrant) =>
+        entrant.nationId));
+    expect(berths.initialize({ careerId: 'career-1', input }))
+      .toEqual(allocation);
+    const groupEdition: WbcFinalsGroupEdition = {
+      competitionId: 'wbc', editionId: input.editionId,
+      canonicalRole: 'NATIONAL_WORLD_CHAMPIONSHIP',
+      formatVersion: 'wbc-24-v1', ruleProfileVersion: 'wbc-rules-v1',
+      gamePolicyVersion: 'wbc-game-v1',
+      hostingPolicyVersion: 'us-six-pools-v1',
+      drawPolicyVersion: 'wbc-draw-v1', drawSnapshotId: 'draw-2032',
+      qualificationSnapshotId: allocation.qualificationSnapshotId,
+      hostNationId: 'US',
+      calendarWindow: { startsOnDay: 110, endsOnDay: 140 },
+      groupTiebreakPolicy: { version: 'wbc-groups-v1',
+        tieCreditNumerator: 0, tieCreditDenominator: 1,
+        runDifferentialCapPerGame: 5 },
+      thirdPlacePolicy: { version: 'wbc-third-v1',
+        criteria: ['WINS', 'CAPPED_RUN_DIFFERENTIAL', 'RUNS_AGAINST'],
+        drawSeed: 'third-place-2032' },
+      groups: Array.from({ length: 6 }, (_, groupIndex) => ({ groupIndex,
+        hostCityId: `us-city-${groupIndex}`,
+        hostVenueId: `us-venue-${groupIndex}`,
+        nationIds: allocation.entrantNationIds.slice(groupIndex * 4,
+          groupIndex * 4 + 4) })),
+    };
+    const groups = openSqliteWbcFinalsGroupStore(path, { berths,
+      matches: { getMatch: () => null, getOfficialFixture: () => null } });
+    expect(groups.initialize({ careerId: 'career-1', edition: groupEdition })
+      .groups.flatMap((group) => group.nationIds))
+      .toEqual(allocation.entrantNationIds);
+    groups.close();
+    berths.close();
+    const reopenedBerths = openSqliteWbcBerthStore(path, berthSources);
+    expect(reopenedBerths.readAllocation('career-1', input.editionId))
+      .toEqual(allocation);
+    winnersAvailable = false;
+    expect(() => reopenedBerths.readAllocation('career-1', input.editionId))
+      .toThrow('corrupt WBC berth allocation');
+    winnersAvailable = true;
+    reopenedBerths.close();
+    const berthDatabase = new DatabaseSync(path);
+    berthDatabase.prepare(`UPDATE world_wbc_berths
+      SET allocation_json='{}' WHERE career_id='career-1'`).run();
+    berthDatabase.close();
+    const tamperedBerths = openSqliteWbcBerthStore(path, berthSources);
+    expect(() => tamperedBerths.readAllocation('career-1', input.editionId))
+      .toThrow('corrupt WBC berth allocation');
+    tamperedBerths.close();
     expect(() => selectionStore.initialize({ ...selectionRequest,
       eligibility: { ...selectionRequest.eligibility,
         snapshotId: 'changed' } })).toThrow('frozen differently');
