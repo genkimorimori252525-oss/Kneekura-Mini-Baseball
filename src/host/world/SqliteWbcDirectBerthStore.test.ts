@@ -193,10 +193,13 @@ it('freezes twenty WBC direct slots from regional titles and coefficients', () =
       selectionSources);
     expect(reopenedSelection.readSelection('career-1',
       input.qualifierEditionId)).toEqual(selection);
+    expect(reopenedSelection.readRequest('career-1', input.qualifierEditionId)).toEqual(selectionRequest);
+    expect(Object.isFrozen(reopenedSelection.readRequest('career-1', input.qualifierEditionId)!.eligibility)).toBe(true);
     rankingChanged = true;
     expect(() => reopenedSelection.readSelection('career-1',
       input.qualifierEditionId))
       .toThrow('corrupt WBC qualifier selection');
+    expect(() => reopenedSelection.readRequest('career-1', input.qualifierEditionId)).toThrow('corrupt');
     rankingChanged = false;
     reopenedSelection.close();
     store.close();

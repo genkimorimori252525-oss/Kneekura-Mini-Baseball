@@ -27,6 +27,7 @@ export type SqliteWbcQualifierSelectionStore = Readonly<{
     WbcQualifierSelection;
   readSelection(careerId: string,
     qualifierEditionId: string): WbcQualifierSelection | null;
+  readRequest(careerId: string, qualifierEditionId: string): WbcQualifierSelectionRequest | null;
   close(): void;
 }>;
 type Row = { request_json: string; selection_json: string };
@@ -41,6 +42,10 @@ const canonicalJson = (value: unknown): string => JSON.stringify(
     item !== null && typeof item === 'object' && !Array.isArray(item)
       ? Object.fromEntries(Object.entries(item).sort(([left], [right]) =>
         left < right ? -1 : left > right ? 1 : 0)) : item);
+const freeze = <T>(value: T): T => {
+  if (value !== null && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); }
+  return value;
+};
 
 /** Freeze sixteen entrants from direct berths and cutoff ranking. */
 export const openSqliteWbcQualifierSelectionStore = (
@@ -158,6 +163,13 @@ export const openSqliteWbcQualifierSelectionStore = (
       const stored = row(careerId, qualifierEditionId);
       return stored ? replay(careerId, qualifierEditionId, stored)
         : null;
+    },
+    readRequest(careerId: string, qualifierEditionId: string): WbcQualifierSelectionRequest | null {
+      assertScope(careerId, qualifierEditionId);
+      const stored = row(careerId, qualifierEditionId);
+      if (!stored) return null;
+      replay(careerId, qualifierEditionId, stored);
+      return freeze(JSON.parse(stored.request_json) as WbcQualifierSelectionRequest);
     },
     close(): void {
       if (!closed) db.close();
