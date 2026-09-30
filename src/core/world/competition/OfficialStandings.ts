@@ -184,12 +184,9 @@ const rankStandingRows = (
   });
 };
 
-/** Full-season ranking consumes only final results matched to scheduled games. */
-export const buildOfficialStandings = (
-  schedule: OfficialStandingsSchedule,
-  results: readonly OfficialGameResult[],
+export const assertStandingsTiebreakPolicy = (
   policy: StandingsTiebreakPolicy,
-): OfficialStandingsSnapshot => {
+): void => {
   if (
     !policy.version
     || !Number.isSafeInteger(policy.tieCreditNumerator)
@@ -200,6 +197,15 @@ export const buildOfficialStandings = (
     || !Number.isSafeInteger(policy.runDifferentialCapPerGame)
     || policy.runDifferentialCapPerGame < 0
   ) throw new Error('invalid versioned standings tiebreak policy');
+};
+
+/** Full-season ranking consumes only final results matched to scheduled games. */
+export const buildOfficialStandings = (
+  schedule: OfficialStandingsSchedule,
+  results: readonly OfficialGameResult[],
+  policy: StandingsTiebreakPolicy,
+): OfficialStandingsSnapshot => {
+  assertStandingsTiebreakPolicy(policy);
   if (results.length !== schedule.games.length) {
     throw new Error('standings require complete official game results');
   }

@@ -56,11 +56,21 @@ This records implementation evidence, not approval of another design.
   policy, including the explicit rematch lookback, is immutable per career
   version. Connected group stores reject different draws or WBC draw-policy
   versions. Ranking/region inputs never change player ability or affiliation.
+- National Edition assembly now consumes that accepted draw and a cutoff
+  host-candidate snapshot. WBC selects six distinct US pool cities, two to
+  four US knockout hubs and one US final city; Premier12 selects two distinct
+  group cities and a medal city within their one or two host nations.
+  Feasibility checks preserve later city slots and the medal host while
+  retaining the existing per-slot suitability/rotation score ordering.
+  The durable owner generates group/knockout identities and freezes the
+  complete draw, candidate source, host evaluations and versioned rules.
+  Connected group/knockout stores reject different Edition metadata.
 
 ## Verification boundaries
 
 The Premier12 integration test connects real SQLite World cycle, national
-selection, regional, ranking, draw, group, final-four, Match and history stores.
+selection, regional, ranking, draw, national Edition, group, final-four,
+Match and history stores.
 It covers partial-round restarts, missing finals, repeated application,
 reopened stores, cutoff drift, fixture mismatch and saved outcome corruption.
 All 49 games (15 regional + 34 Premier12) begin at zero score and play through
@@ -91,6 +101,14 @@ matches the original algorithm for the captured seeded case. Local timings
 were 58.435 seconds before and 1.889 seconds after, not a general throughput
 guarantee.
 
+The national Edition tests reopen saved sources and reject changed candidate
+provenance even when the winning hosts are identical. They also reject
+unaccepted group/medal venues and knockout policy versions. Candidate
+eligibility and calibrated suitability/rotation scores are explicit accepted
+fixtures in these tests. Production infrastructure/history projection into
+those candidate snapshots remains subsequent work; the Edition owner does
+not claim to generate that evidence or apply ability buffs/host berths.
+
 The full verification suite passed 486 files / 3,030 tests after Premier12
 schedule integration; P0 run `36713238883` passed its final source-provenance
 repair at `2ca3b345f516f2993b6d0e70cbc82ff42e8319a4`.
@@ -100,9 +118,16 @@ After national draw/source integration and candidate evaluation caching,
 full local verification passed 489 files / 3,035 tests in 68.05 seconds.
 Fresh independent review reported no findings.
 
+After national hosting/Edition assembly, full local verification passed 490
+files / 3,039 tests in 55.40 seconds. The independent review identified a
+missing WBC US/AMERICAS consistency guard. Regression tests reproduced it
+for pool, knockout and final candidate sources; the guard was added and
+the complete verification suite passed after that repair.
+
 ## Remaining implementation boundaries
 
-- Generate remaining national hosting, regional/qualifier draw and accepted participation sources
+- Generate national infrastructure/hosting-history candidate evidence,
+  regional/qualifier draw and accepted participation sources
   from accepted career and world-cycle state.
 - Finish remaining competition schedules/career scheduler and physical Match integration;
   connect other national lifecycles to the durable Match pipeline and initialize

@@ -10,6 +10,7 @@ import type { OfficialGameResult } from
   '../../core/world/competition/OfficialGameCompletion';
 import type { SqliteWbcFinalsGroupStore } from
   './SqliteWbcFinalsGroupStore';
+import type { SqliteNationalCompetitionEditionStore } from './SqliteNationalCompetitionEditionStore';
 import { readDurableOfficialGameResult,
   type PostseasonMatchSource } from './PostseasonResultsFromMatches';
 
@@ -61,6 +62,7 @@ export const openSqliteWbcFinalsKnockoutStore = (
   databasePath: string,
   sources: Readonly<{
     groups: Pick<SqliteWbcFinalsGroupStore, 'readEvidence'>;
+    editions?: Pick<SqliteNationalCompetitionEditionStore, 'readWbcKnockoutEdition'>;
     matches: PostseasonMatchSource;
   }>,
 ): SqliteWbcFinalsKnockoutStore => {
@@ -83,6 +85,12 @@ export const openSqliteWbcFinalsKnockoutStore = (
     (get.get(careerId, editionId) as Row | undefined) ?? null;
   const source = (request: WbcFinalsKnockoutRequest):
     WbcKnockoutSource => {
+    if (sources.editions) {
+      const edition = sources.editions.readWbcKnockoutEdition(request.careerId, request.edition.editionId);
+      if (!edition || canonicalJson(edition) !== canonicalJson(request.edition)) {
+        throw new Error('WBC knockout differs from accepted national edition');
+      }
+    }
     const evidence = sources.groups.readEvidence(request.careerId,
       request.edition.editionId);
     if (!evidence) {
