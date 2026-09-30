@@ -19,6 +19,8 @@ export type WbcQualifierEditionProfile = Readonly<{
 }>;
 export type WbcQualifierHostCandidateSnapshot = Readonly<{
   snapshotId: string; asOfDay: number; policyVersion: string;
+  /** Native access-based candidates must match the exact pod draw; legacy explicit candidates may omit it. */
+  drawSnapshotId?: string;
   podCandidates: readonly (readonly HostCandidate[])[];
 }>;
 export type WbcQualifierEditionAssemblyInput = Readonly<{
@@ -83,6 +85,22 @@ const mixedPods = (selection: WbcQualifierSelection, drawSeed: string) => {
   throw new Error('WBC qualifier selected entrants cannot fill four mixed-region pods');
 };
 
+/** Shared draw identity binds pod-specific access evidence before hosts are selected. */
+export const drawWbcQualifierEntrantPods = (input: Readonly<{
+  selection: WbcQualifierSelection; drawSeed: string; drawPolicyVersion: string;
+}>) => {
+  const selection = cloneInert(input.selection);
+  if (!selection || !id(selection.qualifierEditionId) || !id(selection.qualificationSnapshotId)
+    || !id(input.drawSeed) || !id(input.drawPolicyVersion) || !Array.isArray(selection.entrants)
+    || selection.entrants.length !== 16 || selection.entrants.some((item) => !id(item?.nationId) || !REGIONS.includes(item.region))
+    || new Set(selection.entrants.map((item) => item.nationId)).size !== 16
+    || new Set(selection.entrants.map((item) => item.region)).size !== 4) throw new Error('invalid WBC qualifier draw input');
+  const mixed = mixedPods(selection, input.drawSeed);
+  return freeze({ ...mixed, drawSnapshotId: JSON.stringify(['wbc-qualifier-draw', selection.qualifierEditionId,
+    selection.qualificationSnapshotId, input.drawPolicyVersion, input.drawSeed,
+    mixed.target, mixed.pods.map((pod) => pod.map((item) => [item.nationId, item.region]))]) });
+};
+
 export const assembleWbcQualifierEdition = (raw: WbcQualifierEditionAssemblyInput): WbcQualifierEditionAssembly => {
   const input = cloneInert(raw), { selection, profile, hosts, calendarWindow } = input;
   if (!selection || !id(selection.qualifierEditionId) || !id(selection.qualificationSnapshotId)
@@ -136,16 +154,16 @@ export const assembleWbcQualifierEdition = (raw: WbcQualifierEditionAssemblyInpu
           && canFill(index + 1, new Set([...cities, candidate.cityId]))) })) });
     cities.add(host.selectedCityId); return host;
   });
-  const mixed = mixedPods(selection, input.drawSeed);
-  const drawSnapshotId = JSON.stringify(['wbc-qualifier-draw', selection.qualifierEditionId,
-    selection.qualificationSnapshotId, profile.drawPolicyVersion, input.drawSeed,
-    mixed.target, mixed.pods.map((pod) => pod.map((item) => [item.nationId, item.region]))]);
+  const mixed = drawWbcQualifierEntrantPods({ selection, drawSeed: input.drawSeed, drawPolicyVersion: profile.drawPolicyVersion });
+  if (hosts.drawSnapshotId !== undefined && hosts.drawSnapshotId !== mixed.drawSnapshotId) {
+    throw new Error('qualifier host access candidates differ from accepted pod draw');
+  }
   const edition: WbcGlobalQualifierEdition = {
     competitionId: profile.competitionId, editionId: selection.qualifierEditionId,
     canonicalRole: 'WBC_GLOBAL_QUALIFIER', formatVersion: profile.formatVersion,
     ruleProfileVersion: profile.ruleProfileVersion, gamePolicyVersion: profile.gamePolicyVersion,
     hostingPolicyVersion: profile.hostingPolicyVersion, qualificationSnapshotId: selection.qualificationSnapshotId,
-    drawSnapshotId, calendarWindow, pods: mixed.pods.map((entrants, podIndex) => ({ podIndex, entrants,
+    drawSnapshotId: mixed.drawSnapshotId, calendarWindow, pods: mixed.pods.map((entrants, podIndex) => ({ podIndex, entrants,
       hostNationId: hosting[podIndex].selectedNationId, hostCityId: hosting[podIndex].selectedCityId,
       hostVenueId: hosting[podIndex].selectedVenueId })),
   };
