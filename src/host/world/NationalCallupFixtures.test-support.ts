@@ -13,8 +13,13 @@ import { createHumanControlState } from '../../core/world/control/HumanControl';
 import { selectManagerControlledDecision } from '../../core/world/manager/ManagerControlledDecision';
 import type { PlayerAvailability } from '../../core/world/roster/RosterTypes';
 import { openSqliteWorldControlStore } from './SqliteWorldControlStore';
+import type { ClubWorldRegion } from '../../core/world/competition/ClubWorldBerths';
 
-export const nationalCallupFixture = (withoutLegalFacts: readonly number[] = []) => {
+export const nationalCallupFixture = (withoutLegalFacts: readonly number[] = [], population?: Readonly<{
+  playerNationIds: readonly string[];
+  nations: readonly Readonly<{ nationId: string; region: ClubWorldRegion }>[];
+}>) => {
+  const playerCount = population?.playerNationIds.length ?? 6;
   const path = `file:national-callup-${crypto.randomUUID()}?mode=memory&cache=shared`;
   const world = openSqliteWorldSettlementStore(path);
   world.initialize({ careerId: 'career-a', clubs: [state()], schedule: {
@@ -28,10 +33,10 @@ export const nationalCallupFixture = (withoutLegalFacts: readonly number[] = [])
       profiles: [{ profileId: 'league', version: 'v1', season: 1, competitionEditionId: 'league-season-1',
         activeLimit: null, allowedAssignmentKinds: ['FIRST_TEAM'], rehabParticipationAllowed: false }],
       units: [{ unitId: 'first-a', clubId: 'club-a', kind: 'FIRST_TEAM' }],
-      players: Array.from({ length: 6 }, (_, i) => ({ playerId: `p${i}`,
+      players: Array.from({ length: playerCount }, (_, i) => ({ playerId: `p${i}`,
         assignment: i === 5 ? null : { unitId: 'first-a', clubId: 'club-a' },
         clubRights: { rightsHolderClubId: i === 5 ? null : 'club-a', contractId: i === 5 ? null : `contract-${i}` }, registrations: [],
-        availability: { status: i === 2 ? 'INJURED' as const : 'AVAILABLE' as const, evidenceId: `medical-${i}` } })) }) });
+        availability: { status: !population && i === 2 ? 'INJURED' as const : 'AVAILABLE' as const, evidenceId: `medical-${i}` } })) }) });
   const control = openSqliteWorldControlStore(path);
   control.initialize({ careerId: 'career-a', worldRevision: 0, control: createHumanControlState({ revision: 0,
     controllerId: 'human', controlledClubId: 'club-a', domainIds: ['ROSTER'], manualDomainIds: [] }) });
@@ -62,13 +67,14 @@ export const nationalCallupFixture = (withoutLegalFacts: readonly number[] = [])
   };
   const links = openSqlitePlayerPersonLinkStore(path, { readAcceptedPlayerIntake: (sourceId) => {
     const i = Number(sourceId.replace('link-', ''));
-    return Number.isInteger(i) && i >= 0 && i < 6 ? { sourceId, careerId: 'career-a', playerId: `p${i}`,
+    return Number.isInteger(i) && i >= 0 && i < playerCount ? { sourceId, careerId: 'career-a', playerId: `p${i}`,
       personId: `person-${i}`, sourceRecordId: `intake-${i}`, sourceVersion: 'v1',
       acceptedAtDay: 10, acceptedRevision: 1, rosterRevision: 0 } : null;
   } });
   const nations = openSqliteNationCompetitionRegionStore(path);
-  for (const nationId of ['JP', 'KR']) nations.record({ careerId: 'career-a', nationId,
-    region: 'ASIA_PACIFIC', effectiveFromDay: 0, sourceEventId: nationId });
+  for (const { nationId, region } of population?.nations ?? ['JP', 'KR'].map((nationId) => ({ nationId, region: 'ASIA_PACIFIC' as const }))) {
+    nations.record({ careerId: 'career-a', nationId, region, effectiveFromDay: 0, sourceEventId: nationId });
+  }
   const cycle = openSqliteWorldCompetitionCycleStore(path);
   cycle.initialize('career-a', worldCycleInput(0));
   const selections = openSqliteNationalCompetitionSelectionStore(path, { cycle });
@@ -77,10 +83,10 @@ export const nationalCallupFixture = (withoutLegalFacts: readonly number[] = [])
   selections.initialize({ careerId: 'career-a', editionId: 'premier-2034', kind: 'PREMIER_12',
     cycleOrdinal: 0, careerDayOne: '2031-01-01', cutoffDay: 1300 });
   const facts = openSqliteNationalEligibilityFactStore(path, { personLinks: links, nations });
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < playerCount; i++) {
     links.accept(`link-${i}`);
     if (withoutLegalFacts.includes(i)) continue;
-    for (const nationId of ['JP', 'KR']) facts.record({ careerId: 'career-a', personLinkSourceId: `link-${i}`,
+    for (const nationId of population ? [population.playerNationIds[i]] : ['JP', 'KR']) facts.record({ careerId: 'career-a', personLinkSourceId: `link-${i}`,
       active: true, fact: { evidenceId: `legal-${i}-${nationId}`, playerId: `p${i}`, personId: `person-${i}`,
         nationId, basis: 'CITIZENSHIP', effectiveFromDay: 10 } });
   }

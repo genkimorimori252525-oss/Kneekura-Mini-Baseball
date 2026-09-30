@@ -11,6 +11,13 @@ import type { SqliteNationalEligibilityFactStore, NationalEligibilityFactsSnapsh
 import type { SqliteNationalRosterSnapshotStore, AcceptedNationalRosterSnapshot } from './SqliteNationalRosterSnapshotStore';
 import type { SqliteNationCompetitionRegionStore } from './SqliteNationCompetitionRegionStore';
 import type { SqliteOfficialParticipationStore, DurableParticipationReceipt, ParticipationAuthority } from './SqliteOfficialParticipationStore';
+import type { SqliteWbcQualifierEditionStore } from './SqliteWbcQualifierEditionStore';
+import { createCompetitionSourceReader, withCompetitionSourceReadScope, withCompetitionSourceReadPhase } from './CompetitionSourceReadScope';
+
+export type NationalCallupEditionSelection = NationalCompetitionSelection | Readonly<{
+  kind: 'WBC_QUALIFIER'; editionId: string; wbcEditionId: string; snapshotId: string; selectedAtDay: number;
+  calendarWindow: NationalCompetitionSelection['calendarWindow']; entrantNationIds: readonly string[];
+}>;
 
 export type NationalCallupRequest = Readonly<{
   eventId: string; careerId: string; editionId: string; nationId: string;
@@ -24,7 +31,7 @@ export type DurableNationalCallup = Readonly<{
   revision: number; previousSnapshotId: string | null; snapshotId: string;
   input: NationalCallupRequest; eligibility: NationalEligibilityDecision; decision: NationalCallupDecision;
   releaseClubId: string | null;
-  source: Readonly<{ selection: NationalCompetitionSelection; personLink: DurablePlayerPersonLink;
+  source: Readonly<{ selection: NationalCallupEditionSelection; personLink: DurablePlayerPersonLink;
     roster: AcceptedNationalRosterSnapshot; facts: NationalEligibilityFactsSnapshot | null; nationRegion: string;
     representation: readonly NationalRepresentation[] }>;
 }>;
@@ -44,6 +51,7 @@ export type NativeNationalEligibilityEvaluation = Readonly<{
 }>;
 export type NationalCallupSources = Readonly<{
   selections: Pick<SqliteNationalCompetitionSelectionStore, 'readSelection'>;
+  qualifierEditions?: Pick<SqliteWbcQualifierEditionStore, 'readSnapshot'>;
   personLinks: Pick<SqlitePlayerPersonLinkStore, 'readLink'>;
   facts: Pick<SqliteNationalEligibilityFactStore, 'readFacts' | 'readFactsSnapshot'>;
   nations: Pick<SqliteNationCompetitionRegionStore, 'readRegion'>;
@@ -102,6 +110,29 @@ const representation = (history: readonly Entry[], playerId: string): NationalRe
 /** A representative roster has its own accepted journal and never changes Club assignment. */
 export const openSqliteNationalCallupStore = (databasePath: string, sources: NationalCallupSources): SqliteNationalCallupStore => {
   if (!id(databasePath)) throw new Error('invalid national callup database path');
+  const readSelection = createCompetitionSourceReader(sources.selections.readSelection, sources.selections);
+  const readQualifier = sources.qualifierEditions
+    ? createCompetitionSourceReader(sources.qualifierEditions.readSnapshot, sources.qualifierEditions) : null;
+  const readLink = createCompetitionSourceReader(sources.personLinks.readLink, sources.personLinks);
+  const readFacts = createCompetitionSourceReader(sources.facts.readFacts, sources.facts);
+  const readFactsSnapshot = createCompetitionSourceReader(sources.facts.readFactsSnapshot, sources.facts);
+  const readRosterSnapshot = createCompetitionSourceReader(sources.rosterSnapshots.readSnapshot, sources.rosterSnapshots);
+  const selectEdition = (careerId: string, editionId: string): NationalCallupEditionSelection | null => {
+    const regular = readSelection(careerId, editionId);
+    const qualifier = readQualifier?.(careerId, editionId);
+    if (regular && qualifier) throw new Error('national callup Edition identity is ambiguous');
+    if (regular) return regular;
+    if (!qualifier) return null;
+    const parent = readSelection(careerId, qualifier.source.world.editionId);
+    if (!parent || parent.kind !== 'WBC' || json(parent) !== json(qualifier.source.world)
+      || qualifier.edition.editionId !== editionId || qualifier.edition.canonicalRole !== 'WBC_GLOBAL_QUALIFIER'
+      || qualifier.edition.calendarWindow.endsOnDay > parent.qualificationCutoff.day) {
+      throw new Error('national qualifier callup differs from accepted parent WBC');
+    }
+    return freeze({ kind: 'WBC_QUALIFIER', editionId, wbcEditionId: parent.editionId, snapshotId: qualifier.snapshotId,
+      selectedAtDay: qualifier.source.ranking.asOfDay, calendarWindow: qualifier.edition.calendarWindow,
+      entrantNationIds: qualifier.edition.pods.flatMap((pod) => pod.entrants.map((entry) => entry.nationId)).sort() });
+  };
   const { DatabaseSync }: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
   const db = new DatabaseSync(databasePath);
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
@@ -131,11 +162,11 @@ export const openSqliteNationalCallupStore = (databasePath: string, sources: Nat
       }
       if (prior.input.response.evidenceId === input.response?.evidenceId) throw new Error('national response evidence is already used');
     }
-    const selection = sources.selections.readSelection(input.careerId, input.editionId);
-    const personLink = sources.personLinks.readLink(input.personLinkSourceId);
+    const selection = selectEdition(input.careerId, input.editionId);
+    const personLink = readLink(input.personLinkSourceId);
     // A missing basis can justify a permitted refusal, but can never establish positive eligibility.
-    const facts = factsId === null ? null : sources.facts.readFactsSnapshot(input.careerId, input.playerId, factsId, input.registeredAtDay);
-    const roster = sources.rosterSnapshots.readSnapshot(input.careerId, rosterId);
+    const facts = factsId === null ? null : readFactsSnapshot(input.careerId, input.playerId, factsId, input.registeredAtDay);
+    const roster = readRosterSnapshot(input.careerId, rosterId);
     const nationRegion = sources.nations.readRegion(input.careerId, input.nationId, input.registeredAtDay);
     if (!selection || selection.editionId !== input.editionId || !personLink
       || personLink.careerId !== input.careerId || personLink.playerId !== input.playerId
@@ -144,6 +175,8 @@ export const openSqliteNationalCallupStore = (databasePath: string, sources: Nat
       || (factsId !== null && !facts) || (facts && (facts.careerId !== input.careerId || facts.playerId !== input.playerId
         || facts.asOfDay !== input.registeredAtDay)) || !nationRegion
       || (selection.kind === 'REGIONAL_NATIONAL' && selection.region !== nationRegion)
+      || (selection.kind === 'WBC_QUALIFIER' && (!selection.entrantNationIds.includes(input.nationId)
+        || input.registeredAtDay < selection.selectedAtDay))
       || input.registeredAtDay > selection.calendarWindow.endsOnDay
       || callupPolicy.replacementCutoffDay > selection.calendarWindow.endsOnDay) {
       throw new Error('national callup lacks accepted identity, Nation, roster, or edition source');
@@ -189,7 +222,7 @@ export const openSqliteNationalCallupStore = (databasePath: string, sources: Nat
     const registration = active(history.filter((item) => effectiveDay(item) <= binding.gameDay))
       .find((item) => item.input.eventId === binding.nationalRegistrationEventId);
     const roster = binding.nationalRosterSnapshotId
-      ? sources.rosterSnapshots.readSnapshot(input.careerId, binding.nationalRosterSnapshotId) : null;
+      ? readRosterSnapshot(input.careerId, binding.nationalRosterSnapshotId) : null;
     const player = roster?.roster.players.find((item) => item.playerId === binding.playerId);
     if (!game || game.competitionScope !== 'NATIONAL' || binding.careerId !== input.careerId
       || game.careerId !== input.careerId || game.competitionEditionId !== binding.competitionEditionId
@@ -207,7 +240,7 @@ export const openSqliteNationalCallupStore = (databasePath: string, sources: Nat
       input, source: { registrationSnapshotId: registration.snapshotId, receipt, game } };
     return freeze({ ...basis, snapshotId: `national-appearance:${createHash('sha256').update(json(basis)).digest('hex')}` });
   };
-  const replay = (careerId: string, beforeDay: number, beforeRevision = Number.MAX_SAFE_INTEGER): Entry[] => {
+  const replay = (careerId: string, beforeDay: number, beforeRevision = Number.MAX_SAFE_INTEGER): Entry[] => withCompetitionSourceReadScope(() => {
     const rows = db.prepare(`SELECT revision, event_id, effective_day, entry_json FROM world_national_callups
       WHERE career_id=? AND effective_day<=? AND revision<=? ORDER BY revision`)
       .all(careerId, beforeDay, beforeRevision) as Row[];
@@ -227,8 +260,8 @@ export const openSqliteNationalCallupStore = (databasePath: string, sources: Nat
       }
       return history;
     } catch (cause) { throw new Error(`corrupt national callup for ${careerId}`, { cause }); }
-  };
-  const evaluate = (careerId: string, eventId: string, beforeDay: number, pin?: NativeNationalEligibilityEvaluation['source']): NativeNationalEligibilityEvaluation | null => {
+  });
+  const evaluate = (careerId: string, eventId: string, beforeDay: number, pin?: NativeNationalEligibilityEvaluation['source']): NativeNationalEligibilityEvaluation | null => withCompetitionSourceReadScope(() => {
     scope(careerId, eventId, beforeDay);
     if (pin && (!day(pin.representationRevision) || (pin.factsSnapshotId !== null && !id(pin.factsSnapshotId)))) throw new Error('invalid national eligibility prefix');
     const history = replay(careerId, beforeDay, pin?.representationRevision);
@@ -236,8 +269,8 @@ export const openSqliteNationalCallupStore = (databasePath: string, sources: Nat
     if (!registration || registration.decision.registrationStatus !== 'ACTIVE') return null;
     const input = registration.input;
     const facts = pin ? pin.factsSnapshotId === null ? null
-      : sources.facts.readFactsSnapshot(careerId, input.playerId, pin.factsSnapshotId, beforeDay)
-      : sources.facts.readFacts(careerId, input.playerId, beforeDay);
+      : readFactsSnapshot(careerId, input.playerId, pin.factsSnapshotId, beforeDay)
+      : readFacts(careerId, input.playerId, beforeDay);
     if (pin?.factsSnapshotId && !facts) throw new Error('national eligibility fact prefix is absent');
     const priorRepresentation = representation(history, input.playerId);
     const decision = evaluateNationalEligibility({ playerId: input.playerId, personId: input.personId,
@@ -246,51 +279,55 @@ export const openSqliteNationalCallupStore = (databasePath: string, sources: Nat
     const source = { factsSnapshotId: facts?.snapshotId ?? null, representationRevision: history.at(-1)?.revision ?? 0 };
     const basis = { registrationSnapshotId: registration.snapshotId, beforeDay, facts, representation: priorRepresentation, source, decision };
     return freeze({ decision, source, snapshotId: `national-current-eligibility:${createHash('sha256').update(json(basis)).digest('hex')}` });
-  };
+  });
   return Object.freeze({
     register(raw: NationalCallupRequest): DurableNationalCallup {
-      scope(raw?.careerId, raw?.eventId, raw?.registeredAtDay);
-      const input = cloneInert(raw);
-      const existing = db.prepare('SELECT revision FROM world_national_callups WHERE career_id=? AND event_id=?')
-        .get(input.careerId, input.eventId) as { revision: number } | undefined;
-      if (existing) {
-        const prior = replay(input.careerId, Number.MAX_SAFE_INTEGER, existing.revision).at(-1)!;
-        if (prior.kind !== 'CALLUP') throw new Error('national event identity is already used');
-        if (json(prior.input) !== json(input)) throw new Error('national callup is frozen differently');
-        return prior;
-      }
-      // This checkpoint comes from the current Native head; a future head is never past evidence.
-      const roster = sources.rosterSnapshots.capture(input.careerId, input.rosterContextClubId);
-      db.exec('BEGIN IMMEDIATE');
-      try {
-        const history = replay(input.careerId, Number.MAX_SAFE_INTEGER);
-        if ((history.length ? effectiveDay(history[history.length - 1]) : 0) > input.registeredAtDay) throw new Error('national callup is backdated');
-        const facts = sources.facts.readFacts(input.careerId, input.playerId, input.registeredAtDay);
-        const entry = project(input, roster.snapshotId, facts?.snapshotId ?? null, history);
-        db.prepare(`INSERT INTO world_national_callups (career_id, revision, event_id, effective_day, entry_json)
-          VALUES (?, ?, ?, ?, ?)`).run(input.careerId, entry.revision, input.eventId, input.registeredAtDay, json(entry));
-        db.exec('COMMIT'); return entry;
-      } catch (error) { db.exec('ROLLBACK'); throw error; }
-    },
-    adoptAppearance(raw: NationalAppearanceRequest): DurableNationalAppearance {
-      scope(raw?.careerId, raw?.eventId, raw?.acceptedAtDay);
-      const input = cloneInert(raw);
-      db.exec('BEGIN IMMEDIATE');
-      try {
+      return withCompetitionSourceReadPhase(() => {
+        scope(raw?.careerId, raw?.eventId, raw?.registeredAtDay);
+        const input = cloneInert(raw);
         const existing = db.prepare('SELECT revision FROM world_national_callups WHERE career_id=? AND event_id=?')
           .get(input.careerId, input.eventId) as { revision: number } | undefined;
         if (existing) {
           const prior = replay(input.careerId, Number.MAX_SAFE_INTEGER, existing.revision).at(-1)!;
-          if (prior.kind !== 'APPEARANCE' || json(prior.input) !== json(input)) throw new Error('national appearance is frozen differently');
-          db.exec('COMMIT'); return prior;
+          if (prior.kind !== 'CALLUP') throw new Error('national event identity is already used');
+          if (json(prior.input) !== json(input)) throw new Error('national callup is frozen differently');
+          return prior;
         }
-        const history = replay(input.careerId, Number.MAX_SAFE_INTEGER);
-        if ((history.length ? effectiveDay(history[history.length - 1]) : 0) > input.acceptedAtDay) throw new Error('national appearance is backdated');
-        const entry = projectAppearance(input, history);
-        db.prepare(`INSERT INTO world_national_callups (career_id, revision, event_id, effective_day, entry_json)
-          VALUES (?, ?, ?, ?, ?)`).run(input.careerId, entry.revision, input.eventId, input.acceptedAtDay, json(entry));
-        db.exec('COMMIT'); return entry;
-      } catch (error) { db.exec('ROLLBACK'); throw error; }
+        // This checkpoint comes from the current Native head; a future head is never past evidence.
+        const roster = sources.rosterSnapshots.capture(input.careerId, input.rosterContextClubId);
+        db.exec('BEGIN IMMEDIATE');
+        try {
+          const history = replay(input.careerId, Number.MAX_SAFE_INTEGER);
+          if ((history.length ? effectiveDay(history[history.length - 1]) : 0) > input.registeredAtDay) throw new Error('national callup is backdated');
+          const facts = readFacts(input.careerId, input.playerId, input.registeredAtDay);
+          const entry = project(input, roster.snapshotId, facts?.snapshotId ?? null, history);
+          db.prepare(`INSERT INTO world_national_callups (career_id, revision, event_id, effective_day, entry_json)
+            VALUES (?, ?, ?, ?, ?)`).run(input.careerId, entry.revision, input.eventId, input.registeredAtDay, json(entry));
+          db.exec('COMMIT'); return entry;
+        } catch (error) { db.exec('ROLLBACK'); throw error; }
+        });
+    },
+    adoptAppearance(raw: NationalAppearanceRequest): DurableNationalAppearance {
+      return withCompetitionSourceReadPhase(() => {
+        scope(raw?.careerId, raw?.eventId, raw?.acceptedAtDay);
+        const input = cloneInert(raw);
+        db.exec('BEGIN IMMEDIATE');
+        try {
+          const existing = db.prepare('SELECT revision FROM world_national_callups WHERE career_id=? AND event_id=?')
+            .get(input.careerId, input.eventId) as { revision: number } | undefined;
+          if (existing) {
+            const prior = replay(input.careerId, Number.MAX_SAFE_INTEGER, existing.revision).at(-1)!;
+            if (prior.kind !== 'APPEARANCE' || json(prior.input) !== json(input)) throw new Error('national appearance is frozen differently');
+            db.exec('COMMIT'); return prior;
+          }
+          const history = replay(input.careerId, Number.MAX_SAFE_INTEGER);
+          if ((history.length ? effectiveDay(history[history.length - 1]) : 0) > input.acceptedAtDay) throw new Error('national appearance is backdated');
+          const entry = projectAppearance(input, history);
+          db.prepare(`INSERT INTO world_national_callups (career_id, revision, event_id, effective_day, entry_json)
+            VALUES (?, ?, ?, ?, ?)`).run(input.careerId, entry.revision, input.eventId, input.acceptedAtDay, json(entry));
+          db.exec('COMMIT'); return entry;
+        } catch (error) { db.exec('ROLLBACK'); throw error; }
+        });
     },
     readRegistration(careerId: string, eventId: string): DurableNationalCallup | null {
       scope(careerId, eventId);

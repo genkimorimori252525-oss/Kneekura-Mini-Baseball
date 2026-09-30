@@ -47,11 +47,13 @@ export const adjudication = (playId: number, endTick: number,
     eventId: `close-${playId}`, closureId, tick: endTick + 2,
   });
 };
-export const applyTwo = (official: SqliteOfficialStateStore, gameId = 'game-1', firstDefenderId = 'home-0') => {
-  official.initializeMatch(gameId, match());
+export const applyTwo = (official: SqliteOfficialStateStore, gameId = 'game-1', firstDefenderId = 'home-0',
+  half: CanonicalMatchState['half'] = 'top') => {
+  const initial = { ...match(), half };
+  official.initializeMatch(gameId, initial);
   const first = official.applyAndActivate({ kind: 'live_ball',
     matchId: gameId, applicationId: 'application-1',
-    expectedDurableRevision: 0, match: match(),
+    expectedDurableRevision: 0, match: initial,
     physicalTimeline: timeline(7, 100, 500),
     adjudication: adjudication(7, 500, 'closure-1', 1),
     nextStartedAtTick: 503, worldSetup: worldSetup(firstDefenderId) });
