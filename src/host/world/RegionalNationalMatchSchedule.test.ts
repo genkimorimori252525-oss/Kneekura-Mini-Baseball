@@ -187,6 +187,18 @@ it('plays all four recommended regional finals through World schedules, Match an
     expect(played).toBe(118);
     expect(ranking.readHistory('career-1').editions).toHaveLength(4);
     expect(qualification.readHistory('career-1')?.regional).toHaveLength(4);
+    const completionDay = selections.readSelection('career-1', 'AFRICA-2031')!.calendarWindow.endsOnDay;
+    const unavailableSources = track(openSqliteNationalQualificationHistoryStore(path,
+      { knockouts: { readEvidence: () => { throw new Error('later regional requires earlier qualification'); } } }));
+    expect(unavailableSources.regionalAuthority('career-1')
+      .regionalChampionship('AFRICA', completionDay - 1)).toBeNull();
+    expect(unavailableSources.readHistory('career-1', completionDay - 1)?.regional).toEqual([]);
+    expect(() => unavailableSources.regionalAuthority('career-1')
+      .regionalChampionship('AFRICA', completionDay)).toThrow('corrupt');
+    expect(() => unavailableSources.readHistory('career-1')).toThrow('corrupt');
+    expect(() => unavailableSources.regionalAuthority('career-1')
+      .regionalChampionship('AFRICA', -1)).toThrow('invalid');
+    expect(qualification.readHistory('career-1', completionDay)?.regional).toHaveLength(4);
     const { DatabaseSync }: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
     const db = new DatabaseSync(path);
     try { db.prepare("UPDATE world_regional_national_schedules SET schedule_json='{}'").run(); }
