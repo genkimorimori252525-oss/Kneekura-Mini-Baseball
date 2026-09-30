@@ -3,6 +3,7 @@ import { withCompetitionSourceReadScope } from './CompetitionSourceReadScope';
 import { registerWbcFinalsFixtureFromWorld } from './WbcFinalsFixtureFromWorld';
 import { registerPremierTwelveFixtureFromWorld } from './PremierTwelveFixtureFromWorld';
 import { registerRegionalNationalFixtureFromWorld } from './RegionalNationalFixtureFromWorld';
+import { registerWbcQualifierFixtureFromWorld } from './WbcQualifierFixtureFromWorld';
 import type { SqliteOfficialStateStore } from '../SqliteOfficialStateStore';
 import type { SqliteNationalCallupStore } from './SqliteNationalCallupStore';
 import type { SqliteManagerRosterDecisionStore } from './SqliteManagerRosterDecisionStore';
@@ -13,6 +14,7 @@ import type { ParticipationAuthority, OfficialParticipantBinding } from './Sqlit
 export type NationalParticipationFixtureSources =
   | (Readonly<{ kind: 'WBC' }> & Omit<Parameters<typeof registerWbcFinalsFixtureFromWorld>[0], 'matches'>)
   | (Readonly<{ kind: 'PREMIER_12' }> & Omit<Parameters<typeof registerPremierTwelveFixtureFromWorld>[0], 'matches'>)
+  | (Readonly<{ kind: 'WBC_QUALIFIER' }> & Omit<Parameters<typeof registerWbcQualifierFixtureFromWorld>[0], 'matches'>)
   | (Readonly<{ kind: 'REGIONAL_NATIONAL' }> & Omit<Parameters<typeof registerRegionalNationalFixtureFromWorld>[0], 'matches'>);
 const id = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value === value.trim();
 
@@ -26,7 +28,7 @@ export const createNationalParticipationAuthority = (sources: Readonly<{
   personLinks: Pick<SqlitePlayerPersonLinkStore, 'readLink'>;
 }>): ParticipationAuthority & Required<Pick<ParticipationAuthority, 'readNationalRegistration'>> => {
   if (!id(sources?.careerId) || !id(sources.editionId) || !sources.fixtures
-    || !['WBC', 'PREMIER_12', 'REGIONAL_NATIONAL'].includes(sources.fixtures.kind)) throw new Error('invalid National participation sources');
+    || !['WBC', 'WBC_QUALIFIER', 'PREMIER_12', 'REGIONAL_NATIONAL'].includes(sources.fixtures.kind)) throw new Error('invalid National participation sources');
   const readGame: ParticipationAuthority['readGame'] = (gameId) => withCompetitionSourceReadScope(() => {
     if (!id(gameId)) return null;
     const accepted = sources.matches.getOfficialFixture(gameId);
@@ -44,7 +46,9 @@ export const createNationalParticipationAuthority = (sources: Readonly<{
       ? registerWbcFinalsFixtureFromWorld({ ...sources.fixtures, matches }, input)
       : sources.fixtures.kind === 'PREMIER_12'
         ? registerPremierTwelveFixtureFromWorld({ ...sources.fixtures, matches }, input)
-        : registerRegionalNationalFixtureFromWorld({ ...sources.fixtures, matches }, input);
+        : sources.fixtures.kind === 'WBC_QUALIFIER'
+          ? registerWbcQualifierFixtureFromWorld({ ...sources.fixtures, matches }, input)
+          : registerRegionalNationalFixtureFromWorld({ ...sources.fixtures, matches }, input);
     return Object.freeze({ careerId: sources.careerId, competitionEditionId: sources.editionId,
       gameDay: fixture.gameDay, homeClubId: fixture.game.homeNationId, awayClubId: fixture.game.awayNationId,
       fixtureEventId: fixture.binding.fixtureEventId, competitionScope: 'NATIONAL' as const });
