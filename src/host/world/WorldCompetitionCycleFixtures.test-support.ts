@@ -39,4 +39,3 @@ export const worldCycleInput = (ordinal: number): WorldCompetitionCycleInput => 
           ASIA_PACIFIC: 11 }[region], 1, 10)] }))),
   };
 };
-

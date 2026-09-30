@@ -3,8 +3,7 @@ import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, it } from 'vitest';
-import { asRuleProfileId } from '../../core/model/RuleProfileRef';
-import type { OfficialGameResult } from
+import type { OfficialGameVenueBinding } from
   '../../core/world/competition/OfficialGameCompletion';
 import type { PremierTwelveEdition, PremierTwelveGame } from
   '../../core/world/competition/PremierTwelve';
@@ -13,7 +12,9 @@ import type { RegionalNationalEdition } from
 import { EMPTY_WORLD_NATIONAL_RANKING_POLICY_REGISTRY,
   registerWorldNationalRankingPolicy } from
   '../../core/world/competition/WorldNationalRankingHistory';
-import type { PostseasonMatchSource } from './PostseasonResultsFromMatches';
+import { SqliteOfficialStateStore } from '../SqliteOfficialStateStore';
+import { playOfficialNineInningGame } from './OfficialNineInningGame.test-support';
+import { registerPremierTwelveFixtureFromWorld } from './PremierTwelveFixtureFromWorld';
 import { openSqliteNationCompetitionRegionStore } from
   './SqliteNationCompetitionRegionStore';
 import { openSqliteRegionalNationalGroupStore } from
@@ -69,35 +70,24 @@ it('replays regional ranking through all 34 Premier12 games and later rankings',
   const directory = mkdtempSync(join(tmpdir(), 'premier-twelve-'));
   const path = join(directory, 'world.sqlite');
   const closables: { close(): void }[] = [];
-  const finals = new Map<string, OfficialGameResult>();
-  const fixtures = new Map<string,
-    NonNullable<OfficialGameResult['venueBinding']>>();
-  const matches = { getMatch: (gameId: string) => {
-    const finalResult = finals.get(gameId);
-    return finalResult ? { finalResult } : null;
-  }, getOfficialFixture: (gameId: string) => fixtures.get(gameId) ?? null,
-  } as PostseasonMatchSource;
+  const matchPath = join(directory, 'matches.sqlite');
+  let matches = new SqliteOfficialStateStore(matchPath);
+  closables.push({ close: () => matches.close() });
+  const matchSource = { getMatch: (gameId: string) => matches.getMatch(gameId),
+    getOfficialFixture: (gameId: string) => matches.getOfficialFixture(gameId) };
   const track = <T extends { close(): void }>(store: T): T => {
     closables.push(store);
     return store;
   };
-  const put = (game: PremierTwelveGame, editionId: string): void => {
-    const result: OfficialGameResult = {
-      gameId: game.gameId, seasonId: editionId,
-      homeClubId: game.homeNationId, awayClubId: game.awayNationId,
-      homeRuns: 2, awayRuns: 1, winnerClubId: game.homeNationId,
-      completionReason: 'BOTTOM_COMPLETE',
-      ruleProfileId: asRuleProfileId('rules-v1'), gamePolicyVersion: 'games-v1',
-      closureId: `closure-${game.gameId}`, applicationId: `apply-${game.gameId}`,
-      durableRevision: 1,
-      venueBinding: { gameId: game.gameId, venueId: game.venueId,
-        fixtureEventId: `fixture-${game.gameId}`, fixtureRevision: 1 },
-      lineScore: { innings: [{ inning: 1, homeRuns: 2, awayRuns: 1 }],
-        totals: { home: { runs: 2, hits: 1, errors: 0 },
-          away: { runs: 1, hits: 1, errors: 0 } } },
-    };
-    finals.set(game.gameId, result);
-    fixtures.set(game.gameId, result.venueBinding!);
+  const put = (game: PremierTwelveGame, editionId: string,
+    binding?: OfficialGameVenueBinding): void => {
+    const fixture = binding ?? matches.registerOfficialFixture({ gameId: game.gameId,
+      venueId: game.venueId, fixtureEventId: `fixture-${game.gameId}`, fixtureRevision: 1 });
+    const result = playOfficialNineInningGame(matches, { ...game,
+      seasonId: editionId, ruleProfileVersion: 'rules-v1', gamePolicyVersion: 'games-v1',
+      binding: fixture });
+    expect(result.durableRevision).toBe(60);
+    expect(result.lineScore.innings).toHaveLength(9);
   };
   try {
     const regions = track(openSqliteNationCompetitionRegionStore(path));
@@ -105,13 +95,13 @@ it('replays regional ranking through all 34 Premier12 games and later rankings',
       careerId: 'career-1', nationId, region: 'EUROPE',
       effectiveFromDay: 0, sourceEventId: `region-${index}` }));
     const regionalGroups = track(openSqliteRegionalNationalGroupStore(path,
-      { regions, matches }));
+      { regions, matches: matchSource }));
     const regionalPlan = regionalGroups.initialize('career-1', regionalEdition);
     regionalPlan.groups.flatMap((group) => group.games)
       .forEach((game) => put(game, regionalEdition.editionId));
     regionalGroups.finalize('career-1', regionalEdition.editionId);
     const regional = track(openSqliteRegionalNationalKnockoutStore(path,
-      { groups: regionalGroups, regions, matches }));
+      { groups: regionalGroups, regions, matches: matchSource }));
     const regionalKnockout = regional.initialize('career-1', {
       competitionId: regionalEdition.competitionId,
       editionId: regionalEdition.editionId, region: 'EUROPE',
@@ -167,7 +157,7 @@ it('replays regional ranking through all 34 Premier12 games and later rankings',
       calendarWindow: selection.calendarWindow,
     };
     let cutoffOverride: typeof selection.qualificationCutoff | undefined;
-    const sources = { rankings, selections, matches,
+    const sources = { rankings, selections, matches: matchSource,
       editionCutoff: (editionId: string) => cutoffOverride
         ?? selections.authority('career-1').editionCutoff(editionId) };
     const groups = track(openSqlitePremierTwelveGroupStore(path, sources));
@@ -185,33 +175,68 @@ it('replays regional ranking through all 34 Premier12 games and later rankings',
       .toThrow('accepted World selection');
     const plan = groups.initialize(request);
     expect(groups.initialize(request)).toEqual(plan);
-    finalFour = track(openSqlitePremierTwelveFinalFourStore(path, { groups, matches }));
+    expect(groups.readEdition('career-1', edition.editionId)).toEqual(edition);
+    finalFour = track(openSqlitePremierTwelveFinalFourStore(path, { groups, matches: matchSource }));
     expect(() => finalFour!.initialize('career-1', edition.editionId))
       .toThrow('finalized groups');
+    let activeGroups = groups;
+    const putPremier = (game: PremierTwelveGame): void => {
+      const fixture = registerPremierTwelveFixtureFromWorld({ groups: activeGroups,
+        finalFour: finalFour!, matches }, { careerId: 'career-1', editionId: edition.editionId,
+        gameId: game.gameId, gameDay: edition.calendarWindow.startsOnDay });
+      expect(registerPremierTwelveFixtureFromWorld({ groups: activeGroups,
+        finalFour: finalFour!, matches }, { careerId: 'career-1', editionId: edition.editionId,
+        gameId: game.gameId, gameDay: edition.calendarWindow.startsOnDay })).toEqual(fixture);
+      put(game, edition.editionId, fixture.binding);
+    };
     const games = plan.groups.flatMap((group) => group.games);
-    games.slice(0, 29).forEach((game) => put(game, edition.editionId));
+    expect(() => registerPremierTwelveFixtureFromWorld({ groups: activeGroups,
+      finalFour: finalFour!, matches }, { careerId: 'career-1', editionId: edition.editionId,
+      gameId: games[0].gameId, gameDay: edition.calendarWindow.endsOnDay + 1 }))
+      .toThrow('accepted Edition');
+    expect(matches.getOfficialFixture(games[0].gameId)).toBeNull();
+    expect(() => registerPremierTwelveFixtureFromWorld({ groups: activeGroups,
+      finalFour: finalFour!, matches }, { careerId: 'career-1', editionId: edition.editionId,
+      gameId: 'not-planned', gameDay: edition.calendarWindow.startsOnDay }))
+      .toThrow('not yet qualified');
+    games.slice(0, 29).forEach(putPremier);
     expect(groups.finalize('career-1', edition.editionId)).toBeNull();
     groups.close();
-    const reopenedGroups = track(openSqlitePremierTwelveGroupStore(path, sources));
-    expect(reopenedGroups.readPlan('career-1', edition.editionId)).toEqual(plan);
-    put(games[29], edition.editionId);
-    const groupOutcome = reopenedGroups.finalize('career-1', edition.editionId)!;
+    matches.close();
+    matches = new SqliteOfficialStateStore(matchPath);
+    activeGroups = track(openSqlitePremierTwelveGroupStore(path, sources));
+    expect(activeGroups.readPlan('career-1', edition.editionId)).toEqual(plan);
+    const lastFixture = registerPremierTwelveFixtureFromWorld({ groups: activeGroups,
+      finalFour: finalFour!, matches }, { careerId: 'career-1', editionId: edition.editionId,
+      gameId: games[29].gameId, gameDay: edition.calendarWindow.startsOnDay });
+    put(games[29], edition.editionId, lastFixture.binding);
+    const groupOutcome = activeGroups.finalize('career-1', edition.editionId)!;
     expect(groupOutcome.resultApplicationIds).toHaveLength(30);
     finalFour.close();
     finalFour = track(openSqlitePremierTwelveFinalFourStore(path,
-      { groups: reopenedGroups, matches }));
+      { groups: activeGroups, matches: matchSource }));
     const medalPlan = finalFour.initialize('career-1', edition.editionId);
-    put(medalPlan.semifinalGames[0], edition.editionId);
+    expect(() => registerPremierTwelveFixtureFromWorld({ groups: activeGroups,
+      finalFour: finalFour!, matches }, { careerId: 'career-1', editionId: edition.editionId,
+      gameId: medalPlan.finalGameId, gameDay: edition.calendarWindow.startsOnDay }))
+      .toThrow('not yet qualified');
+    expect(matches.getOfficialFixture(medalPlan.finalGameId)).toBeNull();
+    putPremier(medalPlan.semifinalGames[0]);
+    expect(() => registerPremierTwelveFixtureFromWorld({ groups: activeGroups,
+      finalFour: finalFour!, matches }, { careerId: 'career-1', editionId: edition.editionId,
+      gameId: medalPlan.semifinalGames[0].gameId,
+      gameDay: edition.calendarWindow.startsOnDay + 1 }))
+      .toThrow('pinned differently');
     expect(finalFour.medalGames('career-1', edition.editionId)).toBeNull();
     finalFour.close();
     finalFour = track(openSqlitePremierTwelveFinalFourStore(path,
-      { groups: reopenedGroups, matches }));
+      { groups: activeGroups, matches: matchSource }));
     expect(finalFour.readPlan('career-1', edition.editionId)).toEqual(medalPlan);
-    put(medalPlan.semifinalGames[1], edition.editionId);
+    putPremier(medalPlan.semifinalGames[1]);
     const medals = finalFour.medalGames('career-1', edition.editionId)!;
-    put(medals.finalGame, edition.editionId);
+    putPremier(medals.finalGame);
     expect(finalFour.finalize('career-1', edition.editionId)).toBeNull();
-    put(medals.bronzeGame, edition.editionId);
+    putPremier(medals.bronzeGame);
     const outcome = finalFour.finalize('career-1', edition.editionId)!;
     expect(outcome.championNationId).toBe(medals.finalGame.homeNationId);
     expect(outcome.bronzeNationId).toBe(medals.bronzeGame.homeNationId);
@@ -226,21 +251,25 @@ it('replays regional ranking through all 34 Premier12 games and later rankings',
     expect(history.readHistory('career-1')).toEqual(rankedHistory);
     finalFour.close();
     finalFour = track(openSqlitePremierTwelveFinalFourStore(path,
-      { groups: reopenedGroups, matches }));
+      { groups: activeGroups, matches: matchSource }));
     expect(finalFour.readOutcome('career-1', edition.editionId)).toEqual(outcome);
-    expect(() => reopenedGroups.initialize({ ...request,
+    expect(() => activeGroups.initialize({ ...request,
       edition: { ...edition, drawSnapshotId: 'changed' } })).toThrow('frozen differently');
     cutoffOverride = { ...selection.qualificationCutoff, day: qualificationDay - 1 };
     expect(() => finalFour!.readOutcome('career-1', edition.editionId)).toThrow('corrupt');
     cutoffOverride = { ...selection.qualificationCutoff, day: edition.calendarWindow.endsOnDay };
-    expect(() => reopenedGroups.readPlan('career-1', edition.editionId))
+    expect(() => activeGroups.readPlan('career-1', edition.editionId))
       .toThrow('corrupt');
     cutoffOverride = undefined;
-    const binding = fixtures.get(medals.finalGame.gameId)!;
-    fixtures.set(medals.finalGame.gameId, { ...binding, venueId: 'wrong' });
+    const binding = matches.getOfficialFixture(medals.finalGame.gameId)!;
+    const matchDb = new DatabaseSync(matchPath);
+    matchDb.prepare('UPDATE official_fixtures SET venue_id=? WHERE game_id=?')
+      .run('wrong', medals.finalGame.gameId);
     expect(() => history.readHistory('career-1')).toThrow('corrupt');
     expect(rankings.readRanking('career-1', qualificationDay)).toEqual(ranking);
-    fixtures.set(medals.finalGame.gameId, binding);
+    matchDb.prepare('UPDATE official_fixtures SET venue_id=? WHERE game_id=?')
+      .run(binding.venueId, medals.finalGame.gameId);
+    matchDb.close();
     const db = new DatabaseSync(path);
     db.prepare("UPDATE world_premier_twelve_final_four SET outcome_json='{}'").run();
     db.close();
