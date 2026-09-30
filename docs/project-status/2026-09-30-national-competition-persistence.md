@@ -20,6 +20,18 @@ This records implementation evidence, not approval of another design.
 - WBC qualifier selection consumes saved direct berths and a saved ranking.
   Four qualifier pods consume venue-bound official Match finals. Their winners
   feed qualification history and the final 20 + 4 berth allocation.
+- World WBC qualification now derives the direct-slot input from the target
+  World selection, its two immediately preceding WBC cycle assignments and
+  the current cycle's four accepted regional placement sources. It checks
+  official completion against those World windows, initializes the existing
+  coefficient/direct stores, and pins all World/history/policy sources in its
+  own durable snapshot. Replay validates both the saved components and full
+  World source identity, including a source change with the same game IDs.
+  The predecessor query excludes current/future cycles before replay, so
+  later result sources cannot become dependencies of their own qualification.
+  Missing predecessor cycles/history are rejected; no bootstrap results or
+  direct berths are fabricated. Career-scoped cutoff callbacks preserve
+  existing direct-store callers while supporting the composed owner.
 - WBC Global Qualifier now persists all twelve semifinal/final schedule slots
   from its accepted Edition and pod plan. Explicit venue capacity and off-day
   policy fit those slots within the Edition window; shared venues consume
@@ -200,6 +212,19 @@ Full local verification passed 495 files / 3,048 tests in 89.47 seconds,
 including catalog verification and type checking. The fresh independent
 review reported no findings in the regional schedule/Match slice. PR #213
 P0 run `36736322310` passed at `2a47b38998b291fdaf306ae558d9cd2031ddc9f3`.
+
+The World qualification unit test uses real World cycle/selection/nation,
+coefficient/direct and composed qualification stores. Its historical game
+descriptors and regional placement callbacks are explicit fixtures; this
+test does not by itself connect the 118 regional or prior 51-game Match
+integrations. It checks missing bootstrap evidence, incompatible regional
+sources, same-result World policy drift, historical source drift, reopened
+stores, snapshot corruption and exclusion of corrupt future selection rows.
+An interruption after coefficient persistence but before direct-berth
+persistence leaves no composed snapshot; reopening and retrying completes
+the same request. Final local verification passed 496 files / 3,049 tests
+in 67.07 seconds, including catalog verification and type checking.
+Independent review reported no findings within this source-assembly slice.
 
 ## Remaining implementation boundaries
 

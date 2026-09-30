@@ -35,6 +35,8 @@ export const openSqliteWbcDirectBerthStore = (
   databasePath: string,
   sources: Readonly<{
     editionCutoff: WbcBerthAuthority['editionCutoff'];
+    editionCutoffForCareer?: (careerId: string, editionId: string) =>
+      ReturnType<WbcBerthAuthority['editionCutoff']>;
     coefficients: Pick<SqliteWbcRegionalCoefficientStore, 'authority'>;
     regional: Pick<SqliteNationalQualificationHistoryStore,
       'regionalAuthority'>;
@@ -61,7 +63,9 @@ export const openSqliteWbcDirectBerthStore = (
     WbcDirectBerths => {
     const authority: Omit<WbcBerthAuthority,
       'qualifierPodWinner'> = {
-      editionCutoff: sources.editionCutoff,
+      editionCutoff: sources.editionCutoffForCareer
+        ? (editionId) => sources.editionCutoffForCareer!(request.careerId, editionId)
+        : sources.editionCutoff,
       regionalCoefficient: sources.coefficients.authority(
         request.careerId).regionalCoefficient,
       regionalChampionship: sources.regional.regionalAuthority(
