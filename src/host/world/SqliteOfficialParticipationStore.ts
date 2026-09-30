@@ -12,6 +12,14 @@ export type OfficialParticipantBinding = Readonly<{
   gameDay: number; clubId: string; side: 'HOME' | 'AWAY';
   playerId: string; personId: string; personLinkSourceId: string;
   rosterRevision: number; fixtureEventId: string;
+  /** National registration is separate from global Club assignment. Both pins are required. */
+  nationalRegistrationEventId?: string; nationalRosterSnapshotId?: string;
+}>;
+
+export type AcceptedNationalParticipationRegistration = Readonly<{
+  careerId: string; competitionEditionId: string; nationId: string;
+  playerId: string; personId: string; personLinkSourceId: string; eventId: string;
+  registeredAtDay: number; rosterRevision: number; rosterSnapshotId: string;
 }>;
 
 /** The host supplies accepted fixture, roster, and player/person identity sources. */
@@ -19,7 +27,9 @@ export type ParticipationAuthority = Readonly<{
   readGame(gameId: string): Readonly<{
     careerId: string; competitionEditionId: string; gameDay: number;
     homeClubId: string; awayClubId: string; fixtureEventId: string;
+    competitionScope?: 'NATIONAL';
   }> | null;
+  readNationalRegistration?(binding: OfficialParticipantBinding): AcceptedNationalParticipationRegistration | null;
   readRoster(careerId: string, clubId: string): RosterState | null;
   readPersonLink(playerId: string, sourceId: string): Readonly<{
     personId: string; sourceId: string;
@@ -77,6 +87,8 @@ export class SqliteOfficialParticipationStore {
       || !day(input.gameDay) || !id(input.clubId) || !id(input.playerId)
       || !id(input.personId) || !id(input.personLinkSourceId)
       || !id(input.fixtureEventId) || !day(input.rosterRevision)
+      || (input.nationalRegistrationEventId !== undefined && !id(input.nationalRegistrationEventId))
+      || (input.nationalRosterSnapshotId !== undefined && !id(input.nationalRosterSnapshotId))
       || !['HOME', 'AWAY'].includes(input.side)) {
       throw new Error('invalid pregame participant binding');
     }
@@ -89,14 +101,29 @@ export class SqliteOfficialParticipationStore {
         return existing;
       }
       const game = this.authority.readGame(input.gameId);
-      const roster = this.authority.readRoster(input.careerId, input.clubId);
+      const national = game?.competitionScope === 'NATIONAL';
+      const roster = national ? null : this.authority.readRoster(input.careerId, input.clubId);
+      const registration = national ? this.authority.readNationalRegistration?.(input) ?? null : null;
       const link = this.authority.readPersonLink(input.playerId,
         input.personLinkSourceId);
       const fixture = this.db.prepare('SELECT fixture_event_id FROM official_fixtures WHERE game_id=?')
         .get(input.gameId) as FixtureRow | undefined;
       const match = this.db.prepare('SELECT durable_revision FROM matches WHERE match_id=?')
         .get(input.gameId) as MatchRow | undefined;
-      if (!game || !roster || !link || !fixture
+      const acceptedRoster = national ? registration !== null
+        && registration.careerId === input.careerId && registration.competitionEditionId === input.competitionEditionId
+        && registration.nationId === input.clubId && registration.playerId === input.playerId
+        && registration.personId === input.personId && registration.personLinkSourceId === input.personLinkSourceId
+        && registration.eventId === input.nationalRegistrationEventId
+        && registration.rosterSnapshotId === input.nationalRosterSnapshotId
+        && registration.rosterRevision === input.rosterRevision
+        && day(registration.registeredAtDay) && registration.registeredAtDay <= input.gameDay
+        : input.nationalRegistrationEventId === undefined && input.nationalRosterSnapshotId === undefined
+          && roster !== null && roster.careerId === input.careerId && roster.revision === input.rosterRevision
+          && roster.effectiveDay <= input.gameDay && evaluateRosterParticipation(roster, {
+            playerId: input.playerId, clubId: input.clubId, competitionEditionId: input.competitionEditionId,
+          }).eligible;
+      if (!game || !acceptedRoster || !link || !fixture
         || fixture.fixture_event_id !== input.fixtureEventId
         || match && match.durable_revision !== 0
         || game.careerId !== input.careerId
@@ -104,15 +131,9 @@ export class SqliteOfficialParticipationStore {
         || game.gameDay !== input.gameDay
         || game.fixtureEventId !== input.fixtureEventId
         || (input.side === 'HOME' ? game.homeClubId : game.awayClubId) !== input.clubId
-        || roster.careerId !== input.careerId
-        || roster.revision !== input.rosterRevision
-        || roster.effectiveDay > input.gameDay
         || link.personId !== input.personId
         || link.sourceId !== input.personLinkSourceId
-        || !evaluateRosterParticipation(roster, {
-          playerId: input.playerId, clubId: input.clubId,
-          competitionEditionId: input.competitionEditionId,
-        }).eligible) {
+      ) {
         throw new Error('pregame binding lacks accepted fixture, roster, or person source');
       }
       this.db.prepare(`INSERT INTO official_participant_bindings

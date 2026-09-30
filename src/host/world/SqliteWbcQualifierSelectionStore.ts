@@ -13,6 +13,7 @@ import type { SqliteWbcDirectBerthStore } from
   './SqliteWbcDirectBerthStore';
 import type { SqliteWorldNationalRankingSnapshotStore } from
   './SqliteWorldNationalRankingSnapshotStore';
+import type { SqliteNationalRosterEligibilityStore } from './SqliteNationalRosterEligibilityStore';
 
 export type WbcQualifierSelectionRequest = Readonly<{
   careerId: string;
@@ -57,6 +58,7 @@ export const openSqliteWbcQualifierSelectionStore = (
       'readRanking'>;
     nations: Pick<SqliteNationCompetitionRegionStore,
       'authority'>;
+    eligibility?: Pick<SqliteNationalRosterEligibilityStore, 'readEligibilityForEdition'>;
   }>,
 ): SqliteWbcQualifierSelectionStore => {
   if (!id(databasePath)) {
@@ -82,6 +84,12 @@ export const openSqliteWbcQualifierSelectionStore = (
       ?? null;
   const project = (request: WbcQualifierSelectionRequest):
     WbcQualifierSelection => {
+    if (sources.eligibility) {
+      const accepted = sources.eligibility.readEligibilityForEdition(request.careerId, request.wbcEditionId, request.eligibility.snapshotId);
+      if (!accepted || canonicalJson(accepted) !== canonicalJson(request.eligibility)) {
+        throw new Error('WBC qualifier requires accepted national roster eligibility');
+      }
+    }
     const direct = readDirect(request.careerId,
       request.wbcEditionId);
     const ranking = readRanking(request.careerId,
