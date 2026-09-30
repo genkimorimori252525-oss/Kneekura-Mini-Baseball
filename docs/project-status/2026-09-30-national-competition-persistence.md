@@ -20,6 +20,24 @@ This records implementation evidence, not approval of another design.
 - WBC qualifier selection consumes saved direct berths and a saved ranking.
   Four qualifier pods consume venue-bound official Match finals. Their winners
   feed qualification history and the final 20 + 4 berth allocation.
+- Qualifier Edition assembly draws sixteen accepted nations into four pods,
+  preferring four regions per pod, then three, then two. Exact region-count
+  search rejects distributions that cannot provide two regions in every pod.
+  Worldwide host selection uses supplied versioned candidate scores, with
+  distinct cities controlled by an explicit Edition hosting policy. It looks
+  ahead for remaining host feasibility and grants no host berth. The SQLite
+  owner pins World/direct/selection/request/ranking/host sources, checks that
+  regional results and selection eligibility precede play, and requires the
+  qualifier window to finish by the accepted WBC cutoff. Connected pod stores
+  accept only the assembled Edition. The owner integration executes twelve
+  scheduled nine-inning Match games from its generated Edition. Its direct,
+  selection, ranking and host candidates remain explicit callback fixtures;
+  World and historical nation regions use actual native stores. Facility/access
+  candidate calibration and the complete historical source chain remain work.
+  Regional-priority/cascade entrants do not need a World Ranking entry; only
+  the ranking route requires one. A review regression uses the actual Core
+  selector to qualify four unranked regional-priority nations alongside twelve
+  ranked nations, then executes the assembled Edition's twelve Match games.
 - World WBC qualification now derives the direct-slot input from the target
   World selection, its two immediately preceding WBC cycle assignments and
   the current cycle's four accepted regional placement sources. It checks
@@ -225,6 +243,10 @@ persistence leaves no composed snapshot; reopening and retrying completes
 the same request. Final local verification passed 496 files / 3,049 tests
 in 67.07 seconds, including catalog verification and type checking.
 Independent review reported no findings within this source-assembly slice.
+After qualifier Edition assembly, final local verification passed 498 files /
+3,053 tests in 68.96 seconds, with catalog verification and type checking.
+The independent review's unranked regional-entrant rejection was reproduced
+and repaired before this final run. No further findings were reported.
 
 ## Remaining implementation boundaries
 

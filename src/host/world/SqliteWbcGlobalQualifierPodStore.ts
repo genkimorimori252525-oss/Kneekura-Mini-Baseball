@@ -12,6 +12,7 @@ import { finalizeSelectedWbcGlobalQualifier,
   '../../core/world/competition/WbcGlobalQualifierPods';
 import type { SqliteWbcQualifierSelectionStore } from
   './SqliteWbcQualifierSelectionStore';
+import type { SqliteWbcQualifierEditionStore } from './SqliteWbcQualifierEditionStore';
 import { readDurableOfficialGameResult,
   type PostseasonMatchSource } from './PostseasonResultsFromMatches';
 
@@ -61,6 +62,7 @@ export const openSqliteWbcGlobalQualifierPodStore = (
     selection: Pick<SqliteWbcQualifierSelectionStore,
       'readSelection'>;
     matches: PostseasonMatchSource;
+    editions?: Pick<SqliteWbcQualifierEditionStore, 'readEdition'>;
   }>,
 ): SqliteWbcGlobalQualifierPodStore => {
   if (!id(databasePath)) {
@@ -83,6 +85,12 @@ export const openSqliteWbcGlobalQualifierPodStore = (
     (get.get(careerId, editionId) as Row | undefined) ?? null;
   const projectPlan = (request: WbcGlobalQualifierPodRequest):
     WbcGlobalQualifierPlan => {
+    if (sources.editions) {
+      const accepted = sources.editions.readEdition(request.careerId, request.edition.editionId);
+      if (!accepted || canonicalJson(accepted) !== canonicalJson(request.edition)) {
+        throw new Error('WBC qualifier pods require accepted qualifier Edition');
+      }
+    }
     const selection = sources.selection.readSelection(
       request.careerId, request.edition.editionId);
     if (!selection) {
