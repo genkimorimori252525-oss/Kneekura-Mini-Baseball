@@ -16,6 +16,9 @@ import { SqliteOfficialStateStore } from '../SqliteOfficialStateStore';
 import { playOfficialNineInningGame } from './OfficialNineInningGame.test-support';
 import { registerPremierTwelveFixtureFromWorld } from './PremierTwelveFixtureFromWorld';
 import { openSqlitePremierTwelveScheduleStore } from './SqlitePremierTwelveScheduleStore';
+import { openSqliteNationalCompetitionDrawStore } from './SqliteNationalCompetitionDrawStore';
+import { EMPTY_COMPETITION_DRAW_POLICY_REGISTRY, registerCompetitionDrawPolicy } from
+  '../../core/world/competition/CompetitionDraw';
 import { openSqliteNationCompetitionRegionStore } from
   './SqliteNationCompetitionRegionStore';
 import { openSqliteRegionalNationalGroupStore } from
@@ -137,13 +140,29 @@ it('replays regional ranking through all 34 Premier12 games and later rankings',
       { history }));
     const ranking = rankings.initialize({ careerId: 'career-1',
       asOfDay: qualificationDay, nationIds, policy, registry });
+    let drawRegionOverride: 'AFRICA' | undefined;
+    let draws = track(openSqliteNationalCompetitionDrawStore(path, { selections, rankings, history,
+      nations: { readRegion: (careerId, nationId, beforeDay) => drawRegionOverride
+        ?? regions.readRegion(careerId, nationId, beforeDay) } }));
+    const drawPolicy = { version: 'premier-test-draw-v1', rematchLookbackDays: 2000,
+      relaxationOrder: ['REMATCH_AVOIDANCE', 'SAME_LEAGUE_AVOIDANCE', 'REGIONAL_DIVERSITY'] as const };
+    const drawRequest = { careerId: 'career-1', editionId: selection.editionId,
+      kind: 'PREMIER_12' as const, drawSeed: 'premier-draw-seed', policy: drawPolicy,
+      registry: registerCompetitionDrawPolicy(EMPTY_COMPETITION_DRAW_POLICY_REGISTRY, drawPolicy) };
+    const acceptedDraw = draws.initialize(drawRequest);
+    expect(draws.initialize(drawRequest)).toEqual(acceptedDraw);
+    expect(acceptedDraw.draw.groups.map((group) => group.length)).toEqual([6, 6]);
+    expect(acceptedDraw.source.rematchHistory.editions[0].games).toHaveLength(15);
+    drawRegionOverride = 'AFRICA';
+    expect(() => draws.readDraw('career-1', selection.editionId)).toThrow('corrupt');
+    drawRegionOverride = undefined;
     const edition: PremierTwelveEdition = {
       competitionId: 'premier12', editionId: 'premier-2034',
       canonicalRole: 'PREMIER_12', formatVersion: 'premier-v1',
       ruleProfileVersion: 'rules-v1', gamePolicyVersion: 'games-v1',
       rankingPolicyVersion: policy.version,
       qualificationCutoffSnapshotId: selection.qualificationCutoff.snapshotId,
-      rankingSnapshotId: ranking.snapshotId, drawSnapshotId: 'premier-draw',
+      rankingSnapshotId: ranking.snapshotId, drawSnapshotId: acceptedDraw.drawSnapshotId,
       hostingPolicyVersion: 'premier-hosts-v1',
       tiebreakPolicy: regionalEdition.tiebreakPolicy,
       finalFourPairingPolicy: { version: 'pairs-v1', semifinalPairs: [[0, 3], [1, 2]] },
@@ -153,16 +172,22 @@ it('replays regional ranking through all 34 Premier12 games and later rankings',
         cityId: 'host-b', venueId: 'group-b' }],
       finalFourHost: { nationId: 'nation-0', cityId: 'medal-city',
         venueId: 'medal-venue' },
-      groups: [0, 1].map((groupIndex) => ({ groupIndex,
-        nationIds: ranking.orderedNationIds.slice(groupIndex * 6, groupIndex * 6 + 6) })),
+      groups: acceptedDraw.draw.groups.map((group, groupIndex) => ({ groupIndex,
+        nationIds: group.map((entrant) => entrant.teamId) })),
       calendarWindow: selection.calendarWindow,
     };
     let cutoffOverride: typeof selection.qualificationCutoff | undefined;
-    const sources = { rankings, selections, matches: matchSource,
+    const sources = { rankings, selections, draws: {
+      readDraw: (careerId: string, editionId: string) => draws.readDraw(careerId, editionId) },
+      matches: matchSource,
       editionCutoff: (editionId: string) => cutoffOverride
         ?? selections.authority('career-1').editionCutoff(editionId) };
     const groups = track(openSqlitePremierTwelveGroupStore(path, sources));
     const request = { careerId: 'career-1', edition };
+    expect(() => groups.initialize({ ...request, edition: { ...edition,
+      groups: edition.groups.map((group, index) => index === 0 ? { ...group,
+        nationIds: [group.nationIds[1], group.nationIds[0], ...group.nationIds.slice(2)] } : group) } }))
+      .toThrow('accepted draw');
     const earlierRanking = rankings.initialize({ careerId: 'career-1',
       asOfDay: qualificationDay - 1, nationIds, policy, registry });
     cutoffOverride = { ...selection.qualificationCutoff, day: qualificationDay - 1 };
@@ -196,7 +221,7 @@ it('replays regional ranking through all 34 Premier12 games and later rankings',
     const schedule = schedules.initialize(scheduleRequest);
     expect(schedules.initialize(scheduleRequest)).toEqual(schedule);
     expect(schedule.games).toHaveLength(34);
-    const alternateGroups = track(openSqlitePremierTwelveGroupStore(':memory:', sources));
+    const alternateGroups = track(openSqlitePremierTwelveGroupStore(':memory:', { ...sources, draws: undefined }));
     alternateGroups.initialize({ ...request, edition: { ...edition,
       drawSnapshotId: 'different-accepted-draw', hostingPolicyVersion: 'different-host-version',
       groups: edition.groups.map((group, index) => index === 0 ? { ...group,
@@ -240,6 +265,10 @@ it('replays regional ranking through all 34 Premier12 games and later rankings',
     matches.close();
     matches = new SqliteOfficialStateStore(matchPath);
     activeGroups = track(openSqlitePremierTwelveGroupStore(path, sources));
+    draws.close();
+    draws = track(openSqliteNationalCompetitionDrawStore(path, { selections, rankings, history,
+      nations: regions }));
+    expect(draws.readDraw('career-1', selection.editionId)).toEqual(acceptedDraw);
     expect(activeGroups.readPlan('career-1', edition.editionId)).toEqual(plan);
     schedules.close();
     schedules = track(openSqlitePremierTwelveScheduleStore(path, { groups: activeGroups }));

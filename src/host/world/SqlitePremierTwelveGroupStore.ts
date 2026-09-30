@@ -11,6 +11,7 @@ import type { SqliteWorldNationalRankingSnapshotStore } from
   './SqliteWorldNationalRankingSnapshotStore';
 import type { SqliteNationalCompetitionSelectionStore } from
   './SqliteNationalCompetitionSelectionStore';
+import type { SqliteNationalCompetitionDrawStore } from './SqliteNationalCompetitionDrawStore';
 import { readDurableOfficialGameResult,
   type PostseasonMatchSource } from './PostseasonResultsFromMatches';
 
@@ -56,6 +57,7 @@ export const openSqlitePremierTwelveGroupStore = (
     rankings: Pick<SqliteWorldNationalRankingSnapshotStore, 'authority'>;
     editionCutoff: PremierTwelveAuthority['editionCutoff'];
     selections?: Pick<SqliteNationalCompetitionSelectionStore, 'readSelection'>;
+    draws?: Pick<SqliteNationalCompetitionDrawStore, 'readDraw'>;
     matches: PostseasonMatchSource;
   }>,
 ): SqlitePremierTwelveGroupStore => {
@@ -103,6 +105,16 @@ export const openSqlitePremierTwelveGroupStore = (
         || canonicalJson(selection.calendarWindow)
           !== canonicalJson(request.edition.calendarWindow)) {
         throw new Error('Premier12 edition requires matching accepted World selection');
+      }
+    }
+    if (sources.draws) {
+      const draw = sources.draws.readDraw(request.careerId, request.edition.editionId);
+      if (!draw || draw.draw.editionId !== request.edition.editionId
+        || draw.drawSnapshotId !== request.edition.drawSnapshotId
+        || canonicalJson(draw.draw.groups.map((group, groupIndex) => ({ groupIndex,
+          nationIds: group.map((participant) => participant.teamId) })))
+          !== canonicalJson(request.edition.groups)) {
+        throw new Error('Premier12 edition differs from accepted draw');
       }
     }
     return planPremierTwelveGroups(request.edition, authority(request));

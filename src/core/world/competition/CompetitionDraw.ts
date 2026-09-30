@@ -190,18 +190,18 @@ export const drawCompetitionGroups = (input: CompetitionDrawInput,
   let beam: DrawParticipant[][][] = [sortedPots[0].map((participant) => [participant])];
   for (let potIndex = 1; potIndex < sortedPots.length; potIndex += 1) {
     const assignments = permutations(sortedPots[potIndex]);
-    const next = beam.flatMap((groups) => assignments.map((assignment) =>
-      groups.map((group, index) => [...group, assignment[index]])));
+    const next = beam.flatMap((groups) => assignments.map((assignment) => {
+      const candidate = groups.map((group, index) => [...group, assignment[index]]);
+      const key = candidate.map((group) => group.map((team) => team.teamId).join(':')).join('|');
+      return { groups: candidate, score: scoreGroups(candidate, rematches), key,
+        tieHash: fnv1a32(`${input.drawSeed}:${key}`) };
+    }));
     next.sort((a, b) => {
-      const priority = compareScore(scoreGroups(a, rematches),
-        scoreGroups(b, rematches), relaxationOrder);
+      const priority = compareScore(a.score, b.score, relaxationOrder);
       if (priority !== 0) return priority;
-      const keyA = a.map((group) => group.map((team) => team.teamId).join(':')).join('|');
-      const keyB = b.map((group) => group.map((team) => team.teamId).join(':')).join('|');
-      return fnv1a32(`${input.drawSeed}:${keyA}`) - fnv1a32(`${input.drawSeed}:${keyB}`)
-        || (keyA < keyB ? -1 : keyA > keyB ? 1 : 0);
+      return a.tieHash - b.tieHash || (a.key < b.key ? -1 : a.key > b.key ? 1 : 0);
     });
-    beam = next.slice(0, 128);
+    beam = next.slice(0, 128).map((candidate) => candidate.groups);
   }
   const groups = beam[0];
   const counts = scoreGroups(groups, rematches);

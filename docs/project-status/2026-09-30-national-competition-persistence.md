@@ -48,11 +48,19 @@ This records implementation evidence, not approval of another design.
   Scheduled fixtures require the exact day/venue and actual prior-round
   qualification; a different accepted knockout Edition is rejected even
   when its game slots are identical.
+- National draws consume the accepted World selection, its actual cutoff
+  ranking and historical nation regions. Premier12 selects the ranking top
+  twelve; WBC seeds the accepted 24 berths. Ranked pots, recent official
+  rematch history and registered soft-constraint priorities generate the
+  groups. Saved snapshots pin all inputs and policy/seed; the complete
+  policy, including the explicit rematch lookback, is immutable per career
+  version. Connected group stores reject different draws or WBC draw-policy
+  versions. Ranking/region inputs never change player ability or affiliation.
 
 ## Verification boundaries
 
 The Premier12 integration test connects real SQLite World cycle, national
-selection, regional, ranking, group, final-four, Match and history stores.
+selection, regional, ranking, draw, group, final-four, Match and history stores.
 It covers partial-round restarts, missing finals, repeated application,
 reopened stores, cutoff drift, fixture mismatch and saved outcome corruption.
 All 49 games (15 regional + 34 Premier12) begin at zero score and play through
@@ -74,15 +82,27 @@ Qualification allocation and host/draw inputs remain test fixtures in this
 integration; the complete regional/direct/qualifier source lifecycle is a
 separate remaining connection.
 
+The isolated WBC draw test uses accepted ranking/berth fixtures and actual
+SQLite World selection/nation-region/draw/group stores. The Premier12
+integration uses actual saved ranking and regional Match history for its
+draw, including source drift rejection and database reopening. Six-group
+draw candidate evaluations are cached within each call; the full output
+matches the original algorithm for the captured seeded case. Local timings
+were 58.435 seconds before and 1.889 seconds after, not a general throughput
+guarantee.
+
 The full verification suite passed 486 files / 3,030 tests after Premier12
 schedule integration; P0 run `36713238883` passed its final source-provenance
 repair at `2ca3b345f516f2993b6d0e70cbc82ff42e8319a4`.
 After WBC schedule/Match integration, full local verification passed 488
 files / 3,033 tests. Fresh independent review reported no findings.
+After national draw/source integration and candidate evaluation caching,
+full local verification passed 489 files / 3,035 tests in 68.05 seconds.
+Fresh independent review reported no findings.
 
 ## Remaining implementation boundaries
 
-- Generate remaining national draw/hosting and accepted participation sources
+- Generate remaining national hosting, regional/qualifier draw and accepted participation sources
   from accepted career and world-cycle state.
 - Finish remaining competition schedules/career scheduler and physical Match integration;
   connect other national lifecycles to the durable Match pipeline and initialize
