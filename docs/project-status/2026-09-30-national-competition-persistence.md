@@ -34,6 +34,14 @@ This records implementation evidence, not approval of another design.
   qualified group/semifinal/medal games, before Match initialization. The
   fixture pins venue, day, participants and historical versions. Unknown,
   premature, out-of-window and differently pinned fixtures are rejected.
+- Premier12 saves all 34 game slots from its accepted group draw and World
+  window, including semifinal/medal slots before their participants qualify.
+  Circle rounds enforce one group game per nation per day. Versioned capacity
+  and round off-day inputs govern the allocation; an insufficient window
+  fails rather than dropping games. Fixture registration requires the exact
+  saved day and venue. Complete Edition/plan snapshots pin source identity;
+  replay rejects even a different accepted draw/hosting version or participant
+  allocation that would otherwise produce identical game slots.
 
 ## Verification boundaries
 
@@ -46,16 +54,22 @@ nine innings, adopting 60 durable plate appearances per game. Walks and
 strikeouts drive actual rule transitions, between-play resets and official
 game finalization. Count outcomes and defender identities are scripted test
 inputs; physical pitch/ball trajectories and production rosters are not
-executed by this test. Fixture days are within the accepted window but are
-not yet supplied by a complete competition schedule.
+executed by this test. Premier12 fixtures now consume the saved competition
+schedule in chronological group order, including after database reopening.
+The scheduling parameters in tests are explicit fixtures, not calibrated
+production policy. Career clock advancement and physical travel/recovery
+are not executed by this integration.
 
-The full verification suite passed 485 files / 3,028 tests after Match integration.
+The full verification suite passed 486 files / 3,030 tests after schedule
+integration. The later source-provenance repair passed the targeted schedule
+and SQLite integration tests and type checking; its exact commit is verified
+by the P0 workflow before this slice is treated as closed.
 
 ## Remaining implementation boundaries
 
 - Generate remaining national draw/hosting and accepted participation sources
   from accepted career and world-cycle state.
-- Finish competition schedule/career scheduler and physical Match integration;
+- Finish remaining competition schedules/career scheduler and physical Match integration;
   connect other national lifecycles to the durable Match pipeline and initialize
   historical WBC sources for new careers.
 - Continue other approved career/development/manager/economic integration

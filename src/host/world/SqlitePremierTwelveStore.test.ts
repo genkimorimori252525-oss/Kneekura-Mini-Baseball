@@ -15,6 +15,7 @@ import { EMPTY_WORLD_NATIONAL_RANKING_POLICY_REGISTRY,
 import { SqliteOfficialStateStore } from '../SqliteOfficialStateStore';
 import { playOfficialNineInningGame } from './OfficialNineInningGame.test-support';
 import { registerPremierTwelveFixtureFromWorld } from './PremierTwelveFixtureFromWorld';
+import { openSqlitePremierTwelveScheduleStore } from './SqlitePremierTwelveScheduleStore';
 import { openSqliteNationCompetitionRegionStore } from
   './SqliteNationCompetitionRegionStore';
 import { openSqliteRegionalNationalGroupStore } from
@@ -180,23 +181,57 @@ it('replays regional ranking through all 34 Premier12 games and later rankings',
     expect(() => finalFour!.initialize('career-1', edition.editionId))
       .toThrow('finalized groups');
     let activeGroups = groups;
+    const schedulePolicy = { version: 'premier-test-schedule-v1',
+      gamesPerVenuePerDay: 3, minimumOffDaysBetweenRounds: 0 };
+    let scheduleGroupSource = activeGroups;
+    const scheduleSources = { groups: {
+      readEdition: (careerId: string, editionId: string) =>
+        scheduleGroupSource.readEdition(careerId, editionId),
+      readPlan: (careerId: string, editionId: string) =>
+        scheduleGroupSource.readPlan(careerId, editionId),
+    } };
+    let schedules = track(openSqlitePremierTwelveScheduleStore(path, scheduleSources));
+    const scheduleRequest = { careerId: 'career-1', editionId: edition.editionId,
+      policy: schedulePolicy };
+    const schedule = schedules.initialize(scheduleRequest);
+    expect(schedules.initialize(scheduleRequest)).toEqual(schedule);
+    expect(schedule.games).toHaveLength(34);
+    const alternateGroups = track(openSqlitePremierTwelveGroupStore(':memory:', sources));
+    alternateGroups.initialize({ ...request, edition: { ...edition,
+      drawSnapshotId: 'different-accepted-draw', hostingPolicyVersion: 'different-host-version',
+      groups: edition.groups.map((group, index) => index === 0 ? { ...group,
+        nationIds: [group.nationIds[1], group.nationIds[0], ...group.nationIds.slice(2)] } : group) } });
+    scheduleGroupSource = alternateGroups;
+    expect(() => schedules.readSchedule('career-1', edition.editionId)).toThrow('corrupt');
+    scheduleGroupSource = activeGroups;
+    expect(() => schedules.initialize({ ...scheduleRequest,
+      policy: { ...schedulePolicy, gamesPerVenuePerDay: 2 } })).toThrow('frozen differently');
+    const fixtureDay = (gameId: string): number => schedule.games
+      .find((game) => game.gameId === gameId)!.gameDay;
     const putPremier = (game: PremierTwelveGame): void => {
       const fixture = registerPremierTwelveFixtureFromWorld({ groups: activeGroups,
-        finalFour: finalFour!, matches }, { careerId: 'career-1', editionId: edition.editionId,
-        gameId: game.gameId, gameDay: edition.calendarWindow.startsOnDay });
+        finalFour: finalFour!, schedules, matches }, { careerId: 'career-1', editionId: edition.editionId,
+        gameId: game.gameId, gameDay: fixtureDay(game.gameId) });
       expect(registerPremierTwelveFixtureFromWorld({ groups: activeGroups,
-        finalFour: finalFour!, matches }, { careerId: 'career-1', editionId: edition.editionId,
-        gameId: game.gameId, gameDay: edition.calendarWindow.startsOnDay })).toEqual(fixture);
+        finalFour: finalFour!, schedules, matches }, { careerId: 'career-1', editionId: edition.editionId,
+        gameId: game.gameId, gameDay: fixtureDay(game.gameId) })).toEqual(fixture);
       put(game, edition.editionId, fixture.binding);
     };
-    const games = plan.groups.flatMap((group) => group.games);
+    const plannedGames = plan.groups.flatMap((group) => group.games);
+    const games = schedule.games.filter((slot) => slot.stage === 'GROUP')
+      .map((slot) => plannedGames.find((game) => game.gameId === slot.gameId)!);
     expect(() => registerPremierTwelveFixtureFromWorld({ groups: activeGroups,
-      finalFour: finalFour!, matches }, { careerId: 'career-1', editionId: edition.editionId,
+      finalFour: finalFour!, schedules, matches }, { careerId: 'career-1', editionId: edition.editionId,
       gameId: games[0].gameId, gameDay: edition.calendarWindow.endsOnDay + 1 }))
       .toThrow('accepted Edition');
     expect(matches.getOfficialFixture(games[0].gameId)).toBeNull();
     expect(() => registerPremierTwelveFixtureFromWorld({ groups: activeGroups,
-      finalFour: finalFour!, matches }, { careerId: 'career-1', editionId: edition.editionId,
+      finalFour: finalFour!, schedules, matches }, { careerId: 'career-1', editionId: edition.editionId,
+      gameId: games[0].gameId, gameDay: fixtureDay(games[0].gameId) + 1 }))
+      .toThrow('accepted schedule');
+    expect(matches.getOfficialFixture(games[0].gameId)).toBeNull();
+    expect(() => registerPremierTwelveFixtureFromWorld({ groups: activeGroups,
+      finalFour: finalFour!, schedules, matches }, { careerId: 'career-1', editionId: edition.editionId,
       gameId: 'not-planned', gameDay: edition.calendarWindow.startsOnDay }))
       .toThrow('not yet qualified');
     games.slice(0, 29).forEach(putPremier);
@@ -206,9 +241,12 @@ it('replays regional ranking through all 34 Premier12 games and later rankings',
     matches = new SqliteOfficialStateStore(matchPath);
     activeGroups = track(openSqlitePremierTwelveGroupStore(path, sources));
     expect(activeGroups.readPlan('career-1', edition.editionId)).toEqual(plan);
+    schedules.close();
+    schedules = track(openSqlitePremierTwelveScheduleStore(path, { groups: activeGroups }));
+    expect(schedules.readSchedule('career-1', edition.editionId)).toEqual(schedule);
     const lastFixture = registerPremierTwelveFixtureFromWorld({ groups: activeGroups,
-      finalFour: finalFour!, matches }, { careerId: 'career-1', editionId: edition.editionId,
-      gameId: games[29].gameId, gameDay: edition.calendarWindow.startsOnDay });
+      finalFour: finalFour!, schedules, matches }, { careerId: 'career-1', editionId: edition.editionId,
+      gameId: games[29].gameId, gameDay: fixtureDay(games[29].gameId) });
     put(games[29], edition.editionId, lastFixture.binding);
     const groupOutcome = activeGroups.finalize('career-1', edition.editionId)!;
     expect(groupOutcome.resultApplicationIds).toHaveLength(30);
@@ -217,16 +255,16 @@ it('replays regional ranking through all 34 Premier12 games and later rankings',
       { groups: activeGroups, matches: matchSource }));
     const medalPlan = finalFour.initialize('career-1', edition.editionId);
     expect(() => registerPremierTwelveFixtureFromWorld({ groups: activeGroups,
-      finalFour: finalFour!, matches }, { careerId: 'career-1', editionId: edition.editionId,
-      gameId: medalPlan.finalGameId, gameDay: edition.calendarWindow.startsOnDay }))
+      finalFour: finalFour!, schedules, matches }, { careerId: 'career-1', editionId: edition.editionId,
+      gameId: medalPlan.finalGameId, gameDay: fixtureDay(medalPlan.finalGameId) }))
       .toThrow('not yet qualified');
     expect(matches.getOfficialFixture(medalPlan.finalGameId)).toBeNull();
     putPremier(medalPlan.semifinalGames[0]);
     expect(() => registerPremierTwelveFixtureFromWorld({ groups: activeGroups,
-      finalFour: finalFour!, matches }, { careerId: 'career-1', editionId: edition.editionId,
+      finalFour: finalFour!, schedules, matches }, { careerId: 'career-1', editionId: edition.editionId,
       gameId: medalPlan.semifinalGames[0].gameId,
-      gameDay: edition.calendarWindow.startsOnDay + 1 }))
-      .toThrow('pinned differently');
+      gameDay: fixtureDay(medalPlan.semifinalGames[0].gameId) + 1 }))
+      .toThrow('accepted schedule');
     expect(finalFour.medalGames('career-1', edition.editionId)).toBeNull();
     finalFour.close();
     finalFour = track(openSqlitePremierTwelveFinalFourStore(path,
@@ -271,6 +309,12 @@ it('replays regional ranking through all 34 Premier12 games and later rankings',
       .run(binding.venueId, medals.finalGame.gameId);
     matchDb.close();
     const db = new DatabaseSync(path);
+    const savedSchedule = db.prepare('SELECT schedule_json FROM world_premier_twelve_schedules')
+      .get() as { schedule_json: string };
+    db.prepare("UPDATE world_premier_twelve_schedules SET schedule_json='{}'").run();
+    expect(() => schedules.readSchedule('career-1', edition.editionId)).toThrow('corrupt');
+    db.prepare('UPDATE world_premier_twelve_schedules SET schedule_json=?')
+      .run(savedSchedule.schedule_json);
     db.prepare("UPDATE world_premier_twelve_final_four SET outcome_json='{}'").run();
     db.close();
     expect(() => finalFour!.readOutcome('career-1', edition.editionId)).toThrow('corrupt');

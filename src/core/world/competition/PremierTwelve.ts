@@ -100,6 +100,17 @@ export type PremierTwelveOutcome = Readonly<{
   resultApplicationIds: readonly string[];
 }>;
 
+/** Reserve knockout slots before their participants qualify. */
+export const premierTwelveFinalFourGameIds = (
+  edition: Pick<PremierTwelveEdition, 'competitionId' | 'editionId'>,
+): Readonly<{ semifinalGameIds: readonly string[];
+  bronzeGameId: string; finalGameId: string }> => Object.freeze({
+  semifinalGameIds: Object.freeze([0, 1].map((index) =>
+    JSON.stringify(['premier-12-sf', edition.competitionId, edition.editionId, index]))),
+  bronzeGameId: JSON.stringify(['premier-12-bronze', edition.competitionId, edition.editionId]),
+  finalGameId: JSON.stringify(['premier-12-final', edition.competitionId, edition.editionId]),
+});
+
 /** The ranking authority supplies the top twelve at the edition cutoff. */
 export const planPremierTwelveGroups = (
   edition: PremierTwelveEdition,
@@ -319,9 +330,9 @@ export const planPremierTwelveFinalFour = (
     || new Set(pairing.semifinalPairs.flat()).size !== 4) {
     throw new Error('Premier 12 needs decided cross-group semifinals');
   }
+  const gameIds = premierTwelveFinalFourGameIds(edition);
   const semifinals = pairing.semifinalPairs.map((pair, index) =>
-    Object.freeze({ gameId: JSON.stringify(['premier-12-sf',
-      edition.competitionId, edition.editionId, index]),
+    Object.freeze({ gameId: gameIds.semifinalGameIds[index],
     homeNationId: qualifiers[pair[0]],
     awayNationId: qualifiers[pair[1]],
     venueId: edition.finalFourHost.venueId }));
@@ -330,10 +341,8 @@ export const planPremierTwelveFinalFour = (
     finalFourVenueId: edition.finalFourHost.venueId,
     sourceApplicationIds: Object.freeze([...groups.resultApplicationIds]),
     semifinalGames: Object.freeze(semifinals),
-    bronzeGameId: JSON.stringify(['premier-12-bronze',
-      edition.competitionId, edition.editionId]),
-    finalGameId: JSON.stringify(['premier-12-final',
-      edition.competitionId, edition.editionId]) });
+    bronzeGameId: gameIds.bronzeGameId,
+    finalGameId: gameIds.finalGameId });
 };
 
 export const planPremierTwelveMedalGames = (

@@ -5,6 +5,7 @@ import type { PremierTwelveEdition, PremierTwelveGame } from
 import type { SqliteOfficialStateStore } from '../SqliteOfficialStateStore';
 import type { SqlitePremierTwelveGroupStore } from './SqlitePremierTwelveGroupStore';
 import type { SqlitePremierTwelveFinalFourStore } from './SqlitePremierTwelveFinalFourStore';
+import type { SqlitePremierTwelveScheduleStore } from './SqlitePremierTwelveScheduleStore';
 
 export type PremierTwelveFixture = Readonly<{
   edition: PremierTwelveEdition;
@@ -18,6 +19,7 @@ export const registerPremierTwelveFixtureFromWorld = (
   stores: Readonly<{
     groups: Pick<SqlitePremierTwelveGroupStore, 'readEdition' | 'readPlan'>;
     finalFour: Pick<SqlitePremierTwelveFinalFourStore, 'readPlan' | 'medalGames'>;
+    schedules: Pick<SqlitePremierTwelveScheduleStore, 'readSchedule'>;
     matches: Pick<SqliteOfficialStateStore, 'registerOfficialFixture'>;
   }>,
   input: Readonly<{ careerId: string; editionId: string; gameId: string; gameDay: number }>,
@@ -43,6 +45,13 @@ export const registerPremierTwelveFixtureFromWorld = (
     }
   }
   if (!game) throw new Error('Premier12 fixture game is not yet qualified');
+  const schedule = stores.schedules.readSchedule(input.careerId, input.editionId);
+  const slot = schedule?.games.find((item) => item.gameId === input.gameId);
+  if (!schedule || schedule.editionId !== edition.editionId
+    || schedule.competitionId !== edition.competitionId
+    || !slot || slot.gameDay !== input.gameDay || slot.venueId !== game.venueId) {
+    throw new Error('Premier12 fixture differs from accepted schedule');
+  }
   const binding = stores.matches.registerOfficialFixture({ gameId: game.gameId,
     venueId: game.venueId, fixtureRevision: 1,
     fixtureEventId: JSON.stringify(['premier-12-fixture-v1', input.careerId,
@@ -50,7 +59,10 @@ export const registerPremierTwelveFixtureFromWorld = (
       edition.ruleProfileVersion, edition.gamePolicyVersion,
       edition.qualificationCutoffSnapshotId, edition.rankingSnapshotId,
       edition.drawSnapshotId, edition.hostingPolicyVersion,
-      game.gameId, input.gameDay, game.homeNationId, game.awayNationId, game.venueId]),
+      game.gameId, input.gameDay, game.homeNationId, game.awayNationId, game.venueId,
+      schedule.policy.version, schedule.policy.gamesPerVenuePerDay,
+      schedule.policy.minimumOffDaysBetweenRounds, slot.stage, slot.roundIndex,
+      slot.venueGameOrdinal]),
   });
   return Object.freeze({ edition, game, gameDay: input.gameDay, binding });
 };
