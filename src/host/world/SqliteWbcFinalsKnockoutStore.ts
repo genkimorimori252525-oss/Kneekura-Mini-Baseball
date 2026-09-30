@@ -28,6 +28,7 @@ export type WbcFinalsKnockoutEvidence = Readonly<{
 }>;
 export type SqliteWbcFinalsKnockoutStore = Readonly<{
   initialize(request: WbcFinalsKnockoutRequest): WbcKnockoutPlan;
+  readEdition(careerId: string, editionId: string): WbcKnockoutEdition | null;
   readPlan(careerId: string, editionId: string):
     WbcKnockoutPlan | null;
   quarterfinalGames(careerId: string, editionId: string):
@@ -221,6 +222,9 @@ export const openSqliteWbcFinalsKnockoutStore = (
         db.exec('ROLLBACK');
         throw error;
       }
+    },
+    readEdition(careerId: string, editionId: string): WbcKnockoutEdition | null {
+      return read(careerId, editionId)?.request.edition ?? null;
     },
     readPlan(careerId: string, editionId: string):
       WbcKnockoutPlan | null {

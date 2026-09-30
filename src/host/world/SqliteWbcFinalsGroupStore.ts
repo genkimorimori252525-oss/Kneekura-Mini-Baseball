@@ -10,6 +10,7 @@ import type { OfficialGameResult } from
   '../../core/world/competition/OfficialGameCompletion';
 import { readDurableOfficialGameResult,
   type PostseasonMatchSource } from './PostseasonResultsFromMatches';
+import type { SqliteNationalCompetitionSelectionStore } from './SqliteNationalCompetitionSelectionStore';
 
 export type WbcFinalsGroupRequest = Readonly<{
   careerId: string;
@@ -24,6 +25,7 @@ export type WbcFinalsGroupEvidence = Readonly<{
 }>;
 export type SqliteWbcFinalsGroupStore = Readonly<{
   initialize(request: WbcFinalsGroupRequest): WbcFinalsGroupPlan;
+  readEdition(careerId: string, editionId: string): WbcFinalsGroupEdition | null;
   readPlan(careerId: string,
     editionId: string): WbcFinalsGroupPlan | null;
   finalize(careerId: string,
@@ -52,6 +54,7 @@ export const openSqliteWbcFinalsGroupStore = (
     berths: Readonly<{ readAllocation(careerId: string,
       editionId: string): WbcBerthAllocation | null }>;
     matches: PostseasonMatchSource;
+    selections?: Pick<SqliteNationalCompetitionSelectionStore, 'readSelection'>;
   }>,
 ): SqliteWbcFinalsGroupStore => {
   if (!id(databasePath)) {
@@ -76,6 +79,14 @@ export const openSqliteWbcFinalsGroupStore = (
     const allocation = sources.berths.readAllocation(request.careerId,
       request.edition.editionId);
     if (!allocation) throw new Error('WBC finals require official berths');
+    if (sources.selections) {
+      const selection = sources.selections.readSelection(request.careerId, request.edition.editionId);
+      if (!selection || selection.kind !== 'WBC' || selection.editionId !== request.edition.editionId
+        || selection.qualificationCutoff.snapshotId !== allocation.cutoffSnapshotId
+        || canonicalJson(selection.calendarWindow) !== canonicalJson(request.edition.calendarWindow)) {
+        throw new Error('WBC finals differ from accepted World selection');
+      }
+    }
     return allocation;
   };
   const projectPlan = (request: WbcFinalsGroupRequest):
@@ -166,6 +177,11 @@ export const openSqliteWbcFinalsGroupStore = (
         db.exec('ROLLBACK');
         throw error;
       }
+    },
+    readEdition(careerId: string, editionId: string): WbcFinalsGroupEdition | null {
+      assertScope(careerId, editionId);
+      const stored = row(careerId, editionId);
+      return stored ? replay(careerId, editionId, stored).request.edition : null;
     },
     readPlan(careerId: string, editionId: string):
       WbcFinalsGroupPlan | null {

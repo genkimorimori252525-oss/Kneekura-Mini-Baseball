@@ -62,36 +62,35 @@ export type WbcKnockoutOutcome = Readonly<{
   resultApplicationIds: readonly string[];
 }>;
 
+export const wbcKnockoutGameId = (edition: Pick<WbcKnockoutEdition, 'competitionId' | 'editionId'>,
+  stage: WbcKnockoutGame['stage'], stageIndex: number): string =>
+  JSON.stringify(['wbc-knockout', edition.competitionId, edition.editionId, stage, stageIndex]);
+
 const game = (edition: WbcKnockoutEdition,
   stage: WbcKnockoutGame['stage'], stageIndex: number,
   homeNationId: string, awayNationId: string,
   venueId: string): WbcKnockoutGame => Object.freeze({ stage,
-  stageIndex, gameId: JSON.stringify(['wbc-knockout',
-    edition.competitionId, edition.editionId, stage, stageIndex]),
+  stageIndex, gameId: wbcKnockoutGameId(edition, stage, stageIndex),
   homeNationId, awayNationId, venueId });
 
-/** Rechecks all 36 group results before planning the frozen 16-nation draw. */
-export const planWbcKnockout = (
-  source: WbcKnockoutSource,
-): WbcKnockoutPlan => {
-  const groups = finalizeWbcFinalsGroups(source.groupPlan,
-    source.groupResults, source.groupEdition, source.berths);
-  const entrants = groups.roundOf16NationIds;
-  const edition = source.knockoutEdition;
-  if (!entrants || entrants.length !== 16
-    || !id(edition?.competitionId)
-    || edition.competitionId !== source.groupEdition.competitionId
-    || edition.editionId !== source.groupEdition.editionId
+/** Validate preselected hubs/draw without inventing future knockout participants. */
+export const assertWbcKnockoutEdition = (
+  edition: WbcKnockoutEdition,
+  groupEdition: WbcFinalsGroupEdition,
+): void => {
+  if (!id(edition?.competitionId)
+    || edition.competitionId !== groupEdition.competitionId
+    || edition.editionId !== groupEdition.editionId
     || edition.canonicalRole !== 'NATIONAL_WORLD_CHAMPIONSHIP'
     || edition.hostNationId !== 'US'
     || edition.qualificationSnapshotId
-      !== source.groupEdition.qualificationSnapshotId
+      !== groupEdition.qualificationSnapshotId
     || edition.groupDrawSnapshotId
-      !== source.groupEdition.drawSnapshotId
+      !== groupEdition.drawSnapshotId
     || edition.ruleProfileVersion
-      !== source.groupEdition.ruleProfileVersion
+      !== groupEdition.ruleProfileVersion
     || edition.gamePolicyVersion
-      !== source.groupEdition.gamePolicyVersion
+      !== groupEdition.gamePolicyVersion
     || !id(edition.knockoutPolicyVersion)
     || !Array.isArray(edition.roundOf16Pairs)
     || edition.roundOf16Pairs.length !== 8
@@ -117,6 +116,20 @@ export const planWbcKnockout = (
       !nonnegative(index) || index >= edition.knockoutHubs.length)
     || !id(edition.finalFourHost?.cityId)
     || !id(edition.finalFourHost.venueId)) {
+    throw new Error('invalid versioned US WBC knockout edition');
+  }
+};
+
+/** Rechecks all 36 group results before planning the frozen 16-nation draw. */
+export const planWbcKnockout = (
+  source: WbcKnockoutSource,
+): WbcKnockoutPlan => {
+  const groups = finalizeWbcFinalsGroups(source.groupPlan,
+    source.groupResults, source.groupEdition, source.berths);
+  const entrants = groups.roundOf16NationIds;
+  const edition = source.knockoutEdition;
+  assertWbcKnockoutEdition(edition, source.groupEdition);
+  if (!entrants || entrants.length !== 16) {
     throw new Error('invalid versioned US WBC knockout edition');
   }
   const roundOf16Games = edition.roundOf16Pairs.map((pair, index) =>
