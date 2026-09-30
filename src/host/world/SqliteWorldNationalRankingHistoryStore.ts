@@ -15,6 +15,7 @@ import type { SqliteWbcFinalsKnockoutStore } from
 import type { SqlitePremierTwelveFinalFourStore } from
   './SqlitePremierTwelveFinalFourStore';
 import type { RegionalNationalEdition } from '../../core/world/competition/RegionalNationalGroups';
+import type { RegionalNationalKnockoutEdition } from '../../core/world/competition/RegionalNationalKnockout';
 import { createCompetitionSourceReader, withCompetitionSourceReadScope, withCompetitionSourceReadPhase } from './CompetitionSourceReadScope';
 
 type Kind = 'REGIONAL' | 'WBC' | 'PREMIER_12';
@@ -42,6 +43,8 @@ export type SqliteWorldNationalRankingHistoryStore = Readonly<{
   readHistory(careerId: string,
     beforeDay?: number): WorldNationalRankingHistory;
   readRegionalEdition(careerId: string, editionId: string, beforeDay: number): RegionalNationalEdition | null;
+  readRegionalHostingEdition(careerId: string, editionId: string, beforeDay: number): Readonly<{
+    edition: RegionalNationalEdition; knockoutEdition: RegionalNationalKnockoutEdition }> | null;
   close(): void;
 }>;
 
@@ -181,6 +184,21 @@ export const openSqliteWorldNationalRankingHistoryStore = (
       throw error;
     }
   });
+  const readRegionalHostingEdition = (careerId: string, editionId: string, beforeDay: number): Readonly<{
+    edition: RegionalNationalEdition; knockoutEdition: RegionalNationalKnockoutEdition }> | null => withCompetitionSourceReadScope(() => {
+    assertCareer(careerId);
+    if (!id(editionId) || !day(beforeDay)) throw new Error('invalid regional ranking Edition scope');
+    const accepted = replay(careerId, beforeDay).editions.find((entry) => entry.editionId === editionId && entry.tier === 'REGIONAL');
+    if (!accepted) return null;
+    const evidence = readRegional(careerId, editionId);
+    const edition = evidence?.source.groupEdition;
+    const knockoutEdition = evidence?.source.knockoutEdition;
+    if (!edition || !knockoutEdition || edition.editionId !== editionId || knockoutEdition.editionId !== editionId
+      || knockoutEdition.groupDrawSnapshotId !== edition.drawSnapshotId || edition.calendarWindow.endsOnDay !== accepted.completedAtDay) {
+      throw new Error('regional ranking lacks accepted official Edition');
+    }
+    return Object.freeze({ edition, knockoutEdition });
+  });
   return Object.freeze({
     recordRegional(careerId: string,
       editionId: string): WorldNationalRankingHistory {
@@ -201,19 +219,9 @@ export const openSqliteWorldNationalRankingHistoryStore = (
       return replay(careerId, beforeDay);
     },
     readRegionalEdition(careerId: string, editionId: string, beforeDay: number): RegionalNationalEdition | null {
-      return withCompetitionSourceReadScope(() => {
-        assertCareer(careerId);
-        if (!id(editionId) || !day(beforeDay)) throw new Error('invalid regional ranking Edition scope');
-        const accepted = replay(careerId, beforeDay).editions.find((entry) => entry.editionId === editionId && entry.tier === 'REGIONAL');
-        if (!accepted) return null;
-        const evidence = readRegional(careerId, editionId);
-        const edition = evidence?.source.groupEdition;
-        if (!edition || edition.editionId !== editionId || edition.calendarWindow.endsOnDay !== accepted.completedAtDay) {
-          throw new Error('regional ranking lacks accepted official Edition');
-        }
-        return edition;
-      });
+      return readRegionalHostingEdition(careerId, editionId, beforeDay)?.edition ?? null;
     },
+    readRegionalHostingEdition,
     close(): void {
       if (!closed) db.close();
       closed = true;
