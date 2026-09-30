@@ -65,6 +65,21 @@ This records implementation evidence, not approval of another design.
   The durable owner generates group/knockout identities and freezes the
   complete draw, candidate source, host evaluations and versioned rules.
   Connected group/knockout stores reject different Edition metadata.
+- World hosting infrastructure now records licensed/safe venue facts,
+  transport/accommodation/broadcast/operations metrics and historical nation
+  regions. Chained events preserve each cutoff; later facilities and unrelated
+  corrupt future infrastructure do not reinterpret a historical snapshot.
+  Club-owned stadium quality/capacity derive from accepted Club history at the
+  cutoff, rather than a second independent copy. Venue/city/nation consistency
+  is checked. A chained source digest pins the accepted Club checkpoint and
+  eligible event prefix even when different histories produce identical venue
+  attributes. Public venues require no full domestic league.
+- The organizer persists versioned eligibility thresholds, suitability weights
+  and recent city/nation/region hosting penalties. Actual completed official
+  national history and accepted predecessor Editions supply hosting evidence.
+  Strictly earlier predecessor cutoffs are checked before following Edition
+  sources, including rejection of self references. Candidate snapshots pin all
+  facility/history/selection inputs and policy parameters for replay.
 
 ## Verification boundaries
 
@@ -104,10 +119,17 @@ guarantee.
 The national Edition tests reopen saved sources and reject changed candidate
 provenance even when the winning hosts are identical. They also reject
 unaccepted group/medal venues and knockout policy versions. Candidate
-eligibility and calibrated suitability/rotation scores are explicit accepted
-fixtures in these tests. Production infrastructure/history projection into
-those candidate snapshots remains subsequent work; the Edition owner does
-not claim to generate that evidence or apply ability buffs/host berths.
+eligibility and suitability/rotation scores now come from the SQLite World
+infrastructure and organizer candidate stores. Initial facility facts and
+calibration parameters in tests remain explicit fixtures. The Premier12 test
+also initializes the next four-year World cycle, consumes the actual prior
+completed tournament's hosting, and selects a later opened city with less
+recent-city penalty. It retains the old candidate/Edition snapshot unchanged.
+Its host nations are outside the participant ranking; no host berth is added.
+WBC also consumes the infrastructure/candidate stores and rejects a higher
+scoring Canadian venue. Its ranking/qualification/history inputs remain
+fixtures. Production venue catalog initialization and complete national
+qualification/career orchestration are separate completion boundaries.
 
 The full verification suite passed 486 files / 3,030 tests after Premier12
 schedule integration; P0 run `36713238883` passed its final source-provenance
@@ -124,9 +146,19 @@ missing WBC US/AMERICAS consistency guard. Regression tests reproduced it
 for pool, knockout and final candidate sources; the guard was added and
 the complete verification suite passed after that repair.
 
+After infrastructure/candidate source integration, final local verification
+passed 493 files / 3,043 tests in 68.07 seconds, including catalog verification
+and type checking. Independent review identified missing Club history
+provenance when venue attributes are identical. The regression reproduced
+that case; eligible Club prefix hashing repaired it. Additional predecessor
+tests reject equal/future cutoffs and completion outside the predecessor
+window before following the Edition callback. The full suite passed after
+these repairs. This does not execute a production Club journal in the
+infrastructure unit test; its accepted Club histories are callback fixtures.
+
 ## Remaining implementation boundaries
 
-- Generate national infrastructure/hosting-history candidate evidence,
+- Initialize production World facility/catalog evidence and generate
   regional/qualifier draw and accepted participation sources
   from accepted career and world-cycle state.
 - Finish remaining competition schedules/career scheduler and physical Match integration;

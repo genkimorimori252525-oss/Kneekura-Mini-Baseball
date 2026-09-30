@@ -17,8 +17,11 @@ import { playOfficialNineInningGame } from './OfficialNineInningGame.test-suppor
 import { registerPremierTwelveFixtureFromWorld } from './PremierTwelveFixtureFromWorld';
 import { openSqlitePremierTwelveScheduleStore } from './SqlitePremierTwelveScheduleStore';
 import { openSqliteNationalCompetitionDrawStore } from './SqliteNationalCompetitionDrawStore';
-import { openSqliteNationalCompetitionEditionStore, type NationalHostCandidateSnapshot } from
+import { openSqliteNationalCompetitionEditionStore, type NationalHostCandidateSnapshot,
+  type SqliteNationalCompetitionEditionStore } from
   './SqliteNationalCompetitionEditionStore';
+import { openSqliteWorldHostInfrastructureStore } from './SqliteWorldHostInfrastructureStore';
+import { openSqliteNationalHostCandidateStore } from './SqliteNationalHostCandidateStore';
 import { EMPTY_COMPETITION_DRAW_POLICY_REGISTRY, registerCompetitionDrawPolicy } from
   '../../core/world/competition/CompetitionDraw';
 import { openSqliteNationCompetitionRegionStore } from
@@ -158,24 +161,41 @@ it('replays regional ranking through all 34 Premier12 games and later rankings',
     drawRegionOverride = 'AFRICA';
     expect(() => draws.readDraw('career-1', selection.editionId)).toThrow('corrupt');
     drawRegionOverride = undefined;
-    const hostCandidates: NationalHostCandidateSnapshot = {
-      kind: 'PREMIER_12', policyVersion: 'premier-hosts-v1',
-      snapshotId: 'premier-host-candidates-1300', asOfDay: qualificationDay,
-      groupCandidates: [0, 1].map((index) => [{ nationId: `nation-${index * 6}`,
-        cityId: `host-${index}`, venueId: `group-${index}`, regionId: 'EUROPE',
-        eligible: true, suitabilityScore: 1, rotationScore: 0 }]),
-      knockoutCandidates: [], finalFourCandidates: [{ nationId: 'nation-0',
-        cityId: 'medal-city', venueId: 'medal-venue', regionId: 'EUROPE',
-        eligible: true, suitabilityScore: 1, rotationScore: 0 }],
-    };
+    ['host-nation-a', 'host-nation-b'].forEach((nationId) => regions.record({ careerId: 'career-1',
+      nationId, region: 'EUROPE', effectiveFromDay: 0, sourceEventId: `region-${nationId}` }));
+    const infrastructure = track(openSqliteWorldHostInfrastructureStore(path, { nations: regions }));
+    const metrics = { stadiumCapacity: 10000, stadiumQuality: 50, transportQuality: 50,
+      accommodationCapacity: 10000, broadcastReadiness: 50, operationsQuality: 50 };
+    const publicVenue = { careerId: 'career-1', nationId: 'host-nation-a', cityId: 'host-a',
+      region: 'EUROPE' as const, effectiveFromDay: 0, licensed: true, safe: true, sourceClubId: null,
+      metrics };
+    infrastructure.record({ ...publicVenue, venueId: 'group-a', sourceEventId: 'group-a-opened' });
+    infrastructure.record({ ...publicVenue, nationId: 'host-nation-b', cityId: 'host-b',
+      venueId: 'group-b', sourceEventId: 'group-b-opened' });
+    infrastructure.record({ ...publicVenue, cityId: 'medal-city', venueId: 'medal-venue',
+      sourceEventId: 'medal-venue-opened', metrics: { ...metrics, stadiumCapacity: 8000, broadcastReadiness: 100 } });
+    const hostPolicy = { version: 'premier-hosts-v1', kind: 'PREMIER_12' as const, knockoutHubCount: 0,
+      minimums: { GROUP: metrics, KNOCKOUT: { ...metrics, stadiumCapacity: 8000, broadcastReadiness: 90 },
+        FINAL_FOUR: { ...metrics, stadiumCapacity: 8000, broadcastReadiness: 90 } },
+      suitabilityWeights: { stadiumCapacity: 0, stadiumQuality: 1, transportQuality: 1,
+        accommodationCapacity: 0, broadcastReadiness: 1, operationsQuality: 1 },
+      rotation: { lookbackDays: 3000, cityPenalty: 10, nationPenalty: 2, regionPenalty: 1 } };
+    let editions: SqliteNationalCompetitionEditionStore;
+    const hostSources = { selections, infrastructure, history, editions: {
+      readSnapshot: (careerId: string, editionId: string) => editions?.readSnapshot(careerId, editionId) ?? null } };
+    let hostStore = track(openSqliteNationalHostCandidateStore(path, hostSources));
+    const hostRequest = { careerId: 'career-1', editionId: selection.editionId, policy: hostPolicy };
+    const hostCandidates = hostStore.initialize(hostRequest);
+    expect(hostCandidates.source.hostingHistory).toEqual([]);
+    expect(hostStore.readCandidates('career-1', selection.editionId, qualificationDay)).toEqual(hostCandidates);
+    expect(() => hostStore.initialize({ ...hostRequest, policy: { ...hostPolicy,
+      rotation: { ...hostPolicy.rotation, cityPenalty: 11 } } })).toThrow('frozen differently');
     let hostCandidatesOverride: NationalHostCandidateSnapshot | undefined;
     const editionSources = { draws: {
       readDraw: (careerId: string, editionId: string) => draws.readDraw(careerId, editionId) },
-      hosts: { readCandidates: (_careerId: string, _editionId: string, day: number) => {
-        expect(day).toBe(qualificationDay);
-        return hostCandidatesOverride ?? hostCandidates;
-      } } };
-    let editions = track(openSqliteNationalCompetitionEditionStore(path, editionSources));
+      hosts: { readCandidates: (careerId: string, editionId: string, day: number) =>
+        hostCandidatesOverride ?? hostStore.readCandidates(careerId, editionId, day) } };
+    editions = track(openSqliteNationalCompetitionEditionStore(path, editionSources));
     const editionRequest = { careerId: 'career-1', editionId: selection.editionId, profile: {
       kind: 'PREMIER_12' as const, competitionId: 'premier12', formatVersion: 'premier-v1',
       ruleProfileVersion: 'rules-v1', gamePolicyVersion: 'games-v1',
@@ -187,10 +207,16 @@ it('replays regional ranking through all 34 Premier12 games and later rankings',
     expect(acceptedEdition.kind).toBe('PREMIER_12');
     const edition: PremierTwelveEdition = editions.readPremierEdition('career-1', selection.editionId)!;
     expect(edition.rankingSnapshotId).toBe(ranking.snapshotId);
+    expect(edition.hostNationIds).toEqual(['host-nation-a', 'host-nation-b']);
     expect(edition.groups.flatMap((group) => group.nationIds).sort()).toEqual([...nationIds].sort());
     hostCandidatesOverride = { ...hostCandidates, snapshotId: 'different-accepted-candidates' };
     expect(() => editions.readSnapshot('career-1', edition.editionId)).toThrow('corrupt');
     hostCandidatesOverride = undefined;
+    infrastructure.record({ ...publicVenue, venueId: 'new-host-city-venue', cityId: 'new-host-city',
+      sourceEventId: 'new-host-city-opened', effectiveFromDay: 1600 });
+    expect(hostStore.readCandidates('career-1', edition.editionId, qualificationDay)).toEqual(hostCandidates);
+    hostStore.close();
+    hostStore = track(openSqliteNationalHostCandidateStore(path, hostSources));
     editions.close();
     editions = track(openSqliteNationalCompetitionEditionStore(path, editionSources));
     expect(editions.initialize(editionRequest)).toEqual(acceptedEdition);
@@ -340,6 +366,21 @@ it('replays regional ranking through all 34 Premier12 games and later rankings',
       asOfDay: edition.calendarWindow.endsOnDay, nationIds, policy, registry });
     expect(laterRanking.evidenceResultIds).toHaveLength(49);
     expect(history.readHistory('career-1')).toEqual(rankedHistory);
+    // A later World cycle consumes the real completed Premier hosting and later infrastructure.
+    cycle.initialize('career-1', worldCycleInput(1));
+    const nextSelection = selections.initialize({ careerId: 'career-1', editionId: 'premier-2038',
+      cycleOrdinal: 1, kind: 'PREMIER_12', careerDayOne: '2031-01-01', cutoffDay: 2750 });
+    rankings.initialize({ careerId: 'career-1', asOfDay: 2750, nationIds, policy, registry });
+    draws.initialize({ ...drawRequest, editionId: nextSelection.editionId });
+    const nextHosts = hostStore.initialize({ ...hostRequest, editionId: nextSelection.editionId });
+    expect(nextHosts.source.hostingHistory.map((entry) => entry.editionId)).toEqual([edition.editionId]);
+    expect(nextHosts.groupCandidates[0].find((candidate) => candidate.venueId === 'group-a')?.rotationScore).toBe(-13);
+    expect(nextHosts.groupCandidates[0].find((candidate) => candidate.venueId === 'new-host-city-venue')?.rotationScore).toBe(-3);
+    editions.initialize({ ...editionRequest, editionId: nextSelection.editionId });
+    const nextEdition = editions.readPremierEdition('career-1', nextSelection.editionId)!;
+    expect(nextEdition.groupHosts[0].venueId).toBe('new-host-city-venue');
+    expect(nextEdition.groups.flatMap((group) => group.nationIds).sort()).toEqual([...nationIds].sort());
+    expect(editions.readPremierEdition('career-1', edition.editionId)).toEqual(edition);
     finalFour.close();
     finalFour = track(openSqlitePremierTwelveFinalFourStore(path,
       { groups: activeGroups, matches: matchSource }));

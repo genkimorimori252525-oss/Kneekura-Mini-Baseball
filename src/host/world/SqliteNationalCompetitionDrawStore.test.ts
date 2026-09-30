@@ -7,8 +7,11 @@ import { openSqliteNationalCompetitionSelectionStore } from './SqliteNationalCom
 import { openSqliteNationCompetitionRegionStore } from './SqliteNationCompetitionRegionStore';
 import { openSqliteNationalCompetitionDrawStore } from './SqliteNationalCompetitionDrawStore';
 import { openSqliteWbcFinalsGroupStore } from './SqliteWbcFinalsGroupStore';
-import { openSqliteNationalCompetitionEditionStore, type NationalHostCandidateSnapshot } from
+import { openSqliteNationalCompetitionEditionStore, type NationalHostCandidateSnapshot,
+  type SqliteNationalCompetitionEditionStore } from
   './SqliteNationalCompetitionEditionStore';
+import { openSqliteWorldHostInfrastructureStore } from './SqliteWorldHostInfrastructureStore';
+import { openSqliteNationalHostCandidateStore } from './SqliteNationalHostCandidateStore';
 import { openSqliteWbcFinalsKnockoutStore } from './SqliteWbcFinalsKnockoutStore';
 import { worldCycleInput } from './WorldCompetitionCycleFixtures.test-support';
 import { wbcFinalsInput } from './WbcFinalsFixtures.test-support';
@@ -57,23 +60,39 @@ it('pins WBC qualification and ranking pots while rejecting changed policies and
     expect(draw.source.berths).toEqual(berths);
     expect(() => draws.initialize({ ...request, policy: { ...policy, rematchLookbackDays: 100 } }))
       .toThrow('frozen differently');
-    const usCandidates = edition.groups.map((group, index) => ({
-      nationId: 'US', cityId: group.hostCityId, venueId: group.hostVenueId, regionId: 'AMERICAS',
-      eligible: true, suitabilityScore: 10 - index, rotationScore: 0 }));
-    const hostCandidates: NationalHostCandidateSnapshot = { kind: 'WBC', policyVersion: edition.hostingPolicyVersion,
-      snapshotId: 'wbc-host-source-400', asOfDay: 400,
-      groupCandidates: edition.groups.map(() => usCandidates),
-      knockoutCandidates: knockoutEdition.knockoutHubs.map((hub) => [{ ...usCandidates[0],
-        cityId: hub.cityId, venueId: hub.venueId }]),
-      finalFourCandidates: [{ ...usCandidates[0], ...knockoutEdition.finalFourHost }],
-    };
+    ['US', 'CA'].forEach((nationId) => nations.record({ careerId: 'career-1', nationId, region: 'AMERICAS',
+      effectiveFromDay: 0, sourceEventId: `${nationId}-host-region` }));
+    const infrastructure = track(openSqliteWorldHostInfrastructureStore(':memory:', { nations }));
+    const metrics = { stadiumCapacity: 10000, stadiumQuality: 0, transportQuality: 0,
+      accommodationCapacity: 0, broadcastReadiness: 0, operationsQuality: 0 };
+    const publicVenue = { careerId: 'career-1', nationId: 'US', region: 'AMERICAS' as const,
+      effectiveFromDay: 0, licensed: true, safe: true, sourceClubId: null };
+    edition.groups.forEach((group, index) => infrastructure.record({ ...publicVenue,
+      venueId: group.hostVenueId, cityId: group.hostCityId, sourceEventId: `${group.hostVenueId}-opened`,
+      metrics: { ...metrics, stadiumQuality: 50 - index, broadcastReadiness: 50 } }));
+    knockoutEdition.knockoutHubs.forEach((hub, index) => infrastructure.record({ ...publicVenue,
+      ...hub, sourceEventId: `${hub.venueId}-opened`, metrics: { ...metrics,
+        stadiumCapacity: 9000, stadiumQuality: 60 - index * 5, broadcastReadiness: 90 } }));
+    infrastructure.record({ ...publicVenue, ...knockoutEdition.finalFourHost, sourceEventId: 'us-final-opened',
+      metrics: { ...metrics, stadiumCapacity: 8000, stadiumQuality: 70, broadcastReadiness: 100 } });
+    infrastructure.record({ ...publicVenue, nationId: 'CA', venueId: 'canada-high-score', cityId: 'ca-city',
+      sourceEventId: 'canada-opened', metrics: { ...metrics, stadiumCapacity: 100000,
+        stadiumQuality: 1000, broadcastReadiness: 100 } });
+    const hostPolicy = { version: edition.hostingPolicyVersion, kind: 'WBC' as const, knockoutHubCount: 2,
+      minimums: { GROUP: metrics, KNOCKOUT: { ...metrics, stadiumCapacity: 9000, broadcastReadiness: 80 },
+        FINAL_FOUR: { ...metrics, stadiumCapacity: 8000, broadcastReadiness: 100 } },
+      suitabilityWeights: { ...metrics, stadiumCapacity: 0, stadiumQuality: 1 },
+      rotation: { lookbackDays: 0, cityPenalty: 10, nationPenalty: 2, regionPenalty: 1 } };
+    let editions: SqliteNationalCompetitionEditionStore;
+    const hostStore = track(openSqliteNationalHostCandidateStore(':memory:', {
+      selections, infrastructure, history: sources.history, editions: {
+        readSnapshot: (careerId: string, editionId: string) => editions?.readSnapshot(careerId, editionId) ?? null } }));
+    const hostCandidates = hostStore.initialize({ careerId: 'career-1', editionId: edition.editionId, policy: hostPolicy });
     let candidateOverride: NationalHostCandidateSnapshot | undefined;
-    const editionSources = { draws, hosts: { readCandidates: (_careerId: string, _editionId: string, day: number) => {
-      expect(day).toBe(400);
-      return candidateOverride ?? hostCandidates;
-    } } };
+    const editionSources = { draws, hosts: { readCandidates: (careerId: string, editionId: string, day: number) =>
+      candidateOverride ?? hostStore.readCandidates(careerId, editionId, day) } };
     const editionPath = `file:national-edition-test-${crypto.randomUUID()}?mode=memory&cache=shared`;
-    let editions = track(openSqliteNationalCompetitionEditionStore(editionPath, editionSources));
+    editions = track(openSqliteNationalCompetitionEditionStore(editionPath, editionSources));
     const editionRequest = { careerId: 'career-1', editionId: edition.editionId, profile: {
       kind: 'WBC' as const, competitionId: edition.competitionId, formatVersion: edition.formatVersion,
       ruleProfileVersion: edition.ruleProfileVersion, gamePolicyVersion: edition.gamePolicyVersion,
@@ -89,6 +108,9 @@ it('pins WBC qualification and ranking pots while rejecting changed policies and
         roundOf16HubIndices: [4, 0, 0, 0, 0, 0, 0, 0] } } })).toThrow('knockout edition');
     const savedEdition = editions.initialize(editionRequest);
     expect(savedEdition.kind).toBe('WBC');
+    expect(savedEdition.hosting.hostNationIds).toEqual(['US']);
+    expect(savedEdition.hosting.groupHosts[0].evaluations.find((item) => item.venueId === 'canada-high-score')
+      ?.rejectionReason).toBe('WBC_US_ONLY');
     const acceptedEdition = editions.readWbcEdition('career-1', edition.editionId)!;
     expect(editions.readWbcKnockoutEdition('career-1', edition.editionId)).toEqual({ ...knockoutEdition,
       groupDrawSnapshotId: draw.drawSnapshotId });
