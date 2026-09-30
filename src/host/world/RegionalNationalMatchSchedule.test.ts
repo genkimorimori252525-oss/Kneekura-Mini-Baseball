@@ -17,6 +17,9 @@ import { openSqliteNationalQualificationHistoryStore } from './SqliteNationalQua
 import { openSqliteWorldNationalRankingHistoryStore } from './SqliteWorldNationalRankingHistoryStore';
 import { worldCycleInput } from './WorldCompetitionCycleFixtures.test-support';
 import { playOfficialNineInningGame } from './OfficialNineInningGame.test-support';
+import { openSqliteRegionalNationalRankingSnapshotStore } from './SqliteRegionalNationalRankingSnapshotStore';
+import { EMPTY_WORLD_NATIONAL_RANKING_POLICY_REGISTRY, registerWorldNationalRankingPolicy } from '../../core/world/competition/WorldNationalRankingHistory';
+import { createCompetitionSourceReader, withCompetitionSourceReadScope } from './CompetitionSourceReadScope';
 
 const policy = { version: 'regional-test-schedule-v1', gamesPerVenuePerDay: 2,
   minimumOffDaysBetweenRounds: 0 };
@@ -151,12 +154,51 @@ it('plays all four recommended regional finals through World schedules, Match an
       expect(qualification.recordRegional('career-1', region, edition.editionId).regional
         .find((item) => item.placement.region === region)?.placement.orderedNationIds)
         .toEqual(outcome.placement.orderedNationIds);
-      ranking.recordRegional('career-1', edition.editionId);
+      const readAcceptedEdition = createCompetitionSourceReader(ranking.readRegionalEdition, ranking);
+      withCompetitionSourceReadScope(() => {
+        expect(readAcceptedEdition('career-1', edition.editionId, edition.calendarWindow.endsOnDay)).toBeNull();
+        ranking.recordRegional('career-1', edition.editionId);
+        expect(readAcceptedEdition('career-1', edition.editionId, edition.calendarWindow.endsOnDay)).toEqual(edition);
+      });
     }
     expect(played).toBe(118);
     expect(ranking.readHistory('career-1').editions).toHaveLength(4);
     expect(qualification.readHistory('career-1')?.regional).toHaveLength(4);
     const completionDay = selections.readSelection('career-1', 'AFRICA-2031')!.calendarWindow.endsOnDay;
+    const regionalRankingPolicy = { version: 'regional-ranking-v1', winPoints: 2, tiePoints: 1,
+      tierWeights: { REGIONAL: 1, WBC: 0, PREMIER_12: 0 },
+      stageWeights: { GROUP: 1, ROUND_OF_16: 1, QUARTERFINAL: 2, SEMIFINAL: 3, BRONZE: 1, FINAL: 4 },
+      recencyBands: [{ maxAgeDays: 2000, multiplier: 1 }], tieBreak: 'NATION_ID' as const };
+    const regionalRegistry = registerWorldNationalRankingPolicy(EMPTY_WORLD_NATIONAL_RANKING_POLICY_REGISTRY, regionalRankingPolicy);
+    const rankingSources = { history: ranking, nations: regions };
+    let regionalRankings = track(openSqliteRegionalNationalRankingSnapshotStore(path, rankingSources));
+    const savedRankings = (['ASIA_PACIFIC', 'AMERICAS', 'EUROPE', 'AFRICA'] as const).map((region) => {
+      const nationIds = inputs(region, region === 'AFRICA' ? 3 : 4, { startsOnDay: 0, endsOnDay: 1 })
+        .edition.groups.flatMap((group) => group.nationIds);
+      const request = { careerId: 'career-1', region, asOfDay: completionDay, nationIds, policy: regionalRankingPolicy, registry: regionalRegistry };
+      const saved = regionalRankings.initialize(request);
+      expect(saved.ranking.orderedNationIds[0]).toBe(`${region}-0`);
+      expect(saved.source.history.editions).toHaveLength(1);
+      expect(saved.ranking.evidenceResultIds).toHaveLength(region === 'AFRICA' ? 25 : 31);
+      expect(regionalRankings.initialize(request)).toEqual(saved);
+      expect(() => regionalRankings.initialize({ ...request, nationIds: [...nationIds].reverse() })).toThrow('frozen differently');
+      expect(regionalRankings.readRanking('career-1', region, completionDay - 1)).toBeNull();
+      return { region, saved };
+    });
+    regionalRankings.close(); regionalRankings = track(openSqliteRegionalNationalRankingSnapshotStore(path, rankingSources));
+    for (const { region, saved } of savedRankings) expect(regionalRankings.readRanking('career-1', region, completionDay)).toEqual(saved.ranking);
+    const movedNation = 'ASIA_PACIFIC-0';
+    const priorEdition = ranking.readRegionalEdition('career-1', 'ASIA_PACIFIC-2031', completionDay)!;
+    regions.record({ careerId: 'career-1', nationId: movedNation, region: 'AMERICAS',
+      effectiveFromDay: priorEdition.calendarWindow.startsOnDay + 1, sourceEventId: 'moved-during-tournament' });
+    const movedSnapshot = regionalRankings.initialize({ careerId: 'career-1', region: 'ASIA_PACIFIC', asOfDay: completionDay + 1,
+      nationIds: priorEdition.groups.flatMap((group) => group.nationIds).filter((nation) => nation !== movedNation),
+      policy: regionalRankingPolicy, registry: regionalRegistry });
+    expect(movedSnapshot.ranking.orderedNationIds).not.toContain(movedNation);
+    expect(movedSnapshot.ranking.evidenceResultIds).toHaveLength(31);
+    expect(movedSnapshot.source.nationRegions.find((proof) => proof.nationId === movedNation))
+      .toMatchObject({ beforeDay: priorEdition.calendarWindow.startsOnDay, region: 'ASIA_PACIFIC' });
+    expect(ranking.readRegionalEdition('career-1', 'ASIA_PACIFIC-2031', completionDay - 1)).toBeNull();
     const unavailableSources = track(openSqliteNationalQualificationHistoryStore(path,
       { knockouts: { readEvidence: () => { throw new Error('later regional requires earlier qualification'); } } }));
     expect(unavailableSources.regionalAuthority('career-1')
@@ -170,7 +212,11 @@ it('plays all four recommended regional finals through World schedules, Match an
     expect(qualification.readHistory('career-1', completionDay)?.regional).toHaveLength(4);
     const { DatabaseSync }: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
     const db = new DatabaseSync(path);
-    try { db.prepare("UPDATE world_regional_national_schedules SET schedule_json='{}'").run(); }
+    try {
+      db.prepare("UPDATE world_regional_national_ranking_snapshots SET snapshot_json='{}' WHERE region='EUROPE'").run();
+      expect(() => regionalRankings.readRanking('career-1', 'EUROPE', completionDay)).toThrow('corrupt');
+      db.prepare("UPDATE world_regional_national_schedules SET schedule_json='{}'").run();
+    }
     finally { db.close(); }
     expect(() => schedules.readSchedule('career-1', 'AFRICA-2031')).toThrow('corrupt');
   } finally {
