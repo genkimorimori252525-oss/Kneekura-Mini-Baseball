@@ -184,6 +184,37 @@ const officialWinner = (game: WbcQualifierGame,
   return winner;
 };
 
+/** Validates eight official semifinals before exposing four final fixtures. */
+export const planWbcGlobalQualifierFinals = (
+  plan: WbcGlobalQualifierPlan,
+  semifinalResults: readonly OfficialGameResult[],
+  edition: WbcGlobalQualifierEdition,
+): readonly WbcQualifierGame[] => {
+  const expected = planWbcGlobalQualifier(edition);
+  if (JSON.stringify(plan) !== JSON.stringify(expected)) {
+    throw new Error('WBC qualifier plan contradicts its edition');
+  }
+  if (!Array.isArray(semifinalResults)
+    || semifinalResults.length !== 8
+    || new Set(semifinalResults.map((result) =>
+      result.gameId)).size !== 8
+    || new Set(semifinalResults.map((result) =>
+      result.applicationId)).size !== 8
+    || new Set(semifinalResults.map((result) =>
+      result.venueBinding?.fixtureEventId)).size !== 8) {
+    throw new Error('WBC qualifier requires eight unique official semifinals');
+  }
+  const byGame = new Map(semifinalResults.map((result) =>
+    [result.gameId, result]));
+  return Object.freeze(expected.pods.map((pod) => {
+    const winners = pod.semifinals.map((game) =>
+      officialWinner(game, byGame.get(game.gameId), edition));
+    return Object.freeze({ gameId: pod.finalGameId,
+      podIndex: pod.podIndex, homeNationId: winners[0],
+      awayNationId: winners[1], venueId: pod.hostVenueId });
+  }));
+};
+
 /** Rebuilds the bracket from the edition before accepting all 12 games. */
 export const finalizeWbcGlobalQualifier = (
   plan: WbcGlobalQualifierPlan,
@@ -208,27 +239,22 @@ export const finalizeWbcGlobalQualifier = (
   }
   const byGame = new Map(allResults.map((result) =>
     [result.gameId, result]));
-  const finalGames: WbcQualifierGame[] = [];
+  const finalGames = planWbcGlobalQualifierFinals(plan,
+    semifinalResults, edition);
   const winners: WbcQualifierPodWinner[] = [];
   for (const pod of expected.pods) {
-    const semifinalWinners = pod.semifinals.map((game) =>
-      officialWinner(game, byGame.get(game.gameId), edition));
-    const finalGame = Object.freeze({ gameId: pod.finalGameId,
-      podIndex: pod.podIndex,
-      homeNationId: semifinalWinners[0],
-      awayNationId: semifinalWinners[1], venueId: pod.hostVenueId });
+    const finalGame = finalGames[pod.podIndex];
     const finalResult = byGame.get(finalGame.gameId);
     const nationId = officialWinner(finalGame, finalResult, edition);
     const region = pod.entrants.find((entrant) =>
       entrant.nationId === nationId)!.region;
-    finalGames.push(finalGame);
     winners.push(Object.freeze({ podIndex: pod.podIndex,
       qualifierEditionId: edition.editionId, nationId, region,
       officialFinalApplicationId: finalResult!.applicationId,
       finalizedDay: edition.calendarWindow.endsOnDay }));
   }
   return Object.freeze({ plan: expected,
-    finalGames: Object.freeze(finalGames),
+    finalGames,
     winners: Object.freeze(winners),
     resultApplicationIds: Object.freeze(allResults.map((result) =>
       result.applicationId)) });

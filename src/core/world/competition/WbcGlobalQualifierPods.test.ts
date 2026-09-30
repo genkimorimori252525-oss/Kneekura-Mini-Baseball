@@ -3,7 +3,7 @@ import { asRuleProfileId } from '../../model/RuleProfileRef';
 import type { OfficialGameResult } from './OfficialGameCompletion';
 import { finalizeSelectedWbcGlobalQualifier,
   finalizeWbcGlobalQualifier, planSelectedWbcGlobalQualifier,
-  planWbcGlobalQualifier,
+  planWbcGlobalQualifier, planWbcGlobalQualifierFinals,
   type WbcGlobalQualifierEdition, type WbcQualifierGame }
   from './WbcGlobalQualifierPods';
 import type { WbcQualifierSelection }
@@ -78,6 +78,15 @@ it('qualifies four nations after exactly twelve official pod games', () => {
     homeNationId: semifinals[index * 2].winnerClubId!,
     awayNationId: semifinals[index * 2 + 1].winnerClubId!,
     venueId: pod.hostVenueId }, index + 8));
+  expect(planWbcGlobalQualifierFinals(plan, semifinals, edition))
+    .toEqual(finals.map((final) => ({ gameId: final.gameId,
+      podIndex: plan.pods.findIndex((pod) =>
+        pod.finalGameId === final.gameId),
+      homeNationId: final.homeClubId,
+      awayNationId: final.awayClubId,
+      venueId: final.venueBinding!.venueId })));
+  expect(() => planWbcGlobalQualifierFinals(plan,
+    semifinals.slice(1), edition)).toThrow('eight');
   const outcome = finalizeWbcGlobalQualifier(plan,
     semifinals, finals, edition);
   expect(finalizeSelectedWbcGlobalQualifier(plan,
