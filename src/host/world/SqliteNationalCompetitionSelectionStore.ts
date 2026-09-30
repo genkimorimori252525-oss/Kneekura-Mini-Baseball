@@ -28,6 +28,7 @@ export type NationalCompetitionSelection = Readonly<{
 export type SqliteNationalCompetitionSelectionStore = Readonly<{
   initialize(request: NationalCompetitionSelectionRequest): NationalCompetitionSelection;
   readSelection(careerId: string, editionId: string): NationalCompetitionSelection | null;
+  readWbcPredecessors(careerId: string, cycleOrdinal: number): readonly NationalCompetitionSelection[];
   authority(careerId: string): Pick<PremierTwelveAuthority, 'editionCutoff'>;
   close(): void;
 }>;
@@ -187,6 +188,15 @@ export const openSqliteNationalCompetitionSelectionStore = (
       }
     },
     readSelection,
+    readWbcPredecessors(careerId: string, cycleOrdinal: number): readonly NationalCompetitionSelection[] {
+      assertScope(careerId);
+      if (!day(cycleOrdinal)) throw new Error('invalid national predecessor cycle');
+      // Bound the SQL query before replay: future Editions can depend on these sources.
+      const prior = db.prepare(`SELECT edition_id FROM world_national_selections
+        WHERE career_id=? AND kind='WBC' AND cycle_ordinal<?
+        ORDER BY cycle_ordinal DESC LIMIT 2`).all(careerId, cycleOrdinal) as { edition_id: string }[];
+      return Object.freeze(prior.reverse().map((item) => readSelection(careerId, item.edition_id)!));
+    },
     authority(careerId: string) {
       assertScope(careerId);
       return Object.freeze({ editionCutoff: (editionId: string) =>
