@@ -22,6 +22,9 @@ import { EMPTY_WORLD_NATIONAL_RANKING_POLICY_REGISTRY, registerWorldNationalRank
 import { createCompetitionSourceReader, withCompetitionSourceReadScope } from './CompetitionSourceReadScope';
 import { openSqliteRegionalNationalDrawStore } from './SqliteRegionalNationalDrawStore';
 import { EMPTY_COMPETITION_DRAW_POLICY_REGISTRY, registerCompetitionDrawPolicy } from '../../core/world/competition/CompetitionDraw';
+import { openSqliteWorldHostInfrastructureStore } from './SqliteWorldHostInfrastructureStore';
+import { openSqliteRegionalNationalHostCandidateStore } from './SqliteRegionalNationalHostCandidateStore';
+import { selectRegionalNationalHosts } from '../../core/world/competition/RegionalNationalHosting';
 
 const policy = { version: 'regional-test-schedule-v1', gamesPerVenuePerDay: 2,
   minimumOffDaysBetweenRounds: 0 };
@@ -72,6 +75,9 @@ it('plays all four recommended regional finals through World schedules, Match an
     cycle.initialize('career-1', worldCycleInput(0));
     const selections = track(openSqliteNationalCompetitionSelectionStore(path, { cycle }));
     const regions = track(openSqliteNationCompetitionRegionStore(path));
+    const infrastructure = track(openSqliteWorldHostInfrastructureStore(path, { nations: regions }));
+    const hostMetrics = { stadiumCapacity: 100, stadiumQuality: 10, transportQuality: 10,
+      accommodationCapacity: 100, broadcastReadiness: 10, operationsQuality: 10 };
     const source = { regions, matches: matchSource, selections };
     let groups = track(openSqliteRegionalNationalGroupStore(path, source));
     let knockout = track(openSqliteRegionalNationalKnockoutStore(path, { groups, regions, matches: matchSource }));
@@ -90,6 +96,15 @@ it('plays all four recommended regional finals through World schedules, Match an
       const { edition, knockoutEdition } = inputs(region, region === 'AFRICA' ? 3 : 4, selection.calendarWindow);
       edition.groups.flatMap((group) => group.nationIds).forEach((nationId) => regions.record({
         careerId: 'career-1', nationId, region, effectiveFromDay: 0, sourceEventId: `region-${nationId}` }));
+      regions.record({ careerId: 'career-1', nationId: edition.hostNationIds[0], region, effectiveFromDay: 0,
+        sourceEventId: `region-${edition.hostNationIds[0]}` });
+      const venueCities = new Map(edition.groups.map((group) => [group.hostVenueId, group.hostCityId]));
+      for (const venueId of [...knockoutEdition.openingVenueIds, ...knockoutEdition.semifinalVenueIds, knockoutEdition.finalVenueId]) {
+        venueCities.set(venueId, `city-${venueId}`);
+      }
+      for (const [venueId, cityId] of venueCities) infrastructure.record({ careerId: 'career-1', venueId, cityId,
+        nationId: edition.hostNationIds[0], region, effectiveFromDay: 0, sourceEventId: `opened-${venueId}`,
+        sourceClubId: null, licensed: true, safe: true, metrics: { ...hostMetrics, stadiumQuality: 100, broadcastReadiness: 30 } });
       expect(() => groups.initialize('career-1', { ...edition,
         calendarWindow: { ...edition.calendarWindow, endsOnDay: edition.calendarWindow.endsOnDay + 1 } }))
         .toThrow('accepted World selection');
@@ -161,6 +176,8 @@ it('plays all four recommended regional finals through World schedules, Match an
         expect(readAcceptedEdition('career-1', edition.editionId, edition.calendarWindow.endsOnDay)).toBeNull();
         ranking.recordRegional('career-1', edition.editionId);
         expect(readAcceptedEdition('career-1', edition.editionId, edition.calendarWindow.endsOnDay)).toEqual(edition);
+        expect(ranking.readRegionalHostingEdition('career-1', edition.editionId, edition.calendarWindow.endsOnDay))
+          .toEqual({ edition, knockoutEdition });
       });
     }
     expect(played).toBe(118);
@@ -193,6 +210,11 @@ it('plays all four recommended regional finals through World schedules, Match an
     const drawPolicy = { version: 'regional-next-cycle-draw-fixture-v1', rematchLookbackDays: 2000,
       relaxationOrder: ['REMATCH_AVOIDANCE', 'SAME_LEAGUE_AVOIDANCE', 'REGIONAL_DIVERSITY'] as const };
     const drawRegistry = registerCompetitionDrawPolicy(EMPTY_COMPETITION_DRAW_POLICY_REGISTRY, drawPolicy);
+    const regionalHosts = track(openSqliteRegionalNationalHostCandidateStore(path, { selections, nations: regions, infrastructure, history: ranking }));
+    const hostPolicy = { version: 'regional-next-host-fixture-v1', hostNationCount: 1 as const, groupHostVenueCount: 2, knockoutHubCount: 1,
+      minimums: { GROUP: hostMetrics, KNOCKOUT: { ...hostMetrics, broadcastReadiness: 20 }, FINAL_FOUR: { ...hostMetrics, broadcastReadiness: 30 } },
+      suitabilityWeights: { ...hostMetrics, stadiumCapacity: 0, stadiumQuality: 1, transportQuality: 0, accommodationCapacity: 0,
+        broadcastReadiness: 0, operationsQuality: 0 }, rotation: { lookbackDays: 2000, cityPenalty: 0, nationPenalty: 10000, regionPenalty: 0 } };
     for (const { region } of savedRankings) {
       const selection = selections.initialize({ careerId: 'career-1', editionId: `${region}-2035`,
         kind: 'REGIONAL_NATIONAL', region, cycleOrdinal: 1, careerDayOne: '2031-01-01', cutoffDay: 1500 });
@@ -211,6 +233,20 @@ it('plays all four recommended regional finals through World schedules, Match an
       expect(accepted.source.ranking).toEqual(nativeRanking);
       expect(accepted.source.rematchHistory.editions).toHaveLength(1);
       expect(accepted.source.ranking.ranking.evidenceResultIds).toHaveLength(region === 'AFRICA' ? 25 : 31);
+      const hostNationId = `next-host-${region}`;
+      regions.record({ careerId: 'career-1', nationId: hostNationId, region, effectiveFromDay: 1400, sourceEventId: `region-${hostNationId}` });
+      for (let index = 0; index < 2; index++) infrastructure.record({ careerId: 'career-1', venueId: `next-${region}-venue-${index}`,
+        cityId: `next-${region}-city-${index}`, nationId: hostNationId, region, effectiveFromDay: 1400,
+        sourceEventId: `opened-next-${region}-${index}`, sourceClubId: null, licensed: true, safe: true,
+        metrics: { ...hostMetrics, stadiumQuality: 50 - index, broadcastReadiness: 30 } });
+      const hosts = regionalHosts.initialize({ careerId: 'career-1', editionId: selection.editionId, policy: hostPolicy });
+      expect(hosts.source.hostingHistory).toHaveLength(1);
+      expect(hosts.source.hostingHistory[0].hosts).toHaveLength(region === 'AFRICA' ? 10 : 11);
+      expect(hosts.source.previousEditions[0].knockoutEdition.finalVenueId).toBe(`${region}-final`);
+      const selectedHosts = selectRegionalNationalHosts(hosts);
+      expect(selectedHosts.hostNationIds).toEqual([hostNationId]);
+      expect(accepted.draw.groups.flatMap((group) => group.map((item) => item.teamId))).not.toContain(hostNationId);
+      expect(regionalHosts.readCandidates('career-1', selection.editionId, 1500)).toEqual(hosts);
       const edition = { ...manual.edition, editionId: selection.editionId,
         qualificationSnapshotId: eligibility.snapshotId, drawSnapshotId: accepted.drawSnapshotId,
         groups: manual.edition.groups.map((group, index) => ({ ...group,
