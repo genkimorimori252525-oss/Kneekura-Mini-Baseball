@@ -20,6 +20,8 @@ import { playOfficialNineInningGame } from './OfficialNineInningGame.test-suppor
 import { openSqliteRegionalNationalRankingSnapshotStore } from './SqliteRegionalNationalRankingSnapshotStore';
 import { EMPTY_WORLD_NATIONAL_RANKING_POLICY_REGISTRY, registerWorldNationalRankingPolicy } from '../../core/world/competition/WorldNationalRankingHistory';
 import { createCompetitionSourceReader, withCompetitionSourceReadScope } from './CompetitionSourceReadScope';
+import { openSqliteRegionalNationalDrawStore } from './SqliteRegionalNationalDrawStore';
+import { EMPTY_COMPETITION_DRAW_POLICY_REGISTRY, registerCompetitionDrawPolicy } from '../../core/world/competition/CompetitionDraw';
 
 const policy = { version: 'regional-test-schedule-v1', gamesPerVenuePerDay: 2,
   minimumOffDaysBetweenRounds: 0 };
@@ -187,6 +189,36 @@ it('plays all four recommended regional finals through World schedules, Match an
     });
     regionalRankings.close(); regionalRankings = track(openSqliteRegionalNationalRankingSnapshotStore(path, rankingSources));
     for (const { region, saved } of savedRankings) expect(regionalRankings.readRanking('career-1', region, completionDay)).toEqual(saved.ranking);
+    cycle.initialize('career-1', worldCycleInput(1));
+    const drawPolicy = { version: 'regional-next-cycle-draw-fixture-v1', rematchLookbackDays: 2000,
+      relaxationOrder: ['REMATCH_AVOIDANCE', 'SAME_LEAGUE_AVOIDANCE', 'REGIONAL_DIVERSITY'] as const };
+    const drawRegistry = registerCompetitionDrawPolicy(EMPTY_COMPETITION_DRAW_POLICY_REGISTRY, drawPolicy);
+    for (const { region } of savedRankings) {
+      const selection = selections.initialize({ careerId: 'career-1', editionId: `${region}-2035`,
+        kind: 'REGIONAL_NATIONAL', region, cycleOrdinal: 1, careerDayOne: '2031-01-01', cutoffDay: 1500 });
+      const manual = inputs(region, region === 'AFRICA' ? 3 : 4, selection.calendarWindow);
+      const nationIds = manual.edition.groups.flatMap((group) => group.nationIds);
+      const nativeRanking = regionalRankings.initialize({ careerId: 'career-1', region, asOfDay: 1500, nationIds,
+        policy: regionalRankingPolicy, registry: regionalRegistry });
+      // Cohort and venue/profile metadata remain fixtures here. The draw unit gate uses actual
+      // Native Player legal facts/callups/roster capability; this gate uses actual prior Match history.
+      const eligibility = { snapshotId: `accepted-next-cycle-cohort-${region}`, asOfDay: 1500, eligibleNationIds: nationIds };
+      const draws = track(openSqliteRegionalNationalDrawStore(':memory:', { selections, nations: regions,
+        rankings: regionalRankings, eligibility: { readEligibilityForEdition: (_career, edition, snapshot) =>
+          edition === selection.editionId && snapshot === eligibility.snapshotId ? eligibility : null } }));
+      const accepted = draws.initialize({ careerId: 'career-1', editionId: selection.editionId,
+        eligibilitySnapshotId: eligibility.snapshotId, drawSeed: `regional-2035-${region}`, policy: drawPolicy, registry: drawRegistry });
+      expect(accepted.source.ranking).toEqual(nativeRanking);
+      expect(accepted.source.rematchHistory.editions).toHaveLength(1);
+      expect(accepted.source.ranking.ranking.evidenceResultIds).toHaveLength(region === 'AFRICA' ? 25 : 31);
+      const edition = { ...manual.edition, editionId: selection.editionId,
+        qualificationSnapshotId: eligibility.snapshotId, drawSnapshotId: accepted.drawSnapshotId,
+        groups: manual.edition.groups.map((group, index) => ({ ...group,
+          nationIds: accepted.draw.groups[index].map((row) => row.teamId) })) };
+      const drawnGroups = track(openSqliteRegionalNationalGroupStore(':memory:', { ...source, draws }));
+      expect(drawnGroups.initialize('career-1', edition).groups).toHaveLength(region === 'AFRICA' ? 3 : 4);
+      expect(draws.readDraw('career-1', selection.editionId)).toEqual(accepted);
+    }
     const movedNation = 'ASIA_PACIFIC-0';
     const priorEdition = ranking.readRegionalEdition('career-1', 'ASIA_PACIFIC-2031', completionDay)!;
     regions.record({ careerId: 'career-1', nationId: movedNation, region: 'AMERICAS',
