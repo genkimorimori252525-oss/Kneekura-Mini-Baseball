@@ -31,13 +31,33 @@ This records implementation evidence, not approval of another design.
   qualifier window to finish by the accepted WBC cutoff. Connected pod stores
   accept only the assembled Edition. The owner integration executes twelve
   scheduled nine-inning Match games from its generated Edition. Its direct,
-  selection, ranking and host candidates remain explicit callback fixtures;
-  World and historical nation regions use actual native stores. Facility/access
-  candidate calibration and the complete historical source chain remain work.
+  selection and ranking remain explicit callback fixtures. World, historical
+  nation regions and host candidates use actual native stores. Production
+  facility/access initialization and the complete historical source chain
+  remain work.
   Regional-priority/cascade entrants do not need a World Ranking entry; only
   the ranking route requires one. A review regression uses the actual Core
   selector to qualify four unranked regional-priority nations alongside twelve
   ranked nations, then executes the assembled Edition's twelve Match games.
+- Native qualifier host candidates now consume actual accepted World venue
+  infrastructure and a persistent draw-bound World access assessment journal.
+  Geography, travel cost, neutral accessibility and developing opportunity are
+  explicit facts with source IDs and effective dates; suitability/eligibility
+  and hosting-recency weights are explicit versioned calibration. They do not
+  fabricate travel simulation or alter Match abilities. Every pod/venue cell
+  requires complete compatible access evidence. Access replay pins eligible
+  prefixes and excludes later facts before parsing their payloads.
+  Candidate snapshots pin the selection/request, venue/Club provenance, access
+  and official prior hosting sources. Completed qualifier hosting is adopted
+  only from the accepted Edition and twelve official Match results. Predecessor
+  queries and metadata guards exclude current/future sources before following
+  the predecessor owner. The twelve-Match Edition integration now uses these
+  native venue/access/candidate stores, records its completed hosting and
+  verifies that this later result cannot become its own earlier dependency.
+  Native candidate access must match the exact pod draw. Direct qualification,
+  ranking and selection callbacks remain explicit seams in that integration;
+  production facility/access fact initialization and the full history chain
+  remain required work.
 - World WBC qualification now derives the direct-slot input from the target
   World selection, its two immediately preceding WBC cycle assignments and
   the current cycle's four accepted regional placement sources. It checks
@@ -249,6 +269,14 @@ The independent review's unranked regional-entrant rejection was reproduced
 and repaired before this final run. No further findings were reported.
 
 ## Remaining implementation boundaries
+
+After qualifier World host candidate integration, final local verification
+passed 501 files / 3,057 tests in 70.64 seconds, including catalog verification
+and type checking. The fresh independent review reported no findings. A
+final regression rejects calibration whose known weights are all zero even
+when an unknown extra weight is positive; the complete suite passed after
+that guard. Access facts and calibration remain explicit accepted inputs,
+and this slice does not complete the entire qualification/career lifecycle.
 
 - Initialize production World facility/catalog evidence and generate
   regional/qualifier draw and accepted participation sources

@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { assembleWbcQualifierEdition } from './WbcQualifierEditionAssembly';
+import { assembleWbcQualifierEdition, drawWbcQualifierEntrantPods } from './WbcQualifierEditionAssembly';
 import type { WbcQualifierSelection } from './WbcGlobalQualifierSelection';
 import type { HostCandidate } from './HostSelection';
 
@@ -31,6 +31,10 @@ it('assembles four mixed-region pods with worldwide hosts and deterministic sour
   expect(new Set(result.edition.pods.map((pod) => pod.hostCityId)).size).toBe(4);
   expect(result.edition.pods[0].hostNationId).toBe('JP');
   expect(result.regionMixTarget).toBe(4);
+  const draw = drawWbcQualifierEntrantPods({ selection: request.selection, drawSeed: request.drawSeed,
+    drawPolicyVersion: request.profile.drawPolicyVersion });
+  expect(draw.pods).toEqual(result.edition.pods.map((pod) => pod.entrants));
+  expect(draw.drawSnapshotId).toBe(result.edition.drawSnapshotId);
   expect(result.relaxedRegionMixTargets).toEqual([]);
   expect(assembleWbcQualifierEdition(request)).toEqual(result);
   expect(assembleWbcQualifierEdition({ ...request, selection: { ...request.selection,
