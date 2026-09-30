@@ -2,6 +2,7 @@ import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { PremierTwelveAuthority } from
   '../../core/world/competition/PremierTwelve';
+import type { ClubWorldRegion } from '../../core/world/competition/ClubWorldBerths';
 import type { SqliteWorldCompetitionCycleStore } from
   './SqliteWorldCompetitionCycleStore';
 
@@ -9,14 +10,15 @@ export type NationalCompetitionSelectionRequest = Readonly<{
   careerId: string;
   editionId: string;
   cycleOrdinal: number;
-  kind: 'WBC' | 'PREMIER_12';
   careerDayOne: string;
   cutoffDay: number;
-}>;
+}> & (Readonly<{ kind: 'WBC' | 'PREMIER_12' }>
+  | Readonly<{ kind: 'REGIONAL_NATIONAL'; region: ClubWorldRegion }>);
 export type NationalCompetitionSelection = Readonly<{
   editionId: string;
   cycleOrdinal: number;
   kind: NationalCompetitionSelectionRequest['kind'];
+  region?: ClubWorldRegion;
   calendarYear: number;
   careerDayOne: string;
   calendarPolicyVersion: string;
@@ -35,6 +37,8 @@ const id = (value: unknown): value is string =>
   typeof value === 'string' && value.length > 0 && value === value.trim();
 const day = (value: unknown): value is number =>
   typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
+const reservationKey = (request: NationalCompetitionSelectionRequest): string =>
+  request.kind === 'REGIONAL_NATIONAL' ? `${request.kind}:${request.region}` : request.kind;
 const canonicalJson = (value: unknown): string => JSON.stringify(
   cloneInert(value), (_key, item: unknown) =>
     item !== null && typeof item === 'object' && !Array.isArray(item)
@@ -79,7 +83,9 @@ export const openSqliteNationalCompetitionSelectionStore = (
   const project = (request: NationalCompetitionSelectionRequest): NationalCompetitionSelection => {
     if (!id(request?.careerId) || !id(request.editionId)
       || !day(request.cycleOrdinal) || !day(request.cutoffDay)
-      || !['WBC', 'PREMIER_12'].includes(request.kind)) {
+      || !['WBC', 'PREMIER_12', 'REGIONAL_NATIONAL'].includes(request.kind)
+      || (request.kind === 'REGIONAL_NATIONAL'
+        && !['ASIA_PACIFIC', 'AMERICAS', 'EUROPE', 'AFRICA'].includes(request.region))) {
       throw new Error('invalid national selection request');
     }
     const origin = isoDay(request.careerDayOne);
@@ -89,7 +95,8 @@ export const openSqliteNationalCompetitionSelectionStore = (
     if (Number(request.careerDayOne.slice(0, 4)) !== cycle.careerStartYear) {
       throw new Error('national career calendar origin disagrees with World cycle');
     }
-    const reservations = cycle.reservations.filter((event) => event.kind === request.kind);
+    const reservations = cycle.reservations.filter((event) => event.kind === request.kind
+      && (request.kind !== 'REGIONAL_NATIONAL' || event.region === request.region));
     if (reservations.length !== 1) throw new Error('national World reservation is missing');
     const event = reservations[0];
     const start = isoDay(event.window.startsOn);
@@ -107,9 +114,11 @@ export const openSqliteNationalCompetitionSelectionStore = (
       cycle.careerStartYear, cycle.cycleOrdinal, cycle.calendarPolicyVersion,
       event.kind, event.calendarYear, event.window.startsOn, event.window.endsOn,
       request.careerDayOne, request.cutoffDay,
+      ...(request.kind === 'REGIONAL_NATIONAL' ? [request.region] : []),
     ]), day: request.cutoffDay });
     return Object.freeze({ editionId: request.editionId, cycleOrdinal: request.cycleOrdinal,
       kind: request.kind, calendarYear: event.calendarYear,
+      ...(request.kind === 'REGIONAL_NATIONAL' ? { region: request.region } : {}),
       careerDayOne: request.careerDayOne, calendarPolicyVersion: cycle.calendarPolicyVersion,
       calendarWindow, qualificationCutoff });
   };
@@ -119,7 +128,7 @@ export const openSqliteNationalCompetitionSelectionStore = (
       const saved = JSON.parse(stored.selection_json) as NationalCompetitionSelection;
       const selection = project(request);
       if (request.careerId !== careerId || request.editionId !== editionId
-        || request.cycleOrdinal !== stored.cycle_ordinal || request.kind !== stored.kind
+        || request.cycleOrdinal !== stored.cycle_ordinal || reservationKey(request) !== stored.kind
         || canonicalJson(request) !== stored.request_json
         || canonicalJson(saved) !== stored.selection_json
         || canonicalJson(selection) !== stored.selection_json) {
@@ -164,12 +173,12 @@ export const openSqliteNationalCompetitionSelectionStore = (
           !== request.careerDayOne) throw new Error('national career calendar origin changed');
         const assigned = db.prepare(`SELECT edition_id FROM world_national_selections
           WHERE career_id=? AND cycle_ordinal=? AND kind=?`).get(request.careerId,
-          request.cycleOrdinal, request.kind);
+          request.cycleOrdinal, reservationKey(request));
         if (assigned) throw new Error('national World reservation is already assigned');
         db.prepare(`INSERT INTO world_national_selections
           (career_id, edition_id, cycle_ordinal, kind, request_json, selection_json)
           VALUES (?, ?, ?, ?, ?, ?)`).run(request.careerId, request.editionId,
-          request.cycleOrdinal, request.kind, canonicalJson(request), canonicalJson(selection));
+          request.cycleOrdinal, reservationKey(request), canonicalJson(request), canonicalJson(selection));
         db.exec('COMMIT');
         return selection;
       } catch (error) {

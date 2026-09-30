@@ -8,6 +8,15 @@ This records implementation evidence, not approval of another design.
 
 - Regional national groups and knockout results feed persistent national
   qualification history and world national ranking history.
+- Regional national selections now assign one Edition to each region's frozen
+  World reservation and share the career calendar origin with WBC/Premier12.
+  The existing selection table retains its old WBC/Premier12 keys and records
+  region-specific keys for these additional reservations. Connected regional
+  groups reject a different region or window. Durable schedules pin the full
+  World selection, group Edition/plan and knockout Edition, including before
+  knockout entrants qualify. Three circle rounds fit group games without a
+  nation playing twice per day, followed by the applicable QF/SF/final slots.
+  Exact scheduled fixtures follow official preceding-stage qualification.
 - WBC qualifier selection consumes saved direct berths and a saved ranking.
   Four qualifier pods consume venue-bound official Match finals. Their winners
   feed qualification history and the final 20 + 4 berth allocation.
@@ -177,6 +186,20 @@ After qualifier schedule/Match integration, full local verification passed
 494 files / 3,045 tests in 101.26 seconds, with catalog verification and type
 checking. The independent review reported no findings in this slice; the
 explicit fixture and physical simulation boundaries above remain open.
+
+Regional scheduling tests cover 8, 12 and 16 nation formats. The integration
+plays all four recommended regional finals (16/16/16/12 nations, 118 actual
+nine-inning Match games) within the accepted World windows, then records all
+four placements in qualification history and official ranking history. It
+reopens incomplete group, QF and SF stages; wrong dates, premature fixtures,
+changed cutoff provenance and a different accepted knockout placement seed
+with identical game IDs are rejected. Entrant draws, hosts, versions and
+capacity/off-day calibration remain explicit test inputs. The integration
+does not generate national pools, call-ups or physical ball trajectories.
+Full local verification passed 495 files / 3,048 tests in 89.47 seconds,
+including catalog verification and type checking. The fresh independent
+review reported no findings in the regional schedule/Match slice. PR #213
+P0 run `36736322310` passed at `2a47b38998b291fdaf306ae558d9cd2031ddc9f3`.
 
 ## Remaining implementation boundaries
 

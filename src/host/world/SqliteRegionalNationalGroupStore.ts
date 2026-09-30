@@ -10,6 +10,7 @@ import { finalizeRegionalNationalGroups,
   '../../core/world/competition/RegionalNationalGroups';
 import type { SqliteNationCompetitionRegionStore } from
   './SqliteNationCompetitionRegionStore';
+import type { SqliteNationalCompetitionSelectionStore } from './SqliteNationalCompetitionSelectionStore';
 import { readDurableOfficialGameResult,
   type PostseasonMatchSource } from './PostseasonResultsFromMatches';
 
@@ -45,6 +46,7 @@ export const openSqliteRegionalNationalGroupStore = (
   sources: Readonly<{
     regions: Pick<SqliteNationCompetitionRegionStore, 'authority'>;
     matches: PostseasonMatchSource;
+    selections?: Pick<SqliteNationalCompetitionSelectionStore, 'readSelection'>;
   }>,
 ): SqliteRegionalNationalGroupStore => {
   if (!id(databasePath)) {
@@ -66,9 +68,19 @@ export const openSqliteRegionalNationalGroupStore = (
   const row = (careerId: string, editionId: string): GroupRow | null =>
     (get.get(careerId, editionId) as GroupRow | undefined) ?? null;
   const projectPlan = (careerId: string,
-    edition: RegionalNationalEdition): RegionalNationalGroupPlan =>
-    planRegionalNationalGroups(edition,
+    edition: RegionalNationalEdition): RegionalNationalGroupPlan => {
+    if (sources.selections) {
+      const selection = sources.selections.readSelection(careerId, edition.editionId);
+      if (!selection || selection.kind !== 'REGIONAL_NATIONAL'
+        || selection.region !== edition.region || selection.editionId !== edition.editionId
+        || selection.calendarWindow.startsOnDay !== edition.calendarWindow.startsOnDay
+        || selection.calendarWindow.endsOnDay !== edition.calendarWindow.endsOnDay) {
+        throw new Error('regional national Edition differs from accepted World selection');
+      }
+    }
+    return planRegionalNationalGroups(edition,
       sources.regions.authority(careerId));
+  };
   const readFinals = (plan: RegionalNationalGroupPlan):
     readonly OfficialGameResult[] | null => {
     const games = plan.groups.flatMap((group) => group.games);
