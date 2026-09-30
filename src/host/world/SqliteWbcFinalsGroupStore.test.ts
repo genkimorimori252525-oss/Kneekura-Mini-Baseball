@@ -290,6 +290,20 @@ it('freezes six WBC pools and replays 36 official Match finals', () => {
     expect(() => tampered.readOutcome('career-1', edition.editionId))
       .toThrow('corrupt WBC finals groups');
     tampered.close();
+    const cutoffHistory = openSqliteWorldNationalRankingHistoryStore(path,
+      { ...rankingSources, wbc: { readEvidence: () => {
+        throw new Error('later WBC result must not be read at an earlier cutoff');
+      } } });
+    try {
+      expect(cutoffHistory.readHistory('career-1', 139))
+        .toEqual({ editions: [] });
+      expect(() => cutoffHistory.readHistory('career-1', 140))
+        .toThrow('corrupt national ranking history');
+      expect(() => cutoffHistory.readHistory('career-1', -1))
+        .toThrow('cutoff');
+    } finally {
+      cutoffHistory.close();
+    }
   } finally {
     const root = realpathSync(tmpdir());
     const target = realpathSync(directory);
