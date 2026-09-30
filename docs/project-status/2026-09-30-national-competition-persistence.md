@@ -29,6 +29,25 @@ This records implementation evidence, not approval of another design.
 - WBC qualifier selection consumes saved direct berths and a saved ranking.
   Four qualifier pods consume venue-bound official Match finals. Their winners
   feed qualification history and the final 20 + 4 berth allocation.
+- `WorldBoundWbcQualifierRuntime` composes World qualification, cutoff ranking,
+  entrant selection, draw-bound access facts, host candidates, Edition, pods
+  and schedule in dependency order. Component requests remain frozen and
+  retryable; there is no cross-database transaction. Completion waits for all
+  twelve Match results, then records qualification/hosting and the final
+  twenty direct plus four qualifier berths. Scope validation precedes writes.
+  The source integration produces two prior WBCs (102 games), four current
+  regional championships (118 games) and twelve qualifier games through real
+  durable nine-inning Match. Native history, coefficients/direct, rankings,
+  selection, infrastructure/access/candidates and qualification/berth owners
+  consume those results. First-two-cycle qualification/draw, eligible nations,
+  facility facts and calibration remain accepted test inputs. This does not
+  supply an approved new-career historical bootstrap or physical trajectories.
+- Native competition source readers reuse validated ancestors only within one
+  synchronous operation. Nested traversal shares the operation; subsequent
+  reads and writer phases receive fresh scopes. No proof result is retained
+  across Match or World mutations. Reader and receiver identities separate
+  source namespaces and preserve receiver-based callbacks. Pending cyclic
+  reads and failures cannot become cached successful proofs.
 - Qualifier Edition assembly draws sixteen accepted nations into four pods,
   preferring four regions per pod, then three, then two. Exact region-count
   search rejects distributions that cannot provide two regions in every pod.
@@ -278,6 +297,28 @@ The independent review's unranked regional-entrant rejection was reproduced
 and repaired before this final run. No further findings were reported.
 
 ## Remaining implementation boundaries
+
+The World-bound qualifier runtime now connects two prior 51-game WBC finals
+and four 118-game regional finals to Native qualification, cutoff ranking,
+entrant selection, facilities/access, qualifier hosting and twelve qualifier
+Match games. It completes 232 durable nine-inning games and allocates twenty
+direct plus four qualifier berths. Bootstrap qualification/draw for the first
+two cycles, eligibility lists, access facts and calibration remain explicit
+test inputs. Current-edition WBC finals and physical ball simulation are not
+executed by this integration.
+
+The coordinator checks scope before writes and can retry after interruption
+between owner commits. Synchronous source-read scopes reuse proof reads only
+within one traversal; writer phases receive separate scopes. Tests cover
+receiver/instance isolation, failed-read retries, dependency cycles and SQL
+corruption between traversals. Captured pre-optimization qualification and
+qualifier Edition hashes remain unchanged. The scoped 232-game target ran in
+72.80 seconds; the unscoped run exceeded 300 seconds after 222 games.
+
+Final local verification passed 503 files / 3,064 tests in 96.22 seconds,
+including catalog verification and type checking. Independent review reported
+no Critical/Important findings; its two Minor missing test cases were added
+before this final run. This is not an atomic transaction across all owners.
 
 After qualifier World host candidate integration, final local verification
 passed 501 files / 3,057 tests in 70.64 seconds, including catalog verification

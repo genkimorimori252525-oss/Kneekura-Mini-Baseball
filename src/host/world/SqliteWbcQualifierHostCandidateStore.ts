@@ -1,3 +1,4 @@
+import { createCompetitionSourceReader } from './CompetitionSourceReadScope';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -53,6 +54,8 @@ export const openSqliteWbcQualifierHostCandidateStore = (
   databasePath: string, sources: WbcQualifierHostCandidateSources,
 ): SqliteWbcQualifierHostCandidateStore => {
   if (!id(databasePath)) throw new Error('invalid qualifier host candidate database path');
+  const readSelected = createCompetitionSourceReader(sources.selection.readSelection, sources.selection);
+  const readSelectedRequest = createCompetitionSourceReader(sources.selection.readRequest, sources.selection);
   const { DatabaseSync }: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
   const db = new DatabaseSync(databasePath);
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
@@ -107,8 +110,8 @@ export const openSqliteWbcQualifierHostCandidateStore = (
     if (!request || ![request.careerId, request.qualifierEditionId, request.drawSeed, request.drawPolicyVersion].every(id)
       || !day(request.selectedAtDay)) throw new Error('invalid qualifier host candidate request');
     const policy = snapshotWbcQualifierHostCandidatePolicy(request.policy);
-    const selection = sources.selection.readSelection(request.careerId, request.qualifierEditionId);
-    const selectionRequest = sources.selection.readRequest(request.careerId, request.qualifierEditionId);
+    const selection = readSelected(request.careerId, request.qualifierEditionId);
+    const selectionRequest = readSelectedRequest(request.careerId, request.qualifierEditionId);
     if (!selection || selection.qualifierEditionId !== request.qualifierEditionId || !selectionRequest
       || selectionRequest.careerId !== request.careerId || selectionRequest.qualifierEditionId !== request.qualifierEditionId
       || selectionRequest.rankingAsOfDay !== request.selectedAtDay || !day(selectionRequest.eligibility?.asOfDay)

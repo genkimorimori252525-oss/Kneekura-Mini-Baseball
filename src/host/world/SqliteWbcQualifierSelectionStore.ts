@@ -1,3 +1,4 @@
+import { createCompetitionSourceReader } from './CompetitionSourceReadScope';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { selectWbcGlobalQualifierEntrants,
@@ -61,6 +62,8 @@ export const openSqliteWbcQualifierSelectionStore = (
   if (!id(databasePath)) {
     throw new Error('invalid WBC qualifier selection database path');
   }
+  const readDirect = createCompetitionSourceReader(sources.direct.readDirect, sources.direct);
+  const readRanking = createCompetitionSourceReader(sources.ranking.readRanking, sources.ranking);
   const sqlite: typeof import('node:sqlite') =
     createRequire(import.meta.url)('node:sqlite');
   const db = new sqlite.DatabaseSync(databasePath);
@@ -79,9 +82,9 @@ export const openSqliteWbcQualifierSelectionStore = (
       ?? null;
   const project = (request: WbcQualifierSelectionRequest):
     WbcQualifierSelection => {
-    const direct = sources.direct.readDirect(request.careerId,
+    const direct = readDirect(request.careerId,
       request.wbcEditionId);
-    const ranking = sources.ranking.readRanking(request.careerId,
+    const ranking = readRanking(request.careerId,
       request.rankingAsOfDay);
     if (!direct || !ranking) {
       throw new Error('WBC qualifier needs direct berths and ranking');

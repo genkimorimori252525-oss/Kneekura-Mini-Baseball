@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
+import { createCompetitionSourceReader, withCompetitionSourceReadScope } from './CompetitionSourceReadScope';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { planWbcDirectBerths, type WbcBerthInput, type WbcBerthPolicy,
   type WbcBerthPolicyRegistry, type WbcDirectBerths } from '../../core/world/competition/WbcBerths';
@@ -73,6 +74,7 @@ export const openSqliteWbcWorldQualificationStore = (
     PRIMARY KEY (career_id, edition_id)
   );`);
   const coefficients = openSqliteWbcRegionalCoefficientStore(databasePath, { history: sources.history });
+  const readEdition = createCompetitionSourceReader(sources.history.readEdition, sources.history);
   const direct = openSqliteWbcDirectBerthStore(databasePath, { coefficients,
     regional: sources.regional, nations: sources.nations, editionCutoff: () => null,
     editionCutoffForCareer: (careerId, editionId) =>
@@ -99,7 +101,7 @@ export const openSqliteWbcWorldQualificationStore = (
     }
     // Follow only accepted predecessor IDs, never the current or future WBC result source.
     const previousWorldEditions = previousSelections.map((past) => {
-      const historical = sources.history.readEdition(request.careerId, past.editionId);
+      const historical = readEdition(request.careerId, past.editionId);
       if (!historical || historical.editionId !== past.editionId
         || historical.completedAtDay !== past.calendarWindow.endsOnDay) {
         throw new Error('World WBC qualification requires matching official predecessor history');
@@ -169,10 +171,10 @@ export const openSqliteWbcWorldQualificationStore = (
   const assertScope = (careerId: string, editionId: string): void => {
     if (closed || !id(careerId) || !id(editionId)) throw new Error('invalid World WBC qualification scope');
   };
-  const readSnapshot = (careerId: string, editionId: string): DurableWbcWorldQualification | null => {
+  const readSnapshot = (careerId: string, editionId: string): DurableWbcWorldQualification | null => withCompetitionSourceReadScope(() => {
     assertScope(careerId, editionId);
     const saved = row(careerId, editionId); return saved ? replay(careerId, editionId, saved) : null;
-  };
+  });
   return Object.freeze({
     initialize(rawRequest: WbcWorldQualificationRequest): DurableWbcWorldQualification {
       assertScope(rawRequest?.careerId, rawRequest?.editionId);

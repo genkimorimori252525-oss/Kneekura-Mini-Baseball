@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { isDeepStrictEqual } from 'node:util';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
+import { withCompetitionSourceReadScope } from './CompetitionSourceReadScope';
 import type { OfficialGameVenueBinding } from '../../core/world/competition/OfficialGameCompletion';
 import type { WbcGlobalQualifierEdition, WbcQualifierGame } from
   '../../core/world/competition/WbcGlobalQualifierPods';
@@ -28,7 +29,7 @@ export const registerWbcQualifierFixtureFromWorld = (
     matches: Pick<SqliteOfficialStateStore, 'registerOfficialFixture'>;
   }>,
   input: Readonly<{ careerId: string; editionId: string; gameId: string; gameDay: number }>,
-): WbcQualifierFixture => {
+): WbcQualifierFixture => withCompetitionSourceReadScope(() => {
   const edition = stores.pods.readEdition(input.careerId, input.editionId);
   const plan = stores.pods.readPlan(input.careerId, input.editionId);
   const schedule = stores.schedules.readSchedule(input.careerId, input.editionId);
@@ -56,4 +57,4 @@ export const registerWbcQualifierFixtureFromWorld = (
       scheduleDigest, input.gameDay, game.gameId, game.homeNationId, game.awayNationId]),
   });
   return Object.freeze({ edition, game, gameDay: input.gameDay, binding });
-};
+});

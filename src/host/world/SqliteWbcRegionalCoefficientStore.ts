@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import { createCompetitionSourceReader } from './CompetitionSourceReadScope';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { ClubWorldRegion } from
   '../../core/world/competition/ClubWorldBerths';
@@ -66,11 +67,12 @@ export const openSqliteWbcRegionalCoefficientStore = (
     WHERE career_id=? ORDER BY newer_edition_id`);
   const rows = (careerId: string): Row[] =>
     get.all(careerId) as Row[];
+  const readEdition = createCompetitionSourceReader(sources.history.readEdition, sources.history);
   const project = (request: WbcCoefficientRequest):
     readonly WbcRegionalCoefficient[] => {
-    const older = sources.history.readEdition(request.careerId,
+    const older = readEdition(request.careerId,
       request.olderEditionId);
-    const newer = sources.history.readEdition(request.careerId,
+    const newer = readEdition(request.careerId,
       request.newerEditionId);
     if (!older || !newer) {
       throw new Error('WBC coefficients need two official world editions');
@@ -113,6 +115,7 @@ export const openSqliteWbcRegionalCoefficientStore = (
     }
   };
   let closed = false;
+  const readAtCutoff = createCompetitionSourceReader((careerId: string, beforeDay: number) => replay(careerId, beforeDay));
   const assertCareer = (careerId: string): void => {
     if (closed || !id(careerId)) {
       throw new Error('invalid WBC coefficient career');
@@ -172,7 +175,7 @@ export const openSqliteWbcRegionalCoefficientStore = (
           || !Number.isSafeInteger(beforeDay) || beforeDay < 0) {
           throw new Error('invalid WBC coefficient cutoff');
         }
-        const eligible = replay(careerId, beforeDay).flatMap((item) =>
+        const eligible = readAtCutoff(careerId, beforeDay).flatMap((item) =>
           item.coefficients.filter((coefficient) =>
             coefficient.region === region
             && coefficient.completedAtDay <= beforeDay))

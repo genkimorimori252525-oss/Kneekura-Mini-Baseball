@@ -1,3 +1,4 @@
+import { createCompetitionSourceReader } from './CompetitionSourceReadScope';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { OfficialGameResult } from
@@ -68,6 +69,9 @@ export const openSqliteWbcGlobalQualifierPodStore = (
   if (!id(databasePath)) {
     throw new Error('invalid WBC Global Qualifier database path');
   }
+  const readSelected = createCompetitionSourceReader(sources.selection.readSelection, sources.selection);
+  const readAcceptedEdition = sources.editions
+    ? createCompetitionSourceReader(sources.editions.readEdition, sources.editions) : null;
   const sqlite: typeof import('node:sqlite') =
     createRequire(import.meta.url)('node:sqlite');
   const db = new sqlite.DatabaseSync(databasePath);
@@ -86,12 +90,12 @@ export const openSqliteWbcGlobalQualifierPodStore = (
   const projectPlan = (request: WbcGlobalQualifierPodRequest):
     WbcGlobalQualifierPlan => {
     if (sources.editions) {
-      const accepted = sources.editions.readEdition(request.careerId, request.edition.editionId);
+      const accepted = readAcceptedEdition!(request.careerId, request.edition.editionId);
       if (!accepted || canonicalJson(accepted) !== canonicalJson(request.edition)) {
         throw new Error('WBC qualifier pods require accepted qualifier Edition');
       }
     }
-    const selection = sources.selection.readSelection(
+    const selection = readSelected(
       request.careerId, request.edition.editionId);
     if (!selection) {
       throw new Error('WBC qualifier needs selected entrants');
@@ -124,7 +128,7 @@ export const openSqliteWbcGlobalQualifierPodStore = (
     const finalResults = results(finalGames);
     if (!finalResults) return { semifinalResults, finalGames,
       finalResults: null, outcome: null };
-    const selection = sources.selection.readSelection(
+    const selection = readSelected(
       request.careerId, request.edition.editionId);
     if (!selection) {
       throw new Error('WBC qualifier selection disappeared');
