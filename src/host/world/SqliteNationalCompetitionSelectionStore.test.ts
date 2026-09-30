@@ -67,3 +67,45 @@ it('pins WBC and Premier12 cutoffs and career days to the accepted World cycle',
     rmSync(directory, { recursive: true, force: true });
   }
 });
+
+it('assigns one regional edition per region reservation with the same career origin', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'regional-selection-'));
+  const path = join(directory, 'world.sqlite');
+  const cycle = openSqliteWorldCompetitionCycleStore(path);
+  let store = openSqliteNationalCompetitionSelectionStore(path, { cycle });
+  const regions = ['ASIA_PACIFIC', 'AMERICAS', 'EUROPE', 'AFRICA'] as const;
+  try {
+    cycle.initialize('career-1', worldCycleInput(0));
+    const request = { careerId: 'career-1', editionId: 'regional-europe-2031',
+      cycleOrdinal: 0, kind: 'REGIONAL_NATIONAL' as const, region: 'EUROPE' as const,
+      careerDayOne: '2031-01-01', cutoffDay: 100 };
+    const first = store.initialize(request);
+    expect(first.region).toBe('EUROPE');
+    expect(first.calendarWindow).toEqual({ startsOnDay: 121, endsOnDay: 130 });
+    expect(store.initialize(request)).toEqual(first);
+    expect(() => store.initialize({ ...request, editionId: 'duplicate-europe' })).toThrow('already assigned');
+    expect(() => store.initialize({ ...request, region: 'AFRICA', editionId: 'other-origin',
+      careerDayOne: '2031-01-02' })).toThrow('origin');
+    expect(() => store.initialize({ ...request, cutoffDay: 121 })).toThrow('before');
+    expect(() => store.initialize({ ...request, editionId: 'invalid-region', region: 'OCEANIA' as 'EUROPE' }))
+      .toThrow('request');
+    regions.filter((region) => region !== 'EUROPE').forEach((region) => {
+      const regional = store.initialize({ ...request, region, editionId: `regional-${region}-2031` });
+      expect(regional.region).toBe(region);
+      expect(regional.qualificationCutoff.snapshotId).not.toBe(first.qualificationCutoff.snapshotId);
+    });
+    const wbc = store.initialize({ ...request, kind: 'WBC', editionId: 'wbc-2032', cutoffDay: 400 });
+    expect(wbc.calendarWindow.startsOnDay).toBe(426);
+    store.close(); store = openSqliteNationalCompetitionSelectionStore(path, { cycle });
+    expect(store.readSelection('career-1', first.editionId)).toEqual(first);
+    expect(store.readSelection('career-1', wbc.editionId)).toEqual(wbc);
+    const db = new DatabaseSync(path);
+    try {
+      db.prepare("UPDATE world_national_selections SET kind='REGIONAL_NATIONAL:INVALID' WHERE edition_id=?")
+        .run(first.editionId);
+    } finally { db.close(); }
+    expect(() => store.readSelection('career-1', first.editionId)).toThrow('corrupt');
+  } finally {
+    store.close(); cycle.close(); rmSync(directory, { recursive: true, force: true });
+  }
+});

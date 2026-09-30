@@ -76,35 +76,36 @@ export type RegionalNationalKnockoutOutcome = Readonly<{
   resultApplicationIds: readonly string[];
 }>;
 
+export const regionalNationalKnockoutGameId = (edition: RegionalNationalKnockoutEdition,
+  stage: RegionalNationalKnockoutGame['stage'], stageIndex: number): string =>
+  JSON.stringify(['regional-national-knockout', edition.competitionId, edition.editionId, stage, stageIndex]);
+
 const game = (edition: RegionalNationalKnockoutEdition,
   stage: RegionalNationalKnockoutGame['stage'],
   stageIndex: number, homeNationId: string,
   awayNationId: string, venueId: string):
 RegionalNationalKnockoutGame => Object.freeze({ stage, stageIndex,
-  gameId: JSON.stringify(['regional-national-knockout',
-    edition.competitionId, edition.editionId, stage, stageIndex]),
+  gameId: regionalNationalKnockoutGameId(edition, stage, stageIndex),
   homeNationId, awayNationId, venueId });
 
-export const planRegionalNationalKnockout = (
-  source: RegionalNationalKnockoutSource,
-): RegionalNationalKnockoutPlan => {
-  const groups = finalizeRegionalNationalGroups(source.groupPlan,
-    source.groupResults, source.groupEdition, source.authority);
-  const qualifiers = groups.knockoutNationIds;
-  const edition = source.knockoutEdition;
-  if (!qualifiers || ![4, 8].includes(qualifiers.length)
-    || edition?.competitionId !== source.groupEdition.competitionId
-    || edition.editionId !== source.groupEdition.editionId
-    || edition.region !== source.groupEdition.region
-    || edition.formatVersion !== source.groupEdition.formatVersion
+export const assertRegionalNationalKnockoutEdition = (
+  groupEdition: RegionalNationalEdition,
+  qualifierCount: number,
+  edition: RegionalNationalKnockoutEdition,
+): void => {
+  if (![4, 8].includes(qualifierCount)
+    || edition?.competitionId !== groupEdition.competitionId
+    || edition.editionId !== groupEdition.editionId
+    || edition.region !== groupEdition.region
+    || edition.formatVersion !== groupEdition.formatVersion
     || edition.ruleProfileVersion
-      !== source.groupEdition.ruleProfileVersion
+      !== groupEdition.ruleProfileVersion
     || edition.gamePolicyVersion
-      !== source.groupEdition.gamePolicyVersion
+      !== groupEdition.gamePolicyVersion
     || edition.qualificationSnapshotId
-      !== source.groupEdition.qualificationSnapshotId
+      !== groupEdition.qualificationSnapshotId
     || edition.groupDrawSnapshotId
-      !== source.groupEdition.drawSnapshotId
+      !== groupEdition.drawSnapshotId
     || !id(edition.knockoutPolicyVersion)
     || !id(edition.placementPolicy?.version)
     || !id(edition.placementPolicy.drawSeed)
@@ -116,15 +117,15 @@ export const planRegionalNationalKnockout = (
       edition.placementPolicy.criteria.includes(criterion as
         typeof edition.placementPolicy.criteria[number]))
     || !Array.isArray(edition.openingPairs)
-    || edition.openingPairs.length !== qualifiers.length / 2
+    || edition.openingPairs.length !== qualifierCount / 2
     || edition.openingPairs.some((pair) =>
       !Array.isArray(pair) || pair.length !== 2
       || pair.some((slot) => !nonnegative(slot)
-        || slot >= qualifiers.length))
+        || slot >= qualifierCount))
     || new Set(edition.openingPairs.flat()).size
-      !== qualifiers.length
+      !== qualifierCount
     || !Array.isArray(edition.openingVenueIds)
-    || edition.openingVenueIds.length !== qualifiers.length / 2
+    || edition.openingVenueIds.length !== qualifierCount / 2
     || edition.openingVenueIds.some((venueId) => !id(venueId))
     || !Array.isArray(edition.semifinalVenueIds)
     || edition.semifinalVenueIds.length !== 2
@@ -132,6 +133,17 @@ export const planRegionalNationalKnockout = (
     || !id(edition.finalVenueId)) {
     throw new Error('invalid versioned regional national knockout edition');
   }
+};
+
+export const planRegionalNationalKnockout = (
+  source: RegionalNationalKnockoutSource,
+): RegionalNationalKnockoutPlan => {
+  const groups = finalizeRegionalNationalGroups(source.groupPlan,
+    source.groupResults, source.groupEdition, source.authority);
+  const qualifiers = groups.knockoutNationIds;
+  const edition = source.knockoutEdition;
+  assertRegionalNationalKnockoutEdition(source.groupEdition, qualifiers?.length ?? 0, edition);
+  if (!qualifiers) throw new Error('invalid versioned regional national knockout edition');
   const openingStage = qualifiers.length === 8
     ? 'QUARTERFINAL' : 'SEMIFINAL';
   const openingGames = edition.openingPairs.map((pair, index) =>

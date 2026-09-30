@@ -25,6 +25,7 @@ export type SqliteRegionalNationalKnockoutStore = Readonly<{
     RegionalNationalKnockoutPlan;
   readPlan(careerId: string, editionId: string):
     RegionalNationalKnockoutPlan | null;
+  readEdition(careerId: string, editionId: string): RegionalNationalKnockoutEdition | null;
   readSemifinalGames(careerId: string, editionId: string):
     readonly RegionalNationalKnockoutGame[] | null;
   readFinalGame(careerId: string, editionId: string):
@@ -222,6 +223,11 @@ export const openSqliteRegionalNationalKnockoutStore = (
       assertScope(careerId, editionId);
       const stored = row(careerId, editionId);
       return stored ? replay(careerId, editionId, stored).plan : null;
+    },
+    readEdition(careerId: string, editionId: string): RegionalNationalKnockoutEdition | null {
+      assertScope(careerId, editionId);
+      const stored = row(careerId, editionId);
+      return stored ? cloneInert(replay(careerId, editionId, stored).edition) : null;
     },
     readSemifinalGames(careerId: string, editionId: string):
       readonly RegionalNationalKnockoutGame[] | null {
