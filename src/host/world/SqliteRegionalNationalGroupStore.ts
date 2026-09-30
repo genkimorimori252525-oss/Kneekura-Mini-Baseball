@@ -11,6 +11,7 @@ import { finalizeRegionalNationalGroups,
 import type { SqliteNationCompetitionRegionStore } from
   './SqliteNationCompetitionRegionStore';
 import type { SqliteNationalCompetitionSelectionStore } from './SqliteNationalCompetitionSelectionStore';
+import type { SqliteRegionalNationalDrawStore } from './SqliteRegionalNationalDrawStore';
 import { readDurableOfficialGameResult,
   type PostseasonMatchSource } from './PostseasonResultsFromMatches';
 
@@ -47,6 +48,7 @@ export const openSqliteRegionalNationalGroupStore = (
     regions: Pick<SqliteNationCompetitionRegionStore, 'authority'>;
     matches: PostseasonMatchSource;
     selections?: Pick<SqliteNationalCompetitionSelectionStore, 'readSelection'>;
+    draws?: Pick<SqliteRegionalNationalDrawStore, 'readDraw'>;
   }>,
 ): SqliteRegionalNationalGroupStore => {
   if (!id(databasePath)) {
@@ -69,6 +71,18 @@ export const openSqliteRegionalNationalGroupStore = (
     (get.get(careerId, editionId) as GroupRow | undefined) ?? null;
   const projectPlan = (careerId: string,
     edition: RegionalNationalEdition): RegionalNationalGroupPlan => {
+    if (sources.draws) {
+      const accepted = sources.draws.readDraw(careerId, edition.editionId);
+      if (!accepted || accepted.draw.editionId !== edition.editionId
+        || accepted.source.selection.region !== edition.region
+        || accepted.drawSnapshotId !== edition.drawSnapshotId
+        || accepted.source.eligibility.snapshotId !== edition.qualificationSnapshotId
+        || canonicalJson(accepted.source.selection.calendarWindow) !== canonicalJson(edition.calendarWindow)
+        || canonicalJson(accepted.draw.groups.map((group) => group.map((row) => row.teamId)))
+          !== canonicalJson(edition.groups.map((group) => group.nationIds))) {
+        throw new Error('regional national Edition differs from accepted regional draw');
+      }
+    }
     if (sources.selections) {
       const selection = sources.selections.readSelection(careerId, edition.editionId);
       if (!selection || selection.kind !== 'REGIONAL_NATIONAL'
