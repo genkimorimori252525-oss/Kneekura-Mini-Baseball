@@ -309,6 +309,21 @@ export type PremierTwelveFinalFourSource = Readonly<{
   groupResults: readonly OfficialGameResult[];
 }>;
 
+export const assertPremierTwelvePairingPolicy = (
+  pairing: PremierTwelveEdition['finalFourPairingPolicy'],
+): void => {
+  if (!id(pairing?.version)
+    || !Array.isArray(pairing.semifinalPairs)
+    || pairing.semifinalPairs.length !== 2
+    || pairing.semifinalPairs.some((pair) =>
+      !Array.isArray(pair) || pair.length !== 2
+      || pair.some((index) => !nonnegative(index) || index > 3)
+      || Math.floor(pair[0] / 2) === Math.floor(pair[1] / 2))
+    || new Set(pairing.semifinalPairs.flat()).size !== 4) {
+    throw new Error('Premier 12 needs decided cross-group semifinals');
+  }
+};
+
 /** Uses the four officially ranked group qualifiers, with no bronze shortcut. */
 export const planPremierTwelveFinalFour = (
   source: PremierTwelveFinalFourSource,
@@ -319,17 +334,10 @@ export const planPremierTwelveFinalFour = (
     group.topTwoNationIds ?? []);
   const edition = source.edition;
   const pairing = edition.finalFourPairingPolicy;
-  if (qualifiers.length !== 4
-    || !id(pairing?.version)
-    || !Array.isArray(pairing.semifinalPairs)
-    || pairing.semifinalPairs.length !== 2
-    || pairing.semifinalPairs.some((pair) =>
-      !Array.isArray(pair) || pair.length !== 2
-      || pair.some((index) => !nonnegative(index) || index > 3)
-      || Math.floor(pair[0] / 2) === Math.floor(pair[1] / 2))
-    || new Set(pairing.semifinalPairs.flat()).size !== 4) {
+  if (qualifiers.length !== 4) {
     throw new Error('Premier 12 needs decided cross-group semifinals');
   }
+  assertPremierTwelvePairingPolicy(pairing);
   const gameIds = premierTwelveFinalFourGameIds(edition);
   const semifinals = pairing.semifinalPairs.map((pair, index) =>
     Object.freeze({ gameId: gameIds.semifinalGameIds[index],

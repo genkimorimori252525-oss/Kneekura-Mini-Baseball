@@ -17,6 +17,8 @@ import { playOfficialNineInningGame } from './OfficialNineInningGame.test-suppor
 import { registerPremierTwelveFixtureFromWorld } from './PremierTwelveFixtureFromWorld';
 import { openSqlitePremierTwelveScheduleStore } from './SqlitePremierTwelveScheduleStore';
 import { openSqliteNationalCompetitionDrawStore } from './SqliteNationalCompetitionDrawStore';
+import { openSqliteNationalCompetitionEditionStore, type NationalHostCandidateSnapshot } from
+  './SqliteNationalCompetitionEditionStore';
 import { EMPTY_COMPETITION_DRAW_POLICY_REGISTRY, registerCompetitionDrawPolicy } from
   '../../core/world/competition/CompetitionDraw';
 import { openSqliteNationCompetitionRegionStore } from
@@ -156,34 +158,55 @@ it('replays regional ranking through all 34 Premier12 games and later rankings',
     drawRegionOverride = 'AFRICA';
     expect(() => draws.readDraw('career-1', selection.editionId)).toThrow('corrupt');
     drawRegionOverride = undefined;
-    const edition: PremierTwelveEdition = {
-      competitionId: 'premier12', editionId: 'premier-2034',
-      canonicalRole: 'PREMIER_12', formatVersion: 'premier-v1',
+    const hostCandidates: NationalHostCandidateSnapshot = {
+      kind: 'PREMIER_12', policyVersion: 'premier-hosts-v1',
+      snapshotId: 'premier-host-candidates-1300', asOfDay: qualificationDay,
+      groupCandidates: [0, 1].map((index) => [{ nationId: `nation-${index * 6}`,
+        cityId: `host-${index}`, venueId: `group-${index}`, regionId: 'EUROPE',
+        eligible: true, suitabilityScore: 1, rotationScore: 0 }]),
+      knockoutCandidates: [], finalFourCandidates: [{ nationId: 'nation-0',
+        cityId: 'medal-city', venueId: 'medal-venue', regionId: 'EUROPE',
+        eligible: true, suitabilityScore: 1, rotationScore: 0 }],
+    };
+    let hostCandidatesOverride: NationalHostCandidateSnapshot | undefined;
+    const editionSources = { draws: {
+      readDraw: (careerId: string, editionId: string) => draws.readDraw(careerId, editionId) },
+      hosts: { readCandidates: (_careerId: string, _editionId: string, day: number) => {
+        expect(day).toBe(qualificationDay);
+        return hostCandidatesOverride ?? hostCandidates;
+      } } };
+    let editions = track(openSqliteNationalCompetitionEditionStore(path, editionSources));
+    const editionRequest = { careerId: 'career-1', editionId: selection.editionId, profile: {
+      kind: 'PREMIER_12' as const, competitionId: 'premier12', formatVersion: 'premier-v1',
       ruleProfileVersion: 'rules-v1', gamePolicyVersion: 'games-v1',
-      rankingPolicyVersion: policy.version,
-      qualificationCutoffSnapshotId: selection.qualificationCutoff.snapshotId,
-      rankingSnapshotId: ranking.snapshotId, drawSnapshotId: acceptedDraw.drawSnapshotId,
       hostingPolicyVersion: 'premier-hosts-v1',
       tiebreakPolicy: regionalEdition.tiebreakPolicy,
-      finalFourPairingPolicy: { version: 'pairs-v1', semifinalPairs: [[0, 3], [1, 2]] },
-      hostNationIds: ['nation-0', 'nation-6'],
-      groupHosts: [{ groupIndex: 0, nationId: 'nation-0', cityId: 'host-a',
-        venueId: 'group-a' }, { groupIndex: 1, nationId: 'nation-6',
-        cityId: 'host-b', venueId: 'group-b' }],
-      finalFourHost: { nationId: 'nation-0', cityId: 'medal-city',
-        venueId: 'medal-venue' },
-      groups: acceptedDraw.draw.groups.map((group, groupIndex) => ({ groupIndex,
-        nationIds: group.map((entrant) => entrant.teamId) })),
-      calendarWindow: selection.calendarWindow,
-    };
+      finalFourPairingPolicy: { version: 'pairs-v1', semifinalPairs: [[0, 3], [1, 2]] as const },
+    } };
+    const acceptedEdition = editions.initialize(editionRequest);
+    expect(acceptedEdition.kind).toBe('PREMIER_12');
+    const edition: PremierTwelveEdition = editions.readPremierEdition('career-1', selection.editionId)!;
+    expect(edition.rankingSnapshotId).toBe(ranking.snapshotId);
+    expect(edition.groups.flatMap((group) => group.nationIds).sort()).toEqual([...nationIds].sort());
+    hostCandidatesOverride = { ...hostCandidates, snapshotId: 'different-accepted-candidates' };
+    expect(() => editions.readSnapshot('career-1', edition.editionId)).toThrow('corrupt');
+    hostCandidatesOverride = undefined;
+    editions.close();
+    editions = track(openSqliteNationalCompetitionEditionStore(path, editionSources));
+    expect(editions.initialize(editionRequest)).toEqual(acceptedEdition);
     let cutoffOverride: typeof selection.qualificationCutoff | undefined;
     const sources = { rankings, selections, draws: {
       readDraw: (careerId: string, editionId: string) => draws.readDraw(careerId, editionId) },
+      editions: { readPremierEdition: (careerId: string, editionId: string) =>
+        editions.readPremierEdition(careerId, editionId) },
       matches: matchSource,
       editionCutoff: (editionId: string) => cutoffOverride
         ?? selections.authority('career-1').editionCutoff(editionId) };
     const groups = track(openSqlitePremierTwelveGroupStore(path, sources));
     const request = { careerId: 'career-1', edition };
+    expect(() => groups.initialize({ ...request, edition: { ...edition,
+      finalFourHost: { ...edition.finalFourHost, venueId: 'unaccepted-medal-venue' } } }))
+      .toThrow('accepted national edition');
     expect(() => groups.initialize({ ...request, edition: { ...edition,
       groups: edition.groups.map((group, index) => index === 0 ? { ...group,
         nationIds: [group.nationIds[1], group.nationIds[0], ...group.nationIds.slice(2)] } : group) } }))
@@ -221,7 +244,8 @@ it('replays regional ranking through all 34 Premier12 games and later rankings',
     const schedule = schedules.initialize(scheduleRequest);
     expect(schedules.initialize(scheduleRequest)).toEqual(schedule);
     expect(schedule.games).toHaveLength(34);
-    const alternateGroups = track(openSqlitePremierTwelveGroupStore(':memory:', { ...sources, draws: undefined }));
+    const alternateGroups = track(openSqlitePremierTwelveGroupStore(':memory:', {
+      ...sources, draws: undefined, editions: undefined }));
     alternateGroups.initialize({ ...request, edition: { ...edition,
       drawSnapshotId: 'different-accepted-draw', hostingPolicyVersion: 'different-host-version',
       groups: edition.groups.map((group, index) => index === 0 ? { ...group,
