@@ -2,6 +2,7 @@ import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { createWorldNationalRankingHistory,
   recordRegionalNationalRankingResults,
+  recordPremierTwelveRankingResults,
   recordWbcNationalRankingResults,
   type WorldNationalRankingHistory } from
   '../../core/world/competition/WorldNationalRankingHistory';
@@ -11,8 +12,10 @@ import type { SqliteRegionalNationalKnockoutStore } from
   './SqliteRegionalNationalKnockoutStore';
 import type { SqliteWbcFinalsKnockoutStore } from
   './SqliteWbcFinalsKnockoutStore';
+import type { SqlitePremierTwelveFinalFourStore } from
+  './SqlitePremierTwelveFinalFourStore';
 
-type Kind = 'REGIONAL' | 'WBC';
+type Kind = 'REGIONAL' | 'WBC' | 'PREMIER_12';
 type EventRow = { ordinal: number; kind: Kind;
   edition_id: string; history_json: string };
 const id = (value: unknown): value is string =>
@@ -32,18 +35,21 @@ export type SqliteWorldNationalRankingHistoryStore = Readonly<{
     editionId: string): WorldNationalRankingHistory;
   recordWbc(careerId: string,
     editionId: string): WorldNationalRankingHistory;
+  recordPremier(careerId: string,
+    editionId: string): WorldNationalRankingHistory;
   readHistory(careerId: string,
     beforeDay?: number): WorldNationalRankingHistory;
   close(): void;
 }>;
 
-/** Official regional and WBC Match results feed one ranking history. */
+/** Official regional, WBC and Premier12 Match results feed one ranking history. */
 export const openSqliteWorldNationalRankingHistoryStore = (
   databasePath: string,
   sources: Readonly<{
     regional: Pick<SqliteRegionalNationalKnockoutStore,
       'readEvidence'>;
     wbc: Pick<SqliteWbcFinalsKnockoutStore, 'readEvidence'>;
+    premier?: Pick<SqlitePremierTwelveFinalFourStore, 'readEvidence'>;
     nations: Pick<SqliteNationCompetitionRegionStore, 'readRegion'>;
   }>,
 ): SqliteWorldNationalRankingHistoryStore => {
@@ -79,6 +85,14 @@ export const openSqliteWorldNationalRankingHistoryStore = (
         evidence.source, evidence.quarterfinalResults,
         evidence.semifinalResults, evidence.finalResult);
     }
+    if (kind === 'PREMIER_12') {
+      const evidence = sources.premier?.readEvidence(careerId, editionId);
+      if (!evidence || evidence.source.edition.editionId !== editionId) {
+        throw new Error('ranking requires official Premier12 final');
+      }
+      return recordPremierTwelveRankingResults(history, evidence.source,
+        evidence.semifinalResults, evidence.bronzeResult, evidence.finalResult);
+    }
     const evidence = sources.wbc.readEvidence(careerId, editionId);
     if (!evidence) throw new Error('ranking requires official WBC final');
     const completedAtDay = evidence.source.groupEdition
@@ -96,7 +110,7 @@ export const openSqliteWorldNationalRankingHistoryStore = (
       let history = createWorldNationalRankingHistory();
       events(careerId).forEach((row, index) => {
         if (row.ordinal !== index
-          || !['REGIONAL', 'WBC'].includes(row.kind)
+          || !['REGIONAL', 'WBC', 'PREMIER_12'].includes(row.kind)
           || !id(row.edition_id)) {
           throw new Error('national ranking event order differs');
         }
@@ -172,6 +186,10 @@ export const openSqliteWorldNationalRankingHistoryStore = (
     recordWbc(careerId: string,
       editionId: string): WorldNationalRankingHistory {
       return record(careerId, 'WBC', editionId);
+    },
+    recordPremier(careerId: string,
+      editionId: string): WorldNationalRankingHistory {
+      return record(careerId, 'PREMIER_12', editionId);
     },
     readHistory(careerId: string,
       beforeDay = Number.MAX_SAFE_INTEGER): WorldNationalRankingHistory {

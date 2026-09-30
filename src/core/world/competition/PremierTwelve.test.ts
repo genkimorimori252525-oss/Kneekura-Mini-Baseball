@@ -1,4 +1,4 @@
-import { expect, it } from 'vitest';
+import { expect, it, vi } from 'vitest';
 import { asRuleProfileId } from '../../model/RuleProfileRef';
 import { createWorldNationalRankingHistory,
   recordPremierTwelveRankingResults }
@@ -95,6 +95,19 @@ it('selects ranking top twelve and decides group, bronze and final games', () =>
     createWorldNationalRankingHistory(), source,
     semifinals, bronze, final);
   expect(nationalHistory.editions[0].games).toHaveLength(34);
+});
+
+it('requires the qualification ranking to precede the tournament window', () => {
+  const futureRanking = vi.fn(() => ({ ...ranking, asOfDay: 125 }));
+  expect(() => planPremierTwelveGroups(edition, {
+    editionCutoff: () => ({ snapshotId: 'cutoff-2034', day: 125 }),
+    worldNationalRanking: futureRanking,
+  })).toThrow('cutoff');
+  expect(futureRanking).not.toHaveBeenCalled();
+  expect(() => planPremierTwelveGroups(edition, {
+    editionCutoff: () => ({ snapshotId: 'cutoff-2034', day: 110 }),
+    worldNationalRanking: () => ({ ...ranking, asOfDay: 110 }),
+  })).toThrow('cutoff');
 });
 
 it('rejects non-top-twelve entrants and duplicate medal evidence', () => {

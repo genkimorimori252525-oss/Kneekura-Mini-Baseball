@@ -125,12 +125,14 @@ export const planPremierTwelveGroups = (
     throw new Error('invalid Premier 12 edition or ranking authority');
   }
   const cutoff = authority.editionCutoff(edition.editionId);
-  const ranking = cutoff
-    ? authority.worldNationalRanking(cutoff.day) : null;
   if (!cutoff || cutoff.snapshotId
     !== edition.qualificationCutoffSnapshotId
     || !nonnegative(cutoff.day)
-    || !ranking || ranking.snapshotId !== edition.rankingSnapshotId
+    || cutoff.day >= edition.calendarWindow.startsOnDay) {
+    throw new Error('Premier 12 requires official cutoff before its window');
+  }
+  const ranking = authority.worldNationalRanking(cutoff.day);
+  if (!ranking || ranking.snapshotId !== edition.rankingSnapshotId
     || ranking.policyVersion !== edition.rankingPolicyVersion
     || !nonnegative(ranking.asOfDay)
     || ranking.asOfDay !== cutoff.day
