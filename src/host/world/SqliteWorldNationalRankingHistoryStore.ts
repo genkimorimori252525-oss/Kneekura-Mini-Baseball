@@ -18,6 +18,9 @@ type EventRow = { ordinal: number; kind: Kind;
 const id = (value: unknown): value is string =>
   typeof value === 'string' && value.length > 0
   && value === value.trim();
+const day = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isSafeInteger(value)
+  && value >= 0;
 const canonicalJson = (value: unknown): string => JSON.stringify(
   cloneInert(value), (_key, item: unknown) =>
     item !== null && typeof item === 'object' && !Array.isArray(item)
@@ -29,7 +32,8 @@ export type SqliteWorldNationalRankingHistoryStore = Readonly<{
     editionId: string): WorldNationalRankingHistory;
   recordWbc(careerId: string,
     editionId: string): WorldNationalRankingHistory;
-  readHistory(careerId: string): WorldNationalRankingHistory;
+  readHistory(careerId: string,
+    beforeDay?: number): WorldNationalRankingHistory;
   close(): void;
 }>;
 
@@ -86,7 +90,8 @@ export const openSqliteWorldNationalRankingHistoryStore = (
       (nationId) => sources.nations.readRegion(careerId,
         nationId, completedAtDay));
   };
-  const replay = (careerId: string): WorldNationalRankingHistory => {
+  const replay = (careerId: string,
+    beforeDay = Number.MAX_SAFE_INTEGER): WorldNationalRankingHistory => {
     try {
       let history = createWorldNationalRankingHistory();
       events(careerId).forEach((row, index) => {
@@ -95,9 +100,25 @@ export const openSqliteWorldNationalRankingHistoryStore = (
           || !id(row.edition_id)) {
           throw new Error('national ranking event order differs');
         }
-        history = project(careerId, history, row.kind,
-          row.edition_id);
-        if (canonicalJson(history) !== row.history_json) {
+        const saved = JSON.parse(row.history_json) as
+          WorldNationalRankingHistory;
+        if (!Array.isArray(saved.editions)
+          || saved.editions.length !== index + 1
+          || saved.editions[index].editionId !== row.edition_id
+          || saved.editions[index].tier !== row.kind
+          || saved.editions.some((edition) => !day(edition.completedAtDay))
+          || canonicalJson(saved) !== row.history_json) {
+          throw new Error('national ranking edition metadata differs');
+        }
+        // The edition being qualified may consume this earlier ranking.
+        // Replay only causal ancestors at the cutoff, never later results.
+        if (saved.editions[index].completedAtDay <= beforeDay) {
+          history = project(careerId, history, row.kind,
+            row.edition_id);
+        }
+        const atCutoff = { editions: saved.editions.filter((edition) =>
+          edition.completedAtDay <= beforeDay) };
+        if (canonicalJson(history) !== canonicalJson(atCutoff)) {
           throw new Error('national ranking history replay differs');
         }
       });
@@ -152,9 +173,11 @@ export const openSqliteWorldNationalRankingHistoryStore = (
       editionId: string): WorldNationalRankingHistory {
       return record(careerId, 'WBC', editionId);
     },
-    readHistory(careerId: string): WorldNationalRankingHistory {
+    readHistory(careerId: string,
+      beforeDay = Number.MAX_SAFE_INTEGER): WorldNationalRankingHistory {
       assertCareer(careerId);
-      return replay(careerId);
+      if (!day(beforeDay)) throw new Error('invalid national ranking cutoff');
+      return replay(careerId, beforeDay);
     },
     close(): void {
       if (!closed) db.close();

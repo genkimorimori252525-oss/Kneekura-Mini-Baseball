@@ -64,7 +64,7 @@ export const openSqliteWorldNationalRankingSnapshotStore = (
     (get.get(careerId, asOfDay) as Row | undefined) ?? null;
   const project = (request: WorldNationalRankingRequest):
     PremierTwelveRanking => buildWorldNationalRanking(
-      sources.history.readHistory(request.careerId),
+      sources.history.readHistory(request.careerId, request.asOfDay),
       request.asOfDay, request.nationIds, request.policy,
       request.registry);
   const replay = (careerId: string, asOfDay: number,
