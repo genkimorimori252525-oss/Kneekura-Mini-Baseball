@@ -1,4 +1,5 @@
 import { isDeepStrictEqual } from 'node:util';
+import { createCompetitionSourceReader } from './CompetitionSourceReadScope';
 import type { OfficialGameResult } from
   '../../core/world/competition/OfficialGameCompletion';
 import type { PostseasonSeriesPlan } from
@@ -8,15 +9,26 @@ import type { SqliteOfficialStateStore } from
 
 export type PostseasonMatchSource = Pick<SqliteOfficialStateStore,
   'getMatch' | 'getOfficialFixture'>;
+const sourceReaders = new WeakMap<PostseasonMatchSource, PostseasonMatchSource>();
+const readersFor = (source: PostseasonMatchSource): PostseasonMatchSource => {
+  let readers = sourceReaders.get(source);
+  if (!readers) {
+    readers = { getMatch: createCompetitionSourceReader((gameId: string) => source.getMatch(gameId)),
+      getOfficialFixture: createCompetitionSourceReader((gameId: string) => source.getOfficialFixture(gameId)) };
+    sourceReaders.set(source, readers);
+  }
+  return readers;
+};
 
 /** A final is usable only with the fixture binding pinned by Match. */
 export const readDurableOfficialGameResult = (
   matchStore: PostseasonMatchSource,
   gameId: string,
 ): OfficialGameResult | null => {
-  const final = matchStore.getMatch(gameId)?.finalResult;
+  const readers = readersFor(matchStore);
+  const final = readers.getMatch(gameId)?.finalResult;
   if (!final) return null;
-  const fixture = matchStore.getOfficialFixture(gameId);
+  const fixture = readers.getOfficialFixture(gameId);
   if (!fixture || !final.venueBinding
     || !isDeepStrictEqual(fixture, final.venueBinding)) {
     throw new Error('postseason result lacks durable Match fixture');

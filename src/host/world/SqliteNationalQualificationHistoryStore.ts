@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import { createCompetitionSourceReader } from './CompetitionSourceReadScope';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { ClubWorldRegion } from
   '../../core/world/competition/ClubWorldBerths';
@@ -227,6 +228,8 @@ export const openSqliteNationalQualificationHistoryStore = (
     }
   };
   let closed = false;
+  const readRegionalAtCutoff = createCompetitionSourceReader((careerId: string, beforeDay: number) => replay(careerId, false, beforeDay));
+  const readAtCutoff = createCompetitionSourceReader((careerId: string, beforeDay: number) => replay(careerId, true, beforeDay));
   const assertCareer = (careerId: string): void => {
     if (closed || !id(careerId)) {
       throw new Error('invalid national qualification career');
@@ -339,7 +342,7 @@ export const openSqliteNationalQualificationHistoryStore = (
         if (!REGIONS.includes(region) || !day(beforeDay)) {
           throw new Error('invalid regional national placement lookup');
         }
-        const history = replay(careerId, false, beforeDay);
+        const history = readRegionalAtCutoff(careerId, beforeDay);
         return history
           ? latestRegionalNationalPlacement(history, region,
             beforeDay) : null;
@@ -354,7 +357,7 @@ export const openSqliteNationalQualificationHistoryStore = (
           || podIndex > 3 || !day(beforeDay)) {
           throw new Error('invalid WBC qualifier pod lookup');
         }
-        const history = replay(careerId, true, beforeDay);
+        const history = readAtCutoff(careerId, beforeDay);
         return history
           ? latestWbcQualifierPodWinner(history, podIndex,
             beforeDay) : null;

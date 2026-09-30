@@ -1,3 +1,4 @@
+import { createCompetitionSourceReader, withCompetitionSourceReadScope } from './CompetitionSourceReadScope';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -55,6 +56,11 @@ export const openSqliteWbcQualifierEditionStore = (
   databasePath: string, sources: WbcQualifierEditionSources,
 ): SqliteWbcQualifierEditionStore => {
   if (!id(databasePath)) throw new Error('invalid WBC qualifier Edition database path');
+  const readDirect = createCompetitionSourceReader(sources.direct.readDirect, sources.direct);
+  const readSelected = createCompetitionSourceReader(sources.selection.readSelection, sources.selection);
+  const readSelectedRequest = createCompetitionSourceReader(sources.selection.readRequest, sources.selection);
+  const readRanking = createCompetitionSourceReader(sources.rankings.readRanking, sources.rankings);
+  const readCandidates = createCompetitionSourceReader(sources.hosts.readCandidates, sources.hosts);
   const { DatabaseSync }: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
   const db = new DatabaseSync(databasePath);
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
@@ -78,7 +84,7 @@ export const openSqliteWbcQualifierEditionStore = (
       throw new Error('qualifier Edition requires valid pre-play selection and calendar');
     }
     const world = sources.selections.readSelection(request.careerId, request.wbcEditionId);
-    const direct = sources.direct.readDirect(request.careerId, request.wbcEditionId);
+    const direct = readDirect(request.careerId, request.wbcEditionId);
     if (!world || world.kind !== 'WBC' || world.editionId !== request.wbcEditionId || !direct
       || direct.editionId !== world.editionId || direct.qualifierEditionId !== request.qualifierEditionId
       || direct.cutoffSnapshotId !== world.qualificationCutoff.snapshotId || direct.cutoffDay !== world.qualificationCutoff.day
@@ -88,9 +94,9 @@ export const openSqliteWbcQualifierEditionStore = (
       || direct.placements.some((item) => !day(item.completedAtDay) || item.completedAtDay > request.selectedAtDay)) {
       throw new Error('qualifier Edition requires regional results and accepted World cutoff');
     }
-    const selection = sources.selection.readSelection(request.careerId, request.qualifierEditionId);
-    const selectionRequest = sources.selection.readRequest(request.careerId, request.qualifierEditionId);
-    const ranking = sources.rankings.readRanking(request.careerId, request.selectedAtDay);
+    const selection = readSelected(request.careerId, request.qualifierEditionId);
+    const selectionRequest = readSelectedRequest(request.careerId, request.qualifierEditionId);
+    const ranking = readRanking(request.careerId, request.selectedAtDay);
     if (!selectionRequest || selectionRequest.careerId !== request.careerId
       || selectionRequest.wbcEditionId !== request.wbcEditionId || selectionRequest.qualifierEditionId !== request.qualifierEditionId
       || selectionRequest.rankingAsOfDay !== request.selectedAtDay
@@ -106,7 +112,7 @@ export const openSqliteWbcQualifierEditionStore = (
         || sources.nations.readRegion(request.careerId, item.nationId, request.selectedAtDay) !== item.region)) {
       throw new Error('qualifier Edition requires accepted selected entrants and pre-play ranking');
     }
-    const hosts = sources.hosts.readCandidates(request.careerId, request.qualifierEditionId, request.selectedAtDay);
+    const hosts = readCandidates(request.careerId, request.qualifierEditionId, request.selectedAtDay);
     if (!hosts || hosts.asOfDay !== request.selectedAtDay) throw new Error('qualifier Edition requires cutoff host evidence');
     const assembly = assembleWbcQualifierEdition({ selection, hosts, drawSeed: request.drawSeed,
       profile: request.profile, calendarWindow: request.calendarWindow });
@@ -131,10 +137,10 @@ export const openSqliteWbcQualifierEditionStore = (
   const scope = (careerId: string, editionId: string): void => {
     if (closed || !id(careerId) || !id(editionId)) throw new Error('invalid qualifier Edition scope');
   };
-  const readSnapshot = (careerId: string, qualifierEditionId: string): DurableWbcQualifierEdition | null => {
+  const readSnapshot = (careerId: string, qualifierEditionId: string): DurableWbcQualifierEdition | null => withCompetitionSourceReadScope(() => {
     scope(careerId, qualifierEditionId); const stored = row(careerId, qualifierEditionId);
     return stored ? replay(careerId, qualifierEditionId, stored) : null;
-  };
+  });
   return Object.freeze({
     initialize(raw: WbcQualifierEditionRequest): DurableWbcQualifierEdition {
       scope(raw?.careerId, raw?.qualifierEditionId); const request = cloneInert(raw);
