@@ -11,6 +11,13 @@ This records implementation evidence, not approval of another design.
 - WBC qualifier selection consumes saved direct berths and a saved ranking.
   Four qualifier pods consume venue-bound official Match finals. Their winners
   feed qualification history and the final 20 + 4 berth allocation.
+- WBC Global Qualifier now persists all twelve semifinal/final schedule slots
+  from its accepted Edition and pod plan. Explicit venue capacity and off-day
+  policy fit those slots within the Edition window; shared venues consume
+  shared capacity. Final slots reserve capacity before the winners qualify.
+  World fixture registration pins the complete schedule source digest and
+  actual qualified participants before Match initialization, and rejects a
+  different accepted Edition even when slot IDs and venues are identical.
 - WBC finals use six pools, round of 16, quarterfinals, semifinals and final.
   The 51 results feed official WBC history and national ranking history.
 - Premier12 groups consume the saved ranking at the qualification cutoff.
@@ -131,6 +138,16 @@ scoring Canadian venue. Its ranking/qualification/history inputs remain
 fixtures. Production venue catalog initialization and complete national
 qualification/career orchestration are separate completion boundaries.
 
+The qualifier integration plays twelve actual nine-inning Match games and
+records the four winners in durable qualification history. It closes and
+reopens the pod, schedule and Match databases after each incomplete semifinal
+prefix (one through seven games) and final prefix (one through three games),
+retaining pending status until the required stage is complete. Wrong dates,
+unknown games, premature finals, changed sources and corrupt saved schedules
+are rejected. Entrant selection, pod hosts and the calendar window remain
+explicit accepted fixtures in this test; the whole source lifecycle is still
+separate work. Match count inputs are scripted, as in the other integrations.
+
 The full verification suite passed 486 files / 3,030 tests after Premier12
 schedule integration; P0 run `36713238883` passed its final source-provenance
 repair at `2ca3b345f516f2993b6d0e70cbc82ff42e8319a4`.
@@ -155,6 +172,11 @@ tests reject equal/future cutoffs and completion outside the predecessor
 window before following the Edition callback. The full suite passed after
 these repairs. This does not execute a production Club journal in the
 infrastructure unit test; its accepted Club histories are callback fixtures.
+
+After qualifier schedule/Match integration, full local verification passed
+494 files / 3,045 tests in 101.26 seconds, with catalog verification and type
+checking. The independent review reported no findings in this slice; the
+explicit fixture and physical simulation boundaries above remain open.
 
 ## Remaining implementation boundaries
 

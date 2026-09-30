@@ -31,6 +31,8 @@ export type SqliteWbcGlobalQualifierPodStore = Readonly<{
     WbcGlobalQualifierPlan;
   readPlan(careerId: string,
     editionId: string): WbcGlobalQualifierPlan | null;
+  readEdition(careerId: string,
+    editionId: string): WbcGlobalQualifierEdition | null;
   finalGames(careerId: string,
     editionId: string): readonly WbcQualifierGame[] | null;
   finalize(careerId: string,
@@ -200,6 +202,18 @@ export const openSqliteWbcGlobalQualifierPodStore = (
       const stored = row(careerId, editionId);
       return stored ? replay(careerId, editionId, stored).plan
         : null;
+    },
+    readEdition(careerId: string,
+      editionId: string): WbcGlobalQualifierEdition | null {
+      assertScope(careerId, editionId);
+      const stored = row(careerId, editionId);
+      if (!stored) return null;
+      const edition = cloneInert(replay(careerId, editionId, stored).request.edition);
+      return Object.freeze({ ...edition,
+        calendarWindow: Object.freeze({ ...edition.calendarWindow }),
+        pods: Object.freeze(edition.pods.map((pod) => Object.freeze({ ...pod,
+          entrants: Object.freeze(pod.entrants.map((entrant) => Object.freeze({ ...entrant }))) }))),
+      });
     },
     finalGames(careerId: string,
       editionId: string): readonly WbcQualifierGame[] | null {
