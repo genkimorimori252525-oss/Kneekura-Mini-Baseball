@@ -1,3 +1,4 @@
+import { createCompetitionSourceReader } from './CompetitionSourceReadScope';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { WbcKnockoutEdition } from '../../core/world/competition/WbcFinalsKnockout';
@@ -31,6 +32,8 @@ export const openSqliteWbcFinalsScheduleStore = (
   sources: Readonly<{ groups: Pick<SqliteWbcFinalsGroupStore, 'readEdition' | 'readPlan'> }>,
 ): SqliteWbcFinalsScheduleStore => {
   if (!id(databasePath)) throw new Error('invalid WBC schedule database path');
+  const readEdition = createCompetitionSourceReader(sources.groups.readEdition, sources.groups);
+  const readPlan = createCompetitionSourceReader(sources.groups.readPlan, sources.groups);
   const sqlite: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
   const db = new sqlite.DatabaseSync(databasePath);
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
@@ -44,8 +47,8 @@ export const openSqliteWbcFinalsScheduleStore = (
   const row = (careerId: string, editionId: string): Row | null =>
     (get.get(careerId, editionId) as Row | undefined) ?? null;
   const project = (request: WbcFinalsScheduleRequest): WbcFinalsSchedule => {
-    const edition = sources.groups.readEdition(request.careerId, request.editionId);
-    const plan = sources.groups.readPlan(request.careerId, request.editionId);
+    const edition = readEdition(request.careerId, request.editionId);
+    const plan = readPlan(request.careerId, request.editionId);
     if (!edition || !plan || edition.editionId !== request.editionId) {
       throw new Error('WBC schedule requires accepted groups');
     }

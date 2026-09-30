@@ -1,5 +1,6 @@
 import { createRequire } from 'node:module';
-import { expect, it } from 'vitest';
+import { expect, it, vi } from 'vitest';
+import * as drawCore from '../../core/world/competition/CompetitionDraw';
 import { EMPTY_COMPETITION_DRAW_POLICY_REGISTRY, registerCompetitionDrawPolicy } from
   '../../core/world/competition/CompetitionDraw';
 import { openSqliteWorldCompetitionCycleStore } from './SqliteWorldCompetitionCycleStore';
@@ -19,6 +20,7 @@ import { wbcFinalsInput } from './WbcFinalsFixtures.test-support';
 const { DatabaseSync }: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
 
 it('pins WBC qualification and ranking pots while rejecting changed policies and saved draws', () => {
+  const computeDraw = vi.spyOn(drawCore, 'drawCompetitionGroups');
   const closables: { close(): void }[] = [];
   const track = <T extends { close(): void }>(store: T): T => { closables.push(store); return store; };
   try {
@@ -54,6 +56,18 @@ it('pins WBC qualification and ranking pots while rejecting changed policies and
     expect(() => draws.initialize(request)).toThrow('cutoff ranking');
     rankingMissing = false;
     const draw = draws.initialize(request);
+    expect(draws.readDraw('career-1', edition.editionId)).toEqual(draw);
+    expect(computeDraw).toHaveBeenCalledTimes(1);
+    rankingMissing = true;
+    expect(() => draws.readDraw('career-1', edition.editionId)).toThrow('corrupt');
+    rankingMissing = false;
+    nations.record({ careerId: 'career-1', nationId: 'nation-0', region: 'EUROPE', effectiveFromDay: 399,
+      sourceEventId: 'draw-input-fork' });
+    expect(() => draws.readDraw('career-1', edition.editionId)).toThrow('corrupt');
+    expect(computeDraw).toHaveBeenCalledTimes(2);
+    nations.record({ careerId: 'career-1', nationId: 'nation-0', region: 'ASIA_PACIFIC', effectiveFromDay: 400,
+      sourceEventId: 'draw-input-restored' });
+    expect(draws.readDraw('career-1', edition.editionId)).toEqual(draw);
     expect(draw.draw.groups.map((group) => group.length)).toEqual([4, 4, 4, 4, 4, 4]);
     for (const group of draw.draw.groups) expect(group.map((nation) => nation.pot)).toEqual([1, 2, 3, 4]);
     expect(draw.source.rematchHistory.editions).toHaveLength(0);
@@ -153,6 +167,7 @@ it('pins WBC qualification and ranking pots while rejecting changed policies and
     db.close();
     expect(() => draws.readDraw('career-1', edition.editionId)).toThrow('corrupt');
   } finally {
+    computeDraw.mockRestore();
     closables.reverse().forEach((store) => store.close());
   }
 });

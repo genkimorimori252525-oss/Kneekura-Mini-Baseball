@@ -35,13 +35,19 @@ import { openSqliteWorldHostInfrastructureStore } from './SqliteWorldHostInfrast
 import { openSqliteWbcQualifierHostAccessStore } from './SqliteWbcQualifierHostAccessStore';
 import { openSqliteWbcQualifierHostCandidateStore } from './SqliteWbcQualifierHostCandidateStore';
 import { initializeWorldBoundWbcQualifier, completeWorldBoundWbcQualifier } from './WorldBoundWbcQualifierRuntime';
+import { initializeWorldBoundWbcFinals, initializeWorldBoundWbcKnockout, completeWorldBoundWbcFinals } from './WorldBoundWbcFinalsRuntime';
+import { openSqliteNationalCompetitionDrawStore } from './SqliteNationalCompetitionDrawStore';
+import { openSqliteNationalHostCandidateStore } from './SqliteNationalHostCandidateStore';
+import { openSqliteNationalCompetitionEditionStore } from './SqliteNationalCompetitionEditionStore';
+import { EMPTY_COMPETITION_DRAW_POLICY_REGISTRY, registerCompetitionDrawPolicy } from '../../core/world/competition/CompetitionDraw';
+import { createCompetitionSourceReader, withCompetitionSourceReadScope } from './CompetitionSourceReadScope';
 import { worldCycleInput } from './WorldCompetitionCycleFixtures.test-support';
 import { wbcFinalsInput } from './WbcFinalsFixtures.test-support';
 import { regionalNationalInput } from './RegionalNationalFixtures.test-support';
 import { playOfficialNineInningGame } from './OfficialNineInningGame.test-support';
 
 const regions = ['ASIA_PACIFIC', 'AMERICAS', 'EUROPE', 'AFRICA'] as const;
-it('connects two actual WBC histories and four regional Match finals through Native qualifier selection and twenty plus four berths', () => {
+it('connects two actual WBC histories and four regional finals through Native qualification and the current 51-game WBC finals', () => {
   const directory = mkdtempSync(join(tmpdir(), 'wbc-native-lifecycle-'));
   const path = join(directory, 'world.sqlite');
   const closables: { close(): void }[] = [];
@@ -51,6 +57,7 @@ it('connects two actual WBC histories and four regional Match finals through Nat
   const matchSource = { getMatch: (gameId: string) => matches.getMatch(gameId),
     getOfficialFixture: (gameId: string) => matches.getOfficialFixture(gameId) };
   let played = 0;
+  let currentFinals: ReturnType<typeof openSqliteWbcFinalsKnockoutStore> | undefined;
   try {
     const cycles = track(openSqliteWorldCompetitionCycleStore(path));
     const selections = track(openSqliteNationalCompetitionSelectionStore(path, { cycle: cycles }));
@@ -64,9 +71,11 @@ it('connects two actual WBC histories and four regional Match finals through Nat
       { groups: regionalGroups, regions: nations, matches: matchSource }));
     const regionalSchedules = track(openSqliteRegionalNationalScheduleStore(path, { groups: regionalGroups, selections }));
     const officialHistory: ReturnType<typeof openSqliteOfficialWbcHistoryStore> = track(openSqliteOfficialWbcHistoryStore(path, {
-      regions: nations, finals: { readEvidence: (careerId, editionId) => finals.readEvidence(careerId, editionId) } }));
+      regions: nations, finals: { readEvidence: (careerId, editionId) => editionId === 'wbc-2040'
+        ? currentFinals?.readEvidence(careerId, editionId) ?? null : finals.readEvidence(careerId, editionId) } }));
     const rankingHistory = track(openSqliteWorldNationalRankingHistoryStore(path, { regional: regionalKnockout,
-      wbc: { readEvidence: (careerId, editionId) => finals.readEvidence(careerId, editionId) }, nations }));
+      wbc: { readEvidence: (careerId, editionId) => editionId === 'wbc-2040'
+        ? currentFinals?.readEvidence(careerId, editionId) ?? null : finals.readEvidence(careerId, editionId) }, nations }));
     const rankings = track(openSqliteWorldNationalRankingSnapshotStore(path, { history: rankingHistory }));
     const qualificationHistory: ReturnType<typeof openSqliteNationalQualificationHistoryStore> = track(openSqliteNationalQualificationHistoryStore(path, { knockouts: regionalKnockout,
       qualifiers: { readEvidence: (careerId, editionId) => pods.readEvidence(careerId, editionId) },
@@ -227,14 +236,117 @@ it('connects two actual WBC histories and four regional Match finals through Nat
     expect(qualification.readSnapshot('career-1', 'wbc-2040')).toEqual(prepared.qualification);
     expect(editions.readSnapshot('career-1', 'qualifier-2040')).toEqual(prepared.edition);
     expect(qualificationHistory.readHistory('career-1', selectedAtDay)?.qualifiers).toEqual([]);
+    // US infrastructure is introduced after qualifier selection, preserving that frozen prefix.
+    nations.record({ careerId: 'career-1', nationId: 'US', region: 'AMERICAS', effectiveFromDay: 3334,
+      sourceEventId: 'US-final-host' });
+    const worldSelection = selections.readSelection('career-1', 'wbc-2040')!;
+    const profileInput = wbcFinalsInput(worldSelection.calendarWindow, worldSelection.qualificationCutoff.snapshotId);
+    const publicVenue = { careerId: 'career-1', nationId: 'US', region: 'AMERICAS' as const,
+      effectiveFromDay: 3334, licensed: true, safe: true, sourceClubId: null };
+    profileInput.edition.groups.forEach((group, index) => infrastructure.record({ ...publicVenue,
+      cityId: group.hostCityId, venueId: group.hostVenueId, sourceEventId: `us-pool-${index}`,
+      metrics: { ...metrics, stadiumQuality: 50 - index, broadcastReadiness: 50 } }));
+    profileInput.knockoutEdition.knockoutHubs.forEach((hub, index) => infrastructure.record({ ...publicVenue,
+      ...hub, sourceEventId: `us-hub-${index}`, metrics: { ...metrics, stadiumCapacity: 9000,
+        stadiumQuality: 60 - index, broadcastReadiness: 90 } }));
+    infrastructure.record({ ...publicVenue, ...profileInput.knockoutEdition.finalFourHost,
+      sourceEventId: 'us-final', metrics: { ...metrics, stadiumCapacity: 8000,
+        stadiumQuality: 70, broadcastReadiness: 100 } });
+    const draws = track(openSqliteNationalCompetitionDrawStore(path,
+      { selections, rankings, history: rankingHistory, nations, wbcBerths: berths }));
+    const nationalEditions: ReturnType<typeof openSqliteNationalCompetitionEditionStore> = track(openSqliteNationalCompetitionEditionStore(path,
+      { draws, hosts: { readCandidates: (careerId, editionId, beforeDay) =>
+        nationalHosts.readCandidates(careerId, editionId, beforeDay) } }));
+    const nationalHosts = track(openSqliteNationalHostCandidateStore(path,
+      { selections, infrastructure, history: rankingHistory, editions: nationalEditions }));
+    const currentGroups = track(openSqliteWbcFinalsGroupStore(path,
+      { selections, draws, editions: nationalEditions, berths, matches: matchSource }));
+    currentFinals = track(openSqliteWbcFinalsKnockoutStore(path,
+      { groups: currentGroups, editions: nationalEditions, matches: matchSource }));
+    const currentSchedules = track(openSqliteWbcFinalsScheduleStore(path, { groups: currentGroups }));
+    const finalsStores = { selections, rankings, draws, hosts: nationalHosts, editions: nationalEditions,
+      groups: currentGroups, knockout: currentFinals, schedules: currentSchedules,
+      history: officialHistory, rankingHistory };
+    const drawPolicy = { version: profileInput.edition.drawPolicyVersion, rematchLookbackDays: 10000,
+      relaxationOrder: ['REMATCH_AVOIDANCE', 'REGIONAL_DIVERSITY', 'SAME_LEAGUE_AVOIDANCE'] as const };
+    const finalsRequest = { ranking: { ...request.ranking, asOfDay: worldSelection.qualificationCutoff.day },
+      draw: { careerId: 'career-1', editionId: 'wbc-2040', kind: 'WBC' as const, drawSeed: 'current-finals-draw',
+        policy: drawPolicy, registry: registerCompetitionDrawPolicy(EMPTY_COMPETITION_DRAW_POLICY_REGISTRY, drawPolicy) },
+      hosts: { careerId: 'career-1', editionId: 'wbc-2040', policy: {
+        kind: 'WBC' as const, version: profileInput.edition.hostingPolicyVersion, knockoutHubCount: 2,
+        minimums: { GROUP: metrics, KNOCKOUT: { ...metrics, stadiumCapacity: 9000, broadcastReadiness: 80 },
+          FINAL_FOUR: { ...metrics, stadiumCapacity: 8000, broadcastReadiness: 100 } },
+        suitabilityWeights: { ...metrics, stadiumCapacity: 0, stadiumQuality: 1, transportQuality: 0,
+          accommodationCapacity: 0, broadcastReadiness: 0, operationsQuality: 0 },
+        rotation: { lookbackDays: 1000, cityPenalty: 1, nationPenalty: 2, regionPenalty: 3 } } },
+      edition: { careerId: 'career-1', editionId: 'wbc-2040', profile: {
+        kind: 'WBC' as const, competitionId: profileInput.edition.competitionId, formatVersion: profileInput.edition.formatVersion,
+        ruleProfileVersion: profileInput.edition.ruleProfileVersion, gamePolicyVersion: profileInput.edition.gamePolicyVersion,
+        hostingPolicyVersion: profileInput.edition.hostingPolicyVersion, groupTiebreakPolicy: profileInput.edition.groupTiebreakPolicy,
+        thirdPlacePolicy: profileInput.edition.thirdPlacePolicy, knockoutPolicy: {
+          knockoutPolicyVersion: profileInput.knockoutEdition.knockoutPolicyVersion,
+          roundOf16Pairs: profileInput.knockoutEdition.roundOf16Pairs,
+          roundOf16HubIndices: profileInput.knockoutEdition.roundOf16HubIndices,
+          quarterfinalHubIndices: profileInput.knockoutEdition.quarterfinalHubIndices } } },
+      schedulePolicy: { version: 'current-finals-schedule-v1', gamesPerVenuePerDay: 2, minimumOffDaysBetweenRounds: 1 } };
+    expect(() => initializeWorldBoundWbcFinals(finalsStores, { ...finalsRequest,
+      ranking: { ...finalsRequest.ranking, asOfDay: selectedAtDay } })).toThrow('scope or cutoff');
+    expect(draws.readDraw('career-1', 'wbc-2040')).toBeNull();
+    expect(() => initializeWorldBoundWbcFinals(finalsStores, { ...finalsRequest,
+      draw: { ...finalsRequest.draw, registry: EMPTY_COMPETITION_DRAW_POLICY_REGISTRY } })).toThrow('registered version');
+    expect(rankings.readRanking('career-1', worldSelection.qualificationCutoff.day)).toBeNull();
+    const readCurrentRanking = createCompetitionSourceReader(rankings.readRanking, rankings);
+    const readCurrentEdition = createCompetitionSourceReader(nationalEditions.readSnapshot, nationalEditions);
+    withCompetitionSourceReadScope(() => {
+      expect(readCurrentRanking('career-1', worldSelection.qualificationCutoff.day)).toBeNull();
+      expect(readCurrentEdition('career-1', 'wbc-2040')).toBeNull();
+      expect(() => initializeWorldBoundWbcFinals({ ...finalsStores, schedules: {
+        initialize: () => { throw new Error('interrupted finals schedule'); } } }, finalsRequest)).toThrow('interrupted finals schedule');
+      expect(readCurrentRanking('career-1', worldSelection.qualificationCutoff.day)).not.toBeNull();
+      expect(readCurrentEdition('career-1', 'wbc-2040')).not.toBeNull();
+    });
+    const reopenedEditions = track(openSqliteNationalCompetitionEditionStore(path, { draws, hosts: nationalHosts }));
+    const preparedFinals = initializeWorldBoundWbcFinals({ ...finalsStores, editions: reopenedEditions }, finalsRequest);
+    expect(preparedFinals.edition.kind).toBe('WBC');
+    expect(preparedFinals.edition.hosting.hostNationIds).toEqual(['US']);
+    expect(preparedFinals.edition.source.draw.source.berths).toEqual(allocation);
+    // Captured before pure draw computation reuse: current source/output identity is unchanged.
+    expect(preparedFinals.draw.drawSnapshotId)
+      .toBe('national-draw:445fe396de6af1684e5f73a39f6cacd8375bf2d7f1949dacafdda8c90fc27434');
+    expect(preparedFinals.edition.source.draw.source.ranking.evidenceResultIds).toHaveLength(220);
+    expect(preparedFinals.schedule.games).toHaveLength(51);
+    expect(completeWorldBoundWbcFinals(finalsStores, 'career-1', 'wbc-2040')).toBeNull();
+    expect(officialHistory.readEdition('career-1', 'wbc-2040')).toBeNull();
+    expect(initializeWorldBoundWbcKnockout(finalsStores, 'career-1', 'wbc-2040')).toBeNull();
+    for (const slot of preparedFinals.schedule.games) {
+      if (slot.stage === 'ROUND_OF_16' && !currentFinals.readPlan('career-1', 'wbc-2040')) {
+        expect(initializeWorldBoundWbcKnockout(finalsStores, 'career-1', 'wbc-2040')).not.toBeNull();
+      }
+      play(registerWbcFinalsFixtureFromWorld({ groups: currentGroups, knockout: currentFinals,
+        schedules: currentSchedules, matches }, { careerId: 'career-1', editionId: 'wbc-2040',
+        gameId: slot.gameId, gameDay: slot.gameDay }), 'wbc-2040',
+      profileInput.edition.ruleProfileVersion, profileInput.edition.gamePolicyVersion);
+    }
+    expect(() => completeWorldBoundWbcFinals({ ...finalsStores, rankingHistory: {
+      recordWbc: () => { throw new Error('interrupted ranking adoption'); } } }, 'career-1', 'wbc-2040'))
+      .toThrow('interrupted ranking adoption');
+    expect(officialHistory.readEdition('career-1', 'wbc-2040')?.games).toHaveLength(51);
+    const completedFinals = completeWorldBoundWbcFinals(finalsStores, 'career-1', 'wbc-2040')!;
+    expect(completedFinals.history.games).toHaveLength(51);
+    expect(completedFinals.ranking.editions.find((entry) => entry.editionId === 'wbc-2040')?.games).toHaveLength(51);
+    expect(completeWorldBoundWbcFinals(finalsStores, 'career-1', 'wbc-2040')).toEqual(completedFinals);
+    expect(played).toBe(283);
+    expect(nationalEditions.readSnapshot('career-1', 'wbc-2040')).toEqual(preparedFinals.edition);
+    expect(editions.readSnapshot('career-1', 'qualifier-2040')).toEqual(prepared.edition);
     const { DatabaseSync }: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
     const db = new DatabaseSync(path);
     try {
       const original = db.prepare('SELECT snapshot_json FROM world_wbc_world_qualifications').get()!.snapshot_json as string;
       db.prepare("UPDATE world_wbc_world_qualifications SET snapshot_json='{}'").run();
       expect(() => editions.readSnapshot('career-1', 'qualifier-2040')).toThrow('corrupt');
+      expect(() => nationalEditions.readSnapshot('career-1', 'wbc-2040')).toThrow('corrupt');
       db.prepare('UPDATE world_wbc_world_qualifications SET snapshot_json=?').run(original);
       expect(editions.readSnapshot('career-1', 'qualifier-2040')).toEqual(prepared.edition);
     } finally { db.close(); }
   } finally { closables.reverse().forEach((store) => store.close()); rmSync(directory, { recursive: true, force: true }); }
-}, 240000);
+}, 600000);

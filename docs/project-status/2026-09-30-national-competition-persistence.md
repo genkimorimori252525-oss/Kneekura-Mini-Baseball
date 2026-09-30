@@ -298,6 +298,34 @@ and repaired before this final run. No further findings were reported.
 
 ## Remaining implementation boundaries
 
+The current-edition World-bound WBC finals runtime now initializes cutoff
+ranking, draw, US hosting candidates, accepted Edition, groups and schedule
+from the actual twenty-plus-four berth allocation. The combined integration
+completes 283 durable nine-inning Match games, including the current 51-game
+finals, then adopts official WBC and ranking history. It tests preflight cutoff
+and unregistered draw policy rejection, cached-null reads in an outer scope,
+interruption before schedule persistence, Edition reopen, incomplete group/
+knockout gates and interrupted ranking adoption after history commit.
+
+Writer phases use fresh read scopes and discard parent proofs on success or
+failure. All source proofs remain confined to a synchronous traversal. The
+draw owner separately retains one immutable pure computation keyed by the
+complete canonical draw input; every replay still validates current sources
+and policy registration. Actual nation-region changes, missing ranking and
+saved-data corruption are rejected. Its isolated regression ran in 5.12
+seconds; the earlier isolated run took 36.19 seconds. The captured current
+draw snapshot ID is unchanged. The 283-game target passed in 257.20 seconds.
+Final local verification passed 503 files / 3,065 tests in 269.98 seconds,
+including catalog verification and type checking. Two Important review findings
+(inherited parent proofs and unregistered draw policy writes) were repaired and
+covered by regressions before that final run.
+
+The current finals draw/qualification/host sources are Native owners. The first
+two historical cycles' bootstrap qualification/draw, eligibility lists, World
+facility/access facts and numerical policies remain explicit test inputs.
+Match count inputs are scripted; physical ball trajectories, career clock
+advancement and production bootstrap are still separate remaining work.
+
 The World-bound qualifier runtime now connects two prior 51-game WBC finals
 and four 118-game regional finals to Native qualification, cutoff ranking,
 entrant selection, facilities/access, qualifier hosting and twelve qualifier

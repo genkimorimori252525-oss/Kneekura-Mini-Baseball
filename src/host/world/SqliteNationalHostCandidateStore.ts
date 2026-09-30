@@ -1,3 +1,4 @@
+import { createCompetitionSourceReader } from './CompetitionSourceReadScope';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -52,6 +53,10 @@ export const openSqliteNationalHostCandidateStore = (
   databasePath: string, sources: NationalHostCandidateSources,
 ): SqliteNationalHostCandidateStore => {
   if (!id(databasePath)) throw new Error('invalid national host candidate database path');
+  const readSelection = createCompetitionSourceReader(sources.selections.readSelection, sources.selections);
+  const readVenues = createCompetitionSourceReader(sources.infrastructure.readVenues, sources.infrastructure);
+  const readHistory = createCompetitionSourceReader<[string, number], ReturnType<typeof sources.history.readHistory>>(sources.history.readHistory, sources.history);
+  const readSnapshot = createCompetitionSourceReader(sources.editions.readSnapshot, sources.editions);
   const sqlite: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
   const db = new sqlite.DatabaseSync(databasePath);
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
@@ -72,30 +77,30 @@ export const openSqliteNationalHostCandidateStore = (
   const project = (request: NationalHostCandidateRequest): DurableNationalHostCandidates => {
     if (!request || !id(request.careerId) || !id(request.editionId)) throw new Error('invalid national hosting request');
     const policy = snapshotNationalHostCandidatePolicy(request.policy);
-    const selection = sources.selections.readSelection(request.careerId, request.editionId);
+    const selection = readSelection(request.careerId, request.editionId);
     if (!selection || selection.editionId !== request.editionId || selection.kind !== policy.kind
       || !day(selection.qualificationCutoff.day)
       || selection.qualificationCutoff.day >= selection.calendarWindow.startsOnDay) {
       throw new Error('host candidates require accepted World selection and cutoff');
     }
     const asOfDay = selection.qualificationCutoff.day;
-    const venues = sources.infrastructure.readVenues(request.careerId, asOfDay);
+    const venues = readVenues(request.careerId, asOfDay);
     if (venues.some((venue) => venue.careerId !== request.careerId)) {
       throw new Error('host candidate infrastructure differs from Career scope');
     }
-    const history = sources.history.readHistory(request.careerId, asOfDay);
+    const history = readHistory(request.careerId, asOfDay);
     const hostingHistory: CompletedNationalHosting[] = history.editions.filter((entry) =>
       entry.tier === policy.kind && entry.completedAtDay >= Math.max(0, asOfDay - policy.rotation.lookbackDays))
       .map((entry) => {
         // Check the predecessor cutoff before following its Edition owner to keep replay acyclic.
-        const predecessor = sources.selections.readSelection(request.careerId, entry.editionId);
+        const predecessor = readSelection(request.careerId, entry.editionId);
         if (entry.editionId === request.editionId || !predecessor || predecessor.kind !== policy.kind
           || !day(predecessor.qualificationCutoff.day) || predecessor.qualificationCutoff.day >= asOfDay
           || entry.completedAtDay > asOfDay || entry.completedAtDay < predecessor.calendarWindow.startsOnDay
           || entry.completedAtDay > predecessor.calendarWindow.endsOnDay) {
           throw new Error('hosting history lacks an accepted completed predecessor at cutoff');
         }
-        const snapshot = sources.editions.readSnapshot(request.careerId, entry.editionId);
+        const snapshot = readSnapshot(request.careerId, entry.editionId);
         if (!snapshot || snapshot.kind !== policy.kind || snapshot.edition.editionId !== entry.editionId
           || canonicalJson(snapshot.source.draw.source.selection) !== canonicalJson(predecessor)) {
           throw new Error('hosting history lacks accepted predecessor Edition');

@@ -1,3 +1,4 @@
+import { createCompetitionSourceReader, withCompetitionSourceReadScope } from './CompetitionSourceReadScope';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { WbcBerthAllocation } from
@@ -64,6 +65,10 @@ export const openSqliteWbcFinalsGroupStore = (
   if (!id(databasePath)) {
     throw new Error('invalid WBC finals group database path');
   }
+  const readAllocation = createCompetitionSourceReader(sources.berths.readAllocation, sources.berths);
+  const readSelection = sources.selections ? createCompetitionSourceReader(sources.selections.readSelection, sources.selections) : undefined;
+  const readDraw = sources.draws ? createCompetitionSourceReader(sources.draws.readDraw, sources.draws) : undefined;
+  const readWbcEdition = sources.editions ? createCompetitionSourceReader(sources.editions.readWbcEdition, sources.editions) : undefined;
   const sqlite: typeof import('node:sqlite') =
     createRequire(import.meta.url)('node:sqlite');
   const db = new sqlite.DatabaseSync(databasePath);
@@ -80,11 +85,11 @@ export const openSqliteWbcFinalsGroupStore = (
     (get.get(careerId, editionId) as Row | undefined) ?? null;
   const berths = (request: WbcFinalsGroupRequest):
     WbcBerthAllocation => {
-    const allocation = sources.berths.readAllocation(request.careerId,
+    const allocation = readAllocation(request.careerId,
       request.edition.editionId);
     if (!allocation) throw new Error('WBC finals require official berths');
     if (sources.selections) {
-      const selection = sources.selections.readSelection(request.careerId, request.edition.editionId);
+      const selection = readSelection!(request.careerId, request.edition.editionId);
       if (!selection || selection.kind !== 'WBC' || selection.editionId !== request.edition.editionId
         || selection.qualificationCutoff.snapshotId !== allocation.cutoffSnapshotId
         || canonicalJson(selection.calendarWindow) !== canonicalJson(request.edition.calendarWindow)) {
@@ -96,7 +101,7 @@ export const openSqliteWbcFinalsGroupStore = (
   const projectPlan = (request: WbcFinalsGroupRequest):
     WbcFinalsGroupPlan => {
     if (sources.draws) {
-      const draw = sources.draws.readDraw(request.careerId, request.edition.editionId);
+      const draw = readDraw!(request.careerId, request.edition.editionId);
       if (!draw || draw.draw.editionId !== request.edition.editionId
         || draw.drawSnapshotId !== request.edition.drawSnapshotId
         || draw.draw.drawPolicyVersion !== request.edition.drawPolicyVersion
@@ -106,7 +111,7 @@ export const openSqliteWbcFinalsGroupStore = (
       }
     }
     if (sources.editions) {
-      const edition = sources.editions.readWbcEdition(request.careerId, request.edition.editionId);
+      const edition = readWbcEdition!(request.careerId, request.edition.editionId);
       if (!edition || canonicalJson(edition) !== canonicalJson(request.edition)) {
         throw new Error('WBC finals differ from accepted national edition');
       }
@@ -200,15 +205,19 @@ export const openSqliteWbcFinalsGroupStore = (
       }
     },
     readEdition(careerId: string, editionId: string): WbcFinalsGroupEdition | null {
-      assertScope(careerId, editionId);
-      const stored = row(careerId, editionId);
-      return stored ? replay(careerId, editionId, stored).request.edition : null;
+      return withCompetitionSourceReadScope(() => {
+        assertScope(careerId, editionId);
+        const stored = row(careerId, editionId);
+        return stored ? replay(careerId, editionId, stored).request.edition : null;
+      });
     },
     readPlan(careerId: string, editionId: string):
       WbcFinalsGroupPlan | null {
-      assertScope(careerId, editionId);
-      const stored = row(careerId, editionId);
-      return stored ? replay(careerId, editionId, stored).plan : null;
+      return withCompetitionSourceReadScope(() => {
+        assertScope(careerId, editionId);
+        const stored = row(careerId, editionId);
+        return stored ? replay(careerId, editionId, stored).plan : null;
+      });
     },
     finalize(careerId: string, editionId: string):
       WbcFinalsGroupOutcome | null {
@@ -237,22 +246,26 @@ export const openSqliteWbcFinalsGroupStore = (
     },
     readOutcome(careerId: string, editionId: string):
       WbcFinalsGroupOutcome | null {
-      assertScope(careerId, editionId);
-      const stored = row(careerId, editionId);
-      return stored ? replay(careerId, editionId, stored).outcome : null;
+      return withCompetitionSourceReadScope(() => {
+        assertScope(careerId, editionId);
+        const stored = row(careerId, editionId);
+        return stored ? replay(careerId, editionId, stored).outcome : null;
+      });
     },
     readEvidence(careerId: string, editionId: string):
       WbcFinalsGroupEvidence | null {
-      assertScope(careerId, editionId);
-      const stored = row(careerId, editionId);
-      if (!stored) return null;
-      const { request, plan, outcome } = replay(careerId,
-        editionId, stored);
-      if (!outcome) return null;
-      const results = readFinals(plan);
-      if (!results) throw new Error('WBC group evidence lost Match finals');
-      return Object.freeze({ edition: request.edition,
-        berths: berths(request), plan, results, outcome });
+      return withCompetitionSourceReadScope(() => {
+        assertScope(careerId, editionId);
+        const stored = row(careerId, editionId);
+        if (!stored) return null;
+        const { request, plan, outcome } = replay(careerId,
+          editionId, stored);
+        if (!outcome) return null;
+        const results = readFinals(plan);
+        if (!results) throw new Error('WBC group evidence lost Match finals');
+        return Object.freeze({ edition: request.edition,
+          berths: berths(request), plan, results, outcome });
+      });
     },
     close(): void {
       if (!closed) db.close();

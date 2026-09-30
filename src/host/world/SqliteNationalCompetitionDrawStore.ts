@@ -1,8 +1,9 @@
+import { createCompetitionSourceReader, withCompetitionSourceReadScope } from './CompetitionSourceReadScope';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { drawCompetitionGroups, requireRegisteredDrawPolicy, type CompetitionDraw,
-  type CompetitionDrawPolicy, type CompetitionDrawPolicyRegistry } from
+  type CompetitionDrawInput, type CompetitionDrawPolicy, type CompetitionDrawPolicyRegistry } from
   '../../core/world/competition/CompetitionDraw';
 import type { PremierTwelveRanking } from '../../core/world/competition/PremierTwelve';
 import type { WbcBerthAllocation } from '../../core/world/competition/WbcBerths';
@@ -65,6 +66,11 @@ export const openSqliteNationalCompetitionDrawStore = (
   }>,
 ): SqliteNationalCompetitionDrawStore => {
   if (!id(databasePath)) throw new Error('invalid national draw database path');
+  const readSelection = createCompetitionSourceReader(sources.selections.readSelection, sources.selections);
+  const readRanking = createCompetitionSourceReader(sources.rankings.readRanking, sources.rankings);
+  const readHistory = createCompetitionSourceReader<[string, number], ReturnType<typeof sources.history.readHistory>>(sources.history.readHistory, sources.history);
+  const readRegion = createCompetitionSourceReader(sources.nations.readRegion, sources.nations);
+  const readAllocation = sources.wbcBerths ? createCompetitionSourceReader(sources.wbcBerths.readAllocation, sources.wbcBerths) : undefined;
   const sqlite: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
   const db = new sqlite.DatabaseSync(databasePath);
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
@@ -83,6 +89,9 @@ export const openSqliteNationalCompetitionDrawStore = (
     WHERE career_id=? AND policy_version=?`);
   const row = (careerId: string, editionId: string): Row | null =>
     (get.get(careerId, editionId) as Row | undefined) ?? null;
+  // Retain one pure draw computation, never a source proof or accepted snapshot.
+  // Every project still validates all current sources and policy registration.
+  let computedDraw: { inputKey: string; draw: CompetitionDraw } | undefined;
   const project = (request: NationalCompetitionDrawRequest): DurableNationalCompetitionDraw => {
     if (!id(request?.careerId) || !id(request.editionId) || !id(request.drawSeed)
       || !['WBC', 'PREMIER_12'].includes(request.kind)
@@ -90,19 +99,19 @@ export const openSqliteNationalCompetitionDrawStore = (
       throw new Error('invalid national draw request or policy');
     }
     const policy = requireRegisteredDrawPolicy(request.registry, request.policy);
-    const selection = sources.selections.readSelection(request.careerId, request.editionId);
+    const selection = readSelection(request.careerId, request.editionId);
     if (!selection || selection.editionId !== request.editionId || selection.kind !== request.kind
       || !day(selection.qualificationCutoff.day)
       || selection.qualificationCutoff.day >= selection.calendarWindow.startsOnDay) {
       throw new Error('national draw requires accepted World selection');
     }
     const cutoffDay = selection.qualificationCutoff.day;
-    const ranking = sources.rankings.readRanking(request.careerId, cutoffDay);
+    const ranking = readRanking(request.careerId, cutoffDay);
     if (!ranking || ranking.asOfDay !== cutoffDay) {
       throw new Error('national draw requires accepted cutoff ranking');
     }
     const berths = request.kind === 'WBC'
-      ? sources.wbcBerths?.readAllocation(request.careerId, request.editionId) ?? null : null;
+      ? readAllocation?.(request.careerId, request.editionId) ?? null : null;
     if (request.kind === 'WBC' && (!berths || berths.editionId !== request.editionId
       || berths.cutoffSnapshotId !== selection.qualificationCutoff.snapshotId
       || berths.entrantNationIds.length !== 24 || new Set(berths.entrantNationIds).size !== 24)) {
@@ -117,11 +126,11 @@ export const openSqliteNationalCompetitionDrawStore = (
     }
     const groupCount = request.kind === 'WBC' ? 6 : 2;
     const participantRegions = entrants.map((nationId) => {
-      const region = sources.nations.readRegion(request.careerId, nationId, cutoffDay);
+      const region = readRegion(request.careerId, nationId, cutoffDay);
       if (!region) throw new Error('national draw requires historical nation region');
       return Object.freeze({ nationId, region });
     });
-    const history = sources.history.readHistory(request.careerId, cutoffDay);
+    const history = readHistory(request.careerId, cutoffDay);
     const rematchHistory: WorldNationalRankingHistory = Object.freeze({
       editions: Object.freeze(history.editions.filter((edition) =>
         edition.completedAtDay >= Math.max(0, cutoffDay - request.policy.rematchLookbackDays))) });
@@ -133,14 +142,18 @@ export const openSqliteNationalCompetitionDrawStore = (
         pairs.set(JSON.stringify(pair), pair);
       }
     }
-    const draw = drawCompetitionGroups({ editionId: request.editionId,
+    const drawInput: CompetitionDrawInput = { editionId: request.editionId,
       profile: { drawPolicyVersion: policy.version, drawPolicy: policy },
       drawSeed: request.drawSeed, groupCount,
       participants: participantRegions.map(({ nationId, region }, index) => ({
         teamId: nationId, pot: Math.floor(index / groupCount) + 1,
         // A national representative is its own affiliation; domestic Club/League is irrelevant.
         leagueId: JSON.stringify(['national-team', nationId]), regionId: region })),
-      rematchPairs: [...pairs.values()] }, request.registry);
+      rematchPairs: [...pairs.values()] };
+    const inputKey = canonicalJson(drawInput);
+    const draw = computedDraw?.inputKey === inputKey ? computedDraw.draw
+      : drawCompetitionGroups(drawInput, request.registry);
+    computedDraw = { inputKey, draw };
     const source = cloneInert({ selection, ranking, berths, rematchHistory, participantRegions });
     const snapshot = { draw, source, policy: cloneInert(request.policy) };
     const drawSnapshotId = `national-draw:${createHash('sha256')
@@ -205,9 +218,10 @@ export const openSqliteNationalCompetitionDrawStore = (
     readDraw(careerId: string, editionId: string): DurableNationalCompetitionDraw | null {
       assertScope(careerId, editionId);
       const stored = row(careerId, editionId);
-      return stored ? replay(careerId, editionId, stored) : null;
+      return withCompetitionSourceReadScope(() => stored ? replay(careerId, editionId, stored) : null);
     },
     close(): void {
+      computedDraw = undefined;
       if (!closed) db.close();
       closed = true;
     },

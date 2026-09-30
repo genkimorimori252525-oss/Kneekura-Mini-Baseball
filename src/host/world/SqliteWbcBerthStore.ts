@@ -1,3 +1,4 @@
+import { createCompetitionSourceReader } from './CompetitionSourceReadScope';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { allocateWbcBerths, planWbcDirectBerths,
@@ -45,6 +46,7 @@ export const openSqliteWbcBerthStore = (
   if (!id(databasePath)) {
     throw new Error('invalid WBC berth database path');
   }
+  const readDirect = createCompetitionSourceReader(sources.direct.readDirect, sources.direct);
   const sqlite: typeof import('node:sqlite') =
     createRequire(import.meta.url)('node:sqlite');
   const db = new sqlite.DatabaseSync(databasePath);
@@ -60,7 +62,7 @@ export const openSqliteWbcBerthStore = (
     (get.get(careerId, editionId) as Row | undefined) ?? null;
   const project = (request: WbcDirectBerthRequest):
     WbcBerthAllocation => {
-    const direct = sources.direct.readDirect(request.careerId,
+    const direct = readDirect(request.careerId,
       request.input.editionId);
     if (!direct) throw new Error('WBC berths need frozen direct slots');
     const authority: WbcBerthAuthority = {

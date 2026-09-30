@@ -1,5 +1,5 @@
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
-import { withCompetitionSourceReadScope } from './CompetitionSourceReadScope';
+import { withCompetitionSourceReadPhase } from './CompetitionSourceReadScope';
 import { drawWbcQualifierEntrantPods } from '../../core/world/competition/WbcQualifierEditionAssembly';
 import type { QualifierHostAccessAssessment, WbcQualifierHostCandidatePolicy } from '../../core/world/competition/WbcQualifierHostCandidates';
 import type { WbcQualifierSchedulePolicy } from '../../core/world/competition/WbcQualifierSchedule';
@@ -50,19 +50,19 @@ export const initializeWorldBoundWbcQualifier = (
     || input.hostPolicy.version !== edition.profile.hostingPolicyVersion) {
     throw new Error('World WBC qualifier runtime scope or cutoff differs');
   }
-  const qualification = withCompetitionSourceReadScope(() => stores.qualification.initialize(request));
-  const savedRanking = withCompetitionSourceReadScope(() => stores.rankings.initialize(ranking));
-  const savedSelection = withCompetitionSourceReadScope(() => stores.selection.initialize(selection));
+  const qualification = withCompetitionSourceReadPhase(() => stores.qualification.initialize(request));
+  const savedRanking = withCompetitionSourceReadPhase(() => stores.rankings.initialize(ranking));
+  const savedSelection = withCompetitionSourceReadPhase(() => stores.selection.initialize(selection));
   const draw = drawWbcQualifierEntrantPods({ selection: savedSelection, drawSeed: edition.drawSeed,
     drawPolicyVersion: edition.profile.drawPolicyVersion });
   for (const assessment of input.accessAssessments) stores.access.record({ ...assessment,
     careerId: request.careerId, qualifierEditionId: request.qualifierEditionId, drawSnapshotId: draw.drawSnapshotId });
-  withCompetitionSourceReadScope(() => stores.hosts.initialize({ careerId: request.careerId, qualifierEditionId: request.qualifierEditionId,
+  withCompetitionSourceReadPhase(() => stores.hosts.initialize({ careerId: request.careerId, qualifierEditionId: request.qualifierEditionId,
     selectedAtDay: edition.selectedAtDay, drawSeed: edition.drawSeed,
     drawPolicyVersion: edition.profile.drawPolicyVersion, policy: input.hostPolicy }));
-  const savedEdition = withCompetitionSourceReadScope(() => stores.editions.initialize(edition));
-  withCompetitionSourceReadScope(() => stores.pods.initialize({ careerId: request.careerId, edition: savedEdition.edition }));
-  const schedule = withCompetitionSourceReadScope(() => stores.schedules.initialize({ careerId: request.careerId,
+  const savedEdition = withCompetitionSourceReadPhase(() => stores.editions.initialize(edition));
+  withCompetitionSourceReadPhase(() => stores.pods.initialize({ careerId: request.careerId, edition: savedEdition.edition }));
+  const schedule = withCompetitionSourceReadPhase(() => stores.schedules.initialize({ careerId: request.careerId,
     editionId: request.qualifierEditionId, policy: input.schedulePolicy }));
   return Object.freeze({ qualification, ranking: savedRanking, selection: savedSelection, edition: savedEdition, schedule });
 };
@@ -74,8 +74,8 @@ export const completeWorldBoundWbcQualifier = (
   const accepted = stores.qualification.readSnapshot(careerId, wbcEditionId);
   if (!accepted) throw new Error('World WBC qualifier qualification is missing');
   const qualifierEditionId = accepted.input.qualifierEditionId;
-  if (!withCompetitionSourceReadScope(() => stores.pods.finalize(careerId, qualifierEditionId))) return null;
-  withCompetitionSourceReadScope(() => stores.history.recordQualifier(careerId, qualifierEditionId));
-  withCompetitionSourceReadScope(() => stores.hosts.recordCompletedEdition(careerId, qualifierEditionId));
-  return withCompetitionSourceReadScope(() => stores.berths.initialize({ careerId, input: accepted.input }));
+  if (!withCompetitionSourceReadPhase(() => stores.pods.finalize(careerId, qualifierEditionId))) return null;
+  withCompetitionSourceReadPhase(() => stores.history.recordQualifier(careerId, qualifierEditionId));
+  withCompetitionSourceReadPhase(() => stores.hosts.recordCompletedEdition(careerId, qualifierEditionId));
+  return withCompetitionSourceReadPhase(() => stores.berths.initialize({ careerId, input: accepted.input }));
 };
