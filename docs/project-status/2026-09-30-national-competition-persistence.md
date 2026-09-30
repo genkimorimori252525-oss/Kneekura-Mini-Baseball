@@ -42,6 +42,12 @@ This records implementation evidence, not approval of another design.
   saved day and venue. Complete Edition/plan snapshots pin source identity;
   replay rejects even a different accepted draw/hosting version or participant
   allocation that would otherwise produce identical game slots.
+- WBC finals save all 51 slots from six pool hosts and the accepted US
+  knockout hubs/final-four venue before later participants qualify. The
+  frozen World selection supplies the tournament window and berth cutoff.
+  Scheduled fixtures require the exact day/venue and actual prior-round
+  qualification; a different accepted knockout Edition is rejected even
+  when its game slots are identical.
 
 ## Verification boundaries
 
@@ -60,10 +66,19 @@ The scheduling parameters in tests are explicit fixtures, not calibrated
 production policy. Career clock advancement and physical travel/recovery
 are not executed by this integration.
 
-The full verification suite passed 486 files / 3,030 tests after schedule
-integration. The later source-provenance repair passed the targeted schedule
-and SQLite integration tests and type checking; its exact commit is verified
-by the P0 workflow before this slice is treated as closed.
+WBC's integration additionally plays 51 actual nine-inning Match games and
+feeds persistent official WBC history, national ranking history and a ranking
+snapshot. It reopens after 35/36 group games and 7/8 round-of-16 games, and
+checks missing quarterfinal/semifinal/final results before advancement.
+Qualification allocation and host/draw inputs remain test fixtures in this
+integration; the complete regional/direct/qualifier source lifecycle is a
+separate remaining connection.
+
+The full verification suite passed 486 files / 3,030 tests after Premier12
+schedule integration; P0 run `36713238883` passed its final source-provenance
+repair at `2ca3b345f516f2993b6d0e70cbc82ff42e8319a4`.
+After WBC schedule/Match integration, full local verification passed 488
+files / 3,033 tests. Fresh independent review reported no findings.
 
 ## Remaining implementation boundaries
 
