@@ -14,5 +14,5 @@ A Native generation owner consumes independently accepted creation records and a
 - [x] Implement bounded continuous body-aware generation with explicit versioned priors.
 - [x] Persist/replay accepted Native generation records and compose with the existing release owner.
 - [x] Run focused tests/typecheck, one fresh read-only review and whole-suite verification (524 files / 3,123 tests).
-- [ ] Commit/push stacked on PR230, attempt attachment once and verify P0 exact SHA.
-- [ ] Continue causal workload/recovery, national-pool and full Career integration audit.
+- [x] Commit/push stacked on PR230: PR231, `312a8704acb6f61b9e7a680533b84d19594fd47c`; attachment attempted once (100-item limit); P0 run36828553033 attempt3 succeeded at that exact SHA. Its earlier checkout lock failure was resolved by the user-approved single CI lock removal.
+- [x] Continue causal workload/recovery, national-pool and full Career integration audit.
