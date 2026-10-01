@@ -1,14 +1,14 @@
 {
   "playerVariants": {
     "white": {
-      "directory": "originals/",
+      "directory": "originals-white/",
       "description": "採用済みのライトスキン版。白人選手用として使用。"
     },
     "black": {
       "directory": "originals-black/",
       "description": "黒人選手用の褐色肌版。originals/ と同名のPNGが対応する。"
     },
-    "pairingRule": "各 images[].file のファイル名を originals-black/ 以下で参照する。",
+    "pairingRule": "各 images[].file のファイル名を originals-white/ と originals-black/ の両方で参照する。旧 originals/ は白人版の互換コピーとして残す。",
     "preservedFeatures": [
       "B1体型と頭身",
       "ポーズとコマ配置",
@@ -16,6 +16,16 @@
       "キャンバスの縦横比"
     ],
     "editScope": "露出した肌（顔、首、素手）の色を褐色に変更。"
+  },
+  "gloveColors": {
+    "options": ["red", "blue", "black", "yellow", "brown"],
+    "implementation": "PNGを色別に複製せず、描画時に独立したグローブ色マスクだけを置換する。"
+  },
+  "battingContactVariants": {
+    "contactFrameIndex": 2,
+    "heights": ["low", "middle", "high"],
+    "middle": "既存の bat-right.png / bat-left.png の第3コマを使用。",
+    "lowAndHigh": "左右打者ごとに低め・高めの派生シートを用意。第3コマ以外は既存版を使用。"
   },
   "images": [
     {
@@ -257,6 +267,42 @@
         1448,
         1086
       ]
+    },
+    {
+      "id": "bat-right-low",
+      "title": "右打者・低めインパクト",
+      "description": "B1体格を維持し、3コマ目だけ低めに合わせた派生素材。",
+      "source": "bat-right-low.png",
+      "file": "originals/bat-right-low.png",
+      "sha256": "1a102207a30404300a1489d99d3c748998b2926354437379710cd20dbe282cbe",
+      "dimensions": [1774, 887]
+    },
+    {
+      "id": "bat-right-high",
+      "title": "右打者・高めインパクト",
+      "description": "B1体格を維持し、3コマ目だけ高めに合わせた派生素材。",
+      "source": "bat-right-high.png",
+      "file": "originals/bat-right-high.png",
+      "sha256": "ca4e16b361cd903253ac21d8b396c34a9f3284bdfaae706da6753b47c4542917",
+      "dimensions": [1774, 887]
+    },
+    {
+      "id": "bat-left-low",
+      "title": "左打者・低めインパクト",
+      "description": "B1体格を維持し、3コマ目だけ低めに合わせた派生素材。",
+      "source": "bat-left-low.png",
+      "file": "originals/bat-left-low.png",
+      "sha256": "936e9e446acd0f135eed91b4b26939677107989336b0b8b8eea36194f73c34c2",
+      "dimensions": [1774, 887]
+    },
+    {
+      "id": "bat-left-high",
+      "title": "左打者・高めインパクト",
+      "description": "B1体格を維持し、3コマ目だけ高めに合わせた派生素材。",
+      "source": "bat-left-high.png",
+      "file": "originals/bat-left-high.png",
+      "sha256": "b9acee6e577acf41a29af54447317c771e0cc49d29d070f7142d07e94d2a2f59",
+      "dimensions": [1774, 887]
     }
   ],
   "unresolved": [
