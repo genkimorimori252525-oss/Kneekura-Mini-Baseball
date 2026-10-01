@@ -6,6 +6,7 @@ import { assessDevelopmentPracticeExposure, type DevelopmentPracticeBundle,
 import { advancePlayerWorkloadRecovery, createPlayerWorkloadRecovery, type PlayerWorkloadActivity,
   type PlayerWorkloadBaseline, type PlayerWorkloadRecoveryState } from '../../core/world/development/PlayerWorkloadRecovery';
 import { isAcceptedPlayerIntakeSource, type SqlitePlayerPersonLinkStore } from './SqlitePlayerPersonLinkStore';
+import type { SqliteEvidenceGuard } from '../SqliteEvidenceGuard';
 
 export type AcceptedPlayerWorkloadBaseline = PlayerWorkloadBaseline & Readonly<{
   sourceId: string; sourceVersion: string; personLinkSourceId: string;
@@ -80,7 +81,8 @@ export const assertArchivedPlayerWorkloadActivity = (db: Pick<DatabaseSync, 'pre
 
 /** Actual accepted activity owns fatigue; Calendar labels never write this state. */
 export const openSqlitePlayerWorkloadRecoveryStore = (databasePath: string, personLinks: Pick<SqlitePlayerPersonLinkStore, 'readLink'>,
-  authority?: AcceptedPlayerWorkloadAuthority | null): SqlitePlayerWorkloadRecoveryStore => {
+  authority?: AcceptedPlayerWorkloadAuthority | null, evidenceGuard?: SqliteEvidenceGuard<PlayerWorkloadActivity>): SqlitePlayerWorkloadRecoveryStore => {
+  if (evidenceGuard !== undefined && typeof evidenceGuard !== 'function') throw new Error('invalid Player workload evidence guard');
   if (!id(databasePath) || !personLinks || typeof personLinks.readLink !== 'function'
     || authority != null && (typeof authority.readAcceptedBaseline !== 'function' || typeof authority.readAcceptedActivity !== 'function')) {
     throw new Error('invalid Player workload sources');
@@ -202,10 +204,12 @@ export const openSqlitePlayerWorkloadRecoveryStore = (databasePath: string, pers
         if (prior) {
           if (expectedRevision !== prior.before.revision) throw new Error('Player workload retry revision differs');
           if (activity && json(activity) !== json(prior.activity)) throw new Error('Player workload activity is already frozen differently');
+          evidenceGuard?.(db, prior.activity, 'retry');
           return prior.after;
         }
         if (getBaselineBySource.get(sourceId)) throw new Error('Player workload sourceId belongs to a baseline');
         if (!activity || activity.sourceEventId !== sourceId) throw new Error('accepted Player workload activity is missing or differs');
+        evidenceGuard?.(db, activity, 'write');
         const before = replay(activity.careerId, activity.playerId);
         if (!before) throw new Error('Player workload baseline is missing');
         const after = advancePlayerWorkloadRecovery(before, expectedRevision, activity);
@@ -215,6 +219,7 @@ export const openSqlitePlayerWorkloadRecoveryStore = (databasePath: string, pers
           WHERE career_id=? AND player_id=? AND revision=? AND state_json=?`)
           .run(after.revision, json(after), before.careerId, before.playerId, before.revision, json(before));
         if (result.changes !== 1) throw new Error('Player workload head CAS failed');
+        evidenceGuard?.(db, activity, 'written');
         return replay(before.careerId, before.playerId)!;
       });
     },

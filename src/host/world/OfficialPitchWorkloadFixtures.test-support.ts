@@ -4,7 +4,8 @@ import { createCanonicalPlateAppearanceTimeline, recordCountedPitch } from '../.
 import { resolveAndRecordPitchAgainstBatter } from '../../core/sim/pitching/PitchAgainstBatter';
 import { applyStrikeoutPlateAppearanceToMatchState } from '../../core/sim/plateAppearance/PlateAppearanceMatchState';
 import { closeOfficialPlay, createPlayAdjudicationLedger, recordCorrectRuleSnapshot } from '../../core/adjudication/PlayAdjudicationLedger';
-import { state } from '../../core/world/club/ClubFixtures.test-support';
+import { bootstrap, state, value } from '../../core/world/club/ClubFixtures.test-support';
+import { createClubFromSeed } from '../../core/world/club';
 import { createRosterState } from '../../core/world/roster/RosterState';
 import { SqliteOfficialStateStore, type PersistOfficialPlayInput } from '../SqliteOfficialStateStore';
 import { openSqliteOfficialScoringStore } from '../SqliteOfficialScoringStore';
@@ -15,23 +16,36 @@ import { openSqliteManagerRosterDecisionStore } from './SqliteManagerRosterDecis
 import { openSqlitePlayerPersonLinkStore } from './SqlitePlayerPersonLinkStore';
 
 /** Explicit physical/profile fixtures; no production counts or calibration defaults. */
-export const officialPitchWorkloadFixture = (physical = true, deferPlay = false, databasePath?: string) => {
+export const officialPitchWorkloadFixture = (physical = true, deferPlay = false, databasePath?: string, bothSides = false) => {
   const path = databasePath ?? `file:official-pitch-workload-${crypto.randomUUID()}?mode=memory&cache=shared`;
   const stores: { close(): void }[] = [];
   const track = <T extends { close(): void }>(store: T): T => { stores.push(store); return store; };
   const world = track(openSqliteWorldSettlementStore(path)), roster = track(openSqliteManagerRosterDecisionStore(path));
-  world.initialize({ careerId: 'career-a', clubs: [state()], schedule: { leagueId: 'league-a', seasonId: 'league-season-1',
+  const seed = bootstrap();
+  const awayClub = bothSides ? value(createClubFromSeed({ ...seed,
+    context: { ...seed.context, existingClubIds: ['club-a'] },
+    seed: { ...seed.seed, identity: { ...seed.seed.identity, clubId: 'club-b', canonicalOriginId: 'source-b', foundingIdentityRef: 'founding-b' } },
+    initial: { ...seed.initial, brand: { displayName: 'Second Club', shortName: 'SC' },
+      references: { ...seed.initial.references, rivalryStateRefs: [], staffRoleLinks: [{ roleId: 'manager-role', roleKind: 'MANAGER',
+        personId: 'manager-b', appointmentId: 'appointment-b' }] } } })) : null;
+  world.initialize({ careerId: 'career-a', clubs: [state(), ...(awayClub ? [awayClub] : [])], schedule: { leagueId: 'league-a', seasonId: 'league-season-1',
     memberClubIds: ['club-a', 'club-b'], regularSeasonGamesPerClub: 1,
     revisionEventIds: [], games: [{ gameId: 'game-1', homeClubId: 'club-a', awayClubId: 'club-b' }] },
     standingsPolicy: { version: 'v1', tieCreditNumerator: 1, tieCreditDenominator: 2, runDifferentialCapPerGame: 10 } });
-  const playerIds = worldSetup('p2').defenders.map((defender) => defender.playerId);
-  roster.initialize({ careerId: 'career-a', clubId: 'club-a', mood: null, roster: createRosterState({ careerId: 'career-a', effectiveDay: 1,
+  const homeIds = worldSetup('p2').defenders.map((defender) => defender.playerId);
+  const awayIds = bothSides ? ['p-away', ...homeIds.slice(1).map((_id, index) => `away-${index + 1}`)] : [];
+  const playerIds = [...homeIds, ...awayIds];
+  const initialRoster = createRosterState({ careerId: 'career-a', effectiveDay: 1,
     profiles: [{ profileId: 'fixture-league', version: 'v1', season: 1, competitionEditionId: 'league-season-1', activeLimit: null,
       allowedAssignmentKinds: ['FIRST_TEAM'], rehabParticipationAllowed: false }],
-    units: [{ unitId: 'first-a', clubId: 'club-a', kind: 'FIRST_TEAM' }], players: playerIds.map((playerId) => ({ playerId,
-      clubRights: { rightsHolderClubId: 'club-a', contractId: `contract-${playerId}` }, assignment: { unitId: 'first-a', clubId: 'club-a' },
-      registrations: [{ competitionEditionId: 'league-season-1', clubId: 'club-a', status: 'ACTIVE', eligibility: 'ELIGIBLE', evidenceId: 'fixture-registration' }],
-      availability: { status: 'AVAILABLE', evidenceId: 'fixture-health' } })) }) });
+    units: [{ unitId: 'first-a', clubId: 'club-a', kind: 'FIRST_TEAM' }, ...(bothSides ? [{ unitId: 'first-b', clubId: 'club-b', kind: 'FIRST_TEAM' as const }] : [])],
+    players: playerIds.map((playerId) => {
+      const clubId = homeIds.includes(playerId) ? 'club-a' : 'club-b', unitId = clubId === 'club-a' ? 'first-a' : 'first-b';
+      return { playerId, clubRights: { rightsHolderClubId: clubId, contractId: `contract-${playerId}` }, assignment: { unitId, clubId },
+        registrations: [{ competitionEditionId: 'league-season-1', clubId, status: 'ACTIVE', eligibility: 'ELIGIBLE', evidenceId: 'fixture-registration' }],
+        availability: { status: 'AVAILABLE', evidenceId: 'fixture-health' } };
+    }) });
+  for (const clubId of bothSides ? ['club-a', 'club-b'] : ['club-a']) roster.initialize({ careerId: 'career-a', clubId, mood: null, roster: initialRoster });
   const links = track(openSqlitePlayerPersonLinkStore(path, { readAcceptedPlayerIntake: (sourceId) => playerIds.some((playerId) => sourceId === `intake-${playerId}`) ? {
     sourceId, careerId: 'career-a', playerId: sourceId.slice(7), personId: `person-${sourceId.slice(7)}`, sourceRecordId: `accepted-${sourceId}`, sourceVersion: 'v1',
     acceptedRevision: 0, acceptedAtDay: 1, rosterRevision: 0 } : null }));
@@ -45,7 +59,8 @@ export const officialPitchWorkloadFixture = (physical = true, deferPlay = false,
       personId: link.personId, sourceId: link.sourceId } : null; } };
   const participation = track(new SqliteOfficialParticipationStore(path, authority));
   for (const playerId of playerIds) participation.bindPregame({ gameId: 'game-1', careerId: 'career-a', competitionEditionId: 'league-season-1', gameDay: 10,
-    clubId: 'club-a', side: 'HOME', playerId, personId: `person-${playerId}`, personLinkSourceId: `intake-${playerId}`, rosterRevision: 0, fixtureEventId: 'fixture-1' });
+    clubId: homeIds.includes(playerId) ? 'club-a' : 'club-b', side: homeIds.includes(playerId) ? 'HOME' : 'AWAY',
+    playerId, personId: `person-${playerId}`, personLinkSourceId: `intake-${playerId}`, rosterRevision: 0, fixtureEventId: 'fixture-1' });
   const application = (before: CanonicalMatchState, durableRevision: number, startedAtTick: number,
     applicationId: string): Extract<PersistOfficialPlayInput, { kind: 'non_live' }> => {
     let timeline = createCanonicalPlateAppearanceTimeline(before, startedAtTick);

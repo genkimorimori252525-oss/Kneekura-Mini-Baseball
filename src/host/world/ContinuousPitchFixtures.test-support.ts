@@ -12,8 +12,8 @@ import { openSqlitePitchFatiguePolicyStore } from './SqlitePitchFatiguePolicySto
 import type { AcceptedPhysicalPitchActionSource } from './SqlitePhysicalPitchProgressStore';
 
 /** Actual Native owners, explicit synthetic bodies/physics/calibration, no forced count events. */
-export const continuousPitchFixture = (databasePath?: string) => {
-  const f = officialPitchWorkloadFixture(true, true, databasePath);
+export const continuousPitchFixture = (databasePath?: string, bothSides = false) => {
+  const f = officialPitchWorkloadFixture(true, true, databasePath, bothSides);
   const setup = { sourceId: 'initial-world', sourceVersion: 'fixture-v1', gameId: 'game-1', fixtureEventId: 'fixture-1',
     startedAtTick: 0, worldSetup: worldSetup('p2') };
   const initialWorlds = f.track(openSqliteOfficialInitialWorldStore(f.path, { matches: f.official, participation: f.participation }, { readAcceptedSetup: () => setup }));
@@ -35,6 +35,15 @@ export const continuousPitchFixture = (databasePath?: string) => {
     profile: { armSlotClass: 'OVERHAND' as const, releaseHeightTier: 'HIGH' as const, releaseHeightRatio: 0.9,
       releaseLateralRatio: 0.1, releaseExtensionRatio: 0.2, armSlotElevationDeg: 70, armSlotAzimuthDeg: 0 }, tierBoundaries: [0.65, 0.7, 0.75, 0.8, 0.85, 0.95] };
   const release = f.track(openSqlitePlayerReleaseGeometryStore(f.path, f.links, { readAcceptedBaseline: () => releaseInput, readAcceptedChange: () => null })); release.initialize('release');
+  if (bothSides) {
+    const away = { playerId: 'p-away', personLinkSourceId: 'intake-p-away' };
+    const awayWorkload = { ...baseline, ...away, sourceId: 'workload-away' };
+    f.track(openSqlitePlayerWorkloadRecoveryStore(f.path, f.links, { readAcceptedBaseline: () => awayWorkload, readAcceptedActivity: () => null })).initialize(awayWorkload.sourceId);
+    const awayTiming = { ...timingInput, ...away, sourceId: 'timing-away' };
+    f.track(openSqlitePlayerPitchTimingStore(f.path, f.links, { readAcceptedBaseline: () => awayTiming, readAcceptedLearning: () => null })).initialize(awayTiming.sourceId);
+    const awayRelease = { ...releaseInput, ...away, sourceId: 'release-away' };
+    f.track(openSqlitePlayerReleaseGeometryStore(f.path, f.links, { readAcceptedBaseline: () => awayRelease, readAcceptedChange: () => null })).initialize(awayRelease.sourceId);
+  }
   const response = { sourceId: 'response', sourceVersion: 'fixture-v1', policyId: 'response', version: 'v1', availableAtDay: 1,
     motionDurationScaleAtFullFatigue: 1.5, velocityRetentionAtFullFatigue: 0.5, spinRetentionAtFullFatigue: 0.75 };
   const policies = f.track(openSqlitePitchFatiguePolicyStore(f.path, { readAcceptedPolicy: () => response })); policies.accept(response.sourceId);
@@ -47,7 +56,7 @@ export const continuousPitchFixture = (databasePath?: string) => {
       physics: { velocity: { x: 0, y: 0, z: -30 }, spin: { x: 0, y: 100, z: 0 } } },
     flight: { durationUs: 1_500_000, acceleration: { x: 0, y: 0, z: 0 } },
     batter: { action: { kind: 'take' as const }, plateZ: 0, strikeZone: { centerX: 0, halfWidth: 0.2, lowerY: 1.4, upperY: 1.8 }, ballRadiusMeters: 0.0366 } };
-  return { path: f.path, links: f.links, official: f.official, scoring: f.scoring, participation: f.participation,
+  return { path: f.path, links: f.links, official: f.official, scoring: f.scoring, participation: f.participation, world: f.world, roster: f.roster,
     firstInput: f.firstInput, db: f.db, track: f.track, close: f.close, initialWorlds, initial, baseline,
     timing, release, workload, policies, response, effort, input, activities,
     stores: { workload, timing, release, policies, effortPolicies: { readAcceptedPolicy: (id: string) => id === effort.sourceId ? effort : null } } };

@@ -13,6 +13,7 @@ import { classifyClosedPlayForOfficialScoring,
   '../core/adjudication/OfficialScoring';
 import type { PersistOfficialFinalInput,
   PersistOfficialPlayInput } from './SqliteOfficialStateStore';
+import type { SqliteEvidenceGuard } from './SqliteEvidenceGuard';
 
 type OfficialInput = PersistOfficialPlayInput | PersistOfficialFinalInput;
 export type PersistOfficialScoringInput = Readonly<{
@@ -84,8 +85,10 @@ const scoringSourceId = (input: PersistOfficialScoringInput): string =>
 export const openSqliteOfficialScoringStore = (
   databasePath: string,
   authority?: AcceptedOfficialScoringEvidenceAuthority,
+  evidenceGuard?: SqliteEvidenceGuard<OfficialInput>,
 ): SqliteOfficialScoringStore => {
   if (!id(databasePath)) throw new Error('invalid official scoring database path');
+  if (evidenceGuard !== undefined && typeof evidenceGuard !== 'function') throw new Error('invalid official scoring evidence guard');
   if (authority !== undefined
     && typeof authority.readAcceptedOfficialScoringEvidence !== 'function') {
     throw new Error('invalid accepted official scoring evidence authority');
@@ -117,6 +120,7 @@ export const openSqliteOfficialScoringStore = (
   const requireOfficialApplication = (
     input: PersistOfficialScoringInput['officialApplication'],
   ): string => {
+    evidenceGuard?.(db, input, 'retry');
     if (!id(input.matchId) || !id(input.applicationId)) {
       throw new Error('official scoring requires an application');
     }
@@ -246,6 +250,7 @@ export const openSqliteOfficialScoringStore = (
           input.scoringApplicationId, result.matchId,
           result.officialApplicationId, closureId,
           scoringSourceId(input), requestJson, resultJson);
+        evidenceGuard?.(db, input.officialApplication, 'written');
         db.exec('COMMIT');
         return result;
       } catch (error) {
