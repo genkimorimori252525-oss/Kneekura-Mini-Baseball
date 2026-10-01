@@ -20,6 +20,7 @@ export type SqlitePlayerWorkloadRecoveryStore = Readonly<{
   initialize(sourceId: string): PlayerWorkloadRecoveryState;
   apply(sourceId: string, expectedRevision: number): PlayerWorkloadRecoveryState;
   readHead(careerId: string, playerId: string): PlayerWorkloadRecoveryState | null;
+  selectAtRevision(careerId: string, playerId: string, revision: number): PlayerWorkloadRecoveryState;
   readActivity(sourceId: string): DurablePlayerWorkloadActivity | null;
   close(): void;
 }>;
@@ -79,7 +80,7 @@ export const openSqlitePlayerWorkloadRecoveryStore = (databasePath: string, pers
     return createPlayerWorkloadRecovery({ careerId: input.careerId, playerId: input.playerId, createdAtDay: input.createdAtDay,
       fatigue: input.fatigue, recoveryCapacity: input.recoveryCapacity, policy: input.policy });
   };
-  const replay = (careerId: string, playerId: string): PlayerWorkloadRecoveryState | null => {
+  const replay = (careerId: string, playerId: string, selectedRevision?: number): PlayerWorkloadRecoveryState | null => {
     scope(careerId, playerId);
     const baseline = getBaseline.get(careerId, playerId) as BaselineRow | undefined;
     const head = getHead.get(careerId, playerId) as { revision: number; state_json: string } | undefined;
@@ -91,6 +92,7 @@ export const openSqlitePlayerWorkloadRecoveryStore = (databasePath: string, pers
     try {
       const input = JSON.parse(baseline.source_json) as AcceptedPlayerWorkloadBaseline;
       let current = initialState(input, baseline.source_id);
+      let selected = current.revision === selectedRevision ? current : null;
       const policy = getPolicy.get(careerId, current.policy.policyId, current.policy.version) as { policy_json: string } | undefined;
       if (baseline.career_id !== careerId || baseline.player_id !== playerId || current.careerId !== careerId || current.playerId !== playerId
         || json(input) !== baseline.source_json || json(current) !== baseline.initial_json || policy?.policy_json !== json(current.policy)) {
@@ -102,10 +104,11 @@ export const openSqlitePlayerWorkloadRecoveryStore = (databasePath: string, pers
           || row.before_revision !== current.revision || row.after_revision !== current.revision + 1
           || json(activity) !== row.source_json || json(current) !== row.before_json) throw new Error('activity before state differs');
         current = advancePlayerWorkloadRecovery(current, row.before_revision, activity);
+        if (current.revision === selectedRevision) selected = current;
         if (json(current) !== row.after_json) throw new Error('activity after state differs');
       }
       if (!head || head.revision !== current.revision || head.state_json !== json(current)) throw new Error('head diverged');
-      return current;
+      return selectedRevision === undefined ? current : selected;
     } catch (cause) { throw new Error('corrupt Player workload history', { cause }); }
   };
   const readActivity = (sourceId: string): DurablePlayerWorkloadActivity | null => {
@@ -172,7 +175,13 @@ export const openSqlitePlayerWorkloadRecoveryStore = (databasePath: string, pers
         return replay(before.careerId, before.playerId)!;
       });
     },
-    readHead: replay, readActivity,
+    readHead: (careerId, playerId) => replay(careerId, playerId), readActivity,
+    selectAtRevision(careerId, playerId, targetRevision): PlayerWorkloadRecoveryState {
+      if (!revision(targetRevision)) throw new Error('invalid Player workload revision');
+      const selected = replay(careerId, playerId, targetRevision);
+      if (!selected) throw new Error('Player workload revision is missing');
+      return selected;
+    },
     close: () => { if (!closed) { db.close(); closed = true; } },
   });
 };

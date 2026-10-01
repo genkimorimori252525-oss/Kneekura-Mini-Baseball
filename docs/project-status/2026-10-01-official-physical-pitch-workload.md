@@ -19,7 +19,7 @@ One fresh reviewer found three Important issues: incomplete activation MatchStat
 
 Actual Native integration accepts three physically resolved pitches, generates 6 explicit fixture effort units and applies them to the correct Player. A failed workload write leaves the accepted Source available for retry; later recovery advances the global head, while original retry returns the original fatigue result without another charge. These numerical calibration inputs are synthetic verification facts, not production defaults.
 
-Whole `npm run verify` passed 532 files /3,157 tests in 664.04s, including typecheck/catalog compilation and actual Native regional/WBC/World population gates. Publication and exact-SHA P0 follow.
+Whole `npm run verify` passed 532 files /3,157 tests in 664.04s, including typecheck/catalog compilation and actual Native regional/WBC/World population gates. Published stacked PR236 on PR235, commit `e848c765ded4f8fda3c5f59888f05982ce931d78`. P0 run36848242418 succeeded at this exact SHA. App attachment attempted once, rejected by the 100-attachment cap.
 
 ## Remaining overall goal
 

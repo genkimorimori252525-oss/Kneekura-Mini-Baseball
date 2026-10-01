@@ -47,5 +47,5 @@
 - [x] Actual Native physical pitches -> official scoring + actual P actor -> generated Source -> existing workload.apply; assert correct global Player fatigue/revision and immutable original retry after recovery/reopen.
 - [x] Reject Source/policy/scope corruption and duplicate charge, inject late Source/workload write failure and retry safely.
 - [x] Focused 7 files /30 tests and typecheck passed. Fresh review's three Important findings each had corrective RED and were fixed; reviewer confirmed no remaining findings and independent 2 files /10 tests. Whole `npm run verify` passed 532 files /3,157 tests in 664.04s.
-- [ ] Commit/push stacked on PR235; attempt attachment once and dispatch exact-SHA P0.
+- [x] Published stacked PR236 on PR235 at `e848c765ded4f8fda3c5f59888f05982ce931d78`; attachment attempted once (100-cap rejection). Exact-SHA P0 run36848242418 succeeded.
 - [ ] Continue confirmed physical/runtime/Career residual work; this pitch Source slice does not complete the overall goal.
