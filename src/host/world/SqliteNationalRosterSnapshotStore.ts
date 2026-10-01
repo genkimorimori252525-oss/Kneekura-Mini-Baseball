@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
+import type { DatabaseSync } from 'node:sqlite';
 import { canonicalRosterEvidenceJson as json, cloneRosterEvidence } from './RosterEvidenceJson';
 import { createRosterState } from '../../core/world/roster/RosterState';
 import type { RosterState } from '../../core/world/roster/RosterTypes';
@@ -27,6 +28,21 @@ const project = (raw: RosterState): AcceptedNationalRosterSnapshot => {
   return freeze({ snapshotId, ...basis });
 };
 
+/** Same immutable global checkpoint proof on a consumer's own SQLite connection. */
+export const readGlobalRosterSnapshotFromSqlite = (db: Pick<DatabaseSync, 'prepare'>,
+  careerId: string, snapshotId: string): AcceptedNationalRosterSnapshot | null => {
+  if (!id(careerId) || !id(snapshotId)) throw new Error('invalid global roster snapshot scope');
+  const row = db.prepare(`SELECT revision, snapshot_json FROM world_national_roster_snapshots
+    WHERE career_id=? AND snapshot_id=?`).get(careerId, snapshotId) as { revision: number; snapshot_json: string } | undefined;
+  if (!row) return null;
+  try {
+    const saved = JSON.parse(row.snapshot_json) as AcceptedNationalRosterSnapshot, expected = project(saved.roster);
+    if (saved.careerId !== careerId || expected.snapshotId !== snapshotId || saved.revision !== row.revision
+      || json(saved) !== row.snapshot_json || json(expected) !== row.snapshot_json) throw new Error('global roster snapshot differs');
+    return expected;
+  } catch (cause) { throw new Error(`corrupt national roster snapshot for ${careerId}`, { cause }); }
+};
+
 /** Capture a real accepted global roster now; never reconstruct missing past states from a later head. */
 export const openSqliteNationalRosterSnapshotStore = (databasePath: string, sources: Readonly<{
   roster: Pick<SqliteManagerRosterDecisionStore, 'readHead'>;
@@ -45,16 +61,7 @@ export const openSqliteNationalRosterSnapshotStore = (databasePath: string, sour
   };
   const read = (careerId: string, snapshotId: string): AcceptedNationalRosterSnapshot | null => {
     scope(careerId, snapshotId);
-    const row = db.prepare(`SELECT revision, snapshot_json FROM world_national_roster_snapshots
-      WHERE career_id=? AND snapshot_id=?`).get(careerId, snapshotId) as { revision: number; snapshot_json: string } | undefined;
-    if (!row) return null;
-    try {
-      const saved = JSON.parse(row.snapshot_json) as AcceptedNationalRosterSnapshot;
-      const expected = project(saved.roster);
-      if (saved.careerId !== careerId || expected.snapshotId !== snapshotId || saved.revision !== row.revision
-        || json(saved) !== row.snapshot_json || json(expected) !== row.snapshot_json) throw new Error('national roster snapshot differs');
-      return expected;
-    } catch (cause) { throw new Error(`corrupt national roster snapshot for ${careerId}`, { cause }); }
+    return readGlobalRosterSnapshotFromSqlite(db, careerId, snapshotId);
   };
   return Object.freeze({
     capture(careerId: string, clubId: string): AcceptedNationalRosterSnapshot {

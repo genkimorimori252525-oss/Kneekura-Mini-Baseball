@@ -1,10 +1,11 @@
 import { createRequire } from 'node:module';
+import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { assessDevelopmentPracticeExposure, type DevelopmentPracticeBundle,
   type DevelopmentPracticeEpisode, type DevelopmentPracticeRepetition } from '../../core/world/development/DevelopmentPracticeExposure';
 import { advancePlayerWorkloadRecovery, createPlayerWorkloadRecovery, type PlayerWorkloadActivity,
   type PlayerWorkloadBaseline, type PlayerWorkloadRecoveryState } from '../../core/world/development/PlayerWorkloadRecovery';
-import type { SqlitePlayerPersonLinkStore } from './SqlitePlayerPersonLinkStore';
+import { isAcceptedPlayerIntakeSource, type SqlitePlayerPersonLinkStore } from './SqlitePlayerPersonLinkStore';
 
 export type AcceptedPlayerWorkloadBaseline = PlayerWorkloadBaseline & Readonly<{
   sourceId: string; sourceVersion: string; personLinkSourceId: string;
@@ -34,6 +35,48 @@ const fields = (value: unknown, names: readonly string[]): boolean => value !== 
 const json = (value: unknown): string => JSON.stringify(cloneInert(value), (_key, item: unknown) => item !== null && typeof item === 'object' && !Array.isArray(item)
   ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)) : item);
 const freeze = <T>(value: T): T => { if (value !== null && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
+
+/** Reconstruct an original activity on the caller's connection, including uncommitted changes. */
+export const assertArchivedPlayerWorkloadActivity = (db: Pick<DatabaseSync, 'prepare'>, evidence: DurablePlayerWorkloadActivity): void => {
+  const scope = [evidence.before.careerId, evidence.before.playerId];
+  const baseline = db.prepare('SELECT * FROM world_player_workload_baselines WHERE career_id=? AND player_id=?')
+    .get(...scope) as BaselineRow | undefined;
+  if (!baseline) throw new Error('original clinical workload baseline is missing');
+  const input = JSON.parse(baseline.source_json) as AcceptedPlayerWorkloadBaseline;
+  const linkRow = db.prepare('SELECT * FROM world_player_person_links WHERE source_id=?').get(input.personLinkSourceId) as {
+    source_id: string; career_id: string; player_id: string; person_id: string; roster_revision: number; accepted_at_day: number; source_json: string;
+  } | undefined;
+  const link = linkRow ? JSON.parse(linkRow.source_json) as ReturnType<SqlitePlayerPersonLinkStore['readLink']> : null;
+  if (!fields(input, ['sourceId', 'sourceVersion', 'personLinkSourceId', 'careerId', 'playerId', 'createdAtDay', 'fatigue', 'recoveryCapacity', 'policy'])
+    || !id(input.sourceVersion) || input.sourceId !== baseline.source_id || !linkRow || !isAcceptedPlayerIntakeSource(link, input.personLinkSourceId)
+    || linkRow.source_json !== json(link) || linkRow.source_id !== link.sourceId || linkRow.career_id !== link.careerId
+    || linkRow.player_id !== link.playerId || linkRow.person_id !== link.personId || linkRow.roster_revision !== link.rosterRevision
+    || linkRow.accepted_at_day !== link.acceptedAtDay || link.careerId !== scope[0] || link.playerId !== scope[1]
+    || link.acceptedAtDay > input.createdAtDay || input.careerId !== scope[0] || input.playerId !== scope[1]) throw new Error('clinical workload baseline Person evidence differs');
+  let current = createPlayerWorkloadRecovery({ careerId: input.careerId, playerId: input.playerId, createdAtDay: input.createdAtDay,
+    fatigue: input.fatigue, recoveryCapacity: input.recoveryCapacity, policy: input.policy });
+  const policy = db.prepare('SELECT policy_json FROM world_player_workload_policies WHERE career_id=? AND policy_id=? AND version=?')
+    .get(...scope.slice(0, 1), input.policy.policyId, input.policy.version) as { policy_json: string } | undefined;
+  if (json(input) !== baseline.source_json || json(current) !== baseline.initial_json || policy?.policy_json !== json(input.policy)) {
+    throw new Error('original clinical workload calibration differs');
+  }
+  const rows = db.prepare('SELECT * FROM world_player_workload_activities WHERE career_id=? AND player_id=? AND after_revision<=? ORDER BY after_revision')
+    .all(...scope, evidence.after.revision) as ActivityRow[];
+  let found = false;
+  for (const row of rows) {
+    const activity = JSON.parse(row.source_json) as PlayerWorkloadActivity, before = current;
+    if (row.source_id !== activity.sourceEventId || row.career_id !== scope[0] || row.player_id !== scope[1]
+      || row.before_revision !== current.revision || row.after_revision !== current.revision + 1
+      || row.source_json !== json(activity) || row.before_json !== json(before)) throw new Error('original clinical workload prefix differs');
+    current = advancePlayerWorkloadRecovery(current, current.revision, activity);
+    if (row.after_json !== json(current)) throw new Error('original clinical workload result differs');
+    if (activity.sourceEventId === evidence.activity.sourceEventId) {
+      found = json({ activity, before, after: current }) === json(evidence);
+      if (!found) throw new Error('original clinical workload evidence differs');
+    }
+  }
+  if (!found || current.revision !== evidence.after.revision) throw new Error('original clinical workload activity is missing');
+};
 
 /** Actual accepted activity owns fatigue; Calendar labels never write this state. */
 export const openSqlitePlayerWorkloadRecoveryStore = (databasePath: string, personLinks: Pick<SqlitePlayerPersonLinkStore, 'readLink'>,

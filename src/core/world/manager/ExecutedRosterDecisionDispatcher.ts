@@ -19,6 +19,8 @@ import type { ManagerDecisionAgent } from './ManagerControlledDecision';
 
 export type LegalRosterActionBinding = Readonly<{
   actionId: string;
+  /** Accepted clinical projection; required for clinical availability changes when the Player has a current case. */
+  medicalSource?: Readonly<{ caseId: string; caseRevision: number; evidenceId: string }>;
   /** Immutable payload resolved by the world owner for this legal action. */
   command: Omit<RosterChangeCommand, 'causeEventId'>;
 }>;
