@@ -59,5 +59,5 @@
 
 - [x] One fresh read-only reviewer; fix concrete Important findings with RED/GREEN, without a rereview loop.
 - [x] Run `npm run verify` to a scratch log and confirm catalog/typecheck/full suite success; record actual counts and measured population limits in a dated project-status document.
-- [ ] Explicitly stage intended source/test/plan/status files, check cached diff, commit, push and create a stacked PR based on PR228. Attempt thread attachment once, dispatch P0 and record the exact SHA/run.
-- [ ] Continue the approved overall nonvisual goal; no partial final response.
+- [x] Explicitly stage intended source/test/plan/status files, check cached diff, commit, push and create a stacked PR based on PR228. Attempt thread attachment once, dispatch P0 and record the exact SHA/run. PR229: `a2547fbd6abd0aaf541d16e2ed14af333803226c`, P0 `36803196625`; attachment rejected by the 100-identity cap.
+- [x] Continue the approved overall nonvisual goal; no partial final response.
