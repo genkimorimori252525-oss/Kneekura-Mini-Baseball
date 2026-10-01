@@ -1,0 +1,20 @@
+{
+  "name": "kneekura-mini-baseball",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run typecheck && npm test",
+    "archive:pixel:compile": "node scripts/pixel-player.mjs compile assets/pixel-players/players/b1-recovery.pixel.json .pixel-build/recovery",
+    "archive:pixel:preview": "node scripts/pixel-preview.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "typescript": "~5.5.0",
+    "vitest": "^2.0.0",
+    "esbuild": "^0.21.5"
+  }
+}

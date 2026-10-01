@@ -1,6 +1,6 @@
 # NPB規則・能力査定・守備シミュレーション設計
 
-更新日: 2026-09-17
+更新日: 2026-09-22
 状態: 実装前の仕様。年度規則の原文照合とテストを前提とする。
 
 ## 1. 規則プロファイル
@@ -88,6 +88,119 @@ Render Clock
 
 ## 4. 公開査定と隠し査定
 
+### 4.0 共通Headline Rating Contract — CANONICAL REFINEMENT 2026-09-22
+
+人物の一目評価を二系統へ統一する。
+
+```text
+Player（現役 / Draft / Recruitment target）
+  -> ☆000〜999 Headline Player Rating
+
+Non-player Person（Manager / Scout / Coach / GM等）
+  -> Public Overall S〜G
+```
+
+どちらも**表示用Derived Summary**であり、True State / Decision Engine / Match Coreの入力へ戻さない。
+
+#### Player — ☆000〜999
+
+`☆` はPlayerのHeadline Overall Projection。
+
+- range: `☆000`〜`☆999`
+- `☆500` = 現在のRating Contextにおける平均Benchmark
+- `☆501〜999` = 平均以上を一目で判別する**dark-red semantic text**
+- `☆000〜500` = normal text
+- exact RGB / typographyはPresentation側で決める
+
+例:
+
+```text
+☆684
+ミート B
+パワー A
+選球眼 B
+守備力 B
+```
+
+`☆` は詳細能力の単純算術平均ではない。打者 / 投手 / 捕手 / 守備役割等のrole relevanceと、公開Projection / Suitabilityを用いたrole-aware aggregateから作る。exact weights / mapping curveはcalibration。
+
+既存の能力尺度区分は維持する。
+
+- ミート / パワー / 制球等: league-context Presentation Projection
+- 球速等: absolute physical fact / physical projection
+- 守備位置・投手役割適性: suitability
+- 球種 / 左右 / 年齢等: fact / attribute
+
+`☆` はこれらを適切な役割文脈で要約するだけで、物理量や役割適性を別能力として二重加算しない。
+
+#### Dynamic League Rating Reference
+
+League-relative Ratingの基準をLeague名へ固定しない。
+
+禁止:
+
+```text
+league == MLB
+ -> rating is always harsher
+```
+
+採用:
+
+```text
+actual current player population
+ -> versioned League Rating Reference
+ -> 0-100 / G-S public projections
+ -> role-aware ☆000-999 headline
+```
+
+**選手がLeague Levelを構成する。League名が能力尺度を固定しない。**
+
+したがって長期SaveでLeague全体のPlayer qualityが低下 / 上昇すれば、同じabsolute player stateでもleague-relative public projectionと`☆`は変化し得る。
+
+`LeagueRatingReference` は少なくともleague / player-population snapshot / projection versionをprovenanceとして持つ。exact population inclusion policy / refresh cadence / normalization curveはcalibrationし、League名による固定補正にはしない。
+
+既存の国際大会原則どおり、所属Playerは通常 `ratingContextLeagueId = affiliationLeagueId` を維持し、WBC / Continental / Club Worldへの一時参加だけで再基準化しない。
+
+未所属 / Draft / Recruitment targetを特定Clubが評価する場合は、原則として**評価先Clubの所属League Context**でHeadline Ratingを作る。Cross-league comparison UIが必要なら明示的なcomparison contextを選べる。
+
+#### Knowledge-bound Player Rating
+
+Draft / Trade / FA / Scouting targetの`☆`と詳細能力は、評価Clubの`Club Knowledge Estimate`から作る。Hidden True Player Stateを直接表示しない。
+
+```text
+Club A estimate -> ☆642?
+Club B estimate -> ☆571?
+same Player, different available evidence
+```
+
+低confidence時は `?` / estimate range等を補助表示できる。`☆`の一点表示はSimple Surface用summaryであり、uncertaintyを消去しない。
+
+#### Non-player — Public Overall S〜G
+
+Manager / Scout / Coach / GM等の非選手Personには、一目で「結局この人はどうか」を理解するための**Public Overall S〜G**を許可する。
+
+Overallはrole-specificな詳細能力のObserved EstimateからDerivedする。UniversalなStaff Power statではない。
+
+例:
+
+```text
+Scout Director
+総合評価 A
+発掘     A
+現能力評価 B
+将来予測 S
+データ活用 A
+```
+
+```text
+Manager
+総合評価 B
+采配 A / 分析 C / 適応 B / 選手眼 A / 運用 B / 統率 C
+```
+
+Overall自体からScout Accuracy / Manager win probability / Player ability等を変更しない。First-time / low-evidence non-playerは `?` / `B?` 等のconfidence表現を許可する。
+
+---
 ### 4.1 公開する能力
 
 プレイヤーが直感的に比較できる情報は少数にする。
@@ -101,6 +214,19 @@ Render Clock
 
 公開値は能力の完全な説明ではない。例えば「守備力」が同じでも、初動、打球判断、送球の正確さまで同じにしない。
 
+この表は「プレイヤーへ公開できる情報」の例であり、すべてを同じG〜S Headline Ratingとして同時表示する意味ではない。例えば盗塁・走塁等はA〜G Graded Trait Familyを主要Projectionとして使える。バント等でRatingとTraitの両方を表示する場合も、同じsource of truthを別能力として二重入力しない。
+
+また、公開値はすべて同じ尺度とは限らない。
+
+- ミート、パワー、守備力、制球等はリーグ文脈を持つPresentation Projection候補
+- 球速、走力、肩力、スタミナ等は物理量・身体性能へ接続するABSOLUTE_PHYSICAL候補
+- 守備位置適性、先発 / 中継ぎ / 抑え適性は本人と役割の適合性を表すSUITABILITY
+- 球種、投打左右、年齢、身長等は事実・属性
+
+一軍 / 二軍、守備位置、投手役割は原則として一覧・ランキングの絞り込み条件であり、同一リーグ内の公開能力尺度そのものを別物にしない。
+
+UI用の0〜100、G〜S、Trait、図は正史能力を説明するProjectionであり、それ自体をMatch Coreへの入力へ戻さない。
+
 ### 4.2 隠し査定
 
 隠し査定は結果を不透明にするためではなく、実在するプレー差を表現するために導入する。初期候補は以下である。
@@ -112,10 +238,12 @@ Render Clock
 | 守備 | 守備位置別適性、初動、打球判断、追い方、捕球、送球移行、肩の強さ、送球精度、タッグ | 捕球地点、失策、併殺速度、送球逸れ |
 | 捕手 | 捕逸抑止、ブロッキング、送球移行、送球精度、配球理解 | ワンバウンド、盗塁、投手との相性 |
 | 走塁 | リード、スタート、打球判断、進塁判断、帰塁、スライディング、走路変更 | 盗塁、次塁判断、タッグアップ、挟殺 |
-| 状態 | 疲労、回復、緊張耐性、対戦の学習 | 終盤の再現性。UIには直接出さない |
+| 身体耐久 | WorkCapacity / Stamina、FatigueResistance、RecoveryCapacity | 一登板の持続、疲れにくさ、登板後の回復。絶対身体能力として保持 |
+| 状態 | CurrentFatigue、Condition、ActiveEmotion等 | 現在の疲労・当日の発揮状態・心理状態。原因を二重計上しない |
+| 学習 | 対戦Exposure / Familiarity | 認識、予測、調整速度。リーグ名ではなく実際の経験から蓄積 |
 | 監督 | 傾向推定、情報更新、サンプル評価、対戦条件の解釈、配置比較 | 守備シフトの予測精度と配置選択 |
 
-心理状態や読み合いはこの状態層に属する。試合画面へ「動揺」「心理ゲージ」や、監督が内部で持つ打球方向の確率を直接表示しない。
+心理状態や読み合いはこの状態層に属する。内部感情値・心理ゲージ・監督が内部で持つ打球方向確率は直接表示しない。ただし `05-psychology-emotion.md` で定義する `ActiveEmotion` が成立した場合の単一感情マークは、実際の挙動変化を知らせる明示的な例外とする。
 
 ### 4.3 査定を増やす条件
 
@@ -127,6 +255,21 @@ Render Clock
 4. 公開値との二重計上や、乱数による見かけの差を避けられる。
 
 査定は一度に固定しない。各実装段階で、必要になった能力を追加し、既存データとの相関を確認する。
+
+### 4.4 公開査定・TraitのPresentation Invariance
+
+公開査定やTrait表示は、試合結果の原因ではない。
+
+同一true player state、同一Match input、同一seedについて、以下だけを変更してもCanonical Eventsと最終結果が一致しなければならない。
+
+- 0〜100換算式
+- G〜S境界
+- Traitの表示名・色
+- UI上の変化量量子化
+- ランキング母集団・表示フィルタ
+- 説明文・表示順
+
+また、守備位置適性や投手役割適性は走力・肩力・スタミナ等の汎用身体能力を再加算する値にしない。役割固有の習熟・判断・ルーティンを主に表し、同じ弱点を二重に補正しない。
 
 ## 5. 守備AIの設計
 
@@ -331,5 +474,26 @@ type StadiumProfile = {
 | 再現性 | 同一シード・同一入力で全イベントと最終状態が一致 |
 | 再現性 | 30fps、60fps、描画OFFで正史イベントと最終状態が一致 |
 | 統計 | 同一打球集合を複数の守備配置で処理し、成績差を物理・配置差まで追跡できる |
+| Presentation | UI査定式、G〜S境界、Trait色・名称だけを変えても同一seedのCanonical Eventsが完全一致する |
 
 テストを満たさない「それらしく見える」アニメーションは完成とみなさない。逆に、Core が計算した動きを正しく描いた結果として見た目が不自然なら、表示を捏造するのではなく、Core の計算・査定・判断を修正する。
+
+---
+
+## 2026-09-23 CANONICAL REFINEMENT — Pitch Release Geometry
+
+Pitcher release geometryのSource of Truthは:
+- `docs/game-design/55-pitch-release-geometry-v1.md`
+
+Frozen boundary:
+- Arm-slot classは `OVERHAND / THREE_QUARTER / SIDEARM / UNDERHAND`。
+- class名そのものはMatch buffではない。
+- 各Pitcherは選手固有のfixed continuous release geometryを持つ。
+- 同じarm-slot classでもrelease heightは個体差を持つ。
+- `ReleaseHeightTier` はcontinuous heightのProjectionであり、Core物理はTier文字を入力にしない。
+- release geometryは通常の一球ごとには変化しない。
+- Pitch Timingの±50ms jitter / QUICK / DELIBERATE / 緩急○はrelease positionを変えない。
+- BallFlightはcanonical release positionから開始する。
+- extreme high / low deliveryの「投げ下ろし / 下から生える」感覚は実座標と軌道から生じる。
+- physical body envelope外のrelease pointは禁止。
+- Career-level form changeが成立した場合のみprofile更新を許す。
