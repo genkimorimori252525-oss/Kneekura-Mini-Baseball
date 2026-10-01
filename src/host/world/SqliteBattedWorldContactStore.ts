@@ -73,21 +73,7 @@ const modelInput = (raw: AcceptedBattedWorldModel, sourceId: string): AcceptedBa
   return m;
 };
 
-/** Executes the supported original ten-actor, no-pre-pitch-runner contact interval. Rules consume the facts separately. */
-export const openSqliteBattedWorldContactStore = (path: string, flights: Pick<SqliteBattedBallFlightStore, 'read'>,
-  authority?: Authority): SqliteBattedWorldContactStore => {
-  if (!id(path) || typeof flights?.read !== 'function' || authority != null
-    && (typeof authority.readAcceptedContact !== 'function' || typeof authority.readAcceptedModel !== 'function')) throw new Error('invalid batted World sources');
-  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite'), db = new DatabaseSync(path);
-  db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
-  db.exec(`CREATE TABLE IF NOT EXISTS batted_world_models (source_id TEXT PRIMARY KEY,game_id TEXT NOT NULL UNIQUE,
-    source_json TEXT NOT NULL,source_hash TEXT NOT NULL);
-    CREATE TABLE IF NOT EXISTS batted_world_contacts (source_id TEXT PRIMARY KEY,physical_pitch_source_id TEXT NOT NULL,game_id TEXT NOT NULL,
-    revision INTEGER NOT NULL,previous_source_id TEXT,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,
-    snapshot_hash TEXT NOT NULL,UNIQUE(physical_pitch_source_id,revision));
-    CREATE TABLE IF NOT EXISTS batted_world_contact_heads (physical_pitch_source_id TEXT PRIMARY KEY,source_id TEXT NOT NULL,revision INTEGER NOT NULL);`);
-  let closed = false;
-  const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed batted World scope'); };
+export const battedWorldContactEvidenceFromSqlite = (db: Pick<import('node:sqlite').DatabaseSync, 'prepare'>) => {
   const ownFlights = battedBallFlightEvidenceFromSqlite(db);
   const readModel = (sourceId: string): AcceptedBattedWorldModel | null => {
     const row = db.prepare('SELECT * FROM batted_world_models WHERE source_id=?').get(sourceId) as {
@@ -167,7 +153,7 @@ export const openSqliteBattedWorldContactStore = (path: string, flights: Pick<Sq
     return freeze({ source: s, revision: (parent?.revision ?? 0) + 1, model: m, modelActorEvidence, flight, actors, result, timeline });
   };
   const read = (sourceId: string, seen = new Set<string>()): DurableBattedWorldContact | null => {
-    check(sourceId); if (seen.has(sourceId)) throw new Error('cyclic batted World contact archive'); seen.add(sourceId);
+    if (!id(sourceId)) throw new Error('invalid batted World scope'); if (seen.has(sourceId)) throw new Error('cyclic batted World contact archive'); seen.add(sourceId);
     const row = db.prepare('SELECT * FROM batted_world_contacts WHERE source_id=?').get(sourceId) as Row | undefined;
     if (!row) return null;
     const s = input(JSON.parse(row.source_json) as AcceptedBattedWorldContact, sourceId), m = readModel(s.modelSourceId);
@@ -195,8 +181,27 @@ export const openSqliteBattedWorldContactStore = (path: string, flights: Pick<Sq
     const current = db.prepare('SELECT source_id FROM batted_world_models WHERE game_id=?').get(m.gameId) as { source_id: string } | undefined;
     if (current && (current.source_id !== m.sourceId || json(readModel(current.source_id)) !== json(m))) throw new Error('batted World game model is frozen differently');
   };
+  return { read, readModel, derive, head, predecessor, sameModel, ownFlights };
+};
+
+/** Executes the supported original ten-actor, no-pre-pitch-runner contact interval. Rules consume the facts separately. */
+export const openSqliteBattedWorldContactStore = (path: string, flights: Pick<SqliteBattedBallFlightStore, 'read'>,
+  authority?: Authority): SqliteBattedWorldContactStore => {
+  if (!id(path) || typeof flights?.read !== 'function' || authority != null
+    && (typeof authority.readAcceptedContact !== 'function' || typeof authority.readAcceptedModel !== 'function')) throw new Error('invalid batted World sources');
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite'), db = new DatabaseSync(path);
+  db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
+  db.exec(`CREATE TABLE IF NOT EXISTS batted_world_models (source_id TEXT PRIMARY KEY,game_id TEXT NOT NULL UNIQUE,
+    source_json TEXT NOT NULL,source_hash TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS batted_world_contacts (source_id TEXT PRIMARY KEY,physical_pitch_source_id TEXT NOT NULL,game_id TEXT NOT NULL,
+    revision INTEGER NOT NULL,previous_source_id TEXT,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,
+    snapshot_hash TEXT NOT NULL,UNIQUE(physical_pitch_source_id,revision));
+    CREATE TABLE IF NOT EXISTS batted_world_contact_heads (physical_pitch_source_id TEXT PRIMARY KEY,source_id TEXT NOT NULL,revision INTEGER NOT NULL);`);
+  let closed = false;
+  const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed batted World scope'); };
+  const { read, readModel, derive, head, predecessor, sameModel, ownFlights } = battedWorldContactEvidenceFromSqlite(db);
   return Object.freeze({
-    read(sourceId) { return read(sourceId); },
+    read(sourceId) { check(sourceId); return read(sourceId); },
     accept(sourceId) {
       check(sourceId); const prior = read(sourceId), raw = authority?.readAcceptedContact(sourceId) ?? null, s = raw === null ? null : input(raw, sourceId);
       if (prior) {
