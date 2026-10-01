@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
-import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
+import { canonicalRosterEvidenceJson as json, cloneRosterEvidence } from './RosterEvidenceJson';
 import { createRosterState } from '../../core/world/roster/RosterState';
 import type { RosterState } from '../../core/world/roster/RosterTypes';
 import type { SqliteManagerRosterDecisionStore } from './SqliteManagerRosterDecisionStore';
@@ -15,15 +15,12 @@ export type SqliteNationalRosterSnapshotStore = Readonly<{
   close(): void;
 }>;
 const id = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value === value.trim();
-const json = (value: unknown): string => JSON.stringify(cloneInert(value), (_key, item: unknown) =>
-  item && typeof item === 'object' && !Array.isArray(item)
-    ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)) : item);
 const freeze = <T>(value: T): T => {
   if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); }
   return value;
 };
 const project = (raw: RosterState): AcceptedNationalRosterSnapshot => {
-  const roster = createRosterState(cloneInert(raw));
+  const roster = createRosterState(cloneRosterEvidence(raw));
   const basis = { version: 'native-national-roster-snapshot-v1' as const,
     careerId: roster.careerId, revision: roster.revision, effectiveDay: roster.effectiveDay, roster };
   const snapshotId = `national-roster:${createHash('sha256').update(json(basis)).digest('hex')}`;

@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
+import { canonicalRosterEvidenceJson as json } from './RosterEvidenceJson';
 import { evaluateNationalEligibility, snapshotNationalEligibilityPolicy,
   type NationalEligibilityPolicy, type NationalRepresentation, type NationalEligibilityDecision } from '../../core/world/competition/NationalEligibility';
 import { evaluateNationalCallup, snapshotNationalCallupPolicy,
@@ -75,9 +76,6 @@ export type SqliteNationalCallupStore = Readonly<{
 type Row = { revision: number; event_id: string; effective_day: number; entry_json: string };
 const id = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value === value.trim();
 const day = (value: unknown): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
-const json = (value: unknown): string => JSON.stringify(cloneInert(value), (_key, item: unknown) =>
-  item && typeof item === 'object' && !Array.isArray(item)
-    ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)) : item);
 const freeze = <T>(value: T): T => {
   if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); }
   return value;
