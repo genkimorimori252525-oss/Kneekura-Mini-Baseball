@@ -1,4 +1,5 @@
 import type { Vec3 } from '../../model/geometry';
+import { respondToBallContact } from '../ball/BallContactResponse';
 import { quantizeEventTick } from '../ExactEventTime';
 import {
   createLiveBallCatchOutcome,
@@ -60,29 +61,6 @@ const subtract = (first: Vec3, second: Vec3): Vec3 => ({
   y: first.y - second.y,
   z: first.z - second.z,
 });
-
-const add = (first: Vec3, second: Vec3): Vec3 => ({
-  x: first.x + second.x,
-  y: first.y + second.y,
-  z: first.z + second.z,
-});
-
-const scale = (value: Vec3, scalar: number): Vec3 => ({
-  x: value.x * scalar,
-  y: value.y * scalar,
-  z: value.z * scalar,
-});
-
-const dot = (first: Vec3, second: Vec3): number =>
-  first.x * second.x + first.y * second.y + first.z * second.z;
-
-const normalize = (value: Vec3): Vec3 => {
-  const lengthSquared = magnitudeSquared(value);
-  if (!Number.isFinite(lengthSquared) || lengthSquared <= 0) {
-    throw new Error('contactNormal must have a finite non-zero length');
-  }
-  return scale(value, 1 / Math.sqrt(lengthSquared));
-};
 
 const validateUnitInterval = (value: number, name: string): void => {
   if (!isFiniteNumber(value) || value < 0 || value > 1) {
@@ -202,28 +180,9 @@ export const resolveCatchRetention = (
     };
   }
 
-  const normal = normalize(contact.contactNormal);
-  const normalSpeed = dot(diagnostics.relativeVelocity, normal);
-  const normalVelocity = scale(normal, normalSpeed);
-  const tangentialVelocity = subtract(diagnostics.relativeVelocity, normalVelocity);
-
-  const postNormalVelocity = normalSpeed < 0
-    ? scale(normal, -parameters.failedContactRestitution * normalSpeed)
-    : normalVelocity;
-  const postTangentialVelocity = scale(
-    tangentialVelocity,
-    1 - parameters.failedTangentialDamping,
-  );
-  const postRelativeVelocity = add(postNormalVelocity, postTangentialVelocity);
-  const postVelocity = add(contact.glove.velocity, postRelativeVelocity);
-  const postSpin = scale(contact.ball.spin, 1 - parameters.failedSpinDamping);
-
-  const liveBall: LiveBallState = {
-    ...contact.ball,
-    tick: contact.contactTick,
-    velocity: postVelocity,
-    spin: postSpin,
-  };
+  const liveBall = respondToBallContact({ ball: contact.ball, surfaceVelocity: contact.glove.velocity,
+    normal: contact.contactNormal, material: { restitution: parameters.failedContactRestitution,
+      tangentialDamping: parameters.failedTangentialDamping, spinDamping: parameters.failedSpinDamping } });
 
   return {
     outcome: createLiveBallCatchOutcome(contact.contactTick, liveBall),

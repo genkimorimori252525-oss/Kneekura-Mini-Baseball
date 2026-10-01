@@ -22,19 +22,7 @@ const input = (raw: AcceptedBattedFirstFielderTouch, sourceId: string): Accepted
   return s;
 };
 
-/** Own original physical proof; positional rules do not imply catch, possession, OUT or play end. */
-export const openSqliteBattedFirstFielderTouchStore = (path: string, contacts: Pick<SqliteBattedWorldContactStore, 'read'>,
-  authority?: Authority): SqliteBattedFirstFielderTouchStore => {
-  if (!id(path) || typeof contacts?.read !== 'function' || authority != null && typeof authority.readAcceptedTouch !== 'function') {
-    throw new Error('invalid first-fielder touch sources');
-  }
-  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite'), db = new DatabaseSync(path);
-  db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
-  db.exec(`CREATE TABLE IF NOT EXISTS batted_first_fielder_touches (source_id TEXT PRIMARY KEY,world_contact_source_id TEXT NOT NULL UNIQUE,
-    physical_pitch_source_id TEXT NOT NULL,game_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,
-    snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL);`);
-  let closed = false;
-  const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed first-fielder touch scope'); };
+export const battedFirstFielderTouchEvidenceFromSqlite = (db: Pick<import('node:sqlite').DatabaseSync, 'prepare'>) => {
   const own = battedWorldContactEvidenceFromSqlite(db);
   const derive = (s: AcceptedBattedFirstFielderTouch): DurableBattedFirstFielderTouch => {
     const worldContact = own.read(s.worldContactSourceId);
@@ -49,7 +37,7 @@ export const openSqliteBattedFirstFielderTouchStore = (path: string, contacts: P
     return freeze({ source: s, worldContact, result });
   };
   const read = (sourceId: string): DurableBattedFirstFielderTouch | null => {
-    check(sourceId);
+    if (!id(sourceId)) throw new Error('invalid first-fielder touch scope');
     const row = db.prepare('SELECT * FROM batted_first_fielder_touches WHERE source_id=?').get(sourceId) as Row | undefined;
     if (!row) return null;
     const s = input(JSON.parse(row.source_json) as AcceptedBattedFirstFielderTouch, sourceId), value = derive(s);
@@ -69,8 +57,25 @@ export const openSqliteBattedFirstFielderTouchStore = (path: string, contacts: P
       || latestFlight.source.physicalPitchSourceId !== physicalId) throw new Error('first-fielder touch original flight prefix differs');
     own.ownFlights.openFrame(world.flight.physicalPitch);
   };
+  return { read, derive, current, own };
+};
+
+/** Own original physical proof; positional rules do not imply catch, possession, OUT or play end. */
+export const openSqliteBattedFirstFielderTouchStore = (path: string, contacts: Pick<SqliteBattedWorldContactStore, 'read'>,
+  authority?: Authority): SqliteBattedFirstFielderTouchStore => {
+  if (!id(path) || typeof contacts?.read !== 'function' || authority != null && typeof authority.readAcceptedTouch !== 'function') {
+    throw new Error('invalid first-fielder touch sources');
+  }
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite'), db = new DatabaseSync(path);
+  db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
+  db.exec(`CREATE TABLE IF NOT EXISTS batted_first_fielder_touches (source_id TEXT PRIMARY KEY,world_contact_source_id TEXT NOT NULL UNIQUE,
+    physical_pitch_source_id TEXT NOT NULL,game_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,
+    snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL);`);
+  let closed = false;
+  const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed first-fielder touch scope'); };
+  const { read, derive, current } = battedFirstFielderTouchEvidenceFromSqlite(db);
   return Object.freeze({
-    read,
+    read(sourceId) { check(sourceId); return read(sourceId); },
     accept(sourceId) {
       check(sourceId);
       const prior = read(sourceId), raw = authority?.readAcceptedTouch(sourceId) ?? null, s = raw === null ? null : input(raw, sourceId);
