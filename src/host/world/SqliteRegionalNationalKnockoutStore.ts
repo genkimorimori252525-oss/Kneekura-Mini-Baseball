@@ -16,6 +16,9 @@ import type { SqliteNationCompetitionRegionStore } from
   './SqliteNationCompetitionRegionStore';
 import type { SqliteRegionalNationalGroupStore } from
   './SqliteRegionalNationalGroupStore';
+import type { SqliteRegionalNationalEditionStore } from './SqliteRegionalNationalEditionStore';
+import { createCompetitionSourceReader, withCompetitionSourceReadScope,
+  withCompetitionSourceReadPhase } from './CompetitionSourceReadScope';
 import { readDurableOfficialGameResult,
   type PostseasonMatchSource } from './PostseasonResultsFromMatches';
 
@@ -60,6 +63,7 @@ export const openSqliteRegionalNationalKnockoutStore = (
       'readEdition' | 'readPlan' | 'readResults' | 'readOutcome'>;
     regions: Pick<SqliteNationCompetitionRegionStore, 'authority'>;
     matches: PostseasonMatchSource;
+    editions?: Pick<SqliteRegionalNationalEditionStore, 'readEdition' | 'readKnockoutEdition'>;
   }>,
 ): SqliteRegionalNationalKnockoutStore => {
   if (!id(databasePath)) {
@@ -80,11 +84,27 @@ export const openSqliteRegionalNationalKnockoutStore = (
     WHERE career_id=? AND edition_id=?`);
   const row = (careerId: string, editionId: string): KnockoutRow | null =>
     (get.get(careerId, editionId) as KnockoutRow | undefined) ?? null;
+  const readAcceptedEdition = sources.editions ? createCompetitionSourceReader(
+    sources.editions.readKnockoutEdition, sources.editions) : null;
+  const readAcceptedGroupEdition = sources.editions ? createCompetitionSourceReader(
+    sources.editions.readEdition, sources.editions) : null;
   const readSource = (careerId: string,
     knockoutEdition: RegionalNationalKnockoutEdition):
-    RegionalNationalKnockoutSource => {
+    RegionalNationalKnockoutSource => withCompetitionSourceReadScope(() => {
     const editionId = knockoutEdition.editionId;
+    if (readAcceptedEdition) {
+      const accepted = readAcceptedEdition(careerId, editionId);
+      if (!accepted || canonicalJson(accepted) !== canonicalJson(knockoutEdition)) {
+        throw new Error('national knockout requires accepted regional Edition');
+      }
+    }
     const groupEdition = sources.groups.readEdition(careerId, editionId);
+    if (readAcceptedGroupEdition) {
+      const accepted = readAcceptedGroupEdition(careerId, editionId);
+      if (!accepted || !groupEdition || canonicalJson(accepted) !== canonicalJson(groupEdition)) {
+        throw new Error('national knockout requires accepted regional Edition');
+      }
+    }
     const groupPlan = sources.groups.readPlan(careerId, editionId);
     const groupResults = sources.groups.readResults(careerId, editionId);
     const groupOutcome = sources.groups.readOutcome(careerId, editionId);
@@ -95,7 +115,7 @@ export const openSqliteRegionalNationalKnockoutStore = (
     return Object.freeze({ groupEdition, groupPlan, groupResults,
       authority: sources.regions.authority(careerId),
       knockoutEdition });
-  };
+  });
   const readComplete = (games: readonly RegionalNationalKnockoutGame[]):
     readonly OfficialGameResult[] | null => {
     const results = games.map((game) =>
@@ -113,7 +133,7 @@ export const openSqliteRegionalNationalKnockoutStore = (
       semifinals: readonly RegionalNationalKnockoutGame[] | null;
       final: RegionalNationalKnockoutGame | null;
       outcome: RegionalNationalKnockoutOutcome | null;
-    }> => {
+    }> => withCompetitionSourceReadScope(() => {
     const source = readSource(careerId, edition);
     const hasQuarters = plan.openingGames[0]?.stage === 'QUARTERFINAL';
     const openingResults = hasQuarters
@@ -139,13 +159,13 @@ export const openSqliteRegionalNationalKnockoutStore = (
         openingResults, semifinalResults, finalResult, source)
       : null;
     return Object.freeze({ semifinals, final, outcome });
-  };
+  });
   const replay = (careerId: string, editionId: string,
     stored: KnockoutRow): Readonly<{
       edition: RegionalNationalKnockoutEdition;
       plan: RegionalNationalKnockoutPlan;
       outcome: RegionalNationalKnockoutOutcome | null;
-    }> => {
+    }> => withCompetitionSourceReadScope(() => {
     try {
       const edition = JSON.parse(stored.edition_json) as
         RegionalNationalKnockoutEdition;
@@ -175,7 +195,7 @@ export const openSqliteRegionalNationalKnockoutStore = (
       throw new Error(`corrupt regional national knockout for ${careerId}`,
         { cause });
     }
-  };
+  });
   let closed = false;
   const assertScope = (careerId: string, editionId: string): void => {
     if (closed || !id(careerId) || !id(editionId)) {
@@ -193,6 +213,7 @@ export const openSqliteRegionalNationalKnockoutStore = (
     initialize(careerId: string,
       rawEdition: RegionalNationalKnockoutEdition):
       RegionalNationalKnockoutPlan {
+      return withCompetitionSourceReadPhase(() => {
       assertScope(careerId, rawEdition?.editionId);
       const edition = cloneInert(rawEdition);
       db.exec('BEGIN IMMEDIATE');
@@ -217,6 +238,7 @@ export const openSqliteRegionalNationalKnockoutStore = (
         db.exec('ROLLBACK');
         throw error;
       }
+      });
     },
     readPlan(careerId: string, editionId: string):
       RegionalNationalKnockoutPlan | null {
@@ -239,6 +261,7 @@ export const openSqliteRegionalNationalKnockoutStore = (
     },
     finalize(careerId: string, editionId: string):
       RegionalNationalKnockoutOutcome | null {
+      return withCompetitionSourceReadPhase(() => {
       assertScope(careerId, editionId);
       db.exec('BEGIN IMMEDIATE');
       try {
@@ -262,6 +285,7 @@ export const openSqliteRegionalNationalKnockoutStore = (
         db.exec('ROLLBACK');
         throw error;
       }
+      });
     },
     readOutcome(careerId: string, editionId: string):
       RegionalNationalKnockoutOutcome | null {
