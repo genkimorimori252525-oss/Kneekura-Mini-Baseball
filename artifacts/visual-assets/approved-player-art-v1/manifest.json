@@ -2,20 +2,21 @@
   "playerVariants": {
     "white": {
       "directory": "originals-white/",
-      "description": "採用済みのライトスキン版。白人選手用として使用。"
+      "description": "採用済みのライトスキン版。白人選手用として使用。肌色は黄みを抑えた明るいピーチ系。"
     },
     "black": {
       "directory": "originals-black/",
-      "description": "黒人選手用の褐色肌版。originals/ と同名のPNGが対応する。"
+      "description": "黒人選手用の褐色肌版。既存24枚は originals/ と同名のPNG、追加フォロースルーは肌色名付きの専用PNG。"
     },
-    "pairingRule": "各 images[].file のファイル名を originals-white/ と originals-black/ の両方で参照する。旧 originals/ は白人版の互換コピーとして残す。",
+    "pairingRule": "既存の24枚は同名PNGを originals-white/ と originals-black/ に収録。新しいフォロースルーシートは skin を含む明示的な別ID・別ファイル名で管理し、それぞれ該当する肌色フォルダへ収録する。旧 originals/ は互換参照用。",
     "preservedFeatures": [
       "B1体型と頭身",
       "ポーズとコマ配置",
       "ユニフォームと用具",
-      "キャンバスの縦横比"
+      "キャンバスの縦横比",
+      "フォロースルーのポーズ差分"
     ],
-    "editScope": "露出した肌（顔、首、素手）の色を褐色に変更。"
+    "editScope": "露出した肌（顔、首、素手）の色を褐色に変更。白人版は肌色を黄みの少ない明るいピーチ系に統一。"
   },
   "gloveColors": {
     "options": ["red", "blue", "black", "yellow", "brown"],
@@ -26,6 +27,13 @@
     "heights": ["low", "middle", "high"],
     "middle": "既存の bat-right.png / bat-left.png の第3コマを使用。",
     "lowAndHigh": "左右打者ごとに低め・高めの派生シートを用意。第3コマ以外は既存版を使用。"
+  },
+  "battingFollowThroughVariants": {
+    "frameIndex": 3,
+    "poses": ["miss-high", "miss-low", "foul", "ground", "air"],
+    "selection": "空振りはボール高で高め/低めを選択。ファウルはfoul、ゴロはground、それ以外のフェア打球はairを選択。",
+    "handedness": "右打者・左打者それぞれ専用シート。",
+    "skinVariants": "白人版・黒人版を別PNGで収録。"
   },
   "images": [
     {
@@ -303,6 +311,42 @@
       "file": "originals/bat-left-high.png",
       "sha256": "b9acee6e577acf41a29af54447317c771e0cc49d29d070f7142d07e94d2a2f59",
       "dimensions": [1774, 887]
+    },
+    {
+      "id": "bat-right-followthrough-white",
+      "title": "右打者・4コマ目フォロースルー5種・白人版",
+      "description": "B1体型を維持した、空振り高低・ファウル・ゴロ・フライ/安打の5ポーズ。",
+      "source": "bat-right-followthrough-v1.png",
+      "file": "originals/bat-right-followthrough-white.png",
+      "sha256": "d5a44d7096d94cad3f6dcd92805ccac30c5eef7c398e4aa21da8035262dd6f85",
+      "dimensions": [1448, 1086]
+    },
+    {
+      "id": "bat-right-followthrough-black",
+      "title": "右打者・4コマ目フォロースルー5種・黒人版",
+      "description": "白人版と同じ5ポーズ・同じB1体型で、肌色のみを変更した版。",
+      "source": "bat-right-followthrough-v1-black.png",
+      "file": "originals/bat-right-followthrough-black.png",
+      "sha256": "4dc4f28b470707805a2c41e887c884508b30f8461cbbd09b17b64d21378b3b57",
+      "dimensions": [1448, 1086]
+    },
+    {
+      "id": "bat-left-followthrough-white",
+      "title": "左打者・4コマ目フォロースルー5種・白人版",
+      "description": "B1体型を維持した、空振り高低・ファウル・ゴロ・フライ/安打の5ポーズ。",
+      "source": "bat-left-followthrough-v1.png",
+      "file": "originals/bat-left-followthrough-white.png",
+      "sha256": "90ef8fe6dff1ab5a0776e629e3a1c01f84ebaf10555d1275b202be52ac222547",
+      "dimensions": [1448, 1086]
+    },
+    {
+      "id": "bat-left-followthrough-black",
+      "title": "左打者・4コマ目フォロースルー5種・黒人版",
+      "description": "白人版と同じ5ポーズ・同じB1体型で、肌色のみを変更した版。",
+      "source": "bat-left-followthrough-v1-black.png",
+      "file": "originals/bat-left-followthrough-black.png",
+      "sha256": "553b685f70dc0329dd41efb09efb731780e673664e594c2ca156190b67c36a53",
+      "dimensions": [1448, 1086]
     }
   ],
   "unresolved": [
