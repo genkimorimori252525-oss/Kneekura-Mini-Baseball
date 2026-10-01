@@ -12,6 +12,8 @@ import type { SqliteNationCompetitionRegionStore } from
   './SqliteNationCompetitionRegionStore';
 import type { SqliteNationalCompetitionSelectionStore } from './SqliteNationalCompetitionSelectionStore';
 import type { SqliteRegionalNationalDrawStore } from './SqliteRegionalNationalDrawStore';
+import type { SqliteRegionalNationalEditionStore } from './SqliteRegionalNationalEditionStore';
+import { createCompetitionSourceReader, withCompetitionSourceReadScope, withCompetitionSourceReadPhase } from './CompetitionSourceReadScope';
 import { readDurableOfficialGameResult,
   type PostseasonMatchSource } from './PostseasonResultsFromMatches';
 
@@ -49,11 +51,14 @@ export const openSqliteRegionalNationalGroupStore = (
     matches: PostseasonMatchSource;
     selections?: Pick<SqliteNationalCompetitionSelectionStore, 'readSelection'>;
     draws?: Pick<SqliteRegionalNationalDrawStore, 'readDraw'>;
+    editions?: Pick<SqliteRegionalNationalEditionStore, 'readEdition'>;
   }>,
 ): SqliteRegionalNationalGroupStore => {
   if (!id(databasePath)) {
     throw new Error('invalid regional national database path');
   }
+  const readAcceptedEdition = sources.editions ? createCompetitionSourceReader(sources.editions.readEdition, sources.editions) : undefined;
+  const readDraw = sources.draws ? createCompetitionSourceReader(sources.draws.readDraw, sources.draws) : undefined;
   const sqlite: typeof import('node:sqlite') =
     createRequire(import.meta.url)('node:sqlite');
   const db = new sqlite.DatabaseSync(databasePath);
@@ -70,9 +75,13 @@ export const openSqliteRegionalNationalGroupStore = (
   const row = (careerId: string, editionId: string): GroupRow | null =>
     (get.get(careerId, editionId) as GroupRow | undefined) ?? null;
   const projectPlan = (careerId: string,
-    edition: RegionalNationalEdition): RegionalNationalGroupPlan => {
-    if (sources.draws) {
-      const accepted = sources.draws.readDraw(careerId, edition.editionId);
+    edition: RegionalNationalEdition): RegionalNationalGroupPlan => withCompetitionSourceReadScope(() => {
+    if (readAcceptedEdition) {
+      const accepted = readAcceptedEdition(careerId, edition.editionId);
+      if (!accepted || canonicalJson(accepted) !== canonicalJson(edition)) throw new Error('regional groups differ from accepted regional Edition');
+    }
+    if (readDraw) {
+      const accepted = readDraw(careerId, edition.editionId);
       if (!accepted || accepted.draw.editionId !== edition.editionId
         || accepted.source.selection.region !== edition.region
         || accepted.drawSnapshotId !== edition.drawSnapshotId
@@ -94,7 +103,7 @@ export const openSqliteRegionalNationalGroupStore = (
     }
     return planRegionalNationalGroups(edition,
       sources.regions.authority(careerId));
-  };
+  });
   const readFinals = (plan: RegionalNationalGroupPlan):
     readonly OfficialGameResult[] | null => {
     const games = plan.groups.flatMap((group) => group.games);
@@ -116,7 +125,7 @@ export const openSqliteRegionalNationalGroupStore = (
       edition: RegionalNationalEdition;
       plan: RegionalNationalGroupPlan;
       outcome: RegionalNationalGroupOutcome | null;
-    }> => {
+    }> => withCompetitionSourceReadScope(() => {
     try {
       const edition = JSON.parse(stored.edition_json) as
         RegionalNationalEdition;
@@ -146,7 +155,7 @@ export const openSqliteRegionalNationalGroupStore = (
       throw new Error(`corrupt regional national groups for ${careerId}`,
         { cause });
     }
-  };
+  });
   let closed = false;
   const assertScope = (careerId: string, editionId: string): void => {
     if (closed || !id(careerId) || !id(editionId)) {
@@ -156,6 +165,7 @@ export const openSqliteRegionalNationalGroupStore = (
   return Object.freeze({
     initialize(careerId: string, rawEdition: RegionalNationalEdition):
       RegionalNationalGroupPlan {
+      return withCompetitionSourceReadPhase(() => {
       assertScope(careerId, rawEdition?.editionId);
       const edition = cloneInert(rawEdition);
       db.exec('BEGIN IMMEDIATE');
@@ -180,6 +190,7 @@ export const openSqliteRegionalNationalGroupStore = (
         db.exec('ROLLBACK');
         throw error;
       }
+      });
     },
     readEdition(careerId: string, editionId: string):
       RegionalNationalEdition | null {
@@ -195,6 +206,7 @@ export const openSqliteRegionalNationalGroupStore = (
     },
     finalize(careerId: string, editionId: string):
       RegionalNationalGroupOutcome | null {
+      return withCompetitionSourceReadPhase(() => {
       assertScope(careerId, editionId);
       db.exec('BEGIN IMMEDIATE');
       try {
@@ -218,6 +230,7 @@ export const openSqliteRegionalNationalGroupStore = (
         db.exec('ROLLBACK');
         throw error;
       }
+      });
     },
     readOutcome(careerId: string, editionId: string):
       RegionalNationalGroupOutcome | null {

@@ -9,9 +9,12 @@ import type { NationalCompetitionSelection, SqliteNationalCompetitionSelectionSt
 import type { SqliteNationalRosterEligibilityStore } from './SqliteNationalRosterEligibilityStore';
 import type { DurableRegionalNationalRanking, SqliteRegionalNationalRankingSnapshotStore } from './SqliteRegionalNationalRankingSnapshotStore';
 import type { SqliteNationCompetitionRegionStore } from './SqliteNationCompetitionRegionStore';
+import { selectRegionalNationalHosts } from '../../core/world/competition/RegionalNationalHosting';
+import type { DurableRegionalNationalHostCandidates, SqliteRegionalNationalHostCandidateStore } from './SqliteRegionalNationalHostCandidateStore';
 import { createCompetitionSourceReader, withCompetitionSourceReadScope, withCompetitionSourceReadPhase } from './CompetitionSourceReadScope';
 
-export type RegionalNationalDrawPolicy = CompetitionDrawPolicy & Readonly<{ rematchLookbackDays: number }>;
+export type RegionalNationalDrawPolicy = CompetitionDrawPolicy & Readonly<{ rematchLookbackDays: number;
+  hostPot1CandidateRule?: 'RANKING_ONLY' | 'QUALIFIED_HOSTS_FIRST' }>;
 export type RegionalNationalDrawRequest = Readonly<{
   careerId: string; editionId: string; eligibilitySnapshotId: string; drawSeed: string;
   policy: RegionalNationalDrawPolicy; registry: CompetitionDrawPolicyRegistry;
@@ -20,6 +23,7 @@ export type DurableRegionalNationalDraw = Readonly<{
   drawSnapshotId: string; draw: CompetitionDraw; policy: RegionalNationalDrawPolicy;
   source: Readonly<{ selection: NationalCompetitionSelection; eligibility: WbcQualifierEligibility;
     ranking: DurableRegionalNationalRanking; rematchHistory: WorldNationalRankingHistory;
+    hosts?: DurableRegionalNationalHostCandidates;
     participantRegions: readonly Readonly<{ nationId: string; region: string }>[] }>;
 }>;
 export type SqliteRegionalNationalDrawStore = Readonly<{
@@ -45,12 +49,14 @@ export const openSqliteRegionalNationalDrawStore = (databasePath: string, source
   eligibility: Pick<SqliteNationalRosterEligibilityStore, 'readEligibilityForEdition'>;
   rankings: Pick<SqliteRegionalNationalRankingSnapshotStore, 'readSnapshot'>;
   nations: Pick<SqliteNationCompetitionRegionStore, 'readRegion'>;
+  hosts?: Pick<SqliteRegionalNationalHostCandidateStore, 'readCandidates'>;
 }>): SqliteRegionalNationalDrawStore => {
   if (!id(databasePath)) throw new Error('invalid regional national draw database path');
   const readSelection = createCompetitionSourceReader(sources.selections.readSelection, sources.selections);
   const readEligibility = createCompetitionSourceReader(sources.eligibility.readEligibilityForEdition, sources.eligibility);
   const readRanking = createCompetitionSourceReader(sources.rankings.readSnapshot, sources.rankings);
   const readRegion = createCompetitionSourceReader(sources.nations.readRegion, sources.nations);
+  const readHosts = sources.hosts ? createCompetitionSourceReader(sources.hosts.readCandidates, sources.hosts) : undefined;
   const { DatabaseSync }: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
   const db = new DatabaseSync(databasePath);
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
@@ -71,7 +77,9 @@ export const openSqliteRegionalNationalDrawStore = (databasePath: string, source
   const project = (request: RegionalNationalDrawRequest): DurableRegionalNationalDraw => {
     if (!request || Object.keys(request).sort().join('|') !== 'careerId|drawSeed|editionId|eligibilitySnapshotId|policy|registry'
       || !id(request.careerId) || !id(request.editionId) || !id(request.eligibilitySnapshotId) || !id(request.drawSeed)
-      || !request.policy || Object.keys(request.policy).sort().join('|') !== 'relaxationOrder|rematchLookbackDays|version'
+      || !request.policy || !['relaxationOrder|rematchLookbackDays|version', 'hostPot1CandidateRule|relaxationOrder|rematchLookbackDays|version']
+        .includes(Object.keys(request.policy).sort().join('|'))
+      || (request.policy.hostPot1CandidateRule !== undefined && !['RANKING_ONLY', 'QUALIFIED_HOSTS_FIRST'].includes(request.policy.hostPot1CandidateRule))
       || !day(request.policy.rematchLookbackDays)) throw new Error('invalid regional national draw request or policy');
     const policy = requireRegisteredDrawPolicy(request.registry, request.policy);
     const selection = readSelection(request.careerId, request.editionId);
@@ -94,8 +102,19 @@ export const openSqliteRegionalNationalDrawStore = (databasePath: string, source
       || new Set(ranking.ranking.orderedNationIds).size !== ranking.ranking.orderedNationIds.length) {
       throw new Error('regional national draw requires accepted regional cutoff ranking');
     }
-    const entrants = ranking.ranking.orderedNationIds.filter((nation) => eligibility.eligibleNationIds.includes(nation));
+    let entrants = ranking.ranking.orderedNationIds.filter((nation) => eligibility.eligibleNationIds.includes(nation));
     if (entrants.length !== eligibility.eligibleNationIds.length) throw new Error('regional ranking omits qualified nations');
+    const hosts = request.policy.hostPot1CandidateRule === undefined ? null : readHosts?.(request.careerId, request.editionId, cutoffDay) ?? null;
+    if (request.policy.hostPot1CandidateRule !== undefined) {
+      if (!hosts || !id(hosts.snapshotId) || hosts.asOfDay !== cutoffDay || hosts.region !== selection.region
+        || json(hosts.source.selection) !== json(selection)) throw new Error('regional draw requires accepted regional hosts at cutoff');
+      const hosting = selectRegionalNationalHosts(hosts);
+      if (request.policy.hostPot1CandidateRule === 'QUALIFIED_HOSTS_FIRST') {
+        // Only nations already in the accepted cohort are candidates for this administrative pot priority.
+        entrants = [...entrants.filter((nation) => hosting.hostNationIds.includes(nation)),
+          ...entrants.filter((nation) => !hosting.hostNationIds.includes(nation))];
+      }
+    }
     const participantRegions = entrants.map((nationId) => {
       const region = readRegion(request.careerId, nationId, cutoffDay);
       if (region !== selection.region) throw new Error('regional draw entrant is outside the accepted region');
@@ -118,7 +137,8 @@ export const openSqliteRegionalNationalDrawStore = (databasePath: string, source
       participants: participantRegions.map(({ nationId, region }, index) => ({ teamId: nationId,
         pot: Math.floor(index / groupCount) + 1, leagueId: json(['national-team', nationId]), regionId: region })),
       rematchPairs: [...pairs.values()] }, request.registry);
-    const snapshot = { draw, policy: request.policy, source: { selection, eligibility, ranking, rematchHistory, participantRegions } };
+    const snapshot = { draw, policy: request.policy, source: { selection, eligibility, ranking, rematchHistory, participantRegions,
+      ...(hosts ? { hosts } : {}) } };
     return freeze(cloneInert({ drawSnapshotId: `regional-national-draw:${createHash('sha256').update(json(snapshot)).digest('hex')}`, ...snapshot }));
   };
   const replay = (careerId: string, editionId: string, stored: Row): DurableRegionalNationalDraw => {

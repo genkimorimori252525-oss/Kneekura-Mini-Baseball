@@ -9,6 +9,7 @@ import type { SqliteOfficialStateStore } from '../SqliteOfficialStateStore';
 import type { SqliteRegionalNationalGroupStore } from './SqliteRegionalNationalGroupStore';
 import type { SqliteRegionalNationalKnockoutStore } from './SqliteRegionalNationalKnockoutStore';
 import type { SqliteRegionalNationalScheduleStore } from './SqliteRegionalNationalScheduleStore';
+import { withCompetitionSourceReadPhase } from './CompetitionSourceReadScope';
 
 export type RegionalNationalFixture = Readonly<{
   edition: RegionalNationalEdition;
@@ -30,7 +31,7 @@ export const registerRegionalNationalFixtureFromWorld = (
     matches: Pick<SqliteOfficialStateStore, 'registerOfficialFixture'>;
   }>,
   input: Readonly<{ careerId: string; editionId: string; gameId: string; gameDay: number }>,
-): RegionalNationalFixture => {
+): RegionalNationalFixture => withCompetitionSourceReadPhase(() => {
   const edition = stores.groups.readEdition(input.careerId, input.editionId);
   const plan = stores.groups.readPlan(input.careerId, input.editionId);
   const schedule = stores.schedules.readSchedule(input.careerId, input.editionId);
@@ -70,4 +71,4 @@ export const registerRegionalNationalFixtureFromWorld = (
       input.gameDay, game.gameId, game.homeNationId, game.awayNationId]),
   });
   return Object.freeze({ edition, game, gameDay: input.gameDay, binding });
-};
+});

@@ -6,6 +6,7 @@ import { openSqliteNationalCallupStore } from './SqliteNationalCallupStore';
 import { openSqliteNationalRosterEligibilityStore } from './SqliteNationalRosterEligibilityStore';
 import { openSqliteRegionalNationalRankingSnapshotStore } from './SqliteRegionalNationalRankingSnapshotStore';
 import { openSqliteRegionalNationalGroupStore } from './SqliteRegionalNationalGroupStore';
+import { regionalNationalAssemblyFixture } from './RegionalNationalAssemblyFixtures.test-support';
 import { regionalNationalInput } from './RegionalNationalFixtures.test-support';
 import { EMPTY_WORLD_NATIONAL_RANKING_POLICY_REGISTRY, registerWorldNationalRankingPolicy } from '../../core/world/competition/WorldNationalRankingHistory';
 import { EMPTY_COMPETITION_DRAW_POLICY_REGISTRY, registerCompetitionDrawPolicy } from '../../core/world/competition/CompetitionDraw';
@@ -98,4 +99,23 @@ it.each([8, 12, 16])('draws only %i accepted regional national rosters into four
     finally { db.close(); }
     expect(() => draws.readDraw('career-a', selection.editionId)).toThrow('corrupt');
   } finally { draws.close(); rankings.close(); eligibility.close(); callups.close(); f.close(); }
+});
+
+it('promotes only already qualified cohosts when an explicit host Pot 1 candidate policy is registered', () => {
+  const f = regionalNationalAssemblyFixture(), draws = drawModule.openSqliteRegionalNationalDrawStore(':memory:', f.drawSources);
+  try {
+    const policy = { ...f.drawRequest.policy, hostPot1CandidateRule: 'QUALIFIED_HOSTS_FIRST' as const };
+    const accepted = draws.initialize({ ...f.drawRequest, policy,
+      registry: registerCompetitionDrawPolicy(EMPTY_COMPETITION_DRAW_POLICY_REGISTRY, policy) });
+    const potOne = accepted.draw.groups.flatMap((group) => group.filter((item) => item.pot === 1).map((item) => item.teamId)).sort();
+    expect(potOne).toEqual(['EU-00', 'EU-07']);
+    expect(accepted.draw.groups.flatMap((group) => group.map((item) => item.teamId))).not.toContain('EU-08');
+    expect(accepted.source.hosts?.source.selection).toEqual(f.selection);
+    expect(draws.readDraw('career-a', f.selection.editionId)).toEqual(accepted);
+    const missing = drawModule.openSqliteRegionalNationalDrawStore(':memory:', { ...f.drawSources,
+      hosts: { readCandidates: () => null } });
+    try { expect(() => missing.initialize({ ...f.drawRequest, policy,
+      registry: registerCompetitionDrawPolicy(EMPTY_COMPETITION_DRAW_POLICY_REGISTRY, policy) })).toThrow('accepted regional hosts'); }
+    finally { missing.close(); }
+  } finally { draws.close(); f.close(); }
 });

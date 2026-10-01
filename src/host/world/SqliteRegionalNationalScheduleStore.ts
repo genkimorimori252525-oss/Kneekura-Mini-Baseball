@@ -4,6 +4,8 @@ import { planRegionalNationalSchedule, type RegionalNationalSchedule,
   type RegionalNationalSchedulePolicy } from '../../core/world/competition/RegionalNationalSchedule';
 import type { RegionalNationalKnockoutEdition } from '../../core/world/competition/RegionalNationalKnockout';
 import type { SqliteRegionalNationalGroupStore } from './SqliteRegionalNationalGroupStore';
+import type { SqliteRegionalNationalEditionStore } from './SqliteRegionalNationalEditionStore';
+import { createCompetitionSourceReader, withCompetitionSourceReadScope, withCompetitionSourceReadPhase } from './CompetitionSourceReadScope';
 import type { NationalCompetitionSelection, SqliteNationalCompetitionSelectionStore } from
   './SqliteNationalCompetitionSelectionStore';
 
@@ -34,9 +36,12 @@ export const openSqliteRegionalNationalScheduleStore = (
   sources: Readonly<{
     groups: Pick<SqliteRegionalNationalGroupStore, 'readEdition' | 'readPlan'>;
     selections: Pick<SqliteNationalCompetitionSelectionStore, 'readSelection'>;
+    editions?: Pick<SqliteRegionalNationalEditionStore, 'readEdition' | 'readKnockoutEdition'>;
   }>,
 ): SqliteRegionalNationalScheduleStore => {
   if (!id(databasePath)) throw new Error('invalid regional national schedule database path');
+  const readKnockoutEdition = sources.editions ? createCompetitionSourceReader(sources.editions.readKnockoutEdition, sources.editions) : undefined;
+  const readAcceptedEdition = sources.editions ? createCompetitionSourceReader(sources.editions.readEdition, sources.editions) : undefined;
   const sqlite: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
   const db = new sqlite.DatabaseSync(databasePath);
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
@@ -49,8 +54,16 @@ export const openSqliteRegionalNationalScheduleStore = (
     FROM world_regional_national_schedules WHERE career_id=? AND edition_id=?`);
   const row = (careerId: string, editionId: string): Row | null =>
     (get.get(careerId, editionId) as Row | undefined) ?? null;
-  const project = (request: RegionalNationalScheduleRequest): DurableRegionalNationalSchedule => {
+  const project = (request: RegionalNationalScheduleRequest): DurableRegionalNationalSchedule => withCompetitionSourceReadScope(() => {
+    if (readKnockoutEdition) {
+      const accepted = readKnockoutEdition(request.careerId, request.editionId);
+      if (!accepted || canonicalJson(accepted) !== canonicalJson(request.knockoutEdition)) throw new Error('regional schedule differs from accepted regional Edition');
+    }
     const edition = sources.groups.readEdition(request.careerId, request.editionId);
+    if (readAcceptedEdition) {
+      const accepted = readAcceptedEdition(request.careerId, request.editionId);
+      if (!accepted || !edition || canonicalJson(accepted) !== canonicalJson(edition)) throw new Error('regional schedule differs from accepted regional Edition');
+    }
     const plan = sources.groups.readPlan(request.careerId, request.editionId);
     const selection = sources.selections.readSelection(request.careerId, request.editionId);
     if (!edition || !plan || !selection || edition.editionId !== request.editionId
@@ -63,7 +76,7 @@ export const openSqliteRegionalNationalScheduleStore = (
     }
     return Object.freeze({ ...planRegionalNationalSchedule(edition, plan, request.knockoutEdition, request.policy),
       worldSelection: selection });
-  };
+  });
   const replay = (careerId: string, editionId: string, stored: Row): DurableRegionalNationalSchedule => {
     try {
       const request = JSON.parse(stored.request_json) as RegionalNationalScheduleRequest;
@@ -83,6 +96,7 @@ export const openSqliteRegionalNationalScheduleStore = (
   };
   return Object.freeze({
     initialize(rawRequest: RegionalNationalScheduleRequest): DurableRegionalNationalSchedule {
+      return withCompetitionSourceReadPhase(() => {
       assertScope(rawRequest?.careerId, rawRequest?.editionId);
       const request = cloneInert(rawRequest);
       db.exec('BEGIN IMMEDIATE');
@@ -99,6 +113,7 @@ export const openSqliteRegionalNationalScheduleStore = (
           .run(request.careerId, request.editionId, canonicalJson(request), canonicalJson(schedule));
         db.exec('COMMIT'); return schedule;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
+      });
     },
     readSchedule(careerId: string, editionId: string): DurableRegionalNationalSchedule | null {
       assertScope(careerId, editionId);
