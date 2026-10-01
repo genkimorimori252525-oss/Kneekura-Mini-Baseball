@@ -8,6 +8,7 @@ import type { SqliteOfficialScoringStore } from '../SqliteOfficialScoringStore';
 import type { SqliteOfficialParticipationStore, AcceptedPitcherPlay } from './SqliteOfficialParticipationStore';
 import { assertInitialOfficialWorldEvidence, type SqliteOfficialInitialWorldStore, type AcceptedInitialPitcherPlay,
   type DurableInitialOfficialWorld } from './SqliteOfficialInitialWorldStore';
+import { capturePhysicalPitchEvidence, type SqlitePhysicalPitchProgressStore } from './SqlitePhysicalPitchProgressStore';
 
 export type AcceptedPhysicalPitchEffortPolicy = PhysicalPitchEffortPolicy & Readonly<{ sourceId: string; sourceVersion: string }>;
 export type OfficialPitchWorkloadRequest = Readonly<{ scoringApplicationId: string; policySourceId: string }> & (
@@ -48,11 +49,13 @@ export const openSqliteOfficialPitchWorkloadStore = (databasePath: string, sourc
   scoring: Pick<SqliteOfficialScoringStore, 'readAcceptedPlay'>;
   participation: Pick<SqliteOfficialParticipationStore, 'readPitcherPlay'>;
   initialWorlds?: Pick<SqliteOfficialInitialWorldStore, 'readInitialPitcherPlay' | 'readAcceptedSource'>;
+  physicalPitches?: Pick<SqlitePhysicalPitchProgressStore, 'readProgress'>;
 }>, authority?: Readonly<{ readAcceptedPolicy(sourceId: string): AcceptedPhysicalPitchEffortPolicy | null }>): SqliteOfficialPitchWorkloadStore => {
   if (!id(databasePath) || !sources || typeof sources.scoring?.readAcceptedPlay !== 'function'
     || typeof sources.participation?.readPitcherPlay !== 'function'
     || sources.initialWorlds != null && (typeof sources.initialWorlds.readInitialPitcherPlay !== 'function'
       || typeof sources.initialWorlds.readAcceptedSource !== 'function')
+    || sources.physicalPitches != null && typeof sources.physicalPitches.readProgress !== 'function'
     || authority != null && typeof authority.readAcceptedPolicy !== 'function') throw new Error('invalid official pitch workload sources');
   const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
   const db = new DatabaseSync(databasePath);
@@ -118,6 +121,27 @@ export const openSqliteOfficialPitchWorkloadStore = (databasePath: string, sourc
       || scoring.source_event_id !== play.scoring.sourceEventId || json(JSON.parse(scoring.result_json)) !== json(play.scoring)
       || json(scoredRequest?.input?.officialApplication) !== json(application)) throw new Error('actual scored closure evidence differs');
     const officialEvidence = { closure, scoring };
+    const physicalProgress = sources.physicalPitches?.readProgress(application.matchId, application.match.playId) ?? null;
+    let progressEvidence: Readonly<{ actions: readonly string[]; head: readonly string[] }> | null = null;
+    if (sources.physicalPitches) {
+      if (!physicalProgress || json(physicalProgress.frame.effortPolicy) !== json(policy)) throw new Error('physical pitch progress calibration differs');
+      if (json(physicalProgress.result.pitch.resolution.timeline) !== json(timeline) || json(physicalProgress.frame.match) !== json(application.match)
+        || physicalProgress.frame.workload.careerId !== pitcher.binding.careerId || physicalProgress.frame.workload.playerId !== pitcher.binding.playerId) {
+        throw new Error('actual durable physical pitch progress differs');
+      }
+      const current = capturePhysicalPitchEvidence(db, physicalProgress.frame);
+      for (const [key, values] of Object.entries(physicalProgress.frame.immutableEvidence)) {
+        const actual = new Set(current[key]);
+        if (values.some((value) => !actual.has(value))) throw new Error('original physical pitch progress evidence changed');
+      }
+      if (physicalProgress.frame.initialWorld) assertInitialOfficialWorldEvidence(db, physicalProgress.frame.initialWorld, true);
+      const rowHash = (row: unknown) => createHash('sha256').update(json(row)).digest('hex');
+      progressEvidence = {
+        actions: db.prepare('SELECT * FROM physical_pitch_progress_actions WHERE game_id=? AND play_id=? ORDER BY progress_revision')
+          .all(application.matchId, application.match.playId).map(rowHash),
+        head: db.prepare('SELECT * FROM physical_pitch_progress_heads WHERE game_id=? AND play_id=?').all(application.matchId, application.match.playId).map(rowHash),
+      };
+    }
     const sourceId = `official-physical-pitch-workload:${createHash('sha256').update(json([
       pitcher.binding.careerId, application.matchId, pitcher.playedPlayId, pitcher.binding.playerId])).digest('hex')}`;
     const activity: OfficialPhysicalPitchActivity = freeze({ sourceEventId: sourceId, sourceVersion: OFFICIAL_PHYSICAL_PITCH_WORKLOAD_VERSION,
@@ -125,7 +149,8 @@ export const openSqliteOfficialPitchWorkloadStore = (databasePath: string, sourc
       atDay: pitcher.binding.gameDay, kind: 'MATCH', effortUnits: workload.effortUnits });
     return { activity, gameId: application.matchId, playId: pitcher.playedPlayId, officialEvidence,
       proof: { pitcher, policy, scoring: play.scoring, physicalPitchSequences: workload.physicalPitchSequences,
-        ...(initialWorld ? { initialWorld, officialEvidence } : {}) } };
+        ...(initialWorld ? { initialWorld, officialEvidence } : {}),
+        ...(physicalProgress ? { physicalProgress, progressEvidence } : {}) } };
   };
   const decode = (row: SourceRow): OfficialPhysicalPitchActivity => {
     try {

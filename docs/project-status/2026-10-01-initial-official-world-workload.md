@@ -18,7 +18,9 @@ Separate API and first-play path RED preceded implementation. Actual Native init
 
 One fresh readonly reviewer found four Important WAL isolation cases: revision0 finalResult, deleted Person link, altered initial Source during consumer acceptance and changed actual closure receipt. Parent reproduced each RED, fixed own-transaction evidence checks, and added tracked disk/WAL regressions covering SourceVersion rewrites, Person deletion, binding/fixture/closure/scoring changes, rollback and successful retry. Reviewer confirmed all four resolved with no additional Critical/Important findings. Parent and independent related suites passed 6 files /31 tests (including four scratch review regressions). Typecheck/catalog compilation passed.
 
-Final `npm run verify` passed 539 files /3,187 tests in649.20s, including typecheck/catalog compilation, actual Native national/World population gates and four additional scratch review regressions. The tracked Source suite has 538 files /3,183 tests; scratch review files are not published. The earlier whole run was stopped after the additional closure finding, and this successful run uses the final corrected implementation. Publication and exact-SHA P0 follow.
+Final `npm run verify` passed 539 files /3,187 tests in649.20s, including typecheck/catalog compilation, actual Native national/World population gates and four additional scratch review regressions. The tracked Source suite has 538 files /3,183 tests; scratch review files are not published. The earlier whole run was stopped after the additional closure finding, and this successful run uses the final corrected implementation.
+
+Published as PR238 stacked on PR237 at `a36905a18fdc73fb5a885453641d425af6a59b0d`. P0 run36855638252 succeeded at that exact SHA. Attachment was attempted once; the app's 100-artifact limit rejected it.
 
 ## Remaining overall goal
 
