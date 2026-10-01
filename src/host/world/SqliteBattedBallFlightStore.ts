@@ -51,21 +51,7 @@ const input = (raw: AcceptedBattedBallFlight, sourceId: string): AcceptedBattedB
   createFairTerritoryWedge(s.execution.field); return s;
 };
 
-/** Original free-flight evidence; projected ground never settles earlier actor contacts or baseball rules. */
-export const openSqliteBattedBallFlightStore = (path: string,
-  physicalPitches: Pick<SqlitePhysicalPitchProgressStore, 'readAcceptedPitch'>,
-  authority?: Readonly<{ readAcceptedFlight(sourceId: string): AcceptedBattedBallFlight | null }>): SqliteBattedBallFlightStore => {
-  if (!id(path) || typeof physicalPitches?.readAcceptedPitch !== 'function'
-    || authority != null && typeof authority.readAcceptedFlight !== 'function') throw new Error('invalid batted flight sources');
-  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite'), db = new DatabaseSync(path);
-  db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
-  db.exec(`CREATE TABLE IF NOT EXISTS batted_ball_flights (source_id TEXT PRIMARY KEY,physical_pitch_source_id TEXT NOT NULL,
-    game_id TEXT NOT NULL,play_id INTEGER NOT NULL,revision INTEGER NOT NULL,previous_source_id TEXT,
-    source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,
-    UNIQUE(physical_pitch_source_id,revision));
-    CREATE TABLE IF NOT EXISTS batted_ball_flight_heads (physical_pitch_source_id TEXT PRIMARY KEY,source_id TEXT NOT NULL,revision INTEGER NOT NULL);`);
-  let closed = false;
-  const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed batted flight scope'); };
+export const battedBallFlightEvidenceFromSqlite = (db: Pick<import('node:sqlite').DatabaseSync, 'prepare'>) => {
   const ownPitch = (sourceId: string) => {
     const row = db.prepare('SELECT game_id,play_id,snapshot_json FROM physical_pitch_progress_actions WHERE source_id=?').get(sourceId) as {
       game_id: string; play_id: number; snapshot_json: string;
@@ -98,7 +84,7 @@ export const openSqliteBattedBallFlightStore = (path: string,
       projectedGroundTerritory: classifyFirstGroundContactTerritory(flight, s.execution.field) });
   };
   const read = (sourceId: string, seen = new Set<string>()): DurableBattedBallFlight | null => {
-    check(sourceId); if (seen.has(sourceId)) throw new Error('cyclic batted flight archive'); seen.add(sourceId);
+    if (!id(sourceId)) throw new Error('invalid batted flight scope'); if (seen.has(sourceId)) throw new Error('cyclic batted flight archive'); seen.add(sourceId);
     const row = db.prepare('SELECT * FROM batted_ball_flights WHERE source_id=?').get(sourceId) as FlightRow | undefined;
     if (!row) return null;
     const s = input(JSON.parse(row.source_json) as AcceptedBattedBallFlight, sourceId);
@@ -134,8 +120,27 @@ export const openSqliteBattedBallFlightStore = (path: string,
     if (s.previousFlightSourceId !== (head?.source_id ?? null)) throw new Error('batted flight predecessor differs');
     return head ? read(head.source_id) : null;
   };
+  return { read, derive, openFrame, currentHead, predecessor };
+};
+
+/** Original free-flight evidence; projected ground never settles earlier actor contacts or baseball rules. */
+export const openSqliteBattedBallFlightStore = (path: string,
+  physicalPitches: Pick<SqlitePhysicalPitchProgressStore, 'readAcceptedPitch'>,
+  authority?: Readonly<{ readAcceptedFlight(sourceId: string): AcceptedBattedBallFlight | null }>): SqliteBattedBallFlightStore => {
+  if (!id(path) || typeof physicalPitches?.readAcceptedPitch !== 'function'
+    || authority != null && typeof authority.readAcceptedFlight !== 'function') throw new Error('invalid batted flight sources');
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite'), db = new DatabaseSync(path);
+  db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
+  db.exec(`CREATE TABLE IF NOT EXISTS batted_ball_flights (source_id TEXT PRIMARY KEY,physical_pitch_source_id TEXT NOT NULL,
+    game_id TEXT NOT NULL,play_id INTEGER NOT NULL,revision INTEGER NOT NULL,previous_source_id TEXT,
+    source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,
+    UNIQUE(physical_pitch_source_id,revision));
+    CREATE TABLE IF NOT EXISTS batted_ball_flight_heads (physical_pitch_source_id TEXT PRIMARY KEY,source_id TEXT NOT NULL,revision INTEGER NOT NULL);`);
+  let closed = false;
+  const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed batted flight scope'); };
+  const { read, derive, openFrame, currentHead, predecessor } = battedBallFlightEvidenceFromSqlite(db);
   return Object.freeze({
-    read(sourceId) { return read(sourceId); },
+    read(sourceId) { check(sourceId); return read(sourceId); },
     accept(sourceId) {
       check(sourceId); const prior = read(sourceId), raw = authority?.readAcceptedFlight(sourceId) ?? null;
       const s = raw === null ? null : input(raw, sourceId);

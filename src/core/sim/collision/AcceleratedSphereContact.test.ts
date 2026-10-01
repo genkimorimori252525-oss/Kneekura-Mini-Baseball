@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Vec3 } from '../../model/geometry';
 import {
   findAcceleratedSphereContactTick,
+  findAcceleratedSphereContactTime,
   type AcceleratedSphereContactState,
 } from './AcceleratedSphereContact';
 import { findMovingSphereContactTick } from './MovingSphereContact';
@@ -18,6 +19,17 @@ const state = (
   acceleration: v(0, 0, 0),
   radius: 0.5,
   ...overrides,
+});
+
+it('exposes continuous contact time for finite geometry while preserving the authoritative rounded tick', () => {
+  const p = { ticksPerSecond: 1 };
+  const linear = findAcceleratedSphereContactTime(state({ tick: 0 }), state({ tick: 0, center: v(1.1, 0, 0), velocity: v(-1, 0, 0) }), 1, p)!;
+  expect(linear.tick).toBe(1);
+  expect(linear.elapsedSeconds).toBeCloseTo(0.1, 12);
+  const accelerated = findAcceleratedSphereContactTime(state({ tick: 0 }), state({ tick: 0, center: v(1.1, 0, 0), acceleration: v(-2, 0, 0) }), 1, p)!;
+  expect(accelerated.tick).toBe(1);
+  expect(accelerated.elapsedSeconds).toBeCloseTo(Math.sqrt(0.1), 12);
+  expect(findAcceleratedSphereContactTick(state({ tick: 0 }), state({ tick: 0, center: v(1.1, 0, 0), acceleration: v(-2, 0, 0) }), 1, p)).toBe(accelerated.tick);
 });
 
 describe('findAcceleratedSphereContactTick', () => {

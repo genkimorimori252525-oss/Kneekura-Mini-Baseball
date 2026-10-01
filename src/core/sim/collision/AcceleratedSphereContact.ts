@@ -1,6 +1,6 @@
 import type { Vec3 } from '../../model/geometry';
 import { quantizeEventTick } from '../ExactEventTime';
-import { findMovingSphereContactTick } from './MovingSphereContact';
+import { findMovingSphereContactTime, type SphereContactTime } from './MovingSphereContact';
 
 export type AcceleratedSphereContactState = Readonly<{
   tick: number;
@@ -214,12 +214,12 @@ const bisectFirstNonPositive = (
   return high;
 };
 
-export const findAcceleratedSphereContactTick = (
+export const findAcceleratedSphereContactTime = (
   first: AcceleratedSphereContactState,
   second: AcceleratedSphereContactState,
   deltaTicks: number,
   parameters: AcceleratedSphereContactParameters,
-): number | null => {
+): SphereContactTime | null => {
   validateState(first, 'first');
   validateState(second, 'second');
   if (
@@ -251,14 +251,14 @@ export const findAcceleratedSphereContactTick = (
   );
 
   if (initialSeparationValue <= 0) {
-    return first.tick;
+    return { tick: first.tick, elapsedSeconds: 0 };
   }
   if (deltaTicks === 0) {
     return null;
   }
 
   if (magnitudeSquared(relativeAcceleration) <= COEFFICIENT_EPSILON ** 2) {
-    return findMovingSphereContactTick(
+    return findMovingSphereContactTime(
       {
         tick: first.tick,
         center: first.center,
@@ -359,6 +359,10 @@ export const findAcceleratedSphereContactTick = (
     parameters.ticksPerSecond,
   );
   return contactTick - first.tick <= deltaTicks
-    ? contactTick
+    ? { tick: contactTick, elapsedSeconds: contactSeconds }
     : null;
 };
+
+export const findAcceleratedSphereContactTick = (
+  first: AcceleratedSphereContactState, second: AcceleratedSphereContactState, deltaTicks: number, parameters: AcceleratedSphereContactParameters,
+): number | null => findAcceleratedSphereContactTime(first, second, deltaTicks, parameters)?.tick ?? null;
