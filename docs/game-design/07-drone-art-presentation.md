@@ -3,6 +3,12 @@
 更新日: 2026-09-17
 状態: 採用済み・表示仕様確定。P8で実装予定。
 
+## 2026-10-01 — 素材方式の継続方針
+
+ユーザー判断により **採用済みPNG原画方式で続行**。Pixel Player System / JSON原本移行の計画と今日の確認版は **ARCHIVED / ON HOLD**。この文書の既存Drone-Art/observer原則を保ち、実験版の人物へ置き換えない。
+
+現行の素材・継続基準は [PNG原画方式の継続](../presentation/2026-10-01-png-player-continuation.md)。保存した実験は [Pixel Player archive](../archive/pixel-player-system/README.md)。
+
 ## 1. 目的
 
 Mini Baseball の打球後表示は、滑らかな3Dアニメーションを縮小したものにはしない。

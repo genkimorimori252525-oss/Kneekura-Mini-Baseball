@@ -8,8 +8,8 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "verify": "npm run typecheck && npm test",
-    "pixel:compile": "node scripts/pixel-player.mjs compile assets/pixel-players/players/b1-recovery.pixel.json .pixel-build/recovery",
-    "pixel:preview": "node scripts/pixel-preview.mjs"
+    "archive:pixel:compile": "node scripts/pixel-player.mjs compile assets/pixel-players/players/b1-recovery.pixel.json .pixel-build/recovery",
+    "archive:pixel:preview": "node scripts/pixel-preview.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",

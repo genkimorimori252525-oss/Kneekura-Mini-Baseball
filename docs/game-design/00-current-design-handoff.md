@@ -1,9 +1,19 @@
 # Kneekura Mini Baseball — Current Design Handoff
 
-更新日: 2026-09-22  
+更新日: 2026-10-01
 対象branch: `jolly/core-foundation-plan-2026-09-17`
 
 この文書は、新しいChatGPT / Jolly sessionが設計思想を最短で復元するためのhandoff。
+
+## Presentationの現行方針 — 2026-10-01
+
+**採用済みPNG原画方式で続行する。** ユーザー判断により、今日のPixel Player System計画とJSON原本移行・v1/v2実験は **ARCHIVED / ON HOLD**。現在の採用計画・未実装タスクに含めない。
+
+- 現行方針: [PNG原画方式の継続](../presentation/2026-10-01-png-player-continuation.md)
+- 原画識別・継続基準: [PNG baseline manifest](../presentation/2026-10-01-png-baseline-manifest.json)
+- 保存資料: [Pixel Player archive](../archive/pixel-player-system/README.md)
+
+採用B1のPNG見た目と既存Drone-Artの4px/55ms、observer原則を維持する。実験のコードが残っていても、自動再開・量産・本番接続を行わない。この現行Statusは保留前のPixel文書内の承認記述より優先する。
 
 ## Document Lifecycle / Source Precedence Guard — 2026-09-22
 
