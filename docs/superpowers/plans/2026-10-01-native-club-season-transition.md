@@ -14,5 +14,5 @@ Replay reconstructs the exact before revision from the shared journal, rederives
 - [x] Adopt existing Core transition into the actual shared World head/journal atomically.
 - [x] Verify replay, snapshots, actual World next-season consumer and failure cases; preserve initial checkpoint and validate complete existing history.
 - [x] Focused tests/typecheck, one fresh read-only review (no findings) and whole-suite verification (527 files / 3,136 tests, 620.43 seconds).
-- [ ] Commit/push stacked on PR232, attempt attachment once and verify P0 exact SHA.
+- [x] Published PR233 stacked on PR232 at `cfef573fb57729856319eaea138295694b503713`; attachment attempted once (app limit), P0 run36834768541 succeeded at exact SHA.
 - [ ] Continue full Career Source generation and orchestration; do not claim this slice closes the overall goal.

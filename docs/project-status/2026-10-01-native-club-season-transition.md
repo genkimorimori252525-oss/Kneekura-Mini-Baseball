@@ -21,4 +21,6 @@ Final `npm run verify` succeeded: catalog compilation/typecheck and 527 test fil
 
 ## Remaining approved work
 
+Published as PR233 stacked on PR232 at `cfef573fb57729856319eaea138295694b503713`; P0 run36834768541 succeeded at that SHA. Attachment was attempted once; the app's 100-artifact limit rejected it.
+
 This owner adopts independently accepted closing evidence and the approved next plan. It does not generate competition results, roster/fanbase summaries, new calibrated content or an autonomous Career loop. Those actual Source-generation/runtime orchestration gaps remain in the active overall goal. Historical closing snapshots never become runtime authority.
