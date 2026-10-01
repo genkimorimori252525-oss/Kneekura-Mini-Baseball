@@ -45,5 +45,5 @@
 - [x] Verify unique Player/Person mappings, deterministic pinned generation, later intake/roster history, reopened original population and isolated hidden data using real stores.
 - [x] Request one fresh read-only review. One Important issue was reproduced/fixed; reviewer confirmed no remaining findings. Independent 3 files /12 tests passed in 0.994s.
 - [x] Run relevant gates and whole `npm run verify`: 530 files /3,147 tests passed in 626.62s. Exact-SHA P0 follows publication.
-- [ ] Commit/push stacked on the verified domestic season advance PR; attempt attachment once and dispatch exact-SHA P0.
+- [x] Published stacked PR235 on PR234, commit `e8e663c63a2b1c959ea31dae86c9d1f62a69f424`; attachment attempted once (100-cap rejection). Exact-SHA P0 run36843139517 succeeded.
 - [ ] Continue actual nonvisual Career/runtime gaps; this bounded population slice alone does not complete the goal.
