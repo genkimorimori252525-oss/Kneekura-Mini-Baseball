@@ -19,7 +19,7 @@ Real disk WAL tests interrupt each of the five durable stages, close/reopen the 
 
 One fresh readonly review reproduced an Important stale physical-prefix acceptance issue. The shared own-connection replay fix and tracked regression resolve it. Parent additionally reproduced and fixed missing current activated-World comparison. The reviewer rechecked24 focused tests, the current physical-walk test and typecheck with no unresolved Critical/Important findings. Parent existing-owner compatibility suite passed6 files /50 tests.
 
-Final `npm run verify` passed catalog/typecheck and553 files /3,282 tests in619.72s. The tracked Source suite has549 files /3,275 tests; seven scratch reproductions are not published. The final whole run includes the shared own-connection replay and passed the complete nine-inning game and actual forced-walk tests. Publication and exact-SHA P0 follow. No merge.
+Final `npm run verify` passed catalog/typecheck and553 files /3,282 tests in619.72s. The tracked Source suite has549 files /3,275 tests; seven scratch reproductions are not published. The final whole run includes the shared own-connection replay and passed the complete nine-inning game and actual forced-walk tests. Published PR241 on PR240 at `9d2b0458ce837d7be93e25dffc6ad5a6f566585d`; exact-SHA P0 run `36883326605` completed successfully. The app attachment was attempted once and rejected at its100-artifact capacity. No merge.
 
 ## Remaining goal and explicit inputs
 

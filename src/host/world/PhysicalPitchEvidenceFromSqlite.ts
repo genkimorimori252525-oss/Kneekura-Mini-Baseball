@@ -6,6 +6,7 @@ import type { AcceptedPhysicalPitchActionSource, DurablePhysicalPitch } from './
 
 import { createCanonicalPlateAppearanceTimeline, type CanonicalPlateAppearanceTimeline } from '../../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 import { resolveContinuousPlayerPitchAgainstBatterFromWorld } from './ContinuousPlayerPitchRuntime';
+import { readPhysicalPlateAppearanceActorFromSqlite } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 
 type Frame = DurablePhysicalPitch['frame'];
 type Row = { source_id: string; game_id: string; play_id: number; progress_revision: number; source_json: string;
@@ -15,7 +16,7 @@ const id = (value: unknown): value is string => typeof value === 'string' && val
 const integer = (value: unknown): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
 const fields = (value: object, names: readonly string[]) => Object.keys(value).sort().join('|') === names.slice().sort().join('|');
 const freeze = <T>(value: T): T => { if (value !== null && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
-type EvidenceScope = Pick<DurablePhysicalPitch['frame'], 'gameId' | 'workload' | 'bindings' | 'activationApplicationId'> & Readonly<{
+type EvidenceScope = Pick<DurablePhysicalPitch['frame'], 'gameId' | 'workload' | 'bindings' | 'activationApplicationId' | 'batterActor'> & Readonly<{
   policy: Pick<DurablePhysicalPitch['frame']['policy'], 'sourceId'>;
 }>;
 const json = (value: unknown): string => JSON.stringify(cloneInert(value), (_key, item: unknown) => item !== null && typeof item === 'object' && !Array.isArray(item)
@@ -55,6 +56,12 @@ export const capturePhysicalPitchEvidence = (db: Pick<DatabaseSync, 'prepare'>,
   result.fixture = db.prepare('SELECT * FROM official_fixtures WHERE game_id=?').all(frame.gameId).map(hash);
   result.activation = frame.activationApplicationId === null ? [] : db.prepare('SELECT * FROM applications WHERE application_id=? AND match_id=?')
     .all(frame.activationApplicationId, frame.gameId).map(hash);
+  if (frame.batterActor) {
+    const actor = readPhysicalPlateAppearanceActorFromSqlite(db, frame.batterActor.source.sourceId);
+    if (!actor || json(actor) !== json(frame.batterActor) || actor.source.gameId !== frame.gameId
+      || actor.binding.careerId !== frame.workload.careerId || json(actor.defenderBindings) !== json(frame.bindings)) throw new Error('physical batter original evidence differs');
+    result.batterActor = db.prepare('SELECT * FROM physical_plate_appearance_actors WHERE source_id=?').all(actor.source.sourceId).map(hash);
+  }
   if (mutable) {
     result.match = db.prepare('SELECT * FROM matches WHERE match_id=?').all(frame.gameId).map(hash);
     for (const table of ['world_pitch_timing_heads', 'world_player_release_heads', 'world_player_workload_heads']) {
@@ -82,6 +89,8 @@ export const physicalPitchActionInput = (raw: AcceptedPhysicalPitchActionSource,
 };
 
 export const assertPhysicalPitchOriginalEvidence = (db: PhysicalPitchDb, frame: Frame): void => {
+  if (frame.batterActor && (json(frame.batterActor.match) !== json(frame.match) || json(frame.batterActor.world) !== json(frame.world)
+    || frame.batterActor.officialRevision !== frame.officialRevision)) throw new Error('physical batter original execution frame differs');
   const current = capturePhysicalPitchEvidence(db, frame);
   if (!fields(frame.immutableEvidence, Object.keys(current))) throw new Error('physical pitch evidence fields differ');
   for (const key of Object.keys(current)) {
