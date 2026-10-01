@@ -304,13 +304,17 @@ export const openSqliteWorldSettlementStore = (
               || current.state_json !== stateJson) {
               throw new Error('world club already initialized differently');
             }
+            // Later seasons reuse the current head and its original creation checkpoint.
+            if (!readAcceptedClubHistory(db, input.careerId, club.identity.clubId)) {
+              throw new Error('world club lacks accepted history');
+            }
           } else {
             db.prepare(`INSERT INTO world_club_heads
               (career_id, club_id, revision, state_json)
               VALUES (?, ?, ?, ?)`).run(input.careerId,
               club.identity.clubId, club.revision, stateJson);
+            initializeClubCheckpoint(db, club);
           }
-          initializeClubCheckpoint(db, club);
         }
       });
     },

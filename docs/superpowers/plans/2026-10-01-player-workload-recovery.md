@@ -14,5 +14,5 @@ Native owns an accepted baseline linked to an actual persisted Player Person, im
 - [x] Add Native RED tests, then persist/replay activity state and bind practice evidence.
 - [x] Verify actual Native learning consumer, focused tests and typecheck.
 - [x] One fresh read-only review (no findings) and whole-suite verification (526 files / 3,131 tests, 657.61 seconds).
-- [ ] Commit/push stacked on PR231, attempt attachment once and verify P0 exact SHA.
+- [x] Commit/push stacked on PR231 as PR232 (`8d23e9f89c21240610315fceb53842e547544751`), attachment attempted once (app limit); P0 run36832112606 succeeded at exact SHA.
 - [ ] Continue the remaining approved national-pool and full Career/runtime integration.
