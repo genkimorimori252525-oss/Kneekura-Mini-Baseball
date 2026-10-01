@@ -12,5 +12,5 @@
 - [x] Compose existing Native delivery and Core trajectory/batter resolution in the existing runtime.
 - [x] Verify actual Native Official persistence, reopen/retry, historical isolation and input boundaries.
 - [x] Run focused gates, typecheck, one fresh read-only review and final whole-suite verification.
-- [ ] Commit/push a stacked PR on PR229, attempt attachment once and check P0 exact SHA.
-- [ ] Continue remaining approved nonvisual work; overall goal stays active.
+- [x] Commit/push a stacked PR on PR229, attempt attachment once and check P0 exact SHA. PR230: `18248a2a7c2f3d7255e94afa64f2ae64bc54cb21`; P0 `36804872814` success on that exact SHA; attachment rejected once by the 100-identity cap.
+- [x] Continue remaining approved nonvisual work; overall goal stays active.
