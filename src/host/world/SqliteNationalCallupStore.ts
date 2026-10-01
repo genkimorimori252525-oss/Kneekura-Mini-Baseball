@@ -240,7 +240,7 @@ export const openSqliteNationalCallupStore = (databasePath: string, sources: Nat
       input, source: { registrationSnapshotId: registration.snapshotId, receipt, game } };
     return freeze({ ...basis, snapshotId: `national-appearance:${createHash('sha256').update(json(basis)).digest('hex')}` });
   };
-  const replay = (careerId: string, beforeDay: number, beforeRevision = Number.MAX_SAFE_INTEGER): Entry[] => withCompetitionSourceReadScope(() => {
+  const replayPrefix = createCompetitionSourceReader((careerId: string, beforeDay: number, beforeRevision: number): readonly Entry[] => {
     const rows = db.prepare(`SELECT revision, event_id, effective_day, entry_json FROM world_national_callups
       WHERE career_id=? AND effective_day<=? AND revision<=? ORDER BY revision`)
       .all(careerId, beforeDay, beforeRevision) as Row[];
@@ -258,9 +258,11 @@ export const openSqliteNationalCallupStore = (databasePath: string, sources: Nat
         if (json(expected) !== row.entry_json) throw new Error('national callup replay differs');
         history.push(expected);
       }
-      return history;
+      return freeze(history);
     } catch (cause) { throw new Error(`corrupt national callup for ${careerId}`, { cause }); }
-  });
+  }, db);
+  const replay = (careerId: string, beforeDay: number, beforeRevision = Number.MAX_SAFE_INTEGER): readonly Entry[] =>
+    withCompetitionSourceReadScope(() => replayPrefix(careerId, beforeDay, beforeRevision));
   const evaluate = (careerId: string, eventId: string, beforeDay: number, pin?: NativeNationalEligibilityEvaluation['source']): NativeNationalEligibilityEvaluation | null => withCompetitionSourceReadScope(() => {
     scope(careerId, eventId, beforeDay);
     if (pin && (!day(pin.representationRevision) || (pin.factsSnapshotId !== null && !id(pin.factsSnapshotId)))) throw new Error('invalid national eligibility prefix');

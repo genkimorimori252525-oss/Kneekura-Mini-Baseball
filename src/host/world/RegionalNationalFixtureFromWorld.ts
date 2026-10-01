@@ -9,7 +9,7 @@ import type { SqliteOfficialStateStore } from '../SqliteOfficialStateStore';
 import type { SqliteRegionalNationalGroupStore } from './SqliteRegionalNationalGroupStore';
 import type { SqliteRegionalNationalKnockoutStore } from './SqliteRegionalNationalKnockoutStore';
 import type { SqliteRegionalNationalScheduleStore } from './SqliteRegionalNationalScheduleStore';
-import { withCompetitionSourceReadPhase } from './CompetitionSourceReadScope';
+import { withCompetitionSourceReadScope, withCompetitionSourceReadPhase } from './CompetitionSourceReadScope';
 
 export type RegionalNationalFixture = Readonly<{
   edition: RegionalNationalEdition;
@@ -21,17 +21,17 @@ const canonicalJson = (value: unknown): string => JSON.stringify(cloneInert(valu
   (_key, item: unknown) => item !== null && typeof item === 'object' && !Array.isArray(item)
     ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)) : item);
 
-/** A scheduled slot cannot manufacture group winners or later knockout entrants. */
-export const registerRegionalNationalFixtureFromWorld = (
-  stores: Readonly<{
+type RegionalFixtureStores = Readonly<{
     groups: Pick<SqliteRegionalNationalGroupStore, 'readEdition' | 'readPlan'>;
     knockout: Pick<SqliteRegionalNationalKnockoutStore, 'readEdition' | 'readPlan' |
       'readSemifinalGames' | 'readFinalGame'>;
     schedules: Pick<SqliteRegionalNationalScheduleStore, 'readSchedule'>;
     matches: Pick<SqliteOfficialStateStore, 'registerOfficialFixture'>;
-  }>,
-  input: Readonly<{ careerId: string; editionId: string; gameId: string; gameDay: number }>,
-): RegionalNationalFixture => withCompetitionSourceReadPhase(() => {
+  }>;
+type RegionalFixtureInput = Readonly<{ careerId: string; editionId: string; gameId: string; gameDay: number }>;
+
+/** Shared projection; the supplied Match boundary either adopts or verifies the exact fixture. */
+const resolveFixture = (stores: RegionalFixtureStores, input: RegionalFixtureInput): RegionalNationalFixture => {
   const edition = stores.groups.readEdition(input.careerId, input.editionId);
   const plan = stores.groups.readPlan(input.careerId, input.editionId);
   const schedule = stores.schedules.readSchedule(input.careerId, input.editionId);
@@ -71,4 +71,20 @@ export const registerRegionalNationalFixtureFromWorld = (
       input.gameDay, game.gameId, game.homeNationId, game.awayNationId]),
   });
   return Object.freeze({ edition, game, gameDay: input.gameDay, binding });
+};
+
+/** A scheduled slot cannot manufacture group winners or later knockout entrants. */
+export const registerRegionalNationalFixtureFromWorld = (stores: RegionalFixtureStores, input: RegionalFixtureInput): RegionalNationalFixture =>
+  withCompetitionSourceReadPhase(() => resolveFixture(stores, input));
+
+/** Existing fixture proof traversal performs no writes and preserves the enclosing read scope. */
+export const readRegionalNationalFixtureFromWorld = (stores: Omit<RegionalFixtureStores, 'matches'> & Readonly<{
+  matches: Pick<SqliteOfficialStateStore, 'getOfficialFixture'>;
+}>, input: RegionalFixtureInput): RegionalNationalFixture => withCompetitionSourceReadScope(() => {
+  const accepted = stores.matches.getOfficialFixture(input.gameId);
+  if (!accepted) throw new Error('regional national fixture is not accepted by Match');
+  return resolveFixture({ ...stores, matches: { registerOfficialFixture(expected) {
+    if (!isDeepStrictEqual(expected, accepted)) throw new Error('National participation fixture differs from accepted Match fixture');
+    return accepted;
+  } } }, input);
 });

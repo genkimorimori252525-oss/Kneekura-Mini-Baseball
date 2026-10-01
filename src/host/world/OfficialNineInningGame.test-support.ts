@@ -25,8 +25,15 @@ export const playOfficialNineInningGame = (
   matches: SqliteOfficialStateStore,
   input: Readonly<{ gameId: string; seasonId: string; homeNationId: string;
     awayNationId: string; ruleProfileVersion: string; gamePolicyVersion: string;
-    binding: OfficialGameVenueBinding }>,
+    binding: OfficialGameVenueBinding;
+    defenderPlayerIds?: Readonly<{ home: readonly string[]; away: readonly string[] }> }>,
 ): OfficialGameResult => {
+  if (input.defenderPlayerIds && ([input.defenderPlayerIds.home, input.defenderPlayerIds.away]
+    .some((ids) => !Array.isArray(ids) || ids.length !== 9 || ids.some((id) => typeof id !== 'string' || !id.trim()))
+    || new Set([...input.defenderPlayerIds.home, ...input.defenderPlayerIds.away]).size !== 18)) throw new Error('invalid scripted game defender identities');
+  const setupFor = (half: CanonicalMatchState['half']): BetweenPlayWorldSetup => input.defenderPlayerIds
+    ? { ...worldSetup, defenders: worldSetup.defenders.map((actor, index) => ({ ...actor,
+      playerId: input.defenderPlayerIds![half === 'top' ? 'home' : 'away'][index] })) } : worldSetup;
   const initial: CanonicalMatchState = { ruleProfileId: asRuleProfileId(input.ruleProfileVersion),
     inning: 1, half: 'top', outs: 0, balls: 0, strikes: 0,
     bases: { first: null, second: null, third: null }, score: { away: 0, home: 0 }, playId: 1 };
@@ -84,7 +91,8 @@ export const playOfficialNineInningGame = (
       }
       return result.result;
     }
-    matches.applyAndActivate({ ...request, nextStartedAtTick: tick + 7, worldSetup });
+    const nextHalf = !walk && before.outs === 2 ? before.half === 'top' ? 'bottom' : 'top' : before.half;
+    matches.applyAndActivate({ ...request, nextStartedAtTick: tick + 7, worldSetup: setupFor(nextHalf) });
   }
   throw new Error('scripted nine-inning game did not reach its official final');
 };

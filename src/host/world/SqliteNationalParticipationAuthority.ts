@@ -2,7 +2,7 @@ import { isDeepStrictEqual } from 'node:util';
 import { withCompetitionSourceReadScope } from './CompetitionSourceReadScope';
 import { registerWbcFinalsFixtureFromWorld } from './WbcFinalsFixtureFromWorld';
 import { registerPremierTwelveFixtureFromWorld } from './PremierTwelveFixtureFromWorld';
-import { registerRegionalNationalFixtureFromWorld } from './RegionalNationalFixtureFromWorld';
+import { registerRegionalNationalFixtureFromWorld, readRegionalNationalFixtureFromWorld } from './RegionalNationalFixtureFromWorld';
 import { registerWbcQualifierFixtureFromWorld } from './WbcQualifierFixtureFromWorld';
 import type { SqliteOfficialStateStore } from '../SqliteOfficialStateStore';
 import type { SqliteNationalCallupStore } from './SqliteNationalCallupStore';
@@ -48,7 +48,7 @@ export const createNationalParticipationAuthority = (sources: Readonly<{
         ? registerPremierTwelveFixtureFromWorld({ ...sources.fixtures, matches }, input)
         : sources.fixtures.kind === 'WBC_QUALIFIER'
           ? registerWbcQualifierFixtureFromWorld({ ...sources.fixtures, matches }, input)
-          : registerRegionalNationalFixtureFromWorld({ ...sources.fixtures, matches }, input);
+          : readRegionalNationalFixtureFromWorld({ ...sources.fixtures, matches: sources.matches }, input);
     return Object.freeze({ careerId: sources.careerId, competitionEditionId: sources.editionId,
       gameDay: fixture.gameDay, homeClubId: fixture.game.homeNationId, awayClubId: fixture.game.awayNationId,
       fixtureEventId: fixture.binding.fixtureEventId, competitionScope: 'NATIONAL' as const });

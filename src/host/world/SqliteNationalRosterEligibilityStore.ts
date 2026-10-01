@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
+import { withCompetitionSourceReadScope, withCompetitionSourceReadPhase } from './CompetitionSourceReadScope';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { WbcQualifierEligibility } from '../../core/world/competition/WbcGlobalQualifierSelection';
 import type { SqliteNationalCallupStore, NativeNationalEligibilityEvaluation } from './SqliteNationalCallupStore';
@@ -98,7 +99,7 @@ export const openSqliteNationalRosterEligibilityStore = (databasePath: string, s
         .map((candidate) => candidate.nationId) };
     return freeze({ ...basis, eligibility });
   };
-  const read = (careerId: string, snapshotId: string): DurableNationalRosterEligibility | null => {
+  const read = (careerId: string, snapshotId: string): DurableNationalRosterEligibility | null => withCompetitionSourceReadScope(() => {
     scope(careerId, snapshotId);
     const row = db.prepare(`SELECT edition_id, as_of_day, request_json, snapshot_json FROM world_national_roster_eligibility
       WHERE career_id=? AND snapshot_id=?`).get(careerId, snapshotId) as Row | undefined;
@@ -112,9 +113,10 @@ export const openSqliteNationalRosterEligibilityStore = (databasePath: string, s
         || json(expected) !== row.snapshot_json) throw new Error('national roster eligibility replay differs');
       return expected;
     } catch (cause) { throw new Error(`corrupt national roster eligibility for ${careerId}`, { cause }); }
-  };
+  });
   return Object.freeze({
     initialize(raw: NationalRosterEligibilityRequest): DurableNationalRosterEligibility {
+      return withCompetitionSourceReadPhase(() => {
       scope(raw?.careerId, raw?.editionId);
       const snapshot = project(raw);
       db.exec('BEGIN IMMEDIATE');
@@ -131,6 +133,7 @@ export const openSqliteNationalRosterEligibilityStore = (databasePath: string, s
           .run(raw.careerId, snapshot.eligibility.snapshotId, raw.editionId, raw.asOfDay, json(snapshot.input), json(snapshot));
         db.exec('COMMIT'); return snapshot;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
+      });
     },
     readEligibility(careerId: string, snapshotId: string): WbcQualifierEligibility | null {
       return read(careerId, snapshotId)?.eligibility ?? null;
