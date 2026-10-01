@@ -1,7 +1,7 @@
 # Pixel Player System — Design / Implementation Plan
 
 更新日: 2026-10-01  
-状態: **USER APPROVED DESIGN / IMPLEMENTATION PLAN — 実装前**  
+状態: **USER APPROVED DESIGN / IMPLEMENTATION PLAN — first-player Presentation slice実装済み、full Match acceptance未実施**
 対象branch: `jolly/core-foundation-plan-2026-09-17`  
 対象: Mini Baseball Presentation  
 非対象: Match Core の物理・判定・AI・正史結果の変更
@@ -840,3 +840,7 @@ Pixel Player System の存在理由は「写真を作れないAIでも選手を�
 > **Physics is continuous. Canonical time is continuous. Camera creates perspective. Pixel Art is discrete.**
 
 この境界を崩さない。
+
+## Implementation checkpoint — 2026-10-01
+
+Task 1からstructured asset / validation / compiler / LOD / first player / bat contact observer / pitch observer / camera coverage / authoring CLIを実装。Task 9は実装済みcontact vertical sliceとPresentation replayで検証。full Match runner等がまだないため、全試合acceptanceを完了扱いにしない。詳細・生成コマンド・残作業: `docs/presentation/2026-10-01-pixel-player-system-v1-slice.md`。承認済み設計本文は維持。
