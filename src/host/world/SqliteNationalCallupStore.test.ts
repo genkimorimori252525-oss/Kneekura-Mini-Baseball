@@ -5,6 +5,25 @@ import { SqliteOfficialStateStore } from '../SqliteOfficialStateStore';
 import { SqliteOfficialParticipationStore } from './SqliteOfficialParticipationStore';
 import { applyTwo } from './OfficialParticipationPlayFixtures.test-support';
 import { createRequire } from 'node:module';
+import { withCompetitionSourceReadScope } from './CompetitionSourceReadScope';
+
+it('discards proof reads across registration writes and revalidates corrupted prefixes in the next operation', () => {
+  const f = nationalCallupFixture(), store = openSqliteNationalCallupStore(f.path, f.sources);
+  const { DatabaseSync }: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
+  const db = new DatabaseSync(f.path);
+  try {
+    withCompetitionSourceReadScope(() => {
+      expect(store.readRosterSnapshot('career-a', 'wbc-2032', 'JP', 420).roster).toHaveLength(0);
+      store.register(f.request());
+      expect(store.readRosterSnapshot('career-a', 'wbc-2032', 'JP', 420).roster).toHaveLength(1);
+      expect(store.readRosterSnapshot('career-a', 'wbc-2032', 'JP', 420, 0).roster).toHaveLength(0);
+      expect(store.readRepresentation('career-a', 'p0', 419)).toHaveLength(0);
+    });
+    db.prepare("UPDATE world_national_callups SET entry_json='{}'").run();
+    expect(store.readRosterSnapshot('career-a', 'wbc-2032', 'JP', 420, 0).roster).toHaveLength(0);
+    expect(() => store.readRosterSnapshot('career-a', 'wbc-2032', 'JP', 420)).toThrow('corrupt');
+  } finally { db.close(); store.close(); f.close(); }
+});
 
 it('accepts actual Native callups without changing Club roster and replays after reopening', () => {
   const f = nationalCallupFixture();
