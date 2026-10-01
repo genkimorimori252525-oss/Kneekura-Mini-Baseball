@@ -142,6 +142,8 @@ export const derivePhysicalClosureProposal = (db: PhysicalClosureDb, s: Accepted
     if (values.some((value) => !current.has(value))) throw new Error('physical closure original evidence changed');
   }
   if (pitch.frame.initialWorld) assertInitialOfficialWorldEvidence(db, pitch.frame.initialWorld, true);
+  if (pitch.frame.batterActor && pitch.result.pitch.resolution.timeline.status.kind === 'walk'
+    && s.batterRunnerId !== pitch.frame.batterActor.binding.playerId) throw new Error('physical closure actual batter differs');
   const effort = pitch.frame.effortPolicy;
   const derived = derivePhysicalNonLiveClosure({ match: pitch.frame.match, timeline: pitch.result.pitch.resolution.timeline,
     batterRunnerId: s.batterRunnerId, gameDay: pitch.frame.bindings[0].gameDay,
@@ -178,6 +180,8 @@ export const derivePhysicalClosureProposal = (db: PhysicalClosureDb, s: Accepted
   const actors = boundary.kind === 'GAME_FINAL' ? [] : [...nextWorld.defenders.map((d) => actor(db, s, pitch, d.playerId, defenderSide)),
     ...nextWorld.runners.map((r) => actor(db, s, pitch, r.playerId, offensiveSide))];
   if (s.batterRunnerId !== null) actors.push(actor(db, s, pitch, s.batterRunnerId, pitch.frame.match.half === 'top' ? 'AWAY' : 'HOME'));
+  else if (pitch.frame.batterActor) actors.push(actor(db, s, pitch, pitch.frame.batterActor.binding.playerId,
+    pitch.frame.match.half === 'top' ? 'AWAY' : 'HOME'));
   const expectedOfficial = 'game' in application ? deriveOfficialFinalResult(application, receipt.durableRevision) : deriveOfficialPlayResult(application, receipt.durableRevision);
   const expectedScoring: PersistedOfficialScoring = { scoringApplicationId: s.scoringApplicationId, matchId: pitch.frame.gameId,
     officialApplicationId: s.applicationId, closureId: s.applicationId, sourceEventId: `official-non-live:${s.applicationId}`, record: derived.scoring };
