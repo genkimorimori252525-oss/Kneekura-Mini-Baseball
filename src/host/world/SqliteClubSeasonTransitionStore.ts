@@ -15,6 +15,7 @@ export type DurableClubSeasonTransition = Readonly<{
 }>;
 export type SqliteClubSeasonTransitionStore = Readonly<{
   apply(sourceId: string): DurableClubSeasonTransition;
+  applyBatch(sourceIds: readonly string[]): readonly DurableClubSeasonTransition[];
   readApplication(sourceId: string): DurableClubSeasonTransition | null;
   readSeasonSnapshot(careerId: string, clubId: string, season: number): ClubSeasonSnapshot | null;
   close(): void;
@@ -103,16 +104,13 @@ export const openSqliteClubSeasonTransitionStore = (databasePath: string,
       return durable;
     } catch (cause) { throw new Error('corrupt durable Club season transition', { cause }); }
   };
-  return Object.freeze({
-    apply(sourceId: string): DurableClubSeasonTransition {
-      scope(sourceId);
-      db.exec('BEGIN IMMEDIATE');
-      try {
+  const applyOne = (sourceId: string, acceptedInput?: AcceptedClubSeasonTransition | null): DurableClubSeasonTransition => {
+        scope(sourceId);
         const prior = readApplication(sourceId);
-        const input = authority?.readAcceptedTransition(sourceId) ?? null;
+        const input = acceptedInput === undefined ? authority?.readAcceptedTransition(sourceId) ?? null : acceptedInput;
         if (prior) {
           if (input !== null && json(source(input, sourceId)) !== json(prior.source)) throw new Error('frozen Club season Source differs');
-          db.exec('COMMIT'); return prior;
+          return prior;
         }
         if (input === null) throw new Error('missing accepted Club season transition');
         const accepted = source(input, sourceId), command = accepted.command;
@@ -140,8 +138,37 @@ export const openSqliteClubSeasonTransitionStore = (databasePath: string,
             (career_id, club_id, season, snapshot_id, source_id, snapshot_json) VALUES (?, ?, ?, ?, ?, ?)`)
             .run(snapshot.careerId, snapshot.clubId, snapshot.season, snapshot.snapshotId, sourceId, json(snapshot));
         }
-        db.exec('COMMIT'); return durable;
-      } catch (error) { db.exec('ROLLBACK'); throw error; }
+        return durable;
+  };
+  const transaction = <T>(work: () => T): T => {
+    db.exec('BEGIN IMMEDIATE');
+    try { const result = work(); db.exec('COMMIT'); return result; }
+    catch (error) { db.exec('ROLLBACK'); throw error; }
+  };
+  return Object.freeze({
+    apply(sourceId: string): DurableClubSeasonTransition {
+      scope(sourceId);
+      return transaction(() => applyOne(sourceId));
+    },
+    applyBatch(rawSourceIds: readonly string[]): readonly DurableClubSeasonTransition[] {
+      const sourceIds = cloneInert(rawSourceIds);
+      if (!Array.isArray(sourceIds) || sourceIds.length === 0 || sourceIds.some((value) => !id(value))
+        || new Set(sourceIds).size !== sourceIds.length) throw new Error('invalid Club season batch Sources');
+      scope(...sourceIds);
+      return transaction(() => {
+        // Source readers may use another connection to the shared World. Resolve
+        // every accepted input before writes lock heads, and detach mutable aliases.
+        const inputs = sourceIds.map((sourceId) => {
+          const input = authority?.readAcceptedTransition(sourceId) ?? null;
+          return input === null ? null : source(input, sourceId);
+        });
+        const results = sourceIds.map((sourceId, index) => applyOne(sourceId, inputs[index]));
+        if (results.some((result) => result.source.command.careerId !== results[0].source.command.careerId)
+          || new Set(results.map((result) => result.source.command.clubId)).size !== results.length) {
+          throw new Error('Club season batch requires distinct members in one Career');
+        }
+        return freeze(results);
+      });
     },
     readApplication,
     readSeasonSnapshot(careerId: string, clubId: string, season: number): ClubSeasonSnapshot | null {
