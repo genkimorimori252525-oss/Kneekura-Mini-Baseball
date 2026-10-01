@@ -15,6 +15,6 @@ Native Club batch adoption must be atomic across the exact requested members, us
 - [x] Capture RED for actual resumable domestic progress owner, then implement exact archived progress and official completion guards. Additional RED reproduced unchanged-profile volume rewriting, World-only phase schedule disagreement and a boundary before the actual League's last regular game.
 - [x] Verify actual Native World-bound next-season and interrupted phase recovery; affected 5 files / 12 tests passed, including the actual frozen 108-game League/championship gate.
 - [x] Focused tests/typecheck, one fresh read-only review and whole regression: 529 files / 3,141 tests passed in 1,026.75 seconds.
-- [ ] Exact-SHA P0 after publication.
-- [ ] Commit/push stacked on the Native Club transition PR, attempt attachment once.
+- [x] Exact-SHA P0: run36840342634 succeeded for `ac8fba88a666aa5dc3c211431ce59d110104a7f9`.
+- [x] Commit/push stacked PR234 on PR233; attachment attempted once, rejected by the app's 100-attachment cap.
 - [ ] Continue actual Career Source generation, population/calibration and physical/runtime consumers; this slice does not close the overall goal.
