@@ -158,6 +158,28 @@ export class SqliteOfficialParticipationStore {
     return row ? JSON.parse(row.binding_json) as OfficialParticipantBinding : null;
   }
 
+  /** Historical accepted identity/fixture binding; later availability does not rewrite it. */
+  readPregameBinding(gameId: string, playerId: string): OfficialParticipantBinding | null {
+    if (!id(gameId) || !id(playerId)) throw new Error('invalid pregame binding reference');
+    const raw = this.binding(gameId, playerId);
+    if (!raw) return null;
+    const binding = cloneInert(raw);
+    if (binding.gameId !== gameId || binding.playerId !== playerId || !id(binding.careerId) || !id(binding.competitionEditionId)
+      || !day(binding.gameDay) || !id(binding.clubId) || !id(binding.personId) || !id(binding.personLinkSourceId)
+      || !day(binding.rosterRevision) || !id(binding.fixtureEventId) || !['HOME', 'AWAY'].includes(binding.side)) {
+      throw new Error('invalid stored pregame binding scope');
+    }
+    const game = this.authority.readGame(gameId), link = this.authority.readPersonLink(playerId, binding.personLinkSourceId);
+    const fixture = this.db.prepare('SELECT fixture_event_id FROM official_fixtures WHERE game_id=?').get(gameId) as FixtureRow | undefined;
+    if (!game || !link || !fixture || game.careerId !== binding.careerId || game.competitionEditionId !== binding.competitionEditionId
+      || game.gameDay !== binding.gameDay || game.fixtureEventId !== binding.fixtureEventId || fixture.fixture_event_id !== binding.fixtureEventId
+      || (binding.side === 'HOME' ? game.homeClubId : game.awayClubId) !== binding.clubId
+      || link.personId !== binding.personId || link.sourceId !== binding.personLinkSourceId) {
+      throw new Error('pregame accepted game or Person scope differs');
+    }
+    return Object.freeze(binding);
+  }
+
   private application(gameId: string, applicationId: string):
   PersistOfficialPlayResult | PersistOfficialFinalResult {
     const row = this.db.prepare(`SELECT match_id, result_json FROM applications
@@ -198,16 +220,9 @@ export class SqliteOfficialParticipationStore {
     if (!('activation' in first) || !first.nextWorld) throw new Error('pitcher activation is absent');
     const pitchers = first.nextWorld.defenders.filter((defender) => defender.registeredPosition === 'P');
     if (pitchers.length !== 1) throw new Error('actual play must have one pitcher actor');
-    const binding = this.binding(gameId, pitchers[0].playerId);
+    const binding = this.readPregameBinding(gameId, pitchers[0].playerId);
     if (!binding || binding.gameId !== gameId || binding.playerId !== pitchers[0].playerId) {
       throw new Error('actual pitcher lacks accepted pregame binding');
-    }
-    const game = this.authority.readGame(gameId), link = this.authority.readPersonLink(binding.playerId, binding.personLinkSourceId);
-    if (!game || !link || game.careerId !== binding.careerId || game.competitionEditionId !== binding.competitionEditionId
-      || game.gameDay !== binding.gameDay || game.fixtureEventId !== binding.fixtureEventId
-      || (binding.side === 'HOME' ? game.homeClubId : game.awayClubId) !== binding.clubId
-      || link.personId !== binding.personId || link.sourceId !== binding.personLinkSourceId) {
-      throw new Error('pitcher play accepted game or Person scope differs');
     }
     const proof = { binding: Object.freeze(cloneInert(binding)), activationApplicationId, closureApplicationId,
       activatedMatchState: cloneInert(first.activation.nextMatchState),

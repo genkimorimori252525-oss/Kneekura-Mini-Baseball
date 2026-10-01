@@ -5,10 +5,13 @@ import { assessOfficialPhysicalPitchWorkload, OFFICIAL_PHYSICAL_PITCH_WORKLOAD_V
   type PhysicalPitchEffortPolicy } from '../../core/world/development/OfficialPhysicalPitchWorkload';
 import type { PlayerWorkloadActivity } from '../../core/world/development/PlayerWorkloadRecovery';
 import type { SqliteOfficialScoringStore } from '../SqliteOfficialScoringStore';
-import type { SqliteOfficialParticipationStore } from './SqliteOfficialParticipationStore';
+import type { SqliteOfficialParticipationStore, AcceptedPitcherPlay } from './SqliteOfficialParticipationStore';
+import { assertInitialOfficialWorldEvidence, type SqliteOfficialInitialWorldStore, type AcceptedInitialPitcherPlay,
+  type DurableInitialOfficialWorld } from './SqliteOfficialInitialWorldStore';
 
 export type AcceptedPhysicalPitchEffortPolicy = PhysicalPitchEffortPolicy & Readonly<{ sourceId: string; sourceVersion: string }>;
-export type OfficialPitchWorkloadRequest = Readonly<{ scoringApplicationId: string; activationApplicationId: string; policySourceId: string }>;
+export type OfficialPitchWorkloadRequest = Readonly<{ scoringApplicationId: string; policySourceId: string }> & (
+  Readonly<{ activationApplicationId: string }> | Readonly<{ initialWorldSourceId: string }>);
 export type OfficialPhysicalPitchActivity = Extract<PlayerWorkloadActivity, { kind: 'MATCH' }>;
 export type SqliteOfficialPitchWorkloadStore = Readonly<{
   accept(request: OfficialPitchWorkloadRequest): OfficialPhysicalPitchActivity;
@@ -24,8 +27,10 @@ const json = (value: unknown): string => JSON.stringify(cloneInert(value), (_key
 const fields = (value: object, names: readonly string[]) => Object.keys(value).sort().join('|') === names.slice().sort().join('|');
 const requestInput = (raw: OfficialPitchWorkloadRequest): OfficialPitchWorkloadRequest => {
   const input = cloneInert(raw);
-  if (!input || !fields(input, ['scoringApplicationId', 'activationApplicationId', 'policySourceId'])
-    || !id(input.scoringApplicationId) || !id(input.activationApplicationId) || !id(input.policySourceId)) throw new Error('invalid official pitch workload request');
+  if (!input || !id(input.scoringApplicationId) || !id(input.policySourceId)) throw new Error('invalid official pitch workload request');
+  const activated = 'activationApplicationId' in input;
+  if (!fields(input, ['scoringApplicationId', 'policySourceId', activated ? 'activationApplicationId' : 'initialWorldSourceId'])
+    || (activated ? !id(input.activationApplicationId) : !id(input.initialWorldSourceId))) throw new Error('invalid official pitch workload request');
   return input;
 };
 const policyInput = (raw: AcceptedPhysicalPitchEffortPolicy | null, sourceId: string): AcceptedPhysicalPitchEffortPolicy => {
@@ -42,9 +47,12 @@ const freeze = <T>(value: T): T => { if (value !== null && typeof value === 'obj
 export const openSqliteOfficialPitchWorkloadStore = (databasePath: string, sources: Readonly<{
   scoring: Pick<SqliteOfficialScoringStore, 'readAcceptedPlay'>;
   participation: Pick<SqliteOfficialParticipationStore, 'readPitcherPlay'>;
+  initialWorlds?: Pick<SqliteOfficialInitialWorldStore, 'readInitialPitcherPlay' | 'readAcceptedSource'>;
 }>, authority?: Readonly<{ readAcceptedPolicy(sourceId: string): AcceptedPhysicalPitchEffortPolicy | null }>): SqliteOfficialPitchWorkloadStore => {
   if (!id(databasePath) || !sources || typeof sources.scoring?.readAcceptedPlay !== 'function'
     || typeof sources.participation?.readPitcherPlay !== 'function'
+    || sources.initialWorlds != null && (typeof sources.initialWorlds.readInitialPitcherPlay !== 'function'
+      || typeof sources.initialWorlds.readAcceptedSource !== 'function')
     || authority != null && typeof authority.readAcceptedPolicy !== 'function') throw new Error('invalid official pitch workload sources');
   const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
   const db = new DatabaseSync(databasePath);
@@ -69,20 +77,55 @@ export const openSqliteOfficialPitchWorkloadStore = (databasePath: string, sourc
     const play = cloneInert(raw), application = play.application;
     if (play.scoring.scoringApplicationId !== request.scoringApplicationId || play.scoring.officialApplicationId !== application.applicationId
       || play.scoring.matchId !== application.matchId) throw new Error('accepted official scored play scope differs');
-    const pitcher = cloneInert(sources.participation.readPitcherPlay(application.matchId, request.activationApplicationId, application.applicationId));
+    const timeline = application.kind === 'non_live' ? application.timeline : application.physicalTimeline;
+    let pitcher: AcceptedPitcherPlay | AcceptedInitialPitcherPlay;
+    let initialWorld: DurableInitialOfficialWorld | null = null;
+    if ('activationApplicationId' in request) {
+      pitcher = cloneInert(sources.participation.readPitcherPlay(application.matchId, request.activationApplicationId, application.applicationId));
+      if (pitcher.activationApplicationId !== request.activationApplicationId) throw new Error('pitcher activation scope differs');
+    } else {
+      if (!sources.initialWorlds) throw new Error('accepted initial World authority is missing');
+      initialWorld = cloneInert(sources.initialWorlds.readAcceptedSource(request.initialWorldSourceId));
+      if (!initialWorld) throw new Error('accepted initial World Source is missing');
+      assertInitialOfficialWorldEvidence(db, initialWorld, true);
+      pitcher = cloneInert(sources.initialWorlds.readInitialPitcherPlay(request.initialWorldSourceId, application.applicationId));
+      if (pitcher.initialWorldSourceId !== request.initialWorldSourceId || application.expectedDurableRevision !== 0
+        || pitcher.startedAtTick !== timeline.startedAtTick) throw new Error('initial pitcher play scope or start differs');
+    }
     if (pitcher.binding.gameId !== application.matchId || pitcher.closureApplicationId !== application.applicationId
-      || pitcher.activationApplicationId !== request.activationApplicationId || pitcher.playedPlayId !== application.match.playId
+      || pitcher.playedPlayId !== application.match.playId
       || json(pitcher.activatedMatchState) !== json(application.match)
       || pitcher.durableRevision !== application.expectedDurableRevision + 1) throw new Error('actual pitcher play scope differs');
-    const workload = assessOfficialPhysicalPitchWorkload(application.kind === 'non_live' ? application.timeline : application.physicalTimeline,
+    const workload = assessOfficialPhysicalPitchWorkload(timeline,
       effortPolicy(policy), pitcher.binding.gameDay);
+    // Native readers on another connection cannot see this transaction's trigger changes.
+    const closure = db.prepare('SELECT * FROM applications WHERE application_id=?').get(application.applicationId) as {
+      application_id: string; match_id: string; closure_id: string; request_hash: string; result_json: string;
+    } | undefined;
+    const scoring = db.prepare('SELECT * FROM official_scoring_applications WHERE scoring_application_id=?')
+      .get(request.scoringApplicationId) as { match_id: string; official_application_id: string; closure_id: string;
+        source_event_id: string; request_json: string; result_json: string } | undefined;
+    const receipt = closure ? (JSON.parse(closure.result_json) as { receipt: {
+      applicationId: string; previousPlayId: number; durableRevision: number;
+    } }).receipt : null;
+    const scoredRequest = scoring ? JSON.parse(scoring.request_json) as { input: { officialApplication: unknown } } : null;
+    const officialInput = 'game' in application ? { kind: 'game_final', request: application } : application;
+    if (!closure || closure.match_id !== application.matchId || closure.closure_id !== play.scoring.closureId
+      || closure.request_hash !== createHash('sha256').update(json(officialInput)).digest('hex')
+      || !receipt || receipt.applicationId !== application.applicationId || receipt.previousPlayId !== application.match.playId
+      || receipt.durableRevision !== application.expectedDurableRevision + 1 || !scoring || scoring.match_id !== application.matchId
+      || scoring.official_application_id !== application.applicationId || scoring.closure_id !== play.scoring.closureId
+      || scoring.source_event_id !== play.scoring.sourceEventId || json(JSON.parse(scoring.result_json)) !== json(play.scoring)
+      || json(scoredRequest?.input?.officialApplication) !== json(application)) throw new Error('actual scored closure evidence differs');
+    const officialEvidence = { closure, scoring };
     const sourceId = `official-physical-pitch-workload:${createHash('sha256').update(json([
       pitcher.binding.careerId, application.matchId, pitcher.playedPlayId, pitcher.binding.playerId])).digest('hex')}`;
     const activity: OfficialPhysicalPitchActivity = freeze({ sourceEventId: sourceId, sourceVersion: OFFICIAL_PHYSICAL_PITCH_WORKLOAD_VERSION,
       evidenceId: application.applicationId, careerId: pitcher.binding.careerId, playerId: pitcher.binding.playerId,
       atDay: pitcher.binding.gameDay, kind: 'MATCH', effortUnits: workload.effortUnits });
-    return { activity, gameId: application.matchId, playId: pitcher.playedPlayId,
-      proof: { pitcher, policy, scoring: play.scoring, physicalPitchSequences: workload.physicalPitchSequences } };
+    return { activity, gameId: application.matchId, playId: pitcher.playedPlayId, officialEvidence,
+      proof: { pitcher, policy, scoring: play.scoring, physicalPitchSequences: workload.physicalPitchSequences,
+        ...(initialWorld ? { initialWorld, officialEvidence } : {}) } };
   };
   const decode = (row: SourceRow): OfficialPhysicalPitchActivity => {
     try {
@@ -139,6 +182,7 @@ export const openSqliteOfficialPitchWorkloadStore = (databasePath: string, sourc
             projected.playId, request.scoringApplicationId, policy.sourceId, json(request), json(projected.activity), json(projected.proof));
         const activity = decode(bySource.get(projected.activity.sourceEventId) as SourceRow);
         if (json(activity) !== json(projected.activity)
+          || json(project(request, policy).officialEvidence) !== json(projected.officialEvidence)
           || (getPolicy.get(policy.sourceId) as PolicyRow).source_json !== json(policy)) {
           throw new Error('physical pitch workload Source or calibration changed during acceptance');
         }
