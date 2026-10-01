@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
+import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
+import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
 import type { RosterState } from '../../core/world/roster/RosterTypes';
 import { evaluateRosterParticipation } from '../../core/world/roster/RosterQueries';
 import type { AcceptedPublicCareerEvent } from '../../core/world/popularity/PopularityObservationSource';
@@ -41,6 +43,9 @@ export type DurableParticipationReceipt = Readonly<{
   actorKind: 'DEFENDER' | 'RUNNER';
   activationApplicationId: string; closureApplicationId: string;
   playedPlayId: number; durableRevision: number;
+}>;
+export type AcceptedPitcherPlay = Omit<DurableParticipationReceipt, 'receiptId' | 'actorKind'> & Readonly<{
+  activatedMatchState: CanonicalMatchState;
 }>;
 
 type ApplicationRow = { match_id: string; result_json: string };
@@ -183,6 +188,32 @@ export class SqliteOfficialParticipationStore {
       || actors.filter((actor) => actor.playerId === receipt.binding.playerId).length !== 1) {
       throw new Error('bound player is absent from durable play actors');
     }
+  }
+
+  /** Read-only per-play evidence; presence at P is bound to this actual activation/closure. */
+  readPitcherPlay(gameId: string, activationApplicationId: string, closureApplicationId: string): AcceptedPitcherPlay {
+    if (!id(gameId) || !id(activationApplicationId) || !id(closureApplicationId)
+      || activationApplicationId === closureApplicationId) throw new Error('invalid pitcher play references');
+    const first = this.application(gameId, activationApplicationId), second = this.application(gameId, closureApplicationId);
+    if (!('activation' in first) || !first.nextWorld) throw new Error('pitcher activation is absent');
+    const pitchers = first.nextWorld.defenders.filter((defender) => defender.registeredPosition === 'P');
+    if (pitchers.length !== 1) throw new Error('actual play must have one pitcher actor');
+    const binding = this.binding(gameId, pitchers[0].playerId);
+    if (!binding || binding.gameId !== gameId || binding.playerId !== pitchers[0].playerId) {
+      throw new Error('actual pitcher lacks accepted pregame binding');
+    }
+    const game = this.authority.readGame(gameId), link = this.authority.readPersonLink(binding.playerId, binding.personLinkSourceId);
+    if (!game || !link || game.careerId !== binding.careerId || game.competitionEditionId !== binding.competitionEditionId
+      || game.gameDay !== binding.gameDay || game.fixtureEventId !== binding.fixtureEventId
+      || (binding.side === 'HOME' ? game.homeClubId : game.awayClubId) !== binding.clubId
+      || link.personId !== binding.personId || link.sourceId !== binding.personLinkSourceId) {
+      throw new Error('pitcher play accepted game or Person scope differs');
+    }
+    const proof = { binding: Object.freeze(cloneInert(binding)), activationApplicationId, closureApplicationId,
+      activatedMatchState: cloneInert(first.activation.nextMatchState),
+      playedPlayId: first.activation.nextMatchState.playId, durableRevision: second.receipt.durableRevision };
+    this.verify({ ...proof, receiptId: participationReceiptId(gameId, binding.playerId), actorKind: 'DEFENDER' });
+    return Object.freeze(proof);
   }
 
   confirmPlayed(gameId: string, playerId: string, actorKind: 'DEFENDER' | 'RUNNER',

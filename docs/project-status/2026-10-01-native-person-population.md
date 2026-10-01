@@ -17,7 +17,7 @@ Separate missing-batch API RED and transaction-evidence RED were captured. One f
 
 Final parent affected tests passed 10 files /26 tests in 27.82s. Typecheck and catalog compilation passed. The actual capacity gate creates all 234 Club heads, 11,700 global Players, unique accepted Person links and every hidden Person prior; it then accepts another actual intake, advances the global roster through a Manager decision, reopens without live Person authority and reproduces all original priors. The full capacity test passed in 26.567s. Counts of 50 Players/10 active per Club and the numerical prior policies are explicit synthetic verification inputs, not production quotas or calibration defaults.
 
-Whole `npm run verify` passed 530 files /3,147 tests in 626.62s. Publication and exact-SHA P0 remain pending.
+Whole `npm run verify` passed 530 files /3,147 tests in 626.62s. Published stacked PR235 on PR234, commit `e8e663c63a2b1c959ea31dae86c9d1f62a69f424`. P0 run36843139517 succeeded at this exact SHA. App attachment attempted once, rejected by the 100-attachment cap.
 
 ## Remaining overall goal
 

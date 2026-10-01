@@ -36,9 +36,14 @@ export type AcceptedOfficialScoringEvidenceAuthority = Readonly<{
   readAcceptedOfficialScoringEvidence(sourceEventId: string):
     OfficialFairBallScoringEvidence | null;
 }>;
+export type AcceptedScoredOfficialPlay = Readonly<{
+  scoring: PersistedOfficialScoring;
+  application: OfficialInput;
+}>;
 export type SqliteOfficialScoringStore = Readonly<{
   apply(input: PersistOfficialScoringInput): PersistedOfficialScoring;
   readApplication(scoringApplicationId: string): PersistedOfficialScoring | null;
+  readAcceptedPlay(scoringApplicationId: string): AcceptedScoredOfficialPlay | null;
   close(): void;
 }>;
 
@@ -253,6 +258,15 @@ export const openSqliteOfficialScoringStore = (
       if (!id(applicationId)) throw new Error('invalid scoringApplicationId');
       const row = scoringRow(applicationId);
       return row ? decode(row).result : null;
+    },
+    readAcceptedPlay(applicationId): AcceptedScoredOfficialPlay | null {
+      if (closed) throw new Error('official scoring store is closed');
+      if (!id(applicationId)) throw new Error('invalid scoringApplicationId');
+      const row = scoringRow(applicationId);
+      if (!row) return null;
+      const decoded = decode(row);
+      return Object.freeze({ scoring: cloneInert(decoded.result),
+        application: cloneInert(decoded.input.officialApplication) });
     },
     close(): void {
       if (!closed) db.close();
