@@ -20,7 +20,9 @@ The actual Native connection gate uses frozen `league-006`: 4 Clubs, 108 regular
 
 The gate rejects unfinished championship, incomplete membership, incorrect League/closing reference/currency, stale member, insufficient dates, unchanged-profile volume changes and a boundary before the actual League's final regular game. It injects failure at the second member, retains pending progress with all original heads, rejects changed accepted Source, then injects event-phase interruption after World/schedule adoption. Reopen without authority completes the missing event stage; later Club seasons retain original progress. A damaged result fails replay. Numeric fixture days retain their original explicit Career-day anchor; the next World-bound calendar preserves the actual WBC reservation.
 
-One fresh read-only reviewer found one Important issue in World-only schedule validation. The reproduced issue was fixed and the same reviewer confirmed no remaining Critical/Important/Minor findings. Independent gates passed 2 files / 5 tests in 24.35 seconds. Final parent gates after all fixes passed 5 files / 12 tests in 30.36 seconds; final typecheck/catalog compilation passed. Whole `npm run verify` passed 529 files / 3,141 tests in 1,026.75 seconds. Exact-SHA P0 remains pending publication.
+One fresh read-only reviewer found one Important issue in World-only schedule validation. The reproduced issue was fixed and the same reviewer confirmed no remaining Critical/Important/Minor findings. Independent gates passed 2 files / 5 tests in 24.35 seconds. Final parent gates after all fixes passed 5 files / 12 tests in 30.36 seconds; final typecheck/catalog compilation passed. Whole `npm run verify` passed 529 files / 3,141 tests in 1,026.75 seconds.
+
+Published stacked PR234 on PR233, commit `ac8fba88a666aa5dc3c211431ce59d110104a7f9`. P0 run36840342634 succeeded at this exact SHA. App attachment was attempted once and rejected by its 100-attachment cap.
 
 ## Remaining approved work
 

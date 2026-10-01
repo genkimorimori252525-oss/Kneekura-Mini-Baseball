@@ -15,6 +15,7 @@ import { openSqliteNationalEligibilityFactStore } from './SqliteNationalEligibil
 import { openSqliteNationalCallupStore } from './SqliteNationalCallupStore';
 import { worldCycleInput } from './WorldCompetitionCycleFixtures.test-support';
 import { openSqlitePersonGenesisStore } from './SqlitePersonGenesisStore';
+import { generatePlayerPersonPriors } from '../../core/world/development/PlayerPersonPriors';
 import { DEVELOPMENT_DOMAINS } from '../../core/world/development/DevelopmentTrajectory';
 import { CATALYST_FAMILIES } from '../../core/world/development/DevelopmentCatalyst';
 import { STAR_GENESIS_POTENTIALS } from '../../core/world/development/StarGenesis';
@@ -40,7 +41,7 @@ const personPolicies = {
       STAR_CANDIDATE: ranges(STAR_GENESIS_POTENTIALS, 0.2, 0.8), SUPERSTAR_CANDIDATE: ranges(STAR_GENESIS_POTENTIALS, 0.2, 0.8) } },
 };
 
-it('persists all 234 Clubs and 11700 global Players, then pins old snapshots while actual intake advances the shared head', () => {
+it('persists all 234 Clubs, 11700 global Players and hidden Persons, then retains history across intake and reopen', () => {
   const path = `file:world-roster-capacity-${crypto.randomUUID()}?mode=memory&cache=shared`;
   const catalogs = openSqliteClubCatalogSnapshotStore(path), saved = catalogs.initializeCurrent();
   const creation = openSqliteCareerClubCreationStore(path, { catalogs });
@@ -72,7 +73,12 @@ it('persists all 234 Clubs and 11700 global Players, then pins old snapshots whi
   const intake = openSqlitePlayerIntakeStore(path, { readAcceptedPlayerIntake: (id) => id === source.sourceId ? source : null });
   const existingSource = { ...source, sourceId: 'fixture-existing-link', playerId: population.players[0].playerId,
     personId: 'fixture-existing-person', sourceRecordId: 'fixture-existing-intake', acceptedAtDay: 10, rosterRevision: 0 };
-  const links = openSqlitePlayerPersonLinkStore(path, { readAcceptedPlayerIntake: (id) => id === existingSource.sourceId ? existingSource : null });
+  const personSources = population.players.map((player, index) => index === 0 ? existingSource : {
+    ...existingSource, sourceId: `fixture-person-link-${index}`, playerId: player.playerId,
+    personId: `fixture-person-${index}`, sourceRecordId: `fixture-person-intake-${index}`, acceptedRevision: index });
+  const acceptedPersons = new Map(personSources.map((person) => [person.sourceId, person]));
+  const personSourceIds = personSources.map((person) => person.sourceId);
+  const links = openSqlitePlayerPersonLinkStore(path, { readAcceptedPlayerIntake: (id) => acceptedPersons.get(id) ?? null });
   const { DatabaseSync }: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
   const db = new DatabaseSync(path);
   const first = saved.catalog.clubs[0].clubId, last = saved.catalog.clubs.at(-1)!.clubId;
@@ -98,6 +104,10 @@ it('persists all 234 Clubs and 11700 global Players, then pins old snapshots whi
     const old = snapshots.capture(careerId, first);
     expect(old.roster.players).toHaveLength(11700);
     links.accept(existingSource.sourceId);
+    const allLinks = links.acceptBatch(personSourceIds);
+    expect(allLinks).toHaveLength(11700);
+    expect(new Set(allLinks.map((person) => person.personId)).size).toBe(11700);
+    expect(allLinks.every((person, index) => person.playerId === population.players[index].playerId)).toBe(true);
     const nations = openSqliteNationCompetitionRegionStore(path);
     downstream.push(nations);
     // Explicit legal/region facts; no catalog-label inference about this fixture Nation.
@@ -130,10 +140,20 @@ it('persists all 234 Clubs and 11700 global Players, then pins old snapshots whi
     expect(links.readAcceptedPlayerPersonLink(source.sourceId)).toEqual({ careerId, playerId: source.playerId, personId: source.personId });
     const genesis = openSqlitePersonGenesisStore(path); downstream.push(genesis);
     genesis.initializeCareer({ careerId, initializedAtDay: 10, careerSeed: 12345, policies: personPolicies });
+    const allPeople = genesis.materializeBatch(personSourceIds);
+    expect(allPeople).toHaveLength(11700);
+    expect(db.prepare('SELECT count(*) AS n FROM world_person_priors').get()).toEqual({ n: 11700 });
+    expect(allPeople.every((person, index) => person.playerId === population.players[index].playerId
+      && person.personId === personSources[index].personId && person.priors.createdAtDay === 10
+      && person.priors.playerId === person.playerId && person.priors.careerId === careerId)).toBe(true);
+    for (const person of [allPeople[0], allPeople.at(-1)!]) expect(person.priors).toEqual(generatePlayerPersonPriors({
+      careerId, playerId: person.playerId, createdAtDay: 10, careerSeed: 12345, policies: personPolicies }));
+    expect(old.roster.players[0]).not.toHaveProperty('priors');
     const person = genesis.materialize(source.sourceId);
     expect(person).toMatchObject({ careerId, playerId: source.playerId, personId: source.personId });
     expect(person.priors).not.toHaveProperty('ability');
     expect(genesis.materialize(source.sourceId)).toEqual(person);
+    expect(db.prepare('SELECT count(*) AS n FROM world_person_priors').get()).toEqual({ n: 11701 });
     expect(snapshots.readSnapshot(careerId, old.snapshotId)).toEqual(old);
     expect(callups.register(registrationInput)).toEqual(registered);
     const reopenedCallups = openSqliteNationalCallupStore(path, callupSources);
@@ -172,6 +192,14 @@ it('persists all 234 Clubs and 11700 global Players, then pins old snapshots whi
       expect(reopened.readExecution('fixture-capacity-execution')).toEqual(executed);
       expect(reopenedSnapshots.readSnapshot(careerId, old.snapshotId)).toEqual(old);
       expect(intake.accept(source.sourceId)).toEqual(accepted);
+      const reopenedLinks = openSqlitePlayerPersonLinkStore(path), reopenedGenesis = openSqlitePersonGenesisStore(path);
+      try {
+        const restoredLinks = reopenedLinks.acceptBatch(personSourceIds), restoredPeople = reopenedGenesis.materializeBatch(personSourceIds);
+        expect(restoredLinks).toHaveLength(11700); expect(restoredPeople).toHaveLength(11700);
+        expect(restoredLinks[0]).toEqual(allLinks[0]); expect(restoredLinks.at(-1)).toEqual(allLinks.at(-1));
+        expect(restoredPeople[0]).toEqual(allPeople[0]); expect(restoredPeople.at(-1)).toEqual(allPeople.at(-1));
+        expect(restoredPeople.every((person, index) => JSON.stringify(person) === JSON.stringify(allPeople[index]))).toBe(true);
+      } finally { reopenedGenesis.close(); reopenedLinks.close(); }
     } finally { reopenedSnapshots.close(); reopened.close(); }
     const stored = db.prepare('SELECT snapshot_json FROM world_national_roster_snapshots WHERE snapshot_id=?').get(old.snapshotId) as { snapshot_json: string };
     const broken = JSON.parse(stored.snapshot_json);

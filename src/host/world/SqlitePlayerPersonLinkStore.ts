@@ -27,6 +27,7 @@ export type DurablePlayerPersonLink = AcceptedPlayerIntakeSource;
 export type SqlitePlayerPersonLinkStore = AcceptedPlayerPersonLinkAuthority &
 Readonly<{
   accept(sourceId: string): DurablePlayerPersonLink;
+  acceptBatch(sourceIds: readonly string[]): readonly DurablePlayerPersonLink[];
   readLink(sourceId: string): DurablePlayerPersonLink | null;
   close(): void;
 }>;
@@ -35,6 +36,7 @@ type LinkRow = { source_id: string; career_id: string;
   player_id: string; person_id: string; roster_revision: number;
   accepted_at_day: number; source_json: string };
 type RosterRow = { revision: number; roster_json: string };
+type IndexedRoster = Readonly<{ state: RosterState; playerIds: ReadonlySet<string>; evidence: RosterRow }>;
 const id = (value: unknown): value is string =>
   typeof value === 'string' && value.length > 0 && value === value.trim();
 const revision = (value: unknown): value is number =>
@@ -93,15 +95,19 @@ SqlitePlayerPersonLinkStore => {
     FROM world_roster_heads WHERE career_id=?`);
   const linkRow = (sourceId: string): LinkRow | null =>
     (getLink.get(sourceId) as LinkRow | undefined) ?? null;
-  const rosterHead = (careerId: string): RosterState | null => {
+  const rosterHead = (careerId: string,
+    memo?: Map<string, IndexedRoster | null>): IndexedRoster | null => {
+    if (memo?.has(careerId)) return memo.get(careerId)!;
     const row = getRoster.get(careerId) as RosterRow | undefined;
-    if (!row) return null;
+    if (!row) { memo?.set(careerId, null); return null; }
     const roster = createRosterState(JSON.parse(row.roster_json));
     if (roster.careerId !== careerId || roster.revision !== row.revision
       || rosterJson(roster) !== row.roster_json) {
       throw new Error('corrupt global roster head');
     }
-    return roster;
+    const indexed = { state: roster, playerIds: new Set(roster.players.map((player) => player.playerId)), evidence: row };
+    memo?.set(careerId, indexed);
+    return indexed;
   };
   const accepted = (sourceId: string): AcceptedPlayerIntakeSource => {
     if (!authority) {
@@ -114,7 +120,8 @@ SqlitePlayerPersonLinkStore => {
     }
     return source;
   };
-  const readLink = (sourceId: string): DurablePlayerPersonLink | null => {
+  const readStoredLink = (sourceId: string,
+    memo?: Map<string, IndexedRoster | null>): DurablePlayerPersonLink | null => {
     if (!id(sourceId)) throw new Error('invalid player-person sourceId');
     const row = linkRow(sourceId);
     if (!row) return null;
@@ -129,57 +136,76 @@ SqlitePlayerPersonLinkStore => {
       || row.accepted_at_day !== stored.acceptedAtDay) {
       throw new Error('stored accepted intake snapshot is corrupt');
     }
-    const roster = rosterHead(stored.careerId);
-    if (!roster || roster.revision < stored.rosterRevision
-      || roster.effectiveDay < stored.acceptedAtDay
-      || !roster.players.some((player) =>
-        player.playerId === stored.playerId)) {
+    const roster = rosterHead(stored.careerId, memo);
+    if (!roster || roster.state.revision < stored.rosterRevision
+      || roster.state.effectiveDay < stored.acceptedAtDay
+      || !roster.playerIds.has(stored.playerId)) {
       throw new Error('global roster head no longer supports player link');
     }
     return Object.freeze(stored);
+  };
+  const readLink = (sourceId: string): DurablePlayerPersonLink | null => readStoredLink(sourceId);
+  const duplicateQuery = db.prepare(`SELECT source_id
+    FROM world_player_person_links WHERE career_id=? AND (player_id=? OR person_id=?)`);
+  const insertQuery = db.prepare(`INSERT INTO world_player_person_links
+    (source_id, career_id, player_id, person_id, roster_revision, accepted_at_day, source_json)
+    VALUES (?, ?, ?, ?, ?, ?, ?)`);
+  const acceptBatch = (input: readonly string[]): readonly DurablePlayerPersonLink[] => {
+    const sourceIds = cloneInert(input);
+    if (!Array.isArray(sourceIds) || sourceIds.length === 0
+      || !sourceIds.every(id) || new Set(sourceIds).size !== sourceIds.length) {
+      throw new Error('invalid player-person batch sourceIds');
+    }
+    db.exec('BEGIN IMMEDIATE');
+    try {
+      // Source readers may use another connection; finish and detach every read before writes.
+      const sources = new Map(sourceIds.filter((sourceId) => !linkRow(sourceId))
+        .map((sourceId) => [sourceId, accepted(sourceId)]));
+      // This index belongs only to this transaction; later reads always validate the current head.
+      const memo = new Map<string, IndexedRoster | null>();
+      const priorLinks = new Map(sourceIds.map((sourceId) => [sourceId, readStoredLink(sourceId, memo)]));
+      const result = sourceIds.map((sourceId) => {
+        const existing = priorLinks.get(sourceId);
+        if (existing) return existing;
+        const source = sources.get(sourceId)!;
+        const roster = rosterHead(source.careerId, memo);
+        if (!roster || roster.state.revision !== source.rosterRevision
+          || roster.state.effectiveDay < source.acceptedAtDay
+          || !roster.playerIds.has(source.playerId)) {
+          throw new Error('accepted intake does not match global roster head');
+        }
+        if (duplicateQuery.get(source.careerId, source.playerId, source.personId)) {
+          throw new Error('player or person link is not unique in Career');
+        }
+        insertQuery.run(source.sourceId, source.careerId, source.playerId, source.personId,
+          source.rosterRevision, source.acceptedAtDay, canonicalJson(source));
+        return readStoredLink(sourceId, memo)!;
+      });
+      for (const acceptedLink of result) {
+        const original = sources.get(acceptedLink.sourceId) ?? priorLinks.get(acceptedLink.sourceId);
+        if (canonicalJson(acceptedLink) !== canonicalJson(original)
+          || canonicalJson(readStoredLink(acceptedLink.sourceId, memo)) !== canonicalJson(original)) {
+          throw new Error('accepted Player Person link changed during batch');
+        }
+      }
+      for (const [careerId, indexed] of memo) {
+        const row = getRoster.get(careerId) as RosterRow | undefined;
+        if (!indexed || !row || row.revision !== indexed.evidence.revision
+          || row.roster_json !== indexed.evidence.roster_json) {
+          throw new Error('global roster evidence changed during Player Person batch');
+        }
+      }
+      db.exec('COMMIT');
+      return Object.freeze(result);
+    } catch (error) { db.exec('ROLLBACK'); throw error; }
   };
   let closed = false;
   return Object.freeze({
     accept(sourceId: string): DurablePlayerPersonLink {
       if (!id(sourceId)) throw new Error('invalid player-person sourceId');
-      db.exec('BEGIN IMMEDIATE');
-      try {
-        const prior = linkRow(sourceId);
-        if (prior) {
-          const existing = readLink(sourceId)!;
-          db.exec('COMMIT');
-          return existing;
-        }
-        const source = accepted(sourceId);
-        const roster = rosterHead(source.careerId);
-        if (!roster || roster.revision !== source.rosterRevision
-          || roster.effectiveDay < source.acceptedAtDay
-          || !roster.players.some((player) =>
-            player.playerId === source.playerId)) {
-          throw new Error('accepted intake does not match global roster head');
-        }
-        const duplicate = db.prepare(`SELECT source_id
-          FROM world_player_person_links WHERE career_id=?
-          AND (player_id=? OR person_id=?)`).get(
-            source.careerId, source.playerId, source.personId);
-        if (duplicate) {
-          throw new Error('player or person link is not unique in Career');
-        }
-        db.prepare(`INSERT INTO world_player_person_links
-          (source_id, career_id, player_id, person_id,
-           roster_revision, accepted_at_day, source_json)
-          VALUES (?, ?, ?, ?, ?, ?, ?)`).run(source.sourceId,
-            source.careerId, source.playerId, source.personId,
-            source.rosterRevision, source.acceptedAtDay,
-            canonicalJson(source));
-        const result = readLink(sourceId)!;
-        db.exec('COMMIT');
-        return result;
-      } catch (error) {
-        db.exec('ROLLBACK');
-        throw error;
-      }
+      return acceptBatch([sourceId])[0];
     },
+    acceptBatch,
     readLink,
     readAcceptedPlayerPersonLink(sourceId: string) {
       const link = readLink(sourceId);

@@ -6,6 +6,7 @@ import { generatePlayerPersonPriors, PLAYER_PERSON_SEED_VERSION,
   type PlayerPersonPriorPolicies, type PlayerPersonPriors } from
   '../../core/world/development/PlayerPersonPriors';
 import { createRosterState } from '../../core/world/roster/RosterState';
+import type { RosterState } from '../../core/world/roster/RosterTypes';
 import { canonicalRosterEvidenceJson as rosterJson } from './RosterEvidenceJson';
 import { ensurePlayerPersonLinkSchema,
   isAcceptedPlayerIntakeSource,
@@ -28,6 +29,7 @@ export type DurablePersonPriors = Readonly<{
 export type SqlitePersonGenesisStore = Readonly<{
   initializeCareer(input: CareerPersonGenesis): void;
   materialize(sourceId: string): DurablePersonPriors;
+  materializeBatch(sourceIds: readonly string[]): readonly DurablePersonPriors[];
   read(sourceId: string): DurablePersonPriors | null;
   readDevelopmentSeed(careerId: string): number | null;
   close(): void;
@@ -42,6 +44,12 @@ type LinkRow = { career_id: string; player_id: string;
 type PriorRow = { career_id: string; player_id: string;
   person_id: string; priors_json: string };
 type RosterRow = { revision: number; roster_json: string };
+type IndexedRoster = Readonly<{ state: RosterState; playerIds: ReadonlySet<string>; evidence: RosterRow }>;
+type PinnedCareer = Readonly<{ row: CareerRow; policies: PlayerPersonPriorPolicies }>;
+type BatchContext = Readonly<{
+  rosters: Map<string, IndexedRoster | null>;
+  careers: Map<string, PinnedCareer>;
+}>;
 const id = (value: unknown): value is string =>
   typeof value === 'string' && value.length > 0 && value === value.trim();
 const day = (value: unknown): value is number =>
@@ -90,7 +98,20 @@ export const openSqlitePersonGenesisStore = (
     WHERE career_id=? LIMIT 1`);
   const career = (careerId: string): CareerRow | null =>
     (careerQuery.get(careerId) as CareerRow | undefined) ?? null;
-  const link = (sourceId: string): Readonly<{
+  const rosterHead = (careerId: string, context?: BatchContext): IndexedRoster | null => {
+    if (context?.rosters.has(careerId)) return context.rosters.get(careerId)!;
+    const row = rosterQuery.get(careerId) as RosterRow | undefined;
+    if (!row) { context?.rosters.set(careerId, null); return null; }
+    const roster = createRosterState(JSON.parse(row.roster_json));
+    if (roster.careerId !== careerId || roster.revision !== row.revision
+      || rosterJson(roster) !== row.roster_json) {
+      throw new Error('corrupt accepted Player Person genesis source');
+    }
+    const indexed = { state: roster, playerIds: new Set(roster.players.map((player) => player.playerId)), evidence: row };
+    context?.rosters.set(careerId, indexed);
+    return indexed;
+  };
+  const link = (sourceId: string, context?: BatchContext): Readonly<{
     source: AcceptedPlayerIntakeSource;
     row: LinkRow;
   }> | null => {
@@ -98,10 +119,7 @@ export const openSqlitePersonGenesisStore = (
     if (!row) return null;
     const source = JSON.parse(row.source_json) as
       AcceptedPlayerIntakeSource;
-    const rosterRow = rosterQuery.get(row.career_id) as
-      RosterRow | undefined;
-    const roster = rosterRow
-      ? createRosterState(JSON.parse(rosterRow.roster_json)) : null;
+    const roster = rosterHead(row.career_id, context);
     if (!isAcceptedPlayerIntakeSource(source, sourceId)
       || source.careerId !== row.career_id
       || source.playerId !== row.player_id
@@ -109,20 +127,17 @@ export const openSqlitePersonGenesisStore = (
       || source.rosterRevision !== row.roster_revision
       || source.acceptedAtDay !== row.accepted_at_day
       || canonicalJson(source) !== row.source_json
-      || !roster || roster.careerId !== source.careerId
-      || roster.revision !== rosterRow?.revision
-      || rosterJson(roster) !== rosterRow.roster_json
-      || roster.revision < source.rosterRevision
-      || roster.effectiveDay < source.acceptedAtDay
-      || !roster.players.some((player) =>
-        player.playerId === source.playerId)) {
+      || !roster || roster.state.revision < source.rosterRevision
+      || roster.state.effectiveDay < source.acceptedAtDay
+      || !roster.playerIds.has(source.playerId)) {
       throw new Error('corrupt accepted Player Person genesis source');
     }
     return { source, row };
   };
-  const generated = (source: AcceptedPlayerIntakeSource):
+  const generated = (source: AcceptedPlayerIntakeSource, context?: BatchContext):
   PlayerPersonPriors => {
-    const pinned = career(source.careerId);
+    const cached = context?.careers.get(source.careerId);
+    const pinned = cached?.row ?? career(source.careerId);
     if (!pinned || !day(pinned.initialized_at_day)
       || !Number.isSafeInteger(pinned.career_seed)
       || pinned.career_seed <= 0
@@ -131,24 +146,24 @@ export const openSqlitePersonGenesisStore = (
       || source.acceptedAtDay < pinned.initialized_at_day) {
       throw new Error('Person genesis Career seed is missing or future');
     }
-    const policies = JSON.parse(pinned.policies_json) as
-      PlayerPersonPriorPolicies;
-    if (canonicalJson(policies) !== pinned.policies_json) {
+    const policies = cached?.policies ?? JSON.parse(pinned.policies_json) as PlayerPersonPriorPolicies;
+    if (!cached && canonicalJson(policies) !== pinned.policies_json) {
       throw new Error('corrupt Person genesis policy');
     }
+    context?.careers.set(source.careerId, { row: pinned, policies });
     return generatePlayerPersonPriors({
       careerId: source.careerId, playerId: source.playerId,
       createdAtDay: source.acceptedAtDay,
       careerSeed: pinned.career_seed, policies,
     });
   };
-  const read = (sourceId: string): DurablePersonPriors | null => {
+  const readStored = (sourceId: string, context?: BatchContext): DurablePersonPriors | null => {
     if (!id(sourceId)) throw new Error('invalid Person genesis sourceId');
     const stored = priorQuery.get(sourceId) as PriorRow | undefined;
     if (!stored) return null;
-    const accepted = link(sourceId);
+    const accepted = link(sourceId, context);
     if (!accepted) throw new Error('Person priors lack accepted link');
-    const expected = generated(accepted.source);
+    const expected = generated(accepted.source, context);
     const priors = JSON.parse(stored.priors_json) as PlayerPersonPriors;
     if (stored.career_id !== accepted.source.careerId
       || stored.player_id !== accepted.source.playerId
@@ -160,6 +175,56 @@ export const openSqlitePersonGenesisStore = (
     return Object.freeze({ careerId: stored.career_id,
       playerId: stored.player_id, personId: stored.person_id,
       sourceId, priors: expected });
+  };
+  const read = (sourceId: string): DurablePersonPriors | null => readStored(sourceId);
+  const insertQuery = db.prepare(`INSERT INTO world_person_priors
+    (source_id, career_id, player_id, person_id, priors_json) VALUES (?, ?, ?, ?, ?)`);
+  const materializeBatch = (input: readonly string[]): readonly DurablePersonPriors[] => {
+    const sourceIds = cloneInert(input);
+    if (!Array.isArray(sourceIds) || sourceIds.length === 0
+      || !sourceIds.every(id) || new Set(sourceIds).size !== sourceIds.length) {
+      throw new Error('invalid Person genesis batch sourceIds');
+    }
+    db.exec('BEGIN IMMEDIATE');
+    try {
+      // Actual durable evidence is shared only within this transaction, never with later reads.
+      const context: BatchContext = { rosters: new Map(), careers: new Map() };
+      const acceptedSources = new Map(sourceIds.map((sourceId) => {
+        const accepted = link(sourceId, context);
+        if (!accepted) throw new Error('accepted Player Person link is missing');
+        return [sourceId, canonicalJson(accepted.source)];
+      }));
+      const result = sourceIds.map((sourceId) => {
+        const prior = readStored(sourceId, context);
+        if (prior) return prior;
+        const accepted = link(sourceId, context);
+        if (!accepted) throw new Error('accepted Player Person link is missing');
+        const priors = generated(accepted.source, context);
+        insertQuery.run(sourceId, accepted.source.careerId, accepted.source.playerId,
+          accepted.source.personId, canonicalJson(priors));
+        return readStored(sourceId, context)!;
+      });
+      for (const person of result) {
+        if (canonicalJson(link(person.sourceId, context)?.source) !== acceptedSources.get(person.sourceId)
+          || canonicalJson(readStored(person.sourceId, context)) !== canonicalJson(person)) {
+          throw new Error('Person genesis evidence changed during batch');
+        }
+      }
+      for (const [careerId, indexed] of context.rosters) {
+        const row = rosterQuery.get(careerId) as RosterRow | undefined;
+        if (!indexed || !row || row.revision !== indexed.evidence.revision
+          || row.roster_json !== indexed.evidence.roster_json) {
+          throw new Error('roster evidence changed during Person genesis batch');
+        }
+      }
+      for (const [careerId, pinned] of context.careers) {
+        if (canonicalJson(career(careerId)) !== canonicalJson(pinned.row)) {
+          throw new Error('Career genesis evidence changed during batch');
+        }
+      }
+      db.exec('COMMIT');
+      return Object.freeze(result);
+    } catch (error) { db.exec('ROLLBACK'); throw error; }
   };
   let closed = false;
   return Object.freeze({
@@ -207,29 +272,9 @@ export const openSqlitePersonGenesisStore = (
     },
     materialize(sourceId: string): DurablePersonPriors {
       if (!id(sourceId)) throw new Error('invalid Person genesis sourceId');
-      db.exec('BEGIN IMMEDIATE');
-      try {
-        const prior = read(sourceId);
-        if (prior) {
-          db.exec('COMMIT');
-          return prior;
-        }
-        const accepted = link(sourceId);
-        if (!accepted) throw new Error('accepted Player Person link is missing');
-        const priors = generated(accepted.source);
-        db.prepare(`INSERT INTO world_person_priors
-          (source_id, career_id, player_id, person_id, priors_json)
-          VALUES (?, ?, ?, ?, ?)`).run(sourceId,
-            accepted.source.careerId, accepted.source.playerId,
-            accepted.source.personId, canonicalJson(priors));
-        const result = read(sourceId)!;
-        db.exec('COMMIT');
-        return result;
-      } catch (error) {
-        db.exec('ROLLBACK');
-        throw error;
-      }
+      return materializeBatch([sourceId])[0];
     },
+    materializeBatch,
     read,
     readDevelopmentSeed(careerId: string): number | null {
       if (!id(careerId)) throw new Error('invalid Career development seed scope');
