@@ -7,6 +7,17 @@ import { openSqlitePhysicalPlateAppearanceActorStore } from './SqlitePhysicalPla
 import { openSqlitePhysicalPitchProgressStore } from './SqlitePhysicalPitchProgressStore';
 import { continuousPitchAction } from './ContinuousPitchFixtures.test-support';
 
+it('revalidates the original batter after an identical retry Source changes its actual actor archive', () => {
+  const { f, source, actors, sources } = fixture(join(mkdtempSync(join(tmpdir(), 'physical-batter-retry-')), 'state.sqlite'));
+  try {
+    actors.accept(source.sourceId);
+    const retry = f.track(openSqlitePhysicalPlateAppearanceActorStore(f.path, sources, { readAcceptedActor: () => {
+      f.db.prepare("UPDATE physical_plate_appearance_actors SET source_hash='changed'").run(); return source;
+    } }));
+    expect(() => retry.accept(source.sourceId)).toThrow();
+  } finally { f.close(); }
+});
+
 it.each([
   "UPDATE world_player_person_links SET person_id='changed' WHERE source_id='intake-away-1'",
   "UPDATE official_participant_bindings SET binding_json='{}' WHERE game_id='game-1' AND player_id='away-1'",

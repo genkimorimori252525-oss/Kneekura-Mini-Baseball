@@ -20,6 +20,8 @@ The Native actor suite has16 tests. One fresh readonly reviewer reproduced four 
 
 Final `npm run verify` passed catalog/typecheck and556 files /3,305 tests in632.76s. The published Source suite has551 files /3,291 tests;14 scratch reproductions are excluded from publication. This final run includes the actual nine-inning physical game, real WAL regressions and registered National tournament.
 
+Published PR242 on PR241 at `b2d78eedcef93198cb729e65862b2b97ce158754`. Exact-SHA P0 run `36892991868` succeeded. App attachment was attempted once and rejected at its100-artifact capacity. No merge.
+
 ## Remaining goal
 
 This is the actual contact/runner identity prerequisite, not completion of the overall plan. Durable batted flight/contact/live-ball continuation, actual clinical/facility/content inputs, other activity Sources and autonomous Manager/Match/Career orchestration remain. Numeric physics/body/effort inputs are independently accepted, with no new production defaults. No batting-order, injury-readiness or visual behavior is invented here.

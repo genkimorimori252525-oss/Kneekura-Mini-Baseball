@@ -44,7 +44,12 @@ export const openSqlitePhysicalPlateAppearanceActorStore = (path: string, source
     accept(sourceId) {
       check(sourceId); const prior = read(sourceId), raw = authority?.readAcceptedActor(sourceId) ?? null;
       const source = raw === null ? null : physicalActorInput(raw, sourceId);
-      if (prior) { if (source && json(source) !== json(prior.source)) throw new Error('physical batter Source is frozen differently'); return prior; }
+      if (prior) {
+        if (source && json(source) !== json(prior.source)) throw new Error('physical batter Source is frozen differently');
+        const original = read(sourceId);
+        if (!original || json(original) !== json(prior)) throw new Error('physical batter original evidence changed during retry');
+        return original;
+      }
       if (!source) throw new Error('accepted physical batter Source is missing');
       assertPriorPhysicalClosureCompleted(db, 'activationApplicationId' in source ? source.activationApplicationId : null);
       const actor = derivePhysicalPlateAppearanceActor(db, source);
