@@ -1,4 +1,22 @@
 {
+  "playerVariants": {
+    "white": {
+      "directory": "originals/",
+      "description": "採用済みのライトスキン版。白人選手用として使用。"
+    },
+    "black": {
+      "directory": "originals-black/",
+      "description": "黒人選手用の褐色肌版。originals/ と同名のPNGが対応する。"
+    },
+    "pairingRule": "各 images[].file のファイル名を originals-black/ 以下で参照する。",
+    "preservedFeatures": [
+      "B1体型と頭身",
+      "ポーズとコマ配置",
+      "ユニフォームと用具",
+      "キャンバスの縦横比"
+    ],
+    "editScope": "露出した肌（顔、首、素手）の色を褐色に変更。"
+  },
   "images": [
     {
       "id": "b1-base",
