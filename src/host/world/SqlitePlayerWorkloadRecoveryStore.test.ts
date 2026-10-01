@@ -174,3 +174,20 @@ it('practice binding requires exact accepted practice scope/day and disallows ca
   expect(() => bindDevelopmentPracticeFromWorkload(workload, raw.episode, { ...raw.practice,
     repetitions: raw.practice.repetitions.map((item) => ({ ...item, fatigue: 0 })) })).toThrow(/practice/);
 });
+it('selects the exact archived fatigue revision after recovery and reopening, rejecting future and corrupt history', () => {
+  const { path, link, baseline, workload, record } = setup();
+  const initial = workload.initialize(baseline.sourceId);
+  const tired = record(activity('physical-match', 10, { kind: 'MATCH', effortUnits: 4 }), 0);
+  record(activity('real-rest', 11, { kind: 'RECOVERY', durationHours: 24, quality: 1, medicalAvailability: 1 }), 1);
+  expect(workload.selectAtRevision('career-a', 'p2', 0)).toEqual(initial);
+  expect(workload.selectAtRevision('career-a', 'p2', 1)).toEqual(tired);
+  expect(workload.selectAtRevision('career-a', 'p2', 2).fatigue).toBe(0);
+  for (const bad of [-1, 3, 0.5, Number.NaN]) expect(() => workload.selectAtRevision('career-a', 'p2', bad)).toThrow();
+  expect(() => workload.selectAtRevision('other-career', 'p2', 1)).toThrow('missing');
+  const reopened = openSqlitePlayerWorkloadRecoveryStore(path, link); stores.push(reopened);
+  expect(reopened.selectAtRevision('career-a', 'p2', 1)).toEqual(tired);
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  const db = new DatabaseSync(path); stores.push(db);
+  db.exec("UPDATE world_player_workload_heads SET state_json='{}'");
+  expect(() => reopened.selectAtRevision('career-a', 'p2', 0)).toThrow('corrupt');
+});
