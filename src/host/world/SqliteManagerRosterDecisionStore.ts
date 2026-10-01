@@ -24,6 +24,7 @@ import type { ExecutedRosterDecisionMoodInput } from
   '../../core/world/team/ExecutedRosterDecisionMood';
 import type { TeamMoodState } from '../../core/world/team/TeamMood';
 import { canonicalRosterEvidenceJson as canonicalJson } from './RosterEvidenceJson';
+import { assertCurrentMedicalRosterAction } from './SqlitePlayerHealthRehabStore';
 
 export type DurableRosterHead = Readonly<{
   careerId: string;
@@ -536,6 +537,7 @@ export const openSqliteManagerRosterDecisionStore = (
           throw new Error('manager belief snapshot cannot select candidate');
         }
         for (const binding of input.candidates) {
+          assertCurrentMedicalRosterAction(db, input.careerId, binding);
           if (binding.command.commandId !== binding.actionId
             || binding.command.expectedRevision
               !== head.roster.revision
@@ -585,6 +587,7 @@ export const openSqliteManagerRosterDecisionStore = (
           (career_id, club_id, decision_id, issued_json)
           VALUES (?, ?, ?, ?)`).run(input.careerId,
           input.clubId, input.decisionId, issuedJson);
+        for (const binding of input.candidates) assertCurrentMedicalRosterAction(db, input.careerId, binding);
         return frozenJson<DurableRosterOpportunity>(issuedJson);
       });
     },
@@ -663,6 +666,7 @@ export const openSqliteManagerRosterDecisionStore = (
           }
           return durable;
         }
+        assertCurrentMedicalRosterAction(db, request.careerId, request.binding);
         const worldControl = worldControlRow(request.careerId);
         if (request.currentWorldRevision
             !== worldControl.world_revision
@@ -779,6 +783,7 @@ export const openSqliteManagerRosterDecisionStore = (
             durable.rosterRevision, durable.moodRevision,
             requestJson, canonicalJson(resolved),
             canonicalJson(durable));
+        assertCurrentMedicalRosterAction(db, request.careerId, request.binding);
         return durable;
       });
     },

@@ -18,7 +18,7 @@ Meaningful missing-module/API RED preceded Core and Native implementation. Actua
 
 Disk/WAL regressions cover late Match, non-pitcher Person, SourceVersion, workload head, response, initial archive and progress changes; consumer changes roll back workload acceptance. One fresh readonly reviewer found two Important cases: activation binding reads could pin a deleted Person as missing original evidence; public continuous execution accepted a mismatched active count. Parent reproduced both RED, added tracked regressions and corrected own actor validation/Core count replay. Reviewer rechecked with 9 files /40 tests passing and no remaining Critical/Important findings. Parent related 10 files /55 tests (including two scratch reproductions) and catalog/typecheck passed.
 
-Final `npm run verify` passed catalog/typecheck and 545 files /3,216 tests in615.36s, including actual Native national/World population gates and six scratch review regressions. The tracked Source suite has 542 files /3,210 tests. The scratch reproductions are not published. Base PR238 exact-SHA P0 run36855638252 succeeded; this slice's publication/P0 follow.
+Final `npm run verify` passed catalog/typecheck and 545 files /3,216 tests in615.36s, including actual Native national/World population gates and six scratch review regressions. The tracked Source suite has 542 files /3,210 tests. The scratch reproductions are not published. Published as stacked PR239, commit `544ae684b4267cdf0995ce1eafa495e7c73fa4f5`. Exact-SHA P0 run36862799336 succeeded. App attachment was attempted once and rejected because the thread reached its100-artifact identity limit; the GitHub PR exists. No merge.
 
 ## Remaining goal
 
