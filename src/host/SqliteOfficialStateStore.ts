@@ -28,6 +28,7 @@ import {
 } from '../core/world/competition/OfficialGameCompletion';
 import type { CanonicalWorldSnapshot } from '../core/model/CanonicalWorldSnapshot';
 import type { CanonicalPlateAppearanceTimeline } from '../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
+import type { SqliteEvidenceGuard } from './SqliteEvidenceGuard';
 
 const DatabaseSync = (createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite')).DatabaseSync;
 
@@ -135,7 +136,8 @@ const stable = (value: unknown): unknown => {
 const serialized = (value: unknown): string => JSON.stringify(stable(value));
 const hash = (value: unknown): string => createHash('sha256').update(serialized(value)).digest('hex');
 
-const prepareApplication = (
+/** Pure preparation shared with source owners validating this writer's exact result. */
+export const deriveOfficialPlayResult = (
   input: PersistOfficialPlayInput,
   durableRevision: number,
 ): PersistOfficialPlayResult => {
@@ -169,7 +171,7 @@ const prepareApplication = (
   throw new Error('unknown official play kind');
 };
 
-const prepareFinalApplication = (
+export const deriveOfficialFinalResult = (
   input: PersistOfficialFinalInput,
   durableRevision: number,
 ): PersistOfficialFinalResult => {
@@ -200,7 +202,8 @@ const prepareFinalApplication = (
 export class SqliteOfficialStateStore {
   private readonly database: DatabaseSyncType;
 
-  constructor(path: string) {
+  constructor(path: string, private readonly evidenceGuard?: SqliteEvidenceGuard<PersistOfficialPlayInput | PersistOfficialFinalInput>) {
+    if (evidenceGuard !== undefined && typeof evidenceGuard !== 'function') throw new Error('invalid official application evidence guard');
     nonEmpty(path, 'SQLite path');
     this.database = new DatabaseSync(path);
     this.database.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;');
@@ -358,6 +361,7 @@ export class SqliteOfficialStateStore {
       SELECT request_hash, result_json FROM applications WHERE application_id=?
     `).get(request.applicationId) as ApplicationRow | undefined;
     if (priorBeforePrepare !== undefined) {
+      this.evidenceGuard?.(this.database, request, 'retry');
       if (priorBeforePrepare.request_hash !== requestHash) {
         throw new Error('applicationId was already used for different input');
       }
@@ -367,13 +371,14 @@ export class SqliteOfficialStateStore {
     if (currentBeforePrepare?.finalResult) {
       throw new Error('match is already finalized');
     }
-    const result = prepareApplication(request, nextRevision);
+    const result = deriveOfficialPlayResult(request, nextRevision);
     this.database.exec('BEGIN IMMEDIATE');
     try {
       const prior = this.database.prepare(`
         SELECT request_hash, result_json FROM applications WHERE application_id=?
       `).get(request.applicationId) as ApplicationRow | undefined;
       if (prior !== undefined) {
+        this.evidenceGuard?.(this.database, request, 'retry');
         if (prior.request_hash !== requestHash) {
           throw new Error('applicationId was already used for different input');
         }
@@ -381,6 +386,7 @@ export class SqliteOfficialStateStore {
         return cloneInert(JSON.parse(prior.result_json) as PersistOfficialPlayResult);
       }
       const closureId = result.receipt.closureId;
+      this.evidenceGuard?.(this.database, request, 'write');
       const appliedClosure = this.database.prepare(`
         SELECT application_id FROM applications WHERE match_id=? AND closure_id=?
       `).get(request.matchId, closureId);
@@ -402,6 +408,7 @@ export class SqliteOfficialStateStore {
         INSERT INTO applications(application_id, match_id, closure_id, request_hash, result_json)
         VALUES (?, ?, ?, ?, ?)
       `).run(request.applicationId, request.matchId, closureId, requestHash, serialized(result));
+      this.evidenceGuard?.(this.database, request, 'written');
       this.database.exec('COMMIT');
       return result;
     } catch (error) {
@@ -416,7 +423,7 @@ export class SqliteOfficialStateStore {
     nonEmpty(request.applicationId, 'applicationId');
     const expected = revision(request.expectedDurableRevision, 'expectedDurableRevision');
     const nextRevision = revision(expected + 1, 'next durable revision');
-    const prepared = prepareFinalApplication(request, nextRevision);
+    const prepared = deriveOfficialFinalResult(request, nextRevision);
     const requestHash = hash({ kind: 'game_final', request });
     this.database.exec('BEGIN IMMEDIATE');
     try {
@@ -424,12 +431,14 @@ export class SqliteOfficialStateStore {
         SELECT request_hash, result_json FROM applications WHERE application_id=?
       `).get(request.applicationId) as ApplicationRow | undefined;
       if (prior !== undefined) {
+        this.evidenceGuard?.(this.database, request, 'retry');
         if (prior.request_hash !== requestHash) {
           throw new Error('applicationId was already used for different input');
         }
         this.database.exec('COMMIT');
         return cloneInert(JSON.parse(prior.result_json) as PersistOfficialFinalResult);
       }
+      this.evidenceGuard?.(this.database, request, 'write');
       const current = this.getMatch(request.matchId);
       if (current === null) throw new Error('match is not initialized');
       if (current.finalResult !== null) throw new Error('match is already finalized');
@@ -458,6 +467,7 @@ export class SqliteOfficialStateStore {
         VALUES (?, ?, ?, ?, ?)
       `).run(request.applicationId, request.matchId,
         prepared.receipt.closureId, requestHash, serialized(prepared));
+      this.evidenceGuard?.(this.database, request, 'written');
       this.database.exec('COMMIT');
       return prepared;
     } catch (error) {

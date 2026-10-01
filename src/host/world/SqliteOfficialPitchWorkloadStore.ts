@@ -9,6 +9,7 @@ import type { SqliteOfficialParticipationStore, AcceptedPitcherPlay } from './Sq
 import { assertInitialOfficialWorldEvidence, type SqliteOfficialInitialWorldStore, type AcceptedInitialPitcherPlay,
   type DurableInitialOfficialWorld } from './SqliteOfficialInitialWorldStore';
 import { capturePhysicalPitchEvidence, type SqlitePhysicalPitchProgressStore } from './SqlitePhysicalPitchProgressStore';
+import type { SqliteEvidenceGuard } from '../SqliteEvidenceGuard';
 
 export type AcceptedPhysicalPitchEffortPolicy = PhysicalPitchEffortPolicy & Readonly<{ sourceId: string; sourceVersion: string }>;
 export type OfficialPitchWorkloadRequest = Readonly<{ scoringApplicationId: string; policySourceId: string }> & (
@@ -50,7 +51,9 @@ export const openSqliteOfficialPitchWorkloadStore = (databasePath: string, sourc
   participation: Pick<SqliteOfficialParticipationStore, 'readPitcherPlay'>;
   initialWorlds?: Pick<SqliteOfficialInitialWorldStore, 'readInitialPitcherPlay' | 'readAcceptedSource'>;
   physicalPitches?: Pick<SqlitePhysicalPitchProgressStore, 'readProgress'>;
-}>, authority?: Readonly<{ readAcceptedPolicy(sourceId: string): AcceptedPhysicalPitchEffortPolicy | null }>): SqliteOfficialPitchWorkloadStore => {
+}>, authority?: Readonly<{ readAcceptedPolicy(sourceId: string): AcceptedPhysicalPitchEffortPolicy | null }>,
+evidenceGuard?: SqliteEvidenceGuard<OfficialPitchWorkloadRequest>): SqliteOfficialPitchWorkloadStore => {
+  if (evidenceGuard !== undefined && typeof evidenceGuard !== 'function') throw new Error('invalid pitch workload evidence guard');
   if (!id(databasePath) || !sources || typeof sources.scoring?.readAcceptedPlay !== 'function'
     || typeof sources.participation?.readPitcherPlay !== 'function'
     || sources.initialWorlds != null && (typeof sources.initialWorlds.readInitialPitcherPlay !== 'function'
@@ -75,6 +78,7 @@ export const openSqliteOfficialPitchWorkloadStore = (databasePath: string, sourc
   let closed = false;
   const checkOpen = () => { if (closed) throw new Error('official pitch workload store is closed'); };
   const project = (request: OfficialPitchWorkloadRequest, policy: AcceptedPhysicalPitchEffortPolicy) => {
+    evidenceGuard?.(db, request, 'retry');
     const raw = sources.scoring.readAcceptedPlay(request.scoringApplicationId);
     if (!raw) throw new Error('accepted official scored play is missing');
     const play = cloneInert(raw), application = play.application;

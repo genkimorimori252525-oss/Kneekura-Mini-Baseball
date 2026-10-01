@@ -17,7 +17,7 @@ Core/Native missing-module RED preceded implementation. Actual Native recovery -
 
 Tracked regressions cover duplicate dose/game aliases, wrong kind/scope/day/revision, caller-supplied dose, missing/unused/other-player participation, missing/wrong pregame checkpoints, changed retries, weaker recurrent diagnosis, corrupt/orphaned history and16 actual late-WAL mutations with rollback/retry. One fresh readonly review found two Important issues: old READY pointer rollback and medicalSource omission could bypass a newer/current injury. Parent reproduced both RED, added tracked tests and corrected latest-case/medical-owner guards. The reviewer rechecked5 files /50 tests and `npx tsc --noEmit`, finding no remaining Critical/Important issues. A subsequent independent-restriction regression passed. Parent related5 files /33 tests and catalog/typecheck passed.
 
-Final `npm run verify` passed catalog/typecheck and549 files /3,259 tests in618.82s, including the actual234-Club/11,700-Player persistence and Native regional/WBC gates. The tracked Source suite has546 files /3,253 tests; six scratch reproductions are not published. Publication and exact-SHA P0 follow. No merge.
+Final `npm run verify` passed catalog/typecheck and549 files /3,259 tests in618.82s, including the actual234-Club/11,700-Player persistence and Native regional/WBC gates. The tracked Source suite has546 files /3,253 tests; six scratch reproductions are not published. Published PR240 on PR239 at `495713c95f73382d15022627e1ab7097a9d71fba`; exact-SHA P0 run `36872105092` completed successfully. The app attachment was attempted once and rejected at its100-artifact capacity. No merge.
 
 ## Remaining goal and explicit inputs
 
