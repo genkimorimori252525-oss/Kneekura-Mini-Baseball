@@ -18,6 +18,7 @@ import type { AcceptedFreeAgentRightsSource } from
   './SqlitePopularityHistoryStore';
 import { appendAcceptedClubEvents,
   ensureClubEventJournalSchema } from './SqliteClubEventJournal';
+import { canonicalRosterEvidenceJson as canonicalJson } from './RosterEvidenceJson';
 
 export type FreeAgentContractStoreRequest = Readonly<{
   applicationId: string;
@@ -69,65 +70,6 @@ const id = (value: unknown): value is string =>
   typeof value === 'string' && value.length > 0 && value === value.trim();
 const revision = (value: unknown): value is number =>
   Number.isSafeInteger(value) && (value as number) >= 0;
-
-const canonicalJson = (value: unknown): string => {
-  const ancestors = new Set<object>();
-  let nodes = 0;
-  const visit = (item: unknown, depth: number): unknown => {
-    nodes += 1;
-    if (nodes > 100_000 || depth > 64) {
-      throw new Error('free-agent evidence exceeds size limit');
-    }
-    if (item === null || typeof item === 'string'
-      || typeof item === 'boolean') return item;
-    if (typeof item === 'number' && Number.isFinite(item)) {
-      return item === 0 ? 0 : item;
-    }
-    if (typeof item !== 'object' || ancestors.has(item)) {
-      throw new Error('free-agent evidence must be inert JSON');
-    }
-    ancestors.add(item);
-    let normalized: unknown;
-    if (Array.isArray(item)) {
-      if (Reflect.ownKeys(item).length !== item.length + 1) {
-        throw new Error('free-agent evidence requires dense arrays');
-      }
-      const array: unknown[] = [];
-      for (let index = 0; index < item.length; index += 1) {
-        const descriptor = Object.getOwnPropertyDescriptor(item,
-          String(index));
-        if (!descriptor || !descriptor.enumerable
-          || !('value' in descriptor)) {
-          throw new Error('free-agent evidence requires dense arrays');
-        }
-        array.push(visit(descriptor.value, depth + 1));
-      }
-      normalized = array;
-    } else {
-      const prototype = Object.getPrototypeOf(item);
-      if (prototype !== Object.prototype && prototype !== null) {
-        throw new Error('free-agent evidence must be plain JSON');
-      }
-      const entries: [string, unknown][] = [];
-      for (const key of Reflect.ownKeys(item)) {
-        if (typeof key !== 'string') {
-          throw new Error('free-agent evidence rejects symbol keys');
-        }
-        const descriptor = Object.getOwnPropertyDescriptor(item, key);
-        if (!descriptor || !descriptor.enumerable
-          || !('value' in descriptor)) {
-          throw new Error('free-agent evidence rejects accessors');
-        }
-        entries.push([key, visit(descriptor.value, depth + 1)]);
-      }
-      normalized = Object.fromEntries(entries.sort((a, b) =>
-        a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
-    }
-    ancestors.delete(item);
-    return normalized;
-  };
-  return JSON.stringify(visit(value, 0));
-};
 
 type ClubRow = { revision: number; state_json: string };
 type RosterRow = { revision: number; roster_json: string };

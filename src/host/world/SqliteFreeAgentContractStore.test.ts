@@ -196,6 +196,27 @@ const initialize = (databasePath: string,
   return { w, r, c };
 };
 
+it('acquires one accepted free agent in a 11700-Player global roster without changing other Players', () => {
+  const databasePath = path(), initial = fixture();
+  // Scale fixture only: unassigned global Players are not a production intake or quota policy.
+  const expanded = createRosterState({ ...initial.rosterState, players: [initial.rosterState.players[0],
+    ...Array.from({ length: 11699 }, (_, index) => ({ playerId: `capacity-player-${index}`,
+      clubRights: { rightsHolderClubId: null, contractId: null }, assignment: null, registrations: [],
+      availability: { status: 'UNAVAILABLE' as const, evidenceId: `capacity-intake-${index}` } }))] });
+  const x = { ...initial, rosterState: expanded, request: { ...initial.request, roster: expanded } };
+  const { r, c } = initialize(databasePath, x);
+  const saved = c.apply(x.request);
+  expect(saved.rosterRevision).toBe(1);
+  const after = r.readHead('career-a', 'club-a')!.roster;
+  expect(after.players).toHaveLength(11700);
+  expect(after.players.slice(1)).toEqual(expanded.players.slice(1));
+  expect(after.players[0].clubRights).toEqual({ rightsHolderClubId: 'club-a', contractId: 'contract-1' });
+  c.close(); contracts.splice(contracts.indexOf(c), 1);
+  const reopened = contract(databasePath);
+  expect(reopened.readApplication(x.request.applicationId)).toEqual(saved);
+  expect(reopened.apply(x.request)).toEqual(saved);
+});
+
 it('atomically saves accepted free-agent rights and exposes durable popularity authority', () => {
   const databasePath = path();
   const x = fixture();

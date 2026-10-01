@@ -6,6 +6,7 @@ import { generatePlayerPersonPriors, PLAYER_PERSON_SEED_VERSION,
   type PlayerPersonPriorPolicies, type PlayerPersonPriors } from
   '../../core/world/development/PlayerPersonPriors';
 import { createRosterState } from '../../core/world/roster/RosterState';
+import { canonicalRosterEvidenceJson as rosterJson } from './RosterEvidenceJson';
 import { ensurePlayerPersonLinkSchema,
   isAcceptedPlayerIntakeSource,
   type AcceptedPlayerIntakeSource } from
@@ -110,7 +111,7 @@ export const openSqlitePersonGenesisStore = (
       || canonicalJson(source) !== row.source_json
       || !roster || roster.careerId !== source.careerId
       || roster.revision !== rosterRow?.revision
-      || canonicalJson(roster) !== rosterRow.roster_json
+      || rosterJson(roster) !== rosterRow.roster_json
       || roster.revision < source.rosterRevision
       || roster.effectiveDay < source.acceptedAtDay
       || !roster.players.some((player) =>

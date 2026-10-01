@@ -3,6 +3,7 @@ import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { createRosterState } from '../../core/world/roster/RosterState';
 import type { RosterState } from '../../core/world/roster/RosterTypes';
+import { canonicalRosterEvidenceJson as rosterJson } from './RosterEvidenceJson';
 import type { AcceptedPlayerPersonLinkAuthority } from
   './SqliteFreeAgentContractStore';
 
@@ -97,7 +98,7 @@ SqlitePlayerPersonLinkStore => {
     if (!row) return null;
     const roster = createRosterState(JSON.parse(row.roster_json));
     if (roster.careerId !== careerId || roster.revision !== row.revision
-      || canonicalJson(roster) !== row.roster_json) {
+      || rosterJson(roster) !== row.roster_json) {
       throw new Error('corrupt global roster head');
     }
     return roster;

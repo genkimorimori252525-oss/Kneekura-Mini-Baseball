@@ -2,6 +2,7 @@ import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { createRosterState } from '../../core/world/roster/RosterState';
 import type { RosterState } from '../../core/world/roster/RosterTypes';
+import { canonicalRosterEvidenceJson as rosterJson } from './RosterEvidenceJson';
 import { ensurePlayerPersonLinkSchema,
   isAcceptedPlayerIntakeSource,
   type AcceptedPlayerIntakeAuthority,
@@ -75,7 +76,7 @@ export const openSqlitePlayerIntakeStore = (
     const roster = createRosterState(JSON.parse(stored.roster_json));
     if (roster.careerId !== careerId
       || roster.revision !== stored.revision
-      || canonicalJson(roster) !== stored.roster_json) {
+      || rosterJson(roster) !== stored.roster_json) {
       throw new Error('corrupt global roster head');
     }
     return roster;
@@ -98,7 +99,7 @@ export const openSqlitePlayerIntakeStore = (
       || source.personId !== stored.person_id
       || source.sourceRecordId !== stored.source_record_id
       || canonicalJson(source) !== stored.source_json
-      || canonicalJson(after) !== stored.after_json
+      || rosterJson(after) !== stored.after_json
       || after.careerId !== source.careerId
       || after.revision !== stored.after_revision
       || after.effectiveDay !== source.acceptedAtDay
@@ -112,7 +113,7 @@ export const openSqlitePlayerIntakeStore = (
       || !head.players.some((player) =>
         player.playerId === source.playerId)
       || (head.revision === after.revision
-        && canonicalJson(head) !== stored.after_json)) {
+        && rosterJson(head) !== stored.after_json)) {
       throw new Error('corrupt durable Player intake');
     }
     return Object.freeze({ source,
@@ -160,7 +161,7 @@ export const openSqlitePlayerIntakeStore = (
           }],
         });
         const sourceJson = canonicalJson(source);
-        const afterJson = canonicalJson(after);
+        const afterJson = rosterJson(after);
         db.prepare(`INSERT INTO world_player_person_links
           (source_id, career_id, player_id, person_id,
            roster_revision, accepted_at_day, source_json)
@@ -179,7 +180,7 @@ export const openSqlitePlayerIntakeStore = (
           SET revision=?, roster_json=? WHERE career_id=?
           AND revision=? AND roster_json=?`).run(after.revision,
             afterJson, source.careerId, before.revision,
-            canonicalJson(before));
+            rosterJson(before));
         if (updated.changes !== 1) {
           throw new Error('Player intake roster CAS failed');
         }

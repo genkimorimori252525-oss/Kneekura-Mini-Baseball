@@ -23,6 +23,7 @@ import type { RosterState, RosterTransitionEvent } from
 import type { ExecutedRosterDecisionMoodInput } from
   '../../core/world/team/ExecutedRosterDecisionMood';
 import type { TeamMoodState } from '../../core/world/team/TeamMood';
+import { canonicalRosterEvidenceJson as canonicalJson } from './RosterEvidenceJson';
 
 export type DurableRosterHead = Readonly<{
   careerId: string;
@@ -111,55 +112,6 @@ const moodMatchesRoster = (mood: TeamMoodState | null,
         .map((player) => player.playerId));
 const canonicalIds = (ids: string[]): string =>
   JSON.stringify([...ids].sort());
-/** Stable JSON with inert data only; retry identity ignores object key order. */
-const canonicalJson = (value: unknown): string => {
-  const ancestors = new Set<object>();
-  let count = 0;
-  const visit = (item: unknown, depth: number): unknown => {
-    count += 1;
-    if (count > 100_000 || depth > 64) {
-      throw new Error('roster execution evidence exceeds size limit');
-    }
-    if (item === null || typeof item === 'string'
-      || typeof item === 'boolean') return item;
-    if (typeof item === 'number' && Number.isFinite(item)) {
-      return item === 0 ? 0 : item;
-    }
-    if (typeof item !== 'object' || ancestors.has(item)) {
-      throw new Error('roster execution evidence must be inert data');
-    }
-    ancestors.add(item);
-    let result: unknown;
-    if (Array.isArray(item)) {
-      if (Reflect.ownKeys(item).length !== item.length + 1) {
-        throw new Error('roster execution requires dense arrays');
-      }
-      result = item.map((entry) => visit(entry, depth + 1));
-    } else {
-      const prototype = Object.getPrototypeOf(item);
-      if (prototype !== Object.prototype && prototype !== null) {
-        throw new Error('roster execution evidence must be plain data');
-      }
-      const entries: [string, unknown][] = [];
-      for (const key of Reflect.ownKeys(item)) {
-        if (typeof key !== 'string') {
-          throw new Error('roster execution evidence has symbol key');
-        }
-        const descriptor = Object.getOwnPropertyDescriptor(item, key);
-        if (!descriptor || !descriptor.enumerable
-          || !('value' in descriptor)) {
-          throw new Error('roster execution evidence has accessor');
-        }
-        entries.push([key, visit(descriptor.value, depth + 1)]);
-      }
-      result = Object.fromEntries(entries.sort((a, b) =>
-        a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
-    }
-    ancestors.delete(item);
-    return result;
-  };
-  return JSON.stringify(visit(value, 0));
-};
 const frozenJson = <T>(json: string): T => {
   const freeze = (value: unknown): void => {
     if (value !== null && typeof value === 'object') {
