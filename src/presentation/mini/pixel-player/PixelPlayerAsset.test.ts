@@ -17,6 +17,11 @@ describe('editable pixel source contract', () => {
     expect(asset.frames[0].rgba).toEqual([0,0,0,0,255,255,255,255,0,0,0,0,18,52,86,255,255,255,255,255,255,255,255,255]);
     expect(compilePixelPlayerAsset(source())).toEqual(asset);
   });
+  it('preserves authored reference height and rejects an impossible body scale', () => {
+    expect(compilePixelPlayerAsset({...source(),referenceHeight:2})).toHaveProperty('referenceHeight',2);
+    expect(()=>compilePixelPlayerAsset({...source(),referenceHeight:0})).toThrow();
+    expect(()=>compilePixelPlayerAsset({...source(),referenceHeight:3})).toThrow();
+  });
   it.each(['duplicate', 'root', 'palette', 'rows', 'bounds'])('rejects malformed %s source before compilation', (fault) => {
     const input = source();
     if (fault === 'duplicate') input.frames.push(structuredClone(input.frames[0]));

@@ -26,7 +26,7 @@ export function buildPixelPlayerScene(world:CanonicalWorldSnapshot,actors:readon
   const canonical=world.defenders.find(p=>p.playerId===actor.playerId)??world.runners.find(p=>p.playerId===actor.playerId);
   const position=canonical?{...canonical.position,y:0}:actor.position;
   const projected=projectPixelCamera(position,camera);
-  return projected?[{actor,placement:placePixelPlayer(actor.playerId,projected,actor.height)}]:[];
+  return projected?[{actor,placement:placePixelPlayer(actor.playerId,projected,actor.height,asset.referenceHeight)}]:[];
  });
  const ordered=sortPixelPlayers(prepared.map(p=>p.placement));
  const players:PixelScene['players'][number][]=[],cells:PixelScene['cells'][number][]=[],labels:PixelScene['labels'][number][]=[];

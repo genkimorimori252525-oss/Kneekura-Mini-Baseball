@@ -20,3 +20,10 @@ it('selects camera-relative directions without reflecting the world', () => {
   expect(selectDirection({x:0,z:1},{x:1,z:0})).toBe('LEFT');
   expect(selectDirection({x:0,z:1},{x:0,z:-1})).toBe('BACK');
 });
+it('does not double a detailed 36-cell body merely because it enters near LOD', () => {
+  const near={x:75,y:70,depth:18,apparentScale:23};
+  const detailed=placePixelPlayer('b',near,1.8,36);
+  expect(detailed.lod).toBe(3);
+  expect(detailed.scale).toBe(1);
+  expect(placePixelPlayer('b',{...near,apparentScale:42},1.8,36).scale).toBe(2);
+});

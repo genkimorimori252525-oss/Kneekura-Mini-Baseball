@@ -24,6 +24,7 @@ export function validatePixelPlayerAsset(input: unknown): asserts input is Pixel
   if (a.version !== 1 || typeof a.id !== 'string' || !a.id.trim()) throw new Error('Invalid asset identity');
   if (!integer(canvas.width, 1, 256) || !integer(canvas.height, 1, 256)) throw new Error('Invalid canvas');
   const width = canvas.width, height = canvas.height;
+  if(a.referenceHeight!==undefined&&!integer(a.referenceHeight,1,height))throw new Error('Invalid reference height');
   if(a.compact!==undefined){
     if(record(a.compact).compact!==undefined)throw new Error('Nested compact assets forbidden');
     validatePixelPlayerAsset(a.compact);
@@ -75,7 +76,7 @@ export function compilePixelPlayerAsset(input: unknown): CompiledPixelAsset {
     const visibleBatCells = owners.flatMap((owner,index) => owner === 'bat' ? [{x:index%width,y:Math.floor(index/width)}] : []);
     return { ...frame, rgba, visibleBatCells };
   });
-  return { version: 1, id: input.id, width, height, frames, ...(input.compact?{compact:compilePixelPlayerAsset(input.compact)}:{}) };
+  return { version: 1, id: input.id, width, height, frames, ...(input.referenceHeight?{referenceHeight:input.referenceHeight}:{}), ...(input.compact?{compact:compilePixelPlayerAsset(input.compact)}:{}) };
 }
 
 export function assertSafeMirror(frame: PixelFrame, names: readonly string[]): void {

@@ -17,12 +17,13 @@ export type PixelFrame = Readonly<{
 export type PixelPlayerAsset = Readonly<{
   version: 1; id: string;
   canvas: Readonly<{ width: number; height: number }>;
+  referenceHeight?: number;
   palette: Readonly<Record<string, string>>;
   frames: readonly PixelFrame[];
   compact?: PixelPlayerAsset;
 }>;
 export type CompiledPixelFrame = PixelFrame & Readonly<{ rgba: readonly number[]; visibleBatCells: readonly PixelPoint[] }>;
-export type CompiledPixelAsset = Readonly<{ version: 1; id: string; width: number; height: number; frames: readonly CompiledPixelFrame[]; compact?: CompiledPixelAsset }>;
+export type CompiledPixelAsset = Readonly<{ version: 1; id: string; width: number; height: number; referenceHeight?: number; frames: readonly CompiledPixelFrame[]; compact?: CompiledPixelAsset }>;
 export type PixelPlayerPresentationProfile = Readonly<{
   playerId: string; bodyProfileId: string; uniformProfileId: string;
   handedness?: PixelHand; throws?: PixelHand; authoredAssetId: string;
