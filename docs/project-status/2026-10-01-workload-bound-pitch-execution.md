@@ -19,7 +19,7 @@ Actual Native integration generates MATCH activity from the accepted three-physi
 
 One fresh reviewer found an Important valid provenance rewrite after COMMIT: changing both stored SourceVersion fields bypassed their mutual comparison. Parent captured corrective RED, added a SHA256 digest of the entire original canonical accepted policy and verifies it during reads/retries, while preserving the original detached acceptance guard. Parent affected 7 files /23 tests passed in1.34s and typecheck/catalog compilation passed. The same reviewer confirmed the finding resolved with no additional findings; independent 2 files /5 tests passed.
 
-Whole `npm run verify` passed 535 files /3,165 tests in636.34s, including typecheck/catalog compilation and actual Native regional/WBC/World population gates. Publication and exact-SHA P0 follow.
+Whole `npm run verify` passed 535 files /3,165 tests in636.34s, including typecheck/catalog compilation and actual Native regional/WBC/World population gates. Published as stacked PR237, commit `db2b1cdf5d8f8ee203e4101a033aab0c41c0c413`; exact-SHA P0 run `36851136326` succeeded. No merge.
 
 ## Remaining overall goal
 
