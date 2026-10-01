@@ -31,12 +31,14 @@ const validateState = (state: MovingSphereContactState, name: string): void => {
   }
 };
 
-export const findMovingSphereContactTick = (
+export type SphereContactTime = Readonly<{ tick: number; elapsedSeconds: number }>;
+
+export const findMovingSphereContactTime = (
   first: MovingSphereContactState,
   second: MovingSphereContactState,
   deltaTicks: number,
   parameters: MovingSphereContactParameters,
-): number | null => {
+): SphereContactTime | null => {
   validateState(first, 'first');
   validateState(second, 'second');
   if (!Number.isInteger(parameters.ticksPerSecond) || parameters.ticksPerSecond <= 0) {
@@ -58,7 +60,7 @@ export const findMovingSphereContactTick = (
   const c = dot(relativePosition, relativePosition) - contactRadius * contactRadius;
 
   if (c <= 0) {
-    return first.tick;
+    return { tick: first.tick, elapsedSeconds: 0 };
   }
   if (deltaTicks === 0) {
     return null;
@@ -84,11 +86,16 @@ export const findMovingSphereContactTick = (
     return null;
   }
 
+  const elapsedSeconds = Math.max(0, entrySeconds);
   const contactTick = quantizeEventTick(
     first.tick,
-    Math.max(0, entrySeconds),
+    elapsedSeconds,
     parameters.ticksPerSecond,
   );
 
-  return contactTick - first.tick <= deltaTicks ? contactTick : null;
+  return contactTick - first.tick <= deltaTicks ? { tick: contactTick, elapsedSeconds } : null;
 };
+
+export const findMovingSphereContactTick = (
+  first: MovingSphereContactState, second: MovingSphereContactState, deltaTicks: number, parameters: MovingSphereContactParameters,
+): number | null => findMovingSphereContactTime(first, second, deltaTicks, parameters)?.tick ?? null;
