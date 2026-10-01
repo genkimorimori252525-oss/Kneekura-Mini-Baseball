@@ -61,7 +61,7 @@ const initialMatch = (match: CanonicalMatchState): void => {
     || Object.values(match.bases).some((runner) => runner !== null)) throw new Error('initial World requires an unplayed pregame Match');
 };
 
-const personLink = (db: Pick<DatabaseSync, 'prepare'>, binding: OfficialParticipantBinding): DurablePlayerPersonLink => {
+export const readOfficialActorPersonLink = (db: Pick<DatabaseSync, 'prepare'>, binding: OfficialParticipantBinding): DurablePlayerPersonLink => {
   const row = db.prepare('SELECT * FROM world_player_person_links WHERE source_id=?').get(binding.personLinkSourceId) as {
     source_id: string; career_id: string; player_id: string; person_id: string; roster_revision: number; accepted_at_day: number; source_json: string;
   } | undefined;
@@ -89,7 +89,7 @@ export const assertInitialOfficialWorldEvidence = (db: Pick<DatabaseSync, 'prepa
     const row = db.prepare('SELECT binding_json FROM official_participant_bindings WHERE game_id=? AND player_id=?')
       .get(binding.gameId, binding.playerId) as { binding_json: string } | undefined;
     if (!row || json(JSON.parse(row.binding_json)) !== json(binding)
-      || json(personLink(db, binding)) !== json(snapshot.personLinks[index])) throw new Error('initial actor evidence differs');
+      || json(readOfficialActorPersonLink(db, binding)) !== json(snapshot.personLinks[index])) throw new Error('initial actor evidence differs');
   }
   if (archived) {
     const row = db.prepare('SELECT * FROM official_initial_world_sources WHERE source_id=?').get(snapshot.source.sourceId) as Row | undefined;
@@ -131,7 +131,7 @@ export const openSqliteOfficialInitialWorldStore = (databasePath: string, source
     if (new Set(bindings.map((binding) => binding.personId)).size !== 9 || bindings.some((binding) => binding.careerId !== bindings[0].careerId
       || binding.competitionEditionId !== bindings[0].competitionEditionId || binding.gameDay !== bindings[0].gameDay
       || binding.clubId !== bindings[0].clubId)) throw new Error('initial World actor scopes differ');
-    const personLinks = bindings.map((binding) => personLink(db, binding));
+    const personLinks = bindings.map((binding) => readOfficialActorPersonLink(db, binding));
     return freeze({ source, match, fixture, world, bindings, personLinks });
   };
   const decode = (row: Row): DurableInitialOfficialWorld => {

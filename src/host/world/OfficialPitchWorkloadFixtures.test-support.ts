@@ -15,8 +15,8 @@ import { openSqliteManagerRosterDecisionStore } from './SqliteManagerRosterDecis
 import { openSqlitePlayerPersonLinkStore } from './SqlitePlayerPersonLinkStore';
 
 /** Explicit physical/profile fixtures; no production counts or calibration defaults. */
-export const officialPitchWorkloadFixture = (physical = true, deferPlay = false) => {
-  const path = `file:official-pitch-workload-${crypto.randomUUID()}?mode=memory&cache=shared`;
+export const officialPitchWorkloadFixture = (physical = true, deferPlay = false, databasePath?: string) => {
+  const path = databasePath ?? `file:official-pitch-workload-${crypto.randomUUID()}?mode=memory&cache=shared`;
   const stores: { close(): void }[] = [];
   const track = <T extends { close(): void }>(store: T): T => { stores.push(store); return store; };
   const world = track(openSqliteWorldSettlementStore(path)), roster = track(openSqliteManagerRosterDecisionStore(path));
