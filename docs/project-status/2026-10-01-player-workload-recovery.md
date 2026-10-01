@@ -26,4 +26,6 @@ The first whole-suite log was interrupted without a final result at the user's r
 
 ## Remaining approved work
 
+Published as PR232 stacked on PR231 at `8d23e9f89c21240610315fceb53842e547544751`. P0 run36832112606 succeeded at that exact SHA. Attachment was attempted once; the app's 100-artifact limit rejected it.
+
 This causal state does not claim a complete injury model, evolving physical recovery capacity, autonomous scheduling of sleep/rest or all fatigue effects on Match actors. Physical/runtime fatigue consumers, calibrated Career content, larger national-pool selection and full season/Career orchestration remain in the overall approved audit. No approved scope is removed from the goal.
