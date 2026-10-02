@@ -124,7 +124,7 @@ export const openSqliteBattedContactResponseStore = (path: string, touches: Pick
     source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL);`);
   let closed = false;
   const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed batted response scope'); };
-  const { read, readModel, sameModel, derive, current, own } = battedContactResponseEvidenceFromSqlite(db);
+  const { read, readModel, sameModel, derive, current } = battedContactResponseEvidenceFromSqlite(db);
   return Object.freeze({
     read(sourceId) { check(sourceId); return read(sourceId); },
     accept(sourceId) {
