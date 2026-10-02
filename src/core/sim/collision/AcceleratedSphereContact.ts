@@ -304,10 +304,29 @@ export const findAcceleratedSphereContactTime = (
     ...stationaryTimes,
     durationSeconds,
   ]);
-  const valueTolerance = COEFFICIENT_EPSILON * Math.max(
-    1,
+  // Scale each finite squared term before summation. Summing near-limit
+  // squares first can overflow the floating-point error bound to Infinity and
+  // fabricate a tangent contact that never physically occurs.
+  const errorScale = 8 * Number.EPSILON;
+  const squaredTerms = [
+    relativePosition.x * relativePosition.x,
+    relativePosition.y * relativePosition.y,
+    relativePosition.z * relativePosition.z,
     contactRadius * contactRadius,
-    magnitudeSquared(relativePosition),
+  ];
+  if (squaredTerms.some((value) => !Number.isFinite(value))) {
+    throw new Error('accelerated contact squared geometry overflow');
+  }
+  const scaledErrorBound = squaredTerms.reduce(
+    (sum, value) => sum + value * errorScale,
+    0,
+  );
+  if (!Number.isFinite(scaledErrorBound)) {
+    throw new Error('accelerated contact error bound overflow');
+  }
+  const valueTolerance = Math.max(
+    COEFFICIENT_EPSILON,
+    scaledErrorBound,
   );
 
   let contactSeconds: number | null = null;

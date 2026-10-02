@@ -15,6 +15,7 @@ export * from './sim/contact/BatBallContact';
 export * from './sim/collision/AcceleratedSphereContact';
 export * from './sim/ball/BallFlight';
 export * from './sim/ball/BattedBallFlightEvidence';
+export * from './sim/ball/BattedBallPostResponseFlight';
 export * from './sim/ball/FairTerritoryGeometry';
 export * from './sim/ball/FairFoulBaseGateGeometry';
 export * from './sim/ball/BattedBallBaseGatePassage';

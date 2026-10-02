@@ -148,3 +148,31 @@ describe('findAcceleratedSphereContactTick', () => {
     )).toBe(2_500_000);
   });
 });
+
+
+it('does not fabricate a near-tangent contact when finite squared geometry is close to Number.MAX_VALUE', () => {
+  const contactRadius = 1e154;
+  const firstRadius = contactRadius / 2;
+  const y = Math.sqrt(1e308 * (1 + 5e-13));
+  const first: AcceleratedSphereContactState = {
+    tick: 0,
+    center: v(1e146, y, 0),
+    velocity: v(-1e147, 0, 0),
+    acceleration: v(1, 0, 0),
+    radius: firstRadius,
+  };
+  const second: AcceleratedSphereContactState = {
+    tick: 0,
+    center: v(0, 0, 0),
+    velocity: v(0, 0, 0),
+    acceleration: v(0, 0, 0),
+    radius: firstRadius,
+  };
+
+  expect(findAcceleratedSphereContactTime(
+    first,
+    second,
+    1,
+    { ticksPerSecond: 1 },
+  )).toBeNull();
+});
