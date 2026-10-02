@@ -94,12 +94,13 @@ export const deriveBattedBallPostResponseFlight = (
 
   const response = input.response;
   if (response.kind === 'unresolved') {
+    const world = response.world;
     return freeze({
       kind: 'unresolved',
       reason: response.reason,
-      tick: response.world.kind === 'contact'
-        ? response.world.tick
-        : response.world.throughTick,
+      tick: world.kind === 'contact'
+        ? world.tick
+        : world.throughTick,
     });
   }
 
