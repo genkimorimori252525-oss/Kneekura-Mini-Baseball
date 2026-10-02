@@ -27,6 +27,7 @@ export * from './sim/fielding/SecureCatch';
 export * from './sim/fielding/CatchOutcome';
 export * from './sim/fielding/CatchRetention';
 export * from './sim/fielding/BattedBallFirstFielderTouchTerritory';
+export * from './sim/fielding/BattedBallUninterruptedAcquisition';
 export * from './sim/fielding/TagContact';
 export * from './sim/fielding/ThrowRelease';
 export * from './sim/fielding/ThrowLaunch';
