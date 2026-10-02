@@ -124,9 +124,17 @@ const derive = (
     throw new Error('batted acquisition requires actual capture candidate');
   }
 
+  const batterActor =
+    response.touch.worldContact.flight.physicalPitch.frame.batterActor;
+  if (!batterActor) {
+    throw new Error('batted acquisition original batter actor is missing');
+  }
   const result = deriveBattedBallUninterruptedAcquisition({
     response: response.result,
     world: acquisitionWorld(response),
+    defenderIds: batterActor.defenderBindings.map(
+      (binding) => binding.playerId,
+    ),
   });
 
   if (result.kind === 'requires_world_extension') {
