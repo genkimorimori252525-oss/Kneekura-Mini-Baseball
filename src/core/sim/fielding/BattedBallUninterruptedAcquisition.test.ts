@@ -184,6 +184,7 @@ it('supports zero-load acquisition at the physical glove-contact tick', () => {
   expect(deriveBattedBallUninterruptedAcquisition({
     response,
     world: original,
+    defenderIds: ['fielder'],
   })).toMatchObject({
     kind: 'acquired',
     gloveContactTick: 0,
