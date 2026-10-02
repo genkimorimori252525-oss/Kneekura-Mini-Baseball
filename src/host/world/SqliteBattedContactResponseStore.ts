@@ -56,19 +56,9 @@ const modelInput = (raw: AcceptedBattedContactResponseModel, sourceId: string): 
   return m;
 };
 
-/** Original actual physical Source and independently versioned calibration own the ball response, not the peer/caller. */
-export const openSqliteBattedContactResponseStore = (path: string, touches: Pick<SqliteBattedFirstFielderTouchStore, 'read'>,
-  authority?: Authority): SqliteBattedContactResponseStore => {
-  if (!id(path) || typeof touches?.read !== 'function' || authority != null
-    && (typeof authority.readAcceptedResponse !== 'function' || typeof authority.readAcceptedModel !== 'function')) throw new Error('invalid batted response sources');
-  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite'), db = new DatabaseSync(path);
-  db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
-  db.exec(`CREATE TABLE IF NOT EXISTS batted_contact_response_models (source_id TEXT PRIMARY KEY,game_id TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL);
-    CREATE TABLE IF NOT EXISTS batted_contact_responses (source_id TEXT PRIMARY KEY,first_fielder_touch_source_id TEXT NOT NULL UNIQUE,
-    world_contact_source_id TEXT NOT NULL UNIQUE,physical_pitch_source_id TEXT NOT NULL,game_id TEXT NOT NULL,
-    source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL);`);
-  let closed = false;
-  const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed batted response scope'); };
+export const battedContactResponseEvidenceFromSqlite = (
+  db: Pick<import('node:sqlite').DatabaseSync, 'prepare'>,
+) => {
   const own = battedFirstFielderTouchEvidenceFromSqlite(db);
   const readModel = (sourceId: string): AcceptedBattedContactResponseModel | null => {
     const row = db.prepare('SELECT * FROM batted_contact_response_models WHERE source_id=?').get(sourceId) as {
@@ -102,7 +92,6 @@ export const openSqliteBattedContactResponseStore = (path: string, touches: Pick
     return freeze({ source: s, model: m, touch, result });
   };
   const read = (sourceId: string): DurableBattedContactResponse | null => {
-    check(sourceId);
     const row = db.prepare('SELECT * FROM batted_contact_responses WHERE source_id=?').get(sourceId) as Row | undefined;
     if (!row) return null;
     const s = input(JSON.parse(row.source_json) as AcceptedBattedContactResponse, sourceId), m = readModel(s.responseModelSourceId);
@@ -115,8 +104,29 @@ export const openSqliteBattedContactResponseStore = (path: string, touches: Pick
     }
     return value;
   };
+  const current = (value: DurableBattedContactResponse): void => {
+    own.current(value.touch);
+    sameModel(value.model);
+  };
+  return { read, readModel, sameModel, derive, current, own };
+};
+
+/** Original actual physical Source and independently versioned calibration own the ball response, not the peer/caller. */
+export const openSqliteBattedContactResponseStore = (path: string, touches: Pick<SqliteBattedFirstFielderTouchStore, 'read'>,
+  authority?: Authority): SqliteBattedContactResponseStore => {
+  if (!id(path) || typeof touches?.read !== 'function' || authority != null
+    && (typeof authority.readAcceptedResponse !== 'function' || typeof authority.readAcceptedModel !== 'function')) throw new Error('invalid batted response sources');
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite'), db = new DatabaseSync(path);
+  db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
+  db.exec(`CREATE TABLE IF NOT EXISTS batted_contact_response_models (source_id TEXT PRIMARY KEY,game_id TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS batted_contact_responses (source_id TEXT PRIMARY KEY,first_fielder_touch_source_id TEXT NOT NULL UNIQUE,
+    world_contact_source_id TEXT NOT NULL UNIQUE,physical_pitch_source_id TEXT NOT NULL,game_id TEXT NOT NULL,
+    source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL);`);
+  let closed = false;
+  const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed batted response scope'); };
+  const { read, readModel, sameModel, derive, current, own } = battedContactResponseEvidenceFromSqlite(db);
   return Object.freeze({
-    read,
+    read(sourceId) { check(sourceId); return read(sourceId); },
     accept(sourceId) {
       check(sourceId); const prior = read(sourceId), raw = authority?.readAcceptedResponse(sourceId) ?? null, s = raw === null ? null : input(raw, sourceId);
       if (prior) {
@@ -129,18 +139,18 @@ export const openSqliteBattedContactResponseStore = (path: string, touches: Pick
       const originalModel = readModel(s.responseModelSourceId), rawModel = authority?.readAcceptedModel(s.responseModelSourceId) ?? null;
       const m = rawModel === null ? originalModel : modelInput(rawModel, s.responseModelSourceId);
       if (!m) throw new Error('accepted batted response model is missing'); sameModel(m);
-      const value = derive(s, m); own.current(value.touch);
+      const value = derive(s, m); current(value);
       const peer = touches.read(s.firstFielderTouchSourceId);
       if (!peer || json(peer) !== json(value.touch)) throw new Error('batted response peer first-fielder touch differs');
       db.exec('BEGIN IMMEDIATE');
       try {
-        sameModel(m); own.current(value.touch);
+        sameModel(m); current(value);
         if (json(derive(s, m)) !== json(value)) throw new Error('batted response original changed before write');
         if (!readModel(m.sourceId)) db.prepare('INSERT INTO batted_contact_response_models VALUES (?,?,?,?)').run(m.sourceId, m.gameId, json(m), hash(m));
         const w = value.touch.worldContact;
         db.prepare('INSERT INTO batted_contact_responses VALUES (?,?,?,?,?,?,?,?,?)').run(sourceId, s.firstFielderTouchSourceId, w.source.sourceId,
           w.flight.source.physicalPitchSourceId, m.gameId, json(s), hash(s), json(value), hash(value));
-        own.current(value.touch); sameModel(m);
+        current(value); sameModel(m);
         const saved = read(sourceId);
         if (json(saved) !== json(value)) throw new Error('batted response original changed during write');
         db.exec('COMMIT'); return saved!;
