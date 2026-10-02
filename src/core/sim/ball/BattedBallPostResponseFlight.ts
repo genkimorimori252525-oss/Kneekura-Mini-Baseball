@@ -116,6 +116,9 @@ export const deriveBattedBallPostResponseFlight = (
   }
 
   if (response.kind === 'airborne') {
+    if (response.world.kind !== 'airborne') {
+      throw new Error('airborne response requires airborne World evidence');
+    }
     return freeze({
       kind: 'requires_world_extension',
       throughTick: response.world.throughTick,
