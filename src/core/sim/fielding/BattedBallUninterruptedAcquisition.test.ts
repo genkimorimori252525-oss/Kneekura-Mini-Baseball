@@ -96,6 +96,7 @@ it('acquires only when the same actual glove primitive covers the complete reten
   const result = deriveBattedBallUninterruptedAcquisition({
     response,
     world: original,
+    defenderIds: ['fielder'],
   });
   expect(result).toMatchObject({
     kind: 'acquired',
@@ -123,6 +124,7 @@ it('requires a new owned World interval when secure possession lies beyond origi
   const result = deriveBattedBallUninterruptedAcquisition({
     response,
     world: original,
+    defenderIds: ['fielder'],
   });
   expect(result).toMatchObject({
     kind: 'requires_world_extension',
@@ -212,7 +214,25 @@ it('rejects a substituted World primitive instead of trusting the capture result
   expect(() => deriveBattedBallUninterruptedAcquisition({
     response,
     world: changed,
+    defenderIds: ['fielder'],
   })).toThrow('original World differs');
+});
+
+it('does not turn an offensive actor glove contact into fielder acquisition', () => {
+  const original = world();
+  const response = deriveBattedBallContactResponse({
+    world: original,
+    actors: [glove()],
+    surfaces: [],
+  });
+  expect(deriveBattedBallUninterruptedAcquisition({
+    response,
+    world: original,
+    defenderIds: ['different-defender'],
+  })).toMatchObject({
+    kind: 'unresolved',
+    reason: 'non_defender',
+  });
 });
 
 it('keeps a real rebound outside acquisition instead of converting contact into possession', () => {
@@ -225,6 +245,7 @@ it('keeps a real rebound outside acquisition instead of converting contact into 
   expect(deriveBattedBallUninterruptedAcquisition({
     response,
     world: original,
+    defenderIds: ['fielder'],
   })).toEqual({
     kind: 'not_candidate',
     responseKind: 'rebound',
@@ -246,6 +267,7 @@ it('preserves simultaneous contact as unresolved acquisition evidence', () => {
   expect(deriveBattedBallUninterruptedAcquisition({
     response,
     world: original,
+    defenderIds: ['fielder'],
   })).toMatchObject({
     kind: 'unresolved',
     reason: 'simultaneous',
