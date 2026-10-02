@@ -14,6 +14,7 @@ import {
 export type BattedBallUninterruptedAcquisitionInput = Readonly<{
   response: BattedBallContactResponse;
   world: BattedWorldContactInput;
+  defenderIds: readonly string[];
 }>;
 
 export type BattedBallUninterruptedAcquisitionResult =
@@ -38,7 +39,7 @@ export type BattedBallUninterruptedAcquisitionResult =
     }>
   | Readonly<{
       kind: 'unresolved';
-      reason: 'simultaneous' | 'degenerate_normal';
+      reason: 'simultaneous' | 'degenerate_normal' | 'non_defender';
       tick: number;
     }>;
 
@@ -71,6 +72,12 @@ const safeTick = (value: unknown): value is number => (
   && value >= 0
 );
 
+const id = (value: unknown): value is string => (
+  typeof value === 'string'
+  && value.length > 0
+  && value === value.trim()
+);
+
 /**
  * Turns an actual retained glove contact into secure acquisition only when the
  * same original World primitive owns the complete contact->secure interval.
@@ -85,7 +92,14 @@ export const deriveBattedBallUninterruptedAcquisition = (
   raw: BattedBallUninterruptedAcquisitionInput,
 ): BattedBallUninterruptedAcquisitionResult => {
   const input = cloneInert(raw);
-  if (!input?.response || !input.world) {
+  if (
+    !input?.response
+    || !input.world
+    || !Array.isArray(input.defenderIds)
+    || input.defenderIds.length === 0
+    || input.defenderIds.some((value) => !id(value))
+    || new Set(input.defenderIds).size !== input.defenderIds.length
+  ) {
     throw new Error('invalid batted acquisition input');
   }
 
@@ -146,6 +160,14 @@ export const deriveBattedBallUninterruptedAcquisition = (
     )
   ) {
     throw new Error('batted acquisition retention timing differs from World contact');
+  }
+
+  if (!input.defenderIds.includes(contact.playerId)) {
+    return freeze({
+      kind: 'unresolved',
+      reason: 'non_defender',
+      tick: retention.gloveContactTick,
+    });
   }
 
   const actor = input.world.actors.find((candidate) => (
