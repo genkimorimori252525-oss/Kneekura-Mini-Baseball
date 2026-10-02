@@ -148,6 +148,17 @@ const derive = (
     );
   }
 
+  const touch = response.touch.result;
+  if (
+    touch.kind !== 'recorded'
+    || touch.evidence.fielderId !== result.fielderId
+    || touch.evidence.tick !== result.gloveContactTick
+  ) {
+    throw new Error(
+      'batted acquisition original first-fielder touch differs',
+    );
+  }
+
   return freeze({
     source,
     response,
