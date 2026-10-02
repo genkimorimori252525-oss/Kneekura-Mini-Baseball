@@ -1,5 +1,63 @@
+import type { Vec3 } from '../../model/geometry';
 import { findFirstTrueTick, quantizeEventTick } from '../ExactEventTime';
 import type { BattedBallInitialState } from '../contact/BatBallContact';
+import {
+  REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS,
+  REFERENCE_BASEBALL_AERODYNAMICS,
+  calculateBaseballAerodynamics,
+  type BaseballAerodynamicsParameters,
+} from './BaseballAerodynamics';
+import {
+  calculateBaseballSpinDecayDerivative,
+} from './BaseballSpinDecay';
+import {
+  resolveBallSurfaceContact,
+  type BallSurfaceContactParameters,
+} from './BallSurfaceContact';
+import type {
+  RigidBaseballProperties,
+} from '../contact/RigidBatBallContact';
+import {
+  resolveBallSurfaceResponse,
+  validateBallSurfaceResponseProfile,
+  type BallSurfaceResponseProfile,
+} from './BallSurfaceResponseProfile';
+import {
+  resolveBallSurfaceResponseGrid,
+  validateBallSurfaceResponseGrid,
+  type BallSurfaceResponseGrid,
+} from './BallSurfaceResponseGrid';
+import {
+  advanceGroundBallMotion,
+} from './GroundBallMotion';
+import {
+  resolveBallSurfaceMaterialContact,
+  validateBallSurfaceMaterialProfile,
+  type BallSurfaceMaterialProfile,
+} from './BallSurfaceMaterial';
+
+export type GroundSurfacePhysics = Readonly<{
+  ball: RigidBaseballProperties;
+  /**
+   * Static compatibility form. Use responseProfile when empirical data show
+   * material response varies with incident speed.
+   */
+  contact?: BallSurfaceContactParameters;
+  responseProfile?: BallSurfaceResponseProfile;
+  responseGrid?: BallSurfaceResponseGrid;
+  /**
+   * Unified material form for new callers. When present it replaces the
+   * contact/responseProfile/responseGrid compatibility forms above.
+   */
+  material?: BallSurfaceMaterialProfile;
+  /**
+   * Post-impact kinetic sliding friction used to evolve residual bottom-point
+   * slip into no-slip rolling. Omit to preserve the earlier immediate rolling
+   * projection behavior.
+   */
+  slidingFrictionCoefficient?: number;
+  enforceRollingConstraint?: boolean;
+}>;
 
 export type BallFlightParameters = Readonly<{
   ticksPerSecond: number;
@@ -10,6 +68,12 @@ export type BallFlightParameters = Readonly<{
   groundRollingDecelerationMps2?: number;
   integrationStepTicks: number;
   restingVerticalSpeed: number;
+  aerodynamics?: BaseballAerodynamicsParameters | null;
+  /**
+   * Optional spin-coupled physical ground contact. Null preserves the frozen
+   * legacy ground response for compatibility.
+   */
+  groundSurfacePhysics?: GroundSurfacePhysics | null;
 }>;
 
 export const DEFAULT_BALL_FLIGHT_PARAMETERS: BallFlightParameters = Object.freeze({
@@ -21,9 +85,56 @@ export const DEFAULT_BALL_FLIGHT_PARAMETERS: BallFlightParameters = Object.freez
   groundRollingDecelerationMps2: 4,
   integrationStepTicks: 2_000,
   restingVerticalSpeed: 0.5,
+  aerodynamics: null,
+  groundSurfacePhysics: null,
 });
 
+/**
+ * Explicit name for the pre-promotion low-level compatibility behavior.
+ * Production callers should enter through the guarded v1 reality profile;
+ * this alias remains for deterministic legacy fixtures and migrations.
+ */
+export const COMPATIBILITY_BALL_FLIGHT_PARAMETERS_V0:
+  BallFlightParameters = DEFAULT_BALL_FLIGHT_PARAMETERS;
+
+export const REALISTIC_BASEBALL_FLIGHT_PARAMETERS: BallFlightParameters =
+  Object.freeze({
+    ...DEFAULT_BALL_FLIGHT_PARAMETERS,
+    aerodynamics: REFERENCE_BASEBALL_AERODYNAMICS,
+  });
+
+export const REALISTIC_LYU_2022_BASEBALL_FLIGHT_PARAMETERS:
+  BallFlightParameters =
+  Object.freeze({
+    ...DEFAULT_BALL_FLIGHT_PARAMETERS,
+    aerodynamics:
+      REALISTIC_LYU_2022_BASEBALL_AERODYNAMICS,
+  });
+
 const GROUND_EPSILON = 1e-12;
+
+const add = (a: Vec3, b: Vec3): Vec3 => ({
+  x: a.x + b.x,
+  y: a.y + b.y,
+  z: a.z + b.z,
+});
+
+const scale = (value: Vec3, scalar: number): Vec3 => ({
+  x: value.x * scalar,
+  y: value.y * scalar,
+  z: value.z * scalar,
+});
+
+const weightedSum = (
+  a: Vec3,
+  b: Vec3,
+  c: Vec3,
+  d: Vec3,
+): Vec3 => ({
+  x: a.x + 2 * b.x + 2 * c.x + d.x,
+  y: a.y + 2 * b.y + 2 * c.y + d.y,
+  z: a.z + 2 * b.z + 2 * c.z + d.z,
+});
 
 const validateParameters = (parameters: BallFlightParameters): void => {
   if (!Number.isInteger(parameters.ticksPerSecond) || parameters.ticksPerSecond <= 0) {
@@ -56,6 +167,288 @@ const validateParameters = (parameters: BallFlightParameters): void => {
   if (parameters.restingVerticalSpeed < 0) {
     throw new Error('restingVerticalSpeed must be non-negative');
   }
+  if (
+    parameters.aerodynamics !== null
+    && parameters.aerodynamics !== undefined
+    && Math.abs(parameters.aerodynamics.ballRadiusM - parameters.ballRadius) > 1e-9
+  ) {
+    throw new Error(
+      'aerodynamics.ballRadiusM must match ballRadius',
+    );
+  }
+
+  const surface =
+    parameters.groundSurfacePhysics;
+  if (
+    surface !== null
+    && surface !== undefined
+  ) {
+    if (
+      Math.abs(
+        surface.ball.radiusM
+        - parameters.ballRadius,
+      ) > 1e-9
+    ) {
+      throw new Error(
+        'groundSurfacePhysics.ball.radiusM must match ballRadius',
+      );
+    }
+    if (
+      parameters.aerodynamics !== null
+      && parameters.aerodynamics !== undefined
+      && Math.abs(
+        surface.ball.massKg
+        - parameters.aerodynamics.ballMassKg,
+      ) > 1e-9
+    ) {
+      throw new Error(
+        'ground surface ball mass must match aerodynamic ball mass',
+      );
+    }
+
+    const hasStatic =
+      surface.contact !== undefined;
+    const hasProfile =
+      surface.responseProfile !== undefined;
+    const hasGrid =
+      surface.responseGrid !== undefined;
+    const hasMaterial =
+      surface.material !== undefined;
+    const responseKinds = [
+      hasStatic,
+      hasProfile,
+      hasGrid,
+      hasMaterial,
+    ].filter(Boolean).length;
+
+    if (responseKinds !== 1) {
+      throw new Error(
+        'groundSurfacePhysics requires exactly one of contact, responseProfile, responseGrid, or material',
+      );
+    }
+
+    if (
+      surface.responseProfile
+      !== undefined
+    ) {
+      validateBallSurfaceResponseProfile(
+        surface.responseProfile,
+      );
+    }
+    if (
+      surface.responseGrid
+      !== undefined
+    ) {
+      validateBallSurfaceResponseGrid(
+        surface.responseGrid,
+      );
+    }
+    if (
+      surface.material
+      !== undefined
+    ) {
+      validateBallSurfaceMaterialProfile(
+        surface.material,
+      );
+    }
+    if (
+      surface.slidingFrictionCoefficient
+      !== undefined
+      && (
+        !Number.isFinite(
+          surface.slidingFrictionCoefficient,
+        )
+        || surface.slidingFrictionCoefficient < 0
+      )
+    ) {
+      throw new Error(
+        'groundSurfacePhysics.slidingFrictionCoefficient must be finite and non-negative',
+      );
+    }
+  }
+};
+
+const calculateFreeFlightAcceleration = (
+  velocity: Vec3,
+  spin: Vec3,
+  parameters: BallFlightParameters,
+): Vec3 => {
+  const gravity = { x: 0, y: parameters.gravityY, z: 0 } as const;
+  if (
+    parameters.aerodynamics === null
+    || parameters.aerodynamics === undefined
+  ) {
+    return gravity;
+  }
+
+  return add(
+    gravity,
+    calculateBaseballAerodynamics(
+      velocity,
+      spin,
+      parameters.aerodynamics,
+    ).totalAcceleration,
+  );
+};
+
+const calculateFreeFlightSpinDerivative = (
+  velocity: Vec3,
+  spin: Vec3,
+  parameters: BallFlightParameters,
+): Vec3 => {
+  const aerodynamics =
+    parameters.aerodynamics;
+  if (
+    aerodynamics === null
+    || aerodynamics === undefined
+    || aerodynamics.spinDecay === undefined
+  ) {
+    return {
+      x: 0,
+      y: 0,
+      z: 0,
+    };
+  }
+
+  return calculateBaseballSpinDecayDerivative(
+    spin,
+    {
+      x:
+        velocity.x
+        - aerodynamics.windVelocityMps.x,
+      y:
+        velocity.y
+        - aerodynamics.windVelocityMps.y,
+      z:
+        velocity.z
+        - aerodynamics.windVelocityMps.z,
+    },
+    aerodynamics.spinDecay,
+  );
+};
+
+const advanceAerodynamicFreeFlight = (
+  state: BattedBallInitialState,
+  stepTicks: number,
+  parameters: BallFlightParameters,
+): BattedBallInitialState => {
+  const dt = stepTicks / parameters.ticksPerSecond;
+
+  const k1Position = state.velocity;
+  const k1Velocity = calculateFreeFlightAcceleration(
+    state.velocity,
+    state.spin,
+    parameters,
+  );
+  const k1Spin =
+    calculateFreeFlightSpinDerivative(
+      state.velocity,
+      state.spin,
+      parameters,
+    );
+
+  const k2VelocityInput = add(
+    state.velocity,
+    scale(k1Velocity, dt / 2),
+  );
+  const k2SpinInput = add(
+    state.spin,
+    scale(k1Spin, dt / 2),
+  );
+  const k2Position = k2VelocityInput;
+  const k2Velocity = calculateFreeFlightAcceleration(
+    k2VelocityInput,
+    k2SpinInput,
+    parameters,
+  );
+  const k2Spin =
+    calculateFreeFlightSpinDerivative(
+      k2VelocityInput,
+      k2SpinInput,
+      parameters,
+    );
+
+  const k3VelocityInput = add(
+    state.velocity,
+    scale(k2Velocity, dt / 2),
+  );
+  const k3SpinInput = add(
+    state.spin,
+    scale(k2Spin, dt / 2),
+  );
+  const k3Position = k3VelocityInput;
+  const k3Velocity = calculateFreeFlightAcceleration(
+    k3VelocityInput,
+    k3SpinInput,
+    parameters,
+  );
+  const k3Spin =
+    calculateFreeFlightSpinDerivative(
+      k3VelocityInput,
+      k3SpinInput,
+      parameters,
+    );
+
+  const k4VelocityInput = add(
+    state.velocity,
+    scale(k3Velocity, dt),
+  );
+  const k4SpinInput = add(
+    state.spin,
+    scale(k3Spin, dt),
+  );
+  const k4Position = k4VelocityInput;
+  const k4Velocity = calculateFreeFlightAcceleration(
+    k4VelocityInput,
+    k4SpinInput,
+    parameters,
+  );
+  const k4Spin =
+    calculateFreeFlightSpinDerivative(
+      k4VelocityInput,
+      k4SpinInput,
+      parameters,
+    );
+
+  return {
+    tick: state.tick + stepTicks,
+    position: add(
+      state.position,
+      scale(
+        weightedSum(
+          k1Position,
+          k2Position,
+          k3Position,
+          k4Position,
+        ),
+        dt / 6,
+      ),
+    ),
+    velocity: add(
+      state.velocity,
+      scale(
+        weightedSum(
+          k1Velocity,
+          k2Velocity,
+          k3Velocity,
+          k4Velocity,
+        ),
+        dt / 6,
+      ),
+    ),
+    spin: add(
+      state.spin,
+      scale(
+        weightedSum(
+          k1Spin,
+          k2Spin,
+          k3Spin,
+          k4Spin,
+        ),
+        dt / 6,
+      ),
+    ),
+  };
 };
 
 const advanceFreeFlight = (
@@ -63,6 +456,17 @@ const advanceFreeFlight = (
   stepTicks: number,
   parameters: BallFlightParameters,
 ): BattedBallInitialState => {
+  if (
+    parameters.aerodynamics !== null
+    && parameters.aerodynamics !== undefined
+  ) {
+    return advanceAerodynamicFreeFlight(
+      state,
+      stepTicks,
+      parameters,
+    );
+  }
+
   const dt = stepTicks / parameters.ticksPerSecond;
   return {
     tick: state.tick + stepTicks,
@@ -78,6 +482,52 @@ const advanceFreeFlight = (
     },
     spin: state.spin,
   };
+};
+
+export const sampleUninterruptedBallFreeFlight = (
+  state: BattedBallInitialState,
+  deltaTicks: number,
+  parameters: BallFlightParameters =
+    DEFAULT_BALL_FLIGHT_PARAMETERS,
+): BattedBallInitialState => {
+  validateParameters(parameters);
+  if (
+    !Number.isSafeInteger(deltaTicks)
+    || deltaTicks < 0
+  ) {
+    throw new Error(
+      'uninterrupted free-flight deltaTicks must be a non-negative safe integer',
+    );
+  }
+
+  if (
+    parameters.aerodynamics === null
+    || parameters.aerodynamics === undefined
+  ) {
+    return advanceFreeFlight(
+      state,
+      deltaTicks,
+      parameters,
+    );
+  }
+
+  let current = state;
+  let remaining = deltaTicks;
+
+  while (remaining > 0) {
+    const stepTicks = Math.min(
+      parameters.integrationStepTicks,
+      remaining,
+    );
+    current = advanceFreeFlight(
+      current,
+      stepTicks,
+      parameters,
+    );
+    remaining -= stepTicks;
+  }
+
+  return current;
 };
 
 export const findGroundContactTick = (
@@ -108,6 +558,18 @@ export const findGroundContactTick = (
     if (tick === state.tick) {
       return false;
     }
+
+    if (
+      parameters.aerodynamics !== null
+      && parameters.aerodynamics !== undefined
+    ) {
+      return sampleUninterruptedBallFreeFlight(
+        state,
+        tick - state.tick,
+        parameters,
+      ).position.y <= parameters.ballRadius;
+    }
+
     const dt = (tick - state.tick) / parameters.ticksPerSecond;
     const y =
       state.position.y +
@@ -120,7 +582,10 @@ export const findGroundContactTick = (
 const getGroundRollingDeceleration = (
   parameters: BallFlightParameters,
 ): number => (
-  parameters.groundRollingDecelerationMps2
+  parameters.groundSurfacePhysics
+    ?.material
+    ?.rollingDecelerationMps2
+  ?? parameters.groundRollingDecelerationMps2
   ?? DEFAULT_BALL_FLIGHT_PARAMETERS.groundRollingDecelerationMps2
   ?? 0
 );
@@ -133,17 +598,77 @@ const isOnGround = (
   && Math.abs(state.velocity.y) <= GROUND_EPSILON
 );
 
+const applyRollingSpinConstraint = (
+  state: BattedBallInitialState,
+  parameters: BallFlightParameters,
+): BattedBallInitialState => {
+  const surface =
+    parameters.groundSurfacePhysics;
+  if (
+    surface === null
+    || surface === undefined
+    || surface.enforceRollingConstraint === false
+  ) {
+    return state;
+  }
+
+  return {
+    ...state,
+    spin: {
+      x: state.velocity.z
+        / parameters.ballRadius,
+      y: state.spin.y,
+      z: -state.velocity.x
+        / parameters.ballRadius,
+    },
+  };
+};
+
 const advanceGroundRoll = (
   state: BattedBallInitialState,
   stepTicks: number,
   parameters: BallFlightParameters,
 ): BattedBallInitialState => {
+  const surface =
+    parameters.groundSurfacePhysics;
+  if (
+    surface !== null
+    && surface !== undefined
+    && (
+      surface.slidingFrictionCoefficient
+      !== undefined
+      || surface.material
+        ?.slidingFrictionCoefficient
+        !== undefined
+    )
+  ) {
+    return advanceGroundBallMotion(
+      state,
+      stepTicks,
+      {
+        ticksPerSecond:
+          parameters.ticksPerSecond,
+        gravityMagnitudeMps2:
+          Math.abs(parameters.gravityY),
+        ball: surface.ball,
+        slidingFrictionCoefficient:
+          surface.slidingFrictionCoefficient
+          ?? surface.material!
+            .slidingFrictionCoefficient!,
+        rollingDecelerationMps2:
+          getGroundRollingDeceleration(
+            parameters,
+          ),
+      },
+    ).state;
+  }
+
   const speed = Math.hypot(
     state.velocity.x,
     state.velocity.z,
   );
   if (speed <= GROUND_EPSILON) {
-    return {
+    return applyRollingSpinConstraint({
       ...state,
       tick: state.tick + stepTicks,
       position: {
@@ -155,7 +680,7 @@ const advanceGroundRoll = (
         y: 0,
         z: 0,
       },
-    };
+    }, parameters);
   }
 
   const deceleration =
@@ -164,7 +689,7 @@ const advanceGroundRoll = (
     stepTicks / parameters.ticksPerSecond;
 
   if (deceleration <= GROUND_EPSILON) {
-    return {
+    return applyRollingSpinConstraint({
       tick: state.tick + stepTicks,
       position: {
         x: state.position.x
@@ -179,7 +704,7 @@ const advanceGroundRoll = (
         z: state.velocity.z,
       },
       spin: state.spin,
-    };
+    }, parameters);
   }
 
   const directionX = state.velocity.x / speed;
@@ -201,7 +726,7 @@ const advanceGroundRoll = (
     speed - deceleration * durationSeconds,
   );
 
-  return {
+  return applyRollingSpinConstraint({
     tick: state.tick + stepTicks,
     position: {
       x: state.position.x + directionX * distance,
@@ -220,7 +745,7 @@ const advanceGroundRoll = (
           z: directionZ * remainingSpeed,
         },
     spin: state.spin,
-  };
+  }, parameters);
 };
 
 export const findGroundRollingStopTick = (
@@ -292,26 +817,145 @@ const advanceStep = (
         ? current
         : advanceFreeFlight(current, ticksToContact, parameters);
 
-    let impactVelocity = freeAtContact.velocity;
-    if (impactVelocity.y < 0) {
-      const reflectedY = -impactVelocity.y * parameters.groundRestitution;
-      impactVelocity = {
-        x: impactVelocity.x * parameters.groundFriction,
-        y: reflectedY < parameters.restingVerticalSpeed ? 0 : reflectedY,
-        z: impactVelocity.z * parameters.groundFriction,
+    const surface =
+      parameters.groundSurfacePhysics;
+
+    if (
+      surface !== null
+      && surface !== undefined
+      && freeAtContact.velocity.y < 0
+    ) {
+      const contact =
+        resolveBallSurfaceContact({
+          tick: contactTick,
+          ballCenter: {
+            x: freeAtContact.position.x,
+            y: parameters.ballRadius,
+            z: freeAtContact.position.z,
+          },
+          ballVelocity:
+            freeAtContact.velocity,
+          ballSpin:
+            freeAtContact.spin,
+          ball: surface.ball,
+          surfaceNormal: {
+            x: 0,
+            y: 1,
+            z: 0,
+          },
+          parameters:
+            surface.material !== undefined
+              ? resolveBallSurfaceMaterialContact(
+                  surface.material,
+                  freeAtContact.velocity,
+                  {
+                    x: 0,
+                    y: 1,
+                    z: 0,
+                  },
+                )
+              : surface.responseGrid !== undefined
+                ? resolveBallSurfaceResponseGrid(
+                    surface.responseGrid,
+                    Math.hypot(
+                      freeAtContact.velocity.x,
+                      freeAtContact.velocity.y,
+                      freeAtContact.velocity.z,
+                    ),
+                    Math.atan2(
+                      Math.abs(
+                        freeAtContact.velocity.y,
+                      ),
+                      Math.hypot(
+                        freeAtContact.velocity.x,
+                        freeAtContact.velocity.z,
+                      ),
+                    ),
+                  )
+                : surface.responseProfile !== undefined
+                  ? resolveBallSurfaceResponse(
+                      surface.responseProfile,
+                      Math.hypot(
+                        freeAtContact.velocity.x,
+                        freeAtContact.velocity.y,
+                        freeAtContact.velocity.z,
+                      ),
+                    )
+                  : surface.contact!,
+        });
+
+      if (contact === null) {
+        throw new Error(
+          'ground surface contact unexpectedly resolved as separating',
+        );
+      }
+
+      const settled =
+        contact.exitVelocity.y
+        < parameters.restingVerticalSpeed;
+
+      current = {
+        tick: contactTick,
+        position: {
+          x: freeAtContact.position.x,
+          y: parameters.ballRadius,
+          z: freeAtContact.position.z,
+        },
+        velocity: {
+          x: contact.exitVelocity.x,
+          y: settled
+            ? 0
+            : contact.exitVelocity.y,
+          z: contact.exitVelocity.z,
+        },
+        spin: contact.exitSpin,
+      };
+
+      if (
+        settled
+        && surface
+          .slidingFrictionCoefficient
+          === undefined
+        && surface.material
+          ?.slidingFrictionCoefficient
+          === undefined
+      ) {
+        current =
+          applyRollingSpinConstraint(
+            current,
+            parameters,
+          );
+      }
+    } else {
+      let impactVelocity =
+        freeAtContact.velocity;
+      if (impactVelocity.y < 0) {
+        const reflectedY =
+          -impactVelocity.y
+          * parameters.groundRestitution;
+        impactVelocity = {
+          x: impactVelocity.x
+            * parameters.groundFriction,
+          y: reflectedY
+            < parameters.restingVerticalSpeed
+            ? 0
+            : reflectedY,
+          z: impactVelocity.z
+            * parameters.groundFriction,
+        };
+      }
+
+      current = {
+        tick: contactTick,
+        position: {
+          x: freeAtContact.position.x,
+          y: parameters.ballRadius,
+          z: freeAtContact.position.z,
+        },
+        velocity: impactVelocity,
+        spin: freeAtContact.spin,
       };
     }
-
-    current = {
-      tick: contactTick,
-      position: {
-        x: freeAtContact.position.x,
-        y: parameters.ballRadius,
-        z: freeAtContact.position.z,
-      },
-      velocity: impactVelocity,
-      spin: freeAtContact.spin,
-    };
     remaining -= ticksToContact;
   }
 
