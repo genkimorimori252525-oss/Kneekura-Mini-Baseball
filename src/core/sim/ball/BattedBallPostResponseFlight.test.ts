@@ -89,16 +89,22 @@ it('projects a proven rebound without claiming later World absence', () => {
     searchDurationTicks: 100_000,
   });
 
+  if (response.kind !== 'rebound') {
+    throw new Error('body contact must produce rebound');
+  }
   expect(result).toMatchObject({
     kind: 'flight_projection',
     responseKind: 'rebound',
-    throughTick: 200_000,
+    throughTick: response.ball.tick + 100_000,
     ball: { velocity: { z: -5 } },
   });
   if (result.kind !== 'flight_projection') {
     throw new Error('rebound must project');
   }
-  expect(result.ball.position.z).toBeCloseTo(0.5, 12);
+  expect(result.ball.position.z).toBeCloseTo(
+    response.ball.position.z + response.ball.velocity.z * 0.1,
+    12,
+  );
 });
 
 it('keeps retained glove response pending until a World acquisition owner proves possession', () => {
@@ -113,9 +119,16 @@ it('keeps retained glove response pending until a World acquisition owner proves
     searchDurationTicks: 1_000_000,
   });
 
-  expect(result).toMatchObject({
+  if (
+    response.kind !== 'capture_candidate'
+    || response.retention.outcome.kind !== 'secured'
+  ) {
+    throw new Error('glove fixture must produce secured capture candidate');
+  }
+  expect(result).toEqual({
     kind: 'requires_acquisition',
-    contactTick: 100_000,
+    contactTick: response.retention.outcome.gloveContactTick,
+    candidateSecureTick: response.retention.outcome.secureTick,
   });
   expect(result).not.toHaveProperty('ball');
   expect(result).not.toHaveProperty('possession');
