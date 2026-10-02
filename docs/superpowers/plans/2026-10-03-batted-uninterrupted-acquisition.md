@@ -6,7 +6,7 @@ Authority: confirmed nonvisual continuation after PR #247, exact base `6f9d893d2
 
 - Consume the already-derived actual `capture_candidate` plus the complete original `BattedWorldContactInput`.
 - Re-derive the original first World contact/continuous geometry and require it to match the candidate. A caller-provided catch/possession boolean is not evidence.
-- The candidate must be the sole actual glove contact and its retention outcome must be `secured` at the existing physical `secureTick`.
+- The candidate must be the sole actual glove contact, the actor must belong to the original nine defender bindings (never the batter actor), and its retention outcome must be `secured` at the existing physical `secureTick`.
 - Locate the same original glove primitive and require one continuous constant-acceleration primitive to cover the interval through `secureTick`.
 - If the original World horizon does not reach `secureTick`, return an explicit `requires_world_extension` boundary. Do not extrapolate the accepted command beyond its owned interval.
 - Rebound/ground/airborne responses are explicit `not_candidate`; prior simultaneous/degenerate contact remains `unresolved`.
