@@ -5,7 +5,8 @@ import { openSqliteBattedWorldFieldStore, type AcceptedBattedWorldFieldGeometry,
 
 /** Explicit oversized synthetic third-base prism exposes bag-before-forecast ordering; it is not production venue calibration. */
 export const battedWorldFieldFixture = (path?: string, initialOnly = true, oversizedThird = true, rollingDecelerationMps2?: number,
-  configure?: Readonly<{ world?: Parameters<typeof battedContactResponseFixture>[2]; response?: (base: ReturnType<typeof battedContactResponseFixture>) => void }>) => {
+  configure?: Readonly<{ world?: Parameters<typeof battedContactResponseFixture>[2]; response?: (base: ReturnType<typeof battedContactResponseFixture>) => void;
+    material?: AcceptedBattedWorldFieldGeometry['baseModels']['third']['material'] }>) => {
   const base = battedContactResponseFixture(path, initialOnly ? 'airborne' : 'ground', configure?.world, true, initialOnly, rollingDecelerationMps2);
   configure?.response?.(base);
   const response = base.responses.accept(base.responseSource.sourceId);
@@ -19,7 +20,7 @@ export const battedWorldFieldFixture = (path?: string, initialOnly = true, overs
   const bases = base.f.track(openSqliteBattedWorldBaseGeometryStore(base.f.path, base.flights,
     { readAcceptedGeometry: (id) => id === baseSource.sourceId ? baseSource : null }));
   const baseGeometry = bases.accept(baseSource.sourceId);
-  const material = { restitution: 0.5, tangentialDamping: 0.25, spinDamping: 0.2 };
+  const material = configure?.material ?? { restitution: 0.5, tangentialDamping: 0.25, spinDamping: 0.2 };
   const model = { bottomY: 0, material };
   const geometrySource: AcceptedBattedWorldFieldGeometry = { sourceId: 'field-bags', sourceVersion: 'synthetic-v1',
     baseGeometrySourceId: baseSource.sourceId, baseModels: { home: model, first: model, second: model, third: model } };

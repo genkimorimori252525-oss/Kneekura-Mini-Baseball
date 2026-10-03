@@ -1,6 +1,7 @@
 export {
   createPlayAdjudicationLedger,
   recordCorrectRuleSnapshot,
+  recordUnresolvedCorrectRuleSnapshot,
   openOfficialStateWindow,
   closeOfficialStateWindow,
   recordOnFieldCall,
@@ -43,6 +44,9 @@ export type { TagUpAppealAttemptInput, TagUpAppealAttemptResolution } from './Ta
 export type {
   OfficialGameplayRuling,
   CorrectRuleSnapshot,
+  UnresolvedCorrectRuleSnapshot,
+  CorrectRuleEvidenceSnapshot,
+  UnresolvedCorrectRuleSnapshotRecorded,
   OfficialStateWindowKind,
   OfficialStateWindowCloseReason,
   OfficialStateWindow,
@@ -57,6 +61,7 @@ export type {
   PlayAdjudicationLedger,
   PlayAdjudicationState,
   CorrectRuleSnapshotInput,
+  UnresolvedCorrectRuleSnapshotInput,
   OpenOfficialStateWindowInput,
   CloseOfficialStateWindowInput,
   OnFieldCallInput,

@@ -15,16 +15,19 @@ import { battedWorldMotionCommandsInput, battedWorldMotionPrimitiveCommands, typ
 import { battedWorldFieldEvidenceFromSqlite, type DurableBattedWorldFieldAction, type SqliteBattedWorldFieldStore } from './SqliteBattedWorldFieldStore';
 import { playerFieldingModelEvidenceFromSqlite, type DurablePlayerFieldingModel } from './SqlitePlayerFieldingModelStore';
 import { battedWorldFieldPhysicalPrefix, battedWorldFieldBaseTouchHistoryFromPrefix } from './BattedWorldFieldPhysicalPrefix';
+import { wholePlayPhysicalHistoryFromPrefix } from './WholePlayPhysicalHistoryFromPrefix';
 
 type Action = Readonly<{ kind: 'acquisition' }>
   | Readonly<{ kind: 'base_touch_history'; playerId: string; base: BattedWorldBaseId }>
   | Readonly<{ kind: 'first_base_race' }>
+  | Readonly<{ kind: 'whole_play_history' }>
   | Readonly<{ kind: 'motion'; availableAtTick: number; throughTick: number; commands: AcceptedBattedWorldMotion['commands'] }>
   | Readonly<{ kind: 'throw'; availableAtTick: number; throughTick: number; commands: AcceptedBattedWorldMotion['commands'];
     modelSourceId: string; receiverPlayerId: string }>;
 export type AcceptedBattedWorldFieldExecution = Readonly<{ sourceId: string; sourceVersion: string;
   baseFieldSourceId: string; previousExecutionSourceId: string | null; action: Action }>;
 type Execution = Readonly<{ kind: 'motion'; field: BattedWorldFieldMotion }>
+  | Readonly<{ kind: 'whole_play_history'; field: BattedWorldFieldMotion; physicalHistory: ReturnType<typeof wholePlayPhysicalHistoryFromPrefix> }>
   | Readonly<{ kind: 'acquisition'; field: BattedWorldFieldMotion; acquisition: BattedWorldFieldAcquisition }>
   | Readonly<{ kind: 'throw'; field: BattedWorldFieldMotion; model: DurablePlayerFieldingModel; throw: BattedWorldFieldThrow }>
   | (Readonly<{ kind: 'base_touch_history'; field: BattedWorldFieldMotion; playerId: string; base: BattedWorldBaseId;
@@ -55,7 +58,7 @@ const input = (raw: AcceptedBattedWorldFieldExecution, sourceId: string): Accept
     throw new Error('invalid accepted actual field execution Source');
   }
   const action = source.action;
-  if ((action?.kind === 'acquisition' || action?.kind === 'first_base_race') && fields(action, ['kind'])) return source;
+  if ((action?.kind === 'acquisition' || action?.kind === 'first_base_race' || action?.kind === 'whole_play_history') && fields(action, ['kind'])) return source;
   if (action?.kind === 'base_touch_history') {
     if (!fields(action, ['kind', 'playerId', 'base']) || !id(action.playerId) || !['home', 'first', 'second', 'third'].includes(action.base)) {
       throw new Error('invalid actual field base history Source');
@@ -88,6 +91,9 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
     if (source.action.kind === 'acquisition') {
       if (physicalPrior?.kind === 'acquisition') throw new Error('actual field acquisition is already resolved');
       execution = { kind: 'acquisition', field: original, acquisition: deriveBattedWorldFieldAcquisition({ response, geometry, field: original }) };
+    } else if (source.action.kind === 'whole_play_history') {
+      execution = { kind: 'whole_play_history', field: original, physicalHistory: wholePlayPhysicalHistoryFromPrefix({ baseField,
+        fields: ownFields.scope(baseField, baseField.source.sourceId), executions: prefix }) };
     } else if (source.action.kind === 'base_touch_history' || source.action.kind === 'first_base_race') {
       const world = baseField.response.touch.worldContact, batter = world.flight.physicalPitch.frame.batterActor!;
       const prefixInput = { baseField, fields: ownFields.scope(baseField, baseField.source.sourceId), executions: prefix };

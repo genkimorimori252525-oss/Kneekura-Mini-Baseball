@@ -9,7 +9,7 @@ Implementation: `src/core/adjudication/PlayAdjudicationLedger.ts`.
 The runtime chain is:
 
 `Physical Truth / PlayEnd`
-→ `CorrectRuleSnapshot`
+→ `CorrectRuleSnapshot` or `UnresolvedCorrectRuleSnapshot`
 → optional `OnFieldCall`
 → optional `ReviewDecision`
 → `FinalOfficialRuling`
@@ -34,7 +34,13 @@ The ledger is reconstructed by replay on every public operation. Stored closure 
 - official base occupants;
 - scored runner IDs.
 
-A newer snapshot must use a strictly newer evidence revision. Existing on-field calls/reviews become stale if a newer correct-rule snapshot appears; closure then requires a fresh official ruling or falls back only when no stale call controls the result.
+`recordUnresolvedCorrectRuleSnapshot` records evidence whose correct-rule interpretation remains unresolved, without supplying a gameplay ruling. Its `UnresolvedCorrectRuleSnapshotRecorded` event carries `snapshotId`, `evidenceRevision`, `resolution: 'unresolved'`, and a reason of `exact_simultaneity` or `insufficient_evidence`. This is a statement about the evidence; it does not generate an umpire call or order simultaneous physical facts.
+
+`CorrectRuleEvidenceSnapshot` is the union exposed by the open state's `latestCorrectRule`. Existing `CorrectRuleSnapshot`, `CorrectRuleSnapshotRecorded`, and `recordCorrectRuleSnapshot` retain their resolved shapes and serialized values. Consumers can narrow the latest evidence with `'ruling' in snapshot`; unresolved evidence has no `ruling` property.
+
+Unresolved evidence alone cannot produce an official closure or use correct-rule fallback. An explicit `OnFieldCall` must bind its snapshot ID and evidence revision before the official result can follow that call or its review. A newer resolved snapshot can restore correct-rule fallback only when no stale call controls the result.
+
+A newer snapshot of either variant must use a strictly newer evidence revision. Existing on-field calls/reviews become stale if a newer correct-rule snapshot appears; closure then requires a fresh official ruling or falls back only when no stale call controls the result.
 
 ## Official-state windows
 
@@ -54,14 +60,14 @@ After any recorded attempt, closure requires a newer correct-rule snapshot. For 
 
 ## Calls and review
 
-An `OnFieldCall` is allowed to differ from the correct rule snapshot without changing physical or correct-rule history.
+An `OnFieldCall` is allowed to differ from a resolved correct-rule snapshot or to provide an official ruling over unresolved correct-rule evidence without changing physical or correct-rule history. Both variants use the same snapshot ID/evidence revision binding. Calls remain post-physical ledger events; this API does not add an in-play information channel.
 
 A `ReviewDecision` references an existing call and the latest correct-rule evidence:
 
-- `confirmed` / `stands`: preserve the call ruling;
+- `confirmed` / `stands`: preserve the call ruling, including when correct-rule evidence remains unresolved;
 - `overturned`: requires a replacement ruling.
 
-The original call remains in append-only history.
+The original call and every resolved or unresolved evidence snapshot remain in append-only history. A fresh review may explicitly bind newer evidence while referring to the original call; an older call or review cannot silently govern closure after newer evidence arrives. Generic call/review recording does not enable any unavailable RuleProfile window.
 
 ## Official closure
 
@@ -91,7 +97,7 @@ This is consistency/integrity validation, not a cryptographic persistence layer.
 
 The host still owns:
 
-- producing the correct RuleEngine snapshot from canonical physical/rule facts;
+- producing the resolved or unresolved correct-rule evidence snapshot from canonical physical/rule facts;
 - deciding when a supported appeal/review/challenge opportunity actually arises, then using the profile-aware window API;
 - supplying canonical physical first-touch/departure/retouch/attempt facts and deriving the post-appeal correct-rule snapshot;
 - umpire/review policy and human-manager challenge intent;

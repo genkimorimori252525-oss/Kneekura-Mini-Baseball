@@ -93,26 +93,40 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
     moment(at);
     if (!raw.length || raw.some((contact) => json(contact.moment) !== json(at)
       || contact.kind === 'actor' && !actorKeys.has(json([contact.playerId, contact.role])))) throw new Error('actual field contact state or actor identity differs');
-    const normalizedContacts = raw.map(normalized), previous = contacts.at(-1);
-    if (previous && previous.moment.elapsedSeconds > at.elapsedSeconds) throw new Error('actual field contact chronology differs');
-    if (previous?.moment.elapsedSeconds === at.elapsedSeconds) {
-      if (json(previous.moment) !== json(at)) throw new Error('coincident actual field contact states differ');
-      contacts[contacts.length - 1] = { moment: previous.moment, contacts: [...previous.contacts,
-        ...normalizedContacts.filter((contact) => !previous.contacts.some((old) => json(old) === json(contact)))] };
-    } else contacts.push({ moment: at, contacts: normalizedContacts });
+    // Prove each companion against its own incoming physical state before projecting
+    // a response continuation onto the first exact-time rule frame.
     for (const bag of bags) {
       if (json(bag.moment) !== json(at) || !raw.some((contact) => contact.kind === 'surface'
         && contact.surfaceId === battedWorldBaseSurfaceId(bag.baseId) && json(contact.point) === json(bag.point)
         && json(contact.normal) === json(bag.normal) && contact.continuing === bag.continuing)) {
         throw new Error('actual field base contact provenance differs');
       }
-      const old = baseContacts.find((contact) => contact.baseId === bag.baseId && contact.moment.elapsedSeconds === at.elapsedSeconds);
-      if (old && json(old) !== json(bag)) throw new Error('coincident actual field base contact identities differ');
-      if (!old) baseContacts.push(bag);
     }
     for (const contact of raw) if (contact.kind === 'surface') {
       const bag = (['home', 'first', 'second', 'third'] as const).find((baseId) => contact.surfaceId === battedWorldBaseSurfaceId(baseId));
       if (bag && !bags.some((value) => value.baseId === bag)) throw new Error('actual field base contact provenance is incomplete');
+    }
+    const normalizedContacts = raw.map(normalized), previous = contacts.at(-1);
+    if (previous && previous.moment.elapsedSeconds > at.elapsedSeconds) throw new Error('actual field contact chronology differs');
+    if (previous?.moment.elapsedSeconds === at.elapsedSeconds) {
+      const extra = normalizedContacts.filter((contact) => !previous.contacts.some((old) => json(old) === json(contact)));
+      if (previous.moment.originTick !== at.originTick || json(previous.moment.ball.position) !== json(at.ball.position)
+        || extra.length && json(previous.moment) !== json(at)) throw new Error('coincident actual field contact states differ');
+      // A response can change velocity/spin without advancing time. Repeated
+      // identities retain their first incoming rule moment, never a new impact.
+      contacts[contacts.length - 1] = { moment: previous.moment, contacts: [...previous.contacts, ...extra] };
+    } else contacts.push({ moment: at, contacts: normalizedContacts });
+    for (const bag of bags) {
+      const projected = { ...bag, moment: contacts.at(-1)!.moment };
+      const index = baseContacts.findIndex((contact) => contact.baseId === bag.baseId && contact.moment.elapsedSeconds === at.elapsedSeconds);
+      const old = baseContacts[index];
+      if (old && json({ ...old, continuing: true }) !== json({ ...projected, continuing: true })) {
+        throw new Error('coincident actual field base contact identities differ');
+      }
+      // Persistence is additional evidence at that instant; deduplication must
+      // not erase it or rewrite any raw Native contact/snapshot.
+      if (!old) baseContacts.push(projected);
+      else if (bag.continuing && !old.continuing) baseContacts[index] = { ...old, continuing: true };
     }
   };
   const control = (playerId: string, start: number, end: number, endInclusive: boolean) => {
