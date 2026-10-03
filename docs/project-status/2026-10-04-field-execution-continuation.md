@@ -2,6 +2,8 @@
 
 更新: 2026-10-04 JST（2026-10-03 UTC）
 
+> 続報: [actual field履歴・一塁判定接続](2026-10-04-field-rule-continuation.md)を追加した。前段の公開位置は[PR260](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/260)。以下は前段の検証記録。
+
 ## 再開範囲と結論
 
 ユーザーの最新指示により、[#259](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/259) の保存済み残計画から非デザイン実装を再開した。この変更は、[直前のチェックポイント](2026-10-04-nonvisual-implementation-checkpoint.md) §5項目2の「新field ownerへのactual acquisition/custody/carried continuation/transfer/throw」を実装する。旧文書の停止記録は当時の記録として保持する。

@@ -4,13 +4,21 @@ import { deriveBattedWorldFieldMotion, type BattedWorldFieldMotion } from '../..
 import { deriveBattedWorldFieldAcquisition, type BattedWorldFieldAcquisition } from '../../core/sim/ball/BattedWorldFieldAcquisition';
 import { deriveBattedWorldFieldThrow, type BattedWorldFieldThrow } from '../../core/sim/ball/BattedWorldFieldThrow';
 import type { BattedWorldBallCursor } from '../../core/sim/ball/BattedWorldContinuation';
+import type { BattedWorldBaseId } from '../../core/sim/ball/BattedWorldBaseGeometry';
+import { deriveBallWorldPlayerBaseContactHistory } from '../../core/sim/ball/BallWorldPlayerBaseContactHistory';
+import { findBallWorldControlledBaseContacts } from '../../core/sim/ball/BallWorldControlledBaseContacts';
+import { createRunnerBaseFactsFromBallWorldHistory, createControlledBaseFactsFromBallWorldContacts } from '../../core/rules/BallWorldBaseContactPhysicalAdapter';
+import { deriveBallWorldFieldFirstBaseRace } from '../../core/rules/BallWorldFieldFirstBaseRace';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { battedWorldResponseInput } from './SqliteBattedWorldContinuationStore';
 import { battedWorldMotionCommandsInput, battedWorldMotionPrimitiveCommands, type AcceptedBattedWorldMotion } from './SqliteBattedWorldMotionStore';
 import { battedWorldFieldEvidenceFromSqlite, type DurableBattedWorldFieldAction, type SqliteBattedWorldFieldStore } from './SqliteBattedWorldFieldStore';
 import { playerFieldingModelEvidenceFromSqlite, type DurablePlayerFieldingModel } from './SqlitePlayerFieldingModelStore';
+import { battedWorldFieldPhysicalPrefix, battedWorldFieldBaseTouchHistoryFromPrefix } from './BattedWorldFieldPhysicalPrefix';
 
 type Action = Readonly<{ kind: 'acquisition' }>
+  | Readonly<{ kind: 'base_touch_history'; playerId: string; base: BattedWorldBaseId }>
+  | Readonly<{ kind: 'first_base_race' }>
   | Readonly<{ kind: 'motion'; availableAtTick: number; throughTick: number; commands: AcceptedBattedWorldMotion['commands'] }>
   | Readonly<{ kind: 'throw'; availableAtTick: number; throughTick: number; commands: AcceptedBattedWorldMotion['commands'];
     modelSourceId: string; receiverPlayerId: string }>;
@@ -18,7 +26,14 @@ export type AcceptedBattedWorldFieldExecution = Readonly<{ sourceId: string; sou
   baseFieldSourceId: string; previousExecutionSourceId: string | null; action: Action }>;
 type Execution = Readonly<{ kind: 'motion'; field: BattedWorldFieldMotion }>
   | Readonly<{ kind: 'acquisition'; field: BattedWorldFieldMotion; acquisition: BattedWorldFieldAcquisition }>
-  | Readonly<{ kind: 'throw'; field: BattedWorldFieldMotion; model: DurablePlayerFieldingModel; throw: BattedWorldFieldThrow }>;
+  | Readonly<{ kind: 'throw'; field: BattedWorldFieldMotion; model: DurablePlayerFieldingModel; throw: BattedWorldFieldThrow }>
+  | (Readonly<{ kind: 'base_touch_history'; field: BattedWorldFieldMotion; playerId: string; base: BattedWorldBaseId;
+    physicalRuleFacts: readonly (ReturnType<typeof createRunnerBaseFactsFromBallWorldHistory>[number] | ReturnType<typeof createControlledBaseFactsFromBallWorldContacts>[number])[] }>
+    & ReturnType<typeof battedWorldFieldBaseTouchHistoryFromPrefix>)
+  | (Readonly<{ kind: 'first_base_race'; field: BattedWorldFieldMotion;
+    batterFirstBase: ReturnType<typeof battedWorldFieldBaseTouchHistoryFromPrefix>;
+    defendersFirstBase: readonly ReturnType<typeof battedWorldFieldBaseTouchHistoryFromPrefix>[] }>
+    & ReturnType<typeof deriveBallWorldFieldFirstBaseRace>);
 export type DurableBattedWorldFieldExecution = Readonly<{ source: AcceptedBattedWorldFieldExecution; baseField: DurableBattedWorldFieldAction;
   revision: number; history: readonly AcceptedBattedWorldFieldExecution[]; execution: Execution }>;
 export type SqliteBattedWorldFieldExecutionStore = Readonly<{ accept(sourceId: string): DurableBattedWorldFieldExecution;
@@ -40,7 +55,13 @@ const input = (raw: AcceptedBattedWorldFieldExecution, sourceId: string): Accept
     throw new Error('invalid accepted actual field execution Source');
   }
   const action = source.action;
-  if (action?.kind === 'acquisition' && fields(action, ['kind'])) return source;
+  if ((action?.kind === 'acquisition' || action?.kind === 'first_base_race') && fields(action, ['kind'])) return source;
+  if (action?.kind === 'base_touch_history') {
+    if (!fields(action, ['kind', 'playerId', 'base']) || !id(action.playerId) || !['home', 'first', 'second', 'third'].includes(action.base)) {
+      throw new Error('invalid actual field base history Source');
+    }
+    return source;
+  }
   if (action?.kind !== 'motion' && action?.kind !== 'throw'
     || !fields(action, ['kind', 'availableAtTick', 'throughTick', 'commands', ...(action.kind === 'throw' ? ['modelSourceId', 'receiverPlayerId'] : [])])
     || !tick(action.availableAtTick) || !tick(action.throughTick)
@@ -58,17 +79,50 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
     return value;
   };
   const execute = (source: AcceptedBattedWorldFieldExecution, baseField: DurableBattedWorldFieldAction,
-    previous: DurableBattedWorldFieldExecution | null): DurableBattedWorldFieldExecution => {
+    previous: DurableBattedWorldFieldExecution | null, prefix: readonly DurableBattedWorldFieldExecution[]): DurableBattedWorldFieldExecution => {
     const prior = previous?.execution, original = prior?.field ?? baseField.field, motion = original.motion;
     const response = battedWorldResponseInput(baseField.response), geometry = baseField.geometry.geometry;
+    const physicalPrior = [...prefix].reverse().find((value) => value.execution.kind === 'motion'
+      || value.execution.kind === 'acquisition' || value.execution.kind === 'throw')?.execution;
     let execution: Execution;
     if (source.action.kind === 'acquisition') {
-      if (prior?.kind === 'acquisition') throw new Error('actual field acquisition is already resolved');
+      if (physicalPrior?.kind === 'acquisition') throw new Error('actual field acquisition is already resolved');
       execution = { kind: 'acquisition', field: original, acquisition: deriveBattedWorldFieldAcquisition({ response, geometry, field: original }) };
+    } else if (source.action.kind === 'base_touch_history' || source.action.kind === 'first_base_race') {
+      const world = baseField.response.touch.worldContact, batter = world.flight.physicalPitch.frame.batterActor!;
+      const prefixInput = { baseField, fields: ownFields.scope(baseField, baseField.source.sourceId), executions: prefix };
+      if (source.action.kind === 'base_touch_history') {
+        const action = source.action, registered = [batter.binding, ...batter.defenderBindings].find((value) => value.playerId === action.playerId);
+        const actor = world.modelActorEvidence.find((value) => value.binding.playerId === action.playerId);
+        if (!registered || !actor || json(actor.binding) !== json(registered)
+          || action.playerId === batter.binding.playerId && json(actor.person) !== json(batter.person)) throw new Error('actual field base history Player/Person scope differs');
+        const surface = geometry.baseGeometry.bases[action.base];
+        const history = battedWorldFieldBaseTouchHistoryFromPrefix({ ...prefixInput, playerId: action.playerId,
+          base: surface.region, baseSurfaceHeightMeters: surface.surfaceHeightMeters });
+        const physicalRuleFacts = action.playerId === batter.binding.playerId
+          ? createRunnerBaseFactsFromBallWorldHistory({ history: history.history, base: action.base })
+          : createControlledBaseFactsFromBallWorldContacts({ history: history.history, contacts: history.controlledContacts, base: action.base });
+        execution = { kind: 'base_touch_history', field: original, playerId: action.playerId, base: action.base, ...history, physicalRuleFacts };
+      } else {
+        const physical = battedWorldFieldPhysicalPrefix(prefixInput), surface = geometry.baseGeometry.bases.first;
+        const historyFor = (playerId: string) => {
+          const history = deriveBallWorldPlayerBaseContactHistory({ segments: physical.segments, playerId,
+            base: surface.region, baseSurfaceHeightMeters: surface.surfaceHeightMeters });
+          const controlWindows = physical.controlWindows.filter((value) => value.playerId === playerId)
+            .map(({ playerId: _, ...window }) => window);
+          return { history, controlledContacts: findBallWorldControlledBaseContacts({ history, controlWindows }) };
+        };
+        const batterFirstBase = historyFor(batter.binding.playerId), defendersFirstBase = batter.defenderBindings.map((binding) => historyFor(binding.playerId));
+        const ball = physical.field.evidence;
+        const result = deriveBallWorldFieldFirstBaseRace({ field: physical.field, race: { outsAtStart: world.flight.physicalPitch.frame.match.outs,
+          batterRunnerId: ball.batterRunnerId, defenderIds: ball.defenderIds, originTick: ball.originTick, ticksPerSecond: ball.ticksPerSecond,
+          horizonElapsedSeconds: ball.horizon.elapsedSeconds, runnerHistory: batterFirstBase.history, defenders: defendersFirstBase } });
+        execution = { kind: 'first_base_race', field: original, ...result, batterFirstBase, defendersFirstBase };
+      }
     } else {
       let cursor: BattedWorldBallCursor | null = motion.cursor, carrierPlayerId = motion.carrierPlayerId;
-      if (prior?.kind === 'acquisition') {
-        const acquired = prior.acquisition;
+      if (physicalPrior?.kind === 'acquisition') {
+        const acquired = physicalPrior.acquisition;
         if (acquired.kind !== 'secured') throw new Error('actual field acquisition remains unresolved');
         carrierPlayerId = acquired.acquirerPlayerId;
         cursor = { moment: acquired.moment, previousContacts: [{ kind: 'actor', playerId: carrierPlayerId, role: 'glove' }] };
@@ -123,7 +177,7 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
       const source = input(JSON.parse(row.source_json) as AcceptedBattedWorldFieldExecution, row.source_id);
       if (source.baseFieldSourceId !== baseId || source.previousExecutionSourceId !== row.previous_source_id
         || row.source_json !== json(source) || row.source_hash !== hash(source)) throw new Error('corrupt original actual field execution Source');
-      const value = execute(source, baseField, values.at(-1) ?? null);
+      const value = execute(source, baseField, values.at(-1) ?? null, values);
       if (row.snapshot_json !== json(value) || row.snapshot_hash !== hash(value)) throw new Error('corrupt actual field execution snapshot');
       values.push(value);
     }
@@ -137,9 +191,9 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
     return scope(root(source), sourceId).at(-1)!;
   };
   const derive = (source: AcceptedBattedWorldFieldExecution) => {
-    const baseField = root(source), previous = scope(baseField).at(-1) ?? null;
+    const baseField = root(source), prefix = scope(baseField), previous = prefix.at(-1) ?? null;
     if (source.previousExecutionSourceId !== (previous?.source.sourceId ?? null)) throw new Error('actual field execution predecessor differs');
-    return execute(source, baseField, previous);
+    return execute(source, baseField, previous, prefix);
   };
   const currentRoot = (value: DurableBattedWorldFieldExecution) => {
     ownFields.current(value.baseField);
