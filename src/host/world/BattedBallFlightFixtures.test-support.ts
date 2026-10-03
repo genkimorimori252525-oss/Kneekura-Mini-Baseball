@@ -6,8 +6,9 @@ import { resolveContinuousPlayerPitchAgainstBatterFromWorld } from './Continuous
 import { physicalPlateAppearanceActorFixture } from './PhysicalPlateAppearanceActorFixtures.test-support';
 import { openSqliteBattedBallFlightStore, type AcceptedBattedBallFlight } from './SqliteBattedBallFlightStore';
 
-export const battedBallFlightFixture = (path?: string, withActor = true, withContact = true) => {
-  const base = physicalPlateAppearanceActorFixture(path), { f, actors, source, actions, pitches } = base;
+export const battedBallFlightFixture = (path?: string, withActor = true, withContact = true, alignFieldWithInitialBases = false,
+  fixtureBinding?: Parameters<typeof physicalPlateAppearanceActorFixture>[1]) => {
+  const base = physicalPlateAppearanceActorFixture(path, fixtureBinding), { f, actors, source, actions, pitches } = base;
   if (withActor) actors.accept(source.sourceId);
   const preview = resolveContinuousPlayerPitchAgainstBatterFromWorld(f.stores, { ...f.input, effortPolicySourceId: f.effort.sourceId });
   const startTick = preview.pitch.trajectory.start.tick + 590_000;
@@ -19,10 +20,12 @@ export const battedBallFlightFixture = (path?: string, withActor = true, withCon
         linearVelocity: { x: 0, y: 0, z: 0 }, angularVelocity: { x: 0, y: 0, z: 0 } } } } } } } : action);
   const physical = pitches.accept(action.sourceId, 0);
   const fixture = f.db.prepare('SELECT venue_id FROM official_fixtures WHERE game_id=?').get('game-1') as { venue_id: string };
+  const centers = physical.frame.initialWorld!.source.worldSetup.baseCenters;
+  const ray = (point: { x: number; z: number }) => { const length = Math.hypot(point.x, point.z); return { x: point.x / length, z: point.z / length }; };
   const input: AcceptedBattedBallFlight = { sourceId: 'flight-1', sourceVersion: 'fixture-v1', physicalPitchSourceId: action.sourceId,
     previousFlightSourceId: null, searchDurationTicks: 0, execution: { venueId: fixture.venue_id, availableAtDay: 1,
-      field: createFairTerritoryWedge({ homePlate: { x: 0, z: 0 }, firstBaseLineUnit: { x: Math.SQRT1_2, z: Math.SQRT1_2 },
-        thirdBaseLineUnit: { x: -Math.SQRT1_2, z: Math.SQRT1_2 } }),
+      field: createFairTerritoryWedge({ homePlate: { x: 0, z: 0 }, firstBaseLineUnit: alignFieldWithInitialBases ? ray(centers.first) : { x: Math.SQRT1_2, z: Math.SQRT1_2 },
+        thirdBaseLineUnit: alignFieldWithInitialBases ? ray(centers.third) : { x: -Math.SQRT1_2, z: Math.SQRT1_2 } }),
       ballFlightParameters: { ...DEFAULT_BALL_FLIGHT_PARAMETERS, groundRollingDecelerationMps2: 4 } } };
   const accepted = new Map<string, AcceptedBattedBallFlight>([[input.sourceId, input]]);
   const flights = f.track(openSqliteBattedBallFlightStore(f.path, pitches, { readAcceptedFlight: (id) => accepted.get(id) ?? null }));
