@@ -18,7 +18,8 @@ Authority remains the current approved Foundation44b9f5de7b9d87e649f12f1af78c202
 - Initial typecheck found a free/constrained World union mismatch. The later acquisition entry point now explicitly requires the free World phase; final typecheck GREEN.
 - Expanded gate93537 terminated exit0:6files85tests GREEN,535.96seconds. It includes15actual WAL callback/trigger rollback/recovery/lower-owner tests,12execution Native tests,16related original motion tests,5later acquisition tests,16original acquisition tests and21continuous collision-root tests.
 - One fresh readonly whole-branch review reported no concrete findings. It checked continuous acquisition/carry, complete World coverage, Native root/prefix/hash/head ownership, current checks, recovery and lower-writer fences; `git diff --check` GREEN.
-- A frozen whole gate remains required before publication. No claim is made that it is complete.
+- Frozen whole gate39800 terminated exit0 on37d6d6266325013e8f9e66a7652afb2cd23c4795:591files3724tests GREEN,7708.03seconds, including581Source files3697tests and10untracked scratch review files27tests. Typecheck/catalog completed in the same verify command. All8changed Source hashes remained identical; terminal ended2026-10-03T09:19:22.6675885Z. Process-local K: TEMP/TMP and two workers were used. Scratch remains untracked and unstaged.
+- Published motion closure3357039e47221b601f6490ed227ed940370c1783 was integrated locally after verification; only four upstream documents changed. Source tree remainsfc0d99b711127b300d3ffbe38951747f838559ec, identical to the verified commit. Ordinary stacked publication follows motion PR250; no PR merge.
 
 ## Remaining full goal
 
