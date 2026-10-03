@@ -118,11 +118,7 @@ export const executePhysicalPitchAction = (source: AcceptedPhysicalPitchActionSo
   return freeze({ source, progressRevision, frame, beforeTimeline, result });
 };
 
-export const readPhysicalPitchProgressFromSqlite = (db: PhysicalPitchDb, gameId: string, playId: number): DurablePhysicalPitch[] => {
-  try {
-    const rows = db.prepare('SELECT * FROM physical_pitch_progress_actions WHERE game_id=? AND play_id=? ORDER BY progress_revision').all(gameId, playId) as Row[];
-    const head = db.prepare('SELECT revision, last_source_id FROM physical_pitch_progress_heads WHERE game_id=? AND play_id=?').get(gameId, playId) as { revision: number; last_source_id: string } | undefined;
-    if (rows.length === 0) { if (head) throw new Error('physical pitch head lacks history'); return []; }
+const replayPhysicalPitchRows = (db: PhysicalPitchDb, rows: readonly Row[], gameId: string, playId: number): DurablePhysicalPitch[] => {
     const first = JSON.parse(rows[0].snapshot_json) as DurablePhysicalPitch, frame = cloneInert(first.frame);
     if (frame.gameId !== gameId || frame.match.playId !== playId) throw new Error('physical pitch frame scope differs');
     assertPhysicalPitchOriginalEvidence(db, frame);
@@ -135,7 +131,50 @@ export const readPhysicalPitchProgressFromSqlite = (db: PhysicalPitchDb, gameId:
         || row.source_hash !== hash(source) || row.snapshot_json !== json(value) || row.snapshot_hash !== hash(value)) throw new Error('physical pitch archive differs');
       timeline = value.result.pitch.resolution.timeline; accepted.push(value);
     }
+    return accepted;
+};
+
+export const readPhysicalPitchProgressFromSqlite = (db: PhysicalPitchDb, gameId: string, playId: number): DurablePhysicalPitch[] => {
+  try {
+    const rows = db.prepare('SELECT * FROM physical_pitch_progress_actions WHERE game_id=? AND play_id=? ORDER BY progress_revision').all(gameId, playId) as Row[];
+    const head = db.prepare('SELECT revision, last_source_id FROM physical_pitch_progress_heads WHERE game_id=? AND play_id=?').get(gameId, playId) as { revision: number; last_source_id: string } | undefined;
+    if (rows.length === 0) { if (head) throw new Error('physical pitch head lacks history'); return []; }
+    const accepted = replayPhysicalPitchRows(db, rows, gameId, playId);
     if (!head || head.revision !== rows.length || head.last_source_id !== rows[rows.length - 1].source_id) throw new Error('physical pitch head diverged');
     return accepted;
   } catch (cause) { throw new Error('corrupt physical pitch progress history', { cause }); }
+};
+
+/** Replay only the original owned prefix, without executing later Sources that may depend on this evidence. */
+export const readOriginalPhysicalPitchPrefixFromSqlite = (db: PhysicalPitchDb, sourceId: string): DurablePhysicalPitch[] => {
+  try {
+    if (!id(sourceId)) throw new Error('invalid original physical pitch Source');
+    const endpoint = db.prepare('SELECT source_id,game_id,play_id,progress_revision FROM physical_pitch_progress_actions WHERE source_id=?')
+      .get(sourceId) as Pick<Row, 'source_id' | 'game_id' | 'play_id' | 'progress_revision'> | undefined;
+    if (!endpoint || !id(endpoint.game_id) || !integer(endpoint.play_id) || !integer(endpoint.progress_revision) || endpoint.progress_revision === 0) {
+      throw new Error('original physical pitch Source is missing or invalid');
+    }
+    const head = db.prepare('SELECT revision,last_source_id FROM physical_pitch_progress_heads WHERE game_id=? AND play_id=?')
+      .get(endpoint.game_id, endpoint.play_id) as { revision: number; last_source_id: string } | undefined;
+    const metadata = db.prepare('SELECT source_id,progress_revision FROM physical_pitch_progress_actions WHERE game_id=? AND play_id=? ORDER BY progress_revision')
+      .all(endpoint.game_id, endpoint.play_id) as Pick<Row, 'source_id' | 'progress_revision'>[];
+    if (!head || !integer(head.revision) || head.revision < endpoint.progress_revision || !id(head.last_source_id)
+      || metadata.length !== head.revision || metadata.at(-1)?.source_id !== head.last_source_id
+      || metadata.some((row, index) => !id(row.source_id) || !integer(row.progress_revision) || row.progress_revision !== index + 1)) {
+      throw new Error('original physical pitch current prefix structure differs');
+    }
+    const rows = db.prepare('SELECT * FROM physical_pitch_progress_actions WHERE game_id=? AND play_id=? AND progress_revision<=? ORDER BY progress_revision')
+      .all(endpoint.game_id, endpoint.play_id, endpoint.progress_revision) as Row[];
+    if (rows.length !== endpoint.progress_revision || rows.at(-1)?.source_id !== sourceId) throw new Error('original physical pitch endpoint differs');
+    return replayPhysicalPitchRows(db, rows, endpoint.game_id, endpoint.play_id);
+  } catch (cause) { throw new Error('corrupt original physical pitch prefix', { cause }); }
+};
+
+/** Canonical identity of the owned endpoint, equal to its actual head archive when first accepted. */
+export const captureOriginalPhysicalPitchRows = (db: PhysicalPitchDb, sourceId: string): Readonly<{ actions: readonly string[]; head: string }> => {
+  const pitch = readOriginalPhysicalPitchPrefixFromSqlite(db, sourceId).at(-1)!;
+  const actions = db.prepare('SELECT * FROM physical_pitch_progress_actions WHERE game_id=? AND play_id=? AND progress_revision<=? ORDER BY progress_revision')
+    .all(pitch.frame.gameId, pitch.frame.match.playId, pitch.progressRevision).map(hash);
+  return freeze({ actions, head: hash({ game_id: pitch.frame.gameId, play_id: pitch.frame.match.playId,
+    revision: pitch.progressRevision, last_source_id: sourceId }) });
 };

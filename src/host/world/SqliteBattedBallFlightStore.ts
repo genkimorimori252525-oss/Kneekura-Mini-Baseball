@@ -6,8 +6,8 @@ import { createFairTerritoryWedge, type FairTerritoryWedge } from '../../core/si
 import { classifyFirstGroundContactTerritory, type FirstGroundContactTerritory } from '../../core/sim/ball/FirstGroundContactTerritory';
 import { DEFAULT_CONTACT_PARAMETERS } from '../../core/sim/contact/BatBallContact';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze, assertPhysicalActorOpenFrame } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
-import { captureClosurePitchRows, assertPriorPhysicalClosureCompleted } from './PhysicalPlayClosureEvidenceFromSqlite';
-import { readPhysicalPitchProgressFromSqlite } from './PhysicalPitchEvidenceFromSqlite';
+import { assertPriorPhysicalClosureCompleted } from './PhysicalPlayClosureEvidenceFromSqlite';
+import { readPhysicalPitchProgressFromSqlite, readOriginalPhysicalPitchPrefixFromSqlite, captureOriginalPhysicalPitchRows } from './PhysicalPitchEvidenceFromSqlite';
 import type { DurablePhysicalPitch, SqlitePhysicalPitchProgressStore } from './SqlitePhysicalPitchProgressStore';
 
 export type AcceptedBattedBallFlight = Readonly<{
@@ -57,7 +57,7 @@ export const battedBallFlightEvidenceFromSqlite = (db: Pick<import('node:sqlite'
       game_id: string; play_id: number; snapshot_json: string;
     } | undefined;
     if (!row) throw new Error('actual batted flight physical pitch is missing');
-    const pitch = readPhysicalPitchProgressFromSqlite(db, row.game_id, row.play_id).at(-1);
+    const pitch = readOriginalPhysicalPitchPrefixFromSqlite(db, sourceId).at(-1);
     if (!pitch || pitch.source.sourceId !== sourceId || row.snapshot_json !== json(pitch)) throw new Error('batted flight original physical progress differs');
     return pitch;
   };
@@ -78,7 +78,7 @@ export const battedBallFlightEvidenceFromSqlite = (db: Pick<import('node:sqlite'
       || s.searchDurationTicks <= parent.source.searchDurationTicks) throw new Error('batted flight previous Source, execution or horizon differs');
     const flight = createBattedBallFlightEvidence({ contact: contact.payload.contact, searchDurationTicks: s.searchDurationTicks,
       parameters: s.execution.ballFlightParameters });
-    const rows = captureClosurePitchRows(db, s.physicalPitchSourceId);
+    const rows = captureOriginalPhysicalPitchRows(db, s.physicalPitchSourceId);
     return freeze({ source: s, revision: (parent?.revision ?? 0) + 1, physicalPitch,
       originalPitchRows: { actions: rows.actions, head: rows.head }, flight,
       projectedGroundTerritory: classifyFirstGroundContactTerritory(flight, s.execution.field) });
@@ -98,6 +98,10 @@ export const battedBallFlightEvidenceFromSqlite = (db: Pick<import('node:sqlite'
     return value;
   };
   const openFrame = (pitch: DurablePhysicalPitch) => {
+    const currentPitch = readPhysicalPitchProgressFromSqlite(db, pitch.frame.gameId, pitch.frame.match.playId).at(-1);
+    if (!currentPitch || currentPitch.source.sourceId !== pitch.source.sourceId || json(currentPitch) !== json(pitch)) {
+      throw new Error('batted flight new write requires the current physical pitch head');
+    }
     assertPriorPhysicalClosureCompleted(db, pitch.frame.activationApplicationId);
     assertPhysicalActorOpenFrame(db, pitch.frame.batterActor!);
     const workload = db.prepare('SELECT revision,state_json FROM world_player_workload_heads WHERE career_id=? AND player_id=?')
