@@ -36,7 +36,7 @@ export const battedWorldFieldExecutionFixture = (path?: string, kind: 'free' | '
   return { ...base, baseField, source, sources, authority, executions, fieldSource: base.source, fieldSources: base.sources };
 };
 
-export const battedWorldFieldThrowFixture = (path?: string) => {
+export const battedWorldFieldThrowFixture = (path?: string, transferDelayTicks?: number) => {
   const base = battedWorldFieldExecutionFixture(path, 'candidate'), acquired = base.executions.accept(base.source.sourceId);
   if (acquired.execution.kind !== 'acquisition' || acquired.execution.acquisition.kind !== 'secured') throw new Error('field capture fixture');
   const capture = acquired.execution.acquisition, world = base.response.touch.worldContact;
@@ -47,7 +47,8 @@ export const battedWorldFieldThrowFixture = (path?: string) => {
     ratings: { positionSuitability: { P: 0.5, C: 0.5, '1B': 0.5, '2B': 0.5, '3B': 0.5, SS: 0.5, LF: 0.5, CF: 0.5, RF: 0.5 },
       firstStep: 0.5, acceleration: 0.5, battedBallRead: 0.5, routeEfficiency: 0.5, catching: 0.5, transfer: 0.5,
       armStrength: 0.5, throwingAccuracy: 0.5, situationalAwareness: 0.5, tagSkill: 0.5 },
-    transferParameters: { minimumTransferDelayTicks: 100, maximumTransferDelayTicks: 300, fixedGripOffsetTicks: 10 },
+    transferParameters: transferDelayTicks === undefined ? { minimumTransferDelayTicks: 100, maximumTransferDelayTicks: 300, fixedGripOffsetTicks: 10 }
+      : { minimumTransferDelayTicks: transferDelayTicks, maximumTransferDelayTicks: transferDelayTicks, fixedGripOffsetTicks: 0 },
     throwCalibration: { minimumReleaseSpeedMps: 10, maximumReleaseSpeedMps: 30, minimumTargetErrorMeters: 0, maximumTargetErrorMeters: 1 } };
   const fieldingSources = new Map([[fieldingSource.sourceId, fieldingSource]]);
   const fielding = base.f.track(openSqlitePlayerFieldingModelStore(base.f.path, { readAcceptedModel: (id) => fieldingSources.get(id) ?? null }));

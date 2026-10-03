@@ -1,12 +1,12 @@
 import { createDefensiveRatings } from '../../model/DefensiveRatings';
-import { DEFAULT_BALL_FLIGHT_PARAMETERS } from '../ball/BallFlight';
-import { createBattedBallFlightEvidence } from '../ball/BattedBallFlightEvidence';
-import type { BattedBallContactResponseInput } from '../ball/BattedBallContactResponse';
-import { createBattedWorldFieldGeometry, deriveInitialBattedWorldFieldMotion } from '../ball/BattedWorldFieldMotion';
-import { deriveBattedWorldFieldAcquisition } from '../ball/BattedWorldFieldAcquisition';
+import { DEFAULT_BALL_FLIGHT_PARAMETERS } from './BallFlight';
+import { createBattedBallFlightEvidence } from './BattedBallFlightEvidence';
+import type { BattedBallContactResponseInput } from './BattedBallContactResponse';
+import { createBattedWorldFieldGeometry, deriveInitialBattedWorldFieldMotion } from './BattedWorldFieldMotion';
+import { deriveBattedWorldFieldAcquisition } from './BattedWorldFieldAcquisition';
 
 export const v = (x: number, y: number, z: number) => ({ x, y, z });
-const material = { restitution: 0.5, tangentialDamping: 0, spinDamping: 0 };
+export const material = { restitution: 0.5, tangentialDamping: 0, spinDamping: 0 };
 export const geometry = (firstX = 3) => {
   const base = (x: number, z: number) => ({ region: { center: { x, z }, halfSize: { x: 0.25, z: 0.25 }, rotationRadians: 0 }, surfaceHeightMeters: 1 });
   return createBattedWorldFieldGeometry({ baseGeometry: { field: { homePlate: { x: 0, z: 0 },
@@ -25,7 +25,7 @@ export const fixture = (originTick = 0, power = 1, height = 0.5, z = 0) => {
   const profile = { role: 'glove' as const, pocketCenterOffset: v(-0.25, 0, 0), bodyStability: 1,
     parameters: { ticksPerSecond: parameters.ticksPerSecond, ballMassKg: 0.125, ballRadiusMeters: 0.125, pocketRadiusMeters: 1,
       centerRetentionCapacityJ: 1000, captureDissipationPowerW: power, failedContactRestitution: 0.5, failedTangentialDamping: 0, failedSpinDamping: 0 } };
-  const response: BattedBallContactResponseInput = { world: { flight: createBattedBallFlightEvidence({ contact, parameters, searchDurationTicks: 0 }),
+  const response: BattedBallContactResponseInput = { world: { flight: createBattedBallFlightEvidence({ contact, parameters, searchDurationTicks: 5_000_000 }),
     parameters, throughTick: originTick + 5_000_000, actors, surfaces: [] }, actors: actors.map(({ playerId }) => ({ playerId, profile })), surfaces: [] };
   return { response, geometry: geometry(), availableAtTick: originTick, throughTick: originTick + 5_000_000,
     commands: actors.map(({ playerId }) => ({ playerId, role: 'glove' as const, acceleration: v(0, 0, 0) })) };
@@ -43,26 +43,4 @@ export const throwInput = (input = fixture(), delay = 100_000) => {
     ratings, transferParameters: { minimumTransferDelayTicks: delay, maximumTransferDelayTicks: delay, fixedGripOffsetTicks: 0 },
     throwCalibration: { minimumReleaseSpeedMps: 5, maximumReleaseSpeedMps: 5, minimumTargetErrorMeters: 0, maximumTargetErrorMeters: 0 },
     seed: { matchSeed: 42, playId: 1, streamKey: 'field-throw' } };
-};
-
-import { asRuleProfileId } from '../../model/RuleProfileRef';
-import { createCanonicalPlateAppearanceTimeline, recordBatBallContact } from './CanonicalPlateAppearanceTimeline';
-import type { CanonicalWholePlayHistoryInput, WholePlaySourceRef } from './CanonicalWholePlayHistory';
-export const historySource = (revision: number, sourceId = `execution-${revision}`): WholePlaySourceRef =>
-  ({ owner: 'field_execution', sourceId, revision, physicalPitchSourceId: 'pitch-1' });
-export const acquiredHistory = (f = fixture()): CanonicalWholePlayHistoryInput => {
-  const contact = f.response.world.flight.contact;
-  const originalTimeline = recordBatBallContact(createCanonicalPlateAppearanceTimeline({ ruleProfileId: asRuleProfileId('npb-2026'),
-    inning: 1, half: 'top', outs: 0, balls: 0, strikes: 0, bases: { first: null, second: null, third: null },
-    score: { away: 0, home: 0 }, playId: 1 }, contact.tick), contact);
-  const moment = { originTick: contact.tick, elapsedSeconds: 0, ball: f.response.world.flight.initialBall };
-  const field = deriveInitialBattedWorldFieldMotion(f);
-  const acquisition = deriveBattedWorldFieldAcquisition({ response: f.response, geometry: f.geometry, field });
-  if (acquisition.kind !== 'secured') throw new Error('scheduled history fixture must secure');
-  return { scope: { gameId: 'game-1', playId: 1, physicalPitchSourceId: 'pitch-1' }, originalTimeline,
-    origin: { moment, actors: f.response.world.actors, batterRunnerId: 'batter', defenderIds: ['carrier', 'receiver'],
-      ticksPerSecond: f.response.world.parameters.ticksPerSecond },
-    steps: [{ source: { ...historySource(1, 'field-1'), owner: 'field_action' }, previousSourceId: null, kind: 'motion',
-      startCursor: { moment, previousContacts: [] }, field },
-    { source: historySource(1), previousSourceId: null, kind: 'acquisition', field, acquisition }] };
 };

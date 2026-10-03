@@ -9,6 +9,7 @@ import { quantizeEventTick } from '../ExactEventTime';
 import type { BallWorldBaseBoundaryContact } from '../ball/BallWorldBaseBoundary';
 import type { BattedWorldFieldAcquisition } from '../ball/BattedWorldFieldAcquisition';
 import type { BattedWorldFieldThrow } from '../ball/BattedWorldFieldThrow';
+import { validateBattedWorldScheduledFieldThrowPlan, type BattedWorldScheduledFieldThrowPlan, type BattedWorldScheduledFieldThrowAdvance } from '../ball/BattedWorldScheduledFieldThrow';
 import type { CatchRetentionResolution } from '../fielding/CatchRetention';
 
 /** Source IDs are scoped by their Native owner and original physical pitch. */
@@ -18,11 +19,16 @@ type Owned = Readonly<{ source: WholePlaySourceRef; previousSourceId: string | n
 export type WholePlayPhysicalStep = Owned & (
   Readonly<{ kind: 'motion'; startCursor: BattedWorldBallCursor; field: BattedWorldFieldMotion }>
   | Readonly<{ kind: 'acquisition'; field: BattedWorldFieldMotion; acquisition: BattedWorldFieldAcquisition }>
-  | Readonly<{ kind: 'throw'; startCursor: BattedWorldBallCursor; field: BattedWorldFieldMotion; throw: BattedWorldFieldThrow }>);
+  | Readonly<{ kind: 'throw'; startCursor: BattedWorldBallCursor; field: BattedWorldFieldMotion; throw: BattedWorldFieldThrow }>
+  | Readonly<{ kind: 'throw_advance'; planSourceId: string; startCursor: BattedWorldBallCursor;
+    field: BattedWorldFieldMotion; progress: BattedWorldScheduledFieldThrowAdvance }>);
 /** Rule payloads remain in their source-bound owner; this link cannot execute time or embed history recursively. */
 export type WholePlayObservation = Owned & Readonly<{ kind: 'observation';
   observationKind: 'base_touch_history' | 'first_base_race' | 'whole_play_history'; basis: WholePlaySourceRef; horizon: BallWorldMoment }>;
-export type WholePlayHistoryStep = WholePlayPhysicalStep | WholePlayObservation;
+/** Admission preserves future action metadata without asserting a physical occurrence. */
+export type WholePlayScheduledThrowPlan = Owned & Readonly<{ kind: 'throw_plan'; basis: WholePlaySourceRef;
+  horizon: BallWorldMoment; plan: BattedWorldScheduledFieldThrowPlan }>;
+export type WholePlayHistoryStep = WholePlayPhysicalStep | WholePlayObservation | WholePlayScheduledThrowPlan;
 export type CanonicalWholePlayHistoryInput = Readonly<{
   scope: Readonly<{ gameId: string; playId: number; physicalPitchSourceId: string }>;
   originalTimeline: CanonicalPlateAppearanceTimeline;
@@ -40,6 +46,7 @@ export type CanonicalWholePlayHistory = Readonly<{
   scope: CanonicalWholePlayHistoryInput['scope']; originalPitch: WholePlayOriginalPitchRef;
   originalTimeline: CanonicalPlateAppearanceTimeline; origin: CanonicalWholePlayHistoryInput['origin'];
   physicalSteps: readonly WholePlayPhysicalStep[]; observations: readonly WholePlayObservation[];
+  scheduledThrowPlans?: readonly WholePlayScheduledThrowPlan[];
   frames: readonly WholePlayHistoryFrame[]; horizon: BallWorldMoment;
   cursor: BattedWorldBallCursor | null; carrierPlayerId: string | null; end: Readonly<{ kind: 'unestablished' }>;
 }>;
@@ -190,6 +197,8 @@ export const deriveCanonicalWholePlayHistory = (raw: CanonicalWholePlayHistoryIn
     else fail('retention outcome kind differs');
   };
   const physicalSteps: WholePlayPhysicalStep[] = [], observations: WholePlayObservation[] = [];
+  const scheduledThrowPlans: WholePlayScheduledThrowPlan[] = [];
+  let pendingThrow: { step: WholePlayScheduledThrowPlan; previous: BattedWorldScheduledFieldThrowAdvance | null } | null = null;
   const originalPitch: WholePlayOriginalPitchRef = { owner: 'physical_pitch', sourceId: scope.physicalPitchSourceId };
   const frames: { originTick: number; elapsedSeconds: number; tick: number;
     occurrences: { source: WholePlaySourceRef | WholePlayOriginalPitchRef; phase: WholePlayHistoryPhase }[] }[] = [];
@@ -251,6 +260,86 @@ export const deriveCanonicalWholePlayHistory = (raw: CanonicalWholePlayHistoryIn
         || !physicalBasis || json(step.basis) !== json(physicalBasis) || json(step.horizon) !== json(horizon)) fail('observation physical basis differs');
       observations.push(step); continue;
     }
+    if (step.kind === 'throw_plan') {
+      const plan = step.plan, transfer = plan?.transfer;
+      if (!fields(step, ['source', 'previousSourceId', 'kind', 'basis', 'horizon', 'plan']) || pendingThrow || !cursor || !carrierPlayerId
+        || !physicalBasis || json(step.basis) !== json(physicalBasis) || json(step.horizon) !== json(horizon)
+        || !fields(plan, ['input', 'actors', 'transfer', 'releaseElapsedSeconds'])
+        || !fields(plan.input, ['response', 'geometry', 'cursor', 'actors', 'carrierPlayerId', 'availableAtTick', 'throughTick', 'commands',
+          'receiverPlayerId', 'ratings', 'transferParameters', 'throwCalibration', 'seed'])
+        || json(plan.input.cursor) !== json(cursor) || json(plan.input.actors) !== json(actors)
+        || plan.input.carrierPlayerId !== carrierPlayerId || !origin.defenderIds.includes(plan.input.receiverPlayerId)
+        || plan.input.receiverPlayerId === carrierPlayerId
+        || !fields(transfer, ['securedPossessionTick', 'transferDelayTicks', 'throwReadyTick']) || !Object.values(transfer).every(tick)
+        || transfer.securedPossessionTick !== horizon.ball.tick || transfer.throwReadyTick !== transfer.securedPossessionTick + transfer.transferDelayTicks
+        || plan.releaseElapsedSeconds !== (transfer.throwReadyTick - originTick) / p || plan.releaseElapsedSeconds < horizon.elapsedSeconds
+        || plan.input.throughTick < transfer.throwReadyTick) fail('scheduled throw admission differs from its physical basis');
+      validateBattedWorldScheduledFieldThrowPlan(plan);
+      scheduledThrowPlans.push(step); pendingThrow = { step, previous: null }; continue;
+    }
+    if (step.kind === 'throw_advance') {
+      if (!fields(step, ['source', 'previousSourceId', 'kind', 'planSourceId', 'startCursor', 'field', 'progress'])
+        || !pendingThrow || !cursor || !carrierPlayerId || step.planSourceId !== pendingThrow.step.source.sourceId
+        || json(step.startCursor) !== json(cursor)) fail('scheduled advance lacks its exact pending plan and cursor');
+      const { plan } = pendingThrow.step, previous = pendingThrow.previous, progress = step.progress;
+      const checkpoints = progress.checkpointElapsedSeconds, priorCheckpoints = previous?.checkpointElapsedSeconds ?? [];
+      if (!fields(progress, ['kind', 'transfer', 'startCursor', 'field', 'checkpointElapsedSeconds', 'planIdentity',
+        ...(progress.kind === 'released' ? ['releaseCursor', 'launch'] : [])])
+        || progress.planIdentity !== json(plan) || json(progress.transfer) !== json(plan.transfer) || json(progress.startCursor) !== json(cursor)
+        || json(progress.field) !== json(step.field) || json(step.field.motion.actors) !== json(plan.actors)
+        || carrierPlayerId !== plan.input.carrierPlayerId || !Array.isArray(checkpoints) || checkpoints.length !== priorCheckpoints.length + 1
+        || json(checkpoints.slice(0, -1)) !== json(priorCheckpoints)
+        || checkpoints.some((value) => !Number.isFinite(value))
+        || checkpoints.at(-1)! < horizon.elapsedSeconds
+        || checkpoints.at(-1) === horizon.elapsedSeconds && (previous !== null || plan.releaseElapsedSeconds !== horizon.elapsedSeconds)
+        || checkpoints.at(-1)! > (plan.input.throughTick - originTick) / p) fail('scheduled transfer lineage or coverage differs');
+      checkCursor(step.startCursor);
+      const end = step.field.motion.world.moment;
+      if (previous) {
+        if (json(step.field.motion.actors) !== json(actors)) fail('scheduled transfer actor anchors changed');
+        actors.forEach((actor) => validateActor(actor, end));
+      } else rebaseActors(step.field.motion.actors, end);
+      moment(end);
+      if (end.elapsedSeconds < horizon.elapsedSeconds || end.elapsedSeconds > checkpoints.at(-1)!
+        || end.elapsedSeconds > plan.releaseElapsedSeconds) fail('scheduled transfer executed horizon differs');
+      const glove = actors.find((actor) => actor.playerId === carrierPlayerId && actor.primitive.role === 'glove');
+      const dt = end.elapsedSeconds - horizon.elapsedSeconds;
+      if (!glove || !(['x', 'y', 'z'] as const).every((axis) => sameNumber(end.ball.position[axis],
+        step.startCursor.moment.ball.position[axis] + step.startCursor.moment.ball.velocity[axis] * dt + 0.5 * glove.primitive.acceleration[axis] * dt * dt))
+        || json(end.ball.spin) !== json(cursor.moment.ball.spin)) fail('scheduled transfer carried position differs');
+      if (progress.kind === 'released') {
+        const release = progress.releaseCursor.moment, launch = progress.launch;
+        checkCursor(progress.releaseCursor);
+        if (!fields(launch, ['releaseTick', 'origin', 'intendedTarget', 'aimedTarget', 'targetError', 'targetErrorScaleMeters', 'releaseSpeedMps', 'initialVelocity'])
+          || release.elapsedSeconds !== plan.releaseElapsedSeconds || release.elapsedSeconds !== end.elapsedSeconds
+          || !(['x', 'y', 'z'] as const).every((axis) => sameNumber(release.ball.position[axis], end.ball.position[axis]))
+          || json(release.ball.spin) !== json(step.startCursor.moment.ball.spin)
+          || release.ball.tick !== plan.transfer.throwReadyTick || launch.releaseTick !== plan.transfer.throwReadyTick
+          || json(launch.origin) !== json(release.ball.position) || json(launch.initialVelocity) !== json(release.ball.velocity)
+          || json(progress.releaseCursor.previousContacts) !== json(cursor.previousContacts)
+          || step.field.motion.carrierPlayerId !== null) fail('scheduled release clock or launch differs');
+        occurrence(release, ref, 'throw_release'); pendingThrow = null;
+      } else {
+        if (!(['x', 'y', 'z'] as const).every((axis) => sameNumber(end.ball.velocity[axis],
+          cursor!.moment.ball.velocity[axis] + glove.primitive.acceleration[axis] * dt))
+          || step.field.motion.carrierPlayerId !== carrierPlayerId) fail('scheduled transfer carried velocity or custody differs');
+        if (progress.kind === 'transfer') {
+          if (end.elapsedSeconds !== checkpoints.at(-1) || end.elapsedSeconds >= plan.releaseElapsedSeconds
+            || !step.field.motion.cursor || step.field.motion.response.kind !== 'carried'
+            || step.field.motion.world.kind === 'boundary') fail('scheduled pending transfer differs');
+          pendingThrow = { step: pendingThrow.step, previous: progress };
+        } else if (progress.kind === 'interrupted') {
+          if (step.field.motion.world.kind !== 'boundary' || step.field.motion.cursor !== null
+            || step.field.motion.response.kind !== 'unresolved' || step.field.motion.response.reason !== 'carried_contact') {
+            fail('scheduled interrupted transfer differs');
+          }
+          pendingThrow = null;
+        } else fail('scheduled progress kind differs');
+      }
+      adoptField(step.field, ref); currentField = step.field;
+      physicalSteps.push(step); physicalBasis = ref; continue;
+    }
+    if (pendingThrow) fail('pending scheduled throw requires its owned advance');
     if (step.kind === 'acquisition') {
       if (!fields(step, ['source', 'previousSourceId', 'kind', 'field', 'acquisition']) || cursor !== null || carrierPlayerId !== null
         || currentField?.motion.response.kind !== 'capture_candidate' || json(step.field) !== json(currentField)) fail('acquisition candidate linkage differs');
@@ -317,6 +406,7 @@ export const deriveCanonicalWholePlayHistory = (raw: CanonicalWholePlayHistoryIn
     } else fail('physical step kind differs');
     physicalSteps.push(step); physicalBasis = ref;
   }
-  return freeze({ scope, originalPitch, originalTimeline: timeline, origin, physicalSteps, observations, frames, horizon,
+  return freeze({ scope, originalPitch, originalTimeline: timeline, origin, physicalSteps, observations,
+    ...(scheduledThrowPlans.length ? { scheduledThrowPlans } : {}), frames, horizon,
     cursor, carrierPlayerId, end: { kind: 'unestablished' as const } });
 };

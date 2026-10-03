@@ -3,8 +3,8 @@ import { createBattedBallFlightEvidence } from '../../core/sim/ball/BattedBallFl
 import { openSqliteBattedWorldFieldExecutionStore, type AcceptedBattedWorldFieldExecution } from './SqliteBattedWorldFieldExecutionStore';
 
 /** The forecast positions synthetic test geometry only; adopted field contact and security supply every rule fact. */
-export const battedWorldFieldRaceFixture = (path?: string, defenderSeconds = 0.04, batterSeconds = 0.08, throughSeconds = 0.045) => {
-  const x = battedWorldFieldFixture(path, true, false, undefined, {
+export const battedWorldFieldRaceFixture = (path?: string, defenderSeconds = 0.04, batterSeconds = 0.08, throughSeconds = 0.045, groundRestitution?: number) => {
+  const x = battedWorldFieldFixture(path, true, false, undefined, { groundRestitution,
     world(world) {
       const p = world.flight.source.execution.ballFlightParameters;
       const predicted = createBattedBallFlightEvidence({ contact: world.flight.flight.contact, parameters: p, searchDurationTicks: 2_000_000 });

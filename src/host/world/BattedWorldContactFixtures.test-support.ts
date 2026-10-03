@@ -2,10 +2,11 @@ import { battedBallFlightFixture } from './BattedBallFlightFixtures.test-support
 import { openSqliteBattedWorldContactStore, type AcceptedBattedWorldModel, type AcceptedBattedWorldContact } from './SqliteBattedWorldContactStore';
 import type { OfficialParticipantBinding } from './SqliteOfficialParticipationStore';
 
-export const battedWorldContactFixture = (path?: string, alignFieldWithInitialBases = false, initialOnly = false, rollingDecelerationMps2?: number) => {
+export const battedWorldContactFixture = (path?: string, alignFieldWithInitialBases = false, initialOnly = false, rollingDecelerationMps2?: number, groundRestitution?: number) => {
   const base = battedBallFlightFixture(path, true, true, alignFieldWithInitialBases), { f, physical, flights, acceptedFlights } = base;
-  const input = rollingDecelerationMps2 === undefined ? base.input : { ...base.input, execution: { ...base.input.execution,
-    ballFlightParameters: { ...base.input.execution.ballFlightParameters, groundRollingDecelerationMps2: rollingDecelerationMps2 } } };
+  const input = rollingDecelerationMps2 === undefined && groundRestitution === undefined ? base.input : { ...base.input, execution: { ...base.input.execution,
+    ballFlightParameters: { ...base.input.execution.ballFlightParameters, ...(rollingDecelerationMps2 === undefined ? {} : { groundRollingDecelerationMps2: rollingDecelerationMps2 }),
+      ...(groundRestitution === undefined ? {} : { groundRestitution }) } } };
   acceptedFlights.set(input.sourceId, input);
   flights.accept(input.sourceId);
   const flightInput = { ...input, sourceId: 'flight-full', previousFlightSourceId: input.sourceId, searchDurationTicks: 2_000_000 };
