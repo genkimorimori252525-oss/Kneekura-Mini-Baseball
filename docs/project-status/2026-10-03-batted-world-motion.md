@@ -17,7 +17,8 @@ Authority remains approved Foundation44b9f5de7b9d87e649f12f1af78c202f2b5ab44d an
 - One fresh readonly review found a constrained carried-ground tangency omitted by the descending-only ground filter. Tracked regression:1failed/16skipped RED. The shared constrained query now recognizes positive-vertical-acceleration tangency while preserving free-flight and root0/leaving-ground conditions.
 - After that fix:5files85tests GREEN,3.40seconds. Final typecheck GREEN. The same reviewer independently reran the previous external reproduction and confirmed the exact ground boundary and unresolved carried response; no additional finding.
 - Final Native original/free/carried/later prefix regression after the geometry fix:1file16tests GREEN,60.55seconds, terminal exit0. Remote branch heads were rechecked and remain the approved authority SHAs above; the older local tracking ref is not used as plan authority.
-- A frozen whole gate remains required before publication. This status does not claim it complete.
+- Frozen whole gate86130 terminated exit0 on eb4cecb9d15844ac63e2811f9f00428b8067e1b7:578files3665tests GREEN,7584.04seconds. Typecheck/catalog completed in the same verify command. All11changed Source hashes remained identical; terminal record ended2026-10-03T08:50:09.1403054Z. Process-local K: TEMP/TMP and two workers were used.
+- The published acquisition closure7e969a6a73c76e5eee83043978314136034ba29c was integrated locally after gate completion; only two upstream status documents changed. Source tree remains4f8e976e7dbdea1e37316a725cc65e0a8b7afe40, identical to the verified commit. Ordinary stacked publication follows acquisition PR249; no PR merge.
 
 ## Remaining full goal
 
