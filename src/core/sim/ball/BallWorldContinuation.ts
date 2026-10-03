@@ -10,6 +10,8 @@ import type { BattedWorldActorPrimitive, BattedWorldSurface } from './BattedBall
 export type BallWorldMoment = Readonly<{ originTick: number; elapsedSeconds: number; ball: BattedBallInitialState }>;
 export type BallWorldCollider = Readonly<{ kind: 'actor'; playerId: string; role: DefenderPhysicalPrimitiveRole }>
   | Readonly<{ kind: 'surface'; surfaceId: string }>;
+/** A future primitive may begin at a true continuous offset from its integer clock basis. */
+export type BallWorldMotionActor = BattedWorldActorPrimitive & Readonly<{ startElapsedSeconds?: number }>;
 export type BallWorldBoundaryContact = Readonly<{ kind: 'ground'; moment: BallWorldMoment }>
   | Readonly<{ kind: 'rolling_stop'; moment: BallWorldMoment }>
   | Readonly<{ kind: 'actor'; playerId: string; role: DefenderPhysicalPrimitiveRole; moment: BallWorldMoment;
@@ -17,7 +19,7 @@ export type BallWorldBoundaryContact = Readonly<{ kind: 'ground'; moment: BallWo
   | Readonly<{ kind: 'surface'; surfaceId: string; moment: BallWorldMoment; point: Vec3; normal: Vec3 | null; continuing?: true }>;
 export type BallWorldContinuationInput = Readonly<{
   moment: BallWorldMoment; throughTick: number; parameters: BallFlightParameters;
-  actors: readonly BattedWorldActorPrimitive[]; surfaces: readonly BattedWorldSurface[]; previousContacts: readonly BallWorldCollider[];
+  actors: readonly BallWorldMotionActor[]; surfaces: readonly BattedWorldSurface[]; previousContacts: readonly BallWorldCollider[];
 }>;
 export type BallWorldContinuation = Readonly<{ kind: 'boundary'; moment: BallWorldMoment; phase: 'airborne' | 'rolling' | 'resting';
   contacts: readonly BallWorldBoundaryContact[]; pendingReason?: 'persistent_contact' }>
@@ -124,11 +126,12 @@ const deriveWorldSegment = (raw: BallWorldContinuationInput,
     const s = a?.primitive, key = JSON.stringify([a?.playerId, s?.role]);
     if (!id(a?.playerId) || !s || actorKeys.has(key) || !['glove', 'body', 'tag_hand', 'left_foot', 'right_foot'].includes(s.role)
       || !tick(s.startTick) || !tick(s.endTick) || s.startTick > initial.tick || s.endTick < input.throughTick || s.ticksPerSecond !== p.ticksPerSecond
-      || !finite(s.radius) || s.radius <= 0 || !vector(s.startCenter) || !vector(s.startVelocity) || !vector(s.acceleration)) throw new Error('invalid ball World actor coverage');
-    const currentSeconds = (moment.originTick - s.startTick) / p.ticksPerSecond + moment.elapsedSeconds;
+      || !finite(s.radius) || s.radius <= 0 || !vector(s.startCenter) || !vector(s.startVelocity) || !vector(s.acceleration)
+      || a.startElapsedSeconds !== undefined && (!finite(a.startElapsedSeconds) || a.startElapsedSeconds < 0)) throw new Error('invalid ball World actor coverage');
+    const currentSeconds = (moment.originTick - s.startTick) / p.ticksPerSecond + moment.elapsedSeconds - (a.startElapsedSeconds ?? 0);
     if (currentSeconds < 0) throw new Error('ball World actor starts after the continuous moment');
     sample(s.startCenter, s.startVelocity, s.acceleration, currentSeconds);
-    sample(s.startCenter, s.startVelocity, s.acceleration, (input.throughTick - s.startTick) / p.ticksPerSecond);
+    sample(s.startCenter, s.startVelocity, s.acceleration, (input.throughTick - s.startTick) / p.ticksPerSecond - (a.startElapsedSeconds ?? 0));
     actorKeys.add(key);
   }
   for (const s of input.surfaces) { frame(s); if (surfaceIds.has(s.surfaceId)) throw new Error('duplicate ball World surface'); surfaceIds.add(s.surfaceId); }
@@ -148,7 +151,9 @@ const deriveWorldSegment = (raw: BallWorldContinuationInput,
   const ground = phase !== 'airborne' ? null : initial.position.y <= p.ballRadius + 1e-12
     && (initial.velocity.y < 0 || constrained && initial.velocity.y === 0 && acceleration.y < 0) ? 0
     : roots(0.5 * acceleration.y, initial.velocity.y, initial.position.y - p.ballRadius)
-      .find((t) => t > 0 && t <= duration && initial.velocity.y + acceleration.y * t < 0) ?? null;
+      .find((t) => t > 0 && t <= duration && (initial.velocity.y + acceleration.y * t < 0
+        // A constrained glove may reverse exactly at the floor; that new touch is still a physical boundary.
+        || constrained && acceleration.y > 0 && t === -initial.velocity.y / acceleration.y)) ?? null;
   const stop = phase === 'rolling' && p.groundRollingDecelerationMps2 > 0 && speed / p.groundRollingDecelerationMps2 <= duration
     ? speed / p.groundRollingDecelerationMps2 : null;
   const horizon = Math.min(duration, ground ?? duration, stop ?? duration);
@@ -164,7 +169,7 @@ const deriveWorldSegment = (raw: BallWorldContinuationInput,
   if (stop !== null) contacts.push({ kind: 'rolling_stop', moment: atMoment(stop) });
   const sphere: AcceleratedSphereContactState = { tick: moment.originTick, center: initial.position, velocity: initial.velocity, acceleration, radius: p.ballRadius };
   for (const a of input.actors) {
-    const s = a.primitive, dt = (moment.originTick - s.startTick) / p.ticksPerSecond + moment.elapsedSeconds;
+    const s = a.primitive, dt = (moment.originTick - s.startTick) / p.ticksPerSecond + moment.elapsedSeconds - (a.startElapsedSeconds ?? 0);
     const start = sample(s.startCenter, s.startVelocity, s.acceleration, dt);
     const previous = prior.has(colliderKey({ kind: 'actor', playerId: a.playerId, role: s.role }));
     const other = { tick: moment.originTick, center: start.point, velocity: start.motion, acceleration: s.acceleration, radius: s.radius };
@@ -194,8 +199,9 @@ const deriveWorldSegment = (raw: BallWorldContinuationInput,
       if (distance(point, earliest.ball.position) <= p.ballRadius) selected.push({ kind: 'surface', surfaceId: c.surfaceId,
         moment: earliest, point, normal: normal(earliest.ball.position, point), continuing: true });
     } else {
-      const s = input.actors.find((a) => a.playerId === c.playerId && a.primitive.role === c.role)!.primitive;
-      const state = sample(s.startCenter, s.startVelocity, s.acceleration, (moment.originTick - s.startTick) / p.ticksPerSecond + earliest.elapsedSeconds);
+      const actor = input.actors.find((a) => a.playerId === c.playerId && a.primitive.role === c.role)!, s = actor.primitive;
+      const state = sample(s.startCenter, s.startVelocity, s.acceleration,
+        (moment.originTick - s.startTick) / p.ticksPerSecond + earliest.elapsedSeconds - (actor.startElapsedSeconds ?? 0));
       if (distance(state.point, earliest.ball.position) <= p.ballRadius + s.radius) selected.push({ kind: 'actor', playerId: c.playerId,
         role: c.role, moment: earliest, center: state.point, velocity: state.motion, normal: normal(earliest.ball.position, state.point), continuing: true });
     }

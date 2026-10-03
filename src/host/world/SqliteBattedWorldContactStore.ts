@@ -11,6 +11,7 @@ import { readOfficialActorPersonLink } from './SqliteOfficialInitialWorldStore';
 import type { OfficialParticipantBinding } from './SqliteOfficialParticipationStore';
 import { deriveAndRecordFirstGroundContactEvidence } from '../../core/sim/plateAppearance/BattedBallTimelinePhysicalAdapter';
 import type { CanonicalPlateAppearanceTimeline } from '../../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
+import { assertNoBattedWorldMotionOwner } from './BattedWorldMotionOwnershipFence';
 
 type Shape = Readonly<{ role: DefenderPhysicalPrimitiveRole; radius: number; offset: Vec3 }>;
 export type AcceptedBattedWorldModel = Readonly<{
@@ -217,12 +218,14 @@ export const openSqliteBattedWorldContactStore = (path: string, flights: Pick<Sq
       sameModel(m);
       const flight = ownFlights.read(s.flightSourceId);
       if (!flight) throw new Error('actual batted World flight is missing');
+      assertNoBattedWorldMotionOwner(db, flight.source.physicalPitchSourceId);
       const value = derive(s, m, predecessor(s, flight.source.physicalPitchSourceId)); ownFlights.openFrame(value.flight.physicalPitch);
       const peer = flights.read(s.flightSourceId);
       if (!peer || json(peer) !== json(value.flight)) throw new Error('batted World peer flight differs');
       db.exec('BEGIN IMMEDIATE');
       try {
         sameModel(m); ownFlights.openFrame(value.flight.physicalPitch);
+        assertNoBattedWorldMotionOwner(db, flight.source.physicalPitchSourceId);
         if (json(derive(s, m, predecessor(s, flight.source.physicalPitchSourceId))) !== json(value)) throw new Error('batted World original evidence changed before write');
         if (!readModel(m.sourceId)) db.prepare('INSERT INTO batted_world_models VALUES (?,?,?,?)').run(m.sourceId, m.gameId, json(m), hash(m));
         db.prepare('INSERT INTO batted_world_contacts VALUES (?,?,?,?,?,?,?,?,?)').run(sourceId, flight.source.physicalPitchSourceId, m.gameId,
@@ -230,6 +233,7 @@ export const openSqliteBattedWorldContactStore = (path: string, flights: Pick<Sq
         db.prepare('INSERT INTO batted_world_contact_heads VALUES (?,?,?) ON CONFLICT(physical_pitch_source_id) DO UPDATE SET source_id=excluded.source_id,revision=excluded.revision')
           .run(flight.source.physicalPitchSourceId, sourceId, value.revision);
         ownFlights.openFrame(value.flight.physicalPitch); sameModel(m);
+        assertNoBattedWorldMotionOwner(db, flight.source.physicalPitchSourceId);
         const saved = read(sourceId);
         if (json(saved) !== json(value) || json(head(flight.source.physicalPitchSourceId)) !== json({ source_id: sourceId, revision: value.revision })) throw new Error('batted World evidence changed during write');
         db.exec('COMMIT'); return saved!;
