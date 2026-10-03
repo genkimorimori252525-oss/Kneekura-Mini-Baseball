@@ -1,5 +1,7 @@
 # Actual World first-base race — work in progress
 
+**2026-10-04 checkpoint:** published as draft PR #258 at `2c07fe7df62d65515bdb4b16a3b5fd01c15d2e61` under the user's stop-and-upload instruction. Its frozen whole gate and the earlier D/C gates were interrupted by reboot without terminal receipts; they require rerun. Read [current progress and remaining plans](2026-10-04-nonvisual-implementation-checkpoint.md). Historical running/publication notes below do not establish current whole success.
+
 Authority: approved Foundation44b9f5de7b9d87e649f12f1af78c202f2b5ab44d / Realism4f0a60a3818926327b6bf5877ab3dec456a76530, remote refs rechecked unchanged before implementation. Basea6a6ffd305920a4d246b83b07f147f7916303a56. Design and Presentation remain disconnected.
 
 ## Implemented connection

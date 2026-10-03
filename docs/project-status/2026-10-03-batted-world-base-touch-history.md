@@ -1,5 +1,7 @@
 # Actual whole-prefix base contact history — execution status
 
+**2026-10-04 checkpoint:** published as draft PR #255 at `c4bcce4364e55330df14666f2b2b7bc5b4c0d1e2` under the user's stop-and-upload instruction. The repaired whole gate was interrupted by reboot and resumed; it ended at04:19 JST with exit1,602/603files and3945/3962tests passed, one `Worker exited unexpectedly` error and14Source hash mismatches0. No whole success is claimed. Read [current progress and remaining plans](2026-10-04-nonvisual-implementation-checkpoint.md). Historical evidence below remains unchanged.
+
 Authority: approved Foundation44b9f5de7b9d87e649f12f1af78c202f2b5ab44d / Realism4f0a60a3818926327b6bf5877ab3dec456a76530, rechecked unchanged. Base5078bbfa61cf4cda8e8518d4c3ed7d9efe7e77e5. Presentation remains disconnected. This is a physical history dependency, not full goal completion.
 
 ## Source implementation

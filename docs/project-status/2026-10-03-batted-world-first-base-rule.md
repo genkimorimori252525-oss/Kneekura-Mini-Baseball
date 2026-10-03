@@ -1,5 +1,7 @@
 # Actual World first-base interpretation — work in progress
 
+**2026-10-04 checkpoint:** published as draft PR #256 at `98f307f8a859857ef5286b7bda1455eab435db35` under the user's stop-and-upload instruction. Its frozen whole gate was interrupted by reboot without a terminal receipt; it requires rerun. Read [current progress and remaining plans](2026-10-04-nonvisual-implementation-checkpoint.md). The historical running/publication notes below are superseded only for current status, not their recorded test evidence.
+
 Authority: remote-approved Foundation44b9f5de7b9d87e649f12f1af78c202f2b5ab44d / Realism4f0a60a3818926327b6bf5877ab3dec456a76530, rechecked unchanged. Basec4bcce4364e55330df14666f2b2b7bc5b4c0d1e2 includes the history branch's comment-only determinism repair; Presentation remains disconnected.
 
 ## Implemented connection

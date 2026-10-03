@@ -16,6 +16,7 @@ import type { BattedWorldBallCursor } from '../../core/sim/ball/BattedWorldConti
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { battedWorldResponseInput } from './SqliteBattedWorldContinuationStore';
 import { battedWorldBaseTouchHistoryFromPrefix } from './BattedWorldBaseTouchHistoryFromPrefix';
+import { assertNoBattedWorldFieldOwner } from './BattedWorldMotionOwnershipFence';
 import { playerFieldingModelEvidenceFromSqlite, type DurablePlayerFieldingModel } from './SqlitePlayerFieldingModelStore';
 import { battedWorldBaseGeometryEvidenceFromSqlite, battedWorldFrameBaseCenters, type DurableBattedWorldBaseGeometry } from './SqliteBattedWorldBaseGeometryStore';
 import { battedWorldMotionEvidenceFromSqlite, battedWorldMotionCommandsInput, battedWorldMotionPrimitiveCommands,
@@ -225,6 +226,7 @@ export const battedWorldExecutionEvidenceFromSqlite = (db: Pick<import('node:sql
     return execute(source, baseMotion, previous, values);
   };
   const currentRoot = (value: DurableBattedWorldExecution) => {
+    assertNoBattedWorldFieldOwner(db, physicalId(value.baseMotion));
     ownMotions.current(value.baseMotion);
     if (json(root(value.source)) !== json(value.baseMotion)) throw new Error('batted execution original changed during write');
   };

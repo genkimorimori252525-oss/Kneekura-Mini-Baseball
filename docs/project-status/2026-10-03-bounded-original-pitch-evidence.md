@@ -1,5 +1,7 @@
 # Bounded original pitch evidence — work in progress
 
+**2026-10-04 checkpoint:** published as draft PR #257 at `a6a6ffd305920a4d246b83b07f147f7916303a56` under the user's stop-and-upload instruction. Its frozen whole gate was interrupted by reboot without a terminal receipt; it requires rerun. Read [current progress and remaining plans](2026-10-04-nonvisual-implementation-checkpoint.md) for current status. Historical related-test evidence below remains unchanged.
+
 Authority: approved Foundation44b9f5de7b9d87e649f12f1af78c202f2b5ab44d / Realism4f0a60a3818926327b6bf5877ab3dec456a76530. Base98f307f8a859857ef5286b7bda1455eab435db35. Reused idle fielding checkout and dependencies; original published throw branch is preserved. Presentation remains disconnected.
 
 ## Implementation

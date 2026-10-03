@@ -6,6 +6,7 @@ import { quantizeEventTick } from '../ExactEventTime';
 import type { DefenderPhysicalPrimitiveRole } from '../fielding/DefenderPhysicalPrimitive';
 import type { BallFlightParameters } from './BallFlight';
 import type { BattedWorldActorPrimitive, BattedWorldSurface } from './BattedBallWorldContacts';
+import { findBallWorldBaseBoundary, type BallWorldBaseBoundaryContact, type BallWorldBaseBoundaryInput } from './BallWorldBaseBoundary';
 
 export type BallWorldMoment = Readonly<{ originTick: number; elapsedSeconds: number; ball: BattedBallInitialState }>;
 export type BallWorldCollider = Readonly<{ kind: 'actor'; playerId: string; role: DefenderPhysicalPrimitiveRole }>
@@ -30,6 +31,15 @@ export type AcceleratedBallWorldMotionInput = Omit<BallWorldContinuationInput, '
 export type AcceleratedBallWorldMotion = Readonly<{ kind: 'boundary'; moment: BallWorldMoment;
   contacts: readonly BallWorldBoundaryContact[]; pendingReason?: 'persistent_contact' }>
   | Readonly<{ kind: 'moving'; moment: BallWorldMoment; throughTick: number }>;
+type BaseScope = Pick<BallWorldBaseBoundaryInput, 'bases' | 'previousBaseContacts'>;
+export type BallWorldFieldBoundaryContact = BallWorldBoundaryContact | BallWorldBaseBoundaryContact;
+export type BallWorldFieldContinuationInput = BallWorldContinuationInput & BaseScope;
+export type BallWorldFieldContinuation = Exclude<BallWorldContinuation, { kind: 'boundary' }>
+  | Readonly<{ kind: 'boundary'; moment: BallWorldMoment; phase: 'airborne' | 'rolling' | 'resting';
+    contacts: readonly BallWorldFieldBoundaryContact[]; pendingReason?: 'persistent_contact' }>;
+export type AcceleratedBallWorldFieldMotionInput = AcceleratedBallWorldMotionInput & BaseScope;
+export type AcceleratedBallWorldFieldMotion = Exclude<AcceleratedBallWorldMotion, { kind: 'boundary' }>
+  | Readonly<{ kind: 'boundary'; moment: BallWorldMoment; contacts: readonly BallWorldFieldBoundaryContact[]; pendingReason?: 'persistent_contact' }>;
 const finite = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
 const tick = (v: unknown): v is number => typeof v === 'number' && Number.isSafeInteger(v) && v >= 0;
 const id = (v: unknown): v is string => typeof v === 'string' && v.length > 0 && v === v.trim();
@@ -61,6 +71,26 @@ const roots = (a: number, b: number, c: number): number[] => {
   const q = -0.5 * (b + Math.sign(b || 1) * Math.sqrt(discriminant));
   return [q / a, c / q].sort((x, y) => x - y);
 };
+// The field path's axial contact has one signed coordinate, just like a prism
+// face. Its exact physical root must not acquire a different squared-root
+// roundoff solely because the other collider is an actor.
+const axialSphereTime = (first: AcceleratedSphereContactState, second: AcceleratedSphereContactState,
+  duration: number, previous: boolean): number | null | undefined => {
+  const axes = ['x', 'y', 'z'] as const;
+  const nonzero = axes.filter((axis) => first.center[axis] !== second.center[axis]
+    || first.velocity[axis] !== second.velocity[axis] || first.acceleration[axis] !== second.acceleration[axis]);
+  if (nonzero.length !== 1) return undefined;
+  const axis = nonzero[0], d = first.center[axis] - second.center[axis], v = first.velocity[axis] - second.velocity[axis],
+    a = first.acceleration[axis] - second.acceleration[axis], radius = first.radius + second.radius;
+  if (![d, v, a, radius].every(finite)) throw new Error('ball field axial contact arithmetic overflow');
+  const separated = Math.abs(d) > radius;
+  if (!previous && !separated) return 0;
+  return [radius, -radius].flatMap((r) => roots(0.5 * a, v, d - r))
+    .filter((t) => finite(t) && t >= 0 && t <= duration).sort((a, b) => a - b).find((t) => {
+      const separation = d + v * t + 0.5 * a * t * t, speed = v + a * t;
+      return separated || t > 0 && (separation * speed < 0 || speed === 0 && separation * a > 0);
+    }) ?? null;
+};
 const frame = (s: BattedWorldSurface) => {
   if (!id(s?.surfaceId) || !s.start || !s.end || ![s.start.x, s.start.z, s.end.x, s.end.z, s.minimumHeight, s.maximumHeight].every(finite)
     || s.minimumHeight < 0 || s.maximumHeight <= s.minimumHeight) throw new Error('invalid ball World surface');
@@ -74,7 +104,8 @@ const closestPoint = (s: BattedWorldSurface, p: Vec3): Vec3 => {
 };
 
 /** Partition at closest-feature changes, so an invalid first face root cannot hide a later edge/corner contact. */
-const surfaceTime = (ball: AcceleratedSphereContactState, s: BattedWorldSurface, seconds: number, previous: boolean): Readonly<{ time: number; blocked: boolean }> | null => {
+const surfaceTime = (ball: AcceleratedSphereContactState, s: BattedWorldSurface, seconds: number, previous: boolean,
+  exactFieldFace = false): Readonly<{ time: number; blocked: boolean }> | null => {
   const f = frame(s), u0 = (ball.center.x - s.start.x) * f.ux + (ball.center.z - s.start.z) * f.uz;
   const uv = ball.velocity.x * f.ux + ball.velocity.z * f.uz, ua = ball.acceleration.x * f.ux + ball.acceleration.z * f.uz;
   if (![u0, uv, ua].every(finite)) throw new Error('ball World surface projection arithmetic overflow');
@@ -98,8 +129,16 @@ const surfaceTime = (ball: AcceleratedSphereContactState, s: BattedWorldSurface,
     const movingBall = { ...ball, center: actual.point, velocity: actual.motion, radius: ball.radius / 2 };
     const blocked = departed ? null : findAcceleratedSphereBlockedDepartureSeconds(movingBall, feature, end - start);
     if (blocked !== null) return { time: start + blocked, blocked: true };
-    const at = findAcceleratedSphereContactSeconds(movingBall,
-      feature, end - start, departed ? 'include' : 'after_departure');
+    // A face has one signed normal coordinate. Use that same root representation
+    // as a bag face on the additive field path, preserving the legacy solver.
+    const signed = exactFieldFace && movingU && movingY ? axialSphereTime({ ...movingBall,
+      center: { x: f.uz * (actual.point.x - s.start.x) - f.ux * (actual.point.z - s.start.z), y: 0, z: 0 },
+      velocity: { x: f.uz * actual.motion.x - f.ux * actual.motion.z, y: 0, z: 0 },
+      acceleration: { x: f.uz * ball.acceleration.x - f.ux * ball.acceleration.z, y: 0, z: 0 } },
+      { ...feature, center: { x: 0, y: 0, z: 0 }, velocity: { x: 0, y: 0, z: 0 }, acceleration: { x: 0, y: 0, z: 0 } },
+      end - start, !departed) : undefined;
+    const at = signed === undefined ? findAcceleratedSphereContactSeconds(movingBall,
+      feature, end - start, departed ? 'include' : 'after_departure') : signed;
     if (at !== null) return { time: start + at, blocked: false };
     const point = sample(ball.center, ball.velocity, ball.acceleration, end).point;
     if (distance(point, closestPoint(s, point)) > ball.radius) departed = true;
@@ -109,7 +148,7 @@ const surfaceTime = (ball: AcceleratedSphereContactState, s: BattedWorldSurface,
 
 /** One actual causal segment; a horizon or a resting ball is never a baseball result or play-end fact. */
 const deriveWorldSegment = (raw: BallWorldContinuationInput,
-  constrained?: Readonly<{ acceleration: Vec3; throughElapsedSeconds: number }>): BallWorldContinuation => {
+  constrained?: Readonly<{ acceleration: Vec3; throughElapsedSeconds: number }>, bases?: BaseScope): BallWorldFieldContinuation => {
   const input = cloneInert(raw), { moment, parameters: p } = input, initial = moment?.ball;
   if (!moment || !initial || !p || !tick(moment.originTick) || !finite(moment.elapsedSeconds) || moment.elapsedSeconds < 0
     || !tick(initial.tick) || !tick(input.throughTick) || input.throughTick < initial.tick || !vector(initial.position)
@@ -163,8 +202,13 @@ const deriveWorldSegment = (raw: BallWorldContinuationInput,
     return { originTick: moment.originTick, elapsedSeconds, ball: { tick: quantizeEventTick(moment.originTick, elapsedSeconds, p.ticksPerSecond),
       position: state.point, velocity: stopped ? { x: 0, y: 0, z: 0 } : state.motion, spin: initial.spin } };
   };
-  const contacts: BallWorldBoundaryContact[] = [];
-  const blockedContacts = new Set<BallWorldBoundaryContact>();
+  const contacts: BallWorldFieldBoundaryContact[] = [];
+  const blockedContacts = new Set<BallWorldFieldBoundaryContact>();
+  if (bases) {
+    const boundary = findBallWorldBaseBoundary({ moment, acceleration, throughElapsedSeconds: moment.elapsedSeconds + horizon,
+      ticksPerSecond: p.ticksPerSecond, ballRadius: p.ballRadius, ...bases });
+    for (const contact of boundary?.contacts ?? []) { contacts.push(contact); if (contact.continuing) blockedContacts.add(contact); }
+  }
   if (ground !== null) contacts.push({ kind: 'ground', moment: atMoment(ground) });
   if (stop !== null) contacts.push({ kind: 'rolling_stop', moment: atMoment(stop) });
   const sphere: AcceleratedSphereContactState = { tick: moment.originTick, center: initial.position, velocity: initial.velocity, acceleration, radius: p.ballRadius };
@@ -174,7 +218,8 @@ const deriveWorldSegment = (raw: BallWorldContinuationInput,
     const previous = prior.has(colliderKey({ kind: 'actor', playerId: a.playerId, role: s.role }));
     const other = { tick: moment.originTick, center: start.point, velocity: start.motion, acceleration: s.acceleration, radius: s.radius };
     const blocked = previous ? findAcceleratedSphereBlockedDepartureSeconds(sphere, other, horizon) : null;
-    const time = blocked ?? findAcceleratedSphereContactSeconds(sphere, other, horizon, previous ? 'after_departure' : 'include');
+    const axial = bases && blocked === null ? axialSphereTime(sphere, other, horizon, previous) : undefined;
+    const time = blocked ?? (axial === undefined ? findAcceleratedSphereContactSeconds(sphere, other, horizon, previous ? 'after_departure' : 'include') : axial);
     if (time === null) continue;
     const state = sample(start.point, start.motion, s.acceleration, time), at = atMoment(time);
     const contact: BallWorldBoundaryContact = { kind: 'actor', playerId: a.playerId, role: s.role, moment: at, center: state.point, velocity: state.motion,
@@ -182,7 +227,7 @@ const deriveWorldSegment = (raw: BallWorldContinuationInput,
     contacts.push(contact); if (blocked !== null) blockedContacts.add(contact);
   }
   for (const s of input.surfaces) {
-    const event = surfaceTime(sphere, s, horizon, prior.has(colliderKey({ kind: 'surface', surfaceId: s.surfaceId })));
+    const event = surfaceTime(sphere, s, horizon, prior.has(colliderKey({ kind: 'surface', surfaceId: s.surfaceId })), bases !== undefined);
     if (event === null) continue;
     const at = atMoment(event.time), point = closestPoint(s, at.ball.position);
     const contact: BallWorldBoundaryContact = { kind: 'surface', surfaceId: s.surfaceId, moment: at, point, normal: normal(at.ball.position, point),
@@ -190,8 +235,19 @@ const deriveWorldSegment = (raw: BallWorldContinuationInput,
     contacts.push(contact); if (event.blocked) blockedContacts.add(contact);
   }
   if (!contacts.length) return freeze({ kind: phase === 'resting' ? 'resting' : 'moving', throughTick: input.throughTick, phase, moment: atMoment(duration) });
-  const earliestTick = Math.min(...contacts.map((c) => c.moment.ball.tick)), selected = contacts.filter((c) => c.moment.ball.tick === earliestTick);
+  const earliestTick = Math.min(...contacts.map((c) => c.moment.ball.tick));
+  const earliestTime = Math.min(...contacts.map((c) => c.moment.elapsedSeconds));
+  // Legacy grouping remains byte-compatible; new field actions use physical continuous ordering.
+  const selected = contacts.filter((c) => bases ? c.moment.elapsedSeconds === earliestTime : c.moment.ball.tick === earliestTick);
   const earliest = selected.reduce((a, b) => a.elapsedSeconds <= b.moment.elapsedSeconds ? a : b.moment, selected[0].moment);
+  if (bases) {
+    const previous = findBallWorldBaseBoundary({ moment: earliest, acceleration, throughElapsedSeconds: earliest.elapsedSeconds,
+      ticksPerSecond: p.ticksPerSecond, ballRadius: p.ballRadius, ...bases });
+    for (const contact of previous?.contacts ?? []) {
+      if (!contact.continuing || selected.some((c) => c.kind === 'base' && c.baseId === contact.baseId)) continue;
+      selected.push(contact); blockedContacts.add(contact);
+    }
+  }
   for (const c of input.previousContacts) {
     if (selected.some((s) => (s.kind === 'actor' || s.kind === 'surface') && colliderKey(s) === colliderKey(c))) continue;
     if (c.kind === 'surface') {
@@ -207,7 +263,8 @@ const deriveWorldSegment = (raw: BallWorldContinuationInput,
     }
   }
   selected.sort((a, b) => {
-    const key = (c: BallWorldBoundaryContact) => JSON.stringify(c.kind === 'actor' ? [c.kind, c.playerId, c.role] : c.kind === 'surface' ? [c.kind, c.surfaceId] : [c.kind]);
+    const key = (c: BallWorldFieldBoundaryContact) => JSON.stringify(c.kind === 'actor' ? [c.kind, c.playerId, c.role]
+      : c.kind === 'surface' ? [c.kind, c.surfaceId] : c.kind === 'base' ? [c.kind, c.baseId] : [c.kind]);
     return key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0;
   });
   return freeze({ kind: 'boundary', phase, contacts: selected, moment: earliest,
@@ -215,14 +272,36 @@ const deriveWorldSegment = (raw: BallWorldContinuationInput,
 };
 
 /** Free ball motion retains its existing gravity/rolling behavior. */
-export const deriveBallWorldContinuation = (raw: BallWorldContinuationInput): BallWorldContinuation => deriveWorldSegment(raw);
+export const deriveBallWorldContinuation = (raw: BallWorldContinuationInput): BallWorldContinuation => deriveWorldSegment(raw) as BallWorldContinuation;
 
 /** Explicit physical constraints share the same actor/panel/ground geometry, without a free-flight phase label. */
 export const deriveAcceleratedBallWorldMotion = (raw: AcceleratedBallWorldMotionInput): AcceleratedBallWorldMotion => {
   const input = cloneInert(raw);
   if (!input?.moment || !input.parameters) throw new Error('invalid accelerated ball World motion');
   const throughTick = quantizeEventTick(input.moment.originTick, input.throughElapsedSeconds, input.parameters.ticksPerSecond);
-  const result = deriveWorldSegment({ ...input, throughTick }, { acceleration: input.acceleration, throughElapsedSeconds: input.throughElapsedSeconds });
+  const result = deriveWorldSegment({ ...input, throughTick }, { acceleration: input.acceleration, throughElapsedSeconds: input.throughElapsedSeconds }) as BallWorldContinuation;
+  if (result.kind === 'boundary') return freeze({ kind: 'boundary', moment: result.moment, contacts: result.contacts,
+    ...(result.pendingReason ? { pendingReason: result.pendingReason } : {}) });
+  return freeze({ kind: 'moving', moment: result.moment, throughTick: result.throughTick });
+};
+
+const fieldScope = <T extends BallWorldFieldContinuationInput | AcceleratedBallWorldFieldMotionInput>(raw: T, accelerated: boolean): T => {
+  const input = cloneInert(raw), names = ['moment', 'parameters', 'actors', 'surfaces', 'previousContacts', 'bases', 'previousBaseContacts',
+    ...(accelerated ? ['acceleration', 'throughElapsedSeconds'] : ['throughTick'])];
+  if (!input || Object.keys(input).sort().join('|') !== names.sort().join('|')) throw new Error('invalid actual ball field motion scope');
+  return input;
+};
+/** Additive causal field physics; old archived continuation uses its original implementation. */
+export const deriveBallWorldFieldContinuation = (raw: BallWorldFieldContinuationInput): BallWorldFieldContinuation => {
+  const input = fieldScope(raw, false);
+  return deriveWorldSegment(input, undefined, { bases: input.bases, previousBaseContacts: input.previousBaseContacts });
+};
+export const deriveAcceleratedBallWorldFieldMotion = (raw: AcceleratedBallWorldFieldMotionInput): AcceleratedBallWorldFieldMotion => {
+  const input = fieldScope(raw, true);
+  if (!input.moment || !input.parameters) throw new Error('invalid accelerated actual ball field motion');
+  const throughTick = quantizeEventTick(input.moment.originTick, input.throughElapsedSeconds, input.parameters.ticksPerSecond);
+  const result = deriveWorldSegment({ ...input, throughTick }, { acceleration: input.acceleration, throughElapsedSeconds: input.throughElapsedSeconds },
+    { bases: input.bases, previousBaseContacts: input.previousBaseContacts });
   if (result.kind === 'boundary') return freeze({ kind: 'boundary', moment: result.moment, contacts: result.contacts,
     ...(result.pendingReason ? { pendingReason: result.pendingReason } : {}) });
   return freeze({ kind: 'moving', moment: result.moment, throughTick: result.throughTick });
