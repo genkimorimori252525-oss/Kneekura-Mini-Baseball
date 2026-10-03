@@ -22,6 +22,12 @@ export type BallWorldContinuationInput = Readonly<{
 export type BallWorldContinuation = Readonly<{ kind: 'boundary'; moment: BallWorldMoment; phase: 'airborne' | 'rolling' | 'resting';
   contacts: readonly BallWorldBoundaryContact[]; pendingReason?: 'persistent_contact' }>
   | Readonly<{ kind: 'moving' | 'resting'; moment: BallWorldMoment; phase: 'airborne' | 'rolling' | 'resting'; throughTick: number }>;
+export type AcceleratedBallWorldMotionInput = Omit<BallWorldContinuationInput, 'throughTick'> & Readonly<{
+  acceleration: Vec3; throughElapsedSeconds: number;
+}>;
+export type AcceleratedBallWorldMotion = Readonly<{ kind: 'boundary'; moment: BallWorldMoment;
+  contacts: readonly BallWorldBoundaryContact[]; pendingReason?: 'persistent_contact' }>
+  | Readonly<{ kind: 'moving'; moment: BallWorldMoment; throughTick: number }>;
 const finite = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
 const tick = (v: unknown): v is number => typeof v === 'number' && Number.isSafeInteger(v) && v >= 0;
 const id = (v: unknown): v is string => typeof v === 'string' && v.length > 0 && v === v.trim();
@@ -100,7 +106,8 @@ const surfaceTime = (ball: AcceleratedSphereContactState, s: BattedWorldSurface,
 };
 
 /** One actual causal segment; a horizon or a resting ball is never a baseball result or play-end fact. */
-export const deriveBallWorldContinuation = (raw: BallWorldContinuationInput): BallWorldContinuation => {
+const deriveWorldSegment = (raw: BallWorldContinuationInput,
+  constrained?: Readonly<{ acceleration: Vec3; throughElapsedSeconds: number }>): BallWorldContinuation => {
   const input = cloneInert(raw), { moment, parameters: p } = input, initial = moment?.ball;
   if (!moment || !initial || !p || !tick(moment.originTick) || !finite(moment.elapsedSeconds) || moment.elapsedSeconds < 0
     || !tick(initial.tick) || !tick(input.throughTick) || input.throughTick < initial.tick || !vector(initial.position)
@@ -110,6 +117,8 @@ export const deriveBallWorldContinuation = (raw: BallWorldContinuationInput): Ba
     || !tick(p.integrationStepTicks) || p.integrationStepTicks === 0 || initial.position.y < p.ballRadius - 1e-12
     || quantizeEventTick(moment.originTick, moment.elapsedSeconds, p.ticksPerSecond) !== initial.tick
     || !Array.isArray(input.actors) || !Array.isArray(input.surfaces) || !Array.isArray(input.previousContacts)) throw new Error('invalid ball World continuation');
+  if (constrained && (!vector(constrained.acceleration) || !finite(constrained.throughElapsedSeconds)
+    || constrained.throughElapsedSeconds < moment.elapsedSeconds)) throw new Error('invalid accelerated ball World interval');
   const actorKeys = new Set<string>(), surfaceIds = new Set<string>();
   for (const a of input.actors) {
     const s = a?.primitive, key = JSON.stringify([a?.playerId, s?.role]);
@@ -131,13 +140,15 @@ export const deriveBallWorldContinuation = (raw: BallWorldContinuationInput): Ba
   }
   const speed = Math.hypot(initial.velocity.x, initial.velocity.z), onFloor = initial.position.y <= p.ballRadius + 1e-12 && initial.velocity.y === 0;
   if (!finite(speed)) throw new Error('ball World speed arithmetic overflow');
-  const phase = onFloor ? speed === 0 ? 'resting' : 'rolling' : 'airborne';
-  const acceleration = onFloor ? { x: speed === 0 ? 0 : -initial.velocity.x / speed * p.groundRollingDecelerationMps2,
-    y: 0, z: speed === 0 ? 0 : -initial.velocity.z / speed * p.groundRollingDecelerationMps2 } : { x: 0, y: p.gravityY, z: 0 };
-  const duration = Math.max(0, (input.throughTick - moment.originTick) / p.ticksPerSecond - moment.elapsedSeconds);
-  const ground = phase !== 'airborne' ? null : initial.position.y <= p.ballRadius + 1e-12 && initial.velocity.y < 0 ? 0
-    : roots(0.5 * p.gravityY, initial.velocity.y, initial.position.y - p.ballRadius)
-      .find((t) => t > 0 && t <= duration && initial.velocity.y + p.gravityY * t < 0) ?? null;
+  const phase = constrained ? 'airborne' : onFloor ? speed === 0 ? 'resting' : 'rolling' : 'airborne';
+  const acceleration = constrained?.acceleration ?? (onFloor ? { x: speed === 0 ? 0 : -initial.velocity.x / speed * p.groundRollingDecelerationMps2,
+    y: 0, z: speed === 0 ? 0 : -initial.velocity.z / speed * p.groundRollingDecelerationMps2 } : { x: 0, y: p.gravityY, z: 0 });
+  const duration = constrained ? constrained.throughElapsedSeconds - moment.elapsedSeconds
+    : Math.max(0, (input.throughTick - moment.originTick) / p.ticksPerSecond - moment.elapsedSeconds);
+  const ground = phase !== 'airborne' ? null : initial.position.y <= p.ballRadius + 1e-12
+    && (initial.velocity.y < 0 || constrained && initial.velocity.y === 0 && acceleration.y < 0) ? 0
+    : roots(0.5 * acceleration.y, initial.velocity.y, initial.position.y - p.ballRadius)
+      .find((t) => t > 0 && t <= duration && initial.velocity.y + acceleration.y * t < 0) ?? null;
   const stop = phase === 'rolling' && p.groundRollingDecelerationMps2 > 0 && speed / p.groundRollingDecelerationMps2 <= duration
     ? speed / p.groundRollingDecelerationMps2 : null;
   const horizon = Math.min(duration, ground ?? duration, stop ?? duration);
@@ -195,4 +206,18 @@ export const deriveBallWorldContinuation = (raw: BallWorldContinuationInput): Ba
   });
   return freeze({ kind: 'boundary', phase, contacts: selected, moment: earliest,
     ...(selected.some((c) => blockedContacts.has(c)) ? { pendingReason: 'persistent_contact' as const } : {}) });
+};
+
+/** Free ball motion retains its existing gravity/rolling behavior. */
+export const deriveBallWorldContinuation = (raw: BallWorldContinuationInput): BallWorldContinuation => deriveWorldSegment(raw);
+
+/** Explicit physical constraints share the same actor/panel/ground geometry, without a free-flight phase label. */
+export const deriveAcceleratedBallWorldMotion = (raw: AcceleratedBallWorldMotionInput): AcceleratedBallWorldMotion => {
+  const input = cloneInert(raw);
+  if (!input?.moment || !input.parameters) throw new Error('invalid accelerated ball World motion');
+  const throughTick = quantizeEventTick(input.moment.originTick, input.throughElapsedSeconds, input.parameters.ticksPerSecond);
+  const result = deriveWorldSegment({ ...input, throughTick }, { acceleration: input.acceleration, throughElapsedSeconds: input.throughElapsedSeconds });
+  if (result.kind === 'boundary') return freeze({ kind: 'boundary', moment: result.moment, contacts: result.contacts,
+    ...(result.pendingReason ? { pendingReason: result.pendingReason } : {}) });
+  return freeze({ kind: 'moving', moment: result.moment, throughTick: result.throughTick });
 };
