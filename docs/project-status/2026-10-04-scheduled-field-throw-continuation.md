@@ -1,5 +1,7 @@
 # 非デザイン継続: actual transferの途中保存とrelease handoff
 
+> 最新続報: [Player観測calibrationの所有層](2026-10-04-player-observation-model-continuation.md)。本sliceの公開は [PR263](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/263)、[実装commit](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/e2f635daded52326404bcda09935057639591c72)。
+
 更新: 2026-10-04 JST（2026-10-03 UTC）
 
 [PR262](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/262) の実物理履歴に続き、runtime06 §9のcommitted physical workを、既存のactual throwへ接続する。従来は一回の採用で持替えから送球まで実行していたが、今回の追加経路ではrelease前の物理時刻で保存・再開できる。
