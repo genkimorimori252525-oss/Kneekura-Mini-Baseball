@@ -3,7 +3,7 @@ import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { basename, join, sep } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { closeOfficialPlay, createPlayAdjudicationLedger, recordCorrectRuleSnapshot } from '../core/adjudication/PlayAdjudicationLedger';
+import { closeOfficialPlay, createPlayAdjudicationLedger, recordCorrectRuleSnapshot, recordOnFieldCall, recordUnresolvedCorrectRuleSnapshot } from '../core/adjudication/PlayAdjudicationLedger';
 import type { CanonicalMatchState } from '../core/model/CanonicalMatchState';
 import { asRuleProfileId } from '../core/model/RuleProfileRef';
 import type { BetweenPlayWorldSetup } from '../core/adjudication/BetweenPlayWorldReset';
@@ -118,6 +118,39 @@ describe('SQLite official state store', () => {
     expect(reopened.applyAndActivate(liveRequest())).toEqual(result);
     expect(reopened.getMatch('game-1')?.durableRevision).toBe(1);
     reopened.close();
+  });
+
+  it('persists an unresolved-truth call closure and replays it idempotently after restart', () => {
+    const path = pathForTest();
+    let adjudication = recordUnresolvedCorrectRuleSnapshot(
+      createPlayAdjudicationLedger({ playId: 7, ruleProfileId, playEnd }), 0,
+      { eventId: 'unresolved', tick: 500, snapshotId: 'unresolved-snapshot',
+        evidenceRevision: 1, reason: 'exact_simultaneity' },
+    );
+    adjudication = recordOnFieldCall(adjudication, 1, {
+      eventId: 'call', tick: 501, callId: 'call-1', basisSnapshotId: 'unresolved-snapshot',
+      basisEvidenceRevision: 1,
+      ruling: { outsAfter: 2, basesAfter: { first: null, second: 'r1', third: null }, scoredRunnerIds: [] },
+    });
+    adjudication = closeOfficialPlay(adjudication, 2, {
+      eventId: 'close', tick: 502, closureId: 'unresolved-closure',
+    });
+    const request = { ...liveRequest(), adjudication };
+    const before = JSON.stringify(request);
+    const store = new SqliteOfficialStateStore(path);
+    store.initializeMatch('game-1', match());
+    const result = store.applyAndActivate(request);
+    expect(result.receipt.closureId).toBe('unresolved-closure');
+    expect(result.activation.nextMatchState).toMatchObject({ playId: 8, outs: 2, bases: {
+      first: null, second: 'r1', third: null,
+    } });
+    expect(JSON.stringify(request)).toBe(before);
+    store.close();
+    const reopened = new SqliteOfficialStateStore(path);
+    try {
+      expect(reopened.applyAndActivate(JSON.parse(before))).toEqual(result);
+      expect(reopened.getMatch('game-1')?.durableRevision).toBe(1);
+    } finally { reopened.close(); }
   });
 
   it('rejects an activation that disagrees with the durable MatchState after restart', () => {

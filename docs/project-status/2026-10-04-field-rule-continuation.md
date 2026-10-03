@@ -1,6 +1,10 @@
 # 非デザイン継続: actual field physical history / first-base rule
 
+> 最新続報: [original pitchからwhole-play physical historyへの接続と検証結果](2026-10-04-whole-play-history-continuation.md)。以下の実行中・次段予定の記述は当時の記録として保持する。
+
 更新: 2026-10-04 JST（2026-10-03 UTC）
+
+> 続報: [未解決truthとofficial callの分離](2026-10-04-unresolved-adjudication-continuation.md)を追加した。以下はfield-rule sliceの記録。
 
 ## 実装範囲
 

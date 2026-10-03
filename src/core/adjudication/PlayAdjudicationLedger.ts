@@ -22,6 +22,16 @@ export type CorrectRuleSnapshot = Readonly<{
   ruling: OfficialGameplayRuling;
 }>;
 
+/** Evidence that cannot support a correct gameplay ruling at the model's resolution. */
+export type UnresolvedCorrectRuleSnapshot = Readonly<{
+  snapshotId: string;
+  evidenceRevision: number;
+  resolution: 'unresolved';
+  reason: 'exact_simultaneity' | 'insufficient_evidence';
+}>;
+
+export type CorrectRuleEvidenceSnapshot = CorrectRuleSnapshot | UnresolvedCorrectRuleSnapshot;
+
 export type OfficialStateWindowKind = 'appeal' | 'review' | 'challenge';
 export type OfficialStateWindowCloseReason =
   | 'resolved'
@@ -96,6 +106,11 @@ export type CorrectRuleSnapshotRecorded = EventBase & Readonly<{
   snapshot: CorrectRuleSnapshot;
 }>;
 
+export type UnresolvedCorrectRuleSnapshotRecorded = EventBase & Readonly<{
+  kind: 'UnresolvedCorrectRuleSnapshotRecorded';
+  snapshot: UnresolvedCorrectRuleSnapshot;
+}>;
+
 export type OfficialStateWindowOpened = EventBase & Readonly<{
   kind: 'OfficialStateWindowOpened';
   windowId: string;
@@ -135,6 +150,7 @@ export type OfficialPlayClosed = EventBase & Readonly<{
 
 export type PlayAdjudicationEvent =
   | CorrectRuleSnapshotRecorded
+  | UnresolvedCorrectRuleSnapshotRecorded
   | OfficialStateWindowOpened
   | OfficialStateWindowClosed
   | DefensiveAppealAttemptRecorded
@@ -158,7 +174,7 @@ export type PlayAdjudicationState =
   | Readonly<{
       kind: 'official_adjudication_open';
       playEnd: PlayEndFact | null;
-      latestCorrectRule: CorrectRuleSnapshot;
+      latestCorrectRule: CorrectRuleEvidenceSnapshot;
       calls: readonly OnFieldCall[];
       reviews: readonly ReviewDecision[];
       openWindows: readonly OfficialStateWindow[];
@@ -174,6 +190,14 @@ export type CorrectRuleSnapshotInput = Readonly<{
   snapshotId: string;
   evidenceRevision: number;
   ruling: OfficialGameplayRuling;
+}>;
+
+export type UnresolvedCorrectRuleSnapshotInput = Readonly<{
+  eventId: string;
+  tick: number;
+  snapshotId: string;
+  evidenceRevision: number;
+  reason: UnresolvedCorrectRuleSnapshot['reason'];
 }>;
 
 export type OpenOfficialStateWindowInput = Readonly<{
@@ -225,7 +249,7 @@ export type CloseOfficialPlayInput = Readonly<{
 }>;
 
 type Replay = {
-  latestCorrect: CorrectRuleSnapshot | null;
+  latestCorrect: CorrectRuleEvidenceSnapshot | null;
   windows: Map<string, OfficialStateWindow>;
   calls: OnFieldCall[];
   callIds: Set<string>;
@@ -474,6 +498,31 @@ const freezeSnapshot = (snapshot: CorrectRuleSnapshot): CorrectRuleSnapshot => O
   ruling: validateRuling(snapshot.ruling),
 });
 
+const rejectUnresolvedRuling = (snapshot: object): void => {
+  if ('ruling' in snapshot) throw new Error('unresolved correct-rule snapshot must not supply a ruling');
+};
+
+const freezeUnresolvedSnapshot = (snapshot: UnresolvedCorrectRuleSnapshot): UnresolvedCorrectRuleSnapshot => {
+  rejectUnresolvedRuling(snapshot);
+  if (snapshot.resolution !== 'unresolved') throw new Error('correct-rule resolution must be unresolved');
+  if (snapshot.reason !== 'exact_simultaneity' && snapshot.reason !== 'insufficient_evidence') {
+    throw new Error('unknown unresolved correct-rule reason');
+  }
+  return Object.freeze({
+    snapshotId: id(snapshot.snapshotId, 'snapshotId'),
+    evidenceRevision: revision(snapshot.evidenceRevision, 'evidenceRevision'),
+    resolution: 'unresolved',
+    reason: snapshot.reason,
+  });
+};
+
+const requireNewSnapshot = (replay: Replay, snapshot: CorrectRuleEvidenceSnapshot): void => {
+  if (replay.snapshotIds.has(snapshot.snapshotId)) throw new Error('correct-rule snapshot ids must be unique');
+  if (replay.latestCorrect !== null && snapshot.evidenceRevision <= replay.latestCorrect.evidenceRevision) {
+    throw new Error('correct-rule evidence revision must increase monotonically');
+  }
+};
+
 const freezeCall = (call: OnFieldCall): OnFieldCall => Object.freeze({
   callId: id(call.callId, 'callId'),
   tick: tick(call.tick, 'call tick'),
@@ -524,6 +573,9 @@ const deriveFinalRuling = (replay: Replay): FinalOfficialRuling => {
   }
   const call = latestCall(replay);
   if (call === null) {
+    if (!('ruling' in correct)) {
+      throw new Error('unresolved correct-rule evidence requires an explicit on-field call');
+    }
     return Object.freeze({
       rulingId: correct.snapshotId,
       source: 'correct_rule',
@@ -649,13 +701,17 @@ const replayLedger = (ledgerInput: PlayAdjudicationLedger): {
 
     if (event.kind === 'CorrectRuleSnapshotRecorded') {
       const snapshot = freezeSnapshot(event.snapshot);
-      if (replay.snapshotIds.has(snapshot.snapshotId)) throw new Error('correct-rule snapshot ids must be unique');
-      if (
-        replay.latestCorrect !== null
-        && snapshot.evidenceRevision <= replay.latestCorrect.evidenceRevision
-      ) {
-        throw new Error('correct-rule evidence revision must increase monotonically');
-      }
+      requireNewSnapshot(replay, snapshot);
+      replay.snapshotIds.add(snapshot.snapshotId);
+      replay.latestCorrect = snapshot;
+      replay.appealSnapshotPending = false;
+      events.push(Object.freeze({ ...event, snapshot }));
+      continue;
+    }
+
+    if (event.kind === 'UnresolvedCorrectRuleSnapshotRecorded') {
+      const snapshot = freezeUnresolvedSnapshot(event.snapshot);
+      requireNewSnapshot(replay, snapshot);
       replay.snapshotIds.add(snapshot.snapshotId);
       replay.latestCorrect = snapshot;
       replay.appealSnapshotPending = false;
@@ -855,15 +911,34 @@ export const recordCorrectRuleSnapshot = (
     evidenceRevision: request.evidenceRevision,
     ruling: request.ruling,
   });
-  if (replay.snapshotIds.has(snapshot.snapshotId)) throw new Error('correct-rule snapshot ids must be unique');
-  if (
-    replay.latestCorrect !== null
-    && snapshot.evidenceRevision <= replay.latestCorrect.evidenceRevision
-  ) {
-    throw new Error('correct-rule evidence revision must increase monotonically');
-  }
+  requireNewSnapshot(replay, snapshot);
   return append(ledger, Object.freeze({
     kind: 'CorrectRuleSnapshotRecorded',
+    eventId,
+    tick: eventTick,
+    snapshot,
+  }));
+};
+
+export const recordUnresolvedCorrectRuleSnapshot = (
+  ledgerInput: PlayAdjudicationLedger,
+  expectedRevision: number,
+  input: UnresolvedCorrectRuleSnapshotInput,
+): PlayAdjudicationLedger => {
+  const { ledger, replay } = requireOpen(ledgerInput, expectedRevision);
+  const request = cloneInertData(input, 'adjudication.unresolvedCorrectRule');
+  const eventId = ensureNewEventId(replay, request.eventId);
+  const eventTick = requireEventTick(replay, request.tick);
+  rejectUnresolvedRuling(request);
+  const snapshot = freezeUnresolvedSnapshot({
+    snapshotId: request.snapshotId,
+    evidenceRevision: request.evidenceRevision,
+    resolution: 'unresolved',
+    reason: request.reason,
+  });
+  requireNewSnapshot(replay, snapshot);
+  return append(ledger, Object.freeze({
+    kind: 'UnresolvedCorrectRuleSnapshotRecorded',
     eventId,
     tick: eventTick,
     snapshot,
