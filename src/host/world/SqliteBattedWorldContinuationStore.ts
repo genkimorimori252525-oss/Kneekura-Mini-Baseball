@@ -1,6 +1,7 @@
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { deriveBattedWorldContinuation, type BattedWorldContinuation } from '../../core/sim/ball/BattedWorldContinuation';
+import type { BattedBallContactResponseInput } from '../../core/sim/ball/BattedBallContactResponse';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { battedContactResponseEvidenceFromSqlite, type DurableBattedContactResponse, type SqliteBattedContactResponseStore } from './SqliteBattedContactResponseStore';
 
@@ -31,13 +32,15 @@ const input = (raw: AcceptedBattedWorldContinuation, sourceId: string): Accepted
 const physicalId = (r: DurableBattedContactResponse) => r.touch.worldContact.flight.source.physicalPitchSourceId;
 const predecessorKey = (s: AcceptedBattedWorldContinuation) => json(s.previousContinuationSourceId === null
   ? ['response', s.responseSourceId] : ['continuation', s.previousContinuationSourceId]);
-const deriveTrace = (response: DurableBattedContactResponse, history: readonly AcceptedBattedWorldContinuation[]): BattedWorldContinuation => {
+export const battedWorldResponseInput = (response: DurableBattedContactResponse): BattedBallContactResponseInput => {
   const w = response.touch.worldContact;
-  const trace = deriveBattedWorldContinuation({ response: { world: { flight: w.flight.flight, parameters: w.flight.source.execution.ballFlightParameters,
+  return { world: { flight: w.flight.flight, parameters: w.flight.source.execution.ballFlightParameters,
     throughTick: w.flight.flight.contact.tick + w.flight.source.searchDurationTicks, actors: w.actors, surfaces: w.model.surfaces },
     actors: response.model.actors.filter((a) => w.actors.some((b) => a.playerId === b.playerId))
-      .flatMap((a) => a.primitives.map((profile) => ({ playerId: a.playerId, profile }))), surfaces: response.model.surfaces },
-    throughTicks: history.map((s) => s.throughTick) });
+      .flatMap((a) => a.primitives.map((profile) => ({ playerId: a.playerId, profile }))), surfaces: response.model.surfaces };
+};
+const deriveTrace = (response: DurableBattedContactResponse, history: readonly AcceptedBattedWorldContinuation[]): BattedWorldContinuation => {
+  const trace = deriveBattedWorldContinuation({ response: battedWorldResponseInput(response), throughTicks: history.map((s) => s.throughTick) });
   if (json(trace.original) !== json(response.result)) throw new Error('batted continuation original response differs');
   return trace;
 };

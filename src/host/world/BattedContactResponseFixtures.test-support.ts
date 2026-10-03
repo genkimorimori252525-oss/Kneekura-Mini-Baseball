@@ -2,7 +2,8 @@ import { battedWorldContactFixture } from './BattedWorldContactFixtures.test-sup
 import { openSqliteBattedFirstFielderTouchStore, type AcceptedBattedFirstFielderTouch } from './SqliteBattedFirstFielderTouchStore';
 import { openSqliteBattedContactResponseStore, type AcceptedBattedContactResponse, type AcceptedBattedContactResponseModel } from './SqliteBattedContactResponseStore';
 
-export const battedContactResponseFixture = (path?: string, kind: 'body' | 'glove' | 'failed_glove' | 'ground' | 'surface' | 'airborne' | 'simultaneous' = 'body') => {
+export const battedContactResponseFixture = (path?: string, kind: 'body' | 'glove' | 'failed_glove' | 'ground' | 'surface' | 'airborne' | 'simultaneous' = 'body',
+  configure?: (base: ReturnType<typeof battedWorldContactFixture>) => void) => {
   const base = battedWorldContactFixture(path), { f, model, models, source, sources, flight, contacts } = base;
   const at = flight.flight.contact.tick, ball = flight.flight.initialBall.position;
   if (kind === 'airborne') sources.set(source.sourceId, { ...source, flightSourceId: base.input.sourceId });
@@ -16,6 +17,7 @@ export const battedContactResponseFixture = (path?: string, kind: 'body' | 'glov
       primitives: a.primitives.map((p) => p.role === (kind.includes('glove') ? 'glove' : 'body') || kind === 'simultaneous' && p.role === 'glove'
         ? { ...p, offset: { x: ball.x - root.x, y: ball.y, z: ball.z + 0.08 - root.z } } : p) }) });
   }
+  configure?.(base);
   const worldContact = contacts.accept(source.sourceId);
   const touchSource: AcceptedBattedFirstFielderTouch = { sourceId: 'touch', sourceVersion: 'fixture-v1', worldContactSourceId: source.sourceId };
   const touches = f.track(openSqliteBattedFirstFielderTouchStore(f.path, contacts, { readAcceptedTouch: (id) => id === touchSource.sourceId ? touchSource : null }));
