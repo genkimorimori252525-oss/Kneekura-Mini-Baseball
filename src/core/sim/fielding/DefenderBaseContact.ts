@@ -4,8 +4,6 @@ import type {
   DefenderPhysicalPrimitiveSegment,
 } from './DefenderPhysicalPrimitive';
 
-const EPSILON = 1e-12;
-const ROOT_TOLERANCE_SECONDS = 1e-10;
 const BOUNDARY_TOLERANCE_METERS = 1e-9;
 
 type BaseLocalKinematics = Readonly<{
@@ -163,65 +161,34 @@ const rootsAtCoordinate = (
   const c = position - target;
   if (![a, b, c].every(Number.isFinite)) throw new Error('defender base-contact arithmetic overflow');
 
-  if (Math.abs(a) <= EPSILON) {
-    if (Math.abs(b) <= EPSILON) {
+  if (a === 0) {
+    if (b === 0) {
       return [];
     }
     return [-c / b];
   }
 
-  const discriminant = b * b - 4 * a * c;
+  // A binary scale protects tiny products without rounding exact tangencies into two or zero roots.
+  const largestCoefficient = Math.max(Math.abs(a), Math.abs(b), Math.abs(c));
+  const scale = 2 ** Math.min(1023, Math.floor(Math.log2(largestCoefficient)));
+  const scaledA = a / scale, scaledB = b / scale, scaledC = c / scale;
+  const discriminant = scaledB * scaledB - 4 * scaledA * scaledC;
   if (!Number.isFinite(discriminant)) throw new Error('defender base-contact arithmetic overflow');
-  if (discriminant < -EPSILON) {
+  if (discriminant < 0) {
     return [];
   }
 
-  const root = Math.sqrt(Math.max(0, discriminant));
-  const denominator = 2 * a;
-  return [
-    (-b - root) / denominator,
-    (-b + root) / denominator,
-  ];
-};
-
-const addCandidate = (
-  candidates: number[],
-  value: number,
-  startSeconds: number,
-  endSeconds: number,
-): void => {
-  if (
-    value < startSeconds - ROOT_TOLERANCE_SECONDS
-    || value > endSeconds + ROOT_TOLERANCE_SECONDS
-  ) {
-    return;
-  }
-  candidates.push(
-    Math.max(startSeconds, Math.min(endSeconds, value)),
-  );
-};
-
-const uniqueSorted = (
-  values: readonly number[],
-): readonly number[] => {
-  const sorted = [...values].sort((first, second) => first - second);
-  const result: number[] = [];
-  for (const value of sorted) {
-    if (
-      result.length === 0
-      || Math.abs(value - result[result.length - 1])
-        > ROOT_TOLERANCE_SECONDS
-    ) {
-      result.push(value);
-    }
-  }
-  return result;
+  const root = Math.sqrt(discriminant);
+  const q = -0.5 * (scaledB + (scaledB < 0 ? -root : root));
+  return q === 0 ? [-scaledB / (2 * scaledA)] : [q / scaledA, scaledC / q];
 };
 
 const isInsideBase = (
   local: BaseLocalKinematics,
   base: BaseTouchRegion,
   seconds: number,
+  edgeRoots: Readonly<{ x: readonly number[]; z: readonly number[] }>,
+  atBoundary = true,
 ): boolean => {
   const x = evaluateCoordinate(
     local.position.x,
@@ -242,21 +209,24 @@ const isInsideBase = (
     seconds,
   );
 
+  if (![x, y, z].every(Number.isFinite)) throw new Error('defender base-contact arithmetic overflow');
+  const inside = (coordinate: number, axis: 'x' | 'z') => Math.abs(coordinate) <= base.halfSize[axis]
+    || atBoundary && edgeRoots[axis].includes(seconds) && Math.abs(coordinate) <= base.halfSize[axis] + BOUNDARY_TOLERANCE_METERS;
   return (
-    Math.abs(x) <= base.halfSize.x + BOUNDARY_TOLERANCE_METERS
-    && Math.abs(z) <= base.halfSize.z + BOUNDARY_TOLERANCE_METERS
+    inside(x, 'x')
+    && inside(z, 'z')
     && Math.abs(y) <= BOUNDARY_TOLERANCE_METERS
   );
 };
 
-/** Physical foot-center contact, measured from the primitive's true motion basis. */
-export const findDefenderFootBaseContactSeconds = (
+const projectBaseContact = (
   primitive: DefenderPhysicalPrimitiveSegment,
   base: BaseTouchRegion,
   baseSurfaceHeightMeters: number,
   startSeconds: number,
   endSeconds: number,
-): number | null => {
+): Readonly<{ local: BaseLocalKinematics; times: readonly number[]; planeRoots: readonly number[];
+  edgeRoots: Readonly<{ x: readonly number[]; z: readonly number[] }> }> => {
   validatePrimitive(primitive);
   validateBase(base);
   validateFinite(
@@ -291,67 +261,71 @@ export const findDefenderFootBaseContactSeconds = (
     startSeconds,
     endSeconds,
   ];
+  const add = (root: number) => { if (root >= startSeconds && root <= endSeconds) candidates.push(root); };
+  const edges = (axis: 'x' | 'z') => [base.halfSize[axis], -base.halfSize[axis]].flatMap((target) =>
+    rootsAtCoordinate(local.position[axis], local.velocity[axis], local.acceleration[axis], target));
+  const edgeRoots = { x: edges('x'), z: edges('z') };
+  [...edgeRoots.x, ...edgeRoots.z].forEach(add);
 
-  for (const root of rootsAtCoordinate(
-    local.position.x,
-    local.velocity.x,
-    local.acceleration.x,
-    base.halfSize.x,
-  )) {
-    addCandidate(candidates, root, startSeconds, endSeconds);
-  }
-  for (const root of rootsAtCoordinate(
-    local.position.x,
-    local.velocity.x,
-    local.acceleration.x,
-    -base.halfSize.x,
-  )) {
-    addCandidate(candidates, root, startSeconds, endSeconds);
-  }
-  for (const root of rootsAtCoordinate(
-    local.position.z,
-    local.velocity.z,
-    local.acceleration.z,
-    base.halfSize.z,
-  )) {
-    addCandidate(candidates, root, startSeconds, endSeconds);
-  }
-  for (const root of rootsAtCoordinate(
-    local.position.z,
-    local.velocity.z,
-    local.acceleration.z,
-    -base.halfSize.z,
-  )) {
-    addCandidate(candidates, root, startSeconds, endSeconds);
-  }
-
-  for (const root of rootsAtCoordinate(
+  const planeRoots = rootsAtCoordinate(
     local.position.y,
     local.velocity.y,
     local.acceleration.y,
     0,
-  )) {
-    addCandidate(candidates, root, startSeconds, endSeconds);
+  );
+  for (const root of planeRoots) {
+    add(root);
   }
 
-  const times = uniqueSorted(candidates);
-  for (let index = 0; index < times.length; index += 1) {
-    const current = times[index];
-    if (isInsideBase(local, base, current)) {
-      return current;
-    }
+  return { local, planeRoots, edgeRoots, times: [...new Set(candidates)].sort((a, b) => a - b) };
+};
 
-    const next = times[index + 1];
-    if (next === undefined) {
-      continue;
+/** Physical foot-center contact, measured from the primitive's true motion basis. */
+export const findDefenderFootBaseContactSeconds = (
+  primitive: DefenderPhysicalPrimitiveSegment,
+  base: BaseTouchRegion,
+  baseSurfaceHeightMeters: number,
+  startSeconds: number,
+  endSeconds: number,
+): number | null => {
+  return findDefenderFootBaseContactIntervalsSeconds(primitive, base, baseSurfaceHeightMeters, startSeconds, endSeconds)[0]?.startSeconds ?? null;
+};
+
+export type DefenderFootBaseContactIntervalSeconds = Readonly<{ startSeconds: number; endSeconds: number }>;
+
+/** Closed contact episodes in the foot-center/top-plane model. Distinct physical breakpoints are not time-deduplicated. */
+export const findDefenderFootBaseContactIntervalsSeconds = (
+  primitive: DefenderPhysicalPrimitiveSegment,
+  base: BaseTouchRegion,
+  baseSurfaceHeightMeters: number,
+  startSeconds: number,
+  endSeconds: number,
+): readonly DefenderFootBaseContactIntervalSeconds[] => {
+  const { local, times, planeRoots, edgeRoots } = projectBaseContact(primitive, base, baseSurfaceHeightMeters, startSeconds, endSeconds);
+  const intervals: DefenderFootBaseContactIntervalSeconds[] = [];
+  const add = (start: number, end: number) => {
+    const last = intervals.at(-1);
+    if (last && start <= last.endSeconds) intervals[intervals.length - 1] = Object.freeze({ startSeconds: last.startSeconds, endSeconds: Math.max(end, last.endSeconds) });
+    else intervals.push(Object.freeze({ startSeconds: start, endSeconds: end }));
+  };
+  const stationaryHeight = local.velocity.y === 0 && local.acceleration.y === 0;
+  for (let index = 0; index < times.length; index++) {
+    const current = times[index], next = times[index + 1];
+    // A moving height touches the top plane at its roots, not throughout a numerical distance band.
+    const atPlane = stationaryHeight || planeRoots.includes(current)
+      || evaluateCoordinate(local.position.y, local.velocity.y, local.acceleration.y, current) === 0;
+    if (atPlane && isInsideBase(local, base, current, edgeRoots)) add(current, current);
+    if (next === undefined || !stationaryHeight) continue;
+    const checks = [current + (next - current) / 2];
+    for (const axis of ['x', 'z'] as const) {
+      if (local.acceleration[axis] === 0) continue;
+      const vertex = -local.velocity[axis] / local.acceleration[axis];
+      if (vertex > current && vertex < next) checks.push(vertex);
     }
-    const midpoint = current + (next - current) / 2;
-    if (isInsideBase(local, base, midpoint)) {
-      return current;
-    }
+    if (isInsideBase(local, base, current, edgeRoots) && isInsideBase(local, base, next, edgeRoots)
+      && checks.every((at) => isInsideBase(local, base, at, edgeRoots, false))) add(current, next);
   }
-
-  return null;
+  return Object.freeze(intervals);
 };
 
 export const findDefenderFootBaseContactTick = (
