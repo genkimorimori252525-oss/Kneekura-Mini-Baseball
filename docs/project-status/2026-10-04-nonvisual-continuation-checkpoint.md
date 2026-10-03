@@ -14,10 +14,11 @@
 | [263](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/263) | [e2f635da](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/e2f635daded52326404bcda09935057639591c72) | 持替え途中の保存/再開、exact release、source固有queueとball/contact handoff |
 | [264](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/264) | [de36ce08](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/de36ce08c310ab382fe25328dc27d4c143354ba1) | Player/Personにpinした明示的な観測calibration baseline |
 | [265](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/265) | [2e361ee4](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/2e361ee47e8dc32297b51fc185ab911b3ebac681) | 旧atomic release境界のversioned custody補正とarchive互換性 |
+| [266](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/266) | [54860afb](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/54860afba63dc33a20b421610cad29eba7eeca71) | actual fieldからのview/attention、知覚receipt、noise/memory、bounded replay |
 
 各公開treeはローカルの検証Sourceとfetch/diffで一致を確認した。GitHub上のcommitはmetadataが異なるため、commit IDだけでなく全tree/src treeの同一性を各PRに記録している。いずれもmergeしていない。
 
-## 現在追加しているactual observation
+## 追加したactual observation
 
 [詳細契約](2026-10-04-actual-field-observation.md)。既存のperception部品を、実際に所有・実行したfield/execution prefixへ接続する。
 

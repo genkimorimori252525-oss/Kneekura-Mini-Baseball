@@ -1,5 +1,7 @@
 # Actual field observation boundary
 
+Published as [Draft PR266](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/266), [implementation commit54860afb](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/54860afba63dc33a20b421610cad29eba7eeca71). The PR records the final fixed-Source verification result; publication itself is not a whole-suite pass.
+
 This increment connects existing perception algorithms to the owned actual field/execution archive. It does not implement individual decisions, autonomous gaze, communication generation, calibrated production perception, or play completion.
 
 ## Accepted input and geometry ownership
