@@ -1,5 +1,7 @@
 # 非デザイン継続: original pitchから実field履歴までの所有接続
 
+> 最新続報: [actual transferの途中保存とrelease handoff](2026-10-04-scheduled-field-throw-continuation.md)。以下の未接続一覧はこのhistory checkpoint時点の記録として保持する。
+
 更新: 2026-10-04 JST（2026-10-03 UTC）
 
 [PR261](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/261) の上に、未解決truthの判定契約、continuing-contact修正、bounded whole-play physical historyを累積した。元の[残計画](2026-10-04-nonvisual-implementation-checkpoint.md)は継続中。デザイン/UI/art/Presentationは接続していない。

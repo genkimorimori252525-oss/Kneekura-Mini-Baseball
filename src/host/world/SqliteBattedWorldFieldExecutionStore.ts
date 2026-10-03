@@ -3,6 +3,8 @@ import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { deriveBattedWorldFieldMotion, type BattedWorldFieldMotion } from '../../core/sim/ball/BattedWorldFieldMotion';
 import { deriveBattedWorldFieldAcquisition, type BattedWorldFieldAcquisition } from '../../core/sim/ball/BattedWorldFieldAcquisition';
 import { deriveBattedWorldFieldThrow, type BattedWorldFieldThrow } from '../../core/sim/ball/BattedWorldFieldThrow';
+import { prepareBattedWorldScheduledFieldThrow, advanceBattedWorldScheduledFieldThrow, type BattedWorldScheduledFieldThrowPlan, type BattedWorldScheduledFieldThrowAdvance } from '../../core/sim/ball/BattedWorldScheduledFieldThrow';
+import { deriveScheduledFieldThrowLiveWork } from '../../core/sim/liveAction/ScheduledFieldThrowLiveWork';
 import type { BattedWorldBallCursor } from '../../core/sim/ball/BattedWorldContinuation';
 import type { BattedWorldBaseId } from '../../core/sim/ball/BattedWorldBaseGeometry';
 import { deriveBallWorldPlayerBaseContactHistory } from '../../core/sim/ball/BallWorldPlayerBaseContactHistory';
@@ -22,13 +24,16 @@ type Action = Readonly<{ kind: 'acquisition' }>
   | Readonly<{ kind: 'first_base_race' }>
   | Readonly<{ kind: 'whole_play_history' }>
   | Readonly<{ kind: 'motion'; availableAtTick: number; throughTick: number; commands: AcceptedBattedWorldMotion['commands'] }>
-  | Readonly<{ kind: 'throw'; availableAtTick: number; throughTick: number; commands: AcceptedBattedWorldMotion['commands'];
+  | Readonly<{ kind: 'throw_advance'; planSourceId: string; throughElapsedSeconds: number }>
+  | Readonly<{ kind: 'throw' | 'throw_plan'; availableAtTick: number; throughTick: number; commands: AcceptedBattedWorldMotion['commands'];
     modelSourceId: string; receiverPlayerId: string }>;
 export type AcceptedBattedWorldFieldExecution = Readonly<{ sourceId: string; sourceVersion: string;
   baseFieldSourceId: string; previousExecutionSourceId: string | null; action: Action }>;
 type Execution = Readonly<{ kind: 'motion'; field: BattedWorldFieldMotion }>
   | Readonly<{ kind: 'whole_play_history'; field: BattedWorldFieldMotion; physicalHistory: ReturnType<typeof wholePlayPhysicalHistoryFromPrefix> }>
   | Readonly<{ kind: 'acquisition'; field: BattedWorldFieldMotion; acquisition: BattedWorldFieldAcquisition }>
+  | Readonly<{ kind: 'throw_plan'; field: BattedWorldFieldMotion; model: DurablePlayerFieldingModel; plan: BattedWorldScheduledFieldThrowPlan; liveWork: ReturnType<typeof deriveScheduledFieldThrowLiveWork> }>
+  | Readonly<{ kind: 'throw_advance'; field: BattedWorldFieldMotion; planSourceId: string; progress: BattedWorldScheduledFieldThrowAdvance; liveWork: ReturnType<typeof deriveScheduledFieldThrowLiveWork> }>
   | Readonly<{ kind: 'throw'; field: BattedWorldFieldMotion; model: DurablePlayerFieldingModel; throw: BattedWorldFieldThrow }>
   | (Readonly<{ kind: 'base_touch_history'; field: BattedWorldFieldMotion; playerId: string; base: BattedWorldBaseId;
     physicalRuleFacts: readonly (ReturnType<typeof createRunnerBaseFactsFromBallWorldHistory>[number] | ReturnType<typeof createControlledBaseFactsFromBallWorldContacts>[number])[] }>
@@ -65,10 +70,15 @@ const input = (raw: AcceptedBattedWorldFieldExecution, sourceId: string): Accept
     }
     return source;
   }
-  if (action?.kind !== 'motion' && action?.kind !== 'throw'
-    || !fields(action, ['kind', 'availableAtTick', 'throughTick', 'commands', ...(action.kind === 'throw' ? ['modelSourceId', 'receiverPlayerId'] : [])])
+  if (action?.kind === 'throw_advance') {
+    if (!fields(action, ['kind', 'planSourceId', 'throughElapsedSeconds']) || !id(action.planSourceId)
+      || !Number.isFinite(action.throughElapsedSeconds) || action.throughElapsedSeconds < 0) throw new Error('invalid scheduled field throw advancement');
+    return source;
+  }
+  if (action?.kind !== 'motion' && action?.kind !== 'throw' && action?.kind !== 'throw_plan'
+    || !fields(action, ['kind', 'availableAtTick', 'throughTick', 'commands', ...(action.kind !== 'motion' ? ['modelSourceId', 'receiverPlayerId'] : [])])
     || !tick(action.availableAtTick) || !tick(action.throughTick)
-    || action.kind === 'throw' && (!id(action.modelSourceId) || !id(action.receiverPlayerId))) throw new Error('invalid accepted actual field execution action');
+    || action.kind !== 'motion' && (!id(action.modelSourceId) || !id(action.receiverPlayerId))) throw new Error('invalid accepted actual field execution action');
   return { ...source, action: { ...action, commands: battedWorldMotionCommandsInput(action.commands) } };
 };
 const physicalId = (field: DurableBattedWorldFieldAction) => field.response.touch.worldContact.flight.source.physicalPitchSourceId;
@@ -86,9 +96,25 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
     const prior = previous?.execution, original = prior?.field ?? baseField.field, motion = original.motion;
     const response = battedWorldResponseInput(baseField.response), geometry = baseField.geometry.geometry;
     const physicalPrior = [...prefix].reverse().find((value) => value.execution.kind === 'motion'
-      || value.execution.kind === 'acquisition' || value.execution.kind === 'throw')?.execution;
+      || value.execution.kind === 'acquisition' || value.execution.kind === 'throw' || value.execution.kind === 'throw_advance')?.execution;
+    const planned = [...prefix].reverse().find((value) => value.execution.kind === 'throw_plan');
+    const lastAdvance = planned && [...prefix].reverse().find((value) => value.execution.kind === 'throw_advance'
+      && value.execution.planSourceId === planned.source.sourceId);
+    const pending = planned && (!lastAdvance || lastAdvance.execution.kind === 'throw_advance' && lastAdvance.execution.progress.kind === 'transfer');
+    const observation = ['whole_play_history', 'base_touch_history', 'first_base_race'].includes(source.action.kind);
+    if (pending && source.action.kind !== 'throw_advance' && !observation) throw new Error('scheduled field transfer owns pending physical execution');
     let execution: Execution;
-    if (source.action.kind === 'acquisition') {
+    if (source.action.kind === 'throw_advance') {
+      if (!pending || !planned || planned.execution.kind !== 'throw_plan' || planned.source.sourceId !== source.action.planSourceId) {
+        throw new Error('scheduled field throw plan is missing, superseded or terminal');
+      }
+      const priorProgress = lastAdvance?.execution.kind === 'throw_advance' ? lastAdvance.execution.progress : null;
+      const progress = advanceBattedWorldScheduledFieldThrow({ plan: planned.execution.plan, previous: priorProgress,
+        throughElapsedSeconds: source.action.throughElapsedSeconds });
+      const liveWork = deriveScheduledFieldThrowLiveWork({ physicalPitchSourceId: physicalId(baseField), planSourceId: planned.source.sourceId,
+        executionSourceId: source.sourceId, revision: (previous?.revision ?? 0) + 1, plan: planned.execution.plan, progress });
+      execution = { kind: 'throw_advance', field: progress.field, planSourceId: planned.source.sourceId, progress, liveWork };
+    } else if (source.action.kind === 'acquisition') {
       if (physicalPrior?.kind === 'acquisition') throw new Error('actual field acquisition is already resolved');
       execution = { kind: 'acquisition', field: original, acquisition: deriveBattedWorldFieldAcquisition({ response, geometry, field: original }) };
     } else if (source.action.kind === 'whole_play_history') {
@@ -146,10 +172,18 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
           || model.source.playerId !== carrierPlayerId || model.source.careerId !== actor.binding.careerId
           || model.source.personLinkSourceId !== actor.binding.personLinkSourceId || json(model.person) !== json(actor.person)
           || model.source.acceptedAtDay > actor.binding.gameDay) throw new Error('actual field throw Player model or active receiver scope differs');
-        const result = deriveBattedWorldFieldThrow({ ...motionInput, carrierPlayerId, receiverPlayerId: action.receiverPlayerId,
+        const throwInput = { ...motionInput, carrierPlayerId, receiverPlayerId: action.receiverPlayerId,
           ratings: model.source.ratings, transferParameters: model.source.transferParameters, throwCalibration: model.source.throwCalibration,
-          seed: { matchSeed: frame.matchSeed, playId: frame.match.playId, streamKey: json(['batted_world_field_throw', source.sourceId, carrierPlayerId]) } });
-        execution = { kind: 'throw', field: result.field, model, throw: result };
+          seed: { matchSeed: frame.matchSeed, playId: frame.match.playId, streamKey: json(['batted_world_field_throw', source.sourceId, carrierPlayerId]) } };
+        if (action.kind === 'throw_plan') {
+          const plan = prepareBattedWorldScheduledFieldThrow(throwInput);
+          const liveWork = deriveScheduledFieldThrowLiveWork({ physicalPitchSourceId: physicalId(baseField), planSourceId: source.sourceId,
+            executionSourceId: source.sourceId, revision: (previous?.revision ?? 0) + 1, plan, progress: null });
+          execution = { kind: 'throw_plan', field: original, model, plan, liveWork };
+        } else {
+          const result = deriveBattedWorldFieldThrow(throwInput);
+          execution = { kind: 'throw', field: result.field, model, throw: result };
+        }
       }
     }
     return freeze({ source, baseField, revision: (previous?.revision ?? 0) + 1,

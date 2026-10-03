@@ -4,6 +4,7 @@ import { respondToGroundContact } from '../../core/sim/ball/BallFlight';
 import { quantizeEventTick } from '../../core/sim/ExactEventTime';
 import type { BallWorldBoundaryContact, BallWorldMoment, BallWorldMotionActor } from '../../core/sim/ball/BallWorldContinuation';
 import type { BallWorldBaseBoundaryContact } from '../../core/sim/ball/BallWorldBaseBoundary';
+import type { BattedWorldScheduledFieldThrowPlan, BattedWorldScheduledFieldThrowAdvance } from '../../core/sim/ball/BattedWorldScheduledFieldThrow';
 import type { BattedWorldBallCursor } from '../../core/sim/ball/BattedWorldContinuation';
 import { battedWorldBaseSurfaceId, createBattedWorldFieldGeometry, type BattedWorldFieldMotion } from '../../core/sim/ball/BattedWorldFieldMotion';
 import { deriveBallWorldPlayerBaseContactHistory, type BallWorldPlayerBaseContactHistory,
@@ -55,6 +56,7 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
   let horizon: BallWorldMoment = { originTick, elapsedSeconds: 0, ball: initial };
   let cursor: BattedWorldBallCursor | null = { moment: horizon, previousContacts: [] }, carrierPlayerId: string | null = null;
   let actors: readonly BallWorldMotionActor[] = world.actors, currentField: BattedWorldFieldMotion = base.field;
+  let pendingThrow: { sourceId: string; plan: BattedWorldScheduledFieldThrowPlan; previous: BattedWorldScheduledFieldThrowAdvance | null } | null = null;
   const actorKeys = new Set(actors.map(key));
   if (!actors.length || actorKeys.size !== actors.length || actors.some((actor) => !players.has(actor.playerId))) {
     throw new Error('actual field original actor identity differs');
@@ -133,9 +135,9 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
     if (!defenderIds.includes(playerId) || start < 0 || end < start || end > horizon.elapsedSeconds) throw new Error('actual field custody scope differs');
     controlWindows.push({ playerId, startElapsedSeconds: start, endElapsedSeconds: end, endInclusive });
   };
-  const appendField = (field: BattedWorldFieldMotion, freeStart: BallWorldMoment | null) => {
+  const appendField = (field: BattedWorldFieldMotion, freeStart: BallWorldMoment | null, rebase = true) => {
     const motion = field.motion, actual = motion.world;
-    segment(motion.actors, actual.moment, true);
+    segment(motion.actors, actual.moment, rebase);
     if (freeStart && 'phase' in actual && actual.phase !== 'resting'
       && contacts.some((frame) => frame.contacts.some((contact) => contact.kind === 'ground'))) {
       moment(freeStart);
@@ -177,7 +179,50 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
       || value.source.action.kind !== value.execution.kind) throw new Error('actual field execution Source prefix differs');
     sources.add(value.source.sourceId);
     const execution = value.execution;
-    if (execution.kind === 'acquisition') {
+    if (execution.kind === 'throw_plan') {
+      const plan = execution.plan, model = execution.model;
+      const actor = world.modelActorEvidence.find((actor) => actor.binding.playerId === carrierPlayerId);
+      if (pendingThrow || !cursor || !carrierPlayerId || !actor || json(execution.field) !== json(currentField)
+        || json(plan.input.cursor) !== json(cursor) || json(plan.input.actors) !== json(actors)
+        || plan.input.carrierPlayerId !== carrierPlayerId || !defenderIds.includes(plan.input.receiverPlayerId)
+        || model.source.playerId !== carrierPlayerId || model.source.careerId !== actor.binding.careerId
+        || model.source.personLinkSourceId !== actor.binding.personLinkSourceId || json(model.person) !== json(actor.person)) {
+        throw new Error('actual field scheduled plan Player or physical basis differs');
+      }
+      pendingThrow = { sourceId: value.source.sourceId, plan, previous: null };
+    } else if (execution.kind === 'throw_advance') {
+      if (!pendingThrow || !cursor || !carrierPlayerId || execution.planSourceId !== pendingThrow.sourceId
+        || json(execution.progress.startCursor) !== json(cursor) || json(execution.progress.field) !== json(execution.field)
+        || json(execution.progress.transfer) !== json(pendingThrow.plan.transfer)
+        || execution.progress.planIdentity !== JSON.stringify(pendingThrow.plan)
+        || json(execution.field.motion.actors) !== json(pendingThrow.plan.actors)) {
+        throw new Error('actual field scheduled advance original lineage differs');
+      }
+      const progress = execution.progress, start = horizon.elapsedSeconds, priorCarrier = carrierPlayerId;
+      const end = execution.field.motion.world.moment.elapsedSeconds;
+      if (end > pendingThrow.plan.releaseElapsedSeconds) throw new Error('actual field scheduled advance exceeds release');
+      if (progress.kind === 'released') {
+        if (progress.releaseCursor.moment.elapsedSeconds !== pendingThrow.plan.releaseElapsedSeconds
+          || progress.releaseCursor.moment.elapsedSeconds !== end
+          || execution.field.motion.carrierPlayerId !== null) throw new Error('actual field scheduled release horizon or custody differs');
+        appendField(execution.field, null, pendingThrow.previous === null);
+        // A release at an already observed horizon closes the earlier inclusive
+        // endpoint too; it cannot inherit custody from a zero-duration snapshot.
+        for (const [index, window] of controlWindows.entries()) if (window.playerId === priorCarrier
+          && window.endElapsedSeconds === end && window.endInclusive) controlWindows[index] = { ...window, endInclusive: false };
+        control(priorCarrier, start, end, false); pendingThrow = null;
+      } else {
+        if (execution.field.motion.carrierPlayerId !== priorCarrier
+          || progress.kind === 'transfer' && (execution.field.motion.world.kind === 'boundary' || !execution.field.motion.cursor)
+          || progress.kind === 'interrupted' && (execution.field.motion.world.kind !== 'boundary' || execution.field.motion.cursor !== null)) {
+          throw new Error('actual field scheduled transfer custody differs');
+        }
+        appendField(execution.field, null, pendingThrow.previous === null);
+        control(priorCarrier, start, end, progress.kind === 'transfer');
+        pendingThrow = progress.kind === 'transfer' ? { sourceId: pendingThrow.sourceId, plan: pendingThrow.plan, previous: progress } : null;
+      }
+    } else if (execution.kind === 'acquisition') {
+      if (pendingThrow) throw new Error('actual field pending transfer owns physical work');
       const capture = execution.acquisition;
       if (cursor || carrierPlayerId !== null || currentField?.motion.response.kind !== 'capture_candidate'
         || json(execution.field) !== json(currentField) || json(capture.contactMoment) !== json(horizon)) {
@@ -192,6 +237,7 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
         cursor = { moment: end, previousContacts: [{ kind: 'actor', playerId: carrierPlayerId, role: 'glove' }] };
       } else appendContacts(capture.world.moment, capture.world.contacts, capture.baseContacts);
     } else if (execution.kind === 'motion' || execution.kind === 'throw') {
+      if (pendingThrow) throw new Error('actual field pending transfer owns physical work');
       if (!cursor) throw new Error('actual field execution lacks a resolved prior cursor');
       const start = horizon.elapsedSeconds, priorCarrier = carrierPlayerId;
       if (execution.kind === 'motion') {

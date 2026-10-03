@@ -30,7 +30,15 @@ export const wholePlayPhysicalHistoryFromPrefix = (input: Readonly<{ baseField: 
   for (const value of input.executions) {
     const execution = value.execution, source: WholePlaySourceRef = { owner: 'field_execution', sourceId: value.source.sourceId,
       revision: value.revision, physicalPitchSourceId }, previousSourceId = value.source.previousExecutionSourceId;
-    if (execution.kind === 'motion' || execution.kind === 'throw') {
+    if (execution.kind === 'throw_plan') {
+      if (!basis) throw new Error('whole-play scheduled plan lacks its owned physical basis');
+      steps.push({ source, previousSourceId, kind: 'throw_plan', basis, horizon, plan: execution.plan });
+    } else if (execution.kind === 'throw_advance') {
+      if (!cursor) throw new Error('whole-play scheduled advance lacks its actual physical cursor');
+      steps.push({ source, previousSourceId, kind: 'throw_advance', planSourceId: execution.planSourceId,
+        startCursor: cursor, field: execution.field, progress: execution.progress });
+      cursor = execution.field.motion.cursor; horizon = execution.field.motion.world.moment; basis = source;
+    } else if (execution.kind === 'motion' || execution.kind === 'throw') {
       if (!cursor) throw new Error('whole-play execution lacks its actual physical cursor');
       steps.push(execution.kind === 'motion' ? { source, previousSourceId, kind: 'motion', startCursor: cursor, field: execution.field }
         : { source, previousSourceId, kind: 'throw', startCursor: cursor, field: execution.field, throw: execution.throw });

@@ -5,7 +5,7 @@ import { openSqliteBattedWorldFieldExecutionStore, type AcceptedBattedWorldField
 import { openSqlitePlayerFieldingModelStore, type AcceptedPlayerFieldingModel } from './SqlitePlayerFieldingModelStore';
 
 /** Explicit synthetic tall bags and a moving glove expose capture/transfer/released contact provenance. */
-export const fieldPhysicalBagFixture = (kind: 'capture' | 'carry' | 'transfer' | 'release' | 'rebound') => {
+export const fieldPhysicalBagFixture = (kind: 'capture' | 'carry' | 'transfer' | 'release' | 'rebound', scheduledThrow = false) => {
   let receiverPlayerId = '';
   const base = battedContactResponseFixture(undefined, 'airborne', (world) => {
     const ball = world.flight.flight.initialBall, frame = world.flight.physicalPitch.frame.world;
@@ -84,9 +84,9 @@ export const fieldPhysicalBagFixture = (kind: 'capture' | 'carry' | 'transfer' |
       throwCalibration: { minimumReleaseSpeedMps: 20, maximumReleaseSpeedMps: 20, minimumTargetErrorMeters: 0, maximumTargetErrorMeters: 0 } };
     const fielding = base.f.track(openSqlitePlayerFieldingModelStore(base.f.path, { readAcceptedModel: () => fieldingSource }));
     fielding.accept(fieldingSource.sourceId);
-    action = { ...action, kind: 'throw', modelSourceId: fieldingSource.sourceId, receiverPlayerId };
+    action = { ...action, kind: scheduledThrow ? 'throw_plan' : 'throw', modelSourceId: fieldingSource.sourceId, receiverPlayerId };
   }
   const next = { ...source, sourceId: 'bag-prefix-next', previousExecutionSourceId: source.sourceId, action };
   sources.set(next.sourceId, next);
-  return { ...base, baseField, prefix: [acquired, executions.accept(next.sourceId)] };
+  return { ...base, baseField, prefix: [acquired, executions.accept(next.sourceId)], fields, executions, executionSources: sources };
 };
