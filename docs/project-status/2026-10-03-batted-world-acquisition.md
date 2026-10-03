@@ -18,7 +18,8 @@ Authority remains the current approved Foundation44b9f5de7b9d87e649f12f1af78c202
 - One fresh readonly review found two defects: null-prefix acquisition missed an orphan same-pitch continuation, and positive capture energy could divide to a zero settling interval. Tracked reproductions:2files/3failed tests RED. Own complete scope verification now covers historical read/retry and fresh current checks; positive energy with unrepresentable positive settling time is rejected.
 - After those fixes:4files61tests GREEN,43.92seconds. Final typecheck GREEN. The same reviewer independently reran both outside-repository reproductions:2files2tests GREEN,7.37seconds; both findings resolved, no further concrete finding.
 - Final WAL and continuous-root regression gate:2files37tests GREEN,209.87seconds. The orphan introduced after the actual null-prefix acquisition insert rolls back both rows, and a subsequent valid retry succeeds. Final typecheck after the fixes is GREEN.
-- The frozen whole gate remains required before publication. This status does not claim that gate complete.
+- Frozen whole gate on Source `b4bd50eb527820b58e98108f50aaba80ebda0401`:575files3615tests GREEN,6185.43seconds, terminal exit0. Wrapper started2026-10-03T05:54:32.4917390Z and ended2026-10-03T07:38:56.2685578Z; all nine Source hashes remained unchanged.
+- Integrated the published parent's doc-only whole-gate record `1863fa8efe3bf42d065bb7a3535d50b90a26cd05` with an ordinary local merge. Source tree remains `46639cc0d738cea9a77ae3c1c75a40eebb84e653`, identical to the verified Source above; no GitHub PR merge was performed. Publication adds only this verification record.
 
 ## Remaining full goal
 
