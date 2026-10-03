@@ -8,6 +8,7 @@ import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './P
 import { battedContactResponseEvidenceFromSqlite, type DurableBattedContactResponse, type SqliteBattedContactResponseStore } from './SqliteBattedContactResponseStore';
 import { battedWorldContinuationEvidenceFromSqlite, battedWorldResponseInput, type DurableBattedWorldContinuation } from './SqliteBattedWorldContinuationStore';
 import { battedWorldAcquisitionEvidenceFromSqlite, type DurableBattedWorldAcquisition } from './SqliteBattedWorldAcquisitionStore';
+import { assertNoBattedWorldExecutionOwner } from './BattedWorldMotionOwnershipFence';
 
 type Command = Readonly<{ playerId: string; bodyAcceleration: Vec3;
   primitiveMotions: readonly Readonly<{ role: DefenderPhysicalPrimitiveRole; offsetAcceleration: Vec3 }>[] }>;
@@ -34,20 +35,34 @@ const tick = (value: unknown): value is number => typeof value === 'number' && N
 const fields = (value: unknown, expected: readonly string[]) => !!value && typeof value === 'object' && !Array.isArray(value)
   && Object.keys(value).sort().join('|') === [...expected].sort().join('|');
 const vector = (value: Vec3) => fields(value, ['x', 'y', 'z']) && [value.x, value.y, value.z].every(Number.isFinite);
+export const battedWorldMotionCommandsInput = (raw: AcceptedBattedWorldMotion['commands']): AcceptedBattedWorldMotion['commands'] => {
+  const commands = cloneInert(raw);
+  if (!Array.isArray(commands) || commands.length !== 10 || new Set(commands.map((command) => command?.playerId)).size !== 10
+    || commands.some((command) => !fields(command, ['playerId', 'bodyAcceleration', 'primitiveMotions']) || !id(command.playerId) || !vector(command.bodyAcceleration)
+      || !Array.isArray(command.primitiveMotions) || command.primitiveMotions.length !== roles.length
+      || new Set(command.primitiveMotions.map((motion: Command['primitiveMotions'][number]) => motion?.role)).size !== roles.length
+      || command.primitiveMotions.some((motion: Command['primitiveMotions'][number]) => !fields(motion, ['role', 'offsetAcceleration']) || !roles.includes(motion.role) || !vector(motion.offsetAcceleration)))) {
+    throw new Error('invalid accepted batted World motion commands');
+  }
+  return commands;
+};
+export const battedWorldMotionPrimitiveCommands = (response: DurableBattedContactResponse, commands: AcceptedBattedWorldMotion['commands']) => {
+  const world = response.touch.worldContact, batterId = world.flight.physicalPitch.frame.batterActor!.binding.playerId;
+  if (commands.some((command) => !world.actors.some((actor) => actor.playerId === command.playerId)
+    || command.playerId !== batterId && command.bodyAcceleration.y !== 0)) throw new Error('actual batted motion actor command scope differs');
+  return commands.flatMap((command) => command.primitiveMotions.map((motion) => ({ playerId: command.playerId, role: motion.role,
+    acceleration: { x: command.bodyAcceleration.x + motion.offsetAcceleration.x, y: command.bodyAcceleration.y + motion.offsetAcceleration.y,
+      z: command.bodyAcceleration.z + motion.offsetAcceleration.z } })));
+};
 const input = (raw: AcceptedBattedWorldMotion, sourceId: string): AcceptedBattedWorldMotion => {
   const source = cloneInert(raw);
   if (!fields(source, ['sourceId', 'sourceVersion', 'responseSourceId', 'continuationSourceId', 'acquisitionSourceId', 'previousMotionSourceId', 'availableAtTick', 'throughTick', 'commands'])
     || source.sourceId !== sourceId || ![sourceId, source.sourceVersion, source.responseSourceId].every(id)
     || [source.continuationSourceId, source.acquisitionSourceId, source.previousMotionSourceId].some((value) => value !== null && !id(value))
-    || source.previousMotionSourceId === sourceId || !tick(source.availableAtTick) || !tick(source.throughTick)
-    || !Array.isArray(source.commands) || source.commands.length !== 10 || new Set(source.commands.map((command) => command?.playerId)).size !== 10
-    || source.commands.some((command) => !fields(command, ['playerId', 'bodyAcceleration', 'primitiveMotions']) || !id(command.playerId) || !vector(command.bodyAcceleration)
-      || !Array.isArray(command.primitiveMotions) || command.primitiveMotions.length !== roles.length
-      || new Set(command.primitiveMotions.map((motion: Command['primitiveMotions'][number]) => motion?.role)).size !== roles.length
-      || command.primitiveMotions.some((motion: Command['primitiveMotions'][number]) => !fields(motion, ['role', 'offsetAcceleration']) || !roles.includes(motion.role) || !vector(motion.offsetAcceleration)))) {
+    || source.previousMotionSourceId === sourceId || !tick(source.availableAtTick) || !tick(source.throughTick)) {
     throw new Error('invalid accepted batted World motion Source');
   }
-  return source;
+  return { ...source, commands: battedWorldMotionCommandsInput(source.commands) };
 };
 const physicalId = (response: DurableBattedContactResponse) => response.touch.worldContact.flight.source.physicalPitchSourceId;
 const sameRoot = (left: AcceptedBattedWorldMotion, right: AcceptedBattedWorldMotion) => left.responseSourceId === right.responseSourceId
@@ -80,12 +95,7 @@ export const battedWorldMotionEvidenceFromSqlite = (db: Pick<import('node:sqlite
       cursor = { moment: acquired.moment, previousContacts: [{ kind: 'actor', playerId: carrierPlayerId, role: 'glove' }] };
     } else cursor = deriveBattedWorldContinuation({ response, throughTicks: original.continuation?.history.map((value) => value.throughTick) ?? [] }).cursor;
     if (!cursor) throw new Error('actual batted motion candidate or contact is unresolved');
-    const batterId = originalWorld.flight.physicalPitch.frame.batterActor!.binding.playerId;
-    if (source.commands.some((command) => !originalWorld.actors.some((actor) => actor.playerId === command.playerId)
-      || command.playerId !== batterId && command.bodyAcceleration.y !== 0)) throw new Error('actual batted motion actor command scope differs');
-    const commands = source.commands.flatMap((command) => command.primitiveMotions.map((motion) => ({ playerId: command.playerId, role: motion.role,
-      acceleration: { x: command.bodyAcceleration.x + motion.offsetAcceleration.x, y: command.bodyAcceleration.y + motion.offsetAcceleration.y,
-        z: command.bodyAcceleration.z + motion.offsetAcceleration.z } })));
+    const commands = battedWorldMotionPrimitiveCommands(original.response, source.commands);
     const motion = deriveBattedWorldMotion({ response, cursor, actors: previous?.motion.actors ?? originalWorld.actors, carrierPlayerId,
       commands, availableAtTick: source.availableAtTick, throughTick: source.throughTick });
     return freeze({ ...original, source, revision: (previous?.revision ?? 0) + 1, history: [...(previous?.history ?? []), source], motion });
@@ -137,7 +147,7 @@ export const battedWorldMotionEvidenceFromSqlite = (db: Pick<import('node:sqlite
       throw new Error('batted motion original evidence changed during write');
     }
   };
-  const currentBefore = (value: DurableBattedWorldMotion) => { currentRoot(value);
+  const currentBefore = (value: DurableBattedWorldMotion) => { assertNoBattedWorldExecutionOwner(db, physicalId(value.response)); currentRoot(value);
     if (json(derive(value.source)) !== json(value)) throw new Error('batted motion original changed before write'); };
   const current = (value: DurableBattedWorldMotion) => { currentRoot(value); const values = scope(value);
     if (values.length !== value.revision || json(values.at(-1)) !== json(value)) throw new Error('batted motion current prefix changed during write'); };
@@ -179,7 +189,7 @@ export const openSqliteBattedWorldMotionStore = (path: string, responses: Pick<S
             .run(sourceId, value.revision, pitchId, source.responseSourceId, source.previousMotionSourceId, value.revision - 1);
           if (Number(changed.changes) !== 1) throw new Error('batted motion predecessor changed during write');
         }
-        own.current(value); const saved = own.read(sourceId);
+        assertNoBattedWorldExecutionOwner(db, pitchId); own.current(value); const saved = own.read(sourceId);
         if (!saved || json(saved) !== json(value)) throw new Error('batted motion original changed during write');
         db.exec('COMMIT'); return saved;
       } catch (error) { db.exec('ROLLBACK'); throw error; }

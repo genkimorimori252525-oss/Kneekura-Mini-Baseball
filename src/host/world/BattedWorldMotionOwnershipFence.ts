@@ -7,3 +7,13 @@ export const assertNoBattedWorldMotionOwner = (db: Pick<import('node:sqlite').Da
     }
   }
 };
+
+/** Execution adopts a later actual motion/acquisition future; lower fresh motion may no longer replay over it. */
+export const assertNoBattedWorldExecutionOwner = (db: Pick<import('node:sqlite').DatabaseSync, 'prepare'>, physicalPitchSourceId: string): void => {
+  for (const table of ['batted_world_executions', 'batted_world_execution_heads']) {
+    if (db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?").get(table)
+      && db.prepare(`SELECT source_id FROM ${table} WHERE physical_pitch_source_id=? LIMIT 1`).get(physicalPitchSourceId)) {
+      throw new Error('actual batted execution owner already executes the future');
+    }
+  }
+};

@@ -1,0 +1,168 @@
+import { createRequire } from 'node:module';
+import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
+import { deriveBattedWorldMotionAcquisition, type BattedWorldAcquisition } from '../../core/sim/ball/BattedWorldAcquisition';
+import { deriveBattedWorldMotion, type BattedWorldMotion } from '../../core/sim/ball/BattedWorldMotion';
+import type { BattedWorldBallCursor } from '../../core/sim/ball/BattedWorldContinuation';
+import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { battedWorldResponseInput } from './SqliteBattedWorldContinuationStore';
+import { battedWorldMotionEvidenceFromSqlite, battedWorldMotionCommandsInput, battedWorldMotionPrimitiveCommands,
+  type AcceptedBattedWorldMotion, type DurableBattedWorldMotion, type SqliteBattedWorldMotionStore } from './SqliteBattedWorldMotionStore';
+
+type Action = Readonly<{ kind: 'acquisition' }> | Readonly<{ kind: 'motion'; availableAtTick: number; throughTick: number;
+  commands: AcceptedBattedWorldMotion['commands'] }>;
+export type AcceptedBattedWorldExecution = Readonly<{
+  sourceId: string; sourceVersion: string; baseMotionSourceId: string; previousExecutionSourceId: string | null; action: Action;
+}>;
+type Execution = Readonly<{ kind: 'motion'; motion: BattedWorldMotion }>
+  | Readonly<{ kind: 'acquisition'; acquisition: BattedWorldAcquisition; motion: BattedWorldMotion }>;
+export type DurableBattedWorldExecution = Readonly<{
+  source: AcceptedBattedWorldExecution; baseMotion: DurableBattedWorldMotion; revision: number;
+  history: readonly AcceptedBattedWorldExecution[]; execution: Execution;
+}>;
+export type SqliteBattedWorldExecutionStore = Readonly<{
+  accept(sourceId: string): DurableBattedWorldExecution; read(sourceId: string): DurableBattedWorldExecution | null; close(): void;
+}>;
+type Authority = Readonly<{ readAcceptedExecution(sourceId: string): AcceptedBattedWorldExecution | null }>;
+type Row = { source_id: string; physical_pitch_source_id: string; base_motion_source_id: string; previous_source_id: string | null;
+  revision: number; game_id: string; source_json: string; source_hash: string; snapshot_json: string; snapshot_hash: string };
+type Head = { physical_pitch_source_id: string; base_motion_source_id: string; source_id: string; revision: number };
+const id = (value: unknown): value is string => typeof value === 'string' && !!value.length && value === value.trim();
+const tick = (value: number) => Number.isSafeInteger(value) && value >= 0;
+const fields = (value: unknown, expected: readonly string[]) => !!value && typeof value === 'object' && !Array.isArray(value)
+  && Object.keys(value).sort().join('|') === [...expected].sort().join('|');
+const input = (raw: AcceptedBattedWorldExecution, sourceId: string): AcceptedBattedWorldExecution => {
+  const source = cloneInert(raw);
+  if (!fields(source, ['sourceId', 'sourceVersion', 'baseMotionSourceId', 'previousExecutionSourceId', 'action'])
+    || source.sourceId !== sourceId || ![sourceId, source.sourceVersion, source.baseMotionSourceId].every(id)
+    || source.previousExecutionSourceId !== null && (!id(source.previousExecutionSourceId) || source.previousExecutionSourceId === sourceId)) {
+    throw new Error('invalid accepted batted execution Source');
+  }
+  const action = source.action;
+  if (action?.kind === 'acquisition' && fields(action, ['kind'])) return source;
+  if (action?.kind !== 'motion' || !fields(action, ['kind', 'availableAtTick', 'throughTick', 'commands'])
+    || !tick(action.availableAtTick) || !tick(action.throughTick)) throw new Error('invalid accepted batted execution action');
+  return { ...source, action: { ...action, commands: battedWorldMotionCommandsInput(action.commands) } };
+};
+const physicalId = (motion: DurableBattedWorldMotion) => motion.response.touch.worldContact.flight.source.physicalPitchSourceId;
+
+/** Directed immutable replay: every new execution depends only on its earlier own motion/acquisition prefix. */
+export const battedWorldExecutionEvidenceFromSqlite = (db: Pick<import('node:sqlite').DatabaseSync, 'prepare'>) => {
+  const ownMotions = battedWorldMotionEvidenceFromSqlite(db);
+  const root = (source: AcceptedBattedWorldExecution): DurableBattedWorldMotion => {
+    const value = ownMotions.read(source.baseMotionSourceId);
+    if (!value) throw new Error('original batted execution motion is missing');
+    return value;
+  };
+  const execute = (source: AcceptedBattedWorldExecution, baseMotion: DurableBattedWorldMotion,
+    previous: DurableBattedWorldExecution | null): DurableBattedWorldExecution => {
+    const response = battedWorldResponseInput(baseMotion.response), prior = previous?.execution;
+    const motion = prior?.motion ?? baseMotion.motion;
+    let execution: Execution;
+    if (source.action.kind === 'acquisition') {
+      if (prior?.kind === 'acquisition') throw new Error('batted execution acquisition is already resolved');
+      execution = { kind: 'acquisition', motion, acquisition: deriveBattedWorldMotionAcquisition({ response, motion }) };
+    } else {
+      let cursor: BattedWorldBallCursor | null = motion.cursor, carrierPlayerId = motion.carrierPlayerId;
+      if (prior?.kind === 'acquisition') {
+        const acquired = prior.acquisition;
+        if (acquired.kind !== 'secured') throw new Error('batted execution acquisition remains unresolved');
+        carrierPlayerId = acquired.acquirerPlayerId;
+        cursor = { moment: acquired.moment, previousContacts: [{ kind: 'actor', playerId: carrierPlayerId, role: 'glove' }] };
+      }
+      if (!cursor) throw new Error('batted execution actual candidate or contact remains unresolved');
+      execution = { kind: 'motion', motion: deriveBattedWorldMotion({ response, actors: motion.actors, cursor, carrierPlayerId,
+        availableAtTick: source.action.availableAtTick, throughTick: source.action.throughTick,
+        commands: battedWorldMotionPrimitiveCommands(baseMotion.response, source.action.commands) }) };
+    }
+    return freeze({ source, baseMotion, revision: (previous?.revision ?? 0) + 1, history: [...(previous?.history ?? []), source], execution });
+  };
+  const scope = (baseMotion: DurableBattedWorldMotion): readonly DurableBattedWorldExecution[] => {
+    const pitchId = physicalId(baseMotion), baseId = baseMotion.source.sourceId;
+    const rows = db.prepare("SELECT * FROM batted_world_executions WHERE physical_pitch_source_id=? OR base_motion_source_id=? OR json_extract(source_json,'$.baseMotionSourceId')=? ORDER BY revision")
+      .all(pitchId, baseId, baseId) as Row[];
+    const heads = db.prepare('SELECT * FROM batted_world_execution_heads WHERE physical_pitch_source_id=? OR base_motion_source_id=?').all(pitchId, baseId) as Head[];
+    if (!rows.length) { if (heads.length) throw new Error('unowned batted execution head'); return []; }
+    const head = heads[0];
+    if (heads.length !== 1 || head.physical_pitch_source_id !== pitchId || head.base_motion_source_id !== baseId
+      || head.source_id !== rows.at(-1)!.source_id || head.revision !== rows.length) throw new Error('batted execution prefix head differs');
+    const values: DurableBattedWorldExecution[] = [];
+    for (const row of rows) {
+      const source = input(JSON.parse(row.source_json) as AcceptedBattedWorldExecution, row.source_id), previous = values.at(-1) ?? null;
+      if (source.baseMotionSourceId !== baseId || source.previousExecutionSourceId !== (previous?.source.sourceId ?? null)
+        || row.physical_pitch_source_id !== pitchId || row.base_motion_source_id !== baseId || row.previous_source_id !== source.previousExecutionSourceId
+        || row.game_id !== baseMotion.response.model.gameId || row.revision !== values.length + 1
+        || row.source_json !== json(source) || row.source_hash !== hash(source)) throw new Error('corrupt original batted execution Source prefix');
+      const value = execute(source, baseMotion, previous);
+      if (row.snapshot_json !== json(value) || row.snapshot_hash !== hash(value)) throw new Error('corrupt original batted execution snapshot');
+      values.push(value);
+    }
+    return values;
+  };
+  const read = (sourceId: string): DurableBattedWorldExecution | null => {
+    if (!id(sourceId)) throw new Error('invalid batted execution scope');
+    const row = db.prepare('SELECT * FROM batted_world_executions WHERE source_id=?').get(sourceId) as Row | undefined;
+    if (!row) return null;
+    const source = input(JSON.parse(row.source_json) as AcceptedBattedWorldExecution, sourceId), value = scope(root(source)).find((item) => item.source.sourceId === sourceId);
+    if (!value) throw new Error('batted execution is outside its own original prefix');
+    return value;
+  };
+  const derive = (source: AcceptedBattedWorldExecution): DurableBattedWorldExecution => {
+    const baseMotion = root(source), values = scope(baseMotion), previous = values.at(-1) ?? null;
+    if (source.previousExecutionSourceId !== (previous?.source.sourceId ?? null)) throw new Error('batted execution predecessor differs');
+    return execute(source, baseMotion, previous);
+  };
+  const currentRoot = (value: DurableBattedWorldExecution) => {
+    ownMotions.current(value.baseMotion);
+    if (json(root(value.source)) !== json(value.baseMotion)) throw new Error('batted execution original changed during write');
+  };
+  const currentBefore = (value: DurableBattedWorldExecution) => {
+    currentRoot(value); if (json(derive(value.source)) !== json(value)) throw new Error('batted execution prefix changed before write');
+  };
+  const current = (value: DurableBattedWorldExecution) => {
+    currentRoot(value); const values = scope(value.baseMotion);
+    if (values.length !== value.revision || json(values.at(-1)) !== json(value)) throw new Error('batted execution current prefix changed during write');
+  };
+  return { read, derive, currentBefore, current, scope, ownMotions };
+};
+
+export const openSqliteBattedWorldExecutionStore = (path: string, motions: Pick<SqliteBattedWorldMotionStore, 'read'>,
+  authority?: Authority): SqliteBattedWorldExecutionStore => {
+  if (!id(path) || typeof motions?.read !== 'function' || authority != null && typeof authority.readAcceptedExecution !== 'function') throw new Error('invalid batted execution sources');
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite'), db = new DatabaseSync(path);
+  db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
+  db.exec(`CREATE TABLE IF NOT EXISTS batted_world_executions (source_id TEXT PRIMARY KEY,physical_pitch_source_id TEXT NOT NULL,base_motion_source_id TEXT NOT NULL,
+    previous_source_id TEXT,revision INTEGER NOT NULL,game_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,
+    UNIQUE(physical_pitch_source_id,revision));
+    CREATE TABLE IF NOT EXISTS batted_world_execution_heads (physical_pitch_source_id TEXT PRIMARY KEY,base_motion_source_id TEXT NOT NULL,source_id TEXT NOT NULL UNIQUE,revision INTEGER NOT NULL);`);
+  const own = battedWorldExecutionEvidenceFromSqlite(db); let closed = false;
+  const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed batted execution scope'); };
+  return Object.freeze({ read(sourceId) { check(sourceId); return own.read(sourceId); },
+    accept(sourceId) {
+      check(sourceId); const prior = own.read(sourceId), raw = authority?.readAcceptedExecution(sourceId) ?? null, source = raw === null ? null : input(raw, sourceId);
+      if (prior) {
+        if (source && json(source) !== json(prior.source)) throw new Error('batted execution Source is frozen differently');
+        const original = own.read(sourceId);
+        if (!original || json(original) !== json(prior)) throw new Error('batted execution original changed during retry');
+        return original;
+      }
+      if (!source) throw new Error('accepted batted execution Source is missing');
+      const value = own.derive(source); own.currentBefore(value); const peer = motions.read(source.baseMotionSourceId);
+      if (!peer || json(peer) !== json(value.baseMotion)) throw new Error('batted execution peer motion differs');
+      db.exec('BEGIN IMMEDIATE');
+      try {
+        own.currentBefore(value); const pitchId = physicalId(value.baseMotion);
+        db.prepare('INSERT INTO batted_world_executions VALUES (?,?,?,?,?,?,?,?,?,?)').run(sourceId, pitchId, source.baseMotionSourceId,
+          source.previousExecutionSourceId, value.revision, value.baseMotion.response.model.gameId, json(source), hash(source), json(value), hash(value));
+        if (value.revision === 1) db.prepare('INSERT INTO batted_world_execution_heads VALUES (?,?,?,?)').run(pitchId, source.baseMotionSourceId, sourceId, 1);
+        else {
+          const changed = db.prepare('UPDATE batted_world_execution_heads SET source_id=?,revision=? WHERE physical_pitch_source_id=? AND base_motion_source_id=? AND source_id=? AND revision=?')
+            .run(sourceId, value.revision, pitchId, source.baseMotionSourceId, source.previousExecutionSourceId, value.revision - 1);
+          if (Number(changed.changes) !== 1) throw new Error('batted execution predecessor changed during write');
+        }
+        own.current(value); const saved = own.read(sourceId);
+        if (!saved || json(saved) !== json(value)) throw new Error('batted execution original changed during write');
+        db.exec('COMMIT'); return saved;
+      } catch (error) { db.exec('ROLLBACK'); throw error; }
+    }, close() { if (!closed) { db.close(); closed = true; } },
+  });
+};
