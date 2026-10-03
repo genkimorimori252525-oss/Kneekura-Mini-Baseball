@@ -87,7 +87,7 @@ Fieldの実装Source treeは `04126f44922c9184a6be48a3b9412129d3abfe1d`。後続
 
 | 段 | 関連する最終検証 | whole検証の現状 |
 |---|---|---|
-| B | Core117、Native6 files / 56 tests PASS。review scratch13 PASS。comment修正後のdeterminism/controlled-base12 PASS、typecheck PASS | 修正前wholeは3,961 PASS / 1 FAIL。コメントの `window.` をlexical guardが検出したためコメントのみ修正。再起動で旧再検証は中断。修正commitで再開したwholeは今回資料作成時点で実行中、terminal未確認 |
+| B | Core117、Native6 files / 56 tests PASS。review scratch13 PASS。comment修正後のdeterminism/controlled-base12 PASS、typecheck PASS | 修正前wholeは3,961 PASS / 1 FAIL。コメントの `window.` をlexical guardが検出したためコメントのみ修正。再起動で旧再検証は中断。再開wholeは04:19 JSTにexit1で終了:602/603 files、3,945/3,962 tests PASS、`Worker exited unexpectedly` が1件。14 Source hash不一致0。残り17 testsの完了証拠なし。原因調査・再検証待ち |
 | D | Core43、Native6 files / 70 tests PASS、typecheck PASS。review5 PASS | 再起動により中断。terminal receiptなし。再実行待ち |
 | C | post-fix Native4 files / 35 tests PASS、typecheck PASS。review19 PASS | 再起動により中断。terminal receiptなし。再実行待ち |
 | Race | Core8 files / 87 tests、Native6 files / 70 tests PASS、typecheck PASS。review6 PASS、旧archive snapshot/hash等価を確認 | 再起動により中断。terminal receiptなし。再実行待ち |
@@ -96,6 +96,8 @@ Fieldの実装Source treeは `04126f44922c9184a6be48a3b9412129d3abfe1d`。後続
 Fieldのfresh readonly reviewは1P1/3P2を指摘し、当初 `Not ready` とした。全4件にtracked/direct regressionのRED→GREENを実施した。reviewerによる大規模whole/archive検証は実施されていないため、review通過をwhole成功の代用にしない。
 
 関連gateのSource固定をhashで確認している。Bのコメント修正前のsource treeと現commitのtreeは異なるため、旧whole結果を現commitの成功とは扱わない。現在のwhole結果は上表のterminal statusによる。
+
+Bの再開wholeは3,733.08秒で終了した。記録されたworker異常の原因はこのチェックポイントでは特定していない。テストのassertion失敗が表示されていないことを成功へ読み替えず、exit1と未完了17 testsを保持する。新しいfeature実装やwhole再実行は今回の公開作業では開始しない。
 
 CIについて、この引継ぎで保持しているP0 Core成功run [`37055766746`](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/actions/runs/37055766746) は **#247のSHAの証明だけ**。#248以降や今回の5段のCI成功として転用しない。CI用TEMP設定proposalは未適用。未承認のworkflow設定変更は行っていない。
 
@@ -132,7 +134,7 @@ npm test -- src/host/world/SqliteBattedWorldFieldStore.test.ts src/host/world/Ba
 ## 6. 再開手順・公開条件
 
 1. GitHubの各draft head/base、最新Foundation/Realism SHA、この資料を確認する。古いplanやarchived visual案へ戻らない。
-2. Bの再開wholeがterminalになっているかローカルreceiptを確認する。D/C/Raceの中断logを成功扱いせず、必要なwholeを別log/receiptで再実行する。Fieldも固定Sourceでwholeを実施する。
+2. Bの再開wholeのworker異常を元log/terminal receiptで確認し、原因調査・再検証する。D/C/Raceの中断logを成功扱いせず、必要なwholeを別log/receiptで再実行する。Fieldも固定Sourceでwholeを実施する。
 3. 失敗は再現した原因だけを小差分で修正し、変更後Sourceの必要gateを取り直す。未完了gateのままdraftをready/mergeへ昇格しない。
 4. 次の機能依存はField acquisition/custody/transfer/throw。§5の順に、最新確定契約の範囲で実装・Native接続・検証を進める。full goalは未完了のまま再開する。
 
