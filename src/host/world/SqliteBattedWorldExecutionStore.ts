@@ -3,20 +3,26 @@ import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { deriveBattedWorldMotionAcquisition, type BattedWorldAcquisition } from '../../core/sim/ball/BattedWorldAcquisition';
 import { deriveBattedWorldMotion, type BattedWorldMotion } from '../../core/sim/ball/BattedWorldMotion';
 import { deriveBattedWorldThrow, type BattedWorldThrow } from '../../core/sim/ball/BattedWorldThrow';
+import { findBattedWorldControlledBaseContact } from '../../core/sim/ball/BattedWorldControlledBaseContact';
+import type { BallWorldFootBaseContact } from '../../core/sim/ball/BallWorldFootBaseContact';
+import type { BattedWorldBaseId } from '../../core/sim/ball/BattedWorldBaseGeometry';
 import type { BattedWorldBallCursor } from '../../core/sim/ball/BattedWorldContinuation';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { battedWorldResponseInput } from './SqliteBattedWorldContinuationStore';
 import { playerFieldingModelEvidenceFromSqlite, type DurablePlayerFieldingModel } from './SqlitePlayerFieldingModelStore';
+import { battedWorldBaseGeometryEvidenceFromSqlite, battedWorldFrameBaseCenters, type DurableBattedWorldBaseGeometry } from './SqliteBattedWorldBaseGeometryStore';
 import { battedWorldMotionEvidenceFromSqlite, battedWorldMotionCommandsInput, battedWorldMotionPrimitiveCommands,
   type AcceptedBattedWorldMotion, type DurableBattedWorldMotion, type SqliteBattedWorldMotionStore } from './SqliteBattedWorldMotionStore';
 
-type Action = Readonly<{ kind: 'acquisition' }> | Readonly<{ kind: 'motion'; availableAtTick: number; throughTick: number;
+type Action = Readonly<{ kind: 'acquisition' }> | Readonly<{ kind: 'base_contact'; geometrySourceId: string; base: BattedWorldBaseId }>
+  | Readonly<{ kind: 'motion'; availableAtTick: number; throughTick: number;
   commands: AcceptedBattedWorldMotion['commands'] }> | Readonly<{ kind: 'throw'; modelSourceId: string; receiverPlayerId: string;
   availableAtTick: number; throughTick: number; commands: AcceptedBattedWorldMotion['commands'] }>;
 export type AcceptedBattedWorldExecution = Readonly<{
   sourceId: string; sourceVersion: string; baseMotionSourceId: string; previousExecutionSourceId: string | null; action: Action;
 }>;
 type Execution = Readonly<{ kind: 'motion'; motion: BattedWorldMotion }>
+  | Readonly<{ kind: 'base_contact'; geometry: DurableBattedWorldBaseGeometry; contact: BallWorldFootBaseContact | null; motion: BattedWorldMotion }>
   | Readonly<{ kind: 'acquisition'; acquisition: BattedWorldAcquisition; motion: BattedWorldMotion }>
   | Readonly<{ kind: 'throw'; model: DurablePlayerFieldingModel; throw: BattedWorldThrow; motion: BattedWorldMotion }>;
 export type DurableBattedWorldExecution = Readonly<{
@@ -43,6 +49,11 @@ const input = (raw: AcceptedBattedWorldExecution, sourceId: string): AcceptedBat
   }
   const action = source.action;
   if (action?.kind === 'acquisition' && fields(action, ['kind'])) return source;
+  if (action?.kind === 'base_contact') {
+    if (!fields(action, ['kind', 'geometrySourceId', 'base']) || !id(action.geometrySourceId)
+      || !['home', 'first', 'second', 'third'].includes(action.base)) throw new Error('invalid actual controlled base Source');
+    return source;
+  }
   if (action?.kind !== 'motion' && action?.kind !== 'throw'
     || !fields(action, ['kind', 'availableAtTick', 'throughTick', 'commands', ...(action.kind === 'throw' ? ['modelSourceId', 'receiverPlayerId'] : [])])
     || !tick(action.availableAtTick) || !tick(action.throughTick)
@@ -53,7 +64,8 @@ const physicalId = (motion: DurableBattedWorldMotion) => motion.response.touch.w
 
 /** Directed immutable replay: every new execution depends only on its earlier own motion/acquisition prefix. */
 export const battedWorldExecutionEvidenceFromSqlite = (db: Pick<import('node:sqlite').DatabaseSync, 'prepare'>) => {
-  const ownMotions = battedWorldMotionEvidenceFromSqlite(db), ownFielding = playerFieldingModelEvidenceFromSqlite(db);
+  const ownMotions = battedWorldMotionEvidenceFromSqlite(db), ownFielding = playerFieldingModelEvidenceFromSqlite(db),
+    ownGeometry = battedWorldBaseGeometryEvidenceFromSqlite(db);
   const root = (source: AcceptedBattedWorldExecution): DurableBattedWorldMotion => {
     const value = ownMotions.read(source.baseMotionSourceId);
     if (!value) throw new Error('original batted execution motion is missing');
@@ -67,6 +79,21 @@ export const battedWorldExecutionEvidenceFromSqlite = (db: Pick<import('node:sql
     if (source.action.kind === 'acquisition') {
       if (prior?.kind === 'acquisition') throw new Error('batted execution acquisition is already resolved');
       execution = { kind: 'acquisition', motion, acquisition: deriveBattedWorldMotionAcquisition({ response, motion }) };
+    } else if (source.action.kind === 'base_contact') {
+      const geometry = ownGeometry.read(source.action.geometrySourceId), world = baseMotion.response.touch.worldContact;
+      const binding = world.flight.physicalPitch.frame.batterActor!.binding;
+      const centers = battedWorldFrameBaseCenters(db, world.flight);
+      if (prior?.kind === 'acquisition' || !geometry || geometry.fixture.game_id !== binding.gameId
+        || geometry.fixture.fixture_event_id !== binding.fixtureEventId || geometry.fixture.venue_id !== world.flight.source.execution.venueId
+        || geometry.flight.physicalPitch.frame.batterActor!.binding.careerId !== binding.careerId
+        || geometry.source.availableAtDay > binding.gameDay || json(geometry.geometry.field) !== json(world.flight.source.execution.field)
+        || (['first', 'second', 'third'] as const).some((base) => json(geometry.geometry.bases[base].region.center) !== json(centers[base]))
+        || !world.flight.physicalPitch.frame.batterActor!.defenderBindings.some((actor) => actor.playerId === motion.carrierPlayerId)) {
+        throw new Error('actual secured base-contact fixture or carrier scope differs');
+      }
+      const surface = geometry.geometry.bases[source.action.base];
+      const contact = findBattedWorldControlledBaseContact({ motion, base: surface.region, baseSurfaceHeightMeters: surface.surfaceHeightMeters });
+      execution = { kind: 'base_contact', geometry, contact, motion };
     } else {
       let cursor: BattedWorldBallCursor | null = motion.cursor, carrierPlayerId = motion.carrierPlayerId;
       if (prior?.kind === 'acquisition') {

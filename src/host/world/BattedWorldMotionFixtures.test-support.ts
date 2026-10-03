@@ -2,9 +2,9 @@ import { battedContactResponseFixture } from './BattedContactResponseFixtures.te
 import { battedWorldAcquisitionFixture } from './BattedWorldAcquisitionFixtures.test-support';
 import { openSqliteBattedWorldMotionStore, type AcceptedBattedWorldMotion } from './SqliteBattedWorldMotionStore';
 
-export const battedWorldMotionFixture = (path?: string, kind: 'free' | 'carried' | 'later' = 'free') => {
-  const capture = kind === 'free' ? null : battedWorldAcquisitionFixture(path, kind === 'later' ? 'later' : 'original');
-  const base = capture ?? battedContactResponseFixture(path, 'body');
+export const battedWorldMotionFixture = (path?: string, kind: 'free' | 'carried' | 'later' = 'free', alignFieldWithInitialBases = false) => {
+  const capture = kind === 'free' ? null : battedWorldAcquisitionFixture(path, kind === 'later' ? 'later' : 'original', alignFieldWithInitialBases);
+  const base = capture ?? battedContactResponseFixture(path, 'body', undefined, alignFieldWithInitialBases);
   const response = base.responses.accept(base.responseSource.sourceId);
   const acquisition = capture ? capture.acquisitions.accept(capture.acquisitionSource.sourceId) : null;
   const basisTick = acquisition?.result.kind === 'secured' ? acquisition.result.secureTick : response.result.kind === 'rebound' ? response.result.ball.tick : 0;

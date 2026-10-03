@@ -4,8 +4,8 @@ import { respondToBallContact } from '../../core/sim/ball/BallContactResponse';
 import { openSqliteBattedWorldMotionStore, type AcceptedBattedWorldMotion } from './SqliteBattedWorldMotionStore';
 import { openSqliteBattedWorldExecutionStore, type AcceptedBattedWorldExecution } from './SqliteBattedWorldExecutionStore';
 
-export const battedWorldExecutionFixture = (path?: string, kind: 'free' | 'carried' | 'candidate' = 'free') => {
-  const ordinary = kind === 'candidate' ? null : battedWorldMotionFixture(path, kind);
+export const battedWorldExecutionFixture = (path?: string, kind: 'free' | 'carried' | 'candidate' = 'free', alignFieldWithInitialBases = false) => {
+  const ordinary = kind === 'candidate' ? null : battedWorldMotionFixture(path, kind, alignFieldWithInitialBases);
   const candidate = kind !== 'candidate' ? null : battedContactResponseFixture(path, 'body', (world) => {
     const initial = world.flight.flight.initialBall, frame = world.flight.physicalPitch.frame.world;
     const receiverId = world.flight.physicalPitch.frame.batterActor!.defenderBindings.find((binding) => binding.playerId !== 'p2')!.playerId;
@@ -23,7 +23,7 @@ export const battedWorldExecutionFixture = (path?: string, kind: 'free' | 'carri
         return { ...s, offset: { x: center.x + relative.x / length * radius - receiver.position.x - receiver.velocity.x * elapsed,
           y: center.y + relative.y / length * radius, z: center.z + relative.z / length * radius - receiver.position.z - receiver.velocity.z * elapsed } };
       }) }) });
-  });
+  }, alignFieldWithInitialBases);
   const base = ordinary ?? candidate!;
   if (candidate) candidate.responseModels.set(candidate.responseModel.sourceId, { ...candidate.responseModel,
     actors: candidate.responseModel.actors.map((actor) => ({ ...actor, primitives: actor.primitives.map((profile) => profile.role !== 'glove' ? profile

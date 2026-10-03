@@ -161,6 +161,7 @@ const rootsAtCoordinate = (
   const a = 0.5 * acceleration;
   const b = velocity;
   const c = position - target;
+  if (![a, b, c].every(Number.isFinite)) throw new Error('defender base-contact arithmetic overflow');
 
   if (Math.abs(a) <= EPSILON) {
     if (Math.abs(b) <= EPSILON) {
@@ -170,6 +171,7 @@ const rootsAtCoordinate = (
   }
 
   const discriminant = b * b - 4 * a * c;
+  if (!Number.isFinite(discriminant)) throw new Error('defender base-contact arithmetic overflow');
   if (discriminant < -EPSILON) {
     return [];
   }
@@ -247,12 +249,13 @@ const isInsideBase = (
   );
 };
 
-export const findDefenderFootBaseContactTick = (
+/** Physical foot-center contact, measured from the primitive's true motion basis. */
+export const findDefenderFootBaseContactSeconds = (
   primitive: DefenderPhysicalPrimitiveSegment,
   base: BaseTouchRegion,
   baseSurfaceHeightMeters: number,
-  searchStartTick: number,
-  searchEndTick: number,
+  startSeconds: number,
+  endSeconds: number,
 ): number | null => {
   validatePrimitive(primitive);
   validateBase(base);
@@ -262,28 +265,27 @@ export const findDefenderFootBaseContactTick = (
   );
 
   if (
-    !Number.isSafeInteger(searchStartTick)
-    || !Number.isSafeInteger(searchEndTick)
-    || searchStartTick < primitive.startTick
-    || searchEndTick > primitive.endTick
-    || searchEndTick < searchStartTick
+    !Number.isFinite(startSeconds)
+    || !Number.isFinite(endSeconds)
+    || startSeconds < 0
+    || endSeconds > (primitive.endTick - primitive.startTick) / primitive.ticksPerSecond
+    || endSeconds < startSeconds
   ) {
     throw new Error(
       'defender base-contact search window must lie inside the primitive interval',
     );
   }
 
-  const startSeconds = (
-    searchStartTick - primitive.startTick
-  ) / primitive.ticksPerSecond;
-  const endSeconds = (
-    searchEndTick - primitive.startTick
-  ) / primitive.ticksPerSecond;
   const local = localKinematics(
     primitive,
     base,
     baseSurfaceHeightMeters,
   );
+  if (![local.position, local.velocity, local.acceleration].every((vector) => Object.values(vector).every(Number.isFinite))
+    || !(['x', 'y', 'z'] as const).every((axis) => [startSeconds, endSeconds].every((seconds) =>
+      Number.isFinite(evaluateCoordinate(local.position[axis], local.velocity[axis], local.acceleration[axis], seconds))))) {
+    throw new Error('defender base-contact arithmetic overflow');
+  }
 
   const candidates: number[] = [
     startSeconds,
@@ -336,11 +338,7 @@ export const findDefenderFootBaseContactTick = (
   for (let index = 0; index < times.length; index += 1) {
     const current = times[index];
     if (isInsideBase(local, base, current)) {
-      return quantizeEventTick(
-        primitive.startTick,
-        current,
-        primitive.ticksPerSecond,
-      );
+      return current;
     }
 
     const next = times[index + 1];
@@ -349,13 +347,28 @@ export const findDefenderFootBaseContactTick = (
     }
     const midpoint = current + (next - current) / 2;
     if (isInsideBase(local, base, midpoint)) {
-      return quantizeEventTick(
-        primitive.startTick,
-        current,
-        primitive.ticksPerSecond,
-      );
+      return current;
     }
   }
 
   return null;
+};
+
+export const findDefenderFootBaseContactTick = (
+  primitive: DefenderPhysicalPrimitiveSegment,
+  base: BaseTouchRegion,
+  baseSurfaceHeightMeters: number,
+  searchStartTick: number,
+  searchEndTick: number,
+): number | null => {
+  validatePrimitive(primitive);
+  validateBase(base);
+  validateFinite('baseSurfaceHeightMeters', baseSurfaceHeightMeters);
+  if (!Number.isSafeInteger(searchStartTick) || !Number.isSafeInteger(searchEndTick) || searchStartTick < primitive.startTick
+    || searchEndTick > primitive.endTick || searchEndTick < searchStartTick) {
+    throw new Error('defender base-contact search window must lie inside the primitive interval');
+  }
+  const at = findDefenderFootBaseContactSeconds(primitive, base, baseSurfaceHeightMeters,
+    (searchStartTick - primitive.startTick) / primitive.ticksPerSecond, (searchEndTick - primitive.startTick) / primitive.ticksPerSecond);
+  return at === null ? null : quantizeEventTick(primitive.startTick, at, primitive.ticksPerSecond);
 };

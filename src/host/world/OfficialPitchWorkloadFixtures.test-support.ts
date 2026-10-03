@@ -16,7 +16,8 @@ import { openSqliteManagerRosterDecisionStore } from './SqliteManagerRosterDecis
 import { openSqlitePlayerPersonLinkStore } from './SqlitePlayerPersonLinkStore';
 
 /** Explicit physical/profile fixtures; no production counts or calibration defaults. */
-export const officialPitchWorkloadFixture = (physical = true, deferPlay = false, databasePath?: string, bothSides = false) => {
+export const officialPitchWorkloadFixture = (physical = true, deferPlay = false, databasePath?: string, bothSides = false,
+  fixture?: Parameters<SqliteOfficialStateStore['registerOfficialFixture']>[0]) => {
   const path = databasePath ?? `file:official-pitch-workload-${crypto.randomUUID()}?mode=memory&cache=shared`;
   const stores: { close(): void }[] = [];
   const track = <T extends { close(): void }>(store: T): T => { stores.push(store); return store; };
@@ -51,16 +52,17 @@ export const officialPitchWorkloadFixture = (physical = true, deferPlay = false,
     acceptedRevision: 0, acceptedAtDay: 1, rosterRevision: 0 } : null }));
   links.acceptBatch(playerIds.map((playerId) => `intake-${playerId}`));
   const official = track(new SqliteOfficialStateStore(path));
-  official.registerOfficialFixture({ gameId: 'game-1', venueId: 'venue-1', fixtureEventId: 'fixture-1', fixtureRevision: 0 });
+  const fixtureBinding = fixture ?? { gameId: 'game-1', venueId: 'venue-1', fixtureEventId: 'fixture-1', fixtureRevision: 0 };
+  official.registerOfficialFixture(fixtureBinding);
   const authority = { readGame: (gameId: string) => gameId === 'game-1' && world.readSeason('career-a', 'league-season-1') ? {
-    careerId: 'career-a', competitionEditionId: 'league-season-1', gameDay: 10, homeClubId: 'club-a', awayClubId: 'club-b', fixtureEventId: 'fixture-1' } : null,
+    careerId: 'career-a', competitionEditionId: 'league-season-1', gameDay: 10, homeClubId: 'club-a', awayClubId: 'club-b', fixtureEventId: fixtureBinding.fixtureEventId } : null,
     readRoster: (careerId: string, clubId: string) => roster.readHead(careerId, clubId)?.roster ?? null,
     readPersonLink: (playerId: string, sourceId: string) => { const link = links.readLink(sourceId); return link?.playerId === playerId ? {
       personId: link.personId, sourceId: link.sourceId } : null; } };
   const participation = track(new SqliteOfficialParticipationStore(path, authority));
   for (const playerId of playerIds) participation.bindPregame({ gameId: 'game-1', careerId: 'career-a', competitionEditionId: 'league-season-1', gameDay: 10,
     clubId: homeIds.includes(playerId) ? 'club-a' : 'club-b', side: homeIds.includes(playerId) ? 'HOME' : 'AWAY',
-    playerId, personId: `person-${playerId}`, personLinkSourceId: `intake-${playerId}`, rosterRevision: 0, fixtureEventId: 'fixture-1' });
+    playerId, personId: `person-${playerId}`, personLinkSourceId: `intake-${playerId}`, rosterRevision: 0, fixtureEventId: fixtureBinding.fixtureEventId });
   const application = (before: CanonicalMatchState, durableRevision: number, startedAtTick: number,
     applicationId: string): Extract<PersistOfficialPlayInput, { kind: 'non_live' }> => {
     let timeline = createCanonicalPlateAppearanceTimeline(before, startedAtTick);
@@ -93,7 +95,7 @@ export const officialPitchWorkloadFixture = (physical = true, deferPlay = false,
   let secondInput = deferPlay ? null : play();
   const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
   const db = track(new DatabaseSync(path));
-  return { path, world, roster, links, official, participation, authority, scoring, initial, firstInput, db, track,
+  return { path, world, roster, links, official, participation, authority, scoring, initial, firstInput, db, track, fixtureBinding,
     get secondInput() { if (!secondInput) throw new Error('fixture play is deferred'); return secondInput; },
     play: () => { secondInput = play(); return secondInput; },
     close: () => stores.reverse().forEach((store) => store.close()) };

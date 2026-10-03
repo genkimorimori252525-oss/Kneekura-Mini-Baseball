@@ -3,8 +3,8 @@ import { openSqlitePhysicalPitchProgressStore, type AcceptedPhysicalPitchActionS
 import { openSqlitePhysicalPlayClosureStore, type AcceptedPhysicalPlayClosure } from './SqlitePhysicalPlayClosureStore';
 import { openSqlitePhysicalPlateAppearanceActorStore, type AcceptedPhysicalPlateAppearanceActor } from './SqlitePhysicalPlateAppearanceActorStore';
 
-export const physicalPlateAppearanceActorFixture = (databasePath?: string) => {
-  const f = continuousPitchFixture(databasePath, true);
+export const physicalPlateAppearanceActorFixture = (databasePath?: string, fixture?: Parameters<typeof continuousPitchFixture>[2]) => {
+  const f = continuousPitchFixture(databasePath, true, fixture);
   const source: AcceptedPhysicalPlateAppearanceActor = { sourceId: 'batter-1', sourceVersion: 'fixture-v1', gameId: 'game-1', playerId: 'away-1', initialWorldSourceId: 'initial-world' };
   const accepted = new Map<string, AcceptedPhysicalPlateAppearanceActor>([[source.sourceId, source]]);
   const sources = { matches: f.official, initialWorlds: f.initialWorlds, participation: f.participation };

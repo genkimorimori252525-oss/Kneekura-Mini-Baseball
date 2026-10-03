@@ -3,7 +3,7 @@ import { openSqliteBattedWorldAcquisitionStore, type AcceptedBattedWorldAcquisit
 import { respondToBallContact } from '../../core/sim/ball/BallContactResponse';
 import { openSqliteBattedWorldContinuationStore, type AcceptedBattedWorldContinuation } from './SqliteBattedWorldContinuationStore';
 
-export const battedWorldAcquisitionFixture = (path?: string, kind: 'original' | 'later' = 'original') => {
+export const battedWorldAcquisitionFixture = (path?: string, kind: 'original' | 'later' = 'original', alignFieldWithInitialBases = false) => {
   let laterAcquirerPlayerId: string | null = null;
   const base = battedContactResponseFixture(path, kind === 'original' ? 'glove' : 'body', kind === 'original' ? undefined : (world) => {
     const initial = world.flight.flight.initialBall, original = world.flight.physicalPitch.frame.world;
@@ -24,7 +24,7 @@ export const battedWorldAcquisitionFixture = (path?: string, kind: 'original' | 
         return { ...primitive, offset: { x: center.x + relative.x / length * radius - receiver.position.x - receiver.velocity.x * elapsed,
           y: center.y + relative.y / length * radius, z: center.z + relative.z / length * radius - receiver.position.z - receiver.velocity.z * elapsed } };
       }) } ) });
-  });
+  }, alignFieldWithInitialBases);
   const model = { ...base.responseModel, actors: base.responseModel.actors.map((actor) => ({ ...actor,
     primitives: actor.primitives.map((profile) => profile.role !== 'glove' ? profile : { ...profile,
       parameters: { ...profile.parameters, captureDissipationPowerW: 100_000_000 } }) })) };

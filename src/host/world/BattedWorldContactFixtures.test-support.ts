@@ -2,8 +2,8 @@ import { battedBallFlightFixture } from './BattedBallFlightFixtures.test-support
 import { openSqliteBattedWorldContactStore, type AcceptedBattedWorldModel, type AcceptedBattedWorldContact } from './SqliteBattedWorldContactStore';
 import type { OfficialParticipantBinding } from './SqliteOfficialParticipationStore';
 
-export const battedWorldContactFixture = (path?: string) => {
-  const base = battedBallFlightFixture(path), { f, input, physical, flights, acceptedFlights } = base;
+export const battedWorldContactFixture = (path?: string, alignFieldWithInitialBases = false) => {
+  const base = battedBallFlightFixture(path, true, true, alignFieldWithInitialBases), { f, input, physical, flights, acceptedFlights } = base;
   flights.accept(input.sourceId);
   const flightInput = { ...input, sourceId: 'flight-full', previousFlightSourceId: input.sourceId, searchDurationTicks: 2_000_000 };
   acceptedFlights.set(flightInput.sourceId, flightInput);
