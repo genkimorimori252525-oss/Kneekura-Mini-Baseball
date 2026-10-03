@@ -1,5 +1,7 @@
 # 非デザイン実装の進捗・残計画 — 2026-10-04
 
+> 最新の実装・PR/commitリンク・全検証状況: [非デザイン継続checkpoint](2026-10-04-nonvisual-continuation-checkpoint.md)。以下は前回の公開時点の記録。
+
 > 最新続報: [original pitchからwhole-play physical historyへの接続と検証結果](2026-10-04-whole-play-history-continuation.md)。以下の実行中・次段予定の記述は当時の記録として保持する。
 
 > 続報: 最新のユーザー指示により非デザイン実装を再開した。[field acquisition/custody/throwの再開記録](2026-10-04-field-execution-continuation.md)を参照。この文書の停止・検証記録は当時の状態として保持する。

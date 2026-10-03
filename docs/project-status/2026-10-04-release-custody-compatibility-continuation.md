@@ -1,5 +1,7 @@
 # 非デザイン継続: release境界の互換性を保った補正
 
+> 公開: [PR265](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/265)、[実装commit](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/2e361ee47e8dc32297b51fc185ab911b3ebac681)。[最新の統合状況](2026-10-04-nonvisual-continuation-checkpoint.md)も参照。
+
 更新: 2026-10-04 JST（2026-10-03 UTC）
 
 [PR263](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/263) のreviewで見つかった、旧atomic throwのzero-delay release境界を補正した。[PR264](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/264) / [観測model実装](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/de36ce08c310ab382fe25328dc27d4c143354ba1) の上へ統合している。

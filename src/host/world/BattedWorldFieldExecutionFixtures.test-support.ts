@@ -2,7 +2,8 @@ import { battedWorldFieldFixture } from './BattedWorldFieldFixtures.test-support
 import { openSqliteBattedWorldFieldExecutionStore, type AcceptedBattedWorldFieldExecution } from './SqliteBattedWorldFieldExecutionStore';
 import { openSqlitePlayerFieldingModelStore, type AcceptedPlayerFieldingModel } from './SqlitePlayerFieldingModelStore';
 
-export const battedWorldFieldExecutionFixture = (path?: string, kind: 'free' | 'candidate' = 'free') => {
+export const battedWorldFieldExecutionFixture = (path?: string, kind: 'free' | 'candidate' = 'free',
+  configureWorld?: NonNullable<Parameters<typeof battedWorldFieldFixture>[4]>['world']) => {
   const base = battedWorldFieldFixture(path, true, kind === 'free', undefined, kind === 'free' ? undefined : {
     world(world) {
       const ball = world.flight.flight.initialBall, frame = world.flight.physicalPitch.frame.world;
@@ -19,6 +20,7 @@ export const battedWorldFieldExecutionFixture = (path?: string, kind: 'free' | '
           return { ...primitive, offset: { x: center.x + relative.x / length * radius - pitcher.position.x - pitcher.velocity.x * elapsed,
             y: center.y + relative.y / length * radius, z: center.z + relative.z / length * radius - pitcher.position.z - pitcher.velocity.z * elapsed } };
         }) }) });
+      configureWorld?.(world);
     },
     response(value) {
       value.responseModels.set(value.responseModel.sourceId, { ...value.responseModel,
@@ -36,8 +38,9 @@ export const battedWorldFieldExecutionFixture = (path?: string, kind: 'free' | '
   return { ...base, baseField, source, sources, authority, executions, fieldSource: base.source, fieldSources: base.sources };
 };
 
-export const battedWorldFieldThrowFixture = (path?: string, transferDelayTicks?: number) => {
-  const base = battedWorldFieldExecutionFixture(path, 'candidate'), acquired = base.executions.accept(base.source.sourceId);
+export const battedWorldFieldThrowFixture = (path?: string, transferDelayTicks?: number,
+  configureWorld?: NonNullable<Parameters<typeof battedWorldFieldFixture>[4]>['world']) => {
+  const base = battedWorldFieldExecutionFixture(path, 'candidate', configureWorld), acquired = base.executions.accept(base.source.sourceId);
   if (acquired.execution.kind !== 'acquisition' || acquired.execution.acquisition.kind !== 'secured') throw new Error('field capture fixture');
   const capture = acquired.execution.acquisition, world = base.response.touch.worldContact;
   const actor = world.modelActorEvidence.find((value) => value.binding.playerId === capture.acquirerPlayerId)!;
