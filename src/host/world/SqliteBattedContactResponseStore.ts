@@ -92,6 +92,7 @@ export const battedContactResponseEvidenceFromSqlite = (
     return freeze({ source: s, model: m, touch, result });
   };
   const read = (sourceId: string): DurableBattedContactResponse | null => {
+    if (!id(sourceId)) throw new Error('invalid batted response scope');
     const row = db.prepare('SELECT * FROM batted_contact_responses WHERE source_id=?').get(sourceId) as Row | undefined;
     if (!row) return null;
     const s = input(JSON.parse(row.source_json) as AcceptedBattedContactResponse, sourceId), m = readModel(s.responseModelSourceId);
@@ -107,6 +108,7 @@ export const battedContactResponseEvidenceFromSqlite = (
   const current = (value: DurableBattedContactResponse): void => {
     own.current(value.touch);
     sameModel(value.model);
+    if (json(read(value.source.sourceId)) !== json(value)) throw new Error('batted response original changed');
   };
   return { read, readModel, sameModel, derive, current, own };
 };
@@ -124,7 +126,7 @@ export const openSqliteBattedContactResponseStore = (path: string, touches: Pick
     source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL);`);
   let closed = false;
   const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed batted response scope'); };
-  const { read, readModel, sameModel, derive, current } = battedContactResponseEvidenceFromSqlite(db);
+  const { read, readModel, sameModel, derive, current, own } = battedContactResponseEvidenceFromSqlite(db);
   return Object.freeze({
     read(sourceId) { check(sourceId); return read(sourceId); },
     accept(sourceId) {
@@ -139,12 +141,12 @@ export const openSqliteBattedContactResponseStore = (path: string, touches: Pick
       const originalModel = readModel(s.responseModelSourceId), rawModel = authority?.readAcceptedModel(s.responseModelSourceId) ?? null;
       const m = rawModel === null ? originalModel : modelInput(rawModel, s.responseModelSourceId);
       if (!m) throw new Error('accepted batted response model is missing'); sameModel(m);
-      const value = derive(s, m); current(value);
+      const value = derive(s, m); own.current(value.touch);
       const peer = touches.read(s.firstFielderTouchSourceId);
       if (!peer || json(peer) !== json(value.touch)) throw new Error('batted response peer first-fielder touch differs');
       db.exec('BEGIN IMMEDIATE');
       try {
-        sameModel(m); current(value);
+        sameModel(m); own.current(value.touch);
         if (json(derive(s, m)) !== json(value)) throw new Error('batted response original changed before write');
         if (!readModel(m.sourceId)) db.prepare('INSERT INTO batted_contact_response_models VALUES (?,?,?,?)').run(m.sourceId, m.gameId, json(m), hash(m));
         const w = value.touch.worldContact;

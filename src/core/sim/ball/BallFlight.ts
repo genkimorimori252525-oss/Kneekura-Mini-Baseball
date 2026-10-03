@@ -264,6 +264,24 @@ export const findGroundRollingStopTick = (
     : null;
 };
 
+const groundContactState = (state: BattedBallInitialState, parameters: BallFlightParameters): BattedBallInitialState => {
+  let velocity = state.velocity;
+  if (velocity.y < 0) {
+    const reflectedY = -velocity.y * parameters.groundRestitution;
+    velocity = { x: velocity.x * parameters.groundFriction,
+      y: reflectedY < parameters.restingVerticalSpeed ? 0 : reflectedY, z: velocity.z * parameters.groundFriction };
+  }
+  return { tick: state.tick, position: { x: state.position.x, y: parameters.ballRadius, z: state.position.z }, velocity, spin: state.spin };
+};
+
+/** Apply the existing physical ground impulse at its owned contact, without advancing time. */
+export const respondToGroundContact = (state: BattedBallInitialState, parameters: BallFlightParameters): BattedBallInitialState => {
+  validateParameters(parameters);
+  if (!Number.isSafeInteger(state.tick) || state.tick < 0 || ![state.position, state.velocity, state.spin]
+    .every((v) => v && [v.x, v.y, v.z].every(Number.isFinite))) throw new Error('invalid ground contact state');
+  return groundContactState(state, parameters);
+};
+
 const advanceStep = (
   state: BattedBallInitialState,
   stepTicks: number,
@@ -292,26 +310,7 @@ const advanceStep = (
         ? current
         : advanceFreeFlight(current, ticksToContact, parameters);
 
-    let impactVelocity = freeAtContact.velocity;
-    if (impactVelocity.y < 0) {
-      const reflectedY = -impactVelocity.y * parameters.groundRestitution;
-      impactVelocity = {
-        x: impactVelocity.x * parameters.groundFriction,
-        y: reflectedY < parameters.restingVerticalSpeed ? 0 : reflectedY,
-        z: impactVelocity.z * parameters.groundFriction,
-      };
-    }
-
-    current = {
-      tick: contactTick,
-      position: {
-        x: freeAtContact.position.x,
-        y: parameters.ballRadius,
-        z: freeAtContact.position.z,
-      },
-      velocity: impactVelocity,
-      spin: freeAtContact.spin,
-    };
+    current = groundContactState(freeAtContact, parameters);
     remaining -= ticksToContact;
   }
 
