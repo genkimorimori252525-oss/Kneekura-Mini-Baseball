@@ -2,19 +2,23 @@ import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { deriveBattedWorldMotionAcquisition, type BattedWorldAcquisition } from '../../core/sim/ball/BattedWorldAcquisition';
 import { deriveBattedWorldMotion, type BattedWorldMotion } from '../../core/sim/ball/BattedWorldMotion';
+import { deriveBattedWorldThrow, type BattedWorldThrow } from '../../core/sim/ball/BattedWorldThrow';
 import type { BattedWorldBallCursor } from '../../core/sim/ball/BattedWorldContinuation';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { battedWorldResponseInput } from './SqliteBattedWorldContinuationStore';
+import { playerFieldingModelEvidenceFromSqlite, type DurablePlayerFieldingModel } from './SqlitePlayerFieldingModelStore';
 import { battedWorldMotionEvidenceFromSqlite, battedWorldMotionCommandsInput, battedWorldMotionPrimitiveCommands,
   type AcceptedBattedWorldMotion, type DurableBattedWorldMotion, type SqliteBattedWorldMotionStore } from './SqliteBattedWorldMotionStore';
 
 type Action = Readonly<{ kind: 'acquisition' }> | Readonly<{ kind: 'motion'; availableAtTick: number; throughTick: number;
-  commands: AcceptedBattedWorldMotion['commands'] }>;
+  commands: AcceptedBattedWorldMotion['commands'] }> | Readonly<{ kind: 'throw'; modelSourceId: string; receiverPlayerId: string;
+  availableAtTick: number; throughTick: number; commands: AcceptedBattedWorldMotion['commands'] }>;
 export type AcceptedBattedWorldExecution = Readonly<{
   sourceId: string; sourceVersion: string; baseMotionSourceId: string; previousExecutionSourceId: string | null; action: Action;
 }>;
 type Execution = Readonly<{ kind: 'motion'; motion: BattedWorldMotion }>
-  | Readonly<{ kind: 'acquisition'; acquisition: BattedWorldAcquisition; motion: BattedWorldMotion }>;
+  | Readonly<{ kind: 'acquisition'; acquisition: BattedWorldAcquisition; motion: BattedWorldMotion }>
+  | Readonly<{ kind: 'throw'; model: DurablePlayerFieldingModel; throw: BattedWorldThrow; motion: BattedWorldMotion }>;
 export type DurableBattedWorldExecution = Readonly<{
   source: AcceptedBattedWorldExecution; baseMotion: DurableBattedWorldMotion; revision: number;
   history: readonly AcceptedBattedWorldExecution[]; execution: Execution;
@@ -29,7 +33,7 @@ type Head = { physical_pitch_source_id: string; base_motion_source_id: string; s
 const id = (value: unknown): value is string => typeof value === 'string' && !!value.length && value === value.trim();
 const tick = (value: number) => Number.isSafeInteger(value) && value >= 0;
 const fields = (value: unknown, expected: readonly string[]) => !!value && typeof value === 'object' && !Array.isArray(value)
-  && Object.keys(value).sort().join('|') === [...expected].sort().join('|');
+  && JSON.stringify(Object.keys(value).sort()) === JSON.stringify([...expected].sort());
 const input = (raw: AcceptedBattedWorldExecution, sourceId: string): AcceptedBattedWorldExecution => {
   const source = cloneInert(raw);
   if (!fields(source, ['sourceId', 'sourceVersion', 'baseMotionSourceId', 'previousExecutionSourceId', 'action'])
@@ -39,15 +43,17 @@ const input = (raw: AcceptedBattedWorldExecution, sourceId: string): AcceptedBat
   }
   const action = source.action;
   if (action?.kind === 'acquisition' && fields(action, ['kind'])) return source;
-  if (action?.kind !== 'motion' || !fields(action, ['kind', 'availableAtTick', 'throughTick', 'commands'])
-    || !tick(action.availableAtTick) || !tick(action.throughTick)) throw new Error('invalid accepted batted execution action');
+  if (action?.kind !== 'motion' && action?.kind !== 'throw'
+    || !fields(action, ['kind', 'availableAtTick', 'throughTick', 'commands', ...(action.kind === 'throw' ? ['modelSourceId', 'receiverPlayerId'] : [])])
+    || !tick(action.availableAtTick) || !tick(action.throughTick)
+    || action.kind === 'throw' && (!id(action.modelSourceId) || !id(action.receiverPlayerId))) throw new Error('invalid accepted batted execution action');
   return { ...source, action: { ...action, commands: battedWorldMotionCommandsInput(action.commands) } };
 };
 const physicalId = (motion: DurableBattedWorldMotion) => motion.response.touch.worldContact.flight.source.physicalPitchSourceId;
 
 /** Directed immutable replay: every new execution depends only on its earlier own motion/acquisition prefix. */
 export const battedWorldExecutionEvidenceFromSqlite = (db: Pick<import('node:sqlite').DatabaseSync, 'prepare'>) => {
-  const ownMotions = battedWorldMotionEvidenceFromSqlite(db);
+  const ownMotions = battedWorldMotionEvidenceFromSqlite(db), ownFielding = playerFieldingModelEvidenceFromSqlite(db);
   const root = (source: AcceptedBattedWorldExecution): DurableBattedWorldMotion => {
     const value = ownMotions.read(source.baseMotionSourceId);
     if (!value) throw new Error('original batted execution motion is missing');
@@ -70,9 +76,25 @@ export const battedWorldExecutionEvidenceFromSqlite = (db: Pick<import('node:sql
         cursor = { moment: acquired.moment, previousContacts: [{ kind: 'actor', playerId: carrierPlayerId, role: 'glove' }] };
       }
       if (!cursor) throw new Error('batted execution actual candidate or contact remains unresolved');
-      execution = { kind: 'motion', motion: deriveBattedWorldMotion({ response, actors: motion.actors, cursor, carrierPlayerId,
+      const motionInput = { response, actors: motion.actors, cursor, carrierPlayerId,
         availableAtTick: source.action.availableAtTick, throughTick: source.action.throughTick,
-        commands: battedWorldMotionPrimitiveCommands(baseMotion.response, source.action.commands) }) };
+        commands: battedWorldMotionPrimitiveCommands(baseMotion.response, source.action.commands) };
+      if (source.action.kind === 'motion') execution = { kind: 'motion', motion: deriveBattedWorldMotion(motionInput) };
+      else {
+        const action = source.action;
+        const world = baseMotion.response.touch.worldContact, frame = world.flight.physicalPitch.frame;
+        const actor = world.modelActorEvidence.find((value) => value.binding.playerId === carrierPlayerId);
+        const model = ownFielding.read(action.modelSourceId);
+        if (!carrierPlayerId || !actor || !model || !frame.batterActor!.defenderBindings.some((binding) => binding.playerId === carrierPlayerId)
+          || !frame.batterActor!.defenderBindings.some((binding) => binding.playerId === action.receiverPlayerId)
+          || model.source.playerId !== carrierPlayerId || model.source.careerId !== actor.binding.careerId
+          || model.source.personLinkSourceId !== actor.binding.personLinkSourceId || json(model.person) !== json(actor.person)
+          || model.source.acceptedAtDay > actor.binding.gameDay) throw new Error('actual batted throw Player model or active receiver scope differs');
+        const result = deriveBattedWorldThrow({ ...motionInput, carrierPlayerId, receiverPlayerId: action.receiverPlayerId,
+          ratings: model.source.ratings, transferParameters: model.source.transferParameters, throwCalibration: model.source.throwCalibration,
+          seed: { matchSeed: frame.matchSeed, playId: frame.match.playId, streamKey: json(['batted_world_throw', source.sourceId, carrierPlayerId]) } });
+        execution = { kind: 'throw', model, throw: result, motion: result.motion };
+      }
     }
     return freeze({ source, baseMotion, revision: (previous?.revision ?? 0) + 1, history: [...(previous?.history ?? []), source], execution });
   };

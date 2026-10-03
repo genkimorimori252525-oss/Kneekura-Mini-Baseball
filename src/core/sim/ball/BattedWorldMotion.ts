@@ -23,8 +23,8 @@ const tick = (value: number) => Number.isSafeInteger(value) && value >= 0;
 const key = (playerId: string, role: string) => JSON.stringify([playerId, role]);
 const freeze = <T>(value: T): T => { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
 
-/** Starts accepted future motion at the true preceding state. A caller result or old trajectory never selects a new start. */
-export const deriveBattedWorldMotion = (raw: BattedWorldMotionInput): BattedWorldMotion => {
+/** Shared actor basis for accepted future motion, including a transfer that must stop before its release. */
+const prepareMotion = (raw: BattedWorldMotionInput) => {
   const input = cloneInert(raw), moment = input?.cursor?.moment, p = input?.response?.world?.parameters;
   if (!moment || !p || !tick(input.availableAtTick) || input.availableAtTick > moment.ball.tick
     || !tick(input.throughTick) || input.throughTick <= moment.ball.tick || !Array.isArray(input.actors) || !input.actors.length
@@ -51,6 +51,13 @@ export const deriveBattedWorldMotion = (raw: BattedWorldMotionInput): BattedWorl
       startTick: moment.originTick, endTick: input.throughTick, startCenter, startVelocity, acceleration: command.acceleration } };
   });
   if (actors.length !== input.response.actors.length) throw new Error('batted motion complete actor coverage differs');
+  return { input, actors };
+};
+export const deriveBattedWorldMotionActors = (raw: BattedWorldMotionInput): readonly BallWorldMotionActor[] => freeze(prepareMotion(raw).actors);
+
+/** Starts accepted future motion at the true preceding state. A caller result or old trajectory never selects a new start. */
+export const deriveBattedWorldMotion = (raw: BattedWorldMotionInput): BattedWorldMotion => {
+  const { input, actors } = prepareMotion(raw), moment = input.cursor.moment, p = input.response.world.parameters;
   const query = { moment, parameters: p, actors, surfaces: input.response.world.surfaces, previousContacts: input.cursor.previousContacts };
   if (input.carrierPlayerId !== null) {
     const glove = actors.find((actor) => actor.playerId === input.carrierPlayerId && actor.primitive.role === 'glove');
