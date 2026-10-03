@@ -50,7 +50,7 @@ Interfaces: accepted Source has only IDs/version, original response ID, optional
 ## Task 3: Review, frozen gate and stacked publication
 
 - [x] Obtain one fresh readonly review of the whole branch; reproduce and fix concrete findings with tracked RED/GREEN.
-- [ ] Commit only Source/plans/status; keep scratch untracked. Run a frozen whole gate with Source manifest and process-local K: TEMP/TMP, two workers.
+- [x] Commit only Source/plans/status; keep scratch untracked. Run a frozen whole gate with Source manifest and process-local K: TEMP/TMP, two workers. Terminal exit0:578files3665tests GREEN;11Source hashes unchanged.
 - [ ] After actual GREEN, push the ordinary new branch and create a stacked PR on acquisition. Never overwrite existing stacked branches or merge.
 
 Subsequent actual pickup/transfer/throw/all-World reception/base/running, owned foul/next-pitch/between-pitch physical replay and official actual-role workload closure remain in the full goal. This dependency does not substitute for those required implementations.

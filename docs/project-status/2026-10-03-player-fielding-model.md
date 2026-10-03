@@ -14,7 +14,7 @@ Authority: current approved Foundation44b9f5de7b9d87e649f12f1af78c202f2b5ab44d a
 - Tracked Native missing-module RED, then17tests GREEN/156.72seconds. Expanded Native/WAL/Core:6files43tests GREEN/129.96seconds. Typecheck GREEN.
 - Fresh readonly review found a strict-field delimiter collision that accepted a combined calibration key while mandatory throw values were absent. Tracked regression:1failed/17skipped RED. Comparing serialized sorted key arrays fixes the collision.
 - Final relevant Native/WAL/Core:6files44tests GREEN/116.35seconds, terminal exit0. Final typecheck GREEN. Same reviewer independently confirmed the malformed Source is rejected and zero baselines are persisted; no further finding.
-- An additional unrelated whole run is intentionally deferred to the combined actual physical path, as recorded in the approved implementation brief; prior motion/execution whole gates remain separately frozen.
+- The combined actual physical path whole verification completed on `ba0d4a11cea21235c228ad398d7a068bed126313`:586files3750tests GREEN/6382.79seconds, exit0, all11 Source hashes unchanged. Catalog and typecheck passed. This includes the actual fielding-model transfer/throw consumer and published execution parent PR251; no separate redundant whole rerun is required for this immutable baseline.
 
 ## Remaining full objective
 
