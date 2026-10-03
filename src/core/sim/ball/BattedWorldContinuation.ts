@@ -18,7 +18,7 @@ const key = (c: BallWorldCollider) => JSON.stringify(c.kind === 'actor' ? [c.kin
 const addCollider = (previous: readonly BallWorldCollider[], contact: BallWorldCollider): readonly BallWorldCollider[] =>
   previous.some((c) => key(c) === key(contact)) ? previous : [...previous, contact];
 
-const respond = (input: BattedBallContactResponseInput, prior: BattedWorldBallCursor, world: BallWorldContinuation): BattedWorldContinuationStepResponse => {
+export const respondToBattedWorldBoundary = (input: BattedBallContactResponseInput, prior: BattedWorldBallCursor, world: BallWorldContinuation): BattedWorldContinuationStepResponse => {
   if (world.kind !== 'boundary') return { kind: world.kind, cursor: { ...prior, moment: world.moment } };
   if (world.pendingReason) return { kind: 'unresolved', cursor: null, reason: world.pendingReason };
   if (world.contacts.length !== 1) return { kind: 'unresolved', cursor: null, reason: 'simultaneous' };
@@ -68,7 +68,7 @@ export const deriveBattedWorldContinuation = (raw: Readonly<{ response: BattedBa
     const world = deriveBallWorldContinuation({ moment: cursor.moment, previousContacts: cursor.previousContacts, parameters: p,
       throughTick, actors: input.response.world.actors, surfaces: input.response.world.surfaces });
     if (world.kind !== 'boundary' && world.moment.elapsedSeconds <= cursor.moment.elapsedSeconds) throw new Error('batted World continuation makes no actual progress');
-    const response = respond(input.response, cursor, world);
+    const response = respondToBattedWorldBoundary(input.response, cursor, world);
     steps.push({ throughTick, world, response }); cursor = response.cursor;
   }
   return freeze({ original, initialCursor, steps, cursor });

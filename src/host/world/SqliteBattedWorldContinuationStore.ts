@@ -4,6 +4,7 @@ import { deriveBattedWorldContinuation, type BattedWorldContinuation } from '../
 import type { BattedBallContactResponseInput } from '../../core/sim/ball/BattedBallContactResponse';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { battedContactResponseEvidenceFromSqlite, type DurableBattedContactResponse, type SqliteBattedContactResponseStore } from './SqliteBattedContactResponseStore';
+import { assertNoBattedWorldMotionOwner } from './BattedWorldMotionOwnershipFence';
 
 export type AcceptedBattedWorldContinuation = Readonly<{
   sourceId: string; sourceVersion: string; responseSourceId: string; previousContinuationSourceId: string | null; throughTick: number;
@@ -94,6 +95,7 @@ export const battedWorldContinuationEvidenceFromSqlite = (db: Pick<import('node:
     return prefixValue(response, history, trace, history.length);
   };
   const currentBefore = (value: DurableBattedWorldContinuation) => {
+    assertNoBattedWorldMotionOwner(db, physicalId(value.response));
     ownResponses.current(value.response);
     if (json(derive(value.source)) !== json(value)) throw new Error('batted continuation original changed before write');
   };
@@ -147,6 +149,7 @@ export const openSqliteBattedWorldContinuationStore = (path: string, responses: 
             .run(sourceId, value.revision, pitchId, s.responseSourceId, s.previousContinuationSourceId, value.revision - 1);
           if (Number(changed.changes) !== 1) throw new Error('batted continuation predecessor changed during write');
         }
+        assertNoBattedWorldMotionOwner(db, pitchId);
         own.current(value); const saved = own.read(sourceId);
         if (!saved || json(saved) !== json(value)) throw new Error('batted continuation original changed during write');
         db.exec('COMMIT'); return saved;
