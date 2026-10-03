@@ -54,7 +54,9 @@ Roster・decision attribution・Club lifecycle・catalog・psychology/trait・co
 | D | `codex/batted-world-first-base-rule-2026-10-03` | `98f307f8a859857ef5286b7bda1455eab435db35` | [#256](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/256) draft |
 | C | `codex/bounded-original-pitch-evidence-2026-10-03` | `a6a6ffd305920a4d246b83b07f147f7916303a56` | [#257](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/257) draft |
 | Race | `codex/batted-world-first-base-race-2026-10-03` | `2c07fe7df62d65515bdb4b16a3b5fd01c15d2e61` | [#258](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/258) draft |
-| Field | `codex/batted-world-ball-base-rules-2026-10-04` | 本文を含む実装commitは公開後に追記 | 公開後に追記 |
+| Field | `codex/batted-world-ball-base-rules-2026-10-04` | `821a6fb61a703f904049e8953b8704c83c58ee09` | [#259](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/259) draft |
+
+Fieldの実装Source treeは `04126f44922c9184a6be48a3b9412129d3abfe1d`。後続の資料だけのcommitはこのtreeを変更しない。各PRのhead SHAとbase branchは公開後にGitHubで確認する。最新統合資料は [#259のbranch](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/blob/codex/batted-world-ball-base-rules-2026-10-04/docs/project-status/2026-10-04-nonvisual-implementation-checkpoint.md) にある。
 
 ### B: whole-prefixの足・塁・確保履歴
 
