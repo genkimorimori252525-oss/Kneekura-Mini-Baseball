@@ -4,8 +4,11 @@ import { openSqliteBattedWorldBaseGeometryStore, type AcceptedBattedWorldBaseGeo
 import { openSqliteBattedWorldFieldStore, type AcceptedBattedWorldFieldGeometry, type AcceptedBattedWorldFieldAction } from './SqliteBattedWorldFieldStore';
 
 /** Explicit oversized synthetic third-base prism exposes bag-before-forecast ordering; it is not production venue calibration. */
-export const battedWorldFieldFixture = (path?: string, initialOnly = true, oversizedThird = true, rollingDecelerationMps2?: number) => {
-  const base = battedContactResponseFixture(path, initialOnly ? 'airborne' : 'ground', undefined, true, initialOnly, rollingDecelerationMps2), response = base.responses.accept(base.responseSource.sourceId);
+export const battedWorldFieldFixture = (path?: string, initialOnly = true, oversizedThird = true, rollingDecelerationMps2?: number,
+  configure?: Readonly<{ world?: Parameters<typeof battedContactResponseFixture>[2]; response?: (base: ReturnType<typeof battedContactResponseFixture>) => void }>) => {
+  const base = battedContactResponseFixture(path, initialOnly ? 'airborne' : 'ground', configure?.world, true, initialOnly, rollingDecelerationMps2);
+  configure?.response?.(base);
+  const response = base.responses.accept(base.responseSource.sourceId);
   const flight = response.touch.worldContact.flight, centers = flight.physicalPitch.frame.initialWorld!.source.worldSetup.baseCenters;
   const surface = (center: { x: number; z: number }, long = false) => ({ region: { center,
     halfSize: { x: oversizedThird ? 0.5 : 0.01, z: long && oversizedThird ? 20 : 0.2 }, rotationRadians: 0 }, surfaceHeightMeters: oversizedThird ? 3 : 0.1 });

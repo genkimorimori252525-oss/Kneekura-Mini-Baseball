@@ -8,6 +8,7 @@ import { battedWorldBaseGeometryEvidenceFromSqlite, type DurableBattedWorldBaseG
 import { battedWorldResponseInput } from './SqliteBattedWorldContinuationStore';
 import { battedWorldMotionCommandsInput, battedWorldMotionPrimitiveCommands, type AcceptedBattedWorldMotion } from './SqliteBattedWorldMotionStore';
 import { battedWorldFieldTerritoryFromPrefix } from './BattedWorldFieldTerritoryFromPrefix';
+import { assertNoBattedWorldFieldExecutionOwner } from './BattedWorldMotionOwnershipFence';
 
 export type AcceptedBattedWorldFieldGeometry = Readonly<{ sourceId: string; sourceVersion: string; baseGeometrySourceId: string;
   baseModels: BattedWorldFieldGeometryInput['baseModels'] }>;
@@ -244,10 +245,12 @@ export const openSqliteBattedWorldFieldStore = (path: string, responses: Pick<Sq
       }
       if (!source) throw new Error('accepted actual field action Source is missing');
       const value = own.derive(source); own.currentBefore(value); const peer = responses.read(source.responseSourceId);
+      assertNoBattedWorldFieldExecutionOwner(db, physicalId(value));
       if (!peer || json(peer) !== json(value.response)) throw new Error('actual field peer original profile differs');
       db.exec('BEGIN IMMEDIATE');
       try {
         own.currentBefore(value); const pitchId = physicalId(value);
+        assertNoBattedWorldFieldExecutionOwner(db, pitchId);
         db.prepare('INSERT INTO batted_world_field_actions VALUES (?,?,?,?,?,?,?,?,?,?,?)').run(sourceId, pitchId, source.responseSourceId, source.geometrySourceId,
           source.previousFieldSourceId, value.revision, value.response.model.gameId, json(source), hash(source), json(value), hash(value));
         if (value.revision === 1) db.prepare('INSERT INTO batted_world_field_heads VALUES (?,?,?,?,?)').run(pitchId, source.responseSourceId, source.geometrySourceId, sourceId, 1);
@@ -256,7 +259,7 @@ export const openSqliteBattedWorldFieldStore = (path: string, responses: Pick<Sq
             .run(sourceId, value.revision, pitchId, source.responseSourceId, source.geometrySourceId, source.previousFieldSourceId, value.revision - 1);
           if (Number(changed.changes) !== 1) throw new Error('actual field predecessor changed during write');
         }
-        own.current(value); const saved = own.read(sourceId);
+        own.current(value); assertNoBattedWorldFieldExecutionOwner(db, pitchId); const saved = own.read(sourceId);
         if (!saved || json(saved) !== json(value)) throw new Error('actual field original changed during write'); db.exec('COMMIT'); return saved;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     }, close() { if (!closed) { db.close(); closed = true; } },

@@ -40,3 +40,21 @@ export const assertNoBattedWorldFieldOwner = (db: Pick<import('node:sqlite').Dat
     }
   }
 };
+
+/** A field-execution prefix owns the future of its original field action; metadata cannot hide that ownership. */
+export const assertNoBattedWorldFieldExecutionOwner = (db: Pick<import('node:sqlite').DatabaseSync, 'prepare'>, physicalPitchSourceId: string): void => {
+  for (const table of ['batted_world_field_executions', 'batted_world_field_execution_heads']) {
+    if (!db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?").get(table)) continue;
+    const clauses = ['physical_pitch_source_id=?', 'base_field_source_id IN (SELECT source_id FROM batted_world_field_actions WHERE physical_pitch_source_id=?)'];
+    const values = [physicalPitchSourceId, physicalPitchSourceId];
+    if (table === 'batted_world_field_executions') {
+      clauses.push(`CASE WHEN json_valid(source_json) THEN json_extract(source_json,'$.baseFieldSourceId') END
+        IN (SELECT source_id FROM batted_world_field_actions WHERE physical_pitch_source_id=?)`);
+      clauses.push(`CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.baseField.response.touch.worldContact.flight.source.physicalPitchSourceId') END=?`);
+      values.push(physicalPitchSourceId, physicalPitchSourceId);
+    }
+    if (db.prepare(`SELECT source_id FROM ${table} WHERE ${clauses.join(' OR ')} LIMIT 1`).get(...values)) {
+      throw new Error('actual field execution owner already executes the future');
+    }
+  }
+};
