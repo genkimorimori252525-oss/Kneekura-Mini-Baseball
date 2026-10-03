@@ -16,12 +16,12 @@ import { battedWorldResponseInput } from './SqliteBattedWorldContinuationStore';
 import { battedWorldMotionCommandsInput, battedWorldMotionPrimitiveCommands, type AcceptedBattedWorldMotion } from './SqliteBattedWorldMotionStore';
 import { battedWorldFieldEvidenceFromSqlite, type DurableBattedWorldFieldAction, type SqliteBattedWorldFieldStore } from './SqliteBattedWorldFieldStore';
 import { playerFieldingModelEvidenceFromSqlite, type DurablePlayerFieldingModel } from './SqlitePlayerFieldingModelStore';
-import { battedWorldFieldPhysicalPrefix, battedWorldFieldBaseTouchHistoryFromPrefix } from './BattedWorldFieldPhysicalPrefix';
+import { battedWorldFieldPhysicalPrefix, battedWorldFieldBaseTouchHistoryFromPrefix, type BattedWorldFieldCustodyPolicy } from './BattedWorldFieldPhysicalPrefix';
 import { wholePlayPhysicalHistoryFromPrefix } from './WholePlayPhysicalHistoryFromPrefix';
 
 type Action = Readonly<{ kind: 'acquisition' }>
-  | Readonly<{ kind: 'base_touch_history'; playerId: string; base: BattedWorldBaseId }>
-  | Readonly<{ kind: 'first_base_race' }>
+  | Readonly<{ kind: 'base_touch_history'; playerId: string; base: BattedWorldBaseId; custodyPolicy?: BattedWorldFieldCustodyPolicy }>
+  | Readonly<{ kind: 'first_base_race'; custodyPolicy?: BattedWorldFieldCustodyPolicy }>
   | Readonly<{ kind: 'whole_play_history' }>
   | Readonly<{ kind: 'motion'; availableAtTick: number; throughTick: number; commands: AcceptedBattedWorldMotion['commands'] }>
   | Readonly<{ kind: 'throw_advance'; planSourceId: string; throughElapsedSeconds: number }>
@@ -63,10 +63,13 @@ const input = (raw: AcceptedBattedWorldFieldExecution, sourceId: string): Accept
     throw new Error('invalid accepted actual field execution Source');
   }
   const action = source.action;
-  if ((action?.kind === 'acquisition' || action?.kind === 'first_base_race' || action?.kind === 'whole_play_history') && fields(action, ['kind'])) return source;
-  if (action?.kind === 'base_touch_history') {
-    if (!fields(action, ['kind', 'playerId', 'base']) || !id(action.playerId) || !['home', 'first', 'second', 'third'].includes(action.base)) {
-      throw new Error('invalid actual field base history Source');
+  if ((action?.kind === 'acquisition' || action?.kind === 'whole_play_history') && fields(action, ['kind'])) return source;
+  if (action?.kind === 'base_touch_history' || action?.kind === 'first_base_race') {
+    const policyFields = 'custodyPolicy' in action ? ['custodyPolicy'] : [];
+    if (!fields(action, ['kind', ...(action.kind === 'base_touch_history' ? ['playerId', 'base'] : []), ...policyFields])
+      || policyFields.length && action.custodyPolicy !== 'release_exclusive_v1'
+      || action.kind === 'base_touch_history' && (!id(action.playerId) || !['home', 'first', 'second', 'third'].includes(action.base))) {
+      throw new Error('invalid actual field observation Source or custody policy');
     }
     return source;
   }
@@ -122,7 +125,8 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
         fields: ownFields.scope(baseField, baseField.source.sourceId), executions: prefix }) };
     } else if (source.action.kind === 'base_touch_history' || source.action.kind === 'first_base_race') {
       const world = baseField.response.touch.worldContact, batter = world.flight.physicalPitch.frame.batterActor!;
-      const prefixInput = { baseField, fields: ownFields.scope(baseField, baseField.source.sourceId), executions: prefix };
+      const prefixInput = { baseField, fields: ownFields.scope(baseField, baseField.source.sourceId), executions: prefix,
+        custodyPolicy: source.action.custodyPolicy };
       if (source.action.kind === 'base_touch_history') {
         const action = source.action, registered = [batter.binding, ...batter.defenderBindings].find((value) => value.playerId === action.playerId);
         const actor = world.modelActorEvidence.find((value) => value.binding.playerId === action.playerId);
@@ -233,6 +237,14 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
   const derive = (source: AcceptedBattedWorldFieldExecution) => {
     const baseField = root(source), prefix = scope(baseField), previous = prefix.at(-1) ?? null;
     if (source.previousExecutionSourceId !== (previous?.source.sourceId ?? null)) throw new Error('actual field execution predecessor differs');
+    // New ambiguous observations must opt into release-exclusive custody. Stored
+    // scope/read and immutable retries continue their original Source semantics.
+    if ((source.action.kind === 'base_touch_history' || source.action.kind === 'first_base_race') && source.action.custodyPolicy === undefined) {
+      const original = { baseField, fields: ownFields.scope(baseField, baseField.source.sourceId), executions: prefix };
+      const legacy = battedWorldFieldPhysicalPrefix(original);
+      const exclusive = battedWorldFieldPhysicalPrefix({ ...original, custodyPolicy: 'release_exclusive_v1' });
+      if (json(legacy.controlWindows) !== json(exclusive.controlWindows)) throw new Error('explicit release-exclusive custody policy is required for a new observation');
+    }
     return execute(source, baseField, previous, prefix);
   };
   const currentRoot = (value: DurableBattedWorldFieldExecution) => {

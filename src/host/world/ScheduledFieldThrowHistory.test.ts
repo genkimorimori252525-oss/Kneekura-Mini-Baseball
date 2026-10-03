@@ -85,6 +85,8 @@ it('makes an immediate scheduled release exclusive of custody already observed a
     x.sources.set(releaseSource.sourceId, releaseSource); const released = x.executions.accept(releaseSource.sourceId);
     expect(released.execution).toMatchObject({ kind: 'throw_advance', progress: { kind: 'released' } });
     const actual = battedWorldFieldPhysicalPrefix({ baseField: x.baseField, fields: [x.baseField], executions: [x.acquired, moved, planned, released] });
+    expect(battedWorldFieldPhysicalPrefix({ baseField: x.baseField, fields: [x.baseField],
+      executions: [x.acquired, moved, planned, released], custodyPolicy: 'release_exclusive_v1' })).toEqual(actual);
     expect(actual.controlWindows.filter((window) => window.endElapsedSeconds === at).every((window) => !window.endInclusive)).toBe(true);
     expect(actual.controlWindows.at(-1)).toMatchObject({ startElapsedSeconds: at, endElapsedSeconds: at, endInclusive: false });
   } finally { x.f.close(); }

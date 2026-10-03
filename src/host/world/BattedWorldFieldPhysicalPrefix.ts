@@ -16,7 +16,9 @@ import type { DurableBattedWorldFieldAction } from './SqliteBattedWorldFieldStor
 import type { DurableBattedWorldFieldExecution } from './SqliteBattedWorldFieldExecutionStore';
 import { actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 
-type PrefixInput = Readonly<{ baseField: DurableBattedWorldFieldAction; fields: readonly DurableBattedWorldFieldAction[];
+export type BattedWorldFieldCustodyPolicy = 'release_exclusive_v1';
+
+type PrefixInput = Readonly<{ custodyPolicy?: BattedWorldFieldCustodyPolicy; baseField: DurableBattedWorldFieldAction; fields: readonly DurableBattedWorldFieldAction[];
   executions: readonly DurableBattedWorldFieldExecution[] }>;
 type Control = Readonly<{ playerId: string }> & BallWorldBaseControlWindow;
 const key = (actor: BallWorldMotionActor) => json([actor.playerId, actor.primitive.role]);
@@ -30,6 +32,7 @@ const normalized = (contact: BallWorldBoundaryContact): BallWorldBattedRuleConta
 /** Only the Native owner's complete rederived field/execution prefix is admissible. Observations never execute physical time. */
 export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ field: BallWorldFieldTerritoryInput;
   segments: readonly BallWorldPlayerBaseContactSegment[]; controlWindows: readonly Control[] }> => {
+  if (input.custodyPolicy !== undefined && input.custodyPolicy !== 'release_exclusive_v1') throw new Error('invalid actual field custody policy');
   const base = input.baseField, world = base.response.touch.worldContact, flight = world.flight;
   const initial = flight.flight.initialBall, originTick = initial.tick, p = flight.source.execution.ballFlightParameters;
   const batter = flight.physicalPitch.frame.batterActor, geometry = base.geometry.geometry;
@@ -135,6 +138,10 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
     if (!defenderIds.includes(playerId) || start < 0 || end < start || end > horizon.elapsedSeconds) throw new Error('actual field custody scope differs');
     controlWindows.push({ playerId, startElapsedSeconds: start, endElapsedSeconds: end, endInclusive });
   };
+  const closeReleaseEndpoint = (playerId: string, elapsedSeconds: number) => {
+    for (const [index, window] of controlWindows.entries()) if (window.playerId === playerId
+      && window.endElapsedSeconds === elapsedSeconds && window.endInclusive) controlWindows[index] = { ...window, endInclusive: false };
+  };
   const appendField = (field: BattedWorldFieldMotion, freeStart: BallWorldMoment | null, rebase = true) => {
     const motion = field.motion, actual = motion.world;
     segment(motion.actors, actual.moment, rebase);
@@ -208,8 +215,7 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
         appendField(execution.field, null, pendingThrow.previous === null);
         // A release at an already observed horizon closes the earlier inclusive
         // endpoint too; it cannot inherit custody from a zero-duration snapshot.
-        for (const [index, window] of controlWindows.entries()) if (window.playerId === priorCarrier
-          && window.endElapsedSeconds === end && window.endInclusive) controlWindows[index] = { ...window, endInclusive: false };
+        closeReleaseEndpoint(priorCarrier, end);
         control(priorCarrier, start, end, false); pendingThrow = null;
       } else {
         if (execution.field.motion.carrierPlayerId !== priorCarrier
@@ -256,6 +262,8 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
             throw new Error('actual field throw release horizon or custody differs');
           }
           appendField(execution.field, thrown.releaseCursor.moment);
+          // Omission preserves the original archived atomic-throw interpretation.
+          if (input.custodyPolicy === 'release_exclusive_v1') closeReleaseEndpoint(priorCarrier, release);
           control(priorCarrier, start, release, false);
         } else {
           if (execution.field.motion.carrierPlayerId !== priorCarrier || execution.field.motion.world.kind !== 'boundary') {

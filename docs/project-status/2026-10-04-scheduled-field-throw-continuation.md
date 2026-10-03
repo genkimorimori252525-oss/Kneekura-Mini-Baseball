@@ -31,7 +31,7 @@ Node26.10.0 / Vitest2.1.9、既存lock、cloud-local TMPDIR、one worker。
 - Source固有live-workと既存queue/registry: **50 tests PASS**
 - 最終Native基本経路: **3 tests PASS**、77.48秒、exit0。対象Core/live/Native production SHA256は実行前後で一致
 - 履歴結合: **3 files / 38 tests PASS**。旧physical-prefixとSQLite whole-history回帰: **16 tests PASS**
-- 初回WAL/currentness: **30 tests PASS**、693.76秒。これは丸め修正前のCoreで実行した結果であり、最終Source全体の結果にしない
+- 初回WAL/currentness: **30 tests PASS**、693.76秒。これは丸め修正前に開始したfreeze前runで、実行中に別のCore修正が進んでいた。固定Sourceのgateや最終Source全体の結果にしない
 - 最終Coreでのselected WAL再実行: **5 tests PASS**、136.25秒。late plan rollback、cached peer、future head、receipt/handoff atomicity、canonical rehashを確認。対象6 SHA256は実行前後で一致
 - 17種類のlate-mutationを一つのfixture/trigger loopへ統合し、全variantのarchive/head/dependency保存・release不在を個別assertする。重いfixtureを17回作り直さない。最終Coreで統合loopと2種類のreceipt integrityを再実行: **3 tests PASS**、155.54秒、対象6 SHA256不変。最終fileは16 testsで従来の32 behavioral variantsを保持し、late-mutation部分は367秒から89秒へ短縮した。未選択の13 testsをこの最終runで実行済みとは扱わない
 - 最終typecheck / tracked diff check: PASS
@@ -40,6 +40,8 @@ Node26.10.0 / Vitest2.1.9、既存lock、cloud-local TMPDIR、one worker。
 新しい累積Sourceのwhole成功はまだ申告しない。PR262の固定Source wholeは独立checkoutで実行中であり、その結果をこの変更へ流用しない。
 
 ## 既存経路で確認した別の互換性課題
+
+> 続報: [保存互換性を保つ明示policyとfresh-write拒否](2026-10-04-release-custody-compatibility-continuation.md)を追加した。以下は発見時点の記録。
 
 旧atomic `throw` にzero-delay modelを用い、直前motionとexact same-timeでreleaseするNative prefixでは、直前control windowのinclusive終端が残ることを独立probeで確認した。実際のfoot/base接触や誤OUT/SAFEまで再現したものではない。新scheduled経路はrelease時点をexclusiveに補正する。旧保存済みsnapshotの再生規約を無言で変更しないため、旧経路は版付き解釈・互換性を保つ別の修正として残る。
 

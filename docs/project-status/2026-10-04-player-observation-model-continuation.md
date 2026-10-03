@@ -1,5 +1,7 @@
 # 非デザイン継続: Playerの観測calibration所有層
 
+> 続報: [旧release境界の互換性補正](2026-10-04-release-custody-compatibility-continuation.md)。本観測modelの公開は [PR264](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/264)、[実装commit](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/de36ce08c310ab382fe25328dc27d4c143354ba1)。
+
 更新: 2026-10-04 JST（2026-10-03 UTC）
 
 [PR263](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/263) / [実装commit](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/e2f635daded52326404bcda09935057639591c72) のscheduled transferに続き、実際の知覚→個人判断→motor commandへ接続するための観測calibrationを所有する。
