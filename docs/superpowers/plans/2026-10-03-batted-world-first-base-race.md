@@ -1,0 +1,20 @@
+# Actual World first-base race over complete executed history
+
+Authority: approved Foundation44b9f5de7b9d87e649f12f1af78c202f2b5ab44d / Realism4f0a60a3818926327b6bf5877ab3dec456a76530, remote refs rechecked unchanged. Continue actual-base-history/first-base interpretation task4. Basea6a6ffd305920a4d246b83b07f147f7916303a56. Reuse idle main checkout; preserve published runner branch and shared dependencies. Three parent whole gates remain frozen in their separate checkouts.
+
+## Required rulings and preserved contracts
+
+The existing tick-only first-base engine requires both a defender control and a batter touch. A complete executed prefix can instead prove an OUT before the batter ever arrives, or SAFE before a defender has controlled first. Missing future events must not be invented. Actual continuous contact order is available separately from quantized recorded ticks; distinct true moments must not be converted into artificial simultaneity. Exact physical simultaneity remains unresolved. Adjudication07 sections6/7 preserve physical chronology and evolving interpretation separately from official calls/closure.
+
+Existing `first_base_rule` Sources/snapshots and public tick-only rules remain unchanged. Add a strict `first_base_race` geometry-only observation with a separate result. Its owner must rederive the whole original World/motion/execution/capture/throw prefix, every active defender and original batter, geometry/Player/Person and transaction/current-write proof. No schema, migration, archived Source rewrite or caller fair/out/touch flag.
+
+## Tasks
+
+1. Derive an actual ground-ball race from complete canonical first-base histories starting at original bat-contact time0, same original clock/horizon and all original active Player identities. Validate every history and owned secured contact. Earliest actual batter contact proves SAFE if the complete prefix contains no earlier defender control; earliest defender control proves OUT if no earlier batter contact exists. Retain null for absent future touch/control. Use true elapsed order and preserve exact ties/ambiguous defender control. Preserve original outs and supported no-pre-pitch-runner third-out consequences without manufacturing PlayEnd.
+2. Add a chronological wrapper for existing ball-rule evidence that records the actual decisive ground/touch/secured moment without changing legacy evidence output. Keep prior fair/foul/catch interpretation and later pending legal contacts separate. Later pending contacts cannot erase a completed earlier race; unresolved contacts at/before the necessary ball/race decision still prevent unsupported eligibility.
+3. Share only the Native owner's already rederived physical prefix collection between old/new observations. Preserve the old observation's exact serialized shape and tick semantics. Connect the new observation to owned whole histories and fair/live/catch priority, retaining physical/correct-rule truth separately from final official closure. Test early OUT/SAFE, no event, true same-time ties, distinct moments sharing a recorded tick, observation/custody continuity, all-defender selection, original identity/coverage and strict Source rejection. Use accepted physical motor commands for Native causality; explicit fixture calibration is not production body/ability generation.
+4. Real-file WAL/late-original/head/mirror/Person/geometry/cached-peer/retry tests must prove rollback and historical/current-write separation. Continue actual ball gates/base contacts/legal surface/dead owners, whole-play official adjudication/closure/scoring/actual-role workload and all remaining approved nonvisual systems. This actual race is a dependency, not full-goal completion.
+
+## Verification
+
+Tracked RED/GREEN, legacy tick-rule/observation unchanged regressions, actual World Native/reopen/WAL cases, typecheck and Core determinism boundary. One fresh readonly major-branch review; fix proven findings; Source commit and frozen whole verification before publication. No UI/Presentation/design connections, PR merge, new dependency/config/lock/migration/generated edits, archive rewrite, or old/draft revival.

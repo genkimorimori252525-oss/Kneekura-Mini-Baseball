@@ -10,7 +10,7 @@ import type { BallWorldPlayerBaseContactHistory } from '../../core/sim/ball/Ball
 import type { BallWorldControlledBaseContact } from '../../core/sim/ball/BallWorldControlledBaseContacts';
 import { createRunnerBaseFactsFromBallWorldHistory, createControlledBaseFactsFromBallWorldContacts } from '../../core/rules/BallWorldBaseContactPhysicalAdapter';
 import type { RunnerBaseTouchFact, RunnerBaseDepartureFact, ControlledBaseContactFact } from '../../core/rules/PhysicalRuleFacts';
-import { battedWorldFirstBaseRuleFromPrefix } from './BattedWorldFirstBaseRuleFromPrefix';
+import { battedWorldFirstBaseRuleFromPrefix, battedWorldFirstBaseRaceFromPrefix } from './BattedWorldFirstBaseRuleFromPrefix';
 import type { BattedWorldBaseId } from '../../core/sim/ball/BattedWorldBaseGeometry';
 import type { BattedWorldBallCursor } from '../../core/sim/ball/BattedWorldContinuation';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -25,6 +25,7 @@ type Action = Readonly<{ kind: 'acquisition' }> | Readonly<{ kind: 'base_contact
   | Readonly<{ kind: 'runner_base_touch'; geometrySourceId: string; playerId: string; base: BattedWorldBaseId }>
   | Readonly<{ kind: 'base_touch_history'; geometrySourceId: string; playerId: string; base: BattedWorldBaseId }>
   | Readonly<{ kind: 'first_base_rule'; geometrySourceId: string }>
+  | Readonly<{ kind: 'first_base_race'; geometrySourceId: string }>
   | Readonly<{ kind: 'motion'; availableAtTick: number; throughTick: number;
   commands: AcceptedBattedWorldMotion['commands'] }> | Readonly<{ kind: 'throw'; modelSourceId: string; receiverPlayerId: string;
   availableAtTick: number; throughTick: number; commands: AcceptedBattedWorldMotion['commands'] }>;
@@ -34,6 +35,8 @@ export type AcceptedBattedWorldExecution = Readonly<{
 type Execution = Readonly<{ kind: 'motion'; motion: BattedWorldMotion }>
   | (Readonly<{ kind: 'first_base_rule'; geometry: DurableBattedWorldBaseGeometry; motion: BattedWorldMotion }>
     & ReturnType<typeof battedWorldFirstBaseRuleFromPrefix>)
+  | (Readonly<{ kind: 'first_base_race'; geometry: DurableBattedWorldBaseGeometry; motion: BattedWorldMotion }>
+    & ReturnType<typeof battedWorldFirstBaseRaceFromPrefix>)
   | Readonly<{ kind: 'base_touch_history'; geometry: DurableBattedWorldBaseGeometry; playerId: string; base: BattedWorldBaseId;
     history: BallWorldPlayerBaseContactHistory; controlledContacts: readonly BallWorldControlledBaseContact[];
     physicalRuleFacts: readonly (RunnerBaseTouchFact | RunnerBaseDepartureFact | ControlledBaseContactFact)[]; motion: BattedWorldMotion }>
@@ -66,7 +69,7 @@ const input = (raw: AcceptedBattedWorldExecution, sourceId: string): AcceptedBat
   }
   const action = source.action;
   if (action?.kind === 'acquisition' && fields(action, ['kind'])) return source;
-  if (action?.kind === 'first_base_rule') {
+  if (action?.kind === 'first_base_rule' || action?.kind === 'first_base_race') {
     if (!fields(action, ['kind', 'geometrySourceId']) || !id(action.geometrySourceId)) throw new Error('invalid accepted first-base rule Source');
     return source;
   }
@@ -103,7 +106,7 @@ export const battedWorldExecutionEvidenceFromSqlite = (db: Pick<import('node:sql
     if (source.action.kind === 'acquisition') {
       if (physicalPrior?.kind === 'acquisition') throw new Error('batted execution acquisition is already resolved');
       execution = { kind: 'acquisition', motion, acquisition: deriveBattedWorldMotionAcquisition({ response, motion }) };
-    } else if (source.action.kind === 'first_base_rule') {
+    } else if (source.action.kind === 'first_base_rule' || source.action.kind === 'first_base_race') {
       const geometry = ownGeometry.read(source.action.geometrySourceId), world = baseMotion.response.touch.worldContact;
       const binding = world.flight.physicalPitch.frame.batterActor!.binding, centers = battedWorldFrameBaseCenters(db, world.flight);
       if (!geometry || geometry.fixture.game_id !== binding.gameId || geometry.fixture.fixture_event_id !== binding.fixtureEventId
@@ -113,8 +116,10 @@ export const battedWorldExecutionEvidenceFromSqlite = (db: Pick<import('node:sql
         || (['first', 'second', 'third'] as const).some((base) => json(geometry.geometry.bases[base].region.center) !== json(centers[base]))) {
         throw new Error('actual first-base rule fixture geometry differs');
       }
-      execution = { kind: 'first_base_rule', geometry, motion, ...battedWorldFirstBaseRuleFromPrefix({ baseMotion,
-        motions: ownMotions.scope(baseMotion), executions: prefix, geometry }) };
+      const prefixInput = { baseMotion, motions: ownMotions.scope(baseMotion), executions: prefix, geometry };
+      execution = source.action.kind === 'first_base_rule'
+        ? { kind: 'first_base_rule', geometry, motion, ...battedWorldFirstBaseRuleFromPrefix(prefixInput) }
+        : { kind: 'first_base_race', geometry, motion, ...battedWorldFirstBaseRaceFromPrefix(prefixInput) };
     } else if (source.action.kind === 'base_contact' || source.action.kind === 'runner_base_touch' || source.action.kind === 'base_touch_history') {
       const geometry = ownGeometry.read(source.action.geometrySourceId), world = baseMotion.response.touch.worldContact;
       const batter = world.flight.physicalPitch.frame.batterActor!, binding = batter.binding;

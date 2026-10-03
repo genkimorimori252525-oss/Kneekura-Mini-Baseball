@@ -1,4 +1,5 @@
-import { deriveBallWorldBattedRuleEvidence, type BallWorldBattedRuleContact, type BallWorldBattedRuleContactFrame } from '../../core/rules/BallWorldBattedRuleEvidence';
+import { deriveBallWorldBattedRuleEvidence, type BallWorldBattedRuleEvidenceInput, type BallWorldBattedRuleContact, type BallWorldBattedRuleContactFrame } from '../../core/rules/BallWorldBattedRuleEvidence';
+import { deriveBallWorldGroundFirstBaseRace } from '../../core/rules/BallWorldGroundFirstBaseRace';
 import { createControlledBaseFactsFromBallWorldContacts, createRunnerBaseFactsFromBallWorldHistory } from '../../core/rules/BallWorldBaseContactPhysicalAdapter';
 import { resolveGroundBallFirstBaseRule } from '../../core/rules/RuleEngine';
 import type { BallWorldMoment, BallWorldBoundaryContact } from '../../core/sim/ball/BallWorldContinuation';
@@ -10,11 +11,12 @@ import type { DurableBattedWorldBaseGeometry } from './SqliteBattedWorldBaseGeom
 import { battedWorldBaseTouchHistoryFromPrefix } from './BattedWorldBaseTouchHistoryFromPrefix';
 import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 
-/** Consume only the execution owner's rederived complete original and actual physical prefixes. */
-export const battedWorldFirstBaseRuleFromPrefix = (input: Readonly<{
+type PrefixInput = Readonly<{
   baseMotion: DurableBattedWorldMotion; motions: readonly DurableBattedWorldMotion[];
   executions: readonly DurableBattedWorldExecution[]; geometry: DurableBattedWorldBaseGeometry;
-}>) => {
+}>;
+/** Consume only the execution owner's rederived complete original and actual physical prefixes. */
+const physicalPrefix = (input: PrefixInput) => {
   const base = input.baseMotion, world = base.response.touch.worldContact, original = base.response.result;
   const originTick = world.flight.flight.initialBall.tick, ticksPerSecond = world.flight.source.execution.ballFlightParameters.ticksPerSecond;
   const frames: BallWorldBattedRuleContactFrame[] = [], acquisitions: BattedWorldAcquisition[] = [];
@@ -70,12 +72,19 @@ export const battedWorldFirstBaseRuleFromPrefix = (input: Readonly<{
     base: surface.region, baseSurfaceHeightMeters: surface.surfaceHeightMeters });
   const batterFirstBase = ownHistory(batter.binding.playerId);
   const defendersFirstBase = batter.defenderBindings.map((binding) => ownHistory(binding.playerId));
-  const ballEvidence = deriveBallWorldBattedRuleEvidence({ batterRunnerId: batter.binding.playerId,
+  const ballInput: BallWorldBattedRuleEvidenceInput = { batterRunnerId: batter.binding.playerId,
     defenderIds: batter.defenderBindings.map((binding) => binding.playerId), field: input.geometry.geometry.field,
     bases: { homePlate: input.geometry.geometry.field.homePlate, firstBase: surface.region.center,
       secondBase: input.geometry.geometry.bases.second.region.center, thirdBase: input.geometry.geometry.bases.third.region.center },
     ballRadiusMeters: world.flight.source.execution.ballFlightParameters.ballRadius, originTick, ticksPerSecond, horizon,
-    contacts: frames, acquisitions });
+    contacts: frames, acquisitions };
+  return { ballInput, batterFirstBase, defendersFirstBase, world };
+};
+
+/** Preserve the existing archived tick-only interpretation and its exact output shape. */
+export const battedWorldFirstBaseRuleFromPrefix = (input: PrefixInput) => {
+  const { ballInput, batterFirstBase, defendersFirstBase, world } = physicalPrefix(input);
+  const batter = world.flight.physicalPitch.frame.batterActor!, ballEvidence = deriveBallWorldBattedRuleEvidence(ballInput);
   const runnerFacts = createRunnerBaseFactsFromBallWorldHistory({ history: batterFirstBase.history, base: 'first' });
   const controlled = defendersFirstBase.flatMap((value) => value.controlledContacts.map((contact) => ({ contact, history: value.history })))
     .sort((left, right) => left.contact.elapsedSeconds - right.contact.elapsedSeconds);
@@ -88,4 +97,14 @@ export const battedWorldFirstBaseRuleFromPrefix = (input: Readonly<{
     outsAtStart: world.flight.physicalPitch.frame.match.outs, batterRunnerId: batter.binding.playerId,
     defenderControl, batterRunnerTouch: runnerTouch, homeTouches: [] }) : null;
   return { ballEvidence, batterFirstBase, defendersFirstBase, groundRule };
+};
+
+/** Additive actual-time race observation; no caller-supplied result or future touch is accepted. */
+export const battedWorldFirstBaseRaceFromPrefix = (input: PrefixInput) => {
+  const { ballInput, batterFirstBase, defendersFirstBase, world } = physicalPrefix(input);
+  const result = deriveBallWorldGroundFirstBaseRace({ ball: ballInput, race: {
+    outsAtStart: world.flight.physicalPitch.frame.match.outs, batterRunnerId: ballInput.batterRunnerId, defenderIds: ballInput.defenderIds,
+    originTick: ballInput.originTick, ticksPerSecond: ballInput.ticksPerSecond, horizonElapsedSeconds: ballInput.horizon.elapsedSeconds,
+    runnerHistory: batterFirstBase.history, defenders: defendersFirstBase } });
+  return { ...result, batterFirstBase, defendersFirstBase };
 };
