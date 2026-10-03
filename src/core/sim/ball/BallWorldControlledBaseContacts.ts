@@ -7,7 +7,7 @@ export type BallWorldControlledBaseContact = Readonly<{ playerId: string; origin
 const fields = (value: unknown, keys: readonly string[]) => !!value && typeof value === 'object' && !Array.isArray(value)
   && JSON.stringify(Object.keys(value).sort()) === JSON.stringify([...keys].sort());
 
-/** Intersect actual both-foot relation with own secured possession. Its Native caller owns every control window. */
+/** Intersect actual both-foot relation with own secured possession. Its Native caller owns every control interval. */
 export const findBallWorldControlledBaseContacts = (raw: Readonly<{ history: BallWorldPlayerBaseContactHistory;
   controlWindows: readonly BallWorldBaseControlWindow[] }>): readonly BallWorldControlledBaseContact[] => {
   const input = cloneInert(raw), h = input?.history;
