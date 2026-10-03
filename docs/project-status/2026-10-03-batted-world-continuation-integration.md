@@ -16,7 +16,8 @@ Base is PR247 exact6f9d893d24697151ddeb7f603002ca52eed6224f, independently verif
 - Related Core/Native/WAL for both owners:12files164tests GREEN,334.38seconds.
 - One fresh readonly reviewer reproduced a P3 continuous-root defect: acceleration-2/horizon1e30 missed contact1second, and acceleration-2e60/horizon1 missed contact1e-30seconds. Both were tracked RED (21tests/2failed). New-only bisection now terminates at adjacent floating-point times rather than a fixed80 budget. Legacy helper iteration semantics remain unchanged.
 - After refinement, Core/legacy and new Native integration:7files78tests GREEN,7.85seconds. Relative-time assertions check the tiny contact as a ratio rather than an absolute tolerance that could admit zero/null.
-- Final typecheck GREEN. The same fresh reviewer independently reran outside-repository reproductions/coexistence checks:2files6tests GREEN; P3 resolved, no further concrete findings. Frozen whole gate remains required before publication; this is not a complete integration/publication claim.
+- Final typecheck GREEN. The same fresh reviewer independently reran outside-repository reproductions/coexistence checks:2files6tests GREEN; P3 resolved, no further concrete findings.
+- Frozen whole `npm run verify -- -- --maxWorkers=2 --minWorkers=1` on87a31a5171a0a9c58a398d42c4077a2fb88a3983 completed2026-10-03T06:23:04Z with actual exit0:582files3596tests GREEN,4445.31seconds. Source572files3569tests; untracked scratch10files27tests. All13 changed Source/test hashes match. Process-local TEMP/TMP was on K:. The subsequent status-only commit preserves the verified Source tree; this is integration validation, not completion of the remaining full goal.
 
 ## Remaining full goal
 
