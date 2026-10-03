@@ -1,0 +1,198 @@
+import { cloneInert } from '../../adjudication/OfficialWindowPolicy';
+import type { Vec3 } from '../../model/geometry';
+import type { BattedBallInitialState } from '../contact/BatBallContact';
+import { findAcceleratedSphereContactSeconds, findAcceleratedSphereBlockedDepartureSeconds, type AcceleratedSphereContactState } from '../collision/AcceleratedSphereContact';
+import { quantizeEventTick } from '../ExactEventTime';
+import type { DefenderPhysicalPrimitiveRole } from '../fielding/DefenderPhysicalPrimitive';
+import type { BallFlightParameters } from './BallFlight';
+import type { BattedWorldActorPrimitive, BattedWorldSurface } from './BattedBallWorldContacts';
+
+export type BallWorldMoment = Readonly<{ originTick: number; elapsedSeconds: number; ball: BattedBallInitialState }>;
+export type BallWorldCollider = Readonly<{ kind: 'actor'; playerId: string; role: DefenderPhysicalPrimitiveRole }>
+  | Readonly<{ kind: 'surface'; surfaceId: string }>;
+export type BallWorldBoundaryContact = Readonly<{ kind: 'ground'; moment: BallWorldMoment }>
+  | Readonly<{ kind: 'rolling_stop'; moment: BallWorldMoment }>
+  | Readonly<{ kind: 'actor'; playerId: string; role: DefenderPhysicalPrimitiveRole; moment: BallWorldMoment;
+    center: Vec3; velocity: Vec3; normal: Vec3 | null; continuing?: true }>
+  | Readonly<{ kind: 'surface'; surfaceId: string; moment: BallWorldMoment; point: Vec3; normal: Vec3 | null; continuing?: true }>;
+export type BallWorldContinuationInput = Readonly<{
+  moment: BallWorldMoment; throughTick: number; parameters: BallFlightParameters;
+  actors: readonly BattedWorldActorPrimitive[]; surfaces: readonly BattedWorldSurface[]; previousContacts: readonly BallWorldCollider[];
+}>;
+export type BallWorldContinuation = Readonly<{ kind: 'boundary'; moment: BallWorldMoment; phase: 'airborne' | 'rolling' | 'resting';
+  contacts: readonly BallWorldBoundaryContact[]; pendingReason?: 'persistent_contact' }>
+  | Readonly<{ kind: 'moving' | 'resting'; moment: BallWorldMoment; phase: 'airborne' | 'rolling' | 'resting'; throughTick: number }>;
+const finite = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
+const tick = (v: unknown): v is number => typeof v === 'number' && Number.isSafeInteger(v) && v >= 0;
+const id = (v: unknown): v is string => typeof v === 'string' && v.length > 0 && v === v.trim();
+const vector = (v: Vec3) => v && [v.x, v.y, v.z].every(finite);
+const unit = (v: number) => finite(v) && v >= 0 && v <= 1;
+const freeze = <T>(v: T): T => { if (v && typeof v === 'object') { Object.values(v).forEach(freeze); Object.freeze(v); } return v; };
+const distance = (a: Vec3, b: Vec3) => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+const colliderKey = (c: BallWorldCollider) => JSON.stringify(c.kind === 'actor' ? [c.kind, c.playerId, c.role] : [c.kind, c.surfaceId]);
+const normal = (a: Vec3, b: Vec3): Vec3 | null => {
+  const length = distance(a, b);
+  if (!finite(length)) throw new Error('ball World normal arithmetic overflow');
+  return length === 0 ? null : { x: (a.x - b.x) / length, y: (a.y - b.y) / length, z: (a.z - b.z) / length };
+};
+const sample = (position: Vec3, velocity: Vec3, acceleration: Vec3, seconds: number) => {
+  const point = { x: position.x + velocity.x * seconds + 0.5 * acceleration.x * seconds * seconds,
+    y: position.y + velocity.y * seconds + 0.5 * acceleration.y * seconds * seconds,
+    z: position.z + velocity.z * seconds + 0.5 * acceleration.z * seconds * seconds };
+  const motion = { x: velocity.x + acceleration.x * seconds, y: velocity.y + acceleration.y * seconds, z: velocity.z + acceleration.z * seconds };
+  if (!vector(point) || !vector(motion)) throw new Error('ball World motion arithmetic overflow');
+  return { point, motion };
+};
+const roots = (a: number, b: number, c: number): number[] => {
+  if (![a, b, c].every(finite)) throw new Error('ball World boundary arithmetic overflow');
+  if (a === 0) return b === 0 ? [] : [-c / b];
+  const discriminant = b * b - 4 * a * c;
+  if (!finite(discriminant)) throw new Error('ball World root arithmetic overflow');
+  if (discriminant < 0) return [];
+  if (discriminant === 0) return [-b / (2 * a)];
+  const q = -0.5 * (b + Math.sign(b || 1) * Math.sqrt(discriminant));
+  return [q / a, c / q].sort((x, y) => x - y);
+};
+const frame = (s: BattedWorldSurface) => {
+  if (!id(s?.surfaceId) || !s.start || !s.end || ![s.start.x, s.start.z, s.end.x, s.end.z, s.minimumHeight, s.maximumHeight].every(finite)
+    || s.minimumHeight < 0 || s.maximumHeight <= s.minimumHeight) throw new Error('invalid ball World surface');
+  const length = Math.hypot(s.end.x - s.start.x, s.end.z - s.start.z);
+  if (!finite(length) || length <= 0) throw new Error('invalid ball World surface extent');
+  return { length, ux: (s.end.x - s.start.x) / length, uz: (s.end.z - s.start.z) / length };
+};
+const closestPoint = (s: BattedWorldSurface, p: Vec3): Vec3 => {
+  const f = frame(s), u = Math.max(0, Math.min(f.length, (p.x - s.start.x) * f.ux + (p.z - s.start.z) * f.uz));
+  return { x: s.start.x + u * f.ux, y: Math.max(s.minimumHeight, Math.min(s.maximumHeight, p.y)), z: s.start.z + u * f.uz };
+};
+
+/** Partition at closest-feature changes, so an invalid first face root cannot hide a later edge/corner contact. */
+const surfaceTime = (ball: AcceleratedSphereContactState, s: BattedWorldSurface, seconds: number, previous: boolean): Readonly<{ time: number; blocked: boolean }> | null => {
+  const f = frame(s), u0 = (ball.center.x - s.start.x) * f.ux + (ball.center.z - s.start.z) * f.uz;
+  const uv = ball.velocity.x * f.ux + ball.velocity.z * f.uz, ua = ball.acceleration.x * f.ux + ball.acceleration.z * f.uz;
+  if (![u0, uv, ua].every(finite)) throw new Error('ball World surface projection arithmetic overflow');
+  if (!previous && distance(ball.center, closestPoint(s, ball.center)) <= ball.radius) return { time: 0, blocked: false };
+  const changes = [0, seconds, ...[0, f.length].flatMap((u) => roots(0.5 * ua, uv, u0 - u)),
+    ...[s.minimumHeight, s.maximumHeight].flatMap((y) => roots(0.5 * ball.acceleration.y, ball.velocity.y, ball.center.y - y))];
+  const boundaries = [...new Set(changes.filter((t) => finite(t) && t >= 0 && t <= seconds))].sort((a, b) => a - b);
+  let departed = !previous || distance(ball.center, closestPoint(s, ball.center)) > ball.radius;
+  for (let i = 0; i + 1 < boundaries.length; i++) {
+    const start = boundaries[i], end = boundaries[i + 1], middle = (start + end) / 2;
+    const mid = sample(ball.center, ball.velocity, ball.acceleration, middle).point;
+    const midU = u0 + uv * middle + 0.5 * ua * middle * middle;
+    const movingU = midU > 0 && midU < f.length, movingY = mid.y > s.minimumHeight && mid.y < s.maximumHeight;
+    const actual = sample(ball.center, ball.velocity, ball.acceleration, start);
+    const u = movingU ? u0 + uv * start + 0.5 * ua * start * start : midU <= 0 ? 0 : f.length;
+    const feature: AcceleratedSphereContactState = { tick: ball.tick, radius: ball.radius / 2,
+      center: { x: s.start.x + f.ux * u, y: movingY ? actual.point.y : mid.y <= s.minimumHeight ? s.minimumHeight : s.maximumHeight,
+        z: s.start.z + f.uz * u },
+      velocity: { x: movingU ? f.ux * (uv + ua * start) : 0, y: movingY ? actual.motion.y : 0, z: movingU ? f.uz * (uv + ua * start) : 0 },
+      acceleration: { x: movingU ? f.ux * ua : 0, y: movingY ? ball.acceleration.y : 0, z: movingU ? f.uz * ua : 0 } };
+    const movingBall = { ...ball, center: actual.point, velocity: actual.motion, radius: ball.radius / 2 };
+    const blocked = departed ? null : findAcceleratedSphereBlockedDepartureSeconds(movingBall, feature, end - start);
+    if (blocked !== null) return { time: start + blocked, blocked: true };
+    const at = findAcceleratedSphereContactSeconds(movingBall,
+      feature, end - start, departed ? 'include' : 'after_departure');
+    if (at !== null) return { time: start + at, blocked: false };
+    const point = sample(ball.center, ball.velocity, ball.acceleration, end).point;
+    if (distance(point, closestPoint(s, point)) > ball.radius) departed = true;
+  }
+  return null;
+};
+
+/** One actual causal segment; a horizon or a resting ball is never a baseball result or play-end fact. */
+export const deriveBallWorldContinuation = (raw: BallWorldContinuationInput): BallWorldContinuation => {
+  const input = cloneInert(raw), { moment, parameters: p } = input, initial = moment?.ball;
+  if (!moment || !initial || !p || !tick(moment.originTick) || !finite(moment.elapsedSeconds) || moment.elapsedSeconds < 0
+    || !tick(initial.tick) || !tick(input.throughTick) || input.throughTick < initial.tick || !vector(initial.position)
+    || !vector(initial.velocity) || !vector(initial.spin) || !tick(p.ticksPerSecond) || p.ticksPerSecond === 0
+    || !finite(p.gravityY) || !finite(p.ballRadius) || p.ballRadius <= 0 || !unit(p.groundRestitution) || !unit(p.groundFriction)
+    || !finite(p.groundRollingDecelerationMps2) || p.groundRollingDecelerationMps2 < 0 || !finite(p.restingVerticalSpeed) || p.restingVerticalSpeed < 0
+    || !tick(p.integrationStepTicks) || p.integrationStepTicks === 0 || initial.position.y < p.ballRadius - 1e-12
+    || quantizeEventTick(moment.originTick, moment.elapsedSeconds, p.ticksPerSecond) !== initial.tick
+    || !Array.isArray(input.actors) || !Array.isArray(input.surfaces) || !Array.isArray(input.previousContacts)) throw new Error('invalid ball World continuation');
+  const actorKeys = new Set<string>(), surfaceIds = new Set<string>();
+  for (const a of input.actors) {
+    const s = a?.primitive, key = JSON.stringify([a?.playerId, s?.role]);
+    if (!id(a?.playerId) || !s || actorKeys.has(key) || !['glove', 'body', 'tag_hand', 'left_foot', 'right_foot'].includes(s.role)
+      || !tick(s.startTick) || !tick(s.endTick) || s.startTick > initial.tick || s.endTick < input.throughTick || s.ticksPerSecond !== p.ticksPerSecond
+      || !finite(s.radius) || s.radius <= 0 || !vector(s.startCenter) || !vector(s.startVelocity) || !vector(s.acceleration)) throw new Error('invalid ball World actor coverage');
+    const currentSeconds = (moment.originTick - s.startTick) / p.ticksPerSecond + moment.elapsedSeconds;
+    if (currentSeconds < 0) throw new Error('ball World actor starts after the continuous moment');
+    sample(s.startCenter, s.startVelocity, s.acceleration, currentSeconds);
+    sample(s.startCenter, s.startVelocity, s.acceleration, (input.throughTick - s.startTick) / p.ticksPerSecond);
+    actorKeys.add(key);
+  }
+  for (const s of input.surfaces) { frame(s); if (surfaceIds.has(s.surfaceId)) throw new Error('duplicate ball World surface'); surfaceIds.add(s.surfaceId); }
+  const prior = new Set<string>();
+  for (const c of input.previousContacts) {
+    const key = c?.kind === 'actor' ? JSON.stringify([c.playerId, c.role]) : c?.kind === 'surface' ? c.surfaceId : '';
+    if (!key || prior.has(colliderKey(c)) || (c.kind === 'actor' ? !actorKeys.has(key) : !surfaceIds.has(key))) throw new Error('invalid prior ball World collider');
+    prior.add(colliderKey(c));
+  }
+  const speed = Math.hypot(initial.velocity.x, initial.velocity.z), onFloor = initial.position.y <= p.ballRadius + 1e-12 && initial.velocity.y === 0;
+  if (!finite(speed)) throw new Error('ball World speed arithmetic overflow');
+  const phase = onFloor ? speed === 0 ? 'resting' : 'rolling' : 'airborne';
+  const acceleration = onFloor ? { x: speed === 0 ? 0 : -initial.velocity.x / speed * p.groundRollingDecelerationMps2,
+    y: 0, z: speed === 0 ? 0 : -initial.velocity.z / speed * p.groundRollingDecelerationMps2 } : { x: 0, y: p.gravityY, z: 0 };
+  const duration = Math.max(0, (input.throughTick - moment.originTick) / p.ticksPerSecond - moment.elapsedSeconds);
+  const ground = phase !== 'airborne' ? null : initial.position.y <= p.ballRadius + 1e-12 && initial.velocity.y < 0 ? 0
+    : roots(0.5 * p.gravityY, initial.velocity.y, initial.position.y - p.ballRadius)
+      .find((t) => t > 0 && t <= duration && initial.velocity.y + p.gravityY * t < 0) ?? null;
+  const stop = phase === 'rolling' && p.groundRollingDecelerationMps2 > 0 && speed / p.groundRollingDecelerationMps2 <= duration
+    ? speed / p.groundRollingDecelerationMps2 : null;
+  const horizon = Math.min(duration, ground ?? duration, stop ?? duration);
+  const atMoment = (seconds: number): BallWorldMoment => {
+    const state = sample(initial.position, initial.velocity, acceleration, seconds), elapsedSeconds = moment.elapsedSeconds + seconds;
+    const stopped = stop !== null && seconds === stop;
+    return { originTick: moment.originTick, elapsedSeconds, ball: { tick: quantizeEventTick(moment.originTick, elapsedSeconds, p.ticksPerSecond),
+      position: state.point, velocity: stopped ? { x: 0, y: 0, z: 0 } : state.motion, spin: initial.spin } };
+  };
+  const contacts: BallWorldBoundaryContact[] = [];
+  const blockedContacts = new Set<BallWorldBoundaryContact>();
+  if (ground !== null) contacts.push({ kind: 'ground', moment: atMoment(ground) });
+  if (stop !== null) contacts.push({ kind: 'rolling_stop', moment: atMoment(stop) });
+  const sphere: AcceleratedSphereContactState = { tick: moment.originTick, center: initial.position, velocity: initial.velocity, acceleration, radius: p.ballRadius };
+  for (const a of input.actors) {
+    const s = a.primitive, dt = (moment.originTick - s.startTick) / p.ticksPerSecond + moment.elapsedSeconds;
+    const start = sample(s.startCenter, s.startVelocity, s.acceleration, dt);
+    const previous = prior.has(colliderKey({ kind: 'actor', playerId: a.playerId, role: s.role }));
+    const other = { tick: moment.originTick, center: start.point, velocity: start.motion, acceleration: s.acceleration, radius: s.radius };
+    const blocked = previous ? findAcceleratedSphereBlockedDepartureSeconds(sphere, other, horizon) : null;
+    const time = blocked ?? findAcceleratedSphereContactSeconds(sphere, other, horizon, previous ? 'after_departure' : 'include');
+    if (time === null) continue;
+    const state = sample(start.point, start.motion, s.acceleration, time), at = atMoment(time);
+    const contact: BallWorldBoundaryContact = { kind: 'actor', playerId: a.playerId, role: s.role, moment: at, center: state.point, velocity: state.motion,
+      normal: normal(at.ball.position, state.point), ...(blocked === null ? {} : { continuing: true as const }) };
+    contacts.push(contact); if (blocked !== null) blockedContacts.add(contact);
+  }
+  for (const s of input.surfaces) {
+    const event = surfaceTime(sphere, s, horizon, prior.has(colliderKey({ kind: 'surface', surfaceId: s.surfaceId })));
+    if (event === null) continue;
+    const at = atMoment(event.time), point = closestPoint(s, at.ball.position);
+    const contact: BallWorldBoundaryContact = { kind: 'surface', surfaceId: s.surfaceId, moment: at, point, normal: normal(at.ball.position, point),
+      ...(event.blocked ? { continuing: true as const } : {}) };
+    contacts.push(contact); if (event.blocked) blockedContacts.add(contact);
+  }
+  if (!contacts.length) return freeze({ kind: phase === 'resting' ? 'resting' : 'moving', throughTick: input.throughTick, phase, moment: atMoment(duration) });
+  const earliestTick = Math.min(...contacts.map((c) => c.moment.ball.tick)), selected = contacts.filter((c) => c.moment.ball.tick === earliestTick);
+  const earliest = selected.reduce((a, b) => a.elapsedSeconds <= b.moment.elapsedSeconds ? a : b.moment, selected[0].moment);
+  for (const c of input.previousContacts) {
+    if (selected.some((s) => (s.kind === 'actor' || s.kind === 'surface') && colliderKey(s) === colliderKey(c))) continue;
+    if (c.kind === 'surface') {
+      const surface = input.surfaces.find((s) => s.surfaceId === c.surfaceId)!, point = closestPoint(surface, earliest.ball.position);
+      if (distance(point, earliest.ball.position) <= p.ballRadius) selected.push({ kind: 'surface', surfaceId: c.surfaceId,
+        moment: earliest, point, normal: normal(earliest.ball.position, point), continuing: true });
+    } else {
+      const s = input.actors.find((a) => a.playerId === c.playerId && a.primitive.role === c.role)!.primitive;
+      const state = sample(s.startCenter, s.startVelocity, s.acceleration, (moment.originTick - s.startTick) / p.ticksPerSecond + earliest.elapsedSeconds);
+      if (distance(state.point, earliest.ball.position) <= p.ballRadius + s.radius) selected.push({ kind: 'actor', playerId: c.playerId,
+        role: c.role, moment: earliest, center: state.point, velocity: state.motion, normal: normal(earliest.ball.position, state.point), continuing: true });
+    }
+  }
+  selected.sort((a, b) => {
+    const key = (c: BallWorldBoundaryContact) => JSON.stringify(c.kind === 'actor' ? [c.kind, c.playerId, c.role] : c.kind === 'surface' ? [c.kind, c.surfaceId] : [c.kind]);
+    return key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0;
+  });
+  return freeze({ kind: 'boundary', phase, contacts: selected, moment: earliest,
+    ...(selected.some((c) => blockedContacts.has(c)) ? { pendingReason: 'persistent_contact' as const } : {}) });
+};

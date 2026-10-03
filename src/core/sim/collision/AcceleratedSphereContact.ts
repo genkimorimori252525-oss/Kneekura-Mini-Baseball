@@ -385,3 +385,140 @@ export const findAcceleratedSphereContactTime = (
 export const findAcceleratedSphereContactTick = (
   first: AcceleratedSphereContactState, second: AcceleratedSphereContactState, deltaTicks: number, parameters: AcceleratedSphereContactParameters,
 ): number | null => findAcceleratedSphereContactTime(first, second, deltaTicks, parameters)?.tick ?? null;
+
+const continuousPolynomialValue = (coefficients: readonly number[], time: number): number => (
+  coefficients.reduceRight((value, coefficient) => value * time + coefficient, 0)
+);
+
+const continuousPolynomialIsZero = (coefficients: readonly number[], time: number): boolean => {
+  const magnitude = coefficients.reduceRight((value, coefficient) => value * Math.abs(time) + Math.abs(coefficient), 0);
+  return Math.abs(continuousPolynomialValue(coefficients, time)) <= 8 * Number.EPSILON * magnitude;
+};
+
+// Normalized intervals can have roots arbitrarily close to zero. Refine until
+// adjacent floating-point times, rather than spending a fixed absolute budget.
+const continuousBisect = (evaluate: (time: number) => number, start: number, end: number, firstNonPositive: boolean): number => {
+  let low = start, high = end, lowValue = evaluate(low);
+  while (true) {
+    const middle = low + (high - low) / 2;
+    if (middle === low || middle === high) return firstNonPositive ? high : middle;
+    const value = evaluate(middle);
+    if (!firstNonPositive && value === 0) return middle;
+    if (firstNonPositive ? value <= 0 : (lowValue < 0 && value > 0) || (lowValue > 0 && value < 0)) high = middle;
+    else { low = middle; lowValue = value; }
+  }
+};
+
+// These roots use relative roundoff and retain distinct normalized times. The legacy
+// tick API's absolute coefficient/root tolerances are not valid for arbitrary horizons.
+const continuousPolynomialRoots = (input: readonly number[], start: number, end: number): number[] => {
+  const coefficients = [...input];
+  while (coefficients.length > 1 && coefficients[coefficients.length - 1] === 0) coefficients.pop();
+  if (coefficients.length < 2) return [];
+  if (coefficients.length === 2) {
+    const root = -coefficients[0] / coefficients[1];
+    return root >= start && root <= end ? [root] : [];
+  }
+  const derivative = coefficients.slice(1).map((value, index) => value * (index + 1));
+  const critical = continuousPolynomialRoots(derivative, start, end).filter((time) => time > start && time < end);
+  const boundaries = [...new Set([start, ...critical, end])].sort((a, b) => a - b);
+  const roots = boundaries.filter((time) => continuousPolynomialIsZero(coefficients, time));
+  const evaluate = (time: number) => continuousPolynomialValue(coefficients, time);
+  for (let index = 0; index + 1 < boundaries.length; index++) {
+    const left = boundaries[index], right = boundaries[index + 1];
+    const a = evaluate(left), b = evaluate(right);
+    if ((a < 0 && b > 0) || (a > 0 && b < 0)) roots.push(continuousBisect(evaluate, left, right, false));
+  }
+  return [...new Set(roots)].sort((a, b) => a - b);
+};
+
+const continuousSpherePolynomial = (
+  first: AcceleratedSphereContactState,
+  second: AcceleratedSphereContactState,
+  durationSeconds: number,
+) => {
+  validateState(first, 'first'); validateState(second, 'second');
+  if (first.tick !== second.tick || !Number.isFinite(durationSeconds) || durationSeconds < 0) throw new Error('invalid continuous sphere contact interval');
+  const position = subtract(first.center, second.center), velocity = subtract(first.velocity, second.velocity);
+  const acceleration = subtract(first.acceleration, second.acceleration), radius = first.radius + second.radius;
+  const c0 = magnitudeSquared(position) - radius * radius;
+  const c1 = 2 * dot(position, velocity);
+  const c2 = magnitudeSquared(velocity) + dot(position, acceleration);
+  const c3 = dot(velocity, acceleration), c4 = 0.25 * magnitudeSquared(acceleration);
+  if (![radius, c0, c1, c2, c3, c4].every(Number.isFinite)) throw new Error('continuous sphere geometry arithmetic overflow');
+  // Normalize both time and coefficients. A small physical departure must not disappear
+  // because an absolute coefficient threshold treats its real acceleration as zero.
+  const scaled = [c0, c1 * durationSeconds, c2 * durationSeconds * durationSeconds,
+    c3 * durationSeconds * durationSeconds * durationSeconds,
+    c4 * durationSeconds * durationSeconds * durationSeconds * durationSeconds];
+  if (!scaled.every(Number.isFinite)) throw new Error('continuous sphere horizon arithmetic overflow');
+  const scale = Math.max(...scaled.map(Math.abs)) || 1;
+  const [a0, a1, a2, a3, a4] = scaled.map((value) => value / scale);
+  const evaluate = (t: number) => ((((a4 * t + a3) * t + a2) * t + a1) * t + a0);
+  const tangentSeparation = (t: number) => {
+    const seconds = t * durationSeconds;
+    const coordinates = (['x', 'y', 'z'] as const).map((axis) => {
+      const coordinate = position[axis] + velocity[axis] * seconds + 0.5 * acceleration[axis] * seconds * seconds;
+      return coordinate * coordinate;
+    }).sort((a, b) => b - a);
+    // Subtract the radius from the dominant squared component first. Otherwise
+    // adding tiny tangent-axis squares to radius^2 can round an earlier point to contact.
+    const value = ((coordinates[0] - radius * radius) + coordinates[1]) + coordinates[2];
+    if (!Number.isFinite(value)) throw new Error('continuous sphere sample arithmetic overflow');
+    // Scale each finite squared term before summation so the error bound itself
+    // cannot overflow and admit a real gap near the finite numeric limit.
+    const roundoff = [radius * radius, ...coordinates].reduce((sum, term) => sum + 8 * Number.EPSILON * term, 0);
+    return { value, roundoff };
+  };
+  const derivativeCoefficients = [a1, 2 * a2, 3 * a3, 4 * a4];
+  const stationaryAt = (t: number) => continuousPolynomialIsZero(derivativeCoefficients, t);
+  const curvature = (t: number) => ((12 * a4 * t + 6 * a3) * t + 2 * a2);
+  const stationary = continuousPolynomialRoots(derivativeCoefficients, 0, 1)
+    .filter((time) => time > 0 && time < 1);
+  const boundaries = [...new Set([0, ...stationary, 1])].sort((a, b) => a - b);
+  return { c0, a1, a2, a3, a4, evaluate, tangentSeparation, stationaryAt, curvature, boundaries };
+};
+
+/** Relative continuous time for a causal motion segment; prior contacts must depart before re-entering. */
+export const findAcceleratedSphereContactSeconds = (
+  first: AcceleratedSphereContactState, second: AcceleratedSphereContactState, durationSeconds: number, initialContact: 'include' | 'after_departure',
+): number | null => {
+  if (!['include', 'after_departure'].includes(initialContact)) throw new Error('invalid continuous sphere contact policy');
+  const { c0, evaluate, tangentSeparation, stationaryAt, curvature, boundaries } = continuousSpherePolynomial(first, second, durationSeconds);
+  if (initialContact === 'include' && c0 <= 0) return 0;
+  if (durationSeconds === 0) return null;
+  let departed = c0 > 0;
+  for (let index = 0; index + 1 < boundaries.length; index += 1) {
+    const left = boundaries[index], right = boundaries[index + 1];
+    const leftValue = evaluate(left), rightValue = evaluate(right);
+    if (leftValue > 0) departed = true;
+    // Tolerance only refines a tangent minimum, never a separating maximum or
+    // an approaching contact beyond the supplied physical horizon.
+    if (departed && stationaryAt(right) && curvature(right) > 0) {
+      const separation = tangentSeparation(right);
+      if (separation.value >= 0 && separation.value <= separation.roundoff) return right * durationSeconds;
+    }
+    if (departed && leftValue > 0 && rightValue <= 0) {
+      return continuousBisect(evaluate, left, right, true) * durationSeconds;
+    }
+    if (rightValue > 0) departed = true;
+  }
+  return null;
+};
+
+/** Detect an unresolved inward constraint before a previous contact actually departs; do not ghost through its collider. */
+export const findAcceleratedSphereBlockedDepartureSeconds = (
+  first: AcceleratedSphereContactState, second: AcceleratedSphereContactState, durationSeconds: number,
+): number | null => {
+  const p = continuousSpherePolynomial(first, second, durationSeconds);
+  if (p.c0 > 0 || durationSeconds === 0) return null;
+  const firstMotion = [p.a1, p.a2, p.a3, p.a4].find((v) => v !== 0);
+  if (firstMotion === undefined) return null;
+  if (firstMotion < 0) return 0;
+  for (let index = 1; index < p.boundaries.length; index++) {
+    const time = p.boundaries[index], value = p.evaluate(time);
+    if (value > 0) return null; // Genuine departure occurred on this monotonic interval.
+    if (p.curvature(time) < 0 && p.stationaryAt(time)) return time * durationSeconds;
+  }
+  return null;
+};
