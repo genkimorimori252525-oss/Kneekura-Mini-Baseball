@@ -58,3 +58,9 @@ describe('estimateOcclusionVisibility', () => {
     }])).toThrow('radiusMeters must be finite and positive');
   });
 });
+
+it('includes spherical overlap at the eye or target even if the sphere center projects outside the segment', () => {
+  expect(estimateOcclusionVisibility(observer, target, [{ center: { ...observer, z: -0.1 }, radiusMeters: 1 }])).toBe(0);
+  expect(estimateOcclusionVisibility(observer, target, [{ center: { ...target, z: 10.1 }, radiusMeters: 1 }])).toBe(0);
+  expect(estimateOcclusionVisibility(observer, target, [{ center: { ...observer, x: 1 }, radiusMeters: 1 }])).toBe(0);
+});

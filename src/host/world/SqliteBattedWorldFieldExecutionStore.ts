@@ -193,29 +193,49 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
     return freeze({ source, baseField, revision: (previous?.revision ?? 0) + 1,
       history: [...(previous?.history ?? []), source], execution });
   };
-  const scope = (baseField: DurableBattedWorldFieldAction, throughSourceId?: string): readonly DurableBattedWorldFieldExecution[] => {
+  const scope = (baseField: DurableBattedWorldFieldAction, throughSourceId?: string | null): readonly DurableBattedWorldFieldExecution[] => {
     const pitchId = physicalId(baseField), baseId = baseField.source.sourceId;
     const owners = `physical_pitch_source_id=? OR base_field_source_id=?
-      OR CASE WHEN json_valid(source_json) THEN json_extract(source_json,'$.baseFieldSourceId') END=?
+      OR CASE WHEN json_valid(source_json) THEN json_extract(source_json,'$.baseFieldSourceId') END
+        IN (SELECT source_id FROM batted_world_field_actions WHERE physical_pitch_source_id=?)
       OR CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.baseField.response.touch.worldContact.flight.source.physicalPitchSourceId') END=?`;
-    const rows = db.prepare(`SELECT * FROM batted_world_field_executions WHERE ${owners} ORDER BY revision`).all(pitchId, baseId, baseId, pitchId) as Row[];
+    const rows = db.prepare(`SELECT * FROM batted_world_field_executions WHERE ${owners} ORDER BY revision`).all(pitchId, baseId, pitchId, pitchId) as Row[];
     const heads = db.prepare(`SELECT * FROM batted_world_field_execution_heads WHERE physical_pitch_source_id=? OR base_field_source_id=?
-      OR source_id IN (SELECT source_id FROM batted_world_field_executions WHERE ${owners})`).all(pitchId, baseId, pitchId, baseId, baseId, pitchId) as Head[];
+      OR source_id IN (SELECT source_id FROM batted_world_field_executions WHERE ${owners})`).all(pitchId, baseId, pitchId, baseId, pitchId, pitchId) as Head[];
     if (!rows.length) { if (heads.length || throughSourceId) throw new Error('unowned actual field execution head'); return []; }
     const head = heads[0];
-    if (heads.length !== 1 || head.physical_pitch_source_id !== pitchId || head.base_field_source_id !== baseId
+    if (heads.length !== 1) throw new Error('actual field execution prefix head differs');
+    // A zero-payload historical bound may predate later field actions and their
+    // execution owner. Validate that later anchor from field metadata only;
+    // neither the future field nor execution payload is observation evidence.
+    const anchorId = throughSourceId === null ? head.base_field_source_id : baseId;
+    if (throughSourceId === null) {
+      ownFields.scope(baseField, baseId);
+      const anchor = db.prepare('SELECT * FROM batted_world_field_actions WHERE source_id=?').get(anchorId) as {
+        physical_pitch_source_id: string; response_source_id: string; geometry_source_id: string; revision: number; game_id: string;
+      } | undefined;
+      const fieldHead = db.prepare('SELECT * FROM batted_world_field_heads WHERE physical_pitch_source_id=?').get(pitchId) as {
+        source_id: string; revision: number;
+      } | undefined;
+      if (!anchor || anchor.physical_pitch_source_id !== pitchId || anchor.response_source_id !== baseField.response.source.sourceId
+        || anchor.geometry_source_id !== baseField.geometry.source.sourceId || anchor.game_id !== baseField.response.model.gameId
+        || anchor.revision < baseField.revision || fieldHead?.source_id !== anchorId || fieldHead.revision !== anchor.revision) {
+        throw new Error('actual field execution future anchor metadata differs');
+      }
+    }
+    if (heads.length !== 1 || head.physical_pitch_source_id !== pitchId || head.base_field_source_id !== anchorId
       || head.source_id !== rows.at(-1)!.source_id || !tick(head.revision) || head.revision !== rows.length) throw new Error('actual field execution prefix head differs');
     const unique = new Set<string>();
     for (const [index, row] of rows.entries()) {
       if (!id(row.source_id) || unique.has(row.source_id) || !tick(row.revision) || row.revision !== index + 1
-        || row.physical_pitch_source_id !== pitchId || row.base_field_source_id !== baseId
+        || row.physical_pitch_source_id !== pitchId || row.base_field_source_id !== anchorId
         || row.previous_source_id !== (rows[index - 1]?.source_id ?? null) || row.game_id !== baseField.response.model.gameId) {
         throw new Error('corrupt actual field execution prefix metadata');
       }
       unique.add(row.source_id);
     }
-    const bound = throughSourceId === undefined ? rows.length - 1 : rows.findIndex((row) => row.source_id === throughSourceId);
-    if (bound < 0) throw new Error('actual field execution Source is outside original prefix');
+    const bound = throughSourceId === null ? -1 : throughSourceId === undefined ? rows.length - 1 : rows.findIndex((row) => row.source_id === throughSourceId);
+    if (bound < 0 && throughSourceId !== null) throw new Error('actual field execution Source is outside original prefix');
     const values: DurableBattedWorldFieldExecution[] = [];
     for (const row of rows.slice(0, bound + 1)) {
       const source = input(JSON.parse(row.source_json) as AcceptedBattedWorldFieldExecution, row.source_id);

@@ -38,13 +38,10 @@ export const estimateOcclusionVisibility = (
     const oy = occluder.center.y - observerPosition.y;
     const oz = occluder.center.z - observerPosition.z;
 
-    const closestT = (
+    // A center outside the segment may still have a radius overlapping an endpoint.
+    const closestT = Math.max(0, Math.min(1, (
       ox * dx + oy * dy + oz * dz
-    ) / segmentLengthSquared;
-
-    if (closestT <= 0 || closestT >= 1) {
-      continue;
-    }
+    ) / segmentLengthSquared));
 
     const closestX = observerPosition.x + dx * closestT;
     const closestY = observerPosition.y + dy * closestT;
