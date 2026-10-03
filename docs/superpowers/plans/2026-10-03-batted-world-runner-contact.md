@@ -14,4 +14,6 @@ Actual batted World already owns the registered batter's body and both foot prim
 
 ## Remaining full goal
 
+Delivery evidence: actual Source5078bbfa61cf4cda8e8518d4c3ed7d9efe7e77e5 whole verification completed596tracked Source files/3876tests GREEN with catalog/typecheck and7hashes0mismatch. After the gate, published geometry PR253 was integrated through documentation-only changes; Source tree940ae4d234524c49f2273640263800fdd50c3f90 is unchanged. The geometry and throw whole gates mentioned at plan creation have also completed and their dependency PRs are published. The original planned Source scope is unchanged.
+
 This records physical touch only. General pre-pitch runner bodies and locomotion/perception/controller capabilities, hand/slide contacts, independent player/player and player/surface physics where required, all-history touch/retouch/occupancy and RuleEngine interpretation, first-base race/official ruling, foul/next-pitch/between-pitch state and full official/scoring/workload/generation/orchestration remain separate required work. Do not claim this bounded dependency completes the goal. No UI/Presentation connection, old forecast/default generation, unsupported runner teleport, PR merge, force/reset, CI configuration edit or active/review artifact deletion.

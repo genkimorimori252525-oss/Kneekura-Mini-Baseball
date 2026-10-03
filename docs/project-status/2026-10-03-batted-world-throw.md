@@ -17,7 +17,8 @@ Authority: current approved Foundation44b9f5de7b9d87e649f12f1af78c202f2b5ab44d a
 - Initial typecheck exposed lost discriminant narrowing inside a callback; a local narrowed action fixes it. Final typecheck GREEN.
 - Final related gate:7files76tests GREEN/483.06seconds, terminal exit0. Includes Core11throw/17motion/5actual acquisition, Native8throw/12existing execution and WAL8throw/15existing execution. Verifies actual late model/Person/workload corruption rollback, cached-peer and identical-retry mutation, genuine foreign active model rejection and deterministic reopen.
 - One fresh readonly review of the complete pending physical slice found no P1/P2 finding. No Source edits or gate reruns by the reviewer.
-- The combined frozen whole gate is still required before publication; no whole-suite completion claim is made here. Parent motion/execution whole gates remain independently frozen.
+- Combined frozen whole verification of commit `ba0d4a11cea21235c228ad398d7a068bed126313`: `npm run verify -- -- --maxWorkers=2 --minWorkers=1` completed with exit0,586files3750tests GREEN/6382.79seconds. Typecheck and catalog validation passed. All11 Source hashes match before/after; source tree `73641ce588fdc303fc58a8ae4d2e823d22181e42` remains unchanged.
+- Incorporate the already published parent execution PR251 closure by a documentation-only merge; verify the same Source tree. Routine stacked publication follows PR251 after this record, with no PR merge.
 
 ## Remaining full objective
 
