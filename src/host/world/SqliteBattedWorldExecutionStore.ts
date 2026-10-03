@@ -4,6 +4,7 @@ import { deriveBattedWorldMotionAcquisition, type BattedWorldAcquisition } from 
 import { deriveBattedWorldMotion, type BattedWorldMotion } from '../../core/sim/ball/BattedWorldMotion';
 import { deriveBattedWorldThrow, type BattedWorldThrow } from '../../core/sim/ball/BattedWorldThrow';
 import { findBattedWorldControlledBaseContact } from '../../core/sim/ball/BattedWorldControlledBaseContact';
+import { findBattedWorldPlayerBaseContact } from '../../core/sim/ball/BattedWorldPlayerBaseContact';
 import type { BallWorldFootBaseContact } from '../../core/sim/ball/BallWorldFootBaseContact';
 import type { BattedWorldBaseId } from '../../core/sim/ball/BattedWorldBaseGeometry';
 import type { BattedWorldBallCursor } from '../../core/sim/ball/BattedWorldContinuation';
@@ -15,6 +16,7 @@ import { battedWorldMotionEvidenceFromSqlite, battedWorldMotionCommandsInput, ba
   type AcceptedBattedWorldMotion, type DurableBattedWorldMotion, type SqliteBattedWorldMotionStore } from './SqliteBattedWorldMotionStore';
 
 type Action = Readonly<{ kind: 'acquisition' }> | Readonly<{ kind: 'base_contact'; geometrySourceId: string; base: BattedWorldBaseId }>
+  | Readonly<{ kind: 'runner_base_touch'; geometrySourceId: string; playerId: string; base: BattedWorldBaseId }>
   | Readonly<{ kind: 'motion'; availableAtTick: number; throughTick: number;
   commands: AcceptedBattedWorldMotion['commands'] }> | Readonly<{ kind: 'throw'; modelSourceId: string; receiverPlayerId: string;
   availableAtTick: number; throughTick: number; commands: AcceptedBattedWorldMotion['commands'] }>;
@@ -23,6 +25,8 @@ export type AcceptedBattedWorldExecution = Readonly<{
 }>;
 type Execution = Readonly<{ kind: 'motion'; motion: BattedWorldMotion }>
   | Readonly<{ kind: 'base_contact'; geometry: DurableBattedWorldBaseGeometry; contact: BallWorldFootBaseContact | null; motion: BattedWorldMotion }>
+  | Readonly<{ kind: 'runner_base_touch'; geometry: DurableBattedWorldBaseGeometry; playerId: string; base: BattedWorldBaseId;
+    contact: BallWorldFootBaseContact | null; motion: BattedWorldMotion }>
   | Readonly<{ kind: 'acquisition'; acquisition: BattedWorldAcquisition; motion: BattedWorldMotion }>
   | Readonly<{ kind: 'throw'; model: DurablePlayerFieldingModel; throw: BattedWorldThrow; motion: BattedWorldMotion }>;
 export type DurableBattedWorldExecution = Readonly<{
@@ -49,8 +53,9 @@ const input = (raw: AcceptedBattedWorldExecution, sourceId: string): AcceptedBat
   }
   const action = source.action;
   if (action?.kind === 'acquisition' && fields(action, ['kind'])) return source;
-  if (action?.kind === 'base_contact') {
-    if (!fields(action, ['kind', 'geometrySourceId', 'base']) || !id(action.geometrySourceId)
+  if (action?.kind === 'base_contact' || action?.kind === 'runner_base_touch') {
+    if (!fields(action, ['kind', 'geometrySourceId', 'base', ...(action.kind === 'runner_base_touch' ? ['playerId'] : [])]) || !id(action.geometrySourceId)
+      || action.kind === 'runner_base_touch' && !id(action.playerId)
       || !['home', 'first', 'second', 'third'].includes(action.base)) throw new Error('invalid actual controlled base Source');
     return source;
   }
@@ -79,21 +84,31 @@ export const battedWorldExecutionEvidenceFromSqlite = (db: Pick<import('node:sql
     if (source.action.kind === 'acquisition') {
       if (prior?.kind === 'acquisition') throw new Error('batted execution acquisition is already resolved');
       execution = { kind: 'acquisition', motion, acquisition: deriveBattedWorldMotionAcquisition({ response, motion }) };
-    } else if (source.action.kind === 'base_contact') {
+    } else if (source.action.kind === 'base_contact' || source.action.kind === 'runner_base_touch') {
       const geometry = ownGeometry.read(source.action.geometrySourceId), world = baseMotion.response.touch.worldContact;
-      const binding = world.flight.physicalPitch.frame.batterActor!.binding;
+      const batter = world.flight.physicalPitch.frame.batterActor!, binding = batter.binding;
       const centers = battedWorldFrameBaseCenters(db, world.flight);
       if (prior?.kind === 'acquisition' || !geometry || geometry.fixture.game_id !== binding.gameId
         || geometry.fixture.fixture_event_id !== binding.fixtureEventId || geometry.fixture.venue_id !== world.flight.source.execution.venueId
         || geometry.flight.physicalPitch.frame.batterActor!.binding.careerId !== binding.careerId
         || geometry.source.availableAtDay > binding.gameDay || json(geometry.geometry.field) !== json(world.flight.source.execution.field)
-        || (['first', 'second', 'third'] as const).some((base) => json(geometry.geometry.bases[base].region.center) !== json(centers[base]))
-        || !world.flight.physicalPitch.frame.batterActor!.defenderBindings.some((actor) => actor.playerId === motion.carrierPlayerId)) {
-        throw new Error('actual secured base-contact fixture or carrier scope differs');
+        || (['first', 'second', 'third'] as const).some((base) => json(geometry.geometry.bases[base].region.center) !== json(centers[base]))) {
+        throw new Error('actual base-contact fixture or motion scope differs');
       }
       const surface = geometry.geometry.bases[source.action.base];
-      const contact = findBattedWorldControlledBaseContact({ motion, base: surface.region, baseSurfaceHeightMeters: surface.surfaceHeightMeters });
-      execution = { kind: 'base_contact', geometry, contact, motion };
+      if (source.action.kind === 'base_contact') {
+        if (!batter.defenderBindings.some((actor) => actor.playerId === motion.carrierPlayerId)) throw new Error('actual secured base-contact carrier scope differs');
+        const contact = findBattedWorldControlledBaseContact({ motion, base: surface.region, baseSurfaceHeightMeters: surface.surfaceHeightMeters });
+        execution = { kind: 'base_contact', geometry, contact, motion };
+      } else {
+        const action = source.action, actor = world.modelActorEvidence.find((value) => value.binding.playerId === action.playerId);
+        if (action.playerId !== binding.playerId || !actor || json(actor.binding) !== json(binding) || json(actor.person) !== json(batter.person)) {
+          throw new Error('actual runner base-contact registered batter scope differs');
+        }
+        const contact = findBattedWorldPlayerBaseContact({ motion, playerId: action.playerId, base: surface.region,
+          baseSurfaceHeightMeters: surface.surfaceHeightMeters });
+        execution = { kind: 'runner_base_touch', geometry, playerId: action.playerId, base: action.base, contact, motion };
+      }
     } else {
       let cursor: BattedWorldBallCursor | null = motion.cursor, carrierPlayerId = motion.carrierPlayerId;
       if (prior?.kind === 'acquisition') {
