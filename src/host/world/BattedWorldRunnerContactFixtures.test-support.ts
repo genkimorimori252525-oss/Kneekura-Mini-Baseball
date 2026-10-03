@@ -2,7 +2,7 @@ import { battedWorldExecutionFixture } from './BattedWorldExecutionFixtures.test
 import { openSqliteBattedWorldBaseGeometryStore, type AcceptedBattedWorldBaseGeometry } from './SqliteBattedWorldBaseGeometryStore';
 import type { AcceptedBattedWorldExecution } from './SqliteBattedWorldExecutionStore';
 
-export const battedWorldRunnerContactFixture = (path?: string, kind: 'free' | 'carried' | 'candidate' = 'free') => {
+export const battedWorldRunnerContactFixture = (path?: string, kind: 'free' | 'carried' | 'candidate' | 'ground' | 'ground_candidate' = 'free') => {
   const base = battedWorldExecutionFixture(path, kind, true), world = base.motion.response.touch.worldContact;
   const batter = world.flight.physicalPitch.frame.batterActor!, foot = base.motion.motion.actors.find((a) =>
     a.playerId === batter.binding.playerId && a.primitive.role === 'left_foot')!;
