@@ -5,6 +5,7 @@ export {
   openOfficialStateWindow,
   closeOfficialStateWindow,
   recordOnFieldCall,
+  recordOwnedLiveCallImport,
   recordReviewDecision,
   closeOfficialPlay,
   getPlayAdjudicationState,
@@ -65,6 +66,10 @@ export type {
   OpenOfficialStateWindowInput,
   CloseOfficialStateWindowInput,
   OnFieldCallInput,
+  OwnedLiveCallSourceReference,
+  OwnedLiveCallImportProvenance,
+  OwnedLiveCallImported,
+  OwnedLiveCallImportInput,
   ReviewDecisionInput,
   CloseOfficialPlayInput,
 } from './PlayAdjudicationLedger';

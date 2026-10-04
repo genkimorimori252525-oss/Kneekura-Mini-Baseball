@@ -1,3 +1,4 @@
+import { quantizeEventTick } from '../sim/ExactEventTime';
 import type { BaseOccupancy, CanonicalMatchState } from '../model/CanonicalMatchState';
 import type { RuleProfileId } from '../model/RuleProfileRef';
 import type { PlayEndFact } from '../rules/PhysicalRuleFacts';
@@ -136,6 +137,23 @@ export type OnFieldCallRecorded = EventBase & Readonly<{
   call: OnFieldCall;
 }>;
 
+/** Opaque identity bindings. Native must rederive the actual owners; hashes alone are not proof. */
+export type OwnedLiveCallSourceReference = Readonly<{
+  owner: string; sourceId: string; sourceVersion: string; sourceHash: string; snapshotHash: string;
+}>;
+export type OwnedLiveCallImportProvenance = Readonly<{
+  version: 'owned_live_call_import_v1'; playId: number; gameId: string; physicalPitchSourceId: string;
+  clock: Readonly<{ originTick: number; ticksPerSecond: number }>;
+  calledAtElapsedSeconds: number; availableAtElapsedSeconds: number; importedAtElapsedSeconds: number;
+  call: OwnedLiveCallSourceReference; perception: OwnedLiveCallSourceReference;
+  policy: OwnedLiveCallSourceReference; ruleEvidence: OwnedLiveCallSourceReference;
+  reception: OwnedLiveCallSourceReference | null;
+}>;
+export type OwnedLiveCallImported = EventBase & Readonly<{
+  kind: 'OwnedLiveCallImported'; call: OnFieldCall; provenance: OwnedLiveCallImportProvenance;
+}>;
+export type OwnedLiveCallImportInput = Omit<OwnedLiveCallImported, 'kind'>;
+
 export type ReviewDecisionRecorded = EventBase & Readonly<{
   kind: 'ReviewDecisionRecorded';
   review: ReviewDecision;
@@ -155,6 +173,7 @@ export type PlayAdjudicationEvent =
   | OfficialStateWindowClosed
   | DefensiveAppealAttemptRecorded
   | OnFieldCallRecorded
+  | OwnedLiveCallImported
   | ReviewDecisionRecorded
   | OfficialPlayClosed;
 
@@ -257,6 +276,7 @@ type Replay = {
   reviewIds: Set<string>;
   eventIds: Set<string>;
   snapshotIds: Set<string>;
+  snapshots: Map<string, CorrectRuleEvidenceSnapshot>;
   closure: OfficialPlayClosure | null;
   lastTick: number;
   appealSnapshotPending: boolean;
@@ -531,6 +551,58 @@ const freezeCall = (call: OnFieldCall): OnFieldCall => Object.freeze({
   ruling: validateRuling(call.ruling),
 });
 
+const importFields = (v: unknown, names: readonly string[]): boolean => !!v && typeof v === 'object'
+  && !Array.isArray(v) && JSON.stringify(Object.keys(v).sort()) === JSON.stringify([...names].sort());
+const freezeImportedCall = (raw: OnFieldCall): OnFieldCall => {
+  if (!importFields(raw, ['callId', 'tick', 'basisSnapshotId', 'basisEvidenceRevision', 'ruling'])
+    || !importFields(raw.ruling, ['outsAfter', 'basesAfter', 'scoredRunnerIds'])
+    || !importFields(raw.ruling.basesAfter, ['first', 'second', 'third'])) throw new Error('invalid original live-call shape');
+  return freezeCall(raw);
+};
+const importId = (v: string, name: string): string => {
+  id(v, name);
+  if (v !== v.trim()) throw new Error(`${name} must be an exact Source identity`);
+  return v;
+};
+const freezeImportReference = (raw: OwnedLiveCallSourceReference): OwnedLiveCallSourceReference => {
+  if (!importFields(raw, ['owner', 'sourceId', 'sourceVersion', 'sourceHash', 'snapshotHash'])
+    || typeof raw.sourceHash !== 'string' || typeof raw.snapshotHash !== 'string'
+    || !/^[a-f0-9]{64}$/.test(raw.sourceHash) || !/^[a-f0-9]{64}$/.test(raw.snapshotHash)) {
+    throw new Error('invalid owned live-call Source reference');
+  }
+  return Object.freeze({ owner: importId(raw.owner, 'owner'), sourceId: importId(raw.sourceId, 'sourceId'),
+    sourceVersion: importId(raw.sourceVersion, 'sourceVersion'), sourceHash: raw.sourceHash, snapshotHash: raw.snapshotHash });
+};
+/** Bounded original-call import: post-play chronology cannot replace the original called/available time.
+ * Native owns exact physical end and every referenced Source; this pure ledger does not authenticate them. */
+const freezeLiveCallImport = (raw: OwnedLiveCallImportProvenance, call: OnFieldCall,
+  playId: number, playEnd: PlayEndFact | null, importedTick: number, replay: Replay): OwnedLiveCallImportProvenance => {
+  if (!importFields(raw, ['version', 'playId', 'gameId', 'physicalPitchSourceId', 'clock', 'calledAtElapsedSeconds',
+    'availableAtElapsedSeconds', 'importedAtElapsedSeconds', 'call', 'perception', 'policy', 'ruleEvidence', 'reception'])
+    || raw.version !== 'owned_live_call_import_v1' || raw.playId !== playId
+    || !importFields(raw.clock, ['originTick', 'ticksPerSecond'])
+    || !Number.isSafeInteger(raw.clock.ticksPerSecond) || raw.clock.ticksPerSecond <= 0) {
+    throw new Error('invalid owned live-call import provenance');
+  }
+  if (playEnd === null) throw new Error('owned live-call import requires physical PlayEnd');
+  if (replay.calls.length !== 0 || replay.reviews.length !== 0) throw new Error('original live call must precede all other ledger calls');
+  const basis = replay.snapshots.get(call.basisSnapshotId);
+  if (!basis || basis.evidenceRevision !== call.basisEvidenceRevision) throw new Error('live call requires its original registered rule basis');
+  const { originTick, ticksPerSecond } = raw.clock;
+  const calledTick = quantizeEventTick(originTick, raw.calledAtElapsedSeconds, ticksPerSecond);
+  const availableTick = quantizeEventTick(originTick, raw.availableAtElapsedSeconds, ticksPerSecond);
+  const recordedTick = quantizeEventTick(originTick, raw.importedAtElapsedSeconds, ticksPerSecond);
+  if (calledTick !== call.tick || calledTick > playEnd.tick || recordedTick !== importedTick
+    || availableTick > importedTick || raw.availableAtElapsedSeconds < raw.calledAtElapsedSeconds
+    || raw.importedAtElapsedSeconds < raw.availableAtElapsedSeconds) throw new Error('owned live-call clock or availability differs');
+  return Object.freeze({ version: raw.version, playId, gameId: importId(raw.gameId, 'gameId'),
+    physicalPitchSourceId: importId(raw.physicalPitchSourceId, 'physicalPitchSourceId'), clock: Object.freeze({ originTick, ticksPerSecond }),
+    calledAtElapsedSeconds: raw.calledAtElapsedSeconds, availableAtElapsedSeconds: raw.availableAtElapsedSeconds,
+    importedAtElapsedSeconds: raw.importedAtElapsedSeconds, call: freezeImportReference(raw.call),
+    perception: freezeImportReference(raw.perception), policy: freezeImportReference(raw.policy),
+    ruleEvidence: freezeImportReference(raw.ruleEvidence), reception: raw.reception === null ? null : freezeImportReference(raw.reception) });
+};
+
 const freezeReview = (review: ReviewDecision): ReviewDecision => {
   const decision = validateReviewDecision(review.decision);
   const replacementRuling = review.replacementRuling === null
@@ -680,6 +752,7 @@ const replayLedger = (ledgerInput: PlayAdjudicationLedger): {
     reviewIds: new Set(),
     eventIds: new Set(),
     snapshotIds: new Set(),
+    snapshots: new Map(),
     closure: null,
     lastTick: playEnd?.tick ?? 0,
     appealSnapshotPending: false,
@@ -703,6 +776,7 @@ const replayLedger = (ledgerInput: PlayAdjudicationLedger): {
       const snapshot = freezeSnapshot(event.snapshot);
       requireNewSnapshot(replay, snapshot);
       replay.snapshotIds.add(snapshot.snapshotId);
+      replay.snapshots.set(snapshot.snapshotId, snapshot);
       replay.latestCorrect = snapshot;
       replay.appealSnapshotPending = false;
       events.push(Object.freeze({ ...event, snapshot }));
@@ -713,6 +787,7 @@ const replayLedger = (ledgerInput: PlayAdjudicationLedger): {
       const snapshot = freezeUnresolvedSnapshot(event.snapshot);
       requireNewSnapshot(replay, snapshot);
       replay.snapshotIds.add(snapshot.snapshotId);
+      replay.snapshots.set(snapshot.snapshotId, snapshot);
       replay.latestCorrect = snapshot;
       replay.appealSnapshotPending = false;
       events.push(Object.freeze({ ...event, snapshot }));
@@ -764,6 +839,16 @@ const replayLedger = (ledgerInput: PlayAdjudicationLedger): {
       if (event.timing === 'simultaneous_unresolved') replay.appealCallPending = true;
       events.push(Object.freeze({ kind: event.kind, eventId: event.eventId, tick: eventTick,
         windowId, timing: event.timing, ...evidence }));
+      continue;
+    }
+
+    if (event.kind === 'OwnedLiveCallImported') {
+      if (!importFields(event, ['kind', 'eventId', 'tick', 'call', 'provenance'])) throw new Error('invalid owned live-call import event');
+      const call = freezeImportedCall(event.call);
+      const provenance = freezeLiveCallImport(event.provenance, call, playId, playEnd, eventTick, replay);
+      replay.callIds.add(call.callId); replay.calls.push(call);
+      // A historical call cannot resolve a new post-play appeal obligation.
+      events.push(Object.freeze({ kind: event.kind, eventId: event.eventId, tick: eventTick, call, provenance }));
       continue;
     }
 
@@ -1043,6 +1128,18 @@ export const recordOnFieldCall = (
     tick: eventTick,
     call,
   }));
+};
+
+/** Import one owned original live call. The event tick is recording time, not call time. */
+export const recordOwnedLiveCallImport = (ledgerInput: PlayAdjudicationLedger, expectedRevision: number,
+  input: OwnedLiveCallImportInput): PlayAdjudicationLedger => {
+  const { ledger, replay } = requireOpen(ledgerInput, expectedRevision);
+  const request = cloneInertData(input, 'adjudication.liveCallImport');
+  if (!importFields(request, ['eventId', 'tick', 'call', 'provenance'])) throw new Error('invalid owned live-call import request');
+  const eventId = ensureNewEventId(replay, request.eventId), eventTick = requireEventTick(replay, request.tick);
+  const call = freezeImportedCall(request.call);
+  const provenance = freezeLiveCallImport(request.provenance, call, ledger.playId, ledger.playEnd, eventTick, replay);
+  return append(ledger, Object.freeze({ kind: 'OwnedLiveCallImported', eventId, tick: eventTick, call, provenance }));
 };
 
 export const recordReviewDecision = (
