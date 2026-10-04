@@ -14,7 +14,7 @@ type Moment = Readonly<{ originTick: number; elapsedSeconds: number; tick: numbe
 type State = { position: Vec3; velocity: Vec3; acceleration: Vec3 };
 type Command = AcceptedBattedWorldMotion['commands'][number];
 export type ActualPlayerCommandAdoption = Readonly<{
-  kind: 'contact' | 'field' | 'motion' | 'throw' | 'throw_advance';
+  kind: 'contact' | 'field' | 'motion' | 'motion_checkpoint_v1' | 'throw' | 'throw_advance';
   owner: 'batted_world_contacts' | 'batted_world_field_actions' | 'batted_world_field_executions';
   sourceId: string; sourceVersion: string; sourceHash: string; adoptionSourceId: string; adoptionSourceHash: string;
   adoptedAt: Moment; executedThrough: Moment; acceptedThroughTick: number;
@@ -115,13 +115,15 @@ export const actualPlayerKinematicsFromPrefix = (playerId: string, prefix: Prefi
     const action = value.source.action;
     if (action.kind === 'motion' || action.kind === 'throw') {
       events.push(commandEvent(action.kind, 'batted_world_field_executions', value.source, action.throughTick, action.commands));
+    } else if (action.kind === 'motion_checkpoint_v1') {
+      events.push(commandEvent(action.kind, 'batted_world_field_executions', value.source, action.coverageThroughTick, action.commands));
     } else if (action.kind === 'throw_advance') {
       const planned = prefix.executions.find((v) => v.source.sourceId === action.planSourceId);
       if (!planned || planned.source.action.kind !== 'throw_plan') throw new Error('actual Player kinematics throw adoption lacks its plan');
       events.push(adoptedPlans.has(action.planSourceId) ? { command: null, adoption: null }
         : commandEvent('throw_advance', 'batted_world_field_executions', planned.source, planned.source.action.throughTick, planned.source.action.commands, value.source));
       adoptedPlans.add(action.planSourceId);
-    } else if (action.kind === 'acquisition' || action.kind === 'acquisition_advance') events.push({ command: null, adoption: null });
+    } else if (action.kind === 'acquisition' || action.kind === 'acquisition_advance' || action.kind === 'retained_motion_checkpoint_v1') events.push({ command: null, adoption: null });
     // Both plans and all three observation Sources add no actual segment/adoption.
   }
   if (events.length !== physical.segments.length) throw new Error('actual Player kinematics execution segment classification differs');

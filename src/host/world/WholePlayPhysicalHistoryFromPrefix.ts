@@ -45,9 +45,9 @@ export const wholePlayPhysicalHistoryFromPrefix = (input: Readonly<{ baseField: 
       steps.push({ source, previousSourceId, kind: 'throw_advance', planSourceId: execution.planSourceId,
         startCursor: cursor, field: execution.field, progress: execution.progress });
       cursor = execution.field.motion.cursor; horizon = execution.field.motion.world.moment; basis = source;
-    } else if (execution.kind === 'motion' || execution.kind === 'throw') {
+    } else if (execution.kind === 'motion' || execution.kind === 'motion_checkpoint_v1' || execution.kind === 'retained_motion_checkpoint_v1' || execution.kind === 'throw') {
       if (!cursor) throw new Error('whole-play execution lacks its actual physical cursor');
-      steps.push(execution.kind === 'motion' ? { source, previousSourceId, kind: 'motion', startCursor: cursor, field: execution.field }
+      steps.push(execution.kind !== 'throw' ? { source, previousSourceId, kind: execution.kind === 'retained_motion_checkpoint_v1' ? execution.kind : 'motion', startCursor: cursor, field: execution.field }
         : { source, previousSourceId, kind: 'throw', startCursor: cursor, field: execution.field, throw: execution.throw });
       cursor = execution.field.motion.cursor; horizon = execution.field.motion.world.moment; basis = source;
     } else if (execution.kind === 'acquisition') {

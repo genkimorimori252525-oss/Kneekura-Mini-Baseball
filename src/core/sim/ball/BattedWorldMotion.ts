@@ -24,10 +24,12 @@ const key = (playerId: string, role: string) => JSON.stringify([playerId, role])
 const freeze = <T>(value: T): T => { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
 
 /** Shared actor basis for accepted future motion, including a transfer that must stop before its release. */
-const prepareMotion = (raw: BattedWorldMotionInput) => {
+const prepareMotion = (raw: BattedWorldMotionInput, exactCoverage = false) => {
   const input = cloneInert(raw), moment = input?.cursor?.moment, p = input?.response?.world?.parameters;
-  if (!moment || !p || !tick(input.availableAtTick) || input.availableAtTick > moment.ball.tick
-    || !tick(input.throughTick) || input.throughTick <= moment.ball.tick || !Array.isArray(input.actors) || !input.actors.length
+  if (!moment || !p || !tick(input.availableAtTick)
+    || (exactCoverage ? (input.availableAtTick - moment.originTick) / p.ticksPerSecond > moment.elapsedSeconds : input.availableAtTick > moment.ball.tick)
+    || !tick(input.throughTick)
+    || (exactCoverage ? (input.throughTick - moment.originTick) / p.ticksPerSecond <= moment.elapsedSeconds : input.throughTick <= moment.ball.tick) || !Array.isArray(input.actors) || !input.actors.length
     || !Array.isArray(input.commands) || input.commands.length !== input.actors.length
     || input.carrierPlayerId !== null && (typeof input.carrierPlayerId !== 'string' || !input.carrierPlayerId.length)) throw new Error('invalid accepted batted motion interval');
   const commands = new Map(input.commands.map((command) => [key(command.playerId, command.role), command]));
@@ -37,7 +39,7 @@ const prepareMotion = (raw: BattedWorldMotionInput) => {
   const actors = input.actors.map((actor): BallWorldMotionActor => {
     const s = actor.primitive, actorKey = key(actor.playerId, s.role), command = commands.get(actorKey);
     const dt = (moment.originTick - s.startTick) / p.ticksPerSecond + moment.elapsedSeconds - (actor.startElapsedSeconds ?? 0);
-    if (!command || actorKeys.has(actorKey) || !tick(s.startTick) || !tick(s.endTick) || s.endTick < moment.ball.tick
+    if (!command || actorKeys.has(actorKey) || !tick(s.startTick) || !tick(s.endTick) || (exactCoverage ? moment.elapsedSeconds > (s.endTick - moment.originTick) / p.ticksPerSecond : s.endTick < moment.ball.tick)
       || s.ticksPerSecond !== p.ticksPerSecond || !Number.isFinite(dt) || dt < 0 || !vector(s.startCenter)
       || !vector(s.startVelocity) || !vector(s.acceleration) || actor.startElapsedSeconds !== undefined
         && (!Number.isFinite(actor.startElapsedSeconds) || actor.startElapsedSeconds < 0)
@@ -53,6 +55,8 @@ const prepareMotion = (raw: BattedWorldMotionInput) => {
   if (actors.length !== input.response.actors.length) throw new Error('batted motion complete actor coverage differs');
   return { input, actors };
 };
+/** Exact-time preparation used only by the additive versioned checkpoint contract. */
+export const deriveBattedWorldMotionActorsAtExactCoverage = (raw: BattedWorldMotionInput): readonly BallWorldMotionActor[] => freeze(prepareMotion(raw, true).actors);
 export const deriveBattedWorldMotionActors = (raw: BattedWorldMotionInput): readonly BallWorldMotionActor[] => freeze(prepareMotion(raw).actors);
 
 /** Starts accepted future motion at the true preceding state. A caller result or old trajectory never selects a new start. */

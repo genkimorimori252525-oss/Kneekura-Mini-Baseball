@@ -4,10 +4,10 @@ import { assertBattedResponseProfiles, type BattedBallContactResponseInput } fro
 import type { BallContactMaterial } from './BallContactResponse';
 import type { BallWorldBaseBoundaryContact } from './BallWorldBaseBoundary';
 import { deriveAcceleratedBallWorldFieldMotion, deriveBallWorldFieldContinuation, type BallWorldCollider,
-  type BallWorldContinuation, type BallWorldFieldBoundaryContact, type BallWorldFieldContinuation, type AcceleratedBallWorldFieldMotion } from './BallWorldContinuation';
+  type BallWorldContinuation, type BallWorldFieldBoundaryContact, type BallWorldFieldContinuation, type AcceleratedBallWorldFieldMotion, type BallWorldMotionActor } from './BallWorldContinuation';
 import { createBattedWorldBaseGeometry, type BattedWorldBaseGeometry, type BattedWorldBaseGeometryInput, type BattedWorldBaseId } from './BattedWorldBaseGeometry';
 import { respondToBattedWorldBoundary } from './BattedWorldContinuation';
-import { deriveBattedWorldMotionActors, type BattedWorldMotion, type BattedWorldMotionInput } from './BattedWorldMotion';
+import { deriveBattedWorldMotionActorsAtExactCoverage, deriveBattedWorldMotionActors, type BattedWorldMotion, type BattedWorldMotionInput } from './BattedWorldMotion';
 
 type BaseModels = Readonly<Record<BattedWorldBaseId, Readonly<{ bottomY: number; material: BallContactMaterial }>>>;
 export type BattedWorldFieldGeometryInput = Readonly<{ baseGeometry: BattedWorldBaseGeometryInput; baseModels: BaseModels }>;
@@ -69,7 +69,13 @@ export const deriveBattedWorldFieldMotion = (raw: BattedWorldFieldMotionInput): 
     throw new Error('original wall uses reserved base collider identity');
   }
   const { geometry: _, ...motionInput } = input;
-  const actors = deriveBattedWorldMotionActors(motionInput), moment = input.cursor.moment, p = input.response.world.parameters;
+  const actors = deriveBattedWorldMotionActors(motionInput);
+  return executeFieldMotion(input, actors);
+};
+
+const executeFieldMotion = (input: Pick<BattedWorldFieldMotionInput, 'response' | 'geometry' | 'cursor' | 'carrierPlayerId' | 'throughTick'>,
+  actors: readonly BallWorldMotionActor[], retained = false): BattedWorldFieldMotion => {
+  const moment = input.cursor.moment, p = input.response.world.parameters, geometry = input.geometry;
   const previousBaseContacts = input.cursor.previousContacts.flatMap((c) => { const id = baseIdFromCollider(c); return id ? [id] : []; });
   const previousContacts = input.cursor.previousContacts.filter((c) => !baseIdFromCollider(c));
   const query = { moment, actors, parameters: p, surfaces: input.response.world.surfaces, previousContacts,
@@ -77,8 +83,12 @@ export const deriveBattedWorldFieldMotion = (raw: BattedWorldFieldMotionInput): 
   if (input.carrierPlayerId !== null) {
     const glove = actors.find((a) => a.playerId === input.carrierPlayerId && a.primitive.role === 'glove');
     if (!glove) throw new Error('actual field carried glove is missing');
-    const tolerance = Number.EPSILON * Math.max(1, ...Object.values(moment.ball.velocity).map(Math.abs), ...Object.values(glove.primitive.startVelocity).map(Math.abs)) * 32;
-    if ((['x', 'y', 'z'] as const).some((axis) => Math.abs(moment.ball.velocity[axis] - glove.primitive.startVelocity[axis]) > tolerance)) {
+    const dt = retained ? (moment.originTick - glove.primitive.startTick) / p.ticksPerSecond + moment.elapsedSeconds - (glove.startElapsedSeconds ?? 0) : 0;
+    const velocity = retained ? { x: glove.primitive.startVelocity.x + glove.primitive.acceleration.x * dt,
+      y: glove.primitive.startVelocity.y + glove.primitive.acceleration.y * dt,
+      z: glove.primitive.startVelocity.z + glove.primitive.acceleration.z * dt } : glove.primitive.startVelocity;
+    const tolerance = Number.EPSILON * Math.max(1, ...Object.values(moment.ball.velocity).map(Math.abs), ...Object.values(velocity).map(Math.abs)) * 32;
+    if ((['x', 'y', 'z'] as const).some((axis) => !Number.isFinite(velocity[axis]) || Math.abs(moment.ball.velocity[axis] - velocity[axis]) > tolerance)) {
       throw new Error('actual field carried velocity differs');
     }
     const gloveContact: BallWorldCollider = { kind: 'actor', playerId: input.carrierPlayerId, role: 'glove' };
@@ -113,4 +123,84 @@ export const deriveInitialBattedWorldFieldMotion = (raw: InitialBattedWorldField
   const initial = input.response.world.flight.initialBall;
   return deriveBattedWorldFieldMotion({ ...input, actors: input.response.world.actors, carrierPlayerId: null,
     cursor: { moment: { originTick: initial.tick, elapsedSeconds: 0, ball: initial }, previousContacts: [] } });
+};
+
+export type BattedWorldFieldMotionCheckpointInput = Omit<BattedWorldFieldMotionInput, 'throughTick'> & Readonly<{
+  coverageThroughTick: number; checkpointThroughTick: number;
+}>;
+export type BattedWorldFieldRetainedCheckpointInput = Omit<BattedWorldFieldMotionInput, 'throughTick' | 'availableAtTick' | 'commands'> & Readonly<{
+  checkpointThroughTick: number;
+}>;
+const checkpointScope = (input: BattedWorldFieldRetainedCheckpointInput): void => {
+  const moment = input.cursor?.moment, p = input.response?.world?.parameters;
+  if (!moment || !p || !Number.isSafeInteger(input.checkpointThroughTick) || input.checkpointThroughTick < 0
+    || !Number.isFinite(moment.elapsedSeconds) || moment.elapsedSeconds < 0
+    || (input.checkpointThroughTick - moment.originTick) / p.ticksPerSecond <= moment.elapsedSeconds
+    || !Array.isArray(input.actors) || !input.actors.length
+    || input.actors.length !== input.response.actors.length
+    || input.carrierPlayerId !== null && (typeof input.carrierPlayerId !== 'string' || !input.carrierPlayerId.length)) {
+    throw new Error('invalid actual field motion checkpoint interval');
+  }
+  const keys = new Set<string>();
+  for (const actor of input.actors) {
+    const s = actor?.primitive, key = JSON.stringify([actor?.playerId, s?.role]);
+    if (!s || keys.has(key) || !Number.isSafeInteger(s.endTick)
+      || s.ticksPerSecond !== p.ticksPerSecond || moment.elapsedSeconds > (s.endTick - moment.originTick) / p.ticksPerSecond
+      || !input.response.actors.some((a) => a.playerId === actor.playerId && a.profile.role === s.role)) {
+      throw new Error('actual field checkpoint original actor coverage differs');
+    }
+    keys.add(key);
+  }
+  const geometry = createBattedWorldFieldGeometry({ baseGeometry: input.geometry.baseGeometry, baseModels: input.geometry.baseModels });
+  if (JSON.stringify(geometry) !== JSON.stringify(input.geometry)) throw new Error('actual bag collision geometry differs');
+  assertBattedResponseProfiles(input.response);
+  if (input.response.world.surfaces.some((surface) => ids.some((id) => surface.surfaceId === battedWorldBaseSurfaceId(id)))) {
+    throw new Error('original wall uses reserved base collider identity');
+  }
+};
+
+/** Versioned explicit command adoption: future actor coverage is not an executed ball horizon. */
+export const deriveBattedWorldFieldMotionCheckpoint = (raw: BattedWorldFieldMotionCheckpointInput): BattedWorldFieldMotion => {
+  const input = cloneInert(raw);
+  if (!fields(input, ['response', 'geometry', 'cursor', 'actors', 'carrierPlayerId', 'availableAtTick', 'coverageThroughTick', 'checkpointThroughTick', 'commands'])) {
+    throw new Error('invalid accepted actual field motion checkpoint scope');
+  }
+  checkpointScope(input);
+  const { moment } = input.cursor, p = input.response.world.parameters;
+  if (!Number.isSafeInteger(input.availableAtTick) || input.availableAtTick < 0
+    || (input.availableAtTick - moment.originTick) / p.ticksPerSecond > moment.elapsedSeconds
+    || !Number.isSafeInteger(input.coverageThroughTick) || input.coverageThroughTick < 0
+    || input.coverageThroughTick < input.checkpointThroughTick
+    || (input.coverageThroughTick - moment.originTick) / p.ticksPerSecond <= moment.elapsedSeconds) {
+    throw new Error('invalid actual field checkpoint command availability or coverage');
+  }
+  const actors = deriveBattedWorldMotionActorsAtExactCoverage({ response: input.response, cursor: input.cursor, actors: input.actors,
+    carrierPlayerId: input.carrierPlayerId, availableAtTick: input.availableAtTick, throughTick: input.coverageThroughTick, commands: input.commands });
+  return checkpointEndpoint(executeFieldMotion({ ...input, throughTick: input.checkpointThroughTick }, actors), input);
+};
+
+/** Advances only accepted original curves; no replacement commands, rebase, or coverage renewal. */
+export const advanceBattedWorldFieldMotionCheckpoint = (raw: BattedWorldFieldRetainedCheckpointInput): BattedWorldFieldMotion => {
+  const input = cloneInert(raw);
+  if (!fields(input, ['response', 'geometry', 'cursor', 'actors', 'carrierPlayerId', 'checkpointThroughTick'])) {
+    throw new Error('invalid retained actual field motion checkpoint scope');
+  }
+  checkpointScope(input);
+  const { moment } = input.cursor, p = input.response.world.parameters;
+  if (input.actors.some((a) => a.primitive.endTick < input.checkpointThroughTick
+    || (a.primitive.endTick - moment.originTick) / p.ticksPerSecond <= moment.elapsedSeconds)) {
+    throw new Error('retained actual field motion coverage is exhausted');
+  }
+  return checkpointEndpoint(executeFieldMotion({ ...input, throughTick: input.checkpointThroughTick }, input.actors, true), input);
+};
+
+const checkpointEndpoint = (field: BattedWorldFieldMotion, input: BattedWorldFieldRetainedCheckpointInput): BattedWorldFieldMotion => {
+  const { motion } = field;
+  // Only a contact-free result proves the requested endpoint; never normalize a collision occurrence.
+  if (motion.world.kind === 'boundary') return field;
+  const moment = { ...motion.world.moment, elapsedSeconds: (input.checkpointThroughTick - input.cursor.moment.originTick) / input.response.world.parameters.ticksPerSecond,
+    ball: { ...motion.world.moment.ball, tick: input.checkpointThroughTick } };
+  if (!motion.cursor) throw new Error('contact-free actual field checkpoint lacks its cursor');
+  const cursor = { ...motion.cursor, moment };
+  return freeze({ ...field, motion: { ...motion, world: { ...motion.world, moment }, cursor, response: { ...motion.response, cursor } } } as BattedWorldFieldMotion);
 };
