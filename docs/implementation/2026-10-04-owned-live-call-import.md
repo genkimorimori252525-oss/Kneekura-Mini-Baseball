@@ -22,4 +22,4 @@ Tests cover a call at tick400 imported at tick500, retained exact availability, 
 
 The pre-import legacy call→review→closure fixture was generated from immutable `8eac874f95fe845bd7694032dd72506b08f701dd`: 2,278 bytes, SHA256 `d0170ec820ccd8545bc3bfb7716144831c45447f52a805d6bc4368d2f62139e3`. The committed regression test requires identical bytes under the new code without depending on a workspace artifact.
 
-Focused verification and independent review must be recorded against the final source. This document does not claim a cumulative whole run or completion of the Native call/official pipeline.
+Final source commit `5869ebbf3815fe534f43769eceb85dae922427ca`, src tree `bb3903b4a00bdc25e84540a4795c34d9f662fdc6`: Node26 typecheck and 17 files / 122 tests passed in 4.75 seconds; all 1,830 tracked hashes remained unchanged. Independent review passed typecheck, 16 files / 118 tests and 33 separate adversarial tests, including 240 original-base legacy trace-prefix comparisons. No Critical/Important findings remained. Draft PR #281 publishes the exact reviewed tree. This is not a cumulative whole run or completion of the Native call/official pipeline.
