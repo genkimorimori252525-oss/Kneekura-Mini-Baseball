@@ -30,7 +30,24 @@ export const wholePlayPhysicalHistoryFromPrefix = (input: Readonly<{ baseField: 
   for (const value of input.executions) {
     const execution = value.execution, source: WholePlaySourceRef = { owner: 'field_execution', sourceId: value.source.sourceId,
       revision: value.revision, physicalPitchSourceId }, previousSourceId = value.source.previousExecutionSourceId;
-    if (execution.kind === 'acquisition_plan') {
+    if (execution.kind === 'owned_acquisition_plan_v1' || execution.kind === 'owned_throw_plan_v1') {
+      if (!basis) throw new Error('whole-play owned plan lacks its physical basis');
+      steps.push(execution.kind === 'owned_acquisition_plan_v1'
+        ? { source, previousSourceId, kind: execution.kind, basis, horizon, plan: execution.plan }
+        : { source, previousSourceId, kind: execution.kind, basis, horizon, plan: execution.plan });
+    } else if (execution.kind === 'owned_motion_v2') {
+      const op = execution.operation;
+      const common = op && { planSourceId: op.planSourceId, previousStepSourceIds: op.previousSteps.map(s => s.sourceId), step: op.step,
+        bridge: op.bridge && { legacyPlanSourceId: op.bridge.legacyPlanReference.sourceId,
+          previousAdvanceSourceId: op.bridge.previousAdvanceReference?.sourceId ?? null } };
+      const operation = op && (op.kind === 'acquisition' ? { ...common!, kind: op.kind, plan: op.plan, progress: op.progress }
+        : { ...common!, kind: op.kind, plan: op.plan, progress: op.progress });
+      steps.push({ source, previousSourceId, kind: 'owned_motion_v2', startCursor: cursor,
+        mode: execution.composition.mode === 'retained' ? 'retained' : 'adopted', field: execution.field, operation });
+      if (op?.kind === 'acquisition') { cursor = op.progress.cursor; horizon = op.progress.world.moment; }
+      else { cursor = execution.field.motion.cursor; horizon = execution.field.motion.world.moment; }
+      basis = source;
+    } else if (execution.kind === 'acquisition_plan') {
       if (!basis) throw new Error('whole-play scheduled capture plan lacks its owned physical basis');
       steps.push({ source, previousSourceId, kind: 'acquisition_plan', basis, horizon, plan: execution.plan });
     } else if (execution.kind === 'acquisition_advance') {
@@ -57,10 +74,10 @@ export const wholePlayPhysicalHistoryFromPrefix = (input: Readonly<{ baseField: 
       cursor = acquisition.kind === 'secured' ? { moment: acquisition.moment,
         previousContacts: [{ kind: 'actor', playerId: acquisition.acquirerPlayerId, role: 'glove' }] } : null;
       basis = source;
-    } else {
+    } else if (execution.kind === 'whole_play_history' || execution.kind === 'base_touch_history' || execution.kind === 'first_base_race') {
       if (!basis) throw new Error('whole-play observation lacks an owned physical basis');
       steps.push({ source, previousSourceId, kind: 'observation', observationKind: execution.kind, basis, horizon });
-    }
+    } else throw new Error('whole-play unsupported execution variant');
   }
   if (json(horizon) !== json(physical.field.evidence.horizon)) throw new Error('whole-play physical prefix horizon differs');
   const history = deriveCanonicalWholePlayHistory({ scope: { gameId: pitch.frame.gameId, playId: pitch.frame.match.playId, physicalPitchSourceId },

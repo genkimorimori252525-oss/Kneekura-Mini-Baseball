@@ -14,7 +14,7 @@ type Moment = Readonly<{ originTick: number; elapsedSeconds: number; tick: numbe
 type State = { position: Vec3; velocity: Vec3; acceleration: Vec3 };
 type Command = AcceptedBattedWorldMotion['commands'][number];
 export type ActualPlayerCommandAdoption = Readonly<{
-  kind: 'contact' | 'field' | 'owned_motion_v1' | 'motion' | 'motion_checkpoint_v1' | 'throw' | 'throw_advance';
+  kind: 'contact' | 'field' | 'owned_motion_v1' | 'owned_motion_v2' | 'motion' | 'motion_checkpoint_v1' | 'throw' | 'throw_advance';
   owner: 'batted_world_contacts' | 'batted_world_field_actions' | 'batted_world_field_executions';
   sourceId: string; sourceVersion: string; sourceHash: string; adoptionSourceId: string; adoptionSourceHash: string;
   adoptedAt: Moment; executedThrough: Moment; acceptedThroughTick: number;
@@ -56,8 +56,9 @@ const advance = (s: State, dt: number): State => ({
 });
 
 /** Internal derivation over a complete, own-reader validated prefix. No future sampling or physical writes. */
-export const actualPlayerKinematicsFromPrefix = (playerId: string, prefix: Prefix): ActualPlayerKinematics => {
-  const physical = battedWorldFieldPhysicalPrefix(prefix), world = prefix.baseField.response.touch.worldContact;
+const deriveActualPlayerKinematicsFromPhysicalPrefix = (playerId: string, prefix: Prefix,
+  physical: ReturnType<typeof battedWorldFieldPhysicalPrefix>): ActualPlayerKinematics => {
+  const world = prefix.baseField.response.touch.worldContact;
   const flight = world.flight, frame = flight.physicalPitch.frame, tps = flight.source.execution.ballFlightParameters.ticksPerSecond;
   const at = flight.flight.contact.tick;
   const actor = world.modelActorEvidence.find((a) => a.binding.playerId === playerId);
@@ -121,7 +122,16 @@ export const actualPlayerKinematicsFromPrefix = (playerId: string, prefix: Prefi
   const adoptedPlans = new Set<string>();
   for (const value of prefix.executions) {
     const action = value.source.action;
-    if (action.kind === 'owned_motion_v1' && value.execution.kind === 'owned_motion_v1') {
+    if (action.kind === 'owned_motion_v2' && value.execution.kind === 'owned_motion_v2') {
+      const c = value.execution.composition, contribution = c.contributors.find(c => c.playerId === playerId);
+      if (!contribution) throw new Error('actual Player owned composition contribution is missing');
+      // A common physical rebase is not a new command issuance for retained Players.
+      // Their original root/relative anchors and adoption provenance remain authoritative.
+      const event = contribution.kind === 'motor' ? commandEvent('owned_motion_v2', 'batted_world_field_executions',
+        value.source, contribution.rootAuthority.acceptedThroughTick, c.commands) : { command: null, adoption: null };
+      events.push({ ...event, ownedMotionCoverage: { compositionSourceId: value.source.sourceId, physicalThroughTick: c.coverageThroughTick,
+        rootAuthority: contribution.rootAuthority, roleAuthorities: contribution.roleAuthorities } });
+    } else if (action.kind === 'owned_motion_v1' && value.execution.kind === 'owned_motion_v1') {
       const c = value.execution.composition;
       if (c.mode === 'retained') events.push({ command: null, adoption: null });
       else {
@@ -159,7 +169,7 @@ export const actualPlayerKinematicsFromPrefix = (playerId: string, prefix: Prefi
       const p = canonical.primitive, start = (p.startTick - at) / tps + (canonical.startElapsedSeconds ?? 0);
       const dt = atElapsed - start;
       if (p.ticksPerSecond !== tps || p.radius !== pose.radius || !Number.isFinite(dt) || dt < 0
-        || p.endTick !== adoptions.at(-1)!.acceptedThroughTick || atElapsed > (p.endTick - at) / tps) {
+        || p.endTick !== (ownedMotionCoverage?.physicalThroughTick ?? adoptions.at(-1)!.acceptedThroughTick) || atElapsed > (p.endTick - at) / tps) {
         throw new Error('actual Player kinematics canonical clock or coverage differs');
       }
       const sampled: State = { position: vector((axis) => p.startCenter[axis] + p.startVelocity[axis] * dt + 0.5 * p.acceleration[axis] * dt * dt),
@@ -212,4 +222,20 @@ export const actualPlayerKinematicsFromPrefix = (playerId: string, prefix: Prefi
       declaredPose: { offset: p.state.position, relativeVelocity: p.state.velocity, relativeAcceleration: p.state.acceleration },
       canonicalRoundingResidual: p.residual,
       canonicalActor: canonicalActors.find((a) => a.primitive.role === p.role)! })), activeCommand: adoptions.at(-1)!, adoptions, ...(ownedMotionCoverage ? { ownedMotionCoverage } : {}) }));
+};
+
+/** Existing single-Player derivation retains its original validation and serialized output. */
+export const actualPlayerKinematicsFromPrefix = (playerId: string, prefix: Prefix): ActualPlayerKinematics =>
+  deriveActualPlayerKinematicsFromPhysicalPrefix(playerId, prefix, battedWorldFieldPhysicalPrefix(prefix));
+
+/** One synchronous pure derivation for a complete already owned prefix. No DB truth
+ * is cached or shared across calls, and callers cannot supply a fabricated physical result. */
+export const actualPlayersKinematicsFromPrefix = (playerIds: readonly string[], prefix: Prefix): readonly ActualPlayerKinematics[] => {
+  const ids = cloneInert(playerIds);
+  if (!Array.isArray(ids) || !ids.length || ids.some(id => typeof id !== 'string' || !id.length || id !== id.trim())) {
+    throw new Error('actual Player kinematics batch Player scope is empty or invalid');
+  }
+  if (new Set(ids).size !== ids.length) throw new Error('actual Player kinematics batch requires unique Players, not duplicates');
+  const physical = battedWorldFieldPhysicalPrefix(prefix);
+  return freeze(ids.map(playerId => deriveActualPlayerKinematicsFromPhysicalPrefix(playerId, prefix, physical)));
 };

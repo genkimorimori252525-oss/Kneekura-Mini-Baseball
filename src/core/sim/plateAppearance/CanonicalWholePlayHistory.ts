@@ -13,12 +13,22 @@ import { validateBattedWorldScheduledFieldThrowPlan, type BattedWorldScheduledFi
 import { validateBattedWorldScheduledFieldAcquisitionPlan, validateBattedWorldScheduledFieldAcquisitionProgress,
   type BattedWorldScheduledFieldAcquisitionPlan, type BattedWorldScheduledFieldAcquisitionAdvance } from '../ball/BattedWorldScheduledFieldAcquisition';
 import type { CatchRetentionResolution } from '../fielding/CatchRetention';
+import { validateBattedWorldPiecewiseFieldAcquisitionPlan, validateBattedWorldPiecewiseFieldAcquisitionProgress, type BattedWorldPiecewiseFieldAcquisitionPlan, type BattedWorldPiecewiseFieldAcquisitionProgress } from '../ball/BattedWorldPiecewiseFieldAcquisition';
+import { validateBattedWorldPiecewiseFieldThrowPlan, validateBattedWorldPiecewiseFieldThrowProgress, type BattedWorldPiecewiseFieldThrowPlan, type BattedWorldPiecewiseFieldThrowProgress } from '../ball/BattedWorldPiecewiseFieldThrow';
+import type { PiecewiseFieldMotionStep } from '../ball/BattedWorldPiecewiseFieldMotion';
 
 /** Source IDs are scoped by their Native owner and original physical pitch. */
 export type WholePlaySourceRef = Readonly<{ owner: 'field_action' | 'field_execution'; sourceId: string;
   revision: number; physicalPitchSourceId: string }>;
+export type WholePlayOwnedOperation = Readonly<{ planSourceId: string; previousStepSourceIds: readonly string[];
+  step: PiecewiseFieldMotionStep; bridge: Readonly<{ legacyPlanSourceId: string; previousAdvanceSourceId: string | null }> | null }> & (
+  Readonly<{ kind: 'acquisition'; plan: BattedWorldPiecewiseFieldAcquisitionPlan; progress: BattedWorldPiecewiseFieldAcquisitionProgress }>
+  | Readonly<{ kind: 'throw'; plan: BattedWorldPiecewiseFieldThrowPlan; progress: BattedWorldPiecewiseFieldThrowProgress }>);
 type Owned = Readonly<{ source: WholePlaySourceRef; previousSourceId: string | null }>;
 export type WholePlayPhysicalStep = Owned & (
+  Readonly<{ kind: 'owned_motion_v2'; startCursor: BattedWorldBallCursor | null; mode: 'retained' | 'adopted';
+    field: BattedWorldFieldMotion; operation: WholePlayOwnedOperation | null }>
+  |
   Readonly<{ kind: 'motion' | 'retained_motion_checkpoint_v1'; startCursor: BattedWorldBallCursor; field: BattedWorldFieldMotion }>
   | Readonly<{ kind: 'acquisition'; field: BattedWorldFieldMotion; acquisition: BattedWorldFieldAcquisition }>
   | Readonly<{ kind: 'throw'; startCursor: BattedWorldBallCursor; field: BattedWorldFieldMotion; throw: BattedWorldFieldThrow }>
@@ -33,7 +43,10 @@ export type WholePlayScheduledThrowPlan = Owned & Readonly<{ kind: 'throw_plan';
   horizon: BallWorldMoment; plan: BattedWorldScheduledFieldThrowPlan }>;
 export type WholePlayScheduledAcquisitionPlan = Owned & Readonly<{ kind: 'acquisition_plan'; basis: WholePlaySourceRef;
   horizon: BallWorldMoment; plan: BattedWorldScheduledFieldAcquisitionPlan }>;
-export type WholePlayHistoryStep = WholePlayPhysicalStep | WholePlayObservation | WholePlayScheduledThrowPlan | WholePlayScheduledAcquisitionPlan;
+export type WholePlayOwnedPlan = Owned & Readonly<{ basis: WholePlaySourceRef; horizon: BallWorldMoment }> & (
+  Readonly<{ kind: 'owned_acquisition_plan_v1'; plan: BattedWorldPiecewiseFieldAcquisitionPlan }>
+  | Readonly<{ kind: 'owned_throw_plan_v1'; plan: BattedWorldPiecewiseFieldThrowPlan }>);
+export type WholePlayHistoryStep = WholePlayPhysicalStep | WholePlayObservation | WholePlayScheduledThrowPlan | WholePlayScheduledAcquisitionPlan | WholePlayOwnedPlan;
 export type CanonicalWholePlayHistoryInput = Readonly<{
   scope: Readonly<{ gameId: string; playId: number; physicalPitchSourceId: string }>;
   originalTimeline: CanonicalPlateAppearanceTimeline;
@@ -52,6 +65,7 @@ export type CanonicalWholePlayHistory = Readonly<{
   scope: CanonicalWholePlayHistoryInput['scope']; originalPitch: WholePlayOriginalPitchRef;
   originalTimeline: CanonicalPlateAppearanceTimeline; origin: CanonicalWholePlayHistoryInput['origin'];
   physicalSteps: readonly WholePlayPhysicalStep[]; observations: readonly WholePlayObservation[];
+  ownedScheduledPlans?: readonly WholePlayOwnedPlan[];
   scheduledThrowPlans?: readonly WholePlayScheduledThrowPlan[];
   scheduledAcquisitionPlans?: readonly WholePlayScheduledAcquisitionPlan[];
   frames: readonly WholePlayHistoryFrame[]; horizon: BallWorldMoment;
@@ -73,13 +87,39 @@ const freeze = <T>(value: T): T => {
 };
 function fail(reason: string): never { throw new Error(`whole-play history ${reason}`); }
 
+/** The new bounded manifest family repeats immutable plans per physical step.
+ * Clone each inert record independently; old histories keep their original whole-input
+ * validation and limits. Descriptor inspection never evaluates caller accessors. */
+const cloneOwnedHistoryInput = (raw: CanonicalWholePlayHistoryInput): CanonicalWholePlayHistoryInput => {
+  const names = ['scope', 'originalTimeline', 'origin', 'steps'];
+  if (!fields(raw, names) || Reflect.ownKeys(raw).length !== names.length
+    || Object.getPrototypeOf(raw) !== Object.prototype && Object.getPrototypeOf(raw) !== null) return cloneInert(raw);
+  const descriptors = names.map(name => Object.getOwnPropertyDescriptor(raw, name));
+  if (descriptors.some(d => !d || !d.enumerable || !('value' in d))) return cloneInert(raw);
+  const steps = descriptors[3]!.value;
+  if (!Array.isArray(steps) || !steps.length || steps.length > 100_000 || Reflect.ownKeys(steps).length !== steps.length + 1) return cloneInert(raw);
+  const values: unknown[] = [];
+  let owned = false;
+  for (let index = 0; index < steps.length; index++) {
+    const item = Object.getOwnPropertyDescriptor(steps, String(index));
+    if (!item || !item.enumerable || !('value' in item) || !item.value || typeof item.value !== 'object') return cloneInert(raw);
+    const kind = Object.getOwnPropertyDescriptor(item.value, 'kind');
+    if (!kind || !kind.enumerable || !('value' in kind)) return cloneInert(raw);
+    owned ||= ['owned_motion_v2', 'owned_acquisition_plan_v1', 'owned_throw_plan_v1'].includes(kind.value);
+    values.push(item.value);
+  }
+  if (!owned) return cloneInert(raw);
+  return { scope: cloneInert(descriptors[0]!.value), originalTimeline: cloneInert(descriptors[1]!.value),
+    origin: cloneInert(descriptors[2]!.value), steps: values.map(value => cloneInert(value) as WholePlayHistoryStep) };
+};
+
 /**
  * Native proves Source ownership and rederives each physical result. This additive
  * envelope checks internal clock, actor/cursor continuity and directed linkage.
  * It does not grant a caller's Source authority or resolve any baseball result.
  */
 export const deriveCanonicalWholePlayHistory = (raw: CanonicalWholePlayHistoryInput): CanonicalWholePlayHistory => {
-  const input = cloneInert(raw);
+  const input = cloneOwnedHistoryInput(raw);
   if (!fields(input, ['scope', 'originalTimeline', 'origin', 'steps'])
     || !fields(input.scope, ['gameId', 'playId', 'physicalPitchSourceId']) || !id(input.scope.gameId)
     || !id(input.scope.physicalPitchSourceId) || !tick(input.scope.playId)
@@ -204,6 +244,8 @@ export const deriveCanonicalWholePlayHistory = (raw: CanonicalWholePlayHistoryIn
     else fail('retention outcome kind differs');
   };
   const physicalSteps: WholePlayPhysicalStep[] = [], observations: WholePlayObservation[] = [];
+  const ownedScheduledPlans: WholePlayOwnedPlan[] = [];
+  let pendingOwned: { sourceId: string; kind: 'acquisition' | 'throw'; plan: WholePlayOwnedOperation['plan'] } | null = null;
   const scheduledThrowPlans: WholePlayScheduledThrowPlan[] = [];
   const scheduledAcquisitionPlans: WholePlayScheduledAcquisitionPlan[] = [];
   let pendingAcquisition: { step: WholePlayScheduledAcquisitionPlan; previous: BattedWorldScheduledFieldAcquisitionAdvance | null } | null = null;
@@ -269,6 +311,104 @@ export const deriveCanonicalWholePlayHistory = (raw: CanonicalWholePlayHistoryIn
         || !physicalBasis || json(step.basis) !== json(physicalBasis) || json(step.horizon) !== json(horizon)) fail('observation physical basis differs');
       observations.push(step); continue;
     }
+    if (step.kind === 'owned_acquisition_plan_v1' || step.kind === 'owned_throw_plan_v1') {
+      if (!fields(step, ['source', 'previousSourceId', 'kind', 'basis', 'horizon', 'plan'])
+        || pendingOwned || pendingThrow || pendingAcquisition || !physicalBasis
+        || json(step.basis) !== json(physicalBasis) || json(step.horizon) !== json(horizon)) fail('owned plan physical basis differs');
+      if (step.kind === 'owned_acquisition_plan_v1') {
+        if (cursor || carrierPlayerId || currentField?.motion.response.kind !== 'capture_candidate'
+          || json(step.plan.input.field) !== json(currentField) || json(step.plan.contactMoment) !== json(horizon)
+          || json(step.plan.input.field.motion.actors) !== json(actors) || !origin.defenderIds.includes(step.plan.acquirerPlayerId)) fail('owned capture candidate differs');
+        validateBattedWorldPiecewiseFieldAcquisitionPlan(step.plan);
+      } else {
+        if (!cursor || !carrierPlayerId || json(step.plan.input.cursor) !== json(cursor)
+          || json(step.plan.input.actors) !== json(actors) || step.plan.input.carrierPlayerId !== carrierPlayerId
+          || !origin.defenderIds.includes(step.plan.input.receiverPlayerId)) fail('owned throw current cut differs');
+        validateBattedWorldPiecewiseFieldThrowPlan(step.plan);
+      }
+      ownedScheduledPlans.push(step); pendingOwned = { sourceId: ref.sourceId, kind: step.kind === 'owned_acquisition_plan_v1' ? 'acquisition' : 'throw', plan: step.plan };
+      continue;
+    }
+    if (step.kind === 'owned_motion_v2') {
+      if (!fields(step, ['source', 'previousSourceId', 'kind', 'startCursor', 'mode', 'field', 'operation'])
+        || !['retained', 'adopted'].includes(step.mode) || json(step.startCursor) !== json(cursor)) fail('owned physical step current cut differs');
+      const op = step.operation;
+      if (op) {
+        if (!fields(op, ['kind', 'planSourceId', 'previousStepSourceIds', 'step', 'bridge', 'plan', 'progress'])
+          || !['acquisition', 'throw'].includes(op.kind) || !id(op.planSourceId)) fail('owned operation scope differs');
+        const prior = physicalSteps.filter((v): v is Extract<WholePlayPhysicalStep, { kind: 'owned_motion_v2' }> =>
+          v.kind === 'owned_motion_v2' && v.operation?.planSourceId === op.planSourceId);
+        if (json(op.previousStepSourceIds) !== json(prior.map(v => v.source.sourceId))
+          || prior.some(v => v.operation!.kind !== op.kind || json(v.operation!.plan) !== json(op.plan)
+            || json(v.operation!.bridge) !== json(op.bridge)) || step.mode !== op.step.actors.kind) fail('owned operation step manifest differs');
+        if (op.bridge) {
+          if (!fields(op.bridge, ['legacyPlanSourceId', 'previousAdvanceSourceId']) || op.bridge.legacyPlanSourceId !== op.planSourceId) fail('owned legacy bridge identity differs');
+          const legacyPlan = op.kind === 'acquisition' ? scheduledAcquisitionPlans.find(v => v.source.sourceId === op.planSourceId)
+            : scheduledThrowPlans.find(v => v.source.sourceId === op.planSourceId);
+          const legacyAdvance = [...physicalSteps].reverse().find(v => (v.kind === 'acquisition_advance' || v.kind === 'throw_advance')
+            && v.planSourceId === op.planSourceId);
+          if (!legacyPlan || !op.plan.bridge || json(op.plan.bridge.plan) !== json(legacyPlan.plan)
+            || op.bridge.previousAdvanceSourceId !== (legacyAdvance?.source.sourceId ?? null)
+            || json(op.plan.bridge.progress) !== json(legacyAdvance && (legacyAdvance.kind === 'acquisition_advance' || legacyAdvance.kind === 'throw_advance') ? legacyAdvance.progress : null)) fail('owned legacy bridge original evidence differs');
+          if (!prior.length) {
+            const pending = op.kind === 'acquisition' ? pendingAcquisition : pendingThrow;
+            if (!pending || pending.step.source.sourceId !== op.planSourceId) fail('owned bridge lacks pending legacy operation');
+            pendingAcquisition = null; pendingThrow = null;
+            pendingOwned = { sourceId: op.planSourceId, kind: op.kind, plan: op.plan };
+          }
+        } else {
+          const plan = ownedScheduledPlans.find(v => v.source.sourceId === op.planSourceId);
+          if (!plan || plan.kind !== (op.kind === 'acquisition' ? 'owned_acquisition_plan_v1' : 'owned_throw_plan_v1')
+            || json(plan.plan) !== json(op.plan)) fail('owned operation original plan differs');
+        }
+        if (!pendingOwned || pendingOwned.sourceId !== op.planSourceId || pendingOwned.kind !== op.kind
+          || json(pendingOwned.plan) !== json(op.plan)) fail('owned operation is not pending');
+        const steps = [...prior.map(v => v.operation!.step), op.step];
+        if (op.kind === 'acquisition') {
+          const progress = op.progress;
+          validateBattedWorldPiecewiseFieldAcquisitionProgress({ plan: op.plan, steps, progress });
+          if (json(step.field) !== json(op.plan.input.field) || json(progress.startMoment) !== json(horizon)) fail('owned capture original candidate or current cut differs');
+          const end = progress.world.moment;
+          if (step.mode === 'adopted') rebaseActors(progress.activePiece.actors, end);
+          else if (json(progress.activePiece.actors) !== json(actors)) fail('owned retained capture actor curves differ');
+          moment(end); actors.forEach(actor => validateActor(actor, end)); checkBoundary(progress.world, progress.baseContacts);
+          const previous = prior.at(-1)?.operation;
+          const previousDissipation = previous?.kind === 'acquisition' ? previous.progress.dissipationMoment : op.plan.bridge?.progress?.dissipationMoment;
+          if (!prior.length && !op.plan.bridge?.progress) occurrence(op.plan.contactMoment, ref, 'acquisition_constraint_started');
+          if (progress.dissipationMoment && !previousDissipation) occurrence(progress.dissipationMoment, ref, 'acquisition_dissipation_complete');
+          if (progress.kind === 'secured') {
+            checkCursor(progress.cursor); cursor = progress.cursor; carrierPlayerId = op.plan.acquirerPlayerId;
+            occurrence(end, ref, 'acquisition_confirmed'); pendingOwned = null;
+          } else {
+            cursor = null; carrierPlayerId = null;
+            occurrence(end, ref, progress.kind === 'interrupted' ? 'acquisition_interrupted' : 'acquisition_progress');
+          }
+          horizon = end;
+        } else {
+          const progress = op.progress;
+          validateBattedWorldPiecewiseFieldThrowProgress({ plan: op.plan, steps, progress });
+          if (!cursor || !carrierPlayerId || json(progress.startCursor) !== json(cursor) || json(step.field) !== json(progress.field)) fail('owned transfer field or current cut differs');
+          if (step.mode === 'adopted') rebaseActors(progress.activePiece.actors, progress.field.motion.world.moment);
+          else if (json(progress.activePiece.actors) !== json(actors)) fail('owned retained transfer actor curves differ');
+          if (progress.kind === 'released') { checkCursor(progress.releaseCursor); occurrence(progress.releaseCursor.moment, ref, 'throw_release'); }
+          adoptField(step.field, ref); currentField = step.field;
+          if (progress.kind !== 'transfer') pendingOwned = null;
+        }
+      } else {
+        if (pendingOwned || pendingThrow || pendingAcquisition || !cursor) fail('owned ordinary motion lacks resolved cut');
+        if (step.mode === 'adopted') rebaseActors(step.field.motion.actors, step.field.motion.world.moment);
+        else {
+          if (json(step.field.motion.actors) !== json(actors)) fail('owned retained motion actor curves differ');
+          actors.forEach(actor => validateActor(actor, step.field.motion.world.moment));
+        }
+        if (step.field.motion.carrierPlayerId !== carrierPlayerId) fail('owned ordinary custody differs');
+        if (step.field.motion.world.moment.elapsedSeconds === horizon.elapsedSeconds
+          && json(step.field.motion.world.moment) !== json(cursor.moment)) fail('owned zero-duration incoming ball differs');
+        adoptField(step.field, ref); currentField = step.field;
+      }
+      physicalSteps.push(step); physicalBasis = ref; continue;
+    }
+    if (pendingOwned) fail('pending owned operation requires its owned step');
     if (step.kind === 'acquisition_plan') {
       if (!fields(step, ['source', 'previousSourceId', 'kind', 'basis', 'horizon', 'plan']) || pendingThrow || pendingAcquisition
         || cursor !== null || carrierPlayerId !== null || !physicalBasis || json(step.basis) !== json(physicalBasis)
@@ -460,6 +600,7 @@ export const deriveCanonicalWholePlayHistory = (raw: CanonicalWholePlayHistoryIn
     physicalSteps.push(step); physicalBasis = ref;
   }
   return freeze({ scope, originalPitch, originalTimeline: timeline, origin, physicalSteps, observations,
+    ...(ownedScheduledPlans.length ? { ownedScheduledPlans } : {}),
     ...(scheduledThrowPlans.length ? { scheduledThrowPlans } : {}),
     ...(scheduledAcquisitionPlans.length ? { scheduledAcquisitionPlans } : {}), frames, horizon,
     cursor, carrierPlayerId, end: { kind: 'unestablished' as const } });

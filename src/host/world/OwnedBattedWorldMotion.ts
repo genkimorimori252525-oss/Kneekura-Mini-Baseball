@@ -16,7 +16,7 @@ const fields = (v: unknown, keys: readonly string[]) => !!v && typeof v === 'obj
   && JSON.stringify(Object.keys(v).sort()) === JSON.stringify([...keys].sort());
 const moment = (v: ActualPlayerCommandAdoption['adoptedAt']) => fields(v, ['originTick', 'elapsedSeconds', 'tick'])
   && tick(v.originTick) && tick(v.tick) && Number.isFinite(v.elapsedSeconds) && v.elapsedSeconds >= 0;
-export const ownedMotionActionInput = (raw: OwnedMotionAction): OwnedMotionAction => {
+const ownedMotionInput = (raw: OwnedMotionAction, includeV2: boolean): OwnedMotionAction => {
   const s = cloneInert(raw);
   if (!fields(s, ['kind', 'checkpointThroughTick', 'contributions', 'knownWork']) || s.kind !== 'owned_motion_v1'
     || !tick(s.checkpointThroughTick) || !Array.isArray(s.contributions) || s.contributions.length !== 10
@@ -32,7 +32,7 @@ export const ownedMotionActionInput = (raw: OwnedMotionAction): OwnedMotionActio
       const r = c.command;
       if (!fields(c, ['kind', 'playerId', 'command']) || !fields(r, ['kind', 'owner', 'sourceId', 'sourceVersion', 'sourceHash',
         'adoptionSourceId', 'adoptionSourceHash', 'adoptedAt', 'executedThrough', 'acceptedThroughTick'])
-        || !['contact', 'field', 'motion', 'motion_checkpoint_v1', 'owned_motion_v1', 'throw', 'throw_advance'].includes(r.kind)
+        || !['contact', 'field', 'motion', 'motion_checkpoint_v1', 'owned_motion_v1', 'throw', 'throw_advance', ...(includeV2 ? ['owned_motion_v2'] : [])].includes(r.kind)
         || !['batted_world_contacts', 'batted_world_field_actions', 'batted_world_field_executions'].includes(r.owner)
         || ![r.sourceId, r.sourceVersion, r.sourceHash, r.adoptionSourceId, r.adoptionSourceHash].every(id)
         || !moment(r.adoptedAt) || !moment(r.executedThrough) || !tick(r.acceptedThroughTick)) throw new Error('invalid retained motion command reference');
@@ -43,6 +43,14 @@ export const ownedMotionActionInput = (raw: OwnedMotionAction): OwnedMotionActio
     throw new Error('invalid owned motion known-work reference');
   }
   return freeze(s);
+};
+export const ownedMotionActionInput = (raw: OwnedMotionAction): OwnedMotionAction => ownedMotionInput(raw, false);
+/** Explicit versioned reference parser; v1's original allowlist remains unchanged. */
+export const ownedMotionV2ContributionsInput = (raw: Pick<OwnedMotionAction, 'contributions' | 'knownWork'>) => {
+  const value = cloneInert(raw);
+  if (!fields(value, ['contributions', 'knownWork'])) throw new Error('invalid owned motion v2 contribution container');
+  const checked = ownedMotionInput({ kind: 'owned_motion_v1', checkpointThroughTick: 0, ...value }, true);
+  return freeze({ contributions: checked.contributions, knownWork: checked.knownWork });
 };
 type Prefix = Parameters<typeof battedWorldFieldPhysicalPrefix>[0];
 /** Mechanical composition only. The physical owner first proves dependency rank, rederives

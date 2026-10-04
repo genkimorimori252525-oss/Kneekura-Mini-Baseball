@@ -1,3 +1,4 @@
+import type { Vec3 } from '../../core/model/geometry';
 import { createFairTerritoryWedge } from '../../core/sim/ball/FairTerritoryGeometry';
 import { DEFAULT_BALL_FLIGHT_PARAMETERS } from '../../core/sim/ball/BallFlight';
 import { samplePitchTrajectorySegment } from '../../core/sim/pitching/PitchTrajectory';
@@ -6,14 +7,19 @@ import { resolveContinuousPlayerPitchAgainstBatterFromWorld } from './Continuous
 import { physicalPlateAppearanceActorFixture } from './PhysicalPlateAppearanceActorFixtures.test-support';
 import { openSqliteBattedBallFlightStore, type AcceptedBattedBallFlight } from './SqliteBattedBallFlightStore';
 
+export type BattedFixturePitchPhysics = Readonly<{ velocity?: Vec3; spin?: Vec3 }>;
+
 export const battedBallFlightFixture = (path?: string, withActor = true, withContact = true, alignFieldWithInitialBases = false,
-  fixtureBinding?: Parameters<typeof physicalPlateAppearanceActorFixture>[1]) => {
+  fixtureBinding?: Parameters<typeof physicalPlateAppearanceActorFixture>[1], pitchPhysics?: BattedFixturePitchPhysics) => {
   const base = physicalPlateAppearanceActorFixture(path, fixtureBinding), { f, actors, source, actions, pitches } = base;
   if (withActor) actors.accept(source.sourceId);
-  const preview = resolveContinuousPlayerPitchAgainstBatterFromWorld(f.stores, { ...f.input, effortPolicySourceId: f.effort.sourceId });
+  const previewInput = pitchPhysics ? { ...f.input, delivery: { ...f.input.delivery, physics: { ...f.input.delivery.physics, ...pitchPhysics } } } : f.input;
+  const preview = resolveContinuousPlayerPitchAgainstBatterFromWorld(f.stores, { ...previewInput, effortPolicySourceId: f.effort.sourceId });
   const startTick = preview.pitch.trajectory.start.tick + 590_000;
   const ball = samplePitchTrajectorySegment(preview.pitch.trajectory, startTick).position;
-  const action = continuousPitchAction(f, 0, 0);
+  const originalAction = continuousPitchAction(f, 0, 0);
+  const action = pitchPhysics ? { ...originalAction, request: { ...originalAction.request, delivery: { ...originalAction.request.delivery,
+    physics: { ...originalAction.request.delivery.physics, ...pitchPhysics } } } } : originalAction;
   actions.set(action.sourceId, withContact ? { ...action, request: { ...action.request, batter: {
     action: { kind: 'swing', swing: { startTick, endTick: startTick + 10_000, ticksPerSecond: 1_000_000,
       stateAtStart: { pose: { grip: { ...ball, x: ball.x - 0.4 }, tip: { ...ball, x: ball.x + 0.4 } },

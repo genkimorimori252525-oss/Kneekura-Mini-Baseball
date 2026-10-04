@@ -1,3 +1,8 @@
+import { ownedScheduledMotionArchiveHash } from './OwnedScheduledMotionArchive';
+import { createOwnedScheduledMotionDependencyEncoding } from './OwnedScheduledMotionDependencyEncoding';
+import { validateBattedWorldPiecewiseFieldAcquisitionPlan, validateBattedWorldPiecewiseFieldAcquisitionProgress } from '../../core/sim/ball/BattedWorldPiecewiseFieldAcquisition';
+import { validateBattedWorldPiecewiseFieldThrowPlan, validateBattedWorldPiecewiseFieldThrowProgress } from '../../core/sim/ball/BattedWorldPiecewiseFieldThrow';
+import type { OwnedScheduledMotionExecution, OwnedScheduledMotionOperation, OwnedScheduledMotionReference } from './OwnedScheduledBattedWorldMotion';
 import type { BattedWorldPossessionEvidence, BaseTouchCustodyEvidence, PendingFieldPossession } from '../../core/rules/BallWorldFieldFirstBaseRaceWithPossessionEvidence';
 import { validateBattedWorldScheduledFieldAcquisitionPlan, validateBattedWorldScheduledFieldAcquisitionProgress,
   type BattedWorldScheduledFieldAcquisitionPlan, type BattedWorldScheduledFieldAcquisitionAdvance } from '../../core/sim/ball/BattedWorldScheduledFieldAcquisition';
@@ -18,8 +23,8 @@ import { findBallWorldControlledBaseContacts, type BallWorldBaseControlWindow,
   type BallWorldControlledBaseContact } from '../../core/sim/ball/BallWorldControlledBaseContacts';
 import type { BaseTouchRegion } from '../../core/sim/running/BaseTouch';
 import type { DurableBattedWorldFieldAction } from './SqliteBattedWorldFieldStore';
-import type { DurableBattedWorldFieldExecution } from './SqliteBattedWorldFieldExecutionStore';
-import { actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import type { AcceptedBattedWorldFieldExecution, DurableBattedWorldFieldExecution } from './SqliteBattedWorldFieldExecutionStore';
+import { actorJson as json, actorFreeze as freeze, actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 
 export type BattedWorldFieldCustodyPolicy = 'release_exclusive_v1';
 
@@ -33,6 +38,30 @@ const sameNumber = (a: number, b: number) => Number.isFinite(a) && Number.isFini
 const normalized = (contact: BallWorldBoundaryContact): BallWorldBattedRuleContact => contact.kind === 'actor'
   ? { kind: 'actor', playerId: contact.playerId, role: contact.role } : contact.kind === 'surface'
     ? { kind: 'surface', surfaceId: contact.surfaceId } : { kind: contact.kind };
+
+/** Bounded Source identity comparison, not ownership or physical replay authority.
+ * New versioned histories compare individual inert records; raw/v1 histories retain
+ * the original aggregate validation and byte convention. */
+export const battedWorldFieldExecutionHistoryMatches = (history: readonly AcceptedBattedWorldFieldExecution[],
+  original: readonly AcceptedBattedWorldFieldExecution[]): boolean => {
+  const records = (values: readonly AcceptedBattedWorldFieldExecution[]) => {
+    if (Array.isArray(values) && values.length > 100_000) throw new Error('actual field history exceeds size limits');
+    if (!Array.isArray(values) || Reflect.ownKeys(values).length !== values.length + 1) throw new Error('actual field history requires a dense inert array');
+    return Array.from({ length: values.length }, (_, index) => {
+      const descriptor = Object.getOwnPropertyDescriptor(values, String(index));
+      if (!descriptor || !descriptor.enumerable || !('value' in descriptor)) throw new Error('actual field history requires inert records');
+      return descriptor.value as AcceptedBattedWorldFieldExecution;
+    });
+  };
+  const originals = records(original).map(value => json(value));
+  const owned = originals.some(value => {
+    const source = JSON.parse(value) as AcceptedBattedWorldFieldExecution;
+    return ['owned_motion_v2', 'owned_acquisition_plan_v1', 'owned_throw_plan_v1'].includes(source?.action?.kind);
+  });
+  if (!owned) return json(history) === json(original);
+  const actual = records(history);
+  return actual.length === originals.length && actual.every((value, index) => json(value) === originals[index]);
+};
 
 /** Only the Native owner's complete rederived field/execution prefix is admissible. Observations never execute physical time. */
 export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ field: BallWorldFieldTerritoryInput;
@@ -67,6 +96,18 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
   let pendingThrow: { sourceId: string; plan: BattedWorldScheduledFieldThrowPlan; previous: BattedWorldScheduledFieldThrowAdvance | null } | null = null;
   let pendingAcquisition: { sourceId: string; plan: BattedWorldScheduledFieldAcquisitionPlan; previous: BattedWorldScheduledFieldAcquisitionAdvance | null } | null = null;
   let hasScheduledAcquisition = false;
+  let pendingOwned: { sourceId: string; kind: 'acquisition' | 'throw'; plan: OwnedScheduledMotionOperation['plan']; previous: OwnedScheduledMotionOperation | null } | null = null;
+  let ownedTransitions = false;
+  const transitions: { incoming: BallWorldMoment; outgoing: BallWorldMoment }[] = [];
+  const transition = (incoming: BallWorldMoment, outgoing: BallWorldMoment) => {
+    if (incoming.elapsedSeconds === outgoing.elapsedSeconds && json(incoming.ball.position) === json(outgoing.ball.position)) transitions.push({ incoming, outgoing });
+  };
+  const hasTransitionChain = (incoming: BallWorldMoment, outgoing: BallWorldMoment): boolean => {
+    if (!ownedTransitions) return false;
+    const reached = new Set([json(incoming)]);
+    for (const edge of transitions) if (reached.has(json(edge.incoming))) reached.add(json(edge.outgoing));
+    return reached.has(json(outgoing));
+  };
   const actorKeys = new Set(actors.map(key));
   if (!actors.length || actorKeys.size !== actors.length || actors.some((actor) => !players.has(actor.playerId))) {
     throw new Error('actual field original actor identity differs');
@@ -136,7 +177,7 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
       const projectedConstraint = constraint && json(previous.moment) === json(constraint.incoming)
         && json(at) === json(constraint.constrained);
       if (previous.moment.originTick !== at.originTick || json(previous.moment.ball.position) !== json(at.ball.position)
-        || needsProjection && !projectedConstraint) throw new Error('coincident actual field contact states differ');
+        || needsProjection && !projectedConstraint && !hasTransitionChain(previous.moment, at)) throw new Error('coincident actual field contact states differ');
       // A validated initial acquisition constraint can immediately meet a new
       // collider without elapsed time. Keep the original incoming rule moment;
       // its distinct constrained state and every raw contact remain in the result.
@@ -186,6 +227,7 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
         throw new Error('actual field continuation cursor horizon differs');
       }
     }
+    if (motion.cursor) transition(actual.moment, motion.cursor.moment);
     cursor = motion.cursor; carrierPlayerId = motion.carrierPlayerId; currentField = field;
   };
   const sources = new Set<string>();
@@ -199,17 +241,141 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
     if (!cursor || value.field.motion.carrierPlayerId !== carrierPlayerId) throw new Error('actual field continuation lacks its actual prior cursor');
     appendField(value.field, carrierPlayerId === null ? cursor.moment : null);
   }
+  // This cache belongs only to this synchronous field-execution validation call.
+  // Earlier immutable snapshots have already passed the prefix checks; archive hashing
+  // still validates the entire inert body before a successful reference is retained.
+  // Object identity, never Source ID, is the key in this fixed owner namespace.
+  const dependencyEncoding = createOwnedScheduledMotionDependencyEncoding();
+  const executionReferences = new WeakMap<DurableBattedWorldFieldExecution, OwnedScheduledMotionReference>();
+  const immutable = (value: unknown, seen = new Set<object>()): boolean => {
+    if (value === null || typeof value !== 'object') return true;
+    if (!Object.isFrozen(value)) return false;
+    if (seen.has(value)) return true;
+    seen.add(value);
+    return Reflect.ownKeys(value).every(key => {
+      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      return typeof key === 'string' && !!descriptor && 'value' in descriptor && immutable(descriptor.value, seen);
+    });
+  };
+  const reference = (snapshot: DurableBattedWorldFieldExecution): OwnedScheduledMotionReference => {
+    const prior = executionReferences.get(snapshot);
+    if (prior) return prior;
+    const result = freeze({ sourceId: snapshot.source.sourceId, sourceHash: hash(snapshot.source),
+      snapshotHash: ownedScheduledMotionArchiveHash(snapshot) });
+    // Deep immutability is checked after inert archive validation; shallow freezing
+    // cannot hide a changed nested body on a later reference in this same call.
+    if (immutable(snapshot)) executionReferences.set(snapshot, result);
+    return result;
+  };
   // Source identifiers are unique within each original Native owner, not across separate tables.
   sources.clear();
   for (const [index, value] of input.executions.entries()) {
     if (value.revision !== index + 1 || !id(value.source.sourceId) || sources.has(value.source.sourceId)
-      || value.source.baseFieldSourceId !== base.source.sourceId || json(value.baseField) !== json(base)
+      || value.source.baseFieldSourceId !== base.source.sourceId || dependencyEncoding.baseField(value.baseField).json !== dependencyEncoding.baseField(base).json
       || value.source.previousExecutionSourceId !== (input.executions[index - 1]?.source.sourceId ?? null)
-      || json(value.history) !== json(input.executions.slice(0, index + 1).map((execution) => execution.source))
+      || !battedWorldFieldExecutionHistoryMatches(value.history, input.executions.slice(0, index + 1).map((execution) => execution.source))
       || value.source.action.kind !== value.execution.kind) throw new Error('actual field execution Source prefix differs');
     sources.add(value.source.sourceId);
     const execution = value.execution;
-    if (execution.kind === 'acquisition_plan') {
+    if (execution.kind === 'owned_acquisition_plan_v1') {
+      const plan = execution.plan;
+      if (pendingOwned || pendingThrow || pendingAcquisition || cursor !== null || carrierPlayerId !== null
+        || currentField.motion.response.kind !== 'capture_candidate' || json(execution.field) !== json(currentField)
+        || json(plan.input.field) !== json(currentField) || json(plan.contactMoment) !== json(horizon)
+        || json(plan.input.field.motion.actors) !== json(actors) || !defenderIds.includes(plan.acquirerPlayerId)) {
+        throw new Error('actual field owned capture candidate or physical basis differs');
+      }
+      validateBattedWorldPiecewiseFieldAcquisitionPlan(plan);
+      hasScheduledAcquisition = true; ownedTransitions = true;
+      pendingOwned = { sourceId: value.source.sourceId, kind: 'acquisition', plan, previous: null };
+    } else if (execution.kind === 'owned_throw_plan_v1') {
+      const plan = execution.plan, model = execution.model;
+      const actor = world.modelActorEvidence.find(actor => actor.binding.playerId === carrierPlayerId);
+      if (pendingOwned || pendingThrow || pendingAcquisition || !cursor || !carrierPlayerId || !actor
+        || json(execution.field) !== json(currentField) || json(plan.input.cursor) !== json(cursor)
+        || json(plan.input.actors) !== json(actors) || plan.input.carrierPlayerId !== carrierPlayerId
+        || !defenderIds.includes(plan.input.receiverPlayerId) || model.source.playerId !== carrierPlayerId
+        || model.source.careerId !== actor.binding.careerId || model.source.personLinkSourceId !== actor.binding.personLinkSourceId
+        || json(model.person) !== json(actor.person)) throw new Error('actual field owned throw Player or physical basis differs');
+      validateBattedWorldPiecewiseFieldThrowPlan(plan); ownedTransitions = true;
+      pendingOwned = { sourceId: value.source.sourceId, kind: 'throw', plan, previous: null };
+    } else if (execution.kind === 'owned_motion_v2') {
+      ownedTransitions = true;
+      const op = execution.operation, start = horizon.elapsedSeconds, priorCarrier = carrierPlayerId;
+      if (op) {
+        const earlier = input.executions.slice(0, index), original = earlier.find(v => v.source.sourceId === op.planSourceId);
+        const previous = earlier.filter(v => v.execution.kind === 'owned_motion_v2' && v.execution.operation?.planSourceId === op.planSourceId);
+        if (!original || json(reference(original)) !== json(op.planReference)
+          || json(previous.map(reference)) !== json(op.previousSteps)) throw new Error('actual field owned operation reference manifest differs');
+        const operations = previous.map(v => (v.execution as Extract<OwnedScheduledMotionExecution, { kind: 'owned_motion_v2' }>).operation!);
+        if (operations.some(old => old.kind !== op.kind || json(old.plan) !== json(op.plan) || json(old.bridge) !== json(op.bridge))) {
+          throw new Error('actual field owned operation previous-step lineage differs');
+        }
+        if (op.bridge) {
+          const originalExecution = original.execution;
+          const advanceKind = op.kind === 'acquisition' ? 'acquisition_advance' : 'throw_advance';
+          const advance = [...earlier].reverse().find(v => v.execution.kind === advanceKind
+            && (v.execution.kind === 'acquisition_advance' || v.execution.kind === 'throw_advance') && v.execution.planSourceId === op.planSourceId);
+          if (json(op.bridge.legacyPlanReference) !== json(reference(original))
+            || json(op.bridge.previousAdvanceReference) !== json(advance ? reference(advance) : null)
+            || originalExecution.kind !== (op.kind === 'acquisition' ? 'acquisition_plan' : 'throw_plan')
+            || !op.plan.bridge || json(op.plan.bridge.plan) !== json((originalExecution as { plan: unknown }).plan)
+            || json(op.plan.bridge.progress) !== json(advance && (advance.execution.kind === 'acquisition_advance' || advance.execution.kind === 'throw_advance') ? advance.execution.progress : null)) {
+            throw new Error('actual field owned legacy bridge lineage differs');
+          }
+          if (!previous.length) {
+            const pending = op.kind === 'acquisition' ? pendingAcquisition : pendingThrow;
+            if (!pending || pending.sourceId !== op.planSourceId) throw new Error('actual field owned bridge lacks pending legacy operation');
+            pendingAcquisition = null; pendingThrow = null;
+            pendingOwned = { sourceId: op.planSourceId, kind: op.kind, plan: op.plan, previous: null };
+          }
+        } else if (original.execution.kind !== (op.kind === 'acquisition' ? 'owned_acquisition_plan_v1' : 'owned_throw_plan_v1')
+          || json((original.execution as { plan: unknown }).plan) !== json(op.plan)) throw new Error('actual field owned original plan differs');
+        if (!pendingOwned || pendingOwned.sourceId !== op.planSourceId || pendingOwned.kind !== op.kind
+          || json(pendingOwned.plan) !== json(op.plan)) throw new Error('actual field owned operation is not pending');
+        const steps = [...operations.map(old => old.step), op.step];
+        if (op.kind === 'acquisition') {
+          const progress = op.progress;
+          validateBattedWorldPiecewiseFieldAcquisitionProgress({ plan: op.plan, steps, progress });
+          if (json(execution.field) !== json(op.plan.input.field) || json(progress.startMoment) !== json(horizon)) {
+            throw new Error('actual field owned capture immutable candidate or actual cut differs');
+          }
+          if (!previous.length) transition(op.plan.contactMoment, op.plan.initialConstraintMoment);
+          segment(progress.activePiece.actors, progress.world.moment, op.step.actors.kind === 'adopted');
+          hasScheduledAcquisition = true;
+          if (progress.kind === 'secured') {
+            acquisitions.push(progress.acquisition); cursor = progress.cursor; carrierPlayerId = op.plan.acquirerPlayerId;
+            control(carrierPlayerId, progress.acquisition.moment.elapsedSeconds, horizon.elapsedSeconds, true); pendingOwned = null;
+          } else {
+            if (progress.kind === 'interrupted') {
+              acquisitions.push(progress.acquisition);
+              appendContacts(progress.world.moment, progress.acquisition.world.contacts, progress.baseContacts);
+            }
+            cursor = null; carrierPlayerId = null;
+            pendingOwned = { sourceId: op.planSourceId, kind: op.kind, plan: op.plan, previous: op };
+          }
+        } else {
+          const progress: Extract<OwnedScheduledMotionOperation, { kind: 'throw' }>['progress'] = op.progress;
+          validateBattedWorldPiecewiseFieldThrowProgress({ plan: op.plan, steps, progress });
+          if (!cursor || !priorCarrier || json(progress.startCursor) !== json(cursor) || json(execution.field) !== json(progress.field)) {
+            throw new Error('actual field owned throw current cut or field differs');
+          }
+          if (progress.kind === 'released') transition(progress.startCursor.moment, progress.releaseCursor.moment);
+          appendField(execution.field, null, op.step.actors.kind === 'adopted');
+          if (progress.kind === 'released') {
+            closeReleaseEndpoint(priorCarrier, horizon.elapsedSeconds); control(priorCarrier, start, horizon.elapsedSeconds, false); pendingOwned = null;
+          } else {
+            control(priorCarrier, start, horizon.elapsedSeconds, progress.kind === 'transfer');
+            pendingOwned = progress.kind === 'transfer' ? { sourceId: op.planSourceId, kind: op.kind, plan: op.plan, previous: op } : null;
+          }
+        }
+      } else {
+        if (pendingOwned || pendingThrow || pendingAcquisition || !cursor) throw new Error('actual field owned ordinary motion lacks resolved cut');
+        if (execution.field.motion.carrierPlayerId !== priorCarrier) throw new Error('actual field owned motion custody differs');
+        appendField(execution.field, priorCarrier === null ? cursor.moment : null, execution.composition.mode !== 'retained');
+        if (priorCarrier) control(priorCarrier, start, horizon.elapsedSeconds, execution.field.motion.world.kind !== 'boundary');
+      }
+    } else if (execution.kind === 'acquisition_plan') {
       const plan = execution.plan;
       if (pendingThrow || pendingAcquisition || cursor !== null || carrierPlayerId !== null
         || currentField.motion.response.kind !== 'capture_candidate' || json(execution.field) !== json(currentField)
@@ -285,7 +451,7 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
         pendingThrow = progress.kind === 'transfer' ? { sourceId: pendingThrow.sourceId, plan: pendingThrow.plan, previous: progress } : null;
       }
     } else if (execution.kind === 'acquisition') {
-      if (pendingThrow || pendingAcquisition) throw new Error('actual field pending scheduled operation owns physical work');
+      if (pendingOwned || pendingThrow || pendingAcquisition) throw new Error('actual field pending scheduled operation owns physical work');
       const capture = execution.acquisition;
       if (cursor || carrierPlayerId !== null || currentField?.motion.response.kind !== 'capture_candidate'
         || json(execution.field) !== json(currentField) || json(capture.contactMoment) !== json(horizon)) {
@@ -310,7 +476,7 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
           velocity: contact.velocity, spin: { x: 0, y: 0, z: 0 } } } };
       });
     } else if (execution.kind === 'owned_motion_v1' || execution.kind === 'motion' || execution.kind === 'motion_checkpoint_v1' || execution.kind === 'retained_motion_checkpoint_v1' || execution.kind === 'throw') {
-      if (pendingThrow || pendingAcquisition) throw new Error('actual field pending scheduled operation owns physical work');
+      if (pendingOwned || pendingThrow || pendingAcquisition) throw new Error('actual field pending scheduled operation owns physical work');
       if (!cursor) throw new Error('actual field execution lacks a resolved prior cursor');
       const start = horizon.elapsedSeconds, priorCarrier = carrierPlayerId;
       if (execution.kind !== 'throw') {
@@ -351,6 +517,15 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
     earliestPotentialControlElapsedSeconds: pendingAcquisition.previous?.kind === 'interrupted'
       ? Math.min(pendingAcquisition.plan.secureElapsedSeconds, pendingAcquisition.previous.world.moment.elapsedSeconds)
       : pendingAcquisition.plan.secureElapsedSeconds }] : [];
+  if (pendingOwned?.kind === 'acquisition') {
+    const plan = pendingOwned.plan as Extract<OwnedScheduledMotionOperation, { kind: 'acquisition' }>['plan'];
+    const progress = pendingOwned.previous?.kind === 'acquisition' ? pendingOwned.previous.progress : null;
+    pending.push({ planSourceId: pendingOwned.sourceId, playerId: plan.acquirerPlayerId,
+      contactElapsedSeconds: plan.contactMoment.elapsedSeconds,
+      phase: progress?.kind === 'interrupted' ? 'contact_policy_pending' : progress?.kind === 'fence_pending' ? 'fence_pending' : 'capturing',
+      earliestPotentialControlElapsedSeconds: progress?.kind === 'interrupted'
+        ? Math.min(plan.secureElapsedSeconds, progress.world.moment.elapsedSeconds) : plan.secureElapsedSeconds });
+  }
   return freeze({ field, segments, controlWindows, ...(hasScheduledAcquisition ? { possessionEvidence: {
     policy: 'scheduled_capture_confirmation_v1' as const, originTick, ticksPerSecond: p.ticksPerSecond,
     throughElapsedSeconds: horizon.elapsedSeconds, pending } } : {}) });

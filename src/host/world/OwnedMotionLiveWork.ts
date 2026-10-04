@@ -3,7 +3,11 @@ import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './P
 
 /** Read-only projection of one rederived physical adoption. This is partial source-local
  * work, with no queue coverage, actor disposition, global settlement or rule consumption. */
-export const ownedMotionLiveWork = (composition: OwnedMotionComposition, adoption: OwnedMotionAdoption) => {
+type CompositionFacts = Pick<OwnedMotionComposition, 'physicalPitchSourceId' | 'at' | 'ticksPerSecond' | 'coverageThroughTick' | 'knownWork'>
+  & Readonly<{ contributors: readonly OwnedMotionComposition['contributors'][number][] }>;
+type AdoptionFacts = Pick<OwnedMotionAdoption, 'compositionHash' | 'physicalPitchSourceId' | 'executedThrough' | 'executionSourceId'
+  | 'executionRevision' | 'physicalBoundary' | 'adoptedAt' | 'contributors'>;
+export const ownedMotionLiveWorkFacts = (composition: CompositionFacts, adoption: AdoptionFacts) => {
   if (adoption.compositionHash !== hash(composition) || adoption.physicalPitchSourceId !== composition.physicalPitchSourceId
     || adoption.executedThrough.originTick !== composition.at.originTick
     || adoption.executedThrough.elapsedSeconds < composition.at.elapsedSeconds
@@ -52,4 +56,5 @@ export const ownedMotionLiveWork = (composition: OwnedMotionComposition, adoptio
       : coverageExhausted ? 'next_owned_controller_command' as const
       : adoption.physicalBoundary !== null ? 'next_owned_physical_checkpoint' as const : null });
 };
+export const ownedMotionLiveWork = (composition: OwnedMotionComposition, adoption: OwnedMotionAdoption) => ownedMotionLiveWorkFacts(composition, adoption);
 export type OwnedMotionLiveWork = ReturnType<typeof ownedMotionLiveWork>;

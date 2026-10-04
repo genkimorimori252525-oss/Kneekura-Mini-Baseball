@@ -1,3 +1,4 @@
+import { ownedScheduledMotionObserverSuffix } from './OwnedScheduledMotionMotorCut';
 import { assertDefensiveMetadataUnambiguous, defensiveMetadataId as claim } from './ActualDefensiveMetadata';
 import { sqliteJsonMetadataNodes as nodes, sqliteJsonMetadataProjection as projection,
   sqliteJsonMetadataMatches as matches, type SqliteJsonMetadataPath } from './SqliteOwnershipMetadata';
@@ -43,6 +44,7 @@ export type OwnedMotionCausalityInput = Readonly<{
   executionPrefix: readonly DurableBattedWorldFieldExecution[];
   motorSourceIds: readonly string[];
   decisionSourceIds: readonly string[];
+  motorCutPolicy?: 'observer_suffix_v2';
 }>;
 
 /** Prove a strictly decreasing physical dependency rank BEFORE creating/dereferencing a motor or
@@ -212,7 +214,11 @@ export const preflightOwnedMotionCausality = (db: Db, input: OwnedMotionCausalit
     return { row, rows: rows.slice(0, bound + 1) };
   };
   const cut = (row: Row, exactPredecessor: boolean) => {
-    if (exactPredecessor && (row.base_field_source_id !== baseId || row.execution_source_id !== predecessor)) fail('motor self cut differs from exact predecessor');
+    if (exactPredecessor && (row.base_field_source_id !== baseId
+      || input.motorCutPolicy !== 'observer_suffix_v2' && row.execution_source_id !== predecessor)) fail('motor self cut differs from exact predecessor');
+    if (exactPredecessor && input.motorCutPolicy === 'observer_suffix_v2') {
+      ownedScheduledMotionObserverSuffix(executionPrefix, row.execution_source_id as string | null);
+    }
     const field = fieldIds.get(row.base_field_source_id as string);
     if (!field) fail('physical field anchor is outside original predecessor prefix');
     const indexed = db.prepare('SELECT physical_pitch_source_id,revision,game_id,response_source_id,geometry_source_id FROM batted_world_field_actions WHERE source_id=?')

@@ -4,7 +4,7 @@ import { openSqlitePlayerFieldingModelStore, type AcceptedPlayerFieldingModel } 
 
 export const battedWorldFieldExecutionFixture = (path?: string, kind: 'free' | 'candidate' = 'free',
   configureWorld?: NonNullable<Parameters<typeof battedWorldFieldFixture>[4]>['world'],
-  captureTiming?: Readonly<{ contactElapsedSeconds: number; captureDissipationPowerW: number }>) => {
+  captureTiming?: Readonly<{ contactElapsedSeconds: number; captureDissipationPowerW: number; initialFieldThroughTicks?: number }>) => {
   const base = battedWorldFieldFixture(path, true, kind === 'free', undefined, kind === 'free' ? undefined : {
     world(world) {
       const ball = world.flight.flight.initialBall, frame = world.flight.physicalPitch.frame.world;
@@ -29,6 +29,11 @@ export const battedWorldFieldExecutionFixture = (path?: string, kind: 'free' | '
           : { ...profile, parameters: { ...profile.parameters, captureDissipationPowerW: captureTiming?.captureDissipationPowerW ?? 100_000_000 } }) })) });
     },
   });
+  if (captureTiming?.initialFieldThroughTicks !== undefined) {
+    const throughTick = base.response.touch.worldContact.flight.flight.initialBall.tick + captureTiming.initialFieldThroughTicks;
+    base.source = { ...base.source, throughTick };
+    base.sources.set(base.source.sourceId, base.source);
+  }
   const baseField = base.fields.accept(base.source.sourceId);
   const source: AcceptedBattedWorldFieldExecution = { sourceId: 'field-execution-1', sourceVersion: 'synthetic-v1',
     baseFieldSourceId: baseField.source.sourceId, previousExecutionSourceId: null, action: kind === 'candidate' ? { kind: 'acquisition' }

@@ -64,6 +64,10 @@ export const actualFieldObservationInput = (raw: AcceptedActualFieldObservation,
 export const actualBattedWorldObservationMoment = (history: CanonicalWholePlayHistory): BallWorldMoment | null => {
   if (history.cursor) return history.cursor.moment;
   const latest = history.physicalSteps.at(-1);
+  if (latest?.kind === 'owned_motion_v2' && latest.operation?.kind === 'acquisition') {
+    const p = latest.operation.progress;
+    if (p.kind === 'capturing' || p.kind === 'fence_pending') return p.world.moment;
+  }
   return latest?.kind === 'acquisition_advance' && (latest.progress.kind === 'capturing' || latest.progress.kind === 'fence_pending')
     ? latest.progress.world.moment : null;
 };
