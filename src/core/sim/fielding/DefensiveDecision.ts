@@ -91,6 +91,12 @@ export type DefensiveDecisionInput = Readonly<{
   communicationTrust: number;
 }>;
 
+/** Additive Native seam: current individual candidate selection consumes identity only, never self coordinates or known context. */
+export type DefensiveIdentityDecisionInput = Omit<DefensiveDecisionInput, 'self' | 'perceivedWorld'> & Readonly<{
+  self: DefenderDecisionSelf | Pick<DefenderDecisionSelf, 'playerId'>;
+  perceivedWorld: PlayerPerceivedWorldState<unknown>;
+}>;
+
 const validateUnit = (name: string, value: number): void => {
   if (!Number.isFinite(value) || value < 0 || value > 1) {
     throw new Error(`${name} must be finite and within [0, 1]`);
@@ -132,7 +138,7 @@ const validateCue = (
 };
 
 const bestVisibleCommitment = (
-  input: DefensiveDecisionInput,
+  input: DefensiveIdentityDecisionInput,
 ): Extract<DefensivePerceivedCue, { kind: 'teammate_ball_commitment' }> | null => {
   const visiblePlayers = new Map(
     input.perceivedWorld.players.map((player) => [
@@ -203,7 +209,7 @@ const addCueCandidate = (
 };
 
 export const generateDefensiveIntentCandidates = (
-  input: DefensiveDecisionInput,
+  input: DefensiveIdentityDecisionInput,
 ): readonly DefensiveIntentCandidate[] => {
   if (input.self.playerId !== input.perceivedWorld.observerId) {
     throw new Error('defender decision self must match perceived-world observer');
@@ -451,7 +457,7 @@ export const chooseDefensiveIntentCandidate = (
 };
 
 export const decideDefensiveIntent = (
-  input: DefensiveDecisionInput,
+  input: DefensiveIdentityDecisionInput,
   situationalAwareness: number,
   timingParameters: DefensiveDecisionTimingParameters,
 ): DefensiveIntentDecision => {

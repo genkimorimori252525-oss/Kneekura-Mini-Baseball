@@ -1,7 +1,7 @@
 import { battedWorldFieldThrowFixture } from './BattedWorldFieldExecutionFixtures.test-support';
 import { playerObservationCalibrationFixture } from '../../core/sim/perception/PlayerObservationCalibrationFixtures.test-support';
 import { openSqlitePlayerObservationModelStore, type AcceptedPlayerObservationModel } from './SqlitePlayerObservationModelStore';
-import { openSqlitePlayerFieldingModelStore, type DurablePlayerFieldingModel } from './SqlitePlayerFieldingModelStore';
+import { openSqlitePlayerFieldingModelStore, type DurablePlayerFieldingModel, type AcceptedPlayerFieldingModel } from './SqlitePlayerFieldingModelStore';
 import type { DurableBattedWorldFieldAction } from './SqliteBattedWorldFieldStore';
 import { openSqliteActualFieldObservationStore } from './SqliteActualFieldObservationStore';
 import type { AcceptedActualFieldObservation } from './ActualFieldObservation';
@@ -9,7 +9,8 @@ import type { AcceptedActualFieldObservation } from './ActualFieldObservation';
 type FixtureBase = Readonly<{ f: ReturnType<typeof battedWorldFieldThrowFixture>['f']; baseField: DurableBattedWorldFieldAction }>;
 /** Explicit synthetic eye and calibration values only, not production defaults. */
 export const installSyntheticObservation = (x: FixtureBase, playerId: string, executionSourceId: string | null,
-  existingModel?: DurablePlayerFieldingModel, configure?: (source: AcceptedPlayerObservationModel) => AcceptedPlayerObservationModel) => {
+  existingModel?: DurablePlayerFieldingModel, configure?: (source: AcceptedPlayerObservationModel) => AcceptedPlayerObservationModel,
+  configureFielding?: (source: AcceptedPlayerFieldingModel) => AcceptedPlayerFieldingModel) => {
   const world = x.baseField.response.touch.worldContact;
   const actor = world.modelActorEvidence.find((value) => value.binding.playerId === playerId)!;
   const fieldingSource = { sourceId: `observation-fielding-${playerId}`, sourceVersion: 'synthetic-v1', careerId: actor.binding.careerId,
@@ -19,7 +20,7 @@ export const installSyntheticObservation = (x: FixtureBase, playerId: string, ex
       armStrength: 0.5, throwingAccuracy: 0.5, situationalAwareness: 0.5, tagSkill: 0.5 },
     transferParameters: { minimumTransferDelayTicks: 100, maximumTransferDelayTicks: 300, fixedGripOffsetTicks: 10 },
     throwCalibration: { minimumReleaseSpeedMps: 10, maximumReleaseSpeedMps: 30, minimumTargetErrorMeters: 0, maximumTargetErrorMeters: 1 } };
-  const fielding = existingModel ?? x.f.track(openSqlitePlayerFieldingModelStore(x.f.path, { readAcceptedModel: () => fieldingSource })).accept(fieldingSource.sourceId);
+  const fielding = existingModel ?? x.f.track(openSqlitePlayerFieldingModelStore(x.f.path, { readAcceptedModel: () => configureFielding?.(fieldingSource) ?? fieldingSource })).accept(fieldingSource.sourceId);
   const calibration = playerObservationCalibrationFixture();
   const defaultModel: AcceptedPlayerObservationModel = { sourceId: `actual-observation-model-${playerId}`, sourceVersion: 'synthetic-v1',
     careerId: actor.binding.careerId, playerId, personLinkSourceId: actor.binding.personLinkSourceId,
