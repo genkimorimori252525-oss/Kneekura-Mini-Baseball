@@ -2,6 +2,8 @@
 
 Recorded: **2026-10-04 19:27 UTC**.
 
+Subsequent code checkpoint: [revalidated field-normalization slice](../verification/2026-10-04-recovered-field-normalization.md), published in Draft PR #286 with fresh 76-test/typecheck acceptance. The larger unavailable integration remains under recovery; the snapshot below retains its original time boundary.
+
 ## Durable source boundary
 
 The last published implementation remains [Draft PR #285](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/285), commit `62775cb71dbb0a5321ae71cee588c0a7b7d17c64`, full tree `d2d70fd1b2931d601645201117ad2eedede7236b`, source tree `0142b1671d99ebd85265a2fed6fe722c8dd7fb34`. A fresh checkout was compared with all three identities after the execution environment became unavailable.
