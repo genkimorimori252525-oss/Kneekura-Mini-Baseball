@@ -3,11 +3,12 @@ import { openSqliteBattedWorldFieldExecutionStore, type AcceptedBattedWorldField
 import { openSqlitePlayerFieldingModelStore, type AcceptedPlayerFieldingModel } from './SqlitePlayerFieldingModelStore';
 
 export const battedWorldFieldExecutionFixture = (path?: string, kind: 'free' | 'candidate' = 'free',
-  configureWorld?: NonNullable<Parameters<typeof battedWorldFieldFixture>[4]>['world']) => {
+  configureWorld?: NonNullable<Parameters<typeof battedWorldFieldFixture>[4]>['world'],
+  captureTiming?: Readonly<{ contactElapsedSeconds: number; captureDissipationPowerW: number }>) => {
   const base = battedWorldFieldFixture(path, true, kind === 'free', undefined, kind === 'free' ? undefined : {
     world(world) {
       const ball = world.flight.flight.initialBall, frame = world.flight.physicalPitch.frame.world;
-      const p = world.flight.source.execution.ballFlightParameters, dt = 0.01;
+      const p = world.flight.source.execution.ballFlightParameters, dt = captureTiming?.contactElapsedSeconds ?? 0.01;
       const pitcher = frame.defenders.find((actor) => actor.playerId === 'p2')!, model = world.models.get(world.model.sourceId)!;
       const center = { x: ball.position.x + ball.velocity.x * dt,
         y: ball.position.y + ball.velocity.y * dt + 0.5 * p.gravityY * dt * dt, z: ball.position.z + ball.velocity.z * dt };
@@ -25,7 +26,7 @@ export const battedWorldFieldExecutionFixture = (path?: string, kind: 'free' | '
     response(value) {
       value.responseModels.set(value.responseModel.sourceId, { ...value.responseModel,
         actors: value.responseModel.actors.map((actor) => ({ ...actor, primitives: actor.primitives.map((profile) => profile.role !== 'glove' ? profile
-          : { ...profile, parameters: { ...profile.parameters, captureDissipationPowerW: 100_000_000 } }) })) });
+          : { ...profile, parameters: { ...profile.parameters, captureDissipationPowerW: captureTiming?.captureDissipationPowerW ?? 100_000_000 } }) })) });
     },
   });
   const baseField = base.fields.accept(base.source.sourceId);
