@@ -1,6 +1,6 @@
 # 非デザイン継続実装: 現在の接続と検証
 
-更新: 2026-10-04 JST（2026-10-03 UTC）
+更新: 2026-10-04 13:09 JST（2026-10-04 04:09 UTC）
 
 ユーザーの継続指示に従い、最新の確定済み残計画を進めている。**計画全体・自律試合/Career全体の完了ではない**。デザイン/UI/art/Presentationは未接続のまま。
 
@@ -18,6 +18,12 @@
 | [267](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/267) | [f1b24ca1](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/f1b24ca1701b66872a95961d4334880cccc6746f) | scheduled capture、exact confirmation fence、拘束中の知覚、未確認支配による誤SAFE防止 |
 | [268](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/268) | [bc29c37c](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/bc29c37cdb6787007202851363a4066d1cee1bf9) | fielding/observation modelのPlayer/Source identity mirror改ざん時の二重所有防止 |
 | [269](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/269) | [be2851ae](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/be2851ae552b045ccdeebd215e06ebe760960b32) | 明示的な個人decision/first-step calibrationのimmutable所有 |
+| [270](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/270) | [815b7b21](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/815b7b21ef416f36877a3e3865187d1e9d3b95b1) | 旧atomic acquisitionの同時刻glove拘束/ground履歴をarchive互換で接続 |
+| [271](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/271) | [917016f4](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/917016f4ffb11374d5933c092097d9c6a869e5ab) | actual observation履歴と3モデルの重複JSON identity所有を検査 |
+| [272](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/272) | [0fa664bb](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/0fa664bb696dd061a0d339e75ca60674ca30483d) | 実知覚に基づく個人判断、pending判断/初動、実際の発行時刻とimmutable履歴 |
+| [273](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/273) | [e023ef96](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/e023ef96280389fb1affb1f1db5ba99afb112ce8) | original World/command履歴からPlayer rootと5部位のrelative kinematicsを復元 |
+| [274](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/274) | [afb6ed03](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/afb6ed03e3b53dc4ccc56ef73f66be73fee06724) | Player/Person/fieldingにpinした明示的locomotion calibration |
+| [275](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/275) | [5a7caf77](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/5a7caf7746130ac78fa7da565d98ac2f517a7868) | 判断deadlineと未消費motor/adoption workのread-only Source固有投影 |
 
 各公開treeはローカルの検証Sourceとfetch/diffで一致を確認した。GitHub上のcommitはmetadataが異なるため、commit IDだけでなく全tree/src treeの同一性を各PRに記録している。いずれもmergeしていない。
 
@@ -43,6 +49,19 @@
 
 [Decision calibration owner](2026-10-04-player-decision-model-continuation.md)は、既存ratingsを複製せずに判断・初動の明示parameterを所有する。Integrated 13 files / 258 testsとtypecheckを通過した。実際のdecision receiptやmotor生成とは区別する。
 
+
+[Atomic同時刻履歴](2026-10-04-atomic-capture-history-continuation.md)は、以前は原始snapshotの保存後に全consumerが拒否した狭いglove拘束/ground境界を、元結果の完全再導出で接続する。新しい支配やOUT/SAFEを作らず、6個の旧snapshot hashを維持した。
+
+[Observation履歴所有](2026-10-04-actual-observation-history-integrity.md)と[モデルmetadata所有](2026-10-04-player-model-metadata-ambiguity.md)は、SQLiteのfirst-keyとJSON.parseのlast-keyの差、重複container、隠れたhistory ownerを検査する。統合固定Sourceはtypecheckと11 files / 241 testsを通過し、全tracked hashesが一致した。これは自DBの改変再現に対する整合性修正であり、外部攻撃や誤った試合結果が観測されたとの主張ではない。
+
+[Actual個人判断](2026-10-04-actual-defensive-decisions.md)は、各Playerの実知覚・明示優先度・独立ratingからpursuit/holdを選び、元のtargetとdeadlineを保つ。実際の後続観測で到達したissuedAtを保存し、早すぎる同tick発行や二重発行を拒否する。[自己kinematics](../implementation/2026-10-04-actual-player-kinematics.md)は、defenderのWorld由来rootとbatterの実swing-grip由来rootを区別し、5部位の非zero relative motionとcanonical残差を保存する。[Locomotion model](2026-10-04-player-locomotion-model-continuation.md)は既存Coreが消費するparameterだけを所有する。
+
+この3段の統合Source local `644476836f0edd82b5d28bde4997e06f9946fc31` / published `afb6ed03e3b53dc4ccc56ef73f66be73fee06724` は、typecheckと14 files / 195 testsを12分46.310秒で通過し、全tracked hashesが一致した。Full treeは `53982941bc2fd43a7409777a8cc353183d58d892`、src treeは `ba87b718631d242154d460858ff1e252837c3e89`。修正前の判断51件、metadata follow-up35件、各独立reviewの証拠とは分けて記録する。各中間commitを個別にwhole実行した意味ではない。
+
+[Decision live work](2026-10-04-actual-defensive-decision-live-work.md)は元の判断/初動deadlineを保持し、issued後もmotor/adoptionをpending successorとして残す。Queue coverageは未知であり、全体watermarkやPlayEndを認定しない。独立Sourceの20 testsとreview後、統合Sourceではtypecheck、Core/WAL12件と実Native read/retry/reopen1件を選択実行し通過した（他Native7件はこの統合focusedでは再実行していない）。統合13件、1分30.529秒、全tracked hashes一致。src treeは `e5ec2a4b12a47aad0535d534b5fa6073ef786852`。
+
+次の実装は、owned判断からboundedな1区間のmotor receipt、10人全5部位の指令合成、既存物理ownerによるatomic adoptionへ進める。通常のmotionが「実行checkpoint」と「指令の有効coverage」を同時に終了する境界を、明示的に別々に持つversioned checkpointで接続中。未確認の保存期間延長や部位のzero-fillで代用しない。
+
 ## 全体検証の正確な位置
 
 | 固定Source | 結果 | Sourceの範囲 |
@@ -58,12 +77,12 @@
 
 #266の累積wholeは2026-10-04 01:21:35 UTCに完了した。独立したlocked dependency directoryを使い、実行中はSourceを変更していない。Full treeは `ea050f719a5ad82227ab245d0d95dee106ecc75f`、src treeは `7dd590be2d9f6edf9f03578baddd2e77e896529a`。#263–266を含むこの累積Sourceの検証であり、過去の各中間commitを別々に再実行した意味ではない。
 
-このgateを閉じて確定残計画のscheduled acquisitionへ進んだ。後続変更へ#266の成功を流用せず、各focused/reviewと次の固定Source gateを区別する。最新terminal resultと公開tree情報は該当PR本文にも記録する。
+このgateを閉じて確定残計画のscheduled acquisitionへ進んだ。#269の固定Source local `cdd5908ed034af103719d568049a3064932959f2` / published `b2b8ee480b451e187f526b2be7db2d7d31c8c25a` の累積wholeを2026-10-04 02:29:06 UTCから別の不変checkoutで実行中。Full tree `97a38527f0d62a6ebe8d055547b9632ca8184acd`、src tree `5920b491ad4f2f74784fda398a85da14fe643ed0`。Typecheckは通過したが、この記録時点ではwhole未完了であり、#270以後も含まない。後続変更へ#266の成功を流用せず、各focused/reviewと次の固定Source gateを区別する。最新terminal resultと公開tree情報は該当PR本文にも記録する。
 
 ## 残る確定非デザイン接続
 
-1. 残るactual ball/contact/ruleの生成・消費source、未解決contact policyと旧atomic同時刻履歴境界の閉鎖
-2. Owned calibration上の知覚receiptに基づく個人decision、情報/判断/first-step遅延、既存motor所有を維持するbounded controller実行
+1. 残るactual ball/contact/ruleの生成・消費source、未解決contact policyの接続（旧atomic同時刻履歴境界は#270で接続済み）
+2. 接続済み知覚/個人decision/first-step receiptから、実際の情報・通信sourceと既存motor所有を維持するbounded controller/relative reach/全actor指令合成へ接続。Pending capture/transfer中の独立指令変更は別のpiecewise契約が必要
 3. 全contributorsとcausal actor dispositionを集めるNative registry/watermark、実際のPlayEnd
 4. Physical endと独立したcall/reviewを既存official closure/scoring/legal Match/actual-role workloadへ接続
 5. 版付きvenue/legal/dead/out-of-play/interference policy、bunt依存foul intent、実移動/recoveryによるnext-play
