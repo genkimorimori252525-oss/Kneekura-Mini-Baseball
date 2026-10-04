@@ -13,6 +13,8 @@ type Receipt<S extends Source> = Readonly<{ source: S; ownershipKey: string }>;
 export type ActualLiveImmutableOwner<S extends Source, V extends Receipt<S>> = Readonly<{
   input(raw: S, sourceId: string): S; derive(source: S, current?: boolean): V;
   ownershipField?: 'captureExecutionSourceId';
+  /** Supplied only by the concrete owner factory, never an accepted Source callback. */
+  encode?(value: V): Readonly<{ json: string; hash: string }>;
 }>;
 /** The caller owns one snapshot. All rows are reconstructed by the concrete owner. */
 export const actualLiveImmutableReceiptEvidenceFromSqlite = <S extends Source, V extends Receipt<S>>(
@@ -71,7 +73,8 @@ export const actualLiveImmutableReceiptEvidenceFromSqlite = <S extends Source, V
     const metadata = readMetadata(sourceId);
     if (!metadata) return null;
     const { row, source } = metadata, value = own.derive(source);
-    if (row.ownership_key !== value.ownershipKey || row.snapshot_json !== json(value) || row.snapshot_hash !== hash(value)) {
+    const encoded = own.encode?.(value) ?? { json: json(value), hash: hash(value) };
+    if (row.ownership_key !== value.ownershipKey || row.snapshot_json !== encoded.json || row.snapshot_hash !== encoded.hash) {
       throw new Error('actual live receipt archive differs');
     }
     assertUnique(source, value.ownershipKey, 1);
@@ -89,6 +92,8 @@ export const openActualLiveImmutableReceiptStore = <S extends Source, V extends 
   db.exec(`CREATE TABLE IF NOT EXISTS ${table} (source_id TEXT PRIMARY KEY,ownership_key TEXT NOT NULL UNIQUE,
     source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL);`);
   const own = make(db), evidence = actualLiveImmutableReceiptEvidenceFromSqlite(db, table, own); let closed = false;
+  const encode = (value: V) => own.encode?.(value) ?? { json: json(value), hash: hash(value) };
+  const same = (a: V | null, b: V) => { if (!a) return false; const left = encode(a), right = encode(b); return left.json === right.json && left.hash === right.hash; };
   const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed actual live receipt Source'); };
   const snapshot = <T>(body: () => T): T => {
     db.exec('BEGIN'); try { const result = body(); db.exec('COMMIT'); return result; }
@@ -102,19 +107,19 @@ export const openActualLiveImmutableReceiptStore = <S extends Source, V extends 
       const source = raw === null ? null : own.input(raw, sourceId);
       if (prior) {
         if (source && json(source) !== json(prior.source)) throw new Error('actual live receipt Source frozen differently');
-        return snapshot(() => { const saved = evidence.read(sourceId); if (json(saved) !== json(prior)) throw new Error('actual live receipt changed during retry'); return saved!; });
+        return snapshot(() => { const saved = evidence.read(sourceId); if (!same(saved, prior)) throw new Error('actual live receipt changed during retry'); return saved!; });
       }
       if (!source) throw new Error('accepted actual live receipt Source missing');
-      const value = snapshot(() => own.derive(source, true));
+      const value = snapshot(() => own.derive(source, true)), encoded = encode(value);
       db.exec('BEGIN IMMEDIATE');
       try {
         if (evidence.read(sourceId)) throw new Error('actual live receipt Source appeared during write');
         evidence.assertUnique(source, value.ownershipKey, 0);
-        if (json(own.derive(source, true)) !== json(value)) throw new Error('actual live receipt dependencies changed before write');
-        db.prepare(`INSERT INTO ${table} VALUES (?,?,?,?,?,?)`).run(sourceId, value.ownershipKey, json(source), hash(source), json(value), hash(value));
-        if (json(own.derive(source, true)) !== json(value)) throw new Error('actual live receipt dependencies changed during write');
+        if (!same(own.derive(source, true), value)) throw new Error('actual live receipt dependencies changed before write');
+        db.prepare(`INSERT INTO ${table} VALUES (?,?,?,?,?,?)`).run(sourceId, value.ownershipKey, json(source), hash(source), encoded.json, encoded.hash);
+        if (!same(own.derive(source, true), value)) throw new Error('actual live receipt dependencies changed during write');
         const saved = evidence.read(sourceId);
-        if (json(saved) !== json(value)) throw new Error('actual live receipt changed during write');
+        if (!same(saved, value)) throw new Error('actual live receipt changed during write');
         db.exec('COMMIT'); return saved!;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     },

@@ -1,3 +1,4 @@
+import { actualLivePlayScopeArchiveEncoding as encode } from './ActualLivePlayArchive';
 import { createRequire } from 'node:module';
 import { actualLivePlayId as id, actualLivePlayScopeInput as input, type AcceptedActualLivePlayScope, type DurableActualLivePlayScope } from './ActualLivePlayScope';
 import { actualLivePlayEvidenceFromSqlite } from './ActualLivePlayEvidenceFromSqlite';
@@ -20,6 +21,9 @@ export const openSqliteActualLivePlayStore = (path: string, authority?: Authorit
     physical_pitch_source_id TEXT NOT NULL,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,scope_id TEXT NOT NULL,cut_key TEXT NOT NULL,
     source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL);`);
   const own = actualLivePlayEvidenceFromSqlite(db); let closed = false;
+  const same = (a: DurableActualLivePlayScope | null, b: DurableActualLivePlayScope) => {
+    if (!a) return false; const left = encode(a), right = encode(b); return left.json === right.json && left.hash === right.hash;
+  };
   const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed actual live-play scope'); };
   const read = (sourceId: string): DurableActualLivePlayScope | null => {
     check(sourceId);
@@ -44,9 +48,9 @@ export const openSqliteActualLivePlayStore = (path: string, authority?: Authorit
     metadata(row.snapshot_json, ['history', { array: 'all' }], 'object', expected);
     metadata(row.snapshot_json, ['scope'], 'object', { scopeId: row.scope_id, physicalPitchSourceId: row.physical_pitch_source_id,
       gameId: row.game_id, playId: row.play_id });
-    const source = input(JSON.parse(row.source_json), sourceId), value = own.derive(source);
+    const source = input(JSON.parse(row.source_json), sourceId), value = own.derive(source), encoded = encode(value);
     if (row.cut_key !== json(source.cut) || row.source_json !== json(source) || row.source_hash !== hash(source)
-      || row.snapshot_json !== json(value) || row.snapshot_hash !== hash(value)) throw new Error('corrupt original actual live-play scope archive');
+      || row.snapshot_json !== encoded.json || row.snapshot_hash !== encoded.hash) throw new Error('corrupt original actual live-play scope archive');
     return value;
   };
   const snapshot = <T>(body: () => T) => {
@@ -62,20 +66,20 @@ export const openSqliteActualLivePlayStore = (path: string, authority?: Authorit
       const prior = snapshot(() => read(sourceId)), raw = authority?.readAcceptedScope(sourceId) ?? null, source = raw === null ? null : input(raw, sourceId);
       if (prior) {
         if (source && json(source) !== json(prior.source)) throw new Error('actual live-play scope Source frozen differently');
-        return snapshot(() => { const saved = read(sourceId); if (json(saved) !== json(prior)) throw new Error('actual live-play scope changed during retry'); return saved!; });
+        return snapshot(() => { const saved = read(sourceId); if (!same(saved, prior)) throw new Error('actual live-play scope changed during retry'); return saved!; });
       }
       if (!source) throw new Error('accepted actual live-play scope Source missing');
-      const value = snapshot(() => own.derive(source, true)), projection = snapshot(() => own.evaluate(value));
+      const value = snapshot(() => own.derive(source, true)), projection = snapshot(() => own.evaluate(value)), encoded = encode(value);
       db.exec('BEGIN IMMEDIATE');
       try {
         if (read(sourceId)) throw new Error('actual live-play Source appeared during write');
         own.current(value);
         if (json(own.evaluate(value)) !== json(projection)) throw new Error('actual live-play producer dependencies changed before write');
         db.prepare('INSERT INTO actual_live_play_scopes VALUES (?,?,?,?,?,?,?,?,?,?,?)').run(sourceId, source.sourceVersion,
-          source.physicalPitchSourceId, value.scope.gameId, value.scope.playId, value.scope.scopeId, json(source.cut), json(source), hash(source), json(value), hash(value));
+          source.physicalPitchSourceId, value.scope.gameId, value.scope.playId, value.scope.scopeId, json(source.cut), json(source), hash(source), encoded.json, encoded.hash);
         own.current(value);
         if (json(own.evaluate(value)) !== json(projection)) throw new Error('actual live-play producer dependencies changed during write');
-        const saved = read(sourceId); if (json(saved) !== json(value)) throw new Error('actual live-play archive changed during write');
+        const saved = read(sourceId); if (!same(saved, value)) throw new Error('actual live-play archive changed during write');
         db.exec('COMMIT'); return saved!;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     },
