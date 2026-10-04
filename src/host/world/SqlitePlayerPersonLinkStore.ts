@@ -86,6 +86,7 @@ SqlitePlayerPersonLinkStore => {
   const Database = (createRequire(import.meta.url)('node:sqlite') as
     typeof import('node:sqlite')).DatabaseSync;
   const db = new Database(databasePath);
+  try {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   ensurePlayerPersonLinkSchema(db);
   const getLink = db.prepare(`SELECT source_id, career_id, player_id,
@@ -214,4 +215,5 @@ SqlitePlayerPersonLinkStore => {
     },
     close(): void { if (!closed) { db.close(); closed = true; } },
   });
+  } catch (error) { db.close(); throw error; }
 };

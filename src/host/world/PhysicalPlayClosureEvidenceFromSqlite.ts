@@ -1,3 +1,4 @@
+import { assertPriorActualLiveClosureCompleted } from './ActualLivePlayClosureEvidenceFromSqlite';
 import { createHash } from 'node:crypto';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -298,6 +299,7 @@ export const expectedClosureWorkloadAfter = (p: PhysicalClosureProposal) => adva
 
 /** A newly activated play must wait for every durable effect of its queued predecessor. */
 export const assertPriorPhysicalClosureCompleted = (db: PhysicalClosureDb, applicationId: string | null): void => {
+  assertPriorActualLiveClosureCompleted(db, applicationId);
   if (applicationId === null || !db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='physical_play_closures'").get()) return;
   const queued = db.prepare('SELECT source_id FROM physical_play_closures WHERE application_id=?').get(applicationId) as { source_id: string } | undefined;
   if (!queued) return;
