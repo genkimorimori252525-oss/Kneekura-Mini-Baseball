@@ -17,3 +17,13 @@ The synthetic timing belongs only to these accepted fixture models and Sources. 
 ## Verification status
 
 The pure acceleration calibration was first RED in all six cases, then GREEN. It verifies the accepted target equation and rejects invalid timing. Direct Node26 TypeScript checking passed with a 1408 MiB heap under the shared light lock and memory reserve. The construction test collected and was explicitly skipped because no artifact output path was supplied; that skip is not a Native pass. Fresh construction, delayed-call end, rollback and reopen remain unexecuted until the separately scheduled exact-source Native gate. The earlier lost artifacts never established a completed physical PlayEnd.
+
+## Fresh construction gate
+
+The construction-only Native gate passed on immutable combined source `bf8233fa4ce4c7a7a66be62aa757ef93642e9c29`, source tree `61eebeac549bac6237fd4b0f24718deae92a654b`. It executed one test with zero skips in 417.77 seconds (420.56 seconds total) using Node26, one worker and a 1024 MiB heap. All 2024 tracked files matched the before/after manifest SHA-256 `1be1a6bc63a0fc3a6acc72b2bf69242881d9faf9cf10f8b79fcaec372462397a`. The process reached terminal exit 0, was reaped, and released the scheduled main lock.
+
+This fresh run proved actual original-pitch ground and capture, real all-ten/fifty-part acquisition phases, the observation→decision→motor→adoption connection, the retained quantizer bucket, and a grounded fair OUT rule with both actual timing cues. The physical-end owner explicitly returned pending for the missing canonical rule acknowledgement. It did not certify an operative retirement or a completed physical play.
+
+After closing every connection, the test authenticated the original chain after reopen and produced a separate verified local backup. That backup has SHA-256 `691c1640471fd268eea26c61f65699b7ca1c94566f4baa70344d86e0687ab810`, 63 tables and 113 rows. The read-only audit verified its explicit disk filename and WAL mode, preserved all table counts/logical row hashes and original Source/snapshot hashes, and confirmed the audit did not alter database bytes. It contains two actual field actions, eight field executions, fourteen runtime admissions, and one real observation, defensive decision and locomotion receipt. Subsequent delayed-call/end work must extend a copy and preserve this construction artifact.
+
+The complete physical-end positive gate and the later official/next-play pipeline remain pending. This gate is new evidence on the rebuilt source; no result is inherited from the lost pre-replacement artifacts.

@@ -1,0 +1,341 @@
+{
+  "schema": "synthetic_original_first_base_chain_fixture_v1",
+  "content": "Synthetic test data generated solely from committed repository fixtures; no application or user records",
+  "scope": "Original ten-player/fifty-part physical capture, actual decision and motor, fair OUT rule; operative end remains pending",
+  "sourceCommit": "bf8233fa4ce4c7a7a66be62aa757ef93642e9c29",
+  "sourceTree": "61eebeac549bac6237fd4b0f24718deae92a654b",
+  "sourceManifestSha256": "1be1a6bc63a0fc3a6acc72b2bf69242881d9faf9cf10f8b79fcaec372462397a",
+  "generator": "src/host/world/ActualFirstBasePlayEndConnection.test.ts",
+  "verification": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "completeCloseReopen": true,
+    "operativeEndEstablished": false
+  },
+  "encoding": "base64 of gzip with mtime0",
+  "encodedFile": "first-base-original-chain-bf823.sqlite.gz.b64",
+  "databaseBytes": 2699264,
+  "databaseSha256": "691c1640471fd268eea26c61f65699b7ca1c94566f4baa70344d86e0687ab810",
+  "gzipBytes": 139805,
+  "gzipSha256": "712313f01f85af1196a93dbdd1d65b92aca3af908f93b42f57e637b8011935d8",
+  "databaseJournalMode": "wal",
+  "uncheckpointedWalBytes": 0,
+  "tables": [
+    {
+      "name": "actual_defensive_decision_heads",
+      "count": 1,
+      "logicalRowsHash": "eeab0c46aafd443414b93ba05cd52a936c6f8ee3ef63976e285ecfd5c11aec16"
+    },
+    {
+      "name": "actual_defensive_decisions",
+      "count": 1,
+      "logicalRowsHash": "9030080d9fc48ffe6f95adf7dc2f17f75995d597d6d29b8592f22de9913b36f4"
+    },
+    {
+      "name": "actual_defensive_plans",
+      "count": 1,
+      "logicalRowsHash": "3350951e638c052dc3067356f5be787ce7b188067b2cb0cd2bdcf07934a81eed"
+    },
+    {
+      "name": "actual_field_observation_heads",
+      "count": 1,
+      "logicalRowsHash": "108a80e8d2dd80bdf316d7e570aefa2a1b182ee78828763319fc186e9c30761a"
+    },
+    {
+      "name": "actual_field_observations",
+      "count": 1,
+      "logicalRowsHash": "0ece09aa4b24dd0699c39b969ba079f2ccfcd3d73fb65581969447a3e405d65d"
+    },
+    {
+      "name": "actual_live_play_admissions",
+      "count": 14,
+      "logicalRowsHash": "394aa9445b18287a86adaaf3f5a4eb5bd6a21a484f41eb18f687c11850db82db"
+    },
+    {
+      "name": "actual_live_play_runtimes",
+      "count": 1,
+      "logicalRowsHash": "5ae53c33f0ee09b5d499758ed04f1ee386f45f33a3b229aa07c08e56bae523ca"
+    },
+    {
+      "name": "actual_locomotion_heads",
+      "count": 1,
+      "logicalRowsHash": "89714c4c32742d47125c7b8e87d74c0cad7cc0aec0b06e54aa25111f8e090fbb"
+    },
+    {
+      "name": "actual_locomotion_receipts",
+      "count": 1,
+      "logicalRowsHash": "40950ceda1f1d752a32ef022aa33d60ece53274d4f17bc4d09cddb82fe8371d2"
+    },
+    {
+      "name": "applications",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "batted_ball_flight_heads",
+      "count": 1,
+      "logicalRowsHash": "17a5ea47c267ee054399445bcc7dfe4cbb92ef662540d9e6f7ac318ce29f9ac2"
+    },
+    {
+      "name": "batted_ball_flights",
+      "count": 1,
+      "logicalRowsHash": "9bb09454e64af125266ba166e50d92975cd8e0c08ecacca0982f94fea68d41c7"
+    },
+    {
+      "name": "batted_contact_response_models",
+      "count": 1,
+      "logicalRowsHash": "24635b6037b9686a4c7eeacbe1d280025da52179c07827a9a1ce35c65bc2e089"
+    },
+    {
+      "name": "batted_contact_responses",
+      "count": 1,
+      "logicalRowsHash": "e460b5fe886d1fbde1cb9af4ed109d2a97c142a10fcfada8c1323025b73fe2c5"
+    },
+    {
+      "name": "batted_first_fielder_touches",
+      "count": 1,
+      "logicalRowsHash": "94b3b9d93f80d1c65af66a91df075b880831ae983b59a707843f9ba125676d25"
+    },
+    {
+      "name": "batted_world_base_geometries",
+      "count": 1,
+      "logicalRowsHash": "490e860b11fb48b68cd5c54cc858be06e7857a775653aede7c786135b1c56605"
+    },
+    {
+      "name": "batted_world_contact_heads",
+      "count": 1,
+      "logicalRowsHash": "d0313f27a4af8e519228d77234fadf0da1aa70f657b2e83e30215729d3867fe4"
+    },
+    {
+      "name": "batted_world_contacts",
+      "count": 1,
+      "logicalRowsHash": "cd82277505c18ea221c594459b756dd5298a14d7db2d1664d1e4d0b098d5b2af"
+    },
+    {
+      "name": "batted_world_field_actions",
+      "count": 2,
+      "logicalRowsHash": "b97c38810a2381319bec5a3d776580da7a87fbdc02207a54a40d9ae17b5d3b40"
+    },
+    {
+      "name": "batted_world_field_execution_heads",
+      "count": 1,
+      "logicalRowsHash": "8e5243f6d1e59d16f837da7645acfa55aa9e9d261532b934b2eded5eb26be922"
+    },
+    {
+      "name": "batted_world_field_executions",
+      "count": 8,
+      "logicalRowsHash": "243b0500673f24389e67f555b09b3eabd463394fa86c18a5b24d3d10adbf9015"
+    },
+    {
+      "name": "batted_world_field_geometries",
+      "count": 1,
+      "logicalRowsHash": "00d62986c77f17b82d65ceb159e07188314e9bdf286e806f0fad117aa1e583d9"
+    },
+    {
+      "name": "batted_world_field_heads",
+      "count": 1,
+      "logicalRowsHash": "e38c9e6b7e07e44b3f4aacae7df7e5916b25f0bceaa212ec791ea94dbc334fad"
+    },
+    {
+      "name": "batted_world_models",
+      "count": 1,
+      "logicalRowsHash": "52941bd003ecea83a7f0541765e980b5bffa47776a676b3f4e737bf5077e952d"
+    },
+    {
+      "name": "matches",
+      "count": 1,
+      "logicalRowsHash": "07615e6e343fc8e75fbb89fda1fc3ae06112c440deb3541c72be1ffbc622e611"
+    },
+    {
+      "name": "official_fixtures",
+      "count": 1,
+      "logicalRowsHash": "739e99e369d1339cf44cd3a3552be4ffa3d017b83f823533db9c76e0f57b6ce6"
+    },
+    {
+      "name": "official_initial_world_sources",
+      "count": 1,
+      "logicalRowsHash": "0ce50c10ee404eb4b57d22eaa312a99e1829e8db34b13b9748c2de523a31b3f6"
+    },
+    {
+      "name": "official_participant_bindings",
+      "count": 18,
+      "logicalRowsHash": "528e65fb362900c7ca1c3cfab73644afa4284176507aa247661d1db9b8f59ece"
+    },
+    {
+      "name": "official_participation_receipts",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "official_pitch_workload_policies",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "official_pitch_workload_sources",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "official_scoring_applications",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "physical_closure_game_policies",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "physical_pitch_progress_actions",
+      "count": 1,
+      "logicalRowsHash": "c9337de2c9f5bb001375d5116b953d1cd4b51e0c3f55f6049b771ed4ed51a6be"
+    },
+    {
+      "name": "physical_pitch_progress_heads",
+      "count": 1,
+      "logicalRowsHash": "4982d55805ca5f5e72d91460673e10f2a0b4e2137e098c534a4572dd6fda8b25"
+    },
+    {
+      "name": "physical_plate_appearance_actor_games",
+      "count": 1,
+      "logicalRowsHash": "2ffe36dd08856a4877da2e61d545ed80a4ab5581ea908f59e4d456e6e0ff058f"
+    },
+    {
+      "name": "physical_plate_appearance_actors",
+      "count": 1,
+      "logicalRowsHash": "539cd70c6e340285677760f03fabfaf0abea9ddb358f4aa891fe1b47509a7d5d"
+    },
+    {
+      "name": "physical_play_closures",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "world_club_checkpoints",
+      "count": 2,
+      "logicalRowsHash": "89e70224ed8e23454a8bc9bafb73cdaa423d99a61464b46702dd0fecfbbb6a5c"
+    },
+    {
+      "name": "world_club_event_journal",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "world_club_heads",
+      "count": 2,
+      "logicalRowsHash": "89e70224ed8e23454a8bc9bafb73cdaa423d99a61464b46702dd0fecfbbb6a5c"
+    },
+    {
+      "name": "world_pitch_fatigue_policies",
+      "count": 1,
+      "logicalRowsHash": "41f1e5dddc8a105e78c0c60729b0ba542c932211bfd896dc961ba5d504fc3830"
+    },
+    {
+      "name": "world_pitch_timing_baselines",
+      "count": 2,
+      "logicalRowsHash": "ef00fca3195d85eb8f4f2f39dc0c0c8c537be4b5a2f2ace07652f55e7d65c564"
+    },
+    {
+      "name": "world_pitch_timing_heads",
+      "count": 2,
+      "logicalRowsHash": "e46c3d28b2fa628e2bc8eeee90422bbd220ede955a340aea4a108273140542a0"
+    },
+    {
+      "name": "world_pitch_timing_updates",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "world_player_decision_models",
+      "count": 1,
+      "logicalRowsHash": "9b82c6c73087673e2f5e8073454f0eee33a4df28ceebbae11bc5a992930212f3"
+    },
+    {
+      "name": "world_player_fielding_models",
+      "count": 1,
+      "logicalRowsHash": "a7e4e5496ed7acdae135abf63e5e22bab9bf273c33f08128a59619b4084a2034"
+    },
+    {
+      "name": "world_player_locomotion_models",
+      "count": 1,
+      "logicalRowsHash": "889bb9387fd55efb77be5dad9c2895b5e45588568c1f88ed381a2062b1880650"
+    },
+    {
+      "name": "world_player_observation_models",
+      "count": 1,
+      "logicalRowsHash": "a4b2afd12bb9f045b51d1aa1da603759d1aff240684115a34fa058bb167acd0a"
+    },
+    {
+      "name": "world_player_person_links",
+      "count": 18,
+      "logicalRowsHash": "da2fe24b2f1c5652cde02c327df27db0a5d32cc1abd926b08e269d0dc4f78cab"
+    },
+    {
+      "name": "world_player_release_baselines",
+      "count": 2,
+      "logicalRowsHash": "7915a757836e935edbc3382fb17d133e1034d66ec5eb907f1038ef1843a884cc"
+    },
+    {
+      "name": "world_player_release_changes",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "world_player_release_heads",
+      "count": 2,
+      "logicalRowsHash": "17c8c93b1cda28d3126ed9e330b38b9980822926d3fa72f4e4dabb716aab51ba"
+    },
+    {
+      "name": "world_player_workload_activities",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "world_player_workload_baselines",
+      "count": 2,
+      "logicalRowsHash": "2ca2026cac6c597cb4c57622b12ccfd558f8be8b7a6971ef9fc72bb781e7d6b3"
+    },
+    {
+      "name": "world_player_workload_heads",
+      "count": 2,
+      "logicalRowsHash": "a9db3d1a43a148579c09f726a69ef71fa3513482d95d8adcec2ced0251e75411"
+    },
+    {
+      "name": "world_player_workload_policies",
+      "count": 1,
+      "logicalRowsHash": "6c7548b608f97879027ce7db48a0af1fa64967304e4686119c222d860191c94f"
+    },
+    {
+      "name": "world_roster_executions",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "world_roster_heads",
+      "count": 1,
+      "logicalRowsHash": "b498361476f5770e36c4dadb8e06890fbdaf6b11e93a0c01dd62cd27c404f843"
+    },
+    {
+      "name": "world_roster_mood_heads",
+      "count": 2,
+      "logicalRowsHash": "2ef2c1e10fd901f7a6e49e88ced2467dcc32365781ea9f038916d22a45f5c05d"
+    },
+    {
+      "name": "world_roster_opportunities",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "world_season_heads",
+      "count": 1,
+      "logicalRowsHash": "22ff5a8879331bf1cf55b18c53075c139b51dc9f85b078034cb763b854d8b406"
+    },
+    {
+      "name": "world_settlement_applications",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  ]
+}
