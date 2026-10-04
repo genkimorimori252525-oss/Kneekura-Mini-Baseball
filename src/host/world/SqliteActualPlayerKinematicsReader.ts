@@ -1,3 +1,5 @@
+import { ownedScheduledMotionArchiveHash } from './OwnedScheduledMotionArchive';
+import type { DurableBattedWorldFieldExecution } from './SqliteBattedWorldFieldExecutionStore';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { actualPlayerKinematicsFromPrefix, type ActualPlayerKinematics } from './ActualPlayerKinematicsFromPrefix';
@@ -46,7 +48,8 @@ export const actualPlayerKinematicsEvidenceFromSqlite = (db: Pick<import('node:s
     // Hash each bounded snapshot separately: aggregated repeated roots can exceed cloneInert's object limit.
     const reference = (owner: 'batted_world_field_actions' | 'batted_world_field_executions',
       snapshot: { source: { sourceId: string }; revision: number }) => ({ owner, sourceId: snapshot.source.sourceId,
-      revision: snapshot.revision, snapshotHash: hash(snapshot) });
+      revision: snapshot.revision, snapshotHash: owner === 'batted_world_field_executions'
+        ? ownedScheduledMotionArchiveHash(snapshot as DurableBattedWorldFieldExecution) : hash(snapshot) });
     const manifest = { version: 'actual_player_kinematics_prefix_v1',
       baseField: reference('batted_world_field_actions', prefix.baseField),
       fields: prefix.fields.map((snapshot) => reference('batted_world_field_actions', snapshot)),
