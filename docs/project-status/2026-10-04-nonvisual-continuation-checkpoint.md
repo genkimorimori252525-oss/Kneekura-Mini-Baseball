@@ -1,6 +1,6 @@
 # 非デザイン継続実装: 現在の接続と検証
 
-更新: 2026-10-04 17:54 JST（2026-10-04 08:54 UTC）
+更新: 2026-10-04 20:07 JST（2026-10-04 11:07 UTC）
 
 ユーザーの継続指示に従い、最新の確定済み残計画を進めている。**計画全体・自律試合/Career全体の完了ではない**。デザイン/UI/art/Presentationは未接続のまま。
 
@@ -28,6 +28,8 @@
 | [277](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/277) | [e93bf5dc](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/e93bf5dc3cfab034895a5642b8be3d919ef4c17c) | 実際に発行された個人判断から、元のrelative指令を保持するbounded初回motor receipt |
 | [278](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/278) | [8c584e5e](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/8c584e5ed53165d3d037b705c3dbbd76ef9f5455) | 全10人・50部位のowned/retained指令合成、実物理へのatomic adoptionと独立due work |
 | [279](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/279) | [df558bd4](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/df558bd4ab2491b386e99e670635a1624b077b4e) | 捕球/持替えの元energy・時刻・RNGを保つpiecewise Coreとcheckpoint非依存contact root |
+| [280](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/280) | [8db860a5](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/8db860a5efb18214107ee5446aad438f3aa0895e) | 元の10選手/50部位、70必須domain、実所有者のbounded inventoryとpending-only Native scope |
+| [281](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/281) | [df5ef199](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/df5ef1996805ce5681be04f0ec2663da3867974c) | 元のlive call時刻・exact availability・証拠identityを保持するpost-play adjudication import Core |
 
 各公開treeはローカルの検証Sourceとfetch/diffで一致を確認した。GitHub上のcommitはmetadataが異なるため、commit IDだけでなく全tree/src treeの同一性を各PRに記録している。いずれもmergeしていない。
 
@@ -81,6 +83,28 @@ Core単独source `464a76802a5cb29952b420b9941ca9b16d250848`でtypecheckと93 fil
 
 Pending capture/transferへ実際の独立判断/motorを接続するNative所有・履歴・transaction統合は継続中。Core単独の成功をその完了へ読み替えない。以後のcontroller更新、route進行、全contributors/actor dispositionからの実PlayEnd、official closureとCareer全体も引き続き残る。
 
+## Native scopeとlive-call import
+
+[Original Native scope](2026-10-04-actual-live-play-scope.md)を#280で追加した。Player/Person/fixtureと50部位を元のphysical pitchから導出し、必要な70のproducer-domain instanceを、現在見つかったSQL行の集合とは独立して登録する。元のpre-pitch runnersはIDを残してunsupportedにする。Observation/decision/motorのbounded inventoryと実際のlocal workを集めるが、不在のgeneratorや未確認coverageはpendingのままで、PlayEndは生成しない。
+
+固定した独立実装Sourceでtypecheck、Core6 files / 101 tests、Native8 files / 54 testsが通過し、独立reviewでも43 metadata/Core testsと実Nativeのrollback/adoption/archive probeが通過した。#279へ同じ12ファイルを統合したlocal `8eac874f95fe845bd7694032dd72506b08f701dd`ではtypecheckと5 files / 43 testsが2.73秒で通過し、tracked hashesが一致した。追加のcurrent-tree Native store再検証も同じ固定Sourceで1 file / 3 testsを190.98秒で通過し、exit0と全tracked hashes不変を確認した。Scheduled-motion v2の検証とは区別する。公開full tree `8352554e77d4bd0f1dba6b9bc5e5760c01efa800`、src tree `c24e3096b231cd57230715074173aa9665a6414f`をfetch/diffで確認した。
+
+[Original live-call import](../implementation/2026-10-04-owned-live-call-import.md)を#281で接続した。元のcall tick・exact called/available timeとpost-play import timeを別々に保存する。元の古い規則証拠は現在の証拠へ自動的に付け替えず、staleのまま保持する。過去のcallを後発のappeal-call義務の消費として扱わない。これはCoreの形式/順序/再生契約であり、Nativeが各Sourceの実所有・game/pitch・exact PlayEndを再導出する接続は残る。
+
+固定local `5869ebbf3815fe534f43769eceb85dae922427ca`はtypecheckと17 files / 122 testsを4.75秒で通過し、全1,830 tracked hashesが一致した。独立reviewで16 files / 118 tests、別の33 adversarial tests、旧版との240 trace-prefix比較が通過し、Critical/Important指摘は残っていない。旧call→review→closureの2,278 bytes、SHA256 `d0170ec820ccd8545bc3bfb7716144831c45447f52a805d6bc4368d2f62139e3`も維持した。公開full tree `4fc2e4de2e57159a7014a227956908abf63a2c56`、src tree `bb3903b4a00bdc25e84540a4795c34d9f662fdc6`をfetch/diffで確認した。Native実審判や公式試合ループ全体の検証ではない。
+
+## 未公開Native統合の現在位置
+
+Piecewise capture/transfer中の独立motor採用、owner-qualified archive manifest、observer-only suffixの厳密な元cut照合を統合中。中間Sourceの選択検証では、実物理の静止球接線→energy0確保→遅延0の送球→同exact時刻の新しいground接触、整数clockの保持、observer履歴後の一度限りのmotor採用が通過した。旧版で生成した3種類のDBも新readerで再開/再試行し、保存行と元artifactのbytes/hashが不変だった。これらは同一の最終全件gateとして合算しない。
+
+3人のmixed motorと履歴再導出の試験は1/1、exit0、全体4,489.04秒で通過した。3人の実decision→motor→adoption、残りの指令lineage、50部位、3観測、次の実進行を確認した。ただしこれは性能修正前の作業Sourceの証拠で、強化した最終assertionsの再実行も残る。
+
+別のbounded診断では、1選手・3実行記録の実Native鎖で複製/正規化JSON化がCPU sampleの約65%を占めた。同じsnapshotのJSON比較とhash比較を1回の正規化結果から作る限定修正は、pure/metadata41 testsと独立27 testsでbytes/hash一致を確認した。保存済みlogical-initのcodec比較は43.96ms→16.35msだったが、これはNative全体の速度改善率ではない。Generic serializer・入力上限・DB再導出・transaction後の改変検出を保持し、DB/global cacheは導入していない。
+
+修正後のcandidateはfull1,844filesを固定し、typecheckと8 files / 36 pure/codec/metadata testsを通過、hashes不変。Integration→EndToEnd→LiveWork→WAL→実32段履歴の段階別Native gateを待機/実行する。未実行のconsumer casesと強化したmixed/zero-time assertionsも含め、最終frozen-source受入れは未完了。
+
+次に、確認済み捕球→actual first-base rule consumer→未消費result successorの実Native鎖を接続する。単なるrule読取りだけで消費済みと見なさない。また、数学上の整数Tまで進めただけでは「同じTへ量子化される直後の端数時刻」まで処理した証拠にならない。全actorの連続曲線coverage、実event生成/消費、独立operative call、参加writerのfenceを実際に揃えてからPlayEndへ進む。
+
 ## 全体検証の正確な位置
 
 | 固定Source | 結果 | Sourceの範囲 |
@@ -90,6 +114,7 @@ Pending capture/transferへ実際の独立判断/motorを接続するNative所�
 | #262 local `43dc03df` / published `83838144` 同一tree | exit0、632 files / 4,326 tests、94分12.209秒 | 修正済みwhole-play historyまで。全1,656 tracked hashes一致 |
 | #266 local `2045573a` / published `8d752788` 同一tree | exit0、648 files / 4,554 tests、94分39.813秒 | Actual observation・scheduled throw・release互換修正まで。全1,692 tracked hashes一致、checkout clean |
 | #269 local `cdd5908e` / published `b2b8ee48` 同一tree | exit0、662 files / 4,807 tests、117分38.678秒 | Scheduled capture・model mirror修正・decision calibrationまで。全1,722 tracked hashes一致、checkout clean |
+| #277 local `e8b3aaa2` / published `0484d42e` 同一tree | exit0、697 files / 5,159 tests、165分59秒 | #270–277を含む初回motor receiptまで。全1,784 tracked hashesと以前の部分証拠checksums一致、checkout clean。#278以後を含まない |
 
 いずれもtypecheckを含む。#262のfull treeは `c9c1fd2a91c94b43966a77cb4c8b958d70df86e9`、src treeは `3215fe92c34ae51c5deca1bfcff7bacb59b847a6`。Tracked diffは空で、検証checkoutのuntracked itemはruntime dependency用node_modules symlinkのみだった。
 
@@ -99,7 +124,7 @@ Pending capture/transferへ実際の独立判断/motorを接続するNative所�
 
 このgateを閉じて確定残計画のscheduled acquisitionへ進んだ。#269の固定Source local `cdd5908ed034af103719d568049a3064932959f2` / published `b2b8ee480b451e187f526b2be7db2d7d31c8c25a` の累積wholeを2026-10-04 02:29:06 UTCから別の不変checkoutで実行し、04:26:46 UTCにexit0で完了した。Full tree `97a38527f0d62a6ebe8d055547b9632ca8184acd`、src tree `5920b491ad4f2f74784fda398a85da14fe643ed0`。Typecheckと662 files / 4,807 testsが通過し、全1,722 tracked hashesは前後で一致、checkoutはcleanだった。この累積Sourceの成功であり、各中間commitを別々にwhole実行した意味ではなく、#270以後も含まない。後続変更へ#266の成功を流用せず、各focused/reviewと次の固定Source gateを区別する。最新terminal resultと公開tree情報は該当PR本文にも記録する。
 
-#277の固定Sourceのwholeは、最初の2回でterminal exit/hash記録が残らず中断した。部分logを成功扱いせず、2026-10-04 08:07:46 UTCに同一Sourceで再実行した。Local `e8b3aaa2117b6fc2a4a62ee3c5f2f61cc37a1a77` / published `0484d42e33b520d105dd20c0415026fa2d29a9ed`、full tree `264fb1ba911e88f39b9d45d7edc54121e4175d7f`、src tree `1fcc576ca115c7bd514422d2bd5ab0dc2031867d`。現在は実行中であり、#278を含まない。後続の全体検証は最新のまとまった統合Sourceで実施する。
+#277の固定Sourceのwholeは、最初の2回でterminal exit/hash記録が残らず中断した。部分logを成功扱いせず、2026-10-04 08:07:46 UTCに同一Sourceで再実行した。Local `e8b3aaa2117b6fc2a4a62ee3c5f2f61cc37a1a77` / published `0484d42e33b520d105dd20c0415026fa2d29a9ed`、full tree `264fb1ba911e88f39b9d45d7edc54121e4175d7f`、src tree `1fcc576ca115c7bd514422d2bd5ab0dc2031867d`。2026-10-04 10:53:45 UTCにterminal exit0で完了した。Typecheckと697 files / 5,159 testsが通過し、全1,784 tracked hashes不変、以前の中断証拠のchecksums不変、checkout cleanを確認した。全体所要9,959秒、Vitest部分9,929.04秒。これは#277までを含む累積Sourceの成功であり、各中間commitの個別whole成功や#278以後の成功へ読み替えない。後続の全体検証は最新のまとまった統合Sourceで実施する。
 
 ## 残る確定非デザイン接続
 
