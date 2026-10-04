@@ -2,6 +2,8 @@
 
 更新: 2026-10-04 JST
 
+公開: [Draft PR #267](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/267)、[実装commit f1b24ca1](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/f1b24ca1701b66872a95961d4334880cccc6746f)。最終固定Sourceでtypecheck、14 files / 239 tests PASS、全tracked hashes一致。新しいwhole結果とは区別する。
+
 確定非デザイン残計画の、実glove contactからsecure確認までを途中保存・再開可能にする接続。既存のatomic acquisitionとarchiveを維持する追加経路。
 
 ## 接続した境界

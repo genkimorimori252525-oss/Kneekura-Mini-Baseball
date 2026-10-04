@@ -15,6 +15,9 @@
 | [264](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/264) | [de36ce08](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/de36ce08c310ab382fe25328dc27d4c143354ba1) | Player/Personにpinした明示的な観測calibration baseline |
 | [265](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/265) | [2e361ee4](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/2e361ee47e8dc32297b51fc185ab911b3ebac681) | 旧atomic release境界のversioned custody補正とarchive互換性 |
 | [266](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/266) | [54860afb](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/54860afba63dc33a20b421610cad29eba7eeca71) | actual fieldからのview/attention、知覚receipt、noise/memory、bounded replay |
+| [267](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/267) | [f1b24ca1](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/f1b24ca1701b66872a95961d4334880cccc6746f) | scheduled capture、exact confirmation fence、拘束中の知覚、未確認支配による誤SAFE防止 |
+| [268](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/268) | [bc29c37c](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/bc29c37cdb6787007202851363a4066d1cee1bf9) | fielding/observation modelのPlayer/Source identity mirror改ざん時の二重所有防止 |
+| [269](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/269) | [be2851ae](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/be2851ae552b045ccdeebd215e06ebe760960b32) | 明示的な個人decision/first-step calibrationのimmutable所有 |
 
 各公開treeはローカルの検証Sourceとfetch/diffで一致を確認した。GitHub上のcommitはmetadataが異なるため、commit IDだけでなく全tree/src treeの同一性を各PRに記録している。いずれもmergeしていない。
 
@@ -31,6 +34,14 @@
 - AI-facing perceived stateへCanonical truthを渡さない。Caller結果注入、property-name alias、導出後のnonfinite値を拒否する
 
 このreceiptはautonomous gaze/decision/controllerやcomplete-play registryではない。
+
+## その後の接続
+
+[Scheduled acquisition](2026-10-04-scheduled-field-acquisition.md)は、減衰完了と同tick競合確認を分離して途中保存・再開する。実DBで、確認待ちに誤SAFEを出さず、確認後の元のexact secure時刻からOUTを導出すること、過去の知覚・判定を変えないことを確認した。最終固定Sourceはtypecheckと14 files / 239 testsを通過し、全tracked hashesが一致した。
+
+[Model ownership修正](2026-10-04-player-model-ownership-integrity.md)は、検索列・Source・snapshotにまたがる元Player/Source identityを検査する。Integrated 5 files / 80 testsとtypecheckを通過した。
+
+[Decision calibration owner](2026-10-04-player-decision-model-continuation.md)は、既存ratingsを複製せずに判断・初動の明示parameterを所有する。Integrated 13 files / 258 testsとtypecheckを通過した。実際のdecision receiptやmotor生成とは区別する。
 
 ## 全体検証の正確な位置
 
@@ -51,8 +62,8 @@
 
 ## 残る確定非デザイン接続
 
-1. 実acquisitionのsecureまでのscheduled lifecycleと、actual ball/ruleの生成・消費source
-2. 知覚receiptに基づく個人decision、情報/判断/first-step遅延、既存motor所有を維持するbounded controller実行
+1. 残るactual ball/contact/ruleの生成・消費source、未解決contact policyと旧atomic同時刻履歴境界の閉鎖
+2. Owned calibration上の知覚receiptに基づく個人decision、情報/判断/first-step遅延、既存motor所有を維持するbounded controller実行
 3. 全contributorsとcausal actor dispositionを集めるNative registry/watermark、実際のPlayEnd
 4. Physical endと独立したcall/reviewを既存official closure/scoring/legal Match/actual-role workloadへ接続
 5. 版付きvenue/legal/dead/out-of-play/interference policy、bunt依存foul intent、実移動/recoveryによるnext-play
