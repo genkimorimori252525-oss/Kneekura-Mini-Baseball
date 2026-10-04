@@ -54,8 +54,15 @@ export const playerFieldingModelEvidenceFromSqlite = (db: Pick<import('node:sqli
     return freeze({ source, person });
   };
   const scope = (careerId: string, playerId: string): readonly DurablePlayerFieldingModel[] => {
-    const rows = db.prepare("SELECT * FROM world_player_fielding_models WHERE (career_id=? AND player_id=?) OR (json_extract(source_json,'$.careerId')=? AND json_extract(source_json,'$.playerId')=?)")
-      .all(careerId, playerId, careerId, playerId) as Row[];
+    // A moved index and Source mirror cannot hide ownership still asserted by
+    // the archived Source or its original Player/Person snapshot.
+    const rows = db.prepare(`SELECT * FROM world_player_fielding_models WHERE (career_id=? AND player_id=?)
+      OR (json_extract(source_json,'$.careerId')=? AND json_extract(source_json,'$.playerId')=?)
+      OR (CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.source.careerId') END=?
+        AND CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.source.playerId') END=?)
+      OR (CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.person.careerId') END=?
+        AND CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.person.playerId') END=?)`)
+      .all(careerId, playerId, careerId, playerId, careerId, playerId, careerId, playerId) as Row[];
     if (rows.length > 1) throw new Error('Player fielding baseline scope differs');
     return rows.map((row) => {
       const source = input(JSON.parse(row.source_json) as AcceptedPlayerFieldingModel, row.source_id), value = derive(source);
@@ -69,8 +76,14 @@ export const playerFieldingModelEvidenceFromSqlite = (db: Pick<import('node:sqli
   };
   const read = (sourceId: string): DurablePlayerFieldingModel | null => {
     if (!id(sourceId)) throw new Error('invalid Player fielding model scope');
-    const row = db.prepare('SELECT * FROM world_player_fielding_models WHERE source_id=?').get(sourceId) as Row | undefined;
+    const rows = db.prepare(`SELECT * FROM world_player_fielding_models WHERE source_id=?
+      OR CASE WHEN json_valid(source_json) THEN json_extract(source_json,'$.sourceId') END=?
+      OR CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.source.sourceId') END=?`)
+      .all(sourceId, sourceId, sourceId) as Row[];
+    if (rows.length > 1) throw new Error('Player fielding Source ownership scope differs');
+    const row = rows[0];
     if (!row) return null;
+    if (row.source_id !== sourceId) throw new Error('Player fielding Source identity mirror differs');
     const source = input(JSON.parse(row.source_json) as AcceptedPlayerFieldingModel, sourceId), value = scope(source.careerId, source.playerId)[0];
     if (!value || value.source.sourceId !== sourceId) throw new Error('Player fielding model is outside its own baseline');
     return value;
