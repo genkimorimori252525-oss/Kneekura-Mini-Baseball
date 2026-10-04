@@ -14,10 +14,16 @@ type Moment = Readonly<{ originTick: number; elapsedSeconds: number; tick: numbe
 type State = { position: Vec3; velocity: Vec3; acceleration: Vec3 };
 type Command = AcceptedBattedWorldMotion['commands'][number];
 export type ActualPlayerCommandAdoption = Readonly<{
-  kind: 'contact' | 'field' | 'motion' | 'motion_checkpoint_v1' | 'throw' | 'throw_advance';
+  kind: 'contact' | 'field' | 'owned_motion_v1' | 'motion' | 'motion_checkpoint_v1' | 'throw' | 'throw_advance';
   owner: 'batted_world_contacts' | 'batted_world_field_actions' | 'batted_world_field_executions';
   sourceId: string; sourceVersion: string; sourceHash: string; adoptionSourceId: string; adoptionSourceHash: string;
   adoptedAt: Moment; executedThrough: Moment; acceptedThroughTick: number;
+}>;
+export type ActualPlayerOwnedMotionCoverage = Readonly<{
+  compositionSourceId: string; physicalThroughTick: number;
+  rootAuthority: Readonly<{ owner: ActualPlayerCommandAdoption['owner'] | 'actual_locomotion_receipts'; sourceId: string;
+    sourceHash: string; adoptionOwner: ActualPlayerCommandAdoption['owner']; adoptionSourceId: string; adoptionSourceHash: string; acceptedThroughTick: number }>;
+  roleAuthorities: readonly Readonly<{ role: DefenderPhysicalPrimitiveRole; command: ActualPlayerCommandAdoption; acceptedThroughTick: number }>[];
 }>;
 export type ActualPlayerKinematics = Readonly<{
   playerId: string; personId: string; personLinkSourceId: string; gameId: string; gameDay: number;
@@ -32,6 +38,7 @@ export type ActualPlayerKinematics = Readonly<{
     // This does not redefine the root/relative state or replace the canonical primitive.
     canonicalRoundingResidual: Readonly<State>; canonicalActor: BallWorldMotionActor }>[];
   activeCommand: ActualPlayerCommandAdoption; adoptions: readonly ActualPlayerCommandAdoption[];
+  ownedMotionCoverage?: ActualPlayerOwnedMotionCoverage;
 }>;
 const roles = ['glove', 'body', 'tag_hand', 'left_foot', 'right_foot'] as const;
 const axes = ['x', 'y', 'z'] as const;
@@ -97,7 +104,8 @@ export const actualPlayerKinematicsFromPrefix = (playerId: string, prefix: Prefi
   const adoptions: Adoption[] = [{ kind: 'contact', owner: 'batted_world_contacts', sourceId: world.source.sourceId,
     sourceVersion: world.source.sourceVersion, sourceHash: hash(world.source), adoptionSourceId: world.source.sourceId,
     adoptionSourceHash: hash(world.source), adoptedAt: moment(0), executedThrough: moment(0), acceptedThroughTick: at + flight.source.searchDurationTicks }];
-  type Event = { command: Command | null; adoption: Omit<ActualPlayerCommandAdoption, 'adoptedAt' | 'executedThrough'> | null };
+  let ownedMotionCoverage: ActualPlayerOwnedMotionCoverage | undefined;
+  type Event = { ownedMotionCoverage?: ActualPlayerOwnedMotionCoverage; command: Command | null; adoption: Omit<ActualPlayerCommandAdoption, 'adoptedAt' | 'executedThrough'> | null };
   const events: Event[] = [{ command: null, adoption: null }];
   const commandEvent = (kind: ActualPlayerCommandAdoption['kind'], owner: ActualPlayerCommandAdoption['owner'],
     source: { sourceId: string; sourceVersion: string }, throughTick: number, commands: AcceptedBattedWorldMotion['commands'], adoptionSource = source): Event => {
@@ -113,7 +121,17 @@ export const actualPlayerKinematicsFromPrefix = (playerId: string, prefix: Prefi
   const adoptedPlans = new Set<string>();
   for (const value of prefix.executions) {
     const action = value.source.action;
-    if (action.kind === 'motion' || action.kind === 'throw') {
+    if (action.kind === 'owned_motion_v1' && value.execution.kind === 'owned_motion_v1') {
+      const c = value.execution.composition;
+      if (c.mode === 'retained') events.push({ command: null, adoption: null });
+      else {
+        const contribution = c.contributors.find(c => c.playerId === playerId);
+        if (!contribution) throw new Error('actual Player owned composition contribution is missing');
+        events.push({ ...commandEvent('owned_motion_v1', 'batted_world_field_executions', value.source, c.coverageThroughTick, c.commands),
+          ownedMotionCoverage: { compositionSourceId: value.source.sourceId, physicalThroughTick: c.coverageThroughTick,
+            rootAuthority: contribution.rootAuthority, roleAuthorities: contribution.roleAuthorities } });
+      }
+    } else if (action.kind === 'motion' || action.kind === 'throw') {
       events.push(commandEvent(action.kind, 'batted_world_field_executions', value.source, action.throughTick, action.commands));
     } else if (action.kind === 'motion_checkpoint_v1') {
       events.push(commandEvent(action.kind, 'batted_world_field_executions', value.source, action.coverageThroughTick, action.commands));
@@ -159,6 +177,7 @@ export const actualPlayerKinematicsFromPrefix = (playerId: string, prefix: Prefi
       throw new Error('actual Player kinematics executed interval differs');
     }
     const event = events[index];
+    if (event.ownedMotionCoverage) ownedMotionCoverage = event.ownedMotionCoverage;
     if (event.command && event.adoption) {
       root = { ...root, acceleration: event.command.bodyAcceleration };
       for (const pose of relative) {
@@ -192,5 +211,5 @@ export const actualPlayerKinematicsFromPrefix = (playerId: string, prefix: Prefi
       relativeAcceleration: vector((axis) => p.state.acceleration[axis] + p.residual.acceleration[axis]),
       declaredPose: { offset: p.state.position, relativeVelocity: p.state.velocity, relativeAcceleration: p.state.acceleration },
       canonicalRoundingResidual: p.residual,
-      canonicalActor: canonicalActors.find((a) => a.primitive.role === p.role)! })), activeCommand: adoptions.at(-1)!, adoptions }));
+      canonicalActor: canonicalActors.find((a) => a.primitive.role === p.role)! })), activeCommand: adoptions.at(-1)!, adoptions, ...(ownedMotionCoverage ? { ownedMotionCoverage } : {}) }));
 };

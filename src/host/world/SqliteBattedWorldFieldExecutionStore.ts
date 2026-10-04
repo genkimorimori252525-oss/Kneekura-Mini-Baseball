@@ -22,8 +22,17 @@ import { battedWorldFieldEvidenceFromSqlite, type DurableBattedWorldFieldAction,
 import { playerFieldingModelEvidenceFromSqlite, type DurablePlayerFieldingModel } from './SqlitePlayerFieldingModelStore';
 import { battedWorldFieldPhysicalPrefix, battedWorldFieldBaseTouchHistoryFromPrefix, type BattedWorldFieldCustodyPolicy } from './BattedWorldFieldPhysicalPrefix';
 import { wholePlayPhysicalHistoryFromPrefix } from './WholePlayPhysicalHistoryFromPrefix';
+import { ownedMotionActionInput, deriveOwnedMotionComposition, ownedMotionAdoption, type OwnedMotionAction,
+  type OwnedMotionComposition, type OwnedMotionAdoption } from './OwnedBattedWorldMotion';
+import { preflightOwnedMotionCausality } from './OwnedMotionCausality';
+import { ownedMotionKnownWorkFromSqlite } from './OwnedMotionKnownWorkFromSqlite';
+import { actualLocomotionEvidenceFromSqlite } from './SqliteActualLocomotionStore';
+import { actualDefensiveDecisionEvidenceFromSqlite } from './SqliteActualDefensiveDecisionStore';
+import { ownedMotionLiveWork, type OwnedMotionLiveWork } from './OwnedMotionLiveWork';
+import { assertOwnedMotionPhysicalMetadata } from './OwnedMotionPhysicalMetadata';
+import { defensiveMetadataId as metadataId } from './ActualDefensiveMetadata';
 
-type Action = Readonly<{ kind: 'acquisition' }>
+type Action = OwnedMotionAction | Readonly<{ kind: 'acquisition' }>
   | Readonly<{ kind: 'acquisition_plan' }>
   | Readonly<{ kind: 'base_touch_history'; playerId: string; base: BattedWorldBaseId; custodyPolicy?: BattedWorldFieldCustodyPolicy }>
   | Readonly<{ kind: 'first_base_race'; custodyPolicy?: BattedWorldFieldCustodyPolicy }>
@@ -37,7 +46,8 @@ type Action = Readonly<{ kind: 'acquisition' }>
     modelSourceId: string; receiverPlayerId: string }>;
 export type AcceptedBattedWorldFieldExecution = Readonly<{ sourceId: string; sourceVersion: string;
   baseFieldSourceId: string; previousExecutionSourceId: string | null; action: Action }>;
-type Execution = Readonly<{ kind: 'motion' | 'motion_checkpoint_v1' | 'retained_motion_checkpoint_v1'; field: BattedWorldFieldMotion }>
+type Execution = Readonly<{ kind: 'owned_motion_v1'; field: BattedWorldFieldMotion; composition: OwnedMotionComposition; adoption: OwnedMotionAdoption; liveWork: OwnedMotionLiveWork }>
+  | Readonly<{ kind: 'motion' | 'motion_checkpoint_v1' | 'retained_motion_checkpoint_v1'; field: BattedWorldFieldMotion }>
   | Readonly<{ kind: 'whole_play_history'; field: BattedWorldFieldMotion; physicalHistory: ReturnType<typeof wholePlayPhysicalHistoryFromPrefix> }>
   | Readonly<{ kind: 'acquisition'; field: BattedWorldFieldMotion; acquisition: BattedWorldFieldAcquisition }>
   | Readonly<{ kind: 'acquisition_plan'; field: BattedWorldFieldMotion; plan: BattedWorldScheduledFieldAcquisitionPlan;
@@ -76,6 +86,7 @@ const input = (raw: AcceptedBattedWorldFieldExecution, sourceId: string): Accept
     throw new Error('invalid accepted actual field execution Source');
   }
   const action = source.action;
+  if (action?.kind === 'owned_motion_v1') return { ...source, action: ownedMotionActionInput(action) };
   if ((action?.kind === 'acquisition' || action?.kind === 'acquisition_plan' || action?.kind === 'whole_play_history') && fields(action, ['kind'])) return source;
   if (action?.kind === 'base_touch_history' || action?.kind === 'first_base_race') {
     const policyFields = 'custodyPolicy' in action ? ['custodyPolicy'] : [];
@@ -110,9 +121,23 @@ const input = (raw: AcceptedBattedWorldFieldExecution, sourceId: string): Accept
 };
 const physicalId = (field: DurableBattedWorldFieldAction) => field.response.touch.worldContact.flight.source.physicalPitchSourceId;
 
+// Private, synchronous dependency-replay context. Only this owner installs already
+// validated predecessors. Every reuse rechecks the exact rows on this same connection;
+// this is neither a caller evidence callback nor a cross-operation validation cache.
+const dependencyPrefixes = new WeakMap<Db, Readonly<{ baseField: DurableBattedWorldFieldAction;
+  values: readonly DurableBattedWorldFieldExecution[] }>>();
+
 /** One directed execution owner; historical reads replay only their original causal payload prefix. */
 export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
   const ownFields = battedWorldFieldEvidenceFromSqlite(db), ownFielding = playerFieldingModelEvidenceFromSqlite(db);
+  const identityRows = (sourceId: string) => db.prepare(`SELECT candidate.* FROM batted_world_field_executions candidate WHERE candidate.source_id=?
+    OR ${metadataId('candidate.source_json', ['sourceId'])} OR ${metadataId('candidate.snapshot_json', ['source', 'sourceId'])}
+    OR ${metadataId('candidate.snapshot_json', ['history', { array: 'last' }, 'sourceId'])}
+    OR ${metadataId('candidate.snapshot_json', ['history', 'sourceId'])}
+    OR EXISTS (SELECT 1 FROM batted_world_field_executions owned WHERE owned.source_id=?
+      AND (candidate.physical_pitch_source_id!=owned.physical_pitch_source_id OR candidate.base_field_source_id!=owned.base_field_source_id)
+      AND ${metadataId('candidate.snapshot_json', ['history', { array: 'all' }, 'sourceId'], 'owned.source_id')})`)
+    .all(sourceId, sourceId, sourceId, sourceId, sourceId, sourceId) as Row[];
   const root = (source: AcceptedBattedWorldFieldExecution) => {
     const value = ownFields.read(source.baseFieldSourceId);
     if (!value) throw new Error('actual field execution original field is missing');
@@ -122,7 +147,7 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
     previous: DurableBattedWorldFieldExecution | null, prefix: readonly DurableBattedWorldFieldExecution[]): DurableBattedWorldFieldExecution => {
     const prior = previous?.execution, original = prior?.field ?? baseField.field, motion = original.motion;
     const response = battedWorldResponseInput(baseField.response), geometry = baseField.geometry.geometry;
-    const physicalPrior = [...prefix].reverse().find((value) => value.execution.kind === 'motion'
+    const physicalPrior = [...prefix].reverse().find((value) => value.execution.kind === 'owned_motion_v1' || value.execution.kind === 'motion'
       || value.execution.kind === 'motion_checkpoint_v1' || value.execution.kind === 'retained_motion_checkpoint_v1'
       || value.execution.kind === 'acquisition' || value.execution.kind === 'acquisition_advance'
       || value.execution.kind === 'throw' || value.execution.kind === 'throw_advance')?.execution;
@@ -227,7 +252,35 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
       }
       if (!cursor) throw new Error('actual field execution capture or contact remains unresolved');
       const basis = { response, geometry, actors: motion.actors, cursor, carrierPlayerId };
-      if (source.action.kind === 'retained_motion_checkpoint_v1') {
+      if (source.action.kind === 'owned_motion_v1') {
+        const action = source.action, motorSourceIds = action.contributions.flatMap(c => c.kind === 'motor' ? [c.motorSourceId] : []);
+        const decisionSourceIds = action.knownWork.flatMap(w => w.decisionSourceId === null ? [] : [w.decisionSourceId]);
+        // Strict decreasing physical rank is proved before entering any dependency reader.
+        preflightOwnedMotionCausality(db, { baseField, executionPrefix: prefix, motorSourceIds, decisionSourceIds });
+        const previousContext = dependencyPrefixes.get(db);
+        dependencyPrefixes.set(db, { baseField, values: prefix });
+        try {
+          const motors = motorSourceIds.map(sourceId => {
+            const value = actualLocomotionEvidenceFromSqlite(db).read(sourceId);
+            if (!value) throw new Error('owned motion motor receipt is missing'); return value;
+          });
+          const decisions = decisionSourceIds.map(sourceId => {
+            const value = actualDefensiveDecisionEvidenceFromSqlite(db).read(sourceId);
+            if (!value) throw new Error('owned motion decision receipt is missing'); return value;
+          });
+          const composition = deriveOwnedMotionComposition({ ...source, action }, { baseField,
+            fields: ownFields.scope(baseField, baseField.source.sourceId), executions: prefix }, motors, decisions);
+          const field = composition.mode === 'retained' ? advanceBattedWorldFieldMotionCheckpoint({ ...basis,
+            checkpointThroughTick: composition.checkpointThroughTick }) : deriveBattedWorldFieldMotionCheckpoint({ ...basis,
+            availableAtTick: motors[0].receipt.segment.startTick, coverageThroughTick: composition.coverageThroughTick,
+            checkpointThroughTick: composition.checkpointThroughTick,
+            commands: battedWorldMotionPrimitiveCommands(baseField.response, battedWorldMotionCommandsInput(composition.commands)) });
+          const adoption = ownedMotionAdoption(composition, source, (previous?.revision ?? 0) + 1, field);
+          execution = { kind: action.kind, field, composition, adoption, liveWork: ownedMotionLiveWork(composition, adoption) };
+        } finally {
+          if (previousContext) dependencyPrefixes.set(db, previousContext); else dependencyPrefixes.delete(db);
+        }
+      } else if (source.action.kind === 'retained_motion_checkpoint_v1') {
         execution = { kind: source.action.kind, field: advanceBattedWorldFieldMotionCheckpoint({ ...basis,
           checkpointThroughTick: source.action.checkpointThroughTick }) };
       } else if (source.action.kind === 'motion_checkpoint_v1') {
@@ -268,13 +321,23 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
   };
   const scope = (baseField: DurableBattedWorldFieldAction, throughSourceId?: string | null): readonly DurableBattedWorldFieldExecution[] => {
     const pitchId = physicalId(baseField), baseId = baseField.source.sourceId;
-    const owners = `physical_pitch_source_id=? OR base_field_source_id=?
-      OR CASE WHEN json_valid(source_json) THEN json_extract(source_json,'$.baseFieldSourceId') END
-        IN (SELECT source_id FROM batted_world_field_actions WHERE physical_pitch_source_id=?)
-      OR CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.baseField.response.touch.worldContact.flight.source.physicalPitchSourceId') END=?`;
-    const rows = db.prepare(`SELECT * FROM batted_world_field_executions WHERE ${owners} ORDER BY revision`).all(pitchId, baseId, pitchId, pitchId) as Row[];
+    const owners = `candidate.physical_pitch_source_id=? OR candidate.base_field_source_id=?
+      OR EXISTS (SELECT 1 FROM batted_world_field_actions f WHERE f.physical_pitch_source_id=?
+        AND (${metadataId('candidate.source_json', ['baseFieldSourceId'], 'f.source_id')}
+          OR ${metadataId('candidate.snapshot_json', ['source', 'baseFieldSourceId'], 'f.source_id')}
+          OR ${metadataId('candidate.snapshot_json', ['baseField', 'source', 'sourceId'], 'f.source_id')}
+          OR ${metadataId('candidate.snapshot_json', ['history', { array: 'all' }, 'baseFieldSourceId'], 'f.source_id')}))
+      OR ${metadataId('candidate.snapshot_json', ['baseField', 'response', 'touch', 'worldContact', 'flight', 'source', 'physicalPitchSourceId'])}
+      OR EXISTS (SELECT 1 FROM batted_world_field_executions predecessor
+        WHERE (predecessor.physical_pitch_source_id=? OR predecessor.base_field_source_id=?)
+          AND (candidate.previous_source_id=predecessor.source_id
+            OR ${metadataId('candidate.source_json', ['previousExecutionSourceId'], 'predecessor.source_id')}
+            OR ${metadataId('candidate.snapshot_json', ['source', 'previousExecutionSourceId'], 'predecessor.source_id')}
+            OR ${metadataId('candidate.snapshot_json', ['history', { array: 'all' }, 'previousExecutionSourceId'], 'predecessor.source_id')}))`;
+    const ownerArguments = [pitchId, baseId, pitchId, pitchId, pitchId, baseId];
+    const rows = db.prepare(`SELECT candidate.* FROM batted_world_field_executions candidate WHERE ${owners} ORDER BY candidate.revision`).all(...ownerArguments) as Row[];
     const heads = db.prepare(`SELECT * FROM batted_world_field_execution_heads WHERE physical_pitch_source_id=? OR base_field_source_id=?
-      OR source_id IN (SELECT source_id FROM batted_world_field_executions WHERE ${owners})`).all(pitchId, baseId, pitchId, baseId, pitchId, pitchId) as Head[];
+      OR source_id IN (SELECT candidate.source_id FROM batted_world_field_executions candidate WHERE ${owners})`).all(pitchId, baseId, ...ownerArguments) as Head[];
     if (!rows.length) { if (heads.length || throughSourceId) throw new Error('unowned actual field execution head'); return []; }
     const head = heads[0];
     if (heads.length !== 1) throw new Error('actual field execution prefix head differs');
@@ -305,10 +368,33 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
         || row.previous_source_id !== (rows[index - 1]?.source_id ?? null) || row.game_id !== baseField.response.model.gameId) {
         throw new Error('corrupt actual field execution prefix metadata');
       }
+      const identities = identityRows(row.source_id);
+      if (identities.length !== 1 || identities[0].source_id !== row.source_id) throw new Error('actual field execution Source identity ownership differs');
+      assertOwnedMotionPhysicalMetadata(db, row, rows.slice(0, index + 1));
       unique.add(row.source_id);
     }
     const bound = throughSourceId === null ? -1 : throughSourceId === undefined ? rows.length - 1 : rows.findIndex((row) => row.source_id === throughSourceId);
     if (bound < 0 && throughSourceId !== null) throw new Error('actual field execution Source is outside original prefix');
+    const original = dependencyPrefixes.get(db);
+    if (original) {
+      // Keep the proven ceiling at the actual reader descent too: a concurrent WAL
+      // mutation between metadata preflight and dereference cannot reopen replay.
+      const sameBase = original.baseField.source.sourceId === baseId;
+      const earlierOriginalField = throughSourceId === null && physicalId(original.baseField) === pitchId
+        && original.baseField.history.some(s => s.sourceId === baseId && json(s) === json(baseField.source));
+      if (throughSourceId === undefined || sameBase && (json(original.baseField) !== json(baseField) || bound >= original.values.length)
+        || !sameBase && !earlierOriginalField) throw new Error('owned motion dependency exceeds its proven physical predecessor');
+      if (!sameBase) return [];
+      const values = original.values.slice(0, bound + 1);
+      for (const [index, value] of values.entries()) {
+        const row = rows[index];
+        if (row.source_json !== json(value.source) || row.source_hash !== hash(value.source)
+          || row.snapshot_json !== json(value) || row.snapshot_hash !== hash(value)) {
+          throw new Error('actual field execution validated predecessor changed during dependency replay');
+        }
+      }
+      return values;
+    }
     const values: DurableBattedWorldFieldExecution[] = [];
     for (const row of rows.slice(0, bound + 1)) {
       const source = input(JSON.parse(row.source_json) as AcceptedBattedWorldFieldExecution, row.source_id);
@@ -322,14 +408,28 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
   };
   const read = (sourceId: string): DurableBattedWorldFieldExecution | null => {
     if (!id(sourceId)) throw new Error('invalid actual field execution scope');
-    const row = db.prepare('SELECT * FROM batted_world_field_executions WHERE source_id=?').get(sourceId) as Row | undefined;
-    if (!row) return null;
+    const rows = identityRows(sourceId);
+    if (rows.length > 1 || rows.length === 1 && rows[0].source_id !== sourceId) throw new Error('actual field execution Source identity ownership differs');
+    const row = rows[0]; if (!row) return null;
     const source = input(JSON.parse(row.source_json) as AcceptedBattedWorldFieldExecution, sourceId);
     return scope(root(source), sourceId).at(-1)!;
+  };
+  const currentKnownWork = (source: AcceptedBattedWorldFieldExecution, baseField: DurableBattedWorldFieldAction) => {
+    if (source.action.kind !== 'owned_motion_v1') return;
+    const b = baseField.response.touch.worldContact.flight.physicalPitch.frame.batterActor!, ids = [b.binding.playerId, ...b.defenderBindings.map(p => p.playerId)];
+    const refs = source.action.knownWork;
+    if (json(ownedMotionKnownWorkFromSqlite(db, physicalId(baseField), ids)) !== json(ids.map(playerId => refs.find(w => w.playerId === playerId)))) {
+      throw new Error('owned motion known-work heads are missing or stale');
+    }
   };
   const derive = (source: AcceptedBattedWorldFieldExecution) => {
     const baseField = root(source), prefix = scope(baseField), previous = prefix.at(-1) ?? null;
     if (source.previousExecutionSourceId !== (previous?.source.sourceId ?? null)) throw new Error('actual field execution predecessor differs');
+    const observer = ['whole_play_history', 'base_touch_history', 'first_base_race'].includes(source.action.kind);
+    if (!observer && source.action.kind !== 'owned_motion_v1' && prefix.some(p => p.execution.kind === 'owned_motion_v1')) {
+      throw new Error('owned motion guard requires a versioned guarded physical action');
+    }
+    currentKnownWork(source, baseField);
     // New ambiguous observations must opt into release-exclusive custody. Stored
     // scope/read and immutable retries continue their original Source semantics.
     if ((source.action.kind === 'base_touch_history' || source.action.kind === 'first_base_race') && source.action.custodyPolicy === undefined) {
@@ -351,7 +451,11 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
     currentRoot(value); const values = scope(value.baseField);
     if (values.length !== value.revision || json(values.at(-1)) !== json(value)) throw new Error('actual field execution prefix changed during write');
   };
-  return { read, derive, scope, currentBefore, current };
+  // Nonphysical owners use current() to prove only that their physical cut is
+  // still current. Their own decision-head insert must not invalidate that cut.
+  // Fresh physical acceptance additionally pins the relevant nonphysical heads.
+  const currentAdmission = (value: DurableBattedWorldFieldExecution) => { current(value); currentKnownWork(value.source, value.baseField); };
+  return { read, derive, scope, currentBefore, current, currentAdmission };
 };
 
 export const openSqliteBattedWorldFieldExecutionStore = (path: string, fieldsOwner: Pick<SqliteBattedWorldFieldStore, 'read'>,
@@ -390,7 +494,7 @@ export const openSqliteBattedWorldFieldExecutionStore = (path: string, fieldsOwn
             .run(sourceId, value.revision, pitchId, source.baseFieldSourceId, source.previousExecutionSourceId, value.revision - 1);
           if (Number(changed.changes) !== 1) throw new Error('actual field execution predecessor changed during write');
         }
-        own.current(value); const saved = own.read(sourceId);
+        own.currentAdmission(value); const saved = own.read(sourceId);
         if (!saved || json(saved) !== json(value)) throw new Error('actual field execution original changed during write'); db.exec('COMMIT'); return saved;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     }, close() { if (!closed) { db.close(); closed = true; } },

@@ -303,13 +303,13 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
         return { incoming: expected.contactMoment, constrained: { ...expected.contactMoment, ball: { ...expected.contactMoment.ball,
           velocity: contact.velocity, spin: { x: 0, y: 0, z: 0 } } } };
       });
-    } else if (execution.kind === 'motion' || execution.kind === 'motion_checkpoint_v1' || execution.kind === 'retained_motion_checkpoint_v1' || execution.kind === 'throw') {
+    } else if (execution.kind === 'owned_motion_v1' || execution.kind === 'motion' || execution.kind === 'motion_checkpoint_v1' || execution.kind === 'retained_motion_checkpoint_v1' || execution.kind === 'throw') {
       if (pendingThrow || pendingAcquisition) throw new Error('actual field pending scheduled operation owns physical work');
       if (!cursor) throw new Error('actual field execution lacks a resolved prior cursor');
       const start = horizon.elapsedSeconds, priorCarrier = carrierPlayerId;
       if (execution.kind !== 'throw') {
         if (execution.field.motion.carrierPlayerId !== priorCarrier) throw new Error('actual field motion custody differs');
-        appendField(execution.field, priorCarrier === null ? cursor.moment : null, execution.kind !== 'retained_motion_checkpoint_v1');
+        appendField(execution.field, priorCarrier === null ? cursor.moment : null, execution.kind !== 'retained_motion_checkpoint_v1' && !(execution.kind === 'owned_motion_v1' && execution.composition.mode === 'retained'));
         if (priorCarrier) control(priorCarrier, start, horizon.elapsedSeconds, execution.field.motion.world.kind !== 'boundary');
       } else {
         const thrown = execution.throw, model = execution.model, actor = world.modelActorEvidence.find((actor) => actor.binding.playerId === priorCarrier);
