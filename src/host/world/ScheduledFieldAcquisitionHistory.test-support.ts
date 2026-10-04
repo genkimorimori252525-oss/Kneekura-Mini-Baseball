@@ -1,8 +1,8 @@
 import { battedWorldFieldExecutionFixture } from './BattedWorldFieldExecutionFixtures.test-support';
 import type { AcceptedBattedWorldFieldExecution, DurableBattedWorldFieldExecution } from './SqliteBattedWorldFieldExecutionStore';
 
-export const scheduledAcquisitionHistoryFixture = () => {
-  const x = battedWorldFieldExecutionFixture(undefined, 'candidate');
+export const scheduledAcquisitionHistoryFixture = (databasePath?: string) => {
+  const x = battedWorldFieldExecutionFixture(databasePath, 'candidate');
   const executions: DurableBattedWorldFieldExecution[] = [];
   const accept = (sourceId: string, action: AcceptedBattedWorldFieldExecution['action']) => {
     const source: AcceptedBattedWorldFieldExecution = { ...x.source, sourceId,
