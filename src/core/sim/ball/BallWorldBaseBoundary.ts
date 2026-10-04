@@ -2,6 +2,7 @@ import { cloneInert } from '../../adjudication/OfficialWindowPolicy';
 import type { Vec3 } from '../../model/geometry';
 import { quantizeEventTick } from '../ExactEventTime';
 import { findAcceleratedSphereContactSeconds, findAcceleratedSphereBlockedDepartureSeconds,
+  findPiecewiseAcceleratedSphereContactSeconds, findPiecewiseAcceleratedSphereBlockedDepartureSeconds,
   type AcceleratedSphereContactState } from '../collision/AcceleratedSphereContact';
 import type { BattedBallBasePrism } from './BattedBallBaseContact';
 import type { BattedWorldBaseId } from './BattedWorldBaseGeometry';
@@ -84,7 +85,9 @@ const localFrame = (prism: BattedBallBasePrism) => {
     y: Math.max(low.y, Math.min(high.y, p.y)), z: Math.max(low.z, Math.min(high.z, p.z)) });
   return { rotate, toLocal, toWorld, low, high, closest };
 };
-const baseTime = (ball: AcceleratedSphereContactState, prism: BattedBallBasePrism, duration: number, previous: boolean) => {
+const baseTime = (ball: AcceleratedSphereContactState, prism: BattedBallBasePrism, duration: number, previous: boolean, piecewise = false) => {
+  const contactSeconds = piecewise ? findPiecewiseAcceleratedSphereContactSeconds : findAcceleratedSphereContactSeconds;
+  const blockedSeconds = piecewise ? findPiecewiseAcceleratedSphereBlockedDepartureSeconds : findAcceleratedSphereBlockedDepartureSeconds;
   const f = localFrame(prism), center = f.toLocal(ball.center), velocity = f.rotate(ball.velocity), acceleration = f.rotate(ball.acceleration);
   if (![center, velocity, acceleration].every(vector)) throw new Error('ball/base local projection arithmetic overflow');
   const touching = distance(center, f.closest(center)) <= ball.radius;
@@ -108,7 +111,7 @@ const baseTime = (ball: AcceleratedSphereContactState, prism: BattedBallBasePris
       && acceleration[axis] === feature.acceleration[axis]) && distance(at.point, feature.center) <= ball.radius) {
       return { time: start, continuing: true };
     }
-    const blocked = departed ? null : findAcceleratedSphereBlockedDepartureSeconds(movingBall, feature, end - start);
+    const blocked = departed ? null : blockedSeconds(movingBall, feature, end - start);
     if (blocked !== null) return { time: start + blocked, continuing: true };
     const outside = axes.filter((axis) => !moving(axis));
     // A face has one signed separation coordinate. Solve it directly so a
@@ -123,7 +126,7 @@ const baseTime = (ball: AcceleratedSphereContactState, prism: BattedBallBasePris
         const separation = d + v * t + 0.5 * a * t * t, speed = v + a * t;
         return departed || t > 0 && (separation * speed < 0 || speed === 0 && separation * a > 0);
       }) ?? null;
-    } else time = findAcceleratedSphereContactSeconds(movingBall, feature, end - start, departed ? 'include' : 'after_departure');
+    } else time = contactSeconds(movingBall, feature, end - start, departed ? 'include' : 'after_departure');
     if (time !== null) return { time: start + time, continuing: false };
     const endpoint = sample(center, velocity, acceleration, end).point;
     if (distance(endpoint, f.closest(endpoint)) > ball.radius) departed = true;
@@ -131,13 +134,13 @@ const baseTime = (ball: AcceleratedSphereContactState, prism: BattedBallBasePris
   return null;
 };
 /** A causal collision candidate only; its Native action owner must adopt it before rules consume it. */
-export const findBallWorldBaseBoundary = (raw: BallWorldBaseBoundaryInput): BallWorldBaseBoundary | null => {
+const deriveBallWorldBaseBoundary = (raw: BallWorldBaseBoundaryInput, piecewise = false): BallWorldBaseBoundary | null => {
   const { input, duration } = scope(raw), initial = input.moment.ball;
   const sphere = { tick: input.moment.originTick, center: initial.position, velocity: initial.velocity,
     acceleration: input.acceleration, radius: input.ballRadius };
   const contacts: BallWorldBaseBoundaryContact[] = [];
   for (const baseId of baseIds) {
-    const prism = input.bases[baseId], event = baseTime(sphere, prism, duration, input.previousBaseContacts.includes(baseId));
+    const prism = input.bases[baseId], event = baseTime(sphere, prism, duration, input.previousBaseContacts.includes(baseId), piecewise);
     if (!event) continue;
     const state = sample(initial.position, initial.velocity, input.acceleration, event.time);
     const elapsedSeconds = event.time === duration ? input.throughElapsedSeconds : input.moment.elapsedSeconds + event.time;
@@ -154,3 +157,8 @@ export const findBallWorldBaseBoundary = (raw: BallWorldBaseBoundaryInput): Ball
   return freeze({ moment: earliest, contacts: contacts.filter((contact) => contact.moment.elapsedSeconds === earliest.elapsedSeconds)
     .sort((a, b) => a.baseId < b.baseId ? -1 : a.baseId > b.baseId ? 1 : 0) });
 };
+
+/** Original archived field boundary convention. */
+export const findBallWorldBaseBoundary = (raw: BallWorldBaseBoundaryInput): BallWorldBaseBoundary | null => deriveBallWorldBaseBoundary(raw);
+/** Piecewise-only horizon-independent edge/corner polynomial roots. */
+export const findPiecewiseBallWorldBaseBoundary = (raw: BallWorldBaseBoundaryInput): BallWorldBaseBoundary | null => deriveBallWorldBaseBoundary(raw, true);
