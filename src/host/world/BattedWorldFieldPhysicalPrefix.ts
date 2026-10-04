@@ -3,6 +3,8 @@ import { validateBattedWorldScheduledFieldAcquisitionPlan, validateBattedWorldSc
   type BattedWorldScheduledFieldAcquisitionPlan, type BattedWorldScheduledFieldAcquisitionAdvance } from '../../core/sim/ball/BattedWorldScheduledFieldAcquisition';
 import type { BallWorldFieldTerritoryInput } from '../../core/rules/BallWorldFieldTerritory';
 import { deriveBallWorldBattedRuleEvidence, type BallWorldBattedRuleContact, type BallWorldBattedRuleContactFrame } from '../../core/rules/BallWorldBattedRuleEvidence';
+import { deriveBattedWorldFieldAcquisition } from '../../core/sim/ball/BattedWorldFieldAcquisition';
+import { battedWorldResponseInput } from './SqliteBattedWorldContinuationStore';
 import { respondToGroundContact } from '../../core/sim/ball/BallFlight';
 import { quantizeEventTick } from '../../core/sim/ExactEventTime';
 import type { BallWorldBoundaryContact, BallWorldMoment, BallWorldMotionActor } from '../../core/sim/ball/BallWorldContinuation';
@@ -100,7 +102,7 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
   };
   segment(actors, horizon, false);
   const appendContacts = (at: BallWorldMoment, raw: readonly BallWorldBoundaryContact[], bags: readonly BallWorldBaseBoundaryContact[],
-    initialConstraint?: Readonly<{ incoming: BallWorldMoment; constrained: BallWorldMoment }>) => {
+    initialConstraint?: () => Readonly<{ incoming: BallWorldMoment; constrained: BallWorldMoment }>) => {
     moment(at);
     if (!raw.length || raw.some((contact) => json(contact.moment) !== json(at)
       || contact.kind === 'actor' && !actorKeys.has(json([contact.playerId, contact.role])))) throw new Error('actual field contact state or actor identity differs');
@@ -121,13 +123,17 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
     if (previous && previous.moment.elapsedSeconds > at.elapsedSeconds) throw new Error('actual field contact chronology differs');
     if (previous?.moment.elapsedSeconds === at.elapsedSeconds) {
       const extra = normalizedContacts.filter((contact) => !previous.contacts.some((old) => json(old) === json(contact)));
-      const projectedConstraint = initialConstraint && json(previous.moment) === json(initialConstraint.incoming)
-        && json(at) === json(initialConstraint.constrained);
+      // Only the formerly rejected new-collider/different-state case needs a
+      // proved constraint. Every already accepted projection stays byte-identical.
+      const needsProjection = extra.length > 0 && json(previous.moment) !== json(at);
+      const constraint = needsProjection ? initialConstraint?.() : undefined;
+      const projectedConstraint = constraint && json(previous.moment) === json(constraint.incoming)
+        && json(at) === json(constraint.constrained);
       if (previous.moment.originTick !== at.originTick || json(previous.moment.ball.position) !== json(at.ball.position)
-        || extra.length && json(previous.moment) !== json(at) && !projectedConstraint) throw new Error('coincident actual field contact states differ');
-      // A validated first scheduled constraint can immediately meet a new
+        || needsProjection && !projectedConstraint) throw new Error('coincident actual field contact states differ');
+      // A validated initial acquisition constraint can immediately meet a new
       // collider without elapsed time. Keep the original incoming rule moment;
-      // its distinct constrained state and every raw contact remain in progress.
+      // its distinct constrained state and every raw contact remain in the result.
       // A response can change velocity/spin without advancing time. Repeated
       // identities retain their first incoming rule moment, never a new impact.
       contacts[contacts.length - 1] = { moment: previous.moment, contacts: [...previous.contacts, ...extra] };
@@ -213,11 +219,11 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
         || json(execution.field) !== json(pendingAcquisition.plan.input.field) || json(execution.progress.startMoment) !== json(horizon)) {
         throw new Error('actual field scheduled capture advance original lineage differs');
       }
-      const progress = execution.progress, previous = pendingAcquisition.previous, checkpoints = progress.checkpointElapsedSeconds;
+      const progress = execution.progress, previous = pendingAcquisition.previous, plan = pendingAcquisition.plan, checkpoints = progress.checkpointElapsedSeconds;
       const priorCheckpoints = previous?.checkpointElapsedSeconds ?? [];
       if (!Array.isArray(checkpoints) || checkpoints.length !== priorCheckpoints.length + 1
         || json(checkpoints.slice(0, -1)) !== json(priorCheckpoints)) throw new Error('actual field scheduled capture checkpoint lineage differs');
-      validateBattedWorldScheduledFieldAcquisitionProgress(pendingAcquisition.plan, progress);
+      validateBattedWorldScheduledFieldAcquisitionProgress(plan, progress);
       segment(execution.field.motion.actors, progress.world.moment, false);
       if (progress.kind === 'secured') {
         acquisitions.push(progress.acquisition);
@@ -227,7 +233,7 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
         if (progress.kind === 'interrupted') {
           acquisitions.push(progress.acquisition);
           appendContacts(progress.world.moment, progress.acquisition.world.contacts, progress.baseContacts,
-            previous === null ? { incoming: pendingAcquisition.plan.contactMoment, constrained: pendingAcquisition.plan.initialConstraintMoment } : undefined);
+            previous === null ? () => ({ incoming: plan.contactMoment, constrained: plan.initialConstraintMoment }) : undefined);
         }
         pendingAcquisition = { sourceId: pendingAcquisition.sourceId, plan: pendingAcquisition.plan, previous: progress };
       }
@@ -286,7 +292,17 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
         control(capture.acquirerPlayerId, end.elapsedSeconds, end.elapsedSeconds, true);
         carrierPlayerId = capture.acquirerPlayerId;
         cursor = { moment: end, previousContacts: [{ kind: 'actor', playerId: carrierPlayerId, role: 'glove' }] };
-      } else appendContacts(capture.world.moment, capture.world.contacts, capture.baseContacts);
+      } else appendContacts(capture.world.moment, capture.world.contacts, capture.baseContacts, () => {
+        // Atomic results have no saved plan: rederive their complete original
+        // Native evidence before admitting the otherwise invalid rule projection.
+        const expected = deriveBattedWorldFieldAcquisition({ response: battedWorldResponseInput(base.response), geometry, field: currentField });
+        const candidate = currentField.motion.world, contact = candidate.kind === 'boundary' ? candidate.contacts[0] : undefined;
+        if (json(expected) !== json(capture) || contact?.kind !== 'actor' || contact.role !== 'glove') {
+          throw new Error('actual field atomic constraint derivation differs');
+        }
+        return { incoming: expected.contactMoment, constrained: { ...expected.contactMoment, ball: { ...expected.contactMoment.ball,
+          velocity: contact.velocity, spin: { x: 0, y: 0, z: 0 } } } };
+      });
     } else if (execution.kind === 'motion' || execution.kind === 'throw') {
       if (pendingThrow || pendingAcquisition) throw new Error('actual field pending scheduled operation owns physical work');
       if (!cursor) throw new Error('actual field execution lacks a resolved prior cursor');
