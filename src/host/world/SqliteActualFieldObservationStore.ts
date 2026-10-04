@@ -3,6 +3,7 @@ import { sqliteJsonMetadataNodes as nodes, sqliteJsonMetadataProjection as proje
   sqliteJsonMetadataMatches as matches } from './SqliteOwnershipMetadata';
 import { actualObservationId as id, actualFieldObservationInput as input, sampleActualFieldObservation,
   type AcceptedActualFieldObservation, type ActualFieldObservationReceipt } from './ActualFieldObservation';
+import { actualObservationPhysicalPrefixEvidence } from './ActualObservationPhysicalPrefixHash';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { battedWorldFieldEvidenceFromSqlite } from './SqliteBattedWorldFieldStore';
 import { battedWorldFieldExecutionEvidenceFromSqlite } from './SqliteBattedWorldFieldExecutionStore';
@@ -10,7 +11,7 @@ import { playerObservationModelEvidenceFromSqlite } from './SqlitePlayerObservat
 
 export type DurableActualFieldObservation = Readonly<{ source: AcceptedActualFieldObservation;
   revision: number; history: readonly AcceptedActualFieldObservation[];
-  physicalPrefixHash: string; observationModelHash: string; receipt: ActualFieldObservationReceipt }>;
+  physicalPrefixHash: string; physicalPrefixHashConvention?: 'owned_motion_observation_prefix_manifest_v1'; observationModelHash: string; receipt: ActualFieldObservationReceipt }>;
 export type SqliteActualFieldObservationStore = Readonly<{ accept(sourceId: string): DurableActualFieldObservation;
   read(sourceId: string): DurableActualFieldObservation | null; close(): void }>;
 type Authority = Readonly<{ readAcceptedObservation(sourceId: string): AcceptedActualFieldObservation | null }>;
@@ -67,7 +68,7 @@ export const actualFieldObservationEvidenceFromSqlite = (db: Db) => {
   const execute = (source: AcceptedActualFieldObservation, previous: DurableActualFieldObservation | null): DurableActualFieldObservation => {
     const { prefix, model } = dependencies(source);
     return freeze({ source, revision: (previous?.revision ?? 0) + 1, history: [...(previous?.history ?? []), source],
-      physicalPrefixHash: hash(prefix), observationModelHash: hash(model),
+      ...actualObservationPhysicalPrefixEvidence(prefix), observationModelHash: hash(model),
       receipt: sampleActualFieldObservation(source, prefix, model, previous) });
   };
   // Enumerate all duplicate containers/keys before selecting a scope. Earlier
@@ -185,7 +186,9 @@ export const actualFieldObservationEvidenceFromSqlite = (db: Db) => {
   };
   const currentDependencies = (value: DurableActualFieldObservation) => {
     const { prefix, model } = dependencies(value.source, true);
-    if (hash(prefix) !== value.physicalPrefixHash || hash(model) !== value.observationModelHash) throw new Error('actual observation dependencies changed during write');
+    const evidence = actualObservationPhysicalPrefixEvidence(prefix);
+    if (evidence.physicalPrefixHash !== value.physicalPrefixHash || evidence.physicalPrefixHashConvention !== value.physicalPrefixHashConvention
+      || hash(model) !== value.observationModelHash) throw new Error('actual observation dependencies changed during write');
   };
   const currentBefore = (value: DurableActualFieldObservation) => {
     currentDependencies(value);
