@@ -1,6 +1,6 @@
 # 非デザイン継続実装: 現在の接続と検証
 
-更新: 2026-10-04 17:32 JST（2026-10-04 08:32 UTC）
+更新: 2026-10-04 17:54 JST（2026-10-04 08:54 UTC）
 
 ユーザーの継続指示に従い、最新の確定済み残計画を進めている。**計画全体・自律試合/Career全体の完了ではない**。デザイン/UI/art/Presentationは未接続のまま。
 
@@ -27,6 +27,7 @@
 | [276](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/276) | [329a03f4](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/329a03f44fb3dbbc15ae3857d8a41a87da5cbf0d) | actual checkpointと明示command coverageの分離、元のactor曲線を保つretained継続 |
 | [277](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/277) | [e93bf5dc](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/e93bf5dc3cfab034895a5642b8be3d919ef4c17c) | 実際に発行された個人判断から、元のrelative指令を保持するbounded初回motor receipt |
 | [278](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/278) | [8c584e5e](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/8c584e5ed53165d3d037b705c3dbbd76ef9f5455) | 全10人・50部位のowned/retained指令合成、実物理へのatomic adoptionと独立due work |
+| [279](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/279) | [df558bd4](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/df558bd4ab2491b386e99e670635a1624b077b4e) | 捕球/持替えの元energy・時刻・RNGを保つpiecewise Coreとcheckpoint非依存contact root |
 
 各公開treeはローカルの検証Sourceとfetch/diffで一致を確認した。GitHub上のcommitはmetadataが異なるため、commit IDだけでなく全tree/src treeの同一性を各PRに記録している。いずれもmergeしていない。
 
@@ -74,7 +75,11 @@
 
 固定src tree `fd9fb503d9bd94f103566cf7b964bccfb8d69cba`はtypecheckと29 files / 158 testsを通過し、全1,807 tracked hashesが一致した。独立reviewで見つかったnested field/predecessorの所有alias、due handoff漏れ、解決済みground contactの誤blockerを再現・修正した。統合local `412c49582b8959049a95431ebfe875c096026e20`は同じsrc treeで、typecheckと別の2 files / 4 testsも通過した。公開 `8c584e5ed53165d3d037b705c3dbbd76ef9f5455`のfull tree `9539420b632402cf4f630b84969890af534112ff`とsrc treeをfetch/diffで確認した。これはfocused gateであり、whole成功ではない。
 
-次は独立指令をpending capture/transferへ途中採用するpiecewise拡張。以後のcontroller更新、route進行、全contributors/actor dispositionからの実PlayEnd、official closureとCareer全体は引き続き残る。
+[Piecewise scheduled-operation Core](../implementation/2026-10-04-piecewise-scheduled-operation-core.md)を#279で追加した。元の捕球energy/secure/fence、transferのreadiness/RNGを保持し、将来のactor区間だけを切り替える。新経路のcontact rootは要求checkpointに依存せず、exact endpoint/tangentと複数collider集合を保存する。旧数値経路・既存tolerance・legacy archiveのbytesは変更しない。
+
+Core単独source `464a76802a5cb29952b420b9941ca9b16d250848`でtypecheckと93 files / 832 tests、独立reviewで17 files / 232 testsが通過した。#278へ統合したlocal `373da7068776f09c3f56f52a7f0a4ebe211178cb`でもtypecheckと同じ93 files / 832 testsが44.49秒で通過し、tracked hashesが一致した。統合src treeは `35a147816742b97d655545aa371b2212022a5578`で、Core単独baseのsrc treeとは区別する。公開 `df558bd4ab2491b386e99e670635a1624b077b4e`をfetch/diffし、full tree `791a224513a828e3dcf4c9787ecbd4461343750c`とsrc treeが一致した。
+
+Pending capture/transferへ実際の独立判断/motorを接続するNative所有・履歴・transaction統合は継続中。Core単独の成功をその完了へ読み替えない。以後のcontroller更新、route進行、全contributors/actor dispositionからの実PlayEnd、official closureとCareer全体も引き続き残る。
 
 ## 全体検証の正確な位置
 
