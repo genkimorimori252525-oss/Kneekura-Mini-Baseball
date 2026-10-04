@@ -26,7 +26,7 @@ The command changes only root acceleration. All five declared relative accelerat
 
 The immutable receipt remains `adoption_pending`, with `executedThrough: null`. Admission verifies and pins an unblocked original physical cursor, rejecting unresolved contact and pending acquisition/transfer even behind observer-only rows. This does not complete all ten Player contributions, consume an issued decision, or support command changes inside pending capture/transfer. Existing field execution remains the physical owner and must revalidate current availability, all contributions and adoption ownership when adoption is implemented. A carried-ball fixture is used only to establish a real exact boundary with retained coverage, not to claim a new pursuit/custody controller.
 
-All numeric test values are synthetic; no production defaults or empirical realism claim is introduced. No UI, presentation, home CI, merge, deploy or published change is part of this slice.
+All numeric test values are synthetic; no production defaults or empirical realism claim is introduced. No UI, presentation, home CI, merge or deployment is part of this slice. Publication and later cumulative verification are recorded in the continuation checkpoint.
 
 ## Persistence boundary
 
@@ -42,3 +42,7 @@ Typed duplicate-preserving metadata discovery checks Source, snapshot, initial h
 - Independent review found two metadata-discovery gaps; both received RED→GREEN regressions. Final source and the checkpoint integration review had no remaining findings.
 
 The 16-test pre-checkpoint gate and 8-test final combined gate are separate results, not a claim that all 16 were rerun against the new dependency tree. No whole-repository suite, home/self-hosted CI, publication, merge or deployment was performed in this task.
+
+## Published integration
+
+[Draft PR277](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/277) contains [implementation e93bf5dc](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/e93bf5dc3cfab034895a5642b8be3d919ef4c17c). The parent integration passed typecheck and three focused files / seven tests in 3m49.202s with unchanged tracked hashes. Its exact Source and cumulative-gate boundary are recorded in [the continuation checkpoint](2026-10-04-nonvisual-continuation-checkpoint.md).
