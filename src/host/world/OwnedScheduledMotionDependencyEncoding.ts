@@ -3,6 +3,8 @@ import { ownedScheduledMotionArchiveEncoding } from './OwnedScheduledMotionArchi
 import { actorJson } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import type { AcceptedBattedWorldFieldExecution, DurableBattedWorldFieldExecution } from './SqliteBattedWorldFieldExecutionStore';
 import type { DurableBattedWorldFieldAction } from './SqliteBattedWorldFieldStore';
+import type { BattedWorldPiecewiseFieldAcquisitionPlan } from '../../core/sim/ball/BattedWorldPiecewiseFieldAcquisition';
+import type { BattedWorldPiecewiseFieldThrowPlan } from '../../core/sim/ball/BattedWorldPiecewiseFieldThrow';
 
 const genericEncoding = (value: unknown) => {
   const json = actorJson(value); return Object.freeze({ json, hash: createHash('sha256').update(json).digest('hex') });
@@ -39,4 +41,11 @@ export const createOwnedScheduledMotionDependencyEncoding = () => Object.freeze(
   source: encodingRole<AcceptedBattedWorldFieldExecution>(genericEncoding),
   baseField: encodingRole<DurableBattedWorldFieldAction>(genericEncoding),
   snapshot: encodingRole<DurableBattedWorldFieldExecution>(ownedScheduledMotionArchiveEncoding),
+});
+
+/** Pure comparison bytes only. Core plan/progress validation remains mandatory;
+ * each caller owns fresh, separate acquisition/throw identity namespaces. */
+export const createOwnedScheduledMotionPlanEncoding = () => Object.freeze({
+  acquisition: encodingRole<BattedWorldPiecewiseFieldAcquisitionPlan>(genericEncoding),
+  throw: encodingRole<BattedWorldPiecewiseFieldThrowPlan>(genericEncoding),
 });
