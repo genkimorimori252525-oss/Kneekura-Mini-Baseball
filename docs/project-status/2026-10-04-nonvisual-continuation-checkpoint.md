@@ -1,6 +1,6 @@
 # 非デザイン継続実装: 現在の接続と検証
 
-更新: 2026-10-04 13:35 JST（2026-10-04 04:35 UTC）
+更新: 2026-10-04 13:48 JST（2026-10-04 04:48 UTC）
 
 ユーザーの継続指示に従い、最新の確定済み残計画を進めている。**計画全体・自律試合/Career全体の完了ではない**。デザイン/UI/art/Presentationは未接続のまま。
 
@@ -25,6 +25,7 @@
 | [274](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/274) | [afb6ed03](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/afb6ed03e3b53dc4ccc56ef73f66be73fee06724) | Player/Person/fieldingにpinした明示的locomotion calibration |
 | [275](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/275) | [5a7caf77](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/5a7caf7746130ac78fa7da565d98ac2f517a7868) | 判断deadlineと未消費motor/adoption workのread-only Source固有投影 |
 | [276](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/276) | [329a03f4](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/329a03f44fb3dbbc15ae3857d8a41a87da5cbf0d) | actual checkpointと明示command coverageの分離、元のactor曲線を保つretained継続 |
+| [277](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/277) | [e93bf5dc](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/e93bf5dc3cfab034895a5642b8be3d919ef4c17c) | 実際に発行された個人判断から、元のrelative指令を保持するbounded初回motor receipt |
 
 各公開treeはローカルの検証Sourceとfetch/diffで一致を確認した。GitHub上のcommitはmetadataが異なるため、commit IDだけでなく全tree/src treeの同一性を各PRに記録している。いずれもmergeしていない。
 
@@ -62,6 +63,13 @@
 [Decision live work](2026-10-04-actual-defensive-decision-live-work.md)は元の判断/初動deadlineを保持し、issued後もmotor/adoptionをpending successorとして残す。Queue coverageは未知であり、全体watermarkやPlayEndを認定しない。独立Sourceの20 testsとreview後、統合Sourceではtypecheck、Core/WAL12件と実Native read/retry/reopen1件を選択実行し通過した（他Native7件はこの統合focusedでは再実行していない）。統合13件、1分30.529秒、全tracked hashes一致。src treeは `e5ec2a4b12a47aad0535d534b5fa6073ef786852`。
 
 次の実装は、owned判断からboundedな1区間のmotor receipt、10人全5部位の指令合成、既存物理ownerによるatomic adoptionへ進める。通常のmotionが「実行checkpoint」と「指令の有効coverage」を同時に終了する境界は、[versioned checkpoint](2026-10-04-motion-coverage-checkpoints.md)で接続した。独立Sourceの76 testsとreview後、統合Source local `7ea7d5c2bfced9005d29e688582bef818c5bb359` / published `329a03f44fb3dbbc15ae3857d8a41a87da5cbf0d` でtypecheckと4 files / 19 testsが通過し、全tracked hashesが一致した（3分41.374秒）。Full tree `3ef4173caced54189e2c3de6b0208a977cfa614e`、src tree `6960552a83fd5d66b97de529c042670a7fe04b9b`。Actor/selfは元の曲線を保持し、ballは既存real-cursor kernelで進む。これだけで独立motorのdue workやscheduler全体を閉じた意味ではない。未確認の保存期間延長や部位のzero-fillで代用しない。
+
+
+[Owned初回motor receipt](2026-10-04-owned-locomotion-receipts.md)は、実際のissuedAt、現在の自己位置・速度、明示calibrationと元の知覚targetから、first waypointへの1区間またはholdの制動指令を導出する。未解決contactやpending capture/transferでは受理せず、5部位の元relative指令を保持する。Receiptはadoption_pendingのままで、これ自体で物理が動いたとは記録しない。
+
+元の固定Sourceは6 files / 16 tests、checkpointを加えた最終独立Sourceは4 files / 8 testsを通過した。それぞれ別のSource-bound証拠であり、同じ全件再実行として合算しない。統合固定Source local `6f3947b60a19dca4f25a4199eff267e5ba763dfd` / published `e93bf5dc3cfab034895a5642b8be3d919ef4c17c` はtypecheckと3 files / 7 testsを3分49.202秒で通過し、全tracked hashesが一致した。Full tree `dd9387d5f115bd7cdebd029f4386e43d291663a2`、src tree `1fcc576ca115c7bd514422d2bd5ab0dc2031867d`。通常のcontact-free経路で、元の判断deadlineから発行、motor receiptまで繋がることを確認した。
+
+次の大区切りは、全10人・全5部位のowned/retained contributionsを既存物理ownerの同一transactionで採用し、実際に実行した区間だけを記録すること。短いmotor区間と長く残る元の部位/他Playerの指令を混同せず、contact、既知のdue work、coverage終了時にはpendingを保持する。独立指令をpending capture/transferへ途中採用するpiecewise拡張、以後のroute進行、全contributors/actor dispositionからの実PlayEndは引き続き残る。
 
 ## 全体検証の正確な位置
 
