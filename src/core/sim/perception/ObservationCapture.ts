@@ -158,3 +158,22 @@ export const captureSpatialObservation = (
     },
   }, observedAt, quality);
 };
+
+export type TemporalObservationErrorParameters = Readonly<{
+  minimumDetectionQuality: number; minimumTimeErrorSeconds: number; maximumTimeErrorSeconds: number;
+}>;
+/** Seconds-domain extension of the same quality-scaled symmetric-triangular capture law.
+ * A timing estimate can be negative; clamping it would introduce a one-sided bias near the origin. */
+export const captureTemporalObservation = (truthElapsedSeconds: number, observedAt: number, quality: number,
+  rng: DeterministicRng, parameters: TemporalObservationErrorParameters): ObservationSample<number> | null => {
+  validateUnit('quality', quality);
+  validateUnit('minimumDetectionQuality', parameters.minimumDetectionQuality);
+  validateErrorRange('minimumTimeErrorSeconds', parameters.minimumTimeErrorSeconds,
+    'maximumTimeErrorSeconds', parameters.maximumTimeErrorSeconds);
+  if (!Number.isFinite(truthElapsedSeconds) || truthElapsedSeconds < 0) throw new Error('invalid temporal observation truth');
+  if (quality < parameters.minimumDetectionQuality) return null;
+  const scale = errorScale(parameters.minimumTimeErrorSeconds, parameters.maximumTimeErrorSeconds, quality);
+  const estimate = truthElapsedSeconds + sampleSymmetricTriangularError(rng, scale);
+  if (!Number.isFinite(estimate)) throw new Error('temporal observation arithmetic overflow');
+  return createObservationSample(estimate, observedAt, quality);
+};
