@@ -1,7 +1,7 @@
 export { battedWorldOriginalContactPrefix, type BattedWorldOriginalContactPrefix } from './BattedWorldOriginalContactPrefix';
 import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
 import { ownedScheduledMotionArchiveHash } from './OwnedScheduledMotionArchive';
-import { createOwnedScheduledMotionDependencyEncoding } from './OwnedScheduledMotionDependencyEncoding';
+import { createOwnedScheduledMotionDependencyEncoding, createOwnedScheduledMotionPlanEncoding } from './OwnedScheduledMotionDependencyEncoding';
 import { validateBattedWorldPiecewiseFieldAcquisitionPlan, validateBattedWorldPiecewiseFieldAcquisitionProgress } from '../../core/sim/ball/BattedWorldPiecewiseFieldAcquisition';
 import { validateBattedWorldPiecewiseFieldThrowPlan, validateBattedWorldPiecewiseFieldThrowProgress } from '../../core/sim/ball/BattedWorldPiecewiseFieldThrow';
 import type { OwnedScheduledMotionExecution, OwnedScheduledMotionOperation, OwnedScheduledMotionReference } from './OwnedScheduledBattedWorldMotion';
@@ -249,6 +249,10 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
   // still validates the entire inert body before a successful reference is retained.
   // Object identity, never Source ID, is the key in this fixed owner namespace.
   const dependencyEncoding = createOwnedScheduledMotionDependencyEncoding();
+  const planEncoding = createOwnedScheduledMotionPlanEncoding();
+  const planJson = (kind: OwnedScheduledMotionOperation['kind'], plan: OwnedScheduledMotionOperation['plan']) => kind === 'acquisition'
+    ? planEncoding.acquisition(plan as Extract<OwnedScheduledMotionOperation, { kind: 'acquisition' }>['plan']).json
+    : planEncoding.throw(plan as Extract<OwnedScheduledMotionOperation, { kind: 'throw' }>['plan']).json;
   const executionReferences = new WeakMap<DurableBattedWorldFieldExecution, OwnedScheduledMotionReference>();
   const immutable = (value: unknown, seen = new Set<object>()): boolean => {
     if (value === null || typeof value !== 'object') return true;
@@ -311,7 +315,7 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
         if (!original || json(reference(original)) !== json(op.planReference)
           || json(previous.map(reference)) !== json(op.previousSteps)) throw new Error('actual field owned operation reference manifest differs');
         const operations = previous.map(v => (v.execution as Extract<OwnedScheduledMotionExecution, { kind: 'owned_motion_v2' }>).operation!);
-        if (operations.some(old => old.kind !== op.kind || json(old.plan) !== json(op.plan) || json(old.bridge) !== json(op.bridge))) {
+        if (operations.some(old => old.kind !== op.kind || planJson(old.kind, old.plan) !== planJson(op.kind, op.plan) || json(old.bridge) !== json(op.bridge))) {
           throw new Error('actual field owned operation previous-step lineage differs');
         }
         if (op.bridge) {
@@ -333,9 +337,9 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
             pendingOwned = { sourceId: op.planSourceId, kind: op.kind, plan: op.plan, previous: null };
           }
         } else if (original.execution.kind !== (op.kind === 'acquisition' ? 'owned_acquisition_plan_v1' : 'owned_throw_plan_v1')
-          || json((original.execution as { plan: unknown }).plan) !== json(op.plan)) throw new Error('actual field owned original plan differs');
+          || planJson(op.kind, (original.execution as { plan: OwnedScheduledMotionOperation['plan'] }).plan) !== planJson(op.kind, op.plan)) throw new Error('actual field owned original plan differs');
         if (!pendingOwned || pendingOwned.sourceId !== op.planSourceId || pendingOwned.kind !== op.kind
-          || json(pendingOwned.plan) !== json(op.plan)) throw new Error('actual field owned operation is not pending');
+          || planJson(pendingOwned.kind, pendingOwned.plan) !== planJson(op.kind, op.plan)) throw new Error('actual field owned operation is not pending');
         const steps = [...operations.map(old => old.step), op.step];
         if (op.kind === 'acquisition') {
           const progress = op.progress;
