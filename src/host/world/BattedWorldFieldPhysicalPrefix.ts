@@ -1,3 +1,5 @@
+export { battedWorldOriginalContactPrefix, type BattedWorldOriginalContactPrefix } from './BattedWorldOriginalContactPrefix';
+import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
 import { ownedScheduledMotionArchiveHash } from './OwnedScheduledMotionArchive';
 import { createOwnedScheduledMotionDependencyEncoding } from './OwnedScheduledMotionDependencyEncoding';
 import { validateBattedWorldPiecewiseFieldAcquisitionPlan, validateBattedWorldPiecewiseFieldAcquisitionProgress } from '../../core/sim/ball/BattedWorldPiecewiseFieldAcquisition';
@@ -68,6 +70,7 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
   segments: readonly BallWorldPlayerBaseContactSegment[]; controlWindows: readonly Control[]; possessionEvidence?: BattedWorldPossessionEvidence }> => {
   if (input.custodyPolicy !== undefined && input.custodyPolicy !== 'release_exclusive_v1') throw new Error('invalid actual field custody policy');
   const base = input.baseField, world = base.response.touch.worldContact, flight = world.flight;
+  assertSupportedBattedWorldConsumer(world, 'field_prefix');
   const initial = flight.flight.initialBall, originTick = initial.tick, p = flight.source.execution.ballFlightParameters;
   const batter = flight.physicalPitch.frame.batterActor, geometry = base.geometry.geometry;
   if (!Number.isSafeInteger(base.revision) || base.revision < 1 || input.fields.length !== base.revision

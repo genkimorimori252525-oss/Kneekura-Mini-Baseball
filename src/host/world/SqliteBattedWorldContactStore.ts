@@ -1,3 +1,4 @@
+import { prePitchRunnerContactPrimitives } from './PrePitchRunnerExecution';
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -20,11 +21,13 @@ export type AcceptedBattedWorldModel = Readonly<{
   actors: readonly Readonly<{ playerId: string; personId: string; heightMeters: number; bodyOriginHeightMeters: number; primitives: readonly Shape[] }>[];
   batterGripOffset: Vec3; surfaces: readonly BattedWorldSurface[];
 }>;
-export type AcceptedBattedWorldContact = Readonly<{
+type BattedWorldContactCommandSource = Readonly<{
   sourceId: string; sourceVersion: string; flightSourceId: string; modelSourceId: string; previousContactSourceId: string | null;
   commands: readonly Readonly<{ playerId: string; bodyAcceleration: Vec3;
     primitiveMotions: readonly Readonly<{ role: DefenderPhysicalPrimitiveRole; offsetVelocity: Vec3; offsetAcceleration: Vec3 }>[] }>[];
 }>;
+export type AcceptedBattedWorldContact = BattedWorldContactCommandSource & (Readonly<{ kind?: never; prePitchRunnerSourceId?: never }>
+  | Readonly<{ kind: 'owned_runner_contact_v1'; prePitchRunnerSourceId: string }>);
 export type DurableBattedWorldContact = Readonly<{
   source: AcceptedBattedWorldContact; revision: number; model: AcceptedBattedWorldModel; flight: DurableBattedBallFlight;
   modelActorEvidence: readonly Readonly<{ binding: OfficialParticipantBinding; person: ReturnType<typeof readOfficialActorPersonLink> }>[];
@@ -48,7 +51,8 @@ const allRoles = (p: readonly Readonly<{ role: DefenderPhysicalPrimitiveRole }>[
   && new Set(p.map((v) => v?.role)).size === roles.length && p.every((v) => roles.includes(v?.role));
 const input = (raw: AcceptedBattedWorldContact, sourceId: string): AcceptedBattedWorldContact => {
   const s = cloneInert(raw);
-  if (!fields(s, ['sourceId', 'sourceVersion', 'flightSourceId', 'modelSourceId', 'previousContactSourceId', 'commands'])
+  if (!fields(s, ['sourceId', 'sourceVersion', 'flightSourceId', 'modelSourceId', 'previousContactSourceId', 'commands', ...('kind' in s ? ['kind', 'prePitchRunnerSourceId'] : [])])
+    || 'kind' in s && (s.kind !== 'owned_runner_contact_v1' || !id(s.prePitchRunnerSourceId))
     || s.sourceId !== sourceId || ![sourceId, s.sourceVersion, s.flightSourceId, s.modelSourceId].every(id)
     || s.previousContactSourceId !== null && (!id(s.previousContactSourceId) || s.previousContactSourceId === sourceId)
     || !Array.isArray(s.commands) || s.commands.length !== 10 || new Set(s.commands.map((c) => c?.playerId)).size !== 10
@@ -91,11 +95,19 @@ export const battedWorldContactEvidenceFromSqlite = (db: Pick<import('node:sqlit
     if (!flight) throw new Error('actual batted World flight is missing');
     const { frame } = flight.physicalPitch, batter = frame.batterActor!, world = frame.world, at = flight.flight.contact.tick;
     const throughTick = at + flight.source.searchDurationTicks, tps = flight.source.execution.ballFlightParameters.ticksPerSecond;
-    const bindings = [...batter.defenderBindings, batter.binding];
+    const ownedRunner = s.kind === 'owned_runner_contact_v1' ? frame.prePitchRunner : undefined;
+    const occupied = Object.values(frame.match.bases).filter(v => v !== null);
+    if (s.kind === 'owned_runner_contact_v1' ? !ownedRunner || ownedRunner.source.sourceId !== s.prePitchRunnerSourceId
+      || ownedRunner.source.physicalActorSourceId !== batter.source.sourceId || occupied.length !== 1 || occupied[0] !== ownedRunner.binding.playerId
+      || world.runners.length !== 1 || world.runners[0].playerId !== ownedRunner.binding.playerId
+      : world.runners.length || occupied.length) throw new Error('batted World pre-pitch runner body execution is unsupported or differs');
+    const commandedBindings = [...batter.defenderBindings, batter.binding];
+    const bindings = [...commandedBindings, ...(ownedRunner ? [ownedRunner.binding] : [])];
+    if (s.commands.length !== 10 || new Set(s.commands.map(c => c.playerId)).size !== 10) throw new Error('batted World ten original commands differ');
     if (m.gameId !== frame.gameId || m.careerId !== batter.binding.careerId || m.fixtureEventId !== batter.binding.fixtureEventId
       || m.venueId !== flight.source.execution.venueId || m.availableAtDay > batter.binding.gameDay
       || bindings.some((b) => !m.actors.some((a) => b.playerId === a.playerId && b.personId === a.personId))
-      || s.commands.some((c) => !bindings.some((b) => b.playerId === c.playerId))) throw new Error('batted World actual Player/Person/fixture scope differs');
+      || s.commands.some((c) => !commandedBindings.some((b) => b.playerId === c.playerId))) throw new Error('batted World actual Player/Person/fixture scope differs');
     const modelActorEvidence = m.actors.map((a) => {
       const row = db.prepare('SELECT binding_json FROM official_participant_bindings WHERE game_id=? AND player_id=?')
         .get(m.gameId, a.playerId) as { binding_json: string } | undefined;
@@ -110,18 +122,23 @@ export const battedWorldContactEvidenceFromSqlite = (db: Pick<import('node:sqlit
       if (person.acceptedAtDay > binding.gameDay || person.rosterRevision > binding.rosterRevision) throw new Error('batted World model Person was unavailable at registration');
       return { binding, person };
     });
-    if (world.runners.length || Object.values(frame.match.bases).some((v) => v !== null)) throw new Error('batted World pre-pitch runner body execution is unsupported');
     if (!integer(throughTick) || at < world.tick || world.defenders.length !== 9
       || m.actors.find((a) => a.playerId === frame.workload.playerId)?.heightMeters !== frame.release.body.heightMeters) throw new Error('batted World clock or actual pitcher body differs');
     if (s.previousContactSourceId === null ? parent !== null : !parent || parent.source.sourceId !== s.previousContactSourceId
       || parent.result.kind !== 'airborne' || parent.flight.source.physicalPitchSourceId !== flight.source.physicalPitchSourceId
       || parent.flight.source.searchDurationTicks >= flight.source.searchDurationTicks || json(parent.flight.source.execution) !== json(flight.source.execution)
-      || json(parent.model) !== json(m) || json(parent.source.commands) !== json(s.commands)) throw new Error('batted World original predecessor/model/commands differ');
+      || json(parent.model) !== json(m) || json(parent.source.commands) !== json(s.commands)
+      || parent.source.kind !== s.kind || parent.source.prePitchRunnerSourceId !== s.prePitchRunnerSourceId) throw new Error('batted World original predecessor/model/commands differ');
     const action = flight.physicalPitch.source.request.batter.action;
     if (action.kind !== 'swing') throw new Error('actual batted World swing is missing');
     const swing = sampleBatterSwingState(action.swing.stateAtStart, at - action.swing.startTick, action.swing.ticksPerSecond);
     const actors: BattedWorldActorPrimitive[] = [];
     for (const a of m.actors.filter((v) => bindings.some((b) => b.playerId === v.playerId))) {
+      if (ownedRunner && a.playerId === ownedRunner.binding.playerId) {
+        actors.push(...prePitchRunnerContactPrimitives(ownedRunner.source, ownedRunner.canonical, ownedRunner.controller,
+          a.primitives, a.bodyOriginHeightMeters, at, throughTick, tps));
+        continue;
+      }
       const command = s.commands.find((c) => c.playerId === a.playerId)!;
       let body: DefenderBodyKinematicsSegment;
       if (a.playerId === batter.binding.playerId) {
@@ -186,7 +203,7 @@ export const battedWorldContactEvidenceFromSqlite = (db: Pick<import('node:sqlit
   return { read, readModel, derive, head, predecessor, sameModel, ownFlights };
 };
 
-/** Executes the supported original ten-actor, no-pre-pitch-runner contact interval. Rules consume the facts separately. */
+/** Legacy ten actors, or a versioned eleventh original runner within its prospectively owned analytic interval. Rules remain separate. */
 export const openSqliteBattedWorldContactStore = (path: string, flights: Pick<SqliteBattedBallFlightStore, 'read'>,
   authority?: Authority): SqliteBattedWorldContactStore => {
   if (!id(path) || typeof flights?.read !== 'function' || authority != null

@@ -1,3 +1,4 @@
+export { actualPlayerKinematicsFromOriginalContact, type ActualOriginalContactPlayerKinematics } from './ActualPlayerKinematicsFromOriginalContact';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { Vec3 } from '../../core/model/geometry';
 import { sampleBatterSwingState } from '../../core/sim/contact/BatBallContact';

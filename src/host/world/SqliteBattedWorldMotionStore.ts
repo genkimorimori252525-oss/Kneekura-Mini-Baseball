@@ -1,3 +1,4 @@
+import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -49,6 +50,7 @@ export const battedWorldMotionCommandsInput = (raw: AcceptedBattedWorldMotion['c
 };
 export const battedWorldMotionPrimitiveCommands = (response: DurableBattedContactResponse, commands: AcceptedBattedWorldMotion['commands']) => {
   const world = response.touch.worldContact, batterId = world.flight.physicalPitch.frame.batterActor!.binding.playerId;
+  assertSupportedBattedWorldConsumer(world, 'motion_renewal');
   if (commands.some((command) => !world.actors.some((actor) => actor.playerId === command.playerId)
     || command.playerId !== batterId && command.bodyAcceleration.y !== 0)) throw new Error('actual batted motion actor command scope differs');
   return commands.flatMap((command) => command.primitiveMotions.map((motion) => ({ playerId: command.playerId, role: motion.role,

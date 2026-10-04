@@ -1,3 +1,4 @@
+import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -28,6 +29,7 @@ export const battedFirstFielderTouchEvidenceFromSqlite = (db: Pick<import('node:
   const derive = (s: AcceptedBattedFirstFielderTouch): DurableBattedFirstFielderTouch => {
     const worldContact = own.read(s.worldContactSourceId);
     if (!worldContact) throw new Error('original batted World contact is missing');
+    assertSupportedBattedWorldConsumer(worldContact, 'first_fielder_touch');
     const frame = worldContact.flight.physicalPitch.frame;
     const result = deriveAndRecordBattedWorldFirstFielderTouch({ timeline: worldContact.timeline,
       world: { flight: worldContact.flight.flight, parameters: worldContact.flight.source.execution.ballFlightParameters,

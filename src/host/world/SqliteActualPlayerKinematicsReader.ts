@@ -1,3 +1,5 @@
+import { actualPlayerKinematicsFromOriginalContact, type ActualOriginalContactPlayerKinematics } from './ActualPlayerKinematicsFromOriginalContact';
+import { battedWorldContactEvidenceFromSqlite } from './SqliteBattedWorldContactStore';
 import { ownedScheduledMotionArchiveHash } from './OwnedScheduledMotionArchive';
 import type { DurableBattedWorldFieldExecution } from './SqliteBattedWorldFieldExecutionStore';
 import { createRequire } from 'node:module';
@@ -11,7 +13,12 @@ export type ActualPlayerKinematicsCut = Readonly<{ physicalPitchSourceId: string
   executionSourceId: string | null; mode: 'original' | 'current' }>;
 export type OwnedActualPlayerKinematics = ActualPlayerKinematics & Readonly<{ cut: ActualPlayerKinematicsCut;
   dependencyHashes: Readonly<{ physicalPrefix: string; physicalPitch: string; worldContact: string; model: string }> }>;
-export type SqliteActualPlayerKinematicsReader = Readonly<{ read(cut: ActualPlayerKinematicsCut): OwnedActualPlayerKinematics; close(): void }>;
+export type ActualPlayerOriginalContactCut = Readonly<{ kind: 'owned_runner_contact_v1'; physicalPitchSourceId: string;
+  worldContactSourceId: string; playerId: string }>;
+export type OwnedActualOriginalContactKinematics = ActualOriginalContactPlayerKinematics & Readonly<{ cut: ActualPlayerOriginalContactCut;
+  dependencyHashes: Readonly<{ physicalPrefix: string; physicalPitch: string; worldContact: string; model: string }> }>;
+export type SqliteActualPlayerKinematicsReader = Readonly<{ read(cut: ActualPlayerKinematicsCut): OwnedActualPlayerKinematics;
+  readOriginalContact(cut: ActualPlayerOriginalContactCut): OwnedActualOriginalContactKinematics; close(): void }>;
 const id = (v: unknown): v is string => typeof v === 'string' && v.length > 0 && v === v.trim();
 const input = (raw: ActualPlayerKinematicsCut) => {
   const s = cloneInert(raw);
@@ -57,7 +64,28 @@ export const actualPlayerKinematicsEvidenceFromSqlite = (db: Pick<import('node:s
     return freeze({ ...value, cut, dependencyHashes: { physicalPrefix: hash(manifest), physicalPitch: hash(world.flight.physicalPitch),
       worldContact: hash(world), model: hash(world.model) } });
   };
-  return { read };
+  const readOriginalContact = (raw: ActualPlayerOriginalContactCut): OwnedActualOriginalContactKinematics => {
+    const cut = cloneInert(raw);
+    if (!cut || JSON.stringify(Object.keys(cut).sort()) !== JSON.stringify(['kind', 'physicalPitchSourceId', 'playerId', 'worldContactSourceId'].sort())
+      || cut.kind !== 'owned_runner_contact_v1' || ![cut.physicalPitchSourceId, cut.worldContactSourceId, cut.playerId].every(id)) {
+      throw new Error('invalid original contact kinematics cut');
+    }
+    const contacts = battedWorldContactEvidenceFromSqlite(db), world = contacts.read(cut.worldContactSourceId);
+    if (!world || world.flight.source.physicalPitchSourceId !== cut.physicalPitchSourceId) throw new Error('original contact kinematics owned Source is missing or differs');
+    const head = contacts.head(cut.physicalPitchSourceId);
+    if (!head || head.revision < world.revision || head.revision === world.revision && head.source_id !== world.source.sourceId) {
+      throw new Error('original contact kinematics prefix metadata differs');
+    }
+    const metadata = db.prepare('SELECT source_id,game_id,revision,previous_source_id FROM batted_world_contacts WHERE physical_pitch_source_id=? ORDER BY revision')
+      .all(cut.physicalPitchSourceId) as { source_id: string; game_id: string; revision: number; previous_source_id: string | null }[];
+    if (metadata.length !== head.revision || new Set(metadata.map(row => row.source_id)).size !== metadata.length
+      || metadata.some((row, index) => !id(row.source_id) || row.game_id !== world.model.gameId || row.revision !== index + 1
+        || row.previous_source_id !== (index === 0 ? null : metadata[index - 1].source_id))
+      || metadata[world.revision - 1]?.source_id !== world.source.sourceId) throw new Error('original contact kinematics ownership metadata differs');
+    const value = actualPlayerKinematicsFromOriginalContact(cut.playerId, world);
+    return freeze({ ...value, cut, dependencyHashes: { physicalPrefix: hash(value.physicalPrefix), ...value.physicalPrefix.dependencyHashes } });
+  };
+  return { read, readOriginalContact };
 };
 
 /** Opens an existing database read-only. A read transaction pins one consistent SQLite snapshot; no schema or receipt is created. */
@@ -70,6 +98,11 @@ export const openSqliteActualPlayerKinematicsReader = (path: string): SqliteActu
     if (closed) throw new Error('closed actual Player kinematics reader');
     db.exec('BEGIN');
     try { const value = own.read(cut); db.exec('COMMIT'); return value; }
+    catch (error) { db.exec('ROLLBACK'); throw error; }
+  }, readOriginalContact(cut) {
+    if (closed) throw new Error('closed actual Player kinematics reader');
+    db.exec('BEGIN');
+    try { const value = own.readOriginalContact(cut); db.exec('COMMIT'); return value; }
     catch (error) { db.exec('ROLLBACK'); throw error; }
   }, close() { if (!closed) { db.close(); closed = true; } } });
 };

@@ -1,3 +1,4 @@
+import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -36,6 +37,7 @@ const predecessorKey = (s: AcceptedBattedWorldContinuation) => json(s.previousCo
   ? ['response', s.responseSourceId] : ['continuation', s.previousContinuationSourceId]);
 export const battedWorldResponseInput = (response: DurableBattedContactResponse): BattedBallContactResponseInput => {
   const w = response.touch.worldContact;
+  assertSupportedBattedWorldConsumer(w, 'response_continuation_input');
   return { world: { flight: w.flight.flight, parameters: w.flight.source.execution.ballFlightParameters,
     throughTick: w.flight.flight.contact.tick + w.flight.source.searchDurationTicks, actors: w.actors, surfaces: w.model.surfaces },
     actors: response.model.actors.filter((a) => w.actors.some((b) => a.playerId === b.playerId))
@@ -57,6 +59,7 @@ export const battedWorldContinuationEvidenceFromSqlite = (db: Pick<import('node:
   const head = (pitchId: string): Head | null => db.prepare('SELECT response_source_id,source_id,revision FROM batted_world_continuation_heads WHERE physical_pitch_source_id=?')
     .get(pitchId) as Head | undefined ?? null;
   const scope = (response: DurableBattedContactResponse): readonly DurableBattedWorldContinuation[] => {
+    assertSupportedBattedWorldConsumer(response.touch.worldContact, 'continuation');
     const pitchId = physicalId(response), rows = db.prepare('SELECT * FROM batted_world_continuations WHERE physical_pitch_source_id=? ORDER BY revision')
       .all(pitchId) as Row[], currentHead = head(pitchId);
     if (!rows.length) { if (currentHead) throw new Error('unowned batted continuation head'); return []; }
