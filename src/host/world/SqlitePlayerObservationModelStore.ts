@@ -55,10 +55,17 @@ export const playerObservationModelEvidenceFromSqlite = (db: Pick<import('node:s
     return freeze({ source, fieldingModel });
   };
   const scope = (careerId: string, playerId: string): readonly DurablePlayerObservationModel[] => {
-    // Both the indexed and original JSON scope are checked so a changed mirror cannot hide a duplicate baseline.
+    // Every archived Player identity participates in ownership discovery. Moving
+    // both the index and Source mirror cannot hide the original model/Person.
     const rows = db.prepare(`SELECT * FROM world_player_observation_models WHERE (career_id=? AND player_id=?)
-      OR (json_extract(source_json,'$.careerId')=? AND json_extract(source_json,'$.playerId')=?)`)
-      .all(careerId, playerId, careerId, playerId) as Row[];
+      OR (json_extract(source_json,'$.careerId')=? AND json_extract(source_json,'$.playerId')=?)
+      OR (CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.source.careerId') END=?
+        AND CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.source.playerId') END=?)
+      OR (CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.fieldingModel.source.careerId') END=?
+        AND CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.fieldingModel.source.playerId') END=?)
+      OR (CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.fieldingModel.person.careerId') END=?
+        AND CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.fieldingModel.person.playerId') END=?)`)
+      .all(careerId, playerId, careerId, playerId, careerId, playerId, careerId, playerId, careerId, playerId) as Row[];
     if (rows.length > 1) throw new Error('Player observation baseline scope differs');
     return rows.map((row) => {
       const source = input(JSON.parse(row.source_json) as AcceptedPlayerObservationModel, row.source_id), value = derive(source);
@@ -72,8 +79,14 @@ export const playerObservationModelEvidenceFromSqlite = (db: Pick<import('node:s
   };
   const read = (sourceId: string): DurablePlayerObservationModel | null => {
     if (!id(sourceId)) throw new Error('invalid Player observation model scope');
-    const row = db.prepare('SELECT * FROM world_player_observation_models WHERE source_id=?').get(sourceId) as Row | undefined;
+    const rows = db.prepare(`SELECT * FROM world_player_observation_models WHERE source_id=?
+      OR CASE WHEN json_valid(source_json) THEN json_extract(source_json,'$.sourceId') END=?
+      OR CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.source.sourceId') END=?`)
+      .all(sourceId, sourceId, sourceId) as Row[];
+    if (rows.length > 1) throw new Error('Player observation Source ownership scope differs');
+    const row = rows[0];
     if (!row) return null;
+    if (row.source_id !== sourceId) throw new Error('Player observation Source identity mirror differs');
     const source = input(JSON.parse(row.source_json) as AcceptedPlayerObservationModel, sourceId);
     const value = scope(source.careerId, source.playerId)[0];
     if (!value || value.source.sourceId !== sourceId) throw new Error('Player observation model is outside its own baseline');
