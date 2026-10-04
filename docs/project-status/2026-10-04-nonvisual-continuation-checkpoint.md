@@ -1,6 +1,6 @@
 # 非デザイン継続実装: 現在の接続と検証
 
-更新: 2026-10-04 13:48 JST（2026-10-04 04:48 UTC）
+更新: 2026-10-04 17:32 JST（2026-10-04 08:32 UTC）
 
 ユーザーの継続指示に従い、最新の確定済み残計画を進めている。**計画全体・自律試合/Career全体の完了ではない**。デザイン/UI/art/Presentationは未接続のまま。
 
@@ -26,6 +26,7 @@
 | [275](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/275) | [5a7caf77](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/5a7caf7746130ac78fa7da565d98ac2f517a7868) | 判断deadlineと未消費motor/adoption workのread-only Source固有投影 |
 | [276](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/276) | [329a03f4](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/329a03f44fb3dbbc15ae3857d8a41a87da5cbf0d) | actual checkpointと明示command coverageの分離、元のactor曲線を保つretained継続 |
 | [277](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/277) | [e93bf5dc](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/e93bf5dc3cfab034895a5642b8be3d919ef4c17c) | 実際に発行された個人判断から、元のrelative指令を保持するbounded初回motor receipt |
+| [278](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/278) | [8c584e5e](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/8c584e5ed53165d3d037b705c3dbbd76ef9f5455) | 全10人・50部位のowned/retained指令合成、実物理へのatomic adoptionと独立due work |
 
 各公開treeはローカルの検証Sourceとfetch/diffで一致を確認した。GitHub上のcommitはmetadataが異なるため、commit IDだけでなく全tree/src treeの同一性を各PRに記録している。いずれもmergeしていない。
 
@@ -69,7 +70,11 @@
 
 元の固定Sourceは6 files / 16 tests、checkpointを加えた最終独立Sourceは4 files / 8 testsを通過した。それぞれ別のSource-bound証拠であり、同じ全件再実行として合算しない。統合固定Source local `6f3947b60a19dca4f25a4199eff267e5ba763dfd` / published `e93bf5dc3cfab034895a5642b8be3d919ef4c17c` はtypecheckと3 files / 7 testsを3分49.202秒で通過し、全tracked hashesが一致した。Full tree `dd9387d5f115bd7cdebd029f4386e43d291663a2`、src tree `1fcc576ca115c7bd514422d2bd5ab0dc2031867d`。通常のcontact-free経路で、元の判断deadlineから発行、motor receiptまで繋がることを確認した。
 
-次の大区切りは、全10人・全5部位のowned/retained contributionsを既存物理ownerの同一transactionで採用し、実際に実行した区間だけを記録すること。短いmotor区間と長く残る元の部位/他Playerの指令を混同せず、contact、既知のdue work、coverage終了時にはpendingを保持する。独立指令をpending capture/transferへ途中採用するpiecewise拡張、以後のroute進行、全contributors/actor dispositionからの実PlayEndは引き続き残る。
+[Owned physical adoption](../implementation/2026-10-04-owned-motion-adoption.md)を#278で接続した。全10人・全5部位のowned/retained contributionsを既存物理ownerの同一transactionで採用し、実際に実行した区間だけを記録する。短いmotor区間と長く残る元の部位/他Playerの指令を混同せず、実contact、独立した判断deadline、coverage終了時にはpendingを保持する。Motorは一度だけ採用し、ゼロ時間contactでも未来の区間を消費済みにしない。正当な長い観測prefixは検証済みsnapshot manifestで扱い、元のhash規約やinert-data上限を緩めない。
+
+固定src tree `fd9fb503d9bd94f103566cf7b964bccfb8d69cba`はtypecheckと29 files / 158 testsを通過し、全1,807 tracked hashesが一致した。独立reviewで見つかったnested field/predecessorの所有alias、due handoff漏れ、解決済みground contactの誤blockerを再現・修正した。統合local `412c49582b8959049a95431ebfe875c096026e20`は同じsrc treeで、typecheckと別の2 files / 4 testsも通過した。公開 `8c584e5ed53165d3d037b705c3dbbd76ef9f5455`のfull tree `9539420b632402cf4f630b84969890af534112ff`とsrc treeをfetch/diffで確認した。これはfocused gateであり、whole成功ではない。
+
+次は独立指令をpending capture/transferへ途中採用するpiecewise拡張。以後のcontroller更新、route進行、全contributors/actor dispositionからの実PlayEnd、official closureとCareer全体は引き続き残る。
 
 ## 全体検証の正確な位置
 
@@ -88,6 +93,8 @@
 #266の累積wholeは2026-10-04 01:21:35 UTCに完了した。独立したlocked dependency directoryを使い、実行中はSourceを変更していない。Full treeは `ea050f719a5ad82227ab245d0d95dee106ecc75f`、src treeは `7dd590be2d9f6edf9f03578baddd2e77e896529a`。#263–266を含むこの累積Sourceの検証であり、過去の各中間commitを別々に再実行した意味ではない。
 
 このgateを閉じて確定残計画のscheduled acquisitionへ進んだ。#269の固定Source local `cdd5908ed034af103719d568049a3064932959f2` / published `b2b8ee480b451e187f526b2be7db2d7d31c8c25a` の累積wholeを2026-10-04 02:29:06 UTCから別の不変checkoutで実行し、04:26:46 UTCにexit0で完了した。Full tree `97a38527f0d62a6ebe8d055547b9632ca8184acd`、src tree `5920b491ad4f2f74784fda398a85da14fe643ed0`。Typecheckと662 files / 4,807 testsが通過し、全1,722 tracked hashesは前後で一致、checkoutはcleanだった。この累積Sourceの成功であり、各中間commitを別々にwhole実行した意味ではなく、#270以後も含まない。後続変更へ#266の成功を流用せず、各focused/reviewと次の固定Source gateを区別する。最新terminal resultと公開tree情報は該当PR本文にも記録する。
+
+#277の固定Sourceのwholeは、最初の2回でterminal exit/hash記録が残らず中断した。部分logを成功扱いせず、2026-10-04 08:07:46 UTCに同一Sourceで再実行した。Local `e8b3aaa2117b6fc2a4a62ee3c5f2f61cc37a1a77` / published `0484d42e33b520d105dd20c0415026fa2d29a9ed`、full tree `264fb1ba911e88f39b9d45d7edc54121e4175d7f`、src tree `1fcc576ca115c7bd514422d2bd5ab0dc2031867d`。現在は実行中であり、#278を含まない。後続の全体検証は最新のまとまった統合Sourceで実施する。
 
 ## 残る確定非デザイン接続
 
