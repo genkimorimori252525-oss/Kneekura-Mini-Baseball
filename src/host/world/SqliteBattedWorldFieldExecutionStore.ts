@@ -328,13 +328,14 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
           OR ${metadataId('candidate.snapshot_json', ['baseField', 'source', 'sourceId'], 'f.source_id')}
           OR ${metadataId('candidate.snapshot_json', ['history', { array: 'all' }, 'baseFieldSourceId'], 'f.source_id')}))
       OR ${metadataId('candidate.snapshot_json', ['baseField', 'response', 'touch', 'worldContact', 'flight', 'source', 'physicalPitchSourceId'])}
+      OR ${metadataId('candidate.snapshot_json', ['baseField', 'physicalPitchSourceId'])}
       OR EXISTS (SELECT 1 FROM batted_world_field_executions predecessor
         WHERE (predecessor.physical_pitch_source_id=? OR predecessor.base_field_source_id=?)
           AND (candidate.previous_source_id=predecessor.source_id
             OR ${metadataId('candidate.source_json', ['previousExecutionSourceId'], 'predecessor.source_id')}
             OR ${metadataId('candidate.snapshot_json', ['source', 'previousExecutionSourceId'], 'predecessor.source_id')}
             OR ${metadataId('candidate.snapshot_json', ['history', { array: 'all' }, 'previousExecutionSourceId'], 'predecessor.source_id')}))`;
-    const ownerArguments = [pitchId, baseId, pitchId, pitchId, pitchId, baseId];
+    const ownerArguments = [pitchId, baseId, pitchId, pitchId, pitchId, pitchId, baseId];
     const rows = db.prepare(`SELECT candidate.* FROM batted_world_field_executions candidate WHERE ${owners} ORDER BY candidate.revision`).all(...ownerArguments) as Row[];
     const heads = db.prepare(`SELECT * FROM batted_world_field_execution_heads WHERE physical_pitch_source_id=? OR base_field_source_id=?
       OR source_id IN (SELECT candidate.source_id FROM batted_world_field_executions candidate WHERE ${owners})`).all(pitchId, baseId, ...ownerArguments) as Head[];
