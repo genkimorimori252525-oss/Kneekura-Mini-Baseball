@@ -1,3 +1,4 @@
+import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import {
@@ -370,6 +371,7 @@ export const openSqliteBattedPostResponseFlightStore = (
 
       db.exec('BEGIN IMMEDIATE');
       try {
+        const liveFence = beginActualLivePitchWrite(db, value.response.touch.worldContact.flight.source.physicalPitchSourceId, { owner: 'batted_post_response_flights', sourceId });
         ownResponses.current(value.response);
         if (
           json(derive(source, predecessor(source)))
@@ -402,6 +404,7 @@ export const openSqliteBattedPostResponseFlightStore = (
           value.revision,
         );
 
+        recordActualLivePlayAdmission(db, liveFence);
         ownResponses.current(value.response);
         const saved = read(sourceId);
         const current = head(source.contactResponseSourceId);
@@ -417,7 +420,7 @@ export const openSqliteBattedPostResponseFlightStore = (
             'batted post-response continuation changed during write',
           );
         }
-        db.exec('COMMIT');
+        assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT');
         return saved;
       } catch (error) {
         db.exec('ROLLBACK');

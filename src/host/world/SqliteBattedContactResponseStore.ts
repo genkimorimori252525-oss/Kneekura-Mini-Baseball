@@ -1,3 +1,4 @@
+import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { assertBattedActorResponseProfile, deriveBattedBallContactResponse, type BattedActorResponseProfile,
@@ -146,16 +147,18 @@ export const openSqliteBattedContactResponseStore = (path: string, touches: Pick
       if (!peer || json(peer) !== json(value.touch)) throw new Error('batted response peer first-fielder touch differs');
       db.exec('BEGIN IMMEDIATE');
       try {
+        const liveFence = beginActualLivePitchWrite(db, value.touch.worldContact.flight.source.physicalPitchSourceId, { owner: 'batted_contact_responses', sourceId });
         sameModel(m); own.current(value.touch);
         if (json(derive(s, m)) !== json(value)) throw new Error('batted response original changed before write');
         if (!readModel(m.sourceId)) db.prepare('INSERT INTO batted_contact_response_models VALUES (?,?,?,?)').run(m.sourceId, m.gameId, json(m), hash(m));
         const w = value.touch.worldContact;
         db.prepare('INSERT INTO batted_contact_responses VALUES (?,?,?,?,?,?,?,?,?)').run(sourceId, s.firstFielderTouchSourceId, w.source.sourceId,
           w.flight.source.physicalPitchSourceId, m.gameId, json(s), hash(s), json(value), hash(value));
+        recordActualLivePlayAdmission(db, liveFence);
         current(value); sameModel(m);
         const saved = read(sourceId);
         if (json(saved) !== json(value)) throw new Error('batted response original changed during write');
-        db.exec('COMMIT'); return saved!;
+        assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved!;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     },
     close() { if (!closed) { db.close(); closed = true; } },

@@ -15,6 +15,8 @@ import { hasUnmodeledObservationSurface } from './ActualObservationSurfaceGuard'
 import { battedWorldFieldPhysicalPrefix } from './BattedWorldFieldPhysicalPrefix';
 import { wholePlayPhysicalHistoryFromPrefix } from './WholePlayPhysicalHistoryFromPrefix';
 import type { DurablePlayerObservationModel } from './SqlitePlayerObservationModelStore';
+import type { ActualObservationCallReception } from './ActualCallCommunication';
+import type { ReceivedCommunication } from '../../core/sim/perception/Communication';
 import { actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 
 export type ActualObservationTarget = Readonly<{ kind: 'ball' }> | Readonly<{ kind: 'player'; playerId: string }>;
@@ -22,6 +24,8 @@ export type AcceptedActualFieldObservation = Readonly<{
   sourceId: string; sourceVersion: string; physicalPitchSourceId: string; playerId: string;
   baseFieldSourceId: string; executionSourceId: string | null; observationModelSourceId: string;
   previousObservationSourceId: string | null;
+  /** Opt-in immutable call reception dependency. Omitted in all legacy Sources. */
+  communicationSourceId?: string;
   view: Readonly<{ poseVersion: string; bodyRelativeEyeOffset: Vec3; forward: Vec3; attentionTarget: ActualObservationTarget }>;
 }>;
 export type ActualObservationMoment = Readonly<{ originTick: number; elapsedSeconds: number; tick: number }>;
@@ -36,6 +40,7 @@ export type ActualFieldObservationReceipt = Readonly<{
   samples: Readonly<{ ball: TimedSample<SpatialMotionEstimate> | null;
     players: readonly (TimedSample<PlanarMotionEstimate> & Readonly<{ playerId: string }>)[] }>;
   perceived: PlayerPerceivedWorldState<null>;
+  communicationEvidence?: Readonly<{ sourceId: string; snapshotHash: string; result: ActualObservationCallReception }>;
 }>;
 export const actualObservationId = (value: unknown): value is string => typeof value === 'string' && !!value.length && value === value.trim();
 const fields = (value: unknown, names: readonly string[]) => !!value && typeof value === 'object' && !Array.isArray(value)
@@ -44,10 +49,11 @@ const vector = (value: Vec3) => fields(value, ['x', 'y', 'z']) && Object.values(
 export const actualFieldObservationInput = (raw: AcceptedActualFieldObservation, sourceId: string): AcceptedActualFieldObservation => {
   const s = cloneInert(raw), id = actualObservationId;
   if (!fields(s, ['sourceId', 'sourceVersion', 'physicalPitchSourceId', 'playerId', 'baseFieldSourceId', 'executionSourceId',
-    'observationModelSourceId', 'previousObservationSourceId', 'view']) || s.sourceId !== sourceId
+    'observationModelSourceId', 'previousObservationSourceId', 'view', ...('communicationSourceId' in s ? ['communicationSourceId'] : [])]) || s.sourceId !== sourceId
     || ![sourceId, s.sourceVersion, s.physicalPitchSourceId, s.playerId, s.baseFieldSourceId, s.observationModelSourceId].every(id)
     || s.executionSourceId !== null && !id(s.executionSourceId)
     || s.previousObservationSourceId !== null && (!id(s.previousObservationSourceId) || s.previousObservationSourceId === sourceId)
+    || 'communicationSourceId' in s && !id(s.communicationSourceId)
     || !fields(s.view, ['poseVersion', 'bodyRelativeEyeOffset', 'forward', 'attentionTarget']) || !id(s.view.poseVersion)
     || !vector(s.view.bodyRelativeEyeOffset) || !vector(s.view.forward)
     || !Number.isFinite(Math.hypot(s.view.forward.x, s.view.forward.y, s.view.forward.z))
@@ -75,10 +81,17 @@ export const actualBattedWorldObservationMoment = (history: CanonicalWholePlayHi
 type Prefix = Parameters<typeof wholePlayPhysicalHistoryFromPrefix>[0];
 /** Internal Native sampler: the public owner rederives every prefix/model; truth never enters the perceived output. */
 export const sampleActualFieldObservation = (source: AcceptedActualFieldObservation, prefix: Prefix,
-  model: DurablePlayerObservationModel, previous: Readonly<{ source: AcceptedActualFieldObservation; receipt: ActualFieldObservationReceipt }> | null): ActualFieldObservationReceipt => {
+  model: DurablePlayerObservationModel, previous: Readonly<{ source: AcceptedActualFieldObservation; receipt: ActualFieldObservationReceipt }> | null,
+  communicationEvidence?: NonNullable<ActualFieldObservationReceipt['communicationEvidence']>): ActualFieldObservationReceipt => {
   const physical = battedWorldFieldPhysicalPrefix(prefix), history = wholePlayPhysicalHistoryFromPrefix(prefix);
   const frame = prefix.baseField.response.touch.worldContact.flight.physicalPitch.frame;
   const at = { originTick: history.horizon.originTick, elapsedSeconds: history.horizon.elapsedSeconds, tick: history.horizon.ball.tick };
+  if ((source.communicationSourceId === undefined) !== (communicationEvidence === undefined)
+    || communicationEvidence && (communicationEvidence.sourceId !== source.communicationSourceId || communicationEvidence.result.playerId !== source.playerId)) {
+    throw new Error('actual observation communication dependency differs');
+  }
+  const communications: readonly ReceivedCommunication[] = communicationEvidence?.result.kind === 'received'
+    ? [communicationEvidence.result.received] : [];
   const calibration = model.source.calibration, p = history.origin.ticksPerSecond;
   if (calibration.memoryDecayParameters.ticksPerSecond !== p) throw new Error('observation model clock differs from actual physical clock');
   const players = [history.origin.batterRunnerId, ...history.origin.defenderIds].sort();
@@ -168,7 +181,8 @@ export const sampleActualFieldObservation = (source: AcceptedActualFieldObservat
     perceived: buildPlayerPerceivedWorldState({ observerId: source.playerId, observationTime: at.tick, attention,
       ball: ball ? predictSpatialObservationMemory(ball.sample, at.tick, calibration.memoryDecayParameters) : null,
       players: samples.map((value) => ({ playerId: value.playerId,
-        memory: predictPlanarObservationMemory(value.sample, at.tick, calibration.memoryDecayParameters) })), communications: [], knownContext: null }) };
+        memory: predictPlanarObservationMemory(value.sample, at.tick, calibration.memoryDecayParameters) })), communications, knownContext: null }),
+    ...(communicationEvidence === undefined ? {} : { communicationEvidence }) };
   // Finite inputs can still overflow capture or memory arithmetic; reject before returning or serializing.
   return freeze(cloneInert(receipt));
 };

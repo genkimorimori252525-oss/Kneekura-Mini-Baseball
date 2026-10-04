@@ -1,3 +1,4 @@
+import { beginActualLivePlayWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createHash } from 'node:crypto';
 import { capturePhysicalPitchEvidence, physicalPitchActionInput as actionInput, assertPhysicalPitchOriginalEvidence,
   executePhysicalPitchAction as execute, readPhysicalPitchProgressFromSqlite } from './PhysicalPitchEvidenceFromSqlite';
@@ -172,6 +173,7 @@ export const openSqlitePhysicalPitchProgressStore = (databasePath: string, sourc
       const result = execute(source, frame, beforeTimeline, expectedProgressRevision + 1), originalRows = evidence(frame, true);
       db.exec('BEGIN IMMEDIATE');
       try {
+        const liveFence = beginActualLivePlayWrite(db, { gameId: source.gameId, playId: frame.match.playId }, { owner: 'physical_pitch_progress_actions', sourceId });
         openFrame(frame);
         if (json(evidence(frame, true)) !== json(originalRows) || history(source.gameId, frame.match.playId).length !== expectedProgressRevision) throw new Error('physical pitch evidence changed before append');
         assertPhysicalPitchOriginalEvidence(db, frame);
@@ -184,11 +186,12 @@ export const openSqlitePhysicalPitchProgressStore = (databasePath: string, sourc
             .run(result.progressRevision, sourceId, source.gameId, frame.match.playId, expectedProgressRevision);
           if (changed.changes !== 1) throw new Error('physical pitch head changed during append');
         }
+        recordActualLivePlayAdmission(db, liveFence);
         if (json(evidence(frame, true)) !== json(originalRows)) throw new Error('physical pitch evidence changed during append');
         openFrame(frame);
         const saved = history(source.gameId, frame.match.playId).at(-1)!;
         if (json(saved) !== json(result)) throw new Error('physical pitch Source changed during append');
-        db.exec('COMMIT'); return saved;
+        assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     },
     readAcceptedPitch(sourceId): DurablePhysicalPitch | null {

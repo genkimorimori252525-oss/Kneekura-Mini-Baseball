@@ -1,3 +1,4 @@
+import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { deriveAndRecordBattedWorldFirstFielderTouch, type BattedWorldFirstFielderTouchResult } from '../../core/sim/plateAppearance/BattedWorldFirstFielderTouch';
@@ -91,14 +92,16 @@ export const openSqliteBattedFirstFielderTouchStore = (path: string, contacts: P
       if (!peer || json(peer) !== json(value.worldContact)) throw new Error('first-fielder touch peer World contact differs');
       db.exec('BEGIN IMMEDIATE');
       try {
+        const liveFence = beginActualLivePitchWrite(db, value.worldContact.flight.source.physicalPitchSourceId, { owner: 'batted_first_fielder_touches', sourceId });
         current(value);
         if (json(derive(s)) !== json(value)) throw new Error('first-fielder touch original changed before write');
         db.prepare('INSERT INTO batted_first_fielder_touches VALUES (?,?,?,?,?,?,?,?)').run(sourceId, s.worldContactSourceId,
           value.worldContact.flight.source.physicalPitchSourceId, value.worldContact.model.gameId, json(s), hash(s), json(value), hash(value));
+        recordActualLivePlayAdmission(db, liveFence);
         current(value);
         const saved = read(sourceId);
         if (json(saved) !== json(value)) throw new Error('first-fielder touch original changed during write');
-        db.exec('COMMIT'); return saved!;
+        assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved!;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     },
     close() { if (!closed) { db.close(); closed = true; } },

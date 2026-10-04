@@ -9,7 +9,8 @@ import { openSqliteActualLocomotionStore, type AcceptedActualLocomotion } from '
 import type { ownedScheduledMotionFixture } from './OwnedScheduledMotionFixtures.test-support';
 import { ownedScheduledMotionPhase } from './OwnedScheduledMotionTiming.test-support';
 
-type Fixture = Pick<ReturnType<typeof ownedScheduledMotionFixture>, 'f' | 'baseField'>;
+type Fixture = Readonly<{ f: Pick<ReturnType<typeof ownedScheduledMotionFixture>['f'], 'path' | 'track'>;
+  baseField: ReturnType<typeof ownedScheduledMotionFixture>['baseField'] }>;
 /** Synthetic source-owned timing/coverage. Every observation, decision and motor is
  * still admitted by its real Native owner; this never supplies an acceleration. */
 export const installOwnedScheduledDecision = (x: Fixture, playerId: string, executionSourceId: string,

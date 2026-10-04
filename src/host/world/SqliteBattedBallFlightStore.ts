@@ -1,3 +1,4 @@
+import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { BallFlightParameters } from '../../core/sim/ball/BallFlight';
@@ -160,6 +161,7 @@ export const openSqliteBattedBallFlightStore = (path: string,
       if (!peer || json(peer) !== json(value.physicalPitch)) throw new Error('batted flight peer physical evidence differs');
       db.exec('BEGIN IMMEDIATE');
       try {
+        const liveFence = beginActualLivePitchWrite(db, s.physicalPitchSourceId, { owner: 'batted_ball_flights', sourceId });
         openFrame(value.physicalPitch);
         if (json(derive(s, predecessor(s))) !== json(value)) throw new Error('batted flight original evidence changed before write');
         db.prepare('INSERT INTO batted_ball_flights VALUES (?,?,?,?,?,?,?,?,?,?)').run(sourceId, s.physicalPitchSourceId,
@@ -167,11 +169,12 @@ export const openSqliteBattedBallFlightStore = (path: string,
           json(s), hash(s), json(value), hash(value));
         db.prepare('INSERT INTO batted_ball_flight_heads VALUES (?,?,?) ON CONFLICT(physical_pitch_source_id) DO UPDATE SET source_id=excluded.source_id,revision=excluded.revision')
           .run(s.physicalPitchSourceId, sourceId, value.revision);
+        recordActualLivePlayAdmission(db, liveFence);
         openFrame(value.physicalPitch);
         const saved = read(sourceId);
         const head = currentHead(s.physicalPitchSourceId);
         if (json(saved) !== json(value) || json(head) !== json({ source_id: sourceId, revision: value.revision })) throw new Error('batted flight changed during write');
-        db.exec('COMMIT'); return saved!;
+        assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved!;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     },
     close() { if (!closed) { db.close(); closed = true; } },

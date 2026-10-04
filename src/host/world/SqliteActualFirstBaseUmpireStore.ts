@@ -1,3 +1,4 @@
+import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import type { OwnedLiveCallSourceReference } from '../../core/adjudication/PlayAdjudicationLedger';
 import { quantizeEventTick } from '../../core/sim/ExactEventTime';
@@ -11,6 +12,8 @@ import { actualFirstBaseSetupInput, actualFirstBaseObservationInput, actualFirst
   type AcceptedActualFirstBaseUmpireSetup, type DurableActualFirstBaseUmpireSetup,
   type AcceptedActualFirstBaseUmpireObservation, type AcceptedActualFirstBaseUmpireCall,
   type DurableActualFirstBaseUmpireObservation, type DurableActualFirstBaseUmpireCall } from './ActualFirstBaseUmpire';
+import { actualFirstBaseUmpireExecutionHash } from './ActualFirstBaseUmpirePhysicalIdentity';
+import type { DurableBattedWorldFieldExecution } from './SqliteBattedWorldFieldExecutionStore';
 import type { ActualObservationMoment } from './ActualFieldObservation';
 
 export type ActualFirstBaseUmpireAuthority = Readonly<{
@@ -25,7 +28,8 @@ export type SqliteActualFirstBaseUmpireStore = Readonly<{
   readAvailableCall(sourceId: string, at: ActualObservationMoment): DurableActualFirstBaseUmpireCall | null;
   close(): void;
 }>;
-type Db = Pick<import('node:sqlite').DatabaseSync, 'prepare'>;
+type Db = Pick<import('node:sqlite').DatabaseSync, 'prepare'> &
+  Partial<Pick<import('node:sqlite').DatabaseSync, 'isTransaction'>>;
 type Kind = 'setup' | 'observation' | 'call';
 const tables = { setup: 'actual_first_base_umpire_setups', observation: 'actual_first_base_umpire_observations', call: 'actual_first_base_umpire_calls' } as const;
 type Source = AcceptedActualFirstBaseUmpireSetup | AcceptedActualFirstBaseUmpireObservation | AcceptedActualFirstBaseUmpireCall;
@@ -73,10 +77,19 @@ export const actualFirstBaseUmpireEvidenceFromSqlite = (db: Db) => {
     if (captureCallRowset(observationId, insertedSourceId) !== original) throw new Error('actual umpire prior call rowset changed during write');
   };
   const physicalPrefix = (sourceId: string) => {
-    const value = executions.read(sourceId);
+    const transactional = db.isTransaction === true;
+    const owned = transactional ? executions.readWithExecutions(sourceId) : null;
+    const value = transactional ? owned?.value : executions.read(sourceId);
     if (!value) throw new Error('actual umpire original execution Source is missing');
-    return { value, prefix: { baseField: value.baseField, fields: fields.scope(value.baseField, value.baseField.source.sourceId),
-      executions: executions.scope(value.baseField, sourceId) } };
+    // A transaction pins peer visibility, not same-connection writes. Concrete
+    // readers are synchronous/read-only; also reject writes through a Db hook.
+    const changes = owned ? db.prepare('SELECT total_changes() AS changes').get()!.changes : null;
+    const prefix = { baseField: value.baseField, fields: fields.scope(value.baseField, value.baseField.source.sourceId),
+      executions: owned ? owned.executions : executions.scope(value.baseField, sourceId) };
+    if (owned && (db.isTransaction !== true || db.prepare('SELECT total_changes() AS changes').get()!.changes !== changes)) {
+      throw new Error('actual umpire physical dependencies changed during read');
+    }
+    return { value, prefix };
   };
   const deriveSetup = (source: AcceptedActualFirstBaseUmpireSetup): DurableActualFirstBaseUmpireSetup => {
     const pitch = readOriginalPhysicalPitchPrefixFromSqlite(db, source.physicalPitchSourceId).at(-1)!;
@@ -168,7 +181,8 @@ export const actualFirstBaseUmpireEvidenceFromSqlite = (db: Db) => {
     return call.schedule.kind === 'called' && at.elapsedSeconds >= call.schedule.availableAtElapsedSeconds ? call : null;
   };
   const reference = (owner: string, source: Readonly<{ sourceId: string; sourceVersion: string }>, value: unknown): OwnedLiveCallSourceReference => freeze({
-    owner, sourceId: source.sourceId, sourceVersion: source.sourceVersion, sourceHash: hash(source), snapshotHash: hash(value) });
+    owner, sourceId: source.sourceId, sourceVersion: source.sourceVersion, sourceHash: hash(source), snapshotHash: owner === 'batted_world_field_executions'
+      ? actualFirstBaseUmpireExecutionHash(value as DurableBattedWorldFieldExecution) : hash(value) });
   const importReferences = (sourceId: string) => {
     const call = read('call', sourceId) as DurableActualFirstBaseUmpireCall | null;
     if (!call || call.schedule.kind !== 'called' || !call.onFieldCall) return null;
@@ -219,11 +233,13 @@ export const openSqliteActualFirstBaseUmpireStore = (path: string, authority?: A
     db.exec('BEGIN IMMEDIATE');
     try {
       assertPriorCalls(false); own.admission(kind, value, false); assertPriorCalls(false); const scope = scopeOf(kind, value);
+      const liveFence = beginActualLivePitchWrite(db, scope.pitchId, { owner: tables[kind], sourceId });
       db.prepare(`INSERT INTO ${tables[kind]} VALUES (?,?,?,?,?,?,?,?,?,?,?)`).run(sourceId, source.sourceVersion,
         scope.gameId, scope.pitchId, scope.umpireId, scope.dependencyId, scope.currentId, json(source), hash(source), json(value), hash(value));
+      recordActualLivePlayAdmission(db, liveFence);
       assertPriorCalls(true); const saved = get(kind, sourceId);
       if (!saved || json(saved) !== json(value)) throw new Error('actual umpire original changed after insert');
-      own.admission(kind, value, true); assertPriorCalls(true); db.exec('COMMIT'); return value;
+      own.admission(kind, value, true); assertPriorCalls(true); assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return value;
     } catch (error) { try { db.exec('ROLLBACK'); } catch { /* retain original failure */ } throw error; }
   };
   return freeze({ acceptSetup(sourceId: string) { return accept('setup', sourceId) as DurableActualFirstBaseUmpireSetup; },

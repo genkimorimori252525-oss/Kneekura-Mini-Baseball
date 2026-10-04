@@ -1,3 +1,4 @@
+import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { deriveBattedWorldAcquisition, type BattedWorldAcquisition } from '../../core/sim/ball/BattedWorldAcquisition';
@@ -98,13 +99,15 @@ export const openSqliteBattedWorldAcquisitionStore = (path: string, responses: P
       if (!peer || json(peer) !== json(value.response)) throw new Error('batted acquisition peer response differs');
       db.exec('BEGIN IMMEDIATE');
       try {
+        const liveFence = beginActualLivePitchWrite(db, physicalId(value.response), { owner: 'batted_world_acquisitions', sourceId });
         own.current(value);
         db.prepare('INSERT INTO batted_world_acquisitions VALUES (?,?,?,?,?,?,?,?,?)').run(sourceId, source.responseSourceId, source.continuationSourceId,
           physicalId(value.response), value.response.model.gameId, json(source), hash(source), json(value), hash(value));
+        recordActualLivePlayAdmission(db, liveFence);
         own.current(value);
         const saved = own.read(sourceId);
         if (!saved || json(saved) !== json(value)) throw new Error('batted acquisition original changed during write');
-        db.exec('COMMIT'); return saved;
+        assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     },
     close() { if (!closed) { db.close(); closed = true; } },

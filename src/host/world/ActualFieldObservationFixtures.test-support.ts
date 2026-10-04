@@ -6,7 +6,7 @@ import type { DurableBattedWorldFieldAction } from './SqliteBattedWorldFieldStor
 import { openSqliteActualFieldObservationStore } from './SqliteActualFieldObservationStore';
 import type { AcceptedActualFieldObservation } from './ActualFieldObservation';
 
-type FixtureBase = Readonly<{ f: ReturnType<typeof battedWorldFieldThrowFixture>['f']; baseField: DurableBattedWorldFieldAction }>;
+type FixtureBase = Readonly<{ f: Pick<ReturnType<typeof battedWorldFieldThrowFixture>['f'], 'path' | 'track'>; baseField: DurableBattedWorldFieldAction }>;
 /** Explicit synthetic eye and calibration values only, not production defaults. */
 export const installSyntheticObservation = (x: FixtureBase, playerId: string, executionSourceId: string | null,
   existingModel?: DurablePlayerFieldingModel, configure?: (source: AcceptedPlayerObservationModel) => AcceptedPlayerObservationModel,

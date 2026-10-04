@@ -3,6 +3,9 @@ import { actualDefensiveDecisionFixture as fixture } from './ActualDefensiveDeci
 import { actualDefensiveDecisionLiveWorkFromSqlite, openSqliteActualDefensiveDecisionLiveWork } from './SqliteActualDefensiveDecisionLiveWork';
 import { actorHash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { playerDecisionCalibrationFixture } from '../../core/sim/fielding/PlayerDecisionCalibrationFixtures.test-support';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 const advance = (x: ReturnType<typeof fixture>, name: string, tick: number, previousExecution: string | null,
   previousObservation: string, previousDecision: string) => {
@@ -45,8 +48,11 @@ it('rederives owned references on a read-only connection; repeats/reopens immuta
 });
 
 it('pins each historical cut and never equates later observation/issuance with actual motor adoption', () => {
-  const x = fixture();
+  const directory = mkdtempSync(join(tmpdir(), 'legacy-defensive-live-work-')), path = join(directory, 'state.sqlite');
+  const x = fixture(path);
   try {
+    expect(x.f.db.prepare('PRAGMA journal_mode').get()).toEqual({ journal_mode: 'wal' });
+    expect(x.f.db.prepare('PRAGMA database_list').all().find(row => row.name === 'main')?.file).toBe(path);
     x.plans.accept(x.planSource.sourceId); const first = x.decisions.accept(x.decisionSource.sourceId);
     const reader = x.f.track(openSqliteActualDefensiveDecisionLiveWork(x.f.path)), original = reader.read(first.source.sourceId)!;
     const mid = advance(x, 'first-step', first.receipt.scheduling.decisionTick, null, x.observationSource.sourceId, first.source.sourceId);
@@ -70,7 +76,7 @@ it('pins each historical cut and never equates later observation/issuance with a
     expect(() => reader.read(later.decision.sourceId)).toThrow();
     x.f.db.prepare("UPDATE actual_defensive_decisions SET observation_source_id='missing' WHERE source_id=?").run(later.decision.sourceId);
     expect(() => reader.read(first.source.sourceId)).toThrow(/metadata/);
-  } finally { x.f.close(); }
+  } finally { x.f.close(); rmSync(directory, { recursive: true }); }
 });
 
 it.each(['decision', 'observation', 'model', 'plan'] as const)('rejects tampered owned %s evidence instead of trusting mirrored payloads', kind => {

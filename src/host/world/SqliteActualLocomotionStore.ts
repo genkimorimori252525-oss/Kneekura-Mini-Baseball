@@ -1,3 +1,4 @@
+import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { deriveActualLocomotionReceipt, type ActualLocomotionReceipt } from './ActualLocomotion';
@@ -160,12 +161,14 @@ export const openSqliteActualLocomotionStore = (path: string, authority?: Author
     if (!source) throw new Error('accepted actual locomotion Source missing');
     const value = own.derive(source); own.before(value); db.exec('BEGIN IMMEDIATE');
     try {
+        const liveFence = beginActualLivePitchWrite(db, source.physicalPitchSourceId, { owner: 'actual_locomotion_receipts', sourceId });
       own.before(value);
       db.prepare('INSERT INTO actual_locomotion_receipts VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)').run(sourceId, source.sourceVersion, source.capability,
         source.physicalPitchSourceId, source.playerId, source.decisionSourceId, source.locomotionModelSourceId, source.baseFieldSourceId, source.executionSourceId,
         json(source), hash(source), json(value), hash(value));
       db.prepare('INSERT INTO actual_locomotion_heads VALUES (?,?,?,1)').run(source.physicalPitchSourceId, source.playerId, sourceId);
-      const saved = own.current(value); db.exec('COMMIT'); return saved;
+      recordActualLivePlayAdmission(db, liveFence);
+      const saved = own.current(value); assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
     } catch (error) { db.exec('ROLLBACK'); throw error; }
   }, close() { if (!closed) { db.close(); closed = true; } } });
 };
