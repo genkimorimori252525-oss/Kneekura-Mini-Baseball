@@ -7,10 +7,11 @@ import { composeObservationQuality } from '../../core/sim/perception/Observation
 import { estimateOcclusionVisibility } from '../../core/sim/perception/Occlusion';
 import { findBallWorldFootBaseContactIntervals } from '../../core/sim/ball/BallWorldFootBaseContact';
 import type { BallWorldMotionActor } from '../../core/sim/ball/BallWorldContinuation';
+import { actualFirstBaseUmpireExecutionHash, actualFirstBaseUmpirePhysicalPrefixIdentity } from './ActualFirstBaseUmpirePhysicalIdentity';
 import { battedWorldFieldPhysicalPrefix } from './BattedWorldFieldPhysicalPrefix';
 import { hasUnmodeledObservationSurface } from './ActualObservationSurfaceGuard';
 import type { DurableBattedWorldFieldExecution } from './SqliteBattedWorldFieldExecutionStore';
-import { actorFreeze as freeze, actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { actorFreeze as freeze, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import type { Vec3 } from '../../core/model/geometry';
 import type { FirstBasePerceivedPlay, FirstBaseCallSchedule, FirstBaseUmpireCalibration } from '../../core/sim/perception/FirstBaseUmpirePerception';
 import type { ActualObservationMoment } from './ActualFieldObservation';
@@ -30,7 +31,8 @@ export type DurableActualFirstBaseUmpireObservation = Readonly<{
   source: AcceptedActualFirstBaseUmpireObservation; setup: AcceptedActualFirstBaseUmpireSetup;
   gameId: string; physicalPitchSourceId: string; playId: number; batterRunnerId: string; outsAtStart: number;
   clock: Readonly<{ originTick: number; ticksPerSecond: number }>; availability: ActualObservationMoment;
-  ruleEvidenceRevision: number; ruleEvidenceHash: string; physicalPrefixHash: string; perception: FirstBasePerceivedPlay;
+  ruleEvidenceRevision: number; ruleEvidenceHash: string; physicalPrefixHash: string;
+  physicalPrefixHashConvention?: 'owned_motion_observation_prefix_manifest_v1'; perception: FirstBasePerceivedPlay;
   eventEvidence: Readonly<{ controlElapsedSeconds: number; touchElapsedSeconds: number }> | null;
 }>;
 export type AcceptedActualFirstBaseUmpireCall = Readonly<{
@@ -169,7 +171,8 @@ export const sampleActualFirstBaseUmpireObservation = (source: AcceptedActualFir
   }
   return freeze(cloneInert({ source, setup, gameId: frame.gameId, physicalPitchSourceId: setup.physicalPitchSourceId,
     playId: frame.match.playId, batterRunnerId: ball.batterRunnerId, outsAtStart: frame.match.outs, clock, availability,
-    ruleEvidenceRevision: race.revision, ruleEvidenceHash: hash(race), physicalPrefixHash: hash(physical), perception, eventEvidence }));
+    ruleEvidenceRevision: race.revision, ruleEvidenceHash: actualFirstBaseUmpireExecutionHash(race),
+    ...actualFirstBaseUmpirePhysicalPrefixIdentity(prefix, physical), perception, eventEvidence }));
 };
 
 export const deriveActualFirstBaseUmpireCall = (source: AcceptedActualFirstBaseUmpireCall,
@@ -187,7 +190,7 @@ export const deriveActualFirstBaseUmpireCall = (source: AcceptedActualFirstBaseU
     basisSnapshotId: `actual_first_base_rule:${observation.source.ruleExecutionSourceId}`, basisEvidenceRevision: observation.ruleEvidenceRevision,
     ruling: { outsAfter: observation.outsAtStart + (schedule.call === 'out' ? 1 : 0),
       basesAfter: { first: schedule.call === 'safe' ? observation.batterRunnerId : null, second: null, third: null }, scoredRunnerIds: [] } };
-  return freeze(cloneInert({ source, observation, currentExecutionHash: hash(current), advancedThrough, schedule, onFieldCall })) as DurableActualFirstBaseUmpireCall;
+  return freeze(cloneInert({ source, observation, currentExecutionHash: actualFirstBaseUmpireExecutionHash(current), advancedThrough, schedule, onFieldCall })) as DurableActualFirstBaseUmpireCall;
 };
 
 /** Pure projection only; production readers authenticate the call through its Native owner first. */

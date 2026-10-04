@@ -1,3 +1,4 @@
+import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { Vec3 } from '../../core/model/geometry';
@@ -179,6 +180,7 @@ export const openSqliteBattedWorldMotionStore = (path: string, responses: Pick<S
       if (!peer || json(peer) !== json(value.response)) throw new Error('batted motion peer response differs');
       db.exec('BEGIN IMMEDIATE');
       try {
+        const liveFence = beginActualLivePitchWrite(db, physicalId(value.response), { owner: 'batted_world_motions', sourceId });
         own.currentBefore(value); const pitchId = physicalId(value.response);
         db.prepare('INSERT INTO batted_world_motions VALUES (?,?,?,?,?,?,?,?,?,?,?,?)').run(sourceId, pitchId, source.responseSourceId,
           source.continuationSourceId, source.acquisitionSourceId, source.previousMotionSourceId, value.revision, value.response.model.gameId,
@@ -189,9 +191,10 @@ export const openSqliteBattedWorldMotionStore = (path: string, responses: Pick<S
             .run(sourceId, value.revision, pitchId, source.responseSourceId, source.previousMotionSourceId, value.revision - 1);
           if (Number(changed.changes) !== 1) throw new Error('batted motion predecessor changed during write');
         }
+        recordActualLivePlayAdmission(db, liveFence);
         assertNoBattedWorldExecutionOwner(db, pitchId); own.current(value); const saved = own.read(sourceId);
         if (!saved || json(saved) !== json(value)) throw new Error('batted motion original changed during write');
-        db.exec('COMMIT'); return saved;
+        assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     }, close() { if (!closed) { db.close(); closed = true; } },
   });

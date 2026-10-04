@@ -1,3 +1,4 @@
+import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { sqliteJsonMetadataNodes as nodes, sqliteJsonMetadataProjection as projection,
   sqliteJsonMetadataMatches as matches } from './SqliteOwnershipMetadata';
@@ -8,6 +9,9 @@ import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './P
 import { battedWorldFieldEvidenceFromSqlite } from './SqliteBattedWorldFieldStore';
 import { battedWorldFieldExecutionEvidenceFromSqlite } from './SqliteBattedWorldFieldExecutionStore';
 import { playerObservationModelEvidenceFromSqlite } from './SqlitePlayerObservationModelStore';
+import { actualCommunicationEvidenceFromSqlite } from './SqliteActualCommunicationStore';
+import { actualCommunicationObservationAt } from './ActualCallCommunication';
+import { battedWorldFieldPhysicalPrefix } from './BattedWorldFieldPhysicalPrefix';
 
 export type DurableActualFieldObservation = Readonly<{ source: AcceptedActualFieldObservation;
   revision: number; history: readonly AcceptedActualFieldObservation[];
@@ -67,9 +71,22 @@ export const actualFieldObservationEvidenceFromSqlite = (db: Db) => {
   };
   const execute = (source: AcceptedActualFieldObservation, previous: DurableActualFieldObservation | null): DurableActualFieldObservation => {
     const { prefix, model } = dependencies(source);
+    let communicationEvidence;
+    if (source.communicationSourceId !== undefined) {
+      const communication = actualCommunicationEvidenceFromSqlite(db).read(source.communicationSourceId);
+      const physical = battedWorldFieldPhysicalPrefix(prefix), ball = physical.field.evidence;
+      const at = { originTick: ball.originTick, elapsedSeconds: ball.horizon.elapsedSeconds, tick: ball.horizon.ball.tick };
+      if (!communication || communication.physicalPitchSourceId !== source.physicalPitchSourceId
+        || communication.evaluatedThrough.originTick !== at.originTick || communication.evaluatedThrough.elapsedSeconds > at.elapsedSeconds
+        || !prefix.executions.some(value => value.source.sourceId === communication.source.currentExecutionSourceId)) {
+        throw new Error('actual observation original communication scope or executed cut differs');
+      }
+      communicationEvidence = { sourceId: source.communicationSourceId, snapshotHash: hash(communication),
+        result: actualCommunicationObservationAt(communication, source.playerId, at) };
+    }
     return freeze({ source, revision: (previous?.revision ?? 0) + 1, history: [...(previous?.history ?? []), source],
       ...actualObservationPhysicalPrefixEvidence(prefix), observationModelHash: hash(model),
-      receipt: sampleActualFieldObservation(source, prefix, model, previous) });
+      receipt: sampleActualFieldObservation(source, prefix, model, previous, communicationEvidence) });
   };
   // Enumerate all duplicate containers/keys before selecting a scope. Earlier
   // history entries are ancestors, not aliases of this row's own Source.
@@ -100,7 +117,23 @@ export const actualFieldObservationEvidenceFromSqlite = (db: Db) => {
     if (mirrors.source_identity !== null && !identityMatches(mirrors.source_identity, row)) {
       throw new Error('actual observation Source identity metadata differs');
     }
+    // The optional communication dependency is metadata too. Inspect it without
+    // decoding future view/model/perceived-world payloads, and retain omission
+    // for old Sources rather than inventing a null property in their archives.
+    const communicationIdentity = (sourceRow: Row): Readonly<Record<string, string>> => {
+      const selected = db.prepare(`WITH ownership_document(document) AS (VALUES(?)) SELECT ${projection('document', ['communicationSourceId'])} AS identity FROM ownership_document`).get(sourceRow.source_json) as { identity: string };
+      const fields = JSON.parse(selected.identity) as [string, string, string | null][];
+      if (fields.length === 0) return {};
+      if (fields.length !== 1 || fields[0][1] !== 'text' || !id(fields[0][2])) throw new Error('ambiguous actual observation communication identity');
+      return { communicationSourceId: fields[0][2] };
+    };
+    const ownCommunication = communicationIdentity(row);
     if (mirrors.snapshot_identity !== null) {
+      const communicationMirrors = db.prepare(`WITH ownership_document(document) AS (VALUES(?)) SELECT ${projection('n.value', ['communicationSourceId'])} AS identity
+        FROM (${nodes('(SELECT document FROM ownership_document)', ['source'])}) n`).all(row.snapshot_json) as { identity: string }[];
+      if (communicationMirrors.length !== 1 || !matches(communicationMirrors[0].identity, ownCommunication)) {
+        throw new Error('actual observation communication identity mirror differs');
+      }
       if (JSON.stringify((JSON.parse(mirrors.containers!) as string[]).sort()) !== '["history","revision","source"]'
         || !identityMatches(mirrors.snapshot_identity, row) || mirrors.revision_type !== 'integer' || mirrors.revision !== row.revision
         || mirrors.history_type !== 'array' || mirrors.history_length !== prefix.length) {
@@ -112,6 +145,11 @@ export const actualFieldObservationEvidenceFromSqlite = (db: Db) => {
         WHERE source_id=? ORDER BY h.key`).all(row.source_id) as { position: number; identity: string | null }[];
       if (history.length !== prefix.length || history.some((entry, index) => entry.position !== index
         || !identityMatches(entry.identity, prefix[index]))) throw new Error('actual observation history identity metadata differs');
+      const communications = db.prepare(`WITH ownership_document(document) AS (VALUES(?)) SELECT ${projection('n.value', ['communicationSourceId'])} AS identity
+        FROM (${nodes('(SELECT document FROM ownership_document)', ['history', { array: 'all' }])}) n`).all(row.snapshot_json) as { identity: string }[];
+      if (communications.length !== prefix.length || communications.some((entry, index) => !matches(entry.identity, communicationIdentity(prefix[index])))) {
+        throw new Error('actual observation communication history identity differs');
+      }
     }
   };
   const scope = (pitchId: string, playerId: string, throughSourceId?: string): readonly DurableActualFieldObservation[] => {
@@ -189,6 +227,10 @@ export const actualFieldObservationEvidenceFromSqlite = (db: Db) => {
     const evidence = actualObservationPhysicalPrefixEvidence(prefix);
     if (evidence.physicalPrefixHash !== value.physicalPrefixHash || evidence.physicalPrefixHashConvention !== value.physicalPrefixHashConvention
       || hash(model) !== value.observationModelHash) throw new Error('actual observation dependencies changed during write');
+    if (value.source.communicationSourceId !== undefined) {
+      const communication = actualCommunicationEvidenceFromSqlite(db).read(value.source.communicationSourceId);
+      if (!communication || hash(communication) !== value.receipt.communicationEvidence?.snapshotHash) throw new Error('actual observation communication changed during write');
+    }
   };
   const currentBefore = (value: DurableActualFieldObservation) => {
     currentDependencies(value);
@@ -227,6 +269,7 @@ export const openSqliteActualFieldObservationStore = (path: string, authority?: 
       const value = own.derive(source); own.currentBefore(value);
       db.exec('BEGIN IMMEDIATE');
       try {
+        const liveFence = beginActualLivePitchWrite(db, source.physicalPitchSourceId, { owner: 'actual_field_observations', sourceId });
         own.currentBefore(value);
         db.prepare('INSERT INTO actual_field_observations VALUES (?,?,?,?,?,?,?,?,?,?,?,?)').run(sourceId, source.physicalPitchSourceId,
           source.playerId, source.baseFieldSourceId, source.executionSourceId, source.observationModelSourceId, source.previousObservationSourceId,
@@ -239,9 +282,10 @@ export const openSqliteActualFieldObservationStore = (path: string, authority?: 
             .run(sourceId, value.revision, source.physicalPitchSourceId, source.playerId, source.previousObservationSourceId, value.revision - 1);
           if (Number(changed.changes) !== 1) throw new Error('actual observation predecessor changed during write');
         }
+        recordActualLivePlayAdmission(db, liveFence);
         own.current(value); const saved = own.read(sourceId);
         if (!saved || json(saved) !== json(value)) throw new Error('actual observation original changed during write');
-        db.exec('COMMIT'); return saved;
+        assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     }, close() { if (!closed) { db.close(); closed = true; } },
   });

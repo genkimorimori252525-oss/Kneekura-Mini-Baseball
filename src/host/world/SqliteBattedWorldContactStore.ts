@@ -1,3 +1,4 @@
+import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { Vec3 } from '../../core/model/geometry';
@@ -224,6 +225,7 @@ export const openSqliteBattedWorldContactStore = (path: string, flights: Pick<Sq
       if (!peer || json(peer) !== json(value.flight)) throw new Error('batted World peer flight differs');
       db.exec('BEGIN IMMEDIATE');
       try {
+        const liveFence = beginActualLivePitchWrite(db, flight.source.physicalPitchSourceId, { owner: 'batted_world_contacts', sourceId });
         sameModel(m); ownFlights.openFrame(value.flight.physicalPitch);
         assertNoBattedWorldMotionOwner(db, flight.source.physicalPitchSourceId);
         if (json(derive(s, m, predecessor(s, flight.source.physicalPitchSourceId))) !== json(value)) throw new Error('batted World original evidence changed before write');
@@ -232,11 +234,12 @@ export const openSqliteBattedWorldContactStore = (path: string, flights: Pick<Sq
           value.revision, s.previousContactSourceId, json(s), hash(s), json(value), hash(value));
         db.prepare('INSERT INTO batted_world_contact_heads VALUES (?,?,?) ON CONFLICT(physical_pitch_source_id) DO UPDATE SET source_id=excluded.source_id,revision=excluded.revision')
           .run(flight.source.physicalPitchSourceId, sourceId, value.revision);
+        recordActualLivePlayAdmission(db, liveFence);
         ownFlights.openFrame(value.flight.physicalPitch); sameModel(m);
         assertNoBattedWorldMotionOwner(db, flight.source.physicalPitchSourceId);
         const saved = read(sourceId);
         if (json(saved) !== json(value) || json(head(flight.source.physicalPitchSourceId)) !== json({ source_id: sourceId, revision: value.revision })) throw new Error('batted World evidence changed during write');
-        db.exec('COMMIT'); return saved!;
+        assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved!;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     },
     close() { if (!closed) { db.close(); closed = true; } },

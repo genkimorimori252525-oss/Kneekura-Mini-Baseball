@@ -1,3 +1,4 @@
+import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { assertDefensiveMetadataUnambiguous as unambiguous, defensiveMetadataId as metadataId, defensiveMetadataScope as metadataScope } from './ActualDefensiveMetadata';
 import { sqliteJsonMetadataProjection as projection, sqliteJsonMetadataMatches as matches } from './SqliteOwnershipMetadata';
@@ -235,6 +236,7 @@ export const openSqliteActualDefensiveDecisionStore = (path: string, authority?:
       if (!source) throw new Error('accepted actual defensive decision Source missing');
       const value = own.derive(source); own.before(value); db.exec('BEGIN IMMEDIATE');
       try {
+        const liveFence = beginActualLivePitchWrite(db, source.physicalPitchSourceId, { owner: 'actual_defensive_decisions', sourceId });
         own.before(value);
         db.prepare('INSERT INTO actual_defensive_decisions VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)').run(sourceId, source.sourceVersion,
           source.physicalPitchSourceId, source.playerId, source.observationSourceId, source.decisionModelSourceId, source.planSourceId,
@@ -246,9 +248,10 @@ export const openSqliteActualDefensiveDecisionStore = (path: string, authority?:
             source.physicalPitchSourceId, source.playerId, source.previousDecisionSourceId, value.revision - 1);
           if (Number(changed.changes) !== 1) throw new Error('actual defensive decision predecessor changed during write');
         }
+        recordActualLivePlayAdmission(db, liveFence);
         own.current(value); const saved = own.read(sourceId);
         if (!saved || json(saved) !== json(value)) throw new Error('actual defensive decision original changed during write');
-        db.exec('COMMIT'); return saved;
+        assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
       } catch (e) { db.exec('ROLLBACK'); throw e; }
     }, close() { if (!closed) { db.close(); closed = true; } } });
 };

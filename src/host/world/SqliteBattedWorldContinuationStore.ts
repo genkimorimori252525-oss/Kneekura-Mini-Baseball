@@ -1,3 +1,4 @@
+import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { deriveBattedWorldContinuation, type BattedWorldContinuation } from '../../core/sim/ball/BattedWorldContinuation';
@@ -139,6 +140,7 @@ export const openSqliteBattedWorldContinuationStore = (path: string, responses: 
       if (!peer || json(peer) !== json(value.response)) throw new Error('batted continuation peer response differs');
       db.exec('BEGIN IMMEDIATE');
       try {
+        const liveFence = beginActualLivePitchWrite(db, physicalId(value.response), { owner: 'batted_world_continuations', sourceId });
         own.currentBefore(value);
         const pitchId = physicalId(value.response);
         db.prepare('INSERT INTO batted_world_continuations VALUES (?,?,?,?,?,?,?,?,?,?,?)').run(sourceId, s.responseSourceId,
@@ -149,10 +151,11 @@ export const openSqliteBattedWorldContinuationStore = (path: string, responses: 
             .run(sourceId, value.revision, pitchId, s.responseSourceId, s.previousContinuationSourceId, value.revision - 1);
           if (Number(changed.changes) !== 1) throw new Error('batted continuation predecessor changed during write');
         }
+        recordActualLivePlayAdmission(db, liveFence);
         assertNoBattedWorldMotionOwner(db, pitchId);
         own.current(value); const saved = own.read(sourceId);
         if (!saved || json(saved) !== json(value)) throw new Error('batted continuation original changed during write');
-        db.exec('COMMIT'); return saved;
+        assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     },
     close() { if (!closed) { db.close(); closed = true; } },

@@ -1,3 +1,4 @@
+import { beginActualLivePlayWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import type { SqliteOfficialStateStore } from '../SqliteOfficialStateStore';
 import type { SqliteOfficialInitialWorldStore } from './SqliteOfficialInitialWorldStore';
@@ -61,6 +62,7 @@ export const openSqlitePhysicalPlateAppearanceActorStore = (path: string, source
             .get(source.initialWorldSourceId) as { snapshot_json: string }).snapshot_json))) throw new Error('physical batter peer Source differs');
       db.exec('BEGIN IMMEDIATE');
       try {
+        const liveFence = beginActualLivePlayWrite(db, { gameId: source.gameId, playId: actor.match.playId }, { owner: 'physical_plate_appearance_actors', sourceId });
         assertPriorPhysicalClosureCompleted(db, 'activationApplicationId' in source ? source.activationApplicationId : null);
         assertPhysicalActorOpenFrame(db, actor); notStarted(actor);
         if (json(derivePhysicalPlateAppearanceActor(db, source)) !== json(actor)) throw new Error('physical batter origin changed before acceptance');
@@ -68,10 +70,11 @@ export const openSqlitePhysicalPlateAppearanceActorStore = (path: string, source
         if (!game) db.prepare('INSERT INTO physical_plate_appearance_actor_games VALUES (?,?)').run(source.gameId, sourceId);
         db.prepare('INSERT INTO physical_plate_appearance_actors VALUES (?,?,?,?,?,?,?,?,?)').run(sourceId, source.sourceVersion, source.gameId,
           actor.match.playId, source.playerId, json(source), hash(source), json(actor), hash(actor));
+        recordActualLivePlayAdmission(db, liveFence);
         assertPhysicalActorOpenFrame(db, actor); notStarted(actor);
         const saved = read(sourceId);
         if (!saved || json(saved) !== json(actor)) throw new Error('physical batter changed during acceptance');
-        db.exec('COMMIT'); return saved;
+        assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     },
     readCompletedAppearance(sourceId) {

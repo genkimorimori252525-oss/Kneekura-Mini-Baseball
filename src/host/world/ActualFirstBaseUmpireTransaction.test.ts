@@ -9,6 +9,7 @@ vi.mock('./PhysicalPitchEvidenceFromSqlite', () => ({ readOriginalPhysicalPitchP
 vi.mock('./SqliteBattedWorldFieldStore', () => ({ battedWorldFieldEvidenceFromSqlite: () => ({ scope: () => [] }) }));
 vi.mock('./SqliteBattedWorldFieldExecutionStore', () => ({ battedWorldFieldExecutionEvidenceFromSqlite: () => ({
   read: (id: string) => ({ source: { sourceId: id }, seconds: id === 'cut-one' ? 1 : 2, baseField: { source: { sourceId: 'field' } } }),
+  readWithExecutions: (id: string) => ({ value: { source: { sourceId: id }, seconds: id === 'cut-one' ? 1 : 2, baseField: { source: { sourceId: 'field' } } }, executions: [] }),
   scope: () => [], current: (value: { source: {sourceId: string} }) => { if (value.source.sourceId !== state.currentId) throw Error('stale cut'); },
 }) }));
 vi.mock('./ActualFirstBaseUmpire', async (importOriginal) => {
@@ -35,6 +36,7 @@ it.each(['rewrite', 'delete'] as const)('must not allow a call insertion trigger
   const store = openSqliteActualFirstBaseUmpireStore(path, { readAcceptedSetup: () => setup, readAcceptedObservation: () => observation,
     readAcceptedCall: (id) => id === first.sourceId ? first : second });
   const db = new DatabaseSync(path);
+  db.exec("CREATE TABLE physical_pitch_progress_actions(source_id TEXT,game_id TEXT,play_id INTEGER); INSERT INTO physical_pitch_progress_actions VALUES('pitch','game',1);");
   try {
     expect(db.prepare('PRAGMA journal_mode').get()).toEqual({ journal_mode: 'wal' });
     store.acceptSetup(setup.sourceId); store.observe(observation.sourceId);
@@ -66,6 +68,7 @@ it('keeps an original call readable without parsing opaque later call payloads',
   const store = openSqliteActualFirstBaseUmpireStore(path, { readAcceptedSetup: () => setup, readAcceptedObservation: () => observation,
     readAcceptedCall: id => id === first.sourceId ? first : second });
   const db = new DatabaseSync(path);
+  db.exec("CREATE TABLE physical_pitch_progress_actions(source_id TEXT,game_id TEXT,play_id INTEGER); INSERT INTO physical_pitch_progress_actions VALUES('pitch','game',1);");
   try {
     expect(db.prepare('PRAGMA journal_mode').get()).toEqual({ journal_mode: 'wal' });
     store.acceptSetup(setup.sourceId); store.observe(observation.sourceId); const original = store.advanceCall(first.sourceId);

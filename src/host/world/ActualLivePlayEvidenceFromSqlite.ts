@@ -12,6 +12,10 @@ import { actualDefensiveDecisionEvidenceFromSqlite } from './SqliteActualDefensi
 import { actualDefensiveDecisionLiveWorkFromSqlite } from './SqliteActualDefensiveDecisionLiveWork';
 import { actualLocomotionEvidenceFromSqlite } from './SqliteActualLocomotionStore';
 
+export const actualLivePlayMotorAdopted = (prefix: ActualLivePlayPrefix, motorSourceId: string, playerId: string): boolean =>
+  prefix.executions.some(e => (e.execution.kind === 'owned_motion_v1' || e.execution.kind === 'owned_motion_v2')
+    && e.execution.adoption.contributors.some(c => c.motorSourceId === motorSourceId && c.playerId === playerId));
+
 /** Source-local projections only. No forecast, tail or plan becomes an event. */
 export const actualLivePhysicalSources = (history: readonly ActualLivePhysicalLocalWork[]): LivePlaySource[] => {
   const sources = new Map<string, LivePlaySource>();

@@ -141,3 +141,14 @@ export const ownedScheduledMotionArchiveEncoding = (snapshot: DurableBattedWorld
 };
 export const ownedScheduledMotionArchiveHash = (snapshot: DurableBattedWorldFieldExecution): string =>
   ownedScheduledMotionArchiveEncoding(snapshot).hash;
+
+/** Completed-envelope identity uses the same per-record whole-history projection
+ * as the physical archive. Generic actor JSON budgets remain unchanged. */
+export const ownedScheduledWholeHistoryArchiveEncoding = (
+  history: import('../../core/sim/plateAppearance/CanonicalWholePlayHistory').CanonicalWholePlayHistory,
+  physicalPitchSourceId: string, gameId: string,
+): Readonly<{ json: string; hash: string }> => {
+  if (!id(physicalPitchSourceId) || !id(gameId)) fail();
+  const json = inertJson(wholeHistory(history, physicalPitchSourceId, gameId));
+  return { json, hash: createHash('sha256').update(json).digest('hex') };
+};

@@ -1,3 +1,4 @@
+import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { actualLivePlayId as id } from './ActualLivePlayScope';
 import { defensiveMetadataId as claim } from './ActualDefensiveMetadata';
@@ -113,14 +114,17 @@ export const openActualLiveImmutableReceiptStore = <S extends Source, V extends 
       const value = snapshot(() => own.derive(source, true)), encoded = encode(value);
       db.exec('BEGIN IMMEDIATE');
       try {
+        const liveFence = table === 'actual_live_rule_consumptions' ? beginActualLivePitchWrite(db,
+          (value as V & { physicalPitchSourceId: string }).physicalPitchSourceId, { owner: table, sourceId }) : null;
         if (evidence.read(sourceId)) throw new Error('actual live receipt Source appeared during write');
         evidence.assertUnique(source, value.ownershipKey, 0);
         if (!same(own.derive(source, true), value)) throw new Error('actual live receipt dependencies changed before write');
         db.prepare(`INSERT INTO ${table} VALUES (?,?,?,?,?,?)`).run(sourceId, value.ownershipKey, json(source), hash(source), encoded.json, encoded.hash);
+        if (liveFence) recordActualLivePlayAdmission(db, liveFence);
         if (!same(own.derive(source, true), value)) throw new Error('actual live receipt dependencies changed during write');
         const saved = evidence.read(sourceId);
         if (!same(saved, value)) throw new Error('actual live receipt changed during write');
-        db.exec('COMMIT'); return saved!;
+        if (liveFence) assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved!;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     },
     close() { if (!closed) { db.close(); closed = true; } },

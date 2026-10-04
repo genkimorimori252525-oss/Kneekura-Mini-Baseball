@@ -1,3 +1,4 @@
+import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { assertDefensiveMetadataUnambiguous as unambiguous, defensiveMetadataId as metadataId, defensiveMetadataScope as metadataScope } from './ActualDefensiveMetadata';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -108,13 +109,15 @@ export const openSqliteActualDefensivePlanStore = (path: string, authority?: Aut
       if (!source) throw new Error('accepted actual defensive plan Source missing');
       const value = own.derive(source); own.before(value); db.exec('BEGIN IMMEDIATE');
       try {
+        const liveFence = beginActualLivePitchWrite(db, source.physicalPitchSourceId, { owner: 'actual_defensive_plans', sourceId });
         own.before(value);
         db.prepare('INSERT INTO actual_defensive_plans VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)').run(sourceId, source.sourceVersion, source.physicalPitchSourceId,
           source.careerId, source.playerId, source.personLinkSourceId, source.fieldingModelSourceId, source.gameDay, source.observationSourceId,
           json(source), hash(source), json(value), hash(value));
+        recordActualLivePlayAdmission(db, liveFence);
         const saved = own.read(sourceId);
         if (!saved || json(saved) !== json(value) || json(own.derive(source, true)) !== json(value)) throw new Error('actual defensive plan changed during write');
-        db.exec('COMMIT'); return saved;
+        assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
       } catch (e) { db.exec('ROLLBACK'); throw e; }
     }, close() { if (!closed) { db.close(); closed = true; } } });
 };

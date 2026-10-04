@@ -1,3 +1,4 @@
+import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { ownedScheduledMotionActionInput, isOwnedScheduledMotionKind, type OwnedScheduledMotionAction, type OwnedScheduledMotionExecution } from './OwnedScheduledBattedWorldMotion';
 import { deriveOwnedScheduledMotionExecution, pendingOwnedScheduledPlan } from './OwnedScheduledMotionExecution';
 import { ownedScheduledMotionArchiveJson as snapshotJson, ownedScheduledMotionArchiveEncoding as snapshotEncoding } from './OwnedScheduledMotionArchive';
@@ -440,14 +441,18 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
     }
     return values;
   };
-  const read = (sourceId: string): DurableBattedWorldFieldExecution | null => {
+  // The pair belongs to this one full authenticated read. It is never retained
+  // across independent reads, admission phases or immutable retries.
+  const readWithExecutions = (sourceId: string) => {
     if (!id(sourceId)) throw new Error('invalid actual field execution scope');
     const rows = identityRows(sourceId);
     if (rows.length > 1 || rows.length === 1 && rows[0].source_id !== sourceId) throw new Error('actual field execution Source identity ownership differs');
     const row = rows[0]; if (!row) return null;
     const source = input(JSON.parse(row.source_json) as AcceptedBattedWorldFieldExecution, sourceId);
-    return scope(root(source), sourceId).at(-1)!;
+    const executions = scope(root(source), sourceId);
+    return { value: executions.at(-1)!, executions };
   };
+  const read = (sourceId: string): DurableBattedWorldFieldExecution | null => readWithExecutions(sourceId)?.value ?? null;
   const currentKnownWork = (source: AcceptedBattedWorldFieldExecution, baseField: DurableBattedWorldFieldAction) => {
     if (source.action.kind !== 'owned_motion_v1' && !isOwnedScheduledMotionKind(source.action.kind)) return;
     const b = baseField.response.touch.worldContact.flight.physicalPitch.frame.batterActor!, ids = [b.binding.playerId, ...b.defenderBindings.map(p => p.playerId)];
@@ -491,7 +496,7 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
   // still current. Their own decision-head insert must not invalidate that cut.
   // Fresh physical acceptance additionally pins the relevant nonphysical heads.
   const currentAdmission = (value: DurableBattedWorldFieldExecution) => { current(value); currentKnownWork(value.source, value.baseField); };
-  return { read, derive, scope, currentBefore, current, currentAdmission };
+  return { read, readWithExecutions, derive, scope, currentBefore, current, currentAdmission };
 };
 
 export const openSqliteBattedWorldFieldExecutionStore = (path: string, fieldsOwner: Pick<SqliteBattedWorldFieldStore, 'read'>,
@@ -521,6 +526,7 @@ export const openSqliteBattedWorldFieldExecutionStore = (path: string, fieldsOwn
       if (!peer || json(peer) !== json(value.baseField)) throw new Error('actual field execution peer original differs');
       db.exec('BEGIN IMMEDIATE');
       try {
+        const liveFence = beginActualLivePitchWrite(db, physicalId(value.baseField), { owner: 'batted_world_field_executions', sourceId });
         own.currentBefore(value); const pitchId = physicalId(value.baseField);
         const encoded = snapshotEncoding(value);
         db.prepare('INSERT INTO batted_world_field_executions VALUES (?,?,?,?,?,?,?,?,?,?)').run(sourceId, pitchId, source.baseFieldSourceId,
@@ -531,8 +537,9 @@ export const openSqliteBattedWorldFieldExecutionStore = (path: string, fieldsOwn
             .run(sourceId, value.revision, pitchId, source.baseFieldSourceId, source.previousExecutionSourceId, value.revision - 1);
           if (Number(changed.changes) !== 1) throw new Error('actual field execution predecessor changed during write');
         }
+        recordActualLivePlayAdmission(db, liveFence);
         own.currentAdmission(value); const saved = own.read(sourceId);
-        if (!saved || snapshotJson(saved) !== snapshotJson(value)) throw new Error('actual field execution original changed during write'); db.exec('COMMIT'); return saved;
+        if (!saved || snapshotJson(saved) !== snapshotJson(value)) throw new Error('actual field execution original changed during write'); assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     }, close() { if (!closed) { db.close(); closed = true; } },
   });

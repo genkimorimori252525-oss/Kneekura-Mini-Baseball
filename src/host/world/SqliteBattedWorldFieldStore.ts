@@ -1,3 +1,4 @@
+import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { createHash } from 'node:crypto';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -252,6 +253,7 @@ export const openSqliteBattedWorldFieldStore = (path: string, responses: Pick<Sq
       if (!peer || json(peer) !== json(value.response)) throw new Error('actual field peer original profile differs');
       db.exec('BEGIN IMMEDIATE');
       try {
+        const liveFence = beginActualLivePitchWrite(db, physicalId(value), { owner: 'batted_world_field_actions', sourceId });
         own.currentBefore(value); const pitchId = physicalId(value);
         assertNoBattedWorldFieldExecutionOwner(db, pitchId);
         db.prepare('INSERT INTO batted_world_field_actions VALUES (?,?,?,?,?,?,?,?,?,?,?)').run(sourceId, pitchId, source.responseSourceId, source.geometrySourceId,
@@ -262,8 +264,9 @@ export const openSqliteBattedWorldFieldStore = (path: string, responses: Pick<Sq
             .run(sourceId, value.revision, pitchId, source.responseSourceId, source.geometrySourceId, source.previousFieldSourceId, value.revision - 1);
           if (Number(changed.changes) !== 1) throw new Error('actual field predecessor changed during write');
         }
+        recordActualLivePlayAdmission(db, liveFence);
         own.current(value); assertNoBattedWorldFieldExecutionOwner(db, pitchId); const saved = own.read(sourceId);
-        if (!saved || json(saved) !== json(value)) throw new Error('actual field original changed during write'); db.exec('COMMIT'); return saved;
+        if (!saved || json(saved) !== json(value)) throw new Error('actual field original changed during write'); assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     }, close() { if (!closed) { db.close(); closed = true; } },
   });

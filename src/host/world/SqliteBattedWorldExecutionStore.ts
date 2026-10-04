@@ -1,3 +1,4 @@
+import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { deriveBattedWorldMotionAcquisition, type BattedWorldAcquisition } from '../../core/sim/ball/BattedWorldAcquisition';
@@ -265,6 +266,7 @@ export const openSqliteBattedWorldExecutionStore = (path: string, motions: Pick<
       if (!peer || json(peer) !== json(value.baseMotion)) throw new Error('batted execution peer motion differs');
       db.exec('BEGIN IMMEDIATE');
       try {
+        const liveFence = beginActualLivePitchWrite(db, physicalId(value.baseMotion), { owner: 'batted_world_executions', sourceId });
         own.currentBefore(value); const pitchId = physicalId(value.baseMotion);
         db.prepare('INSERT INTO batted_world_executions VALUES (?,?,?,?,?,?,?,?,?,?)').run(sourceId, pitchId, source.baseMotionSourceId,
           source.previousExecutionSourceId, value.revision, value.baseMotion.response.model.gameId, json(source), hash(source), json(value), hash(value));
@@ -274,9 +276,10 @@ export const openSqliteBattedWorldExecutionStore = (path: string, motions: Pick<
             .run(sourceId, value.revision, pitchId, source.baseMotionSourceId, source.previousExecutionSourceId, value.revision - 1);
           if (Number(changed.changes) !== 1) throw new Error('batted execution predecessor changed during write');
         }
+        recordActualLivePlayAdmission(db, liveFence);
         own.current(value); const saved = own.read(sourceId);
         if (!saved || json(saved) !== json(value)) throw new Error('batted execution original changed during write');
-        db.exec('COMMIT'); return saved;
+        assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     }, close() { if (!closed) { db.close(); closed = true; } },
   });

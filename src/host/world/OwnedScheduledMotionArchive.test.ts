@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { actorHash, actorJson } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import type { DurableBattedWorldFieldExecution } from './SqliteBattedWorldFieldExecutionStore';
-import { ownedScheduledMotionArchiveJson as archiveJson, ownedScheduledMotionArchiveHash as archiveHash } from './OwnedScheduledMotionArchive';
+import { ownedScheduledWholeHistoryArchiveEncoding, ownedScheduledMotionArchiveJson as archiveJson, ownedScheduledMotionArchiveHash as archiveHash } from './OwnedScheduledMotionArchive';
 
 // Synthetic inert records exercise the storage codec only. Native integration tests
 // separately establish domain validity and rederive these records from original rows.
@@ -130,4 +130,21 @@ describe('owned scheduled execution archive', () => {
     const recordTooLarge = wholeSnapshot(1); mutable(recordTooLarge).execution.physicalHistory.physicalSteps[0].field.synthetic = Array(100_001).fill(0);
     expect(() => archiveJson(recordTooLarge)).toThrow(/size limits/);
   });
+});
+
+it('exports the same bounded whole-history projection without changing the execution archive', () => {
+  const value = wholeSnapshot(40), history = mutable(value).execution.physicalHistory;
+  expect(() => actorJson(history)).toThrow(/size limits/);
+  const result = ownedScheduledWholeHistoryArchiveEncoding(history, 'pitch-1', 'game-1');
+  expect(JSON.parse(result.json)).toEqual(wire(value).execution.physicalHistory);
+  expect(result.hash).toBe(createHash('sha256').update(result.json).digest('hex'));
+});
+it('rejects active and foreign whole-history inputs before exporting a completed-envelope identity', () => {
+  const history = mutable(wholeSnapshot(1)).execution.physicalHistory; let touched = false;
+  const active = Object.defineProperty({ ...history }, 'scope', { enumerable: true, get() { touched = true; return history.scope; } });
+  expect(() => ownedScheduledWholeHistoryArchiveEncoding(active, 'pitch-1', 'game-1')).toThrow();
+  expect(touched).toBe(false);
+  expect(() => ownedScheduledWholeHistoryArchiveEncoding(history, 'foreign', 'game-1')).toThrow();
+  const unscoped = { ...history, scope: { ...history.scope, gameId: '', physicalPitchSourceId: '' }, physicalSteps: [], observations: [], frames: [], ownedScheduledPlans: [], originalPitch: { owner: 'physical_pitch', sourceId: '' } };
+  expect(() => ownedScheduledWholeHistoryArchiveEncoding(unscoped, '', '')).toThrow();
 });
