@@ -1,8 +1,9 @@
+import { actualLivePlayScopeArchiveEncoding as encode } from './ActualLivePlayArchive';
 import { createLivePlayRegistry, resolveLivePlayRegistry, type LivePlaySource } from '../../core/sim/liveAction/LivePlayRegistry';
 import { actualLivePlayScopeInput, deriveActualLivePlayScope, type AcceptedActualLivePlayScope,
   type DurableActualLivePlayScope, type ActualLivePlayPrefix, type ActualLivePhysicalLocalWork } from './ActualLivePlayScope';
 import { readOriginalPhysicalPitchPrefixFromSqlite } from './PhysicalPitchEvidenceFromSqlite';
-import { actorJson as json, actorHash as hash, actorFreeze as freeze, assertPhysicalActorOpenFrame } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { actorHash as hash, actorFreeze as freeze, assertPhysicalActorOpenFrame } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { battedWorldFieldEvidenceFromSqlite } from './SqliteBattedWorldFieldStore';
 import { battedWorldFieldExecutionEvidenceFromSqlite } from './SqliteBattedWorldFieldExecutionStore';
 import { actualLivePlayInventoryFromSqlite, actualLiveOwnerInstalled, type ActualLiveInventoryOwner } from './ActualLivePlayInventoryFromSqlite';
@@ -11,6 +12,24 @@ import { actualDefensiveDecisionEvidenceFromSqlite } from './SqliteActualDefensi
 import { actualDefensiveDecisionLiveWorkFromSqlite } from './SqliteActualDefensiveDecisionLiveWork';
 import { actualLocomotionEvidenceFromSqlite } from './SqliteActualLocomotionStore';
 
+/** Source-local projections only. No forecast, tail or plan becomes an event. */
+export const actualLivePhysicalSources = (history: readonly ActualLivePhysicalLocalWork[]): LivePlaySource[] => {
+  const sources = new Map<string, LivePlaySource>();
+  // Legacy operation revisions intentionally share one local source identity.
+  // Preserve the original latest-revision projection of the authenticated prefix.
+  const add = (source: LivePlaySource) => { sources.set(source.sourceId, source); };
+  for (const entry of history) {
+    const work = entry.work;
+    if ('source' in work) add(work.source);
+    if ('handoffs' in work) for (const h of work.handoffs) add(h.source);
+    if ('handoff' in work && work.handoff) add(work.handoff.source);
+    if ('operation' in work && work.operation) {
+      add(work.operation.source);
+      for (const handoff of work.operation.handoffs) add(handoff.source);
+    }
+  }
+  return [...sources.values()];
+};
 type Db = Pick<import('node:sqlite').DatabaseSync, 'prepare'>;
 /** Same-connection reader only. No accepted callback receipt, terminal flag, caller list or watermark is read. */
 export const actualLivePlayEvidenceFromSqlite = (db: Db) => {
@@ -40,28 +59,26 @@ export const actualLivePlayEvidenceFromSqlite = (db: Db) => {
     }
     return { source, pitch, prefix };
   };
-  const derive = (raw: AcceptedActualLivePlayScope, current = false): DurableActualLivePlayScope => {
+  // The prefix is freshly authenticated by this reader, never supplied by a caller.
+  const deriveWithPhysicalPrefix = (raw: AcceptedActualLivePlayScope, current = false) => {
     const { source, pitch, prefix } = dependencies(raw, current);
     const physicalLocalHistory: ActualLivePhysicalLocalWork[] = [];
     for (const v of prefix?.executions ?? []) if ('liveWork' in v.execution) physicalLocalHistory.push({
       owner: 'batted_world_field_executions', sourceId: v.source.sourceId, revision: v.revision, work: v.execution.liveWork });
-    return freeze({ source, revision: 1, history: [source], scope: deriveActualLivePlayScope(source, pitch, prefix), physicalLocalHistory });
+    const value: DurableActualLivePlayScope = freeze({ source, revision: 1, history: [source],
+      scope: deriveActualLivePlayScope(source, pitch, prefix), physicalLocalHistory });
+    return { value, prefix };
   };
+  const derive = (raw: AcceptedActualLivePlayScope, current = false): DurableActualLivePlayScope =>
+    deriveWithPhysicalPrefix(raw, current).value;
   const evaluate = (value: DurableActualLivePlayScope) => {
     const scope = value.scope, inventory = actualLivePlayInventoryFromSqlite(db, scope);
     const evidence: { owner: string; sourceId: string; playerId: string | null; snapshotHash: string }[] = [
       { owner: 'physical_pitch_progress_actions', sourceId: scope.physicalPitchSourceId, playerId: null, snapshotHash: scope.originalPitchHash },
       ...scope.physicalReferences.map(r => ({ owner: r.owner, sourceId: r.sourceId, playerId: null, snapshotHash: r.hash })),
     ];
-    const physicalSources = new Map<string, LivePlaySource>();
-    for (const entry of value.physicalLocalHistory) {
-      const work = entry.work;
-      if ('source' in work) physicalSources.set(work.source.sourceId, work.source);
-      if ('handoffs' in work) for (const h of work.handoffs) physicalSources.set(h.source.sourceId, h.source);
-      if ('handoff' in work && work.handoff) physicalSources.set(work.handoff.source.sourceId, work.handoff.source);
-    }
-    // Local receipts/successors retain their owners' original semantics. In v1 no global consumer may retire them.
-    const actual: LivePlaySource[] = [...physicalSources.values()];
+    // Local receipts/successors never certify global generation or retire an actor.
+    const actual: LivePlaySource[] = actualLivePhysicalSources(value.physicalLocalHistory);
     const latest = <T extends { player_id: string }>(rows: readonly T[]) => scope.participants.flatMap(p => {
       const row = rows.filter(r => r.player_id === p.playerId).at(-1); return row ? [row] : [];
     });
@@ -80,7 +97,7 @@ export const actualLivePlayEvidenceFromSqlite = (db: Db) => {
         // A pending motor receipt is retained unless the actual execution archive owns its adoption.
         const motor = inventory.motors.find(m => m.decision_source_id === row.source_id);
         const cut = scope.cut, prefix = cut.kind === 'field_execution' ? dependencies(value.source, false).prefix : null;
-        const adopted = motor && prefix?.executions.some(e => e.execution.kind === 'owned_motion_v1'
+        const adopted = motor && prefix?.executions.some(e => (e.execution.kind === 'owned_motion_v1' || e.execution.kind === 'owned_motion_v2')
           && e.execution.adoption.contributors.some(c => c.motorSourceId === motor.source_id && c.playerId === row.player_id));
         if (!adopted) actual.push(live.work.handoff.source);
       }
@@ -114,8 +131,9 @@ export const actualLivePlayEvidenceFromSqlite = (db: Db) => {
       actorDispositionEvidence: 'not_established' as const, producerMetadataHash: inventory.metadataHash, producers, evidence, registry: { ...registry, resolution: registry.resolution } });
   };
   const current = (value: DurableActualLivePlayScope) => {
-    if (json(derive(value.source, true)) !== json(value)) throw new Error('actual live-play dependencies changed during write');
+    const current = encode(derive(value.source, true)), original = encode(value);
+    if (current.json !== original.json || current.hash !== original.hash) throw new Error('actual live-play dependencies changed during write');
   };
-  return { derive, evaluate, current };
+  return { derive, deriveWithPhysicalPrefix, evaluate, current };
 };
 export type ActualLivePlayPending = ReturnType<ReturnType<typeof actualLivePlayEvidenceFromSqlite>['evaluate']>;

@@ -1,4 +1,7 @@
 import type { DurableBattedWorldFieldExecution } from './SqliteBattedWorldFieldExecutionStore';
+import { ownedScheduledMotionArchiveHash } from './OwnedScheduledMotionArchive';
+import { ownedScheduledMotionActionInput } from './OwnedScheduledBattedWorldMotion';
+import { ownedScheduledMotionLiveWork } from './OwnedScheduledMotionLiveWork';
 import { quantizeEventTick } from '../../core/sim/ExactEventTime';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { DurablePhysicalPitch } from './SqlitePhysicalPitchProgressStore';
@@ -35,6 +38,44 @@ export type ActualLiveProducerDomain = typeof globalDomains[number] | typeof pla
 export type ActualLiveProducer = Readonly<{ producerId: string; domain: ActualLiveProducerDomain; playerId: string | null;
   ownership: 'existing_owner_unfenced' | 'missing_generator'; owner: string | null }>;
 const roles = ['body', 'glove', 'left_foot', 'right_foot', 'tag_hand'] as const;
+/** Reconstructed v2 bridge. Concrete physical replay is the authority; this
+ * additional projection guard binds its complete participant and Source identity. */
+export const assertActualLiveScheduledIdentity = (value: DurableBattedWorldFieldExecution,
+  physicalPitchSourceId: string, participantIds: readonly string[]) => {
+  const e = value.execution;
+  if (e.kind !== 'owned_motion_v2' && e.kind !== 'owned_acquisition_plan_v1' && e.kind !== 'owned_throw_plan_v1') return;
+  if (value.source.action.kind !== e.kind || participantIds.length !== 10 || new Set(participantIds).size !== 10) {
+    throw new Error('actual live scheduled Source or participant identity differs');
+  }
+  const action = ownedScheduledMotionActionInput(value.source.action as Parameters<typeof ownedScheduledMotionActionInput>[0]);
+  const complete = (items: readonly { playerId: string }[]) => items.length === participantIds.length
+    && new Set(items.map(c => c.playerId)).size === participantIds.length && items.every(c => participantIds.includes(c.playerId));
+  if (!complete(action.knownWork)) throw new Error('actual live scheduled known-work participant identity differs');
+  if (e.kind !== 'owned_motion_v2') return;
+  if (action.kind !== 'owned_motion_v2') throw new Error('actual live scheduled action identity differs');
+  const c = e.composition, a = e.adoption;
+  if (c.version !== 'owned_motion_composition_v2' || a.version !== 'owned_motion_adoption_v2'
+    || c.physicalPitchSourceId !== physicalPitchSourceId || a.physicalPitchSourceId !== physicalPitchSourceId
+    || a.executionSourceId !== value.source.sourceId || a.executionRevision !== value.revision
+    || a.predecessor.baseFieldSourceId !== value.source.baseFieldSourceId
+    || a.predecessor.executionSourceId !== value.source.previousExecutionSourceId
+    || a.compositionHash !== hash(c) || json(a.adoptedAt) !== json(c.at)
+    || json(c.requestedCheckpoint) !== json(action.checkpoint) || json(a.requestedCheckpoint) !== json(action.checkpoint)
+    || a.acceptedCoverageThroughTick !== c.coverageThroughTick
+    || a.checkpointThroughElapsedSeconds !== c.checkpointThroughElapsedSeconds
+    || !complete(c.contributors) || !complete(c.knownWork) || !complete(a.contributors)
+    || c.contributors.some(v => v.roleAuthorities.length !== 5 || v.retainedRoles.length !== 5
+      || new Set(v.roleAuthorities.map(r => r.role)).size !== 5 || new Set(v.retainedRoles.map(r => r.role)).size !== 5)) {
+    throw new Error('actual live scheduled composition/adoption identity differs');
+  }
+  const actual = e.operation?.kind === 'acquisition' ? e.operation.progress.world.moment : e.field.motion.world.moment;
+  if (json(a.executedThrough) !== json({ originTick: actual.originTick, elapsedSeconds: actual.elapsedSeconds, tick: actual.ball.tick })
+    || json(e.liveWork) !== json(ownedScheduledMotionLiveWork(c, a, e.operation))) {
+    throw new Error('actual live scheduled executed state or local-work identity differs');
+  }
+};
+export const actualLivePhysicalExecutionReference = (value: DurableBattedWorldFieldExecution) => ({
+  owner: 'batted_world_field_executions' as const, sourceId: value.source.sourceId, hash: ownedScheduledMotionArchiveHash(value) });
 export const deriveActualLivePlayScope = (raw: AcceptedActualLivePlayScope, pitch: DurablePhysicalPitch, prefix: ActualLivePlayPrefix | null) => {
   const source = actualLivePlayScopeInput(raw), frame = pitch.frame, batter = frame.batterActor;
   if (pitch.source.sourceId !== source.physicalPitchSourceId || !batter || frame.bindings.length !== 9
@@ -92,6 +133,7 @@ export const deriveActualLivePlayScope = (raw: AcceptedActualLivePlayScope, pitc
       : domain === 'motor_issuance' && p.role === 'defender' ? 'actual_locomotion_receipts' : null;
     producers.push(producer(domain, p.playerId, owner));
   }
+  for (const value of prefix?.executions ?? []) assertActualLiveScheduledIdentity(value, pitch.source.sourceId, bindings.map(b => b.playerId));
   const physical = prefix ? battedWorldFieldPhysicalPrefix(prefix) : null;
   const horizon = physical ? physical.segments.at(-1)! : null;
   const at = horizon ? { originTick: horizon.originTick, elapsedSeconds: horizon.endElapsedSeconds,
@@ -106,7 +148,7 @@ export const deriveActualLivePlayScope = (raw: AcceptedActualLivePlayScope, pitc
     physicalReferences: prefix ? [
       { owner: 'batted_world_contacts', sourceId: world!.source.sourceId, hash: hash(world!) },
       ...prefix.fields.map(v => ({ owner: 'batted_world_field_actions', sourceId: v.source.sourceId, hash: hash(v) })),
-      ...prefix.executions.map(v => ({ owner: 'batted_world_field_executions', sourceId: v.source.sourceId, hash: hash(v) })),
+      ...prefix.executions.map(actualLivePhysicalExecutionReference),
     ] : [],
   });
 };
