@@ -1,4 +1,6 @@
 import { createRequire } from 'node:module';
+import { sqliteJsonMetadataNodes as nodes, sqliteJsonMetadataProjection as projection,
+  sqliteJsonMetadataMatches as matches } from './SqliteOwnershipMetadata';
 import { actualObservationId as id, actualFieldObservationInput as input, sampleActualFieldObservation,
   type AcceptedActualFieldObservation, type ActualFieldObservationReceipt } from './ActualFieldObservation';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -17,6 +19,18 @@ type Row = { source_id: string; physical_pitch_source_id: string; player_id: str
   execution_source_id: string | null; observation_model_source_id: string; previous_source_id: string | null;
   revision: number; source_json: string; source_hash: string; snapshot_json: string; snapshot_hash: string };
 type Head = { physical_pitch_source_id: string; player_id: string; source_id: string; revision: number };
+
+// Only identity/lineage metadata crosses a historical bound. Never deserialize a
+// future Source view, perception receipt, or physical dependency payload here.
+const identityColumns = {
+  sourceId: 'source_id', physicalPitchSourceId: 'physical_pitch_source_id', playerId: 'player_id',
+  baseFieldSourceId: 'base_field_source_id', executionSourceId: 'execution_source_id',
+  observationModelSourceId: 'observation_model_source_id', previousObservationSourceId: 'previous_source_id',
+} as const;
+const identityProjection = (document: string, path = '$') => projection(document, Object.keys(identityColumns), path);
+const identityMatches = (metadata: string | null, row: Row) => matches(metadata,
+  Object.fromEntries(Object.entries(identityColumns).map(([key, column]) => [key, row[column]])));
+
 
 /** Separate observation ownership: no physical execution, time advancement, original archive rewrite or AI truth access. */
 export const actualFieldObservationEvidenceFromSqlite = (db: Db) => {
@@ -56,13 +70,54 @@ export const actualFieldObservationEvidenceFromSqlite = (db: Db) => {
       physicalPrefixHash: hash(prefix), observationModelHash: hash(model),
       receipt: sampleActualFieldObservation(source, prefix, model, previous) });
   };
+  // Enumerate all duplicate containers/keys before selecting a scope. Earlier
+  // history entries are ancestors, not aliases of this row's own Source.
+  const identityObjects = (ownId: boolean) => `${nodes('source_json')}
+    UNION ALL ${nodes('snapshot_json', ['source'])}
+    UNION ALL ${nodes('snapshot_json', ['history', { array: ownId ? 'last' : 'all' }])}`;
+  const claims = (key: string) => `EXISTS (SELECT 1 FROM (${nodes('claim.value', [key])}) field
+    WHERE field.type='text' AND field.atom=?)`;
+  const sourceRows = (sourceId: string) => db.prepare(`SELECT * FROM actual_field_observations WHERE source_id=?
+    OR EXISTS (SELECT 1 FROM (${identityObjects(true)}) claim WHERE claim.type='object' AND ${claims('sourceId')})`)
+    .all(sourceId, sourceId) as Row[];
+  const metadata = (row: Row, prefix: readonly Row[]) => {
+    // A fresh continuation must not bless an ancestor with a hidden foreign alias.
+    if (sourceRows(row.source_id).length !== 1) throw new Error('actual observation Source ownership scope differs');
+    const mirrors = db.prepare(`SELECT
+      CASE WHEN json_valid(source_json) THEN ${identityProjection('source_json')} END AS source_identity,
+      CASE WHEN json_valid(snapshot_json) THEN ${identityProjection('snapshot_json', '$.source')} END AS snapshot_identity,
+      CASE WHEN json_valid(snapshot_json) THEN (SELECT json_group_array(key) FROM json_each(snapshot_json)
+        WHERE key IN ('source','history','revision')) END AS containers,
+      CASE WHEN json_valid(snapshot_json) THEN json_type(snapshot_json,'$.revision') END AS revision_type,
+      CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.revision') END AS revision,
+      CASE WHEN json_valid(snapshot_json) THEN json_type(snapshot_json,'$.history') END AS history_type,
+      CASE WHEN json_valid(snapshot_json) THEN json_array_length(snapshot_json,'$.history') END AS history_length
+      FROM actual_field_observations WHERE source_id=?`).get(row.source_id) as {
+        source_identity: string | null; snapshot_identity: string | null; containers: string | null; revision_type: string | null;
+        revision: number | null; history_type: string | null; history_length: number | null;
+      };
+    if (mirrors.source_identity !== null && !identityMatches(mirrors.source_identity, row)) {
+      throw new Error('actual observation Source identity metadata differs');
+    }
+    if (mirrors.snapshot_identity !== null) {
+      if (JSON.stringify((JSON.parse(mirrors.containers!) as string[]).sort()) !== '["history","revision","source"]'
+        || !identityMatches(mirrors.snapshot_identity, row) || mirrors.revision_type !== 'integer' || mirrors.revision !== row.revision
+        || mirrors.history_type !== 'array' || mirrors.history_length !== prefix.length) {
+        throw new Error('actual observation snapshot identity metadata differs');
+      }
+      const history = db.prepare(`SELECT h.key AS position,
+        CASE WHEN h.type='object' THEN ${identityProjection('h.value')} END AS identity
+        FROM actual_field_observations, json_each(CASE WHEN json_valid(snapshot_json) THEN snapshot_json ELSE '{}' END,'$.history') h
+        WHERE source_id=? ORDER BY h.key`).all(row.source_id) as { position: number; identity: string | null }[];
+      if (history.length !== prefix.length || history.some((entry, index) => entry.position !== index
+        || !identityMatches(entry.identity, prefix[index]))) throw new Error('actual observation history identity metadata differs');
+    }
+  };
   const scope = (pitchId: string, playerId: string, throughSourceId?: string): readonly DurableActualFieldObservation[] => {
     const owners = `(physical_pitch_source_id=? AND player_id=?)
-      OR (CASE WHEN json_valid(source_json) THEN json_extract(source_json,'$.physicalPitchSourceId') END=?
-        AND CASE WHEN json_valid(source_json) THEN json_extract(source_json,'$.playerId') END=?)
-      OR (CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.source.physicalPitchSourceId') END=?
-        AND CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.source.playerId') END=?)`;
-    const args = [pitchId, playerId, pitchId, playerId, pitchId, playerId];
+      OR EXISTS (SELECT 1 FROM (${identityObjects(false)}) claim WHERE claim.type='object'
+        AND ${claims('physicalPitchSourceId')} AND ${claims('playerId')})`;
+    const args = [pitchId, playerId, pitchId, playerId];
     const rows = db.prepare(`SELECT * FROM actual_field_observations WHERE ${owners} ORDER BY revision`).all(...args) as Row[];
     const heads = db.prepare(`SELECT * FROM actual_field_observation_heads WHERE (physical_pitch_source_id=? AND player_id=?)
       OR source_id IN (SELECT source_id FROM actual_field_observations WHERE ${owners})`).all(pitchId, playerId, ...args) as Head[];
@@ -77,6 +132,7 @@ export const actualFieldObservationEvidenceFromSqlite = (db: Db) => {
         || row.player_id !== playerId || row.previous_source_id !== (rows[index - 1]?.source_id ?? null)
         || !id(row.base_field_source_id) || !id(row.observation_model_source_id)
         || row.execution_source_id !== null && !id(row.execution_source_id)) throw new Error('corrupt actual observation prefix metadata');
+      metadata(row, rows.slice(0, index + 1));
       if (row.observation_model_source_id !== rows[0].observation_model_source_id) throw new Error('actual observation model prefix metadata differs');
       const field = db.prepare('SELECT physical_pitch_source_id,revision,game_id FROM batted_world_field_actions WHERE source_id=?')
         .get(row.base_field_source_id) as { physical_pitch_source_id: string; revision: number; game_id: string } | undefined;
@@ -114,8 +170,11 @@ export const actualFieldObservationEvidenceFromSqlite = (db: Db) => {
   };
   const read = (sourceId: string): DurableActualFieldObservation | null => {
     if (!id(sourceId)) throw new Error('invalid actual observation scope');
-    const row = db.prepare('SELECT * FROM actual_field_observations WHERE source_id=?').get(sourceId) as Row | undefined;
+    const rows = sourceRows(sourceId);
+    if (rows.length > 1) throw new Error('actual observation Source ownership scope differs');
+    const row = rows[0];
     if (!row) return null;
+    if (row.source_id !== sourceId) throw new Error('actual observation Source identity mirror differs');
     const source = input(JSON.parse(row.source_json) as AcceptedActualFieldObservation, sourceId);
     return scope(source.physicalPitchSourceId, source.playerId, sourceId).at(-1)!;
   };

@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import { sqliteJsonMetadataNodes as metadataNodes } from './SqliteOwnershipMetadata';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { createPlayerObservationCalibration, type PlayerObservationCalibration } from '../../core/sim/perception/PlayerObservationCalibration';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -31,6 +32,14 @@ type Row = {
   person_link_source_id: string; fielding_model_source_id: string; accepted_at_day: number;
   source_json: string; source_hash: string; snapshot_json: string; snapshot_hash: string;
 };
+// Keep Player pairs in the same exact owner container while enumerating every
+// duplicate leaf/container. Canonical archive validation below rejects ambiguity.
+const playerClaim = (document: string, path: readonly string[]): string => `EXISTS (
+  SELECT 1 FROM (${metadataNodes(document, path)}) owner,
+    json_each(CASE WHEN owner.type='object' THEN owner.value ELSE '{}' END) career,
+    json_each(CASE WHEN owner.type='object' THEN owner.value ELSE '{}' END) player
+  WHERE career.key='careerId' AND career.type='text' AND career.atom=?
+    AND player.key='playerId' AND player.type='text' AND player.atom=?)`;
 const id = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value === value.trim();
 const day = (value: number): boolean => Number.isSafeInteger(value) && value >= 0;
 const fields = (value: unknown, names: readonly string[]): boolean => value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -58,13 +67,10 @@ export const playerObservationModelEvidenceFromSqlite = (db: Pick<import('node:s
     // Every archived Player identity participates in ownership discovery. Moving
     // both the index and Source mirror cannot hide the original model/Person.
     const rows = db.prepare(`SELECT * FROM world_player_observation_models WHERE (career_id=? AND player_id=?)
-      OR (json_extract(source_json,'$.careerId')=? AND json_extract(source_json,'$.playerId')=?)
-      OR (CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.source.careerId') END=?
-        AND CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.source.playerId') END=?)
-      OR (CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.fieldingModel.source.careerId') END=?
-        AND CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.fieldingModel.source.playerId') END=?)
-      OR (CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.fieldingModel.person.careerId') END=?
-        AND CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.fieldingModel.person.playerId') END=?)`)
+      OR ${playerClaim('source_json', [])}
+      OR ${playerClaim('snapshot_json', ['source'])}
+      OR ${playerClaim('snapshot_json', ['fieldingModel', 'source'])}
+      OR ${playerClaim('snapshot_json', ['fieldingModel', 'person'])}`)
       .all(careerId, playerId, careerId, playerId, careerId, playerId, careerId, playerId, careerId, playerId) as Row[];
     if (rows.length > 1) throw new Error('Player observation baseline scope differs');
     return rows.map((row) => {
@@ -80,8 +86,8 @@ export const playerObservationModelEvidenceFromSqlite = (db: Pick<import('node:s
   const read = (sourceId: string): DurablePlayerObservationModel | null => {
     if (!id(sourceId)) throw new Error('invalid Player observation model scope');
     const rows = db.prepare(`SELECT * FROM world_player_observation_models WHERE source_id=?
-      OR CASE WHEN json_valid(source_json) THEN json_extract(source_json,'$.sourceId') END=?
-      OR CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.source.sourceId') END=?`)
+      OR EXISTS (SELECT 1 FROM (${metadataNodes('source_json', ['sourceId'])}) claim WHERE claim.type='text' AND claim.atom=?)
+      OR EXISTS (SELECT 1 FROM (${metadataNodes('snapshot_json', ['source', 'sourceId'])}) claim WHERE claim.type='text' AND claim.atom=?)`)
       .all(sourceId, sourceId, sourceId) as Row[];
     if (rows.length > 1) throw new Error('Player observation Source ownership scope differs');
     const row = rows[0];

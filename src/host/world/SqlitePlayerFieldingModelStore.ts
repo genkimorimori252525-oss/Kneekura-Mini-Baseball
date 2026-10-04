@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import { sqliteJsonMetadataNodes as metadataNodes } from './SqliteOwnershipMetadata';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { createDefensiveRatings, type DefensiveRatings } from '../../core/model/DefensiveRatings';
 import type { BallTransferTimingParameters } from '../../core/sim/fielding/BallTransferTiming';
@@ -19,6 +20,14 @@ type Authority = Readonly<{ readAcceptedModel(sourceId: string): AcceptedPlayerF
 type Row = { source_id: string; career_id: string; player_id: string; person_link_source_id: string; accepted_at_day: number;
   source_json: string; source_hash: string; snapshot_json: string; snapshot_hash: string };
 type LinkRow = { source_id: string; career_id: string; player_id: string; person_id: string; roster_revision: number; accepted_at_day: number; source_json: string };
+// Keep Player pairs in the same exact owner container while enumerating every
+// duplicate leaf/container. Canonical archive validation below rejects ambiguity.
+const playerClaim = (document: string, path: readonly string[]): string => `EXISTS (
+  SELECT 1 FROM (${metadataNodes(document, path)}) owner,
+    json_each(CASE WHEN owner.type='object' THEN owner.value ELSE '{}' END) career,
+    json_each(CASE WHEN owner.type='object' THEN owner.value ELSE '{}' END) player
+  WHERE career.key='careerId' AND career.type='text' AND career.atom=?
+    AND player.key='playerId' AND player.type='text' AND player.atom=?)`;
 const id = (value: unknown): value is string => typeof value === 'string' && !!value.length && value === value.trim();
 const day = (value: number) => Number.isSafeInteger(value) && value >= 0;
 const fields = (value: unknown, expected: readonly string[]) => !!value && typeof value === 'object' && !Array.isArray(value)
@@ -57,11 +66,9 @@ export const playerFieldingModelEvidenceFromSqlite = (db: Pick<import('node:sqli
     // A moved index and Source mirror cannot hide ownership still asserted by
     // the archived Source or its original Player/Person snapshot.
     const rows = db.prepare(`SELECT * FROM world_player_fielding_models WHERE (career_id=? AND player_id=?)
-      OR (json_extract(source_json,'$.careerId')=? AND json_extract(source_json,'$.playerId')=?)
-      OR (CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.source.careerId') END=?
-        AND CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.source.playerId') END=?)
-      OR (CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.person.careerId') END=?
-        AND CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.person.playerId') END=?)`)
+      OR ${playerClaim('source_json', [])}
+      OR ${playerClaim('snapshot_json', ['source'])}
+      OR ${playerClaim('snapshot_json', ['person'])}`)
       .all(careerId, playerId, careerId, playerId, careerId, playerId, careerId, playerId) as Row[];
     if (rows.length > 1) throw new Error('Player fielding baseline scope differs');
     return rows.map((row) => {
@@ -77,8 +84,8 @@ export const playerFieldingModelEvidenceFromSqlite = (db: Pick<import('node:sqli
   const read = (sourceId: string): DurablePlayerFieldingModel | null => {
     if (!id(sourceId)) throw new Error('invalid Player fielding model scope');
     const rows = db.prepare(`SELECT * FROM world_player_fielding_models WHERE source_id=?
-      OR CASE WHEN json_valid(source_json) THEN json_extract(source_json,'$.sourceId') END=?
-      OR CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.source.sourceId') END=?`)
+      OR EXISTS (SELECT 1 FROM (${metadataNodes('source_json', ['sourceId'])}) claim WHERE claim.type='text' AND claim.atom=?)
+      OR EXISTS (SELECT 1 FROM (${metadataNodes('snapshot_json', ['source', 'sourceId'])}) claim WHERE claim.type='text' AND claim.atom=?)`)
       .all(sourceId, sourceId, sourceId) as Row[];
     if (rows.length > 1) throw new Error('Player fielding Source ownership scope differs');
     const row = rows[0];
