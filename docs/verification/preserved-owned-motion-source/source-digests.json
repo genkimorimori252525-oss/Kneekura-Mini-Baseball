@@ -1,0 +1,52 @@
+[
+  {
+    "file": "OwnedScheduledMotionDecisionFixtures.test-support.ts.txt",
+    "sha256": "56978e4e919a7510c468bd71c39d2352db68b23916a2fdc4eb0c6cc38df0b728",
+    "status": "preserved source text; full original-tree identity unproven"
+  },
+  {
+    "file": "OwnedScheduledMotionDependencyEncodingNative.test.ts.txt",
+    "sha256": "b533e211823f82d35494ab3d8fc1ff87710e40b68db740d7ab6766cd6f8e14cb",
+    "status": "preserved source text; full original-tree identity unproven"
+  },
+  {
+    "file": "OwnedScheduledMotionEndToEnd.test.ts.txt",
+    "sha256": "9546cc4ceb2eda126bd3ff6944c3c04ceaa7a2aff26d8eed4581a1703099d4c2",
+    "status": "preserved source text; full original-tree identity unproven"
+  },
+  {
+    "file": "OwnedScheduledMotionFixtures.test-support.ts.txt",
+    "sha256": "c8802dea4b3126013586856a44df6a6d07f84386863c8ce8845504803044e441",
+    "status": "preserved source text; full original-tree identity unproven"
+  },
+  {
+    "file": "OwnedScheduledMotionIntegrity.test.ts.txt",
+    "sha256": "15ee8f1ec0737691fe72101ae297cd024803312bf9f5c184e831bb0869601547",
+    "status": "preserved source text; full original-tree identity unproven"
+  },
+  {
+    "file": "OwnedScheduledMotionLiveWork.test.ts.txt",
+    "sha256": "3d3eaec59d998089e1756a1784c671505e5996ca8d1bdf8514d84ed46547be5d",
+    "status": "preserved source text; full original-tree identity unproven"
+  },
+  {
+    "file": "OwnedScheduledMotionLiveWork.ts.txt",
+    "sha256": "3117535467c8394cd402430a38ddcb8579e85da2a1f68c61fc49feb5708c9600",
+    "status": "preserved source text; full original-tree identity unproven"
+  },
+  {
+    "file": "OwnedScheduledMotionMotorCut.ts.txt",
+    "sha256": "58b8b76a26988f6742298d48c158f0ddb415f0c2545849c345eb1e82c0818459",
+    "status": "preserved source text; full original-tree identity unproven"
+  },
+  {
+    "file": "OwnedScheduledMotionTiming.test-support.ts.txt",
+    "sha256": "dcaf8569acabb277d2f2d84ce1be43de985e6323cc1c76854f28fa80c7f1dcb7",
+    "status": "preserved source text; full original-tree identity unproven"
+  },
+  {
+    "file": "OwnedScheduledMotionWal.test.ts.txt",
+    "sha256": "72ef0a38693c8d6de8d56b93170fb3b544332e0b2bd5be6bd2f9240653a7d386",
+    "status": "preserved source text; full original-tree identity unproven"
+  }
+]
