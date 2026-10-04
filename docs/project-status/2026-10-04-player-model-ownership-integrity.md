@@ -2,6 +2,8 @@
 
 Status: implementation and focused verification, 2026-10-04 JST
 
+Published: [Draft PR #268](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/268), [implementation bc29c37c](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/bc29c37cdb6787007202851363a4066d1cee1bf9). Final isolated and integrated gates each passed 5 files / 80 tests and typecheck; integrated tracked hashes stayed unchanged.
+
 ## Reproduced defects
 
 The immutable fielding and observation model owners originally discovered a Player baseline through indexed career/Player columns and the Source JSON. If both identities moved while an original identity remained in the archived snapshot, a second baseline for the original Player could be accepted. Real SQLite reproductions cover both owners.

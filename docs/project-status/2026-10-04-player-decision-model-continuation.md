@@ -2,6 +2,8 @@
 
 更新: 2026-10-04 UTC / JST
 
+公開: [Draft PR #269](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/269)、[実装commit be2851ae](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/be2851ae552b045ccdeebd215e06ebe760960b32)。Scheduled captureと既存model整合性修正の上で、13 files / 258 tests、typecheck、tracked hashes不変を追加確認した。
+
 実装base: `2045573a9bfd6e228bbf22ad05342b40614d42bb`。既存の[actual field observation](2026-10-04-actual-field-observation.md)から個人判断へ接続する前提として、明示的なdecision calibrationだけを所有する。
 
 ## 追加した契約
