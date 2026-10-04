@@ -46,7 +46,7 @@ const roots = (a: number, b: number, c: number): number[] => {
   const q = -0.5 * (b + Math.sign(b || 1) * Math.sqrt(d));
   return [q / a, c / q];
 };
-const scope = (raw: BallWorldBaseBoundaryInput) => {
+const scope = (raw: BallWorldBaseBoundaryInput, localDurationSeconds?: number) => {
   const input = cloneInert(raw), m = input?.moment, b = m?.ball;
   if (!fields(input, ['moment', 'acceleration', 'throughElapsedSeconds', 'ticksPerSecond', 'ballRadius', 'bases', 'previousBaseContacts'])
     || !fields(m, ['originTick', 'elapsedSeconds', 'ball']) || !fields(b, ['tick', 'position', 'velocity', 'spin'])
@@ -69,7 +69,11 @@ const scope = (raw: BallWorldBaseBoundaryInput) => {
     if (![extent, r.center.x - extent, r.center.x + extent, r.center.z - extent, r.center.z + extent,
       prism.topY - prism.bottomY].every(finite)) throw new Error('ball/base prism arithmetic overflow');
   }
-  const duration = input.throughElapsedSeconds - m.elapsedSeconds;
+  const requestedDuration = input.throughElapsedSeconds - m.elapsedSeconds;
+  if (localDurationSeconds !== undefined && (!finite(localDurationSeconds) || localDurationSeconds < 0 || localDurationSeconds > requestedDuration)) {
+    throw new Error('invalid exact ball/base local duration');
+  }
+  const duration = localDurationSeconds ?? requestedDuration;
   sample(b.position, b.velocity, input.acceleration, duration);
   return { input, duration };
 };
@@ -134,8 +138,9 @@ const baseTime = (ball: AcceleratedSphereContactState, prism: BattedBallBasePris
   return null;
 };
 /** A causal collision candidate only; its Native action owner must adopt it before rules consume it. */
-const deriveBallWorldBaseBoundary = (raw: BallWorldBaseBoundaryInput, piecewise = false): BallWorldBaseBoundary | null => {
-  const { input, duration } = scope(raw), initial = input.moment.ball;
+const deriveBallWorldBaseBoundary = (raw: BallWorldBaseBoundaryInput, piecewise = false, preservePhysicalTime = false,
+  localDurationSeconds?: number): BallWorldBaseBoundary | null => {
+  const { input, duration } = scope(raw, localDurationSeconds), initial = input.moment.ball;
   const sphere = { tick: input.moment.originTick, center: initial.position, velocity: initial.velocity,
     acceleration: input.acceleration, radius: input.ballRadius };
   const contacts: BallWorldBaseBoundaryContact[] = [];
@@ -143,7 +148,7 @@ const deriveBallWorldBaseBoundary = (raw: BallWorldBaseBoundaryInput, piecewise 
     const prism = input.bases[baseId], event = baseTime(sphere, prism, duration, input.previousBaseContacts.includes(baseId), piecewise);
     if (!event) continue;
     const state = sample(initial.position, initial.velocity, input.acceleration, event.time);
-    const elapsedSeconds = event.time === duration ? input.throughElapsedSeconds : input.moment.elapsedSeconds + event.time;
+    const elapsedSeconds = !preservePhysicalTime && event.time === duration ? input.throughElapsedSeconds : input.moment.elapsedSeconds + event.time;
     const moment = { ...input.moment, elapsedSeconds, ball: { ...initial,
       tick: quantizeEventTick(input.moment.originTick, elapsedSeconds, input.ticksPerSecond), position: state.point, velocity: state.velocity } };
     const f = localFrame(prism), point = f.toWorld(f.closest(f.toLocal(state.point))), length = distance(state.point, point);
@@ -162,3 +167,12 @@ const deriveBallWorldBaseBoundary = (raw: BallWorldBaseBoundaryInput, piecewise 
 export const findBallWorldBaseBoundary = (raw: BallWorldBaseBoundaryInput): BallWorldBaseBoundary | null => deriveBallWorldBaseBoundary(raw);
 /** Piecewise-only horizon-independent edge/corner polynomial roots. */
 export const findPiecewiseBallWorldBaseBoundary = (raw: BallWorldBaseBoundaryInput): BallWorldBaseBoundary | null => deriveBallWorldBaseBoundary(raw, true);
+
+/** Exact-field candidate seam: preserve the raw composed physical root, including at
+ * the local endpoint. The owning exact field query reconciles all collider candidates
+ * and fails closed if its first absolute occurrence exceeds the requested horizon.
+ * The optional owner-local duration preserves a phase-clipped interval without an
+ * absolute add/subtract round trip; the input horizon remains the absolute request.
+ * Existing archived and piecewise exports retain their endpoint normalization. */
+export const findExactBallWorldBaseBoundaryCandidatesV1 = (raw: BallWorldBaseBoundaryInput, localDurationSeconds?: number): BallWorldBaseBoundary | null =>
+  deriveBallWorldBaseBoundary(raw, true, true, localDurationSeconds);

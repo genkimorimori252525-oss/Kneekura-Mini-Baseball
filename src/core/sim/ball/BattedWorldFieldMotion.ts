@@ -1,9 +1,11 @@
 import { cloneInert } from '../../adjudication/OfficialWindowPolicy';
+import { quantizeEventTick } from '../ExactEventTime';
 import type { BattedBallBasePrism } from './BattedBallBaseContact';
 import { assertBattedResponseProfiles, type BattedBallContactResponseInput } from './BattedBallContactResponse';
 import type { BallContactMaterial } from './BallContactResponse';
 import type { BallWorldBaseBoundaryContact } from './BallWorldBaseBoundary';
-import { deriveAcceleratedBallWorldFieldMotion, deriveBallWorldFieldContinuation, type BallWorldCollider,
+import { deriveAcceleratedBallWorldFieldMotion, deriveBallWorldFieldContinuation, deriveExactBallWorldFieldContinuationV1,
+  deriveExactAcceleratedBallWorldFieldMotionV1, type BallWorldCollider,
   type BallWorldContinuation, type BallWorldFieldBoundaryContact, type BallWorldFieldContinuation, type AcceleratedBallWorldFieldMotion, type BallWorldMotionActor } from './BallWorldContinuation';
 import { createBattedWorldBaseGeometry, type BattedWorldBaseGeometry, type BattedWorldBaseGeometryInput, type BattedWorldBaseId } from './BattedWorldBaseGeometry';
 import { respondToBattedWorldBoundary } from './BattedWorldContinuation';
@@ -74,7 +76,7 @@ export const deriveBattedWorldFieldMotion = (raw: BattedWorldFieldMotionInput): 
 };
 
 const executeFieldMotion = (input: Pick<BattedWorldFieldMotionInput, 'response' | 'geometry' | 'cursor' | 'carrierPlayerId' | 'throughTick'>,
-  actors: readonly BallWorldMotionActor[], retained = false): BattedWorldFieldMotion => {
+  actors: readonly BallWorldMotionActor[], retained = false, exactThroughElapsedSeconds?: number): BattedWorldFieldMotion => {
   const moment = input.cursor.moment, p = input.response.world.parameters, geometry = input.geometry;
   const previousBaseContacts = input.cursor.previousContacts.flatMap((c) => { const id = baseIdFromCollider(c); return id ? [id] : []; });
   const previousContacts = input.cursor.previousContacts.filter((c) => !baseIdFromCollider(c));
@@ -93,8 +95,9 @@ const executeFieldMotion = (input: Pick<BattedWorldFieldMotionInput, 'response' 
     }
     const gloveContact: BallWorldCollider = { kind: 'actor', playerId: input.carrierPlayerId, role: 'glove' };
     if (!previousContacts.some((c) => c.kind === 'actor' && c.playerId === input.carrierPlayerId && c.role === 'glove')) previousContacts.push(gloveContact);
-    const field = deriveAcceleratedBallWorldFieldMotion({ ...query, previousContacts, acceleration: glove.primitive.acceleration,
-      throughElapsedSeconds: (input.throughTick - moment.originTick) / p.ticksPerSecond });
+    const acceleratedQuery = exactThroughElapsedSeconds === undefined ? deriveAcceleratedBallWorldFieldMotion : deriveExactAcceleratedBallWorldFieldMotionV1;
+    const field = acceleratedQuery({ ...query, previousContacts, acceleration: glove.primitive.acceleration,
+      throughElapsedSeconds: exactThroughElapsedSeconds ?? (input.throughTick - moment.originTick) / p.ticksPerSecond });
     const world = compatibleWorld(field), cursor = field.kind === 'boundary' ? null
       : { moment: field.moment, previousContacts: [...input.cursor.previousContacts.filter((c) => c.kind !== 'actor'
         || c.playerId !== input.carrierPlayerId || c.role !== 'glove'), gloveContact] };
@@ -102,7 +105,8 @@ const executeFieldMotion = (input: Pick<BattedWorldFieldMotionInput, 'response' 
     return freeze({ motion: { actors, carrierPlayerId: input.carrierPlayerId, world, response, cursor },
       baseContacts: field.kind === 'boundary' ? field.contacts.filter((c): c is BallWorldBaseBoundaryContact => c.kind === 'base') : [] });
   }
-  const field = deriveBallWorldFieldContinuation({ ...query, throughTick: input.throughTick });
+  const field = exactThroughElapsedSeconds === undefined ? deriveBallWorldFieldContinuation({ ...query, throughTick: input.throughTick })
+    : deriveExactBallWorldFieldContinuationV1({ ...query, throughElapsedSeconds: exactThroughElapsedSeconds });
   const world = compatibleWorld(field);
   // The geometry was already executed by the field path. Append only its owned
   // material view for the existing physical response; never re-run an old flight.
@@ -131,11 +135,11 @@ export type BattedWorldFieldMotionCheckpointInput = Omit<BattedWorldFieldMotionI
 export type BattedWorldFieldRetainedCheckpointInput = Omit<BattedWorldFieldMotionInput, 'throughTick' | 'availableAtTick' | 'commands'> & Readonly<{
   checkpointThroughTick: number;
 }>;
-const checkpointScope = (input: BattedWorldFieldRetainedCheckpointInput): void => {
+const checkpointScope = (input: BattedWorldFieldRetainedCheckpointInput, exactThroughElapsedSeconds?: number): void => {
   const moment = input.cursor?.moment, p = input.response?.world?.parameters;
   if (!moment || !p || !Number.isSafeInteger(input.checkpointThroughTick) || input.checkpointThroughTick < 0
     || !Number.isFinite(moment.elapsedSeconds) || moment.elapsedSeconds < 0
-    || (input.checkpointThroughTick - moment.originTick) / p.ticksPerSecond <= moment.elapsedSeconds
+    || (exactThroughElapsedSeconds ?? (input.checkpointThroughTick - moment.originTick) / p.ticksPerSecond) <= moment.elapsedSeconds
     || !Array.isArray(input.actors) || !input.actors.length
     || input.actors.length !== input.response.actors.length
     || input.carrierPlayerId !== null && (typeof input.carrierPlayerId !== 'string' || !input.carrierPlayerId.length)) {
@@ -223,4 +227,23 @@ export const deriveBattedWorldFieldMotionAdoption = (raw: BattedWorldFieldMotion
   }
   const actors = deriveBattedWorldMotionActorsAtExactCoverage({ ...input, throughTick: input.coverageThroughTick });
   return executeFieldMotion({ ...input, throughTick: moment.ball.tick }, actors);
+};
+
+export type BattedWorldFieldRetainedExactCheckpointInputV1 = Omit<BattedWorldFieldRetainedCheckpointInput, 'checkpointThroughTick'> & Readonly<{
+  checkpointThroughElapsedSeconds: number;
+}>;
+/** Advances only the existing physical curves to an exact horizon, stopping at the first real boundary.
+ * No command adoption, coverage renewal, producer completion or Native scheduling is implied. */
+export const advanceBattedWorldFieldMotionExactCheckpointV1 = (raw: BattedWorldFieldRetainedExactCheckpointInputV1): BattedWorldFieldMotion => {
+  const input = cloneInert(raw);
+  if (!fields(input, ['response', 'geometry', 'cursor', 'actors', 'carrierPlayerId', 'checkpointThroughElapsedSeconds'])
+    || !input.cursor?.moment || !input.response?.world?.parameters) throw new Error('invalid retained exact field checkpoint scope');
+  const { moment } = input.cursor, p = input.response.world.parameters, endpoint = input.checkpointThroughElapsedSeconds;
+  const checkpointThroughTick = quantizeEventTick(moment.originTick, endpoint, p.ticksPerSecond);
+  checkpointScope({ ...input, checkpointThroughTick }, endpoint);
+  // A tick which quantizes to T can lie after the actual end of an endTick=T curve.
+  if (input.actors.some((a) => endpoint > (a.primitive.endTick - moment.originTick) / p.ticksPerSecond)) {
+    throw new Error('retained exact field motion coverage is exhausted');
+  }
+  return executeFieldMotion({ ...input, throughTick: checkpointThroughTick }, input.actors, true, endpoint);
 };
