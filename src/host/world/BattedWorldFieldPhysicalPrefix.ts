@@ -86,10 +86,16 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
   };
   const segment = (next: readonly BallWorldMotionActor[], end: BallWorldMoment, rebase: boolean) => {
     moment(end);
-    if (end.elapsedSeconds < horizon.elapsedSeconds || next.length !== actors.length || new Set(next.map(key)).size !== actorKeys.size
-      || next.some((actor) => !actorKeys.has(key(actor)))) throw new Error('actual field actor coverage or horizon differs');
-    for (const actor of next) {
-      const prior = actors.find((old) => key(old) === key(actor))!, s = actor.primitive;
+    if (end.elapsedSeconds < horizon.elapsedSeconds || next.length !== actors.length) throw new Error('actual field actor coverage or horizon differs');
+    // These identity indexes live only for this segment. Use the same inert keys
+    // once per array, retaining uniqueness, membership and original iteration order.
+    const nextByKey = new Map(next.map(actor => [key(actor), actor]));
+    if (nextByKey.size !== actorKeys.size || [...nextByKey.keys()].some(identity => !actorKeys.has(identity))) {
+      throw new Error('actual field actor coverage or horizon differs');
+    }
+    const priorByKey = next === actors ? nextByKey : new Map(actors.map(actor => [key(actor), actor]));
+    for (const [identity, actor] of nextByKey) {
+      const prior = priorByKey.get(identity)!, s = actor.primitive;
       const start = (s.startTick - originTick) / p.ticksPerSecond + (actor.startElapsedSeconds ?? 0);
       if (s.ticksPerSecond !== p.ticksPerSecond || s.radius !== prior.primitive.radius || s.endTick < end.ball.tick
         || rebase && start !== horizon.elapsedSeconds || !rebase && json(actor) !== json(prior)

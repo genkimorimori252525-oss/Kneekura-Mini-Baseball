@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import { createHash } from 'node:crypto';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { createBattedWorldFieldGeometry, deriveBattedWorldFieldMotion, deriveInitialBattedWorldFieldMotion,
   type BattedWorldFieldGeometry, type BattedWorldFieldGeometryInput, type BattedWorldFieldMotion } from '../../core/sim/ball/BattedWorldFieldMotion';
@@ -160,10 +161,12 @@ export const battedWorldFieldEvidenceFromSqlite = (db: Db) => {
     const values: DurableBattedWorldFieldAction[] = [];
     for (const row of rows.slice(0, bound + 1)) {
       const source = actionInput(JSON.parse(row.source_json) as AcceptedBattedWorldFieldAction, row.source_id);
+      const sourceJson = json(source);
       if (source.responseSourceId !== responseId || source.geometrySourceId !== geometryId || source.previousFieldSourceId !== row.previous_source_id
-        || row.source_json !== json(source) || row.source_hash !== hash(source)) throw new Error('corrupt original actual field action Source');
+        || row.source_json !== sourceJson || row.source_hash !== createHash('sha256').update(sourceJson).digest('hex')) throw new Error('corrupt original actual field action Source');
       const value = execute(source, original, values.at(-1) ?? null);
-      if (row.snapshot_json !== json(value) || row.snapshot_hash !== hash(value)) throw new Error('corrupt original actual field action snapshot');
+      const snapshotJson = json(value);
+      if (row.snapshot_json !== snapshotJson || row.snapshot_hash !== createHash('sha256').update(snapshotJson).digest('hex')) throw new Error('corrupt original actual field action snapshot');
       values.push(value);
     }
     return values;
