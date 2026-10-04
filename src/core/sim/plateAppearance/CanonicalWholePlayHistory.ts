@@ -10,6 +10,8 @@ import type { BallWorldBaseBoundaryContact } from '../ball/BallWorldBaseBoundary
 import type { BattedWorldFieldAcquisition } from '../ball/BattedWorldFieldAcquisition';
 import type { BattedWorldFieldThrow } from '../ball/BattedWorldFieldThrow';
 import { validateBattedWorldScheduledFieldThrowPlan, type BattedWorldScheduledFieldThrowPlan, type BattedWorldScheduledFieldThrowAdvance } from '../ball/BattedWorldScheduledFieldThrow';
+import { validateBattedWorldScheduledFieldAcquisitionPlan, validateBattedWorldScheduledFieldAcquisitionProgress,
+  type BattedWorldScheduledFieldAcquisitionPlan, type BattedWorldScheduledFieldAcquisitionAdvance } from '../ball/BattedWorldScheduledFieldAcquisition';
 import type { CatchRetentionResolution } from '../fielding/CatchRetention';
 
 /** Source IDs are scoped by their Native owner and original physical pitch. */
@@ -20,6 +22,7 @@ export type WholePlayPhysicalStep = Owned & (
   Readonly<{ kind: 'motion'; startCursor: BattedWorldBallCursor; field: BattedWorldFieldMotion }>
   | Readonly<{ kind: 'acquisition'; field: BattedWorldFieldMotion; acquisition: BattedWorldFieldAcquisition }>
   | Readonly<{ kind: 'throw'; startCursor: BattedWorldBallCursor; field: BattedWorldFieldMotion; throw: BattedWorldFieldThrow }>
+  | Readonly<{ kind: 'acquisition_advance'; planSourceId: string; field: BattedWorldFieldMotion; progress: BattedWorldScheduledFieldAcquisitionAdvance }>
   | Readonly<{ kind: 'throw_advance'; planSourceId: string; startCursor: BattedWorldBallCursor;
     field: BattedWorldFieldMotion; progress: BattedWorldScheduledFieldThrowAdvance }>);
 /** Rule payloads remain in their source-bound owner; this link cannot execute time or embed history recursively. */
@@ -28,7 +31,9 @@ export type WholePlayObservation = Owned & Readonly<{ kind: 'observation';
 /** Admission preserves future action metadata without asserting a physical occurrence. */
 export type WholePlayScheduledThrowPlan = Owned & Readonly<{ kind: 'throw_plan'; basis: WholePlaySourceRef;
   horizon: BallWorldMoment; plan: BattedWorldScheduledFieldThrowPlan }>;
-export type WholePlayHistoryStep = WholePlayPhysicalStep | WholePlayObservation | WholePlayScheduledThrowPlan;
+export type WholePlayScheduledAcquisitionPlan = Owned & Readonly<{ kind: 'acquisition_plan'; basis: WholePlaySourceRef;
+  horizon: BallWorldMoment; plan: BattedWorldScheduledFieldAcquisitionPlan }>;
+export type WholePlayHistoryStep = WholePlayPhysicalStep | WholePlayObservation | WholePlayScheduledThrowPlan | WholePlayScheduledAcquisitionPlan;
 export type CanonicalWholePlayHistoryInput = Readonly<{
   scope: Readonly<{ gameId: string; playId: number; physicalPitchSourceId: string }>;
   originalTimeline: CanonicalPlateAppearanceTimeline;
@@ -37,7 +42,8 @@ export type CanonicalWholePlayHistoryInput = Readonly<{
   steps: readonly WholePlayHistoryStep[];
 }>;
 export type WholePlayHistoryPhase = 'bat_contact' | 'world_boundary' | 'motion_horizon' | 'response_cursor'
-  | 'acquisition_secured' | 'acquisition_interrupted' | 'throw_release';
+  | 'acquisition_secured' | 'acquisition_interrupted' | 'throw_release'
+  | 'acquisition_constraint_started' | 'acquisition_progress' | 'acquisition_dissipation_complete' | 'acquisition_confirmed';
 export type WholePlayOriginalPitchRef = Readonly<{ owner: 'physical_pitch'; sourceId: string }>;
 /** Occurrence array order is serialization only; equal elapsed time has no implicit physical precedence. */
 export type WholePlayHistoryFrame = Readonly<{ originTick: number; elapsedSeconds: number; tick: number;
@@ -47,6 +53,7 @@ export type CanonicalWholePlayHistory = Readonly<{
   originalTimeline: CanonicalPlateAppearanceTimeline; origin: CanonicalWholePlayHistoryInput['origin'];
   physicalSteps: readonly WholePlayPhysicalStep[]; observations: readonly WholePlayObservation[];
   scheduledThrowPlans?: readonly WholePlayScheduledThrowPlan[];
+  scheduledAcquisitionPlans?: readonly WholePlayScheduledAcquisitionPlan[];
   frames: readonly WholePlayHistoryFrame[]; horizon: BallWorldMoment;
   cursor: BattedWorldBallCursor | null; carrierPlayerId: string | null; end: Readonly<{ kind: 'unestablished' }>;
 }>;
@@ -198,6 +205,8 @@ export const deriveCanonicalWholePlayHistory = (raw: CanonicalWholePlayHistoryIn
   };
   const physicalSteps: WholePlayPhysicalStep[] = [], observations: WholePlayObservation[] = [];
   const scheduledThrowPlans: WholePlayScheduledThrowPlan[] = [];
+  const scheduledAcquisitionPlans: WholePlayScheduledAcquisitionPlan[] = [];
+  let pendingAcquisition: { step: WholePlayScheduledAcquisitionPlan; previous: BattedWorldScheduledFieldAcquisitionAdvance | null } | null = null;
   let pendingThrow: { step: WholePlayScheduledThrowPlan; previous: BattedWorldScheduledFieldThrowAdvance | null } | null = null;
   const originalPitch: WholePlayOriginalPitchRef = { owner: 'physical_pitch', sourceId: scope.physicalPitchSourceId };
   const frames: { originTick: number; elapsedSeconds: number; tick: number;
@@ -260,6 +269,47 @@ export const deriveCanonicalWholePlayHistory = (raw: CanonicalWholePlayHistoryIn
         || !physicalBasis || json(step.basis) !== json(physicalBasis) || json(step.horizon) !== json(horizon)) fail('observation physical basis differs');
       observations.push(step); continue;
     }
+    if (step.kind === 'acquisition_plan') {
+      if (!fields(step, ['source', 'previousSourceId', 'kind', 'basis', 'horizon', 'plan']) || pendingThrow || pendingAcquisition
+        || cursor !== null || carrierPlayerId !== null || !physicalBasis || json(step.basis) !== json(physicalBasis)
+        || json(step.horizon) !== json(horizon) || currentField?.motion.response.kind !== 'capture_candidate'
+        || json(step.plan.input.field) !== json(currentField) || json(step.plan.contactMoment) !== json(horizon)
+        || json(step.plan.input.field.motion.actors) !== json(actors) || !origin.defenderIds.includes(step.plan.acquirerPlayerId)) {
+        fail('scheduled acquisition admission differs from its original candidate');
+      }
+      validateBattedWorldScheduledFieldAcquisitionPlan(step.plan);
+      scheduledAcquisitionPlans.push(step); pendingAcquisition = { step, previous: null }; continue;
+    }
+    if (step.kind === 'acquisition_advance') {
+      if (!fields(step, ['source', 'previousSourceId', 'kind', 'planSourceId', 'field', 'progress'])
+        || pendingThrow || !pendingAcquisition || cursor !== null || carrierPlayerId !== null
+        || step.planSourceId !== pendingAcquisition.step.source.sourceId || json(step.field) !== json(currentField)
+        || json(step.field) !== json(pendingAcquisition.step.plan.input.field)) fail('scheduled acquisition advance lacks its exact pending candidate');
+      const { plan } = pendingAcquisition.step, previous = pendingAcquisition.previous, progress = step.progress;
+      const checkpoints = progress.checkpointElapsedSeconds, priorCheckpoints = previous?.checkpointElapsedSeconds ?? [];
+      if (json(progress.startMoment) !== json(horizon) || json(step.field.motion.actors) !== json(actors)
+        || !Array.isArray(checkpoints) || checkpoints.length !== priorCheckpoints.length + 1
+        || json(checkpoints.slice(0, -1)) !== json(priorCheckpoints)) fail('scheduled acquisition advance lineage differs');
+      validateBattedWorldScheduledFieldAcquisitionProgress(plan, progress);
+      const end = progress.world.moment;
+      moment(end); actors.forEach((actor) => validateActor(actor, end));
+      if (end.elapsedSeconds < horizon.elapsedSeconds) fail('scheduled acquisition chronology runs backward');
+      checkBoundary(progress.world, progress.baseContacts);
+      if (previous === null) occurrence(plan.contactMoment, ref, 'acquisition_constraint_started');
+      if (progress.dissipationMoment && !previous?.dissipationMoment) occurrence(progress.dissipationMoment, ref, 'acquisition_dissipation_complete');
+      if (progress.kind === 'secured') {
+        checkCursor(progress.cursor);
+        carrierPlayerId = plan.acquirerPlayerId; cursor = progress.cursor;
+        occurrence(end, ref, 'acquisition_confirmed'); pendingAcquisition = null;
+      } else {
+        occurrence(end, ref, progress.kind === 'interrupted' ? 'acquisition_interrupted' : 'acquisition_progress');
+        // A terminal interruption leaves an unresolved physical contact. It is
+        // not permission to retry the old capture candidate or restart motion.
+        pendingAcquisition = { step: pendingAcquisition.step, previous: progress };
+      }
+      horizon = end; physicalSteps.push(step); physicalBasis = ref; continue;
+    }
+    if (pendingAcquisition && step.kind !== 'acquisition_advance') fail('pending scheduled acquisition requires its owned advance');
     if (step.kind === 'throw_plan') {
       const plan = step.plan, transfer = plan?.transfer;
       if (!fields(step, ['source', 'previousSourceId', 'kind', 'basis', 'horizon', 'plan']) || pendingThrow || !cursor || !carrierPlayerId
@@ -407,6 +457,7 @@ export const deriveCanonicalWholePlayHistory = (raw: CanonicalWholePlayHistoryIn
     physicalSteps.push(step); physicalBasis = ref;
   }
   return freeze({ scope, originalPitch, originalTimeline: timeline, origin, physicalSteps, observations,
-    ...(scheduledThrowPlans.length ? { scheduledThrowPlans } : {}), frames, horizon,
+    ...(scheduledThrowPlans.length ? { scheduledThrowPlans } : {}),
+    ...(scheduledAcquisitionPlans.length ? { scheduledAcquisitionPlans } : {}), frames, horizon,
     cursor, carrierPlayerId, end: { kind: 'unestablished' as const } });
 };

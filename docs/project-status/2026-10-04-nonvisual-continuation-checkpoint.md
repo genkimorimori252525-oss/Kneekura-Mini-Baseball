@@ -39,12 +39,15 @@
 | #259 `ad296f7e` | `npm run verify` exit0、620 files / 4,157 tests、81分9.642秒 | 元の公開checkpoint。全1,624 tracked hashes一致 |
 | #260 local `943d18cb` / published `55cacd18` 同一tree | exit0、623 files / 4,198 tests、85分12.031秒 | Field execution追加時点。tracked hashes一致 |
 | #262 local `43dc03df` / published `83838144` 同一tree | exit0、632 files / 4,326 tests、94分12.209秒 | 修正済みwhole-play historyまで。全1,656 tracked hashes一致 |
+| #266 local `2045573a` / published `8d752788` 同一tree | exit0、648 files / 4,554 tests、94分39.813秒 | Actual observation・scheduled throw・release互換修正まで。全1,692 tracked hashes一致、checkout clean |
 
 いずれもtypecheckを含む。#262のfull treeは `c9c1fd2a91c94b43966a77cb4c8b958d70df86e9`、src treeは `3215fe92c34ae51c5deca1bfcff7bacb59b847a6`。Tracked diffは空で、検証checkoutのuntracked itemはruntime dependency用node_modules symlinkのみだった。
 
 #261旧Sourceのwholeは、continuing-contact不具合発見後に意図的に中止した。成功扱いせず、修正を含む#262を別に全検証した。#255–258の古い各固定Sourceの未完了記録も後続結果で書き換えない。
 
-#263以降はfocused gateと独立reviewの記録があるが、#262のwhole成功を流用しない。**Actual observationと互換性修正まで統合した最新Sourceを固定し、一つの累積whole gateで確認する**。その間は新規機能を増やさず、検証とreviewを閉じてから確定残計画を続ける。最新terminal resultと固定Sourceのtree情報は該当PR本文に記録する。
+#266の累積wholeは2026-10-04 01:21:35 UTCに完了した。独立したlocked dependency directoryを使い、実行中はSourceを変更していない。Full treeは `ea050f719a5ad82227ab245d0d95dee106ecc75f`、src treeは `7dd590be2d9f6edf9f03578baddd2e77e896529a`。#263–266を含むこの累積Sourceの検証であり、過去の各中間commitを別々に再実行した意味ではない。
+
+このgateを閉じて確定残計画のscheduled acquisitionへ進んだ。後続変更へ#266の成功を流用せず、各focused/reviewと次の固定Source gateを区別する。最新terminal resultと公開tree情報は該当PR本文にも記録する。
 
 ## 残る確定非デザイン接続
 
