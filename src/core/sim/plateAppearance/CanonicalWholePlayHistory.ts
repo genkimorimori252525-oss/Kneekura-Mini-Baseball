@@ -19,7 +19,7 @@ export type WholePlaySourceRef = Readonly<{ owner: 'field_action' | 'field_execu
   revision: number; physicalPitchSourceId: string }>;
 type Owned = Readonly<{ source: WholePlaySourceRef; previousSourceId: string | null }>;
 export type WholePlayPhysicalStep = Owned & (
-  Readonly<{ kind: 'motion'; startCursor: BattedWorldBallCursor; field: BattedWorldFieldMotion }>
+  Readonly<{ kind: 'motion' | 'retained_motion_checkpoint_v1'; startCursor: BattedWorldBallCursor; field: BattedWorldFieldMotion }>
   | Readonly<{ kind: 'acquisition'; field: BattedWorldFieldMotion; acquisition: BattedWorldFieldAcquisition }>
   | Readonly<{ kind: 'throw'; startCursor: BattedWorldBallCursor; field: BattedWorldFieldMotion; throw: BattedWorldFieldThrow }>
   | Readonly<{ kind: 'acquisition_advance'; planSourceId: string; field: BattedWorldFieldMotion; progress: BattedWorldScheduledFieldAcquisitionAdvance }>
@@ -415,12 +415,15 @@ export const deriveCanonicalWholePlayHistory = (raw: CanonicalWholePlayHistoryIn
         checkBoundary(capture.world, capture.baseContacts);
       }
       occurrence(end, ref, capture.kind === 'secured' ? 'acquisition_secured' : 'acquisition_interrupted'); horizon = end;
-    } else if (step.kind === 'motion' || step.kind === 'throw') {
+    } else if (step.kind === 'motion' || step.kind === 'retained_motion_checkpoint_v1' || step.kind === 'throw') {
       if (!fields(step, ['source', 'previousSourceId', 'kind', 'startCursor', 'field', ...(step.kind === 'throw' ? ['throw'] : [])])
         || !cursor || json(step.startCursor) !== json(cursor)) fail('physical step lacks its exact preceding cursor');
       checkCursor(step.startCursor);
-      rebaseActors(step.field.motion.actors, step.field.motion.world.moment);
-      if (step.kind === 'motion') {
+      if (step.kind === 'retained_motion_checkpoint_v1') {
+        if (json(step.field.motion.actors) !== json(actors)) fail('retained motion actor curves differ');
+        actors.forEach((actor) => validateActor(actor, step.field.motion.world.moment));
+      } else rebaseActors(step.field.motion.actors, step.field.motion.world.moment);
+      if (step.kind !== 'throw') {
         if (step.field.motion.world.moment.elapsedSeconds === step.startCursor.moment.elapsedSeconds
           && json(step.field.motion.world.moment) !== json(step.startCursor.moment)) fail('zero-duration motion changed the incoming ball state');
         if (step.field.motion.carrierPlayerId !== carrierPlayerId) fail('motion custody differs');

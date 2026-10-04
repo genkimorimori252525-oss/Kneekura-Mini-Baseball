@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
-import { deriveBattedWorldFieldMotion, type BattedWorldFieldMotion } from '../../core/sim/ball/BattedWorldFieldMotion';
+import { deriveBattedWorldFieldMotionCheckpoint, advanceBattedWorldFieldMotionCheckpoint, deriveBattedWorldFieldMotion, type BattedWorldFieldMotion } from '../../core/sim/ball/BattedWorldFieldMotion';
 import { deriveBattedWorldFieldAcquisition, type BattedWorldFieldAcquisition } from '../../core/sim/ball/BattedWorldFieldAcquisition';
 import { deriveBattedWorldFieldThrow, type BattedWorldFieldThrow } from '../../core/sim/ball/BattedWorldFieldThrow';
 import { prepareBattedWorldScheduledFieldThrow, advanceBattedWorldScheduledFieldThrow, type BattedWorldScheduledFieldThrowPlan, type BattedWorldScheduledFieldThrowAdvance } from '../../core/sim/ball/BattedWorldScheduledFieldThrow';
@@ -28,6 +28,8 @@ type Action = Readonly<{ kind: 'acquisition' }>
   | Readonly<{ kind: 'base_touch_history'; playerId: string; base: BattedWorldBaseId; custodyPolicy?: BattedWorldFieldCustodyPolicy }>
   | Readonly<{ kind: 'first_base_race'; custodyPolicy?: BattedWorldFieldCustodyPolicy }>
   | Readonly<{ kind: 'whole_play_history' }>
+  | Readonly<{ kind: 'motion_checkpoint_v1'; availableAtTick: number; coverageThroughTick: number; checkpointThroughTick: number; commands: AcceptedBattedWorldMotion['commands'] }>
+  | Readonly<{ kind: 'retained_motion_checkpoint_v1'; checkpointThroughTick: number }>
   | Readonly<{ kind: 'motion'; availableAtTick: number; throughTick: number; commands: AcceptedBattedWorldMotion['commands'] }>
   | Readonly<{ kind: 'throw_advance'; planSourceId: string; throughElapsedSeconds: number }>
   | Readonly<{ kind: 'acquisition_advance'; planSourceId: string; throughElapsedSeconds: number }>
@@ -35,7 +37,7 @@ type Action = Readonly<{ kind: 'acquisition' }>
     modelSourceId: string; receiverPlayerId: string }>;
 export type AcceptedBattedWorldFieldExecution = Readonly<{ sourceId: string; sourceVersion: string;
   baseFieldSourceId: string; previousExecutionSourceId: string | null; action: Action }>;
-type Execution = Readonly<{ kind: 'motion'; field: BattedWorldFieldMotion }>
+type Execution = Readonly<{ kind: 'motion' | 'motion_checkpoint_v1' | 'retained_motion_checkpoint_v1'; field: BattedWorldFieldMotion }>
   | Readonly<{ kind: 'whole_play_history'; field: BattedWorldFieldMotion; physicalHistory: ReturnType<typeof wholePlayPhysicalHistoryFromPrefix> }>
   | Readonly<{ kind: 'acquisition'; field: BattedWorldFieldMotion; acquisition: BattedWorldFieldAcquisition }>
   | Readonly<{ kind: 'acquisition_plan'; field: BattedWorldFieldMotion; plan: BattedWorldScheduledFieldAcquisitionPlan;
@@ -89,6 +91,17 @@ const input = (raw: AcceptedBattedWorldFieldExecution, sourceId: string): Accept
       || !Number.isFinite(action.throughElapsedSeconds) || action.throughElapsedSeconds < 0) throw new Error('invalid scheduled field advancement');
     return source;
   }
+  if (action?.kind === 'retained_motion_checkpoint_v1') {
+    if (!fields(action, ['kind', 'checkpointThroughTick']) || !tick(action.checkpointThroughTick)) throw new Error('invalid retained actual field checkpoint');
+    return source;
+  }
+  if (action?.kind === 'motion_checkpoint_v1') {
+    if (!fields(action, ['kind', 'availableAtTick', 'coverageThroughTick', 'checkpointThroughTick', 'commands'])
+      || !tick(action.availableAtTick) || !tick(action.coverageThroughTick) || !tick(action.checkpointThroughTick)) {
+      throw new Error('invalid accepted actual field command checkpoint');
+    }
+    return { ...source, action: { ...action, commands: battedWorldMotionCommandsInput(action.commands) } };
+  }
   if (action?.kind !== 'motion' && action?.kind !== 'throw' && action?.kind !== 'throw_plan'
     || !fields(action, ['kind', 'availableAtTick', 'throughTick', 'commands', ...(action.kind !== 'motion' ? ['modelSourceId', 'receiverPlayerId'] : [])])
     || !tick(action.availableAtTick) || !tick(action.throughTick)
@@ -110,6 +123,7 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
     const prior = previous?.execution, original = prior?.field ?? baseField.field, motion = original.motion;
     const response = battedWorldResponseInput(baseField.response), geometry = baseField.geometry.geometry;
     const physicalPrior = [...prefix].reverse().find((value) => value.execution.kind === 'motion'
+      || value.execution.kind === 'motion_checkpoint_v1' || value.execution.kind === 'retained_motion_checkpoint_v1'
       || value.execution.kind === 'acquisition' || value.execution.kind === 'acquisition_advance'
       || value.execution.kind === 'throw' || value.execution.kind === 'throw_advance')?.execution;
     const planned = [...prefix].reverse().find((value) => value.execution.kind === 'throw_plan');
@@ -212,29 +226,40 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
         cursor = progress.cursor;
       }
       if (!cursor) throw new Error('actual field execution capture or contact remains unresolved');
-      const motionInput = { response, geometry, actors: motion.actors, cursor, carrierPlayerId,
-        availableAtTick: source.action.availableAtTick, throughTick: source.action.throughTick,
-        commands: battedWorldMotionPrimitiveCommands(baseField.response, source.action.commands) };
-      if (source.action.kind === 'motion') execution = { kind: 'motion', field: deriveBattedWorldFieldMotion(motionInput) };
-      else {
-        const action = source.action, world = baseField.response.touch.worldContact, frame = world.flight.physicalPitch.frame;
-        const actor = world.modelActorEvidence.find((value) => value.binding.playerId === carrierPlayerId), model = ownFielding.read(action.modelSourceId);
-        if (!carrierPlayerId || !actor || !model || !frame.batterActor!.defenderBindings.some((binding) => binding.playerId === carrierPlayerId)
-          || !frame.batterActor!.defenderBindings.some((binding) => binding.playerId === action.receiverPlayerId)
-          || model.source.playerId !== carrierPlayerId || model.source.careerId !== actor.binding.careerId
-          || model.source.personLinkSourceId !== actor.binding.personLinkSourceId || json(model.person) !== json(actor.person)
-          || model.source.acceptedAtDay > actor.binding.gameDay) throw new Error('actual field throw Player model or active receiver scope differs');
-        const throwInput = { ...motionInput, carrierPlayerId, receiverPlayerId: action.receiverPlayerId,
-          ratings: model.source.ratings, transferParameters: model.source.transferParameters, throwCalibration: model.source.throwCalibration,
-          seed: { matchSeed: frame.matchSeed, playId: frame.match.playId, streamKey: json(['batted_world_field_throw', source.sourceId, carrierPlayerId]) } };
-        if (action.kind === 'throw_plan') {
-          const plan = prepareBattedWorldScheduledFieldThrow(throwInput);
-          const liveWork = deriveScheduledFieldThrowLiveWork({ physicalPitchSourceId: physicalId(baseField), planSourceId: source.sourceId,
-            executionSourceId: source.sourceId, revision: (previous?.revision ?? 0) + 1, plan, progress: null });
-          execution = { kind: 'throw_plan', field: original, model, plan, liveWork };
-        } else {
-          const result = deriveBattedWorldFieldThrow(throwInput);
-          execution = { kind: 'throw', field: result.field, model, throw: result };
+      const basis = { response, geometry, actors: motion.actors, cursor, carrierPlayerId };
+      if (source.action.kind === 'retained_motion_checkpoint_v1') {
+        execution = { kind: source.action.kind, field: advanceBattedWorldFieldMotionCheckpoint({ ...basis,
+          checkpointThroughTick: source.action.checkpointThroughTick }) };
+      } else if (source.action.kind === 'motion_checkpoint_v1') {
+        execution = { kind: source.action.kind, field: deriveBattedWorldFieldMotionCheckpoint({ ...basis,
+          availableAtTick: source.action.availableAtTick, coverageThroughTick: source.action.coverageThroughTick,
+          checkpointThroughTick: source.action.checkpointThroughTick,
+          commands: battedWorldMotionPrimitiveCommands(baseField.response, source.action.commands) }) };
+      } else {
+        const motionInput = { ...basis,
+          availableAtTick: source.action.availableAtTick, throughTick: source.action.throughTick,
+          commands: battedWorldMotionPrimitiveCommands(baseField.response, source.action.commands) };
+        if (source.action.kind === 'motion') execution = { kind: 'motion', field: deriveBattedWorldFieldMotion(motionInput) };
+        else {
+          const action = source.action, world = baseField.response.touch.worldContact, frame = world.flight.physicalPitch.frame;
+          const actor = world.modelActorEvidence.find((value) => value.binding.playerId === carrierPlayerId), model = ownFielding.read(action.modelSourceId);
+          if (!carrierPlayerId || !actor || !model || !frame.batterActor!.defenderBindings.some((binding) => binding.playerId === carrierPlayerId)
+            || !frame.batterActor!.defenderBindings.some((binding) => binding.playerId === action.receiverPlayerId)
+            || model.source.playerId !== carrierPlayerId || model.source.careerId !== actor.binding.careerId
+            || model.source.personLinkSourceId !== actor.binding.personLinkSourceId || json(model.person) !== json(actor.person)
+            || model.source.acceptedAtDay > actor.binding.gameDay) throw new Error('actual field throw Player model or active receiver scope differs');
+          const throwInput = { ...motionInput, carrierPlayerId, receiverPlayerId: action.receiverPlayerId,
+            ratings: model.source.ratings, transferParameters: model.source.transferParameters, throwCalibration: model.source.throwCalibration,
+            seed: { matchSeed: frame.matchSeed, playId: frame.match.playId, streamKey: json(['batted_world_field_throw', source.sourceId, carrierPlayerId]) } };
+          if (action.kind === 'throw_plan') {
+            const plan = prepareBattedWorldScheduledFieldThrow(throwInput);
+            const liveWork = deriveScheduledFieldThrowLiveWork({ physicalPitchSourceId: physicalId(baseField), planSourceId: source.sourceId,
+              executionSourceId: source.sourceId, revision: (previous?.revision ?? 0) + 1, plan, progress: null });
+            execution = { kind: 'throw_plan', field: original, model, plan, liveWork };
+          } else {
+            const result = deriveBattedWorldFieldThrow(throwInput);
+            execution = { kind: 'throw', field: result.field, model, throw: result };
+          }
         }
       }
     }

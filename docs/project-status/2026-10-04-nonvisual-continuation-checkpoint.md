@@ -1,6 +1,6 @@
 # 非デザイン継続実装: 現在の接続と検証
 
-更新: 2026-10-04 13:09 JST（2026-10-04 04:09 UTC）
+更新: 2026-10-04 13:35 JST（2026-10-04 04:35 UTC）
 
 ユーザーの継続指示に従い、最新の確定済み残計画を進めている。**計画全体・自律試合/Career全体の完了ではない**。デザイン/UI/art/Presentationは未接続のまま。
 
@@ -24,6 +24,7 @@
 | [273](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/273) | [e023ef96](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/e023ef96280389fb1affb1f1db5ba99afb112ce8) | original World/command履歴からPlayer rootと5部位のrelative kinematicsを復元 |
 | [274](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/274) | [afb6ed03](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/afb6ed03e3b53dc4ccc56ef73f66be73fee06724) | Player/Person/fieldingにpinした明示的locomotion calibration |
 | [275](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/275) | [5a7caf77](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/5a7caf7746130ac78fa7da565d98ac2f517a7868) | 判断deadlineと未消費motor/adoption workのread-only Source固有投影 |
+| [276](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/276) | [329a03f4](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/commit/329a03f44fb3dbbc15ae3857d8a41a87da5cbf0d) | actual checkpointと明示command coverageの分離、元のactor曲線を保つretained継続 |
 
 各公開treeはローカルの検証Sourceとfetch/diffで一致を確認した。GitHub上のcommitはmetadataが異なるため、commit IDだけでなく全tree/src treeの同一性を各PRに記録している。いずれもmergeしていない。
 
@@ -60,7 +61,7 @@
 
 [Decision live work](2026-10-04-actual-defensive-decision-live-work.md)は元の判断/初動deadlineを保持し、issued後もmotor/adoptionをpending successorとして残す。Queue coverageは未知であり、全体watermarkやPlayEndを認定しない。独立Sourceの20 testsとreview後、統合Sourceではtypecheck、Core/WAL12件と実Native read/retry/reopen1件を選択実行し通過した（他Native7件はこの統合focusedでは再実行していない）。統合13件、1分30.529秒、全tracked hashes一致。src treeは `e5ec2a4b12a47aad0535d534b5fa6073ef786852`。
 
-次の実装は、owned判断からboundedな1区間のmotor receipt、10人全5部位の指令合成、既存物理ownerによるatomic adoptionへ進める。通常のmotionが「実行checkpoint」と「指令の有効coverage」を同時に終了する境界を、明示的に別々に持つversioned checkpointで接続中。未確認の保存期間延長や部位のzero-fillで代用しない。
+次の実装は、owned判断からboundedな1区間のmotor receipt、10人全5部位の指令合成、既存物理ownerによるatomic adoptionへ進める。通常のmotionが「実行checkpoint」と「指令の有効coverage」を同時に終了する境界は、[versioned checkpoint](2026-10-04-motion-coverage-checkpoints.md)で接続した。独立Sourceの76 testsとreview後、統合Source local `7ea7d5c2bfced9005d29e688582bef818c5bb359` / published `329a03f44fb3dbbc15ae3857d8a41a87da5cbf0d` でtypecheckと4 files / 19 testsが通過し、全tracked hashesが一致した（3分41.374秒）。Full tree `3ef4173caced54189e2c3de6b0208a977cfa614e`、src tree `6960552a83fd5d66b97de529c042670a7fe04b9b`。Actor/selfは元の曲線を保持し、ballは既存real-cursor kernelで進む。これだけで独立motorのdue workやscheduler全体を閉じた意味ではない。未確認の保存期間延長や部位のzero-fillで代用しない。
 
 ## 全体検証の正確な位置
 
@@ -70,6 +71,7 @@
 | #260 local `943d18cb` / published `55cacd18` 同一tree | exit0、623 files / 4,198 tests、85分12.031秒 | Field execution追加時点。tracked hashes一致 |
 | #262 local `43dc03df` / published `83838144` 同一tree | exit0、632 files / 4,326 tests、94分12.209秒 | 修正済みwhole-play historyまで。全1,656 tracked hashes一致 |
 | #266 local `2045573a` / published `8d752788` 同一tree | exit0、648 files / 4,554 tests、94分39.813秒 | Actual observation・scheduled throw・release互換修正まで。全1,692 tracked hashes一致、checkout clean |
+| #269 local `cdd5908e` / published `b2b8ee48` 同一tree | exit0、662 files / 4,807 tests、117分38.678秒 | Scheduled capture・model mirror修正・decision calibrationまで。全1,722 tracked hashes一致、checkout clean |
 
 いずれもtypecheckを含む。#262のfull treeは `c9c1fd2a91c94b43966a77cb4c8b958d70df86e9`、src treeは `3215fe92c34ae51c5deca1bfcff7bacb59b847a6`。Tracked diffは空で、検証checkoutのuntracked itemはruntime dependency用node_modules symlinkのみだった。
 
@@ -77,7 +79,7 @@
 
 #266の累積wholeは2026-10-04 01:21:35 UTCに完了した。独立したlocked dependency directoryを使い、実行中はSourceを変更していない。Full treeは `ea050f719a5ad82227ab245d0d95dee106ecc75f`、src treeは `7dd590be2d9f6edf9f03578baddd2e77e896529a`。#263–266を含むこの累積Sourceの検証であり、過去の各中間commitを別々に再実行した意味ではない。
 
-このgateを閉じて確定残計画のscheduled acquisitionへ進んだ。#269の固定Source local `cdd5908ed034af103719d568049a3064932959f2` / published `b2b8ee480b451e187f526b2be7db2d7d31c8c25a` の累積wholeを2026-10-04 02:29:06 UTCから別の不変checkoutで実行中。Full tree `97a38527f0d62a6ebe8d055547b9632ca8184acd`、src tree `5920b491ad4f2f74784fda398a85da14fe643ed0`。Typecheckは通過したが、この記録時点ではwhole未完了であり、#270以後も含まない。後続変更へ#266の成功を流用せず、各focused/reviewと次の固定Source gateを区別する。最新terminal resultと公開tree情報は該当PR本文にも記録する。
+このgateを閉じて確定残計画のscheduled acquisitionへ進んだ。#269の固定Source local `cdd5908ed034af103719d568049a3064932959f2` / published `b2b8ee480b451e187f526b2be7db2d7d31c8c25a` の累積wholeを2026-10-04 02:29:06 UTCから別の不変checkoutで実行し、04:26:46 UTCにexit0で完了した。Full tree `97a38527f0d62a6ebe8d055547b9632ca8184acd`、src tree `5920b491ad4f2f74784fda398a85da14fe643ed0`。Typecheckと662 files / 4,807 testsが通過し、全1,722 tracked hashesは前後で一致、checkoutはcleanだった。この累積Sourceの成功であり、各中間commitを別々にwhole実行した意味ではなく、#270以後も含まない。後続変更へ#266の成功を流用せず、各focused/reviewと次の固定Source gateを区別する。最新terminal resultと公開tree情報は該当PR本文にも記録する。
 
 ## 残る確定非デザイン接続
 
