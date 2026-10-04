@@ -1,3 +1,6 @@
+import type { BattedWorldPossessionEvidence, BaseTouchCustodyEvidence, PendingFieldPossession } from '../../core/rules/BallWorldFieldFirstBaseRaceWithPossessionEvidence';
+import { validateBattedWorldScheduledFieldAcquisitionPlan, validateBattedWorldScheduledFieldAcquisitionProgress,
+  type BattedWorldScheduledFieldAcquisitionPlan, type BattedWorldScheduledFieldAcquisitionAdvance } from '../../core/sim/ball/BattedWorldScheduledFieldAcquisition';
 import type { BallWorldFieldTerritoryInput } from '../../core/rules/BallWorldFieldTerritory';
 import { deriveBallWorldBattedRuleEvidence, type BallWorldBattedRuleContact, type BallWorldBattedRuleContactFrame } from '../../core/rules/BallWorldBattedRuleEvidence';
 import { respondToGroundContact } from '../../core/sim/ball/BallFlight';
@@ -31,7 +34,7 @@ const normalized = (contact: BallWorldBoundaryContact): BallWorldBattedRuleConta
 
 /** Only the Native owner's complete rederived field/execution prefix is admissible. Observations never execute physical time. */
 export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ field: BallWorldFieldTerritoryInput;
-  segments: readonly BallWorldPlayerBaseContactSegment[]; controlWindows: readonly Control[] }> => {
+  segments: readonly BallWorldPlayerBaseContactSegment[]; controlWindows: readonly Control[]; possessionEvidence?: BattedWorldPossessionEvidence }> => {
   if (input.custodyPolicy !== undefined && input.custodyPolicy !== 'release_exclusive_v1') throw new Error('invalid actual field custody policy');
   const base = input.baseField, world = base.response.touch.worldContact, flight = world.flight;
   const initial = flight.flight.initialBall, originTick = initial.tick, p = flight.source.execution.ballFlightParameters;
@@ -60,6 +63,8 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
   let cursor: BattedWorldBallCursor | null = { moment: horizon, previousContacts: [] }, carrierPlayerId: string | null = null;
   let actors: readonly BallWorldMotionActor[] = world.actors, currentField: BattedWorldFieldMotion = base.field;
   let pendingThrow: { sourceId: string; plan: BattedWorldScheduledFieldThrowPlan; previous: BattedWorldScheduledFieldThrowAdvance | null } | null = null;
+  let pendingAcquisition: { sourceId: string; plan: BattedWorldScheduledFieldAcquisitionPlan; previous: BattedWorldScheduledFieldAcquisitionAdvance | null } | null = null;
+  let hasScheduledAcquisition = false;
   const actorKeys = new Set(actors.map(key));
   if (!actors.length || actorKeys.size !== actors.length || actors.some((actor) => !players.has(actor.playerId))) {
     throw new Error('actual field original actor identity differs');
@@ -94,7 +99,8 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
     actors = next; horizon = end;
   };
   segment(actors, horizon, false);
-  const appendContacts = (at: BallWorldMoment, raw: readonly BallWorldBoundaryContact[], bags: readonly BallWorldBaseBoundaryContact[]) => {
+  const appendContacts = (at: BallWorldMoment, raw: readonly BallWorldBoundaryContact[], bags: readonly BallWorldBaseBoundaryContact[],
+    initialConstraint?: Readonly<{ incoming: BallWorldMoment; constrained: BallWorldMoment }>) => {
     moment(at);
     if (!raw.length || raw.some((contact) => json(contact.moment) !== json(at)
       || contact.kind === 'actor' && !actorKeys.has(json([contact.playerId, contact.role])))) throw new Error('actual field contact state or actor identity differs');
@@ -115,8 +121,13 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
     if (previous && previous.moment.elapsedSeconds > at.elapsedSeconds) throw new Error('actual field contact chronology differs');
     if (previous?.moment.elapsedSeconds === at.elapsedSeconds) {
       const extra = normalizedContacts.filter((contact) => !previous.contacts.some((old) => json(old) === json(contact)));
+      const projectedConstraint = initialConstraint && json(previous.moment) === json(initialConstraint.incoming)
+        && json(at) === json(initialConstraint.constrained);
       if (previous.moment.originTick !== at.originTick || json(previous.moment.ball.position) !== json(at.ball.position)
-        || extra.length && json(previous.moment) !== json(at)) throw new Error('coincident actual field contact states differ');
+        || extra.length && json(previous.moment) !== json(at) && !projectedConstraint) throw new Error('coincident actual field contact states differ');
+      // A validated first scheduled constraint can immediately meet a new
+      // collider without elapsed time. Keep the original incoming rule moment;
+      // its distinct constrained state and every raw contact remain in progress.
       // A response can change velocity/spin without advancing time. Repeated
       // identities retain their first incoming rule moment, never a new impact.
       contacts[contacts.length - 1] = { moment: previous.moment, contacts: [...previous.contacts, ...extra] };
@@ -186,10 +197,44 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
       || value.source.action.kind !== value.execution.kind) throw new Error('actual field execution Source prefix differs');
     sources.add(value.source.sourceId);
     const execution = value.execution;
-    if (execution.kind === 'throw_plan') {
+    if (execution.kind === 'acquisition_plan') {
+      const plan = execution.plan;
+      if (pendingThrow || pendingAcquisition || cursor !== null || carrierPlayerId !== null
+        || currentField.motion.response.kind !== 'capture_candidate' || json(execution.field) !== json(currentField)
+        || json(plan.input.field) !== json(currentField) || json(plan.contactMoment) !== json(horizon)
+        || json(plan.input.field.motion.actors) !== json(actors) || !defenderIds.includes(plan.acquirerPlayerId)) {
+        throw new Error('actual field scheduled capture candidate or physical basis differs');
+      }
+      validateBattedWorldScheduledFieldAcquisitionPlan(plan);
+      hasScheduledAcquisition = true; pendingAcquisition = { sourceId: value.source.sourceId, plan, previous: null };
+    } else if (execution.kind === 'acquisition_advance') {
+      if (!pendingAcquisition || pendingThrow || cursor !== null || carrierPlayerId !== null
+        || execution.planSourceId !== pendingAcquisition.sourceId || json(execution.field) !== json(currentField)
+        || json(execution.field) !== json(pendingAcquisition.plan.input.field) || json(execution.progress.startMoment) !== json(horizon)) {
+        throw new Error('actual field scheduled capture advance original lineage differs');
+      }
+      const progress = execution.progress, previous = pendingAcquisition.previous, checkpoints = progress.checkpointElapsedSeconds;
+      const priorCheckpoints = previous?.checkpointElapsedSeconds ?? [];
+      if (!Array.isArray(checkpoints) || checkpoints.length !== priorCheckpoints.length + 1
+        || json(checkpoints.slice(0, -1)) !== json(priorCheckpoints)) throw new Error('actual field scheduled capture checkpoint lineage differs');
+      validateBattedWorldScheduledFieldAcquisitionProgress(pendingAcquisition.plan, progress);
+      segment(execution.field.motion.actors, progress.world.moment, false);
+      if (progress.kind === 'secured') {
+        acquisitions.push(progress.acquisition);
+        control(progress.acquisition.acquirerPlayerId, progress.acquisition.moment.elapsedSeconds, horizon.elapsedSeconds, true);
+        carrierPlayerId = progress.acquisition.acquirerPlayerId; cursor = progress.cursor; pendingAcquisition = null;
+      } else {
+        if (progress.kind === 'interrupted') {
+          acquisitions.push(progress.acquisition);
+          appendContacts(progress.world.moment, progress.acquisition.world.contacts, progress.baseContacts,
+            previous === null ? { incoming: pendingAcquisition.plan.contactMoment, constrained: pendingAcquisition.plan.initialConstraintMoment } : undefined);
+        }
+        pendingAcquisition = { sourceId: pendingAcquisition.sourceId, plan: pendingAcquisition.plan, previous: progress };
+      }
+    } else if (execution.kind === 'throw_plan') {
       const plan = execution.plan, model = execution.model;
       const actor = world.modelActorEvidence.find((actor) => actor.binding.playerId === carrierPlayerId);
-      if (pendingThrow || !cursor || !carrierPlayerId || !actor || json(execution.field) !== json(currentField)
+      if (pendingThrow || pendingAcquisition || !cursor || !carrierPlayerId || !actor || json(execution.field) !== json(currentField)
         || json(plan.input.cursor) !== json(cursor) || json(plan.input.actors) !== json(actors)
         || plan.input.carrierPlayerId !== carrierPlayerId || !defenderIds.includes(plan.input.receiverPlayerId)
         || model.source.playerId !== carrierPlayerId || model.source.careerId !== actor.binding.careerId
@@ -198,7 +243,7 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
       }
       pendingThrow = { sourceId: value.source.sourceId, plan, previous: null };
     } else if (execution.kind === 'throw_advance') {
-      if (!pendingThrow || !cursor || !carrierPlayerId || execution.planSourceId !== pendingThrow.sourceId
+      if (pendingAcquisition || !pendingThrow || !cursor || !carrierPlayerId || execution.planSourceId !== pendingThrow.sourceId
         || json(execution.progress.startCursor) !== json(cursor) || json(execution.progress.field) !== json(execution.field)
         || json(execution.progress.transfer) !== json(pendingThrow.plan.transfer)
         || execution.progress.planIdentity !== JSON.stringify(pendingThrow.plan)
@@ -228,7 +273,7 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
         pendingThrow = progress.kind === 'transfer' ? { sourceId: pendingThrow.sourceId, plan: pendingThrow.plan, previous: progress } : null;
       }
     } else if (execution.kind === 'acquisition') {
-      if (pendingThrow) throw new Error('actual field pending transfer owns physical work');
+      if (pendingThrow || pendingAcquisition) throw new Error('actual field pending scheduled operation owns physical work');
       const capture = execution.acquisition;
       if (cursor || carrierPlayerId !== null || currentField?.motion.response.kind !== 'capture_candidate'
         || json(execution.field) !== json(currentField) || json(capture.contactMoment) !== json(horizon)) {
@@ -243,7 +288,7 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
         cursor = { moment: end, previousContacts: [{ kind: 'actor', playerId: carrierPlayerId, role: 'glove' }] };
       } else appendContacts(capture.world.moment, capture.world.contacts, capture.baseContacts);
     } else if (execution.kind === 'motion' || execution.kind === 'throw') {
-      if (pendingThrow) throw new Error('actual field pending transfer owns physical work');
+      if (pendingThrow || pendingAcquisition) throw new Error('actual field pending scheduled operation owns physical work');
       if (!cursor) throw new Error('actual field execution lacks a resolved prior cursor');
       const start = horizon.elapsedSeconds, priorCarrier = carrierPlayerId;
       if (execution.kind === 'motion') {
@@ -278,16 +323,27 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
     field: geometry.baseGeometry.field, bases: geometry.baseGeometry.gates, ballRadiusMeters: p.ballRadius,
     originTick, ticksPerSecond: p.ticksPerSecond, horizon, contacts, acquisitions }, baseContacts, groundSegments };
   deriveBallWorldBattedRuleEvidence(field.evidence);
-  return freeze({ field, segments, controlWindows });
+  const pending: PendingFieldPossession[] = pendingAcquisition ? [{ planSourceId: pendingAcquisition.sourceId,
+    playerId: pendingAcquisition.plan.acquirerPlayerId, contactElapsedSeconds: pendingAcquisition.plan.contactMoment.elapsedSeconds,
+    phase: pendingAcquisition.previous?.kind === 'interrupted' ? 'contact_policy_pending' : pendingAcquisition.previous?.kind === 'fence_pending' ? 'fence_pending' : 'capturing',
+    earliestPotentialControlElapsedSeconds: pendingAcquisition.previous?.kind === 'interrupted'
+      ? Math.min(pendingAcquisition.plan.secureElapsedSeconds, pendingAcquisition.previous.world.moment.elapsedSeconds)
+      : pendingAcquisition.plan.secureElapsedSeconds }] : [];
+  return freeze({ field, segments, controlWindows, ...(hasScheduledAcquisition ? { possessionEvidence: {
+    policy: 'scheduled_capture_confirmation_v1' as const, originTick, ticksPerSecond: p.ticksPerSecond,
+    throughElapsedSeconds: horizon.elapsedSeconds, pending } } : {}) });
 };
 
 /** Same canonical segments and custody windows as the field-aware first-base observer. */
 export const battedWorldFieldBaseTouchHistoryFromPrefix = (input: PrefixInput & Readonly<{ playerId: string; base: BaseTouchRegion;
-  baseSurfaceHeightMeters: number }>): Readonly<{ history: BallWorldPlayerBaseContactHistory; controlledContacts: readonly BallWorldControlledBaseContact[] }> => {
+  baseSurfaceHeightMeters: number }>): Readonly<{ history: BallWorldPlayerBaseContactHistory; controlledContacts: readonly BallWorldControlledBaseContact[]; custodyEvidence?: BaseTouchCustodyEvidence }> => {
   const prefix = battedWorldFieldPhysicalPrefix(input);
   const history = deriveBallWorldPlayerBaseContactHistory({ segments: prefix.segments, playerId: input.playerId,
     base: input.base, baseSurfaceHeightMeters: input.baseSurfaceHeightMeters });
   const controlWindows = prefix.controlWindows.filter((value) => value.playerId === input.playerId)
     .map(({ playerId: _, ...value }) => value);
-  return freeze({ history, controlledContacts: findBallWorldControlledBaseContacts({ history, controlWindows }) });
+  const evidence = prefix.possessionEvidence, pending = evidence?.pending.filter((value) => value.playerId === input.playerId);
+  return freeze({ history, controlledContacts: findBallWorldControlledBaseContacts({ history, controlWindows }),
+    ...(evidence ? { custodyEvidence: { status: pending!.length ? 'bounded_unconfirmed' as const : 'confirmed_contacts_only' as const,
+      originTick: evidence.originTick, ticksPerSecond: evidence.ticksPerSecond, throughElapsedSeconds: evidence.throughElapsedSeconds, pending: pending! } } : {}) });
 };

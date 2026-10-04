@@ -5,12 +5,16 @@ import { deriveBattedWorldFieldAcquisition, type BattedWorldFieldAcquisition } f
 import { deriveBattedWorldFieldThrow, type BattedWorldFieldThrow } from '../../core/sim/ball/BattedWorldFieldThrow';
 import { prepareBattedWorldScheduledFieldThrow, advanceBattedWorldScheduledFieldThrow, type BattedWorldScheduledFieldThrowPlan, type BattedWorldScheduledFieldThrowAdvance } from '../../core/sim/ball/BattedWorldScheduledFieldThrow';
 import { deriveScheduledFieldThrowLiveWork } from '../../core/sim/liveAction/ScheduledFieldThrowLiveWork';
+import { prepareBattedWorldScheduledFieldAcquisition, advanceBattedWorldScheduledFieldAcquisition,
+  type BattedWorldScheduledFieldAcquisitionPlan, type BattedWorldScheduledFieldAcquisitionAdvance } from '../../core/sim/ball/BattedWorldScheduledFieldAcquisition';
+import { deriveScheduledFieldAcquisitionLiveWork } from '../../core/sim/liveAction/ScheduledFieldAcquisitionLiveWork';
 import type { BattedWorldBallCursor } from '../../core/sim/ball/BattedWorldContinuation';
 import type { BattedWorldBaseId } from '../../core/sim/ball/BattedWorldBaseGeometry';
 import { deriveBallWorldPlayerBaseContactHistory } from '../../core/sim/ball/BallWorldPlayerBaseContactHistory';
 import { findBallWorldControlledBaseContacts } from '../../core/sim/ball/BallWorldControlledBaseContacts';
 import { createRunnerBaseFactsFromBallWorldHistory, createControlledBaseFactsFromBallWorldContacts } from '../../core/rules/BallWorldBaseContactPhysicalAdapter';
 import { deriveBallWorldFieldFirstBaseRace } from '../../core/rules/BallWorldFieldFirstBaseRace';
+import { deriveBallWorldFieldFirstBaseRaceWithPossessionEvidence } from '../../core/rules/BallWorldFieldFirstBaseRaceWithPossessionEvidence';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { battedWorldResponseInput } from './SqliteBattedWorldContinuationStore';
 import { battedWorldMotionCommandsInput, battedWorldMotionPrimitiveCommands, type AcceptedBattedWorldMotion } from './SqliteBattedWorldMotionStore';
@@ -20,11 +24,13 @@ import { battedWorldFieldPhysicalPrefix, battedWorldFieldBaseTouchHistoryFromPre
 import { wholePlayPhysicalHistoryFromPrefix } from './WholePlayPhysicalHistoryFromPrefix';
 
 type Action = Readonly<{ kind: 'acquisition' }>
+  | Readonly<{ kind: 'acquisition_plan' }>
   | Readonly<{ kind: 'base_touch_history'; playerId: string; base: BattedWorldBaseId; custodyPolicy?: BattedWorldFieldCustodyPolicy }>
   | Readonly<{ kind: 'first_base_race'; custodyPolicy?: BattedWorldFieldCustodyPolicy }>
   | Readonly<{ kind: 'whole_play_history' }>
   | Readonly<{ kind: 'motion'; availableAtTick: number; throughTick: number; commands: AcceptedBattedWorldMotion['commands'] }>
   | Readonly<{ kind: 'throw_advance'; planSourceId: string; throughElapsedSeconds: number }>
+  | Readonly<{ kind: 'acquisition_advance'; planSourceId: string; throughElapsedSeconds: number }>
   | Readonly<{ kind: 'throw' | 'throw_plan'; availableAtTick: number; throughTick: number; commands: AcceptedBattedWorldMotion['commands'];
     modelSourceId: string; receiverPlayerId: string }>;
 export type AcceptedBattedWorldFieldExecution = Readonly<{ sourceId: string; sourceVersion: string;
@@ -32,6 +38,10 @@ export type AcceptedBattedWorldFieldExecution = Readonly<{ sourceId: string; sou
 type Execution = Readonly<{ kind: 'motion'; field: BattedWorldFieldMotion }>
   | Readonly<{ kind: 'whole_play_history'; field: BattedWorldFieldMotion; physicalHistory: ReturnType<typeof wholePlayPhysicalHistoryFromPrefix> }>
   | Readonly<{ kind: 'acquisition'; field: BattedWorldFieldMotion; acquisition: BattedWorldFieldAcquisition }>
+  | Readonly<{ kind: 'acquisition_plan'; field: BattedWorldFieldMotion; plan: BattedWorldScheduledFieldAcquisitionPlan;
+    liveWork: ReturnType<typeof deriveScheduledFieldAcquisitionLiveWork> }>
+  | Readonly<{ kind: 'acquisition_advance'; field: BattedWorldFieldMotion; planSourceId: string;
+    progress: BattedWorldScheduledFieldAcquisitionAdvance; liveWork: ReturnType<typeof deriveScheduledFieldAcquisitionLiveWork> }>
   | Readonly<{ kind: 'throw_plan'; field: BattedWorldFieldMotion; model: DurablePlayerFieldingModel; plan: BattedWorldScheduledFieldThrowPlan; liveWork: ReturnType<typeof deriveScheduledFieldThrowLiveWork> }>
   | Readonly<{ kind: 'throw_advance'; field: BattedWorldFieldMotion; planSourceId: string; progress: BattedWorldScheduledFieldThrowAdvance; liveWork: ReturnType<typeof deriveScheduledFieldThrowLiveWork> }>
   | Readonly<{ kind: 'throw'; field: BattedWorldFieldMotion; model: DurablePlayerFieldingModel; throw: BattedWorldFieldThrow }>
@@ -41,7 +51,8 @@ type Execution = Readonly<{ kind: 'motion'; field: BattedWorldFieldMotion }>
   | (Readonly<{ kind: 'first_base_race'; field: BattedWorldFieldMotion;
     batterFirstBase: ReturnType<typeof battedWorldFieldBaseTouchHistoryFromPrefix>;
     defendersFirstBase: readonly ReturnType<typeof battedWorldFieldBaseTouchHistoryFromPrefix>[] }>
-    & ReturnType<typeof deriveBallWorldFieldFirstBaseRace>);
+    & ReturnType<typeof deriveBallWorldFieldFirstBaseRace>
+    & Partial<Pick<ReturnType<typeof deriveBallWorldFieldFirstBaseRaceWithPossessionEvidence>, 'possessionEvidence' | 'possessionGuard'>>);
 export type DurableBattedWorldFieldExecution = Readonly<{ source: AcceptedBattedWorldFieldExecution; baseField: DurableBattedWorldFieldAction;
   revision: number; history: readonly AcceptedBattedWorldFieldExecution[]; execution: Execution }>;
 export type SqliteBattedWorldFieldExecutionStore = Readonly<{ accept(sourceId: string): DurableBattedWorldFieldExecution;
@@ -63,7 +74,7 @@ const input = (raw: AcceptedBattedWorldFieldExecution, sourceId: string): Accept
     throw new Error('invalid accepted actual field execution Source');
   }
   const action = source.action;
-  if ((action?.kind === 'acquisition' || action?.kind === 'whole_play_history') && fields(action, ['kind'])) return source;
+  if ((action?.kind === 'acquisition' || action?.kind === 'acquisition_plan' || action?.kind === 'whole_play_history') && fields(action, ['kind'])) return source;
   if (action?.kind === 'base_touch_history' || action?.kind === 'first_base_race') {
     const policyFields = 'custodyPolicy' in action ? ['custodyPolicy'] : [];
     if (!fields(action, ['kind', ...(action.kind === 'base_touch_history' ? ['playerId', 'base'] : []), ...policyFields])
@@ -73,9 +84,9 @@ const input = (raw: AcceptedBattedWorldFieldExecution, sourceId: string): Accept
     }
     return source;
   }
-  if (action?.kind === 'throw_advance') {
+  if (action?.kind === 'throw_advance' || action?.kind === 'acquisition_advance') {
     if (!fields(action, ['kind', 'planSourceId', 'throughElapsedSeconds']) || !id(action.planSourceId)
-      || !Number.isFinite(action.throughElapsedSeconds) || action.throughElapsedSeconds < 0) throw new Error('invalid scheduled field throw advancement');
+      || !Number.isFinite(action.throughElapsedSeconds) || action.throughElapsedSeconds < 0) throw new Error('invalid scheduled field advancement');
     return source;
   }
   if (action?.kind !== 'motion' && action?.kind !== 'throw' && action?.kind !== 'throw_plan'
@@ -99,15 +110,33 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
     const prior = previous?.execution, original = prior?.field ?? baseField.field, motion = original.motion;
     const response = battedWorldResponseInput(baseField.response), geometry = baseField.geometry.geometry;
     const physicalPrior = [...prefix].reverse().find((value) => value.execution.kind === 'motion'
-      || value.execution.kind === 'acquisition' || value.execution.kind === 'throw' || value.execution.kind === 'throw_advance')?.execution;
+      || value.execution.kind === 'acquisition' || value.execution.kind === 'acquisition_advance'
+      || value.execution.kind === 'throw' || value.execution.kind === 'throw_advance')?.execution;
     const planned = [...prefix].reverse().find((value) => value.execution.kind === 'throw_plan');
     const lastAdvance = planned && [...prefix].reverse().find((value) => value.execution.kind === 'throw_advance'
       && value.execution.planSourceId === planned.source.sourceId);
     const pending = planned && (!lastAdvance || lastAdvance.execution.kind === 'throw_advance' && lastAdvance.execution.progress.kind === 'transfer');
+    const capturePlan = [...prefix].reverse().find((value) => value.execution.kind === 'acquisition_plan');
+    const captureAdvance = capturePlan && [...prefix].reverse().find((value) => value.execution.kind === 'acquisition_advance'
+      && value.execution.planSourceId === capturePlan.source.sourceId);
+    const pendingCapture = capturePlan && (!captureAdvance || captureAdvance.execution.kind === 'acquisition_advance'
+      && (captureAdvance.execution.progress.kind === 'capturing' || captureAdvance.execution.progress.kind === 'fence_pending'));
     const observation = ['whole_play_history', 'base_touch_history', 'first_base_race'].includes(source.action.kind);
     if (pending && source.action.kind !== 'throw_advance' && !observation) throw new Error('scheduled field transfer owns pending physical execution');
+    if (pendingCapture && source.action.kind !== 'acquisition_advance' && !observation) throw new Error('scheduled field acquisition owns pending physical execution');
     let execution: Execution;
-    if (source.action.kind === 'throw_advance') {
+    if (source.action.kind === 'acquisition_advance') {
+      if (!pendingCapture || !capturePlan || capturePlan.execution.kind !== 'acquisition_plan'
+        || capturePlan.source.sourceId !== source.action.planSourceId) throw new Error('scheduled field acquisition plan is missing, superseded or terminal');
+      const progress = advanceBattedWorldScheduledFieldAcquisition({ plan: capturePlan.execution.plan,
+        previous: captureAdvance?.execution.kind === 'acquisition_advance' ? captureAdvance.execution.progress : null,
+        throughElapsedSeconds: source.action.throughElapsedSeconds });
+      const liveWork = deriveScheduledFieldAcquisitionLiveWork({ physicalPitchSourceId: physicalId(baseField), planSourceId: capturePlan.source.sourceId,
+        executionSourceId: source.sourceId, revision: (previous?.revision ?? 0) + 1, plan: capturePlan.execution.plan, progress });
+      // The field is the original candidate basis. Actual time/state belongs to
+      // progress; its confirmed cursor is at the fence, not the earlier secure evidence.
+      execution = { kind: 'acquisition_advance', field: capturePlan.execution.field, planSourceId: capturePlan.source.sourceId, progress, liveWork };
+    } else if (source.action.kind === 'throw_advance') {
       if (!pending || !planned || planned.execution.kind !== 'throw_plan' || planned.source.sourceId !== source.action.planSourceId) {
         throw new Error('scheduled field throw plan is missing, superseded or terminal');
       }
@@ -117,9 +146,20 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
       const liveWork = deriveScheduledFieldThrowLiveWork({ physicalPitchSourceId: physicalId(baseField), planSourceId: planned.source.sourceId,
         executionSourceId: source.sourceId, revision: (previous?.revision ?? 0) + 1, plan: planned.execution.plan, progress });
       execution = { kind: 'throw_advance', field: progress.field, planSourceId: planned.source.sourceId, progress, liveWork };
-    } else if (source.action.kind === 'acquisition') {
-      if (physicalPrior?.kind === 'acquisition') throw new Error('actual field acquisition is already resolved');
-      execution = { kind: 'acquisition', field: original, acquisition: deriveBattedWorldFieldAcquisition({ response, geometry, field: original }) };
+    } else if (source.action.kind === 'acquisition' || source.action.kind === 'acquisition_plan') {
+      if (physicalPrior?.kind === 'acquisition' || physicalPrior?.kind === 'acquisition_advance') throw new Error('actual field acquisition is already resolved');
+      if (source.action.kind === 'acquisition') {
+        execution = { kind: 'acquisition', field: original, acquisition: deriveBattedWorldFieldAcquisition({ response, geometry, field: original }) };
+      } else {
+        const plan = prepareBattedWorldScheduledFieldAcquisition({ response, geometry, field: original });
+        const frame = baseField.response.touch.worldContact.flight.physicalPitch.frame;
+        if (!frame.batterActor!.defenderBindings.some((binding) => binding.playerId === plan.acquirerPlayerId)) {
+          throw new Error('scheduled field acquisition requires an original active defender');
+        }
+        const liveWork = deriveScheduledFieldAcquisitionLiveWork({ physicalPitchSourceId: physicalId(baseField), planSourceId: source.sourceId,
+          executionSourceId: source.sourceId, revision: (previous?.revision ?? 0) + 1, plan, progress: null });
+        execution = { kind: 'acquisition_plan', field: original, plan, liveWork };
+      }
     } else if (source.action.kind === 'whole_play_history') {
       execution = { kind: 'whole_play_history', field: original, physicalHistory: wholePlayPhysicalHistoryFromPrefix({ baseField,
         fields: ownFields.scope(baseField, baseField.source.sourceId), executions: prefix }) };
@@ -150,9 +190,12 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
         };
         const batterFirstBase = historyFor(batter.binding.playerId), defendersFirstBase = batter.defenderBindings.map((binding) => historyFor(binding.playerId));
         const ball = physical.field.evidence;
-        const result = deriveBallWorldFieldFirstBaseRace({ field: physical.field, race: { outsAtStart: world.flight.physicalPitch.frame.match.outs,
+        const raceInput = { field: physical.field, race: { outsAtStart: world.flight.physicalPitch.frame.match.outs,
           batterRunnerId: ball.batterRunnerId, defenderIds: ball.defenderIds, originTick: ball.originTick, ticksPerSecond: ball.ticksPerSecond,
-          horizonElapsedSeconds: ball.horizon.elapsedSeconds, runnerHistory: batterFirstBase.history, defenders: defendersFirstBase } });
+          horizonElapsedSeconds: ball.horizon.elapsedSeconds, runnerHistory: batterFirstBase.history, defenders: defendersFirstBase } };
+        const result = physical.possessionEvidence
+          ? deriveBallWorldFieldFirstBaseRaceWithPossessionEvidence({ ...raceInput, possessionEvidence: physical.possessionEvidence })
+          : deriveBallWorldFieldFirstBaseRace(raceInput);
         execution = { kind: 'first_base_race', field: original, ...result, batterFirstBase, defendersFirstBase };
       }
     } else {
@@ -162,6 +205,11 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
         if (acquired.kind !== 'secured') throw new Error('actual field acquisition remains unresolved');
         carrierPlayerId = acquired.acquirerPlayerId;
         cursor = { moment: acquired.moment, previousContacts: [{ kind: 'actor', playerId: carrierPlayerId, role: 'glove' }] };
+      } else if (physicalPrior?.kind === 'acquisition_advance') {
+        const progress = physicalPrior.progress;
+        if (progress.kind !== 'secured') throw new Error('actual scheduled field acquisition remains unresolved');
+        carrierPlayerId = progress.acquisition.acquirerPlayerId;
+        cursor = progress.cursor;
       }
       if (!cursor) throw new Error('actual field execution capture or contact remains unresolved');
       const motionInput = { response, geometry, actors: motion.actors, cursor, carrierPlayerId,

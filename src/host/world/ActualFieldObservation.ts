@@ -1,4 +1,6 @@
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
+import type { BallWorldMoment } from '../../core/sim/ball/BallWorldContinuation';
+import type { CanonicalWholePlayHistory } from '../../core/sim/plateAppearance/CanonicalWholePlayHistory';
 import type { Vec3 } from '../../core/model/geometry';
 import { SeedRoot } from '../../core/rng/SeedRoot';
 import { isObservationRefreshDue, type ObservationSample } from '../../core/sim/perception/Observation';
@@ -56,6 +58,14 @@ export const actualFieldObservationInput = (raw: AcceptedActualFieldObservation,
     throw new Error('invalid actual observation attention target');
   }
   return freeze(s);
+};
+
+/** Sampleable executed constraint truth is not an adopted continuation or custody. */
+export const actualBattedWorldObservationMoment = (history: CanonicalWholePlayHistory): BallWorldMoment | null => {
+  if (history.cursor) return history.cursor.moment;
+  const latest = history.physicalSteps.at(-1);
+  return latest?.kind === 'acquisition_advance' && (latest.progress.kind === 'capturing' || latest.progress.kind === 'fence_pending')
+    ? latest.progress.world.moment : null;
 };
 
 type Prefix = Parameters<typeof wholePlayPhysicalHistoryFromPrefix>[0];
@@ -128,10 +138,11 @@ export const sampleActualFieldObservation = (source: AcceptedActualFieldObservat
   };
   let ball = previous?.receipt.samples.ball ?? null;
   const target: ActualObservationTarget = { kind: 'ball' };
-  if (!history.cursor) results.push({ target, status: 'physical_state_unavailable' });
+  const ballMoment = actualBattedWorldObservationMoment(history);
+  if (!ballMoment) results.push({ target, status: 'physical_state_unavailable' });
   else if (!due(target, ball?.sample.observedAt ?? null)) results.push({ target, status: 'refresh_not_due' });
   else {
-    const result = capture(target, history.cursor.moment.ball), sample = result.sample as ObservationSample<SpatialMotionEstimate> | null;
+    const result = capture(target, ballMoment.ball), sample = result.sample as ObservationSample<SpatialMotionEstimate> | null;
     results.push({ target, status: result.status });
     if (sample) ball = { at, sample };
   }
