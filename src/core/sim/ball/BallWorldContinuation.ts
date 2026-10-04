@@ -1,12 +1,12 @@
 import { cloneInert } from '../../adjudication/OfficialWindowPolicy';
 import type { Vec3 } from '../../model/geometry';
 import type { BattedBallInitialState } from '../contact/BatBallContact';
-import { findAcceleratedSphereContactSeconds, findAcceleratedSphereBlockedDepartureSeconds, type AcceleratedSphereContactState } from '../collision/AcceleratedSphereContact';
+import { findAcceleratedSphereContactSeconds, findAcceleratedSphereBlockedDepartureSeconds, findPiecewiseAcceleratedSphereContactSeconds, findPiecewiseAcceleratedSphereBlockedDepartureSeconds, type AcceleratedSphereContactState } from '../collision/AcceleratedSphereContact';
 import { quantizeEventTick } from '../ExactEventTime';
 import type { DefenderPhysicalPrimitiveRole } from '../fielding/DefenderPhysicalPrimitive';
 import type { BallFlightParameters } from './BallFlight';
 import type { BattedWorldActorPrimitive, BattedWorldSurface } from './BattedBallWorldContacts';
-import { findBallWorldBaseBoundary, type BallWorldBaseBoundaryContact, type BallWorldBaseBoundaryInput } from './BallWorldBaseBoundary';
+import { findBallWorldBaseBoundary, findPiecewiseBallWorldBaseBoundary, type BallWorldBaseBoundaryContact, type BallWorldBaseBoundaryInput } from './BallWorldBaseBoundary';
 
 export type BallWorldMoment = Readonly<{ originTick: number; elapsedSeconds: number; ball: BattedBallInitialState }>;
 export type BallWorldCollider = Readonly<{ kind: 'actor'; playerId: string; role: DefenderPhysicalPrimitiveRole }>
@@ -105,7 +105,9 @@ const closestPoint = (s: BattedWorldSurface, p: Vec3): Vec3 => {
 
 /** Partition at closest-feature changes, so an invalid first face root cannot hide a later edge/corner contact. */
 const surfaceTime = (ball: AcceleratedSphereContactState, s: BattedWorldSurface, seconds: number, previous: boolean,
-  exactFieldFace = false): Readonly<{ time: number; blocked: boolean }> | null => {
+  exactFieldFace = false, piecewise = false): Readonly<{ time: number; blocked: boolean }> | null => {
+  const contactSeconds = piecewise ? findPiecewiseAcceleratedSphereContactSeconds : findAcceleratedSphereContactSeconds;
+  const blockedSeconds = piecewise ? findPiecewiseAcceleratedSphereBlockedDepartureSeconds : findAcceleratedSphereBlockedDepartureSeconds;
   const f = frame(s), u0 = (ball.center.x - s.start.x) * f.ux + (ball.center.z - s.start.z) * f.uz;
   const uv = ball.velocity.x * f.ux + ball.velocity.z * f.uz, ua = ball.acceleration.x * f.ux + ball.acceleration.z * f.uz;
   if (![u0, uv, ua].every(finite)) throw new Error('ball World surface projection arithmetic overflow');
@@ -127,7 +129,7 @@ const surfaceTime = (ball: AcceleratedSphereContactState, s: BattedWorldSurface,
       velocity: { x: movingU ? f.ux * (uv + ua * start) : 0, y: movingY ? actual.motion.y : 0, z: movingU ? f.uz * (uv + ua * start) : 0 },
       acceleration: { x: movingU ? f.ux * ua : 0, y: movingY ? ball.acceleration.y : 0, z: movingU ? f.uz * ua : 0 } };
     const movingBall = { ...ball, center: actual.point, velocity: actual.motion, radius: ball.radius / 2 };
-    const blocked = departed ? null : findAcceleratedSphereBlockedDepartureSeconds(movingBall, feature, end - start);
+    const blocked = departed ? null : blockedSeconds(movingBall, feature, end - start);
     if (blocked !== null) return { time: start + blocked, blocked: true };
     // A face has one signed normal coordinate. Use that same root representation
     // as a bag face on the additive field path, preserving the legacy solver.
@@ -137,7 +139,7 @@ const surfaceTime = (ball: AcceleratedSphereContactState, s: BattedWorldSurface,
       acceleration: { x: f.uz * ball.acceleration.x - f.ux * ball.acceleration.z, y: 0, z: 0 } },
       { ...feature, center: { x: 0, y: 0, z: 0 }, velocity: { x: 0, y: 0, z: 0 }, acceleration: { x: 0, y: 0, z: 0 } },
       end - start, !departed) : undefined;
-    const at = signed === undefined ? findAcceleratedSphereContactSeconds(movingBall,
+    const at = signed === undefined ? contactSeconds(movingBall,
       feature, end - start, departed ? 'include' : 'after_departure') : signed;
     if (at !== null) return { time: start + at, blocked: false };
     const point = sample(ball.center, ball.velocity, ball.acceleration, end).point;
@@ -148,7 +150,10 @@ const surfaceTime = (ball: AcceleratedSphereContactState, s: BattedWorldSurface,
 
 /** One actual causal segment; a horizon or a resting ball is never a baseball result or play-end fact. */
 const deriveWorldSegment = (raw: BallWorldContinuationInput,
-  constrained?: Readonly<{ acceleration: Vec3; throughElapsedSeconds: number }>, bases?: BaseScope): BallWorldFieldContinuation => {
+  constrained?: Readonly<{ acceleration: Vec3; throughElapsedSeconds: number }>, bases?: BaseScope, jointPlayerId?: string): BallWorldFieldContinuation => {
+  const contactSeconds = jointPlayerId === undefined ? findAcceleratedSphereContactSeconds : findPiecewiseAcceleratedSphereContactSeconds;
+  const blockedSeconds = jointPlayerId === undefined ? findAcceleratedSphereBlockedDepartureSeconds : findPiecewiseAcceleratedSphereBlockedDepartureSeconds;
+  const baseBoundary = jointPlayerId === undefined ? findBallWorldBaseBoundary : findPiecewiseBallWorldBaseBoundary;
   const input = cloneInert(raw), { moment, parameters: p } = input, initial = moment?.ball;
   if (!moment || !initial || !p || !tick(moment.originTick) || !finite(moment.elapsedSeconds) || moment.elapsedSeconds < 0
     || !tick(initial.tick) || !tick(input.throughTick) || input.throughTick < initial.tick || !vector(initial.position)
@@ -205,7 +210,7 @@ const deriveWorldSegment = (raw: BallWorldContinuationInput,
   const contacts: BallWorldFieldBoundaryContact[] = [];
   const blockedContacts = new Set<BallWorldFieldBoundaryContact>();
   if (bases) {
-    const boundary = findBallWorldBaseBoundary({ moment, acceleration, throughElapsedSeconds: moment.elapsedSeconds + horizon,
+    const boundary = baseBoundary({ moment, acceleration, throughElapsedSeconds: moment.elapsedSeconds + horizon,
       ticksPerSecond: p.ticksPerSecond, ballRadius: p.ballRadius, ...bases });
     for (const contact of boundary?.contacts ?? []) { contacts.push(contact); if (contact.continuing) blockedContacts.add(contact); }
   }
@@ -213,13 +218,15 @@ const deriveWorldSegment = (raw: BallWorldContinuationInput,
   if (stop !== null) contacts.push({ kind: 'rolling_stop', moment: atMoment(stop) });
   const sphere: AcceleratedSphereContactState = { tick: moment.originTick, center: initial.position, velocity: initial.velocity, acceleration, radius: p.ballRadius };
   for (const a of input.actors) {
+    // Only the separately validated piecewise joint is not a competing collider.
+    if (a.playerId === jointPlayerId && a.primitive.role === 'glove') continue;
     const s = a.primitive, dt = (moment.originTick - s.startTick) / p.ticksPerSecond + moment.elapsedSeconds - (a.startElapsedSeconds ?? 0);
     const start = sample(s.startCenter, s.startVelocity, s.acceleration, dt);
     const previous = prior.has(colliderKey({ kind: 'actor', playerId: a.playerId, role: s.role }));
     const other = { tick: moment.originTick, center: start.point, velocity: start.motion, acceleration: s.acceleration, radius: s.radius };
-    const blocked = previous ? findAcceleratedSphereBlockedDepartureSeconds(sphere, other, horizon) : null;
+    const blocked = previous ? blockedSeconds(sphere, other, horizon) : null;
     const axial = bases && blocked === null ? axialSphereTime(sphere, other, horizon, previous) : undefined;
-    const time = blocked ?? (axial === undefined ? findAcceleratedSphereContactSeconds(sphere, other, horizon, previous ? 'after_departure' : 'include') : axial);
+    const time = blocked ?? (axial === undefined ? contactSeconds(sphere, other, horizon, previous ? 'after_departure' : 'include') : axial);
     if (time === null) continue;
     const state = sample(start.point, start.motion, s.acceleration, time), at = atMoment(time);
     const contact: BallWorldBoundaryContact = { kind: 'actor', playerId: a.playerId, role: s.role, moment: at, center: state.point, velocity: state.motion,
@@ -227,7 +234,7 @@ const deriveWorldSegment = (raw: BallWorldContinuationInput,
     contacts.push(contact); if (blocked !== null) blockedContacts.add(contact);
   }
   for (const s of input.surfaces) {
-    const event = surfaceTime(sphere, s, horizon, prior.has(colliderKey({ kind: 'surface', surfaceId: s.surfaceId })), bases !== undefined);
+    const event = surfaceTime(sphere, s, horizon, prior.has(colliderKey({ kind: 'surface', surfaceId: s.surfaceId })), bases !== undefined, jointPlayerId !== undefined);
     if (event === null) continue;
     const at = atMoment(event.time), point = closestPoint(s, at.ball.position);
     const contact: BallWorldBoundaryContact = { kind: 'surface', surfaceId: s.surfaceId, moment: at, point, normal: normal(at.ball.position, point),
@@ -241,7 +248,7 @@ const deriveWorldSegment = (raw: BallWorldContinuationInput,
   const selected = contacts.filter((c) => bases ? c.moment.elapsedSeconds === earliestTime : c.moment.ball.tick === earliestTick);
   const earliest = selected.reduce((a, b) => a.elapsedSeconds <= b.moment.elapsedSeconds ? a : b.moment, selected[0].moment);
   if (bases) {
-    const previous = findBallWorldBaseBoundary({ moment: earliest, acceleration, throughElapsedSeconds: earliest.elapsedSeconds,
+    const previous = baseBoundary({ moment: earliest, acceleration, throughElapsedSeconds: earliest.elapsedSeconds,
       ticksPerSecond: p.ticksPerSecond, ballRadius: p.ballRadius, ...bases });
     for (const contact of previous?.contacts ?? []) {
       if (!contact.continuing || selected.some((c) => c.kind === 'base' && c.baseId === contact.baseId)) continue;
@@ -258,7 +265,10 @@ const deriveWorldSegment = (raw: BallWorldContinuationInput,
       const actor = input.actors.find((a) => a.playerId === c.playerId && a.primitive.role === c.role)!, s = actor.primitive;
       const state = sample(s.startCenter, s.startVelocity, s.acceleration,
         (moment.originTick - s.startTick) / p.ticksPerSecond + earliest.elapsedSeconds - (actor.startElapsedSeconds ?? 0));
-      if (distance(state.point, earliest.ball.position) <= p.ballRadius + s.radius) selected.push({ kind: 'actor', playerId: c.playerId,
+      // A validated piecewise joint remains a real companion even when independent
+      // polynomial samples round its measured separation outward. Do not snap either sample.
+      if (c.playerId === jointPlayerId && c.role === 'glove'
+        || distance(state.point, earliest.ball.position) <= p.ballRadius + s.radius) selected.push({ kind: 'actor', playerId: c.playerId,
         role: c.role, moment: earliest, center: state.point, velocity: state.motion, normal: normal(earliest.ball.position, state.point), continuing: true });
     }
   }
@@ -302,6 +312,38 @@ export const deriveAcceleratedBallWorldFieldMotion = (raw: AcceleratedBallWorldF
   const throughTick = quantizeEventTick(input.moment.originTick, input.throughElapsedSeconds, input.parameters.ticksPerSecond);
   const result = deriveWorldSegment({ ...input, throughTick }, { acceleration: input.acceleration, throughElapsedSeconds: input.throughElapsedSeconds },
     { bases: input.bases, previousBaseContacts: input.previousBaseContacts });
+  if (result.kind === 'boundary') return freeze({ kind: 'boundary', moment: result.moment, contacts: result.contacts,
+    ...(result.pendingReason ? { pendingReason: result.pendingReason } : {}) });
+  return freeze({ kind: 'moving', moment: result.moment, throughTick: result.throughTick });
+};
+
+/** Additive piecewise-only joint query. The glove remains in actor validation and
+ * companion contact evidence; only its independently competing collision is omitted. */
+export const deriveGloveConstrainedBallWorldFieldMotion = (raw: AcceleratedBallWorldFieldMotionInput & Readonly<{
+  constraint: Readonly<{ playerId: string; contactOffset: Vec3 }>;
+}>): AcceleratedBallWorldFieldMotion => {
+  const scope = cloneInert(raw), { constraint, ...rest } = scope;
+  const input = fieldScope(rest, true), moment = input.moment, p = input.parameters;
+  if (!constraint || Object.keys(constraint).sort().join('|') !== 'contactOffset|playerId'
+    || !id(constraint.playerId) || !vector(constraint.contactOffset) || !moment || !p) throw new Error('invalid piecewise glove constraint');
+  const actor = input.actors.find((a) => a.playerId === constraint.playerId && a.primitive.role === 'glove');
+  if (!actor) throw new Error('piecewise constrained glove is missing');
+  const s = actor.primitive, dt = (moment.originTick - s.startTick) / p.ticksPerSecond + moment.elapsedSeconds - (actor.startElapsedSeconds ?? 0);
+  const state = sample(s.startCenter, s.startVelocity, s.acceleration, dt);
+  const same = (a: Vec3, b: Vec3) => vector(a) && vector(b) && (['x', 'y', 'z'] as const).every((axis) =>
+    Math.abs(a[axis] - b[axis]) <= Number.EPSILON * Math.max(1, Math.abs(a[axis]), Math.abs(b[axis])) * 32);
+  const position = { x: state.point.x + constraint.contactOffset.x, y: state.point.y + constraint.contactOffset.y,
+    z: state.point.z + constraint.contactOffset.z };
+  const radius = p.ballRadius + s.radius;
+  if (!same(moment.ball.position, position) || !same(moment.ball.velocity, state.motion) || (['x', 'y', 'z'] as const).some((axis) => input.acceleration[axis] !== s.acceleration[axis])
+    || !Number.isFinite(radius) || Math.hypot(...Object.values(constraint.contactOffset)) > radius
+      + Number.EPSILON * Math.max(1, radius, ...Object.values(state.point).map(Math.abs)) * 32
+    || !input.previousContacts.some((c) => c.kind === 'actor' && c.playerId === constraint.playerId && c.role === 'glove')) {
+    throw new Error('piecewise glove constraint differs from actual joint');
+  }
+  const throughTick = quantizeEventTick(moment.originTick, input.throughElapsedSeconds, p.ticksPerSecond);
+  const result = deriveWorldSegment({ ...input, throughTick }, { acceleration: input.acceleration, throughElapsedSeconds: input.throughElapsedSeconds },
+    { bases: input.bases, previousBaseContacts: input.previousBaseContacts }, constraint.playerId);
   if (result.kind === 'boundary') return freeze({ kind: 'boundary', moment: result.moment, contacts: result.contacts,
     ...(result.pendingReason ? { pendingReason: result.pendingReason } : {}) });
   return freeze({ kind: 'moving', moment: result.moment, throughTick: result.throughTick });

@@ -204,3 +204,23 @@ const checkpointEndpoint = (field: BattedWorldFieldMotion, input: BattedWorldFie
   const cursor = { ...motion.cursor, moment };
   return freeze({ ...field, motion: { ...motion, world: { ...motion.world, moment }, cursor, response: { ...motion.response, cursor } } } as BattedWorldFieldMotion);
 };
+
+export type BattedWorldFieldMotionAdoptionInput = Omit<BattedWorldFieldMotionCheckpointInput, 'checkpointThroughTick'>;
+/** Additive zero-time adoption at an exact integer cut. Native proves a newly selected motor. */
+export const deriveBattedWorldFieldMotionAdoption = (raw: BattedWorldFieldMotionAdoptionInput): BattedWorldFieldMotion => {
+  const input = cloneInert(raw);
+  if (!fields(input, ['response', 'geometry', 'cursor', 'actors', 'carrierPlayerId', 'availableAtTick', 'coverageThroughTick', 'commands'])) {
+    throw new Error('invalid zero-time actual field adoption scope');
+  }
+  const moment = input.cursor?.moment, p = input.response?.world?.parameters;
+  if (!moment || !p || moment.originTick !== input.response.world.flight.initialBall.tick || (moment.ball.tick - moment.originTick) / p.ticksPerSecond !== moment.elapsedSeconds) {
+    throw new Error('zero-time adoption requires an exact integer current cut');
+  }
+  checkpointScope({ ...input, checkpointThroughTick: input.coverageThroughTick });
+  if (input.actors.some((actor) => !input.response.world.actors.some((original) => original.playerId === actor.playerId
+    && original.primitive.role === actor.primitive.role && original.primitive.radius === actor.primitive.radius))) {
+    throw new Error('zero-time adoption original actor radius differs');
+  }
+  const actors = deriveBattedWorldMotionActorsAtExactCoverage({ ...input, throughTick: input.coverageThroughTick });
+  return executeFieldMotion({ ...input, throughTick: moment.ball.tick }, actors);
+};

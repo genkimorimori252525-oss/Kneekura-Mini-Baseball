@@ -522,3 +522,154 @@ export const findAcceleratedSphereBlockedDepartureSeconds = (
   }
   return null;
 };
+
+/** The piecewise contract uses immutable physical coefficients. Requested stops
+ * only filter roots; they must not change the coefficients or isolation brackets. */
+const piecewiseSpherePolynomial = (first: AcceleratedSphereContactState, second: AcceleratedSphereContactState, duration: number) => {
+  validateState(first, 'first'); validateState(second, 'second');
+  if (first.tick !== second.tick || !Number.isFinite(duration) || duration < 0) throw new Error('invalid piecewise sphere interval');
+  const position = subtract(first.center, second.center), velocity = subtract(first.velocity, second.velocity);
+  const acceleration = subtract(first.acceleration, second.acceleration), radius = first.radius + second.radius;
+  const coefficients = [magnitudeSquared(position) - radius * radius, 2 * dot(position, velocity),
+    magnitudeSquared(velocity) + dot(position, acceleration), dot(velocity, acceleration), 0.25 * magnitudeSquared(acceleration)];
+  if (![radius, ...coefficients].every(Number.isFinite)) throw new Error('piecewise sphere geometry arithmetic overflow');
+  const tangentSeparation = (seconds: number) => {
+    const squares = (['x', 'y', 'z'] as const).map((axis) => {
+      const coordinate = position[axis] + velocity[axis] * seconds + 0.5 * acceleration[axis] * seconds * seconds;
+      return coordinate * coordinate;
+    }).sort((a, b) => b - a);
+    const value = (squares[0] - radius * radius) + squares[1] + squares[2];
+    const roundoff = [radius * radius, ...squares].reduce((sum, term) => sum + 8 * Number.EPSILON * term, 0);
+    if (![value, roundoff].every(Number.isFinite)) throw new Error('piecewise sphere sample arithmetic overflow');
+    return { value, roundoff };
+  };
+  return { coefficients, tangentSeparation };
+};
+const scaleBinary = (value: number, exponent: number): number => {
+  const original = value, originalExponent = exponent;
+  while (exponent > 512) { value *= 2 ** 512; exponent -= 512; }
+  while (exponent < -512) { value *= 2 ** -512; exponent += 512; }
+  value *= 2 ** exponent;
+  if (!Number.isFinite(value) || original !== 0 && value === 0) throw new Error('unsupported piecewise polynomial coefficient precision');
+  let restored = value; exponent = -originalExponent;
+  while (exponent > 512) { restored *= 2 ** 512; exponent -= 512; }
+  while (exponent < -512) { restored *= 2 ** -512; exponent += 512; }
+  restored *= 2 ** exponent;
+  if (restored !== original) throw new Error('unsupported piecewise polynomial coefficient precision');
+  return value;
+};
+
+type PiecewiseDyadic = Readonly<{ significand: bigint; exponent: number }>;
+const piecewiseDyadic = (value: number): PiecewiseDyadic => {
+  if (value === 0) return { significand: 0n, exponent: 0 };
+  const view = new DataView(new ArrayBuffer(8)); view.setFloat64(0, value);
+  const high = view.getUint32(0), low = view.getUint32(4), exponent = (high >>> 20) & 0x7ff;
+  const fraction = (BigInt(high & 0xfffff) << 32n) | BigInt(low);
+  const significand = (exponent === 0 ? fraction : (1n << 52n) | fraction) * (high >>> 31 ? -1n : 1n);
+  return { significand, exponent: exponent === 0 ? -1074 : exponent - 1075 };
+};
+/** Exact sign of the finite IEEE coefficient polynomial at a finite IEEE time.
+ * Root isolation only needs signs. The existing roundoff bound selects a more
+ * precise calculation; it never admits contact, snaps time, or changes tolerance. */
+const piecewisePolynomialEvaluator = (coefficients: readonly number[]) => {
+  let exact: readonly PiecewiseDyadic[] | null = null;
+  return (time: number): number => {
+    const value = continuousPolynomialValue(coefficients, time);
+    const magnitude = coefficients.reduceRight((sum, coefficient) => sum * Math.abs(time) + Math.abs(coefficient), 0);
+    if (Math.abs(value) > 8 * Number.EPSILON * magnitude) return value;
+    exact ??= coefficients.map(piecewiseDyadic);
+    const at = piecewiseDyadic(time);
+    let result: PiecewiseDyadic = { significand: 0n, exponent: 0 };
+    for (let i = exact.length - 1; i >= 0; i--) {
+      const product = { significand: result.significand * at.significand, exponent: result.exponent + at.exponent }, term = exact[i];
+      if (product.significand === 0n) result = term;
+      else if (term.significand === 0n) result = product;
+      else {
+        const exponent = Math.min(product.exponent, term.exponent);
+        result = { significand: (product.significand << BigInt(product.exponent - exponent)) + (term.significand << BigInt(term.exponent - exponent)), exponent };
+      }
+    }
+    return result.significand < 0n ? -1 : result.significand > 0n ? 1 : 0;
+  };
+};
+
+/** Canonical dyadic intervals, based only on the polynomial. Factoring its first
+ * nonzero power gives q(0)!=0. Below min_i(|q0/qi|^(1/i))/(2*(degree+1)),
+ * the sum of all other terms is strictly smaller than |q0|, so no positive root
+ * is lost before the first interval. Doubling uses fixed exact binary scales.
+ * The final algebraic interval can straddle the requested stop; no physical
+ * sample is taken there unless its candidate is inside that stop. */
+function* piecewisePolynomialIntervals(coefficients: readonly number[], duration: number) {
+  const first = coefficients.findIndex((value) => value !== 0);
+  const last = coefficients.map((value) => value !== 0).lastIndexOf(true);
+  if (first < 0 || first === last || duration === 0) return;
+  let characteristicLog = Infinity;
+  for (let i = first + 1; i <= last; i++) if (coefficients[i] !== 0) {
+    characteristicLog = Math.min(characteristicLog, (Math.log2(Math.abs(coefficients[first])) - Math.log2(Math.abs(coefficients[i]))) / (i - first));
+  }
+  let exponent = Math.floor(characteristicLog - Math.log2(last - first + 1)) - 1;
+  if (exponent > Math.log2(duration)) return; // The proven root-free lower bound is already after the requested stop.
+  if (exponent < -1074 || exponent > 1023) throw new Error('unsupported piecewise polynomial time precision');
+  let initial = true;
+  while (true) {
+    const scale = 2 ** exponent;
+    const normalization = Math.floor(Math.max(...coefficients.map((value, i) => value === 0 ? -Infinity : Math.log2(Math.abs(value)) + i * exponent)));
+    const normalized = coefficients.map((value, i) => scaleBinary(value, i * exponent - normalization));
+    const derivative = normalized.slice(1).map((value, i) => value * (i + 1));
+    const start = initial ? 0 : 0.5;
+    const stationary = continuousPolynomialRoots(derivative, start, 1).filter((time) => time > start && time < 1);
+    const boundaries = [...new Set([start, ...stationary, 1])].sort((a, b) => a - b);
+    yield { scale, boundaries, evaluate: piecewisePolynomialEvaluator(normalized),
+      stationaryAt: (time: number) => continuousPolynomialIsZero(derivative, time),
+      curvature: (time: number) => ((12 * normalized[4] * time + 6 * normalized[3]) * time + 2 * normalized[2]) };
+    if (scale >= duration) return;
+    exponent++; initial = false;
+    if (exponent > 1023) throw new Error('piecewise polynomial interval overflow');
+  }
+}
+
+/** New piecewise-only root convention; all archived continuous APIs above remain unchanged. */
+export const findPiecewiseAcceleratedSphereContactSeconds = (first: AcceleratedSphereContactState, second: AcceleratedSphereContactState,
+  duration: number, initialContact: 'include' | 'after_departure'): number | null => {
+  if (!['include', 'after_departure'].includes(initialContact)) throw new Error('invalid piecewise sphere contact policy');
+  const p = piecewiseSpherePolynomial(first, second, duration), c0 = p.coefficients[0];
+  if (initialContact === 'include' && c0 <= 0) return 0;
+  if (p.coefficients.every((value) => value >= 0) || p.coefficients.every((value) => value <= 0)) return null;
+  let departed = c0 > 0;
+  for (const interval of piecewisePolynomialIntervals(p.coefficients, duration)) {
+    const { boundaries, scale, evaluate } = interval;
+    for (let i = 0; i + 1 < boundaries.length; i++) {
+      const left = boundaries[i], right = boundaries[i + 1], rightSeconds = right * scale;
+      const leftValue = evaluate(left), rightValue = evaluate(right);
+      if (leftValue > 0) departed = true;
+      if (departed && rightSeconds <= duration && interval.stationaryAt(right) && interval.curvature(right) > 0) {
+        const separation = p.tangentSeparation(rightSeconds);
+        if (separation.value >= 0 && separation.value <= separation.roundoff) return rightSeconds;
+      }
+      if (departed && leftValue > 0 && rightValue <= 0) {
+        const candidate = continuousBisect(evaluate, left, right, true) * scale;
+        return candidate <= duration ? candidate : null;
+      }
+      if (rightSeconds >= duration) return null;
+      if (rightValue > 0) departed = true;
+    }
+  }
+  return null;
+};
+export const findPiecewiseAcceleratedSphereBlockedDepartureSeconds = (first: AcceleratedSphereContactState,
+  second: AcceleratedSphereContactState, duration: number): number | null => {
+  const p = piecewiseSpherePolynomial(first, second, duration);
+  if (p.coefficients[0] > 0 || duration === 0) return null;
+  const firstMotion = p.coefficients.slice(1).find((value) => value !== 0);
+  if (firstMotion === undefined) return null;
+  if (firstMotion < 0) return 0;
+  for (const interval of piecewisePolynomialIntervals(p.coefficients, duration)) {
+    for (const time of interval.boundaries.slice(1)) {
+      const seconds = time * interval.scale;
+      if (seconds > duration) return null;
+      if (interval.evaluate(time) > 0) return null;
+      if (interval.curvature(time) < 0 && interval.stationaryAt(time)) return seconds;
+    }
+  }
+  return null;
+};
