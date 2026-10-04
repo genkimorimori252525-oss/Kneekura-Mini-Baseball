@@ -142,3 +142,9 @@ Piecewise capture/transfer中の独立motor採用、owner-qualified archive mani
 最新確認した正本はfoundation `44b9f5de7b9d87e649f12f1af78c202f2b5ab44d` とrealism `4f0a60a3818926327b6bf5877ab3dec456a76530`。元の[確定済み残計画・prior PR記録](2026-10-04-nonvisual-implementation-checkpoint.md)を継承する。古いDRAFTファイル名だけでstatusを巻き戻さず、archived Pixel/JSON案や未接続designを再開しない。
 
 自宅/self-hosted CIをdispatchせず、workflow/config/lock/公開範囲を変更しない。実行済みのcloud-local検証と、未実行の現在commit CIを分けて記録する。
+
+## 2026-10-04 12:36 UTC: event consumer and exact-query connection
+
+Draft #282 connects original source-local capture/throw events and first-base rule consumption. Corrected fixed-source Native verification passed 7 files / 10 tests with terminal exit0 and unchanged hashes; independent review also passed 127 Core/API/metadata tests. Main integration passed typecheck and 9 files / 90 focused tests. This keeps unconsumed custody/rule-result successors explicit; it does not prove a complete queue, operative call or PlayEnd. Scheduled-motion v2 compatibility remains in separate fixed-source integration.
+
+The exact free/accelerated retained field query now accepts an exact elapsed endpoint while preserving all real collider sets and continuous actor coverage. Review exposed two floating-point interval failures: retimed outside-horizon base roots and clipped local-duration add/subtract round trips. Both were reproduced and corrected without changing legacy exports or tolerance. The final worker source passed 54 Core files / 827 tests; independent review passed 58 files / 853 tests and all three original-source archive hashes. This is a Core query/actual-retained-checkpoint seam only. Native scheduling, foot/base generation, complete producer/consumer proof and the durable end fence remain to be connected.
