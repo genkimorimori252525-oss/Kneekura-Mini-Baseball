@@ -1,3 +1,4 @@
+import { assertNoActualRoleWorkloadCharge } from './ActualRoleWorkloadChargeGuard';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -103,6 +104,8 @@ evidenceGuard?: SqliteEvidenceGuard<OfficialPitchWorkloadRequest>): SqliteOffici
       || pitcher.playedPlayId !== application.match.playId
       || json(pitcher.activatedMatchState) !== json(application.match)
       || pitcher.durableRevision !== application.expectedDurableRevision + 1) throw new Error('actual pitcher play scope differs');
+    assertNoActualRoleWorkloadCharge(db, { careerId: pitcher.binding.careerId, gameId: application.matchId,
+      playId: pitcher.playedPlayId, playerId: pitcher.binding.playerId });
     const workload = assessOfficialPhysicalPitchWorkload(timeline,
       effortPolicy(policy), pitcher.binding.gameDay);
     // Native readers on another connection cannot see this transaction's trigger changes.
@@ -198,6 +201,8 @@ evidenceGuard?: SqliteEvidenceGuard<OfficialPitchWorkloadRequest>): SqliteOffici
             || (getPolicy.get(policy.sourceId) as PolicyRow).source_json !== json(policy)) throw new Error('physical pitch workload was frozen differently');
           db.exec('COMMIT'); return existing;
         }
+        assertNoActualRoleWorkloadCharge(db, { careerId: projected.activity.careerId, gameId: projected.gameId,
+          playId: projected.playId, playerId: projected.activity.playerId });
         const saved = getPolicy.get(policy.sourceId) as PolicyRow | undefined;
         const version = db.prepare('SELECT policy_json FROM official_pitch_workload_policies WHERE policy_id=? AND version=? LIMIT 1')
           .get(policy.policyId, policy.version) as { policy_json: string } | undefined;

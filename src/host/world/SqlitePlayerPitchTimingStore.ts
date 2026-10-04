@@ -95,6 +95,7 @@ export const openSqlitePlayerPitchTimingStore = (
   const Database = (createRequire(import.meta.url)('node:sqlite') as
     typeof import('node:sqlite')).DatabaseSync;
   const db = new Database(databasePath);
+  try {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_pitch_timing_baselines (
     source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL,
@@ -377,4 +378,5 @@ export const openSqlitePlayerPitchTimingStore = (
     },
     close(): void { if (!closed) { db.close(); closed = true; } },
   });
+  } catch (error) { db.close(); throw error; }
 };

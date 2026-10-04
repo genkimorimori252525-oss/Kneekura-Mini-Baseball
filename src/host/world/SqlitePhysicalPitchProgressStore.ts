@@ -68,6 +68,7 @@ export const openSqlitePhysicalPitchProgressStore = (databasePath: string, sourc
     || authority != null && typeof authority.readAcceptedAction !== 'function') throw new Error('invalid physical pitch progress sources');
   const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
   const db = new DatabaseSync(databasePath);
+  try {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS physical_pitch_progress_heads (
     game_id TEXT NOT NULL, play_id INTEGER NOT NULL, revision INTEGER NOT NULL, last_source_id TEXT NOT NULL, PRIMARY KEY(game_id, play_id)
@@ -204,4 +205,5 @@ export const openSqlitePhysicalPitchProgressStore = (databasePath: string, sourc
     },
     close() { if (!closed) { db.close(); closed = true; } },
   });
+  } catch (error) { db.close(); throw error; }
 };

@@ -1,3 +1,5 @@
+import type { ActualLiveReadinessReference } from './ActualLivePlayReadiness';
+import { readActualLivePhysicalActivation, assertActualLivePhysicalActivationCurrent } from './ActualLivePhysicalActivation';
 import { createHash } from 'node:crypto';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -16,7 +18,8 @@ export type AcceptedPhysicalPlateAppearanceActor = Readonly<{
 export type DurablePhysicalPlateAppearanceActor = Readonly<{
   source: AcceptedPhysicalPlateAppearanceActor; binding: OfficialParticipantBinding; person: ReturnType<typeof readOfficialActorPersonLink>;
   match: CanonicalMatchState; world: CanonicalWorldSnapshot; officialRevision: number;
-  origin: Readonly<{ initialWorldHash: string | null; applicationHash: string | null; scoringHash: string | null }>;
+  origin: Readonly<{ initialWorldHash: string | null; applicationHash: string | null; scoringHash: string | null;
+    actualLiveReadiness?: ActualLiveReadinessReference }>;
   fixtureHash: string; defenderBindings: readonly OfficialParticipantBinding[];
   defenderPersons: readonly ReturnType<typeof readOfficialActorPersonLink>[];
   worldFixture: Readonly<{ careerId: string; competitionEditionId: string;
@@ -48,6 +51,7 @@ const readBinding = (db: ActorDb, gameId: string, playerId: string): OfficialPar
 export const derivePhysicalPlateAppearanceActor = (db: ActorDb, source: AcceptedPhysicalPlateAppearanceActor): DurablePhysicalPlateAppearanceActor => {
   let match: CanonicalMatchState, world: CanonicalWorldSnapshot, officialRevision: number;
   let initialWorldHash: string | null = null, applicationHash: string | null = null, scoringHash: string | null = null;
+  let actualLiveReadiness: ActualLiveReadinessReference | undefined;
   if ('initialWorldSourceId' in source) {
     const row = db.prepare('SELECT * FROM official_initial_world_sources WHERE source_id=?').get(source.initialWorldSourceId) as { snapshot_json: string } | undefined;
     const initial = row ? JSON.parse(row.snapshot_json) as DurableInitialOfficialWorld : null;
@@ -55,33 +59,39 @@ export const derivePhysicalPlateAppearanceActor = (db: ActorDb, source: Accepted
     assertInitialOfficialWorldEvidence(db, initial, true);
     match = initial.match; world = initial.world; officialRevision = 0; initialWorldHash = actorHash(row);
   } else {
-    const row = db.prepare('SELECT * FROM applications WHERE application_id=? AND match_id=?').get(source.activationApplicationId, source.gameId) as {
-      application_id: string; match_id: string; closure_id: string; request_hash: string; result_json: string;
-    } | undefined;
-    const score = db.prepare('SELECT * FROM official_scoring_applications WHERE official_application_id=?').get(source.activationApplicationId) as {
-      scoring_application_id: string; official_application_id: string; match_id: string; closure_id: string; source_event_id: string;
-      request_json: string; result_json: string;
-    } | undefined;
-    const saved = score ? JSON.parse(score.request_json) as { input: PersistOfficialScoringInput; evidence: OfficialFairBallScoringEvidence | null } : null;
-    const input = saved?.input.officialApplication;
-    if (!row || !score || !input || 'game' in input || score.match_id !== source.gameId || input.matchId !== source.gameId
-      || input.applicationId !== source.activationApplicationId || actorJson(saved) !== score.request_json) throw new Error('physical batter actual activation Source is missing');
-    const result = deriveOfficialPlayResult(input as PersistOfficialPlayInput, input.expectedDurableRevision + 1);
-    if (row.result_json !== actorJson(result) || row.request_hash !== actorHash(input) || row.closure_id !== result.receipt.closureId) throw new Error('physical batter activation evidence differs');
-    const classified = classifyClosedPlayForOfficialScoring(input.kind === 'non_live'
-      ? { kind: input.kind, match: input.match, timeline: input.timeline, adjudication: input.adjudication, context: input.context }
-      : { kind: input.kind, match: input.match, timeline: input.physicalTimeline, adjudication: input.adjudication,
-        ...(saved!.evidence ? { scoringEvidence: saved!.evidence } : {}) });
-    if (classified.kind !== 'supported') throw new Error('physical batter prior scoring is unsupported');
-    const sourceEventId = input.kind === 'non_live' ? `official-non-live:${input.applicationId}`
-      : 'sourceEventId' in saved!.input ? saved!.input.sourceEventId! : `official-foul-out:${input.applicationId}`;
-    const expected: PersistedOfficialScoring = { scoringApplicationId: saved!.input.scoringApplicationId, matchId: input.matchId,
-      officialApplicationId: input.applicationId, closureId: result.receipt.closureId, sourceEventId, record: classified.record };
-    if (score.scoring_application_id !== expected.scoringApplicationId || score.official_application_id !== expected.officialApplicationId
-      || score.closure_id !== expected.closureId || score.source_event_id !== expected.sourceEventId
-      || score.result_json !== actorJson(expected)) throw new Error('physical batter prior scoring archive differs');
-    match = result.activation.nextMatchState; world = result.nextWorld; officialRevision = result.receipt.durableRevision;
-    applicationHash = actorHash(row); scoringHash = actorHash(score);
+    const actual = readActualLivePhysicalActivation(db, source.gameId, source.activationApplicationId);
+    if (actual) {
+      match = actual.match; world = actual.world; officialRevision = actual.officialRevision; applicationHash = actual.applicationHash;
+      actualLiveReadiness = actual.readinessReference;
+    } else {
+      const row = db.prepare('SELECT * FROM applications WHERE application_id=? AND match_id=?').get(source.activationApplicationId, source.gameId) as {
+        application_id: string; match_id: string; closure_id: string; request_hash: string; result_json: string;
+      } | undefined;
+      const score = db.prepare('SELECT * FROM official_scoring_applications WHERE official_application_id=?').get(source.activationApplicationId) as {
+        scoring_application_id: string; official_application_id: string; match_id: string; closure_id: string; source_event_id: string;
+        request_json: string; result_json: string;
+      } | undefined;
+      const saved = score ? JSON.parse(score.request_json) as { input: PersistOfficialScoringInput; evidence: OfficialFairBallScoringEvidence | null } : null;
+      const input = saved?.input.officialApplication;
+      if (!row || !score || !input || 'game' in input || score.match_id !== source.gameId || input.matchId !== source.gameId
+        || input.applicationId !== source.activationApplicationId || actorJson(saved) !== score.request_json) throw new Error('physical batter actual activation Source is missing');
+      const result = deriveOfficialPlayResult(input as PersistOfficialPlayInput, input.expectedDurableRevision + 1);
+      if (row.result_json !== actorJson(result) || row.request_hash !== actorHash(input) || row.closure_id !== result.receipt.closureId) throw new Error('physical batter activation evidence differs');
+      const classified = classifyClosedPlayForOfficialScoring(input.kind === 'non_live'
+        ? { kind: input.kind, match: input.match, timeline: input.timeline, adjudication: input.adjudication, context: input.context }
+        : { kind: input.kind, match: input.match, timeline: input.physicalTimeline, adjudication: input.adjudication,
+          ...(saved!.evidence ? { scoringEvidence: saved!.evidence } : {}) });
+      if (classified.kind !== 'supported') throw new Error('physical batter prior scoring is unsupported');
+      const sourceEventId = input.kind === 'non_live' ? `official-non-live:${input.applicationId}`
+        : 'sourceEventId' in saved!.input ? saved!.input.sourceEventId! : `official-foul-out:${input.applicationId}`;
+      const expected: PersistedOfficialScoring = { scoringApplicationId: saved!.input.scoringApplicationId, matchId: input.matchId,
+        officialApplicationId: input.applicationId, closureId: result.receipt.closureId, sourceEventId, record: classified.record };
+      if (score.scoring_application_id !== expected.scoringApplicationId || score.official_application_id !== expected.officialApplicationId
+        || score.closure_id !== expected.closureId || score.source_event_id !== expected.sourceEventId
+        || score.result_json !== actorJson(expected)) throw new Error('physical batter prior scoring archive differs');
+      match = result.activation.nextMatchState; world = result.nextWorld; officialRevision = result.receipt.durableRevision;
+      applicationHash = actorHash(row); scoringHash = actorHash(score);
+    }
   }
   const binding = readBinding(db, source.gameId, source.playerId), battingSide = match.half === 'top' ? 'AWAY' : 'HOME';
   const fixture = db.prepare('SELECT * FROM official_fixtures WHERE game_id=?').get(source.gameId) as { fixture_event_id: string } | undefined;
@@ -101,10 +111,11 @@ export const derivePhysicalPlateAppearanceActor = (db: ActorDb, source: Accepted
       || d.competitionEditionId !== binding.competitionEditionId || d.fixtureEventId !== binding.fixtureEventId || d.personId === binding.personId)
     || binding.fixtureEventId !== fixture.fixture_event_id) throw new Error('physical batter actor scope differs');
   return actorFreeze({ source, binding, person: readOfficialActorPersonLink(db, binding), match, world, officialRevision,
-    origin: { initialWorldHash, applicationHash, scoringHash }, fixtureHash: actorHash(fixture), defenderBindings,
+    origin: { initialWorldHash, applicationHash, scoringHash, ...(actualLiveReadiness ? { actualLiveReadiness } : {}) }, fixtureHash: actorHash(fixture), defenderBindings,
     defenderPersons: defenderBindings.map((d) => readOfficialActorPersonLink(db, d)), worldFixture });
 };
 export const assertPhysicalActorOpenFrame = (db: ActorDb, actor: DurablePhysicalPlateAppearanceActor): void => {
+  if (actor.origin.actualLiveReadiness) assertActualLivePhysicalActivationCurrent(db, actor.origin.actualLiveReadiness);
   const row = db.prepare('SELECT durable_revision,state_json,activation_json FROM matches WHERE match_id=?').get(actor.source.gameId) as {
     durable_revision: number; state_json: string; activation_json: string | null;
   } | undefined;

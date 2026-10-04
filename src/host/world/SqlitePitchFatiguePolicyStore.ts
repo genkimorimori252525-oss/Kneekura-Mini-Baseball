@@ -28,6 +28,7 @@ export const openSqlitePitchFatiguePolicyStore = (databasePath: string,
   if (!id(databasePath) || authority != null && typeof authority.readAcceptedPolicy !== 'function') throw new Error('invalid pitch fatigue policy authority');
   const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
   const db = new DatabaseSync(databasePath);
+  try {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_pitch_fatigue_policies (
     source_id TEXT PRIMARY KEY, source_version TEXT NOT NULL, policy_id TEXT NOT NULL, version TEXT NOT NULL,
@@ -75,4 +76,5 @@ export const openSqlitePitchFatiguePolicyStore = (databasePath: string,
     },
     close() { if (!closed) { db.close(); closed = true; } },
   });
+  } catch (error) { db.close(); throw error; }
 };

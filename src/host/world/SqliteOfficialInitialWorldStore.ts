@@ -109,6 +109,7 @@ export const openSqliteOfficialInitialWorldStore = (databasePath: string, source
   }
   const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
   const db = new DatabaseSync(databasePath);
+  try {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS official_initial_world_sources (
     source_id TEXT PRIMARY KEY, game_id TEXT NOT NULL UNIQUE, source_json TEXT NOT NULL, snapshot_json TEXT NOT NULL,
@@ -207,4 +208,5 @@ export const openSqliteOfficialInitialWorldStore = (databasePath: string, source
     },
     close() { if (!closed) { db.close(); closed = true; } },
   });
+  } catch (error) { db.close(); throw error; }
 };
