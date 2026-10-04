@@ -1,3 +1,5 @@
+import { derivePrePitchRunnerExecution, type DurablePrePitchRunnerExecution } from './PrePitchRunnerEvidenceFromSqlite';
+import type { AcceptedPrePitchRunnerExecution } from './PrePitchRunnerExecution';
 import { beginActualLivePlayWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createHash } from 'node:crypto';
 import { capturePhysicalPitchEvidence, physicalPitchActionInput as actionInput, assertPhysicalPitchOriginalEvidence,
@@ -25,6 +27,7 @@ type ActionRequest = Omit<ContinuousPlayerPitchRequest, 'timeline' | 'delivery' 
 }>;
 export type AcceptedPhysicalPitchActionSource = Readonly<{
   sourceId: string; sourceVersion: string; gameId: string; request: ActionRequest; effortPolicy: AcceptedPhysicalPitchEffortPolicy;
+  prePitchRunner?: AcceptedPrePitchRunnerExecution;
 }> & (Readonly<{ initialWorldSourceId: string }> | Readonly<{ activationApplicationId: string }>);
 type Runtime = Parameters<typeof resolveContinuousPlayerPitchAgainstBatterFromWorld>[0];
 type Sources = Readonly<{
@@ -37,6 +40,7 @@ type Frame = Readonly<{
   activationApplicationId: string | null; matchSeed: number; outingId: string; moundReference: ActionRequest['delivery']['moundReference'];
   bindings: readonly OfficialParticipantBinding[]; initialWorld: DurableInitialOfficialWorld | null;
   batterActor?: DurablePhysicalPlateAppearanceActor;
+  prePitchRunner?: DurablePrePitchRunnerExecution;
   workload: PlayerWorkloadRecoveryState; timing: PitchTimingProfile; release: PlayerReleaseGeometrySnapshot;
   policy: AcceptedPitchFatiguePolicy; effortPolicy: AcceptedPhysicalPitchEffortPolicy; immutableEvidence: Record<string, readonly string[]>;
 }>;
@@ -52,7 +56,7 @@ export type SqlitePhysicalPitchProgressStore = Readonly<{
 }>;
 type Row = { source_id: string; game_id: string; play_id: number; progress_revision: number; source_json: string;
   source_hash: string; snapshot_json: string; snapshot_hash: string };
-type EvidenceScope = Pick<Frame, 'gameId' | 'workload' | 'bindings' | 'activationApplicationId' | 'batterActor'> & Readonly<{
+type EvidenceScope = Pick<Frame, 'gameId' | 'workload' | 'bindings' | 'activationApplicationId' | 'batterActor' | 'prePitchRunner'> & Readonly<{
   policy: Pick<AcceptedPitchFatiguePolicy, 'sourceId'>;
 }>;
 const id = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value === value.trim();
@@ -136,7 +140,9 @@ export const openSqlitePhysicalPitchProgressStore = (databasePath: string, sourc
     const evidenceScope = { gameId: source.gameId, bindings, workload: JSON.parse(beforeHead.state_json) as PlayerWorkloadRecoveryState,
       policy: { sourceId: source.request.policySourceId }, activationApplicationId: 'activationApplicationId' in source ? source.activationApplicationId : null,
       ...(batterActor ? { batterActor } : {}) };
-    const beforeReads = evidence(evidenceScope, true);
+    if (source.prePitchRunner && !batterActor) throw new Error('pre-pitch runner requires the original accepted physical actor');
+    const prePitchRunner = source.prePitchRunner ? derivePrePitchRunnerExecution(db, source.prePitchRunner, batterActor!) : undefined;
+    const beforeReads = evidence({ ...evidenceScope, ...(prePitchRunner ? { prePitchRunner } : {}) }, true);
     const workload = cloneInert(sources.runtime.workload.selectAtRevision(delivery.careerId, delivery.playerId, source.request.workloadRevision));
     const policy = cloneInert(sources.runtime.policies.readAcceptedPolicy(source.request.policySourceId));
     if (!policy) throw new Error('accepted pitch response policy is missing');
@@ -145,7 +151,7 @@ export const openSqlitePhysicalPitchProgressStore = (databasePath: string, sourc
       matchSeed: delivery.matchSeed, outingId: delivery.outingId, moundReference: delivery.moundReference, bindings, initialWorld, workload,
       timing: cloneInert(sources.runtime.timing.selectProfileAtDay(delivery.careerId, delivery.playerId, delivery.gameDay)),
       release: cloneInert(sources.runtime.release.selectAtDay(delivery.careerId, delivery.playerId, delivery.gameDay)), policy, effortPolicy: source.effortPolicy,
-      ...(batterActor ? { batterActor } : {}) };
+      ...(batterActor ? { batterActor } : {}), ...(prePitchRunner ? { prePitchRunner } : {}) };
     openFrame(frame);
     if (json(evidence(frame, true)) !== json(beforeReads)) throw new Error('physical pitch Source evidence changed during frame reads');
     return freeze({ ...frame, immutableEvidence: evidence(frame) });
@@ -166,7 +172,7 @@ export const openSqlitePhysicalPitchProgressStore = (databasePath: string, sourc
       const frame = previous[0]?.frame ?? fresh;
       if (previous.length !== expectedProgressRevision || json(fresh.match) !== json(frame.match) || fresh.officialRevision !== frame.officialRevision
         || json(fresh.workload) !== json(frame.workload) || json(fresh.timing) !== json(frame.timing) || json(fresh.release) !== json(frame.release)
-        || json(fresh.policy) !== json(frame.policy)) throw new Error('physical pitch progress revision or original execution frame differs');
+        || json(fresh.policy) !== json(frame.policy) || json(fresh.prePitchRunner ?? null) !== json(frame.prePitchRunner ?? null)) throw new Error('physical pitch progress revision or original execution frame differs');
       const head = db.prepare('SELECT revision FROM world_player_workload_heads WHERE career_id=? AND player_id=?')
         .get(frame.workload.careerId, frame.workload.playerId) as { revision: number } | undefined;
       if (!head || head.revision !== frame.workload.revision) throw new Error('physical pitch workload advanced during open play');

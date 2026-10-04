@@ -26,7 +26,7 @@ export const battedWorldContactFixture = (path?: string, alignFieldWithInitialBa
       .some((b) => b.playerId === a.playerId)).map((actor) => ({ playerId: actor.playerId,
       bodyAcceleration: { x: 0, y: 0, z: 0 }, primitiveMotions: actor.primitives.map((p) => ({ role: p.role,
         offsetVelocity: { x: 0, y: 0, z: 0 }, offsetAcceleration: { x: 0, y: 0, z: 0 } })) })) };
-  const models = new Map([[model.sourceId, model]]), sources = new Map([[source.sourceId, source]]);
+  const models = new Map([[model.sourceId, model]]), sources = new Map<string, AcceptedBattedWorldContact>([[source.sourceId, source]]);
   const authority = { readAcceptedModel: (id: string) => models.get(id) ?? null, readAcceptedContact: (id: string) => sources.get(id) ?? null };
   const contacts = f.track(openSqliteBattedWorldContactStore(f.path, flights, authority));
   return { ...base, input, flight, model, source, models, sources, authority, contacts };

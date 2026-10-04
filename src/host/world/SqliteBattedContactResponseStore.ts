@@ -1,3 +1,4 @@
+import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -78,6 +79,7 @@ export const battedContactResponseEvidenceFromSqlite = (
     const touch = own.read(s.firstFielderTouchSourceId);
     if (!touch) throw new Error('original first-fielder touch Source is missing');
     const w = touch.worldContact, original = w.model, p = w.flight.source.execution.ballFlightParameters;
+    assertSupportedBattedWorldConsumer(w, 'contact_response');
     if (m.gameId !== original.gameId || m.careerId !== original.careerId || m.fixtureEventId !== original.fixtureEventId
       || m.venueId !== original.venueId || m.availableAtDay > w.flight.physicalPitch.frame.batterActor!.binding.gameDay
       || m.actors.length !== original.actors.length || m.actors.some((a) => !original.actors.some((b) => a.playerId === b.playerId && a.personId === b.personId))

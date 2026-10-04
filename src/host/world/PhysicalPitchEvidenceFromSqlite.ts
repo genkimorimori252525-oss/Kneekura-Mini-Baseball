@@ -1,3 +1,5 @@
+import { derivePrePitchRunnerExecution } from './PrePitchRunnerEvidenceFromSqlite';
+import { prePitchRunnerExecutionInput } from './PrePitchRunnerExecution';
 import { createHash } from 'node:crypto';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -16,7 +18,7 @@ const id = (value: unknown): value is string => typeof value === 'string' && val
 const integer = (value: unknown): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
 const fields = (value: object, names: readonly string[]) => Object.keys(value).sort().join('|') === names.slice().sort().join('|');
 const freeze = <T>(value: T): T => { if (value !== null && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
-type EvidenceScope = Pick<DurablePhysicalPitch['frame'], 'gameId' | 'workload' | 'bindings' | 'activationApplicationId' | 'batterActor'> & Readonly<{
+type EvidenceScope = Pick<DurablePhysicalPitch['frame'], 'gameId' | 'workload' | 'bindings' | 'activationApplicationId' | 'batterActor' | 'prePitchRunner'> & Readonly<{
   policy: Pick<DurablePhysicalPitch['frame']['policy'], 'sourceId'>;
 }>;
 const json = (value: unknown): string => JSON.stringify(cloneInert(value), (_key, item: unknown) => item !== null && typeof item === 'object' && !Array.isArray(item)
@@ -62,6 +64,15 @@ export const capturePhysicalPitchEvidence = (db: Pick<DatabaseSync, 'prepare'>,
       || actor.binding.careerId !== frame.workload.careerId || json(actor.defenderBindings) !== json(frame.bindings)) throw new Error('physical batter original evidence differs');
     result.batterActor = db.prepare('SELECT * FROM physical_plate_appearance_actors WHERE source_id=?').all(actor.source.sourceId).map(hash);
   }
+  if (frame.prePitchRunner) {
+    if (!frame.batterActor || json(derivePrePitchRunnerExecution(db, frame.prePitchRunner.source, frame.batterActor)) !== json(frame.prePitchRunner)) {
+      throw new Error('pre-pitch runner original execution evidence differs');
+    }
+    const binding = frame.prePitchRunner.binding;
+    result.prePitchRunner = [hash(frame.prePitchRunner),
+      ...db.prepare('SELECT * FROM official_participant_bindings WHERE game_id=? AND player_id=?').all(binding.gameId, binding.playerId).map(hash),
+      ...db.prepare('SELECT * FROM world_player_person_links WHERE source_id=?').all(binding.personLinkSourceId).map(hash)];
+  }
   if (mutable) {
     result.match = db.prepare('SELECT * FROM matches WHERE match_id=?').all(frame.gameId).map(hash);
     for (const table of ['world_pitch_timing_heads', 'world_player_release_heads', 'world_player_workload_heads']) {
@@ -73,7 +84,7 @@ export const capturePhysicalPitchEvidence = (db: Pick<DatabaseSync, 'prepare'>,
 
 export const physicalPitchActionInput = (raw: AcceptedPhysicalPitchActionSource, sourceId: string): AcceptedPhysicalPitchActionSource => {
   const source = cloneInert(raw), initial = source && 'initialWorldSourceId' in source;
-  if (!source || !fields(source, ['sourceId', 'sourceVersion', 'gameId', 'request', 'effortPolicy', initial ? 'initialWorldSourceId' : 'activationApplicationId'])
+  if (!source || !fields(source, ['sourceId', 'sourceVersion', 'gameId', 'request', 'effortPolicy', initial ? 'initialWorldSourceId' : 'activationApplicationId', ...('prePitchRunner' in source ? ['prePitchRunner'] : [])])
     || source.sourceId !== sourceId || !id(sourceId) || !id(source.sourceVersion) || !id(source.gameId)
     || !id(initial ? source.initialWorldSourceId : source.activationApplicationId)
     || !source.request || !fields(source.request, ['delivery', 'flight', 'batter', 'workloadRevision', 'policySourceId'])
@@ -85,6 +96,7 @@ export const physicalPitchActionInput = (raw: AcceptedPhysicalPitchActionSource,
     || !source.request.batter.action || !fields(source.request.batter.action, source.request.batter.action.kind === 'take' ? ['kind'] : ['kind', 'swing'])) {
     throw new Error('invalid accepted physical pitch action Source');
   }
+  if ('prePitchRunner' in source) prePitchRunnerExecutionInput(source.prePitchRunner!);
   return source;
 };
 
@@ -104,6 +116,7 @@ export const assertPhysicalPitchOriginalEvidence = (db: PhysicalPitchDb, frame: 
 
 export const executePhysicalPitchAction = (source: AcceptedPhysicalPitchActionSource, frame: Frame, beforeTimeline: CanonicalPlateAppearanceTimeline,
   progressRevision: number): DurablePhysicalPitch => {
+  if (json(source.prePitchRunner ?? null) !== json(frame.prePitchRunner?.source ?? null)) throw new Error('physical pitch original runner Source differs');
   if (source.gameId !== frame.gameId || json(source.effortPolicy) !== json(frame.effortPolicy) || source.request.workloadRevision !== frame.workload.revision
     || source.request.policySourceId !== frame.policy.sourceId || source.request.delivery.careerId !== frame.workload.careerId
     || source.request.delivery.playerId !== frame.workload.playerId || source.request.delivery.gameDay !== frame.bindings[0].gameDay
