@@ -5,7 +5,8 @@ import { getCurrentClubManager, replayClubEvents } from '../../core/world/club/C
 import type { ClubTransitionEvent, ClubWorldState } from '../../core/world/club/ClubTypes';
 import { createRosterState } from '../../core/world/roster/RosterState';
 import type { RosterState } from '../../core/world/roster/RosterTypes';
-import { createHumanControlState } from '../../core/world/control/HumanControl';
+import { createHumanControlState, resolveDecisionAuthority } from '../../core/world/control/HumanControl';
+import { selectManagerControlledDecision } from '../../core/world/manager/ManagerControlledDecision';
 import { selectControlledDecision } from '../../core/world/control/ControlledDecision';
 import { attributeExecutedDecision } from '../../core/world/control/DecisionEvidence';
 import type { ControlledDecision, DecisionEvidenceProjection, DecisionOpportunity, DecisionSubmission,
@@ -16,6 +17,9 @@ import type { SqliteWorldControlStore } from './SqliteWorldControlStore';
 import type { SqliteManagerRosterDecisionStore } from './SqliteManagerRosterDecisionStore';
 import type { SqliteDevelopmentInitiationStore } from './SqliteDevelopmentInitiationStore';
 import { sqliteJsonMetadataNodes } from './SqliteOwnershipMetadata';
+import { assertManagerBeliefBoundary, readManagerBeliefBoundary, type ManagerBeliefBoundary } from './ManagerBeliefBoundary';
+import type { IssuedManagerPracticeOrderDecision, ManagerPracticeOrderDecisionInput,
+  ManagerPracticeOrderMethods, PracticeManagerSelectionEvidence } from './ManagerPracticeOrderFromBelief';
 import { freezePractice, planPracticeDelivery, practiceAttemptId, practiceFields, practiceHash, practiceId,
   practiceJson as json, practiceRevision, validatePracticeOpportunity, type PitchPracticeFrame, type PitchPracticeOpportunity } from './PitchPracticeAttempt';
 
@@ -25,6 +29,7 @@ export type AcceptedPracticePrescription = Omit<PitchPracticeOpportunity, 'workl
   clubId: string;
   participation: Readonly<{ assignmentUnitId: string; availabilityStatus: 'AVAILABLE'; availabilityEvidenceId: string }>;
   window: Readonly<{ startsAtUs: number; endsAtUs: number }>;
+  managerAction?: Readonly<{ version: 'manager-practice-action-v1'; domainId: 'PITCH_PRACTICE'; actionId: string }>;
 }>;
 export type PracticeOrderDecisionInput = Readonly<{
   sourceId: string; prescriptionSourceId: string; careerId: string; clubId: string;
@@ -73,27 +78,40 @@ type Heads = Readonly<{ worldRevision: number; control: HumanControlState; contr
 type DecisionRow = { source_id: string; career_id: string; club_id: string; decision_id: string; prescription_source_id: string;
   attempt_id: string; decision_json: string; frame_json: string; episode_json: string; heads_json: string; evidence_json: string };
 type OrderRow = { source_id: string; decision_source_id: string; execution_id: string; order_json: string; order_hash: string };
+type Decision = IssuedPracticeOrderDecision | IssuedManagerPracticeOrderDecision;
+type Request = PracticeOrderDecisionInput | ManagerPracticeOrderDecisionInput;
 const same = (a: unknown, b: unknown): boolean => json(a) === json(b);
 const ownSource = (careerId: string, executionId: string) => `practice-order:${practiceHash([careerId, executionId])}`;
-const requestValue = (raw: PracticeOrderDecisionInput): PracticeOrderDecisionInput => {
+const managerRequest = (r: PracticeOrderDecisionInput): r is ManagerPracticeOrderDecisionInput => Object.hasOwn(r, 'managerSelection');
+const managerDecision = (d: Decision): d is IssuedManagerPracticeOrderDecision => Object.hasOwn(d, 'managerSelection');
+const requestValue = (raw: PracticeOrderDecisionInput): Request => {
   const r = cloneInert(raw);
   if (!practiceFields(r, ['sourceId', 'prescriptionSourceId', 'careerId', 'clubId', 'decisionId', 'contextId', 'actionId', 'expected',
-    ...(r && Object.hasOwn(r, 'prospectiveExecutionId') ? ['prospectiveExecutionId'] : [])])
+    ...(r && Object.hasOwn(r, 'prospectiveExecutionId') ? ['prospectiveExecutionId'] : []),
+    ...(r && Object.hasOwn(r, 'managerSelection') ? ['managerSelection'] : [])])
     || ![r.sourceId, r.prescriptionSourceId, r.careerId, r.clubId, r.decisionId, r.contextId, r.actionId].every(practiceId)
     || Object.hasOwn(r, 'prospectiveExecutionId') && !practiceId(r.prospectiveExecutionId)
     || !practiceFields(r.expected, ['worldRevision', 'controlRevision', 'clubRevision', 'rosterRevision', 'workloadRevision', 'timingRevision', 'releaseRevision'])
     || !Object.values(r.expected).every(practiceRevision) || r.expected.worldRevision === Number.MAX_SAFE_INTEGER) throw new Error('invalid practice order source revisions');
+  if (managerRequest(r)) {
+    const m = r.managerSelection;
+    if (!practiceFields(m, ['version', 'managerId', 'appointmentId', 'expectedBeliefRevision', 'traceId'])
+      || m.version !== 'manager-practice-selection-v1' || ![m.managerId, m.appointmentId, m.traceId].every(practiceId)
+      || !practiceRevision(m.expectedBeliefRevision)) throw new Error('invalid Manager practice selection request');
+  }
   return freezePractice(r);
 };
 const command = (p: AcceptedPracticePrescription, r: PracticeOrderDecisionInput, sourceId = `practice-order-preview:${r.sourceId}`): PitchPracticeOpportunity => {
-  const { clubId: _club, participation: _participation, window: _window, sourceId: _source, sourceVersion: _version, ...fields } = p;
+  const { clubId: _club, participation: _participation, window: _window, sourceId: _source, sourceVersion: _version,
+    managerAction: _managerAction, ...fields } = p;
   return validatePracticeOpportunity({ ...fields, sourceId, sourceVersion: 'owned-pitch-practice-order-v1',
     workloadRevision: r.expected.workloadRevision, timingRevision: r.expected.timingRevision, releaseRevision: r.expected.releaseRevision }, sourceId);
 };
 const prescriptionValue = (raw: AcceptedPracticePrescription, r: PracticeOrderDecisionInput): AcceptedPracticePrescription => {
   const p = cloneInert(raw);
   if (!practiceFields(p, ['sourceId', 'sourceVersion', 'opportunityId', 'ordinal', 'previousAttemptId', 'careerId', 'playerId', 'personLinkSourceId',
-    'atDay', 'readyAtUs', 'fatiguePolicySourceId', 'practiceSeed', 'timingIntent', 'moundReference', 'physics', 'episode', 'clubId', 'participation', 'window'])
+    'atDay', 'readyAtUs', 'fatiguePolicySourceId', 'practiceSeed', 'timingIntent', 'moundReference', 'physics', 'episode', 'clubId', 'participation', 'window',
+    ...(p && Object.hasOwn(p, 'managerAction') ? ['managerAction'] : [])])
     || p.sourceId !== r.prescriptionSourceId || !practiceId(p.sourceVersion) || p.careerId !== r.careerId || p.clubId !== r.clubId
     || !practiceFields(p.participation, ['assignmentUnitId', 'availabilityStatus', 'availabilityEvidenceId'])
     || !practiceId(p.participation.assignmentUnitId) || p.participation.availabilityStatus !== 'AVAILABLE' || !practiceId(p.participation.availabilityEvidenceId)
@@ -101,6 +119,10 @@ const prescriptionValue = (raw: AcceptedPracticePrescription, r: PracticeOrderDe
     || p.window.endsAtUs <= p.window.startsAtUs || p.readyAtUs < p.window.startsAtUs || p.readyAtUs >= p.window.endsAtUs) {
     throw new Error('invalid accepted practice prescription scope, participation or window');
   }
+  if (Object.hasOwn(p, 'managerAction') && (!practiceFields(p.managerAction, ['version', 'domainId', 'actionId'])
+    || p.managerAction?.version !== 'manager-practice-action-v1' || p.managerAction.domainId !== PITCH_PRACTICE_DOMAIN
+    || !practiceId(p.managerAction.actionId))) throw new Error('invalid accepted Manager practice action binding');
+  if (managerRequest(r) && p.managerAction && p.managerAction.actionId !== r.actionId) throw new Error('Manager practice action differs from accepted prescription binding');
   command(p, r);
   return freezePractice(p);
 };
@@ -193,7 +215,11 @@ export const installOwnedPracticeOrders = (db: DatabaseSync, sources: PracticeOr
       || club.identity.clubId !== r.clubId || roster.careerId !== r.careerId || club.effectiveDay > p.atDay || roster.effectiveDay > p.atDay
       || club.season.plan.startsOnDay > p.atDay || club.season.closureRef !== null || !manager.ok || !manager.value) throw new Error('practice order Club, manager or revision scope differs');
     if (!control.domainIds.includes(PITCH_PRACTICE_DOMAIN)) throw new Error('practice capability domain is not registered');
-    if (control.controlledClubId !== r.clubId) throw new Error('Human does not control practice Club');
+    if (managerRequest(r)) {
+      if (r.managerSelection.managerId !== manager.value.managerId || r.managerSelection.appointmentId !== manager.value.appointmentId) {
+        throw new Error('Manager practice appointment scope differs');
+      }
+    } else if (control.controlledClubId !== r.clubId) throw new Error('Human does not control practice Club');
     if (!player || player.assignment?.clubId !== r.clubId || player.assignment.unitId !== p.participation.assignmentUnitId
       || !roster.units.some(unit => unit.unitId === p.participation.assignmentUnitId && unit.clubId === r.clubId)
       || player.availability.status !== p.participation.availabilityStatus || player.availability.evidenceId !== p.participation.availabilityEvidenceId) {
@@ -201,6 +227,18 @@ export const installOwnedPracticeOrders = (db: DatabaseSync, sources: PracticeOr
     }
     return { decisionId: r.decisionId, contextId: r.contextId, worldRevision: r.expected.worldRevision, clubId: r.clubId,
       domainId: PITCH_PRACTICE_DOMAIN, managerId: manager.value.managerId, appointmentId: manager.value.appointmentId, legalActionIds: [r.actionId] };
+  };
+  const managerEvidence = (connection: Db, r: ManagerPracticeOrderDecisionInput, p: AcceptedPracticePrescription,
+    legal: DecisionOpportunity, control: HumanControlState, boundary: ManagerBeliefBoundary,
+    mode: 'historical' | 'current'): PracticeManagerSelectionEvidence => {
+    const m = r.managerSelection;
+    if (!p.managerAction || p.managerAction.actionId !== r.actionId || boundary.careerId !== r.careerId
+      || boundary.managerId !== m.managerId || boundary.revision !== m.expectedBeliefRevision) throw new Error('Manager practice belief or accepted action scope differs');
+    assertManagerBeliefBoundary(connection, boundary, mode);
+    const selected = selectManagerControlledDecision(control, legal,
+      { managerId: m.managerId, appointmentId: m.appointmentId, state: boundary.state.agent }, m.traceId);
+    if (!selected.ok) throw new Error(`Manager practice selection rejected: ${selected.reason.code}`);
+    return freezePractice({ version: 'manager-practice-selection-v1', boundary, selection: selected.value });
   };
   const assertCurrentRows = (connection: Db, r: PracticeOrderDecisionInput, h: Heads, worldRevision = r.expected.worldRevision): void => {
     const control = connection.prepare('SELECT world_revision,control_revision,control_json FROM world_control_heads WHERE career_id=?').get(r.careerId);
@@ -262,17 +300,28 @@ export const installOwnedPracticeOrders = (db: DatabaseSync, sources: PracticeOr
     const replay = replayClubEvents(readClubState(JSON.parse(checkpoint.state_json)), events.map(e => JSON.parse(e.event_json) as ClubTransitionEvent));
     if (!replay.ok || !same(replay.value, expected)) throw new Error('practice order historical Club source differs');
   };
-  const decodeDecision = (connection: Db, row: DecisionRow, maximumTimingRevision = Number.MAX_SAFE_INTEGER): IssuedPracticeOrderDecision => {
-    const d = JSON.parse(row.decision_json) as IssuedPracticeOrderDecision, r = requestValue(d.request), p = prescriptionValue(d.prescription, r);
+  const decodeDecision = (connection: Db, row: DecisionRow, maximumTimingRevision = Number.MAX_SAFE_INTEGER): Decision => {
+    const d = JSON.parse(row.decision_json) as Decision, r = requestValue(d.request), p = prescriptionValue(d.prescription, r);
     if (r.expected.timingRevision > maximumTimingRevision) throw new Error('practice order proof depends on a later timing source');
     const frame = JSON.parse(row.frame_json) as PitchPracticeFrame, episode = JSON.parse(row.episode_json) as DevelopmentLearningEpisode | null;
     const heads = JSON.parse(row.heads_json) as Heads, proof = JSON.parse(row.evidence_json) as unknown;
     const expectedOpportunity = opportunity(r, p, heads);
-    if (!practiceFields(d, ['sourceId', 'request', 'prescription', 'opportunity', 'control', 'hash']) || row.source_id !== d.sourceId || d.sourceId !== r.sourceId
+    if (managerRequest(r) !== managerDecision(d)) throw new Error('practice decision Manager evidence version differs');
+    let manager: PracticeManagerSelectionEvidence | undefined;
+    if (managerRequest(r) && managerDecision(d)) {
+      if (!practiceFields(d.managerSelection, ['version', 'boundary', 'selection'])
+        || d.managerSelection.version !== 'manager-practice-selection-v1') throw new Error('corrupt Manager practice selection evidence');
+      // A later observation does not rewrite an issued proposal or disqualify
+      // a real Human override of that proposal's original legal command.
+      manager = managerEvidence(connection, r, p, expectedOpportunity, heads.control, d.managerSelection.boundary, 'historical');
+      if (!same(manager, d.managerSelection)) throw new Error('Manager practice historical selection differs');
+    }
+    if (!practiceFields(d, ['sourceId', 'request', 'prescription', 'opportunity', 'control', 'hash', ...(manager ? ['managerSelection'] : [])]) || row.source_id !== d.sourceId || d.sourceId !== r.sourceId
       || row.career_id !== r.careerId || row.club_id !== r.clubId || row.decision_id !== r.decisionId || row.prescription_source_id !== p.sourceId
       || row.attempt_id !== practiceAttemptId(command(p, r)) || !same(d.opportunity, expectedOpportunity) || !same(d.control, heads.control)
       || json(d) !== row.decision_json || json(frame) !== row.frame_json || json(episode) !== row.episode_json || json(heads) !== row.heads_json || json(proof) !== row.evidence_json
-      || d.hash !== practiceHash({ request: r, prescription: p, opportunity: expectedOpportunity, control: heads.control, frame, episode, heads, evidence: proof })) {
+      || d.hash !== practiceHash({ request: r, prescription: p, opportunity: expectedOpportunity, control: heads.control, frame, episode, heads, evidence: proof,
+        ...(manager ? { managerSelection: manager } : {}) })) {
       throw new Error('corrupt frozen practice order decision');
     }
     const preview = command(p, r);
@@ -287,23 +336,31 @@ export const installOwnedPracticeOrders = (db: DatabaseSync, sources: PracticeOr
     if (!same(actualFrame, frame) || planPracticeDelivery(preview, actualFrame).timeline.followThroughEndUs > p.window.endsAtUs) throw new Error('practice order frame or prescribed window differs');
     return freezePractice(d);
   };
-  const orderInput = (raw: PracticeOrderIssueInput): PracticeOrderIssueInput => {
+  const orderInput = (raw: PracticeOrderIssueInput, allowManager = false): PracticeOrderIssueInput => {
     const input = cloneInert(raw);
     if (!practiceFields(input, ['decisionSourceId', 'executionId', 'submission']) || !practiceId(input.decisionSourceId) || !practiceId(input.executionId)
-      || input.submission?.actor?.kind !== 'HUMAN') throw new Error('practice order requires a supported Human submission');
+      || input.submission?.actor?.kind !== 'HUMAN' && !(allowManager && input.submission?.actor?.kind === 'MANAGER')) throw new Error('practice order requires a supported Human submission or original Manager selection');
     return input;
   };
-  const materialize = (d: IssuedPracticeOrderDecision, input: PracticeOrderIssueInput): OwnedPracticeOrder => {
+  const managerSubmission = (d: Decision): DecisionSubmission => {
+    if (!managerDecision(d)) throw new Error('practice decision lacks its original Manager selection proof');
+    const selected = d.managerSelection.selection.decision;
+    return { decisionId: selected.decisionId, contextId: selected.contextId, expectedControlRevision: selected.controlRevision,
+      expectedWorldRevision: selected.worldRevision, actionId: selected.actionId, actor: selected.actor };
+  };
+  const materialize = (d: Decision, input: PracticeOrderIssueInput): OwnedPracticeOrder => {
     if (d.request.prospectiveExecutionId !== undefined && input.executionId !== d.request.prospectiveExecutionId) {
       throw new Error('practice order execution identity differs from its prospective reservation');
     }
     const selected = selectControlledDecision(d.control, d.opportunity, input.submission);
     if (!selected.ok) throw new Error(`practice order decision rejected: ${selected.reason.code}`);
+    if (input.submission.actor.kind === 'MANAGER' && (!same(input.submission, managerSubmission(d))
+      || !managerDecision(d) || !same(selected.value, d.managerSelection.selection.decision))) throw new Error('practice Manager selection attribution differs');
     const sourceId = ownSource(d.request.careerId, input.executionId), physical = command(d.prescription, d.request, sourceId);
     const execution: ExecutedDecision = { executionId: input.executionId, decisionId: d.opportunity.decisionId, contextId: d.opportunity.contextId,
       actionId: selected.value.actionId, worldRevision: d.request.expected.worldRevision + 1, eventIds: [sourceId] };
     const projection = attributeExecutedDecision(selected.value, execution);
-    if (!projection.ok || projection.value.managerSelfChosenEvidence !== null) throw new Error('practice order Human attribution differs');
+    if (!projection.ok || (input.submission.actor.kind === 'HUMAN') !== (projection.value.managerSelfChosenEvidence === null)) throw new Error('practice order actual actor attribution differs');
     const receipt = { sourceId, decisionSourceId: d.sourceId, prescriptionSourceId: d.prescription.sourceId,
       opportunity: physical, decision: selected.value, execution, projection: projection.value };
     return freezePractice({ ...receipt, hash: practiceHash({ receipt, decisionHash: d.hash }) });
@@ -317,7 +374,7 @@ export const installOwnedPracticeOrders = (db: DatabaseSync, sources: PracticeOr
     const submission: DecisionSubmission = { decisionId: order.decision.decisionId, contextId: order.decision.contextId,
       expectedControlRevision: order.decision.controlRevision, expectedWorldRevision: order.decision.worldRevision,
       actionId: order.decision.actionId, actor: order.decision.actor };
-    const expected = materialize(d, orderInput({ decisionSourceId: row.decision_source_id, executionId: row.execution_id, submission }));
+    const expected = materialize(d, orderInput({ decisionSourceId: row.decision_source_id, executionId: row.execution_id, submission }, true));
     const world = connection.prepare('SELECT world_revision,control_revision,control_json FROM world_control_heads WHERE career_id=?').get(d.request.careerId);
     const count = connection.prepare('SELECT count(*) AS n,min(world_revision) AS first,max(world_revision) AS last FROM world_decision_revision_events WHERE career_id=?').get(d.request.careerId);
     const event = connection.prepare('SELECT source_kind,source_event_id,event_json FROM world_decision_revision_events WHERE career_id=? AND world_revision=?')
@@ -340,9 +397,10 @@ export const installOwnedPracticeOrders = (db: DatabaseSync, sources: PracticeOr
     if (hasIssuedWorldEvidence(db, sourceId)) throw new Error('issued practice World evidence has a missing owned order');
     return null;
   };
-  const methods: OwnedPracticeOrderMethods = {
-    prepareOrderDecision(raw) {
-      const r = requestValue(raw); tools.check(r.sourceId); const source = authority?.readAcceptedPracticePrescription?.(r.prescriptionSourceId) ?? null;
+  const prepareDecision = (raw: PracticeOrderDecisionInput, managerRoute: boolean) => {
+      const r = requestValue(raw);
+      if (managerRequest(r) !== managerRoute) throw new Error('practice decision request belongs to another selection route');
+      tools.check(r.sourceId); const source = authority?.readAcceptedPracticePrescription?.(r.prescriptionSourceId) ?? null;
       return tools.transaction(() => {
         const existing = decisionRow(db, r.sourceId);
         if (existing) {
@@ -352,6 +410,7 @@ export const installOwnedPracticeOrders = (db: DatabaseSync, sources: PracticeOr
         }
         if (!source) return { kind: 'pending' as const, reason: 'practice_prescription_missing' };
         const p = prescriptionValue(source, r), preview = command(p, r), attemptId = practiceAttemptId(preview);
+        if (managerRequest(r) && !p.managerAction) return { kind: 'pending' as const, reason: 'manager_practice_action_missing' };
         if (db.prepare('SELECT source_id FROM pitch_practice_order_decisions WHERE (career_id=? AND decision_id=?) OR prescription_source_id=? OR attempt_id=?')
           .get(r.careerId, r.decisionId, p.sourceId, attemptId)) throw new Error('practice decision or canonical opportunity identity is already reserved');
         const prospective = r.prospectiveExecutionId === undefined ? preview : command(p, r, ownSource(r.careerId, r.prospectiveExecutionId));
@@ -361,13 +420,24 @@ export const installOwnedPracticeOrders = (db: DatabaseSync, sources: PracticeOr
         tools.assertProbeReservation(db, prospective);
         const bindProbe = tools.probeReservationEvidence(db, prospective) !== null;
         const heads = currentHeads(r, p), legal = opportunity(r, p, heads);
+        let manager: PracticeManagerSelectionEvidence | undefined;
+        if (managerRequest(r)) {
+          const resolved = resolveDecisionAuthority(heads.control, legal);
+          if (!resolved.ok) throw new Error(`Manager practice authority rejected: ${resolved.reason.code}`);
+          if (resolved.value.kind === 'HUMAN_REQUIRED') return { kind: 'pending' as const, reason: 'human_input_required' };
+          const boundary = readManagerBeliefBoundary(db, r.careerId, r.managerSelection.managerId, r.managerSelection.expectedBeliefRevision);
+          if (!boundary) return { kind: 'pending' as const, reason: 'manager_person_missing' };
+          manager = managerEvidence(db, r, p, legal, heads.control, boundary, 'current');
+        }
         assertCurrentRows(db, r, heads); tools.assertAdmission(preview);
         const frame = tools.inspectFrame(preview, true);
         if (planPracticeDelivery(preview, frame).timeline.followThroughEndUs > p.window.endsAtUs) throw new Error('practice delivery does not fit prescribed window');
         const episode = p.episode ? episodes.read(p.episode.episodeId)?.episode ?? null : null;
         const proof = evidence(db, r, p, frame, episode, bindProbe);
-        const value = { sourceId: r.sourceId, request: r, prescription: p, opportunity: legal, control: heads.control };
-        const d: IssuedPracticeOrderDecision = { ...value, hash: practiceHash({ request: r, prescription: p, opportunity: legal, control: heads.control, frame, episode, heads, evidence: proof }) };
+        const value = { sourceId: r.sourceId, request: r, prescription: p, opportunity: legal, control: heads.control,
+          ...(manager ? { managerSelection: manager } : {}) };
+        const d: Decision = { ...value, hash: practiceHash({ request: r, prescription: p, opportunity: legal, control: heads.control, frame, episode, heads, evidence: proof,
+          ...(manager ? { managerSelection: manager } : {}) }) };
         db.prepare('INSERT INTO pitch_practice_order_decisions VALUES(?,?,?,?,?,?,?,?,?,?,?)')
           .run(r.sourceId, r.careerId, r.clubId, r.decisionId, p.sourceId, attemptId, json(d), json(frame), json(episode), json(heads), json(proof));
         const result = decodeDecision(db, decisionRow(db, r.sourceId)!);
@@ -377,16 +447,23 @@ export const installOwnedPracticeOrders = (db: DatabaseSync, sources: PracticeOr
           || hasIssuedWorldEvidence(db, prospective.sourceId))) throw new Error('prospective practice Source reservation changed during preparation');
         tools.assertProbeReservation(db, prospective);
         assertCurrentRows(db, r, heads); assertCurrentEpisode(db, episode);
+        if (managerRequest(r) && manager) managerEvidence(db, r, p, legal, heads.control, manager.boundary, 'current');
         return freezePractice({ kind: 'ready' as const, decision: result });
       });
-    },
-    readOrderDecision, readOrder,
-    issueOrder(raw) {
-      const input = orderInput(raw); tools.check(input.decisionSourceId);
+  };
+  const issueDecision = (raw: PracticeOrderIssueInput | Parameters<ManagerPracticeOrderMethods['issueManagerOrder']>[0], managerRoute: boolean) => {
+      const supplied = cloneInert(raw);
+      if (managerRoute) {
+        if (!practiceFields(supplied, ['decisionSourceId', 'executionId']) || !practiceId(supplied.decisionSourceId)
+          || !practiceId(supplied.executionId)) throw new Error('invalid Manager practice issuance request');
+      } else orderInput(supplied as PracticeOrderIssueInput);
+      tools.check(supplied.decisionSourceId);
       return tools.transaction(() => {
-        const row = decisionRow(db, input.decisionSourceId);
+        const row = decisionRow(db, supplied.decisionSourceId);
         if (!row) throw new Error('issued practice decision is missing');
-        const d = decodeDecision(db, row), expected = materialize(d, input);
+        const d = decodeDecision(db, row);
+        const input = managerRoute ? orderInput({ ...supplied, submission: managerSubmission(d) }, true) : supplied as PracticeOrderIssueInput;
+        const expected = materialize(d, input);
         const existing = db.prepare('SELECT * FROM pitch_practice_orders WHERE decision_source_id=? OR execution_id=? OR source_id=?')
           .get(d.sourceId, input.executionId, expected.sourceId) as OrderRow | undefined;
         if (existing) {
@@ -399,6 +476,9 @@ export const installOwnedPracticeOrders = (db: DatabaseSync, sources: PracticeOr
         tools.assertProbeReservation(db, expected.opportunity);
         const heads = currentHeads(d.request, d.prescription);
         if (!same(heads, JSON.parse(row.heads_json))) throw new Error('stale practice order authority or source snapshot');
+        // Current belief is a first Manager-write precondition. Historical
+        // retries returned above, and Human overrides use their actual actor.
+        if (managerRoute && managerDecision(d)) managerEvidence(db, d.request, d.prescription, d.opportunity, d.control, d.managerSelection.boundary, 'current');
         const episode = JSON.parse(row.episode_json) as DevelopmentLearningEpisode | null;
         assertCurrentRows(db, d.request, heads); assertCurrentEpisode(db, episode);
         tools.assertAdmission(expected.opportunity); tools.inspectFrame(expected.opportunity, true);
@@ -415,9 +495,25 @@ export const installOwnedPracticeOrders = (db: DatabaseSync, sources: PracticeOr
         if (db.prepare('SELECT 1 FROM pitch_practice_attempts WHERE source_id=?').get(expected.sourceId)) throw new Error('practice order Source gained a conflicting attempt during issuance');
         tools.assertProbeReservation(db, expected.opportunity);
         assertCurrentRows(db, d.request, heads, expected.execution.worldRevision); assertCurrentEpisode(db, episode);
+        if (managerRoute && managerDecision(d)) managerEvidence(db, d.request, d.prescription, d.opportunity, d.control, d.managerSelection.boundary, 'current');
         return saved;
       });
+  };
+  const methods: OwnedPracticeOrderMethods & ManagerPracticeOrderMethods = {
+    prepareOrderDecision: raw => prepareDecision(raw, false), readOrderDecision, readOrder,
+    issueOrder: raw => issueDecision(raw, false),
+    prepareManagerOrderDecision(raw) {
+      const result = prepareDecision(raw, true);
+      if (result.kind === 'pending') return result;
+      if (!managerDecision(result.decision)) throw new Error('practice decision lacks its Manager selection');
+      return freezePractice({ kind: 'ready' as const, decision: result.decision });
     },
+    readManagerOrderDecision(sourceId) {
+      const d = readOrderDecision(sourceId);
+      if (d !== null && !managerDecision(d)) throw new Error('practice decision lacks its Manager selection');
+      return d;
+    },
+    issueManagerOrder: raw => issueDecision(raw, true),
   };
   return { methods: Object.freeze(methods),
     assertPlanOpportunity(connection: Db, o: PitchPracticeOpportunity, bodyFrameOnly: boolean): void {

@@ -34,10 +34,12 @@ export type PracticeOrderOwner = {
 };
 type Module = { createOwnedPitchPracticeOrder(sources: unknown): PracticeOrderOwner };
 
-export async function practiceOrderFixture(cleanup: (() => void)[], options: { registered?: boolean; delegated?: boolean } = {}) {
+export async function practiceOrderFixture(cleanup: (() => void)[], options: { registered?: boolean; delegated?: boolean;
+  managerBeliefCandidates?: readonly import('../../core/world/manager/ManagerDecision').ManagerActionBelief[] } = {}) {
   const prescriptions = new Map<string, PracticePrescription>();
   const registered = options.registered !== false;
   const base = await practiceFixture(cleanup, {
+    managerBeliefCandidates: options.managerBeliefCandidates,
     controlDomainIds: registered ? ['ROSTER', 'PITCH_PRACTICE'] : ['ROSTER'],
     manualControlDomainIds: registered && !options.delegated ? ['PITCH_PRACTICE'] : [],
     practiceOrderSources: true,
