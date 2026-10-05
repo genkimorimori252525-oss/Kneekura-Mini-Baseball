@@ -23,7 +23,7 @@ import { deriveBallWorldFieldFirstBaseRaceWithPossessionEvidence } from '../../c
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { battedWorldResponseInput } from './SqliteBattedWorldContinuationStore';
 import { battedWorldMotionCommandsInput, battedWorldMotionPrimitiveCommands, type AcceptedBattedWorldMotion } from './SqliteBattedWorldMotionStore';
-import { battedWorldFieldEvidenceFromSqlite, type DurableBattedWorldFieldAction, type SqliteBattedWorldFieldStore } from './SqliteBattedWorldFieldStore';
+import { battedWorldFieldEvidenceFromSqlite, withBattedWorldFieldReadTraversal, isAuthenticatedBattedWorldFieldTraversalValue, type DurableBattedWorldFieldAction, type SqliteBattedWorldFieldStore } from './SqliteBattedWorldFieldStore';
 import { playerFieldingModelEvidenceFromSqlite, type DurablePlayerFieldingModel } from './SqlitePlayerFieldingModelStore';
 import { battedWorldFieldPhysicalPrefix, battedWorldFieldBaseTouchHistoryFromPrefix, type BattedWorldFieldCustodyPolicy } from './BattedWorldFieldPhysicalPrefix';
 import { wholePlayPhysicalHistoryFromPrefix } from './WholePlayPhysicalHistoryFromPrefix';
@@ -132,6 +132,18 @@ const physicalId = (field: DurableBattedWorldFieldAction) => field.response.touc
 // this is neither a caller evidence callback nor a cross-operation validation cache.
 const dependencyPrefixes = new WeakMap<Db, Readonly<{ baseField: DurableBattedWorldFieldAction;
   values: readonly DurableBattedWorldFieldExecution[]; encoding: ReturnType<typeof createOwnedScheduledMotionDependencyEncoding> }>>();
+
+// This map only exists on the stack of one root PlayEnd derive. It holds
+// completed immutable physical nodes, never cross-owner result proofs.
+const executionReadTraversals = new WeakMap<Db, Readonly<{ nodes: Map<string, DurableBattedWorldFieldExecution>;
+  encoding: ReturnType<typeof createOwnedScheduledMotionDependencyEncoding> }>>();
+export const withBattedWorldPhysicalReadTraversal = <T>(db: Db, body: () => T): T =>
+  withBattedWorldFieldReadTraversal(db, () => {
+    const previous = executionReadTraversals.get(db);
+    executionReadTraversals.set(db, { nodes: new Map(), encoding: createOwnedScheduledMotionDependencyEncoding() });
+    try { return body(); }
+    finally { if (previous) executionReadTraversals.set(db, previous); else executionReadTraversals.delete(db); }
+  });
 
 /** One directed execution owner; historical reads replay only their original causal payload prefix. */
 export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
@@ -429,20 +441,33 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
       }
       return values;
     }
+    // Keep the dependencyPrefixes rank ceiling above every sibling lookup.
+    // Only a field freshly authenticated by this root operation enables reuse.
+    const rootTraversal = executionReadTraversals.get(db);
+    const traversal = rootTraversal && isAuthenticatedBattedWorldFieldTraversalValue(db, baseField) ? rootTraversal : undefined;
     const values: DurableBattedWorldFieldExecution[] = [];
     for (const row of rows.slice(0, bound + 1)) {
       const source = input(JSON.parse(row.source_json) as AcceptedBattedWorldFieldExecution, row.source_id);
       if (source.baseFieldSourceId !== baseId || source.previousExecutionSourceId !== row.previous_source_id
         || row.source_json !== json(source) || row.source_hash !== hash(source)) throw new Error('corrupt original actual field execution Source');
-      const value = executeWithReplay(replay, source, baseField, values.at(-1) ?? null, values);
-      const encoded = replay.snapshotIdentity(value);
+      const saved = traversal?.nodes.get(row.source_id);
+      const reusable = saved && saved.baseField === baseField && traversal!.encoding.source(saved.source).json === row.source_json
+        && traversal!.encoding.source(saved.source).hash === row.source_hash ? saved : undefined;
+      const value = reusable ?? executeWithReplay(replay, source, baseField, values.at(-1) ?? null, values);
+      const encoded = reusable ? traversal!.encoding.snapshot(reusable) : replay.snapshotIdentity(value);
       if (row.snapshot_json !== encoded.json || row.snapshot_hash !== encoded.hash) throw new Error('corrupt actual field execution snapshot');
       values.push(value);
     }
+    if (traversal) {
+      isAuthenticatedBattedWorldFieldTraversalValue(db, baseField);
+      for (const value of values) traversal.nodes.set(value.source.sourceId, value);
+      return Object.freeze(values);
+    }
     return values;
   };
-  // Every independent read/admission phase starts fresh. The replay service is
-  // never stored on the owner, DB, dependencyPrefixes or returned snapshots.
+  // Every independent read/admission phase starts fresh. Only an explicitly
+  // root-owned, unchanged physical traversal can reuse completed sibling nodes.
+  // The replay service itself is never retained on the owner or returned values.
   const scope = (baseField: DurableBattedWorldFieldAction, throughSourceId?: string | null): readonly DurableBattedWorldFieldExecution[] =>
     scopeWithReplay(createOwnedScheduledMotionExecutionReplay(), baseField, throughSourceId);
   // The pair belongs to this one full authenticated read. It is never retained

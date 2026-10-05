@@ -1,6 +1,6 @@
 import { actualLivePlayOwnerIdentityRow, actualFirstBaseTerminalClaims } from './ActualLivePlayOwnerMetadata';
 import { createRequire } from 'node:module';
-import { actualFirstBasePlayEndInput as input, type AcceptedActualFirstBasePlayEnd, type ActualFirstBaseEndedEvidence } from './ActualFirstBasePlayEnd';
+import { actualFirstBasePlayEndInput as input, type AcceptedActualFirstBasePlayEnd, type ActualFirstBaseEndedEvidence, type ActualFirstBasePlayEndEvidence } from './ActualFirstBasePlayEnd';
 import { actualFirstBasePlayEndEvidenceFromSqlite } from './ActualFirstBasePlayEndEvidenceFromSqlite';
 import { actorJson as json, actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 /** Each original history record is authenticated separately by its physical owner.
@@ -21,27 +21,33 @@ export const actualFirstBaseEndArchiveEncoding = (value: ActualFirstBaseEndedEvi
   const receipt = projection(value);
   return { json: json(receipt), hash: hash(receipt) };
 };
+type Db = Pick<import('node:sqlite').DatabaseSync, 'prepare'>;
+// Private to this module: callers cannot substitute their own proof. Every use
+// freshly authenticates the raw source, original archive, terminal census/seal.
+const readClosedEvidence = (db: Db, sourceId: string,
+  derive: (source: AcceptedActualFirstBasePlayEnd) => ActualFirstBasePlayEndEvidence): ActualFirstBaseEndedEvidence | null => {
+  if (!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='actual_first_base_play_ends'").get()) return null;
+  const row = actualLivePlayOwnerIdentityRow(db, 'actual_first_base_play_ends', sourceId);
+  if (!row) return null;
+  const s = input(JSON.parse(String(row.source_json)), sourceId), value = derive(s);
+  if (value.kind !== 'ended') throw new Error('stored actual first-base PlayEnd proof is pending');
+  if (json(value.source) !== json(s)) throw new Error('actual first-base PlayEnd proof Source differs');
+  assertTerminalClaims(db, value, true);
+  const expected = projection(value), fences = db.prepare('SELECT * FROM actual_live_play_fences WHERE (game_id=? AND play_id=?) OR physical_pitch_source_id=? OR closure_source_id=?')
+    .all(value.gameId, value.playId, value.physicalPitchSourceId, sourceId);
+  if (fences.length !== 1 || fences[0].game_id !== value.gameId || fences[0].play_id !== value.playId
+    || fences[0].physical_pitch_source_id !== value.physicalPitchSourceId || fences[0].closure_source_id !== sourceId
+    || row.game_id !== value.gameId || row.play_id !== value.playId || row.physical_pitch_source_id !== value.physicalPitchSourceId
+    || row.source_json !== json(s) || row.source_hash !== hash(s) || row.snapshot_json !== json(expected) || row.snapshot_hash !== hash(expected)) {
+    throw new Error('actual first-base PlayEnd archive or fence differs');
+  }
+  return value;
+};
 /** Authenticated historical closed receipt on the caller's transaction/snapshot.
  * Unlike a proposal derivation, this requires the durable end AND its exact seal. */
-export const actualFirstBaseClosedEvidenceFromSqlite = (db: Pick<import('node:sqlite').DatabaseSync, 'prepare'>) => {
+export const actualFirstBaseClosedEvidenceFromSqlite = (db: Db) => {
   const own = actualFirstBasePlayEndEvidenceFromSqlite(db);
-  const read = (sourceId: string): ActualFirstBaseEndedEvidence | null => {
-    if (!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='actual_first_base_play_ends'").get()) return null;
-    const row = actualLivePlayOwnerIdentityRow(db, 'actual_first_base_play_ends', sourceId);
-    if (!row) return null;
-    const s = input(JSON.parse(String(row.source_json)), sourceId), value = own.derive(s);
-    if (value.kind !== 'ended') throw new Error('stored actual first-base PlayEnd proof is pending');
-    assertTerminalClaims(db, value, true);
-    const expected = projection(value), fences = db.prepare('SELECT * FROM actual_live_play_fences WHERE (game_id=? AND play_id=?) OR physical_pitch_source_id=? OR closure_source_id=?')
-      .all(value.gameId, value.playId, value.physicalPitchSourceId, sourceId);
-    if (fences.length !== 1 || fences[0].game_id !== value.gameId || fences[0].play_id !== value.playId
-      || fences[0].physical_pitch_source_id !== value.physicalPitchSourceId || fences[0].closure_source_id !== sourceId
-      || row.game_id !== value.gameId || row.play_id !== value.playId || row.physical_pitch_source_id !== value.physicalPitchSourceId
-      || row.source_json !== json(s) || row.source_hash !== hash(s) || row.snapshot_json !== json(expected) || row.snapshot_hash !== hash(expected)) {
-      throw new Error('actual first-base PlayEnd archive or fence differs');
-    }
-    return value;
-  };
+  const read = (sourceId: string) => readClosedEvidence(db, sourceId, own.derive);
   return { read, reference(sourceId: string) {
     const value = read(sourceId);
     return value && { owner: 'actual_first_base_play_ends' as const, sourceId, sourceVersion: value.source.sourceVersion,
@@ -56,8 +62,8 @@ export const openSqliteActualFirstBasePlayEndStore = (path: string,
       physical_pitch_source_id TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(game_id,play_id));
     CREATE TABLE IF NOT EXISTS actual_live_play_fences(game_id TEXT NOT NULL,play_id INTEGER NOT NULL,physical_pitch_source_id TEXT NOT NULL UNIQUE,
       closure_source_id TEXT NOT NULL UNIQUE,PRIMARY KEY(game_id,play_id));`);
-  const own = actualFirstBasePlayEndEvidenceFromSqlite(db); let closed = false;
-  const check = () => { if (closed) throw new Error('closed actual first-base PlayEnd store'); };
+  const own = actualFirstBasePlayEndEvidenceFromSqlite(db); let closed = false, failed = false;
+  const check = () => { if (closed || failed) throw new Error('closed actual first-base PlayEnd store'); };
   const source = (sourceId: string) => {
     const raw = authority?.readAcceptedEnd(sourceId) ?? null;
     if (!raw) throw new Error('accepted actual first-base PlayEnd Source missing');
@@ -85,7 +91,7 @@ export const openSqliteActualFirstBasePlayEndStore = (path: string,
       const proposed = snapshot(() => own.derive(requested, true));
       if (proposed.kind !== 'ended') throw new Error(`actual first-base PlayEnd pending: ${proposed.pendingReasons.join(', ')}`);
       snapshot(() => assertTerminalClaims(db, proposed, false));
-      const encoded = json(projection(proposed)); db.exec('BEGIN IMMEDIATE');
+      const encoded = json(projection(proposed)), proofCleanupErrors: unknown[] = []; db.exec('BEGIN IMMEDIATE');
       try {
         assertTerminalClaims(db, proposed, false);
         const current = own.derive(requested, true);
@@ -95,12 +101,67 @@ export const openSqliteActualFirstBasePlayEndStore = (path: string,
         assertTerminalClaims(db, proposed, true);
         db.prepare('INSERT INTO actual_live_play_fences VALUES(?,?,?,?)').run(proposed.gameId, proposed.playId, proposed.physicalPitchSourceId, sourceId);
         assertTerminalClaims(db, proposed, true);
-        const after = own.derive(requested, true), saved = read(sourceId);
-        if (after.kind !== 'ended' || json(projection(after)) !== encoded || !saved || json(projection(saved)) !== encoded) {
-          throw new Error('actual PlayEnd complete proof changed during write');
-        }
+        // current=true adds head/dependency assertions to the same immutable
+        // historical result. Reuse only this post-trigger proof, before commit.
+        // A savepoint detects a replaced transaction; total_changes alone does
+        // not detect rollback/rebegin or schema-only (including TEMP) changes.
+        if (!db.isTransaction) throw new Error('actual PlayEnd proof transaction is missing');
+        db.exec('SAVEPOINT actual_end_closed_proof');
+        const priorQueryOnly = db.prepare('PRAGMA query_only').get()!.query_only;
+        if (priorQueryOnly !== 0 && priorQueryOnly !== 1) throw new Error('actual PlayEnd query_only setting is invalid');
+        // Endpoint counters cannot see transient schema changes undone by a child
+        // rollback. Prevent writes during this owned proof/authentication phase.
+        // This is not a sandbox against deliberate flag toggles or private API replacement.
+        const saved = (() => {
+          let proofFailed = false;
+          try {
+            db.exec('PRAGMA query_only=ON');
+            if (db.prepare('PRAGMA query_only').get()!.query_only !== 1) throw new Error('actual PlayEnd query_only guard is unavailable');
+            const proofState = () => [db.prepare('SELECT total_changes() AS changes').get()!.changes,
+              db.prepare('PRAGMA main.schema_version').get()!.schema_version,
+              db.prepare('PRAGMA temp.schema_version').get()!.schema_version] as const;
+            const originalState = proofState();
+            const unchanged = () => {
+              const state = proofState();
+              if (!db.isTransaction || db.prepare('PRAGMA query_only').get()!.query_only !== 1
+                || state.some((value, index) => value !== originalState[index])) {
+                throw new Error('actual PlayEnd proof transaction or dependencies changed during read');
+              }
+            };
+            const after = own.derive(requested, true);
+            unchanged();
+            if (after.kind !== 'ended' || json(projection(after)) !== encoded) {
+              throw new Error('actual PlayEnd complete proof changed during write');
+            }
+            const saved = readClosedEvidence(db, sourceId, () => after);
+            if (!saved || json(projection(saved)) !== encoded) throw new Error('actual PlayEnd complete proof changed during write');
+            unchanged();
+            return saved;
+          } catch (error) { proofFailed = true; throw error; }
+          finally {
+            try {
+              db.exec(`PRAGMA query_only=${priorQueryOnly ? 'ON' : 'OFF'}`);
+              if (db.prepare('PRAGMA query_only').get()!.query_only !== priorQueryOnly) throw new Error('actual PlayEnd query_only restoration differs');
+            } catch (restoreError) {
+              failed = true;
+              if (proofFailed) proofCleanupErrors.push(restoreError); else throw restoreError;
+            }
+          }
+        })();
+        db.exec('RELEASE actual_end_closed_proof');
+        if (!db.isTransaction) throw new Error('actual PlayEnd proof transaction ended during read');
         db.exec('COMMIT'); return saved;
-      } catch (error) { db.exec('ROLLBACK'); throw error; }
+      } catch (error) {
+        // A failing proof/read may already have rolled back. Preserve that
+        // original error and clean up the entire writer, including its savepoint.
+        const errors = [error, ...proofCleanupErrors];
+        try { if (db.isTransaction) db.exec('ROLLBACK'); } catch (rollbackError) { failed = true; errors.push(rollbackError); }
+        if (failed) {
+          try { db.close(); closed = true; } catch (closeError) { errors.push(closeError); }
+          throw new AggregateError(errors, 'actual PlayEnd writer cleanup failed; store is retired', { cause: error });
+        }
+        throw error;
+      }
     }, close() { if (!closed) { db.close(); closed = true; } },
   });
 };

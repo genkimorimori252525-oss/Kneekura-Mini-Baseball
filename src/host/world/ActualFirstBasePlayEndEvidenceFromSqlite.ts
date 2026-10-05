@@ -19,7 +19,7 @@ import { actualLivePlayQueueConsumersFromSqlite } from './ActualLivePlayQueueCon
 import { actualLiveRuleConsumptionEvidenceFromSqlite } from './ActualLiveRuleConsumptionFromSqlite';
 import { actualFirstBaseUmpireEvidenceFromSqlite } from './SqliteActualFirstBaseUmpireStore';
 import { battedWorldFieldEvidenceFromSqlite } from './SqliteBattedWorldFieldStore';
-import { battedWorldFieldExecutionEvidenceFromSqlite } from './SqliteBattedWorldFieldExecutionStore';
+import { battedWorldFieldExecutionEvidenceFromSqlite, withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { battedWorldFieldPhysicalPrefix } from './BattedWorldFieldPhysicalPrefix';
 import { wholePlayPhysicalHistoryFromPrefix } from './WholePlayPhysicalHistoryFromPrefix';
 import { actualPlayersKinematicsFromPrefix } from './ActualPlayerKinematicsFromPrefix';
@@ -33,7 +33,7 @@ const pending = (source: AcceptedActualFirstBasePlayEnd, reasons: readonly strin
  * Unknown autonomous renewal and other live-rule policies are never certified.
  * Every outcome and clock comes from the actual registered owner graph. */
 export const actualFirstBasePlayEndEvidenceFromSqlite = (db: Db) => ({
-  derive: (raw: AcceptedActualFirstBasePlayEnd, current = false): ActualFirstBasePlayEndEvidence => withSqliteMetadataStatementScope(db, () => {
+  derive: (raw: AcceptedActualFirstBasePlayEnd, current = false): ActualFirstBasePlayEndEvidence => withBattedWorldPhysicalReadTraversal(db, () => withSqliteMetadataStatementScope(db, () => {
     const source = input(raw, raw.sourceId);
     if (!actualLiveOwnerInstalled(db, 'actual_live_play_runtimes', 'actual_live_play_admissions')) return pending(source, ['causal_runtime_registration_missing']);
     const runtime = actualLiveRuntimeEvidenceFromSqlite(db).read(source.runtimeSourceId);
@@ -134,9 +134,9 @@ export const actualFirstBasePlayEndEvidenceFromSqlite = (db: Db) => ({
     if (consumption.physicalPitchSourceId !== physicalPitchSourceId || consumption.source.ruleExecutionSourceId !== ruleOwner.source.sourceId
       || consumption.consumption.availableAt.elapsedSeconds !== ruleThrough || ruleThrough > at.elapsedSeconds) throw new Error('actual PlayEnd canonical rule acknowledgement differs');
     if (!actualLiveOwnerInstalled(db, 'actual_first_base_umpire_calls')) return pending(source, ['operative_call_retirement_pending']);
-    const umpire = actualFirstBaseUmpireEvidenceFromSqlite(db), call = umpire.readAvailableCall(source.umpireCallSourceId, at);
+    const umpire = actualFirstBaseUmpireEvidenceFromSqlite(db);
+    const { call, disposition } = umpire.readAvailableCallWithDisposition(source.umpireCallSourceId, at);
     if (!call) return pending(source, ['operative_call_retirement_pending']);
-    const disposition = umpire.offensiveDisposition(source.umpireCallSourceId, at);
     if (disposition.kind !== 'retired') return pending(source, ['offensive_actor_still_active']);
     if (call.observation.physicalPitchSourceId !== physicalPitchSourceId || call.observation.source.ruleExecutionSourceId !== ruleOwner.source.sourceId
       || disposition.runnerId !== wholeHistory.origin.batterRunnerId) throw new Error('actual PlayEnd operative retirement scope differs');
@@ -246,5 +246,5 @@ export const actualFirstBasePlayEndEvidenceFromSqlite = (db: Db) => ({
           { cause: source.umpireCallSourceId, consumer: source.communicationSourceId },
           ...observationSchedules.flatMap(s => s.consumed.map(c => ({ cause: c.causeSourceId, consumer: c.consumerSourceId }))) ] },
       futureWork });
-  }),
+  })),
 });

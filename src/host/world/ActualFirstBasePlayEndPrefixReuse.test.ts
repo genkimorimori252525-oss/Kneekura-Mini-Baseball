@@ -12,7 +12,9 @@ vi.mock('./SqliteBattedWorldFieldStore', () => ({ battedWorldFieldEvidenceFromSq
   read: () => { state.fieldReads++; return state.prefix.baseField; },
   scope: () => { state.fieldScopes++; return state.prefix.fields; },
 }) }));
-vi.mock('./SqliteBattedWorldFieldExecutionStore', () => ({ battedWorldFieldExecutionEvidenceFromSqlite: () => ({
+// Physical traversal itself is covered by ActualFirstBasePhysicalReadTraversal.test.ts.
+vi.mock('./SqliteBattedWorldFieldExecutionStore', () => ({ withBattedWorldPhysicalReadTraversal: <T>(_db: unknown, body: () => T) => body(),
+  battedWorldFieldExecutionEvidenceFromSqlite: () => ({
   scope: () => { state.executionScopes++; return state.prefix.executions; },
 }) }));
 vi.mock('./ActualLivePlayInventoryFromSqlite', () => ({ actualLiveOwnerInstalled: () => true }));

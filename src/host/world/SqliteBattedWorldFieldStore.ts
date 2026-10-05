@@ -1,6 +1,6 @@
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { createBattedWorldFieldGeometry, deriveBattedWorldFieldMotion, deriveInitialBattedWorldFieldMotion,
   type BattedWorldFieldGeometry, type BattedWorldFieldGeometryInput, type BattedWorldFieldMotion } from '../../core/sim/ball/BattedWorldFieldMotion';
@@ -29,6 +29,65 @@ export type SqliteBattedWorldFieldStore = Readonly<{ acceptGeometry(sourceId: st
 type Authority = Readonly<{ readAcceptedGeometry(sourceId: string): AcceptedBattedWorldFieldGeometry | null;
   readAcceptedAction(sourceId: string): AcceptedBattedWorldFieldAction | null }>;
 type Db = Pick<import('node:sqlite').DatabaseSync, 'prepare'>;
+// Only completed own reads can seed this synchronous physical traversal. No
+// public setter accepts evidence; caller-supplied scope objects are never seeds.
+type FieldReadTraversal = Readonly<{ check(): void;
+  nodes: Map<string, Readonly<{ value: DurableBattedWorldFieldAction; snapshotJson: string; snapshotHash: string }>>;
+  roots: Map<string, DurableBattedWorldFieldAction>; authenticated: WeakSet<object> }>;
+const fieldReadTraversals = new WeakMap<Db, FieldReadTraversal>();
+
+/** Internal root-owned read bracket. It never replaces a connection authorizer.
+ * query_only belongs to this synchronous operation, not an adversarial SQL sandbox. */
+export const withBattedWorldFieldReadTraversal = <T>(db: Db, body: () => T): T => {
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  if (!(db instanceof DatabaseSync) || !db.isTransaction) return body();
+  const prior = fieldReadTraversals.get(db), name = `physical_field_read_${randomUUID().replaceAll('-', '')}`;
+  const queryOnly = () => db.prepare('PRAGMA query_only').get()!.query_only;
+  const beforeQueryOnly = queryOnly();
+  if (beforeQueryOnly !== 0 && beforeQueryOnly !== 1) throw new Error('physical read query-only state is unavailable');
+  const stamp = () => [db.prepare('SELECT total_changes() AS changes').get()!.changes,
+    db.prepare('PRAGMA main.schema_version').get()!.schema_version,
+    db.prepare('PRAGMA temp.schema_version').get()!.schema_version] as const;
+  let savepoint = false, failed = false, failure: unknown, value!: T;
+  const cleanupErrors: unknown[] = [];
+  try {
+    db.exec(`SAVEPOINT ${name}`); savepoint = true;
+    if (beforeQueryOnly === 0) db.exec('PRAGMA query_only=ON');
+    if (queryOnly() !== 1) throw new Error('physical read query-only setting was not established');
+    const original = stamp();
+    const check = () => {
+      const current = stamp();
+      if (!db.isTransaction || queryOnly() !== 1 || current.some((v, i) => v !== original[i])) {
+        throw new Error('physical read transaction or dependencies changed during traversal');
+      }
+    };
+    fieldReadTraversals.set(db, { check, nodes: new Map(), roots: new Map(), authenticated: new WeakSet() });
+    value = body(); check();
+    // Counters cannot identify rollback/rebegin. The private savepoint must
+    // still belong to the original enclosing transaction before evidence escapes.
+    db.exec(`RELEASE ${name}`); savepoint = false;
+    if (!db.isTransaction) throw new Error('physical read transaction ended during traversal');
+  } catch (error) { failed = true; failure = error; }
+  finally {
+    if (prior) fieldReadTraversals.set(db, prior); else fieldReadTraversals.delete(db);
+    if (savepoint) try { db.exec(`RELEASE ${name}`); } catch (error) { cleanupErrors.push(error); }
+    try {
+      if (queryOnly() !== beforeQueryOnly) db.exec(`PRAGMA query_only=${beforeQueryOnly}`);
+      if (queryOnly() !== beforeQueryOnly) throw new Error('physical read query-only setting could not be restored');
+    } catch (error) { cleanupErrors.push(error); }
+  }
+  if (cleanupErrors.length) throw new AggregateError([...(failed ? [failure] : []), ...cleanupErrors],
+    'physical read transaction or setting cleanup failed', { cause: failed ? failure : cleanupErrors[0] });
+  if (failed) throw failure;
+  return value;
+};
+
+/** Identity-only eligibility, never a way to install caller evidence. */
+export const isAuthenticatedBattedWorldFieldTraversalValue = (db: Db, value: DurableBattedWorldFieldAction): boolean => {
+  const traversal = fieldReadTraversals.get(db); traversal?.check();
+  return traversal?.authenticated.has(value) ?? false;
+};
+
 type GeometryRow = { source_id: string; base_geometry_source_id: string; game_id: string;
   source_json: string; source_hash: string; snapshot_json: string; snapshot_hash: string };
 type ActionRow = { source_id: string; physical_pitch_source_id: string; response_source_id: string; geometry_source_id: string;
@@ -135,6 +194,9 @@ export const battedWorldFieldEvidenceFromSqlite = (db: Db) => {
       history: [...(previous?.history ?? []), source], field });
   };
   const scope = (original: Root, throughSourceId?: string): readonly DurableBattedWorldFieldAction[] => {
+    const traversal = fieldReadTraversals.get(db);
+    traversal?.check();
+    const authenticated = traversal?.authenticated.has(original) === true;
     const pitchId = physicalId(original), responseId = original.response.source.sourceId, geometryId = original.geometry.source.sourceId;
     const owners = `physical_pitch_source_id=? OR response_source_id=?
       OR CASE WHEN json_valid(source_json) THEN json_extract(source_json,'$.responseSourceId') END=?
@@ -165,9 +227,15 @@ export const battedWorldFieldEvidenceFromSqlite = (db: Db) => {
       const sourceJson = json(source);
       if (source.responseSourceId !== responseId || source.geometrySourceId !== geometryId || source.previousFieldSourceId !== row.previous_source_id
         || row.source_json !== sourceJson || row.source_hash !== createHash('sha256').update(sourceJson).digest('hex')) throw new Error('corrupt original actual field action Source');
-      const value = execute(source, original, values.at(-1) ?? null);
-      const snapshotJson = json(value);
-      if (row.snapshot_json !== snapshotJson || row.snapshot_hash !== createHash('sha256').update(snapshotJson).digest('hex')) throw new Error('corrupt original actual field action snapshot');
+      const saved = authenticated ? traversal!.nodes.get(row.source_id) : undefined;
+      // Exact private root identity and the freshly parsed full Source are both
+      // required. A partial/changed caller field cannot borrow an owned proof.
+      const reusable = saved && saved.value.response === original.response && saved.value.geometry === original.geometry
+        && json(saved.value.source) === sourceJson ? saved : undefined;
+      const value = reusable?.value ?? execute(source, original, values.at(-1) ?? null);
+      const snapshotJson = reusable?.snapshotJson ?? json(value);
+      if (row.snapshot_json !== snapshotJson || row.snapshot_hash !== (reusable?.snapshotHash
+        ?? createHash('sha256').update(snapshotJson).digest('hex'))) throw new Error('corrupt original actual field action snapshot');
       values.push(value);
     }
     return values;
@@ -177,7 +245,22 @@ export const battedWorldFieldEvidenceFromSqlite = (db: Db) => {
     const row = db.prepare('SELECT * FROM batted_world_field_actions WHERE source_id=?').get(sourceId) as ActionRow | undefined;
     if (!row) return null;
     const source = actionInput(JSON.parse(row.source_json) as AcceptedBattedWorldFieldAction, sourceId);
-    return scope(root(source), sourceId).at(-1)!;
+    const traversal = fieldReadTraversals.get(db); traversal?.check();
+    const rootKey = json([source.responseSourceId, source.geometrySourceId]);
+    const values = scope(traversal?.roots.get(rootKey) ?? root(source), sourceId);
+    if (traversal) {
+      traversal.check();
+      for (const value of values) {
+        if (traversal.nodes.get(value.source.sourceId)?.value !== value) {
+          const snapshotJson = json(value);
+          traversal.nodes.set(value.source.sourceId, { value, snapshotJson,
+            snapshotHash: createHash('sha256').update(snapshotJson).digest('hex') });
+        }
+        traversal.authenticated.add(value);
+      }
+      traversal.roots.set(rootKey, values.at(-1)!);
+    }
+    return values.at(-1)!;
   };
   const derive = (source: AcceptedBattedWorldFieldAction) => {
     const original = root(source), previous = scope(original).at(-1) ?? null;
