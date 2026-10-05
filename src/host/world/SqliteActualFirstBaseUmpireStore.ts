@@ -180,6 +180,11 @@ export const actualFirstBaseUmpireEvidenceFromSqlite = (db: Db) => {
     }
     return call.schedule.kind === 'called' && at.elapsedSeconds >= call.schedule.availableAtElapsedSeconds ? call : null;
   };
+  // One fresh owner read feeds both outputs; no caller receipt or prior read is reused.
+  const availableWithDisposition = (sourceId: string, at: ActualObservationMoment) => {
+    const call = available(sourceId, at);
+    return freeze({ call, disposition: actualFirstBaseOffensiveDisposition(call) } as const);
+  };
   const reference = (owner: string, source: Readonly<{ sourceId: string; sourceVersion: string }>, value: unknown): OwnedLiveCallSourceReference => freeze({
     owner, sourceId: source.sourceId, sourceVersion: source.sourceVersion, sourceHash: hash(source), snapshotHash: owner === 'batted_world_field_executions'
       ? actualFirstBaseUmpireExecutionHash(value as DurableBattedWorldFieldExecution) : hash(value) });
@@ -194,7 +199,7 @@ export const actualFirstBaseUmpireEvidenceFromSqlite = (db: Db) => {
   return { readSetup: (sourceId: string) => read('setup', sourceId) as DurableActualFirstBaseUmpireSetup | null,
     readObservation: (sourceId: string) => read('observation', sourceId) as DurableActualFirstBaseUmpireObservation | null,
     readCall: (sourceId: string) => read('call', sourceId) as DurableActualFirstBaseUmpireCall | null,
-    readAvailableCall: available, importReferences,
+    readAvailableCall: available, readAvailableCallWithDisposition: availableWithDisposition, importReferences,
     offensiveDisposition: (sourceId: string, at: ActualObservationMoment) => actualFirstBaseOffensiveDisposition(available(sourceId, at)),
     derive, admission, captureCallRowset, assertCallRowset };
 };
