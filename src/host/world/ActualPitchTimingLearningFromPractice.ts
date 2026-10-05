@@ -17,7 +17,7 @@ export type ActualPracticePairPlan = Readonly<{
   original: Readonly<{ attemptId: string; completionHash: string; activityId: string; episodeId: string; episodeRevision: number }>;
   normalOpportunity: PitchPracticeOpportunity; quickOpportunity: PitchPracticeOpportunity;
   protocol: Readonly<{ sourceId: string; sourceVersion: string; conditionRule: 'COMPARABLE_CONDITIONS';
-    normalizationSourceId: string; normalizationVersion: string }>;
+    normalizationSourceId: string; normalizationVersion: string; frameEvidenceVersion?: 'BODY_FRAME_V1' }>;
   reference: Readonly<{ personLinkSourceId: string; timingRevision: number; releaseRevision: number;
     timingProfile: PitchTimingProfile; release: PitchPracticeFrame['release']; fatiguePolicy: PitchPracticeFrame['policy'];
     moundReference: PitchPracticeOpportunity['moundReference']; physics: PitchPracticeOpportunity['physics']; beforeFatigue: number; healthAvailability: number }>;
@@ -66,7 +66,8 @@ type Tools = Readonly<{
   transaction<T>(work: () => T): T;
   readAttempt(db: EvidenceDb, id: string, maximumTimingRevision: number): PitchPracticeAttempt | null;
   inspectFrame(opportunity: PitchPracticeOpportunity, fresh: boolean): PitchPracticeFrame;
-  frameEvidence(db: EvidenceDb, opportunity: PitchPracticeOpportunity, frame: PitchPracticeFrame): unknown;
+  frameEvidence(db: EvidenceDb, opportunity: PitchPracticeOpportunity, frame: PitchPracticeFrame, bodyFrameOnly?: boolean): unknown;
+  assertPlanOpportunity(db: EvidenceDb, opportunity: PitchPracticeOpportunity, bodyFrameOnly: boolean): void;
   assertLearningEvidence(db: EvidenceDb, event: DevelopmentLearningEventInput, phase: string): void;
 }>;
 type PlanRow = { source_id: string; original_activity_id: string; source_json: string; reference_frame_json: string; reference_evidence_json: string;
@@ -91,7 +92,9 @@ const acceptedPlan = (raw: ActualPracticePairPlan, sourceId: string): ActualPrac
     || !practiceFields(p.original, ['attemptId', 'completionHash', 'activityId', 'episodeId', 'episodeRevision'])
     || ![p.original.attemptId, p.original.completionHash, p.original.activityId, p.original.episodeId].every(practiceId)
     || !practiceRevision(p.original.episodeRevision)
-    || !practiceFields(p.protocol, ['sourceId', 'sourceVersion', 'conditionRule', 'normalizationSourceId', 'normalizationVersion'])
+    || !practiceFields(p.protocol, ['sourceId', 'sourceVersion', 'conditionRule', 'normalizationSourceId', 'normalizationVersion',
+      ...(p.protocol && Object.hasOwn(p.protocol, 'frameEvidenceVersion') ? ['frameEvidenceVersion'] : [])])
+    || Object.hasOwn(p.protocol, 'frameEvidenceVersion') && p.protocol.frameEvidenceVersion !== 'BODY_FRAME_V1'
     || ![p.protocol.sourceId, p.protocol.sourceVersion, p.protocol.normalizationSourceId, p.protocol.normalizationVersion].every(practiceId)
     || p.protocol.conditionRule !== 'COMPARABLE_CONDITIONS'
     || !practiceFields(p.reference, ['personLinkSourceId', 'timingRevision', 'releaseRevision', 'timingProfile', 'release', 'fatiguePolicy',
@@ -116,6 +119,8 @@ const acceptedPlan = (raw: ActualPracticePairPlan, sourceId: string): ActualPrac
 export const installActualPracticeLearning = (db: DatabaseSync, sources: Sources,
   authority: ActualPracticeLearningAuthority | undefined, tools: Tools): ActualPracticeLearningMethods & Readonly<{
     assertProbeAdmission(opportunity: PitchPracticeOpportunity): void;
+    assertProbeReservation(db: EvidenceDb, opportunity: PitchPracticeOpportunity): void;
+    probeReservationEvidence(db: EvidenceDb, opportunity: PitchPracticeOpportunity): unknown | null;
   }> => {
   for (const key of ['readAcceptedPairPlan', 'readAcceptedStandardizedMeasurement', 'readAcceptedTimingLearning'] as const) {
     if (authority?.[key] !== undefined && typeof authority[key] !== 'function') throw new Error('invalid actual learning authority');
@@ -139,6 +144,12 @@ export const installActualPracticeLearning = (db: DatabaseSync, sources: Sources
   const getPlan = (connection: EvidenceDb, sourceId: string): PlanRow | undefined => connection.prepare('SELECT * FROM pitch_practice_pair_plans WHERE source_id=?').get(sourceId) as PlanRow | undefined;
   const getMeasurement = (connection: EvidenceDb, sourceId: string): MeasurementRow | undefined => connection.prepare('SELECT * FROM pitch_practice_standardized_measurements WHERE source_id=?').get(sourceId) as MeasurementRow | undefined;
   const getRequest = (connection: EvidenceDb, sourceId: string): RequestRow | undefined => connection.prepare('SELECT * FROM pitch_practice_learning_requests WHERE source_id=?').get(sourceId) as RequestRow | undefined;
+  const probeRows = (connection: EvidenceDb, o: PitchPracticeOpportunity): ReservationRow[] => connection.prepare(
+    'SELECT * FROM pitch_practice_probe_reservations WHERE attempt_id=? OR source_id=? ORDER BY attempt_id').all(practiceAttemptId(o), o.sourceId) as ReservationRow[];
+  const probeReservationEvidence = (connection: EvidenceDb, o: PitchPracticeOpportunity): unknown | null => {
+    const rows = probeRows(connection, o);
+    return rows.length ? { rows, plans: rows.map(row => getPlan(connection, row.plan_source_id) ?? null) } : null;
+  };
   const original = (connection: EvidenceDb, p: ActualPracticePairPlan, ceiling: number): PitchPracticeAttempt => {
     const a = tools.readAttempt(connection, p.original.attemptId, ceiling);
     const activity = a && practiceWorkload(a);
@@ -168,7 +179,7 @@ export const installActualPracticeLearning = (db: DatabaseSync, sources: Sources
     // Prospective validation only: no phases or observations are retained here.
     planPracticeDelivery(source.normalOpportunity, frame);
     planPracticeDelivery(source.quickOpportunity, frame);
-    if (!same(frame, referenceFrame) || !same(tools.frameEvidence(connection, source.normalOpportunity, frame), referenceEvidence)
+    if (!same(frame, referenceFrame) || !same(tools.frameEvidence(connection, source.normalOpportunity, frame, source.protocol.frameEvidenceVersion === 'BODY_FRAME_V1'), referenceEvidence)
       || !same(source.reference, pairReference(source.normalOpportunity, frame, source.reference.healthAvailability))) {
       throw new Error('practice pair reference frame differs');
     }
@@ -395,23 +406,38 @@ export const installActualPracticeLearning = (db: DatabaseSync, sources: Sources
           const attemptId = practiceAttemptId(o);
           if (db.prepare('SELECT attempt_id FROM pitch_practice_attempts WHERE attempt_id=? OR source_id=?').get(attemptId, o.sourceId)) throw new Error('practice probe already started before prospective plan');
           if (db.prepare('SELECT attempt_id FROM pitch_practice_probe_reservations WHERE attempt_id=? OR source_id=?').get(attemptId, o.sourceId)) throw new Error('practice probe Source or canonical identity is already reserved');
+          tools.assertPlanOpportunity(db, o, source.protocol.frameEvidenceVersion === 'BODY_FRAME_V1');
         }
         const referenceFrame = tools.inspectFrame(source.normalOpportunity, true);
         planPracticeDelivery(source.normalOpportunity, referenceFrame);
         planPracticeDelivery(source.quickOpportunity, referenceFrame);
         if (!same(source.reference, pairReference(source.normalOpportunity, referenceFrame, source.reference.healthAvailability))) throw new Error('practice pair reference conditions differ');
         const afterSequence = Number(db.prepare('SELECT coalesce(max(sequence),0) AS n FROM pitch_practice_attempts').get()!.n);
-        const referenceEvidence = tools.frameEvidence(db, source.normalOpportunity, referenceFrame);
+        const referenceEvidence = tools.frameEvidence(db, source.normalOpportunity, referenceFrame, source.protocol.frameEvidenceVersion === 'BODY_FRAME_V1');
         const hash = practiceHash({ source, referenceFrame, referenceEvidence, afterSequence });
         db.prepare('INSERT INTO pitch_practice_pair_plans VALUES(?,?,?,?,?,?,?)')
           .run(sourceId, source.original.activityId, json(source), json(referenceFrame), json(referenceEvidence), afterSequence, hash);
         for (const [mode, o] of [['NORMAL', source.normalOpportunity], ['QUICK', source.quickOpportunity]] as const) {
           db.prepare('INSERT INTO pitch_practice_probe_reservations VALUES(?,?,?,?,?)').run(practiceAttemptId(o), o.sourceId, sourceId, mode, json(o));
         }
-        return decodePlan(db, getPlan(db, sourceId)!);
+        const saved = decodePlan(db, getPlan(db, sourceId)!);
+        for (const o of [source.normalOpportunity, source.quickOpportunity]) tools.assertPlanOpportunity(db, o, source.protocol.frameEvidenceVersion === 'BODY_FRAME_V1');
+        return saved;
       });
     },
     readPairPlan,
+    probeReservationEvidence,
+    assertProbeReservation(connection, opportunity): void {
+      const rows = probeRows(connection, opportunity);
+      if (!rows.length) return;
+      if (rows.length !== 1) throw new Error('practice probe Source and canonical reservations disagree');
+      const row = rows[0], planRow = getPlan(connection, row.plan_source_id);
+      if (!planRow) throw new Error('practice probe reservation lacks a plan');
+      const plan = decodePlan(connection, planRow, opportunity.timingRevision).source;
+      const expected = row.mode === 'NORMAL' ? plan.normalOpportunity : row.mode === 'QUICK' ? plan.quickOpportunity : null;
+      if (!expected || !same(expected, opportunity)) throw new Error('practice order contradicts a reserved probe opportunity');
+      if (plan.protocol.frameEvidenceVersion !== 'BODY_FRAME_V1') throw new Error('practice probe evidence mode did not reserve a future owned order');
+    },
     assertProbeAdmission(opportunity): void {
       const rows = db.prepare('SELECT * FROM pitch_practice_probe_reservations WHERE attempt_id=? OR source_id=?')
         .all(practiceAttemptId(opportunity), opportunity.sourceId) as ReservationRow[];
