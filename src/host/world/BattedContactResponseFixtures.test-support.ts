@@ -5,8 +5,8 @@ import { openSqliteBattedContactResponseStore, type AcceptedBattedContactRespons
 
 export const battedContactResponseFixture = (path?: string, kind: 'body' | 'glove' | 'failed_glove' | 'ground' | 'surface' | 'airborne' | 'simultaneous' = 'body',
   configure?: (base: ReturnType<typeof battedWorldContactFixture>) => void, alignFieldWithInitialBases = false, initialOnly = false, rollingDecelerationMps2?: number, groundRestitution?: number, pitchPhysics?: BattedFixturePitchPhysics,
-  profile?: Parameters<typeof battedWorldContactFixture>[6]) => {
-  const base = battedWorldContactFixture(path, alignFieldWithInitialBases, initialOnly, rollingDecelerationMps2, groundRestitution, pitchPhysics, profile), { f, model, models, source, sources, flight, contacts } = base;
+  profile?: Parameters<typeof battedWorldContactFixture>[6], originalContact?: Parameters<typeof battedWorldContactFixture>[7]) => {
+  const base = battedWorldContactFixture(path, alignFieldWithInitialBases, initialOnly, rollingDecelerationMps2, groundRestitution, pitchPhysics, profile, originalContact), { f, model, models, source, sources, flight, contacts } = base;
   const at = flight.flight.contact.tick, ball = flight.flight.initialBall.position;
   if (kind === 'airborne') sources.set(source.sourceId, { ...source, flightSourceId: base.input.sourceId });
   else if (kind === 'surface') models.set(model.sourceId, { ...model, surfaces: [{ surfaceId: 'panel',

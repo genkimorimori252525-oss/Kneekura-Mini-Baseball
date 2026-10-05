@@ -3,8 +3,8 @@ import { openSqliteBattedWorldContactStore, type AcceptedBattedWorldModel, type 
 import type { OfficialParticipantBinding } from './SqliteOfficialParticipationStore';
 
 export const battedWorldContactFixture = (path?: string, alignFieldWithInitialBases = false, initialOnly = false, rollingDecelerationMps2?: number, groundRestitution?: number, pitchPhysics?: BattedFixturePitchPhysics,
-  profile?: Parameters<typeof battedBallFlightFixture>[6]) => {
-  const base = battedBallFlightFixture(path, true, true, alignFieldWithInitialBases, undefined, pitchPhysics, profile), { f, physical, flights, acceptedFlights } = base;
+  profile?: Parameters<typeof battedBallFlightFixture>[6], originalContact?: Parameters<typeof battedBallFlightFixture>[7]) => {
+  const base = battedBallFlightFixture(path, true, true, alignFieldWithInitialBases, undefined, pitchPhysics, profile, originalContact), { f, physical, flights, acceptedFlights } = base;
   const input = rollingDecelerationMps2 === undefined && groundRestitution === undefined ? base.input : { ...base.input, execution: { ...base.input.execution,
     ballFlightParameters: { ...base.input.execution.ballFlightParameters, ...(rollingDecelerationMps2 === undefined ? {} : { groundRollingDecelerationMps2: rollingDecelerationMps2 }),
       ...(groundRestitution === undefined ? {} : { groundRestitution }) } } };
