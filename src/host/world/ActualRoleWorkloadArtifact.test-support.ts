@@ -10,6 +10,8 @@ import { openSqlitePlayerWorkloadRecoveryStore, type AcceptedPlayerWorkloadBasel
 import type { AcceptedActualRoleWorkloadAssessment } from './ActualRoleWorkloadAssessment';
 import { readActualRoleWorkloadState } from './ActualRoleWorkloadState';
 import { withActualRoleWorkloadRecoveryCopy } from './ActualRoleWorkloadRecoveryArtifact.test-support';
+import { assertActualRoleStaleSettlementRejected } from './ActualRoleWorkloadArtifactAssertions.test-support';
+import { witnessSqliteWrite } from './SqliteWriteWitness.test-support';
 import { actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 const { DatabaseSync, backup } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
 const fileHash=(path:string)=>createHash('sha256').update(readFileSync(path)).digest('hex');
@@ -34,6 +36,9 @@ export const verifyActualRoleWorkloadArtifact=async(input:Readonly<{
   const owner=track(openSqliteActualRoleWorkloadStore(input.destinationPath,links,{readAcceptedAssessment:id=>assessments.get(id)??null,readAcceptedBaseline:id=>baselines.get(id)??null}));
   const count=(table:string)=>Number(db.prepare(`SELECT count(*) AS n FROM ${table}`).get()!.n);
   let complete:ReturnType<typeof owner.settle>|null=null;
+  let baselineEvidence:ReadonlyArray<Readonly<{source:AcceptedPlayerWorkloadBaseline;sourceHash:string}>>=[];
+  const faultEvidence={assessmentAfterInsert:false,freezeAfterInsert:false,workloadAfterInsert:false,
+    staleCurrentHeadRejected:false,interruptedAfterFirstInsert:false};
   const assertPlayableEffects=(connection:Pick<import('node:sqlite').DatabaseSync,'prepare'>)=>{
     assert(complete && complete.kind==='complete');
     const activities=connection.prepare('SELECT source_json FROM world_player_workload_activities').all();
@@ -67,8 +72,13 @@ export const verifyActualRoleWorkloadArtifact=async(input:Readonly<{
     if(input.faultChecks){
       db.exec(`CREATE TRIGGER fixture_corrupt_assessment AFTER INSERT ON actual_role_workload_assessments BEGIN
         UPDATE actual_role_workload_assessments SET source_json=json_set(source_json,'$.effortUnits',999) WHERE source_id=NEW.source_id; END;`);
-      assert.throws(()=>owner.acceptAssessments([...assessments.keys()]));assert.equal(count('actual_role_workload_assessments'),0);
+      const witness=witnessSqliteWrite('INSERT INTO actual_role_workload_assessments VALUES(?,?,?,?,?,?,?,?,?,?)',connection=>
+        Number(connection.prepare("SELECT count(*) AS n FROM actual_role_workload_assessments WHERE json_extract(source_json,'$.effortUnits')=999").get()!.n)>0);
+      try{assert.throws(()=>owner.acceptAssessments([...assessments.keys()]));assert(witness.wasReached(),'assessment fault must reach the real INSERT');}
+      finally{witness.close();}
+      assert.equal(count('actual_role_workload_assessments'),0);
       db.exec('DROP TRIGGER fixture_corrupt_assessment');
+      faultEvidence.assessmentAfterInsert=true;
     }
     report('accepting all original participant assessments');
     owner.acceptAssessments([...assessments.keys()]);assert.equal(count('actual_role_workload_assessments'),10);
@@ -77,14 +87,30 @@ export const verifyActualRoleWorkloadArtifact=async(input:Readonly<{
     if(baselines.size){assert.equal(baselinePending.kind,'pending');assert.deepEqual(baselinePending.kind==='pending'?baselinePending.missingBaselines:[],context.actors.filter(a=>baselines.has(`fixture-role-baseline:${a.binding.playerId}`)).map(a=>a.binding.playerId));}
     for(const sourceId of baselines.keys())owner.initializeBaseline(sourceId);
     if(input.faultChecks){
+      const playerId=context.actors[0].binding.playerId;
+      const beforeRevision=Number(db.prepare('SELECT revision FROM world_player_workload_heads WHERE career_id=? AND player_id=?').get(ref.careerId,playerId)!.revision);
       db.exec(`CREATE TRIGGER fixture_corrupt_freeze AFTER INSERT ON actual_role_workload_settlements BEGIN
         UPDATE world_player_workload_heads SET revision=revision+1 WHERE player_id=${literal(context.actors[0].binding.playerId)}; END;`);
-      assert.throws(()=>owner.freeze(input.closureSourceId));assert.equal(count('actual_role_workload_settlements'),0);assert.equal(count('world_player_workload_activities'),0);
+      const witness=witnessSqliteWrite('INSERT INTO actual_role_workload_settlements VALUES(?,?,?,?,?,?)',connection=>
+        Number(connection.prepare('SELECT count(*) AS n FROM actual_role_workload_settlements WHERE closure_source_id=?').get(input.closureSourceId)!.n)===1
+        && Number(connection.prepare('SELECT revision FROM world_player_workload_heads WHERE career_id=? AND player_id=?').get(ref.careerId,playerId)!.revision)===beforeRevision+1);
+      try{assert.throws(()=>owner.freeze(input.closureSourceId));assert(witness.wasReached(),'freeze fault must reach the real INSERT');}
+      finally{witness.close();}
+      assert.equal(count('actual_role_workload_settlements'),0);assert.equal(count('world_player_workload_activities'),0);
       db.exec('DROP TRIGGER fixture_corrupt_freeze');
+      assert.equal(Number(db.prepare('SELECT revision FROM world_player_workload_heads WHERE career_id=? AND player_id=?').get(ref.careerId,playerId)!.revision),beforeRevision);
+      faultEvidence.freezeAfterInsert=true;
     }
     report('freezing exact settlement-time BEFORE states');
     const frozen=owner.freeze(input.closureSourceId);assert.equal(frozen.kind,'applying');
     assert(frozen.participants.every(p=>!p.applied));assert.equal(frozen.capturedAt,'settlement_freeze');
+    baselineEvidence=frozen.participants.map(participant=>{
+      const row=db.prepare('SELECT source_id,source_json FROM world_player_workload_baselines WHERE career_id=? AND player_id=?').get(ref.careerId,participant.playerId);assert(row);
+      const source=JSON.parse(String(row.source_json)) as AcceptedPlayerWorkloadBaseline;
+      assert.equal(source.sourceId,row.source_id);assert.equal(source.careerId,ref.careerId);assert.equal(source.playerId,participant.playerId);
+      assert.equal(json(source.policy),json(participant.before.policy));
+      return {source,sourceHash:hash(source)};
+    });
     if(input.faultChecks){
       const stalePath=`${input.destinationPath}.stale.sqlite`;assert.equal(existsSync(stalePath),false);await backup(db,stalePath);
       const staleResources:{close():void}[]=[];
@@ -94,27 +120,40 @@ export const verifyActualRoleWorkloadArtifact=async(input:Readonly<{
       const first=frozen.participants[0],travel={sourceEventId:'fixture-intervening-travel',sourceVersion:'fixture-v1',evidenceId:'explicit-fixture-travel',
         careerId:ref.careerId,playerId:first.playerId,atDay:ref.gameDay,kind:'TRAVEL' as const,distanceKm:0};
       const staleGlobal=trackStale(openSqlitePlayerWorkloadRecoveryStore(stalePath,staleLinks,{readAcceptedBaseline:()=>null,readAcceptedActivity:id=>id===travel.sourceEventId?travel:null}));
-        staleGlobal.apply(travel.sourceEventId,first.before.revision);
-        assert.throws(()=>staleOwner.settle(input.closureSourceId),/revision|BEFORE/);
+        const intervening=staleGlobal.apply(travel.sourceEventId,first.before.revision);
+        assertActualRoleStaleSettlementRejected(()=>staleOwner.settle(input.closureSourceId));
         assert.equal(Number(staleDb.prepare('SELECT count(*) AS n FROM world_player_workload_activities').get()!.n),1);
         assert.equal(staleGlobal.readActivity(first.activity.sourceEventId),null);
+        assert.equal(json(staleGlobal.readHead(ref.careerId,first.playerId)),json(intervening));
+        faultEvidence.staleCurrentHeadRejected=true;
       }finally{while(staleResources.length)staleResources.pop()!.close();}
       const first=frozen.participants[0];
       db.exec(`CREATE TRIGGER fixture_corrupt_workload_write AFTER INSERT ON world_player_workload_activities
         WHEN NEW.source_id=${literal(first.activity.sourceEventId)} BEGIN UPDATE actual_role_workload_assessments SET source_hash='forged' WHERE source_id=${literal(first.assessmentSourceId)}; END;`);
-      assert.throws(()=>owner.settle(input.closureSourceId));assert.equal(count('world_player_workload_activities'),0);
+      const witness=witnessSqliteWrite('INSERT INTO world_player_workload_activities VALUES (?, ?, ?, ?, ?, ?, ?, ?)',connection=>
+        Number(connection.prepare('SELECT count(*) AS n FROM world_player_workload_activities WHERE source_id=?').get(first.activity.sourceEventId)!.n)===1
+        && connection.prepare('SELECT source_hash FROM actual_role_workload_assessments WHERE source_id=?').get(first.assessmentSourceId)!.source_hash==='forged');
+      try{assert.throws(()=>owner.settle(input.closureSourceId));assert(witness.wasReached(),'workload fault must reach the real INSERT');}
+      finally{witness.close();}
+      assert.equal(count('world_player_workload_activities'),0);
       assert.equal(db.prepare('SELECT source_hash FROM actual_role_workload_assessments WHERE source_id=?').get(first.assessmentSourceId)!.source_hash,hash(assessments.get(first.assessmentSourceId)!));
       db.exec('DROP TRIGGER fixture_corrupt_workload_write');
+      faultEvidence.workloadAfterInsert=true;
       const changed=frozen.participants[0].assessmentSourceId,original=assessments.get(changed)!;
       assessments.set(changed,{...original,effortUnits:original.effortUnits+1});assert.throws(()=>owner.settle(input.closureSourceId),/frozen differently/);
       assert.equal(count('world_player_workload_activities'),0);assessments.set(changed,original);
       const blocked=frozen.participants[1];
       db.exec(`CREATE TRIGGER fixture_interrupt_settlement BEFORE INSERT ON world_player_workload_activities
         WHEN NEW.source_id=${literal(blocked.activity.sourceEventId)} BEGIN SELECT RAISE(ABORT,'fixture interruption'); END;`);
-      assert.throws(()=>owner.settle(input.closureSourceId),/fixture interruption/);assert.equal(count('world_player_workload_activities'),1);
+      const interruption=witnessSqliteWrite('INSERT INTO world_player_workload_activities VALUES (?, ?, ?, ?, ?, ?, ?, ?)',connection=>
+        Number(connection.prepare('SELECT count(*) AS n FROM world_player_workload_activities WHERE source_id=?').get(first.activity.sourceEventId)!.n)===1);
+      try{assert.throws(()=>owner.settle(input.closureSourceId),/fixture interruption/);assert(interruption.wasReached(),'interruption must follow the first real INSERT');}
+      finally{interruption.close();}
+      assert.equal(count('world_player_workload_activities'),1);
       db.exec('DROP TRIGGER fixture_interrupt_settlement');
       const interrupted=owner.readSettlement(input.closureSourceId);assert.equal(interrupted.kind,'applying');
       assert.equal(interrupted.participants.filter(p=>p.applied).length,1);
+      faultEvidence.interruptedAfterFirstInsert=true;
     }
     report('applying accepted total-play effort through existing workload owner');
     complete=owner.settle(input.closureSourceId);assert.equal(complete.kind,'complete');assert.equal(count('world_player_workload_activities'),10);
@@ -154,7 +193,9 @@ export const verifyActualRoleWorkloadArtifact=async(input:Readonly<{
   assert.equal(fileHash(input.sourcePath),originalHash);
   return {sourceSha256:originalHash,destinationSha256:fileHash(input.destinationPath),destinationPath:input.destinationPath,
     sourceUnchanged:true,realDisk:true,wal:true,allConnectionsClosedReopened:true,participantCount:10,exactlyOnce:true,
-    syntheticFixtureInputs:true,automaticEffortGeneration:false,faultChecks:input.faultChecks,settlement:complete,
+    syntheticFixtureInputs:true,automaticEffortGeneration:false,faultChecks:input.faultChecks,faultEvidence,
+    acceptedInputManifest:{assessments:[...assessments.values()],baselineEvidence,addedBaselines:[...baselines.values()],
+      retainedBaselinePlayerIds:complete.participants.filter(p=>!baselines.has(`fixture-role-baseline:${p.playerId}`)).map(p=>p.playerId)},settlement:complete,
     playableArtifactRecoveryActivities:0,playableHeadsEqualFrozenAfter:true,recoveryRegression:{...recoveryRegression,acceptedFixtureDurationHours:1}};
   }finally{drain();}
 };
