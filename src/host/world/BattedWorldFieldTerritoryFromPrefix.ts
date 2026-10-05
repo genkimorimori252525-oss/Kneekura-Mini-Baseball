@@ -4,12 +4,14 @@ import type { BallWorldBattedRuleContact, BallWorldBattedRuleContactFrame } from
 import type { BallWorldBaseBoundaryContact } from '../../core/sim/ball/BallWorldBaseBoundary';
 import type { DurableBattedWorldFieldAction } from './SqliteBattedWorldFieldStore';
 import { actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
 
 /** Native supplies only the own rederived prefix through the requested immutable action. */
 export const battedWorldFieldTerritoryFromPrefix = (prefix: readonly DurableBattedWorldFieldAction[]) => {
   const value = prefix.at(-1);
   if (!value || prefix.length !== value.revision) throw new Error('actual field territory prefix is incomplete');
   const world = value.response.touch.worldContact, flight = world.flight, batter = flight.physicalPitch.frame.batterActor!;
+  assertSupportedBattedWorldConsumer(world, 'field_territory');
   const contacts: BallWorldBattedRuleContactFrame[] = [], baseContacts: BallWorldBaseBoundaryContact[] = [];
   const groundSegments: NonNullable<BallWorldFieldTerritoryInput['groundSegments']>[number][] = [];
   const parameters = flight.source.execution.ballFlightParameters;

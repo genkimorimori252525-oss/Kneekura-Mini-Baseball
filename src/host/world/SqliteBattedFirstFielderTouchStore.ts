@@ -1,4 +1,5 @@
 import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
+import { assertOwnedRunnerFieldRoot, type OwnedRunnerFieldRootCapability } from './OwnedRunnerFieldRoot';
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -6,7 +7,7 @@ import { deriveAndRecordBattedWorldFirstFielderTouch, type BattedWorldFirstField
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { battedWorldContactEvidenceFromSqlite, type DurableBattedWorldContact, type SqliteBattedWorldContactStore } from './SqliteBattedWorldContactStore';
 
-export type AcceptedBattedFirstFielderTouch = Readonly<{ sourceId: string; sourceVersion: string; worldContactSourceId: string }>;
+export type AcceptedBattedFirstFielderTouch = Readonly<{ sourceId: string; sourceVersion: string; worldContactSourceId: string }> & OwnedRunnerFieldRootCapability;
 export type DurableBattedFirstFielderTouch = Readonly<{
   source: AcceptedBattedFirstFielderTouch; worldContact: DurableBattedWorldContact; result: BattedWorldFirstFielderTouchResult;
 }>;
@@ -19,7 +20,9 @@ type Row = { source_id: string; world_contact_source_id: string; physical_pitch_
 const id = (v: unknown): v is string => typeof v === 'string' && v.length > 0 && v === v.trim();
 const input = (raw: AcceptedBattedFirstFielderTouch, sourceId: string): AcceptedBattedFirstFielderTouch => {
   const s = cloneInert(raw);
-  if (!s || typeof s !== 'object' || Array.isArray(s) || Object.keys(s).sort().join('|') !== 'sourceId|sourceVersion|worldContactSourceId'
+  if (!s || typeof s !== 'object' || Array.isArray(s) || Object.keys(s).sort().join('|')
+    !== ['sourceId', 'sourceVersion', 'worldContactSourceId', ...('kind' in s ? ['kind', 'prePitchRunnerSourceId'] : [])].sort().join('|')
+    || 'kind' in s && (s.kind !== 'owned_runner_field_root_v1' || !id(s.prePitchRunnerSourceId))
     || s.sourceId !== sourceId || ![s.sourceId, s.sourceVersion, s.worldContactSourceId].every(id)) throw new Error('invalid accepted first-fielder touch Source');
   return s;
 };
@@ -29,7 +32,10 @@ export const battedFirstFielderTouchEvidenceFromSqlite = (db: Pick<import('node:
   const derive = (s: AcceptedBattedFirstFielderTouch): DurableBattedFirstFielderTouch => {
     const worldContact = own.read(s.worldContactSourceId);
     if (!worldContact) throw new Error('original batted World contact is missing');
-    assertSupportedBattedWorldConsumer(worldContact, 'first_fielder_touch');
+    if (s.kind === 'owned_runner_field_root_v1') {
+      input(s, s.sourceId);
+      assertOwnedRunnerFieldRoot(worldContact, s.prePitchRunnerSourceId);
+    } else assertSupportedBattedWorldConsumer(worldContact, 'first_fielder_touch');
     const frame = worldContact.flight.physicalPitch.frame;
     const result = deriveAndRecordBattedWorldFirstFielderTouch({ timeline: worldContact.timeline,
       world: { flight: worldContact.flight.flight, parameters: worldContact.flight.source.execution.ballFlightParameters,

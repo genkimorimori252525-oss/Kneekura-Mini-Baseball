@@ -11,6 +11,7 @@ import { battedWorldResponseInput } from './SqliteBattedWorldContinuationStore';
 import { battedWorldMotionCommandsInput, battedWorldMotionPrimitiveCommands, type AcceptedBattedWorldMotion } from './SqliteBattedWorldMotionStore';
 import { battedWorldFieldTerritoryFromPrefix } from './BattedWorldFieldTerritoryFromPrefix';
 import { assertNoBattedWorldFieldExecutionOwner } from './BattedWorldMotionOwnershipFence';
+import { deriveOwnedRunnerFieldMotion, type OwnedRunnerFieldCapability } from './OwnedRunnerFieldMotion';
 
 export type AcceptedBattedWorldFieldGeometry = Readonly<{ sourceId: string; sourceVersion: string; baseGeometrySourceId: string;
   baseModels: BattedWorldFieldGeometryInput['baseModels'] }>;
@@ -18,7 +19,7 @@ export type DurableBattedWorldFieldGeometry = Readonly<{ source: AcceptedBattedW
   baseGeometry: DurableBattedWorldBaseGeometry; geometry: BattedWorldFieldGeometry }>;
 export type AcceptedBattedWorldFieldAction = Readonly<{ sourceId: string; sourceVersion: string; responseSourceId: string;
   geometrySourceId: string; previousFieldSourceId: string | null; availableAtTick: number; throughTick: number;
-  commands: AcceptedBattedWorldMotion['commands'] }>;
+  commands: AcceptedBattedWorldMotion['commands'] }> & OwnedRunnerFieldCapability;
 type Root = Readonly<{ response: DurableBattedContactResponse; geometry: DurableBattedWorldFieldGeometry }>;
 export type DurableBattedWorldFieldAction = Root & Readonly<{ source: AcceptedBattedWorldFieldAction; revision: number;
   history: readonly AcceptedBattedWorldFieldAction[]; field: BattedWorldFieldMotion }>;
@@ -106,7 +107,9 @@ const geometryInput = (raw: AcceptedBattedWorldFieldGeometry, sourceId: string) 
 };
 const actionInput = (raw: AcceptedBattedWorldFieldAction, sourceId: string) => {
   const s = cloneInert(raw);
-  if (!fields(s, ['sourceId', 'sourceVersion', 'responseSourceId', 'geometrySourceId', 'previousFieldSourceId', 'availableAtTick', 'throughTick', 'commands'])
+  if (!fields(s, ['sourceId', 'sourceVersion', 'responseSourceId', 'geometrySourceId', 'previousFieldSourceId', 'availableAtTick', 'throughTick', 'commands',
+    ...('kind' in s ? ['kind', 'prePitchRunnerSourceId'] : [])])
+    || 'kind' in s && (s.kind !== 'owned_runner_field_v1' || !id(s.prePitchRunnerSourceId))
     || s.sourceId !== sourceId || ![sourceId, s.sourceVersion, s.responseSourceId, s.geometrySourceId].every(id)
     || s.previousFieldSourceId !== null && (!id(s.previousFieldSourceId) || s.previousFieldSourceId === sourceId)
     || !tick(s.availableAtTick) || !tick(s.throughTick)) throw new Error('invalid accepted actual field action Source');
@@ -181,14 +184,17 @@ export const battedWorldFieldEvidenceFromSqlite = (db: Db) => {
     return { response, geometry };
   };
   const execute = (source: AcceptedBattedWorldFieldAction, original: Root, previous: DurableBattedWorldFieldAction | null): DurableBattedWorldFieldAction => {
-    const response = battedWorldResponseInput(original.response), commands = battedWorldMotionPrimitiveCommands(original.response, source.commands);
-    const common = { response, geometry: original.geometry.geometry, commands, availableAtTick: source.availableAtTick, throughTick: source.throughTick };
     let field: BattedWorldFieldMotion;
-    if (!previous) field = deriveInitialBattedWorldFieldMotion(common);
+    if (source.kind === 'owned_runner_field_v1') field = deriveOwnedRunnerFieldMotion(source, original, previous);
     else {
-      const motion = previous.field.motion;
-      if (!motion.cursor) throw new Error('actual field capture or unresolved physical policy is pending');
-      field = deriveBattedWorldFieldMotion({ ...common, cursor: motion.cursor, actors: motion.actors, carrierPlayerId: motion.carrierPlayerId });
+      const response = battedWorldResponseInput(original.response), commands = battedWorldMotionPrimitiveCommands(original.response, source.commands);
+      const common = { response, geometry: original.geometry.geometry, commands, availableAtTick: source.availableAtTick, throughTick: source.throughTick };
+      if (!previous) field = deriveInitialBattedWorldFieldMotion(common);
+      else {
+        const motion = previous.field.motion;
+        if (!motion.cursor) throw new Error('actual field capture or unresolved physical policy is pending');
+        field = deriveBattedWorldFieldMotion({ ...common, cursor: motion.cursor, actors: motion.actors, carrierPlayerId: motion.carrierPlayerId });
+      }
     }
     return freeze({ source, response: original.response, geometry: original.geometry, revision: (previous?.revision ?? 0) + 1,
       history: [...(previous?.history ?? []), source], field });
@@ -263,6 +269,7 @@ export const battedWorldFieldEvidenceFromSqlite = (db: Db) => {
     return values.at(-1)!;
   };
   const derive = (source: AcceptedBattedWorldFieldAction) => {
+    if (source.kind === 'owned_runner_field_v1') source = actionInput(source, source.sourceId);
     const original = root(source), previous = scope(original).at(-1) ?? null;
     if (source.previousFieldSourceId !== (previous?.source.sourceId ?? null)) throw new Error('actual field predecessor differs');
     return execute(source, original, previous);

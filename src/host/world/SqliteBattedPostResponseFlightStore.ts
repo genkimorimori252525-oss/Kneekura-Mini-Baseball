@@ -1,4 +1,5 @@
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
+import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import {
@@ -189,6 +190,7 @@ export const openSqliteBattedPostResponseFlightStore = (
     if (!response) {
       throw new Error('original batted contact response is missing');
     }
+    assertSupportedBattedWorldConsumer(response.touch.worldContact, 'post_response_flight');
     const parent = source.previousContinuationSourceId === null
       ? null
       : read(source.previousContinuationSourceId, seen);
@@ -293,6 +295,7 @@ export const openSqliteBattedPostResponseFlightStore = (
     if (!response) {
       throw new Error('original batted contact response is missing');
     }
+    assertSupportedBattedWorldConsumer(response.touch.worldContact, 'post_response_flight');
     if (
       source.previousContinuationSourceId === null
         ? parent !== null

@@ -1,4 +1,5 @@
 import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
+import { assertOwnedRunnerFieldRoot, type OwnedRunnerFieldRootCapability } from './OwnedRunnerFieldRoot';
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -16,7 +17,7 @@ export type AcceptedBattedContactResponseModel = Readonly<{
 }>;
 export type AcceptedBattedContactResponse = Readonly<{
   sourceId: string; sourceVersion: string; firstFielderTouchSourceId: string; responseModelSourceId: string;
-}>;
+}> & OwnedRunnerFieldRootCapability;
 export type DurableBattedContactResponse = Readonly<{
   source: AcceptedBattedContactResponse; model: AcceptedBattedContactResponseModel;
   touch: DurableBattedFirstFielderTouch; result: BattedBallContactResponse;
@@ -36,7 +37,8 @@ const material = (m: BallContactMaterial) => fields(m, ['restitution', 'tangenti
   && [m.restitution, m.tangentialDamping, m.spinDamping].every((v) => Number.isFinite(v) && v >= 0 && v <= 1);
 const input = (raw: AcceptedBattedContactResponse, sourceId: string): AcceptedBattedContactResponse => {
   const s = cloneInert(raw);
-  if (!fields(s, ['sourceId', 'sourceVersion', 'firstFielderTouchSourceId', 'responseModelSourceId']) || s.sourceId !== sourceId
+  if (!fields(s, ['sourceId', 'sourceVersion', 'firstFielderTouchSourceId', 'responseModelSourceId', ...('kind' in s ? ['kind', 'prePitchRunnerSourceId'] : [])])
+    || 'kind' in s && (s.kind !== 'owned_runner_field_root_v1' || !id(s.prePitchRunnerSourceId)) || s.sourceId !== sourceId
     || ![sourceId, s.sourceVersion, s.firstFielderTouchSourceId, s.responseModelSourceId].every(id)) throw new Error('invalid accepted batted response Source');
   return s;
 };
@@ -79,7 +81,13 @@ export const battedContactResponseEvidenceFromSqlite = (
     const touch = own.read(s.firstFielderTouchSourceId);
     if (!touch) throw new Error('original first-fielder touch Source is missing');
     const w = touch.worldContact, original = w.model, p = w.flight.source.execution.ballFlightParameters;
-    assertSupportedBattedWorldConsumer(w, 'contact_response');
+    if (s.kind === 'owned_runner_field_root_v1') {
+      input(s, s.sourceId);
+      assertOwnedRunnerFieldRoot(w, s.prePitchRunnerSourceId);
+      if (touch.source.kind !== 'owned_runner_field_root_v1' || touch.source.prePitchRunnerSourceId !== s.prePitchRunnerSourceId) {
+        throw new Error('owned runner response requires its original tagged field touch');
+      }
+    } else assertSupportedBattedWorldConsumer(w, 'contact_response');
     if (m.gameId !== original.gameId || m.careerId !== original.careerId || m.fixtureEventId !== original.fixtureEventId
       || m.venueId !== original.venueId || m.availableAtDay > w.flight.physicalPitch.frame.batterActor!.binding.gameDay
       || m.actors.length !== original.actors.length || m.actors.some((a) => !original.actors.some((b) => a.playerId === b.playerId && a.personId === b.personId))

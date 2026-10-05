@@ -145,9 +145,11 @@ it('integrates multiple field and execution commands only over their actual piec
   const x = richFixture();
   try {
     const own = actualPlayerKinematicsEvidenceFromSqlite(x.f.db), first = own.read(cut(x));
-    const secondSource = { ...x.baseField.source, sourceId: 'second-root-motion', previousFieldSourceId: x.baseField.source.sourceId,
+    const originalSource = x.baseField.source;
+    if (originalSource.kind !== undefined) throw new Error('piecewise kinematics fixture requires the legacy field Source');
+    const secondSource = { ...originalSource, sourceId: 'second-root-motion', previousFieldSourceId: originalSource.sourceId,
       availableAtTick: first.at.tick, throughTick: first.at.tick + 1000,
-      commands: x.baseField.source.commands.map((c) => ({ ...c, bodyAcceleration: v(-0.2, 0),
+      commands: originalSource.commands.map((c) => ({ ...c, bodyAcceleration: v(-0.2, 0),
         primitiveMotions: c.primitiveMotions.map((p) => ({ ...p, offsetAcceleration: v(-0.4) })) })) };
     x.sources.set(secondSource.sourceId, secondSource); const secondField = x.fields.accept(secondSource.sourceId);
     const second = own.read({ ...cut(x), baseFieldSourceId: secondSource.sourceId, mode: 'current' });
