@@ -1,0 +1,31 @@
+{
+  "terminalAt": "2026-10-05T01:03:30.906817+00:00",
+  "toolExitCode": 130,
+  "kind": "deliberately interrupted after verified negative seal rollback; whole case not passed",
+  "gatePassed": false,
+  "sourceUnchanged": true,
+  "launcherUnchanged": true,
+  "runtimeUnchanged": true,
+  "inputUnchanged": true,
+  "inputWalBytes": 0,
+  "lastWorkerMemory": {
+    "time": "2026-10-05T01:02:40.983Z",
+    "rss": 308764672,
+    "heapTotal": 171069440,
+    "heapUsed": 118836496,
+    "external": 4657501,
+    "arrayBuffers": 278418
+  },
+  "negativePhaseEvidenceSha256": "cf476b97f61fee1cf90035e5e59d0089172ef328f14477263afb774443327194",
+  "artifactAuditSha256": "dbd430a6037610b79c5d4c43a2f6c38d8d055b7dc0d2edd5423783fb5dca6619",
+  "physicalEndRows": 0,
+  "sealRows": 0,
+  "allOriginalTableRowsUnchanged": true,
+  "tableCount": 72,
+  "totalRows": 143,
+  "negativeBackupWalBytes": 0,
+  "schema": "synthetic_first_base_interruption_receipt_v1",
+  "originalRawReceiptSha256": "a75f5ffe17a7c552f4d1c47ec6dfe6e76c0f87afec8ec8294762947bae45e768",
+  "originalRawNegativePhaseEvidenceSha256": "cb4a12cff58f0eb29149d93774499d4b4c85302ed55f652765b737e81a09884e",
+  "publicationProjection": "Private process/session details removed; this publication projection is not byte-identical to the original run report."
+}

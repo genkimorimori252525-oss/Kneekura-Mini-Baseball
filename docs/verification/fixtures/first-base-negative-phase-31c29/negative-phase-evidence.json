@@ -1,0 +1,18 @@
+{
+  "time": "2026-10-05T01:02:34.849815+00:00",
+  "phase": "actual seal INSERT witnessed and rolled back",
+  "phaseAt": "2026-10-05T00:56:56.784Z",
+  "wholeCase": "still running; deliberate interruption requested, not passed",
+  "sourceCommit": "31c29dee1fe60cba72511d2e30aa679712156e8d",
+  "inputSha256": "a54678e3aae1c6df0d25683b65c2811cedfed98539ca604aa233563f9eee7caa",
+  "sha256": "9b9540ee332d17da513fb015e7e3a5cef2ef6ef0eb06c7982e071a8783564c87",
+  "endRows": [],
+  "sealRows": [],
+  "phaseLogSha256": "5bfbe251734f3af7f7cd9c40272f0a7335b849c3bf82be5fb13030791d8fbf71",
+  "witnessAndRollbackAssertionsSource": "src/host/world/ActualFirstBaseArtifactAcceptance.test.ts",
+  "witnessAndRollbackAssertionsSourceSha256": "016a289a33c81fad6a9fcfc1c8eefad42c1054fa4d87ff489966a0e5ba8c869e",
+  "schema": "synthetic_first_base_negative_phase_receipt_v1",
+  "originalRawReceiptSha256": "cb4a12cff58f0eb29149d93774499d4b4c85302ed55f652765b737e81a09884e",
+  "originalRawPhaseLogSha256": "c34f1248c71d3a696707faa542eab6b1340314c6049d04c79828f4f37a96b3d5",
+  "publicationProjection": "Private absolute paths removed; this publication projection is not byte-identical to the original run report."
+}

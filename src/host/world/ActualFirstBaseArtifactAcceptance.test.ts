@@ -30,12 +30,34 @@ const emptyTerminal = (db: DatabaseSync) => {
   expect(db.prepare('SELECT count(*) AS n FROM actual_live_play_fences').get()!.n).toBe(0);
 };
 
+// This selects only a previously executed test fault phase, never a domain completion flag.
+const recordedNegativePhase = () => {
+  const directory = process.env.BASEBALL_FIRST_PLAY_VERIFIED_NEGATIVE_DIR;
+  if (!directory) return false;
+  const proof = readFileSync(join(directory, 'negative-phase-evidence.json'));
+  const terminal = readFileSync(join(directory, 'interruption-terminal.json'));
+  expect(sha(proof)).toBe('cf476b97f61fee1cf90035e5e59d0089172ef328f14477263afb774443327194');
+  expect(sha(terminal)).toBe('7979b0c1e888b327a4b0f8cff641d72c4712b1f46f6ebc2f42c602c570387e76');
+  expect(JSON.parse(proof.toString())).toMatchObject({ schema: 'synthetic_first_base_negative_phase_receipt_v1',
+    originalRawReceiptSha256: 'cb4a12cff58f0eb29149d93774499d4b4c85302ed55f652765b737e81a09884e',
+    originalRawPhaseLogSha256: 'c34f1248c71d3a696707faa542eab6b1340314c6049d04c79828f4f37a96b3d5', phase: 'actual seal INSERT witnessed and rolled back',
+    sourceCommit: '31c29dee1fe60cba72511d2e30aa679712156e8d', inputSha256: inputHash, endRows: [], sealRows: [] });
+  expect(JSON.parse(terminal.toString())).toMatchObject({ schema: 'synthetic_first_base_interruption_receipt_v1',
+    originalRawReceiptSha256: 'a75f5ffe17a7c552f4d1c47ec6dfe6e76c0f87afec8ec8294762947bae45e768',
+    originalRawNegativePhaseEvidenceSha256: 'cb4a12cff58f0eb29149d93774499d4b4c85302ed55f652765b737e81a09884e', gatePassed: false, toolExitCode: 130,
+    sourceUnchanged: true, launcherUnchanged: true, runtimeUnchanged: true, inputUnchanged: true,
+    allOriginalTableRowsUnchanged: true, physicalEndRows: 0, sealRows: 0, tableCount: 72, totalRows: 143 });
+  expect(sha(readFileSync(join(directory, 'negative-phase-completed.jsonl'))))
+    .toBe('5bfbe251734f3af7f7cd9c40272f0a7335b849c3bf82be5fb13030791d8fbf71');
+  return true;
+};
 const request = { sourceId: 'physical-end', sourceVersion: 'fixture-v1', runtimeSourceId: 'live-play-runtime',
     baseFieldSourceId: 'field-race-candidate-0', executionSourceId: 'actual-post-call-quantizer-tail',
     ruleConsumptionSourceId: 'rule-consumption', umpireCallSourceId: 'operative-call', communicationSourceId: 'call-information' };
 // Raw input sanity only. The acceptance case still invokes every concrete owner proof.
 it.runIf(!!process.env.BASEBALL_FIRST_PLAY_SANITY_DB)('checks pinned raw artifact request IDs and complete row manifest without replaying domain owners', () => {
   const path = resolve(process.env.BASEBALL_FIRST_PLAY_SANITY_DB!);
+  recordedNegativePhase();
   expect(sha(readFileSync(path))).toBe(inputHash);
   const manifest = JSON.parse(readFileSync(new URL('../../../docs/verification/fixtures/first-base-pre-end-chain-bf823.manifest.json', import.meta.url), 'utf8'));
   expect(manifest.schema).toBe('synthetic_first_base_pre_end_fixture_v1'); expect(manifest.databaseSha256).toBe(inputHash);
@@ -96,15 +118,18 @@ it.runIf(!!process.env.BASEBALL_FIRST_PLAY_COMMITTED_DB)('accepts the manifest-p
     const future = ref('actual_defensive_decisions', 'scheduled-decision-home-2');
     const originalCall = JSON.parse(String(called.snapshot_json)), originalObservation = JSON.parse(String(perceived.snapshot_json));
     store = openSqliteActualFirstBasePlayEndStore(path, { readAcceptedEnd: id => id === request.sourceId ? request : null });
-    db.exec(knownFirstBaseSealTrapSql);
-    const witness = witnessSqliteWrite('INSERT INTO actual_live_play_fences VALUES(?,?,?,?)', connection =>
-      connection.prepare('SELECT snapshot_hash FROM batted_world_field_executions WHERE source_id=?').get(request.executionSourceId)!.snapshot_hash === 'changed-during-seal');
-    phase('begin real negative seal acceptance');
-    try {
-      expect(() => store!.accept(request.sourceId)).toThrow(/archive|identity|original|owner|snapshot|admitted source/);
-      expect(witness.wasReached()).toBe(true);
-    } finally { witness.close(); clearKnownFirstBaseTrapOnDisposableCopy(db); }
-    emptyTerminal(db); expect(originals(fingerprints(db))).toEqual(before); phase('actual seal INSERT witnessed and rolled back');
+    if (recordedNegativePhase()) phase('using hash-pinned prior seal INSERT and rollback proof; clean acceptance begins');
+    else {
+      db.exec(knownFirstBaseSealTrapSql);
+      const witness = witnessSqliteWrite('INSERT INTO actual_live_play_fences VALUES(?,?,?,?)', connection =>
+        connection.prepare('SELECT snapshot_hash FROM batted_world_field_executions WHERE source_id=?').get(request.executionSourceId)!.snapshot_hash === 'changed-during-seal');
+      phase('begin real negative seal acceptance');
+      try {
+        expect(() => store!.accept(request.sourceId)).toThrow(/archive|identity|original|owner|snapshot|admitted source/);
+        expect(witness.wasReached()).toBe(true);
+      } finally { witness.close(); clearKnownFirstBaseTrapOnDisposableCopy(db); }
+      emptyTerminal(db); expect(originals(fingerprints(db))).toEqual(before); phase('actual seal INSERT witnessed and rolled back');
+    }
     const ended = store.accept(request.sourceId); phase('physical end committed; final reopen proof still pending');
     expect(ended.kind).toBe('ended'); expect(ended.registry.resolution).toMatchObject({ kind: 'ended', reason: 'all_offense_terminal' });
     expect(ended.wholeHistory.end).toEqual({ kind: 'unestablished' });
