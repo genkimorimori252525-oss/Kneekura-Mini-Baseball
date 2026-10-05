@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, it } from 'vitest';
 import { resumeActualFirstBasePlayEndFixture } from './ActualFirstBasePlayEndResume.test-support';
-import { installOwnedScheduledDecision } from './OwnedScheduledMotionDecisionFixtures.test-support';
+import { clearKnownFirstBaseTrapOnDisposableCopy, requireOriginalArtifactFutureDecision } from './ActualFirstBaseArtifactGuards.test-support';
 import { actualDefensiveDecisionLiveWorkFromSqlite } from './SqliteActualDefensiveDecisionLiveWork';
 import { actualFirstBaseEndArchiveEncoding, openSqliteActualFirstBasePlayEndStore } from './SqliteActualFirstBasePlayEndStore';
 import { actualFirstBaseUmpireEvidenceFromSqlite, openSqliteActualFirstBaseUmpireStore } from './SqliteActualFirstBaseUmpireStore';
@@ -33,14 +33,14 @@ it.runIf(!!process.env.BASEBALL_FIRST_PLAY_COMMITTED_DB)('authenticates the pres
   try {
     expect(x.f.db.prepare('PRAGMA journal_mode').get()!.journal_mode).toBe('wal');
     expect(x.f.db.prepare('PRAGMA database_list').all().find(r => r.name === 'main')!.file).toBe(path);
-    expect(x.f.db.prepare('SELECT * FROM actual_first_base_play_ends').all()).toEqual([]);
-    expect(x.f.db.prepare('SELECT * FROM actual_live_play_fences').all()).toEqual([]);
-    // The interrupted negative gate deliberately committed this trigger before
-    // starting its rolled-back transaction. Remove it only on this fresh copy;
-    // the preserved artifact remains byte-for-byte intact.
-    const trigger = x.f.db.prepare("SELECT sql FROM sqlite_master WHERE type='trigger' AND name='corrupt_sealed_dependency'").get();
-    expect(trigger?.sql).toContain("snapshot_hash='changed-during-seal'");
-    x.f.db.exec('DROP TRIGGER corrupt_sealed_dependency;');
+    for (const table of ['actual_first_base_play_ends', 'actual_live_play_fences']) {
+      if (x.f.db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(table)) {
+        expect(x.f.db.prepare(`SELECT * FROM ${table}`).all()).toEqual([]);
+      }
+    }
+    // Only this fresh disposable copy may remove the exact inherited test trap.
+    // An absent trap is valid when the snapshot predates its creation.
+    phase(`artifact trap: ${clearKnownFirstBaseTrapOnDisposableCopy(x.f.db)}`);
     const physicalRows = () => x.f.db.prepare('SELECT * FROM batted_world_field_executions ORDER BY revision').all();
     const originalPhysical = physicalRows();
     expect(originalPhysical).toHaveLength(10);
@@ -70,14 +70,19 @@ it.runIf(!!process.env.BASEBALL_FIRST_PLAY_COMMITTED_DB)('authenticates the pres
     expect(references.ruleEvidence.snapshotHash).toBe(physicalHash); expect(references.ruleEvidence.sourceHash).toBe(hash(x.race.source));
     expect(communication.source.currentExecutionSourceId).toBe(final.source.sourceId);
     expect(communication.recipients).toHaveLength(10); expect(communication.recipients.every(r => r.kind === 'scheduled')).toBe(true);
-    // An actual new observation at the already-executed endpoint creates a real
-    // future decision. No extra physical advancement or invented schedule is needed.
-    const originalDeciders = x.f.db.prepare('SELECT player_id FROM actual_defensive_decisions').all().map(r => r.player_id);
-    const futurePlayer = x.runtime.membership.participants.find(p => p.role === 'defender' && !originalDeciders.includes(p.playerId))!;
-    const secondDefender = installOwnedScheduledDecision(x, futurePlayer.playerId, final.source.sourceId, 100);
-    expect(secondDefender.decision.receipt.lifecycle.status).toBe('pending_decision');
-    const futureDecision = actualDefensiveDecisionLiveWorkFromSqlite(x.f.db).read(secondDefender.decision.source.sourceId)!;
-    phase('accepted real second defender future decision at final physical cut');
+    // Reuse the genuine pending home-2 Source already admitted by the Positive
+    // gate. Its original rule cut and deadlines remain frozen; no third actor is
+    // introduced to obtain a new future date.
+    x.f.db.exec('BEGIN');
+    const futureDecision = requireOriginalArtifactFutureDecision(
+      actualDefensiveDecisionLiveWorkFromSqlite(x.f.db).read('scheduled-decision-home-2'), {
+        physicalPitchSourceId: x.pitchId, baseFieldSourceId: x.baseField.source.sourceId,
+        ruleExecutionSourceId: x.race.source.sourceId, throughTick: final.execution.field.motion.world.moment.ball.tick,
+        defenderIds: x.runtime.membership.participants.filter(p => p.role === 'defender').map(p => p.playerId),
+      });
+    x.f.db.exec('COMMIT');
+    const futurePlayer = x.runtime.membership.participants.find(p => p.playerId === futureDecision.work.playerId)!;
+    phase('authenticated existing second defender future decision at its original rule cut');
     const request = { sourceId: 'physical-end', sourceVersion: 'fixture-v1', runtimeSourceId: x.runtime.source.sourceId,
       baseFieldSourceId: x.baseField.source.sourceId, executionSourceId: final.source.sourceId,
       ruleConsumptionSourceId: 'rule-consumption', umpireCallSourceId: call.source.sourceId, communicationSourceId: communication.source.sourceId };

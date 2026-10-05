@@ -1,3 +1,4 @@
+import { withSqliteMetadataStatementScope } from './SqliteMetadataStatementScope';
 import { afterAll, expect, it } from 'vitest';
 import { createRequire } from 'node:module';
 import { actualDefensiveDecisionFixture } from './ActualDefensiveDecisionFixtures.test-support';
@@ -296,4 +297,33 @@ it('rejects physical index namespace changes even when the previously validated 
       x.f.db.prepare(`UPDATE batted_world_field_executions SET ${column}=? WHERE source_id=?`).run(row[column], x.execution.source.sourceId);
     }
   } finally { x.f.close(); }
+});
+
+it('rechecks raw ownership and heads after reusing only metadata statements in one derive scope', () => {
+  const x = fixture(), db = x.f.db, prepare = db.prepare, counts = new Map<string, number>();
+  db.prepare = function(sql, ...options) {
+    counts.set(sql, (counts.get(sql) ?? 0) + 1);
+    return prepare.call(this, sql, ...options);
+  };
+  try {
+    withSqliteMetadataStatementScope(db, () => {
+      preflight(db, x.input); preflight(db, x.input);
+      expect(counts.get('SELECT json_valid(?) AS valid')).toBe(1);
+      const defensive = [...counts.entries()].filter(([sql]) => sql.startsWith('WITH ownership_document'));
+      expect(defensive.length).toBeGreaterThan(0);
+      expect(defensive.every(([, count]) => count === 1)).toBe(true);
+      expect([...counts.entries()].filter(([sql]) => sql.startsWith('SELECT owner.type') || sql.startsWith('SELECT entry.type'))
+        .every(([, count]) => count === 1)).toBe(true);
+      expect([...counts.entries()].some(([sql, count]) => sql.includes('SELECT * FROM actual_locomotion_heads') && count >= 2)).toBe(true);
+      expect([...counts.entries()].some(([sql, count]) => sql.startsWith('SELECT * FROM actual_locomotion_receipts WHERE source_id=') && count >= 2)).toBe(true);
+      const original = db.prepare('SELECT source_json FROM actual_locomotion_receipts WHERE source_id=?').get(x.motor.sourceId)!.source_json as string;
+      db.prepare('UPDATE actual_locomotion_receipts SET source_json=? WHERE source_id=?')
+        .run(original.replace('"sourceVersion":', '"sourceVersion":"different","sourceVersion":'), x.motor.sourceId);
+      expect(() => preflight(db, x.input)).toThrow(/metadata/);
+      db.prepare('UPDATE actual_locomotion_receipts SET source_json=? WHERE source_id=?').run(original, x.motor.sourceId);
+      preflight(db, x.input);
+      db.exec('UPDATE actual_defensive_decision_heads SET revision=99');
+      expect(() => preflight(db, x.input)).toThrow(/head/);
+    });
+  } finally { db.prepare = prepare; x.f.close(); }
 });

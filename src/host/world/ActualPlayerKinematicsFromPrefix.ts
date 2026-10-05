@@ -6,7 +6,7 @@ import { projectDefenderBodyKinematicsSegment, sampleDefenderBodyKinematicsSegme
 import { composeDefenderPhysicalPrimitiveSegment, type DefenderPhysicalPrimitiveRole } from '../../core/sim/fielding/DefenderPhysicalPrimitive';
 import { quantizeEventTick } from '../../core/sim/ExactEventTime';
 import type { BallWorldMotionActor } from '../../core/sim/ball/BallWorldContinuation';
-import { battedWorldFieldPhysicalPrefix } from './BattedWorldFieldPhysicalPrefix';
+import { battedWorldFieldPhysicalPrefix, createBattedWorldFieldPhysicalReplay } from './BattedWorldFieldPhysicalPrefix';
 import type { AcceptedBattedWorldMotion } from './SqliteBattedWorldMotionStore';
 import { actorHash as hash, actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 
@@ -231,12 +231,27 @@ export const actualPlayerKinematicsFromPrefix = (playerId: string, prefix: Prefi
 
 /** One synchronous pure derivation for a complete already owned prefix. No DB truth
  * is cached or shared across calls, and callers cannot supply a fabricated physical result. */
-export const actualPlayersKinematicsFromPrefix = (playerIds: readonly string[], prefix: Prefix): readonly ActualPlayerKinematics[] => {
+const derivePlayersWithProjection = (playerIds: readonly string[], prefix: Prefix,
+  project: typeof battedWorldFieldPhysicalPrefix): readonly ActualPlayerKinematics[] => {
   const ids = cloneInert(playerIds);
   if (!Array.isArray(ids) || !ids.length || ids.some(id => typeof id !== 'string' || !id.length || id !== id.trim())) {
     throw new Error('actual Player kinematics batch Player scope is empty or invalid');
   }
   if (new Set(ids).size !== ids.length) throw new Error('actual Player kinematics batch requires unique Players, not duplicates');
-  const physical = battedWorldFieldPhysicalPrefix(prefix);
+  const physical = project(prefix);
   return freeze(ids.map(playerId => deriveActualPlayerKinematicsFromPhysicalPrefix(playerId, prefix, physical)));
+};
+
+/** Existing public batch keeps its fresh projection and observable codec boundary. */
+export const actualPlayersKinematicsFromPrefix = (playerIds: readonly string[], prefix: Prefix): readonly ActualPlayerKinematics[] =>
+  derivePlayersWithProjection(playerIds, prefix, battedWorldFieldPhysicalPrefix);
+
+/** Internal parameterless factory; the projection is constructed here, never supplied. */
+export const createActualPlayersKinematicsReplay = () => {
+  const physical = createBattedWorldFieldPhysicalReplay();
+  return Object.freeze({
+    derive: (playerIds: readonly string[], prefix: Prefix) => derivePlayersWithProjection(playerIds, prefix, physical.project),
+    reference: physical.reference,
+    snapshotIdentity: physical.snapshotIdentity,
+  });
 };

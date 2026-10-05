@@ -2,7 +2,7 @@ import { ownedScheduledMotionMotorCutProof } from './OwnedScheduledMotionMotorCu
 import { quantizeEventTick } from '../../core/sim/ExactEventTime';
 import { deriveQuantizerClosedGenerationBoundary } from '../../core/sim/liveAction/QuantizerClosedGenerationBoundary';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
-import { actualPlayersKinematicsFromPrefix } from './ActualPlayerKinematicsFromPrefix';
+import { actualPlayersKinematicsFromPrefix, createActualPlayersKinematicsReplay } from './ActualPlayerKinematicsFromPrefix';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import type { battedWorldFieldPhysicalPrefix } from './BattedWorldFieldPhysicalPrefix';
 import type { DurableActualLocomotion } from './SqliteActualLocomotionStore';
@@ -10,7 +10,7 @@ import type { DurableActualDefensiveDecision } from './SqliteActualDefensiveDeci
 import type { OwnedMotionV2Action } from './OwnedScheduledBattedWorldMotion';
 type Prefix = Parameters<typeof battedWorldFieldPhysicalPrefix>[0];
 
-export const deriveOwnedScheduledMotionComposition = (source: Readonly<{ sourceId: string; sourceVersion: string; baseFieldSourceId: string;
+const deriveComposition = (kinematics: typeof actualPlayersKinematicsFromPrefix, source: Readonly<{ sourceId: string; sourceVersion: string; baseFieldSourceId: string;
   previousExecutionSourceId: string | null; action: OwnedMotionV2Action }>, prefix: Prefix,
   motors: readonly DurableActualLocomotion[], decisions: readonly DurableActualDefensiveDecision[]) => {
   const action = source.action;
@@ -30,7 +30,7 @@ export const deriveOwnedScheduledMotionComposition = (source: Readonly<{ sourceI
   if (new Set(selectedMotorIds).size !== selectedMotorIds.length || selectedMotorIds.some(s => previousAdoptions.some(a => a.motorSourceId === s))) {
     throw new Error('owned motor issuance is already adopted');
   }
-  const selves = actualPlayersKinematicsFromPrefix(playerIds, prefix);
+  const selves = kinematics(playerIds, prefix);
   const contributors = bindings.map(binding => {
     const c = action.contributions.find(c => c.playerId === binding.playerId)!, self = selves.find(s => s.playerId === binding.playerId)!;
     const known = action.knownWork.find(w => w.playerId === binding.playerId)!;
@@ -134,4 +134,20 @@ export const deriveOwnedScheduledMotionComposition = (source: Readonly<{ sourceI
     requestedCheckpoint: action.checkpoint, checkpointThroughElapsedSeconds, coverageThroughTick,
     ...(quantizerBoundary ? { quantizerBoundary } : {}),
     contributors, commands: contributors.map(c => c.command), knownWork, sourceCoverage: 'explicit_known_sources_only' as const }));
+};
+
+type CompositionArguments = Parameters<typeof deriveComposition> extends [unknown, ...infer Arguments] ? Arguments : never;
+
+/** Public pure entry point retains the original fresh-call kinematics boundary. */
+export const deriveOwnedScheduledMotionComposition = (...args: CompositionArguments) =>
+  deriveComposition(actualPlayersKinematicsFromPrefix, ...args);
+
+/** Internal parameterless factory; carries only genuine lower-layer identities. */
+export const createOwnedScheduledMotionCompositionReplay = () => {
+  const kinematics = createActualPlayersKinematicsReplay();
+  return Object.freeze({
+    derive: (...args: CompositionArguments) => deriveComposition(kinematics.derive, ...args),
+    reference: kinematics.reference,
+    snapshotIdentity: kinematics.snapshotIdentity,
+  });
 };

@@ -1,3 +1,4 @@
+import { sqliteMetadataGet } from './SqliteMetadataStatementScope';
 import { sqliteJsonMetadataNodes as nodes, sqliteJsonMetadataProjection as projection, type SqliteJsonMetadataPath } from './SqliteOwnershipMetadata';
 import type { DefensiveDb } from './ActualDefensiveContext';
 
@@ -45,8 +46,8 @@ export const assertDefensiveMetadataUnambiguous = (db: DefensiveDb, kind: Kind, 
       ...shapes.map(([path, type]) => shape('ownership_document.document', path, type))];
     if (isSnapshot && kind !== 'plan') expressions.push(`EXISTS (SELECT 1 FROM
       (${nodes('ownership_document.document', ['history', { array: 'all' }])}) history_entry WHERE history_entry.type!='object')`);
-    const row = db.prepare(`WITH ownership_document(document) AS (VALUES(?))
-      SELECT CASE WHEN json_valid(document) THEN (${expressions.join(' OR ')}) ELSE 0 END AS ambiguous FROM ownership_document`).get(document)!;
+    const row = sqliteMetadataGet(db, `WITH ownership_document(document) AS (VALUES(?))
+      SELECT CASE WHEN json_valid(document) THEN (${expressions.join(' OR ')}) ELSE 0 END AS ambiguous FROM ownership_document`, document)!;
     if (row.ambiguous) throw new Error('ambiguous or mistyped actual defensive ownership metadata');
   }
 };

@@ -1,6 +1,6 @@
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { ownedScheduledMotionActionInput, isOwnedScheduledMotionKind, type OwnedScheduledMotionAction, type OwnedScheduledMotionExecution } from './OwnedScheduledBattedWorldMotion';
-import { deriveOwnedScheduledMotionExecution, pendingOwnedScheduledPlan } from './OwnedScheduledMotionExecution';
+import { createOwnedScheduledMotionExecutionReplay, pendingOwnedScheduledPlan } from './OwnedScheduledMotionExecution';
 import { ownedScheduledMotionArchiveJson as snapshotJson, ownedScheduledMotionArchiveEncoding as snapshotEncoding } from './OwnedScheduledMotionArchive';
 import { createOwnedScheduledMotionDependencyEncoding } from './OwnedScheduledMotionDependencyEncoding';
 import { createRequire } from 'node:module';
@@ -149,7 +149,7 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
     if (!value) throw new Error('actual field execution original field is missing');
     return value;
   };
-  const execute = (source: AcceptedBattedWorldFieldExecution, baseField: DurableBattedWorldFieldAction,
+  const executeWithReplay = (replay: ReturnType<typeof createOwnedScheduledMotionExecutionReplay>, source: AcceptedBattedWorldFieldExecution, baseField: DurableBattedWorldFieldAction,
     previous: DurableBattedWorldFieldExecution | null, prefix: readonly DurableBattedWorldFieldExecution[]): DurableBattedWorldFieldExecution => {
     if (source.action.kind === 'owned_motion_v2' || source.action.kind === 'owned_acquisition_plan_v1' || source.action.kind === 'owned_throw_plan_v1') {
       const action = source.action as OwnedScheduledMotionAction;
@@ -169,7 +169,7 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
         const decisions = decisionSourceIds.map(sourceId => { const value = actualDefensiveDecisionEvidenceFromSqlite(db).read(sourceId);
           if (!value) throw new Error('owned operation decision receipt is missing'); return value; });
         const model = action.kind === 'owned_throw_plan_v1' ? ownFielding.read(action.modelSourceId) : null;
-        const execution = deriveOwnedScheduledMotionExecution({ ...source, action }, { baseField,
+        const execution = replay.derive({ ...source, action }, { baseField,
           fields: ownFields.scope(baseField, baseField.source.sourceId), executions: prefix }, motors, decisions, model);
         return freeze({ source, baseField, revision: (previous?.revision ?? 0) + 1,
           history: [...(previous?.history ?? []), source], execution });
@@ -349,7 +349,7 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
     return freeze({ source, baseField, revision: (previous?.revision ?? 0) + 1,
       history: [...(previous?.history ?? []), source], execution });
   };
-  const scope = (baseField: DurableBattedWorldFieldAction, throughSourceId?: string | null): readonly DurableBattedWorldFieldExecution[] => {
+  const scopeWithReplay = (replay: ReturnType<typeof createOwnedScheduledMotionExecutionReplay>, baseField: DurableBattedWorldFieldAction, throughSourceId?: string | null): readonly DurableBattedWorldFieldExecution[] => {
     const pitchId = physicalId(baseField), baseId = baseField.source.sourceId;
     const owners = `candidate.physical_pitch_source_id=? OR candidate.base_field_source_id=?
       OR EXISTS (SELECT 1 FROM batted_world_field_actions f WHERE f.physical_pitch_source_id=?
@@ -434,13 +434,17 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
       const source = input(JSON.parse(row.source_json) as AcceptedBattedWorldFieldExecution, row.source_id);
       if (source.baseFieldSourceId !== baseId || source.previousExecutionSourceId !== row.previous_source_id
         || row.source_json !== json(source) || row.source_hash !== hash(source)) throw new Error('corrupt original actual field execution Source');
-      const value = execute(source, baseField, values.at(-1) ?? null, values);
-      const encoded = snapshotEncoding(value);
+      const value = executeWithReplay(replay, source, baseField, values.at(-1) ?? null, values);
+      const encoded = replay.snapshotIdentity(value);
       if (row.snapshot_json !== encoded.json || row.snapshot_hash !== encoded.hash) throw new Error('corrupt actual field execution snapshot');
       values.push(value);
     }
     return values;
   };
+  // Every independent read/admission phase starts fresh. The replay service is
+  // never stored on the owner, DB, dependencyPrefixes or returned snapshots.
+  const scope = (baseField: DurableBattedWorldFieldAction, throughSourceId?: string | null): readonly DurableBattedWorldFieldExecution[] =>
+    scopeWithReplay(createOwnedScheduledMotionExecutionReplay(), baseField, throughSourceId);
   // The pair belongs to this one full authenticated read. It is never retained
   // across independent reads, admission phases or immutable retries.
   const readWithExecutions = (sourceId: string) => {
@@ -462,7 +466,8 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
     }
   };
   const derive = (source: AcceptedBattedWorldFieldExecution) => {
-    const baseField = root(source), prefix = scope(baseField), previous = prefix.at(-1) ?? null;
+    const replay = createOwnedScheduledMotionExecutionReplay();
+    const baseField = root(source), prefix = scopeWithReplay(replay, baseField), previous = prefix.at(-1) ?? null;
     if (source.previousExecutionSourceId !== (previous?.source.sourceId ?? null)) throw new Error('actual field execution predecessor differs');
     const observer = ['whole_play_history', 'base_touch_history', 'first_base_race'].includes(source.action.kind);
     if (!observer && (source.action.kind !== 'owned_motion_v1' && !isOwnedScheduledMotionKind(source.action.kind)
@@ -479,7 +484,7 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
       const exclusive = battedWorldFieldPhysicalPrefix({ ...original, custodyPolicy: 'release_exclusive_v1' });
       if (json(legacy.controlWindows) !== json(exclusive.controlWindows)) throw new Error('explicit release-exclusive custody policy is required for a new observation');
     }
-    return execute(source, baseField, previous, prefix);
+    return executeWithReplay(replay, source, baseField, previous, prefix);
   };
   const currentRoot = (value: DurableBattedWorldFieldExecution) => {
     ownFields.current(value.baseField);
