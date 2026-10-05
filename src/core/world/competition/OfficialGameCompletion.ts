@@ -52,14 +52,15 @@ export type OfficialGameBoundaryInput = Readonly<{
 const positive = (value: number): boolean => Number.isSafeInteger(value) && value > 0;
 const nonnegative = (value: number): boolean => Number.isSafeInteger(value) && value >= 0;
 
-/**
- * Evaluates finality only after the official state has a durable application receipt.
- * Match Core's half-inning transition may already point at the next half; that
- * transition is never treated as evidence that the next pitch has begun.
- */
-export const resolveOfficialGameBoundary = (
-  input: OfficialGameBoundaryInput,
-): OfficialGameBoundary => {
+export type OfficialGameProgression =
+  | Readonly<{ kind: 'GAME_CONTINUES'; nextMatchState: CanonicalMatchState }>
+  | Readonly<{ kind: 'GAME_FINAL_PENDING_SCORING'; completionReason: OfficialGameResult['completionReason'] }>;
+
+/** Legal stop/continue fence only. This never invents H/E or certifies a final
+ * score; resolveOfficialGameBoundary still requires the complete scoring input. */
+export const resolveOfficialGameProgression = (
+  input: Omit<OfficialGameBoundaryInput, 'lineScore'>,
+): OfficialGameProgression => {
   const { priorMatch: prior, application, policy } = input;
   const after = application.appliedMatchState;
   if (
@@ -92,6 +93,44 @@ export const resolveOfficialGameBoundary = (
     || (prior.half === 'bottom' && after.score.away !== prior.score.away)
   ) throw new Error('official play cannot credit runs to the fielding team');
 
+  const topEnded = prior.half === 'top'
+    && after.half === 'bottom' && after.inning === prior.inning && after.outs === 0;
+  const bottomEnded = prior.half === 'bottom'
+    && after.half === 'top' && after.inning === prior.inning + 1 && after.outs === 0;
+  const sameHalf = after.half === prior.half && after.inning === prior.inning;
+  if (!topEnded && !bottomEnded && !sameHalf) {
+    throw new Error('durable MatchState has an invalid half-inning transition');
+  }
+  let completionReason: OfficialGameResult['completionReason'] | null = null;
+  if (prior.inning >= policy.minimumInnings) {
+    if (topEnded && after.score.home > after.score.away) {
+      completionReason = 'HOME_LEADS_AFTER_TOP';
+    } else if (prior.half === 'bottom' && sameHalf
+      && prior.score.home <= prior.score.away && after.score.home > after.score.away) {
+      completionReason = 'WALK_OFF';
+    } else if (bottomEnded && after.score.home !== after.score.away) {
+      completionReason = 'BOTTOM_COMPLETE';
+    } else if (bottomEnded && policy.maximumInnings !== undefined
+      && prior.inning >= policy.maximumInnings) {
+      completionReason = 'TIE_LIMIT';
+    }
+  }
+  return completionReason === null
+    ? Object.freeze({ kind: 'GAME_CONTINUES', nextMatchState: after })
+    : Object.freeze({ kind: 'GAME_FINAL_PENDING_SCORING', completionReason });
+};
+
+/**
+ * Evaluates finality only after the official state has a durable application receipt.
+ * Match Core's half-inning transition may already point at the next half; that
+ * transition is never treated as evidence that the next pitch has begun.
+ */
+export const resolveOfficialGameBoundary = (
+  input: OfficialGameBoundaryInput,
+): OfficialGameBoundary => {
+  const progression = resolveOfficialGameProgression(input);
+  const { priorMatch: prior, application, policy } = input;
+  const after = application.appliedMatchState;
   const lineScore = createCanonicalLineScoreSnapshot(input.lineScore);
   if (
     lineScore.innings.length < prior.inning
@@ -110,40 +149,13 @@ export const resolveOfficialGameBoundary = (
     throw new Error('previously played bottom half must have an official run count');
   }
 
-  const topEnded = prior.half === 'top'
-    && after.half === 'bottom' && after.inning === prior.inning && after.outs === 0;
-  const bottomEnded = prior.half === 'bottom'
-    && after.half === 'top' && after.inning === prior.inning + 1 && after.outs === 0;
-  const sameHalf = after.half === prior.half && after.inning === prior.inning;
-  if (!topEnded && !bottomEnded && !sameHalf) {
-    throw new Error('durable MatchState has an invalid half-inning transition');
-  }
   if (prior.half === 'top' && playedInnings[prior.inning - 1].homeRuns !== null) {
     throw new Error('unplayed bottom half must remain null in official line score');
   }
   if (prior.half === 'bottom' && playedInnings[prior.inning - 1].homeRuns === null) {
     throw new Error('played bottom half must have an official run count');
   }
-  let completionReason: OfficialGameResult['completionReason'] | null = null;
-  if (prior.inning >= policy.minimumInnings) {
-    if (topEnded && after.score.home > after.score.away) {
-      completionReason = 'HOME_LEADS_AFTER_TOP';
-    } else if (prior.half === 'bottom' && sameHalf
-      && prior.score.home <= prior.score.away && after.score.home > after.score.away) {
-      completionReason = 'WALK_OFF';
-    } else if (bottomEnded && after.score.home !== after.score.away) {
-      completionReason = 'BOTTOM_COMPLETE';
-    } else if (bottomEnded && policy.maximumInnings !== undefined
-      && prior.inning >= policy.maximumInnings) {
-      completionReason = 'TIE_LIMIT';
-    }
-  }
-  if (completionReason === null) {
-    return Object.freeze({
-      kind: 'GAME_CONTINUES',
-      nextMatchState: after,
-    });
-  }
+  if (progression.kind === 'GAME_CONTINUES') return progression;
   const frozenLineScore = Object.freeze({
     innings: Object.freeze(playedInnings.map((inning) => Object.freeze({ ...inning }))),
     totals: Object.freeze({
@@ -162,7 +174,7 @@ export const resolveOfficialGameBoundary = (
       awayRuns: after.score.away,
       winnerClubId: after.score.home > after.score.away ? input.homeClubId
         : after.score.away > after.score.home ? input.awayClubId : null,
-      completionReason,
+      completionReason: progression.completionReason,
       ruleProfileId: after.ruleProfileId,
       gamePolicyVersion: policy.version,
       closureId: application.closureId,

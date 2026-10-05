@@ -34,7 +34,9 @@ export const verifyActualLiveNextActorArtifact = async (input: Readonly<{
   const db = track(new DatabaseSync(input.destinationPath)), links = track(openSqlitePlayerPersonLinkStore(input.destinationPath)), official = track(new SqliteOfficialStateStore(input.destinationPath));
   const ready = actualLivePlayReadinessFromSqlite(db).read(input.closureSourceId); assert.equal(ready.kind, 'ready');
   if (ready.kind !== 'ready') throw new Error('actual next-actor fixture must already have complete effects');
-  const p = ready.closure.proposal, first = p.actors[0].binding, game = p.seasonFixture.game;
+  const p = ready.closure.proposal;
+  assert('nextWorld' in p.expectedOfficial, 'a final Match cannot activate another actor');
+  const first = p.actors[0].binding, game = p.seasonFixture.game;
   const participation = track(new SqliteOfficialParticipationStore(input.destinationPath, { readGame: gameId => gameId !== p.gameId ? null : {
     careerId: first.careerId, competitionEditionId: first.competitionEditionId, gameDay: first.gameDay,
     homeClubId: game.homeClubId, awayClubId: game.awayClubId, fixtureEventId: first.fixtureEventId },

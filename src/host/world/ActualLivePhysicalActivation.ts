@@ -12,6 +12,7 @@ export const readActualLivePhysicalActivation = (db: ActorDb, gameId: string, ap
   const ready = actualLivePlayReadinessFromSqlite(db).readHistorical(String(rows[0].source_id));
   if (ready.kind !== 'ready') throw new Error('actual live physical activation required effects pending');
   const p = ready.closure.proposal, result = p.expectedOfficial;
+  if (!('activation' in result)) throw new Error('actual live game final cannot activate another physical play');
   if (p.gameId !== gameId || p.application.applicationId !== applicationId || result.receipt.applicationId !== applicationId
     || result.receipt.previousPlayId !== p.playId || result.activation.previousPlayId !== p.playId
     || result.activation.nextMatchState.playId !== p.playId + 1) throw new Error('actual live physical activation scope differs');
