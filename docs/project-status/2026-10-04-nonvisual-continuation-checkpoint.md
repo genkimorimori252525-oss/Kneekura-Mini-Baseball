@@ -1,5 +1,7 @@
 # 非デザイン継続実装: 現在の接続と検証
 
+> 2026-10-05 17:53 UTC: [実10人workloadのterminalと統合gate](../verification/2026-10-05-actual-ten-role-workload-terminal.md)。全10人の実適用・retry・全接続close/reopenが固定SourceでPASS。実next pitchと計画全体は未完了。
+
 > 2026-10-05 14:32 UTC: [残計画の実装・検証matrix](2026-10-05-nonvisual-remaining-matrix.md)。以下の各Sourceの検証記録はそのまま保持する。
 
 更新: 2026-10-05 22:00 JST（2026-10-05 13:00 UTC）
