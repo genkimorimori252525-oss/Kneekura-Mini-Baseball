@@ -12,10 +12,10 @@ export const nativeSettledFoulInputArchiveBytes = (db: Pick<import('node:sqlite'
 /** Synthetic incoming pitch direction, accepted before pitch execution.
  * Existing fixture bodies, contact response, materials, flight parameters and
  * base geometry remain unchanged. No saved ball state or territory is edited. */
-export const nativeSettledFoulPhysicalFixture = (path: string) => {
-  const originalPitchPhysics = { velocity: { x: 1, y: 0, z: -30 } };
+export const nativeSettledFoulPhysicalFixture = (path: string, original?: Pick<NonNullable<Parameters<typeof battedWorldFieldFixture>[4]>, 'pitchPhysics' | 'originalContact'>) => {
+  const originalPitchPhysics = original?.pitchPhysics ?? { velocity: { x: 1, y: 0, z: -30 } };
   const x = battedWorldFieldFixture(path, true, false, undefined, {
-    originalProfile: { ruleProfileId: NPB_2026_RULE_PROFILE.id }, pitchPhysics: originalPitchPhysics,
+    originalProfile: { ruleProfileId: NPB_2026_RULE_PROFILE.id }, pitchPhysics: originalPitchPhysics, originalContact: original?.originalContact,
   });
   try {
     const inputArchiveBytes = () => nativeSettledFoulInputArchiveBytes(x.f.db);
