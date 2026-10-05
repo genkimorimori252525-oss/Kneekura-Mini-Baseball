@@ -16,9 +16,10 @@ import { ownedScheduledMotionPhase as phase } from './OwnedScheduledMotionTiming
 /** Accepted fixture inputs, never injected outcomes: the forecast locates a glove
  * and defines motor accelerations before the original contact Source is accepted.
  * The actual ground, contact, capture, foot histories and rule are owner outputs. */
-export const actualFirstBasePlayEndFixture = (path: string) => {
+export const actualFirstBasePlayEndFixture = (path: string, originalProfile?: NonNullable<Parameters<typeof battedWorldFieldFixture>[4]>['originalProfile']) => {
   let forecastGroundElapsedSeconds = NaN;
   const x = phase('first-base:original-pitch-and-inputs', () => battedWorldFieldFixture(path, true, false, undefined, {
+    originalProfile,
     world(world) {
       const flight = world.flight, p = flight.source.execution.ballFlightParameters, frame = flight.physicalPitch.frame;
       const predicted = createBattedBallFlightEvidence({ contact: flight.flight.contact, parameters: p, searchDurationTicks: 2_000_000 });

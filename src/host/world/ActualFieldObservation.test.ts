@@ -1,8 +1,10 @@
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it, vi } from 'vitest';
+import * as physical from './BattedWorldFieldPhysicalPrefix';
 import { SeedRoot } from '../../core/rng/SeedRoot';
 import { actualFieldObservationFixture } from './ActualFieldObservationFixtures.test-support';
 import { sampleActualFieldObservation, type AcceptedActualFieldObservation } from './ActualFieldObservation';
 import type { DurablePlayerObservationModel } from './SqlitePlayerObservationModelStore';
+import { actorHash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 
 let x: ReturnType<typeof actualFieldObservationFixture>;
 beforeAll(() => { x = actualFieldObservationFixture(); });
@@ -20,6 +22,21 @@ const actorState = (playerId: string) => {
     z: p.startCenter.z + p.startVelocity.z * dt + 0.5 * p.acceleration.z * dt * dt },
   velocity: { x: p.startVelocity.x + p.acceleration.x * dt, y: p.startVelocity.y + p.acceleration.y * dt, z: p.startVelocity.z + p.acceleration.z * dt } };
 };
+
+it('projects the real physical prefix once per observation and revalidates the next operation', () => {
+  const expected = sampleActualFieldObservation(x.observationSource, prefix(), x.observationModel, null);
+  const calls = vi.spyOn(physical, 'battedWorldFieldPhysicalPrefix');
+  try {
+    const first = sampleActualFieldObservation(x.observationSource, prefix(), x.observationModel, null);
+    expect(JSON.stringify(first)).toBe(JSON.stringify(expected));
+    // Captured from unchanged 75ff32a production during the failing regression.
+    expect(actorHash(first)).toBe('7af56365ccf15fd7b61fb0b4e94d16000fa5216ecab465fc2e74c9e2fb7e911e');
+    expect(calls).toHaveBeenCalledTimes(1);
+    const second = sampleActualFieldObservation(x.observationSource, prefix(), x.observationModel, null);
+    expect(JSON.stringify(second)).toBe(JSON.stringify(expected));
+    expect(calls).toHaveBeenCalledTimes(2);
+  } finally { calls.mockRestore(); }
+});
 
 it('uses exact body-primitive motion and independently keyed noisy streams without exposing truth', () => {
   const first = sampleActualFieldObservation(x.observationSource, prefix(), x.observationModel, null);

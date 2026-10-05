@@ -10,8 +10,9 @@ import { openSqliteBattedBallFlightStore, type AcceptedBattedBallFlight } from '
 export type BattedFixturePitchPhysics = Readonly<{ velocity?: Vec3; spin?: Vec3 }>;
 
 export const battedBallFlightFixture = (path?: string, withActor = true, withContact = true, alignFieldWithInitialBases = false,
-  fixtureBinding?: Parameters<typeof physicalPlateAppearanceActorFixture>[1], pitchPhysics?: BattedFixturePitchPhysics) => {
-  const base = physicalPlateAppearanceActorFixture(path, fixtureBinding), { f, actors, source, actions, pitches } = base;
+  fixtureBinding?: Parameters<typeof physicalPlateAppearanceActorFixture>[1], pitchPhysics?: BattedFixturePitchPhysics,
+  profile?: Parameters<typeof physicalPlateAppearanceActorFixture>[2]) => {
+  const base = physicalPlateAppearanceActorFixture(path, fixtureBinding, profile), { f, actors, source, actions, pitches } = base;
   if (withActor) actors.accept(source.sourceId);
   const previewInput = pitchPhysics ? { ...f.input, delivery: { ...f.input.delivery, physics: { ...f.input.delivery.physics, ...pitchPhysics } } } : f.input;
   const preview = resolveContinuousPlayerPitchAgainstBatterFromWorld(f.stores, { ...previewInput, effortPolicySourceId: f.effort.sourceId });

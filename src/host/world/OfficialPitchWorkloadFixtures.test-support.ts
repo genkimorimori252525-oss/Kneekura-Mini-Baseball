@@ -10,14 +10,15 @@ import { createRosterState } from '../../core/world/roster/RosterState';
 import { SqliteOfficialStateStore, type PersistOfficialPlayInput } from '../SqliteOfficialStateStore';
 import { openSqliteOfficialScoringStore } from '../SqliteOfficialScoringStore';
 import { SqliteOfficialParticipationStore } from './SqliteOfficialParticipationStore';
-import { match, worldSetup } from './OfficialParticipationPlayFixtures.test-support';
+import { match, worldSetup, type OriginalFixtureRuleProfile } from './OfficialParticipationPlayFixtures.test-support';
 import { openSqliteWorldSettlementStore } from './SqliteWorldSettlementStore';
 import { openSqliteManagerRosterDecisionStore } from './SqliteManagerRosterDecisionStore';
 import { openSqlitePlayerPersonLinkStore } from './SqlitePlayerPersonLinkStore';
 
 /** Explicit physical/profile fixtures; no production counts or calibration defaults. */
 export const officialPitchWorkloadFixture = (physical = true, deferPlay = false, databasePath?: string, bothSides = false,
-  fixture?: Parameters<SqliteOfficialStateStore['registerOfficialFixture']>[0]) => {
+  fixture?: Parameters<SqliteOfficialStateStore['registerOfficialFixture']>[0], profile?: OriginalFixtureRuleProfile) => {
+  const initial = match(profile); // Validate before opening stores or persisting the initial Match.
   const path = databasePath ?? `file:official-pitch-workload-${crypto.randomUUID()}?mode=memory&cache=shared`;
   const stores: { close(): void }[] = [];
   const track = <T extends { close(): void }>(store: T): T => { stores.push(store); return store; };
@@ -82,7 +83,7 @@ export const officialPitchWorkloadFixture = (physical = true, deferPlay = false,
     return { kind: 'non_live', matchId: 'game-1', applicationId, expectedDurableRevision: durableRevision, match: before,
       timeline, adjudication, context: { kind: 'strikeout' }, nextStartedAtTick: timeline.lastEventTick + 3, worldSetup: worldSetup('p2') };
   };
-  const initial = match(); official.initializeMatch('game-1', initial);
+  official.initializeMatch('game-1', initial);
   const firstInput = application(initial, 0, 0, 'application-1');
   const scoring = track(openSqliteOfficialScoringStore(path));
   const play = () => {

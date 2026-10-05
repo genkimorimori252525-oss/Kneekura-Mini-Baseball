@@ -1,4 +1,6 @@
 import { createRequire } from 'node:module';
+import { asRuleProfileId } from '../../core/model/RuleProfileRef';
+import { getRuleProfile } from '../../core/rules/RuleProfile';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -16,8 +18,11 @@ import { ownedScheduledMotionTiming as phase } from './OwnedScheduledMotionTimin
 it.runIf(!!process.env.BASEBALL_FIRST_PLAY_CHAIN_OUTPUT_DB)('builds and reopens an original all-ten chain with actual capture, decision, motor and OUT rule while operative end stays pending', async () => {
   const path = join(mkdtempSync(join(tmpdir(), 'native-first-base-connection-')), 'state.sqlite');
   console.info('native-first-base-connection-database', path);
-  const x = actualFirstBasePlayEndFixture(path); let closed = false;
+  const explicitId = process.env.BASEBALL_FIRST_PLAY_RULE_PROFILE_ID;
+  const profile = explicitId === undefined ? undefined : { ruleProfileId: getRuleProfile(asRuleProfileId(explicitId)).id };
+  const x = actualFirstBasePlayEndFixture(path, profile); let closed = false;
   try {
+    if (profile) expect(x.f.initial.match.ruleProfileId).toBe(profile.ruleProfileId);
     expect(x.f.db.prepare('PRAGMA journal_mode').get()!.journal_mode).toBe('wal');
     expect(x.f.db.prepare('PRAGMA database_list').all().find(r => r.name === 'main')!.file).toBe(path);
     expect(x.runtime.membership.participants).toHaveLength(10);
