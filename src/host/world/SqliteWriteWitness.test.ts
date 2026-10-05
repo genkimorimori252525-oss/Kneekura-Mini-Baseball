@@ -13,6 +13,20 @@ const fixture = () => {
   expect(db.prepare('PRAGMA journal_mode').get()!.journal_mode).toBe('wal');
   return { path, db };
 };
+it('matches formatted target INSERTs without retaining stateful regexp cursors or observing another table', () => {
+  const { db } = fixture();
+  db.exec('CREATE TABLE other_values(value TEXT)');
+  const pattern = /^\s*INSERT\s+INTO\s+witness_values\b/gi;
+  const witness = witnessSqliteWrite(pattern, connection => connection.prepare('SELECT count(*) AS n FROM witness_values').get()!.n === 2);
+  try {
+    db.prepare('INSERT INTO other_values VALUES(?)').run('unrelated');
+    expect(witness.wasReached()).toBe(false);
+    db.prepare('  INSERT INTO witness_values\n VALUES(?)').run('first');
+    expect(witness.wasReached()).toBe(false);
+    db.prepare('insert into witness_values(value) VALUES(?)').run('second');
+    expect(witness.wasReached()).toBe(true); expect(pattern.lastIndex).toBe(0);
+  } finally { witness.close(); db.close(); }
+});
 it('does not strongly record unrelated native statements in global mock result history while witnessing the real target', () => {
   const { db } = fixture(), descriptor = Object.getOwnPropertyDescriptor(DatabaseSync.prototype, 'prepare');
   const witness = witnessSqliteWrite(targetSql, connection => connection.prepare('SELECT count(*) AS n FROM witness_values').get()!.n === 1);

@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { derivePhysicalNonLiveClosure } from '../../core/adjudication/PhysicalNonLiveClosure';
-import { classifyClosedPlayForOfficialScoring, type OfficialFairBallScoringEvidence } from '../../core/adjudication/OfficialScoring';
+import { classifyClosedPlayForOfficialScoring, type OfficialFairBallScoringEvidence, type SupportedOfficialScoringRecord } from '../../core/adjudication/OfficialScoring';
 import { prepareBetweenPlayWorld, type BetweenPlayWorldSetup } from '../../core/adjudication/BetweenPlayWorldReset';
 import { confirmDurableClosedNonLiveStateApplication } from '../../core/adjudication/NonLiveOfficialApplication';
 import { resolveOfficialGameBoundary, type GameCompletionPolicy, type OfficialGameVenueBinding } from '../../core/world/competition/OfficialGameCompletion';
@@ -82,10 +82,10 @@ const actor = (db: PhysicalClosureDb, s: AcceptedPhysicalPlayClosure, pitch: Dur
 
 type EarlierScoring = Readonly<{ applicationId: string; scoringApplicationId: string; before: CanonicalMatchState;
   after: CanonicalMatchState; scoring: PersistedOfficialScoring; closureRowHash: string; scoringRowHash: string }>;
-const earlierScoring = (db: PhysicalClosureDb, pitch: DurablePhysicalPitch): EarlierScoring[] => {
+export const readPhysicalClosureScoringHistory = (db: PhysicalClosureDb, frame: Readonly<{ gameId: string; officialRevision: number }>): EarlierScoring[] => {
   const rows = db.prepare("SELECT * FROM applications WHERE match_id=? AND json_extract(result_json,'$.receipt.durableRevision')<=? ORDER BY json_extract(result_json,'$.receipt.durableRevision')")
-    .all(pitch.frame.gameId, pitch.frame.officialRevision) as { application_id: string; match_id: string; closure_id: string; request_hash: string; result_json: string }[];
-  if (rows.length !== pitch.frame.officialRevision) throw new Error('physical closure prior application history is missing');
+    .all(frame.gameId, frame.officialRevision) as { application_id: string; match_id: string; closure_id: string; request_hash: string; result_json: string }[];
+  if (rows.length !== frame.officialRevision) throw new Error('physical closure prior application history is missing');
   return rows.map((row, index) => {
     const scored = db.prepare('SELECT * FROM official_scoring_applications WHERE official_application_id=?').get(row.application_id) as {
       scoring_application_id: string; match_id: string; official_application_id: string; closure_id: string; source_event_id: string; request_json: string; result_json: string;
@@ -102,7 +102,7 @@ const earlierScoring = (db: PhysicalClosureDb, pitch: DurablePhysicalPitch): Ear
     if (classified.kind !== 'supported') throw new Error('physical closure prior official score is unsupported');
     const score: PersistedOfficialScoring = { scoringApplicationId: input.scoringApplicationId, matchId: a.matchId,
       officialApplicationId: a.applicationId, closureId: official.receipt.closureId, sourceEventId, record: classified.record };
-    if (a.matchId !== pitch.frame.gameId || a.applicationId !== row.application_id || a.expectedDurableRevision !== index
+    if (a.matchId !== frame.gameId || a.applicationId !== row.application_id || a.expectedDurableRevision !== index
       || row.request_hash !== closureHash('game' in a ? { kind: 'game_final', request: a } : a) || row.result_json !== closureJson(official)
       || row.closure_id !== official.receipt.closureId || scored.match_id !== a.matchId || scored.official_application_id !== a.applicationId
       || scored.closure_id !== score.closureId || scored.source_event_id !== sourceEventId || scored.scoring_application_id !== input.scoringApplicationId
@@ -110,6 +110,26 @@ const earlierScoring = (db: PhysicalClosureDb, pitch: DurablePhysicalPitch): Ear
     return { applicationId: a.applicationId, scoringApplicationId: score.scoringApplicationId, before: a.match,
       after: official.receipt.appliedMatchState, scoring: score, closureRowHash: closureHash(row), scoringRowHash: closureHash(scored) };
   });
+};
+/** The existing contiguous-history fold is shared unchanged with read-only
+ * consumer verification; missing earlier scoring is never replaced by zero H/E. */
+export const derivePhysicalClosureLineScore = (history: readonly Readonly<{ before: CanonicalMatchState;
+  after: CanonicalMatchState; scoring: Readonly<{ record: SupportedOfficialScoringRecord }> }>[]) => {
+  const innings: { inning: number; awayRuns: number | null; homeRuns: number | null }[] = [];
+  const totals = { away: { runs: 0, hits: 0, errors: 0 }, home: { runs: 0, hits: 0, errors: 0 } };
+  let previous: CanonicalMatchState | null = null;
+  for (const record of history) {
+    if (previous ? closureJson(previous) !== closureJson(record.before) : record.before.inning !== 1 || record.before.half !== 'top'
+      || record.before.score.away !== 0 || record.before.score.home !== 0) throw new Error('physical closure actual game history is incomplete');
+    const score = record.scoring.record, side = score.battingTeam;
+    while (innings.length < record.before.inning) innings.push({ inning: innings.length + 1, awayRuns: null, homeRuns: null });
+    const inning = innings[record.before.inning - 1], key: keyof Pick<CanonicalInningLineScore, 'awayRuns' | 'homeRuns'> = side === 'away' ? 'awayRuns' : 'homeRuns';
+    inning[key] = (inning[key] ?? 0) + score.runsScored;
+    totals[side].runs += score.runsScored; totals[side].hits += score.hitsCredited;
+    totals[side === 'away' ? 'home' : 'away'].errors += score.errorsCharged;
+    previous = record.after;
+  }
+  return createCanonicalLineScoreSnapshot({ innings, totals });
 };
 export const captureClosurePitchRows = (db: PhysicalClosureDb, physicalPitchSourceId: string) => {
   const row = db.prepare('SELECT * FROM physical_pitch_progress_actions WHERE source_id=?').get(physicalPitchSourceId) as {
@@ -150,22 +170,8 @@ export const derivePhysicalClosureProposal = (db: PhysicalClosureDb, s: Accepted
     batterRunnerId: s.batterRunnerId, gameDay: pitch.frame.bindings[0].gameDay,
     effortPolicy: { policyId: effort.policyId, version: effort.version, availableAtDay: effort.availableAtDay, effortUnitsPerPhysicalPitch: effort.effortUnitsPerPhysicalPitch },
     snapshotId: s.snapshotId, ruleTick: s.ruleTick, closureId: s.applicationId, closureTick: s.closureTick });
-  const world = worldFixture(db, s, pitch), venueBinding = fixture(db, pitch), earlier = earlierScoring(db, pitch);
-  const innings: { inning: number; awayRuns: number | null; homeRuns: number | null }[] = [];
-  const totals = { away: { runs: 0, hits: 0, errors: 0 }, home: { runs: 0, hits: 0, errors: 0 } };
-  let previous: CanonicalMatchState | null = null;
-  for (const record of [...earlier, { before: pitch.frame.match, after: derived.nextMatch, scoring: { record: derived.scoring } }]) {
-    if (previous ? closureJson(previous) !== closureJson(record.before) : record.before.inning !== 1 || record.before.half !== 'top'
-      || record.before.score.away !== 0 || record.before.score.home !== 0) throw new Error('physical closure actual game history is incomplete');
-    const score = record.scoring.record, side = score.battingTeam;
-    while (innings.length < record.before.inning) innings.push({ inning: innings.length + 1, awayRuns: null, homeRuns: null });
-    const inning = innings[record.before.inning - 1], key: keyof Pick<CanonicalInningLineScore, 'awayRuns' | 'homeRuns'> = side === 'away' ? 'awayRuns' : 'homeRuns';
-    inning[key] = (inning[key] ?? 0) + score.runsScored;
-    totals[side].runs += score.runsScored; totals[side].hits += score.hitsCredited;
-    totals[side === 'away' ? 'home' : 'away'].errors += score.errorsCharged;
-    previous = record.after;
-  }
-  const lineScore = createCanonicalLineScoreSnapshot({ innings, totals });
+  const world = worldFixture(db, s, pitch), venueBinding = fixture(db, pitch), earlier = readPhysicalClosureScoringHistory(db, pitch.frame);
+  const lineScore = derivePhysicalClosureLineScore([...earlier, { before: pitch.frame.match, after: derived.nextMatch, scoring: { record: derived.scoring } }]);
   const receipt = confirmDurableClosedNonLiveStateApplication({ match: pitch.frame.match, timeline: pitch.result.pitch.resolution.timeline,
     adjudication: derived.adjudication, context: derived.context, persistedMatchState: derived.nextMatch,
     applicationId: s.applicationId, durableRevision: pitch.frame.officialRevision + 1 });

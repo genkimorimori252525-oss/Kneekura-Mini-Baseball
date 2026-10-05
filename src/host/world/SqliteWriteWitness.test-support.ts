@@ -7,7 +7,8 @@ const sameDescriptor = (actual: PropertyDescriptor | undefined, expected: Proper
 /** Test-only observation after the real SQLite statement and its triggers finish.
  * Never use a mock/spy here: its global result history retains every unrelated
  * native StatementSync throughout a potentially long physical derivation. */
-export const witnessSqliteWrite = (sql: string, observed: (db: DatabaseSync) => boolean) => {
+export const witnessSqliteWrite = (sql: string | RegExp, observed: (db: DatabaseSync) => boolean) => {
+  const pattern = typeof sql === 'string' ? null : new RegExp(sql.source, sql.flags.replace(/[gy]/g, ''));
   const sqlite = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
   const prototype = sqlite.DatabaseSync.prototype, descriptor = Object.getOwnPropertyDescriptor(prototype, 'prepare');
   if (!descriptor || typeof descriptor.value !== 'function') throw new Error('SQLite witness requires an own prepare method descriptor');
@@ -17,7 +18,7 @@ export const witnessSqliteWrite = (sql: string, observed: (db: DatabaseSync) => 
   const intercept = function(this: DatabaseSync, ...args: Parameters<DatabaseSync['prepare']>) {
     const text = args[0];
     const statement = Reflect.apply(prepare, this, args) as ReturnType<DatabaseSync['prepare']>;
-    if (!closed && text === sql) {
+    if (!closed && (pattern ? pattern.test(text) : text === sql)) {
       const connection = this, run = statement.run, originalRun = Object.getOwnPropertyDescriptor(statement, 'run');
       const wrappedRun = (...args: unknown[]) => {
         const result = Reflect.apply(run, statement, args);

@@ -73,3 +73,6 @@ export const openSqliteActualLivePlayClosureStore = (path: string,
     submit(sourceId: string) { enqueue(sourceId); return resume(sourceId); },
     close() { if (!closed) { official.close(); db.close(); closed = true; } } });
 };
+
+// Downstream admission is independent of this immutable closure owner.
+export { openSqliteActualLiveScoringStore } from './SqliteActualLiveScoringStore';
