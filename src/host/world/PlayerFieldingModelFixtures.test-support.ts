@@ -9,7 +9,7 @@ import { openSqliteManagerRosterDecisionStore } from './SqliteManagerRosterDecis
 import { openSqlitePlayerPersonLinkStore, type AcceptedPlayerIntakeSource } from './SqlitePlayerPersonLinkStore';
 import { openSqlitePlayerFieldingModelStore, type AcceptedPlayerFieldingModel } from './SqlitePlayerFieldingModelStore';
 
-export const playerFieldingModelFixture = () => {
+export const playerFieldingModelFixture = (options: Readonly<{ initialRosterRevision?: number }> = {}) => {
   const path = join(mkdtempSync(join(tmpdir(), 'kneekura-fielding-model-')), 'state.sqlite'), stores: { close(): void }[] = [];
   const track = <T extends { close(): void }>(store: T): T => { stores.push(store); return store; };
   const world = track(openSqliteWorldSettlementStore(path)), roster = track(openSqliteManagerRosterDecisionStore(path));
@@ -18,12 +18,13 @@ export const playerFieldingModelFixture = () => {
     games: [{ gameId: 'game-1', homeClubId: 'club-a', awayClubId: 'club-b' }], revisionEventIds: [] },
     standingsPolicy: { version: 'standings-v1', tieCreditNumerator: 1, tieCreditDenominator: 2, runDifferentialCapPerGame: 10 } });
   roster.initialize({ careerId: 'career-a', clubId: 'club-a', mood: null, roster: createRosterState({ careerId: 'career-a', effectiveDay: 10,
+    ...(options.initialRosterRevision === undefined ? {} : { revision: options.initialRosterRevision }),
     profiles: [{ profileId: 'league', version: 'v1', season: 1, competitionEditionId: 'league-season-1', activeLimit: null,
       allowedAssignmentKinds: ['FIRST_TEAM'], rehabParticipationAllowed: false }], units: [{ unitId: 'first-a', clubId: 'club-a', kind: 'FIRST_TEAM' }],
     players: ['player-a', 'player-b'].map((playerId) => ({ playerId, clubRights: { rightsHolderClubId: 'club-a', contractId: `contract-${playerId}` },
       assignment: { unitId: 'first-a', clubId: 'club-a' }, registrations: [], availability: { status: 'AVAILABLE' as const, evidenceId: `health-${playerId}` } })) }) });
   const intake: AcceptedPlayerIntakeSource = { sourceId: 'intake-a', careerId: 'career-a', playerId: 'player-a', personId: 'person-a',
-    sourceRecordId: 'actual-intake-a', sourceVersion: 'fixture-v1', acceptedRevision: 1, acceptedAtDay: 10, rosterRevision: 0 };
+    sourceRecordId: 'actual-intake-a', sourceVersion: 'fixture-v1', acceptedRevision: 1, acceptedAtDay: 10, rosterRevision: options.initialRosterRevision ?? 0 };
   const links = track(openSqlitePlayerPersonLinkStore(path, { readAcceptedPlayerIntake: (id) => id === intake.sourceId ? intake : null }));
   const person = links.accept(intake.sourceId);
   const source: AcceptedPlayerFieldingModel = { sourceId: 'fielding-a', sourceVersion: 'fixture-v1', careerId: 'career-a', playerId: 'player-a',

@@ -42,9 +42,12 @@ const input = (raw: OwnedRunnerFieldObservationSource) => {
   return { source, sensory };
 };
 
-/** Own-reader projection on one read snapshot. No caller snapshots, latest official
- * state, signal content, rules, decision parameters or physical results are inputs. */
-export const ownedRunnerFieldObservationEvidenceFromSqlite = (db: Db) => {
+/** Internal shared calculation on an authenticated physical read snapshot. The
+ * history owner must rederive previous; this helper grants no saved observation,
+ * signal-consumption or decision authority. Public projection callers get no
+ * predecessor input. */
+export const sampleOwnedRunnerFieldObservationWithPrevious = (db: Db, raw: OwnedRunnerFieldObservationSource,
+  previous: Readonly<{ source: AcceptedActualFieldObservation; receipt: ActualFieldObservationReceipt }> | null): OwnedRunnerFieldObservationProjection => {
   const fieldsOwner = battedWorldFieldEvidenceFromSqlite(db), models = playerObservationModelEvidenceFromSqlite(db);
   const project = (source: OwnedRunnerFieldObservationSource, sensory: AcceptedActualFieldObservation): OwnedRunnerFieldObservationProjection => {
     const field = fieldsOwner.read(source.fieldSourceId);
@@ -71,7 +74,7 @@ export const ownedRunnerFieldObservationEvidenceFromSqlite = (db: Db) => {
     const receipt = sampleExecutedFieldObservation(sensory, { at: physical.at, ticksPerSecond: physical.ticksPerSecond,
       matchSeed: frame.matchSeed, playId: frame.match.playId, playerIds: physical.participants.map(player => player.playerId),
       actors: physical.segments.at(-1)!.actors, surfaces: world.model.surfaces, bases: Object.values(field.geometry.geometry.bases),
-      ballMoment: field.field.motion.cursor?.moment ?? null }, model, null);
+      ballMoment: field.field.motion.cursor?.moment ?? null }, model, previous);
     return freeze({ version: 'owned_runner_field_observation_v1', source, playerId: source.playerId, personId: runner.person.personId,
       prePitchRunnerSourceId: runner.source.sourceId, motionRevision: runner.source.motionRevision, receipt,
       dependencyHashes: { field: hash(field), physicalPrefix: hash(physical), physicalPitch: hash(world.flight.physicalPitch), model: hash(model) },
@@ -80,14 +83,19 @@ export const ownedRunnerFieldObservationEvidenceFromSqlite = (db: Db) => {
       knowledge: { status: 'pending', knownContext: null, force: 'unavailable', tagUp: 'unavailable', cueGeneration: 'unavailable',
         consumedSignals: [], perceivedCues: [] } });
   };
-  return Object.freeze({ derive(raw: OwnedRunnerFieldObservationSource): OwnedRunnerFieldObservationProjection {
-    const { source, sensory } = input(raw);
-    const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
-    if (!(db instanceof DatabaseSync)) throw new Error('owned runner sensory projection requires its native read connection');
-    const read = () => withBattedWorldFieldReadTraversal(db, () => project(source, sensory));
-    if (db.isTransaction) return read();
-    db.exec('BEGIN');
-    try { const value = read(); db.exec('COMMIT'); return value; }
-    catch (error) { db.exec('ROLLBACK'); throw error; }
-  } });
+  const { source, sensory } = input(raw);
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  if (!(db instanceof DatabaseSync)) throw new Error('owned runner sensory projection requires its native read connection');
+  const read = () => withBattedWorldFieldReadTraversal(db, () => project(source, sensory));
+  if (db.isTransaction) return read();
+  db.exec('BEGIN');
+  try { const value = read(); db.exec('COMMIT'); return value; }
+  catch (error) { db.exec('ROLLBACK'); throw error; }
 };
+
+/** One-shot public projection. The separate history owner supplies only its own
+ * rederived predecessor to the shared internal calculation above. */
+export const ownedRunnerFieldObservationEvidenceFromSqlite = (db: Db) => Object.freeze({
+  derive: (source: OwnedRunnerFieldObservationSource): OwnedRunnerFieldObservationProjection =>
+    sampleOwnedRunnerFieldObservationWithPrevious(db, source, null),
+});

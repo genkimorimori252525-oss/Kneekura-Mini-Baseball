@@ -1,3 +1,4 @@
+export { ownedRunnerFieldObservationHistoryEvidenceFromSqlite, openSqliteOwnedRunnerFieldObservationStore } from './SqliteOwnedRunnerFieldObservationStore';
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 export { ownedRunnerFieldObservationEvidenceFromSqlite } from './OwnedRunnerFieldObservation';
 import { createRequire } from 'node:module';

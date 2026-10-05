@@ -72,23 +72,9 @@ export const ensurePlayerPersonLinkSchema = (db: DatabaseSync): void => {
   );`);
 };
 
-/** First acceptance requires an intake authority; durable reads need only the stored snapshot. */
-export const openSqlitePlayerPersonLinkStore = (databasePath: string,
-  authority?: AcceptedPlayerIntakeAuthority | null):
-SqlitePlayerPersonLinkStore => {
-  if (!id(databasePath)) {
-    throw new Error('invalid player-person link database path');
-  }
-  if (authority != null
-    && typeof authority.readAcceptedPlayerIntake !== 'function') {
-    throw new Error('invalid accepted player intake authority');
-  }
-  const Database = (createRequire(import.meta.url)('node:sqlite') as
-    typeof import('node:sqlite')).DatabaseSync;
-  const db = new Database(databasePath);
-  try {
-  db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
-  ensurePlayerPersonLinkSchema(db);
+/** Shared original intake reader. Its optional roster memo belongs only to the
+ * calling intake transaction; ordinary facade reads always validate afresh. */
+const storedPlayerPersonLinkReader = (db: Pick<DatabaseSync, 'prepare'>) => {
   const getLink = db.prepare(`SELECT source_id, career_id, player_id,
     person_id, roster_revision, accepted_at_day, source_json
     FROM world_player_person_links WHERE source_id=?`);
@@ -109,17 +95,6 @@ SqlitePlayerPersonLinkStore => {
     const indexed = { state: roster, playerIds: new Set(roster.players.map((player) => player.playerId)), evidence: row };
     memo?.set(careerId, indexed);
     return indexed;
-  };
-  const accepted = (sourceId: string): AcceptedPlayerIntakeSource => {
-    if (!authority) {
-      throw new Error('accepted player intake authority is required for first acceptance');
-    }
-    const raw = authority.readAcceptedPlayerIntake(sourceId);
-    const source = raw === null ? null : cloneInert(raw);
-    if (!isAcceptedPlayerIntakeSource(source, sourceId)) {
-      throw new Error('accepted intake source is absent or invalid');
-    }
-    return source;
   };
   const readStoredLink = (sourceId: string,
     memo?: Map<string, IndexedRoster | null>): DurablePlayerPersonLink | null => {
@@ -144,6 +119,44 @@ SqlitePlayerPersonLinkStore => {
       throw new Error('global roster head no longer supports player link');
     }
     return Object.freeze(stored);
+  };
+  return { getRoster, linkRow, rosterHead, readStoredLink };
+};
+
+/** Same-connection read facade: no schema creation, writes or peer snapshots. */
+export const playerPersonLinkEvidenceFromSqlite = (db: Pick<DatabaseSync, 'prepare'>) => {
+  const { readStoredLink } = storedPlayerPersonLinkReader(db);
+  return Object.freeze({ readLink: (sourceId: string): DurablePlayerPersonLink | null => readStoredLink(sourceId) });
+};
+
+/** First acceptance requires an intake authority; durable reads need only the stored snapshot. */
+export const openSqlitePlayerPersonLinkStore = (databasePath: string,
+  authority?: AcceptedPlayerIntakeAuthority | null):
+SqlitePlayerPersonLinkStore => {
+  if (!id(databasePath)) {
+    throw new Error('invalid player-person link database path');
+  }
+  if (authority != null
+    && typeof authority.readAcceptedPlayerIntake !== 'function') {
+    throw new Error('invalid accepted player intake authority');
+  }
+  const Database = (createRequire(import.meta.url)('node:sqlite') as
+    typeof import('node:sqlite')).DatabaseSync;
+  const db = new Database(databasePath);
+  try {
+  db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
+  ensurePlayerPersonLinkSchema(db);
+  const { getRoster, linkRow, rosterHead, readStoredLink } = storedPlayerPersonLinkReader(db);
+  const accepted = (sourceId: string): AcceptedPlayerIntakeSource => {
+    if (!authority) {
+      throw new Error('accepted player intake authority is required for first acceptance');
+    }
+    const raw = authority.readAcceptedPlayerIntake(sourceId);
+    const source = raw === null ? null : cloneInert(raw);
+    if (!isAcceptedPlayerIntakeSource(source, sourceId)) {
+      throw new Error('accepted intake source is absent or invalid');
+    }
+    return source;
   };
   const readLink = (sourceId: string): DurablePlayerPersonLink | null => readStoredLink(sourceId);
   const duplicateQuery = db.prepare(`SELECT source_id

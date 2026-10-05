@@ -1,3 +1,4 @@
+export { playerRunnerDecisionMotionModelEvidenceFromSqlite, openSqlitePlayerRunnerDecisionMotionModelStore } from './SqlitePlayerRunnerDecisionMotionModelStore';
 import { createRequire } from 'node:module';
 import { sqliteJsonMetadataNodes as metadataNodes } from './SqliteOwnershipMetadata';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
