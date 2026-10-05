@@ -1,0 +1,29 @@
+# Concrete official-to-workload continuation contract
+
+The inherited-official JSON validator and strict byte loader passed their scheduled GREEN gates after separate observed RED checkpoints. Concrete continuation routing and supervisor/outer audits are source-reviewed, but both role/next entry points remain held. The later role-owner transaction repair requires the separately reviewed read-replay transition before it can consume the original official proof; ordinary production Source equality remains exact. No actual role or next stage has run.
+
+The purpose is to execute the existing all-ten workload helper on the closed output of one already completed official stage. It must preserve both official INSERT fault proofs and complete official close/reopen/retry without rebuilding official application. A later concrete role handoff gives the existing next-actor helper its fully settled input. This adds no domain capability, automatic effort generation or generic workflow engine.
+
+## Official admission
+
+`config.inheritedOfficial` has kind `checked_official_stage_v1`, explicit prior Source root/commit/manifest identity, and exactly eight distinct normalized absolute file pins: handoff, outerTerminal, stageTerminal, supervisorTerminal, receipt, configuration, sourceManifest and artifact. Each supplies a lowercase SHA-256. The file adapter must independently hash each input and observe absent/empty output WAL without opening SQLite or importing artifact helpers. It must validate the prior Source manifest and the actual prior Source bytes; current Source verification remains independently required.
+
+The outer receipt is essential. `process-terminal.json` is written before the supervisor creates `official-handoff.json`, and its exitCode is the execution child's exit. The consumer requires the outer receipt's actual `supervisorExitCode: 0`, null outer guard/error, passed true, supervisor reaped, no remaining supervisor/execution group, and exact handoff/terminal/supervisor path-and-hash references. A missing or failed post-terminal handoff write cannot be repaired by treating the earlier process terminal as sufficient.
+
+The handoff, official receipt, stage terminal, supervisor terminal, prior configuration, prior Source manifest and current already-admitted physical-producer reference must all agree on their pinned identities. Both real official fault checks remain true, one official helper/application is recorded, no new pitch or workload is recorded, output is a closed WAL database, and official stage handles are empty. Exact six-key integer helper counts are one started/completed official and zero role/next. The official stage is partial: role and next remain pending; scoring remains unsupported. Raw publication projections, inconsistent receipt paths, absent pins and truthy substitutes do not qualify.
+
+The prior and current production Source path sets and hashes must match. The JSON continuity check exempts documentation under `docs/`, verification controls under `tools/verification/actual-live-pipeline/`, named test/spec files, and only the three reviewed artifact helpers (`ActualLiveOfficialArtifact`, `ActualRoleWorkloadArtifact`, `ActualLiveNextActorArtifact`, each `.test-support.ts` under `src/host/world/`; root-level `src/` equivalents support the invented JSON fixtures). Other support files, configuration and dependencies remain hash-bound. These path exceptions do not substitute for reviewing the new Source cut. A new or changed production owner between stages requires a new reviewed lineage and cannot silently inherit the earlier proof.
+
+## Execution and receipt boundaries
+
+Role scope must first authenticate the original physical producer and official handoff. It invokes `verifyActualRoleWorkloadArtifact` once with the pinned official output and original closure. It keeps all ten explicit effort inputs, baselines, fixture rates and all existing assessment/freeze/workload/stale-head/interruption/recovery checks. Current counters record zero official calls and one role call. The inherited official receipt is a separate reference, never an increment to current official counters.
+
+Role output must carry a new durable role receipt, stage terminal, supervisor terminal and post-terminal role handoff, followed by an outer receipt that checks actual supervisor exit and the handoff hash. Next scope must authenticate both prior proofs, take its source only from that closed role output, and retain explicit away-2/nextTake plus the real actor INSERT fault, actual next pitch and all close/reopen/retry obligations. Its current counters record only one next helper call.
+
+Each single-stage terminal keeps `wholePipelinePassed: false`; its inherited stage references and current stage receipts make the completed chain explicit. The existing `all` mode still requires all three helpers to execute in that one attempt and cannot substitute inherited receipts. A later report may identify a fully verified chain across the separate attempts, but must not relabel any partial attempt as a same-attempt whole-pipeline pass.
+
+## Current checks
+
+The combined semantic/scope gate passed 464 Node cases, including 181 inherited-official cases, plus 20 Python methods. Its observed RED was 29 Node passes/435 feature failures and 17 Python passes/three feature failures. The strict file-adapter gate separately passed all 256 cases after an observed 12-pass/244-feature-failure RED. These JSON/byte fixtures remain invented control evidence; they do not certify a genuine domain artifact.
+
+The role/next read brackets were independently reviewed against the actual owners. They contain only synchronous pure reads on the same supplied/reopened connection; writer accepts, freezes, settlements, trigger changes, backups and awaits stay outside. Existing read-transaction utility checks remain applicable, but the new helper source still needs its integrated compiler and runtime gates.

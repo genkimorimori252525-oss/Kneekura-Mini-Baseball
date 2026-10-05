@@ -98,15 +98,20 @@ export const verifyActualLiveOfficialArtifact = async (input: Readonly<{
       faultEvidence.officialApplicationAfterInsert = true;
     }
     report('applying the actual original live-ball closure exactly once');
-    result = closures.resume(closureSourceId); assert.deepEqual(closures.resume(closureSourceId), result);
+    result = closures.resume(closureSourceId);
+    report('clean original live-ball closure resume returned');
+    assert.deepEqual(closures.resume(closureSourceId), result);
+    report('same-connection original closure retry returned unchanged');
     assert.equal(Number(db.prepare('SELECT count(*) AS n FROM applications').get()!.n), beforeApplications + 1);
     assert.equal(result.scoring.kind, 'unsupported'); assert.equal(result.workload.kind, 'pending');
     assert.equal(result.controllerReset.retired.length, 10);
     assert.throws(() => withSqliteReadTransaction(db, () => assertPriorPhysicalClosureCompleted(db, applicationId)), /pending/);
+    report('prior-closure workload-pending assertion returned');
     assert.deepEqual(rows(), before);
     closures.close(); closures = null; db.close(); db = new DatabaseSync(input.destinationPath);
     closures = openSqliteActualLivePlayClosureStore(input.destinationPath);
     assert.deepEqual(closures.resume(closureSourceId), result);
+    report('reopened original closure retry returned unchanged');
     assert.deepEqual(rows(), before);
   } finally { adjudications?.close(); closures?.close(); db.close(); }
   assert.equal(fileHash(input.sourcePath), originalHash);

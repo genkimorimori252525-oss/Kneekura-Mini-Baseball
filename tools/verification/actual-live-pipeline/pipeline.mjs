@@ -12,6 +12,10 @@ import { readPhysicalProducerEvidence } from './physical-producer-files.mjs';
 import { assertKnownProfileProducerEvidence } from './known-profile-producer-evidence.mjs';
 import { readKnownProfileProducerEvidence } from './known-profile-producer-files.mjs';
 import { executionScope, scopeCompletion } from './pipeline-scope.mjs';
+import { readInheritedOfficialEvidence } from './inherited-official-files.mjs';
+import { readInheritedRoleEvidence } from './inherited-role-files.mjs';
+import { assertInheritedOfficialEvidence } from './inherited-official-evidence.mjs';
+import { assertInheritedRoleEvidence } from './inherited-role-evidence.mjs';
 
 const NEXT_TAKE = { action: { kind: 'take' }, plateZ: 0, strikeZone: { centerX: 0, halfWidth: 0.2, lowerY: 1.4, upperY: 1.8 }, ballRadiusMeters: 0.0366 };
 const [mode, configPathArg] = process.argv.slice(2);
@@ -19,6 +23,7 @@ assert(['--run', '--import-check'].includes(mode), 'use --run or --import-check 
 const configPath = requireAbsolute(configPathArg, 'config path'), c = jsonRead(configPath);
 assert.equal(c.schema, 'actual_artifact_pipeline_run_v2');
 const scope = executionScope(c);
+assert(!['role', 'next'].includes(scope), 'inherited-stage runtime routing is not wired in this semantic-only candidate');
 const sourceRoot = requireAbsolute(c.sourceRoot, 'sourceRoot');
 assert.equal(realpathSync(dirname(fileURLToPath(import.meta.url))), realpathSync(join(sourceRoot, 'tools/verification/actual-live-pipeline')),
   'the executed wrapper must belong to the frozen Source cut');
@@ -44,15 +49,20 @@ if (mode === '--run') {
 const checkSource = () => verifySource(c.sourceManifestPath, c.sourceManifestSha256, sourceRoot, c.sourceCommit);
 const sourceIdentity = checkSource();
 const loadHelpers = async (selected = 'all') => {
-  const official = await import(`${sourceRoot}/src/host/world/ActualLiveOfficialArtifact.test-support.ts`);
-  assert.equal(typeof official.verifyActualLiveOfficialArtifact, 'function');
-  if (selected === 'official') return { official: official.verifyActualLiveOfficialArtifact };
-  const role = await import(`${sourceRoot}/src/host/world/ActualRoleWorkloadArtifact.test-support.ts`);
-  const next = await import(`${sourceRoot}/src/host/world/ActualLiveNextActorArtifact.test-support.ts`);
-  assert.equal(typeof official.verifyActualLiveOfficialArtifact, 'function');
-  assert.equal(typeof role.verifyActualRoleWorkloadArtifact, 'function');
-  assert.equal(typeof next.verifyActualLiveNextActorArtifact, 'function');
-  return { official: official.verifyActualLiveOfficialArtifact, role: role.verifyActualRoleWorkloadArtifact, next: next.verifyActualLiveNextActorArtifact };
+  const helpers = {};
+  if (selected === 'all' || selected === 'official') {
+    const official = await import(`${sourceRoot}/src/host/world/ActualLiveOfficialArtifact.test-support.ts`);
+    assert.equal(typeof official.verifyActualLiveOfficialArtifact, 'function'); helpers.official = official.verifyActualLiveOfficialArtifact;
+  }
+  if (selected === 'all' || selected === 'role') {
+    const role = await import(`${sourceRoot}/src/host/world/ActualRoleWorkloadArtifact.test-support.ts`);
+    assert.equal(typeof role.verifyActualRoleWorkloadArtifact, 'function'); helpers.role = role.verifyActualRoleWorkloadArtifact;
+  }
+  if (selected === 'all' || selected === 'next') {
+    const next = await import(`${sourceRoot}/src/host/world/ActualLiveNextActorArtifact.test-support.ts`);
+    assert.equal(typeof next.verifyActualLiveNextActorArtifact, 'function'); helpers.next = next.verifyActualLiveNextActorArtifact;
+  }
+  return helpers;
 };
 
 if (mode === '--import-check') {
@@ -84,6 +94,20 @@ if (mode === '--import-check') {
   assert.equal(c.nextBatterPlayerId, 'away-2');
   assert.deepEqual(c.nextTake, NEXT_TAKE);
   assert.equal(c.faultChecks, true); assert.equal(c.executeNextPitch, true);
+  let inheritedOfficial = null, inheritedRole = null;
+  if (scope === 'role') {
+    inheritedOfficial = readInheritedOfficialEvidence(c, physicalProducerReference, jsonRead(c.sourceManifestPath));
+    assertInheritedOfficialEvidence(inheritedOfficial);
+  } else if (scope === 'next') {
+    inheritedRole = readInheritedRoleEvidence(c, physicalProducerReference, jsonRead(c.sourceManifestPath));
+    assertInheritedRoleEvidence(inheritedRole); inheritedOfficial = inheritedRole.officialEvidence;
+  }
+  const inheritedStageReceipts = inheritedOfficial ? [{ stage: '01-official', path: c.inheritedOfficial.files.receipt.path, sha256: c.inheritedOfficial.files.receipt.sha256 },
+    ...(inheritedRole ? [{ stage: '02-role-workload', path: c.inheritedRole.files.receipt.path, sha256: c.inheritedRole.files.receipt.sha256 }] : [])] : [];
+  const inheritedFiles = [...(inheritedOfficial ? inheritedOfficial.referencedFiles : []), ...(inheritedRole ? inheritedRole.referencedFiles : [])];
+  const inheritedArtifacts = inheritedOfficial ? [c.inheritedOfficial.files.artifact.path,
+    ...(inheritedRole ? [c.inheritedRole.files.artifact.path, ...Object.values(c.inheritedRole.regressionArtifacts).map(ref => ref.path)] : [])] : [];
+
   const runDirectory = requireAbsolute(c.runDirectory, 'runDirectory');
   assert(!existsSync(runDirectory), 'fresh run directory required; failed runs are never silently retried');
   mkdirSync(runDirectory, { recursive: true });
@@ -92,7 +116,7 @@ if (mode === '--import-check') {
     official: join(runDirectory, '01-official.sqlite'), role: join(runDirectory, '02-role-workload.sqlite'), next: join(runDirectory, '03-next-actor-pitch.sqlite'),
   };
   const counts = { officialStarted: 0, officialCompleted: 0, roleStarted: 0, roleCompleted: 0, nextStarted: 0, nextCompleted: 0 };
-  const phaseReceipts = [], allArtifactPaths = [physicalPath, ...Object.values(paths), `${paths.role}.stale.sqlite`, `${paths.role}.recovery.sqlite`];
+  const phaseReceipts = [], allArtifactPaths = [physicalPath, ...inheritedArtifacts, ...Object.values(paths), `${paths.role}.stale.sqlite`, `${paths.role}.recovery.sqlite`];
   const progress = (stage, message, details = {}) => {
     const value = { at: at(), stage, elapsedSeconds: (performance.now() - started) / 1000, message, details };
     appendFileSync(join(runDirectory, 'phases.jsonl'), `${JSON.stringify(value)}\n`); console.log(JSON.stringify(value));
@@ -101,11 +125,15 @@ if (mode === '--import-check') {
     const source = checkSource();
     assert.equal(fileHash(physicalPath), c.physicalArtifactSha256); assert.equal(fileHash(proofPath), c.physicalEvidenceSha256);
     for (const ref of physicalProducer.referencedFiles) assert.equal(fileHash(ref.path), ref.sha256, `producer evidence changed: ${ref.path}`);
+    for (const ref of inheritedFiles) assert.equal(fileHash(ref.path), ref.sha256, `inherited stage evidence changed: ${ref.path}`);
+    for (const path of inheritedArtifacts) assertClosedMainFile(path);
+    if (scope === 'role') assertInheritedOfficialEvidence(readInheritedOfficialEvidence(c, physicalProducerReference, jsonRead(c.sourceManifestPath)));
+    if (scope === 'next') assertInheritedRoleEvidence(readInheritedRoleEvidence(c, physicalProducerReference, jsonRead(c.sourceManifestPath)));
     assertClosedMainFile(physicalPath); assertClosedMainFile(c.physicalProducer.files.originalInput.path);
     assert.equal(fileHash(configPath), configSha256); return source;
   };
   writeNewJson(join(runDirectory, 'input.json'), { config: c, configSha256, sourceIdentity, node: { version: process.version, path: process.execPath, sha256: fileHash(process.execPath) },
-    helperScope: 'existing_owned_artifact_helpers', originalPhysicalArtifact: { path: physicalPath, sha256: c.physicalArtifactSha256, evidencePath: proofPath, evidenceSha256: c.physicalEvidenceSha256 }, physicalProducerReference,
+    helperScope: 'existing_owned_artifact_helpers', originalPhysicalArtifact: { path: physicalPath, sha256: c.physicalArtifactSha256, evidencePath: proofPath, evidenceSha256: c.physicalEvidenceSha256 }, physicalProducerReference, inheritedStageReceipts,
     fixtureInputs: { nextBatterPlayerId: c.nextBatterPlayerId, nextTake: NEXT_TAKE, faultChecks: true, executeNextPitch: true }, startedAt: at() });
   let stage = 'startup';
   if (scope === 'supervisor_smoke') {
@@ -148,7 +176,7 @@ if (mode === '--import-check') {
   const receipt = (name, value) => {
     const path = join(runDirectory, `${name}.receipt.json`); writeNewJson(path, { schema: 'actual_artifact_stage_receipt_v1', status: 'passed',
       at: at(), elapsedSeconds: (performance.now() - started) / 1000, originalPhysicalArtifactSha256: c.physicalArtifactSha256,
-      physicalEndSourceId: c.physicalEndSourceId, sourceIdentity, physicalProducerReference, counts: { ...counts }, ...value });
+      physicalEndSourceId: c.physicalEndSourceId, sourceIdentity, physicalProducerReference, counts: { ...counts }, inheritedStageReceipts, ...value });
     const sealed = { stage: name, path, sha256: fileHash(path) };
     phaseReceipts.push(sealed); progress(name, 'phase receipt persisted', { receipt: sealed });
   };
@@ -161,6 +189,8 @@ if (mode === '--import-check') {
     assert.equal(physical.rowCounts.world_player_workload_activities ?? 0, 0);
     writeNewJson(join(runDirectory, 'physical-input-census.json'), physical);
 
+    let officialDisk, closureSourceId, applicationId;
+    if (scope === 'all' || scope === 'official') {
     stage = 'official'; progress(stage, 'executing existing official helper'); counts.officialStarted++;
     const official = await helpers.official({ sourcePath: physicalPath, destinationPath: paths.official, physicalEndSourceId: c.physicalEndSourceId, faultChecks: true, progress: message => progress(stage, message) });
     counts.officialCompleted++; requireCommon(official); auditInputs();
@@ -169,7 +199,7 @@ if (mode === '--import-check') {
     assert.equal(official.adjudicationEvidence.physicalEndReference.owner, 'actual_first_base_play_ends');
     assert.equal(official.adjudicationEvidence.physicalEndReference.sourceId, c.physicalEndSourceId);
     assert.equal(official.exactlyOnceOfficialApplication, true); assert.equal(official.actualRoleWorkloadStillPending, true);
-    const officialDisk = diskFacts(paths.official);
+    officialDisk = diskFacts(paths.official); closureSourceId = official.closureSourceId; applicationId = official.applicationId;
     assert.equal(official.sourceSha256, physical.sha256); assert.equal(official.destinationSha256, officialDisk.sha256);
     assert.equal(rowDelta(physical, officialDisk, 'applications'), 1);
     assert.equal(rowDelta(physical, officialDisk, 'physical_pitch_progress_actions'), 0);
@@ -179,24 +209,33 @@ if (mode === '--import-check') {
       originalTableHashes: official.originalTableHashes, scoring: official.result.scoring, workload: official.result.workload,
       faultEvidence: official.faultEvidence, adjudicationEvidence: official.adjudicationEvidence,
       executed: { helperCalls: 1, newOfficialApplications: 1, newPhysicalPitchActions: 0 }, syntheticFixturePolicy: true, faultChecks: true });
+    } else {
+      officialDisk = diskFacts(c.inheritedOfficial.files.artifact.path);
+      assert.deepEqual(officialDisk, inheritedOfficial.officialReceipt.output);
+      closureSourceId = inheritedOfficial.officialReceipt.closureSourceId; applicationId = inheritedOfficial.officialReceipt.applicationId;
+      writeNewJson(join(runDirectory, 'inherited-official-input-census.json'), officialDisk);
+    }
+
 
     if (scope === 'official') {
       assert.deepEqual(openSqliteHandles(allArtifactPaths), []);
       writeNewJson(join(runDirectory, 'terminal.json'), { ...scopeCompletion(scope, counts, phaseReceipts),
         at: at(), elapsedSeconds: (performance.now() - started) / 1000, sourceIdentity: auditInputs(), counts, phaseReceipts,
         openSqliteHandles: [], physicalSourceUnchanged: true, sourceCutUnchanged: true,
-        resumableOfficial: { receipt: phaseReceipts[0], output: officialDisk, closureSourceId: official.closureSourceId, applicationId: official.applicationId },
+        resumableOfficial: { receipt: phaseReceipts[0], output: officialDisk, closureSourceId, applicationId },
         scoringStillUnsupported: true, actualRoleWorkloadStillPending: true, newPhysicalPitchActions: 0,
         testScope: 'official helper with both real INSERT faults and complete close/reopen/retry; downstream stages pending' });
       progress('terminal', 'official stage passed; role and next remain pending');
     } else {
+    let roleDisk;
+    if (scope === 'all' || scope === 'role') {
     stage = 'role'; progress(stage, 'executing existing all-ten workload helper'); counts.roleStarted++;
-    const role = await helpers.role({ sourcePath: paths.official, destinationPath: paths.role, closureSourceId: official.closureSourceId, faultChecks: true, progress: message => progress(stage, message) });
+    const role = await helpers.role({ sourcePath: officialDisk.path, destinationPath: paths.role, closureSourceId, faultChecks: true, progress: message => progress(stage, message) });
     counts.roleCompleted++; requireCommon(role); auditInputs();
     assertNoGlobalPrepareSpy();
     assert.deepEqual(role.faultEvidence, { assessmentAfterInsert: true, freezeAfterInsert: true, workloadAfterInsert: true,
       staleCurrentHeadRejected: true, interruptedAfterFirstInsert: true });
-    assert.equal(fileHash(paths.official), officialDisk.sha256);
+    assert.equal(fileHash(officialDisk.path), officialDisk.sha256);
     assert.equal(role.participantCount, 10); assert.equal(role.settlement.kind, 'complete'); assert.equal(role.exactlyOnce, true);
     assert.equal(role.playableArtifactRecoveryActivities, 0); assert.equal(role.playableHeadsEqualFrozenAfter, true);
     assert.equal(role.automaticEffortGeneration, false); assert.equal(role.syntheticFixtureInputs, true);
@@ -210,7 +249,7 @@ if (mode === '--import-check') {
       assert.deepEqual(baseline.policy, { policyId: 'explicit-role-workload-fixture', version: 'fixture-v1', availableAtDay: 0,
         workloadFatiguePerUnit: 0.01, travelFatiguePerKm: 0.001, recoveryPerHour: 0.1 });
     }
-    const roleDisk = diskFacts(paths.role);
+    roleDisk = diskFacts(paths.role);
     assert.equal(role.sourceSha256, officialDisk.sha256); assert.equal(role.destinationSha256, roleDisk.sha256);
     assert.equal(rowDelta(officialDisk, roleDisk, 'world_player_workload_activities'), 10);
     assert.equal(rowDelta(officialDisk, roleDisk, 'physical_pitch_progress_actions'), 0);
@@ -221,14 +260,29 @@ if (mode === '--import-check') {
       executed: { helperCalls: 1, participantSettlements: role.settlement.participants.filter(p => p.applied).length, newMatchWorkloadActivities: 10, newPhysicalPitchActions: 0 },
       syntheticFixtureInputs: true, automaticEffortGeneration: false, playableArtifactRecoveryActivities: 0,
       recoveryRegression: { ...role.recoveryRegression, disk: recoveryDisk }, staleCasRegression: { disk: staleDisk }, faultChecks: true });
-
+    } else {
+      roleDisk = diskFacts(c.inheritedRole.files.artifact.path);
+      assert.deepEqual(roleDisk, inheritedRole.roleReceipt.output);
+      writeNewJson(join(runDirectory, 'inherited-role-input-census.json'), roleDisk);
+    }
+    if (scope === 'role') {
+      assert.deepEqual(openSqliteHandles(allArtifactPaths), []);
+      writeNewJson(join(runDirectory, 'terminal.json'), { ...scopeCompletion(scope, counts, phaseReceipts, inheritedStageReceipts),
+        at: at(), sourceIdentity: auditInputs(), counts, phaseReceipts, inheritedStageReceipts, openSqliteHandles: [],
+        physicalSourceUnchanged: true, sourceCutUnchanged: true,
+        resumableRole: { receipt: phaseReceipts[0], output: roleDisk, closureSourceId, applicationId },
+        scoringStillUnsupported: true, automaticEffortGeneration: false, recoveryOnlyOnIsolatedCopy: true,
+        elapsedWorldRecoveryTimeProven: false, newPhysicalPitchActions: 0,
+        testScope: 'role helper with all ten explicit inputs and all original faults/reopen obligations; official proof inherited, next pending' });
+      progress('terminal', 'role stage passed; original official proof inherited and next pending');
+    } else {
     stage = 'next'; progress(stage, 'executing next actor and real physical take helper'); counts.nextStarted++;
-    const next = await helpers.next({ sourcePath: paths.role, destinationPath: paths.next, closureSourceId: official.closureSourceId,
+    const next = await helpers.next({ sourcePath: roleDisk.path, destinationPath: paths.next, closureSourceId,
       nextBatterPlayerId: 'away-2', faultChecks: true, executeNextPitch: true, nextTake: NEXT_TAKE, progress: message => progress(stage, message) });
     counts.nextCompleted++; requireCommon(next); auditInputs();
     assertNoGlobalPrepareSpy();
     assert.deepEqual(next.faultEvidence, { wrongActivationRejected: true, actorReadinessAfterInsert: true });
-    assert.equal(fileHash(paths.official), officialDisk.sha256); assert.equal(fileHash(paths.role), roleDisk.sha256);
+    assert.equal(fileHash(officialDisk.path), officialDisk.sha256); assert.equal(fileHash(roleDisk.path), roleDisk.sha256);
     assert.equal(next.nextPitchExecuted, true); assert.equal(next.exactlyOnceActorAdmission, true); assert.equal(next.autonomousLineupSelection, false);
     assert.equal(next.nextBatterSelection, 'explicit_fixture_input'); assert.equal(next.actor.source.playerId, 'away-2');
     const nextDisk = diskFacts(paths.next);
@@ -247,13 +301,14 @@ if (mode === '--import-check') {
       nextBatterSelection: 'explicit_fixture_input', autonomousLineupSelection: false, scoringStillUnsupported: true,
       physicalWorldRecoveryProven: false, faultChecks: true });
     assert.deepEqual(openSqliteHandles(allArtifactPaths), []);
-    assert.deepEqual(counts, { officialStarted: 1, officialCompleted: 1, roleStarted: 1, roleCompleted: 1, nextStarted: 1, nextCompleted: 1 });
-    writeNewJson(join(runDirectory, 'terminal.json'), { ...scopeCompletion(scope, counts, phaseReceipts), at: at(), elapsedSeconds: (performance.now() - started) / 1000,
-      sourceIdentity: auditInputs(), counts, phaseReceipts, openSqliteHandles: [], physicalSourceUnchanged: true,
+    if (scope === 'all') assert.deepEqual(counts, { officialStarted: 1, officialCompleted: 1, roleStarted: 1, roleCompleted: 1, nextStarted: 1, nextCompleted: 1 });
+    writeNewJson(join(runDirectory, 'terminal.json'), { ...scopeCompletion(scope, counts, phaseReceipts, inheritedStageReceipts), at: at(), elapsedSeconds: (performance.now() - started) / 1000,
+      sourceIdentity: auditInputs(), counts, phaseReceipts, inheritedStageReceipts, openSqliteHandles: [], physicalSourceUnchanged: true,
       sourceCutUnchanged: true, scoringStillUnsupported: true, autonomousLineupSelection: false, automaticEffortGeneration: false,
-      recoveryOnlyOnIsolatedCopy: true, elapsedWorldRecoveryTimeProven: false, newPhysicalPitchActions: 1,
+      recoveryOnlyOnIsolatedCopy: true, elapsedWorldRecoveryTimeProven: false, physicalWorldRecoveryProven: false, newPhysicalPitchActions: 1,
       testScope: 'standalone real helper execution; no test discovery or skipped-test inference' });
-    progress('terminal', 'all three artifact stages passed');
+    progress('terminal', scope === 'all' ? 'all three artifact stages passed' : 'next stage passed; official and role proofs inherited');
+    }
     }
   } catch (error) {
     let inputAudit; try { inputAudit = { passed: true, sourceIdentity: auditInputs() }; } catch (e) { inputAudit = { passed: false, error: String(e) }; }

@@ -44,7 +44,11 @@ export const verifySource = (manifestPath, expectedSha256, expectedRoot, expecte
   assert.equal(git(root, 'diff', '--name-only', 'HEAD'), '', 'tracked Source changed');
   assert.equal(git(root, 'rev-parse', 'HEAD^{tree}'), manifest.sourceTree);
   const tracked = new Set(git(root, 'ls-files', '-z').split('\0').filter(Boolean));
-  for (const name of ['pipeline.mjs', 'pipeline-common.mjs', 'physical-producer-evidence.mjs', 'physical-producer-files.mjs', 'known-profile-producer-evidence.mjs', 'known-profile-producer-files.mjs', 'runtime-probe.cjs', 'run-pipeline.sh', 'supervise-pipeline.py', 'pipeline-scope.mjs', 'scope_contract.py', 'vite.config.mjs']) {
+  for (const name of ['pipeline.mjs', 'pipeline-common.mjs', 'physical-producer-evidence.mjs', 'physical-producer-files.mjs', 'known-profile-producer-evidence.mjs', 'known-profile-producer-files.mjs',
+    'inherited-official-evidence.mjs', 'inherited-official-files.mjs', 'inherited-role-evidence.mjs', 'inherited-role-files.mjs',
+    'official-read-replay.mjs', 'official-read-replay-helper.ts', 'official-read-replay-evidence.mjs', 'replay_scope_contract.py', 'run-official-read-replay.py',
+    'admit-official-read-replay-only.mjs',
+    'runtime-probe.cjs', 'run-pipeline.sh', 'supervise-pipeline.py', 'pipeline-scope.mjs', 'scope_contract.py', 'vite.config.mjs']) {
     assert(tracked.has(`tools/verification/actual-live-pipeline/${name}`), 'the executed wrapper must be committed with the Source cut');
   }
   const current = sourceFiles(root);
