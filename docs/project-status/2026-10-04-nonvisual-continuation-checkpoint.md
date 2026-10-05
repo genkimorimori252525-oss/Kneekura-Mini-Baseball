@@ -1,8 +1,16 @@
 # 非デザイン継続実装: 現在の接続と検証
 
-更新: 2026-10-05 21:49 JST（2026-10-05 12:49 UTC）
+更新: 2026-10-05 22:00 JST（2026-10-05 13:00 UTC）
 
 ユーザーの継続指示に従い、最新の確定済み残計画を進めている。**計画全体・自律試合/Career全体の完了ではない**。デザイン/UI/art/Presentationは未接続のまま。
+
+## 2026-10-05 13:00 UTC: closure読取りの再利用とactual workload継続
+
+同じclosure操作内で再認証済みのadjudication/end/prefixを内部pairとして使う小変更を接続した。別transaction・write・connectionのfresh検査を保持する。固定 `de4c899` は68 Native + compiler PASS。別固定 `25a12f0` の本物のofficial artifact再読取りは2回とも元と同じ観測digestを保ち、outer212.750秒・zero writes・全process回収で通過した（前の固定 `9350c20` は611.881秒）。一般的な速度保証ではなく同artifactの実測である。
+
+原始official8ファイルとreplay6ファイルを認証するrole-only実行接続は、固定 `1c95810` で型検査・Node1,497・Python42・実14-file admission・read-onlyの全入力確認・監視smokeを通過した。12:54 UTCから同Sourceの全10人workloadを最大18,000秒の1回として実行中。元closureと最初のpending読取りは戻ったが、workload成功・実next pitchのreceiptはまだない。
+
+17のreview済みcode/test/tool差分は最新stackへ `bf94f9c` として統合した。src treeは `bbef31471318e5bf179c8709c324bc3030490f8b`。移植した各fileのbytes一致とdiff checkを確認したが、このcombined branchのfocused/compilerは重い実行後の別gateである。上記の異なる固定Sourceの合格をそのまま統合全体へ転用しない。詳細は [paired closure / role continuation](../verification/2026-10-05-paired-closure-role-continuation.md)。新DBを含まないDraft checkpointで、残る非デザイン範囲・最新累積wholeは未完了のまま継続する。
 
 ## 2026-10-05 12:49 UTC: 元runner controllerの後続field piece
 

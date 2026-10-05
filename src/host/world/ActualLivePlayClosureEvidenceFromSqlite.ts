@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module';
 import { actualLivePlayReadinessFromSqlite } from './ActualLivePlayReadinessFromSqlite';
 import { defensiveMetadataId as metadataId } from './ActualDefensiveMetadata';
 import { sqliteJsonMetadataNodes as metadataNodes } from './SqliteOwnershipMetadata';
@@ -9,7 +10,7 @@ import { deriveOfficialPlayResult, deriveOfficialFinalResult, type PersistOffici
 import { actualLiveAdjudicationEvidenceFromSqlite, type ActualAdjudicationDb } from './ActualLiveAdjudicationFromSqlite';
 import { actualFirstBaseClosedEvidenceFromSqlite } from './SqliteActualFirstBasePlayEndStore';
 import { battedWorldFieldEvidenceFromSqlite } from './SqliteBattedWorldFieldStore';
-import { battedWorldFieldExecutionEvidenceFromSqlite } from './SqliteBattedWorldFieldExecutionStore';
+import { battedWorldFieldExecutionEvidenceFromSqlite, withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { actualPlayersKinematicsFromPrefix } from './ActualPlayerKinematicsFromPrefix';
 import { readOfficialActorPersonLink } from './SqliteOfficialInitialWorldStore';
 import type { OfficialStandingsSchedule } from '../../core/world/competition/OfficialStandings';
@@ -17,13 +18,19 @@ import type { OfficialParticipantBinding } from './SqliteOfficialParticipationSt
 import { actualLiveAdjudicationIdentityRow } from './ActualLiveAdjudicationMetadata';
 import { actualLivePlayClosureInput as input, type AcceptedActualLivePlayClosure } from './ActualLivePlayClosureSource';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
-export const deriveActualLivePlayClosureProposal = (db: ActualAdjudicationDb, raw: AcceptedActualLivePlayClosure, historicalApplied = false) => {
+const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+export const deriveActualLivePlayClosureProposal = (db: ActualAdjudicationDb, raw: AcceptedActualLivePlayClosure, historicalApplied = false) => withBattedWorldPhysicalReadTraversal(db, () => {
   const source = input(raw, raw.sourceId);
   if (!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='actual_live_adjudications'").get()) throw new Error('accepted actual live adjudication missing');
-  const adjudication = actualLiveAdjudicationEvidenceFromSqlite(db).read(source.adjudicationSourceId);
+  const own = actualLiveAdjudicationEvidenceFromSqlite(db), transactional = db instanceof DatabaseSync && db.isTransaction;
+  const pair = transactional ? own.readWithClosureInputs(source.adjudicationSourceId) : null;
+  const adjudication = transactional ? pair?.value : own.read(source.adjudicationSourceId);
   if (!adjudication) throw new Error('accepted actual live adjudication missing');
   if (adjudication.kind !== 'official_ready' || adjudication.timeline.kind !== 'projected') throw new Error(`actual official closure pending: ${adjudication.pendingReasons.join(', ')}`);
-  const end = actualFirstBaseClosedEvidenceFromSqlite(db).read(adjudication.source.physicalEndSourceId)!;
+  const end = transactional ? pair!.end : actualFirstBaseClosedEvidenceFromSqlite(db).read(adjudication.source.physicalEndSourceId)!;
+  if (pair && (end.source.sourceId !== adjudication.source.physicalEndSourceId
+    || pair.prefix.baseField.source.sourceId !== end.source.baseFieldSourceId
+    || pair.prefix.executions.at(-1)?.source.sourceId !== end.source.executionSourceId)) throw new Error('actual closure paired physical Source cut differs');
   if (source.closureTick < end.playEnd.tick) throw new Error('actual official closure precedes physical end');
   const ledger = closeOfficialPlay(adjudication.ledger, adjudication.ledger.revision,
     { eventId: `${source.sourceId}:closed`, closureId: source.sourceId, tick: source.closureTick });
@@ -33,7 +40,7 @@ export const deriveActualLivePlayClosureProposal = (db: ActualAdjudicationDb, ra
     && adjudication.originalMatch.score.home <= adjudication.originalMatch.score.away && next.score.home > next.score.away;
   if (!source.gamePolicy && (halfChanged || possibleWalkoff && !historicalApplied)) throw new Error('actual live closure requires accepted game policy at the legal handoff');
   const fieldOwner = battedWorldFieldEvidenceFromSqlite(db), executionOwner = battedWorldFieldExecutionEvidenceFromSqlite(db);
-  const baseField = fieldOwner.read(end.source.baseFieldSourceId)!;
+  const baseField = pair ? pair.prefix.baseField : fieldOwner.read(end.source.baseFieldSourceId)!;
   const pitch = baseField.response.touch.worldContact.flight.physicalPitch, frame = pitch.frame, batter = frame.batterActor!;
   const bindings = [batter.binding, ...frame.bindings];
   const fixture = db.prepare('SELECT * FROM official_fixtures WHERE game_id=?').get(end.gameId);
@@ -110,7 +117,7 @@ export const deriveActualLivePlayClosureProposal = (db: ActualAdjudicationDb, ra
     const playerId = setup ? next.bases[base] : null;
     if (playerId !== null && !actors.some(a => a.binding.playerId === playerId && a.binding.side !== side)) throw new Error('actual live closure next runner lacks original Person/Club binding');
   }
-  const prefix = { baseField, fields: fieldOwner.scope(baseField, end.source.baseFieldSourceId), executions: executionOwner.scope(baseField, end.source.executionSourceId) };
+  const prefix = pair ? pair.prefix : { baseField, fields: fieldOwner.scope(baseField, end.source.baseFieldSourceId), executions: executionOwner.scope(baseField, end.source.executionSourceId) };
   const players = actualPlayersKinematicsFromPrefix(bindings.map(b => b.playerId), prefix);
   // The accepted rule-system command retires these exact old-play authorities only
   // for the new setup. It does not cancel/relabel their original physical history.
@@ -139,7 +146,7 @@ export const deriveActualLivePlayClosureProposal = (db: ActualAdjudicationDb, ra
     application, expectedOfficial, scoring, workload, controllerReset, actors,
     ...(gamePolicy ? { gamePolicy, ...(finalGame ? {} : { nextActors }) } : {}),
     fixture, seasonFixture: { careerId: bindings[0].careerId, seasonId: schedule.seasonId, game }, originalActivation });
-};
+});
 /** Live and non-live closures pin the same per-game completion policy. */
 export function assertActualLiveGamePolicy(db: ActualAdjudicationDb, gameId: string, policy: unknown, required = false): void {
   const installed = db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='physical_closure_game_policies'").get();

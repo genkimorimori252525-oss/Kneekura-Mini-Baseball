@@ -16,14 +16,17 @@ import { readInheritedOfficialEvidence } from './inherited-official-files.mjs';
 import { readInheritedRoleEvidence } from './inherited-role-files.mjs';
 import { assertInheritedOfficialEvidence } from './inherited-official-evidence.mjs';
 import { assertInheritedRoleEvidence } from './inherited-role-evidence.mjs';
+import { readOfficialReadReplayEvidence } from './official-read-replay-files.mjs';
+import { assertOfficialReadReplayEvidence } from './official-read-replay-evidence.mjs';
 
 const NEXT_TAKE = { action: { kind: 'take' }, plateZ: 0, strikeZone: { centerX: 0, halfWidth: 0.2, lowerY: 1.4, upperY: 1.8 }, ballRadiusMeters: 0.0366 };
 const [mode, configPathArg] = process.argv.slice(2);
-assert(['--run', '--import-check'].includes(mode), 'use --run or --import-check with an absolute config path');
+assert(['--run', '--import-check', '--prerequisite-check', '--admission-only'].includes(mode), 'use --run or --import-check with an absolute config path');
 const configPath = requireAbsolute(configPathArg, 'config path'), c = jsonRead(configPath);
 assert.equal(c.schema, 'actual_artifact_pipeline_run_v2');
 const scope = executionScope(c);
-assert(!['role', 'next'].includes(scope), 'inherited-stage runtime routing is not wired in this semantic-only candidate');
+assert(scope !== 'next', 'next-stage replay-through-role admission is not wired yet');
+assert(!['--prerequisite-check','--admission-only'].includes(mode) || scope === 'role', 'input-only checks are role-only');
 const sourceRoot = requireAbsolute(c.sourceRoot, 'sourceRoot');
 assert.equal(realpathSync(dirname(fileURLToPath(import.meta.url))), realpathSync(join(sourceRoot, 'tools/verification/actual-live-pipeline')),
   'the executed wrapper must belong to the frozen Source cut');
@@ -48,6 +51,8 @@ if (mode === '--run') {
 }
 const checkSource = () => verifySource(c.sourceManifestPath, c.sourceManifestSha256, sourceRoot, c.sourceCommit);
 const sourceIdentity = checkSource();
+if (scope === 'role') assert.deepEqual(c.controlHashes, { launcher: fileHash(join(sourceRoot, 'tools/verification/actual-live-pipeline/run-role-stage.py')),
+  runtimeProbe: fileHash(join(sourceRoot, 'tools/verification/actual-live-pipeline/runtime-probe.cjs')), pipelineRunner: fileHash(fileURLToPath(import.meta.url)) });
 const loadHelpers = async (selected = 'all') => {
   const helpers = {};
   if (selected === 'all' || selected === 'official') {
@@ -65,8 +70,9 @@ const loadHelpers = async (selected = 'all') => {
   return helpers;
 };
 
-if (mode === '--import-check') {
-  await loadHelpers(); checkSource();
+const execute = async () => {
+if (mode === '--import-check' && scope !== 'role') {
+  await loadHelpers(scope); checkSource();
   console.log(JSON.stringify({ kind: 'import_check_passed', sourceIdentity, artifactHelpersExecuted: 0, nativeArtifactsOpened: 0 }));
 } else {
   assert.equal(Number(process.versions.node.split('.')[0]), 26, 'scheduled artifact execution requires Node 26');
@@ -94,23 +100,51 @@ if (mode === '--import-check') {
   assert.equal(c.nextBatterPlayerId, 'away-2');
   assert.deepEqual(c.nextTake, NEXT_TAKE);
   assert.equal(c.faultChecks, true); assert.equal(c.executeNextPitch, true);
-  let inheritedOfficial = null, inheritedRole = null;
+  let inheritedOfficial = null, inheritedRole = null, inheritedReplay = null;
   if (scope === 'role') {
-    inheritedOfficial = readInheritedOfficialEvidence(c, physicalProducerReference, jsonRead(c.sourceManifestPath));
-    assertInheritedOfficialEvidence(inheritedOfficial);
+    inheritedReplay = readOfficialReadReplayEvidence(c, physicalProducerReference, jsonRead(c.sourceManifestPath));
+    assertOfficialReadReplayEvidence(inheritedReplay);
+    inheritedOfficial = inheritedReplay.officialEvidence;
   } else if (scope === 'next') {
     inheritedRole = readInheritedRoleEvidence(c, physicalProducerReference, jsonRead(c.sourceManifestPath));
     assertInheritedRoleEvidence(inheritedRole); inheritedOfficial = inheritedRole.officialEvidence;
   }
   const inheritedStageReceipts = inheritedOfficial ? [{ stage: '01-official', path: c.inheritedOfficial.files.receipt.path, sha256: c.inheritedOfficial.files.receipt.sha256 },
     ...(inheritedRole ? [{ stage: '02-role-workload', path: c.inheritedRole.files.receipt.path, sha256: c.inheritedRole.files.receipt.sha256 }] : [])] : [];
-  const inheritedFiles = [...(inheritedOfficial ? inheritedOfficial.referencedFiles : []), ...(inheritedRole ? inheritedRole.referencedFiles : [])];
+  const inheritedFiles = inheritedReplay ? inheritedReplay.referencedFiles : [...(inheritedOfficial ? inheritedOfficial.referencedFiles : []), ...(inheritedRole ? inheritedRole.referencedFiles : [])];
+  const inheritedReadReplay = inheritedReplay ? { binding: c.officialReadReplay, sourceTransition: c.sourceTransition, expectedObservationSha256: c.expectedObservationSha256 ?? null } : null;
   const inheritedArtifacts = inheritedOfficial ? [c.inheritedOfficial.files.artifact.path,
     ...(inheritedRole ? [c.inheritedRole.files.artifact.path, ...Object.values(c.inheritedRole.regressionArtifacts).map(ref => ref.path)] : [])] : [];
 
+  if (mode === '--admission-only') {
+    checkSource(); assert.equal(fileHash(configPath), configSha256);
+    console.log(JSON.stringify({ kind: 'actual_role_input_admitted', sourceIdentity, configSha256, originalFileCount: inheritedOfficial.referencedFiles.length, replayFileCount: inheritedReplay.referencedFiles.length - inheritedOfficial.referencedFiles.length, artifactHelpersImported: 0, artifactHelpersExecuted: 0, nativeArtifactsOpened: 0 }));
+    return;
+  }
+  if (mode === '--import-check') {
+    await loadHelpers(scope);
+    assertOfficialReadReplayEvidence(readOfficialReadReplayEvidence(c, physicalProducerReference, jsonRead(c.sourceManifestPath)));
+    checkSource(); assert.equal(fileHash(configPath), configSha256);
+    console.log(JSON.stringify({ kind: 'import_check_passed', sourceIdentity, artifactHelpersExecuted: 0, nativeArtifactsOpened: 0 }));
+    return;
+  }
+  let rolePrerequisites = null;
+  if (scope === 'role') {
+    const { verifyActualRoleInputPrerequisites } = await import(`${sourceRoot}/tools/verification/actual-live-pipeline/role-input-preflight.ts`);
+    const observation = inheritedReplay.receipt.passes[0];
+    rolePrerequisites = verifyActualRoleInputPrerequisites({ artifactPath: c.inheritedOfficial.files.artifact.path, artifactSha256: c.inheritedOfficial.files.artifact.sha256,
+      originalReceipt: inheritedOfficial.officialReceipt, observation: observation.observation, observationSha256: observation.observationSha256 });
+    assertOfficialReadReplayEvidence(readOfficialReadReplayEvidence(c, physicalProducerReference, jsonRead(c.sourceManifestPath)));
+    checkSource(); assert.equal(fileHash(configPath), configSha256);
+    if (mode === '--prerequisite-check') {
+      console.log(JSON.stringify({ kind: 'actual_role_prerequisites_passed', sourceIdentity, configSha256, inheritedReadReplay, prerequisites: rolePrerequisites }));
+      return;
+    }
+  }
   const runDirectory = requireAbsolute(c.runDirectory, 'runDirectory');
   assert(!existsSync(runDirectory), 'fresh run directory required; failed runs are never silently retried');
   mkdirSync(runDirectory, { recursive: true });
+  if (rolePrerequisites) writeNewJson(join(runDirectory, 'role-prerequisites.json'), rolePrerequisites);
   const at = () => new Date().toISOString(), started = performance.now();
   const paths = {
     official: join(runDirectory, '01-official.sqlite'), role: join(runDirectory, '02-role-workload.sqlite'), next: join(runDirectory, '03-next-actor-pitch.sqlite'),
@@ -127,13 +161,13 @@ if (mode === '--import-check') {
     for (const ref of physicalProducer.referencedFiles) assert.equal(fileHash(ref.path), ref.sha256, `producer evidence changed: ${ref.path}`);
     for (const ref of inheritedFiles) assert.equal(fileHash(ref.path), ref.sha256, `inherited stage evidence changed: ${ref.path}`);
     for (const path of inheritedArtifacts) assertClosedMainFile(path);
-    if (scope === 'role') assertInheritedOfficialEvidence(readInheritedOfficialEvidence(c, physicalProducerReference, jsonRead(c.sourceManifestPath)));
+    if (scope === 'role') assertOfficialReadReplayEvidence(readOfficialReadReplayEvidence(c, physicalProducerReference, jsonRead(c.sourceManifestPath)));
     if (scope === 'next') assertInheritedRoleEvidence(readInheritedRoleEvidence(c, physicalProducerReference, jsonRead(c.sourceManifestPath)));
     assertClosedMainFile(physicalPath); assertClosedMainFile(c.physicalProducer.files.originalInput.path);
     assert.equal(fileHash(configPath), configSha256); return source;
   };
   writeNewJson(join(runDirectory, 'input.json'), { config: c, configSha256, sourceIdentity, node: { version: process.version, path: process.execPath, sha256: fileHash(process.execPath) },
-    helperScope: 'existing_owned_artifact_helpers', originalPhysicalArtifact: { path: physicalPath, sha256: c.physicalArtifactSha256, evidencePath: proofPath, evidenceSha256: c.physicalEvidenceSha256 }, physicalProducerReference, inheritedStageReceipts,
+    helperScope: 'existing_owned_artifact_helpers', originalPhysicalArtifact: { path: physicalPath, sha256: c.physicalArtifactSha256, evidencePath: proofPath, evidenceSha256: c.physicalEvidenceSha256 }, physicalProducerReference, inheritedStageReceipts, inheritedReadReplay, rolePrerequisites,
     fixtureInputs: { nextBatterPlayerId: c.nextBatterPlayerId, nextTake: NEXT_TAKE, faultChecks: true, executeNextPitch: true }, startedAt: at() });
   let stage = 'startup';
   if (scope === 'supervisor_smoke') {
@@ -176,7 +210,7 @@ if (mode === '--import-check') {
   const receipt = (name, value) => {
     const path = join(runDirectory, `${name}.receipt.json`); writeNewJson(path, { schema: 'actual_artifact_stage_receipt_v1', status: 'passed',
       at: at(), elapsedSeconds: (performance.now() - started) / 1000, originalPhysicalArtifactSha256: c.physicalArtifactSha256,
-      physicalEndSourceId: c.physicalEndSourceId, sourceIdentity, physicalProducerReference, counts: { ...counts }, inheritedStageReceipts, ...value });
+      physicalEndSourceId: c.physicalEndSourceId, sourceIdentity, physicalProducerReference, counts: { ...counts }, inheritedStageReceipts, inheritedReadReplay, ...value });
     const sealed = { stage: name, path, sha256: fileHash(path) };
     phaseReceipts.push(sealed); progress(name, 'phase receipt persisted', { receipt: sealed });
   };
@@ -232,6 +266,11 @@ if (mode === '--import-check') {
     stage = 'role'; progress(stage, 'executing existing all-ten workload helper'); counts.roleStarted++;
     const role = await helpers.role({ sourcePath: officialDisk.path, destinationPath: paths.role, closureSourceId, faultChecks: true, progress: message => progress(stage, message) });
     counts.roleCompleted++; requireCommon(role); auditInputs();
+    if (rolePrerequisites) {
+      assert.deepEqual(role.acceptedInputManifest.assessments, rolePrerequisites.assessments);
+      assert.deepEqual(role.acceptedInputManifest.addedBaselines, rolePrerequisites.addedBaselines);
+      assert.deepEqual(role.acceptedInputManifest.retainedBaselinePlayerIds, rolePrerequisites.retainedBaselines.map(value => value.playerId));
+    }
     assertNoGlobalPrepareSpy();
     assert.deepEqual(role.faultEvidence, { assessmentAfterInsert: true, freezeAfterInsert: true, workloadAfterInsert: true,
       staleCurrentHeadRejected: true, interruptedAfterFirstInsert: true });
@@ -268,7 +307,7 @@ if (mode === '--import-check') {
     if (scope === 'role') {
       assert.deepEqual(openSqliteHandles(allArtifactPaths), []);
       writeNewJson(join(runDirectory, 'terminal.json'), { ...scopeCompletion(scope, counts, phaseReceipts, inheritedStageReceipts),
-        at: at(), sourceIdentity: auditInputs(), counts, phaseReceipts, inheritedStageReceipts, openSqliteHandles: [],
+        at: at(), sourceIdentity: auditInputs(), counts, phaseReceipts, inheritedStageReceipts, inheritedReadReplay, openSqliteHandles: [],
         physicalSourceUnchanged: true, sourceCutUnchanged: true,
         resumableRole: { receipt: phaseReceipts[0], output: roleDisk, closureSourceId, applicationId },
         scoringStillUnsupported: true, automaticEffortGeneration: false, recoveryOnlyOnIsolatedCopy: true,
@@ -303,7 +342,7 @@ if (mode === '--import-check') {
     assert.deepEqual(openSqliteHandles(allArtifactPaths), []);
     if (scope === 'all') assert.deepEqual(counts, { officialStarted: 1, officialCompleted: 1, roleStarted: 1, roleCompleted: 1, nextStarted: 1, nextCompleted: 1 });
     writeNewJson(join(runDirectory, 'terminal.json'), { ...scopeCompletion(scope, counts, phaseReceipts, inheritedStageReceipts), at: at(), elapsedSeconds: (performance.now() - started) / 1000,
-      sourceIdentity: auditInputs(), counts, phaseReceipts, inheritedStageReceipts, openSqliteHandles: [], physicalSourceUnchanged: true,
+      sourceIdentity: auditInputs(), counts, phaseReceipts, inheritedStageReceipts, inheritedReadReplay, openSqliteHandles: [], physicalSourceUnchanged: true,
       sourceCutUnchanged: true, scoringStillUnsupported: true, autonomousLineupSelection: false, automaticEffortGeneration: false,
       recoveryOnlyOnIsolatedCopy: true, elapsedWorldRecoveryTimeProven: false, physicalWorldRecoveryProven: false, newPhysicalPitchActions: 1,
       testScope: 'standalone real helper execution; no test discovery or skipped-test inference' });
@@ -318,3 +357,6 @@ if (mode === '--import-check') {
   }
 }
 }
+
+};
+await execute();
