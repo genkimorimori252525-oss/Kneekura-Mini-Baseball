@@ -9,6 +9,8 @@ import { fileURLToPath } from 'node:url';
 import { assertClosedMainFile, fileHash, jsonRead, openSqliteHandles, requireAbsolute, requireHash, verifySource, writeNewJson } from './pipeline-common.mjs';
 import { assertPhysicalProducerEvidence } from './physical-producer-evidence.mjs';
 import { readPhysicalProducerEvidence } from './physical-producer-files.mjs';
+import { assertKnownProfileProducerEvidence } from './known-profile-producer-evidence.mjs';
+import { readKnownProfileProducerEvidence } from './known-profile-producer-files.mjs';
 import { executionScope, scopeCompletion } from './pipeline-scope.mjs';
 
 const NEXT_TAKE = { action: { kind: 'take' }, plateZ: 0, strikeZone: { centerX: 0, halfWidth: 0.2, lowerY: 1.4, upperY: 1.8 }, ballRadiusMeters: 0.0366 };
@@ -60,8 +62,18 @@ if (mode === '--import-check') {
   assert.equal(Number(process.versions.node.split('.')[0]), 26, 'scheduled artifact execution requires Node 26');
   const proofPath = realpathSync(requireAbsolute(c.physicalEvidencePath, 'physicalEvidencePath'));
   requireHash(c.physicalArtifactSha256, 'physicalArtifactSha256'); requireHash(c.physicalEvidenceSha256, 'physicalEvidenceSha256');
-  const physicalProducer = readPhysicalProducerEvidence(c);
-  assertPhysicalProducerEvidence(physicalProducer);
+  let physicalProducer;
+  switch (c.physicalProducer?.kind) {
+    case 'first_base_clean_producer_v1':
+      physicalProducer = readPhysicalProducerEvidence(c);
+      assertPhysicalProducerEvidence(physicalProducer);
+      break;
+    case 'first_base_known_profile_producer_v1':
+      physicalProducer = readKnownProfileProducerEvidence(c);
+      assertKnownProfileProducerEvidence(physicalProducer);
+      break;
+    default: throw new Error('unsupported physical producer kind');
+  }
   const physicalPath = realpathSync(requireAbsolute(c.physicalArtifactPath, 'physicalArtifactPath'));
   const physicalProducerReference = { kind: c.physicalProducer.kind, sourceCommit: physicalProducer.terminal.sourceCommit,
     sourceManifestSha256: physicalProducer.terminal.sourceManifestSha256, originalInputSha256: physicalProducer.terminal.inputSha256,
