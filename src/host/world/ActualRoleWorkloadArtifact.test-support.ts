@@ -12,6 +12,7 @@ import { readActualRoleWorkloadState } from './ActualRoleWorkloadState';
 import { withActualRoleWorkloadRecoveryCopy } from './ActualRoleWorkloadRecoveryArtifact.test-support';
 import { assertActualRoleStaleSettlementRejected } from './ActualRoleWorkloadArtifactAssertions.test-support';
 import { witnessSqliteWrite } from './SqliteWriteWitness.test-support';
+import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
 import { actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 const { DatabaseSync, backup } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
 const fileHash=(path:string)=>createHash('sha256').update(readFileSync(path)).digest('hex');
@@ -50,7 +51,7 @@ export const verifyActualRoleWorkloadArtifact=async(input:Readonly<{
     assert.equal(db.prepare('PRAGMA database_list').all().find(r=>r.name==='main')!.file,input.destinationPath);
     assert.equal(db.prepare('PRAGMA journal_mode').get()!.journal_mode,'wal');
     report('authenticated original closure');
-    const context=actualRoleWorkloadContextFromSqlite(db,input.closureSourceId),ref=context.reference;
+    const context=withSqliteReadTransaction(db,()=>actualRoleWorkloadContextFromSqlite(db,input.closureSourceId)),ref=context.reference;
     assert.equal(context.actors.length,10);assert.equal(context.closure.officialApplied,true);
     assert.equal(count('world_player_workload_activities'),0);
     const pending=owner.readSettlement(input.closureSourceId);assert.equal(pending.kind,'pending');

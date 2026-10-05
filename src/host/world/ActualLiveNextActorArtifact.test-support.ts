@@ -17,6 +17,7 @@ import { openSqlitePlayerReleaseGeometryStore } from './SqlitePlayerReleaseGeome
 import { openSqlitePitchFatiguePolicyStore } from './SqlitePitchFatiguePolicyStore';
 import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { witnessSqliteWrite } from './SqliteWriteWitness.test-support';
+import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
 const { DatabaseSync, backup } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
 const fileHash = (path: string) => createHash('sha256').update(readFileSync(path)).digest('hex');
 /** Scheduled real next-actor admission on a separate completely settled artifact.
@@ -33,7 +34,7 @@ export const verifyActualLiveNextActorArtifact = async (input: Readonly<{
   const drain = () => { while (resources.length) resources.pop()!.close(); };
   try {
   const db = track(new DatabaseSync(input.destinationPath)), links = track(openSqlitePlayerPersonLinkStore(input.destinationPath)), official = track(new SqliteOfficialStateStore(input.destinationPath));
-  const ready = actualLivePlayReadinessFromSqlite(db).read(input.closureSourceId); assert.equal(ready.kind, 'ready');
+  const ready = withSqliteReadTransaction(db, () => actualLivePlayReadinessFromSqlite(db).read(input.closureSourceId)); assert.equal(ready.kind, 'ready');
   if (ready.kind !== 'ready') throw new Error('actual next-actor fixture must already have complete effects');
   const p = ready.closure.proposal;
   assert('nextWorld' in p.expectedOfficial, 'a final Match cannot activate another actor');
@@ -70,7 +71,7 @@ export const verifyActualLiveNextActorArtifact = async (input: Readonly<{
       finally { witness.close(); }
       assert.deepEqual(db.prepare('SELECT * FROM physical_plate_appearance_actors ORDER BY rowid').all(), before);
       db.exec('DROP TRIGGER corrupt_readiness_after_actor');
-      assert.equal(actualLivePlayReadinessFromSqlite(db).read(input.closureSourceId).kind, 'ready');
+      assert.equal(withSqliteReadTransaction(db, () => actualLivePlayReadinessFromSqlite(db).read(input.closureSourceId)).kind, 'ready');
       faultEvidence.actorReadinessAfterInsert = true;
     }
     input.progress?.('admitting the next actual batter from closed gameplay and all original role effects');
@@ -80,7 +81,7 @@ export const verifyActualLiveNextActorArtifact = async (input: Readonly<{
     assert.deepEqual(actors.accept(request.sourceId), result);
     assert.equal(Number(db.prepare('SELECT count(*) AS n FROM physical_plate_appearance_actors').get()!.n), before.length + 1);
     if (input.executeNextPitch) {
-      const original = readPhysicalPitchProgressFromSqlite(db, p.gameId, p.playId).at(-1); assert(original);
+      const original = withSqliteReadTransaction(db, () => readPhysicalPitchProgressFromSqlite(db, p.gameId, p.playId).at(-1)); assert(original);
       const workload = track(openSqlitePlayerWorkloadRecoveryStore(input.destinationPath, links));
       const timing = track(openSqlitePlayerPitchTimingStore(input.destinationPath, links));
       const release = track(openSqlitePlayerReleaseGeometryStore(input.destinationPath, links));
@@ -108,8 +109,10 @@ export const verifyActualLiveNextActorArtifact = async (input: Readonly<{
   const reopened = new DatabaseSync(input.destinationPath);
   try {
     const { readPhysicalPlateAppearanceActorFromSqlite } = await import('./PhysicalPlateAppearanceActorEvidenceFromSqlite');
-    assert.equal(json(readPhysicalPlateAppearanceActorFromSqlite(reopened, request.sourceId)), json(result));
-    if (nextPitch) assert.equal(json(readPhysicalPitchProgressFromSqlite(reopened, p.gameId, p.playId + 1).at(-1)), json(nextPitch));
+    withSqliteReadTransaction(reopened, () => {
+      assert.equal(json(readPhysicalPlateAppearanceActorFromSqlite(reopened, request.sourceId)), json(result));
+      if (nextPitch) assert.equal(json(readPhysicalPitchProgressFromSqlite(reopened, p.gameId, p.playId + 1).at(-1)), json(nextPitch));
+    });
   } finally { reopened.close(); }
   assert.equal(fileHash(input.sourcePath), originalHash);
   return { sourceSha256: originalHash, destinationSha256: fileHash(input.destinationPath), sourceUnchanged: true,

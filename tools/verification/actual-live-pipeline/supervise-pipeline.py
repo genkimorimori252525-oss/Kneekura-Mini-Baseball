@@ -9,6 +9,7 @@ import subprocess
 import sys
 import time
 from scope_contract import validate_scope_terminal
+from replay_scope_contract import validate_official_read_replay_terminal
 
 
 def sha256(path):
@@ -33,6 +34,69 @@ def sealed_main_hash(path, expected):
     assert not wal.exists() or wal.stat().st_size == 0, f'nonempty WAL: {path}'
 
 
+def read_pinned_json(ref):
+    path=Path(ref['path'])
+    assert path.is_absolute() and str(path)==ref['path'] and '..' not in path.parts and path.resolve(strict=True)==path, 'receipt path identity differs'
+    data=path.read_bytes();assert hashlib.sha256(data).hexdigest()==ref['sha256'], 'receipt bytes changed'
+    value=json.loads(data)
+    assert isinstance(value,dict) and not any(key in value for key in ['publicationProjection','originalRawReceiptSha256']), 'raw receipt required'
+    return value
+
+
+def replay_control_hashes():
+    return {name:sha256(wrapper_root/file) for name,file in [('launcher','run-official-read-replay.py'),('runtimeProbe','runtime-probe.cjs'),('replayRunner','official-read-replay.mjs')]}
+
+
+
+def audit_inherited_inputs():
+    # Concrete ancestor references only. Semantic admission remains the Node
+    # validator's job; this supervisor independently rechecks retained bytes.
+    expected = [('inheritedOfficial', '01-official')]
+    if execution_scope == 'next': expected.append(('inheritedRole', '02-role-workload'))
+    if execution_scope not in ['role', 'next', 'official_read_replay']: return []
+    sealed = []
+    roles = ['handoff','outerTerminal','stageTerminal','supervisorTerminal','receipt','configuration','sourceManifest','artifact']
+    for key, stage in expected:
+        binding = c[key]; files = binding['files']
+        assert sorted(files) == sorted(roles), 'inherited file roles differ'
+        refs = list(files.values()) + (list(binding['regressionArtifacts'].values()) if key == 'inheritedRole' else [])
+        if key == 'inheritedRole': assert sorted(binding['regressionArtifacts']) == ['recovery','stale']
+        assert len({ref['path'] for ref in refs}) == len(refs), 'inherited paths collide'
+        for ref in refs:
+            path = Path(ref['path'])
+            assert path.is_absolute() and str(path) == ref['path'] and '..' not in path.parts
+            assert path.resolve(strict=True) == path, 'inherited file resolved identity changed'
+            assert sha256(path) == ref['sha256'], 'inherited file changed'
+        sealed_main_hash(files['artifact']['path'], files['artifact']['sha256'])
+        if key == 'inheritedRole':
+            for ref in binding['regressionArtifacts'].values(): sealed_main_hash(ref['path'],ref['sha256'])
+        manifest = json.loads(Path(files['sourceManifest']['path']).read_text()); prior = Path(binding['sourceRoot'])
+        assert prior.is_absolute() and prior.resolve(strict=True) == prior, 'inherited Source root resolved identity changed'
+        assert manifest['schema'] == 'actual_artifact_pipeline_source_v1'
+        assert manifest['sourceRoot'] == str(prior) and manifest['sourceCommit'] == binding['sourceCommit']
+        assert files['sourceManifest']['sha256'] == binding['sourceManifestSha256']
+        assert subprocess.check_output(['git','-C',str(prior),'rev-parse','HEAD'],text=True).strip() == binding['sourceCommit']
+        assert subprocess.check_output(['git','-C',str(prior),'rev-parse','HEAD^{tree}'],text=True).strip() == manifest['sourceTree']
+        assert not subprocess.check_output(['git','-C',str(prior),'diff','--name-only','HEAD'],text=True).strip()
+        names = set(filter(None,subprocess.check_output(['git','-C',str(prior),'ls-files','-z']).decode().split('\0')))
+        def source_paths(directory):
+            assert directory.resolve(strict=True) == directory, 'inherited Source directory resolved identity changed'
+            for entry in os.scandir(directory):
+                assert not entry.is_symlink(), 'inherited Source symlink is not admitted'
+                path = Path(entry.path)
+                if entry.is_dir(follow_symlinks=False): yield from source_paths(path)
+                elif entry.is_file(follow_symlinks=False): yield str(path.relative_to(prior))
+        names |= set(source_paths(prior/'src'))
+        assert names == {row['path'] for row in manifest['files']} and len(names) == len(manifest['files'])
+        for row in manifest['files']:
+            relative = Path(row['path']); assert not relative.is_absolute() and '..' not in relative.parts
+            path = prior/relative
+            assert path.resolve(strict=True) == path, 'inherited Source file resolved identity changed'
+            assert sha256(path) == row['sha256'], 'inherited Source changed'
+        sealed.append({'stage':stage,'path':files['receipt']['path'],'sha256':files['receipt']['sha256']})
+    return sealed
+
+
 def audit_inputs_and_receipts():
     assert sha256(config_path) == config_hash, 'configuration changed'
     assert sha256(c['sourceManifestPath']) == c['sourceManifestSha256'], 'source manifest changed'
@@ -54,6 +118,7 @@ def audit_inputs_and_receipts():
     for ref in producer_refs:
         assert Path(ref['path']).is_absolute() and sha256(ref['path']) == ref['sha256'], 'bound producer evidence changed'
     sealed_main_hash(files['originalInput']['path'], files['originalInput']['sha256'])
+    inherited = audit_inherited_inputs()
     sealed = []
     events = run_directory / 'phases.jsonl'
     if events.exists():
@@ -67,17 +132,42 @@ def audit_inputs_and_receipts():
                 continue
             path = Path(record['path'])
             assert path.parent == run_directory and path.name.endswith('.receipt.json')
-            assert sha256(path) == record['sha256'], 'passed-stage receipt changed'
-            receipt = json.loads(path.read_text())
-            assert receipt['schema'] == 'actual_artifact_stage_receipt_v1' and receipt['status'] == 'passed'
+            receipt = read_pinned_json(record)
+            replay = execution_scope=='official_read_replay'
+            assert receipt['schema'] == ('actual_official_read_replay_receipt_v1' if replay else 'actual_artifact_stage_receipt_v1') and receipt['status'] == 'passed'
             assert receipt['sourceIdentity']['sourceCommit'] == c['sourceCommit']
             assert receipt['sourceIdentity']['sourceManifestSha256'] == c['sourceManifestSha256']
             assert receipt['originalPhysicalArtifactSha256'] == c['physicalArtifactSha256']
-            assert receipt['physicalEndSourceId'] == c['physicalEndSourceId']
-            sealed_main_hash(receipt['input']['path'], receipt['input']['sha256'])
-            sealed_main_hash(receipt['output']['path'], receipt['output']['sha256'])
+            if replay:
+                assert record['stage']=='official-read-replay'
+                assert receipt['originalOfficialBinding']==c['inheritedOfficial'] and receipt['sourceTransition']==c['sourceTransition']
+                assert receipt['originalOfficialReceipt']==receipt['inheritedFaultReceipt']==c['inheritedOfficial']['files']['receipt']
+                original=read_pinned_json(c['inheritedOfficial']['files']['receipt'])
+                assert receipt['inheritedSourceIdentity']==original['sourceIdentity'] and receipt['physicalProducerReference']==original['physicalProducerReference']
+                assert receipt['newlyExecutedOfficialFaults']==[] and receipt['openSqliteHandles']==[]
+                assert len(receipt['passes'])==2
+                for index,read_pass in enumerate(receipt['passes']):
+                    assert read_pass['index']==index and read_pass['connectionId']==index+1 and read_pass['totalChanges']==0
+                    assert all(read_pass[field] is True for field in ['readOnly','queryOnly','transactionOwned','transactionClosed','connectionClosed'])
+                    assert read_pass['walBytesBefore'] in [None,0] and read_pass['walBytesAfter'] in [None,0]
+                    assert read_pass['observation']['artifact']==original['output']
+                    for field in ['artifactSha256Before','artifactSha256After']:assert read_pass[field]==c['inheritedOfficial']['files']['artifact']['sha256']
+                assert receipt['passes'][0]['observation']==receipt['passes'][1]['observation']
+                assert receipt['passes'][0]['observationSha256']==receipt['passes'][1]['observationSha256']
+                sealed_main_hash(original['output']['path'],original['output']['sha256'])
+            else:
+                assert receipt['physicalEndSourceId'] == c['physicalEndSourceId']
+                sealed_main_hash(receipt['input']['path'], receipt['input']['sha256'])
+                sealed_main_hash(receipt['output']['path'], receipt['output']['sha256'])
+                if record['stage'] == '02-role-workload':
+                    for key in ['recoveryRegression','staleCasRegression']:
+                        disk = receipt[key]['disk']; sealed_main_hash(disk['path'],disk['sha256'])
             sealed.append(record)
-    return {'passed': True, 'preservedPhaseReceipts': sealed}
+    result={'passed': True, 'preservedPhaseReceipts': sealed, 'inheritedStageReceipts': inherited}
+    if execution_scope=='official_read_replay':
+        assert replay_control_hashes()==c['controlHashes'], 'replay controls changed'
+        result.update(originalOfficialBinding=c['inheritedOfficial'],sourceTransition=c['sourceTransition'])
+    return result
 
 
 def process_group_rss(pgid):
@@ -125,9 +215,9 @@ def stop_group(child):
 config_path = Path(sys.argv[1]).resolve(strict=True)
 config_hash = sha256(config_path)
 c = json.loads(config_path.read_text())
-assert c['schema'] == 'actual_artifact_pipeline_run_v2'
 execution_scope = c.get('executionScope', 'all')
-assert execution_scope in ['all', 'official', 'supervisor_smoke'], 'unsupported execution scope'
+assert c['schema'] == ('actual_official_read_replay_run_v1' if execution_scope=='official_read_replay' else 'actual_artifact_pipeline_run_v2')
+assert execution_scope in ['all', 'official', 'supervisor_smoke', 'official_read_replay'], 'unsupported execution scope'
 wrapper_root = Path(__file__).resolve().parent
 source_root = Path(c['sourceRoot']).resolve(strict=True)
 assert wrapper_root == source_root / 'tools/verification/actual-live-pipeline'
@@ -170,7 +260,7 @@ env.update({
     'OWNED_SCHEDULED_TIMING_PATH': str(runtime_directory / 'owned-phases.jsonl'),
 })
 args = [str(node), str(vite_cli), '--root', str(source_root), '--config', str(wrapper_root / 'vite.config.mjs'),
-        str(wrapper_root / 'pipeline.mjs'), '--run', str(config_path)]
+        str(wrapper_root / ('official-read-replay.mjs' if execution_scope=='official_read_replay' else 'pipeline.mjs')), '--run', str(config_path)]
 write_new(runtime_directory / 'launch.json', {'configSha256': config_hash, 'runtime': runtime, 'argv': args,
     'inheritedNodeOptions': env['NODE_OPTIONS'], 'nativeLocks': native_locks, 'sourceCommit': c['sourceCommit']})
 child = None
@@ -231,9 +321,17 @@ remaining_processes = process_group_rss(child.pid) if child is not None else []
 scope_status = None
 handoff_receipt = None
 try:
-    scope_status = validate_scope_terminal(execution_scope, terminal, audit.get('preservedPhaseReceipts', []))
+    scope_status = validate_official_read_replay_terminal(terminal,audit.get('preservedPhaseReceipts',[]),audit.get('inheritedStageReceipts',[])) if execution_scope=='official_read_replay' else validate_scope_terminal(execution_scope, terminal, audit.get('preservedPhaseReceipts', []), audit.get('inheritedStageReceipts', []))
     assert terminal['sourceIdentity']['sourceCommit'] == c['sourceCommit']
     assert terminal['sourceIdentity']['sourceManifestSha256'] == c['sourceManifestSha256']
+    if execution_scope=='official_read_replay':
+        receipt=read_pinned_json(audit['preservedPhaseReceipts'][0])
+        expected_checks=dict(sourceUnchanged=True,configUnchanged=True,controlsUnchanged=True,originalEvidenceUnchanged=True,
+            artifactUnchanged=True,closeReopenEqual=True,readOnlyEnforced=True)
+        assert receipt['checks']==terminal['checks']==expected_checks and all(value is True for value in receipt['checks'].values())
+        assert receipt['executed']==terminal['executed'] and terminal['auditedClosedPasses']==[1,2]
+        assert worker['node']=='v26.10.0' and worker['nodeSha256']==runtime['nodeSha256']
+        assert receipt['sourceIdentity']==terminal['sourceIdentity']
     if execution_scope == 'supervisor_smoke':
         assert all(terminal.get(key) == 0 for key in ['artifactHelpersImported', 'artifactHelpersExecuted', 'nativeArtifactsOpened'])
         assert terminal.get('lockProbes') == [dict(path=lock['path'], competingAcquisitionExitCode=1) for lock in native_locks]
@@ -243,17 +341,39 @@ try:
         assert handoff_receipt['faultChecks'] is True and handoff_receipt['faultEvidence'] == dict(adjudicationDependencyAfterInsert=True, officialApplicationAfterInsert=True)
         assert handoff_receipt['executed'] == dict(helperCalls=1, newOfficialApplications=1, newPhysicalPitchActions=0)
         assert terminal['resumableOfficial'] == dict(receipt=sealed, output=handoff_receipt['output'], closureSourceId=handoff_receipt['closureSourceId'], applicationId=handoff_receipt['applicationId'])
+
+    if execution_scope == 'role':
+        sealed = audit['preservedPhaseReceipts'][0]
+        handoff_receipt = json.loads(Path(sealed['path']).read_text())
+        assert handoff_receipt['faultChecks'] is True
+        assert handoff_receipt['faultEvidence'] == dict(assessmentAfterInsert=True,freezeAfterInsert=True,workloadAfterInsert=True,staleCurrentHeadRejected=True,interruptedAfterFirstInsert=True)
+        assert handoff_receipt['executed'] == dict(helperCalls=1,participantSettlements=10,newMatchWorkloadActivities=10,newPhysicalPitchActions=0)
+        assert handoff_receipt['settlement']['kind'] == 'complete' and len(handoff_receipt['settlement']['participants']) == 10
+        assert all(value['applied'] is True for value in handoff_receipt['settlement']['participants'])
+        assert handoff_receipt['inheritedStageReceipts'] == audit['inheritedStageReceipts']
+        assert terminal['resumableRole'] == dict(receipt=sealed,output=handoff_receipt['output'],closureSourceId=handoff_receipt['settlement']['closureSourceId'],applicationId=handoff_receipt['settlement']['closureApplicationId'])
+    if execution_scope == 'next':
+        receipt = json.loads(Path(audit['preservedPhaseReceipts'][0]['path']).read_text())
+        assert receipt['faultChecks'] is True and receipt['faultEvidence'] == dict(wrongActivationRejected=True,actorReadinessAfterInsert=True)
+        assert receipt['executed'] == dict(helperCalls=1,newActorAdmissions=1,newPhysicalPitchActions=1,newWorkloadActivities=0)
+        assert receipt['physicalWorldRecoveryProven'] is False and terminal['physicalWorldRecoveryProven'] is False
+        assert receipt['inheritedStageReceipts'] == audit['inheritedStageReceipts']
+
 except (AssertionError, KeyError, TypeError, OSError, ValueError) as error:
     scope_status = None
     audit = {**audit, 'scopeValidationError': repr(error)}
 passed = exit_code == 0 and guard is None and worker_valid and audit['passed'] and not remaining_processes and scope_status is not None
-write_new(runtime_directory / 'process-terminal.json', {'status': scope_status if passed else 'failed', 'executionScope': execution_scope,
+process_terminal={'status': scope_status if passed else 'failed', 'executionScope': execution_scope,
     'wholePipelinePassed': passed and execution_scope == 'all', 'exitCode': exit_code,
     'guard': guard, 'elapsedSeconds': time.monotonic() - started, 'sampledPeakProcessGroupRssKiB': peak_rss_kib,
     'executingProcessReceiptValid': worker_valid, 'sourceInputAndReceiptAudit': audit,
-    'remainingOwnedProcesses': remaining_processes,
+    'remainingOwnedProcesses': remaining_processes, 'inheritedStageReceipts': audit.get('inheritedStageReceipts', []),
     'pipelineTerminalStatus': terminal.get('status') if isinstance(terminal, dict) else 'absent',
-    'preservedPhaseReceipts': [str(path) for path in sorted(run_directory.glob('*.receipt.json'))] if run_directory.exists() else []})
+    'preservedPhaseReceipts': [str(path) for path in sorted(run_directory.glob('*.receipt.json'))] if run_directory.exists() else []}
+if execution_scope=='official_read_replay':
+    process_terminal.update(controlHashes=replay_control_hashes(),runtime=dict(nodeSha256=worker.get('nodeSha256') if isinstance(worker,dict) else None,
+        heapLimitMiB=worker.get('heapLimitMiB') if isinstance(worker,dict) else None,elapsedSeconds=time.monotonic()-started,peakRssKiB=peak_rss_kib))
+write_new(runtime_directory / 'process-terminal.json',process_terminal)
 if passed and execution_scope == 'official':
     sealed = audit['preservedPhaseReceipts'][0]
     receipt = handoff_receipt
@@ -267,4 +387,16 @@ if passed and execution_scope == 'official':
         'supervisorTerminal': {'path': str(runtime_directory / 'process-terminal.json'), 'sha256': sha256(runtime_directory / 'process-terminal.json')},
         'output': receipt['output'], 'closureSourceId': receipt['closureSourceId'], 'applicationId': receipt['applicationId'],
         'continuation': 'Use the pinned closed output as the next helper input; authenticate these receipts and original lineage before any continuation. Do not rerun official or infer downstream success.'})
+if passed and execution_scope == 'role':
+    sealed = audit['preservedPhaseReceipts'][0]; receipt = handoff_receipt
+    write_new(run_directory / 'role-handoff.json', {
+        'schema':'actual_role_stage_handoff_v1','status':'stage_passed','wholePipelinePassed':False,
+        'remainingStages':['next'],'inheritedStages':['official'],'inheritedOfficial':c['inheritedOfficial'],
+        'inheritedStageReceipts':audit['inheritedStageReceipts'],'sourceIdentity':receipt['sourceIdentity'],
+        'physicalProducerReference':receipt['physicalProducerReference'],
+        'config':{'path':str(config_path),'sha256':config_hash},'roleReceipt':sealed,
+        'stageTerminal':{'path':str(run_directory/'terminal.json'),'sha256':sha256(run_directory/'terminal.json')},
+        'supervisorTerminal':{'path':str(runtime_directory/'process-terminal.json'),'sha256':sha256(runtime_directory/'process-terminal.json')},
+        'output':receipt['output'],'closureSourceId':receipt['settlement']['closureSourceId'],
+        'applicationId':receipt['settlement']['closureApplicationId']})
 sys.exit(0 if passed else 1)

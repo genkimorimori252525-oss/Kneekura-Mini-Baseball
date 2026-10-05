@@ -1,8 +1,16 @@
 # 非デザイン継続実装: 現在の接続と検証
 
-更新: 2026-10-05 20:02 JST（2026-10-05 11:02 UTC）
+更新: 2026-10-05 21:02 JST（2026-10-05 12:02 UTC）
 
 ユーザーの継続指示に従い、最新の確定済み残計画を進めている。**計画全体・自律試合/Career全体の完了ではない**。デザイン/UI/art/Presentationは未接続のまま。
+
+## 2026-10-05 12:02 UTC: official artifact の再認証と continuation
+
+Actual-role workload の accepted-activity 読取りを短いprivate transactionに限定し、consumer側の別write transactionとfreshな改変検査を保持した。現stackの固定 `75258d5` で **Native27 tests、Node1,419 controls、Python42 controls、full typecheck PASS**。全Source/control不変・全process回収を確認した。Complete src treeは `a0aa688e58838550f2822c05d9fe69416b92b860`。
+
+別の固定 `9350c20` では、既に公式適用済みの本物の検証artifactを **2つの新しいread-only connectionで再認証しPASS**。各transaction/connectionを閉じ、観測digestの一致、元DB/WAL・全証拠bytesの不変、zero writesを確認し、outerは611.881秒でexit0・全process回収。原始official INSERT/rollbackの証明は元 `6eb9dd6` のまま保持する。詳細は [official continuation/read replay verification](../verification/2026-10-05-official-continuation-read-replay.md)。この公開変更に新しいDBは含めない。
+
+読取り1回に約5分を要する実測から、closure内の重複したend/prefix読取りを減らす小変更を別に検証している。全10人のactual workload・実next pitch、一般runner/body・practice/learning・venue/legal/review・Career・最新累積wholeは未完了のまま継続する。
 
 ## 2026-10-05 11:02 UTC: owned runner の actual field-cut kinematics
 

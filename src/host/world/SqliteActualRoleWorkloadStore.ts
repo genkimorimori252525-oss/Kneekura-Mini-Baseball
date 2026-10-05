@@ -54,7 +54,7 @@ export const openSqliteActualRoleWorkloadStore=(path:string,personLinks:Pick<Sql
   let chargeBoundary:Readonly<{connection:Pick<DatabaseSync,'prepare'>;sourceEventId:string;heads:ReturnType<typeof currentParticipantHeads>}>|null=null;
   const workload=openSqlitePlayerWorkloadRecoveryStore(path,personLinks,{
     readAcceptedBaseline:sourceId=>authority?.readAcceptedBaseline?.(sourceId)??null,
-    readAcceptedActivity:sourceId=>activityPlan(db,sourceId).participant.activity,
+    readAcceptedActivity:sourceId=>transaction('BEGIN',()=>activityPlan(db,sourceId).participant.activity),
   },(connection,activity,phase)=>{
     const {result,participant}=activityPlan(connection,activity.sourceEventId);
     if(json(participant.activity)!==json(activity)) throw new Error('actual role workload activity differs from frozen assessment');

@@ -53,4 +53,60 @@ class ScopeTests(unittest.TestCase):
         value=terminal('all'); value['phaseReceipts'][1]=copy.deepcopy(value['phaseReceipts'][0])
         with self.assertRaises(AssertionError): validate_scope_terminal('all', value, value['phaseReceipts'])
 
+def continuation(scope):
+    inherited = [receipt('01-official')] + ([receipt('02-role-workload')] if scope == 'next' else [])
+    counts = dict(NONE); counts[scope+'Started'] = counts[scope+'Completed'] = 1
+    return dict(status='stage_passed', executionScope=scope, wholePipelinePassed=False,
+        remainingStages=['next'] if scope == 'role' else [], inheritedStages=['official'] if scope == 'role' else ['official','role'],
+        inheritedStageReceipts=inherited, counts=counts,
+        phaseReceipts=[receipt('02-role-workload' if scope == 'role' else '03-next-actor-pitch')], openSqliteHandles=[])
+
+class ContinuationScopeTests(unittest.TestCase):
+    def test_role_scope_is_partial_with_one_inherited_official(self):
+        value=continuation('role')
+        self.assertEqual(validate_scope_terminal('role',value,value['phaseReceipts'],value['inheritedStageReceipts']),'stage_passed')
+    def test_next_scope_separates_two_inherited_proofs_from_one_new_helper(self):
+        value=continuation('next')
+        self.assertEqual(validate_scope_terminal('next',value,value['phaseReceipts'],value['inheritedStageReceipts']),'stage_passed')
+    def test_missing_inherited_proof_fails(self):
+        for scope in ['role','next']:
+            value=continuation(scope)
+            with self.subTest(scope=scope),self.assertRaises(AssertionError):
+                validate_scope_terminal(scope,value,value['phaseReceipts'],[])
+    def test_substituted_audited_inherited_proof_fails(self):
+        for scope in ['role','next']:
+            value=continuation(scope);audit=copy.deepcopy(value['inheritedStageReceipts']);audit[0]['sha256']='b'*64
+            with self.subTest(scope=scope),self.assertRaises(AssertionError):
+                validate_scope_terminal(scope,value,value['phaseReceipts'],audit)
+    def test_prior_helper_cannot_be_counted_again(self):
+        for scope in ['role','next']:
+            value=continuation(scope);value['counts']['officialStarted']=value['counts']['officialCompleted']=1
+            with self.subTest(scope=scope),self.assertRaises(AssertionError):
+                validate_scope_terminal(scope,value,value['phaseReceipts'],value['inheritedStageReceipts'])
+    def test_partial_run_cannot_claim_whole_pipeline_pass(self):
+        value=continuation('next');value['wholePipelinePassed']=True
+        with self.assertRaises(AssertionError):validate_scope_terminal('next',value,value['phaseReceipts'],value['inheritedStageReceipts'])
+    def test_inherited_stage_order_and_duplicates_fail(self):
+        for inherited in [[receipt('02-role-workload'),receipt('01-official')],[receipt('01-official'),receipt('01-official')]]:
+            value=continuation('next');value['inheritedStageReceipts']=inherited
+            with self.subTest(inherited=inherited),self.assertRaises(AssertionError):
+                validate_scope_terminal('next',value,value['phaseReceipts'],inherited)
+    def test_inherited_stage_labels_must_match_proofs(self):
+        value=continuation('role');value['inheritedStages']=[]
+        with self.assertRaises(AssertionError):validate_scope_terminal('role',value,value['phaseReceipts'],value['inheritedStageReceipts'])
+    def test_current_count_types_and_shape_are_strict(self):
+        for mutation in ['boolean','extra','missing']:
+            value=continuation('role')
+            if mutation=='boolean':value['counts']['roleCompleted']=True
+            if mutation=='extra':value['counts']['fake']=0
+            if mutation=='missing':del value['counts']['nextCompleted']
+            with self.subTest(mutation=mutation),self.assertRaises(AssertionError):
+                validate_scope_terminal('role',value,value['phaseReceipts'],value['inheritedStageReceipts'])
+    def test_current_stage_receipts_cannot_include_inherited_receipts(self):
+        value=continuation('role');value['phaseReceipts'].insert(0,receipt('01-official'))
+        with self.assertRaises(AssertionError):validate_scope_terminal('role',value,value['phaseReceipts'],value['inheritedStageReceipts'])
+    def test_same_attempt_full_mode_cannot_substitute_inherited_proofs(self):
+        value=terminal('all');value['inheritedStageReceipts']=[receipt('01-official')]
+        with self.assertRaises(AssertionError):validate_scope_terminal('all',value,value['phaseReceipts'],value['inheritedStageReceipts'])
+
 if __name__ == '__main__': unittest.main()
