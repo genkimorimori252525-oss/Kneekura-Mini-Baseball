@@ -73,3 +73,28 @@ application, workload settlement, next pitch or cumulative whole-suite success.
 The old physical proof and failed official attempt remain separately attributed.
 The new construction must use explicit `npb-2026` from its initial Match and fresh
 lineage; old input/negative proof pins are not transferred.
+
+## Fresh original construction result
+
+The genuine registered-profile construction subsequently passed on unchanged
+source `23e4ef0cd34fbd028b6d3b689188a741cde2bea1`: **one executed test, one pass,
+zero skips**, followed by its closed-database audit. The test exercised the actual
+capture, independent decision, motor adoption and grounded OUT rule with all ten
+players and fifty body parts, then closed and reopened the original chain.
+
+Test-process duration was 354.560 seconds; audit duration was 0.252 seconds;
+complete guarded duration was 355.327 seconds. Peak aggregate RSS was 530,928 KiB.
+Actual Node 26.10.0 parent/worker heaps were 1,120 MiB. Source, configuration,
+controls and runtime hashes stayed unchanged; every owned process was reaped.
+
+The fresh closed output has **63 tables / 113 rows**, zero WAL, and SHA-256
+`60525735348ea48aeb1944e7c1b2dc2d3afd6fdac8961d83486d2f4a4c6df0f4`.
+The audit verified `npb-2026` in the original Match, initial World and physical
+pitch frame. Neither terminal end nor seal table was installed at this stage.
+Raw construction terminal SHA-256:
+`215e7ad43ac770f0423405a658721467032f0a5151449fa2cb4d9af422850209`.
+
+This is the new lineage's original-chain result. Operative call/tail, fresh seal
+rollback and end acceptance, official/workload/next-pitch, and cumulative whole
+verification remain separate gates. No old artifact or acceptance receipt was
+substituted for this construction.
