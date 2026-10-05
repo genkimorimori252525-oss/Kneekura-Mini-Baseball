@@ -2,7 +2,7 @@
 
 These two opt-in tests preserve the next verification steps after the successful
 `npb-2026` construction in Draft #304. They change no production implementation.
-This checkpoint does not claim that the fresh tail or end acceptance has passed.
+The fresh tail has now passed. Fresh end acceptance remains a separate running gate.
 
 `ActualKnownProfilePreEndArtifact.test.ts` continues a closed original construction
 through the second defender's genuine future decision, rule consumption, delayed
@@ -33,12 +33,21 @@ The legacy unregistered-profile fixture and its prior evidence are not relabeled
 - The published test files and complete `src` tree match that latter fixed cut:
   `67414f0d80b20cafd341c039e0b7eca7e5d8a04b`. Publication documentation differs
   from the test checkout; the compiler result stays qualified to the earlier cut
-- The real fresh tail started on 2026-10-05 at 06:25 UTC and was still running when
-  this checkpoint was written. Its input is the closed construction database
-  `60525735348ea48aeb1944e7c1b2dc2d3afd6fdac8961d83486d2f4a4c6df0f4`, backed by
-  raw terminal `215e7ad43ac770f0423405a658721467032f0a5151449fa2cb4d9af422850209`.
-  Fresh end acceptance and downstream official/workload/next-pitch stages remain
-  unrun for this lineage. The import check is not Native execution evidence
+- The real fresh tail completed with **1/1 actual Native test, zero skips and
+  exit 0**, in 2,818.44 seconds. Both processes were reaped; all source, control,
+  runtime, configuration, original input and construction-receipt hashes stayed
+  unchanged. Actual parent/worker heaps were 1,120 MiB; sampled aggregate peak
+  RSS was 538,576 KiB. Raw terminal SHA-256:
+  `1f36913e0de088686345056a108c1d1e79d948125face9e8eabc72eeb7182c9f`
+- The closed result is preserved as the [registered-profile fixture](fixtures/README.md#fresh-registered-profile-pre-end-fixture):
+  72 tables / 143 rows, no end/seal rows, no test trigger, and WAL 0. Database
+  SHA-256 `64fc22bf43b656492aad85b6a8042e3862bd4fcf8132482cceca5f6109e8dc71`;
+  raw input-manifest SHA-256
+  `d7d2e1bf7783fb7a92e18cfeb7d63f4f730eda8c4ee8a6e34119596ea42a3dec`
+- The fresh end gate started at 07:24:57 UTC on a disposable copy. Its new
+  seal-INSERT rollback witness completed at 07:28:33 UTC, with original rows
+  restored. Clean acceptance/reopen/retry is still running; there is no fresh
+  whole end, official, workload or next-pitch PASS yet
 
 The existing Source-specific results and remaining scope are recorded in the
 [continuation checkpoint](../project-status/2026-10-04-nonvisual-continuation-checkpoint.md).
