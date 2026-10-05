@@ -16,6 +16,7 @@ import { openSqlitePlayerPitchTimingStore } from './SqlitePlayerPitchTimingStore
 import { openSqlitePlayerReleaseGeometryStore } from './SqlitePlayerReleaseGeometryStore';
 import { openSqlitePitchFatiguePolicyStore } from './SqlitePitchFatiguePolicyStore';
 import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { witnessSqliteWrite } from './SqliteWriteWitness.test-support';
 const { DatabaseSync, backup } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
 const fileHash = (path: string) => createHash('sha256').update(readFileSync(path)).digest('hex');
 /** Scheduled real next-actor admission on a separate completely settled artifact.
@@ -44,6 +45,7 @@ export const verifyActualLiveNextActorArtifact = async (input: Readonly<{
   const actors = track(openSqlitePhysicalPlateAppearanceActorStore(input.destinationPath, { matches: official, participation, initialWorlds },
     { readAcceptedActor: sourceId => inputs.get(sourceId) ?? null }));
   let result: ReturnType<typeof actors.accept> | null = null, nextPitch: DurablePhysicalPitch | null = null;
+  const faultEvidence = { wrongActivationRejected: false, actorReadinessAfterInsert: false };
   const request: AcceptedPhysicalPlateAppearanceActor = { sourceId: 'fixture-next-actual-batter', sourceVersion: 'fixture-v1', gameId: p.gameId,
     playerId: input.nextBatterPlayerId, activationApplicationId: p.application.applicationId };
   inputs.set(request.sourceId, request);
@@ -54,12 +56,20 @@ export const verifyActualLiveNextActorArtifact = async (input: Readonly<{
     const before = db.prepare('SELECT * FROM physical_plate_appearance_actors ORDER BY rowid').all();
     const bad = { ...request, sourceId: 'fixture-wrong-activation', activationApplicationId: 'missing-activation' };
     inputs.set(bad.sourceId, bad); assert.throws(() => actors.accept(bad.sourceId));
+    faultEvidence.wrongActivationRejected = true;
     if (input.faultChecks) {
+      const headsBefore = ready.settlement.participants.map(participant => ({ playerId: participant.playerId,
+        revision: Number(db.prepare('SELECT revision FROM world_player_workload_heads WHERE career_id=? AND player_id=?').get(ready.settlement.careerId,participant.playerId)!.revision) }));
       db.exec("CREATE TRIGGER corrupt_readiness_after_actor AFTER INSERT ON physical_plate_appearance_actors BEGIN UPDATE world_player_workload_heads SET revision=revision+100; END;");
-      assert.throws(() => actors.accept(request.sourceId));
+      const witness = witnessSqliteWrite('INSERT INTO physical_plate_appearance_actors VALUES (?,?,?,?,?,?,?,?,?)', connection =>
+        Number(connection.prepare('SELECT count(*) AS n FROM physical_plate_appearance_actors WHERE source_id=?').get(request.sourceId)!.n) === 1
+        && headsBefore.every(head => Number(connection.prepare('SELECT revision FROM world_player_workload_heads WHERE career_id=? AND player_id=?').get(ready.settlement.careerId,head.playerId)!.revision) === head.revision + 100));
+      try { assert.throws(() => actors.accept(request.sourceId)); assert(witness.wasReached(), 'actor readiness fault must reach the real INSERT'); }
+      finally { witness.close(); }
       assert.deepEqual(db.prepare('SELECT * FROM physical_plate_appearance_actors ORDER BY rowid').all(), before);
       db.exec('DROP TRIGGER corrupt_readiness_after_actor');
       assert.equal(actualLivePlayReadinessFromSqlite(db).read(input.closureSourceId).kind, 'ready');
+      faultEvidence.actorReadinessAfterInsert = true;
     }
     input.progress?.('admitting the next actual batter from closed gameplay and all original role effects');
     result = actors.accept(request.sourceId); assert.equal(result.match.playId, p.playId + 1);
@@ -102,6 +112,7 @@ export const verifyActualLiveNextActorArtifact = async (input: Readonly<{
   assert.equal(fileHash(input.sourcePath), originalHash);
   return { sourceSha256: originalHash, destinationSha256: fileHash(input.destinationPath), sourceUnchanged: true,
     destinationPath: input.destinationPath, realDisk: true, wal: true, allConnectionsClosedReopened: true,
-    exactlyOnceActorAdmission: true, scoringStillUnsupported: true, nextBatterSelection: 'explicit_fixture_input' as const, autonomousLineupSelection: false, nextPitchExecuted: nextPitch !== null, faultChecks: input.faultChecks, actor: result, nextPitch };
+    exactlyOnceActorAdmission: true, scoringStillUnsupported: true, nextBatterSelection: 'explicit_fixture_input' as const, autonomousLineupSelection: false, nextPitchExecuted: nextPitch !== null,
+    faultChecks: input.faultChecks, faultEvidence, actor: result, nextPitch };
   } finally { drain(); }
 };
