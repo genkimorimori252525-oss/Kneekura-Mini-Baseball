@@ -9,7 +9,7 @@ import subprocess
 import sys
 import time
 from scope_contract import validate_scope_terminal
-from replay_scope_contract import validate_official_read_replay_terminal
+from replay_scope_contract import validate_official_read_replay_terminal, validate_role_read_replay_terminal
 
 
 def sha256(path):
@@ -44,7 +44,8 @@ def read_pinned_json(ref):
 
 
 def replay_control_hashes():
-    return {name:sha256(wrapper_root/file) for name,file in [('launcher','run-official-read-replay.py'),('runtimeProbe','runtime-probe.cjs'),('replayRunner','official-read-replay.mjs')]}
+    prefix='role' if execution_scope=='role_read_replay' else 'official'
+    return {name:sha256(wrapper_root/file) for name,file in [('launcher',f'run-{prefix}-read-replay.py'),('runtimeProbe','runtime-probe.cjs'),('replayRunner',f'{prefix}-read-replay.mjs')]}
 
 
 
@@ -78,12 +79,18 @@ def audit_inherited_inputs():
     # Concrete ancestor references only. Semantic admission remains the Node
     # validator's job; this supervisor independently rechecks retained bytes.
     expected = [('inheritedOfficial', '01-official')]
-    if execution_scope == 'next': expected.append(('inheritedRole', '02-role-workload'))
-    if execution_scope not in ['role', 'next', 'official_read_replay']: return []
-    if execution_scope=='role':
+    if execution_scope in ['next','role_read_replay']: expected.append(('inheritedRole', '02-role-workload'))
+    if execution_scope not in ['role', 'next', 'official_read_replay', 'role_read_replay']: return []
+    if execution_scope in ['role','next','role_read_replay']:
         assert c['officialReadReplay']['kind']=='checked_official_read_replay_v1'
         refs=[*c['inheritedOfficial']['files'].values(),*c['officialReadReplay']['files'].values()]
-        assert len({ref['path'] for ref in refs})==14, 'original/replay file paths collide'
+        if execution_scope in ['next','role_read_replay']:refs += [*c['inheritedRole']['files'].values(),*c['inheritedRole']['regressionArtifacts'].values()]
+        extended=execution_scope=='next' and 'roleReadReplay' in c
+        if extended:
+            binding=c['roleReadReplay'];assert binding['kind']=='checked_role_read_replay_v1'
+            assert sorted(binding['files'])==sorted(['receipt','stageTerminal','supervisorTerminal','outerTerminal','configuration','sourceManifest'])
+            refs += list(binding['files'].values())
+        assert len(refs)==len({ref['path'] for ref in refs})==(30 if extended else 24 if execution_scope in ['next','role_read_replay'] else 14), 'inherited file paths collide'
         for ref in refs:
             path=Path(ref['path']);assert path.is_absolute() and str(path)==ref['path'] and '..' not in path.parts and path.resolve(strict=True)==path
     sealed = []
@@ -108,7 +115,7 @@ def audit_inherited_inputs():
 
 
 def audit_role_read_replay():
-    if execution_scope!='role':return None
+    if execution_scope not in ['role','next','role_read_replay']:return None
     binding=c['officialReadReplay'];files=binding['files']
     assert sorted(files)==sorted(['receipt','stageTerminal','supervisorTerminal','outerTerminal','configuration','sourceManifest'])
     values={name:read_pinned_json(ref) for name,ref in files.items()}
@@ -124,7 +131,61 @@ def audit_role_read_replay():
     assert outer['passed'] is True and outer['supervisorExitCode']==0 and outer['supervisorReaped'] is True and outer['outerGuard'] is None and outer['error'] is None
     assert outer['remainingSupervisorGroup']==outer['remainingExecutionGroup']==[]
     for name in ['receipt','stageTerminal','supervisorTerminal']:assert outer['references'][name]==files[name]
-    return dict(binding=binding,sourceTransition=c['sourceTransition'],expectedObservationSha256=c.get('expectedObservationSha256'))
+    carry=dict(binding=binding,sourceTransition=c['sourceTransition'],expectedObservationSha256=c.get('expectedObservationSha256'))
+    if execution_scope in ['next','role_read_replay']:
+        role_files=c['inheritedRole']['files'];role_config=read_pinned_json(role_files['configuration'])
+        assert role_config['executionScope']=='role' and role_config['inheritedOfficial']==c['inheritedOfficial']
+        assert dict(binding=role_config['officialReadReplay'],sourceTransition=role_config['sourceTransition'],expectedObservationSha256=role_config.get('expectedObservationSha256'))==carry
+        for name in ['receipt','stageTerminal','handoff','supervisorTerminal']:
+            value=read_pinned_json(role_files[name])
+            if name=='supervisorTerminal':value=value['sourceInputAndReceiptAudit']
+            assert value['inheritedReadReplay']==carry, 'inherited role replay binding differs'
+    return carry
+
+
+def audit_settled_role_replay_receipt(record,receipt):
+    assert record['stage']=='role-read-replay'
+    original=read_pinned_json(c['inheritedRole']['files']['receipt'])
+    inherited=[dict(stage='01-official',**c['inheritedOfficial']['files']['receipt']),dict(stage='02-role-workload',**c['inheritedRole']['files']['receipt'])]
+    assert receipt['originalRoleBinding']==c['inheritedRole'] and receipt['originalOfficialBinding']==c['inheritedOfficial']
+    assert receipt['roleSourceTransition']==c['roleSourceTransition'] and receipt['originalRoleReceipt']==c['inheritedRole']['files']['receipt']
+    assert receipt['originalOfficialReadReplay']==original['inheritedReadReplay'] and receipt['inheritedFaultReceipts']==inherited
+    assert receipt['inheritedSourceIdentity']==original['sourceIdentity'] and receipt['physicalProducerReference']==original['physicalProducerReference']
+    assert receipt['expectedSettlementSha256']==c['expectedSettlementSha256']
+    assert receipt['newlyExecutedDomainFaults']==[] and receipt['openSqliteHandles']==[] and len(receipt['passes'])==2
+    # actorJson's canonical object key order; participant array order is retained.
+    def canonical_hash(value):return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()).hexdigest()
+    assert canonical_hash(original['settlement'])==c['expectedSettlementSha256']
+    for index,value in enumerate(receipt['passes']):
+        assert type(value['connectionId']) is int and value['connectionId']==index+1 and value['index']==index and value['totalChanges']==0
+        assert all(value[field] is True for field in ['readOnly','queryOnly','transactionOwned','transactionClosed','connectionClosed'])
+        assert value['walBytesBefore'] in [None,0] and value['walBytesAfter'] in [None,0]
+        observation=value['observation']
+        assert observation['settlement']==original['settlement'] and observation['currentHeads']==[p['after'] for p in original['settlement']['participants']]
+        assert observation['artifact']==original['output']
+        assert value['observationSha256']==canonical_hash(observation)
+        for field in ['artifactSha256Before','artifactSha256After']:assert value[field]==c['inheritedRole']['files']['artifact']['sha256']
+    assert receipt['passes'][0]['observation']==receipt['passes'][1]['observation']
+    sealed_main_hash(original['output']['path'],original['output']['sha256'])
+
+
+def audit_settled_role_replay_input():
+    files=c['roleReadReplay']['files'];values={name:read_pinned_json(ref) for name,ref in files.items()}
+    prior=values['configuration'];receipt=values['receipt'];outer=values['outerTerminal'];stage=values['stageTerminal'];supervisor=values['supervisorTerminal']
+    assert prior['schema']=='actual_role_read_replay_run_v1' and prior['executionScope']=='role_read_replay'
+    for field in ['inheritedRole','inheritedOfficial','officialReadReplay','sourceTransition','expectedObservationSha256','roleSourceTransition','expectedSettlementSha256']:
+        assert prior.get(field)==c.get(field)
+    assert prior['sourceManifestPath']==files['sourceManifest']['path'] and prior['sourceManifestSha256']==files['sourceManifest']['sha256']
+    audit_inherited_source(c['roleSourceTransition']['toSourceIdentity'],files)
+    assert receipt['status']=='passed' and receipt['sourceIdentity']==c['roleSourceTransition']['toSourceIdentity']
+    audit_settled_role_replay_receipt(dict(stage='role-read-replay'),receipt)
+    assert stage['status']==supervisor['status']=='read_replay_passed' and stage['executionScope']==supervisor['executionScope']=='role_read_replay'
+    assert outer['passed'] is True and outer['supervisorExitCode']==0 and outer['supervisorReaped'] is True and outer['outerGuard'] is None and outer['error'] is None
+    assert outer['remainingSupervisorGroup']==outer['remainingExecutionGroup']==[]
+    for name in ['receipt','stageTerminal','supervisorTerminal']:assert outer['references'][name]==files[name]
+    assert stage['phaseReceipts']==supervisor['sourceInputAndReceiptAudit']['preservedPhaseReceipts']==[dict(stage='role-read-replay',**files['receipt'])]
+    assert supervisor['sourceInputAndReceiptAudit']['passed'] is True and supervisor['sourceInputAndReceiptAudit']['originalRoleBinding']==c['inheritedRole']
+    return dict(binding=c['roleReadReplay'],roleSourceTransition=c['roleSourceTransition'],expectedSettlementSha256=c['expectedSettlementSha256'])
 
 
 def audit_inputs_and_receipts():
@@ -163,12 +224,14 @@ def audit_inputs_and_receipts():
             path = Path(record['path'])
             assert path.parent == run_directory and path.name.endswith('.receipt.json')
             receipt = read_pinned_json(record)
-            replay = execution_scope=='official_read_replay'
-            assert receipt['schema'] == ('actual_official_read_replay_receipt_v1' if replay else 'actual_artifact_stage_receipt_v1') and receipt['status'] == 'passed'
+            replay = execution_scope in ['official_read_replay','role_read_replay']
+            assert receipt['schema'] == ('actual_'+execution_scope+'_receipt_v1' if replay else 'actual_artifact_stage_receipt_v1') and receipt['status'] == 'passed'
             assert receipt['sourceIdentity']['sourceCommit'] == c['sourceCommit']
             assert receipt['sourceIdentity']['sourceManifestSha256'] == c['sourceManifestSha256']
             assert receipt['originalPhysicalArtifactSha256'] == c['physicalArtifactSha256']
-            if replay:
+            if execution_scope=='role_read_replay':
+                audit_settled_role_replay_receipt(record,receipt)
+            elif replay:
                 assert record['stage']=='official-read-replay'
                 assert receipt['originalOfficialBinding']==c['inheritedOfficial'] and receipt['sourceTransition']==c['sourceTransition']
                 assert receipt['originalOfficialReceipt']==receipt['inheritedFaultReceipt']==c['inheritedOfficial']['files']['receipt']
@@ -194,10 +257,12 @@ def audit_inputs_and_receipts():
                         disk = receipt[key]['disk']; sealed_main_hash(disk['path'],disk['sha256'])
             sealed.append(record)
     result={'passed': True, 'preservedPhaseReceipts': sealed, 'inheritedStageReceipts': inherited}
-    if execution_scope=='role':result['inheritedReadReplay']=audit_role_read_replay()
-    if execution_scope=='official_read_replay':
+    if execution_scope in ['role','next','role_read_replay']:result['inheritedReadReplay']=audit_role_read_replay()
+    if execution_scope=='next' and 'roleReadReplay' in c:result['inheritedRoleReadReplay']=audit_settled_role_replay_input()
+    if execution_scope in ['official_read_replay','role_read_replay']:
         assert replay_control_hashes()==c['controlHashes'], 'replay controls changed'
-        result.update(originalOfficialBinding=c['inheritedOfficial'],sourceTransition=c['sourceTransition'])
+        if execution_scope=='official_read_replay':result.update(originalOfficialBinding=c['inheritedOfficial'],sourceTransition=c['sourceTransition'])
+        else:result.update(originalRoleBinding=c['inheritedRole'],roleSourceTransition=c['roleSourceTransition'])
     return result
 
 
@@ -247,8 +312,8 @@ config_path = Path(sys.argv[1]).resolve(strict=True)
 config_hash = sha256(config_path)
 c = json.loads(config_path.read_text())
 execution_scope = c.get('executionScope', 'all')
-assert c['schema'] == ('actual_official_read_replay_run_v1' if execution_scope=='official_read_replay' else 'actual_artifact_pipeline_run_v2')
-assert execution_scope in ['all', 'official', 'supervisor_smoke', 'official_read_replay', 'role'], 'unsupported execution scope'
+assert c['schema'] == ('actual_'+execution_scope+'_run_v1' if execution_scope in ['official_read_replay','role_read_replay'] else 'actual_artifact_pipeline_run_v2')
+assert execution_scope in ['all', 'official', 'supervisor_smoke', 'official_read_replay', 'role_read_replay', 'role', 'next'], 'unsupported execution scope'
 wrapper_root = Path(__file__).resolve().parent
 source_root = Path(c['sourceRoot']).resolve(strict=True)
 assert wrapper_root == source_root / 'tools/verification/actual-live-pipeline'
@@ -291,7 +356,7 @@ env.update({
     'OWNED_SCHEDULED_TIMING_PATH': str(runtime_directory / 'owned-phases.jsonl'),
 })
 args = [str(node), str(vite_cli), '--root', str(source_root), '--config', str(wrapper_root / 'vite.config.mjs'),
-        str(wrapper_root / ('official-read-replay.mjs' if execution_scope=='official_read_replay' else 'pipeline.mjs')), '--run', str(config_path)]
+        str(wrapper_root / ('role-read-replay.mjs' if execution_scope=='role_read_replay' else 'official-read-replay.mjs' if execution_scope=='official_read_replay' else 'pipeline.mjs')), '--run', str(config_path)]
 write_new(runtime_directory / 'launch.json', {'configSha256': config_hash, 'runtime': runtime, 'argv': args,
     'inheritedNodeOptions': env['NODE_OPTIONS'], 'nativeLocks': native_locks, 'sourceCommit': c['sourceCommit']})
 child = None
@@ -300,8 +365,10 @@ peak_rss_kib = 0
 started = time.monotonic()
 
 
+pending_signal=None
 def interrupted(signum, _frame):
-    raise InterruptedError(f'launcher received signal {signum}')
+    global pending_signal
+    if pending_signal is None:pending_signal=signum
 
 
 signal.signal(signal.SIGTERM, interrupted)
@@ -312,6 +379,7 @@ try:
                                  start_new_session=True, pass_fds=(8, 9))
         write_new(runtime_directory / 'pid.json', {'pid': child.pid, 'processGroup': child.pid})
         while child.poll() is None:
+            if pending_signal is not None:raise InterruptedError(f'launcher received signal {pending_signal}')
             elapsed = time.monotonic() - started
             members = process_group_rss(child.pid)
             rss = sum(member['rssKiB'] for member in members)
@@ -324,6 +392,7 @@ try:
                 break
             time.sleep(0.5)
         exit_code = child.wait()
+        if pending_signal is not None:raise InterruptedError(f'launcher received signal {pending_signal}')
 except BaseException as error:
     guard = {'reason': 'supervisor', 'error': repr(error)}
     if child is not None:
@@ -352,10 +421,10 @@ remaining_processes = process_group_rss(child.pid) if child is not None else []
 scope_status = None
 handoff_receipt = None
 try:
-    scope_status = validate_official_read_replay_terminal(terminal,audit.get('preservedPhaseReceipts',[]),audit.get('inheritedStageReceipts',[])) if execution_scope=='official_read_replay' else validate_scope_terminal(execution_scope, terminal, audit.get('preservedPhaseReceipts', []), audit.get('inheritedStageReceipts', []))
+    scope_status = validate_role_read_replay_terminal(terminal,audit.get('preservedPhaseReceipts',[]),audit.get('inheritedStageReceipts',[])) if execution_scope=='role_read_replay' else validate_official_read_replay_terminal(terminal,audit.get('preservedPhaseReceipts',[]),audit.get('inheritedStageReceipts',[])) if execution_scope=='official_read_replay' else validate_scope_terminal(execution_scope, terminal, audit.get('preservedPhaseReceipts', []), audit.get('inheritedStageReceipts', []))
     assert terminal['sourceIdentity']['sourceCommit'] == c['sourceCommit']
     assert terminal['sourceIdentity']['sourceManifestSha256'] == c['sourceManifestSha256']
-    if execution_scope=='official_read_replay':
+    if execution_scope in ['official_read_replay','role_read_replay']:
         receipt=read_pinned_json(audit['preservedPhaseReceipts'][0])
         expected_checks=dict(sourceUnchanged=True,configUnchanged=True,controlsUnchanged=True,originalEvidenceUnchanged=True,
             artifactUnchanged=True,closeReopenEqual=True,readOnlyEnforced=True)
@@ -390,11 +459,13 @@ try:
         assert receipt['executed'] == dict(helperCalls=1,newActorAdmissions=1,newPhysicalPitchActions=1,newWorkloadActivities=0)
         assert receipt['physicalWorldRecoveryProven'] is False and terminal['physicalWorldRecoveryProven'] is False
         assert receipt['inheritedStageReceipts'] == audit['inheritedStageReceipts']
+        assert receipt['inheritedReadReplay']==terminal['inheritedReadReplay']==audit['inheritedReadReplay']
+        if 'roleReadReplay' in c:assert receipt['inheritedRoleReadReplay']==terminal['inheritedRoleReadReplay']==audit['inheritedRoleReadReplay']
 
 except (AssertionError, KeyError, TypeError, OSError, ValueError) as error:
     scope_status = None
     audit = {**audit, 'scopeValidationError': repr(error)}
-passed = exit_code == 0 and guard is None and worker_valid and audit['passed'] and not remaining_processes and scope_status is not None
+passed = pending_signal is None and exit_code == 0 and guard is None and worker_valid and audit['passed'] and not remaining_processes and scope_status is not None
 process_terminal={'status': scope_status if passed else 'failed', 'executionScope': execution_scope,
     'wholePipelinePassed': passed and execution_scope == 'all', 'exitCode': exit_code,
     'guard': guard, 'elapsedSeconds': time.monotonic() - started, 'sampledPeakProcessGroupRssKiB': peak_rss_kib,
@@ -402,7 +473,7 @@ process_terminal={'status': scope_status if passed else 'failed', 'executionScop
     'remainingOwnedProcesses': remaining_processes, 'inheritedStageReceipts': audit.get('inheritedStageReceipts', []),
     'pipelineTerminalStatus': terminal.get('status') if isinstance(terminal, dict) else 'absent',
     'preservedPhaseReceipts': [str(path) for path in sorted(run_directory.glob('*.receipt.json'))] if run_directory.exists() else []}
-if execution_scope=='official_read_replay':
+if execution_scope in ['official_read_replay','role_read_replay']:
     process_terminal.update(controlHashes=replay_control_hashes(),runtime=dict(nodeSha256=worker.get('nodeSha256') if isinstance(worker,dict) else None,
         heapLimitMiB=worker.get('heapLimitMiB') if isinstance(worker,dict) else None,elapsedSeconds=time.monotonic()-started,peakRssKiB=peak_rss_kib))
 write_new(runtime_directory / 'process-terminal.json',process_terminal)

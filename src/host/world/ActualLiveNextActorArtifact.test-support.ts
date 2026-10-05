@@ -34,7 +34,9 @@ export const verifyActualLiveNextActorArtifact = async (input: Readonly<{
   const drain = () => { while (resources.length) resources.pop()!.close(); };
   try {
   const db = track(new DatabaseSync(input.destinationPath)), links = track(openSqlitePlayerPersonLinkStore(input.destinationPath)), official = track(new SqliteOfficialStateStore(input.destinationPath));
+  input.progress?.('authenticating next-play readiness on the copied role artifact');
   const ready = withSqliteReadTransaction(db, () => actualLivePlayReadinessFromSqlite(db).read(input.closureSourceId)); assert.equal(ready.kind, 'ready');
+  input.progress?.('initial next-play readiness returned');
   if (ready.kind !== 'ready') throw new Error('actual next-actor fixture must already have complete effects');
   const p = ready.closure.proposal;
   assert('nextWorld' in p.expectedOfficial, 'a final Match cannot activate another actor');
@@ -60,6 +62,7 @@ export const verifyActualLiveNextActorArtifact = async (input: Readonly<{
     const bad = { ...request, sourceId: 'fixture-wrong-activation', activationApplicationId: 'missing-activation' };
     inputs.set(bad.sourceId, bad); assert.throws(() => actors.accept(bad.sourceId));
     faultEvidence.wrongActivationRejected = true;
+    input.progress?.('wrong activation rejection returned');
     if (input.faultChecks) {
       const headsBefore = ready.settlement.participants.map(participant => ({ playerId: participant.playerId,
         revision: Number(db.prepare('SELECT revision FROM world_player_workload_heads WHERE career_id=? AND player_id=?').get(ready.settlement.careerId,participant.playerId)!.revision) }));
@@ -69,19 +72,24 @@ export const verifyActualLiveNextActorArtifact = async (input: Readonly<{
         && headsBefore.every(head => Number(connection.prepare('SELECT revision FROM world_player_workload_heads WHERE career_id=? AND player_id=?').get(ready.settlement.careerId,head.playerId)!.revision) === head.revision + 100));
       try { assert.throws(() => actors.accept(request.sourceId)); assert(witness.wasReached(), 'actor readiness fault must reach the real INSERT'); }
       finally { witness.close(); }
+      input.progress?.('real actor INSERT/readiness rollback witness returned');
       assert.deepEqual(db.prepare('SELECT * FROM physical_plate_appearance_actors ORDER BY rowid').all(), before);
       db.exec('DROP TRIGGER corrupt_readiness_after_actor');
       assert.equal(withSqliteReadTransaction(db, () => actualLivePlayReadinessFromSqlite(db).read(input.closureSourceId)).kind, 'ready');
+      input.progress?.('readiness after actor rollback returned');
       faultEvidence.actorReadinessAfterInsert = true;
     }
     input.progress?.('admitting the next actual batter from closed gameplay and all original role effects');
     result = actors.accept(request.sourceId); assert.equal(result.match.playId, p.playId + 1);
+    input.progress?.('clean next-actor admission returned');
     assert.equal(result.origin.scoringHash, null); assert.deepEqual(result.origin.actualLiveReadiness, ready.reference);
     assert.deepEqual(result.world, p.expectedOfficial.nextWorld); assert.equal(result.world.runners.length, 0);
     assert.deepEqual(actors.accept(request.sourceId), result);
+    input.progress?.('same-connection next-actor retry returned');
     assert.equal(Number(db.prepare('SELECT count(*) AS n FROM physical_plate_appearance_actors').get()!.n), before.length + 1);
     if (input.executeNextPitch) {
       const original = withSqliteReadTransaction(db, () => readPhysicalPitchProgressFromSqlite(db, p.gameId, p.playId).at(-1)); assert(original);
+      input.progress?.('original physical pitch read returned');
       const workload = track(openSqlitePlayerWorkloadRecoveryStore(input.destinationPath, links));
       const timing = track(openSqlitePlayerPitchTimingStore(input.destinationPath, links));
       const release = track(openSqlitePlayerReleaseGeometryStore(input.destinationPath, links));
@@ -99,19 +107,24 @@ export const verifyActualLiveNextActorArtifact = async (input: Readonly<{
         { readAcceptedAction: sourceId => sourceId === request.sourceId ? request : null }));
       input.progress?.('executing one new physical take from the real next-play actor/world and settled pitcher workload');
       nextPitch = pitches.accept(request.sourceId, 0);
+      input.progress?.('new physical take acceptance returned');
       assert.equal(nextPitch.frame.match.playId, p.playId + 1); assert.equal(nextPitch.frame.batterActor!.source.sourceId, result.source.sourceId);
       assert.deepEqual(nextPitch.frame.workload, current); assert.equal(nextPitch.beforeTimeline.startedAtTick, result.world.tick);
       assert(nextPitch.result.pitch.resolution.timeline.events.length > nextPitch.beforeTimeline.events.length);
       assert.deepEqual(pitches.accept(request.sourceId, 0), nextPitch);
+      input.progress?.('same-connection physical take retry returned');
     }
 
   } finally { drain(); }
+  input.progress?.('all next-play connections closed; reopening for actor and pitch readback');
   const reopened = new DatabaseSync(input.destinationPath);
   try {
     const { readPhysicalPlateAppearanceActorFromSqlite } = await import('./PhysicalPlateAppearanceActorEvidenceFromSqlite');
     withSqliteReadTransaction(reopened, () => {
       assert.equal(json(readPhysicalPlateAppearanceActorFromSqlite(reopened, request.sourceId)), json(result));
+      input.progress?.('reopened next-actor read returned');
       if (nextPitch) assert.equal(json(readPhysicalPitchProgressFromSqlite(reopened, p.gameId, p.playId + 1).at(-1)), json(nextPitch));
+      input.progress?.('reopened physical take read returned');
     });
   } finally { reopened.close(); }
   assert.equal(fileHash(input.sourcePath), originalHash);

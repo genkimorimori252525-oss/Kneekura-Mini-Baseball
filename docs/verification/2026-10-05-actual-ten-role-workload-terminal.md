@@ -2,6 +2,8 @@
 
 Recorded 2026-10-05 17:53 UTC. This is a result-only checkpoint of the approved nonvisual continuation. It includes no database or raw receipt, and does not claim the remaining plan or the actual next pitch has passed.
 
+Follow-up recorded at 20:34 UTC: the separately sourced actual next stage has now passed. Its exact ancestry, terminal hashes and current-stack distinction are recorded in [Actual next-pitch chain terminal](2026-10-05-actual-next-pitch-chain-terminal.md). The pending statements below describe this earlier 17:53 checkpoint.
+
 ## Fixed-source real artifact result
 
 The role-only gate on commit `1c9581007c03b9a21e1370a80bb3e30e8b0700a2` passed at 16:54 UTC. Its full tree is `b2e735de9f6136ac9db661d96d23c1ebb905013d`, src tree `fe341f35819d0786f95c6df70fc4b22ff46f384f`, and the 2,159-file Source manifest SHA-256 is `6827887fa4648c5342c85d056405a471ef3697bff733cb4d42ed2677ea73fe23`. This Source is distinct from the later published integration; only the stated source-qualified result is inherited.

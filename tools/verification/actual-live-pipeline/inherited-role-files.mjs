@@ -1,5 +1,7 @@
 import { isDeepStrictEqual } from 'node:util';
+import { posix } from 'node:path';
 import { inheritedFileAdmission, inheritedFileIO, readInheritedOfficialEvidence } from './inherited-official-files.mjs';
+import { readOfficialReadReplayEvidence } from './official-read-replay-files.mjs';
 
 const FILES = ['handoff', 'outerTerminal', 'stageTerminal', 'supervisorTerminal', 'receipt', 'configuration', 'sourceManifest', 'artifact'];
 const REGRESSIONS = ['recovery', 'stale'];
@@ -34,4 +36,43 @@ export const readInheritedRoleEvidence = (config, producerReference, currentSour
   ]);
   return { config, producerReference, roleHandoff, roleReceipt, stageTerminal, supervisorTerminal, outerTerminal,
     priorConfig, priorSourceManifest, currentSourceManifest, officialEvidence, observed, referencedFiles };
+};
+
+/** Resolve the complete authorized set first, then reuse the existing byte and
+ * Source readers. The caller must still invoke assertReplayedRoleEvidence. */
+export const readReplayedRoleEvidence = (config, producerReference, currentSourceManifest, io = inheritedFileIO) => {
+  const a = inheritedFileAdmission('role', io), role = a.bindings(config?.inheritedRole, 'role');
+  const official = a.bindings(config?.inheritedOfficial, 'official'), replay = config?.officialReadReplay;
+  const replayNames = ['receipt', 'stageTerminal', 'supervisorTerminal', 'outerTerminal', 'configuration', 'sourceManifest'];
+  const record = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+  a.check(record(replay) && replay.kind === 'checked_official_read_replay_v1' && record(replay.files)
+    && isDeepStrictEqual(Object.keys(replay.files).sort(), [...replayNames].sort()), 'file bindings');
+  const pin = value => {
+    a.check(record(value) && typeof value.path === 'string' && value.path !== '/' && posix.isAbsolute(value.path)
+      && posix.normalize(value.path) === value.path && !value.path.includes('\\') && !value.path.includes('\0')
+      && value.path.split('/').slice(1).every(part => part && part !== '.' && part !== '..')
+      && typeof value.sha256 === 'string' && /^[a-f0-9]{64}$/.test(value.sha256), 'file bindings');
+    return Object.freeze({ path: value.path, sha256: value.sha256 });
+  };
+  const replayPins = replayNames.map(name => pin(replay.files[name]));
+  const refs = [...Object.values(role.files), ...Object.values(role.regressionArtifacts), ...Object.values(official.files), ...replayPins];
+  const currentPin = pin({ path: config.sourceManifestPath, sha256: config.sourceManifestSha256 });
+  a.resolved(refs);
+  const alias = refs.find(ref => ref.path === currentPin.path);
+  if (alias) a.check(alias.sha256 === currentPin.sha256, 'file bindings');
+  else a.resolved([currentPin]);
+  const bundle = readInheritedRoleEvidence(config, producerReference, currentSourceManifest, io);
+  for (const field of ['officialReadReplay', 'sourceTransition'])
+    a.check(isDeepStrictEqual(bundle.priorConfig[field], config[field]), 'file bindings');
+  a.check((bundle.priorConfig.expectedObservationSha256 ?? null) === (config.expectedObservationSha256 ?? null), 'file bindings');
+  const current = a.json(currentPin, {}, 'currentSourceManifest');
+  a.check(isDeepStrictEqual(current, currentSourceManifest), 'current Source');
+  a.source({ sourceRoot: config.sourceRoot, sourceCommit: config.sourceCommit,
+    sourceManifestSha256: currentPin.sha256, files: { sourceManifest: currentPin } }, current, config,
+  { sourceIdentity: { sourceRoot: config.sourceRoot, sourceCommit: config.sourceCommit,
+    sourceTree: current.sourceTree, sourceManifestSha256: currentPin.sha256 } });
+  const readReplayEvidence = readOfficialReadReplayEvidence(bundle.priorConfig, producerReference, bundle.priorSourceManifest, io);
+  const referencedFiles = Object.freeze([...bundle.referencedFiles,
+    ...readReplayEvidence.referencedFiles.filter(ref => replayPins.some(pin => pin.path === ref.path))]);
+  return { ...bundle, readReplayEvidence, referencedFiles };
 };
