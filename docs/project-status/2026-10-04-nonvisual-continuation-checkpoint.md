@@ -1,8 +1,28 @@
 # 非デザイン継続実装: 現在の接続と検証
 
-更新: 2026-10-05 15:32 JST（2026-10-05 06:32 UTC）
+更新: 2026-10-05 17:57 JST（2026-10-05 08:57 UTC）
 
 ユーザーの継続指示に従い、最新の確定済み残計画を進めている。**計画全体・自律試合/Career全体の完了ではない**。デザイン/UI/art/Presentationは未接続のまま。
+
+## 2026-10-05 08:57 UTC の検証位置
+
+登録済み `npb-2026` を最初の Match から選ぶ新しい lineage で、元 pitch から実物理終了までの段階別 Native 検証が完了した。旧 `test-rules` fixture の official 失敗とは別の実行であり、旧証拠の profile は変更していない。
+
+- Original construction: 固定 `23e4ef0`、Native **1/1、0 skip、exit 0**、355.327秒。元 pitch・10人50部位・実接触/知覚/判断/motor・一塁判定までを生成
+- Pre-end tail: 固定 `56d96a7`、Native **1/1、0 skip、exit 0**、2,818.440秒。実 operative call、後続の独立判断と全10人の情報消費、全接続を閉じた通常 owner での reopen を確認。終了前DBは `64fc22bf43b656492aad85b6a8042e3862bd4fcf8132482cceca5f6109e8dc71`
+- Physical end: 同じ固定 `56d96a7`、Native **2/2、0 skip、exit 0**、716.724秒。実 seal INSERT 後の改変 rollback、clean commit、close/reopen、同一 retry が通過。72 table / 145 rows、end1 / seal1、WAL0。元の70非終端tableを保持し、終了DBは `585ab7862ab93991e97cd5032ba8d520e113635559aa0019b5dd9bd43257a04a`
+
+終了前/終了後の検証専用 synthetic DB と明示的な publication manifest は [Draft #305](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/305) に保存した。Raw receipt と publication projection を区別している。詳細は [fresh end gates](../verification/2026-10-05-known-profile-end-gates.md) を参照。
+
+[Draft #306](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/306) は既存 roster evidence が canonical JSON の object key 順により拒否される問題を修正する。Array 順序・値・余分な fact の検査は保持し、統合固定 Source で **13 tests、0 skip、full typecheck PASS**。この独立修正は #305/#307 の production Source には含めず、次の統合 Source に取り込んでいる。
+
+[Draft #307](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/307) は新 lineage の原始15 file と同一実行の rollback witness を別の producer contract として検証する。固定 `6eb9dd6` で **355 controls、0 skip、full typecheck、helper import、実15-file admission、supervisor smoke PASS**。旧 producer の82 controlsも含む。Publication の実行module/testはこの固定 Source と同一bytesで、production `src` は変更していない。
+
+この終了DBを使う actual official-only 検証は **実行中**。Physical proof の再認証、adjudication INSERT 改変 rollback、原始 call/rule の取り込み、queued disk の close/reopen、official application INSERT 改変 rollback を通過し、clean official application/retry の確認を続けている。Terminal receipt はまだなく、official stage の成功とは記録しない。後続の全10人 workload と実 next pitch は未完了。
+
+次 play の境界は正本 [adjudication §9](../game-design/07-world-first-adjudication-contracts.md#9-between-play-world-reset) に従う。閉じた live action の外では明示的 `rule_system` setup を認め、元の終端・公式ledger・controller退役・全参加者の実 workload/recovery・次 actor/pitch の整合を認証する。連続した帰還歩行を未承認の新要件にせず、`physicalWorldRecoveryProven: false` は連続移動についての正直な境界として保持する。
+
+一般 runner の11人55部位への field 接続、実 pitching practice と既存 learning の接続、venue/legal の追加範囲、既存 Club/Career の実行・統合検証は継続中。**最後に完了した累積 whole は #277 の697 files / 5,159 tests + typecheck**。今回の段階別成功を #278以後の累積wholeや非デザイン計画全体の完了へ読み替えない。
 
 ## 2026-10-05 06:32 UTC の検証位置
 
