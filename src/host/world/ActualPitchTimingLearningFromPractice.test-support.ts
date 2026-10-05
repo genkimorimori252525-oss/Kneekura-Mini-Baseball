@@ -7,7 +7,7 @@ import type { DevelopmentLearningEpisode } from '../../core/world/development/De
 import type { PlayerPitchTimingSource } from '../../core/world/development/PlayerPitchTimingSource';
 import type { AcceptedPitchTimingLearning } from './SqlitePlayerPitchTimingStore';
 import { practiceHash } from './PitchPracticeAttempt';
-import { practiceFixture, type PracticeAttempt, type PracticeOpportunity } from './PitchPracticeAttempt.test-support';
+import { practiceFixture, type PracticeAttempt, type PracticeOpportunity, type PracticeFixtureHooks } from './PitchPracticeAttempt.test-support';
 
 type EvidenceDb = Pick<DatabaseSync, 'prepare'>;
 export type PairPlan = {
@@ -46,12 +46,14 @@ export type LearningAdapter = {
 };
 type AdapterModule = { createActualPitchTimingLearningAdapter(sources: unknown): LearningAdapter };
 
-export async function actualLearningFixture(cleanup: (() => void)[]) {
+export async function actualLearningFixture(cleanup: (() => void)[], hooks: Pick<PracticeFixtureHooks,
+  'controlDomainIds' | 'manualControlDomainIds' | 'practiceOrderSources' | 'extraPracticeAuthority'> = {}) {
   const plans = new Map<string, PairPlan>(), reports = new Map<string, StandardizedPairResult>();
   const learningInputs = new Map<string, AcceptedPitchTimingLearning>();
   let adapter: LearningAdapter | undefined;
-  const base = await practiceFixture(cleanup, { quickSpeedFactor: 2,
+  const base = await practiceFixture(cleanup, { ...hooks, quickSpeedFactor: 2,
     extraPracticeAuthority: {
+      ...hooks.extraPracticeAuthority,
       readAcceptedPairPlan: id => plans.get(id) ?? null,
       readAcceptedStandardizedMeasurement: id => reports.get(id) ?? null,
       readAcceptedTimingLearning: id => learningInputs.get(id) ?? null,

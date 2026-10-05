@@ -10,6 +10,8 @@ import { assertArchivedPlayerWorkloadActivity, type SqlitePlayerWorkloadRecovery
 import type { SqlitePitchFatiguePolicyStore } from './SqlitePitchFatiguePolicyStore';
 import type { SqliteDevelopmentInitiationStore } from './SqliteDevelopmentInitiationStore';
 import { installActualPracticeLearning, type ActualPracticeLearningAuthority, type ActualPracticeLearningMethods } from './ActualPitchTimingLearningFromPractice';
+import { captureOwnedPracticeOrderEvidence, installOwnedPracticeOrders, type OwnedPracticeOrderMethods,
+  type PracticeOrderAuthority, type PracticeOrderSources } from './OwnedPitchPracticeOrder';
 import { freezePractice, planPracticeDelivery, practiceActivityId, practiceAttemptId, practiceFields, practiceHash,
   practiceId, practiceJson as json, practicePhases, practiceRevision, practiceTimingAtRevision, practiceWorkload,
   validatePracticeAssessment, validatePracticeOpportunity, type PitchPracticeAssessment, type PitchPracticeAttempt,
@@ -23,13 +25,14 @@ export type PitchPracticeSources = Readonly<{
   workload: Pick<SqlitePlayerWorkloadRecoveryStore, 'readHead' | 'selectAtRevision' | 'readActivity' | 'apply'>;
   policies: Pick<SqlitePitchFatiguePolicyStore, 'readAcceptedPolicy'>;
   episodes: Pick<SqliteDevelopmentInitiationStore, 'read' | 'advance'>;
+  orders?: PracticeOrderSources;
 }>;
-export type PitchPracticeAuthority = ActualPracticeLearningAuthority & Readonly<{
+export type PitchPracticeAuthority = ActualPracticeLearningAuthority & PracticeOrderAuthority & Readonly<{
   readAcceptedOpportunity(sourceId: string): PitchPracticeOpportunity | null;
   readAcceptedAssessment(sourceId: string): PitchPracticeAssessment | null;
 }>;
 type EvidenceDb = Pick<DatabaseSync, 'prepare'>;
-export type SqlitePitchPracticeAttemptStore = ActualPracticeLearningMethods & Readonly<{
+export type SqlitePitchPracticeAttemptStore = ActualPracticeLearningMethods & OwnedPracticeOrderMethods & Readonly<{
   begin(sourceId: string): PitchPracticeAttempt;
   advance(attemptId: string, expectedRevision: number, throughUs: number): PitchPracticeAttempt;
   acceptAssessment(sourceId: string): PitchPracticeAttempt;
@@ -54,10 +57,12 @@ type LearningRow = { source_id: string; episode_id: string; before_revision: num
 // Snapshots contain accepted immutable originals, never today's mutable heads.
 // Existing store reads first authenticate these inputs; comparing their original
 // bytes on a writer's connection also detects uncommitted source mutations.
-const physicalEvidence = (connection: EvidenceDb, o: PitchPracticeOpportunity, frame: PitchPracticeFrame): unknown => {
+const physicalEvidence = (connection: EvidenceDb, o: PitchPracticeOpportunity, frame: PitchPracticeFrame, bodyFrameOnly = false): unknown => {
   const scope = [o.careerId, o.playerId];
   const policy = frame.workload.policy;
+  const ownedOrder = bodyFrameOnly ? null : captureOwnedPracticeOrderEvidence(connection, o.sourceId);
   return {
+    ...(ownedOrder === null ? {} : { ownedOrder }),
     link: connection.prepare('SELECT * FROM world_player_person_links WHERE source_id=?').get(o.personLinkSourceId) ?? null,
     person: connection.prepare('SELECT * FROM world_person_priors WHERE source_id=?').get(o.personLinkSourceId) ?? null,
     genesis: connection.prepare('SELECT * FROM world_person_genesis_careers WHERE career_id=?').get(o.careerId) ?? null,
@@ -192,6 +197,7 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
       };
       const o = validatePracticeOpportunity(JSON.parse(row.opportunity_json) as PitchPracticeOpportunity, row.source_id);
       if (verified.timingCeiling !== undefined && o.timingRevision > verified.timingCeiling) throw new Error('practice proof depends on a later timing revision');
+      orders.assertOpportunity(connection, o);
       const frame = captureFrame(o, false), plannedDelivery = planPracticeDelivery(o, frame);
       const priorClock = JSON.parse(row.prior_clock_json) as PitchPracticePriorClock | null;
       const episodeBefore = JSON.parse(row.episode_before_json) as DevelopmentLearningEpisode | null;
@@ -251,6 +257,20 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
     };
     const read = (attemptId: string): PitchPracticeAttempt | null => { check(attemptId); const row = rowById(db, attemptId); return row ? decode(row, db) : null; };
     const required = (attemptId: string): PitchPracticeAttempt => { const attempt = read(attemptId); if (!attempt) throw new Error('practice attempt is missing'); return attempt; };
+    const assertAdmission = (o: PitchPracticeOpportunity): PitchPracticePriorClock | null => {
+      if (rowById(db, practiceAttemptId(o))) throw new Error('practice identity already belongs to another source alias');
+      const previous = db.prepare('SELECT * FROM pitch_practice_attempts WHERE career_id=? AND opportunity_id=? ORDER BY ordinal DESC LIMIT 1')
+        .get(o.careerId, o.opportunityId) as Row | undefined;
+      if (o.ordinal !== (previous ? previous.ordinal + 1 : 0) || o.previousAttemptId !== (previous?.attempt_id ?? null)
+        || previous && previous.player_id !== o.playerId) throw new Error('practice ordinal or previous attempt differs');
+      const earlier = db.prepare('SELECT * FROM pitch_practice_attempts WHERE career_id=? AND player_id=? ORDER BY sequence DESC LIMIT 1')
+        .get(o.careerId, o.playerId) as Row | undefined;
+      const priorClock = earlier ? clockFor(decode(earlier, db), db) : null;
+      if (priorClock && (o.atDay < priorClock.atDay || o.atDay === priorClock.atDay && o.readyAtUs < priorClock.followThroughEndUs)) {
+        throw new Error('practice Player clock overlaps its prior attempt');
+      }
+      return priorClock;
+    };
     const learningEvent = (attempt: PitchPracticeAttempt): DevelopmentLearningEventInput | null => {
       if (!practiceWorkload(attempt) || !attempt.opportunity.episode || !workloadReceipt(attempt)) return null;
       const sourceEventId = practiceActivityId(attempt.attemptId);
@@ -324,39 +344,39 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
     const assertLearningEvidence = (connection: EvidenceDb, event: DevelopmentLearningEventInput, phase: string): void => {
       authenticateLearning(connection, event, phase, verification());
     };
-    const learning = installActualPracticeLearning(db, sources, authority, { check, transaction,
+    const orders: ReturnType<typeof installOwnedPracticeOrders> = installOwnedPracticeOrders(db, sources.orders, sources.episodes, authority,
+      { check, transaction, inspectFrame: captureFrame, frameEvidence: physicalEvidence, assertAdmission,
+        assertProbeReservation: (connection, o) => learning.assertProbeReservation(connection, o),
+        probeReservationEvidence: (connection, o) => learning.probeReservationEvidence(connection, o) });
+    const learning: ReturnType<typeof installActualPracticeLearning> = installActualPracticeLearning(db, sources, authority, { check, transaction,
       readAttempt(connection, attemptId, maximumTimingRevision) {
         const row = rowById(connection, attemptId);
         return row ? decode(row, connection, row.revision, { ...verification(), timingCeiling: maximumTimingRevision }) : null;
       },
       inspectFrame: captureFrame, frameEvidence: physicalEvidence, assertLearningEvidence,
+      assertPlanOpportunity: orders.assertPlanOpportunity,
     });
     return Object.freeze({
       ...learning,
+      ...orders.methods,
       begin(sourceId): PitchPracticeAttempt {
         check(sourceId);
         const raw = authority?.readAcceptedOpportunity(sourceId) ?? null;
-        const o = raw === null ? null : validatePracticeOpportunity(raw, sourceId);
+        const supplied = raw === null ? null : validatePracticeOpportunity(raw, sourceId);
         return transaction(() => {
           const prior = db.prepare('SELECT * FROM pitch_practice_attempts WHERE source_id=?').get(sourceId) as Row | undefined;
           if (prior) {
-            if (o && json(o) !== prior.opportunity_json) throw new Error('practice opportunity already frozen differently');
+            if (supplied && json(supplied) !== prior.opportunity_json) throw new Error('practice opportunity already frozen differently');
             return decode(prior, db);
           }
+          const owned = orders.methods.readOrder(sourceId);
+          if (owned && supplied && json(owned.opportunity) !== json(supplied)) throw new Error('practice owned order differs from supplied opportunity');
+          const o = owned?.opportunity ?? supplied;
           if (!o) throw new Error('accepted practice opportunity is missing');
+          orders.assertOpportunity(db, o);
           learning.assertProbeAdmission(o);
           const attemptId = practiceAttemptId(o);
-          if (rowById(db, attemptId)) throw new Error('practice identity already belongs to another source alias');
-          const previous = db.prepare('SELECT * FROM pitch_practice_attempts WHERE career_id=? AND opportunity_id=? ORDER BY ordinal DESC LIMIT 1')
-            .get(o.careerId, o.opportunityId) as Row | undefined;
-          if (o.ordinal !== (previous ? previous.ordinal + 1 : 0) || o.previousAttemptId !== (previous?.attempt_id ?? null)
-            || previous && previous.player_id !== o.playerId) throw new Error('practice ordinal or previous attempt differs');
-          const earlier = db.prepare('SELECT * FROM pitch_practice_attempts WHERE career_id=? AND player_id=? ORDER BY sequence DESC LIMIT 1')
-            .get(o.careerId, o.playerId) as Row | undefined;
-          const priorClock = earlier ? clockFor(decode(earlier, db), db) : null;
-          if (priorClock && (o.atDay < priorClock.atDay || o.atDay === priorClock.atDay && o.readyAtUs < priorClock.followThroughEndUs)) {
-            throw new Error('practice Player clock overlaps its prior attempt');
-          }
+          const priorClock = assertAdmission(o);
           const frame = captureFrame(o, true), delivery = planPracticeDelivery(o, frame);
           const episodeBefore = o.episode ? sources.episodes.read(o.episode.episodeId)?.episode ?? null : null;
           if (o.episode && (!episodeBefore || episodeBefore.revision !== o.episode.revision || episodeBefore.careerId !== o.careerId

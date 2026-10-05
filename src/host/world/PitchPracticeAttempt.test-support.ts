@@ -76,6 +76,9 @@ type PracticeModule = { openSqlitePitchPracticeAttemptStore(path: string, source
 
 export type PracticeFixtureHooks = {
   quickSpeedFactor?: number;
+  controlDomainIds?: readonly string[];
+  manualControlDomainIds?: readonly string[];
+  practiceOrderSources?: boolean;
   extraPracticeAuthority?: Readonly<Record<string, (sourceId: string) => unknown>>;
   readAcceptedTimingLearning?: (sourceId: string) => import('./SqlitePlayerPitchTimingStore').AcceptedPitchTimingLearning | null;
   assertTimingEvidence?: (db: EvidenceDb, source: import('./SqlitePlayerPitchTimingStore').AcceptedPitchTimingLearning, phase: string) => void;
@@ -88,7 +91,7 @@ export async function practiceFixture(cleanup: (() => void)[], hooks: PracticeFi
   const close = () => { owner = undefined; while (handles.length) handles.pop()!.close(); };
   cleanup.push(() => rmSync(directory, { recursive: true, force: true }), close);
   const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
-  const world = keep(openSqliteWorldSettlementStore(path));
+  let world = keep(openSqliteWorldSettlementStore(path));
   world.initialize({ careerId: 'career-a', clubs: [state()], schedule: { seasonId: 'league-season-1', leagueId: 'league-a',
     memberClubIds: ['club-a', 'club-b'], regularSeasonGamesPerClub: 1,
     games: [{ gameId: 'scheduled-only', homeClubId: 'club-a', awayClubId: 'club-b' }], revisionEventIds: [] },
@@ -154,8 +157,9 @@ export async function practiceFixture(cleanup: (() => void)[], hooks: PracticeFi
   policies.accept(fatigueInput.sourceId);
 
   // The catalyst is a genuinely issued/executed roster promotion, not practice.
-  const control = createHumanControlState({ revision: 0, controllerId: 'human', controlledClubId: 'club-a', domainIds: ['ROSTER'], manualDomainIds: [] });
-  const worldControl = keep(openSqliteWorldControlStore(path)); worldControl.initialize({ careerId: 'career-a', worldRevision: 0, control });
+  const control = createHumanControlState({ revision: 0, controllerId: 'human', controlledClubId: 'club-a',
+    domainIds: hooks.controlDomainIds ?? ['ROSTER'], manualDomainIds: hooks.manualControlDomainIds ?? [] });
+  let worldControl = keep(openSqliteWorldControlStore(path)); worldControl.initialize({ careerId: 'career-a', worldRevision: 0, control });
   const score = { mean: 1, uncertainty: 0, evidence: 1 };
   const agent = { managerId: 'manager-a', appointmentId: 'appointment-a', state: {
     skills: { tacticalJudgment: 50, analysis: 50, adaptation: 50, playerEvaluation: 50, operations: 50, leadership: 50 },
@@ -211,7 +215,8 @@ export async function practiceFixture(cleanup: (() => void)[], hooks: PracticeFi
   const sources = () => ({ personLinks: links, person, timing: { ...timing,
     readHead: (...args: Parameters<typeof timing.readHead>) => { timingReads++; return timing.readHead(...args); },
     selectAtRevision: (...args: Parameters<typeof timing.selectAtRevision>) => { timingReads++; return timing.selectAtRevision(...args); } },
-  release, workload, policies, episodes });
+  release, workload, policies, episodes,
+  orders: hooks.practiceOrderSources ? { world, control: worldControl, roster } : undefined });
   const module = await vi.importActual<PracticeModule>('./SqlitePitchPracticeAttemptStore');
   owner = keep(module.openSqlitePitchPracticeAttemptStore(path, sources(), {
     ...hooks.extraPracticeAuthority,
@@ -239,6 +244,7 @@ export async function practiceFixture(cleanup: (() => void)[], hooks: PracticeFi
     opportunities.set(next.sourceId, next); return next;
   };
   const reopen = () => { close(); roster = keep(openSqliteManagerRosterDecisionStore(path)); links = keep(openSqlitePlayerPersonLinkStore(path));
+    if (hooks.practiceOrderSources) { world = keep(openSqliteWorldSettlementStore(path)); worldControl = keep(openSqliteWorldControlStore(path)); }
     person = keep(openSqlitePersonGenesisStore(path)); timing = openTiming(false);
     release = keep(openSqlitePlayerReleaseGeometryStore(path, links)); workload = openWorkload(); policies = keep(openSqlitePitchFatiguePolicyStore(path));
     episodes = openEpisodes(); db = keep(new DatabaseSync(path)); owner = keep(module.openSqlitePitchPracticeAttemptStore(path, sources())); };
