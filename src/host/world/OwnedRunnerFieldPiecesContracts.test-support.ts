@@ -46,6 +46,7 @@ export const deriveRunnerPieces = (owner: unknown, source: RunnerPiecesSource): 
  * each suite; contact, geometry and all field outcomes use existing Core owners. */
 export const runnerFieldPiecesFixture = (state: { flight: unknown; response: unknown; bases: unknown }, options: Readonly<{
   path?: string; phase?: 'fractional' | 'integer' | 'reaction' | 'braking'; collision?: 'before' | 'coincident' | 'after'; zeroBag?: boolean; rootZ?: number;
+  originalContext?: Readonly<{ startingBase: 1 | 2 | 3; officialRevision: number; matchSeed: number }>;
 }> = {}) => {
   const x = ownedRunnerFieldInputs(options.path), originalRunner = x.flight.physicalPitch.frame.prePitchRunner;
   const phase = options.phase ?? 'fractional';
@@ -62,6 +63,12 @@ export const runnerFieldPiecesFixture = (state: { flight: unknown; response: unk
       brakingMps2: phase === 'braking' ? 2 : originalRunner.source.parameters.brakingMps2, reactionDelayTicks: phase === 'reaction' ? 2_125_000 : 0 } };
   const runner = { ...originalRunner, source: runnerSource, canonical, controller: buildPrePitchRunnerController(runnerSource, canonical) };
   const originalWorld = x.flight.physicalPitch.frame.world;
+  const context = options.originalContext;
+  const match = context ? { ...x.flight.physicalPitch.frame.match, bases: {
+    first: context.startingBase === 1 ? runner.source.playerId : null,
+    second: context.startingBase === 2 ? runner.source.playerId : null,
+    third: context.startingBase === 3 ? runner.source.playerId : null,
+  } } : x.flight.physicalPitch.frame.match;
   const actorWorld = { ...originalWorld, runners: originalWorld.runners.map(actor => ({ ...actor, position: canonical.position, velocity: canonical.velocity })) };
   const binaryRadii = options.collision !== undefined;
   const parameters = { ...x.flight.source.execution.ballFlightParameters, ...(binaryRadii ? { ballRadius: 0.125 } : {}) };
@@ -71,7 +78,9 @@ export const runnerFieldPiecesFixture = (state: { flight: unknown; response: unk
     point: { ...originalContact.point, x: ballX }, batPoint: { ...originalContact.batPoint, x: ballX } };
   const physicalPitch = { ...x.flight.physicalPitch, source: { ...x.flight.physicalPitch.source, prePitchRunner: runnerSource },
     frame: { ...x.flight.physicalPitch.frame, world: actorWorld,
-      batterActor: { ...x.flight.physicalPitch.frame.batterActor, world: actorWorld }, prePitchRunner: runner }, result: { pitch: { resolution: {
+      ...(context ? { match, matchSeed: context.matchSeed, officialRevision: context.officialRevision } : {}),
+      batterActor: { ...x.flight.physicalPitch.frame.batterActor, world: actorWorld,
+        ...(context ? { match, officialRevision: context.officialRevision } : {}) }, prePitchRunner: runner }, result: { pitch: { resolution: {
       ...x.flight.physicalPitch.result.pitch.resolution, timeline: { ...x.flight.physicalPitch.result.pitch.resolution.timeline,
         events: x.flight.physicalPitch.result.pitch.resolution.timeline.events.map(event => ({ ...event, payload: { ...event.payload, contact } })) } } } } };
   const flight = { ...x.flight, physicalPitch, source: { ...x.flight.source,

@@ -1,4 +1,5 @@
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
+export { ownedRunnerFieldObservationEvidenceFromSqlite } from './OwnedRunnerFieldObservation';
 import { createRequire } from 'node:module';
 import { sqliteJsonMetadataNodes as nodes, sqliteJsonMetadataProjection as projection,
   sqliteJsonMetadataMatches as matches } from './SqliteOwnershipMetadata';
