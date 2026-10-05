@@ -11,6 +11,8 @@ import { openSqliteActualLivePlayClosureStore } from './SqliteActualLivePlayClos
 import { assertPriorPhysicalClosureCompleted } from './PhysicalPlayClosureEvidenceFromSqlite';
 import type { AcceptedActualLiveAdjudication } from './ActualLiveAdjudicationSource';
 import { actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { witnessSqliteWrite } from './SqliteWriteWitness.test-support';
+import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
 const { DatabaseSync, backup } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
 const fileHash = (path: string) => createHash('sha256').update(readFileSync(path)).digest('hex');
 const quote = (value: string) => `"${value.replaceAll('"', '""')}"`;
@@ -31,26 +33,37 @@ export const verifyActualLiveOfficialArtifact = async (input: Readonly<{
   let adjudications: ReturnType<typeof openSqliteActualLiveAdjudicationStore> | null = null;
   let closures: ReturnType<typeof openSqliteActualLivePlayClosureStore> | null = null;
   let result: ReturnType<ReturnType<typeof openSqliteActualLivePlayClosureStore>['resume']> | null = null;
+  let adjudication: ReturnType<ReturnType<typeof openSqliteActualLiveAdjudicationStore>['accept']> | null = null;
+  const faultEvidence = { adjudicationDependencyAfterInsert: false, officialApplicationAfterInsert: false };
   const closureSourceId = 'fixture-actual-live-closure', applicationId = 'fixture-actual-live-application';
   try {
     report('authenticating the original persisted physical end on the copied connection');
-    const end = actualFirstBaseClosedEvidenceFromSqlite(db).read(input.physicalEndSourceId); assert(end);
-    const field = battedWorldFieldEvidenceFromSqlite(db).read(end.source.baseFieldSourceId)!;
-    const frame = field.response.touch.worldContact.flight.physicalPitch.frame;
+    const { end, field, frame } = withSqliteReadTransaction(db, () => {
+      const end = actualFirstBaseClosedEvidenceFromSqlite(db).read(input.physicalEndSourceId); assert(end);
+      const field = battedWorldFieldEvidenceFromSqlite(db).read(end.source.baseFieldSourceId)!;
+      const frame = field.response.touch.worldContact.flight.physicalPitch.frame;
+      return { end, field, frame };
+    });
     const source: AcceptedActualLiveAdjudication = { sourceId: 'fixture-actual-live-adjudication', sourceVersion: 'fixture-v1', physicalEndSourceId: end.source.sourceId,
       policy: { sourceId: 'explicit-fixture-official-policy', sourceVersion: 'fixture-v1', ruleProfileId: frame.match.ruleProfileId,
         officialWindows: { appeal: { available: true }, review: { available: false }, challenge: { available: false } } } };
     // Absence is not false. Check production policy without persisting an immutable pending checkpoint.
-    assert.equal(actualLiveAdjudicationEvidenceFromSqlite(db).derive({ ...source, policy: null }).kind, 'official_pending');
+    assert.equal(withSqliteReadTransaction(db, () =>
+      actualLiveAdjudicationEvidenceFromSqlite(db).derive({ ...source, policy: null })).kind, 'official_pending');
     adjudications = openSqliteActualLiveAdjudicationStore(input.destinationPath, { readAcceptedAdjudication: id => id === source.sourceId ? source : null });
     if (input.faultChecks) {
       db.exec("CREATE TRIGGER corrupt_actual_adjudication_dependency AFTER INSERT ON actual_live_adjudications BEGIN UPDATE actual_first_base_play_ends SET snapshot_hash='corrupt'; END;");
-      assert.throws(() => adjudications!.accept(source.sourceId));
+      const witness = witnessSqliteWrite('INSERT INTO actual_live_adjudications VALUES(?,?,?,?,?,?,?,?)', connection =>
+        connection.prepare('SELECT snapshot_hash FROM actual_first_base_play_ends WHERE source_id=?').get(input.physicalEndSourceId)?.snapshot_hash === 'corrupt'
+        && Number(connection.prepare('SELECT count(*) AS n FROM actual_live_adjudications WHERE source_id=?').get(source.sourceId)!.n) === 1);
+      try { assert.throws(() => adjudications!.accept(source.sourceId)); assert(witness.wasReached(), 'adjudication fault must reach the real INSERT'); }
+      finally { witness.close(); }
       assert.equal(Number(db.prepare('SELECT count(*) AS n FROM actual_live_adjudications').get()!.n), 0);
       db.exec('DROP TRIGGER corrupt_actual_adjudication_dependency'); assert.deepEqual(rows(), before);
+      faultEvidence.adjudicationDependencyAfterInsert = true;
     }
     report('importing original call/rule provenance with explicit fixture profile');
-    const adjudication = adjudications.accept(source.sourceId); assert.equal(adjudication.kind, 'official_ready');
+    adjudication = adjudications.accept(source.sourceId); assert.equal(adjudication.kind, 'official_ready');
     assert.equal(adjudication.timeline.kind, 'projected');
     if (adjudication.timeline.kind !== 'projected') throw new Error('expected projected original timeline');
     assert.deepEqual(adjudication.timeline.timeline.events.slice(0, end.wholeHistory.originalTimeline.events.length), end.wholeHistory.originalTimeline.events);
@@ -73,16 +86,23 @@ export const verifyActualLiveOfficialArtifact = async (input: Readonly<{
     assert.equal(db.prepare('PRAGMA database_list').all().find(r => r.name === 'main')!.file, input.destinationPath);
     if (input.faultChecks) {
       db.exec("CREATE TRIGGER corrupt_actual_application AFTER INSERT ON applications BEGIN UPDATE matches SET durable_revision=NEW.rowid+100,state_json='{}',activation_json='{}'; END;");
-      assert.throws(() => closures!.resume(closureSourceId));
+      const witness = witnessSqliteWrite(`
+        INSERT INTO applications(application_id, match_id, closure_id, request_hash, result_json)
+        VALUES (?, ?, ?, ?, ?)
+      `, connection => Number(connection.prepare('SELECT count(*) AS n FROM applications WHERE application_id=? AND match_id=?').get(applicationId,end.gameId)!.n) === 1
+        && Number(connection.prepare("SELECT count(*) AS n FROM matches WHERE match_id=? AND durable_revision>100 AND state_json='{}' AND activation_json='{}'").get(end.gameId)!.n) === 1);
+      try { assert.throws(() => closures!.resume(closureSourceId)); assert(witness.wasReached(), 'official application fault must reach the real INSERT'); }
+      finally { witness.close(); }
       assert.equal(Number(db.prepare('SELECT count(*) AS n FROM applications').get()!.n), beforeApplications);
       db.exec('DROP TRIGGER corrupt_actual_application');
+      faultEvidence.officialApplicationAfterInsert = true;
     }
     report('applying the actual original live-ball closure exactly once');
     result = closures.resume(closureSourceId); assert.deepEqual(closures.resume(closureSourceId), result);
     assert.equal(Number(db.prepare('SELECT count(*) AS n FROM applications').get()!.n), beforeApplications + 1);
     assert.equal(result.scoring.kind, 'unsupported'); assert.equal(result.workload.kind, 'pending');
     assert.equal(result.controllerReset.retired.length, 10);
-    assert.throws(() => assertPriorPhysicalClosureCompleted(db, applicationId), /pending/);
+    assert.throws(() => withSqliteReadTransaction(db, () => assertPriorPhysicalClosureCompleted(db, applicationId)), /pending/);
     assert.deepEqual(rows(), before);
     closures.close(); closures = null; db.close(); db = new DatabaseSync(input.destinationPath);
     closures = openSqliteActualLivePlayClosureStore(input.destinationPath);
@@ -90,8 +110,11 @@ export const verifyActualLiveOfficialArtifact = async (input: Readonly<{
     assert.deepEqual(rows(), before);
   } finally { adjudications?.close(); closures?.close(); db.close(); }
   assert.equal(fileHash(input.sourcePath), originalHash);
+  assert(adjudication);
   return { sourceSha256: originalHash, destinationSha256: fileHash(input.destinationPath), sourceUnchanged: true,
     destinationPath: input.destinationPath, closureSourceId, applicationId, realDisk: true, wal: true, allConnectionsClosedReopened: true,
     originalPhysicalTablesUnchanged: true, originalTableHashes: before, exactlyOnceOfficialApplication: true,
-    actualRoleWorkloadStillPending: true, syntheticFixturePolicy: true, faultChecks: input.faultChecks, result };
+    actualRoleWorkloadStillPending: true, syntheticFixturePolicy: true, faultChecks: input.faultChecks, faultEvidence,
+    adjudicationEvidence: { physicalEndReference: adjudication.endReference, wholeHistoryReference: adjudication.wholeHistoryReference,
+      policyReference: adjudication.policyReference, ruleApplicability: adjudication.ruleApplicability, ledger: adjudication.ledger, timeline: adjudication.timeline }, result };
 };

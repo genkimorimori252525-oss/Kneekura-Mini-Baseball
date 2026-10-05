@@ -1,0 +1,127 @@
+{
+  "schema": "actual_artifact_pipeline_run_v2",
+  "sourceRoot": "/ABSOLUTE/RESTORED/FROZEN/SOURCE",
+  "sourceCommit": "REPLACE_WITH_REVIEWED_40_HEX_COMMIT",
+  "sourceManifestPath": "/ABSOLUTE/SOURCE-MANIFEST.json",
+  "sourceManifestSha256": "REPLACE_WITH_MANIFEST_SHA256",
+  "physicalArtifactPath": "/ABSOLUTE/CLOSED/VERIFIED-PHYSICAL-END.sqlite",
+  "physicalArtifactSha256": "REPLACE_WITH_AUTHENTICATED_PHYSICAL_DB_SHA256",
+  "physicalEndSourceId": "physical-end",
+  "physicalEvidencePath": "/ABSOLUTE/PHYSICAL-GATE-TERMINAL-REPORT.json",
+  "physicalEvidenceSha256": "REPLACE_WITH_PHYSICAL_REPORT_SHA256",
+  "runDirectory": "/ABSOLUTE/FRESH/PIPELINE-ARTIFACTS",
+  "nextBatterPlayerId": "away-2",
+  "nextTake": {
+    "action": {
+      "kind": "take"
+    },
+    "plateZ": 0,
+    "strikeZone": {
+      "centerX": 0,
+      "halfWidth": 0.2,
+      "lowerY": 1.4,
+      "upperY": 1.8
+    },
+    "ballRadiusMeters": 0.0366
+  },
+  "faultChecks": true,
+  "executeNextPitch": true,
+  "runtime": {
+    "nodePath": "/ABSOLUTE/VERIFIED/NODE26/BINARY",
+    "nodeSha256": "REPLACE_WITH_VERIFIED_NODE26_BINARY_SHA256",
+    "viteNodeCliSha256": "REPLACE_WITH_FROZEN_VITE_NODE_ENTRY_SHA256",
+    "oldSpaceMiB": 1024,
+    "expectedHeapLimitMiB": 1120,
+    "maximumRssMiB": "COORDINATOR_MUST_SET_POSITIVE_INTEGER",
+    "maximumWallSeconds": "COORDINATOR_MUST_SET_POSITIVE_INTEGER",
+    "minimumAvailableMiB": "COORDINATOR_MUST_SET_POSITIVE_INTEGER"
+  },
+  "physicalProducer": {
+    "kind": "first_base_clean_producer_v1",
+    "sourceCommit": "REPLACE_WITH_VERIFIED_PRODUCER_COMMIT",
+    "sourceManifestSha256": "REPLACE_WITH_PRODUCER_SOURCE_MANIFEST_SHA256",
+    "sourceFiles": "REPLACE_WITH_EXACT_POSITIVE_INTEGER_FILE_COUNT",
+    "originalInputSha256": "a54678e3aae1c6df0d25683b65c2811cedfed98539ca604aa233563f9eee7caa",
+    "originalInputPath": "/ABSOLUTE/ORIGINAL/PRODUCER/INPUT/PATH",
+    "runtimeSha256": "REPLACE_WITH_VERIFIED_PRODUCER_NODE_SHA256",
+    "launcherHashes": {
+      "audit-artifact.mjs": "REPLACE_WITH_FROZEN_CONTROL_SHA256",
+      "run-minimal-clean-acceptance.py": "REPLACE_WITH_FROZEN_CONTROL_SHA256",
+      "worker-memory-telemetry.cjs": "REPLACE_WITH_FROZEN_CONTROL_SHA256",
+      "worker-resource-probe-exact-node26.cjs": "REPLACE_WITH_FROZEN_CONTROL_SHA256"
+    },
+    "negativeEvidenceHashes": {
+      "negative-phase-evidence.json": "cf476b97f61fee1cf90035e5e59d0089172ef328f14477263afb774443327194",
+      "interruption-terminal.json": "7979b0c1e888b327a4b0f8cff641d72c4712b1f46f6ebc2f42c602c570387e76",
+      "negative-phase-completed.jsonl": "5bfbe251734f3af7f7cd9c40272f0a7335b849c3bf82be5fb13030791d8fbf71"
+    },
+    "inputManifestSha256": "REPLACE_WITH_PUBLISHED_A546_MANIFEST_SHA256",
+    "files": {
+      "admission": {
+        "path": "/ABSOLUTE/VERIFIED/PRODUCER/admission.json",
+        "sha256": "REPLACE_WITH_ADMISSION_JSON_SHA256"
+      },
+      "results": {
+        "path": "/ABSOLUTE/VERIFIED/PRODUCER/results.json",
+        "sha256": "REPLACE_WITH_RESULTS_JSON_SHA256"
+      },
+      "artifactAudit": {
+        "path": "/ABSOLUTE/VERIFIED/PRODUCER/artifact.json",
+        "sha256": "REPLACE_WITH_ARTIFACT_JSON_SHA256"
+      },
+      "inputManifest": {
+        "path": "/ABSOLUTE/VERIFIED/PRODUCER/input-manifest.json",
+        "sha256": "REPLACE_WITH_INPUT_MANIFEST_JSON_SHA256"
+      },
+      "sourceBeforeManifest": {
+        "path": "/ABSOLUTE/VERIFIED/PRODUCER/source-before.sha256",
+        "sha256": "REPLACE_WITH_SOURCE_BEFORE_SHA256_SHA256"
+      },
+      "sourceAfterManifest": {
+        "path": "/ABSOLUTE/VERIFIED/PRODUCER/source-after.sha256",
+        "sha256": "REPLACE_WITH_SOURCE_AFTER_SHA256_SHA256"
+      },
+      "runtime": {
+        "path": "/ABSOLUTE/VERIFIED/PRODUCER/node",
+        "sha256": "REPLACE_WITH_NODE_SHA256"
+      },
+      "originalInput": {
+        "path": "/ABSOLUTE/VERIFIED/PRODUCER/original-input.sqlite",
+        "sha256": "REPLACE_WITH_ORIGINAL_INPUT_SQLITE_SHA256"
+      },
+      "controls": {
+        "audit-artifact.mjs": {
+          "path": "/ABSOLUTE/VERIFIED/PRODUCER/controls/audit-artifact.mjs",
+          "sha256": "REPLACE_WITH_CONTROLS/AUDIT_ARTIFACT_MJS_SHA256"
+        },
+        "run-minimal-clean-acceptance.py": {
+          "path": "/ABSOLUTE/VERIFIED/PRODUCER/controls/run-minimal-clean-acceptance.py",
+          "sha256": "REPLACE_WITH_CONTROLS/RUN_MINIMAL_CLEAN_ACCEPTANCE_PY_SHA256"
+        },
+        "worker-memory-telemetry.cjs": {
+          "path": "/ABSOLUTE/VERIFIED/PRODUCER/controls/worker-memory-telemetry.cjs",
+          "sha256": "REPLACE_WITH_CONTROLS/WORKER_MEMORY_TELEMETRY_CJS_SHA256"
+        },
+        "worker-resource-probe-exact-node26.cjs": {
+          "path": "/ABSOLUTE/VERIFIED/PRODUCER/controls/worker-resource-probe-exact-node26.cjs",
+          "sha256": "REPLACE_WITH_CONTROLS/WORKER_RESOURCE_PROBE_EXACT_NODE26_CJS_SHA256"
+        }
+      },
+      "negativeEvidence": {
+        "negative-phase-evidence.json": {
+          "path": "/ABSOLUTE/PUBLISHED/NEGATIVE/negative-phase-evidence.json",
+          "sha256": "cf476b97f61fee1cf90035e5e59d0089172ef328f14477263afb774443327194"
+        },
+        "interruption-terminal.json": {
+          "path": "/ABSOLUTE/PUBLISHED/NEGATIVE/interruption-terminal.json",
+          "sha256": "7979b0c1e888b327a4b0f8cff641d72c4712b1f46f6ebc2f42c602c570387e76"
+        },
+        "negative-phase-completed.jsonl": {
+          "path": "/ABSOLUTE/PUBLISHED/NEGATIVE/negative-phase-completed.jsonl",
+          "sha256": "5bfbe251734f3af7f7cd9c40272f0a7335b849c3bf82be5fb13030791d8fbf71"
+        }
+      }
+    }
+  },
+  "executionScope": "all"
+}
