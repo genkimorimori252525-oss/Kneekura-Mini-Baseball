@@ -3,6 +3,7 @@ import { createRosterState } from '../roster/RosterState';
 import type { PlayerAssignment, RosterState,
   RosterTransitionEvent } from '../roster/RosterTypes';
 import { identifier } from '../roster/RosterValidation';
+import { canonicalizeEvidence } from '../../validation/CanonicalEvidenceFingerprint';
 
 export type RosterDevelopmentCatalyst = Readonly<{
   family: 'PROMOTION_DEMOTION';
@@ -16,8 +17,12 @@ export type RosterDevelopmentCatalyst = Readonly<{
   beforeAssignment: PlayerAssignment;
   afterAssignment: PlayerAssignment;
 }>;
+// Native storage preserves JSON values, not object-key insertion order. Keep
+// the previous JSON array/null semantics while comparing those stored values.
+const jsonEvidence = (value: unknown): string =>
+  canonicalizeEvidence(JSON.parse(JSON.stringify(value)));
 const same = (a: unknown, b: unknown): boolean =>
-  JSON.stringify(a) === JSON.stringify(b);
+  jsonEvidence(a) === jsonEvidence(b);
 
 /** A promotion/demotion is a possible catalyst, never a growth or trait award. */
 export const deriveRosterDevelopmentCatalyst = (
