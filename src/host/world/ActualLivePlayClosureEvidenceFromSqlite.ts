@@ -2,8 +2,10 @@ import { actualLivePlayReadinessFromSqlite } from './ActualLivePlayReadinessFrom
 import { defensiveMetadataId as metadataId } from './ActualDefensiveMetadata';
 import { sqliteJsonMetadataNodes as metadataNodes } from './SqliteOwnershipMetadata';
 import { closeOfficialPlay, deriveClosedLiveBallMatchState } from '../../core/adjudication/PlayAdjudicationLedger';
+import { confirmDurableClosedLiveBallStateApplication } from '../../core/adjudication/NextPlayActivation';
+import { resolveOfficialGameProgression } from '../../core/world/competition/OfficialGameCompletion';
 import { classifyClosedPlayForOfficialScoring } from '../../core/adjudication/OfficialScoring';
-import { deriveOfficialPlayResult, type PersistOfficialPlayInput } from '../SqliteOfficialStateStore';
+import { deriveOfficialPlayResult, deriveOfficialFinalResult, type PersistOfficialPlayInput, type PersistOfficialFinalInput } from '../SqliteOfficialStateStore';
 import { actualLiveAdjudicationEvidenceFromSqlite, type ActualAdjudicationDb } from './ActualLiveAdjudicationFromSqlite';
 import { actualFirstBaseClosedEvidenceFromSqlite } from './SqliteActualFirstBasePlayEndStore';
 import { battedWorldFieldEvidenceFromSqlite } from './SqliteBattedWorldFieldStore';
@@ -15,7 +17,7 @@ import type { OfficialParticipantBinding } from './SqliteOfficialParticipationSt
 import { actualLiveAdjudicationIdentityRow } from './ActualLiveAdjudicationMetadata';
 import { actualLivePlayClosureInput as input, type AcceptedActualLivePlayClosure } from './ActualLivePlayClosureSource';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
-export const deriveActualLivePlayClosureProposal = (db: ActualAdjudicationDb, raw: AcceptedActualLivePlayClosure) => {
+export const deriveActualLivePlayClosureProposal = (db: ActualAdjudicationDb, raw: AcceptedActualLivePlayClosure, historicalApplied = false) => {
   const source = input(raw, raw.sourceId);
   if (!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='actual_live_adjudications'").get()) throw new Error('accepted actual live adjudication missing');
   const adjudication = actualLiveAdjudicationEvidenceFromSqlite(db).read(source.adjudicationSourceId);
@@ -26,8 +28,10 @@ export const deriveActualLivePlayClosureProposal = (db: ActualAdjudicationDb, ra
   const ledger = closeOfficialPlay(adjudication.ledger, adjudication.ledger.revision,
     { eventId: `${source.sourceId}:closed`, closureId: source.sourceId, tick: source.closureTick });
   const next = deriveClosedLiveBallMatchState(adjudication.originalMatch, adjudication.timeline.timeline, ledger);
-  // Game-final and inning-transition setup need their own profile/participant handoff.
-  if (next.inning !== adjudication.originalMatch.inning || next.half !== adjudication.originalMatch.half) throw new Error('actual live closure inning transition setup unsupported');
+  const halfChanged = next.inning !== adjudication.originalMatch.inning || next.half !== adjudication.originalMatch.half;
+  const possibleWalkoff = adjudication.originalMatch.half === 'bottom'
+    && adjudication.originalMatch.score.home <= adjudication.originalMatch.score.away && next.score.home > next.score.away;
+  if (!source.gamePolicy && (halfChanged || possibleWalkoff && !historicalApplied)) throw new Error('actual live closure requires accepted game policy at the legal handoff');
   const fieldOwner = battedWorldFieldEvidenceFromSqlite(db), executionOwner = battedWorldFieldExecutionEvidenceFromSqlite(db);
   const baseField = fieldOwner.read(end.source.baseFieldSourceId)!;
   const pitch = baseField.response.touch.worldContact.flight.physicalPitch, frame = pitch.frame, batter = frame.batterActor!;
@@ -48,29 +52,83 @@ export const deriveActualLivePlayClosureProposal = (db: ActualAdjudicationDb, ra
     return { binding: saved, person: readOfficialActorPersonLink(db, saved) };
   });
   if (new Set(actors.map(a => a.person.personId)).size !== 10) throw new Error('actual live closure original Person membership differs');
+  const gamePolicy = source.gamePolicy ? { seasonId: schedule.seasonId, homeClubId: game.homeClubId,
+    awayClubId: game.awayClubId, policy: source.gamePolicy } : undefined;
+  let finalGame: Extract<PersistOfficialFinalInput, { kind: 'live_ball' }>['game'] | null = null;
+  if (gamePolicy) {
+    assertActualLiveGamePolicy(db, end.gameId, gamePolicy);
+    const receipt = confirmDurableClosedLiveBallStateApplication({ match: frame.match,
+      physicalTimeline: adjudication.timeline.timeline, adjudication: ledger, persistedMatchState: next,
+      applicationId: source.applicationId, durableRevision: frame.officialRevision + 1 });
+    const progression = resolveOfficialGameProgression({ ...gamePolicy, gameId: end.gameId, priorMatch: frame.match, application: receipt });
+    if (progression.kind === 'GAME_FINAL_PENDING_SCORING') {
+      const scoring = source.finalScoring;
+      if (!scoring) throw new Error(`actual live game final pending official scoring: ${progression.completionReason}`);
+      if (source.worldSetup !== null || source.nextStartedAtTick !== null) throw new Error('actual live game final cannot prepare another play');
+      const venueBinding = { gameId: String(fixture.game_id), venueId: String(fixture.venue_id),
+        fixtureEventId: String(fixture.fixture_event_id), fixtureRevision: Number(fixture.fixture_revision) };
+      if (scoring.gameId !== end.gameId || scoring.seasonId !== schedule.seasonId || scoring.closureSourceId !== source.sourceId
+        || scoring.playId !== end.playId || scoring.expectedDurableRevision !== frame.officialRevision || scoring.recordedAtTick < source.closureTick
+        || json(scoring.adjudicationReference) !== json({ sourceId: adjudication.source.sourceId, snapshotHash: hash(adjudication) })
+        || json(scoring.venueBinding) !== json(venueBinding)) throw new Error('actual live final scoring Source binding differs');
+      const side = frame.match.half === 'top' ? 'away' : 'home';
+      const inning = scoring.lineScore.innings[frame.match.inning - 1], currentHalfRuns = inning?.[side === 'away' ? 'awayRuns' : 'homeRuns'];
+      if (currentHalfRuns == null || currentHalfRuns < next.score[side] - frame.match.score[side]) throw new Error('actual live final scoring current half omits the official run delta');
+      // An aggregate Source has one closure owner. Raw mirrors are included so a
+      // corrupted cached scope cannot hide an alias with the same accepted ID.
+      const claims = [['source_json', ['finalScoring', 'sourceId']], ['proposal_json', ['source', 'finalScoring', 'sourceId']]] as const;
+      const aliases = db.prepare(`SELECT source_id FROM actual_live_play_closures WHERE ${claims.map(([column, path]) => metadataId(column, path, '$id')).join(' OR ')}`)
+        .all({ id: scoring.sourceId });
+      if (aliases.length > 1 || aliases.some(row => row.source_id !== source.sourceId)) throw new Error('actual live final scoring Source ownership differs');
+      finalGame = { ...gamePolicy, venueBinding, lineScore: scoring.lineScore };
+    } else if (source.finalScoring || source.worldSetup === null) throw new Error('actual live continuing game requires next setup, not final scoring');
+  }
+  const setup = source.worldSetup;
   const side = next.half === 'top' ? 'HOME' : 'AWAY';
-  if (source.worldSetup.defenders.length !== 9 || source.worldSetup.defenders.some(d =>
-    !actors.some(a => a.binding.playerId === d.playerId && a.binding.side === side)
-    || !frame.world.defenders.some(original => original.playerId === d.playerId && original.registeredPosition === d.registeredPosition))) {
+  const nextActors = halfChanged && setup ? setup.defenders.map(d => {
+    const row = db.prepare('SELECT binding_json FROM official_participant_bindings WHERE game_id=? AND player_id=?').get(end.gameId, d.playerId);
+    const saved = row && JSON.parse(String(row.binding_json)) as OfficialParticipantBinding | undefined;
+    if (!saved || JSON.stringify(saved) !== row!.binding_json || !Number.isSafeInteger(saved.rosterRevision) || saved.rosterRevision < 0
+      || saved.playerId !== d.playerId || saved.gameId !== end.gameId || saved.careerId !== bindings[0].careerId
+      || saved.competitionEditionId !== schedule.seasonId || saved.fixtureEventId !== fixture.fixture_event_id
+      || saved.gameDay !== bindings[0].gameDay || saved.side !== side || saved.clubId !== (side === 'HOME' ? game.homeClubId : game.awayClubId)) {
+      throw new Error('actual live closure next defender participant binding differs');
+    }
+    return { binding: saved, person: readOfficialActorPersonLink(db, saved) };
+  }) : actors;
+  if (setup && (setup.defenders.length !== 9 || setup.defenders.some(d =>
+    !nextActors.some(a => a.binding.playerId === d.playerId && a.binding.side === side)
+    || !halfChanged && !frame.world.defenders.some(original => original.playerId === d.playerId && original.registeredPosition === d.registeredPosition)))) {
     throw new Error('actual live closure next defender roles differ from original participants');
   }
+  if (setup && halfChanged && (new Set(nextActors.map(a => a.person.personId)).size !== 9
+    || nextActors.some(a => actors.some(original => original.person.personId === a.person.personId && original.binding.playerId !== a.binding.playerId)))) {
+    throw new Error('actual live closure next defender Person membership differs');
+  }
   for (const base of ['first', 'second', 'third'] as const) {
-    if (json(source.worldSetup.baseCenters[base]) !== json(baseField.geometry.geometry.baseGeometry.bases[base].region.center)) throw new Error('actual live closure next base geometry differs');
-    const playerId = next.bases[base];
+    if (setup && json(setup.baseCenters[base]) !== json(baseField.geometry.geometry.baseGeometry.bases[base].region.center)) throw new Error('actual live closure next base geometry differs');
+    const playerId = setup ? next.bases[base] : null;
     if (playerId !== null && !actors.some(a => a.binding.playerId === playerId && a.binding.side !== side)) throw new Error('actual live closure next runner lacks original Person/Club binding');
   }
   const prefix = { baseField, fields: fieldOwner.scope(baseField, end.source.baseFieldSourceId), executions: executionOwner.scope(baseField, end.source.executionSourceId) };
   const players = actualPlayersKinematicsFromPrefix(bindings.map(b => b.playerId), prefix);
   // The accepted rule-system command retires these exact old-play authorities only
   // for the new setup. It does not cancel/relabel their original physical history.
-  const controllerReset = { kind: source.controllerReset, sourceId: source.sourceId, previousPlayId: end.playId, nextPlayId: next.playId,
-    atTick: source.nextStartedAtTick, physicalEndReference: adjudication.endReference,
+  const controllerReset = { kind: source.controllerReset, sourceId: source.sourceId, previousPlayId: end.playId, nextPlayId: finalGame ? null : next.playId,
+    atTick: finalGame ? source.closureTick : source.nextStartedAtTick, physicalEndReference: adjudication.endReference,
     retired: players.map(p => ({ playerId: p.playerId, personId: p.personId, activeCommand: p.activeCommand,
       ownedMotionCoverage: p.ownedMotionCoverage ?? null })), retainedOriginalFutureWork: end.futureWork };
-  const application: Extract<PersistOfficialPlayInput, { kind: 'live_ball' }> = { kind: 'live_ball', matchId: end.gameId,
+  const common = { kind: 'live_ball' as const, matchId: end.gameId,
     applicationId: source.applicationId, expectedDurableRevision: frame.officialRevision, match: frame.match,
-    adjudication: ledger, physicalTimeline: adjudication.timeline.timeline, nextStartedAtTick: source.nextStartedAtTick, worldSetup: source.worldSetup };
-  const expectedOfficial = deriveOfficialPlayResult(application, frame.officialRevision + 1);
+    adjudication: ledger, physicalTimeline: adjudication.timeline.timeline };
+  let application: Extract<PersistOfficialPlayInput | PersistOfficialFinalInput, { kind: 'live_ball' }>;
+  if (finalGame) application = { ...common, game: finalGame };
+  else {
+    if (source.worldSetup === null) throw new Error('actual live continuing game next setup is missing');
+    application = { ...common, nextStartedAtTick: source.nextStartedAtTick, worldSetup: source.worldSetup };
+  }
+  const expectedOfficial = 'game' in application ? deriveOfficialFinalResult(application, frame.officialRevision + 1)
+    : deriveOfficialPlayResult(application, frame.officialRevision + 1);
   const scoring = classifyClosedPlayForOfficialScoring({ kind: 'live_ball', match: frame.match, timeline: application.physicalTimeline, adjudication: ledger });
   const workload = { kind: 'pending' as const, reason: 'actual_role_effort_policy_and_application_unconnected' as const,
     participants: actors.map(a => ({ playerId: a.binding.playerId, personId: a.binding.personId, clubId: a.binding.clubId,
@@ -79,20 +137,28 @@ export const deriveActualLivePlayClosureProposal = (db: ActualAdjudicationDb, ra
   return freeze({ source, gameId: end.gameId, playId: end.playId, physicalEndReference: adjudication.endReference,
     wholeHistoryReference: adjudication.wholeHistoryReference, adjudicationReference: { sourceId: adjudication.source.sourceId, snapshotHash: hash(adjudication) },
     application, expectedOfficial, scoring, workload, controllerReset, actors,
+    ...(gamePolicy ? { gamePolicy, ...(finalGame ? {} : { nextActors }) } : {}),
     fixture, seasonFixture: { careerId: bindings[0].careerId, seasonId: schedule.seasonId, game }, originalActivation });
 };
+/** Live and non-live closures pin the same per-game completion policy. */
+export function assertActualLiveGamePolicy(db: ActualAdjudicationDb, gameId: string, policy: unknown, required = false): void {
+  const installed = db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='physical_closure_game_policies'").get();
+  const row = installed && db.prepare('SELECT policy_json FROM physical_closure_game_policies WHERE game_id=?').get(gameId);
+  if (row ? row.policy_json !== json(policy) : required) throw new Error('actual live closure accepted game policy differs or is missing');
+}
 export type ActualLivePlayClosureProposal = ReturnType<typeof deriveActualLivePlayClosureProposal>;
 export const assertActualLiveClosureStage = (db: ActualAdjudicationDb, p: ActualLivePlayClosureProposal, requireApplied = false, requireCurrentWrite = false) => {
   const a = p.application, row = db.prepare('SELECT * FROM applications WHERE application_id=?').get(a.applicationId);
   if (!row) { if (requireApplied) throw new Error('actual live closure official application missing'); return false; }
-  if (row.match_id !== a.matchId || row.closure_id !== p.source.sourceId || row.request_hash !== hash(a) || row.result_json !== json(p.expectedOfficial)) {
+  if (row.match_id !== a.matchId || row.closure_id !== p.source.sourceId || row.request_hash !== hash('game' in a ? { kind: 'game_final', request: a } : a) || row.result_json !== json(p.expectedOfficial)) {
     throw new Error('actual live closure official application archive differs');
   }
   const match = db.prepare('SELECT * FROM matches WHERE match_id=?').get(a.matchId);
   if (!match || typeof match.durable_revision !== 'number' || match.durable_revision < p.expectedOfficial.receipt.durableRevision
-    || requireCurrentWrite && match.durable_revision !== p.expectedOfficial.receipt.durableRevision
-    || match.durable_revision === p.expectedOfficial.receipt.durableRevision && (match.state_json !== json(p.expectedOfficial.activation.nextMatchState)
-      || match.activation_json !== json({ activation: p.expectedOfficial.activation, nextWorld: p.expectedOfficial.nextWorld }))) throw new Error('actual live closure written Match differs');
+    || (requireCurrentWrite || 'result' in p.expectedOfficial) && match.durable_revision !== p.expectedOfficial.receipt.durableRevision
+    || match.durable_revision === p.expectedOfficial.receipt.durableRevision && (match.state_json !== json(p.expectedOfficial.receipt.appliedMatchState)
+      || match.activation_json !== json('result' in p.expectedOfficial ? { finalResult: p.expectedOfficial.result }
+        : { activation: p.expectedOfficial.activation, nextWorld: p.expectedOfficial.nextWorld }))) throw new Error('actual live closure written Match differs');
   return true;
 };
 export const assertActualLiveClosureOpenMatch = (db: ActualAdjudicationDb, p: ActualLivePlayClosureProposal) => {
@@ -100,19 +166,26 @@ export const assertActualLiveClosureOpenMatch = (db: ActualAdjudicationDb, p: Ac
   if (!row || row.durable_revision !== p.application.expectedDurableRevision || row.state_json !== json(p.application.match)
     || row.activation_json !== (p.originalActivation === null ? null : json(p.originalActivation))) throw new Error('actual live closure original Match changed');
 };
+export const actualLiveClosureResult = (sourceId: string, proposal: ActualLivePlayClosureProposal) => freeze({
+  sourceId, official: proposal.expectedOfficial, scoring: proposal.scoring, workload: proposal.workload,
+  nextPhysicalPlay: 'result' in proposal.expectedOfficial ? { kind: 'not_applicable' as const, reason: 'game_final' as const }
+    : { kind: 'blocked' as const, reason: 'actual_role_workload_pending' as const }, controllerReset: proposal.controllerReset,
+});
 export const actualLivePlayClosureEvidenceFromSqlite = (db: ActualAdjudicationDb) => ({
   read(sourceId: string) {
     const row = actualLiveAdjudicationIdentityRow(db, 'actual_live_play_closures', sourceId);
     if (!row) return null;
-    const source = input(JSON.parse(String(row.source_json)), sourceId), proposal = deriveActualLivePlayClosureProposal(db, source);
+    const source = input(JSON.parse(String(row.source_json)), sourceId);
+    const historicalApplied = !!db.prepare('SELECT 1 FROM applications WHERE application_id=?').get(source.applicationId);
+    const proposal = deriveActualLivePlayClosureProposal(db, source, historicalApplied);
+    if (proposal.gamePolicy) assertActualLiveGamePolicy(db, proposal.gameId, proposal.gamePolicy, true);
     const peers = db.prepare('SELECT source_id FROM actual_live_play_closures WHERE application_id=? OR (game_id=? AND play_id=?)').all(source.applicationId, proposal.gameId, proposal.playId);
     if (peers.length !== 1 || peers[0].source_id !== sourceId || row.game_id !== proposal.gameId || row.play_id !== proposal.playId
       || row.application_id !== source.applicationId || row.source_json !== json(source) || row.source_hash !== hash(source)
       || row.proposal_json !== json(proposal) || row.proposal_hash !== hash(proposal)
       || !['QUEUED', 'OFFICIAL_APPLIED'].includes(String(row.status))) throw new Error('actual live closure archive differs');
     const applied = assertActualLiveClosureStage(db, proposal, row.status === 'OFFICIAL_APPLIED');
-    const result = row.status === 'OFFICIAL_APPLIED' ? freeze({ sourceId, official: proposal.expectedOfficial, scoring: proposal.scoring,
-      workload: proposal.workload, nextPhysicalPlay: { kind: 'blocked' as const, reason: 'actual_role_workload_pending' as const }, controllerReset: proposal.controllerReset }) : null;
+    const result = row.status === 'OFFICIAL_APPLIED' ? actualLiveClosureResult(sourceId, proposal) : null;
     if (row.result_json !== (result === null ? null : json(result))) throw new Error('actual live closure stage receipt differs');
     return freeze({ source, proposal, status: row.status as 'QUEUED' | 'OFFICIAL_APPLIED', officialApplied: applied, result });
   },
@@ -123,9 +196,9 @@ export const actualLiveClosureApplicationRows = (db: ActualAdjudicationDb, appli
   const columns = new Set(db.prepare('PRAGMA table_info(actual_live_play_closures)').all().map(r => r.name));
   const aliases = [columns.has('source_json') ? metadataId('source_json', ['applicationId'], '$id') : '0',
     ...(columns.has('proposal_json') ? [['source', 'applicationId'], ['application', 'applicationId'],
-      ['expectedOfficial', 'receipt', 'applicationId'], ['expectedOfficial', 'activation', 'applicationId']]
+      ['expectedOfficial', 'receipt', 'applicationId'], ['expectedOfficial', 'activation', 'applicationId'], ['expectedOfficial', 'result', 'applicationId']]
       .map(path => metadataId('proposal_json', path, '$id')) : []),
-    ...(columns.has('result_json') ? [['official', 'receipt', 'applicationId'], ['official', 'activation', 'applicationId']]
+    ...(columns.has('result_json') ? [['official', 'receipt', 'applicationId'], ['official', 'activation', 'applicationId'], ['official', 'result', 'applicationId']]
       .map(path => metadataId('result_json', path, '$id')) : [])];
   const rows = db.prepare(`SELECT * FROM actual_live_play_closures WHERE application_id=$id OR ${aliases.join(' OR ')}`).all({ id: applicationId });
   if (rows.length > 1 || rows.length === 1 && rows[0].application_id !== applicationId) throw new Error('prior actual live closure ownership differs');

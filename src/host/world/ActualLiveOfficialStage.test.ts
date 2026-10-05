@@ -8,11 +8,12 @@ import { actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceA
 const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
 // This small fixture tests only the existing-writer stage guard, not physical/adjudication ownership.
 const p = { source: { sourceId: 'closure' }, application: { applicationId: 'apply', matchId: 'game' },
-  expectedOfficial: { receipt: { durableRevision: 1 }, activation: { nextMatchState: { playId: 2 } }, nextWorld: { tick: 2 } } } as unknown as ActualLivePlayClosureProposal;
+  expectedOfficial: { receipt: { durableRevision: 1, appliedMatchState: { playId: 2 } }, activation: { nextMatchState: { playId: 2 } }, nextWorld: { tick: 2 } } } as unknown as ActualLivePlayClosureProposal;
 const fixture = () => {
   const path = join(mkdtempSync(join(tmpdir(), 'actual-official-stage-')), 'state.sqlite'), db = new DatabaseSync(path);
   db.exec(`PRAGMA journal_mode=WAL; CREATE TABLE applications(application_id TEXT,match_id TEXT,closure_id TEXT,request_hash TEXT,result_json TEXT);
     CREATE TABLE matches(match_id TEXT,durable_revision INTEGER,state_json TEXT,activation_json TEXT);`);
+  if (!('activation' in p.expectedOfficial)) throw new Error('fixture requires next activation');
   db.prepare('INSERT INTO applications VALUES(?,?,?,?,?)').run('apply', 'game', 'closure', hash(p.application), json(p.expectedOfficial));
   db.prepare('INSERT INTO matches VALUES(?,?,?,?)').run('game', 1, json(p.expectedOfficial.activation.nextMatchState),
     json({ activation: p.expectedOfficial.activation, nextWorld: p.expectedOfficial.nextWorld }));
