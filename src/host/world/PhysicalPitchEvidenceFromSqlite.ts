@@ -1,3 +1,4 @@
+import { originalBattingIntentInput } from './OriginalBattingIntent';
 import { derivePrePitchRunnerExecution } from './PrePitchRunnerEvidenceFromSqlite';
 import { prePitchRunnerExecutionInput } from './PrePitchRunnerExecution';
 import { createHash } from 'node:crypto';
@@ -84,7 +85,7 @@ export const capturePhysicalPitchEvidence = (db: Pick<DatabaseSync, 'prepare'>,
 
 export const physicalPitchActionInput = (raw: AcceptedPhysicalPitchActionSource, sourceId: string): AcceptedPhysicalPitchActionSource => {
   const source = cloneInert(raw), initial = source && 'initialWorldSourceId' in source;
-  if (!source || !fields(source, ['sourceId', 'sourceVersion', 'gameId', 'request', 'effortPolicy', initial ? 'initialWorldSourceId' : 'activationApplicationId', ...('prePitchRunner' in source ? ['prePitchRunner'] : [])])
+  if (!source || !fields(source, ['sourceId', 'sourceVersion', 'gameId', 'request', 'effortPolicy', initial ? 'initialWorldSourceId' : 'activationApplicationId', ...('prePitchRunner' in source ? ['prePitchRunner'] : []), ...('battingIntent' in source ? ['battingIntent'] : [])])
     || source.sourceId !== sourceId || !id(sourceId) || !id(source.sourceVersion) || !id(source.gameId)
     || !id(initial ? source.initialWorldSourceId : source.activationApplicationId)
     || !source.request || !fields(source.request, ['delivery', 'flight', 'batter', 'workloadRevision', 'policySourceId'])
@@ -97,6 +98,10 @@ export const physicalPitchActionInput = (raw: AcceptedPhysicalPitchActionSource,
     throw new Error('invalid accepted physical pitch action Source');
   }
   if ('prePitchRunner' in source) prePitchRunnerExecutionInput(source.prePitchRunner!);
+  if ('battingIntent' in source) {
+    originalBattingIntentInput(source.battingIntent!);
+    if (source.request.batter.action.kind !== 'swing') throw new Error('original batting intent requires a swing action');
+  }
   return source;
 };
 
@@ -116,6 +121,12 @@ export const assertPhysicalPitchOriginalEvidence = (db: PhysicalPitchDb, frame: 
 
 export const executePhysicalPitchAction = (source: AcceptedPhysicalPitchActionSource, frame: Frame, beforeTimeline: CanonicalPlateAppearanceTimeline,
   progressRevision: number): DurablePhysicalPitch => {
+  if ('battingIntent' in source) {
+    const intent = originalBattingIntentInput(source.battingIntent!);
+    if (!frame.batterActor || intent.actorSourceId !== frame.batterActor.source.sourceId || source.request.batter.action.kind !== 'swing') {
+      throw new Error('original batting intent actor or action differs');
+    }
+  }
   if (json(source.prePitchRunner ?? null) !== json(frame.prePitchRunner?.source ?? null)) throw new Error('physical pitch original runner Source differs');
   if (source.gameId !== frame.gameId || json(source.effortPolicy) !== json(frame.effortPolicy) || source.request.workloadRevision !== frame.workload.revision
     || source.request.policySourceId !== frame.policy.sourceId || source.request.delivery.careerId !== frame.workload.careerId
