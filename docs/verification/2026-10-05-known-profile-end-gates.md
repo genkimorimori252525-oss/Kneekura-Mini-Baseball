@@ -2,7 +2,7 @@
 
 These two opt-in tests preserve the next verification steps after the successful
 `npb-2026` construction in Draft #304. They change no production implementation.
-The fresh tail has now passed. Fresh end acceptance remains a separate running gate.
+Both the fresh tail and the separate physical-end acceptance gate have now passed.
 
 `ActualKnownProfilePreEndArtifact.test.ts` continues a closed original construction
 through the second defender's genuine future decision, rule consumption, delayed
@@ -44,10 +44,23 @@ The legacy unregistered-profile fixture and its prior evidence are not relabeled
   SHA-256 `64fc22bf43b656492aad85b6a8042e3862bd4fcf8132482cceca5f6109e8dc71`;
   raw input-manifest SHA-256
   `d7d2e1bf7783fb7a92e18cfeb7d63f4f730eda8c4ee8a6e34119596ea42a3dec`
-- The fresh end gate started at 07:24:57 UTC on a disposable copy. Its new
-  seal-INSERT rollback witness completed at 07:28:33 UTC, with original rows
-  restored. Clean acceptance/reopen/retry is still running; there is no fresh
-  whole end, official, workload or next-pitch PASS yet
+- The fresh end gate passed **2/2 actual Native tests, zero skips and exit 0**,
+  in 716.72 seconds. It witnessed a real seal INSERT rollback, cleanly accepted
+  the end/seal, closed and reopened every owner, and verified identical retry.
+  All source/control/runtime/configuration/input/witness hashes stayed unchanged;
+  all processes were reaped. Actual heaps were 1,120 MiB; aggregate peak RSS was
+  516,668 KiB. Raw terminal SHA-256:
+  `02531e471eb2130a800c76e44e1e5f6d6daa108049c5ceb25357cc1b4c4eaa0a`
+- The [closed ended fixture](fixtures/README.md#fresh-registered-profile-ended-fixture)
+  has 72 tables / 145 rows, one end and seal, no test trigger and WAL 0. Its 70
+  nonterminal tables are unchanged from the pre-end input. Database SHA-256:
+  `585ab7862ab93991e97cd5032ba8d520e113635559aa0019b5dd9bd43257a04a`.
+  Fresh seal-witness SHA-256:
+  `85598590eba3406950a8dfbc11a5bb35741125396d1d11ab61f543c520fb2f76`
+- Official-only integration started separately on fixed `6eb9dd6` at 07:48 UTC
+  after compiler, 355 producer controls, helper import, actual 15-file byte
+  admission and supervisor smoke checks. Its terminal result remains pending;
+  physical-end success is not official/workload/next-pitch success
 
 The existing Source-specific results and remaining scope are recorded in the
 [continuation checkpoint](../project-status/2026-10-04-nonvisual-continuation-checkpoint.md).

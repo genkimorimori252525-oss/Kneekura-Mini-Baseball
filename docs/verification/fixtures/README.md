@@ -37,3 +37,21 @@ Before publication, every stored text cell and schema statement was checked for
 credential, email and private-filesystem markers; none were found. SQLite
 integrity and exact gzip/base64 round-trip were verified. This remains a bounded
 fictional-player test fixture, not an application or personal-data database dump.
+
+## Fresh registered-profile ended fixture
+
+`first-base-known-profile-ended-56d96a.sqlite.gz.b64` preserves the same new
+`npb-2026` lineage after the successful real end gate: **2/2 Native tests, zero
+skips, exit 0**, in 716.72 seconds. The real seal INSERT fault was witnessed and
+rolled back before clean acceptance, full close/reopen and identical retry.
+All 70 nonterminal tables match the preceding fixture; only end/seal rows were
+added. This closed export has 72 tables / 145 rows, one end, one seal, no test
+trigger and WAL 0. It is not an official application, workload or next-pitch proof.
+
+The deterministic gzip is 175,610 bytes. Decompression must yield SHA-256
+`585ab7862ab93991e97cd5032ba8d520e113635559aa0019b5dd9bd43257a04a`.
+Every text cell and schema statement was scanned with no credential, email or
+private-path marker findings; integrity and exact round-trip were checked. Its
+manifest is an explicitly labeled publication projection, not a raw producer
+receipt. Revalidate original owners on a new copy before any downstream claim.
+The earlier fixture and all older lineages remain unchanged.
