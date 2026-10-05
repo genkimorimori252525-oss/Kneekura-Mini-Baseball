@@ -8,6 +8,7 @@ import { capturePhysicalPitchEvidence, physicalPitchActionInput as actionInput, 
 import { assertPriorPhysicalClosureCompleted } from './PhysicalPlayClosureEvidenceFromSqlite';
 export { capturePhysicalPitchEvidence } from './PhysicalPitchEvidenceFromSqlite';
 import { createRequire } from 'node:module';
+import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { createCanonicalPlateAppearanceTimeline, type CanonicalPlateAppearanceTimeline } from '../../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
@@ -87,10 +88,22 @@ export const openSqlitePhysicalPitchProgressStore = (databasePath: string, sourc
   const bySource = db.prepare('SELECT * FROM physical_pitch_progress_actions WHERE source_id=?');
   let closed = false;
   const check = (...ids: string[]) => { if (closed || ids.some((value) => !id(value))) throw new Error('invalid or closed physical pitch scope'); };
-  const evidence = (frame: EvidenceScope, mutable = false): Record<string, readonly string[]> => {
-    return capturePhysicalPitchEvidence(db, frame, mutable);
+  // Keep peer runtime callbacks between fresh private read snapshots. A single
+  // transaction around frameInput would hide their changes from its row audit.
+  const reading = <T>(work: () => T): T => {
+    if (db.isTransaction) return work();
+    db.exec('BEGIN');
+    try { const value = withBattedWorldPhysicalReadTraversal(db, work); db.exec('COMMIT'); return value; }
+    catch (error) {
+      if (db.isTransaction) try { db.exec('ROLLBACK'); }
+      catch (cleanup) { throw new AggregateError([error, cleanup], 'physical pitch private read rollback failed', { cause: error }); }
+      throw error;
+    }
   };
-  const openFrame = (frame: Omit<Frame, 'immutableEvidence'>): void => {
+  const evidence = (frame: EvidenceScope, mutable = false): Record<string, readonly string[]> => {
+    return reading(() => capturePhysicalPitchEvidence(db, frame, mutable));
+  };
+  const openFrame = (frame: Omit<Frame, 'immutableEvidence'>): void => reading(() => {
     assertPriorPhysicalClosureCompleted(db, frame.activationApplicationId);
     const actualBatter = readPhysicalActorForPlayFromSqlite(db, frame.gameId, frame.match.playId);
     if (json(actualBatter ?? null) !== json(frame.batterActor ?? null)) throw new Error('physical batter ownership changed during frame reads');
@@ -104,9 +117,9 @@ export const openSqlitePhysicalPitchProgressStore = (databasePath: string, sourc
       || !workload || workload.revision !== frame.workload.revision || json(JSON.parse(workload.state_json)) !== json(frame.workload)) {
       throw new Error('physical pitch Match or workload advanced during open play');
     }
-  };
+  });
   const frameInput = (source: AcceptedPhysicalPitchActionSource): Frame => {
-    assertPriorPhysicalClosureCompleted(db, 'activationApplicationId' in source ? source.activationApplicationId : null);
+    reading(() => assertPriorPhysicalClosureCompleted(db, 'activationApplicationId' in source ? source.activationApplicationId : null));
     const current = cloneInert(sources.matches.getMatch(source.gameId));
     if (!current || current.finalResult) throw new Error('physical pitch Match is missing or final');
     const initialWorld = 'initialWorldSourceId' in source ? cloneInert(sources.initialWorlds.readAcceptedSource(source.initialWorldSourceId)) : null;
@@ -123,7 +136,7 @@ export const openSqlitePhysicalPitchProgressStore = (databasePath: string, sourc
         || json(result.nextWorld) !== json(current.nextWorld)) throw new Error('actual activation World differs');
       world = current.nextWorld;
     }
-    const batterActor = readPhysicalActorForPlayFromSqlite(db, source.gameId, current.matchState.playId);
+    const batterActor = reading(() => readPhysicalActorForPlayFromSqlite(db, source.gameId, current.matchState.playId));
     if (batterActor && (json(batterActor.match) !== json(current.matchState) || json(batterActor.world) !== json(world)
       || batterActor.officialRevision !== current.durableRevision)) throw new Error('physical batter current execution frame differs');
     const bindings = world.defenders.map((defender) => {
@@ -159,7 +172,7 @@ export const openSqlitePhysicalPitchProgressStore = (databasePath: string, sourc
     if (json(evidence(frame, true)) !== json(beforeReads)) throw new Error('physical pitch Source evidence changed during frame reads');
     return freeze({ ...frame, immutableEvidence: evidence(frame) });
   };
-  const history = (gameId: string, playId: number) => readPhysicalPitchProgressFromSqlite(db, gameId, playId);
+  const history = (gameId: string, playId: number) => reading(() => readPhysicalPitchProgressFromSqlite(db, gameId, playId));
   return Object.freeze({
     accept(sourceId, expectedProgressRevision): DurablePhysicalPitch {
       check(sourceId); if (!integer(expectedProgressRevision)) throw new Error('invalid physical pitch progress revision');

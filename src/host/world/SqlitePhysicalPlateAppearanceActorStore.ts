@@ -1,5 +1,6 @@
 import { beginActualLivePlayWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
+import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import type { SqliteOfficialStateStore } from '../SqliteOfficialStateStore';
 import type { SqliteOfficialInitialWorldStore } from './SqliteOfficialInitialWorldStore';
 import type { SqliteOfficialParticipationStore } from './SqliteOfficialParticipationStore';
@@ -33,7 +34,19 @@ export const openSqlitePhysicalPlateAppearanceActorStore = (path: string, source
       snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(game_id,play_id));`);
   let closed = false;
   const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed physical batter scope'); };
-  const read = (sourceId: string) => { check(sourceId); return readPhysicalPlateAppearanceActorFromSqlite(db, sourceId); };
+  // Own only a private read snapshot. Existing writer transactions retain all
+  // ownership, and peer callbacks are invoked after this bracket has ended.
+  const reading = <T>(work: () => T): T => {
+    if (db.isTransaction) return work();
+    db.exec('BEGIN');
+    try { const value = withBattedWorldPhysicalReadTraversal(db, work); db.exec('COMMIT'); return value; }
+    catch (error) {
+      if (db.isTransaction) try { db.exec('ROLLBACK'); }
+      catch (cleanup) { throw new AggregateError([error, cleanup], 'physical actor private read rollback failed', { cause: error }); }
+      throw error;
+    }
+  };
+  const read = (sourceId: string) => { check(sourceId); return reading(() => readPhysicalPlateAppearanceActorFromSqlite(db, sourceId)); };
   const notStarted = (actor: DurablePhysicalPlateAppearanceActor) => {
     for (const table of ['physical_pitch_progress_heads', 'physical_pitch_progress_actions']) {
       if (db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(table)
@@ -52,9 +65,11 @@ export const openSqlitePhysicalPlateAppearanceActorStore = (path: string, source
         return original;
       }
       if (!source) throw new Error('accepted physical batter Source is missing');
-      assertPriorPhysicalClosureCompleted(db, 'activationApplicationId' in source ? source.activationApplicationId : null);
-      const actor = derivePhysicalPlateAppearanceActor(db, source);
-      assertPhysicalActorOpenFrame(db, actor); notStarted(actor);
+      const actor = reading(() => {
+        assertPriorPhysicalClosureCompleted(db, 'activationApplicationId' in source ? source.activationApplicationId : null);
+        const value = derivePhysicalPlateAppearanceActor(db, source);
+        assertPhysicalActorOpenFrame(db, value); notStarted(value); return value;
+      });
       const current = sources.matches.getMatch(source.gameId), binding = sources.participation.readPregameBinding(source.gameId, source.playerId);
       if (!current || current.finalResult || current.durableRevision !== actor.officialRevision || json(current.matchState) !== json(actor.match)
         || json(binding) !== json(actor.binding) || 'initialWorldSourceId' in source

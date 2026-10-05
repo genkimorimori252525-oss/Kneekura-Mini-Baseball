@@ -48,6 +48,7 @@ export const verifySource = (manifestPath, expectedSha256, expectedRoot, expecte
     'inherited-official-evidence.mjs', 'inherited-official-files.mjs', 'inherited-role-evidence.mjs', 'inherited-role-files.mjs',
     'official-read-replay.mjs', 'official-read-replay-helper.ts', 'official-read-replay-evidence.mjs', 'replay_scope_contract.py', 'run-official-read-replay.py',
     'admit-official-read-replay-only.mjs', 'official-read-replay-files.mjs', 'role-input-preflight.ts', 'run-role-stage.py', 'admit-role-only.mjs',
+    'next-input-preflight.ts', 'run-next-stage.py', 'admit-next-only.mjs', 'role-read-replay.mjs', 'role-read-replay-evidence.mjs', 'role-read-replay-files.mjs', 'role-read-replay-helper.ts', 'admit-role-read-replay-only.mjs', 'run-role-read-replay.py',
     'runtime-probe.cjs', 'run-pipeline.sh', 'supervise-pipeline.py', 'pipeline-scope.mjs', 'scope_contract.py', 'vite.config.mjs']) {
     assert(tracked.has(`tools/verification/actual-live-pipeline/${name}`), 'the executed wrapper must be committed with the Source cut');
   }

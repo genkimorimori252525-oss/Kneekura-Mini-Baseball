@@ -1,3 +1,5 @@
+import { createRequire } from 'node:module';
+import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { resolveOfficialGameProgression } from '../../core/world/competition/OfficialGameCompletion';
 import { actualLivePlayClosureInput } from './ActualLivePlayClosureSource';
 import { actualLivePlayClosureEvidenceFromSqlite } from './ActualLivePlayClosureEvidenceFromSqlite';
@@ -10,8 +12,9 @@ import { actorHash as hash, actorFreeze as freeze, actorJson as json } from './P
  * scoring is retained and is never used as a substitute workload/setup authority. */
 export const actualLivePlayReadinessFromSqlite = (db: ActualAdjudicationDb) => {
   const read = (closureSourceId: string, currentHeads: boolean) => {
-    const closure = actualLivePlayClosureEvidenceFromSqlite(db).read(closureSourceId);
-    if (!closure) throw new Error('actual live readiness closure is missing');
+    const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+    const transactional = db instanceof DatabaseSync && db.isTransaction;
+    const beforeSettlement = (closure: NonNullable<ReturnType<ReturnType<typeof actualLivePlayClosureEvidenceFromSqlite>['read']>>) => {
     if (!closure.officialApplied || !closure.result) return freeze({ kind: 'pending' as const, reason: 'official_application_pending' as const, closureSourceId });
     const p = closure.proposal;
     // An old accepted activation can remain readable without authorizing a new
@@ -31,7 +34,19 @@ export const actualLivePlayReadinessFromSqlite = (db: ActualAdjudicationDb) => {
       const progression = resolveOfficialGameProgression({ ...game, gameId: p.gameId, priorMatch: before, application: p.expectedOfficial.receipt });
       if (progression.kind !== 'GAME_CONTINUES') return freeze({ kind: 'pending' as const, reason: 'game_final_scoring_pending' as const, closureSourceId });
     }
-    const settlement = actualRoleWorkloadEvidenceFromSqlite(db).readSettlement(closureSourceId);
+    return null;
+    };
+    const execute = () => {
+    const roles = actualRoleWorkloadEvidenceFromSqlite(db), gated = { pending: null as ReturnType<typeof beforeSettlement> };
+    const pair = transactional ? roles.readWithClosure(closureSourceId, closure => {
+      gated.pending = beforeSettlement(closure); return gated.pending === null;
+    }) : null;
+    const closure = pair ? pair.closure : actualLivePlayClosureEvidenceFromSqlite(db).read(closureSourceId);
+    if (!closure) throw new Error('actual live readiness closure is missing');
+    const pending = pair ? gated.pending : beforeSettlement(closure);
+    if (pending) return pending;
+    const p = closure.proposal;
+    const settlement = pair ? pair.settlement! : roles.readSettlement(closureSourceId);
     if (settlement.kind !== 'complete') return 'result' in p.expectedOfficial
       ? freeze({ kind: 'game_final' as const, reason: 'game_final' as const, closureSourceId, closure, settlement })
       : freeze({ kind: 'pending' as const, reason: 'actual_role_workload_pending' as const, closureSourceId, settlement });
@@ -53,6 +68,8 @@ export const actualLivePlayReadinessFromSqlite = (db: ActualAdjudicationDb) => {
       gameId: p.gameId, previousPlayId: p.playId, closureProposalHash: hash(p), settlementHash: hash(settlement),
       controllerResetHash: hash(p.controllerReset), physicalEndReference: p.physicalEndReference, wholeHistoryReference: p.wholeHistoryReference };
     return freeze({ kind: 'ready' as const, closure, settlement, reference });
+    };
+    return transactional ? withBattedWorldPhysicalReadTraversal(db, execute) : execute();
   };
   return { read: (sourceId: string) => read(sourceId, true), readHistorical: (sourceId: string) => read(sourceId, false) };
 };

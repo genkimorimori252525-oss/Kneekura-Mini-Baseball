@@ -1,7 +1,8 @@
 import { createHash } from 'node:crypto';
 import { posix } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
-import { assertInheritedOfficialEvidence, assertInheritedSourceContinuity } from './inherited-official-evidence.mjs';
+import { assertInheritedOfficialEvidence, assertOriginalOfficialStageProvenance, assertInheritedSourceContinuity } from './inherited-official-evidence.mjs';
+import { assertOfficialReadReplayEvidence } from './official-read-replay-evidence.mjs';
 
 const record = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const id = value => typeof value === 'string' && value.length > 0 && value === value.trim();
@@ -135,12 +136,11 @@ const settlementEvidence = (receipt, official) => {
 
 /** Pure JSON admission, with no domain imports or SQLite access. The previously
  * completed official proof is authenticated as inherited evidence, never rerun. */
-export const assertInheritedRoleEvidence = bundle => {
+const assertRoleEvidence = (bundle, assertOfficialEvidence) => {
   check(record(bundle), 'bundle');
   const { config, producerReference, officialEvidence, roleHandoff: handoff, roleReceipt: receipt, stageTerminal: stage,
-    supervisorTerminal: supervisor, outerTerminal: outer, priorConfig, priorSourceManifest, currentSourceManifest, observed } = bundle;
-  check(record(config) && config.executionScope === 'next' && config.executeNextPitch === true && config.faultChecks === true
-    && record(observed), 'next continuation configuration');
+    supervisorTerminal: supervisor, outerTerminal: outer, priorConfig, priorSourceManifest, observed } = bundle;
+  check(record(config) && record(observed), 'next continuation configuration');
   const inherited = config.inheritedRole;
   check(record(inherited) && inherited.kind === 'checked_role_stage_v1' && absolute(inherited.sourceRoot)
     && commit(inherited.sourceCommit) && hash(inherited.sourceManifestSha256), 'inherited role binding');
@@ -167,7 +167,7 @@ export const assertInheritedRoleEvidence = bundle => {
   for (const [name, value] of Object.entries({ handoff, receipt, stage, supervisor, outer, priorConfig })) raw(value, name);
   check(priorConfig.schema === 'actual_artifact_pipeline_run_v2' && priorConfig.executionScope === 'role'
     && priorConfig.faultChecks === true && priorConfig.executeNextPitch === true, 'original role configuration');
-  assertInheritedOfficialEvidence(officialEvidence);
+  assertOfficialEvidence(officialEvidence);
   same(officialEvidence.config, priorConfig, 'official admission role configuration');
   same(officialEvidence.currentSourceManifest, priorSourceManifest, 'official admission role Source manifest');
   same(officialEvidence.producerReference, producerReference, 'independently admitted producer');
@@ -179,7 +179,6 @@ export const assertInheritedRoleEvidence = bundle => {
   same(stage.inheritedStageReceipts, inheritedReceipts, 'stage inherited official receipt');
   same(handoff.inheritedStageReceipts, inheritedReceipts, 'handoff inherited official receipt');
 
-  assertInheritedSourceContinuity(priorSourceManifest, currentSourceManifest, config);
   const identity = receipt.sourceIdentity;
   check(record(identity), 'role Source identity');
   for (const field of ['sourceRoot', 'sourceCommit', 'sourceManifestSha256']) {
@@ -267,4 +266,48 @@ export const assertInheritedRoleEvidence = bundle => {
   check(record(outer.references), 'outer references');
   for (const [name, role] of [['role-handoff.json', 'handoff'], ['terminal.json', 'stageTerminal'], ['process-terminal.json', 'supervisorTerminal']])
     boundPin(outer.references[name], files[role], `outer ${name}`);
+};
+
+const nextConfiguration = bundle => {
+  check(record(bundle), 'bundle');
+  check(record(bundle.config) && bundle.config.executionScope === 'next' && bundle.config.executeNextPitch === true
+    && bundle.config.faultChecks === true && record(bundle.observed), 'next continuation configuration');
+};
+export const assertInheritedRoleEvidence = bundle => {
+  nextConfiguration(bundle); assertRoleEvidence(bundle, assertInheritedOfficialEvidence);
+  assertInheritedSourceContinuity(bundle.priorSourceManifest, bundle.currentSourceManifest, bundle.config);
+};
+
+/** Original role/official/replay provenance only, not continuation admission.
+ * Each caller must independently enforce its own current Source route. */
+export const assertReplayedRoleStageProvenance = bundle => {
+  check(record(bundle) && record(bundle.readReplayEvidence), 'replay evidence');
+  const replay = bundle.readReplayEvidence;
+  assertOfficialReadReplayEvidence(replay);
+  same(replay.config, bundle.priorConfig, 'replay role configuration');
+  same(replay.currentSourceManifest, bundle.priorSourceManifest, 'replay role Source manifest');
+  same(replay.officialEvidence, bundle.officialEvidence, 'replay original official evidence');
+  const expected = { binding: bundle.priorConfig.officialReadReplay, sourceTransition: bundle.priorConfig.sourceTransition,
+    expectedObservationSha256: bundle.priorConfig.expectedObservationSha256 ?? null };
+  same({ binding: bundle.config.officialReadReplay, sourceTransition: bundle.config.sourceTransition,
+    expectedObservationSha256: bundle.config.expectedObservationSha256 ?? null }, expected, 'current replay binding');
+  for (const [name, value] of Object.entries({ receipt: bundle.roleReceipt, stage: bundle.stageTerminal,
+    handoff: bundle.roleHandoff, supervisor: bundle.supervisorTerminal?.sourceInputAndReceiptAudit }))
+    same(value?.inheritedReadReplay, expected, `${name} replay binding`);
+  assertRoleEvidence(bundle, assertOriginalOfficialStageProvenance);
+  const settlement = bundle.roleReceipt.settlement, observation = replay.receipt.passes[0].observation;
+  same(settlement.closureProposalHash, observation.closureProposalHash, 'replayed closure proposal');
+  const originalActors = observation.participantReferences;
+  for (const field of ['careerId', 'gameId', 'playId', 'gameDay'])
+    check(originalActors.every(actor => actor[field] === settlement[field]), `replayed original ${field}`);
+  same(settlement.participants.map(({ playerId, personId, clubId }) => ({ playerId, personId, clubId })),
+    originalActors.map(({ playerId, personId, clubId }) => ({ playerId, personId, clubId })), 'replayed original actors');
+  same(bundle.roleReceipt.acceptedInputManifest.assessments.map(value => value.participantReference),
+    originalActors.map(({ playerId, bindingHash, personHash }) => ({ playerId, bindingHash, personHash })), 'replayed assessment actors');
+};
+
+/** Ordinary next admission always retains exact role-to-next production bytes. */
+export const assertReplayedRoleEvidence = bundle => {
+  nextConfiguration(bundle); assertReplayedRoleStageProvenance(bundle);
+  assertInheritedSourceContinuity(bundle.priorSourceManifest, bundle.currentSourceManifest, bundle.config);
 };

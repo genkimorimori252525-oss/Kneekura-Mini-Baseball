@@ -19,3 +19,23 @@ def validate_official_read_replay_terminal(terminal, receipts, inherited_receipt
     assert terminal.get('inheritedStageReceipts')==inherited_receipts, 'original official proof differs from supervisor audit'
     assert terminal.get('openSqliteHandles')==[], 'replay artifact handles remain open'
     return 'read_replay_passed'
+
+
+def validate_role_read_replay_terminal(terminal, receipts, inherited_receipts):
+    assert isinstance(terminal,dict), 'replay terminal missing'
+    assert terminal.get('status')=='read_replay_passed' and terminal.get('executionScope')=='role_read_replay', 'replay scope/status differs'
+    assert terminal.get('wholePipelinePassed') is False, 'read replay cannot claim the whole pipeline'
+    assert terminal.get('remainingStages')==['next'] and terminal.get('inheritedStages')==['official','role'], 'replay stage labels differ'
+    expected_counts=dict(officialStarted=0,officialCompleted=0,roleStarted=0,roleCompleted=0,nextStarted=0,nextCompleted=0)
+    counts=terminal.get('counts')
+    assert isinstance(counts,dict) and counts==expected_counts and all(type(value) is int for value in counts.values()), 'read replay executed a domain helper'
+    expected_reads=dict(readOnlyConnections=2,readTransactions=2,settlementReads=2,currentHeadReads=20,
+        officialHelperCalls=0,roleHelperCalls=0,nextHelperCalls=0,newOfficialApplications=0,newWorkloadActivities=0,newPhysicalPitchActions=0)
+    executed=terminal.get('executed')
+    assert isinstance(executed,dict) and executed==expected_reads and all(type(value) is int for value in executed.values()), 'actual replay operations differ'
+    assert isinstance(receipts,list) and len(receipts)==1 and isinstance(receipts[0],dict) and receipts[0].get('stage')=='role-read-replay', 'audited replay receipt missing'
+    assert terminal.get('phaseReceipts')==receipts, 'replay receipt differs from supervisor audit'
+    assert isinstance(inherited_receipts,list) and len(inherited_receipts)==2 and all(isinstance(value,dict) for value in inherited_receipts) and [value.get('stage') for value in inherited_receipts]==['01-official','02-role-workload'], 'audited original official proof missing'
+    assert terminal.get('inheritedStageReceipts')==inherited_receipts, 'original official proof differs from supervisor audit'
+    assert terminal.get('openSqliteHandles')==[], 'replay artifact handles remain open'
+    return 'read_replay_passed'

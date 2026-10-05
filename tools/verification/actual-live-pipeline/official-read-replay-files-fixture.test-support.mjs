@@ -13,12 +13,15 @@ export const CONTROLS = { launcher: 'tools/verification/actual-live-pipeline/run
   runtimeProbe: 'tools/verification/actual-live-pipeline/runtime-probe.cjs', replayRunner: 'tools/verification/actual-live-pipeline/official-read-replay.mjs' };
 export const fields = { receipt: 'receipt', stageTerminal: 'stageTerminal', supervisorTerminal: 'supervisorTerminal',
   outerTerminal: 'outerTerminal', configuration: 'replayConfig', sourceManifest: 'replaySourceManifest' };
-export const replayInputs = () => {
+export const replayInputs = (extraSourceFiles = []) => {
   const x = storage(), proof = fixture(), official = proof.officialEvidence, files = proof.config.officialReadReplay.files;
   for (const path of Object.values(CONTROLS)) proof.replaySourceManifest.files.push({path,sha256:'0'.repeat(64)});
   proof.currentSourceManifest = {...clone(proof.replaySourceManifest),sourceRoot:'/fixed/consumer',sourceCommit:'3'.repeat(40),sourceTree:'4'.repeat(40)};
   for (const manifest of [official.priorSourceManifest, proof.replaySourceManifest, proof.currentSourceManifest]) {
-    x.source(manifest); const bytes=manifest===official.priorSourceManifest?before:after;
+    for (const row of extraSourceFiles) { assert(!manifest.files.some(value => value.path === row.path)); manifest.files.push({ path: row.path, sha256: hash(row.bytes) }); }
+    x.source(manifest);
+    for (const row of extraSourceFiles) { x.bytes.set(`${manifest.sourceRoot}/${row.path}`, row.bytes); manifest.files.find(value => value.path === row.path).sha256 = hash(row.bytes); }
+    const bytes=manifest===official.priorSourceManifest?before:after;
     x.bytes.set(`${manifest.sourceRoot}/${OWNER}`,bytes);manifest.files.find(row=>row.path===OWNER).sha256=hash(bytes);
   }
   x.pinBytes(official.config.inheritedOfficial.files.artifact,Buffer.from('invented original official artifact, not SQLite\n'));

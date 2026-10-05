@@ -1,4 +1,6 @@
 import type { DatabaseSync } from 'node:sqlite';
+import { createRequire } from 'node:module';
+import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { actualLivePlayClosureEvidenceFromSqlite, assertActualLiveClosureStage } from './ActualLivePlayClosureEvidenceFromSqlite';
 import { actualRoleWorkloadAssessmentInput as input, deriveActualRoleWorkloadActivity, type AcceptedActualRoleWorkloadAssessment } from './ActualRoleWorkloadAssessment';
 import { prepareActualRoleWorkloadSettlement } from './ActualRoleWorkloadSettlementPlan';
@@ -62,9 +64,9 @@ export const prepareActualRoleWorkloadPlan=(db:Db,c:ActualRoleWorkloadContext)=>
 };
 export type ActualRoleFrozenWorkloadPlan=Extract<ReturnType<typeof prepareActualRoleWorkloadPlan>,{kind:'frozen'}>;
 /** Complete means every required immutable state effect exists. There is no fatigue threshold. */
-export const actualRoleWorkloadEvidenceFromSqlite=(db:Db)=>({
-  readSettlement(closureSourceId:string){
-    const c=actualRoleWorkloadContextFromSqlite(db,closureSourceId);
+export const actualRoleWorkloadEvidenceFromSqlite=(db:Db)=>{
+  const settlementFromContext=(c:ActualRoleWorkloadContext)=>{
+    const closureSourceId=c.reference.closureSourceId;
     const row=installed(db,'actual_role_workload_settlements') ? identity(db,'actual_role_workload_settlements',closureSourceId):null;
     if(!row){
       const pending=prepareActualRoleWorkloadPlan(db,c);
@@ -99,5 +101,21 @@ export const actualRoleWorkloadEvidenceFromSqlite=(db:Db)=>({
       return {...p,applied:!!a};
     });
     return freeze({...plan,kind:participants.every(p=>p.applied)?'complete' as const:'applying' as const,participants});
-  }
-});
+  };
+  const readSettlement=(closureSourceId:string)=>settlementFromContext(actualRoleWorkloadContextFromSqlite(db,closureSourceId));
+  return {readSettlement,
+    // The context is produced here, consumed synchronously, and never accepted
+    // from a caller. Outside a real active transaction keep both fresh reads.
+    readWithClosure(closureSourceId:string,gate:(closure:ActualRoleWorkloadContext['closure'])=>boolean){
+      const {DatabaseSync}=createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+      const transactional=db instanceof DatabaseSync && db.isTransaction;
+      const read=()=>{
+        const c=actualRoleWorkloadContextFromSqlite(db,closureSourceId),proceed=gate(c.closure);
+        if(typeof proceed!=='boolean')throw new Error('readiness gate must return a synchronous boolean');
+        return Object.freeze({closure:c.closure,settlement:proceed
+          ? transactional?settlementFromContext(c):readSettlement(closureSourceId):null});
+      };
+      return transactional?withBattedWorldPhysicalReadTraversal(db,read):read();
+    },
+  };
+};
