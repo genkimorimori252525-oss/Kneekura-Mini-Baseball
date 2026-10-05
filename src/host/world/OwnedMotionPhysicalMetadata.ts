@@ -1,3 +1,4 @@
+import { sqliteMetadataGet, sqliteMetadataAll } from './SqliteMetadataStatementScope';
 import { sqliteJsonMetadataNodes as nodes, sqliteJsonMetadataProjection as projection, sqliteJsonMetadataMatches as matches,
   type SqliteJsonMetadataPath } from './SqliteOwnershipMetadata';
 import type { DefensiveDb } from './ActualDefensiveContext';
@@ -7,23 +8,23 @@ type Row = Readonly<{ source_id: string; physical_pitch_source_id: string; base_
 const id = (v: unknown): v is string => typeof v === 'string' && v.length > 0 && v === v.trim();
 /** Ownership metadata only; opaque future domain payload remains outside the requested replay. */
 export const assertOwnedMotionPhysicalMetadata = (db: DefensiveDb, row: Row, prefix: readonly Row[]) => {
-  const valid = (document: string) => !!db.prepare('SELECT json_valid(?) AS valid').get(document)!.valid;
+  const valid = (document: string) => !!sqliteMetadataGet(db, 'SELECT json_valid(?) AS valid', document)!.valid;
   const sourceIdentity = (r: Row) => ({ sourceId: r.source_id, baseFieldSourceId: r.base_field_source_id, previousExecutionSourceId: r.previous_source_id });
   const object = (document: string, path: SqliteJsonMetadataPath, expected: Record<string, string | number | null>) => {
-    const values = db.prepare(`SELECT n.type,CASE WHEN n.type='object' THEN ${projection('n.value', Object.keys(expected))} END AS metadata
-      FROM (${nodes('$document', path)}) n`).all({ document });
+    const values = sqliteMetadataAll(db, `SELECT n.type,CASE WHEN n.type='object' THEN ${projection('n.value', Object.keys(expected))} END AS metadata
+      FROM (${nodes('$document', path)}) n`, document);
     if (values.length !== 1 || values[0].type !== 'object' || !matches(values[0].metadata as string, expected)) {
       throw new Error('actual field execution ownership metadata mirror differs');
     }
   };
   const version = (document: string, path: SqliteJsonMetadataPath) => {
-    const values = db.prepare(`SELECT type,atom FROM (${nodes('$document', [...path, 'sourceVersion'])})`).all({ document });
+    const values = sqliteMetadataAll(db, `SELECT type,atom FROM (${nodes('$document', [...path, 'sourceVersion'])})`, document);
     if (values.length !== 1 || values[0].type !== 'text' || !id(values[0].atom)) throw new Error('actual field execution Source version metadata differs');
     return values[0].atom;
   };
   const shape = (document: string, path: SqliteJsonMetadataPath, keys: readonly string[], count = 1) => {
-    const values = db.prepare(`SELECT n.type,CASE WHEN n.type='object' THEN
-      (SELECT json_group_array(key) FROM json_each(n.value)) END AS keys FROM (${nodes('$document', path)}) n`).all({ document });
+    const values = sqliteMetadataAll(db, `SELECT n.type,CASE WHEN n.type='object' THEN
+      (SELECT json_group_array(key) FROM json_each(n.value)) END AS keys FROM (${nodes('$document', path)}) n`, document);
     const wanted = JSON.stringify([...keys].sort());
     if (values.length !== count || values.some(value => value.type !== 'object'
       || JSON.stringify((JSON.parse(value.keys as string) as string[]).sort()) !== wanted)) {
@@ -31,7 +32,7 @@ export const assertOwnedMotionPhysicalMetadata = (db: DefensiveDb, row: Row, pre
     }
   };
   const text = (document: string, path: SqliteJsonMetadataPath) => {
-    const values = db.prepare(`SELECT type,atom FROM (${nodes('$document', path)})`).all({ document });
+    const values = sqliteMetadataAll(db, `SELECT type,atom FROM (${nodes('$document', path)})`, document);
     if (values.length !== 1 || values[0].type !== 'text' || !id(values[0].atom)) {
       throw new Error('actual field execution archive text metadata differs');
     }
@@ -43,7 +44,7 @@ export const assertOwnedMotionPhysicalMetadata = (db: DefensiveDb, row: Row, pre
     // Format selects only ownership metadata paths. It does not authorize a saved
     // manifest or require replaying opaque future Source/action payloads. The own
     // bounded reader separately rederives and compares every expected archive byte.
-    const formats = db.prepare(`SELECT type,atom FROM (${nodes('$document', ['snapshotFormat'])})`).all({ document: row.snapshot_json });
+    const formats = sqliteMetadataAll(db, `SELECT type,atom FROM (${nodes('$document', ['snapshotFormat'])})`, row.snapshot_json);
     if (formats.length && (formats.length !== 1 || formats[0].type !== 'text' || formats[0].atom !== ownedScheduledMotionSnapshotFormat)) {
       throw new Error('actual field execution archive format metadata differs');
     }
@@ -70,11 +71,11 @@ export const assertOwnedMotionPhysicalMetadata = (db: DefensiveDb, row: Row, pre
       object(row.snapshot_json, ['baseField', 'response', 'model'], { gameId: row.game_id });
       object(row.snapshot_json, ['baseField', 'response', 'touch', 'worldContact', 'flight', 'source'], { physicalPitchSourceId: row.physical_pitch_source_id });
     }
-    const history = db.prepare(`SELECT n.type FROM (${nodes('$document', ['history'])}) n`).all({ document: row.snapshot_json });
-    const entries = db.prepare(`SELECT n.type,${projection("CASE WHEN n.type='object' THEN n.value ELSE 'null' END", Object.keys(sourceIdentity(row)))} AS metadata,
+    const history = sqliteMetadataAll(db, `SELECT n.type FROM (${nodes('$document', ['history'])}) n`, row.snapshot_json);
+    const entries = sqliteMetadataAll(db, `SELECT n.type,${projection("CASE WHEN n.type='object' THEN n.value ELSE 'null' END", Object.keys(sourceIdentity(row)))} AS metadata,
       ${projection("CASE WHEN n.type='object' THEN n.value ELSE 'null' END", ['sourceVersion'])} AS version,
       ${projection("CASE WHEN n.type='object' THEN n.value ELSE 'null' END", ['sourceHash'])} AS hash
-      FROM (${nodes('$document', ['history', { array: 'all' }])}) n`).all({ document: row.snapshot_json });
+      FROM (${nodes('$document', ['history', { array: 'all' }])}) n`, row.snapshot_json);
     if (history.length !== 1 || history[0].type !== 'array' || entries.length !== row.revision
       || entries.some((entry, i) => entry.type !== 'object' || !prefix[i] || !matches(entry.metadata as string, sourceIdentity(prefix[i])))) {
       throw new Error('actual field execution history metadata mirror differs');

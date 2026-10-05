@@ -1,3 +1,4 @@
+import { sqliteMetadataGet, sqliteMetadataAll } from './SqliteMetadataStatementScope';
 import { ownedScheduledMotionObserverSuffix } from './OwnedScheduledMotionMotorCut';
 import { assertDefensiveMetadataUnambiguous, defensiveMetadataId as claim } from './ActualDefensiveMetadata';
 import { sqliteJsonMetadataNodes as nodes, sqliteJsonMetadataProjection as projection,
@@ -68,17 +69,17 @@ export const preflightOwnedMotionCausality = (db: Db, input: OwnedMotionCausalit
   if (fieldIds.size !== baseField.history.length || baseField.history.at(-1)?.sourceId !== baseId
     || baseField.revision !== baseField.history.length) fail('original field prefix identity differs');
 
-  const valid = (document: string) => !!db.prepare('SELECT json_valid(?) AS valid').get(document)!.valid;
+  const valid = (document: string) => !!sqliteMetadataGet(db, 'SELECT json_valid(?) AS valid', document)!.valid;
   const object = (document: string, path: SqliteJsonMetadataPath, values: Record<string, Scalar>, type = 'object') => {
-    const result = db.prepare(`SELECT owner.type,${Object.keys(values).length
+    const result = sqliteMetadataAll(db, `SELECT owner.type,${Object.keys(values).length
       ? projection("CASE WHEN owner.type='object' THEN owner.value ELSE 'null' END", Object.keys(values)) : "'[]'"} AS metadata
-      FROM (${nodes('$document', path)}) owner`).all({ document });
+      FROM (${nodes('$document', path)}) owner`, document);
     if (result.length !== 1 || result[0].type !== type || type === 'object' && !matches(result[0].metadata as string, values)) {
       fail('ambiguous, mistyped or mismatched identity metadata');
     }
   };
   const observationVersion = (document: string, path: SqliteJsonMetadataPath): string => {
-    const result = db.prepare(`SELECT atom,type FROM (${nodes('$document', [...path, 'sourceVersion'])})`).all({ document });
+    const result = sqliteMetadataAll(db, `SELECT atom,type FROM (${nodes('$document', [...path, 'sourceVersion'])})`, document);
     if (result.length !== 1 || result[0].type !== 'text' || !id(result[0].atom)) fail('observation version metadata differs');
     return result[0].atom as string;
   };
@@ -104,10 +105,9 @@ export const preflightOwnedMotionCausality = (db: Db, input: OwnedMotionCausalit
     }
     if (kind === 'plan') { object(row.snapshot_json, ['binding'], { playerId: row.player_id }); return; }
     object(row.snapshot_json, ['history'], {}, 'array');
-    const history = db.prepare(`SELECT entry.type,${projection("CASE WHEN entry.type='object' THEN entry.value ELSE 'null' END", Object.keys(own))} AS metadata,
+    const history = sqliteMetadataAll(db, `SELECT entry.type,${projection("CASE WHEN entry.type='object' THEN entry.value ELSE 'null' END", Object.keys(own))} AS metadata,
       ${projection("CASE WHEN entry.type='object' THEN entry.value ELSE 'null' END", ['sourceVersion'])} AS version
-      FROM (${nodes('$document', ['history'])}) container,json_each(container.value) entry ORDER BY CAST(entry.key AS INTEGER)`)
-      .all({ document: row.snapshot_json });
+      FROM (${nodes('$document', ['history'])}) container,json_each(container.value) entry ORDER BY CAST(entry.key AS INTEGER)`, row.snapshot_json);
     if (history.length !== prefix.length || history.some((entry, index) => entry.type !== 'object'
       || !matches(entry.metadata as string, expected(kind, prefix[index])))) fail('history identity metadata differs');
     if (kind === 'observation') for (const [index, entry] of history.entries()) {

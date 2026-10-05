@@ -1,6 +1,5 @@
 export { battedWorldOriginalContactPrefix, type BattedWorldOriginalContactPrefix } from './BattedWorldOriginalContactPrefix';
 import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
-import { ownedScheduledMotionArchiveHash } from './OwnedScheduledMotionArchive';
 import { createOwnedScheduledMotionDependencyEncoding, createOwnedScheduledMotionPlanEncoding } from './OwnedScheduledMotionDependencyEncoding';
 import { validateBattedWorldPiecewiseFieldAcquisitionPlan, validateBattedWorldPiecewiseFieldAcquisitionProgress } from '../../core/sim/ball/BattedWorldPiecewiseFieldAcquisition';
 import { validateBattedWorldPiecewiseFieldThrowPlan, validateBattedWorldPiecewiseFieldThrowProgress } from '../../core/sim/ball/BattedWorldPiecewiseFieldThrow';
@@ -26,7 +25,7 @@ import { findBallWorldControlledBaseContacts, type BallWorldBaseControlWindow,
 import type { BaseTouchRegion } from '../../core/sim/running/BaseTouch';
 import type { DurableBattedWorldFieldAction } from './SqliteBattedWorldFieldStore';
 import type { AcceptedBattedWorldFieldExecution, DurableBattedWorldFieldExecution } from './SqliteBattedWorldFieldExecutionStore';
-import { actorJson as json, actorFreeze as freeze, actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 
 export type BattedWorldFieldCustodyPolicy = 'release_exclusive_v1';
 
@@ -66,7 +65,7 @@ export const battedWorldFieldExecutionHistoryMatches = (history: readonly Accept
 };
 
 /** Only the Native owner's complete rederived field/execution prefix is admissible. Observations never execute physical time. */
-export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ field: BallWorldFieldTerritoryInput;
+const projectPhysicalPrefix = (input: PrefixInput, reference: (snapshot: DurableBattedWorldFieldExecution) => OwnedScheduledMotionReference): Readonly<{ field: BallWorldFieldTerritoryInput;
   segments: readonly BallWorldPlayerBaseContactSegment[]; controlWindows: readonly Control[]; possessionEvidence?: BattedWorldPossessionEvidence }> => {
   if (input.custodyPolicy !== undefined && input.custodyPolicy !== 'release_exclusive_v1') throw new Error('invalid actual field custody policy');
   const base = input.baseField, world = base.response.touch.worldContact, flight = world.flight;
@@ -244,36 +243,13 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
     if (!cursor || value.field.motion.carrierPlayerId !== carrierPlayerId) throw new Error('actual field continuation lacks its actual prior cursor');
     appendField(value.field, carrierPlayerId === null ? cursor.moment : null);
   }
-  // This cache belongs only to this synchronous field-execution validation call.
-  // Earlier immutable snapshots have already passed the prefix checks; archive hashing
-  // still validates the entire inert body before a successful reference is retained.
-  // Object identity, never Source ID, is the key in this fixed owner namespace.
+  // Keep base-field and plan comparisons local to each complete projection.
+  // Archive references belong to the enclosing pure replay factory.
   const dependencyEncoding = createOwnedScheduledMotionDependencyEncoding();
   const planEncoding = createOwnedScheduledMotionPlanEncoding();
   const planJson = (kind: OwnedScheduledMotionOperation['kind'], plan: OwnedScheduledMotionOperation['plan']) => kind === 'acquisition'
     ? planEncoding.acquisition(plan as Extract<OwnedScheduledMotionOperation, { kind: 'acquisition' }>['plan']).json
     : planEncoding.throw(plan as Extract<OwnedScheduledMotionOperation, { kind: 'throw' }>['plan']).json;
-  const executionReferences = new WeakMap<DurableBattedWorldFieldExecution, OwnedScheduledMotionReference>();
-  const immutable = (value: unknown, seen = new Set<object>()): boolean => {
-    if (value === null || typeof value !== 'object') return true;
-    if (!Object.isFrozen(value)) return false;
-    if (seen.has(value)) return true;
-    seen.add(value);
-    return Reflect.ownKeys(value).every(key => {
-      const descriptor = Object.getOwnPropertyDescriptor(value, key);
-      return typeof key === 'string' && !!descriptor && 'value' in descriptor && immutable(descriptor.value, seen);
-    });
-  };
-  const reference = (snapshot: DurableBattedWorldFieldExecution): OwnedScheduledMotionReference => {
-    const prior = executionReferences.get(snapshot);
-    if (prior) return prior;
-    const result = freeze({ sourceId: snapshot.source.sourceId, sourceHash: hash(snapshot.source),
-      snapshotHash: ownedScheduledMotionArchiveHash(snapshot) });
-    // Deep immutability is checked after inert archive validation; shallow freezing
-    // cannot hide a changed nested body on a later reference in this same call.
-    if (immutable(snapshot)) executionReferences.set(snapshot, result);
-    return result;
-  };
   // Source identifiers are unique within each original Native owner, not across separate tables.
   sources.clear();
   for (const [index, value] of input.executions.entries()) {
@@ -537,6 +513,26 @@ export const battedWorldFieldPhysicalPrefix = (input: PrefixInput): Readonly<{ f
     policy: 'scheduled_capture_confirmation_v1' as const, originTick, ticksPerSecond: p.ticksPerSecond,
     throughElapsedSeconds: horizon.elapsedSeconds, pending } } : {}) });
 };
+
+/** Internal pure replay service. Each caller constructs its own lexical identity
+ * scope; no callback, precomputed projection or validation token is accepted. */
+export const createBattedWorldFieldPhysicalReplay = () => {
+  const encoding = createOwnedScheduledMotionDependencyEncoding();
+  const reference = (snapshot: DurableBattedWorldFieldExecution): OwnedScheduledMotionReference => {
+    // The full codec rejects active/non-inert envelopes before property access.
+    const identity = encoding.snapshot(snapshot);
+    return freeze({ sourceId: snapshot.source.sourceId, sourceHash: encoding.source(snapshot.source).hash,
+      snapshotHash: identity.hash });
+  };
+  return Object.freeze({
+    project: (input: PrefixInput) => projectPhysicalPrefix(input, reference),
+    reference,
+    snapshotIdentity: encoding.snapshot,
+  });
+};
+
+/** Public pure entry point always starts a fresh single-call replay scope. */
+export const battedWorldFieldPhysicalPrefix = (input: PrefixInput) => createBattedWorldFieldPhysicalReplay().project(input);
 
 /** Same canonical segments and custody windows as the field-aware first-base observer. */
 export const battedWorldFieldBaseTouchHistoryFromPrefix = (input: PrefixInput & Readonly<{ playerId: string; base: BaseTouchRegion;

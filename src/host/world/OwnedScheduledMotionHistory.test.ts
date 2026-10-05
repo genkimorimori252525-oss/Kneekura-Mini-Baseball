@@ -63,7 +63,7 @@ it('keeps owned plans metadata-only and records every actual zero-time constrain
     const currentPrefix = x.prefix();
     const referenced = new Set(currentPrefix.executions.flatMap(v => v.execution.kind === 'owned_motion_v2' && v.execution.operation
       ? [v.execution.operation.planSourceId, ...v.execution.operation.previousSteps.map(s => s.sourceId)] : []));
-    const digests = vi.spyOn(archive, 'ownedScheduledMotionArchiveHash');
+    const digests = vi.spyOn(archive, 'ownedScheduledMotionArchiveEncoding');
     try {
       expect(battedWorldFieldPhysicalPrefix(currentPrefix)).toEqual(physical);
       expect(digests).toHaveBeenCalledTimes(referenced.size);

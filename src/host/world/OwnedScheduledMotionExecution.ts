@@ -16,14 +16,11 @@ import type { DurableActualLocomotion } from './SqliteActualLocomotionStore';
 import type { DurableActualDefensiveDecision } from './SqliteActualDefensiveDecisionStore';
 import type { OwnedScheduledMotionAction, OwnedScheduledMotionExecution, OwnedScheduledMotionOperation,
   OwnedScheduledMotionReference, OwnedScheduledMotionAdoption } from './OwnedScheduledBattedWorldMotion';
-import { deriveOwnedScheduledMotionComposition } from './OwnedScheduledMotionComposition';
+import { deriveOwnedScheduledMotionComposition, createOwnedScheduledMotionCompositionReplay } from './OwnedScheduledMotionComposition';
 import { ownedScheduledMotionActualState } from './OwnedScheduledMotionState';
 import { ownedScheduledMotionLiveWork } from './OwnedScheduledMotionLiveWork';
-import { ownedScheduledMotionArchiveHash } from './OwnedScheduledMotionArchive';
 
 const planKinds = ['acquisition_plan', 'throw_plan', 'owned_acquisition_plan_v1', 'owned_throw_plan_v1'];
-const reference = (v: DurableBattedWorldFieldExecution): OwnedScheduledMotionReference => ({
-  sourceId: v.source.sourceId, sourceHash: hash(v.source), snapshotHash: ownedScheduledMotionArchiveHash(v) });
 export const pendingOwnedScheduledPlan = (prefix: readonly DurableBattedWorldFieldExecution[]) => {
   const plan = [...prefix].reverse().find(v => planKinds.includes(v.execution.kind));
   if (!plan) return null;
@@ -36,10 +33,12 @@ export const pendingOwnedScheduledPlan = (prefix: readonly DurableBattedWorldFie
 };
 
 /** Called only by the physical writer after same-connection rank/dependency validation. */
-export const deriveOwnedScheduledMotionExecution = (source: AcceptedBattedWorldFieldExecution & { action: OwnedScheduledMotionAction },
+const deriveExecution = (compositionReplay: Readonly<{ derive: typeof deriveOwnedScheduledMotionComposition;
+  reference(value: DurableBattedWorldFieldExecution): OwnedScheduledMotionReference }>, source: AcceptedBattedWorldFieldExecution & { action: OwnedScheduledMotionAction },
   prefix: Readonly<{ baseField: DurableBattedWorldFieldAction; fields: readonly DurableBattedWorldFieldAction[];
     executions: readonly DurableBattedWorldFieldExecution[] }>, motors: readonly DurableActualLocomotion[],
   decisions: readonly DurableActualDefensiveDecision[], model: DurablePlayerFieldingModel | null): OwnedScheduledMotionExecution => {
+  const { reference } = compositionReplay;
   const { baseField, executions } = prefix, action = source.action;
   const original = executions.at(-1)?.execution.field ?? baseField.field;
   const response = battedWorldResponseInput(baseField.response), geometry = baseField.geometry.geometry;
@@ -79,7 +78,7 @@ export const deriveOwnedScheduledMotionExecution = (source: AcceptedBattedWorldF
       seed: { matchSeed: frame.matchSeed, playId: frame.match.playId, streamKey: json(['batted_world_field_throw', source.sourceId, state.carrierPlayerId]) } });
     return freeze({ kind: action.kind, field: original, model, plan });
   }
-  const composition = deriveOwnedScheduledMotionComposition({ ...source, action }, prefix, motors, decisions);
+  const composition = compositionReplay.derive({ ...source, action }, prefix, motors, decisions);
   const zero = composition.checkpointThroughElapsedSeconds === state.moment.elapsedSeconds;
   let operation: OwnedScheduledMotionOperation | null = null, field = original;
   if (action.checkpoint.kind !== 'operation') {
@@ -161,4 +160,21 @@ export const deriveOwnedScheduledMotionExecution = (source: AcceptedBattedWorldF
       motorAdoptionEventId: c.motorSourceId === null ? null : json(['owned_motion_adoption_v2', composition.physicalPitchSourceId,
         c.playerId, 'actual_locomotion_receipts', c.motorSourceId, 'batted_world_field_executions', source.sourceId]), executedThrough })) };
   return freeze({ kind: action.kind, field, composition, adoption, operation, liveWork: ownedScheduledMotionLiveWork(composition, adoption, operation) });
+};
+
+type ExecutionArguments = Parameters<typeof deriveExecution> extends [unknown, ...infer Arguments] ? Arguments : never;
+
+/** Internal parameterless factory. One original owner operation owns this service. */
+export const createOwnedScheduledMotionExecutionReplay = () => {
+  const composition = createOwnedScheduledMotionCompositionReplay();
+  return Object.freeze({
+    derive: (...args: ExecutionArguments) => deriveExecution(composition, ...args),
+    snapshotIdentity: composition.snapshotIdentity,
+  });
+};
+
+/** Existing public derivation cannot accept caller-supplied evidence or encoders. */
+export const deriveOwnedScheduledMotionExecution = (...args: ExecutionArguments): OwnedScheduledMotionExecution => {
+  const composition = createOwnedScheduledMotionCompositionReplay();
+  return deriveExecution({ derive: deriveOwnedScheduledMotionComposition, reference: composition.reference }, ...args);
 };

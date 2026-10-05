@@ -1,10 +1,25 @@
 # 非デザイン継続実装: 現在の接続と検証
 
-更新: 2026-10-04 20:07 JST（2026-10-04 11:07 UTC）
+更新: 2026-10-05 09:09 JST（2026-10-05 00:09 UTC）
 
 ユーザーの継続指示に従い、最新の確定済み残計画を進めている。**計画全体・自律試合/Career全体の完了ではない**。デザイン/UI/art/Presentationは未接続のまま。
 
-## 公開済みの積み上げ
+## 最新の実行結果と復旧後の位置
+
+以下は 2026-10-05 00:09 UTC 時点の更新。後段の古い個別記録は各固定Sourceの履歴であり、最新Source全体の合格へ読み替えない。
+
+- 本追補直前の公開済みDraftは [#293](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/293) まで。復旧後の実Sourceは #286–293 の独立review・固定Sourceの検証を経て順次保存した。失われた未公開部分を再構築した箇所は、元のbytes/hashと同一とは主張していない
+- 元の投球から全10人・50部位の捕球、実際の観測→判断→motor採用、fair OUT ruleまでのNative構築は、固定 `bf8233fa` で **1 test / 0 skip / exit 0**。全2,024 tracked hashes不変、全connectionを閉じた後の再開とbackupを確認した
+- 続くPositiveは operative OUT、post-callの実物理区間、2人目の将来判断、全10人の将来通信まで進んだが、23:17:14 UTCに `Worker exited unexpectedly` でexit 1。physical PlayEnd/sealの合格ではない。元Sourceと入力artifactは不変だった
+- 元の構築fixtureと終了直前fixtureは [checked synthetic fixtures](../verification/fixtures/README.md) に保存済み。後者は72 tables / 143 rows、end/sealなしで、実試験のtrapも明記している。継続は別copyを使い、元のowner検証を省略しない
+- Vitest forkは親Nodeのheapフラグを引き継がなかったため、以前の「worker 1 GiB」の資源設定主張を訂正した。正しいfork内receiptを伴う `NODE_OPTIONS` を使う。構築の正しさ・Source不変の合格は維持するが、kernel OOMの原因までは断定していない
+- 新しいread-only診断は180秒の明示上限で停止した。worker peak RSS約297 MiBで直ちに異常増大は再現せず、rule consumption到達前に256,720回のSQL prepareを観測した。さらにtest用のwrite witnessが全prepare結果をVitest spy履歴に保持する不具合を特定した。これらを分けて修正・検証中であり、診断停止は受入れ合格ではない
+- 40-piece archive試験は21区間のcommit後に性能診断のため明示中断した。部分snapshotを保存しているが、40区間の受入れ完了ではない。最新のscoped archive再利用candidateは実disk/WALの4ケースとbaseline/candidateのSQL・bytes一致1ケースを通過した。固定 `4867087` は最終統合typecheckと17 files / 170 testsを通過し、全2,058 tracked hashes不変、exit 0を確認した。実際のend継続はこれから
+- 最新の累積whole成功は **#277の固定Source、697 files / 5,159 tests + typecheck**。#278以降へ転用しない。現在Sourceのwhole、physical end→official→全参加者workload→実次投球の通し検証、一般runner/body/practice/Club competition/Careerは未完了
+
+現在の優先は、保存済みの同じ本物のplayからphysical endを検証し、公式確定・workload・次投球へ接続すること。新しい数値calibrationや完了flagで不足を埋めない。
+
+## 公開済みの積み上げ（以下は各時点の履歴）
 
 | Draft PR | 実装commit | 接続した範囲 |
 |---|---|---|

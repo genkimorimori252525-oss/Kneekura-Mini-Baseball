@@ -1,3 +1,4 @@
+import { withSqliteMetadataStatementScope } from './SqliteMetadataStatementScope';
 import { retainActualLiveFutureControllerWork, actualLiveFutureControllerProducer, actualLiveFutureControllerDisposition } from './ActualLiveFutureControllerWork';
 import { actualCommunicationEvidenceFromSqlite } from './SqliteActualCommunicationStore';
 import { createLivePlayRegistry, resolveLivePlayRegistry, type LivePlaySource } from '../../core/sim/liveAction/LivePlayRegistry';
@@ -32,7 +33,7 @@ const pending = (source: AcceptedActualFirstBasePlayEnd, reasons: readonly strin
  * Unknown autonomous renewal and other live-rule policies are never certified.
  * Every outcome and clock comes from the actual registered owner graph. */
 export const actualFirstBasePlayEndEvidenceFromSqlite = (db: Db) => ({
-  derive(raw: AcceptedActualFirstBasePlayEnd, current = false): ActualFirstBasePlayEndEvidence {
+  derive: (raw: AcceptedActualFirstBasePlayEnd, current = false): ActualFirstBasePlayEndEvidence => withSqliteMetadataStatementScope(db, () => {
     const source = input(raw, raw.sourceId);
     if (!actualLiveOwnerInstalled(db, 'actual_live_play_runtimes', 'actual_live_play_admissions')) return pending(source, ['causal_runtime_registration_missing']);
     const runtime = actualLiveRuntimeEvidenceFromSqlite(db).read(source.runtimeSourceId);
@@ -245,6 +246,5 @@ export const actualFirstBasePlayEndEvidenceFromSqlite = (db: Db) => ({
           { cause: source.umpireCallSourceId, consumer: source.communicationSourceId },
           ...observationSchedules.flatMap(s => s.consumed.map(c => ({ cause: c.causeSourceId, consumer: c.consumerSourceId }))) ] },
       futureWork });
-
-  },
+  }),
 });
