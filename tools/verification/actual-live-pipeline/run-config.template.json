@@ -1,0 +1,32 @@
+{
+  "schema": "actual_artifact_pipeline_run_v2",
+  "sourceRoot": "/ABSOLUTE/RESTORED/FROZEN/SOURCE",
+  "sourceCommit": "REPLACE_WITH_REVIEWED_40_HEX_COMMIT",
+  "sourceManifestPath": "/ABSOLUTE/SOURCE-MANIFEST.json",
+  "sourceManifestSha256": "REPLACE_WITH_MANIFEST_SHA256",
+  "physicalArtifactPath": "/ABSOLUTE/CLOSED/VERIFIED-PHYSICAL-END.sqlite",
+  "physicalArtifactSha256": "REPLACE_WITH_AUTHENTICATED_PHYSICAL_DB_SHA256",
+  "physicalEndSourceId": "physical-end",
+  "physicalEvidencePath": "/ABSOLUTE/PHYSICAL-GATE-TERMINAL-REPORT.json",
+  "physicalEvidenceSha256": "REPLACE_WITH_PHYSICAL_REPORT_SHA256",
+  "runDirectory": "/ABSOLUTE/FRESH/PIPELINE-ARTIFACTS",
+  "nextBatterPlayerId": "away-2",
+  "nextTake": {
+    "action": { "kind": "take" },
+    "plateZ": 0,
+    "strikeZone": { "centerX": 0, "halfWidth": 0.2, "lowerY": 1.4, "upperY": 1.8 },
+    "ballRadiusMeters": 0.0366
+  },
+  "faultChecks": true,
+  "executeNextPitch": true,
+  "runtime": {
+    "nodePath": "/ABSOLUTE/VERIFIED/NODE26/BINARY",
+    "nodeSha256": "REPLACE_WITH_VERIFIED_NODE26_BINARY_SHA256",
+    "viteNodeCliSha256": "REPLACE_WITH_FROZEN_VITE_NODE_ENTRY_SHA256",
+    "oldSpaceMiB": 1024,
+    "expectedHeapLimitMiB": 1120,
+    "maximumRssMiB": "COORDINATOR_MUST_SET_POSITIVE_INTEGER",
+    "maximumWallSeconds": "COORDINATOR_MUST_SET_POSITIVE_INTEGER",
+    "minimumAvailableMiB": "COORDINATOR_MUST_SET_POSITIVE_INTEGER"
+  }
+}
