@@ -1,0 +1,419 @@
+{
+  "schema": "synthetic_first_base_known_profile_pre_end_fixture_v1",
+  "scope": "fresh known-profile original chain; real call/tail/future work; no physical-end or seal acceptance",
+  "sourceCommit": "56d96a7728d21dc3b250e4e0bb5d8722fbc023c7",
+  "sourceManifestSha256": "020e8e1dd20e7e85fd524fdb0d3ce7eb37d04231e5718c9c128478f15d55fcc4",
+  "ruleProfileId": "npb-2026",
+  "ruleProfileSha256": "158d140826d274fbfef202e495df0869ce250223c9959b26ab79e75c5d10b98c",
+  "originalConstructionDatabaseSha256": "60525735348ea48aeb1944e7c1b2dc2d3afd6fdac8961d83486d2f4a4c6df0f4",
+  "originalConstructionTerminalSha256": "215e7ad43ac770f0423405a658721467032f0a5151449fa2cb4d9af422850209",
+  "originalConstructionSourceCommit": "23e4ef0cd34fbd028b6d3b689188a741cde2bea1",
+  "originalConstructionSourceManifestSha256": "567ce51ccd34c5522e78b6eef99b7d85b4651d640a3e9277d89865b628cb0896",
+  "databaseSha256": "64fc22bf43b656492aad85b6a8042e3862bd4fcf8132482cceca5f6109e8dc71",
+  "uncheckpointedWalBytes": 0,
+  "physicalEndRows": 0,
+  "sealRows": 0,
+  "request": {
+    "sourceId": "physical-end",
+    "sourceVersion": "fixture-v1",
+    "runtimeSourceId": "live-play-runtime",
+    "baseFieldSourceId": "field-race-candidate-0",
+    "executionSourceId": "actual-post-call-quantizer-tail",
+    "ruleConsumptionSourceId": "rule-consumption",
+    "umpireCallSourceId": "operative-call",
+    "communicationSourceId": "call-information"
+  },
+  "operativeCallReferences": {
+    "call": {
+      "owner": "actual_first_base_umpire_calls",
+      "sourceId": "operative-call",
+      "sourceVersion": "fixture-v1",
+      "sourceHash": "f01e6ffe76af5c7a833c1cf21f1596b95c127ce8ac0058066c0f301afe668a8a",
+      "snapshotHash": "c16eec5115c535c2616804ced65a5e242388847a39bc9bea30f623809ea09f95"
+    },
+    "perception": {
+      "owner": "actual_first_base_umpire_observations",
+      "sourceId": "play-end-umpire-observation",
+      "sourceVersion": "fixture-v1",
+      "sourceHash": "690acd71371e8381f610539cd23c156581a0a69fae4473dd41f22e9b24397da6",
+      "snapshotHash": "b4c087cd8dd4fe2af66210b7e76eb354ba5805b1bd348951ea66ccda4c1bc14d"
+    },
+    "policy": {
+      "owner": "actual_first_base_umpire_setups",
+      "sourceId": "play-end-umpire-setup",
+      "sourceVersion": "fixture-v1",
+      "sourceHash": "1f1ff24d71f5156e78674ca5e7f92912e1fd5598caf4129ed917db835351ae16",
+      "snapshotHash": "ef9b89c6646c6898aaea9e6ab70081ed2f1b8e23e45bc2717b3d47578c0c56e4"
+    },
+    "ruleEvidence": {
+      "owner": "batted_world_field_executions",
+      "sourceId": "field-first-base-race",
+      "sourceVersion": "fixture-v1",
+      "sourceHash": "819ce8801915a76b5300ce15047ba0f596597eb73441b34f53c8f46c5a457224",
+      "snapshotHash": "046ef215b5c0bb423291b4a166a4429c9130356f0915532e70dbb6aed2d5ad0a"
+    }
+  },
+  "futureDecisionSourceId": "scheduled-decision-home-2",
+  "tables": [
+    {
+      "name": "actual_call_communication_heads",
+      "count": 1,
+      "logicalRowsHash": "0396e19461a9fc0e80295f80b625dbcb7073bcf8d7f02bf9d828d0143ae25f1e"
+    },
+    {
+      "name": "actual_call_communications",
+      "count": 1,
+      "logicalRowsHash": "c1f164c145b269f1b8fea7e8ef81c9046f39e4dc59e04dc8c42ce1d066bb89ce"
+    },
+    {
+      "name": "actual_communication_models",
+      "count": 1,
+      "logicalRowsHash": "6e842d54151d10bc2fc3e42f6cb6f551df39b09ed03b51485fcf18ab34cc762d"
+    },
+    {
+      "name": "actual_defensive_decision_heads",
+      "count": 2,
+      "logicalRowsHash": "f7c5fe549d3a91b031e61819227ffa6eb974e9f34e9760db67c6060dfdd3bbb8"
+    },
+    {
+      "name": "actual_defensive_decisions",
+      "count": 2,
+      "logicalRowsHash": "82003188f2593b1d4845fd2cc1807f07aac9648ea1e2a217e2a1b96ef357900d"
+    },
+    {
+      "name": "actual_defensive_plans",
+      "count": 2,
+      "logicalRowsHash": "310197b970dedb7588a1074802a686ec29f9808adc2441d0114a42ad1ebd8dfb"
+    },
+    {
+      "name": "actual_field_observation_heads",
+      "count": 2,
+      "logicalRowsHash": "f11dcd4efb86a494fa74b9c830e005cb060a5b71761921d1e02544fc135918a1"
+    },
+    {
+      "name": "actual_field_observations",
+      "count": 2,
+      "logicalRowsHash": "7c3c1349b674ebadc80f9b6ffd1df7c286dc193b1f354ffc2183918428648f18"
+    },
+    {
+      "name": "actual_first_base_play_ends",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "actual_first_base_umpire_calls",
+      "count": 2,
+      "logicalRowsHash": "a14106467bf9a2a5dce064f023098b2d8790f52aa68d3ea4889f827c76524652"
+    },
+    {
+      "name": "actual_first_base_umpire_observations",
+      "count": 1,
+      "logicalRowsHash": "89da4f3b3b17c095fccd6b2d07a468c9ee51327942c6405043dd192fc148e52c"
+    },
+    {
+      "name": "actual_first_base_umpire_setups",
+      "count": 1,
+      "logicalRowsHash": "de6ca4a770cf6e99982ab5cbe5e783db2a8afff4bdaa8bd873b2008385a92a13"
+    },
+    {
+      "name": "actual_live_play_admissions",
+      "count": 25,
+      "logicalRowsHash": "e29ec1c26c261be55eb2f122b91bac2b5c55877830724fabd9168af33b982395"
+    },
+    {
+      "name": "actual_live_play_fences",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "actual_live_play_runtimes",
+      "count": 1,
+      "logicalRowsHash": "668ba291eda7d7ec123370a5eee029c2da719ccc949539a59a195e8213cb7664"
+    },
+    {
+      "name": "actual_live_rule_consumptions",
+      "count": 1,
+      "logicalRowsHash": "4ea27e0f2888906b703a716cf58f9eadfc85a2134b2e29ab2571712effd9dc6b"
+    },
+    {
+      "name": "actual_locomotion_heads",
+      "count": 1,
+      "logicalRowsHash": "89714c4c32742d47125c7b8e87d74c0cad7cc0aec0b06e54aa25111f8e090fbb"
+    },
+    {
+      "name": "actual_locomotion_receipts",
+      "count": 1,
+      "logicalRowsHash": "e87d80094c434eb7304a30308e87c44d8caf544ee27c0337098add17ebd17016"
+    },
+    {
+      "name": "applications",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "batted_ball_flight_heads",
+      "count": 1,
+      "logicalRowsHash": "17a5ea47c267ee054399445bcc7dfe4cbb92ef662540d9e6f7ac318ce29f9ac2"
+    },
+    {
+      "name": "batted_ball_flights",
+      "count": 1,
+      "logicalRowsHash": "045e34530b300af06749d9c7514925ba0faefc79b9b9fc25ac1d8687f37e1573"
+    },
+    {
+      "name": "batted_contact_response_models",
+      "count": 1,
+      "logicalRowsHash": "24635b6037b9686a4c7eeacbe1d280025da52179c07827a9a1ce35c65bc2e089"
+    },
+    {
+      "name": "batted_contact_responses",
+      "count": 1,
+      "logicalRowsHash": "f349eaa8bceb58d8e92fab852d1e7edf05d402c31cdd9e850878afce675f026e"
+    },
+    {
+      "name": "batted_first_fielder_touches",
+      "count": 1,
+      "logicalRowsHash": "3b9135d3bde948f57f3b4f28c7d78707138d91ff422e57db576b3465ddb41cd6"
+    },
+    {
+      "name": "batted_world_base_geometries",
+      "count": 1,
+      "logicalRowsHash": "01683c706e4f084d2e96ec3c51fae9d7241393b36ed7b190adb2fd83c0b852b6"
+    },
+    {
+      "name": "batted_world_contact_heads",
+      "count": 1,
+      "logicalRowsHash": "d0313f27a4af8e519228d77234fadf0da1aa70f657b2e83e30215729d3867fe4"
+    },
+    {
+      "name": "batted_world_contacts",
+      "count": 1,
+      "logicalRowsHash": "efee077b97bc145b9c015d2b91767eb84df482210877e70765250e7e65d3476e"
+    },
+    {
+      "name": "batted_world_field_actions",
+      "count": 2,
+      "logicalRowsHash": "039a40b38e1438c08b0cf89daf74f502ca03b662918a2737d651969bcdc91110"
+    },
+    {
+      "name": "batted_world_field_execution_heads",
+      "count": 1,
+      "logicalRowsHash": "2f96eb93b1b50af24bc49488934d034d38f969f9b8fe1691de802b0e5728871b"
+    },
+    {
+      "name": "batted_world_field_executions",
+      "count": 10,
+      "logicalRowsHash": "f8ccf0351b22e86380ed2e15486cf704eecc8110912bfb8dd57742f3f214a9a8"
+    },
+    {
+      "name": "batted_world_field_geometries",
+      "count": 1,
+      "logicalRowsHash": "fd7a1cc2f00136361c2101e758dbeb161105cf9293850a96e722fc047a612e0d"
+    },
+    {
+      "name": "batted_world_field_heads",
+      "count": 1,
+      "logicalRowsHash": "e38c9e6b7e07e44b3f4aacae7df7e5916b25f0bceaa212ec791ea94dbc334fad"
+    },
+    {
+      "name": "batted_world_models",
+      "count": 1,
+      "logicalRowsHash": "52941bd003ecea83a7f0541765e980b5bffa47776a676b3f4e737bf5077e952d"
+    },
+    {
+      "name": "matches",
+      "count": 1,
+      "logicalRowsHash": "0333320c8327a1b8928df36181110dc04c69cebe2c37f5c33e788f8a7c237b33"
+    },
+    {
+      "name": "official_fixtures",
+      "count": 1,
+      "logicalRowsHash": "739e99e369d1339cf44cd3a3552be4ffa3d017b83f823533db9c76e0f57b6ce6"
+    },
+    {
+      "name": "official_initial_world_sources",
+      "count": 1,
+      "logicalRowsHash": "7332e279f9014a87dd7e57e71b158f95763860a1860abbdd4835f2e10744d99e"
+    },
+    {
+      "name": "official_participant_bindings",
+      "count": 18,
+      "logicalRowsHash": "528e65fb362900c7ca1c3cfab73644afa4284176507aa247661d1db9b8f59ece"
+    },
+    {
+      "name": "official_participation_receipts",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "official_pitch_workload_policies",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "official_pitch_workload_sources",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "official_scoring_applications",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "physical_closure_game_policies",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "physical_pitch_progress_actions",
+      "count": 1,
+      "logicalRowsHash": "7edd9f9d76094f89269f4c0f1e6355dc0714dc489d647e26a299aedba689d827"
+    },
+    {
+      "name": "physical_pitch_progress_heads",
+      "count": 1,
+      "logicalRowsHash": "4982d55805ca5f5e72d91460673e10f2a0b4e2137e098c534a4572dd6fda8b25"
+    },
+    {
+      "name": "physical_plate_appearance_actor_games",
+      "count": 1,
+      "logicalRowsHash": "2ffe36dd08856a4877da2e61d545ed80a4ab5581ea908f59e4d456e6e0ff058f"
+    },
+    {
+      "name": "physical_plate_appearance_actors",
+      "count": 1,
+      "logicalRowsHash": "1ad4d3d4663912294c8ec6b2880b0257041dd9089cf3188a4bca68cd20679b5b"
+    },
+    {
+      "name": "physical_play_closures",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "world_club_checkpoints",
+      "count": 2,
+      "logicalRowsHash": "89e70224ed8e23454a8bc9bafb73cdaa423d99a61464b46702dd0fecfbbb6a5c"
+    },
+    {
+      "name": "world_club_event_journal",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "world_club_heads",
+      "count": 2,
+      "logicalRowsHash": "89e70224ed8e23454a8bc9bafb73cdaa423d99a61464b46702dd0fecfbbb6a5c"
+    },
+    {
+      "name": "world_pitch_fatigue_policies",
+      "count": 1,
+      "logicalRowsHash": "41f1e5dddc8a105e78c0c60729b0ba542c932211bfd896dc961ba5d504fc3830"
+    },
+    {
+      "name": "world_pitch_timing_baselines",
+      "count": 2,
+      "logicalRowsHash": "ef00fca3195d85eb8f4f2f39dc0c0c8c537be4b5a2f2ace07652f55e7d65c564"
+    },
+    {
+      "name": "world_pitch_timing_heads",
+      "count": 2,
+      "logicalRowsHash": "e46c3d28b2fa628e2bc8eeee90422bbd220ede955a340aea4a108273140542a0"
+    },
+    {
+      "name": "world_pitch_timing_updates",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "world_player_decision_models",
+      "count": 2,
+      "logicalRowsHash": "c00d9a15bce0f96c278b22266ab351152664fb45331a7a8e00f009db766689d7"
+    },
+    {
+      "name": "world_player_fielding_models",
+      "count": 2,
+      "logicalRowsHash": "7ddf30002053b6d1fe046cab9b0f902a38dccceddbbd85d800ebcef94d5ea889"
+    },
+    {
+      "name": "world_player_locomotion_models",
+      "count": 2,
+      "logicalRowsHash": "98c4338f5ce9dd0008283463c90b08b0c756938b68ce9a3142b1ca530ccb1d9b"
+    },
+    {
+      "name": "world_player_observation_models",
+      "count": 2,
+      "logicalRowsHash": "12c0945ca9c84db8155ee768a3af78808752fa760b8c7430d49d90b9ad7d5870"
+    },
+    {
+      "name": "world_player_person_links",
+      "count": 18,
+      "logicalRowsHash": "da2fe24b2f1c5652cde02c327df27db0a5d32cc1abd926b08e269d0dc4f78cab"
+    },
+    {
+      "name": "world_player_release_baselines",
+      "count": 2,
+      "logicalRowsHash": "7915a757836e935edbc3382fb17d133e1034d66ec5eb907f1038ef1843a884cc"
+    },
+    {
+      "name": "world_player_release_changes",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "world_player_release_heads",
+      "count": 2,
+      "logicalRowsHash": "17c8c93b1cda28d3126ed9e330b38b9980822926d3fa72f4e4dabb716aab51ba"
+    },
+    {
+      "name": "world_player_workload_activities",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "world_player_workload_baselines",
+      "count": 2,
+      "logicalRowsHash": "2ca2026cac6c597cb4c57622b12ccfd558f8be8b7a6971ef9fc72bb781e7d6b3"
+    },
+    {
+      "name": "world_player_workload_heads",
+      "count": 2,
+      "logicalRowsHash": "a9db3d1a43a148579c09f726a69ef71fa3513482d95d8adcec2ced0251e75411"
+    },
+    {
+      "name": "world_player_workload_policies",
+      "count": 1,
+      "logicalRowsHash": "6c7548b608f97879027ce7db48a0af1fa64967304e4686119c222d860191c94f"
+    },
+    {
+      "name": "world_roster_executions",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "world_roster_heads",
+      "count": 1,
+      "logicalRowsHash": "b498361476f5770e36c4dadb8e06890fbdaf6b11e93a0c01dd62cd27c404f843"
+    },
+    {
+      "name": "world_roster_mood_heads",
+      "count": 2,
+      "logicalRowsHash": "2ef2c1e10fd901f7a6e49e88ced2467dcc32365781ea9f038916d22a45f5c05d"
+    },
+    {
+      "name": "world_roster_opportunities",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "name": "world_season_heads",
+      "count": 1,
+      "logicalRowsHash": "22ff5a8879331bf1cf55b18c53075c139b51dc9f85b078034cb763b854d8b406"
+    },
+    {
+      "name": "world_settlement_applications",
+      "count": 0,
+      "logicalRowsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  ]
+}
