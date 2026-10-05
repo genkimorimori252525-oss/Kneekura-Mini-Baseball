@@ -26,6 +26,16 @@ const CONTROLS = ['launcher', 'runtimeProbe', 'replayRunner'];
 const CHANGE = { path: 'src/host/world/SqliteActualRoleWorkloadStore.ts',
   beforeSha256: 'd0d8ea506c4ee1c1ae41832a402655e06fbf0c5d45fcb82080d55846a21f1e1f',
   afterSha256: '3b011f654ab52ac201fccdedd9a02fdfbdcba58b580dca0eb653b0e006050385' };
+const PAIRED_PURPOSE = 'role_callback_and_closure_paired_read';
+const PAIRED_CHANGES = [
+  { path: 'src/host/world/ActualLiveAdjudicationFromSqlite.ts',
+    beforeSha256: 'b6014827512d4ac75d67e95a5db42f56489f4d98bc1d01c1cad88fddf8b2d262',
+    afterSha256: 'c1aefae9c8e3f9ef29977dc24a8dcba56e8e5c913b91941fe2de476ae47c30f2' },
+  { path: 'src/host/world/ActualLivePlayClosureEvidenceFromSqlite.ts',
+    beforeSha256: 'cd169bfcec7325bb598500635b9998473366625433e4484f0d9908ddf2e98c03',
+    afterSha256: 'dbe67afbfcad315fe35c212bb640d199f60f80e152eec2b6a0de2540abd05c14' },
+  CHANGE,
+];
 const CHECKS = { sourceUnchanged: true, configUnchanged: true, controlsUnchanged: true, originalEvidenceUnchanged: true,
   artifactUnchanged: true, closeReopenEqual: true, readOnlyEnforced: true };
 const COUNTS = { officialStarted: 0, officialCompleted: 0, roleStarted: 0, roleCompleted: 0, nextStarted: 0, nextCompleted: 0 };
@@ -58,12 +68,13 @@ const originalStage = (bundle, config, manifest) => {
 
 const transition = (value, official, config, manifest) => {
   keys(value, ['kind', 'purpose', 'fromSourceIdentity', 'toSourceIdentity', 'changedProductionFiles'], 'Source transition fields');
-  check(value.kind === 'official_read_replay_transition_v1'
-    && value.purpose === 'role_accepted_activity_read_transaction', 'reviewed transition kind and purpose');
+  const changes = value.purpose === 'role_accepted_activity_read_transaction' ? [CHANGE]
+    : value.purpose === PAIRED_PURPOSE ? PAIRED_CHANGES : null;
+  check(value.kind === 'official_read_replay_transition_v1' && changes !== null, 'reviewed transition kind and purpose');
   same(value.fromSourceIdentity, official.officialReceipt.sourceIdentity, 'original Source identity');
   const identity = sourceIdentity(manifest, config);
   same(value.toSourceIdentity, identity, 'replay Source identity');
-  same(value.changedProductionFiles, [CHANGE], 'exact reviewed production hash pair');
+  same(value.changedProductionFiles, changes, 'exact reviewed production hash pair');
   const prior = inheritedProductionSourceFiles(official.priorSourceManifest, 'original Source manifest');
   const current = inheritedProductionSourceFiles(manifest, 'replay Source manifest');
   same(current.map(([path]) => path), prior.map(([path]) => path), 'complete production path set');
@@ -72,7 +83,7 @@ const transition = (value, official, config, manifest) => {
     const [path, beforeSha256] = prior[index], [, afterSha256] = current[index];
     if (beforeSha256 !== afterSha256) changed.push({ path, beforeSha256, afterSha256 });
   }
-  same(changed, [CHANGE], 'independently compared production transition');
+  same(changed, changes, 'independently compared production transition');
   return identity;
 };
 
@@ -80,6 +91,8 @@ const replayConfiguration = (config, observedControls) => {
   raw(config, 'replay configuration');
   check(config.schema === 'actual_official_read_replay_run_v1' && config.executionScope === 'official_read_replay', 'replay configuration scope');
   check(!Object.hasOwn(config, 'officialReadReplay'), 'replay cannot inherit its own proof');
+  if (config.sourceTransition?.purpose === PAIRED_PURPOSE)
+    check(hash(config.expectedObservationSha256), 'paired replay comparison digest');
   keys(config.controlHashes, CONTROLS, 'replay control hashes');
   check(Object.values(config.controlHashes).every(hash), 'replay control hash values');
   same(observedControls, config.controlHashes, 'independently observed replay controls');
@@ -159,6 +172,10 @@ export const assertOfficialReadReplayEvidence = bundle => {
   originalStage(bundle, config, currentSourceManifest);
   sourceIdentity(currentSourceManifest, config);
   replayConfiguration(replayConfig, observed.controlHashes);
+  if (config.sourceTransition?.purpose === PAIRED_PURPOSE) {
+    check(hash(config.expectedObservationSha256), 'consumer comparison digest');
+    same(replayConfig.expectedObservationSha256, config.expectedObservationSha256, 'bound replay comparison digest');
+  }
   check(observed.replaySourceFilesUnchanged === true, 'replay Source bytes');
   same(replayConfig.inheritedOfficial, config.inheritedOfficial, 'replay original eight-file binding');
   for (const field of ['physicalProducer', 'physicalArtifactPath', 'physicalArtifactSha256', 'physicalEvidencePath',
@@ -213,6 +230,8 @@ export const assertOfficialReadReplayEvidence = bundle => {
     check(nonnegative(pass.seconds), `pass ${index} elapsed time`);
     observation(pass.observation, official.officialReceipt);
     same(pass.observationSha256, createHash('sha256').update(JSON.stringify(pass.observation)).digest('hex'), `pass ${index} observation digest`);
+    if (config.sourceTransition.purpose === PAIRED_PURPOSE)
+      same(pass.observationSha256, config.expectedObservationSha256, `pass ${index} original observation parity`);
   }
   const [first, second] = receipt.passes;
   check(first.connectionId !== second.connectionId, 'fresh reopened connection identity');

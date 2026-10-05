@@ -94,6 +94,8 @@ if(mode==='--admission-only'){
         if(matched){assert.equal(Number(matched[1]),auditedPasses.length+1,'closed replay pass order differs');audit();auditedPasses.push(Number(matched[1]));}
       }});
     assert.deepEqual(auditedPasses,[1,2],'each closed pass must re-audit Source and all original evidence');audit();
+    if(c.sourceTransition.purpose==='role_callback_and_closure_paired_read')
+      assert.deepEqual(result.passes.map(pass=>pass.observationSha256),[c.expectedObservationSha256,c.expectedObservationSha256],'paired replay observation differs from the pinned original replay');
     const checks={sourceUnchanged:true,configUnchanged:true,controlsUnchanged:true,originalEvidenceUnchanged:true,...result.checks};
     assert.deepEqual(checks,{sourceUnchanged:true,configUnchanged:true,controlsUnchanged:true,originalEvidenceUnchanged:true,
       artifactUnchanged:true,closeReopenEqual:true,readOnlyEnforced:true});

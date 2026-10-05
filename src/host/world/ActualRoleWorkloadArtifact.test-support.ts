@@ -50,11 +50,13 @@ export const verifyActualRoleWorkloadArtifact=async(input:Readonly<{
   try{
     assert.equal(db.prepare('PRAGMA database_list').all().find(r=>r.name==='main')!.file,input.destinationPath);
     assert.equal(db.prepare('PRAGMA journal_mode').get()!.journal_mode,'wal');
-    report('authenticated original closure');
+    report('authenticating original closure');
     const context=withSqliteReadTransaction(db,()=>actualRoleWorkloadContextFromSqlite(db,input.closureSourceId)),ref=context.reference;
     assert.equal(context.actors.length,10);assert.equal(context.closure.officialApplied,true);
+    report('original closure authentication returned');
     assert.equal(count('world_player_workload_activities'),0);
     const pending=owner.readSettlement(input.closureSourceId);assert.equal(pending.kind,'pending');
+    report('initial pending settlement read returned');
     assert.deepEqual(pending.kind==='pending'?pending.missingAssessments:[],context.actors.map(a=>a.binding.playerId));
     const fixtureEffort=[0,1,2,3,4,5,6,7,8,9]; // Accepted fixture inputs, never production defaults.
     for(const [i,actor]of context.actors.entries()){
@@ -79,14 +81,16 @@ export const verifyActualRoleWorkloadArtifact=async(input:Readonly<{
       finally{witness.close();}
       assert.equal(count('actual_role_workload_assessments'),0);
       db.exec('DROP TRIGGER fixture_corrupt_assessment');
-      faultEvidence.assessmentAfterInsert=true;
+      faultEvidence.assessmentAfterInsert=true;report('assessment INSERT rollback witness verified');
     }
     report('accepting all original participant assessments');
     owner.acceptAssessments([...assessments.keys()]);assert.equal(count('actual_role_workload_assessments'),10);
+    report('all ten assessment acceptance returned');
     assert.equal(count('world_player_workload_activities'),0);
     const baselinePending=owner.freeze(input.closureSourceId);
     if(baselines.size){assert.equal(baselinePending.kind,'pending');assert.deepEqual(baselinePending.kind==='pending'?baselinePending.missingBaselines:[],context.actors.filter(a=>baselines.has(`fixture-role-baseline:${a.binding.playerId}`)).map(a=>a.binding.playerId));}
     for(const sourceId of baselines.keys())owner.initializeBaseline(sourceId);
+    report('all missing explicit baselines initialized');
     if(input.faultChecks){
       const playerId=context.actors[0].binding.playerId;
       const beforeRevision=Number(db.prepare('SELECT revision FROM world_player_workload_heads WHERE career_id=? AND player_id=?').get(ref.careerId,playerId)!.revision);
@@ -100,10 +104,11 @@ export const verifyActualRoleWorkloadArtifact=async(input:Readonly<{
       assert.equal(count('actual_role_workload_settlements'),0);assert.equal(count('world_player_workload_activities'),0);
       db.exec('DROP TRIGGER fixture_corrupt_freeze');
       assert.equal(Number(db.prepare('SELECT revision FROM world_player_workload_heads WHERE career_id=? AND player_id=?').get(ref.careerId,playerId)!.revision),beforeRevision);
-      faultEvidence.freezeAfterInsert=true;
+      faultEvidence.freezeAfterInsert=true;report('freeze INSERT rollback witness verified');
     }
     report('freezing exact settlement-time BEFORE states');
     const frozen=owner.freeze(input.closureSourceId);assert.equal(frozen.kind,'applying');
+    report('exact BEFORE freeze returned');
     assert(frozen.participants.every(p=>!p.applied));assert.equal(frozen.capturedAt,'settlement_freeze');
     baselineEvidence=frozen.participants.map(participant=>{
       const row=db.prepare('SELECT source_id,source_json FROM world_player_workload_baselines WHERE career_id=? AND player_id=?').get(ref.careerId,participant.playerId);assert(row);
@@ -126,7 +131,7 @@ export const verifyActualRoleWorkloadArtifact=async(input:Readonly<{
         assert.equal(Number(staleDb.prepare('SELECT count(*) AS n FROM world_player_workload_activities').get()!.n),1);
         assert.equal(staleGlobal.readActivity(first.activity.sourceEventId),null);
         assert.equal(json(staleGlobal.readHead(ref.careerId,first.playerId)),json(intervening));
-        faultEvidence.staleCurrentHeadRejected=true;
+        faultEvidence.staleCurrentHeadRejected=true;report('isolated stale-head rejection verified');
       }finally{while(staleResources.length)staleResources.pop()!.close();}
       const first=frozen.participants[0];
       db.exec(`CREATE TRIGGER fixture_corrupt_workload_write AFTER INSERT ON world_player_workload_activities
@@ -139,7 +144,7 @@ export const verifyActualRoleWorkloadArtifact=async(input:Readonly<{
       assert.equal(count('world_player_workload_activities'),0);
       assert.equal(db.prepare('SELECT source_hash FROM actual_role_workload_assessments WHERE source_id=?').get(first.assessmentSourceId)!.source_hash,hash(assessments.get(first.assessmentSourceId)!));
       db.exec('DROP TRIGGER fixture_corrupt_workload_write');
-      faultEvidence.workloadAfterInsert=true;
+      faultEvidence.workloadAfterInsert=true;report('workload INSERT rollback witness verified');
       const changed=frozen.participants[0].assessmentSourceId,original=assessments.get(changed)!;
       assessments.set(changed,{...original,effortUnits:original.effortUnits+1});assert.throws(()=>owner.settle(input.closureSourceId),/frozen differently/);
       assert.equal(count('world_player_workload_activities'),0);assessments.set(changed,original);
@@ -154,11 +159,13 @@ export const verifyActualRoleWorkloadArtifact=async(input:Readonly<{
       db.exec('DROP TRIGGER fixture_interrupt_settlement');
       const interrupted=owner.readSettlement(input.closureSourceId);assert.equal(interrupted.kind,'applying');
       assert.equal(interrupted.participants.filter(p=>p.applied).length,1);
-      faultEvidence.interruptedAfterFirstInsert=true;
+      faultEvidence.interruptedAfterFirstInsert=true;report('interruption after the first committed MATCH verified');
     }
     report('applying accepted total-play effort through existing workload owner');
     complete=owner.settle(input.closureSourceId);assert.equal(complete.kind,'complete');assert.equal(count('world_player_workload_activities'),10);
+    report('complete all-ten settlement returned');
     assert.equal(json(owner.settle(input.closureSourceId)),json(complete));assert.equal(count('world_player_workload_activities'),10);
+    report('same-connection complete retry returned');
     assert(complete.participants.every(p=>p.applied&&p.after.revision===p.before.revision+1));
     assert.equal(complete.participants[0].activity.effortUnits,0);assert.equal(complete.participants[0].before.fatigue,complete.participants[0].after.fatigue);
     assertPlayableEffects(db);
@@ -166,7 +173,8 @@ export const verifyActualRoleWorkloadArtifact=async(input:Readonly<{
   report('all connections closed; reopening playable disk without recovery');
   const reopenedLinks=track(openSqlitePlayerPersonLinkStore(input.destinationPath)),reopened=track(openSqliteActualRoleWorkloadStore(input.destinationPath,reopenedLinks)),reopenedDb=track(new DatabaseSync(input.destinationPath));
   try{
-    assert.equal(json(reopened.readSettlement(input.closureSourceId)),json(complete));assert.equal(json(reopened.settle(input.closureSourceId)),json(complete));
+    assert.equal(json(reopened.readSettlement(input.closureSourceId)),json(complete));report('reopened settlement read returned');
+    assert.equal(json(reopened.settle(input.closureSourceId)),json(complete));report('reopened complete retry returned');
     assertPlayableEffects(reopenedDb);
   }finally{drain();}
   assert(complete && complete.kind==='complete');const completed=complete;
@@ -189,6 +197,7 @@ export const verifyActualRoleWorkloadArtifact=async(input:Readonly<{
       assert.equal(json(laterGlobal.readActivity(recovery.sourceEventId)?.activity),json(recovery));
     }finally{drain();}
   });
+  report('isolated recovery read/reopen/retry returned');
   const untouched=track(new DatabaseSync(input.destinationPath,{readOnly:true}));
   try{assertPlayableEffects(untouched);}finally{drain();}
   assert.equal(fileHash(input.sourcePath),originalHash);

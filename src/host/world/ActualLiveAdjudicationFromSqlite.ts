@@ -27,7 +27,7 @@ const snapshot = (execution: DurableBattedWorldFieldExecution): CorrectRuleEvide
 };
 /** Same-connection proof reconstruction; a derivable proposal is never a persisted, sealed physical end. */
 export const actualLiveAdjudicationEvidenceFromSqlite = (db: ActualAdjudicationDb) => {
-  const derive = (raw: AcceptedActualLiveAdjudication) => {
+  const deriveWithClosureInputs = (raw: AcceptedActualLiveAdjudication) => {
     const source = input(raw, raw.sourceId);
     if (!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='actual_first_base_play_ends'").get()) throw new Error('accepted actual physical end is missing');
     const closed = actualFirstBaseClosedEvidenceFromSqlite(db), end = closed.read(source.physicalEndSourceId);
@@ -72,7 +72,7 @@ export const actualLiveAdjudicationEvidenceFromSqlite = (db: ActualAdjudicationD
       playEnd: end.playEnd, recordedAt: end.exactEnd, snapshots, call: importCall, appealApplicability: 'no_supported_tag_up_appeal' });
     const timeline = projectActualFairFieldTimeline({ originalTimeline: end.wholeHistory.originalTimeline, field: physical.field, playEnd: end.playEnd });
     const pendingReasons = [...projected.pendingReasons, ...(timeline.kind === 'unsupported' ? [`physical_timeline_projection_unsupported:${timeline.reason}`] : [])];
-    return freeze({ source, kind: pendingReasons.length ? 'official_pending' as const : 'official_ready' as const,
+    const value = freeze({ source, kind: pendingReasons.length ? 'official_pending' as const : 'official_ready' as const,
       gameId: end.gameId, playId: end.playId, physicalPitchSourceId: end.physicalPitchSourceId, endReference,
       ruleApplicability: end.firstBaseEvidenceApplicability,
       wholeHistoryReference: { hash: end.wholeHistoryHash, convention: end.wholeHistoryHashConvention },
@@ -81,18 +81,26 @@ export const actualLiveAdjudicationEvidenceFromSqlite = (db: ActualAdjudicationD
       appealApplicability: { kind: 'no_supported_tag_up_appeal' as const, basis: endReference,
         scope: 'original_empty_bases_grounded_first_base_only' as const },
       timeline, ledger: projected.ledger, pendingReasons });
+    // Owner values are already immutable; freeze only the new containers rather
+    // than recursively traversing the same large physical graph another time.
+    Object.freeze(prefix.fields); Object.freeze(prefix.executions);
+    return Object.freeze({ value, end, prefix: Object.freeze(prefix) });
   };
-  const read = (sourceId: string): ReturnType<typeof derive> | null => {
+  const derive = (raw: AcceptedActualLiveAdjudication) => deriveWithClosureInputs(raw).value;
+  // The pair is produced by this one authenticated read, never accepted from a
+  // caller or retained for another operation. Public reads keep their old shape.
+  const readWithClosureInputs = (sourceId: string): ReturnType<typeof deriveWithClosureInputs> | null => {
     const row = actualLiveAdjudicationIdentityRow(db, 'actual_live_adjudications', sourceId);
     if (!row) return null;
-    const source = input(JSON.parse(String(row.source_json)), sourceId), value = derive(source);
+    const source = input(JSON.parse(String(row.source_json)), sourceId), pair = deriveWithClosureInputs(source), value = pair.value;
     const owners = db.prepare('SELECT source_id FROM actual_live_adjudications WHERE physical_end_source_id=? OR (game_id=? AND play_id=?)')
       .all(source.physicalEndSourceId, value.gameId, value.playId);
     if (owners.length !== 1 || owners[0].source_id !== sourceId || row.game_id !== value.gameId || row.play_id !== value.playId
       || row.physical_end_source_id !== source.physicalEndSourceId || row.source_json !== json(source) || row.source_hash !== hash(source)
       || row.snapshot_json !== json(value) || row.snapshot_hash !== hash(value)) throw new Error('actual adjudication archive differs');
-    return value;
+    return pair;
   };
-  return { derive, read };
+  const read = (sourceId: string): ReturnType<typeof derive> | null => readWithClosureInputs(sourceId)?.value ?? null;
+  return { derive, read, readWithClosureInputs };
 };
 export type DurableActualLiveAdjudication = ReturnType<ReturnType<typeof actualLiveAdjudicationEvidenceFromSqlite>['derive']>;

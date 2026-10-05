@@ -14,7 +14,7 @@ export const clone = value => structuredClone(value);
 const fields = { handoff: 'officialHandoff', outerTerminal: 'outerTerminal', stageTerminal: 'stageTerminal',
   supervisorTerminal: 'supervisorTerminal', receipt: 'officialReceipt', configuration: 'priorConfig', sourceManifest: 'priorSourceManifest' };
 
-const storage = () => {
+export const storage = () => {
   const bytes = new Map(), wals = new Map(), sources = new Map(), realPaths = new Map(), reads = [];
   const required = (map, path, operation) => {
     reads.push({ operation, path }); assert(map.has(path), `unexpected ${operation}: ${path}`); return map.get(path);
@@ -42,7 +42,7 @@ const storage = () => {
   return { bytes, wals, sources, realPaths, reads, io, pinBytes, pinJson, source };
 };
 
-const sealOfficial = (proof, x) => {
+export const sealOfficial = (proof, x) => {
   const inherited = proof.config.inheritedOfficial, files = inherited.files;
   x.pinJson(files.sourceManifest, proof.priorSourceManifest);
   inherited.sourceManifestSha256 = files.sourceManifest.sha256;

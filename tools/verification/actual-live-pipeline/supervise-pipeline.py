@@ -48,12 +48,44 @@ def replay_control_hashes():
 
 
 
+def audit_inherited_source(binding,files):
+    manifest = read_pinned_json(files['sourceManifest']); prior = Path(binding['sourceRoot'])
+    assert prior.is_absolute() and prior.resolve(strict=True) == prior, 'inherited Source root resolved identity changed'
+    assert manifest['schema'] == 'actual_artifact_pipeline_source_v1'
+    assert manifest['sourceRoot'] == str(prior) and manifest['sourceCommit'] == binding['sourceCommit']
+    assert files['sourceManifest']['sha256'] == binding['sourceManifestSha256']
+    assert subprocess.check_output(['git','-C',str(prior),'rev-parse','HEAD'],text=True).strip() == binding['sourceCommit']
+    assert subprocess.check_output(['git','-C',str(prior),'rev-parse','HEAD^{tree}'],text=True).strip() == manifest['sourceTree']
+    assert not subprocess.check_output(['git','-C',str(prior),'diff','--name-only','HEAD'],text=True).strip()
+    names = set(filter(None,subprocess.check_output(['git','-C',str(prior),'ls-files','-z']).decode().split('\0')))
+    def source_paths(directory):
+        assert directory.resolve(strict=True) == directory, 'inherited Source directory resolved identity changed'
+        for entry in os.scandir(directory):
+            assert not entry.is_symlink(), 'inherited Source symlink is not admitted'
+            path = Path(entry.path)
+            if entry.is_dir(follow_symlinks=False): yield from source_paths(path)
+            elif entry.is_file(follow_symlinks=False): yield str(path.relative_to(prior))
+    names |= set(source_paths(prior/'src'))
+    assert names == {row['path'] for row in manifest['files']} and len(names) == len(manifest['files'])
+    for row in manifest['files']:
+        relative = Path(row['path']); assert not relative.is_absolute() and '..' not in relative.parts
+        path = prior/relative
+        assert path.resolve(strict=True) == path, 'inherited Source file resolved identity changed'
+        assert sha256(path) == row['sha256'], 'inherited Source changed'
+
+
 def audit_inherited_inputs():
     # Concrete ancestor references only. Semantic admission remains the Node
     # validator's job; this supervisor independently rechecks retained bytes.
     expected = [('inheritedOfficial', '01-official')]
     if execution_scope == 'next': expected.append(('inheritedRole', '02-role-workload'))
     if execution_scope not in ['role', 'next', 'official_read_replay']: return []
+    if execution_scope=='role':
+        assert c['officialReadReplay']['kind']=='checked_official_read_replay_v1'
+        refs=[*c['inheritedOfficial']['files'].values(),*c['officialReadReplay']['files'].values()]
+        assert len({ref['path'] for ref in refs})==14, 'original/replay file paths collide'
+        for ref in refs:
+            path=Path(ref['path']);assert path.is_absolute() and str(path)==ref['path'] and '..' not in path.parts and path.resolve(strict=True)==path
     sealed = []
     roles = ['handoff','outerTerminal','stageTerminal','supervisorTerminal','receipt','configuration','sourceManifest','artifact']
     for key, stage in expected:
@@ -70,31 +102,29 @@ def audit_inherited_inputs():
         sealed_main_hash(files['artifact']['path'], files['artifact']['sha256'])
         if key == 'inheritedRole':
             for ref in binding['regressionArtifacts'].values(): sealed_main_hash(ref['path'],ref['sha256'])
-        manifest = json.loads(Path(files['sourceManifest']['path']).read_text()); prior = Path(binding['sourceRoot'])
-        assert prior.is_absolute() and prior.resolve(strict=True) == prior, 'inherited Source root resolved identity changed'
-        assert manifest['schema'] == 'actual_artifact_pipeline_source_v1'
-        assert manifest['sourceRoot'] == str(prior) and manifest['sourceCommit'] == binding['sourceCommit']
-        assert files['sourceManifest']['sha256'] == binding['sourceManifestSha256']
-        assert subprocess.check_output(['git','-C',str(prior),'rev-parse','HEAD'],text=True).strip() == binding['sourceCommit']
-        assert subprocess.check_output(['git','-C',str(prior),'rev-parse','HEAD^{tree}'],text=True).strip() == manifest['sourceTree']
-        assert not subprocess.check_output(['git','-C',str(prior),'diff','--name-only','HEAD'],text=True).strip()
-        names = set(filter(None,subprocess.check_output(['git','-C',str(prior),'ls-files','-z']).decode().split('\0')))
-        def source_paths(directory):
-            assert directory.resolve(strict=True) == directory, 'inherited Source directory resolved identity changed'
-            for entry in os.scandir(directory):
-                assert not entry.is_symlink(), 'inherited Source symlink is not admitted'
-                path = Path(entry.path)
-                if entry.is_dir(follow_symlinks=False): yield from source_paths(path)
-                elif entry.is_file(follow_symlinks=False): yield str(path.relative_to(prior))
-        names |= set(source_paths(prior/'src'))
-        assert names == {row['path'] for row in manifest['files']} and len(names) == len(manifest['files'])
-        for row in manifest['files']:
-            relative = Path(row['path']); assert not relative.is_absolute() and '..' not in relative.parts
-            path = prior/relative
-            assert path.resolve(strict=True) == path, 'inherited Source file resolved identity changed'
-            assert sha256(path) == row['sha256'], 'inherited Source changed'
+        audit_inherited_source(binding,files)
         sealed.append({'stage':stage,'path':files['receipt']['path'],'sha256':files['receipt']['sha256']})
     return sealed
+
+
+def audit_role_read_replay():
+    if execution_scope!='role':return None
+    binding=c['officialReadReplay'];files=binding['files']
+    assert sorted(files)==sorted(['receipt','stageTerminal','supervisorTerminal','outerTerminal','configuration','sourceManifest'])
+    values={name:read_pinned_json(ref) for name,ref in files.items()}
+    prior=values['configuration'];receipt=values['receipt'];outer=values['outerTerminal']
+    assert prior['schema']=='actual_official_read_replay_run_v1' and prior['executionScope']=='official_read_replay'
+    assert prior['inheritedOfficial']==c['inheritedOfficial'] and prior['sourceTransition']==c['sourceTransition']
+    assert prior.get('expectedObservationSha256')==c.get('expectedObservationSha256')
+    assert prior['sourceManifestPath']==files['sourceManifest']['path'] and prior['sourceManifestSha256']==files['sourceManifest']['sha256']
+    audit_inherited_source(c['sourceTransition']['toSourceIdentity'],files)
+    assert receipt['status']=='passed' and receipt['originalOfficialBinding']==c['inheritedOfficial'] and receipt['sourceTransition']==c['sourceTransition']
+    assert len(receipt['passes'])==2 and all(value['observationSha256']==c['expectedObservationSha256'] for value in receipt['passes'])
+    assert values['stageTerminal']['status']==values['supervisorTerminal']['status']=='read_replay_passed'
+    assert outer['passed'] is True and outer['supervisorExitCode']==0 and outer['supervisorReaped'] is True and outer['outerGuard'] is None and outer['error'] is None
+    assert outer['remainingSupervisorGroup']==outer['remainingExecutionGroup']==[]
+    for name in ['receipt','stageTerminal','supervisorTerminal']:assert outer['references'][name]==files[name]
+    return dict(binding=binding,sourceTransition=c['sourceTransition'],expectedObservationSha256=c.get('expectedObservationSha256'))
 
 
 def audit_inputs_and_receipts():
@@ -164,6 +194,7 @@ def audit_inputs_and_receipts():
                         disk = receipt[key]['disk']; sealed_main_hash(disk['path'],disk['sha256'])
             sealed.append(record)
     result={'passed': True, 'preservedPhaseReceipts': sealed, 'inheritedStageReceipts': inherited}
+    if execution_scope=='role':result['inheritedReadReplay']=audit_role_read_replay()
     if execution_scope=='official_read_replay':
         assert replay_control_hashes()==c['controlHashes'], 'replay controls changed'
         result.update(originalOfficialBinding=c['inheritedOfficial'],sourceTransition=c['sourceTransition'])
@@ -217,7 +248,7 @@ config_hash = sha256(config_path)
 c = json.loads(config_path.read_text())
 execution_scope = c.get('executionScope', 'all')
 assert c['schema'] == ('actual_official_read_replay_run_v1' if execution_scope=='official_read_replay' else 'actual_artifact_pipeline_run_v2')
-assert execution_scope in ['all', 'official', 'supervisor_smoke', 'official_read_replay'], 'unsupported execution scope'
+assert execution_scope in ['all', 'official', 'supervisor_smoke', 'official_read_replay', 'role'], 'unsupported execution scope'
 wrapper_root = Path(__file__).resolve().parent
 source_root = Path(c['sourceRoot']).resolve(strict=True)
 assert wrapper_root == source_root / 'tools/verification/actual-live-pipeline'
@@ -351,6 +382,7 @@ try:
         assert handoff_receipt['settlement']['kind'] == 'complete' and len(handoff_receipt['settlement']['participants']) == 10
         assert all(value['applied'] is True for value in handoff_receipt['settlement']['participants'])
         assert handoff_receipt['inheritedStageReceipts'] == audit['inheritedStageReceipts']
+        assert handoff_receipt['inheritedReadReplay']==terminal['inheritedReadReplay']==audit['inheritedReadReplay']
         assert terminal['resumableRole'] == dict(receipt=sealed,output=handoff_receipt['output'],closureSourceId=handoff_receipt['settlement']['closureSourceId'],applicationId=handoff_receipt['settlement']['closureApplicationId'])
     if execution_scope == 'next':
         receipt = json.loads(Path(audit['preservedPhaseReceipts'][0]['path']).read_text())
@@ -392,7 +424,7 @@ if passed and execution_scope == 'role':
     write_new(run_directory / 'role-handoff.json', {
         'schema':'actual_role_stage_handoff_v1','status':'stage_passed','wholePipelinePassed':False,
         'remainingStages':['next'],'inheritedStages':['official'],'inheritedOfficial':c['inheritedOfficial'],
-        'inheritedStageReceipts':audit['inheritedStageReceipts'],'sourceIdentity':receipt['sourceIdentity'],
+        'inheritedStageReceipts':audit['inheritedStageReceipts'],'inheritedReadReplay':audit['inheritedReadReplay'],'sourceIdentity':receipt['sourceIdentity'],
         'physicalProducerReference':receipt['physicalProducerReference'],
         'config':{'path':str(config_path),'sha256':config_hash},'roleReceipt':sealed,
         'stageTerminal':{'path':str(run_directory/'terminal.json'),'sha256':sha256(run_directory/'terminal.json')},
