@@ -1,8 +1,14 @@
 # 非デザイン継続実装: 現在の接続と検証
 
-更新: 2026-10-05 18:23 JST（2026-10-05 09:23 UTC）
+更新: 2026-10-05 18:34 JST（2026-10-05 09:34 UTC）
 
 ユーザーの継続指示に従い、最新の確定済み残計画を進めている。**計画全体・自律試合/Career全体の完了ではない**。デザイン/UI/art/Presentationは未接続のまま。
+
+## 2026-10-05 09:34 UTC: owned runner の field 接続
+
+既に身体・controllerを所有するpre-pitch runnerを、新しい版付きfield経路へ接続した。1人のrunnerを含む **11人55部位** のactual field motionを採用し、runnerの動きは元のcontroller/coverageから導出する。10人分のcaller指令に架空のrunner軌道を足さず、端数接触後の残り区間をexact elapsed timeで進める。
+
+Current stackと実practiceを含む固定 `331913f` で **8 files /67 tests、0 skip、full typecheck PASS**。実Nativeの保存・reopen/retry・改変rollbackと既存archive bytesを含み、src treeは `88506e07f20ee1930833e0c47d3dfe3f3cdb8a91`。詳細は [owned runner field verification](../implementation/2026-10-05-owned-runner-field-verification.md)。一般runnerの知覚・判断・controller更新・rule/Scope/closureまで完了した意味ではなく、版付きfield-cut kinematicsを次に接続する。
 
 ## 2026-10-05 09:23 UTC: official stage と実 practice の検証
 
