@@ -5,10 +5,13 @@ import { battedWorldFieldPhysicalPrefix } from './BattedWorldFieldPhysicalPrefix
 import type { DurableBattedWorldFieldAction } from './SqliteBattedWorldFieldStore';
 import type { DurableBattedWorldFieldExecution } from './SqliteBattedWorldFieldExecutionStore';
 
-/** Join only the Native owner's already rederived original pitch and bounded field/execution payloads. */
-export const wholePlayPhysicalHistoryFromPrefix = (input: Readonly<{ baseField: DurableBattedWorldFieldAction;
-  fields: readonly DurableBattedWorldFieldAction[]; executions: readonly DurableBattedWorldFieldExecution[] }>): CanonicalWholePlayHistory => {
-  const physical = battedWorldFieldPhysicalPrefix(input), world = input.baseField.response.touch.worldContact;
+type Prefix = Readonly<{ baseField: DurableBattedWorldFieldAction;
+  fields: readonly DurableBattedWorldFieldAction[]; executions: readonly DurableBattedWorldFieldExecution[] }>;
+
+/** Private composition consumes only this operation's successfully validated projection. */
+const deriveWholePlayPhysicalHistory = (input: Prefix,
+  physical: ReturnType<typeof battedWorldFieldPhysicalPrefix>): CanonicalWholePlayHistory => {
+  const world = input.baseField.response.touch.worldContact;
   const flight = world.flight, pitch = flight.physicalPitch, physicalPitchSourceId = flight.source.physicalPitchSourceId;
   const originalTimeline = pitch.result.pitch.resolution.timeline, batter = pitch.frame.batterActor!;
   if (pitch.source.sourceId !== physicalPitchSourceId || pitch.source.gameId !== pitch.frame.gameId
@@ -86,3 +89,13 @@ export const wholePlayPhysicalHistoryFromPrefix = (input: Readonly<{ baseField: 
     || json(history.originalTimeline) !== json(originalTimeline)) throw new Error('whole-play composition differs from its owned original history');
   return history;
 };
+
+/** Derive both views from one complete original prefix, with no caller-supplied evidence or retained result. */
+export const battedWorldPhysicalPrefixAndWholePlayHistory = (input: Prefix) => {
+  const physical = battedWorldFieldPhysicalPrefix(input);
+  return Object.freeze({ physical, history: deriveWholePlayPhysicalHistory(input, physical) });
+};
+
+/** Join only the Native owner's already rederived original pitch and bounded field/execution payloads. */
+export const wholePlayPhysicalHistoryFromPrefix = (input: Prefix): CanonicalWholePlayHistory =>
+  battedWorldPhysicalPrefixAndWholePlayHistory(input).history;
