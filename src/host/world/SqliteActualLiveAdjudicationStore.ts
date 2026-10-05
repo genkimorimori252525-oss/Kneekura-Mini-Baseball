@@ -2,6 +2,7 @@ import { createRequire } from 'node:module';
 import { actualLiveAdjudicationInput as input, type AcceptedActualLiveAdjudication } from './ActualLiveAdjudicationSource';
 import { actualLiveAdjudicationEvidenceFromSqlite } from './ActualLiveAdjudicationFromSqlite';
 import { actorJson as json, actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+export { openSqliteActualPostPlayReviewStore } from './SqliteActualPostPlayReviewStore';
 export const openSqliteActualLiveAdjudicationStore = (path: string,
   authority?: Readonly<{ readAcceptedAdjudication(sourceId: string): AcceptedActualLiveAdjudication | null }>) => {
   const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite'), db = new DatabaseSync(path);

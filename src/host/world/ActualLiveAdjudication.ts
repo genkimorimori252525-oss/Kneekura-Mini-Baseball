@@ -5,6 +5,7 @@ import type { RuleProfile } from '../../core/rules/RuleProfile';
 import type { PlayEndFact } from '../../core/rules/PhysicalRuleFacts';
 import type { ActualObservationMoment } from './ActualFieldObservation';
 import { actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+export { initializeActualPostPlayReview, advanceActualPostPlayReview } from './ActualPostPlayReview';
 
 export type ActualLiveAdjudicationProjectionInput = Readonly<{
   sourceId: string; playId: number; ruleProfile: RuleProfile; playEnd: PlayEndFact; recordedAt: ActualObservationMoment;
