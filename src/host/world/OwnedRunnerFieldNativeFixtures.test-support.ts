@@ -11,7 +11,7 @@ import { openSqliteBattedWorldContactStore, type AcceptedBattedWorldContact, typ
 import { openSqliteBattedFirstFielderTouchStore, type AcceptedBattedFirstFielderTouch } from './SqliteBattedFirstFielderTouchStore';
 import { openSqliteBattedContactResponseStore, type AcceptedBattedContactResponse, type AcceptedBattedContactResponseModel } from './SqliteBattedContactResponseStore';
 import { openSqliteBattedWorldBaseGeometryStore, type AcceptedBattedWorldBaseGeometry } from './SqliteBattedWorldBaseGeometryStore';
-import { openSqliteBattedWorldFieldStore, type AcceptedBattedWorldFieldGeometry } from './SqliteBattedWorldFieldStore';
+import { openSqliteBattedWorldFieldStore, type AcceptedBattedWorldFieldGeometry, type AcceptedBattedWorldFieldAction } from './SqliteBattedWorldFieldStore';
 import type { AcceptedPrePitchRunnerExecution } from './PrePitchRunnerExecution';
 import type { OfficialParticipantBinding } from './SqliteOfficialParticipationStore';
 import { material, zero, type OwnedRunnerFieldAction, type OwnedRunnerFieldRootTag } from './OwnedRunnerFieldFixtures.test-support';
@@ -20,8 +20,8 @@ import { asRuleProfileId } from '../../core/model/RuleProfileRef';
 /** One legal producer chain adapted from PrePitchRunnerNative.test.ts. All inputs
  * are prospectively accepted synthetic fixture values, never production calibration.
  * Call once per Native test; reuse its saved Sources for failure mutations. */
-export const ownedRunnerFieldNativeFixture = () => {
-  const x = physicalPlateAppearanceActorFixture(undefined, undefined, { ruleProfileId: asRuleProfileId('npb-2026') }), { f } = x;
+export const ownedRunnerFieldNativeFixture = (options: Readonly<{ retainedSpeedBoundary?: true; databasePath?: string }> = {}) => {
+  const x = physicalPlateAppearanceActorFixture(options.databasePath, undefined, { ruleProfileId: asRuleProfileId('npb-2026') }), { f } = x;
   try {
     x.actors.accept(x.source.sourceId); let tick = 0;
     for (let i = 0; i < 4; i++) {
@@ -51,13 +51,18 @@ export const ownedRunnerFieldNativeFixture = () => {
     const target = advanceBallState(createBattedBallInitialStateFromContact(contact.payload.contact), hitTick - at, parameters).position;
     const dx = target.x - worldRunner.position.x, dz = target.z - worldRunner.position.z, distance = Math.hypot(dx, dz);
     const elapsed = (hitTick - originalWorld.tick) / parameters.ticksPerSecond;
+    // Optional prospective fixture trajectory: reach the same physical target,
+    // with an original acceleration-to-cruise boundary after contact and before impact.
+    const phaseEnd = (at + 125_000 - originalWorld.tick) / parameters.ticksPerSecond;
+    const acceleration = options.retainedSpeedBoundary ? distance / (phaseEnd * elapsed - 0.5 * phaseEnd * phaseEnd) : 2 * distance / (elapsed * elapsed);
     const runner: AcceptedPrePitchRunnerExecution = { kind: 'pre_pitch_upright_runner_v1', sourceId: 'original-field-runner-motion', sourceVersion: 'synthetic-v1',
       gameId: 'game-1', physicalActorSourceId: actor.source.sourceId, playerId: worldRunner.playerId, motionRevision: 0,
       route: { segments: [{ kind: 'line', start: worldRunner.position,
         end: { x: worldRunner.position.x + dx / distance * (distance + 100), z: worldRunner.position.z + dz / distance * (distance + 100) } }] },
       startMotion: { tick: originalWorld.tick, routeDistanceMeters: 0, speedMps: 0, driveDirection: 1, bodyMode: 'upright' },
       intent: { kind: 'advance', issuedTick: originalWorld.tick }, parameters: { ticksPerSecond: 1_000_000, reactionDelayTicks: 0,
-        accelerationMps2: 2 * distance / (elapsed * elapsed), brakingMps2: 4, slideDecelerationMps2: 4, topSpeedMps: 100 }, coverageThroughTick: throughTick,
+        accelerationMps2: acceleration, brakingMps2: 4, slideDecelerationMps2: 4,
+        topSpeedMps: options.retainedSpeedBoundary ? acceleration * phaseEnd : 100 }, coverageThroughTick: throughTick,
       bodyPose: { bodyOriginHeightMeters: 0, primitiveMotions: (['glove', 'body', 'tag_hand', 'left_foot', 'right_foot'] as const).map((role, index) => ({
         role, startOffset: { x: 0, y: role === 'body' ? target.y : 20 + index, z: 0 }, offsetVelocity: zero, offsetAcceleration: zero })) } };
     const action = { ...next, request: { ...next.request, batter: swing }, prePitchRunner: runner };
@@ -109,7 +114,7 @@ export const ownedRunnerFieldNativeFixture = () => {
       responseSourceId: responseSource.sourceId, geometrySourceId: geometrySource.sourceId, previousFieldSourceId: null, availableAtTick: at, throughTick: at + 50_000,
       commands: contactSource.commands.map(c => ({ playerId: c.playerId, bodyAcceleration: c.bodyAcceleration,
         primitiveMotions: c.primitiveMotions.map(p => ({ role: p.role, offsetAcceleration: p.offsetAcceleration })) })) };
-    const sources = new Map([[source.sourceId, source]]);
+    const sources = new Map<string, AcceptedBattedWorldFieldAction>([[source.sourceId, source]]);
     const fields = f.track(openSqliteBattedWorldFieldStore(f.path, responses, bases, { readAcceptedGeometry: id => id === geometrySource.sourceId ? geometrySource : null,
       readAcceptedAction: id => sources.get(id) ?? null }));
     return { ...x, actor, originalWorld, originalMatch, runner, action, physical, flight, flights, model, contactSource, contacts, world,
