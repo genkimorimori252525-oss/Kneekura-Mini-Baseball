@@ -6,8 +6,8 @@ import { beforeEach, expect, it, vi } from 'vitest';
 import type { DatabaseSync } from 'node:sqlite';
 import { actorFreeze as freeze, actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { actualFirstBasePlayEndEvidenceFromSqlite } from './ActualFirstBasePlayEndEvidenceFromSqlite';
-import { battedWorldFieldEvidenceFromSqlite, openSqliteBattedWorldFieldStore } from './SqliteBattedWorldFieldStore';
-import { battedWorldFieldExecutionEvidenceFromSqlite, openSqliteBattedWorldFieldExecutionStore } from './SqliteBattedWorldFieldExecutionStore';
+import { battedWorldFieldEvidenceFromSqlite, openSqliteBattedWorldFieldStore, withBattedWorldFieldReadTraversal } from './SqliteBattedWorldFieldStore';
+import { battedWorldFieldExecutionEvidenceFromSqlite, openSqliteBattedWorldFieldExecutionStore, withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 
 // Tiny owner-boundary tests. Field/execution SQLite ownership, source parsing,
 // archive hashes and historical bounds are real. Only lower physical/model work
@@ -172,6 +172,117 @@ it('clears inner traversal state without losing the outer read-only setting or o
     pending(x); expect(state.executions).toBe(4);
     expect(x.db.prepare('PRAGMA query_only').get()!.query_only).toBe(0);
   } finally { x.close(); }
+});
+it('reuses a fully validated child prefix in the continuing parent operation', () => {
+  const x = fixture(); try {
+    x.db.exec('BEGIN');
+    withBattedWorldPhysicalReadTraversal(x.db, () => {
+      pending(x);
+      state.consume!(x.db, false);
+    });
+    expect([state.fields, state.executions]).toEqual([1, 2]);
+    // A later independent root does not inherit the completed operation.
+    pending(x); expect([state.fields, state.executions]).toEqual([2, 4]);
+  } finally { x.close(); }
+});
+it('promotes completed nodes upward through successful nested brackets without seeding their initial reads', () => {
+  const x = fixture(); try {
+    x.db.exec('BEGIN');
+    withBattedWorldPhysicalReadTraversal(x.db, () => {
+      withBattedWorldPhysicalReadTraversal(x.db, () => {
+        pending(x); state.consume!(x.db, false);
+      });
+      state.consume!(x.db, false);
+    });
+    expect([state.fields, state.executions]).toEqual([1, 2]);
+  } finally { x.close(); }
+});
+it('does not promote a failed child even after its own successful nested read', () => {
+  const x = fixture(), original = new Error('child did not complete'); try {
+    x.db.exec('BEGIN');
+    withBattedWorldPhysicalReadTraversal(x.db, () => {
+      expect(() => withBattedWorldPhysicalReadTraversal(x.db, () => {
+        pending(x); throw original;
+      })).toThrow(original);
+      expect(x.db.prepare('PRAGMA query_only').get()!.query_only).toBe(1);
+      state.consume!(x.db, false);
+    });
+    expect([state.fields, state.executions]).toEqual([2, 4]);
+    expect(x.db.prepare('PRAGMA query_only').get()!.query_only).toBe(0);
+  } finally { x.close(); }
+});
+it('keeps partially authenticated failing child nodes out of the parent prefix', () => {
+  const x = fixture(); try {
+    x.db.prepare("UPDATE batted_world_field_executions SET snapshot_hash='corrupt' WHERE source_id='two'").run();
+    x.db.exec('BEGIN');
+    withBattedWorldPhysicalReadTraversal(x.db, () => {
+      expect(() => withBattedWorldPhysicalReadTraversal(x.db, () => {
+        expect(x.executions.read('one')!.source.sourceId).toBe('one');
+        x.executions.read('two');
+      })).toThrow(/snapshot/);
+      // The earlier payload remains independently readable; the corrupt future payload is opaque.
+      expect(x.executions.read('one')!.source.sourceId).toBe('one');
+    });
+    expect([state.fields, state.executions]).toEqual([2, 3]);
+  } finally { x.close(); }
+});
+it('discards a completed child when its post-release cleanup cannot verify the original setting', () => {
+  const x = fixture(); let released = false, deniedCleanupRead = false;
+  try {
+    x.db.exec('BEGIN');
+    withBattedWorldPhysicalReadTraversal(x.db, () => {
+      try {
+        expect(() => withBattedWorldPhysicalReadTraversal(x.db, () => {
+          state.consume!(x.db, false);
+          x.db.setAuthorizer((code, argument) => {
+            if (code === constants.SQLITE_SAVEPOINT && argument === 'RELEASE') released = true;
+            if (released && code === constants.SQLITE_PRAGMA && argument === 'query_only') {
+              deniedCleanupRead = true; return constants.SQLITE_DENY;
+            }
+            return constants.SQLITE_OK;
+          });
+        })).toThrow(/cleanup/);
+      } finally { x.db.setAuthorizer(null); }
+      expect(released).toBe(true); expect(deniedCleanupRead).toBe(true);
+      expect(x.db.prepare('PRAGMA query_only').get()!.query_only).toBe(1);
+      state.consume!(x.db, false);
+    });
+    expect([state.fields, state.executions]).toEqual([2, 4]);
+    expect(x.db.prepare('PRAGMA query_only').get()!.query_only).toBe(0);
+  } finally { x.db.setAuthorizer(null); x.close(); }
+});
+it('isolates execution publication across a failing field-only intermediary', () => {
+  const x = fixture(), original = new Error('field intermediary did not complete'); try {
+    x.db.exec('BEGIN');
+    withBattedWorldPhysicalReadTraversal(x.db, () => {
+      expect(() => withBattedWorldFieldReadTraversal(x.db, () => {
+        withBattedWorldPhysicalReadTraversal(x.db, () => { x.executions.read('two'); });
+        // This field bracket has no execution context of its own. It cannot borrow or publish the grandparent's nodes.
+        x.executions.read('two'); throw original;
+      })).toThrow(original);
+      x.executions.read('two');
+    });
+    expect([state.fields, state.executions]).toEqual([2, 6]);
+  } finally { x.close(); }
+});
+it('rejects changed geometry inside a fresh child before any stale result escapes a replaced parent transaction', () => {
+  const x = fixture(), peer = new Sqlite(x.path); let returned = false, innerFailure: unknown;
+  try {
+    x.db.exec('BEGIN');
+    expect(() => withBattedWorldPhysicalReadTraversal(x.db, () => {
+      expect(x.executions.read('two')!.source.sourceId).toBe('two');
+      peer.prepare("UPDATE batted_world_field_geometries SET snapshot_hash='corrupt' WHERE source_id='geometry'").run();
+      x.db.exec('ROLLBACK; BEGIN');
+      try {
+        withBattedWorldPhysicalReadTraversal(x.db, () => x.executions.read('two'));
+        returned = true;
+      } catch (error) { innerFailure = error; }
+    })).toThrow(/transaction|savepoint|cleanup/);
+    expect(returned).toBe(false);
+    expect(innerFailure).toBeInstanceOf(Error);
+    expect((innerFailure as Error).message).toBe('corrupt own actual field calibration');
+    expect(x.db.prepare('PRAGMA query_only').get()!.query_only).toBe(0);
+  } finally { peer.close(); x.close(); }
 });
 it.each(['partial', 'changed-version'] as const)('does not let a %s caller field borrow an authenticated execution prefix', change => {
   const x = fixture(); try {
