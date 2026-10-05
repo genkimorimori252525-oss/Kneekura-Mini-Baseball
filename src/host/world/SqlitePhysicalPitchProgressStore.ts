@@ -1,3 +1,4 @@
+import type { AcceptedOriginalBattingIntent } from './OriginalBattingIntent';
 import { derivePrePitchRunnerExecution, type DurablePrePitchRunnerExecution } from './PrePitchRunnerEvidenceFromSqlite';
 import type { AcceptedPrePitchRunnerExecution } from './PrePitchRunnerExecution';
 import { beginActualLivePlayWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
@@ -28,6 +29,8 @@ type ActionRequest = Omit<ContinuousPlayerPitchRequest, 'timeline' | 'delivery' 
 export type AcceptedPhysicalPitchActionSource = Readonly<{
   sourceId: string; sourceVersion: string; gameId: string; request: ActionRequest; effortPolicy: AcceptedPhysicalPitchEffortPolicy;
   prePitchRunner?: AcceptedPrePitchRunnerExecution;
+  /** Explicit original actor choice; absence retains unresolved legacy meaning. */
+  battingIntent?: AcceptedOriginalBattingIntent;
 }> & (Readonly<{ initialWorldSourceId: string }> | Readonly<{ activationApplicationId: string }>);
 type Runtime = Parameters<typeof resolveContinuousPlayerPitchAgainstBatterFromWorld>[0];
 type Sources = Readonly<{
