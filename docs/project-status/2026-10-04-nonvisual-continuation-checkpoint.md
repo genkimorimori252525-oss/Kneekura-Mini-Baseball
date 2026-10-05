@@ -1,8 +1,16 @@
 # 非デザイン継続実装: 現在の接続と検証
 
-更新: 2026-10-05 18:34 JST（2026-10-05 09:34 UTC）
+更新: 2026-10-05 20:02 JST（2026-10-05 11:02 UTC）
 
 ユーザーの継続指示に従い、最新の確定済み残計画を進めている。**計画全体・自律試合/Career全体の完了ではない**。デザイン/UI/art/Presentationは未接続のまま。
+
+## 2026-10-05 11:02 UTC: owned runner の actual field-cut kinematics
+
+11人55部位の版付きfield prefixから、実際に到達した端点のrunner/root/各部位のkinematicsを読み取る専用APIを接続した。元controller・Player/Person・body pose・cleanup residualを保持し、端数時刻の接触と初期bag重複による実zero-duration境界も扱う。将来のcoverageや次controllerを生成しない。
+
+現stackに統合した固定 `7a7f60b` で **6 files /61 tests、0 skip、full typecheck PASS**。実Nativeのclose/reopenと元archive bytesを含み、全Source/control不変・全process回収を確認した。Complete src treeは `1b391a61705bab6cbfdd3568796a222f42acc4f8`。別のauthor Source `49e1e98` では既存prefix readerの8ケースもPASS。詳細は [field-cut kinematics verification](../implementation/2026-10-05-owned-runner-field-kinematics-verification.md)。次は既に所有するrunner controllerの後続analytic pieceを、各区間の実行証拠を保って接続する。
+
+Actual official stageの合格は固定 `6eb9dd6` のまま保持し、狭い読取りtransaction修正後のSourceで再認証する準備を進めている。全10人workload・実next pitch、practiceからのaccepted learning、venue/legal/review、一般runner/Careerと最新Sourceの累積wholeは未完了。別のofficial-stageテストDBの公開は承認待ちで、この変更には含めない。
 
 ## 2026-10-05 09:34 UTC: owned runner の field 接続
 
