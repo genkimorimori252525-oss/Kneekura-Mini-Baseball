@@ -12,6 +12,7 @@ import type { SqliteDevelopmentInitiationStore } from './SqliteDevelopmentInitia
 import { installActualPracticeLearning, type ActualPracticeLearningAuthority, type ActualPracticeLearningMethods } from './ActualPitchTimingLearningFromPractice';
 import { captureOwnedPracticeOrderEvidence, installOwnedPracticeOrders, type OwnedPracticeOrderMethods,
   type PracticeOrderAuthority, type PracticeOrderSources } from './OwnedPitchPracticeOrder';
+import type { ManagerPracticeOrderMethods } from './ManagerPracticeOrderFromBelief';
 import { freezePractice, planPracticeDelivery, practiceActivityId, practiceAttemptId, practiceFields, practiceHash,
   practiceId, practiceJson as json, practicePhases, practiceRevision, practiceTimingAtRevision, practiceWorkload,
   validatePracticeAssessment, validatePracticeOpportunity, type PitchPracticeAssessment, type PitchPracticeAttempt,
@@ -32,7 +33,7 @@ export type PitchPracticeAuthority = ActualPracticeLearningAuthority & PracticeO
   readAcceptedAssessment(sourceId: string): PitchPracticeAssessment | null;
 }>;
 type EvidenceDb = Pick<DatabaseSync, 'prepare'>;
-export type SqlitePitchPracticeAttemptStore = ActualPracticeLearningMethods & OwnedPracticeOrderMethods & Readonly<{
+export type SqlitePitchPracticeAttemptStore = ActualPracticeLearningMethods & OwnedPracticeOrderMethods & ManagerPracticeOrderMethods & Readonly<{
   begin(sourceId: string): PitchPracticeAttempt;
   advance(attemptId: string, expectedRevision: number, throughUs: number): PitchPracticeAttempt;
   acceptAssessment(sourceId: string): PitchPracticeAttempt;

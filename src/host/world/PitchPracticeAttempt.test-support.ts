@@ -75,6 +75,7 @@ export type PracticeOwner = {
 type PracticeModule = { openSqlitePitchPracticeAttemptStore(path: string, sources: unknown, authority?: unknown): PracticeOwner };
 
 export type PracticeFixtureHooks = {
+  managerBeliefCandidates?: readonly import('../../core/world/manager/ManagerDecision').ManagerActionBelief[];
   quickSpeedFactor?: number;
   controlDomainIds?: readonly string[];
   manualControlDomainIds?: readonly string[];
@@ -165,7 +166,8 @@ export async function practiceFixture(cleanup: (() => void)[], hooks: PracticeFi
     skills: { tacticalJudgment: 50, analysis: 50, adaptation: 50, playerEvaluation: 50, operations: 50, leadership: 50 },
     philosophy: { preferredStyleTags: [] as string[] }, temperament: { riskAppetite: 50, decisionPace: 50, policyPersistence: 50, noveltyAppetite: 50, consultationStyle: 50 },
     beliefs: { candidates: [{ actionId: 'promote', styleTags: [] as string[], competitiveOutcome: score, resourceHealth: score,
-      executionFeasibility: score, opponentInformationResponse: score }] }, strategyMemory: { activePolicyActionIds: [] as string[] } } };
+      executionFeasibility: score, opponentInformationResponse: score }, ...(hooks.managerBeliefCandidates ?? [])] },
+    strategyMemory: { activePolicyActionIds: [] as string[] } } };
   const binding = { actionId: 'promote', command: { commandId: 'promote', expectedRevision: 0, effectiveDay: 11,
     changes: [{ playerId: 'p1', assignment: { unitId: 'first', clubId: 'club-a' } }] } };
   const issued = roster.issueOpportunity({ careerId: 'career-a', clubId: 'club-a', expectedClubRevision: 0, expectedRosterRevision: 0,
