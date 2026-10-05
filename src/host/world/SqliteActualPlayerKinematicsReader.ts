@@ -6,8 +6,9 @@ import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { actualPlayerKinematicsFromPrefix, type ActualPlayerKinematics } from './ActualPlayerKinematicsFromPrefix';
 import { actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
-import { battedWorldFieldEvidenceFromSqlite } from './SqliteBattedWorldFieldStore';
+import { battedWorldFieldEvidenceFromSqlite, withBattedWorldFieldReadTraversal } from './SqliteBattedWorldFieldStore';
 import { battedWorldFieldExecutionEvidenceFromSqlite } from './SqliteBattedWorldFieldExecutionStore';
+import { actualPlayerKinematicsFromOwnedRunnerField, type ActualOwnedRunnerFieldKinematics } from './ActualPlayerKinematicsFromOwnedRunnerField';
 
 export type ActualPlayerKinematicsCut = Readonly<{ physicalPitchSourceId: string; playerId: string; baseFieldSourceId: string;
   executionSourceId: string | null; mode: 'original' | 'current' }>;
@@ -17,8 +18,13 @@ export type ActualPlayerOriginalContactCut = Readonly<{ kind: 'owned_runner_cont
   worldContactSourceId: string; playerId: string }>;
 export type OwnedActualOriginalContactKinematics = ActualOriginalContactPlayerKinematics & Readonly<{ cut: ActualPlayerOriginalContactCut;
   dependencyHashes: Readonly<{ physicalPrefix: string; physicalPitch: string; worldContact: string; model: string }> }>;
+export type ActualPlayerOwnedRunnerFieldCut = Readonly<{ kind: 'owned_runner_field_v1'; physicalPitchSourceId: string;
+  fieldSourceId: string; playerId: string }>;
+export type OwnedActualRunnerFieldKinematics = ActualOwnedRunnerFieldKinematics & Readonly<{ cut: ActualPlayerOwnedRunnerFieldCut;
+  dependencyHashes: Readonly<{ physicalPrefix: string; physicalPitch: string; worldContact: string; model: string; field: string }> }>;
 export type SqliteActualPlayerKinematicsReader = Readonly<{ read(cut: ActualPlayerKinematicsCut): OwnedActualPlayerKinematics;
-  readOriginalContact(cut: ActualPlayerOriginalContactCut): OwnedActualOriginalContactKinematics; close(): void }>;
+  readOriginalContact(cut: ActualPlayerOriginalContactCut): OwnedActualOriginalContactKinematics;
+  readOwnedRunnerField(cut: ActualPlayerOwnedRunnerFieldCut): OwnedActualRunnerFieldKinematics; close(): void }>;
 const id = (v: unknown): v is string => typeof v === 'string' && v.length > 0 && v === v.trim();
 const input = (raw: ActualPlayerKinematicsCut) => {
   const s = cloneInert(raw);
@@ -85,7 +91,25 @@ export const actualPlayerKinematicsEvidenceFromSqlite = (db: Pick<import('node:s
     const value = actualPlayerKinematicsFromOriginalContact(cut.playerId, world);
     return freeze({ ...value, cut, dependencyHashes: { physicalPrefix: hash(value.physicalPrefix), ...value.physicalPrefix.dependencyHashes } });
   };
-  return { read, readOriginalContact };
+  const readOwnedRunnerField = (raw: ActualPlayerOwnedRunnerFieldCut): OwnedActualRunnerFieldKinematics => {
+    const cut = cloneInert(raw);
+    if (!cut || JSON.stringify(Object.keys(cut).sort()) !== JSON.stringify(['kind', 'physicalPitchSourceId', 'fieldSourceId', 'playerId'].sort())
+      || cut.kind !== 'owned_runner_field_v1' || ![cut.physicalPitchSourceId, cut.fieldSourceId, cut.playerId].every(id)) {
+      throw new Error('invalid owned runner field kinematics cut');
+    }
+    return withBattedWorldFieldReadTraversal(db, () => {
+      const field = fields.read(cut.fieldSourceId);
+      if (!field || field.source.kind !== 'owned_runner_field_v1'
+        || field.response.touch.worldContact.flight.source.physicalPitchSourceId !== cut.physicalPitchSourceId) {
+        throw new Error('owned runner field kinematics Source is missing or differs');
+      }
+      const chain = fields.scope(field, cut.fieldSourceId), world = field.response.touch.worldContact;
+      const value = actualPlayerKinematicsFromOwnedRunnerField(cut.playerId, chain);
+      return freeze({ ...value, cut, dependencyHashes: { physicalPrefix: hash(value.physicalPrefix), physicalPitch: hash(world.flight.physicalPitch),
+        worldContact: hash(world), model: hash(world.model), field: hash(field) } });
+    });
+  };
+  return { read, readOriginalContact, readOwnedRunnerField };
 };
 
 /** Opens an existing database read-only. A read transaction pins one consistent SQLite snapshot; no schema or receipt is created. */
@@ -103,6 +127,11 @@ export const openSqliteActualPlayerKinematicsReader = (path: string): SqliteActu
     if (closed) throw new Error('closed actual Player kinematics reader');
     db.exec('BEGIN');
     try { const value = own.readOriginalContact(cut); db.exec('COMMIT'); return value; }
+    catch (error) { db.exec('ROLLBACK'); throw error; }
+  }, readOwnedRunnerField(cut) {
+    if (closed) throw new Error('closed actual Player kinematics reader');
+    db.exec('BEGIN');
+    try { const value = own.readOwnedRunnerField(cut); db.exec('COMMIT'); return value; }
     catch (error) { db.exec('ROLLBACK'); throw error; }
   }, close() { if (!closed) { db.close(); closed = true; } } });
 };
