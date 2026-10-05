@@ -10,6 +10,9 @@ import { openSqliteManagerRosterDecisionStore } from
   './SqliteManagerRosterDecisionStore';
 import type { DurableRosterExecution } from
   './SqliteManagerRosterDecisionStore';
+import { readManagerBeliefBoundary } from './ManagerBeliefBoundary';
+export { readManagerBeliefBoundary, assertManagerBeliefBoundary } from './ManagerBeliefBoundary';
+export type { ManagerBeliefBoundary } from './ManagerBeliefBoundary';
 
 export type DurableManagerBeliefObservation = Readonly<{
   executionId: string;
@@ -24,6 +27,8 @@ export type SqliteManagerBeliefHistoryStore = Readonly<{
     clubId: string; decisionId: string;
     policy: ManagerExecutionLearningPolicy }>): void;
   readHead(careerId: string, managerId: string):
+    ManagerBeliefHistory | null;
+  readAtRevision(careerId: string, managerId: string, revision: number):
     ManagerBeliefHistory | null;
   readObservation(executionId: string):
     DurableManagerBeliefObservation | null;
@@ -264,6 +269,9 @@ export const openSqliteManagerBeliefHistoryStore = (
       if (!id(executionId)) throw new Error('invalid executionId');
       const item = observationRow(executionId);
       return item ? decodedObservation(executionId, item) : null;
+    },
+    readAtRevision(careerId, managerId, revision): ManagerBeliefHistory | null {
+      return readManagerBeliefBoundary(db, careerId, managerId, revision)?.state ?? null;
     },
     apply(input): DurableManagerBeliefObservation {
       if (!input || !id(input.careerId)
