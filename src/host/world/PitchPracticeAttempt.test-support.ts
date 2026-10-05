@@ -74,7 +74,13 @@ export type PracticeOwner = {
 };
 type PracticeModule = { openSqlitePitchPracticeAttemptStore(path: string, sources: unknown, authority?: unknown): PracticeOwner };
 
-export async function practiceFixture(cleanup: (() => void)[]) {
+export type PracticeFixtureHooks = {
+  quickSpeedFactor?: number;
+  extraPracticeAuthority?: Readonly<Record<string, (sourceId: string) => unknown>>;
+  readAcceptedTimingLearning?: (sourceId: string) => import('./SqlitePlayerPitchTimingStore').AcceptedPitchTimingLearning | null;
+  assertTimingEvidence?: (db: EvidenceDb, source: import('./SqlitePlayerPitchTimingStore').AcceptedPitchTimingLearning, phase: string) => void;
+};
+export async function practiceFixture(cleanup: (() => void)[], hooks: PracticeFixtureHooks = {}) {
   const directory = mkdtempSync(join(tmpdir(), 'actual-pitch-practice-')), path = join(directory, 'world.sqlite');
   const handles: { close(): void }[] = [];
   const keep = <T extends { close(): void }>(value: T): T => { handles.push(value); return value; };
@@ -113,15 +119,22 @@ export async function practiceFixture(cleanup: (() => void)[]) {
   person.materialize(intake.sourceId);
   const timingInput = { sourceId: 'timing-p1', sourceVersion: 'fixture-v1', careerId: 'career-a', playerId: 'p1', personLinkSourceId: intake.sourceId,
     acceptedAtDay: 10, profile: { baseStartIntervalUs: 10_000_000, normalMotionToReleaseUs: 600_000, followThroughUs: 200_000,
-      quickSpeedFactor: 1.8, cadenceExecutionControl: 0.8, cadenceTimingKnowledge: 0.8, quickRepeatability: 0.8, naturalVariationUs: 50_000,
+      quickSpeedFactor: hooks.quickSpeedFactor ?? 1.8, cadenceExecutionControl: 0.8, cadenceTimingKnowledge: 0.8, quickRepeatability: 0.8, naturalVariationUs: 50_000,
       normalPhaseWeights: { gather: 2, transition: 3, stride: 5 }, quickPhaseWeights: { gather: 1, transition: 2, stride: 3 } } };
   const releaseInput = { ...timingInput, sourceId: 'release-p1', body: { heightMeters: 1.8, shoulderHeightMeters: 1.5, armReachMeters: 0.8,
     postureDropMeters: 0.1, throwingSide: 'RIGHT' as const }, profile: { armSlotClass: 'OVERHAND' as const, releaseHeightTier: 'HIGH' as const,
     releaseHeightRatio: 0.9, releaseLateralRatio: 0.1, releaseExtensionRatio: 0.2, armSlotElevationDeg: 70, armSlotAzimuthDeg: 0 },
     tierBoundaries: [0.65, 0.7, 0.75, 0.8, 0.85, 0.95] };
   const timingLearning = new Map<string, import('./SqlitePlayerPitchTimingStore').AcceptedPitchTimingLearning>();
-  let timing = keep(openSqlitePlayerPitchTimingStore(path, links, { readAcceptedBaseline: id => id === timingInput.sourceId ? timingInput : null,
-    readAcceptedLearning: id => timingLearning.get(id) ?? null }));
+  // The optional fourth timing guard is a proposed consumer extension in the
+  // next adapter's RED fixture. Existing callers retain their current behavior.
+  const openTimingOwner = openSqlitePlayerPitchTimingStore as (...args: [...Parameters<typeof openSqlitePlayerPitchTimingStore>,
+    PracticeFixtureHooks['assertTimingEvidence']?]) => ReturnType<typeof openSqlitePlayerPitchTimingStore>;
+  const openTiming = (withAuthority: boolean) => keep(openTimingOwner(path, links, withAuthority ? {
+    readAcceptedBaseline: id => id === timingInput.sourceId ? timingInput : null,
+    readAcceptedLearning: id => timingLearning.get(id) ?? hooks.readAcceptedTimingLearning?.(id) ?? null,
+  } : undefined, hooks.assertTimingEvidence));
+  let timing = openTiming(true);
   const releaseChanges = new Map<string, import('./SqlitePlayerReleaseGeometryStore').AcceptedReleaseGeometryChange>();
   let release = keep(openSqlitePlayerReleaseGeometryStore(path, links, { readAcceptedBaseline: id => id === releaseInput.sourceId ? releaseInput : null,
     readAcceptedChange: id => releaseChanges.get(id) ?? null }));
@@ -196,10 +209,12 @@ export async function practiceFixture(cleanup: (() => void)[]) {
   let timingReads = 0;
   // Call-through observation only: every result still comes from the real owner.
   const sources = () => ({ personLinks: links, person, timing: { ...timing,
-    readHead: (...args: Parameters<typeof timing.readHead>) => { timingReads++; return timing.readHead(...args); } },
+    readHead: (...args: Parameters<typeof timing.readHead>) => { timingReads++; return timing.readHead(...args); },
+    selectAtRevision: (...args: Parameters<typeof timing.selectAtRevision>) => { timingReads++; return timing.selectAtRevision(...args); } },
   release, workload, policies, episodes });
   const module = await vi.importActual<PracticeModule>('./SqlitePitchPracticeAttemptStore');
   owner = keep(module.openSqlitePitchPracticeAttemptStore(path, sources(), {
+    ...hooks.extraPracticeAuthority,
     readAcceptedOpportunity: (id: string) => opportunities.get(id) ?? null,
     readAcceptedAssessment: (id: string) => assessments.get(id) ?? null }));
   const complete = (sourceId = opportunity.sourceId) => { const first = owner!.begin(sourceId);
@@ -224,7 +239,7 @@ export async function practiceFixture(cleanup: (() => void)[]) {
     opportunities.set(next.sourceId, next); return next;
   };
   const reopen = () => { close(); roster = keep(openSqliteManagerRosterDecisionStore(path)); links = keep(openSqlitePlayerPersonLinkStore(path));
-    person = keep(openSqlitePersonGenesisStore(path)); timing = keep(openSqlitePlayerPitchTimingStore(path, links));
+    person = keep(openSqlitePersonGenesisStore(path)); timing = openTiming(false);
     release = keep(openSqlitePlayerReleaseGeometryStore(path, links)); workload = openWorkload(); policies = keep(openSqlitePitchFatiguePolicyStore(path));
     episodes = openEpisodes(); db = keep(new DatabaseSync(path)); owner = keep(module.openSqlitePitchPracticeAttemptStore(path, sources())); };
   return { path, opportunity, opportunities, assessments, activities, learningEvents, timingLearning, releaseChanges, timingInput, releaseInput, fatigueInput,

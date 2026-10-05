@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { applyConsolidatedPitchTimingEvidence,
   createPlayerPitchTimingSource, selectPlayerPitchTimingProfile,
@@ -38,6 +39,8 @@ export type AcceptedPitchTimingAuthority = Readonly<{
   readAcceptedLearning(sourceId: string):
     AcceptedPitchTimingLearning | null;
 }>;
+export type PitchTimingEvidenceGuard = (db: Pick<DatabaseSync, 'prepare'>, source: AcceptedPitchTimingLearning,
+  phase: 'write' | 'written' | 'retry' | 'read') => void;
 export type DurablePitchTimingDevelopmentEvidence = Readonly<{
   source: PlayerPitchTimingSource;
   episodes: readonly DevelopmentLearningEpisode[];
@@ -46,6 +49,8 @@ export type SqlitePlayerPitchTimingStore = Readonly<{
   initialize(sourceId: string): PlayerPitchTimingSource;
   readHead(careerId: string, playerId: string):
     PlayerPitchTimingSource | null;
+  /** Authenticates only the immutable prefix needed by an earlier physical proof. */
+  selectAtRevision(careerId: string, playerId: string, revision: number): PlayerPitchTimingSource;
   readDevelopmentHistory(careerId: string, playerId: string):
     readonly PlayerDevelopmentHistoryEvent[] | null;
   readDevelopmentEvidenceAtDay(careerId: string, playerId: string,
@@ -84,7 +89,9 @@ export const openSqlitePlayerPitchTimingStore = (
   databasePath: string,
   personLinks: AcceptedPlayerPersonLinkAuthority,
   authority?: AcceptedPitchTimingAuthority | null,
+  evidenceGuard?: PitchTimingEvidenceGuard,
 ): SqlitePlayerPitchTimingStore => {
+  if (evidenceGuard !== undefined && typeof evidenceGuard !== 'function') throw new Error('invalid pitch timing evidence guard');
   if (!id(databasePath) || !personLinks
     || typeof personLinks.readAcceptedPlayerPersonLink !== 'function'
     || (authority != null && (typeof authority.readAcceptedBaseline
@@ -145,7 +152,7 @@ export const openSqlitePlayerPitchTimingStore = (
     && id(input.careerId) && id(input.playerId)
     && id(input.personLinkSourceId) && day(input.acceptedAtDay);
   const replay = (careerId: string,
-    playerId: string): PlayerPitchTimingSource | null => {
+    playerId: string, throughRevision?: number): PlayerPitchTimingSource | null => {
     const stored = baseline(careerId, playerId);
     if (!stored) return null;
     const source = JSON.parse(stored.source_json) as
@@ -168,7 +175,9 @@ export const openSqlitePlayerPitchTimingStore = (
     if (canonicalJson(current) !== stored.initial_json) {
       throw new Error('corrupt initial pitch timing source');
     }
-    const updates = getUpdates.all(careerId, playerId) as UpdateRow[];
+    const updates = (throughRevision === undefined ? getUpdates.all(careerId, playerId)
+      : db.prepare(`SELECT * FROM world_pitch_timing_updates WHERE career_id=? AND player_id=?
+        AND after_revision<=? ORDER BY after_revision`).all(careerId, playerId, throughRevision)) as UpdateRow[];
     for (const [index, update] of updates.entries()) {
       const accepted = JSON.parse(update.source_json) as
         AcceptedPitchTimingLearning;
@@ -189,6 +198,11 @@ export const openSqlitePlayerPitchTimingStore = (
       if (canonicalJson(current) !== update.state_json) {
         throw new Error('pitch timing learning replay diverged');
       }
+      evidenceGuard?.(db, accepted, 'read');
+    }
+    if (throughRevision !== undefined) {
+      if (current.revision !== throughRevision) throw new Error('pitch timing historical revision is missing');
+      return current;
     }
     const durable = head(careerId, playerId);
     if (!durable || durable.revision !== current.revision
@@ -255,6 +269,12 @@ export const openSqlitePlayerPitchTimingStore = (
         throw new Error('invalid pitch timing source scope');
       }
       return replay(careerId, playerId);
+    },
+    selectAtRevision(careerId: string, playerId: string, revision: number): PlayerPitchTimingSource {
+      if (!id(careerId) || !id(playerId) || !day(revision)) throw new Error('invalid historical pitch timing revision scope');
+      const selected = replay(careerId, playerId, revision);
+      if (!selected) throw new Error('pitch timing historical baseline is missing');
+      return selected;
     },
     readDevelopmentHistory(careerId: string,
       playerId: string): readonly PlayerDevelopmentHistoryEvent[] | null {
@@ -335,6 +355,7 @@ export const openSqlitePlayerPitchTimingStore = (
             throw new Error('pitch timing sourceId retry revision differs');
           }
           replay(prior.career_id, prior.player_id);
+          evidenceGuard?.(db, JSON.parse(prior.source_json) as AcceptedPitchTimingLearning, 'retry');
           return JSON.parse(prior.state_json) as PlayerPitchTimingSource;
         }
         if (getBaselineBySource.get(sourceId)) {
@@ -356,6 +377,7 @@ export const openSqlitePlayerPitchTimingStore = (
         }
         const before = replay(careerId, playerId);
         if (!before) throw new Error('pitch timing baseline is missing');
+        evidenceGuard?.(db, accepted, 'write');
         const after = applyConsolidatedPitchTimingEvidence(before,
           expectedRevision, accepted.episode,
           accepted.measurements, accepted.practice);
@@ -373,6 +395,7 @@ export const openSqlitePlayerPitchTimingStore = (
         if (updated.changes !== 1) {
           throw new Error('pitch timing source CAS failed');
         }
+        evidenceGuard?.(db, accepted, 'written');
         return replay(careerId, playerId)!;
       });
     },
