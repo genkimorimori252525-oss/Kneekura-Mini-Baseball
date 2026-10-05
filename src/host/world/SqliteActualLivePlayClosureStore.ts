@@ -67,6 +67,9 @@ export const openSqliteActualLivePlayClosureStore = (path: string,
   };
   return Object.freeze({ read, enqueue, resume,
     readReadiness(sourceId: string) { check(); return transaction('BEGIN', () => actualLivePlayReadinessFromSqlite(db).read(sourceId)); },
+    // Completed-game consumers authenticate the original effects, not a future
+    // actor's current-day readiness. This never permits physical activation.
+    readHistoricalReadiness(sourceId: string) { check(); return transaction('BEGIN', () => actualLivePlayReadinessFromSqlite(db).readHistorical(sourceId)); },
     submit(sourceId: string) { enqueue(sourceId); return resume(sourceId); },
     close() { if (!closed) { official.close(); db.close(); closed = true; } } });
 };
