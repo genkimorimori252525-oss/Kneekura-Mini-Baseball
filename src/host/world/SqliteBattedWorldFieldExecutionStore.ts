@@ -23,7 +23,7 @@ import { deriveBallWorldFieldFirstBaseRaceWithPossessionEvidence } from '../../c
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { battedWorldResponseInput } from './SqliteBattedWorldContinuationStore';
 import { battedWorldMotionCommandsInput, battedWorldMotionPrimitiveCommands, type AcceptedBattedWorldMotion } from './SqliteBattedWorldMotionStore';
-import { battedWorldFieldEvidenceFromSqlite, withBattedWorldFieldReadTraversal, isAuthenticatedBattedWorldFieldTraversalValue, type DurableBattedWorldFieldAction, type SqliteBattedWorldFieldStore } from './SqliteBattedWorldFieldStore';
+import { battedWorldFieldEvidenceFromSqlite, withBattedWorldFieldReadTraversal, activeBattedWorldFieldReadFrame, isAuthenticatedBattedWorldFieldTraversalValue, type DurableBattedWorldFieldAction, type SqliteBattedWorldFieldStore } from './SqliteBattedWorldFieldStore';
 import { playerFieldingModelEvidenceFromSqlite, type DurablePlayerFieldingModel } from './SqlitePlayerFieldingModelStore';
 import { battedWorldFieldPhysicalPrefix, battedWorldFieldBaseTouchHistoryFromPrefix, type BattedWorldFieldCustodyPolicy } from './BattedWorldFieldPhysicalPrefix';
 import { wholePlayPhysicalHistoryFromPrefix } from './WholePlayPhysicalHistoryFromPrefix';
@@ -135,15 +135,26 @@ const dependencyPrefixes = new WeakMap<Db, Readonly<{ baseField: DurableBattedWo
 
 // This map only exists on the stack of one root PlayEnd derive. It holds
 // completed immutable physical nodes, never cross-owner result proofs.
-const executionReadTraversals = new WeakMap<Db, Readonly<{ nodes: Map<string, DurableBattedWorldFieldExecution>;
-  encoding: ReturnType<typeof createOwnedScheduledMotionDependencyEncoding> }>>();
-export const withBattedWorldPhysicalReadTraversal = <T>(db: Db, body: () => T): T =>
-  withBattedWorldFieldReadTraversal(db, () => {
-    const previous = executionReadTraversals.get(db);
-    executionReadTraversals.set(db, { nodes: new Map(), encoding: createOwnedScheduledMotionDependencyEncoding() });
+type ExecutionReadTraversal = Readonly<{ fieldFrame: object | null; nodes: Map<string, DurableBattedWorldFieldExecution>;
+  encoding: ReturnType<typeof createOwnedScheduledMotionDependencyEncoding> }>;
+const executionReadTraversals = new WeakMap<Db, ExecutionReadTraversal>();
+export const withBattedWorldPhysicalReadTraversal = <T>(db: Db, body: () => T): T => {
+  const previous = executionReadTraversals.get(db), completedNodes = new Map<string, DurableBattedWorldFieldExecution>();
+  const value = withBattedWorldFieldReadTraversal(db, () => {
+    executionReadTraversals.set(db, { fieldFrame: activeBattedWorldFieldReadFrame(db), nodes: completedNodes,
+      encoding: createOwnedScheduledMotionDependencyEncoding() });
     try { return body(); }
     finally { if (previous) executionReadTraversals.set(db, previous); else executionReadTraversals.delete(db); }
   });
+  // Field validation, private savepoint release and cleanup have all succeeded.
+  // An intervening field-only frame is not the previous execution owner: skip it.
+  if (previous && previous.fieldFrame !== null && previous.fieldFrame === activeBattedWorldFieldReadFrame(db)) {
+    for (const [key, node] of completedNodes) {
+      if (isAuthenticatedBattedWorldFieldTraversalValue(db, node.baseField)) previous.nodes.set(key, node);
+    }
+  }
+  return value;
+};
 
 /** One directed execution owner; historical reads replay only their original causal payload prefix. */
 export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
@@ -444,7 +455,9 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
     // Keep the dependencyPrefixes rank ceiling above every sibling lookup.
     // Only a field freshly authenticated by this root operation enables reuse.
     const rootTraversal = executionReadTraversals.get(db);
-    const traversal = rootTraversal && isAuthenticatedBattedWorldFieldTraversalValue(db, baseField) ? rootTraversal : undefined;
+    const traversal = rootTraversal && rootTraversal.fieldFrame !== null
+      && rootTraversal.fieldFrame === activeBattedWorldFieldReadFrame(db)
+      && isAuthenticatedBattedWorldFieldTraversalValue(db, baseField) ? rootTraversal : undefined;
     const values: DurableBattedWorldFieldExecution[] = [];
     for (const row of rows.slice(0, bound + 1)) {
       const source = input(JSON.parse(row.source_json) as AcceptedBattedWorldFieldExecution, row.source_id);

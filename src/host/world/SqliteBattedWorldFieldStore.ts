@@ -33,10 +33,13 @@ type Authority = Readonly<{ readAcceptedGeometry(sourceId: string): AcceptedBatt
 type Db = Pick<import('node:sqlite').DatabaseSync, 'prepare'>;
 // Only completed own reads can seed this synchronous physical traversal. No
 // public setter accepts evidence; caller-supplied scope objects are never seeds.
-type FieldReadTraversal = Readonly<{ check(): void;
+type FieldReadTraversal = Readonly<{ identity: object; check(): void;
   nodes: Map<string, Readonly<{ value: DurableBattedWorldFieldAction; snapshotJson: string; snapshotHash: string }>>;
   roots: Map<string, DurableBattedWorldFieldAction>; authenticated: WeakSet<object> }>;
 const fieldReadTraversals = new WeakMap<Db, FieldReadTraversal>();
+
+/** Opaque stack identity only. No context, cached value or mutable map escapes. */
+export const activeBattedWorldFieldReadFrame = (db: Db): object | null => fieldReadTraversals.get(db)?.identity ?? null;
 
 /** Internal root-owned read bracket. It never replaces a connection authorizer.
  * query_only belongs to this synchronous operation, not an adversarial SQL sandbox. */
@@ -52,6 +55,7 @@ export const withBattedWorldFieldReadTraversal = <T>(db: Db, body: () => T): T =
     db.prepare('PRAGMA temp.schema_version').get()!.schema_version] as const;
   let savepoint = false, failed = false, failure: unknown, value!: T;
   const cleanupErrors: unknown[] = [];
+  let completed: FieldReadTraversal | null = null;
   try {
     db.exec(`SAVEPOINT ${name}`); savepoint = true;
     if (beforeQueryOnly === 0) db.exec('PRAGMA query_only=ON');
@@ -63,7 +67,8 @@ export const withBattedWorldFieldReadTraversal = <T>(db: Db, body: () => T): T =
         throw new Error('physical read transaction or dependencies changed during traversal');
       }
     };
-    fieldReadTraversals.set(db, { check, nodes: new Map(), roots: new Map(), authenticated: new WeakSet() });
+    completed = { identity: Object.freeze({}), check, nodes: new Map(), roots: new Map(), authenticated: new WeakSet() };
+    fieldReadTraversals.set(db, completed);
     value = body(); check();
     // Counters cannot identify rollback/rebegin. The private savepoint must
     // still belong to the original enclosing transaction before evidence escapes.
@@ -81,6 +86,13 @@ export const withBattedWorldFieldReadTraversal = <T>(db: Db, body: () => T): T =
   if (cleanupErrors.length) throw new AggregateError([...(failed ? [failure] : []), ...cleanupErrors],
     'physical read transaction or setting cleanup failed', { cause: failed ? failure : cleanupErrors[0] });
   if (failed) throw failure;
+  // A child always authenticates from fresh roots. Only its fully successful
+  // bracket can make completed immutable nodes available to its direct parent.
+  if (prior && completed) {
+    prior.check();
+    for (const [key, entry] of completed.nodes) { prior.nodes.set(key, entry); prior.authenticated.add(entry.value); }
+    for (const [key, root] of completed.roots) prior.roots.set(key, root);
+  }
   return value;
 };
 
