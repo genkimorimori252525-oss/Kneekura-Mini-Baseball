@@ -6,6 +6,7 @@ import type { RunnerMotionIntent, RunnerMotionParameters, RunnerMotionState } fr
 import { getRunnerRouteLength, sampleRunnerRoute, type RunnerRoute } from '../../core/sim/running/RunnerRoute';
 import { composeDefenderPhysicalPrimitiveSegment, type DefenderPhysicalPrimitiveRole } from '../../core/sim/fielding/DefenderPhysicalPrimitive';
 import type { BattedWorldActorPrimitive } from '../../core/sim/ball/BattedBallWorldContacts';
+export { prePitchRunnerFieldPieces } from './PrePitchRunnerFieldPieces';
 
 /** Accepted before pitch consumption. Positions/velocities of the root are never caller inputs. */
 export type AcceptedPrePitchRunnerExecution = Readonly<{

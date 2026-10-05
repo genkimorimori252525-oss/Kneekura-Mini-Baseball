@@ -1,8 +1,18 @@
 # 非デザイン継続実装: 現在の接続と検証
 
-更新: 2026-10-05 21:27 JST（2026-10-05 12:27 UTC）
+更新: 2026-10-05 21:49 JST（2026-10-05 12:49 UTC）
 
 ユーザーの継続指示に従い、最新の確定済み残計画を進めている。**計画全体・自律試合/Career全体の完了ではない**。デザイン/UI/art/Presentationは未接続のまま。
+
+## 2026-10-05 12:49 UTC: 元runner controllerの後続field piece
+
+受理済みの元runner controllerが所有するreaction・加速・巡航・減速/停止のanalytic pieceを、既存field engineで実行する版付き経路を接続した。11人55部位を各pieceに保存し、他10人のcommand採用は1回のまま保つ。元runnerのintent・route・motionRevision・coverageを更新せず、実接触・端数時刻・zero-time境界で停止する。専用prefix/kinematics readerは、受理actionと実行pieceのprovenanceを区別して全区間を再導出する。
+
+最新stackに統合した固定 `b8ab7ef94ffdd85795d54809c025ebf5680a1e04` で **focused139/139、実ファイルNative1/1、full typecheck PASS**。0 skip/unhandled、Source/control/runtime不変・全process回収を確認した。Complete src treeは `17ea5675e32aeb3bbb65138cafab6397c2254237`。既存kinematicsの8ケースは180秒wall上限で中断し、result JSON/per-case完了証拠がないため現SourceでPASSとは扱わない。旧 `49e1e98` の8 PASSは旧Source限定のまま保持し、具体的なfixture/read経路とcase別時間を調べてから再検証する。author Source `2aae38a` の139 GREENと、test内optional値のnarrowing不足によるcompiler失敗は別証拠として保持する。
+
+新Nativeは実WALファイル上の登録済み `npb-2026` legal chainを1回だけ構築する。同一accept試行で実INSERTとtrigger改変へ到達したことを確認してrollbackを検査し、元writer・依存owner・readerを全て閉じた後、fresh readerとaccepted-Source callbackを持たない元storeでread/retryを再認証した。これは上記の新しいmixed v1/piece chainのdisk再起動証拠であり、旧検証の再open範囲を遡って変更しない。詳細は [retained runner pieceの契約と検証](../implementation/2026-10-05-owned-runner-retained-field-pieces-contract.md#current-combined-source-verification)。
+
+この接続はcallerが受理させた元controllerの後続物理区間を実行するもの。自律runner decision・身体/能力からのproduction motor生成、新controller/rebaseの採用、一般runnerのrule/custody/Scope/closureは未接続。既存10人readerとunsupported consumerの境界を保持し、計画全体の完了とはしない。
 
 ## 2026-10-05 12:27 UTC: actual practice と accepted learning
 
