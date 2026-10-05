@@ -12,8 +12,7 @@ import { predictPlanarObservationMemory, predictSpatialObservationMemory, type P
   type SpatialMotionEstimate } from '../../core/sim/perception/ObservationMemory';
 import { buildPlayerPerceivedWorldState, type PlayerPerceivedWorldState } from '../../core/sim/perception/PlayerPerceivedWorldState';
 import { hasUnmodeledObservationSurface } from './ActualObservationSurfaceGuard';
-import { battedWorldFieldPhysicalPrefix } from './BattedWorldFieldPhysicalPrefix';
-import { wholePlayPhysicalHistoryFromPrefix } from './WholePlayPhysicalHistoryFromPrefix';
+import { battedWorldPhysicalPrefixAndWholePlayHistory } from './WholePlayPhysicalHistoryFromPrefix';
 import type { DurablePlayerObservationModel } from './SqlitePlayerObservationModelStore';
 import type { ActualObservationCallReception } from './ActualCallCommunication';
 import type { ReceivedCommunication } from '../../core/sim/perception/Communication';
@@ -78,12 +77,12 @@ export const actualBattedWorldObservationMoment = (history: CanonicalWholePlayHi
     ? latest.progress.world.moment : null;
 };
 
-type Prefix = Parameters<typeof wholePlayPhysicalHistoryFromPrefix>[0];
+type Prefix = Parameters<typeof battedWorldPhysicalPrefixAndWholePlayHistory>[0];
 /** Internal Native sampler: the public owner rederives every prefix/model; truth never enters the perceived output. */
 export const sampleActualFieldObservation = (source: AcceptedActualFieldObservation, prefix: Prefix,
   model: DurablePlayerObservationModel, previous: Readonly<{ source: AcceptedActualFieldObservation; receipt: ActualFieldObservationReceipt }> | null,
   communicationEvidence?: NonNullable<ActualFieldObservationReceipt['communicationEvidence']>): ActualFieldObservationReceipt => {
-  const physical = battedWorldFieldPhysicalPrefix(prefix), history = wholePlayPhysicalHistoryFromPrefix(prefix);
+  const { physical, history } = battedWorldPhysicalPrefixAndWholePlayHistory(prefix);
   const frame = prefix.baseField.response.touch.worldContact.flight.physicalPitch.frame;
   const at = { originTick: history.horizon.originTick, elapsedSeconds: history.horizon.elapsedSeconds, tick: history.horizon.ball.tick };
   if ((source.communicationSourceId === undefined) !== (communicationEvidence === undefined)

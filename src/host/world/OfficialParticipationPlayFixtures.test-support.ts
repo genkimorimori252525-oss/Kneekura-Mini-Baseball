@@ -1,4 +1,6 @@
-import { asRuleProfileId } from '../../core/model/RuleProfileRef';
+import { asRuleProfileId, type RuleProfileId } from '../../core/model/RuleProfileRef';
+import { getRuleProfile } from '../../core/rules/RuleProfile';
+import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
 import { closeOfficialPlay, createPlayAdjudicationLedger, recordCorrectRuleSnapshot } from '../../core/adjudication/PlayAdjudicationLedger';
 import type { BetweenPlayWorldSetup } from '../../core/adjudication/BetweenPlayWorldReset';
@@ -6,11 +8,21 @@ import type { CanonicalPlateAppearanceTimeline } from '../../core/sim/plateAppea
 import type { SqliteOfficialStateStore } from '../SqliteOfficialStateStore';
 
 const ruleProfileId = asRuleProfileId('test-rules');
-export const match = (): CanonicalMatchState => ({
-  ruleProfileId, inning: 1, half: 'top', outs: 0, balls: 0, strikes: 0,
+export type OriginalFixtureRuleProfile = Readonly<{ ruleProfileId: RuleProfileId }>;
+/** Explicit opt-in for newly authored fixtures. Existing defaults remain byte-identical. */
+export const match = (profile?: OriginalFixtureRuleProfile): CanonicalMatchState => {
+  const accepted = profile === undefined ? undefined : cloneInert(profile);
+  if (accepted !== undefined && (!accepted || Array.isArray(accepted)
+    || Object.keys(accepted).length !== 1 || !Object.hasOwn(accepted, 'ruleProfileId'))) {
+    throw new Error('invalid original fixture rule profile option');
+  }
+  const selected = accepted === undefined ? ruleProfileId : getRuleProfile(accepted.ruleProfileId).id;
+  return {
+  ruleProfileId: selected, inning: 1, half: 'top', outs: 0, balls: 0, strikes: 0,
   bases: { first: null, second: null, third: null },
   score: { away: 0, home: 0 }, playId: 7,
-});
+  };
+};
 export const worldSetup = (firstDefenderId = 'home-0'): BetweenPlayWorldSetup => ({
   baseCenters: { first: { x: 27, z: 0 },
     second: { x: 27, z: 27 }, third: { x: 0, z: 27 } },

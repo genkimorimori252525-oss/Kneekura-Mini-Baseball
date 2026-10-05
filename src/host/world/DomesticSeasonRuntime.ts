@@ -1,4 +1,7 @@
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
+import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
+import { settleRegularSeasonGame, type RegularSeasonGameInput } from
+  '../../core/world/competition/OfficialSeasonEconomySettlement';
 import type { DomesticFixtureVenue } from
   '../../core/world/competition/DomesticFixtureVenue';
 import { matchesDomesticFixtureRevision } from
@@ -25,6 +28,8 @@ import type { OfficialWorldSettlementResult } from
   './OfficialWorldSettlementDriver';
 import type { DurableWorldSeason, InitializeWorldSeason,
   SqliteWorldSettlementStore } from './SqliteWorldSettlementStore';
+import type { openSqliteActualLivePlayClosureStore } from
+  './SqliteActualLivePlayClosureStore';
 
 export type DomesticSeasonStores = Readonly<{
   world: SqliteWorldSettlementStore;
@@ -141,26 +146,35 @@ export const prepareDomesticMatch = (
   return Object.freeze({ fixture, match });
 };
 
-/** Intake an exact, replayable final request only for the archived fixture. */
-export const settleDomesticGame = (
-  stores: DomesticSeasonStores & Readonly<{
-    outbox: SqliteOfficialWorldSettlementOutbox;
-    attendance: SqliteMatchdayAttendanceStore;
-  }>,
+type DomesticGameSettlementStores = DomesticSeasonStores & Readonly<{
+  outbox: SqliteOfficialWorldSettlementOutbox;
+  attendance: SqliteMatchdayAttendanceStore;
+}>;
+const assertDomesticGameSources = (
+  stores: DomesticGameSettlementStores,
   request: DurableOfficialWorldSettlementRequest,
-): OfficialWorldSettlementResult => {
+  historicalSchedule = false,
+): void => {
   const { finalInput, worldInput } = request;
   const archive = stores.archive.read(worldInput.attendance.careerId,
     finalInput.game.seasonId);
   const fixture = stores.match.getOfficialFixture(finalInput.matchId);
+  // A retained request may precede an unrelated accepted rainout. Authenticate
+  // its exact schedule prefix without substituting today's schedule into it.
+  const prefixLength = archive && historicalSchedule
+    ? worldInput.schedule.revisionEventIds.length
+      - archive.baseSchedule.revisionEventIds.length
+    : archive?.revisions.length;
   if (!archive || !fixture
+    || prefixLength === undefined || prefixLength === null
+    || prefixLength < 0 || prefixLength > archive.revisions.length
     || !isDeepStrictEqual(fixture, finalInput.game.venueBinding)
     || !matchesDomesticFixtureRevision(fixture,
       worldInput.attendance.careerId,
       archive.baseSchedule, archive.revisions)
     || !isDeepStrictEqual(worldInput.schedule,
       captureOfficialStandingsSchedule(archive.baseSchedule,
-        archive.revisions))) {
+        archive.revisions.slice(0, prefixLength)))) {
     throw new Error('domestic final lacks its durable schedule or fixture');
   }
   const acceptedAttendance = stores.attendance.read(
@@ -169,7 +183,135 @@ export const settleDomesticGame = (
     || !isDeepStrictEqual(acceptedAttendance, worldInput.attendance)) {
     throw new Error('domestic final lacks accepted gate count evidence');
   }
+};
+
+/** Intake an exact, replayable final request only for the archived fixture. */
+export const settleDomesticGame = (
+  stores: DomesticGameSettlementStores,
+  request: DurableOfficialWorldSettlementRequest,
+): OfficialWorldSettlementResult => {
+  assertDomesticGameSources(stores, request);
   return stores.outbox.submit(request, {
     matchStore: stores.match, worldStore: stores.world });
+};
+
+/** Explicit accepted inputs only; this does not generate attendance, calibration
+ * or wage commitments. Standings policy and Club state come from their owners. */
+export type ActualLiveDomesticGameSettlementInput = Readonly<{
+  closureSourceId: string;
+  attendanceFactId: string;
+  expectedSeasonRevision: number;
+  expectedClubRevision: number;
+}> & Pick<RegularSeasonGameInput,
+  'wageSchedules' | 'revenuePolicy' | 'finalizedAtDay'>;
+
+/** Assemble one genuinely completed actual-live game into the existing durable
+ * Match/World workflow. Workload is authenticated here and is never reapplied. */
+export const settleActualLiveDomesticGame = (
+  stores: DomesticGameSettlementStores & Readonly<{
+    closure: Pick<ReturnType<typeof openSqliteActualLivePlayClosureStore>,
+      'readHistoricalReadiness'>;
+  }>,
+  raw: ActualLiveDomesticGameSettlementInput,
+): OfficialWorldSettlementResult => {
+  const input = cloneInert(raw);
+  const fields = ['closureSourceId', 'attendanceFactId',
+    'expectedSeasonRevision', 'expectedClubRevision', 'wageSchedules',
+    'revenuePolicy', 'finalizedAtDay'];
+  if (!input || Object.keys(input).length !== fields.length
+    || fields.some(key => !Object.hasOwn(input, key))
+    || [input.closureSourceId, input.attendanceFactId].some(value =>
+      typeof value !== 'string' || !value || value !== value.trim())
+    || [input.expectedSeasonRevision, input.expectedClubRevision,
+      input.finalizedAtDay].some(value =>
+      !Number.isSafeInteger(value) || value < 0)) {
+    throw new Error('invalid actual-live domestic settlement input');
+  }
+  const readiness = stores.closure.readHistoricalReadiness(
+    input.closureSourceId);
+  if (readiness.kind !== 'game_final'
+    || readiness.settlement.kind !== 'complete') {
+    throw new Error('actual-live final closure or original workload is pending');
+  }
+  const proposal = readiness.closure.proposal;
+  const finalInput = proposal.application;
+  const expected = proposal.expectedOfficial;
+  if (!('game' in finalInput) || !('result' in expected)
+    || !proposal.source.finalScoring) {
+    throw new Error('actual-live closure lacks accepted final scoring');
+  }
+  const durableMatch = stores.match.getMatch(finalInput.matchId);
+  if (!durableMatch
+    || durableMatch.durableRevision !== expected.receipt.durableRevision
+    || !isDeepStrictEqual(durableMatch.matchState,
+      expected.receipt.appliedMatchState)
+    || !isDeepStrictEqual(durableMatch.finalResult, expected.result)) {
+    throw new Error('actual-live final differs from durable official Match');
+  }
+  const attendance = stores.attendance.read(input.attendanceFactId);
+  const careerId = proposal.seasonFixture.careerId;
+  if (!attendance || attendance.careerId !== careerId
+    || attendance.gameId !== finalInput.matchId) {
+    throw new Error('actual-live final lacks accepted gate count evidence');
+  }
+  const prior = stores.outbox.read(finalInput.applicationId);
+  const supplied = { attendance, wageSchedules: input.wageSchedules,
+    revenuePolicy: input.revenuePolicy, finalizedAtDay: input.finalizedAtDay };
+  const revisions = { expectedSeasonRevision: input.expectedSeasonRevision,
+    expectedClubRevision: input.expectedClubRevision };
+  let request: DurableOfficialWorldSettlementRequest;
+  if (prior) {
+    request = { finalInput, ...revisions,
+      worldInput: { ...prior.request.worldInput, ...supplied } };
+    if (!isDeepStrictEqual(request, prior.request)) {
+      throw new Error('actual-live World settlement input was frozen differently');
+    }
+    // The policy is immutable for this season. Outcome-neutral tampering must
+    // fail even when rederiving this particular game produces the same rows.
+    const season = stores.world.readSeason(careerId, finalInput.game.seasonId);
+    if (!season || !isDeepStrictEqual(request.worldInput.standingsPolicy,
+      season.standingsPolicy)) {
+      throw new Error('actual-live World standings policy differs');
+    }
+    assertDomesticGameSources(stores, request, true);
+  } else {
+    const season = stores.world.readSeason(careerId, finalInput.game.seasonId);
+    const homeClub = stores.world.readClub(careerId, finalInput.game.homeClubId);
+    const homeClubHistory = stores.world.readClubHistory(careerId,
+      finalInput.game.homeClubId);
+    if (!season || !homeClub || !homeClubHistory) {
+      throw new Error('actual-live final lacks durable World season or Club');
+    }
+    if (season.revision !== input.expectedSeasonRevision
+      || homeClub.revision !== input.expectedClubRevision) {
+      throw new Error('stale actual-live World season or Club revision');
+    }
+    request = { finalInput, ...revisions, worldInput: { ...supplied,
+      schedule: season.schedule, priorResults: season.results,
+      standingsPolicy: season.standingsPolicy, homeClub: homeClub.state,
+      homeClubHistory } };
+  }
+  // Validate before freezing intake, and derive from the retained inputs on
+  // retries. A completed outbox receipt cannot authenticate its own basis.
+  const settlement = settleRegularSeasonGame({ ...request.worldInput,
+    game: { ...finalInput.game, gameId: finalInput.matchId,
+      priorMatch: finalInput.match, application: expected.receipt } });
+  if (request.expectedSeasonRevision !== request.worldInput.priorResults.length
+    || request.expectedClubRevision !== request.worldInput.homeClub.revision
+    || !isDeepStrictEqual(settlement.gameResult, expected.result)) {
+    throw new Error('actual-live World settlement revision or final differs');
+  }
+  const result = prior ? stores.outbox.resume(finalInput.applicationId, {
+    matchStore: stores.match, worldStore: stores.world })
+    : settleDomesticGame(stores, request);
+  const durableWorld = stores.world.readApplication(finalInput.applicationId);
+  if (!durableWorld || !isDeepStrictEqual(result.final, expected)
+    || !isDeepStrictEqual(result.world, durableWorld)
+    || !isDeepStrictEqual(durableWorld.settlement, settlement)
+    || durableWorld.seasonRevision !== request.expectedSeasonRevision + 1
+    || durableWorld.clubRevision !== settlement.economy.state.revision) {
+    throw new Error('actual-live final lacks authentic durable World settlement');
+  }
+  return result;
 };
 import { isDeepStrictEqual } from 'node:util';

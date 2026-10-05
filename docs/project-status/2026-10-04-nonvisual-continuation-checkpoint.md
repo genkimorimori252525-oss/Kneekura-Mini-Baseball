@@ -1,10 +1,25 @@
 # 非デザイン継続実装: 現在の接続と検証
 
-更新: 2026-10-05 09:09 JST（2026-10-05 00:09 UTC）
+更新: 2026-10-05 15:32 JST（2026-10-05 06:32 UTC）
 
 ユーザーの継続指示に従い、最新の確定済み残計画を進めている。**計画全体・自律試合/Career全体の完了ではない**。デザイン/UI/art/Presentationは未接続のまま。
 
-## 最新の実行結果と復旧後の位置
+## 2026-10-05 06:32 UTC の検証位置
+
+最新の公開済み統合は [Draft #304](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/304)。登録済み `npb-2026` を最初の Match 作成時から選ぶ fixture と、既存 World 接続・同一操作内の物理履歴再利用を含む。**非デザイン計画全体の完了ではない**。
+
+- 元の物理プレー終了は固定 `9e27dc8` で実 Native **2/2、0 skip、exit 0**。実際の seal、全接続を閉じた再開・同一 retry、元の70非終端tableの不変を確認した。閉じた最終DBの SHA-256 は `3627a8d4e7cf99404eef8a6eefd22af591317a6dedcf46d82a0f61972dfa9331`。公開済みの最初の終了DBは別の保存bytesだが、全tableの論理行が一致する
+- この旧fixtureは登録外の `test-rules` を初期Matchに持っていた。後段の公式確定は固定 `444b618` でその不一致を検出して **exit 1**、公式INSERT前に停止した。終了成功を公式確定・workload・次投球の成功へ読み替えず、旧DBを書き換えて規則IDを付け替えることもしない
+- 新規 `npb-2026` 系列は固定 `23e4ef0` で投球から全10人・50部位、実capture、独立した観測→判断→motor、first-base OUT ruleまで **1/1、0 skip、exit 0、355.33秒**。全接続を閉じて再開し、63 tables / 113 rows、WAL残存0を確認した。新DB SHA-256 は `60525735348ea48aeb1944e7c1b2dc2d3afd6fdac8961d83486d2f4a4c6df0f4`、raw terminal SHA-256 は `215e7ad43ac770f0423405a658721467032f0a5151449fa2cb4d9af422850209`。end/seal tableはまだ作成されていない
+- 新系列の実際の遅延審判call、post-call物理区間、将来判断・通信を作る継続は固定 `56d96a7` で実行中。型検査は直前の `f86a7de`、timeoutのみ変更した `56d96a7` の構文/import確認では3 Native casesを明示skipした。これらの準備確認は、実際のtail・新しい終了証拠の成功ではない
+- [#299](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/299) のlegal inning/final接続は型検査と21 files / 154 tests、[#301](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/301) の既存DomesticSeason/World接続は型検査と28 files / 208 testsを通過した。独立したaccepted入力の試験であり、今回の本物の物理系列から全試合・Worldまで通った証拠ではない
+- [#300](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/300) の操作内物理履歴再利用は型検査と29 files / 236 tests。[#303](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/pull/303) の同一観測による履歴構築の共有は型検査と12 testsを通過した。旧終了DBの同じ読取りは82.694秒から72.693秒へ短縮し、SQL集計・物理projection・history・元DB bytesは一致した。単発の比較であり、一般的な性能保証ではない
+- 40-piece archiveの全受入れは引き続き未完了。以前の21区間時点の中断を成功へ変更していない。元のrunnerを含む11人・55部位のfield接続と、実投球練習の所有・workload・development接続は別の実装/検証中
+- 最新の累積whole成功は **#277の固定Source、697 files / 5,159 tests + typecheck**。#278以降のfocused gateを合算して新しいwhole成功とはしない。次のまとまった統合Sourceを固定し、通常suiteと明示artifact gatesをそれぞれ実行する
+
+次は、新系列の実call/tailから新たなseal rollback・終了を確認し、その閉じたDBを公式確定、全10人のworkload、実際の次投球へ渡す。以後の一般runner/body、練習・出場機会、既存Club/competition/Career接続も継続する。数値calibrationや結果を推測して不足を埋めない。個別のSourceとreceiptは [known-profile verification](../verification/2026-10-05-known-profile-fixture-preflight.md) に記録している。
+
+## 2026-10-05 00:09 UTC 時点の復旧履歴
 
 以下は 2026-10-05 00:09 UTC 時点の更新。後段の古い個別記録は各固定Sourceの履歴であり、最新Source全体の合格へ読み替えない。
 

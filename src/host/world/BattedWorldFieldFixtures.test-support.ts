@@ -7,8 +7,8 @@ import { openSqliteBattedWorldFieldStore, type AcceptedBattedWorldFieldGeometry,
 /** Explicit oversized synthetic third-base prism exposes bag-before-forecast ordering; it is not production venue calibration. */
 export const battedWorldFieldFixture = (path?: string, initialOnly = true, oversizedThird = true, rollingDecelerationMps2?: number,
   configure?: Readonly<{ world?: Parameters<typeof battedContactResponseFixture>[2]; response?: (base: ReturnType<typeof battedContactResponseFixture>) => void;
-    groundRestitution?: number; pitchPhysics?: BattedFixturePitchPhysics; material?: AcceptedBattedWorldFieldGeometry['baseModels']['third']['material'] }>) => {
-  const base = battedContactResponseFixture(path, initialOnly ? 'airborne' : 'ground', configure?.world, true, initialOnly, rollingDecelerationMps2, configure?.groundRestitution, configure?.pitchPhysics);
+    groundRestitution?: number; pitchPhysics?: BattedFixturePitchPhysics; originalProfile?: Parameters<typeof battedContactResponseFixture>[8]; material?: AcceptedBattedWorldFieldGeometry['baseModels']['third']['material'] }>) => {
+  const base = battedContactResponseFixture(path, initialOnly ? 'airborne' : 'ground', configure?.world, true, initialOnly, rollingDecelerationMps2, configure?.groundRestitution, configure?.pitchPhysics, configure?.originalProfile);
   configure?.response?.(base);
   const response = base.responses.accept(base.responseSource.sourceId);
   const flight = response.touch.worldContact.flight, centers = flight.physicalPitch.frame.initialWorld!.source.worldSetup.baseCenters;
