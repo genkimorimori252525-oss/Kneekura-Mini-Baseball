@@ -79,3 +79,20 @@ and 7 GiB launch reserve. Its status at this publication checkpoint is
 A downstream handoff consumer is separate work; this change preserves the output
 contract without claiming that continuation already exists. A complete pipeline
 or cumulative whole-project pass is not claimed.
+
+## First official-attempt terminal
+
+The running attempt above subsequently failed at **2026-10-05 04:51:18 UTC**
+before any official application. The original physical fixture's Match references
+`test-rules`, which the normal rule-profile owner rejects as unsupported during
+the missing-policy check. The official helper started once and completed zero
+times; downstream helper counts and preserved stage receipts are zero.
+
+The supervisor exited 1 after 201.65 seconds, without a wall/RSS guard event.
+Peak aggregate RSS was 392,456 KiB; source, producer/input and receipt audits
+passed, all SQLite handles closed, and the outer owner reaped every process.
+This is a real fixture/profile validation failure, not official success or a
+resource interruption. The original physical input and its successful physical
+proof remain unchanged. Fixing the fixture's explicit rule-policy provenance
+requires separate verification; no profile alias, database rewrite or inferred
+rule semantics is authorized by this failed attempt.
