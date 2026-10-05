@@ -9,6 +9,7 @@ import type { SqlitePlayerReleaseGeometryStore } from './SqlitePlayerReleaseGeom
 import { assertArchivedPlayerWorkloadActivity, type SqlitePlayerWorkloadRecoveryStore, type DurablePlayerWorkloadActivity } from './SqlitePlayerWorkloadRecoveryStore';
 import type { SqlitePitchFatiguePolicyStore } from './SqlitePitchFatiguePolicyStore';
 import type { SqliteDevelopmentInitiationStore } from './SqliteDevelopmentInitiationStore';
+import { installActualPracticeLearning, type ActualPracticeLearningAuthority, type ActualPracticeLearningMethods } from './ActualPitchTimingLearningFromPractice';
 import { freezePractice, planPracticeDelivery, practiceActivityId, practiceAttemptId, practiceFields, practiceHash,
   practiceId, practiceJson as json, practicePhases, practiceRevision, practiceTimingAtRevision, practiceWorkload,
   validatePracticeAssessment, validatePracticeOpportunity, type PitchPracticeAssessment, type PitchPracticeAttempt,
@@ -17,18 +18,18 @@ import { freezePractice, planPracticeDelivery, practiceActivityId, practiceAttem
 export type PitchPracticeSources = Readonly<{
   personLinks: Pick<SqlitePlayerPersonLinkStore, 'readLink'>;
   person: Pick<SqlitePersonGenesisStore, 'read'>;
-  timing: Pick<SqlitePlayerPitchTimingStore, 'readHead'>;
+  timing: Pick<SqlitePlayerPitchTimingStore, 'readHead' | 'selectAtRevision'> & Partial<Pick<SqlitePlayerPitchTimingStore, 'apply'>>;
   release: Pick<SqlitePlayerReleaseGeometryStore, 'readHead'>;
   workload: Pick<SqlitePlayerWorkloadRecoveryStore, 'readHead' | 'selectAtRevision' | 'readActivity' | 'apply'>;
   policies: Pick<SqlitePitchFatiguePolicyStore, 'readAcceptedPolicy'>;
   episodes: Pick<SqliteDevelopmentInitiationStore, 'read' | 'advance'>;
 }>;
-export type PitchPracticeAuthority = Readonly<{
+export type PitchPracticeAuthority = ActualPracticeLearningAuthority & Readonly<{
   readAcceptedOpportunity(sourceId: string): PitchPracticeOpportunity | null;
   readAcceptedAssessment(sourceId: string): PitchPracticeAssessment | null;
 }>;
 type EvidenceDb = Pick<DatabaseSync, 'prepare'>;
-export type SqlitePitchPracticeAttemptStore = Readonly<{
+export type SqlitePitchPracticeAttemptStore = ActualPracticeLearningMethods & Readonly<{
   begin(sourceId: string): PitchPracticeAttempt;
   advance(attemptId: string, expectedRevision: number, throughUs: number): PitchPracticeAttempt;
   acceptAssessment(sourceId: string): PitchPracticeAttempt;
@@ -100,6 +101,7 @@ const learningEvidence = (connection: EvidenceDb, episodeId: string): unknown =>
 type Verification = {
   physical: Map<string, PitchPracticeAttempt>;
   learning: Map<string, string>;
+  timingCeiling?: number;
 };
 const verification = (): Verification => ({ physical: new Map(), learning: new Map() });
 
@@ -142,7 +144,9 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
       if (!personLink || !person || personLink.careerId !== o.careerId || personLink.playerId !== o.playerId
         || personLink.acceptedAtDay > o.atDay || person.careerId !== o.careerId || person.playerId !== o.playerId
         || person.personId !== personLink.personId || person.sourceId !== o.personLinkSourceId) throw new Error('practice Player Person scope differs');
-      const timingHead = sources.timing.readHead(o.careerId, o.playerId), releaseHead = sources.release.readHead(o.careerId, o.playerId);
+      const timingHead = fresh ? sources.timing.readHead(o.careerId, o.playerId)
+        : sources.timing.selectAtRevision(o.careerId, o.playerId, o.timingRevision);
+      const releaseHead = sources.release.readHead(o.careerId, o.playerId);
       const workloadHead = sources.workload.readHead(o.careerId, o.playerId), policy = sources.policies.readAcceptedPolicy(o.fatiguePolicySourceId);
       if (!timingHead || !releaseHead || !workloadHead || !policy) throw new Error('practice source baseline or policy missing');
       if (fresh && (timingHead.revision !== o.timingRevision || releaseHead.revision !== o.releaseRevision || workloadHead.revision !== o.workloadRevision)) {
@@ -187,6 +191,7 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
         const frozen = freezePractice(attempt); verified.physical.set(cacheKey, frozen); return frozen;
       };
       const o = validatePracticeOpportunity(JSON.parse(row.opportunity_json) as PitchPracticeOpportunity, row.source_id);
+      if (verified.timingCeiling !== undefined && o.timingRevision > verified.timingCeiling) throw new Error('practice proof depends on a later timing revision');
       const frame = captureFrame(o, false), plannedDelivery = planPracticeDelivery(o, frame);
       const priorClock = JSON.parse(row.prior_clock_json) as PitchPracticePriorClock | null;
       const episodeBefore = JSON.parse(row.episode_before_json) as DevelopmentLearningEpisode | null;
@@ -319,7 +324,15 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
     const assertLearningEvidence = (connection: EvidenceDb, event: DevelopmentLearningEventInput, phase: string): void => {
       authenticateLearning(connection, event, phase, verification());
     };
+    const learning = installActualPracticeLearning(db, sources, authority, { check, transaction,
+      readAttempt(connection, attemptId, maximumTimingRevision) {
+        const row = rowById(connection, attemptId);
+        return row ? decode(row, connection, row.revision, { ...verification(), timingCeiling: maximumTimingRevision }) : null;
+      },
+      inspectFrame: captureFrame, frameEvidence: physicalEvidence, assertLearningEvidence,
+    });
     return Object.freeze({
+      ...learning,
       begin(sourceId): PitchPracticeAttempt {
         check(sourceId);
         const raw = authority?.readAcceptedOpportunity(sourceId) ?? null;
@@ -331,6 +344,7 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
             return decode(prior, db);
           }
           if (!o) throw new Error('accepted practice opportunity is missing');
+          learning.assertProbeAdmission(o);
           const attemptId = practiceAttemptId(o);
           if (rowById(db, attemptId)) throw new Error('practice identity already belongs to another source alias');
           const previous = db.prepare('SELECT * FROM pitch_practice_attempts WHERE career_id=? AND opportunity_id=? ORDER BY ordinal DESC LIMIT 1')

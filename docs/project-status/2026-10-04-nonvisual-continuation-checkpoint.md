@@ -1,8 +1,16 @@
 # 非デザイン継続実装: 現在の接続と検証
 
-更新: 2026-10-05 21:02 JST（2026-10-05 12:02 UTC）
+更新: 2026-10-05 21:27 JST（2026-10-05 12:27 UTC）
 
 ユーザーの継続指示に従い、最新の確定済み残計画を進めている。**計画全体・自律試合/Career全体の完了ではない**。デザイン/UI/art/Presentationは未接続のまま。
+
+## 2026-10-05 12:27 UTC: actual practice と accepted learning
+
+実practiceと別々に消費されたNORMAL/QUICK測定probeを、明示的に受理された測定結果・既存episode・露出・feedback/consolidationへ照合し、既存timing ownerで採用する接続を加えた。元practiceと2つのprobeのworkloadをそれぞれ保持し、同じ証拠の重複採用、未実施probe、異なる条件、古いrevision、書込み中の改変を拒否する。標準化係数や自動的な能力上昇は生成しない。
+
+最新公開stackに統合した固定 `98a96fd` で **6 files /87 tests、0 skip、catalog check、full typecheck PASS**。全Source/control不変・全process回収を確認した。Complete src treeは `1fea871c442aa02b84291baa3778f1bd367dd02f`。詳細は [practice learning provenance](../implementation/2026-10-05-actual-practice-learning-provenance.md#verification-on-the-current-combined-source)。実opportunity生成とproduction測定入力、全10人のworkload・実next pitch、一般runner・venue/review・Careerと最新累積wholeは継続中。
+
+検証範囲の補足: 下記owned-runner field/kinematicsのNative保存・reopen検査は、共有メモリSQLiteで元の依存ownerを保持したreader再openを含む。全handleを閉じた実ファイルからの再起動まで証明したものではなく、後続pieceの検査で明示的な実ファイル・全接続close・fresh readerとINSERT到達の証拠を追加する。既存の数値・SQL検査結果を変更せず、この再起動範囲を区別する。
 
 ## 2026-10-05 12:02 UTC: official artifact の再認証と continuation
 
