@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { appendDevelopmentLearningEvent,
   type DevelopmentLearningEventInput,
@@ -22,6 +23,11 @@ export type AcceptedDevelopmentLearningAuthority = Readonly<{
   readAcceptedLearningEvent(sourceId: string):
     DevelopmentLearningEventInput | null;
 }>;
+export type DevelopmentLearningEvidenceGuard = (
+  database: Pick<DatabaseSync, 'prepare'>,
+  event: DevelopmentLearningEventInput,
+  phase: 'write' | 'written' | 'read' | 'retry',
+) => void;
 export type SqliteDevelopmentInitiationStore = Readonly<{
   apply(input: DevelopmentInitiationSourceRequest):
     RecordedDevelopmentInitiation;
@@ -57,12 +63,14 @@ export const openSqliteDevelopmentInitiationStore = (
   databasePath: string,
   sources: Omit<DevelopmentAppraisalSources, 'history'>,
   learningAuthority?: AcceptedDevelopmentLearningAuthority | null,
+  evidenceGuard?: DevelopmentLearningEvidenceGuard,
 ): SqliteDevelopmentInitiationStore => {
   if (!id(databasePath) || !sources?.roster || !sources.person
     || !sources.appraisal || !sources.policies
     || (learningAuthority != null
       && typeof learningAuthority.readAcceptedLearningEvent
-        !== 'function')) {
+        !== 'function')
+    || (evidenceGuard !== undefined && typeof evidenceGuard !== 'function')) {
     throw new Error('invalid development initiation sources');
   }
   const Database = (createRequire(import.meta.url)('node:sqlite') as
@@ -138,6 +146,7 @@ export const openSqliteDevelopmentInitiationStore = (
       if (canonicalJson(current) !== update.state_json) {
         throw new Error('development learning replay diverged');
       }
+      evidenceGuard?.(db, event, 'read');
     }
     if (row.revision !== current.revision
       || canonicalJson(current) !== row.current_json) {
@@ -237,6 +246,8 @@ export const openSqliteDevelopmentInitiationStore = (
             throw new Error('development learning source retry differs');
           }
           read(episodeId);
+          evidenceGuard?.(db, JSON.parse(prior.event_json) as
+            DevelopmentLearningEventInput, 'retry');
           return JSON.parse(prior.state_json) as
             DevelopmentLearningEpisode;
         }
@@ -252,6 +263,7 @@ export const openSqliteDevelopmentInitiationStore = (
         const event = cloneInert(raw);
         const after = appendDevelopmentLearningEvent(current.episode,
           expectedRevision, event);
+        evidenceGuard?.(db, event, 'write');
         db.prepare(`INSERT INTO world_development_learning_events
           (source_id, episode_id, before_revision, after_revision,
            event_json, state_json) VALUES (?, ?, ?, ?, ?, ?)`).run(
@@ -265,6 +277,7 @@ export const openSqliteDevelopmentInitiationStore = (
         if (updated.changes !== 1) {
           throw new Error('development learning CAS failed');
         }
+        evidenceGuard?.(db, event, 'written');
         return read(episodeId)!.episode;
       });
     },

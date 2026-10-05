@@ -1,8 +1,16 @@
 # 非デザイン継続実装: 現在の接続と検証
 
-更新: 2026-10-05 17:57 JST（2026-10-05 08:57 UTC）
+更新: 2026-10-05 18:23 JST（2026-10-05 09:23 UTC）
 
 ユーザーの継続指示に従い、最新の確定済み残計画を進めている。**計画全体・自律試合/Career全体の完了ではない**。デザイン/UI/art/Presentationは未接続のまま。
+
+## 2026-10-05 09:23 UTC: official stage と実 practice の検証
+
+登録済み profile の原始物理終了を使う固定 `6eb9dd6` の **actual official-only stage がPASS**。09:07 UTCにexit0、4,711.203秒、peak RSS 436,116 KiB、全process回収・全SQLite接続close。Adjudication/applicationの実INSERT改変rollback、1回だけの公式適用、元10 controllerの退役、close/reopenと同一retryが通過し、Source・原始input・監査receiptは不変だった。これは段階別結果であり、全10人のactual-role workloadと実next pitchはまだ未完了。H/E分類は正本が許容する明示unsupportedを保持する。後続workloadのprivate読取りをtransaction内に限定する性能修正は、consumer側のfreshな改変検査を保って別に検証中。
+
+実pitching-practice ownerを既存delivery/body/timing/fatigue/workload/episodeへ接続した。固定 `6e6919f` は **5 files /55 tests、0 skip、full typecheck PASS**。完全なsrc treeは `58540a7188fe74e4d423a89bcb2241fb4933e68d`。明示opportunityからconsumed phase、独立effort/health評価、PRACTICE workload、適格な既存episode eventへ進み、Matchを捏造せず再開・retry・rollbackする。詳細は [practice verification](../verification/2026-10-05-actual-pitch-practice.md)。Raw timingの能力測定化や自動学習生成は含めず、実probeからaccepted measurementへの接続を続けている。
+
+この2件と、一般runner・venue/legal・review・Careerの後続実装を継続する。**計画全体は未完了**。最新完了の累積wholeは引き続き#277の697 files /5,159 tests + typecheckであり、今回のfocused結果を後続全体の成功へ転用しない。
 
 ## 2026-10-05 08:57 UTC の検証位置
 

@@ -54,3 +54,40 @@ it('rejects fabricated transition history and wrong-player attribution', () => {
     changed.state, { ...changed.event, afterRevision: 5 }, 'p1'))
     .toThrow('roster event');
 });
+
+it('replays canonically serialized roster evidence while still rejecting changed event facts', () => {
+  const before = createRosterState(rosterFixture());
+  const changed = applyRosterChange(before, { commandId: 'native-promotion', causeEventId: 'native-execution',
+    expectedRevision: 0, effectiveDay: 10, changes: [{ playerId: 'p2', assignment: { clubId: 'a', unitId: 'a-first' } }] });
+  if (!changed.ok) throw new Error(JSON.stringify(changed.rejection));
+  const canonicalRoundTrip = <T>(input: T): T => JSON.parse(JSON.stringify(input, (_key, item: unknown) =>
+    item !== null && typeof item === 'object' && !Array.isArray(item)
+      ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)) : item)) as T;
+  const nativeEvent = canonicalRoundTrip(changed.event);
+  expect(JSON.stringify(nativeEvent)).not.toBe(JSON.stringify(changed.event));
+  expect(deriveRosterDevelopmentCatalyst(canonicalRoundTrip(before), canonicalRoundTrip(changed.state), nativeEvent, 'p2'))
+    .toEqual(deriveRosterDevelopmentCatalyst(before, changed.state, changed.event, 'p2'));
+  const forged = { ...nativeEvent, changes: nativeEvent.changes.map(change => ({ ...change,
+    before: { ...change.before, availability: { ...change.before.availability, evidenceId: 'forged-before-health' } } })) };
+  expect(() => deriveRosterDevelopmentCatalyst(before, changed.state, forged, 'p2')).toThrow('cannot be replayed');
+});
+
+it('preserves ordered transition changes when validating roster evidence', () => {
+  const before = createRosterState(rosterFixture());
+  const changed = applyRosterChange(before, { commandId: 'native-swap', causeEventId: 'native-swap-execution',
+    expectedRevision: 0, effectiveDay: 10, changes: [
+      { playerId: 'p1', assignment: { clubId: 'a', unitId: 'a-reserve' } },
+      { playerId: 'p2', assignment: { clubId: 'a', unitId: 'a-first' } },
+    ] });
+  if (!changed.ok) throw new Error(JSON.stringify(changed.rejection));
+  expect(changed.event.changes).toHaveLength(2);
+  expect(() => deriveRosterDevelopmentCatalyst(before, changed.state,
+    { ...changed.event, changes: [...changed.event.changes].reverse() }, 'p2')).toThrow('cannot be replayed');
+  const registrations = [...changed.event.changes[0].before.registrations];
+  registrations.length += 1;
+  const sparse = { ...changed.event, changes: changed.event.changes.map((change, index) => index ? change
+    : { ...change, before: { ...change.before, registrations } }) };
+  expect(() => deriveRosterDevelopmentCatalyst(before, changed.state, sparse, 'p2')).toThrow('cannot be replayed');
+  const extra = { ...changed.event, unownedFact: 'forged' };
+  expect(() => deriveRosterDevelopmentCatalyst(before, changed.state, extra, 'p2')).toThrow('cannot be replayed');
+});
