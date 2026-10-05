@@ -3,6 +3,7 @@ import { getRuleProfile, type RuleProfile } from '../../core/rules/RuleProfile';
 import type { RuleProfileId } from '../../core/model/RuleProfileRef';
 import { actualLivePlayFields as fields, actualLivePlayId as id } from './ActualLivePlayScope';
 import { actorFreeze as freeze, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+export { actualPostPlayReviewSessionInput, actualPostPlayReviewEventInput, actualPostPlayReviewIntentInput } from './ActualPostPlayReviewSource';
 export type ActualLiveOfficialPolicy = Readonly<{ sourceId: string; sourceVersion: string; ruleProfileId: string;
   officialWindows: NonNullable<RuleProfile['officialWindows']> }>;
 export type AcceptedActualLiveAdjudication = Readonly<{ sourceId: string; sourceVersion: string; physicalEndSourceId: string;

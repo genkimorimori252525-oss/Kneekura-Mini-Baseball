@@ -4,8 +4,12 @@ import type { BetweenPlayWorldSetup } from '../../core/adjudication/BetweenPlayW
 import { actualLivePlayFields as fields, actualLivePlayId as id } from './ActualLivePlayScope';
 import { actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { actualLiveFinalScoringInput, type AcceptedActualLiveFinalScoring } from './ActualLiveFinalScoringSource';
+export type ActualLivePostPlayReviewReference = Readonly<{
+  sessionSourceId: string; revision: number; headSourceId: string; headHash: string;
+}>;
 type Common = Readonly<{ sourceId: string; sourceVersion: string; adjudicationSourceId: string;
-  applicationId: string; closureTick: number; controllerReset: 'rule_system_retire_original_play' }>;
+  applicationId: string; closureTick: number; controllerReset: 'rule_system_retire_original_play';
+  postPlayReviewReference?: ActualLivePostPlayReviewReference }>;
 export type AcceptedActualLivePlayClosure = Common & (
   | Readonly<{ nextStartedAtTick: number; worldSetup: BetweenPlayWorldSetup; gamePolicy?: GameCompletionPolicy; finalScoring?: never }>
   | Readonly<{ nextStartedAtTick: null; worldSetup: null; gamePolicy: GameCompletionPolicy; finalScoring?: AcceptedActualLiveFinalScoring }>
@@ -15,9 +19,18 @@ const point = (v: { x: number; z: number }) => fields(v, ['x', 'z']) && Number.i
 export const actualLivePlayClosureInput = (raw: AcceptedActualLivePlayClosure, sourceId: string): AcceptedActualLivePlayClosure => {
   const s = cloneInert(raw);
   if (!fields(s, ['sourceId', 'sourceVersion', 'adjudicationSourceId', 'applicationId', 'closureTick', 'nextStartedAtTick', 'controllerReset', 'worldSetup',
-    ...(Object.hasOwn(s, 'gamePolicy') ? ['gamePolicy'] : []), ...(Object.hasOwn(s, 'finalScoring') ? ['finalScoring'] : [])])
+    ...(Object.hasOwn(s, 'gamePolicy') ? ['gamePolicy'] : []), ...(Object.hasOwn(s, 'finalScoring') ? ['finalScoring'] : []),
+    ...(Object.hasOwn(s, 'postPlayReviewReference') ? ['postPlayReviewReference'] : [])])
     || s.sourceId !== sourceId || ![s.sourceId, s.sourceVersion, s.adjudicationSourceId, s.applicationId].every(id)
     || !tick(s.closureTick) || s.controllerReset !== 'rule_system_retire_original_play') throw new Error('invalid accepted actual live closure/setup Source');
+  if (Object.hasOwn(s, 'postPlayReviewReference')) {
+    const reference = s.postPlayReviewReference;
+    if (!fields(reference, ['sessionSourceId', 'revision', 'headSourceId', 'headHash'])
+      || !id(reference!.sessionSourceId) || !id(reference!.headSourceId) || !tick(reference!.revision)
+      || typeof reference!.headHash !== 'string' || !/^[a-f0-9]{64}$/.test(reference!.headHash)) {
+      throw new Error('invalid accepted post-play review closure reference');
+    }
+  }
   if (Object.hasOwn(s, 'gamePolicy') && (!fields(s.gamePolicy, ['version', 'minimumInnings', 'tiesAllowed',
     ...(s.gamePolicy && Object.hasOwn(s.gamePolicy, 'maximumInnings') ? ['maximumInnings'] : [])])
     || !id(s.gamePolicy!.version))) throw new Error('invalid accepted actual live game policy');
