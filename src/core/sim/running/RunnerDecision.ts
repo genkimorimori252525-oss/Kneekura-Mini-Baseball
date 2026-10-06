@@ -11,6 +11,8 @@ import {
   resolveRunnerDecisionTiming,
   type RunnerDecisionTimingParameters,
 } from './RunnerDecisionTiming';
+import { runnerPartialTagUpWaitInput, type RunnerPartialTagUpWaitInput } from './RunnerPartialTagUpWaitInput';
+export type { RunnerPartialTagUpWaitContext, RunnerPartialTagUpWaitInput } from './RunnerPartialTagUpWaitInput';
 
 export type RunnerKnownContext = Readonly<{
   currentBase: 1 | 2 | 3;
@@ -301,13 +303,10 @@ const bestCue = <TKind extends RunnerPerceivedCue['kind']>(
   return matching[0] ?? null;
 };
 
-const chooseRunnerAction = (
-  input: RunnerDecisionInput,
-): ChosenAction => {
-  const context = input.perceivedWorld.knownContext;
-  const observationTime =
-    input.perceivedWorld.observationTime;
-
+const chooseTagUpPriorityAction = (
+  context: Pick<RunnerKnownContext, 'tagUp'>,
+  observationTime: number,
+): ChosenAction | null => {
   if (context.tagUp.kind === 'must_retouch') {
     return {
       kind: 'retreat',
@@ -325,6 +324,18 @@ const chooseRunnerAction = (
       perceivedRaceMarginTicks: null,
     };
   }
+
+  return null;
+};
+
+const chooseRunnerAction = (
+  input: RunnerDecisionInput,
+): ChosenAction => {
+  const context = input.perceivedWorld.knownContext;
+  const observationTime =
+    input.perceivedWorld.observationTime;
+  const tagUp = chooseTagUpPriorityAction(context, observationTime);
+  if (tagUp !== null) return tagUp;
 
   const currentBaseThreat = bestCue(
     input.perceivedCues,
@@ -407,9 +418,13 @@ const chooseRunnerAction = (
   };
 };
 
-export const decideRunnerMotionIntent = (
-  input: RunnerDecisionInput,
-): RunnerMotionDecision => {
+type RunnerDecisionParameters = Pick<RunnerDecisionInput, 'runnerId' | 'minimumCueConfidence' | 'coachTrust'
+  | 'minimumAdvanceSafetyMarginTicks' | 'decisionAbility' | 'timingParameters'> & Readonly<{
+    perceivedWorld: Pick<RunnerDecisionInput['perceivedWorld'], 'observerId' | 'observationTime'>;
+  }>;
+const validateRunnerDecisionParameters = (
+  input: RunnerDecisionParameters,
+): void => {
   if (input.runnerId.length === 0) {
     throw new Error(
       'runnerId must not be empty',
@@ -451,17 +466,12 @@ export const decideRunnerMotionIntent = (
     );
   }
 
-  validateContext(
-    input.perceivedWorld.knownContext,
-  );
-  for (const cue of input.perceivedCues) {
-    validateCue(
-      cue,
-      input.perceivedWorld.observationTime,
-    );
-  }
+};
 
-  const chosen = chooseRunnerAction(input);
+const finishRunnerDecision = (
+  chosen: ChosenAction,
+  input: Pick<RunnerDecisionInput, 'decisionAbility' | 'timingParameters'>,
+): RunnerMotionDecision => {
   const timing = resolveRunnerDecisionTiming(
     chosen.evidenceAvailableAt,
     input.decisionAbility,
@@ -480,4 +490,32 @@ export const decideRunnerMotionIntent = (
     perceivedRaceMarginTicks:
       chosen.perceivedRaceMarginTicks,
   };
+};
+
+export const decideRunnerMotionIntent = (
+  input: RunnerDecisionInput,
+): RunnerMotionDecision => {
+  validateRunnerDecisionParameters(input);
+  validateContext(
+    input.perceivedWorld.knownContext,
+  );
+  for (const cue of input.perceivedCues) {
+    validateCue(
+      cue,
+      input.perceivedWorld.observationTime,
+    );
+  }
+  return finishRunnerDecision(chooseRunnerAction(input), input);
+};
+
+/** Only justified tag-up waiting is actionable here. Unknown force/cues are
+ * retained as unknown and never converted into legacy booleans or empty scans. */
+export const decideRunnerMotionIntentFromPartialContext = (
+  raw: RunnerPartialTagUpWaitInput,
+): RunnerMotionDecision => {
+  const input = runnerPartialTagUpWaitInput(raw);
+  validateRunnerDecisionParameters(input);
+  const chosen = chooseTagUpPriorityAction(input.perceivedWorld.knownContext, input.perceivedWorld.observationTime);
+  if (chosen === null || chosen.reason !== 'tag_up_wait') throw new Error('unsupported partial runner decision');
+  return finishRunnerDecision(chosen, input);
 };

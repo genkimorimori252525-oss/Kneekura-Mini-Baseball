@@ -1,0 +1,95 @@
+{
+  "schema": "partial_tag_up_wait_core_exact_selection_v1",
+  "sourceCommit": "b6f5e726a40e5fc5c1682749fd846f644580fef9",
+  "sourceTree": "0aa6b0f02921463b614fc0a59cb9129967498034",
+  "testedFullTree": "2668859676ef2731fe9287df3c5aca5d5f33328e",
+  "expectedTests": 47,
+  "tests": [
+    "src/core/sim/liveAction/ActorPolicySettlement.test.ts",
+    "src/core/sim/running/RunnerDecision.test.ts",
+    "src/core/sim/running/RunnerDecisionTiming.test.ts",
+    "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+    "src/core/sim/running/RunnerPartialTagUpWaitBoundary.test.ts"
+  ],
+  "caseNames": {
+    "src/core/sim/running/RunnerPartialTagUpWaitBoundary.test.ts": [
+      "exposes a versioned unavailable-force tag-up wait path on the existing Core decision engine"
+    ],
+    "src/core/sim/running/RunnerPartialTagUpWait.test.ts": [
+      "selects the complete existing hold and timing result with explicitly unavailable force and cues",
+      "uses actual consumption time rather than an earlier remembered sample time for the wait decision",
+      "shifts evidence and cognitive decision together when actual consumption is later",
+      "changes only existing cognitive timing with decision ability and never turns wait into settlement",
+      "leaves unavailable knowledge and the original perceived input unchanged across repeated choices",
+      "rejects an aliased root key instead of accepting a different partial shape",
+      "rejects cognitive tick overflow at an actual nonzero near-limit consumption time",
+      "matches legacy tag-up priority even when the legacy force boolean is true",
+      "matches legacy tag-up priority even when the legacy force boolean is false",
+      "rejects unknown_version without reaching force, coach, race or no-action fallback",
+      "rejects tag_none without reaching force, coach, race or no-action fallback",
+      "rejects tag_retouch without reaching force, coach, race or no-action fallback",
+      "rejects force_missing without reaching force, coach, race or no-action fallback",
+      "rejects force_known_true without reaching force, coach, race or no-action fallback",
+      "rejects force_known_false without reaching force, coach, race or no-action fallback",
+      "rejects cue_completed without reaching force, coach, race or no-action fallback",
+      "rejects force_boolean without reaching force, coach, race or no-action fallback",
+      "rejects inline_cues without reaching force, coach, race or no-action fallback",
+      "rejects scheduled_state without reaching force, coach, race or no-action fallback",
+      "rejects observer_mismatch without reaching force, coach, race or no-action fallback",
+      "rejects nonadjacent_base without reaching force, coach, race or no-action fallback",
+      "rejects fractional_time without reaching force, coach, race or no-action fallback",
+      "rejects settled_result without reaching force, coach, race or no-action fallback",
+      "rejects a version accessor before invoking it",
+      "rejects a forceKnowledge accessor before invoking it",
+      "rejects a timing accessor before invoking it",
+      "rejects invalid required ability calibration without choosing a default wait",
+      "rejects invalid required timing calibration without choosing a default wait"
+    ],
+    "src/core/sim/running/RunnerDecision.test.ts": [
+      "RunnerDecision advances when the perceived next-base race clears the safety margin",
+      "RunnerDecision holds when the perceived next-base race is too tight",
+      "RunnerDecision advances on a force obligation even when the optional race would be bad",
+      "RunnerDecision holds while the runner is still awaiting perceived first fielder touch",
+      "RunnerDecision retreats to satisfy tag-up retouch before considering an advance signal",
+      "RunnerDecision retreats from a current-base pickoff/tag threat before considering an optional advance",
+      "RunnerDecision can follow an already received coach instruction when no higher-priority obligation exists",
+      "RunnerDecision does not use a coach communication that has not arrived yet",
+      "RunnerDecision changes cognitive issue time with decision ability without changing the chosen action"
+    ],
+    "src/core/sim/running/RunnerDecisionTiming.test.ts": [
+      "RunnerDecisionTiming maps low decision ability to the slow end",
+      "RunnerDecisionTiming maps high decision ability to the fast end",
+      "RunnerDecisionTiming rejects invalid ability and timing calibration"
+    ],
+    "src/core/sim/liveAction/ActorPolicySettlement.test.ts": [
+      "actor settlement from accepted policy decisions settles quiescent hold decisions after their decision ticks and permits PlayEnd",
+      "actor settlement from accepted policy decisions keeps tag-up waiting and actionable advance decisions active",
+      "actor settlement from accepted policy decisions keeps actors moving or awaiting an incomplete source active despite a hold decision",
+      "actor settlement from accepted policy decisions keeps a decision pending until its actual policy decision tick",
+      "actor settlement from accepted policy decisions requires exactly one policy decision per world actor and rejects future observations",
+      "actor settlement from accepted policy decisions rejects quiescence claims while an untracked ball is still moving"
+    ]
+  },
+  "perFileCounts": {
+    "src/core/sim/running/RunnerPartialTagUpWaitBoundary.test.ts": 1,
+    "src/core/sim/running/RunnerPartialTagUpWait.test.ts": 28,
+    "src/core/sim/running/RunnerDecision.test.ts": 9,
+    "src/core/sim/running/RunnerDecisionTiming.test.ts": 3,
+    "src/core/sim/liveAction/ActorPolicySettlement.test.ts": 6
+  },
+  "ancestorTitles": {
+    "src/core/sim/running/RunnerPartialTagUpWaitBoundary.test.ts": [],
+    "src/core/sim/running/RunnerPartialTagUpWait.test.ts": [],
+    "src/core/sim/running/RunnerDecision.test.ts": [
+      "RunnerDecision"
+    ],
+    "src/core/sim/running/RunnerDecisionTiming.test.ts": [
+      "RunnerDecisionTiming"
+    ],
+    "src/core/sim/liveAction/ActorPolicySettlement.test.ts": [
+      "actor settlement from accepted policy decisions"
+    ]
+  },
+  "currentCoreTerminalSha256": "e4a077e292ef709f0b70561887ad366a9436b7490e3693309107e3f8976e3342",
+  "historicalResultsInherited": false
+}
