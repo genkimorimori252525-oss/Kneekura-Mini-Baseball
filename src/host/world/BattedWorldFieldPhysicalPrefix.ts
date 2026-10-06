@@ -43,8 +43,8 @@ const normalized = (contact: BallWorldBoundaryContact): BallWorldBattedRuleConta
 /** Bounded Source identity comparison, not ownership or physical replay authority.
  * New versioned histories compare individual inert records; raw/v1 histories retain
  * the original aggregate validation and byte convention. */
-export const battedWorldFieldExecutionHistoryMatches = (history: readonly AcceptedBattedWorldFieldExecution[],
-  original: readonly AcceptedBattedWorldFieldExecution[]): boolean => {
+const executionHistoryMatches = (history: readonly AcceptedBattedWorldFieldExecution[],
+  original: readonly AcceptedBattedWorldFieldExecution[], sourceJson: (source: AcceptedBattedWorldFieldExecution) => string): boolean => {
   const records = (values: readonly AcceptedBattedWorldFieldExecution[]) => {
     if (Array.isArray(values) && values.length > 100_000) throw new Error('actual field history exceeds size limits');
     if (!Array.isArray(values) || Reflect.ownKeys(values).length !== values.length + 1) throw new Error('actual field history requires a dense inert array');
@@ -54,15 +54,19 @@ export const battedWorldFieldExecutionHistoryMatches = (history: readonly Accept
       return descriptor.value as AcceptedBattedWorldFieldExecution;
     });
   };
-  const originals = records(original).map(value => json(value));
+  const originals = records(original).map(value => sourceJson(value));
   const owned = originals.some(value => {
     const source = JSON.parse(value) as AcceptedBattedWorldFieldExecution;
     return ['owned_motion_v2', 'owned_acquisition_plan_v1', 'owned_throw_plan_v1'].includes(source?.action?.kind);
   });
   if (!owned) return json(history) === json(original);
   const actual = records(history);
-  return actual.length === originals.length && actual.every((value, index) => json(value) === originals[index]);
+  return actual.length === originals.length && actual.every((value, index) => sourceJson(value) === originals[index]);
 };
+
+/** Public comparisons always validate afresh; callers cannot supply trusted bytes. */
+export const battedWorldFieldExecutionHistoryMatches = (history: readonly AcceptedBattedWorldFieldExecution[],
+  original: readonly AcceptedBattedWorldFieldExecution[]): boolean => executionHistoryMatches(history, original, json);
 
 /** Only the Native owner's complete rederived field/execution prefix is admissible. Observations never execute physical time. */
 const projectPhysicalPrefix = (input: PrefixInput, reference: (snapshot: DurableBattedWorldFieldExecution) => OwnedScheduledMotionReference): Readonly<{ field: BallWorldFieldTerritoryInput;
@@ -246,6 +250,7 @@ const projectPhysicalPrefix = (input: PrefixInput, reference: (snapshot: Durable
   // Keep base-field and plan comparisons local to each complete projection.
   // Archive references belong to the enclosing pure replay factory.
   const dependencyEncoding = createOwnedScheduledMotionDependencyEncoding();
+  const sourceJson = (source: AcceptedBattedWorldFieldExecution) => dependencyEncoding.source(source).json;
   const planEncoding = createOwnedScheduledMotionPlanEncoding();
   const planJson = (kind: OwnedScheduledMotionOperation['kind'], plan: OwnedScheduledMotionOperation['plan']) => kind === 'acquisition'
     ? planEncoding.acquisition(plan as Extract<OwnedScheduledMotionOperation, { kind: 'acquisition' }>['plan']).json
@@ -256,7 +261,7 @@ const projectPhysicalPrefix = (input: PrefixInput, reference: (snapshot: Durable
     if (value.revision !== index + 1 || !id(value.source.sourceId) || sources.has(value.source.sourceId)
       || value.source.baseFieldSourceId !== base.source.sourceId || dependencyEncoding.baseField(value.baseField).json !== dependencyEncoding.baseField(base).json
       || value.source.previousExecutionSourceId !== (input.executions[index - 1]?.source.sourceId ?? null)
-      || !battedWorldFieldExecutionHistoryMatches(value.history, input.executions.slice(0, index + 1).map((execution) => execution.source))
+      || !executionHistoryMatches(value.history, input.executions.slice(0, index + 1).map((execution) => execution.source), sourceJson)
       || value.source.action.kind !== value.execution.kind) throw new Error('actual field execution Source prefix differs');
     sources.add(value.source.sourceId);
     const execution = value.execution;

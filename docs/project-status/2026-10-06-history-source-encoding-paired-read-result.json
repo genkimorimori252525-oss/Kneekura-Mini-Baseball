@@ -1,0 +1,67 @@
+{
+  "schema": "history_source_encoding_paired_read_result_v1",
+  "sourceAttribution": {
+    "baseline": {
+      "commit": "c68a3dc47196b1aae2cd678470ebaad207992d1a",
+      "srcTree": "183e367eda89426b32707bb1d5d5e108ddc59455"
+    },
+    "repaired": {
+      "commit": "d6e7b4951f06dc3f8f1a88f001b55ee48c59320c",
+      "srcTree": "a1b49dc103914174d32cb5d137add78c44ee16eb"
+    }
+  },
+  "diagnosticPassed": true,
+  "actualAuthenticatedReads": 4,
+  "freshProcesses": 4,
+  "exactEndBytesEqual": true,
+  "exactWholeHistoryBytesEqual": true,
+  "sqlCountsEqual": true,
+  "sqlOrderClaim": false,
+  "endProjectionSha256": "f35a1d6f5b7b2d70bff1a9e38f27c237b23788a5f6c1210b391cbe82dd1dedc3",
+  "wholeHistorySha256": "ee1eaec4f6670a66a372adb0b734483effb9b1cbc5155d1b253921356611731e",
+  "timings": [
+    {
+      "passName": "B1",
+      "source": "baseline",
+      "rootReadMilliseconds": 73310.764414,
+      "cpuMicroseconds": {
+        "user": 74039805,
+        "system": 954650
+      }
+    },
+    {
+      "passName": "R1",
+      "source": "repaired",
+      "rootReadMilliseconds": 68816.54530499999,
+      "cpuMicroseconds": {
+        "user": 69472582,
+        "system": 1133287
+      }
+    },
+    {
+      "passName": "R2",
+      "source": "repaired",
+      "rootReadMilliseconds": 70421.196785,
+      "cpuMicroseconds": {
+        "user": 71094228,
+        "system": 956894
+      }
+    },
+    {
+      "passName": "B2",
+      "source": "baseline",
+      "rootReadMilliseconds": 66808.602381,
+      "cpuMicroseconds": {
+        "user": 67475608,
+        "system": 1085158
+      }
+    }
+  ],
+  "interpretation": "Observed baseline/repaired read durations overlap. OS caches were uncontrolled. No clear timing improvement is demonstrated.",
+  "wholePipelinePassed": false,
+  "positiveTestPassed": false,
+  "currentIntegrationRunClaim": false,
+  "terminalSha256": "f59165da799dc16e2058b510ef2c686fff46c64c9f7210ff076fd29af99fb3aa",
+  "pairResultSha256": "559296f7cfee650e813663a3593e2b4dfbe96185fe09429dc04ac47520177ac4",
+  "containsDatabaseOrProjectionPayload": false
+}
