@@ -3,7 +3,7 @@ import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualL
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { Vec3 } from '../../core/model/geometry';
-import { deriveFirstBattedWorldContact, type BattedWorldActorPrimitive, type BattedWorldSurface, type BattedWorldContactResult } from '../../core/sim/ball/BattedBallWorldContacts';
+import { deriveFirstBattedWorldContact, type BattedWorldActorPrimitive, type BattedWorldContactResult } from '../../core/sim/ball/BattedBallWorldContacts';
 import { sampleBatterSwingState } from '../../core/sim/contact/BatBallContact';
 import { projectDefenderBodyKinematicsSegment, sampleDefenderBodyKinematicsSegment, type DefenderBodyKinematicsSegment } from '../../core/sim/fielding/DefenderBodyKinematics';
 import { composeDefenderPhysicalPrimitiveSegment, type DefenderPhysicalPrimitiveRole } from '../../core/sim/fielding/DefenderPhysicalPrimitive';
@@ -15,12 +15,9 @@ import { deriveAndRecordFirstGroundContactEvidence } from '../../core/sim/plateA
 import type { CanonicalPlateAppearanceTimeline } from '../../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 import { assertNoBattedWorldMotionOwner } from './BattedWorldMotionOwnershipFence';
 
-type Shape = Readonly<{ role: DefenderPhysicalPrimitiveRole; radius: number; offset: Vec3 }>;
-export type AcceptedBattedWorldModel = Readonly<{
-  sourceId: string; sourceVersion: string; gameId: string; careerId: string; fixtureEventId: string; venueId: string; availableAtDay: number;
-  actors: readonly Readonly<{ playerId: string; personId: string; heightMeters: number; bodyOriginHeightMeters: number; primitives: readonly Shape[] }>[];
-  batterGripOffset: Vec3; surfaces: readonly BattedWorldSurface[];
-}>;
+import { acceptedBattedWorldModelInput as modelInput, type AcceptedBattedWorldModel } from './BattedWorldModel';
+import { battedBodyModelMaterializationEvidenceFromSqlite } from './BattedBodyModelMaterializationEvidence';
+export type { AcceptedBattedWorldModel } from './BattedWorldModel';
 type BattedWorldContactCommandSource = Readonly<{
   sourceId: string; sourceVersion: string; flightSourceId: string; modelSourceId: string; previousContactSourceId: string | null;
   commands: readonly Readonly<{ playerId: string; bodyAcceleration: Vec3;
@@ -63,24 +60,8 @@ const input = (raw: AcceptedBattedWorldContact, sourceId: string): AcceptedBatte
   }
   return s;
 };
-const modelInput = (raw: AcceptedBattedWorldModel, sourceId: string): AcceptedBattedWorldModel => {
-  const m = cloneInert(raw);
-  if (!fields(m, ['sourceId', 'sourceVersion', 'gameId', 'careerId', 'fixtureEventId', 'venueId', 'availableAtDay', 'actors', 'batterGripOffset', 'surfaces'])
-    || m.sourceId !== sourceId || ![sourceId, m.sourceVersion, m.gameId, m.careerId, m.fixtureEventId, m.venueId].every(id)
-    || !integer(m.availableAtDay) || !vector(m.batterGripOffset) || !Array.isArray(m.actors) || m.actors.length < 10
-    || new Set(m.actors.map((a) => a?.playerId)).size !== m.actors.length || new Set(m.actors.map((a) => a?.personId)).size !== m.actors.length
-    || m.actors.some((a) => !fields(a, ['playerId', 'personId', 'heightMeters', 'bodyOriginHeightMeters', 'primitives'])
-      || !id(a.playerId) || !id(a.personId) || !finite(a.heightMeters) || a.heightMeters <= 0
-      || !finite(a.bodyOriginHeightMeters) || a.bodyOriginHeightMeters < 0 || a.bodyOriginHeightMeters > a.heightMeters
-      || !allRoles(a.primitives) || a.primitives.some((p: Shape) => !fields(p, ['role', 'radius', 'offset'])
-        || !finite(p.radius) || p.radius <= 0 || !vector(p.offset)))
-    || !Array.isArray(m.surfaces) || m.surfaces.some((s) => !fields(s, ['surfaceId', 'start', 'end', 'minimumHeight', 'maximumHeight'])
-      || !fields(s.start, ['x', 'z']) || !fields(s.end, ['x', 'z']))) throw new Error('invalid accepted batted World model');
-  return m;
-};
-
 export const battedWorldContactEvidenceFromSqlite = (db: Pick<import('node:sqlite').DatabaseSync, 'prepare'>) => {
-  const ownFlights = battedBallFlightEvidenceFromSqlite(db);
+  const ownFlights = battedBallFlightEvidenceFromSqlite(db), materializations = battedBodyModelMaterializationEvidenceFromSqlite(db);
   const readModel = (sourceId: string): AcceptedBattedWorldModel | null => {
     const row = db.prepare('SELECT * FROM batted_world_models WHERE source_id=?').get(sourceId) as {
       source_id: string; game_id: string; source_json: string; source_hash: string;
@@ -88,9 +69,11 @@ export const battedWorldContactEvidenceFromSqlite = (db: Pick<import('node:sqlit
     if (!row) return null;
     const m = modelInput(JSON.parse(row.source_json) as AcceptedBattedWorldModel, sourceId);
     if (row.game_id !== m.gameId || row.source_json !== json(m) || row.source_hash !== hash(m)) throw new Error('corrupt batted World model');
+    materializations.assertModel(m);
     return m;
   };
   const derive = (s: AcceptedBattedWorldContact, m: AcceptedBattedWorldModel, parent: DurableBattedWorldContact | null): DurableBattedWorldContact => {
+    materializations.assertModel(m);
     const flight = ownFlights.read(s.flightSourceId);
     if (!flight) throw new Error('actual batted World flight is missing');
     const { frame } = flight.physicalPitch, batter = frame.batterActor!, world = frame.world, at = flight.flight.contact.tick;

@@ -1,0 +1,11 @@
+# Runner decision-input readiness: source prepared, acceptance pending
+
+The reviewed contract on `9e0ad243ecfc945f26885cde57125c1c19856910` has observed intended RED: one boundary failure and three Native failures, each at the missing-adapter assertion after its required setup. The repaired public-baseline prerequisite on `4edc333c0bc554ed42051fbbfa5eabd9539daea3` separately passed 107 tests and the full compiler.
+
+`actualRunnerDecisionInputEvidenceFromSqlite(db).derive(source, current = false)` now has a source implementation, re-exported by `SqliteActualLocomotionStore.ts`. It accepts only saved pitch/player, field, observation, public-baseline and runner-model references. Existing owners rederive all evidence on the same native connection inside a read transaction; an existing caller transaction is retained. A physical read traversal scopes dependency reuse to that operation and preserves the caller's query-only setting. The adapter opens no connection, creates no table and writes no pending receipt.
+
+The join verifies the original actor/play/runner, recipient and Person link, accepted model day and physical clock, original public context and exact saved field/observation/self cut. Current mode additionally authenticates both field and sensory-history heads and the original open Match frame. Historical mode retains earlier matching cuts. The output hashes the four rederived dependencies and explicitly reports unavailable live context, with null decision input, decision and motor.
+
+Production source and acceptance controls require independent review. No GREEN, compiler pass or Native readiness execution is claimed for this implementation cut. The reviewed Native contract still must demonstrate no schema/row/total_changes delta, same-connection uncommitted corruption visibility, caller rollback, genuine later-field mismatch, observation-only currentness and full read-only reopen.
+
+This is the preparatory dependency bridge within the general runner plan. Semantic catch/ground/touch and force/tag-up knowledge, actual decision selection, owned motor/controller adoption, Native ActorPolicySettlement and authentic SAFE settlement remain pending. Missing knowledge is never a fabricated false force, unrestricted tag-up state, uncovered-base cue, hold or completed play.

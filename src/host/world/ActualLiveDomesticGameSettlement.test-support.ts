@@ -77,8 +77,8 @@ export function actualDomesticFixture(physical: MockPhysicalBoundary, cleanup: (
     ledger, originalMatch: before, timeline: { kind: 'projected', timeline },
     endReference: { owner: 'actual_first_base_play_ends', sourceId: 'end', sourceVersion: 'fixture', sourceHash: 'a'.repeat(64), snapshotHash: 'b'.repeat(64) },
     wholeHistoryReference: { hash: 'c'.repeat(64), convention: 'owned_scheduled_whole_history_manifest_v1' } };
-  physical.end = { gameId: 'series:1', playId: before.playId, playEnd, source: { baseFieldSourceId: 'field', executionSourceId: 'execution' }, futureWork: ['retained-original-work'] };
-  physical.baseField = { geometry: { geometry: { baseGeometry: { bases: Object.fromEntries(Object.entries(setup.baseCenters).map(([base, center]) => [base, { region: { center } }])) } } },
+  physical.end = { gameId: 'series:1', playId: before.playId, playEnd, source: { sourceId: 'end', baseFieldSourceId: 'field', executionSourceId: 'execution' }, futureWork: ['retained-original-work'] };
+  physical.baseField = { source: { sourceId: 'field' }, geometry: { geometry: { baseGeometry: { bases: Object.fromEntries(Object.entries(setup.baseCenters).map(([base, center]) => [base, { region: { center } }])) } } },
     response: { touch: { worldContact: { flight: { physicalPitch: { frame: { match: before, officialRevision: 0, activation: null,
       world: setup, batterActor: { binding: bindings[0] }, bindings: bindings.slice(1) } } } } } } };
   physical.players = bindings.map(b => ({ playerId: b.playerId, personId: b.personId, activeCommand: { sourceId: `command-${b.playerId}` } }));

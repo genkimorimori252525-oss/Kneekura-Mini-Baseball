@@ -13,10 +13,22 @@ import type { BetweenPlayWorldSetup } from '../../core/adjudication/BetweenPlayW
 import type { OfficialParticipantBinding } from './SqliteOfficialParticipationStore';
 import { actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 const physical = vi.hoisted(() => ({ adjudication: null as any, end: null as any, baseField: null as any, players: [] as any[] }));
-vi.mock('./ActualLiveAdjudicationFromSqlite', () => ({ actualLiveAdjudicationEvidenceFromSqlite: () => ({ read: () => physical.adjudication }) }));
+vi.mock('./ActualLiveAdjudicationFromSqlite', () => ({ actualLiveAdjudicationEvidenceFromSqlite: () => ({
+  read: () => physical.adjudication,
+  // Both reader shapes substitute the same synthetic physical boundary.
+  readWithClosureInputs: () => ({ value: physical.adjudication, end: physical.end,
+    prefix: { baseField: physical.baseField, fields: [], executions: [{ source: { sourceId: physical.end.source.executionSourceId } }] } }),
+}) }));
 vi.mock('./SqliteActualFirstBasePlayEndStore', () => ({ actualFirstBaseClosedEvidenceFromSqlite: () => ({ read: () => physical.end }) }));
-vi.mock('./SqliteBattedWorldFieldStore', () => ({ battedWorldFieldEvidenceFromSqlite: () => ({ read: () => physical.baseField, scope: () => [] }) }));
-vi.mock('./SqliteBattedWorldFieldExecutionStore', () => ({ battedWorldFieldExecutionEvidenceFromSqlite: () => ({ scope: () => [] }) }));
+// Preserve the real traversal, transaction snapshot and cleanup guards.
+vi.mock('./SqliteBattedWorldFieldStore', async importOriginal => ({
+  ...await importOriginal<typeof import('./SqliteBattedWorldFieldStore')>(),
+  battedWorldFieldEvidenceFromSqlite: () => ({ read: () => physical.baseField, scope: () => [] }),
+}));
+vi.mock('./SqliteBattedWorldFieldExecutionStore', async importOriginal => ({
+  ...await importOriginal<typeof import('./SqliteBattedWorldFieldExecutionStore')>(),
+  battedWorldFieldExecutionEvidenceFromSqlite: () => ({ scope: () => [] }),
+}));
 vi.mock('./ActualPlayerKinematicsFromPrefix', () => ({ actualPlayersKinematicsFromPrefix: () => physical.players }));
 import { openSqliteActualLivePlayClosureStore } from './SqliteActualLivePlayClosureStore';
 import { actualLivePlayClosureInput } from './ActualLivePlayClosureSource';
@@ -66,8 +78,8 @@ function fixture(patch: Partial<CanonicalMatchState> = {}, includePolicy = true,
   physical.adjudication = { kind: 'official_ready', pendingReasons: [], source: { sourceId: 'adjudication', physicalEndSourceId: 'end' },
     ledger, originalMatch: match, timeline: { kind: 'projected', timeline }, endReference: { sourceId: 'end', snapshotHash: 'physical-hash' },
     wholeHistoryReference: { hash: 'history-hash' } };
-  physical.end = { gameId: 'game', playId: match.playId, playEnd, source: { baseFieldSourceId: 'field', executionSourceId: 'execution' }, futureWork: ['retained-original-work'] };
-  physical.baseField = { geometry: { geometry: { baseGeometry: { bases: Object.fromEntries(Object.entries(nextSetup.baseCenters).map(([base, center]) => [base, { region: { center } }])) } } },
+  physical.end = { gameId: 'game', playId: match.playId, playEnd, source: { sourceId: 'end', baseFieldSourceId: 'field', executionSourceId: 'execution' }, futureWork: ['retained-original-work'] };
+  physical.baseField = { source: { sourceId: 'field' }, geometry: { geometry: { baseGeometry: { bases: Object.fromEntries(Object.entries(nextSetup.baseCenters).map(([base, center]) => [base, { region: { center } }])) } } },
     response: { touch: { worldContact: { flight: { physicalPitch: { frame: { match, officialRevision: 0, activation: null,
       world: originalWorld, batterActor: { binding: originalBindings[0] }, bindings: originalBindings.slice(1) } } } } } } };
   physical.players = originalBindings.map(b => ({ playerId: b.playerId, personId: b.personId, activeCommand: { sourceId: `command-${b.playerId}` } }));
