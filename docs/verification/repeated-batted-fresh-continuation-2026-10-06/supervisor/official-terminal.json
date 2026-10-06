@@ -1,0 +1,72 @@
+{
+  "schema": "fresh_closed_input_continuation_terminal_v1",
+  "at": "2026-10-06T09:43:32.872891+00:00",
+  "invocationVerified": true,
+  "freshContinuationVerified": false,
+  "phases": [
+    {
+      "phase": "official",
+      "startedAt": "2026-10-06T09:08:56.430768+00:00",
+      "bounds": {
+        "wallSeconds": 14400,
+        "oldSpaceMiB": 1024,
+        "heapMiB": 1120,
+        "rssMiB": 1536,
+        "stopReserveGiB": 6
+      },
+      "sourceCommit": "f244a0c0065b783510b4607051c01b9818df35e0",
+      "configurationSha256": "1bf9534fb3c72489942bf81c11b2aa7618847f571b60612c37f6fbce17c6b1c4",
+      "inputManifestSha256": "c0299badb9aa59a6a50edcb9edaa9e5d09a2caedac50f86b410c46c772aeeeb3",
+      "sourceManifestSha256": "66f702345787ae6f2df20cb84f13e0c09aba5e078ba0d5b685a4f76d3ff5d45a",
+      "dependencyManifestSha256": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+      "predecessorTerminal": {
+        "phase": "reauthenticate",
+        "sha256": "5aaebc41da39f554c3dc19b9f3d290c9c18670261c03df8827bc8f5d26e73b5a"
+      },
+      "command": [
+        "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+        "node_modules/vite-node/vite-node.mjs",
+        "--config",
+        "tools/verification/actual-live-pipeline/vite.config.mjs",
+        "tools/verification/repeated-batted-recovery/phase.ts"
+      ],
+      "childPid": 22,
+      "rootStartTime": 1294976,
+      "terminalAt": "2026-10-06T09:43:32.089964+00:00",
+      "exitCode": 0,
+      "seconds": 2075.6599401800013,
+      "peakAggregateRssKiB": 488512,
+      "stopReason": null,
+      "failure": null,
+      "reaped": true,
+      "remainingOwnedProcesses": [],
+      "sourceDependenciesControlsInputUnchanged": true,
+      "phaseVerified": true,
+      "proof": {
+        "path": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/flow1/official-receipt.json",
+        "sha256": "7c4b8f1386edbb2e36d1de1f6ddff07b5d5457b26a117a93b8c6578d0634984d"
+      }
+    }
+  ],
+  "sourceCommit": "f244a0c0065b783510b4607051c01b9818df35e0",
+  "inputManifestSha256": "c0299badb9aa59a6a50edcb9edaa9e5d09a2caedac50f86b410c46c772aeeeb3",
+  "failure": null,
+  "externallySuppliedPredecessorTerminalSha256": "5aaebc41da39f554c3dc19b9f3d290c9c18670261c03df8827bc8f5d26e73b5a",
+  "capturedCheckpointPins": {
+    "reauthenticate": "5aaebc41da39f554c3dc19b9f3d290c9c18670261c03df8827bc8f5d26e73b5a",
+    "raw": "42ef97e71c5ebe96c3b99a4821db504cd58fc0f705cc962a21265cfd7f946d83",
+    "compiler": "90ba8e1894c7d729944a1a026464b93c8661fa3eeceeaa6db5b05e3f3c10d183",
+    "official": "ddfdc02bea725f3c9355dabb397f1eaae72852d8e11d4400f7e86ab3a5a44f2e"
+  },
+  "sourceDependenciesControlsInputUnchanged": true,
+  "reaped": true,
+  "remainingOwnedProcesses": [],
+  "cancellationSignal": null,
+  "historicalReceiptsInherited": false,
+  "originalConstructionProven": false,
+  "originalSealRollbackProven": false,
+  "elapsedWorldRecoveryProven": false,
+  "historicalRawProducerAdmission": false,
+  "geometryRedObserved": false,
+  "wholePipelinePassed": false
+}

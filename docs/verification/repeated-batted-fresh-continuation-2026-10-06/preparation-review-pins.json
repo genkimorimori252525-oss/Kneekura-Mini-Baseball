@@ -1,0 +1,15 @@
+{
+  "sourceCommit": "f244a0c0065b783510b4607051c01b9818df35e0",
+  "srcTree": "5f553f22ff2e371a3eedd47ed275e1434e248be5",
+  "inputManifestSha256": "c0299badb9aa59a6a50edcb9edaa9e5d09a2caedac50f86b410c46c772aeeeb3",
+  "configurationSha256": "1bf9534fb3c72489942bf81c11b2aa7618847f571b60612c37f6fbce17c6b1c4",
+  "controllerSha256": "fe84784e097f31a0033c5439e0d7e61b08c23b0d98f3c3053e1db678e40efe0f",
+  "processIdentitySha256": "17c73eb414b32f9f1616b5e4e58ac1077a0449dd5b6887c0291369b73ce9ca9f",
+  "sourceManifestSha256": "66f702345787ae6f2df20cb84f13e0c09aba5e078ba0d5b685a4f76d3ff5d45a",
+  "dependencyManifestSha256": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+  "staticAuditSha256": "47c119ac605d82145416879e4f77354bfe37854d01645035613e4067a0ebd719",
+  "executionPerformed": false,
+  "runtimeSlotAssigned": false,
+  "dependencyBindingPresent": false,
+  "schemaOrNativeInputAdmissionPerformed": false
+}

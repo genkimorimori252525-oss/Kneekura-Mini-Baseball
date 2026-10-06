@@ -1,0 +1,44 @@
+{
+  "phase": "raw",
+  "startedAt": "2026-10-06T08:30:28.381207+00:00",
+  "bounds": {
+    "wallSeconds": 60,
+    "rssMiB": 256,
+    "stopReserveGiB": 6
+  },
+  "sourceCommit": "f244a0c0065b783510b4607051c01b9818df35e0",
+  "configurationSha256": "1bf9534fb3c72489942bf81c11b2aa7618847f571b60612c37f6fbce17c6b1c4",
+  "inputManifestSha256": "c0299badb9aa59a6a50edcb9edaa9e5d09a2caedac50f86b410c46c772aeeeb3",
+  "sourceManifestSha256": "66f702345787ae6f2df20cb84f13e0c09aba5e078ba0d5b685a4f76d3ff5d45a",
+  "dependencyManifestSha256": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+  "predecessorTerminal": {
+    "phase": "compiler",
+    "sha256": "90ba8e1894c7d729944a1a026464b93c8661fa3eeceeaa6db5b05e3f3c10d183"
+  },
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+    "/workspace/shared/baseball-repeated-batted-fresh-continuation-936a070/tools/verification/repeated-batted-recovery/preflight.py",
+    "--manifest",
+    "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/input-manifest.json",
+    "--manifest-sha256",
+    "c0299badb9aa59a6a50edcb9edaa9e5d09a2caedac50f86b410c46c772aeeeb3",
+    "--output",
+    "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/flow1/raw-preflight.json"
+  ],
+  "childPid": 22,
+  "rootStartTime": 1064171,
+  "terminalAt": "2026-10-06T08:30:29.346726+00:00",
+  "exitCode": 0,
+  "seconds": 0.9657697210004699,
+  "peakAggregateRssKiB": 46112,
+  "stopReason": null,
+  "failure": null,
+  "reaped": true,
+  "remainingOwnedProcesses": [],
+  "sourceDependenciesControlsInputUnchanged": true,
+  "phaseVerified": true,
+  "proof": {
+    "path": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/flow1/raw-preflight.json",
+    "sha256": "cdee45f740996b121f64e05049a31219fbd138d1dc5b24e1889f04dcdc8feaa0"
+  }
+}

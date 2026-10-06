@@ -1,0 +1,100 @@
+{
+  "schema": "fresh_published_closed_continuation_input_v1",
+  "sourceCommit": "f244a0c0065b783510b4607051c01b9818df35e0",
+  "parentSourceCommit": "936a07033b47208b87aaf2fdefcb9eef057e3c49",
+  "srcTree": "5f553f22ff2e371a3eedd47ed275e1434e248be5",
+  "origin": {
+    "kind": "published_closed_snapshot",
+    "notRawProducerAdmission": true,
+    "historicalReceiptsInherited": false
+  },
+  "input": {
+    "path": "/workspace/shared/baseball-recovered-published-fixtures/known-profile-ended.sqlite",
+    "sha256": "585ab7862ab93991e97cd5032ba8d520e113635559aa0019b5dd9bd43257a04a",
+    "bytes": 3362816
+  },
+  "publicationProjection": {
+    "path": "/workspace/shared/baseball-repeated-batted-fresh-continuation-936a070/docs/verification/fixtures/first-base-known-profile-ended-56d96a.manifest.json",
+    "sha256": "ffcec00fc9545e87cb44dfc224e9d028c678d54b06f06de2037a93518fed31d6",
+    "metadataOnly": true
+  },
+  "physicalEndSourceId": "physical-end",
+  "ruleProfileId": "npb-2026",
+  "ruleProfileSha256": "158d140826d274fbfef202e495df0869ce250223c9959b26ab79e75c5d10b98c",
+  "models": {
+    "batted_contact_response_models": {
+      "sourceId": "response-model",
+      "sourceHash": "e50d743edd96cd59021c06e6d56e1040f424293fdb148ca8d98c6a73698ec7f2"
+    },
+    "batted_world_models": {
+      "sourceId": "world-model",
+      "sourceHash": "604eb45da837e5ffbbee3f721d466c023beeb8be4a58649a76decd2a0ca4959b"
+    }
+  },
+  "helperSourceHashes": {
+    "src/host/world/ActualLiveOfficialArtifact.test-support.ts": "357cfdc5ebe2091276b89926aed74595ecd8fced72153bba9843f0fed0d3a44f",
+    "src/host/world/ActualRoleWorkloadArtifact.test-support.ts": "b343069159c698e327e3e8ff689300c25a35eb5ed5a5ba6c31408912aca84c6e",
+    "src/host/world/ActualLiveNextActorArtifact.test-support.ts": "5afb6852ae658d5dcf117f89ef570c1d986d484989e79d21bf1527a93babfd22"
+  },
+  "fixtureInputs": {
+    "officialPolicy": {
+      "sourceId": "explicit-fixture-official-policy",
+      "sourceVersion": "fixture-v1",
+      "ruleProfileId": "npb-2026",
+      "officialWindows": {
+        "appeal": {
+          "available": true
+        },
+        "review": {
+          "available": false
+        },
+        "challenge": {
+          "available": false
+        }
+      }
+    },
+    "roleEffortUnits": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "missingRoleBaselineRecipe": {
+      "createdAtDay": "original authenticated game day",
+      "fatigue": 0.1,
+      "recoveryCapacity": 0.5,
+      "policy": {
+        "policyId": "explicit-role-workload-fixture",
+        "version": "fixture-v1",
+        "availableAtDay": 0,
+        "workloadFatiguePerUnit": 0.01,
+        "travelFatiguePerKm": 0.001,
+        "recoveryPerHour": 0.1
+      }
+    }
+  },
+  "nextBatterPlayerId": "away-2",
+  "nextTake": {
+    "action": {
+      "kind": "take"
+    },
+    "plateZ": 0,
+    "strikeZone": {
+      "centerX": 0,
+      "halfWidth": 0.2,
+      "lowerY": 1.4,
+      "upperY": 1.8
+    },
+    "ballRadiusMeters": 0.0366
+  },
+  "faultChecks": true,
+  "originalConstructionProven": false,
+  "originalSealRollbackProven": false,
+  "executionPerformed": false
+}

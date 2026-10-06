@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-06T08:11:46.732428+00:00",
+  "source": "f244a0c0065b783510b4607051c01b9818df35e0",
+  "dependencyFilesVerified": 983,
+  "alias": "/workspace/shared/baseball-repeated-batted-fresh-continuation-936a070/node_modules",
+  "target": "/workspace/scratch/d91451022177/baseball-recovery/node_modules",
+  "runtimeExecuted": false,
+  "sqliteOpened": false,
+  "locksAcquired": false,
+  "sourceControlReview": "scoped v3 clearance received"
+}

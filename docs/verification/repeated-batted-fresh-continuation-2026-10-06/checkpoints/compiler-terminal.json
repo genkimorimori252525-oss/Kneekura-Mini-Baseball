@@ -1,0 +1,39 @@
+{
+  "phase": "compiler",
+  "startedAt": "2026-10-06T08:29:03.383607+00:00",
+  "bounds": {
+    "wallSeconds": 300,
+    "oldSpaceMiB": 1408,
+    "heapMiB": 1504,
+    "rssMiB": 2048,
+    "stopReserveGiB": 5
+  },
+  "sourceCommit": "f244a0c0065b783510b4607051c01b9818df35e0",
+  "configurationSha256": "1bf9534fb3c72489942bf81c11b2aa7618847f571b60612c37f6fbce17c6b1c4",
+  "inputManifestSha256": "c0299badb9aa59a6a50edcb9edaa9e5d09a2caedac50f86b410c46c772aeeeb3",
+  "sourceManifestSha256": "66f702345787ae6f2df20cb84f13e0c09aba5e078ba0d5b685a4f76d3ff5d45a",
+  "dependencyManifestSha256": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+  "predecessorTerminal": null,
+  "command": [
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+    "node_modules/typescript/bin/tsc",
+    "--project",
+    "tsconfig.fresh-continuation.json",
+    "--noEmit",
+    "--pretty",
+    "false"
+  ],
+  "childPid": 22,
+  "rootStartTime": 1055671,
+  "terminalAt": "2026-10-06T08:29:12.939932+00:00",
+  "exitCode": 0,
+  "seconds": 9.556382380998912,
+  "peakAggregateRssKiB": 493608,
+  "stopReason": null,
+  "failure": null,
+  "reaped": true,
+  "remainingOwnedProcesses": [],
+  "sourceDependenciesControlsInputUnchanged": true,
+  "phaseVerified": true,
+  "proof": null
+}
