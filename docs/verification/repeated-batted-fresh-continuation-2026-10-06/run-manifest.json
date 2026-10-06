@@ -1,12 +1,12 @@
 {
-  "schema": "fresh_continuation_four_phase_publication_v1",
-  "recordedThrough": "2026-10-06T09:43:32.872891+00:00",
+  "schema": "fresh_continuation_five_phase_publication_v1",
+  "recordedThrough": "2026-10-06T13:47:38.299308+00:00",
   "testedSourceCommit": "f244a0c0065b783510b4607051c01b9818df35e0",
   "testedProductionSrcTree": "5f553f22ff2e371a3eedd47ed275e1434e248be5",
   "sourceParentCommit": "936a07033b47208b87aaf2fdefcb9eef057e3c49",
   "testedSourceCommitIsLocal": true,
-  "remotePublicationBaseCommit": "936a07033b47208b87aaf2fdefcb9eef057e3c49",
-  "publicationCommitAttribution": "The LOCAL documentation descendant is not the tested local Source. Connector publication uses remote PR333 as its actual parent; no later API-created remote commit is claimed to share the local f244 commit metadata or ancestry. The exact tested launcher/src bytes remain matched.",
+  "remotePublicationBaseCommit": "a1bbe7b2bafd9a1d3d29e043ee57d4e9de622270",
+  "publicationCommitAttribution": "This five-phase successor is prepared on local documentation parent 4b0ceb33d34ea2ba38aaf007a600327f623201f4, which is not the tested Source or the remote publication parent. Its intended remote parent is PR336 head a1bbe7b2bafd9a1d3d29e043ee57d4e9de622270. The original four-phase PR336 used PR333 936a07033b47208b87aaf2fdefcb9eef057e3c49 as remote parent. Neither publication claims the tested local f244 commit metadata or ancestry. Exact tested launcher/src bytes remain matched.",
   "recordedConfigurationRequiresExactSourceCheckout": true,
   "publicationDescendantIsRuntimeCheckout": false,
   "origin": {
@@ -112,21 +112,43 @@
       "proofSha256": "7c4b8f1386edbb2e36d1de1f6ddff07b5d5457b26a117a93b8c6578d0634984d",
       "seconds": 2075.6599401800013,
       "peakAggregateRssKiB": 488512
+    },
+    {
+      "phase": "role",
+      "phaseVerified": true,
+      "exitCode": 0,
+      "reaped": true,
+      "sourceDependenciesControlsInputUnchanged": true,
+      "checkpoint": {
+        "path": "checkpoints/role-terminal.json",
+        "sha256": "cda6b8835d043be2cc997c0a774368bb85201b9b696c1c1332eecb309327bd24"
+      },
+      "supervisorTerminal": {
+        "path": "supervisor/role-terminal.json",
+        "sha256": "ad7c23e026a59ca4929e2ac90c7aa2759b0a0a94915d13f66e54f3613a7f6368"
+      },
+      "predecessorTerminal": {
+        "phase": "official",
+        "sha256": "ddfdc02bea725f3c9355dabb397f1eaae72852d8e11d4400f7e86ab3a5a44f2e"
+      },
+      "proofSha256": "9f4f98b667bafeaa4bca98ce2c91f1b7e83940e6d9f0bb8bda2ec72144c39ba6",
+      "seconds": 12714.979933884999,
+      "peakAggregateRssKiB": 508356
     }
   ],
   "completedPhases": [
     "compiler",
     "raw",
     "reauthenticate",
-    "official"
+    "official",
+    "role"
   ],
   "pendingPhases": [
-    "role",
     "next"
   ],
   "freshContinuationVerified": false,
   "wholePipelinePassed": false,
-  "roleSettlementComplete": false,
+  "roleSettlementComplete": true,
   "nextActorExecuted": false,
   "geometryRedObserved": false,
   "historicalReceiptsInherited": false,
@@ -230,6 +252,18 @@
       "sha256": "4bda1e7cdacca6349730cc88f1e624ee484a5951ca1cc1b6f31c91e173ac66df",
       "bytes": 3064,
       "byteExact": true
+    },
+    "checkpoints/role-terminal.json": {
+      "origin": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/flow1/checkpoints/role-terminal.json",
+      "sha256": "cda6b8835d043be2cc997c0a774368bb85201b9b696c1c1332eecb309327bd24",
+      "bytes": 1626,
+      "byteExact": true
+    },
+    "supervisor/role-terminal.json": {
+      "origin": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/flow1/controls/role/terminal.json",
+      "sha256": "ad7c23e026a59ca4929e2ac90c7aa2759b0a0a94915d13f66e54f3613a7f6368",
+      "bytes": 3130,
+      "byteExact": true
     }
   },
   "publishedProofProjections": {
@@ -247,6 +281,11 @@
       "sha256": "c8aa29abb2e3ce98d91059227763e2dbb2462d4f2c89ef0d186c539b01bf321c",
       "bytes": 1000,
       "projectionOnly": true
+    },
+    "proofs/role.projection.json": {
+      "sha256": "a8056cd1a3edb0fff0ac15ffad386be535939976a1a3061a40dcb13005036dde",
+      "bytes": 2350,
+      "projectionOnly": true
     }
   },
   "artifactsIncluded": false,
@@ -255,5 +294,42 @@
   "preparationManifestsRetainTheirOriginalPreparationTimeStatus": true,
   "runtimeWorkPerformedDuringThisPublicationPreparation": false,
   "sqliteOpenedDuringThisPublicationPreparation": false,
-  "sharedRuntimeLocksAcquiredDuringThisPublicationPreparation": false
+  "sharedRuntimeLocksAcquiredDuringThisPublicationPreparation": false,
+  "localPreparationBaseCommit": "4b0ceb33d34ea2ba38aaf007a600327f623201f4",
+  "localPreparationBaseIsRemotePublicationParent": false,
+  "originalFourPhasePublication": {
+    "pullRequest": 336,
+    "headCommit": "a1bbe7b2bafd9a1d3d29e043ee57d4e9de622270",
+    "remoteBaseCommit": "936a07033b47208b87aaf2fdefcb9eef057e3c49",
+    "completedPhaseCount": 4,
+    "successorUsesThisHeadAsRemotePublicationParent": true
+  },
+  "historicalOfficialProjectionRoleSettlementComplete": false,
+  "fullRoleDomainReceiptIncluded": false,
+  "privateDatabasePublicationPending": true,
+  "roleResultSummary": {
+    "roleSettlementComplete": true,
+    "participantCount": 10,
+    "matchActivityCount": 10,
+    "appliedParticipantCount": 10,
+    "participantRevisionAdvancedOnceCount": 10,
+    "exactlyOnce": true,
+    "allConnectionsClosedReopened": true,
+    "playableArtifactRecoveryActivities": 0,
+    "playableHeadsEqualFrozenAfter": true,
+    "isolatedDayLevelRecoveryRegression": {
+      "sourceSha256": "cc587072c7f7259b07e4dafb08452861121bbeb3a33f96c5689389b00b859a46",
+      "destinationSha256": "a1cd9ce11f3897f20c831f75c21673a251ba1538c23dd4af4b6dfc33e14f2d1a",
+      "sourceUnchanged": true,
+      "isolatedDayLevelRegression": true,
+      "acceptedFixtureDurationHours": 1,
+      "elapsedWorldTimeProven": false,
+      "artifactPublished": false
+    }
+  },
+  "privateDatabasePublicationPendingScope": [
+    "official",
+    "role",
+    "next"
+  ]
 }

@@ -1,0 +1,43 @@
+{
+  "phase": "role",
+  "startedAt": "2026-10-06T10:15:42.544925+00:00",
+  "bounds": {
+    "wallSeconds": 14400,
+    "oldSpaceMiB": 1024,
+    "heapMiB": 1120,
+    "rssMiB": 1536,
+    "stopReserveGiB": 6
+  },
+  "sourceCommit": "f244a0c0065b783510b4607051c01b9818df35e0",
+  "configurationSha256": "1bf9534fb3c72489942bf81c11b2aa7618847f571b60612c37f6fbce17c6b1c4",
+  "inputManifestSha256": "c0299badb9aa59a6a50edcb9edaa9e5d09a2caedac50f86b410c46c772aeeeb3",
+  "sourceManifestSha256": "66f702345787ae6f2df20cb84f13e0c09aba5e078ba0d5b685a4f76d3ff5d45a",
+  "dependencyManifestSha256": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+  "predecessorTerminal": {
+    "phase": "official",
+    "sha256": "ddfdc02bea725f3c9355dabb397f1eaae72852d8e11d4400f7e86ab3a5a44f2e"
+  },
+  "command": [
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+    "node_modules/vite-node/vite-node.mjs",
+    "--config",
+    "tools/verification/actual-live-pipeline/vite.config.mjs",
+    "tools/verification/repeated-batted-recovery/phase.ts"
+  ],
+  "childPid": 22,
+  "rootStartTime": 1695587,
+  "terminalAt": "2026-10-06T13:47:37.524188+00:00",
+  "exitCode": 0,
+  "seconds": 12714.979933884999,
+  "peakAggregateRssKiB": 508356,
+  "stopReason": null,
+  "failure": null,
+  "reaped": true,
+  "remainingOwnedProcesses": [],
+  "sourceDependenciesControlsInputUnchanged": true,
+  "phaseVerified": true,
+  "proof": {
+    "path": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/flow1/role-receipt.json",
+    "sha256": "9f4f98b667bafeaa4bca98ce2c91f1b7e83940e6d9f0bb8bda2ec72144c39ba6"
+  }
+}

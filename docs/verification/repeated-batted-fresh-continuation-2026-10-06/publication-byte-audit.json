@@ -1,5 +1,5 @@
 {
-  "schema": "fresh_continuation_publication_byte_audit_v1",
+  "schema": "fresh_continuation_publication_byte_audit_v2",
   "reviewedSourceCommit": "f244a0c0065b783510b4607051c01b9818df35e0",
   "productionSrcTree": "5f553f22ff2e371a3eedd47ed275e1434e248be5",
   "sourceOnlyAudit": true,
@@ -7,11 +7,15 @@
   "sqliteOpened": false,
   "sharedRuntimeLocksAcquired": false,
   "publishedExternally": false,
-  "filesReviewed": 27,
-  "newPublicationFilesReviewed": 21,
-  "totalBytesReviewed": 482858,
+  "filesReviewed": 31,
+  "newPublicationFilesReviewed": 25,
+  "filesInHashLedger": 30,
+  "totalBytesReviewed": 507116,
   "allFilesUtf8Text": true,
-  "jsonFilesParsed": 19,
+  "jsonFilesParsed": 23,
+  "auditFileIncludedInFullByteScan": true,
+  "auditFileExcludedFromHashLedger": true,
+  "auditFileExclusionReason": "A file cannot carry its own content hash; every audit-file byte is still decoded, parsed and credential-scanned.",
   "credentialPatternsChecked": [
     "private-key",
     "github-token",
@@ -24,36 +28,142 @@
     "assigned-secret-literal"
   ],
   "credentialPatternFindings": [],
-  "credentialScanScope": "Every byte of the new publication files and six exact launcher files; findings would block this candidate. This is a static content scan, not an external security attestation.",
+  "credentialScanScope": "Every byte of the complete evidence directory, including this audit, and the six exact launcher files. This is a static content scan, not an external security attestation.",
   "allSixLauncherFilesExact": true,
   "allCopiedControlAndTerminalHashesExact": true,
+  "allPhaseAncestryAndOriginalProofHashesVerified": true,
+  "allProjectionHashesVerified": true,
   "sourceManifestRelativeHashEntries": 2385,
   "dependencyManifestRelativeHashEntries": 983,
   "sourceManifestHasNoCredentialOrEnvironmentFilePaths": true,
+  "pythonLauncherAstParses": [
+    "tools/verification/repeated-batted-recovery/preflight.py",
+    "tools/verification/repeated-batted-recovery/process-identity-reviewed.fragment.py",
+    "tools/verification/repeated-batted-recovery/run.py"
+  ],
   "officialProjectionExplicitWhitelistVerified": true,
   "officialProjectionContainsOnlySchemaHashBooleanCountAndPhaseAncestryMetadata": true,
+  "historicalOfficialProjectionByteExact": true,
+  "historicalOfficialProjectionRoleSettlementComplete": false,
+  "roleHelperSourceSha256": "b343069159c698e327e3e8ff689300c25a35eb5ed5a5ba6c31408912aca84c6e",
+  "roleRetryReopenScopeCheckedAgainstPinnedHelperSource": true,
+  "roleProjectionExplicitWhitelistVerified": true,
+  "roleProjectionWhitelistedFields": [
+    "allConnectionsClosedReopened",
+    "appliedParticipantCount",
+    "artifactPublished",
+    "automaticEffortGeneration",
+    "destinationSha256",
+    "elapsedWorldRecoveryProven",
+    "exactlyOnce",
+    "faultChecks",
+    "faultEvidence",
+    "freshContinuationVerified",
+    "geometryRedObserved",
+    "historicalRawProducerAdmission",
+    "historicalReceiptsInherited",
+    "inputManifestSha256",
+    "isolatedDayLevelRecoveryRegression",
+    "matchActivityCount",
+    "matchWorldPayloadPublished",
+    "nextActorExecuted",
+    "originalConstructionProven",
+    "originalReceiptPublished",
+    "originalReceiptSha256",
+    "originalSealRollbackProven",
+    "participantCount",
+    "participantIdentifiersPublished",
+    "participantRevisionAdvancedOnceCount",
+    "playableArtifactRecoveryActivities",
+    "playableHeadsEqualFrozenAfter",
+    "predecessorReceiptSha256",
+    "predecessorTerminalSha256",
+    "projectionOnly",
+    "realDisk",
+    "roleSettlementComplete",
+    "rowPayloadsPublished",
+    "schema",
+    "settlementPayloadPublished",
+    "sourceCommit",
+    "sourceSha256",
+    "sourceUnchanged",
+    "syntheticFixtureInputs",
+    "wal",
+    "wholePipelinePassed"
+  ],
+  "roleProjectionWhitelistedFaultNames": [
+    "assessmentAfterInsert",
+    "freezeAfterInsert",
+    "interruptedAfterFirstInsert",
+    "staleCurrentHeadRejected",
+    "workloadAfterInsert"
+  ],
+  "roleProjectionWhitelistedRecoveryFields": [
+    "acceptedFixtureDurationHours",
+    "artifactPublished",
+    "destinationSha256",
+    "elapsedWorldTimeProven",
+    "isolatedDayLevelRegression",
+    "sourceSha256",
+    "sourceUnchanged"
+  ],
+  "roleProjectionContainsOnlySchemaHashBooleanCountAndFaultMetadata": true,
+  "roleProjectionAllFieldsMatchedOriginalReceiptOrExplicitPublicationBoundary": true,
+  "newRoleEvidenceForbiddenPayloadKeysChecked": [
+    "acceptedInputManifest",
+    "after",
+    "assessmentHashes",
+    "before",
+    "careerId",
+    "clubId",
+    "gameId",
+    "history",
+    "ledger",
+    "match",
+    "participants",
+    "personId",
+    "playId",
+    "playerId",
+    "settlement",
+    "sourceId",
+    "timeline",
+    "world"
+  ],
+  "newRoleEvidenceForbiddenPayloadKeyFindings": [],
+  "newRoleEvidenceParticipantIdentifiersIncluded": false,
+  "inheritedControlFixtureInputsPreservedByteExact": true,
   "domainRowsIncluded": false,
   "adjudicationLedgerIncluded": false,
   "adjudicationTimelineIncluded": false,
   "sqliteArchiveIncluded": false,
   "runtimeLogsIncluded": false,
+  "processTelemetryTracesIncluded": false,
   "fullOfficialReceiptIncluded": false,
+  "fullRoleReceiptIncluded": false,
   "privateNextArtifactIncluded": false,
+  "privateDatabasePublicationPending": true,
+  "privateDatabasePublicationPendingScope": [
+    "official",
+    "role",
+    "next"
+  ],
   "phaseOutcomeClaimScope": [
     "compiler",
     "raw",
     "reauthenticate",
-    "official"
+    "official",
+    "role"
   ],
   "pendingPhases": [
-    "role",
     "next"
   ],
   "freshContinuationVerified": false,
+  "wholePipelinePassed": false,
+  "elapsedWorldRecoveryProven": false,
   "files": {
     "docs/verification/repeated-batted-fresh-continuation-2026-10-06/README.md": {
-      "sha256": "a8cbce99279804c5fb9c488cc6dd7b94f0f5c92922c210519ae976ffdbc3aef8",
-      "bytes": 6242
+      "sha256": "755eeaf03c7e8f4927ac8c998f722a83e42a0e25a42662b7c621d4f72c029bf8",
+      "bytes": 8636
     },
     "docs/verification/repeated-batted-fresh-continuation-2026-10-06/checkpoints/compiler-terminal.json": {
       "sha256": "90ba8e1894c7d729944a1a026464b93c8661fa3eeceeaa6db5b05e3f3c10d183",
@@ -70,6 +180,10 @@
     "docs/verification/repeated-batted-fresh-continuation-2026-10-06/checkpoints/reauthenticate-terminal.json": {
       "sha256": "5aaebc41da39f554c3dc19b9f3d290c9c18670261c03df8827bc8f5d26e73b5a",
       "bytes": 1640
+    },
+    "docs/verification/repeated-batted-fresh-continuation-2026-10-06/checkpoints/role-terminal.json": {
+      "sha256": "cda6b8835d043be2cc997c0a774368bb85201b9b696c1c1332eecb309327bd24",
+      "bytes": 1626
     },
     "docs/verification/repeated-batted-fresh-continuation-2026-10-06/configuration.json": {
       "sha256": "1bf9534fb3c72489942bf81c11b2aa7618847f571b60612c37f6fbce17c6b1c4",
@@ -111,9 +225,13 @@
       "sha256": "c8aa29abb2e3ce98d91059227763e2dbb2462d4f2c89ef0d186c539b01bf321c",
       "bytes": 1000
     },
+    "docs/verification/repeated-batted-fresh-continuation-2026-10-06/proofs/role.projection.json": {
+      "sha256": "a8056cd1a3edb0fff0ac15ffad386be535939976a1a3061a40dcb13005036dde",
+      "bytes": 2350
+    },
     "docs/verification/repeated-batted-fresh-continuation-2026-10-06/run-manifest.json": {
-      "sha256": "7e0b96a779273d8b48ad20979092eadfa0572d532c344f66239e7e6ac7ea6fe3",
-      "bytes": 11709
+      "sha256": "421067d16ea4e943412b939d41ea398a99867d51a09afbd76d04c2fb72d7922a",
+      "bytes": 14958
     },
     "docs/verification/repeated-batted-fresh-continuation-2026-10-06/source.sha256": {
       "sha256": "66f702345787ae6f2df20cb84f13e0c09aba5e078ba0d5b685a4f76d3ff5d45a",
@@ -134,6 +252,10 @@
     "docs/verification/repeated-batted-fresh-continuation-2026-10-06/supervisor/reauthenticate-terminal.json": {
       "sha256": "24cec28d6d2fdefbf7506431d8ac661f913303100220c8f00e30d31cf7288926",
       "bytes": 2980
+    },
+    "docs/verification/repeated-batted-fresh-continuation-2026-10-06/supervisor/role-terminal.json": {
+      "sha256": "ad7c23e026a59ca4929e2ac90c7aa2759b0a0a94915d13f66e54f3613a7f6368",
+      "bytes": 3130
     },
     "tools/verification/repeated-batted-recovery/README.md": {
       "sha256": "b9d4bb53313966e6a3c088efcc67406fe3e02bc44cf1d12f92340b198e478ca2",
