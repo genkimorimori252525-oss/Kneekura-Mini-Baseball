@@ -1,5 +1,5 @@
 {
-  "schema": "fresh_continuation_publication_byte_audit_v2",
+  "schema": "fresh_continuation_publication_byte_audit_v3",
   "reviewedSourceCommit": "f244a0c0065b783510b4607051c01b9818df35e0",
   "productionSrcTree": "5f553f22ff2e371a3eedd47ed275e1434e248be5",
   "sourceOnlyAudit": true,
@@ -7,12 +7,12 @@
   "sqliteOpened": false,
   "sharedRuntimeLocksAcquired": false,
   "publishedExternally": false,
-  "filesReviewed": 31,
-  "newPublicationFilesReviewed": 25,
-  "filesInHashLedger": 30,
-  "totalBytesReviewed": 507116,
+  "filesReviewed": 34,
+  "newPublicationFilesReviewed": 28,
+  "filesInHashLedger": 33,
+  "totalBytesReviewed": 527810,
   "allFilesUtf8Text": true,
-  "jsonFilesParsed": 23,
+  "jsonFilesParsed": 26,
   "auditFileIncludedInFullByteScan": true,
   "auditFileExcludedFromHashLedger": true,
   "auditFileExclusionReason": "A file cannot carry its own content hash; every audit-file byte is still decoded, parsed and credential-scanned.",
@@ -152,22 +152,25 @@
     "raw",
     "reauthenticate",
     "official",
-    "role"
-  ],
-  "pendingPhases": [
+    "role",
     "next"
   ],
-  "freshContinuationVerified": false,
+  "pendingPhases": [],
+  "freshContinuationVerified": true,
   "wholePipelinePassed": false,
   "elapsedWorldRecoveryProven": false,
   "files": {
     "docs/verification/repeated-batted-fresh-continuation-2026-10-06/README.md": {
-      "sha256": "755eeaf03c7e8f4927ac8c998f722a83e42a0e25a42662b7c621d4f72c029bf8",
-      "bytes": 8636
+      "sha256": "7ab5e57e0fb6005a1d00e8cba6cd555d5d0dbe7e46303d5db7c634481734f791",
+      "bytes": 11631
     },
     "docs/verification/repeated-batted-fresh-continuation-2026-10-06/checkpoints/compiler-terminal.json": {
       "sha256": "90ba8e1894c7d729944a1a026464b93c8661fa3eeceeaa6db5b05e3f3c10d183",
       "bytes": 1283
+    },
+    "docs/verification/repeated-batted-fresh-continuation-2026-10-06/checkpoints/next-terminal.json": {
+      "sha256": "9bf75c5a9477ceecdfd0b79162b4c1254d0a14ffaf7f6257a28bfcc76f6b2951",
+      "bytes": 1621
     },
     "docs/verification/repeated-batted-fresh-continuation-2026-10-06/checkpoints/official-terminal.json": {
       "sha256": "ddfdc02bea725f3c9355dabb397f1eaae72852d8e11d4400f7e86ab3a5a44f2e",
@@ -213,6 +216,10 @@
       "sha256": "47c119ac605d82145416879e4f77354bfe37854d01645035613e4067a0ebd719",
       "bytes": 1250
     },
+    "docs/verification/repeated-batted-fresh-continuation-2026-10-06/proofs/next.projection.json": {
+      "sha256": "ac699f8543e0a51eb27c2b9776a504b3428e5a9985f1081ecaa7183914a6c003",
+      "bytes": 2400
+    },
     "docs/verification/repeated-batted-fresh-continuation-2026-10-06/proofs/official.projection.json": {
       "sha256": "4c6adab9b01039cf831211bdf4617e2d9c570a0649eb583bc2b601210dc897da",
       "bytes": 1752
@@ -230,8 +237,8 @@
       "bytes": 2350
     },
     "docs/verification/repeated-batted-fresh-continuation-2026-10-06/run-manifest.json": {
-      "sha256": "421067d16ea4e943412b939d41ea398a99867d51a09afbd76d04c2fb72d7922a",
-      "bytes": 14958
+      "sha256": "bfb97e86b327a5739605fc73225625188b82470927ddca5900edf112dbae2282",
+      "bytes": 18834
     },
     "docs/verification/repeated-batted-fresh-continuation-2026-10-06/source.sha256": {
       "sha256": "66f702345787ae6f2df20cb84f13e0c09aba5e078ba0d5b685a4f76d3ff5d45a",
@@ -240,6 +247,10 @@
     "docs/verification/repeated-batted-fresh-continuation-2026-10-06/supervisor/compiler-terminal.json": {
       "sha256": "cf2627db7ce89024dc4312791ba1579e36237c6951863b669b6f3bcc0441fd32",
       "bytes": 2376
+    },
+    "docs/verification/repeated-batted-fresh-continuation-2026-10-06/supervisor/next-terminal.json": {
+      "sha256": "d3b515db68680dca03d5f4388421a9afb27eadef2b0343e1dd33e91299b01006",
+      "bytes": 3204
     },
     "docs/verification/repeated-batted-fresh-continuation-2026-10-06/supervisor/official-terminal.json": {
       "sha256": "4bda1e7cdacca6349730cc88f1e624ee484a5951ca1cc1b6f31c91e173ac66df",
@@ -281,5 +292,172 @@
       "sha256": "ec92279ffe43a962848656cc1c98980b0f7e614e24c176df5f77fe1048856484",
       "bytes": 169
     }
-  }
+  },
+  "sourceManifestAllEntryBytesRehashed": true,
+  "dependencyManifestAllEntryBytesRehashed": true,
+  "allConfigurationControlBytesRehashed": true,
+  "closedInputAndFollowOnArtifactBytesRehashedWithoutSqlite": true,
+  "historicalRoleProjectionByteExact": true,
+  "historicalRoleProjectionNextActorExecuted": false,
+  "historicalRoleProjectionFreshContinuationVerified": false,
+  "nextHelperSourceSha256": "5afb6852ae658d5dcf117f89ef570c1d986d484989e79d21bf1527a93babfd22",
+  "nextRetryReopenScopeCheckedAgainstPinnedHelperSource": true,
+  "nextHelperSourceAssertionsReviewed": [
+    "sameConnectionActorRetry",
+    "actorCountAdvancedOnce",
+    "sameConnectionPitchRetry",
+    "reopenedActorReadback",
+    "reopenedPitchReadback",
+    "settledWorkloadInput",
+    "betweenPlayWorldInput",
+    "realActorInsertRollbackWitness"
+  ],
+  "nextProjectionExplicitWhitelistVerified": true,
+  "nextProjectionWhitelistedFields": [
+    "actorMatchesExplicitFixtureInput",
+    "actorPayloadPublished",
+    "actorReadinessAfterInsert",
+    "allConnectionsClosedReopened",
+    "artifactPublished",
+    "autonomousLineupSelection",
+    "destinationSha256",
+    "elapsedWorldRecoveryProven",
+    "exactlyOnceActorAdmission",
+    "faultChecks",
+    "finalBalls",
+    "finalStrikes",
+    "finalTimelineStatus",
+    "freshContinuationVerified",
+    "fullPositiveProven",
+    "geometryRedObserved",
+    "historicalRawProducerAdmission",
+    "historicalReceiptsInherited",
+    "initialBalls",
+    "initialStrikes",
+    "inputManifestSha256",
+    "matchWorldPayloadPublished",
+    "newPitchEventCount",
+    "nextActorExecuted",
+    "nextBatterSelection",
+    "nextPitchAction",
+    "nextPitchExecuted",
+    "nextPitchProgressRevision",
+    "nextPlayAdvancedOnce",
+    "originalConstructionProven",
+    "originalReceiptPublished",
+    "originalReceiptSha256",
+    "originalSealRollbackProven",
+    "participantIdentifiersPublished",
+    "physicalResolutionKind",
+    "pitchAdjudicationKind",
+    "pitchPayloadPublished",
+    "pitchStartsFromActivatedWorldTick",
+    "pitchUsesAcceptedNextActor",
+    "pitchUsesSettledPitcherWorkload",
+    "positionsPublished",
+    "predecessorReceiptSha256",
+    "predecessorTerminalSha256",
+    "projectionOnly",
+    "realDisk",
+    "registeredRuleProfileId",
+    "resolutionKind",
+    "rowPayloadsPublished",
+    "schema",
+    "scoringStillUnsupported",
+    "scoringUnsupportedScope",
+    "sourceCommit",
+    "sourceSha256",
+    "sourceUnchanged",
+    "wal",
+    "wholeCurrentStackProven",
+    "wholePipelinePassed",
+    "wrongActivationRejected"
+  ],
+  "nextProjectionContainsOnlySchemaEnumHashBooleanAndScalarCounts": true,
+  "nextProjectionNestedObjectsOrArrays": false,
+  "nextProjectionAllFieldsMatchedOriginalReceiptOrExplicitPublicationBoundary": true,
+  "nextProjectionReceiptDerivedBooleanChecks": [
+    "actorMatchesExplicitFixtureInput",
+    "pitchUsesAcceptedNextActor",
+    "pitchUsesSettledPitcherWorkload",
+    "pitchStartsFromActivatedWorldTick",
+    "nextPlayAdvancedOnce"
+  ],
+  "nextProjectionSupervisorDerivedFields": [
+    "freshContinuationVerified",
+    "wholePipelinePassed",
+    "historicalRawProducerAdmission"
+  ],
+  "nextProjectionExplicitPublicationBoundaryFields": [
+    "schema",
+    "projectionOnly",
+    "originalReceiptPublished",
+    "scoringUnsupportedScope",
+    "wholeCurrentStackProven",
+    "fullPositiveProven",
+    "artifactPublished",
+    "rowPayloadsPublished",
+    "participantIdentifiersPublished",
+    "actorPayloadPublished",
+    "pitchPayloadPublished",
+    "positionsPublished",
+    "matchWorldPayloadPublished"
+  ],
+  "newNextEvidenceForbiddenPayloadKeysChecked": [
+    "actor",
+    "nextPitch",
+    "source",
+    "frame",
+    "match",
+    "world",
+    "beforeTimeline",
+    "timeline",
+    "events",
+    "position",
+    "positions",
+    "velocity",
+    "spin",
+    "trajectory",
+    "snapshot",
+    "rows",
+    "settlement",
+    "participants",
+    "playerId",
+    "personId",
+    "gameId",
+    "playId",
+    "careerId",
+    "clubId"
+  ],
+  "newNextEvidenceForbiddenPayloadKeyFindings": [],
+  "newNextEvidenceParticipantIdentifiersIncluded": false,
+  "fullNextReceiptIncluded": false,
+  "positionsIncludedInNewNextEvidence": false,
+  "wholeCurrentStackProven": false,
+  "fullPositiveProven": false,
+  "localPreparationBaseCommit": "8c891aedfad8c1b643023b9a00244190fe9be526",
+  "localPreparationBaseTree": "9ee4da0bd50e2461247f241fd3a4924b51324edc",
+  "intendedRemotePublicationParent": "7705d7a110d81d6ba41905ab45e614819d3d24ad",
+  "intendedRemotePublicationParentTree": "9ee4da0bd50e2461247f241fd3a4924b51324edc",
+  "remoteParentAttributionProvidedByCoordinator": true,
+  "remoteParentObjectPresentLocally": false,
+  "nextSupervisorTerminalByteExact": true,
+  "nextCheckpointByteExact": true,
+  "sixPhaseSequentialCheckpointChainVerified": true,
+  "newNextResultOrigin": "Successful fresh runtime receipt; no inherited lost receipt or original construction claim.",
+  "incrementalPublicationFilesReviewed": 6,
+  "incrementalPublicationPaths": [
+    "docs/verification/repeated-batted-fresh-continuation-2026-10-06/README.md",
+    "docs/verification/repeated-batted-fresh-continuation-2026-10-06/checkpoints/next-terminal.json",
+    "docs/verification/repeated-batted-fresh-continuation-2026-10-06/proofs/next.projection.json",
+    "docs/verification/repeated-batted-fresh-continuation-2026-10-06/publication-byte-audit.json",
+    "docs/verification/repeated-batted-fresh-continuation-2026-10-06/run-manifest.json",
+    "docs/verification/repeated-batted-fresh-continuation-2026-10-06/supervisor/next-terminal.json"
+  ],
+  "inheritedEvidenceFilesByteExactExceptExplicitRevisions": true,
+  "inheritedEvidenceRevisedPaths": [
+    "docs/verification/repeated-batted-fresh-continuation-2026-10-06/README.md",
+    "docs/verification/repeated-batted-fresh-continuation-2026-10-06/publication-byte-audit.json",
+    "docs/verification/repeated-batted-fresh-continuation-2026-10-06/run-manifest.json"
+  ]
 }
