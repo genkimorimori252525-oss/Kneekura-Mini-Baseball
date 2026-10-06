@@ -1,0 +1,98 @@
+{
+  "schema": "native_batting_model_author_qualification_v1",
+  "rawTerminal": "/workspace/shared/baseball-native-batting-model-qualification-preparation-v1/attempt1/terminal.json",
+  "rawTerminalSha256": "301ee80be799defe60057e6feb55f4466c529459d7b7b591f1bce12b9a9d281b",
+  "authorSourceCommit": "24ee242ebdc3b186fab13cab57b1f36f43649a01",
+  "authorSourceTree": "b86826778ead4e60ca33efd7899bef1d8e58a916",
+  "authorTree": "4bd8a65d34baf2896e289bf9a82fe5168d18f421",
+  "reviewedControllerSha256": "ab603b1ff4061298350e26e8d041c0544852b9868f8488c84e29f0f90ab73cd3",
+  "passed": true,
+  "modelQualificationVerified": true,
+  "counts": {
+    "numTotalTests": 115,
+    "numPassedTests": 115,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0
+  },
+  "uniqueSelectedCaseCount": 115,
+  "heldStanceCaseCount": 23,
+  "phaseResults": [
+    {
+      "stage": "compiler",
+      "phaseVerified": true,
+      "seconds": 47.27627864999977,
+      "exitCode": 0,
+      "counts": {},
+      "peakAggregateRssKiB": 1486436
+    },
+    {
+      "stage": "preservation",
+      "phaseVerified": true,
+      "seconds": 7.839508802000637,
+      "exitCode": 0,
+      "counts": {
+        "numTotalTests": 14,
+        "numPassedTests": 14,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "peakAggregateRssKiB": 449408
+    },
+    {
+      "stage": "model",
+      "phaseVerified": true,
+      "seconds": 17.386706444000083,
+      "exitCode": 0,
+      "counts": {
+        "numTotalTests": 34,
+        "numPassedTests": 34,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "peakAggregateRssKiB": 461232
+    },
+    {
+      "stage": "related_owners",
+      "phaseVerified": true,
+      "seconds": 8.689956101999996,
+      "exitCode": 0,
+      "counts": {
+        "numTotalTests": 67,
+        "numPassedTests": 67,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "peakAggregateRssKiB": 446392
+    }
+  ],
+  "modelGuardRedReceipt": {
+    "terminal": "/workspace/shared/baseball-native-batting-recovered-stage-a-preparation-v1/attempt1/terminal.json",
+    "sha256": "923073f3a45b55a733abbbf98c7bcb6383a8297dbc4d389ecb6460d4758f465c",
+    "sourceCommit": "ce9b7e88c5c4b8fbf47d012ae84cff0ccb31affe",
+    "sourceTree": "10bed5de7cd5ba7210cde29ac37311c91086c9fc"
+  },
+  "fourGuardRedReceiptSha256": "e7b4e0827530450dc127080e9b00407f2560e3ec8e4ef873a479ed8608a433e2",
+  "failedClassifierAttemptPreservedSha256": "84760447e02a180f000527ebbc71818e6d680352df5a1113eca0ba03c2aedafc",
+  "productionHashes": {
+    "src/host/world/PlayerBattingModel.ts": "ca7999fca50eedef7fd41a9e69b42fa0c9649c81cf2a3a6ac3ea43c92160f313",
+    "src/host/world/PlayerBattingModelEvidence.ts": "3366191f98e6f017c2e5910602eefa1935271acd871947ea5ad4d560efab2e43",
+    "src/host/world/SqlitePlayerBattingModelStore.ts": "bcf6007aa475c5a5c66c60f88788f30be598de67d5b0aba3fa6e0639e5fa22ba",
+    "src/host/world/PlayerMaterializationRuntime.ts": "c5305d0546a5d7dfd63ba77927ce8e797f98488387f0deae9627fd42e89a0610"
+  },
+  "all67FrozenCasesPreserved": true,
+  "separateGuardCases": 4,
+  "sourceDependenciesControlsUnchanged": true,
+  "reaped": true,
+  "remainingOwnedProcessCount": 0,
+  "failure": null,
+  "cancellationSignal": null,
+  "stanceRedQualified": false,
+  "wholeSuitePassed": false,
+  "wholePipelinePassed": false,
+  "qualificationScope": "exact frozen author lineage; coordinator integration requires its own acceptance",
+  "containsDatabasePayload": false
+}

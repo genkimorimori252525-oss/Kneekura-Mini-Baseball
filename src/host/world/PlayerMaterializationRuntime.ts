@@ -4,6 +4,11 @@ import type { DurablePlayerIntake,
   SqlitePlayerIntakeStore } from './SqlitePlayerIntakeStore';
 
 export { openSqlitePlayerBodyCapabilityMaterializationStore } from './SqlitePlayerBodyCapabilityMaterializationStore';
+export { openSqlitePlayerBattingModelStore } from './SqlitePlayerBattingModelStore';
+export type { AcceptedPlayerBattingModelV1, DurablePlayerBattingModelV1, AcceptedBattingCapability,
+  AcceptedBattingRepertoire, AcceptedBattingDecisionModel, AcceptedBattingEquipment,
+  AcceptedBattingObservationCalibration, AcceptedBattingPredictionCalibration,
+  BattingModelAuthority, BattingModelStore } from './PlayerBattingModel';
 export type { BodyMaterializationAuthority, BodyMaterializationRequest, BodyMaterializationReceipt,
   BodyMaterializationResult, BodyMaterializationStore, AcceptedBodySource, AcceptedPoseSource, AcceptedReachSource,
   BattedBodyModelAssembly, BodySourceRef } from './PlayerBodyCapabilityMaterialization';
