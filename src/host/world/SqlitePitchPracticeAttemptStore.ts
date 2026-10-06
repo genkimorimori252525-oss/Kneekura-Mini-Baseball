@@ -9,6 +9,8 @@ import type { SqlitePlayerReleaseGeometryStore } from './SqlitePlayerReleaseGeom
 import { assertArchivedPlayerWorkloadActivity, type SqlitePlayerWorkloadRecoveryStore, type DurablePlayerWorkloadActivity } from './SqlitePlayerWorkloadRecoveryStore';
 import type { SqlitePitchFatiguePolicyStore } from './SqlitePitchFatiguePolicyStore';
 import type { SqliteDevelopmentInitiationStore } from './SqliteDevelopmentInitiationStore';
+import { PRACTICE_DEVELOPMENT_KIND, readPracticeDevelopmentBoundary, type PracticeInitiationRow,
+  type PracticePhysicalReader } from './PracticeDevelopmentOrigin';
 import { installActualPracticeLearning, type ActualPracticeLearningAuthority, type ActualPracticeLearningMethods } from './ActualPitchTimingLearningFromPractice';
 import { captureOwnedPracticeOrderEvidence, installOwnedPracticeOrders, type OwnedPracticeOrderMethods,
   type PracticeOrderAuthority, type PracticeOrderSources } from './OwnedPitchPracticeOrder';
@@ -33,6 +35,16 @@ export type PitchPracticeAuthority = ActualPracticeLearningAuthority & PracticeO
   readAcceptedAssessment(sourceId: string): PitchPracticeAssessment | null;
 }>;
 type EvidenceDb = Pick<DatabaseSync, 'prepare'>;
+// Bind the real owner's existing decoder, not a caller-supplied completed DTO.
+// This stores a reader capability only; every call replays the requested prefix.
+const physicalReaders = new WeakMap<object, (db: EvidenceDb, attemptId: string, timingCeiling?: number) => PitchPracticeAttempt | null>();
+export const readOwnedPitchPracticeAttempt = (owner: Pick<SqlitePitchPracticeAttemptStore, 'read'>,
+  db: EvidenceDb, attemptId: string, timingCeiling?: number): PitchPracticeAttempt | null => {
+  if (timingCeiling !== undefined && !practiceRevision(timingCeiling)) throw new Error('invalid practice timing ceiling');
+  const reader = physicalReaders.get(owner);
+  if (!reader) throw new Error('practice origin requires a genuine physical owner');
+  return reader(db, attemptId, timingCeiling);
+};
 export type SqlitePitchPracticeAttemptStore = ActualPracticeLearningMethods & OwnedPracticeOrderMethods & ManagerPracticeOrderMethods & Readonly<{
   begin(sourceId: string): PitchPracticeAttempt;
   advance(attemptId: string, expectedRevision: number, throughUs: number): PitchPracticeAttempt;
@@ -81,12 +93,20 @@ const physicalEvidence = (connection: EvidenceDb, o: PitchPracticeOpportunity, f
     fatiguePolicy: connection.prepare('SELECT * FROM world_pitch_fatigue_policies WHERE source_id=?').get(o.fatiguePolicySourceId) ?? null,
   };
 };
-const learningEvidence = (connection: EvidenceDb, episodeId: string): unknown => {
+const learningEvidence = (connection: EvidenceDb, episodeId: string, readPhysical?: PracticePhysicalReader): unknown => {
   const initiation = connection.prepare(`SELECT episode_id, career_id, player_id, at_day, appraisal_source_id,
     request_json, prior_json, assessment_json, initial_json FROM world_development_initiations WHERE episode_id=?`)
-    .get(episodeId) as { request_json: string; career_id: string } | undefined;
+    .get(episodeId) as PracticeInitiationRow | undefined;
   if (!initiation) throw new Error('practice learning initiation source is missing');
-  const request = JSON.parse(initiation.request_json) as { executionId: string; personSourceId: string };
+  const request = JSON.parse(initiation.request_json) as { executionId: string; personSourceId: string; kind?: unknown };
+  if (Object.hasOwn(request, 'kind')) {
+    if (request.kind !== PRACTICE_DEVELOPMENT_KIND || !readPhysical) throw new Error('invalid practice learning initiation source kind');
+    const { saved } = readPracticeDevelopmentBoundary(connection, initiation, readPhysical);
+    return { sourceKind: PRACTICE_DEVELOPMENT_KIND, initiation, origin: saved,
+      link: connection.prepare('SELECT * FROM world_player_person_links WHERE source_id=?').get(request.personSourceId) ?? null,
+      person: connection.prepare('SELECT * FROM world_person_priors WHERE source_id=?').get(request.personSourceId) ?? null,
+      genesis: connection.prepare('SELECT * FROM world_person_genesis_careers WHERE career_id=?').get(initiation.career_id) ?? null };
+  }
   const execution = connection.prepare('SELECT * FROM world_roster_executions WHERE execution_id=?').get(request.executionId) as {
     career_id: string; club_id: string; decision_id: string; result_json: string;
   } | undefined;
@@ -256,7 +276,18 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
       if (json(assessment) !== row.assessment_json) throw new Error('corrupt practice assessment archive');
       return remember({ ...attempt, assessment });
     };
-    const read = (attemptId: string): PitchPracticeAttempt | null => { check(attemptId); const row = rowById(db, attemptId); return row ? decode(row, db) : null; };
+    const readPublicAttempt = (row: Row, connection: EvidenceDb): PitchPracticeAttempt => {
+      const verified = verification(), attempt = decode(row, connection, row.revision, verified);
+      const evidence = JSON.parse(row.learning_evidence_json) as { sourceKind?: unknown } | null;
+      if (evidence !== null && Object.hasOwn(evidence, 'sourceKind')) {
+        if (evidence.sourceKind !== PRACTICE_DEVELOPMENT_KIND) throw new Error('invalid practice learning source kind');
+        // The public DTO claims this earlier learning origin. Reauthenticate it
+        // without making the internal physical decoder depend on an episode head.
+        assertEpisodeBoundary(connection, row, verified);
+      }
+      return attempt;
+    };
+    const read = (attemptId: string): PitchPracticeAttempt | null => { check(attemptId); const row = rowById(db, attemptId); return row ? readPublicAttempt(row, db) : null; };
     const required = (attemptId: string): PitchPracticeAttempt => { const attempt = read(attemptId); if (!attempt) throw new Error('practice attempt is missing'); return attempt; };
     const assertAdmission = (o: PitchPracticeOpportunity): PitchPracticePriorClock | null => {
       if (rowById(db, practiceAttemptId(o))) throw new Error('practice identity already belongs to another source alias');
@@ -285,7 +316,11 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
       verified: Verification = verification()): DevelopmentLearningEpisode => {
       const expected = JSON.parse(row.episode_before_json) as DevelopmentLearningEpisode | null;
       if (!expected) throw new Error('practice learning target is missing');
-      if (json(learningEvidence(connection, expected.episodeId)) !== row.learning_evidence_json) throw new Error('practice original learning source evidence differs');
+      if (json(learningEvidence(connection, expected.episodeId, attemptId => {
+        const origin = rowById(connection, attemptId);
+        if (!origin || origin.sequence >= row.sequence) throw new Error('practice origin physical dependency must be earlier');
+        return decode(origin, connection, origin.revision, verified);
+      })) !== row.learning_evidence_json) throw new Error('practice original learning source evidence differs');
       const initial = connection.prepare('SELECT initial_json FROM world_development_initiations WHERE episode_id=?').get(expected.episodeId) as EpisodeRow | undefined;
       if (!initial) throw new Error('practice episode source is missing');
       let current = JSON.parse(initial.initial_json) as DevelopmentLearningEpisode;
@@ -347,6 +382,15 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
     };
     const orders: ReturnType<typeof installOwnedPracticeOrders> = installOwnedPracticeOrders(db, sources.orders, sources.episodes, authority,
       { check, transaction, inspectFrame: captureFrame, frameEvidence: physicalEvidence, assertAdmission,
+        readOriginAttempt(connection, attemptId, maximumTimingRevision) {
+          const row = rowById(connection, attemptId);
+          if (!row) return null;
+          // Reject a later learning-bearing dependency before entering its order
+          // proof, so an origin can never recurse through its own later practice.
+          if (JSON.parse(row.opportunity_json).episode !== null || row.episode_before_json !== 'null'
+            || row.learning_evidence_json !== 'null') throw new Error('practice order origin must be an original null-episode attempt');
+          return decode(row, connection, row.revision, { ...verification(), timingCeiling: maximumTimingRevision });
+        },
         assertProbeReservation: (connection, o) => learning.assertProbeReservation(connection, o),
         probeReservationEvidence: (connection, o) => learning.probeReservationEvidence(connection, o) });
     const learning: ReturnType<typeof installActualPracticeLearning> = installActualPracticeLearning(db, sources, authority, { check, transaction,
@@ -357,7 +401,7 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
       inspectFrame: captureFrame, frameEvidence: physicalEvidence, assertLearningEvidence,
       assertPlanOpportunity: orders.assertPlanOpportunity,
     });
-    return Object.freeze({
+    const api: SqlitePitchPracticeAttemptStore = Object.freeze({
       ...learning,
       ...orders.methods,
       begin(sourceId): PitchPracticeAttempt {
@@ -368,7 +412,7 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
           const prior = db.prepare('SELECT * FROM pitch_practice_attempts WHERE source_id=?').get(sourceId) as Row | undefined;
           if (prior) {
             if (supplied && json(supplied) !== prior.opportunity_json) throw new Error('practice opportunity already frozen differently');
-            return decode(prior, db);
+            return readPublicAttempt(prior, db);
           }
           const owned = orders.methods.readOrder(sourceId);
           if (owned && supplied && json(owned.opportunity) !== json(supplied)) throw new Error('practice owned order differs from supplied opportunity');
@@ -384,7 +428,10 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
             || episodeBefore.playerId !== o.playerId || episodeBefore.effectiveDay > o.atDay)) throw new Error('practice episode scope or revision differs');
           const activityId = practiceActivityId(attemptId);
           const sourceEvidence = physicalEvidence(db, o, frame);
-          const acceptedLearningEvidence = episodeBefore ? learningEvidence(db, episodeBefore.episodeId) : null;
+          const acceptedLearningEvidence = episodeBefore ? learningEvidence(db, episodeBefore.episodeId, id => {
+            const origin = rowById(db, id);
+            return origin ? decode(origin, db) : null;
+          }) : null;
           const immutableHash = practiceHash({ attemptId, activityId, opportunity: o, frame, priorClock, delivery, episodeBefore,
             sourceEvidence, learningEvidence: acceptedLearningEvidence });
           db.prepare(`INSERT INTO pitch_practice_attempts (attempt_id, source_id, activity_id, career_id, player_id, opportunity_id, ordinal,
@@ -418,7 +465,7 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
         return transaction(() => {
           const saved = db.prepare('SELECT * FROM pitch_practice_attempts WHERE assessment_source_id=?').get(sourceId) as Row | undefined;
           if (saved) {
-            const current = decode(saved, db);
+            const current = readPublicAttempt(saved, db);
             if (raw && json(validatePracticeAssessment(raw, sourceId, current)) !== saved.assessment_json) throw new Error('practice assessment already frozen differently');
             return current;
           }
@@ -464,5 +511,11 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
       },
       close() { if (!closed) { db.close(); closed = true; } },
     });
+    physicalReaders.set(api, (connection, attemptId, timingCeiling) => {
+      check(attemptId);
+      const row = rowById(connection, attemptId);
+      return row ? decode(row, connection, row.revision, { ...verification(), timingCeiling }) : null;
+    });
+    return api;
   } catch (error) { db.close(); throw error; }
 };

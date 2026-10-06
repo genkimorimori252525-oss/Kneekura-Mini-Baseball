@@ -16,12 +16,13 @@ import type { SqliteWorldSettlementStore } from './SqliteWorldSettlementStore';
 import type { SqliteWorldControlStore } from './SqliteWorldControlStore';
 import type { SqliteManagerRosterDecisionStore } from './SqliteManagerRosterDecisionStore';
 import type { SqliteDevelopmentInitiationStore } from './SqliteDevelopmentInitiationStore';
+import { PRACTICE_DEVELOPMENT_KIND, readPracticeDevelopmentBoundary, type PracticeInitiationRow } from './PracticeDevelopmentOrigin';
 import { sqliteJsonMetadataNodes } from './SqliteOwnershipMetadata';
 import { assertManagerBeliefBoundary, readManagerBeliefBoundary, type ManagerBeliefBoundary } from './ManagerBeliefBoundary';
 import type { IssuedManagerPracticeOrderDecision, ManagerPracticeOrderDecisionInput,
   ManagerPracticeOrderMethods, PracticeManagerSelectionEvidence } from './ManagerPracticeOrderFromBelief';
 import { freezePractice, planPracticeDelivery, practiceAttemptId, practiceFields, practiceHash, practiceId,
-  practiceJson as json, practiceRevision, validatePracticeOpportunity, type PitchPracticeFrame, type PitchPracticeOpportunity } from './PitchPracticeAttempt';
+  practiceJson as json, practiceRevision, validatePracticeOpportunity, type PitchPracticeAttempt, type PitchPracticeFrame, type PitchPracticeOpportunity } from './PitchPracticeAttempt';
 
 export const PITCH_PRACTICE_DOMAIN = 'PITCH_PRACTICE' as const;
 type Db = Pick<DatabaseSync, 'prepare'>;
@@ -69,6 +70,7 @@ type Tools = Readonly<{
   inspectFrame(opportunity: PitchPracticeOpportunity, fresh: boolean): PitchPracticeFrame;
   frameEvidence(connection: Db, opportunity: PitchPracticeOpportunity, frame: PitchPracticeFrame): unknown;
   assertAdmission(opportunity: PitchPracticeOpportunity): void;
+  readOriginAttempt(connection: Db, attemptId: string, maximumTimingRevision: number): PitchPracticeAttempt | null;
   assertProbeReservation(connection: Db, opportunity: PitchPracticeOpportunity): void;
   probeReservationEvidence(connection: Db, opportunity: PitchPracticeOpportunity): unknown | null;
 }>;
@@ -256,10 +258,20 @@ export const installOwnedPracticeOrders = (db: DatabaseSync, sources: PracticeOr
     const row = connection.prepare('SELECT revision,current_json FROM world_development_initiations WHERE episode_id=?').get(episode.episodeId);
     if (row?.revision !== episode.revision || row.current_json !== json(episode)) throw new Error('stale practice order episode revision');
   };
-  const episodeAtBoundary = (connection: Db, expected: DevelopmentLearningEpisode | null): void => {
+  const episodeAtBoundary = (connection: Db, expected: DevelopmentLearningEpisode | null, maximumTimingRevision: number): void => {
     if (!expected) return;
-    const row = connection.prepare('SELECT initial_json FROM world_development_initiations WHERE episode_id=?').get(expected.episodeId);
+    const row = connection.prepare(`SELECT episode_id,career_id,player_id,at_day,appraisal_source_id,
+      request_json,prior_json,assessment_json,initial_json FROM world_development_initiations WHERE episode_id=?`)
+      .get(expected.episodeId) as PracticeInitiationRow | undefined;
     if (typeof row?.initial_json !== 'string') throw new Error('practice order episode source is missing');
+    const request = JSON.parse(row.request_json) as { kind?: unknown };
+    if (Object.hasOwn(request, 'kind')) {
+      if (request.kind !== PRACTICE_DEVELOPMENT_KIND) throw new Error('invalid practice order initiation source kind');
+      // The earlier physical origin is checked on this reader/writer connection,
+      // including post-INSERT replay, without following the current episode head.
+      readPracticeDevelopmentBoundary(connection, row,
+        attemptId => tools.readOriginAttempt(connection, attemptId, maximumTimingRevision));
+    }
     let state = JSON.parse(row.initial_json) as DevelopmentLearningEpisode;
     const events = connection.prepare('SELECT before_revision,after_revision,event_json,state_json FROM world_development_learning_events WHERE episode_id=? AND after_revision<=? ORDER BY after_revision')
       .all(expected.episodeId, expected.revision) as { before_revision: number; after_revision: number; event_json: string; state_json: string }[];
@@ -328,7 +340,7 @@ export const installOwnedPracticeOrders = (db: DatabaseSync, sources: PracticeOr
     // Authenticate the immutable footprint before following any source callback.
     const boundProbe = proof !== null && typeof proof === 'object' && Object.hasOwn(proof, 'probeReservation');
     if (!same(evidence(connection, r, p, frame, episode, boundProbe), proof)) throw new Error('practice order original source evidence differs');
-    assertClubBoundary(connection, r, heads.club); episodeAtBoundary(connection, episode);
+    assertClubBoundary(connection, r, heads.club); episodeAtBoundary(connection, episode, maximumTimingRevision);
     if (p.episode === null ? episode !== null : !episode || episode.episodeId !== p.episode.episodeId || episode.revision !== p.episode.revision
       || episode.careerId !== p.careerId || episode.playerId !== p.playerId || episode.domain !== 'TECHNICAL'
       || !['HYPOTHESIS', 'PRACTICING'].includes(episode.stage) || episode.effectiveDay > p.atDay) throw new Error('practice order episode scope or stage differs');

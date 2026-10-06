@@ -27,6 +27,10 @@ export type DevelopmentLearningEvent = Readonly<{
   domain?: DevelopmentDomain;
 }>;
 export type DevelopmentLearningEventInput = DevelopmentLearningEvent;
+export type PracticeDevelopmentCatalyst = Readonly<{
+  family: 'TECHNICAL_DISCOVERY'; careerId: string; playerId: string;
+  occurredAtDay: number; sourceEventId: string; causeEventId: string; motifId: string;
+}>;
 export type DevelopmentLearningEpisode = Readonly<{
   episodeId: string;
   careerId: string;
@@ -35,7 +39,7 @@ export type DevelopmentLearningEpisode = Readonly<{
   revision: number;
   startedAtDay: number;
   effectiveDay: number;
-  catalyst: RosterDevelopmentCatalyst;
+  catalyst: RosterDevelopmentCatalyst | PracticeDevelopmentCatalyst;
   policy: DevelopmentLearningPolicy;
   stage: DevelopmentLearningStage;
   domain: DevelopmentDomain | null;
@@ -70,6 +74,29 @@ export const startDevelopmentLearningEpisode = (
   if (!catalyst) {
     throw new Error('development learning episode requires a roster catalyst');
   }
+  return startEpisode(episodeId, catalyst, playerId, profile, policy);
+};
+
+/** Host admission must authenticate the actual completed practice before calling. */
+export const startPracticeDevelopmentLearningEpisode = (
+  episodeId: string,
+  discovery: Omit<PracticeDevelopmentCatalyst, 'family'>,
+  profile: Pick<DevelopmentCatalystProfile, 'careerId' | 'playerId' | 'createdAtDay' | 'profileVersion'>,
+  policy: DevelopmentLearningPolicy,
+): DevelopmentLearningEpisode => {
+  if (!fields(discovery, ['careerId', 'playerId', 'occurredAtDay', 'sourceEventId', 'causeEventId', 'motifId'])
+    || ![discovery.careerId, discovery.playerId, discovery.sourceEventId, discovery.causeEventId, discovery.motifId].every(id)
+    || !day(discovery.occurredAtDay) || discovery.sourceEventId === discovery.causeEventId) {
+    throw new Error('invalid accepted practice discovery catalyst');
+  }
+  return startEpisode(episodeId, Object.freeze({ family: 'TECHNICAL_DISCOVERY', ...discovery }), discovery.playerId, profile, policy);
+};
+
+const startEpisode = (
+  episodeId: string, catalyst: DevelopmentLearningEpisode['catalyst'], playerId: string,
+  profile: Pick<DevelopmentCatalystProfile, 'careerId' | 'playerId' | 'createdAtDay' | 'profileVersion'>,
+  policy: DevelopmentLearningPolicy,
+): DevelopmentLearningEpisode => {
   if (!id(episodeId) || !fields(profile,
     ['careerId', 'playerId', 'createdAtDay', 'profileVersion'])
     || profile.careerId !== catalyst.careerId
