@@ -1,0 +1,2084 @@
+{
+  "sourceCommit": "7a067cce318867719022a61abf50a99e2414d36b",
+  "sourceTree": "5c1efd4419364781af02b8565e8dd9e558c80b50",
+  "tree": "0be0a3a5f74f95019ee7c86c9b3ad2b5de2afa32",
+  "startedAt": "2026-10-06T07:55:43.257344+00:00",
+  "controlHashes": {
+    "/workspace/shared/baseball-current-model-core162-preparation-7a067cc/run-qualification.py": "7935f2669909a4d50991c9573252649f002d3f23a3c1a25da344f02515a8090a",
+    "/workspace/shared/baseball-current-model-core162-preparation-7a067cc/qualification.config.json": "3a6c042979a15b9f80b88a13a8d4eaaa2192181c85bc87ddd4c22507e1c21229",
+    "/workspace/shared/baseball-current-model-core162-preparation-7a067cc/source.sha256": "4e774e015b840b2204a72eb695a5ecc0a055d24fd1eeb6d863bc7217504af8f8",
+    "/workspace/shared/baseball-current-model-core162-preparation-7a067cc/dependencies.json": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node": "ab9c8eecf9f82d6693cdc3accced17034065c8d96213b0aa76a7e803d20ae1da",
+    "/workspace/scratch/d91451022177/baseball-continuation/tools/verification/actual-live-pipeline/runtime-probe.cjs": "dd10010dbdf778286bd30e2bec72d99da52813b1e1e7271b20f4ca6b639d12e8",
+    "/workspace/shared/baseball-native-batting-recovered-stage-a-preparation-v1/attempt1/terminal.json": "923073f3a45b55a733abbbf98c7bcb6383a8297dbc4d389ecb6460d4758f465c",
+    "/workspace/shared/baseball-current-model-core162-preparation-7a067cc/selection.json": "5a6076b9d39cdeefddf9bbd8b6727415742adffa0c99172f1faf544fc948437e",
+    "/workspace/shared/baseball-current-model-core162-preparation-7a067cc/unhandled-reporter.mjs": "cdd5c58d10c5cb67fdc6f1645d34f9ee06b7622b7b0e58f486c012fa85479990",
+    "/workspace/shared/baseball-current-model-core162-preparation-7a067cc/preservation.vitest.config.mjs": "b5a3f8aa9e6c86bc26b2f62a5eaf94a6b8e9b395e6acc5fd121bdf1c17e88a8d",
+    "/workspace/shared/baseball-current-model-core162-preparation-7a067cc/model.vitest.config.mjs": "ef3ebec591a68af6e1e39e1f6b9b5a5de6c645ae996141a7dd2cd4c3192e5515",
+    "/workspace/shared/baseball-current-model-core162-preparation-7a067cc/related_owners.vitest.config.mjs": "689305d14778db51e3a90580c287345fe1848c6fc88842b126e009613509be87",
+    "/workspace/shared/baseball-native-batting-model-guard-red-preparation-v2/attempt1/terminal.json": "e7b4e0827530450dc127080e9b00407f2560e3ec8e4ef873a479ed8608a433e2",
+    "/workspace/shared/baseball-current-model-core162-preparation-7a067cc/core.vitest.config.mjs": "ca59d02f1640238fdd32e2d769560b29f225018770b65a2cee143d1067e44b2b",
+    "/workspace/shared/baseball-current-model-core162-preparation-7a067cc/integration-parity.json": "80eec364fa69e7a5e999b5d29ffab64a03a859be15e991ec2d767ba2c1b0e12a",
+    "/workspace/shared/baseball-native-batting-model-qualification-preparation-v1/attempt1/terminal.json": "301ee80be799defe60057e6feb55f4466c529459d7b7b591f1bce12b9a9d281b"
+  },
+  "sourceManifestSha256": "4e774e015b840b2204a72eb695a5ecc0a055d24fd1eeb6d863bc7217504af8f8",
+  "dependencyManifestSha256": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+  "freshModelRedPrerequisite": {
+    "terminal": "/workspace/shared/baseball-native-batting-recovered-stage-a-preparation-v1/attempt1/terminal.json",
+    "sha256": "923073f3a45b55a733abbbf98c7bcb6383a8297dbc4d389ecb6460d4758f465c",
+    "sourceCommit": "ce9b7e88c5c4b8fbf47d012ae84cff0ccb31affe",
+    "sourceTree": "10bed5de7cd5ba7210cde29ac37311c91086c9fc"
+  },
+  "reviewedControllerSha256": "7935f2669909a4d50991c9573252649f002d3f23a3c1a25da344f02515a8090a",
+  "locks": [
+    {
+      "path": "/workspace/shared/baseball-native-check.lock",
+      "fd": 3,
+      "inode": 262705
+    },
+    {
+      "path": "/workspace/shared/baseball-native-aux-check.lock",
+      "fd": 4,
+      "inode": 262700
+    },
+    {
+      "path": "/workspace/shared/baseball-light-check.lock",
+      "fd": 5,
+      "inode": 262699
+    }
+  ],
+  "terminalAt": "2026-10-06T07:57:08.683874+00:00",
+  "currentModelCoreQualificationVerified": true,
+  "passed": true,
+  "counts": {
+    "numTotalTests": 162,
+    "numPassedTests": 162,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0
+  },
+  "uniqueSelectedCaseCount": 162,
+  "uniqueHeldStanceCaseCount": 23,
+  "stanceRedQualified": false,
+  "sourceDependenciesControlsUnchanged": true,
+  "stages": [
+    {
+      "stage": "compiler",
+      "startedAt": "2026-10-06T07:55:44.232766+00:00",
+      "profile": {
+        "oldSpaceMiB": 1408,
+        "heapMiB": 1504,
+        "rssMiB": 2048,
+        "wallSeconds": 180,
+        "stopReserveGiB": 5,
+        "files": {},
+        "discoveredCounts": {},
+        "caseNames": {},
+        "excludedCaseNames": {},
+        "expectedExitCode": 0
+      },
+      "command": [
+        "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "childPid": 42,
+      "rootStartTime": 855837,
+      "terminalAt": "2026-10-06T07:56:24.337084+00:00",
+      "seconds": 40.103848404998644,
+      "exitCode": 0,
+      "failure": null,
+      "stopReason": null,
+      "peakAggregateRssKiB": 1510332,
+      "runtime": [
+        {
+          "at": "2026-10-06T07:55:45.078Z",
+          "pid": 42,
+          "ppid": 2,
+          "workerId": null,
+          "node": "v26.10.0",
+          "execArgv": [],
+          "requestedOldSpaceMiB": 1408,
+          "heapLimitMiB": 1504,
+          "memory": {
+            "rss": 46428160,
+            "heapTotal": 5378048,
+            "heapUsed": 4625280,
+            "external": 1883397,
+            "arrayBuffers": 137835
+          }
+        }
+      ],
+      "runtimeVerified": true,
+      "sourceDependenciesControlsUnchanged": true,
+      "remainingOwnedProcesses": [],
+      "reaped": true,
+      "counts": {},
+      "perTest": [],
+      "unhandledErrors": null,
+      "assertionEvidence": null,
+      "selectionValid": true,
+      "resourceEvidenceValid": true,
+      "phaseVerified": true,
+      "cancellationSignal": null
+    },
+    {
+      "stage": "preservation",
+      "startedAt": "2026-10-06T07:56:24.337691+00:00",
+      "profile": {
+        "oldSpaceMiB": 1024,
+        "heapMiB": 1120,
+        "rssMiB": 1536,
+        "wallSeconds": 600,
+        "stopReserveGiB": 6,
+        "files": {
+          "src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts": 10,
+          "src/host/world/NativeBattingLegacyCompatibility.test.ts": 4
+        },
+        "discoveredCounts": {
+          "src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts": 10,
+          "src/host/world/NativeBattingLegacyCompatibility.test.ts": 4
+        },
+        "caseNames": {
+          "src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts": [
+            "a supported repertoire speed change reaches sampled motor kinematics",
+            "a larger feasible speed ceiling is a constraint, not an extra speed buff",
+            "profile identifiers change provenance without changing rigid physics",
+            "a display rating is not an accepted physics input",
+            "a refinement delivered after commitment cannot affect the committed motor",
+            "positive actor motor latency can delay physical onset without moving decision time",
+            "a technical timing source changes physical phase timing independently of emotion",
+            "changing actual flight changes physical resolution without replanning the accepted swing",
+            "serialized forecast remains pending and limits the watermark until exact due adoption",
+            "due adoption recomputes a restored forecast instead of trusting serialized contact payloads"
+          ],
+          "src/host/world/NativeBattingLegacyCompatibility.test.ts": [
+            "keeps archived physical action and snapshot bytes unchanged across offline reopen",
+            "does not reinterpret legacy Sources with caller supplied batting evidence as the staged path",
+            "rejects a foreign pitcher and stale progress revision without changing original bytes",
+            "rolls back a changed batter Person during append and resumes the original prefix offline"
+          ]
+        },
+        "excludedCaseNames": {
+          "src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts": [],
+          "src/host/world/NativeBattingLegacyCompatibility.test.ts": []
+        },
+        "expectedExitCode": 0,
+        "vitestConfig": "/workspace/shared/baseball-current-model-core162-preparation-7a067cc/preservation.vitest.config.mjs"
+      },
+      "command": [
+        "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts",
+        "src/host/world/NativeBattingLegacyCompatibility.test.ts",
+        "--config",
+        "/workspace/shared/baseball-current-model-core162-preparation-7a067cc/preservation.vitest.config.mjs",
+        "--pool=forks",
+        "--maxWorkers=1",
+        "--minWorkers=1",
+        "--no-file-parallelism",
+        "--reporter=verbose",
+        "--reporter=json",
+        "--reporter=/workspace/shared/baseball-current-model-core162-preparation-7a067cc/unhandled-reporter.mjs",
+        "--outputFile=/workspace/shared/baseball-current-model-core162-preparation-7a067cc/attempt1/preservation-results.json"
+      ],
+      "childPid": 68,
+      "rootStartTime": 859829,
+      "terminalAt": "2026-10-06T07:56:33.500662+00:00",
+      "seconds": 9.162938286001008,
+      "exitCode": 0,
+      "failure": null,
+      "stopReason": null,
+      "peakAggregateRssKiB": 450396,
+      "runtime": [
+        {
+          "at": "2026-10-06T07:56:25.010Z",
+          "pid": 68,
+          "ppid": 2,
+          "workerId": null,
+          "node": "v26.10.0",
+          "execArgv": [],
+          "requestedOldSpaceMiB": 1024,
+          "heapLimitMiB": 1120,
+          "memory": {
+            "rss": 46559232,
+            "heapTotal": 6164480,
+            "heapUsed": 4625944,
+            "external": 1883397,
+            "arrayBuffers": 137835
+          }
+        },
+        {
+          "at": "2026-10-06T07:56:25.420Z",
+          "pid": 98,
+          "ppid": 68,
+          "workerId": "1",
+          "node": "v26.10.0",
+          "execArgv": [
+            "--conditions",
+            "development",
+            "--conditions",
+            "node"
+          ],
+          "requestedOldSpaceMiB": 1024,
+          "heapLimitMiB": 1120,
+          "memory": {
+            "rss": 47869952,
+            "heapTotal": 6164480,
+            "heapUsed": 4936752,
+            "external": 2094221,
+            "arrayBuffers": 137835
+          }
+        },
+        {
+          "at": "2026-10-06T07:56:26.780Z",
+          "pid": 124,
+          "ppid": 68,
+          "workerId": "1",
+          "node": "v26.10.0",
+          "execArgv": [
+            "--conditions",
+            "development",
+            "--conditions",
+            "node"
+          ],
+          "requestedOldSpaceMiB": 1024,
+          "heapLimitMiB": 1120,
+          "memory": {
+            "rss": 47865856,
+            "heapTotal": 6164480,
+            "heapUsed": 4936752,
+            "external": 2094221,
+            "arrayBuffers": 137835
+          }
+        }
+      ],
+      "runtimeVerified": true,
+      "sourceDependenciesControlsUnchanged": true,
+      "remainingOwnedProcesses": [],
+      "reaped": true,
+      "counts": {
+        "numTotalTests": 14,
+        "numPassedTests": 14,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "perTest": [
+        {
+          "file": "src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts",
+          "name": "a supported repertoire speed change reaches sampled motor kinematics",
+          "status": "passed",
+          "durationMs": 71.11359500000003,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts",
+          "name": "a larger feasible speed ceiling is a constraint, not an extra speed buff",
+          "status": "passed",
+          "durationMs": 24.588214000000107,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts",
+          "name": "profile identifiers change provenance without changing rigid physics",
+          "status": "passed",
+          "durationMs": 123.72142100000008,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts",
+          "name": "a display rating is not an accepted physics input",
+          "status": "passed",
+          "durationMs": 6.692902000000004,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts",
+          "name": "a refinement delivered after commitment cannot affect the committed motor",
+          "status": "passed",
+          "durationMs": 49.922604999999976,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts",
+          "name": "positive actor motor latency can delay physical onset without moving decision time",
+          "status": "passed",
+          "durationMs": 11.625377000000071,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts",
+          "name": "a technical timing source changes physical phase timing independently of emotion",
+          "status": "passed",
+          "durationMs": 58.03736200000003,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts",
+          "name": "changing actual flight changes physical resolution without replanning the accepted swing",
+          "status": "passed",
+          "durationMs": 57.86034400000017,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts",
+          "name": "serialized forecast remains pending and limits the watermark until exact due adoption",
+          "status": "passed",
+          "durationMs": 58.61052300000006,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts",
+          "name": "due adoption recomputes a restored forecast instead of trusting serialized contact payloads",
+          "status": "passed",
+          "durationMs": 62.15220199999999,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/NativeBattingLegacyCompatibility.test.ts",
+          "name": "keeps archived physical action and snapshot bytes unchanged across offline reopen",
+          "status": "passed",
+          "durationMs": 337.36086600000044,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/NativeBattingLegacyCompatibility.test.ts",
+          "name": "does not reinterpret legacy Sources with caller supplied batting evidence as the staged path",
+          "status": "passed",
+          "durationMs": 90.98199999999997,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/NativeBattingLegacyCompatibility.test.ts",
+          "name": "rejects a foreign pitcher and stale progress revision without changing original bytes",
+          "status": "passed",
+          "durationMs": 354.10762499999964,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/NativeBattingLegacyCompatibility.test.ts",
+          "name": "rolls back a changed batter Person during append and resumes the original prefix offline",
+          "status": "passed",
+          "durationMs": 583.6553409999997,
+          "failureMessages": []
+        }
+      ],
+      "unhandledErrors": {
+        "version": "practice_order_unhandled_errors_v1",
+        "fileCount": 2,
+        "unhandledErrorCount": 0,
+        "errors": []
+      },
+      "assertionEvidence": null,
+      "selectionValid": true,
+      "resourceEvidenceValid": true,
+      "phaseVerified": true,
+      "cancellationSignal": null
+    },
+    {
+      "stage": "model",
+      "startedAt": "2026-10-06T07:56:33.501717+00:00",
+      "profile": {
+        "oldSpaceMiB": 1024,
+        "heapMiB": 1120,
+        "rssMiB": 1536,
+        "wallSeconds": 600,
+        "stopReserveGiB": 6,
+        "files": {
+          "src/host/world/PlayerBattingModelNative.test.ts": 30,
+          "src/host/world/PlayerBattingModelOwnershipGuards.test.ts": 4
+        },
+        "discoveredCounts": {
+          "src/host/world/PlayerBattingModelNative.test.ts": 30,
+          "src/host/world/PlayerBattingModelOwnershipGuards.test.ts": 4
+        },
+        "caseNames": {
+          "src/host/world/PlayerBattingModelNative.test.ts": [
+            "constructs the genuine registered batter body prerequisite without a batting or legacy pitch result",
+            "accepts the original Person-bound batting model with exact independently accepted inputs and nested body receipt",
+            "reopens and retries the original model without invoking any live authority or rewriting bytes",
+            "keeps two registered Persons own body and distinct explicit capability/repertoire inputs separate",
+            "rejects a model with foreign or inapplicable person evidence before saving any row",
+            "rejects a model with foreign or inapplicable body evidence before saving any row",
+            "rejects a model with foreign or inapplicable pose evidence before saving any row",
+            "rejects a model with foreign or inapplicable materialization-version evidence before saving any row",
+            "rejects a model with foreign or inapplicable future evidence before saving any row",
+            "rejects a model with foreign or inapplicable before-intake evidence before saving any row",
+            "rejects a missing nonnull accepted capability input instead of filling a fixture default",
+            "rejects a missing nonnull accepted repertoire input instead of filling a fixture default",
+            "rejects a missing nonnull accepted decision input instead of filling a fixture default",
+            "rejects a missing nonnull accepted equipment input instead of filling a fixture default",
+            "rejects a missing nonnull accepted observation input instead of filling a fixture default",
+            "rejects a missing nonnull accepted prediction input instead of filling a fixture default",
+            "rejects foreign-capability without changing original body or actor evidence",
+            "rejects future-repertoire without changing original body or actor evidence",
+            "rejects zero-motor-delay without changing original body or actor evidence",
+            "rejects zero-sensory-delay without changing original body or actor evidence",
+            "rejects caller prediction and display fields without evaluating an accessor",
+            "rejects changed same-ID model or parameter bytes while preserving the original immutable archive",
+            "selects later explicitly accepted capability history while reading and retrying original model bytes",
+            "rejects a moved SQL identity whose original source and snapshot still claim the requested model",
+            "rejects a model with corrupt sql-scope mirrors even when supplied hashes match the changed JSON",
+            "rejects a model with corrupt sql-day mirrors even when supplied hashes match the changed JSON",
+            "rejects a model with corrupt sql-version mirrors even when supplied hashes match the changed JSON",
+            "rejects a model with corrupt source-scope mirrors even when supplied hashes match the changed JSON",
+            "rejects a model with corrupt snapshot-scope mirrors even when supplied hashes match the changed JSON",
+            "rolls back model insertion when a trigger deletes its original body dependency, then retries once"
+          ],
+          "src/host/world/PlayerBattingModelOwnershipGuards.test.ts": [
+            "rejects a hidden foreign model whose nested body claims the original Player history",
+            "rejects a hidden foreign model whose nested pose claims the original Player history",
+            "rejects a same-day new model with fresh parameter IDs after the original SQL Player identity moved",
+            "rejects an explicitly negative prediction viscosity without a coefficient profile after genuine model acceptance"
+          ]
+        },
+        "excludedCaseNames": {
+          "src/host/world/PlayerBattingModelNative.test.ts": [],
+          "src/host/world/PlayerBattingModelOwnershipGuards.test.ts": []
+        },
+        "expectedExitCode": 0,
+        "vitestConfig": "/workspace/shared/baseball-current-model-core162-preparation-7a067cc/model.vitest.config.mjs"
+      },
+      "command": [
+        "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "src/host/world/PlayerBattingModelNative.test.ts",
+        "src/host/world/PlayerBattingModelOwnershipGuards.test.ts",
+        "--config",
+        "/workspace/shared/baseball-current-model-core162-preparation-7a067cc/model.vitest.config.mjs",
+        "--pool=forks",
+        "--maxWorkers=1",
+        "--minWorkers=1",
+        "--no-file-parallelism",
+        "--reporter=verbose",
+        "--reporter=json",
+        "--reporter=/workspace/shared/baseball-current-model-core162-preparation-7a067cc/unhandled-reporter.mjs",
+        "--outputFile=/workspace/shared/baseball-current-model-core162-preparation-7a067cc/attempt1/model-results.json"
+      ],
+      "childPid": 164,
+      "rootStartTime": 860756,
+      "terminalAt": "2026-10-06T07:56:55.681654+00:00",
+      "seconds": 22.179908366000745,
+      "exitCode": 0,
+      "failure": null,
+      "stopReason": null,
+      "peakAggregateRssKiB": 462540,
+      "runtime": [
+        {
+          "at": "2026-10-06T07:56:34.276Z",
+          "pid": 164,
+          "ppid": 2,
+          "workerId": null,
+          "node": "v26.10.0",
+          "execArgv": [],
+          "requestedOldSpaceMiB": 1024,
+          "heapLimitMiB": 1120,
+          "memory": {
+            "rss": 45903872,
+            "heapTotal": 5640192,
+            "heapUsed": 4625152,
+            "external": 1883397,
+            "arrayBuffers": 137835
+          }
+        },
+        {
+          "at": "2026-10-06T07:56:34.674Z",
+          "pid": 194,
+          "ppid": 164,
+          "workerId": "1",
+          "node": "v26.10.0",
+          "execArgv": [
+            "--conditions",
+            "development",
+            "--conditions",
+            "node"
+          ],
+          "requestedOldSpaceMiB": 1024,
+          "heapLimitMiB": 1120,
+          "memory": {
+            "rss": 47869952,
+            "heapTotal": 6164480,
+            "heapUsed": 4936752,
+            "external": 2094221,
+            "arrayBuffers": 137835
+          }
+        },
+        {
+          "at": "2026-10-06T07:56:50.488Z",
+          "pid": 220,
+          "ppid": 164,
+          "workerId": "1",
+          "node": "v26.10.0",
+          "execArgv": [
+            "--conditions",
+            "development",
+            "--conditions",
+            "node"
+          ],
+          "requestedOldSpaceMiB": 1024,
+          "heapLimitMiB": 1120,
+          "memory": {
+            "rss": 47869952,
+            "heapTotal": 6164480,
+            "heapUsed": 4936752,
+            "external": 2094221,
+            "arrayBuffers": 137835
+          }
+        }
+      ],
+      "runtimeVerified": true,
+      "sourceDependenciesControlsUnchanged": true,
+      "remainingOwnedProcesses": [],
+      "reaped": true,
+      "counts": {
+        "numTotalTests": 34,
+        "numPassedTests": 34,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "perTest": [
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "constructs the genuine registered batter body prerequisite without a batting or legacy pitch result",
+          "status": "passed",
+          "durationMs": 314.2772009999999,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "accepts the original Person-bound batting model with exact independently accepted inputs and nested body receipt",
+          "status": "passed",
+          "durationMs": 495.32233499999984,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "reopens and retries the original model without invoking any live authority or rewriting bytes",
+          "status": "passed",
+          "durationMs": 655.798127,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "keeps two registered Persons own body and distinct explicit capability/repertoire inputs separate",
+          "status": "passed",
+          "durationMs": 739.8418819999997,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rejects a model with foreign or inapplicable person evidence before saving any row",
+          "status": "passed",
+          "durationMs": 149.69934400000056,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rejects a model with foreign or inapplicable body evidence before saving any row",
+          "status": "passed",
+          "durationMs": 149.44829899999968,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rejects a model with foreign or inapplicable pose evidence before saving any row",
+          "status": "passed",
+          "durationMs": 137.16024499999912,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rejects a model with foreign or inapplicable materialization-version evidence before saving any row",
+          "status": "passed",
+          "durationMs": 160.86421300000075,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rejects a model with foreign or inapplicable future evidence before saving any row",
+          "status": "passed",
+          "durationMs": 136.25941500000044,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rejects a model with foreign or inapplicable before-intake evidence before saving any row",
+          "status": "passed",
+          "durationMs": 163.33252899999934,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rejects a missing nonnull accepted capability input instead of filling a fixture default",
+          "status": "passed",
+          "durationMs": 124.68107200000122,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rejects a missing nonnull accepted repertoire input instead of filling a fixture default",
+          "status": "passed",
+          "durationMs": 140.3391929999998,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rejects a missing nonnull accepted decision input instead of filling a fixture default",
+          "status": "passed",
+          "durationMs": 134.33796299999995,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rejects a missing nonnull accepted equipment input instead of filling a fixture default",
+          "status": "passed",
+          "durationMs": 128.38099899999906,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rejects a missing nonnull accepted observation input instead of filling a fixture default",
+          "status": "passed",
+          "durationMs": 123.9375259999997,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rejects a missing nonnull accepted prediction input instead of filling a fixture default",
+          "status": "passed",
+          "durationMs": 135.48371600000064,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rejects foreign-capability without changing original body or actor evidence",
+          "status": "passed",
+          "durationMs": 141.1104180000002,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rejects future-repertoire without changing original body or actor evidence",
+          "status": "passed",
+          "durationMs": 155.99979800000074,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rejects zero-motor-delay without changing original body or actor evidence",
+          "status": "passed",
+          "durationMs": 135.14998100000048,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rejects zero-sensory-delay without changing original body or actor evidence",
+          "status": "passed",
+          "durationMs": 123.85227300000042,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rejects caller prediction and display fields without evaluating an accessor",
+          "status": "passed",
+          "durationMs": 117.7689420000006,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rejects changed same-ID model or parameter bytes while preserving the original immutable archive",
+          "status": "passed",
+          "durationMs": 562.9244589999998,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "selects later explicitly accepted capability history while reading and retrying original model bytes",
+          "status": "passed",
+          "durationMs": 1661.9307329999992,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rejects a moved SQL identity whose original source and snapshot still claim the requested model",
+          "status": "passed",
+          "durationMs": 297.41100200000074,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rejects a model with corrupt sql-scope mirrors even when supplied hashes match the changed JSON",
+          "status": "passed",
+          "durationMs": 368.8577490000007,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rejects a model with corrupt sql-day mirrors even when supplied hashes match the changed JSON",
+          "status": "passed",
+          "durationMs": 299.33361800000057,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rejects a model with corrupt sql-version mirrors even when supplied hashes match the changed JSON",
+          "status": "passed",
+          "durationMs": 367.7703820000006,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rejects a model with corrupt source-scope mirrors even when supplied hashes match the changed JSON",
+          "status": "passed",
+          "durationMs": 324.48527699999977,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rejects a model with corrupt snapshot-scope mirrors even when supplied hashes match the changed JSON",
+          "status": "passed",
+          "durationMs": 295.4460340000005,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelNative.test.ts",
+          "name": "rolls back model insertion when a trigger deletes its original body dependency, then retries once",
+          "status": "passed",
+          "durationMs": 401.5831330000001,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelOwnershipGuards.test.ts",
+          "name": "rejects a hidden foreign model whose nested body claims the original Player history",
+          "status": "passed",
+          "durationMs": 1412.2701470000002,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelOwnershipGuards.test.ts",
+          "name": "rejects a hidden foreign model whose nested pose claims the original Player history",
+          "status": "passed",
+          "durationMs": 1191.31722,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelOwnershipGuards.test.ts",
+          "name": "rejects a same-day new model with fresh parameter IDs after the original SQL Player identity moved",
+          "status": "passed",
+          "durationMs": 418.01250100000016,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBattingModelOwnershipGuards.test.ts",
+          "name": "rejects an explicitly negative prediction viscosity without a coefficient profile after genuine model acceptance",
+          "status": "passed",
+          "durationMs": 357.0193770000001,
+          "failureMessages": []
+        }
+      ],
+      "unhandledErrors": {
+        "version": "practice_order_unhandled_errors_v1",
+        "fileCount": 2,
+        "unhandledErrorCount": 0,
+        "errors": []
+      },
+      "assertionEvidence": null,
+      "selectionValid": true,
+      "resourceEvidenceValid": true,
+      "phaseVerified": true,
+      "cancellationSignal": null
+    },
+    {
+      "stage": "related_owners",
+      "startedAt": "2026-10-06T07:56:55.683545+00:00",
+      "profile": {
+        "oldSpaceMiB": 1024,
+        "heapMiB": 1120,
+        "rssMiB": 1536,
+        "wallSeconds": 600,
+        "stopReserveGiB": 6,
+        "files": {
+          "src/host/world/PlayerBodyCapabilityMaterialization.test.ts": 64,
+          "src/host/world/SqlitePlayerPersonLinkStore.test.ts": 3
+        },
+        "discoveredCounts": {
+          "src/host/world/PlayerBodyCapabilityMaterialization.test.ts": 64,
+          "src/host/world/SqlitePlayerPersonLinkStore.test.ts": 3
+        },
+        "caseNames": {
+          "src/host/world/PlayerBodyCapabilityMaterialization.test.ts": [
+            "materializes original Person/body/pose evidence through the existing reach kernel and existing fielding owner",
+            "changes derived physical intermediates for an accepted height change, without inventing primitive dimensions or ability",
+            "keeps physical output and abilities identical when only independently accepted display metadata changes",
+            "returns explicit pending for an unsupplied body pin without a partial actor",
+            "returns explicit pending for an unsupplied pose pin without a partial actor",
+            "returns explicit pending for an unsupplied reachCalibration pin without a partial actor",
+            "returns explicit pending for an unsupplied fieldingModel pin without a partial actor",
+            "does not conceal a false Person claim behind an unsupplied calibration",
+            "rejects a missing nonnull request source instead of using defaults",
+            "rejects a missing nonnull body source instead of using defaults",
+            "rejects a missing nonnull pose source instead of using defaults",
+            "rejects a missing nonnull reach source instead of using defaults",
+            "rejects a missing nonnull fielding source instead of using defaults",
+            "rejects invalid accepted body person evidence",
+            "rejects invalid accepted body career evidence",
+            "rejects invalid accepted body player evidence",
+            "rejects invalid accepted body intake evidence",
+            "rejects invalid accepted body version evidence",
+            "rejects invalid accepted body future evidence",
+            "rejects invalid accepted body before-intake evidence",
+            "rejects invalid accepted body height evidence",
+            "rejects invalid accepted body hidden-prior evidence",
+            "rejects wrong-body pose evidence instead of claiming generated anatomy",
+            "rejects wrong-person pose evidence instead of claiming generated anatomy",
+            "rejects wrong-version pose evidence instead of claiming generated anatomy",
+            "rejects future pose evidence instead of claiming generated anatomy",
+            "rejects duplicate-role pose evidence instead of claiming generated anatomy",
+            "rejects missing-role pose evidence instead of claiming generated anatomy",
+            "rejects nonfinite-radius pose evidence instead of claiming generated anatomy",
+            "rejects future reach calibration",
+            "rejects version reach calibration",
+            "rejects invalid-baseline reach calibration",
+            "rejects origin-outside-body reach calibration",
+            "selects only the native applicable fielding owner: wrong-version",
+            "selects only the native applicable fielding owner: future",
+            "selects only the native applicable fielding owner: wrong-person",
+            "prepares a batter actor without pretending body dimensions create its role capability",
+            "prepares a runner actor without pretending body dimensions create its role capability",
+            "rejects an extra fielding capability pin for the batter-only role",
+            "rejects an extra fielding capability pin for the runner-only role",
+            "rejects a valid release pin outside the pitching role: defender",
+            "rejects a valid release pin outside the pitching role: batter",
+            "rejects a valid release pin outside the pitching role: runner",
+            "rejects a valid fielding source owned by another actual Player/Person",
+            "keeps an unsupplied pitcher release explicit without generating one from body height",
+            "pins the pitcher release snapshot for the requested day, even when a later body change exists",
+            "replays the originally pinned release after a valid equal-day history append without reselecting today\u2019s head",
+            "rejects a pitcher missing release selection",
+            "rejects a pitcher wrong-version release selection",
+            "rejects a pitcher wrong-day release selection",
+            "rejects a pitcher different-body release selection",
+            "reopens from archived original inputs without external authority and rejects changed retry inputs",
+            "cannot launder changed body evidence under an old source pin in a new receipt",
+            "cannot launder changed pose evidence under an old source pin in a new receipt",
+            "cannot launder changed reach evidence under an old source pin in a new receipt",
+            "rolls back writer-local owner mutation after receipt insertion: UPDATE world_player_person_links SET person_id='changed-person'",
+            "rolls back writer-local owner mutation after receipt insertion: UPDATE world_player_fielding_models SET accepted_at_day=99",
+            "rolls back writer-local owner mutation after receipt insertion: DELETE FROM world_player_fielding_models",
+            "rolls back a writer-local historical release mutation instead of trusting an independent connection",
+            "rejects corrupt original provenance on reopen and retry: UPDATE world_player_body_materializations SET source_hash='changed'",
+            "rejects corrupt original provenance on reopen and retry: UPDATE world_player_body_materializations SET snapshot_hash='changed'",
+            "rejects corrupt original provenance on reopen and retry: UPDATE world_player_body_materializations SET source_id='moved-source'",
+            "rejects corrupt original provenance on reopen and retry: UPDATE world_player_body_materializations SET player_id='wrong-player'",
+            "rejects corrupt original provenance on reopen and retry: UPDATE world_player_person_links SET person_id='changed-person'"
+          ],
+          "src/host/world/SqlitePlayerPersonLinkStore.test.ts": [
+            "persists one accepted intake link and reads it through the FA authority contract",
+            "rejects unknown intake, stale roster and duplicate player/person while retaining accepted identity",
+            "rolls back an insertion failure and accepts the same source on retry"
+          ]
+        },
+        "excludedCaseNames": {
+          "src/host/world/PlayerBodyCapabilityMaterialization.test.ts": [],
+          "src/host/world/SqlitePlayerPersonLinkStore.test.ts": []
+        },
+        "expectedExitCode": 0,
+        "vitestConfig": "/workspace/shared/baseball-current-model-core162-preparation-7a067cc/related_owners.vitest.config.mjs"
+      },
+      "command": [
+        "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+        "src/host/world/SqlitePlayerPersonLinkStore.test.ts",
+        "--config",
+        "/workspace/shared/baseball-current-model-core162-preparation-7a067cc/related_owners.vitest.config.mjs",
+        "--pool=forks",
+        "--maxWorkers=1",
+        "--minWorkers=1",
+        "--no-file-parallelism",
+        "--reporter=verbose",
+        "--reporter=json",
+        "--reporter=/workspace/shared/baseball-current-model-core162-preparation-7a067cc/unhandled-reporter.mjs",
+        "--outputFile=/workspace/shared/baseball-current-model-core162-preparation-7a067cc/attempt1/related_owners-results.json"
+      ],
+      "childPid": 259,
+      "rootStartTime": 862975,
+      "terminalAt": "2026-10-06T07:57:03.992252+00:00",
+      "seconds": 8.308683647999715,
+      "exitCode": 0,
+      "failure": null,
+      "stopReason": null,
+      "peakAggregateRssKiB": 451760,
+      "runtime": [
+        {
+          "at": "2026-10-06T07:56:56.467Z",
+          "pid": 259,
+          "ppid": 2,
+          "workerId": null,
+          "node": "v26.10.0",
+          "execArgv": [],
+          "requestedOldSpaceMiB": 1024,
+          "heapLimitMiB": 1120,
+          "memory": {
+            "rss": 46559232,
+            "heapTotal": 5378048,
+            "heapUsed": 4625944,
+            "external": 1883397,
+            "arrayBuffers": 137835
+          }
+        },
+        {
+          "at": "2026-10-06T07:56:56.872Z",
+          "pid": 289,
+          "ppid": 259,
+          "workerId": "1",
+          "node": "v26.10.0",
+          "execArgv": [
+            "--conditions",
+            "development",
+            "--conditions",
+            "node"
+          ],
+          "requestedOldSpaceMiB": 1024,
+          "heapLimitMiB": 1120,
+          "memory": {
+            "rss": 47869952,
+            "heapTotal": 6164480,
+            "heapUsed": 4936752,
+            "external": 2094221,
+            "arrayBuffers": 137835
+          }
+        },
+        {
+          "at": "2026-10-06T07:57:02.786Z",
+          "pid": 315,
+          "ppid": 259,
+          "workerId": "1",
+          "node": "v26.10.0",
+          "execArgv": [
+            "--conditions",
+            "development",
+            "--conditions",
+            "node"
+          ],
+          "requestedOldSpaceMiB": 1024,
+          "heapLimitMiB": 1120,
+          "memory": {
+            "rss": 47869952,
+            "heapTotal": 6164480,
+            "heapUsed": 4936752,
+            "external": 2094221,
+            "arrayBuffers": 137835
+          }
+        }
+      ],
+      "runtimeVerified": true,
+      "sourceDependenciesControlsUnchanged": true,
+      "remainingOwnedProcesses": [],
+      "reaped": true,
+      "counts": {
+        "numTotalTests": 67,
+        "numPassedTests": 67,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "perTest": [
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "materializes original Person/body/pose evidence through the existing reach kernel and existing fielding owner",
+          "status": "passed",
+          "durationMs": 63.54119199999968,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "changes derived physical intermediates for an accepted height change, without inventing primitive dimensions or ability",
+          "status": "passed",
+          "durationMs": 120.56698600000027,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "keeps physical output and abilities identical when only independently accepted display metadata changes",
+          "status": "passed",
+          "durationMs": 61.23079299999972,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "returns explicit pending for an unsupplied body pin without a partial actor",
+          "status": "passed",
+          "durationMs": 15.798009000000093,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "returns explicit pending for an unsupplied pose pin without a partial actor",
+          "status": "passed",
+          "durationMs": 16.91310599999997,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "returns explicit pending for an unsupplied reachCalibration pin without a partial actor",
+          "status": "passed",
+          "durationMs": 13.837829000000056,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "returns explicit pending for an unsupplied fieldingModel pin without a partial actor",
+          "status": "passed",
+          "durationMs": 10.999515999999858,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "does not conceal a false Person claim behind an unsupplied calibration",
+          "status": "passed",
+          "durationMs": 14.01765499999965,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects a missing nonnull request source instead of using defaults",
+          "status": "passed",
+          "durationMs": 17.580300999999963,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects a missing nonnull body source instead of using defaults",
+          "status": "passed",
+          "durationMs": 12.375858000000335,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects a missing nonnull pose source instead of using defaults",
+          "status": "passed",
+          "durationMs": 14.04648300000008,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects a missing nonnull reach source instead of using defaults",
+          "status": "passed",
+          "durationMs": 18.492909999999938,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects a missing nonnull fielding source instead of using defaults",
+          "status": "passed",
+          "durationMs": 9.690249000000222,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects invalid accepted body person evidence",
+          "status": "passed",
+          "durationMs": 10.159394000000248,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects invalid accepted body career evidence",
+          "status": "passed",
+          "durationMs": 9.731158999999934,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects invalid accepted body player evidence",
+          "status": "passed",
+          "durationMs": 10.553326000000197,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects invalid accepted body intake evidence",
+          "status": "passed",
+          "durationMs": 26.48642100000052,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects invalid accepted body version evidence",
+          "status": "passed",
+          "durationMs": 18.125896999999895,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects invalid accepted body future evidence",
+          "status": "passed",
+          "durationMs": 14.673201000000518,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects invalid accepted body before-intake evidence",
+          "status": "passed",
+          "durationMs": 14.848151999999573,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects invalid accepted body height evidence",
+          "status": "passed",
+          "durationMs": 9.342176000000109,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects invalid accepted body hidden-prior evidence",
+          "status": "passed",
+          "durationMs": 9.574827000000369,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects wrong-body pose evidence instead of claiming generated anatomy",
+          "status": "passed",
+          "durationMs": 19.78640600000017,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects wrong-person pose evidence instead of claiming generated anatomy",
+          "status": "passed",
+          "durationMs": 11.06507800000054,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects wrong-version pose evidence instead of claiming generated anatomy",
+          "status": "passed",
+          "durationMs": 10.70258400000057,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects future pose evidence instead of claiming generated anatomy",
+          "status": "passed",
+          "durationMs": 11.166183999999703,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects duplicate-role pose evidence instead of claiming generated anatomy",
+          "status": "passed",
+          "durationMs": 18.352662999999666,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects missing-role pose evidence instead of claiming generated anatomy",
+          "status": "passed",
+          "durationMs": 9.805256999999983,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects nonfinite-radius pose evidence instead of claiming generated anatomy",
+          "status": "passed",
+          "durationMs": 9.727702000000136,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects future reach calibration",
+          "status": "passed",
+          "durationMs": 11.83991100000003,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects version reach calibration",
+          "status": "passed",
+          "durationMs": 18.617981000000327,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects invalid-baseline reach calibration",
+          "status": "passed",
+          "durationMs": 14.25699799999984,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects origin-outside-body reach calibration",
+          "status": "passed",
+          "durationMs": 15.35701599999993,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "selects only the native applicable fielding owner: wrong-version",
+          "status": "passed",
+          "durationMs": 23.310551999999916,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "selects only the native applicable fielding owner: future",
+          "status": "passed",
+          "durationMs": 16.28900799999974,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "selects only the native applicable fielding owner: wrong-person",
+          "status": "passed",
+          "durationMs": 9.399763999999777,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "prepares a batter actor without pretending body dimensions create its role capability",
+          "status": "passed",
+          "durationMs": 20.96100700000079,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "prepares a runner actor without pretending body dimensions create its role capability",
+          "status": "passed",
+          "durationMs": 18.28735400000005,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects an extra fielding capability pin for the batter-only role",
+          "status": "passed",
+          "durationMs": 9.93663800000013,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects an extra fielding capability pin for the runner-only role",
+          "status": "passed",
+          "durationMs": 9.913919999999962,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects a valid release pin outside the pitching role: defender",
+          "status": "passed",
+          "durationMs": 17.377161000000342,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects a valid release pin outside the pitching role: batter",
+          "status": "passed",
+          "durationMs": 11.586131000000023,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects a valid release pin outside the pitching role: runner",
+          "status": "passed",
+          "durationMs": 14.083835000000363,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects a valid fielding source owned by another actual Player/Person",
+          "status": "passed",
+          "durationMs": 23.903973999999835,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "keeps an unsupplied pitcher release explicit without generating one from body height",
+          "status": "passed",
+          "durationMs": 17.66560600000048,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "pins the pitcher release snapshot for the requested day, even when a later body change exists",
+          "status": "passed",
+          "durationMs": 91.10374499999944,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "replays the originally pinned release after a valid equal-day history append without reselecting today\u2019s head",
+          "status": "passed",
+          "durationMs": 269.0658320000002,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects a pitcher missing release selection",
+          "status": "passed",
+          "durationMs": 18.46117200000026,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects a pitcher wrong-version release selection",
+          "status": "passed",
+          "durationMs": 15.09149399999933,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects a pitcher wrong-day release selection",
+          "status": "passed",
+          "durationMs": 14.495966999999837,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects a pitcher different-body release selection",
+          "status": "passed",
+          "durationMs": 18.747809000000416,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "reopens from archived original inputs without external authority and rejects changed retry inputs",
+          "status": "passed",
+          "durationMs": 104.53282900000067,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "cannot launder changed body evidence under an old source pin in a new receipt",
+          "status": "passed",
+          "durationMs": 57.59632000000056,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "cannot launder changed pose evidence under an old source pin in a new receipt",
+          "status": "passed",
+          "durationMs": 53.80422299999918,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "cannot launder changed reach evidence under an old source pin in a new receipt",
+          "status": "passed",
+          "durationMs": 57.48305300000084,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rolls back writer-local owner mutation after receipt insertion: UPDATE world_player_person_links SET person_id='changed-person'",
+          "status": "passed",
+          "durationMs": 39.43898900000022,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rolls back writer-local owner mutation after receipt insertion: UPDATE world_player_fielding_models SET accepted_at_day=99",
+          "status": "passed",
+          "durationMs": 38.05272100000002,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rolls back writer-local owner mutation after receipt insertion: DELETE FROM world_player_fielding_models",
+          "status": "passed",
+          "durationMs": 36.81511600000067,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rolls back a writer-local historical release mutation instead of trusting an independent connection",
+          "status": "passed",
+          "durationMs": 61.20378299999993,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects corrupt original provenance on reopen and retry: UPDATE world_player_body_materializations SET source_hash='changed'",
+          "status": "passed",
+          "durationMs": 38.00305399999979,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects corrupt original provenance on reopen and retry: UPDATE world_player_body_materializations SET snapshot_hash='changed'",
+          "status": "passed",
+          "durationMs": 37.44242799999938,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects corrupt original provenance on reopen and retry: UPDATE world_player_body_materializations SET source_id='moved-source'",
+          "status": "passed",
+          "durationMs": 32.605930000000626,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects corrupt original provenance on reopen and retry: UPDATE world_player_body_materializations SET player_id='wrong-player'",
+          "status": "passed",
+          "durationMs": 30.53065400000014,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+          "name": "rejects corrupt original provenance on reopen and retry: UPDATE world_player_person_links SET person_id='changed-person'",
+          "status": "passed",
+          "durationMs": 30.597861000000194,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/SqlitePlayerPersonLinkStore.test.ts",
+          "name": "persists one accepted intake link and reads it through the FA authority contract",
+          "status": "passed",
+          "durationMs": 29.644247000000007,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/SqlitePlayerPersonLinkStore.test.ts",
+          "name": "rejects unknown intake, stale roster and duplicate player/person while retaining accepted identity",
+          "status": "passed",
+          "durationMs": 13.175524999999993,
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/SqlitePlayerPersonLinkStore.test.ts",
+          "name": "rolls back an insertion failure and accepts the same source on retry",
+          "status": "passed",
+          "durationMs": 11.588542000000018,
+          "failureMessages": []
+        }
+      ],
+      "unhandledErrors": {
+        "version": "practice_order_unhandled_errors_v1",
+        "fileCount": 2,
+        "unhandledErrorCount": 0,
+        "errors": []
+      },
+      "assertionEvidence": null,
+      "selectionValid": true,
+      "resourceEvidenceValid": true,
+      "phaseVerified": true,
+      "cancellationSignal": null
+    },
+    {
+      "stage": "core",
+      "startedAt": "2026-10-06T07:57:03.997066+00:00",
+      "profile": {
+        "oldSpaceMiB": 1024,
+        "heapMiB": 1120,
+        "rssMiB": 1536,
+        "wallSeconds": 180,
+        "stopReserveGiB": 6,
+        "files": {
+          "src/core/sim/running/RunnerPartialTagUpWaitBoundary.test.ts": 1,
+          "src/core/sim/running/RunnerPartialTagUpWait.test.ts": 28,
+          "src/core/sim/running/RunnerDecision.test.ts": 9,
+          "src/core/sim/running/RunnerDecisionTiming.test.ts": 3,
+          "src/core/sim/liveAction/ActorPolicySettlement.test.ts": 6
+        },
+        "discoveredCounts": {
+          "src/core/sim/running/RunnerPartialTagUpWaitBoundary.test.ts": 1,
+          "src/core/sim/running/RunnerPartialTagUpWait.test.ts": 28,
+          "src/core/sim/running/RunnerDecision.test.ts": 9,
+          "src/core/sim/running/RunnerDecisionTiming.test.ts": 3,
+          "src/core/sim/liveAction/ActorPolicySettlement.test.ts": 6
+        },
+        "caseNames": {
+          "src/core/sim/running/RunnerPartialTagUpWaitBoundary.test.ts": [
+            "exposes a versioned unavailable-force tag-up wait path on the existing Core decision engine"
+          ],
+          "src/core/sim/running/RunnerPartialTagUpWait.test.ts": [
+            "selects the complete existing hold and timing result with explicitly unavailable force and cues",
+            "uses actual consumption time rather than an earlier remembered sample time for the wait decision",
+            "shifts evidence and cognitive decision together when actual consumption is later",
+            "changes only existing cognitive timing with decision ability and never turns wait into settlement",
+            "leaves unavailable knowledge and the original perceived input unchanged across repeated choices",
+            "rejects an aliased root key instead of accepting a different partial shape",
+            "rejects cognitive tick overflow at an actual nonzero near-limit consumption time",
+            "matches legacy tag-up priority even when the legacy force boolean is true",
+            "matches legacy tag-up priority even when the legacy force boolean is false",
+            "rejects unknown_version without reaching force, coach, race or no-action fallback",
+            "rejects tag_none without reaching force, coach, race or no-action fallback",
+            "rejects tag_retouch without reaching force, coach, race or no-action fallback",
+            "rejects force_missing without reaching force, coach, race or no-action fallback",
+            "rejects force_known_true without reaching force, coach, race or no-action fallback",
+            "rejects force_known_false without reaching force, coach, race or no-action fallback",
+            "rejects cue_completed without reaching force, coach, race or no-action fallback",
+            "rejects force_boolean without reaching force, coach, race or no-action fallback",
+            "rejects inline_cues without reaching force, coach, race or no-action fallback",
+            "rejects scheduled_state without reaching force, coach, race or no-action fallback",
+            "rejects observer_mismatch without reaching force, coach, race or no-action fallback",
+            "rejects nonadjacent_base without reaching force, coach, race or no-action fallback",
+            "rejects fractional_time without reaching force, coach, race or no-action fallback",
+            "rejects settled_result without reaching force, coach, race or no-action fallback",
+            "rejects a version accessor before invoking it",
+            "rejects a forceKnowledge accessor before invoking it",
+            "rejects a timing accessor before invoking it",
+            "rejects invalid required ability calibration without choosing a default wait",
+            "rejects invalid required timing calibration without choosing a default wait"
+          ],
+          "src/core/sim/running/RunnerDecision.test.ts": [
+            "RunnerDecision advances when the perceived next-base race clears the safety margin",
+            "RunnerDecision holds when the perceived next-base race is too tight",
+            "RunnerDecision advances on a force obligation even when the optional race would be bad",
+            "RunnerDecision holds while the runner is still awaiting perceived first fielder touch",
+            "RunnerDecision retreats to satisfy tag-up retouch before considering an advance signal",
+            "RunnerDecision retreats from a current-base pickoff/tag threat before considering an optional advance",
+            "RunnerDecision can follow an already received coach instruction when no higher-priority obligation exists",
+            "RunnerDecision does not use a coach communication that has not arrived yet",
+            "RunnerDecision changes cognitive issue time with decision ability without changing the chosen action"
+          ],
+          "src/core/sim/running/RunnerDecisionTiming.test.ts": [
+            "RunnerDecisionTiming maps low decision ability to the slow end",
+            "RunnerDecisionTiming maps high decision ability to the fast end",
+            "RunnerDecisionTiming rejects invalid ability and timing calibration"
+          ],
+          "src/core/sim/liveAction/ActorPolicySettlement.test.ts": [
+            "actor settlement from accepted policy decisions settles quiescent hold decisions after their decision ticks and permits PlayEnd",
+            "actor settlement from accepted policy decisions keeps tag-up waiting and actionable advance decisions active",
+            "actor settlement from accepted policy decisions keeps actors moving or awaiting an incomplete source active despite a hold decision",
+            "actor settlement from accepted policy decisions keeps a decision pending until its actual policy decision tick",
+            "actor settlement from accepted policy decisions requires exactly one policy decision per world actor and rejects future observations",
+            "actor settlement from accepted policy decisions rejects quiescence claims while an untracked ball is still moving"
+          ]
+        },
+        "excludedCaseNames": {
+          "src/core/sim/liveAction/ActorPolicySettlement.test.ts": [],
+          "src/core/sim/running/RunnerDecision.test.ts": [],
+          "src/core/sim/running/RunnerDecisionTiming.test.ts": [],
+          "src/core/sim/running/RunnerPartialTagUpWait.test.ts": [],
+          "src/core/sim/running/RunnerPartialTagUpWaitBoundary.test.ts": []
+        },
+        "expectedExitCode": 0,
+        "vitestConfig": "/workspace/shared/baseball-current-model-core162-preparation-7a067cc/core.vitest.config.mjs"
+      },
+      "command": [
+        "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "src/core/sim/running/RunnerPartialTagUpWaitBoundary.test.ts",
+        "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+        "src/core/sim/running/RunnerDecision.test.ts",
+        "src/core/sim/running/RunnerDecisionTiming.test.ts",
+        "src/core/sim/liveAction/ActorPolicySettlement.test.ts",
+        "--config",
+        "/workspace/shared/baseball-current-model-core162-preparation-7a067cc/core.vitest.config.mjs",
+        "--pool=forks",
+        "--maxWorkers=1",
+        "--minWorkers=1",
+        "--no-file-parallelism",
+        "--reporter=verbose",
+        "--reporter=json",
+        "--reporter=/workspace/shared/baseball-current-model-core162-preparation-7a067cc/unhandled-reporter.mjs",
+        "--outputFile=/workspace/shared/baseball-current-model-core162-preparation-7a067cc/attempt1/core-results.json"
+      ],
+      "childPid": 359,
+      "rootStartTime": 863814,
+      "terminalAt": "2026-10-06T07:57:07.658575+00:00",
+      "seconds": 3.661482615998466,
+      "exitCode": 0,
+      "failure": null,
+      "stopReason": null,
+      "peakAggregateRssKiB": 280872,
+      "runtime": [
+        {
+          "at": "2026-10-06T07:57:04.850Z",
+          "pid": 359,
+          "ppid": 2,
+          "workerId": null,
+          "node": "v26.10.0",
+          "execArgv": [],
+          "requestedOldSpaceMiB": 1024,
+          "heapLimitMiB": 1120,
+          "memory": {
+            "rss": 46432256,
+            "heapTotal": 5378048,
+            "heapUsed": 4626184,
+            "external": 1883397,
+            "arrayBuffers": 137835
+          }
+        },
+        {
+          "at": "2026-10-06T07:57:05.240Z",
+          "pid": 389,
+          "ppid": 359,
+          "workerId": "1",
+          "node": "v26.10.0",
+          "execArgv": [
+            "--conditions",
+            "development",
+            "--conditions",
+            "node"
+          ],
+          "requestedOldSpaceMiB": 1024,
+          "heapLimitMiB": 1120,
+          "memory": {
+            "rss": 47869952,
+            "heapTotal": 6164480,
+            "heapUsed": 4936752,
+            "external": 2094221,
+            "arrayBuffers": 137835
+          }
+        },
+        {
+          "at": "2026-10-06T07:57:05.684Z",
+          "pid": 415,
+          "ppid": 359,
+          "workerId": "1",
+          "node": "v26.10.0",
+          "execArgv": [
+            "--conditions",
+            "development",
+            "--conditions",
+            "node"
+          ],
+          "requestedOldSpaceMiB": 1024,
+          "heapLimitMiB": 1120,
+          "memory": {
+            "rss": 47869952,
+            "heapTotal": 6164480,
+            "heapUsed": 4935984,
+            "external": 2094221,
+            "arrayBuffers": 137835
+          }
+        },
+        {
+          "at": "2026-10-06T07:57:05.938Z",
+          "pid": 435,
+          "ppid": 359,
+          "workerId": "1",
+          "node": "v26.10.0",
+          "execArgv": [
+            "--conditions",
+            "development",
+            "--conditions",
+            "node"
+          ],
+          "requestedOldSpaceMiB": 1024,
+          "heapLimitMiB": 1120,
+          "memory": {
+            "rss": 47869952,
+            "heapTotal": 6164480,
+            "heapUsed": 4936752,
+            "external": 2094221,
+            "arrayBuffers": 137835
+          }
+        },
+        {
+          "at": "2026-10-06T07:57:06.327Z",
+          "pid": 455,
+          "ppid": 359,
+          "workerId": "1",
+          "node": "v26.10.0",
+          "execArgv": [
+            "--conditions",
+            "development",
+            "--conditions",
+            "node"
+          ],
+          "requestedOldSpaceMiB": 1024,
+          "heapLimitMiB": 1120,
+          "memory": {
+            "rss": 47869952,
+            "heapTotal": 6164480,
+            "heapUsed": 4936752,
+            "external": 2094221,
+            "arrayBuffers": 137835
+          }
+        },
+        {
+          "at": "2026-10-06T07:57:06.611Z",
+          "pid": 475,
+          "ppid": 359,
+          "workerId": "1",
+          "node": "v26.10.0",
+          "execArgv": [
+            "--conditions",
+            "development",
+            "--conditions",
+            "node"
+          ],
+          "requestedOldSpaceMiB": 1024,
+          "heapLimitMiB": 1120,
+          "memory": {
+            "rss": 47865856,
+            "heapTotal": 6164480,
+            "heapUsed": 4936752,
+            "external": 2094221,
+            "arrayBuffers": 137835
+          }
+        }
+      ],
+      "runtimeVerified": true,
+      "sourceDependenciesControlsUnchanged": true,
+      "remainingOwnedProcesses": [],
+      "reaped": true,
+      "counts": {
+        "numTotalTests": 47,
+        "numPassedTests": 47,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "perTest": [
+        {
+          "file": "src/core/sim/liveAction/ActorPolicySettlement.test.ts",
+          "name": "actor settlement from accepted policy decisions settles quiescent hold decisions after their decision ticks and permits PlayEnd",
+          "status": "passed",
+          "durationMs": 5.763667999999996,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/liveAction/ActorPolicySettlement.test.ts",
+          "name": "actor settlement from accepted policy decisions keeps tag-up waiting and actionable advance decisions active",
+          "status": "passed",
+          "durationMs": 0.9765130000000113,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/liveAction/ActorPolicySettlement.test.ts",
+          "name": "actor settlement from accepted policy decisions keeps actors moving or awaiting an incomplete source active despite a hold decision",
+          "status": "passed",
+          "durationMs": 1.9049610000000143,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/liveAction/ActorPolicySettlement.test.ts",
+          "name": "actor settlement from accepted policy decisions keeps a decision pending until its actual policy decision tick",
+          "status": "passed",
+          "durationMs": 1.2643659999999954,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/liveAction/ActorPolicySettlement.test.ts",
+          "name": "actor settlement from accepted policy decisions requires exactly one policy decision per world actor and rejects future observations",
+          "status": "passed",
+          "durationMs": 1.8267809999999827,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/liveAction/ActorPolicySettlement.test.ts",
+          "name": "actor settlement from accepted policy decisions rejects quiescence claims while an untracked ball is still moving",
+          "status": "passed",
+          "durationMs": 0.9589860000000385,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerDecision.test.ts",
+          "name": "RunnerDecision advances when the perceived next-base race clears the safety margin",
+          "status": "passed",
+          "durationMs": 1.8005420000000072,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerDecision.test.ts",
+          "name": "RunnerDecision holds when the perceived next-base race is too tight",
+          "status": "passed",
+          "durationMs": 0.26069499999999834,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerDecision.test.ts",
+          "name": "RunnerDecision advances on a force obligation even when the optional race would be bad",
+          "status": "passed",
+          "durationMs": 0.49235799999999585,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerDecision.test.ts",
+          "name": "RunnerDecision holds while the runner is still awaiting perceived first fielder touch",
+          "status": "passed",
+          "durationMs": 0.231615000000005,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerDecision.test.ts",
+          "name": "RunnerDecision retreats to satisfy tag-up retouch before considering an advance signal",
+          "status": "passed",
+          "durationMs": 0.18073300000000359,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerDecision.test.ts",
+          "name": "RunnerDecision retreats from a current-base pickoff/tag threat before considering an optional advance",
+          "status": "passed",
+          "durationMs": 0.439093999999983,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerDecision.test.ts",
+          "name": "RunnerDecision can follow an already received coach instruction when no higher-priority obligation exists",
+          "status": "passed",
+          "durationMs": 0.4253940000000114,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerDecision.test.ts",
+          "name": "RunnerDecision does not use a coach communication that has not arrived yet",
+          "status": "passed",
+          "durationMs": 0.1935630000000117,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerDecision.test.ts",
+          "name": "RunnerDecision changes cognitive issue time with decision ability without changing the chosen action",
+          "status": "passed",
+          "durationMs": 0.37183600000000183,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerDecisionTiming.test.ts",
+          "name": "RunnerDecisionTiming maps low decision ability to the slow end",
+          "status": "passed",
+          "durationMs": 4.36716100000001,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerDecisionTiming.test.ts",
+          "name": "RunnerDecisionTiming maps high decision ability to the fast end",
+          "status": "passed",
+          "durationMs": 1.0363310000000183,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerDecisionTiming.test.ts",
+          "name": "RunnerDecisionTiming rejects invalid ability and timing calibration",
+          "status": "passed",
+          "durationMs": 1.4876929999999788,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "selects the complete existing hold and timing result with explicitly unavailable force and cues",
+          "status": "passed",
+          "durationMs": 3.2035250000000133,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "matches legacy tag-up priority even when the legacy force boolean is true",
+          "status": "passed",
+          "durationMs": 0.8808839999999805,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "matches legacy tag-up priority even when the legacy force boolean is false",
+          "status": "passed",
+          "durationMs": 0.31074599999999464,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "uses actual consumption time rather than an earlier remembered sample time for the wait decision",
+          "status": "passed",
+          "durationMs": 0.6592890000000011,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "shifts evidence and cognitive decision together when actual consumption is later",
+          "status": "passed",
+          "durationMs": 0.38724600000000464,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "changes only existing cognitive timing with decision ability and never turns wait into settlement",
+          "status": "passed",
+          "durationMs": 2.1848159999999552,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "leaves unavailable knowledge and the original perceived input unchanged across repeated choices",
+          "status": "passed",
+          "durationMs": 0.5802390000000059,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "rejects unknown_version without reaching force, coach, race or no-action fallback",
+          "status": "passed",
+          "durationMs": 0.9690360000000169,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "rejects tag_none without reaching force, coach, race or no-action fallback",
+          "status": "passed",
+          "durationMs": 0.4521020000000249,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "rejects tag_retouch without reaching force, coach, race or no-action fallback",
+          "status": "passed",
+          "durationMs": 0.251083000000051,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "rejects force_missing without reaching force, coach, race or no-action fallback",
+          "status": "passed",
+          "durationMs": 0.22031199999997853,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "rejects force_known_true without reaching force, coach, race or no-action fallback",
+          "status": "passed",
+          "durationMs": 0.18855700000000297,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "rejects force_known_false without reaching force, coach, race or no-action fallback",
+          "status": "passed",
+          "durationMs": 0.21124500000001944,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "rejects cue_completed without reaching force, coach, race or no-action fallback",
+          "status": "passed",
+          "durationMs": 0.15457900000001246,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "rejects force_boolean without reaching force, coach, race or no-action fallback",
+          "status": "passed",
+          "durationMs": 0.1522279999999796,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "rejects inline_cues without reaching force, coach, race or no-action fallback",
+          "status": "passed",
+          "durationMs": 0.20040500000004613,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "rejects scheduled_state without reaching force, coach, race or no-action fallback",
+          "status": "passed",
+          "durationMs": 0.18549500000000307,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "rejects observer_mismatch without reaching force, coach, race or no-action fallback",
+          "status": "passed",
+          "durationMs": 0.29516899999998714,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "rejects nonadjacent_base without reaching force, coach, race or no-action fallback",
+          "status": "passed",
+          "durationMs": 0.1619890000000055,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "rejects fractional_time without reaching force, coach, race or no-action fallback",
+          "status": "passed",
+          "durationMs": 0.6629700000000298,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "rejects settled_result without reaching force, coach, race or no-action fallback",
+          "status": "passed",
+          "durationMs": 0.23570300000000088,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "rejects a version accessor before invoking it",
+          "status": "passed",
+          "durationMs": 0.2732899999999745,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "rejects a forceKnowledge accessor before invoking it",
+          "status": "passed",
+          "durationMs": 0.16747500000002447,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "rejects a timing accessor before invoking it",
+          "status": "passed",
+          "durationMs": 0.1534290000000169,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "rejects an aliased root key instead of accepting a different partial shape",
+          "status": "passed",
+          "durationMs": 0.2551030000000196,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "rejects cognitive tick overflow at an actual nonzero near-limit consumption time",
+          "status": "passed",
+          "durationMs": 0.22806299999996327,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "rejects invalid required ability calibration without choosing a default wait",
+          "status": "passed",
+          "durationMs": 0.1783519999999612,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+          "name": "rejects invalid required timing calibration without choosing a default wait",
+          "status": "passed",
+          "durationMs": 0.3420639999999935,
+          "failureMessages": []
+        },
+        {
+          "file": "src/core/sim/running/RunnerPartialTagUpWaitBoundary.test.ts",
+          "name": "exposes a versioned unavailable-force tag-up wait path on the existing Core decision engine",
+          "status": "passed",
+          "durationMs": 2.3045499999999493,
+          "failureMessages": []
+        }
+      ],
+      "unhandledErrors": {
+        "version": "practice_order_unhandled_errors_v1",
+        "fileCount": 5,
+        "unhandledErrorCount": 0,
+        "errors": []
+      },
+      "assertionEvidence": null,
+      "selectionValid": true,
+      "resourceEvidenceValid": true,
+      "phaseVerified": true,
+      "cancellationSignal": null
+    }
+  ],
+  "failure": null,
+  "remainingOwnedProcesses": [],
+  "reaped": true,
+  "cancellationSignal": null,
+  "wholeSuitePassed": false,
+  "wholePipelinePassed": false
+}

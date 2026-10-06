@@ -1,0 +1,31 @@
+{
+  "schema": "native_batting_model_source_review_v1",
+  "baseCommit": "ce9b7e88c5c4b8fbf47d012ae84cff0ccb31affe",
+  "reviewer": "review_native_batting_model",
+  "disposition": "accepted source; no remaining source blocker",
+  "productionHashes": {
+    "src/host/world/PlayerBattingModel.ts": "ca7999fca50eedef7fd41a9e69b42fa0c9649c81cf2a3a6ac3ea43c92160f313",
+    "src/host/world/PlayerBattingModelEvidence.ts": "3366191f98e6f017c2e5910602eefa1935271acd871947ea5ad4d560efab2e43",
+    "src/host/world/SqlitePlayerBattingModelStore.ts": "bcf6007aa475c5a5c66c60f88788f30be598de67d5b0aba3fa6e0639e5fa22ba",
+    "src/host/world/PlayerMaterializationRuntime.ts": "c5305d0546a5d7dfd63ba77927ce8e797f98488387f0deae9627fd42e89a0610"
+  },
+  "frozenFiveFilesAnd67CasesUnchanged": true,
+  "resolvedFindings": [
+    "nested body/pose Player history claims",
+    "new-admission history validation before/after INSERT",
+    "finite positive explicit viscosity without coefficient profile"
+  ],
+  "historicalReadRetryDoesNotReselectLatestModel": true,
+  "coreProductionUnchanged": true,
+  "stanceProductionAbsent": true,
+  "modelCompilerExecuted": false,
+  "modelTestsExecuted": false,
+  "runtimeLocksAcquired": false,
+  "modelGreenClaimed": false,
+  "separateGuardRegressionsAuthored": true,
+  "guardRegressionCases": 4,
+  "guardRedObserved": false,
+  "preRepairSourceCommit": "5ade13b8ac1d9845d5a77eae20188e59c3090606",
+  "preRepairSourceTree": "2ed889730e963499ffa07c47e0a6ac7fa1b21599",
+  "independentGuardReview": "pending coordinator concrete review"
+}

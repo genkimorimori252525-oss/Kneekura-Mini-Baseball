@@ -1,0 +1,94 @@
+{
+  "schema": "native_batting_model_observed_red_v1",
+  "observedReceipt": "/workspace/shared/baseball-native-batting-recovered-stage-a-preparation-v1/attempt1/terminal.json",
+  "observedReceiptSha256": "923073f3a45b55a733abbbf98c7bcb6383a8297dbc4d389ecb6460d4758f465c",
+  "sourceCommit": "ce9b7e88c5c4b8fbf47d012ae84cff0ccb31affe",
+  "sourceTree": "10bed5de7cd5ba7210cde29ac37311c91086c9fc",
+  "tree": "3a26785273b04744e429d3602bee6c64640eedab",
+  "controllerSha256": "e7cace828b862d0d5f11b818f1d2f7097e14e17cab3d2852c44eecf8685a9eca",
+  "expectedStageAOutcomeVerified": true,
+  "expectedModelRedObserved": true,
+  "passed": false,
+  "uniqueSelectedCaseCount": 16,
+  "uniqueHeldCaseCount": 51,
+  "aggregateCounts": {
+    "numTotalTests": 74,
+    "numPassedTests": 15,
+    "numFailedTests": 1,
+    "numPendingTests": 58,
+    "numTodoTests": 0
+  },
+  "repeatedExcludedCasesAreNotUnique": true,
+  "prerequisites": [
+    {
+      "stage": "compiler",
+      "phaseVerified": true,
+      "exitCode": 0,
+      "seconds": 31.06385453899975,
+      "counts": {}
+    },
+    {
+      "stage": "preservation",
+      "phaseVerified": true,
+      "exitCode": 0,
+      "seconds": 7.047869979000097,
+      "counts": {
+        "numTotalTests": 14,
+        "numPassedTests": 14,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      }
+    },
+    {
+      "stage": "body_prerequisite",
+      "phaseVerified": true,
+      "exitCode": 0,
+      "seconds": 5.797119406000093,
+      "counts": {
+        "numTotalTests": 30,
+        "numPassedTests": 1,
+        "numFailedTests": 0,
+        "numPendingTests": 29,
+        "numTodoTests": 0
+      }
+    }
+  ],
+  "qualifiedRed": {
+    "file": "src/host/world/PlayerBattingModelNative.test.ts",
+    "name": "accepts the original Person-bound batting model with exact independently accepted inputs and nested body receipt",
+    "errorName": "AssertionError",
+    "actual": "undefined",
+    "expected": "function",
+    "message": "BATTING_MODEL_OWNER_MISSING: real body prerequisite succeeded; Native model composition is required: expected 'undefined' to be 'function' // Object.is equality",
+    "frameFile": "src/host/world/NativeBattingModelStanceFixtures.test-support.ts",
+    "frameLine": 132,
+    "seconds": 8.889690279000206,
+    "exitCode": 1
+  },
+  "registeredScope": {
+    "playerId": "away-1",
+    "personId": "person-away-1",
+    "personLinkSourceId": "intake-away-1",
+    "gameId": "game-1",
+    "gameDay": 10
+  },
+  "sourceDependenciesControlsUnchanged": true,
+  "reaped": true,
+  "remainingOwnedProcessCount": 0,
+  "failure": null,
+  "cancellationSignal": null,
+  "stanceRedQualified": false,
+  "modelImplementationCompiled": false,
+  "modelImplementationTested": false,
+  "wholeSuitePassed": false,
+  "wholePipelinePassed": false,
+  "payloadContainsDatabase": false,
+  "frozenContractHashes": {
+    "src/host/world/NativeBattingModelStanceFixtures.test-support.ts": "b96f011ee1c74cf1427d5e547fd08ddd030ad5ab6cd7598ddc4bcea811b22016",
+    "src/host/world/PlayerBattingModelNative.test.ts": "caa692d0ccb161c9446b8037243f0209fb51e600cb58eed72dc0b97edc28ddf6",
+    "src/host/world/BattingStanceNative.test.ts": "289f7434249dfe29690f48c6e34b8cb1de2c8f0b6f4c5ba4ddc5258df99cca2b",
+    "src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts": "2e7707b5f65f70078a72498f23688e2983f32a206cddaa9cb924a0e96b8b691f",
+    "src/host/world/NativeBattingLegacyCompatibility.test.ts": "80847c892b2e52752fbefb605dacc81e933e4deba1551489bccd1b9eee90eb35"
+  }
+}

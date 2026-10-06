@@ -1,10 +1,12 @@
 # 非デザイン残計画: 実装と検証の境界
 
-更新: 2026-10-06 06:34 UTC。[既存の残計画 §5](2026-10-04-nonvisual-implementation-checkpoint.md#5-残る確定済み非デザイン計画)の状況を整理する。新しい機能範囲を追加する資料ではない。**計画全体は未完了**。Draft公開やfocused test数を完成率に換算しない。
+更新: 2026-10-06 08:02 UTC。[既存の残計画 §5](2026-10-04-nonvisual-implementation-checkpoint.md#5-残る確定済み非デザイン計画)の状況を整理する。新しい機能範囲を追加する資料ではない。**計画全体は未完了**。Draft公開やfocused test数を完成率に換算しない。
 
 先行4 slice Native統合の固定Sourceは`cc268e71f2a2d207de9ffcb66a00668ec84d784c`、src tree `5f553f22ff2e371a3eedd47ed275e1434e248be5`、検証対象full tree `b62dfd8f69cdb6c8c96132e344f72f2447adc129`。元settled-foul producer、runner入力準備、明示的Person/body/pose/reachからのactor・打球model組立、合成fixture修正の4 sliceを接続し、**選択485件とfull compilerの固定Source受入れがPASS**。05:13:26 UTCのterminalは、初回のcompilerと87選択PASSだけを再認証して継承し、残398件の新規PASSを記録する。509 discovered =485 PASS +24明示foul除外、元attemptはFAILEDのまま。Source/dependencies/controls不変、exit0・全process回収を確認した。Wholeと一般自律実行の成功へ転用しない。[正確なSourceと受入れ境界](../verification/2026-10-06-current-native-union-acceptance.md)を参照。
 
 05:38 UTCの環境再配置で未公開checkoutと原始receipt fileが失われた。公開済みPR333の`936a0703`（src `5f553f22`）をGitから復元し、partial tag-up waitの8 pathも現在`b6f5e726`へbyte単位で復元した（src `0aa6b0f0`、tested full tree `26688596`）。**新規47 Core選択とfull compilerがPASS**し、完全な現receiptと正確なcase inventoryを[復元Sourceの証拠](../verification/2026-10-06-partial-tag-up-wait-current-proof.md)に同梱する。旧author/current47、初回missing-entry REDと485件は履歴帰属を保持するが、失われたraw receiptを再作成・継承せず、新規全体PASSへ合算しない。`hold/tag_up_wait`はactiveのままで、Native sensor/admission、runner issuance/adoption・motor・settlementは未証明。
+
+現在の追加統合`7a067cce`（src `5c1efd44`）では、明示Person/bodyに結び付くNative batting modelを追加し、model・body・互換115件と既存partial-runner Core47件の**計162件・full compilerが新規PASS**。正確なraw terminalは[現在のbatting model証拠](../verification/2026-10-06-current-native-batting-model.md)に同梱する。Stance23件はこのgateでは保留で、別author Sourceのmissing-stance1件REDをGREENへ読み替えない。数値校正・stance・知覚・swing生成や計画全体の完了を主張しない。
 
 先行focused統合`5376b5ef99ffff0d71126068775072e87e594c71`、src tree `48a1e2b568ce21f56ac377119b159203a597f28d`では2026-10-05 23:31:50 UTCにManager261・scoring142・SQL witness10の413件、catalog・full compilerが通過した。途中Manager段と最終統合srcを区別し、旧author controllerのGREENとは扱わない。[Manager証拠](../verification/2026-10-05-manager-practice-current-proof.md)・[scoring/統合証拠](../verification/2026-10-05-actual-scoring-current-proof.md)を参照。前段`c68a3dc`（src `183e367e`）の409件・compilerと、その後の累積中断も別の固定Source結果として保持する。
 
