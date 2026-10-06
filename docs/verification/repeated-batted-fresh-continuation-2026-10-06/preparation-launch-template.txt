@@ -1,0 +1,3 @@
+HELD: independent review, dependency binding and coordinator slot are required.
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12 /workspace/shared/baseball-repeated-batted-fresh-continuation-936a070/tools/verification/repeated-batted-recovery/run.py --coordinator-slot-granted --config /workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/configuration.json --config-sha256 1bf9534fb3c72489942bf81c11b2aa7618847f571b60612c37f6fbce17c6b1c4 --phase compiler --run
+Dependent phases require --phase NAME --preceding-terminal-sha256 INDEPENDENT_CAPTURED_HASH on the same config.

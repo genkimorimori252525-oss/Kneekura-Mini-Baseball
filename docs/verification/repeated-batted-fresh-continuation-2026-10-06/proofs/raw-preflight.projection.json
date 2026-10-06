@@ -1,0 +1,18 @@
+{
+  "schema": "fresh_continuation_raw_publication_projection_v1",
+  "projectionOnly": true,
+  "originalReceiptSha256": "cdee45f740996b121f64e05049a31219fbd138d1dc5b24e1889f04dcdc8feaa0",
+  "inputManifestSha256": "c0299badb9aa59a6a50edcb9edaa9e5d09a2caedac50f86b410c46c772aeeeb3",
+  "inputSha256": "585ab7862ab93991e97cd5032ba8d520e113635559aa0019b5dd9bd43257a04a",
+  "readOnly": true,
+  "allConnectionsClosed": true,
+  "nativeReauthenticated": false,
+  "acceptedModelCount": 2,
+  "actorCounts": [
+    18,
+    18
+  ],
+  "allActiveTenPresent": true,
+  "historicalReceiptsInherited": false,
+  "predecessorTerminalSha256": "90ba8e1894c7d729944a1a026464b93c8661fa3eeceeaa6db5b05e3f3c10d183"
+}

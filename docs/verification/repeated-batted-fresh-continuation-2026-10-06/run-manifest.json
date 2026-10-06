@@ -1,0 +1,259 @@
+{
+  "schema": "fresh_continuation_four_phase_publication_v1",
+  "recordedThrough": "2026-10-06T09:43:32.872891+00:00",
+  "testedSourceCommit": "f244a0c0065b783510b4607051c01b9818df35e0",
+  "testedProductionSrcTree": "5f553f22ff2e371a3eedd47ed275e1434e248be5",
+  "sourceParentCommit": "936a07033b47208b87aaf2fdefcb9eef057e3c49",
+  "testedSourceCommitIsLocal": true,
+  "remotePublicationBaseCommit": "936a07033b47208b87aaf2fdefcb9eef057e3c49",
+  "publicationCommitAttribution": "The LOCAL documentation descendant is not the tested local Source. Connector publication uses remote PR333 as its actual parent; no later API-created remote commit is claimed to share the local f244 commit metadata or ancestry. The exact tested launcher/src bytes remain matched.",
+  "recordedConfigurationRequiresExactSourceCheckout": true,
+  "publicationDescendantIsRuntimeCheckout": false,
+  "origin": {
+    "kind": "published_closed_snapshot",
+    "inputSha256": "585ab7862ab93991e97cd5032ba8d520e113635559aa0019b5dd9bd43257a04a",
+    "inputBytes": 3362816,
+    "publicationProjectionIsRawProducerAdmission": false
+  },
+  "configurationSha256": "1bf9534fb3c72489942bf81c11b2aa7618847f571b60612c37f6fbce17c6b1c4",
+  "inputManifestSha256": "c0299badb9aa59a6a50edcb9edaa9e5d09a2caedac50f86b410c46c772aeeeb3",
+  "sourceManifestSha256": "66f702345787ae6f2df20cb84f13e0c09aba5e078ba0d5b685a4f76d3ff5d45a",
+  "dependencyManifestSha256": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+  "exactLauncherFiles": {
+    "tools/verification/repeated-batted-recovery/README.md": "b9d4bb53313966e6a3c088efcc67406fe3e02bc44cf1d12f92340b198e478ca2",
+    "tools/verification/repeated-batted-recovery/phase.ts": "fc7ecf456ee199d0443f7246a3058c2196899438622cf44d82f4b960d93acdb7",
+    "tools/verification/repeated-batted-recovery/preflight.py": "6971fe67e721ce4ca2537ccccdfed24c062d29d06c71226650376fafd58afb1a",
+    "tools/verification/repeated-batted-recovery/process-identity-reviewed.fragment.py": "17c73eb414b32f9f1616b5e4e58ac1077a0449dd5b6887c0291369b73ce9ca9f",
+    "tools/verification/repeated-batted-recovery/run.py": "fe84784e097f31a0033c5439e0d7e61b08c23b0d98f3c3053e1db678e40efe0f",
+    "tsconfig.fresh-continuation.json": "ec92279ffe43a962848656cc1c98980b0f7e614e24c176df5f77fe1048856484"
+  },
+  "phaseResults": [
+    {
+      "phase": "compiler",
+      "phaseVerified": true,
+      "exitCode": 0,
+      "reaped": true,
+      "sourceDependenciesControlsInputUnchanged": true,
+      "checkpoint": {
+        "path": "checkpoints/compiler-terminal.json",
+        "sha256": "90ba8e1894c7d729944a1a026464b93c8661fa3eeceeaa6db5b05e3f3c10d183"
+      },
+      "supervisorTerminal": {
+        "path": "supervisor/compiler-terminal.json",
+        "sha256": "cf2627db7ce89024dc4312791ba1579e36237c6951863b669b6f3bcc0441fd32"
+      },
+      "predecessorTerminal": null,
+      "proofSha256": null,
+      "seconds": 9.556382380998912,
+      "peakAggregateRssKiB": 493608
+    },
+    {
+      "phase": "raw",
+      "phaseVerified": true,
+      "exitCode": 0,
+      "reaped": true,
+      "sourceDependenciesControlsInputUnchanged": true,
+      "checkpoint": {
+        "path": "checkpoints/raw-terminal.json",
+        "sha256": "42ef97e71c5ebe96c3b99a4821db504cd58fc0f705cc962a21265cfd7f946d83"
+      },
+      "supervisorTerminal": {
+        "path": "supervisor/raw-terminal.json",
+        "sha256": "d0ae244aee7ad61736e447756708b7906d383a7141db4a79d1b88e8cebc2d8a5"
+      },
+      "predecessorTerminal": {
+        "phase": "compiler",
+        "sha256": "90ba8e1894c7d729944a1a026464b93c8661fa3eeceeaa6db5b05e3f3c10d183"
+      },
+      "proofSha256": "cdee45f740996b121f64e05049a31219fbd138d1dc5b24e1889f04dcdc8feaa0",
+      "seconds": 0.9657697210004699,
+      "peakAggregateRssKiB": 46112
+    },
+    {
+      "phase": "reauthenticate",
+      "phaseVerified": true,
+      "exitCode": 0,
+      "reaped": true,
+      "sourceDependenciesControlsInputUnchanged": true,
+      "checkpoint": {
+        "path": "checkpoints/reauthenticate-terminal.json",
+        "sha256": "5aaebc41da39f554c3dc19b9f3d290c9c18670261c03df8827bc8f5d26e73b5a"
+      },
+      "supervisorTerminal": {
+        "path": "supervisor/reauthenticate-terminal.json",
+        "sha256": "24cec28d6d2fdefbf7506431d8ac661f913303100220c8f00e30d31cf7288926"
+      },
+      "predecessorTerminal": {
+        "phase": "raw",
+        "sha256": "42ef97e71c5ebe96c3b99a4821db504cd58fc0f705cc962a21265cfd7f946d83"
+      },
+      "proofSha256": "6a36b93684d3c84036e556f7a6a8f8697145096c132c5e2d14ee7b304ddb76df",
+      "seconds": 87.66035707900119,
+      "peakAggregateRssKiB": 404756
+    },
+    {
+      "phase": "official",
+      "phaseVerified": true,
+      "exitCode": 0,
+      "reaped": true,
+      "sourceDependenciesControlsInputUnchanged": true,
+      "checkpoint": {
+        "path": "checkpoints/official-terminal.json",
+        "sha256": "ddfdc02bea725f3c9355dabb397f1eaae72852d8e11d4400f7e86ab3a5a44f2e"
+      },
+      "supervisorTerminal": {
+        "path": "supervisor/official-terminal.json",
+        "sha256": "4bda1e7cdacca6349730cc88f1e624ee484a5951ca1cc1b6f31c91e173ac66df"
+      },
+      "predecessorTerminal": {
+        "phase": "reauthenticate",
+        "sha256": "5aaebc41da39f554c3dc19b9f3d290c9c18670261c03df8827bc8f5d26e73b5a"
+      },
+      "proofSha256": "7c4b8f1386edbb2e36d1de1f6ddff07b5d5457b26a117a93b8c6578d0634984d",
+      "seconds": 2075.6599401800013,
+      "peakAggregateRssKiB": 488512
+    }
+  ],
+  "completedPhases": [
+    "compiler",
+    "raw",
+    "reauthenticate",
+    "official"
+  ],
+  "pendingPhases": [
+    "role",
+    "next"
+  ],
+  "freshContinuationVerified": false,
+  "wholePipelinePassed": false,
+  "roleSettlementComplete": false,
+  "nextActorExecuted": false,
+  "geometryRedObserved": false,
+  "historicalReceiptsInherited": false,
+  "originalConstructionProven": false,
+  "originalSealRollbackProven": false,
+  "historicalRawProducerAdmission": false,
+  "elapsedWorldRecoveryProven": false,
+  "recordedInputControlFiles": {
+    "configuration.json": {
+      "origin": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/configuration.json",
+      "sha256": "1bf9534fb3c72489942bf81c11b2aa7618847f571b60612c37f6fbce17c6b1c4",
+      "bytes": 4587,
+      "byteExact": true
+    },
+    "input-manifest.json": {
+      "origin": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/input-manifest.json",
+      "sha256": "c0299badb9aa59a6a50edcb9edaa9e5d09a2caedac50f86b410c46c772aeeeb3",
+      "bytes": 3161,
+      "byteExact": true
+    },
+    "source.sha256": {
+      "origin": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/source.sha256",
+      "sha256": "66f702345787ae6f2df20cb84f13e0c09aba5e078ba0d5b685a4f76d3ff5d45a",
+      "bytes": 287726,
+      "byteExact": true
+    },
+    "dependencies.json": {
+      "origin": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/dependencies.json",
+      "sha256": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+      "bytes": 100554,
+      "byteExact": true
+    },
+    "dependency-binding.json": {
+      "origin": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/dependency-binding.json",
+      "sha256": "de64344293c4148c69d70f9f05b551617cd2dd78138556991bfba64735b6f25d",
+      "bytes": 448,
+      "byteExact": true
+    },
+    "preparation-review-pins.json": {
+      "origin": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/review-pins.json",
+      "sha256": "3341264b4b9720b71faf13a775da6115d37560e0f48ca8f203ffcce6c9139401",
+      "bytes": 926,
+      "byteExact": true
+    },
+    "preparation-static-audit.json": {
+      "origin": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/static-audit.json",
+      "sha256": "47c119ac605d82145416879e4f77354bfe37854d01645035613e4067a0ebd719",
+      "bytes": 1250,
+      "byteExact": true
+    },
+    "preparation-launch-template.txt": {
+      "origin": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/launch-template.txt",
+      "sha256": "02794567cab1bf06597a447ab3991910cab219a06d28404d0f6def562905fc36",
+      "bytes": 623,
+      "byteExact": true
+    },
+    "checkpoints/compiler-terminal.json": {
+      "origin": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/flow1/checkpoints/compiler-terminal.json",
+      "sha256": "90ba8e1894c7d729944a1a026464b93c8661fa3eeceeaa6db5b05e3f3c10d183",
+      "bytes": 1283,
+      "byteExact": true
+    },
+    "supervisor/compiler-terminal.json": {
+      "origin": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/flow1/controls/compiler/terminal.json",
+      "sha256": "cf2627db7ce89024dc4312791ba1579e36237c6951863b669b6f3bcc0441fd32",
+      "bytes": 2376,
+      "byteExact": true
+    },
+    "checkpoints/raw-terminal.json": {
+      "origin": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/flow1/checkpoints/raw-terminal.json",
+      "sha256": "42ef97e71c5ebe96c3b99a4821db504cd58fc0f705cc962a21265cfd7f946d83",
+      "bytes": 1872,
+      "byteExact": true
+    },
+    "supervisor/raw-terminal.json": {
+      "origin": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/flow1/controls/raw/terminal.json",
+      "sha256": "d0ae244aee7ad61736e447756708b7906d383a7141db4a79d1b88e8cebc2d8a5",
+      "bytes": 3126,
+      "byteExact": true
+    },
+    "checkpoints/reauthenticate-terminal.json": {
+      "origin": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/flow1/checkpoints/reauthenticate-terminal.json",
+      "sha256": "5aaebc41da39f554c3dc19b9f3d290c9c18670261c03df8827bc8f5d26e73b5a",
+      "bytes": 1640,
+      "byteExact": true
+    },
+    "supervisor/reauthenticate-terminal.json": {
+      "origin": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/flow1/controls/reauthenticate/terminal.json",
+      "sha256": "24cec28d6d2fdefbf7506431d8ac661f913303100220c8f00e30d31cf7288926",
+      "bytes": 2980,
+      "byteExact": true
+    },
+    "checkpoints/official-terminal.json": {
+      "origin": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/flow1/checkpoints/official-terminal.json",
+      "sha256": "ddfdc02bea725f3c9355dabb397f1eaae72852d8e11d4400f7e86ab3a5a44f2e",
+      "bytes": 1640,
+      "byteExact": true
+    },
+    "supervisor/official-terminal.json": {
+      "origin": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/flow1/controls/official/terminal.json",
+      "sha256": "4bda1e7cdacca6349730cc88f1e624ee484a5951ca1cc1b6f31c91e173ac66df",
+      "bytes": 3064,
+      "byteExact": true
+    }
+  },
+  "publishedProofProjections": {
+    "proofs/official.projection.json": {
+      "sha256": "4c6adab9b01039cf831211bdf4617e2d9c570a0649eb583bc2b601210dc897da",
+      "bytes": 1752,
+      "projectionOnly": true
+    },
+    "proofs/raw-preflight.projection.json": {
+      "sha256": "faf4b6ae40dd48ce8c4a6958dda7f5113af620ca6e31486a8633f53161b8f8c5",
+      "bytes": 688,
+      "projectionOnly": true
+    },
+    "proofs/reauthenticate.projection.json": {
+      "sha256": "c8aa29abb2e3ce98d91059227763e2dbb2462d4f2c89ef0d186c539b01bf321c",
+      "bytes": 1000,
+      "projectionOnly": true
+    }
+  },
+  "artifactsIncluded": false,
+  "domainRowsIncluded": false,
+  "fullOfficialDomainReceiptIncluded": false,
+  "preparationManifestsRetainTheirOriginalPreparationTimeStatus": true,
+  "runtimeWorkPerformedDuringThisPublicationPreparation": false,
+  "sqliteOpenedDuringThisPublicationPreparation": false,
+  "sharedRuntimeLocksAcquiredDuringThisPublicationPreparation": false
+}

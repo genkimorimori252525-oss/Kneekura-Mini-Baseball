@@ -1,0 +1,25 @@
+{
+  "sourceCommit": "f244a0c0065b783510b4607051c01b9818df35e0",
+  "srcTree": "5f553f22ff2e371a3eedd47ed275e1434e248be5",
+  "pythonSourceParsed": [
+    "/workspace/shared/baseball-repeated-batted-fresh-continuation-936a070/tools/verification/repeated-batted-recovery/preflight.py",
+    "/workspace/shared/baseball-repeated-batted-fresh-continuation-936a070/tools/verification/repeated-batted-recovery/run.py",
+    "/workspace/shared/baseball-repeated-batted-fresh-continuation-936a070/tools/verification/repeated-batted-recovery/process-identity-reviewed.fragment.py"
+  ],
+  "typescriptCompilerRun": false,
+  "nodeRun": false,
+  "sqliteOpened": false,
+  "supervisorRun": false,
+  "sharedLocksAcquired": false,
+  "productionSourceTreeUnchangedFrom936a070": true,
+  "sourceFiles": 2385,
+  "dependencyFiles": 983,
+  "originalRawProducerEntrypointChanged": false,
+  "recoveredContractChanged": false,
+  "allSixPhasesRequiredForFreshContinuation": true,
+  "phaseScheduling": "independent with preceding terminal and proof pins",
+  "checkpointJsonHasSingleCapturedBuffer": true,
+  "externallySuppliedCheckpointPinRetainedThroughConsumption": true,
+  "predecessorTerminalPinsPersistedAndFinallyChecked": true,
+  "proofReceiptSingleBufferConsumption": true
+}

@@ -1,0 +1,74 @@
+{
+  "schema": "fresh_closed_input_continuation_supervision_v1",
+  "cwd": "/workspace/shared/baseball-repeated-batted-fresh-continuation-936a070",
+  "sourceCommit": "f244a0c0065b783510b4607051c01b9818df35e0",
+  "srcTree": "5f553f22ff2e371a3eedd47ed275e1434e248be5",
+  "dependencies": "/workspace/scratch/d91451022177/baseball-recovery/node_modules",
+  "node": "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+  "nodeVersion": "v26.10.0",
+  "python": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+  "output": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/flow1",
+  "inputManifest": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/input-manifest.json",
+  "inputManifestSha256": "c0299badb9aa59a6a50edcb9edaa9e5d09a2caedac50f86b410c46c772aeeeb3",
+  "sourceManifest": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/source.sha256",
+  "sourceManifestSha256": "66f702345787ae6f2df20cb84f13e0c09aba5e078ba0d5b685a4f76d3ff5d45a",
+  "dependencyManifest": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/dependencies.json",
+  "dependencyManifestSha256": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+  "controlHashes": {
+    "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/input-manifest.json": "c0299badb9aa59a6a50edcb9edaa9e5d09a2caedac50f86b410c46c772aeeeb3",
+    "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/source.sha256": "66f702345787ae6f2df20cb84f13e0c09aba5e078ba0d5b685a4f76d3ff5d45a",
+    "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/dependencies.json": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node": "ab9c8eecf9f82d6693cdc3accced17034065c8d96213b0aa76a7e803d20ae1da",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "/workspace/shared/baseball-repeated-batted-fresh-continuation-936a070/tools/verification/actual-live-pipeline/runtime-probe.cjs": "dd10010dbdf778286bd30e2bec72d99da52813b1e1e7271b20f4ca6b639d12e8",
+    "/workspace/shared/baseball-repeated-batted-fresh-continuation-936a070/docs/verification/fixtures/first-base-known-profile-ended-56d96a.manifest.json": "ffcec00fc9545e87cb44dfc224e9d028c678d54b06f06de2037a93518fed31d6",
+    "/workspace/shared/baseball-repeated-batted-fresh-continuation-936a070/tools/verification/repeated-batted-recovery/README.md": "b9d4bb53313966e6a3c088efcc67406fe3e02bc44cf1d12f92340b198e478ca2",
+    "/workspace/shared/baseball-repeated-batted-fresh-continuation-936a070/tools/verification/repeated-batted-recovery/phase.ts": "fc7ecf456ee199d0443f7246a3058c2196899438622cf44d82f4b960d93acdb7",
+    "/workspace/shared/baseball-repeated-batted-fresh-continuation-936a070/tools/verification/repeated-batted-recovery/preflight.py": "6971fe67e721ce4ca2537ccccdfed24c062d29d06c71226650376fafd58afb1a",
+    "/workspace/shared/baseball-repeated-batted-fresh-continuation-936a070/tools/verification/repeated-batted-recovery/process-identity-reviewed.fragment.py": "17c73eb414b32f9f1616b5e4e58ac1077a0449dd5b6887c0291369b73ce9ca9f",
+    "/workspace/shared/baseball-repeated-batted-fresh-continuation-936a070/tools/verification/repeated-batted-recovery/run.py": "fe84784e097f31a0033c5439e0d7e61b08c23b0d98f3c3053e1db678e40efe0f",
+    "/workspace/shared/baseball-repeated-batted-fresh-continuation-936a070/tsconfig.fresh-continuation.json": "ec92279ffe43a962848656cc1c98980b0f7e614e24c176df5f77fe1048856484"
+  },
+  "stages": {
+    "compiler": {
+      "wallSeconds": 300,
+      "oldSpaceMiB": 1408,
+      "heapMiB": 1504,
+      "rssMiB": 2048,
+      "stopReserveGiB": 5
+    },
+    "raw": {
+      "wallSeconds": 60,
+      "rssMiB": 256,
+      "stopReserveGiB": 6
+    },
+    "reauthenticate": {
+      "wallSeconds": 14400,
+      "oldSpaceMiB": 1024,
+      "heapMiB": 1120,
+      "rssMiB": 1536,
+      "stopReserveGiB": 6
+    },
+    "official": {
+      "wallSeconds": 14400,
+      "oldSpaceMiB": 1024,
+      "heapMiB": 1120,
+      "rssMiB": 1536,
+      "stopReserveGiB": 6
+    },
+    "role": {
+      "wallSeconds": 14400,
+      "oldSpaceMiB": 1024,
+      "heapMiB": 1120,
+      "rssMiB": 1536,
+      "stopReserveGiB": 6
+    },
+    "next": {
+      "wallSeconds": 14400,
+      "oldSpaceMiB": 1024,
+      "heapMiB": 1120,
+      "rssMiB": 1536,
+      "stopReserveGiB": 6
+    }
+  }
+}

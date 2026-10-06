@@ -1,0 +1,18 @@
+{
+  "schema": "fresh_continuation_reauthentication_publication_projection_v1",
+  "projectionOnly": true,
+  "originalReceiptSha256": "6a36b93684d3c84036e556f7a6a8f8697145096c132c5e2d14ee7b304ddb76df",
+  "sourceCommit": "f244a0c0065b783510b4607051c01b9818df35e0",
+  "inputManifestSha256": "c0299badb9aa59a6a50edcb9edaa9e5d09a2caedac50f86b410c46c772aeeeb3",
+  "inputSha256": "585ab7862ab93991e97cd5032ba8d520e113635559aa0019b5dd9bd43257a04a",
+  "predecessorReceiptSha256": "cdee45f740996b121f64e05049a31219fbd138d1dc5b24e1889f04dcdc8feaa0",
+  "predecessorTerminalSha256": "42ef97e71c5ebe96c3b99a4821db504cd58fc0f705cc962a21265cfd7f946d83",
+  "nativePersistedEndReauthenticated": true,
+  "nativeEndHash": "596ab584566e2d2b31b6b20ee646e1114980745282ae7dbd22167071768b1bac",
+  "registeredRuleProfileId": "npb-2026",
+  "historicalReceiptsInherited": false,
+  "originalConstructionProven": false,
+  "originalSealRollbackProven": false,
+  "elapsedWorldRecoveryProven": false,
+  "geometryRedObserved": false
+}
