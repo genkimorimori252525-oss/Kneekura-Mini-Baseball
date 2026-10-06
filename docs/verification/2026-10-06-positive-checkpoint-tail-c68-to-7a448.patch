@@ -1,0 +1,312 @@
+diff --git a/src/host/world/ActualFirstBasePlayEndPositiveCheckpointTail.test.ts b/src/host/world/ActualFirstBasePlayEndPositiveCheckpointTail.test.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..82999b441a3a209d470b5d90cf57f440f76f3371
+--- /dev/null
++++ b/src/host/world/ActualFirstBasePlayEndPositiveCheckpointTail.test.ts
+@@ -0,0 +1,230 @@
++import assert from 'node:assert/strict';
++import { createHash } from 'node:crypto';
++import { appendFileSync, closeSync, constants, copyFileSync, existsSync, fsyncSync, mkdtempSync, openSync, readFileSync, readdirSync, readlinkSync, realpathSync, statSync, writeFileSync } from 'node:fs';
++import { createRequire } from 'node:module';
++import { tmpdir } from 'node:os';
++import { join } from 'node:path';
++import { performance } from 'node:perf_hooks';
++import { getHeapStatistics } from 'node:v8';
++import { expect, it } from 'vitest';
++import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
++import { actualFirstBaseClosedEvidenceFromSqlite, actualFirstBaseEndArchiveEncoding, openSqliteActualFirstBasePlayEndStore } from './SqliteActualFirstBasePlayEndStore';
++import { actualFirstBaseUmpireEvidenceFromSqlite, openSqliteActualFirstBaseUmpireStore } from './SqliteActualFirstBaseUmpireStore';
++import { battedWorldFieldExecutionEvidenceFromSqlite, openSqliteBattedWorldFieldExecutionStore } from './SqliteBattedWorldFieldExecutionStore';
++import { battedWorldFieldEvidenceFromSqlite } from './SqliteBattedWorldFieldStore';
++import { actualLiveRuntimeEvidenceFromSqlite } from './SqliteActualLivePlayRuntimeStore';
++import { actualDefensiveDecisionLiveWorkFromSqlite } from './SqliteActualDefensiveDecisionLiveWork';
++import { actualCommunicationEvidenceFromSqlite } from './SqliteActualCommunicationStore';
++import { actualFirstBaseUmpirePhysicalPrefixIdentity } from './ActualFirstBaseUmpirePhysicalIdentity';
++import { battedWorldFieldPhysicalPrefix } from './BattedWorldFieldPhysicalPrefix';
++import { ownedScheduledMotionArchiveHash, ownedScheduledWholeHistoryArchiveEncoding } from './OwnedScheduledMotionArchive';
++import { actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
++import { witnessActualFirstBasePositiveTailFence } from './ActualFirstBasePositiveTailFenceWitness.test-support';
++
++const title = 'continues only the authenticated ended checkpoint with same-cut assertions, witnessed late fence rollback and unchanged close/reopen retry';
++const digest = (bytes: string | Buffer) => createHash('sha256').update(bytes).digest('hex');
++const fileHash = (path: string) => digest(readFileSync(path));
++const stable = (value: unknown) => JSON.stringify(value, (_key, item) => item !== null && typeof item === 'object' && !Array.isArray(item)
++  ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)) : item);
++const must = <T>(value: T | null | undefined): T => { assert(value !== null && value !== undefined); return value; };
++
++// This separate artifact case does not complete or replace the original case.
++// The original construction and unsealed corrupt-trigger rollback stay unproven.
++it(title, () => {
++  const configPath = must(process.env.BASEBALL_POSITIVE_TAIL_CONFIG), controlsPath = must(process.env.BASEBALL_POSITIVE_TAIL_CONTROLS);
++  assert.equal(realpathSync(configPath), configPath); assert.equal(realpathSync(controlsPath), controlsPath);
++  assert.equal(fileHash(controlsPath), process.env.BASEBALL_POSITIVE_TAIL_CONTROLS_SHA256);
++  const config = JSON.parse(readFileSync(configPath, 'utf8'));
++  const pins = JSON.parse(readFileSync(controlsPath, 'utf8')).files as { path: string; sha256: string }[];
++  assert(pins.some(pin => pin.path === configPath && pin.sha256 === fileHash(configPath)));
++  const audit = () => {
++    assert.equal(fileHash(controlsPath), process.env.BASEBALL_POSITIVE_TAIL_CONTROLS_SHA256);
++    for (const pin of pins) assert.equal(fileHash(pin.path), pin.sha256);
++    for (const pin of config.originalFiles) {
++      assert.equal(existsSync(pin.path), pin.exists);
++      if (pin.exists) {
++        const s = statSync(pin.path); assert.equal(realpathSync(pin.path), pin.path);
++        assert.equal(s.size, pin.bytes); assert.equal(fileHash(pin.path), pin.sha256);
++        assert.equal(String(s.dev), pin.device); assert.equal(String(s.ino), pin.inode);
++      }
++    }
++  };
++  audit(); assert.equal(config.kind, 'actual_first_base_positive_checkpoint_tail_v1');
++  assert.equal(config.productionCommit, 'c68a3dc47196b1aae2cd678470ebaad207992d1a');
++  assert.equal(process.version, 'v26.10.0'); assert.equal(fileHash(process.execPath), config.runtime.nodeSha256);
++  assert.equal(getHeapStatistics().heap_size_limit / 1024 / 1024, 1120);
++  const supervisorPid = Number(must(process.env.BASEBALL_POSITIVE_TAIL_SUPERVISOR_PID));
++  assert(Number.isSafeInteger(supervisorPid) && supervisorPid > 0);
++  const supervisorLocks = JSON.parse(must(process.env.BASEBALL_ADMISSION_LOCKS)).map(({ fd, path }: { fd: number; path: string }) => {
++    const descriptor = `/proc/${supervisorPid}/fd/${fd}`;
++    assert.equal(readlinkSync(descriptor), path);
++    const actual = statSync(descriptor), named = statSync(path); assert.equal(actual.dev, named.dev); assert.equal(actual.ino, named.ino);
++    return { fd, path, device: actual.dev, inode: actual.ino };
++  });
++  assert.deepEqual(supervisorLocks.map((lock: { path: string }) => lock.path).sort(), [
++    '/workspace/shared/baseball-light-check.lock', '/workspace/shared/baseball-native-aux-check.lock', '/workspace/shared/baseball-native-check.lock']);
++  const output = must(process.env.BASEBALL_POSITIVE_TAIL_OUTPUT), phasePath = join(output, 'phases.jsonl');
++  assert.equal(output, config.runDirectory); assert.equal(process.cwd(), config.source.root);
++  assert.equal(tmpdir(), join(output, 'tail.runtime', 'tmp'));
++  const phaseFd = openSync(phasePath, 'wx', 0o600);
++  let sequence = 0, operation = 0, endDerivations = 0;
++  const phase = (name: string, detail: Record<string, unknown> = {}) => {
++    appendFileSync(phaseFd, JSON.stringify({ phase: name, sequence: ++sequence, at: new Date().toISOString(),
++      monotonicMilliseconds: performance.now(), pid: process.pid, memory: process.memoryUsage(), ...detail }) + '\n'); fsyncSync(phaseFd);
++  };
++  const run = <T>(name: string, body: () => T, endReads = 0): T => {
++    const index = ++operation, start = performance.now(); endDerivations += endReads;
++    phase('operation:before', { name, operation: index, endReads });
++    const result = body(); phase('operation:after', { name, operation: index, endReads, milliseconds: performance.now() - start }); return result;
++  };
++  const path = join(mkdtempSync(join(tmpdir(), 'native-first-base-positive-tail-')), 'state.sqlite');
++  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
++  let db: InstanceType<typeof DatabaseSync> | undefined;
++  const stores: { close(): void }[] = [];
++  const track = <T extends { close(): void }>(store: T): T => { stores.push(store); return store; };
++  const close = () => { for (const store of stores.splice(0).reverse()) store.close(); if (db?.isOpen) db.close(); };
++  const tables = () => {
++    const schema = db!.prepare('SELECT type,name,tbl_name,sql FROM sqlite_schema ORDER BY type,name').all();
++    const values = schema.filter(row => row.type === 'table').map(row => {
++      const name = String(row.name), quoted = '"' + name.replaceAll('"', '""') + '"';
++      const rows = db!.prepare(`SELECT * FROM ${quoted}`).all().map(stable).sort();
++      return { name, count: rows.length, sha256: digest(stable(rows)) };
++    });
++    return { schema, values, mainSchema: db!.prepare('PRAGMA main.schema_version').get()!.schema_version,
++      tempSchema: db!.prepare('PRAGMA temp.schema_version').get()!.schema_version };
++  };
++  let passed = false, failure: string | null = null, inputUnchanged = false, closed = false, witnessReport: unknown = null;
++  try {
++    phase('copy:before'); copyFileSync(config.input.path, path, constants.COPYFILE_EXCL);
++    assert.equal(statSync(path).size, 3_362_816); assert.equal(fileHash(path), config.input.sha256);
++    assert(!existsSync(path + '-wal')); assert(!existsSync(path + '-shm')); phase('copy:after', { path, sha256: fileHash(path) });
++    db = new DatabaseSync(path, { readOnly: true });
++    const ended = run('authenticate-closed-end-before-writers', () => withSqliteReadTransaction(db!, () => {
++      expect(db!.prepare('PRAGMA journal_mode').get()!.journal_mode).toBe('wal');
++      expect(db!.prepare('PRAGMA database_list').all().find(r => r.name === 'main')!.file).toBe(path);
++      const before = tables(), row = must(db!.prepare('SELECT * FROM actual_first_base_play_ends WHERE source_id=?').get('physical-end'));
++      const value = must(actualFirstBaseClosedEvidenceFromSqlite(db!).read('physical-end'));
++      expect(actualFirstBaseEndArchiveEncoding(value)).toEqual({ json: row.snapshot_json, hash: config.input.endProjectionSha256 });
++      expect(ownedScheduledWholeHistoryArchiveEncoding(value.wholeHistory, value.physicalPitchSourceId, value.gameId).hash).toBe(config.input.wholeHistorySha256);
++      expect(tables()).toEqual(before); expect(db!.prepare('SELECT total_changes() AS n').get()!.n).toBe(0);
++      return value;
++    }), 1);
++    phase('native-end-authenticated-before-writers');
++    const chain = run('authenticate-original-physical-chain', () => withSqliteReadTransaction(db!, () =>
++      must(battedWorldFieldExecutionEvidenceFromSqlite(db!).readWithExecutions(ended.source.executionSourceId))));
++    const final = chain.value, due = must(chain.executions.find(e => e.source.sourceId === 'actual-call-due-cut'));
++    const race = must(chain.executions.find(e => e.source.sourceId === 'field-first-base-race'));
++    assert.equal(race.execution.kind, 'first_base_race');
++    const runtime = run('authenticate-original-runtime', () => withSqliteReadTransaction(db!, () =>
++      must(actualLiveRuntimeEvidenceFromSqlite(db!).read(ended.source.runtimeSourceId))));
++    const decisionId = must(ended.futureWork.controllerDecisions?.[0]).decisionSourceId;
++    const originalFutureDecision = run('authenticate-future-decision', () => withSqliteReadTransaction(db!, () =>
++      must(actualDefensiveDecisionLiveWorkFromSqlite(db!).read(decisionId))));
++    const umpireOwner = actualFirstBaseUmpireEvidenceFromSqlite(db);
++    const call = run('authenticate-operative-call', () => withSqliteReadTransaction(db!, () => must(umpireOwner.readCall(ended.source.umpireCallSourceId))));
++    const waiting = run('authenticate-scheduled-call', () => withSqliteReadTransaction(db!, () => must(umpireOwner.readCall('scheduled-operative-call'))));
++    const observed = run('authenticate-original-observation', () => withSqliteReadTransaction(db!, () => must(umpireOwner.readObservation(call.observation.source.sourceId))));
++    const references = run('authenticate-original-call-references', () => withSqliteReadTransaction(db!, () => must(umpireOwner.importReferences(call.source.sourceId))));
++    const communication = run('authenticate-original-communication', () => withSqliteReadTransaction(db!, () =>
++      must(actualCommunicationEvidenceFromSqlite(db!).read(ended.source.communicationSourceId))));
++    run('assert-original-same-cut-receipts', () => withSqliteReadTransaction(db!, () => {
++      const prefix = { baseField: final.baseField, fields: battedWorldFieldEvidenceFromSqlite(db!).scope(final.baseField, final.baseField.source.sourceId),
++        executions: chain.executions.slice(0, race.revision) };
++      const identity = actualFirstBaseUmpirePhysicalPrefixIdentity(prefix, battedWorldFieldPhysicalPrefix({ ...prefix, custodyPolicy: 'release_exclusive_v1' }));
++      const physicalHash = ownedScheduledMotionArchiveHash(race), setup = observed.setup;
++      expect(waiting.schedule.kind).toBe('scheduled'); expect(call.schedule).toMatchObject({ kind: 'called', call: 'out' });
++      assert.equal(call.schedule.kind, 'called');
++      expect(observed.ruleEvidenceHash).toBe(physicalHash); expect(call.currentExecutionHash).toBe(ownedScheduledMotionArchiveHash(due));
++      expect(call.schedule.calledAtElapsedSeconds).toBe(observed.availability.elapsedSeconds + setup.calibration!.callDelaySeconds);
++      expect(call.advancedThrough.elapsedSeconds).toBeGreaterThanOrEqual(call.schedule.calledAtElapsedSeconds);
++      expect(db!.prepare('SELECT snapshot_hash FROM batted_world_field_executions WHERE source_id=?').get(race.source.sourceId)!.snapshot_hash).toBe(physicalHash);
++      expect(observed.physicalPrefixHash).toBe(identity.physicalPrefixHash); expect(observed.physicalPrefixHashConvention).toBe(identity.physicalPrefixHashConvention);
++      expect(references.ruleEvidence.snapshotHash).toBe(physicalHash); expect(references.ruleEvidence.sourceHash).toBe(hash(race.source));
++      expect(communication.recipients).toHaveLength(10); expect(communication.recipients.every(r => r.kind === 'scheduled')).toBe(true);
++      expect(ended.kind).toBe('ended'); expect(ended.registry.resolution).toMatchObject({ kind: 'ended', reason: 'all_offense_terminal' });
++      expect(ended.wholeHistory.end).toEqual({ kind: 'unestablished' });
++      expect(ended.wholeHistoryHash).toBe(ownedScheduledWholeHistoryArchiveEncoding(ended.wholeHistory, runtime.source.physicalPitchSourceId, runtime.gameId).hash);
++      expect(ended.firstBaseEvidenceApplicability).toMatchObject({ version: 'owned_first_base_evidence_applicability_v1',
++        rule: references.ruleEvidence, call: references.call, from: observed.availability, through: ended.exactEnd,
++        coverage: 'no_new_rule_relevant_physical_or_base_facts', fence: { owner: 'actual_first_base_play_ends', sourceId: ended.source.sourceId } });
++      expect(ended.firstBaseEvidenceApplicability.physicalSuffix.map(r => r.sourceId)).toEqual([due.source.sourceId, final.source.sourceId]);
++      expect(ended.generation.producerIds).toHaveLength(70); expect(ended.generation.bodyBaseHistoryHashes).toHaveLength(40);
++      expect(ended.exactEnd.elapsedSeconds).toBe(ended.generation.boundary.lastIncludedElapsedSeconds);
++      expect(ended.registry.frontier.physical).toHaveLength(10); expect(ended.futureWork.controllers).toHaveLength(10);
++      expect(ended.futureWork.communication).toHaveLength(10); expect(ended.futureWork.communication.every(r => r.dueTick > ended.playEnd.tick)).toBe(true);
++      expect(ended.futureWork.controllerDecisions).toEqual([originalFutureDecision]);
++      expect(originalFutureDecision.work.phase).toBe('pending_decision');
++      expect(originalFutureDecision.work.cut.executionSourceId).toBe(race.source.sourceId);
++      expect(originalFutureDecision.work.deadlines.decision.tick).toBeGreaterThan(ended.playEnd.tick);
++      const futurePlayer = must(runtime.membership.participants.find(p => p.playerId === originalFutureDecision.work.playerId));
++      expect(futurePlayer.role).toBe('defender');
++      const producerId = must(runtime.membership.producers.find(p => p.domain === 'actor_decision' && p.playerId === futurePlayer.playerId)).producerId;
++      expect(ended.registry.registry.sources.find(s => s.sourceId === producerId)).toMatchObject({
++        decisions: originalFutureDecision.work.source.decisions, queue: { nextPendingTick: originalFutureDecision.work.deadlines.decision.tick } });
++      expect(ended.registry.frontier.actors.find(a => a.actorId === futurePlayer.playerId)).toEqual({ actorId: futurePlayer.playerId,
++        kind: 'decision_pending', dueTick: originalFutureDecision.work.deadlines.decision.tick });
++      expect(ended.registry.frontier.actors.filter(a => a.actorId !== futurePlayer.playerId).every(a => a.kind === 'acting')).toBe(true);
++      expect(ended.operativeRetirement).toMatchObject({ kind: 'retired', causeCallSourceId: call.source.sourceId });
++    }));
++    db.close(); db = new DatabaseSync(path);
++    const late = { ...race.source, sourceId: 'forbidden-late-rule-source', previousExecutionSourceId: final.source.sourceId };
++    const physicalWriter = track(openSqliteBattedWorldFieldExecutionStore(path, { read: battedWorldFieldEvidenceFromSqlite(db).read },
++      { readAcceptedExecution: id => id === late.sourceId ? late : null }));
++    const umpires = track(openSqliteActualFirstBaseUmpireStore(path));
++    const physicalRows = () => db!.prepare('SELECT * FROM batted_world_field_executions ORDER BY revision').all();
++    const afterPhysical = physicalRows(), before = afterPhysical.slice(0, race.revision), allBefore = tables();
++    const witness = witnessActualFirstBasePositiveTailFence(path, ended.source.sourceId);
++    try {
++      run('reject-original-late-source-with-rollback', () => {
++        expect(() => physicalWriter.accept(late.sourceId)).toThrow(/sealed|terminal/);
++        witnessReport = witness.report(); expect(witnessReport).toEqual({ begun: true, terminalClaimReached: true,
++          rolledBack: true, changesBefore: 0, changesAfter: 0, noTransaction: true });
++      });
++    } finally { witness.close(); }
++    expect(physicalRows()).toEqual(afterPhysical); expect(physicalRows().slice(0, before.length)).toEqual(before);
++    expect(tables()).toEqual(allBefore); phase('late-fence-rejected-with-zero-delta', { witnessReport });
++    const callHash = hash(call), observedHash = hash(observed), endHash = hash({ ...ended, wholeHistory: ended.wholeHistoryHash });
++    expect(hash(run('preclose-operative-call', () => umpires.readCall(call.source.sourceId)))).toBe(callHash);
++    expect(run('preclose-scheduled-call', () => umpires.readCall(waiting.source.sourceId))).toEqual(waiting);
++    expect(hash(run('preclose-observation', () => umpires.readObservation(observed.source.sourceId)))).toBe(observedHash);
++    close(); phase('original-connections-closed'); db = new DatabaseSync(path);
++    const reopened = track(openSqliteActualFirstBasePlayEndStore(path)), reopenedUmpire = track(openSqliteActualFirstBaseUmpireStore(path));
++    const reopenedBefore = tables();
++    const saved = must(run('reopened-saved-end', () => reopened.read(ended.source.sourceId), 1));
++    expect(hash({ ...saved, wholeHistory: saved.wholeHistoryHash })).toBe(endHash);
++    const retry = run('reopened-identical-end-retry', () => reopened.accept(ended.source.sourceId), 2);
++    expect(hash({ ...retry, wholeHistory: retry.wholeHistoryHash })).toBe(endHash);
++    expect(actualFirstBaseEndArchiveEncoding(retry)).toEqual(actualFirstBaseEndArchiveEncoding(ended));
++    expect(hash(run('reopened-operative-call', () => reopenedUmpire.readCall(call.source.sourceId)))).toBe(callHash);
++    expect(hash(run('reopened-observation', () => reopenedUmpire.readObservation(observed.source.sourceId)))).toBe(observedHash);
++    expect(tables()).toEqual(reopenedBefore); expect(tables()).toEqual(allBefore);
++    expect(operation).toBe(18); expect(endDerivations).toBe(4); close(); closed = true;
++    phase('closed-reopened-and-retried-unchanged'); audit(); inputUnchanged = true; passed = true;
++  } catch (error) { failure = String(error); throw error; }
++  finally {
++    const cleanupErrors: string[] = [];
++    try { close(); closed = !db?.isOpen; } catch (error) { cleanupErrors.push(String(error)); }
++    try {
++      audit(); inputUnchanged = true;
++      assert.equal(fileHash(path), config.input.sha256);
++      assert(!existsSync(path + '-wal') || statSync(path + '-wal').size === 0);
++      const handles = readdirSync('/proc/self/fd').flatMap(fd => {
++        try { const target = readlinkSync(`/proc/self/fd/${fd}`);
++          return [path, path + '-wal', path + '-shm', config.input.path, config.input.path + '-wal', config.input.path + '-shm'].includes(target) ? [{ fd, target }] : [];
++        } catch { return []; }
++      });
++      assert.deepEqual(handles, []);
++    } catch (error) { cleanupErrors.push(String(error)); }
++    passed = passed && cleanupErrors.length === 0 && closed && inputUnchanged;
++    try {
++      phase('terminal', { passed, closed, inputUnchanged, operation, endDerivations, failure, cleanupErrors });
++      writeFileSync(join(output, 'tail-result.json'), JSON.stringify({ kind: config.kind, passed, closed, inputUnchanged,
++        originalPositiveTestPassed: false, wholePipelinePassed: false, inheritedCheckpointConstruction: true,
++        originalPrefixConstructionProven: false, originalUnsealedSealRollbackProven: false,
++        executingPid: process.pid, launcherPid: process.ppid, workerId: process.env.TINYPOOL_WORKER_ID,
++        supervisorPid, supervisorLocks, configSha256: fileHash(configPath), path,
++        operationCount: operation, endDerivations, witnessReport, failure, cleanupErrors }, null, 2) + '\n', { flag: 'wx' });
++    } finally { closeSync(phaseFd); }
++    if (cleanupErrors.length) throw new Error('checkpoint tail cleanup failed: ' + cleanupErrors.join('; '));
++  }
++}, 1_740_000);
+diff --git a/src/host/world/ActualFirstBasePositiveTailFenceWitness.test-support.ts b/src/host/world/ActualFirstBasePositiveTailFenceWitness.test-support.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..323c8dd9fd8fb92161cd5ad4ee185ddfce8e07b3
+--- /dev/null
++++ b/src/host/world/ActualFirstBasePositiveTailFenceWitness.test-support.ts
+@@ -0,0 +1,70 @@
++import { createRequire } from 'node:module';
++import type { DatabaseSync } from 'node:sqlite';
++
++/** Observe the real late writer reaching the sealed-owner census and rolling back.
++ * No result is substituted, and unrelated setup exceptions cannot satisfy this. */
++export const witnessActualFirstBasePositiveTailFence = (path: string, endSourceId: string) => {
++  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
++  const prototype = DatabaseSync.prototype;
++  const prepareDescriptor = Object.getOwnPropertyDescriptor(prototype, 'prepare')!;
++  const execDescriptor = Object.getOwnPropertyDescriptor(prototype, 'exec')!;
++  const prepare = prepareDescriptor.value as DatabaseSync['prepare'];
++  const exec = execDescriptor.value as DatabaseSync['exec'];
++  const same = (a: PropertyDescriptor | undefined, b: PropertyDescriptor) => a !== undefined
++    && (['configurable', 'enumerable', 'value', 'writable', 'get', 'set'] as const).every(k => a[k] === b[k]);
++  let connection: DatabaseSync | null = null, begun = false, terminalClaimReached = false, rolledBack = false;
++  let changesBefore: number | bigint | null = null, changesAfter: number | bigint | null = null;
++  const restorers: (() => boolean)[] = [];
++  const databasePath = (db: DatabaseSync) => (Reflect.apply(prepare, db, ['PRAGMA database_list']) as ReturnType<DatabaseSync['prepare']>)
++    .all().find(row => row.name === 'main')?.file;
++  const changes = (db: DatabaseSync) => (Reflect.apply(prepare, db, ['SELECT total_changes() AS n']) as ReturnType<DatabaseSync['prepare']>).get()!.n;
++  const interceptExec = function(this: DatabaseSync, sql: string) {
++    const result = Reflect.apply(exec, this, [sql]);
++    if (sql === 'BEGIN IMMEDIATE' && databasePath(this) === path) {
++      if (connection !== null) throw new Error('late fence witness saw multiple writer transactions');
++      connection = this; begun = this.isTransaction; changesBefore = changes(this) as number | bigint;
++    }
++    if (this === connection && sql === 'ROLLBACK') {
++      rolledBack = !this.isTransaction; changesAfter = changes(this) as number | bigint;
++    }
++    return result;
++  };
++  const interceptPrepare = function(this: DatabaseSync, ...args: Parameters<DatabaseSync['prepare']>) {
++    const statement = Reflect.apply(prepare, this, args) as ReturnType<DatabaseSync['prepare']>;
++    if (this === connection && args[0].startsWith('SELECT source_id FROM actual_first_base_play_ends WHERE (game_id=$game AND play_id=$play)')) {
++      const db = this, original = Object.getOwnPropertyDescriptor(statement, 'all'), all = statement.all;
++      const wrapped = (...values: unknown[]) => {
++        const rows = Reflect.apply(all, statement, values) as Record<string, unknown>[];
++        terminalClaimReached = db.isTransaction && rows.length === 1 && rows[0].source_id === endSourceId;
++        return rows;
++      };
++      const installed = { configurable: true, enumerable: original?.enumerable ?? false, writable: true, value: wrapped };
++      Object.defineProperty(statement, 'all', installed);
++      restorers.push(() => {
++        if (!same(Object.getOwnPropertyDescriptor(statement, 'all'), installed)) return false;
++        if (original) Object.defineProperty(statement, 'all', original); else Reflect.deleteProperty(statement, 'all');
++        return true;
++      });
++    }
++    return statement;
++  };
++  const installedPrepare = { ...prepareDescriptor, value: interceptPrepare }, installedExec = { ...execDescriptor, value: interceptExec };
++  Object.defineProperty(prototype, 'prepare', installedPrepare); Object.defineProperty(prototype, 'exec', installedExec);
++  let closed = false;
++  return {
++    report: () => ({ begun, terminalClaimReached, rolledBack, changesBefore, changesAfter,
++      noTransaction: connection !== null && !connection.isTransaction }),
++    close() {
++      if (closed) return; closed = true;
++      let changed = false;
++      try {
++        for (const [name, installed, original] of [['prepare', installedPrepare, prepareDescriptor], ['exec', installedExec, execDescriptor]] as const) {
++          if (same(Object.getOwnPropertyDescriptor(prototype, name), installed)) Object.defineProperty(prototype, name, original);
++          else changed = true;
++        }
++        for (const restore of restorers) if (!restore()) changed = true;
++      } finally { restorers.length = 0; }
++      if (changed) throw new Error('late fence witness descriptor changed; later interceptor preserved');
++    },
++  };
++};
