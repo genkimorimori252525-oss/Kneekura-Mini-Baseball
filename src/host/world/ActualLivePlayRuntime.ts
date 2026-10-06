@@ -2,11 +2,12 @@ import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { actualLivePlayFields as fields, actualLivePlayId as id, type ActualLivePlayScope } from './ActualLivePlayScope';
 import { actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 export type AcceptedActualLivePlayRuntime = Readonly<{ sourceId: string; sourceVersion: string;
-  capability: 'causal_original_live_play_runtime_v1'; physicalPitchSourceId: string }>;
+  capability: 'causal_original_live_play_runtime_v1' | 'causal_original_settled_foul_runtime_v1'; physicalPitchSourceId: string }>;
 export const actualLivePlayRuntimeInput = (raw: AcceptedActualLivePlayRuntime, sourceId: string): AcceptedActualLivePlayRuntime => {
   const s = cloneInert(raw);
   if (!fields(s, ['sourceId', 'sourceVersion', 'capability', 'physicalPitchSourceId']) || s.sourceId !== sourceId
-    || s.capability !== 'causal_original_live_play_runtime_v1' || ![s.sourceId, s.sourceVersion, s.physicalPitchSourceId].every(id)) {
+    || !['causal_original_live_play_runtime_v1', 'causal_original_settled_foul_runtime_v1'].includes(s.capability)
+    || ![s.sourceId, s.sourceVersion, s.physicalPitchSourceId].every(id)) {
     throw new Error('invalid causal actual live-play runtime Source');
   }
   return freeze(s);
@@ -22,5 +23,19 @@ export const deriveActualLiveRuntimeMembership = (scope: ActualLivePlayScope) =>
   controllerPolicy: 'real_command_exhaustion_and_owned_decision_triggers_v1' as const,
   liveRulePolicy: 'supported_empty_base_ground_first_base_v1' as const,
 });
+/** Explicitly enrolled before field work. The added producer owns only the
+ * original untouched settled-foul stop; count application and play closure
+ * remain separate consumers. The legacy membership retains its exact shape. */
+export const deriveOriginalSettledFoulRuntimeMembership = (scope: ActualLivePlayScope) => {
+  const original = deriveActualLiveRuntimeMembership(scope);
+  return freeze({ ...original, version: 'original_settled_foul_membership_v1' as const,
+    liveRulePolicy: 'untouched_settled_foul_producer_only_v1' as const,
+    producers: [...original.producers, {
+      producerId: JSON.stringify(['actual_settled_foul_stop_producer_v1', original.scopeId]),
+      domain: 'settled_foul_stop' as const, playerId: null,
+    }],
+  });
+};
 export type DurableActualLivePlayRuntime = Readonly<{ source: AcceptedActualLivePlayRuntime;
-  gameId: string; playId: number; originalPitchHash: string; membership: ReturnType<typeof deriveActualLiveRuntimeMembership> }>;
+  gameId: string; playId: number; originalPitchHash: string;
+  membership: ReturnType<typeof deriveActualLiveRuntimeMembership> | ReturnType<typeof deriveOriginalSettledFoulRuntimeMembership> }>;

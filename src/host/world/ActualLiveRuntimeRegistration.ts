@@ -25,6 +25,7 @@ const domains: readonly Domain[] = [
   { owner: 'actual_defensive_decisions', links: [['observationSourceId', 'observation_source_id', 'actual_field_observations'], ['planSourceId', 'plan_source_id', 'actual_defensive_plans']], head: { owner: 'actual_defensive_decision_heads' } },
   { owner: 'actual_locomotion_receipts', links: [['decisionSourceId', 'decision_source_id', 'actual_defensive_decisions'], ['baseFieldSourceId', 'base_field_source_id', 'batted_world_field_actions'], ['executionSourceId', 'execution_source_id', 'batted_world_field_executions']], head: { owner: 'actual_locomotion_heads' } },
   { owner: 'actual_live_rule_consumptions', links: [['captureExecutionSourceId', 'capture_execution_source_id', 'batted_world_field_executions'], ['ruleExecutionSourceId', 'rule_execution_source_id', 'batted_world_field_executions']] },
+  { owner: 'actual_settled_foul_stop_productions', links: [['baseFieldSourceId', 'base_field_source_id', 'batted_world_field_actions']] },
   { owner: 'actual_first_base_umpire_setups', links: [] },
   { owner: 'actual_first_base_umpire_observations', links: [['setupSourceId', 'dependency_source_id', 'actual_first_base_umpire_setups'], ['ruleExecutionSourceId', 'current_execution_source_id', 'batted_world_field_executions']] },
   { owner: 'actual_first_base_umpire_calls', links: [['observationSourceId', 'dependency_source_id', 'actual_first_base_umpire_observations'], ['currentExecutionSourceId', 'current_execution_source_id', 'batted_world_field_executions']] },

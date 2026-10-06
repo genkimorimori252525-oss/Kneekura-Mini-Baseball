@@ -1,0 +1,11 @@
+# Original settled-foul producer current integration
+
+Status: qualified on fixed `29f8a7d59a32a668193e66b061f3d5e7aafae16d`. This source assembles the 15-file producer/runtime/fixture net change from `6032fb6f479e73e0cf56c0845437e0a4145afdde` on base `ce7fcbb879e86b1249a40bce2bf34fcefe0d6fb1`. Existing Manager, accepted-scoring and other work on that base is retained. All six replaced files matched the producer branch's original base; the nine added files were absent. This parallel checkpoint does not include the later PR329/330 changes.
+
+The separate gate on `5bf03c0c27f2bd8b7e7b21bddb8c50b1cf3f8d3b` passed catalog/compiler, all 28 producer cases, all 57 runtime/registration/transaction cases and 24 adjacent compatibility cases. Its remaining compatibility case failed before its intended trigger assertion because the old metadata-only fixture lacked the original-pitch index required by the existing write fence. That test and shared owner were byte-identical on the older producer baseline, candidate and current main; this was not a producer production change.
+
+The one-file correction adds the missing fixture pitch identity and minimal SQLite scope index. It retains the exact ownership rejection, empty-table rollback, successful retry and read equality assertions. Producer production is unchanged from `5bf03c0`. A separate one-case fixture/compiler gate was prepared but remains unrun; the completed 110-case gate qualified the correction together with the producer. The original 109 passes and one failure remain attributed to their original source.
+
+All 110 selected cases and compiler/catalog checks passed on this fixed source with unchanged pins, zero skipped or unhandled cases and complete reaping. Terminal SHA-256: `56259d369fd36ab98e2ff31fd87e2c5fb4613ea7fa23d4f59188634a15d78669`. [The qualified evidence](2026-10-06-original-settled-foul-producer-candidate.md) records the source tree, controller and preserved failure boundary. The later combined runner/encoding integration still requires its own gate.
+
+The new owner emits one authenticated original settled-foul stop and one pending rule-evidence successor. Count application, physical ending, PlayEnd, official closure, workload settlement and foul resume remain outside this slice. The legacy runtime retains its original 70-member producer manifest.
