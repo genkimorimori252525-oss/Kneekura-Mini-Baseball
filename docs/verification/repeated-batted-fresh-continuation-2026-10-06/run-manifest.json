@@ -1,12 +1,12 @@
 {
-  "schema": "fresh_continuation_five_phase_publication_v1",
-  "recordedThrough": "2026-10-06T13:47:38.299308+00:00",
+  "schema": "fresh_continuation_six_phase_publication_v1",
+  "recordedThrough": "2026-10-06T17:49:59.188495+00:00",
   "testedSourceCommit": "f244a0c0065b783510b4607051c01b9818df35e0",
   "testedProductionSrcTree": "5f553f22ff2e371a3eedd47ed275e1434e248be5",
   "sourceParentCommit": "936a07033b47208b87aaf2fdefcb9eef057e3c49",
   "testedSourceCommitIsLocal": true,
-  "remotePublicationBaseCommit": "a1bbe7b2bafd9a1d3d29e043ee57d4e9de622270",
-  "publicationCommitAttribution": "This five-phase successor is prepared on local documentation parent 4b0ceb33d34ea2ba38aaf007a600327f623201f4, which is not the tested Source or the remote publication parent. Its intended remote parent is PR336 head a1bbe7b2bafd9a1d3d29e043ee57d4e9de622270. The original four-phase PR336 used PR333 936a07033b47208b87aaf2fdefcb9eef057e3c49 as remote parent. Neither publication claims the tested local f244 commit metadata or ancestry. Exact tested launcher/src bytes remain matched.",
+  "remotePublicationBaseCommit": "7705d7a110d81d6ba41905ab45e614819d3d24ad",
+  "publicationCommitAttribution": "This six-phase successor is prepared on local documentation parent 8c891aedfad8c1b643023b9a00244190fe9be526, whose complete tree 9ee4da0bd50e2461247f241fd3a4924b51324edc matches coordinator-verified PR338 head 7705d7a110d81d6ba41905ab45e614819d3d24ad. Connector publication is intended to use that PR338 head as its actual remote parent. The local preparation parent is neither the runtime Source nor that remote commit. PR338 followed PR336 a1bbe7b2bafd9a1d3d29e043ee57d4e9de622270; PR336 used PR333 936a07033b47208b87aaf2fdefcb9eef057e3c49 as its remote parent. No publication claims the tested local f244 commit metadata or ancestry; exact tested launcher/src bytes remain matched.",
   "recordedConfigurationRequiresExactSourceCheckout": true,
   "publicationDescendantIsRuntimeCheckout": false,
   "origin": {
@@ -134,6 +134,28 @@
       "proofSha256": "9f4f98b667bafeaa4bca98ce2c91f1b7e83940e6d9f0bb8bda2ec72144c39ba6",
       "seconds": 12714.979933884999,
       "peakAggregateRssKiB": 508356
+    },
+    {
+      "phase": "next",
+      "phaseVerified": true,
+      "exitCode": 0,
+      "reaped": true,
+      "sourceDependenciesControlsInputUnchanged": true,
+      "checkpoint": {
+        "path": "checkpoints/next-terminal.json",
+        "sha256": "9bf75c5a9477ceecdfd0b79162b4c1254d0a14ffaf7f6257a28bfcc76f6b2951"
+      },
+      "supervisorTerminal": {
+        "path": "supervisor/next-terminal.json",
+        "sha256": "d3b515db68680dca03d5f4388421a9afb27eadef2b0343e1dd33e91299b01006"
+      },
+      "predecessorTerminal": {
+        "phase": "role",
+        "sha256": "cda6b8835d043be2cc997c0a774368bb85201b9b696c1c1332eecb309327bd24"
+      },
+      "proofSha256": "5f073dd0d041bf2082f771a0b49eae002afe24e1cf503e1bb93e5446deb4f68b",
+      "seconds": 5923.522492653006,
+      "peakAggregateRssKiB": 507884
     }
   ],
   "completedPhases": [
@@ -141,15 +163,14 @@
     "raw",
     "reauthenticate",
     "official",
-    "role"
-  ],
-  "pendingPhases": [
+    "role",
     "next"
   ],
-  "freshContinuationVerified": false,
+  "pendingPhases": [],
+  "freshContinuationVerified": true,
   "wholePipelinePassed": false,
   "roleSettlementComplete": true,
-  "nextActorExecuted": false,
+  "nextActorExecuted": true,
   "geometryRedObserved": false,
   "historicalReceiptsInherited": false,
   "originalConstructionProven": false,
@@ -264,6 +285,18 @@
       "sha256": "ad7c23e026a59ca4929e2ac90c7aa2759b0a0a94915d13f66e54f3613a7f6368",
       "bytes": 3130,
       "byteExact": true
+    },
+    "checkpoints/next-terminal.json": {
+      "origin": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/flow1/checkpoints/next-terminal.json",
+      "sha256": "9bf75c5a9477ceecdfd0b79162b4c1254d0a14ffaf7f6257a28bfcc76f6b2951",
+      "bytes": 1621,
+      "byteExact": true
+    },
+    "supervisor/next-terminal.json": {
+      "origin": "/workspace/shared/baseball-repeated-batted-fresh-continuation-controls-v3/flow1/controls/next/terminal.json",
+      "sha256": "d3b515db68680dca03d5f4388421a9afb27eadef2b0343e1dd33e91299b01006",
+      "bytes": 3204,
+      "byteExact": true
     }
   },
   "publishedProofProjections": {
@@ -286,6 +319,11 @@
       "sha256": "a8056cd1a3edb0fff0ac15ffad386be535939976a1a3061a40dcb13005036dde",
       "bytes": 2350,
       "projectionOnly": true
+    },
+    "proofs/next.projection.json": {
+      "sha256": "ac699f8543e0a51eb27c2b9776a504b3428e5a9985f1081ecaa7183914a6c003",
+      "bytes": 2400,
+      "projectionOnly": true
     }
   },
   "artifactsIncluded": false,
@@ -295,14 +333,14 @@
   "runtimeWorkPerformedDuringThisPublicationPreparation": false,
   "sqliteOpenedDuringThisPublicationPreparation": false,
   "sharedRuntimeLocksAcquiredDuringThisPublicationPreparation": false,
-  "localPreparationBaseCommit": "4b0ceb33d34ea2ba38aaf007a600327f623201f4",
+  "localPreparationBaseCommit": "8c891aedfad8c1b643023b9a00244190fe9be526",
   "localPreparationBaseIsRemotePublicationParent": false,
   "originalFourPhasePublication": {
     "pullRequest": 336,
     "headCommit": "a1bbe7b2bafd9a1d3d29e043ee57d4e9de622270",
     "remoteBaseCommit": "936a07033b47208b87aaf2fdefcb9eef057e3c49",
     "completedPhaseCount": 4,
-    "successorUsesThisHeadAsRemotePublicationParent": true
+    "successorUsesThisHeadAsRemotePublicationParent": false
   },
   "historicalOfficialProjectionRoleSettlementComplete": false,
   "fullRoleDomainReceiptIncluded": false,
@@ -331,5 +369,54 @@
     "official",
     "role",
     "next"
-  ]
+  ],
+  "localPreparationBaseTree": "9ee4da0bd50e2461247f241fd3a4924b51324edc",
+  "remotePublicationBaseTree": "9ee4da0bd50e2461247f241fd3a4924b51324edc",
+  "remotePublicationAttributionSource": "Coordinator-verified PR338 head/tree; remote object is not present in this local object database.",
+  "previousFivePhasePublication": {
+    "pullRequest": 338,
+    "headCommit": "7705d7a110d81d6ba41905ab45e614819d3d24ad",
+    "tree": "9ee4da0bd50e2461247f241fd3a4924b51324edc",
+    "remoteBaseCommit": "a1bbe7b2bafd9a1d3d29e043ee57d4e9de622270",
+    "localEquivalentCommit": "8c891aedfad8c1b643023b9a00244190fe9be526",
+    "completedPhaseCount": 5,
+    "successorUsesThisHeadAsRemotePublicationParent": true
+  },
+  "nextPitchExecuted": true,
+  "wholeCurrentStackProven": false,
+  "fullPositiveProven": false,
+  "fullNextDomainReceiptIncluded": false,
+  "historicalRoleProjectionNextActorExecuted": false,
+  "historicalRoleProjectionFreshContinuationVerified": false,
+  "historicalSupervisorsRetainTheirOriginalPhaseTimeStatus": true,
+  "nextResultSummary": {
+    "exactlyOnceActorAdmission": true,
+    "nextActorExecuted": true,
+    "nextPitchExecuted": true,
+    "nextBatterSelection": "explicit_fixture_input",
+    "autonomousLineupSelection": false,
+    "allConnectionsClosedReopened": true,
+    "actorMatchesExplicitFixtureInput": true,
+    "pitchUsesAcceptedNextActor": true,
+    "pitchUsesSettledPitcherWorkload": true,
+    "pitchStartsFromActivatedWorldTick": true,
+    "registeredRuleProfileId": "npb-2026",
+    "nextPlayAdvancedOnce": true,
+    "nextPitchProgressRevision": 1,
+    "nextPitchAction": "take",
+    "resolutionKind": "recorded",
+    "physicalResolutionKind": "taken",
+    "pitchAdjudicationKind": "called_strike",
+    "initialBalls": 0,
+    "initialStrikes": 0,
+    "finalTimelineStatus": "active",
+    "finalBalls": 0,
+    "finalStrikes": 1,
+    "newPitchEventCount": 2,
+    "faultChecks": true,
+    "wrongActivationRejected": true,
+    "actorReadinessAfterInsert": true,
+    "scoringStillUnsupported": true,
+    "scoringUnsupportedScope": "this_fixture_chain"
+  }
 }
