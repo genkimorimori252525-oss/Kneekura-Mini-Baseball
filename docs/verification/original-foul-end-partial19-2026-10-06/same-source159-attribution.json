@@ -1,0 +1,78 @@
+{
+  "sourceCommit": "a7086cdb0e3e563a8aafd688da2d569e3afa428d",
+  "sourceTree": "a7e3c58da3bfd3d9bf217c0dbaa544c6d66cd6d4",
+  "sourceManifestSha256": "64686718e47f265b44e5f4e1bcaf932a238b1bfed4b7a9fb8a29c26b49d38b43",
+  "dependencyManifestSha256": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+  "retainedClosedCases": 19,
+  "freshFollowupCases": 140,
+  "sameSourceTotal": 159,
+  "freshWhole159Run": false,
+  "originalFinalReaping": "unobserved",
+  "newContinuationReaped": true,
+  "newContinuationSession": 88111,
+  "newContinuationTerminalAt": "2026-10-06T21:16:13.918506+00:00",
+  "newContinuationTerminalSha256": "11a2523e117b050bac060e5caba400c6ffc55a91b67a40330785f52b05cf3861",
+  "retainedClosedStageHashes": {
+    "compiler": "bd033c2de64038a3a174d71c40c1496f49b4451b9182be2d2bdc30b527ff5841",
+    "catalog": "e59fb8dcd4e6ae3ddeec4dbda734532e0caacc89fca2bda3f7f7183366981dee",
+    "physical_prerequisites": "22e92b79d91321290855e8070aa927971d0c1fdaaf1e6436b2513033f76d5bcc",
+    "end_contract": "c4f23a60678df81338093dcb8be895c906c9c79c422e4aa5ecffaa3cb63cdd99"
+  },
+  "stageCounts": {
+    "end_guards": {
+      "numTotalTests": 16,
+      "numPassedTests": 16,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0
+    },
+    "end_runtime": {
+      "numTotalTests": 9,
+      "numPassedTests": 9,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0
+    },
+    "count_runtime": {
+      "numTotalTests": 6,
+      "numPassedTests": 6,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0
+    },
+    "legacy_runtime": {
+      "numTotalTests": 57,
+      "numPassedTests": 57,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0
+    },
+    "producer": {
+      "numTotalTests": 28,
+      "numPassedTests": 28,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0
+    },
+    "count_metadata": {
+      "numTotalTests": 7,
+      "numPassedTests": 7,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0
+    },
+    "shared_compatibility": {
+      "numTotalTests": 17,
+      "numPassedTests": 17,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0
+    }
+  },
+  "privacyReview": "Complete result/control metadata only; no DB/WAL/SHM, raw logs, telemetry, domain snapshots or nonempty test failure messages",
+  "scopeLimits": [
+    "parallel PR337 foul source; later stance/runner union not included",
+    "no Native foul official consumer/workload/reset/same-PA resume",
+    "full count38, genuine fair-end chain and all admission routes remain separate cumulative coverage"
+  ]
+}
