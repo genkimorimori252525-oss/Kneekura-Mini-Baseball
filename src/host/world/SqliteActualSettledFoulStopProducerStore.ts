@@ -19,7 +19,7 @@ const owner = (db: DatabaseSync) => {
   const ownership = settledFoulStopOwnership(db);
   const runtimeFor = (sourceId: string) => {
     const runtime = actualLiveRuntimeEvidenceFromSqlite(db).read(sourceId);
-    if (!runtime || runtime.source.capability !== 'causal_original_settled_foul_runtime_v1') {
+    if (!runtime || !['causal_original_settled_foul_runtime_v1', 'causal_original_settled_foul_count_runtime_v1'].includes(runtime.source.capability)) {
       throw new Error('settled-foul producer requires its registered explicit runtime capability');
     }
     return runtime;

@@ -1,0 +1,8 @@
+{
+  "sourceCommit": "6bb37ce233dc9567f3ebf8ee0318d5dbecb52431",
+  "sessionId": 75834,
+  "exitCode": 0,
+  "terminalSha256": "6e710cee91f16fc13bd52172902cf12e986623368bf0cd653e1c850900c676ab",
+  "confirmationSource": "Coordinator message received 2026-10-06 at 09:06 UTC",
+  "scope": "Follow-up supervisor exit; complements the unchanged raw terminal and source-specific reconciliation"
+}

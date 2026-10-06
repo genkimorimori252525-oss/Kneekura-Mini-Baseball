@@ -82,10 +82,8 @@ export const settledFoulStopOwnership = (db: DatabaseSync) => {
     return rows[0] ?? null;
   };
   const journal = (runtimeId: string) => db.prepare('SELECT * FROM main.actual_live_play_admissions WHERE runtime_source_id=? ORDER BY sequence').all(runtimeId);
-  const claims = (scope: Scope): SettledFoulStopRow[] => {
-    const rows = all(), pitch = scope.source.physicalPitchSourceId, runtime = scope.source.sourceId;
-    const admitted = journal(runtime).filter(r => r.owner === settledFoulStopTable).map(r => r.source_id);
-    const selected = new Set<SettledFoulStopRow>(), known = new Set<Scalar>(admitted as Scalar[]);
+  const dependenciesFor = (scope: Scope) => {
+    const pitch = scope.source.physicalPitchSourceId;
     // Resolve original indexed dependency ownership before classifying a row as
     // foreign. In particular, a policy's pitch cache cannot hide its field anchor.
     const dependencies = new Map<string, Set<Scalar>>();
@@ -120,6 +118,13 @@ export const settledFoulStopOwnership = (db: DatabaseSync) => {
         if (related.size === before) break;
       }
     }
+    return dependencies;
+  };
+  const claims = (scope: Scope): SettledFoulStopRow[] => {
+    const rows = all(), pitch = scope.source.physicalPitchSourceId, runtime = scope.source.sourceId;
+    const admitted = journal(runtime).filter(r => r.owner === settledFoulStopTable).map(r => r.source_id);
+    const selected = new Set<SettledFoulStopRow>(), known = new Set<Scalar>(admitted as Scalar[]);
+    const dependencies = dependenciesFor(scope);
     const references = (owner: string, ids: Scalar[]) => ids.some(value => dependencies.get(owner)?.has(value));
     for (const row of rows) {
       const pitches = [row.physical_pitch_source_id, ...sourceValues(row, 'physicalPitchSourceId'),
@@ -205,5 +210,5 @@ export const settledFoulStopOwnership = (db: DatabaseSync) => {
       || journal(runtime.source.sourceId).some((r, i) => r.sequence !== i + 1)) throw new Error('settled-foul producer admission differs');
     return { source, fieldRevision: field.revision };
   };
-  return { installed, all, identities, claims, metadata, journal };
+  return { installed, all, identities, claims, metadata, journal, values, sourceValues, sourceIds, dependenciesFor };
 };

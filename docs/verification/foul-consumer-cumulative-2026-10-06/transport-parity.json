@@ -1,0 +1,34 @@
+{
+  "basePublication": "d2ca94ec24c228d14711b631d689fcf974d244cc",
+  "authorSource": "6bb37ce233dc9567f3ebf8ee0318d5dbecb52431",
+  "commonBase": "936a07033b47208b87aaf2fdefcb9eef057e3c49",
+  "foulSourceFiles": 15,
+  "publicationSourceFilesChangedFromCommonBase": 16,
+  "overlap": [],
+  "allFoulFilesExactlyMatchAuthor": true,
+  "allOtherCurrentSourceFilesPreserved": true,
+  "currentSrcFiles": 1868,
+  "combinedSourceRuntime": "unrun",
+  "rawTerminalPrivacyReview": [
+    {
+      "file": "docs/verification/foul-consumer-baseline-red-2026-10-06/terminal.json",
+      "sha256": "efd638c8773aca3cb0e6ea0d8e9efd9effc85dda3cdd443e5611f96292342904",
+      "reviewedContent": "Code/control hashes, workspace paths, finite resource and process metadata, test names/status, and assertion stack frames only. No database archive, row payload, credentials or private domain data."
+    },
+    {
+      "file": "docs/verification/foul-consumer-ancestor-array-red-2026-10-06/terminal.json",
+      "sha256": "6e077aeae01d86b9c948f6bb83a213e1ef351cde5cf5e2a94fbd99b1bec0dc45",
+      "reviewedContent": "Code/control hashes, workspace paths, finite resource and process metadata, test names/status, and assertion stack frames only. No database archive, row payload, credentials or private domain data."
+    },
+    {
+      "file": "docs/verification/foul-consumer-partial-green-2026-10-06/terminal.json",
+      "sha256": "ab6055d2f52251b690cc157c8c760cc6712fa912eba8072250aea022e5fe93ff",
+      "reviewedContent": "Code/control hashes, workspace paths, finite resource and process metadata, test names/status, and assertion stack frames only. No database archive, row payload, credentials or private domain data."
+    },
+    {
+      "file": "docs/verification/foul-consumer-cumulative-2026-10-06/followup-terminal.json",
+      "sha256": "6e710cee91f16fc13bd52172902cf12e986623368bf0cd653e1c850900c676ab",
+      "reviewedContent": "Code/control hashes, workspace paths, finite resource and process metadata, test names/status, and assertion stack frames only. No database archive, row payload, credentials or private domain data."
+    }
+  ]
+}
