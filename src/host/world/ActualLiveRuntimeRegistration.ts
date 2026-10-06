@@ -21,6 +21,7 @@ const domains: readonly Domain[] = [
   { owner: 'batted_world_field_actions', links: [['responseSourceId', 'response_source_id', 'batted_contact_responses']], head: { owner: 'batted_world_field_heads' } },
   { owner: 'batted_world_field_executions', links: [['baseFieldSourceId', 'base_field_source_id', 'batted_world_field_actions']], head: { owner: 'batted_world_field_execution_heads' } },
   { owner: 'actual_field_observations', links: [['baseFieldSourceId', 'base_field_source_id', 'batted_world_field_actions'], ['executionSourceId', 'execution_source_id', 'batted_world_field_executions']], head: { owner: 'actual_field_observation_heads' } },
+  { owner: 'actual_runner_public_knowledge', links: [['physicalPitchSourceId', 'physical_pitch_source_id', 'physical_pitch_progress_actions']] },
   { owner: 'actual_defensive_plans', links: [['observationSourceId', 'observation_source_id', 'actual_field_observations']] },
   { owner: 'actual_defensive_decisions', links: [['observationSourceId', 'observation_source_id', 'actual_field_observations'], ['planSourceId', 'plan_source_id', 'actual_defensive_plans']], head: { owner: 'actual_defensive_decision_heads' } },
   { owner: 'actual_locomotion_receipts', links: [['decisionSourceId', 'decision_source_id', 'actual_defensive_decisions'], ['baseFieldSourceId', 'base_field_source_id', 'batted_world_field_actions'], ['executionSourceId', 'execution_source_id', 'batted_world_field_executions']], head: { owner: 'actual_locomotion_heads' } },
@@ -32,7 +33,7 @@ const domains: readonly Domain[] = [
 ];
 const mirrors: readonly (readonly [string, Path])[] = [['source_json', []], ['snapshot_json', ['source']],
   ['snapshot_json', ['history', { array: 'all' }]], ['snapshot_json', ['history']]];
-const contexts: readonly Path[] = [[], ['receipt', 'self'], ['receipt', 'self', 'cut'], ['setup'], ['observation'], ['observation', 'setup'], ['baseField'], ['scope'], ['execution', 'physicalHistory', 'scope']];
+const contexts: readonly Path[] = [[], ['recipient'], ['receipt', 'self'], ['receipt', 'self', 'cut'], ['setup'], ['observation'], ['observation', 'setup'], ['baseField'], ['scope'], ['execution', 'physicalHistory', 'scope']];
 const flights: readonly Path[] = [[], ['flight'], ['worldContact', 'flight'], ['touch', 'worldContact', 'flight'],
   ['response', 'touch', 'worldContact', 'flight'], ['baseMotion', 'response', 'touch', 'worldContact', 'flight'],
   ['baseField', 'response', 'touch', 'worldContact', 'flight']];
