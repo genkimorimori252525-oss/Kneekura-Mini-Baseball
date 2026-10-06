@@ -1,0 +1,121 @@
+{
+  "authorSource": "2c94d6c09dcc6e0c94cb9d3e0f233969df20a0d7",
+  "sourceTree": "486506be335450c08109c295b5e01ff8fa0b9625",
+  "testedFullTree": "f6049b6654f23ddf4c0c9e2c4db00f9ae56ca180",
+  "greenCases": 50,
+  "receipts": {
+    "green-compiler": {
+      "file": "green-compiler-terminal.json",
+      "sha256": "25ec93d90cec252f2f6e4d37c8519a5c4de35cbedeb75d1c0f68cf24f66f912c",
+      "sourceCommit": "2c94d6c09dcc6e0c94cb9d3e0f233969df20a0d7",
+      "seconds": 43.0278565990011,
+      "counts": {},
+      "scope": "current author GREEN"
+    },
+    "green-focused": {
+      "file": "green-focused-terminal.json",
+      "sha256": "c4dc867a843f0465c610d274bf74e7a71cf54fe5b5eaf5599bdbf88efe21894b",
+      "sourceCommit": "2c94d6c09dcc6e0c94cb9d3e0f233969df20a0d7",
+      "seconds": 26.556196743998953,
+      "counts": {
+        "numTotalTests": 9,
+        "numPassedTests": 9,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "scope": "current author GREEN"
+    },
+    "green-public_boundary": {
+      "file": "green-public_boundary-terminal.json",
+      "sha256": "49e9cec714e81a08ba8e527a9f4f5ec9e164951cc361e01b76135cde36cd3a5f",
+      "sourceCommit": "2c94d6c09dcc6e0c94cb9d3e0f233969df20a0d7",
+      "seconds": 11.563813191001827,
+      "counts": {
+        "numTotalTests": 3,
+        "numPassedTests": 3,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "scope": "current author GREEN"
+    },
+    "green-regression": {
+      "file": "green-regression-terminal.json",
+      "sha256": "0beffd86671002faef7a55b0626a6cefc20972136ba9d1fba869633df4caf295",
+      "sourceCommit": "2c94d6c09dcc6e0c94cb9d3e0f233969df20a0d7",
+      "seconds": 7.108611584997561,
+      "counts": {
+        "numTotalTests": 38,
+        "numPassedTests": 38,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "scope": "current author GREEN"
+    },
+    "staging-compiler": {
+      "file": "staging-compiler-terminal.json",
+      "sha256": "4a15a4596e9665e4c9c0d9c6013880109003f4ae7ac7706eea59d86747cf09fd",
+      "sourceCommit": "8ade90901f19159c0bf8563904fa28d47f57fff0",
+      "seconds": 43.40330138799982,
+      "counts": {},
+      "scope": "prior full compiler PASS"
+    },
+    "staging-boundary": {
+      "file": "staging-boundary-terminal.json",
+      "sha256": "62e4fb65e1715399d04bd486c1f1a8bc73aa0ab824c495dc63d4fb933701e7fd",
+      "sourceCommit": "8ade90901f19159c0bf8563904fa28d47f57fff0",
+      "seconds": 7.079933879000237,
+      "counts": {
+        "numTotalTests": 1,
+        "numPassedTests": 0,
+        "numFailedTests": 1,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "scope": "actual prior intended RED"
+    },
+    "staging-admission": {
+      "file": "staging-admission-terminal.json",
+      "sha256": "dbbe6c6a663106225285cf107ae65c1f0809d062617b991343ffef5183495e37",
+      "sourceCommit": "8ade90901f19159c0bf8563904fa28d47f57fff0",
+      "seconds": 33.09036418400137,
+      "counts": {
+        "numTotalTests": 8,
+        "numPassedTests": 0,
+        "numFailedTests": 8,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "scope": "actual prior intended RED"
+    },
+    "public-red-compiler": {
+      "file": "public-red-compiler-terminal.json",
+      "sha256": "31b9930aa97d862fef60a7ba88319e39c967731bce7e73d9786371d7f25b188c",
+      "sourceCommit": "d8530c1403193f8a43bc358e45492ea84459b71c",
+      "seconds": 42.33470911099903,
+      "counts": {},
+      "scope": "prior full compiler PASS"
+    },
+    "public-red-evidence": {
+      "file": "public-red-evidence-terminal.json",
+      "sha256": "7df7ec4e7f2fde193bbde90ddf941ef020e701b3362ba7635f79504a70d782f8",
+      "sourceCommit": "d8530c1403193f8a43bc358e45492ea84459b71c",
+      "seconds": 14.84448190799958,
+      "counts": {
+        "numTotalTests": 3,
+        "numPassedTests": 0,
+        "numFailedTests": 3,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "scope": "actual prior intended RED"
+    }
+  },
+  "selectedCasesSha256": "b616cff13f89e42e5107681125b58fe2cc96b28125d6d8d8db614bc42178d0c4",
+  "coordinatorSha256": "c0546e2a3a552c1a0d1e8e47b942e5a01378ba1dedd6818e463c8da15cce57c7",
+  "semanticCaptureDecisionMotorProven": false,
+  "wholeProjectPassed": false,
+  "rawReceiptsByteIdentical": true
+}

@@ -1,0 +1,126 @@
+{
+  "stage": {
+    "id": "src-0025",
+    "kind": "src",
+    "wallSeconds": 120,
+    "oldSpaceMiB": 1024,
+    "heapMiB": 1120,
+    "rssMiB": 1536,
+    "stopReserveGiB": 6,
+    "file": "src/core/sim/liveAction/ActorPolicySettlement.test.ts",
+    "caseNames": [
+      "actor settlement from accepted policy decisions settles quiescent hold decisions after their decision ticks and permits PlayEnd",
+      "actor settlement from accepted policy decisions keeps tag-up waiting and actionable advance decisions active",
+      "actor settlement from accepted policy decisions keeps actors moving or awaiting an incomplete source active despite a hold decision",
+      "actor settlement from accepted policy decisions keeps a decision pending until its actual policy decision tick",
+      "actor settlement from accepted policy decisions requires exactly one policy decision per world actor and rejects future observations",
+      "actor settlement from accepted policy decisions rejects quiescence claims while an untracked ball is still moving"
+    ],
+    "expectedSkippedNames": []
+  },
+  "sourceCommit": "10934028ff85b00b38b37142dfeda45b9e3c0814",
+  "controlHashes": {
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/run-batch.py": "5fbedd112ef7a971559a5a3f44411b1b644fedd476f52a1954622aa1699c2e11",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/cumulative.config.json": "285951b57c0c90d82f5e3defa5c93084e202b0b4372a8cfdfa1d996184016e10",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-source.sha256": "399a440dac37ac36806658ae449734bdc5d02885100b6515d0f8575d22cd09b5",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-dependencies.json": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-inventory.json": "9d724fd3e17d90b79e0b3957cc2f93abecab7ed16c1d5bf0a9ceb4fff523ea7f",
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node": "ab9c8eecf9f82d6693cdc3accced17034065c8d96213b0aa76a7e803d20ae1da",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/runtime-probe.cjs": "3dee097dc8383f9607c6027b135ed799b564f5a3247baf2c9684d37287f1ed93",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/receipt-reporter.mjs": "7391e409e0fc5e43fa0ffc39cd838b0fa56e408465db77b077e676cee033a248",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/per-file.vitest.config.mjs": "efe80045cf36d55d09c0372021f1d355498ad78deb85fd5fcc741a6a1501aac0",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/python-file-loader.py": "0ef3bb4b99ed87579b7cc77e119eddbb58b0c8dff206ae0ea016438ba8a6cb02",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/process-identity-reviewed.fragment.py": "17c73eb414b32f9f1616b5e4e58ac1077a0449dd5b6887c0291369b73ce9ca9f"
+  },
+  "startedAt": "2026-10-06T15:45:38.791131+00:00",
+  "command": [
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/per-file.vitest.config.mjs",
+    "--reporter=verbose",
+    "--reporter=json",
+    "--reporter=/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/receipt-reporter.mjs",
+    "--outputFile=/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0025/results.json"
+  ],
+  "childPid": 1484,
+  "rootStartTime": 3675277,
+  "terminalAt": "2026-10-06T15:45:41.351219+00:00",
+  "seconds": 2.5600858140023774,
+  "exitCode": 0,
+  "stopReason": null,
+  "failure": null,
+  "classification": "passed",
+  "coverageComplete": true,
+  "counts": {
+    "numTotalTests": 6,
+    "numPassedTests": 6,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0
+  },
+  "perTest": [
+    {
+      "name": "actor settlement from accepted policy decisions settles quiescent hold decisions after their decision ticks and permits PlayEnd",
+      "status": "passed"
+    },
+    {
+      "name": "actor settlement from accepted policy decisions keeps tag-up waiting and actionable advance decisions active",
+      "status": "passed"
+    },
+    {
+      "name": "actor settlement from accepted policy decisions keeps actors moving or awaiting an incomplete source active despite a hold decision",
+      "status": "passed"
+    },
+    {
+      "name": "actor settlement from accepted policy decisions keeps a decision pending until its actual policy decision tick",
+      "status": "passed"
+    },
+    {
+      "name": "actor settlement from accepted policy decisions requires exactly one policy decision per world actor and rejects future observations",
+      "status": "passed"
+    },
+    {
+      "name": "actor settlement from accepted policy decisions rejects quiescence claims while an untracked ball is still moving",
+      "status": "passed"
+    }
+  ],
+  "runtime": [
+    {
+      "pid": 1484,
+      "ppid": 2,
+      "nodeVersion": "26.10.0",
+      "heapLimitMiB": 1120,
+      "nodePathAbsent": true,
+      "optionalWsExtensionsDisabled": true,
+      "worker": false,
+      "stage": "src-0025"
+    },
+    {
+      "pid": 1514,
+      "ppid": 1484,
+      "nodeVersion": "26.10.0",
+      "heapLimitMiB": 1120,
+      "nodePathAbsent": true,
+      "optionalWsExtensionsDisabled": true,
+      "worker": true,
+      "stage": "src-0025"
+    }
+  ],
+  "runtimeVerified": true,
+  "peakAggregateRssKiB": 259156,
+  "sourceDependenciesControlsUnchanged": true,
+  "remainingOwnedProcesses": [],
+  "reaped": true,
+  "cancellationSignal": null,
+  "artifacts": {
+    "collection.json": "3ce195fb6e74ca5e5f8fd7e130bec3f90f5c78da1de2fa5aa8fb65d5da8922d8",
+    "evidence.json": "221794977b05c57f20c28813edf539f319f3e58c1b7e76c489b98acc375e6e74",
+    "output.log": "e55c992dcc5f7079879a6eb491505e0c2f3f530d35bf88f86bd1249151dc93f0",
+    "results.json": "3cdfb550081eebc076ffab06213b8377a580033e51a77fcf5cd432c08c26e5c5",
+    "rss.jsonl": "e223ff2ddaa6263cdf0230745d3d76d38f5988ebd5c0dd71fd282df40411e166",
+    "runtime.jsonl": "ae59c784a8ca096a837e4a558d84240d4fab93e0cac764ec391d8b44f74c03ea"
+  }
+}

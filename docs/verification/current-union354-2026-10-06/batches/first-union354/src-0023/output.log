@@ -1,0 +1,19 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/core/sim/running/RunnerDecision.test.ts > RunnerDecision > advances when the perceived next-base race clears the safety margin
+ ✓ src/core/sim/running/RunnerDecision.test.ts > RunnerDecision > holds when the perceived next-base race is too tight
+ ✓ src/core/sim/running/RunnerDecision.test.ts > RunnerDecision > advances on a force obligation even when the optional race would be bad
+ ✓ src/core/sim/running/RunnerDecision.test.ts > RunnerDecision > holds while the runner is still awaiting perceived first fielder touch
+ ✓ src/core/sim/running/RunnerDecision.test.ts > RunnerDecision > retreats to satisfy tag-up retouch before considering an advance signal
+ ✓ src/core/sim/running/RunnerDecision.test.ts > RunnerDecision > retreats from a current-base pickoff/tag threat before considering an optional advance
+ ✓ src/core/sim/running/RunnerDecision.test.ts > RunnerDecision > can follow an already received coach instruction when no higher-priority obligation exists
+ ✓ src/core/sim/running/RunnerDecision.test.ts > RunnerDecision > does not use a coach communication that has not arrived yet
+ ✓ src/core/sim/running/RunnerDecision.test.ts > RunnerDecision > changes cognitive issue time with decision ability without changing the chosen action
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  00:45:34
+   Duration  522ms (transform 213ms, setup 0ms, collect 247ms, tests 8ms, environment 1ms, prepare 65ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0023/results.json

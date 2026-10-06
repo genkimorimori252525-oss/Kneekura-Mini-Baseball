@@ -1,0 +1,17 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/SqlitePhysicalPlateAppearanceActorStore.test.ts > freezes the actual offensive Player/Person before physical pitches and retains original completed participation after offline reopen 2002ms
+ ✓ src/host/world/SqlitePhysicalPlateAppearanceActorStore.test.ts > rejects a defending actor or another batter alias for the same play and changes after the first pitch
+ ✓ src/host/world/SqlitePhysicalPlateAppearanceActorStore.test.ts > requires a newly accepted batter before the next physical play in a game that owns its actors 2182ms
+ ✓ src/host/world/SqlitePhysicalPlateAppearanceActorStore.test.ts > rejects introducing a batter into physical actions already accepted without actor ownership
+ ✓ src/host/world/SqlitePhysicalPlateAppearanceActorStore.test.ts > retains the started-play guard when actual physical action history remains after its head is missing
+ ✓ src/host/world/SqlitePhysicalPlateAppearanceActorStore.test.ts > ties an actual physical walk and its runner to the originally accepted batter instead of another registered offensive Player 2070ms
+ ✓ src/host/world/SqlitePhysicalPlateAppearanceActorStore.test.ts > rejects an ordinary activation with altered actual scoring before accepting its next batter
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  00:43:13
+   Duration  10.39s (transform 2.45s, setup 0ms, collect 3.25s, tests 6.84s, environment 0ms, prepare 76ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0011/results.json

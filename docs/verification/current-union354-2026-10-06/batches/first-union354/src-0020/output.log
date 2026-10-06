@@ -1,0 +1,12 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/RunnerNativeContactWaitReadSnapshot.test.ts > preserves the caller transaction, query-only setting and authorizer during authentic main policy and historical view reads 3190ms
+ ✓ src/host/world/RunnerNativeContactWaitReadSnapshot.test.ts > keeps a caller WAL snapshot and sees uncommitted main corruption without taking over its rollback 2526ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  00:45:18
+   Duration  9.66s (transform 2.74s, setup 0ms, collect 3.64s, tests 5.72s, environment 0ms, prepare 81ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0020/results.json

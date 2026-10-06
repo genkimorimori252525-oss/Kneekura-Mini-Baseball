@@ -1,0 +1,131 @@
+{
+  "stage": {
+    "id": "src-0011",
+    "kind": "src",
+    "wallSeconds": 180,
+    "oldSpaceMiB": 1024,
+    "heapMiB": 1120,
+    "rssMiB": 1536,
+    "stopReserveGiB": 6,
+    "file": "src/host/world/SqlitePhysicalPlateAppearanceActorStore.test.ts",
+    "caseNames": [
+      "freezes the actual offensive Player/Person before physical pitches and retains original completed participation after offline reopen",
+      "rejects a defending actor or another batter alias for the same play and changes after the first pitch",
+      "requires a newly accepted batter before the next physical play in a game that owns its actors",
+      "rejects introducing a batter into physical actions already accepted without actor ownership",
+      "retains the started-play guard when actual physical action history remains after its head is missing",
+      "ties an actual physical walk and its runner to the originally accepted batter instead of another registered offensive Player",
+      "rejects an ordinary activation with altered actual scoring before accepting its next batter"
+    ],
+    "expectedSkippedNames": []
+  },
+  "sourceCommit": "10934028ff85b00b38b37142dfeda45b9e3c0814",
+  "controlHashes": {
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/run-batch.py": "5fbedd112ef7a971559a5a3f44411b1b644fedd476f52a1954622aa1699c2e11",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/cumulative.config.json": "285951b57c0c90d82f5e3defa5c93084e202b0b4372a8cfdfa1d996184016e10",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-source.sha256": "399a440dac37ac36806658ae449734bdc5d02885100b6515d0f8575d22cd09b5",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-dependencies.json": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-inventory.json": "9d724fd3e17d90b79e0b3957cc2f93abecab7ed16c1d5bf0a9ceb4fff523ea7f",
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node": "ab9c8eecf9f82d6693cdc3accced17034065c8d96213b0aa76a7e803d20ae1da",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/runtime-probe.cjs": "3dee097dc8383f9607c6027b135ed799b564f5a3247baf2c9684d37287f1ed93",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/receipt-reporter.mjs": "7391e409e0fc5e43fa0ffc39cd838b0fa56e408465db77b077e676cee033a248",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/per-file.vitest.config.mjs": "efe80045cf36d55d09c0372021f1d355498ad78deb85fd5fcc741a6a1501aac0",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/python-file-loader.py": "0ef3bb4b99ed87579b7cc77e119eddbb58b0c8dff206ae0ea016438ba8a6cb02",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/process-identity-reviewed.fragment.py": "17c73eb414b32f9f1616b5e4e58ac1077a0449dd5b6887c0291369b73ce9ca9f"
+  },
+  "startedAt": "2026-10-06T15:43:12.666754+00:00",
+  "command": [
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/per-file.vitest.config.mjs",
+    "--reporter=verbose",
+    "--reporter=json",
+    "--reporter=/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/receipt-reporter.mjs",
+    "--outputFile=/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0011/results.json"
+  ],
+  "childPid": 607,
+  "rootStartTime": 3660660,
+  "terminalAt": "2026-10-06T15:43:24.881014+00:00",
+  "seconds": 12.214251452998724,
+  "exitCode": 0,
+  "stopReason": null,
+  "failure": null,
+  "classification": "passed",
+  "coverageComplete": true,
+  "counts": {
+    "numTotalTests": 7,
+    "numPassedTests": 7,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0
+  },
+  "perTest": [
+    {
+      "name": "freezes the actual offensive Player/Person before physical pitches and retains original completed participation after offline reopen",
+      "status": "passed"
+    },
+    {
+      "name": "rejects a defending actor or another batter alias for the same play and changes after the first pitch",
+      "status": "passed"
+    },
+    {
+      "name": "requires a newly accepted batter before the next physical play in a game that owns its actors",
+      "status": "passed"
+    },
+    {
+      "name": "rejects introducing a batter into physical actions already accepted without actor ownership",
+      "status": "passed"
+    },
+    {
+      "name": "retains the started-play guard when actual physical action history remains after its head is missing",
+      "status": "passed"
+    },
+    {
+      "name": "ties an actual physical walk and its runner to the originally accepted batter instead of another registered offensive Player",
+      "status": "passed"
+    },
+    {
+      "name": "rejects an ordinary activation with altered actual scoring before accepting its next batter",
+      "status": "passed"
+    }
+  ],
+  "runtime": [
+    {
+      "pid": 607,
+      "ppid": 2,
+      "nodeVersion": "26.10.0",
+      "heapLimitMiB": 1120,
+      "nodePathAbsent": true,
+      "optionalWsExtensionsDisabled": true,
+      "worker": false,
+      "stage": "src-0011"
+    },
+    {
+      "pid": 637,
+      "ppid": 607,
+      "nodeVersion": "26.10.0",
+      "heapLimitMiB": 1120,
+      "nodePathAbsent": true,
+      "optionalWsExtensionsDisabled": true,
+      "worker": true,
+      "stage": "src-0011"
+    }
+  ],
+  "runtimeVerified": true,
+  "peakAggregateRssKiB": 443020,
+  "sourceDependenciesControlsUnchanged": true,
+  "remainingOwnedProcesses": [],
+  "reaped": true,
+  "cancellationSignal": null,
+  "artifacts": {
+    "collection.json": "27a36b21c14de45cc126febe52bde35a3addbe229930d6c25d9c5b050691dac5",
+    "evidence.json": "616d944f65eda92b5bcbcc0dbbfcfbab3483db3edd101ab06e759befebaa0546",
+    "output.log": "80ddeef3fb6f8403b0c202979504460b4652b543d1da12f59e0244b97057337f",
+    "results.json": "bf3dc41cb39f4a14e7d01917eb0f729f3458f3ab116adaf6d6d0f18e8d167ac4",
+    "rss.jsonl": "b3dfba49ada53e9ef6ad6ab3f7fa96fe9afcca014c94aa512c3e23a63734c002",
+    "runtime.jsonl": "13c4d6844412cb428145acd4c59fa4f6e039ee827f4fc163bd7fdf549d4722c4"
+  }
+}

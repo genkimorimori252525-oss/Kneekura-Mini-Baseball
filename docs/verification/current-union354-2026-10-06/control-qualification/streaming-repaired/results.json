@@ -1,0 +1,182 @@
+{
+  "driver": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v3/control-tests.py",
+  "candidate": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v3",
+  "pid": 7,
+  "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+  "pythonVersion": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "isolated": 1,
+  "dontWriteBytecode": 1,
+  "testsRun": 24,
+  "cases": [
+    {
+      "method": "test_after_each_run_is_not_complete_assertion_coverage",
+      "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_after_each_run_is_not_complete_assertion_coverage",
+      "status": "passed",
+      "errorType": null,
+      "message": null
+    },
+    {
+      "method": "test_before_each_run_cannot_credit_an_unexecuted_body",
+      "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_before_each_run_cannot_credit_an_unexecuted_body",
+      "status": "passed",
+      "errorType": null,
+      "message": null
+    },
+    {
+      "method": "test_caller_captured_predecessor_pin_is_required",
+      "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_caller_captured_predecessor_pin_is_required",
+      "status": "passed",
+      "errorType": null,
+      "message": null
+    },
+    {
+      "method": "test_changed_earlier_status_is_rejected_on_resume",
+      "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_changed_earlier_status_is_rejected_on_resume",
+      "status": "passed",
+      "errorType": null,
+      "message": null
+    },
+    {
+      "method": "test_complete_output_pair_is_acyclic_and_exact",
+      "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_complete_output_pair_is_acyclic_and_exact",
+      "status": "passed",
+      "errorType": null,
+      "message": null
+    },
+    {
+      "method": "test_controller_rejects_nonisolated_bootstrap_before_shadow_import",
+      "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_controller_rejects_nonisolated_bootstrap_before_shadow_import",
+      "status": "passed",
+      "errorType": null,
+      "message": null
+    },
+    {
+      "method": "test_dependency_directory_link_cannot_hide_optional_code",
+      "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_dependency_directory_link_cannot_hide_optional_code",
+      "status": "passed",
+      "errorType": null,
+      "message": null
+    },
+    {
+      "method": "test_external_esbuild_override_does_not_reach_child",
+      "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_external_esbuild_override_does_not_reach_child",
+      "status": "passed",
+      "errorType": null,
+      "message": null
+    },
+    {
+      "method": "test_ledger_write_failure_leaves_no_qualifying_terminal",
+      "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_ledger_write_failure_leaves_no_qualifying_terminal",
+      "status": "passed",
+      "errorType": null,
+      "message": null
+    },
+    {
+      "method": "test_missing_pending_row_is_rejected_on_resume",
+      "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_missing_pending_row_is_rejected_on_resume",
+      "status": "passed",
+      "errorType": null,
+      "message": null
+    },
+    {
+      "method": "test_optional_ws_lookup_cannot_use_global_fallbacks",
+      "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_optional_ws_lookup_cannot_use_global_fallbacks",
+      "status": "passed",
+      "errorType": null,
+      "message": null
+    },
+    {
+      "method": "test_predecessor_decode_uses_the_authenticated_byte_snapshot",
+      "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_predecessor_decode_uses_the_authenticated_byte_snapshot",
+      "status": "passed",
+      "errorType": null,
+      "message": null
+    },
+    {
+      "method": "test_projects_json_autodiscovery_is_also_rejected",
+      "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_projects_json_autodiscovery_is_also_rejected",
+      "status": "passed",
+      "errorType": null,
+      "message": null
+    },
+    {
+      "method": "test_release_budget_uses_only_the_approved_config_bytes",
+      "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_release_budget_uses_only_the_approved_config_bytes",
+      "status": "passed",
+      "errorType": null,
+      "message": null
+    },
+    {
+      "method": "test_resume_bounds_live_ledger_payloads",
+      "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_resume_bounds_live_ledger_payloads",
+      "status": "passed",
+      "errorType": null,
+      "message": null
+    },
+    {
+      "method": "test_resume_rejects_ledger_changed_between_authenticated_passes",
+      "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_resume_rejects_ledger_changed_between_authenticated_passes",
+      "status": "passed",
+      "errorType": null,
+      "message": null
+    },
+    {
+      "method": "test_stale_ledger_blocks_successful_terminal_publication",
+      "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_stale_ledger_blocks_successful_terminal_publication",
+      "status": "passed",
+      "errorType": null,
+      "message": null
+    },
+    {
+      "method": "test_terminal_hooks_preserve_complete_body_assertion",
+      "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_terminal_hooks_preserve_complete_body_assertion",
+      "status": "passed",
+      "errorType": null,
+      "message": null
+    },
+    {
+      "method": "test_tools_directory_symlink_cannot_hide_imported_code",
+      "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_tools_directory_symlink_cannot_hide_imported_code",
+      "status": "passed",
+      "errorType": null,
+      "message": null
+    },
+    {
+      "method": "test_unrelated_package_note_is_allowed",
+      "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_unrelated_package_note_is_allowed",
+      "status": "passed",
+      "errorType": null,
+      "message": null
+    },
+    {
+      "method": "test_untracked_tools_import_changes_source_pin",
+      "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_untracked_tools_import_changes_source_pin",
+      "status": "passed",
+      "errorType": null,
+      "message": null
+    },
+    {
+      "method": "test_vitest_close_failure_cannot_qualify_complete_assertions",
+      "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_vitest_close_failure_cannot_qualify_complete_assertions",
+      "status": "passed",
+      "errorType": null,
+      "message": null
+    },
+    {
+      "method": "test_workspace_control_addition_is_rejected",
+      "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_workspace_control_addition_is_rejected",
+      "status": "passed",
+      "errorType": null,
+      "message": null
+    },
+    {
+      "method": "test_wrapper_rejects_nonisolated_bootstrap_before_unittest_shadow",
+      "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_wrapper_rejects_nonisolated_bootstrap_before_unittest_shadow",
+      "status": "passed",
+      "errorType": null,
+      "message": null
+    }
+  ],
+  "successful": true,
+  "applicationTestModulesImported": false
+}

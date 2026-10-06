@@ -1,4 +1,5 @@
 export { actualRunnerDecisionInputEvidenceFromSqlite } from './ActualRunnerDecisionInput';
+export { openSqliteRunnerContactWaitStore, runnerContactWaitPolicyViewEvidenceFromSqlite } from './SqliteRunnerContactWaitStore';
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';

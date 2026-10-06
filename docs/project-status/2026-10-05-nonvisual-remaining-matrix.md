@@ -1,6 +1,6 @@
 # 非デザイン残計画: 実装と検証の境界
 
-更新: 2026-10-06 10:00 UTC。[既存の残計画 §5](2026-10-04-nonvisual-implementation-checkpoint.md#5-残る確定済み非デザイン計画)の状況を整理する。新しい機能範囲を追加する資料ではない。**計画全体は未完了**。Draft公開やfocused test数を完成率に換算しない。
+更新: 2026-10-06 10:30 UTC。[既存の残計画 §5](2026-10-04-nonvisual-implementation-checkpoint.md#5-残る確定済み非デザイン計画)の状況を整理する。新しい機能範囲を追加する資料ではない。**計画全体は未完了**。Draft公開やfocused test数を完成率に換算しない。
 
 先行4 slice Native統合の固定Sourceは`cc268e71f2a2d207de9ffcb66a00668ec84d784c`、src tree `5f553f22ff2e371a3eedd47ed275e1434e248be5`、検証対象full tree `b62dfd8f69cdb6c8c96132e344f72f2447adc129`。元settled-foul producer、runner入力準備、明示的Person/body/pose/reachからのactor・打球model組立、合成fixture修正の4 sliceを接続し、**選択485件とfull compilerの固定Source受入れがPASS**。05:13:26 UTCのterminalは、初回のcompilerと87選択PASSだけを再認証して継承し、残398件の新規PASSを記録する。509 discovered =485 PASS +24明示foul除外、元attemptはFAILEDのまま。Source/dependencies/controls不変、exit0・全process回収を確認した。Wholeと一般自律実行の成功へ転用しない。[正確なSourceと受入れ境界](../verification/2026-10-06-current-native-union-acceptance.md)を参照。
 
@@ -11,6 +11,8 @@ PR335の追加統合`7a067cce`（src `5c1efd44`）では、明示Person/bodyに�
 Original foul count consumerを実装し、`2d22dd5`の44 PASSとtest-only修正後`6bb37ce`の122 PASSで、選択166件すべての通過をSource別に照合した。両段のproduction 813 fileは同一で、共有setupと先行37 consumer caseの本文も不変。元166 attemptの44 PASS / 1 FAILと未開始121件は失敗のまま保存し、後段の37明示除外を新規PASSへ数えない。両compilerはPASS、後段session 75834はexit 0・全process回収を確認。これは**44+122の累積選択確認**であり、新規一括166件やwholeの成功ではない。[原始receiptと正確な帰属](../verification/2026-10-06-foul-consumer-cumulative-qualification.md)を同梱する。
 
 PR335へのtransport後は`e06e59f`（src `1c6e92b8`）で**current compiler/catalog・選択16件が新規PASS**。Consumer 6件、runtime/admission 6件、legacy pitch 4件を実行し、32 consumer caseは明示除外のまま保持。2026-10-06 09:54:56 UTCの[実terminal](../verification/foul-consumer-current-integration-2026-10-06/terminal.json)はSHA `785f77a5`、session 62550はexit 0・全process回収、source/dependencies/controls不変を確認。Author166や前段model/Core162をこの16件へ合算せず、wholeや最終累積Sourceの広い回帰を通過としない。Physical foul end、公式適用、controller退役・reset、同一PA resume・次pitch admissionは残る。
+
+Stanceとrunner Stage Aの追加統合は、author `19aa0856` のcompiler/158件と `2c94d6c` のcompiler/50件を、それぞれの実receiptに帰属させて保持する。初期Worldのprospective stanceと元runnerのpolicy/view保存を接続したが、**この新しいcombined Sourceのcompiler・complete-file batch・全体検証はまだ未実行**。Authorの通過を現統合の通過へ合算しない。Prospective batting release/sensingとrunner Stage Bの未実行fixtureは含めず、capture、選択、motor、settlementの完了も主張しない。[現統合の範囲](2026-10-06-stance-runner-current-integration.md)を参照。
 
 先行focused統合`5376b5ef99ffff0d71126068775072e87e594c71`、src tree `48a1e2b568ce21f56ac377119b159203a597f28d`では2026-10-05 23:31:50 UTCにManager261・scoring142・SQL witness10の413件、catalog・full compilerが通過した。途中Manager段と最終統合srcを区別し、旧author controllerのGREENとは扱わない。[Manager証拠](../verification/2026-10-05-manager-practice-current-proof.md)・[scoring/統合証拠](../verification/2026-10-05-actual-scoring-current-proof.md)を参照。前段`c68a3dc`（src `183e367e`）の409件・compilerと、その後の累積中断も別の固定Source結果として保持する。
 

@@ -1,0 +1,146 @@
+{
+  "stage": {
+    "id": "src-0019",
+    "kind": "src",
+    "wallSeconds": 180,
+    "oldSpaceMiB": 1024,
+    "heapMiB": 1120,
+    "rssMiB": 1536,
+    "stopReserveGiB": 6,
+    "file": "src/host/world/RunnerNativeContactWaitMainOwnership.test.ts",
+    "caseNames": [
+      "rejects a canonical TEMP table policy clone whose Source was never admitted in main",
+      "rejects a canonical TEMP view policy clone whose Source was never admitted in main",
+      "rejects a late TEMP table view clone through an existing reader after the dependent pitch",
+      "rejects a late TEMP view view clone through an existing reader after the dependent pitch",
+      "rejects an otherwise matching TEMP world_player_observation_models table dependency introduced after reader construction",
+      "rejects an otherwise matching TEMP world_player_observation_models view dependency introduced after reader construction",
+      "rejects an otherwise matching TEMP world_player_fielding_models table dependency introduced after reader construction",
+      "rejects an otherwise matching TEMP world_player_fielding_models view dependency introduced after reader construction",
+      "rejects a TEMP original-recipient binding that hides a changed main authority through an existing reader",
+      "rejects a missing main observation model replaced by attached storage through an existing reader"
+    ],
+    "expectedSkippedNames": []
+  },
+  "sourceCommit": "10934028ff85b00b38b37142dfeda45b9e3c0814",
+  "controlHashes": {
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/run-batch.py": "5fbedd112ef7a971559a5a3f44411b1b644fedd476f52a1954622aa1699c2e11",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/cumulative.config.json": "285951b57c0c90d82f5e3defa5c93084e202b0b4372a8cfdfa1d996184016e10",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-source.sha256": "399a440dac37ac36806658ae449734bdc5d02885100b6515d0f8575d22cd09b5",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-dependencies.json": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-inventory.json": "9d724fd3e17d90b79e0b3957cc2f93abecab7ed16c1d5bf0a9ceb4fff523ea7f",
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node": "ab9c8eecf9f82d6693cdc3accced17034065c8d96213b0aa76a7e803d20ae1da",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/runtime-probe.cjs": "3dee097dc8383f9607c6027b135ed799b564f5a3247baf2c9684d37287f1ed93",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/receipt-reporter.mjs": "7391e409e0fc5e43fa0ffc39cd838b0fa56e408465db77b077e676cee033a248",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/per-file.vitest.config.mjs": "efe80045cf36d55d09c0372021f1d355498ad78deb85fd5fcc741a6a1501aac0",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/python-file-loader.py": "0ef3bb4b99ed87579b7cc77e119eddbb58b0c8dff206ae0ea016438ba8a6cb02",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/process-identity-reviewed.fragment.py": "17c73eb414b32f9f1616b5e4e58ac1077a0449dd5b6887c0291369b73ce9ca9f"
+  },
+  "startedAt": "2026-10-06T15:44:43.382334+00:00",
+  "command": [
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/per-file.vitest.config.mjs",
+    "--reporter=verbose",
+    "--reporter=json",
+    "--reporter=/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/receipt-reporter.mjs",
+    "--outputFile=/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0019/results.json"
+  ],
+  "childPid": 1097,
+  "rootStartTime": 3669734,
+  "terminalAt": "2026-10-06T15:45:17.439367+00:00",
+  "seconds": 34.057026861999475,
+  "exitCode": 0,
+  "stopReason": null,
+  "failure": null,
+  "classification": "passed",
+  "coverageComplete": true,
+  "counts": {
+    "numTotalTests": 10,
+    "numPassedTests": 10,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0
+  },
+  "perTest": [
+    {
+      "name": "rejects a canonical TEMP table policy clone whose Source was never admitted in main",
+      "status": "passed"
+    },
+    {
+      "name": "rejects a canonical TEMP view policy clone whose Source was never admitted in main",
+      "status": "passed"
+    },
+    {
+      "name": "rejects a late TEMP table view clone through an existing reader after the dependent pitch",
+      "status": "passed"
+    },
+    {
+      "name": "rejects a late TEMP view view clone through an existing reader after the dependent pitch",
+      "status": "passed"
+    },
+    {
+      "name": "rejects an otherwise matching TEMP world_player_observation_models table dependency introduced after reader construction",
+      "status": "passed"
+    },
+    {
+      "name": "rejects an otherwise matching TEMP world_player_observation_models view dependency introduced after reader construction",
+      "status": "passed"
+    },
+    {
+      "name": "rejects an otherwise matching TEMP world_player_fielding_models table dependency introduced after reader construction",
+      "status": "passed"
+    },
+    {
+      "name": "rejects an otherwise matching TEMP world_player_fielding_models view dependency introduced after reader construction",
+      "status": "passed"
+    },
+    {
+      "name": "rejects a TEMP original-recipient binding that hides a changed main authority through an existing reader",
+      "status": "passed"
+    },
+    {
+      "name": "rejects a missing main observation model replaced by attached storage through an existing reader",
+      "status": "passed"
+    }
+  ],
+  "runtime": [
+    {
+      "pid": 1097,
+      "ppid": 2,
+      "nodeVersion": "26.10.0",
+      "heapLimitMiB": 1120,
+      "nodePathAbsent": true,
+      "optionalWsExtensionsDisabled": true,
+      "worker": false,
+      "stage": "src-0019"
+    },
+    {
+      "pid": 1127,
+      "ppid": 1097,
+      "nodeVersion": "26.10.0",
+      "heapLimitMiB": 1120,
+      "nodePathAbsent": true,
+      "optionalWsExtensionsDisabled": true,
+      "worker": true,
+      "stage": "src-0019"
+    }
+  ],
+  "runtimeVerified": true,
+  "peakAggregateRssKiB": 471560,
+  "sourceDependenciesControlsUnchanged": true,
+  "remainingOwnedProcesses": [],
+  "reaped": true,
+  "cancellationSignal": null,
+  "artifacts": {
+    "collection.json": "b25d4118512e719aca2d123ca730b1de7f66671835547aa4e5712299ba0bd883",
+    "evidence.json": "2b010e2d8ac53d083aa9c8f9ec267308475fe1d3aef5e924b407ec2d17ce1add",
+    "output.log": "b24f6aea0ce6ba0f898ffb21f27038a925772c231ce3bf667ca19fbbc48a56ef",
+    "results.json": "0b30d005076d0a0ce16607046ba73f22275fd7b86746ccf1632015c8358125b6",
+    "rss.jsonl": "80a48d329157c2926ecc0de4d7342152607e49bfb3cffc19136d55ee909c3789",
+    "runtime.jsonl": "d5b1b6c6a746020c9dbcb7e9196cc33b2526a82ae49610d936cb24632a55b0b1"
+  }
+}

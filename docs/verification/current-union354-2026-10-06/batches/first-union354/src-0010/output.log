@@ -1,0 +1,13 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/SqlitePlayerPersonLinkStore.test.ts > persists one accepted intake link and reads it through the FA authority contract
+ ✓ src/host/world/SqlitePlayerPersonLinkStore.test.ts > rejects unknown intake, stale roster and duplicate player/person while retaining accepted identity
+ ✓ src/host/world/SqlitePlayerPersonLinkStore.test.ts > rolls back an insertion failure and accepts the same source on retry
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  00:43:10
+   Duration  1.11s (transform 587ms, setup 0ms, collect 754ms, tests 59ms, environment 0ms, prepare 80ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0010/results.json

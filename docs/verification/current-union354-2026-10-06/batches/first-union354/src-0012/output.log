@@ -1,0 +1,13 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/SqlitePhysicalPitchProgressStore.test.ts > persists actual physical progress, resumes the next pitch after reopen and preserves original idempotent history 482ms
+ ✓ src/host/world/SqlitePhysicalPitchProgressStore.test.ts > binds completed workload to original durable physical progress/calibration, then opens the next actual activated play 477ms
+ ✓ src/host/world/SqlitePhysicalPitchProgressStore.test.ts > rejects unaccepted/mismatched/caller-derived action input and rolls back failed or changed writes
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  00:43:26
+   Duration  6.55s (transform 3.92s, setup 0ms, collect 5.13s, tests 1.11s, environment 0ms, prepare 63ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0012/results.json

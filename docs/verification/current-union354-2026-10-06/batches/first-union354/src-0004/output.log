@@ -1,0 +1,40 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > constructs the genuine registered batter body prerequisite without a batting or legacy pitch result 301ms
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > accepts the original Person-bound batting model with exact independently accepted inputs and nested body receipt 537ms
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > reopens and retries the original model without invoking any live authority or rewriting bytes 980ms
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > keeps two registered Persons own body and distinct explicit capability/repertoire inputs separate 601ms
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rejects a model with foreign or inapplicable person evidence before saving any row
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rejects a model with foreign or inapplicable body evidence before saving any row
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rejects a model with foreign or inapplicable pose evidence before saving any row
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rejects a model with foreign or inapplicable materialization-version evidence before saving any row
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rejects a model with foreign or inapplicable future evidence before saving any row
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rejects a model with foreign or inapplicable before-intake evidence before saving any row
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rejects a missing nonnull accepted capability input instead of filling a fixture default
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rejects a missing nonnull accepted repertoire input instead of filling a fixture default
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rejects a missing nonnull accepted decision input instead of filling a fixture default
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rejects a missing nonnull accepted equipment input instead of filling a fixture default
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rejects a missing nonnull accepted observation input instead of filling a fixture default
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rejects a missing nonnull accepted prediction input instead of filling a fixture default
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rejects foreign-capability without changing original body or actor evidence
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rejects future-repertoire without changing original body or actor evidence
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rejects zero-motor-delay without changing original body or actor evidence
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rejects zero-sensory-delay without changing original body or actor evidence
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rejects caller prediction and display fields without evaluating an accessor
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rejects changed same-ID model or parameter bytes while preserving the original immutable archive 497ms
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > selects later explicitly accepted capability history while reading and retrying original model bytes 1565ms
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rejects a moved SQL identity whose original source and snapshot still claim the requested model 323ms
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rejects a model with corrupt sql-scope mirrors even when supplied hashes match the changed JSON 363ms
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rejects a model with corrupt sql-day mirrors even when supplied hashes match the changed JSON 328ms
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rejects a model with corrupt sql-version mirrors even when supplied hashes match the changed JSON 326ms
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rejects a model with corrupt source-scope mirrors even when supplied hashes match the changed JSON 370ms
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rejects a model with corrupt snapshot-scope mirrors even when supplied hashes match the changed JSON 627ms
+ ✓ src/host/world/PlayerBattingModelNative.test.ts > rolls back model insertion when a trigger deletes its original body dependency, then retries once 380ms
+
+ Test Files  1 passed (1)
+      Tests  30 passed (30)
+   Start at  00:41:55
+   Duration  14.03s (transform 3.11s, setup 0ms, collect 4.08s, tests 9.57s, environment 2ms, prepare 74ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0004/results.json

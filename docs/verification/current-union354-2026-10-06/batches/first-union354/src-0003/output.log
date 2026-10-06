@@ -1,0 +1,14 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/NativeBattingLegacyCompatibility.test.ts > keeps archived physical action and snapshot bytes unchanged across offline reopen 410ms
+ ✓ src/host/world/NativeBattingLegacyCompatibility.test.ts > does not reinterpret legacy Sources with caller supplied batting evidence as the staged path
+ ✓ src/host/world/NativeBattingLegacyCompatibility.test.ts > rejects a foreign pitcher and stale progress revision without changing original bytes 414ms
+ ✓ src/host/world/NativeBattingLegacyCompatibility.test.ts > rolls back a changed batter Person during append and resumes the original prefix offline 638ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  00:41:45
+   Duration  8.36s (transform 4.76s, setup 0ms, collect 6.36s, tests 1.56s, environment 0ms, prepare 117ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0003/results.json

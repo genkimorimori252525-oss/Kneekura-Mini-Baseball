@@ -1,0 +1,194 @@
+[
+  {
+    "stageId": "src-0002",
+    "file": "src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts",
+    "passedCases": 10,
+    "receiptSha256": "b13c6b4cf4da75f513d8f2899327d16d9289350f0a18af581c0f21153b63ce92"
+  },
+  {
+    "stageId": "src-0003",
+    "file": "src/host/world/NativeBattingLegacyCompatibility.test.ts",
+    "passedCases": 4,
+    "receiptSha256": "c22d18d7bda587f66540588390add1aed439a29b9c784f1950d636bf0359ef5e"
+  },
+  {
+    "stageId": "src-0004",
+    "file": "src/host/world/PlayerBattingModelNative.test.ts",
+    "passedCases": 30,
+    "receiptSha256": "c6108b6ab8130ac30fe42f1d4e70efc6a2c46b6a5e388182dcc0f29dbc82e2aa"
+  },
+  {
+    "stageId": "src-0005",
+    "file": "src/host/world/PlayerBattingModelOwnershipGuards.test.ts",
+    "passedCases": 4,
+    "receiptSha256": "adba5d2f98b27b48724c612f1bca49373072b2dce5db6be0ef64e9ccac590c51"
+  },
+  {
+    "stageId": "src-0006",
+    "file": "src/host/world/BattingStanceNative.test.ts",
+    "passedCases": 23,
+    "receiptSha256": "fddf04bc19d7ca7b6dd1248bca9e9aebcad77cfaa46d614ad5564653479955b0"
+  },
+  {
+    "stageId": "src-0007",
+    "file": "src/host/world/BattingStanceOwnershipGuards.test.ts",
+    "passedCases": 5,
+    "receiptSha256": "ebbebb64dd1b28fab9b8dca8883810d791eb7a2cea73e17ba21867464b07986b"
+  },
+  {
+    "stageId": "src-0008",
+    "file": "src/host/world/BattingStanceLegacyOwnershipGuards.test.ts",
+    "passedCases": 5,
+    "receiptSha256": "345bc6c0a78d53b71c387323193b452269019574e8533c1fb4d08b6fd3956f5b"
+  },
+  {
+    "stageId": "src-0009",
+    "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+    "passedCases": 64,
+    "receiptSha256": "a452339a9aff68245e2dc23afd3f10a587e0a3702a894d4b19ee1f5b4d53afe3"
+  },
+  {
+    "stageId": "src-0010",
+    "file": "src/host/world/SqlitePlayerPersonLinkStore.test.ts",
+    "passedCases": 3,
+    "receiptSha256": "ecaf47da9e43411c4f18136e1e7b8caa34eb6a85ea5753bcda87d9ea3fc4fe54"
+  },
+  {
+    "stageId": "src-0011",
+    "file": "src/host/world/SqlitePhysicalPlateAppearanceActorStore.test.ts",
+    "passedCases": 7,
+    "receiptSha256": "b3868b1fb011ef2a43019ea763f2baa8f218389b271df4a34f38f246b47472df"
+  },
+  {
+    "stageId": "src-0012",
+    "file": "src/host/world/SqlitePhysicalPitchProgressStore.test.ts",
+    "passedCases": 3,
+    "receiptSha256": "016e0d633388c0be074d48195cda6b1683fd75e90564af527f4a9c04ab2cc562"
+  },
+  {
+    "stageId": "src-0013",
+    "file": "src/host/world/RunnerNativeContactWaitBoundary.test.ts",
+    "passedCases": 1,
+    "receiptSha256": "8c46ba93f24ec9523247f9d1ce46803787a8cbc5d31db7f105848c9d5d185248"
+  },
+  {
+    "stageId": "src-0014",
+    "file": "src/host/world/RunnerNativeContactWaitAdmission.test.ts",
+    "passedCases": 8,
+    "receiptSha256": "dba43fbc80adcf77b95e51e1b29aaed3edac6e52a0fd7048b5b3a26d1d5efcc9"
+  },
+  {
+    "stageId": "src-0015",
+    "file": "src/host/world/RunnerNativeContactWaitSavedEvidence.test.ts",
+    "passedCases": 2,
+    "receiptSha256": "3d61736dd64ecd79674adf449c772c9510d6a988daeec34d58aafafd35170020"
+  },
+  {
+    "stageId": "src-0016",
+    "file": "src/host/world/RunnerNativeContactWaitConnectionBoundary.test.ts",
+    "passedCases": 1,
+    "receiptSha256": "e3bd9ecac2dcae24928f7dd79212ad5c163a614bd350233e81f999814fbdf0a5"
+  },
+  {
+    "stageId": "src-0017",
+    "file": "src/host/world/PrePitchRunnerEvidenceFromSqlite.test.ts",
+    "passedCases": 10,
+    "receiptSha256": "0dee44c2ed6889841101847febe3592c5dc6fa63ceb7185bcd57fb0601121f35"
+  },
+  {
+    "stageId": "src-0018",
+    "file": "src/host/world/SqlitePlayerObservationModelStore.test.ts",
+    "passedCases": 28,
+    "receiptSha256": "66af20afa8b0bb66e31fb3bd707d16008269b5bcfb2c42630c4ae43d9393abbd"
+  },
+  {
+    "stageId": "src-0019",
+    "file": "src/host/world/RunnerNativeContactWaitMainOwnership.test.ts",
+    "passedCases": 10,
+    "receiptSha256": "c8b4663b7a7a7386932b83118d6b556d10460d955d705198f04f1fb1a7361461"
+  },
+  {
+    "stageId": "src-0020",
+    "file": "src/host/world/RunnerNativeContactWaitReadSnapshot.test.ts",
+    "passedCases": 2,
+    "receiptSha256": "99b0de57ff89659de5929a4390cbd4494be5601ae6b5b942fdcb240ac790a7e3"
+  },
+  {
+    "stageId": "src-0021",
+    "file": "src/core/sim/running/RunnerPartialTagUpWaitBoundary.test.ts",
+    "passedCases": 1,
+    "receiptSha256": "6bb9df5d21ed0992cb8cc5a3ac4e5dfc3789cec00798e9700a720e58d1eff143"
+  },
+  {
+    "stageId": "src-0022",
+    "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+    "passedCases": 28,
+    "receiptSha256": "106130d892685a3ae73d272b25c2ac582add7f0a97979e724db9c670e39fdb30"
+  },
+  {
+    "stageId": "src-0023",
+    "file": "src/core/sim/running/RunnerDecision.test.ts",
+    "passedCases": 9,
+    "receiptSha256": "3e3873cf92d6d241a807ca191f93020f9952e852c29216d3ef26c79495859673"
+  },
+  {
+    "stageId": "src-0024",
+    "file": "src/core/sim/running/RunnerDecisionTiming.test.ts",
+    "passedCases": 3,
+    "receiptSha256": "2415e0c60fdcc38587c32d1321c4e87c72f8c13a939bc18f3f89f85911ff7e65"
+  },
+  {
+    "stageId": "src-0025",
+    "file": "src/core/sim/liveAction/ActorPolicySettlement.test.ts",
+    "passedCases": 6,
+    "receiptSha256": "30f1fb4c52b3d5b9db920fbd19f2e226a3192575cfd25aa3813e242db2489e51"
+  },
+  {
+    "stageId": "src-0026",
+    "file": "src/host/world/OriginalFoulEndRuntimeContract.test.ts",
+    "passedCases": 9,
+    "receiptSha256": "14262e68cb70f9125f579b4b1a45c9243c9eedae8ba4ec0314b5ac0b9ec620b4"
+  },
+  {
+    "stageId": "src-0027",
+    "file": "src/host/world/OriginalFoulRuleRuntimeContract.test.ts",
+    "passedCases": 6,
+    "receiptSha256": "7a0ae0c2a6de3e2eed62245833105b29a0a2b7ded4f246025b2a12e3edd3ad5e"
+  },
+  {
+    "stageId": "src-0028",
+    "file": "src/host/world/OriginalSettledFoulRuntimeContract.test.ts",
+    "passedCases": 6,
+    "receiptSha256": "7a8047bc8bd3e14926318efbe64f2adf9638ec80018e696cb1f6923a29db6f87"
+  },
+  {
+    "stageId": "src-0029",
+    "file": "src/host/world/ActualLivePlayRuntime.test.ts",
+    "passedCases": 3,
+    "receiptSha256": "ad11115e042ab704f31268b2c634ef8e3474323f16aa7421129e0bafdfe5c69b"
+  },
+  {
+    "stageId": "src-0030",
+    "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+    "passedCases": 46,
+    "receiptSha256": "259c42dab349f5a07e937ffaca325085f316c1c53fd461a5647c462d90da0f68"
+  },
+  {
+    "stageId": "src-0031",
+    "file": "src/host/world/ActualLiveRuntimeTransaction.test.ts",
+    "passedCases": 2,
+    "receiptSha256": "a25acce3e1cc94f68caf2b00c4ca0731a4fb64ee05b7be71357a67e249b0eb67"
+  },
+  {
+    "stageId": "src-0032",
+    "file": "src/host/world/ActualLivePlayFence.test.ts",
+    "passedCases": 12,
+    "receiptSha256": "fc849a7c280ab98194914ed73125a68ef1480f50b281ea7b89d38ff412c947f1"
+  },
+  {
+    "stageId": "src-0033",
+    "file": "src/host/world/ActualFoulQuantizerEndpointPrerequisite.test.ts",
+    "passedCases": 3,
+    "receiptSha256": "0f983a8daade8a980186935fa34846e45b29bb2e5aa089f42fbb55eb458abd43"
+  }
+]

@@ -1,0 +1,416 @@
+{
+  "stage": {
+    "id": "src-0009",
+    "kind": "src",
+    "wallSeconds": 180,
+    "oldSpaceMiB": 1024,
+    "heapMiB": 1120,
+    "rssMiB": 1536,
+    "stopReserveGiB": 6,
+    "file": "src/host/world/PlayerBodyCapabilityMaterialization.test.ts",
+    "caseNames": [
+      "materializes original Person/body/pose evidence through the existing reach kernel and existing fielding owner",
+      "changes derived physical intermediates for an accepted height change, without inventing primitive dimensions or ability",
+      "keeps physical output and abilities identical when only independently accepted display metadata changes",
+      "returns explicit pending for an unsupplied body pin without a partial actor",
+      "returns explicit pending for an unsupplied pose pin without a partial actor",
+      "returns explicit pending for an unsupplied reachCalibration pin without a partial actor",
+      "returns explicit pending for an unsupplied fieldingModel pin without a partial actor",
+      "does not conceal a false Person claim behind an unsupplied calibration",
+      "rejects a missing nonnull request source instead of using defaults",
+      "rejects a missing nonnull body source instead of using defaults",
+      "rejects a missing nonnull pose source instead of using defaults",
+      "rejects a missing nonnull reach source instead of using defaults",
+      "rejects a missing nonnull fielding source instead of using defaults",
+      "rejects invalid accepted body person evidence",
+      "rejects invalid accepted body career evidence",
+      "rejects invalid accepted body player evidence",
+      "rejects invalid accepted body intake evidence",
+      "rejects invalid accepted body version evidence",
+      "rejects invalid accepted body future evidence",
+      "rejects invalid accepted body before-intake evidence",
+      "rejects invalid accepted body height evidence",
+      "rejects invalid accepted body hidden-prior evidence",
+      "rejects wrong-body pose evidence instead of claiming generated anatomy",
+      "rejects wrong-person pose evidence instead of claiming generated anatomy",
+      "rejects wrong-version pose evidence instead of claiming generated anatomy",
+      "rejects future pose evidence instead of claiming generated anatomy",
+      "rejects duplicate-role pose evidence instead of claiming generated anatomy",
+      "rejects missing-role pose evidence instead of claiming generated anatomy",
+      "rejects nonfinite-radius pose evidence instead of claiming generated anatomy",
+      "rejects future reach calibration",
+      "rejects version reach calibration",
+      "rejects invalid-baseline reach calibration",
+      "rejects origin-outside-body reach calibration",
+      "selects only the native applicable fielding owner: wrong-version",
+      "selects only the native applicable fielding owner: future",
+      "selects only the native applicable fielding owner: wrong-person",
+      "prepares a batter actor without pretending body dimensions create its role capability",
+      "prepares a runner actor without pretending body dimensions create its role capability",
+      "rejects an extra fielding capability pin for the batter-only role",
+      "rejects an extra fielding capability pin for the runner-only role",
+      "rejects a valid release pin outside the pitching role: defender",
+      "rejects a valid release pin outside the pitching role: batter",
+      "rejects a valid release pin outside the pitching role: runner",
+      "rejects a valid fielding source owned by another actual Player/Person",
+      "keeps an unsupplied pitcher release explicit without generating one from body height",
+      "pins the pitcher release snapshot for the requested day, even when a later body change exists",
+      "replays the originally pinned release after a valid equal-day history append without reselecting today\u2019s head",
+      "rejects a pitcher missing release selection",
+      "rejects a pitcher wrong-version release selection",
+      "rejects a pitcher wrong-day release selection",
+      "rejects a pitcher different-body release selection",
+      "reopens from archived original inputs without external authority and rejects changed retry inputs",
+      "cannot launder changed body evidence under an old source pin in a new receipt",
+      "cannot launder changed pose evidence under an old source pin in a new receipt",
+      "cannot launder changed reach evidence under an old source pin in a new receipt",
+      "rolls back writer-local owner mutation after receipt insertion: UPDATE world_player_person_links SET person_id='changed-person'",
+      "rolls back writer-local owner mutation after receipt insertion: UPDATE world_player_fielding_models SET accepted_at_day=99",
+      "rolls back writer-local owner mutation after receipt insertion: DELETE FROM world_player_fielding_models",
+      "rolls back a writer-local historical release mutation instead of trusting an independent connection",
+      "rejects corrupt original provenance on reopen and retry: UPDATE world_player_body_materializations SET source_hash='changed'",
+      "rejects corrupt original provenance on reopen and retry: UPDATE world_player_body_materializations SET snapshot_hash='changed'",
+      "rejects corrupt original provenance on reopen and retry: UPDATE world_player_body_materializations SET source_id='moved-source'",
+      "rejects corrupt original provenance on reopen and retry: UPDATE world_player_body_materializations SET player_id='wrong-player'",
+      "rejects corrupt original provenance on reopen and retry: UPDATE world_player_person_links SET person_id='changed-person'"
+    ],
+    "expectedSkippedNames": []
+  },
+  "sourceCommit": "10934028ff85b00b38b37142dfeda45b9e3c0814",
+  "controlHashes": {
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/run-batch.py": "5fbedd112ef7a971559a5a3f44411b1b644fedd476f52a1954622aa1699c2e11",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/cumulative.config.json": "285951b57c0c90d82f5e3defa5c93084e202b0b4372a8cfdfa1d996184016e10",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-source.sha256": "399a440dac37ac36806658ae449734bdc5d02885100b6515d0f8575d22cd09b5",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-dependencies.json": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-inventory.json": "9d724fd3e17d90b79e0b3957cc2f93abecab7ed16c1d5bf0a9ceb4fff523ea7f",
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node": "ab9c8eecf9f82d6693cdc3accced17034065c8d96213b0aa76a7e803d20ae1da",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/runtime-probe.cjs": "3dee097dc8383f9607c6027b135ed799b564f5a3247baf2c9684d37287f1ed93",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/receipt-reporter.mjs": "7391e409e0fc5e43fa0ffc39cd838b0fa56e408465db77b077e676cee033a248",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/per-file.vitest.config.mjs": "efe80045cf36d55d09c0372021f1d355498ad78deb85fd5fcc741a6a1501aac0",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/python-file-loader.py": "0ef3bb4b99ed87579b7cc77e119eddbb58b0c8dff206ae0ea016438ba8a6cb02",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/process-identity-reviewed.fragment.py": "17c73eb414b32f9f1616b5e4e58ac1077a0449dd5b6887c0291369b73ce9ca9f"
+  },
+  "startedAt": "2026-10-06T15:43:03.004206+00:00",
+  "command": [
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/per-file.vitest.config.mjs",
+    "--reporter=verbose",
+    "--reporter=json",
+    "--reporter=/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/receipt-reporter.mjs",
+    "--outputFile=/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0009/results.json"
+  ],
+  "childPid": 480,
+  "rootStartTime": 3659696,
+  "terminalAt": "2026-10-06T15:43:09.921949+00:00",
+  "seconds": 6.917736805997265,
+  "exitCode": 0,
+  "stopReason": null,
+  "failure": null,
+  "classification": "passed",
+  "coverageComplete": true,
+  "counts": {
+    "numTotalTests": 64,
+    "numPassedTests": 64,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0
+  },
+  "perTest": [
+    {
+      "name": "materializes original Person/body/pose evidence through the existing reach kernel and existing fielding owner",
+      "status": "passed"
+    },
+    {
+      "name": "changes derived physical intermediates for an accepted height change, without inventing primitive dimensions or ability",
+      "status": "passed"
+    },
+    {
+      "name": "keeps physical output and abilities identical when only independently accepted display metadata changes",
+      "status": "passed"
+    },
+    {
+      "name": "returns explicit pending for an unsupplied body pin without a partial actor",
+      "status": "passed"
+    },
+    {
+      "name": "returns explicit pending for an unsupplied pose pin without a partial actor",
+      "status": "passed"
+    },
+    {
+      "name": "returns explicit pending for an unsupplied reachCalibration pin without a partial actor",
+      "status": "passed"
+    },
+    {
+      "name": "returns explicit pending for an unsupplied fieldingModel pin without a partial actor",
+      "status": "passed"
+    },
+    {
+      "name": "does not conceal a false Person claim behind an unsupplied calibration",
+      "status": "passed"
+    },
+    {
+      "name": "rejects a missing nonnull request source instead of using defaults",
+      "status": "passed"
+    },
+    {
+      "name": "rejects a missing nonnull body source instead of using defaults",
+      "status": "passed"
+    },
+    {
+      "name": "rejects a missing nonnull pose source instead of using defaults",
+      "status": "passed"
+    },
+    {
+      "name": "rejects a missing nonnull reach source instead of using defaults",
+      "status": "passed"
+    },
+    {
+      "name": "rejects a missing nonnull fielding source instead of using defaults",
+      "status": "passed"
+    },
+    {
+      "name": "rejects invalid accepted body person evidence",
+      "status": "passed"
+    },
+    {
+      "name": "rejects invalid accepted body career evidence",
+      "status": "passed"
+    },
+    {
+      "name": "rejects invalid accepted body player evidence",
+      "status": "passed"
+    },
+    {
+      "name": "rejects invalid accepted body intake evidence",
+      "status": "passed"
+    },
+    {
+      "name": "rejects invalid accepted body version evidence",
+      "status": "passed"
+    },
+    {
+      "name": "rejects invalid accepted body future evidence",
+      "status": "passed"
+    },
+    {
+      "name": "rejects invalid accepted body before-intake evidence",
+      "status": "passed"
+    },
+    {
+      "name": "rejects invalid accepted body height evidence",
+      "status": "passed"
+    },
+    {
+      "name": "rejects invalid accepted body hidden-prior evidence",
+      "status": "passed"
+    },
+    {
+      "name": "rejects wrong-body pose evidence instead of claiming generated anatomy",
+      "status": "passed"
+    },
+    {
+      "name": "rejects wrong-person pose evidence instead of claiming generated anatomy",
+      "status": "passed"
+    },
+    {
+      "name": "rejects wrong-version pose evidence instead of claiming generated anatomy",
+      "status": "passed"
+    },
+    {
+      "name": "rejects future pose evidence instead of claiming generated anatomy",
+      "status": "passed"
+    },
+    {
+      "name": "rejects duplicate-role pose evidence instead of claiming generated anatomy",
+      "status": "passed"
+    },
+    {
+      "name": "rejects missing-role pose evidence instead of claiming generated anatomy",
+      "status": "passed"
+    },
+    {
+      "name": "rejects nonfinite-radius pose evidence instead of claiming generated anatomy",
+      "status": "passed"
+    },
+    {
+      "name": "rejects future reach calibration",
+      "status": "passed"
+    },
+    {
+      "name": "rejects version reach calibration",
+      "status": "passed"
+    },
+    {
+      "name": "rejects invalid-baseline reach calibration",
+      "status": "passed"
+    },
+    {
+      "name": "rejects origin-outside-body reach calibration",
+      "status": "passed"
+    },
+    {
+      "name": "selects only the native applicable fielding owner: wrong-version",
+      "status": "passed"
+    },
+    {
+      "name": "selects only the native applicable fielding owner: future",
+      "status": "passed"
+    },
+    {
+      "name": "selects only the native applicable fielding owner: wrong-person",
+      "status": "passed"
+    },
+    {
+      "name": "prepares a batter actor without pretending body dimensions create its role capability",
+      "status": "passed"
+    },
+    {
+      "name": "prepares a runner actor without pretending body dimensions create its role capability",
+      "status": "passed"
+    },
+    {
+      "name": "rejects an extra fielding capability pin for the batter-only role",
+      "status": "passed"
+    },
+    {
+      "name": "rejects an extra fielding capability pin for the runner-only role",
+      "status": "passed"
+    },
+    {
+      "name": "rejects a valid release pin outside the pitching role: defender",
+      "status": "passed"
+    },
+    {
+      "name": "rejects a valid release pin outside the pitching role: batter",
+      "status": "passed"
+    },
+    {
+      "name": "rejects a valid release pin outside the pitching role: runner",
+      "status": "passed"
+    },
+    {
+      "name": "rejects a valid fielding source owned by another actual Player/Person",
+      "status": "passed"
+    },
+    {
+      "name": "keeps an unsupplied pitcher release explicit without generating one from body height",
+      "status": "passed"
+    },
+    {
+      "name": "pins the pitcher release snapshot for the requested day, even when a later body change exists",
+      "status": "passed"
+    },
+    {
+      "name": "replays the originally pinned release after a valid equal-day history append without reselecting today\u2019s head",
+      "status": "passed"
+    },
+    {
+      "name": "rejects a pitcher missing release selection",
+      "status": "passed"
+    },
+    {
+      "name": "rejects a pitcher wrong-version release selection",
+      "status": "passed"
+    },
+    {
+      "name": "rejects a pitcher wrong-day release selection",
+      "status": "passed"
+    },
+    {
+      "name": "rejects a pitcher different-body release selection",
+      "status": "passed"
+    },
+    {
+      "name": "reopens from archived original inputs without external authority and rejects changed retry inputs",
+      "status": "passed"
+    },
+    {
+      "name": "cannot launder changed body evidence under an old source pin in a new receipt",
+      "status": "passed"
+    },
+    {
+      "name": "cannot launder changed pose evidence under an old source pin in a new receipt",
+      "status": "passed"
+    },
+    {
+      "name": "cannot launder changed reach evidence under an old source pin in a new receipt",
+      "status": "passed"
+    },
+    {
+      "name": "rolls back writer-local owner mutation after receipt insertion: UPDATE world_player_person_links SET person_id='changed-person'",
+      "status": "passed"
+    },
+    {
+      "name": "rolls back writer-local owner mutation after receipt insertion: UPDATE world_player_fielding_models SET accepted_at_day=99",
+      "status": "passed"
+    },
+    {
+      "name": "rolls back writer-local owner mutation after receipt insertion: DELETE FROM world_player_fielding_models",
+      "status": "passed"
+    },
+    {
+      "name": "rolls back a writer-local historical release mutation instead of trusting an independent connection",
+      "status": "passed"
+    },
+    {
+      "name": "rejects corrupt original provenance on reopen and retry: UPDATE world_player_body_materializations SET source_hash='changed'",
+      "status": "passed"
+    },
+    {
+      "name": "rejects corrupt original provenance on reopen and retry: UPDATE world_player_body_materializations SET snapshot_hash='changed'",
+      "status": "passed"
+    },
+    {
+      "name": "rejects corrupt original provenance on reopen and retry: UPDATE world_player_body_materializations SET source_id='moved-source'",
+      "status": "passed"
+    },
+    {
+      "name": "rejects corrupt original provenance on reopen and retry: UPDATE world_player_body_materializations SET player_id='wrong-player'",
+      "status": "passed"
+    },
+    {
+      "name": "rejects corrupt original provenance on reopen and retry: UPDATE world_player_person_links SET person_id='changed-person'",
+      "status": "passed"
+    }
+  ],
+  "runtime": [
+    {
+      "pid": 480,
+      "ppid": 2,
+      "nodeVersion": "26.10.0",
+      "heapLimitMiB": 1120,
+      "nodePathAbsent": true,
+      "optionalWsExtensionsDisabled": true,
+      "worker": false,
+      "stage": "src-0009"
+    },
+    {
+      "pid": 510,
+      "ppid": 480,
+      "nodeVersion": "26.10.0",
+      "heapLimitMiB": 1120,
+      "nodePathAbsent": true,
+      "optionalWsExtensionsDisabled": true,
+      "worker": true,
+      "stage": "src-0009"
+    }
+  ],
+  "runtimeVerified": true,
+  "peakAggregateRssKiB": 432300,
+  "sourceDependenciesControlsUnchanged": true,
+  "remainingOwnedProcesses": [],
+  "reaped": true,
+  "cancellationSignal": null,
+  "artifacts": {
+    "collection.json": "b103f608037b797dfaee80e6dfbca5efc16bc41456de8ecbfd365e019f9afe80",
+    "evidence.json": "5210a7614c459838e993d86698127bf43fe587ce634cce5ef488a8157f24e002",
+    "output.log": "159dd57e1cbca6b5402a2fa6cfb165d8db6f0d0907d069a67804a3c111de5ee9",
+    "results.json": "2b73a5f69e8cc2c714fcd26eea2a20d10845642045d5cb1dcc146336ce965849",
+    "rss.jsonl": "5be231ed7964ab690df39a4c35f8383b063eaecb9e77b0f2568785ee7b82b7d7",
+    "runtime.jsonl": "5d1de85ae0c9433c7e466866ae8398e4c96b4a5850c7fe634c330cc430b2d0e3"
+  }
+}

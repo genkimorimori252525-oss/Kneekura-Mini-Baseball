@@ -1,0 +1,1820 @@
+{
+  "schema": "bounded-code-result-evidence-checkpoint-v1",
+  "sourceCommit": "10934028ff85b00b38b37142dfeda45b9e3c0814",
+  "sourceTree": "b065b4e29ce70ba931f17cd95c4de8405788e6da",
+  "srcTree": "f02849963df3fca3c32b9c411b9d53c590d59575",
+  "terminalSha256": "3f641e2e04be5f68d4682f722aef7d9ab9756bbc0ea4d726fd4c725a33bef064",
+  "ledgerSha256": "0b74305b3c363104c1c1220dfb127ecafc3ea46ba2910f8d0260ddc98c4d5a01",
+  "originalControlPathsPreserved": true,
+  "publicationCopiesAreRuntimeCheckout": false,
+  "coordinatorSessionExitCode": 0,
+  "coordinatorConfirmedReaped": true,
+  "independentlyVerifiedReceiptCount": 34,
+  "independentlyVerifiedReferencedArtifactHashes": 198,
+  "completeSourceFiles": 32,
+  "passedCases": 354,
+  "failedCases": 0,
+  "skippedCases": 0,
+  "wholeDefaultSuitePassed": false,
+  "physicalArtifactCasesExecuted": false,
+  "remainingStages": {
+    "src": 914,
+    "node": 15,
+    "python": 5
+  },
+  "optionalCasesRemaining": 9,
+  "separateNodeCaptureCreditedToLedger": false,
+  "sourceCollectionCases": 7479,
+  "sourceCollectionIsAssertionPass": false,
+  "fullCollectionTerminalRetained": false,
+  "fullCollectionTerminalSha256": "084344cb6c6eba7b8d2f1308489f5c812865dfc835791b7348014e808bdbcded",
+  "separateNodeRawTerminalsRetained": false,
+  "controlQualificationRecoveryScope": "Retains exact closed terminal and results pairs; earlier qualification supervisor/dependency snapshots are attributed by original hashes, not bundled.",
+  "includedFileCount": 251,
+  "includedBytes": 4265437,
+  "omissions": [
+    "runtime databases and domain snapshots",
+    "raw physical artifacts",
+    "session logs and unreferenced output or telemetry",
+    "pending terminal duplicate",
+    "executables and installed dependencies",
+    "broad Git history/configuration",
+    "full prior collection terminal"
+  ],
+  "files": [
+    {
+      "path": "batches/first-union354/admission.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/admission.json",
+      "bytes": 3790,
+      "sha256": "575787c2bfb21c01ebce7dff518ff972d10e3830201de472cd970dd2bccd86c1",
+      "purpose": "Batch admission metadata"
+    },
+    {
+      "path": "batches/first-union354/catalog-0000/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/catalog-0000/output.log",
+      "bytes": 84,
+      "sha256": "fdefbaf156a26f6c12ba54d7b779ed614428147498d21bf63402fa5a95158b3c",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/catalog-0000/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/catalog-0000/receipt.json",
+      "bytes": 3424,
+      "sha256": "8114832c016f441c8a8224b205127924c7e1c9152a2c75eadabfd3892dce569d",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/catalog-0000/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/catalog-0000/rss.jsonl",
+      "bytes": 359,
+      "sha256": "4af3a53742895489be4ce1a6739c870d721eb35c525bb34da0ab1df1fe46ab82",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/catalog-0000/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/catalog-0000/runtime.jsonl",
+      "bytes": 159,
+      "sha256": "dfff6fd4a71228ce24a3648f78ce51b432c9483733d9cec512ef48d7e43517d5",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/compiler-0001/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/compiler-0001/output.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/compiler-0001/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/compiler-0001/receipt.json",
+      "bytes": 3521,
+      "sha256": "1cd0d1fc056373cc0ebeeeb2d029cd597f60c42360d9d02a259c89ba86ea8d1f",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/compiler-0001/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/compiler-0001/rss.jsonl",
+      "bytes": 10130,
+      "sha256": "59736df003cc922d36eb4e1782bc1870fc65805ea971f5bb24bd329ea7102e13",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/compiler-0001/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/compiler-0001/runtime.jsonl",
+      "bytes": 161,
+      "sha256": "eaf32338bb02432dc0fec084bdee85b0a9732bfd9c3590285d366df23a392409",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0002/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0002/collection.json",
+      "bytes": 4316,
+      "sha256": "3fcd4d97dd196ef7b8cacb976f9d447ca0e84d80a958d130715632abb399bc0a",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0002/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0002/evidence.json",
+      "bytes": 4767,
+      "sha256": "26fc0e8bad3aa259cd4f7c62ca9ec9eda58062a7e5bbde512d38b4b86ea34f09",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0002/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0002/output.log",
+      "bytes": 2028,
+      "sha256": "3c550f9f15e8645b7e3e42d30a8223eacfecc106518b501732695760e2e03804",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0002/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0002/receipt.json",
+      "bytes": 6764,
+      "sha256": "b13c6b4cf4da75f513d8f2899327d16d9289350f0a18af581c0f21153b63ce92",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0002/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0002/results.json",
+      "bytes": 3515,
+      "sha256": "fcb408bc6ac2c3c2a5ad1d4c33bb16c86c0e77771d7a45a52656460bfd5325f1",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0002/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0002/rss.jsonl",
+      "bytes": 1300,
+      "sha256": "da4eeb6c236038733ae8e8daebe863fedee2dd1e844731b626f0d5d8640c62e0",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0002/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0002/runtime.jsonl",
+      "bytes": 312,
+      "sha256": "35c5c5e50e3e58dbf5bc4ffee243a680531dd295691feada3d1568d06a8d17ab",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0003/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0003/collection.json",
+      "bytes": 1852,
+      "sha256": "bf0b1ac4cedcb93edb6b14518444feddbf6266c1c5e45f38f27464748624284c",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0003/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0003/evidence.json",
+      "bytes": 2063,
+      "sha256": "78a468d07b56c8fcbb85846566114b0d0ebc7940e399784ee8f1fb11990e8150",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0003/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0003/output.log",
+      "bytes": 1021,
+      "sha256": "2e0d0657fd0a7fd471571e2042100a32af273b512e19d696f48a5d7d1a12fd7f",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0003/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0003/receipt.json",
+      "bytes": 5525,
+      "sha256": "c22d18d7bda587f66540588390add1aed439a29b9c784f1950d636bf0359ef5e",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0003/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0003/results.json",
+      "bytes": 1908,
+      "sha256": "9b409f6871f7d589ece0e7801d6dd31486bc376dbb5d5f9a6d81c6077bd19e11",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0003/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0003/rss.jsonl",
+      "bytes": 3879,
+      "sha256": "732eac9feb9c991f00347158e1c5984823d22519c489fb130653d607b53c287e",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0003/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0003/runtime.jsonl",
+      "bytes": 313,
+      "sha256": "03b1999f06c4e77f48d5c3341e85d1102a2ebb24e9656cf8f1b29c4316d6a6a9",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0004/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0004/collection.json",
+      "bytes": 12196,
+      "sha256": "171cdd254208e035ed0379c8a865c374687abf966458c6599676b361bbbe30fd",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0004/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0004/evidence.json",
+      "bytes": 13447,
+      "sha256": "c200d2114f049b3c82f8bb00534828f5f588bf1993501bdcdece70cc2b792843",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0004/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0004/output.log",
+      "bytes": 4844,
+      "sha256": "6552c8d098a9f687f526a48d03bd487b5163e490d58a355cbb92796f49fe2527",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0004/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0004/receipt.json",
+      "bytes": 11910,
+      "sha256": "c6108b6ab8130ac30fe42f1d4e70efc6a2c46b6a5e388182dcc0f29dbc82e2aa",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0004/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0004/results.json",
+      "bytes": 9837,
+      "sha256": "63fe7c49c1d3c395bbd8853dcb407246e8fb0c1b07af3a7740b46e9b3c785674",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0004/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0004/rss.jsonl",
+      "bytes": 6547,
+      "sha256": "988a28e132d16b7316783d8d404fc9f6a9ec81ecd71ff55c8389da244fb1c60e",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0004/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0004/runtime.jsonl",
+      "bytes": 315,
+      "sha256": "2b65ad9227019e43863d24412c606644e8041ac1ef20d99eaa090321c636030e",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0005/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0005/collection.json",
+      "bytes": 1918,
+      "sha256": "03d5858236729cee3e13a0d6d268f76694de846883ea4c63259c04fc72262b96",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0005/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0005/evidence.json",
+      "bytes": 2129,
+      "sha256": "9b42c4988e94555b12e93e0a19fefa91b8d4f4d25bb4e37512a580b16225a5ac",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0005/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0005/output.log",
+      "bytes": 1061,
+      "sha256": "55c357c4df73732618c99163148cd5d0a3326801bd1ee7abe97cda0a849861e9",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0005/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0005/receipt.json",
+      "bytes": 5589,
+      "sha256": "adba5d2f98b27b48724c612f1bca49373072b2dce5db6be0ef64e9ccac590c51",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0005/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0005/results.json",
+      "bytes": 1977,
+      "sha256": "4a29bfb24d68f81f6839a5b16826e3e06c1abc1e683b954a860f98a16fdbf21f",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0005/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0005/rss.jsonl",
+      "bytes": 4369,
+      "sha256": "86db8fd3f6f584206551ebb1891e5c80dffe4e3755c2d7a6bd83912a3f5abc4c",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0005/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0005/runtime.jsonl",
+      "bytes": 315,
+      "sha256": "39f7b60fa532de9f805a190b058901c39ed8657128f5ec339e6c84d78ead7869",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0006/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0006/collection.json",
+      "bytes": 9359,
+      "sha256": "cc0d01d816eb46bc47986fe31de1db1054d3a5dcf161b69660f98da63ec9bc84",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0006/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0006/evidence.json",
+      "bytes": 10330,
+      "sha256": "12618eb9fd5a3f095bd97b38a06551e35380215aad8a15f07c2bf0cca5c0ad78",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0006/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0006/output.log",
+      "bytes": 3815,
+      "sha256": "3c97927bb4daf4d8971cb50336ef48e1e06a29fc801ce5b100ac462c1ba7d266",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0006/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0006/receipt.json",
+      "bytes": 10271,
+      "sha256": "fddf04bc19d7ca7b6dd1248bca9e9aebcad77cfaa46d614ad5564653479955b0",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0006/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0006/results.json",
+      "bytes": 7771,
+      "sha256": "a92e63aea0d2ba943f590210e60f7055e4ad3cb2523d30a6a11fbc269ebe5183",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0006/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0006/rss.jsonl",
+      "bytes": 9598,
+      "sha256": "d9d94e643b6a0458a4f01c0b4065618e718e80d95e6d448311830db38b60a08e",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0006/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0006/runtime.jsonl",
+      "bytes": 315,
+      "sha256": "7a707a664e4405ed99dbb0e82c51aae943e4c09e8194dd683bb4b4330b47e5e8",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0007/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0007/collection.json",
+      "bytes": 2400,
+      "sha256": "f7c0bd638839ccd8a36ac5fea87b800d618b313ca0c939d7b68dd9a759cc6621",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0007/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0007/evidence.json",
+      "bytes": 2651,
+      "sha256": "e431c35c3e846e8dbd57c32971108e8c5f75db60745716737af536a712fd0ef7",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0007/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0007/output.log",
+      "bytes": 1251,
+      "sha256": "65eecfdde7599bdfbef9d549ee8bd41325c5d808b09b0065c4c4c4a7cdbc0a16",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0007/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0007/receipt.json",
+      "bytes": 5937,
+      "sha256": "ebbebb64dd1b28fab9b8dca8883810d791eb7a2cea73e17ba21867464b07986b",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0007/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0007/results.json",
+      "bytes": 2375,
+      "sha256": "5be0240dd92ff44682b4c5821d8405e8209ac34f14ec48193335422993c3f0eb",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0007/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0007/rss.jsonl",
+      "bytes": 3500,
+      "sha256": "4e1766c74d678d4e9d9753dd152134f198c24800e1e7bca36b0d03d2beb98d6d",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0007/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0007/runtime.jsonl",
+      "bytes": 315,
+      "sha256": "6cc14f6b40374fe57997f8012a1358c24e47d74974e4606f1b74bf0916cc2587",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0008/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0008/collection.json",
+      "bytes": 2524,
+      "sha256": "67ae8e68f6463948f63f1b2fa72180f2f6057a886d0cc3c92b82df1615d3d75f",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0008/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0008/evidence.json",
+      "bytes": 2775,
+      "sha256": "89c4b10920590d5d9a58a9cd8421e06129190296db502b11862c2656f6bb6311",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0008/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0008/output.log",
+      "bytes": 1321,
+      "sha256": "f67d42d1d7edc809b518f3b3e010dd7ddff929748fdae36eb45312005cbdbd47",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0008/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0008/receipt.json",
+      "bytes": 6024,
+      "sha256": "345bc6c0a78d53b71c387323193b452269019574e8533c1fb4d08b6fd3956f5b",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0008/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0008/results.json",
+      "bytes": 2464,
+      "sha256": "91a57c4e5cb0bec6d9f371e8892fb30bcec47b461287c1ac8e95e15df511b2eb",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0008/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0008/rss.jsonl",
+      "bytes": 3495,
+      "sha256": "3788f61b73c40fc6a6a837d17eb1481b896177e10e22c8995e5c7a4af2448f74",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0008/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0008/runtime.jsonl",
+      "bytes": 315,
+      "sha256": "32828dbaac0844d34d35dbade45bd85556fbb63a8414ff953244b73156d5f175",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0009/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0009/collection.json",
+      "bytes": 24512,
+      "sha256": "b103f608037b797dfaee80e6dfbca5efc16bc41456de8ecbfd365e019f9afe80",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0009/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0009/evidence.json",
+      "bytes": 27123,
+      "sha256": "5210a7614c459838e993d86698127bf43fe587ce634cce5ef488a8157f24e002",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0009/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0009/output.log",
+      "bytes": 9427,
+      "sha256": "159dd57e1cbca6b5402a2fa6cfb165d8db6f0d0907d069a67804a3c111de5ee9",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0009/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0009/receipt.json",
+      "bytes": 18280,
+      "sha256": "a452339a9aff68245e2dc23afd3f10a587e0a3702a894d4b19ee1f5b4d53afe3",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0009/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0009/results.json",
+      "bytes": 18237,
+      "sha256": "2b73a5f69e8cc2c714fcd26eea2a20d10845642045d5cb1dcc146336ce965849",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0009/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0009/rss.jsonl",
+      "bytes": 2629,
+      "sha256": "5be231ed7964ab690df39a4c35f8383b063eaecb9e77b0f2568785ee7b82b7d7",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0009/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0009/runtime.jsonl",
+      "bytes": 315,
+      "sha256": "5d1de85ae0c9433c7e466866ae8398e4c96b4a5850c7fe634c330cc430b2d0e3",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0010/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0010/collection.json",
+      "bytes": 1399,
+      "sha256": "9f41e995b74f4f1f7c0cee342dc9fc473e9f2b980a083abb07359b4fd60fa6c5",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0010/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0010/evidence.json",
+      "bytes": 1570,
+      "sha256": "758627822827e94e2382e3e2227ff65411358eebad176fc8602844df73c45a9c",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0010/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0010/output.log",
+      "bytes": 822,
+      "sha256": "b917221f7e1f6ec17f947140287bd8b65eb07092742499c5dc4cff193085dae8",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0010/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0010/receipt.json",
+      "bytes": 5257,
+      "sha256": "ecaf47da9e43411c4f18136e1e7b8caa34eb6a85ea5753bcda87d9ea3fc4fe54",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0010/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0010/results.json",
+      "bytes": 1578,
+      "sha256": "4536aa42aff8d0b6c2993a5e86792f09a40bf438bd6f4362f1758ac38afb1080",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0010/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0010/rss.jsonl",
+      "bytes": 888,
+      "sha256": "a1f44aa2e0261d419b81ff019a873290d6afa73963a2f467de97f4fda833ef98",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0010/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0010/runtime.jsonl",
+      "bytes": 315,
+      "sha256": "a617b3afdc44a3ed4aedd77708e7bf93e452fc33a1cdf22d33e93d5685df4ece",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0011/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0011/collection.json",
+      "bytes": 3371,
+      "sha256": "27a36b21c14de45cc126febe52bde35a3addbe229930d6c25d9c5b050691dac5",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0011/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0011/evidence.json",
+      "bytes": 3702,
+      "sha256": "616d944f65eda92b5bcbcc0dbbfcfbab3483db3edd101ab06e759befebaa0546",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0011/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0011/output.log",
+      "bytes": 1651,
+      "sha256": "80ddeef3fb6f8403b0c202979504460b4652b543d1da12f59e0244b97057337f",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0011/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0011/receipt.json",
+      "bytes": 6505,
+      "sha256": "b3868b1fb011ef2a43019ea763f2baa8f218389b271df4a34f38f246b47472df",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0011/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0011/results.json",
+      "bytes": 3066,
+      "sha256": "bf3dc41cb39f4a14e7d01917eb0f729f3458f3ab116adaf6d6d0f18e8d167ac4",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0011/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0011/rss.jsonl",
+      "bytes": 4802,
+      "sha256": "b3dfba49ada53e9ef6ad6ab3f7fa96fe9afcca014c94aa512c3e23a63734c002",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0011/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0011/runtime.jsonl",
+      "bytes": 315,
+      "sha256": "13c4d6844412cb428145acd4c59fa4f6e039ee827f4fc163bd7fdf549d4722c4",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0012/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0012/collection.json",
+      "bytes": 1584,
+      "sha256": "959261babea8ea6fc1f8be774b8dc2323f44791dc43cbfb9f24cde847754c79f",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0012/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0012/evidence.json",
+      "bytes": 1755,
+      "sha256": "c23dcd1ae710dbe8363dd949bdc04463ae42299bb88d225bca31bf60728fa2bd",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0012/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0012/output.log",
+      "bytes": 930,
+      "sha256": "3b132b668c35eb69bab5df76ff5162c12b08f3ee9d2ae8639c5f1381cdf6f720",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0012/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0012/receipt.json",
+      "bytes": 5420,
+      "sha256": "016e0d633388c0be074d48195cda6b1683fd75e90564af527f4a9c04ab2cc562",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0012/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0012/results.json",
+      "bytes": 1751,
+      "sha256": "0d5ca9125f2dbad4d7eaa0cc37545f5f8c1eb398791b67d82f2b3c347a7c1ff4",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0012/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0012/rss.jsonl",
+      "bytes": 3061,
+      "sha256": "77f3b532c4eb2ad5a4cf938a64efc658c9d50bf09a80b397269e037e3e752e1c",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0012/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0012/runtime.jsonl",
+      "bytes": 315,
+      "sha256": "ab04021f6092e87a3cada4fc811c757f9be2e81edb5d7fad65013eda66fa5870",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0013/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0013/collection.json",
+      "bytes": 609,
+      "sha256": "258a7c7c073ba7a918947ad317ba54c07b3b48a5a11552c9c897c1ef9129536b",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0013/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0013/evidence.json",
+      "bytes": 700,
+      "sha256": "70ab89608a2405478aa422130cd807b6d5f008fcecb241cb50ec3e0ce7d1dd9d",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0013/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0013/output.log",
+      "bytes": 529,
+      "sha256": "0c90f929ef5bf6cb18a3194cd420510ea69aa06594242e9ddb23435ac755c1a7",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0013/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0013/receipt.json",
+      "bytes": 4772,
+      "sha256": "8c46ba93f24ec9523247f9d1ce46803787a8cbc5d31db7f105848c9d5d185248",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0013/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0013/results.json",
+      "bytes": 983,
+      "sha256": "4893ce18a7a97d2df7eef05b18b967b5635f0a10d6a4157d6d2e555d3b978161",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0013/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0013/rss.jsonl",
+      "bytes": 2856,
+      "sha256": "66c94a19091d6a4e9d0330ad92d8e7a42e39bbafb9a403c0d14b58a309c08f71",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0013/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0013/runtime.jsonl",
+      "bytes": 315,
+      "sha256": "c926ca0daacda1d44b20d1ad275be226cd474895a1bfe4227102cbf80a653428",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0014/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0014/collection.json",
+      "bytes": 3934,
+      "sha256": "d7af53826637d0a3c9669f183cbb8c4ab36ac0fd40d5686a6b7cf8696f4734d3",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0014/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0014/evidence.json",
+      "bytes": 4305,
+      "sha256": "646294dd06905f0fee39107afbce2ddf386db3dade11b8c89d62ce29c8225e56",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0014/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0014/output.log",
+      "bytes": 1901,
+      "sha256": "46d282b9983484369eda4b75df6eb8e2a9bd014cf5172840685ff5d0d9650695",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0014/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0014/receipt.json",
+      "bytes": 6961,
+      "sha256": "dba43fbc80adcf77b95e51e1b29aaed3edac6e52a0fd7048b5b3a26d1d5efcc9",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0014/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0014/results.json",
+      "bytes": 3590,
+      "sha256": "70e32fd6ad8282d1a49f83fd382d07d6068cdd8129a7b2a509a9e16ec4ee016e",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0014/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0014/rss.jsonl",
+      "bytes": 11344,
+      "sha256": "761948848c251b401be4729c0470b4106c86ea4a23b4afba9a83e848a17db408",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0014/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0014/runtime.jsonl",
+      "bytes": 315,
+      "sha256": "1393a9bdaaaf0c8a667d3f8e4e474679b5775d0d8c1c49d9ac702dc40f08fc95",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0015/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0015/collection.json",
+      "bytes": 1046,
+      "sha256": "992eb5cc171330bf64087c8ed137f9527264a777d35022163d7266d707afa604",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0015/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0015/evidence.json",
+      "bytes": 1177,
+      "sha256": "c008bff6e6b8ccd0d93d92d8ebc4ba27cef879deb2262c77a19ba9aaad991d8d",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0015/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0015/output.log",
+      "bytes": 714,
+      "sha256": "267025b6a233b8917ff87bab012761b6ecf80d4934e1f2f5dd7913fd9167b4f2",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0015/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0015/receipt.json",
+      "bytes": 5034,
+      "sha256": "3d61736dd64ecd79674adf449c772c9510d6a988daeec34d58aafafd35170020",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0015/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0015/results.json",
+      "bytes": 1304,
+      "sha256": "0fcd46c8bb970ed487ba608124e377f9daab7b401b4f91d78d1471c233876152",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0015/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0015/rss.jsonl",
+      "bytes": 5237,
+      "sha256": "cee0f1cfd1ccdbef4c4384e1174dcdd6f358f421e35bfeb73ca8e325ffa8590e",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0015/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0015/runtime.jsonl",
+      "bytes": 315,
+      "sha256": "0420a2697138a08fc99788f90c6bf8e904e856f5fece709f5f124578c55a0019",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0016/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0016/collection.json",
+      "bytes": 679,
+      "sha256": "9e877d5103836253c074b4904448e6b00f1cbca14e8cf9164c52383c4a86940b",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0016/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0016/evidence.json",
+      "bytes": 770,
+      "sha256": "984a7c359256487da292631d23e1fab578fce4058209d7376b7ebf07277f3494",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0016/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0016/output.log",
+      "bytes": 560,
+      "sha256": "07b52e1d4eb8e040b1f41f9c97d0ef27f52f95ff5164c45c49491c7c778167bb",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0016/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0016/receipt.json",
+      "bytes": 4821,
+      "sha256": "e3bd9ecac2dcae24928f7dd79212ad5c163a614bd350233e81f999814fbdf0a5",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0016/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0016/results.json",
+      "bytes": 1033,
+      "sha256": "3f24d0bff4987c8d520f384f6e0ea2796f5810a058ac1411cd3a0f2a0240f864",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0016/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0016/rss.jsonl",
+      "bytes": 3064,
+      "sha256": "c77a3098bb3f92c21633b62b94fd481b2b1c023e2c4e0d902308cd4e6c69a136",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0016/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0016/runtime.jsonl",
+      "bytes": 315,
+      "sha256": "fd6049563f25ab41d5e975b9cfbc7d37ec698e2f917022d18b8ace3c7777f601",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0017/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0017/collection.json",
+      "bytes": 4340,
+      "sha256": "0cf90a1bc5c7fabe54c9dcdf068a03e8ab461d26b6980299de852fa422aa6e29",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0017/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0017/evidence.json",
+      "bytes": 4791,
+      "sha256": "4db508dcc99a7eb1c38d6855dd635c74c8950532329a7408867502a148b65765",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0017/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0017/output.log",
+      "bytes": 1947,
+      "sha256": "e55d4b9cd00a4d3309cf4211303c2d5f7df117fe2f1fc5f6609ba618f0ec726f",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0017/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0017/receipt.json",
+      "bytes": 7046,
+      "sha256": "0dee44c2ed6889841101847febe3592c5dc6fa63ceb7185bcd57fb0601121f35",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0017/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0017/results.json",
+      "bytes": 3795,
+      "sha256": "0665a38a64a36fdc233143cda3c621bfb2c4db31c24f735da78bb22d1ef666ec",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0017/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0017/rss.jsonl",
+      "bytes": 2197,
+      "sha256": "acaedbad8adf081eeb07cf58e868dd7e498cb0d14f94430567459e9448f4ecdc",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0017/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0017/runtime.jsonl",
+      "bytes": 316,
+      "sha256": "98e80a0d4a09e1124b44e38c595bda371b920edc7f17b7160ea99d6c8762042c",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0018/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0018/collection.json",
+      "bytes": 11720,
+      "sha256": "76b9f14a564f8d8b4b8b209caa50795398809faf8382ee3f07ca637b2a9a06c8",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0018/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0018/evidence.json",
+      "bytes": 12891,
+      "sha256": "0fd587e601e234c984564fa1059f5421f91351562ceb6fe718902831551d211c",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0018/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0018/output.log",
+      "bytes": 4731,
+      "sha256": "dd49fe945c270d4ddfe439de8c2e64a797f9cb13577bbd96a703d25698c2cf69",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0018/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0018/receipt.json",
+      "bytes": 11484,
+      "sha256": "66af20afa8b0bb66e31fb3bd707d16008269b5bcfb2c42630c4ae43d9393abbd",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0018/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0018/results.json",
+      "bytes": 9301,
+      "sha256": "31a15737a8f5d6c91ac540335bf402a6f147cf099b175789f0bd96bb4408a2fc",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0018/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0018/rss.jsonl",
+      "bytes": 2229,
+      "sha256": "b14a5938b095a9a4e884acf1a38cea7c13fd3855a95a337187d5e5af51eadaf4",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0018/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0018/runtime.jsonl",
+      "bytes": 318,
+      "sha256": "ec1c1c7437ef9d2f645606dd66d8be65865f1c2c1340234a8832f850a55df240",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0019/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0019/collection.json",
+      "bytes": 4604,
+      "sha256": "b25d4118512e719aca2d123ca730b1de7f66671835547aa4e5712299ba0bd883",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0019/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0019/evidence.json",
+      "bytes": 5055,
+      "sha256": "2b010e2d8ac53d083aa9c8f9ec267308475fe1d3aef5e924b407ec2d17ce1add",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0019/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0019/output.log",
+      "bytes": 2169,
+      "sha256": "b24f6aea0ce6ba0f898ffb21f27038a925772c231ce3bf667ca19fbbc48a56ef",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0019/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0019/receipt.json",
+      "bytes": 7270,
+      "sha256": "c8b4663b7a7a7386932b83118d6b556d10460d955d705198f04f1fb1a7361461",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0019/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0019/results.json",
+      "bytes": 4001,
+      "sha256": "0b30d005076d0a0ce16607046ba73f22275fd7b86746ccf1632015c8358125b6",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0019/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0019/rss.jsonl",
+      "bytes": 14646,
+      "sha256": "80a48d329157c2926ecc0de4d7342152607e49bfb3cffc19136d55ee909c3789",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0019/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0019/runtime.jsonl",
+      "bytes": 318,
+      "sha256": "d5b1b6c6a746020c9dbcb7e9196cc33b2526a82ae49610d936cb24632a55b0b1",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0020/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0020/collection.json",
+      "bytes": 1154,
+      "sha256": "4a7512ac3b8f7e3e29141cd3cf51bea87cd213bc8aaa7b7dc32548a452dff92a",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0020/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0020/evidence.json",
+      "bytes": 1285,
+      "sha256": "932d1b0c1230e0d8ecc60cc389e8ce173723456e9edca98630849cee65041df5",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0020/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0020/output.log",
+      "bytes": 767,
+      "sha256": "eb274dff10a999b9763321c49896f6e818518d684c48e9d091ad0a52edf17dfc",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0020/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0020/receipt.json",
+      "bytes": 5149,
+      "sha256": "99b0de57ff89659de5929a4390cbd4494be5601ae6b5b942fdcb240ac790a7e3",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0020/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0020/results.json",
+      "bytes": 1408,
+      "sha256": "3e72c52046f89e2a6bc02996feb702ed68e6a5b164adf65d2ff193a25b9f3a61",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0020/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0020/rss.jsonl",
+      "bytes": 4887,
+      "sha256": "8e35a7176c5bef513d127adcbe6aa14916ff9dd9feb120dc5f6ac8446dbc0177",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0020/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0020/runtime.jsonl",
+      "bytes": 318,
+      "sha256": "ec32efd0cba6775395e190bc10a689508db45e7b645dcf9a8741af1a14dff281",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0021/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0021/collection.json",
+      "bytes": 670,
+      "sha256": "306e21304daaa4dbfd653acfa27ef025813f86e6db45332528954ba4c3d963ba",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0021/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0021/evidence.json",
+      "bytes": 761,
+      "sha256": "a22a679e38774598e0986219c8308b7555649893f13aeb5754ccc6bcf92ce35d",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0021/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0021/output.log",
+      "bytes": 557,
+      "sha256": "457df35ac593422993801190ab6163c91df3c212c138e0ef053bc49546d16301",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0021/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0021/receipt.json",
+      "bytes": 4827,
+      "sha256": "6bb9df5d21ed0992cb8cc5a3ac4e5dfc3789cec00798e9700a720e58d1eff143",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0021/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0021/results.json",
+      "bytes": 1034,
+      "sha256": "5a882e0384e4ebf129d7a626e70beb83cb0d048f4758bc7f38caf9f0a5f3d025",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0021/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0021/rss.jsonl",
+      "bytes": 457,
+      "sha256": "80e40be80e36cb0e97c73c92a4c249ac4c8867f37583df2acd8d059fed8b33f4",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0021/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0021/runtime.jsonl",
+      "bytes": 318,
+      "sha256": "db0a2b1bfaf699dfe1280858a5ed5f8b638d27f53f993dde87a72796b6233550",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0022/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0022/collection.json",
+      "bytes": 10860,
+      "sha256": "e9b8862ce679968b16ae04393a2b8ef782cef928631624f66a19639e1ef4d5e9",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0022/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0022/evidence.json",
+      "bytes": 12031,
+      "sha256": "b3b19799d3c6e92969b2cae225914a3569453ff4365b429611e36246d9ad24a5",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0022/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0022/output.log",
+      "bytes": 4255,
+      "sha256": "284a9dc990f5259bb8f520a4ef99abcd77fd785953017e05fb24ed839a38af23",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0022/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0022/receipt.json",
+      "bytes": 10769,
+      "sha256": "106130d892685a3ae73d272b25c2ac582add7f0a97979e724db9c670e39fdb30",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0022/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0022/results.json",
+      "bytes": 8604,
+      "sha256": "c8e0f780d8308efdc6fe1e8013ebd756b228c95893f31023b953581db8ef3492",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0022/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0022/rss.jsonl",
+      "bytes": 899,
+      "sha256": "ef79985f34d717410535992450009fc3eb30ecf5de1a40abedc44851e5216015",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0022/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0022/runtime.jsonl",
+      "bytes": 318,
+      "sha256": "d5419521cf2b79a6a1ce0392269e2e409e04c894dede1d0b9b7c7ec878bd15f4",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0023/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0023/collection.json",
+      "bytes": 3918,
+      "sha256": "44d89e26d9edffb140155aa36ed276d3617f7b7333f31323d39d6c6c65472f73",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0023/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0023/evidence.json",
+      "bytes": 4365,
+      "sha256": "3a34e2408f5bbecdcbef3713547d11396e17beebd5e98e8212d4699147a8ded1",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0023/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0023/output.log",
+      "bytes": 1670,
+      "sha256": "44d3a7358068c2f4d25ef79b3a973525e48fd9f83a77f91e15a711138e376470",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0023/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0023/receipt.json",
+      "bytes": 6730,
+      "sha256": "3e3873cf92d6d241a807ca191f93020f9952e852c29216d3ef26c79495859673",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0023/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0023/results.json",
+      "bytes": 3416,
+      "sha256": "7ea680520cfc05a6cd93a75464fc38eead02b8d6ccbfb02ff11b4fe7d9928bda",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0023/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0023/rss.jsonl",
+      "bytes": 459,
+      "sha256": "003957403e8fd4aa2a8320e95e01bc372670e85f3dc3574ac2d1195b7dd1d877",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0023/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0023/runtime.jsonl",
+      "bytes": 318,
+      "sha256": "09d4dce279c91c4ce1b8ec0b862c94f03821c0757f72c21d90835bcaf1d476da",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0024/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0024/collection.json",
+      "bytes": 1470,
+      "sha256": "422c60a8278ee389bd7c74758203ea8815a0a4d67ed832cafa63e413f0cde6f6",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0024/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0024/evidence.json",
+      "bytes": 1677,
+      "sha256": "02a6a9d3cef12cebe651acd886687c86406bf41c134dfc3cdcea75e65d2d6b88",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0024/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0024/output.log",
+      "bytes": 770,
+      "sha256": "7990ff8c8949f4bb842a6bcf2b63f22dd85f833602732832ae50b97e93e44939",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0024/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0024/receipt.json",
+      "bytes": 5151,
+      "sha256": "2415e0c60fdcc38587c32d1321c4e87c72f8c13a939bc18f3f89f85911ff7e65",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0024/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0024/results.json",
+      "bytes": 1479,
+      "sha256": "bbca7c18d5333c050ca4b1d6686788370b69e5a690ce979f4cfb9027781c34fc",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0024/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0024/rss.jsonl",
+      "bytes": 458,
+      "sha256": "a8177e92467d2322a89407f2d926e715d9bb1fce45d488674c1a39a2ef220b29",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0024/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0024/runtime.jsonl",
+      "bytes": 318,
+      "sha256": "7424f927af039db2acb565449182508cba15dfda0dbdf9f4cb76ce149364a56d",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0025/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0025/collection.json",
+      "bytes": 3260,
+      "sha256": "3ce195fb6e74ca5e5f8fd7e130bec3f90f5c78da1de2fa5aa8fb65d5da8922d8",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0025/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0025/evidence.json",
+      "bytes": 3587,
+      "sha256": "221794977b05c57f20c28813edf539f319f3e58c1b7e76c489b98acc375e6e74",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0025/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0025/output.log",
+      "bytes": 1504,
+      "sha256": "e55c992dcc5f7079879a6eb491505e0c2f3f530d35bf88f86bd1249151dc93f0",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0025/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0025/receipt.json",
+      "bytes": 6412,
+      "sha256": "30f1fb4c52b3d5b9db920fbd19f2e226a3192575cfd25aa3813e242db2489e51",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0025/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0025/results.json",
+      "bytes": 2922,
+      "sha256": "3cdfb550081eebc076ffab06213b8377a580033e51a77fcf5cd432c08c26e5c5",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0025/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0025/rss.jsonl",
+      "bytes": 901,
+      "sha256": "e223ff2ddaa6263cdf0230745d3d76d38f5988ebd5c0dd71fd282df40411e166",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0025/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0025/runtime.jsonl",
+      "bytes": 318,
+      "sha256": "ae59c784a8ca096a837e4a558d84240d4fab93e0cac764ec391d8b44f74c03ea",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0026/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0026/collection.json",
+      "bytes": 4046,
+      "sha256": "9183e5375bdf854e1fb4014f4d682d78b415fbdfb3c90c7155aa91b2ea13aa2d",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0026/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0026/evidence.json",
+      "bytes": 4457,
+      "sha256": "fa69b9d71724510c73fef6d85750ecedcf89a10d8f14c39f1517712786065422",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0026/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0026/output.log",
+      "bytes": 1911,
+      "sha256": "c1db62d090b3b0eff7318ecca60813c249b37a9f2be4a76c08d5056677ff2509",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0026/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0026/receipt.json",
+      "bytes": 6936,
+      "sha256": "14262e68cb70f9125f579b4b1a45c9243c9eedae8ba4ec0314b5ac0b9ec620b4",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0026/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0026/results.json",
+      "bytes": 3599,
+      "sha256": "aad11722c7f81e26d85a7a8beb5a78006b2eb3c61ecb5164943c8ccb6469b9c9",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0026/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0026/rss.jsonl",
+      "bytes": 48768,
+      "sha256": "913158d660e579d6f9daec57784e559359763a13bde0dc80d0be5d4a74292948",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0026/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0026/runtime.jsonl",
+      "bytes": 318,
+      "sha256": "ea39232efd9db16a2af6448c306261005663f87ed492bacfdf1890f761ba1e1c",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0027/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0027/collection.json",
+      "bytes": 2528,
+      "sha256": "414ccb12e74487721449906f63335eccadfd6107c95ba0226e724e1babc049dd",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0027/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0027/evidence.json",
+      "bytes": 2819,
+      "sha256": "71c41b57a7bbf5966ce83ea8f5ebe5febce29ade5f58184df82f906ef2fa88db",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0027/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0027/output.log",
+      "bytes": 1284,
+      "sha256": "a42b00c78a1e906be4436bfab5494e9a10d88a45307636e3efafa98ea52400c2",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0027/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0027/receipt.json",
+      "bytes": 5891,
+      "sha256": "7a0ae0c2a6de3e2eed62245833105b29a0a2b7ded4f246025b2a12e3edd3ad5e",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0027/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0027/results.json",
+      "bytes": 2389,
+      "sha256": "495abd1bce84a0b882aaa9a2f7abb1bd3ee11d0592ed611ef9c204fe15a89797",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0027/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0027/rss.jsonl",
+      "bytes": 23070,
+      "sha256": "7c732fd7847755421912b6fc5c6037f5815b9005fa8b1d6c55fd1ee9a5f2db0c",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0027/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0027/runtime.jsonl",
+      "bytes": 318,
+      "sha256": "d1e7ea6bdb0621e8b2f97f7dbd0f83ee76321a6b736c341757d332af0abc33f1",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0028/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0028/collection.json",
+      "bytes": 2768,
+      "sha256": "1c54977b83e1a78547450bf8aaebda56df36ff999de7f3a6c8769202daeb51e4",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0028/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0028/evidence.json",
+      "bytes": 3059,
+      "sha256": "ed12e07372d7381ea4920ce59dcc65d5c1de35ddae228fcef722b1db75f23058",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0028/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0028/output.log",
+      "bytes": 1413,
+      "sha256": "2d51ddbc454b4d5c9d15473e5b7905cebcb9249d1bbe7b06d19f8b8ce9dc9f9f",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0028/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0028/receipt.json",
+      "bytes": 6109,
+      "sha256": "7a8047bc8bd3e14926318efbe64f2adf9638ec80018e696cb1f6923a29db6f87",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0028/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0028/results.json",
+      "bytes": 2602,
+      "sha256": "40ded35b14d56193b99f7c94a59a06502dd8b8d5c81f04b199672bb4d802c9ca",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0028/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0028/rss.jsonl",
+      "bytes": 28386,
+      "sha256": "3a4c00c3cb97a6cf29d0c0cbaa279330e84d6588506a2ecedb2183b7b2a4dc2c",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0028/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0028/runtime.jsonl",
+      "bytes": 318,
+      "sha256": "97274501f94a0f49a17c206e83c9bd7d820bee3c64414e0de3bfa2b8f7257ca0",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0029/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0029/collection.json",
+      "bytes": 1407,
+      "sha256": "d2dedba164615c6b583718889fb7150e648dea279254d4a0b64fdba803ba90e6",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0029/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0029/evidence.json",
+      "bytes": 1578,
+      "sha256": "b3bb02b183b02fcdc381dda4c340a967680b48c1fbd3dc5bd1f577c5557ccfde",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0029/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0029/output.log",
+      "bytes": 823,
+      "sha256": "06c06f4957bef293304eef3e7869be0999c3f00c2df77a63275c3a211fe37315",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0029/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0029/receipt.json",
+      "bytes": 5292,
+      "sha256": "ad11115e042ab704f31268b2c634ef8e3474323f16aa7421129e0bafdfe5c69b",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0029/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0029/results.json",
+      "bytes": 1618,
+      "sha256": "39b4c7ac552077564e26adeceb8da1459b2231ff5762722ca554f42643bdc1b5",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0029/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0029/rss.jsonl",
+      "bytes": 1786,
+      "sha256": "4839781b3597a04979472b0cd9805b5583ab267e748c8ac8ac2de1579f1008fe",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0029/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0029/runtime.jsonl",
+      "bytes": 318,
+      "sha256": "d472519264ab15bf15b008187eb797f3ff9c3856458c88960c147ab525a706bf",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0030/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0030/collection.json",
+      "bytes": 20862,
+      "sha256": "7372a7034aa7438f4ecc1d7928b061fb48b755a3fba8e6b0824d1c90208f453c",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0030/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0030/evidence.json",
+      "bytes": 22753,
+      "sha256": "7019aa5e0f463cedad7d71cf095167e73b4d778a4991299c50b1ea210cc155e9",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0030/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0030/output.log",
+      "bytes": 8257,
+      "sha256": "7788d2ec4fe5cba1f50f9d07959e07af1276475ca21b3aca619fd9d4e859dd4a",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0030/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0030/receipt.json",
+      "bytes": 17880,
+      "sha256": "259c42dab349f5a07e937ffaca325085f316c1c53fd461a5647c462d90da0f68",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0030/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0030/results.json",
+      "bytes": 16748,
+      "sha256": "0f909e9d4c4f9f23b53a9f11874340d2f98247d2ae26b40a0c87d4eb70b9936e",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0030/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0030/rss.jsonl",
+      "bytes": 2672,
+      "sha256": "075fb8b055f1c78f6f2c1f3ee54cf7365ace6c387d4bbd64017e1f8205d9542c",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0030/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0030/runtime.jsonl",
+      "bytes": 318,
+      "sha256": "98a05d79a7b132d682023bb38eb36de083ea3163ae2218ef889cf09ffa7d2561",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0031/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0031/collection.json",
+      "bytes": 1158,
+      "sha256": "70d94c9e90c814a0cdeac6886354d8b28c2825fc18892217bd636b6260e88c27",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0031/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0031/evidence.json",
+      "bytes": 1289,
+      "sha256": "4154aee13f4ee0297f0b099007975748d6bc89a33c37f81327864730cb111adb",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0031/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0031/output.log",
+      "bytes": 754,
+      "sha256": "928f4f393cf28bcd50a3a9ef905702be151ca19f254a2095a262aef47bc26e0a",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0031/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0031/receipt.json",
+      "bytes": 5173,
+      "sha256": "a25acce3e1cc94f68caf2b00c4ca0731a4fb64ee05b7be71357a67e249b0eb67",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0031/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0031/results.json",
+      "bytes": 1439,
+      "sha256": "7a525210af155d23cb09c90b231691b9e18d28ecb8c23dea4365d28b60628d2b",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0031/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0031/rss.jsonl",
+      "bytes": 1786,
+      "sha256": "6ca3e86622b13ae2b6c1aa0cda9e542830eae69baf4b86918aa6ae76370fda81",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0031/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0031/runtime.jsonl",
+      "bytes": 318,
+      "sha256": "9100a82ca6bc7378a5372b46d84e1031c43e7e4940b8888f7fe3c52bbdde163d",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0032/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0032/collection.json",
+      "bytes": 5170,
+      "sha256": "bf1aeba584a42ae8cae4a3218c5a9b045b2454545347d9a4c7010456aa81abb4",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0032/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0032/evidence.json",
+      "bytes": 5701,
+      "sha256": "44df256a3cd85176d5fd0247731ac69b644d74878b9908045e8ea03344a9051f",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0032/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0032/output.log",
+      "bytes": 2197,
+      "sha256": "6495f2d1c2aa3b2e66692bf6826c3a52c69192fe6ff62166f52468376d9b2316",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0032/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0032/receipt.json",
+      "bytes": 7725,
+      "sha256": "fc849a7c280ab98194914ed73125a68ef1480f50b281ea7b89d38ff412c947f1",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0032/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0032/results.json",
+      "bytes": 4578,
+      "sha256": "93f8242c3fd6c99ca1a0ed8a2dd57c58ce88d6fd30d95afa12e2aa4340f663c0",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0032/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0032/rss.jsonl",
+      "bytes": 457,
+      "sha256": "64bf7b5c7a9183d8e59c69b9b516cf7cff4241334921756548036cf147666cbe",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0032/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0032/runtime.jsonl",
+      "bytes": 318,
+      "sha256": "ac80ec003e28ac2e7b8b2a7e8c8ca36b787bfd548d036883fa45d609f64395d8",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0033/collection.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0033/collection.json",
+      "bytes": 1607,
+      "sha256": "274b3dcdc07ef8e29393df82594e22b526bc4b6bf8ee7538248bf0070edec568",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0033/evidence.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0033/evidence.json",
+      "bytes": 1778,
+      "sha256": "635a5e3df642f891064c728acf7c814c92f4d5f49f45120675486e6b75735e29",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0033/output.log",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0033/output.log",
+      "bytes": 960,
+      "sha256": "900048f44c3e1aa8fddecf3ae5c361882de8160c8f65d994741a0a315eb88255",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0033/receipt.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0033/receipt.json",
+      "bytes": 5421,
+      "sha256": "0f983a8daade8a980186935fa34846e45b29bb2e5aa089f42fbb55eb458abd43",
+      "purpose": "Exact closed stage receipt"
+    },
+    {
+      "path": "batches/first-union354/src-0033/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0033/results.json",
+      "bytes": 1745,
+      "sha256": "0466381a5f98544954ff634a4a6d40fd9fde368d4ffa9938a1ec787dbe5b4574",
+      "purpose": "Named assertion/collection/hook report; no domain snapshot"
+    },
+    {
+      "path": "batches/first-union354/src-0033/rss.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0033/rss.jsonl",
+      "bytes": 54536,
+      "sha256": "66decb74434750eff45596e37cbd1133d61441259fa7065c29a1345c19fb2da6",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/src-0033/runtime.jsonl",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0033/runtime.jsonl",
+      "bytes": 318,
+      "sha256": "dc79440b90795a5f49cb9fac68f93e52e12f99ce6ebee5a47d483ef9224296dd",
+      "purpose": "Exact receipt-referenced test output or bounded generic process/resource metadata, required by predecessor resume hashes"
+    },
+    {
+      "path": "batches/first-union354/terminal.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/terminal.json",
+      "bytes": 10148,
+      "sha256": "3f641e2e04be5f68d4682f722aef7d9ab9756bbc0ea4d726fd4c725a33bef064",
+      "purpose": "Closed qualifying terminal"
+    },
+    {
+      "path": "control-qualification/streaming-prerepair/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-streaming-qualification-preparation-1093402-v1/streaming-prerepair/results.json",
+      "bytes": 7523,
+      "sha256": "0ccc7c2077fb1997747c209e46fbb8159df7fc42d69e40c4ccb4b9788b77282e",
+      "purpose": "Separate control qualification metadata; no application credit"
+    },
+    {
+      "path": "control-qualification/streaming-prerepair/terminal.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-streaming-qualification-preparation-1093402-v1/streaming-prerepair/terminal.json",
+      "bytes": 12869,
+      "sha256": "a10f5cea4910dabf951239a67632f30b5819886823326f14f4582b1d489177a7",
+      "purpose": "Separate control qualification metadata; no application credit"
+    },
+    {
+      "path": "control-qualification/streaming-repaired/results.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-streaming-qualification-preparation-1093402-v1/streaming-repaired/results.json",
+      "bytes": 7392,
+      "sha256": "b76ac7b4e7de6171ca78849f4137637de4e289198b6bdaaec3afd316880f8407",
+      "purpose": "Separate control qualification metadata; no application credit"
+    },
+    {
+      "path": "control-qualification/streaming-repaired/terminal.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-streaming-qualification-preparation-1093402-v1/streaming-repaired/terminal.json",
+      "bytes": 12718,
+      "sha256": "8bd79377fe9dcb33ffc337996eb5d1fbb5d7744da605ebbbed83106a7f4524ff",
+      "purpose": "Separate control qualification metadata; no application credit"
+    },
+    {
+      "path": "cumulative.config.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/cumulative.config.json",
+      "bytes": 1268444,
+      "sha256": "285951b57c0c90d82f5e3defa5c93084e202b0b4372a8cfdfa1d996184016e10",
+      "purpose": "Exact pinned batch control or metadata manifest; archival copy only"
+    },
+    {
+      "path": "ledger-first-union354.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/ledger-first-union354.json",
+      "bytes": 362905,
+      "sha256": "0b74305b3c363104c1c1220dfb127ecafc3ea46ba2910f8d0260ddc98c4d5a01",
+      "purpose": "Exact matching cumulative ledger"
+    },
+    {
+      "path": "per-file.vitest.config.mjs",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/per-file.vitest.config.mjs",
+      "bytes": 612,
+      "sha256": "efe80045cf36d55d09c0372021f1d355498ad78deb85fd5fcc741a6a1501aac0",
+      "purpose": "Exact pinned batch control or metadata manifest; archival copy only"
+    },
+    {
+      "path": "process-identity-reviewed.fragment.py",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/process-identity-reviewed.fragment.py",
+      "bytes": 3338,
+      "sha256": "17c73eb414b32f9f1616b5e4e58ac1077a0449dd5b6887c0291369b73ce9ca9f",
+      "purpose": "Exact pinned batch control or metadata manifest; archival copy only"
+    },
+    {
+      "path": "python-file-loader.py",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/python-file-loader.py",
+      "bytes": 2140,
+      "sha256": "0ef3bb4b99ed87579b7cc77e119eddbb58b0c8dff206ae0ea016438ba8a6cb02",
+      "purpose": "Exact pinned batch control or metadata manifest; archival copy only"
+    },
+    {
+      "path": "receipt-reporter.mjs",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/receipt-reporter.mjs",
+      "bytes": 1449,
+      "sha256": "7391e409e0fc5e43fa0ffc39cd838b0fa56e408465db77b077e676cee033a248",
+      "purpose": "Exact pinned batch control or metadata manifest; archival copy only"
+    },
+    {
+      "path": "reference-dependencies.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-dependencies.json",
+      "bytes": 100554,
+      "sha256": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+      "purpose": "Exact pinned batch control or metadata manifest; archival copy only"
+    },
+    {
+      "path": "reference-inventory.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-inventory.json",
+      "bytes": 1085081,
+      "sha256": "9d724fd3e17d90b79e0b3957cc2f93abecab7ed16c1d5bf0a9ceb4fff523ea7f",
+      "purpose": "Exact pinned batch control or metadata manifest; archival copy only"
+    },
+    {
+      "path": "reference-source.sha256",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-source.sha256",
+      "bytes": 302234,
+      "sha256": "399a440dac37ac36806658ae449734bdc5d02885100b6515d0f8575d22cd09b5",
+      "purpose": "Exact pinned batch control or metadata manifest; archival copy only"
+    },
+    {
+      "path": "run-batch.py",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/run-batch.py",
+      "bytes": 38966,
+      "sha256": "5fbedd112ef7a971559a5a3f44411b1b644fedd476f52a1954622aa1699c2e11",
+      "purpose": "Exact pinned batch control or metadata manifest; archival copy only"
+    },
+    {
+      "path": "runtime-probe.cjs",
+      "originalPath": "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/runtime-probe.cjs",
+      "bytes": 905,
+      "sha256": "3dee097dc8383f9607c6027b135ed799b564f5a3247baf2c9684d37287f1ed93",
+      "purpose": "Exact pinned batch control or metadata manifest; archival copy only"
+    },
+    {
+      "path": "separate-node-capture-reconciliation.json",
+      "originalPath": "/workspace/shared/baseball-cumulative-node-capture-1634-reconciliation.json",
+      "bytes": 4357,
+      "sha256": "e5140199d911ce961545a51f0258c9fa440df9be53b1ea464ee8109eac90618f",
+      "purpose": "Coordinator summary only; raw Node terminals not included and no cumulative credit"
+    },
+    {
+      "path": "source109.git-commit.txt",
+      "originalGitObject": "10934028ff85b00b38b37142dfeda45b9e3c0814",
+      "bytes": 259,
+      "sha256": "2e65542a0cbdf8ca8b90522253023a39a1293a720e2293bb2f18e4c8c22c1ede",
+      "purpose": "Exact owned Codex author/committer Git commit payload only"
+    }
+  ],
+  "allReceiptReferencedArtifactsRetained": true,
+  "exactPredecessorEvidenceRetained": true,
+  "referencedProcessMetadataAudit": {
+    "addedFiles": 102,
+    "addedBytes": 344024,
+    "validatedRowsAndLines": {
+      "resourceRows": 656,
+      "runtimeRows": 66,
+      "testOutputLines": 674
+    },
+    "onlySchemaBoundedMetadata": true
+  },
+  "directResumeStillRequires": [
+    "Restored exact source and generated catalog at original attributed runtime paths",
+    "Matching runtime/dependency bytes and controls",
+    "Independent coordinator release and runtime admission; publication checkout is not a runtime checkout"
+  ]
+}

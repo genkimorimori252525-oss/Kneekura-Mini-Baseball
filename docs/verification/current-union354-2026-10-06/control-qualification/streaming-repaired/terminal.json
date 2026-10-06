@@ -1,0 +1,261 @@
+{
+  "phase": "streaming-repaired",
+  "sourceCommit": "10934028ff85b00b38b37142dfeda45b9e3c0814",
+  "sourceTree": "f02849963df3fca3c32b9c411b9d53c590d59575",
+  "tree": "b065b4e29ce70ba931f17cd95c4de8405788e6da",
+  "startedAt": "2026-10-06T15:30:11.195757+00:00",
+  "profile": {
+    "wallSeconds": 60,
+    "rssMiB": 384,
+    "stopReserveGiB": 6
+  },
+  "controlHashes": {
+    "/workspace/shared/baseball-cumulative-streaming-qualification-preparation-1093402-v1/run-check.py": "0a5c8fbeb6da3d33747582943d013bbe67e283ea33cc02ffda929353917cabf4",
+    "/workspace/shared/baseball-cumulative-streaming-qualification-preparation-1093402-v1/configuration.json": "eee98b6e977c82e1ad31a5fe349ad8c47f8dcd4f884b9b2f330fd79bd62006a8",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v2/reference-source.sha256": "399a440dac37ac36806658ae449734bdc5d02885100b6515d0f8575d22cd09b5",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v2/reference-dependencies.json": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v2/reference-inventory.json": "63354d68f8de330d7f18c9d008cc7782515185a8a91300565d3c40491a19babf",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v2/python-file-loader.py": "0ef3bb4b99ed87579b7cc77e119eddbb58b0c8dff206ae0ea016438ba8a6cb02",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v2/run-batch.py": "2bd320ffbec93fd4ef777151c266f52efeffeb27e7407396785a0b164103f2cf",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v3/control-tests.py": "1985ea60035e91901251dab0c8fdafc58891c88c557a8b7b55cde095efa1793e",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v3/python-file-loader.py": "0ef3bb4b99ed87579b7cc77e119eddbb58b0c8dff206ae0ea016438ba8a6cb02",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v3/run-batch.py": "5fbedd112ef7a971559a5a3f44411b1b644fedd476f52a1954622aa1699c2e11",
+    "/workspace/shared/baseball-cumulative-batch-preparation-a180a6e-v4/collection-reporter.mjs": "61ef761fc0d1317b383250f8e1c561e557ff01c198367d4b69f6e58a1c7a4de6",
+    "/workspace/shared/baseball-cumulative-batch-preparation-a180a6e-v4/runtime-probe.cjs": "3dee097dc8383f9607c6027b135ed799b564f5a3247baf2c9684d37287f1ed93",
+    "/workspace/shared/baseball-cumulative-collection-preparation-1093402-v2/collection.vitest.config.mjs": "260c2271f6daa808182692042166137f6726e3bb5c549e75529b35fd557fd966",
+    "/workspace/shared/baseball-cumulative-streaming-qualification-preparation-1093402-v1/execute-discriminators.py": "e269f0476ee0b8a88717949a0f19f87c1d5d81ffb53bd0fa8119913c2867f79f",
+    "/workspace/shared/baseball-cumulative-streaming-qualification-preparation-1093402-v1/process-identity-reviewed.fragment.py": "17c73eb414b32f9f1616b5e4e58ac1077a0449dd5b6887c0291369b73ce9ca9f",
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node": "ab9c8eecf9f82d6693cdc3accced17034065c8d96213b0aa76a7e803d20ae1da"
+  },
+  "controllerSha256": "0a5c8fbeb6da3d33747582943d013bbe67e283ea33cc02ffda929353917cabf4",
+  "configurationSha256": "eee98b6e977c82e1ad31a5fe349ad8c47f8dcd4f884b9b2f330fd79bd62006a8",
+  "sourceManifestSha256": "399a440dac37ac36806658ae449734bdc5d02885100b6515d0f8575d22cd09b5",
+  "dependencyManifestSha256": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+  "locks": [
+    {
+      "path": "/workspace/shared/baseball-native-check.lock",
+      "fd": 3,
+      "inode": 262705
+    },
+    {
+      "path": "/workspace/shared/baseball-native-aux-check.lock",
+      "fd": 4,
+      "inode": 262700
+    },
+    {
+      "path": "/workspace/shared/baseball-light-check.lock",
+      "fd": 5,
+      "inode": 262699
+    }
+  ],
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+    "-I",
+    "-B",
+    "/workspace/shared/baseball-cumulative-streaming-qualification-preparation-1093402-v1/execute-discriminators.py",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v3/control-tests.py",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v3",
+    "/workspace/shared/baseball-cumulative-streaming-qualification-preparation-1093402-v1/streaming-repaired/results.json"
+  ],
+  "childPid": 7,
+  "rootStartTime": 3582452,
+  "terminalAt": "2026-10-06T15:30:12.125794+00:00",
+  "seconds": 0.9300445020053303,
+  "phaseVerified": true,
+  "scope": "discriminator verification only",
+  "applicationTestsPassed": false,
+  "wholeProjectPassed": false,
+  "exitCode": 0,
+  "failure": null,
+  "guard": null,
+  "cancellationSignal": null,
+  "proof": {
+    "cases": [
+      {
+        "method": "test_after_each_run_is_not_complete_assertion_coverage",
+        "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_after_each_run_is_not_complete_assertion_coverage",
+        "status": "passed",
+        "errorType": null,
+        "message": null
+      },
+      {
+        "method": "test_before_each_run_cannot_credit_an_unexecuted_body",
+        "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_before_each_run_cannot_credit_an_unexecuted_body",
+        "status": "passed",
+        "errorType": null,
+        "message": null
+      },
+      {
+        "method": "test_caller_captured_predecessor_pin_is_required",
+        "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_caller_captured_predecessor_pin_is_required",
+        "status": "passed",
+        "errorType": null,
+        "message": null
+      },
+      {
+        "method": "test_changed_earlier_status_is_rejected_on_resume",
+        "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_changed_earlier_status_is_rejected_on_resume",
+        "status": "passed",
+        "errorType": null,
+        "message": null
+      },
+      {
+        "method": "test_complete_output_pair_is_acyclic_and_exact",
+        "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_complete_output_pair_is_acyclic_and_exact",
+        "status": "passed",
+        "errorType": null,
+        "message": null
+      },
+      {
+        "method": "test_controller_rejects_nonisolated_bootstrap_before_shadow_import",
+        "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_controller_rejects_nonisolated_bootstrap_before_shadow_import",
+        "status": "passed",
+        "errorType": null,
+        "message": null
+      },
+      {
+        "method": "test_dependency_directory_link_cannot_hide_optional_code",
+        "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_dependency_directory_link_cannot_hide_optional_code",
+        "status": "passed",
+        "errorType": null,
+        "message": null
+      },
+      {
+        "method": "test_external_esbuild_override_does_not_reach_child",
+        "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_external_esbuild_override_does_not_reach_child",
+        "status": "passed",
+        "errorType": null,
+        "message": null
+      },
+      {
+        "method": "test_ledger_write_failure_leaves_no_qualifying_terminal",
+        "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_ledger_write_failure_leaves_no_qualifying_terminal",
+        "status": "passed",
+        "errorType": null,
+        "message": null
+      },
+      {
+        "method": "test_missing_pending_row_is_rejected_on_resume",
+        "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_missing_pending_row_is_rejected_on_resume",
+        "status": "passed",
+        "errorType": null,
+        "message": null
+      },
+      {
+        "method": "test_optional_ws_lookup_cannot_use_global_fallbacks",
+        "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_optional_ws_lookup_cannot_use_global_fallbacks",
+        "status": "passed",
+        "errorType": null,
+        "message": null
+      },
+      {
+        "method": "test_predecessor_decode_uses_the_authenticated_byte_snapshot",
+        "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_predecessor_decode_uses_the_authenticated_byte_snapshot",
+        "status": "passed",
+        "errorType": null,
+        "message": null
+      },
+      {
+        "method": "test_projects_json_autodiscovery_is_also_rejected",
+        "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_projects_json_autodiscovery_is_also_rejected",
+        "status": "passed",
+        "errorType": null,
+        "message": null
+      },
+      {
+        "method": "test_release_budget_uses_only_the_approved_config_bytes",
+        "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_release_budget_uses_only_the_approved_config_bytes",
+        "status": "passed",
+        "errorType": null,
+        "message": null
+      },
+      {
+        "method": "test_resume_bounds_live_ledger_payloads",
+        "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_resume_bounds_live_ledger_payloads",
+        "status": "passed",
+        "errorType": null,
+        "message": null
+      },
+      {
+        "method": "test_resume_rejects_ledger_changed_between_authenticated_passes",
+        "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_resume_rejects_ledger_changed_between_authenticated_passes",
+        "status": "passed",
+        "errorType": null,
+        "message": null
+      },
+      {
+        "method": "test_stale_ledger_blocks_successful_terminal_publication",
+        "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_stale_ledger_blocks_successful_terminal_publication",
+        "status": "passed",
+        "errorType": null,
+        "message": null
+      },
+      {
+        "method": "test_terminal_hooks_preserve_complete_body_assertion",
+        "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_terminal_hooks_preserve_complete_body_assertion",
+        "status": "passed",
+        "errorType": null,
+        "message": null
+      },
+      {
+        "method": "test_tools_directory_symlink_cannot_hide_imported_code",
+        "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_tools_directory_symlink_cannot_hide_imported_code",
+        "status": "passed",
+        "errorType": null,
+        "message": null
+      },
+      {
+        "method": "test_unrelated_package_note_is_allowed",
+        "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_unrelated_package_note_is_allowed",
+        "status": "passed",
+        "errorType": null,
+        "message": null
+      },
+      {
+        "method": "test_untracked_tools_import_changes_source_pin",
+        "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_untracked_tools_import_changes_source_pin",
+        "status": "passed",
+        "errorType": null,
+        "message": null
+      },
+      {
+        "method": "test_vitest_close_failure_cannot_qualify_complete_assertions",
+        "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_vitest_close_failure_cannot_qualify_complete_assertions",
+        "status": "passed",
+        "errorType": null,
+        "message": null
+      },
+      {
+        "method": "test_workspace_control_addition_is_rejected",
+        "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_workspace_control_addition_is_rejected",
+        "status": "passed",
+        "errorType": null,
+        "message": null
+      },
+      {
+        "method": "test_wrapper_rejects_nonisolated_bootstrap_before_unittest_shadow",
+        "id": "controlled_cumulative_discriminators.CumulativeControlTests.test_wrapper_rejects_nonisolated_bootstrap_before_unittest_shadow",
+        "status": "passed",
+        "errorType": null,
+        "message": null
+      }
+    ],
+    "counts": {
+      "passed": 24
+    },
+    "expectedPrerepairFindingsObserved": false,
+    "repairedControlsGreen": true
+  },
+  "runtime": [],
+  "peakAggregateRssKiB": 41504,
+  "sourceDependenciesControlsUnchanged": true,
+  "remainingOwnedProcesses": [],
+  "reaped": true,
+  "artifactHashes": {
+    "rss.jsonl": "22b8a1a3783b0c644e3ad4b40e42a1c92d57e7424bbab41390e19ee4914a2407",
+    "results.json": "b76ac7b4e7de6171ca78849f4137637de4e289198b6bdaaec3afd316880f8407",
+    "admission.json": "8f0a48011190c0dac5da37ec508139186530c39fbbcdf8a3cd20188e9b44778a",
+    "output.log": "633b9c7459f77ff69618bd46cfd5f2eb6d4d7a7317f75b82cf155f8564ddb81c"
+  }
+}

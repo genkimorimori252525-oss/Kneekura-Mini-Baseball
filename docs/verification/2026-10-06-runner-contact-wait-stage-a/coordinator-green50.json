@@ -1,0 +1,41 @@
+{
+  "source": "2c94d6c09dcc6e0c94cb9d3e0f233969df20a0d7",
+  "src": "486506be335450c08109c295b5e01ff8fa0b9625",
+  "compilerPassed": true,
+  "selectedCasesPassed": 50,
+  "exclusions": 0,
+  "receipts": {
+    "compiler": {
+      "path": "/workspace/shared/baseball-runner-native-contact-wait-owner-preparation-v3/compiler-2c94d6c/terminal.json",
+      "sha256": "25ec93d90cec252f2f6e4d37c8519a5c4de35cbedeb75d1c0f68cf24f66f912c",
+      "seconds": 43.0278565990011,
+      "passedCases": 0,
+      "supervisorExitCode": 0
+    },
+    "focused": {
+      "path": "/workspace/shared/baseball-runner-native-contact-wait-owner-preparation-v3/focused-2c94d6c/terminal.json",
+      "sha256": "c4dc867a843f0465c610d274bf74e7a71cf54fe5b5eaf5599bdbf88efe21894b",
+      "seconds": 26.556196743998953,
+      "passedCases": 9,
+      "supervisorExitCode": 0
+    },
+    "public_boundary": {
+      "path": "/workspace/shared/baseball-runner-native-contact-wait-owner-preparation-v3/public_boundary-2c94d6c/terminal.json",
+      "sha256": "49e9cec714e81a08ba8e527a9f4f5ec9e164951cc361e01b76135cde36cd3a5f",
+      "seconds": 11.563813191001827,
+      "passedCases": 3,
+      "supervisorExitCode": 0
+    },
+    "regression": {
+      "path": "/workspace/shared/baseball-runner-native-contact-wait-owner-preparation-v3/regression-2c94d6c/terminal.json",
+      "sha256": "0beffd86671002faef7a55b0626a6cefc20972136ba9d1fba869633df4caf295",
+      "seconds": 7.108611584997561,
+      "passedCases": 38,
+      "supervisorExitCode": 0
+    }
+  },
+  "sourceScopedQualification": true,
+  "semanticCaptureDecisionMotorProven": false,
+  "wholeProjectPassed": false,
+  "allSupervisorsExitedAndReaped": true
+}

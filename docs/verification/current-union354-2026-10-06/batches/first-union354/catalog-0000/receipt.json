@@ -1,0 +1,66 @@
+{
+  "stage": {
+    "id": "catalog-0000",
+    "kind": "catalog",
+    "wallSeconds": 30,
+    "oldSpaceMiB": 192,
+    "heapMiB": 288,
+    "rssMiB": 384,
+    "stopReserveGiB": 6
+  },
+  "sourceCommit": "10934028ff85b00b38b37142dfeda45b9e3c0814",
+  "controlHashes": {
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/run-batch.py": "5fbedd112ef7a971559a5a3f44411b1b644fedd476f52a1954622aa1699c2e11",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/cumulative.config.json": "285951b57c0c90d82f5e3defa5c93084e202b0b4372a8cfdfa1d996184016e10",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-source.sha256": "399a440dac37ac36806658ae449734bdc5d02885100b6515d0f8575d22cd09b5",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-dependencies.json": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-inventory.json": "9d724fd3e17d90b79e0b3957cc2f93abecab7ed16c1d5bf0a9ceb4fff523ea7f",
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node": "ab9c8eecf9f82d6693cdc3accced17034065c8d96213b0aa76a7e803d20ae1da",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/runtime-probe.cjs": "3dee097dc8383f9607c6027b135ed799b564f5a3247baf2c9684d37287f1ed93",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/receipt-reporter.mjs": "7391e409e0fc5e43fa0ffc39cd838b0fa56e408465db77b077e676cee033a248",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/per-file.vitest.config.mjs": "efe80045cf36d55d09c0372021f1d355498ad78deb85fd5fcc741a6a1501aac0",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/python-file-loader.py": "0ef3bb4b99ed87579b7cc77e119eddbb58b0c8dff206ae0ea016438ba8a6cb02",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/process-identity-reviewed.fragment.py": "17c73eb414b32f9f1616b5e4e58ac1077a0449dd5b6887c0291369b73ce9ca9f"
+  },
+  "startedAt": "2026-10-06T15:40:55.430694+00:00",
+  "command": [
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+    "tools/catalog/compile-catalog.mjs",
+    "--check"
+  ],
+  "childPid": 10,
+  "rootStartTime": 3646938,
+  "terminalAt": "2026-10-06T15:40:56.871787+00:00",
+  "seconds": 1.4410857830007444,
+  "exitCode": 0,
+  "stopReason": null,
+  "failure": null,
+  "classification": "passed",
+  "coverageComplete": true,
+  "counts": {},
+  "perTest": [],
+  "runtime": [
+    {
+      "pid": 10,
+      "ppid": 2,
+      "nodeVersion": "26.10.0",
+      "heapLimitMiB": 288,
+      "nodePathAbsent": true,
+      "optionalWsExtensionsDisabled": true,
+      "worker": false,
+      "stage": "catalog-0000"
+    }
+  ],
+  "runtimeVerified": true,
+  "peakAggregateRssKiB": 85900,
+  "sourceDependenciesControlsUnchanged": true,
+  "remainingOwnedProcesses": [],
+  "reaped": true,
+  "cancellationSignal": null,
+  "artifacts": {
+    "output.log": "fdefbaf156a26f6c12ba54d7b779ed614428147498d21bf63402fa5a95158b3c",
+    "rss.jsonl": "4af3a53742895489be4ce1a6739c870d721eb35c525bb34da0ab1df1fe46ab82",
+    "runtime.jsonl": "dfff6fd4a71228ce24a3648f78ce51b432c9483733d9cec512ef48d7e43517d5"
+  }
+}

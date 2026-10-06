@@ -1,0 +1,20 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/RunnerNativeContactWaitMainOwnership.test.ts > rejects a canonical TEMP table policy clone whose Source was never admitted in main 3507ms
+ ✓ src/host/world/RunnerNativeContactWaitMainOwnership.test.ts > rejects a canonical TEMP view policy clone whose Source was never admitted in main 3191ms
+ ✓ src/host/world/RunnerNativeContactWaitMainOwnership.test.ts > rejects a late TEMP table view clone through an existing reader after the dependent pitch 3249ms
+ ✓ src/host/world/RunnerNativeContactWaitMainOwnership.test.ts > rejects a late TEMP view view clone through an existing reader after the dependent pitch 2779ms
+ ✓ src/host/world/RunnerNativeContactWaitMainOwnership.test.ts > rejects an otherwise matching TEMP world_player_observation_models table dependency introduced after reader construction 2397ms
+ ✓ src/host/world/RunnerNativeContactWaitMainOwnership.test.ts > rejects an otherwise matching TEMP world_player_observation_models view dependency introduced after reader construction 2286ms
+ ✓ src/host/world/RunnerNativeContactWaitMainOwnership.test.ts > rejects an otherwise matching TEMP world_player_fielding_models table dependency introduced after reader construction 2419ms
+ ✓ src/host/world/RunnerNativeContactWaitMainOwnership.test.ts > rejects an otherwise matching TEMP world_player_fielding_models view dependency introduced after reader construction 2527ms
+ ✓ src/host/world/RunnerNativeContactWaitMainOwnership.test.ts > rejects a TEMP original-recipient binding that hides a changed main authority through an existing reader 2450ms
+ ✓ src/host/world/RunnerNativeContactWaitMainOwnership.test.ts > rejects a missing main observation model replaced by attached storage through an existing reader 2220ms
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  00:44:44
+   Duration  32.26s (transform 3.33s, setup 0ms, collect 4.54s, tests 27.03s, environment 0ms, prepare 155ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0019/results.json

@@ -1,0 +1,2 @@
+{"pid":1612,"ppid":2,"nodeVersion":"26.10.0","heapLimitMiB":1120,"nodePathAbsent":true,"optionalWsExtensionsDisabled":true,"worker":false,"stage":"src-0027"}
+{"pid":1642,"ppid":1612,"nodeVersion":"26.10.0","heapLimitMiB":1120,"nodePathAbsent":true,"optionalWsExtensionsDisabled":true,"worker":true,"stage":"src-0027"}

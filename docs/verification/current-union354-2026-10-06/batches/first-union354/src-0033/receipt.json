@@ -1,0 +1,111 @@
+{
+  "stage": {
+    "id": "src-0033",
+    "kind": "src",
+    "wallSeconds": 600,
+    "oldSpaceMiB": 1024,
+    "heapMiB": 1120,
+    "rssMiB": 1536,
+    "stopReserveGiB": 6,
+    "file": "src/host/world/ActualFoulQuantizerEndpointPrerequisite.test.ts",
+    "caseNames": [
+      "admits a real retained foul quantizer endpoint with all ten original actor histories after rejecting a stale command",
+      "preserves historical foul stop and count ownership after the real endpoint while generation remains pending",
+      "reopens the real foul endpoint and original receipts offline after all construction handles close"
+    ],
+    "expectedSkippedNames": []
+  },
+  "sourceCommit": "10934028ff85b00b38b37142dfeda45b9e3c0814",
+  "controlHashes": {
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/run-batch.py": "5fbedd112ef7a971559a5a3f44411b1b644fedd476f52a1954622aa1699c2e11",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/cumulative.config.json": "285951b57c0c90d82f5e3defa5c93084e202b0b4372a8cfdfa1d996184016e10",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-source.sha256": "399a440dac37ac36806658ae449734bdc5d02885100b6515d0f8575d22cd09b5",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-dependencies.json": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-inventory.json": "9d724fd3e17d90b79e0b3957cc2f93abecab7ed16c1d5bf0a9ceb4fff523ea7f",
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node": "ab9c8eecf9f82d6693cdc3accced17034065c8d96213b0aa76a7e803d20ae1da",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/runtime-probe.cjs": "3dee097dc8383f9607c6027b135ed799b564f5a3247baf2c9684d37287f1ed93",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/receipt-reporter.mjs": "7391e409e0fc5e43fa0ffc39cd838b0fa56e408465db77b077e676cee033a248",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/per-file.vitest.config.mjs": "efe80045cf36d55d09c0372021f1d355498ad78deb85fd5fcc741a6a1501aac0",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/python-file-loader.py": "0ef3bb4b99ed87579b7cc77e119eddbb58b0c8dff206ae0ea016438ba8a6cb02",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/process-identity-reviewed.fragment.py": "17c73eb414b32f9f1616b5e4e58ac1077a0449dd5b6887c0291369b73ce9ca9f"
+  },
+  "startedAt": "2026-10-06T15:49:55.227785+00:00",
+  "command": [
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/per-file.vitest.config.mjs",
+    "--reporter=verbose",
+    "--reporter=json",
+    "--reporter=/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/receipt-reporter.mjs",
+    "--outputFile=/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0033/results.json"
+  ],
+  "childPid": 1989,
+  "rootStartTime": 3700918,
+  "terminalAt": "2026-10-06T15:52:01.105102+00:00",
+  "seconds": 125.87727085500228,
+  "exitCode": 0,
+  "stopReason": null,
+  "failure": null,
+  "classification": "passed",
+  "coverageComplete": true,
+  "counts": {
+    "numTotalTests": 3,
+    "numPassedTests": 3,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0
+  },
+  "perTest": [
+    {
+      "name": "admits a real retained foul quantizer endpoint with all ten original actor histories after rejecting a stale command",
+      "status": "passed"
+    },
+    {
+      "name": "preserves historical foul stop and count ownership after the real endpoint while generation remains pending",
+      "status": "passed"
+    },
+    {
+      "name": "reopens the real foul endpoint and original receipts offline after all construction handles close",
+      "status": "passed"
+    }
+  ],
+  "runtime": [
+    {
+      "pid": 1989,
+      "ppid": 2,
+      "nodeVersion": "26.10.0",
+      "heapLimitMiB": 1120,
+      "nodePathAbsent": true,
+      "optionalWsExtensionsDisabled": true,
+      "worker": false,
+      "stage": "src-0033"
+    },
+    {
+      "pid": 2019,
+      "ppid": 1989,
+      "nodeVersion": "26.10.0",
+      "heapLimitMiB": 1120,
+      "nodePathAbsent": true,
+      "optionalWsExtensionsDisabled": true,
+      "worker": true,
+      "stage": "src-0033"
+    }
+  ],
+  "runtimeVerified": true,
+  "peakAggregateRssKiB": 531456,
+  "sourceDependenciesControlsUnchanged": true,
+  "remainingOwnedProcesses": [],
+  "reaped": true,
+  "cancellationSignal": null,
+  "artifacts": {
+    "collection.json": "274b3dcdc07ef8e29393df82594e22b526bc4b6bf8ee7538248bf0070edec568",
+    "evidence.json": "635a5e3df642f891064c728acf7c814c92f4d5f49f45120675486e6b75735e29",
+    "output.log": "900048f44c3e1aa8fddecf3ae5c361882de8160c8f65d994741a0a315eb88255",
+    "results.json": "0466381a5f98544954ff634a4a6d40fd9fde368d4ffa9938a1ec787dbe5b4574",
+    "rss.jsonl": "66decb74434750eff45596e37cbd1133d61441259fa7065c29a1345c19fb2da6",
+    "runtime.jsonl": "dc79440b90795a5f49cb9fac68f93e52e12f99ce6ebee5a47d483ef9224296dd"
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "sourceCommit": "10934028ff85b00b38b37142dfeda45b9e3c0814",
+  "files": 15,
+  "passedCases": 1634,
+  "failedCases": 0,
+  "skippedCases": 0,
+  "allSessionsExitedZero": true,
+  "allReaped": true,
+  "ledgerCreditTransferred": false,
+  "wholeProjectPassed": false,
+  "receipts": [
+    {
+      "phase": "node-01",
+      "file": "tools/verification/actual-live-pipeline/closure-pair-transition.test.mjs",
+      "sha256": "2cef6ebd24c1134a432f989159cd21d15a0cdb31202c62af4990c4489d6ed02a",
+      "cases": 40,
+      "seconds": 1.1451813060048153
+    },
+    {
+      "phase": "node-02",
+      "file": "tools/verification/actual-live-pipeline/inherited-official-evidence.test.mjs",
+      "sha256": "4a7075805bbb6954cf431c54dfa25ab6647008c288107900da1de40c9b16ce9c",
+      "cases": 181,
+      "seconds": 1.8041364260061528
+    },
+    {
+      "phase": "node-03",
+      "file": "tools/verification/actual-live-pipeline/inherited-official-files.test.mjs",
+      "sha256": "c9b34498c0f536ab4854c27d0f6a383ecb40f5797b7a9d4f43882c09a9748095",
+      "cases": 102,
+      "seconds": 2.6562461529974826
+    },
+    {
+      "phase": "node-04",
+      "file": "tools/verification/actual-live-pipeline/inherited-role-evidence.test.mjs",
+      "sha256": "4b0a073dc214dd69789c2024e26b4b287daa2a87403d3d559d07e5a765cebe0b",
+      "cases": 256,
+      "seconds": 1.9278930579966982
+    },
+    {
+      "phase": "node-05",
+      "file": "tools/verification/actual-live-pipeline/inherited-role-files.test.mjs",
+      "sha256": "11e54e89aa6e00ab99abcb281b8344ab7092f9fcb0e740c372ff92f9dd80b547",
+      "cases": 154,
+      "seconds": 1.454357231996255
+    },
+    {
+      "phase": "node-06",
+      "file": "tools/verification/actual-live-pipeline/known-profile-producer-evidence.test.mjs",
+      "sha256": "5cbc3ce93f02eee6f4f0edda7ed5040179e0421f946492f6fd26145a04740f91",
+      "cases": 181,
+      "seconds": 1.097974495998642
+    },
+    {
+      "phase": "node-07",
+      "file": "tools/verification/actual-live-pipeline/known-profile-producer-files.test.mjs",
+      "sha256": "28392e5d0b432b5a5ce427cf89931ef339d82a704737e39fbf1951e72ed50118",
+      "cases": 92,
+      "seconds": 1.3422111740001128
+    },
+    {
+      "phase": "node-08",
+      "file": "tools/verification/actual-live-pipeline/official-read-replay-evidence.test.mjs",
+      "sha256": "ee744dae8867efbf73b61b57e13261db394dbff36ec67cea1e38ba76f0830568",
+      "cases": 344,
+      "seconds": 1.899223617001553
+    },
+    {
+      "phase": "node-09",
+      "file": "tools/verification/actual-live-pipeline/official-read-replay-files.test.mjs",
+      "sha256": "f0e48ac2ec97b298ee7de877ebf9e8de237f10ebc5ac368343376f577c7106cb",
+      "cases": 38,
+      "seconds": 3.3954925969956093
+    },
+    {
+      "phase": "node-10",
+      "file": "tools/verification/actual-live-pipeline/physical-producer-evidence.test.mjs",
+      "sha256": "374bc6e784a97b8e2dc7b15a8197c10a7468e4c7a58524e36174e6fe4d835531",
+      "cases": 65,
+      "seconds": 1.0677124290014035
+    },
+    {
+      "phase": "node-11",
+      "file": "tools/verification/actual-live-pipeline/physical-producer-files.test.mjs",
+      "sha256": "d6eece9cc4b29d995ada0f84553ea8e328df05f2f2a4dcc445b1a6d9ebdaaf81",
+      "cases": 17,
+      "seconds": 0.9838536149982247
+    },
+    {
+      "phase": "node-12",
+      "file": "tools/verification/actual-live-pipeline/pipeline-scope.test.mjs",
+      "sha256": "c999ebab5f1382df540d82c2937850ee233176ce1245b9e2c93eca3a464c5f77",
+      "cases": 27,
+      "seconds": 0.9944538420022582
+    },
+    {
+      "phase": "node-13",
+      "file": "tools/verification/actual-live-pipeline/replayed-role-evidence.test.mjs",
+      "sha256": "4b18ecc6b3d909b03a624356414901d406cfe54f851c615f7e5babd12db2afb4",
+      "cases": 44,
+      "seconds": 1.4100909760018112
+    },
+    {
+      "phase": "node-14",
+      "file": "tools/verification/actual-live-pipeline/role-read-replay-evidence.test.mjs",
+      "sha256": "1277585f8b86e749462cc52ae942e6c588cd6a5ba86e4777b74b9bfe7abf76d2",
+      "cases": 55,
+      "seconds": 1.7379515900029219
+    },
+    {
+      "phase": "node-15",
+      "file": "tools/verification/actual-live-pipeline/role-read-replay-files.test.mjs",
+      "sha256": "51e416bf906478baf3d1376eac45f1801354aa352d438034d4307bda0c9bbcb1",
+      "cases": 38,
+      "seconds": 1.5524744950016611
+    }
+  ],
+  "seconds": 24.4692530060056
+}

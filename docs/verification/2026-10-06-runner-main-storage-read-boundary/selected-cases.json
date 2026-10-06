@@ -1,0 +1,112 @@
+{
+  "version": "runner_main_storage_boundary_qualified_selection_v1",
+  "sourceCommit": "8fe966b41ef94155dfbd3c6bbb0327e8bc448517",
+  "expectedTests": 62,
+  "caseNames": {
+    "src/host/world/RunnerNativeContactWaitBoundary.test.ts": [
+      "exposes prospective policy/view ownership for recipient contact wait"
+    ],
+    "src/host/world/RunnerNativeContactWaitAdmission.test.ts": [
+      "owns a prospective policy and unique view before the dependent pitch, with immutable retry and no peer mutation",
+      "rejects competing identical view overlap before any dependent pitch or contact and preserves the first admission",
+      "rejects competing different_direction view overlap before any dependent pitch or contact and preserves the first admission",
+      "rejects competing different_policy view overlap before any dependent pitch or contact and preserves the first admission",
+      "rejects competing equal_endpoint view overlap before any dependent pitch or contact and preserves the first admission",
+      "rejects new view registration after a genuine dependent pitch while preserving historical view retry and full reopen",
+      "rejects an otherwise valid foreign recipient policy instead of borrowing its observation model for the runner view",
+      "witnesses actual view insertion and rolls back own and peer changes when its observation model mutates inside that write"
+    ],
+    "src/host/world/RunnerNativeContactWaitSavedEvidence.test.ts": [
+      "exposes only saved view ownership for an unsaved Source before the dependent pitch",
+      "exposes only saved view ownership for an unsaved Source after the dependent pitch"
+    ],
+    "src/host/world/RunnerNativeContactWaitConnectionBoundary.test.ts": [
+      "requires the actual native connection before exposing saved runner contact wait evidence"
+    ],
+    "src/host/world/PrePitchRunnerEvidenceFromSqlite.test.ts": [
+      "derives root position and velocity only from the original frame and authenticates the exact roster/Person/Club/fixture",
+      "rejects missing_world rather than assigning a placeholder runner or a different identity",
+      "rejects wrong_base rather than assigning a placeholder runner or a different identity",
+      "rejects multiple_runner rather than assigning a placeholder runner or a different identity",
+      "rejects wrong_actor rather than assigning a placeholder runner or a different identity",
+      "rejects wrong_club rather than assigning a placeholder runner or a different identity",
+      "rejects wrong_fixture rather than assigning a placeholder runner or a different identity",
+      "rejects wrong_person rather than assigning a placeholder runner or a different identity",
+      "rejects future_person rather than assigning a placeholder runner or a different identity",
+      "rejects duplicate_person rather than assigning a placeholder runner or a different identity"
+    ],
+    "src/host/world/SqlitePlayerObservationModelStore.test.ts": [
+      "owns the actual Player/Person and exact fielding baseline, then reopens without an authority",
+      "rejects foreign or unavailable career evidence",
+      "rejects foreign or unavailable player evidence",
+      "rejects foreign or unavailable person-link evidence",
+      "rejects foreign or unavailable fielding-model evidence",
+      "rejects foreign or unavailable before-model evidence",
+      "rejects a future fielding model even when the Person is already available",
+      "rejects malformed accepted Source {\"sourceVersion\":\"\"}",
+      "rejects malformed accepted Source {\"sourceId\":\"wrong-id\"}",
+      "rejects malformed accepted Source {\"acceptedAtDay\":1.5}",
+      "rejects malformed accepted Source {\"result\":\"safe\"}",
+      "rejects malformed accepted Source {\"calibration\":null}",
+      "rejects malformed accepted Source {\"ratings\":{\"situationalAwareness\":0.5}}",
+      "rejects incomplete parameters instead of promoting fixture calibration or ratings into a default",
+      "preserves the original baseline, refuses another version, and detects changed authority on retry",
+      "reconstructs original Source and its bindings on read and retry: UPDATE world_player_observation_models SET source_version='changed'",
+      "reconstructs original Source and its bindings on read and retry: UPDATE world_player_observation_models SET source_hash='changed'",
+      "reconstructs original Source and its bindings on read and retry: UPDATE world_player_observation_models SET snapshot_hash='changed'",
+      "reconstructs original Source and its bindings on read and retry: UPDATE world_player_observation_models SET career_id='changed'",
+      "reconstructs original Source and its bindings on read and retry: UPDATE world_player_observation_models SET player_id='changed'",
+      "reconstructs original Source and its bindings on read and retry: UPDATE world_player_observation_models SET person_link_source_id='changed'",
+      "reconstructs original Source and its bindings on read and retry: UPDATE world_player_observation_models SET fielding_model_source_id='changed'",
+      "reconstructs original Source and its bindings on read and retry: UPDATE world_player_observation_models SET accepted_at_day=12",
+      "reconstructs original Source and its bindings on read and retry: UPDATE world_player_fielding_models SET snapshot_hash='changed'",
+      "reconstructs original Source and its bindings on read and retry: UPDATE world_player_person_links SET person_id='changed'",
+      "rejects a fully rehashed Person rebinding against the previously accepted observation snapshot",
+      "rejects changed but rehashed fielding calibration instead of silently refreshing its exact reference",
+      "validates query inputs and closed stores without creating data"
+    ],
+    "src/host/world/RunnerNativeContactWaitMainOwnership.test.ts": [
+      "rejects a canonical TEMP table policy clone whose Source was never admitted in main",
+      "rejects a canonical TEMP view policy clone whose Source was never admitted in main",
+      "rejects a late TEMP table view clone through an existing reader after the dependent pitch",
+      "rejects a late TEMP view view clone through an existing reader after the dependent pitch",
+      "rejects an otherwise matching TEMP world_player_observation_models table dependency introduced after reader construction",
+      "rejects an otherwise matching TEMP world_player_observation_models view dependency introduced after reader construction",
+      "rejects an otherwise matching TEMP world_player_fielding_models table dependency introduced after reader construction",
+      "rejects an otherwise matching TEMP world_player_fielding_models view dependency introduced after reader construction",
+      "rejects a TEMP original-recipient binding that hides a changed main authority through an existing reader",
+      "rejects a missing main observation model replaced by attached storage through an existing reader"
+    ],
+    "src/host/world/RunnerNativeContactWaitReadSnapshot.test.ts": [
+      "preserves the caller transaction, query-only setting and authorizer during authentic main policy and historical view reads",
+      "keeps a caller WAL snapshot and sees uncommitted main corruption without taking over its rollback"
+    ]
+  },
+  "perFileCounts": {
+    "src/host/world/RunnerNativeContactWaitBoundary.test.ts": 1,
+    "src/host/world/RunnerNativeContactWaitAdmission.test.ts": 8,
+    "src/host/world/RunnerNativeContactWaitSavedEvidence.test.ts": 2,
+    "src/host/world/RunnerNativeContactWaitConnectionBoundary.test.ts": 1,
+    "src/host/world/PrePitchRunnerEvidenceFromSqlite.test.ts": 10,
+    "src/host/world/SqlitePlayerObservationModelStore.test.ts": 28,
+    "src/host/world/RunnerNativeContactWaitMainOwnership.test.ts": 10,
+    "src/host/world/RunnerNativeContactWaitReadSnapshot.test.ts": 2
+  },
+  "ancestorTitles": {
+    "src/host/world/RunnerNativeContactWaitBoundary.test.ts": [],
+    "src/host/world/RunnerNativeContactWaitAdmission.test.ts": [],
+    "src/host/world/RunnerNativeContactWaitSavedEvidence.test.ts": [],
+    "src/host/world/RunnerNativeContactWaitConnectionBoundary.test.ts": [],
+    "src/host/world/PrePitchRunnerEvidenceFromSqlite.test.ts": [],
+    "src/host/world/SqlitePlayerObservationModelStore.test.ts": [],
+    "src/host/world/RunnerNativeContactWaitMainOwnership.test.ts": [],
+    "src/host/world/RunnerNativeContactWaitReadSnapshot.test.ts": []
+  },
+  "origins": {
+    "unchangedStageAAndAdjacentCases": 50,
+    "mainStorageOwnershipRegressions": 10,
+    "validMainReadSnapshotsAndSettings": 2
+  },
+  "observedPass": true,
+  "skipped": 0
+}

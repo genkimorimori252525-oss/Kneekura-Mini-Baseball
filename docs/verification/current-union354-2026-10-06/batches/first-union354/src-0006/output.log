@@ -1,0 +1,33 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/BattingStanceNative.test.ts > accepts a prospective stance from the actual original actor and exact explicit body readiness and eye inputs 886ms
+ ✓ src/host/world/BattingStanceNative.test.ts > reopens the saved stance with no live callbacks and keeps original source and snapshot bytes 1219ms
+ ✓ src/host/world/BattingStanceNative.test.ts > rejects prospective stance person mismatch against the actual registered actor 329ms
+ ✓ src/host/world/BattingStanceNative.test.ts > rejects prospective stance game mismatch against the actual registered actor 320ms
+ ✓ src/host/world/BattingStanceNative.test.ts > rejects prospective stance fixture mismatch against the actual registered actor 338ms
+ ✓ src/host/world/BattingStanceNative.test.ts > rejects prospective stance play mismatch against the actual registered actor 324ms
+ ✓ src/host/world/BattingStanceNative.test.ts > rejects prospective stance actor mismatch against the actual registered actor 335ms
+ ✓ src/host/world/BattingStanceNative.test.ts > rejects prospective stance world mismatch against the actual registered actor 354ms
+ ✓ src/host/world/BattingStanceNative.test.ts > rejects prospective stance start-tick mismatch against the actual registered actor 338ms
+ ✓ src/host/world/BattingStanceNative.test.ts > rejects prospective stance future-day mismatch against the actual registered actor 333ms
+ ✓ src/host/world/BattingStanceNative.test.ts > rejects prospective stance model-version mismatch against the actual registered actor 338ms
+ ✓ src/host/world/BattingStanceNative.test.ts > rejects a second stance alias for the same original actor instead of creating independent physical truth 827ms
+ ✓ src/host/world/BattingStanceNative.test.ts > rejects new stance admission after legacy pitch execution while retaining historical read and same-source retry 1246ms
+ ✓ src/host/world/BattingStanceNative.test.ts > rejects a first new stance after legacy pitch even when no earlier stance reserves its scope 493ms
+ ✓ src/host/world/BattingStanceNative.test.ts > rejects a stale model selection for first new stance admission at the actual game day 1640ms
+ ✓ src/host/world/BattingStanceNative.test.ts > preserves original stance history and same-source retry after a later legitimate model becomes applicable 2045ms
+ ✓ src/host/world/BattingStanceNative.test.ts > rejects changed same-ID stance bytes and a hidden original identity after moving its SQL index 911ms
+ ✓ src/host/world/BattingStanceNative.test.ts > rejects a stance with corrupt sql-scope mirrors even when supplied hashes match the changed JSON 753ms
+ ✓ src/host/world/BattingStanceNative.test.ts > rejects a stance with corrupt sql-day mirrors even when supplied hashes match the changed JSON 728ms
+ ✓ src/host/world/BattingStanceNative.test.ts > rejects a stance with corrupt sql-version mirrors even when supplied hashes match the changed JSON 731ms
+ ✓ src/host/world/BattingStanceNative.test.ts > rejects a stance with corrupt source-scope mirrors even when supplied hashes match the changed JSON 732ms
+ ✓ src/host/world/BattingStanceNative.test.ts > rejects a stance with corrupt snapshot-scope mirrors even when supplied hashes match the changed JSON 735ms
+ ✓ src/host/world/BattingStanceNative.test.ts > rolls back stance insertion and trigger deletion of the original actor, then reopens the successful retry 917ms
+
+ Test Files  1 passed (1)
+      Tests  23 passed (23)
+   Start at  00:42:22
+   Duration  21.12s (transform 3.03s, setup 0ms, collect 3.93s, tests 16.88s, environment 0ms, prepare 82ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0006/results.json

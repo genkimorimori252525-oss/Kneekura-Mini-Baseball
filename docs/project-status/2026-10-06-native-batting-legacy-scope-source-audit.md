@@ -1,0 +1,13 @@
+# Existing legacy pitch identity mirrors: bounded source audit
+
+The local stance admission repair uses synthetic fixtures and the two existing physical pitch execution tables. No new owner or generalized validation framework is selected.
+
+The established raw ownership census is inline in `ActualLivePlayClosureEvidenceFromSqlite.ts:236–244`. It uses `sqliteJsonMetadataNodes`/raw text identity claims and selects a relevant action row when any original game mirror and any applicable play mirror match. The closure's historical `<= previousPlayId` policy is specific to its activation fence; stance admission needs exact play equality.
+
+Actual action game mirrors are SQL `game_id`, `source_json.gameId`, `snapshot_json.source.gameId`, and `snapshot_json.frame.gameId`. Actual active-play mirrors are SQL `play_id`, `snapshot_json.frame.match.playId`, `snapshot_json.beforeTimeline.playId`, and `snapshot_json.result.pitch.resolution.timeline.playId`. `physical_pitch_progress_heads` has only SQL game/play identity with revision/last-source linkage. The registered nested batter actor has source/binding/world-fixture game references tied to its own match play; those are already covered by the first scoped repair and four observed actor guards.
+
+`PhysicalPitchEvidenceFromSqlite.ts` replays the original frame and supplies its match play to physical execution. `PlayerPitchDeliveryRuntime.ts` requires the input timeline to match that play; the resulting canonical timeline preserves it. Delivery motion, release, trajectory, physical result, workload and calibration outputs add no game/play identity fields. Participant bindings, optional runner preparation, initial-World dependencies and activation/handoff objects remain participant/provenance references. Prior activation play IDs are historical and are not new execution identity fallbacks.
+
+No standalone exported raw pitch census currently exists; use this established finite path inventory and existing duplicate-aware metadata primitives inside the stance owner. Preserve historical read/retry and the original pitch owner unchanged.
+
+Five additional regressions on the preserved two-repair candidate cover the actual omissions together: snapshot Source game; before/result timeline play; SQL game with JSON play; JSON game with SQL play. All first accept a real model/pitch in the existing local fixture, then move only existing record mirrors. No new Scope alias fields are invented. These cases are unrun; the original five-guard RED receipt fcbd9668 is separately preserved. The complete local data-consistency repair remains held until the five new exact REDs qualify.

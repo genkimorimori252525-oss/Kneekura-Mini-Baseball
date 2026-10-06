@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/RunnerNativeContactWaitConnectionBoundary.test.ts > requires the actual native connection before exposing saved runner contact wait evidence
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  00:44:23
+   Duration  6.24s (transform 4.10s, setup 0ms, collect 5.96s, tests 28ms, environment 0ms, prepare 54ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0016/results.json

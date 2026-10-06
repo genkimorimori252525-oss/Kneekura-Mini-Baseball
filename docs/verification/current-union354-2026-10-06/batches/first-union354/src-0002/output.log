@@ -1,0 +1,20 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts > a supported repertoire speed change reaches sampled motor kinematics
+ ✓ src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts > a larger feasible speed ceiling is a constraint, not an extra speed buff
+ ✓ src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts > profile identifiers change provenance without changing rigid physics
+ ✓ src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts > a display rating is not an accepted physics input
+ ✓ src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts > a refinement delivered after commitment cannot affect the committed motor
+ ✓ src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts > positive actor motor latency can delay physical onset without moving decision time
+ ✓ src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts > a technical timing source changes physical phase timing independently of emotion
+ ✓ src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts > changing actual flight changes physical resolution without replanning the accepted swing
+ ✓ src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts > serialized forecast remains pending and limits the watermark until exact due adoption
+ ✓ src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts > due adoption recomputes a restored forecast instead of trusting serialized contact payloads
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  00:41:42
+   Duration  1.63s (transform 641ms, setup 0ms, collect 850ms, tests 472ms, environment 0ms, prepare 64ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0002/results.json

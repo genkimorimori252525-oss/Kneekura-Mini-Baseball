@@ -1,0 +1,38 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > selects the complete existing hold and timing result with explicitly unavailable force and cues
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > matches legacy tag-up priority even when the legacy force boolean is true
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > matches legacy tag-up priority even when the legacy force boolean is false
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > uses actual consumption time rather than an earlier remembered sample time for the wait decision
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > shifts evidence and cognitive decision together when actual consumption is later
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > changes only existing cognitive timing with decision ability and never turns wait into settlement
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > leaves unavailable knowledge and the original perceived input unchanged across repeated choices
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > rejects unknown_version without reaching force, coach, race or no-action fallback
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > rejects tag_none without reaching force, coach, race or no-action fallback
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > rejects tag_retouch without reaching force, coach, race or no-action fallback
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > rejects force_missing without reaching force, coach, race or no-action fallback
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > rejects force_known_true without reaching force, coach, race or no-action fallback
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > rejects force_known_false without reaching force, coach, race or no-action fallback
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > rejects cue_completed without reaching force, coach, race or no-action fallback
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > rejects force_boolean without reaching force, coach, race or no-action fallback
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > rejects inline_cues without reaching force, coach, race or no-action fallback
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > rejects scheduled_state without reaching force, coach, race or no-action fallback
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > rejects observer_mismatch without reaching force, coach, race or no-action fallback
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > rejects nonadjacent_base without reaching force, coach, race or no-action fallback
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > rejects fractional_time without reaching force, coach, race or no-action fallback
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > rejects settled_result without reaching force, coach, race or no-action fallback
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > rejects a version accessor before invoking it
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > rejects a forceKnowledge accessor before invoking it
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > rejects a timing accessor before invoking it
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > rejects an aliased root key instead of accepting a different partial shape
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > rejects cognitive tick overflow at an actual nonzero near-limit consumption time
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > rejects invalid required ability calibration without choosing a default wait
+ ✓ src/core/sim/running/RunnerPartialTagUpWait.test.ts > rejects invalid required timing calibration without choosing a default wait
+
+ Test Files  1 passed (1)
+      Tests  28 passed (28)
+   Start at  00:45:32
+   Duration  681ms (transform 281ms, setup 0ms, collect 333ms, tests 21ms, environment 0ms, prepare 91ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0022/results.json

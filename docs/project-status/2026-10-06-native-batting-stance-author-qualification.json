@@ -1,0 +1,128 @@
+{
+  "kind": "native-batting-model-and-stance-author-qualification-v1",
+  "qualifiedSourceCommit": "19aa0856b70eabd3dcf6b5795c7a37b19d31013c",
+  "qualifiedSrcTree": "1aff870edb476b55b4c499369281f7cd175d37b7",
+  "qualifiedTree": "b2f7c3e6ea47f7eb19b524dab35e20471dd33703",
+  "rawTerminal": {
+    "path": "/workspace/shared/baseball-native-batting-stance-qualification-preparation-v1/attempt1/terminal.json",
+    "sha256": "becbdfc84c6cf0fa4e1f9bd8c94a7a8ed8eb6bc3fa239e04d1a10896d976599e",
+    "terminalAt": "2026-10-06T09:59:02.300020+00:00"
+  },
+  "counts": {
+    "numTotalTests": 158,
+    "numPassedTests": 158,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0
+  },
+  "uniqueSelectedCaseCount": 158,
+  "uniqueHeldCaseCount": 0,
+  "passed": true,
+  "modelAndStanceQualificationVerified": true,
+  "sourceDependenciesControlsUnchanged": true,
+  "controllerSha256": "4f35129b003fbca1c0913620587e386174eb833e6019d9f7b78838643c5dc4ec",
+  "configSha256": "c327c895237c8a0ae190c43760f52c0896c4bb31fa30078871ea8970a1d144a5",
+  "sourceManifestSha256": "82fbb98b4f39d5a534d4a5ef386134338905caa68aafe23d227fd1952ce2e873",
+  "dependencyManifestSha256": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+  "stages": [
+    {
+      "stage": "compiler",
+      "seconds": 34.705374290999316,
+      "exitCode": 0,
+      "peakAggregateRssKiB": 1481976,
+      "counts": {},
+      "reaped": true,
+      "phaseVerified": true,
+      "runtimeVerified": true
+    },
+    {
+      "stage": "preservation",
+      "seconds": 8.476366029000928,
+      "exitCode": 0,
+      "peakAggregateRssKiB": 450576,
+      "counts": {
+        "numTotalTests": 14,
+        "numPassedTests": 14,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "reaped": true,
+      "phaseVerified": true,
+      "runtimeVerified": true
+    },
+    {
+      "stage": "model",
+      "seconds": 18.623024413000167,
+      "exitCode": 0,
+      "peakAggregateRssKiB": 464236,
+      "counts": {
+        "numTotalTests": 34,
+        "numPassedTests": 34,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "reaped": true,
+      "phaseVerified": true,
+      "runtimeVerified": true
+    },
+    {
+      "stage": "stance",
+      "seconds": 32.153438212000765,
+      "exitCode": 0,
+      "peakAggregateRssKiB": 479956,
+      "counts": {
+        "numTotalTests": 33,
+        "numPassedTests": 33,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "reaped": true,
+      "phaseVerified": true,
+      "runtimeVerified": true
+    },
+    {
+      "stage": "related_owners",
+      "seconds": 17.47717986600037,
+      "exitCode": 0,
+      "peakAggregateRssKiB": 468316,
+      "counts": {
+        "numTotalTests": 77,
+        "numPassedTests": 77,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "reaped": true,
+      "phaseVerified": true,
+      "runtimeVerified": true
+    }
+  ],
+  "originalOwnerRed": {
+    "terminalSha256": "532d84f87eba2639094f64670fe887c6159cbb20b13d29af62542fbc13bee2ab",
+    "sourceCommit": "9952dfb15f8319086d6db6edf18b2fa59f000ef3"
+  },
+  "firstFiveGuardRed": {
+    "terminalSha256": "fcbd966868602754501ce6f7339a57963d889caa80b35feb1771439b8b0c1a42",
+    "sourceCommit": "e21c5fd60748c38bcd9b9bf349d633521b113fc0"
+  },
+  "legacyFiveGuardRed": {
+    "terminalSha256": "ec82d9f78209e6f91e6421874838adbd7b819a119e23eb2fb55bae05e657b899",
+    "sourceCommit": "1231340e7a150e40d117689268700770545a9a79"
+  },
+  "supervisorSessionReceipt": {
+    "owner": "coordinator",
+    "session": 28611,
+    "confirmedExitCode": 0,
+    "reaped": true
+  },
+  "wholeSuite": false,
+  "actualLivePipeline": false,
+  "integrationQualificationInherited": false,
+  "prospectiveReleaseSensingMotorAdoptionQualified": false,
+  "cancellationSignal": null,
+  "remainingOwnedProcesses": [],
+  "failure": null
+}

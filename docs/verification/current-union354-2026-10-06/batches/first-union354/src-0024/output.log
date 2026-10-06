@@ -1,0 +1,13 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/core/sim/running/RunnerDecisionTiming.test.ts > RunnerDecisionTiming > maps low decision ability to the slow end
+ ✓ src/core/sim/running/RunnerDecisionTiming.test.ts > RunnerDecisionTiming > maps high decision ability to the fast end
+ ✓ src/core/sim/running/RunnerDecisionTiming.test.ts > RunnerDecisionTiming > rejects invalid ability and timing calibration
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  00:45:37
+   Duration  447ms (transform 105ms, setup 0ms, collect 91ms, tests 10ms, environment 0ms, prepare 99ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0024/results.json

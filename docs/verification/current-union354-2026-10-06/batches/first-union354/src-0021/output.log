@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/core/sim/running/RunnerPartialTagUpWaitBoundary.test.ts > exposes a versioned unavailable-force tag-up wait path on the existing Core decision engine
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  00:45:29
+   Duration  538ms (transform 195ms, setup 0ms, collect 221ms, tests 2ms, environment 0ms, prepare 77ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0021/results.json

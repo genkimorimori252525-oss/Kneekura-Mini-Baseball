@@ -1,0 +1,102 @@
+{
+  "authorBase": "fc7017db60c86f2bc1dfaffa583dba303fd4b10b",
+  "authorBaseFullTree": "0c510b71f45a14b8f7ecfb791c5fd6b55ca5787f",
+  "qualifiedAuthor": "2c94d6c09dcc6e0c94cb9d3e0f233969df20a0d7",
+  "authorSourceTree": "486506be335450c08109c295b5e01ff8fa0b9625",
+  "authorFullTree": "f6049b6654f23ddf4c0c9e2c4db00f9ae56ca180",
+  "currentFoulPublicationBase": "60290349b7847a952d4db3ccc4344445c1c0d9a6",
+  "currentFoulSourceTree": "1c6e92b817ea8b3e29416f3786a9706fbb4062f6",
+  "currentFoulFullTree": "99294a92bbd9662ec4c831a959d4ecdd67fb47f9",
+  "exactTransportPatchSha256": "546a83173ca4053b540a3fa4f113e59311015e246916d7d5c9757e3bc3637ec5",
+  "authorPathCount": 11,
+  "paths": [
+    {
+      "path": "docs/superpowers/specs/2026-10-06-native-runner-contact-wait-owner-contract.md",
+      "beforeBlob": null,
+      "authorBlob": "a417d7cd2f5da9749a7155df7cc8c21b704ce8d2",
+      "currentFoulPreimageBlob": null,
+      "authorSha256": "5619476e4d7da1366c7f99ed18c8f732cd2180dff8a487486fdd5edb1bd986f4"
+    },
+    {
+      "path": "src/host/world/PrePitchRunnerEvidenceFromSqlite.ts",
+      "beforeBlob": "74cc01f9857356dffc3305c9b2ecf76634c8d4a0",
+      "authorBlob": "768d31bf0920523b8c41ac674ff26048ad4ffa95",
+      "currentFoulPreimageBlob": "74cc01f9857356dffc3305c9b2ecf76634c8d4a0",
+      "authorSha256": "f2bcfa5d4f864cd501e4142c0c46f24c63bf2cfb0538a12ab54e991d8e5e0628"
+    },
+    {
+      "path": "src/host/world/RunnerContactWaitPolicyView.ts",
+      "beforeBlob": null,
+      "authorBlob": "af01975dc3e6b7c0e5bc6d9df9ec28919e007019",
+      "currentFoulPreimageBlob": null,
+      "authorSha256": "ff067fb1147cc50a36fdb26eadea4e2cb2dc0116ce3161f60cdf7abc96e54af4"
+    },
+    {
+      "path": "src/host/world/RunnerNativeContactWaitAdmission.test.ts",
+      "beforeBlob": null,
+      "authorBlob": "3e9358bcf2fa6a0acdb80cd292a358b1f62ecce5",
+      "currentFoulPreimageBlob": null,
+      "authorSha256": "941323c9d64ebdd5eb0700ed0dd263c00dbe9fcdd49c5312bdbe9254828ccf0b"
+    },
+    {
+      "path": "src/host/world/RunnerNativeContactWaitBoundary.test.ts",
+      "beforeBlob": null,
+      "authorBlob": "3a8608015fc5ba5b900e9fff4c11eb1e20a7d260",
+      "currentFoulPreimageBlob": null,
+      "authorSha256": "113108f2c9486b9aa041f483d3bbb0e7d407e25b463a9b960380996cd02a00f6"
+    },
+    {
+      "path": "src/host/world/RunnerNativeContactWaitConnectionBoundary.test.ts",
+      "beforeBlob": null,
+      "authorBlob": "0224d797de99ac28b6b0dd06dbc473b3629773d9",
+      "currentFoulPreimageBlob": null,
+      "authorSha256": "dd338e2a740122323b12757eb32969a8b93db9cd2c500e845ae056be66b0339d"
+    },
+    {
+      "path": "src/host/world/RunnerNativeContactWaitContracts.test-support.ts",
+      "beforeBlob": null,
+      "authorBlob": "365b010f06295a9295ae78991955e0ba3d3b80db",
+      "currentFoulPreimageBlob": null,
+      "authorSha256": "3094ea77b35207422eaa00296a4c3a718a968ecf3014b647a28585902b5abcde"
+    },
+    {
+      "path": "src/host/world/RunnerNativeContactWaitFixtures.test-support.ts",
+      "beforeBlob": null,
+      "authorBlob": "0cc04b5afd08cc35bc0e9b7f7d564cc0a978cfb0",
+      "currentFoulPreimageBlob": null,
+      "authorSha256": "0df537ff01b9ac75b65786a9d4cf18d10a02a8bb19fab3f2fe195952ed598ce6"
+    },
+    {
+      "path": "src/host/world/RunnerNativeContactWaitSavedEvidence.test.ts",
+      "beforeBlob": null,
+      "authorBlob": "8bef9bf210f998c999d916243dc5efc5d1167e83",
+      "currentFoulPreimageBlob": null,
+      "authorSha256": "8647b7514563d538f8a0891f8c8d0abadb18b296fad96bafc3118e5e6f37b4a9"
+    },
+    {
+      "path": "src/host/world/SqliteActualLocomotionStore.ts",
+      "beforeBlob": "463c94b1044d4f06db1ecb3edb2f863747d8044e",
+      "authorBlob": "13a137d57215e6a3abe6f8d677cca80fd06fd8d4",
+      "currentFoulPreimageBlob": "463c94b1044d4f06db1ecb3edb2f863747d8044e",
+      "authorSha256": "63df29e16ddbe19f97b7d8caa308025fd570f51514a6ffe02c23d2af002edc6c"
+    },
+    {
+      "path": "src/host/world/SqliteRunnerContactWaitStore.ts",
+      "beforeBlob": null,
+      "authorBlob": "84009e35d7fd0cd99af3152ee59cef4a7a4602ce",
+      "currentFoulPreimageBlob": null,
+      "authorSha256": "7868ceee7d3451674cdbc464e049750905aaa4b78aa3e5acff33453fccd915a4"
+    }
+  ],
+  "currentBasePreimagesMatchAuthorBase": true,
+  "overlappingChangedPaths": [],
+  "currentSourceAcceptancePerformed": false,
+  "stageBExcludedPaths": [
+    "docs/superpowers/specs/2026-10-06-native-runner-contact-wait-capture-prerequisite.md",
+    "src/host/world/RunnerNativeContactWaitCaptureContracts.test-support.ts",
+    "src/host/world/RunnerNativeContactWaitCaptureFixtures.test-support.ts",
+    "src/host/world/RunnerNativeContactWaitCapturePrerequisite.test-support.ts",
+    "src/host/world/RunnerNativeContactWaitCapturePrerequisite.test.ts"
+  ],
+  "scope": "Prospective Stage A admission only; no semantic capture/choice/motor/settlement credit"
+}
