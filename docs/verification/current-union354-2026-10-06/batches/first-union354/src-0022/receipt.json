@@ -1,0 +1,236 @@
+{
+  "stage": {
+    "id": "src-0022",
+    "kind": "src",
+    "wallSeconds": 120,
+    "oldSpaceMiB": 1024,
+    "heapMiB": 1120,
+    "rssMiB": 1536,
+    "stopReserveGiB": 6,
+    "file": "src/core/sim/running/RunnerPartialTagUpWait.test.ts",
+    "caseNames": [
+      "selects the complete existing hold and timing result with explicitly unavailable force and cues",
+      "matches legacy tag-up priority even when the legacy force boolean is true",
+      "matches legacy tag-up priority even when the legacy force boolean is false",
+      "uses actual consumption time rather than an earlier remembered sample time for the wait decision",
+      "shifts evidence and cognitive decision together when actual consumption is later",
+      "changes only existing cognitive timing with decision ability and never turns wait into settlement",
+      "leaves unavailable knowledge and the original perceived input unchanged across repeated choices",
+      "rejects unknown_version without reaching force, coach, race or no-action fallback",
+      "rejects tag_none without reaching force, coach, race or no-action fallback",
+      "rejects tag_retouch without reaching force, coach, race or no-action fallback",
+      "rejects force_missing without reaching force, coach, race or no-action fallback",
+      "rejects force_known_true without reaching force, coach, race or no-action fallback",
+      "rejects force_known_false without reaching force, coach, race or no-action fallback",
+      "rejects cue_completed without reaching force, coach, race or no-action fallback",
+      "rejects force_boolean without reaching force, coach, race or no-action fallback",
+      "rejects inline_cues without reaching force, coach, race or no-action fallback",
+      "rejects scheduled_state without reaching force, coach, race or no-action fallback",
+      "rejects observer_mismatch without reaching force, coach, race or no-action fallback",
+      "rejects nonadjacent_base without reaching force, coach, race or no-action fallback",
+      "rejects fractional_time without reaching force, coach, race or no-action fallback",
+      "rejects settled_result without reaching force, coach, race or no-action fallback",
+      "rejects a version accessor before invoking it",
+      "rejects a forceKnowledge accessor before invoking it",
+      "rejects a timing accessor before invoking it",
+      "rejects an aliased root key instead of accepting a different partial shape",
+      "rejects cognitive tick overflow at an actual nonzero near-limit consumption time",
+      "rejects invalid required ability calibration without choosing a default wait",
+      "rejects invalid required timing calibration without choosing a default wait"
+    ],
+    "expectedSkippedNames": []
+  },
+  "sourceCommit": "10934028ff85b00b38b37142dfeda45b9e3c0814",
+  "controlHashes": {
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/run-batch.py": "5fbedd112ef7a971559a5a3f44411b1b644fedd476f52a1954622aa1699c2e11",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/cumulative.config.json": "285951b57c0c90d82f5e3defa5c93084e202b0b4372a8cfdfa1d996184016e10",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-source.sha256": "399a440dac37ac36806658ae449734bdc5d02885100b6515d0f8575d22cd09b5",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-dependencies.json": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-inventory.json": "9d724fd3e17d90b79e0b3957cc2f93abecab7ed16c1d5bf0a9ceb4fff523ea7f",
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node": "ab9c8eecf9f82d6693cdc3accced17034065c8d96213b0aa76a7e803d20ae1da",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/runtime-probe.cjs": "3dee097dc8383f9607c6027b135ed799b564f5a3247baf2c9684d37287f1ed93",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/receipt-reporter.mjs": "7391e409e0fc5e43fa0ffc39cd838b0fa56e408465db77b077e676cee033a248",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/per-file.vitest.config.mjs": "efe80045cf36d55d09c0372021f1d355498ad78deb85fd5fcc741a6a1501aac0",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/python-file-loader.py": "0ef3bb4b99ed87579b7cc77e119eddbb58b0c8dff206ae0ea016438ba8a6cb02",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/process-identity-reviewed.fragment.py": "17c73eb414b32f9f1616b5e4e58ac1077a0449dd5b6887c0291369b73ce9ca9f"
+  },
+  "startedAt": "2026-10-06T15:45:31.172862+00:00",
+  "command": [
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/per-file.vitest.config.mjs",
+    "--reporter=verbose",
+    "--reporter=json",
+    "--reporter=/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/receipt-reporter.mjs",
+    "--outputFile=/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0022/results.json"
+  ],
+  "childPid": 1293,
+  "rootStartTime": 3674517,
+  "terminalAt": "2026-10-06T15:45:33.705850+00:00",
+  "seconds": 2.532983419005177,
+  "exitCode": 0,
+  "stopReason": null,
+  "failure": null,
+  "classification": "passed",
+  "coverageComplete": true,
+  "counts": {
+    "numTotalTests": 28,
+    "numPassedTests": 28,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0
+  },
+  "perTest": [
+    {
+      "name": "selects the complete existing hold and timing result with explicitly unavailable force and cues",
+      "status": "passed"
+    },
+    {
+      "name": "matches legacy tag-up priority even when the legacy force boolean is true",
+      "status": "passed"
+    },
+    {
+      "name": "matches legacy tag-up priority even when the legacy force boolean is false",
+      "status": "passed"
+    },
+    {
+      "name": "uses actual consumption time rather than an earlier remembered sample time for the wait decision",
+      "status": "passed"
+    },
+    {
+      "name": "shifts evidence and cognitive decision together when actual consumption is later",
+      "status": "passed"
+    },
+    {
+      "name": "changes only existing cognitive timing with decision ability and never turns wait into settlement",
+      "status": "passed"
+    },
+    {
+      "name": "leaves unavailable knowledge and the original perceived input unchanged across repeated choices",
+      "status": "passed"
+    },
+    {
+      "name": "rejects unknown_version without reaching force, coach, race or no-action fallback",
+      "status": "passed"
+    },
+    {
+      "name": "rejects tag_none without reaching force, coach, race or no-action fallback",
+      "status": "passed"
+    },
+    {
+      "name": "rejects tag_retouch without reaching force, coach, race or no-action fallback",
+      "status": "passed"
+    },
+    {
+      "name": "rejects force_missing without reaching force, coach, race or no-action fallback",
+      "status": "passed"
+    },
+    {
+      "name": "rejects force_known_true without reaching force, coach, race or no-action fallback",
+      "status": "passed"
+    },
+    {
+      "name": "rejects force_known_false without reaching force, coach, race or no-action fallback",
+      "status": "passed"
+    },
+    {
+      "name": "rejects cue_completed without reaching force, coach, race or no-action fallback",
+      "status": "passed"
+    },
+    {
+      "name": "rejects force_boolean without reaching force, coach, race or no-action fallback",
+      "status": "passed"
+    },
+    {
+      "name": "rejects inline_cues without reaching force, coach, race or no-action fallback",
+      "status": "passed"
+    },
+    {
+      "name": "rejects scheduled_state without reaching force, coach, race or no-action fallback",
+      "status": "passed"
+    },
+    {
+      "name": "rejects observer_mismatch without reaching force, coach, race or no-action fallback",
+      "status": "passed"
+    },
+    {
+      "name": "rejects nonadjacent_base without reaching force, coach, race or no-action fallback",
+      "status": "passed"
+    },
+    {
+      "name": "rejects fractional_time without reaching force, coach, race or no-action fallback",
+      "status": "passed"
+    },
+    {
+      "name": "rejects settled_result without reaching force, coach, race or no-action fallback",
+      "status": "passed"
+    },
+    {
+      "name": "rejects a version accessor before invoking it",
+      "status": "passed"
+    },
+    {
+      "name": "rejects a forceKnowledge accessor before invoking it",
+      "status": "passed"
+    },
+    {
+      "name": "rejects a timing accessor before invoking it",
+      "status": "passed"
+    },
+    {
+      "name": "rejects an aliased root key instead of accepting a different partial shape",
+      "status": "passed"
+    },
+    {
+      "name": "rejects cognitive tick overflow at an actual nonzero near-limit consumption time",
+      "status": "passed"
+    },
+    {
+      "name": "rejects invalid required ability calibration without choosing a default wait",
+      "status": "passed"
+    },
+    {
+      "name": "rejects invalid required timing calibration without choosing a default wait",
+      "status": "passed"
+    }
+  ],
+  "runtime": [
+    {
+      "pid": 1293,
+      "ppid": 2,
+      "nodeVersion": "26.10.0",
+      "heapLimitMiB": 1120,
+      "nodePathAbsent": true,
+      "optionalWsExtensionsDisabled": true,
+      "worker": false,
+      "stage": "src-0022"
+    },
+    {
+      "pid": 1323,
+      "ppid": 1293,
+      "nodeVersion": "26.10.0",
+      "heapLimitMiB": 1120,
+      "nodePathAbsent": true,
+      "optionalWsExtensionsDisabled": true,
+      "worker": true,
+      "stage": "src-0022"
+    }
+  ],
+  "runtimeVerified": true,
+  "peakAggregateRssKiB": 259732,
+  "sourceDependenciesControlsUnchanged": true,
+  "remainingOwnedProcesses": [],
+  "reaped": true,
+  "cancellationSignal": null,
+  "artifacts": {
+    "collection.json": "e9b8862ce679968b16ae04393a2b8ef782cef928631624f66a19639e1ef4d5e9",
+    "evidence.json": "b3b19799d3c6e92969b2cae225914a3569453ff4365b429611e36246d9ad24a5",
+    "output.log": "284a9dc990f5259bb8f520a4ef99abcd77fd785953017e05fb24ed839a38af23",
+    "results.json": "c8e0f780d8308efdc6fe1e8013ebd756b228c95893f31023b953581db8ef3492",
+    "rss.jsonl": "ef79985f34d717410535992450009fc3eb30ecf5de1a40abedc44851e5216015",
+    "runtime.jsonl": "d5419521cf2b79a6a1ce0392269e2e409e04c894dede1d0b9b7c7ec878bd15f4"
+  }
+}

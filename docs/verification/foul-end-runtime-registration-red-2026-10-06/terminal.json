@@ -1,0 +1,339 @@
+{
+  "sourceCommit": "846890a20e31d152c65508fea5abdfb83feb2fd8",
+  "sourceTree": "0d3e1b2b76c87166434e078bbdaf557343bc6baa",
+  "startedAt": "2026-10-06T13:48:42.085933+00:00",
+  "sourceManifestSha256": "0addd1b11e3180773936987f63dff527085bd7045351a6074451853e78a697af",
+  "dependencyManifestSha256": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+  "reviewedControllerSha256": "58af180a6ca7303d62603f1005d8bf146b71ba95797287ae15215be95fc29aba",
+  "controlHashes": {
+    "/workspace/shared/foul-end-registration-red-preparation-846890a/run-red1.py": "58af180a6ca7303d62603f1005d8bf146b71ba95797287ae15215be95fc29aba",
+    "/workspace/shared/foul-end-registration-red-preparation-846890a/red1.config.json": "48c76acdf130c1d7176d8ece0e69fe66ee8cd2486cd2c34fd9d95c14adf3888c",
+    "/workspace/shared/foul-end-registration-red-preparation-846890a/source.sha256": "0addd1b11e3180773936987f63dff527085bd7045351a6074451853e78a697af",
+    "/workspace/shared/foul-end-registration-red-preparation-846890a/dependencies.json": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node": "ab9c8eecf9f82d6693cdc3accced17034065c8d96213b0aa76a7e803d20ae1da",
+    "/workspace/shared/foul-end-registration-red-preparation-846890a/runtime-probe.cjs": "5ea73f91e7c4d52ef135c03a1c0e468af536861bd857a7490a35173e4f42f669",
+    "/workspace/shared/foul-end-registration-red-preparation-846890a/unhandled-reporter.mjs": "7f1676a6678f623518665e8d0a150dd787d224ff5a02e14fa0b17790e52ab412",
+    "/workspace/shared/foul-end-registration-red-preparation-846890a/process-identity-reviewed.fragment.py": "17c73eb414b32f9f1616b5e4e58ac1077a0449dd5b6887c0291369b73ce9ca9f",
+    "/workspace/shared/foul-end-registration-red-preparation-846890a/process-identity-source-review.json": "9f2b8367d29049437f43f068f6e3fecd9e0fc147e60ab0f4de7b5465423804f5",
+    "/workspace/shared/foul-end-registration-red-preparation-846890a/process-identity-provenance.json": "ee6d73eb009d129a6da87c5154cd65e0a5c05bf34173b5cbd70e218a4a5f3b95",
+    "/workspace/shared/foul-end-registration-red-preparation-846890a/catalog-provenance.json": "16002a9735e55fb1eab8a76819112b9f93020df85524171b8b438f41ffd06d1e",
+    "/workspace/shared/foul-end-registration-red-preparation-846890a/budget-evidence.json": "0fc3dda7faeb75e7029194b386ffae4315f3b181d05a035f890dc2ec5439cff4",
+    "/workspace/shared/foul-end-registration-red-preparation-846890a/selection.json": "3a177c9f2ae5f750f6420cf15f37d35fcd7b5c80546a5db2d7b22062d78cc3ce",
+    "/workspace/shared/foul-end-registration-red-preparation-846890a/registration.vitest.config.mjs": "7c53a4367e997aca96505a13597da1f89dc10d1186cb5983ba614215e397690e",
+    "/workspace/shared/baseball-foul-end-runtime-contract-d2d1214/docs/verification/original-foul-quantizer-prerequisite-2026-10-06/terminal.json": "9555fbc99af45f08d645c19181cc809c71d3fef130910989cf693fdaa7395c51",
+    "/workspace/shared/foul-consumer-integration16-preparation-e06e59f/integration1/terminal.json": "785f77a5051c837fd6001289dbe61bbdd922f0e3c16b548921cc30459ab25858",
+    "/workspace/shared/foul-end-runtime-contract-review-846890a/review-package.json": "7de0c153c8911e8e305e139939a98debc49eee9eaba8ae533ddd6b4a5c828659",
+    "/workspace/shared/foul-end-runtime-contract-review-846890a/test-only-contract.patch": "bed907413cc43b3e072ecf788563c274ca40c3a6aca86c9c31230776ec04390f",
+    "/workspace/shared/baseball-restored-catalog-bootstrap/terminal.json": "056e38d5529c7b2f7e6e2b5613d9bf5c82c76c87f5675aff4fe59792196bb47d",
+    "/workspace/shared/foul-quantizer-prerequisite3-preparation-d2d1214/run-prerequisite1.py": "c93fa014854d62d59c49b3b1fe2d109ae3ff019d434fbcc1f3b3fa39a14d569f",
+    "/workspace/shared/foul-quantizer-prerequisite3-preparation-d2d1214/prerequisite1.config.json": "54116c449276d8984ee6aa2bc6141543378c96b56263c0d970fd30c9bd0bb144"
+  },
+  "locks": [
+    {
+      "path": "/workspace/shared/baseball-native-check.lock",
+      "fd": 3,
+      "inode": 262705
+    },
+    {
+      "path": "/workspace/shared/baseball-native-aux-check.lock",
+      "fd": 4,
+      "inode": 262700
+    },
+    {
+      "path": "/workspace/shared/baseball-light-check.lock",
+      "fd": 5,
+      "inode": 262699
+    }
+  ],
+  "scope": "Compiler/catalog then3 existing registration controls PASS plus1 exact missing-end-capability RED;4 named exclusions; no GREEN or physical-end claim",
+  "terminalAt": "2026-10-06T13:49:46.692980+00:00",
+  "passed": true,
+  "missingEndRuntimeCapabilityRedObserved": true,
+  "registrationGreen": false,
+  "physicalEndImplemented": false,
+  "generationCompleteClaim": false,
+  "wholeProjectGreen": false,
+  "observedPrerequisite3TerminalSha256": "9555fbc99af45f08d645c19181cc809c71d3fef130910989cf693fdaa7395c51",
+  "baseIntegration16TerminalSha256": "785f77a5051c837fd6001289dbe61bbdd922f0e3c16b548921cc30459ab25858",
+  "counts": {
+    "numTotalTests": 8,
+    "numPassedTests": 3,
+    "numFailedTests": 1,
+    "numPendingTests": 4,
+    "numTodoTests": 0
+  },
+  "perFileCounts": {
+    "src/host/world/OriginalFoulEndRuntimeContract.test.ts": 8
+  },
+  "stages": [
+    {
+      "stage": "compiler",
+      "startedAt": "2026-10-06T13:48:42.086270+00:00",
+      "profile": {
+        "oldSpaceMiB": 1408,
+        "heapMiB": 1504,
+        "rssMiB": 2048,
+        "wallSeconds": 180,
+        "stopReserveGiB": 5
+      },
+      "initialMemAvailableKiB": 9077576,
+      "command": [
+        "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "childPid": 15,
+      "rootStartTime": 2973610,
+      "terminalAt": "2026-10-06T13:49:21.473548+00:00",
+      "seconds": 39.38718300999972,
+      "exitCode": 0,
+      "failure": null,
+      "stopReason": null,
+      "peakAggregateRssKiB": 1496072,
+      "runtime": [
+        {
+          "pid": 15,
+          "ppid": 2,
+          "nodeVersion": "26.10.0",
+          "heapLimitMiB": 1504,
+          "worker": false,
+          "stage": "compiler"
+        }
+      ],
+      "runtimeVerified": true,
+      "sourceDependenciesControlsUnchanged": true,
+      "remainingOwnedProcesses": [],
+      "reaped": true,
+      "counts": {},
+      "perTest": [],
+      "unhandledErrors": [],
+      "selectionValid": true,
+      "resourceEvidenceValid": true,
+      "phaseVerified": true,
+      "cancellationSignal": null
+    },
+    {
+      "stage": "catalog",
+      "startedAt": "2026-10-06T13:49:21.474642+00:00",
+      "profile": {
+        "oldSpaceMiB": 192,
+        "heapMiB": 288,
+        "rssMiB": 384,
+        "wallSeconds": 30,
+        "stopReserveGiB": 6
+      },
+      "initialMemAvailableKiB": 9035484,
+      "command": [
+        "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+        "tools/catalog/compile-catalog.mjs",
+        "--check"
+      ],
+      "childPid": 27,
+      "rootStartTime": 2977549,
+      "terminalAt": "2026-10-06T13:49:23.141261+00:00",
+      "seconds": 1.6665917139980593,
+      "exitCode": 0,
+      "failure": null,
+      "stopReason": null,
+      "peakAggregateRssKiB": 102728,
+      "runtime": [
+        {
+          "pid": 27,
+          "ppid": 2,
+          "nodeVersion": "26.10.0",
+          "heapLimitMiB": 288,
+          "worker": false,
+          "stage": "catalog"
+        }
+      ],
+      "runtimeVerified": true,
+      "sourceDependenciesControlsUnchanged": true,
+      "remainingOwnedProcesses": [],
+      "reaped": true,
+      "counts": {},
+      "perTest": [],
+      "unhandledErrors": [],
+      "selectionValid": true,
+      "resourceEvidenceValid": true,
+      "phaseVerified": true,
+      "cancellationSignal": null
+    },
+    {
+      "stage": "registration",
+      "startedAt": "2026-10-06T13:49:23.141699+00:00",
+      "profile": {
+        "oldSpaceMiB": 1024,
+        "heapMiB": 1120,
+        "rssMiB": 1536,
+        "wallSeconds": 180,
+        "stopReserveGiB": 6,
+        "files": {
+          "src/host/world/OriginalFoulEndRuntimeContract.test.ts": 8
+        },
+        "caseNames": {
+          "src/host/world/OriginalFoulEndRuntimeContract.test.ts": [
+            "registers an explicit original-foul end policy before field work with the same seventy-one producer identities",
+            "retains the exact causal_original_live_play_runtime_v1 membership and policy bytes",
+            "retains the exact causal_original_settled_foul_runtime_v1 membership and policy bytes",
+            "retains the exact causal_original_settled_foul_count_runtime_v1 membership and policy bytes",
+            "rejects same-ID conversion from causal_original_live_play_runtime_v1 into end authority without writes",
+            "rejects same-ID conversion from causal_original_settled_foul_runtime_v1 into end authority without writes",
+            "rejects same-ID conversion from causal_original_settled_foul_count_runtime_v1 into end authority without writes",
+            "rejects end-policy registration after genuine original foul field work without writes"
+          ]
+        },
+        "expectedRedCase": "registers an explicit original-foul end policy before field work with the same seventy-one producer identities",
+        "passingControls": [
+          "retains the exact causal_original_live_play_runtime_v1 membership and policy bytes",
+          "retains the exact causal_original_settled_foul_runtime_v1 membership and policy bytes",
+          "retains the exact causal_original_settled_foul_count_runtime_v1 membership and policy bytes"
+        ],
+        "excludedCaseNames": [
+          "rejects same-ID conversion from causal_original_live_play_runtime_v1 into end authority without writes",
+          "rejects same-ID conversion from causal_original_settled_foul_runtime_v1 into end authority without writes",
+          "rejects same-ID conversion from causal_original_settled_foul_count_runtime_v1 into end authority without writes",
+          "rejects end-policy registration after genuine original foul field work without writes"
+        ],
+        "expectedCounts": {
+          "numTotalTests": 8,
+          "numPassedTests": 3,
+          "numFailedTests": 1,
+          "numPendingTests": 4,
+          "numTodoTests": 0
+        },
+        "requiredHeadline": "Error: invalid causal actual live-play runtime Source",
+        "requiredFrames": [
+          "ActualLivePlayRuntime.ts:",
+          "SqliteActualLivePlayRuntimeStore.ts:",
+          "OriginalFoulEndRuntimeContract.test.ts:33:",
+          "OriginalFoulEndRuntimeContract.test.ts:39:"
+        ],
+        "vitestConfig": "/workspace/shared/foul-end-registration-red-preparation-846890a/registration.vitest.config.mjs"
+      },
+      "initialMemAvailableKiB": 9031036,
+      "command": [
+        "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "src/host/world/OriginalFoulEndRuntimeContract.test.ts",
+        "--config",
+        "/workspace/shared/foul-end-registration-red-preparation-846890a/registration.vitest.config.mjs",
+        "--pool=forks",
+        "--maxWorkers=1",
+        "--minWorkers=1",
+        "--no-file-parallelism",
+        "--reporter=verbose",
+        "--reporter=json",
+        "--reporter=/workspace/shared/foul-end-registration-red-preparation-846890a/unhandled-reporter.mjs",
+        "--outputFile=/workspace/shared/foul-end-registration-red-preparation-846890a/red1/registration-results.json"
+      ],
+      "childPid": 39,
+      "rootStartTime": 2977714,
+      "terminalAt": "2026-10-06T13:49:45.589578+00:00",
+      "seconds": 22.44749156800026,
+      "exitCode": 1,
+      "failure": null,
+      "stopReason": null,
+      "peakAggregateRssKiB": 504760,
+      "runtime": [
+        {
+          "pid": 39,
+          "ppid": 2,
+          "nodeVersion": "26.10.0",
+          "heapLimitMiB": 1120,
+          "worker": false,
+          "stage": "registration"
+        },
+        {
+          "pid": 69,
+          "ppid": 39,
+          "nodeVersion": "26.10.0",
+          "heapLimitMiB": 1120,
+          "worker": true,
+          "stage": "registration"
+        },
+        {
+          "pid": 95,
+          "ppid": 39,
+          "nodeVersion": "26.10.0",
+          "heapLimitMiB": 1120,
+          "worker": true,
+          "stage": "registration"
+        }
+      ],
+      "runtimeVerified": true,
+      "sourceDependenciesControlsUnchanged": true,
+      "remainingOwnedProcesses": [],
+      "reaped": true,
+      "counts": {
+        "numTotalTests": 8,
+        "numPassedTests": 3,
+        "numFailedTests": 1,
+        "numPendingTests": 4,
+        "numTodoTests": 0
+      },
+      "perTest": [
+        {
+          "file": "src/host/world/OriginalFoulEndRuntimeContract.test.ts",
+          "name": "registers an explicit original-foul end policy before field work with the same seventy-one producer identities",
+          "status": "failed",
+          "failureMessages": [
+            "Error: invalid causal actual live-play runtime Source\n    at Module.actualLivePlayRuntimeInput (/workspace/shared/baseball-foul-end-runtime-contract-d2d1214/src/host/world/ActualLivePlayRuntime.ts:13:11)\n    at Object.accept (/workspace/shared/baseball-foul-end-runtime-contract-d2d1214/src/host/world/SqliteActualLivePlayRuntimeStore.ts:76:44)\n    at register (/workspace/shared/baseball-foul-end-runtime-contract-d2d1214/src/host/world/OriginalFoulEndRuntimeContract.test.ts:33:81)\n    at /workspace/shared/baseball-foul-end-runtime-contract-d2d1214/src/host/world/OriginalFoulEndRuntimeContract.test.ts:39:48\n    at file:///workspace/scratch/d91451022177/baseball-recovery/node_modules/@vitest/runner/dist/index.js:146:14\n    at file:///workspace/scratch/d91451022177/baseball-recovery/node_modules/@vitest/runner/dist/index.js:533:11\n    at runWithTimeout (file:///workspace/scratch/d91451022177/baseball-recovery/node_modules/@vitest/runner/dist/index.js:39:7)\n    at runTest (file:///workspace/scratch/d91451022177/baseball-recovery/node_modules/@vitest/runner/dist/index.js:1056:17)\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at runSuite (file:///workspace/scratch/d91451022177/baseball-recovery/node_modules/@vitest/runner/dist/index.js:1205:15)"
+          ]
+        },
+        {
+          "file": "src/host/world/OriginalFoulEndRuntimeContract.test.ts",
+          "name": "retains the exact causal_original_live_play_runtime_v1 membership and policy bytes",
+          "status": "passed",
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/OriginalFoulEndRuntimeContract.test.ts",
+          "name": "retains the exact causal_original_settled_foul_runtime_v1 membership and policy bytes",
+          "status": "passed",
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/OriginalFoulEndRuntimeContract.test.ts",
+          "name": "retains the exact causal_original_settled_foul_count_runtime_v1 membership and policy bytes",
+          "status": "passed",
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/OriginalFoulEndRuntimeContract.test.ts",
+          "name": "rejects same-ID conversion from causal_original_live_play_runtime_v1 into end authority without writes",
+          "status": "skipped",
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/OriginalFoulEndRuntimeContract.test.ts",
+          "name": "rejects same-ID conversion from causal_original_settled_foul_runtime_v1 into end authority without writes",
+          "status": "skipped",
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/OriginalFoulEndRuntimeContract.test.ts",
+          "name": "rejects same-ID conversion from causal_original_settled_foul_count_runtime_v1 into end authority without writes",
+          "status": "skipped",
+          "failureMessages": []
+        },
+        {
+          "file": "src/host/world/OriginalFoulEndRuntimeContract.test.ts",
+          "name": "rejects end-policy registration after genuine original foul field work without writes",
+          "status": "skipped",
+          "failureMessages": []
+        }
+      ],
+      "unhandledErrors": [],
+      "selectionValid": true,
+      "resourceEvidenceValid": true,
+      "phaseVerified": true,
+      "cancellationSignal": null
+    }
+  ],
+  "failure": null,
+  "sourceDependenciesControlsUnchanged": true,
+  "remainingOwnedProcesses": [],
+  "reaped": true,
+  "cancellationSignal": null
+}

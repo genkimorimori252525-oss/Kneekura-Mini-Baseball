@@ -1,0 +1,20 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/PrePitchRunnerEvidenceFromSqlite.test.ts > derives root position and velocity only from the original frame and authenticates the exact roster/Person/Club/fixture
+ ✓ src/host/world/PrePitchRunnerEvidenceFromSqlite.test.ts > rejects missing_world rather than assigning a placeholder runner or a different identity
+ ✓ src/host/world/PrePitchRunnerEvidenceFromSqlite.test.ts > rejects wrong_base rather than assigning a placeholder runner or a different identity
+ ✓ src/host/world/PrePitchRunnerEvidenceFromSqlite.test.ts > rejects multiple_runner rather than assigning a placeholder runner or a different identity
+ ✓ src/host/world/PrePitchRunnerEvidenceFromSqlite.test.ts > rejects wrong_actor rather than assigning a placeholder runner or a different identity
+ ✓ src/host/world/PrePitchRunnerEvidenceFromSqlite.test.ts > rejects wrong_club rather than assigning a placeholder runner or a different identity
+ ✓ src/host/world/PrePitchRunnerEvidenceFromSqlite.test.ts > rejects wrong_fixture rather than assigning a placeholder runner or a different identity
+ ✓ src/host/world/PrePitchRunnerEvidenceFromSqlite.test.ts > rejects wrong_person rather than assigning a placeholder runner or a different identity
+ ✓ src/host/world/PrePitchRunnerEvidenceFromSqlite.test.ts > rejects future_person rather than assigning a placeholder runner or a different identity
+ ✓ src/host/world/PrePitchRunnerEvidenceFromSqlite.test.ts > rejects duplicate_person rather than assigning a placeholder runner or a different identity
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  00:44:32
+   Duration  4.41s (transform 2.81s, setup 0ms, collect 4.12s, tests 19ms, environment 0ms, prepare 76ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0017/results.json

@@ -1,0 +1,19 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/OriginalFoulEndRuntimeContract.test.ts > registers an explicit original-foul end policy before field work with the same seventy-one producer identities 3297ms
+ ✓ src/host/world/OriginalFoulEndRuntimeContract.test.ts > retains the exact causal_original_live_play_runtime_v1 membership and policy bytes 4359ms
+ ✓ src/host/world/OriginalFoulEndRuntimeContract.test.ts > retains the exact causal_original_settled_foul_runtime_v1 membership and policy bytes 4969ms
+ ✓ src/host/world/OriginalFoulEndRuntimeContract.test.ts > retains the exact causal_original_settled_foul_count_runtime_v1 membership and policy bytes 4084ms
+ ✓ src/host/world/OriginalFoulEndRuntimeContract.test.ts > rejects same-ID conversion from causal_original_live_play_runtime_v1 into end authority without writes 4282ms
+ ✓ src/host/world/OriginalFoulEndRuntimeContract.test.ts > rejects same-ID conversion from causal_original_settled_foul_runtime_v1 into end authority without writes 3087ms
+ ✓ src/host/world/OriginalFoulEndRuntimeContract.test.ts > rejects same-ID conversion from causal_original_settled_foul_count_runtime_v1 into end authority without writes 3060ms
+ ✓ src/host/world/OriginalFoulEndRuntimeContract.test.ts > rejects end-policy registration after genuine original foul field work without writes 13436ms
+ ✓ src/host/world/OriginalFoulEndRuntimeContract.test.ts > admits the existing original stop and count owners under the enrolled end policy while physical end stays pending 66631ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  00:45:42
+   Duration  111.14s (transform 2.68s, setup 0ms, collect 3.63s, tests 107.21s, environment 0ms, prepare 70ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0026/results.json

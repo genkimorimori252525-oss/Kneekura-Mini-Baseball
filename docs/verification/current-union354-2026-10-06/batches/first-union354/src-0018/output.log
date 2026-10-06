@@ -1,0 +1,38 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > owns the actual Player/Person and exact fielding baseline, then reopens without an authority
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > rejects foreign or unavailable career evidence
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > rejects foreign or unavailable player evidence
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > rejects foreign or unavailable person-link evidence
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > rejects foreign or unavailable fielding-model evidence
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > rejects foreign or unavailable before-model evidence
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > rejects a future fielding model even when the Person is already available
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > rejects malformed accepted Source {"sourceVersion":""}
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > rejects malformed accepted Source {"sourceId":"wrong-id"}
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > rejects malformed accepted Source {"acceptedAtDay":1.5}
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > rejects malformed accepted Source {"result":"safe"}
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > rejects malformed accepted Source {"calibration":null}
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > rejects malformed accepted Source {"ratings":{"situationalAwareness":0.5}}
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > rejects incomplete parameters instead of promoting fixture calibration or ratings into a default
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > preserves the original baseline, refuses another version, and detects changed authority on retry
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > reconstructs original Source and its bindings on read and retry: UPDATE world_player_observation_models SET source_version='changed'
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > reconstructs original Source and its bindings on read and retry: UPDATE world_player_observation_models SET source_hash='changed'
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > reconstructs original Source and its bindings on read and retry: UPDATE world_player_observation_models SET snapshot_hash='changed'
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > reconstructs original Source and its bindings on read and retry: UPDATE world_player_observation_models SET career_id='changed'
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > reconstructs original Source and its bindings on read and retry: UPDATE world_player_observation_models SET player_id='changed'
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > reconstructs original Source and its bindings on read and retry: UPDATE world_player_observation_models SET person_link_source_id='changed'
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > reconstructs original Source and its bindings on read and retry: UPDATE world_player_observation_models SET fielding_model_source_id='changed'
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > reconstructs original Source and its bindings on read and retry: UPDATE world_player_observation_models SET accepted_at_day=12
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > reconstructs original Source and its bindings on read and retry: UPDATE world_player_fielding_models SET snapshot_hash='changed'
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > reconstructs original Source and its bindings on read and retry: UPDATE world_player_person_links SET person_id='changed'
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > rejects a fully rehashed Person rebinding against the previously accepted observation snapshot
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > rejects changed but rehashed fielding calibration instead of silently refreshing its exact reference
+ ✓ src/host/world/SqlitePlayerObservationModelStore.test.ts > validates query inputs and closed stores without creating data
+
+ Test Files  1 passed (1)
+      Tests  28 passed (28)
+   Start at  00:44:38
+   Duration  4.44s (transform 2.64s, setup 0ms, collect 3.57s, tests 596ms, environment 0ms, prepare 61ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0018/results.json

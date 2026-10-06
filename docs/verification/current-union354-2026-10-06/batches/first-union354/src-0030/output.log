@@ -1,0 +1,56 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > does not register causal ownership retroactively over raw original-pitch work hidden in actual_field_observations cached metadata
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > does not register causal ownership retroactively over raw original-pitch work hidden in actual_first_base_umpire_setups cached metadata
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects duplicate/escaped raw pitch claims in governed batted_post_response_flights both before and after registration INSERT
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects duplicate/escaped raw pitch claims in governed batted_world_continuations both before and after registration INSERT
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects duplicate/escaped raw pitch claims in governed batted_world_acquisitions both before and after registration INSERT
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects duplicate/escaped raw pitch claims in governed batted_world_motions both before and after registration INSERT
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects duplicate/escaped raw pitch claims in governed batted_world_executions both before and after registration INSERT
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects duplicate/escaped raw pitch claims in governed batted_world_field_actions both before and after registration INSERT
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects duplicate/escaped raw pitch claims in governed batted_world_field_executions both before and after registration INSERT
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects duplicate/escaped raw pitch claims in governed actual_field_observations both before and after registration INSERT
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects duplicate/escaped raw pitch claims in governed actual_defensive_plans both before and after registration INSERT
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects duplicate/escaped raw pitch claims in governed actual_defensive_decisions both before and after registration INSERT
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects duplicate/escaped raw pitch claims in governed actual_locomotion_receipts both before and after registration INSERT
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects duplicate/escaped raw pitch claims in governed actual_live_rule_consumptions both before and after registration INSERT
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects duplicate/escaped raw pitch claims in governed actual_first_base_umpire_setups both before and after registration INSERT
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects duplicate/escaped raw pitch claims in governed actual_first_base_umpire_observations both before and after registration INSERT
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects duplicate/escaped raw pitch claims in governed actual_first_base_umpire_calls both before and after registration INSERT
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects duplicate/escaped raw pitch claims in governed actual_call_communications both before and after registration INSERT
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects scoped snapshot metadata without parsing its future payload: {"history":{"physicalPitchSourceId":"pitch"}}
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects scoped snapshot metadata without parsing its future payload: {"history":[{"physicalPitchSourceId":"foreign"},{"physicalPitchSourceId":"pitch"}]}
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects scoped snapshot metadata without parsing its future payload: {"receipt":{"self":{"physicalPitchSourceId":"pitch"}}}
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects scoped snapshot metadata without parsing its future payload: {"receipt":{"self":{"cut":{"physicalPitchSourceId":"pitch"}}}}
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects scoped snapshot metadata without parsing its future payload: {"baseField":{"physicalPitchSourceId":"pitch"}}
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects scoped snapshot metadata without parsing its future payload: {"baseField":{"response":{"touch":{"worldContact":{"flight":{"source":{"physicalPitchSourceId":"pitch"}}}}}}}
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects scoped snapshot metadata without parsing its future payload: {"baseMotion":{"response":{"touch":{"worldContact":{"flight":{"physicalPitch":{"frame":{"gameId":"game","match":{"playId":7}}}}}}}}}
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects scoped snapshot metadata without parsing its future payload: {"observation":{"setup":{"physicalPitchSourceId":"pitch"}}}
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects dependency-only governed ownership in batted_post_response_flights with foreign cached pitch
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects dependency-only governed ownership in batted_world_continuations with foreign cached pitch
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects dependency-only governed ownership in batted_world_acquisitions with foreign cached pitch
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects dependency-only governed ownership in batted_world_motions with foreign cached pitch
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects dependency-only governed ownership in batted_world_field_actions with foreign cached pitch
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects dependency-only governed ownership in actual_call_communications with foreign cached pitch
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > permits legitimate zero-horizon input/config roots and unrelated opaque governed work
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects already advanced flight root with search horizon 1
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects already advanced flight root with search horizon 1000
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects head-only original scope in batted_world_field_execution_heads
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects head-only original scope in actual_field_observation_heads
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects head-only original scope in actual_defensive_decision_heads
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects head-only original scope in actual_locomotion_heads
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects a root head that masks a foreign-indexed root row or has no corresponding row
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > discovers crossed root predecessors even when all cached/direct pitch fields on that row are foreign
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > recognizes embedded original response identity even after direct pitch metadata and Source links move
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects head root ownership hidden before or during runtime INSERT
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects embedded_source root ownership hidden before or during runtime INSERT
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > rejects embedded_frame root ownership hidden before or during runtime INSERT
+ ✓ src/host/world/ActualLiveRuntimeRegistration.test.ts > permits an original zero-horizon flight with its matching source-qualified head and embedded physical pitch
+
+ Test Files  1 passed (1)
+      Tests  46 passed (46)
+   Start at  00:49:42
+   Duration  4.88s (transform 2.18s, setup 0ms, collect 2.82s, tests 1.78s, environment 0ms, prepare 91ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0030/results.json

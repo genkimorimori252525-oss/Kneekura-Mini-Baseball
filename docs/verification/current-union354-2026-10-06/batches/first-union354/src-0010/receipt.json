@@ -1,0 +1,111 @@
+{
+  "stage": {
+    "id": "src-0010",
+    "kind": "src",
+    "wallSeconds": 180,
+    "oldSpaceMiB": 1024,
+    "heapMiB": 1120,
+    "rssMiB": 1536,
+    "stopReserveGiB": 6,
+    "file": "src/host/world/SqlitePlayerPersonLinkStore.test.ts",
+    "caseNames": [
+      "persists one accepted intake link and reads it through the FA authority contract",
+      "rejects unknown intake, stale roster and duplicate player/person while retaining accepted identity",
+      "rolls back an insertion failure and accepts the same source on retry"
+    ],
+    "expectedSkippedNames": []
+  },
+  "sourceCommit": "10934028ff85b00b38b37142dfeda45b9e3c0814",
+  "controlHashes": {
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/run-batch.py": "5fbedd112ef7a971559a5a3f44411b1b644fedd476f52a1954622aa1699c2e11",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/cumulative.config.json": "285951b57c0c90d82f5e3defa5c93084e202b0b4372a8cfdfa1d996184016e10",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-source.sha256": "399a440dac37ac36806658ae449734bdc5d02885100b6515d0f8575d22cd09b5",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-dependencies.json": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-inventory.json": "9d724fd3e17d90b79e0b3957cc2f93abecab7ed16c1d5bf0a9ceb4fff523ea7f",
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node": "ab9c8eecf9f82d6693cdc3accced17034065c8d96213b0aa76a7e803d20ae1da",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/runtime-probe.cjs": "3dee097dc8383f9607c6027b135ed799b564f5a3247baf2c9684d37287f1ed93",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/receipt-reporter.mjs": "7391e409e0fc5e43fa0ffc39cd838b0fa56e408465db77b077e676cee033a248",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/per-file.vitest.config.mjs": "efe80045cf36d55d09c0372021f1d355498ad78deb85fd5fcc741a6a1501aac0",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/python-file-loader.py": "0ef3bb4b99ed87579b7cc77e119eddbb58b0c8dff206ae0ea016438ba8a6cb02",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/process-identity-reviewed.fragment.py": "17c73eb414b32f9f1616b5e4e58ac1077a0449dd5b6887c0291369b73ce9ca9f"
+  },
+  "startedAt": "2026-10-06T15:43:09.923595+00:00",
+  "command": [
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/per-file.vitest.config.mjs",
+    "--reporter=verbose",
+    "--reporter=json",
+    "--reporter=/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/receipt-reporter.mjs",
+    "--outputFile=/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0010/results.json"
+  ],
+  "childPid": 546,
+  "rootStartTime": 3660386,
+  "terminalAt": "2026-10-06T15:43:12.665524+00:00",
+  "seconds": 2.7419246670033317,
+  "exitCode": 0,
+  "stopReason": null,
+  "failure": null,
+  "classification": "passed",
+  "coverageComplete": true,
+  "counts": {
+    "numTotalTests": 3,
+    "numPassedTests": 3,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0
+  },
+  "perTest": [
+    {
+      "name": "persists one accepted intake link and reads it through the FA authority contract",
+      "status": "passed"
+    },
+    {
+      "name": "rejects unknown intake, stale roster and duplicate player/person while retaining accepted identity",
+      "status": "passed"
+    },
+    {
+      "name": "rolls back an insertion failure and accepts the same source on retry",
+      "status": "passed"
+    }
+  ],
+  "runtime": [
+    {
+      "pid": 546,
+      "ppid": 2,
+      "nodeVersion": "26.10.0",
+      "heapLimitMiB": 1120,
+      "nodePathAbsent": true,
+      "optionalWsExtensionsDisabled": true,
+      "worker": false,
+      "stage": "src-0010"
+    },
+    {
+      "pid": 576,
+      "ppid": 546,
+      "nodeVersion": "26.10.0",
+      "heapLimitMiB": 1120,
+      "nodePathAbsent": true,
+      "optionalWsExtensionsDisabled": true,
+      "worker": true,
+      "stage": "src-0010"
+    }
+  ],
+  "runtimeVerified": true,
+  "peakAggregateRssKiB": 291920,
+  "sourceDependenciesControlsUnchanged": true,
+  "remainingOwnedProcesses": [],
+  "reaped": true,
+  "cancellationSignal": null,
+  "artifacts": {
+    "collection.json": "9f41e995b74f4f1f7c0cee342dc9fc473e9f2b980a083abb07359b4fd60fa6c5",
+    "evidence.json": "758627822827e94e2382e3e2227ff65411358eebad176fc8602844df73c45a9c",
+    "output.log": "b917221f7e1f6ec17f947140287bd8b65eb07092742499c5dc4cff193085dae8",
+    "results.json": "4536aa42aff8d0b6c2993a5e86792f09a40bf438bd6f4362f1758ac38afb1080",
+    "rss.jsonl": "a1f44aa2e0261d419b81ff019a873290d6afa73963a2f467de97f4fda833ef98",
+    "runtime.jsonl": "a617b3afdc44a3ed4aedd77708e7bf93e452fc33a1cdf22d33e93d5685df4ece"
+  }
+}

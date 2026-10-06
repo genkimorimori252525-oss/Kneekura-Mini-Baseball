@@ -1,0 +1,345 @@
+{
+  "phase": "public_boundary",
+  "sourceCommit": "2c94d6c09dcc6e0c94cb9d3e0f233969df20a0d7",
+  "sourceTree": "486506be335450c08109c295b5e01ff8fa0b9625",
+  "fullTree": "f6049b6654f23ddf4c0c9e2c4db00f9ae56ca180",
+  "startedAt": "2026-10-06T10:06:44.197512+00:00",
+  "controlHashes": {
+    "/workspace/shared/baseball-runner-native-contact-wait-owner-preparation-v3/run-owner.py": "52230851a5601ca4d2ac24bbf1270aa2808500b6e93eb17d183f7b3436acd7c7",
+    "/workspace/shared/baseball-runner-native-contact-wait-owner-preparation-v3/owner.config.json": "2e07ca526e326519b62b305950906fabfb42c09f3867aa6a9dfc0bc7865fdd4e",
+    "/workspace/shared/baseball-runner-native-contact-wait-owner-preparation-v3/prepared-sources.json": "e779b78f8302f12c0d75c2aafc7af765222771719e90ee9d860da261e4bd171e",
+    "/workspace/shared/baseball-runner-native-contact-wait-owner-preparation-v3/prepared-dependencies.json": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node": "ab9c8eecf9f82d6693cdc3accced17034065c8d96213b0aa76a7e803d20ae1da",
+    "/workspace/shared/baseball-restored-catalog-bootstrap/terminal.json": "056e38d5529c7b2f7e6e2b5613d9bf5c82c76c87f5675aff4fe59792196bb47d",
+    "/workspace/shared/baseball-restored-catalog-bootstrap/inputs.json": "5086eb371e437e2bf1bc8dab1798362d91f9f09ae0808632badbac030344e05d",
+    "/workspace/scratch/d91451022177/baseball-recovery/node_modules/vitest/vitest.mjs": "39db22f579acf5639bbb17a261408debbde03f4692c0c439e77e7f13aeba74d6",
+    "/workspace/scratch/d91451022177/baseball-recovery/node_modules/vitest/dist/cli.js": "88e96cc0817e9248dadf452c0db5f543dc25ec9ce1c801c2310ca3ac8ffdf48d",
+    "/workspace/scratch/d91451022177/baseball-recovery/node_modules/vitest/package.json": "6ea35e567829660d9832744086c18526b9ddebd5358c4a0cadfb0a355925f917",
+    "/workspace/scratch/d91451022177/baseball-recovery/node_modules/vite/package.json": "e9802045cdc313b6da55ec2e2dd79312074645816089d64f6021f567c10c0a03",
+    "/workspace/scratch/d91451022177/baseball-recovery/node_modules/tinypool/package.json": "fab0aa2756e7cf5c2dc020daafa86c2b5fa3cfd2f9087393418b9a7379dc3dda",
+    "/workspace/scratch/d91451022177/baseball-recovery/node_modules/typescript/bin/tsc": "8d5fa5bd883fec0979fc2004f1fe1d99aef40570155d550eadc0b03b55513bf0",
+    "/workspace/scratch/d91451022177/baseball-recovery/node_modules/typescript/lib/tsc.js": "08e6b5db2bd9ee78fc577ec6dd6bfeca3bc42eaee5c7b582fafc289883f7613d",
+    "/workspace/scratch/d91451022177/baseball-recovery/node_modules/typescript/package.json": "16af7ea27880259b39ff8f123566aaec815cdca1c3ab8d28330c8b652055ccf0",
+    "/workspace/shared/baseball-runner-native-contact-wait-owner-preparation-v3/unhandled-reporter.mjs": "cdd5c58d10c5cb67fdc6f1645d34f9ee06b7622b7b0e58f486c012fa85479990",
+    "/workspace/shared/baseball-runner-native-contact-wait-owner-preparation-v3/case-selection.json": "b616cff13f89e42e5107681125b58fe2cc96b28125d6d8d8db614bc42178d0c4",
+    "/workspace/shared/baseball-runner-native-contact-wait-owner-preparation-v3/source-review.json": "0ef35ab767d50b452fc5924fc06d57ba3ff334bd942b05c206ba30f1f0893032",
+    "/workspace/shared/baseball-runner-native-contact-wait-owner-preparation-v3/process-identity-reviewed.fragment.py": "17c73eb414b32f9f1616b5e4e58ac1077a0449dd5b6887c0291369b73ce9ca9f",
+    "/workspace/shared/baseball-runner-native-contact-wait-owner-preparation-v3/reviewed-helper-source-record.json": "9f2b8367d29049437f43f068f6e3fecd9e0fc147e60ab0f4de7b5465423804f5",
+    "/workspace/shared/baseball-runner-native-contact-wait-owner-preparation-v3/observed-stage-a-staging.json": "14c2469e1fb455ef0f331f3c763cac61ccc10270d06a89b576a6e8a33e773fe0",
+    "/workspace/shared/baseball-runner-native-contact-wait-stage-a-preparation-v2/run-stage-a.py": "738a86882832baf54b2b89d5725af9e39f6c10ce9110fc15b0909ca82053de97",
+    "/workspace/shared/baseball-runner-native-contact-wait-stage-a-preparation-v2/stage-a.config.json": "ba9d30c49dda3989ea71ef0d1932ca92bde153993425e574630524365db294a9",
+    "/workspace/shared/baseball-runner-native-contact-wait-stage-a-preparation-v2/compiler-8ade909/terminal.json": "4a15a4596e9665e4c9c0d9c6013880109003f4ae7ac7706eea59d86747cf09fd",
+    "/workspace/shared/baseball-runner-native-contact-wait-stage-a-preparation-v2/boundary-8ade909/terminal.json": "62e4fb65e1715399d04bd486c1f1a8bc73aa0ab824c495dc63d4fb933701e7fd",
+    "/workspace/shared/baseball-runner-native-contact-wait-stage-a-preparation-v2/admission-8ade909/terminal.json": "dbbe6c6a663106225285cf107ae65c1f0809d062617b991343ffef5183495e37",
+    "/workspace/shared/baseball-runner-native-contact-wait-owner-preparation-v3/observed-public-boundary-red.json": "a75cb512b8388661eea25abc0a321d296da2378408fe359ad0037fded50039fa",
+    "/workspace/shared/baseball-runner-native-contact-wait-public-red-preparation-v2/run-evidence-red.py": "a17caa4df4f31d3cae08891c8612397c3c52f1ceaf1593ef64ee04ec858e30e0",
+    "/workspace/shared/baseball-runner-native-contact-wait-public-red-preparation-v2/evidence.config.json": "accddaf79cba92163b2e6a9dbfd68e8df1518a310ce8d5df33b6f4721efd4602",
+    "/workspace/shared/baseball-runner-native-contact-wait-public-red-preparation-v2/compiler-d8530c1/terminal.json": "31b9930aa97d862fef60a7ba88319e39c967731bce7e73d9786371d7f25b188c",
+    "/workspace/shared/baseball-runner-native-contact-wait-public-red-preparation-v2/evidence-d8530c1/terminal.json": "7df7ec4e7f2fde193bbde90ddf941ef020e701b3362ba7635f79504a70d782f8",
+    "/workspace/shared/baseball-runner-native-contact-wait-public-repair-e7a7381/tools/verification/actual-live-pipeline/runtime-probe.cjs": "dd10010dbdf778286bd30e2bec72d99da52813b1e1e7271b20f4ca6b639d12e8"
+  },
+  "expectedTests": 3,
+  "expectedCaseNames": {
+    "src/host/world/RunnerNativeContactWaitSavedEvidence.test.ts": [
+      "exposes only saved view ownership for an unsaved Source before the dependent pitch",
+      "exposes only saved view ownership for an unsaved Source after the dependent pitch"
+    ],
+    "src/host/world/RunnerNativeContactWaitConnectionBoundary.test.ts": [
+      "requires the actual native connection before exposing saved runner contact wait evidence"
+    ]
+  },
+  "expectedPerFileCounts": {
+    "src/host/world/RunnerNativeContactWaitSavedEvidence.test.ts": 2,
+    "src/host/world/RunnerNativeContactWaitConnectionBoundary.test.ts": 1
+  },
+  "sourceManifestSha256": "e779b78f8302f12c0d75c2aafc7af765222771719e90ee9d860da261e4bd171e",
+  "dependencyManifestSha256": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+  "reviewedControllerSha256": "52230851a5601ca4d2ac24bbf1270aa2808500b6e93eb17d183f7b3436acd7c7",
+  "historicalResultsInherited": false,
+  "subreaperEnabled": true,
+  "minimumLaunchAvailableMiB": 7168,
+  "launchAvailableKiB": 8910456,
+  "profile": {
+    "expectedTests": 3,
+    "tests": [
+      "src/host/world/RunnerNativeContactWaitSavedEvidence.test.ts",
+      "src/host/world/RunnerNativeContactWaitConnectionBoundary.test.ts"
+    ],
+    "caseNames": {
+      "src/host/world/RunnerNativeContactWaitSavedEvidence.test.ts": [
+        "exposes only saved view ownership for an unsaved Source before the dependent pitch",
+        "exposes only saved view ownership for an unsaved Source after the dependent pitch"
+      ],
+      "src/host/world/RunnerNativeContactWaitConnectionBoundary.test.ts": [
+        "requires the actual native connection before exposing saved runner contact wait evidence"
+      ]
+    },
+    "perFileCounts": {
+      "src/host/world/RunnerNativeContactWaitSavedEvidence.test.ts": 2,
+      "src/host/world/RunnerNativeContactWaitConnectionBoundary.test.ts": 1
+    },
+    "ancestorTitles": {
+      "src/host/world/RunnerNativeContactWaitSavedEvidence.test.ts": [],
+      "src/host/world/RunnerNativeContactWaitConnectionBoundary.test.ts": []
+    },
+    "wallSeconds": 300,
+    "oldSpaceMiB": 1024,
+    "expectedHeapMiB": 1120,
+    "aggregateRssMiB": 1536
+  },
+  "freshCatalogBootstrapSha256": "056e38d5529c7b2f7e6e2b5613d9bf5c82c76c87f5675aff4fe59792196bb47d",
+  "observedStageAStaging": {
+    "sourceCommit": "8ade90901f19159c0bf8563904fa28d47f57fff0",
+    "sourceTree": "311d23a20e10fe6fa914861233f1cb2bbef5acb7",
+    "fullTree": "b07a2e2f6ee5d2e7e7989d10079a02dca309c5da",
+    "controllerPath": "/workspace/shared/baseball-runner-native-contact-wait-stage-a-preparation-v2/run-stage-a.py",
+    "controllerSha256": "738a86882832baf54b2b89d5725af9e39f6c10ce9110fc15b0909ca82053de97",
+    "configurationPath": "/workspace/shared/baseball-runner-native-contact-wait-stage-a-preparation-v2/stage-a.config.json",
+    "configurationSha256": "ba9d30c49dda3989ea71ef0d1932ca92bde153993425e574630524365db294a9",
+    "receipts": {
+      "compiler": {
+        "path": "/workspace/shared/baseball-runner-native-contact-wait-stage-a-preparation-v2/compiler-8ade909/terminal.json",
+        "sha256": "4a15a4596e9665e4c9c0d9c6013880109003f4ae7ac7706eea59d86747cf09fd",
+        "expectedTests": null,
+        "caseNames": {},
+        "perFileCounts": {}
+      },
+      "boundary": {
+        "path": "/workspace/shared/baseball-runner-native-contact-wait-stage-a-preparation-v2/boundary-8ade909/terminal.json",
+        "sha256": "62e4fb65e1715399d04bd486c1f1a8bc73aa0ab824c495dc63d4fb933701e7fd",
+        "expectedTests": 1,
+        "caseNames": {
+          "src/host/world/RunnerNativeContactWaitBoundary.test.ts": [
+            "exposes prospective policy/view ownership for recipient contact wait"
+          ]
+        },
+        "perFileCounts": {
+          "src/host/world/RunnerNativeContactWaitBoundary.test.ts": 1
+        }
+      },
+      "admission": {
+        "path": "/workspace/shared/baseball-runner-native-contact-wait-stage-a-preparation-v2/admission-8ade909/terminal.json",
+        "sha256": "dbbe6c6a663106225285cf107ae65c1f0809d062617b991343ffef5183495e37",
+        "expectedTests": 8,
+        "caseNames": {
+          "src/host/world/RunnerNativeContactWaitAdmission.test.ts": [
+            "owns a prospective policy and unique view before the dependent pitch, with immutable retry and no peer mutation",
+            "rejects competing identical view overlap before any dependent pitch or contact and preserves the first admission",
+            "rejects competing different_direction view overlap before any dependent pitch or contact and preserves the first admission",
+            "rejects competing different_policy view overlap before any dependent pitch or contact and preserves the first admission",
+            "rejects competing equal_endpoint view overlap before any dependent pitch or contact and preserves the first admission",
+            "rejects new view registration after a genuine dependent pitch while preserving historical view retry and full reopen",
+            "rejects an otherwise valid foreign recipient policy instead of borrowing its observation model for the runner view",
+            "witnesses actual view insertion and rolls back own and peer changes when its observation model mutates inside that write"
+          ]
+        },
+        "perFileCounts": {
+          "src/host/world/RunnerNativeContactWaitAdmission.test.ts": 8
+        }
+      }
+    },
+    "qualificationScope": "Compiler and exact nine missing-factory staging assertions; individual admission guards were not observed by RED"
+  },
+  "observedPublicBoundaryRed": {
+    "observed": true,
+    "sourceCommit": "d8530c1403193f8a43bc358e45492ea84459b71c",
+    "sourceTree": "b0202f43909d32ac5a42476cb2df88860923c88b",
+    "fullTree": "96f5afe1c7f7955cf37337106a0b63fac9e51a5a",
+    "controllerPath": "/workspace/shared/baseball-runner-native-contact-wait-public-red-preparation-v2/run-evidence-red.py",
+    "controllerSha256": "a17caa4df4f31d3cae08891c8612397c3c52f1ceaf1593ef64ee04ec858e30e0",
+    "configurationPath": "/workspace/shared/baseball-runner-native-contact-wait-public-red-preparation-v2/evidence.config.json",
+    "configurationSha256": "accddaf79cba92163b2e6a9dbfd68e8df1518a310ce8d5df33b6f4721efd4602",
+    "receipts": {
+      "compiler": {
+        "path": "/workspace/shared/baseball-runner-native-contact-wait-public-red-preparation-v2/compiler-d8530c1/terminal.json",
+        "sha256": "31b9930aa97d862fef60a7ba88319e39c967731bce7e73d9786371d7f25b188c"
+      },
+      "evidence": {
+        "path": "/workspace/shared/baseball-runner-native-contact-wait-public-red-preparation-v2/evidence-d8530c1/terminal.json",
+        "sha256": "7df7ec4e7f2fde193bbde90ddf941ef020e701b3362ba7635f79504a70d782f8"
+      }
+    },
+    "qualificationScope": "Actual full compiler and exactly three discriminating public saved-evidence boundary failures; no Stage A guard or sensor/choice GREEN credit"
+  },
+  "locks": [
+    {
+      "path": "/workspace/shared/baseball-native-check.lock",
+      "fd": 3,
+      "inode": 262705
+    },
+    {
+      "path": "/workspace/shared/baseball-native-aux-check.lock",
+      "fd": 4,
+      "inode": 262700
+    },
+    {
+      "path": "/workspace/shared/baseball-light-check.lock",
+      "fd": 5,
+      "inode": 262699
+    }
+  ],
+  "terminalAt": "2026-10-06T10:06:55.762040+00:00",
+  "seconds": 11.563813191001827,
+  "command": [
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/RunnerNativeContactWaitSavedEvidence.test.ts",
+    "src/host/world/RunnerNativeContactWaitConnectionBoundary.test.ts",
+    "--pool=forks",
+    "--maxWorkers=1",
+    "--minWorkers=1",
+    "--no-file-parallelism",
+    "--reporter=default",
+    "--reporter=json",
+    "--reporter=/workspace/shared/baseball-runner-native-contact-wait-owner-preparation-v3/unhandled-reporter.mjs",
+    "--outputFile=/workspace/shared/baseball-runner-native-contact-wait-owner-preparation-v3/public_boundary-2c94d6c/results.json"
+  ],
+  "childPid": 30,
+  "exitCode": 0,
+  "ownedProcessIdentities": [
+    {
+      "childPid": 30,
+      "root": [
+        30,
+        1641837
+      ],
+      "generations": [
+        [
+          30,
+          1641837
+        ],
+        [
+          38,
+          1641862
+        ],
+        [
+          54,
+          1641878
+        ],
+        [
+          62,
+          1641891
+        ],
+        [
+          74,
+          1641904
+        ],
+        [
+          86,
+          1642685
+        ],
+        [
+          100,
+          1642696
+        ]
+      ]
+    }
+  ],
+  "failure": null,
+  "guard": null,
+  "sampledPeakAggregateRssKiB": 462320,
+  "runtime": [
+    {
+      "at": "2026-10-06T10:06:45.080Z",
+      "pid": 30,
+      "ppid": 5,
+      "workerId": null,
+      "node": "v26.10.0",
+      "execArgv": [],
+      "requestedOldSpaceMiB": 1024,
+      "heapLimitMiB": 1120,
+      "memory": {
+        "rss": 46428160,
+        "heapTotal": 5378048,
+        "heapUsed": 4626104,
+        "external": 1883397,
+        "arrayBuffers": 137835
+      }
+    },
+    {
+      "at": "2026-10-06T10:06:45.490Z",
+      "pid": 54,
+      "ppid": 30,
+      "workerId": "1",
+      "node": "v26.10.0",
+      "execArgv": [
+        "--conditions",
+        "development",
+        "--conditions",
+        "node"
+      ],
+      "requestedOldSpaceMiB": 1024,
+      "heapLimitMiB": 1120,
+      "memory": {
+        "rss": 47874048,
+        "heapTotal": 6164480,
+        "heapUsed": 4936760,
+        "external": 2094221,
+        "arrayBuffers": 137835
+      }
+    },
+    {
+      "at": "2026-10-06T10:06:53.556Z",
+      "pid": 86,
+      "ppid": 30,
+      "workerId": "1",
+      "node": "v26.10.0",
+      "execArgv": [
+        "--conditions",
+        "development",
+        "--conditions",
+        "node"
+      ],
+      "requestedOldSpaceMiB": 1024,
+      "heapLimitMiB": 1120,
+      "memory": {
+        "rss": 47874048,
+        "heapTotal": 6164480,
+        "heapUsed": 4936760,
+        "external": 2094221,
+        "arrayBuffers": 137835
+      }
+    }
+  ],
+  "runtimeVerified": true,
+  "counts": {
+    "numTotalTests": 3,
+    "numPassedTests": 3,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0
+  },
+  "perFileCounts": {
+    "src/host/world/RunnerNativeContactWaitConnectionBoundary.test.ts": 1,
+    "src/host/world/RunnerNativeContactWaitSavedEvidence.test.ts": 2
+  },
+  "observedCaseNames": {
+    "src/host/world/RunnerNativeContactWaitConnectionBoundary.test.ts": [
+      "requires the actual native connection before exposing saved runner contact wait evidence"
+    ],
+    "src/host/world/RunnerNativeContactWaitSavedEvidence.test.ts": [
+      "exposes only saved view ownership for an unsaved Source before the dependent pitch",
+      "exposes only saved view ownership for an unsaved Source after the dependent pitch"
+    ]
+  },
+  "unexpectedFailures": [],
+  "suiteErrors": [],
+  "unhandledErrors": {
+    "version": "practice_order_unhandled_errors_v1",
+    "fileCount": 2,
+    "unhandledErrorCount": 0,
+    "errors": []
+  },
+  "sourceDependenciesControlsUnchanged": true,
+  "selectionValid": true,
+  "resourceEvidenceValid": true,
+  "reaped": true,
+  "remainingOwnedProcesses": [],
+  "createdDependencyLinkRemoved": true,
+  "phaseVerified": true,
+  "cancellationSignal": null,
+  "wholeSuitePassed": false,
+  "wholePipelinePassed": false,
+  "nativeSemanticProductionProven": false
+}

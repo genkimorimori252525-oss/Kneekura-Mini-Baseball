@@ -1,0 +1,18 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/RunnerNativeContactWaitAdmission.test.ts > owns a prospective policy and unique view before the dependent pitch, with immutable retry and no peer mutation 2491ms
+ ✓ src/host/world/RunnerNativeContactWaitAdmission.test.ts > rejects competing identical view overlap before any dependent pitch or contact and preserves the first admission 3064ms
+ ✓ src/host/world/RunnerNativeContactWaitAdmission.test.ts > rejects competing different_direction view overlap before any dependent pitch or contact and preserves the first admission 2837ms
+ ✓ src/host/world/RunnerNativeContactWaitAdmission.test.ts > rejects competing different_policy view overlap before any dependent pitch or contact and preserves the first admission 2247ms
+ ✓ src/host/world/RunnerNativeContactWaitAdmission.test.ts > rejects competing equal_endpoint view overlap before any dependent pitch or contact and preserves the first admission 2575ms
+ ✓ src/host/world/RunnerNativeContactWaitAdmission.test.ts > rejects new view registration after a genuine dependent pitch while preserving historical view retry and full reopen 3443ms
+ ✓ src/host/world/RunnerNativeContactWaitAdmission.test.ts > rejects an otherwise valid foreign recipient policy instead of borrowing its observation model for the runner view 2288ms
+ ✓ src/host/world/RunnerNativeContactWaitAdmission.test.ts > witnesses actual view insertion and rolls back own and peer changes when its observation model mutates inside that write 2266ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  00:43:43
+   Duration  25.41s (transform 2.91s, setup 0ms, collect 3.88s, tests 21.21s, environment 0ms, prepare 72ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0014/results.json

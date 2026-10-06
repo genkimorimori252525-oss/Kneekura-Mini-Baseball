@@ -1,0 +1,13 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/ActualFoulQuantizerEndpointPrerequisite.test.ts > admits a real retained foul quantizer endpoint with all ten original actor histories after rejecting a stale command 8910ms
+ ✓ src/host/world/ActualFoulQuantizerEndpointPrerequisite.test.ts > preserves historical foul stop and count ownership after the real endpoint while generation remains pending 40571ms
+ ✓ src/host/world/ActualFoulQuantizerEndpointPrerequisite.test.ts > reopens the real foul endpoint and original receipts offline after all construction handles close 16997ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  00:49:56
+   Duration  123.63s (transform 2.70s, setup 0ms, collect 3.61s, tests 119.70s, environment 0ms, prepare 68ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0033/results.json

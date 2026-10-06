@@ -1,0 +1,15 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/BattingStanceLegacyOwnershipGuards.test.ts > rejects first stance after actual legacy execution hidden through the remaining snapshot-source-game scope mirror 857ms
+ ✓ src/host/world/BattingStanceLegacyOwnershipGuards.test.ts > rejects first stance after actual legacy execution hidden through the remaining before-timeline-play scope mirror 692ms
+ ✓ src/host/world/BattingStanceLegacyOwnershipGuards.test.ts > rejects first stance after actual legacy execution hidden through the remaining result-timeline-play scope mirror 774ms
+ ✓ src/host/world/BattingStanceLegacyOwnershipGuards.test.ts > rejects first stance after actual legacy execution hidden through the remaining sql-game-json-play scope mirror 635ms
+ ✓ src/host/world/BattingStanceLegacyOwnershipGuards.test.ts > rejects first stance after actual legacy execution hidden through the remaining json-game-sql-play scope mirror 671ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  00:42:54
+   Duration  7.54s (transform 2.75s, setup 0ms, collect 3.65s, tests 3.63s, environment 0ms, prepare 66ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0008/results.json

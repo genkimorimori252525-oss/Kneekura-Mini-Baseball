@@ -1,0 +1,12 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/RunnerNativeContactWaitSavedEvidence.test.ts > exposes only saved view ownership for an unsaved Source before the dependent pitch 2519ms
+ ✓ src/host/world/RunnerNativeContactWaitSavedEvidence.test.ts > exposes only saved view ownership for an unsaved Source after the dependent pitch 3119ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  00:44:11
+   Duration  10.54s (transform 3.46s, setup 0ms, collect 4.63s, tests 5.64s, environment 0ms, prepare 73ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0015/results.json

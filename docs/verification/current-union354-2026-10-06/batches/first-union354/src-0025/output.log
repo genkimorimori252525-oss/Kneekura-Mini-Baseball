@@ -1,0 +1,16 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/core/sim/liveAction/ActorPolicySettlement.test.ts > actor settlement from accepted policy decisions > settles quiescent hold decisions after their decision ticks and permits PlayEnd
+ ✓ src/core/sim/liveAction/ActorPolicySettlement.test.ts > actor settlement from accepted policy decisions > keeps tag-up waiting and actionable advance decisions active
+ ✓ src/core/sim/liveAction/ActorPolicySettlement.test.ts > actor settlement from accepted policy decisions > keeps actors moving or awaiting an incomplete source active despite a hold decision
+ ✓ src/core/sim/liveAction/ActorPolicySettlement.test.ts > actor settlement from accepted policy decisions > keeps a decision pending until its actual policy decision tick
+ ✓ src/core/sim/liveAction/ActorPolicySettlement.test.ts > actor settlement from accepted policy decisions > requires exactly one policy decision per world actor and rejects future observations
+ ✓ src/core/sim/liveAction/ActorPolicySettlement.test.ts > actor settlement from accepted policy decisions > rejects quiescence claims while an untracked ball is still moving
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  00:45:39
+   Duration  762ms (transform 399ms, setup 0ms, collect 506ms, tests 16ms, environment 0ms, prepare 74ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0025/results.json

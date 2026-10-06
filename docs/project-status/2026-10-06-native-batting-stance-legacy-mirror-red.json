@@ -1,0 +1,120 @@
+{
+  "schema": "native_batting_stance_legacy_mirror_observed_red_v1",
+  "rawTerminal": "/workspace/shared/baseball-native-batting-stance-legacy-red-preparation-v1/attempt1/terminal.json",
+  "rawTerminalSha256": "ec82d9f78209e6f91e6421874838adbd7b819a119e23eb2fb55bae05e657b899",
+  "partialRepairSourceCommit": "1231340e7a150e40d117689268700770545a9a79",
+  "partialRepairSourceTree": "e0f386f4359a962f094748709d3b7915e4b73611",
+  "expectedGuardRedOutcomeVerified": true,
+  "expectedLegacyScopeRedsObserved": true,
+  "passed": false,
+  "counts": {
+    "numTotalTests": 72,
+    "numPassedTests": 16,
+    "numFailedTests": 5,
+    "numPendingTests": 51,
+    "numTodoTests": 0
+  },
+  "uniqueSelected": 21,
+  "uniqueHeld": 60,
+  "actualFirstFiveGuardReceiptSha256": "fcbd966868602754501ce6f7339a57963d889caa80b35feb1771439b8b0c1a42",
+  "precedingPhases": [
+    {
+      "stage": "compiler",
+      "phaseVerified": true,
+      "seconds": 36.8441475540003,
+      "counts": {}
+    },
+    {
+      "stage": "preservation",
+      "phaseVerified": true,
+      "seconds": 7.962162530999194,
+      "counts": {
+        "numTotalTests": 14,
+        "numPassedTests": 14,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      }
+    },
+    {
+      "stage": "body_prerequisite",
+      "phaseVerified": true,
+      "seconds": 5.886431282000558,
+      "counts": {
+        "numTotalTests": 30,
+        "numPassedTests": 1,
+        "numFailedTests": 0,
+        "numPendingTests": 29,
+        "numTodoTests": 0
+      }
+    },
+    {
+      "stage": "stance_positive",
+      "phaseVerified": true,
+      "seconds": 6.669196646000273,
+      "counts": {
+        "numTotalTests": 23,
+        "numPassedTests": 1,
+        "numFailedTests": 0,
+        "numPendingTests": 22,
+        "numTodoTests": 0
+      }
+    }
+  ],
+  "guardAssertions": [
+    {
+      "name": "rejects first stance after actual legacy execution hidden through the remaining snapshot-source-game scope mirror",
+      "error": {
+        "name": "AssertionError",
+        "message": "BATTING_STANCE_LEGACY_SNAPSHOT_SOURCE_GAME_GUARD_MISSING: actual pitch accepted before complementary scope mirrors moved: expected false to be true // Object.is equality",
+        "actual": "false",
+        "expected": "true"
+      }
+    },
+    {
+      "name": "rejects first stance after actual legacy execution hidden through the remaining before-timeline-play scope mirror",
+      "error": {
+        "name": "AssertionError",
+        "message": "BATTING_STANCE_LEGACY_BEFORE_TIMELINE_PLAY_GUARD_MISSING: actual pitch accepted before complementary scope mirrors moved: expected false to be true // Object.is equality",
+        "actual": "false",
+        "expected": "true"
+      }
+    },
+    {
+      "name": "rejects first stance after actual legacy execution hidden through the remaining result-timeline-play scope mirror",
+      "error": {
+        "name": "AssertionError",
+        "message": "BATTING_STANCE_LEGACY_RESULT_TIMELINE_PLAY_GUARD_MISSING: actual pitch accepted before complementary scope mirrors moved: expected false to be true // Object.is equality",
+        "actual": "false",
+        "expected": "true"
+      }
+    },
+    {
+      "name": "rejects first stance after actual legacy execution hidden through the remaining sql-game-json-play scope mirror",
+      "error": {
+        "name": "AssertionError",
+        "message": "BATTING_STANCE_LEGACY_SQL_GAME_JSON_PLAY_GUARD_MISSING: actual pitch accepted before complementary scope mirrors moved: expected false to be true // Object.is equality",
+        "actual": "false",
+        "expected": "true"
+      }
+    },
+    {
+      "name": "rejects first stance after actual legacy execution hidden through the remaining json-game-sql-play scope mirror",
+      "error": {
+        "name": "AssertionError",
+        "message": "BATTING_STANCE_LEGACY_JSON_GAME_SQL_PLAY_GUARD_MISSING: actual pitch accepted before complementary scope mirrors moved: expected false to be true // Object.is equality",
+        "actual": "false",
+        "expected": "true"
+      }
+    }
+  ],
+  "sourceDependenciesControlsUnchanged": true,
+  "reaped": true,
+  "remainingOwnedProcessCount": 0,
+  "failure": null,
+  "cancellationSignal": null,
+  "stanceGreenClaimed": false,
+  "wholeSuitePassed": false,
+  "wholePipelinePassed": false,
+  "containsDatabasePayload": false
+}

@@ -1,0 +1,74 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > materializes original Person/body/pose evidence through the existing reach kernel and existing fielding owner
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > changes derived physical intermediates for an accepted height change, without inventing primitive dimensions or ability
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > keeps physical output and abilities identical when only independently accepted display metadata changes
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > returns explicit pending for an unsupplied body pin without a partial actor
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > returns explicit pending for an unsupplied pose pin without a partial actor
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > returns explicit pending for an unsupplied reachCalibration pin without a partial actor
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > returns explicit pending for an unsupplied fieldingModel pin without a partial actor
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > does not conceal a false Person claim behind an unsupplied calibration
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects a missing nonnull request source instead of using defaults
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects a missing nonnull body source instead of using defaults
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects a missing nonnull pose source instead of using defaults
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects a missing nonnull reach source instead of using defaults
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects a missing nonnull fielding source instead of using defaults
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects invalid accepted body person evidence
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects invalid accepted body career evidence
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects invalid accepted body player evidence
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects invalid accepted body intake evidence
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects invalid accepted body version evidence
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects invalid accepted body future evidence
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects invalid accepted body before-intake evidence
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects invalid accepted body height evidence
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects invalid accepted body hidden-prior evidence
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects wrong-body pose evidence instead of claiming generated anatomy
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects wrong-person pose evidence instead of claiming generated anatomy
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects wrong-version pose evidence instead of claiming generated anatomy
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects future pose evidence instead of claiming generated anatomy
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects duplicate-role pose evidence instead of claiming generated anatomy
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects missing-role pose evidence instead of claiming generated anatomy
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects nonfinite-radius pose evidence instead of claiming generated anatomy
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects future reach calibration
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects version reach calibration
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects invalid-baseline reach calibration
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects origin-outside-body reach calibration
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > selects only the native applicable fielding owner: wrong-version
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > selects only the native applicable fielding owner: future
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > selects only the native applicable fielding owner: wrong-person
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > prepares a batter actor without pretending body dimensions create its role capability
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > prepares a runner actor without pretending body dimensions create its role capability
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects an extra fielding capability pin for the batter-only role
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects an extra fielding capability pin for the runner-only role
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects a valid release pin outside the pitching role: defender
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects a valid release pin outside the pitching role: batter
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects a valid release pin outside the pitching role: runner
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects a valid fielding source owned by another actual Player/Person
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > keeps an unsupplied pitcher release explicit without generating one from body height
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > pins the pitcher release snapshot for the requested day, even when a later body change exists
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > replays the originally pinned release after a valid equal-day history append without reselecting today’s head
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects a pitcher missing release selection
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects a pitcher wrong-version release selection
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects a pitcher wrong-day release selection
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects a pitcher different-body release selection
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > reopens from archived original inputs without external authority and rejects changed retry inputs
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > cannot launder changed body evidence under an old source pin in a new receipt
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > cannot launder changed pose evidence under an old source pin in a new receipt
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > cannot launder changed reach evidence under an old source pin in a new receipt
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rolls back writer-local owner mutation after receipt insertion: UPDATE world_player_person_links SET person_id='changed-person'
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rolls back writer-local owner mutation after receipt insertion: UPDATE world_player_fielding_models SET accepted_at_day=99
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rolls back writer-local owner mutation after receipt insertion: DELETE FROM world_player_fielding_models
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rolls back a writer-local historical release mutation instead of trusting an independent connection
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects corrupt original provenance on reopen and retry: UPDATE world_player_body_materializations SET source_hash='changed'
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects corrupt original provenance on reopen and retry: UPDATE world_player_body_materializations SET snapshot_hash='changed'
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects corrupt original provenance on reopen and retry: UPDATE world_player_body_materializations SET source_id='moved-source'
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects corrupt original provenance on reopen and retry: UPDATE world_player_body_materializations SET player_id='wrong-player'
+ ✓ src/host/world/PlayerBodyCapabilityMaterialization.test.ts > rejects corrupt original provenance on reopen and retry: UPDATE world_player_person_links SET person_id='changed-person'
+
+ Test Files  1 passed (1)
+      Tests  64 passed (64)
+   Start at  00:43:04
+   Duration  5.22s (transform 2.51s, setup 0ms, collect 3.31s, tests 1.65s, environment 0ms, prepare 66ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0009/results.json

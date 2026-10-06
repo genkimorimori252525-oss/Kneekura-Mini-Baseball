@@ -1,0 +1,2 @@
+{"seconds": 0.6749502399979974, "aggregateRssKiB": 23852, "peakAggregateRssKiB": 23852, "memAvailableKiB": 8890516, "processes": [{"pid": 1425, "ppid": 2, "processGroup": 1425, "startTime": 3675014, "state": "R", "rssKiB": 88}]}
+{"seconds": 1.6442506720050005, "aggregateRssKiB": 23764, "peakAggregateRssKiB": 228164, "memAvailableKiB": 8888652, "processes": [{"pid": 1445, "ppid": 2, "processGroup": 1425, "startTime": 3675055, "state": "Z", "rssKiB": 0}]}

@@ -1,0 +1,119 @@
+{
+  "schema": "native_batting_stance_five_guard_observed_red_v1",
+  "rawTerminal": "/workspace/shared/baseball-native-batting-stance-guard-red-preparation-v1/attempt1/terminal.json",
+  "rawTerminalSha256": "fcbd966868602754501ce6f7339a57963d889caa80b35feb1771439b8b0c1a42",
+  "preRepairSourceCommit": "e21c5fd60748c38bcd9b9bf349d633521b113fc0",
+  "preRepairSourceTree": "663d13933e207a5981ba4c1e7ec194e9920162c3",
+  "expectedGuardRedOutcomeVerified": true,
+  "expectedFiveGuardRedsObserved": true,
+  "passed": false,
+  "counts": {
+    "numTotalTests": 72,
+    "numPassedTests": 16,
+    "numFailedTests": 5,
+    "numPendingTests": 51,
+    "numTodoTests": 0
+  },
+  "uniqueSelectedCaseCount": 21,
+  "uniqueHeldCaseCount": 55,
+  "precedingVerifiedPhases": [
+    {
+      "stage": "compiler",
+      "seconds": 36.04627090199938,
+      "phaseVerified": true,
+      "counts": {}
+    },
+    {
+      "stage": "preservation",
+      "seconds": 8.461554915000306,
+      "phaseVerified": true,
+      "counts": {
+        "numTotalTests": 14,
+        "numPassedTests": 14,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      }
+    },
+    {
+      "stage": "body_prerequisite",
+      "seconds": 9.242342296998686,
+      "phaseVerified": true,
+      "counts": {
+        "numTotalTests": 30,
+        "numPassedTests": 1,
+        "numFailedTests": 0,
+        "numPendingTests": 29,
+        "numTodoTests": 0
+      }
+    },
+    {
+      "stage": "stance_positive",
+      "seconds": 6.743768328000442,
+      "phaseVerified": true,
+      "counts": {
+        "numTotalTests": 23,
+        "numPassedTests": 1,
+        "numFailedTests": 0,
+        "numPendingTests": 22,
+        "numTodoTests": 0
+      }
+    }
+  ],
+  "guardAssertions": [
+    {
+      "name": "rejects new stance admission when a hidden actor-source archive still claims the original physical play",
+      "error": {
+        "name": "AssertionError",
+        "message": "BATTING_STANCE_NESTED_ACTOR_SOURCE_SCOPE_GUARD_MISSING: genuine original stance accepted before hidden play claim: expected false to be true // Object.is equality",
+        "actual": "false",
+        "expected": "true"
+      }
+    },
+    {
+      "name": "rejects new stance admission when a hidden actor-binding archive still claims the original physical play",
+      "error": {
+        "name": "AssertionError",
+        "message": "BATTING_STANCE_NESTED_ACTOR_BINDING_SCOPE_GUARD_MISSING: genuine original stance accepted before hidden play claim: expected false to be true // Object.is equality",
+        "actual": "false",
+        "expected": "true"
+      }
+    },
+    {
+      "name": "rejects new stance admission when a hidden actor-world-fixture archive still claims the original physical play",
+      "error": {
+        "name": "AssertionError",
+        "message": "BATTING_STANCE_NESTED_ACTOR_WORLD_FIXTURE_SCOPE_GUARD_MISSING: genuine original stance accepted before hidden play claim: expected false to be true // Object.is equality",
+        "actual": "false",
+        "expected": "true"
+      }
+    },
+    {
+      "name": "rejects new stance admission when a hidden duplicate-actor-container archive still claims the original physical play",
+      "error": {
+        "name": "AssertionError",
+        "message": "BATTING_STANCE_NESTED_DUPLICATE_ACTOR_CONTAINER_SCOPE_GUARD_MISSING: genuine original stance accepted before hidden play claim: expected false to be true // Object.is equality",
+        "actual": "false",
+        "expected": "true"
+      }
+    },
+    {
+      "name": "rejects first stance admission after real legacy execution whose SQL game indices moved",
+      "error": {
+        "name": "AssertionError",
+        "message": "BATTING_STANCE_ORIGINAL_LEGACY_SCOPE_GUARD_MISSING: actual pitch accepted before moved SQL indices and first stance admission: expected false to be true // Object.is equality",
+        "actual": "false",
+        "expected": "true"
+      }
+    }
+  ],
+  "sourceDependenciesControlsUnchanged": true,
+  "reaped": true,
+  "remainingOwnedProcessCount": 0,
+  "failure": null,
+  "cancellationSignal": null,
+  "stanceGreenClaimed": false,
+  "wholeSuitePassed": false,
+  "wholePipelinePassed": false,
+  "containsDatabasePayload": false
+}

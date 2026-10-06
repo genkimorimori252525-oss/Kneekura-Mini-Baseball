@@ -1,0 +1,326 @@
+{
+  "stage": {
+    "id": "src-0030",
+    "kind": "src",
+    "wallSeconds": 180,
+    "oldSpaceMiB": 1024,
+    "heapMiB": 1120,
+    "rssMiB": 1536,
+    "stopReserveGiB": 6,
+    "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+    "caseNames": [
+      "does not register causal ownership retroactively over raw original-pitch work hidden in actual_field_observations cached metadata",
+      "does not register causal ownership retroactively over raw original-pitch work hidden in actual_first_base_umpire_setups cached metadata",
+      "rejects duplicate/escaped raw pitch claims in governed batted_post_response_flights both before and after registration INSERT",
+      "rejects duplicate/escaped raw pitch claims in governed batted_world_continuations both before and after registration INSERT",
+      "rejects duplicate/escaped raw pitch claims in governed batted_world_acquisitions both before and after registration INSERT",
+      "rejects duplicate/escaped raw pitch claims in governed batted_world_motions both before and after registration INSERT",
+      "rejects duplicate/escaped raw pitch claims in governed batted_world_executions both before and after registration INSERT",
+      "rejects duplicate/escaped raw pitch claims in governed batted_world_field_actions both before and after registration INSERT",
+      "rejects duplicate/escaped raw pitch claims in governed batted_world_field_executions both before and after registration INSERT",
+      "rejects duplicate/escaped raw pitch claims in governed actual_field_observations both before and after registration INSERT",
+      "rejects duplicate/escaped raw pitch claims in governed actual_defensive_plans both before and after registration INSERT",
+      "rejects duplicate/escaped raw pitch claims in governed actual_defensive_decisions both before and after registration INSERT",
+      "rejects duplicate/escaped raw pitch claims in governed actual_locomotion_receipts both before and after registration INSERT",
+      "rejects duplicate/escaped raw pitch claims in governed actual_live_rule_consumptions both before and after registration INSERT",
+      "rejects duplicate/escaped raw pitch claims in governed actual_first_base_umpire_setups both before and after registration INSERT",
+      "rejects duplicate/escaped raw pitch claims in governed actual_first_base_umpire_observations both before and after registration INSERT",
+      "rejects duplicate/escaped raw pitch claims in governed actual_first_base_umpire_calls both before and after registration INSERT",
+      "rejects duplicate/escaped raw pitch claims in governed actual_call_communications both before and after registration INSERT",
+      "rejects scoped snapshot metadata without parsing its future payload: {\"history\":{\"physicalPitchSourceId\":\"pitch\"}}",
+      "rejects scoped snapshot metadata without parsing its future payload: {\"history\":[{\"physicalPitchSourceId\":\"foreign\"},{\"physicalPitchSourceId\":\"pitch\"}]}",
+      "rejects scoped snapshot metadata without parsing its future payload: {\"receipt\":{\"self\":{\"physicalPitchSourceId\":\"pitch\"}}}",
+      "rejects scoped snapshot metadata without parsing its future payload: {\"receipt\":{\"self\":{\"cut\":{\"physicalPitchSourceId\":\"pitch\"}}}}",
+      "rejects scoped snapshot metadata without parsing its future payload: {\"baseField\":{\"physicalPitchSourceId\":\"pitch\"}}",
+      "rejects scoped snapshot metadata without parsing its future payload: {\"baseField\":{\"response\":{\"touch\":{\"worldContact\":{\"flight\":{\"source\":{\"physicalPitchSourceId\":\"pitch\"}}}}}}}",
+      "rejects scoped snapshot metadata without parsing its future payload: {\"baseMotion\":{\"response\":{\"touch\":{\"worldContact\":{\"flight\":{\"physicalPitch\":{\"frame\":{\"gameId\":\"game\",\"match\":{\"playId\":7}}}}}}}}}",
+      "rejects scoped snapshot metadata without parsing its future payload: {\"observation\":{\"setup\":{\"physicalPitchSourceId\":\"pitch\"}}}",
+      "rejects dependency-only governed ownership in batted_post_response_flights with foreign cached pitch",
+      "rejects dependency-only governed ownership in batted_world_continuations with foreign cached pitch",
+      "rejects dependency-only governed ownership in batted_world_acquisitions with foreign cached pitch",
+      "rejects dependency-only governed ownership in batted_world_motions with foreign cached pitch",
+      "rejects dependency-only governed ownership in batted_world_field_actions with foreign cached pitch",
+      "rejects dependency-only governed ownership in actual_call_communications with foreign cached pitch",
+      "permits legitimate zero-horizon input/config roots and unrelated opaque governed work",
+      "rejects already advanced flight root with search horizon 1",
+      "rejects already advanced flight root with search horizon 1000",
+      "rejects head-only original scope in batted_world_field_execution_heads",
+      "rejects head-only original scope in actual_field_observation_heads",
+      "rejects head-only original scope in actual_defensive_decision_heads",
+      "rejects head-only original scope in actual_locomotion_heads",
+      "rejects a root head that masks a foreign-indexed root row or has no corresponding row",
+      "discovers crossed root predecessors even when all cached/direct pitch fields on that row are foreign",
+      "recognizes embedded original response identity even after direct pitch metadata and Source links move",
+      "rejects head root ownership hidden before or during runtime INSERT",
+      "rejects embedded_source root ownership hidden before or during runtime INSERT",
+      "rejects embedded_frame root ownership hidden before or during runtime INSERT",
+      "permits an original zero-horizon flight with its matching source-qualified head and embedded physical pitch"
+    ],
+    "expectedSkippedNames": []
+  },
+  "sourceCommit": "10934028ff85b00b38b37142dfeda45b9e3c0814",
+  "controlHashes": {
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/run-batch.py": "5fbedd112ef7a971559a5a3f44411b1b644fedd476f52a1954622aa1699c2e11",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/cumulative.config.json": "285951b57c0c90d82f5e3defa5c93084e202b0b4372a8cfdfa1d996184016e10",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-source.sha256": "399a440dac37ac36806658ae449734bdc5d02885100b6515d0f8575d22cd09b5",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-dependencies.json": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-inventory.json": "9d724fd3e17d90b79e0b3957cc2f93abecab7ed16c1d5bf0a9ceb4fff523ea7f",
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node": "ab9c8eecf9f82d6693cdc3accced17034065c8d96213b0aa76a7e803d20ae1da",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/runtime-probe.cjs": "3dee097dc8383f9607c6027b135ed799b564f5a3247baf2c9684d37287f1ed93",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/receipt-reporter.mjs": "7391e409e0fc5e43fa0ffc39cd838b0fa56e408465db77b077e676cee033a248",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/per-file.vitest.config.mjs": "efe80045cf36d55d09c0372021f1d355498ad78deb85fd5fcc741a6a1501aac0",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/python-file-loader.py": "0ef3bb4b99ed87579b7cc77e119eddbb58b0c8dff206ae0ea016438ba8a6cb02",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/process-identity-reviewed.fragment.py": "17c73eb414b32f9f1616b5e4e58ac1077a0449dd5b6887c0291369b73ce9ca9f"
+  },
+  "startedAt": "2026-10-06T15:49:41.193195+00:00",
+  "command": [
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/per-file.vitest.config.mjs",
+    "--reporter=verbose",
+    "--reporter=json",
+    "--reporter=/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/receipt-reporter.mjs",
+    "--outputFile=/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0030/results.json"
+  ],
+  "childPid": 1802,
+  "rootStartTime": 3699532,
+  "terminalAt": "2026-10-06T15:49:48.095233+00:00",
+  "seconds": 6.902030997996917,
+  "exitCode": 0,
+  "stopReason": null,
+  "failure": null,
+  "classification": "passed",
+  "coverageComplete": true,
+  "counts": {
+    "numTotalTests": 46,
+    "numPassedTests": 46,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0
+  },
+  "perTest": [
+    {
+      "name": "does not register causal ownership retroactively over raw original-pitch work hidden in actual_field_observations cached metadata",
+      "status": "passed"
+    },
+    {
+      "name": "does not register causal ownership retroactively over raw original-pitch work hidden in actual_first_base_umpire_setups cached metadata",
+      "status": "passed"
+    },
+    {
+      "name": "rejects duplicate/escaped raw pitch claims in governed batted_post_response_flights both before and after registration INSERT",
+      "status": "passed"
+    },
+    {
+      "name": "rejects duplicate/escaped raw pitch claims in governed batted_world_continuations both before and after registration INSERT",
+      "status": "passed"
+    },
+    {
+      "name": "rejects duplicate/escaped raw pitch claims in governed batted_world_acquisitions both before and after registration INSERT",
+      "status": "passed"
+    },
+    {
+      "name": "rejects duplicate/escaped raw pitch claims in governed batted_world_motions both before and after registration INSERT",
+      "status": "passed"
+    },
+    {
+      "name": "rejects duplicate/escaped raw pitch claims in governed batted_world_executions both before and after registration INSERT",
+      "status": "passed"
+    },
+    {
+      "name": "rejects duplicate/escaped raw pitch claims in governed batted_world_field_actions both before and after registration INSERT",
+      "status": "passed"
+    },
+    {
+      "name": "rejects duplicate/escaped raw pitch claims in governed batted_world_field_executions both before and after registration INSERT",
+      "status": "passed"
+    },
+    {
+      "name": "rejects duplicate/escaped raw pitch claims in governed actual_field_observations both before and after registration INSERT",
+      "status": "passed"
+    },
+    {
+      "name": "rejects duplicate/escaped raw pitch claims in governed actual_defensive_plans both before and after registration INSERT",
+      "status": "passed"
+    },
+    {
+      "name": "rejects duplicate/escaped raw pitch claims in governed actual_defensive_decisions both before and after registration INSERT",
+      "status": "passed"
+    },
+    {
+      "name": "rejects duplicate/escaped raw pitch claims in governed actual_locomotion_receipts both before and after registration INSERT",
+      "status": "passed"
+    },
+    {
+      "name": "rejects duplicate/escaped raw pitch claims in governed actual_live_rule_consumptions both before and after registration INSERT",
+      "status": "passed"
+    },
+    {
+      "name": "rejects duplicate/escaped raw pitch claims in governed actual_first_base_umpire_setups both before and after registration INSERT",
+      "status": "passed"
+    },
+    {
+      "name": "rejects duplicate/escaped raw pitch claims in governed actual_first_base_umpire_observations both before and after registration INSERT",
+      "status": "passed"
+    },
+    {
+      "name": "rejects duplicate/escaped raw pitch claims in governed actual_first_base_umpire_calls both before and after registration INSERT",
+      "status": "passed"
+    },
+    {
+      "name": "rejects duplicate/escaped raw pitch claims in governed actual_call_communications both before and after registration INSERT",
+      "status": "passed"
+    },
+    {
+      "name": "rejects scoped snapshot metadata without parsing its future payload: {\"history\":{\"physicalPitchSourceId\":\"pitch\"}}",
+      "status": "passed"
+    },
+    {
+      "name": "rejects scoped snapshot metadata without parsing its future payload: {\"history\":[{\"physicalPitchSourceId\":\"foreign\"},{\"physicalPitchSourceId\":\"pitch\"}]}",
+      "status": "passed"
+    },
+    {
+      "name": "rejects scoped snapshot metadata without parsing its future payload: {\"receipt\":{\"self\":{\"physicalPitchSourceId\":\"pitch\"}}}",
+      "status": "passed"
+    },
+    {
+      "name": "rejects scoped snapshot metadata without parsing its future payload: {\"receipt\":{\"self\":{\"cut\":{\"physicalPitchSourceId\":\"pitch\"}}}}",
+      "status": "passed"
+    },
+    {
+      "name": "rejects scoped snapshot metadata without parsing its future payload: {\"baseField\":{\"physicalPitchSourceId\":\"pitch\"}}",
+      "status": "passed"
+    },
+    {
+      "name": "rejects scoped snapshot metadata without parsing its future payload: {\"baseField\":{\"response\":{\"touch\":{\"worldContact\":{\"flight\":{\"source\":{\"physicalPitchSourceId\":\"pitch\"}}}}}}}",
+      "status": "passed"
+    },
+    {
+      "name": "rejects scoped snapshot metadata without parsing its future payload: {\"baseMotion\":{\"response\":{\"touch\":{\"worldContact\":{\"flight\":{\"physicalPitch\":{\"frame\":{\"gameId\":\"game\",\"match\":{\"playId\":7}}}}}}}}}",
+      "status": "passed"
+    },
+    {
+      "name": "rejects scoped snapshot metadata without parsing its future payload: {\"observation\":{\"setup\":{\"physicalPitchSourceId\":\"pitch\"}}}",
+      "status": "passed"
+    },
+    {
+      "name": "rejects dependency-only governed ownership in batted_post_response_flights with foreign cached pitch",
+      "status": "passed"
+    },
+    {
+      "name": "rejects dependency-only governed ownership in batted_world_continuations with foreign cached pitch",
+      "status": "passed"
+    },
+    {
+      "name": "rejects dependency-only governed ownership in batted_world_acquisitions with foreign cached pitch",
+      "status": "passed"
+    },
+    {
+      "name": "rejects dependency-only governed ownership in batted_world_motions with foreign cached pitch",
+      "status": "passed"
+    },
+    {
+      "name": "rejects dependency-only governed ownership in batted_world_field_actions with foreign cached pitch",
+      "status": "passed"
+    },
+    {
+      "name": "rejects dependency-only governed ownership in actual_call_communications with foreign cached pitch",
+      "status": "passed"
+    },
+    {
+      "name": "permits legitimate zero-horizon input/config roots and unrelated opaque governed work",
+      "status": "passed"
+    },
+    {
+      "name": "rejects already advanced flight root with search horizon 1",
+      "status": "passed"
+    },
+    {
+      "name": "rejects already advanced flight root with search horizon 1000",
+      "status": "passed"
+    },
+    {
+      "name": "rejects head-only original scope in batted_world_field_execution_heads",
+      "status": "passed"
+    },
+    {
+      "name": "rejects head-only original scope in actual_field_observation_heads",
+      "status": "passed"
+    },
+    {
+      "name": "rejects head-only original scope in actual_defensive_decision_heads",
+      "status": "passed"
+    },
+    {
+      "name": "rejects head-only original scope in actual_locomotion_heads",
+      "status": "passed"
+    },
+    {
+      "name": "rejects a root head that masks a foreign-indexed root row or has no corresponding row",
+      "status": "passed"
+    },
+    {
+      "name": "discovers crossed root predecessors even when all cached/direct pitch fields on that row are foreign",
+      "status": "passed"
+    },
+    {
+      "name": "recognizes embedded original response identity even after direct pitch metadata and Source links move",
+      "status": "passed"
+    },
+    {
+      "name": "rejects head root ownership hidden before or during runtime INSERT",
+      "status": "passed"
+    },
+    {
+      "name": "rejects embedded_source root ownership hidden before or during runtime INSERT",
+      "status": "passed"
+    },
+    {
+      "name": "rejects embedded_frame root ownership hidden before or during runtime INSERT",
+      "status": "passed"
+    },
+    {
+      "name": "permits an original zero-horizon flight with its matching source-qualified head and embedded physical pitch",
+      "status": "passed"
+    }
+  ],
+  "runtime": [
+    {
+      "pid": 1802,
+      "ppid": 2,
+      "nodeVersion": "26.10.0",
+      "heapLimitMiB": 1120,
+      "nodePathAbsent": true,
+      "optionalWsExtensionsDisabled": true,
+      "worker": false,
+      "stage": "src-0030"
+    },
+    {
+      "pid": 1832,
+      "ppid": 1802,
+      "nodeVersion": "26.10.0",
+      "heapLimitMiB": 1120,
+      "nodePathAbsent": true,
+      "optionalWsExtensionsDisabled": true,
+      "worker": true,
+      "stage": "src-0030"
+    }
+  ],
+  "runtimeVerified": true,
+  "peakAggregateRssKiB": 453808,
+  "sourceDependenciesControlsUnchanged": true,
+  "remainingOwnedProcesses": [],
+  "reaped": true,
+  "cancellationSignal": null,
+  "artifacts": {
+    "collection.json": "7372a7034aa7438f4ecc1d7928b061fb48b755a3fba8e6b0824d1c90208f453c",
+    "evidence.json": "7019aa5e0f463cedad7d71cf095167e73b4d778a4991299c50b1ea210cc155e9",
+    "output.log": "7788d2ec4fe5cba1f50f9d07959e07af1276475ca21b3aca619fd9d4e859dd4a",
+    "results.json": "0f909e9d4c4f9f23b53a9f11874340d2f98247d2ae26b40a0c87d4eb70b9936e",
+    "rss.jsonl": "075fb8b055f1c78f6f2c1f3ee54cf7365ace6c387d4bbd64017e1f8205d9542c",
+    "runtime.jsonl": "98a05d79a7b132d682023bb38eb36de083ea3163ae2218ef889cf09ffa7d2561"
+  }
+}

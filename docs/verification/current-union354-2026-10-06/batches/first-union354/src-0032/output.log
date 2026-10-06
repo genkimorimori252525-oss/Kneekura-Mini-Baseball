@@ -1,0 +1,22 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/ActualLivePlayFence.test.ts > requires a transaction and rejects a terminal scope while preserving unrelated play admission after disk reopen
+ ✓ src/host/world/ActualLivePlayFence.test.ts > detects same-transaction fence creation or mutation after an otherwise successful writer and rolls back its delta
+ ✓ src/host/world/ActualLivePlayFence.test.ts > rejects a committed peer seal after preflight and ambiguous pitch/play fence ownership
+ ✓ src/host/world/ActualLivePlayFence.test.ts > preserves a legacy database without installing a fence and detects a newly installed owner inside the transaction
+ ✓ src/host/world/ActualLivePlayFence.test.ts > journals each governed writer atomically and refuses a missing producer descriptor
+ ✓ src/host/world/ActualLivePlayFence.test.ts > detects a journal-insert trigger that changes the producer payload without changing its hash columns
+ ✓ src/host/world/ActualLivePlayFence.test.ts > rejects retained completed-end ownership after a deleted seal before the writer starts
+ ✓ src/host/world/ActualLivePlayFence.test.ts > rejects retained completed-end ownership after a dropped seal owner before the writer starts
+ ✓ src/host/world/ActualLivePlayFence.test.ts > rolls registration back for cross-scope pitch claim while permitting only its own runtime census delta
+ ✓ src/host/world/ActualLivePlayFence.test.ts > rolls registration back for owner disappearance while permitting only its own runtime census delta
+ ✓ src/host/world/ActualLivePlayFence.test.ts > retains terminal ownership through its original runtime Source when cached scope columns and mirrors are changed
+ ✓ src/host/world/ActualLivePlayFence.test.ts > rejects a raw runtime pitch claim hidden behind foreign cached scope before new admission
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  00:49:54
+   Duration  384ms (transform 104ms, setup 0ms, collect 106ms, tests 38ms, environment 0ms, prepare 67ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0032/results.json

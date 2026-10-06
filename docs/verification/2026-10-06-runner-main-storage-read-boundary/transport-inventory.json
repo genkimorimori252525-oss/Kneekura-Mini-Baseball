@@ -1,0 +1,35 @@
+{
+  "version": "runner_main_storage_boundary_transport_v1",
+  "integrationBase": "a180a6eece1a18a6910dfa4e6037d5f89de86b00",
+  "integrationBaseSrcTree": "07c30dfcbbdd937cf2480e5c6946a1688c36b00a",
+  "qualifiedSourceCommit": "8fe966b41ef94155dfbd3c6bbb0327e8bc448517",
+  "qualifiedSourceSrcTree": "4d4a9c24f4d0572adb6c13a73e5240f1ee080d70",
+  "qualifiedSourceFullTree": "b259fcfd7b7760e6ed711079b2dd2a2c781eb0fa",
+  "exactThreeSrcPaths": [
+    {
+      "path": "src/host/world/RunnerNativeContactWaitMainOwnership.test.ts",
+      "beforeBlob": null,
+      "beforeSha256": null,
+      "afterBlob": "febfcf7ed412e336c01e7a3375109e771b21c06c",
+      "afterSha256": "da5bb0e3a754e1314962e5ef8281371bf7da4484e093762143bfd709b43dc529"
+    },
+    {
+      "path": "src/host/world/RunnerNativeContactWaitReadSnapshot.test.ts",
+      "beforeBlob": null,
+      "beforeSha256": null,
+      "afterBlob": "2b8cfdf4f236eb868330daf60777729eace7a635",
+      "afterSha256": "c298b79a51ece93eac9cad1d0075e2905a8c1d8c2af4e163cea0a87763bfd9b9"
+    },
+    {
+      "path": "src/host/world/SqliteRunnerContactWaitStore.ts",
+      "beforeBlob": "84009e35d7fd0cd99af3152ee59cef4a7a4602ce",
+      "beforeSha256": "7868ceee7d3451674cdbc464e049750905aaa4b78aa3e5acff33453fccd915a4",
+      "afterBlob": "3f69acd72b40e0f9cde39d9d254ded318c58859e",
+      "afterSha256": "b9c6dcd32ee6926fa8b5fa7a547f4fa40d489cfad6c61adf9bff085f0ef276f5"
+    }
+  ],
+  "serializedSourcePatchSha256": "1fb0925c932de6c5bbee6fa42ca8e9324bb671a21d3c19adc97e33268f4634b7",
+  "newUnionRuntimeQualified": false,
+  "stageBExcluded": true,
+  "resultDocumentsInSeparateDescendant": true
+}

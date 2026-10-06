@@ -1,0 +1,36 @@
+{
+  "version": "runner_main_storage_read_boundary_receipts_v1",
+  "qualifiedSourceCommit": "8fe966b41ef94155dfbd3c6bbb0327e8bc448517",
+  "qualifiedSourceSrcTree": "4d4a9c24f4d0572adb6c13a73e5240f1ee080d70",
+  "qualifiedSourceFullTree": "b259fcfd7b7760e6ed711079b2dd2a2c781eb0fa",
+  "controllerSha256": "0e09732ca30641927e8e3d3038e6207cdff16b9ad37070ed7b438b2bb4ac5656",
+  "configurationSha256": "29046f056631d1395cad784d81507f97fc5fc01f311d6e8be275092ee05d91c4",
+  "receipts": {
+    "red-compiler-terminal.json": {
+      "originalPath": "/workspace/shared/baseball-runner-main-ownership-temp-red-preparation-v2/compiler-b191767/terminal.json",
+      "sha256": "a062fbc45c1409ef5c7a7b779d0c656f3e61b9e293bd31868b715c75729bc9e7",
+      "byteIdentical": true
+    },
+    "red-ownership10-terminal.json": {
+      "originalPath": "/workspace/shared/baseball-runner-main-ownership-temp-red-preparation-v2/evidence-b191767/terminal.json",
+      "sha256": "ad57c0e18553441957fb2023f5bc1c63a9ec1b5bffacfd689865e2f260562ab7",
+      "byteIdentical": true
+    },
+    "green-compiler-terminal.json": {
+      "originalPath": "/workspace/shared/baseball-runner-main-ownership-green62-preparation-v2/compiler-8fe966b/terminal.json",
+      "sha256": "d5cef2e14c1b536412c1e27abe33f7e9d9dfe3752d445a998defc7e59c8e715e",
+      "byteIdentical": true
+    },
+    "green62-terminal.json": {
+      "originalPath": "/workspace/shared/baseball-runner-main-ownership-green62-preparation-v2/green-8fe966b/terminal.json",
+      "sha256": "a24db301a9569c546889555789008c73662f38d48a711cebbbb005d402648b31",
+      "byteIdentical": true
+    }
+  },
+  "caseInventorySha256": "94fe2e2952dd05264bf343171f96708a2a987b0599620484d4b3824751539171",
+  "transportInventorySha256": "ad0d58c6e3d0ae7142b3552dfc499031a5df3b781d0b39b3da0b74b32201ff00",
+  "allTerminalsReaped": true,
+  "historicalResultsInherited": false,
+  "nativeCaptureDecisionMotorSettlementProven": false,
+  "recoverability": "These4 complete actual terminal receipts and exact selected names are retained byte-identically; full logs/RSS streams/control bodies and runtime DB files are not embedded. No lost historical receipt is recreated."
+}

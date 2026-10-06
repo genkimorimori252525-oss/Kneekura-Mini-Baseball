@@ -1,0 +1,46 @@
+{
+  "schema": "native_batting_stance_observed_red_v1",
+  "rawTerminal": "/workspace/shared/baseball-native-batting-stance-red-preparation-v1/attempt1/terminal.json",
+  "rawTerminalSha256": "532d84f87eba2639094f64670fe887c6159cbb20b13d29af62542fbc13bee2ab",
+  "sourceCommit": "9952dfb15f8319086d6db6edf18b2fa59f000ef3",
+  "sourceTree": "b86826778ead4e60ca33efd7899bef1d8e58a916",
+  "expectedStanceRedOutcomeVerified": true,
+  "stanceRedQualified": true,
+  "passed": false,
+  "counts": {
+    "numTotalTests": 23,
+    "numPassedTests": 0,
+    "numFailedTests": 1,
+    "numPendingTests": 22,
+    "numTodoTests": 0
+  },
+  "actualModel115Prerequisite": {
+    "terminal": "/workspace/shared/baseball-native-batting-model-qualification-preparation-v1/attempt1/terminal.json",
+    "sha256": "301ee80be799defe60057e6feb55f4466c529459d7b7b591f1bce12b9a9d281b",
+    "sourceCommit": "24ee242ebdc3b186fab13cab57b1f36f43649a01",
+    "sourceTree": "b86826778ead4e60ca33efd7899bef1d8e58a916",
+    "selectedCases": 115,
+    "compilerVerified": true,
+    "runtimeProbe": "/workspace/shared/baseball-native-batting-model-implementation-recovered/tools/verification/actual-live-pipeline/runtime-probe.cjs"
+  },
+  "selectedName": "accepts a prospective stance from the actual original actor and exact explicit body readiness and eye inputs",
+  "assertion": {
+    "name": "AssertionError",
+    "message": "BATTING_STANCE_OWNER_MISSING: accepted model prerequisite must precede prospective stance ownership: expected 'undefined' to be 'function' // Object.is equality",
+    "actual": "undefined",
+    "expected": "function"
+  },
+  "frameFile": "src/host/world/NativeBattingModelStanceFixtures.test-support.ts",
+  "frameLine": 188,
+  "realBodyModelAcceptedBeforeAssertion": true,
+  "sourceDependenciesControlsUnchanged": true,
+  "reaped": true,
+  "remainingOwnedProcessCount": 0,
+  "failure": null,
+  "cancellationSignal": null,
+  "stanceImplementationCompiled": false,
+  "stanceImplementationTested": false,
+  "wholeSuitePassed": false,
+  "wholePipelinePassed": false,
+  "containsDatabasePayload": false
+}

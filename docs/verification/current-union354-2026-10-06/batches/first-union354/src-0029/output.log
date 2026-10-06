@@ -1,0 +1,13 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/ActualLivePlayRuntime.test.ts > accepts only source references, with no injected membership, schedule, completion, terminal or watermark
+ ✓ src/host/world/ActualLivePlayRuntime.test.ts > keeps the explicit settled-foul capability limited to original source references
+ ✓ src/host/world/ActualLivePlayRuntime.test.ts > rejects unknown runtime capabilities without silently selecting a legacy manifest
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  00:49:37
+   Duration  3.15s (transform 2.25s, setup 0ms, collect 2.88s, tests 10ms, environment 0ms, prepare 68ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0029/results.json

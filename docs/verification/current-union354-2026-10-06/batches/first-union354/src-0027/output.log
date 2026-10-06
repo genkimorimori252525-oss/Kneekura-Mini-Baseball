@@ -1,0 +1,16 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/OriginalFoulRuleRuntimeContract.test.ts > registers the explicit foul-count policy before field work without changing the seventy-one producer identities 3185ms
+ ✓ src/host/world/OriginalFoulRuleRuntimeContract.test.ts > admits the existing exact stop producer under the explicitly registered count policy 24451ms
+ ✓ src/host/world/OriginalFoulRuleRuntimeContract.test.ts > does not convert a frozen producer-only runtime into count authority 3033ms
+ ✓ src/host/world/OriginalFoulRuleRuntimeContract.test.ts > rejects count-policy registration after actual governed foul work 11194ms
+ ✓ src/host/world/OriginalFoulRuleRuntimeContract.test.ts > retains the existing producer-only capability and its exact policy bytes 2655ms
+ ✓ src/host/world/OriginalFoulRuleRuntimeContract.test.ts > retains the existing seventy-member legacy runtime unchanged 2680ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  00:47:36
+   Duration  51.52s (transform 2.99s, setup 0ms, collect 4.02s, tests 47.20s, environment 0ms, prepare 87ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0027/results.json

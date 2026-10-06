@@ -1,0 +1,11 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/RunnerNativeContactWaitBoundary.test.ts > exposes prospective policy/view ownership for recipient contact wait
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  00:43:36
+   Duration  4.92s (transform 3.40s, setup 0ms, collect 4.62s, tests 4ms, environment 0ms, prepare 72ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0013/results.json

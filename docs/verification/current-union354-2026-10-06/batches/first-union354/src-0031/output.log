@@ -1,0 +1,12 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/ActualLiveRuntimeTransaction.test.ts > does not return a stale registered runtime after its Source callback removes the durable owner on a peer WAL connection
+ ✓ src/host/world/ActualLiveRuntimeTransaction.test.ts > rejects a second raw original-pitch runtime claim hidden behind foreign cached columns during a primary runtime read
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  00:49:49
+   Duration  3.25s (transform 2.28s, setup 0ms, collect 2.98s, tests 24ms, environment 0ms, prepare 61ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0031/results.json

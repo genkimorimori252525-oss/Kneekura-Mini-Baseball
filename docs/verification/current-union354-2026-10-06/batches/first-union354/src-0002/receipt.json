@@ -1,0 +1,146 @@
+{
+  "stage": {
+    "id": "src-0002",
+    "kind": "src",
+    "wallSeconds": 120,
+    "oldSpaceMiB": 1024,
+    "heapMiB": 1120,
+    "rssMiB": 1536,
+    "stopReserveGiB": 6,
+    "file": "src/core/world/psychology/batting/BattingNativeConnectionPrerequisites.test.ts",
+    "caseNames": [
+      "a supported repertoire speed change reaches sampled motor kinematics",
+      "a larger feasible speed ceiling is a constraint, not an extra speed buff",
+      "profile identifiers change provenance without changing rigid physics",
+      "a display rating is not an accepted physics input",
+      "a refinement delivered after commitment cannot affect the committed motor",
+      "positive actor motor latency can delay physical onset without moving decision time",
+      "a technical timing source changes physical phase timing independently of emotion",
+      "changing actual flight changes physical resolution without replanning the accepted swing",
+      "serialized forecast remains pending and limits the watermark until exact due adoption",
+      "due adoption recomputes a restored forecast instead of trusting serialized contact payloads"
+    ],
+    "expectedSkippedNames": []
+  },
+  "sourceCommit": "10934028ff85b00b38b37142dfeda45b9e3c0814",
+  "controlHashes": {
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/run-batch.py": "5fbedd112ef7a971559a5a3f44411b1b644fedd476f52a1954622aa1699c2e11",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/cumulative.config.json": "285951b57c0c90d82f5e3defa5c93084e202b0b4372a8cfdfa1d996184016e10",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-source.sha256": "399a440dac37ac36806658ae449734bdc5d02885100b6515d0f8575d22cd09b5",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-dependencies.json": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/reference-inventory.json": "9d724fd3e17d90b79e0b3957cc2f93abecab7ed16c1d5bf0a9ceb4fff523ea7f",
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node": "ab9c8eecf9f82d6693cdc3accced17034065c8d96213b0aa76a7e803d20ae1da",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/runtime-probe.cjs": "3dee097dc8383f9607c6027b135ed799b564f5a3247baf2c9684d37287f1ed93",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/receipt-reporter.mjs": "7391e409e0fc5e43fa0ffc39cd838b0fa56e408465db77b077e676cee033a248",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/per-file.vitest.config.mjs": "efe80045cf36d55d09c0372021f1d355498ad78deb85fd5fcc741a6a1501aac0",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/python-file-loader.py": "0ef3bb4b99ed87579b7cc77e119eddbb58b0c8dff206ae0ea016438ba8a6cb02",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/process-identity-reviewed.fragment.py": "17c73eb414b32f9f1616b5e4e58ac1077a0449dd5b6887c0291369b73ce9ca9f"
+  },
+  "startedAt": "2026-10-06T15:41:41.373379+00:00",
+  "command": [
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/per-file.vitest.config.mjs",
+    "--reporter=verbose",
+    "--reporter=json",
+    "--reporter=/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/receipt-reporter.mjs",
+    "--outputFile=/workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0002/results.json"
+  ],
+  "childPid": 34,
+  "rootStartTime": 3651530,
+  "terminalAt": "2026-10-06T15:41:44.688397+00:00",
+  "seconds": 3.315014046995202,
+  "exitCode": 0,
+  "stopReason": null,
+  "failure": null,
+  "classification": "passed",
+  "coverageComplete": true,
+  "counts": {
+    "numTotalTests": 10,
+    "numPassedTests": 10,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0
+  },
+  "perTest": [
+    {
+      "name": "a supported repertoire speed change reaches sampled motor kinematics",
+      "status": "passed"
+    },
+    {
+      "name": "a larger feasible speed ceiling is a constraint, not an extra speed buff",
+      "status": "passed"
+    },
+    {
+      "name": "profile identifiers change provenance without changing rigid physics",
+      "status": "passed"
+    },
+    {
+      "name": "a display rating is not an accepted physics input",
+      "status": "passed"
+    },
+    {
+      "name": "a refinement delivered after commitment cannot affect the committed motor",
+      "status": "passed"
+    },
+    {
+      "name": "positive actor motor latency can delay physical onset without moving decision time",
+      "status": "passed"
+    },
+    {
+      "name": "a technical timing source changes physical phase timing independently of emotion",
+      "status": "passed"
+    },
+    {
+      "name": "changing actual flight changes physical resolution without replanning the accepted swing",
+      "status": "passed"
+    },
+    {
+      "name": "serialized forecast remains pending and limits the watermark until exact due adoption",
+      "status": "passed"
+    },
+    {
+      "name": "due adoption recomputes a restored forecast instead of trusting serialized contact payloads",
+      "status": "passed"
+    }
+  ],
+  "runtime": [
+    {
+      "pid": 34,
+      "ppid": 2,
+      "nodeVersion": "26.10.0",
+      "heapLimitMiB": 1120,
+      "nodePathAbsent": true,
+      "optionalWsExtensionsDisabled": true,
+      "worker": false,
+      "stage": "src-0002"
+    },
+    {
+      "pid": 64,
+      "ppid": 34,
+      "nodeVersion": "26.10.0",
+      "heapLimitMiB": 1120,
+      "nodePathAbsent": true,
+      "optionalWsExtensionsDisabled": true,
+      "worker": true,
+      "stage": "src-0002"
+    }
+  ],
+  "runtimeVerified": true,
+  "peakAggregateRssKiB": 308292,
+  "sourceDependenciesControlsUnchanged": true,
+  "remainingOwnedProcesses": [],
+  "reaped": true,
+  "cancellationSignal": null,
+  "artifacts": {
+    "collection.json": "3fcd4d97dd196ef7b8cacb976f9d447ca0e84d80a958d130715632abb399bc0a",
+    "evidence.json": "26fc0e8bad3aa259cd4f7c62ca9ec9eda58062a7e5bbde512d38b4b86ea34f09",
+    "output.log": "3c550f9f15e8645b7e3e42d30a8223eacfecc106518b501732695760e2e03804",
+    "results.json": "fcb408bc6ac2c3c2a5ad1d4c33bb16c86c0e77771d7a45a52656460bfd5325f1",
+    "rss.jsonl": "da4eeb6c236038733ae8e8daebe863fedee2dd1e844731b626f0d5d8640c62e0",
+    "runtime.jsonl": "35c5c5e50e3e58dbf5bc4ffee243a680531dd295691feada3d1568d06a8d17ab"
+  }
+}

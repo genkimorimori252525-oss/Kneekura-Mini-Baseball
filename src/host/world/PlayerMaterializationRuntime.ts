@@ -5,6 +5,8 @@ import type { DurablePlayerIntake,
 
 export { openSqlitePlayerBodyCapabilityMaterializationStore } from './SqlitePlayerBodyCapabilityMaterializationStore';
 export { openSqlitePlayerBattingModelStore } from './SqlitePlayerBattingModelStore';
+export { openSqliteBattingStanceStore } from './SqliteBattingStanceStore';
+export type { AcceptedBattingStanceV1, DurableBattingStanceV1, BattingStanceAuthority, BattingStanceStore } from './BattingStance';
 export type { AcceptedPlayerBattingModelV1, DurablePlayerBattingModelV1, AcceptedBattingCapability,
   AcceptedBattingRepertoire, AcceptedBattingDecisionModel, AcceptedBattingEquipment,
   AcceptedBattingObservationCalibration, AcceptedBattingPredictionCalibration,

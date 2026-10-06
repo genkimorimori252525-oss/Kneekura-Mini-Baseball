@@ -1,0 +1,14 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/PlayerBattingModelOwnershipGuards.test.ts > rejects a hidden foreign model whose nested body claims the original Player history 1096ms
+ ✓ src/host/world/PlayerBattingModelOwnershipGuards.test.ts > rejects a hidden foreign model whose nested pose claims the original Player history 960ms
+ ✓ src/host/world/PlayerBattingModelOwnershipGuards.test.ts > rejects a same-day new model with fresh parameter IDs after the original SQL Player identity moved 643ms
+ ✓ src/host/world/PlayerBattingModelOwnershipGuards.test.ts > rejects an explicitly negative prediction viscosity without a coefficient profile after genuine model acceptance 484ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  00:42:11
+   Duration  9.19s (transform 4.15s, setup 0ms, collect 5.67s, tests 3.19s, environment 2ms, prepare 85ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0005/results.json

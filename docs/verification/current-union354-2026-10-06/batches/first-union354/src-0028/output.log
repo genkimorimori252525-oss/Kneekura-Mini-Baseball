@@ -1,0 +1,16 @@
+
+ RUN  v2.1.9 /workspace/shared/baseball-current-foul-runner-integration-a180a6e
+
+ ✓ src/host/world/OriginalSettledFoulRuntimeContract.test.ts > registers the explicit foul capability before field work with all seventy original producers plus the owned stop domain 3144ms
+ ✓ src/host/world/OriginalSettledFoulRuntimeContract.test.ts > retains a genuine new-runtime foul, exact retry and immutable admissions across complete disk close and reopen 13058ms
+ ✓ src/host/world/OriginalSettledFoulRuntimeContract.test.ts > freezes the accepted foul capability against later same-Source conversion to the legacy runtime 3470ms
+ ✓ src/host/world/OriginalSettledFoulRuntimeContract.test.ts > rejects late new-capability registration after the real original foul work 12608ms
+ ✓ src/host/world/OriginalSettledFoulRuntimeContract.test.ts > preserves exact legacy membership and admission of the same genuine original physical fixture 15230ms
+ ✓ src/host/world/OriginalSettledFoulRuntimeContract.test.ts > preserves the legacy late-registration fence after actual original field work 12971ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  00:48:29
+   Duration  64.50s (transform 2.86s, setup 0ms, collect 3.67s, tests 60.48s, environment 0ms, prepare 101ms)
+
+JSON report written to /workspace/shared/baseball-cumulative-batch-preparation-1093402-v4/batches/first-union354/src-0028/results.json
