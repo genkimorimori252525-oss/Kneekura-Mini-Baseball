@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { actualLivePlayOwnerIdentityRow, actualLiveRuntimeClaims } from './ActualLivePlayOwnerMetadata';
 import { createRequire } from 'node:module';
 import { actualLivePlayRuntimeInput as input, deriveActualLiveRuntimeMembership, deriveOriginalSettledFoulRuntimeMembership,
-  type AcceptedActualLivePlayRuntime, type DurableActualLivePlayRuntime } from './ActualLivePlayRuntime';
+  deriveOriginalSettledFoulCountRuntimeMembership, type AcceptedActualLivePlayRuntime, type DurableActualLivePlayRuntime } from './ActualLivePlayRuntime';
 import { actualLivePlayEvidenceFromSqlite } from './ActualLivePlayEvidenceFromSqlite';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { actualLiveAdmissionOwners, beginActualLivePlayRegistration, assertActualLivePlayRegistrationUnchanged } from './ActualLivePlayFence';
@@ -14,8 +14,9 @@ export const actualLiveRuntimeEvidenceFromSqlite = (db: Db) => {
       capability: 'actual_live_play_scope_v1', physicalPitchSourceId: source.physicalPitchSourceId, cut: { kind: 'original_pitch' } }, current).scope;
     if (scope.unsupportedParticipantIds.length) throw new Error('actual live runtime pre-pitch participation is unsupported');
     return freeze({ source, gameId: scope.gameId, playId: scope.playId, originalPitchHash: scope.originalPitchHash,
-      membership: source.capability === 'causal_original_settled_foul_runtime_v1'
-        ? deriveOriginalSettledFoulRuntimeMembership(scope) : deriveActualLiveRuntimeMembership(scope) });
+      membership: source.capability === 'causal_original_settled_foul_count_runtime_v1'
+        ? deriveOriginalSettledFoulCountRuntimeMembership(scope) : source.capability === 'causal_original_settled_foul_runtime_v1'
+          ? deriveOriginalSettledFoulRuntimeMembership(scope) : deriveActualLiveRuntimeMembership(scope) });
   };
   const read = (sourceId: string): DurableActualLivePlayRuntime | null => {
     const row = actualLivePlayOwnerIdentityRow(db, 'actual_live_play_runtimes', sourceId);
@@ -32,7 +33,9 @@ export const actualLiveRuntimeEvidenceFromSqlite = (db: Db) => {
     const seen = new Set<string>();
     for (const [i, row] of rows.entries()) {
       if (row.sequence !== i + 1 || !actualLiveAdmissionOwners.includes(row.owner as typeof actualLiveAdmissionOwners[number])
-        || row.owner === 'actual_settled_foul_stop_productions' && runtime.source.capability !== 'causal_original_settled_foul_runtime_v1'
+        || row.owner === 'actual_settled_foul_stop_productions' && !['causal_original_settled_foul_runtime_v1',
+          'causal_original_settled_foul_count_runtime_v1'].includes(runtime.source.capability)
+        || row.owner === 'actual_foul_rule_consumptions' && runtime.source.capability !== 'causal_original_settled_foul_count_runtime_v1'
         || typeof row.source_id !== 'string' || seen.has(json([row.owner, row.source_id]))) throw new Error('actual live runtime admission sequence differs');
       const owner = db.prepare(`SELECT source_json,source_hash,snapshot_json,snapshot_hash FROM ${row.owner} WHERE source_id=?`).get(row.source_id);
       if (!owner || owner.source_hash !== row.source_hash || owner.snapshot_hash !== row.snapshot_hash

@@ -27,6 +27,7 @@ const domains: readonly Domain[] = [
   { owner: 'actual_locomotion_receipts', links: [['decisionSourceId', 'decision_source_id', 'actual_defensive_decisions'], ['baseFieldSourceId', 'base_field_source_id', 'batted_world_field_actions'], ['executionSourceId', 'execution_source_id', 'batted_world_field_executions']], head: { owner: 'actual_locomotion_heads' } },
   { owner: 'actual_live_rule_consumptions', links: [['captureExecutionSourceId', 'capture_execution_source_id', 'batted_world_field_executions'], ['ruleExecutionSourceId', 'rule_execution_source_id', 'batted_world_field_executions']] },
   { owner: 'actual_settled_foul_stop_productions', links: [['baseFieldSourceId', 'base_field_source_id', 'batted_world_field_actions']] },
+  { owner: 'actual_foul_rule_consumptions', links: [['stopProductionSourceId', 'stop_production_source_id', 'actual_settled_foul_stop_productions']] },
   { owner: 'actual_first_base_umpire_setups', links: [] },
   { owner: 'actual_first_base_umpire_observations', links: [['setupSourceId', 'dependency_source_id', 'actual_first_base_umpire_setups'], ['ruleExecutionSourceId', 'current_execution_source_id', 'batted_world_field_executions']] },
   { owner: 'actual_first_base_umpire_calls', links: [['observationSourceId', 'dependency_source_id', 'actual_first_base_umpire_observations'], ['currentExecutionSourceId', 'current_execution_source_id', 'batted_world_field_executions']] },
@@ -43,6 +44,7 @@ const embedded: Readonly<Record<string, readonly Path[]>> = {
   firstFielderTouchSourceId: [['touch', 'source', 'sourceId']], responseSourceId: [['response', 'source', 'sourceId']],
   contactResponseSourceId: [['response', 'source', 'sourceId']], baseMotionSourceId: [['baseMotion', 'source', 'sourceId']],
   baseFieldSourceId: [['baseField', 'source', 'sourceId']], observationSourceId: [['observation', 'source', 'sourceId']],
+  stopProductionSourceId: [['producerReference', 'sourceId']],
   setupSourceId: [['setup', 'sourceId'], ['setup', 'source', 'sourceId']], callSourceId: [['call', 'source', 'sourceId']],
 };
 const id = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value === value.trim();

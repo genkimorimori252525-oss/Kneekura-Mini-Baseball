@@ -2,11 +2,13 @@ import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { actualLivePlayFields as fields, actualLivePlayId as id, type ActualLivePlayScope } from './ActualLivePlayScope';
 import { actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 export type AcceptedActualLivePlayRuntime = Readonly<{ sourceId: string; sourceVersion: string;
-  capability: 'causal_original_live_play_runtime_v1' | 'causal_original_settled_foul_runtime_v1'; physicalPitchSourceId: string }>;
+  capability: 'causal_original_live_play_runtime_v1' | 'causal_original_settled_foul_runtime_v1'
+    | 'causal_original_settled_foul_count_runtime_v1'; physicalPitchSourceId: string }>;
 export const actualLivePlayRuntimeInput = (raw: AcceptedActualLivePlayRuntime, sourceId: string): AcceptedActualLivePlayRuntime => {
   const s = cloneInert(raw);
   if (!fields(s, ['sourceId', 'sourceVersion', 'capability', 'physicalPitchSourceId']) || s.sourceId !== sourceId
-    || !['causal_original_live_play_runtime_v1', 'causal_original_settled_foul_runtime_v1'].includes(s.capability)
+    || !['causal_original_live_play_runtime_v1', 'causal_original_settled_foul_runtime_v1',
+      'causal_original_settled_foul_count_runtime_v1'].includes(s.capability)
     || ![s.sourceId, s.sourceVersion, s.physicalPitchSourceId].every(id)) {
     throw new Error('invalid causal actual live-play runtime Source');
   }
@@ -36,6 +38,14 @@ export const deriveOriginalSettledFoulRuntimeMembership = (scope: ActualLivePlay
     }],
   });
 };
+/** Pre-work opt-in to the existing declared rule-consumption domain. This keeps
+ * every original producer identity and does not certify an implemented consumer,
+ * complete generation, physical end, official consequence or same-PA admission. */
+export const deriveOriginalSettledFoulCountRuntimeMembership = (scope: ActualLivePlayScope) => freeze({
+  ...deriveOriginalSettledFoulRuntimeMembership(scope), version: 'original_settled_foul_count_membership_v1' as const,
+  liveRulePolicy: 'untouched_settled_foul_count_consumption_v1' as const,
+});
 export type DurableActualLivePlayRuntime = Readonly<{ source: AcceptedActualLivePlayRuntime;
   gameId: string; playId: number; originalPitchHash: string;
-  membership: ReturnType<typeof deriveActualLiveRuntimeMembership> | ReturnType<typeof deriveOriginalSettledFoulRuntimeMembership> }>;
+  membership: ReturnType<typeof deriveActualLiveRuntimeMembership> | ReturnType<typeof deriveOriginalSettledFoulRuntimeMembership>
+    | ReturnType<typeof deriveOriginalSettledFoulCountRuntimeMembership> }>;

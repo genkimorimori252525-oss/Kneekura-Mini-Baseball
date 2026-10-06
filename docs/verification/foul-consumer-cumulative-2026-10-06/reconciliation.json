@@ -1,0 +1,837 @@
+{
+  "version": "foul_consumer_selected_case_reconciliation_v1",
+  "scope": "Original foul count consumer, metadata guards and selected runtime/producer compatibility",
+  "confirmation": "All 166 selected case instances have observed passes across two explicitly attributed source cuts with identical production bytes. This is cumulative selected-case confirmation, not one fresh whole166 run or whole-project qualification.",
+  "prior": {
+    "sourceCommit": "2d22dd5f83f1108c8196e701667f27834638111b",
+    "sourceTree": "f13e3a0ddefb823d54c8b93e9f82d4944d116ed4",
+    "terminalSha256": "ab6055d2f52251b690cc157c8c760cc6712fa912eba8072250aea022e5fe93ff",
+    "observedPasses": 44,
+    "preservedObservedFailures": 1,
+    "cases": [
+      {
+        "file": "src/host/world/ActualFoulRuleOriginalCountMetadata.test.ts",
+        "name": "rejects changed embedded original-count pitch identity before the count payload is available"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleOriginalCountMetadata.test.ts",
+        "name": "discovers a foreign-indexed consumer through its plain original-count pitch claim"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleOriginalCountMetadata.test.ts",
+        "name": "discovers a foreign-indexed consumer through its duplicate_escaped original-count pitch claim"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleOriginalCountMetadata.test.ts",
+        "name": "discovers a foreign-indexed consumer through its plain physical-prefix field claim"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleOriginalCountMetadata.test.ts",
+        "name": "discovers a foreign-indexed consumer through its duplicate_escaped physical-prefix field claim"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleOriginalCountMetadata.test.ts",
+        "name": "discovers a foreign-indexed consumer through its count_evidence_array physical-prefix field claim"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleOriginalCountMetadata.test.ts",
+        "name": "discovers a foreign-indexed consumer through its basis_array physical-prefix field claim"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "owns the exact original foul count disposition for ordinary_0 without applying a physical or official reset"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "owns the exact original foul count disposition for ordinary_2 without applying a physical or official reset"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "owns the exact original foul count disposition for bunt_2 without applying a physical or official reset"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "owns the exact original foul count disposition for legacy_2 without applying a physical or official reset"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "retries the same consumer Source without a second count event or admission"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "rejects an alias consumer for the same original rule successor"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "overlays one owned consumption while keeping disposition and global generation pending"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "rejects every caller-supplied result field without writes before accepting the valid Source"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "rejects foreign references without writes before accepting the valid Source"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "rejects count admission under the unchanged producer-only capability"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "rejects a changed same-ID sourceVersion without changing the saved consumption"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "rejects a changed same-ID stopProductionSourceId without changing the saved consumption"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "keeps future count payload opaque at an earlier cut while reconciling original consumer identity"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "rejects hidden source identity corruption even before the consumed event cut"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "rejects hidden history identity corruption even before the consumed event cut"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "rejects hidden producerReference identity corruption even before the consumed event cut"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "discovers a foreign-indexed second consumer with a raw raw_source target claim"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "discovers a foreign-indexed second consumer with a raw snapshot_source target claim"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "discovers a foreign-indexed second consumer with a raw raw_source_duplicate_escaped target claim"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "discovers a foreign-indexed second consumer with a raw history target claim"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "discovers a foreign-indexed second consumer with a raw history_object target claim"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "discovers a foreign-indexed second consumer with a raw history_duplicate_escaped target claim"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "discovers a foreign-indexed second consumer with a raw producer_reference target claim"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "discovers a foreign-indexed second consumer with a raw producer_reference_duplicate_escaped target claim"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "discovers a foreign-indexed second consumer with a raw count_basis_pitch target claim"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "discovers a foreign-indexed second consumer with a raw count_intent_pitch target claim"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "discovers a foreign-indexed second consumer with a raw count_policy target claim"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "discovers a foreign-indexed second consumer with a raw count_field_cut target claim"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "discovers a foreign-indexed second consumer with a raw count_intent_duplicate_escaped target claim"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "preserves the caller transaction, query-only state and authorizer"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "requires main-only authority even after a valid consumption exists"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "rejects an original consumer whose admission has disappeared even at an earlier cut"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "rejects first consumption of an earlier stop after genuinely admitted later execution without writes"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "preserves historical consumption reads and identical retry after genuinely admitted later execution"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "rolls back an unrelated Match write triggered by count-consumer insertion"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "rejects a concurrent producer mutation during consumer Source capture without a receipt or admission"
+      },
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "reopens the same composed count and pending consumer view after all original handles close"
+      }
+    ]
+  },
+  "followup": {
+    "sourceCommit": "6bb37ce233dc9567f3ebf8ee0318d5dbecb52431",
+    "sourceTree": "f21c05d715003e82367ce19543881e317e3ea6f4",
+    "terminalSha256": "6e710cee91f16fc13bd52172902cf12e986623368bf0cd653e1c850900c676ab",
+    "observedPasses": 122,
+    "explicitExclusions": 37,
+    "cases": [
+      {
+        "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+        "name": "does not admit another pitch or submit the raw pending pitch as a terminal official closure"
+      },
+      {
+        "file": "src/host/world/OriginalFoulRulePhysicalPrerequisite.test.ts",
+        "name": "proves the genuine registered original stop and count prerequisites for ordinary_0"
+      },
+      {
+        "file": "src/host/world/OriginalFoulRulePhysicalPrerequisite.test.ts",
+        "name": "proves the genuine registered original stop and count prerequisites for ordinary_2"
+      },
+      {
+        "file": "src/host/world/OriginalFoulRulePhysicalPrerequisite.test.ts",
+        "name": "proves the genuine registered original stop and count prerequisites for bunt_2"
+      },
+      {
+        "file": "src/host/world/OriginalFoulRulePhysicalPrerequisite.test.ts",
+        "name": "proves the genuine registered original stop and count prerequisites for legacy_2"
+      },
+      {
+        "file": "src/host/world/OriginalFoulRulePhysicalPrerequisite.test.ts",
+        "name": "proves a genuine later admitted execution while preserving the original stop receipt"
+      },
+      {
+        "file": "src/host/world/OriginalFoulRuleRuntimeContract.test.ts",
+        "name": "registers the explicit foul-count policy before field work without changing the seventy-one producer identities"
+      },
+      {
+        "file": "src/host/world/OriginalFoulRuleRuntimeContract.test.ts",
+        "name": "admits the existing exact stop producer under the explicitly registered count policy"
+      },
+      {
+        "file": "src/host/world/OriginalFoulRuleRuntimeContract.test.ts",
+        "name": "does not convert a frozen producer-only runtime into count authority"
+      },
+      {
+        "file": "src/host/world/OriginalFoulRuleRuntimeContract.test.ts",
+        "name": "rejects count-policy registration after actual governed foul work"
+      },
+      {
+        "file": "src/host/world/OriginalFoulRuleRuntimeContract.test.ts",
+        "name": "retains the existing producer-only capability and its exact policy bytes"
+      },
+      {
+        "file": "src/host/world/OriginalFoulRuleRuntimeContract.test.ts",
+        "name": "retains the existing seventy-member legacy runtime unchanged"
+      },
+      {
+        "file": "src/host/world/OriginalSettledFoulRuntimeContract.test.ts",
+        "name": "registers the explicit foul capability before field work with all seventy original producers plus the owned stop domain"
+      },
+      {
+        "file": "src/host/world/OriginalSettledFoulRuntimeContract.test.ts",
+        "name": "retains a genuine new-runtime foul, exact retry and immutable admissions across complete disk close and reopen"
+      },
+      {
+        "file": "src/host/world/OriginalSettledFoulRuntimeContract.test.ts",
+        "name": "freezes the accepted foul capability against later same-Source conversion to the legacy runtime"
+      },
+      {
+        "file": "src/host/world/OriginalSettledFoulRuntimeContract.test.ts",
+        "name": "rejects late new-capability registration after the real original foul work"
+      },
+      {
+        "file": "src/host/world/OriginalSettledFoulRuntimeContract.test.ts",
+        "name": "preserves exact legacy membership and admission of the same genuine original physical fixture"
+      },
+      {
+        "file": "src/host/world/OriginalSettledFoulRuntimeContract.test.ts",
+        "name": "preserves the legacy late-registration fence after actual original field work"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayRuntime.test.ts",
+        "name": "accepts only source references, with no injected membership, schedule, completion, terminal or watermark"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayRuntime.test.ts",
+        "name": "keeps the explicit settled-foul capability limited to original source references"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayRuntime.test.ts",
+        "name": "rejects unknown runtime capabilities without silently selecting a legacy manifest"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "does not register causal ownership retroactively over raw original-pitch work hidden in actual_field_observations cached metadata"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "does not register causal ownership retroactively over raw original-pitch work hidden in actual_first_base_umpire_setups cached metadata"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects duplicate/escaped raw pitch claims in governed batted_post_response_flights both before and after registration INSERT"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects duplicate/escaped raw pitch claims in governed batted_world_continuations both before and after registration INSERT"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects duplicate/escaped raw pitch claims in governed batted_world_acquisitions both before and after registration INSERT"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects duplicate/escaped raw pitch claims in governed batted_world_motions both before and after registration INSERT"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects duplicate/escaped raw pitch claims in governed batted_world_executions both before and after registration INSERT"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects duplicate/escaped raw pitch claims in governed batted_world_field_actions both before and after registration INSERT"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects duplicate/escaped raw pitch claims in governed batted_world_field_executions both before and after registration INSERT"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects duplicate/escaped raw pitch claims in governed actual_field_observations both before and after registration INSERT"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects duplicate/escaped raw pitch claims in governed actual_defensive_plans both before and after registration INSERT"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects duplicate/escaped raw pitch claims in governed actual_defensive_decisions both before and after registration INSERT"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects duplicate/escaped raw pitch claims in governed actual_locomotion_receipts both before and after registration INSERT"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects duplicate/escaped raw pitch claims in governed actual_live_rule_consumptions both before and after registration INSERT"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects duplicate/escaped raw pitch claims in governed actual_first_base_umpire_setups both before and after registration INSERT"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects duplicate/escaped raw pitch claims in governed actual_first_base_umpire_observations both before and after registration INSERT"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects duplicate/escaped raw pitch claims in governed actual_first_base_umpire_calls both before and after registration INSERT"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects duplicate/escaped raw pitch claims in governed actual_call_communications both before and after registration INSERT"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects scoped snapshot metadata without parsing its future payload: {\"history\":{\"physicalPitchSourceId\":\"pitch\"}}"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects scoped snapshot metadata without parsing its future payload: {\"history\":[{\"physicalPitchSourceId\":\"foreign\"},{\"physicalPitchSourceId\":\"pitch\"}]}"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects scoped snapshot metadata without parsing its future payload: {\"receipt\":{\"self\":{\"physicalPitchSourceId\":\"pitch\"}}}"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects scoped snapshot metadata without parsing its future payload: {\"receipt\":{\"self\":{\"cut\":{\"physicalPitchSourceId\":\"pitch\"}}}}"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects scoped snapshot metadata without parsing its future payload: {\"baseField\":{\"physicalPitchSourceId\":\"pitch\"}}"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects scoped snapshot metadata without parsing its future payload: {\"baseField\":{\"response\":{\"touch\":{\"worldContact\":{\"flight\":{\"source\":{\"physicalPitchSourceId\":\"pitch\"}}}}}}}"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects scoped snapshot metadata without parsing its future payload: {\"baseMotion\":{\"response\":{\"touch\":{\"worldContact\":{\"flight\":{\"physicalPitch\":{\"frame\":{\"gameId\":\"game\",\"match\":{\"playId\":7}}}}}}}}}"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects scoped snapshot metadata without parsing its future payload: {\"observation\":{\"setup\":{\"physicalPitchSourceId\":\"pitch\"}}}"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects dependency-only governed ownership in batted_post_response_flights with foreign cached pitch"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects dependency-only governed ownership in batted_world_continuations with foreign cached pitch"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects dependency-only governed ownership in batted_world_acquisitions with foreign cached pitch"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects dependency-only governed ownership in batted_world_motions with foreign cached pitch"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects dependency-only governed ownership in batted_world_field_actions with foreign cached pitch"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects dependency-only governed ownership in actual_call_communications with foreign cached pitch"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "permits legitimate zero-horizon input/config roots and unrelated opaque governed work"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects already advanced flight root with search horizon 1"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects already advanced flight root with search horizon 1000"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects head-only original scope in batted_world_field_execution_heads"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects head-only original scope in actual_field_observation_heads"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects head-only original scope in actual_defensive_decision_heads"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects head-only original scope in actual_locomotion_heads"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects a root head that masks a foreign-indexed root row or has no corresponding row"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "discovers crossed root predecessors even when all cached/direct pitch fields on that row are foreign"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "recognizes embedded original response identity even after direct pitch metadata and Source links move"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects head root ownership hidden before or during runtime INSERT"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects embedded_source root ownership hidden before or during runtime INSERT"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "rejects embedded_frame root ownership hidden before or during runtime INSERT"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeRegistration.test.ts",
+        "name": "permits an original zero-horizon flight with its matching source-qualified head and embedded physical pitch"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeTransaction.test.ts",
+        "name": "does not return a stale registered runtime after its Source callback removes the durable owner on a peer WAL connection"
+      },
+      {
+        "file": "src/host/world/ActualLiveRuntimeTransaction.test.ts",
+        "name": "rejects a second raw original-pitch runtime claim hidden behind foreign cached columns during a primary runtime read"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "accounts for the declared stop producer before any production without claiming complete generation"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "produces one exact original stop event, same-cut availability and unconsumed rule successor"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "retries the same Source without a second row, event or admission"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "rejects an alias Source for the same original stop without adding an admission"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "accounts for a future production at an earlier cut without replaying its future payload"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "discovers and rejects a hidden indexed_pitch ownership claim even before the event cut"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "discovers and rejects a hidden snapshot_source_pitch ownership claim even before the event cut"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "discovers and rejects a hidden history_pitch ownership claim even before the event cut"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "discovers and rejects a hidden embedded_basis_pitch ownership claim even before the event cut"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "rejects an owner row whose original admission is missing"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "rejects caller-supplied dead in the accepted production Source"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "rejects caller-supplied buntAttempt in the accepted production Source"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "rejects caller-supplied countResult in the accepted production Source"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "rejects caller-supplied occurredAt in the accepted production Source"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "rejects caller-supplied producers in the accepted production Source"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "rejects the existing legacy runtime as authority for the new producer"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "rejects the new census over an unchanged legacy runtime"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "rejects a field cut before the actual stop and a non-null execution cut"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "rejects a foreign physicalPitchSourceId before any production in that original scope"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "rejects a foreign policySourceId before any production in that original scope"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "rejects a foreign runtimeSourceId before any production in that original scope"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "preserves the caller read transaction, query-only state and authorizer"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "requires main-only authority without accepting a TEMP replacement"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "rolls back an unrelated current Match write fired by producer insertion"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "rejects a WAL dependency mutation during Source capture without leaving a receipt or admission"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopProducerContract.test.ts",
+        "name": "reopens identical original production and census after every original file handle closes"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopOwnership.test.ts",
+        "name": "rejects an unsupported runtime identity mirror before projecting a future event"
+      },
+      {
+        "file": "src/host/world/ActualSettledFoulStopOwnership.test.ts",
+        "name": "discovers a foreign-looking producer through a policy whose pitch cache hides its original field anchor"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayFence.test.ts",
+        "name": "requires a transaction and rejects a terminal scope while preserving unrelated play admission after disk reopen"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayFence.test.ts",
+        "name": "detects same-transaction fence creation or mutation after an otherwise successful writer and rolls back its delta"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayFence.test.ts",
+        "name": "rejects a committed peer seal after preflight and ambiguous pitch/play fence ownership"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayFence.test.ts",
+        "name": "preserves a legacy database without installing a fence and detects a newly installed owner inside the transaction"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayFence.test.ts",
+        "name": "journals each governed writer atomically and refuses a missing producer descriptor"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayFence.test.ts",
+        "name": "detects a journal-insert trigger that changes the producer payload without changing its hash columns"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayFence.test.ts",
+        "name": "rejects retained completed-end ownership after a deleted seal before the writer starts"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayFence.test.ts",
+        "name": "rejects retained completed-end ownership after a dropped seal owner before the writer starts"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayFence.test.ts",
+        "name": "rolls registration back for cross-scope pitch claim while permitting only its own runtime census delta"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayFence.test.ts",
+        "name": "rolls registration back for owner disappearance while permitting only its own runtime census delta"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayFence.test.ts",
+        "name": "retains terminal ownership through its original runtime Source when cached scope columns and mirrors are changed"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayFence.test.ts",
+        "name": "rejects a raw runtime pitch claim hidden behind foreign cached scope before new admission"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayOwnerMetadata.test.ts",
+        "name": "rejects a foreign primary row hiding the requested Source in a raw mirror: {\"sourceId\":\"wanted\"}"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayOwnerMetadata.test.ts",
+        "name": "rejects a foreign primary row hiding the requested Source in a raw mirror: {\"source\\u0049d\":\"wanted\"}"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayOwnerMetadata.test.ts",
+        "name": "rejects a foreign primary row hiding the requested Source in a raw mirror: {\"sourceId\":\"foreign\"}"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayOwnerMetadata.test.ts",
+        "name": "rejects a foreign primary row hiding the requested Source in a raw mirror: {\"sourceId\":\"foreign\"}"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayOwnerMetadata.test.ts",
+        "name": "rejects ambiguous or mismatching Source mirrors: {\"sourceId\":\"wanted\",\"sourceId\":\"wanted\"}"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayOwnerMetadata.test.ts",
+        "name": "rejects ambiguous or mismatching Source mirrors: {\"sourceId\":\"wanted\"}"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayOwnerMetadata.test.ts",
+        "name": "rejects ambiguous or mismatching Source mirrors: {\"sourceId\":\"wanted\"}"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayOwnerMetadata.test.ts",
+        "name": "rejects ambiguous or mismatching Source mirrors: {\"sourceId\":\"wanted\"}"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayOwnerMetadata.test.ts",
+        "name": "returns only a unique matching owner and rejects an additional raw alias claimant"
+      },
+      {
+        "file": "src/host/world/ActualLiveImmutableReceiptMetadata.test.ts",
+        "name": "rolls back the entire receipt delta when a trigger inserts a hidden capture-ownership claim"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayQueueApi.test.ts",
+        "name": "exposes the same-connection source-derived queue reader"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayQueueApi.test.ts",
+        "name": "exposes the immutable source-owned checkpoint store"
+      },
+      {
+        "file": "src/host/world/ActualLivePlayQueueApi.test.ts",
+        "name": "exposes source-owned physical-rule acknowledgement"
+      }
+    ]
+  },
+  "selectedCaseInstances": 166,
+  "allSelectedCasesHaveAnObservedPass": true,
+  "freshWhole166Green": false,
+  "wholeProjectGreen": false,
+  "sourceEquivalence": {
+    "changedSrcFiles": [
+      "src/host/world/ActualFoulRuleConsumptionContract.test.ts"
+    ],
+    "unchangedSrcFiles": 1853,
+    "productionFiles": 813,
+    "productionManifestSha256": "697410fcf818d16c875cf3ce6b524d3361b2863a8143e2fba596cea3fc506afe",
+    "sharedSetupAndPrior37ConsumerCaseBodiesIdentical": true
+  },
+  "correctedCase": {
+    "file": "src/host/world/ActualFoulRuleConsumptionContract.test.ts",
+    "name": "does not admit another pitch or submit the raw pending pitch as a terminal official closure",
+    "priorFailureRetained": true,
+    "newObservedPass": true,
+    "covers": [
+      "ordinary_2",
+      "bunt_2"
+    ],
+    "change": "Tests the actual completed-canonical-play workload rejection and full logical-state preservation"
+  },
+  "runtimeBoundary": {
+    "physicalEnd": false,
+    "officialApplication": false,
+    "reset": false,
+    "samePaResume": false,
+    "nextPitchAdmission": false
+  },
+  "stages": [
+    {
+      "sourceCommit": "6bb37ce233dc9567f3ebf8ee0318d5dbecb52431",
+      "stage": "compiler",
+      "seconds": 38.76270639200084,
+      "phaseVerified": true,
+      "counts": {},
+      "reaped": true,
+      "stopReason": null,
+      "failure": null
+    },
+    {
+      "sourceCommit": "6bb37ce233dc9567f3ebf8ee0318d5dbecb52431",
+      "stage": "catalog",
+      "seconds": 1.5387656459988648,
+      "phaseVerified": true,
+      "counts": {},
+      "reaped": true,
+      "stopReason": null,
+      "failure": null
+    },
+    {
+      "sourceCommit": "6bb37ce233dc9567f3ebf8ee0318d5dbecb52431",
+      "stage": "corrected_consumer",
+      "seconds": 209.05818447400088,
+      "phaseVerified": true,
+      "counts": {
+        "numTotalTests": 38,
+        "numPassedTests": 1,
+        "numFailedTests": 0,
+        "numPendingTests": 37,
+        "numTodoTests": 0
+      },
+      "reaped": true,
+      "stopReason": null,
+      "failure": null
+    },
+    {
+      "sourceCommit": "6bb37ce233dc9567f3ebf8ee0318d5dbecb52431",
+      "stage": "physical",
+      "seconds": 173.09165919299994,
+      "phaseVerified": true,
+      "counts": {
+        "numTotalTests": 5,
+        "numPassedTests": 5,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "reaped": true,
+      "stopReason": null,
+      "failure": null
+    },
+    {
+      "sourceCommit": "6bb37ce233dc9567f3ebf8ee0318d5dbecb52431",
+      "stage": "count_runtime",
+      "seconds": 54.13706675799949,
+      "phaseVerified": true,
+      "counts": {
+        "numTotalTests": 6,
+        "numPassedTests": 6,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "reaped": true,
+      "stopReason": null,
+      "failure": null
+    },
+    {
+      "sourceCommit": "6bb37ce233dc9567f3ebf8ee0318d5dbecb52431",
+      "stage": "legacy_runtime",
+      "seconds": 74.3447757039994,
+      "phaseVerified": true,
+      "counts": {
+        "numTotalTests": 57,
+        "numPassedTests": 57,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "reaped": true,
+      "stopReason": null,
+      "failure": null
+    },
+    {
+      "sourceCommit": "6bb37ce233dc9567f3ebf8ee0318d5dbecb52431",
+      "stage": "producer",
+      "seconds": 186.20101538199924,
+      "phaseVerified": true,
+      "counts": {
+        "numTotalTests": 28,
+        "numPassedTests": 28,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "reaped": true,
+      "stopReason": null,
+      "failure": null
+    },
+    {
+      "sourceCommit": "6bb37ce233dc9567f3ebf8ee0318d5dbecb52431",
+      "stage": "compatibility",
+      "seconds": 11.328561095999248,
+      "phaseVerified": true,
+      "counts": {
+        "numTotalTests": 25,
+        "numPassedTests": 25,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "reaped": true,
+      "stopReason": null,
+      "failure": null
+    }
+  ],
+  "coordinatorSessionExitRequiresCoordinatorConfirmation": true
+}

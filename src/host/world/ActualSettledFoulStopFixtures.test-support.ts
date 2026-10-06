@@ -10,9 +10,11 @@ import type { AcceptedOriginalSettledFoulRuntime } from './ActualSettledFoulStop
 import { openSqliteBattedVenueLegalPolicyStore, type AcceptedBattedVenueLegalPolicy } from './SqliteBattedVenueLegalPolicyStore';
 
 /** Original zero-horizon roots only. Runtime registration happens explicitly in the test. */
-export const originalSettledFoulRuntimeFixture = (path: string) => {
+export const originalSettledFoulRuntimeFixture = (path: string,
+  original?: Pick<NonNullable<Parameters<typeof battedWorldFieldFixture>[4]>, 'pitchPhysics' | 'originalContact'>) => {
   const x = battedWorldFieldFixture(path, true, false, undefined, {
-    originalProfile: { ruleProfileId: NPB_2026_RULE_PROFILE.id }, pitchPhysics: { velocity: { x: 1, y: 0, z: -30 } },
+    originalProfile: { ruleProfileId: NPB_2026_RULE_PROFILE.id },
+    pitchPhysics: original?.pitchPhysics ?? { velocity: { x: 1, y: 0, z: -30 } }, originalContact: original?.originalContact,
   });
   try {
   const pitch = x.physical, runtimeSources = new Map<string, AcceptedActualLivePlayRuntime | AcceptedOriginalSettledFoulRuntime>();
