@@ -1,0 +1,24 @@
+{
+  "version": "foul159_executor_interruption_v1",
+  "sourceCommit": "a7086cdb0e3e563a8aafd688da2d569e3afa428d",
+  "sourceTree": "a7e3c58da3bfd3d9bf217c0dbaa544c6d66cd6d4",
+  "originalControllerSha256": "74fb421b29fd2bb0f39073f14c5ecfc6ba569e8171698d985a246e692d3184b1",
+  "originalConfigSha256": "58d92340ff9cf5108b7907a984a151ed9ec8c3242058db7fef884ecd5ac88846",
+  "originalAttempt": "/workspace/shared/foul-end-green159-preparation-a7086cd/green1",
+  "originalSession": 97985,
+  "executorOutcomeReportedByCoordinator": "exec-server pong_timeout / unknown session; session no longer resumable",
+  "lastGuardTelemetryReportedAt": "2026-10-06T20:09:26Z",
+  "originalLockInodesReportedUnheld": true,
+  "memoryReportedNearBaseline": true,
+  "originalFinalReaping": "unobserved",
+  "originalGuardCredit": 0,
+  "qualifiedClosedCases": 19,
+  "remainingCases": 140,
+  "closedStageHashes": {
+    "compiler": "bd033c2de64038a3a174d71c40c1496f49b4451b9182be2d2bdc30b527ff5841",
+    "catalog": "e59fb8dcd4e6ae3ddeec4dbda734532e0caacc89fca2bda3f7f7183366981dee",
+    "physical_prerequisites": "22e92b79d91321290855e8070aa927971d0c1fdaaf1e6436b2513033f76d5bcc",
+    "end_contract": "c4f23a60678df81338093dcb8be895c906c9c79c422e4aa5ecffaa3cb63cdd99"
+  },
+  "notAFinalRuntimeReceipt": true
+}

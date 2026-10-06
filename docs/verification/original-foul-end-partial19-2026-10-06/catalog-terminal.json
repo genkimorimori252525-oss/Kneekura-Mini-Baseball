@@ -1,0 +1,46 @@
+{
+  "stage": "catalog",
+  "startedAt": "2026-10-06T19:22:29.896085+00:00",
+  "profile": {
+    "oldSpaceMiB": 192,
+    "heapMiB": 288,
+    "rssMiB": 384,
+    "wallSeconds": 30,
+    "stopReserveGiB": 6
+  },
+  "initialMemAvailableKiB": 8792036,
+  "command": [
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+    "tools/catalog/compile-catalog.mjs",
+    "--check"
+  ],
+  "childPid": 27,
+  "rootStartTime": 4976410,
+  "terminalAt": "2026-10-06T19:22:32.458040+00:00",
+  "seconds": 2.5619086059959955,
+  "exitCode": 0,
+  "failure": null,
+  "stopReason": null,
+  "peakAggregateRssKiB": 102504,
+  "runtime": [
+    {
+      "pid": 27,
+      "ppid": 2,
+      "nodeVersion": "26.10.0",
+      "heapLimitMiB": 288,
+      "worker": false,
+      "stage": "catalog"
+    }
+  ],
+  "runtimeVerified": true,
+  "sourceDependenciesControlsUnchanged": true,
+  "remainingOwnedProcesses": [],
+  "reaped": true,
+  "counts": {},
+  "perTest": [],
+  "unhandledErrors": [],
+  "selectionValid": true,
+  "resourceEvidenceValid": true,
+  "phaseVerified": true,
+  "cancellationSignal": null
+}

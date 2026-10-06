@@ -1,0 +1,101 @@
+{
+  "stage": "physical_prerequisites",
+  "startedAt": "2026-10-06T19:22:32.459249+00:00",
+  "profile": {
+    "oldSpaceMiB": 1024,
+    "heapMiB": 1120,
+    "rssMiB": 1536,
+    "wallSeconds": 600,
+    "stopReserveGiB": 6,
+    "files": {
+      "src/host/world/ActualFoulPlayEndPrerequisite.test.ts": 3
+    },
+    "caseNames": {
+      "src/host/world/ActualFoulPlayEndPrerequisite.test.ts": [
+        "proves the fresh end-policy dead-ball cause and full retained endpoint applicability before any end owner is called",
+        "replays the original stop and count at their historical cut under the fresh end policy without new admissions",
+        "reopens the genuine new-policy endpoint and original count with every construction handle closed"
+      ]
+    },
+    "vitestConfig": "/workspace/shared/foul-end-green159-preparation-a7086cd/physical_prerequisites.vitest.config.mjs"
+  },
+  "initialMemAvailableKiB": 8766872,
+  "command": [
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/ActualFoulPlayEndPrerequisite.test.ts",
+    "--config",
+    "/workspace/shared/foul-end-green159-preparation-a7086cd/physical_prerequisites.vitest.config.mjs",
+    "--pool=forks",
+    "--maxWorkers=1",
+    "--minWorkers=1",
+    "--no-file-parallelism",
+    "--reporter=verbose",
+    "--reporter=json",
+    "--reporter=/workspace/shared/foul-end-green159-preparation-a7086cd/unhandled-reporter.mjs",
+    "--outputFile=/workspace/shared/foul-end-green159-preparation-a7086cd/green1/physical_prerequisites-results.json"
+  ],
+  "childPid": 39,
+  "rootStartTime": 4976680,
+  "terminalAt": "2026-10-06T19:24:52.818183+00:00",
+  "seconds": 140.3581456510001,
+  "exitCode": 0,
+  "failure": null,
+  "stopReason": null,
+  "peakAggregateRssKiB": 552180,
+  "runtime": [
+    {
+      "pid": 39,
+      "ppid": 2,
+      "nodeVersion": "26.10.0",
+      "heapLimitMiB": 1120,
+      "worker": false,
+      "stage": "physical_prerequisites"
+    },
+    {
+      "pid": 69,
+      "ppid": 39,
+      "nodeVersion": "26.10.0",
+      "heapLimitMiB": 1120,
+      "worker": true,
+      "stage": "physical_prerequisites"
+    }
+  ],
+  "runtimeVerified": true,
+  "sourceDependenciesControlsUnchanged": true,
+  "remainingOwnedProcesses": [],
+  "reaped": true,
+  "counts": {
+    "numTotalTests": 3,
+    "numPassedTests": 3,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0
+  },
+  "perTest": [
+    {
+      "file": "src/host/world/ActualFoulPlayEndPrerequisite.test.ts",
+      "name": "proves the fresh end-policy dead-ball cause and full retained endpoint applicability before any end owner is called",
+      "status": "passed",
+      "failureMessages": []
+    },
+    {
+      "file": "src/host/world/ActualFoulPlayEndPrerequisite.test.ts",
+      "name": "replays the original stop and count at their historical cut under the fresh end policy without new admissions",
+      "status": "passed",
+      "failureMessages": []
+    },
+    {
+      "file": "src/host/world/ActualFoulPlayEndPrerequisite.test.ts",
+      "name": "reopens the genuine new-policy endpoint and original count with every construction handle closed",
+      "status": "passed",
+      "failureMessages": []
+    }
+  ],
+  "unhandledErrors": [],
+  "selectionValid": true,
+  "resourceEvidenceValid": true,
+  "phaseVerified": true,
+  "cancellationSignal": null
+}

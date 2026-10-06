@@ -1,0 +1,192 @@
+{
+  "stage": "end_contract",
+  "startedAt": "2026-10-06T19:24:52.820762+00:00",
+  "profile": {
+    "oldSpaceMiB": 1024,
+    "heapMiB": 1120,
+    "rssMiB": 1536,
+    "wallSeconds": 2400,
+    "stopReserveGiB": 6,
+    "files": {
+      "src/host/world/ActualFoulPlayEndContract.test.ts": 16
+    },
+    "caseNames": {
+      "src/host/world/ActualFoulPlayEndContract.test.ts": [
+        "owns one genuine original-foul dead-ball end with a physical child acknowledgement and the official child still pending",
+        "derives the physical acknowledgement before Core without persisting a proposed receipt or seal",
+        "rejects caller-supplied terminal before any terminal receipt or seal",
+        "rejects caller-supplied dead before any terminal receipt or seal",
+        "rejects caller-supplied count before any terminal receipt or seal",
+        "rejects caller-supplied timeline before any terminal receipt or seal",
+        "rejects caller-supplied producerIds before any terminal receipt or seal",
+        "rejects caller-supplied watermark before any terminal receipt or seal",
+        "rejects caller-supplied actorDisposition before any terminal receipt or seal",
+        "rejects caller-supplied occurredAt before any terminal receipt or seal",
+        "rejects a changed same-ID Source while preserving the original terminal and all admissions",
+        "rolls back the complete terminal write when its receipt INSERT changes unrelated Match state",
+        "rolls back both real INSERTs when the seal trigger adds a foreign-indexed terminal alias",
+        "keeps a genuinely admitted observation explicitly pending without retiring the original actors or writing an end",
+        "rejects a missing seal on historical read while the raw foul terminal still blocks new live work",
+        "reopens the same physical end offline with its immutable mixed successor and caller read transaction intact"
+      ]
+    },
+    "vitestConfig": "/workspace/shared/foul-end-green159-preparation-a7086cd/end_contract.vitest.config.mjs"
+  },
+  "initialMemAvailableKiB": 8839808,
+  "command": [
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/host/world/ActualFoulPlayEndContract.test.ts",
+    "--config",
+    "/workspace/shared/foul-end-green159-preparation-a7086cd/end_contract.vitest.config.mjs",
+    "--pool=forks",
+    "--maxWorkers=1",
+    "--minWorkers=1",
+    "--no-file-parallelism",
+    "--reporter=verbose",
+    "--reporter=json",
+    "--reporter=/workspace/shared/foul-end-green159-preparation-a7086cd/unhandled-reporter.mjs",
+    "--outputFile=/workspace/shared/foul-end-green159-preparation-a7086cd/green1/end_contract-results.json"
+  ],
+  "childPid": 100,
+  "rootStartTime": 4990687,
+  "terminalAt": "2026-10-06T19:49:43.102504+00:00",
+  "seconds": 1490.281554121997,
+  "exitCode": 0,
+  "failure": null,
+  "stopReason": null,
+  "peakAggregateRssKiB": 582576,
+  "runtime": [
+    {
+      "pid": 100,
+      "ppid": 2,
+      "nodeVersion": "26.10.0",
+      "heapLimitMiB": 1120,
+      "worker": false,
+      "stage": "end_contract"
+    },
+    {
+      "pid": 130,
+      "ppid": 100,
+      "nodeVersion": "26.10.0",
+      "heapLimitMiB": 1120,
+      "worker": true,
+      "stage": "end_contract"
+    }
+  ],
+  "runtimeVerified": true,
+  "sourceDependenciesControlsUnchanged": true,
+  "remainingOwnedProcesses": [],
+  "reaped": true,
+  "counts": {
+    "numTotalTests": 16,
+    "numPassedTests": 16,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0
+  },
+  "perTest": [
+    {
+      "file": "src/host/world/ActualFoulPlayEndContract.test.ts",
+      "name": "owns one genuine original-foul dead-ball end with a physical child acknowledgement and the official child still pending",
+      "status": "passed",
+      "failureMessages": []
+    },
+    {
+      "file": "src/host/world/ActualFoulPlayEndContract.test.ts",
+      "name": "derives the physical acknowledgement before Core without persisting a proposed receipt or seal",
+      "status": "passed",
+      "failureMessages": []
+    },
+    {
+      "file": "src/host/world/ActualFoulPlayEndContract.test.ts",
+      "name": "rejects caller-supplied terminal before any terminal receipt or seal",
+      "status": "passed",
+      "failureMessages": []
+    },
+    {
+      "file": "src/host/world/ActualFoulPlayEndContract.test.ts",
+      "name": "rejects caller-supplied dead before any terminal receipt or seal",
+      "status": "passed",
+      "failureMessages": []
+    },
+    {
+      "file": "src/host/world/ActualFoulPlayEndContract.test.ts",
+      "name": "rejects caller-supplied count before any terminal receipt or seal",
+      "status": "passed",
+      "failureMessages": []
+    },
+    {
+      "file": "src/host/world/ActualFoulPlayEndContract.test.ts",
+      "name": "rejects caller-supplied timeline before any terminal receipt or seal",
+      "status": "passed",
+      "failureMessages": []
+    },
+    {
+      "file": "src/host/world/ActualFoulPlayEndContract.test.ts",
+      "name": "rejects caller-supplied producerIds before any terminal receipt or seal",
+      "status": "passed",
+      "failureMessages": []
+    },
+    {
+      "file": "src/host/world/ActualFoulPlayEndContract.test.ts",
+      "name": "rejects caller-supplied watermark before any terminal receipt or seal",
+      "status": "passed",
+      "failureMessages": []
+    },
+    {
+      "file": "src/host/world/ActualFoulPlayEndContract.test.ts",
+      "name": "rejects caller-supplied actorDisposition before any terminal receipt or seal",
+      "status": "passed",
+      "failureMessages": []
+    },
+    {
+      "file": "src/host/world/ActualFoulPlayEndContract.test.ts",
+      "name": "rejects caller-supplied occurredAt before any terminal receipt or seal",
+      "status": "passed",
+      "failureMessages": []
+    },
+    {
+      "file": "src/host/world/ActualFoulPlayEndContract.test.ts",
+      "name": "rejects a changed same-ID Source while preserving the original terminal and all admissions",
+      "status": "passed",
+      "failureMessages": []
+    },
+    {
+      "file": "src/host/world/ActualFoulPlayEndContract.test.ts",
+      "name": "rolls back the complete terminal write when its receipt INSERT changes unrelated Match state",
+      "status": "passed",
+      "failureMessages": []
+    },
+    {
+      "file": "src/host/world/ActualFoulPlayEndContract.test.ts",
+      "name": "rolls back both real INSERTs when the seal trigger adds a foreign-indexed terminal alias",
+      "status": "passed",
+      "failureMessages": []
+    },
+    {
+      "file": "src/host/world/ActualFoulPlayEndContract.test.ts",
+      "name": "keeps a genuinely admitted observation explicitly pending without retiring the original actors or writing an end",
+      "status": "passed",
+      "failureMessages": []
+    },
+    {
+      "file": "src/host/world/ActualFoulPlayEndContract.test.ts",
+      "name": "rejects a missing seal on historical read while the raw foul terminal still blocks new live work",
+      "status": "passed",
+      "failureMessages": []
+    },
+    {
+      "file": "src/host/world/ActualFoulPlayEndContract.test.ts",
+      "name": "reopens the same physical end offline with its immutable mixed successor and caller read transaction intact",
+      "status": "passed",
+      "failureMessages": []
+    }
+  ],
+  "unhandledErrors": [],
+  "selectionValid": true,
+  "resourceEvidenceValid": true,
+  "phaseVerified": true,
+  "cancellationSignal": null
+}
