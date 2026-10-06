@@ -19,8 +19,10 @@ const owner = (db: DatabaseSync) => {
   const ownership = foulRuleConsumptionOwnership(db);
   const runtimeFor = (sourceId: string) => {
     const runtime = actualLiveRuntimeEvidenceFromSqlite(db).read(sourceId);
-    if (!runtime || runtime.source.capability !== 'causal_original_settled_foul_count_runtime_v1'
-      || runtime.membership.liveRulePolicy !== 'untouched_settled_foul_count_consumption_v1') {
+    if (!runtime || !(runtime.source.capability === 'causal_original_settled_foul_count_runtime_v1'
+        && runtime.membership.liveRulePolicy === 'untouched_settled_foul_count_consumption_v1'
+      || runtime.source.capability === 'causal_original_settled_foul_end_runtime_v1'
+        && runtime.membership.liveRulePolicy === 'untouched_settled_foul_end_v1')) {
       throw new Error('foul consumption requires its registered explicit count runtime policy');
     }
     return runtime;

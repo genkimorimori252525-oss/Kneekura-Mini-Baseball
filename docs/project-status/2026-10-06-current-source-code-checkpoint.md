@@ -1,0 +1,9 @@
+# Current non-design source checkpoint
+
+This checkpoint preserves the qualified batting stance, runner policy/view and main-only read boundary, and foul runtime registration/admission code above PR337. Its `src` tree exactly matches frozen source `10934028ff85b00b38b37142dfeda45b9e3c0814`: `f02849963df3fca3c32b9c411b9d53c590d59575`. All unrelated PR337 base bytes remain unchanged. The publication commit has its own full-tree identity; the following runtime results belong to source109, not a new execution of this publication tree.
+
+On source109, the closed first batch passed catalog, full compiler and 32 complete source test files: 354 PASS / 0 FAIL / 0 SKIP. Three subsequent independently completed cumulative file batches added 2, 31 and 4 passing cases. At 2026-10-06 18:34:26 UTC, the cumulative record therefore contains **35 source files / 391 passing cases**, plus catalog/compiler, with **931 stages pending**. The first terminal SHA-256 is `3f641e2e04be5f68d4682f722aef7d9ab9756bbc0ea4d726fd4c725a33bef064`; the latest `file-0003` ledger SHA-256 is `bd1819cb56ab7fb9e0387c2ba0d9cf981a346c1503b8d50812be40e4b32e1e3d`. Closed terminal/ledger pairs retain unchanged source/dependencies/controls and completed process cleanup.
+
+Whole-project verification and the existing implementation plan remain incomplete. Runner semantic capture and the batting Proxy work remain independently held. The newer physical foul-end candidate is outside source109. These bounded results establish no general autonomous play, official reset/resume or complete foul path. Separate Node/control results are not added to the cumulative count.
+
+This source-only checkpoint contains one concise result note alongside the exact code changes. Raw evidence, logs, control files and manifests remain in the separately managed metadata publication.
