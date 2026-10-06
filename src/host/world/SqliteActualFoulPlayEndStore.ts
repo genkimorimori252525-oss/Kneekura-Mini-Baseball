@@ -1,105 +1,123 @@
-import { actualFoulTerminalClaims } from './ActualFoulPlayEndOwnership';
-import { actualLivePlayOwnerIdentityRow, actualFirstBaseTerminalClaims } from './ActualLivePlayOwnerMetadata';
+import { actualFoulEndIdentityRows, actualFoulTerminalClaims, actualFoulOtherTerminalClaims } from './ActualFoulPlayEndOwnership';
+import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
+import { actualLivePlayId } from './ActualLivePlayScope';
 import { createRequire } from 'node:module';
-import { actualFirstBasePlayEndInput as input, type AcceptedActualFirstBasePlayEnd, type ActualFirstBaseEndedEvidence, type ActualFirstBasePlayEndEvidence } from './ActualFirstBasePlayEnd';
-import { actualFirstBasePlayEndEvidenceFromSqlite } from './ActualFirstBasePlayEndEvidenceFromSqlite';
+import { actualFoulPlayEndInput as input, type FoulEndSource, type FoulEndedEvidence, type FoulEndEvaluation } from './ActualFoulPlayEnd';
+import { actualFoulPlayEndEvidenceFromSqlite } from './ActualFoulPlayEndEvidenceFromSqlite';
 import { actorJson as json, actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 /** Each original history record is authenticated separately by its physical owner.
  * The new envelope persists a bounded source manifest, never a mutated old timeline. */
-const projection = (value: ActualFirstBaseEndedEvidence) => {
+const projection = (value: FoulEndedEvidence) => {
   const { wholeHistory: _original, ...receipt } = value;
   return receipt;
 };
 const assertTerminalClaims = (db: Pick<import('node:sqlite').DatabaseSync, 'prepare'>,
-  value: ActualFirstBaseEndedEvidence, inserted: boolean) => {
-  const rows = actualFirstBaseTerminalClaims(db, { gameId: value.gameId, playId: value.playId,
-    physicalPitchSourceId: value.physicalPitchSourceId, runtimeSourceId: value.source.runtimeSourceId });
-  if (actualFoulTerminalClaims(db, { gameId: value.gameId, playId: value.playId,
-    physicalPitchSourceId: value.physicalPitchSourceId, runtimeSourceId: value.source.runtimeSourceId }).length
+  value: FoulEndedEvidence, inserted: boolean) => {
+  const rows = actualFoulTerminalClaims(db, { gameId: value.gameId, playId: value.playId,
+    physicalPitchSourceId: value.physicalPitchSourceId, runtimeSourceId: value.preCorePhysicalProof.runtimeReference.sourceId,
+    physicalObligationKey: value.dispositionObligations.physical.obligationKey, originalSuccessorKey: value.dispositionObligations.original.successorKey });
+  if (actualFoulOtherTerminalClaims(db, { gameId: value.gameId, playId: value.playId,
+    physicalPitchSourceId: value.physicalPitchSourceId, runtimeSourceId: value.preCorePhysicalProof.runtimeReference.sourceId }).length
     || rows.length !== (inserted ? 1 : 0) || inserted && rows[0].source_id !== value.source.sourceId) {
-    throw new Error('actual first-base terminal closure ownership claims differ');
+    throw new Error('actual foul terminal closure ownership claims differ');
   }
 };
-export const actualFirstBaseEndArchiveEncoding = (value: ActualFirstBaseEndedEvidence) => {
+export const actualFoulEndArchiveEncoding = (value: FoulEndedEvidence) => {
   const receipt = projection(value);
   return { json: json(receipt), hash: hash(receipt) };
 };
-type Db = Pick<import('node:sqlite').DatabaseSync, 'prepare'>;
+type Db = import('node:sqlite').DatabaseSync;
 // Private to this module: callers cannot substitute their own proof. Every use
 // freshly authenticates the raw source, original archive, terminal census/seal.
 const readClosedEvidence = (db: Db, sourceId: string,
-  derive: (source: AcceptedActualFirstBasePlayEnd) => ActualFirstBasePlayEndEvidence): ActualFirstBaseEndedEvidence | null => {
-  if (!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='actual_first_base_play_ends'").get()) return null;
-  const row = actualLivePlayOwnerIdentityRow(db, 'actual_first_base_play_ends', sourceId);
-  if (!row) return null;
+  derive: (source: FoulEndSource) => FoulEndEvaluation): FoulEndedEvidence | null => {
+  if (!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='actual_foul_play_ends'").get()) return null;
+  const rows = actualFoulEndIdentityRows(db, sourceId);
+  if (!rows.length) return null;
+  if (rows.length !== 1 || rows[0].source_id !== sourceId) throw new Error('actual foul terminal ownership identity differs');
+  const row = rows[0];
   const s = input(JSON.parse(String(row.source_json)), sourceId), value = derive(s);
-  if (value.kind !== 'ended') throw new Error('stored actual first-base PlayEnd proof is pending');
-  if (json(value.source) !== json(s)) throw new Error('actual first-base PlayEnd proof Source differs');
+  if (value.kind !== 'ended') throw new Error('stored actual foul PlayEnd proof is pending');
+  if (json(value.source) !== json(s)) throw new Error('actual foul PlayEnd proof Source differs');
   assertTerminalClaims(db, value, true);
+  if (!db.prepare("SELECT 1 FROM main.sqlite_master WHERE type='table' AND name='actual_live_play_fences'").get()) {
+    throw new Error('actual foul archive seal is missing');
+  }
   const expected = projection(value), fences = db.prepare('SELECT * FROM actual_live_play_fences WHERE (game_id=? AND play_id=?) OR physical_pitch_source_id=? OR closure_source_id=?')
     .all(value.gameId, value.playId, value.physicalPitchSourceId, sourceId);
   if (fences.length !== 1 || fences[0].game_id !== value.gameId || fences[0].play_id !== value.playId
     || fences[0].physical_pitch_source_id !== value.physicalPitchSourceId || fences[0].closure_source_id !== sourceId
     || row.game_id !== value.gameId || row.play_id !== value.playId || row.physical_pitch_source_id !== value.physicalPitchSourceId
     || row.source_json !== json(s) || row.source_hash !== hash(s) || row.snapshot_json !== json(expected) || row.snapshot_hash !== hash(expected)) {
-    throw new Error('actual first-base PlayEnd archive or fence differs');
+    throw new Error('actual foul PlayEnd archive or fence differs');
   }
   return value;
 };
 /** Authenticated historical closed receipt on the caller's transaction/snapshot.
  * Unlike a proposal derivation, this requires the durable end AND its exact seal. */
-export const actualFirstBaseClosedEvidenceFromSqlite = (db: Db) => {
-  const own = actualFirstBasePlayEndEvidenceFromSqlite(db);
-  const read = (sourceId: string) => readClosedEvidence(db, sourceId, own.derive);
+export const actualFoulClosedEvidenceFromSqlite = (db: Db) => {
+  const own = actualFoulPlayEndEvidenceFromSqlite(db);
+  const read = (sourceId: string) => withBattedVenueLegalReadSnapshot(db, () => {
+    if (!actualLivePlayId(sourceId)) throw new Error('invalid actual foul end identity');
+    return readClosedEvidence(db, sourceId, own.derive);
+  });
   return { read, reference(sourceId: string) {
     const value = read(sourceId);
-    return value && { owner: 'actual_first_base_play_ends' as const, sourceId, sourceVersion: value.source.sourceVersion,
-      sourceHash: hash(value.source), snapshotHash: actualFirstBaseEndArchiveEncoding(value).hash };
+    return value && { owner: 'actual_foul_play_ends' as const, sourceId, sourceVersion: value.source.sourceVersion,
+      sourceHash: hash(value.source), snapshotHash: actualFoulEndArchiveEncoding(value).hash };
   } };
 };
-export const openSqliteActualFirstBasePlayEndStore = (path: string,
-  authority?: Readonly<{ readAcceptedEnd(sourceId: string): AcceptedActualFirstBasePlayEnd | null }>) => {
+export const openSqliteActualFoulPlayEndStore = (path: string,
+  authority?: Readonly<{ readAcceptedEnd(sourceId: string): FoulEndSource | null }>) => {
+  if (!actualLivePlayId(path) || authority !== undefined && typeof authority.readAcceptedEnd !== 'function') throw new Error('invalid actual foul end authority');
   const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite'), db = new DatabaseSync(path);
   db.exec(`PRAGMA journal_mode=wal; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;
-    CREATE TABLE IF NOT EXISTS actual_first_base_play_ends(source_id TEXT PRIMARY KEY,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,
+    CREATE TABLE IF NOT EXISTS actual_foul_play_ends(source_id TEXT PRIMARY KEY,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,
       physical_pitch_source_id TEXT NOT NULL UNIQUE,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(game_id,play_id));
     CREATE TABLE IF NOT EXISTS actual_live_play_fences(game_id TEXT NOT NULL,play_id INTEGER NOT NULL,physical_pitch_source_id TEXT NOT NULL UNIQUE,
       closure_source_id TEXT NOT NULL UNIQUE,PRIMARY KEY(game_id,play_id));`);
-  const own = actualFirstBasePlayEndEvidenceFromSqlite(db); let closed = false, failed = false;
-  const check = () => { if (closed || failed) throw new Error('closed actual first-base PlayEnd store'); };
+  const own = actualFoulPlayEndEvidenceFromSqlite(db); let closed = false, failed = false;
+  const check = () => { if (closed || failed) throw new Error('closed actual foul PlayEnd store'); };
   const source = (sourceId: string) => {
     const raw = authority?.readAcceptedEnd(sourceId) ?? null;
-    if (!raw) throw new Error('accepted actual first-base PlayEnd Source missing');
+    if (!raw) throw new Error('accepted actual foul PlayEnd Source missing');
     return input(raw, sourceId);
   };
-  const { read } = actualFirstBaseClosedEvidenceFromSqlite(db);
-  const snapshot = <T>(body: () => T) => { db.exec('BEGIN'); try { const v = body(); db.exec('COMMIT'); return v; }
-    catch (error) { db.exec('ROLLBACK'); throw error; } };
+  const { read } = actualFoulClosedEvidenceFromSqlite(db);
+  const snapshot = <T>(body: () => T) => withBattedVenueLegalReadSnapshot(db, body);
   return Object.freeze({ read(sourceId: string) { check(); return snapshot(() => read(sourceId)); },
-    evaluate(sourceId: string) { check(); return snapshot(() => own.derive(source(sourceId), true)); },
-    accept(sourceId: string): ActualFirstBaseEndedEvidence {
+    evaluate(sourceId: string) { check(); const requested = source(sourceId); return snapshot(() => {
+      const prior = read(sourceId);
+      if (prior) { if (json(prior.source) !== json(requested)) throw new Error('actual foul end Source frozen differently'); return prior; }
+      const proposed = own.derive(requested, true);
+      if (proposed.kind === 'ended') assertTerminalClaims(db, proposed, false);
+      return proposed;
+    }); },
+    accept(sourceId: string): FoulEndedEvidence {
       check(); const prior = snapshot(() => read(sourceId)), raw = authority?.readAcceptedEnd(sourceId) ?? null;
       const requested = raw === null ? null : input(raw, sourceId);
       if (prior) {
         if (requested && json(prior.source) !== json(requested)) throw new Error('actual PlayEnd Source frozen differently');
         return snapshot(() => {
           const saved = read(sourceId);
-          if (!saved || actualFirstBaseEndArchiveEncoding(saved).json !== actualFirstBaseEndArchiveEncoding(prior).json) {
+          if (!saved || actualFoulEndArchiveEncoding(saved).json !== actualFoulEndArchiveEncoding(prior).json) {
             throw new Error('actual PlayEnd owner changed during retry');
           }
           return saved;
         });
       }
-      if (!requested) throw new Error('accepted actual first-base PlayEnd Source missing');
+      if (!requested) throw new Error('accepted actual foul PlayEnd Source missing');
       const proposed = snapshot(() => own.derive(requested, true));
-      if (proposed.kind !== 'ended') throw new Error(`actual first-base PlayEnd pending: ${proposed.pendingReasons.join(', ')}`);
+      if (proposed.kind !== 'ended') throw new Error(`actual foul PlayEnd pending: ${proposed.pendingReasons.join(', ')}`);
       snapshot(() => assertTerminalClaims(db, proposed, false));
       const encoded = json(projection(proposed)), proofCleanupErrors: unknown[] = []; db.exec('BEGIN IMMEDIATE');
       try {
+        const beforeChanges = db.prepare('SELECT total_changes() AS n').get()!.n;
+        if (typeof beforeChanges !== 'number' || !Number.isSafeInteger(beforeChanges + 2)) throw new Error('actual foul terminal write accounting unavailable');
         assertTerminalClaims(db, proposed, false);
         const current = own.derive(requested, true);
         if (current.kind !== 'ended' || json(projection(current)) !== encoded) throw new Error('actual PlayEnd complete proof changed before write');
-        db.prepare('INSERT INTO actual_first_base_play_ends VALUES(?,?,?,?,?,?,?,?)').run(sourceId, proposed.gameId, proposed.playId,
+        db.prepare('INSERT INTO actual_foul_play_ends VALUES(?,?,?,?,?,?,?,?)').run(sourceId, proposed.gameId, proposed.playId,
           proposed.physicalPitchSourceId, json(requested), hash(requested), encoded, hash(projection(proposed)));
         assertTerminalClaims(db, proposed, true);
         db.prepare('INSERT INTO actual_live_play_fences VALUES(?,?,?,?)').run(proposed.gameId, proposed.playId, proposed.physicalPitchSourceId, sourceId);
@@ -153,6 +171,7 @@ export const openSqliteActualFirstBasePlayEndStore = (path: string,
         })();
         db.exec('RELEASE actual_end_closed_proof');
         if (!db.isTransaction) throw new Error('actual PlayEnd proof transaction ended during read');
+        if (db.prepare('SELECT total_changes() AS n').get()!.n !== beforeChanges + 2) throw new Error('actual foul terminal write changed unrelated ownership');
         db.exec('COMMIT'); return saved;
       } catch (error) {
         // A failing proof/read may already have rolled back. Preserve that

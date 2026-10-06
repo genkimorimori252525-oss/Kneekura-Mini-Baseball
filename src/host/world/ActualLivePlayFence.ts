@@ -1,3 +1,4 @@
+import { actualFoulTerminalClaims } from './ActualFoulPlayEndOwnership';
 import { actualLiveRuntimeClaims } from './ActualLivePlayOwnerMetadata';
 /** Transaction-local guard shared by every original-pitch live admission route.
  * A completed physical envelope owns the fence; this module cannot create one.
@@ -28,6 +29,10 @@ const journal = (db: Db, runtimeId: string) => db.prepare('SELECT * FROM actual_
 const id = (v: unknown): v is string => typeof v === 'string' && v.length > 0 && v === v.trim();
 const state = (db: Db, scope: ActualLivePlayWriteScope, includeRuntime = true): string => {
   if (!db.isTransaction) throw new Error('actual live-play fence requires an active write transaction');
+  if (actualFoulTerminalClaims(db, { gameId: scope.gameId, playId: scope.playId,
+    physicalPitchSourceId: scope.physicalPitchSourceId ?? '' }).length) {
+    throw new Error('actual live play has foul terminal closure ownership and is sealed');
+  }
   const closureSchema = db.prepare("SELECT type,sql FROM sqlite_master WHERE name='actual_first_base_play_ends'").all();
   if (closureSchema.length) {
     if (closureSchema.length !== 1 || closureSchema[0].type !== 'table') throw new Error('actual live-play terminal owner differs');
@@ -67,12 +72,14 @@ export const beginActualLivePlayWrite = (db: Db, scope: ActualLivePlayWriteScope
   }
   const runtimeId = runtime.length ? String(runtime[0].source_id) : null;
   if (event?.owner === 'actual_settled_foul_stop_productions'
-    && (!runtimeId || !['causal_original_settled_foul_runtime_v1', 'causal_original_settled_foul_count_runtime_v1']
+    && (!runtimeId || !['causal_original_settled_foul_runtime_v1', 'causal_original_settled_foul_count_runtime_v1',
+      'causal_original_settled_foul_end_runtime_v1']
       .includes(JSON.parse(String(runtime[0].source_json)).capability))) {
     throw new Error('settled-foul admission requires its explicit registered runtime capability');
   }
   if (event?.owner === 'actual_foul_rule_consumptions'
-    && (!runtimeId || JSON.parse(String(runtime[0].source_json)).capability !== 'causal_original_settled_foul_count_runtime_v1')) {
+    && (!runtimeId || !['causal_original_settled_foul_count_runtime_v1', 'causal_original_settled_foul_end_runtime_v1']
+      .includes(JSON.parse(String(runtime[0].source_json)).capability))) {
     throw new Error('foul count admission requires its explicit registered count runtime capability');
   }
   if (runtimeId && ['physical_pitch_progress_actions', 'physical_plate_appearance_actors'].includes(event!.owner)) {

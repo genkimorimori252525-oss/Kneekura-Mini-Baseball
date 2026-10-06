@@ -1,0 +1,21 @@
+{
+  "privacyReview": "code/result metadata only; complete closed receipts retained",
+  "included": {
+    "admission.json": "c1f9aa1f4438fd3a4bf0e18d2f7c5108727a99a092570437449cf0013130bfa0",
+    "compiler-terminal.json": "bd033c2de64038a3a174d71c40c1496f49b4451b9182be2d2bdc30b527ff5841",
+    "catalog-terminal.json": "e59fb8dcd4e6ae3ddeec4dbda734532e0caacc89fca2bda3f7f7183366981dee",
+    "physical_prerequisites-terminal.json": "22e92b79d91321290855e8070aa927971d0c1fdaaf1e6436b2513033f76d5bcc",
+    "end_contract-terminal.json": "c4f23a60678df81338093dcb8be895c906c9c79c422e4aa5ecffaa3cb63cdd99",
+    "interruption-evidence.json": "bc55fa5d205cbd089f5b8436df11cf81c17f6c3ef8a25e1493632df1da280866"
+  },
+  "excluded": [
+    "all databases and WAL/SHM files",
+    "raw interrupted guard log and telemetry",
+    "temporary fixture payloads",
+    "unqualified guard result credit"
+  ],
+  "closedStageFailureMessagesEmpty": true,
+  "databasePathsAndDomainPayloadKeysAbsent": true,
+  "originalFinalReaping": "unobserved",
+  "externalWritesPerformed": false
+}

@@ -1,0 +1,69 @@
+{
+  "sourceCommit": "a7086cdb0e3e563a8aafd688da2d569e3afa428d",
+  "sourceTree": "a7e3c58da3bfd3d9bf217c0dbaa544c6d66cd6d4",
+  "startedAt": "2026-10-06T19:21:40.702556+00:00",
+  "sourceManifestSha256": "64686718e47f265b44e5f4e1bcaf932a238b1bfed4b7a9fb8a29c26b49d38b43",
+  "dependencyManifestSha256": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+  "reviewedControllerSha256": "74fb421b29fd2bb0f39073f14c5ecfc6ba569e8171698d985a246e692d3184b1",
+  "controlHashes": {
+    "/workspace/shared/foul-end-green159-preparation-a7086cd/run-green1.py": "74fb421b29fd2bb0f39073f14c5ecfc6ba569e8171698d985a246e692d3184b1",
+    "/workspace/shared/foul-end-green159-preparation-a7086cd/green1.config.json": "58d92340ff9cf5108b7907a984a151ed9ec8c3242058db7fef884ecd5ac88846",
+    "/workspace/shared/foul-end-green159-preparation-a7086cd/source.sha256": "64686718e47f265b44e5f4e1bcaf932a238b1bfed4b7a9fb8a29c26b49d38b43",
+    "/workspace/shared/foul-end-green159-preparation-a7086cd/dependencies.json": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+    "/workspace/shared/baseball-node26-runtime/node_modules/node/bin/node": "ab9c8eecf9f82d6693cdc3accced17034065c8d96213b0aa76a7e803d20ae1da",
+    "/workspace/shared/foul-end-green159-preparation-a7086cd/runtime-probe.cjs": "5ea73f91e7c4d52ef135c03a1c0e468af536861bd857a7490a35173e4f42f669",
+    "/workspace/shared/foul-end-green159-preparation-a7086cd/unhandled-reporter.mjs": "7f1676a6678f623518665e8d0a150dd787d224ff5a02e14fa0b17790e52ab412",
+    "/workspace/shared/foul-end-green159-preparation-a7086cd/process-identity-reviewed.fragment.py": "17c73eb414b32f9f1616b5e4e58ac1077a0449dd5b6887c0291369b73ce9ca9f",
+    "/workspace/shared/foul-end-green159-preparation-a7086cd/process-identity-source-review.json": "9f2b8367d29049437f43f068f6e3fecd9e0fc147e60ab0f4de7b5465423804f5",
+    "/workspace/shared/foul-end-green159-preparation-a7086cd/process-identity-provenance.json": "ee6d73eb009d129a6da87c5154cd65e0a5c05bf34173b5cbd70e218a4a5f3b95",
+    "/workspace/shared/foul-end-green159-preparation-a7086cd/catalog-provenance.json": "a35243e7785ce061a14f9245e464c7379807b49094a38061306b971f1aab52f8",
+    "/workspace/shared/foul-end-green159-preparation-a7086cd/selection.json": "64ad28413c1166bb3b4ec0cef1b6cd13e2b84632de914a443274e654a707ded9",
+    "/workspace/shared/foul-end-green159-preparation-a7086cd/budget-evidence.json": "e8a83b27cb71e74baef75c6d395a96c4b0bf0a3fa00b9723936807598afeebd7",
+    "/workspace/shared/foul-end-green159-preparation-a7086cd/stack-trace-depth.mjs": "100e8196131db31ca027fab6dd52b7f10bbfae929687d2b15b73317d73503c30",
+    "/workspace/shared/foul-end-green159-preparation-a7086cd/physical_prerequisites.vitest.config.mjs": "1116a532c6e9e1296941b36a295d7ee1d022ea48ddd80147006ec1b4db49556e",
+    "/workspace/shared/foul-end-green159-preparation-a7086cd/end_contract.vitest.config.mjs": "86fbde65c0f89c69377fe4f076d12d73b28ecc21bebbbeea9ecfda9f228f9025",
+    "/workspace/shared/foul-end-green159-preparation-a7086cd/end_guards.vitest.config.mjs": "8fc6d52cc5ed849d63e7a9dadf94a5f4bdd3c269497b1959ee771805293e4a58",
+    "/workspace/shared/foul-end-green159-preparation-a7086cd/end_runtime.vitest.config.mjs": "dae624dc1b9a9bb6e3d0b86378c835fc05a7f23e6a02d50978a2311c1f6128dd",
+    "/workspace/shared/foul-end-green159-preparation-a7086cd/count_runtime.vitest.config.mjs": "358aeef477b709c06c37cd1089fb4b1cefd26c2db06456e7a800dcfe2a4f7759",
+    "/workspace/shared/foul-end-green159-preparation-a7086cd/legacy_runtime.vitest.config.mjs": "2bf94b6bfe613e8aae2b2378f07681edec826b59fffeeede5494c31659c0e26f",
+    "/workspace/shared/foul-end-green159-preparation-a7086cd/producer.vitest.config.mjs": "da59618602bc6e09bd980a58668a96a955af9b1f79495d95b7a61c4dd29eaa0e",
+    "/workspace/shared/foul-end-green159-preparation-a7086cd/count_metadata.vitest.config.mjs": "05914d50742902c80899bae6e5b700b0ea7e02117cc758f4795cdbc27c479d1b",
+    "/workspace/shared/foul-end-green159-preparation-a7086cd/shared_compatibility.vitest.config.mjs": "cab8f8112323b04591fb5f176dc9c8de8fa00ab70cf20fcd236a2425eeadc063",
+    "/workspace/shared/foul-end-scoped-census-review-a7086cd/review-package.json": "8c40e04a80ba2c740e068f538c19c7dc7c9a245269b4b60717b78a835e6571cf",
+    "/workspace/shared/foul-end-scoped-census-review-a7086cd/scoped-census-oracle.diff": "82d670ba9cf1991c2424386ba363a09dad48878724d7e7be285aac0673b4f06b",
+    "/workspace/shared/foul-end-scoped-census-review-a7086cd/all-four-repairs.diff": "b26232f9e3874f88be54dbc94aee217e3681ddd339bdbf2ac2fe47e5f2d391ca",
+    "/workspace/shared/foul-end-ownership-repair-review-1f94567/review-package.json": "8c591de2652fcdd5f90d1bc83773ae6e6a5eb140399e686bb00c9faf2b51c083",
+    "/workspace/shared/foul-end-ownership-repair-review-1f94567/three-ownership-repairs.diff": "de93d7ef7789ee9ae658fbe7cdc84d158c0ef41c09a214a889de8ea5b1384be5",
+    "/workspace/shared/foul-end-physical-red-preparation-4965026/red1/terminal.json": "7ec7d850ad8b4b7793dc6851b0c501d602d6f9e7cb33fd54f97eaae5b863a1ea",
+    "/workspace/shared/foul-end-review-red-preparation-454a8d2/red1/terminal.json": "94257384aca1bd72013fb9174c736383d3585cb34188190e0e9e515016374e27",
+    "/workspace/shared/foul-end-topology-stack32-red-preparation-409e752/red1/terminal.json": "8566825b22cb7cf81654824becf8dd6bc4ebf44603bc77137f6b7254ccbdd5ae",
+    "/workspace/shared/foul-end-topology-red-preparation-409e752/red1/terminal.json": "d54aeaf89f015a6905ddc65ef6dbd8cb087d959ec63d8548dc7d73cbf1810855",
+    "/workspace/shared/foul-end-review-red-preparation-454a8d2/red1/metadata_red-results.json": "99d595bf6f1df5b65072e051bd16a9ffad97c9941320dc2ad262c58f17a75a4e",
+    "/workspace/shared/foul-end-review-red-preparation-454a8d2/red1/end_baseline-results.json": "e3a290c0a57a5208035ed66b6460b9f93824fec05061ac8409a866fdd10db7df",
+    "/workspace/shared/foul-consumer-followup122-preparation-6bb37ce/followup1/terminal.json": "6e710cee91f16fc13bd52172902cf12e986623368bf0cd653e1c850900c676ab",
+    "/workspace/shared/foul-consumer-green166-preparation-2d22dd5/green1/terminal.json": "ab6055d2f52251b690cc157c8c760cc6712fa912eba8072250aea022e5fe93ff",
+    "/workspace/shared/foul-end-runtime-green84-preparation-e6ae2f3/green1/terminal.json": "57ac3181d5cc92e223a5668ea0d28e543bf4bb5334d4b0dd4b3bc472fa08ae32",
+    "/workspace/shared/baseball-restored-catalog-bootstrap/terminal.json": "056e38d5529c7b2f7e6e2b5613d9bf5c82c76c87f5675aff4fe59792196bb47d",
+    "/workspace/shared/foul-end-runtime-green84-preparation-e6ae2f3/run-green1.py": "43f9f16d5a31c0a9ad7b57a5680b71deadcc9f52498d9541c940261c899edbb6",
+    "/workspace/shared/foul-end-runtime-green84-preparation-e6ae2f3/green1.config.json": "566f12392730985a0faa6b9143e3a3a28cb47d779644f869c96feaf72d7a5f8c",
+    "/workspace/shared/foul-end-future-green-inventory-454a8d2/selection.json": "bc2fc057dc79ad2439371a63fd25ec31cbffda903d0511eb62f0b14c468b9485"
+  },
+  "locks": [
+    {
+      "path": "/workspace/shared/baseball-native-check.lock",
+      "fd": 3,
+      "inode": 262705
+    },
+    {
+      "path": "/workspace/shared/baseball-native-aux-check.lock",
+      "fd": 4,
+      "inode": 262700
+    },
+    {
+      "path": "/workspace/shared/baseball-light-check.lock",
+      "fd": 5,
+      "inode": 262699
+    }
+  ],
+  "scope": "Compiler/catalog and159 bounded physical-end/shared cases:initial19,original10,new5,topology1 plus124 compatibility; no exclusions or whole-project/all-route/official/reset/resume claim"
+}
