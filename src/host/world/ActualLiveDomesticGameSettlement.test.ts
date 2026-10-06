@@ -4,10 +4,22 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { appendFileSync } from 'node:fs';
 const physical = vi.hoisted(() => ({ adjudication: null as any, end: null as any, baseField: null as any, players: [] as any[] }));
-vi.mock('./ActualLiveAdjudicationFromSqlite', () => ({ actualLiveAdjudicationEvidenceFromSqlite: () => ({ read: () => physical.adjudication }) }));
+vi.mock('./ActualLiveAdjudicationFromSqlite', () => ({ actualLiveAdjudicationEvidenceFromSqlite: () => ({
+  read: () => physical.adjudication,
+  // Both reader shapes substitute the same synthetic physical boundary.
+  readWithClosureInputs: () => ({ value: physical.adjudication, end: physical.end,
+    prefix: { baseField: physical.baseField, fields: [], executions: [{ source: { sourceId: physical.end.source.executionSourceId } }] } }),
+}) }));
 vi.mock('./SqliteActualFirstBasePlayEndStore', () => ({ actualFirstBaseClosedEvidenceFromSqlite: () => ({ read: () => physical.end }) }));
-vi.mock('./SqliteBattedWorldFieldStore', () => ({ battedWorldFieldEvidenceFromSqlite: () => ({ read: () => physical.baseField, scope: () => [] }) }));
-vi.mock('./SqliteBattedWorldFieldExecutionStore', () => ({ battedWorldFieldExecutionEvidenceFromSqlite: () => ({ scope: () => [] }) }));
+// Preserve the real traversal, transaction snapshot and cleanup guards.
+vi.mock('./SqliteBattedWorldFieldStore', async importOriginal => ({
+  ...await importOriginal<typeof import('./SqliteBattedWorldFieldStore')>(),
+  battedWorldFieldEvidenceFromSqlite: () => ({ read: () => physical.baseField, scope: () => [] }),
+}));
+vi.mock('./SqliteBattedWorldFieldExecutionStore', async importOriginal => ({
+  ...await importOriginal<typeof import('./SqliteBattedWorldFieldExecutionStore')>(),
+  battedWorldFieldExecutionEvidenceFromSqlite: () => ({ scope: () => [] }),
+}));
 vi.mock('./ActualPlayerKinematicsFromPrefix', () => ({ actualPlayersKinematicsFromPrefix: () => physical.players }));
 import { actualDomesticFixture } from './ActualLiveDomesticGameSettlement.test-support';
 import { settleActualLiveDomesticGame, settleDomesticGame, prepareDomesticMatch, reviseDomesticSeasonSchedule } from './DomesticSeasonRuntime';

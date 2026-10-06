@@ -1,4 +1,8 @@
 import { createRequire } from 'node:module';
+import type { DatabaseSync } from 'node:sqlite';
+import { playerPersonLinkEvidenceFromSqlite } from './SqlitePlayerPersonLinkStore';
+import { sqliteJsonMetadataNodes as nodes } from './SqliteOwnershipMetadata';
+import { assertBodyCompositionNativeConnection, bodyCompositionTableInstalled } from './BodyMaterializationSqliteOwnership';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { Vec3 } from '../../core/model/geometry';
 import { projectReleaseHeightTier,
@@ -146,6 +150,150 @@ PlayerReleaseGeometryHistory => {
     }] };
 };
 
+const releaseSnapshotAtDay = (source: PlayerReleaseGeometryHistory, atDay: number): PlayerReleaseGeometrySnapshot => {
+  if (!day(atDay) || atDay < source.baseline.effectiveDay) throw new Error('Player release source is missing at day');
+  return source.changes.filter(item => item.effectiveDay <= atDay).at(-1) ?? source.baseline;
+};
+
+const storedPlayerReleaseGeometryReader = (db: Pick<DatabaseSync, 'prepare'>,
+  personLinks: AcceptedPlayerPersonLinkAuthority, nativeOwner = false) => {
+  const owner = nativeOwner ? 'main.' : '';
+  const claim = `EXISTS (SELECT 1 FROM (${nodes('source_json')}) identity,
+    json_each(CASE WHEN identity.type='object' THEN identity.value ELSE '{}' END) career,
+    json_each(CASE WHEN identity.type='object' THEN identity.value ELSE '{}' END) player
+    WHERE career.key='careerId' AND career.type='text' AND career.atom=?
+      AND player.key='playerId' AND player.type='text' AND player.atom=?)`;
+  const scope = nativeOwner ? `(career_id=? AND player_id=?) OR ${claim}` : 'career_id=? AND player_id=?';
+  const scopeArgs = (careerId: string, playerId: string) => nativeOwner
+    ? [careerId, playerId, careerId, playerId] : [careerId, playerId];
+  const getBaseline = db.prepare(`SELECT source_id, career_id,
+    player_id, source_json FROM ${owner}world_player_release_baselines WHERE ${scope}`);
+  const getBaselineBySource = db.prepare(`SELECT source_id, career_id,
+    player_id, source_json FROM world_player_release_baselines
+    WHERE source_id=?`);
+  const getChange = db.prepare(`SELECT source_id, career_id,
+    player_id, revision, source_json FROM world_player_release_changes
+    WHERE source_id=?`);
+  const getChanges = db.prepare(`SELECT source_id, career_id,
+    player_id, revision, source_json FROM ${owner}world_player_release_changes
+    WHERE ${scope} ORDER BY revision`);
+  const getHead = db.prepare(`SELECT revision, state_json
+    FROM ${owner}world_player_release_heads WHERE career_id=? AND player_id=?`);
+  const sourceClaim = (sourceId: string, table: string) => {
+    if (!nativeOwner) return;
+    const found = ['world_player_release_baselines', 'world_player_release_changes'].flatMap((name) =>
+      db.prepare(`SELECT source_id FROM main.${name} WHERE source_id=? OR EXISTS
+        (SELECT 1 FROM (${nodes('source_json', ['sourceId'])}) identity WHERE identity.type='text' AND identity.atom=?)`)
+        .all(sourceId, sourceId).map(row => ({ table: name, sourceId: row.source_id })));
+    if (found.length !== 1 || found[0].table !== table || found[0].sourceId !== sourceId) {
+      throw new Error('original Player release Source claim differs');
+    }
+  };
+  const replay = (careerId: string,
+    playerId: string): PlayerReleaseGeometryHistory | null => {
+    const rows = getBaseline.all(...scopeArgs(careerId, playerId)) as BaselineRow[];
+    if (nativeOwner && rows.length > 1) throw new Error('original Player release baseline scope differs');
+    const row = rows[0];
+    if (!row) return null;
+    const source = JSON.parse(row.source_json) as
+      AcceptedReleaseGeometryBaseline;
+    const link = personLinks.readAcceptedPlayerPersonLink(
+      source.personLinkSourceId);
+    if (!validBaseline(source, row.source_id)
+      || row.career_id !== careerId || row.player_id !== playerId
+      || source.careerId !== careerId || source.playerId !== playerId
+      || !link || link.careerId !== careerId || link.playerId !== playerId
+      || canonicalJson(source) !== row.source_json) {
+      throw new Error('corrupt Player release baseline');
+    }
+    validateGeometry(source.body, source.profile,
+      source.tierBoundaries);
+    sourceClaim(source.sourceId, 'world_player_release_baselines');
+    let current = initialState(source);
+    const changes = getChanges.all(...scopeArgs(careerId, playerId)) as ChangeRow[];
+    for (const [index, item] of changes.entries()) {
+      const change = JSON.parse(item.source_json) as
+        AcceptedReleaseGeometryChange;
+      if (!validChange(change, item.source_id)
+        || item.career_id !== careerId || item.player_id !== playerId
+        || item.revision !== index + 1
+        || canonicalJson(change) !== item.source_json) {
+        throw new Error('corrupt Player release change');
+      }
+      current = advance(current, change);
+      sourceClaim(change.sourceId, 'world_player_release_changes');
+    }
+    const head = getHead.get(careerId, playerId) as HeadRow | undefined;
+    if (!head || head.revision !== current.revision
+      || head.state_json !== canonicalJson(current)) {
+      throw new Error('Player release history head diverged');
+    }
+    return current;
+  };
+  const selectAtDay = (careerId: string, playerId: string,
+    atDay: number): PlayerReleaseGeometrySnapshot => {
+    if (!id(careerId) || !id(playerId) || !day(atDay)) {
+      throw new Error('invalid Player release selection');
+    }
+    const source = replay(careerId, playerId);
+    if (!source || atDay < source.baseline.effectiveDay) {
+      throw new Error('Player release source is missing at day');
+    }
+    return releaseSnapshotAtDay(source, atDay);
+  };
+  const proof = (careerId: string, playerId: string): PlayerReleaseGeometryProof => {
+    const history = replay(careerId, playerId);
+    if (!history) throw new Error('original Player release history is missing');
+    const baseline = getBaseline.all(...scopeArgs(careerId, playerId))[0] as BaselineRow;
+    const changes = getChanges.all(...scopeArgs(careerId, playerId)) as ChangeRow[];
+    return { baseline: JSON.parse(baseline.source_json) as AcceptedReleaseGeometryBaseline,
+      changes: changes.map(row => JSON.parse(row.source_json) as AcceptedReleaseGeometryChange), history };
+  };
+  return { getBaselineBySource, getChange, replay, selectAtDay, proof };
+};
+
+/** Original accepted records and validated history at first composition admission. */
+export type PlayerReleaseGeometryProof = Readonly<{
+  baseline: AcceptedReleaseGeometryBaseline;
+  changes: readonly AcceptedReleaseGeometryChange[];
+  history: PlayerReleaseGeometryHistory;
+}>;
+
+/** Reuses the native release validator on this connection; never installs schema. */
+export const playerReleaseGeometryEvidenceFromSqlite = (db: Pick<DatabaseSync, 'prepare'>) => {
+  assertBodyCompositionNativeConnection(db);
+  if (!bodyCompositionTableInstalled(db, 'world_player_person_links') || !bodyCompositionTableInstalled(db, 'world_roster_heads')) {
+    throw new Error('original Player release Person/roster owner is missing');
+  }
+  for (const name of ['world_player_release_baselines', 'world_player_release_changes', 'world_player_release_heads']) {
+    const rows = db.prepare('SELECT type FROM main.sqlite_master WHERE name=?').all(name);
+    if (rows.length !== 1 || rows[0].type !== 'table') throw new Error('original Player release owner is missing or differs');
+  }
+  const persons = playerPersonLinkEvidenceFromSqlite(db);
+  const own = storedPlayerReleaseGeometryReader(db, {
+    readAcceptedPlayerPersonLink: (sourceId) => persons.readLink(sourceId),
+  }, true);
+  return Object.freeze({
+    readHistory: own.replay,
+    pinAtDay(careerId: string, playerId: string, atDay: number) {
+      const proof = own.proof(careerId, playerId), snapshot = releaseSnapshotAtDay(proof.history, atDay);
+      return { snapshot, proof };
+    },
+    replayPinned(proof: PlayerReleaseGeometryProof, careerId: string, playerId: string, atDay: number): PlayerReleaseGeometrySnapshot {
+      proof = cloneInert(proof);
+      if (!proof || !Array.isArray(proof.changes) || !proof.history || !day(proof.history.revision)
+        || proof.history.revision !== proof.changes.length) throw new Error('invalid pinned Player release history');
+      const current = own.proof(careerId, playerId), revision = proof.history.revision;
+      const prefix: PlayerReleaseGeometryProof = { baseline: current.baseline, changes: current.changes.slice(0, revision),
+        history: { ...current.history, revision, changes: current.history.changes.slice(0, revision) } };
+      if (current.history.revision < revision || canonicalJson(prefix) !== canonicalJson(proof)) {
+        throw new Error('original pinned Player release prefix changed');
+      }
+      return releaseSnapshotAtDay(prefix.history, atDay);
+    },
+  });
+};
+
 /** A fixed per-Player delivery source; only accepted Career events can revise it. */
 export const openSqlitePlayerReleaseGeometryStore = (
   databasePath: string,
@@ -180,57 +328,7 @@ export const openSqlitePlayerReleaseGeometryStore = (
     revision INTEGER NOT NULL CHECK(revision >= 0),
     state_json TEXT NOT NULL, PRIMARY KEY(career_id, player_id)
   );`);
-  const getBaseline = db.prepare(`SELECT source_id, career_id,
-    player_id, source_json FROM world_player_release_baselines
-    WHERE career_id=? AND player_id=?`);
-  const getBaselineBySource = db.prepare(`SELECT source_id, career_id,
-    player_id, source_json FROM world_player_release_baselines
-    WHERE source_id=?`);
-  const getChange = db.prepare(`SELECT source_id, career_id,
-    player_id, revision, source_json FROM world_player_release_changes
-    WHERE source_id=?`);
-  const getChanges = db.prepare(`SELECT source_id, career_id,
-    player_id, revision, source_json FROM world_player_release_changes
-    WHERE career_id=? AND player_id=? ORDER BY revision`);
-  const getHead = db.prepare(`SELECT revision, state_json
-    FROM world_player_release_heads WHERE career_id=? AND player_id=?`);
-  const replay = (careerId: string,
-    playerId: string): PlayerReleaseGeometryHistory | null => {
-    const row = getBaseline.get(careerId, playerId) as BaselineRow | undefined;
-    if (!row) return null;
-    const source = JSON.parse(row.source_json) as
-      AcceptedReleaseGeometryBaseline;
-    const link = personLinks.readAcceptedPlayerPersonLink(
-      source.personLinkSourceId);
-    if (!validBaseline(source, row.source_id)
-      || row.career_id !== careerId || row.player_id !== playerId
-      || source.careerId !== careerId || source.playerId !== playerId
-      || !link || link.careerId !== careerId || link.playerId !== playerId
-      || canonicalJson(source) !== row.source_json) {
-      throw new Error('corrupt Player release baseline');
-    }
-    validateGeometry(source.body, source.profile,
-      source.tierBoundaries);
-    let current = initialState(source);
-    const changes = getChanges.all(careerId, playerId) as ChangeRow[];
-    for (const [index, item] of changes.entries()) {
-      const change = JSON.parse(item.source_json) as
-        AcceptedReleaseGeometryChange;
-      if (!validChange(change, item.source_id)
-        || item.career_id !== careerId || item.player_id !== playerId
-        || item.revision !== index + 1
-        || canonicalJson(change) !== item.source_json) {
-        throw new Error('corrupt Player release change');
-      }
-      current = advance(current, change);
-    }
-    const head = getHead.get(careerId, playerId) as HeadRow | undefined;
-    if (!head || head.revision !== current.revision
-      || head.state_json !== canonicalJson(current)) {
-      throw new Error('Player release history head diverged');
-    }
-    return current;
-  };
+  const { getBaselineBySource, getChange, replay, selectAtDay } = storedPlayerReleaseGeometryReader(db, personLinks);
   const transaction = <T>(work: () => T): T => {
     db.exec('BEGIN IMMEDIATE');
     try {
@@ -241,18 +339,6 @@ export const openSqlitePlayerReleaseGeometryStore = (
       db.exec('ROLLBACK');
       throw error;
     }
-  };
-  const selectAtDay = (careerId: string, playerId: string,
-    atDay: number): PlayerReleaseGeometrySnapshot => {
-    if (!id(careerId) || !id(playerId) || !day(atDay)) {
-      throw new Error('invalid Player release selection');
-    }
-    const source = replay(careerId, playerId);
-    if (!source || atDay < source.baseline.effectiveDay) {
-      throw new Error('Player release source is missing at day');
-    }
-    return source.changes.filter((item) =>
-      item.effectiveDay <= atDay).at(-1) ?? source.baseline;
   };
   let closed = false;
   return Object.freeze({

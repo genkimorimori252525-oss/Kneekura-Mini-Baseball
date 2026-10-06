@@ -3,6 +3,11 @@ import type { DurablePersonPriors,
 import type { DurablePlayerIntake,
   SqlitePlayerIntakeStore } from './SqlitePlayerIntakeStore';
 
+export { openSqlitePlayerBodyCapabilityMaterializationStore } from './SqlitePlayerBodyCapabilityMaterializationStore';
+export type { BodyMaterializationAuthority, BodyMaterializationRequest, BodyMaterializationReceipt,
+  BodyMaterializationResult, BodyMaterializationStore, AcceptedBodySource, AcceptedPoseSource, AcceptedReachSource,
+  BattedBodyModelAssembly, BodySourceRef } from './PlayerBodyCapabilityMaterialization';
+
 export type MaterializedPlayerPerson = Readonly<{
   intake: DurablePlayerIntake;
   person: DurablePersonPriors;

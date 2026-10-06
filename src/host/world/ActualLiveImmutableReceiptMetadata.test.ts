@@ -11,13 +11,16 @@ import { actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceA
 it('rolls back the entire receipt delta when a trigger inserts a hidden capture-ownership claim', () => {
   const dir=mkdtempSync(join(tmpdir(),'review-live-metadata-')), path=join(dir,'receipt.db');
   const source={sourceId:'ack',captureExecutionSourceId:'capture'};
-  const derive=(s:typeof source)=>({source:s,revision:1,ownershipKey:json(['capture',s.captureExecutionSourceId]),history:[s],consumption:{capture:{sourceId:s.captureExecutionSourceId}}});
+  const derive=(s:typeof source)=>({source:s,revision:1,physicalPitchSourceId:'pitch',ownershipKey:json(['capture',s.captureExecutionSourceId]),history:[s],consumption:{capture:{sourceId:s.captureExecutionSourceId}}});
   const store=openActualLiveImmutableReceiptStore(path,'actual_live_rule_consumptions',()=>({
     input:(s:typeof source)=>s,derive,ownershipField:'captureExecutionSourceId' as const,
   }),()=>source);
   const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
   const db=new DatabaseSync(path);
   try {
+    // The shared rule-consumption writer requires this original-pitch index
+    // before the metadata trigger can run; no physical derivation is claimed.
+    db.exec("CREATE TABLE physical_pitch_progress_actions(source_id TEXT PRIMARY KEY,game_id TEXT NOT NULL,play_id INTEGER NOT NULL); INSERT INTO physical_pitch_progress_actions VALUES('pitch','game',1);");
     const other={sourceId:'hidden',captureExecutionSourceId:'other-capture'};
     const hidden={...derive(other),consumption:{capture:{sourceId:'capture'}}};
     const literal=(v:string)=>`'${v.replaceAll("'","''")}'`;

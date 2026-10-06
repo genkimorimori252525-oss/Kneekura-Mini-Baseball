@@ -1,12 +1,22 @@
 # 非デザイン継続実装: 現在の接続と検証
 
-> 2026-10-05 17:53 UTC: [実10人workloadのterminalと統合gate](../verification/2026-10-05-actual-ten-role-workload-terminal.md)。全10人の実適用・retry・全接続close/reopenが固定SourceでPASS。実next pitchと計画全体は未完了。
+> 2026-10-06 05:13 UTC: [current Native unionの正確なSourceと受入れ境界](../verification/2026-10-06-current-native-union-acceptance.md)。固定`cc268e7`の485選択とfull compilerがPASS、24 named exclusions、exit0/reap。別Sourceの累積c68中断、原始Positive未通過と70失敗を保持する。
+
+> 2026-10-05 20:34 UTC: [実順次physicalEnd→official→全10人workload→next TAKEのterminal](../verification/2026-10-05-actual-next-pitch-chain-terminal.md)。原始receiptとSource別再認証を継承した実chainはPASS。同一Source wholeと計画全体は未完了。
 
 > 2026-10-05 14:32 UTC: [残計画の実装・検証matrix](2026-10-05-nonvisual-remaining-matrix.md)。以下の各Sourceの検証記録はそのまま保持する。
 
-更新: 2026-10-05 22:00 JST（2026-10-05 13:00 UTC）
+更新: 2026-10-06 05:13 UTC
 
 ユーザーの継続指示に従い、最新の確定済み残計画を進めている。**計画全体・自律試合/Career全体の完了ではない**。デザイン/UI/art/Presentationは未接続のまま。
+
+## 2026-10-06 05:13 UTC: current Native unionと累積中断の分離
+
+統合base `9bf4550d12a8d3c53164a89a8cea5c709f9ec9a1` から、元settled-foul producer、runner input bridge、明示Person/body/pose/reachと打球model組立、3 stale-mock fixture修正を固定 `cc268e71f2a2d207de9ffcb66a00668ec84d784c` に統合した。Src treeは `5f553f22ff2e371a3eedd47ed275e1434e248be5`、検証対象full treeは `b62dfd8f69cdb6c8c96132e344f72f2447adc129`。別の文書worktreeはこのsrcを保つ。
+
+485 selected /509 discoveredの差24件は名前付きfoul除外で、PASSへ加えない。V1はcompilerと87選択PASSを完了したがrunner compatibilityの90秒上限でFAILEDのまま保持する。V2はそれらの固定Source証拠だけを再認証・継承し、残398件を11段で新規PASS。05:13:26 UTCのterminal SHA-256は `521baff716db256db2bdc2ca70cab7c8fe515ad3067ee5fee562e43dc8c9729f`、Source/dependencies/controls不変、exit0・全process回収・生存processなし。現在unionのfoul/runner encoding83、runner readiness/compatibility151、body164、fixture87を通過したが、wholeSuite/wholePipelineはfalseを保持する。[詳細証拠](../verification/2026-10-06-current-native-union-acceptance.md)。Runnerは意味入力が不足するdecision/motorをnull pendingにし、bodyは明示受理parameterを構成する。Foulは未消費rule successorを所有し、count/physicalEnd/official/foul-resumeは閉じない。
+
+別の `c68a3dc` 累積continuationはoverall terminalなしで中断した。617完了files、614 PASS files、4,931 PASS tests、70 failures、9 allowed artifact skipsの既存file証拠を凍結し、Domestic35・Metadata1・Inning34の失敗を変更しない。残310段（290 src・15 Node・5 Python）のv3は準備済み未実行。元Positiveは未通過、保存state tailは別証拠である。Current Native選択受入れへ合算せず、最新完了wholeは#277のまま。別のofficial-stage/private後続DBのuploadは未承認で、この文書checkpointにDB/raw payloadを含めない。
 
 ## 2026-10-05 13:00 UTC: closure読取りの再利用とactual workload継続
 

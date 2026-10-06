@@ -11,7 +11,7 @@ export const actualLiveAdmissionOwners = ['physical_plate_appearance_actors', 'p
   'batted_world_executions', 'batted_world_field_actions', 'batted_world_field_executions', 'actual_field_observations',
   'actual_defensive_plans', 'actual_defensive_decisions', 'actual_locomotion_receipts', 'actual_live_rule_consumptions', 'actual_runner_public_knowledge',
   'actual_first_base_umpire_setups', 'actual_first_base_umpire_observations', 'actual_first_base_umpire_calls',
-  'actual_call_communications'] as const;
+  'actual_call_communications', 'actual_settled_foul_stop_productions'] as const;
 export type ActualLiveAdmission = Readonly<{ owner: typeof actualLiveAdmissionOwners[number]; sourceId: string }>;
 const tokens = new WeakMap<ActualLivePlayWriteFence, { db: Db; state: string; runtimeId: string | null;
   event?: ActualLiveAdmission; journalBefore: string; journalAfter: string | null; output: Record<string, unknown> | null }>();
@@ -66,6 +66,10 @@ export const beginActualLivePlayWrite = (db: Db, scope: ActualLivePlayWriteScope
     throw new Error('registered actual live-play admission requires its concrete producer');
   }
   const runtimeId = runtime.length ? String(runtime[0].source_id) : null;
+  if (event?.owner === 'actual_settled_foul_stop_productions'
+    && (!runtimeId || JSON.parse(String(runtime[0].source_json)).capability !== 'causal_original_settled_foul_runtime_v1')) {
+    throw new Error('settled-foul admission requires its explicit registered runtime capability');
+  }
   if (runtimeId && ['physical_pitch_progress_actions', 'physical_plate_appearance_actors'].includes(event!.owner)) {
     throw new Error('registered actual live-play original pitch is already fixed');
   }
