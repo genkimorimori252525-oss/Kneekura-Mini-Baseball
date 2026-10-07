@@ -53,10 +53,10 @@ const ownerCensus = (db: DatabaseSync): readonly FoulOwnerCensusEntry[] => {
 /** Genuine original owners only. This creates a fresh end-policy enrollment
  * before work; it never upgrades the earlier count-policy fixture or writes a
  * physical/end snapshot directly. The proposed end owner is not called here. */
-export const originalFoulEndFixture = (path: string) => {
+export const originalFoulEndFixture = (path: string, originalAttempt: 'ordinary_swing' | 'bunt' = 'ordinary_swing') => {
   const x = originalSettledFoulRuntimeFixture(path, {
     pitchPhysics: { velocity: { x: 3, y: 0, z: -30 } },
-    originalContact: { precedingTakenPitches: 2, attempt: 'ordinary_swing' },
+    originalContact: { precedingTakenPitches: 2, attempt: originalAttempt },
   });
   try {
     const originalRootBytes = json(rootBytes(x.f.db));
@@ -103,7 +103,7 @@ export const originalFoulEndFixture = (path: string) => {
         contributions: selves.map(self => ({ kind: 'retained', playerId: self.playerId, command: self.activeCommand })) } };
     executionSources.set(executionSource.sourceId, executionSource);
     const endpoint = executions.accept(executionSource.sourceId);
-    return { ...x, originalRootBytes, runtimeSource, runtime, foul, policy, producer, production, counts, count, query, historicalCensus,
+    return { ...x, originalAttempt, originalRootBytes, runtimeSource, runtime, foul, policy, producer, production, counts, count, query, historicalCensus,
       prefix, ids, selves, moment, ticksPerSecond, boundary, executionSource, executionSources, executions, endpoint };
   } catch (error) { x.f.close(); throw error; }
 };
@@ -119,9 +119,10 @@ export const assertOriginalFoulEndPrerequisites = (x: OriginalFoulEndFixture, db
   expect(runtime!.membership.producers).toHaveLength(71); expect(new Set(runtime!.membership.producers.map(p => p.producerId)).size).toBe(71);
   expect(x.physical.frame.match.ruleProfileId).toBe('npb-2026');
   expect(x.policy.policySource.rulePolicy).toEqual({ version: 'untouched_settled_foul_dead_v1', ruleProfileId: 'npb-2026', rulesRevision: '2026' });
-  expect(x.count.disposition.kind).toBe('continue_same_pa');
+  expect(x.count.disposition.kind).toBe(x.originalAttempt === 'bunt' ? 'terminal_strikeout' : 'continue_same_pa');
   expect(x.count.countEvidence.basis.evidence.interpretation.kind).toBe('dead_ball');
-  expect(x.count.successor).toMatchObject({ status: 'pending', pendingReason: 'physical_end_and_official_continuation_unowned' });
+  expect(x.count.successor).toMatchObject({ status: 'pending', pendingReason: x.originalAttempt === 'bunt'
+    ? 'physical_end_and_terminal_official_closure_unowned' : 'physical_end_and_official_continuation_unowned' });
   const prefix = x.prefix(db, x.endpoint.source.sourceId), { physical, history } = battedWorldPhysicalPrefixAndWholePlayHistory(prefix);
   const endpoint = battedWorldFieldExecutionEvidenceFromSqlite(db).read(x.endpoint.source.sourceId);
   expect(endpoint).not.toBeNull();
