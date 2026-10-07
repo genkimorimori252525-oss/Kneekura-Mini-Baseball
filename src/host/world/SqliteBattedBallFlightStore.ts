@@ -8,7 +8,8 @@ import { classifyFirstGroundContactTerritory, type FirstGroundContactTerritory }
 import { DEFAULT_CONTACT_PARAMETERS } from '../../core/sim/contact/BatBallContact';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze, assertPhysicalActorOpenFrame } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { assertPriorPhysicalClosureCompleted } from './PhysicalPlayClosureEvidenceFromSqlite';
-import { readPhysicalPitchProgressFromSqlite, readOriginalPhysicalPitchPrefixFromSqlite, captureOriginalPhysicalPitchRows } from './PhysicalPitchEvidenceFromSqlite';
+import { readPhysicalPitchProgressFromSqlite, readOriginalPhysicalPitchPrefixFromSqlite, captureOriginalPhysicalPitchRows, readOriginalPhysicalPitchWithRowsFromSqlite } from './PhysicalPitchEvidenceFromSqlite';
+import { activeBattedWorldFieldReadFrame } from './SqliteBattedWorldFieldStore';
 import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import type { DurablePhysicalPitch, SqlitePhysicalPitchProgressStore } from './SqlitePhysicalPitchProgressStore';
 
@@ -59,12 +60,13 @@ export const battedBallFlightEvidenceFromSqlite = (db: Pick<import('node:sqlite'
       game_id: string; play_id: number; snapshot_json: string;
     } | undefined;
     if (!row) throw new Error('actual batted flight physical pitch is missing');
-    const pitch = readOriginalPhysicalPitchPrefixFromSqlite(db, sourceId).at(-1);
+    const paired = activeBattedWorldFieldReadFrame(db) === null ? null : readOriginalPhysicalPitchWithRowsFromSqlite(db, sourceId);
+    const pitch = (paired?.prefix ?? readOriginalPhysicalPitchPrefixFromSqlite(db, sourceId)).at(-1);
     if (!pitch || pitch.source.sourceId !== sourceId || row.snapshot_json !== json(pitch)) throw new Error('batted flight original physical progress differs');
-    return pitch;
+    return { pitch, originalPitchRows: paired?.originalPitchRows };
   };
-  const derive = (s: AcceptedBattedBallFlight, parent: DurableBattedBallFlight | null): DurableBattedBallFlight => {
-    const physicalPitch = ownPitch(s.physicalPitchSourceId), timeline = physicalPitch.result.pitch.resolution.timeline;
+  const deriveWithinScope = (s: AcceptedBattedBallFlight, parent: DurableBattedBallFlight | null): DurableBattedBallFlight => {
+    const own = ownPitch(s.physicalPitchSourceId), physicalPitch = own.pitch, timeline = physicalPitch.result.pitch.resolution.timeline;
     if (!physicalPitch.frame.batterActor) throw new Error('actual batted flight batter is missing');
     if (timeline.status.kind !== 'batted_ball_pending') throw new Error('batted flight requires actual pending contact');
     const contactTick = timeline.status.contactTick;
@@ -80,10 +82,18 @@ export const battedBallFlightEvidenceFromSqlite = (db: Pick<import('node:sqlite'
       || s.searchDurationTicks <= parent.source.searchDurationTicks) throw new Error('batted flight previous Source, execution or horizon differs');
     const flight = createBattedBallFlightEvidence({ contact: contact.payload.contact, searchDurationTicks: s.searchDurationTicks,
       parameters: s.execution.ballFlightParameters });
-    const rows = captureOriginalPhysicalPitchRows(db, s.physicalPitchSourceId);
+    const rows = own.originalPitchRows ?? captureOriginalPhysicalPitchRows(db, s.physicalPitchSourceId);
     return freeze({ source: s, revision: (parent?.revision ?? 0) + 1, physicalPitch,
       originalPitchRows: { actions: rows.actions, head: rows.head }, flight,
       projectedGroundTerritory: classifyFirstGroundContactTerritory(flight, s.execution.field) });
+  };
+  const derive = (s: AcceptedBattedBallFlight, parent: DurableBattedBallFlight | null): DurableBattedBallFlight => {
+    if (activeBattedWorldFieldReadFrame(db) !== null) return deriveWithinScope(s, parent);
+    const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+    // A writer-local pair ends before any surrounding INSERT or admission callback.
+    // Autocommit and prepare-only adapters retain their independent legacy reads.
+    return db instanceof DatabaseSync && db.isTransaction
+      ? withBattedWorldPhysicalReadTraversal(db, () => deriveWithinScope(s, parent)) : deriveWithinScope(s, parent);
   };
   const read = (sourceId: string, seen = new Set<string>()): DurableBattedBallFlight | null => {
     if (!id(sourceId)) throw new Error('invalid batted flight scope'); if (seen.has(sourceId)) throw new Error('cyclic batted flight archive'); seen.add(sourceId);

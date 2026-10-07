@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "noEmit": true, "incremental": false },
+  "include": [
+    "src/host/world/BattedBallFlightPairedPitchRed.test.ts",
+    "src/host/world/BattedBallFlightPairedPitch.test.ts",
+    "src/host/world/BattedBallFlightPairedCleanup.test.ts",
+    "src/host/world/BattedBallFlightPairedWriteFreshness.test.ts",
+    "src/host/world/BattedBallFlightPrivateReadTransaction.test.ts",
+    "src/host/world/BattedContactOwnersPrivateReadTransaction.test.ts",
+    "src/host/world/OriginalPhysicalPitchPrefix.test.ts",
+    "src/host/world/BattedBallFlightOriginalPrefix.test.ts",
+    "src/host/world/BattedBallFlightWal.test.ts",
+    "src/host/world/SqliteBattedBallFlightStore.test.ts",
+    "src/host/world/SqliteBattedWorldBaseGeometryStore.test.ts",
+    "src/host/world/BattedWorldBaseContactWal.test.ts"
+  ]
+}
