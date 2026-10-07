@@ -24,7 +24,7 @@ it('preserves genuine legacy bytes and reads them without a live participation a
 });
 
 it.each([null, {}, { readGame() { return null; } }])('rejects malformed supplied participation authority case %#: %j', authority => {
-  expect(() => new SqliteOfficialParticipationStore(':memory:', authority as ParticipationAuthority)).toThrow('requires an accepted source authority');
+  expect(() => new SqliteOfficialParticipationStore(':memory:', authority as unknown as ParticipationAuthority)).toThrow('requires an accepted source authority');
 });
 
 it.each(tags)('dispatches a present legacy-shaped tag without fallback: %j', evidenceKind => {

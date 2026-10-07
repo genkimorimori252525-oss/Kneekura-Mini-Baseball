@@ -9,6 +9,8 @@ type Proposal = Parameters<typeof assertParticipationApplicationOwnership>[1];
 /** Metadata predicates only: these genuine legacy owner outputs are not actual-live closure provenance. */
 const applicationFixture = () => {
   const f = officialPitchWorkloadFixture(false, true);
+  // Adversarial application rows retain a real parent Match and foreign-key enforcement.
+  f.official.initializeMatch('foreign-game', f.initial);
   const first = f.official.applyAndActivate(f.firstInput);
   const proposal = { application: f.firstInput, gameId: 'game-1', source: { sourceId: 'application-1' },
     playId: 7, expectedOfficial: first } as unknown as Proposal;
