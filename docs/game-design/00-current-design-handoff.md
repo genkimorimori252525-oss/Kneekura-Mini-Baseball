@@ -5,6 +5,21 @@
 
 この文書は、新しいChatGPT / Jolly sessionが設計思想を最短で復元するためのhandoff。
 
+## PLANNED — Pitch Arsenal Development System — 2026-10-07
+
+ユーザー承認済みの予定設計。実装は未着手だが、設計原則は **PLANNED / DESIGN PRINCIPLES FROZEN v1** として固定する。
+
+- 計画: [Pitch Arsenal Development System](../superpowers/plans/2026-10-07-pitch-arsenal-development-system.md)
+- 球種数の固定上限を設けない。
+- 個人ごとの非表示な球種別成長上限を設けない。
+- 新球種習得で既存球種を直接弱体化させない。
+- 制約は有限の育成時間・習熟・機会費用に置く。
+- 球種数そのものに能力ボーナスを与えず、球質差・Arsenal Coverage・配球上の意味で価値を決める。
+- 習得済み技術を恒常的な維持税で没収しない。一時的な試合勘・再現性低下は回復可能な状態として扱える。
+- 2球種の超一流型と、多球種を意味ある形で使う型の両方を成立させる。
+- 数式、成長速度、閾値、AI重み、UIは未Freeze。実装・検証時にcalibrationする。
+
+
 ## Presentationの現行方針 — 2026-10-01
 
 **採用済みPNG原画方式で続行する。** ユーザー判断により、今日のPixel Player System計画とJSON原本移行・v1/v2実験は **ARCHIVED / ON HOLD**。現在の採用計画・未実装タスクに含めない。
