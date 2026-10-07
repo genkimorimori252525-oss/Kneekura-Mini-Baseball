@@ -1,0 +1,202 @@
+{
+  "format": "manager_roster_belief_admission_result_summary_v1",
+  "kind": "red",
+  "derivedSummaryOfOriginalReceipt": true,
+  "originalTerminalSha256": "59a5d3df2cd081c8e4351d479237aae6bbf03674617d078dc2d848d365c095a8",
+  "controllerSha256": "e1e21c34e6441cdc8cceabe169e1c8ccf52cded46f8ede114765b39196be1c0e",
+  "configurationSha256": "1206669d2a045037ca4031c72febfd10f7cbc36337ee2ff9be09e040928bc7c9",
+  "sourceCommit": "913ef9d6ac2c424a67213013d15c08ddda457f0f",
+  "sourceTree": "3d6e390d6d576be8c2610727cf5b4bac644c2dfa",
+  "sourceManifestSha256": "dd58d18038182e7c139ca01ae0ddb21857511a72dbd79b004a8dff106adbac03",
+  "dependencyManifestSha256": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+  "startedAt": "2026-10-06T21:21:21.416807+00:00",
+  "terminalAt": "2026-10-06T21:22:20.113443+00:00",
+  "controllerGatePassed": true,
+  "interpretation": "Prerequisite passed; three intentional missing-rejection failures were observed before production repair",
+  "counts": {
+    "numTotalTests": 4,
+    "numPassedTests": 1,
+    "numFailedTests": 3,
+    "numPendingTests": 0,
+    "numTodoTests": 0
+  },
+  "perFileCounts": {
+    "src/host/world/ManagerRosterBeliefAdmissionPrerequisite.test.ts": 1,
+    "src/host/world/ManagerRosterBeliefAdmission.test.ts": 3
+  },
+  "sourceDependenciesControlsUnchanged": true,
+  "remainingOwnedProcesses": [],
+  "reaped": true,
+  "cancellationSignal": null,
+  "failure": null,
+  "wholeProjectGreen": false,
+  "stages": [
+    {
+      "stage": "compiler",
+      "startedAt": "2026-10-06T21:21:21.417152+00:00",
+      "terminalAt": "2026-10-06T21:22:10.690112+00:00",
+      "seconds": 49.27282765600103,
+      "exitCode": 0,
+      "failure": null,
+      "stopReason": null,
+      "runtimeVerified": true,
+      "sourceDependenciesControlsUnchanged": true,
+      "remainingOwnedProcesses": [],
+      "reaped": true,
+      "counts": {},
+      "unhandledErrors": [],
+      "selectionValid": true,
+      "resourceEvidenceValid": true,
+      "phaseVerified": true,
+      "cancellationSignal": null,
+      "resourceLimits": {
+        "oldSpaceMiB": 1408,
+        "heapMiB": 1504,
+        "rssMiB": 2048,
+        "wallSeconds": 180,
+        "stopReserveGiB": 5
+      },
+      "perTest": []
+    },
+    {
+      "stage": "catalog",
+      "startedAt": "2026-10-06T21:22:10.690834+00:00",
+      "terminalAt": "2026-10-06T21:22:12.227214+00:00",
+      "seconds": 1.5363488729999517,
+      "exitCode": 0,
+      "failure": null,
+      "stopReason": null,
+      "runtimeVerified": true,
+      "sourceDependenciesControlsUnchanged": true,
+      "remainingOwnedProcesses": [],
+      "reaped": true,
+      "counts": {},
+      "unhandledErrors": [],
+      "selectionValid": true,
+      "resourceEvidenceValid": true,
+      "phaseVerified": true,
+      "cancellationSignal": null,
+      "resourceLimits": {
+        "oldSpaceMiB": 192,
+        "heapMiB": 288,
+        "rssMiB": 384,
+        "wallSeconds": 30,
+        "stopReserveGiB": 6
+      },
+      "perTest": []
+    },
+    {
+      "stage": "manager_prerequisite",
+      "startedAt": "2026-10-06T21:22:12.227690+00:00",
+      "terminalAt": "2026-10-06T21:22:15.324948+00:00",
+      "seconds": 3.0972216350055533,
+      "exitCode": 0,
+      "failure": null,
+      "stopReason": null,
+      "runtimeVerified": true,
+      "sourceDependenciesControlsUnchanged": true,
+      "remainingOwnedProcesses": [],
+      "reaped": true,
+      "counts": {
+        "numTotalTests": 1,
+        "numPassedTests": 1,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "unhandledErrors": [],
+      "selectionValid": true,
+      "resourceEvidenceValid": true,
+      "phaseVerified": true,
+      "cancellationSignal": null,
+      "resourceLimits": {
+        "oldSpaceMiB": 1024,
+        "heapMiB": 1120,
+        "rssMiB": 1536,
+        "wallSeconds": 180,
+        "stopReserveGiB": 6
+      },
+      "perTest": [
+        {
+          "file": "src/host/world/ManagerRosterBeliefAdmissionPrerequisite.test.ts",
+          "name": "admits authentic two-choice Manager history through durable selection application retry and reopen",
+          "status": "passed",
+          "failureCount": 0
+        }
+      ]
+    },
+    {
+      "stage": "admission_red",
+      "startedAt": "2026-10-06T21:22:15.325740+00:00",
+      "terminalAt": "2026-10-06T21:22:19.385355+00:00",
+      "seconds": 4.059581426998193,
+      "exitCode": 1,
+      "failure": null,
+      "stopReason": null,
+      "runtimeVerified": true,
+      "sourceDependenciesControlsUnchanged": true,
+      "remainingOwnedProcesses": [],
+      "reaped": true,
+      "counts": {
+        "numTotalTests": 3,
+        "numPassedTests": 0,
+        "numFailedTests": 3,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "unhandledErrors": [],
+      "selectionValid": true,
+      "resourceEvidenceValid": true,
+      "phaseVerified": true,
+      "cancellationSignal": null,
+      "resourceLimits": {
+        "oldSpaceMiB": 1024,
+        "heapMiB": 1120,
+        "rssMiB": 1536,
+        "wallSeconds": 180,
+        "stopReserveGiB": 6
+      },
+      "perTest": [
+        {
+          "file": "src/host/world/ManagerRosterBeliefAdmission.test.ts",
+          "name": "rejects direct roster issue after old observation corruption with unchanged Manager head and count",
+          "status": "failed",
+          "failureCount": 1,
+          "failureClassification": {
+            "headline": "AssertionError: expected [Function] to throw an error",
+            "requiredSourceFrames": [
+              "ManagerRosterBeliefAdmission.test.ts:22:"
+            ],
+            "classification": "intended assertion: expected public admission to reject, but it returned"
+          }
+        },
+        {
+          "file": "src/host/world/ManagerRosterBeliefAdmission.test.ts",
+          "name": "rejects belief-derived roster issue after old observation corruption with unchanged Manager head and count",
+          "status": "failed",
+          "failureCount": 1,
+          "failureClassification": {
+            "headline": "AssertionError: expected [Function] to throw an error",
+            "requiredSourceFrames": [
+              "ManagerRosterBeliefAdmission.test.ts:38:"
+            ],
+            "classification": "intended assertion: expected public admission to reject, but it returned"
+          }
+        },
+        {
+          "file": "src/host/world/ManagerRosterBeliefAdmission.test.ts",
+          "name": "rolls back the real roster opportunity INSERT and writer-local old observation mutation",
+          "status": "failed",
+          "failureCount": 1,
+          "failureClassification": {
+            "headline": "AssertionError: expected [Function] to throw an error",
+            "requiredSourceFrames": [
+              "ManagerRosterBeliefAdmission.test.ts:71:"
+            ],
+            "classification": "intended assertion: expected public admission to reject, but it returned"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,423 @@
+{
+  "format": "manager_roster_belief_admission_result_summary_v1",
+  "kind": "green",
+  "derivedSummaryOfOriginalReceipt": true,
+  "originalTerminalSha256": "122df0fad448a2931701c6bb7c3e43ce364a3c663059f90791a6b17c14a0a3ef",
+  "controllerSha256": "8f0208c04c082852209e24d800e41a5964ea6f2aec375479129df9c056b2efc1",
+  "configurationSha256": "7bdfbfa4b08bea4642d1a7ad0fd3ce1b4ae467ef09ddb8e47fed7b1040378d89",
+  "sourceCommit": "3d5823785da8dd2eacd907b889f64577ee344d93",
+  "sourceTree": "5b9dc8b4a82b502b2d6f91be30747cbc331d5c38",
+  "sourceManifestSha256": "976c9b425cdb245815b3907f317e9e6b213e97a450f649704b4be47087d973ab",
+  "dependencyManifestSha256": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+  "startedAt": "2026-10-06T21:45:01.312038+00:00",
+  "terminalAt": "2026-10-06T21:46:02.723541+00:00",
+  "controllerGatePassed": true,
+  "interpretation": "All four new tests and all34 adjacent compatibility cases passed on the repaired source",
+  "counts": {
+    "numTotalTests": 38,
+    "numPassedTests": 38,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0
+  },
+  "perFileCounts": {
+    "src/host/world/ManagerRosterBeliefAdmissionPrerequisite.test.ts": 1,
+    "src/host/world/ManagerRosterBeliefAdmission.test.ts": 3,
+    "src/host/world/SqliteManagerRosterDecisionStore.test.ts": 8,
+    "src/host/world/SqliteManagerBeliefHistoryStore.test.ts": 5,
+    "src/host/world/ManagerBeliefBoundary.test.ts": 19,
+    "src/host/world/ManagerBeliefBoundaryReview.test.ts": 2
+  },
+  "sourceDependenciesControlsUnchanged": true,
+  "remainingOwnedProcesses": [],
+  "reaped": true,
+  "cancellationSignal": null,
+  "failure": null,
+  "wholeProjectGreen": false,
+  "stages": [
+    {
+      "stage": "compiler",
+      "startedAt": "2026-10-06T21:45:01.312408+00:00",
+      "terminalAt": "2026-10-06T21:45:47.236885+00:00",
+      "seconds": 45.92444498400437,
+      "exitCode": 0,
+      "failure": null,
+      "stopReason": null,
+      "runtimeVerified": true,
+      "sourceDependenciesControlsUnchanged": true,
+      "remainingOwnedProcesses": [],
+      "reaped": true,
+      "counts": {},
+      "unhandledErrors": [],
+      "selectionValid": true,
+      "resourceEvidenceValid": true,
+      "phaseVerified": true,
+      "cancellationSignal": null,
+      "resourceLimits": {
+        "oldSpaceMiB": 1408,
+        "heapMiB": 1504,
+        "rssMiB": 2048,
+        "wallSeconds": 180,
+        "stopReserveGiB": 5
+      },
+      "perTest": []
+    },
+    {
+      "stage": "catalog",
+      "startedAt": "2026-10-06T21:45:47.237287+00:00",
+      "terminalAt": "2026-10-06T21:45:48.623098+00:00",
+      "seconds": 1.3857787680026377,
+      "exitCode": 0,
+      "failure": null,
+      "stopReason": null,
+      "runtimeVerified": true,
+      "sourceDependenciesControlsUnchanged": true,
+      "remainingOwnedProcesses": [],
+      "reaped": true,
+      "counts": {},
+      "unhandledErrors": [],
+      "selectionValid": true,
+      "resourceEvidenceValid": true,
+      "phaseVerified": true,
+      "cancellationSignal": null,
+      "resourceLimits": {
+        "oldSpaceMiB": 192,
+        "heapMiB": 288,
+        "rssMiB": 384,
+        "wallSeconds": 30,
+        "stopReserveGiB": 6
+      },
+      "perTest": []
+    },
+    {
+      "stage": "manager_prerequisite",
+      "startedAt": "2026-10-06T21:45:48.623521+00:00",
+      "terminalAt": "2026-10-06T21:45:51.919936+00:00",
+      "seconds": 3.2963821250014007,
+      "exitCode": 0,
+      "failure": null,
+      "stopReason": null,
+      "runtimeVerified": true,
+      "sourceDependenciesControlsUnchanged": true,
+      "remainingOwnedProcesses": [],
+      "reaped": true,
+      "counts": {
+        "numTotalTests": 1,
+        "numPassedTests": 1,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "unhandledErrors": [],
+      "selectionValid": true,
+      "resourceEvidenceValid": true,
+      "phaseVerified": true,
+      "cancellationSignal": null,
+      "resourceLimits": {
+        "oldSpaceMiB": 1024,
+        "heapMiB": 1120,
+        "rssMiB": 1536,
+        "wallSeconds": 180,
+        "stopReserveGiB": 6
+      },
+      "perTest": [
+        {
+          "file": "src/host/world/ManagerRosterBeliefAdmissionPrerequisite.test.ts",
+          "name": "admits authentic two-choice Manager history through durable selection application retry and reopen",
+          "status": "passed",
+          "failureCount": 0
+        }
+      ]
+    },
+    {
+      "stage": "admission_green",
+      "startedAt": "2026-10-06T21:45:51.920712+00:00",
+      "terminalAt": "2026-10-06T21:45:55.331498+00:00",
+      "seconds": 3.410726586000237,
+      "exitCode": 0,
+      "failure": null,
+      "stopReason": null,
+      "runtimeVerified": true,
+      "sourceDependenciesControlsUnchanged": true,
+      "remainingOwnedProcesses": [],
+      "reaped": true,
+      "counts": {
+        "numTotalTests": 3,
+        "numPassedTests": 3,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "unhandledErrors": [],
+      "selectionValid": true,
+      "resourceEvidenceValid": true,
+      "phaseVerified": true,
+      "cancellationSignal": null,
+      "resourceLimits": {
+        "oldSpaceMiB": 1024,
+        "heapMiB": 1120,
+        "rssMiB": 1536,
+        "wallSeconds": 180,
+        "stopReserveGiB": 6
+      },
+      "perTest": [
+        {
+          "file": "src/host/world/ManagerRosterBeliefAdmission.test.ts",
+          "name": "rejects direct roster issue after old observation corruption with unchanged Manager head and count",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/ManagerRosterBeliefAdmission.test.ts",
+          "name": "rejects belief-derived roster issue after old observation corruption with unchanged Manager head and count",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/ManagerRosterBeliefAdmission.test.ts",
+          "name": "rolls back the real roster opportunity INSERT and writer-local old observation mutation",
+          "status": "passed",
+          "failureCount": 0
+        }
+      ]
+    },
+    {
+      "stage": "manager_compatibility",
+      "startedAt": "2026-10-06T21:45:55.332205+00:00",
+      "terminalAt": "2026-10-06T21:46:01.305389+00:00",
+      "seconds": 5.973084215002018,
+      "exitCode": 0,
+      "failure": null,
+      "stopReason": null,
+      "runtimeVerified": true,
+      "sourceDependenciesControlsUnchanged": true,
+      "remainingOwnedProcesses": [],
+      "reaped": true,
+      "counts": {
+        "numTotalTests": 34,
+        "numPassedTests": 34,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "unhandledErrors": [],
+      "selectionValid": true,
+      "resourceEvidenceValid": true,
+      "phaseVerified": true,
+      "cancellationSignal": null,
+      "resourceLimits": {
+        "oldSpaceMiB": 1024,
+        "heapMiB": 1120,
+        "rssMiB": 1536,
+        "wallSeconds": 180,
+        "stopReserveGiB": 6
+      },
+      "perTest": [
+        {
+          "file": "src/host/world/SqliteManagerRosterDecisionStore.test.ts",
+          "name": "requires a durable host-issued legal binding before execution",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/SqliteManagerRosterDecisionStore.test.ts",
+          "name": "rejects caller-forged control and world revisions against the durable head",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/SqliteManagerRosterDecisionStore.test.ts",
+          "name": "uses one career roster head across two clubs",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/SqliteManagerRosterDecisionStore.test.ts",
+          "name": "rejects invalid or unauthorised roster candidates at issue time",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/SqliteManagerRosterDecisionStore.test.ts",
+          "name": "commits roster, event and execution evidence on the existing world DB across restart",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/SqliteManagerRosterDecisionStore.test.ts",
+          "name": "rejects stale CAS and changed execution evidence",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/SqliteManagerRosterDecisionStore.test.ts",
+          "name": "rolls back roster and Mood heads when execution insert fails",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/SqliteManagerRosterDecisionStore.test.ts",
+          "name": "commits receiver-appraised Mood with the roster event and recovers it",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/SqliteManagerBeliefHistoryStore.test.ts",
+          "name": "persists observed manager learning and replays an identical retry after restart",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/SqliteManagerBeliefHistoryStore.test.ts",
+          "name": "uses the learned Person belief for the next manager choice",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/SqliteManagerBeliefHistoryStore.test.ts",
+          "name": "requires reconciliation of divergent pre-history belief snapshots",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/SqliteManagerBeliefHistoryStore.test.ts",
+          "name": "rejects stale revisions and a different manager for the same execution",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/SqliteManagerBeliefHistoryStore.test.ts",
+          "name": "rolls back the Manager Person head if observation insertion fails",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/ManagerBeliefBoundary.test.ts",
+          "name": "reads the genuine seed and observed prefix through the existing Manager owner without writing",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/ManagerBeliefBoundary.test.ts",
+          "name": "reopens exact earlier boundaries after two real roster observations without recapturing the later head",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/ManagerBeliefBoundary.test.ts",
+          "name": "does not fabricate a missing Manager Person or a roster bootstrap",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/ManagerBeliefBoundary.test.ts",
+          "name": "rejects a future observation boundary even though its roster execution already exists",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/ManagerBeliefBoundary.test.ts",
+          "name": "rejects invalid historical revision -1 without touching owned rows",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/ManagerBeliefBoundary.test.ts",
+          "name": "rejects invalid historical revision 1.5 without touching owned rows",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/ManagerBeliefBoundary.test.ts",
+          "name": "rejects invalid historical revision NaN without touching owned rows",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/ManagerBeliefBoundary.test.ts",
+          "name": "rejects invalid historical revision 9007199254740992 without touching owned rows",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/ManagerBeliefBoundary.test.ts",
+          "name": "separates historical authentication from current first-write authority",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/ManagerBeliefBoundary.test.ts",
+          "name": "rejects a copied boundary with changed agent values rather than trusting its hash alone",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/ManagerBeliefBoundary.test.ts",
+          "name": "reauthenticates the original seed underlying an observed Manager prefix",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/ManagerBeliefBoundary.test.ts",
+          "name": "reauthenticates the original seed_opportunity underlying an observed Manager prefix",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/ManagerBeliefBoundary.test.ts",
+          "name": "reauthenticates the original observation_before underlying an observed Manager prefix",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/ManagerBeliefBoundary.test.ts",
+          "name": "reauthenticates the original execution underlying an observed Manager prefix",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/ManagerBeliefBoundary.test.ts",
+          "name": "reauthenticates the original world_event underlying an observed Manager prefix",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/ManagerBeliefBoundary.test.ts",
+          "name": "rejects a missing earlier observation while leaving revision zero independently readable",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/ManagerBeliefBoundary.test.ts",
+          "name": "does not traverse a corrupted later Manager observation when reading an authenticated earlier prefix",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/ManagerBeliefBoundary.test.ts",
+          "name": "rolls back a real consumer INSERT after its seed source changes on that writer connection",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/ManagerBeliefBoundary.test.ts",
+          "name": "rolls back a real consumer INSERT after its execution source changes on that writer connection",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/ManagerBeliefBoundaryReview.test.ts",
+          "name": "rejects a fresh Manager prefix whose resolved Club revision differs despite an identical roster result",
+          "status": "passed",
+          "failureCount": 0
+        },
+        {
+          "file": "src/host/world/ManagerBeliefBoundaryReview.test.ts",
+          "name": "rejects a fresh Manager prefix whose requested Mood revision contradicts the original null owner",
+          "status": "passed",
+          "failureCount": 0
+        }
+      ]
+    }
+  ]
+}
