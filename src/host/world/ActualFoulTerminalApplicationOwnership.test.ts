@@ -132,3 +132,131 @@ it('Q01 queues the genuine terminal bunt proposal once without applying the offi
     finally { rmSync(directory, { recursive: true, force: true }); }
   }
 }, 1_200_000);
+
+const withQ07Fixture = async (body: (f: GenuineTerminalFixture, path: string) => Promise<void>,
+  scenario: 'bunt' | 'unowned_windows' = 'bunt') => {
+  terminalFixtureCompatibility();
+  const directory = mkdtempSync(join(tmpdir(), 'terminal-queue-q07-')), path = join(directory, 'original.sqlite');
+  let f: GenuineTerminalFixture | undefined;
+  try { f = await genuineTerminalFixture(path, scenario); await body(f, path); }
+  finally {
+    try { f?.x.f.close(); }
+    finally { rmSync(directory, { recursive: true, force: true }); }
+  }
+};
+const genuineQ07Queue = async (f: GenuineTerminalFixture, path: string) => {
+  const { deriveFoulTerminalApplicationProposal } = await import('./ActualFoulTerminalApplicationEvidenceFromSqlite');
+  const { foulEndLogicalBytes } = await import('./ActualFoulPlayEndFixtures.test-support');
+  const source = f.terminalSource(), proposal = deriveFoulTerminalApplicationProposal(f.x.f.db, source, 'current');
+  expect(proposal.kind).toBe('terminal_non_live_projected');
+  const open = await requireQueue(), store = f.x.f.track(open(path, { readAcceptedApplication: id => id === source.sourceId ? source : null }));
+  const original = foulEndLogicalBytes(f.x.f.db, ['actual_foul_terminal_applications']), schema = schemaState(f.x.f.db);
+  const queued = store.enqueue(source.sourceId);
+  expect(queued).toEqual({ source, proposal, status: 'QUEUED', officialApplied: false, result: null });
+  expect(f.x.f.db.prepare('SELECT source_id,status,result_json FROM main.actual_foul_terminal_applications').all())
+    .toEqual([{ source_id: source.sourceId, status: 'QUEUED', result_json: null }]);
+  expect(foulEndLogicalBytes(f.x.f.db, ['actual_foul_terminal_applications'])).toBe(original);
+  expect(schemaState(f.x.f.db)).toEqual(schema);
+  await yieldForReporter();
+  return { source, proposal, store, queued };
+};
+
+it('Q07 rejects fresh advance and fence after a genuine queue without event or head writes', async () => {
+  await withQ07Fixture(async (f, path) => {
+    await genuineQ07Queue(f, path);
+    const { witnessSqliteWrite } = await import('./SqliteWriteWitness.test-support');
+    const before = f.bytes(), schema = schemaState(f.x.f.db);
+    const witness = witnessSqliteWrite(/^(?:INSERT INTO main\.actual_foul_official_events\b|UPDATE main\.actual_foul_official_heads\b)/, () => true);
+    try {
+      for (const [name, kind, prior] of [
+        ['q07-new-advance', 'advance_tick', f.fenced.value],
+        ['q07-new-fence', 'next_pitch_fence', f.fenced.value],
+        ['q07-old-head-fence', 'next_pitch_fence', f.called.value],
+      ] as const) {
+        expect(() => f.append(prior, name, { kind, schedulerId: f.session.assignment.schedulerId }))
+          .toThrow('foul official terminal ownership already claimed');
+        expect(witness.wasReached()).toBe(false);
+        expect(f.bytes()).toBe(before); expect(schemaState(f.x.f.db)).toEqual(schema);
+        await yieldForReporter();
+      }
+    } finally { witness.close(); }
+  });
+}, 1_200_000);
+
+it('Q07 preserves original session and event retries and historical reads after a genuine queue', async () => {
+  await withQ07Fixture(async (f, path) => {
+    await genuineQ07Queue(f, path);
+    const { openSqliteActualFoulOfficialStore } = await import('./SqliteActualFoulOfficialStore');
+    const offline = f.x.f.track(openSqliteActualFoulOfficialStore(path));
+    const before = f.bytes(), schema = schemaState(f.x.f.db);
+    expect(offline.acceptSession(f.session.sourceId)).toEqual(f.opened);
+    for (const accepted of [f.called, f.advanced, f.fenced]) {
+      expect(offline.acceptEvent(accepted.source.sourceId)).toEqual(accepted.value);
+      expect(offline.readAt(f.session.sourceId, accepted.value.revision)).toEqual(accepted.value);
+      expect(f.bytes()).toBe(before); expect(schemaState(f.x.f.db)).toEqual(schema);
+      await yieldForReporter();
+    }
+  });
+}, 1_200_000);
+
+it('Q07 rejects changed same-ID event and intent bytes after a genuine queue', async () => {
+  await withQ07Fixture(async (f, path) => {
+    await genuineQ07Queue(f, path);
+    const before = f.bytes(), schema = schemaState(f.x.f.db);
+    try {
+      f.sources.events.set(f.called.source.sourceId, { ...f.called.source, sourceVersion: 'changed-after-queue' });
+      expect(() => f.official.acceptEvent(f.called.source.sourceId)).toThrow('foul official event Source is frozen differently');
+      expect(f.bytes()).toBe(before); expect(schemaState(f.x.f.db)).toEqual(schema);
+    } finally { f.sources.events.set(f.called.source.sourceId, f.called.source); }
+    try {
+      f.sources.intents.set(f.intent.sourceId, { ...f.intent, sourceVersion: 'changed-after-queue' });
+      expect(() => f.official.acceptEvent(f.called.source.sourceId)).toThrow('foul official intent Source is frozen differently');
+      expect(f.bytes()).toBe(before); expect(schemaState(f.x.f.db)).toEqual(schema);
+    } finally { f.sources.intents.set(f.intent.sourceId, f.intent); }
+    await yieldForReporter();
+  });
+}, 1_200_000);
+
+it('Q07 allows a valid fresh event after pure terminal evaluation without a queue', async () => {
+  await withQ07Fixture(async (f, path) => {
+    const source = f.terminalSource(), open = await requireQueue();
+    const store = f.x.f.track(open(path, { readAcceptedApplication: id => id === source.sourceId ? source : null }));
+    const { foulEndLogicalBytes } = await import('./ActualFoulPlayEndFixtures.test-support');
+    const before = f.bytes(), schema = schemaState(f.x.f.db);
+    expect(store.evaluate(source.sourceId).kind).toBe('terminal_non_live_projected');
+    expect(f.bytes()).toBe(before); expect(schemaState(f.x.f.db)).toEqual(schema);
+    expect(f.x.f.db.prepare('SELECT * FROM main.actual_foul_terminal_applications').all()).toEqual([]);
+    await yieldForReporter();
+    const outsideJournal = foulEndLogicalBytes(f.x.f.db, ['actual_foul_official_events', 'actual_foul_official_heads']);
+    const next = f.append(f.fenced.value, 'q07-evaluated-only-advance', { kind: 'advance_tick', schedulerId: f.session.assignment.schedulerId });
+    expect(next.value).toMatchObject({ revision: f.fenced.value.revision + 1, headSourceId: next.source.sourceId, handoff: null });
+    expect(foulEndLogicalBytes(f.x.f.db, ['actual_foul_official_events', 'actual_foul_official_heads'])).toBe(outsideJournal);
+    expect(schemaState(f.x.f.db)).toEqual(schema);
+    expect(f.x.f.db.prepare('SELECT * FROM main.actual_foul_terminal_applications').all()).toEqual([]);
+    await yieldForReporter();
+  });
+}, 1_200_000);
+
+it('Q07 leaves a genuine unowned-window pending Source nondurable and permits a fresh event', async () => {
+  await withQ07Fixture(async (f, path) => {
+    const source = f.terminalSource(), open = await requireQueue();
+    const store = f.x.f.track(open(path, { readAcceptedApplication: id => id === source.sourceId ? source : null }));
+    const { foulEndLogicalBytes } = await import('./ActualFoulPlayEndFixtures.test-support');
+    const before = f.bytes(), schema = schemaState(f.x.f.db), pending = store.evaluate(source.sourceId);
+    expect(pending.kind).toBe('pending');
+    if (pending.kind !== 'pending') throw new Error('Q07 genuine unowned-window prerequisite did not remain pending');
+    expect(pending.pendingReasons).toEqual(expect.arrayContaining(['foul_window_owner_unimplemented:review', 'foul_window_owner_unimplemented:challenge']));
+    expect(f.bytes()).toBe(before); expect(schemaState(f.x.f.db)).toEqual(schema);
+    await yieldForReporter();
+    expect(store.enqueue(source.sourceId)).toEqual(pending);
+    expect(f.bytes()).toBe(before); expect(schemaState(f.x.f.db)).toEqual(schema);
+    expect(f.x.f.db.prepare('SELECT * FROM main.actual_foul_terminal_applications').all()).toEqual([]);
+    const outsideJournal = foulEndLogicalBytes(f.x.f.db, ['actual_foul_official_events', 'actual_foul_official_heads']);
+    const next = f.append(f.fenced.value, 'q07-pending-only-advance', { kind: 'advance_tick', schedulerId: f.session.assignment.schedulerId });
+    expect(next.value).toMatchObject({ revision: f.fenced.value.revision + 1, headSourceId: next.source.sourceId, handoff: null });
+    expect(foulEndLogicalBytes(f.x.f.db, ['actual_foul_official_events', 'actual_foul_official_heads'])).toBe(outsideJournal);
+    expect(schemaState(f.x.f.db)).toEqual(schema);
+    expect(f.x.f.db.prepare('SELECT * FROM main.actual_foul_terminal_applications').all()).toEqual([]);
+    await yieldForReporter();
+  }, 'unowned_windows');
+}, 1_200_000);

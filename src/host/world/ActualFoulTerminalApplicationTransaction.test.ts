@@ -283,3 +283,138 @@ describe('metadata-only bare legacy Match activation ownership', () => {
     expect(observe(gameId)).toEqual({ selected:[baseline],activationClaim:false });
   });
 });
+
+it('Q08 preserves a real peer event commit when queue Source recapture loses the current fence', async () => {
+  terminalFixtureCompatibility();
+  const directory = mkdtempSync(join(tmpdir(), 'terminal-queue-q08-event-first-')), path = join(directory, 'original.sqlite');
+  let f: GenuineTerminalFixture | undefined;
+  try {
+    f = await genuineTerminalFixture(path, 'bunt');
+    const { openSqliteActualFoulOfficialStore } = await import('./SqliteActualFoulOfficialStore');
+    const { foulEndLogicalBytes } = await import('./ActualFoulPlayEndFixtures.test-support');
+    const { witnessSqliteWrite } = await import('./SqliteWriteWitness.test-support');
+    const source = f.terminalSource();
+    const event: AcceptedFoulOfficialEvent = { sourceId: 'q08-peer-event-wins', sourceVersion: 'contract-v1',
+      capability: 'actual_post_play_foul_official_event_v1', sessionSourceId: f.session.sourceId,
+      expectedRevision: f.fenced.value.revision, parent: { sourceId: f.fenced.value.headSourceId, snapshotHash: f.fenced.value.headHash },
+      action: { kind: 'advance_tick', schedulerId: f.session.assignment.schedulerId } };
+    f.sources.events.set(event.sourceId, event);
+    const peer = f.x.f.track(openSqliteActualFoulOfficialStore(path, {
+      readAcceptedSession: id => f!.sources.sessions.get(id) ?? null,
+      readAcceptedEvent: id => f!.sources.events.get(id) ?? null,
+      readAcceptedIntent: id => f!.sources.intents.get(id) ?? null,
+    }));
+    let captures = 0, peerBytes: string | undefined;
+    let committed: ReturnType<typeof peer.acceptEvent> | undefined;
+    const open = await requireQueue(), store = f.x.f.track(open(path, { readAcceptedApplication(id) {
+      if (id !== source.sourceId) return null;
+      captures += 1;
+      if (captures === 2) {
+        // The queue's first snapshot is closed before this public peer write.
+        // The peer commits through Native acceptEvent, never direct SQL replay.
+        committed = peer.acceptEvent(event.sourceId); peerBytes = f!.bytes();
+      }
+      return source;
+    } }));
+    const db = f.x.f.db, schema = schemaState(db);
+    const outsideJournal = foulEndLogicalBytes(db, ['actual_foul_official_events', 'actual_foul_official_heads']);
+    const headBefore = db.prepare('SELECT * FROM main.actual_foul_official_heads WHERE session_source_id=?').get(f.session.sourceId);
+    let writer: DatabaseSync | undefined;
+    const witness = witnessSqliteWrite(/^(?:INSERT INTO main\.actual_foul_official_events\b|UPDATE main\.actual_foul_official_heads\b)/, connection => {
+      writer = connection;
+      const row = connection.prepare('SELECT source_id FROM main.actual_foul_official_events WHERE source_id=?').get(event.sourceId);
+      const head = connection.prepare('SELECT * FROM main.actual_foul_official_heads WHERE session_source_id=?').get(event.sessionSourceId);
+      return connection.isTransaction && row?.source_id === event.sourceId
+        && head?.head_source_id === event.sourceId && head.revision === event.expectedRevision + 1;
+    });
+    try {
+      expect(() => store.enqueue(source.sourceId)).toThrow('foul terminal selected journal head is stale for current projection');
+      expect(captures).toBe(2); expect(witness.wasReached()).toBe(true);
+      expect(committed).toMatchObject({ revision: event.expectedRevision + 1, headSourceId: event.sourceId, handoff: null });
+      expect(writer).toBeDefined(); expect(writer!.isTransaction).toBe(false);
+      expect(writer!.prepare('PRAGMA query_only').get()!.query_only).toBe(0);
+      expect(peerBytes).toBeDefined(); expect(f.bytes()).toBe(peerBytes);
+      expect(db.prepare('SELECT * FROM main.actual_foul_terminal_applications').all()).toEqual([]);
+      expect(db.prepare('SELECT * FROM main.actual_foul_official_heads WHERE session_source_id=?').get(f.session.sourceId)).not.toEqual(headBefore);
+      expect(foulEndLogicalBytes(db, ['actual_foul_official_events', 'actual_foul_official_heads'])).toBe(outsideJournal);
+      expect(schemaState(db)).toEqual(schema);
+    } finally { witness.close(); }
+    // The old authenticated fence still exists, but its historical value grants
+    // no fresh queue admission after the peer's committed scheduler event.
+    expect(f.official.readAt(f.session.sourceId, f.fenced.value.revision)).toEqual(f.fenced.value);
+    expect(store.read(source.sourceId)).toBeNull(); expect(f.bytes()).toBe(peerBytes);
+    await yieldForReporter();
+  } finally {
+    try { f?.x.f.close(); }
+    finally { rmSync(directory, { recursive: true, force: true }); }
+  }
+}, 1_200_000);
+
+it('Q08 rechecks the actual event writer after a genuine queue commits in Source recapture', async () => {
+  terminalFixtureCompatibility();
+  const directory = mkdtempSync(join(tmpdir(), 'terminal-queue-q08-queue-first-')), path = join(directory, 'original.sqlite');
+  let f: GenuineTerminalFixture | undefined;
+  try {
+    f = await genuineTerminalFixture(path, 'bunt');
+    const { openSqliteActualFoulOfficialStore } = await import('./SqliteActualFoulOfficialStore');
+    const { deriveFoulTerminalApplicationProposal } = await import('./ActualFoulTerminalApplicationEvidenceFromSqlite');
+    const { foulEndLogicalBytes } = await import('./ActualFoulPlayEndFixtures.test-support');
+    const { witnessSqliteWrite } = await import('./SqliteWriteWitness.test-support');
+    const db = f.x.f.db, source = f.terminalSource(), proposal = deriveFoulTerminalApplicationProposal(db, source, 'current');
+    expect(proposal.kind).toBe('terminal_non_live_projected');
+    const open = await requireQueue(), store = f.x.f.track(open(path, { readAcceptedApplication: id => id === source.sourceId ? source : null }));
+    const event: AcceptedFoulOfficialEvent = { sourceId: 'q08-queue-beats-event', sourceVersion: 'contract-v1',
+      capability: 'actual_post_play_foul_official_event_v1', sessionSourceId: f.session.sourceId,
+      expectedRevision: f.fenced.value.revision, parent: { sourceId: f.fenced.value.headSourceId, snapshotHash: f.fenced.value.headHash },
+      action: { kind: 'advance_tick', schedulerId: f.session.assignment.schedulerId } };
+    f.sources.events.set(event.sourceId, event);
+    let captures = 0, peerBytes: string | undefined;
+    let queued: Queue | FoulTerminalApplicationPending | undefined;
+    const peer = f.x.f.track(openSqliteActualFoulOfficialStore(path, {
+      readAcceptedSession: id => f!.sources.sessions.get(id) ?? null,
+      readAcceptedEvent(id) {
+        if (id === event.sourceId) {
+          captures += 1;
+          if (captures === 2) {
+            // This is the public callback after the event preflight snapshot.
+            // The queue commits on its distinct connection before BEGIN IMMEDIATE.
+            queued = store.enqueue(source.sourceId); peerBytes = f!.bytes();
+          }
+        }
+        return f!.sources.events.get(id) ?? null;
+      },
+      readAcceptedIntent: id => f!.sources.intents.get(id) ?? null,
+    }));
+    const schema = schemaState(db), original = foulEndLogicalBytes(db, ['actual_foul_terminal_applications']);
+    const headBefore = db.prepare('SELECT * FROM main.actual_foul_official_heads WHERE session_source_id=?').get(f.session.sourceId);
+    let writer: DatabaseSync | undefined;
+    const queueWitness = witnessSqliteWrite(/INSERT INTO main\.actual_foul_terminal_applications\b/, connection => {
+      writer = connection;
+      const row = connection.prepare('SELECT * FROM main.actual_foul_terminal_applications WHERE source_id=?').get(source.sourceId);
+      return connection.isTransaction && row?.status === 'QUEUED' && row.result_json === null
+        && row.source_json === f!.json(source) && row.source_hash === f!.hash(source)
+        && row.proposal_json === f!.json(proposal) && row.proposal_hash === f!.hash(proposal);
+    });
+    try {
+      const eventWitness = witnessSqliteWrite(/^(?:INSERT INTO main\.actual_foul_official_events\b|UPDATE main\.actual_foul_official_heads\b)/, () => true);
+      try {
+        expect(() => peer.acceptEvent(event.sourceId)).toThrow('foul official terminal ownership already claimed');
+        expect(captures).toBe(2); expect(queueWitness.wasReached()).toBe(true); expect(eventWitness.wasReached()).toBe(false);
+        expect(queued).toEqual({ source, proposal, status: 'QUEUED', officialApplied: false, result: null });
+        expect(writer).toBeDefined(); expect(writer!.isTransaction).toBe(false);
+        expect(writer!.prepare('PRAGMA query_only').get()!.query_only).toBe(0);
+        expect(peerBytes).toBeDefined(); expect(f.bytes()).toBe(peerBytes);
+        expect(db.prepare('SELECT source_id,status,result_json FROM main.actual_foul_terminal_applications').all())
+          .toEqual([{ source_id: source.sourceId, status: 'QUEUED', result_json: null }]);
+        expect(db.prepare('SELECT * FROM main.actual_foul_official_events WHERE source_id=?').get(event.sourceId)).toBeUndefined();
+        expect(db.prepare('SELECT * FROM main.actual_foul_official_heads WHERE session_source_id=?').get(f.session.sourceId)).toEqual(headBefore);
+        expect(foulEndLogicalBytes(db, ['actual_foul_terminal_applications'])).toBe(original);
+        expect(schemaState(db)).toEqual(schema);
+      } finally { eventWitness.close(); }
+    } finally { queueWitness.close(); }
+    await yieldForReporter();
+  } finally {
+    try { f?.x.f.close(); }
+    finally { rmSync(directory, { recursive: true, force: true }); }
+  }
+}, 1_200_000);
