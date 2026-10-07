@@ -6,7 +6,7 @@ The candidate is based on PR352 head `ae366870d28fab9061f0c5b673dc39cbc8ed7a21`.
 
 Workspace replacement on 2026-10-07 destroyed the previous raw test receipts and private artifacts. They are not inherited by this checkpoint. A fresh focused compiler passed on test-only baseline `5f4a0cc1a7f9d60517ddd2b3e8240a7c17d0a7fb`, before the production patch. The earlier full-project compiler attempt failed at its 1024 MiB V8 old-space limit. A subsequent bounded compiler launcher stopped in its preload because it incorrectly expected total V8 heap to be at most 1088 MiB; the exact Node 26.10 binary reports 1120 MiB for the 1024 MiB old-space setting. That launcher failure was reaped and produced no test credit.
 
-At the initial recovery publication, the production candidate had not passed a fresh compiler or runtime gate. The timestamped results below supersede that status for the 31 new cases, 105 adjacent cases, 110 boundary cases and a fresh four-phase continuation from a published closed input through official application. The genuine two-completed-prior fixture, newly constructed actual flight, role/next continuation and whole-project acceptance remain pending. No performance improvement is claimed.
+At the initial recovery publication, the production candidate had not passed a fresh compiler or runtime gate. The timestamped results below supersede that status for the 31 new cases, 105 adjacent cases, 110 boundary cases and fresh continuation from a published closed input through official application and the ten-player role/workload stage. The genuine two-completed-prior fixture, newly constructed actual flight, next-TAKE continuation and whole-project acceptance remain pending. No performance improvement is claimed.
 
 This is a code and concise status checkpoint. It contains no database, domain-row export, raw execution log or test-receipt bundle.
 
@@ -61,3 +61,22 @@ The same candidate `ff33cbc915bb8938df5010fd40d65f9260d0fde0`, source tree `a84c
 - `ActualFirstBasePhysicalReadTraversal.test.ts`: 24 cases
 
 These 110 fresh case passes bring the verified total to 246 across 20 complete files (31 + 105 + 110). File/name pairs are disjoint across the three groups. All five stages have actual outer/child exit 0, zero failures or skips, no remaining owned processes and unchanged source, dependency, control and runtime hashes. Aggregate SHA-256: `458956e8ece2f68e1711fb006030e5501584575786edb53b4b2a35006469c46f`. No historical receipts or earlier partial-suite credit are inherited. These complete-file results do not complete the pending genuine two-completed-prior fixture, actual-flight construction, role/next artifact continuation or whole-project acceptance.
+
+## Fresh ten-player workload continuation — 2026-10-07 23:54 UTC
+
+The existing role phase completed on local continuation commit `e58db66ff423fd58b90dfc183f4bc66021e9c2c8`, src tree `a84ccc9ac2c45e66d0a6f07afc67af0bf3db6c75`. This is the exact readiness continuation cut described above and the production/test source preserved by PR354 at `5494e35125007383b60d8d31707481665c634021`. It is not a qualification of the separately developed participation or shared-writer/terminal-pending cuts, nor an integrated whole-project result.
+
+Starting from the already-qualified official checkpoint, the phase authenticated the original closure, accepted the ten participant assessments, froze the exact settlement-time BEFORE states and applied the accepted total-play effort exactly once through the existing workload owner. It then verified same-connection retry, disk close/reopen, reopened read and exact retry. Day-level recovery history was tested only on an isolated backup; the playable artifact contains zero recovery activities and preserves all frozen AFTER heads.
+
+All five prescribed fault obligations passed: assessment INSERT, freeze INSERT, workload INSERT, stale-current-head rejection and interruption after the first committed MATCH activity. The original official input stayed unchanged. The fixture provides explicit effort/baseline inputs; this does not establish automatic effort generation or elapsed-World-time recovery.
+
+The actual outer and child exits were 0. The supervisor verified unchanged source/dependency/control/input pins, complete reaping and no remaining owned processes. The stage took 6,810.462 seconds within its unchanged 14,400-second ceiling, with peak aggregate RSS 516,364 KiB. This is an observed qualification run, not a performance-improvement claim.
+
+- Preceding official checkpoint: `618195ca8e674d47304d1b35d3ddfddd9357666958180cb185585dbde27b1c93`
+- Role checkpoint: `ca28ec1a1158d5fe060b84a12c44f6d3c9d7aba73967f0c29675fee57078baf2`
+- Role proof receipt: `e90fa208c7d2da37a297b566a42e36b801fab18055dc49e3ae5b2e1f7018e690`
+- Closed private role output: `cc587072c7f7259b07e4dafb08452861121bbeb3a33f96c5689389b00b859a46`; WAL is zero bytes
+
+Five continuation phases are now qualified on this exact lineage: compiler, raw admission, Native reauthentication, official application and role/workload. The next-TAKE phase remains pending, so `freshContinuationVerified` and `wholePipelinePassed` remain false. The 246 regression-case count is unchanged; this phase is not added as an invented number of test cases. New physical construction, the original seal rollback, genuine two-completed-prior coverage, geometry continuation and whole-project acceptance are still unproved here.
+
+This update publishes only concise source-specific results and digest metadata. The private database, domain rows, input manifest, execution logs and receipt files remain unpublished.
