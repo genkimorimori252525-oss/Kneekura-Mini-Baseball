@@ -1,8 +1,8 @@
-# Terminal bunt: read-only projection WIP
+# Terminal bunt: qualified read-only projection
 
-This Draft checkpoint now records **20 unique selected passes: 8 retained plus 12 fresh**, with 69 further selections pending. The complete source tree is `1476336a13c8248c6e3a39cafb38cac1bb3a20cc`, identical to reviewed local candidate `f57e59be1c3de0d53445dfc01c74316e2a5d0e70`. Results are fixed at the recovery closure, 2026-10-07 09:50:24 UTC. This two-path update changes only the contract test and this note from PR #351 head `9590ed28df3e61bfd20c6857907af61d6ddfa700`; all other parent paths are preserved. Packaging did not rerun the compiler or tests.
+This Draft checkpoint records **89 unique selected passes: 8 source-attributed retained cases plus 81 fresh cases**. All Task 1 selections are closed; the 188 raw appearances comprise 89 passes and 99 explicit exclusions with zero extra credit. This is not a fresh uninterrupted 89-case run. The complete source tree is `1476336a13c8248c6e3a39cafb38cac1bb3a20cc`, identical to reviewed local candidate `f57e59be1c3de0d53445dfc01c74316e2a5d0e70`. The final terminal closed at 2026-10-07 11:32:29 UTC. This one-document update uses PR #351 head `85e609becb911e3c489ba1adcf25227b0f984e82`; all other parent paths and the source tree are preserved. Packaging did not rerun the compiler or tests.
 
-The projection authenticates the original physical pitch, count, physical end and selected official journal. It retains the assigned canonical call ID and the original P/C/E authority. A separate application ledger starts with `playEnd: null`; the original physical pitch remains `batted_ball_pending`. It returns prepared data with `officialApplied: false`. No durable Match application, queue, acknowledgement, workload settlement, reset or actual same-PA resume is implemented. Tasks 2–4 remain held.
+The projection authenticates the original physical pitch, count, physical end and selected official journal. It retains the assigned canonical call ID and the original P/C/E authority. A separate application ledger starts with `playEnd: null`; the original physical pitch remains `batted_ball_pending`. It returns prepared data with `officialApplied: false`. No durable Match application, queue, acknowledgement, workload settlement, reset or actual same-PA resume is implemented. These durable follow-on connections remain unimplemented by this slice.
 
 ## Retained original checkpoint
 
@@ -35,4 +35,18 @@ Fresh compiler and catalog checks passed on `f57e59b`. The complete 12-case reco
 | Catalog | Check passed | `4e500b6f85eb573a2d476a4b7671f551d79bbce38b88e2516808da232817a46a` |
 | Complete remaining-12 recovery | 12 cases | `32922175dda14e1fa33701d3ad8e576ffc1b052de45dc6b04c6b494d15eafd64` |
 
-The cumulative 20-case result combines eight source-attributed retained cases with 12 disjoint fresh passes, not a fresh uninterrupted run of all 20. Seven further stages remain pending: four original fixture branches (FAIR, unowned windows, ordinary foul and absent intent; one case each), 47 adjacent Core cases, 12 metadata cases and six Native cases, totaling 69 unique selections. Full Task 1, combined 89-case and whole-project qualification remain pending. Keep this checkpoint Draft; durable application and Tasks 2–4 remain held. Raw logs, receipts, manifests, controllers and database/domain payloads remain outside this change.
+The following disjoint fresh stages then closed on the same fixed `f57e59b` source:
+
+| Fresh stage | Credit | Terminal SHA-256 |
+| --- | --- | --- |
+| FAIR fixture | 1 case | `ebd587c0a22236ac56e844f60efacf5f629f95157a6f7415aeac8c538f251f78` |
+| Unowned active windows | 1 case | `4b1bca8fa4c867bcb8d3e8a9d5fa3baa2a1ba42bdc064560e37f721341cfd3bc` |
+| Ordinary foul fixture | 1 case | `fefa363e3898c9712f6d76055ef8f4336f9dae83c31796c4ab5208651ca3f883` |
+| Absent-intent prerequisite | 1 case | `c66baf66d1a5ee702f5da9d0f33a3ff513272e9eebde214ba5bab93a17d53c25` |
+| Adjacent Core policy | 47 cases | `5bd23c5d68c5623b60d8cfaa800b623805c728572e5ae26bab897d633f935102` |
+| Adjacent official metadata | 12 cases | `7e1f02665ed3e7e09a6f09d9c472adb116ffbd2a46943cabc9e3c58847f55f55` |
+| Adjacent official Native | 6 cases | `01dd673f4b4c2f30581999d9d11b8eb4eb6bd3450f1b564868925185677b94db` |
+
+The final Native stage passed its six selected cases in 1735.361 seconds, within its original 2700-second cap. Each fresh stage recorded exit 0, no unhandled errors, unchanged source/dependencies/controls, observed reaping and no remaining owned processes. The final terminal is `01dd673f4b4c2f30581999d9d11b8eb4eb6bd3450f1b564868925185677b94db`; it reauthenticates the complete predecessor chain and the eight retained original cases. The original RPC-failed stage remains zero credit.
+
+This closes the bounded 24 authored/preflight selections plus 65 adjacent selections. It proves the read-only terminal-bunt projection and its stated rejection/compatibility checks. It does not implement durable Match application, queue ownership, terminal acknowledgement or same-PA resume, and it does not qualify the whole project. The same-connection oracle establishes the visible before/after state of the supplied connection, not unseen private connection state. Keep this checkpoint Draft. Raw logs, receipts, manifests, controllers and database/domain payloads remain outside this change.
