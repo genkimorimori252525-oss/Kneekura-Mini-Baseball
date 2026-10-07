@@ -25,3 +25,7 @@ Qualified terminals:
 - Metadata, 31 cases: `783adf87221400f40c3537d951063436373c0a6d48eb52660ae8c51d9e5607a5`
 
 Aggregate SHA-256: `ad7d44986be07221c9f3c6ab728d8f948ff3086426bed2c5394042578017470e`. The metadata controls use genuine legacy owners and deliberately corrupted rival-row metadata. They do not certify actual-live closure provenance, fresh V1 receipt insertion, or the broader artifact/writer/history matrix. Those obligations remain pending. Only these two test repairs and this result note differ from the initial PR356 checkpoint; all six production files are unchanged. No database or raw evidence is published.
+
+## Subsequent genuine initial artifact — 2026-10-07 21:15 UTC
+
+The newly reconstructed opt-in gates subsequently passed a fresh compiler, genuine candidate-source read admission and initial batter/defender insertion with reopened Career reads and exact retries on `b07f8b5b3ec0729d4631d1038ecdc712ba156231`, src `38f1860f1dd52b0061a116b8bc018bfee587ec5c`. See [the exact result and remaining limits](2026-10-07-initial-participation-genuine-result.md). These are two additional one-case invocations on their own source; the 59 small cases above retain their earlier source attribution. The wider writer/adversarial/history/consumer matrix remains pending.
