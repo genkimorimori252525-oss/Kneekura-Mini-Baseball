@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "noEmit": true, "incremental": false },
+  "include": [
+    "src/host/world/ActualLiveParticipationGenuine*.acceptance.ts",
+    "src/host/world/SqlitePlayerHealthRehabStore.test.ts",
+    "src/host/world/SqliteNationalParticipationAuthority.test.ts",
+    "vitest.participation-genuine-consumers.config.ts"
+  ]
+}
