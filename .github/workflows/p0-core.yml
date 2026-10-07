@@ -1,0 +1,40 @@
+name: P0 Core
+
+# GitHub-hosted minutes are blocked by the account's billing restriction, and this PC is the
+# runner. Two deliberate choices here:
+#   * there is no pull_request trigger, so nothing a pull request does can execute on this
+#     machine - only pushes to this branch (your own work) run here;
+#   * the routing label is repository-specific (minibaseball). A workflow that asks only for
+#     "self-hosted, Windows, X64" cannot reach this runner.
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - jolly/core-foundation-plan-2026-09-17
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: [self-hosted, Windows, X64, minibaseball]
+    timeout-minutes: 30
+    steps:
+      # The shell is named explicitly: this machine has no PowerShell 7, and the default
+      # shell for a Windows runner is pwsh.
+      - uses: actions/checkout@v4
+      # The runtime and @types/node must agree, because the types describe the runtime. The
+      # development machine is node 26 and the types are @types/node 26, so the runtime here is
+      # 26 too; while this was 22 the type checker accepted APIs that node 22 does not have.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+      - name: Install dependencies
+        shell: powershell
+        # npm install, not npm ci: this branch has no package-lock.json yet, and ci refuses to
+        # run without one. The lockfile and the TypeScript 5.6 bump live on
+        # jolly/core-realism-2026-09-18 and can be brought over the same way.
+        run: npm install
+      - name: Verify
+        shell: powershell
+        run: npm run verify
