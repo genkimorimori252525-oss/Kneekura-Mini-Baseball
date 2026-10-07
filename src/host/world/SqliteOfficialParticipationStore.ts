@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
@@ -6,6 +5,10 @@ import type { RosterState } from '../../core/world/roster/RosterTypes';
 import { evaluateRosterParticipation } from '../../core/world/roster/RosterQueries';
 import type { AcceptedPublicCareerEvent } from '../../core/world/popularity/PopularityObservationSource';
 import type { PersistOfficialPlayResult, PersistOfficialFinalResult } from '../SqliteOfficialStateStore';
+import { actorJson, actorFreeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { deriveActualLiveParticipationEvidence, assertActualLiveParticipationCurrent } from './ActualLiveParticipationEvidenceFromSqlite';
+import { participationReceiptId, readOwnedParticipationReceiptRow, readOwnedParticipationBindingJson,
+  participationHasRawDiscriminator, assertParticipationV1Fields } from './ActualLiveParticipationMetadata';
 
 const DatabaseSync = (createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite')).DatabaseSync;
 
@@ -44,13 +47,18 @@ export type DurableParticipationReceipt = Readonly<{
   activationApplicationId: string; closureApplicationId: string;
   playedPlayId: number; durableRevision: number;
 }>;
+export type ActualLiveParticipationReceipt = Readonly<{
+  evidenceKind: 'ACTUAL_LIVE_V1'; receiptId: string; binding: OfficialParticipantBinding;
+  actorKind: 'DEFENDER' | 'BATTER_RUNNER'; closureSourceId: string; closureApplicationId: string;
+  closureProposalHash: string; playedPlayId: number; durableRevision: number;
+}>;
+export type OfficialParticipationReceipt = DurableParticipationReceipt | ActualLiveParticipationReceipt;
 export type AcceptedPitcherPlay = Omit<DurableParticipationReceipt, 'receiptId' | 'actorKind'> & Readonly<{
   activatedMatchState: CanonicalMatchState;
 }>;
 
 type ApplicationRow = { match_id: string; result_json: string };
 type BindingRow = { binding_json: string };
-type ReceiptRow = { receipt_json: string };
 type FixtureRow = { fixture_event_id: string };
 type MatchRow = { durable_revision: number };
 const id = (value: unknown): value is string =>
@@ -59,17 +67,14 @@ const day = (value: unknown): value is number =>
   typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
 const same = (left: unknown, right: unknown): boolean =>
   JSON.stringify(left) === JSON.stringify(right);
-const participationReceiptId = (gameId: string, playerId: string): string =>
-  `official-participation:${createHash('sha256')
-    .update(JSON.stringify([gameId, playerId])).digest('hex')}`;
 
 /** Reads the actual official application ledger; no caller-provided play result is trusted. */
 export class SqliteOfficialParticipationStore {
   private readonly db: InstanceType<typeof DatabaseSync>;
-  constructor(path: string, private readonly authority: ParticipationAuthority) {
-    if (!id(path) || !authority || typeof authority.readGame !== 'function'
+  constructor(path: string, private readonly authority?: ParticipationAuthority) {
+    if (!id(path) || authority !== undefined && (!authority || typeof authority.readGame !== 'function'
       || typeof authority.readRoster !== 'function'
-      || typeof authority.readPersonLink !== 'function') {
+      || typeof authority.readPersonLink !== 'function')) {
       throw new Error('participation requires an accepted source authority');
     }
     this.db = new DatabaseSync(path);
@@ -88,6 +93,7 @@ export class SqliteOfficialParticipationStore {
   close(): void { this.db.close(); }
 
   bindPregame(input: OfficialParticipantBinding): OfficialParticipantBinding {
+    if (!this.authority) throw new Error('pregame participation requires an accepted source authority');
     if (!id(input.gameId) || !id(input.careerId) || !id(input.competitionEditionId)
       || !day(input.gameDay) || !id(input.clubId) || !id(input.playerId)
       || !id(input.personId) || !id(input.personLinkSourceId)
@@ -161,6 +167,7 @@ export class SqliteOfficialParticipationStore {
   /** Historical accepted identity/fixture binding; later availability does not rewrite it. */
   readPregameBinding(gameId: string, playerId: string): OfficialParticipantBinding | null {
     if (!id(gameId) || !id(playerId)) throw new Error('invalid pregame binding reference');
+    if (!this.authority) throw new Error('pregame participation requires an accepted source authority');
     const raw = this.binding(gameId, playerId);
     if (!raw) return null;
     const binding = cloneInert(raw);
@@ -252,9 +259,9 @@ export class SqliteOfficialParticipationStore {
         durableRevision: second.receipt.durableRevision,
       };
       this.verify(receipt);
-      const existing = this.readReceipt(receipt.receiptId);
+      const existing = this.readStoredReceipt(receipt.receiptId, gameId, playerId);
       if (existing) {
-        if (!same(existing, receipt)) throw new Error('player participation already recorded differently');
+        if ('evidenceKind' in existing || !same(existing, receipt)) throw new Error('player participation already recorded differently');
         this.db.exec('COMMIT');
         return existing;
       }
@@ -269,20 +276,80 @@ export class SqliteOfficialParticipationStore {
     }
   }
 
-  readReceipt(receiptId: string): DurableParticipationReceipt | null {
-    if (!id(receiptId)) throw new Error('invalid participation receipt ID');
-    const row = this.db.prepare(`SELECT receipt_json FROM official_participation_receipts
-      WHERE receipt_id=?`).get(receiptId) as ReceiptRow | undefined;
+  private readStoredReceipt(receiptId: string, gameId?: string, playerId?: string): OfficialParticipationReceipt | null {
+    const row = readOwnedParticipationReceiptRow(this.db, receiptId, gameId, playerId);
     if (!row) return null;
-    const receipt = JSON.parse(row.receipt_json) as DurableParticipationReceipt;
+    const receipt = JSON.parse(row.receipt_json) as OfficialParticipationReceipt;
+    const bindingJson = readOwnedParticipationBindingJson(this.db, row.game_id, row.player_id);
     if (receipt.receiptId !== receiptId
       || receipt.receiptId !== participationReceiptId(
         receipt.binding.gameId, receipt.binding.playerId)
-      || !same(this.binding(receipt.binding.gameId, receipt.binding.playerId), receipt.binding)) {
+      || bindingJson === null) {
       throw new Error('participation receipt does not match binding');
     }
+    if (participationHasRawDiscriminator(this.db, row.receipt_json)) {
+      if (!('evidenceKind' in receipt) || receipt.evidenceKind !== 'ACTUAL_LIVE_V1') {
+        throw new Error('unsupported participation receipt format');
+      }
+      assertParticipationV1Fields(this.db, row.receipt_json);
+      const evidence = deriveActualLiveParticipationEvidence(this.db, row.game_id, row.player_id, receipt.closureSourceId);
+      if (row.receipt_json !== actorJson(receipt) || row.receipt_json !== actorJson(evidence.receipt)
+        || actorJson(JSON.parse(bindingJson)) !== actorJson(receipt.binding)) {
+        throw new Error('actual-live participation receipt differs from original evidence');
+      }
+      return actorFreeze(receipt);
+    }
+    if ('evidenceKind' in receipt || !id(receipt.activationApplicationId) || !id(receipt.closureApplicationId)
+      || !same(JSON.parse(bindingJson), receipt.binding)) throw new Error('participation receipt does not match binding');
     this.verify(receipt);
     return Object.freeze(receipt);
+  }
+
+  private receiptRead<T>(read: () => T): T {
+    if (this.db.isTransaction) return read();
+    this.db.exec('BEGIN');
+    try { const result = read(); this.db.exec('COMMIT'); return result; }
+    catch (error) { if (this.db.isTransaction) this.db.exec('ROLLBACK'); throw error; }
+  }
+
+  readReceipt(receiptId: string): OfficialParticipationReceipt | null {
+    if (!id(receiptId)) throw new Error('invalid participation receipt ID');
+    return this.receiptRead(() => this.readStoredReceipt(receiptId));
+  }
+
+  /** One binary game fact, derived exclusively from its original applied actual-live closure. */
+  confirmActualLivePlayed(gameId: string, playerId: string, closureSourceId: string): ActualLiveParticipationReceipt {
+    if (![gameId, playerId, closureSourceId].every(id)) throw new Error('invalid actual-live participation reference');
+    this.db.exec('BEGIN IMMEDIATE');
+    try {
+      const receiptId = participationReceiptId(gameId, playerId);
+      const existing = this.readStoredReceipt(receiptId, gameId, playerId);
+      if (existing) {
+        if (!('evidenceKind' in existing) || existing.closureSourceId !== closureSourceId) {
+          throw new Error('player participation already recorded differently');
+        }
+        // readStoredReceipt freshly rederived the complete original candidate on this transaction.
+        this.db.exec('COMMIT'); return existing;
+      }
+      const evidence = deriveActualLiveParticipationEvidence(this.db, gameId, playerId, closureSourceId);
+      assertActualLiveParticipationCurrent(this.db, evidence);
+      const receiptJson = actorJson(evidence.receipt);
+      this.db.prepare(`INSERT INTO official_participation_receipts
+        (receipt_id, game_id, player_id, receipt_json) VALUES (?, ?, ?, ?)`)
+        .run(receiptId, gameId, playerId, receiptJson);
+      // No outer physical-read traversal spans INSERT: this is a fresh proof of writer-local rows.
+      const after = deriveActualLiveParticipationEvidence(this.db, gameId, playerId, closureSourceId);
+      assertActualLiveParticipationCurrent(this.db, after);
+      const saved = readOwnedParticipationReceiptRow(this.db, receiptId, gameId, playerId);
+      if (!saved || saved.receipt_json !== receiptJson || actorJson(after.receipt) !== receiptJson) {
+        throw new Error('actual-live participation changed during admission');
+      }
+      assertParticipationV1Fields(this.db, saved.receipt_json);
+      this.db.exec('COMMIT'); return after.receipt;
+    } catch (error) {
+      if (this.db.isTransaction) this.db.exec('ROLLBACK');
+      throw error;
+    }
   }
 
   /** Only a stored receipt can become an accepted OFFICIAL_GAME Career source. */

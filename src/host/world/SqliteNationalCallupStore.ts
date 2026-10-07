@@ -215,6 +215,7 @@ export const openSqliteNationalCallupStore = (databasePath: string, sources: Nat
     }
     const receipt = sources.participation?.readReceipt(input.receiptId);
     if (!receipt) throw new Error('national appearance requires actual official participation receipt');
+    if ('evidenceKind' in receipt) throw new Error('national appearance does not support tagged participation receipts');
     const binding = receipt.binding;
     const game = sources.games?.readGame(binding.gameId);
     const registration = active(history.filter((item) => effectiveDay(item) <= binding.gameDay))
