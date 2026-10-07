@@ -1,4 +1,9 @@
 import type { DatabaseSync } from 'node:sqlite';
+import { actualLivePlayFields as fields, actualLivePlayId as id } from './ActualLivePlayScope';
+import { foulOfficialClaims, foulOfficialHeads, type FoulOfficialRow } from './ActualFoulOfficialOwnership';
+import { foulTerminalApplicationIdentityRows, foulTerminalApplicationClaims, type FoulTerminalApplicationScope }
+  from './ActualFoulTerminalApplicationOwnership';
+import { officialApplicationOwnershipClaims, officialMatchActivationClaims } from '../OfficialApplicationOwnershipFromSqlite';
 import { cloneInert, openRuleProfileOfficialStateWindow, advanceRuleProfileOfficialWindows } from '../../core/adjudication/OfficialWindowPolicy';
 import { createPlayAdjudicationLedger, recordCorrectRuleSnapshot, recordOnFieldCall, closeOfficialPlay,
   getOfficialPlayClosure, getOfficialStateWindows } from '../../core/adjudication/PlayAdjudicationLedger';
@@ -12,7 +17,8 @@ import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicy
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { actualFoulTerminalApplicationInput, type AcceptedFoulTerminalApplication, type FoulTerminalApplicationEvaluation,
   type FoulTerminalApplicationBody, type FoulTerminalPhysicalPitchReference, type FoulTerminalParticipant,
-  type FoulTerminalBoundGamePolicy } from './ActualFoulTerminalApplication';
+  type FoulTerminalBoundGamePolicy, type FoulTerminalApplicationProposal, type DurableFoulTerminalApplicationQueue }
+  from './ActualFoulTerminalApplication';
 
 const same = (actual: unknown, expected: unknown, message: string): void => {
   if (json(actual) !== json(expected)) throw new Error(message);
@@ -186,5 +192,149 @@ export const deriveFoulTerminalApplicationProposal = (db: DatabaseSync, raw: unk
       fixture, seasonFixture, participants, clock: { originTick: opening.originTick, ticksPerSecond: opening.ticksPerSecond,
         openingTick: opening.openingTick, openingElapsedSeconds: opening.openingElapsedSeconds, ruleTick, closureTick },
       applicationBody, nextMatch, scoring: oracle.scoring, projectedGameProgression });
+  });
+};
+
+/** Queue-only schema. The reserved applied stage is not authenticated here. */
+export const foulTerminalApplicationTableSql = `CREATE TABLE IF NOT EXISTS main.actual_foul_terminal_applications(
+  source_id TEXT PRIMARY KEY,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,application_id TEXT NOT NULL UNIQUE,
+  physical_pitch_source_id TEXT NOT NULL UNIQUE,physical_end_source_id TEXT NOT NULL UNIQUE,official_obligation_key TEXT NOT NULL UNIQUE,
+  status TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,proposal_json TEXT NOT NULL,proposal_hash TEXT NOT NULL,result_json TEXT,
+  UNIQUE(game_id,play_id),CHECK((status='QUEUED' AND result_json IS NULL)
+    OR (status='OFFICIAL_APPLIED_PENDING_POST_PLAY' AND result_json IS NOT NULL)))`;
+const table = 'actual_foul_terminal_applications';
+const columnNames = ['source_id','game_id','play_id','application_id','physical_pitch_source_id','physical_end_source_id',
+  'official_obligation_key','status','source_json','source_hash','proposal_json','proposal_hash','result_json'] as const;
+const compactSchema = (sql: string) => sql.replace(/\s+/g,'').replace(/^CREATETABLE(?:IFNOTEXISTS)?(?:main\.)?/i,'');
+/** Validate installed constraints as well as the columns; no migration or DDL. */
+export const assertFoulTerminalApplicationStorage = (db: DatabaseSync): boolean => {
+  const schema = db.prepare('SELECT type,sql FROM main.sqlite_master WHERE name=?').all(table);
+  if (!schema.length) return false;
+  if (schema.length !== 1 || schema[0].type !== 'table' || typeof schema[0].sql !== 'string'
+    || compactSchema(schema[0].sql) !== compactSchema(foulTerminalApplicationTableSql)) {
+    throw new Error('foul terminal queue schema or constraints differ');
+  }
+  const columns = db.prepare('PRAGMA main.table_info(actual_foul_terminal_applications)').all();
+  same(columns.map(c => [c.name,c.type,c.notnull,c.pk,c.dflt_value]), columnNames.map((name,i) =>
+    [name,name === 'play_id' ? 'INTEGER' : 'TEXT',i === 0 || name === 'result_json' ? 0 : 1,i === 0 ? 1 : 0,null]),
+  'foul terminal queue column shape differs');
+  const indexes = db.prepare('PRAGMA main.index_list(actual_foul_terminal_applications)').all().filter(row => row.unique === 1);
+  const keys = indexes.map(index => {
+    if (index.partial !== 0 || !['pk','u'].includes(String(index.origin)) || typeof index.name !== 'string') {
+      throw new Error('foul terminal queue unique constraint differs');
+    }
+    return db.prepare('PRAGMA main.index_info("'+index.name.replaceAll('"','""')+'")').all().map(row => row.name);
+  });
+  same(keys.map(json).sort(), [['source_id'],['application_id'],['game_id','play_id'],['physical_pitch_source_id'],
+    ['physical_end_source_id'],['official_obligation_key']].map(json).sort(), 'foul terminal queue uniqueness differs');
+  return true;
+};
+const queueScope = (p: FoulTerminalApplicationProposal): FoulTerminalApplicationScope => ({
+  official: { sourceId:p.officialReference.sessionSourceId,gameId:p.gameId,playId:p.playId,
+    physicalPitchSourceId:p.physicalPitchSourceId,physicalEndSourceId:p.physicalEndReference.sourceId,
+    consumptionSourceId:p.consumptionReference.sourceId,officialObligationKey:p.officialObligation.obligationKey,
+    originalSuccessorKey:p.originalSuccessorKey },
+  applicationSourceId:p.source.sourceId,applicationId:p.source.applicationId,closureId:p.source.sourceId,
+  firstPhysicalPitchSourceId:p.firstPhysicalPitchSourceId,runtimeSourceId:p.runtimeSourceId,scopeId:p.scopeId,
+  selectedHeadSourceId:p.officialReference.headSourceId,intentSourceId:p.callIntent.sourceId,
+});
+const queueRow = (p: FoulTerminalApplicationProposal): FoulOfficialRow => ({
+  source_id:p.source.sourceId,game_id:p.gameId,play_id:p.playId,application_id:p.source.applicationId,
+  physical_pitch_source_id:p.physicalPitchSourceId,physical_end_source_id:p.physicalEndReference.sourceId,
+  official_obligation_key:p.officialObligation.obligationKey,status:'QUEUED',source_json:json(p.source),source_hash:hash(p.source),
+  proposal_json:json(p),proposal_hash:hash(p),result_json:null,
+});
+const policyRows = (db: DatabaseSync, p: FoulTerminalApplicationProposal) => {
+  const schema = db.prepare("SELECT type FROM main.sqlite_master WHERE name='physical_closure_game_policies'").all();
+  if (!schema.length) return [];
+  if (schema.length !== 1 || schema[0].type !== 'table') throw new Error('foul terminal queue game policy schema differs');
+  const columns = db.prepare('PRAGMA main.table_info(physical_closure_game_policies)').all();
+  same(columns.map(c => [c.name,c.type,c.pk]), [['game_id','TEXT',1],['policy_json','TEXT',0]],
+    'foul terminal queue game policy columns differ');
+  const rows = db.prepare('SELECT * FROM main.physical_closure_game_policies WHERE game_id=?').all(p.gameId);
+  if (rows.length > 1) throw new Error('foul terminal queue game policy ownership differs');
+  for (const row of rows) {
+    if (typeof row.policy_json !== 'string') throw new Error('foul terminal queue game policy encoding differs');
+    const policy = JSON.parse(row.policy_json);
+    if (!fields(policy,['seasonId','homeClubId','awayClubId','policy'])
+      || ![policy.seasonId,policy.homeClubId,policy.awayClubId].every(id)) throw new Error('foul terminal queue game policy envelope differs');
+    actualFoulTerminalApplicationInput({ ...p.source,legalGamePolicy:policy.policy },p.source.sourceId);
+    if (policy.policy === null || row.policy_json !== json(policy)
+      || policy.seasonId !== p.seasonFixture.competitionEditionId
+      || policy.homeClubId !== p.seasonFixture.game.homeClubId || policy.awayClubId !== p.seasonFixture.game.awayClubId) {
+      throw new Error('foul terminal queue game policy scope differs');
+    }
+    if (p.source.legalGamePolicy !== null) same(policy.policy,p.source.legalGamePolicy,'foul terminal queue accepted game policy differs');
+  }
+  return rows;
+};
+const assertQueueClaims = (db: DatabaseSync, p: FoulTerminalApplicationProposal, expected: FoulOfficialRow | null) => {
+  const scope = queueScope(p), claims = foulTerminalApplicationClaims(db,scope);
+  same(claims,expected === null ? [] : [expected],'foul terminal queue ownership claims differ');
+  const applications = officialApplicationOwnershipClaims(db,scope);
+  if (applications.length !== 1 || applications[0].table !== 'matches' || applications[0].row.match_id !== p.gameId
+    || officialMatchActivationClaims(db,applications[0].row,scope)) throw new Error('foul terminal competing official application ownership claim');
+  if (foulOfficialClaims(db,'actual_foul_official_handoffs',scope.official).length) {
+    throw new Error('foul terminal official child has an ordinary handoff claim');
+  }
+  policyRows(db,p);
+};
+const queuePin = (db: DatabaseSync, p: FoulTerminalApplicationProposal) => {
+  const scope = queueScope(p), events = foulOfficialClaims(db,'actual_foul_official_events',scope.official);
+  return {
+    terminal:foulTerminalApplicationClaims(db,scope),applications:officialApplicationOwnershipClaims(db,scope),
+    sessions:foulOfficialClaims(db,'actual_foul_official_sessions',scope.official),events,
+    heads:foulOfficialHeads(db,scope.official,events.map(row => String(row.source_id))),
+    handoffs:foulOfficialClaims(db,'actual_foul_official_handoffs',scope.official),policies:policyRows(db,p),
+    counts:db.prepare('SELECT * FROM main.actual_foul_rule_consumptions WHERE source_id=?').all(p.consumptionReference.sourceId),
+    ends:db.prepare('SELECT * FROM main.actual_foul_play_ends WHERE source_id=?').all(p.physicalEndReference.sourceId),
+    pitches:p.originalPhysicalPitchPrefix.map(ref => db.prepare('SELECT * FROM main.physical_pitch_progress_actions WHERE source_id=?').get(ref.sourceId)),
+    fences:db.prepare('SELECT * FROM main.actual_live_play_fences WHERE (game_id=? AND play_id=?) OR physical_pitch_source_id=? OR closure_source_id=?')
+      .all(p.gameId,p.playId,p.physicalPitchSourceId,p.physicalEndReference.sourceId),
+    runtimes:db.prepare('SELECT * FROM main.actual_live_play_runtimes WHERE source_id=?').all(p.runtimeSourceId),
+    fixture:db.prepare('SELECT * FROM main.official_fixtures WHERE game_id=?').all(p.gameId),
+  };
+};
+
+/** Archive authentication owns expected-self validation; discovery grants no
+ * authority. No callback or today's head is required for an exact queue read. */
+export const foulTerminalApplicationEvidenceFromSqlite = (db: DatabaseSync) => {
+  const read = (sourceId: string): DurableFoulTerminalApplicationQueue | null => withBattedVenueLegalReadSnapshot(db, () => {
+    if (!id(sourceId)) throw new Error('invalid foul terminal queue identity');
+    if (!assertFoulTerminalApplicationStorage(db)) return null;
+    const rows = foulTerminalApplicationIdentityRows(db,sourceId);
+    if (!rows.length) return null;
+    if (rows.length !== 1 || rows[0].source_id !== sourceId) throw new Error('foul terminal queue Source identity ownership differs');
+    const row = rows[0];
+    if (row.status !== 'QUEUED' || row.result_json !== null || typeof row.source_json !== 'string') {
+      throw new Error('foul terminal queue archive stage is unsupported');
+    }
+    const source = actualFoulTerminalApplicationInput(JSON.parse(row.source_json),sourceId);
+    if (row.source_json !== json(source) || row.source_hash !== hash(source)) throw new Error('foul terminal queue Source archive differs');
+    const proposal = deriveFoulTerminalApplicationProposal(db,source,'historical');
+    if (proposal.kind !== 'terminal_non_live_projected') throw new Error('foul terminal queued original proof became pending');
+    same(row,queueRow(proposal),'foul terminal queue archive encoding, hashes or cached scope differ');
+    assertQueueClaims(db,proposal,row);
+    return freeze({ source,proposal,status:'QUEUED',officialApplied:false,result:null });
+  });
+  return Object.freeze({ read,
+    prepare(source: AcceptedFoulTerminalApplication) {
+      return withBattedVenueLegalReadSnapshot(db, () => {
+        if (!assertFoulTerminalApplicationStorage(db)) throw new Error('foul terminal queue owner is not installed');
+        const evaluation = deriveFoulTerminalApplicationProposal(db,source,'current');
+        if (evaluation.kind === 'pending') return { evaluation,pin:null };
+        assertQueueClaims(db,evaluation,null);
+        return { evaluation,pin:queuePin(db,evaluation) };
+      });
+    },
+    proveQueuedCurrent(sourceId: string) {
+      return withBattedVenueLegalReadSnapshot(db, () => {
+        const queued = read(sourceId);
+        if (!queued) throw new Error('foul terminal queue disappeared during proof');
+        const current = deriveFoulTerminalApplicationProposal(db,queued.source,'current');
+        same(current,queued.proposal,'foul terminal queue current proof differs from its immutable proposal');
+        return { queued,pin:queuePin(db,queued.proposal) };
+      });
+    },
   });
 };

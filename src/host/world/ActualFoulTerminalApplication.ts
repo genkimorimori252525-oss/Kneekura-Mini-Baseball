@@ -61,6 +61,19 @@ export type FoulTerminalApplicationPending = Readonly<{
   kind: 'pending'; source: AcceptedFoulTerminalApplication; pendingReasons: readonly string[];
 }>;
 export type FoulTerminalApplicationEvaluation = FoulTerminalApplicationProposal | FoulTerminalApplicationPending;
+export type FoulTerminalApplicationAuthority = Readonly<{
+  readAcceptedApplication(sourceId: string): unknown;
+}>;
+export type DurableFoulTerminalApplicationQueue = Readonly<{
+  source: AcceptedFoulTerminalApplication; proposal: FoulTerminalApplicationProposal;
+  status: 'QUEUED'; officialApplied: false; result: null;
+}>;
+export type SqliteActualFoulTerminalApplicationStore = Readonly<{
+  evaluate(sourceId: string): FoulTerminalApplicationEvaluation;
+  enqueue(sourceId: string): FoulTerminalApplicationPending | DurableFoulTerminalApplicationQueue;
+  read(sourceId: string): DurableFoulTerminalApplicationQueue | null;
+  close(): void;
+}>;
 
 /** Capture inert bytes before inspecting fields. Policy validity matches the
  * existing GameCompletionPolicy; an omitted maximum remains omitted. */
