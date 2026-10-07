@@ -10,6 +10,7 @@ import type { AcceptedPhysicalPitchActionSource, DurablePhysicalPitch } from './
 import { createCanonicalPlateAppearanceTimeline, type CanonicalPlateAppearanceTimeline } from '../../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 import { resolveContinuousPlayerPitchAgainstBatterFromWorld } from './ContinuousPlayerPitchRuntime';
 import { readPhysicalPlateAppearanceActorFromSqlite } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { activeBattedWorldFieldReadFrame } from './SqliteBattedWorldFieldStore';
 
 type Frame = DurablePhysicalPitch['frame'];
 type Row = { source_id: string; game_id: string; play_id: number; progress_revision: number; source_json: string;
@@ -201,4 +202,59 @@ export const captureOriginalPhysicalPitchRows = (db: PhysicalPitchDb, sourceId: 
     .all(pitch.frame.gameId, pitch.frame.match.playId, pitch.progressRevision).map(hash);
   return freeze({ actions, head: hash({ game_id: pitch.frame.gameId, play_id: pitch.frame.match.playId,
     revision: pitch.progressRevision, last_source_id: sourceId }) });
+};
+
+type OriginalPhysicalPitchWithRows = Readonly<{
+  prefix: readonly DurablePhysicalPitch[];
+  originalPitchRows: Readonly<{ actions: readonly string[]; head: string }>;
+}>;
+
+// Private to the paired owner: detach each SQL value before any authentication
+// callback. Each row keeps the existing inert encoding budget independently.
+const loadOriginalPhysicalPitchPairRows = (db: PhysicalPitchDb, sourceId: string) => {
+  if (!id(sourceId)) throw new Error('invalid original physical pitch Source');
+  const endpoint = freeze(cloneInert(db.prepare('SELECT source_id,game_id,play_id,progress_revision FROM physical_pitch_progress_actions WHERE source_id=?')
+    .get(sourceId) ?? null)) as Pick<Row, 'source_id' | 'game_id' | 'play_id' | 'progress_revision'> | null;
+  if (!endpoint || !id(endpoint.game_id) || !integer(endpoint.play_id) || !integer(endpoint.progress_revision) || endpoint.progress_revision === 0) {
+    throw new Error('original physical pitch Source is missing or invalid');
+  }
+  const head = freeze(cloneInert(db.prepare('SELECT revision,last_source_id FROM physical_pitch_progress_heads WHERE game_id=? AND play_id=?')
+    .get(endpoint.game_id, endpoint.play_id) ?? null)) as { revision: number; last_source_id: string } | null;
+  const metadata = Object.freeze((db.prepare('SELECT source_id,progress_revision FROM physical_pitch_progress_actions WHERE game_id=? AND play_id=? ORDER BY progress_revision')
+    .all(endpoint.game_id, endpoint.play_id) as Pick<Row, 'source_id' | 'progress_revision'>[]).map(row => freeze(cloneInert(row))));
+  if (!head || !integer(head.revision) || head.revision < endpoint.progress_revision || !id(head.last_source_id)
+    || metadata.length !== head.revision || metadata.at(-1)?.source_id !== head.last_source_id
+    || metadata.some((row, index) => !id(row.source_id) || !integer(row.progress_revision) || row.progress_revision !== index + 1)) {
+    throw new Error('original physical pitch current prefix structure differs');
+  }
+  const rows = Object.freeze((db.prepare('SELECT * FROM physical_pitch_progress_actions WHERE game_id=? AND play_id=? AND progress_revision<=? ORDER BY progress_revision')
+    .all(endpoint.game_id, endpoint.play_id, endpoint.progress_revision) as Row[]).map(row => freeze(cloneInert(row))));
+  if (rows.length !== endpoint.progress_revision || rows.at(-1)?.source_id !== sourceId) throw new Error('original physical pitch endpoint differs');
+  return { endpoint, head, metadata, rows };
+};
+
+/** One fresh replay and its exact owned-row identity, confined to the active owner read frame. */
+export const readOriginalPhysicalPitchWithRowsFromSqlite = (db: PhysicalPitchDb, sourceId: string): OriginalPhysicalPitchWithRows => {
+  const frame = activeBattedWorldFieldReadFrame(db);
+  if (!frame) throw new Error('original physical pitch pair requires an owned read frame');
+  try {
+    const owned = loadOriginalPhysicalPitchPairRows(db, sourceId);
+    const identities = { endpoint: json(owned.endpoint), head: json(owned.head),
+      metadata: owned.metadata.map(json), rows: owned.rows.map(json) };
+    const prefix = replayPhysicalPitchRows(db, owned.rows, owned.endpoint.game_id, owned.endpoint.play_id);
+    // Recheck SQL structure and raw bytes only; the audit never authenticates or
+    // replays again, and its rows never replace the replayed copies for hashing.
+    const audit = loadOriginalPhysicalPitchPairRows(db, sourceId);
+    if (json(audit.endpoint) !== identities.endpoint || json(audit.head) !== identities.head
+      || audit.metadata.length !== identities.metadata.length || audit.metadata.some((row, index) => json(row) !== identities.metadata[index])
+      || audit.rows.length !== identities.rows.length || audit.rows.some((row, index) => json(row) !== identities.rows[index])) {
+      throw new Error('original physical pitch paired identity changed');
+    }
+    const pitch = prefix.at(-1)!;
+    const originalPitchRows = freeze({ actions: owned.rows.map(hash),
+      head: hash({ game_id: pitch.frame.gameId, play_id: pitch.frame.match.playId,
+        revision: pitch.progressRevision, last_source_id: sourceId }) });
+    if (activeBattedWorldFieldReadFrame(db) !== frame) throw new Error('original physical pitch owned read frame changed');
+    return Object.freeze({ prefix: Object.freeze(prefix), originalPitchRows });
+  } catch (cause) { throw new Error('corrupt original physical pitch prefix', { cause }); }
 };
