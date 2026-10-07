@@ -6,7 +6,7 @@ The candidate is based on PR353 head `a2f687fd7c1c379256fdfd4b206ae357ba2c7860`.
 
 Workspace replacement destroyed the prior raw receipts. The earlier Q11b intended failure reached a genuine queue and writer-local event/head/raw-claim witness, but its later rollback assertions were not reached. That historical observation is not a fresh receipt or GREEN result. PR353's initial 13-case qualification belongs to its own source and does not qualify this repair.
 
-At the initial source checkpoint, no fresh compiler or test had run. The later qualification below covers the compiler and 13 prerequisite cases only; the eight journal repair cases and remaining Task2A matrix still require new bounded verification. The separately recovered Q04 fixture seam is not included. A second genuine origin, shared-writer cutover, durable application/acknowledgement and terminal next-play admission remain outside this checkpoint.
+At the initial source checkpoint, no fresh compiler or test had run. The qualification below now covers the compiler, 13 prerequisite cases and the genuine Q11b rollback case. Five Q07 cases, two Q08 callback-order cases and the remaining Task2A matrix still require bounded verification. The separately recovered Q04 fixture seam is not included. A second genuine origin, shared-writer cutover, durable application/acknowledgement and terminal next-play admission remain outside this checkpoint.
 
 This Draft preserves code and concise status only, with no private database, domain rows, raw execution log or receipt bundle.
 
@@ -23,3 +23,16 @@ The focused compiler passed, followed by 12 metadata controls and the genuine Q0
 Q01 constructed the real terminal-bunt prerequisites and immutable queue without applying an official child. The supervised case completed in 470.810 seconds, below its 1,320-second process ceiling; this is one observed run, not a performance improvement claim. Q11b's post-INSERT rollback, the five Q07 cases and the two Q08 callback-order cases remain unrun on this cut. The successful prerequisite does not qualify that repair, Task2A as a whole, shared-writer migration or a durable terminal official result.
 
 The two added publication paths are this concise note and the exact focused compiler configuration. No private database, artifact manifest, raw domain rows, execution log or raw receipt bundle is included.
+
+## Fresh Q11b event-INSERT rollback — 2026-10-07
+
+The unchanged qualification source `031d942585c540f2764c5125bb248ca7c59d833b` / src `1d8eb270f9b9f31b112c8f89f85694449d68ca58` passed Q11b. The real event writer observed the event/head INSERT and the trigger-created sole raw terminal-session ownership claim, rejected the exact ownership conflict, and rolled back event, head and trigger mutation while preserving the foreign queue row and restoring transaction/query-only state.
+
+The selected case passed with actual test-child and outer supervisor exit 0, no failures or remaining owned processes, and unchanged admitted source, dependencies, controls and runtime. The case took 494.816 seconds; the supervised stage took 497.502 seconds within its unchanged 1,320-second ceiling. Fourteen filtered appearances earn zero credit. This raises the source-specific distinct passing selection to 14, including the earlier 13 prerequisite cases; it does not complete the 21-case selection or Task2A.
+
+- Q11b terminal SHA-256: `ef0bf5dfd043bf75e9102825ca6756fc3e6aec12a42827b6721a252d64f315a3`
+- Q11b report SHA-256: `862ae96c99785a645c2ce3a1c61ae4627f6106f9ba3d5561b21f0a762249b497`
+
+A previous started Q11b attempt had no final terminal/report/outer-exit evidence and remains unqualified. A subsequent launcher stopped before starting its test child because the shared lock filesystem was read-only. Both attempts are preserved without pass or cleanup credit; the fresh successful run used the unchanged supervisor and original shared locks after their availability was checked.
+
+Q07/Q08, Q04/current-history coverage, the second genuine origin, shared-writer cutover, durable application/acknowledgement and terminal next-play admission remain pending. This update publishes only concise result metadata; no private database, domain payload, raw log or receipt bundle is included.
