@@ -47,6 +47,9 @@ const terminalColumns = {
   proposal_json: 'TEXT', proposal_hash: 'TEXT', result_json: 'TEXT',
 } as const;
 const rows = (db: Db) => foulApplicationOwnershipRows(db, terminalOwner, terminalColumns);
+// A fresh journal guard may prove this validated owner is empty before paying
+// for another Native session reconstruction. No result is cached across reads.
+export { rows as foulTerminalApplicationRows };
 const strings = (items: readonly unknown[]): string[] => items.filter((value): value is string => typeof value === 'string');
 const overlaps = (items: readonly unknown[], expected: ReadonlySet<string>): boolean => items.some(value => typeof value === 'string' && expected.has(value));
 const add = (target: Set<string>, items: readonly unknown[]): void => { for (const value of items) if (typeof value === 'string') target.add(value); };

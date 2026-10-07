@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "incremental": false
+  },
+  "include": [
+    "src/host/world/ActualFoulTerminalApplication.ts",
+    "src/host/world/ActualFoulTerminalApplicationEvidenceFromSqlite.ts",
+    "src/host/world/ActualFoulTerminalApplicationOwnership.ts",
+    "src/host/world/SqliteActualFoulTerminalApplicationStore.ts",
+    "src/host/world/SqliteActualFoulOfficialStore.ts",
+    "src/host/world/ActualFoulTerminalApplicationFixtures.test-support.ts",
+    "src/host/world/ActualFoulTerminalApplicationOwnership.test.ts",
+    "src/host/world/ActualFoulTerminalApplicationTransaction.test.ts"
+  ]
+}
