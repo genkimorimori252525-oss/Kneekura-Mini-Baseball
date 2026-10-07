@@ -1,3 +1,4 @@
+import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { prePitchRunnerContactPrimitives } from './PrePitchRunnerExecution';
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
@@ -202,25 +203,39 @@ export const openSqliteBattedWorldContactStore = (path: string, flights: Pick<Sq
   let closed = false;
   const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed batted World scope'); };
   const { read, readModel, derive, head, predecessor, sameModel, ownFlights } = battedWorldContactEvidenceFromSqlite(db);
+  // End each owned read snapshot before authority/peer callbacks or writes.
+  const reading = <T>(work: () => T): T => {
+    if (db.isTransaction) return work();
+    db.exec('BEGIN');
+    try { const value = withBattedWorldPhysicalReadTraversal(db, work); db.exec('COMMIT'); return value; }
+    catch (error) {
+      if (db.isTransaction) try { db.exec('ROLLBACK'); }
+      catch (cleanup) { throw new AggregateError([error, cleanup], 'batted World contact private read rollback failed', { cause: error }); }
+      throw error;
+    }
+  };
   return Object.freeze({
-    read(sourceId) { check(sourceId); return read(sourceId); },
+    read(sourceId) { check(sourceId); return reading(() => read(sourceId)); },
     accept(sourceId) {
-      check(sourceId); const prior = read(sourceId), raw = authority?.readAcceptedContact(sourceId) ?? null, s = raw === null ? null : input(raw, sourceId);
+      check(sourceId); const prior = reading(() => read(sourceId)), raw = authority?.readAcceptedContact(sourceId) ?? null, s = raw === null ? null : input(raw, sourceId);
       if (prior) {
         if (s && json(s) !== json(prior.source)) throw new Error('batted World commands are frozen differently');
-        const original = read(sourceId);
+        const original = reading(() => read(sourceId));
         if (!original || json(original) !== json(prior)) throw new Error('batted World original evidence changed during retry');
         return original;
       }
       if (!s) throw new Error('accepted batted World commands are missing');
-      const originalModel = readModel(s.modelSourceId), rawModel = authority?.readAcceptedModel(s.modelSourceId) ?? null;
+      const originalModel = reading(() => readModel(s.modelSourceId)), rawModel = authority?.readAcceptedModel(s.modelSourceId) ?? null;
       const m = rawModel === null ? originalModel : modelInput(rawModel, s.modelSourceId);
       if (!m) throw new Error('accepted batted World model is missing');
-      sameModel(m);
-      const flight = ownFlights.read(s.flightSourceId);
-      if (!flight) throw new Error('actual batted World flight is missing');
-      assertNoBattedWorldMotionOwner(db, flight.source.physicalPitchSourceId);
-      const value = derive(s, m, predecessor(s, flight.source.physicalPitchSourceId)); ownFlights.openFrame(value.flight.physicalPitch);
+      const { flight, value } = reading(() => {
+        sameModel(m);
+        const flight = ownFlights.read(s.flightSourceId);
+        if (!flight) throw new Error('actual batted World flight is missing');
+        assertNoBattedWorldMotionOwner(db, flight.source.physicalPitchSourceId);
+        const value = derive(s, m, predecessor(s, flight.source.physicalPitchSourceId)); ownFlights.openFrame(value.flight.physicalPitch);
+        return { flight, value };
+      });
       const peer = flights.read(s.flightSourceId);
       if (!peer || json(peer) !== json(value.flight)) throw new Error('batted World peer flight differs');
       db.exec('BEGIN IMMEDIATE');
