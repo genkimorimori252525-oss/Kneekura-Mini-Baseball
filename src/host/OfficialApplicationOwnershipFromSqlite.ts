@@ -81,11 +81,14 @@ const rowIdentities = (table: Table, row: Row, m: Metadata): Identity => {
  * playId nor a next-play activation number is an original-PA ownership claim. */
 const previousPlay = (m: Metadata, column: string, prefix: Path, playId: number) =>
   m.value(column, [...prefix, 'receipt', 'previousPlayId']).includes(playId)
-  || m.value(column, [...prefix, 'activation', 'previousPlayId']).includes(playId);
+  || m.value(column, [...prefix, 'activation', 'previousPlayId']).includes(playId)
+  || m.value(column, [...prefix, 'pendingPostPlay', 'previousPlayId']).includes(playId);
 const activationClaim = (row: Row, m: Metadata, scope: FoulTerminalApplicationScope, known: Known) =>
   identityClaim(matchActivationIdentities(m), known)
   || row.match_id === scope.official.gameId && (previousPlay(m, 'activation_json', [], scope.official.playId)
-    || m.value('activation_json', ['previousPlayId']).includes(scope.official.playId));
+    || m.value('activation_json', ['previousPlayId']).includes(scope.official.playId))
+  || m.value('activation_json', ['pendingPostPlay','matchId']).includes(scope.official.gameId)
+    && m.value('activation_json', ['pendingPostPlay','previousPlayId']).includes(scope.official.playId);
 
 /** A matching Match row is baseline evidence, not by itself an application.
  * Its prior-PA activation is legitimate history. This predicate only exposes
@@ -95,7 +98,8 @@ export const officialMatchActivationClaims = (db: Db, row: Row, scope: FoulTermi
 
 const sharedApplicationScope = (row: Row, m: Metadata, scope: FoulTerminalApplicationScope) => {
   const s = scope.official;
-  const game = row.match_id === s.gameId || m.value('result_json', ['result', 'gameId']).includes(s.gameId);
+  const game = row.match_id === s.gameId || m.value('result_json', ['result', 'gameId']).includes(s.gameId)
+    || m.value('result_json', ['pendingPostPlay','matchId']).includes(s.gameId);
   return game && previousPlay(m, 'result_json', [], s.playId);
 };
 const closureScope = (row: Row, m: Metadata, scope: FoulTerminalApplicationScope) => {
@@ -124,7 +128,8 @@ const closureScope = (row: Row, m: Metadata, scope: FoulTerminalApplicationScope
   }
   const game = row.game_id === s.gameId || m.value('proposal_json', ['gameId']).includes(s.gameId)
     || m.value('proposal_json', ['application', 'matchId']).includes(s.gameId)
-    || m.value('result_json', ['gameId']).includes(s.gameId);
+    || m.value('result_json', ['gameId']).includes(s.gameId)
+    || m.value('result_json', ['official','pendingPostPlay','matchId']).includes(s.gameId);
   return game && (previousPlay(m, 'proposal_json', ['expectedOfficial'], s.playId)
     || previousPlay(m, 'result_json', ['official'], s.playId));
 };

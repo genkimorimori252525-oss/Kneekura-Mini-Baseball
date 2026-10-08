@@ -1,3 +1,4 @@
+import { assertNoFoulTerminalNextPlay } from './FoulTerminalNextPlayGuard';
 import { actualLivePlayReadinessFromSqlite } from './ActualLivePlayReadinessFromSqlite';
 import { defensiveMetadataId as metadataId } from './ActualDefensiveMetadata';
 import { sqliteJsonMetadataNodes as metadataNodes } from './SqliteOwnershipMetadata';
@@ -211,6 +212,7 @@ export const actualLiveClosureApplicationRows = (db: ActualAdjudicationDb, appli
 };
 /** Additive admission fence: an applied Match is not complete actual-role readiness. */
 export const assertPriorActualLiveClosureCompleted = (db: ActualAdjudicationDb, applicationId: string | null, historical = false): void => {
+  assertNoFoulTerminalNextPlay(db, applicationId);
   if (applicationId === null) return;
   const installed = (name: string) => !!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(name);
   const columns = (name: string) => new Set(db.prepare(`PRAGMA table_info(${name})`).all().map(r => r.name));
