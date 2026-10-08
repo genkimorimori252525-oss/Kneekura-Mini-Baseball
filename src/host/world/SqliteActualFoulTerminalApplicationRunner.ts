@@ -9,11 +9,13 @@ import { actualLivePlayId as id } from './ActualLivePlayScope';
 import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
 import { assertFoulTerminalApplicationStorage, deriveFoulTerminalApplicationProposal,
   foulTerminalApplicationEvidenceFromSqlite, foulTerminalApplicationPin, foulTerminalPendingInput } from './ActualFoulTerminalApplicationEvidenceFromSqlite';
-import type { DurableFoulTerminalApplication, DurableFoulTerminalAppliedPending } from './ActualFoulTerminalApplication';
+import type { DurableFoulTerminalApplication, DurableFoulTerminalAppliedPending,
+  DurableFoulTerminalAcknowledgedApplication } from './ActualFoulTerminalApplication';
 
 export type SqliteActualFoulTerminalApplicationRunner = Readonly<{
   read(sourceId: string): DurableFoulTerminalApplication | null;
-  apply(sourceId: string): DurableFoulTerminalAppliedPending;
+  apply(sourceId: string): DurableFoulTerminalAppliedPending | DurableFoulTerminalAcknowledgedApplication;
+  acknowledge(sourceId: string): DurableFoulTerminalAcknowledgedApplication;
   close(): void;
 }>;
 const same = (actual: unknown, expected: unknown, message: string) => {
@@ -108,7 +110,7 @@ export const openSqliteActualFoulTerminalApplicationRunner = (path: string): Sql
       }
     }
   };
-  const transaction = <T>(sourceId: string, write: boolean, body: () => { value: T; changes: 0 | 3 }): T => {
+  const transaction = <T>(sourceId: string, write: boolean, body: () => { value: T; changes: 0 | 1 | 3 }): T => {
     check(sourceId);
     if (db.isTransaction) return retire(new Error('foul terminal runner has an unowned transaction'),[]);
     const setting = queryOnly(), before = counters(), savepoint = 'terminal_application_' + randomUUID().replaceAll('-','');
@@ -147,7 +149,7 @@ export const openSqliteActualFoulTerminalApplicationRunner = (path: string): Sql
         const before = proof(() => {
           const saved = owner.read(sourceId);
           if (!saved) throw new Error('foul terminal application queue is missing');
-          if (saved.status === 'OFFICIAL_APPLIED_PENDING_POST_PLAY') return { kind:'retry' as const,saved };
+          if (saved.status !== 'QUEUED') return { kind:'retry' as const,saved };
           const current = deriveFoulTerminalApplicationProposal(db,saved.source,'current');
           same(current,saved.proposal,'foul terminal current application proof differs from its immutable queue');
           return { kind:'apply' as const,saved,pin:foulTerminalApplicationPin(db,saved.proposal) };
@@ -169,6 +171,27 @@ export const openSqliteActualFoulTerminalApplicationRunner = (path: string): Sql
           return after;
         });
         return { value:saved,changes:3 };
+      });
+    },
+    acknowledge(sourceId: string) {
+      return transaction(sourceId,true,() => {
+        const before = proof(() => owner.prepareAcknowledgement(sourceId));
+        if (before.kind === 'retry') return { value:before.saved,changes:0 };
+        const columns = Object.keys(before.row);
+        const updated = db.prepare('UPDATE main.actual_foul_terminal_applications SET status=?,result_json=? WHERE rowid=? AND '
+          + columns.map(column => '"' + column.replaceAll('"','""') + '" IS ?').join(' AND '))
+          .run(before.expectedRow.status,before.expectedRow.result_json,before.rowid,...columns.map(column => before.row[column]));
+        if (updated.changes !== 1) throw new Error('foul terminal pending row changed before acknowledgement');
+        const saved = proof(() => {
+          const after = owner.read(sourceId);
+          if (!after || after.status !== 'OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY') throw new Error('foul terminal acknowledged checkpoint is missing');
+          const rowid = db.prepare('SELECT rowid AS value FROM main.actual_foul_terminal_applications WHERE source_id=?').get(sourceId)?.value;
+          if (rowid !== before.rowid) throw new Error('foul terminal acknowledged row identity changed');
+          same(foulTerminalApplicationPin(db,after.proposal),{ ...before.pin,terminal:[before.expectedRow] },
+            'foul terminal acknowledgement changed original owners or official mirrors');
+          return after;
+        });
+        return { value:saved,changes:1 };
       });
     },
     close() { if (!closed) { closed = true; db.close(); } },

@@ -1,4 +1,4 @@
-import type { PersistOfficialPendingNonLiveResult } from '../OfficialPendingPostPlay';
+import type { OfficialPendingOrigin, PersistOfficialPendingNonLiveResult } from '../OfficialPendingPostPlay';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
 import type { CanonicalPlateAppearanceTimeline } from '../../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
@@ -76,7 +76,24 @@ export type DurableFoulTerminalAppliedPending = Readonly<{
   source: AcceptedFoulTerminalApplication; proposal: FoulTerminalApplicationProposal;
   status: 'OFFICIAL_APPLIED_PENDING_POST_PLAY'; officialApplied: true; result: FoulTerminalAppliedResult;
 }>;
-export type DurableFoulTerminalApplication = DurableFoulTerminalApplicationQueue | DurableFoulTerminalAppliedPending;
+export type FoulTerminalOfficialAcknowledgement = Readonly<{
+  version: 'actual_foul_terminal_official_acknowledgement_v1'; acknowledgementId: string;
+  obligationKey: string; originalSuccessorKey: string; scope: FoulTerminalApplicationProposal['officialObligation']['scope'];
+  status: 'consumed'; consumer: OfficialPendingOrigin;
+  physicalEndReference: FoulOfficialEndReference; consumptionReference: FoulOwnerReference;
+  officialReference: AcceptedFoulTerminalApplication['officialReference'];
+  applicationReference: Readonly<{ owner: 'applications'; matchId: string; applicationId: string; closureId: string;
+    previousPlayId: number; durableRevision: number; requestHash: string; receiptHash: string }>;
+}>;
+export type FoulTerminalAcknowledgedResult = Readonly<{
+  sourceId: string; official: PersistOfficialPendingNonLiveResult; acknowledgement: FoulTerminalOfficialAcknowledgement;
+}>;
+export type DurableFoulTerminalAcknowledgedApplication = Readonly<{
+  source: AcceptedFoulTerminalApplication; proposal: FoulTerminalApplicationProposal;
+  status: 'OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY'; officialApplied: true; result: FoulTerminalAcknowledgedResult;
+}>;
+export type DurableFoulTerminalApplication = DurableFoulTerminalApplicationQueue | DurableFoulTerminalAppliedPending
+  | DurableFoulTerminalAcknowledgedApplication;
 export type SqliteActualFoulTerminalApplicationStore = Readonly<{
   evaluate(sourceId: string): FoulTerminalApplicationEvaluation;
   enqueue(sourceId: string): FoulTerminalApplicationPending | DurableFoulTerminalApplication;

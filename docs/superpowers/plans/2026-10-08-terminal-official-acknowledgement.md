@@ -79,10 +79,10 @@ If only a raw acknowledgement ID survives, discover its embedded Source ID for r
 
 **Files:** This plan; new `ActualFoulTerminalAcknowledgementMetadata.test.ts`, `ActualFoulTerminalAcknowledgement.acceptance.ts`, `ActualFoulTerminalAcknowledgementCutover.test-support.ts`, `ActualFoulTerminalAcknowledgementWire.test-support.ts`, acceptance-only config and focused compiler config. Existing pending tests/config remain unchanged.
 
-- [ ] Independently review this exact source/contract and test scope before production changes.
+- [x] Independently review this exact source/contract and test scope before production changes.
 - [ ] Add A01 genuine acceptance: pinned producer → fresh legacy-CHECK v3 copy → real queued read/apply → independent original/pending-mirror assertions → `GENUINE_PENDING_TERMINAL_ACKNOWLEDGE_API_MISSING`. Only after the method exists does GREEN prepare the second acknowledged-CHECK copy described above. Missing imports or prerequisite failures receive no RED credit.
 - [ ] Add metadata cases for ack-ID-only competitors, raw application-reference scope, duplicate/escaped keys/array ancestors, both next guards, earlier-PA preservation, exact schema refusal and legacy no-migration behavior.
-- [ ] After P17 and lane confirmation, run focused RED and retain exact command, source and controller terminal evidence.
+- [x] After P17 and lane confirmation, run focused RED and retain exact command, source and controller terminal evidence.
 
 ## Task 2: Minimal acknowledgement owner
 
@@ -108,3 +108,13 @@ If only a raw acknowledgement ID survives, discover its embedded Source ID for r
 Coordinator confirmed P11 baseline terminal `89de1c8e17c816716b31315cb7834f3a3345f23deaa45e82dbcd343e664afe38` and all three P17 rollback cases, terminal `7df524321fe5fe02389272f95744b246b9ee69a5f6251769a1c2b10e60787b85`, at unchanged base source with no remaining owned processes. Independent static review accepted the architecture subject to the RED-order, applied-copy provenance, schema-stage and rowid refinements incorporated above.
 
 Under a separately admitted private LIGHT lane, the metadata-only tests observed 11 intended RED assertions, then the minimal rejection/discovery repair passed 22 new and 18 unchanged metadata/guard cases. The focused compiler passed after one test-support type-inference repair. See `docs/verification/2026-10-08-terminal-acknowledgement-metadata.md` for exact source and bounded evidence. Genuine A01 runtime remains held and no production acknowledgement success behavior or schema capability exists yet.
+
+### Genuine A01 RED and implementation candidate
+
+At `c751ccd3fc2b79d933177a24a339653b4dfbb9ce`, source tree `5554e2fd59492b7eb4e509a746906259a40f09d7`, the separately admitted A01 Native run observed exactly `GENUINE_PENDING_TERMINAL_ACKNOWLEDGE_API_MISSING` after the real queued read, independent authenticated E/C, witnessed pending application and exact official mirrors. Supervisor terminal `e19a21d2c0925537b4d66e10e2719883dc2cc31b25ccc4b6c58ac482c819d057`, report `3ef45aea41e75974f0d02678f1b7a3b8f4fc1fc85d9932523ca352a075bd3196`: zero GREEN cases, no setup/controller failures or skips, unchanged four input groups and no remaining owned processes. The run used the explicitly pinned retained producer; it did not regenerate original evidence. This is the later checkpoint and supersedes the held-A01 status above.
+
+Only after that genuine RED was observed, the minimal success implementation was written. `prepareAcknowledgement(sourceId)` is an internal db-bound proof returning a proposed raw-row transition/pins, never a durable success receipt. The runner calls it only under its post-BEGIN IMMEDIATE query_only proof, executes the one full-row/rowid CAS, and obtains durable success solely from the authenticated post-write read. Compiler, genuine GREEN and fault/schema/wire qualification of this candidate remain pending until separately admitted.
+
+### Genuine success checkpoint
+
+The candidate subsequently passed the focused compiler, 46 LIGHT cases and genuine A01 GREEN at `2a0b332`, after a separately observed quoted-literal schema RED and fix. Test-only cut `767496c` added four early stage/schema refusals and ten raw public-wrapper cases; its compiler and 20 affected-file cases passed with production unchanged. Exact source attribution, terminal/report hashes, proved behavior and still-open fault/wire/schema gates are in `docs/verification/2026-10-08-terminal-acknowledgement-success-checkpoint.md`. Future retained-artifact test preparation is not qualification credit.
