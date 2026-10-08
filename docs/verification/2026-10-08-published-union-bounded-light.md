@@ -1,6 +1,8 @@
-# Reconstructed published union: bounded LIGHT evidence
+# Reconstructed published union: bounded source-attributed evidence
 
-On 2026-10-08 UTC, **80/80 fresh cases passed in six complete files** on reconstructed union commit `1b71e1058111e5af6380d4bcd421ebb50e9b2797`, full tree `07cb62f84b17e9302e85626d3454cbab7c0cd157`, `src` tree `b3b4e9aa53c142d26a1534a8ffdb0f5b9fdaf1a7`. This is only the prepared v2 selection's **B01 and B03**. Historical results receive no credit, and the lost combined candidate is not restored.
+Current qualification on unchanged `src` tree `b3b4e9aa53c142d26a1534a8ffdb0f5b9fdaf1a7` is **117 unique cases in 14 complete files plus the full root compiler**. Five separate test batches are attributed below; this is not a single whole-suite run. The first 80 cases remain on their original source cut.
+
+Initially, on 2026-10-08 UTC, **80/80 fresh cases passed in six complete files** on reconstructed union commit `1b71e1058111e5af6380d4bcd421ebb50e9b2797`, full tree `07cb62f84b17e9302e85626d3454cbab7c0cd157`, `src` tree `b3b4e9aa53c142d26a1534a8ffdb0f5b9fdaf1a7`. This initial result covers the prepared v2 selection's **B01 and B03**. Historical results receive no credit, and the lost combined candidate is not restored.
 
 | Batch | Complete files and fresh cases | Result | Peak aggregate RSS | Process wall |
 | --- | --- | --- | ---: | ---: |
@@ -44,6 +46,20 @@ The private compiler supervisor opened the original shared locks read-only and h
 
 ## Explicit remaining limits
 
-No other union test batch was run. **274 planned v2 cases in 40 files remain unqualified**; B22's one-shot physical prerequisite is separately excluded and unqualified with zero credit. Its unchanged source is included only in the static root compiler check. No later PR350–358 layer, including the latest PR354–358 work, is added or qualified here.
+The additional B02/B04/B05 results below reduce the remaining v2 selection to **237 planned cases in 32 files**. B22's one-shot physical prerequisite is separately excluded and unqualified with zero credit. Its unchanged source is included only in the static root compiler check. No later PR350–361 layer is added or qualified here.
 
 Every held stream remains unchanged, including runner semantic capture and batting inherited-Proxy repair. These results do not establish genuine physical/official foul completion, Native received-call decision/replan/motor wiring, whole-current, full Positive, real SAFE/review, same-PA resume, root completion, general autonomy or Career completion. Publication, merge and deployment are outside this local verification task.
+
+## Additional existing batches, 2026-10-08 03:20 UTC
+
+B04, B02 and B05 ran on documentation-only successor `38f4919675127d5f2f6bd34ade5cb74b816d24fa`, full tree `bf4066ae6b52092f5a26419f2aa0f88e4ef45827`, with the same source tree. All **37 cases in eight complete files passed**, without skips, failures, cancellation or surviving owned processes. Source/dependency/control/runtime censuses stayed unchanged; report hashes and exact selected names/counts were independently checked. The five batch inventories are disjoint, yielding the current 117-case total without rerunning or reattributing the earlier 80.
+
+| Batch | Actual coverage | Cases / files | Supervisor terminal SHA-256 |
+| --- | --- | ---: | --- |
+| B04 | Runtime input, real SQLite fence/registration/end transaction behavior and pure scheduled-event projection | 26 / 5 | `ad0dfba85d43cc5382d7546c2fb1e0ab6900e7c14023509f9ac5bad0d9563e4e` |
+| B02 | Real two-choice Manager history, durable selection/application/retry/reopen, historical corruption and writer-local INSERT rollback | 4 / 2 | `892da6e3a3cf15f022bbb79ef2b291df102b4fce1c38aa38f19830ec74d1ff65` |
+| B05 | Actual practice-origin timing adoption, separately measured NORMAL/QUICK practices, historical revision ceilings and writer-local rollback/reopen | 7 / 1 | `5fe541b7d8bb1183c138f435d43e638adbf194c26d6a02215e2122c8ef7e6789` |
+
+Each private stage used only new SQLite files under its own run directory, unchanged established test fixtures and explicit accepted fixture inputs. No retained private database or batted-world root fixture was used. B04's physical owner transaction fixtures retain their explicit mocks; B02/B05 use their real Manager/practice owners and do not imply a completed baseball game or Career. B05's declared synthetic assessment/calibration values are test inputs, not automatic production policies.
+
+The unchanged 512 MiB oldspace / measured 608 MiB heap / 768 MiB aggregate RSS / 180-second caps were retained, with one worker, private locks/caches, 7 GiB available-memory launch admission and a 6 GiB runtime reserve. B04/B02 peaked at 339,384/279,372 KiB; B05 peaked at 333,644 KiB and completed its process in 137.70 seconds. All three first attempts passed. Existing controls, shared Native locks, workflow files and source behavior were not changed. Raw reports and private control records remain outside the repository.
