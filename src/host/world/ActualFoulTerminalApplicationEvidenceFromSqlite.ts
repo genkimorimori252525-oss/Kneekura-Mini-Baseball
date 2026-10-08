@@ -314,12 +314,12 @@ const readFoulTerminalOriginalArchive = (db: DatabaseSync,
     if ((row.status !== 'QUEUED' || row.result_json !== null)
       && (row.status !== 'OFFICIAL_APPLIED_PENDING_POST_PLAY' || typeof row.result_json !== 'string')
       && (row.status !== 'OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY' || typeof row.result_json !== 'string')
-      && (row.status !== 'POST_PLAY_COMPLETED_CONTINUING' || typeof row.result_json !== 'string')
+      && ((row.status !== 'POST_PLAY_COMPLETED_CONTINUING' && row.status !== 'POST_PLAY_COMPLETED_FINAL') || typeof row.result_json !== 'string')
       || typeof row.source_json !== 'string') {
       throw new Error('foul terminal queue archive stage is unsupported');
     }
     if (row.status === 'OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY') assertFoulTerminalApplicationStorage(db,'acknowledgement');
-    if (row.status === 'POST_PLAY_COMPLETED_CONTINUING') assertFoulTerminalApplicationStorage(db,'completion');
+    if ((row.status === 'POST_PLAY_COMPLETED_CONTINUING' || row.status === 'POST_PLAY_COMPLETED_FINAL')) assertFoulTerminalApplicationStorage(db,row.status==='POST_PLAY_COMPLETED_FINAL'?'finalCompletion':'completion');
     const source = actualFoulTerminalApplicationInput(JSON.parse(row.source_json),sourceId);
     if (row.source_json !== json(source) || row.source_hash !== hash(source)) throw new Error('foul terminal queue Source archive differs');
     const proposal = withFoulTerminalOriginalScope(db,sourceId,String(row.game_id),Number(row.play_id),
@@ -332,7 +332,7 @@ const readFoulTerminalOriginalArchive = (db: DatabaseSync,
     }
     if (db.prepare('PRAGMA main.user_version').get()!.user_version !== 3) throw new Error('foul terminal applied stage requires schema version 3');
     const result = appliedResult(proposal);
-    if (row.status === 'POST_PLAY_COMPLETED_CONTINUING') {
+    if ((row.status === 'POST_PLAY_COMPLETED_CONTINUING' || row.status === 'POST_PLAY_COMPLETED_FINAL')) {
       const local = readFoulTerminalCompletionMirrors(db,sourceId);
       same(local.archive.proposal,proposal,'foul terminal completed original proposal differs');
       same({ sourceId:local.archive.result.sourceId,official:local.archive.result.official,acknowledgement:local.archive.result.acknowledgement },
@@ -365,7 +365,7 @@ export const foulTerminalAcknowledgementAncestryFromSqlite = (db: DatabaseSync) 
   read(sourceId: string) {
     const saved = readFoulTerminalOriginalArchive(db, sourceId);
     if (!saved) return null;
-    const evidence = saved.status === 'OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY' || saved.status === 'POST_PLAY_COMPLETED_CONTINUING'
+    const evidence = saved.status === 'OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY' || (saved.status === 'POST_PLAY_COMPLETED_CONTINUING' || saved.status === 'POST_PLAY_COMPLETED_FINAL')
       ? { source:saved.source,proposal:saved.proposal,officialApplied:saved.officialApplied,
         result:{ sourceId:saved.result.sourceId,official:saved.result.official,acknowledgement:saved.result.acknowledgement } } : null;
     return freeze({ archiveStage:saved.status,evidence });
@@ -377,7 +377,7 @@ export const foulTerminalAcknowledgementAncestryFromSqlite = (db: DatabaseSync) 
 export const foulTerminalApplicationEvidenceFromSqlite = (db: DatabaseSync) => {
   const read = (sourceId: string) => {
     const saved = readFoulTerminalOriginalArchive(db,sourceId);
-    return saved?.status === 'POST_PLAY_COMPLETED_CONTINUING'
+    return (saved?.status === 'POST_PLAY_COMPLETED_CONTINUING' || saved?.status === 'POST_PLAY_COMPLETED_FINAL')
       ? foulTerminalPostPlayCompletionEvidenceFromSqlite(db).read(sourceId) : saved;
   };
   return Object.freeze({ read,
@@ -392,7 +392,7 @@ export const foulTerminalApplicationEvidenceFromSqlite = (db: DatabaseSync) => {
         }
         const saved = read(sourceId);
         if (!saved || saved.status === 'QUEUED') throw new Error('foul terminal acknowledgement requires a durable pending application');
-        if (saved.status === 'OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY' || saved.status === 'POST_PLAY_COMPLETED_CONTINUING') return { kind:'retry' as const,saved };
+        if (saved.status === 'OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY' || (saved.status === 'POST_PLAY_COMPLETED_CONTINUING' || saved.status === 'POST_PLAY_COMPLETED_FINAL')) return { kind:'retry' as const,saved };
         const row = db.prepare('SELECT * FROM main.actual_foul_terminal_applications WHERE source_id=?').get(sourceId)!;
         const rowid = db.prepare('SELECT rowid AS value FROM main.actual_foul_terminal_applications WHERE source_id=?').get(sourceId)?.value;
         if (typeof rowid !== 'number' || !Number.isSafeInteger(rowid)) throw new Error('foul terminal acknowledgement row identity differs');

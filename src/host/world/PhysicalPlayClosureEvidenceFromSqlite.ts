@@ -103,6 +103,7 @@ const readPhysicalClosureScoringHistoryRows = (db: PhysicalClosureDb, frame: Rea
       // independently authenticated completed owner and all original effects
       // may supply a historical record; generic legacy writers stay blocked.
       const completed=foulTerminalPostPlayCompletionEvidenceFromSqlite(db as DatabaseSync).read(row.closure_id);
+      if(completed&&('finalResult'in completed.result.completion||completed.status==='POST_PLAY_COMPLETED_FINAL'))throw new Error('terminal final result cannot precede a later play');
       if(!completed)throw new Error('terminal completion scoring history owner is missing');
       const p=completed.proposal,c=completed.result.completion,receipt=completed.result.official.receipt;
       const official=foulTerminalCompletedOfficial(completed.result.official,c),score=JSON.parse(scored.result_json) as PersistedOfficialScoring;

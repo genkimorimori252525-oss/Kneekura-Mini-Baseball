@@ -1,3 +1,5 @@
+import type { AcceptedFoulTerminalPostPlayBoundary } from './ActualFoulTerminalPostPlayBoundary';
+import type { OfficialGameResult } from '../../core/world/competition/OfficialGameCompletion';
 import type { CanonicalWorldSnapshot } from '../../core/model/CanonicalWorldSnapshot';
 import type { NextNonLivePlateAppearanceActivation } from '../../core/adjudication/NonLiveOfficialApplication';
 import type { PersistOfficialPendingNonLiveResult } from '../OfficialPendingPostPlay';
@@ -29,20 +31,34 @@ export type FoulTerminalPostPlayCompletionPayload = Readonly<{
   controllerRetirement:FoulTerminalControllerRetirement; activation:NextNonLivePlateAppearanceActivation; nextWorld:CanonicalWorldSnapshot;
 }>;
 export type FoulTerminalPostPlayCompletion = FoulTerminalPostPlayCompletionPayload & Readonly<{ snapshotHash:string }>;
+export type FoulTerminalIncomingDefender = Readonly<{playerId:string;personId:string;bindingHash:string;workloadRevision:number;workloadHash:string}>;
+export type FoulTerminalFinalControllerRetirement = Omit<FoulTerminalControllerRetirement,'version'|'nextPlayId'> & Readonly<{version:'actual_foul_terminal_controller_retirement_v2'}>;
+type BoundaryCommon = Omit<FoulTerminalPostPlayCompletionPayload,'version'|'source'|'controllerRetirement'|'activation'|'nextWorld'> & Readonly<{
+ version:'actual_foul_terminal_post_play_completion_v2';snapshotHash:string;
+}>;
+export type FoulTerminalHalfChangeCompletion = BoundaryCommon & Readonly<{kind:'half_change_continuing';source:Extract<AcceptedFoulTerminalPostPlayBoundary,{kind:'half_change_continuing'}>;
+ controllerRetirement:FoulTerminalControllerRetirement;incomingDefenders:readonly FoulTerminalIncomingDefender[];
+ activation:NextNonLivePlateAppearanceActivation;nextWorld:CanonicalWorldSnapshot}>;
+export type FoulTerminalFinalCompletion = BoundaryCommon & Readonly<{kind:'game_final';source:Extract<AcceptedFoulTerminalPostPlayBoundary,{kind:'game_final'}>;
+ controllerRetirement:FoulTerminalFinalControllerRetirement;finalResult:OfficialGameResult;
+ scoringHistoryReference:Readonly<{throughDurableRevision:number;earlier:readonly Readonly<{applicationId:string;scoringApplicationId:string;closureRowHash:string;scoringRowHash:string}>[]}>}>;
+export type FoulTerminalBoundaryCompletion = FoulTerminalHalfChangeCompletion|FoulTerminalFinalCompletion;
+export type FoulTerminalCompletion = FoulTerminalPostPlayCompletion|FoulTerminalBoundaryCompletion;
+export type FoulTerminalContinuingCompletion = FoulTerminalPostPlayCompletion|FoulTerminalHalfChangeCompletion;
 export type FoulTerminalPostPlayCompletionReference = Readonly<{
-  version:'actual_foul_terminal_post_play_completion_v1'; completionId:string; terminalSourceId:string;
+  version:FoulTerminalCompletion['version']; completionId:string; terminalSourceId:string;
   setupSourceId:string; sourceHash:string; snapshotHash:string;
 }>;
 export type PersistOfficialCompletedTerminalResult = PersistOfficialPendingNonLiveResult & Readonly<{
-  completion:FoulTerminalPostPlayCompletionReference; activation:NextNonLivePlateAppearanceActivation; nextWorld:CanonicalWorldSnapshot;
-}>;
-export type FoulTerminalCompletedResult = FoulTerminalAcknowledgedResult & Readonly<{ completion:FoulTerminalPostPlayCompletion }>;
+  completion:FoulTerminalPostPlayCompletionReference;
+}> & (Readonly<{activation:NextNonLivePlateAppearanceActivation;nextWorld:CanonicalWorldSnapshot}>|Readonly<{finalResult:OfficialGameResult}>);
+export type FoulTerminalCompletedResult = FoulTerminalAcknowledgedResult & Readonly<{ completion:FoulTerminalCompletion }>;
 export type DurableFoulTerminalCompletedApplication = Readonly<{
   source:AcceptedFoulTerminalApplication; proposal:FoulTerminalApplicationProposal;
-  status:'POST_PLAY_COMPLETED_CONTINUING'; officialApplied:true; result:FoulTerminalCompletedResult;
+  status:'POST_PLAY_COMPLETED_CONTINUING'|'POST_PLAY_COMPLETED_FINAL'; officialApplied:true; result:FoulTerminalCompletedResult;
 }>;
 export type FoulTerminalReadinessReference = Readonly<{
-  version:'actual_foul_terminal_next_play_readiness_v1'; terminalSourceId:string; setupSourceId:string;
+  version:'actual_foul_terminal_next_play_readiness_v1'|'actual_foul_terminal_next_play_readiness_v2'; terminalSourceId:string; setupSourceId:string;
   completionId:string; snapshotHash:string; applicationId:string; gameId:string; previousPlayId:number;
 }>;
 /** Internal authenticated effect view for readiness; the settlement wire stays
