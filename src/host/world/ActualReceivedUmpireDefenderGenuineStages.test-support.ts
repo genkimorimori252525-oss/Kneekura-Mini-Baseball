@@ -17,6 +17,7 @@ export type ReceivedGenuineCheckpoint = Readonly<{stage:ReceivedGenuineStage;dat
   terminal:ReceivedGenuinePin;report:ReceivedGenuinePin;inspection:ReceivedGenuinePin;sidecars:readonly ReceivedGenuineSidecar[]}>;
 export type ReceivedGenuineInput = Readonly<{schema:'received_live_genuine_stage_input_v1';state:'released_for_received_live_genuine_stage';
   stage:ReceivedGenuineStage;reviewedImplementationHead:string;reviewedImplementationSrc:string;root:ReceivedGenuinePin;
+  historicalEnrollment:Readonly<{checkpoint:ReceivedGenuinePin;config:ReceivedGenuinePin;input:ReceivedGenuinePin}>;
   predecessor:Readonly<{database:ReceivedGenuinePin;sidecars:readonly ReceivedGenuineSidecar[]}>;history:readonly ReceivedGenuineCheckpoint[]}>;
 export const receivedGenuineSha=(value:Uint8Array|string)=>createHash('sha256').update(value).digest('hex');
 export const receivedGenuineCanonical=(value:unknown):string=>JSON.stringify(value,(_key,item:unknown)=>item!==null&&typeof item==='object'&&!Array.isArray(item)
@@ -98,8 +99,24 @@ export const receivedGenuineReadInput=(path:string)=>{
   expect(isAbsolute(path)).toBe(true);expect(realpathSync(path)).toBe(path);
   const input=JSON.parse(readFileSync(path,'utf8')) as ReceivedGenuineInput;
   expect(input.schema).toBe('received_live_genuine_stage_input_v1');expect(input.state,'runtime release required before any database copy/open').toBe('released_for_received_live_genuine_stage');
-  expect(input.reviewedImplementationHead).toBe('83d365e9c51dae2dd966324cd31222e086e06ffd');expect(input.reviewedImplementationSrc).toBe('9bc84012aecef8f1016589eede5be04eeea058cb');
+  expect(input.reviewedImplementationHead).toBe('231b1a7fcfcb769d095caf64a304919e3b740c29');expect(input.reviewedImplementationSrc).toBe('2d22221b289fba2e59919c8b689ec546c23413ff');
   const index=receivedGenuineStages.indexOf(input.stage);expect(index).toBeGreaterThanOrEqual(0);expect(input.history).toHaveLength(index);
+  // The accepted enrollment keeps its exact old implementation/harness lineage.
+  // This continuation may neither relabel that receipt nor reconstruct stage zero.
+  expect(index).toBeGreaterThanOrEqual(1);
+  const inherited=input.historicalEnrollment;
+  expect(inherited.checkpoint.sha256).toBe('92e22dc1562d3be6953debf1af457b14c4347f7934755ac847105e46582f640a');
+  expect(inherited.config.sha256).toBe('0b9dcabe64e0dd8bceef0d10c07838386f74386473c003e0545b7e914d1ebebe');
+  expect(inherited.input.sha256).toBe('69be2f26ed54d9c4a40030af3491a3433ce9cd3f7054a9ea62e7ef547f63d711');
+  const historicalCheckpoint=readJson(inherited.checkpoint),historicalConfig=readJson(inherited.config),historicalInput=readJson(inherited.input);
+  expect(input.history[0]).toEqual(historicalCheckpoint);
+  expect(historicalInput).toMatchObject({stage:'enrollment',reviewedImplementationHead:'83d365e9c51dae2dd966324cd31222e086e06ffd',
+    reviewedImplementationSrc:'9bc84012aecef8f1016589eede5be04eeea058cb',candidateHead:'0c1a5820975e1692d40e98a5d6eab9cdafd932e9',candidateSrc:'6641a61d87fcd89027a6d913a391ace50aceaa43'});
+  expect(historicalConfig.sourceIdentity).toMatchObject({reviewedHead:historicalInput.reviewedImplementationHead,reviewedSrc:historicalInput.reviewedImplementationSrc,
+    candidateHead:historicalInput.candidateHead,candidateSrc:historicalInput.candidateSrc});
+  expect(historicalConfig.artifactEnvironment.BASEBALL_RECEIVED_LIVE_INPUT).toBe(inherited.input.path);
+  expect(readJson(historicalCheckpoint.terminal)).toMatchObject({configSha256:inherited.config.sha256,
+    before:{source:{sha256:historicalConfig.inputs.source.sha256}},reviewedSourceAuthentication:{head:historicalInput.reviewedImplementationHead,src:historicalInput.reviewedImplementationSrc,files:1971}});
   const root=readJson(input.root),policyProof=readJson(root.receipt),terminal=readJson(root.terminal),policyInput=readJson(root.policyInputPlan);
   expect(root.schema).toBe('received_live_genuine_root_v1');
   expect(root.database.sha256).toBe('3e21f81b1cbaef5cc1148b1e7c39d38ab70d5e24bc89535ed739486067779158');expect(root.receipt.sha256).toBe('25ce28e8eeff879168a32068a27e741b43fd3bc903872f8cac9a16a472a4090c');
@@ -123,7 +140,8 @@ export const receivedGenuineReadInput=(path:string)=>{
       expect(prior.originalRoleSealJson).toBe(receivedGenuineCanonical(prior.originalRoleSeal));expect(prior.originalRoleSealHash).toBe(receivedGenuineHash(prior.originalRoleSeal));}
     else {expect(prior.originalRoleSeal).toBeNull();expect(prior.originalRoleSealJson).toBeNull();expect(prior.originalRoleSealHash).toBe(readJson(input.history[0].receipt).originalRoleSealHash);}
     expect(prior).toMatchObject({schema:'received_live_genuine_stage_receipt_v1',stage:checkpoint.stage,outputDatabaseSha256:checkpoint.database.sha256,rootReceiptSha256:root.receipt.sha256,
-      reviewedImplementationHead:input.reviewedImplementationHead,reviewedImplementationSrc:input.reviewedImplementationSrc,newMotorOrAdoption:false,physicalAdvancement:false,closureCredit:0});
+      reviewedImplementationHead:position===0?historicalInput.reviewedImplementationHead:input.reviewedImplementationHead,
+      reviewedImplementationSrc:position===0?historicalInput.reviewedImplementationSrc:input.reviewedImplementationSrc,newMotorOrAdoption:false,physicalAdvancement:false,closureCredit:0});
     expect(prior.inputDatabaseSha256).toBe(position?input.history[position-1].database.sha256:root.database.sha256);
     expect(prior.predecessorReceiptSha256).toBe(position?input.history[position-1].receipt.sha256:root.receipt.sha256);
     expect(closed).toMatchObject({status:'passed',originalChildExit:0,failures:[],remainingOwnedProcesses:[],tests:{passedCases:1,expectedFailedCases:0,skipped:[],reportSha256:checkpoint.report.sha256}});
