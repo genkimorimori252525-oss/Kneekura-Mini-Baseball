@@ -1,0 +1,9 @@
+# Genuine ten-TOTAL checkpoint
+
+The canonical ten-TOTAL operation has now passed its one-case genuine gate from the previously qualified empty prefix. It created exactly ten ordinary TOTAL rows on one private Native connection, preserved every prior row/rowid/schema and the blocked reservation, and returned the ten observed owner references. Exact retry and normal authority-free reopen passed with closed handles/sidecars and unchanged inputs. No view, global workload, physical pitch, right consumption or release was written.
+
+The qualifying runtime remains `bf21d811aec8fb172baaa10c877da1c7291847d9` / source `b6b8d489b9da2309b908a84add6d4825a3fbbde3`. The three-file genuine harness is `aa414d01ad20b6b78c68d10c808b9e0c1237f3a7`, with the exact previously qualified generated catalog materialized. The final controller recorded one pass, no skips, both child exits 0, unchanged four input groups and no survivors. This is not a whole-project test or production calibration claim.
+
+The earlier missing-catalog compiler failure, maintenance-interrupted attempt and memory-admission refusal remain distinct uncredited records. The interrupted attempt had eight uncommitted INSERT observations, no terminal or returned result, an unchanged prefix main file and empty WAL. A bounded query-only inspection of an exclusive private copy confirmed zero durable TOTAL/view rows before the fresh retry used the original qualified prefix. No process-reap receipt or success was reconstructed for the interrupted attempt.
+
+The immediate genuine dependency is one cumulative execution view using these observed references; that separate owner has not yet been accepted. Dispatch Source validators are separately qualified, while prerequisite owners and actual consumers continue under the approved first-pitch contract. No physical or same-PA-resume completion is claimed.

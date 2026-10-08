@@ -8,7 +8,7 @@ import { assertSamePaStorage,assertNoSamePaPlayerReservation,assertNoSamePaWorkR
 import { assertSamePaRegistrationBeforeWork } from './ActualLiveRuntimeRegistration';
 import { assertNoActualRoleWorkloadCharge,assertNoLegacyPitchWorkloadCharge } from './ActualRoleWorkloadChargeGuard';
 type Db=Pick<DatabaseSync,'prepare'>;
-export const deriveSamePlateAppearanceEnrollment = (db:Db,raw:unknown,ownSourceId?:string):SamePlateAppearanceEnrollmentResult => {
+const deriveEnrollmentBasis = (db:Db,raw:unknown,ownSourceId?:string) => {
   assertSamePaStorage(db);const source=samePlateAppearanceEnrollmentInput(raw);
   const actor=readPhysicalPlateAppearanceActorFromSqlite(db,source.actorReference.sourceId);
   if(!actor)throw new Error('same-PA original actor missing');
@@ -47,13 +47,17 @@ export const deriveSamePlateAppearanceEnrollment = (db:Db,raw:unknown,ownSourceI
     if(!person||person.personId!==binding.personId||person.sourceId!==binding.personLinkSourceId)throw new Error('same-PA original Person differs');
     return [{binding,personHash:hash(person),baselineSourceId:ref.baselineSourceId,baselineSourceHash:hash(JSON.parse(String(bases[0].source_json))),state}];
   });
-  if(missingBaselinePlayerIds.length)return freeze({kind:'pending',missingBaselinePlayerIds});
-  return freeze({kind:'reserved',source,careerId:actor.binding.careerId,gameId:scope.gameId,playId:scope.playId,actorHash:hash(actor),
+  if(missingBaselinePlayerIds.length)return {actor,result:freeze({kind:'pending' as const,missingBaselinePlayerIds})};
+  return {actor,result:freeze({kind:'reserved' as const,source,careerId:actor.binding.careerId,gameId:scope.gameId,playId:scope.playId,actorHash:hash(actor),
     officialRevision:actor.officialRevision,worldHash:hash(actor.world),fixtureHash:actor.fixtureHash,participants,
-    firstPitch:{physicalPitchSourceId:source.firstPhysicalPitchSourceId,state:'blocked_execution_basis',predecessorResumeSourceId:null,consumingSourceId:null}});
+    firstPitch:{physicalPitchSourceId:source.firstPhysicalPitchSourceId,state:'blocked_execution_basis' as const,predecessorResumeSourceId:null,consumingSourceId:null}})};
 };
-export const readSamePlateAppearanceEnrollment = (db:Db,sourceId:string) => {
+export const deriveSamePlateAppearanceEnrollment = (db:Db,raw:unknown,ownSourceId?:string):SamePlateAppearanceEnrollmentResult => deriveEnrollmentBasis(db,raw,ownSourceId).result;
+/** Returns the actor from this exact authentication, for private read-only
+ * execution assembly. It accepts no cached actor or caller proof. */
+export const readSamePlateAppearanceEnrollmentBasis = (db:Db,sourceId:string) => {
   const row=samePaEnrollmentRow(db,sourceId);if(!row)return null;
-  const value=authenticateSamePaRow(db,row),derived=deriveSamePlateAppearanceEnrollment(db,value.source,sourceId);
-  if(json(value)!==json(derived))throw new Error('same-PA enrollment prerequisites changed');return freeze(value);
+  const value=authenticateSamePaRow(db,row),basis=deriveEnrollmentBasis(db,value.source,sourceId);
+  if(json(value)!==json(basis.result))throw new Error('same-PA enrollment prerequisites changed');return {enrollment:freeze(value),actor:basis.actor};
 };
+export const readSamePlateAppearanceEnrollment = (db:Db,sourceId:string) => readSamePlateAppearanceEnrollmentBasis(db,sourceId)?.enrollment??null;
