@@ -10,7 +10,8 @@ import { assertReservedPaClaims } from './SamePlateAppearanceProvisionalClaimGua
 import { assertSamePaAssessmentOwnership } from './SamePlateAppearanceAssessmentOwnership';
 import { samePaPrefixInput,type SamePaReference,type SamePaExecutionLineage,type SamePaEmptyWorkPrefix } from './SamePlateAppearanceWorkPrefix';
 import { samePaTotalInput,type SamePaCumulativeTotal } from './SamePlateAppearanceCumulativeTotal';
-import { samePaViewInput,samePaAssessmentSetHash,type SamePaExecutionView } from './SamePlateAppearanceExecutionView';
+import { samePaViewInput,samePaAssessmentSetHash,type SamePaExecutionView,type SamePaTotalReference } from './SamePlateAppearanceExecutionView';
+import { samePaTotalSetSources,samePaTotalSetReferences,type SamePaTotalSet } from './SamePlateAppearanceTotalSet';
 export type SamePaExecutionKind='prefix'|'total'|'view';
 export type SamePaExecutionResult=SamePaEmptyWorkPrefix|SamePaCumulativeTotal|SamePaExecutionView;
 export const samePaExecutionTables={prefix:'reserved_pa_work_prefixes',total:'reserved_pa_total_assessments',view:'reserved_pa_execution_views'} as const;
@@ -28,7 +29,10 @@ export const samePaExecutionRow=(value:SamePaExecutionResult):Record<string,stri
 
 /** A context is a lexical value of this one read-only proof. It is never
  * exported, returned, accepted from a caller, or retained across owner calls. */
-export const proveSamePaExecution=(db:DatabaseSync,request:Readonly<{kind:SamePaExecutionKind;sourceId:string;source?:unknown}>):SamePaExecutionResult|null=>{
+type SingleRequest=Readonly<{kind:SamePaExecutionKind;sourceId:string;source?:unknown}>;
+type SetRequest=Readonly<{kind:'total_set';sources?:readonly unknown[];references?:readonly SamePaTotalReference[];expectedPresent?:readonly string[]}>;
+type SetProof=Readonly<{value:SamePaTotalSet;presentSourceIds:readonly string[]}>;
+const prove=(db:DatabaseSync,request:SingleRequest|SetRequest):SamePaExecutionResult|SetProof|null=>{
   const counters=()=>json({transaction:db.isTransaction,query:db.prepare('PRAGMA query_only').get()!.query_only,
     changes:db.prepare('SELECT total_changes() AS n').get()!.n,main:db.prepare('PRAGMA main.schema_version').get()!.schema_version,temp:db.prepare('PRAGMA temp.schema_version').get()!.schema_version});
   if(!db.isTransaction||db.prepare('PRAGMA query_only').get()!.query_only!==1)throw new Error('same-PA execution requires a private read-only proof');
@@ -91,7 +95,35 @@ export const proveSamePaExecution=(db:DatabaseSync,request:Readonly<{kind:SamePa
   };
   try{
     assertReservedPaStorage(db);assertReservedPaClaims(db);
+    if(request.kind==='total_set'){
+      // The lexical assembly is shared only inside this read-only proof. Every
+      // declared input is rederived, even while some durable rows are absent.
+      const refs=request.references===undefined?undefined:samePaTotalSetReferences(request.references);
+      const sources=samePaTotalSetSources(request.sources??refs!.map(ref=>{
+        const total=referenced('total',ref.assessmentReference) as SamePaCumulativeTotal;
+        same(total.source.participantReference.playerId,ref.playerId);return total.source;
+      }));
+      const first=sources[0],l=lineage(first.enrollmentReference);
+      same(sources.map(s=>s.participantReference.playerId),l.participantReferences.map(p=>p.playerId).sort());
+      const presentSourceIds:string[]=[],totals:SamePaCumulativeTotal[]=[];
+      for(const source of sources){
+        same(source.enrollmentReference,first.enrollmentReference);same(source.prefixReference,first.prefixReference);
+        const total=derive('total',source) as SamePaCumulativeTotal,stored=read('total',source.sourceId);
+        const canonical=db.prepare('SELECT source_id FROM main.reserved_pa_total_assessments WHERE enrollment_source_id=? AND prefix_source_id=? AND player_id=?')
+          .get(source.enrollmentReference.sourceId,source.prefixReference.sourceId,source.participantReference.playerId);
+        if(canonical&&canonical.source_id!==source.sourceId)throw new Error('same-PA canonical TOTAL owner already exists; Source alias rejected');
+        if(stored){same(stored,total);presentSourceIds.push(source.sourceId);}totals.push(total);
+      }
+      if(request.expectedPresent!==undefined)same(presentSourceIds,[...request.expectedPresent].sort((a,b)=>sources.findIndex(s=>s.sourceId===a)-sources.findIndex(s=>s.sourceId===b)));
+      else if(presentSourceIds.length!==0&&presentSourceIds.length!==10)throw new Error('same-PA TOTAL set has mixed existing rows; partial set cannot be repaired');
+      const participantTotalReferences=totals.map(total=>({playerId:total.source.participantReference.playerId,assessmentReference:samePaExecutionReference('reserved_pa_total_assessments',total)}));
+      if(refs)same(participantTotalReferences,refs);
+      check();return freeze({value:{kind:'total_set',totals,participantTotalReferences},presentSourceIds});
+    }
     const value=request.source===undefined?read(request.kind,request.sourceId):derive(request.kind,samePaExecutionInput(request.kind,request.source,request.sourceId));
     check();return value;
   }finally{active=false;bases.clear();values.clear();}
 };
+
+export const proveSamePaExecution=(db:DatabaseSync,request:SingleRequest):SamePaExecutionResult|null=>prove(db,request) as SamePaExecutionResult|null;
+export const proveSamePaTotalSet=(db:DatabaseSync,request:Omit<SetRequest,'kind'>):SetProof=>prove(db,{...request,kind:'total_set'}) as SetProof;

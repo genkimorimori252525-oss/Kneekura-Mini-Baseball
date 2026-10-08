@@ -3,10 +3,14 @@ import { randomUUID } from 'node:crypto';
 import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { reservedPaSchema,assertReservedPaStorage } from './SamePlateAppearanceExecutionStorage';
-import { proveSamePaExecution,samePaExecutionTables,samePaExecutionInput,samePaExecutionRow,type SamePaExecutionKind,type SamePaExecutionResult } from './SamePlateAppearanceExecutionFromSqlite';
+import { assertReservedPaClaims } from './SamePlateAppearanceProvisionalClaimGuard';
+import { actualLivePlayOwnerIdentityRow } from './ActualLivePlayOwnerMetadata';
+import { proveSamePaExecution,proveSamePaTotalSet,samePaExecutionTables,samePaExecutionInput,samePaExecutionRow,type SamePaExecutionKind,type SamePaExecutionResult } from './SamePlateAppearanceExecutionFromSqlite';
 import { samePaText,type SamePaEmptyWorkPrefix } from './SamePlateAppearanceWorkPrefix';
 import type { SamePaCumulativeTotal } from './SamePlateAppearanceCumulativeTotal';
-import type { SamePaExecutionView } from './SamePlateAppearanceExecutionView';
+import type { SamePaExecutionView,SamePaTotalReference } from './SamePlateAppearanceExecutionView';
+import { samePaTotalInput } from './SamePlateAppearanceCumulativeTotal';
+import { assertSamePaTotalSetDistinct,samePaTotalSetIds,samePaTotalSetSources,samePaTotalSetReferences,type SamePaTotalSet } from './SamePlateAppearanceTotalSet';
 type Authority=Readonly<{readAcceptedPrefix?(sourceId:string):unknown;readAcceptedTotal?(sourceId:string):unknown;readAcceptedView?(sourceId:string):unknown}>;
 type Pending=Readonly<{kind:'pending';missingAcceptedSourceIds:readonly string[]}>;
 const same=(a:unknown,b:unknown)=>{if(json(a)!==json(b))throw new Error('same-PA execution write accounting or frozen dependency differs');};
@@ -39,9 +43,12 @@ export const openSqliteSamePlateAppearanceExecutionStore=(path:string,authority?
       db.exec('SAVEPOINT '+identity);identityReady=true;account();proof(()=>assertReservedPaStorage(db));
       const value=body(proof,step);proof(()=>assertReservedPaStorage(db));identityCheck();account();db.exec('RELEASE '+identity);identityReady=false;committing=true;db.exec('COMMIT');
       if(db.isTransaction||setting()!==originalSetting)throw new Error('same-PA execution commit changed');account();
-      if(verify){db.exec('BEGIN');db.exec('PRAGMA query_only=1');
-        try{withBattedWorldPhysicalReadTraversal(db,()=>verify(value));account();if(!db.isTransaction||setting()!==1)throw new Error('same-PA execution durable proof changed');}
-        finally{db.exec('PRAGMA query_only='+originalSetting);}
+      if(verify){
+        // The committed snapshot owns a fresh marker as well. The inner
+        // physical traversal releases its marker before returning, so retain
+        // this outer identity until the independent proof has fully closed.
+        db.exec('BEGIN');db.exec('SAVEPOINT '+identity);identityReady=true;
+        proof(()=>verify(value));identityCheck();account();db.exec('RELEASE '+identity);identityReady=false;
         db.exec('COMMIT');if(db.isTransaction||setting()!==originalSetting)throw new Error('same-PA execution durable commit changed');account();}
       return value;
     }catch(error){const cleanup:unknown[]=[];uncertain ||= committing;
@@ -81,7 +88,47 @@ export const openSqliteSamePlateAppearanceExecutionStore=(path:string,authority?
       });if(!saved)throw new Error('same-PA execution accepted row missing');return saved;
     },value=>same(proveSamePaExecution(db,{kind,sourceId:id}),value));
   };
-  return Object.freeze({readPrefix:(id:string)=>read('prefix',id) as SamePaEmptyWorkPrefix|null,readTotal:(id:string)=>read('total',id) as SamePaCumulativeTotal|null,readView:(id:string)=>read('view',id) as SamePaExecutionView|null,
+  const ownedRows=()=>Object.keys(reservedPaSchema).map(table=>db.prepare(`SELECT * FROM main.${table} ORDER BY rowid`).all());
+  const readTotalSet=(references:readonly SamePaTotalReference[]):SamePaTotalSet=>{
+    check();const refs=samePaTotalSetReferences(references);
+    return run(false,proof=>proof(()=>proveSamePaTotalSet(db,{references:refs}).value));
+  };
+  const acceptTotalSet=(sourceIds:readonly string[]):SamePaTotalSet|Pending=>{
+    check();const ids=samePaTotalSetIds(sourceIds),missing:string[]=[],captured=[];
+    for(const id of ids){const raw=authority?.readAcceptedTotal?.(id)??null;if(raw===null)missing.push(id);else captured.push(samePaTotalInput(raw,id));}
+    // Validate available Sources before returning pending; never synthesize an
+    // accepted zero assessment for a missing input.
+    assertSamePaTotalSetDistinct(captured);
+    if(missing.length){
+      run(false,proof=>proof(()=>{
+        if(!assertReservedPaStorage(db))return;
+        assertReservedPaClaims(db);
+        const present=ids.filter(id=>actualLivePlayOwnerIdentityRow(db,samePaExecutionTables.total,id)!==null).length;
+        if(present!==0&&present!==10)throw new Error('same-PA TOTAL set has mixed existing rows; partial set cannot be repaired');
+      }));
+      return Object.freeze({kind:'pending',missingAcceptedSourceIds:Object.freeze(missing)});
+    }
+    const sources=samePaTotalSetSources(captured);
+    const preflight=run(false,proof=>proof(()=>({proof:proveSamePaTotalSet(db,{sources}),rows:ownedRows()})));
+    if(preflight.proof.presentSourceIds.length===10)return preflight.proof.value;
+    return run(true,(proof,step)=>{
+      const acquired=proof(()=>({proof:proveSamePaTotalSet(db,{sources}),rows:ownedRows()}));same(acquired,preflight);
+      const expectedRows=acquired.rows.map(rows=>[...rows]),present:string[]=[],values=acquired.proof.value;
+      const table=samePaExecutionTables.total,index=Object.keys(reservedPaSchema).indexOf(table);
+      for(const total of values.totals){
+        const row=samePaExecutionRow(total);
+        // The acquired proof, then each adjacent post-INSERT proof, is the next
+        // write's precondition. step rechecks identity and exact counters before
+        // the INSERT; no callback or database effect intervenes.
+        step(()=>db.prepare(`INSERT INTO main.${table} VALUES(${Object.keys(row).map(()=>'?').join(',')})`).run(...Object.values(row)),1);
+        present.push(total.source.sourceId);expectedRows[index].push(row);
+        proof(()=>{const saved=proveSamePaTotalSet(db,{sources,expectedPresent:present});same(saved.value,values);same(ownedRows(),expectedRows);});
+      }
+      return values;
+    },value=>{const saved=proveSamePaTotalSet(db,{sources,expectedPresent:sources.map(s=>s.sourceId)});same(saved.value,value);
+      const expectedRows=preflight.rows.map(rows=>[...rows]);expectedRows[Object.keys(reservedPaSchema).indexOf(samePaExecutionTables.total)].push(...value.totals.map(samePaExecutionRow));same(ownedRows(),expectedRows);});
+  };
+  return Object.freeze({acceptTotalSet,readTotalSet,readPrefix:(id:string)=>read('prefix',id) as SamePaEmptyWorkPrefix|null,readTotal:(id:string)=>read('total',id) as SamePaCumulativeTotal|null,readView:(id:string)=>read('view',id) as SamePaExecutionView|null,
     acceptPrefix:(id:string)=>accept('prefix',id) as SamePaEmptyWorkPrefix|Pending,acceptTotal:(id:string)=>accept('total',id) as SamePaCumulativeTotal|Pending,
     acceptView:(id:string)=>accept('view',id) as SamePaExecutionView|Pending,close(){if(!closed){db.close();closed=true;}}});
 };
