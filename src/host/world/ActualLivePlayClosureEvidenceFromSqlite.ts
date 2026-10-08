@@ -1,3 +1,5 @@
+import { createRequire } from 'node:module';
+import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { actualLivePlayReadinessFromSqlite } from './ActualLivePlayReadinessFromSqlite';
 import { defensiveMetadataId as metadataId } from './ActualDefensiveMetadata';
 import { sqliteJsonMetadataNodes as metadataNodes } from './SqliteOwnershipMetadata';
@@ -8,7 +10,7 @@ import { classifyClosedPlayForOfficialScoring } from '../../core/adjudication/Of
 import { deriveOfficialPlayResult, deriveOfficialFinalResult, type PersistOfficialPlayInput, type PersistOfficialFinalInput } from '../SqliteOfficialStateStore';
 import type { ActualAdjudicationDb } from './ActualLiveAdjudicationFromSqlite';
 import { actualFirstBaseClosedEvidenceFromSqlite } from './SqliteActualFirstBasePlayEndStore';
-import { battedWorldFieldEvidenceFromSqlite } from './SqliteBattedWorldFieldStore';
+import { activeBattedWorldFieldReadFrame, battedWorldFieldEvidenceFromSqlite } from './SqliteBattedWorldFieldStore';
 import { battedWorldFieldExecutionEvidenceFromSqlite, withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { actualPlayersKinematicsFromPrefix } from './ActualPlayerKinematicsFromPrefix';
 import { readOfficialActorPersonLink } from './SqliteOfficialInitialWorldStore';
@@ -211,12 +213,35 @@ export const actualLiveClosureApplicationRows = (db: ActualAdjudicationDb, appli
 };
 /** Additive admission fence: an applied Match is not complete actual-role readiness. */
 export const assertPriorActualLiveClosureCompleted = (db: ActualAdjudicationDb, applicationId: string | null, historical = false): void => {
-  if (applicationId === null) return;
+  checkPriorActualLiveClosureCompleted(db, applicationId, historical);
+};
+type ActualLiveActivationReadiness = Extract<ReturnType<ReturnType<typeof actualLivePlayReadinessFromSqlite>['readHistorical']>, { kind: 'ready' }>;
+/** Hand off only this operation's completed target, inside the activation's owned read bracket. */
+export const readPriorActualLiveActivationReadiness = (db: ActualAdjudicationDb, applicationId: string): ActualLiveActivationReadiness | null => {
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  const frame = activeBattedWorldFieldReadFrame(db);
+  if (!(db instanceof DatabaseSync) || !db.isTransaction || frame === null) {
+    throw new Error('actual live activation readiness requires an owned Native transaction');
+  }
+  const ready = checkPriorActualLiveClosureCompleted(db, applicationId, true, true);
+  if (!db.isTransaction || activeBattedWorldFieldReadFrame(db) !== frame) {
+    throw new Error('actual live activation readiness owned frame changed');
+  }
+  return ready;
+};
+const checkPriorActualLiveClosureCompleted = (db: ActualAdjudicationDb, applicationId: string | null, historical: boolean,
+  paired = false): ActualLiveActivationReadiness | null => {
+  if (applicationId === null) return null;
   const installed = (name: string) => !!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(name);
   const columns = (name: string) => new Set(db.prepare(`PRAGMA table_info(${name})`).all().map(r => r.name));
-  const hasOwner = installed('actual_live_play_closures'), rows = actualLiveClosureApplicationRows(db, applicationId);
+  const hasOwner = installed('actual_live_play_closures'), discoveredRows = actualLiveClosureApplicationRows(db, applicationId);
+  // Detach all fields before metadata or readiness reads can touch statement aliases.
+  const rows = paired ? freeze(cloneInert(discoveredRows)) : discoveredRows;
+  const ownerBytes = paired ? json(rows) : null;
+  const targetSourceId = paired && rows.length ? String(rows[0].source_id) : null;
+  const target = { ready: null as ActualLiveActivationReadiness | null };
   const liveTables = ['actual_live_play_runtimes', 'actual_first_base_play_ends', 'actual_live_play_fences'].filter(installed);
-  if (!hasOwner && !liveTables.length) return;
+  if (!hasOwner && !liveTables.length && !paired) return null;
   const scopedPlays = new Set<number>(); let gameId: string | null = null;
   if (liveTables.length && installed('applications')) {
     const applications = db.prepare('SELECT * FROM applications WHERE application_id=?').all(applicationId);
@@ -289,7 +314,9 @@ export const assertPriorActualLiveClosureCompleted = (db: ActualAdjudicationDb, 
     if (expectedPlay !== undefined && (ready.closure.proposal.gameId !== gameId || ready.closure.proposal.playId !== expectedPlay)) {
       throw new Error('prior actual live closure scope differs');
     }
-    checked.add(sourceId); return ready;
+    checked.add(sourceId);
+    if (paired && sourceId === targetSourceId) target.ready = ready;
+    return ready;
   };
   for (const playId of scopedPlays) {
     if (!hasOwner) throw new Error('prior actual live closure staged owner is missing');
@@ -306,4 +333,13 @@ export const assertPriorActualLiveClosureCompleted = (db: ActualAdjudicationDb, 
     const ready = requireReady(String(rows[0].source_id));
     if (ready.closure.proposal.application.applicationId !== applicationId) throw new Error('prior actual live closure activation differs');
   }
+  if (!paired) return null;
+  // Repeat raw alias discovery only after every retained prior scope has passed.
+  const currentRows = freeze(cloneInert(actualLiveClosureApplicationRows(db, applicationId)));
+  if (json(currentRows) !== ownerBytes) throw new Error('prior actual live closure activation owner changed');
+  if (!rows.length) return null;
+  if (target.ready === null || target.ready.closure.proposal.application.applicationId !== applicationId) {
+    throw new Error('prior actual live closure activation differs');
+  }
+  return target.ready;
 };
