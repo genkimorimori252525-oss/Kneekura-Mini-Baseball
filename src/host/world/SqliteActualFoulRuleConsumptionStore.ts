@@ -194,3 +194,6 @@ export const openSqliteActualFoulRuleConsumptionStore = (path: string,
     close() { if (!closed) { db.close(); closed = true; } },
   });
 };
+
+// The dedicated physical-end family retains the count owner's immutable bytes.
+export { openSqliteActualFoulPlayEndStore, actualFoulClosedEvidenceFromSqlite, actualFoulEndArchiveEncoding } from './SqliteActualFoulPlayEndStore';

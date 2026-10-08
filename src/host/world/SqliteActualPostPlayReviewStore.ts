@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+export { openSqliteActualFoulOfficialStore, deriveFoulOfficialOpeningClock } from './SqliteActualFoulOfficialStore';
 import { actualPostPlayReviewSessionInput, actualPostPlayReviewEventInput, actualPostPlayReviewIntentInput,
   type AcceptedActualPostPlayReviewEvent } from './ActualPostPlayReviewSource';
 import { actualPostPlayReviewEvidenceFromSqlite, type NativePostPlaySessionArchive } from './ActualPostPlayReviewFromSqlite';
