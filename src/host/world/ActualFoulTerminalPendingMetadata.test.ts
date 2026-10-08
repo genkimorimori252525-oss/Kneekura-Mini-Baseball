@@ -1,7 +1,7 @@
 import { createRequire } from 'node:module';
 import type { DatabaseSync as Database } from 'node:sqlite';
 import { afterEach, beforeEach, expect, it } from 'vitest';
-import { foulTerminalApplicationTableSql } from './ActualFoulTerminalApplicationEvidenceFromSqlite';
+import { foulTerminalApplicationEvidenceFromSqlite, foulTerminalApplicationTableSql } from './ActualFoulTerminalApplicationEvidenceFromSqlite';
 import { foulTerminalApplicationClaims, type FoulTerminalApplicationScope } from './ActualFoulTerminalApplicationOwnership';
 import { officialApplicationOwnershipClaims, officialMatchActivationClaims } from '../OfficialApplicationOwnershipFromSqlite';
 import { assertPriorPhysicalClosureCompleted } from './PhysicalPlayClosureEvidenceFromSqlite';
@@ -76,4 +76,33 @@ it('M06 preserves same-original-PA rejection when the pending marker application
   db.prepare('UPDATE matches SET activation_json=? WHERE match_id=?').run(raw(pending('damaged-application', 'game', 7), 'plain'), 'game');
   expect(() => assertPriorPhysicalClosureCompleted(db, 'apply')).toThrow(/terminal|pending/);
   expect(() => readActualLivePhysicalActivation(db, 'game', 'apply')).toThrow(/terminal|pending/);
+});
+
+it.each(['application_indexed_closure', 'application_receipt_closure', 'application_pending_origin', 'match_pending_origin', 'match_pending_closure'] as const)
+('M07 rejects an absent terminal row with a surviving raw %s claim', mirror => {
+  db.exec(foulTerminalApplicationTableSql);
+  const sourceId = 'orphan-terminal', origin = { owner: 'actual_foul_terminal_applications', sourceId };
+  const pendingMarker = mirror === 'match_pending_closure' ? { closureId: sourceId } : { origin };
+  const result = mirror === 'application_receipt_closure'
+    ? '{"receipt":{},"rece\\u0069pt":[{"closureId":"' + sourceId + '"}],"receipt":{}}'
+    : raw(pendingMarker, 'duplicate_array');
+  if (mirror.startsWith('application_')) db.prepare('INSERT INTO applications VALUES(?,?,?,?,?)').run(
+    'foreign-application', 'foreign-game', mirror === 'application_indexed_closure' ? sourceId : 'foreign-closure', 'bad',
+    mirror === 'application_indexed_closure' ? '{}' : result);
+  else db.prepare('INSERT INTO matches VALUES(?,?,?,?)').run('foreign-game', 91, '{}', result);
+  const before = db.prepare('SELECT total_changes() AS n').get()!.n;
+  expect(() => foulTerminalApplicationEvidenceFromSqlite(db).read(sourceId)).toThrow(/orphan|missing|ownership/);
+  expect(db.prepare('SELECT total_changes() AS n').get()!.n).toBe(before);
+  expect(db.prepare('SELECT count(*) AS n FROM actual_foul_terminal_applications').get()!.n).toBe(0);
+});
+it('M08 keeps a truly absent terminal Source null and does not conflate its Source ID with an application ID', () => {
+  db.exec(foulTerminalApplicationTableSql);
+  db.prepare('INSERT INTO applications VALUES(?,?,?,?,?)').run('missing-source', 'foreign-game', 'foreign-closure', 'bad', '{}');
+  expect(foulTerminalApplicationEvidenceFromSqlite(db).read('missing-source')).toBeNull();
+});
+it('M09 rejects a surviving official closure claim when the terminal table itself is absent', () => {
+  db.prepare('INSERT INTO applications VALUES(?,?,?,?,?)').run('foreign-application', 'foreign-game', 'orphan-terminal', 'bad', '{}');
+  const before = db.prepare('SELECT type,name,sql FROM main.sqlite_master ORDER BY type,name').all();
+  expect(() => foulTerminalApplicationEvidenceFromSqlite(db).read('orphan-terminal')).toThrow(/orphan|missing|ownership/);
+  expect(db.prepare('SELECT type,name,sql FROM main.sqlite_master ORDER BY type,name').all()).toEqual(before);
 });

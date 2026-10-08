@@ -160,3 +160,25 @@ export const officialApplicationOwnershipClaims = (db: Db, scope: FoulTerminalAp
     });
   }
 };
+
+/** Rejection-only identity census when the terminal Source row is missing.
+ * Source and closure share this owner's ID; application IDs remain a distinct
+ * domain. A wholly unlinked orphan cannot be inferred from an unknown Source. */
+export const officialApplicationIdentityClaims = (db: Db, sourceId: string): OfficialApplicationOwnershipClaim[] => {
+  if (typeof sourceId !== 'string' || !sourceId || sourceId !== sourceId.trim()) throw new Error('invalid official application Source identity');
+  const known: Known = { sourceIds:new Set([sourceId]),applicationIds:new Set(),closureIds:new Set([sourceId]) };
+  const entries = tables.flatMap(table => foulApplicationOwnershipRows(db,table,columns[table]).map(row => ({
+    table,row,ids:rowIdentities(table,row,metadata(db,row)),
+  })));
+  const selected = new Set<typeof entries[number]>();
+  for (;;) {
+    let changed = false;
+    for (const entry of entries) if (!selected.has(entry) && identityClaim(entry.ids,known)) {
+      selected.add(entry); grow(known,entry.ids); changed = true;
+    }
+    if (!changed) return [...selected].map(({ table,row }) => ({ table,row })).sort((a,b) => {
+      const left = a.table + ':' + foulApplicationOwnershipRowKey(a.row), right = b.table + ':' + foulApplicationOwnershipRowKey(b.row);
+      return left < right ? -1 : left > right ? 1 : 0;
+    });
+  }
+};

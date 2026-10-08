@@ -107,3 +107,7 @@ Controller-dependent P11/P17 cases use `.acceptance.ts` filenames and the explic
 ## Partial execution record
 
 The independently reviewed shared-writer/getMatch/raw-guard portion reached focused compiler plus 72 selected LIGHT passes at `cbab491`, after an observed two-route historical-scope RED and minimal previous-play scope repair. One canonical JSON/hash implementation was moved byte-for-byte into `OfficialStateEncoding.ts` to avoid a pending/writer import cycle. The two controller-expectation failures and the test-only TypeScript alias failure remain recorded with zero credit. Genuine application runner creation is still held until P11 observes its missing API after real queued/cutover prerequisites; no runtime precondition was waived. See `docs/verification/2026-10-07-terminal-pending-writer-partial.md` for exact scope and terminal hashes.
+
+## Runner checkpoint, 2026-10-08
+
+The genuine missing-runner RED has now been observed after the authentic owned-producer/cutover prerequisites. The runner implementation and independent-review orphan-mirror repair qualify the focused compiler plus 84 selected LIGHT cases at `562ad1e`, src tree `8c0ad51bc2e444b5ac97f6c697c0c76eae73d9fe`. P11 GREEN and the three P17 real-writer rollback cases remain held for coordinated runtime using the explicitly pinned retained producer. The previous section is the historical pre-runner checkpoint, not the current implementation state. See `docs/verification/2026-10-08-terminal-pending-runner-bounded.md` for exact attribution, limits and receipt hashes.
