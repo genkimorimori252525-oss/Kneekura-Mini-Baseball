@@ -11,6 +11,7 @@ import { battedWorldFieldCalibrationEvidenceFromSqlite } from './BattedWorldFiel
 import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
 import { battedEpisodeV2ParticipantsMatch } from './BattedEpisodeParticipantBindingV2';
 import { sqliteJsonMetadataNodes as nodes } from './SqliteOwnershipMetadata';
+import { withActualLiveReadinessReadScope } from './ActualLivePlayReadinessFromSqlite';
 import type { AcceptedBattedEpisodeFieldBinding, BattedEpisodeFieldBindingAuthority,
   DurableBattedEpisodeFieldBinding, SqliteBattedEpisodeFieldBindingStore } from './BattedEpisodeFieldBinding';
 
@@ -53,7 +54,7 @@ const snapshot = <T>(db: Db, work: () => T): T => {
     const stamp = () => json([db.prepare('SELECT total_changes() AS n').get()!.n,
       db.prepare('PRAGMA main.schema_version').get()!.schema_version,
       db.prepare('PRAGMA temp.schema_version').get()!.schema_version]);
-    const before = stamp(); result = work();
+    const before = stamp(); result = withActualLiveReadinessReadScope(db, work);
     if (!db.isTransaction || db.prepare('PRAGMA query_only').get()!.query_only !== 1 || stamp() !== before) {
       throw new Error('episode binding snapshot changed during read');
     }
