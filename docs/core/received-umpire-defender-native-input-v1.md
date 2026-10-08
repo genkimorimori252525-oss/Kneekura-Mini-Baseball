@@ -1,0 +1,15 @@
+# Read-only Native received-call defender input
+
+`actualReceivedUmpireDefenderReplanInputEvidenceFromSqlite(db).derive(source)` is exported from `SqliteActualDefensiveDecisionStore`. It reconstructs the input to the existing Core `deriveReceivedUmpireDefenderReplan` on the supplied native SQLite connection. It creates no table, decision revision, motor, physical adoption, consumption record or closure.
+
+The Source contains only `sourceId`, `sourceVersion`, capability `received_umpire_defender_replan_v1`, `physicalPitchSourceId`, `playerId`, `observationSourceId`, `currentExecutionSourceId`, `predecessorDecisionSourceId`, `predecessorMotorSourceId`, `predecessorAdoptionSourceId`, `policySourceId` and `previousReplanSourceId`. The last two must be explicitly `null` until their durable owners exist. Unknown fields and non-null unsupported references are rejected.
+
+The result contains the validated Source, authenticated dependency hashes, the rederived Core `input` and its `replan`. Its process identity does not establish a persisted Native decision. The receiver is an original defender with an issued initial decision and a currently active, physically adopted `owned_motion_v2` incumbent. Pending or dropped communication states, batter recipients, new policy values and prior replan receipts are outside this adapter's capability.
+
+The original observation, decision, original information cut, model, plan, motor, call and recipient-specific communication are read through their existing owners. The physical prefix is bounded by the requested execution; execution identities use `ownedScheduledMotionArchiveHash`. The original decision observation may use an authenticated ancestor field anchor. The active physical command must still name the exact original motor adoption, independently of the semantic decision command retained by Core.
+
+An original scheduled observation supplies only its due time to Core and yields no new trigger. A received observation supplies its authenticated recipient perception. With no accepted local call profile, the existing Core keeps `call_profile_unavailable` pending and makes no commitment. Both information-order fields are `null`; SQL revision order is never promoted to an information sequence. Missing policy does not close due decision work.
+
+Reads use a main-only snapshot and preserve an existing caller transaction, query-only setting and authorizer. Later owner metadata remains visible to the existing ownership checks, while dependency replay stays bounded to the original requested cut. Historical reads do not invoke current-head admission.
+
+Native guard and Core contract results have narrower scope than a genuine received-call bridge acceptance. The optional original-artifact test is a separately selected prerequisite: it authenticates the approved public original physical chain, but does not add reception or prove this bridge's successful received path. See the source-specific verification record for executed and pending stages.

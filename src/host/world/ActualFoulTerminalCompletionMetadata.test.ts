@@ -55,7 +55,8 @@ const ids = () => terminal.foulTerminalApplicationIdentityRows(db,'terminal').ma
 const sources = [ { terminalReference:ref() }, { source:{ terminalReference:ref() } },
   { workloadReference:{ terminalSourceId:'terminal' } }, { terminalSourceId:'terminal' }, { completionId },
   { scoringReference:{ scoringApplicationId:JSON.stringify(['actual_foul_terminal_scoring_v1','terminal']) } },
-  { activation:{ closureId:'terminal' } } ];
+  { activation:{ closureId:'terminal' } }, {completionId:JSON.stringify(['actual_foul_terminal_post_play_completion_v2','terminal','setup'])},
+  {finalResult:{closureId:'terminal'}} ];
 const setupPaths = [['source','sourceId'],['controllerRetirement','sourceId'],['setupSourceId']];
 const typedPaths = [['completionId'],['sourceHash'],['snapshotHash'],['terminalReference','sourceHash'],
   ['source','terminalReference','sourceHash'],['terminalReference','proposalHash'],['source','terminalReference','proposalHash'],
@@ -308,4 +309,12 @@ it('CP-M24 completion previous-play scope survives damaged cached game with reta
         'COMPLETION_MATCH_RETAINED_GAME_SCOPE_MISSING').toBe(claims);
     }
   }
+});
+it('CP-M25 final-result game and retirement scope survive in every raw official mirror',()=>{
+ for(const form of ['plain','escaped_duplicates_arrays'])for(const table of ['applications','matches','physical_play_closures','actual_live_play_closures']){
+  for(const prefix of table.endsWith('closures')?[['official'],['expectedOfficial']]:[[]]){
+   clear();insertOfficial(table,{finalResult:{gameId:'game'},controllerRetirement:{previousPlayId:7}},form,prefix);
+   expect(officialApplicationOwnershipClaims(db,scope).map(c=>c.table),'FINAL_LEGACY_GAME_SCOPE_MISSING').toEqual([table]);
+  }
+ }
 });

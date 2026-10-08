@@ -1,3 +1,4 @@
+import { assertNoSamePaOriginalPitchReservation } from './SamePlateAppearanceReservationGuard';
 import { assertActualLiveRegistrationBeforeWork } from './ActualLiveRuntimeRegistration';
 import { createHash } from 'node:crypto';
 import { actualLivePlayOwnerIdentityRow, actualLiveRuntimeClaims } from './ActualLivePlayOwnerMetadata';
@@ -86,6 +87,7 @@ export const openSqliteActualLivePlayRuntimeStore = (path: string,
         });
       }
       if (!source) throw new Error('accepted actual live runtime Source missing');
+      snapshot(() => assertNoSamePaOriginalPitchReservation(db,source.physicalPitchSourceId));
       const value = own.derive(source, true); before(value); db.exec('BEGIN IMMEDIATE');
       try {
         const fence = beginActualLivePlayRegistration(db, { gameId: value.gameId, playId: value.playId, physicalPitchSourceId: source.physicalPitchSourceId });

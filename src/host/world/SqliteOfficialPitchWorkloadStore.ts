@@ -1,3 +1,4 @@
+import { assertNoSamePaPlayerReservation } from './SamePlateAppearanceReservationGuard';
 import { assertNoActualRoleWorkloadCharge } from './ActualRoleWorkloadChargeGuard';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
@@ -204,6 +205,7 @@ evidenceGuard?: SqliteEvidenceGuard<OfficialPitchWorkloadRequest>): SqliteOffici
             || (getPolicy.get(policy.sourceId) as PolicyRow).source_json !== json(policy)) throw new Error('physical pitch workload was frozen differently');
           db.exec('COMMIT'); return existing;
         }
+        assertNoSamePaPlayerReservation(db, projected.activity);
         assertNoActualRoleWorkloadCharge(db, { careerId: projected.activity.careerId, gameId: projected.gameId,
           playId: projected.playId, playerId: projected.activity.playerId });
         const saved = getPolicy.get(policy.sourceId) as PolicyRow | undefined;
@@ -217,6 +219,7 @@ evidenceGuard?: SqliteEvidenceGuard<OfficialPitchWorkloadRequest>): SqliteOffici
         db.prepare('INSERT INTO official_pitch_workload_sources VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
           .run(projected.activity.sourceEventId, projected.activity.careerId, projected.activity.playerId, projected.gameId,
             projected.playId, request.scoringApplicationId, policy.sourceId, json(request), json(projected.activity), json(projected.proof));
+        assertNoSamePaPlayerReservation(db, projected.activity);
         const activity = decode(bySource.get(projected.activity.sourceEventId) as SourceRow);
         if (json(activity) !== json(projected.activity)
           || json(project(request, policy).officialEvidence) !== json(projected.officialEvidence)
