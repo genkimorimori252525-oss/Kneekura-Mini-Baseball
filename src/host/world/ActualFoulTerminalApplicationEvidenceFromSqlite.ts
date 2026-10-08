@@ -19,7 +19,7 @@ import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './P
 import { actualFoulTerminalApplicationInput, type AcceptedFoulTerminalApplication, type FoulTerminalApplicationEvaluation,
   type FoulTerminalApplicationBody, type FoulTerminalPhysicalPitchReference, type FoulTerminalParticipant,
   type FoulTerminalBoundGamePolicy, type FoulTerminalApplicationProposal, type DurableFoulTerminalApplication,
-  type FoulTerminalAppliedResult }
+  type FoulTerminalAppliedResult, type FoulTerminalAcknowledgedResult }
   from './ActualFoulTerminalApplication';
 
 const same = (actual: unknown, expected: unknown, message: string): void => {
@@ -197,24 +197,38 @@ export const deriveFoulTerminalApplicationProposal = (db: DatabaseSync, raw: unk
   });
 };
 
-/** Both stages retain the exact immutable Source/proposal bytes. */
+/** The legacy layout stays exact; neither production opener migrates it. */
 export const foulTerminalApplicationTableSql = `CREATE TABLE IF NOT EXISTS main.actual_foul_terminal_applications(
   source_id TEXT PRIMARY KEY,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,application_id TEXT NOT NULL UNIQUE,
   physical_pitch_source_id TEXT NOT NULL UNIQUE,physical_end_source_id TEXT NOT NULL UNIQUE,official_obligation_key TEXT NOT NULL UNIQUE,
   status TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,proposal_json TEXT NOT NULL,proposal_hash TEXT NOT NULL,result_json TEXT,
   UNIQUE(game_id,play_id),CHECK((status='QUEUED' AND result_json IS NULL)
     OR (status='OFFICIAL_APPLIED_PENDING_POST_PLAY' AND result_json IS NOT NULL)))`;
+/** Only an explicitly owned private-copy cutover may install this CHECK arm. */
+export const foulTerminalAcknowledgementTableSql = `CREATE TABLE IF NOT EXISTS main.actual_foul_terminal_applications(
+  source_id TEXT PRIMARY KEY,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,application_id TEXT NOT NULL UNIQUE,
+  physical_pitch_source_id TEXT NOT NULL UNIQUE,physical_end_source_id TEXT NOT NULL UNIQUE,official_obligation_key TEXT NOT NULL UNIQUE,
+  status TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,proposal_json TEXT NOT NULL,proposal_hash TEXT NOT NULL,result_json TEXT,
+  UNIQUE(game_id,play_id),CHECK((status='QUEUED' AND result_json IS NULL)
+    OR (status='OFFICIAL_APPLIED_PENDING_POST_PLAY' AND result_json IS NOT NULL)
+    OR (status='OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY' AND result_json IS NOT NULL)))`;
 const table = 'actual_foul_terminal_applications';
 const columnNames = ['source_id','game_id','play_id','application_id','physical_pitch_source_id','physical_end_source_id',
   'official_obligation_key','status','source_json','source_hash','proposal_json','proposal_hash','result_json'] as const;
-const compactSchema = (sql: string) => sql.replace(/\s+/g,'').replace(/^CREATETABLE(?:IFNOTEXISTS)?(?:main\.)?/i,'');
+// Formatting is not a capability. Preserve every byte inside quoted tokens,
+// including doubled quote escapes and whitespace in a CHECK status literal.
+const compactSchema = (sql: string) => sql.replace(/'(?:[^']|'')*'|"(?:[^"]|"")*"|\s+/g,
+  token => token[0] === "'" || token[0] === '"' ? token : '').replace(/^CREATETABLE(?:IFNOTEXISTS)?(?:main\.)?/i,'');
 /** Validate installed constraints as well as the columns; no migration or DDL. */
-export const assertFoulTerminalApplicationStorage = (db: DatabaseSync): boolean => {
+export const assertFoulTerminalApplicationStorage = (db: DatabaseSync, required?: 'acknowledgement'): boolean => {
   const schema = db.prepare('SELECT type,sql FROM main.sqlite_master WHERE name=?').all(table);
   if (!schema.length) return false;
   if (schema.length !== 1 || schema[0].type !== 'table' || typeof schema[0].sql !== 'string'
-    || compactSchema(schema[0].sql) !== compactSchema(foulTerminalApplicationTableSql)) {
+    || ![foulTerminalApplicationTableSql,foulTerminalAcknowledgementTableSql].map(compactSchema).includes(compactSchema(schema[0].sql))) {
     throw new Error('foul terminal queue schema or constraints differ');
+  }
+  if (required === 'acknowledgement' && compactSchema(schema[0].sql) !== compactSchema(foulTerminalAcknowledgementTableSql)) {
+    throw new Error('foul terminal acknowledgement storage prerequisite requires its exact CHECK schema');
   }
   const columns = db.prepare('PRAGMA main.table_info(actual_foul_terminal_applications)').all();
   same(columns.map(c => [c.name,c.type,c.notnull,c.pk,c.dflt_value]), columnNames.map((name,i) =>
@@ -280,6 +294,26 @@ const appliedResult = (p: FoulTerminalApplicationProposal): FoulTerminalAppliedR
   official: deriveOfficialPendingNonLiveResult(foulTerminalPendingInput(p), p.originalOfficialRevision + 1),
   acknowledgement: null,
 });
+/** Private expected-self derivation. No caller proposal/result is accepted by
+ * acknowledge; only authenticated original history and pending mirrors reach
+ * this function. A constructed value alone is never a durable receipt. */
+const acknowledgedResult = (p: FoulTerminalApplicationProposal,
+  official: PersistOfficialPendingNonLiveResult): FoulTerminalAcknowledgedResult => {
+  if (p.officialObligation.status !== 'pending' || p.officialObligation.consumer !== null
+    || p.officialObligation.pendingReason !== 'terminal_official_closure_unowned') {
+    throw new Error('foul terminal original official child acknowledgement premise differs');
+  }
+  return freeze({ sourceId:p.source.sourceId,official,acknowledgement:{
+    version:'actual_foul_terminal_official_acknowledgement_v1',
+    acknowledgementId:json(['actual_foul_terminal_official_acknowledgement_v1',p.officialObligation.obligationKey,p.source.sourceId]),
+    obligationKey:p.officialObligation.obligationKey,originalSuccessorKey:p.originalSuccessorKey,
+    scope:p.officialObligation.scope,status:'consumed',consumer:official.pendingPostPlay.origin,
+    physicalEndReference:p.physicalEndReference,consumptionReference:p.consumptionReference,officialReference:p.officialReference,
+    applicationReference:{ owner:'applications',matchId:p.gameId,
+      applicationId:official.receipt.applicationId,closureId:official.receipt.closureId,previousPlayId:official.receipt.previousPlayId,
+      durableRevision:official.receipt.durableRevision,requestHash:official.pendingPostPlay.requestHash,receiptHash:hash(official.receipt) },
+  } });
+};
 const assertQueueClaims = (db: DatabaseSync, p: FoulTerminalApplicationProposal, expected: FoulOfficialRow | null,
   applied: PersistOfficialPendingNonLiveResult | null = null) => {
   const scope = queueScope(p), claims = foulTerminalApplicationClaims(db,scope);
@@ -333,9 +367,11 @@ export const foulTerminalApplicationEvidenceFromSqlite = (db: DatabaseSync) => {
     const row = rows[0];
     if ((row.status !== 'QUEUED' || row.result_json !== null)
       && (row.status !== 'OFFICIAL_APPLIED_PENDING_POST_PLAY' || typeof row.result_json !== 'string')
+      && (row.status !== 'OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY' || typeof row.result_json !== 'string')
       || typeof row.source_json !== 'string') {
       throw new Error('foul terminal queue archive stage is unsupported');
     }
+    if (row.status === 'OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY') assertFoulTerminalApplicationStorage(db,'acknowledgement');
     const source = actualFoulTerminalApplicationInput(JSON.parse(row.source_json),sourceId);
     if (row.source_json !== json(source) || row.source_hash !== hash(source)) throw new Error('foul terminal queue Source archive differs');
     const proposal = deriveFoulTerminalApplicationProposal(db,source,'historical');
@@ -347,12 +383,39 @@ export const foulTerminalApplicationEvidenceFromSqlite = (db: DatabaseSync) => {
     }
     if (db.prepare('PRAGMA main.user_version').get()!.user_version !== 3) throw new Error('foul terminal applied stage requires schema version 3');
     const result = appliedResult(proposal);
+    if (row.status === 'OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY') {
+      const acknowledged = acknowledgedResult(proposal,result.official);
+      same(row,{ ...queueRow(proposal),status:'OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY',result_json:json(acknowledged) },
+        'foul terminal acknowledged archive encoding, hashes or cached scope differ');
+      assertQueueClaims(db,proposal,row,acknowledged.official);
+      return freeze({ source,proposal,status:'OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY',officialApplied:true,result:acknowledged });
+    }
     same(row, { ...queueRow(proposal), status: 'OFFICIAL_APPLIED_PENDING_POST_PLAY', result_json: json(result) },
       'foul terminal pending archive encoding, hashes or cached scope differ');
     assertQueueClaims(db,proposal,row,result.official);
     return freeze({ source,proposal,status:'OFFICIAL_APPLIED_PENDING_POST_PLAY',officialApplied:true,result });
   });
   return Object.freeze({ read,
+    /** Internal db-bound transition proof, called under the runner's owned
+     * post-acquisition read-only proof. It returns bytes/pins, not a durable
+     * acknowledged result; only a post-write read may return that result. */
+    prepareAcknowledgement(sourceId: string) {
+      return withBattedVenueLegalReadSnapshot(db,() => {
+        if (db.prepare('PRAGMA main.user_version').get()!.user_version !== 3
+          || !assertFoulTerminalApplicationStorage(db,'acknowledgement')) {
+          throw new Error('foul terminal acknowledgement storage prerequisite is missing');
+        }
+        const saved = read(sourceId);
+        if (!saved || saved.status === 'QUEUED') throw new Error('foul terminal acknowledgement requires a durable pending application');
+        if (saved.status === 'OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY') return { kind:'retry' as const,saved };
+        const row = db.prepare('SELECT * FROM main.actual_foul_terminal_applications WHERE source_id=?').get(sourceId)!;
+        const rowid = db.prepare('SELECT rowid AS value FROM main.actual_foul_terminal_applications WHERE source_id=?').get(sourceId)?.value;
+        if (typeof rowid !== 'number' || !Number.isSafeInteger(rowid)) throw new Error('foul terminal acknowledgement row identity differs');
+        const expectedRow = { ...row,status:'OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY',
+          result_json:json(acknowledgedResult(saved.proposal,saved.result.official)) };
+        return { kind:'update' as const,saved,row,rowid,expectedRow,pin:foulTerminalApplicationPin(db,saved.proposal) };
+      });
+    },
     prepare(source: AcceptedFoulTerminalApplication) {
       return withBattedVenueLegalReadSnapshot(db, () => {
         if (!assertFoulTerminalApplicationStorage(db)) throw new Error('foul terminal queue owner is not installed');
