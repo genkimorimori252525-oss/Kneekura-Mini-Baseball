@@ -59,6 +59,7 @@ it('TN-R01 reviewed current owners reauthenticate the existing genuine terminal 
       progress('completion/current readiness authenticated; reading original next actor');
       const actor=readPhysicalPlateAppearanceActorFromSqlite(db,receipt.actorSourceId);assert(actor);
       assert.equal(actor.source.playerId,receipt.acceptedActorPlayerId);same(actor.origin.foulTerminalReadiness,ready.reference);assert(!('actualLiveReadiness'in actor.origin));
+      if('finalResult'in archive.result.completion)throw new Error('v1 fixture unexpectedly finalized');
       assert.equal(actor.match.playId,archive.proposal.playId+1);same(actor.world,archive.result.completion.nextWorld);
       progress('original next actor authenticated; replaying stored next pitch');
       const pitches=readPhysicalPitchProgressFromSqlite(db,archive.proposal.gameId,actor.match.playId);assert.equal(pitches.length,1);

@@ -212,7 +212,7 @@ export const openSqliteActualFoulTerminalApplicationStore = (path: string,
     },
     enqueue(sourceId: string) {
       const completed = idleRead(() => owner.read(sourceId));
-      if (completed?.status === 'POST_PLAY_COMPLETED_CONTINUING') return completed;
+      if ((completed?.status === 'POST_PLAY_COMPLETED_CONTINUING' || completed?.status === 'POST_PLAY_COMPLETED_FINAL')) return completed;
       const { source,state } = preflight(sourceId);
       if (state.kind === 'prior') return retry(sourceId,source,state.queued);
       if (state.evaluation.kind === 'pending') {

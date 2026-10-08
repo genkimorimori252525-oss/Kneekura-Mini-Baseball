@@ -1,3 +1,5 @@
+import {assertFoulTerminalIncomingDefendersCurrent} from './ActualFoulTerminalHalfChange';
+import type {FoulTerminalContinuingCompletion} from './ActualFoulTerminalPostPlayCompletion';
 import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
 import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { createRequire } from 'node:module';
@@ -14,7 +16,7 @@ const referenceKeys = ['version','terminalSourceId','setupSourceId','completionI
 export const foulTerminalReadinessReference = (raw: FoulTerminalReadinessReference): FoulTerminalReadinessReference => {
   const value = cloneInert(raw);
   if (!value || Array.isArray(value) || Object.keys(value).sort().join('|') !== referenceKeys.slice().sort().join('|')
-    || value.version !== 'actual_foul_terminal_next_play_readiness_v1'
+    || !['actual_foul_terminal_next_play_readiness_v1','actual_foul_terminal_next_play_readiness_v2'].includes(value.version)
     || !['terminalSourceId','setupSourceId','completionId','snapshotHash','applicationId','gameId'].every(key => {
       const id = value[key as keyof FoulTerminalReadinessReference]; return typeof id === 'string' && !!id && id === id.trim();
     }) || !/^[a-f0-9]{64}$/.test(value.snapshotHash) || !Number.isSafeInteger(value.previousPlayId) || value.previousPlayId < 0) {
@@ -32,6 +34,7 @@ export const foulTerminalNextPlayReadinessFromSqlite = (db: Db) => {
     const evidence: FoulTerminalCompletionEvidence | null = foulTerminalPostPlayCompletionEvidenceFromSqlite(db).readWithEffects(sourceId);
     if (!evidence) throw new Error('terminal readiness completed owner is missing');
     const { archive,settlement } = evidence, p = archive.proposal, c = archive.result.completion;
+    if('finalResult'in c||archive.status==='POST_PLAY_COMPLETED_FINAL')throw new Error('terminal final completion has no next-play readiness');
     const first = p.participants[0]?.binding;
     if (!first || settlement.kind !== 'complete' || settlement.careerId !== first.careerId || settlement.gameId !== p.gameId
       || settlement.playId !== p.playId || settlement.gameDay !== first.gameDay || p.participants.length !== 10
@@ -54,18 +57,20 @@ export const foulTerminalNextPlayReadinessFromSqlite = (db: Db) => {
       }
     }
     const reference: FoulTerminalReadinessReference = {
-      version:'actual_foul_terminal_next_play_readiness_v1',terminalSourceId:archive.source.sourceId,
+      version:c.version==='actual_foul_terminal_post_play_completion_v2'?'actual_foul_terminal_next_play_readiness_v2':'actual_foul_terminal_next_play_readiness_v1',terminalSourceId:archive.source.sourceId,
       setupSourceId:c.source.sourceId,completionId:c.completionId,snapshotHash:c.snapshotHash,
       applicationId:c.officialReference.applicationId,gameId:p.gameId,previousPlayId:p.playId,
     };
     if (current) {
+      if(c.version==='actual_foul_terminal_post_play_completion_v2')assertFoulTerminalIncomingDefendersCurrent(db,p,c);
       const match = db.prepare('SELECT durable_revision,state_json,activation_json FROM matches WHERE match_id=?').get(p.gameId);
       if (!match || match.durable_revision !== archive.result.official.receipt.durableRevision
         || match.state_json !== json(c.activation.nextMatchState) || match.activation_json !== json({activation:c.activation,nextWorld:c.nextWorld})) {
         throw new Error('terminal readiness current Match activation differs');
       }
     }
-    return freeze({kind:'foul_terminal_ready' as const,archive,settlement,reference:foulTerminalReadinessReference(reference)});
+    const continuing=archive as typeof archive & {result:typeof archive.result & {completion:FoulTerminalContinuingCompletion}};
+    return freeze({kind:'foul_terminal_ready' as const,archive:continuing,settlement,reference:foulTerminalReadinessReference(reference)});
     });
   };
   return {read:(sourceId:string) => read(sourceId,true),readHistorical:(sourceId:string) => read(sourceId,false)};
