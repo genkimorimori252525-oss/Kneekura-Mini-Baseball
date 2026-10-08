@@ -1,3 +1,4 @@
+import { assertNoReservedPaPlayerClaim, assertNoReservedPaWorkClaim } from './SamePlateAppearanceProvisionalClaimGuard';
 import { actualLivePlayOwnerIdentityRow } from './ActualLivePlayOwnerMetadata';
 import type { DatabaseSync } from 'node:sqlite';
 import { samePaId as id, samePlateAppearanceEnrollmentInput as input, type ReservedSamePlateAppearanceEnrollment } from './SamePlateAppearanceEnrollment';
@@ -99,6 +100,7 @@ export const authenticateSamePaRow = (db:SamePaDb,row:Record<string,unknown>):Re
   return v;
 };
 export const assertNoSamePaPlayerReservation = (db:SamePaDb,scope:Readonly<{careerId:string;playerId:string}>,ownSourceId?:string):void => {
+  assertNoReservedPaPlayerClaim(db,scope,ownSourceId);
   if(!assertSamePaStorage(db))return;const q=playerClaim(scope);
   const links=playerAuthorityLinks(db);
   const own:Record<string,string>=ownSourceId===undefined?{}:{own:ownSourceId};
@@ -107,6 +109,7 @@ export const assertNoSamePaPlayerReservation = (db:SamePaDb,scope:Readonly<{care
   if(db.prepare(`SELECT 1 FROM main.same_pa_participant_reservations m WHERE (m.career_id=$career OR ${claim('m.member_json',['careerId'],'$career')}) AND (m.player_id=$player OR ${claim('m.member_json',['playerId'],'$player')}) AND ${ownSourceId===undefined?'1':`NOT (${memberRoot('$own')})`}`).get({...q.params,...own}))fail('orphan member blocks new global Player workload');
 };
 export const assertNoSamePaWorkReservation = (db:SamePaDb,scope:SamePaScope,ownSourceId?:string):void => {
+  assertNoReservedPaWorkClaim(db,scope,ownSourceId);
   if(!assertSamePaStorage(db))return;const q=scopeClaim(scope);
   const actorTable=installed(db,'physical_plate_appearance_actors');
   const actorLink=actorTable?` OR EXISTS(SELECT 1 FROM main.physical_plate_appearance_actors a WHERE

@@ -1,7 +1,8 @@
 import { defensiveMetadataId as claim } from './ActualDefensiveMetadata';
 import { sqliteJsonMetadataNodes as nodes } from './SqliteOwnershipMetadata';
 type Db = Pick<import('node:sqlite').DatabaseSync, 'prepare'>;
-type Owner = 'actual_live_play_runtimes' | 'actual_first_base_play_ends' | 'same_pa_enrollments';
+type Owner = 'actual_live_play_runtimes' | 'actual_first_base_play_ends' | 'same_pa_enrollments'
+  | 'reserved_pa_work_prefixes' | 'reserved_pa_total_assessments' | 'reserved_pa_execution_views';
 /** Inspect every raw identity mirror before choosing a row. SQLite JSON metadata
  * iteration preserves escaped/duplicate keys that JSON.parse would collapse. */
 export const actualLivePlayOwnerIdentityRow = (db: Db, owner: Owner, sourceId: string) => {
