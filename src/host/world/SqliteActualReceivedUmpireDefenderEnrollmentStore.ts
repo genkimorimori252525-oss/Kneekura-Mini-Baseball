@@ -9,20 +9,25 @@ import { actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceA
 const table='actual_received_umpire_defender_enrollments';
 export const actualReceivedUmpireDefenderEnrollmentEvidenceFromSqlite = (db: DatabaseSync) => {
   const original=receivedEnrollmentEvidenceFromSqlite(db);
-  const read=(sourceId:string):DurableReceivedEnrollment|null=>{
+  const readOriginal=(sourceId:string):ReturnType<typeof original.derive>|null=>{
     if(!receivedId(sourceId))throw new Error('invalid received enrollment Source identity');
     if(receivedOwnerSchema(db)==='pristine')return null;
     const row=receivedSourceRow(db,table,sourceId);if(!row)return null;
     const source=receivedEnrollmentInput(JSON.parse(String(row.source_json)),sourceId);
-    const {value}=original.derive(source,Number(row.legacy_prefix_count));
+    const derived=original.derive(source,Number(row.legacy_prefix_count)),{value}=derived;
     if(row.source_version!==source.sourceVersion||row.game_id!==value.gameId||row.play_id!==value.playId||row.physical_pitch_source_id!==source.physicalPitchSourceId
       ||row.player_id!==source.playerId||row.runtime_source_id!==source.runtimeSourceId||row.call_source_id!==value.cause.callSourceId
       ||row.origin_communication_source_id!==value.cause.originCommunicationSourceId||row.legacy_prefix_count!==value.anchor.legacyAdmissionPrefix.count
       ||row.legacy_prefix_digest!==value.anchor.legacyAdmissionPrefix.digest||row.source_json!==json(source)||row.source_hash!==hash(source)
       ||row.snapshot_json!==json(value)||row.snapshot_hash!==hash(value))throw new Error('received enrollment archive differs');
-    receivedJournal(db,value);return value;
+    receivedJournal(db,value);return derived;
   };
-  return Object.freeze({read:(sourceId:string)=>withReceivedReadProof(db,()=>read(sourceId))});
+  // Only an internal consumer running inside this authenticated proof receives
+  // the original envelope. It is never retained across independent proof phases.
+  const withOriginal=<T>(sourceId:string,consume:(derived:ReturnType<typeof original.derive>)=>T):T|null=>withReceivedReadProof(db,()=>{
+    const derived=readOriginal(sourceId);return derived===null?null:consume(derived);
+  });
+  return Object.freeze({read:(sourceId:string)=>withOriginal(sourceId,derived=>derived.value),withOriginal});
 };
 export const openSqliteActualReceivedUmpireDefenderEnrollmentStore=(path:string,authority?:Readonly<{readAcceptedEnrollment(sourceId:string):ReceivedEnrollmentSource|null}>)=>{
   if(authority!==undefined&&typeof authority.readAcceptedEnrollment!=='function')throw new Error('invalid received enrollment authority');

@@ -1,13 +1,40 @@
 # Current nonvisual owner integration
 
-The reviewed current owner slices compile together, and 93 directly affected
-admission, reservation, workload and terminal boundary cases pass on source
-`b0439c7a3f7c8b0bec32862ba38bdf3c5b38bdff`, src tree
-`2e16aa4f5d683d5ccbb2ee245e240178b27bbc0a`.
+The current owner slices, including the received proof-reuse fix, compile
+together. The latest bounded gate passes 200 cases on source
+`69ea4d24e24c67d59a3ce244b02583ffedc708eb`, src tree
+`6df80dc8fee207c56820647358972e72d457bca5`.
 This is a bounded integration checkpoint, not a full-project suite or a new
 genuine end-to-end artifact qualification.
 
-## Integrated source
+## Latest proof-reuse integration
+
+The independently reviewed PR370 fix at `bb144df8543190aa24a32d1781bbb8069e4d15da`
+is merged without conflicts. Its two owner changes, test changes and two documents
+are otherwise exact. The source-specific fix record is
+[received proof reuse](2026-10-08-received-enrollment-proof-reuse.md).
+
+Full-root compilation passed on the combined source with one child, exit zero,
+complete reaping and unchanged inputs. Terminal SHA-256:
+`4c88e345e19e699672395ba10bba39af232dece9bf04bec7fc4f01c1658de30a`.
+The fixed 1664/1760/2304 MiB compiler envelope, 180-second cap and 4096 MiB
+reserve remain unchanged.
+
+A fresh 18-file gate passed 200/200 with no skips: the 188 received owner, Core,
+policy and guard cases plus the 12 shared ownership-composition cases. Both
+processes exited zero and were reaped; all four input groups stayed unchanged.
+Terminal SHA-256:
+`e60ae27f3fe2f82ccdd280b8c9e69882c8ee2dbb5c389957bddf74180c5f13f5`.
+Its fixed envelope was 1024/1120/2048 MiB, 240 seconds and the same reserve.
+
+The earlier 93-case result below remains attributed to its preceding combined
+source; these overlapping inventories are not added together. None of the earlier
+genuine artifacts is freshly requalified by this bounded gate.
+
+## Initial integrated source
+
+The initial combined source is `b0439c7a3f7c8b0bec32862ba38bdf3c5b38bdff`,
+src `2e16aa4f5d683d5ccbb2ee245e240178b27bbc0a`.
 
 - PR368 current actor/TAKE test and readback source: local `909e97a91836df4723fc2ab316aa170f5fe7a903`, remote `b0b2dbdb937df1d3cddfa546adae4e0178ceab5b`.
 - PR370 received enrollment, policy and replan owners plus genuine staged harness: local `a507475ff30212be17120a32ce6a496986703e6f`, remote `50070283dad2aef42f13c038bcdc042dbee9aa6b`.
@@ -28,7 +55,7 @@ admission or registration entry. These metadata fixtures do not substitute for
 authenticated enrollment or original physical evidence. All 18 protected stance
 and runner paths retain their original blob identities.
 
-## Exact bounded verification
+## Initial 93-case bounded verification
 
 Full-root TypeScript compilation passed with no diagnostics and one reaped child.
 The fixed compiler limits were 1664 MiB old space, 1760 MiB measured heap,

@@ -9,11 +9,16 @@ import { deriveReceivedUmpireDefenderReplan } from '../../core/sim/fielding/Rece
 import { receivedOwnerSchema } from './ActualReceivedUmpireDefenderSchema';
 // Isolates SQLite owner/transaction mechanics. This is not original-owner or
 // genuine received-call authentication credit; that separate gate stays held.
-const seam = vi.hoisted(() => ({ value: null as unknown, input: null as unknown, policy: null as unknown, fail: false, calls: 0 }));
+const seam = vi.hoisted(() => ({ value: null as unknown, input: null as unknown, policy: null as unknown, fail: false, calls: 0, qualifications: 0 }));
 vi.mock('./ActualReceivedUmpireDefenderEvidence', () => ({
-  receivedEnrollmentEvidenceFromSqlite: () => ({
-    derive: (source: unknown) => { seam.calls++; if (seam.fail) throw new Error('original-proof-failed'); return { value: { ...(seam.value as object), source }, bridge: { input: seam.input, dependencyHashes: {} }, context: {fieldingModel: (seam.policy as {fieldingModel:unknown}).fieldingModel} }; },
-    qualifyCurrent: () => { if (seam.fail) throw new Error('current-proof-failed'); return 'open-state'; },
+  receivedEnrollmentEvidenceFromSqlite: (db: import('node:sqlite').DatabaseSync) => ({
+    derive: (source: unknown) => { seam.calls++; if (seam.fail) throw new Error('original-proof-failed');
+      const base=seam.value as {anchor:{runtime:{snapshotHash:string}}},revision=Number(db.prepare('SELECT revision FROM original_proof_dependency').get()!.revision);
+      const value={...base,source,anchor:{...base.anchor,runtime:{...base.anchor.runtime,snapshotHash:revision===0?base.anchor.runtime.snapshotHash:'changed-original-'+revision}}};
+      return { value, bridge: { input: seam.input, dependencyHashes: {} }, context: {fieldingModel: (seam.policy as {fieldingModel:unknown}).fieldingModel} }; },
+    qualifyCurrent: () => { seam.qualifications++; if (seam.fail) throw new Error('current-proof-failed');
+      if(db.prepare('SELECT current_cut FROM original_proof_dependency').get()!.current_cut!==(seam.input as ReceivedUmpireDefenderReplanInput).currentCut.tick)throw new Error('current-cut-proof-changed');
+      return 'open-state'; },
   }),
 }));
 vi.mock('./SqliteReceivedUmpireDefenderPolicyDataStore', () => ({ receivedUmpireDefenderPolicyDataEvidenceFromSqlite: () => ({read: () => seam.policy}) }));
@@ -27,9 +32,9 @@ const load = async () => {
 };
 const fixture = async () => {
   const m = await load(), directory = mkdtempSync(join(tmpdir(), 'received-enrollment-isolated-')), path = join(directory, 'state.sqlite');
-  const db = new DatabaseSync(path); db.exec('CREATE TABLE untouched(value TEXT); INSERT INTO untouched VALUES(\'original\');');
+  const db = new DatabaseSync(path); db.exec("CREATE TABLE untouched(value TEXT); INSERT INTO untouched VALUES('original'); CREATE TABLE original_proof_dependency(revision INTEGER,current_cut INTEGER); INSERT INTO original_proof_dependency VALUES(0,1200);");
   const ref = { sourceId: 'runtime-a', sourceHash: 'source', snapshotHash: 'snapshot' };
-  seam.fail = false; seam.calls = 0;
+  seam.fail = false; seam.calls = 0; seam.qualifications = 0;
   seam.value = { source, gameId: 'game-a', playId: 1, receiver: { careerId: 'career-a', playerId: 'player-a', personId: 'person-a', personLinkSourceId: 'link-a', fieldingModelSourceId: 'model-a', gameDay: 12 },
     cause: { physicalPitchSourceId: 'pitch-a', playerId: 'player-a', callSourceId: 'call-a', originCommunicationSourceId: 'send-a' },
     membership: { version: 'received_umpire_defender_membership_v1', playerId: 'player-a', receiverRole: 'defender', effectiveFrom: { originTick: 1000, elapsedSeconds: 0.2, tick: 1200 }, legacyCoverage: 'unchanged', physicalAdvancement: 'blocked_until_future_capability', producers: [] },
@@ -252,4 +257,69 @@ it('J03 checks later headers while keeping its resealed Core payload opaque to h
     expect(f.processes.read(f.first.sourceId)).toEqual(f.original);expect(f.processes.accept(f.first.sourceId)).toEqual(f.original);
     expect(()=>f.processes.read(f.second.sourceId)).toThrow(/archive/);
   }finally{f.close();}
+});
+
+
+const proofReuseFixture=async()=>{
+  const m=await live(),f=await fixture(),first=processSource();let accepted=first;
+  f.store.accept(source.sourceId);seam.calls=0;seam.qualifications=0;
+  const processes=m.openSqliteActualReceivedUmpireDefenderReplanStore(f.path,{readAcceptedReplan:()=>accepted});
+  return {...f,first,processes,rebind(){accepted={...first,sourceVersion:'changed-after-insert'};},close(){processes.close();f.close();}};
+};
+const noProcessRows=(f:Awaited<ReturnType<typeof proofReuseFixture>>)=>{
+  for(const table of ['actual_received_umpire_defender_replans','actual_received_umpire_defender_replan_heads'])expect(f.db.prepare(`SELECT count(*) AS n FROM ${table}`).get()!.n).toBe(0);
+  expect(f.db.prepare('SELECT sequence FROM actual_received_umpire_defender_admissions').all()).toEqual([{sequence:1}]);
+};
+const observeProcessInsert=(effect:(db:InstanceType<typeof DatabaseSync>)=>void)=>{
+  const prepare=DatabaseSync.prototype.prepare;let observed=false;
+  DatabaseSync.prototype.prepare=function(this:InstanceType<typeof DatabaseSync>,sql:string){
+    const statement=prepare.call(this,sql),db=this;
+    if(/^INSERT INTO actual_received_umpire_defender_replans /.test(sql)){
+      const run=statement.run;statement.run=function(this:typeof statement,...args:Parameters<typeof run>){const result=run.apply(this,args);
+        if(!observed){observed=true;effect(db);}return result;} as typeof run;
+    }return statement;
+  } as typeof prepare;
+  return {observed:()=>observed,restore:()=>{DatabaseSync.prototype.prepare=prepare;}};
+};
+
+it('P01 authenticates once within each null-process proof while retaining every current boundary',async()=>{
+  const f=await proofReuseFixture();
+  try{const value=f.processes.accept(f.first.sourceId);
+    expect(value.input).toEqual({...seam.input as ReceivedUmpireDefenderReplanInput,processSourceId:f.first.sourceId});
+    expect(value.replan).toEqual(deriveReceivedUmpireDefenderReplan(value.input));expect(value.replan.selectedAt).toBeNull();
+    expect(seam.calls,'IN_PROOF_ENROLLMENT_AUTHENTICATION_DUPLICATED').toBe(7);expect(seam.qualifications).toBe(6);
+    expect(f.db.prepare('SELECT sequence FROM actual_received_umpire_defender_admissions ORDER BY sequence').all()).toEqual([{sequence:1},{sequence:2}]);
+  }finally{f.close();}
+});
+
+it('P02 independent historical reads and retries authenticate again and reject later dependency mutation',async()=>{
+  const f=await proofReuseFixture();
+  try{const original=f.processes.accept(f.first.sourceId);seam.calls=0;expect(f.processes.read(f.first.sourceId)).toEqual(original);
+    expect(seam.calls,'HISTORICAL_ENROLLMENT_PROOF_DUPLICATED').toBe(1);
+    f.db.exec('UPDATE original_proof_dependency SET revision=1');expect(()=>f.processes.read(f.first.sourceId)).toThrow(/enrollment archive differs/);
+    f.db.exec('UPDATE original_proof_dependency SET revision=0');seam.calls=0;expect(f.processes.accept(f.first.sourceId)).toEqual(original);expect(seam.calls).toBe(2);
+    expect(f.db.prepare('SELECT count(*) AS n FROM actual_received_umpire_defender_replans').get()!.n).toBe(1);
+  }finally{f.close();}
+});
+
+it('P03 rejects original dependency mutation between preflight and the separate write proof',async()=>{
+  const f=await proofReuseFixture(),exec=DatabaseSync.prototype.exec;let commits=0,changed=false;
+  DatabaseSync.prototype.exec=function(this:InstanceType<typeof DatabaseSync>,sql:string){const result=exec.call(this,sql);
+    if(sql==='COMMIT'&&++commits===2){changed=true;f.db.exec('UPDATE original_proof_dependency SET revision=1');}return result;};
+  try{expect(()=>f.processes.accept(f.first.sourceId)).toThrow(/enrollment archive differs/);expect(changed).toBe(true);noProcessRows(f);
+    expect(f.db.prepare('SELECT revision FROM original_proof_dependency').get()!.revision).toBe(1);
+  }finally{DatabaseSync.prototype.exec=exec;f.close();}
+});
+
+it('P04 rechecks a changed current cut after the real process INSERT and rolls the write back',async()=>{
+  const f=await proofReuseFixture(),observer=observeProcessInsert(db=>db.exec('UPDATE original_proof_dependency SET current_cut=1201'));
+  try{expect(()=>f.processes.accept(f.first.sourceId)).toThrow(/current-cut-proof-changed/);expect(observer.observed()).toBe(true);noProcessRows(f);
+    expect(f.db.prepare('SELECT current_cut FROM original_proof_dependency').get()!.current_cut).toBe(1200);
+  }finally{observer.restore();f.close();}
+});
+
+it('P05 retains Source callback identity rechecks after the real process INSERT',async()=>{
+  const f=await proofReuseFixture(),observer=observeProcessInsert(()=>f.rebind());
+  try{expect(()=>f.processes.accept(f.first.sourceId)).toThrow(/callback Source changed/);expect(observer.observed()).toBe(true);noProcessRows(f);
+  }finally{observer.restore();f.close();}
 });
