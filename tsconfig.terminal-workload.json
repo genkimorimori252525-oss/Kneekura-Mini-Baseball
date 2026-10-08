@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "noEmit": true, "incremental": false },
+  "include": [
+    "src/host/world/ActualFoulTerminalRoleWorkload.acceptance.ts",
+    "src/host/world/ActualFoulTerminalRoleWorkloadRollback.acceptance.ts",
+    "src/host/world/ActualFoulTerminalRoleWorkloadIntegrity.acceptance.ts",
+    "src/host/world/ActualFoulTerminalRoleWorkloadGuards.acceptance.ts",
+    "src/host/world/ActualFoulTerminalRoleWorkloadCheckpoint.acceptance.ts",
+    "src/host/world/ActualFoulTerminalRoleWorkloadReady.acceptance.ts",
+    "src/host/world/ActualFoulTerminalRoleWorkloadRetry.acceptance.ts",
+    "src/host/world/ActualFoulTerminalRoleWorkloadMetadata.test.ts",
+    "src/host/world/SqliteActualFoulTerminalRoleWorkloadStore.ts",
+    "src/host/world/PlayerWorkloadConnectionParity.test.ts",
+    "src/host/world/FoulTerminalWorkloadTransaction.test.ts"
+  ]
+}
