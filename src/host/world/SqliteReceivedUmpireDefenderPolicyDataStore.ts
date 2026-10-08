@@ -290,3 +290,44 @@ export const openSqliteReceivedUmpireDefenderPolicyDataStore = (path: string, au
     close() { if (busy) throw new Error('received policy data store re-entry'); retire(); },
   });
 };
+
+/** Read-only evidence on the caller's Native main transaction. No schema setup,
+ * accepted-input callback, connection lifecycle or authorizer changes occur. */
+export const receivedUmpireDefenderPolicyDataEvidenceFromSqlite = (db: Db) => {
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  if (!(db instanceof DatabaseSync)) throw new Error('received policy evidence requires a native main connection');
+  const own = receivedUmpireDefenderPolicyDataOwner(db); let busy = false;
+  const counters = () => [db.prepare('SELECT total_changes() AS n').get()!.n,
+    db.prepare('PRAGMA main.schema_version').get()!.schema_version,
+    db.prepare('PRAGMA temp.schema_version').get()!.schema_version];
+  return Object.freeze({ read(sourceId: string): DurableReceivedUmpireDefenderPolicyData | null {
+    if (!db.isTransaction) throw new Error('received policy evidence requires an existing caller transaction');
+    if (busy) throw new Error('received policy evidence read re-entry');
+    const queryOnly = db.prepare('PRAGMA query_only').get()!.query_only;
+    if (queryOnly !== 0 && queryOnly !== 1) throw new Error('received policy evidence query-only state differs');
+    const before = counters(); let savepoint = false; const cleanupErrors: unknown[] = [];
+    let failed = false, failure: unknown; let value: DurableReceivedUmpireDefenderPolicyData | null = null;
+    busy = true;
+    try {
+      db.exec('SAVEPOINT received_policy_evidence_read'); savepoint = true;
+      db.exec('PRAGMA query_only=1');
+      if (db.prepare('PRAGMA query_only').get()!.query_only !== 1) throw new Error('received policy evidence protection differs');
+      assertSchema(db); value = own.read(sourceId); assertSchema(db);
+      if (!db.isTransaction || db.prepare('PRAGMA query_only').get()!.query_only !== 1
+        || json(counters()) !== json(before)) throw new Error('received policy evidence read changed caller state');
+    } catch (error) { failed = true; failure = error; }
+    finally {
+      if (savepoint) try { db.exec('RELEASE received_policy_evidence_read'); } catch (error) { cleanupErrors.push(error); }
+      try {
+        db.exec(`PRAGMA query_only=${queryOnly}`);
+        if (!db.isTransaction || db.prepare('PRAGMA query_only').get()!.query_only !== queryOnly
+          || json(counters()) !== json(before)) throw new Error('received policy evidence caller state was not preserved');
+      } catch (error) { cleanupErrors.push(error); }
+      busy = false;
+    }
+    if (cleanupErrors.length) throw new AggregateError(failed ? [failure, ...cleanupErrors] : cleanupErrors,
+      'received policy evidence proof cleanup failed', { cause: failure });
+    if (failed) throw failure;
+    return value;
+  } });
+};

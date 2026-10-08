@@ -1,3 +1,4 @@
+import { assertNoReceivedDefenderClaims, assertNoReceivedDefenderReferenceClaims } from './ActualReceivedUmpireDefenderClaims';
 import { actualFoulEndIdentityRows, actualFoulTerminalClaims, actualFoulOtherTerminalClaims } from './ActualFoulPlayEndOwnership';
 import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
 import { actualLivePlayId } from './ActualLivePlayScope';
@@ -107,6 +108,7 @@ export const openSqliteActualFoulPlayEndStore = (path: string,
         });
       }
       if (!requested) throw new Error('accepted actual foul PlayEnd Source missing');
+      snapshot(() => assertNoReceivedDefenderReferenceClaims(db, [{ owner: 'batted_world_field_executions', sourceId: requested.executionSourceId }]));
       const proposed = snapshot(() => own.derive(requested, true));
       if (proposed.kind !== 'ended') throw new Error(`actual foul PlayEnd pending: ${proposed.pendingReasons.join(', ')}`);
       snapshot(() => assertTerminalClaims(db, proposed, false));
@@ -114,13 +116,16 @@ export const openSqliteActualFoulPlayEndStore = (path: string,
       try {
         const beforeChanges = db.prepare('SELECT total_changes() AS n').get()!.n;
         if (typeof beforeChanges !== 'number' || !Number.isSafeInteger(beforeChanges + 2)) throw new Error('actual foul terminal write accounting unavailable');
+        assertNoReceivedDefenderClaims(db, proposed);
         assertTerminalClaims(db, proposed, false);
         const current = own.derive(requested, true);
         if (current.kind !== 'ended' || json(projection(current)) !== encoded) throw new Error('actual PlayEnd complete proof changed before write');
         db.prepare('INSERT INTO actual_foul_play_ends VALUES(?,?,?,?,?,?,?,?)').run(sourceId, proposed.gameId, proposed.playId,
           proposed.physicalPitchSourceId, json(requested), hash(requested), encoded, hash(projection(proposed)));
+        assertNoReceivedDefenderClaims(db, proposed);
         assertTerminalClaims(db, proposed, true);
         db.prepare('INSERT INTO actual_live_play_fences VALUES(?,?,?,?)').run(proposed.gameId, proposed.playId, proposed.physicalPitchSourceId, sourceId);
+        assertNoReceivedDefenderClaims(db, proposed);
         assertTerminalClaims(db, proposed, true);
         // current=true adds head/dependency assertions to the same immutable
         // historical result. Reuse only this post-trigger proof, before commit.
@@ -172,6 +177,7 @@ export const openSqliteActualFoulPlayEndStore = (path: string,
         db.exec('RELEASE actual_end_closed_proof');
         if (!db.isTransaction) throw new Error('actual PlayEnd proof transaction ended during read');
         if (db.prepare('SELECT total_changes() AS n').get()!.n !== beforeChanges + 2) throw new Error('actual foul terminal write changed unrelated ownership');
+        assertNoReceivedDefenderClaims(db, proposed);
         db.exec('COMMIT'); return saved;
       } catch (error) {
         // A failing proof/read may already have rolled back. Preserve that
