@@ -226,7 +226,9 @@ export const openSqlitePlayerHealthRehabStore = (databasePath: string, sources: 
       let proof: ClinicalEffectProof;
       if (source.kind === 'REHAB_GAME') {
         const rows = captureClinicalGameRows(db, snapshot.source.diagnosis, source.participationReceiptId, source.rosterSnapshotId);
-        const receipt = cloneInert(sources.participation.readReceipt(source.participationReceiptId));
+        const acceptedReceipt = sources.participation.readReceipt(source.participationReceiptId);
+        if (acceptedReceipt && 'evidenceKind' in acceptedReceipt) throw new Error('rehabilitation does not support tagged participation receipts');
+        const receipt = cloneInert(acceptedReceipt);
         const roster = sources.rosterSnapshots.readSnapshot(before.careerId, source.rosterSnapshotId);
         if (!receipt || !roster) throw new Error('actual played clinical game Source is missing');
         proof = { receipt, roster: projectRehabRosterProof(roster, receipt), rows };

@@ -1,12 +1,15 @@
+import { battedEpisodeFieldBindingEvidenceFromSqlite } from './SqliteBattedEpisodeFieldBindingStore';
+import { battedWorldFieldGeometry, battedWorldFieldRootIdentity, battedWorldFieldSourceRootIdentity, type BattedWorldFieldRoot, type BattedEpisodeFieldBindingOptIn } from './BattedWorldFieldRoot';
+import { battedWorldFieldCalibrationEvidenceFromSqlite, acceptedBattedWorldFieldGeometryInput as geometryInput } from './BattedWorldFieldCalibrationEvidenceFromSqlite';
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { createHash, randomUUID } from 'node:crypto';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
-import { createBattedWorldFieldGeometry, deriveBattedWorldFieldMotion, deriveInitialBattedWorldFieldMotion,
+import { deriveBattedWorldFieldMotion, deriveInitialBattedWorldFieldMotion,
   type BattedWorldFieldGeometry, type BattedWorldFieldGeometryInput, type BattedWorldFieldMotion } from '../../core/sim/ball/BattedWorldFieldMotion';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
-import { battedContactResponseEvidenceFromSqlite, type DurableBattedContactResponse, type SqliteBattedContactResponseStore } from './SqliteBattedContactResponseStore';
-import { battedWorldBaseGeometryEvidenceFromSqlite, type DurableBattedWorldBaseGeometry, type SqliteBattedWorldBaseGeometryStore } from './SqliteBattedWorldBaseGeometryStore';
+import { battedContactResponseEvidenceFromSqlite, type SqliteBattedContactResponseStore } from './SqliteBattedContactResponseStore';
+import { type DurableBattedWorldBaseGeometry, type SqliteBattedWorldBaseGeometryStore } from './SqliteBattedWorldBaseGeometryStore';
 import { battedWorldResponseInput } from './SqliteBattedWorldContinuationStore';
 import { battedWorldMotionCommandsInput, battedWorldMotionPrimitiveCommands, type AcceptedBattedWorldMotion } from './SqliteBattedWorldMotionStore';
 import { battedWorldFieldTerritoryFromPrefix } from './BattedWorldFieldTerritoryFromPrefix';
@@ -20,8 +23,10 @@ export type DurableBattedWorldFieldGeometry = Readonly<{ source: AcceptedBattedW
   baseGeometry: DurableBattedWorldBaseGeometry; geometry: BattedWorldFieldGeometry }>;
 export type AcceptedBattedWorldFieldAction = Readonly<{ sourceId: string; sourceVersion: string; responseSourceId: string;
   geometrySourceId: string; previousFieldSourceId: string | null; availableAtTick: number; throughTick: number;
-  commands: AcceptedBattedWorldMotion['commands'] }> & (OwnedRunnerFieldCapability | OwnedRunnerFieldPiecesCapability);
-type Root = Readonly<{ response: DurableBattedContactResponse; geometry: DurableBattedWorldFieldGeometry }>;
+  commands: AcceptedBattedWorldMotion['commands'] }> &
+  (((OwnedRunnerFieldCapability | OwnedRunnerFieldPiecesCapability) & Readonly<{ episodeFieldBinding?: never }>)
+    | Readonly<{ kind?: never; prePitchRunnerSourceId?: never; episodeFieldBinding: BattedEpisodeFieldBindingOptIn }>);
+type Root = BattedWorldFieldRoot;
 export type DurableBattedWorldFieldAction = Root & Readonly<{ source: AcceptedBattedWorldFieldAction; revision: number;
   history: readonly AcceptedBattedWorldFieldAction[]; field: BattedWorldFieldMotion; pieceExecution?: OwnedRunnerFieldPieceExecution }>;
 export type SqliteBattedWorldFieldStore = Readonly<{ acceptGeometry(sourceId: string): DurableBattedWorldFieldGeometry;
@@ -102,8 +107,6 @@ export const isAuthenticatedBattedWorldFieldTraversalValue = (db: Db, value: Dur
   return traversal?.authenticated.has(value) ?? false;
 };
 
-type GeometryRow = { source_id: string; base_geometry_source_id: string; game_id: string;
-  source_json: string; source_hash: string; snapshot_json: string; snapshot_hash: string };
 type ActionRow = { source_id: string; physical_pitch_source_id: string; response_source_id: string; geometry_source_id: string;
   previous_source_id: string | null; revision: number; game_id: string;
   source_json: string; source_hash: string; snapshot_json: string; snapshot_hash: string };
@@ -112,20 +115,15 @@ const id = (v: unknown): v is string => typeof v === 'string' && !!v.length && v
 const tick = (v: unknown): v is number => typeof v === 'number' && Number.isSafeInteger(v) && v >= 0;
 const fields = (v: unknown, names: readonly string[]) => !!v && typeof v === 'object' && !Array.isArray(v)
   && Object.keys(v).sort().join('|') === [...names].sort().join('|');
-const geometryInput = (raw: AcceptedBattedWorldFieldGeometry, sourceId: string) => {
-  const s = cloneInert(raw);
-  if (!fields(s, ['sourceId', 'sourceVersion', 'baseGeometrySourceId', 'baseModels']) || s.sourceId !== sourceId
-    || ![sourceId, s.sourceVersion, s.baseGeometrySourceId].every(id)) throw new Error('invalid accepted actual field calibration Source');
-  return s;
-};
 const actionInput = (raw: AcceptedBattedWorldFieldAction, sourceId: string) => {
   const s = cloneInert(raw);
   if (!fields(s, ['sourceId', 'sourceVersion', 'responseSourceId', 'geometrySourceId', 'previousFieldSourceId', 'availableAtTick', 'throughTick', 'commands',
-    ...('kind' in s ? ['kind', 'prePitchRunnerSourceId'] : [])])
+    ...('kind' in s ? ['kind', 'prePitchRunnerSourceId'] : []), ...('episodeFieldBinding' in s ? ['episodeFieldBinding'] : [])])
     || 'kind' in s && (s.kind !== 'owned_runner_field_v1' && s.kind !== 'owned_runner_field_pieces_v1' || !id(s.prePitchRunnerSourceId))
     || s.sourceId !== sourceId || ![sourceId, s.sourceVersion, s.responseSourceId, s.geometrySourceId].every(id)
     || s.previousFieldSourceId !== null && (!id(s.previousFieldSourceId) || s.previousFieldSourceId === sourceId)
     || !tick(s.availableAtTick) || !tick(s.throughTick)) throw new Error('invalid accepted actual field action Source');
+  battedWorldFieldSourceRootIdentity(s);
   return { ...s, commands: battedWorldMotionCommandsInput(s.commands) };
 };
 const physicalId = (root: Root) => root.response.touch.worldContact.flight.source.physicalPitchSourceId;
@@ -153,36 +151,17 @@ const noOldOwner = (db: Db, pitchId: string) => {
 
 /** Additive original field owner. Historical bounded reads never replay future action payloads. */
 export const battedWorldFieldEvidenceFromSqlite = (db: Db) => {
-  const ownResponses = battedContactResponseEvidenceFromSqlite(db), ownBases = battedWorldBaseGeometryEvidenceFromSqlite(db);
-  const deriveGeometry = (source: AcceptedBattedWorldFieldGeometry): DurableBattedWorldFieldGeometry => {
-    const baseGeometry = ownBases.read(source.baseGeometrySourceId);
-    if (!baseGeometry) throw new Error('actual field original fixture geometry is missing');
-    const geometry = createBattedWorldFieldGeometry({ baseGeometry: baseGeometry.geometry, baseModels: source.baseModels });
-    return freeze({ source, baseGeometry, geometry });
-  };
-  const checkGeometryRow = (row: GeometryRow, value: DurableBattedWorldFieldGeometry) => {
-    if (row.source_id !== value.source.sourceId || row.base_geometry_source_id !== value.source.baseGeometrySourceId
-      || row.game_id !== value.baseGeometry.fixture.game_id || row.source_json !== json(value.source) || row.source_hash !== hash(value.source)
-      || row.snapshot_json !== json(value) || row.snapshot_hash !== hash(value)) throw new Error('corrupt own actual field calibration');
-  };
-  const readGeometry = (sourceId: string): DurableBattedWorldFieldGeometry | null => {
-    if (!id(sourceId)) throw new Error('invalid actual field calibration scope');
-    const row = db.prepare('SELECT * FROM batted_world_field_geometries WHERE source_id=?').get(sourceId) as GeometryRow | undefined;
-    if (!row) return null;
-    const value = deriveGeometry(geometryInput(JSON.parse(row.source_json) as AcceptedBattedWorldFieldGeometry, sourceId));
-    checkGeometryRow(row, value); return value;
-  };
-  const currentGeometry = (value: DurableBattedWorldFieldGeometry) => {
-    ownBases.current(value.baseGeometry);
-    if (json(deriveGeometry(value.source)) !== json(value)) throw new Error('original actual field calibration changed');
-    const rows = db.prepare(`SELECT * FROM batted_world_field_geometries WHERE game_id=? OR base_geometry_source_id=?
-      OR CASE WHEN json_valid(source_json) THEN json_extract(source_json,'$.baseGeometrySourceId') END=?
-      OR CASE WHEN json_valid(snapshot_json) THEN json_extract(snapshot_json,'$.baseGeometry.fixture.game_id') END=?`)
-      .all(value.baseGeometry.fixture.game_id, value.source.baseGeometrySourceId, value.source.baseGeometrySourceId, value.baseGeometry.fixture.game_id) as GeometryRow[];
-    if (rows.length > 1) throw new Error('actual field has competing original calibration owners');
-    for (const row of rows) checkGeometryRow(row, value);
-  };
+  const ownResponses = battedContactResponseEvidenceFromSqlite(db);
+  const { deriveGeometry, readGeometry, currentGeometry } = battedWorldFieldCalibrationEvidenceFromSqlite(db);
   const root = (source: AcceptedBattedWorldFieldAction): Root => {
+    if (battedWorldFieldSourceRootIdentity(source) !== 'legacy') {
+      const binding = battedEpisodeFieldBindingEvidenceFromSqlite(db as import('node:sqlite').DatabaseSync).read(source.episodeFieldBinding!.sourceId);
+      if (!binding || binding.source.responseSourceId !== source.responseSourceId || binding.source.fieldCalibrationSourceId !== source.geometrySourceId) {
+        throw new Error('actual field episode binding or redundant original references differ');
+      }
+      const value: Root = { rootKind: 'episode_field_binding_v1', episodeFieldBinding: binding, response: binding.response, geometry: binding.calibration };
+      battedWorldFieldGeometry(value); return value;
+    }
     const response = ownResponses.read(source.responseSourceId), geometry = readGeometry(source.geometrySourceId);
     if (!response || !geometry) throw new Error('actual field original profile or calibration is missing');
     const flight = response.touch.worldContact.flight;
@@ -204,7 +183,7 @@ export const battedWorldFieldEvidenceFromSqlite = (db: Db) => {
     } else if (source.kind === 'owned_runner_field_v1') field = deriveOwnedRunnerFieldMotion(source, original, previous);
     else {
       const response = battedWorldResponseInput(original.response), commands = battedWorldMotionPrimitiveCommands(original.response, source.commands);
-      const common = { response, geometry: original.geometry.geometry, commands, availableAtTick: source.availableAtTick, throughTick: source.throughTick };
+      const common = { response, geometry: battedWorldFieldGeometry(original), commands, availableAtTick: source.availableAtTick, throughTick: source.throughTick };
       if (!previous) field = deriveInitialBattedWorldFieldMotion(common);
       else {
         const motion = previous.field.motion;
@@ -212,8 +191,10 @@ export const battedWorldFieldEvidenceFromSqlite = (db: Db) => {
         field = deriveBattedWorldFieldMotion({ ...common, cursor: motion.cursor, actors: motion.actors, carrierPlayerId: motion.carrierPlayerId });
       }
     }
-    return freeze({ source, response: original.response, geometry: original.geometry, revision: (previous?.revision ?? 0) + 1,
-      history: [...(previous?.history ?? []), source], field, ...(pieceExecution ? { pieceExecution } : {}) });
+    const value = { source, response: original.response, geometry: original.geometry, revision: (previous?.revision ?? 0) + 1,
+      history: [...(previous?.history ?? []), source], field, ...(pieceExecution ? { pieceExecution } : {}) };
+    return freeze(original.rootKind === 'episode_field_binding_v1'
+      ? { ...value, rootKind: original.rootKind, episodeFieldBinding: original.episodeFieldBinding } : value);
   };
   const scope = (original: Root, throughSourceId?: string): readonly DurableBattedWorldFieldAction[] => {
     const traversal = fieldReadTraversals.get(db);
@@ -247,12 +228,14 @@ export const battedWorldFieldEvidenceFromSqlite = (db: Db) => {
     for (const row of rows.slice(0, bound + 1)) {
       const source = actionInput(JSON.parse(row.source_json) as AcceptedBattedWorldFieldAction, row.source_id);
       const sourceJson = json(source);
+      if (battedWorldFieldSourceRootIdentity(source) !== battedWorldFieldRootIdentity(original)) throw new Error('actual field prefix binding mode or Source differs');
       if (source.responseSourceId !== responseId || source.geometrySourceId !== geometryId || source.previousFieldSourceId !== row.previous_source_id
         || row.source_json !== sourceJson || row.source_hash !== createHash('sha256').update(sourceJson).digest('hex')) throw new Error('corrupt original actual field action Source');
       const saved = authenticated ? traversal!.nodes.get(row.source_id) : undefined;
       // Exact private root identity and the freshly parsed full Source are both
       // required. A partial/changed caller field cannot borrow an owned proof.
       const reusable = saved && saved.value.response === original.response && saved.value.geometry === original.geometry
+        && battedWorldFieldRootIdentity(saved.value) === battedWorldFieldRootIdentity(original)
         && json(saved.value.source) === sourceJson ? saved : undefined;
       const value = reusable?.value ?? execute(source, original, values.at(-1) ?? null);
       const snapshotJson = reusable?.snapshotJson ?? json(value);
@@ -268,7 +251,7 @@ export const battedWorldFieldEvidenceFromSqlite = (db: Db) => {
     if (!row) return null;
     const source = actionInput(JSON.parse(row.source_json) as AcceptedBattedWorldFieldAction, sourceId);
     const traversal = fieldReadTraversals.get(db); traversal?.check();
-    const rootKey = json([source.responseSourceId, source.geometrySourceId]);
+    const rootKey = json([source.responseSourceId, source.geometrySourceId, battedWorldFieldSourceRootIdentity(source)]);
     const values = scope(traversal?.roots.get(rootKey) ?? root(source), sourceId);
     if (traversal) {
       traversal.check();
@@ -286,14 +269,19 @@ export const battedWorldFieldEvidenceFromSqlite = (db: Db) => {
   };
   const derive = (source: AcceptedBattedWorldFieldAction) => {
     source = cloneInert(source);
-    if ('kind' in source) source = actionInput(source, source.sourceId);
+    if ('kind' in source || 'episodeFieldBinding' in source) source = actionInput(source, source.sourceId);
     const original = root(source), previous = scope(original).at(-1) ?? null;
     if (source.previousFieldSourceId !== (previous?.source.sourceId ?? null)) throw new Error('actual field predecessor differs');
     return execute(source, original, previous);
   };
   const currentRoot = (value: DurableBattedWorldFieldAction) => {
-    noOldOwner(db, physicalId(value)); ownResponses.current(value.response); currentGeometry(value.geometry);
-    if (json(root(value.source)) !== json({ response: value.response, geometry: value.geometry })) throw new Error('actual field original changed during write');
+    noOldOwner(db, physicalId(value));
+    if (value.rootKind === 'episode_field_binding_v1') battedEpisodeFieldBindingEvidenceFromSqlite(db as import('node:sqlite').DatabaseSync).current(value.episodeFieldBinding);
+    else { ownResponses.current(value.response); currentGeometry(value.geometry); }
+    const original: Root = value.rootKind === 'episode_field_binding_v1'
+      ? { rootKind: value.rootKind, episodeFieldBinding: value.episodeFieldBinding, response: value.response, geometry: value.geometry }
+      : { response: value.response, geometry: value.geometry };
+    if (json(root(value.source)) !== json(original)) throw new Error('actual field original changed during write');
   };
   const currentBefore = (value: DurableBattedWorldFieldAction) => {
     currentRoot(value); if (json(derive(value.source)) !== json(value)) throw new Error('actual field prefix changed before write');

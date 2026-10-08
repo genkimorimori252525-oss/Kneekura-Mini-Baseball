@@ -1,3 +1,4 @@
+import { battedWorldFieldGeometry } from './BattedWorldFieldRoot';
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { ownedScheduledMotionActionInput, isOwnedScheduledMotionKind, type OwnedScheduledMotionAction, type OwnedScheduledMotionExecution } from './OwnedScheduledBattedWorldMotion';
 import { createOwnedScheduledMotionExecutionReplay, pendingOwnedScheduledPlan } from './OwnedScheduledMotionExecution';
@@ -199,7 +200,7 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
       } finally { if (context) dependencyPrefixes.set(db, context); else dependencyPrefixes.delete(db); }
     }
     const prior = previous?.execution, original = prior?.field ?? baseField.field, motion = original.motion;
-    const response = battedWorldResponseInput(baseField.response), geometry = baseField.geometry.geometry;
+    const response = battedWorldResponseInput(baseField.response), geometry = battedWorldFieldGeometry(baseField);
     const physicalPrior = [...prefix].reverse().find((value) => value.execution.kind === 'owned_motion_v1' || value.execution.kind === 'motion'
       || value.execution.kind === 'motion_checkpoint_v1' || value.execution.kind === 'retained_motion_checkpoint_v1'
       || value.execution.kind === 'acquisition' || value.execution.kind === 'acquisition_advance'

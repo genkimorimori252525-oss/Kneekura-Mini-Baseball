@@ -1,3 +1,4 @@
+import { battedWorldFieldGeometry } from './BattedWorldFieldRoot';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { SeedRoot } from '../../core/rng/SeedRoot';
 import { quantizeEventTick } from '../../core/sim/ExactEventTime';
@@ -125,7 +126,7 @@ export const sampleActualFirstBaseUmpireObservation = (source: AcceptedActualFir
         const c = actorsAt(control.elapsedSeconds), t = actorsAt(touch.elapsedSeconds);
         const glove = c.actors.filter(value => value.actor.playerId === control.playerId && value.actor.primitive.role === 'glove');
         if (glove.length !== 1) throw new Error('actual umpire control cue requires one owned glove');
-        const surface = race.baseField.geometry.geometry.baseGeometry.bases.first;
+        const surface = battedWorldFieldGeometry(race.baseField).baseGeometry.bases.first;
         const feetFor = (playerId: string, at: number, sampleAt: typeof t) => sampleAt.actors
           .filter(value => value.actor.playerId === playerId
             && (value.actor.primitive.role === 'left_foot' || value.actor.primitive.role === 'right_foot'))
@@ -145,7 +146,7 @@ export const sampleActualFirstBaseUmpireObservation = (source: AcceptedActualFir
         const controlBaseCue = cue(control.elapsedSeconds, controlFeet[0], c.actors);
         const pose = setup.pose;
         if (pose && [...Object.values(events), controlBaseCue].some(event => hasUnmodeledObservationSurface(pose.position, event.target.position,
-          race.baseField.response.touch.worldContact.model.surfaces, Object.values(race.baseField.geometry.geometry.bases)))) perception = { kind: 'pending', reason: 'surface_visibility_unavailable' };
+          race.baseField.response.touch.worldContact.model.surfaces, Object.values(battedWorldFieldGeometry(race.baseField).bases)))) perception = { kind: 'pending', reason: 'surface_visibility_unavailable' };
         else {
           const root = new SeedRoot(frame.matchSeed);
           const stream = (key: 'control' | 'touch') => root.streamRng(frame.match.playId, 'perception', json([
