@@ -1,3 +1,6 @@
+import type { FoulTerminalReadinessReference } from './ActualFoulTerminalPostPlayCompletion';
+import { readFoulTerminalPhysicalActivation, assertFoulTerminalPhysicalActivationCurrent } from './FoulTerminalNextPlayReadiness';
+import { assertFoulTerminalPriorActivation } from './FoulTerminalCompletionAncestryGuard';
 import type { ActualLiveReadinessReference } from './ActualLivePlayReadiness';
 import { readActualLivePhysicalActivation, assertActualLivePhysicalActivationCurrent } from './ActualLivePhysicalActivation';
 import { createHash } from 'node:crypto';
@@ -19,7 +22,7 @@ export type DurablePhysicalPlateAppearanceActor = Readonly<{
   source: AcceptedPhysicalPlateAppearanceActor; binding: OfficialParticipantBinding; person: ReturnType<typeof readOfficialActorPersonLink>;
   match: CanonicalMatchState; world: CanonicalWorldSnapshot; officialRevision: number;
   origin: Readonly<{ initialWorldHash: string | null; applicationHash: string | null; scoringHash: string | null;
-    actualLiveReadiness?: ActualLiveReadinessReference }>;
+    actualLiveReadiness?: ActualLiveReadinessReference; foulTerminalReadiness?: FoulTerminalReadinessReference }>;
   fixtureHash: string; defenderBindings: readonly OfficialParticipantBinding[];
   defenderPersons: readonly ReturnType<typeof readOfficialActorPersonLink>[];
   worldFixture: Readonly<{ careerId: string; competitionEditionId: string;
@@ -52,6 +55,7 @@ export const derivePhysicalPlateAppearanceActor = (db: ActorDb, source: Accepted
   let match: CanonicalMatchState, world: CanonicalWorldSnapshot, officialRevision: number;
   let initialWorldHash: string | null = null, applicationHash: string | null = null, scoringHash: string | null = null;
   let actualLiveReadiness: ActualLiveReadinessReference | undefined;
+  let foulTerminalReadiness: FoulTerminalReadinessReference | undefined;
   if ('initialWorldSourceId' in source) {
     const row = db.prepare('SELECT * FROM official_initial_world_sources WHERE source_id=?').get(source.initialWorldSourceId) as { snapshot_json: string } | undefined;
     const initial = row ? JSON.parse(row.snapshot_json) as DurableInitialOfficialWorld : null;
@@ -59,8 +63,12 @@ export const derivePhysicalPlateAppearanceActor = (db: ActorDb, source: Accepted
     assertInitialOfficialWorldEvidence(db, initial, true);
     match = initial.match; world = initial.world; officialRevision = 0; initialWorldHash = actorHash(row);
   } else {
-    const actual = readActualLivePhysicalActivation(db, source.gameId, source.activationApplicationId);
-    if (actual) {
+    const terminal = readFoulTerminalPhysicalActivation(db,source.gameId,source.activationApplicationId);
+    const actual = terminal ? null : readActualLivePhysicalActivation(db, source.gameId, source.activationApplicationId);
+    if (terminal) {
+      match = terminal.match; world = terminal.world; officialRevision = terminal.officialRevision; applicationHash = terminal.applicationHash;
+      foulTerminalReadiness = terminal.readinessReference;
+    } else if (actual) {
       match = actual.match; world = actual.world; officialRevision = actual.officialRevision; applicationHash = actual.applicationHash;
       actualLiveReadiness = actual.readinessReference;
     } else {
@@ -92,6 +100,7 @@ export const derivePhysicalPlateAppearanceActor = (db: ActorDb, source: Accepted
       if (score.scoring_application_id !== expected.scoringApplicationId || score.official_application_id !== expected.officialApplicationId
         || score.closure_id !== expected.closureId || score.source_event_id !== expected.sourceEventId
         || score.result_json !== actorJson(expected)) throw new Error('physical batter prior scoring archive differs');
+      assertFoulTerminalPriorActivation(db,source.gameId,result.receipt.previousPlayId,result.activation.nextMatchState.playId);
       match = result.activation.nextMatchState; world = result.nextWorld; officialRevision = result.receipt.durableRevision;
       applicationHash = actorHash(row); scoringHash = actorHash(score);
     }
@@ -114,11 +123,13 @@ export const derivePhysicalPlateAppearanceActor = (db: ActorDb, source: Accepted
       || d.competitionEditionId !== binding.competitionEditionId || d.fixtureEventId !== binding.fixtureEventId || d.personId === binding.personId)
     || binding.fixtureEventId !== fixture.fixture_event_id) throw new Error('physical batter actor scope differs');
   return actorFreeze({ source, binding, person: readOfficialActorPersonLink(db, binding), match, world, officialRevision,
-    origin: { initialWorldHash, applicationHash, scoringHash, ...(actualLiveReadiness ? { actualLiveReadiness } : {}) }, fixtureHash: actorHash(fixture), defenderBindings,
+    origin: { initialWorldHash, applicationHash, scoringHash, ...(actualLiveReadiness ? { actualLiveReadiness } : {}), ...(foulTerminalReadiness ? { foulTerminalReadiness } : {}) }, fixtureHash: actorHash(fixture), defenderBindings,
     defenderPersons: defenderBindings.map((d) => readOfficialActorPersonLink(db, d)), worldFixture });
 };
 export const assertPhysicalActorOpenFrame = (db: ActorDb, actor: DurablePhysicalPlateAppearanceActor): void => {
+  if (actor.origin.actualLiveReadiness && actor.origin.foulTerminalReadiness) throw new Error('physical batter origin has dual readiness kinds');
   if (actor.origin.actualLiveReadiness) assertActualLivePhysicalActivationCurrent(db, actor.origin.actualLiveReadiness);
+  if (actor.origin.foulTerminalReadiness) assertFoulTerminalPhysicalActivationCurrent(db,actor.origin.foulTerminalReadiness,actor.source.gameId,actor.match.playId);
   const row = db.prepare('SELECT durable_revision,state_json,activation_json FROM matches WHERE match_id=?').get(actor.source.gameId) as {
     durable_revision: number; state_json: string; activation_json: string | null;
   } | undefined;

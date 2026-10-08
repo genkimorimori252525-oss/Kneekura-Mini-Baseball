@@ -1,3 +1,8 @@
+import { createRequire } from 'node:module';
+import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
+import { foulTerminalPostPlayCompletionEvidenceFromSqlite } from './ActualFoulTerminalPostPlayCompletionEvidenceFromSqlite';
+import { foulTerminalPendingInput } from './ActualFoulTerminalApplicationEvidenceFromSqlite';
+import { foulTerminalCompletedOfficial } from '../OfficialTerminalPostPlayCompletion';
 import { assertPriorActualLiveClosureCompleted } from './ActualLivePlayClosureEvidenceFromSqlite';
 import { createHash } from 'node:crypto';
 import type { DatabaseSync } from 'node:sqlite';
@@ -82,7 +87,7 @@ const actor = (db: PhysicalClosureDb, s: AcceptedPhysicalPlayClosure, pitch: Dur
 
 type EarlierScoring = Readonly<{ applicationId: string; scoringApplicationId: string; before: CanonicalMatchState;
   after: CanonicalMatchState; scoring: PersistedOfficialScoring; closureRowHash: string; scoringRowHash: string }>;
-export const readPhysicalClosureScoringHistory = (db: PhysicalClosureDb, frame: Readonly<{ gameId: string; officialRevision: number }>): EarlierScoring[] => {
+const readPhysicalClosureScoringHistoryRows = (db: PhysicalClosureDb, frame: Readonly<{ gameId: string; officialRevision: number }>): EarlierScoring[] => {
   const rows = db.prepare("SELECT * FROM applications WHERE match_id=? AND json_extract(result_json,'$.receipt.durableRevision')<=? ORDER BY json_extract(result_json,'$.receipt.durableRevision')")
     .all(frame.gameId, frame.officialRevision) as { application_id: string; match_id: string; closure_id: string; request_hash: string; result_json: string }[];
   if (rows.length !== frame.officialRevision) throw new Error('physical closure prior application history is missing');
@@ -94,7 +99,20 @@ export const readPhysicalClosureScoringHistory = (db: PhysicalClosureDb, frame: 
     const saved = JSON.parse(scored.request_json) as { input: PersistOfficialScoringInput; evidence: OfficialFairBallScoringEvidence | null };
     const input = saved.input, a = input.officialApplication;
     if ('mode' in a && a.mode === 'non_live_pending_post_play_v1') {
-      throw new Error('terminal pending scoring cannot supply legacy closure history');
+      // Terminal scoring keeps its immutable pending input forever. Only the
+      // independently authenticated completed owner and all original effects
+      // may supply a historical record; generic legacy writers stay blocked.
+      const completed=foulTerminalPostPlayCompletionEvidenceFromSqlite(db as DatabaseSync).read(row.closure_id);
+      if(!completed)throw new Error('terminal completion scoring history owner is missing');
+      const p=completed.proposal,c=completed.result.completion,receipt=completed.result.official.receipt;
+      const official=foulTerminalCompletedOfficial(completed.result.official,c),score=JSON.parse(scored.result_json) as PersistedOfficialScoring;
+      if(p.gameId!==frame.gameId||p.source.applicationId!==row.application_id||p.originalOfficialRevision!==index
+        ||receipt.durableRevision!==index+1||closureJson(a)!==closureJson(foulTerminalPendingInput(p))
+        ||row.match_id!==p.gameId||row.closure_id!==p.source.sourceId||row.request_hash!==completed.result.official.pendingPostPlay.requestHash
+        ||row.result_json!==closureJson(official)||closureHash(scored)!==c.scoringReference.rowHash
+        ||input.scoringApplicationId!==c.scoringReference.scoringApplicationId)throw new Error('terminal completion prior scored Source differs');
+      return {applicationId:p.source.applicationId,scoringApplicationId:c.scoringReference.scoringApplicationId,before:p.applicationBody.match,
+        after:receipt.appliedMatchState,scoring:score,closureRowHash:closureHash(row),scoringRowHash:closureHash(scored)};
     }
     const official = 'game' in a ? deriveOfficialFinalResult(a, index + 1) : deriveOfficialPlayResult(a, index + 1);
     const classified = classifyClosedPlayForOfficialScoring(a.kind === 'non_live' ? { kind: a.kind, match: a.match, timeline: a.timeline,
@@ -113,6 +131,14 @@ export const readPhysicalClosureScoringHistory = (db: PhysicalClosureDb, frame: 
     return { applicationId: a.applicationId, scoringApplicationId: score.scoringApplicationId, before: a.match,
       after: official.receipt.appliedMatchState, scoring: score, closureRowHash: closureHash(row), scoringRowHash: closureHash(scored) };
   });
+};
+/** Keep initial row selection and all terminal effect/row checks within the
+ * same Native read interval. Structural legacy readers retain their narrow
+ * prepare-only interface; no proof or snapshot survives this call. */
+export const readPhysicalClosureScoringHistory = (db: PhysicalClosureDb, frame: Readonly<{gameId:string;officialRevision:number}>): EarlierScoring[] => {
+  const {DatabaseSync:NativeDatabase}=createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  const read=()=>readPhysicalClosureScoringHistoryRows(db,frame);
+  return db instanceof NativeDatabase ? withBattedVenueLegalReadSnapshot(db,read) : read();
 };
 /** The existing contiguous-history fold is shared unchanged with read-only
  * consumer verification; missing earlier scoring is never replaced by zero H/E. */

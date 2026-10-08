@@ -1,3 +1,4 @@
+import { assertFoulTerminalPhysicalActivationCurrent } from './FoulTerminalNextPlayReadiness';
 import type { AcceptedOriginalBattingIntent } from './OriginalBattingIntent';
 import { derivePrePitchRunnerExecution, type DurablePrePitchRunnerExecution } from './PrePitchRunnerEvidenceFromSqlite';
 import type { AcceptedPrePitchRunnerExecution } from './PrePitchRunnerExecution';
@@ -8,7 +9,7 @@ import { capturePhysicalPitchEvidence, physicalPitchActionInput as actionInput, 
 import { assertPriorPhysicalClosureCompleted } from './PhysicalPlayClosureEvidenceFromSqlite';
 export { capturePhysicalPitchEvidence } from './PhysicalPitchEvidenceFromSqlite';
 import { createRequire } from 'node:module';
-import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
+import { physicalStoreTransactionBoundary } from './PhysicalStoreTransactionBoundary';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { createCanonicalPlateAppearanceTimeline, type CanonicalPlateAppearanceTimeline } from '../../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
@@ -86,25 +87,19 @@ export const openSqlitePhysicalPitchProgressStore = (databasePath: string, sourc
     UNIQUE(game_id, play_id, progress_revision)
   );`);
   const bySource = db.prepare('SELECT * FROM physical_pitch_progress_actions WHERE source_id=?');
-  let closed = false;
-  const check = (...ids: string[]) => { if (closed || ids.some((value) => !id(value))) throw new Error('invalid or closed physical pitch scope'); };
-  // Keep peer runtime callbacks between fresh private read snapshots. A single
-  // transaction around frameInput would hide their changes from its row audit.
-  const reading = <T>(work: () => T): T => {
-    if (db.isTransaction) return work();
-    db.exec('BEGIN');
-    try { const value = withBattedWorldPhysicalReadTraversal(db, work); db.exec('COMMIT'); return value; }
-    catch (error) {
-      if (db.isTransaction) try { db.exec('ROLLBACK'); }
-      catch (cleanup) { throw new AggregateError([error, cleanup], 'physical pitch private read rollback failed', { cause: error }); }
-      throw error;
-    }
-  };
+  const transaction=physicalStoreTransactionBoundary(db,'physical pitch');
+  const check = (...ids: string[]) => { transaction.check(); if (ids.some((value) => !id(value))) throw new Error('invalid or closed physical pitch scope'); };
+  // Keep peer callbacks between private read snapshots while retaining exact
+  // ownership and retiring any connection whose transaction cleanup is unsure.
+  const reading = <T>(work: () => T): T => transaction.read(work);
   const evidence = (frame: EvidenceScope, mutable = false): Record<string, readonly string[]> => {
     return reading(() => capturePhysicalPitchEvidence(db, frame, mutable));
   };
   const openFrame = (frame: Omit<Frame, 'immutableEvidence'>): void => reading(() => {
     assertPriorPhysicalClosureCompleted(db, frame.activationApplicationId);
+    if (frame.batterActor?.origin.foulTerminalReadiness) {
+      assertFoulTerminalPhysicalActivationCurrent(db,frame.batterActor.origin.foulTerminalReadiness,frame.gameId,frame.match.playId);
+    }
     const actualBatter = readPhysicalActorForPlayFromSqlite(db, frame.gameId, frame.match.playId);
     if (json(actualBatter ?? null) !== json(frame.batterActor ?? null)) throw new Error('physical batter ownership changed during frame reads');
     const row = db.prepare('SELECT durable_revision, state_json, activation_json FROM matches WHERE match_id=?')
@@ -194,8 +189,7 @@ export const openSqlitePhysicalPitchProgressStore = (databasePath: string, sourc
       if (!head || head.revision !== frame.workload.revision) throw new Error('physical pitch workload advanced during open play');
       const beforeTimeline = previous.at(-1)?.result.pitch.resolution.timeline ?? createCanonicalPlateAppearanceTimeline(frame.match, frame.world.tick);
       const result = execute(source, frame, beforeTimeline, expectedProgressRevision + 1), originalRows = evidence(frame, true);
-      db.exec('BEGIN IMMEDIATE');
-      try {
+      return transaction.write(() => {
         const liveFence = beginActualLivePlayWrite(db, { gameId: source.gameId, playId: frame.match.playId }, { owner: 'physical_pitch_progress_actions', sourceId });
         openFrame(frame);
         if (json(evidence(frame, true)) !== json(originalRows) || history(source.gameId, frame.match.playId).length !== expectedProgressRevision) throw new Error('physical pitch evidence changed before append');
@@ -214,8 +208,8 @@ export const openSqlitePhysicalPitchProgressStore = (databasePath: string, sourc
         openFrame(frame);
         const saved = history(source.gameId, frame.match.playId).at(-1)!;
         if (json(saved) !== json(result)) throw new Error('physical pitch Source changed during append');
-        assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
-      } catch (error) { db.exec('ROLLBACK'); throw error; }
+        assertActualLivePlayWriteUnchanged(db, liveFence); return saved;
+      });
     },
     readAcceptedPitch(sourceId): DurablePhysicalPitch | null {
       check(sourceId); const row = bySource.get(sourceId) as Row | undefined;
@@ -225,7 +219,7 @@ export const openSqlitePhysicalPitchProgressStore = (databasePath: string, sourc
       check(gameId); if (!integer(playId)) throw new Error('invalid physical pitch playId');
       return history(gameId, playId).at(-1) ?? null;
     },
-    close() { if (!closed) { db.close(); closed = true; } },
+    close() { transaction.close(); },
   });
   } catch (error) { db.close(); throw error; }
 };

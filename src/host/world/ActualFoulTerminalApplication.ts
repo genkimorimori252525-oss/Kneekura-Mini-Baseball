@@ -1,3 +1,4 @@
+import type { DurableFoulTerminalCompletedApplication } from './ActualFoulTerminalPostPlayCompletion';
 import type { OfficialPendingOrigin, PersistOfficialPendingNonLiveResult } from '../OfficialPendingPostPlay';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
@@ -93,7 +94,7 @@ export type DurableFoulTerminalAcknowledgedApplication = Readonly<{
   status: 'OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY'; officialApplied: true; result: FoulTerminalAcknowledgedResult;
 }>;
 export type DurableFoulTerminalApplication = DurableFoulTerminalApplicationQueue | DurableFoulTerminalAppliedPending
-  | DurableFoulTerminalAcknowledgedApplication;
+  | DurableFoulTerminalAcknowledgedApplication | DurableFoulTerminalCompletedApplication;
 export type SqliteActualFoulTerminalApplicationStore = Readonly<{
   evaluate(sourceId: string): FoulTerminalApplicationEvaluation;
   enqueue(sourceId: string): FoulTerminalApplicationPending | DurableFoulTerminalApplication;
@@ -126,3 +127,6 @@ export const actualFoulTerminalApplicationInput = (raw: unknown, sourceId: strin
   }
   return freeze(s);
 };
+
+export { actualFoulTerminalPostPlaySetupInput, type AcceptedFoulTerminalPostPlaySetup,
+  type FoulTerminalPostPlayReference, type FoulTerminalPostPlaySetupAuthority } from './ActualFoulTerminalPostPlaySetup';

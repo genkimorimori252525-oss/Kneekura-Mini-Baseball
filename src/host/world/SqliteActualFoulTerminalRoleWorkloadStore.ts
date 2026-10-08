@@ -155,6 +155,7 @@ export const openSqliteActualFoulTerminalRoleWorkloadStore = (path: string,
               baseline: null, prior: participant.applied, changes: participant.applied ? 0 : 2 };
           }
           const row = db.prepare('SELECT * FROM main.world_player_workload_baselines WHERE source_id=?').get(requested.sourceId);
+          if (c.terminal.status === 'POST_PLAY_COMPLETED_CONTINUING' && !row) throw new Error('completed terminal baseline repair is forbidden');
           const raw = authority?.readAcceptedBaseline?.(requested.sourceId) ?? null;
           const source = raw === null ? row ? JSON.parse(String(row.source_json)) as AcceptedPlayerWorkloadBaseline : null : cloneInert(raw);
           if (!source || source.sourceId !== requested.sourceId) throw new Error('accepted terminal workload baseline missing');
@@ -237,6 +238,10 @@ export const openSqliteActualFoulTerminalRoleWorkloadStore = (path: string,
         const row = identity(db, 'actual_role_workload_assessments', p.assessmentSourceId);
         if (!row || row.source_json !== json(input(accepted, p.assessmentSourceId))) throw new Error('terminal assessment changed after freeze');
       }
+      // The authenticated frozen read already proved this exact archived
+      // activity and its current chain. Keep Source checks above and the final
+      // all-participant read below; only missing effects need the writer/CAS.
+      if (p.applied) continue;
       const after = global({ kind: 'activity', terminalSourceId, sourceId: p.activity.sourceEventId }, () => workload.apply(p.activity.sourceEventId, p.before.revision));
       same(after, p.after, 'terminal workload global AFTER differs');
     }

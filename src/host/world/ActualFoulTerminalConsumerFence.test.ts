@@ -194,7 +194,10 @@ for (const origin of ['activation', 'initial'] as const) {
 
 it.each(gameVariants)('C04 scoring history rejects terminal mode with game=%s before final/play discrimination', variant => {
   const f = syntheticFixture(variant, true), forbidden = forbidLegacyDerivation(), before = originalRows(f.db);
-  expectTerminalModeRejection(() => readPhysicalClosureScoringHistory(f.db, { gameId: f.request.matchId, officialRevision: 1 }));
+  // The explicit completed-terminal history branch now requires the original
+  // authenticated owner; this synthetic pending mirror cannot supply one.
+  expect(() => readPhysicalClosureScoringHistory(f.db, { gameId: f.request.matchId, officialRevision: 1 }))
+    .toThrow('foul terminal Source is missing but official ownership claims survive');
   for (const spy of forbidden) expect(spy).not.toHaveBeenCalled();
   expect(originalRows(f.db)).toEqual(before);
 });

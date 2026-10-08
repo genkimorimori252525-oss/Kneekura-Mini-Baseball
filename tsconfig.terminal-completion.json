@@ -1,0 +1,31 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "incremental": false
+  },
+  "include": [
+    "src/host/OfficialTerminalCompletionMatch.test.ts",
+    "src/host/world/ActualFoulTerminalCommitDurability.acceptance.ts",
+    "src/host/world/ActualFoulTerminalCompletionAdversarial.acceptance.ts",
+    "src/host/world/ActualFoulTerminalCompletionPrerequisite.acceptance.ts",
+    "src/host/world/ActualFoulTerminalCompletionReview.acceptance.ts",
+    "src/host/world/ActualFoulTerminalCompletionWriteGuards.acceptance.ts",
+    "src/host/world/ActualFoulTerminalLocalMatch.acceptance.ts",
+    "src/host/world/ActualFoulTerminalPostPlayCompletion.acceptance.ts",
+    "src/host/world/ActualFoulTerminalPostPlaySetup.test.ts",
+    "src/host/world/ActualFoulTerminalScoringHistory.acceptance.ts",
+    "src/host/world/ActualFoulTerminalScoringHistoryBoundary.acceptance.ts",
+    "src/host/world/ActualFoulTerminalSettledCheckpoint.acceptance.ts",
+    "src/host/world/FoulTerminalActivationOrphanGuard.test.ts",
+    "src/host/world/FoulTerminalCompletionAncestryGuard.test.ts",
+    "src/host/world/FoulTerminalMixedHistoryCensus.test.ts",
+    "src/host/world/FoulTerminalNextPlay.acceptance.ts",
+    "src/host/world/FoulTerminalNextPlayLanes.acceptance.ts",
+    "src/host/world/FoulTerminalNextPlayReadback.acceptance.ts",
+    "src/host/world/FoulTerminalNextPlayReadiness.test.ts",
+    "src/host/world/FoulTerminalPriorLiveAncestry.test.ts",
+    "src/host/world/PhysicalStoreCleanupBoundary.test.ts",
+    "src/host/world/PrivateNativeArtifactReadback.test.ts"
+  ]
+}

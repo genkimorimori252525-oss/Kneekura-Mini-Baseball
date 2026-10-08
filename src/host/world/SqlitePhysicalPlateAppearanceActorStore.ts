@@ -1,6 +1,6 @@
 import { beginActualLivePlayWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
-import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
+import { physicalStoreTransactionBoundary } from './PhysicalStoreTransactionBoundary';
 import type { SqliteOfficialStateStore } from '../SqliteOfficialStateStore';
 import type { SqliteOfficialInitialWorldStore } from './SqliteOfficialInitialWorldStore';
 import type { SqliteOfficialParticipationStore } from './SqliteOfficialParticipationStore';
@@ -32,20 +32,11 @@ export const openSqlitePhysicalPlateAppearanceActorStore = (path: string, source
     CREATE TABLE IF NOT EXISTS physical_plate_appearance_actors (source_id TEXT PRIMARY KEY,source_version TEXT NOT NULL,
       game_id TEXT NOT NULL,play_id INTEGER NOT NULL,player_id TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,
       snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,UNIQUE(game_id,play_id));`);
-  let closed = false;
-  const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed physical batter scope'); };
-  // Own only a private read snapshot. Existing writer transactions retain all
-  // ownership, and peer callbacks are invoked after this bracket has ended.
-  const reading = <T>(work: () => T): T => {
-    if (db.isTransaction) return work();
-    db.exec('BEGIN');
-    try { const value = withBattedWorldPhysicalReadTraversal(db, work); db.exec('COMMIT'); return value; }
-    catch (error) {
-      if (db.isTransaction) try { db.exec('ROLLBACK'); }
-      catch (cleanup) { throw new AggregateError([error, cleanup], 'physical actor private read rollback failed', { cause: error }); }
-      throw error;
-    }
-  };
+  const transaction=physicalStoreTransactionBoundary(db,'physical batter');
+  const check = (sourceId: string) => { transaction.check(); if (!id(sourceId)) throw new Error('invalid or closed physical batter scope'); };
+  // Nested reads belong only to this store's own transaction; a failed or
+  // uncertain cleanup permanently retires the private writer connection.
+  const reading = <T>(work: () => T): T => transaction.read(work);
   const read = (sourceId: string) => { check(sourceId); return reading(() => readPhysicalPlateAppearanceActorFromSqlite(db, sourceId)); };
   const notStarted = (actor: DurablePhysicalPlateAppearanceActor) => {
     for (const table of ['physical_pitch_progress_heads', 'physical_pitch_progress_actions']) {
@@ -75,8 +66,7 @@ export const openSqlitePhysicalPlateAppearanceActorStore = (path: string, source
         || json(binding) !== json(actor.binding) || 'initialWorldSourceId' in source
           && json(sources.initialWorlds.readAcceptedSource(source.initialWorldSourceId)) !== json(JSON.parse((db.prepare('SELECT snapshot_json FROM official_initial_world_sources WHERE source_id=?')
             .get(source.initialWorldSourceId) as { snapshot_json: string }).snapshot_json))) throw new Error('physical batter peer Source differs');
-      db.exec('BEGIN IMMEDIATE');
-      try {
+      return transaction.write(() => {
         const liveFence = beginActualLivePlayWrite(db, { gameId: source.gameId, playId: actor.match.playId }, { owner: 'physical_plate_appearance_actors', sourceId });
         assertPriorPhysicalClosureCompleted(db, 'activationApplicationId' in source ? source.activationApplicationId : null);
         assertPhysicalActorOpenFrame(db, actor); notStarted(actor);
@@ -89,8 +79,8 @@ export const openSqlitePhysicalPlateAppearanceActorStore = (path: string, source
         assertPhysicalActorOpenFrame(db, actor); notStarted(actor);
         const saved = read(sourceId);
         if (!saved || json(saved) !== json(actor)) throw new Error('physical batter changed during acceptance');
-        assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
-      } catch (error) { db.exec('ROLLBACK'); throw error; }
+        assertActualLivePlayWriteUnchanged(db, liveFence); return saved;
+      });
     },
     readCompletedAppearance(sourceId) {
       const actor = read(sourceId); if (!actor) return null;
@@ -105,6 +95,6 @@ export const openSqlitePhysicalPlateAppearanceActorStore = (path: string, source
         scoringApplicationId: closure.proposal.expectedScoring.scoringApplicationId, durableRevision: closure.proposal.expectedOfficial.receipt.durableRevision,
         record: closure.proposal.expectedScoring.record });
     },
-    close() { if (!closed) { db.close(); closed = true; } },
+    close() { transaction.close(); },
   });
 };

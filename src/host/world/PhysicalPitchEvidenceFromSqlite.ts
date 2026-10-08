@@ -1,3 +1,4 @@
+import { assertFoulTerminalPriorActivation } from './FoulTerminalCompletionAncestryGuard';
 import { originalBattingIntentInput } from './OriginalBattingIntent';
 import { derivePrePitchRunnerExecution } from './PrePitchRunnerEvidenceFromSqlite';
 import { prePitchRunnerExecutionInput } from './PrePitchRunnerExecution';
@@ -107,6 +108,14 @@ export const physicalPitchActionInput = (raw: AcceptedPhysicalPitchActionSource,
 };
 
 export const assertPhysicalPitchOriginalEvidence = (db: PhysicalPitchDb, frame: Frame): void => {
+  if (frame.activation) {
+    if (frame.activation.nextMatchState.playId !== frame.match.playId) throw new Error('physical pitch activation consuming frame differs');
+    assertFoulTerminalPriorActivation(db,frame.gameId,frame.activation.previousPlayId,frame.match.playId);
+  }
+  if (frame.batterActor?.origin.foulTerminalReadiness && (frame.batterActor.origin.actualLiveReadiness
+    || frame.batterActor.origin.foulTerminalReadiness.applicationId !== frame.activationApplicationId
+    || frame.batterActor.origin.foulTerminalReadiness.gameId !== frame.gameId
+    || frame.batterActor.origin.foulTerminalReadiness.previousPlayId + 1 !== frame.match.playId)) throw new Error('terminal physical pitch readiness frame differs');
   if (frame.batterActor && (json(frame.batterActor.match) !== json(frame.match) || json(frame.batterActor.world) !== json(frame.world)
     || frame.batterActor.officialRevision !== frame.officialRevision)) throw new Error('physical batter original execution frame differs');
   const current = capturePhysicalPitchEvidence(db, frame);
