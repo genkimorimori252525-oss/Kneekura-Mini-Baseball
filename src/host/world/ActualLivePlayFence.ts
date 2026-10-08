@@ -1,3 +1,4 @@
+import { assertNoSamePaWorkReservation } from './SamePlateAppearanceReservationGuard';
 import { actualFoulTerminalClaims } from './ActualFoulPlayEndOwnership';
 import { actualLiveRuntimeClaims } from './ActualLivePlayOwnerMetadata';
 /** Transaction-local guard shared by every original-pitch live admission route.
@@ -29,6 +30,7 @@ const journal = (db: Db, runtimeId: string) => db.prepare('SELECT * FROM actual_
 const id = (v: unknown): v is string => typeof v === 'string' && v.length > 0 && v === v.trim();
 const state = (db: Db, scope: ActualLivePlayWriteScope, includeRuntime = true): string => {
   if (!db.isTransaction) throw new Error('actual live-play fence requires an active write transaction');
+  assertNoSamePaWorkReservation(db,scope);
   if (actualFoulTerminalClaims(db, { gameId: scope.gameId, playId: scope.playId,
     physicalPitchSourceId: scope.physicalPitchSourceId ?? '' }).length) {
     throw new Error('actual live play has foul terminal closure ownership and is sealed');
