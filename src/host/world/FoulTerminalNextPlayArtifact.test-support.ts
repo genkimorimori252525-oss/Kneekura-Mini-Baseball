@@ -20,6 +20,7 @@ import { foulTerminalPostPlayCompletionEvidenceFromSqlite } from './ActualFoulTe
 import { fileHash, rawCensus, schemaCensus } from './ActualFoulTerminalAcknowledgementCutover.test-support';
 import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
 import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
+import { privatePitchFaultConservation } from './PrivatePitchFaultConservation.test-support';
 import { witnessSqliteWrite } from './SqliteWriteWitness.test-support';
 const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
 const same = (a: unknown,b: unknown) => assert.equal(json(a),json(b));
@@ -154,14 +155,15 @@ export const verifyFoulTerminalNextPlayArtifact = (input:Readonly<{
       }));}finally{reopened.close();}
       closedFile(input.destinationPath);closedFile(input.sourcePath);assert.equal(fileHash(input.sourcePath),input.sourceSha256);
       assert.equal(fileHash(input.acceptedInputPath),input.acceptedInputSha256);
-      const destinationSha256=fileHash(input.destinationPath);if(faultOnly)assert.equal(destinationSha256,input.sourceSha256);
+      const destinationSha256=fileHash(input.destinationPath);
+      const faultConservation=faultOnly?privatePitchFaultConservation(readFileSync(input.sourcePath),readFileSync(input.destinationPath)):null;
       return {version:mode==='all'?'terminal_next_play_native_qualification_v1':mode==='actor_checkpoint'?'terminal_next_actor_checkpoint_v1':
         faultOnly?'terminal_next_pitch_boundary_fault_v1':'terminal_next_pitch_clean_v1',mode,
         sourceArtifact:{path:input.sourcePath,sha256:input.sourceSha256},acceptedInput:{path:input.acceptedInputPath,sha256:input.acceptedInputSha256},
         destinationPath:input.destinationPath,destinationSha256,terminalSourceId:input.terminalSourceId,actorSourceId:actorInput.sourceId,
         pitchSourceId:nextPitch?.source.sourceId??null,acceptedActorPlayerId:accepted.nextBatterPlayerId,acceptedTake:accepted.nextTake,readinessReference:ready.reference,
         originalRowsPreserved:true,noDuplicateWorkload:true,exactlyOnceActor:true,exactlyOncePitch:!!nextPitch,reopened:true,allHandlesClosed:true,
-        faultOnlyOutputByteIdentical:faultOnly,faultChecks:input.faultChecks,faultEvidence,actorWriterInvoked:!pitchOnly,pitchWriterInvoked:mode!=='actor_checkpoint',
+        faultOnlyOutputByteIdentical:false,faultOnlySqlStateConserved:faultOnly,expectedOpenerMetadataCommit:faultConservation,faultChecks:input.faultChecks,faultEvidence,actorWriterInvoked:!pitchOnly,pitchWriterInvoked:mode!=='actor_checkpoint',
         autonomousBatterSelection:false,twoCompletedPriorChainQualified:false};
     };
     let actor:DurablePhysicalPlateAppearanceActor;

@@ -25,6 +25,8 @@
     "src/host/world/FoulTerminalNextPlayReadback.acceptance.ts",
     "src/host/world/FoulTerminalNextPlayReadiness.test.ts",
     "src/host/world/FoulTerminalPriorLiveAncestry.test.ts",
+    "src/host/world/FoulTerminalRetainedPitchFault.acceptance.ts",
+    "src/host/world/PrivatePitchFaultConservation.test.ts",
     "src/host/world/PhysicalStoreCleanupBoundary.test.ts",
     "src/host/world/PrivateNativeArtifactReadback.test.ts"
   ]
