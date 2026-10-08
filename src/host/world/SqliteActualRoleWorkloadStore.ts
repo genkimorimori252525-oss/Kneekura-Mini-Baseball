@@ -1,3 +1,4 @@
+import { assertNoSamePaPlayerReservation } from './SamePlateAppearanceReservationGuard';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
 import { actualRoleWorkloadAssessmentInput as input, type AcceptedActualRoleWorkloadAssessment } from './ActualRoleWorkloadAssessment';
@@ -93,6 +94,7 @@ export const openSqliteActualRoleWorkloadStore=(path:string,personLinks:Pick<Sql
         if(prior && json(prior)!==json(value))throw new Error('actual role workload canonical charge already assessed');
         assertNoLegacyPitchWorkloadCharge(db,value);
       }
+      for(const value of added)assertNoSamePaPlayerReservation(db,value);
       if(added.length && identity(db,'actual_role_workload_settlements',closureSourceId))throw new Error('actual role workload assessment set already frozen');
       return {closureSourceId,existing,values,added};
     };
@@ -102,6 +104,7 @@ export const openSqliteActualRoleWorkloadStore=(path:string,personLinks:Pick<Sql
       const current=project();
       if(json(current)!==json(proposed))throw new Error('actual role workload physical input or assessment set changed before acceptance');
       for(const value of current.added)db.prepare('INSERT INTO actual_role_workload_assessments VALUES(?,?,?,?,?,?,?,?,?,?)').run(value.source.sourceId,current.closureSourceId,value.careerId,value.gameId,value.playId,value.playerId,json(value.source),hash(value.source),json(value),hash(value));
+      for(const value of current.added)assertNoSamePaPlayerReservation(db,value);
       const saved=readActualRoleAssessments(db,context(db,current.closureSourceId));
       if(saved.length!==current.existing.length+current.added.length || [...current.existing,...current.added].some(v=>!saved.some(a=>json(a)===json(v))))throw new Error('actual role workload assessment changed during acceptance');
       return current.values;
@@ -117,7 +120,9 @@ export const openSqliteActualRoleWorkloadStore=(path:string,personLinks:Pick<Sql
       if(identity(db,'actual_role_workload_settlements',closureSourceId))return evidence(db).readSettlement(closureSourceId);
       const current=prepareActualRoleWorkloadPlan(db,context(db,closureSourceId));
       if(json(current)!==json(plan))throw new Error('actual role workload assessment set or BEFORE changed before freeze');
+      for(const p of plan.participants)assertNoSamePaPlayerReservation(db,{careerId:plan.careerId,playerId:p.playerId});
       db.prepare('INSERT INTO actual_role_workload_settlements VALUES(?,?,?,?,?,?)').run(closureSourceId,plan.careerId,plan.gameId,plan.playId,json(plan),hash(plan));
+      for(const p of plan.participants)assertNoSamePaPlayerReservation(db,{careerId:plan.careerId,playerId:p.playerId});
       const saved=evidence(db).readSettlement(closureSourceId);
       if(saved.kind!=='applying' || saved.participants.some(p=>p.applied))throw new Error('actual role workload initial settlement stage differs');
       // Recheck current heads after INSERT triggers, before committing the frozen set.

@@ -1,0 +1,59 @@
+import type { DatabaseSync } from 'node:sqlite';
+import { readPhysicalPlateAppearanceActorFromSqlite, assertPhysicalActorOpenFrame,
+  actorHash as hash, actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { readActualRoleWorkloadState } from './ActualRoleWorkloadState';
+import { samePlateAppearanceEnrollmentInput, type SamePlateAppearanceEnrollmentResult } from './SamePlateAppearanceEnrollment';
+import { assertSamePaStorage,assertNoSamePaPlayerReservation,assertNoSamePaWorkReservation,
+  authenticateSamePaRow,samePaEnrollmentRow,samePaMetadataClaim as claim } from './SamePlateAppearanceReservationGuard';
+import { assertSamePaRegistrationBeforeWork } from './ActualLiveRuntimeRegistration';
+import { assertNoActualRoleWorkloadCharge,assertNoLegacyPitchWorkloadCharge } from './ActualRoleWorkloadChargeGuard';
+type Db=Pick<DatabaseSync,'prepare'>;
+export const deriveSamePlateAppearanceEnrollment = (db:Db,raw:unknown,ownSourceId?:string):SamePlateAppearanceEnrollmentResult => {
+  assertSamePaStorage(db);const source=samePlateAppearanceEnrollmentInput(raw);
+  const actor=readPhysicalPlateAppearanceActorFromSqlite(db,source.actorReference.sourceId);
+  if(!actor)throw new Error('same-PA original actor missing');
+  const actorRows=db.prepare(`SELECT * FROM main.physical_plate_appearance_actors WHERE source_id=$id OR ${claim('source_json',['sourceId'],'$id')} OR ${claim('snapshot_json',['source','sourceId'],'$id')}`).all({id:source.actorReference.sourceId});
+  const row=actorRows[0];
+  if(actorRows.length!==1||row.source_id!==source.actorReference.sourceId||row.source_hash!==source.actorReference.sourceHash||row.snapshot_hash!==source.actorReference.snapshotHash
+    ||row.source_json!==json(actor.source)||row.snapshot_json!==json(actor)||row.source_hash!==hash(actor.source)||row.snapshot_hash!==hash(actor))throw new Error('same-PA original actor reference differs');
+  assertPhysicalActorOpenFrame(db,actor);
+  const bindings=[actor.binding,...actor.defenderBindings].sort((a,b)=>a.playerId<b.playerId?-1:a.playerId>b.playerId?1:0);
+  if(actor.world.runners.length||Object.values(actor.match.bases).some(p=>p!==null)||bindings.length!==10
+    ||new Set(bindings.map(p=>p.playerId)).size!==10||new Set(bindings.map(p=>p.personId)).size!==10||actor.world.defenders.length!==9
+    ||new Set(actor.world.defenders.map(p=>p.playerId)).size!==9
+    ||bindings.some(b=>b.careerId!==actor.binding.careerId||b.gameId!==actor.source.gameId||b.gameDay!==actor.binding.gameDay||b.fixtureEventId!==actor.binding.fixtureEventId
+      ||b.competitionEditionId!==actor.binding.competitionEditionId||!source.participantBaselineReferences.some(p=>p.playerId===b.playerId))
+    ||actor.defenderBindings.some(b=>!actor.world.defenders.some(p=>p.playerId===b.playerId)))throw new Error('same-PA exact original participant membership differs');
+  const scope={gameId:actor.source.gameId,playId:actor.match.playId,physicalPitchSourceId:source.firstPhysicalPitchSourceId};
+  assertNoSamePaWorkReservation(db,scope,ownSourceId);assertSamePaRegistrationBeforeWork(db,{...scope,actorSourceId:actor.source.sourceId,
+    ...('initialWorldSourceId' in actor.source?{initialWorldSourceId:actor.source.initialWorldSourceId}:{activationApplicationId:actor.source.activationApplicationId})});
+  const workloadTables=['world_player_workload_baselines','world_player_workload_heads','world_player_workload_activities','world_player_workload_policies'];
+  const installed=workloadTables.map(name=>db.prepare("SELECT name,type FROM main.sqlite_master WHERE lower(name)=lower(?)").all(name));
+  if(installed.some(r=>r.length)&&installed.some((r,i)=>r.length!==1||r[0].name!==workloadTables[i]||r[0].type!=='table'))throw new Error('same-PA workload history schema is partial or malformed');
+  const missingBaselinePlayerIds:string[]=[];
+  const participants=bindings.flatMap(binding=>{
+    assertNoSamePaPlayerReservation(db,binding,ownSourceId);
+    const charge={careerId:binding.careerId,gameId:binding.gameId,playId:scope.playId,playerId:binding.playerId};
+    // The enrollment itself is not a charge; these helpers inspect only existing
+    // charge owners during acquisition (reservation exclusion is checked above).
+    assertNoActualRoleWorkloadCharge(db,charge,ownSourceId);assertNoLegacyPitchWorkloadCharge(db,charge,ownSourceId);
+    const ref=source.participantBaselineReferences.find(p=>p.playerId===binding.playerId)!;
+    const state=readActualRoleWorkloadState(db,binding.careerId,binding.playerId,undefined,binding.personLinkSourceId);
+    const bases=installed[0].length?db.prepare(`SELECT * FROM main.world_player_workload_baselines WHERE source_id=$id OR ${claim('source_json',['sourceId'],'$id')}`).all({id:ref.baselineSourceId}):[];
+    if(!state){if(bases.length)throw new Error('same-PA supplied baseline is foreign');missingBaselinePlayerIds.push(binding.playerId);return [];}
+    if(bases.length!==1||bases[0].career_id!==binding.careerId||bases[0].player_id!==binding.playerId||bases[0].source_id!==ref.baselineSourceId
+      ||JSON.parse(String(bases[0].source_json)).sourceId!==ref.baselineSourceId||state.revision!==ref.revision||hash(state)!==ref.stateHash||state.effectiveDay>binding.gameDay)throw new Error('same-PA current baseline reference is stale or foreign');
+    const person=binding.playerId===actor.binding.playerId?actor.person:actor.defenderPersons.find(p=>p.playerId===binding.playerId);
+    if(!person||person.personId!==binding.personId||person.sourceId!==binding.personLinkSourceId)throw new Error('same-PA original Person differs');
+    return [{binding,personHash:hash(person),baselineSourceId:ref.baselineSourceId,baselineSourceHash:hash(JSON.parse(String(bases[0].source_json))),state}];
+  });
+  if(missingBaselinePlayerIds.length)return freeze({kind:'pending',missingBaselinePlayerIds});
+  return freeze({kind:'reserved',source,careerId:actor.binding.careerId,gameId:scope.gameId,playId:scope.playId,actorHash:hash(actor),
+    officialRevision:actor.officialRevision,worldHash:hash(actor.world),fixtureHash:actor.fixtureHash,participants,
+    firstPitch:{physicalPitchSourceId:source.firstPhysicalPitchSourceId,state:'blocked_execution_basis',predecessorResumeSourceId:null,consumingSourceId:null}});
+};
+export const readSamePlateAppearanceEnrollment = (db:Db,sourceId:string) => {
+  const row=samePaEnrollmentRow(db,sourceId);if(!row)return null;
+  const value=authenticateSamePaRow(db,row),derived=deriveSamePlateAppearanceEnrollment(db,value.source,sourceId);
+  if(json(value)!==json(derived))throw new Error('same-PA enrollment prerequisites changed');return freeze(value);
+};
