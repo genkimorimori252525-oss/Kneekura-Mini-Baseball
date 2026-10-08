@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "noEmit": true, "incremental": false },
+  "include": [
+    "src/host/world/SqliteActualFoulTerminalScoringStore.ts",
+    "src/host/world/ActualFoulTerminalConsumerFence.test.ts",
+    "src/host/world/ActualFoulTerminalScoringStorage.test.ts",
+    "src/host/world/ActualFoulTerminalScoringMetadata.test.ts",
+    "src/host/world/ActualFoulTerminalScoring.acceptance.ts",
+    "src/host/world/ActualFoulTerminalScoringRollback.acceptance.ts",
+    "src/host/world/ActualFoulTerminalScoringIntegrity.acceptance.ts"
+  ]
+}
