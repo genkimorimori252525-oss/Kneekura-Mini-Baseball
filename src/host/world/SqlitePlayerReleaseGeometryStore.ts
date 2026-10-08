@@ -1,5 +1,7 @@
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
+import { nominalTable, nominalIdentity, nominalClaim, assertNominalReference, nominalSame } from './DispatchNominalSqliteOwnership';
+import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import { playerPersonLinkEvidenceFromSqlite } from './SqlitePlayerPersonLinkStore';
 import { sqliteJsonMetadataNodes as nodes } from './SqliteOwnershipMetadata';
 import { assertBodyCompositionNativeConnection, bodyCompositionTableInstalled } from './BodyMaterializationSqliteOwnership';
@@ -155,6 +157,38 @@ const releaseSnapshotAtDay = (source: PlayerReleaseGeometryHistory, atDay: numbe
   return source.changes.filter(item => item.effectiveDay <= atDay).at(-1) ?? source.baseline;
 };
 
+/** Bounded endpoint reader using the exact original release validators. Future
+ * changes and mutable heads are outside this immutable historical cut. */
+export const readPlayerReleaseGeometryPrefixFromSqlite = (db: DatabaseSync,
+  ref: SamePaReference<'world_player_release_baselines' | 'world_player_release_changes'>): PlayerReleaseGeometryHistory => {
+  const tables = ['world_player_release_baselines', 'world_player_release_changes'];
+  const endpoint = nominalIdentity(db, tables, ref.owner, ref.sourceId), endpointSource = JSON.parse(String(endpoint.source_json));
+  const cut = ref.owner === tables[0] ? 0 : endpoint.revision;
+  if (!day(cut)) throw new Error('invalid dispatch nominal release cut');
+  const careerId = String(endpoint.career_id), playerId = String(endpoint.player_id);
+  const scope = `(career_id=$career OR ${nominalClaim('source_json', ['careerId'], '$career')}) AND (player_id=$player OR ${nominalClaim('source_json', ['playerId'], '$player')})`;
+  const bases = db.prepare(`SELECT * FROM main.world_player_release_baselines WHERE ${scope}`).all({ career: careerId, player: playerId });
+  if (bases.length !== 1) throw new Error('dispatch nominal release baseline is missing or ambiguous');
+  const row = bases[0], source = JSON.parse(String(row.source_json)) as AcceptedReleaseGeometryBaseline;
+  if (!validBaseline(source, String(row.source_id)) || source.careerId !== careerId || source.playerId !== playerId
+    || row.career_id !== careerId || row.player_id !== playerId || canonicalJson(source) !== row.source_json) throw new Error('corrupt dispatch nominal release baseline');
+  nominalIdentity(db, tables, tables[0], source.sourceId);
+  const person = playerPersonLinkEvidenceFromSqlite(db).readLink(source.personLinkSourceId);
+  if (!person || person.careerId !== careerId || person.playerId !== playerId || person.acceptedAtDay > source.acceptedAtDay) throw new Error('dispatch nominal release Person differs');
+  validateGeometry(source.body, source.profile, source.tierBoundaries);
+  let current = initialState(source);
+  const changes = db.prepare(`SELECT * FROM main.world_player_release_changes WHERE ${scope} AND revision<=$cut ORDER BY revision`).all({ career: careerId, player: playerId, cut });
+  for (const [index, row] of changes.entries()) {
+    const change = JSON.parse(String(row.source_json)) as AcceptedReleaseGeometryChange;
+    if (!validChange(change, String(row.source_id)) || row.career_id !== careerId || row.player_id !== playerId
+      || row.revision !== index + 1 || canonicalJson(change) !== row.source_json) throw new Error('corrupt dispatch nominal release prefix');
+    nominalIdentity(db, tables, tables[1], change.sourceId); current = advance(current, change);
+  }
+  if (current.revision !== cut) throw new Error('dispatch nominal release endpoint is missing');
+  nominalSame(endpoint, cut === 0 ? row : changes.at(-1));
+  assertNominalReference(ref, endpointSource, current, tables); return current;
+};
+
 const storedPlayerReleaseGeometryReader = (db: Pick<DatabaseSync, 'prepare'>,
   personLinks: AcceptedPlayerPersonLinkAuthority, nativeOwner = false) => {
   const owner = nativeOwner ? 'main.' : '';
@@ -292,6 +326,19 @@ export const playerReleaseGeometryEvidenceFromSqlite = (db: Pick<DatabaseSync, '
       return releaseSnapshotAtDay(prefix.history, atDay);
     },
   });
+};
+
+/** Fresh gate uses the unchanged normal owner replay, independently of the
+ * bounded historical pin. Future-day geometry is not selected for this game. */
+export const assertCurrentPlayerReleaseGeometryPrefixFromSqlite = (db: DatabaseSync,
+  ref: SamePaReference<'world_player_release_baselines' | 'world_player_release_changes'>, atDay: number): void => {
+  const pinned = readPlayerReleaseGeometryPrefixFromSqlite(db, ref);
+  nominalTable(db, 'world_player_release_heads');
+  const persons = playerPersonLinkEvidenceFromSqlite(db);
+  const current = storedPlayerReleaseGeometryReader(db, { readAcceptedPlayerPersonLink: id => persons.readLink(id) }, true).replay(pinned.careerId, pinned.playerId);
+  if (!current) throw new Error('dispatch current release history missing');
+  const selected = releaseSnapshotAtDay(current, atDay), revision = selected.sourceId === current.baseline.sourceId ? 0 : current.changes.findIndex(c => c.sourceId === selected.sourceId) + 1;
+  if (revision > pinned.revision) throw new Error('dispatch current release has an unpinned applicable revision');
 };
 
 /** A fixed per-Player delivery source; only accepted Career events can revise it. */

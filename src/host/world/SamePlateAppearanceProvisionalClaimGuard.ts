@@ -1,4 +1,5 @@
 import type { DatabaseSync } from 'node:sqlite';
+import { assertNoPaDispatchPlayerClaim, assertNoPaDispatchWorkClaim, assertFreshPaDispatchEnrollment } from './SamePlateAppearanceDispatchClaimGuard';
 import { actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { samePaId as id, type ReservedSamePlateAppearanceEnrollment } from './SamePlateAppearanceEnrollment';
 import { assertSamePaStorage, authenticateSamePaRow, samePaEnrollmentRow, samePaMetadataClaim as claim } from './SamePlateAppearanceReservationGuard';
@@ -142,10 +143,14 @@ const inspect = (db: Db): Claim[] => {
 /** The optional own identity is only for existing dependency read proofs. No
  * fresh workload, charge or causal-work writer supplies this exemption. */
 export const assertNoReservedPaPlayerClaim = (db: Db, scope: Readonly<{ careerId: string; playerId: string }>, ownEnrollmentSourceId?: string): void => {
+  if (ownEnrollmentSourceId === undefined) assertNoPaDispatchPlayerClaim(db, scope);
+  else assertFreshPaDispatchEnrollment(db, ownEnrollmentSourceId);
   if (inspect(db).some(record => record.lineage.enrollmentReference.sourceId !== ownEnrollmentSourceId && record.lineage.careerId === scope.careerId
     && record.lineage.participantReferences.some(p => p.playerId === scope.playerId))) fail('blocks new global Player workload');
 };
 export const assertNoReservedPaWorkClaim = (db: Db, scope: Readonly<{ gameId: string; playId: number; physicalPitchSourceId?: string }>, ownEnrollmentSourceId?: string): void => {
+  if (ownEnrollmentSourceId === undefined) assertNoPaDispatchWorkClaim(db, scope);
+  else assertFreshPaDispatchEnrollment(db, ownEnrollmentSourceId);
   if (inspect(db).some(record => record.lineage.enrollmentReference.sourceId !== ownEnrollmentSourceId
     && (record.lineage.gameId === scope.gameId && record.lineage.playId === scope.playId
       || scope.physicalPitchSourceId !== undefined && record.lineage.firstPhysicalPitchSourceId === scope.physicalPitchSourceId))) fail('blocks fresh causal work');
