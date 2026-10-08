@@ -36,3 +36,13 @@ At commit `2cecbce67b381f23e51e571e51cdffa5961aa15a`, source tree `37e82fbb5f429
 Both stages used explicitly pinned retained originals, fresh exclusive private copies, one worker, 1024 MiB old space, measured 1120 MiB V8 heap, 2048 MiB aggregate RSS, and a 2520-second external cap. All four input groups remained byte-identical, with no controller/runtime error or remaining owned process. The candidate did not regenerate physical prerequisites.
 
 This closes the specific post-repair genuine gates named above. Other retained-artifact fault/wire/schema results still keep their original source attribution. Independent final review and the second-origin limitation remain distinct from these observed passes.
+
+## Combined private-observer fixture repair
+
+Commit `394ea995f58a689557f2c86d8c1436d1849945a8`, source tree `7da2a836b67a4c5e71ed93791a38960603f543f3`, adds the separately qualified test-only FK fault-injector repair to the reviewed production boundary repair. Both test files remain included in the focused compiler project. Production files are unchanged from `2cecbce`.
+
+The defect was in private test setup/restoration: foreign-key enforcement blocked intentional deletion and delete/reinsert restoration of a referenced Match. A focused real-SQLite restoration RED was observed before repair. The helper now temporarily disables FK enforcement only on the private observer outside transactions, restores exact saved rowid/bytes, and restores/verifies the original FK setting before a production route can run. Production connection policy is unchanged.
+
+On the exact combined source, 82 LIGHT controls passed with no failures or skips across six files, and the full acknowledgement-focused compiler exited 0. LIGHT terminal `a874b283296d49536262502d2974d22d674385354523a70655fb25eeb33a0096`, report `056ef00423cda308a62a6f5bcdea072ac28a5afe421e3b0b928709b24433686a`; compiler terminal `8dab292be49ce97b606d528d1c83670e671b8d2d9301f3a116d32bd14aec7a3d`. Both retained unchanged input pins and completely reaped owned processes under the 512/608/768 MiB, 180-second LIGHT envelope.
+
+Genuine A01/A18–A20 evidence above retains its earlier source attribution. The retained-integrity inventory separately distinguishes its original 45-case cohort from the final 16-case test-helper-repair cohort; no full 61-case or whole-project pass is inferred for this combined source.

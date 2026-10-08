@@ -1,7 +1,7 @@
 // Static preparation only. No test supplies or mocks an original owner's read.
 import { expect,it } from 'vitest';
 import { rawCensus,schemaCensus } from './ActualFoulTerminalAcknowledgementCutover.test-support';
-import { withIntegrityFixture,captureRow,finishOwned,assertAllRoutesReject,assertRestoredRead,quote,
+import { withIntegrityFixture,captureRow,finishOwned,assertAllRoutesReject,assertRestoredRead,quote,withIntegrityObserverForeignKeysDisabled,
   type IntegrityFixture } from './ActualFoulTerminalAcknowledgementIntegrity.test-support';
 
 type Fault = { name:string; target:'end'|'count'|'journal'|'application'|'match'|'pitch'; kind:'missing'|'damaged'|'replaced'|'stale' };
@@ -40,7 +40,9 @@ for (const fault of faults) it(fault.name,async () => withIntegrityFixture(f => 
   let primary:unknown,failed = false;
   try {
     expect(db.isTransaction).toBe(false);
-    if (fault.kind === 'missing') expect(db.prepare('DELETE FROM '+table+' WHERE '+where).run(target.value).changes).toBe(1);
+    if (fault.kind === 'missing') withIntegrityObserverForeignKeysDisabled(db,() => {
+      expect(db.prepare('DELETE FROM '+table+' WHERE '+where).run(target.value).changes).toBe(1);
+    });
     else if (fault.kind === 'stale') {
       expect(db.prepare('UPDATE '+table+' SET durable_revision=durable_revision+1 WHERE '+where).run(target.value).changes).toBe(1);
     } else {

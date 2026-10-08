@@ -14,6 +14,7 @@
     "src/host/world/ActualFoulTerminalAcknowledgementSiblings.acceptance.ts",
     "src/host/world/ActualFoulTerminalAcknowledgementSchema.acceptance.ts",
     "src/host/world/SqliteActualFoulTerminalApplicationRunner.ts",
-    "src/host/world/ActualFoulTerminalTransactionBoundary.test.ts"
+    "src/host/world/ActualFoulTerminalTransactionBoundary.test.ts",
+    "src/host/world/ActualFoulTerminalAcknowledgementFixture.test.ts"
   ]
 }

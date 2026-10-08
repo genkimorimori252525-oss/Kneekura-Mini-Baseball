@@ -263,6 +263,25 @@ export const assertRestoredRead = (fixture:IntegrityFixture) => {
   expect(rawCensus(fixture.observer)).toEqual(rows); expect(schemaCensus(fixture.observer)).toEqual(schema);
 };
 
+/** Only a private corruption/restoration observer may use this helper. The
+ * deliberate invalid row exists outside transactions, but the original FK
+ * policy is restored and verified before any production operation resumes. */
+export const withIntegrityObserverForeignKeysDisabled = (db:Database,body:() => void):void => {
+  expect(db.isTransaction).toBe(false);
+  const setting = db.prepare('PRAGMA foreign_keys').get()!.foreign_keys;
+  if (setting !== 0 && setting !== 1) throw new Error('private observer foreign-key policy differs');
+  let failed = false,primary:unknown;
+  try {
+    db.exec('PRAGMA foreign_keys=OFF');
+    expect(db.prepare('PRAGMA foreign_keys').get()!.foreign_keys).toBe(0);
+    body();
+  } catch (error) { failed = true; primary = error; throw error; }
+  finally { finishOwned(failed,primary,[() => expect(db.isTransaction).toBe(false),() => {
+    db.exec('PRAGMA foreign_keys='+setting);
+    expect(db.prepare('PRAGMA foreign_keys').get()!.foreign_keys).toBe(setting);
+  }]); }
+};
+
 /** Captures exact rowid and all SQLite values. Restoration is an independently
  * committed observer transaction, completed before any separate owner reads.
  * It can restore only a row captured from this genuine artifact. */
@@ -270,7 +289,7 @@ export const captureRow = (db:Database,table:string,key:string,value:SQLOutputVa
   const rows = db.prepare('SELECT rowid AS __ack_rowid,* FROM main.'+quote(table)+' WHERE '+quote(key)+'=?').all(value);
   expect(rows).toHaveLength(1);
   const saved = rows[0],columns = Object.keys(saved).filter(column => column !== '__ack_rowid');
-  return { saved,restore() {
+  return { saved,restore() { withIntegrityObserverForeignKeysDisabled(db,() => {
     expect(db.isTransaction).toBe(false); db.exec('BEGIN IMMEDIATE');
     let primary:unknown,failed = false;
     try {
@@ -280,7 +299,7 @@ export const captureRow = (db:Database,table:string,key:string,value:SQLOutputVa
       db.exec('COMMIT');
     } catch (error) { primary = error; failed = true; throw error; }
     finally { finishOwned(failed,primary,[() => { if (db.isTransaction) db.exec('ROLLBACK'); }]); }
-  } };
+  }); } };
 };
 
 /** Test-only CHECK change on an exclusively-created private copy. No successful

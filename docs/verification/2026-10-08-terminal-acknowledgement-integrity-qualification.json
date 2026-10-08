@@ -1,0 +1,526 @@
+{
+  "version": "terminal_acknowledgement_sanitized_qualification_v1",
+  "sourceCohorts": {
+    "cf5f83fb2c454cba431dbbffb22e44a238ef6001": 45,
+    "e91018e3796502cc3297df43baa1169a77a71f21": 16
+  },
+  "testOnlyRepair": {
+    "sourceCommit": "e91018e3796502cc3297df43baa1169a77a71f21",
+    "sourceTree": "8842f7add55d2609c43dc8f61ff6d4eb1c9058a2",
+    "originalQualifiedCases": 45,
+    "remainingNativeCases": 16,
+    "productionUnchangedFrom": "2a0b33242d8a094f595e516f4ce83d23d4c06bd0",
+    "redTerminalSha256": "335b4038b9ce195f54c24309264e01ae0ee13bf0f9b1b6a668a4d9a4559073f6",
+    "greenTerminalSha256": "6936f47ccb3331866238b1858d541274b8b0f15637f3fcdcf17e89a8ae147c0c",
+    "compilerTerminalSha256": "7dd473fc43ee6adde1ce23f3b233cf93fa3400a160a037d85c85c819fe7e5d0b"
+  },
+  "productionUnchangedFrom": "2a0b33242d8a094f595e516f4ce83d23d4c06bd0",
+  "qualifiedNativeCases": 61,
+  "families": {
+    "rollbackAndTransaction": 13,
+    "wire": 24,
+    "siblingIntegrity": 14,
+    "schemaAndCutover": 10
+  },
+  "stages": [
+    {
+      "stage": "first-pair-stablenames",
+      "sourceCommit": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "sourceTree": "78ebf25d97a53aa85c990e6268871bb96e14c34a",
+      "passedCases": 2,
+      "terminalSha256": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a",
+      "reportSha256": "b58c5279aa89fe1299ce10171d8e95ed00090916b64986c0fce6822554a23d60",
+      "noRemainingOwnedProcesses": true,
+      "unobservedDescendantExitCodes": 0,
+      "peakRssKiB": 686180,
+      "cases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementRollback.acceptance.ts",
+          "name": "A17 genuine acknowledgement rolls back the real terminal UPDATE after end trigger effect"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+          "name": "A-W01 acknowledged status with acknowledgement null"
+        }
+      ]
+    },
+    {
+      "stage": "rollback-pitch-journal-application",
+      "sourceCommit": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "sourceTree": "78ebf25d97a53aa85c990e6268871bb96e14c34a",
+      "passedCases": 3,
+      "terminalSha256": "313fb5889b4dd152137551d22b9e4ca44d4e2c4af436193673465b0837233531",
+      "reportSha256": "9d3e97f38d1619d11ebca11b3b8c3ccca30decc525bb34f97eb134e6a13dd57a",
+      "noRemainingOwnedProcesses": true,
+      "unobservedDescendantExitCodes": 0,
+      "peakRssKiB": 704296,
+      "cases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementRollback.acceptance.ts",
+          "name": "A17 genuine acknowledgement rolls back the real terminal UPDATE after pitch trigger effect"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementRollback.acceptance.ts",
+          "name": "A17 genuine acknowledgement rolls back the real terminal UPDATE after journal trigger effect"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementRollback.acceptance.ts",
+          "name": "A17 genuine acknowledgement rolls back the real terminal UPDATE after application trigger effect"
+        }
+      ]
+    },
+    {
+      "stage": "rollback-match-claim-unrelated",
+      "sourceCommit": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "sourceTree": "78ebf25d97a53aa85c990e6268871bb96e14c34a",
+      "passedCases": 3,
+      "terminalSha256": "f056ea91868bffca971294406d7bb9b3d5157aee71be3be7dc56fc37c39051da",
+      "reportSha256": "616813b00367fc073ab08dd89451d011571f48d672a6bdf4bf9797092ba5601d",
+      "noRemainingOwnedProcesses": true,
+      "unobservedDescendantExitCodes": 0,
+      "peakRssKiB": 702088,
+      "cases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementRollback.acceptance.ts",
+          "name": "A17 genuine acknowledgement rolls back the real terminal UPDATE after match trigger effect"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementRollback.acceptance.ts",
+          "name": "A17 genuine acknowledgement rolls back the real terminal UPDATE after acknowledgement_only_claim trigger effect"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementRollback.acceptance.ts",
+          "name": "A17 genuine acknowledgement rolls back the real terminal UPDATE after unrelated_write trigger effect"
+        }
+      ]
+    },
+    {
+      "stage": "rollback-transaction-cleanup",
+      "sourceCommit": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "sourceTree": "78ebf25d97a53aa85c990e6268871bb96e14c34a",
+      "passedCases": 3,
+      "terminalSha256": "8c6e1e575858913753622250013f196a323e3aac76dab47d3837bf12810f96fb",
+      "reportSha256": "a16b8d46e651a76b4d693525e25a9e6397ab9fd836c030574cb3d840928d98ea",
+      "noRemainingOwnedProcesses": true,
+      "unobservedDescendantExitCodes": 0,
+      "peakRssKiB": 701412,
+      "cases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementRollback.acceptance.ts",
+          "name": "A18 genuine acknowledgement rejects a peer commit before BEGIN IMMEDIATE using fresh evidence"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementRollback.acceptance.ts",
+          "name": "A19 genuine acknowledgement retires its handle after transaction identity replacement"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementRollback.acceptance.ts",
+          "name": "A20 genuine acknowledgement preserves primary failure and retires after rollback cleanup failure"
+        }
+      ]
+    },
+    {
+      "stage": "rollback-schema",
+      "sourceCommit": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "sourceTree": "78ebf25d97a53aa85c990e6268871bb96e14c34a",
+      "passedCases": 3,
+      "terminalSha256": "9928ddd357fb8ea1a8ab7e2ccb2fee683434ebb489659fbc21c726f5f2b62e49",
+      "reportSha256": "5c152004f79d6202cdf4d48824bde2b873e2b0647a799fdc037f3356e52bea1c",
+      "noRemainingOwnedProcesses": true,
+      "unobservedDescendantExitCodes": 0,
+      "peakRssKiB": 705044,
+      "cases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementRollback.acceptance.ts",
+          "name": "A21 genuine acknowledgement rolls back a real writer main schema change"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementRollback.acceptance.ts",
+          "name": "A21 genuine acknowledgement rolls back a real writer temp schema change"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementRollback.acceptance.ts",
+          "name": "A21 genuine acknowledgement rolls back a real writer user schema change"
+        }
+      ]
+    },
+    {
+      "stage": "wire-02-05",
+      "sourceCommit": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "sourceTree": "78ebf25d97a53aa85c990e6268871bb96e14c34a",
+      "passedCases": 4,
+      "terminalSha256": "bba819473cb9481ab12d5189c32c337eed16cc441e3869ca1bcc7a412e39a5cd",
+      "reportSha256": "5ee02d07b95f6ae568be7d3907810d495228abf95623f278a0e00a24f394449c",
+      "noRemainingOwnedProcesses": true,
+      "unobservedDescendantExitCodes": 0,
+      "peakRssKiB": 707112,
+      "cases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+          "name": "A-W02 applied status with non-null acknowledgement"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+          "name": "A-W03 omitted acknowledgement version"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+          "name": "A-W04 extra acknowledgement nextPitch field"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+          "name": "A-W05 wrong acknowledgementId"
+        }
+      ]
+    },
+    {
+      "stage": "wire-06-10",
+      "sourceCommit": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "sourceTree": "78ebf25d97a53aa85c990e6268871bb96e14c34a",
+      "passedCases": 5,
+      "terminalSha256": "67fc14cce08df5344eaae6e43a8555e51e96729edb4500a56a4f454e1ae55d70",
+      "reportSha256": "17888581dfe993c5937bfa3465655b2d7bc71d9f2baf6c89997272325d3f01b2",
+      "noRemainingOwnedProcesses": true,
+      "unobservedDescendantExitCodes": 0,
+      "peakRssKiB": 695188,
+      "cases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+          "name": "A-W06 wrong obligationKey"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+          "name": "A-W07 wrong originalSuccessorKey"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+          "name": "A-W08 wrong scope playId"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+          "name": "A-W09 wrong consumed status"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+          "name": "A-W10 wrong consumer sourceHash"
+        }
+      ]
+    },
+    {
+      "stage": "wire-11-15",
+      "sourceCommit": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "sourceTree": "78ebf25d97a53aa85c990e6268871bb96e14c34a",
+      "passedCases": 5,
+      "terminalSha256": "ab34ad180a789350d1e3ddc902c95d50a6cdec230d1917c6ebf83c9d9c2cec64",
+      "reportSha256": "133f4e4dc8fb5c8bf29b187f4645b5c13982b270230015d442f4798ee875fef3",
+      "noRemainingOwnedProcesses": true,
+      "unobservedDescendantExitCodes": 0,
+      "peakRssKiB": 688196,
+      "cases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+          "name": "A-W11 wrong consumer snapshotHash"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+          "name": "A-W12 wrong physicalEndReference snapshotHash"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+          "name": "A-W13 wrong consumptionReference sourceHash"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+          "name": "A-W14 wrong officialReference headHash"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+          "name": "A-W15 wrong applicationReference owner"
+        }
+      ]
+    },
+    {
+      "stage": "wire-16-20",
+      "sourceCommit": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "sourceTree": "78ebf25d97a53aa85c990e6268871bb96e14c34a",
+      "passedCases": 5,
+      "terminalSha256": "f7411cf1893ee6ad9be5a43420a569804f2e2cf4b5de4f01fbce04a9f97c9781",
+      "reportSha256": "d1070a2a5093a94359fbbcd4a66da8bf8a033ae93d9a51a836d1df1412dddc08",
+      "noRemainingOwnedProcesses": true,
+      "unobservedDescendantExitCodes": 0,
+      "peakRssKiB": 691992,
+      "cases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+          "name": "A-W16 wrong applicationReference matchId"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+          "name": "A-W17 wrong applicationReference applicationId"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+          "name": "A-W18 wrong applicationReference closureId"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+          "name": "A-W19 wrong applicationReference previousPlayId"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+          "name": "A-W20 wrong applicationReference durableRevision"
+        }
+      ]
+    },
+    {
+      "stage": "wire-21-24",
+      "sourceCommit": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "sourceTree": "78ebf25d97a53aa85c990e6268871bb96e14c34a",
+      "passedCases": 4,
+      "terminalSha256": "a9caf9e6405ebf210fc991e7109427e8717ae618686c59687f030b9c975a0d5d",
+      "reportSha256": "dc3169bdb8511a7efb4454014e938c757becf989b97c577721876121c0c6cd8e",
+      "noRemainingOwnedProcesses": true,
+      "unobservedDescendantExitCodes": 0,
+      "peakRssKiB": 689736,
+      "cases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+          "name": "A-W21 wrong applicationReference requestHash"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+          "name": "A-W22 wrong applicationReference receiptHash"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+          "name": "A-W23 duplicate escaped acknowledgement key hides a different claim"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+          "name": "A-W24 noncanonical result JSON with equal decoded values"
+        }
+      ]
+    },
+    {
+      "stage": "siblings-01-04",
+      "sourceCommit": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "sourceTree": "78ebf25d97a53aa85c990e6268871bb96e14c34a",
+      "passedCases": 4,
+      "terminalSha256": "f726b131cf55c6fab3d913ddad09514f69ccb860074eecccc61bf0cf3ec9de41",
+      "reportSha256": "10765589fe21e9f45e4c517eaa9508c27dcca6b87ec9bdd4050fa059126dbc9b",
+      "noRemainingOwnedProcesses": true,
+      "unobservedDescendantExitCodes": 0,
+      "peakRssKiB": 698412,
+      "cases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementSiblings.acceptance.ts",
+          "name": "A-D01 missing original E"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementSiblings.acceptance.ts",
+          "name": "A-D02 damaged original E"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementSiblings.acceptance.ts",
+          "name": "A-D03 missing original C"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementSiblings.acceptance.ts",
+          "name": "A-D04 damaged original C"
+        }
+      ]
+    },
+    {
+      "stage": "siblings-05-08",
+      "sourceCommit": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "sourceTree": "78ebf25d97a53aa85c990e6268871bb96e14c34a",
+      "passedCases": 4,
+      "terminalSha256": "2b0b8a5962091af0615db486b979656a96b4714ab864fa2fa169c5562a02bc43",
+      "reportSha256": "717ec16276012f7bee63725c5f29b415443d9cf2d0a7509ef87e38f734a367b6",
+      "noRemainingOwnedProcesses": true,
+      "unobservedDescendantExitCodes": 0,
+      "peakRssKiB": 690080,
+      "cases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementSiblings.acceptance.ts",
+          "name": "A-D05 missing selected official journal event"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementSiblings.acceptance.ts",
+          "name": "A-D06 damaged selected official journal event"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementSiblings.acceptance.ts",
+          "name": "A-D07 missing shared official application"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementSiblings.acceptance.ts",
+          "name": "A-D08 damaged shared official application"
+        }
+      ]
+    },
+    {
+      "stage": "siblings-09-11-fixturefix",
+      "sourceCommit": "e91018e3796502cc3297df43baa1169a77a71f21",
+      "sourceTree": "8842f7add55d2609c43dc8f61ff6d4eb1c9058a2",
+      "passedCases": 3,
+      "terminalSha256": "ee888abc9b33e2bb4c4e2fed8bf51bc081cf82cefe717f25caa4a93440ea2b3b",
+      "reportSha256": "9751708dbe2bda9f00cb74f4a966e8f9a638bbfafbdf10f8b1307af3fbe9dcf4",
+      "noRemainingOwnedProcesses": true,
+      "unobservedDescendantExitCodes": 6,
+      "peakRssKiB": 689372,
+      "cases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementSiblings.acceptance.ts",
+          "name": "A-D09 missing current Match"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementSiblings.acceptance.ts",
+          "name": "A-D10 damaged Match pending marker"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementSiblings.acceptance.ts",
+          "name": "A-D11 missing original physical pitch"
+        }
+      ]
+    },
+    {
+      "stage": "siblings-12-14-fixturefix",
+      "sourceCommit": "e91018e3796502cc3297df43baa1169a77a71f21",
+      "sourceTree": "8842f7add55d2609c43dc8f61ff6d4eb1c9058a2",
+      "passedCases": 3,
+      "terminalSha256": "a0bca4f392b1cd992079398bf38af864ebc390ddd1f39db767687627ad5f17f9",
+      "reportSha256": "bb6ae6e551df85460aea57f7390b25968d4bdfbec814610e3556feac69736440",
+      "noRemainingOwnedProcesses": true,
+      "unobservedDescendantExitCodes": 0,
+      "peakRssKiB": 687964,
+      "cases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementSiblings.acceptance.ts",
+          "name": "A-D12 damaged original physical pitch"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementSiblings.acceptance.ts",
+          "name": "A-D13 replaced Match pending marker"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementSiblings.acceptance.ts",
+          "name": "A-D14 stale Match revision"
+        }
+      ]
+    },
+    {
+      "stage": "schema-source-legacy-impossible-fixturefix",
+      "sourceCommit": "e91018e3796502cc3297df43baa1169a77a71f21",
+      "sourceTree": "8842f7add55d2609c43dc8f61ff6d4eb1c9058a2",
+      "passedCases": 3,
+      "terminalSha256": "0d06a2ecb75c25c7f31a093dc3be54a102e5fe1586d8b726a5bc69048fe8723a",
+      "reportSha256": "05c22bcf7e1d50430d974f9f70847c6bccb0884bff3d08acfe13ed9b3b480ce0",
+      "noRemainingOwnedProcesses": true,
+      "unobservedDescendantExitCodes": 0,
+      "peakRssKiB": 693668,
+      "cases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementSchema.acceptance.ts",
+          "name": "A-S01 missing Source cannot acknowledge or invoke the shared writer"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementSchema.acceptance.ts",
+          "name": "A-S03 legacy CHECK preserves applied-null retries and refuses acknowledgement without migration"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementSchema.acceptance.ts",
+          "name": "A-S04 genuine acknowledged bytes in legacy CHECK reject every owner route"
+        }
+      ]
+    },
+    {
+      "stage": "schema-layout-cutover-fixturefix",
+      "sourceCommit": "e91018e3796502cc3297df43baa1169a77a71f21",
+      "sourceTree": "8842f7add55d2609c43dc8f61ff6d4eb1c9058a2",
+      "passedCases": 3,
+      "terminalSha256": "4f88b73a26fee279435d9b8ba87954dd4ad49d703f5f832591c7c55b0b38cdfa",
+      "reportSha256": "f3412551f2515d771e724e305ec5e69db06be6cf0468514094fc64ab28c95be8",
+      "noRemainingOwnedProcesses": true,
+      "unobservedDescendantExitCodes": 0,
+      "peakRssKiB": 750508,
+      "cases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementSchema.acceptance.ts",
+          "name": "A-S05 arbitrary extra CHECK arm is refused by both production openers"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementSchema.acceptance.ts",
+          "name": "A-S06a cutover refuses an extra terminal trigger without dropping it"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementSchema.acceptance.ts",
+          "name": "A-S06b cutover refuses an extra terminal index without dropping it"
+        }
+      ]
+    },
+    {
+      "stage": "schema-openers-version-literal-fixturefix",
+      "sourceCommit": "e91018e3796502cc3297df43baa1169a77a71f21",
+      "sourceTree": "8842f7add55d2609c43dc8f61ff6d4eb1c9058a2",
+      "passedCases": 3,
+      "terminalSha256": "f12804fde0fd1a5d47489da37dfb797f2fa1dad79d0cc7ea1b0c7d65d5e2a2ef",
+      "reportSha256": "2409deaf8427b604dd3521ddd0512f79fb49e95f1b159fa35574cf14b6f80838",
+      "noRemainingOwnedProcesses": true,
+      "unobservedDescendantExitCodes": 0,
+      "peakRssKiB": 737396,
+      "cases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementSchema.acceptance.ts",
+          "name": "A-S07 frozen legacy queue opener rejects capable CHECK before its read factory"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementSchema.acceptance.ts",
+          "name": "A-S08 acknowledged rows cannot authenticate with official user_version 2"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementSchema.acceptance.ts",
+          "name": "A-S09 whitespace inside quoted acknowledgement status rejects both real openers"
+        }
+      ]
+    },
+    {
+      "stage": "schema-genuine-queued-fixturefix",
+      "sourceCommit": "e91018e3796502cc3297df43baa1169a77a71f21",
+      "sourceTree": "8842f7add55d2609c43dc8f61ff6d4eb1c9058a2",
+      "passedCases": 1,
+      "terminalSha256": "484177442209b6af1f8c7c509b21d909247cb51dd13eef05aabaaadd480efdd5",
+      "reportSha256": "c1825054ae1d936be14745b3a8ceb48485faa62591c18c2dac5ee3e6b55e18f3",
+      "noRemainingOwnedProcesses": true,
+      "unobservedDescendantExitCodes": 0,
+      "peakRssKiB": 463880,
+      "cases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalAcknowledgementSchema.acceptance.ts",
+          "name": "A-S02 genuine QUEUED Source cannot acknowledge on the exact capable schema"
+        }
+      ]
+    }
+  ],
+  "postBoundaryFix": {
+    "commit": "2cecbce67b381f23e51e571e51cdffa5961aa15a",
+    "sourceTree": "37e82fbb5f42934d68d454142bb480135b21e84c",
+    "lightPassed": 80,
+    "genuinePassed": 4,
+    "independentStaticReview": "no blocking findings at 002c1ffc8cac1acbb55ae66f2bc5448e05e2e990",
+    "attribution": "The 61-case original stream is not transferred to the repaired source. See the boundary verification record for exact repaired-source evidence."
+  },
+  "combinedTestFixtureFix": {
+    "commit": "394ea995f58a689557f2c86d8c1436d1849945a8",
+    "sourceTree": "7da2a836b67a4c5e71ed93791a38960603f543f3",
+    "lightPassed": 82,
+    "lightTerminalSha256": "a874b283296d49536262502d2974d22d674385354523a70655fb25eeb33a0096",
+    "compilerTerminalSha256": "8dab292be49ce97b606d528d1c83670e671b8d2d9301f3a116d32bd14aec7a3d",
+    "nativeAttribution": "No full 61-case rerun on this combined source is claimed."
+  },
+  "openLimitations": [
+    "A foreign receipt swap needs a second independently genuine terminal origin; no copied origin qualifies.",
+    "A coherent rollback of both status/result is not an externally monotonic history claim.",
+    "No whole-project, scoring, workload, reset, new-pitch, merge, deployment, or home-PC CI claim."
+  ]
+}
