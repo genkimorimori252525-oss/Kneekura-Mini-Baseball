@@ -1,3 +1,4 @@
+export { actualReceivedUmpireDefenderReplanInputEvidenceFromSqlite } from './ActualReceivedUmpireDefenderReplanInput';
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { assertDefensiveMetadataUnambiguous as unambiguous, defensiveMetadataId as metadataId, defensiveMetadataScope as metadataScope } from './ActualDefensiveMetadata';
