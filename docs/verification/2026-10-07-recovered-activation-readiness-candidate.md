@@ -6,7 +6,7 @@ The candidate is based on PR352 head `ae366870d28fab9061f0c5b673dc39cbc8ed7a21`.
 
 Workspace replacement on 2026-10-07 destroyed the previous raw test receipts and private artifacts. They are not inherited by this checkpoint. A fresh focused compiler passed on test-only baseline `5f4a0cc1a7f9d60517ddd2b3e8240a7c17d0a7fb`, before the production patch. The earlier full-project compiler attempt failed at its 1024 MiB V8 old-space limit. A subsequent bounded compiler launcher stopped in its preload because it incorrectly expected total V8 heap to be at most 1088 MiB; the exact Node 26.10 binary reports 1120 MiB for the 1024 MiB old-space setting. That launcher failure was reaped and produced no test credit.
 
-At the initial recovery publication, the production candidate had not passed a fresh compiler or runtime gate. The timestamped results below supersede that status for the 31 new cases, 105 adjacent cases, 110 boundary cases and fresh continuation from a published closed input through official application and the ten-player role/workload stage. The genuine two-completed-prior fixture, newly constructed actual flight, next-TAKE continuation and whole-project acceptance remain pending. No performance improvement is claimed.
+At the initial recovery publication, the production candidate had not passed a fresh compiler or runtime gate. The timestamped results below supersede that status for the 31 new cases, 105 adjacent cases, 110 boundary cases and fresh continuation from a published closed input through official application, the ten-player role/workload stage and next-actor/physical-TAKE continuation. The genuine two-completed-prior fixture, newly constructed batted flight and whole-project acceptance remain pending. No performance improvement is claimed.
 
 This is a code and concise status checkpoint. It contains no database, domain-row export, raw execution log or test-receipt bundle.
 
@@ -77,6 +77,31 @@ The actual outer and child exits were 0. The supervisor verified unchanged sourc
 - Role proof receipt: `e90fa208c7d2da37a297b566a42e36b801fab18055dc49e3ae5b2e1f7018e690`
 - Closed private role output: `cc587072c7f7259b07e4dafb08452861121bbeb3a33f96c5689389b00b859a46`; WAL is zero bytes
 
-Five continuation phases are now qualified on this exact lineage: compiler, raw admission, Native reauthentication, official application and role/workload. The next-TAKE phase remains pending, so `freshContinuationVerified` and `wholePipelinePassed` remain false. The 246 regression-case count is unchanged; this phase is not added as an invented number of test cases. New physical construction, the original seal rollback, genuine two-completed-prior coverage, geometry continuation and whole-project acceptance are still unproved here.
+At this role checkpoint, five continuation phases were qualified on this exact lineage: compiler, raw admission, Native reauthentication, official application and role/workload. The next-TAKE phase was still pending; its later result is recorded below. The 246 regression-case count is unchanged; this phase is not added as an invented number of test cases. New physical construction, the original seal rollback, genuine two-completed-prior coverage, geometry continuation and whole-project acceptance are still unproved here.
 
 This update publishes only concise source-specific results and digest metadata. The private database, domain rows, input manifest, execution logs and receipt files remain unpublished.
+
+
+## Recovered next-actor and physical TAKE — 2026-10-08 01:47 UTC
+
+The final next phase passed on the same continuation commit `e58db66ff423fd58b90dfc183f4bc66021e9c2c8`, src tree `a84ccc9ac2c45e66d0a6f07afc67af0bf3db6c75`. From the qualified closed role artifact, it admitted the explicitly selected next batter, executed one new physical TAKE at play 8, and produced the active count 0 balls / 1 strike under `npb-2026`. Wrong-activation rejection and a real actor INSERT/readiness-corruption rollback both passed. Exact actor/pitch retries and complete connection close/reopen readback passed; the role input remained unchanged.
+
+Actual child and controller exits were 0, with complete reaping, no survivors and unchanged source/dependency/control/input pins. The stage finished at 01:47:12 UTC in 2,014.424 seconds, with peak aggregate RSS 496,652 KiB, within the existing 14,400-second / 1,024 MiB old-space / measured 1,120 MiB heap / 1,536 MiB RSS bounds and 6 GiB stop reserve.
+
+- Preceding role checkpoint: `ca28ec1a1158d5fe060b84a12c44f6d3c9d7aba73967f0c29675fee57078baf2`
+- Next checkpoint: `cf869d37f73a833edcc985f95b1c6c88fc183bd3f9dd455f1a0145109289c083`
+- Next proof receipt: `41e10a0ffe9fe99f67688e6c9d320f102c67f41e67ae29f4392484a89c3a65f2`
+- Final invocation terminal: `d98b5a176d1dfe45bcfab2c7681f01a4f4a0a1739b7958085c5af2f5b133c7b7`
+- Closed private next output: `32978dbf7accf15c29f27e8208800eb7638094224ee84dad79eb4770b492e721`; WAL absent or empty
+
+### Recovery boundary
+
+The earlier next attempt lost its execution session during environment restart after its last telemetry at 00:33:45 UTC. It had no terminal or proof and receives zero qualification credit; its final owned exit/reap remains unknown. Original source, completed predecessor checkpoints and all interrupted output bytes survived and were preserved.
+
+The supported recovery kept all predecessor checkpoint/receipt bytes unchanged and used the original shared lock identities. An environment launcher failure occurred before process creation. A first scratch attempt then failed before project execution when Vite attempted a temporary compiled-config write beside a read-only shared config; that failed terminal was fully reaped. A second scratch attempt stalled in the Node backup boundary and was stopped with tool exit 130, without a supervisor terminal or reap claim. A bounded diagnostic reproduced repeated first-batch backup from the shared read-only WAL artifact, while a byte-identical closed private copy completed. These unsuccessful attempts receive no credit.
+
+The successful invocation used independently reviewed scratch controls, a byte-identical writable-location Vite config, and an explicitly pinned private copy of the same closed role database (`cc587072c7f7259b07e4dafb08452861121bbeb3a33f96c5689389b00b859a46`). A next-only entry recorded and verified this input relocation against the original role proof before calling the unchanged project helper. Original project imports, source and assertions remained fixed; the extra control/entry bytes and preserved interrupted files were separately pinned and rechecked. Recovery record SHA-256: `029c1a770f215532808126e83e210eb85109e67bc1bf2042d03e52a9cf246666`; supervisor: `0602059ad79505a299894962942b4ead675f612afa6957fa0eeccb9a7ea7f5ef`; entry: `0e1ff2c91498eb9cbd9433a9ef669a43d22ca5d6db94e6d8747e6121e9c4076c`.
+
+The final chain authenticates all six completed stages and reports `invocationVerified:true` and `freshContinuationVerified:true`. This is a predecessor-pinned continuation across separate invocations, including recovery, not one uninterrupted run. `wholePipelinePassed:false`, `geometryRedObserved:false`, original construction/seal-rollback, elapsed-World recovery and autonomous lineup selection remain unproved. The fixture's scoring remains unsupported. The 246 selected regression count is unchanged and no phase count is added to it. This exact source result does not qualify later participation, terminal pending/acknowledgement or integrated-union sources.
+
+Only this concise result and hash metadata are published; all private databases, raw logs, manifests and receipt bundles remain private.
