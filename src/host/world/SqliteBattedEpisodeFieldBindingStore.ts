@@ -9,6 +9,7 @@ import { battedBallFlightEvidenceFromSqlite } from './SqliteBattedBallFlightStor
 import { battedWorldFrameBaseCenters } from './SqliteBattedWorldBaseGeometryStore';
 import { battedWorldFieldCalibrationEvidenceFromSqlite } from './BattedWorldFieldCalibrationEvidenceFromSqlite';
 import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
+import { battedEpisodeV2ParticipantsMatch } from './BattedEpisodeParticipantBindingV2';
 import { sqliteJsonMetadataNodes as nodes } from './SqliteOwnershipMetadata';
 import type { AcceptedBattedEpisodeFieldBinding, BattedEpisodeFieldBindingAuthority,
   DurableBattedEpisodeFieldBinding, SqliteBattedEpisodeFieldBindingStore } from './BattedEpisodeFieldBinding';
@@ -116,8 +117,7 @@ const bindingOwner = (db: Db) => {
       || json(world.result.ball) !== json(initial) || response.result.kind !== 'airborne' || json(response.result.ball) !== json(initial)) {
       throw new Error('episode field binding requires the unadvanced original bat contact root');
     }
-    // RED scaffold: v2's strict reference shape is admitted above, while this
-    // original participant guard remains unchanged until genuine RED is qualified.
+    // V2 explicitly names the current actor; v1 keeps its original ten bindings.
     if (source.version === 'batted_episode_field_binding_v2'
       && (source.physicalActorSourceId !== actor.source.sourceId || !actor.origin.actualLiveReadiness
         || old.flight.physicalPitch.frame.match.playId >= pitch.frame.match.playId
@@ -126,7 +126,8 @@ const bindingOwner = (db: Db) => {
     }
     const bindings = [actor.binding, ...actor.defenderBindings], originalBindings = [oldActor.binding, ...oldActor.defenderBindings];
     if (bindings.length !== 10 || actor.defenderBindings.length !== 9 || new Set(bindings.map(binding => binding.playerId)).size !== 10
-      || json(bindings) !== json(originalBindings) || world.actors.length !== 50
+      || (source.version === 'batted_episode_field_binding_v1' ? json(bindings) !== json(originalBindings)
+        : !battedEpisodeV2ParticipantsMatch(actor, oldActor, world, response.model)) || world.actors.length !== 50
       || bindings.some(binding => world.modelActorEvidence.filter(item => json(item.binding) === json(binding)).length !== 1)
       || pitch.frame.gameId !== old.fixture.game_id || response.model.gameId !== old.fixture.game_id
       || world.model.gameId !== old.fixture.game_id || actor.binding.careerId !== oldActor.binding.careerId

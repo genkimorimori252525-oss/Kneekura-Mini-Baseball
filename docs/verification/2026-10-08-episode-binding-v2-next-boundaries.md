@@ -1,5 +1,11 @@
 # Binding v2 owner and later field-root boundary
 
+Historical preparation record for source `ace092c1678290bc9ef0c2813b8de67f18915a9e`.
+The bootstrap and original-ten RED subsequently closed. The version-specific
+owner implementation and its remaining genuine GREEN boundary are described in
+`2026-10-08-episode-participant-v2-owner.md`; the consumer and motion boundaries
+below remain in force.
+
 This is source inspection and a bounded future contract, not an executed binding
 or field-continuation claim. The current source still contains the strict RED
 scaffold: v2 accepts the reference shape, requires the distinct current

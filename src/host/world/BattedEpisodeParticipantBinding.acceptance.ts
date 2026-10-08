@@ -472,6 +472,9 @@ it('EPB-R01 accepts the new batter binding through its explicit v2 actor referen
       x.checkpoint('binding-assertion-threw', { message: error instanceof Error ? error.message : String(error), rowsHash: hash(before) });
       throw error;
     }
+    x.checkpoint('binding-accept-returned', { valueHash: hash(bound), sourceHash: hash(bound.source), freshWriter,
+      rowsHash: hash(geometryRows(db)), bootstrapReceiptSha256: x.input.lineage.receipt.sha256,
+      semanticAssertionsCompleted: false });
     assert.equal(freshWriter.delta, 1); assert.deepEqual(freshWriter.witnessed, [true]);
     assert.deepEqual(freshWriter.writes, [{ index: 0, totalChanges: freshWriter.before + 1 }]);
     assert.equal(bound.source.version, 'batted_episode_field_binding_v2'); assert.equal(json(bound.source), json(x.sources.binding));
@@ -490,6 +493,9 @@ it('EPB-R01 accepts the new batter binding through its explicit v2 actor referen
       sourceVersion: x.sources.binding.sourceVersion, version: 'batted_episode_field_binding_v1',
       responseSourceId: bound.source.responseSourceId, fieldCalibrationSourceId: bound.source.fieldCalibrationSourceId }),
     /episode field binding original Player\/Person\/fixture\/day or orientation differs/);
+    x.checkpoint('binding-write-qualified', { valueHash: hash(bound), freshWriter, beforeRowsHash: hash(before),
+      afterRowsHash: hash(expected), exactAdditions: { binding: 1 }, v1ConsumerRejected: true, v1ParticipantGuardPreserved: true,
+      retryAndReopenCompleted: false });
     x.drain(); geometryClosed(x.path);
     const reopened = x.track(openSqliteBattedEpisodeFieldBindingStore(x.path));
     const retry = observeWriter(ownerRead, insert, () => reopened.accept(bound.source.sourceId));
