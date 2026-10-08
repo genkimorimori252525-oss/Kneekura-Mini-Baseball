@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "noEmit": true, "incremental": false },
+  "include": [
+    "src/host/world/ActualFoulTerminalAcknowledgementAncestry.test.ts",
+    "src/host/world/ActualFoulTerminalAcknowledgementAncestry.acceptance.ts",
+    "src/host/world/ActualFoulTerminalScoring.acceptance.ts"
+  ]
+}

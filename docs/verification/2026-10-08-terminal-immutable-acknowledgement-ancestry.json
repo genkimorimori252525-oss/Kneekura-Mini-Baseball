@@ -1,0 +1,721 @@
+{
+  "schema": "terminal_immutable_acknowledgement_ancestry_qualification_v1",
+  "baseline": "43798d85879fbe528a13370766a0a1519d2d855c",
+  "frozenOwnerIntegration": "00ebaa9dbc42661c5f18cb271e524275615c85ae",
+  "retainedTestSupportIntegration": "c721fc99024a5bf1a6ebb58e67005c433ac2960d",
+  "refactorCommit": "773fb855ba14767f100305a322c5d29a8337e2cf",
+  "refactorSrcTree": "26ba4b25c5f7a2fd9fe269910b9863fc2431946d",
+  "scope": "Existing QUEUED/APPLIED_PENDING/ACKNOWLEDGED_PENDING stages only. No completion capability, schema cutover, effects repair, reset, next admission, UI or new gameplay.",
+  "ownerDeltas": [
+    {
+      "owner": "ack",
+      "base": "c89a120dbfc3a08495ef23de90a90a996be66754",
+      "head": "002c1ffc8cac1acbb55ae66f2bc5448e05e2e990",
+      "path": "docs/verification/2026-10-08-terminal-transaction-boundary.md",
+      "status": "A",
+      "sha256": "2a614dd7dd9a4223e2ff0143232eb001434233af483f615fc0ec2609cba2db98"
+    },
+    {
+      "owner": "ack",
+      "base": "c89a120dbfc3a08495ef23de90a90a996be66754",
+      "head": "002c1ffc8cac1acbb55ae66f2bc5448e05e2e990",
+      "path": "src/host/world/ActualFoulTerminalAcknowledgementCutover.test-support.ts",
+      "status": "M",
+      "sha256": "2f034cee603082040b6178e8001680852047d4d37189adf1cc1944a54a231b6c"
+    },
+    {
+      "owner": "ack",
+      "base": "c89a120dbfc3a08495ef23de90a90a996be66754",
+      "head": "002c1ffc8cac1acbb55ae66f2bc5448e05e2e990",
+      "path": "src/host/world/ActualFoulTerminalAcknowledgementIntegrity.test-support.ts",
+      "status": "A",
+      "sha256": "a7b15bd3530c7e52234c3497508a0bb11d9931a63e9e8a2840fae6d13cb248d1"
+    },
+    {
+      "owner": "ack",
+      "base": "c89a120dbfc3a08495ef23de90a90a996be66754",
+      "head": "002c1ffc8cac1acbb55ae66f2bc5448e05e2e990",
+      "path": "src/host/world/ActualFoulTerminalAcknowledgementRetained.test-support.ts",
+      "status": "A",
+      "sha256": "648077180b12cda8a0dd16ac2834f7779209f63a48e6d3cd56b26ffbb3b5f189"
+    },
+    {
+      "owner": "ack",
+      "base": "c89a120dbfc3a08495ef23de90a90a996be66754",
+      "head": "002c1ffc8cac1acbb55ae66f2bc5448e05e2e990",
+      "path": "src/host/world/ActualFoulTerminalAcknowledgementRollback.acceptance.ts",
+      "status": "A",
+      "sha256": "d0169209648956351ce296c82ad95e6c662c2a8e4186507eb577ce0dfd51c41c"
+    },
+    {
+      "owner": "ack",
+      "base": "c89a120dbfc3a08495ef23de90a90a996be66754",
+      "head": "002c1ffc8cac1acbb55ae66f2bc5448e05e2e990",
+      "path": "src/host/world/ActualFoulTerminalAcknowledgementSchema.acceptance.ts",
+      "status": "A",
+      "sha256": "3719618ccb19da8c204863075fbc3935737978c8588d2be729ca5b0649595be9"
+    },
+    {
+      "owner": "ack",
+      "base": "c89a120dbfc3a08495ef23de90a90a996be66754",
+      "head": "002c1ffc8cac1acbb55ae66f2bc5448e05e2e990",
+      "path": "src/host/world/ActualFoulTerminalAcknowledgementSiblings.acceptance.ts",
+      "status": "A",
+      "sha256": "8ba861352f1be7774a951db21e121bf7a4ea2e465a17c4cdc6871b0f3d507aad"
+    },
+    {
+      "owner": "ack",
+      "base": "c89a120dbfc3a08495ef23de90a90a996be66754",
+      "head": "002c1ffc8cac1acbb55ae66f2bc5448e05e2e990",
+      "path": "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
+      "status": "A",
+      "sha256": "89d341d983d50588c14d18ce94188d75aacc601053155c79f3bc4c3dfd6625df"
+    },
+    {
+      "owner": "ack",
+      "base": "c89a120dbfc3a08495ef23de90a90a996be66754",
+      "head": "002c1ffc8cac1acbb55ae66f2bc5448e05e2e990",
+      "path": "src/host/world/ActualFoulTerminalAcknowledgementWire.test-support.ts",
+      "status": "M",
+      "sha256": "069d33e08907d668d4d3c833112056f53af2041a0b0527b72ca7091335a3f319"
+    },
+    {
+      "owner": "ack",
+      "base": "c89a120dbfc3a08495ef23de90a90a996be66754",
+      "head": "002c1ffc8cac1acbb55ae66f2bc5448e05e2e990",
+      "path": "src/host/world/ActualFoulTerminalLegacyStorage.test-support.ts",
+      "status": "A",
+      "sha256": "1e42013aa341ea888e749c1817a4f71565e3361797bf7bb833f91f0a2a465911"
+    },
+    {
+      "owner": "ack",
+      "base": "c89a120dbfc3a08495ef23de90a90a996be66754",
+      "head": "002c1ffc8cac1acbb55ae66f2bc5448e05e2e990",
+      "path": "src/host/world/ActualFoulTerminalTransactionBoundary.test.ts",
+      "status": "A",
+      "sha256": "49824cefbc550940a81c6e625789bc14394eb6436d42420bd8a3369414e7aa43"
+    },
+    {
+      "owner": "ack",
+      "base": "c89a120dbfc3a08495ef23de90a90a996be66754",
+      "head": "002c1ffc8cac1acbb55ae66f2bc5448e05e2e990",
+      "path": "src/host/world/SqliteActualFoulTerminalApplicationRunner.ts",
+      "status": "M",
+      "sha256": "1aa53218d65e56ac1607457830ced952989ee3e4408d3a484f1aefd4f43e4714"
+    },
+    {
+      "owner": "ack",
+      "base": "c89a120dbfc3a08495ef23de90a90a996be66754",
+      "head": "002c1ffc8cac1acbb55ae66f2bc5448e05e2e990",
+      "path": "src/host/world/SqliteActualFoulTerminalApplicationStore.ts",
+      "status": "M",
+      "sha256": "efb5bcb22d0be81cf04d57a5e5f39485e0f94a6b88b2fc570c04821237fd2b9c"
+    },
+    {
+      "owner": "ack",
+      "base": "c89a120dbfc3a08495ef23de90a90a996be66754",
+      "head": "002c1ffc8cac1acbb55ae66f2bc5448e05e2e990",
+      "path": "src/host/world/SqliteActualFoulTerminalLegacyOpener.test-support.ts",
+      "status": "A",
+      "sha256": "814d5dc010a729a3d7e8a8835a6ed713e6d73701a03cf64df48e721a35a903d8"
+    },
+    {
+      "owner": "ack",
+      "base": "c89a120dbfc3a08495ef23de90a90a996be66754",
+      "head": "002c1ffc8cac1acbb55ae66f2bc5448e05e2e990",
+      "path": "tsconfig.terminal-acknowledgement.json",
+      "status": "M",
+      "sha256": "5878efe6dbe27fb3fd56ac409c02e439533e4b5735035a0b8cc7128c9b16f0eb"
+    },
+    {
+      "owner": "ack",
+      "base": "c89a120dbfc3a08495ef23de90a90a996be66754",
+      "head": "002c1ffc8cac1acbb55ae66f2bc5448e05e2e990",
+      "path": "tsconfig.terminal-boundary.json",
+      "status": "A",
+      "sha256": "7f4b320576443e97700fbc23939c5db27715bfbb0470f36e8b3a3069694757f0"
+    },
+    {
+      "owner": "ack",
+      "base": "c89a120dbfc3a08495ef23de90a90a996be66754",
+      "head": "002c1ffc8cac1acbb55ae66f2bc5448e05e2e990",
+      "path": "vitest.terminal-acknowledgement.config.mjs",
+      "status": "M",
+      "sha256": "1c393adafb468e73e0e3330989845a0c5d11435bf6a4518bd7279ce634c85541"
+    },
+    {
+      "owner": "ack",
+      "base": "c89a120dbfc3a08495ef23de90a90a996be66754",
+      "head": "002c1ffc8cac1acbb55ae66f2bc5448e05e2e990",
+      "path": "vitest.terminal-boundary.config.mjs",
+      "status": "A",
+      "sha256": "c80b4dfe2e200f969f9ec8f07dfe854d50de6c35b77e640677aa40e5cd6632cd"
+    },
+    {
+      "owner": "scoring",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "f7a22b06651add9f5ee17cde22d17988b126c949",
+      "path": "docs/superpowers/plans/2026-10-08-terminal-deterministic-scoring.md",
+      "status": "A",
+      "sha256": "0ff63d7f6d53dc63a4e367502341771872a713eb2b122670090b21f2f70dd763"
+    },
+    {
+      "owner": "scoring",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "f7a22b06651add9f5ee17cde22d17988b126c949",
+      "path": "docs/verification/2026-10-08-terminal-scoring-progress.md",
+      "status": "A",
+      "sha256": "ec00b2c1371a37a5f2ea71095c3bb9d6c003311e8c9188a90c5518a1e2a85d16"
+    },
+    {
+      "owner": "scoring",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "f7a22b06651add9f5ee17cde22d17988b126c949",
+      "path": "docs/verification/2026-10-08-terminal-scoring-publication.json",
+      "status": "A",
+      "sha256": "2c4b958defdf1f9927f4549e4181ab1e902c4401dbed2020a16580e792a9707d"
+    },
+    {
+      "owner": "scoring",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "f7a22b06651add9f5ee17cde22d17988b126c949",
+      "path": "docs/verification/2026-10-08-terminal-scoring-qualified.md",
+      "status": "A",
+      "sha256": "cb383e6c234b4e4c494fd50925e224d34dd73d5504733ab687cbcd4782f3dc85"
+    },
+    {
+      "owner": "scoring",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "f7a22b06651add9f5ee17cde22d17988b126c949",
+      "path": "docs/verification/2026-10-08-terminal-scoring-static-review.md",
+      "status": "A",
+      "sha256": "3e424305f8083d43c76cbd93d6a6f0753df3913ceb9f3d123e0f7d9b95c64675"
+    },
+    {
+      "owner": "scoring",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "f7a22b06651add9f5ee17cde22d17988b126c949",
+      "path": "src/host/SqliteOfficialScoringStore.ts",
+      "status": "M",
+      "sha256": "21156980e634a04e103c982f8f08156c9fcb0811557079fb3a0940dace428c37"
+    },
+    {
+      "owner": "scoring",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "f7a22b06651add9f5ee17cde22d17988b126c949",
+      "path": "src/host/SqliteOfficialScoringWriter.ts",
+      "status": "A",
+      "sha256": "96b8a3d614259063f828f63a9b440042d9ba2e1f89ca16c86e007033d4e41468"
+    },
+    {
+      "owner": "scoring",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "f7a22b06651add9f5ee17cde22d17988b126c949",
+      "path": "src/host/world/ActualFoulTerminalConsumerFence.test.ts",
+      "status": "A",
+      "sha256": "acf96847f3ef1d47cea676b88e67f931d7f261ac290b503b333755f8e88841a6"
+    },
+    {
+      "owner": "scoring",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "f7a22b06651add9f5ee17cde22d17988b126c949",
+      "path": "src/host/world/ActualFoulTerminalScoring.acceptance.ts",
+      "status": "A",
+      "sha256": "b66c0feda90001046dcc689bf51d5c10f22d5e3e2fcece27b3f488840dd813c7"
+    },
+    {
+      "owner": "scoring",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "f7a22b06651add9f5ee17cde22d17988b126c949",
+      "path": "src/host/world/ActualFoulTerminalScoringEvidenceFromSqlite.ts",
+      "status": "A",
+      "sha256": "b1173cdcd4cae81b6252cfe7141e28bb2c89041458fcce82fae720774cd14aa2"
+    },
+    {
+      "owner": "scoring",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "f7a22b06651add9f5ee17cde22d17988b126c949",
+      "path": "src/host/world/ActualFoulTerminalScoringFixture.test-support.ts",
+      "status": "A",
+      "sha256": "92ffb31e8a18a7e9e5bd3f2a8d14f6df2399d6b23d2f2bc02630bae6f140ade3"
+    },
+    {
+      "owner": "scoring",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "f7a22b06651add9f5ee17cde22d17988b126c949",
+      "path": "src/host/world/ActualFoulTerminalScoringIntegrity.acceptance.ts",
+      "status": "A",
+      "sha256": "e27250ec3a9f99e095e8d3096634b2acc044725fb759191e7568529ff75e7ac5"
+    },
+    {
+      "owner": "scoring",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "f7a22b06651add9f5ee17cde22d17988b126c949",
+      "path": "src/host/world/ActualFoulTerminalScoringMetadata.test.ts",
+      "status": "A",
+      "sha256": "f345e771eb0784b2bb15ee59aae32477b4af0db5323467e9d87d1aa0238acdd4"
+    },
+    {
+      "owner": "scoring",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "f7a22b06651add9f5ee17cde22d17988b126c949",
+      "path": "src/host/world/ActualFoulTerminalScoringRollback.acceptance.ts",
+      "status": "A",
+      "sha256": "dd2c3baf4d92acf12b278be24a18fdb8cb02df826481b6214300de2f3bd0b216"
+    },
+    {
+      "owner": "scoring",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "f7a22b06651add9f5ee17cde22d17988b126c949",
+      "path": "src/host/world/ActualFoulTerminalScoringStorage.test.ts",
+      "status": "A",
+      "sha256": "fd8e996fa65c2553e2765c4e69ca1e188e277621fe32dab8a961188bd45965a8"
+    },
+    {
+      "owner": "scoring",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "f7a22b06651add9f5ee17cde22d17988b126c949",
+      "path": "src/host/world/PhysicalPlateAppearanceActorEvidenceFromSqlite.ts",
+      "status": "M",
+      "sha256": "bd1d657b2d7d3b00c6ba3ccc898e4fbe521819daff9b5a0242510632db2d9dab"
+    },
+    {
+      "owner": "scoring",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "f7a22b06651add9f5ee17cde22d17988b126c949",
+      "path": "src/host/world/PhysicalPlayClosureEvidenceFromSqlite.ts",
+      "status": "M",
+      "sha256": "a339fa2925481bccbe67cbaf39cd33f10ae8c41dd12dc469e4ae15194247effe"
+    },
+    {
+      "owner": "scoring",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "f7a22b06651add9f5ee17cde22d17988b126c949",
+      "path": "src/host/world/SqliteActualFoulTerminalScoringStore.ts",
+      "status": "A",
+      "sha256": "f433107e787dfebb7d0622ec0b34a438b086ebf1bf4a37f8ba945ea27ad37703"
+    },
+    {
+      "owner": "scoring",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "f7a22b06651add9f5ee17cde22d17988b126c949",
+      "path": "src/host/world/SqliteOfficialPitchWorkloadStore.ts",
+      "status": "M",
+      "sha256": "d62bbd16109db618276fc22a4314e81c4c7e42a883dd3fbe3c2e50b8b95097f1"
+    },
+    {
+      "owner": "scoring",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "f7a22b06651add9f5ee17cde22d17988b126c949",
+      "path": "tsconfig.terminal-scoring.json",
+      "status": "A",
+      "sha256": "e7a2796b03baafa25b261f94ec5a67ac7d8e9a2f3e3fbfc0c370a1ebfbd10628"
+    },
+    {
+      "owner": "scoring",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "f7a22b06651add9f5ee17cde22d17988b126c949",
+      "path": "vitest.terminal-scoring.config.mjs",
+      "status": "A",
+      "sha256": "a4a773335f70ce4db96ec2f693ed964a2cad3c6983fa01071247b6fc38b11431"
+    },
+    {
+      "owner": "workload",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "path": "docs/superpowers/plans/2026-10-08-terminal-role-workload.md",
+      "status": "A",
+      "sha256": "fbf46bd31d98aba51dfa15f1c4e69e34c092b1139351c11fa920907069155795"
+    },
+    {
+      "owner": "workload",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "path": "docs/verification/2026-10-08-terminal-workload-static-review.md",
+      "status": "A",
+      "sha256": "a06b03116daf7fe0aac7e53c3e2d65d465985302bd7ea8f8f59ec5b39821e836"
+    },
+    {
+      "owner": "workload",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "path": "src/host/world/ActualFoulTerminalRoleWorkload.acceptance.ts",
+      "status": "A",
+      "sha256": "b1918ee4a2885a77b2e1e20d39cd749405bcfa613e090d16cfcf5f79c4606a93"
+    },
+    {
+      "owner": "workload",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "path": "src/host/world/ActualFoulTerminalRoleWorkloadAssessment.ts",
+      "status": "A",
+      "sha256": "ddd02b305b255d5b8ca2cf42796c202884f68be8a8159c6fd0e3555aa5c213f3"
+    },
+    {
+      "owner": "workload",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "path": "src/host/world/ActualFoulTerminalRoleWorkloadEvidenceFromSqlite.ts",
+      "status": "A",
+      "sha256": "e84fdc61227a1add471c220ed6ae7f2c9a7b414f824a38bc59bfd2fa4593775d"
+    },
+    {
+      "owner": "workload",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "path": "src/host/world/ActualFoulTerminalRoleWorkloadFixture.test-support.ts",
+      "status": "A",
+      "sha256": "8a7956590f6b490a97604ffc5b0c5b990fb6ea29c00edefcdc3bcbcad16638cb"
+    },
+    {
+      "owner": "workload",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "path": "src/host/world/ActualFoulTerminalRoleWorkloadGuards.acceptance.ts",
+      "status": "A",
+      "sha256": "f195f512a4506205a0a4242d9033e24a157b2a3c3043ba13e6952118dd80758e"
+    },
+    {
+      "owner": "workload",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "path": "src/host/world/ActualFoulTerminalRoleWorkloadIntegrity.acceptance.ts",
+      "status": "A",
+      "sha256": "ac90f9b5f4c2c3fcaf501b96599ee6a7dedc68086249ed99ad6105cd77e61875"
+    },
+    {
+      "owner": "workload",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "path": "src/host/world/ActualFoulTerminalRoleWorkloadMetadata.test.ts",
+      "status": "A",
+      "sha256": "255749c826e7ca73495ba2b3b4e73572e95260b3f720dea56dee47ee9fc35356"
+    },
+    {
+      "owner": "workload",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "path": "src/host/world/ActualFoulTerminalRoleWorkloadMetadata.ts",
+      "status": "A",
+      "sha256": "85e99f8d954ac90e4161db27e40b283348aad8c6541c2ada6fd70080b435393b"
+    },
+    {
+      "owner": "workload",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "path": "src/host/world/ActualFoulTerminalRoleWorkloadRollback.acceptance.ts",
+      "status": "A",
+      "sha256": "e90cd9d4945808a87c53614bf08b56e187a893d722e5a613ab05f3f05b698238"
+    },
+    {
+      "owner": "workload",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "path": "src/host/world/ActualFoulTerminalRoleWorkloadStorage.ts",
+      "status": "A",
+      "sha256": "d0f15f4b1d4d13c5e15f08123a742432007ffcec2023bf511b2976b0f74ddbf1"
+    },
+    {
+      "owner": "workload",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "path": "src/host/world/ActualRoleWorkloadChargeGuard.ts",
+      "status": "M",
+      "sha256": "1737a0d2065f36a7fc4f541e871db16b2f88ea7977186d1e2f6ad9e3c7e60714"
+    },
+    {
+      "owner": "workload",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "path": "src/host/world/FoulTerminalWorkloadTransaction.test.ts",
+      "status": "A",
+      "sha256": "5cb37cef98e7eb8218d5f8ca8848f25df2089f97f579e959e9c24783c0b1c408"
+    },
+    {
+      "owner": "workload",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "path": "src/host/world/FoulTerminalWorkloadTransaction.ts",
+      "status": "A",
+      "sha256": "ad48d6f68e134f7e9f74f531824093c2d22c56f01ced4ad57a7e196603165f59"
+    },
+    {
+      "owner": "workload",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "path": "src/host/world/PlayerWorkloadConnectionParity.test.ts",
+      "status": "A",
+      "sha256": "722a1e6ec27be696482420e8506ee0a9fd4c4b992105e49ecbd31ad07cea3f89"
+    },
+    {
+      "owner": "workload",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "path": "src/host/world/SqliteActualFoulTerminalRoleWorkloadStore.ts",
+      "status": "A",
+      "sha256": "2f023a960a450220512094e0de0d923398275f07124a531e47b5e6dffe0aec95"
+    },
+    {
+      "owner": "workload",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "path": "src/host/world/SqlitePlayerWorkloadRecoveryStore.ts",
+      "status": "M",
+      "sha256": "d4f9fd88762652722a1feedde09d75654440ebc226739829963092d305dcdf37"
+    },
+    {
+      "owner": "workload",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "path": "tsconfig.terminal-workload.json",
+      "status": "A",
+      "sha256": "e047fb0df2d5e87d3c8770c6a3609ffde41e104bbb01551905c97b587fc1fa9f"
+    },
+    {
+      "owner": "workload",
+      "base": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+      "head": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "path": "vitest.terminal-workload.config.mjs",
+      "status": "A",
+      "sha256": "cb63afa1dbc4b6a8c288a952bb564c9dd06e8491dbbafe4bce2bc8f2920acb07"
+    }
+  ],
+  "testSupportDelta": [
+    {
+      "owner": "workload-test-only",
+      "base": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "head": "5a9f85544352e64326068dd66df99283fa203c86",
+      "path": "src/host/world/ActualFoulTerminalRoleWorkloadCheckpoint.acceptance.ts",
+      "status": "A",
+      "sha256": "f30b16d1f5da2a3ac101e1bac698cb7c553a40a7173b2503e9e01c50ba58d20f"
+    },
+    {
+      "owner": "workload-test-only",
+      "base": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "head": "5a9f85544352e64326068dd66df99283fa203c86",
+      "path": "src/host/world/ActualFoulTerminalRoleWorkloadCheckpoint.test-support.ts",
+      "status": "A",
+      "sha256": "6ba9ecb81aea07491b98a3b23556f6f71b761420b0de26d62082f929326f726c"
+    },
+    {
+      "owner": "workload-test-only",
+      "base": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "head": "5a9f85544352e64326068dd66df99283fa203c86",
+      "path": "src/host/world/ActualFoulTerminalRoleWorkloadIntegrity.acceptance.ts",
+      "status": "M",
+      "sha256": "8dc4d8f0c9ff3c13f6e53c8743b950809b1d851117a9f54ea93270a47125940e"
+    },
+    {
+      "owner": "workload-test-only",
+      "base": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "head": "5a9f85544352e64326068dd66df99283fa203c86",
+      "path": "src/host/world/ActualFoulTerminalRoleWorkloadReady.acceptance.ts",
+      "status": "A",
+      "sha256": "9cd08e68e59e076f94717946f261828d9b59032da2b19cbc24effb6c5ac2169e"
+    },
+    {
+      "owner": "workload-test-only",
+      "base": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "head": "5a9f85544352e64326068dd66df99283fa203c86",
+      "path": "src/host/world/ActualFoulTerminalRoleWorkloadRollback.acceptance.ts",
+      "status": "M",
+      "sha256": "e5e88917c929ca00c4189ae42f2b9539b14129f53973e05f8489eb8e1166782a"
+    },
+    {
+      "owner": "workload-test-only",
+      "base": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "head": "5a9f85544352e64326068dd66df99283fa203c86",
+      "path": "tsconfig.terminal-workload.json",
+      "status": "M",
+      "sha256": "d70083d415a31e5405e2ed571eecdee542e66170500e1d737bb91ab40ed435f6"
+    },
+    {
+      "owner": "workload-test-only",
+      "base": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+      "head": "5a9f85544352e64326068dd66df99283fa203c86",
+      "path": "vitest.terminal-workload.config.mjs",
+      "status": "M",
+      "sha256": "bc7ebed3b73e240877714241144e513e8621ed0baf9ecf17f614f4bb5cfc2796"
+    }
+  ],
+  "gates": [
+    {
+      "gate": "frozen-combined-root-compiler",
+      "status": "passed",
+      "terminalSha256": "3f90e593a73b18b0670f582330fae2bab6f875fca2bc3cf6bb97b7ef005aecd4",
+      "reportSha256": null,
+      "sourceSnapshotSha256": "ab5fbdcbea9c885ac5136c3677b447dd1a91966cf64af24bff9175b9780e46b2",
+      "passedCases": 0,
+      "expectedFailedCases": 0,
+      "excludedCases": 0,
+      "originalChildExit": 0,
+      "unchangedInputGroups": true,
+      "remainingOwnedProcesses": 0,
+      "qualificationCredit": 0
+    },
+    {
+      "gate": "frozen-combined-parity-244",
+      "status": "passed",
+      "terminalSha256": "2acb97c844a68f6e51a594b036ef0c0d0b85008fd85059f97bcfdff93ad0df7a",
+      "reportSha256": "4fa4b68412a585fe589ca36648a8b81a2af8f97b686bf7dc4fc06cc73a2d0712",
+      "sourceSnapshotSha256": "ab5fbdcbea9c885ac5136c3677b447dd1a91966cf64af24bff9175b9780e46b2",
+      "passedCases": 244,
+      "expectedFailedCases": 0,
+      "excludedCases": 0,
+      "originalChildExit": 0,
+      "unchangedInputGroups": true,
+      "remainingOwnedProcesses": 0,
+      "qualificationCredit": 244
+    },
+    {
+      "gate": "ancestry-api-routing-red",
+      "status": "passed",
+      "terminalSha256": "e4749c7880ba8708b1c4e209475ed5872897dbdf406ef6a4b8eb388a2fb03f4e",
+      "reportSha256": "5c7bfc6361a4dd266e173c4e38ad6d2a580cbe88eb40d6b3ec2455407a1ba85d",
+      "sourceSnapshotSha256": "00dc48e445b293f0932483fd24531f3af7b3c83ec7a5ec3c1f7676619e30e754",
+      "passedCases": 0,
+      "expectedFailedCases": 11,
+      "excludedCases": 0,
+      "originalChildExit": 1,
+      "unchangedInputGroups": true,
+      "remainingOwnedProcesses": 0,
+      "qualificationCredit": 0
+    },
+    {
+      "gate": "ancestry-guard-green",
+      "status": "passed",
+      "terminalSha256": "7502637ed70a79235f1476555b817f14de50cea8565359cdea7bbca682dbc73e",
+      "reportSha256": "a30e901e21fa67c3c3f40f96981aeb2e7e49d65d3c89217f648a53400662444e",
+      "sourceSnapshotSha256": "1f5f367fd78ff68f2b55f5a726d239b1fb13cc9fa77600e98e68253e371db101",
+      "passedCases": 11,
+      "expectedFailedCases": 0,
+      "excludedCases": 0,
+      "originalChildExit": 0,
+      "unchangedInputGroups": true,
+      "remainingOwnedProcesses": 0,
+      "qualificationCredit": 11
+    },
+    {
+      "gate": "final-root-compiler",
+      "status": "passed",
+      "terminalSha256": "e12cfd59d0ee7e92e285694b66f4232e8b29b682b2de92ad1d9e8dbd7098f77a",
+      "reportSha256": null,
+      "sourceSnapshotSha256": "103ca05867af1a397d255ce613b39afd2204688bcdea9e47bb49461e55122ac5",
+      "passedCases": 0,
+      "expectedFailedCases": 0,
+      "excludedCases": 0,
+      "originalChildExit": 0,
+      "unchangedInputGroups": true,
+      "remainingOwnedProcesses": 0,
+      "qualificationCredit": 0
+    },
+    {
+      "gate": "final-focused-compiler",
+      "status": "passed",
+      "terminalSha256": "bf861309e00a8b1fb329d5a4edd1fb151cf496a4d984d129bc491873b91b135e",
+      "reportSha256": null,
+      "sourceSnapshotSha256": "103ca05867af1a397d255ce613b39afd2204688bcdea9e47bb49461e55122ac5",
+      "passedCases": 0,
+      "expectedFailedCases": 0,
+      "excludedCases": 0,
+      "originalChildExit": 0,
+      "unchangedInputGroups": true,
+      "remainingOwnedProcesses": 0,
+      "qualificationCredit": 0
+    },
+    {
+      "gate": "final-parity-255",
+      "status": "passed",
+      "terminalSha256": "1a07e1505d92cb05e1d4c7cc6d35138f127f8e47d326c47738b4f2293d4faf50",
+      "reportSha256": "3456ef50bc0b86a4779dab668dc492e914c3f9ec1c38228514e3987be0a17804",
+      "sourceSnapshotSha256": "103ca05867af1a397d255ce613b39afd2204688bcdea9e47bb49461e55122ac5",
+      "passedCases": 255,
+      "expectedFailedCases": 0,
+      "excludedCases": 0,
+      "originalChildExit": 0,
+      "unchangedInputGroups": true,
+      "remainingOwnedProcesses": 0,
+      "qualificationCredit": 255
+    },
+    {
+      "gate": "final-retained-ancestry",
+      "status": "passed",
+      "terminalSha256": "c75bc8fd60943b4704f434b5b809bce127291408ac5d95ab2bab2e58f30afa10",
+      "reportSha256": "9aee6f2ccd13cdb34c354f77d73a3d80d98a12e2f331375ce759f797e478ce2e",
+      "sourceSnapshotSha256": "103ca05867af1a397d255ce613b39afd2204688bcdea9e47bb49461e55122ac5",
+      "passedCases": 2,
+      "expectedFailedCases": 0,
+      "excludedCases": 0,
+      "originalChildExit": 0,
+      "unchangedInputGroups": true,
+      "remainingOwnedProcesses": 0,
+      "qualificationCredit": 2
+    },
+    {
+      "gate": "final-retained-scoring",
+      "status": "passed",
+      "terminalSha256": "3f71ba4cbaff903e1ec9a8ad27addc0bbf923dbb5d1b8f6605c72bc9553f0b86",
+      "reportSha256": "2e09373d5c3019656a52db7fb86cb6d7405bd2200970b0d84a43fb419d083a77",
+      "sourceSnapshotSha256": "103ca05867af1a397d255ce613b39afd2204688bcdea9e47bb49461e55122ac5",
+      "passedCases": 1,
+      "expectedFailedCases": 0,
+      "excludedCases": 0,
+      "originalChildExit": 0,
+      "unchangedInputGroups": true,
+      "remainingOwnedProcesses": 0,
+      "qualificationCredit": 1
+    }
+  ],
+  "excludedCredit": [
+    "Donor gates remain attributed to their own source and are not current combined-source qualification.",
+    "Full native workload and overall nonvisual runtime qualification remain incomplete.",
+    "No new physical root construction, next-actor/next-pitch gate or whole-project npm test was run for this bounded refactor."
+  ],
+  "unsuccessfulAttempts": [
+    {
+      "stage": "initial combined root compiler",
+      "cause": "Normal gitignored GeneratedClubCatalog.ts had not yet been materialized in the fresh checkout. Ran the existing offline pretypecheck generator; its bytes exactly matched the established baseline generated file; the subsequent full compiler passed.",
+      "productionFailure": false
+    },
+    {
+      "stage": "initial ancestry RED control",
+      "cause": "All 11 test assertions failed as intended, but Vitest truncated the nested API-missing marker, so exact marker supervision rejected that report. Repeated unchanged source with the observed marker and all 11 exact expected failures were qualified.",
+      "productionFailure": false
+    },
+    {
+      "stage": "initial final compiler admission",
+      "cause": "New isolated control directory was missing its named lock files. No compiler child launched. Created those task-local lock files and the subsequent compiler gate passed.",
+      "productionFailure": false
+    }
+  ],
+  "publicationExclusions": [
+    "private SQLite artifacts",
+    "private manifests and controls",
+    "raw logs",
+    "node_modules",
+    "generated catalog output"
+  ],
+  "allOtherTrackedBaselineFilesUnchanged": 2554,
+  "coverageAttribution": {
+    "genuineAncestrySpy": "AN-G02 spies on its final genuine immutable ancestry read only.",
+    "genuineWorkloadRetry": "The reviewed checkpoint helper authenticates and retries all ten archived workload assessments before that spy is installed.",
+    "consumerRoutingSpy": "AN07 and AN08 prove scoring/workload routing with real SQLite missing-owner guard fixtures.",
+    "genuineScoring": "Existing S01 exercises canonical insert/read/retry/reopen without a public-reader spy."
+  },
+  "independentStaticReview": {
+    "commit": "773fb855ba14767f100305a322c5d29a8337e2cf",
+    "src": "26ba4b25c5f7a2fd9fe269910b9863fc2431946d",
+    "status": "cleared",
+    "blockingFindings": 0,
+    "verified": [
+      "Shared original archive authenticator body unchanged",
+      "Old-stage-only schema and public result union unchanged",
+      "Both consumers retain explicit acknowledged-pending stage and evidence eligibility",
+      "Fresh scoring/workload writers unchanged",
+      "59 exact frozen donor paths",
+      "7 exact reviewed test-only helper paths",
+      "2554 unrelated baseline paths unchanged"
+    ],
+    "attribution": "Independent read-only static review. No runtime or completed-stage support credit."
+  }
+}

@@ -16,7 +16,8 @@ export type AcknowledgementRunner = {
 /** Independent test oracle. Never imported by a production module and never
  * used to insert a synthetic successful receipt. Its inputs come from genuine
  * original E/C/proposal and the real pending application in acceptance tests. */
-export const expectedAcknowledgement = (applied: Applied) => {
+export const expectedAcknowledgement = (applied: Pick<Applied,'source'|'proposal'> &
+  { result:Pick<Applied['result'],'official'> }) => {
   const p = applied.proposal, o = applied.result.official;
   return {
     version:'actual_foul_terminal_official_acknowledgement_v1' as const,

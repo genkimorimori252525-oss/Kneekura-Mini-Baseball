@@ -79,36 +79,24 @@ export const assertArchivedPlayerWorkloadActivity = (db: Pick<DatabaseSync, 'pre
   if (!found || current.revision !== evidence.after.revision) throw new Error('original clinical workload activity is missing');
 };
 
-/** Actual accepted activity owns fatigue; Calendar labels never write this state. */
-export const openSqlitePlayerWorkloadRecoveryStore = (databasePath: string, personLinks: Pick<SqlitePlayerPersonLinkStore, 'readLink'>,
-  authority?: AcceptedPlayerWorkloadAuthority | null, evidenceGuard?: SqliteEvidenceGuard<PlayerWorkloadActivity>): SqlitePlayerWorkloadRecoveryStore => {
-  if (evidenceGuard !== undefined && typeof evidenceGuard !== 'function') throw new Error('invalid Player workload evidence guard');
-  if (!id(databasePath) || !personLinks || typeof personLinks.readLink !== 'function'
-    || authority != null && (typeof authority.readAcceptedBaseline !== 'function' || typeof authority.readAcceptedActivity !== 'function')) {
-    throw new Error('invalid Player workload sources');
+export type PlayerWorkloadConnectionGuards = Readonly<{
+  activity?: SqliteEvidenceGuard<PlayerWorkloadActivity>;
+  baseline?: SqliteEvidenceGuard<AcceptedPlayerWorkloadBaseline>;
+  /** The concrete caller owns the complete transaction, including rollback. */
+  transaction?: <T>(body: () => T) => T;
+}>;
+/** Existing global Player writer on an already admitted connection. Performs no
+ * PRAGMA, schema setup, or migration. Closing the returned owner closes that
+ * supplied connection; callers must not share its lifetime with another owner. */
+export const playerWorkloadRecoveryStoreFromSqlite = (db: DatabaseSync,
+  personLinks: Pick<SqlitePlayerPersonLinkStore, 'readLink'>, authority?: AcceptedPlayerWorkloadAuthority | null,
+  guards: PlayerWorkloadConnectionGuards = {}): SqlitePlayerWorkloadRecoveryStore => {
+  const { DatabaseSync: NativeDatabase } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  if (!(db instanceof NativeDatabase) || !personLinks || typeof personLinks.readLink !== 'function'
+    || authority != null && (typeof authority.readAcceptedBaseline !== 'function' || typeof authority.readAcceptedActivity !== 'function')
+    || Object.values(guards).some(value => value !== undefined && typeof value !== 'function')) {
+    throw new Error('invalid connection-bound Player workload owner');
   }
-  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
-  const db = new DatabaseSync(databasePath);
-  try {
-  db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
-  db.exec(`CREATE TABLE IF NOT EXISTS world_player_workload_policies (
-    career_id TEXT NOT NULL, policy_id TEXT NOT NULL, version TEXT NOT NULL, policy_json TEXT NOT NULL,
-    PRIMARY KEY(career_id, policy_id, version)
-  );
-  CREATE TABLE IF NOT EXISTS world_player_workload_baselines (
-    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL, player_id TEXT NOT NULL,
-    source_json TEXT NOT NULL, initial_json TEXT NOT NULL, UNIQUE(career_id, player_id)
-  );
-  CREATE TABLE IF NOT EXISTS world_player_workload_heads (
-    career_id TEXT NOT NULL, player_id TEXT NOT NULL, revision INTEGER NOT NULL CHECK(revision >= 0),
-    state_json TEXT NOT NULL, PRIMARY KEY(career_id, player_id)
-  );
-  CREATE TABLE IF NOT EXISTS world_player_workload_activities (
-    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL, player_id TEXT NOT NULL,
-    before_revision INTEGER NOT NULL CHECK(before_revision >= 0), after_revision INTEGER NOT NULL CHECK(after_revision > before_revision),
-    source_json TEXT NOT NULL, before_json TEXT NOT NULL, after_json TEXT NOT NULL,
-    UNIQUE(career_id, player_id, after_revision)
-  );`);
   const getBaseline = db.prepare('SELECT * FROM world_player_workload_baselines WHERE career_id=? AND player_id=?');
   const getBaselineBySource = db.prepare('SELECT * FROM world_player_workload_baselines WHERE source_id=?');
   const getHead = db.prepare('SELECT revision, state_json FROM world_player_workload_heads WHERE career_id=? AND player_id=?');
@@ -166,6 +154,7 @@ export const openSqlitePlayerWorkloadRecoveryStore = (databasePath: string, pers
       before: JSON.parse(row.before_json) as PlayerWorkloadRecoveryState, after: JSON.parse(row.after_json) as PlayerWorkloadRecoveryState });
   };
   const transaction = <T>(work: () => T): T => {
+    if (guards.transaction) return guards.transaction(work);
     db.exec('BEGIN IMMEDIATE');
     try { const result = work(); db.exec('COMMIT'); return result; }
     catch (error) { db.exec('ROLLBACK'); throw error; }
@@ -179,11 +168,13 @@ export const openSqlitePlayerWorkloadRecoveryStore = (databasePath: string, pers
         const input = raw === null ? null : cloneInert(raw);
         if (prior) {
           if (input && json(input) !== prior.source_json) throw new Error('Player workload baseline is already frozen differently');
+          guards.baseline?.(db, JSON.parse(prior.source_json) as AcceptedPlayerWorkloadBaseline, 'retry');
           return replay(prior.career_id, prior.player_id)!;
         }
         if (getActivity.get(sourceId)) throw new Error('Player workload sourceId belongs to an activity');
         if (!input) throw new Error('accepted Player workload baseline is missing');
         const initial = initialState(input, sourceId);
+        guards.baseline?.(db, input, 'write');
         const saved = getPolicy.get(initial.careerId, initial.policy.policyId, initial.policy.version) as { policy_json: string } | undefined;
         const policyJson = json(initial.policy);
         if (saved && saved.policy_json !== policyJson) throw new Error('Player workload policy version is already frozen differently');
@@ -192,6 +183,7 @@ export const openSqlitePlayerWorkloadRecoveryStore = (databasePath: string, pers
         db.prepare('INSERT INTO world_player_workload_baselines VALUES (?, ?, ?, ?, ?)')
           .run(sourceId, initial.careerId, initial.playerId, json(input), json(initial));
         db.prepare('INSERT INTO world_player_workload_heads VALUES (?, ?, ?, ?)').run(initial.careerId, initial.playerId, 0, json(initial));
+        guards.baseline?.(db, input, 'written');
         return replay(initial.careerId, initial.playerId)!;
       });
     },
@@ -205,12 +197,12 @@ export const openSqlitePlayerWorkloadRecoveryStore = (databasePath: string, pers
         if (prior) {
           if (expectedRevision !== prior.before.revision) throw new Error('Player workload retry revision differs');
           if (activity && json(activity) !== json(prior.activity)) throw new Error('Player workload activity is already frozen differently');
-          evidenceGuard?.(db, prior.activity, 'retry');
+          guards.activity?.(db, prior.activity, 'retry');
           return prior.after;
         }
         if (getBaselineBySource.get(sourceId)) throw new Error('Player workload sourceId belongs to a baseline');
         if (!activity || activity.sourceEventId !== sourceId) throw new Error('accepted Player workload activity is missing or differs');
-        evidenceGuard?.(db, activity, 'write');
+        guards.activity?.(db, activity, 'write');
         const before = replay(activity.careerId, activity.playerId);
         if (!before) throw new Error('Player workload baseline is missing');
         const after = advancePlayerWorkloadRecovery(before, expectedRevision, activity);
@@ -220,7 +212,7 @@ export const openSqlitePlayerWorkloadRecoveryStore = (databasePath: string, pers
           WHERE career_id=? AND player_id=? AND revision=? AND state_json=?`)
           .run(after.revision, json(after), before.careerId, before.playerId, before.revision, json(before));
         if (result.changes !== 1) throw new Error('Player workload head CAS failed');
-        evidenceGuard?.(db, activity, 'written');
+        guards.activity?.(db, activity, 'written');
         return replay(before.careerId, before.playerId)!;
       });
     },
@@ -233,6 +225,39 @@ export const openSqlitePlayerWorkloadRecoveryStore = (databasePath: string, pers
     },
     close: () => { if (!closed) { db.close(); closed = true; } },
   });
+};
+
+/** Actual accepted activity owns fatigue; Calendar labels never write this state. */
+export const openSqlitePlayerWorkloadRecoveryStore = (databasePath: string, personLinks: Pick<SqlitePlayerPersonLinkStore, 'readLink'>,
+  authority?: AcceptedPlayerWorkloadAuthority | null, evidenceGuard?: SqliteEvidenceGuard<PlayerWorkloadActivity>): SqlitePlayerWorkloadRecoveryStore => {
+  if (evidenceGuard !== undefined && typeof evidenceGuard !== 'function') throw new Error('invalid Player workload evidence guard');
+  if (!id(databasePath) || !personLinks || typeof personLinks.readLink !== 'function'
+    || authority != null && (typeof authority.readAcceptedBaseline !== 'function' || typeof authority.readAcceptedActivity !== 'function')) {
+    throw new Error('invalid Player workload sources');
+  }
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  const db = new DatabaseSync(databasePath);
+  try {
+  db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
+  db.exec(`CREATE TABLE IF NOT EXISTS world_player_workload_policies (
+    career_id TEXT NOT NULL, policy_id TEXT NOT NULL, version TEXT NOT NULL, policy_json TEXT NOT NULL,
+    PRIMARY KEY(career_id, policy_id, version)
+  );
+  CREATE TABLE IF NOT EXISTS world_player_workload_baselines (
+    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL, player_id TEXT NOT NULL,
+    source_json TEXT NOT NULL, initial_json TEXT NOT NULL, UNIQUE(career_id, player_id)
+  );
+  CREATE TABLE IF NOT EXISTS world_player_workload_heads (
+    career_id TEXT NOT NULL, player_id TEXT NOT NULL, revision INTEGER NOT NULL CHECK(revision >= 0),
+    state_json TEXT NOT NULL, PRIMARY KEY(career_id, player_id)
+  );
+  CREATE TABLE IF NOT EXISTS world_player_workload_activities (
+    source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL, player_id TEXT NOT NULL,
+    before_revision INTEGER NOT NULL CHECK(before_revision >= 0), after_revision INTEGER NOT NULL CHECK(after_revision > before_revision),
+    source_json TEXT NOT NULL, before_json TEXT NOT NULL, after_json TEXT NOT NULL,
+    UNIQUE(career_id, player_id, after_revision)
+  );`);
+  return playerWorkloadRecoveryStoreFromSqlite(db, personLinks, authority, { activity: evidenceGuard });
   } catch (error) { db.close(); throw error; }
 };
 

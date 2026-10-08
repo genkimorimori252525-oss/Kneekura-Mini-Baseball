@@ -27,28 +27,122 @@ const assertUncharged = (db: DefensiveDb, scope: ActualRoleWorkloadChargeScope, 
 };
 
 const canonicalChargeId=(scope:ActualRoleWorkloadChargeScope,prefix:string)=>`${prefix}:${createHash('sha256').update(JSON.stringify([scope.careerId,scope.gameId,scope.playId,scope.playerId])).digest('hex')}`;
+const installed=(db:DefensiveDb,table:string)=>!!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(table);
+const scopeParameters=(scope:ActualRoleWorkloadChargeScope)=>({careerId:scope.careerId,gameId:scope.gameId,playId:scope.playId,playerId:scope.playerId});
+const mirrorClaim=(mirrors:readonly Mirror[],value:string)=>mirrors.map(([document,path])=>identity(document,path,value)).join(' OR ');
+/** Compare every original identity occurrence, rather than JSON.parse's last key. */
+const originalReference=(index:string,mirrors:readonly Mirror[],claim:(value:string)=>string)=>
+  `((${claim(index)}) OR EXISTS(SELECT 1 FROM (${mirrors.map(([document,path])=>nodes(document,path)).join(' UNION ALL ')}) charge_original
+    WHERE charge_original.type='text' AND (${claim('charge_original.atom')})))`;
+const endReference=(claim:(value:string)=>string)=>originalReference('e.source_id',[
+  ['e.source_json',['sourceId']],['e.snapshot_json',['source','sourceId']],
+],claim);
+const endGame=`(e.game_id=$gameId OR ${identity('e.snapshot_json',['gameId'],'$gameId')})`;
+const endPlay=`(e.play_id=$playId OR ${numericIdentity('e.snapshot_json',['playId'])})`;
+const terminalGame=`(t.game_id=$gameId OR ${identity('t.proposal_json',['gameId'],'$gameId')}
+  OR ${identity('t.proposal_json',['applicationBody','matchId'],'$gameId')}
+  OR ${identity('t.result_json',['acknowledgement','applicationReference','matchId'],'$gameId')})`;
+const terminalPlay=`(t.play_id=$playId OR ${numericIdentity('t.proposal_json',['playId'])}
+  OR ${numericIdentity('t.proposal_json',['applicationBody','match','playId'])}
+  OR ${numericIdentity('t.result_json',['acknowledgement','applicationReference','previousPlayId'])})`;
+const terminalCareer=`(${identity('t.proposal_json',['seasonFixture','careerId'],'$careerId')}
+  OR ${identity('t.proposal_json',['participants',{array:'all'},'binding','careerId'],'$careerId')})`;
+const terminalPlayer=identity('t.proposal_json',['participants',{array:'all'},'binding','playerId'],'$playerId');
+const terminalReference=(claim:(value:string)=>string)=>originalReference('t.source_id',[
+  ['t.source_json',['sourceId']],['t.proposal_json',['source','sourceId']],['t.result_json',['sourceId']],
+],claim);
+const terminalEndReference=(claim:(value:string)=>string)=>originalReference('t.physical_end_source_id',[
+  ['t.source_json',['physicalEndReference','sourceId']],['t.proposal_json',['physicalEndReference','sourceId']],
+  ['t.proposal_json',['source','physicalEndReference','sourceId']],['t.result_json',['acknowledgement','physicalEndReference','sourceId']],
+],claim);
+const terminalApplicationReference=(claim:(value:string)=>string)=>originalReference('t.application_id',[
+  ['t.source_json',['applicationId']],['t.proposal_json',['source','applicationId']],
+  ['t.proposal_json',['applicationBody','applicationId']],['t.result_json',['official','receipt','applicationId']],
+  ['t.result_json',['acknowledgement','applicationReference','applicationId']],
+],claim);
 
 /** Canonical global activity survives loss/corruption of a producer row. */
 const assertNoArchivedCharge=(db:DefensiveDb,scope:ActualRoleWorkloadChargeScope,prefix:string,label:string)=>{
   if(!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='world_player_workload_activities'").get())return;
   const sourceId=canonicalChargeId(scope,prefix);
   if(db.prepare(`SELECT 1 FROM world_player_workload_activities WHERE source_id=$sourceId OR ${identity('source_json',['sourceEventId'],'$sourceId')} LIMIT 1`).get({sourceId}))throw new Error(`${label} workload charge already exists in the global activity archive`);
-  const legacy=prefix==='official-physical-pitch-workload',owner=legacy?'applications':'actual_first_base_play_ends';
-  if(!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(owner))return;
+  const legacy=prefix==='official-physical-pitch-workload';
   const belongs=`${identity('w.source_json',['careerId'],'$careerId')} AND ${identity('w.source_json',['playerId'],'$playerId')}
     AND ${identity('w.source_json',['kind'],"'MATCH'")} AND ${identity('w.source_json',['sourceVersion'],'$version')}`;
   const evidence=(value:string)=>identity('w.source_json',['evidenceId'],value);
   const reference=legacy?`(${evidence('e.application_id')} OR EXISTS(SELECT 1 FROM (${nodes('e.result_json',['receipt','applicationId'])}) original WHERE original.type='text' AND ${evidence('original.atom')}))`
-    :`(${evidence('e.source_id')} OR EXISTS(SELECT 1 FROM (${nodes('e.source_json',['sourceId'])} UNION ALL ${nodes('e.snapshot_json',['source','sourceId'])}) original WHERE original.type='text' AND ${evidence('original.atom')}))`;
-  const game=legacy?`(e.match_id=$gameId OR ${identity('e.result_json',['activation','gameId'],'$gameId')})`:`(e.game_id=$gameId OR ${identity('e.snapshot_json',['gameId'],'$gameId')})`;
-  const play=legacy?numericIdentity('e.result_json',['receipt','previousPlayId']):`(e.play_id=$playId OR ${numericIdentity('e.snapshot_json',['playId'])})`;
-  if(db.prepare(`SELECT 1 FROM world_player_workload_activities w,${owner} e WHERE ${belongs} AND ${reference} AND ${game} AND ${play} LIMIT 1`)
-    .get({careerId:scope.careerId,playerId:scope.playerId,gameId:scope.gameId,playId:scope.playId,version:`${prefix}-v1`}))throw new Error(`${label} workload charge already exists through the global archive's original evidence`);
+    :endReference(evidence);
+  const game=legacy?`(e.match_id=$gameId OR ${identity('e.result_json',['activation','gameId'],'$gameId')})`:endGame;
+  const play=legacy?numericIdentity('e.result_json',['receipt','previousPlayId']):endPlay;
+  const params={...scopeParameters(scope),version:`${prefix}-v1`};
+  for(const owner of legacy?['applications']:['actual_first_base_play_ends','actual_foul_play_ends']){
+    if(installed(db,owner) && db.prepare(`SELECT 1 FROM world_player_workload_activities w,${owner} e WHERE ${belongs} AND ${reference} AND ${game} AND ${play} LIMIT 1`)
+      .get(params))throw new Error(`${label} workload charge already exists through the global archive's original evidence`);
+  }
+  // A terminal proposal/acknowledgement retains the original E and official
+  // application identities even when the selected evidence owner row is gone.
+  const terminalEvidence=legacy?terminalApplicationReference(evidence):terminalEndReference(evidence);
+  if(installed(db,'actual_foul_terminal_applications') && db.prepare(`SELECT 1 FROM world_player_workload_activities w,actual_foul_terminal_applications t
+    WHERE ${belongs} AND ${terminalGame} AND ${terminalPlay} AND ${terminalEvidence} LIMIT 1`).get(params))
+    throw new Error(`${label} workload charge already exists through the global archive's original terminal evidence`);
+};
+
+/** A frozen settlement owns all original participants. Its claim must survive
+ * loss of the selected assessment/activity row, including a removed plan member. */
+const assertNoTerminalOrSettlementCharge=(db:DefensiveDb,scope:ActualRoleWorkloadChargeScope)=>{
+  const params=scopeParameters(scope);
+  for(const settlement of [false,true]){
+    const table=settlement?'actual_role_workload_settlements':'actual_role_workload_assessments';
+    if(!installed(db,table))continue;
+    const career=settlement?`(r.career_id=$careerId OR ${mirrorClaim([
+      ['r.plan_json',['careerId']],['r.plan_json',['participants',{array:'all'},'activity','careerId']],
+      ['r.plan_json',['participants',{array:'all'},'before','careerId']],['r.plan_json',['participants',{array:'all'},'after','careerId']],
+    ],'$careerId')})`:`(r.career_id=$careerId OR ${mirrorClaim([
+      ['r.snapshot_json',['careerId']],['r.snapshot_json',['activity','careerId']],['r.snapshot_json',['actor','binding','careerId']],
+    ],'$careerId')})`;
+    const player=settlement?`(${mirrorClaim([
+      ['r.plan_json',['playerId']],['r.plan_json',['participants',{array:'all'},'playerId']],
+      ['r.plan_json',['participants',{array:'all'},'activity','playerId']],['r.plan_json',['participants',{array:'all'},'before','playerId']],
+      ['r.plan_json',['participants',{array:'all'},'after','playerId']],
+    ],'$playerId')})`:`(r.player_id=$playerId OR ${mirrorClaim([
+      ['r.source_json',['participantReference','playerId']],['r.snapshot_json',['source','participantReference','playerId']],
+      ['r.snapshot_json',['playerId']],['r.snapshot_json',['activity','playerId']],['r.snapshot_json',['actor','binding','playerId']],
+    ],'$playerId')})`;
+    const source=(value:string)=>`r.closure_source_id=${value} OR ${mirrorClaim(settlement?[
+      ['r.plan_json',['terminalSourceId']],['r.plan_json',['terminalReference','sourceId']],
+    ]:[['r.source_json',['terminalReference','sourceId']],['r.snapshot_json',['source','terminalReference','sourceId']]],value)}`;
+    const end=(value:string)=>mirrorClaim(settlement?[
+      ['r.plan_json',['physicalEndReference','sourceId']],['r.plan_json',['participants',{array:'all'},'activity','evidenceId']],
+    ]:[['r.source_json',['physicalEndReference','sourceId']],['r.snapshot_json',['source','physicalEndReference','sourceId']],
+      ['r.snapshot_json',['activity','evidenceId']]],value);
+    if(settlement){
+      const game=`(r.game_id=$gameId OR ${identity('r.plan_json',['gameId'],'$gameId')})`;
+      const play=`(r.play_id=$playId OR ${numericIdentity('r.plan_json',['playId'])})`;
+      if(db.prepare(`SELECT 1 FROM ${table} r WHERE ${career} AND ${game} AND ${play} AND ${player} LIMIT 1`).get(params))
+        throw new Error('actual role workload charge already exists through its frozen settlement scope');
+      if(db.prepare(`SELECT 1 FROM ${table} r WHERE ${identity('r.plan_json',['participants',{array:'all'},'activity','sourceEventId'],'$id')} LIMIT 1`)
+        .get({id:canonicalChargeId(scope,'actual-total-play-workload')}))throw new Error('actual role workload charge already exists through its frozen canonical activity identity');
+    }
+    if(installed(db,'actual_foul_terminal_applications') && db.prepare(`SELECT 1 FROM ${table} r,actual_foul_terminal_applications t
+      WHERE ${terminalGame} AND ${terminalPlay} AND (${terminalCareer} OR ${career})
+      AND (${player}${settlement?` OR ${terminalPlayer}`:''}) AND (${terminalReference(source)} OR ${terminalEndReference(end)}) LIMIT 1`).get(params))
+      throw new Error('actual role workload charge already exists through its original terminal/end reference');
+    if(installed(db,'actual_foul_play_ends') && db.prepare(`SELECT 1 FROM ${table} r,actual_foul_play_ends e
+      WHERE ${career} AND ${player} AND ${endGame} AND ${endPlay} AND ${endReference(end)} LIMIT 1`).get(params))
+      throw new Error('actual role workload charge already exists through its original foul end reference');
+  }
+};
+
+/** The terminal missing-settlement path cannot use assessment ownership as a
+ * charge, but must still reject surviving original TOTAL activity provenance. */
+export const assertNoArchivedActualRoleWorkloadCharge = (db: DefensiveDb, scope: ActualRoleWorkloadChargeScope): void => {
+  assertNoArchivedCharge(db,scope,'actual-total-play-workload','actual role');
 };
 
 /** Called by the legacy pitch producer before/within writes and when replaying a Source. */
 export const assertNoActualRoleWorkloadCharge = (db: DefensiveDb, scope: ActualRoleWorkloadChargeScope): void => {
-  assertNoArchivedCharge(db,scope,'actual-total-play-workload','actual role');
+  assertNoArchivedActualRoleWorkloadCharge(db,scope);
+  assertNoTerminalOrSettlementCharge(db,scope);
   assertUncharged(db, scope, 'actual_role_workload_assessments', 'play_id', {
     careerId: [['snapshot_json', ['careerId']], ['snapshot_json', ['activity', 'careerId']], ['snapshot_json', ['actor', 'binding', 'careerId']]],
     gameId: [['snapshot_json', ['gameId']], ['snapshot_json', ['actor', 'binding', 'gameId']]],
@@ -116,4 +210,7 @@ export const assertNoLegacyPitchWorkloadCharge = (db: DefensiveDb, scope: Actual
     const play=numericIdentity('s.request_json',['input','officialApplication','match','playId']);
     if(db.prepare(`SELECT 1 FROM official_pitch_workload_sources r,official_scoring_applications s WHERE ${game} AND ${play} AND ${career} AND ${player} AND ${scoreIdentity} LIMIT 1`).get(params))throw new Error('legacy pitch workload charge already exists through its original scoring application reference');
   }
+  if(installed('actual_foul_terminal_applications') && db.prepare(`SELECT 1 FROM official_pitch_workload_sources r,actual_foul_terminal_applications t
+    WHERE ${terminalGame} AND ${terminalPlay} AND ${career} AND ${player} AND ${terminalApplicationReference(appClaim)} LIMIT 1`).get(params))
+    throw new Error('legacy pitch workload charge already exists through its original terminal application reference');
 };
