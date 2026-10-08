@@ -68,10 +68,23 @@ const metadata = (db: Db, row: Row) => {
     reference: (column: string, path: Path, owner: string) => read(column, path, owner) };
 };
 type Metadata = ReturnType<typeof metadata>;
-const terminalIds = (row: Row, m: Metadata) => {
+const acknowledgementVersion = 'actual_foul_terminal_official_acknowledgement_v1';
+/** Rejection-only linkage from an encoded ID. The full acknowledgement ID is
+ * a separate domain; only its explicit versioned Source element is linkage.
+ * Noncanonical nested JSON is still a raw claim, never successful evidence. */
+const acknowledgementSources = (db: Db, identities: readonly string[]): string[] => identities.flatMap(value => {
+  const row = db.prepare(`SELECT json_extract(document,'$[1]') AS obligation_key,json_extract(document,'$[2]') AS source_id
+    FROM (SELECT CASE WHEN json_valid(?) THEN ? ELSE 'null' END AS document)
+    WHERE json_type(document)='array' AND json_array_length(document)=3
+      AND json_type(document,'$[0]')='text' AND json_extract(document,'$[0]')=?
+      AND json_type(document,'$[1]')='text' AND json_type(document,'$[2]')='text'`).get(value,value,acknowledgementVersion);
+  return row && id(row.obligation_key) && id(row.source_id) ? [row.source_id] : [];
+});
+const terminalIds = (db: Db, row: Row, m: Metadata) => {
+  const acknowledgementIds = strings(m.value('result_json',['acknowledgement','acknowledgementId']));
   const sourceIds = strings([row.source_id, ...m.value('source_json', ['sourceId']), ...m.value('proposal_json', ['source', 'sourceId']),
     ...m.value('result_json', ['sourceId']), ...m.reference('result_json', ['official', 'pendingPostPlay', 'origin'], terminalOwner),
-    ...m.reference('result_json', ['acknowledgement', 'consumer'], terminalOwner)]);
+    ...m.reference('result_json', ['acknowledgement', 'consumer'], terminalOwner),...acknowledgementSources(db,acknowledgementIds)]);
   const applicationIds = strings([row.application_id, ...m.value('source_json', ['applicationId']),
     ...m.value('proposal_json', ['source', 'applicationId']), ...m.value('proposal_json', ['applicationBody', 'applicationId']),
     ...m.value('result_json', ['official', 'receipt', 'applicationId']), ...m.value('result_json', ['official', 'pendingPostPlay', 'applicationId']),
@@ -81,26 +94,29 @@ const terminalIds = (row: Row, m: Metadata) => {
   const closureIds = strings([...sourceIds, ...m.value('proposal_json', ['applicationBody', 'adjudication', 'events', 'closureId']),
     ...m.value('result_json', ['official', 'receipt', 'closureId']), ...m.value('result_json', ['official', 'pendingPostPlay', 'closureId']),
     ...m.value('result_json', ['acknowledgement', 'applicationReference', 'closureId'])]);
-  return { sourceIds, applicationIds, closureIds };
+  return { sourceIds, applicationIds, closureIds, acknowledgementIds };
 };
-export const foulTerminalApplicationRawIdentities = (db: Db, row: Row) => terminalIds(row, metadata(db, row));
+export const foulTerminalApplicationRawIdentities = (db: Db, row: Row) => terminalIds(db,row,metadata(db,row));
 type Ids = ReturnType<typeof terminalIds>;
-const identitySets = (sourceId?: string, applicationId?: string, closureId?: string) => ({
+const identitySets = (sourceId?: string, applicationId?: string, closureId?: string, acknowledgementId?: string) => ({
   sourceIds: new Set(sourceId === undefined ? [] : [sourceId]),
   applicationIds: new Set(applicationId === undefined ? [] : [applicationId]),
   closureIds: new Set(strings([sourceId, closureId])),
+  acknowledgementIds:new Set(strings([acknowledgementId])),
 });
 const matchesIds = (found: Ids, known: ReturnType<typeof identitySets>) => overlaps(found.sourceIds, known.sourceIds)
-  || overlaps(found.applicationIds, known.applicationIds) || overlaps(found.closureIds, known.closureIds);
+  || overlaps(found.applicationIds, known.applicationIds) || overlaps(found.closureIds, known.closureIds)
+  || overlaps(found.acknowledgementIds,known.acknowledgementIds);
 const growIds = (known: ReturnType<typeof identitySets>, found: Ids) => {
   add(known.sourceIds, found.sourceIds); add(known.applicationIds, found.applicationIds); add(known.closureIds, found.closureIds);
+  add(known.acknowledgementIds,found.acknowledgementIds);
 };
 
 /** Identity discovery precedes parsing. A selected intact row supplies the
  * application/closure edges needed to expose a second raw-only claimant. */
 export const foulTerminalApplicationIdentityRows = (db: Db, sourceId: string): Row[] => {
   if (!id(sourceId)) throw new Error('invalid foul terminal application Source identity');
-  const all = rows(db).map(row => ({ row, ids: terminalIds(row, metadata(db, row)) }));
+  const all = rows(db).map(row => ({ row, ids: terminalIds(db,row,metadata(db,row)) }));
   const known = identitySets(sourceId), selected = new Set<Row>();
   for (;;) {
     let changed = false;
@@ -175,7 +191,9 @@ const scoped = (row: Row, m: Metadata, scope: FoulTerminalApplicationScope,
       && m.value('proposal_json', ['applicationBody', 'match', 'playId']).includes(s.playId)
     || game && m.value('result_json', ['official', 'receipt', 'previousPlayId']).includes(s.playId)
     || m.value('result_json', ['official','pendingPostPlay','matchId']).includes(s.gameId)
-      && m.value('result_json', ['official','pendingPostPlay','previousPlayId']).includes(s.playId);
+      && m.value('result_json', ['official','pendingPostPlay','previousPlayId']).includes(s.playId)
+    || m.value('result_json',['acknowledgement','applicationReference','matchId']).includes(s.gameId)
+      && m.value('result_json',['acknowledgement','applicationReference','previousPlayId']).includes(s.playId);
 };
 
 /** Rejection-only scope census. No selected row, including a result-bearing
@@ -183,9 +201,11 @@ const scoped = (row: Row, m: Metadata, scope: FoulTerminalApplicationScope,
 export const foulTerminalApplicationClaims = (db: Db, scope: FoulTerminalApplicationScope): Row[] => {
   const all = rows(db);
   if (!all.length) return [];
-  const links = journalLinks(db, scope), known = identitySets(scope.applicationSourceId, scope.applicationId, scope.closureId);
+  const links = journalLinks(db, scope), known = identitySets(scope.applicationSourceId,scope.applicationId,scope.closureId,
+    scope.applicationSourceId === undefined ? undefined
+      : JSON.stringify([acknowledgementVersion,scope.official.officialObligationKey,scope.applicationSourceId]));
   const pitches = new Set(strings([scope.official.physicalPitchSourceId, scope.firstPhysicalPitchSourceId]));
-  const entries = all.map(row => { const m = metadata(db, row); return { row, m, ids: terminalIds(row, m) }; });
+  const entries = all.map(row => { const m = metadata(db, row); return { row, m, ids: terminalIds(db,row,m) }; });
   const selected = new Set<Row>();
   for (;;) {
     let changed = false;

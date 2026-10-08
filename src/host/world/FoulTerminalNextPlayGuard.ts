@@ -23,7 +23,8 @@ export const assertNoFoulTerminalNextPlay = (db: Db, applicationId: string | nul
     throw new Error('invalid terminal pending admission application identity');
   }
   const reject = () => { throw new Error('terminal official application has pending post-play effects'); };
-  for (const row of rows(db, 'actual_foul_terminal_applications', ['application_id','source_json','proposal_json','result_json'])) {
+  const terminal = rows(db,'actual_foul_terminal_applications',['application_id','source_json','proposal_json','result_json']);
+  for (const row of terminal) {
     if (row.application_id === applicationId) reject();
     for (const [column, path] of [
       ['source_json',['applicationId']], ['proposal_json',['source','applicationId']], ['proposal_json',['applicationBody','applicationId']],
@@ -43,6 +44,13 @@ export const assertNoFoulTerminalNextPlay = (db: Db, applicationId: string | nul
       scopes.set(row.match_id, plays);
     }
     if (values(db,doc,['pendingPostPlay','applicationId']).includes(applicationId) || identity && hasPending(db,doc)) reject();
+  }
+  for (const row of terminal) {
+    const doc = document(row,'result_json');
+    const games = values(db,doc,['acknowledgement','applicationReference','matchId']);
+    const plays = values(db,doc,['acknowledgement','applicationReference','previousPlayId']);
+    if (games.some(game => typeof game === 'string'
+      && plays.some(play => typeof play === 'number' && scopes.get(game)?.has(play)))) reject();
   }
   for (const row of rows(db, 'matches', ['match_id','activation_json'])) {
     const doc = document(row,'activation_json');
