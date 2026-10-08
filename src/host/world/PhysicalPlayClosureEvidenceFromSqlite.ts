@@ -93,6 +93,9 @@ export const readPhysicalClosureScoringHistory = (db: PhysicalClosureDb, frame: 
     if (!scored) throw new Error('physical closure prior scoring history is missing');
     const saved = JSON.parse(scored.request_json) as { input: PersistOfficialScoringInput; evidence: OfficialFairBallScoringEvidence | null };
     const input = saved.input, a = input.officialApplication;
+    if ('mode' in a && a.mode === 'non_live_pending_post_play_v1') {
+      throw new Error('terminal pending scoring cannot supply legacy closure history');
+    }
     const official = 'game' in a ? deriveOfficialFinalResult(a, index + 1) : deriveOfficialPlayResult(a, index + 1);
     const classified = classifyClosedPlayForOfficialScoring(a.kind === 'non_live' ? { kind: a.kind, match: a.match, timeline: a.timeline,
       adjudication: a.adjudication, context: a.context } : { kind: a.kind, match: a.match, timeline: a.physicalTimeline,
