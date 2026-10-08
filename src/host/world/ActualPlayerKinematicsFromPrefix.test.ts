@@ -146,7 +146,9 @@ it('integrates multiple field and execution commands only over their actual piec
   try {
     const own = actualPlayerKinematicsEvidenceFromSqlite(x.f.db), first = own.read(cut(x));
     const originalSource = x.baseField.source;
-    if (originalSource.kind !== undefined) throw new Error('piecewise kinematics fixture requires the legacy field Source');
+    if (originalSource.kind !== undefined || originalSource.episodeFieldBinding !== undefined) {
+      throw new Error('piecewise kinematics fixture requires the legacy field Source');
+    }
     const secondSource = { ...originalSource, sourceId: 'second-root-motion', previousFieldSourceId: originalSource.sourceId,
       availableAtTick: first.at.tick, throughTick: first.at.tick + 1000,
       commands: originalSource.commands.map((c) => ({ ...c, bodyAcceleration: v(-0.2, 0),

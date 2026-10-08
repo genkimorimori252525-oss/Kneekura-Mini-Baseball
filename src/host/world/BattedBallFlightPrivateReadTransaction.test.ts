@@ -6,15 +6,28 @@ import type { DatabaseSync } from 'node:sqlite';
 import { expect, it, vi } from 'vitest';
 import * as pitches from './PhysicalPitchEvidenceFromSqlite';
 import * as executions from './SqliteBattedWorldFieldExecutionStore';
+import * as admissions from './ActualLivePlayFence';
 import { activeBattedWorldFieldReadFrame } from './SqliteBattedWorldFieldStore';
 import { battedBallFlightFixture } from './BattedBallFlightFixtures.test-support';
 import { openSqliteBattedBallFlightStore } from './SqliteBattedBallFlightStore';
 
 const { DatabaseSync: Sqlite } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
-type ReadEvent = { name: 'prefix' | 'rows' | 'current'; db: DatabaseSync; transaction: boolean;
+type ReadEvent = { name: 'pair' | 'prefix' | 'rows' | 'current'; edge: 'entry' | 'exit'; db: DatabaseSync; transaction: boolean;
   queryOnly: number; writer: boolean; fieldFrame: object | null; physicalTraversal: boolean };
+type Context = Pick<ReadEvent, 'transaction' | 'queryOnly' | 'fieldFrame' | 'physicalTraversal'>;
+type Boundary = Context & { name: 'insert' | 'admission' | 'openFrame-current' | 'openFrame-tail';
+  edge: 'entry' | 'exit'; writer: boolean; priorFrame: object | null };
+type TraversalExit = { before: Context; after: Context; writer: boolean };
 type CallbackEvent = { name: 'authority' | 'peer'; transaction: boolean | null; queryOnly: number | null;
   fieldFrame: object | null };
+// A typed view of the future owner export compiles against unchanged production;
+// its absence fails explicitly instead of skipping the observation or supplying
+// synthetic prefix/row evidence.
+type PairedPitchModule = typeof pitches & { readOriginalPhysicalPitchWithRowsFromSqlite(
+  ...args: Parameters<typeof pitches.readOriginalPhysicalPitchPrefixFromSqlite>
+): Readonly<{ prefix: readonly ReturnType<typeof pitches.readOriginalPhysicalPitchPrefixFromSqlite>[number][];
+  originalPitchRows: ReturnType<typeof pitches.captureOriginalPhysicalPitchRows> }> };
+const pairedPitches = pitches as PairedPitchModule;
 
 // Observe the real flight connection at real physical owner entry points. Every
 // owner, traversal, SQL statement and peer read still runs; nothing returns saved
@@ -32,8 +45,10 @@ const fixture = () => {
     cleanups.push(() => base.f.close());
     base.flights.close();
     const events: ReadEvent[] = [], callbacks: CallbackEvent[] = [], statements: string[] = [];
+    const boundaries: Boundary[] = [], traversalExits: TraversalExit[] = [];
     const restores: { mockRestore(): void }[] = [];
     let db: DatabaseSync | undefined, writer = false, inPeer = false;
+    let writerPriorFrame: object | null = null;
     let readHook: ((event: ReadEvent) => void) | undefined;
     let callbackHook: ((event: CallbackEvent) => void) | undefined;
     const traversalConnections: unknown[] = [];
@@ -43,7 +58,13 @@ const fixture = () => {
       finally { while (restores.length) restores.pop()!.mockRestore(); }
     });
     const queryOnly = (connection: DatabaseSync) => Number(connection.prepare('PRAGMA query_only').get()!.query_only);
-    const observe = (name: ReadEvent['name'], raw: unknown) => {
+    const context = (connection: DatabaseSync): Context => ({ transaction: connection.isTransaction,
+      queryOnly: queryOnly(connection), fieldFrame: activeBattedWorldFieldReadFrame(connection),
+      physicalTraversal: traversalConnections.includes(connection) });
+    const boundary = (name: Boundary['name'], connection: DatabaseSync, edge: Boundary['edge']) => {
+      if (!inPeer) boundaries.push({ name, edge, writer, priorFrame: writerPriorFrame, ...context(connection) });
+    };
+    const observe = (name: ReadEvent['name'], raw: unknown, edge: ReadEvent['edge'] = 'entry') => {
       if (inPeer) return;
       expect(raw).toBeInstanceOf(Sqlite);
       const connection = raw as DatabaseSync;
@@ -52,34 +73,77 @@ const fixture = () => {
         const exec = db.exec.bind(db);
         restores.push(vi.spyOn(db, 'exec').mockImplementation(sql => {
           const value = exec(sql); statements.push(sql);
-          if (/^BEGIN IMMEDIATE\b/i.test(sql)) writer = true;
+          if (/^BEGIN IMMEDIATE\b/i.test(sql)) { writer = true; writerPriorFrame = activeBattedWorldFieldReadFrame(connection); }
           if (/^(COMMIT|ROLLBACK)\s*;?$/i.test(sql)) writer = false;
           return value;
         }));
+        const prepare = db.prepare.bind(db);
+        restores.push(vi.spyOn(db, 'prepare').mockImplementation(sql => {
+          const statement = prepare(sql);
+          if (/^INSERT\s+INTO\s+(?:batted_ball_flights|batted_ball_flight_heads)\b/i.test(sql)) {
+            const run = statement.run.bind(statement);
+            restores.push(vi.spyOn(statement, 'run').mockImplementation((...args) => {
+              boundary('insert', connection, 'entry');
+              try { return run(...args); } finally { boundary('insert', connection, 'exit'); }
+            }));
+          }
+          // The store's openFrame is a same-module closure. Observe its actual
+          // first reader below and final SQL operation here, not a replacement
+          // openFrame implementation. Only its pure scalar comparison remains
+          // after this genuine get() returns; this is explicitly a tail witness.
+          if (sql === 'SELECT revision,state_json FROM world_player_workload_heads WHERE career_id=? AND player_id=?') {
+            const get = statement.get.bind(statement);
+            restores.push(vi.spyOn(statement, 'get').mockImplementation((...args) => {
+              boundary('openFrame-tail', connection, 'entry');
+              try { return get(...args); } finally { boundary('openFrame-tail', connection, 'exit'); }
+            }));
+          }
+          return statement;
+        }));
       }
       expect(connection).toBe(db);
-      const event: ReadEvent = { name, db: connection, transaction: connection.isTransaction,
-        queryOnly: queryOnly(connection), writer, fieldFrame: activeBattedWorldFieldReadFrame(connection),
-        physicalTraversal: traversalConnections.includes(connection) };
-      events.push(event); readHook?.(event);
+      const event: ReadEvent = { name, edge, db: connection, writer, ...context(connection) };
+      events.push(event); if (edge === 'entry') readHook?.(event);
     };
     const realTraversal = executions.withBattedWorldPhysicalReadTraversal;
-    const traversal = <T>(connection: Parameters<typeof realTraversal>[0], body: () => T): T => realTraversal(connection, () => {
-      traversalConnections.push(connection);
-      try { return body(); } finally { traversalConnections.pop(); }
-    });
+    const traversal = <T>(connection: Parameters<typeof realTraversal>[0], body: () => T): T => {
+      if (inPeer) return realTraversal(connection, body);
+      expect(connection).toBeInstanceOf(Sqlite);
+      const native = connection as DatabaseSync, before = context(native), wasWriter = writer;
+      try { return realTraversal(connection, () => {
+        traversalConnections.push(connection);
+        try { return body(); } finally { traversalConnections.pop(); }
+      }); } finally { traversalExits.push({ before, after: context(native), writer: wasWriter }); }
+    };
     restores.push(vi.spyOn(executions, 'withBattedWorldPhysicalReadTraversal').mockImplementation(traversal));
+    const pair = pairedPitches.readOriginalPhysicalPitchWithRowsFromSqlite;
+    expect(pair, 'approved paired owner export must exist').toBeTypeOf('function');
+    restores.push(vi.spyOn(pairedPitches, 'readOriginalPhysicalPitchWithRowsFromSqlite').mockImplementation((...args) => {
+      observe('pair', args[0]); try { return pair(...args); } finally { observe('pair', args[0], 'exit'); }
+    }));
     const prefix = pitches.readOriginalPhysicalPitchPrefixFromSqlite;
     restores.push(vi.spyOn(pitches, 'readOriginalPhysicalPitchPrefixFromSqlite').mockImplementation((...args) => {
-      observe('prefix', args[0]); return prefix(...args);
+      observe('prefix', args[0]); try { return prefix(...args); } finally { observe('prefix', args[0], 'exit'); }
     }));
     const rows = pitches.captureOriginalPhysicalPitchRows;
     restores.push(vi.spyOn(pitches, 'captureOriginalPhysicalPitchRows').mockImplementation((...args) => {
-      observe('rows', args[0]); return rows(...args);
+      observe('rows', args[0]); try { return rows(...args); } finally { observe('rows', args[0], 'exit'); }
     }));
     const current = pitches.readPhysicalPitchProgressFromSqlite;
     restores.push(vi.spyOn(pitches, 'readPhysicalPitchProgressFromSqlite').mockImplementation((...args) => {
-      observe('current', args[0]); return current(...args);
+      observe('current', args[0]);
+      if (!inPeer) boundary('openFrame-current', args[0] as DatabaseSync, 'entry');
+      try { return current(...args); } finally {
+        observe('current', args[0], 'exit');
+        if (!inPeer) boundary('openFrame-current', args[0] as DatabaseSync, 'exit');
+      }
+    }));
+    const admission = admissions.recordActualLivePlayAdmission;
+    restores.push(vi.spyOn(admissions, 'recordActualLivePlayAdmission').mockImplementation((...args) => {
+      if (!inPeer) { expect(args[0]).toBe(db); boundary('admission', args[0] as DatabaseSync, 'entry'); }
+      try { return admission(...args); } finally {
+        if (!inPeer) boundary('admission', args[0] as DatabaseSync, 'exit');
+      }
     }));
     const callback = (name: CallbackEvent['name']) => {
       const event = { name, transaction: db?.isTransaction ?? null, queryOnly: db ? queryOnly(db) : null,
@@ -90,7 +154,7 @@ const fixture = () => {
       callback('peer'); inPeer = true;
       try { return base.pitches.readAcceptedPitch(sourceId); } finally { inPeer = false; }
     } }, { readAcceptedFlight: sourceId => { callback('authority'); return base.acceptedFlights.get(sourceId) ?? null; } }));
-    return { ...base, flights, events, callbacks, statements, close,
+    return { ...base, flights, events, callbacks, statements, boundaries, traversalExits, close,
       accept: () => flights.accept(base.input.sourceId), read: () => flights.read(base.input.sourceId),
       connection: () => { expect(db).toBeInstanceOf(Sqlite); return db!; },
       count: () => Number(base.f.db.prepare('SELECT count(*) AS n FROM batted_ball_flights').get()!.n),
@@ -118,10 +182,36 @@ it('flight: owns a query-only physical traversal for each private read group bef
     expect(reads.length).toBeGreaterThan(5);
     expect(reads.every(event => event.transaction)).toBe(true);
     expect(reads.every(event => event.queryOnly === 1 && event.fieldFrame !== null && event.physicalTraversal)).toBe(true);
-    const prewrite = appendEvents.filter(event => !event.writer);
-    expect(prewrite.map(event => event.name)).toEqual(['prefix', 'rows', 'current']);
+    const prewrite = appendEvents.filter(event => !event.writer && event.edge === 'entry');
+    expect(prewrite.map(event => event.name)).toEqual(['pair', 'current']);
     expect(new Set(prewrite.map(event => event.fieldFrame)).size).toBe(1);
-    expect(x.events.some(event => event.writer && event.transaction && event.queryOnly === 0)).toBe(true);
+    const writerPairs = appendEvents.filter(event => event.writer && event.name === 'pair');
+    expect(writerPairs.filter(event => event.edge === 'entry')).toHaveLength(2);
+    expect(writerPairs.filter(event => event.edge === 'exit')).toHaveLength(2);
+    expect(writerPairs.every(event => event.transaction && event.queryOnly === 1 && event.fieldFrame !== null && event.physicalTraversal)).toBe(true);
+    const pairFrames: (object | null)[] = [];
+    for (const event of writerPairs) {
+      if (event.edge === 'entry') pairFrames.push(event.fieldFrame);
+      else expect(event.fieldFrame).toBe(pairFrames.pop());
+    }
+    expect(pairFrames).toHaveLength(0);
+    expect(new Set([...prewrite.filter(event => event.name === 'pair'), ...writerPairs].map(event => event.fieldFrame)).size).toBe(3);
+    const writerOutside = x.boundaries.filter(event => event.writer);
+    expect(writerOutside.length).toBeGreaterThan(0);
+    expect(writerOutside.every(event => event.transaction && event.queryOnly === 0 && !event.physicalTraversal)).toBe(true);
+    for (const event of writerOutside) { expect(event.fieldFrame).toBe(event.priorFrame); expect(event.priorFrame).toBeNull(); }
+    for (const [name, count] of [['insert', 2], ['admission', 1], ['openFrame-current', 2], ['openFrame-tail', 2]] as const) {
+      const observed = writerOutside.filter(event => event.name === name);
+      expect(observed.filter(event => event.edge === 'entry')).toHaveLength(count);
+      expect(observed.filter(event => event.edge === 'exit')).toHaveLength(count);
+    }
+    const localDerives = x.traversalExits.filter(event => event.writer);
+    expect(localDerives).toHaveLength(2);
+    for (const scope of localDerives) {
+      expect(scope.before).toEqual({ transaction: true, queryOnly: 0, fieldFrame: null, physicalTraversal: false });
+      expect(scope.after.transaction).toBe(true); expect(scope.after.queryOnly).toBe(scope.before.queryOnly);
+      expect(scope.after.fieldFrame).toBe(scope.before.fieldFrame); expect(scope.after.physicalTraversal).toBe(false);
+    }
     const observedCallbacks = x.callbacks.filter(event => event.transaction !== null);
     expect(observedCallbacks.map(event => event.name)).toEqual(['peer', 'authority']);
     expect(observedCallbacks.every(event => !event.transaction && event.queryOnly === 0 && event.fieldFrame === null)).toBe(true);
@@ -143,7 +233,7 @@ it('flight: keeps a WAL commit outside one read group and observes it in the nex
     });
     const first = x.accept();
     expect(changed).toBe(true); expect(snapshots).toEqual([0, 0]);
-    expect(prewrite).toEqual([0, 0, 0]); expect(later.length).toBeGreaterThan(0); expect(later.every(value => value === 1)).toBe(true);
+    expect(prewrite).toEqual([0, 0]); expect(later.length).toBeGreaterThan(0); expect(later.every(value => value === 1)).toBe(true);
     x.setReadHook(event => later.push(Number(event.db.prepare('SELECT value FROM flight_read_probe').get()!.value)));
     expect(x.read()).toEqual(first); expect(later.every(value => value === 1)).toBe(true); expectReleased(x);
   } finally { x.close(); }
@@ -234,6 +324,25 @@ it('flight: leaves caller read and writer transactions owned by the caller on su
     db.exec('PRAGMA query_only=ON; BEGIN'); expect(x.read()).toEqual(first);
     expect(db.isTransaction).toBe(true); expect(db.prepare('PRAGMA query_only').get()!.query_only).toBe(1);
     db.exec('ROLLBACK; PRAGMA query_only=OFF'); expectReleased(x);
+    db.exec('BEGIN IMMEDIATE'); db.exec('INSERT INTO flight_read_probe VALUES(8)');
+    const nestedRollbacks = x.statements.filter(sql => /^ROLLBACK\s*;?$/i.test(sql)).length;
+    executions.withBattedWorldPhysicalReadTraversal(db, () => {
+      const parentFrame = activeBattedWorldFieldReadFrame(db); expect(parentFrame).not.toBeNull();
+      const start = x.events.length;
+      expect(x.read()).toEqual(first);
+      expect(x.events.slice(start).filter(event => event.name === 'pair' && event.edge === 'entry')).toHaveLength(1);
+      expect(x.events.slice(start).every(event => event.fieldFrame === parentFrame && event.queryOnly === 1)).toBe(true);
+      x.setReadHook(() => { throw failure; });
+      caught = undefined; try { x.read(); } catch (error) { caught = error; }
+      expect(caught).toBe(failure); expect(activeBattedWorldFieldReadFrame(db)).toBe(parentFrame);
+      expect(db.isTransaction).toBe(true); expect(db.prepare('PRAGMA query_only').get()!.query_only).toBe(1);
+      expect(db.prepare('SELECT value FROM flight_read_probe ORDER BY value').all().map(row => row.value)).toEqual([7, 8]);
+      x.setReadHook(); expect(x.read()).toEqual(first);
+    });
+    expect(db.isTransaction).toBe(true); expect(db.prepare('PRAGMA query_only').get()!.query_only).toBe(0);
+    expect(activeBattedWorldFieldReadFrame(db)).toBeNull();
+    expect(x.statements.filter(sql => /^ROLLBACK\s*;?$/i.test(sql))).toHaveLength(nestedRollbacks);
+    db.exec('COMMIT'); expectReleased(x);
   } finally { x.close(); }
 });
 

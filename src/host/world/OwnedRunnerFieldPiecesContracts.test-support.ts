@@ -13,11 +13,15 @@ import type { ActualOwnedRunnerFieldKinematics } from './ActualPlayerKinematicsF
 import { actorJson as json, actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 
 /** Proposed interfaces only. Every physical result must come from the production owner. */
-export type RunnerPiecesSource = Omit<AcceptedBattedWorldFieldAction, 'kind' | 'prePitchRunnerSourceId'> & Readonly<{
+// This original-runner fixture has legacy geometry only. Preserve that variant
+// before Omit, which otherwise erases the episode root's discriminated pairing.
+type LegacyFieldSource = Extract<AcceptedBattedWorldFieldAction, Readonly<{ episodeFieldBinding?: never }>>;
+type LegacyFieldAction = Extract<DurableBattedWorldFieldAction, Readonly<{ rootKind?: never }>>;
+export type RunnerPiecesSource = Omit<LegacyFieldSource, 'kind' | 'prePitchRunnerSourceId'> & Readonly<{
   kind: 'owned_runner_field_pieces_v1'; prePitchRunnerSourceId: string }>;
 export type RunnerFieldPiece = Readonly<{ ordinal: number; controllerSegmentIndex: number; startMoment: BallWorldMoment;
   throughElapsedSeconds: number; coverageThroughElapsedSeconds: number; field: BattedWorldFieldMotion }>;
-export type DurableRunnerFieldPieces = Omit<DurableBattedWorldFieldAction, 'source' | 'history'> & Readonly<{
+export type DurableRunnerFieldPieces = Omit<LegacyFieldAction, 'source' | 'history'> & Readonly<{
   source: RunnerPiecesSource; history: readonly (AcceptedBattedWorldFieldAction | RunnerPiecesSource)[];
   pieceExecution: Readonly<{ version: 'owned_runner_field_pieces_execution_v1'; pieces: readonly RunnerFieldPiece[] }> }>;
 type PieceOwner = { derive(source: RunnerPiecesSource): DurableRunnerFieldPieces; read(sourceId: string): DurableRunnerFieldPieces | null };

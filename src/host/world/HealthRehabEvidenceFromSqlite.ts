@@ -9,6 +9,7 @@ import { readGlobalRosterSnapshotFromSqlite, type AcceptedNationalRosterSnapshot
 import type { DurableParticipationReceipt } from './SqliteOfficialParticipationStore';
 import type { PersistOfficialPlayResult, PersistOfficialFinalResult } from '../SqliteOfficialStateStore';
 import type { AcceptedHealthRehabEffect } from './SqlitePlayerHealthRehabStore';
+import { participationHasRawDiscriminator } from './ActualLiveParticipationMetadata';
 
 type Db = Pick<DatabaseSync, 'prepare'>;
 export const clinicalJson = (value: unknown): string => JSON.stringify(cloneInert(value), (_key, item: unknown) => item !== null && typeof item === 'object' && !Array.isArray(item)
@@ -67,6 +68,7 @@ const ownReceipt = (db: Db, receiptId: string): DurableParticipationReceipt => {
     receipt_id: string; game_id: string; player_id: string; receipt_json: string;
   } | undefined;
   if (!row) throw new Error('actual played rehabilitation receipt is missing');
+  if (participationHasRawDiscriminator(db, row.receipt_json)) throw new Error('rehabilitation does not support tagged participation receipts');
   const receipt = JSON.parse(row.receipt_json) as DurableParticipationReceipt, b = receipt.binding;
   const binding = db.prepare('SELECT binding_json FROM official_participant_bindings WHERE game_id=? AND player_id=?')
     .get(b.gameId, b.playerId) as { binding_json: string } | undefined;

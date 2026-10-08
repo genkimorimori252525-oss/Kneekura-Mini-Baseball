@@ -31,7 +31,8 @@ export const healthRehabDiagnosis: AcceptedHealthDiagnosis = { sourceId: 'injury
       rehabEntryMaximumBurden: 0.5, returnMaximumBurden: 0.1, practiceExposurePerEffortUnit: 1, minimumPracticeExposure: 1, minimumRehabGames: 1 } } };
 
 /** Actual Native owners, with explicit synthetic reserve medical/competition calibration. */
-export const healthRehabFixture = () => {
+export const healthRehabFixture = (options: Readonly<{ gameId?: string }> = {}) => {
+  const gameId = options.gameId ?? 'rehab-game';
   const path = join(mkdtempSync(join(tmpdir(), 'minibaseball-health-rehab-')), 'world.db');
   const stores: { close(): void }[] = [], track = <T extends { close(): void }>(store: T): T => { stores.push(store); return store; };
   const world = track(openSqliteWorldSettlementStore(path)), roster = track(openSqliteManagerRosterDecisionStore(path));
@@ -41,7 +42,7 @@ export const healthRehabFixture = () => {
   world.initialize({ careerId: 'career-a', clubs: [club],
     schedule: { leagueId: 'reserve-fixture', seasonId: 'reserve-1',
     memberClubIds: ['club-a', 'club-b'], regularSeasonGamesPerClub: 1, revisionEventIds: [],
-    games: [{ gameId: 'rehab-game', homeClubId: 'club-a', awayClubId: 'club-b' }] },
+    games: [{ gameId, homeClubId: 'club-a', awayClubId: 'club-b' }] },
     standingsPolicy: { version: 'fixture-v1', tieCreditNumerator: 1, tieCreditDenominator: 2, runDifferentialCapPerGame: 10 } });
   const players = worldSetup('p2').defenders.map((defender) => defender.playerId);
   roster.initialize({ careerId: 'career-a', clubId: 'club-a', mood: null, roster: createRosterState({ careerId: 'career-a', effectiveDay: 1,
@@ -63,10 +64,10 @@ export const healthRehabFixture = () => {
   workload.initialize('workload-p2');
   const snapshots = track(openSqliteNationalRosterSnapshotStore(path, { roster }));
   const official = track(new SqliteOfficialStateStore(path));
-  official.registerOfficialFixture({ gameId: 'rehab-game', venueId: 'reserve-field', fixtureEventId: 'rehab-fixture', fixtureRevision: 0 });
-  official.initializeMatch('rehab-game', match());
+  official.registerOfficialFixture({ gameId, venueId: 'reserve-field', fixtureEventId: 'rehab-fixture', fixtureRevision: 0 });
+  official.initializeMatch(gameId, match());
   const participation = track(new SqliteOfficialParticipationStore(path, {
-    readGame: (gameId) => gameId === 'rehab-game' && world.readSeason('career-a', 'reserve-1') ? { careerId: 'career-a', competitionEditionId: 'reserve-1',
+    readGame: (requestedGameId) => requestedGameId === gameId && world.readSeason('career-a', 'reserve-1') ? { careerId: 'career-a', competitionEditionId: 'reserve-1',
       gameDay: 10, homeClubId: 'club-a', awayClubId: 'club-b', fixtureEventId: 'rehab-fixture' } : null,
     readRoster: (c, clubId) => roster.readHead(c, clubId)?.roster ?? null,
     readPersonLink: (p, sourceId) => { const link = links.readLink(sourceId); return link?.playerId === p ? { sourceId, personId: link.personId } : null; },
@@ -99,7 +100,7 @@ export const healthRehabFixture = () => {
   };
   const play = () => {
     const head = roster.readHead('career-a', 'club-a')!, snapshot = snapshots.capture('career-a', 'club-a');
-    for (const playerId of [...players, 'unused']) participation.bindPregame({ gameId: 'rehab-game', careerId: 'career-a', competitionEditionId: 'reserve-1',
+    for (const playerId of [...players, 'unused']) participation.bindPregame({ gameId, careerId: 'career-a', competitionEditionId: 'reserve-1',
       gameDay: 10, clubId: 'club-a', side: 'HOME', playerId, personId: `person-${playerId}`, personLinkSourceId: `intake-${playerId}`,
       rosterRevision: head.roster.revision, fixtureEventId: 'rehab-fixture' });
     const apply = (before: CanonicalMatchState, revision: number, startedAtTick: number, applicationId: string) => {
@@ -116,12 +117,12 @@ export const healthRehabFixture = () => {
       adjudication = recordCorrectRuleSnapshot(adjudication, 0, { eventId: `rule-${applicationId}`, snapshotId: `rule-${applicationId}`,
         tick: timeline.lastEventTick + 1, evidenceRevision: 1, ruling: { outsAfter: next.outs, basesAfter: next.bases, scoredRunnerIds: [] } });
       adjudication = closeOfficialPlay(adjudication, 1, { eventId: applicationId, closureId: applicationId, tick: timeline.lastEventTick + 2 });
-      return official.applyAndActivate({ kind: 'non_live', matchId: 'rehab-game', applicationId, expectedDurableRevision: revision,
+      return official.applyAndActivate({ kind: 'non_live', matchId: gameId, applicationId, expectedDurableRevision: revision,
         match: before, timeline, adjudication, context: { kind: 'strikeout' }, nextStartedAtTick: timeline.lastEventTick + 3, worldSetup: worldSetup('p2') });
     };
     const first = apply(match(), 0, 0, 'rehab-activate');
     apply(first.activation.nextMatchState, 1, first.nextWorld.tick, 'rehab-close');
-    const receipt = participation.confirmPlayed('rehab-game', 'p2', 'DEFENDER', 'rehab-activate', 'rehab-close');
+    const receipt = participation.confirmPlayed(gameId, 'p2', 'DEFENDER', 'rehab-activate', 'rehab-close');
     return { receipt, snapshot };
   };
   const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite'), db = track(new DatabaseSync(path));
@@ -129,8 +130,8 @@ export const healthRehabFixture = () => {
     close: () => stores.reverse().forEach((store) => store.close()) };
 };
 
-export const healthRehabStoreFixture = (initialize = true) => {
-  const f = healthRehabFixture(), diagnoses = new Map([[healthRehabDiagnosis.sourceId, healthRehabDiagnosis]]);
+export const healthRehabStoreFixture = (initialize = true, options: Readonly<{ gameId?: string }> = {}) => {
+  const f = healthRehabFixture(options), diagnoses = new Map([[healthRehabDiagnosis.sourceId, healthRehabDiagnosis]]);
   const effects = new Map<string, AcceptedHealthRehabEffect>();
   const sources = { personLinks: f.links, workload: f.workload, participation: f.participation, rosterSnapshots: f.snapshots, roster: f.roster };
   const authority = { readAcceptedDiagnosis: (sourceId: string) => diagnoses.get(sourceId) ?? null,

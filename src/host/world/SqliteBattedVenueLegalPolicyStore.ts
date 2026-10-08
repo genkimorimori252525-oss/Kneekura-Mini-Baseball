@@ -1,3 +1,4 @@
+import { battedWorldFieldGeometry } from './BattedWorldFieldRoot';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { BallWorldSettledFoulDeadEvidenceInput } from '../../core/rules/BallWorldSettledFoulDeadEvidence';
@@ -23,7 +24,7 @@ export type DurableBattedVenueLegalPolicy = Readonly<{
   physicalPitchSourceId: string; playId: number; fixtureRevision: number; ruleProfileHash: string;
   anchor: BattedVenueFieldReference;
   dependencies: Readonly<{ physicalPitchHash: string; fixtureHash: string; worldModelHash: string;
-    responseModelHash: string; fieldGeometryHash: string; baseGeometryHash: string }>;
+    responseModelHash: string; fieldGeometryHash: string; baseGeometryHash: string; episodeFieldBindingHash?: string }>;
 }>;
 export type BattedVenueLegalPolicyAuthority = Readonly<{
   readAcceptedPolicy(sourceId: string): AcceptedBattedVenueLegalPolicy | null;
@@ -113,6 +114,7 @@ const policyOwner = (db: Db) => {
   const derive = (source: AcceptedBattedVenueLegalPolicy): DurableBattedVenueLegalPolicy => {
     const anchor = originalFields.read(source.baseFieldSourceId);
     if (!anchor) throw new Error('venue legal original field anchor is missing');
+    battedWorldFieldGeometry(anchor);
     const response = anchor.response, world = response.touch.worldContact, geometry = anchor.geometry;
     const baseGeometry = geometry.baseGeometry, fixture = baseGeometry.fixture, pitch = world.flight.physicalPitch;
     const batter = pitch.frame.batterActor;
@@ -131,7 +133,8 @@ const policyOwner = (db: Db) => {
       anchor: { owner: 'batted_world_field_actions', sourceId: anchor.source.sourceId, sourceVersion: anchor.source.sourceVersion,
         revision: anchor.revision, sourceHash: hash(anchor.source), snapshotHash: hash(anchor) },
       dependencies: { physicalPitchHash: hash(pitch), fixtureHash: hash(fixture), worldModelHash: hash(world.model),
-        responseModelHash: hash(response.model), fieldGeometryHash: hash(geometry), baseGeometryHash: hash(baseGeometry) } });
+        responseModelHash: hash(response.model), fieldGeometryHash: hash(geometry), baseGeometryHash: hash(baseGeometry),
+        ...(anchor.rootKind === 'episode_field_binding_v1' ? { episodeFieldBindingHash: hash(anchor.episodeFieldBinding) } : {}) } });
   };
   const read = (sourceId: string): DurableBattedVenueLegalPolicy | null => {
     if (!id(sourceId)) throw new Error('invalid venue legal policy scope');

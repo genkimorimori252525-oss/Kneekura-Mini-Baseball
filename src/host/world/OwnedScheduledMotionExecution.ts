@@ -1,3 +1,4 @@
+import { battedWorldFieldGeometry } from './BattedWorldFieldRoot';
 import { prepareBattedWorldPiecewiseFieldAcquisition, bridgeBattedWorldPiecewiseFieldAcquisitionPlan,
   deriveBattedWorldPiecewiseFieldAcquisitionProgress } from '../../core/sim/ball/BattedWorldPiecewiseFieldAcquisition';
 import { prepareBattedWorldPiecewiseFieldThrow, bridgeBattedWorldPiecewiseFieldThrowPlan,
@@ -41,7 +42,7 @@ const deriveExecution = (compositionReplay: Readonly<{ derive: typeof deriveOwne
   const { reference } = compositionReplay;
   const { baseField, executions } = prefix, action = source.action;
   const original = executions.at(-1)?.execution.field ?? baseField.field;
-  const response = battedWorldResponseInput(baseField.response), geometry = baseField.geometry.geometry;
+  const response = battedWorldResponseInput(baseField.response), geometry = battedWorldFieldGeometry(baseField);
   const state = ownedScheduledMotionActualState(baseField.field, executions), pending = pendingOwnedScheduledPlan(executions);
   const frame = baseField.response.touch.worldContact.flight.physicalPitch.frame;
   const ids = [frame.batterActor!.binding.playerId, ...frame.batterActor!.defenderBindings.map(b => b.playerId)];

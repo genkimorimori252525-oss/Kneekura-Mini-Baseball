@@ -3,6 +3,7 @@ import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicy
 import { foulOfficialEvidenceFromSqlite } from './ActualFoulOfficialEvidenceFromSqlite';
 import { foulOfficialSessionInput, foulOfficialEventInput, foulOfficialIntentInput } from './ActualFoulOfficialSource';
 import { foulOfficialRows, foulOfficialTables } from './ActualFoulOfficialOwnership';
+import { foulTerminalApplicationRows, foulTerminalApplicationClaims } from './ActualFoulTerminalApplicationOwnership';
 import { actualLivePlayId as id } from './ActualLivePlayScope';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import type { AcceptedFoulOfficialEvent, FoulOfficialAuthority, FoulOfficialStore } from './ActualFoulOfficial';
@@ -40,6 +41,19 @@ export const openSqliteActualFoulOfficialStore = (path: string, authority?: Foul
   const check = () => { if (closed || failed) throw new Error('closed foul official store'); };
   const read = <T>(body: () => T): T => withBattedVenueLegalReadSnapshot(db,body);
   const same = (a: unknown,b: unknown,message: string) => { if (json(a) !== json(b)) throw new Error(message); };
+  const terminalScope = (root: NonNullable<ReturnType<typeof owner.session>>) => ({ official:root.scope,
+    firstPhysicalPitchSourceId:root.facts.end.firstPhysicalPitchSourceId,
+    runtimeSourceId:root.facts.count.source.runtimeSourceId,scopeId:root.facts.count.scopeId });
+  const unclaimedTerminal = (sessionSourceId: string) => {
+    // Called only in a fresh event's current read snapshot. Validate installed
+    // storage even when empty, and never carry absence across a Source callback.
+    if (!foulTerminalApplicationRows(db).length) return [];
+    const root = owner.session(sessionSourceId);
+    if (!root) throw new Error('foul official event session is missing');
+    const claims = foulTerminalApplicationClaims(db,terminalScope(root));
+    if (claims.length) throw new Error('foul official terminal ownership already claimed');
+    return claims;
+  };
   const sessionSource = (sourceId: string) => {
     const raw = authority?.readAcceptedSession(sourceId) ?? null;
     return raw === null ? null : foulOfficialSessionInput(raw,sourceId);
@@ -141,8 +155,9 @@ export const openSqliteActualFoulOfficialStore = (path: string, authority?: Foul
           return { kind:'prior' as const,value:prior.value };
         }
         if (!source) throw new Error('accepted foul official event Source is missing');
+        const terminal = unclaimedTerminal(source.sessionSourceId);
         const result = owner.deriveEvent(source,intent);
-        return { kind:'new' as const,result,pinned:owner.pin(result.root) };
+        return { kind:'new' as const,result,pinned:owner.pin(result.root),terminal };
       });
       if (preflight.kind === 'prior') return preflight.value;
       same(eventSource(sourceId),source,'accepted foul official event Source changed after preflight');
@@ -154,7 +169,10 @@ export const openSqliteActualFoulOfficialStore = (path: string, authority?: Foul
           same(prior.intent,intent,'foul official intent Source is frozen differently');
           same(prior.value,preflight.result.value,'foul official event receipt changed'); return prior.value;
         }
-        const current = read(() => owner.deriveEvent(source!,intent));
+        const current = read(() => {
+          unclaimedTerminal(source!.sessionSourceId);
+          return owner.deriveEvent(source!,intent);
+        });
         same(current.value,preflight.result.value,'foul official physical or journal inputs changed before write');
         same(owner.pin(current.root),preflight.pinned,'foul official journal ownership changed before write');
         const s = source!, scope = current.root.scope, value = current.value, previous = current.previous;
@@ -171,6 +189,10 @@ export const openSqliteActualFoulOfficialStore = (path: string, authority?: Foul
         same(eventSource(sourceId),source,'accepted foul official event Source changed during write');
         same(eventIntent(s),intent,'accepted foul official intent Source changed during write');
         const saved = proof(() => {
+          // The actual writer must see trigger-created raw claims before the
+          // ordinary archive proof or generic total_changes accounting can fail.
+          same(foulTerminalApplicationClaims(db,terminalScope(current.root)),preflight.terminal,
+            'foul official terminal ownership changed during write');
           const receipt = owner.event(sourceId); if (!receipt) throw new Error('foul official event disappeared');
           owner.assertCurrentMatch(receipt.root);
           same(receipt.value,value,'foul official event proof changed during write');
