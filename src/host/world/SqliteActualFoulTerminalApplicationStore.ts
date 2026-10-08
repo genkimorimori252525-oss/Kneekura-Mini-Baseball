@@ -34,7 +34,7 @@ export const openSqliteActualFoulTerminalApplicationStore = (path: string,
   const snapshot = <T>(body: () => T): T => withBattedVenueLegalReadSnapshot(db,body);
   try {
     db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000');
-    const version = schema().user;
+    const version = schema().user, setting = queryOnly();
     db.exec('BEGIN IMMEDIATE');
     // Own rollback here so an additional cleanup failure retains its cause.
     // Main-only authority is checked before constructor DDL, not only on reads.
@@ -44,6 +44,7 @@ export const openSqliteActualFoulTerminalApplicationStore = (path: string,
       throw new Error('foul terminal queue constructor changed schema version authority');
     }
     db.exec('COMMIT');
+    if (db.isTransaction || queryOnly() !== setting) throw new Error('foul terminal queue constructor commit state differs');
   } catch (error) {
     const errors = [error];
     try { if (db.isTransaction) db.exec('ROLLBACK'); } catch (cleanup) { errors.push(cleanup); }
@@ -61,8 +62,10 @@ export const openSqliteActualFoulTerminalApplicationStore = (path: string,
     check();
     if (db.isTransaction) return retire(new Error('foul terminal queue unexpected transaction'),[]);
     const setting = queryOnly(), savepoint = 'foul_terminal_queue_read_'+randomUUID().replaceAll('-','');
-    db.exec('BEGIN');
+    let began = false;
     try {
+      db.exec('BEGIN'); began = true;
+      if (!db.isTransaction) { failed = true; throw new Error('foul terminal queue read did not acquire its transaction'); }
       db.exec('SAVEPOINT '+savepoint);
       db.exec('PRAGMA query_only=1');
       const before = counters(), value = snapshot(body);
@@ -72,7 +75,9 @@ export const openSqliteActualFoulTerminalApplicationStore = (path: string,
       catch (error) { failed = true; throw error; }
       db.exec('PRAGMA query_only='+setting);
       if (!db.isTransaction || queryOnly() !== setting) { failed = true; throw new Error('foul terminal queue read restoration differs'); }
-      db.exec('COMMIT'); return value;
+      db.exec('COMMIT');
+      if (db.isTransaction || queryOnly() !== setting) { failed = true; throw new Error('foul terminal queue read commit state differs'); }
+      return value;
     } catch (error) {
       const cleanup: unknown[] = [];
       try {
@@ -80,7 +85,7 @@ export const openSqliteActualFoulTerminalApplicationStore = (path: string,
           try { db.exec('ROLLBACK TO '+savepoint); }
           catch (identity) { failed = true; cleanup.push(identity); }
           db.exec('ROLLBACK');
-        } else failed = true;
+        } else if (began) failed = true;
       } catch (rollback) { failed = true; cleanup.push(rollback); }
       try {
         if (queryOnly() !== setting) db.exec('PRAGMA query_only='+setting);
@@ -154,8 +159,10 @@ export const openSqliteActualFoulTerminalApplicationStore = (path: string,
     check();
     if (db.isTransaction) return retire(new Error('foul terminal queue writer has an unowned transaction'),[]);
     const setting = queryOnly(), before = counters(), savepoint = 'foul_terminal_queue_write_'+randomUUID().replaceAll('-','');
-    db.exec('BEGIN IMMEDIATE');
+    let began = false;
     try {
+      db.exec('BEGIN IMMEDIATE'); began = true;
+      if (!db.isTransaction) { failed = true; throw new Error('foul terminal queue writer did not acquire its transaction'); }
       db.exec('SAVEPOINT '+savepoint);
       const result = body(), after = counters();
       if (!db.isTransaction || queryOnly() !== setting || typeof before.changes !== 'number'
@@ -166,7 +173,9 @@ export const openSqliteActualFoulTerminalApplicationStore = (path: string,
       try { db.exec('RELEASE '+savepoint); }
       catch (error) { failed = true; throw error; }
       if (!db.isTransaction) { failed = true; throw new Error('foul terminal queue owned transaction disappeared'); }
-      db.exec('COMMIT'); return result.value;
+      db.exec('COMMIT');
+      if (db.isTransaction || queryOnly() !== setting) { failed = true; throw new Error('foul terminal queue writer commit state differs'); }
+      return result.value;
     } catch (error) {
       const cleanup: unknown[] = [];
       try {
@@ -175,7 +184,7 @@ export const openSqliteActualFoulTerminalApplicationStore = (path: string,
           catch (identity) { failed = true; cleanup.push(identity); }
           db.exec('ROLLBACK');
         }
-        else failed = true;
+        else if (began) failed = true;
       } catch (rollback) { failed = true; cleanup.push(rollback); }
       try {
         if (queryOnly() !== setting) { db.exec('PRAGMA query_only='+setting); failed = true; }

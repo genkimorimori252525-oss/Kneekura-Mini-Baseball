@@ -1,6 +1,9 @@
 {
   "extends": "./tsconfig.json",
-  "compilerOptions": { "noEmit": true, "incremental": false },
+  "compilerOptions": {
+    "noEmit": true,
+    "incremental": false
+  },
   "include": [
     "src/host/world/ActualFoulTerminalAcknowledgementMetadata.test.ts",
     "src/host/world/ActualFoulTerminalAcknowledgementStorage.test.ts",
@@ -10,6 +13,7 @@
     "src/host/world/ActualFoulTerminalAcknowledgementWire.acceptance.ts",
     "src/host/world/ActualFoulTerminalAcknowledgementSiblings.acceptance.ts",
     "src/host/world/ActualFoulTerminalAcknowledgementSchema.acceptance.ts",
-    "src/host/world/SqliteActualFoulTerminalApplicationRunner.ts"
+    "src/host/world/SqliteActualFoulTerminalApplicationRunner.ts",
+    "src/host/world/ActualFoulTerminalTransactionBoundary.test.ts"
   ]
 }
