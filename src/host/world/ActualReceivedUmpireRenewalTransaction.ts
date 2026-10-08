@@ -2,7 +2,7 @@ import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldEx
 import { createRequire } from 'node:module';
 import { renewalOwnerSchema, installRenewalOwnerSchema, renewalOwnerTables } from './ActualReceivedUmpireRenewalSchema';
 import { receivedOwnerSchema } from './ActualReceivedUmpireDefenderSchema';
-import { receivedReadProofRetired } from './ActualReceivedUmpireDefenderTransaction';
+import { receivedReadProofRetired,retireReceivedReadProof } from './ActualReceivedUmpireDefenderTransaction';
 const ownerSchema=(db:Pick<import('node:sqlite').DatabaseSync,'prepare'>)=>{receivedOwnerSchema(db);return renewalOwnerSchema(db);};
 import { receivedId } from './ActualReceivedUmpireDefender';
 type Db = import('node:sqlite').DatabaseSync;
@@ -46,6 +46,7 @@ export const withRenewalReadProof = <T>(db: Db, body: () => T): T => {
   }
   if (cleanup.length) {
     failedProofCleanup.add(db);
+    retireReceivedReadProof(db);
     throw new AggregateError(failed ? [failure, ...cleanup] : cleanup, 'received renewal proof cleanup failed', { cause: failure });
   }
   if (failed) throw failure;

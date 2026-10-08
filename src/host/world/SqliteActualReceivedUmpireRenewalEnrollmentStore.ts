@@ -8,14 +8,17 @@ import { actorHash as hash,actorJson as json } from './PhysicalPlateAppearanceAc
 const table='actual_received_umpire_renewal_enrollments';
 export const actualReceivedUmpireRenewalEnrollmentEvidenceFromSqlite=(db:DatabaseSync)=>{
   const original=receivedRenewalEnrollmentEvidenceFromSqlite(db);
-  const read=(id:string):DurableReceivedRenewalEnrollment|null=>{
+  const readOriginal=(id:string):ReturnType<typeof original.derive>|null=>{
     const row=renewalSourceRow(db,table,id);if(!row)return null;
-    const source=renewalEnrollmentInput(JSON.parse(String(row.source_json)),id),{value}=original.derive(source);
+    const source=renewalEnrollmentInput(JSON.parse(String(row.source_json)),id),derived=original.derive(source),{value}=derived;
     if(row.source_version!==source.sourceVersion||Object.entries(renewalScope(value)).some(([k,v])=>row[k]!==v)
       ||row.source_json!==json(source)||row.source_hash!==hash(source)||row.snapshot_json!==json(value)||row.snapshot_hash!==hash(value))throw new Error('received renewal enrollment archive differs');
-    renewalJournal(db,value);return value;
+    renewalJournal(db,value);return derived;
   };
-  return Object.freeze({read:(id:string)=>withRenewalReadProof(db,()=>read(id))});
+  const withOriginal=<T>(id:string,consume:(derived:ReturnType<typeof original.derive>)=>T):T|null=>withRenewalReadProof(db,()=>{
+    const derived=readOriginal(id);return derived===null?null:consume(derived);
+  });
+  return Object.freeze({read:(id:string)=>withOriginal(id,original=>original.value),withOriginal});
 };
 export const openSqliteActualReceivedUmpireRenewalEnrollmentStore=(path:string,authority?:Readonly<{readAcceptedEnrollment(id:string):RenewalEnrollmentSource|null}>)=>{
   if(authority!==undefined&&typeof authority.readAcceptedEnrollment!=='function')throw new Error('invalid received renewal authority');

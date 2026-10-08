@@ -9,6 +9,9 @@ const failedProofCleanup = new WeakSet<Db>();
 /** A private outer owner must also retire after a nested old-family proof loses
  * its cleanup boundary, even if the outer savepoint/rollback still succeeds. */
 export const receivedReadProofRetired=(db:Db):boolean=>failedProofCleanup.has(db);
+/** Shared failure signal only: a nested renewal proof cannot leave a reusable
+ * old-family private handle after its own cleanup boundary has failed. */
+export const retireReceivedReadProof=(db:Db):void=>{failedProofCleanup.add(db);};
 const counters = (db: Db) => [db.prepare('SELECT total_changes() AS n').get()!.n,
   db.prepare('PRAGMA main.schema_version').get()!.schema_version, db.prepare('PRAGMA temp.schema_version').get()!.schema_version];
 const equal = (left: unknown, right: unknown) => JSON.stringify(left) === JSON.stringify(right);

@@ -323,3 +323,70 @@ it('P05 retains Source callback identity rechecks after the real process INSERT'
   try{expect(()=>f.processes.accept(f.first.sourceId)).toThrow(/callback Source changed/);expect(observer.observed()).toBe(true);noProcessRows(f);
   }finally{observer.restore();f.close();}
 });
+
+it('J04 keeps nine old-family claims through three renewal stages and still rejects an old-family orphan',async()=>{
+  const f=await reviewedStageFour();
+  const {receivedJournal}=await import('./ActualReceivedUmpireDefenderJournal');
+  const {receivedDefenderClaims,receivedRenewalClaims,receivedUnionClaims}=await import('./ActualReceivedUmpireDefenderClaims');
+  const {receivedOwnerTables}=await import('./ActualReceivedUmpireDefenderSchema');
+  const {installRenewalOwnerSchema,renewalOwnerSchema}=await import('./ActualReceivedUmpireRenewalSchema');
+  try{
+    const enrollment=f.store.read(source.sourceId)!,second=f.processes.read(f.second.sourceId)!;
+    const scope={gameId:enrollment.gameId,playId:enrollment.playId,physicalPitchSourceId:source.physicalPitchSourceId};
+    const oldRows=()=>receivedOwnerTables.map(table=>({table,rows:f.db.prepare(`SELECT * FROM ${table}`).all()}));
+    const baseline=oldRows(),oldJournal=receivedJournal(f.db,enrollment);
+    expect(oldJournal).toHaveLength(4);expect(receivedDefenderClaims(f.db,scope)).toHaveLength(9);
+    f.db.exec('BEGIN');installRenewalOwnerSchema(f.db);f.db.exec('COMMIT');
+    expect(renewalOwnerSchema(f.db)).toBe('installed');
+    const enrollmentSource={sourceId:'family-renewal',sourceVersion:'census-fixture-v1',capability:'received_umpire_renewal_enrollment_v1',
+      receivedEnrollmentSourceId:source.sourceId,receivedReplanSourceId:f.second.sourceId};
+    const decisionSource={sourceId:'family-decision',sourceVersion:'census-fixture-v1',capability:'received_umpire_renewal_decision_v1',renewalEnrollmentSourceId:enrollmentSource.sourceId};
+    const motorSource={sourceId:'family-motor',sourceVersion:'census-fixture-v1',capability:'received_umpire_renewal_motor_v1',renewalEnrollmentSourceId:enrollmentSource.sourceId,renewalDecisionSourceId:decisionSource.sourceId};
+    const mirrors={game_id:enrollment.gameId,play_id:enrollment.playId,physical_pitch_source_id:source.physicalPitchSourceId,player_id:source.playerId,
+      runtime_source_id:source.runtimeSourceId,received_enrollment_source_id:source.sourceId,origin_process_source_id:f.first.sourceId,
+      received_replan_source_id:f.second.sourceId,renewal_enrollment_source_id:enrollmentSource.sourceId};
+    const owners=['actual_received_umpire_renewal_enrollments','actual_received_umpire_renewal_decisions','actual_received_umpire_renewal_motors'] as const;
+    const sources=[enrollmentSource,decisionSource,motorSource];
+    const insert=(table:string,row:Record<string,import('node:sqlite').SQLInputValue>)=>f.db.prepare(
+      `INSERT INTO ${table}(${Object.keys(row).join(',')}) VALUES(${Object.keys(row).map(()=>'?').join(',')})`).run(...Object.values(row));
+    let previousReceiptHash:string|null=null;
+    // Census-only SQL fixtures: exact schemas, versioned reference Sources, coherent
+    // scope/header/hash/journal edges. No new Native original-owner proof is claimed.
+    for(const [index,owner] of owners.entries()){
+      const stage=index+1,s=sources[index],snapshot={source:s,gameId:scope.gameId,playId:scope.playId,physicalPitchSourceId:source.physicalPitchSourceId,
+        playerId:source.playerId,runtimeSourceId:source.runtimeSourceId,receivedEnrollmentSourceId:source.sourceId,
+        receivedReplanSourceId:f.second.sourceId,originProcessSourceId:f.first.sourceId,renewalEnrollmentSourceId:enrollmentSource.sourceId};
+      f.db.exec('BEGIN');
+      insert(owner,{source_id:s.sourceId,source_version:s.sourceVersion,...mirrors,
+        ...(stage===3?{renewal_decision_source_id:decisionSource.sourceId}:{}),source_json:JSON.stringify(s),source_hash:hash(s),snapshot_json:JSON.stringify(snapshot),snapshot_hash:hash(snapshot)});
+      if(stage===1)insert('actual_received_umpire_renewal_heads',{...mirrors,stage,owner,source_id:s.sourceId,
+        renewal_decision_source_id:null,renewal_motor_source_id:null,adoption_source_id:null,
+        physical_predecessor_source_id:source.currentExecutionSourceId,physical_predecessor_revision:10});
+      else f.db.prepare('UPDATE actual_received_umpire_renewal_heads SET stage=?,owner=?,source_id=?,renewal_decision_source_id=?,renewal_motor_source_id=? WHERE renewal_enrollment_source_id=?')
+        .run(stage,owner,s.sourceId,decisionSource.sourceId,stage===3?motorSource.sourceId:null,enrollmentSource.sourceId);
+      const admission={...mirrors,sequence:stage,owner,source_id:s.sourceId,source_version:s.sourceVersion,
+        legacy_prefix_digest:enrollment.anchor.legacyAdmissionPrefix.digest,received_prefix_digest:hash(oldJournal),source_hash:hash(s),snapshot_hash:hash(snapshot),previous_receipt_hash:previousReceiptHash};
+      previousReceiptHash=hash(admission);insert('actual_received_umpire_renewal_admissions',{...admission,receipt_hash:previousReceiptHash});
+      f.db.exec('COMMIT');
+      expect(receivedRenewalClaims(f.db,scope)).toHaveLength(2*stage+1);
+      expect(receivedUnionClaims(f.db,scope)).toHaveLength(9+2*stage+1);
+      expect(receivedDefenderClaims(f.db,scope)).toHaveLength(9);
+      expect(receivedJournal(f.db,enrollment)).toEqual(oldJournal);
+      const changes=f.db.prepare('SELECT total_changes() AS n').get()!.n;
+      expect(f.store.read(source.sourceId)).toEqual(enrollment);expect(f.processes.read(f.first.sourceId)).toEqual(f.original);expect(f.processes.read(f.second.sourceId)).toEqual(second);
+      expect(f.db.prepare('SELECT total_changes() AS n').get()!.n).toBe(changes);expect(oldRows()).toEqual(baseline);
+    }
+    const row=f.db.prepare('SELECT * FROM actual_received_umpire_defender_policy_availabilities').get()!;
+    const orphanSource={...availableSource(),sourceId:'extra-old-family-orphan',enrollmentSourceId:'missing-old-enrollment'};
+    const orphanSnapshot={...JSON.parse(String(row.snapshot_json)),source:orphanSource};
+    insert('actual_received_umpire_defender_policy_availabilities',{...row,source_id:orphanSource.sourceId,enrollment_source_id:orphanSource.enrollmentSourceId,
+      source_json:JSON.stringify(orphanSource),source_hash:hash(orphanSource),snapshot_json:JSON.stringify(orphanSnapshot),snapshot_hash:hash(orphanSnapshot)});
+    expect(receivedDefenderClaims(f.db,scope)).toHaveLength(10);expect(receivedRenewalClaims(f.db,scope)).toHaveLength(7);
+    const withOrphan=oldRows();
+    expect(()=>receivedJournal(f.db,enrollment)).toThrow(/orphan ownership claims/);
+    expect(()=>f.store.read(source.sourceId)).toThrow(/orphan ownership claims/);
+    expect(()=>f.processes.read(f.first.sourceId)).toThrow(/orphan ownership claims/);
+    expect(()=>f.processes.read(f.second.sourceId)).toThrow(/orphan ownership claims/);
+    expect(oldRows()).toEqual(withOrphan);
+  }finally{if(f.db.isTransaction)f.db.exec('ROLLBACK');f.close();}
+});

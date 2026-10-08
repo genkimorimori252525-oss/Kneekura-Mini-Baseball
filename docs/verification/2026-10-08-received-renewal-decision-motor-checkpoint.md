@@ -1,0 +1,7 @@
+# Received-call renewal decision and motor checkpoint
+
+Source `a439a3c6ac7f74ece671b7931a6e3c1820759983`, src tree `46042a4e8f7053d90d92fc730e2a533ed556e60b`, adds Native decision and motor owners after the accepted renewal enrollment. Decisions retain the frozen Core selection and exact issuance clock. Motors use the existing Core calculation, model and self evidence, with distinct retained role authorities and bounded coverage. Each owner records its three writes atomically and supports callback-free historical read/retry; the work projection ends at physical adoption pending.
+
+The finite source qualification passed 245 cases with no skips, plus the full compiler. Test terminal SHA-256: `4e9d4e695ccc53443f626354e8d243a9bd03b77fd078a41adf220d4ab39b9421`. Compiler terminal: `6286504cacb946185ae6116a696f772b930bc7b1698fbd1bedbc686e02b54a84`. Both had exit 0, no surviving processes and unchanged source, dependency, control and runtime groups. Original-family journal conservation and nested proof cleanup are included. These are isolated finite tests, not genuine retained-input adoption qualification.
+
+The physical adoption owner is still being implemented. Review of this checkpoint also identified a question about reauthenticating external Source/dependency authority after COMMIT, beyond the existing committed-row comparison; a reached finite fault is being prepared before claiming that boundary. This preserved checkpoint is not a completion claim. Private artifacts and logs are omitted.
