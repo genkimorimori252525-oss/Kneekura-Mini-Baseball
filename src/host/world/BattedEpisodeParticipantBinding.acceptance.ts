@@ -31,6 +31,7 @@ type Input = Readonly<{ schema: 'episode_participant_stage_input_v1'; stage: Sta
   recoveredInventory?: Readonly<{ input: Pin; audit: Pin; returnedCheckpoint: Pin;
     sourceIdentity: Readonly<{ head: string; src: string }>; sourceGroupHash: string }>;
   contactProvenance?: Readonly<{ input: Pin; sourceIdentity: Readonly<{ head: string; src: string }>; sourceGroupHash: string }>;
+  touchProvenance?: Readonly<{ input: Pin; sourceIdentity: Readonly<{ head: string; src: string }>; sourceGroupHash: string }>;
   bindingSchema?: 'existing' | 'create' }>;
 type Sources = Readonly<{ contact: AcceptedBattedWorldContact; touch: AcceptedBattedFirstFielderTouch;
   response: AcceptedBattedContactResponse; binding: AcceptedBattedEpisodeFieldBinding }>;
@@ -58,7 +59,8 @@ const stageCopy = (stage: Stage) => {
   assert.equal(input.acceptedSources.sha256, sourceProposalHash);
   const pins = [input.input, input.acceptedSources, ...Object.values(input.lineage),
     ...(input.recoveredInventory ? [input.recoveredInventory.input, input.recoveredInventory.audit, input.recoveredInventory.returnedCheckpoint] : []),
-    ...(input.contactProvenance ? [input.contactProvenance.input] : [])];
+    ...(input.contactProvenance ? [input.contactProvenance.input] : []),
+    ...(input.touchProvenance ? [input.touchProvenance.input] : [])];
   const checkPins = () => { for (const pin of pins) assert.equal(geometryFileHash(pin.path), pin.sha256); geometryClosed(input.input.path); };
   checkPins();
   const proposal = JSON.parse(readFileSync(input.acceptedSources.path, 'utf8'));
@@ -152,6 +154,31 @@ const stageCopy = (stage: Stage) => {
       assert.equal(receipt.inputProvenance.originalAuthenticationRepeatedByTest, false);
       assert.equal(receipt.inputProvenance.priorAttempt.status, 'failed'); assert.equal(receipt.inputProvenance.priorAttempt.aggregateCredit, 0);
       assert.equal(receipt.inputProvenance.priorAttempt.originalCloseSuccess, 'unknown');
+      assert.equal(terminal.tests.skipped.length, 4);
+      assert(terminal.tests.skipped.every((test: { status: string; credit: number }) => test.status === 'skipped' && test.credit === 0));
+    }
+    if (stage === 'response') {
+      const touch = input.touchProvenance; assert(touch, 'response requires explicitly qualified touch-owner provenance');
+      const touchInput = JSON.parse(readFileSync(touch.input.path, 'utf8'));
+      const config = JSON.parse(readFileSync(input.lineage.config.path, 'utf8'));
+      assert.equal(receipt.manifestSha256, touch.input.sha256);
+      assert.deepEqual(receipt.sourceIdentity, touch.sourceIdentity); assert.deepEqual(config.sourceIdentity, touch.sourceIdentity);
+      assert.deepEqual(touchInput.sourceIdentity, touch.sourceIdentity);
+      assert.equal(config.inputs.source.sha256, touch.sourceGroupHash); assert.equal(terminal.before.source.sha256, touch.sourceGroupHash);
+      assert.equal(touchInput.stage, 'touch'); assert.equal(touchInput.acceptedSources.sha256, sourceProposalHash);
+      assert.deepEqual(receipt.exactAdditions, { touch: 1 });
+      assert.equal(receipt.freshWriter.delta, 1); assert.deepEqual(receipt.freshWriter.witnessed, [true]);
+      assert.deepEqual(receipt.freshWriter.writes, [{ index: 0, totalChanges: receipt.freshWriter.before + 1 }]);
+      assert.equal(receipt.retryWriter.delta, 0); assert.deepEqual(receipt.retryWriter.writes, []);
+      assert.deepEqual(receipt.retryWriter.witnessed, [false]); assert.equal(receipt.authorityFreeRetry, true); assert.equal(receipt.zeroWriteRetry, true);
+      const provenance = receipt.inputProvenance; assert.equal(provenance.kind, 'qualified_contact_owner_v1');
+      assert.equal(provenance.receiptSha256, touchInput.lineage.receipt.sha256); assert.equal(provenance.terminalSha256, touchInput.lineage.terminal.sha256);
+      assert.equal(provenance.configSha256, touchInput.lineage.config.sha256); assert.deepEqual(provenance.sourceIdentity, touchInput.contactProvenance.sourceIdentity);
+      assert.equal(provenance.originalAuthenticationRepeatedByTest, false);
+      assert.equal(provenance.inherited.kind, 'audited_inventory_and_native_readback_v1');
+      assert.equal(provenance.inherited.originalAuthenticationRepeatedByTest, false);
+      assert.equal(provenance.inherited.priorAttempt.status, 'failed'); assert.equal(provenance.inherited.priorAttempt.aggregateCredit, 0);
+      assert.equal(provenance.inherited.priorAttempt.originalCloseSuccess, 'unknown');
       assert.equal(terminal.tests.skipped.length, 4);
       assert(terminal.tests.skipped.every((test: { status: string; credit: number }) => test.status === 'skipped' && test.credit === 0));
     }
@@ -321,14 +348,10 @@ const prerequisite = (stage: 'contact' | 'touch' | 'response') => {
     // Qualified predecessor receipts replace only standalone test inventory
     // replay. Each normal production owner still authenticates its dependencies.
     const inputObservation = stage === 'contact' ? x.receipt.completedObservations
-      : stage === 'touch' ? { hashes: x.receipt.hashes, rowsHash: x.receipt.afterRowsHash } : null;
-    const authenticated = inputObservation
-      ? { hashes: inputObservation.hashes }
-      : authenticate(db, x.sources);
-    if (inputObservation) {
-      assert.equal(hash(before), inputObservation.rowsHash);
-      assert.equal(installed(db, 'batted_episode_field_bindings'), false);
-    } else assert.deepEqual(authenticated.hashes, x.receipt.hashes);
+      : { hashes: x.receipt.hashes, rowsHash: x.receipt.afterRowsHash };
+    const authenticated = { hashes: inputObservation.hashes };
+    assert.equal(hash(before), inputObservation.rowsHash);
+    assert.equal(installed(db, 'batted_episode_field_bindings'), false);
     const peer = <T>(read: () => T) => snapshot(db, read);
     const openOwner = (authority: boolean) => stage === 'contact'
       ? x.track(openSqliteBattedWorldContactStore(x.path, { read: id => peer(() => battedBallFlightEvidenceFromSqlite(db).read(id)) },
@@ -367,6 +390,10 @@ const prerequisite = (stage: 'contact' | 'touch' | 'response') => {
         recoveryReceiptSha256: x.input.lineage.receipt.sha256, recoveryTerminalSha256: x.input.lineage.terminal.sha256,
         priorAttempt: x.receipt.priorAttempt, originalAuthenticationRepeatedByTest: false } } : {}),
       ...(stage === 'touch' ? { inputProvenance: { kind: 'qualified_contact_owner_v1',
+        sourceIdentity: x.receipt.sourceIdentity, receiptSha256: x.input.lineage.receipt.sha256,
+        terminalSha256: x.input.lineage.terminal.sha256, configSha256: x.input.lineage.config.sha256,
+        inherited: x.receipt.inputProvenance, originalAuthenticationRepeatedByTest: false } } : {}),
+      ...(stage === 'response' ? { inputProvenance: { kind: 'qualified_touch_owner_v1',
         sourceIdentity: x.receipt.sourceIdentity, receiptSha256: x.input.lineage.receipt.sha256,
         terminalSha256: x.input.lineage.terminal.sha256, configSha256: x.input.lineage.config.sha256,
         inherited: x.receipt.inputProvenance, originalAuthenticationRepeatedByTest: false } } : {}),
