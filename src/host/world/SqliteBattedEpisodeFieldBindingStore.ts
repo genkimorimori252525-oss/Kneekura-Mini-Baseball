@@ -20,10 +20,12 @@ type Row = { source_id: string; source_version: string; binding_version: string;
 const id = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value === value.trim();
 const input = (raw: AcceptedBattedEpisodeFieldBinding, sourceId: string): AcceptedBattedEpisodeFieldBinding => {
   const source = cloneInert(raw);
+  const v2 = source?.version === 'batted_episode_field_binding_v2';
   if (!source || typeof source !== 'object' || Array.isArray(source)
-    || Object.keys(source).sort().join('|') !== ['sourceId', 'sourceVersion', 'version', 'responseSourceId', 'fieldCalibrationSourceId'].sort().join('|')
-    || source.sourceId !== sourceId || source.version !== 'batted_episode_field_binding_v1'
-    || ![sourceId, source.sourceVersion, source.responseSourceId, source.fieldCalibrationSourceId].every(id)) {
+    || Object.keys(source).sort().join('|') !== ['sourceId', 'sourceVersion', 'version', 'responseSourceId', 'fieldCalibrationSourceId', ...(v2 ? ['physicalActorSourceId'] : [])].sort().join('|')
+    || source.sourceId !== sourceId || source.version !== 'batted_episode_field_binding_v1' && !v2
+    || ![sourceId, source.sourceVersion, source.responseSourceId, source.fieldCalibrationSourceId].every(id)
+    || v2 && !id(source.physicalActorSourceId)) {
     throw new Error('invalid accepted episode field binding Source');
   }
   return freeze(source);
@@ -113,6 +115,14 @@ const bindingOwner = (db: Db) => {
       || world.source.previousContactSourceId !== null || world.result.kind !== 'airborne' || world.result.throughTick !== initial.tick
       || json(world.result.ball) !== json(initial) || response.result.kind !== 'airborne' || json(response.result.ball) !== json(initial)) {
       throw new Error('episode field binding requires the unadvanced original bat contact root');
+    }
+    // RED scaffold: v2's strict reference shape is admitted above, while this
+    // original participant guard remains unchanged until genuine RED is qualified.
+    if (source.version === 'batted_episode_field_binding_v2'
+      && (source.physicalActorSourceId !== actor.source.sourceId || !actor.origin.actualLiveReadiness
+        || old.flight.physicalPitch.frame.match.playId >= pitch.frame.match.playId
+        || actor.binding.playerId === oldActor.binding.playerId)) {
+      throw new Error('episode v2 requires its distinct current actual-live actor and earlier calibration play');
     }
     const bindings = [actor.binding, ...actor.defenderBindings], originalBindings = [oldActor.binding, ...oldActor.defenderBindings];
     if (bindings.length !== 10 || actor.defenderBindings.length !== 9 || new Set(bindings.map(binding => binding.playerId)).size !== 10
