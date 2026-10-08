@@ -1,7 +1,7 @@
 import { originalFoulMetadataValues as rawValues } from './OriginalFoulOwnershipMetadata';
 import { assertFoulTerminalPriorActivation, assertFoulTerminalPriorCensusScope, withFoulTerminalPriorLiveScope } from './FoulTerminalCompletionAncestryGuard';
 import { foulTerminalNextPlayReadinessFromSqlite } from './FoulTerminalNextPlayReadiness';
-import { foulTerminalNextPlayScopeRows, assertNoFoulTerminalNextPlay } from './FoulTerminalNextPlayGuard';
+import { foulTerminalNextPlayScopeRows, assertNoFoulTerminalNextPlay, readFoulTerminalNextPlayAdmission } from './FoulTerminalNextPlayGuard';
 import { battedWorldFieldGeometry } from './BattedWorldFieldRoot';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -250,17 +250,22 @@ export const readPriorActualLiveActivationReadiness = (db: ActualAdjudicationDb,
 };
 type FoulTerminalActivationReadiness = ReturnType<ReturnType<typeof foulTerminalNextPlayReadinessFromSqlite>['readHistorical']>;
 export const readPriorFoulTerminalActivationReadiness = (db: ActualAdjudicationDb, applicationId: string): FoulTerminalActivationReadiness | null => {
-  const ready = checkPriorActualLiveClosureCompleted(db,applicationId,true,false,true);
+  const {DatabaseSync}=createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  const frame=activeBattedWorldFieldReadFrame(db), paired=db instanceof DatabaseSync&&db.isTransaction&&frame!==null;
+  const ready = checkPriorActualLiveClosureCompleted(db,applicationId,true,false,true,paired);
+  if(paired&&(!(db as import('node:sqlite').DatabaseSync).isTransaction||activeBattedWorldFieldReadFrame(db)!==frame
+    ||db.prepare('PRAGMA query_only').get()!.query_only!==1))throw new Error('terminal activation readiness owned frame changed');
   return ready?.kind === 'foul_terminal_ready' ? ready : null;
 };
 const checkPriorActualLiveClosureCompleted = (db: ActualAdjudicationDb, applicationId: string | null, historical: boolean,
-  paired = false, terminalWanted = false): ActualLiveActivationReadiness | FoulTerminalActivationReadiness | null => {
+  paired = false, terminalWanted = false, terminalPaired = false): ActualLiveActivationReadiness | FoulTerminalActivationReadiness | null => {
   if (applicationId !== null && db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='applications'").get()) {
     const row = db.prepare('SELECT * FROM applications WHERE application_id=?').get(applicationId);
     if (row) { const result = JSON.parse(String(row.result_json));
       assertFoulTerminalPriorActivation(db,String(row.match_id),result?.receipt?.previousPlayId,result?.activation?.nextMatchState?.playId); }
   }
-  const terminal = assertNoFoulTerminalNextPlay(db, applicationId);
+  const terminalAdmission=terminalPaired&&applicationId!==null?readFoulTerminalNextPlayAdmission(db,applicationId):null;
+  const terminal = terminalAdmission?terminalAdmission.archive:assertNoFoulTerminalNextPlay(db, applicationId);
   if (applicationId === null || terminalWanted && terminal === null) return null;
   const installed = (name: string) => {
     const schema = db.prepare('SELECT type FROM main.sqlite_master WHERE name=?').all(name);
@@ -364,7 +369,8 @@ const checkPriorActualLiveClosureCompleted = (db: ActualAdjudicationDb, applicat
   const requireTerminalReady = (sourceId: string, expectedGame: string, expectedPlay: number) => {
     assertFoulTerminalPriorCensusScope(db,expectedGame,expectedPlay);
     const readiness = foulTerminalNextPlayReadinessFromSqlite(db);
-    const ready = !historical && terminal?.source.sourceId === sourceId ? readiness.read(sourceId) : readiness.readHistorical(sourceId);
+    const pairedTarget=historical&&terminalAdmission?.readiness?.reference.terminalSourceId===sourceId?terminalAdmission.readiness:null;
+    const ready = pairedTarget ?? (!historical && terminal?.source.sourceId === sourceId ? readiness.read(sourceId) : readiness.readHistorical(sourceId));
     if (ready.archive.proposal.gameId !== expectedGame || ready.archive.proposal.playId !== expectedPlay) throw new Error('prior terminal completion scope differs');
     if (terminal?.source.sourceId === sourceId) terminalTarget.ready = ready;
     return ready;

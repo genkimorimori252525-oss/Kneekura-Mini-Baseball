@@ -1,3 +1,5 @@
+import {foulTerminalNextPlayReadinessFromSqlite} from './FoulTerminalNextPlayReadiness';
+import {activeBattedWorldFieldReadFrame} from './SqliteBattedWorldFieldStore';
 import {foulApplicationOwnershipRows} from './ActualFoulTerminalApplicationOwnership';
 import { officialActivationApplicationOwnershipClaims, officialApplicationHasTerminalStageClaim, officialApplicationRawIdentities } from '../OfficialApplicationOwnershipFromSqlite';
 import { assertFoulTerminalPriorActivation } from './FoulTerminalCompletionAncestryGuard';
@@ -48,8 +50,9 @@ const completion = (db: Db, sourceId: string) => {
 /** Legacy name retained for existing callers. A surviving pending claim still
  * blocks; the sole exception is the exact fully authenticated completion and
  * its intentionally retained original pendingPostPlay in the application. */
-export const assertNoFoulTerminalNextPlay = (db: Db, applicationId: string | null): DurableFoulTerminalCompletedApplication | null => {
-  if (applicationId === null) return null;
+type HistoricalTerminalReadiness=ReturnType<ReturnType<typeof foulTerminalNextPlayReadinessFromSqlite>['readHistorical']>;
+const admission = (db: Db, applicationId: string | null, paired: boolean): Readonly<{archive:DurableFoulTerminalCompletedApplication|null;readiness:HistoricalTerminalReadiness|null}> => {
+  if (applicationId === null) return {archive:null,readiness:null};
   if (typeof applicationId !== 'string' || !applicationId || applicationId !== applicationId.trim()) {
     throw new Error('invalid terminal pending admission application identity');
   }
@@ -85,7 +88,8 @@ export const assertNoFoulTerminalNextPlay = (db: Db, applicationId: string | nul
   }
   if (selected && (selected.application_id !== applicationId || typeof selected.source_id !== 'string'
     || selected.status !== 'POST_PLAY_COMPLETED_CONTINUING')) reject();
-  const saved = selected ? completion(db,String(selected.source_id)) : null;
+  const readiness = paired && selected ? foulTerminalNextPlayReadinessFromSqlite(db).readHistorical(String(selected.source_id)) : null;
+  const saved = readiness?.archive ?? (selected ? completion(db,String(selected.source_id)) : null);
   if (saved && saved.source.applicationId !== applicationId) reject();
   for (const row of applications) {
     const doc = document(row,'result_json');
@@ -109,5 +113,14 @@ export const assertNoFoulTerminalNextPlay = (db: Db, applicationId: string | nul
       || values(db,doc,['completion','activation','applicationId']).includes(applicationId)
       || games.some(game => typeof game === 'string' && plays.some(play => typeof play === 'number' && scopes.get(game)?.has(play)))) reject();
   }
-  return saved;
+  return {archive:saved,readiness};
+};
+export const assertNoFoulTerminalNextPlay = (db: Db, applicationId: string | null): DurableFoulTerminalCompletedApplication | null => admission(db,applicationId,false).archive;
+/** Only this owned Native read may carry its completed target through the later
+ * scope census. No caller evidence, mutable cache or cross-operation handoff. */
+export const readFoulTerminalNextPlayAdmission = (db: Db, applicationId: string) => {
+  const {DatabaseSync}=createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  if(!(db instanceof DatabaseSync)||!db.isTransaction||activeBattedWorldFieldReadFrame(db)===null
+    ||db.prepare('PRAGMA query_only').get()!.query_only!==1)throw new Error('paired terminal admission requires an owned Native read frame');
+  return admission(db,applicationId,true);
 };
