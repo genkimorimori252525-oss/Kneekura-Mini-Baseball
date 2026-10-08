@@ -25,7 +25,7 @@ export class SqliteOfficialStateStore {
     this.database = new DatabaseSync(path);
     this.database.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;');
     const version = this.database.prepare('PRAGMA user_version').get() as { user_version: number };
-    if (version.user_version > 2) {
+    if (version.user_version > 3) {
       this.database.close();
       throw new Error('unsupported official state store schema version');
     }
@@ -50,7 +50,7 @@ export class SqliteOfficialStateStore {
         fixture_event_id TEXT NOT NULL UNIQUE,
         fixture_revision INTEGER NOT NULL CHECK(fixture_revision >= 0)
       );
-      PRAGMA user_version=2;
+      PRAGMA user_version=${version.user_version === 3 ? 3 : 2};
     `);
     this.writer = new SqliteOfficialStateWriter(this.database, this.evidenceGuard);
   }

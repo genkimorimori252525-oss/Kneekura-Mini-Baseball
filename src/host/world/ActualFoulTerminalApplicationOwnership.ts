@@ -173,7 +173,9 @@ const scoped = (row: Row, m: Metadata, scope: FoulTerminalApplicationScope,
     || m.value('proposal_json', ['applicationBody', 'matchId']).includes(s.gameId);
   return m.value('proposal_json', ['applicationBody', 'matchId']).includes(s.gameId)
       && m.value('proposal_json', ['applicationBody', 'match', 'playId']).includes(s.playId)
-    || game && m.value('result_json', ['official', 'receipt', 'previousPlayId']).includes(s.playId);
+    || game && m.value('result_json', ['official', 'receipt', 'previousPlayId']).includes(s.playId)
+    || m.value('result_json', ['official','pendingPostPlay','matchId']).includes(s.gameId)
+      && m.value('result_json', ['official','pendingPostPlay','previousPlayId']).includes(s.playId);
 };
 
 /** Rejection-only scope census. No selected row, including a result-bearing

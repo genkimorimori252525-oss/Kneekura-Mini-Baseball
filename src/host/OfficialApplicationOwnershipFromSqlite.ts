@@ -81,11 +81,14 @@ const rowIdentities = (table: Table, row: Row, m: Metadata): Identity => {
  * playId nor a next-play activation number is an original-PA ownership claim. */
 const previousPlay = (m: Metadata, column: string, prefix: Path, playId: number) =>
   m.value(column, [...prefix, 'receipt', 'previousPlayId']).includes(playId)
-  || m.value(column, [...prefix, 'activation', 'previousPlayId']).includes(playId);
+  || m.value(column, [...prefix, 'activation', 'previousPlayId']).includes(playId)
+  || m.value(column, [...prefix, 'pendingPostPlay', 'previousPlayId']).includes(playId);
 const activationClaim = (row: Row, m: Metadata, scope: FoulTerminalApplicationScope, known: Known) =>
   identityClaim(matchActivationIdentities(m), known)
   || row.match_id === scope.official.gameId && (previousPlay(m, 'activation_json', [], scope.official.playId)
-    || m.value('activation_json', ['previousPlayId']).includes(scope.official.playId));
+    || m.value('activation_json', ['previousPlayId']).includes(scope.official.playId))
+  || m.value('activation_json', ['pendingPostPlay','matchId']).includes(scope.official.gameId)
+    && m.value('activation_json', ['pendingPostPlay','previousPlayId']).includes(scope.official.playId);
 
 /** A matching Match row is baseline evidence, not by itself an application.
  * Its prior-PA activation is legitimate history. This predicate only exposes
@@ -95,7 +98,8 @@ export const officialMatchActivationClaims = (db: Db, row: Row, scope: FoulTermi
 
 const sharedApplicationScope = (row: Row, m: Metadata, scope: FoulTerminalApplicationScope) => {
   const s = scope.official;
-  const game = row.match_id === s.gameId || m.value('result_json', ['result', 'gameId']).includes(s.gameId);
+  const game = row.match_id === s.gameId || m.value('result_json', ['result', 'gameId']).includes(s.gameId)
+    || m.value('result_json', ['pendingPostPlay','matchId']).includes(s.gameId);
   return game && previousPlay(m, 'result_json', [], s.playId);
 };
 const closureScope = (row: Row, m: Metadata, scope: FoulTerminalApplicationScope) => {
@@ -124,7 +128,8 @@ const closureScope = (row: Row, m: Metadata, scope: FoulTerminalApplicationScope
   }
   const game = row.game_id === s.gameId || m.value('proposal_json', ['gameId']).includes(s.gameId)
     || m.value('proposal_json', ['application', 'matchId']).includes(s.gameId)
-    || m.value('result_json', ['gameId']).includes(s.gameId);
+    || m.value('result_json', ['gameId']).includes(s.gameId)
+    || m.value('result_json', ['official','pendingPostPlay','matchId']).includes(s.gameId);
   return game && (previousPlay(m, 'proposal_json', ['expectedOfficial'], s.playId)
     || previousPlay(m, 'result_json', ['official'], s.playId));
 };
@@ -150,6 +155,28 @@ export const officialApplicationOwnershipClaims = (db: Db, scope: FoulTerminalAp
       if (related && !expanded.has(entry)) { expanded.add(entry); grow(known, entry.ids); changed = true; }
     }
     if (!changed) return [...selected].map(({ table, row }) => ({ table, row })).sort((a, b) => {
+      const left = a.table + ':' + foulApplicationOwnershipRowKey(a.row), right = b.table + ':' + foulApplicationOwnershipRowKey(b.row);
+      return left < right ? -1 : left > right ? 1 : 0;
+    });
+  }
+};
+
+/** Rejection-only identity census when the terminal Source row is missing.
+ * Source and closure share this owner's ID; application IDs remain a distinct
+ * domain. A wholly unlinked orphan cannot be inferred from an unknown Source. */
+export const officialApplicationIdentityClaims = (db: Db, sourceId: string): OfficialApplicationOwnershipClaim[] => {
+  if (typeof sourceId !== 'string' || !sourceId || sourceId !== sourceId.trim()) throw new Error('invalid official application Source identity');
+  const known: Known = { sourceIds:new Set([sourceId]),applicationIds:new Set(),closureIds:new Set([sourceId]) };
+  const entries = tables.flatMap(table => foulApplicationOwnershipRows(db,table,columns[table]).map(row => ({
+    table,row,ids:rowIdentities(table,row,metadata(db,row)),
+  })));
+  const selected = new Set<typeof entries[number]>();
+  for (;;) {
+    let changed = false;
+    for (const entry of entries) if (!selected.has(entry) && identityClaim(entry.ids,known)) {
+      selected.add(entry); grow(known,entry.ids); changed = true;
+    }
+    if (!changed) return [...selected].map(({ table,row }) => ({ table,row })).sort((a,b) => {
       const left = a.table + ':' + foulApplicationOwnershipRowKey(a.row), right = b.table + ':' + foulApplicationOwnershipRowKey(b.row);
       return left < right ? -1 : left > right ? 1 : 0;
     });

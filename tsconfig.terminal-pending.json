@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "incremental": false
+  },
+  "include": [
+    "src/host/SqliteOfficialPendingNonLive.test.ts",
+    "src/host/world/ActualFoulTerminalPendingApplication.acceptance.ts",
+    "src/host/world/ActualFoulTerminalPendingMetadata.test.ts",
+    "src/host/world/ActualFoulTerminalPendingRollback.acceptance.ts",
+    "src/host/world/SqliteActualFoulTerminalApplicationRunner.ts"
+  ]
+}

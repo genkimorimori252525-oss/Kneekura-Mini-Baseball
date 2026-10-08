@@ -1,3 +1,4 @@
+import type { PersistOfficialPendingNonLiveResult } from '../OfficialPendingPostPlay';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
 import type { CanonicalPlateAppearanceTimeline } from '../../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
@@ -29,8 +30,8 @@ export type FoulTerminalParticipant = Readonly<{
 export type FoulTerminalBoundGamePolicy = Readonly<{
   seasonId: string; homeClubId: string; awayClubId: string; policy: GameCompletionPolicy; venueBinding: OfficialGameVenueBinding;
 }>;
-/** Prepared data only. No shared writer or accepted durable origin exists in
- * this slice, and this body does not grant a next-play execution right. */
+/** Immutable prepared data. The terminal owner adds its authenticated origin
+ * only when applying this body; it never grants a next-play execution right. */
 export type FoulTerminalApplicationBody = Readonly<{
   mode: 'non_live_pending_post_play_v1'; kind: 'non_live'; matchId: string; applicationId: string;
   expectedDurableRevision: number; match: CanonicalMatchState; timeline: CanonicalPlateAppearanceTimeline;
@@ -68,10 +69,18 @@ export type DurableFoulTerminalApplicationQueue = Readonly<{
   source: AcceptedFoulTerminalApplication; proposal: FoulTerminalApplicationProposal;
   status: 'QUEUED'; officialApplied: false; result: null;
 }>;
+export type FoulTerminalAppliedResult = Readonly<{
+  sourceId: string; official: PersistOfficialPendingNonLiveResult; acknowledgement: null;
+}>;
+export type DurableFoulTerminalAppliedPending = Readonly<{
+  source: AcceptedFoulTerminalApplication; proposal: FoulTerminalApplicationProposal;
+  status: 'OFFICIAL_APPLIED_PENDING_POST_PLAY'; officialApplied: true; result: FoulTerminalAppliedResult;
+}>;
+export type DurableFoulTerminalApplication = DurableFoulTerminalApplicationQueue | DurableFoulTerminalAppliedPending;
 export type SqliteActualFoulTerminalApplicationStore = Readonly<{
   evaluate(sourceId: string): FoulTerminalApplicationEvaluation;
-  enqueue(sourceId: string): FoulTerminalApplicationPending | DurableFoulTerminalApplicationQueue;
-  read(sourceId: string): DurableFoulTerminalApplicationQueue | null;
+  enqueue(sourceId: string): FoulTerminalApplicationPending | DurableFoulTerminalApplication;
+  read(sourceId: string): DurableFoulTerminalApplication | null;
   close(): void;
 }>;
 

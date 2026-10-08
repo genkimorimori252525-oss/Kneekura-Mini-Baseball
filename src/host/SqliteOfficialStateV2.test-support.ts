@@ -1,6 +1,5 @@
-import { officialStateSerialized as serialized, officialStateHash as hash } from './OfficialStateEncoding';
-import { deriveOfficialPendingNonLiveResult, officialPendingNonLiveInput, readOfficialPendingMatch,
-  type OfficialPendingPostPlay, type PersistOfficialPendingNonLiveInput, type PersistOfficialPendingNonLiveResult } from './OfficialPendingPostPlay';
+import { createHash } from 'node:crypto';
+import { createRequire } from 'node:module';
 import type { DatabaseSync as DatabaseSyncType } from 'node:sqlite';
 import {
   activateNextLiveBallPlay,
@@ -30,6 +29,8 @@ import {
 import type { CanonicalWorldSnapshot } from '../core/model/CanonicalWorldSnapshot';
 import type { CanonicalPlateAppearanceTimeline } from '../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 import type { SqliteEvidenceGuard } from './SqliteEvidenceGuard';
+
+const DatabaseSync = (createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite')).DatabaseSync;
 
 type CommonApplication = Readonly<{
   matchId: string;
@@ -83,7 +84,6 @@ export type PersistedMatch = Readonly<{
   activation: NextLiveBallPlayActivation | null;
   nextWorld: CanonicalWorldSnapshot | null;
   finalResult: OfficialGameResult | null;
-  pendingPostPlay?: OfficialPendingPostPlay;
 }>;
 
 type MatchRow = { durable_revision: number; state_json: string; activation_json: string | null };
@@ -122,6 +122,19 @@ const validateMatchState = (state: CanonicalMatchState): CanonicalMatchState => 
   if (new Set(occupied).size !== occupied.length) throw new Error('base runners must be unique');
   return state;
 };
+
+const stable = (value: unknown): unknown => {
+  if (Array.isArray(value)) return value.map(stable);
+  if (value !== null && typeof value === 'object') {
+    const result: Record<string, unknown> = Object.create(null);
+    for (const key of Object.keys(value).sort()) result[key] = stable((value as Record<string, unknown>)[key]);
+    return result;
+  }
+  return value;
+};
+
+const serialized = (value: unknown): string => JSON.stringify(stable(value));
+const hash = (value: unknown): string => createHash('sha256').update(serialized(value)).digest('hex');
 
 /** Pure preparation shared with source owners validating this writer's exact result. */
 export const deriveOfficialPlayResult = (
@@ -186,25 +199,80 @@ export const deriveOfficialFinalResult = (
   return Object.freeze({ receipt, result: boundary.result });
 };
 
-// Shared only with the legacy store's unchanged initializer/fixture methods.
-// One validator and one serialization implementation remain authoritative.
-export { nonEmpty as officialStateNonEmpty, revision as officialStateRevision,
-  validateMatchState as officialStateValidateMatchState, serialized as officialStateSerialized };
+export class SqliteOfficialStateStore {
+  private readonly database: DatabaseSyncType;
 
-type OfficialStateWriteOutcome<T> = Readonly<{ readResult(): T }>;
-type PreparedOfficialStateWrite<T> = Readonly<{ kind: 'write'; write(): OfficialStateWriteOutcome<T> }>;
-
-/** A connection-bound official writer, never a connection or transaction owner.
- * Preparation retains legacy retry/derivation order. A result from write() is
- * still uncommitted: only the caller may commit or roll back its transaction.
- * readResult() defers stored-result decoding so the legacy adapter can retain
- * COMMIT-before-decode on in-transaction retries. A borrowed caller can instead
- * decode and validate inside its owned transaction before deciding to commit.
- * The active-transaction check is a prerequisite, not an ownership proof. */
-export class SqliteOfficialStateWriter {
-  constructor(private readonly database: DatabaseSyncType,
-    private readonly evidenceGuard?: SqliteEvidenceGuard<PersistOfficialPlayInput | PersistOfficialFinalInput>) {
+  constructor(path: string, private readonly evidenceGuard?: SqliteEvidenceGuard<PersistOfficialPlayInput | PersistOfficialFinalInput>) {
     if (evidenceGuard !== undefined && typeof evidenceGuard !== 'function') throw new Error('invalid official application evidence guard');
+    nonEmpty(path, 'SQLite path');
+    this.database = new DatabaseSync(path);
+    this.database.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;');
+    const version = this.database.prepare('PRAGMA user_version').get() as { user_version: number };
+    if (version.user_version > 2) {
+      this.database.close();
+      throw new Error('unsupported official state store schema version');
+    }
+    this.database.exec(`
+      CREATE TABLE IF NOT EXISTS matches (
+        match_id TEXT PRIMARY KEY,
+        durable_revision INTEGER NOT NULL,
+        state_json TEXT NOT NULL,
+        activation_json TEXT
+      );
+      CREATE TABLE IF NOT EXISTS applications (
+        application_id TEXT PRIMARY KEY,
+        match_id TEXT NOT NULL REFERENCES matches(match_id),
+        closure_id TEXT NOT NULL,
+        request_hash TEXT NOT NULL,
+        result_json TEXT NOT NULL,
+        UNIQUE(match_id, closure_id)
+      );
+      CREATE TABLE IF NOT EXISTS official_fixtures (
+        game_id TEXT PRIMARY KEY,
+        venue_id TEXT NOT NULL,
+        fixture_event_id TEXT NOT NULL UNIQUE,
+        fixture_revision INTEGER NOT NULL CHECK(fixture_revision >= 0)
+      );
+      PRAGMA user_version=2;
+    `);
+  }
+
+  close(): void {
+    this.database.close();
+  }
+
+  /** Pins an official venue before the match is initialized or played. */
+  registerOfficialFixture(input: OfficialGameVenueBinding):
+  OfficialGameVenueBinding {
+    const fixture = cloneInert(input);
+    nonEmpty(fixture.gameId, 'fixture gameId');
+    nonEmpty(fixture.venueId, 'fixture venueId');
+    nonEmpty(fixture.fixtureEventId, 'fixture eventId');
+    revision(fixture.fixtureRevision, 'fixture revision');
+    this.database.exec('BEGIN IMMEDIATE');
+    try {
+      const existing = this.getOfficialFixture(fixture.gameId);
+      if (existing) {
+        if (serialized(existing) !== serialized(fixture)) {
+          throw new Error('official fixture is already pinned differently');
+        }
+        this.database.exec('COMMIT');
+        return existing;
+      }
+      if (this.getMatch(fixture.gameId) !== null) {
+        throw new Error('official fixture must precede match initialization');
+      }
+      this.database.prepare(`
+        INSERT INTO official_fixtures(game_id, venue_id,
+          fixture_event_id, fixture_revision) VALUES (?, ?, ?, ?)
+      `).run(fixture.gameId, fixture.venueId,
+        fixture.fixtureEventId, fixture.fixtureRevision);
+      this.database.exec('COMMIT');
+      return Object.freeze({ ...fixture });
+    } catch (error) {
+      this.rollback();
+      throw error;
+    }
   }
 
   getOfficialFixture(gameId: string): OfficialGameVenueBinding | null {
@@ -223,10 +291,6 @@ export class SqliteOfficialStateWriter {
       SELECT durable_revision, state_json, activation_json FROM matches WHERE match_id=?
     `).get(id) as MatchRow | undefined;
     if (row === undefined) return null;
-    const pending = readOfficialPendingMatch(this.database, id, row);
-    if (pending) return Object.freeze({ durableRevision: revision(row.durable_revision, 'stored durable revision'),
-      matchState: validateMatchState(pending.receipt.appliedMatchState), activation: null, nextWorld: null, finalResult: null,
-      pendingPostPlay: pending.pendingPostPlay });
     const storedActivation = row.activation_json === null
       ? null : cloneInert(JSON.parse(row.activation_json) as
         | NextLiveBallPlayActivation
@@ -261,8 +325,32 @@ export class SqliteOfficialStateWriter {
     });
   }
 
-  prepareActivation(input: PersistOfficialPlayInput):
-    Readonly<{ kind: 'retry'; result: PersistOfficialPlayResult }> | PreparedOfficialStateWrite<PersistOfficialPlayResult> {
+  initializeMatch(matchId: string, matchInput: CanonicalMatchState): PersistedMatch {
+    const id = nonEmpty(matchId, 'matchId');
+    const match = validateMatchState(cloneInert(matchInput));
+    this.database.exec('BEGIN IMMEDIATE');
+    try {
+      const existing = this.getMatch(id);
+      if (existing !== null) {
+        if (existing.durableRevision !== 0 || serialized(existing.matchState) !== serialized(match)) {
+          throw new Error('match is already initialized with different state');
+        }
+        this.database.exec('COMMIT');
+        return existing;
+      }
+      this.database.prepare(`
+        INSERT INTO matches(match_id, durable_revision, state_json, activation_json) VALUES (?, 0, ?, NULL)
+      `).run(id, serialized(match));
+      this.database.exec('COMMIT');
+      return Object.freeze({ durableRevision: 0, matchState: match,
+        activation: null, nextWorld: null, finalResult: null });
+    } catch (error) {
+      this.rollback();
+      throw error;
+    }
+  }
+
+  applyAndActivate(input: PersistOfficialPlayInput): PersistOfficialPlayResult {
     const request = cloneInert(input);
     nonEmpty(request.matchId, 'matchId');
     nonEmpty(request.applicationId, 'applicationId');
@@ -277,15 +365,15 @@ export class SqliteOfficialStateWriter {
       if (priorBeforePrepare.request_hash !== requestHash) {
         throw new Error('applicationId was already used for different input');
       }
-      return Object.freeze({ kind: 'retry', result: cloneInert(JSON.parse(priorBeforePrepare.result_json) as PersistOfficialPlayResult) });
+      return cloneInert(JSON.parse(priorBeforePrepare.result_json) as PersistOfficialPlayResult);
     }
     const currentBeforePrepare = this.getMatch(request.matchId);
-    if (currentBeforePrepare?.pendingPostPlay) throw new Error('match has pending post-play effects');
     if (currentBeforePrepare?.finalResult) {
       throw new Error('match is already finalized');
     }
     const result = deriveOfficialPlayResult(request, nextRevision);
-    return this.prepareWrite(() => {
+    this.database.exec('BEGIN IMMEDIATE');
+    try {
       const prior = this.database.prepare(`
         SELECT request_hash, result_json FROM applications WHERE application_id=?
       `).get(request.applicationId) as ApplicationRow | undefined;
@@ -294,7 +382,8 @@ export class SqliteOfficialStateWriter {
         if (prior.request_hash !== requestHash) {
           throw new Error('applicationId was already used for different input');
         }
-        return Object.freeze({ readResult: () => cloneInert(JSON.parse(prior.result_json) as PersistOfficialPlayResult) });
+        this.database.exec('COMMIT');
+        return cloneInert(JSON.parse(prior.result_json) as PersistOfficialPlayResult);
       }
       const closureId = result.receipt.closureId;
       this.evidenceGuard?.(this.database, request, 'write');
@@ -304,7 +393,6 @@ export class SqliteOfficialStateWriter {
       if (appliedClosure !== undefined) throw new Error('official closure was already applied');
       const current = this.getMatch(request.matchId);
       if (current === null) throw new Error('match is not initialized');
-      if (current.pendingPostPlay) throw new Error('match has pending post-play effects');
       if (current.finalResult !== null) throw new Error('match is already finalized');
       if (current.durableRevision !== expected) throw new Error('stale durable MatchState revision');
       if (serialized(current.matchState) !== serialized(request.match)) {
@@ -321,12 +409,15 @@ export class SqliteOfficialStateWriter {
         VALUES (?, ?, ?, ?, ?)
       `).run(request.applicationId, request.matchId, closureId, requestHash, serialized(result));
       this.evidenceGuard?.(this.database, request, 'written');
-      return Object.freeze({ readResult: () => result });
-    });
+      this.database.exec('COMMIT');
+      return result;
+    } catch (error) {
+      this.rollback();
+      throw error;
+    }
   }
 
-  prepareFinalization(input: PersistOfficialFinalInput):
-    PreparedOfficialStateWrite<PersistOfficialFinalResult> {
+  applyAndFinalize(input: PersistOfficialFinalInput): PersistOfficialFinalResult {
     const request = cloneInert(input);
     nonEmpty(request.matchId, 'matchId');
     nonEmpty(request.applicationId, 'applicationId');
@@ -334,7 +425,8 @@ export class SqliteOfficialStateWriter {
     const nextRevision = revision(expected + 1, 'next durable revision');
     const prepared = deriveOfficialFinalResult(request, nextRevision);
     const requestHash = hash({ kind: 'game_final', request });
-    return this.prepareWrite(() => {
+    this.database.exec('BEGIN IMMEDIATE');
+    try {
       const prior = this.database.prepare(`
         SELECT request_hash, result_json FROM applications WHERE application_id=?
       `).get(request.applicationId) as ApplicationRow | undefined;
@@ -343,12 +435,12 @@ export class SqliteOfficialStateWriter {
         if (prior.request_hash !== requestHash) {
           throw new Error('applicationId was already used for different input');
         }
-        return Object.freeze({ readResult: () => cloneInert(JSON.parse(prior.result_json) as PersistOfficialFinalResult) });
+        this.database.exec('COMMIT');
+        return cloneInert(JSON.parse(prior.result_json) as PersistOfficialFinalResult);
       }
       this.evidenceGuard?.(this.database, request, 'write');
       const current = this.getMatch(request.matchId);
       if (current === null) throw new Error('match is not initialized');
-      if (current.pendingPostPlay) throw new Error('match has pending post-play effects');
       if (current.finalResult !== null) throw new Error('match is already finalized');
       const fixture = this.getOfficialFixture(request.matchId);
       if ((fixture === null) !== (request.game.venueBinding === undefined)
@@ -376,65 +468,15 @@ export class SqliteOfficialStateWriter {
       `).run(request.applicationId, request.matchId,
         prepared.receipt.closureId, requestHash, serialized(prepared));
       this.evidenceGuard?.(this.database, request, 'written');
-      return Object.freeze({ readResult: () => prepared });
-    });
+      this.database.exec('COMMIT');
+      return prepared;
+    } catch (error) {
+      this.rollback();
+      throw error;
+    }
   }
 
-  /** Persists official truth without inventing a next-play setup or right.
-   * The caller owns source authentication, companion stage and transaction. */
-  preparePendingNonLive(input: PersistOfficialPendingNonLiveInput): PreparedOfficialStateWrite<PersistOfficialPendingNonLiveResult> {
-    const request = officialPendingNonLiveInput(input);
-    const expected = revision(request.expectedDurableRevision, 'expectedDurableRevision');
-    const nextRevision = revision(expected + 1, 'next durable revision');
-    const prepared = deriveOfficialPendingNonLiveResult(request, nextRevision), requestHash = hash(request);
-    return this.prepareWrite(() => {
-      if (this.database.prepare('PRAGMA main.user_version').get()!.user_version !== 3) {
-        throw new Error('pending official state requires schema version 3');
-      }
-      const prior = this.database.prepare('SELECT * FROM main.applications WHERE application_id=?').get(request.applicationId);
-      if (prior) {
-        if (prior.request_hash !== requestHash) throw new Error('applicationId was already used for different input');
-        if (prior.application_id !== request.applicationId || prior.match_id !== request.matchId
-          || prior.closure_id !== prepared.receipt.closureId || prior.result_json !== serialized(prepared)) {
-          throw new Error('pending official result mirror differs');
-        }
-        const current = this.getMatch(request.matchId);
-        if (!current?.pendingPostPlay || current.durableRevision !== nextRevision
-          || serialized(current.matchState) !== serialized(prepared.receipt.appliedMatchState)
-          || serialized(current.pendingPostPlay) !== serialized(prepared.pendingPostPlay)) {
-          throw new Error('pending official Match mirror differs');
-        }
-        return Object.freeze({ readResult: () => prepared });
-      }
-      const current = this.getMatch(request.matchId);
-      if (!current) throw new Error('match is not initialized');
-      if (current.pendingPostPlay) throw new Error('match has pending post-play effects');
-      if (current.finalResult) throw new Error('match is already finalized');
-      if (current.durableRevision !== expected) throw new Error('stale durable MatchState revision');
-      if (serialized(current.matchState) !== serialized(request.match)) throw new Error('prior MatchState does not match durable state');
-      if (request.game !== null && serialized(this.getOfficialFixture(request.matchId)) !== serialized(request.game.venueBinding)) {
-        throw new Error('official game venue must match pre-game durable fixture');
-      }
-      if (this.database.prepare('SELECT application_id FROM main.applications WHERE match_id=? AND closure_id=?')
-        .get(request.matchId, prepared.receipt.closureId)) throw new Error('official closure was already applied');
-      const update = this.database.prepare('UPDATE main.matches SET durable_revision=?,state_json=?,activation_json=? WHERE match_id=? AND durable_revision=?')
-        .run(nextRevision, serialized(prepared.receipt.appliedMatchState), serialized({ pendingPostPlay: prepared.pendingPostPlay }), request.matchId, expected);
-      if (update.changes !== 1) throw new Error('stale durable MatchState revision');
-      this.database.prepare('INSERT INTO main.applications(application_id,match_id,closure_id,request_hash,result_json) VALUES(?,?,?,?,?)')
-        .run(request.applicationId, request.matchId, prepared.receipt.closureId, requestHash, serialized(prepared));
-      return Object.freeze({ readResult: () => prepared });
-    });
-  }
-
-  /** Do not expose the captured request/result or allow a returned result to
-   * become the input to a second write after caller rollback. */
-  private prepareWrite<T>(write: () => OfficialStateWriteOutcome<T>): PreparedOfficialStateWrite<T> {
-    let used = false;
-    return Object.freeze({ kind: 'write', write: () => {
-      if (!this.database.isTransaction) throw new Error('official state writer requires a caller-owned transaction');
-      if (used) throw new Error('official state prepared write was already used');
-      used = true;
-      return write();
-    } });
+  private rollback(): void {
+    try { this.database.exec('ROLLBACK'); } catch { /* Transaction may already be closed. */ }
   }
 }

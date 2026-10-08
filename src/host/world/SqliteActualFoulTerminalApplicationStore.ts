@@ -5,12 +5,12 @@ import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicy
 import { actorJson as json, actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { actualFoulTerminalApplicationInput as input, type AcceptedFoulTerminalApplication,
   type FoulTerminalApplicationAuthority, type SqliteActualFoulTerminalApplicationStore,
-  type DurableFoulTerminalApplicationQueue } from './ActualFoulTerminalApplication';
+  type DurableFoulTerminalApplication } from './ActualFoulTerminalApplication';
 import { foulTerminalApplicationEvidenceFromSqlite, foulTerminalApplicationTableSql,
   assertFoulTerminalApplicationStorage } from './ActualFoulTerminalApplicationEvidenceFromSqlite';
 
-/** Immutable queue admission only. This owner never creates a shared writer,
- * applies the Match, acknowledges E, or grants a next-play execution right. */
+/** Immutable queue admission and authenticated historical stage reads. This
+ * opener never applies the Match, acknowledges E or grants a next-play right. */
 export const openSqliteActualFoulTerminalApplicationStore = (path: string,
   authority?: FoulTerminalApplicationAuthority): SqliteActualFoulTerminalApplicationStore => {
   if (!id(path) || authority !== undefined && typeof authority.readAcceptedApplication !== 'function') {
@@ -96,7 +96,7 @@ export const openSqliteActualFoulTerminalApplicationStore = (path: string,
     check();
     return raw === null ? null : input(raw,sourceId);
   };
-  const matchSource = (queued: DurableFoulTerminalApplicationQueue, source: AcceptedFoulTerminalApplication | null) => {
+  const matchSource = (queued: DurableFoulTerminalApplication, source: AcceptedFoulTerminalApplication | null) => {
     if (source !== null) same(source,queued.source,'foul terminal queue Source is frozen differently');
   };
   const observe = (sourceId: string, source: AcceptedFoulTerminalApplication | null) => {
@@ -115,7 +115,7 @@ export const openSqliteActualFoulTerminalApplicationStore = (path: string,
     return { source,state };
   };
   const retry = (sourceId: string, source: AcceptedFoulTerminalApplication | null,
-    expected: DurableFoulTerminalApplicationQueue): DurableFoulTerminalApplicationQueue => idleRead(() => {
+    expected: DurableFoulTerminalApplication): DurableFoulTerminalApplication => idleRead(() => {
     const saved = owner.read(sourceId);
     if (!saved) throw new Error('foul terminal queue disappeared during historical retry');
     matchSource(saved,source);
