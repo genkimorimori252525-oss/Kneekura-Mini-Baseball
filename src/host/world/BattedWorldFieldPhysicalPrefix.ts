@@ -1,3 +1,4 @@
+import { battedWorldFieldGeometry, battedWorldFieldRootIdentity } from './BattedWorldFieldRoot';
 export { battedWorldOriginalContactPrefix, type BattedWorldOriginalContactPrefix } from './BattedWorldOriginalContactPrefix';
 import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
 import { createOwnedScheduledMotionDependencyEncoding, createOwnedScheduledMotionPlanEncoding } from './OwnedScheduledMotionDependencyEncoding';
@@ -75,13 +76,13 @@ const projectPhysicalPrefix = (input: PrefixInput, reference: (snapshot: Durable
   const base = input.baseField, world = base.response.touch.worldContact, flight = world.flight;
   assertSupportedBattedWorldConsumer(world, 'field_prefix');
   const initial = flight.flight.initialBall, originTick = initial.tick, p = flight.source.execution.ballFlightParameters;
-  const batter = flight.physicalPitch.frame.batterActor, geometry = base.geometry.geometry;
+  const batter = flight.physicalPitch.frame.batterActor, geometry = battedWorldFieldGeometry(base);
   if (!Number.isSafeInteger(base.revision) || base.revision < 1 || input.fields.length !== base.revision
     || json(input.fields.at(-1)) !== json(base)) throw new Error('actual field complete own prefix differs');
   if (!batter || flight.source.searchDurationTicks !== 0 || world.source.previousContactSourceId !== null
     || world.result.kind !== 'airborne' || world.result.throughTick !== originTick || json(world.result.ball) !== json(initial)
     || base.response.result.kind !== 'airborne' || json(base.response.result.ball) !== json(initial)
-    || base.geometry.baseGeometry.source.flightSourceId !== flight.source.sourceId || json(base.geometry.baseGeometry.flight) !== json(flight)
+    || base.rootKind !== 'episode_field_binding_v1' && (base.geometry.baseGeometry.source.flightSourceId !== flight.source.sourceId || json(base.geometry.baseGeometry.flight) !== json(flight))
     || base.geometry.source.baseGeometrySourceId !== base.geometry.baseGeometry.source.sourceId
     || json(geometry.baseGeometry) !== json(base.geometry.baseGeometry.geometry)
     || json(createBattedWorldFieldGeometry({ baseGeometry: geometry.baseGeometry, baseModels: base.geometry.source.baseModels })) !== json(geometry)
@@ -238,6 +239,9 @@ const projectPhysicalPrefix = (input: PrefixInput, reference: (snapshot: Durable
   };
   const sources = new Set<string>();
   for (const [index, value] of input.fields.entries()) {
+    if (battedWorldFieldRootIdentity(value) !== battedWorldFieldRootIdentity(base)
+      || json(value.episodeFieldBinding ?? null) !== json(base.episodeFieldBinding ?? null)
+      || json(battedWorldFieldGeometry(value)) !== json(geometry)) throw new Error('actual field prefix binding mode or geometry differs');
     if (value.revision !== index + 1 || !id(value.source.sourceId) || sources.has(value.source.sourceId)
       || value.source.previousFieldSourceId !== (input.fields[index - 1]?.source.sourceId ?? null)
       || value.source.responseSourceId !== base.response.source.sourceId || value.source.geometrySourceId !== base.geometry.source.sourceId

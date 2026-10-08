@@ -1,3 +1,4 @@
+import { battedWorldFieldGeometry } from './BattedWorldFieldRoot';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { actualLivePlayReadinessFromSqlite } from './ActualLivePlayReadinessFromSqlite';
@@ -112,7 +113,7 @@ export const deriveActualLivePlayClosureProposal = (db: ActualAdjudicationDb, ra
     throw new Error('actual live closure next defender Person membership differs');
   }
   for (const base of ['first', 'second', 'third'] as const) {
-    if (setup && json(setup.baseCenters[base]) !== json(baseField.geometry.geometry.baseGeometry.bases[base].region.center)) throw new Error('actual live closure next base geometry differs');
+    if (setup && json(setup.baseCenters[base]) !== json(battedWorldFieldGeometry(baseField).baseGeometry.bases[base].region.center)) throw new Error('actual live closure next base geometry differs');
     const playerId = setup ? next.bases[base] : null;
     if (playerId !== null && !actors.some(a => a.binding.playerId === playerId && a.binding.side !== side)) throw new Error('actual live closure next runner lacks original Person/Club binding');
   }

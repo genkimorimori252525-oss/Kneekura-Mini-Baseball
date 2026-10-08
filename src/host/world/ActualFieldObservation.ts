@@ -1,3 +1,4 @@
+import { battedWorldFieldGeometry } from './BattedWorldFieldRoot';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { BallWorldMoment } from '../../core/sim/ball/BallWorldContinuation';
 import type { CanonicalWholePlayHistory } from '../../core/sim/plateAppearance/CanonicalWholePlayHistory';
@@ -80,6 +81,6 @@ export const sampleActualFieldObservation = (source: AcceptedActualFieldObservat
   const at = { originTick: history.horizon.originTick, elapsedSeconds: history.horizon.elapsedSeconds, tick: history.horizon.ball.tick };
   return sampleExecutedFieldObservation(source, { at, ticksPerSecond: history.origin.ticksPerSecond, matchSeed: frame.matchSeed, playId: frame.match.playId,
     playerIds: [history.origin.batterRunnerId, ...history.origin.defenderIds], actors: physical.segments.at(-1)!.actors,
-    surfaces: prefix.baseField.response.touch.worldContact.model.surfaces, bases: Object.values(prefix.baseField.geometry.geometry.bases),
+    surfaces: prefix.baseField.response.touch.worldContact.model.surfaces, bases: Object.values(battedWorldFieldGeometry(prefix.baseField).bases),
     ballMoment: actualBattedWorldObservationMoment(history) }, model, previous, communicationEvidence);
 };
