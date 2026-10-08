@@ -1,6 +1,6 @@
 {
   "schema": "terminal_workload_sanitized_evidence_v1",
-  "productionCommit": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+  "productionCommit": "fde3d6f225b3ed5292d3bf733ee907b92e230f87",
   "supportCommit": "5a9f85544352e64326068dd66df99283fa203c86",
   "productionFiles": {
     "src/host/world/ActualFoulTerminalRoleWorkloadAssessment.ts": "ddd02b305b255d5b8ca2cf42796c202884f68be8a8159c6fd0e3555aa5c213f3",
@@ -9,7 +9,7 @@
     "src/host/world/ActualFoulTerminalRoleWorkloadStorage.ts": "d0f15f4b1d4d13c5e15f08123a742432007ffcec2023bf511b2976b0f74ddbf1",
     "src/host/world/ActualRoleWorkloadChargeGuard.ts": "1737a0d2065f36a7fc4f541e871db16b2f88ea7977186d1e2f6ad9e3c7e60714",
     "src/host/world/FoulTerminalWorkloadTransaction.ts": "ad48d6f68e134f7e9f74f531824093c2d22c56f01ced4ad57a7e196603165f59",
-    "src/host/world/SqliteActualFoulTerminalRoleWorkloadStore.ts": "2f023a960a450220512094e0de0d923398275f07124a531e47b5e6dffe0aec95",
+    "src/host/world/SqliteActualFoulTerminalRoleWorkloadStore.ts": "e4ffb11176a35b050809d840868d56a40457a44c7dcf256f6e41d473243f22bf",
     "src/host/world/SqlitePlayerWorkloadRecoveryStore.ts": "d4f9fd88762652722a1feedde09d75654440ebc226739829963092d305dcdf37"
   },
   "stages": [
@@ -22,8 +22,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": false,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "b0cc89490df3b7c76c7f9367073e875db91ec79cf0bf8e5cb96a8f3730ea33c3",
       "configSha256": "be30e39704acdec1acc6d228f24b77e08a4811799c55d1a30dedff2a45f13d39",
       "reportSha256": null,
@@ -55,8 +55,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": false,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "01753ba2a12a2ad04e41a505138d38788b7343ee62a0d370031fc3406aa8064d",
       "configSha256": "45ecfcbd6c8240939e247d9d22175e98675bcde87aea338244af7e063d8384e0",
       "reportSha256": "81697d63191006f3b4f03448b119702ee7b4bb2e5bf3e91f342dd5f8cbd441d4",
@@ -87,7 +87,7 @@
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
       "finalProductionBytesMatch": false,
-      "finalSupportBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "f61c3da12a619ecbac29912801cae460f2b70807c0c329ba8ddf91555355b95f",
       "configSha256": "63120b7b9ad675d2dd263691811ccd5f06fee970db99b4666ffd91998f0fd342",
       "reportSha256": "541e8f111e5e0964a15eebfa171548fa0c46acbc54a016959220a3ff1a0999af",
@@ -112,7 +112,7 @@
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
       "finalProductionBytesMatch": false,
-      "finalSupportBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "f61c3da12a619ecbac29912801cae460f2b70807c0c329ba8ddf91555355b95f",
       "configSha256": "a29b8db6bd35824dd009cc92940e332e03822972814641395915f96603d2af7f",
       "reportSha256": null,
@@ -145,7 +145,7 @@
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
       "finalProductionBytesMatch": false,
-      "finalSupportBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "0dfefff495d3aff46e2cdd319f304f4a920830d6d150c7b44547fb173ba7e76a",
       "configSha256": "b9102195dc3171fdf1d605a55c398de412321542df865b0d5074e1d0441101f2",
       "reportSha256": "3d6da440ddc6b82369c60aa793cdbc720631778720a4456ba7918abd6bd3774f",
@@ -167,6 +167,769 @@
       "wholeProjectPassed": false
     },
     {
+      "stage": "terminal-workload-deep-a-deep-01",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "5a9f85544352e64326068dd66df99283fa203c86",
+        "src": "64f3a72b5af62bdda51fcd4842e213ae5b92e612",
+        "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+        "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
+      },
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
+      "sourceSnapshotSha256": "03ab9188696ecf9edc27b0a2c3d008347127fbccc6c785d2a8a406530982215f",
+      "configSha256": "c1c3d19d9b75c52e5f1f5d0f267fb697b29b98cf46b988ad948c4e4d4812526c",
+      "reportSha256": "6d9646cc67ae47a3a0ee607a0306f2fd47a29574cb65cbe59de5ac28a6140b81",
+      "passedCases": 1,
+      "expectedFailedCases": 0,
+      "skippedCount": 27,
+      "selectedCases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadIntegrity.acceptance.ts",
+          "name": "W06 terminal freeze rejects a surviving competing legacy pitch charge",
+          "expectedStatus": "passed"
+        }
+      ],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 605164,
+      "wholeProjectPassed": false
+    },
+    {
+      "stage": "terminal-workload-deep-a-deep-04",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "5a9f85544352e64326068dd66df99283fa203c86",
+        "src": "64f3a72b5af62bdda51fcd4842e213ae5b92e612",
+        "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+        "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
+      },
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
+      "sourceSnapshotSha256": "b1ec26b464396562a72456b256c1a461c9b106851787f599b9bf2e5f77f10ee0",
+      "configSha256": "a40e861b72850cef3d6ac4370a9584fad8488eee9596608d27ecc3631b860b51",
+      "reportSha256": "2493029abbdd2e668309b28b214093e7a7d55d2ba1063e61069015b3ff479e9d",
+      "passedCases": 1,
+      "expectedFailedCases": 0,
+      "skippedCount": 27,
+      "selectedCases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadIntegrity.acceptance.ts",
+          "name": "W06 terminal retry rejects a surviving competing legacy pitch charge",
+          "expectedStatus": "passed"
+        }
+      ],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 593740,
+      "wholeProjectPassed": false
+    },
+    {
+      "stage": "terminal-workload-deep-a-deep-07",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "5a9f85544352e64326068dd66df99283fa203c86",
+        "src": "64f3a72b5af62bdda51fcd4842e213ae5b92e612",
+        "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+        "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
+      },
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
+      "sourceSnapshotSha256": "2c84f449f19ddc88bd70cda39161c0434cec79a882ea48bb4479086c68d2aab9",
+      "configSha256": "4e616be47c281aea1d42b9f89e1f095e6cc0a066f80daab66e4524203e3e72d5",
+      "reportSha256": "df64160f3e352b3a29cbc1291c3c660d16054c47f47ca174b91c78142efcbd9e",
+      "passedCases": 1,
+      "expectedFailedCases": 0,
+      "skippedCount": 8,
+      "selectedCases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadRollback.acceptance.ts",
+          "name": "W03 activity INSERT reauthenticates the original terminal receipt on its writer connection",
+          "expectedStatus": "passed"
+        }
+      ],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 594164,
+      "wholeProjectPassed": false
+    },
+    {
+      "stage": "terminal-workload-deep-a-deep-10",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "5a9f85544352e64326068dd66df99283fa203c86",
+        "src": "64f3a72b5af62bdda51fcd4842e213ae5b92e612",
+        "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+        "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
+      },
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
+      "sourceSnapshotSha256": "e414e2ca38aa9518863b54ffc00375f0460380ba0c10f6e0310043c06ea6d7fc",
+      "configSha256": "a8df7793efe2e5da8899d992c9b0db367c47c67b2388c8d41b4ebcc2ca2ba1c9",
+      "reportSha256": "51f26399a00a4589d188ca92828bbebdb6f69af8ce7929f565f0ef5e46de24ab",
+      "passedCases": 1,
+      "expectedFailedCases": 0,
+      "skippedCount": 8,
+      "selectedCases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadRollback.acceptance.ts",
+          "name": "W03 charge 0 rolls back another participant mutation and resumes its exact partial prefix",
+          "expectedStatus": "passed"
+        }
+      ],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 592164,
+      "wholeProjectPassed": false
+    },
+    {
+      "stage": "terminal-workload-deep-b-deep-02",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "5a9f85544352e64326068dd66df99283fa203c86",
+        "src": "64f3a72b5af62bdda51fcd4842e213ae5b92e612",
+        "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+        "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
+      },
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
+      "sourceSnapshotSha256": "667498b33e9f4a60958d4ede1d2e44e80d46bba90b291ef0ff09546ff852e8fe",
+      "configSha256": "69e45746c3760216b89b865397bebbed222735a31751df47774b1c0d68cff059",
+      "reportSha256": "a6068dd4d9d569f589dbbec933b170ffd1fa8fd1cb98a56f01f48976a6409dff",
+      "passedCases": 1,
+      "expectedFailedCases": 0,
+      "skippedCount": 27,
+      "selectedCases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadIntegrity.acceptance.ts",
+          "name": "W06 terminal charge rejects a surviving competing legacy pitch charge",
+          "expectedStatus": "passed"
+        }
+      ],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 598584,
+      "wholeProjectPassed": false
+    },
+    {
+      "stage": "terminal-workload-deep-b-deep-05",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "5a9f85544352e64326068dd66df99283fa203c86",
+        "src": "64f3a72b5af62bdda51fcd4842e213ae5b92e612",
+        "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+        "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
+      },
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
+      "sourceSnapshotSha256": "df8154660d54abf407b6872c1407cbccaaa4bc8e56106365421e98be5cb5f24a",
+      "configSha256": "2f472013b4b7bf9a07be48afb997eb731480636bce1608db6a50a51ad36eaab9",
+      "reportSha256": "7bdb397388e40aa7ab4db7f6694028bbbddf2e6f633879cb12eb0dfbc24570cd",
+      "passedCases": 1,
+      "expectedFailedCases": 0,
+      "skippedCount": 27,
+      "selectedCases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadIntegrity.acceptance.ts",
+          "name": "W05 frozen assessment missing blocks replay and charging",
+          "expectedStatus": "passed"
+        }
+      ],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 601584,
+      "wholeProjectPassed": false
+    },
+    {
+      "stage": "terminal-workload-deep-b-deep-08",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "5a9f85544352e64326068dd66df99283fa203c86",
+        "src": "64f3a72b5af62bdda51fcd4842e213ae5b92e612",
+        "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+        "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
+      },
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
+      "sourceSnapshotSha256": "966ddb9a6bf9319a208981b5acf221a4878f5fa388f4696c85c223923bf1b609",
+      "configSha256": "0060c6e44ab3fc677dddd5e93b997c5d323e97642a1ce18159f8db0e61d6f22d",
+      "reportSha256": "2d1f48443d50cc7e3618a6d2a3c921455d4586e4faa7ed2b17c6e363576f0080",
+      "passedCases": 1,
+      "expectedFailedCases": 0,
+      "skippedCount": 8,
+      "selectedCases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadRollback.acceptance.ts",
+          "name": "W04 rejects a real peer commit immediately before the first charge acquires its transaction",
+          "expectedStatus": "passed"
+        }
+      ],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 597808,
+      "wholeProjectPassed": false
+    },
+    {
+      "stage": "terminal-workload-deep-b-deep-11",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "5a9f85544352e64326068dd66df99283fa203c86",
+        "src": "64f3a72b5af62bdda51fcd4842e213ae5b92e612",
+        "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+        "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
+      },
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
+      "sourceSnapshotSha256": "43751a8de93c69c280e5e166df8b65572c59531826e3aa35ae634c7678b80d53",
+      "configSha256": "653b1622cd3558333c014e39940c6708fb6b8bc5ef947f6211613af83fb07f1d",
+      "reportSha256": "c3a07e6affb74e0861c0cf8b1ef154ebcdb7d37d2e0de95fc8c10e57af1b37ac",
+      "passedCases": 1,
+      "expectedFailedCases": 0,
+      "skippedCount": 8,
+      "selectedCases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadRollback.acceptance.ts",
+          "name": "W03 charge 1 rolls back another participant mutation and resumes its exact partial prefix",
+          "expectedStatus": "passed"
+        }
+      ],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 601880,
+      "wholeProjectPassed": false
+    },
+    {
+      "stage": "terminal-workload-deep-c-deep-03",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "5a9f85544352e64326068dd66df99283fa203c86",
+        "src": "64f3a72b5af62bdda51fcd4842e213ae5b92e612",
+        "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+        "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
+      },
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
+      "sourceSnapshotSha256": "ff5e1063d24347b6e932b35b680f713a04a8fe077aab71b364fa6c990fe2d6df",
+      "configSha256": "70f834b8c3e4e6e028f9ad881958e523d28b942f39b029123709322cd05b2f51",
+      "reportSha256": "d012261f013f19cd6c35c493364b6fd73e0c0f8c5b8e043bc7535d6c2816d0bf",
+      "passedCases": 1,
+      "expectedFailedCases": 0,
+      "skippedCount": 27,
+      "selectedCases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadIntegrity.acceptance.ts",
+          "name": "W06 terminal read rejects a surviving competing legacy pitch charge",
+          "expectedStatus": "passed"
+        }
+      ],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 591056,
+      "wholeProjectPassed": false
+    },
+    {
+      "stage": "terminal-workload-deep-c-deep-06",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "5a9f85544352e64326068dd66df99283fa203c86",
+        "src": "64f3a72b5af62bdda51fcd4842e213ae5b92e612",
+        "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+        "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
+      },
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
+      "sourceSnapshotSha256": "f8be43a33c1d04d991a71fe72e9175a7bacd0d577f4bc5cedf35064fd74780f2",
+      "configSha256": "a3baa66ffa57e8a36e42f3b70dfa99f8aa489476decb5d36ea89b2b80a2e2c74",
+      "reportSha256": "a7d1a94021e376902331abfd067c40a3e4a7bc3f614b83cada879eac0b5c6021",
+      "passedCases": 1,
+      "expectedFailedCases": 0,
+      "skippedCount": 27,
+      "selectedCases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadIntegrity.acceptance.ts",
+          "name": "W05 frozen assessment changed_hash blocks replay and charging",
+          "expectedStatus": "passed"
+        }
+      ],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 599004,
+      "wholeProjectPassed": false
+    },
+    {
+      "stage": "terminal-workload-deep-c-deep-09",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "5a9f85544352e64326068dd66df99283fa203c86",
+        "src": "64f3a72b5af62bdda51fcd4842e213ae5b92e612",
+        "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+        "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
+      },
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
+      "sourceSnapshotSha256": "20cbc67882d43c7d207633e75da079b09cf3a89320f7b0d8e53b53c6d1743c48",
+      "configSha256": "8bdd861e029b5d6996c24220518bd3b8e56fbdd9cd68861a90731e6bd2168b20",
+      "reportSha256": "024c09184aca9395e73c7c1c47dad66d1358793ed1886753ceaa35291cbb17d2",
+      "passedCases": 1,
+      "expectedFailedCases": 0,
+      "skippedCount": 8,
+      "selectedCases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadRollback.acceptance.ts",
+          "name": "W03 prerequisite freeze INSERT corruption rolls back the entire owned write",
+          "expectedStatus": "passed"
+        }
+      ],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 598368,
+      "wholeProjectPassed": false
+    },
+    {
+      "stage": "terminal-workload-deep-c-deep-12",
+      "status": "failed",
+      "reportedSourceIdentity": {
+        "head": "5a9f85544352e64326068dd66df99283fa203c86",
+        "src": "64f3a72b5af62bdda51fcd4842e213ae5b92e612",
+        "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+        "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
+      },
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
+      "sourceSnapshotSha256": "2d9f42b73b597e597fe3c6a2a85025676cab98bf2e13cdba5cfb5daf0261f408",
+      "configSha256": "265f889ca4c6d860bfd38d5bdfd7c2de5c233df64d40412a0e7e19b4aadcc8a8",
+      "reportSha256": null,
+      "passedCases": 0,
+      "expectedFailedCases": 0,
+      "skippedCount": 0,
+      "selectedCases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadRollback.acceptance.ts",
+          "name": "W03 charge 9 rolls back another participant mutation and resumes its exact partial prefix",
+          "expectedStatus": "passed"
+        }
+      ],
+      "originalChildExit": -15,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [
+        "execute",
+        "result"
+      ],
+      "peakRssKiB": 600892,
+      "wholeProjectPassed": false
+    },
+    {
+      "stage": "terminal-workload-final-compatibility",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "fde3d6f225b3ed5292d3bf733ee907b92e230f87",
+        "src": "238d98059041044d65f4eecfe92b2de675824279"
+      },
+      "finalProductionBytesMatch": true,
+      "readyCheckpointSupportBytesMatch": false,
+      "sourceSnapshotSha256": "c6e09c24d7fcf1d64947694ddf457449dd9ea85269862f6fea1e4a479efb32ff",
+      "configSha256": "dac79a24e10aac258d4edf609628efe1a1bd2ab00264ace07dfbb2a5f7765a08",
+      "reportSha256": "c8123c500e10ce3a8d1a6a9d68d3ce687012140795f89fe0d5a74b8dc5fedf60",
+      "passedCases": 45,
+      "expectedFailedCases": 0,
+      "skippedCount": 0,
+      "selectedCases": [
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "keeps both guards read-only and permits databases without the other owner",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "discovers actor binding mirrors without parsing unrelated assessment payload",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "accepts a typed structural scope without binding unrelated snapshot properties",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "does not reinterpret string-encoded ownership containers",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "blocks legacy acceptance before persisting its policy or Source once total-play ownership exists",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "blocks legacy retry and offline read if a total-play owner later claims the same play/player",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "rolls back a competing total-play claim inserted by the legacy writer transaction and retries once on reopened WAL disk",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "finds legacy charge through original accepted application evidence when copied game/play mirrors move",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "finds new total-play canonical activity identity even if every copied scope and Source reference is moved",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "rejects the indexed actual charge regardless of Source aliases or corrupt payload",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "rejects the indexed legacy charge regardless of Source aliases or corrupt payload",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "discovers an escaped duplicate scope hidden behind all different actual indexes",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "discovers an escaped duplicate scope hidden behind all different legacy indexes",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "detects a actual charge with scope split across indexes and raw metadata",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "detects a legacy charge with scope split across indexes and raw metadata",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "leaves another careerId scope and its unrelated payload opaque",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "leaves another gameId scope and its unrelated payload opaque",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "leaves another playId scope and its unrelated payload opaque",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "leaves another playerId scope and its unrelated payload opaque",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "finds total-play ownership through the accepted closure reference when copied scope mirrors are corrupted",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "finds total-play ownership through the accepted physical-end reference when copied scope mirrors are corrupted",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "retains exclusion when the actual producer row is lost but its canonical global activity remains",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "retains exclusion when the legacy producer row is lost but its canonical global activity remains",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "retains legacy exclusion through the independent canonical-index ownership path",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "retains legacy exclusion through the independent canonical-source ownership path",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "retains legacy exclusion through the independent pitcher-official ownership path",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "retains legacy exclusion through the independent scoring-official ownership path",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "retains legacy exclusion through the independent scoring-index ownership path",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "retains legacy exclusion through the independent scoring-request ownership path",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "retains legacy exclusion through the independent scoring-proof ownership path",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "retains legacy exclusion through the independent archived-official ownership path",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "retains actual global-history exclusion through its original evidence when producer and canonical IDs are lost",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadChargeGuard.test.ts",
+          "name": "retains legacy global-history exclusion through its original evidence when producer and canonical IDs are lost",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/SqlitePlayerWorkloadRecoveryStore.test.ts",
+          "name": "actual persisted fatigue suppresses Native learning; real recovery permits fresh learning without rewriting earlier practice",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/SqlitePlayerWorkloadRecoveryStore.test.ts",
+          "name": "archives travel/rest chronology, returns exact original retries and rejects stale/changed/cross-scoped Sources",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/SqlitePlayerWorkloadRecoveryStore.test.ts",
+          "name": "requires actual Person scope and freezes policy content across Players",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/SqlitePlayerWorkloadRecoveryStore.test.ts",
+          "name": "rolls back activity and head on SQLite failure and detects corrupted history after reopen",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/SqlitePlayerWorkloadRecoveryStore.test.ts",
+          "name": "practice binding requires exact accepted practice scope/day and disallows caller fatigue",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/SqlitePlayerWorkloadRecoveryStore.test.ts",
+          "name": "selects the exact archived fatigue revision after recovery and reopening, rejecting future and corrupt history",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadAssessment.test.ts",
+          "name": "preserves explicit accepted zero, whole physical manifest and provenance without inventing fatigue or recovery",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadAssessment.test.ts",
+          "name": "rejects absent effort, invented identity/results, partial evidence and nonfinite or negative effort",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadAssessment.test.ts",
+          "name": "canonical activity ownership is independent of accepted-source aliases and rejects cross-player projection",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadSettlementPlan.test.ts",
+          "name": "waits for every original participant assessment and baseline, treating explicit accepted zero distinctly",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadSettlementPlan.test.ts",
+          "name": "freezes exact settlement-time BEFORE/policy and derives AFTER for all roles without elapsed-time recovery",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualRoleWorkloadSettlementPlan.test.ts",
+          "name": "refuses duplicate actors/assessments, replacement identities and a later-day baseline rather than recapturing or backdating",
+          "expectedStatus": "passed"
+        }
+      ],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 355864,
+      "wholeProjectPassed": false
+    },
+    {
+      "stage": "terminal-workload-final-metadata",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "fde3d6f225b3ed5292d3bf733ee907b92e230f87",
+        "src": "238d98059041044d65f4eecfe92b2de675824279"
+      },
+      "finalProductionBytesMatch": true,
+      "readyCheckpointSupportBytesMatch": false,
+      "sourceSnapshotSha256": "db7d5ee2447a67a88b689220e3fd5a77344d9439313ad3a115384de705aec9ca",
+      "configSha256": "ba00dc4d79367feb97fa667ac062128c38af51aff2e876cde0e63cc6d728c008",
+      "reportSha256": "b85030bfc960c1ddac65c515782d79cb39d24cee3b8ebed22c89adc3ddb3f15d",
+      "passedCases": 23,
+      "expectedFailedCases": 0,
+      "skippedCount": 0,
+      "selectedCases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadMetadata.test.ts",
+          "name": "M03 removing an original participant only from a surviving settlement cannot erase exclusion",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadMetadata.test.ts",
+          "name": "M03 a genuinely unrelated original terminal and settlement do not block this player",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadMetadata.test.ts",
+          "name": "M01 terminal workload assessment remains visible through terminal after copied scope moves",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadMetadata.test.ts",
+          "name": "M01 terminal workload assessment remains visible through foul_end after copied scope moves",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadMetadata.test.ts",
+          "name": "M01 terminal workload assessment remains visible through escaped_duplicate_terminal after copied scope moves",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadMetadata.test.ts",
+          "name": "M02 an archived TOTAL charge survives missing assessment/settlement and renamed activity via end_index",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadMetadata.test.ts",
+          "name": "M02 an archived TOTAL charge survives missing assessment/settlement and renamed activity via end_raw",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadMetadata.test.ts",
+          "name": "M02 an archived TOTAL charge survives missing assessment/settlement and renamed activity via end_duplicate",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadMetadata.test.ts",
+          "name": "M03 the frozen terminal settlement preserves exclusion through scope without its assessment row",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadMetadata.test.ts",
+          "name": "M03 the frozen terminal settlement preserves exclusion through terminal_reference without its assessment row",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadMetadata.test.ts",
+          "name": "M03 the frozen terminal settlement preserves exclusion through participant_array without its assessment row",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/PlayerWorkloadConnectionParity.test.ts",
+          "name": "connection-bound Player writer preserves legacy bytes and transaction retry failure ordering",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/FoulTerminalWorkloadTransaction.test.ts",
+          "name": "terminal workload rejects a same-connection byte-neutral write during real BEGIN acquisition",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/FoulTerminalWorkloadTransaction.test.ts",
+          "name": "terminal workload retires when real BEGIN acquires and then throws",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/FoulTerminalWorkloadTransaction.test.ts",
+          "name": "terminal workload rolls back ordinary failure and restores a reusable handle",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/FoulTerminalWorkloadTransaction.test.ts",
+          "name": "terminal workload rejects writes inside its read-only proof and restores the setting",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/FoulTerminalWorkloadTransaction.test.ts",
+          "name": "terminal workload retires after its owned transaction is replaced",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/FoulTerminalWorkloadTransaction.test.ts",
+          "name": "terminal workload retires after rollback fails",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/FoulTerminalWorkloadTransaction.test.ts",
+          "name": "terminal workload retires after query-only restoration fails",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/FoulTerminalWorkloadTransaction.test.ts",
+          "name": "terminal workload retires when COMMIT is suppressed",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/FoulTerminalWorkloadTransaction.test.ts",
+          "name": "terminal workload retires when real COMMIT is followed by a replacement transaction",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/FoulTerminalWorkloadTransaction.test.ts",
+          "name": "terminal workload retires when real COMMIT changes query-only state",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/FoulTerminalWorkloadTransaction.test.ts",
+          "name": "terminal workload retires when real COMMIT succeeds and then throws",
+          "expectedStatus": "passed"
+        }
+      ],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 298876,
+      "wholeProjectPassed": false
+    },
+    {
       "stage": "terminal-workload-guards-green",
       "status": "passed",
       "reportedSourceIdentity": {
@@ -175,8 +938,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": false,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "43610599aa5ccf5850fdbe9dbd905b516c6e50f69508eb954137a14be20f3d8b",
       "configSha256": "2465f215a3ebfa65a619797b96cb8a7dcd9b0d02f99a46796a197346fbd559ce",
       "reportSha256": "1c3f56eaa17d7d16598eb8a81d2c7dc2d37f68b0cf286022a2bf119b011c8684",
@@ -222,7 +985,7 @@
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
       "finalProductionBytesMatch": false,
-      "finalSupportBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "018fe6077f396180c8ec878f121c7902ead5e1c0defa772ae2614a812af0040f",
       "configSha256": "032d459dc3430958be1a1ba2b06398365b02f29d5ebcc846249275cbbfd050e9",
       "reportSha256": "ffad8063ec64a93b70c52c3c3730c46be315a443c25a7941983d64e38e85fe21",
@@ -267,7 +1030,7 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
       "finalProductionBytesMatch": false,
-      "finalSupportBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "5f65a1157c714bf283136b3ead65d7d130a588cd125e3002d848c3966f91392c",
       "configSha256": "708450fd11c184ba2343fa3dcbcb65266615f57c3d2f040d0c60a022f1bc1a8e",
       "reportSha256": "3a22c071a380b3e951e6b7915983de80a2aa3274886fdc719f916357184c910d",
@@ -297,7 +1060,7 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
       "finalProductionBytesMatch": false,
-      "finalSupportBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "b75571d7cd82d208517948b4dcdda3dbf8d6c4db2d6a6e59859162c15bed3455",
       "configSha256": "6cc3b310e79690122ac4d4de8198260c57e650fccb68e8b29effa71449684417",
       "reportSha256": "96ae87917bd65f23f2cda43c108ad2638204c156cdb193799889ea606637c458",
@@ -327,7 +1090,7 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
       "finalProductionBytesMatch": false,
-      "finalSupportBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "5002c3b346c9a54402a6c62f515f9b379fd5782c1060648e60e2bfa0a35cb39f",
       "configSha256": "1148451e29dcf8095674c3aca9d258c94dc1b9315106d9413f39b5e59a4d8250",
       "reportSha256": "4524839d7a665a3e91f0d671bb32554973e973dbb0e9c088d42dc14068e75fe0",
@@ -362,7 +1125,7 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
       "finalProductionBytesMatch": false,
-      "finalSupportBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "6ac8466d422df2692ce7c671364b3e448ab952ce0bd6898bde4727b4b4b8a275",
       "configSha256": "599951293cbc281492285b93d996bb64ed5fa453ecfa3f37cde9bdede08b739f",
       "reportSha256": "08129bba36ac2e9b07942bf73a7a4156ddc0cdd12c08c436e45fe6b371f0bc59",
@@ -397,7 +1160,7 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
       "finalProductionBytesMatch": false,
-      "finalSupportBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "ed2caec653c8e9c5ef07fac7362b20af4e684ca7ce399d7260f1cfcda7d96f53",
       "configSha256": "64eda33c12ce2362ae6536a0fe650095808defe51f802c6e33e106ae8285a59d",
       "reportSha256": "31a2a3d6cfb049a03219b986efbda88d7032a9b31a14d7012b035f36b6bed4a6",
@@ -477,7 +1240,7 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
       "finalProductionBytesMatch": false,
-      "finalSupportBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "1365e32b2d056a559a628f9bfb0a2b4533a5d3745de06431f3d901554f50cb9a",
       "configSha256": "b1e093dcc64ab9e3550972799fbee0cc44fcb5166bf3215c5d66eab85c7dfc0b",
       "reportSha256": "0ac03e49ed4479cad4e2461c65f88bfb4e3d951b0536f842f9b6d3ac85aba481",
@@ -557,7 +1320,7 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
       "finalProductionBytesMatch": false,
-      "finalSupportBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "5f65a1157c714bf283136b3ead65d7d130a588cd125e3002d848c3966f91392c",
       "configSha256": "1d6ee689622fd58c1a8b157e6c63938a4aff0616bfeb3c23dbd10e91d20d1790",
       "reportSha256": null,
@@ -581,7 +1344,7 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
       "finalProductionBytesMatch": false,
-      "finalSupportBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": null,
       "configSha256": "4c102df41fb2e6d997e6cfe91871f6cc41b831d126d66116e04014a6c0991c94",
       "reportSha256": null,
@@ -614,7 +1377,7 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
       "finalProductionBytesMatch": false,
-      "finalSupportBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "3432ed1bc70e0245bf6cbec015a082d7346696c5891eebb11e3da90f2ce22b3f",
       "configSha256": "9f1fe54d89f524510295a79a0f9a4719701cb570ea9e457ed24fca5920ac22f8",
       "reportSha256": null,
@@ -637,8 +1400,8 @@
         "src": "3dd0e995b3b451fdba00bdf2381d3de9d84fa188",
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": false,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "a261e5caff3959a9aa6658a5a0f5a571006fe6d1dc736577d7ae2758762d8c57",
       "configSha256": "7948ce9e6afea0bdd7d8373d1fc6776ceba153cddf36aff6af1ef07682391788",
       "reportSha256": null,
@@ -661,8 +1424,8 @@
         "src": "7f2bafee63aaee78a7b2de43d10e1eafa1ab4a29",
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": false,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "0110df5c01dc066b9e6ee95780627ac70bd442b4795b56deb219e1dca462f233",
       "configSha256": "36f7f91cfc93023dad1f1e7c9d43ad9dbf06fdaf17914d23591b0c0bede4454d",
       "reportSha256": null,
@@ -686,7 +1449,7 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
       "finalProductionBytesMatch": false,
-      "finalSupportBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "7ab7982e3d49f881edaba03552e17af0fc87e9ff533058412157aeac8df2f53b",
       "configSha256": "6ddb9fb054c8315df9651769af6416f430c2c3805a45851c2343cc0b127f9522",
       "reportSha256": null,
@@ -709,8 +1472,8 @@
         "src": "3dd0e995b3b451fdba00bdf2381d3de9d84fa188",
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": false,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "dbbc8698d87e9d54721772bb8e2f7bf7b799d25b24834e6deb9720f300da1857",
       "configSha256": "d1a889581d1a3e9a1efae43d2cbec5a7e406e7bd33a5ad84de803163c5b80b4e",
       "reportSha256": null,
@@ -734,7 +1497,7 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
       "finalProductionBytesMatch": false,
-      "finalSupportBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "89218855f526630c781c2911355f82fd97e9f2ccd6201e92fda0184f76a5040a",
       "configSha256": "4d75d3f797d81ba71f9f8a1ddf7c46c08ca7b5352e47e3ce20a727653dbd3971",
       "reportSha256": null,
@@ -757,8 +1520,8 @@
         "src": "7f2bafee63aaee78a7b2de43d10e1eafa1ab4a29",
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": false,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "71bca18b4aad3f2dc30e3aae5958b40c1641ed1e322559a0bc377e261a08d8b7",
       "configSha256": "30fd337dfe135e628f330d2978d509aacf7d22ee03657c08d501beba409519d2",
       "reportSha256": null,
@@ -781,8 +1544,8 @@
         "src": "7f2bafee63aaee78a7b2de43d10e1eafa1ab4a29",
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": true,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
       "sourceSnapshotSha256": "20606e80e9a9c1e4360c2c7ae3d08f11bcede32c30196fa9827eb553ddeb11bb",
       "configSha256": "a8543e90bd175e0ad7627ee860323cfca3d9d3af47c55dff7e3e1cd9687ec8e5",
       "reportSha256": null,
@@ -806,7 +1569,7 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
       "finalProductionBytesMatch": false,
-      "finalSupportBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "f61c3da12a619ecbac29912801cae460f2b70807c0c329ba8ddf91555355b95f",
       "configSha256": "46c096790d8c4a5918ddf9cfd45bb6c4b9e90c6daa245604e2f8cfc770f4b177",
       "reportSha256": null,
@@ -830,7 +1593,7 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
       "finalProductionBytesMatch": false,
-      "finalSupportBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "0dfefff495d3aff46e2cdd319f304f4a920830d6d150c7b44547fb173ba7e76a",
       "configSha256": "66c3454a69259a9e52ca6faa8c1776f3c5cec0c7515f45772a261ab3213f14af",
       "reportSha256": null,
@@ -846,6 +1609,30 @@
       "wholeProjectPassed": false
     },
     {
+      "stage": "terminal-workload-final-integrated-compiler",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "fde3d6f225b3ed5292d3bf733ee907b92e230f87",
+        "src": "238d98059041044d65f4eecfe92b2de675824279",
+        "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
+      },
+      "finalProductionBytesMatch": true,
+      "readyCheckpointSupportBytesMatch": false,
+      "sourceSnapshotSha256": "2ef205930ed12fd865ae14066e26b57df5a323b6d6a59f7776265ae5324c3e8c",
+      "configSha256": "f82b5d996049a6d359b45d551017a3fe37914506da1ad9972ea0a3cdf338dbf5",
+      "reportSha256": null,
+      "passedCases": 0,
+      "expectedFailedCases": 0,
+      "skippedCount": 0,
+      "selectedCases": [],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 487232,
+      "wholeProjectPassed": false
+    },
+    {
       "stage": "terminal-workload-lifecycle-green",
       "status": "passed",
       "reportedSourceIdentity": {
@@ -854,7 +1641,7 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
       "finalProductionBytesMatch": false,
-      "finalSupportBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "89218855f526630c781c2911355f82fd97e9f2ccd6201e92fda0184f76a5040a",
       "configSha256": "f6a35459f45dfa7e6949f123387a4be116a0d44c6f591cb73d05e32b3e78d9a7",
       "reportSha256": "5d13f0d63c5f7623d474dfc16c2fae74f9ebcc12ff1ba59e56193bb444cfda0b",
@@ -913,8 +1700,8 @@
         "src": "7f2bafee63aaee78a7b2de43d10e1eafa1ab4a29",
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": true,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
       "sourceSnapshotSha256": "20606e80e9a9c1e4360c2c7ae3d08f11bcede32c30196fa9827eb553ddeb11bb",
       "configSha256": "e531c9fc003dca7ec6d61477536d405af33b2544f700ffd246ebabec39804a81",
       "reportSha256": "ca837724ae56359eca658f244efa908d8e86a2a95c2b3748e683466e2aedcf5f",
@@ -1054,7 +1841,7 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
       "finalProductionBytesMatch": false,
-      "finalSupportBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "3432ed1bc70e0245bf6cbec015a082d7346696c5891eebb11e3da90f2ce22b3f",
       "configSha256": "de2e8ebb6985f6131f8c1457f1a1d04c3e52105e1c63da431f17cc9393d4d1df",
       "reportSha256": "9c312ebf52d89fd120f59a9a54576f3f09c5fcae3f15b74af1fe8f06409bb77f",
@@ -1139,7 +1926,7 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
       "finalProductionBytesMatch": false,
-      "finalSupportBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "0dfefff495d3aff46e2cdd319f304f4a920830d6d150c7b44547fb173ba7e76a",
       "configSha256": "7dbdc4414f4dcc26f17e189535460bdefa6b4b5d55d31f3857f7f4771c36980a",
       "reportSha256": null,
@@ -1221,7 +2008,7 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
       "finalProductionBytesMatch": false,
-      "finalSupportBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "0dfefff495d3aff46e2cdd319f304f4a920830d6d150c7b44547fb173ba7e76a",
       "configSha256": "d07cd3b32e21a997602e8fab66406719d9173508d9fd182f0cc4a53b6367c158",
       "reportSha256": "3528325f0ae0aacb14039f65829d46daed10d1a89ae9fb4f5a53aefda1dbc4e4",
@@ -1293,6 +2080,141 @@
       "wholeProjectPassed": false
     },
     {
+      "stage": "terminal-workload-optimized-partial9",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "ed26f4819f51686f4d3eb2647ed19f471a27e72d",
+        "src": "64f3a72b5af62bdda51fcd4842e213ae5b92e612"
+      },
+      "finalProductionBytesMatch": true,
+      "readyCheckpointSupportBytesMatch": false,
+      "sourceSnapshotSha256": "6cdceac2454f457d5364b5530a84bae236bb5706833776dfcade7f3d40c35c71",
+      "configSha256": "0782d9808a303123026d71d4d23319134229f9af084fff6ae6c93ca98e59ed65",
+      "reportSha256": "acc32fa6ea841e58816850a817c20d41bf71605419b2d4cbdad0795eecb8a675",
+      "passedCases": 1,
+      "expectedFailedCases": 0,
+      "skippedCount": 8,
+      "selectedCases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadRollback.acceptance.ts",
+          "name": "W03 charge 9 rolls back another participant mutation and resumes its exact partial prefix",
+          "expectedStatus": "passed"
+        }
+      ],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 602476,
+      "wholeProjectPassed": false
+    },
+    {
+      "stage": "terminal-workload-optimized-ready",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "ed26f4819f51686f4d3eb2647ed19f471a27e72d",
+        "src": "64f3a72b5af62bdda51fcd4842e213ae5b92e612"
+      },
+      "finalProductionBytesMatch": true,
+      "readyCheckpointSupportBytesMatch": false,
+      "sourceSnapshotSha256": "9c2f0bd5f37739be8a119781ef07ec9b18ccb3d42cdecbcdf6756906e42f0c7b",
+      "configSha256": "0919e3029871240c21578fdb1273aff48f5fdb200e96d1da42ca23c2855ff4b8",
+      "reportSha256": "d313776d2a6b7f282cfe2dfb50afefd3cc10bd6e68fc1f4658a5d5fdb9369c23",
+      "passedCases": 1,
+      "expectedFailedCases": 0,
+      "skippedCount": 0,
+      "selectedCases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadReady.acceptance.ts",
+          "name": "W10 qualified ready checkpoint charges ten participants once and preserves zero-write retry and reopen",
+          "expectedStatus": "passed"
+        }
+      ],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 596876,
+      "wholeProjectPassed": false
+    },
+    {
+      "stage": "terminal-workload-final-pending",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "ed26f4819f51686f4d3eb2647ed19f471a27e72d",
+        "src": "64f3a72b5af62bdda51fcd4842e213ae5b92e612",
+        "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+        "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
+      },
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
+      "sourceSnapshotSha256": "54f0a734949f29950174ebcebe553a4e1b5e3a1eda81fcb5713f5d090354d0a8",
+      "configSha256": "afb4b551fe59a4a8e777a5762cf300b6ace7739a38bccfc6fed2df1993ff7474",
+      "reportSha256": "7d331ead7001cf94c305b9541fbd670c89450cf9a3d485100fd9c96fdae71b77",
+      "passedCases": 2,
+      "expectedFailedCases": 0,
+      "skippedCount": 1,
+      "selectedCases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkload.acceptance.ts",
+          "name": "W01 genuine acknowledged terminal workload stays pending without accepted participant inputs",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkload.acceptance.ts",
+          "name": "W01 accepted ten-participant fixture effort stays pending while original baselines are missing",
+          "expectedStatus": "passed"
+        }
+      ],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 600936,
+      "wholeProjectPassed": false
+    },
+    {
+      "stage": "terminal-workload-genuine-green",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "eb2cf9d3dc5a4a7e31890d556f648fd40217c79b",
+        "src": "95bdec025e3fc731f524faf56af55db15c8d49f7",
+        "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+        "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
+      },
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
+      "sourceSnapshotSha256": "0329d167f8e9b6cf992f629b1c8d9701aca82511d19b3a0b34cfc6886fb7dc50",
+      "configSha256": "fc4f2127603f32044eb61516731926e23bb7c790a85a8076330224751e3a140e",
+      "reportSha256": "afd35ed2b44b546532533502692813c1c37fe74e5e2e09d27dd3cb117569aba4",
+      "passedCases": 3,
+      "expectedFailedCases": 0,
+      "skippedCount": 0,
+      "selectedCases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkload.acceptance.ts",
+          "name": "W01 genuine acknowledged terminal workload stays pending without accepted participant inputs",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkload.acceptance.ts",
+          "name": "W01 accepted ten-participant fixture effort stays pending while original baselines are missing",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkload.acceptance.ts",
+          "name": "W02 genuine terminal TOTALs charge all ten original participants once and conserve the pending origin",
+          "expectedStatus": "passed"
+        }
+      ],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 595740,
+      "wholeProjectPassed": false
+    },
+    {
       "stage": "terminal-workload-quick-01",
       "status": "passed",
       "reportedSourceIdentity": {
@@ -1301,8 +2223,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": true,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
       "sourceSnapshotSha256": "181f12fdb3d72ecf8c5b12c6a901eda8ccd5434073392b2ab35dd1bacdb0445e",
       "configSha256": "96502f88efdf08e977f6c8ea736583dbf5622e0bbe9f4f1fbc2d51fd450f1411",
       "reportSha256": "da72ec9825b888f502bc3ad63d17edaf9acf9597db6e32feebfa1cfecb2cb161",
@@ -1332,8 +2254,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": true,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
       "sourceSnapshotSha256": "d6b6c93fedf835a578f8de33b8f32cf6f678c10b953ff360ca2e4d9a7317965c",
       "configSha256": "845a6870f1765e35159584b9d39b5806fbe3630d4f76385b5a67e8da88f5f533",
       "reportSha256": "bc235bb1cad5e66d33ea937cbacd93deb9ba622ad67340b865013ea2be49e187",
@@ -1363,8 +2285,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": true,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
       "sourceSnapshotSha256": "7f90fe28fedc342abdc91995d7588ced2dae35fa8ccdf4e66bf82ca73f88c2f5",
       "configSha256": "c81ef7bc499427f1d68d37b9d7116ec965f6e07d46c7dea8d90e17dd4f2e5a71",
       "reportSha256": "e20d4c4571e39d255a367aa18a407b8aeac5b4e0b76f75bed621a04b0e1f2bcb",
@@ -1394,8 +2316,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": true,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
       "sourceSnapshotSha256": "b85ea3852ef6be34186312e33a6a729dfc0a1ba16eea163f9eac7c24a3bd2da5",
       "configSha256": "2ad8ce660901311e447e602ded91a71858477e159a94404d6b14354a87294874",
       "reportSha256": "5f1b0c65498c9c2699f3feca09272272f333e002a449823fb644dce552c6ad18",
@@ -1425,8 +2347,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": true,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
       "sourceSnapshotSha256": "078fba9667da623ea08c7d752f1ad5c0a1a2dd43697ff7220c867aba90d5acbe",
       "configSha256": "56ed802399b5e9d25a9b24c4ae3902739176ff44b072eae5937211b125aa404f",
       "reportSha256": "43be32b5b0f58764e2add49bc24db2c8d604ee8f1b4e3b31bb0b4766f444d494",
@@ -1456,8 +2378,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": true,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
       "sourceSnapshotSha256": "9b192520ad6c40a851b4622ebe2cbd9dae9adebdd57c1d0ae15f08ae040ba08e",
       "configSha256": "bb6004652b6bed4d72ea18dbba6b6a88669928fa7c31589f3928536905b1c777",
       "reportSha256": "dbbe33acb5396ca5ed2106fa3614bcaf5c9ecaa1ad86298752f6993582dd83cb",
@@ -1487,8 +2409,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": true,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
       "sourceSnapshotSha256": "3b6b8be591c1eb3c3ee30f2cb46fb8efa7e2fe152c21015ff84a72085383bdd8",
       "configSha256": "fbf133eed031d07f0c226f1b3f6bbe389a97ed7dd783886a7b9999bd82a36813",
       "reportSha256": "c146469799aea80aa833dd43b0b31e988684912724ee92d385d1e00c3ac90908",
@@ -1518,8 +2440,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": true,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
       "sourceSnapshotSha256": "1042d3b64c7ea9d74aa0a0938078b858705d86a8ac8f7e4bc69d1a1c0dcd2534",
       "configSha256": "74c8cf9f8377e2eec88460e0f026fb71dfe37a6550752543a7c7b4c4ce9fe0ca",
       "reportSha256": "d9a56f25cdbfbaba2d8d8ce0fc85193174ce432c02bda803bc9afd95c5e8ec26",
@@ -1549,8 +2471,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": true,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
       "sourceSnapshotSha256": "ded2be1c1aab48dfffe2fc8741d8eab8b57358fa781cf67e8684dd29370020d1",
       "configSha256": "71f329aff7711c4e08cd24a9dc43cde237f5421d9b8b27492bb954159f816097",
       "reportSha256": "c6711c9079780be2a807c9b2a2331bb746217c452b935b7526f67dc7839aa830",
@@ -1580,8 +2502,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": true,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
       "sourceSnapshotSha256": "4576ebf5575b6f8800822f5276dd5015b6ad9f561ffe26483942fec77a7b4ff5",
       "configSha256": "579c391c1846bf9b9300b5b4238dfaebd3468afaaa037a668c8c415dc5c0a711",
       "reportSha256": "32e2454b578d6e6ba1cdb21f3e38e3e7b3fe6903b38a2fd8aba6ab5bd7fb58ad",
@@ -1611,8 +2533,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": true,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
       "sourceSnapshotSha256": "a1c24c89816bbaa90d8b5231c4ef3ed752509d1142f52070e5344d707b06eebb",
       "configSha256": "52f17bd709fc70579684f1ffaf9be9b5afaa541677df67d201075c9b8c2f310a",
       "reportSha256": "f17222282b9a06dcc9646d3fdc82ef2c289c597160d121864ada25e2bba70e03",
@@ -1642,8 +2564,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": true,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
       "sourceSnapshotSha256": "d2a05933dce3dc739b50e92dcfe604111258dbf4f5f339450205d044490e369b",
       "configSha256": "26d29166c20428e265616fede68d14fa93a57224bde09e0fef912e101a9170e9",
       "reportSha256": "0e1e3437bc5a729f467c96cfcc15a89c22e2c0dff08a697e55f2059f981eac01",
@@ -1673,8 +2595,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": true,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
       "sourceSnapshotSha256": "22f6d226c0ea25be8132f8ac63ec80a580041d136849628922817b6c68889391",
       "configSha256": "ce4b719eb4c42748b5cf31c75f64277175c2694b8065bf8f8eb6ea4b2fec7954",
       "reportSha256": "ac6fe77d02b96ce1bf678dfab73e312c9afbc49db190804494f962b63958de59",
@@ -1704,8 +2626,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": true,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
       "sourceSnapshotSha256": "d22d1bd07f9d81d6a7bbd28fe6ae5da7f91797e6dda61452924d3501beb65ae6",
       "configSha256": "96a2accd35e144d74218b8b58e54e884f6bd859d790f12c70b8562fad661fa7d",
       "reportSha256": "9df9a3cee030d1538e1bd96856fbc89c4646e9ee02c4fb00ce9ffc481900fa0b",
@@ -1735,8 +2657,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": true,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
       "sourceSnapshotSha256": "628a0c2d0e1674592829c354217efa7b7bc30d40c0f344aa95f05386636164f9",
       "configSha256": "6f349912e39686a9e5f532d7c552e18b5366e98b82e1362ee99a0b343003becd",
       "reportSha256": "ce895b14b164d91fe30eed49c9f6858a43a2a5a01c4439620979bc8354753b4c",
@@ -1766,8 +2688,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": true,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
       "sourceSnapshotSha256": "b60c11a1bbafbfbcdcd18820e89fe14943f375283f495c2643d6ff3a7faa522d",
       "configSha256": "89c9bbd8386a35d61525fc4358279e6876b9cf89543df72b172be746badc09dd",
       "reportSha256": "8850ec811cd086ebc5030d059456a75f7218113a4931f7177902d841693b1fb3",
@@ -1797,8 +2719,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": true,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
       "sourceSnapshotSha256": "43d386406a5c9d8e3f0328001df1b4e9e084339b542f56dff1df203b3b8fd8d1",
       "configSha256": "ab456e3c02e9581f6efc3b9eb8069d486b036e9eafb51ffee20b99a0ae9e1232",
       "reportSha256": "999d2a4cbaf9babc67a1508867e3c92a6cb9a250764dff989270cb918a8a95bc",
@@ -1828,8 +2750,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": true,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
       "sourceSnapshotSha256": "65a6b2e1defd1654f9f0b92d0cee68cc7e5389086eff0785d17dc3560abd65bc",
       "configSha256": "d2dce18c0f5af9c542aa9730c438e9f8154ca78ad67553ceedc60bf9c9a1dd83",
       "reportSha256": "e0f8bd57327c5b287d3e30ffc5aa67a515e34ef62605822c0528649550d71889",
@@ -1859,8 +2781,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": true,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
       "sourceSnapshotSha256": "cbc06e2f9e6a885c33440528fb0102cab16e5ceb9a1e3a9095dac02a34e20e6c",
       "configSha256": "c47a5d50ccc2eafbeddc622d67234a858373a041a3c89acc03670ec2df9358c1",
       "reportSha256": "596e260d525269f8a461a09785f4d2958b449b0afa856ce3e0ee08bbf6d9f04d",
@@ -1890,8 +2812,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": true,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
       "sourceSnapshotSha256": "e619a78516ce1979ef255af7a6147b6550a58f9585684147368cd6b852193a50",
       "configSha256": "1c7e860d40c0fe0ce8d1bc53f69f29ccda5ec30626ba5cb504df364165cf57e0",
       "reportSha256": "a8bd57451c9364cabcf827129b15e5ab7ffad7b958f44e386b5ede91343294c2",
@@ -1921,8 +2843,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": true,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
       "sourceSnapshotSha256": "c4b561503f8de1401c625cf1252cebfd2f2fc4358376a9fcd29b3ba1975afcaa",
       "configSha256": "1879569cb1b6da96db2b0a8e5ec0b08b4848bc045cde4d0a85bec53832a99f4d",
       "reportSha256": "60299d29b65dd674ec34d6f3996d4ce56f16b16d42d494bb0f06a647573c1c06",
@@ -1944,6 +2866,133 @@
       "wholeProjectPassed": false
     },
     {
+      "stage": "terminal-workload-quick-22",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+        "src": "7f2bafee63aaee78a7b2de43d10e1eafa1ab4a29",
+        "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+        "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
+      },
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
+      "sourceSnapshotSha256": "7ee1fc6c1a47b4138f6655c2495e0aa8b2e1c3b10259e1b0f81a941d9aca37d3",
+      "configSha256": "abe08b56917ab6d030689fdfdf2013783fbdaaf282ebece06a907889ba4ab59c",
+      "reportSha256": "808c9abf595218b1acfef16733de0b54566a6ff6de18ace59228e89f4ed89bb3",
+      "passedCases": 1,
+      "expectedFailedCases": 0,
+      "skippedCount": 8,
+      "selectedCases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadRollback.acceptance.ts",
+          "name": "W03 prerequisite assessment INSERT corruption rolls back the entire owned write",
+          "expectedStatus": "passed"
+        }
+      ],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 588412,
+      "wholeProjectPassed": false
+    },
+    {
+      "stage": "terminal-workload-quick-23",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+        "src": "7f2bafee63aaee78a7b2de43d10e1eafa1ab4a29",
+        "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+        "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
+      },
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
+      "sourceSnapshotSha256": "2a02d3b9e0ddfe93d09e095af35efe92c3a753c1569f2b5a1c2bbee5eae5ac64",
+      "configSha256": "e6342d9f960f053ad06d62a439bde1645763c96c341660fde7e666fb0ba88dba",
+      "reportSha256": "455b5f94efc47fb1ba62e40cf4f178358c7d0c4e97a9daca637bb57e50664047",
+      "passedCases": 1,
+      "expectedFailedCases": 0,
+      "skippedCount": 8,
+      "selectedCases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadRollback.acceptance.ts",
+          "name": "W07 baseline initialization rolls back writer INSERT corruption of original_end",
+          "expectedStatus": "passed"
+        }
+      ],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 579040,
+      "wholeProjectPassed": false
+    },
+    {
+      "stage": "terminal-workload-quick-24",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+        "src": "7f2bafee63aaee78a7b2de43d10e1eafa1ab4a29",
+        "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+        "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
+      },
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
+      "sourceSnapshotSha256": "4d9d437e31c29e5b972d156b52f271039ca6f6e5024b96ac62a854ffa28c956b",
+      "configSha256": "fece92a6a548cb20690c2fc608187c8c1393ed5ca776b149db0f767b301280bb",
+      "reportSha256": "1aef6201a5cf7adf9bb46c5042b1b97f87300245ae0dc720ac1e5f3224cf9efc",
+      "passedCases": 1,
+      "expectedFailedCases": 0,
+      "skippedCount": 8,
+      "selectedCases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadRollback.acceptance.ts",
+          "name": "W07 baseline initialization rolls back writer INSERT corruption of baseline_policy",
+          "expectedStatus": "passed"
+        }
+      ],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 578912,
+      "wholeProjectPassed": false
+    },
+    {
+      "stage": "terminal-workload-final-ready-green",
+      "status": "failed",
+      "reportedSourceIdentity": {
+        "head": "26a56cfdea490bb78eff4bbee0f88d265736f65f",
+        "src": "7f2bafee63aaee78a7b2de43d10e1eafa1ab4a29",
+        "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
+        "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
+      },
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
+      "sourceSnapshotSha256": "4ac2a83309c36ee8132fff0bb7e41c94825cdc6fea27999e1dbfcd3acb9a9f54",
+      "configSha256": "461d2959133a0d47fa43b71570c9553a624339b971991aa0b30dea8f3e7adbf7",
+      "reportSha256": null,
+      "passedCases": 0,
+      "expectedFailedCases": 0,
+      "skippedCount": 0,
+      "selectedCases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadReady.acceptance.ts",
+          "name": "W10 qualified ready checkpoint charges ten participants once and preserves zero-write retry and reopen",
+          "expectedStatus": "passed"
+        }
+      ],
+      "originalChildExit": -15,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [
+        "execute",
+        "result"
+      ],
+      "peakRssKiB": 591492,
+      "wholeProjectPassed": false
+    },
+    {
       "stage": "terminal-workload-ready-copy-green",
       "status": "passed",
       "reportedSourceIdentity": {
@@ -1952,8 +3001,8 @@
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001",
         "acknowledgedRetainedTerminal": "6bd8a981679e14bc3bc4eb9a38881d12f30ee968d30426abbbd259319f3a495a"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": true,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": true,
       "sourceSnapshotSha256": "f01722e2fb3b985ba4795a4949e051d475df55865eb88bf9e534ec2bfa6bb8e3",
       "configSha256": "649d6904e47d59356ab286590d2d92bbf3bb239fd1d7f9cc78a60753378fb4a3",
       "reportSha256": "ce1be593929751b7fd5920732a7b216e3ae7a138e79f384244e45b04a0a92c06",
@@ -1982,8 +3031,8 @@
         "src": "3dd0e995b3b451fdba00bdf2381d3de9d84fa188",
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": false,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "0ddb7c86fc7311d51ebe201d28a765c93c33d58dd96b1622c1c70e2aaba28948",
       "configSha256": "767cbe81494b0db8fc0df971a96536cde8a705c0add53decfc1441039168f20d",
       "reportSha256": "f9bc68c878bad49dbb9d2e75b7d586a664f8589e84377af4c4f814d22b8e8c8b",
@@ -2022,8 +3071,8 @@
         "src": "3dd0e995b3b451fdba00bdf2381d3de9d84fa188",
         "acknowledgedHelperCut": "cf5f83fb2c454cba431dbbffb22e44a238ef6001"
       },
-      "finalProductionBytesMatch": true,
-      "finalSupportBytesMatch": false,
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
       "sourceSnapshotSha256": "0ddb7c86fc7311d51ebe201d28a765c93c33d58dd96b1622c1c70e2aaba28948",
       "configSha256": "c43ab09c25cc5f899ec5623af37aade3fda0130507f21d397ea799348cf53899",
       "reportSha256": "b61ee2e994166ef70b9a492948c86f395f7dcbcbd57fc32332b2f8ffea3bd522",
@@ -2248,7 +3297,185 @@
       "failurePhases": [],
       "peakRssKiB": 345164,
       "wholeProjectPassed": false
+    },
+    {
+      "stage": "terminal-workload-retry-acquisitions-green",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "ed26f4819f51686f4d3eb2647ed19f471a27e72d",
+        "src": "64f3a72b5af62bdda51fcd4842e213ae5b92e612"
+      },
+      "finalProductionBytesMatch": true,
+      "readyCheckpointSupportBytesMatch": false,
+      "sourceSnapshotSha256": "b698c26fec8b131698db2af6e364ba0c35ecf8a9ebe0090c6a1f31630c725d23",
+      "configSha256": "ab09ad7392b96089e7fe27e9134b97b707f45f5704e653cbd2d7f60182c28a6c",
+      "reportSha256": "0c8ffe61439349209acfe8612081dc13d1e408b6fa86bfa18e3c528f210033e9",
+      "passedCases": 5,
+      "expectedFailedCases": 0,
+      "skippedCount": 0,
+      "selectedCases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadRetry.acceptance.ts",
+          "name": "R01 completed retry checks all accepted Sources without redundant per-player writer acquisitions",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadRetry.acceptance.ts",
+          "name": "R02 completed retry rejects changed accepted effort before skipping any participant",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadRetry.acceptance.ts",
+          "name": "R03 completed retry still authenticates the current head of every original participant",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadRetry.acceptance.ts",
+          "name": "R04 completed retry still authenticates every archived original activity effect",
+          "expectedStatus": "passed"
+        },
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadRetry.acceptance.ts",
+          "name": "R05 completed retry retains reverse legacy exclusion without a per-player writer call",
+          "expectedStatus": "passed"
+        }
+      ],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 625796,
+      "wholeProjectPassed": false
+    },
+    {
+      "stage": "terminal-workload-retry-acquisitions-red",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "ed26f4819f51686f4d3eb2647ed19f471a27e72d",
+        "src": "64f3a72b5af62bdda51fcd4842e213ae5b92e612"
+      },
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
+      "sourceSnapshotSha256": "87d1ccc60a833f662c277223c6954c099072acd9266835caeae4ce55a3f6b2fb",
+      "configSha256": "977c08f6229f3a2f868dd7263e4fd598eff1acb171eb8e35fff235878f648e4c",
+      "reportSha256": "7314fd3f663c1d73854825a6c822506b2fae2c0edd0e1274212374cda14525fa",
+      "passedCases": 0,
+      "expectedFailedCases": 1,
+      "skippedCount": 0,
+      "selectedCases": [
+        {
+          "file": "src/host/world/ActualFoulTerminalRoleWorkloadRetry.acceptance.ts",
+          "name": "R01 completed retry checks all accepted Sources without redundant per-player writer acquisitions",
+          "expectedStatus": "failed"
+        }
+      ],
+      "originalChildExit": 1,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 617084,
+      "wholeProjectPassed": false
+    },
+    {
+      "stage": "terminal-workload-retry-compiler-final",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "ed26f4819f51686f4d3eb2647ed19f471a27e72d",
+        "src": "64f3a72b5af62bdda51fcd4842e213ae5b92e612"
+      },
+      "finalProductionBytesMatch": true,
+      "readyCheckpointSupportBytesMatch": false,
+      "sourceSnapshotSha256": "5f509bc8669ae475e7fb72a2658e7b175e09d990b215f913f032af352f3520c0",
+      "configSha256": "edd406ed64cd2700190f0406907027a7cbfa926fc831f83546567209824e06bc",
+      "reportSha256": null,
+      "passedCases": 0,
+      "expectedFailedCases": 0,
+      "skippedCount": 0,
+      "selectedCases": [],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 477964,
+      "wholeProjectPassed": false
+    },
+    {
+      "stage": "terminal-workload-retry-compiler-green",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "ed26f4819f51686f4d3eb2647ed19f471a27e72d",
+        "src": "64f3a72b5af62bdda51fcd4842e213ae5b92e612"
+      },
+      "finalProductionBytesMatch": true,
+      "readyCheckpointSupportBytesMatch": false,
+      "sourceSnapshotSha256": "ed27138f6b4b489bf24ebd1fd2454d4e3bf7afca948bf53cb4c8defc013fa4e5",
+      "configSha256": "8d4a48557c164e9b6caf15131bbed0b2aae1ea434a8fca5d94fa914654aa4d36",
+      "reportSha256": null,
+      "passedCases": 0,
+      "expectedFailedCases": 0,
+      "skippedCount": 0,
+      "selectedCases": [],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 488440,
+      "wholeProjectPassed": false
+    },
+    {
+      "stage": "terminal-workload-retry-compiler-red",
+      "status": "passed",
+      "reportedSourceIdentity": {
+        "head": "ed26f4819f51686f4d3eb2647ed19f471a27e72d",
+        "src": "64f3a72b5af62bdda51fcd4842e213ae5b92e612"
+      },
+      "finalProductionBytesMatch": false,
+      "readyCheckpointSupportBytesMatch": false,
+      "sourceSnapshotSha256": "a55c61fe29f2e81a815f49aa162dd0b16977aa0294df2a9ec7b5903eb18e4fc4",
+      "configSha256": "0904e620c2d19edf86837f9627aad1045e7101cca08cb69e1a276d5a8ff08c4d",
+      "reportSha256": null,
+      "passedCases": 0,
+      "expectedFailedCases": 0,
+      "skippedCount": 0,
+      "selectedCases": [],
+      "originalChildExit": 0,
+      "remainingOwnedProcessCount": 0,
+      "inputSnapshotsEqual": true,
+      "failurePhases": [],
+      "peakRssKiB": 495568,
+      "wholeProjectPassed": false
     }
   ],
-  "wholeProjectPassed": false
+  "wholeProjectPassed": false,
+  "externalInterruptions": [
+    {
+      "stage": "terminal-workload-genuine-rollback",
+      "sourceCodeCommit": "4ab120f8aa0c8f99e5127339115b4c155c911a7c",
+      "toolReportedExitCode": 130,
+      "supervisorTerminalPresent": false,
+      "ownedDescendantReapingVerified": false,
+      "inputHashesEqual": true,
+      "aggregatePassCredit": 0,
+      "activeCaseAtInterruption": "W03 charge 0 rolls back another participant mutation and resumes its exact partial prefix",
+      "cancelledCaseEligibleAsInput": false
+    }
+  ],
+  "sourceAttributionNotes": [
+    "Earlier source-qualified gates retain their exact source snapshots; final production matching requires all eight current production files.",
+    "Optimized native snapshots have identical production bytes to fde3d6f; R02 test title was later narrowed from any participant to the changed participant without changing test behavior."
+  ],
+  "acceptanceInventory": {
+    "authoredNativeCases": 51,
+    "casesWithoutPositiveEvidenceAcrossAttributedCuts": [],
+    "allCasesRerunOnFinalOptimization": false,
+    "finalIntegratedFocusedCompilerPassed": true,
+    "finalIntegratedLightPassedCases": 68,
+    "heldOutsideInventory": [
+      "whole-project aggregate",
+      "exhaustive strict-storage/raw-alias cases",
+      "genuine independent scoring interleave",
+      "second genuine terminal origin",
+      "completed-stage/reservation/next-play capabilities"
+    ]
+  }
 }

@@ -1,14 +1,16 @@
 # Terminal TOTAL workload: source-qualified checkpoint
 
-Status: focused qualification is in progress. This is a terminal workload
-prerequisite, not terminal completion, next-play readiness, or a whole-project pass.
-No merge or deployment is claimed.
+Status: the 51 authored native workload acceptance cases now have successful,
+explicitly source-attributed evidence. The narrow final retry optimization and its
+preservation cases passed, and final focused compiler plus 68 light compatibility
+cases passed on the integrated cut. This does not establish a whole-project pass,
+terminal completion, next-play readiness, merge or deployment.
 
 ## Source cuts
 
 - Candidate implementation: `41b133a2904cfaa9e2ea0dfff81e37499682559f`, after the
   genuine missing-capability RED at `5bd6a8a836fd93d40ba33e1ef55b63719effc792`.
-- Reviewed final production: `26a56cfdea490bb78eff4bbee0f88d265736f65f`, src tree
+- Reviewed integrity repair: `26a56cfdea490bb78eff4bbee0f88d265736f65f`, src tree
   `7f2bafee63aaee78a7b2de43d10e1eafa1ab4a29`.
 - Reviewed test-only ready-checkpoint support:
   `5a9f85544352e64326068dd66df99283fa203c86`, src tree
@@ -22,6 +24,12 @@ state and pending marker remain immutable. The frozen workload plan captures
 settlement-time BEFORE, retains its original ancestry and hash, and never grants
 completion or another charge. There is no invented effort, recovery, next actor,
 calibration, scoring result, renderer, or UI capability.
+
+- Reviewed final retry optimization: `fde3d6f225b3ed5292d3bf733ee907b92e230f87`,
+  src tree `238d98059041044d65f4eecfe92b2de675824279`. It adds only
+  `if (p.applied) continue` after each accepted-assessment check. Initial and final
+  all-ten authentication remain; every missing effect retains the original
+  fresh writer/CAS. No cross-transaction caching was added.
 
 ## Verified repairs
 
@@ -95,10 +103,45 @@ computed from each admitted source snapshot's eight file hashes, not from the
 current filesystem or the checkout HEAD label. Some runs admitted an uncommitted
 working tree before its later byte-identical source commit.
 
-Old grouped genuine W01/W02 and rollback runs use the `4ab120f` acquisition-fix
-cut. They are not final-production completion evidence. Final-source W10 and
-remaining integrity/rollback cases run in fresh capped stages. Each individually
-finished stage is recorded; a running, skipped, timed-out or interrupted stage
-never becomes a pass by inference. The broad project suite, all raw-alias
-combinations, genuine independent scoring interleave and second-origin coverage
-remain separate qualification work.
+The old grouped W01/W02 producer passed all three cases on byte-identical
+`4ab120f` source, including full baseline initialization, all ten charges and
+retry/reopen. Its recorded HEAD precedes that commit, so its admitted source
+files, not the HEAD label, establish the cut. It is retained as old-source
+production evidence rather than relabeled as final code.
+
+The old grouped rollback run was superseded and externally interrupted during
+its charge-0 case. Runner exit was 130; no supervisor terminal or verified
+supervisor descendant reap was available. Its aggregate credit is zero and its
+interrupted case database is ineligible as an input. The earlier closed ready
+checkpoint retains its separate independent W09 qualification.
+
+Pre-optimization W10 and charge-9 attempts both reached their 45-minute wall
+caps. Their supervisors cleaned up all owned processes, but neither earns PASS
+credit. No timed-out database was reused. Their fresh optimized replacements
+passed: W10 in 1,399.89 seconds, and charge-9 rollback/resume in 1,339.04 seconds.
+W10 proves the exact one frozen-plan write, 20 activity/head writes, all ten
+canonical effects, zero-write retry, and authority-free reopen. Charge-9 proves
+rollback of the failing charge while preserving exactly nine prior effects,
+then charging only the missing participant and preserving retry bytes.
+
+The genuine completed-copy acquisition regression observed an exact RED before
+the optimization. Its five GREEN cases prove a single initial freeze acquisition,
+all ten accepted-source callbacks, unchanged result and zero effects, rejection
+of changed accepted effort, current-head/archive corruption, and competing
+legacy ownership. R02's recorded test title originally said “any participant”;
+the commit corrects that description to “the changed participant” without
+changing its behavior. This title-only difference is disclosed rather than
+rewriting the historical record.
+
+All 51 authored native acceptance cases have positive evidence across the
+listed source cuts; none remains unrun in that inventory. This is not a claim
+that every historical case was rerun on the final four-line optimization. That
+change has independent static clearance, its own genuine RED/GREEN preservation
+pack, and the two previously capped long gates. The exact integrated cut also
+passed focused compiler and all 68 selected light compatibility cases.
+
+Held or never-run outside that inventory: the broad project aggregate suite,
+exhaustive strict-storage/raw-alias combinations, genuine independent scoring
+interleave, a second genuine terminal origin, and later completed-stage,
+reservation-based same-PA or next-play capabilities. These remain separate work;
+skipped cases in each focused stage retain zero credit.

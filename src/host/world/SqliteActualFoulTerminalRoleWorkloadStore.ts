@@ -237,6 +237,10 @@ export const openSqliteActualFoulTerminalRoleWorkloadStore = (path: string,
         const row = identity(db, 'actual_role_workload_assessments', p.assessmentSourceId);
         if (!row || row.source_json !== json(input(accepted, p.assessmentSourceId))) throw new Error('terminal assessment changed after freeze');
       }
+      // The authenticated frozen read already proved this exact archived
+      // activity and its current chain. Keep Source checks above and the final
+      // all-participant read below; only missing effects need the writer/CAS.
+      if (p.applied) continue;
       const after = global({ kind: 'activity', terminalSourceId, sourceId: p.activity.sourceEventId }, () => workload.apply(p.activity.sourceEventId, p.before.revision));
       same(after, p.after, 'terminal workload global AFTER differs');
     }

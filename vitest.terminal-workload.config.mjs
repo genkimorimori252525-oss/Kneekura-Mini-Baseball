@@ -8,5 +8,6 @@ export default { ...(cacheDir ? { cacheDir } : {}), test: { cache: false, includ
   'src/host/world/ActualFoulTerminalRoleWorkloadGuards.acceptance.ts',
   'src/host/world/ActualFoulTerminalRoleWorkloadCheckpoint.acceptance.ts',
   'src/host/world/ActualFoulTerminalRoleWorkloadReady.acceptance.ts',
+  'src/host/world/ActualFoulTerminalRoleWorkloadRetry.acceptance.ts',
   'src/host/world/ActualFoulTerminalRoleWorkloadMetadata.test.ts',
 ] } };
