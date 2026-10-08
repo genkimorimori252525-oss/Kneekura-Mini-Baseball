@@ -1,0 +1,1 @@
+{"extends":"./tsconfig.json","compilerOptions":{"noEmit":true,"incremental":false},"include":["src/host/world/TerminalRetainedPrefixRecovery.test.ts","src/host/world/TerminalRetainedPrefixRecovery.acceptance.ts"]}
