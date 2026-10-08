@@ -49,12 +49,12 @@ The production runner consumes only schema v3; it neither copies nor upgrades a 
 
 ## Execution steps
 
-- [ ] Independently review this concrete contract before production changes.
-- [ ] Author focused pending-writer/admission tests and genuine Native application/rollback/reopen tests first.
-- [ ] On runtime release, run them against unchanged production and observe intended missing pending API/behavior RED after prerequisites.
-- [ ] Implement the minimal functions above; do not add an acknowledgement placeholder that claims consumption.
-- [ ] Run focused compiler and bounded GREEN plus unchanged 24 writer parity/17 adjacent checks under coordinator controls. Full suite stays explicitly unqualified unless separately run.
-- [ ] Obtain independent code/contract review; return exact source IDs and evidence scope.
+- [x] Independently review this concrete contract before production changes.
+- [x] Author focused pending-writer/admission tests and genuine Native application/rollback/reopen tests first.
+- [x] On runtime release, run them against unchanged production and observe intended missing pending API/behavior RED after prerequisites.
+- [x] Implement the minimal functions above; do not add an acknowledgement placeholder that claims consumption.
+- [x] Run focused compiler and bounded GREEN plus unchanged 24 writer parity/17 adjacent checks under coordinator controls. Full suite stays explicitly unqualified unless separately run.
+- [x] Obtain independent code/contract review; return exact source IDs and evidence scope.
 
 ## Next dependency
 
@@ -111,3 +111,7 @@ The independently reviewed shared-writer/getMatch/raw-guard portion reached focu
 ## Runner checkpoint, 2026-10-08
 
 The genuine missing-runner RED has now been observed after the authentic owned-producer/cutover prerequisites. The runner implementation and independent-review orphan-mirror repair qualify the focused compiler plus 84 selected LIGHT cases at `562ad1e`, src tree `8c0ad51bc2e444b5ac97f6c697c0c76eae73d9fe`. P11 GREEN and the three P17 real-writer rollback cases remain held for coordinated runtime using the explicitly pinned retained producer. The previous section is the historical pre-runner checkpoint, not the current implementation state. See `docs/verification/2026-10-08-terminal-pending-runner-bounded.md` for exact attribution, limits and receipt hashes.
+
+## Genuine qualification, 2026-10-08
+
+P11 genuine application/retry/reopen and all three P17 real-write rollback cases passed in separately released retained-producer stages at `28868f1`, with the same src tree `8c0ad51bc2e444b5ac97f6c697c0c76eae73d9fe`. No physical evidence was regenerated. The bounded total is focused compiler plus 88 selected passes; no full-suite or second-genuine-origin pass is claimed. The earlier held checkpoint above is historical. See `docs/verification/2026-10-08-terminal-pending-genuine-qualified.md` for exact attribution and terminal hashes. The pending application slice stops here; official-child acknowledgement remains the next owner extension.

@@ -1,5 +1,7 @@
 # Terminal pending runner: bounded verification
 
+This is the pre-genuine-GREEN checkpoint. The later [genuine qualification report](2026-10-08-terminal-pending-genuine-qualified.md) records P11 and all three P17 passes against the same src tree.
+
 The terminal application runner now consumes an authenticated queued Source through the shared pending writer and preserves an explicit post-play block. It owns the transaction, verifies original evidence and the three durable mirrors, and authenticates retries without applying again. No acknowledgement, settlement, reset or next-play activation is claimed.
 
 ## Exact tested source and results
