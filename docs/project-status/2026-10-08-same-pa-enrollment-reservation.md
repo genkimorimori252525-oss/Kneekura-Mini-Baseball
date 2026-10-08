@@ -12,7 +12,7 @@ The three owner tables are installed together only inside a successful first acc
 
 ## Verification
 
-Runtime and test source tree: `ee56022dbd2f33e71d2c087e62f86313fe6ee214`, compiled and used for the genuine inventory at commit `93facd563d7afdef3ba6f3065477628ff78405f9`. The 177-case focused result belongs to `42d4958e803951a9c3dafc3a28e76db46a7f09e3`; the subsequent change splits a declaration and annotates its optional SQL parameter map in `SamePlateAppearanceReservationGuard.ts`. The 177-case result retains its original Source attribution; it is not a new run on the compiler/inventory Source. This status note changes no runtime or test bytes.
+Original reservation implementation and test source tree: `ee56022dbd2f33e71d2c087e62f86313fe6ee214`, compiled and used for the genuine inventory at commit `93facd563d7afdef3ba6f3065477628ff78405f9`. The 177-case focused result belongs to `42d4958e803951a9c3dafc3a28e76db46a7f09e3`; the subsequent change splits a declaration and annotates its optional SQL parameter map in `SamePlateAppearanceReservationGuard.ts`. The 177-case result retains its original Source attribution; it is not a new run on the compiler/inventory Source. This status note changes no runtime or test bytes.
 
 - Full TypeScript compiler passed with the required generated catalog present.
 - 177 focused and v1 compatibility tests passed across 12 files. This is not a whole-project test claim.
@@ -24,8 +24,12 @@ Most small enrollment tests mock actor authentication while using real Native wo
 
 A separate genuine retained-terminal prerequisite inventory authenticated the accepted next actor and all ten participant bindings. Nine defender baselines exist; the next batter `away-2` has no actual workload baseline. That one inventory case passed, with 29 unrelated cases explicitly skipped. No baseline, enrollment, physical pitch, or successor right was created in that gate; the closed input and copy remained unchanged.
 
-## Remaining prerequisite and later slices
+## Qualified baseline prerequisite and later slices
 
-The genuine retained-terminal fixture requires an explicitly accepted baseline Source for `away-2` through the normal Player workload owner, followed by its observed actual reference. Prior-batter values and default zero values cannot supply it. Genuine ten-player reservation has therefore not yet been qualified on that retained input.
+A separately accepted private fixture Source now supplies the existing nonzero baseline recipe for `away-2` through the normal Player workload owner. Its genuine Native gate passed: exactly one baseline row and one revision-0 head, no policy or activity rows, unchanged prior rows/rowids/schema and nine defender states, zero-write retry, and callback-free query-only readback after normal private reopen. All ten baseline references were observed and all handles/sidecars closed. This is fixture qualification, not a production calibration claim.
+
+The separate baseline harness is `956c131b4c988db66b59a86f27f4f109756e5381`, source tree `87f509c217a40b355b35a1892a2d0c1e0356ef24`. It adds only two test/helper files and one opt-in test configuration; the preceding implementation files are unchanged. Its full compiler passed, and its one genuine case passed in 277.66 seconds. The closed Native terminal SHA-256 is `03849d936e2a6e271d88113f229cd35e2fa846ba376a5cef1b969e4ce0e55c05`. Both processes exited zero and were reaped; all four input groups remained unchanged. This result is separate from the earlier 177-case and inventory records.
+
+No enrollment was attempted in that prerequisite gate. Genuine ten-player reservation still requires its separately reviewed acceptance gate; the qualified baseline output supplies its actual inputs.
 
 Cumulative execution views, physical dispatch, per-episode runtime membership, ordinary-foul reset/resume, geometry integration, final settlement, and release remain separate reviewed slices.
