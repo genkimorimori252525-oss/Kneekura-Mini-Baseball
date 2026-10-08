@@ -1,3 +1,10 @@
+import { actualFoulTerminalPostPlaySetupInput, type FoulTerminalPostPlaySetupAuthority } from './ActualFoulTerminalPostPlaySetup';
+import type { DurableFoulTerminalCompletedApplication } from './ActualFoulTerminalPostPlayCompletion';
+import { foulTerminalPostPlayCompletionEvidenceFromSqlite } from './ActualFoulTerminalPostPlayCompletionEvidenceFromSqlite';
+import { foulTerminalPostPlaySetupIdentityRows } from './ActualFoulTerminalApplicationOwnership';
+import { officialApplicationPostPlaySetupIdentityClaims } from '../OfficialApplicationOwnershipFromSqlite';
+import { terminalScoringRows, terminalScoringSchema } from './ActualFoulTerminalScoringEvidenceFromSqlite';
+import { foulTerminalCompletedOfficial } from '../OfficialTerminalPostPlayCompletion';
 import { createRequire } from 'node:module';
 import { randomUUID } from 'node:crypto';
 import { lstatSync, realpathSync } from 'node:fs';
@@ -14,8 +21,9 @@ import type { DurableFoulTerminalApplication, DurableFoulTerminalAppliedPending,
 
 export type SqliteActualFoulTerminalApplicationRunner = Readonly<{
   read(sourceId: string): DurableFoulTerminalApplication | null;
-  apply(sourceId: string): DurableFoulTerminalAppliedPending | DurableFoulTerminalAcknowledgedApplication;
-  acknowledge(sourceId: string): DurableFoulTerminalAcknowledgedApplication;
+  apply(sourceId: string): DurableFoulTerminalAppliedPending | DurableFoulTerminalAcknowledgedApplication | DurableFoulTerminalCompletedApplication;
+  acknowledge(sourceId: string): DurableFoulTerminalAcknowledgedApplication | DurableFoulTerminalCompletedApplication;
+  completePostPlay(setupSourceId: string): DurableFoulTerminalCompletedApplication;
   close(): void;
 }>;
 const same = (actual: unknown, expected: unknown, message: string) => {
@@ -48,7 +56,9 @@ const assertStorage = (db: DatabaseSync): void => {
 /** Consume only an already-v3 private artifact. The external owner must first
  * stop/reap its old process and create/migrate its own new private copy; this
  * opener accepts no quiescence Boolean and makes no shared-database guarantee. */
-export const openSqliteActualFoulTerminalApplicationRunner = (path: string): SqliteActualFoulTerminalApplicationRunner => {
+export const openSqliteActualFoulTerminalApplicationRunner = (path: string,
+  completionAuthority?: FoulTerminalPostPlaySetupAuthority): SqliteActualFoulTerminalApplicationRunner => {
+  if (completionAuthority !== undefined && typeof completionAuthority.readAcceptedPostPlaySetup !== 'function') throw new Error('invalid terminal completion authority');
   if (!id(path) || !isAbsolute(path) || path === ':memory:' || !lstatSync(path).isFile() || realpathSync(path) !== path) {
     throw new Error('foul terminal runner requires an existing canonical regular-file artifact');
   }
@@ -113,7 +123,7 @@ export const openSqliteActualFoulTerminalApplicationRunner = (path: string): Sql
       }
     }
   };
-  const transaction = <T>(sourceId: string, write: boolean, body: () => { value: T; changes: 0 | 1 | 3 }): T => {
+  const transaction = <T>(sourceId: string, write: boolean, body: () => { value: T; changes: 0 | 1 | 3; verifyCommitted?: () => void }): T => {
     check(sourceId);
     if (db.isTransaction) return retire(new Error('foul terminal runner has an unowned transaction'),[]);
     const setting = queryOnly(), before = counters(), savepoint = 'terminal_application_' + randomUUID().replaceAll('-','');
@@ -132,6 +142,8 @@ export const openSqliteActualFoulTerminalApplicationRunner = (path: string): Sql
       if (!db.isTransaction) { failed = true; throw new Error('foul terminal runner owned transaction disappeared'); }
       db.exec('COMMIT');
       if (db.isTransaction || queryOnly() !== setting) { failed = true; throw new Error('foul terminal runner commit state differs'); }
+      same(counters(),after,'foul terminal runner COMMIT changed rows or schema');
+      result.verifyCommitted?.();
       return result.value;
     } catch (error) {
       const cleanup: unknown[] = [];
@@ -148,6 +160,40 @@ export const openSqliteActualFoulTerminalApplicationRunner = (path: string): Sql
       if (failed || cleanup.length) return retire(error,cleanup);
       throw error;
     }
+  };
+  // Capture only the three already-authenticated owned mirrors. This detects
+  // COMMIT replacement/rollback without callbacks or expensive proof replay.
+  // A post-COMMIT error retires the handle without claiming rollback occurred.
+  const ownedCommitProof = (saved: DurableFoulTerminalApplication) => {
+    const p = saved.proposal;
+    const read = () => [
+      db.prepare('SELECT rowid AS __durable_rowid,* FROM main.actual_foul_terminal_applications WHERE source_id=?').all(saved.source.sourceId),
+      db.prepare('SELECT rowid AS __durable_rowid,* FROM main.applications WHERE application_id=?').all(p.source.applicationId),
+      db.prepare('SELECT rowid AS __durable_rowid,* FROM main.matches WHERE match_id=?').all(p.gameId),
+    ];
+    const expected = read();
+    if (expected.some(rows => rows.length !== 1)) throw new Error('foul terminal durable mirror capture is ambiguous');
+    return () => same(read(),expected,'foul terminal post-COMMIT owned mirrors differ; durability is unconfirmed');
+  };
+  const completionOwner = foulTerminalPostPlayCompletionEvidenceFromSqlite(db);
+  const completionPin = () => ({ schema:terminalScoringSchema(db),rows:terminalScoringRows(db),
+    dataVersion:db.prepare('PRAGMA main.data_version').get()!.data_version });
+  const findCompletedSetup = (setupSourceId: string) => {
+    const rows = foulTerminalPostPlaySetupIdentityRows(db,setupSourceId);
+    const official = officialApplicationPostPlaySetupIdentityClaims(db,setupSourceId);
+    if (!rows.length) {
+      if (official.length) throw new Error('terminal completion orphan accepted setup claim');
+      return null;
+    }
+    if (rows.length !== 1 || typeof rows[0].source_id !== 'string') throw new Error('terminal completion setup ownership is ambiguous');
+    const saved = completionOwner.read(rows[0].source_id);
+    if (!saved || saved.result.completion.source.sourceId !== setupSourceId) throw new Error('terminal completion setup identity differs');
+    return saved;
+  };
+  const captureSetup = (setupSourceId: string) => {
+    const raw = completionAuthority?.readAcceptedPostPlaySetup(setupSourceId);
+    check(setupSourceId);
+    return actualFoulTerminalPostPlaySetupInput(raw,setupSourceId);
   };
   return Object.freeze({
     read(sourceId: string) { return transaction(sourceId,false,() => ({ value:proof(() => owner.read(sourceId)),changes:0 })); },
@@ -177,7 +223,7 @@ export const openSqliteActualFoulTerminalApplicationRunner = (path: string): Sql
             'foul terminal original owners or policy changed during application');
           return after;
         });
-        return { value:saved,changes:3 };
+        return { value:saved,changes:3,verifyCommitted:ownedCommitProof(saved) };
       });
     },
     acknowledge(sourceId: string) {
@@ -198,7 +244,55 @@ export const openSqliteActualFoulTerminalApplicationRunner = (path: string): Sql
             'foul terminal acknowledgement changed original owners or official mirrors');
           return after;
         });
-        return { value:saved,changes:1 };
+        return { value:saved,changes:1,verifyCommitted:ownedCommitProof(saved) };
+      });
+    },
+    completePostPlay(setupSourceId: string) {
+      check(setupSourceId);
+      // Historical exact retries discover and fully authenticate their archive
+      // before any accepted-input callback, and never acquire write intent.
+      const retry = transaction(setupSourceId,false,() => ({ value:proof(() => findCompletedSetup(setupSourceId)),changes:0 }));
+      if (retry) return retry;
+      const source = captureSetup(setupSourceId);
+      const preflight = transaction(setupSourceId,false,() => ({ value:proof(() => {
+        if (!assertFoulTerminalApplicationStorage(db,'completion')) throw new Error('terminal completion storage must be explicitly installed');
+        return { prepared:completionOwner.prepare(source),pin:completionPin() };
+      }),changes:0 }));
+      same(captureSetup(setupSourceId),source,'terminal completion accepted setup changed after preflight');
+      return transaction(setupSourceId,true,() => {
+        const before = proof(() => {
+          if (!assertFoulTerminalApplicationStorage(db,'completion')) throw new Error('terminal completion storage is missing');
+          same(completionPin(),preflight.pin,'terminal completion dependencies changed before writer acquisition');
+          same(captureSetup(setupSourceId),source,'terminal completion accepted setup changed at writer boundary');
+          const prepared = completionOwner.prepare(source);
+          same(prepared,preflight.prepared,'terminal completion current proof changed after preflight');
+          const row = db.prepare('SELECT rowid AS __owner_rowid,* FROM main.actual_foul_terminal_applications WHERE source_id=?').get(source.terminalReference.sourceId)!;
+          return { prepared,row,official:writer.prepareTerminalPostPlayCompletion(source) };
+        });
+        const official = before.official.write(), p = before.prepared.original.proposal;
+        const result = { ...before.prepared.original.result,completion:before.prepared.completion };
+        const keys = Object.keys(before.row).filter(key => key !== '__owner_rowid');
+        const changed = db.prepare("UPDATE main.actual_foul_terminal_applications SET status='POST_PLAY_COMPLETED_CONTINUING',result_json=? WHERE rowid=? AND "
+          + keys.map(key => '"' + key.replaceAll('"','""') + '" IS ?').join(' AND '))
+          .run(json(result),before.row.__owner_rowid,...keys.map(key => before.row[key]));
+        if (changed.changes !== 1) throw new Error('terminal completion archive CAS differs');
+        const saved = proof(() => {
+          same(captureSetup(setupSourceId),source,'terminal completion accepted setup changed after writes');
+          const after = completionOwner.read(p.source.sourceId);
+          if (!after) throw new Error('terminal completion archive disappeared');
+          same(after.result,result,'terminal completion effects changed after writes');
+          const application = foulTerminalCompletedOfficial(result.official,result.completion);
+          same(official.readResult(),application,'terminal completion shared official writer differs');
+          const expectedRows = preflight.pin.rows.map(table => ({ ...table,rows:table.rows.map(row => {
+            if (table.table === 'applications' && row.application_id === p.source.applicationId) return { ...row,result_json:json(application) };
+            if (table.table === 'matches' && row.match_id === p.gameId) return { ...row,activation_json:json({ activation:result.completion.activation,nextWorld:result.completion.nextWorld }) };
+            if (table.table === 'actual_foul_terminal_applications' && row.source_id === p.source.sourceId) return { ...row,status:'POST_PLAY_COMPLETED_CONTINUING',result_json:json(result) };
+            return row;
+          }) }));
+          same(completionPin(),{ ...preflight.pin,rows:expectedRows },'terminal completion changed original, unrelated, schema or row identity');
+          return after;
+        });
+        return { value:saved,changes:3,verifyCommitted:ownedCommitProof(saved) };
       });
     },
     close() { if (!closed) { closed = true; db.close(); } },

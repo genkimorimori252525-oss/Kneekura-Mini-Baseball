@@ -2,6 +2,9 @@ import type { FoulOfficialDb, FoulOfficialRow, FoulOfficialScope } from './Actua
 import { foulOfficialClaims, foulOfficialHeads, foulOfficialIntentClaims } from './ActualFoulOfficialOwnership';
 import { originalFoulMetadataValues as values, originalFoulReferenceIds as references } from './OriginalFoulOwnershipMetadata';
 import { actualLivePlayId as id } from './ActualLivePlayScope';
+import { foulTerminalCompletionRawIdentities, emptyFoulTerminalCompletionIdentitySets,
+  matchesFoulTerminalCompletionIdentities, growFoulTerminalCompletionIdentities,
+  foulTerminalCompletionPreviousPlayClaim, foulTerminalCompletionPhysicalEndClaim } from './ActualFoulTerminalCompletionMetadata';
 
 export type FoulTerminalApplicationScope = Readonly<{
   official: FoulOfficialScope;
@@ -81,24 +84,26 @@ const acknowledgementSources = (db: Db, identities: readonly string[]): string[]
   return row && id(row.obligation_key) && id(row.source_id) ? [row.source_id] : [];
 });
 const terminalIds = (db: Db, row: Row, m: Metadata) => {
+  const completion = foulTerminalCompletionRawIdentities(m, 'result_json');
   const acknowledgementIds = strings(m.value('result_json',['acknowledgement','acknowledgementId']));
-  const sourceIds = strings([row.source_id, ...m.value('source_json', ['sourceId']), ...m.value('proposal_json', ['source', 'sourceId']),
+  const sourceIds = strings([...completion.sourceIds, row.source_id, ...m.value('source_json', ['sourceId']), ...m.value('proposal_json', ['source', 'sourceId']),
     ...m.value('result_json', ['sourceId']), ...m.reference('result_json', ['official', 'pendingPostPlay', 'origin'], terminalOwner),
     ...m.reference('result_json', ['acknowledgement', 'consumer'], terminalOwner),...acknowledgementSources(db,acknowledgementIds)]);
-  const applicationIds = strings([row.application_id, ...m.value('source_json', ['applicationId']),
+  const applicationIds = strings([...completion.applicationIds, row.application_id, ...m.value('source_json', ['applicationId']),
     ...m.value('proposal_json', ['source', 'applicationId']), ...m.value('proposal_json', ['applicationBody', 'applicationId']),
     ...m.value('result_json', ['official', 'receipt', 'applicationId']), ...m.value('result_json', ['official', 'pendingPostPlay', 'applicationId']),
     ...m.value('result_json', ['acknowledgement', 'applicationReference', 'applicationId'])]);
   // This owner's adapted closure ID equals its Source ID. It is deliberately
   // never inferred from applicationId, which belongs to a different domain.
-  const closureIds = strings([...sourceIds, ...m.value('proposal_json', ['applicationBody', 'adjudication', 'events', 'closureId']),
+  const closureIds = strings([...completion.closureIds, ...sourceIds, ...m.value('proposal_json', ['applicationBody', 'adjudication', 'events', 'closureId']),
     ...m.value('result_json', ['official', 'receipt', 'closureId']), ...m.value('result_json', ['official', 'pendingPostPlay', 'closureId']),
     ...m.value('result_json', ['acknowledgement', 'applicationReference', 'closureId'])]);
-  return { sourceIds, applicationIds, closureIds, acknowledgementIds };
+  return { ...completion, sourceIds, applicationIds, closureIds, acknowledgementIds };
 };
 export const foulTerminalApplicationRawIdentities = (db: Db, row: Row) => terminalIds(db,row,metadata(db,row));
 type Ids = ReturnType<typeof terminalIds>;
 const identitySets = (sourceId?: string, applicationId?: string, closureId?: string, acknowledgementId?: string) => ({
+  ...emptyFoulTerminalCompletionIdentitySets(),
   sourceIds: new Set(sourceId === undefined ? [] : [sourceId]),
   applicationIds: new Set(applicationId === undefined ? [] : [applicationId]),
   closureIds: new Set(strings([sourceId, closureId])),
@@ -106,10 +111,10 @@ const identitySets = (sourceId?: string, applicationId?: string, closureId?: str
 });
 const matchesIds = (found: Ids, known: ReturnType<typeof identitySets>) => overlaps(found.sourceIds, known.sourceIds)
   || overlaps(found.applicationIds, known.applicationIds) || overlaps(found.closureIds, known.closureIds)
-  || overlaps(found.acknowledgementIds,known.acknowledgementIds);
+  || overlaps(found.acknowledgementIds,known.acknowledgementIds) || matchesFoulTerminalCompletionIdentities(found,known);
 const growIds = (known: ReturnType<typeof identitySets>, found: Ids) => {
   add(known.sourceIds, found.sourceIds); add(known.applicationIds, found.applicationIds); add(known.closureIds, found.closureIds);
-  add(known.acknowledgementIds,found.acknowledgementIds);
+  add(known.acknowledgementIds,found.acknowledgementIds); growFoulTerminalCompletionIdentities(known,found);
 };
 
 /** Identity discovery precedes parsing. A selected intact row supplies the
@@ -122,6 +127,23 @@ export const foulTerminalApplicationIdentityRows = (db: Db, sourceId: string): R
     let changed = false;
     for (const entry of all) if (!selected.has(entry.row) && matchesIds(entry.ids, known)) {
       selected.add(entry.row); growIds(known, entry.ids); changed = true;
+    }
+    if (!changed) return sortFoulApplicationOwnershipRows([...selected]);
+  }
+};
+
+/** Global rejection-only setup census, independent of cached terminal IDs,
+ * original scope and hashes. Fixed-point linkage also retains malformed peers;
+ * callers must authenticate every selected row before any successful retry. */
+export const foulTerminalPostPlaySetupIdentityRows = (db: Db, setupSourceId: string): Row[] => {
+  if (!id(setupSourceId)) throw new Error('invalid foul terminal post-play setup identity');
+  const all = rows(db).map(row => ({ row, ids: terminalIds(db,row,metadata(db,row)) }));
+  const known = identitySets(), selected = new Set<Row>();
+  known.setupSourceIds.add(setupSourceId);
+  for (;;) {
+    let changed = false;
+    for (const entry of all) if (!selected.has(entry.row) && matchesIds(entry.ids,known)) {
+      selected.add(entry.row); growIds(known,entry.ids); changed = true;
     }
     if (!changed) return sortFoulApplicationOwnershipRows([...selected]);
   }
@@ -185,16 +207,29 @@ const scoped = (row: Row, m: Metadata, scope: FoulTerminalApplicationScope,
     || overlaps(m.value('proposal_json', ['callSource', 'action', 'intentSourceId']), links.intents)
     || overlaps(m.value('proposal_json', ['callIntent', 'sourceId']), links.intents)
     || m.value('proposal_json', ['callIntent', 'sessionSourceId']).includes(s.sourceId)) return true;
-  const game = row.game_id === s.gameId || m.value('proposal_json', ['gameId']).includes(s.gameId)
-    || m.value('proposal_json', ['applicationBody', 'matchId']).includes(s.gameId);
-  return m.value('proposal_json', ['applicationBody', 'matchId']).includes(s.gameId)
-      && m.value('proposal_json', ['applicationBody', 'match', 'playId']).includes(s.playId)
-    || game && m.value('result_json', ['official', 'receipt', 'previousPlayId']).includes(s.playId)
-    || m.value('result_json', ['official','pendingPostPlay','matchId']).includes(s.gameId)
-      && m.value('result_json', ['official','pendingPostPlay','previousPlayId']).includes(s.playId)
-    || m.value('result_json',['acknowledgement','applicationReference','matchId']).includes(s.gameId)
-      && m.value('result_json',['acknowledgement','applicationReference','previousPlayId']).includes(s.playId);
+  return foulTerminalCompletionPhysicalEndClaim(m,'result_json',[],s.physicalEndSourceId)
+    || terminalOriginalScopeClaim(row,m,s.gameId,s.playId);
 };
+
+/** Original game/previous-play discovery shared with local Match admission. */
+const terminalOriginalScopeClaim = (row:Row,m:Metadata,gameId:string,playId:number):boolean => {
+  const game = row.game_id === gameId || m.value('proposal_json', ['gameId']).includes(gameId)
+    || m.value('proposal_json', ['applicationBody', 'matchId']).includes(gameId);
+  const completionGame = game || m.value('result_json',['official','pendingPostPlay','matchId']).includes(gameId)
+    || m.value('result_json',['acknowledgement','applicationReference','matchId']).includes(gameId);
+  if (row.game_id === gameId && row.play_id === playId
+    || m.value('proposal_json',['gameId']).includes(gameId) && m.value('proposal_json',['playId']).includes(playId)
+    || completionGame && foulTerminalCompletionPreviousPlayClaim(m,'result_json',[],playId)) return true;
+  return m.value('proposal_json', ['applicationBody', 'matchId']).includes(gameId)
+      && m.value('proposal_json', ['applicationBody', 'match', 'playId']).includes(playId)
+    || game && m.value('result_json', ['official', 'receipt', 'previousPlayId']).includes(playId)
+    || m.value('result_json', ['official','pendingPostPlay','matchId']).includes(gameId)
+      && m.value('result_json', ['official','pendingPostPlay','previousPlayId']).includes(playId)
+    || m.value('result_json',['acknowledgement','applicationReference','matchId']).includes(gameId)
+      && m.value('result_json',['acknowledgement','applicationReference','previousPlayId']).includes(playId);
+};
+export const foulTerminalApplicationOriginalScopeClaim = (db:Db,row:Row,gameId:string,playId:number):boolean =>
+  terminalOriginalScopeClaim(row,metadata(db,row),gameId,playId);
 
 /** Rejection-only scope census. No selected row, including a result-bearing
  * future shape, is accepted here as a valid queue or an applied checkpoint. */

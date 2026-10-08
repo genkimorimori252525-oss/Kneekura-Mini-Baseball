@@ -15,7 +15,7 @@ import { actualLivePlayId as id } from './ActualLivePlayScope';
 export const foulTerminalRoleWorkloadContextFromSqlite = (db: DatabaseSync, terminalSourceId: string) => withBattedVenueLegalReadSnapshot(db, () => {
   if (!id(terminalSourceId)) throw new Error('invalid terminal workload Source');
   const ancestry = foulTerminalAcknowledgementAncestryFromSqlite(db).read(terminalSourceId);
-  if (!ancestry || ancestry.archiveStage !== 'OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY' || !ancestry.evidence) {
+  if (!ancestry || ancestry.archiveStage !== 'OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY' && ancestry.archiveStage !== 'POST_PLAY_COMPLETED_CONTINUING' || !ancestry.evidence) {
     throw new Error('terminal workload requires authentic acknowledged pending post-play');
   }
   const terminal = freeze({ ...ancestry.evidence, status: ancestry.archiveStage });
@@ -93,6 +93,7 @@ export const foulTerminalWorkloadEvidenceFromSqlite = (db: DatabaseSync) => {
       throw new Error('terminal workload frozen settlement ownership differs');
     }
     if (!row) {
+      if (c.terminal.status === 'POST_PLAY_COMPLETED_CONTINUING') throw new Error('completed terminal workload plan is missing; repair is forbidden');
       for (const actor of c.actors) {
         assertNoArchivedActualRoleWorkloadCharge(db, { ...ref, playerId: actor.binding.playerId });
       }
@@ -126,6 +127,9 @@ export const foulTerminalWorkloadEvidenceFromSqlite = (db: DatabaseSync) => {
         : json(current) !== json(p.before))) throw new Error('terminal workload participant current head differs');
       return { ...p, applied: !!activity };
     });
+    if (c.terminal.status === 'POST_PLAY_COMPLETED_CONTINUING' && participants.some(p => !p.applied)) {
+      throw new Error('completed terminal workload effect is missing; repair is forbidden');
+    }
     return freeze({ ...plan, kind: participants.every(p => p.applied) ? 'complete' as const : 'applying' as const, participants });
   });
   return { readSettlement };

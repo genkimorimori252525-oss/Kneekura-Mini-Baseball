@@ -1,7 +1,12 @@
 import type { FoulOfficialDb, FoulOfficialRow } from './world/ActualFoulOfficialOwnership';
 import { originalFoulMetadataValues as values, originalFoulReferenceIds as references } from './world/OriginalFoulOwnershipMetadata';
 import { foulApplicationOwnershipRows, foulApplicationOwnershipRowKey, foulTerminalApplicationClaims,
-  foulTerminalApplicationRawIdentities, type FoulTerminalApplicationScope } from './world/ActualFoulTerminalApplicationOwnership';
+  foulTerminalApplicationRawIdentities, foulTerminalApplicationRows, foulTerminalApplicationOriginalScopeClaim, sortFoulApplicationOwnershipRows, type FoulTerminalApplicationScope } from './world/ActualFoulTerminalApplicationOwnership';
+
+import { foulTerminalCompletionRawIdentities, emptyFoulTerminalCompletionIdentitySets,
+  matchesFoulTerminalCompletionIdentities, growFoulTerminalCompletionIdentities, combineFoulTerminalCompletionIdentities,
+  foulTerminalCompletionPreviousPlayClaim, foulTerminalCompletionPhysicalEndClaim,
+  type FoulTerminalCompletionIdentities, type FoulTerminalCompletionIdentitySets } from './world/ActualFoulTerminalCompletionMetadata';
 
 type Db = FoulOfficialDb;
 type Row = FoulOfficialRow;
@@ -35,42 +40,49 @@ const metadata = (db: Db, row: Row) => {
     reference: (column: string, path: Path, owner: string) => read(column, path, owner) };
 };
 type Metadata = ReturnType<typeof metadata>;
-type Identity = Readonly<{ sourceIds: readonly string[]; applicationIds: readonly string[]; closureIds: readonly string[] }>;
-type Known = { sourceIds: Set<string>; applicationIds: Set<string>; closureIds: Set<string> };
+type Identity = FoulTerminalCompletionIdentities & Readonly<{ sourceIds: readonly string[]; applicationIds: readonly string[]; closureIds: readonly string[] }>;
+type Known = FoulTerminalCompletionIdentitySets & { sourceIds: Set<string>; applicationIds: Set<string>; closureIds: Set<string> };
 const grow = (known: Known, found: Identity) => {
+  growFoulTerminalCompletionIdentities(known,found);
   add(known.sourceIds, found.sourceIds); add(known.applicationIds, found.applicationIds); add(known.closureIds, found.closureIds);
 };
 const identityClaim = (found: Identity, known: Known) => overlaps(found.sourceIds, known.sourceIds)
-  || overlaps(found.applicationIds, known.applicationIds) || overlaps(found.closureIds, known.closureIds);
+  || overlaps(found.applicationIds, known.applicationIds) || overlaps(found.closureIds, known.closureIds)
+  || matchesFoulTerminalCompletionIdentities(found,known);
 const initialIdentities = (db: Db, scope: FoulTerminalApplicationScope): Known => {
-  const known = { sourceIds: new Set(strings([scope.applicationSourceId])), applicationIds: new Set(strings([scope.applicationId])),
+  const known = { ...emptyFoulTerminalCompletionIdentitySets(), sourceIds: new Set(strings([scope.applicationSourceId])), applicationIds: new Set(strings([scope.applicationId])),
     closureIds: new Set(strings([scope.applicationSourceId, scope.closureId])) };
   for (const row of foulTerminalApplicationClaims(db, scope)) grow(known, foulTerminalApplicationRawIdentities(db, row));
   return known;
 };
 const officialContainers = [['receipt'], ['pendingPostPlay'], ['activation'], ['result'], ['finalResult']] as const;
-const officialIdentities = (m: Metadata, column: string, prefix: Path) => ({
-  sourceIds: strings(m.reference(column, [...prefix, 'pendingPostPlay', 'origin'], terminalOwner)),
-  applicationIds: strings(officialContainers.flatMap(path => m.value(column, [...prefix, ...path, 'applicationId']))),
-  closureIds: strings(officialContainers.flatMap(path => m.value(column, [...prefix, ...path, 'closureId']))),
-});
+const emptyCompletionIdentities = () => combineFoulTerminalCompletionIdentities([]);
+const officialIdentities = (m: Metadata, column: string, prefix: Path): Identity => {
+  const completion = foulTerminalCompletionRawIdentities(m,column,prefix);
+  return { ...completion,
+    sourceIds: [...completion.sourceIds,...strings(m.reference(column, [...prefix, 'pendingPostPlay', 'origin'], terminalOwner))],
+    applicationIds: [...completion.applicationIds,...strings(officialContainers.flatMap(path => m.value(column, [...prefix, ...path, 'applicationId'])))],
+    closureIds: [...completion.closureIds,...strings(officialContainers.flatMap(path => m.value(column, [...prefix, ...path, 'closureId'])))],
+  };
+};
 const combine = (...identities: Identity[]): Identity => ({
+  ...combineFoulTerminalCompletionIdentities(identities),
   sourceIds: identities.flatMap(x => x.sourceIds), applicationIds: identities.flatMap(x => x.applicationIds),
   closureIds: identities.flatMap(x => x.closureIds),
 });
 // getMatch also supports a bare legacy activation. Keep these root mirrors
 // specific to Match activation storage; other owners retain their own layouts.
-const matchActivationIdentities = (m: Metadata): Identity => combine(officialIdentities(m, 'activation_json', []), {
+const matchActivationIdentities = (m: Metadata): Identity => combine(officialIdentities(m, 'activation_json', []), { ...emptyCompletionIdentities(),
   sourceIds: [], applicationIds: strings(m.value('activation_json', ['applicationId'])),
   closureIds: strings(m.value('activation_json', ['closureId'])),
 });
 const rowIdentities = (table: Table, row: Row, m: Metadata): Identity => {
   if (table === 'matches') return matchActivationIdentities(m);
-  if (table === 'applications') return combine({ sourceIds: [], applicationIds: strings([row.application_id]),
+  if (table === 'applications') return combine({ ...emptyCompletionIdentities(), sourceIds: [], applicationIds: strings([row.application_id]),
     closureIds: strings([row.closure_id]) }, officialIdentities(m, 'result_json', []));
   const sourceIds = strings([row.source_id, ...m.value('source_json', ['sourceId']), ...m.value('proposal_json', ['source', 'sourceId']),
     ...m.value('result_json', ['sourceId'])]);
-  return combine({ sourceIds,
+  return combine({ ...emptyCompletionIdentities(), sourceIds,
     applicationIds: strings([row.application_id, ...m.value('source_json', ['applicationId']),
       ...m.value('proposal_json', ['source', 'applicationId']), ...m.value('proposal_json', ['application', 'applicationId'])]),
     closureIds: strings([...sourceIds, ...m.value('proposal_json', ['application', 'adjudication', 'events', 'closureId']),
@@ -82,13 +94,16 @@ const rowIdentities = (table: Table, row: Row, m: Metadata): Identity => {
 const previousPlay = (m: Metadata, column: string, prefix: Path, playId: number) =>
   m.value(column, [...prefix, 'receipt', 'previousPlayId']).includes(playId)
   || m.value(column, [...prefix, 'activation', 'previousPlayId']).includes(playId)
-  || m.value(column, [...prefix, 'pendingPostPlay', 'previousPlayId']).includes(playId);
+  || m.value(column, [...prefix, 'pendingPostPlay', 'previousPlayId']).includes(playId)
+  || foulTerminalCompletionPreviousPlayClaim(m,column,prefix,playId);
 const activationClaim = (row: Row, m: Metadata, scope: FoulTerminalApplicationScope, known: Known) =>
   identityClaim(matchActivationIdentities(m), known)
+  || foulTerminalCompletionPhysicalEndClaim(m,'activation_json',[],scope.official.physicalEndSourceId)
   || row.match_id === scope.official.gameId && (previousPlay(m, 'activation_json', [], scope.official.playId)
     || m.value('activation_json', ['previousPlayId']).includes(scope.official.playId))
   || m.value('activation_json', ['pendingPostPlay','matchId']).includes(scope.official.gameId)
-    && m.value('activation_json', ['pendingPostPlay','previousPlayId']).includes(scope.official.playId);
+    && (m.value('activation_json', ['pendingPostPlay','previousPlayId']).includes(scope.official.playId)
+      || foulTerminalCompletionPreviousPlayClaim(m,'activation_json',[],scope.official.playId));
 
 /** A matching Match row is baseline evidence, not by itself an application.
  * Its prior-PA activation is legitimate history. This predicate only exposes
@@ -96,11 +111,19 @@ const activationClaim = (row: Row, m: Metadata, scope: FoulTerminalApplicationSc
 export const officialMatchActivationClaims = (db: Db, row: Row, scope: FoulTerminalApplicationScope): boolean =>
   activationClaim(row, metadata(db, row), scope, initialIdentities(db, scope));
 
+export const officialApplicationRawIdentities = (db:Db,table:Table,row:Row) => rowIdentities(table,row,metadata(db,row));
+const officialOriginalScopeClaim = (row:Row,m:Metadata,gameId:string,playId:number):boolean => {
+  const game = row.match_id === gameId || m.value('result_json',['result','gameId']).includes(gameId)
+    || m.value('result_json',['pendingPostPlay','matchId']).includes(gameId);
+  return game && previousPlay(m,'result_json',[],playId);
+};
+export const officialApplicationOriginalScopeClaim = (db:Db,row:Row,gameId:string,playId:number):boolean =>
+  officialOriginalScopeClaim(row,metadata(db,row),gameId,playId);
+
 const sharedApplicationScope = (row: Row, m: Metadata, scope: FoulTerminalApplicationScope) => {
   const s = scope.official;
-  const game = row.match_id === s.gameId || m.value('result_json', ['result', 'gameId']).includes(s.gameId)
-    || m.value('result_json', ['pendingPostPlay','matchId']).includes(s.gameId);
-  return game && previousPlay(m, 'result_json', [], s.playId);
+  return officialOriginalScopeClaim(row,m,s.gameId,s.playId)
+    || foulTerminalCompletionPhysicalEndClaim(m,'result_json',[],s.physicalEndSourceId);
 };
 const closureScope = (row: Row, m: Metadata, scope: FoulTerminalApplicationScope) => {
   const s = scope.official;
@@ -130,8 +153,24 @@ const closureScope = (row: Row, m: Metadata, scope: FoulTerminalApplicationScope
     || m.value('proposal_json', ['application', 'matchId']).includes(s.gameId)
     || m.value('result_json', ['gameId']).includes(s.gameId)
     || m.value('result_json', ['official','pendingPostPlay','matchId']).includes(s.gameId);
+  if (foulTerminalCompletionPhysicalEndClaim(m,'proposal_json',['expectedOfficial'],s.physicalEndSourceId)
+    || foulTerminalCompletionPhysicalEndClaim(m,'result_json',['official'],s.physicalEndSourceId)) return true;
   return game && (previousPlay(m, 'proposal_json', ['expectedOfficial'], s.playId)
     || previousPlay(m, 'result_json', ['official'], s.playId));
+};
+
+/** Raw terminal peers can bridge two official claims after an official row
+ * introduces a previously unknown setup/hash alias. Revisit them in the same
+ * fixed point; discovery still cannot authenticate any terminal completion. */
+const terminalIdentityLinks = (db: Db) => foulTerminalApplicationRows(db).map(row => ({
+  row, ids:foulTerminalApplicationRawIdentities(db,row),
+}));
+const expandTerminalIdentityLinks = (links: ReturnType<typeof terminalIdentityLinks>, known: Known, expanded: Set<Row>): boolean => {
+  let changed = false;
+  for (const entry of links) if (!expanded.has(entry.row) && identityClaim(entry.ids,known)) {
+    expanded.add(entry.row); grow(known,entry.ids); changed = true;
+  }
+  return changed;
 };
 
 /** A deterministic raw rejection census, with the original Match included as
@@ -139,13 +178,13 @@ const closureScope = (row: Row, m: Metadata, scope: FoulTerminalApplicationScope
  * reject; no caller-provided guard or Boolean can bless one as an application.
  * Selected identities grow to a fixed point before uniqueness is decided. */
 export const officialApplicationOwnershipClaims = (db: Db, scope: FoulTerminalApplicationScope): OfficialApplicationOwnershipClaim[] => {
-  const known = initialIdentities(db, scope);
+  const known = initialIdentities(db, scope), terminalLinks = terminalIdentityLinks(db), expandedTerminals = new Set<Row>();
   const entries = tables.flatMap(table => foulApplicationOwnershipRows(db, table, columns[table]).map(row => {
     const m = metadata(db, row); return { table, row, m, ids: rowIdentities(table, row, m) };
   }));
   const selected = new Set<typeof entries[number]>(), expanded = new Set<typeof entries[number]>();
   for (;;) {
-    let changed = false;
+    let changed = expandTerminalIdentityLinks(terminalLinks,known,expandedTerminals);
     for (const entry of entries) {
       const related = entry.table === 'matches' ? activationClaim(entry.row, entry.m, scope, known)
         : identityClaim(entry.ids, known) || (entry.table === 'applications'
@@ -161,18 +200,16 @@ export const officialApplicationOwnershipClaims = (db: Db, scope: FoulTerminalAp
   }
 };
 
-/** Rejection-only identity census when the terminal Source row is missing.
- * Source and closure share this owner's ID; application IDs remain a distinct
- * domain. A wholly unlinked orphan cannot be inferred from an unknown Source. */
-export const officialApplicationIdentityClaims = (db: Db, sourceId: string): OfficialApplicationOwnershipClaim[] => {
-  if (typeof sourceId !== 'string' || !sourceId || sourceId !== sourceId.trim()) throw new Error('invalid official application Source identity');
-  const known: Known = { sourceIds:new Set([sourceId]),applicationIds:new Set(),closureIds:new Set([sourceId]) };
+/** Per-call raw identity fixed point. A seed chooses a domain, never an
+ * accepted owner or a canonical Source. No baseline Match is added here. */
+const rawOfficialIdentityClaims = (db: Db, known: Known, expandedTerminals = new Set<Row>(),
+  terminalLinks = terminalIdentityLinks(db)): OfficialApplicationOwnershipClaim[] => {
   const entries = tables.flatMap(table => foulApplicationOwnershipRows(db,table,columns[table]).map(row => ({
     table,row,ids:rowIdentities(table,row,metadata(db,row)),
   })));
   const selected = new Set<typeof entries[number]>();
   for (;;) {
-    let changed = false;
+    let changed = expandTerminalIdentityLinks(terminalLinks,known,expandedTerminals);
     for (const entry of entries) if (!selected.has(entry) && identityClaim(entry.ids,known)) {
       selected.add(entry); grow(known,entry.ids); changed = true;
     }
@@ -182,3 +219,68 @@ export const officialApplicationIdentityClaims = (db: Db, sourceId: string): Off
     });
   }
 };
+
+/** Rejection-only identity census when the terminal Source row is missing.
+ * Source and closure share this owner's ID; application IDs remain a distinct
+ * domain. A wholly unlinked orphan cannot be inferred from an unknown Source. */
+export const officialApplicationIdentityClaims = (db: Db, sourceId: string): OfficialApplicationOwnershipClaim[] => {
+  if (typeof sourceId !== 'string' || !sourceId || sourceId !== sourceId.trim()) throw new Error('invalid official application Source identity');
+  return rawOfficialIdentityClaims(db,{ ...emptyFoulTerminalCompletionIdentitySets(),
+    sourceIds:new Set([sourceId]),applicationIds:new Set(),closureIds:new Set([sourceId]) });
+};
+
+/** Activation admission is seeded in the application-ID domain. This is raw
+ * rejection-only discovery, including untagged transitive bridges; the single
+ * terminal inventory preserves distinct physical rows during expansion. */
+export const officialActivationApplicationOwnershipClaims = (db:Db,applicationId:string) => {
+  if(typeof applicationId!=='string'||!applicationId||applicationId!==applicationId.trim())throw new Error('invalid activation application identity');
+  const known:Known={...emptyFoulTerminalCompletionIdentitySets(),sourceIds:new Set(),applicationIds:new Set([applicationId]),closureIds:new Set()};
+  const terminal=new Set<Row>(),links=terminalIdentityLinks(db);
+  const official=rawOfficialIdentityClaims(db,known,terminal,links);
+  return {terminal:sortFoulApplicationOwnershipRows([...terminal]),official};
+};
+
+/** Global setup-seeded rejection census, including wholly orphan compact
+ * application/Match completion references. The table+row results stay raw;
+ * neither uniqueness nor an empty census authenticates a completed archive. */
+export const officialApplicationPostPlaySetupIdentityClaims = (db: Db, setupSourceId: string): OfficialApplicationOwnershipClaim[] => {
+  if (typeof setupSourceId !== 'string' || !setupSourceId || setupSourceId !== setupSourceId.trim()) {
+    throw new Error('invalid official application post-play setup identity');
+  }
+  const known: Known = { ...emptyFoulTerminalCompletionIdentitySets(), sourceIds:new Set(),applicationIds:new Set(),closureIds:new Set() };
+  known.setupSourceIds.add(setupSourceId);
+  return rawOfficialIdentityClaims(db,known);
+};
+
+/** Local Match rejection census, seeded by its activation and original scope.
+ * Untagged legacy rows still carry identity edges. The shared finite fixed
+ * point revisits terminal and official rows before any legacy fallback; raw
+ * linkage is never proof that any selected completion is valid. */
+export const officialMatchTerminalOwnershipClaims = (db: Db, matchId: string, match: Row, previousPlayId: number | null) => {
+  const known: Known = { ...emptyFoulTerminalCompletionIdentitySets(), sourceIds:new Set(),applicationIds:new Set(),closureIds:new Set() };
+  grow(known,matchActivationIdentities(metadata(db,match)));
+  const terminal = new Set<Row>(), links=terminalIdentityLinks(db);
+  if (previousPlayId !== null) {
+    for (const {row,ids} of links) if (foulTerminalApplicationOriginalScopeClaim(db,row,matchId,previousPlayId)) {
+      terminal.add(row); grow(known,ids);
+    }
+    for (const row of foulApplicationOwnershipRows(db,'applications',columns.applications)) {
+      const m=metadata(db,row);
+      if (officialOriginalScopeClaim(row,m,matchId,previousPlayId)) grow(known,rowIdentities('applications',row,m));
+    }
+  }
+  // One physical row inventory spans scope seeding and expansion. Distinct SQL
+  // rows stay distinct even when their raw bytes are equal.
+  const official=rawOfficialIdentityClaims(db,known,terminal,links);
+  return { terminal:sortFoulApplicationOwnershipRows([...terminal]),official };
+};
+
+/** Selected official owners may retain a terminal marker in any declared JSON
+ * storage column. This is rejection metadata only, shared across every table
+ * returned by the census rather than another consumer-specific path list. */
+export const officialApplicationHasTerminalStageClaim = (db: Db, claim: OfficialApplicationOwnershipClaim): boolean =>
+  Object.keys(columns[claim.table]).filter(column=>column.endsWith('_json')).some(column=>{
+    const document=claim.row[column];
+    return typeof document==='string' && !!db.prepare(`SELECT 1 FROM json_tree(CASE WHEN json_valid(?) THEN ? ELSE 'null' END)
+      WHERE key IN ('completion','pendingPostPlay') LIMIT 1`).get(document,document);
+  });

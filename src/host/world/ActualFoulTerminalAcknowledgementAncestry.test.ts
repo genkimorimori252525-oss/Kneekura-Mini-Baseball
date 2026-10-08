@@ -61,9 +61,10 @@ for (const [status, result] of [
   try {
     insertMalformed(db, status, result);
     unchanged(db, () => {
-      expect(() => internal(db).read('malformed-stage')).toThrow('foul terminal queue archive stage is unsupported');
+      const reason=status==='POST_PLAY_COMPLETED_CONTINUING'?'foul terminal completion storage prerequisite':'foul terminal queue archive stage is unsupported';
+      expect(() => internal(db).read('malformed-stage')).toThrow(reason);
       expect(() => terminalEvidence.foulTerminalApplicationEvidenceFromSqlite(db).read('malformed-stage'))
-        .toThrow('foul terminal queue archive stage is unsupported');
+        .toThrow(reason);
     });
   } finally { db.close(); }
 });

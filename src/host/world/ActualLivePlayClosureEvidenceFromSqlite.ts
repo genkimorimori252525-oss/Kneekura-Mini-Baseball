@@ -1,4 +1,7 @@
-import { assertNoFoulTerminalNextPlay } from './FoulTerminalNextPlayGuard';
+import { originalFoulMetadataValues as rawValues } from './OriginalFoulOwnershipMetadata';
+import { assertFoulTerminalPriorActivation, assertFoulTerminalPriorCensusScope, withFoulTerminalPriorLiveScope } from './FoulTerminalCompletionAncestryGuard';
+import { foulTerminalNextPlayReadinessFromSqlite } from './FoulTerminalNextPlayReadiness';
+import { foulTerminalNextPlayScopeRows, assertNoFoulTerminalNextPlay } from './FoulTerminalNextPlayGuard';
 import { battedWorldFieldGeometry } from './BattedWorldFieldRoot';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -184,6 +187,7 @@ export const actualLivePlayClosureEvidenceFromSqlite = (db: ActualAdjudicationDb
   read(sourceId: string) {
     const row = actualLiveAdjudicationIdentityRow(db, 'actual_live_play_closures', sourceId);
     if (!row) return null;
+    return withFoulTerminalPriorLiveScope(db,sourceId,row.game_id as string,row.play_id as number,()=>{
     const source = input(JSON.parse(String(row.source_json)), sourceId);
     const historicalApplied = !!db.prepare('SELECT 1 FROM applications WHERE application_id=?').get(source.applicationId);
     const proposal = deriveActualLivePlayClosureProposal(db, source, historicalApplied);
@@ -197,19 +201,32 @@ export const actualLivePlayClosureEvidenceFromSqlite = (db: ActualAdjudicationDb
     const result = row.status === 'OFFICIAL_APPLIED' ? actualLiveClosureResult(sourceId, proposal) : null;
     if (row.result_json !== (result === null ? null : json(result))) throw new Error('actual live closure stage receipt differs');
     return freeze({ source, proposal, status: row.status as 'QUEUED' | 'OFFICIAL_APPLIED', officialApplied: applied, result });
+    });
   },
 });
 /** Discover every actual owner of this activation, including raw identity mirrors. */
 export const actualLiveClosureApplicationRows = (db: ActualAdjudicationDb, applicationId: string) => {
   if (!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='actual_live_play_closures'").get()) return [];
   const columns = new Set(db.prepare('PRAGMA table_info(actual_live_play_closures)').all().map(r => r.name));
-  const aliases = [columns.has('source_json') ? metadataId('source_json', ['applicationId'], '$id') : '0',
-    ...(columns.has('proposal_json') ? [['source', 'applicationId'], ['application', 'applicationId'],
-      ['expectedOfficial', 'receipt', 'applicationId'], ['expectedOfficial', 'activation', 'applicationId'], ['expectedOfficial', 'result', 'applicationId']]
-      .map(path => metadataId('proposal_json', path, '$id')) : []),
-    ...(columns.has('result_json') ? [['official', 'receipt', 'applicationId'], ['official', 'activation', 'applicationId'], ['official', 'result', 'applicationId']]
-      .map(path => metadataId('result_json', path, '$id')) : [])];
-  const rows = db.prepare(`SELECT * FROM actual_live_play_closures WHERE application_id=$id OR ${aliases.join(' OR ')}`).all({ id: applicationId });
+  const aliases = [
+    ...(columns.has('source_json') ? [['source_json',['applicationId']]] as const : []),
+    ...(columns.has('proposal_json') ? [['source','applicationId'],['application','applicationId'],
+      ['expectedOfficial','receipt','applicationId'],['expectedOfficial','activation','applicationId'],['expectedOfficial','result','applicationId']]
+      .map(path => ['proposal_json',path] as const) : []),
+    ...(columns.has('result_json') ? [['official','receipt','applicationId'],['official','activation','applicationId'],['official','result','applicationId']]
+      .map(path => ['result_json',path] as const) : []),
+  ];
+  // Preserve the original scoped statement boundary: actor read brackets
+  // detach its returned rows before later metadata callbacks. The additional
+  // raw census only widens discovery to array-wrapped identity mirrors.
+  const rawIds = db.prepare('SELECT * FROM actual_live_play_closures').all().filter(row =>
+    aliases.some(([column,path]) => rawValues(db,String(row[column]),path).includes(applicationId))).map(row => {
+      if (typeof row.source_id !== 'string') throw new Error('prior actual live closure ownership differs');
+      return row.source_id;
+    });
+  const predicates = aliases.map(([column,path]) => metadataId(column,path,'$id'));
+  const rows = db.prepare(`SELECT * FROM actual_live_play_closures WHERE application_id=$id OR ${[...predicates,
+    'source_id IN (SELECT value FROM json_each($rawIds))'].join(' OR ')}`).all({id:applicationId,rawIds:JSON.stringify(rawIds)});
   if (rows.length > 1 || rows.length === 1 && rows[0].application_id !== applicationId) throw new Error('prior actual live closure ownership differs');
   return rows;
 };
@@ -229,13 +246,27 @@ export const readPriorActualLiveActivationReadiness = (db: ActualAdjudicationDb,
   if (!db.isTransaction || activeBattedWorldFieldReadFrame(db) !== frame) {
     throw new Error('actual live activation readiness owned frame changed');
   }
-  return ready;
+  return ready?.kind === 'ready' ? ready : null;
+};
+type FoulTerminalActivationReadiness = ReturnType<ReturnType<typeof foulTerminalNextPlayReadinessFromSqlite>['readHistorical']>;
+export const readPriorFoulTerminalActivationReadiness = (db: ActualAdjudicationDb, applicationId: string): FoulTerminalActivationReadiness | null => {
+  const ready = checkPriorActualLiveClosureCompleted(db,applicationId,true,false,true);
+  return ready?.kind === 'foul_terminal_ready' ? ready : null;
 };
 const checkPriorActualLiveClosureCompleted = (db: ActualAdjudicationDb, applicationId: string | null, historical: boolean,
-  paired = false): ActualLiveActivationReadiness | null => {
-  assertNoFoulTerminalNextPlay(db, applicationId);
-  if (applicationId === null) return null;
-  const installed = (name: string) => !!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(name);
+  paired = false, terminalWanted = false): ActualLiveActivationReadiness | FoulTerminalActivationReadiness | null => {
+  if (applicationId !== null && db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='applications'").get()) {
+    const row = db.prepare('SELECT * FROM applications WHERE application_id=?').get(applicationId);
+    if (row) { const result = JSON.parse(String(row.result_json));
+      assertFoulTerminalPriorActivation(db,String(row.match_id),result?.receipt?.previousPlayId,result?.activation?.nextMatchState?.playId); }
+  }
+  const terminal = assertNoFoulTerminalNextPlay(db, applicationId);
+  if (applicationId === null || terminalWanted && terminal === null) return null;
+  const installed = (name: string) => {
+    const schema = db.prepare('SELECT type FROM main.sqlite_master WHERE name=?').all(name);
+    if (schema.length && (schema.length !== 1 || schema[0].type !== 'table')) throw new Error('prior actual live or terminal scope owner schema differs');
+    return schema.length === 1;
+  };
   const columns = (name: string) => new Set(db.prepare(`PRAGMA table_info(${name})`).all().map(r => r.name));
   const hasOwner = installed('actual_live_play_closures'), discoveredRows = actualLiveClosureApplicationRows(db, applicationId);
   // Detach all fields before metadata or readiness reads can touch statement aliases.
@@ -243,10 +274,13 @@ const checkPriorActualLiveClosureCompleted = (db: ActualAdjudicationDb, applicat
   const ownerBytes = paired ? json(rows) : null;
   const targetSourceId = paired && rows.length ? String(rows[0].source_id) : null;
   const target = { ready: null as ActualLiveActivationReadiness | null };
-  const liveTables = ['actual_live_play_runtimes', 'actual_first_base_play_ends', 'actual_live_play_fences'].filter(installed);
-  if (!hasOwner && !liveTables.length && !paired) return null;
+  if (terminal && rows.length) throw new Error('prior activation has dual terminal and actual live closure owners');
+  const terminalTarget = { ready:null as FoulTerminalActivationReadiness | null };
+  const physicalEnds = new Map<number, Set<string>>();
+  const liveTables = ['actual_live_play_runtimes', 'actual_first_base_play_ends', 'actual_foul_play_ends', 'actual_live_play_fences'].filter(installed);
+  if (!terminal && !hasOwner && !liveTables.length && !paired) return null;
   const scopedPlays = new Set<number>(); let gameId: string | null = null;
-  if (liveTables.length && installed('applications')) {
+  if ((terminal || liveTables.length) && installed('applications')) {
     const applications = db.prepare('SELECT * FROM applications WHERE application_id=?').all(applicationId);
     if (applications.length > 1) throw new Error('actual live prior activation identity differs');
     const application = applications[0];
@@ -263,37 +297,33 @@ const checkPriorActualLiveClosureCompleted = (db: ActualAdjudicationDb, applicat
       const originalPitchIds = new Set<string>();
       if (installed('physical_pitch_progress_actions')) {
         const pitchColumns = columns('physical_pitch_progress_actions');
-        const games = ['game_id=$game', ...(pitchColumns.has('source_json') ? [metadataId('source_json', ['gameId'], '$game')] : []),
-          ...(pitchColumns.has('snapshot_json') ? [['frame', 'gameId'], ['source', 'gameId']]
-            .map(path => metadataId('snapshot_json', path, '$game')) : [])];
-        const plays = [`play_id<=${receipt.previousPlayId}`, ...(pitchColumns.has('snapshot_json') ?
-          [['frame', 'match', 'playId'], ['beforeTimeline', 'playId'], ['result', 'pitch', 'resolution', 'timeline', 'playId']]
-            .map(path => `EXISTS(SELECT 1 FROM (${metadataNodes('snapshot_json', path)}) p WHERE p.type='integer' AND p.atom<=${receipt.previousPlayId})`) : [])];
-        const pitchRows = db.prepare(`SELECT * FROM physical_pitch_progress_actions WHERE (${games.join(' OR ')}) AND (${plays.join(' OR ')})`).all({ game: application.match_id });
+        const pitchRows = db.prepare('SELECT * FROM physical_pitch_progress_actions').all().filter(row => {
+          const games = [row.game_id,
+            ...(pitchColumns.has('source_json') ? rawValues(db,String(row.source_json),['gameId']) : []),
+            ...(pitchColumns.has('snapshot_json') ? [['frame','gameId'],['source','gameId']].flatMap(path => rawValues(db,String(row.snapshot_json),path)) : [])];
+          const plays = [row.play_id,...(pitchColumns.has('snapshot_json') ? [['frame','match','playId'],['beforeTimeline','playId'],
+            ['result','pitch','resolution','timeline','playId']].flatMap(path => rawValues(db,String(row.snapshot_json),path)) : [])];
+          return games.includes(application.match_id) && plays.some(play => typeof play === 'number' && Number.isSafeInteger(play) && play <= receipt.previousPlayId);
+        });
         for (const pitch of pitchRows) {
           if (typeof pitch.source_id === 'string') originalPitchIds.add(pitch.source_id);
           for (const [column, path] of [['source_json', ['sourceId']], ['snapshot_json', ['source', 'sourceId']]] as const) {
             if (!pitchColumns.has(column)) continue;
-            const mirrors = db.prepare(`SELECT type,atom FROM (${metadataNodes('$document', path)})`).all({ document: String(pitch[column]) });
-            for (const mirror of mirrors) if (mirror.type === 'text') originalPitchIds.add(String(mirror.atom));
+            for (const mirror of rawValues(db,String(pitch[column]),path)) if (typeof mirror === 'string') originalPitchIds.add(mirror);
           }
         }
       }
       for (const table of liveTables) {
         const tableColumns = columns(table), hasSnapshot = tableColumns.has('snapshot_json');
-        const hasReferences = tableColumns.has('physical_pitch_source_id') || tableColumns.has('source_json') || hasSnapshot;
-        const pitchIds = 'SELECT value FROM json_each($pitchIds)';
         const referenceMirrors = [
-          ...(tableColumns.has('source_json') ? [['source_json', ['physicalPitchSourceId']]] as const : []),
-          ...(hasSnapshot ? [['snapshot_json', ['physicalPitchSourceId']], ['snapshot_json', ['source', 'physicalPitchSourceId']],
-            ['snapshot_json', ['history', { array: 'all' }, 'physicalPitchSourceId']], ['snapshot_json', ['history', 'physicalPitchSourceId']]] as const : []),
+          ...(tableColumns.has('source_json') ? [['source_json',['physicalPitchSourceId']]] as const : []),
+          ...(hasSnapshot ? [['snapshot_json',['physicalPitchSourceId']],['snapshot_json',['source','physicalPitchSourceId']],
+            ['snapshot_json',['history','physicalPitchSourceId']]] as const : []),
         ];
-        const scopeClaims = ['game_id=$game', ...(hasSnapshot ? [metadataId('snapshot_json', ['gameId'], '$game')] : []),
-          ...(tableColumns.has('physical_pitch_source_id') ? [`physical_pitch_source_id IN (${pitchIds})`] : []),
-          ...referenceMirrors.map(([column, path]) =>
-            `EXISTS(SELECT 1 FROM (${metadataNodes(column, path)}) p WHERE p.type='text' AND p.atom IN (${pitchIds}))`)];
-        const claims: Record<string, import('node:sqlite').SQLOutputValue>[] = db.prepare(`SELECT * FROM ${table} WHERE ${scopeClaims.join(' OR ')}`)
-          .all({ game: application.match_id, ...(hasReferences ? { pitchIds: JSON.stringify([...originalPitchIds]) } : {}) });
+        const claims = db.prepare(`SELECT * FROM ${table}`).all().filter(row => row.game_id === application.match_id
+          || hasSnapshot && rawValues(db,String(row.snapshot_json),['gameId']).includes(String(application.match_id))
+          || tableColumns.has('physical_pitch_source_id') && originalPitchIds.has(String(row.physical_pitch_source_id))
+          || referenceMirrors.some(([column,path]) => rawValues(db,String(row[column]),path).some(id => typeof id === 'string' && originalPitchIds.has(id))));
         for (const claim of claims) {
           if (typeof claim.game_id !== 'string' || !Number.isSafeInteger(claim.play_id) || (claim.play_id as number) < 0) throw new Error('actual live prior scope metadata differs');
           if (hasSnapshot) {
@@ -304,7 +334,17 @@ const checkPriorActualLiveClosureCompleted = (db: ActualAdjudicationDb, applicat
             }
           }
           if (claim.game_id !== application.match_id) throw new Error('actual live prior scope identity differs');
-          if ((claim.play_id as number) <= receipt.previousPlayId) scopedPlays.add(claim.play_id as number);
+          if ((claim.play_id as number) <= receipt.previousPlayId) {
+            scopedPlays.add(claim.play_id as number);
+            if (table === 'actual_foul_play_ends' || table === 'actual_first_base_play_ends') {
+              const ids = physicalEnds.get(claim.play_id as number) ?? new Set<string>();
+              if (typeof claim.source_id === 'string') ids.add(claim.source_id);
+              if (tableColumns.has('source_json')) for (const row of db.prepare(`SELECT atom FROM (${metadataNodes('$document',['sourceId'])})`).all({document:String(claim.source_json)})) {
+                if (typeof row.atom === 'string') ids.add(row.atom);
+              }
+              physicalEnds.set(claim.play_id as number,ids);
+            }
+          }
         }
       }
     }
@@ -321,17 +361,54 @@ const checkPriorActualLiveClosureCompleted = (db: ActualAdjudicationDb, applicat
     if (paired && sourceId === targetSourceId) target.ready = ready;
     return ready;
   };
+  const requireTerminalReady = (sourceId: string, expectedGame: string, expectedPlay: number) => {
+    assertFoulTerminalPriorCensusScope(db,expectedGame,expectedPlay);
+    const readiness = foulTerminalNextPlayReadinessFromSqlite(db);
+    const ready = !historical && terminal?.source.sourceId === sourceId ? readiness.read(sourceId) : readiness.readHistorical(sourceId);
+    if (ready.archive.proposal.gameId !== expectedGame || ready.archive.proposal.playId !== expectedPlay) throw new Error('prior terminal completion scope differs');
+    if (terminal?.source.sourceId === sourceId) terminalTarget.ready = ready;
+    return ready;
+  };
   for (const playId of scopedPlays) {
-    if (!hasOwner) throw new Error('prior actual live closure staged owner is missing');
-    const ownerColumns = columns('actual_live_play_closures');
-    if (!['source_id', 'game_id', 'play_id'].every(key => ownerColumns.has(key))) throw new Error('prior actual live closure staged owner is missing or corrupt');
-    const gameClaim = ownerColumns.has('proposal_json') ? metadataId('proposal_json', ['gameId'], '$game') : '0';
-    const playClaim = ownerColumns.has('proposal_json') ? `EXISTS(SELECT 1 FROM (${metadataNodes('proposal_json', ['playId'])}) p WHERE p.atom=$play)` : '0';
-    const owners = db.prepare(`SELECT source_id FROM actual_live_play_closures WHERE (game_id=$game OR ${gameClaim}) AND (play_id=$play OR ${playClaim})`)
-      .all({ game: gameId, play: playId });
-    if (owners.length !== 1) throw new Error('prior actual live closure staged owner is missing or ambiguous');
-    requireReady(String(owners[0].source_id), playId);
+    assertFoulTerminalPriorCensusScope(db,gameId!,playId);
+    const terminals = foulTerminalNextPlayScopeRows(db,gameId!,playId,[...(physicalEnds.get(playId) ?? [])]);
+    const scopeApplicationIds = new Set(terminals.map(row => String(row.application_id)));
+    if (installed('applications')) for (const row of db.prepare('SELECT * FROM applications').all()) {
+      const result = String(row.result_json);
+      const games = [row.match_id,...rawValues(db,result,['pendingPostPlay','matchId'])];
+      const plays = [...rawValues(db,result,['receipt','previousPlayId']),...rawValues(db,result,['pendingPostPlay','previousPlayId'])];
+      if (games.includes(gameId) && plays.includes(playId)) for (const id of [row.application_id,...rawValues(db,result,['receipt','applicationId'])]) {
+        if (typeof id === 'string') scopeApplicationIds.add(id);
+      }
+    }
+    let owners: ReturnType<ReturnType<ActualAdjudicationDb['prepare']>['all']> = [];
+    if (hasOwner) {
+      const ownerColumns = columns('actual_live_play_closures');
+      if (!['source_id','game_id','play_id'].every(key => ownerColumns.has(key))) throw new Error('prior actual live closure staged owner is missing or corrupt');
+      owners = db.prepare('SELECT * FROM actual_live_play_closures').all().filter(row => {
+        const proposal = String(row.proposal_json), result = String(row.result_json);
+        const games = [row.game_id,...(ownerColumns.has('proposal_json') ? [['gameId'],['application','matchId']]
+          .flatMap(path => rawValues(db,proposal,path)) : [])];
+        const plays = [row.play_id,...(ownerColumns.has('proposal_json') ? [['playId'],['application','match','playId'],['expectedOfficial','receipt','previousPlayId']]
+          .flatMap(path => rawValues(db,proposal,path)) : []),...(ownerColumns.has('result_json') ? rawValues(db,result,['official','receipt','previousPlayId']) : [])];
+        const applications = [row.application_id,
+          ...(ownerColumns.has('source_json') ? rawValues(db,String(row.source_json),['applicationId']) : []),
+          ...(ownerColumns.has('proposal_json') ? [['source','applicationId'],['application','applicationId'],['expectedOfficial','receipt','applicationId'],
+            ['expectedOfficial','activation','applicationId'],['expectedOfficial','result','applicationId']].flatMap(path => rawValues(db,proposal,path)) : []),
+          ...(ownerColumns.has('result_json') ? [['official','receipt','applicationId'],['official','activation','applicationId'],['official','result','applicationId']]
+            .flatMap(path => rawValues(db,result,path)) : [])];
+        return applications.some(id => typeof id === 'string' && scopeApplicationIds.has(id))
+          || games.includes(gameId) && plays.includes(playId)
+          || ownerColumns.has('proposal_json') && rawValues(db,proposal,['physicalEndReference','sourceId'])
+            .some(id => typeof id === 'string' && physicalEnds.get(playId)?.has(id));
+      });
+    }
+    if (terminals.length + owners.length !== 1) throw new Error('prior actual live closure staged owner or terminal completion is missing or ambiguous');
+    if (terminals.length) requireTerminalReady(String(terminals[0].source_id),gameId!,playId);
+    else requireReady(String(owners[0].source_id),playId);
   }
+  if (terminal && terminalTarget.ready === null) requireTerminalReady(terminal.source.sourceId,terminal.proposal.gameId,terminal.proposal.playId);
+  if (terminalWanted) return terminalTarget.ready;
   if (rows.length && !checked.has(String(rows[0].source_id))) {
     const ready = requireReady(String(rows[0].source_id));
     if (ready.closure.proposal.application.applicationId !== applicationId) throw new Error('prior actual live closure activation differs');

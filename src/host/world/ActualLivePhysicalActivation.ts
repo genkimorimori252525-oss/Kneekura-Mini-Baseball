@@ -1,3 +1,4 @@
+import { assertFoulTerminalPriorActivation } from './FoulTerminalCompletionAncestryGuard';
 import { createRequire } from 'node:module';
 import type { ActualLiveReadinessReference } from './ActualLivePlayReadiness';
 import { actualLiveClosureApplicationRows, assertPriorActualLiveClosureCompleted, readPriorActualLiveActivationReadiness } from './ActualLivePlayClosureEvidenceFromSqlite';
@@ -26,6 +27,7 @@ export const readActualLivePhysicalActivation = (db: ActorDb, gameId: string, ap
     if (p.gameId !== gameId || p.application.applicationId !== applicationId || result.receipt.applicationId !== applicationId
       || result.receipt.previousPlayId !== p.playId || result.activation.previousPlayId !== p.playId
       || result.activation.nextMatchState.playId !== p.playId + 1) throw new Error('actual live physical activation scope differs');
+    assertFoulTerminalPriorActivation(db,gameId,p.playId,result.activation.nextMatchState.playId);
     const row = db.prepare('SELECT * FROM applications WHERE application_id=? AND match_id=?').get(applicationId, gameId);
     if (!row) throw new Error('actual live physical activation application missing');
     return freeze({ match: result.activation.nextMatchState, world: result.nextWorld, officialRevision: result.receipt.durableRevision,
