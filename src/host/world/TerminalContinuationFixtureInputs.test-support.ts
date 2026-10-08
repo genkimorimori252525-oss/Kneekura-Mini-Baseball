@@ -71,19 +71,23 @@ export const materializeContinuationNextActor=(raw:PhysicalPlayClosureResult):Ac
 };
 export const terminalContinuationStages=['admission','physical_k','closure_queued','closure_completed','next_actor']as const;
 export type TerminalContinuationStage=typeof terminalContinuationStages[number];
+export type SplitPhysicalOrigin=Readonly<{kind:'qualified_single_pitch_chain';qualifiedInput:Readonly<{path:string;sha256:string}>;physicalReceipt:Readonly<{path:string;sha256:string}>;aggregateP1Credit:0}>;
 export type TerminalContinuationStageReceipt=Readonly<{
- version:'terminal_continuation_stage_v1';stage:TerminalContinuationStage;sourceTree:string;
+ stage:TerminalContinuationStage;sourceTree:string;
  input:Readonly<{path:string;sha256:string}>;output:Readonly<{path:string;sha256:string}>;recipeHash:string;predecessorReceiptHash:string|null;
  allHandlesClosed:true;reopened:true;originalRowsPreserved:true;ownerReceipts:Readonly<Record<string,unknown>>;twoPriorCompletionLineage:boolean;
-}>;
+}> & (Readonly<{version:'terminal_continuation_stage_v1'}>|Readonly<{version:'terminal_continuation_stage_v2';splitPhysicalOrigin:SplitPhysicalOrigin}>);
+export const closureContinuationReceiptFields=(prior:TerminalContinuationStageReceipt|null)=>prior?.version==='terminal_continuation_stage_v2'
+ ? {version:'terminal_continuation_stage_v2' as const,splitPhysicalOrigin:prior.splitPhysicalOrigin}:{version:'terminal_continuation_stage_v1' as const};
 export const validateContinuationPredecessor=(stage:TerminalContinuationStage,raw:unknown):TerminalContinuationStageReceipt|null=>{
  assert(terminalContinuationStages.includes(stage),'fixture stage differs');
  if(stage==='admission'){assert(raw===null,'fixture admission has no predecessor receipt');return null;}
- const r=cloneInert(raw)as TerminalContinuationStageReceipt;
- assert(fields(r,['version','stage','sourceTree','input','output','recipeHash','predecessorReceiptHash','allHandlesClosed','reopened','originalRowsPreserved','ownerReceipts','twoPriorCompletionLineage'])
-  &&r.version==='terminal_continuation_stage_v1'&&r.stage===terminalContinuationStages[terminalContinuationStages.indexOf(stage)-1]
+ const r=cloneInert(raw)as TerminalContinuationStageReceipt,split=r?.version==='terminal_continuation_stage_v2';
+ assert(fields(r,['version','stage','sourceTree','input','output','recipeHash','predecessorReceiptHash','allHandlesClosed','reopened','originalRowsPreserved','ownerReceipts','twoPriorCompletionLineage',...(split?['splitPhysicalOrigin']:[])])
+  &&(r.version==='terminal_continuation_stage_v1'||split)&&r.stage===terminalContinuationStages[terminalContinuationStages.indexOf(stage)-1]
   &&digest(r.sourceTree,40)&&digest(r.recipeHash)&&r.allHandlesClosed===true&&r.reopened===true&&r.originalRowsPreserved===true
   &&r.twoPriorCompletionLineage===(r.stage==='next_actor')&&r.ownerReceipts&&typeof r.ownerReceipts==='object'&&!Array.isArray(r.ownerReceipts),'fixture closed predecessor receipt differs');
+ if(r.version==='terminal_continuation_stage_v2'){const origin=r.splitPhysicalOrigin;assert(['closure_queued','closure_completed','next_actor'].includes(r.stage)&&fields(origin,['kind','qualifiedInput','physicalReceipt','aggregateP1Credit'])&&origin.kind==='qualified_single_pitch_chain'&&origin.aggregateP1Credit===0,'fixture split-pitch provenance differs');if(r.stage==='closure_queued')assert(r.predecessorReceiptHash===origin.physicalReceipt.sha256,'fixture split-pitch receipt link differs');for(const p of [origin.qualifiedInput,origin.physicalReceipt])assert(fields(p,['path','sha256'])&&isAbsolute(p.path)&&digest(p.sha256),'fixture split-pitch input pin differs');}
  assert(r.stage==='admission'?r.predecessorReceiptHash===null:digest(r.predecessorReceiptHash),'fixture predecessor receipt link missing');
  for(const p of [r.input,r.output])assert(fields(p,['path','sha256'])&&typeof p.path==='string'&&isAbsolute(p.path)&&digest(p.sha256),'fixture artifact pin differs');
  assert(r.input.path!==r.output.path,'fixture stages must have separate closed artifacts');return freeze(r);
