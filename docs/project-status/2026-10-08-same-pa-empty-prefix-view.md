@@ -25,3 +25,7 @@ The original reservation, ten members, blocked first-pitch slot and v1 archives 
 ## Immediate next dependency
 
 First-pitch dispatch and all participant fatigue consumers follow this dependency. The current execution reader reaches `readSamePlateAppearanceEnrollmentBasis`, including current actor-frame, empty-work and actual-head checks. A persisted first pitch cannot replay its original view through that current/empty path. The next contract must separate immutable historical reserved-state/empty-prefix proof from fresh dispatch admission through a bounded causal graph, leaving future physical payloads opaque. It must not weaken the current empty-prefix guard or reinterpret the reservation receipt to make dispatch pass.
+
+## Genuine prefix harness preparation
+
+The separate harness `6291deb27356a41cf50f74c31f6ec6ac1b49150c`, source `ae0a245ba24a6de676565a786bbe3a253291ca8e`, passed its full compiler (terminal SHA-256 `1496c658445e9800c419309fb830056da127ccbd551a83716577c7709ec20412`). Production remains identical to the qualified owner checkpoint. It permits one empty-prefix row, exact retry and authority-free reopen, then prepares ten TOTAL Source objects from the observed prefix and participant hashes without accepting any TOTAL or view. Seven synchronous milestones are explicitly partial evidence until the separately controlled Native gate closes. No genuine prefix qualification is credited by this source-preservation checkpoint.
