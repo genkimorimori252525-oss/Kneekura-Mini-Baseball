@@ -50,3 +50,24 @@ rejecting v2 until the entire consumer contract is implemented and verified.
 Do not relabel the old calibration archive as the new flight. PR368 terminal
 origins also need their own setup-route integration; this qualified source uses
 PR371 actual-live geometry routing and does not imply terminal geometry support.
+
+## Test-only bootstrap and R01 preparation
+
+`BattedEpisodeBindingBootstrap.acceptance.ts` now describes the separately
+reviewable bootstrap case. It first uses the real binding evidence reader to
+confirm the missing receipt without installing schema. It then calls the normal
+binding-store constructor without authority, observing its unchanged Native SQL
+execution and requiring zero data changes. Only the empty owner table and three
+automatic indexes may appear; exact columns, unique-key indexes, schema entries
+and every prior row are checked. Missing authority still rejects acceptance.
+Closing/reopening the store must preserve the empty schema and clean sidecars.
+
+R01 now requires a separately qualified bootstrap receipt and its exact response
+lineage. It compares the complete raw census and reads the already-qualified
+response/calibration archive expectations without replaying P00. Its subsequent
+call to the real binding owner retains all production authentication. The old
+ten-binding guard remains unchanged and is the intended failing assertion.
+
+These tests are prepared only. Their input hashes and execution packets depend
+on the closed response stage and then the closed bootstrap stage. No bootstrap,
+binding acceptance, GREEN implementation or consumer runtime is released here.

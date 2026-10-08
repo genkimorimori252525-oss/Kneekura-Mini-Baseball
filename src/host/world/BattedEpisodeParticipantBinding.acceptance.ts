@@ -19,6 +19,7 @@ import { battedWorldFieldCalibrationEvidenceFromSqlite } from './BattedWorldFiel
 import { battedWorldFrameBaseCenters } from './SqliteBattedWorldBaseGeometryStore';
 import { battedEpisodeFieldBindingEvidenceFromSqlite, openSqliteBattedEpisodeFieldBindingStore } from './SqliteBattedEpisodeFieldBindingStore';
 import type { AcceptedBattedEpisodeFieldBinding, DurableBattedEpisodeFieldBinding } from './BattedEpisodeFieldBinding';
+import type { DurableBattedWorldFieldGeometry } from './SqliteBattedWorldFieldStore';
 import { battedWorldFieldRootIdentity } from './BattedWorldFieldRoot';
 import { witnessSqliteWrite } from './SqliteWriteWitness.test-support';
 
@@ -32,6 +33,8 @@ type Input = Readonly<{ schema: 'episode_participant_stage_input_v1'; stage: Sta
     sourceIdentity: Readonly<{ head: string; src: string }>; sourceGroupHash: string }>;
   contactProvenance?: Readonly<{ input: Pin; sourceIdentity: Readonly<{ head: string; src: string }>; sourceGroupHash: string }>;
   touchProvenance?: Readonly<{ input: Pin; sourceIdentity: Readonly<{ head: string; src: string }>; sourceGroupHash: string }>;
+  bindingBootstrap?: Readonly<{ input: Pin; responseReceipt: Pin; responseTerminal: Pin; responseConfig: Pin;
+    sourceIdentity: Readonly<{ head: string; src: string }>; sourceGroupHash: string }>;
   bindingSchema?: 'existing' | 'create' }>;
 type Sources = Readonly<{ contact: AcceptedBattedWorldContact; touch: AcceptedBattedFirstFielderTouch;
   response: AcceptedBattedContactResponse; binding: AcceptedBattedEpisodeFieldBinding }>;
@@ -60,7 +63,9 @@ const stageCopy = (stage: Stage) => {
   const pins = [input.input, input.acceptedSources, ...Object.values(input.lineage),
     ...(input.recoveredInventory ? [input.recoveredInventory.input, input.recoveredInventory.audit, input.recoveredInventory.returnedCheckpoint] : []),
     ...(input.contactProvenance ? [input.contactProvenance.input] : []),
-    ...(input.touchProvenance ? [input.touchProvenance.input] : [])];
+    ...(input.touchProvenance ? [input.touchProvenance.input] : []),
+    ...(input.bindingBootstrap ? [input.bindingBootstrap.input, input.bindingBootstrap.responseReceipt,
+      input.bindingBootstrap.responseTerminal, input.bindingBootstrap.responseConfig] : [])];
   const checkPins = () => { for (const pin of pins) assert.equal(geometryFileHash(pin.path), pin.sha256); geometryClosed(input.input.path); };
   checkPins();
   const proposal = JSON.parse(readFileSync(input.acceptedSources.path, 'utf8'));
@@ -125,6 +130,32 @@ const stageCopy = (stage: Stage) => {
     assert.deepEqual(config.sourceIdentity, recovered.sourceIdentity);
     assert.equal(config.inputs.source.sha256, recovered.sourceGroupHash);
     assert.equal(terminal.before.source.sha256, recovered.sourceGroupHash);
+    assert.equal(terminal.originalChildExit, 0); assert.equal(terminal.tests.passedCases, 1);
+    assert.equal(terminal.tests.expectedFailedCases, 0); assert.deepEqual(terminal.tests.skipped, []);
+  } else if (stage === 'binding') {
+    const bootstrap = input.bindingBootstrap; assert(bootstrap, 'binding requires a separately qualified normal-owner bootstrap');
+    assert.equal(input.bindingSchema, 'existing'); assert.equal(receipt.schema, 'episode_binding_bootstrap_receipt_v1');
+    assert.equal(receipt.verified, true); assert.equal(receipt.manifestSha256, bootstrap.input.sha256);
+    assert.equal(receipt.acceptedSourcesSha256, sourceProposalHash);
+    const bootstrapInput = JSON.parse(readFileSync(bootstrap.input.path, 'utf8'));
+    const responseReceipt = JSON.parse(readFileSync(bootstrap.responseReceipt.path, 'utf8'));
+    const config = JSON.parse(readFileSync(input.lineage.config.path, 'utf8'));
+    assert.equal(bootstrapInput.schema, 'episode_binding_bootstrap_input_v1');
+    assert.deepEqual(bootstrapInput.receipt, bootstrap.responseReceipt);
+    assert.deepEqual(bootstrapInput.terminal, bootstrap.responseTerminal); assert.deepEqual(bootstrapInput.config, bootstrap.responseConfig);
+    assert.deepEqual(receipt.sourceIdentity, bootstrap.sourceIdentity); assert.deepEqual(config.sourceIdentity, bootstrap.sourceIdentity);
+    assert.equal(config.inputs.source.sha256, bootstrap.sourceGroupHash); assert.equal(terminal.before.source.sha256, bootstrap.sourceGroupHash);
+    assert.deepEqual(receipt.exactAdditions, { bindingTable: 1, automaticIndexes: 3, bindingRows: 0, dataChanges: 0 });
+    assert.deepEqual(receipt.freshConstructor, { calls: 1, before: 0, after: 0, delta: 0 });
+    assert.deepEqual(receipt.retryConstructor, { calls: 1, before: 0, after: 0, delta: 0 });
+    assert.equal(receipt.missingBindingRead, true); assert.equal(receipt.missingAuthorityRejected, true);
+    assert.equal(receipt.allConnectionsClosedReopened, true); assert.equal(receipt.schemaRetryUnchanged, true);
+    assert.equal(receipt.originalAuthenticationRepeated, false); assert.equal(receipt.bindingAcceptanceReleased, false);
+    assert.equal(receipt.response.receiptSha256, bootstrap.responseReceipt.sha256);
+    assert.equal(receipt.response.terminalSha256, bootstrap.responseTerminal.sha256); assert.equal(receipt.response.configSha256, bootstrap.responseConfig.sha256);
+    assert.equal(responseReceipt.schema, 'episode_participant_stage_receipt_v1'); assert.equal(responseReceipt.stage, 'response'); assert.equal(responseReceipt.verified, true);
+    assert.deepEqual(receipt.response.sourceIdentity, responseReceipt.sourceIdentity); assert.equal(receipt.response.valueHash, responseReceipt.valueHash);
+    assert.deepEqual(receipt.response.hashes, responseReceipt.hashes); assert.deepEqual(receipt.response.inputProvenance, responseReceipt.inputProvenance);
     assert.equal(terminal.originalChildExit, 0); assert.equal(terminal.tests.passedCases, 1);
     assert.equal(terminal.tests.expectedFailedCases, 0); assert.deepEqual(terminal.tests.skipped, []);
   } else {
@@ -407,17 +438,28 @@ it('EPB-P03 accepts only the next contact response', () => prerequisite('respons
 it('EPB-R01 accepts the new batter binding through its explicit v2 actor reference', () => {
   const x = stageCopy('binding');
   try {
-    const db = x.track(new DatabaseSync(x.path)); const before = geometryRows(db), authenticated = authenticate(db, x.sources);
-    assert.deepEqual(authenticated.hashes, x.receipt.hashes);
-    const response = snapshot(db, () => battedContactResponseEvidenceFromSqlite(db).read(x.sources.response.sourceId)); assert(response);
-    assertResponse(response, x.sources); assert.equal(hash(response), x.receipt.valueHash);
+    const db = x.track(new DatabaseSync(x.path)); const before = geometryRows(db);
+    assert.equal(hash(before), x.receipt.afterRowsHash);
+    // These archived expectations come from the qualified response/bootstrap.
+    // The real binding accept below still reauthenticates through its own owners.
+    const archive = <T>(table: string, sourceId: string, expectedHash: string): T => {
+      const rows = db.prepare(`SELECT source_id,snapshot_json,snapshot_hash FROM main.${table} WHERE source_id=?`).all(sourceId);
+      assert.equal(rows.length, 1); const row = rows[0], value = JSON.parse(String(row.snapshot_json)) as T;
+      assert.equal(row.source_id, sourceId); assert.equal(row.snapshot_json, json(value));
+      assert.equal(row.snapshot_hash, hash(value)); assert.equal(row.snapshot_hash, expectedHash); return value;
+    };
+    const response = archive<DurableBattedContactResponse>('batted_contact_responses', x.sources.response.sourceId, x.receipt.response.valueHash);
+    const calibration = archive<DurableBattedWorldFieldGeometry>('batted_world_field_geometries', x.sources.binding.fieldCalibrationSourceId,
+      x.receipt.response.hashes.calibration);
+    assertResponse(response, x.sources);
     // Preflight determines whether this normal owner schema is already present.
     // Schema creation is not silently admitted in the first genuine RED packet.
     assert.equal(x.input.bindingSchema, 'existing', 'separate exact schema-bootstrap release required before a missing binding owner can be installed');
     assert(installed(db, 'batted_episode_field_bindings'));
     const bindings = x.track(openSqliteBattedEpisodeFieldBindingStore(x.path, { readAcceptedBinding: id => id === x.sources.binding.sourceId ? x.sources.binding : null }));
     assert.deepEqual(geometryRows(db), before);
-    x.checkpoint('binding-assertion-start', { responseHash: hash(response), sourceHash: hash(x.sources.binding), hashes: authenticated.hashes });
+    x.checkpoint('binding-assertion-start', { responseHash: hash(response), sourceHash: hash(x.sources.binding), hashes: x.receipt.response.hashes,
+      bootstrapReceiptSha256: x.input.lineage.receipt.sha256, standaloneInventoryAuthenticationRepeated: false });
     let bound: DurableBattedEpisodeFieldBinding;
     let freshWriter: ReturnType<typeof observeWriter<DurableBattedEpisodeFieldBinding>>['counters'];
     const ownerRead = /^SELECT \* FROM main\.batted_episode_field_bindings/;
@@ -433,7 +475,7 @@ it('EPB-R01 accepts the new batter binding through its explicit v2 actor referen
     assert.equal(freshWriter.delta, 1); assert.deepEqual(freshWriter.witnessed, [true]);
     assert.deepEqual(freshWriter.writes, [{ index: 0, totalChanges: freshWriter.before + 1 }]);
     assert.equal(bound.source.version, 'batted_episode_field_binding_v2'); assert.equal(json(bound.source), json(x.sources.binding));
-    assert.equal(json(bound.response), json(response)); assert.equal(json(bound.calibration), json(authenticated.calibration));
+    assert.equal(json(bound.response), json(response)); assert.equal(json(bound.calibration), json(calibration));
     assert.equal(bound.physicalPitchSourceId, pitchId); assert.equal(bound.playId, 8); assert.equal(bound.contactSequence, 2); assert.equal(bound.contactTick, 35_470_251);
     const expected = structuredClone(before);
     append(expected, 'batted_episode_field_bindings', { source_id: bound.source.sourceId, source_version: bound.source.sourceVersion,
@@ -454,11 +496,13 @@ it('EPB-R01 accepts the new batter binding through its explicit v2 actor referen
     assert.equal(json(retry.value), json(bound)); assert.equal(retry.counters.delta, 0);
     assert.deepEqual(retry.counters.writes, []); assert.deepEqual(retry.counters.witnessed, [false]);
     x.drain(); geometryClosed(x.path);
-    const fresh = x.track(new DatabaseSync(x.path, { readOnly: true })); fresh.exec('PRAGMA query_only=ON');
+    const fresh = x.track(new DatabaseSync(x.path)); fresh.exec('PRAGMA query_only=ON');
     assert.equal(json(battedEpisodeFieldBindingEvidenceFromSqlite(fresh).read(bound.source.sourceId)), json(bound));
     assert.deepEqual(geometryRows(fresh), expected); assert.equal(changes(fresh), 0);
-    x.finish({ hashes: authenticated.hashes, valueHash: hash(bound), beforeRowsHash: hash(before), afterRowsHash: hash(expected),
+    x.finish({ hashes: x.receipt.response.hashes, valueHash: hash(bound), beforeRowsHash: hash(before), afterRowsHash: hash(expected),
       exactAdditions: { binding: 1 }, freshWriter, retryWriter: retry.counters,
+      inputProvenance: { kind: 'qualified_empty_binding_bootstrap_v1', bootstrapReceiptSha256: x.input.lineage.receipt.sha256,
+        response: x.receipt.response, standaloneInventoryAuthenticationRepeated: false },
       authorityFreeRetry: true, zeroWriteRetry: true, v1ConsumerRejected: true, v1ParticipantGuardPreserved: true });
   } finally { x.drain(); geometryClosed(x.path); x.checkPins(); }
 });
