@@ -3,13 +3,14 @@ import { createBattedWorldFieldGeometry } from '../../core/sim/ball/BattedWorldF
 import type { DurableBattedContactResponse } from './SqliteBattedContactResponseStore';
 import type { DurableBattedWorldFieldGeometry } from './SqliteBattedWorldFieldStore';
 import type { DurableBattedEpisodeFieldBinding } from './BattedEpisodeFieldBinding';
-import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { actorJson as json, actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
 
-export type BattedEpisodeFieldBindingOptIn = Readonly<{ version: 'batted_episode_field_binding_v1'; sourceId: string }>;
+export type BattedEpisodeFieldBindingOptIn = Readonly<{ version: 'batted_episode_field_binding_v1' | 'batted_episode_field_binding_v2'; sourceId: string }>;
 export type BattedWorldFieldRoot = Readonly<{ response: DurableBattedContactResponse; geometry: DurableBattedWorldFieldGeometry }> &
   (Readonly<{ rootKind?: never; episodeFieldBinding?: never }>
-    | Readonly<{ rootKind: 'episode_field_binding_v1'; episodeFieldBinding: DurableBattedEpisodeFieldBinding }>);
+    | Readonly<{ rootKind: 'episode_field_binding_v1'; episodeFieldBinding: DurableBattedEpisodeFieldBinding }>
+    | Readonly<{ rootKind: 'episode_field_binding_v2'; episodeFieldBinding: DurableBattedEpisodeFieldBinding }>);
 type Source = Readonly<{ responseSourceId: string; geometrySourceId: string; episodeFieldBinding?: BattedEpisodeFieldBindingOptIn; kind?: string }>;
 const id = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value === value.trim();
 export const battedWorldFieldSourceRootIdentity = (source: Source): string => {
@@ -17,23 +18,33 @@ export const battedWorldFieldSourceRootIdentity = (source: Source): string => {
   const binding = source.episodeFieldBinding;
   if ('kind' in source || !binding || typeof binding !== 'object' || Array.isArray(binding)
     || Object.keys(binding).sort().join('|') !== 'sourceId|version'
-    || binding.version !== 'batted_episode_field_binding_v1' || !id(binding.sourceId)) throw new Error('invalid episode field binding opt-in');
-  return json(['episode_field_binding_v1', binding.sourceId]);
+    || binding.version !== 'batted_episode_field_binding_v1' && binding.version !== 'batted_episode_field_binding_v2'
+    || !id(binding.sourceId)) throw new Error('invalid episode field binding opt-in');
+  return json([binding.version === 'batted_episode_field_binding_v1' ? 'episode_field_binding_v1' : 'episode_field_binding_v2', binding.sourceId]);
 };
 export const battedWorldFieldRootIdentity = (root: BattedWorldFieldRoot): string => {
   if (!('rootKind' in root) && !('episodeFieldBinding' in root)) return 'legacy';
-  if (root.rootKind !== 'episode_field_binding_v1' || !root.episodeFieldBinding
-    || root.episodeFieldBinding.source.version !== 'batted_episode_field_binding_v1' || !id(root.episodeFieldBinding.source.sourceId)) {
+  const version = root.rootKind === 'episode_field_binding_v1' ? 'batted_episode_field_binding_v1'
+    : root.rootKind === 'episode_field_binding_v2' ? 'batted_episode_field_binding_v2' : null;
+  if (!version || !root.episodeFieldBinding
+    || root.episodeFieldBinding.source.version !== version || !id(root.episodeFieldBinding.source.sourceId)) {
     throw new Error('invalid actual field episode root kind or binding receipt');
   }
   return json([root.rootKind, root.episodeFieldBinding.source.sourceId]);
 };
 
+/** Validate the discriminator before any consumer chooses the bound-root route. */
+export const isBattedEpisodeFieldRoot = (root: BattedWorldFieldRoot): root is
+  Extract<BattedWorldFieldRoot, { rootKind: 'episode_field_binding_v1' | 'episode_field_binding_v2' }> =>
+  battedWorldFieldRootIdentity(root) !== 'legacy';
+export const battedWorldFieldEpisodeBindingHash = (root: BattedWorldFieldRoot): string | undefined =>
+  isBattedEpisodeFieldRoot(root) ? hash(root.episodeFieldBinding) : undefined;
+
 /** One physical-geometry selector. The original calibration archive is never relabeled as a new flight. */
 export const battedWorldFieldGeometry = (root: BattedWorldFieldRoot & Readonly<{ source?: Source }>) => {
   const identity = battedWorldFieldRootIdentity(root);
   if (root.source && battedWorldFieldSourceRootIdentity(root.source) !== identity) throw new Error('actual field Source and root binding mode differ');
-  if (root.rootKind !== 'episode_field_binding_v1') return root.geometry.geometry;
+  if (!isBattedEpisodeFieldRoot(root)) return root.geometry.geometry;
   const binding = root.episodeFieldBinding, world = root.response.touch.worldContact, flight = world.flight;
   const pitch = flight.physicalPitch, calibration = root.geometry, original = calibration.baseGeometry;
   assertSupportedBattedWorldConsumer(world, 'episode_field_geometry');

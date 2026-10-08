@@ -4,9 +4,10 @@ import type { DurableBattedWorldFieldGeometry } from './SqliteBattedWorldFieldSt
 
 /** References only. The opaque sourceVersion is never a capability discriminator. */
 export type AcceptedBattedEpisodeFieldBinding = Readonly<{
-  sourceId: string; sourceVersion: string; version: 'batted_episode_field_binding_v1';
+  sourceId: string; sourceVersion: string;
   responseSourceId: string; fieldCalibrationSourceId: string;
-}>;
+}> & (Readonly<{ version: 'batted_episode_field_binding_v1'; physicalActorSourceId?: never }>
+  | Readonly<{ version: 'batted_episode_field_binding_v2'; physicalActorSourceId: string }>);
 export type DurableBattedEpisodeFieldBinding = Readonly<{
   source: AcceptedBattedEpisodeFieldBinding;
   gameId: string; playId: number; physicalPitchSourceId: string; contactSequence: number; contactTick: number;

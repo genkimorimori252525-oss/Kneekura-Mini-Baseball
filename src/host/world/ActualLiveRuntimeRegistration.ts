@@ -153,7 +153,8 @@ export const assertActualLiveRegistrationBeforeWork = (db: Db, scope: Scope): vo
 export const assertSamePaRegistrationBeforeWork = (db:Db,scope:Scope & Readonly<{actorSourceId:string;initialWorldSourceId?:string;activationApplicationId?:string}>):void => {
   const owners=new Set(['physical_pitch_progress_actions','physical_pitch_progress_heads','actual_live_play_runtimes',
     'actual_live_play_fences','actual_first_base_play_ends','actual_foul_play_ends',...domains.flatMap(d=>[d.owner,...(d.head?[d.head.owner]:[])])]);
-  const paths:readonly Path[]=[[],['source'],['frame'],['scope'],['physicalPitch','frame'],['frame','batterActor'],['frame','batterActor','source'],
+  const paths:readonly Path[]=[[],['source'],['history',{array:'all'}],['history'],['history',{array:'all'},'source'],['history','source'],
+    ['frame'],['scope'],['physicalPitch','frame'],['frame','batterActor'],['frame','batterActor','source'],
     ...contexts,...flights.flatMap(p=>[[...p,'physicalPitch','frame'] as Path,[...p,'physicalPitch'] as Path,
       [...p,'physicalPitch','frame','batterActor'] as Path,[...p,'physicalPitch','frame','batterActor','source'] as Path])];
   for(const owner of owners){
