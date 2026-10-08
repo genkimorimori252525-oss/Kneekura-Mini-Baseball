@@ -1,3 +1,4 @@
+import { battedWorldFieldGeometry } from './BattedWorldFieldRoot';
 import { withSqliteMetadataStatementScope } from './SqliteMetadataStatementScope';
 import { retainActualLiveFutureControllerWork, actualLiveFutureControllerProducer, actualLiveFutureControllerDisposition } from './ActualLiveFutureControllerWork';
 import { actualCommunicationEvidenceFromSqlite } from './SqliteActualCommunicationStore';
@@ -185,7 +186,7 @@ export const actualFirstBasePlayEndEvidenceFromSqlite = (db: Db) => ({
     }
     let unconsumedBaseFacts = false;
     const bodyBaseHistoryHashes = scope.participants.flatMap(player => (['home', 'first', 'second', 'third'] as const).map(base => {
-      const bag = baseField.geometry.geometry.baseGeometry.bases[base];
+      const bag = battedWorldFieldGeometry(baseField).baseGeometry.bases[base];
       const history = deriveBallWorldPlayerBaseContactHistory({ segments: physical.segments, playerId: player.playerId,
         base: bag.region, baseSurfaceHeightMeters: bag.surfaceHeightMeters });
       if (history.endElapsedSeconds !== at.elapsedSeconds) throw new Error('actual PlayEnd body/base generation cut differs');

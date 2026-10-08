@@ -1,3 +1,4 @@
+import { battedWorldFieldGeometry, battedWorldFieldRootIdentity } from './BattedWorldFieldRoot';
 import { deriveBallWorldFieldTerritory } from '../../core/rules/BallWorldFieldTerritory';
 import type { BallWorldFieldTerritoryInput } from '../../core/rules/BallWorldFieldTerritory';
 import type { BallWorldBattedRuleContact, BallWorldBattedRuleContactFrame } from '../../core/rules/BallWorldBattedRuleEvidence';
@@ -16,6 +17,9 @@ export const battedWorldFieldTerritoryFromPrefix = (prefix: readonly DurableBatt
   const groundSegments: NonNullable<BallWorldFieldTerritoryInput['groundSegments']>[number][] = [];
   const parameters = flight.source.execution.ballFlightParameters;
   for (const [index, action] of prefix.entries()) {
+    if (battedWorldFieldRootIdentity(action) !== battedWorldFieldRootIdentity(value)
+      || json(action.episodeFieldBinding ?? null) !== json(value.episodeFieldBinding ?? null)
+      || json(battedWorldFieldGeometry(action)) !== json(battedWorldFieldGeometry(value))) throw new Error('actual field territory binding mode differs');
     if (action.revision !== index + 1 || action.source.previousFieldSourceId !== (prefix[index - 1]?.source.sourceId ?? null)
       || json(action.response) !== json(value.response) || json(action.geometry) !== json(value.geometry)) {
       throw new Error('actual field territory original scope differs');
@@ -48,7 +52,7 @@ export const battedWorldFieldTerritoryFromPrefix = (prefix: readonly DurableBatt
   for (const binding of [batter.binding, ...batter.defenderBindings]) {
     if (!world.modelActorEvidence.some((actor) => json(actor.binding) === json(binding))) throw new Error('actual field territory Player scope differs');
   }
-  const geometry = value.geometry.geometry.baseGeometry;
+  const geometry = battedWorldFieldGeometry(value).baseGeometry;
   const horizon = value.field.motion.world.moment;
   const territory = deriveBallWorldFieldTerritory({ evidence: { batterRunnerId: batter.binding.playerId,
     defenderIds: batter.defenderBindings.map((binding) => binding.playerId), field: geometry.field, bases: geometry.gates,

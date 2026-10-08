@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/host/world/ActualFieldObservation.ts",
+    "src/host/world/ActualFirstBasePlayEndEvidenceFromSqlite.ts",
+    "src/host/world/ActualFirstBaseUmpire.ts",
+    "src/host/world/ActualLivePlayClosureEvidenceFromSqlite.ts",
+    "src/host/world/BattedVenueLegalEvidenceFromSqlite.ts",
+    "src/host/world/BattedWorldFieldPhysicalPrefix.ts",
+    "src/host/world/BattedWorldFieldTerritoryFromPrefix.ts",
+    "src/host/world/OwnedScheduledMotionExecution.ts",
+    "src/host/world/SqliteBattedEpisodeFieldBindingStore.ts",
+    "src/host/world/SqliteBattedVenueLegalPolicyStore.ts",
+    "src/host/world/SqliteBattedWorldFieldExecutionStore.ts",
+    "src/host/world/SqliteBattedWorldFieldStore.ts",
+    "src/host/world/BattedEpisodeFieldBindingContract.test.ts",
+    "src/host/world/BattedEpisodeFieldBindingAdmission.test.ts",
+    "src/host/world/BattedEpisodeFieldBindingConsumers.test.ts",
+    "src/host/world/BattedEpisodeFieldBindingConsumersSupplement.test.ts",
+    "src/host/world/BattedEpisodeFieldBindingWal.test.ts",
+    "src/host/world/BattedWorldFieldCalibrationEvidenceFromSqlite.ts",
+    "src/host/world/BattedWorldFieldRoot.ts"
+  ]
+}
