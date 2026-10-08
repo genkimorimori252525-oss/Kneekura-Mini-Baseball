@@ -31,8 +31,19 @@ There were **no failed runtime attempts or retries**. One prelaunch bookkeeping 
 
 The original raw receipts, source/control bindings, static fixture review, process telemetry and runtime probes are retained in the private execution evidence bundle. This repository note records their identities; it does not embed the raw bundle or constitute a standalone reproduction package.
 
+## Full root TypeScript compiler
+
+The unchanged root compiler subsequently **passed with exit 0 and no diagnostics** on commit `9e91549fc3c093de5303f5b5d8ff75bcea1feabe`, full tree `f98c7c43316fe42eaf9db641d14710e4ee96472a`, and the same `src` tree `b3b4e9aa53c142d26a1534a8ffdb0f5b9fdaf1a7`. This is separate static compiler evidence; the 80 LIGHT cases retain their original attribution above and were not rerun.
+
+Pinned Node v26.10.0 and TypeScript 5.6.3 ran `tsc --project tsconfig.json --noEmit --pretty false --incremental false`. The root config includes all `src`. The compiler completed in **20.245 seconds**, with peak aggregate RSS **1,553,204 KiB**. Its caps were 300 seconds, 1,408 MiB oldspace, a measured 1,504 MiB V8 heap limit, and 2,048 MiB aggregate RSS. Serial admission required 8.25 GiB available memory, accounting for a 6 GiB reserve, the compiler cap and 256 MiB supervisor allowance; minimum observed available memory was 7.262 GiB.
+
+The private compiler supervisor opened the original shared locks read-only and held exclusive nonblocking locks, forbade child processes, and retained runtime probes, resource telemetry and input snapshots. Its sole compiler process exited and was reaped, with no remaining owned process. Source, dependency, control and runtime snapshots were conserved and independently checked afterward. No tests, database opens, catalog generation, source-behavior edits or held-stream runtime checks occurred.
+
+- Compiler supervisor terminal SHA-256: `d7166e29c0019eacf82d67b7340d49b724349d6aa196c076d6e33d331b18614a`
+- Compiler configuration SHA-256: `cc3e71f8c8eeb7217aa5702b1ee11644c3ed69958a63db112dd82970c87e8c79`
+
 ## Explicit remaining limits
 
-No compiler or other union batch was run. **274 planned v2 cases in 40 files remain unqualified**; B22's one-shot physical prerequisite is separately excluded and unqualified with zero credit. No later PR350–358 layer, including the latest PR354–358 work, is added or qualified here.
+No other union test batch was run. **274 planned v2 cases in 40 files remain unqualified**; B22's one-shot physical prerequisite is separately excluded and unqualified with zero credit. Its unchanged source is included only in the static root compiler check. No later PR350–358 layer, including the latest PR354–358 work, is added or qualified here.
 
 Every held stream remains unchanged, including runner semantic capture and batting inherited-Proxy repair. These results do not establish genuine physical/official foul completion, Native received-call decision/replan/motor wiring, whole-current, full Positive, real SAFE/review, same-PA resume, root completion, general autonomy or Career completion. Publication, merge and deployment are outside this local verification task.
