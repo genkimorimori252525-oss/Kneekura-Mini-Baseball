@@ -67,12 +67,14 @@ export const beginActualLivePlayWrite = (db: Db, scope: ActualLivePlayWriteScope
   }
   const runtimeId = runtime.length ? String(runtime[0].source_id) : null;
   if (event?.owner === 'actual_settled_foul_stop_productions'
-    && (!runtimeId || !['causal_original_settled_foul_runtime_v1', 'causal_original_settled_foul_count_runtime_v1']
+    && (!runtimeId || !['causal_original_settled_foul_runtime_v1', 'causal_original_settled_foul_count_runtime_v1',
+      'causal_original_settled_foul_end_runtime_v1']
       .includes(JSON.parse(String(runtime[0].source_json)).capability))) {
     throw new Error('settled-foul admission requires its explicit registered runtime capability');
   }
   if (event?.owner === 'actual_foul_rule_consumptions'
-    && (!runtimeId || JSON.parse(String(runtime[0].source_json)).capability !== 'causal_original_settled_foul_count_runtime_v1')) {
+    && (!runtimeId || !['causal_original_settled_foul_count_runtime_v1', 'causal_original_settled_foul_end_runtime_v1']
+      .includes(JSON.parse(String(runtime[0].source_json)).capability))) {
     throw new Error('foul count admission requires its explicit registered count runtime capability');
   }
   if (runtimeId && ['physical_pitch_progress_actions', 'physical_plate_appearance_actors'].includes(event!.owner)) {
