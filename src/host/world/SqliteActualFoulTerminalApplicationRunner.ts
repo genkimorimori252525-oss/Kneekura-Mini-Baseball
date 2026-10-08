@@ -58,6 +58,9 @@ export const openSqliteActualFoulTerminalApplicationRunner = (path: string): Sql
     // Check installed authority before any writer PRAGMA. There is no CREATE,
     // ALTER, INSERT, migration or fallback to a newly initialized database.
     db.exec('BEGIN'); assertStorage(db); db.exec('COMMIT');
+    if (db.isTransaction || db.prepare('PRAGMA query_only').get()!.query_only !== 0) {
+      throw new Error('foul terminal runner constructor commit state differs');
+    }
     db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000');
   } catch (error) {
     const errors = [error];
@@ -114,8 +117,10 @@ export const openSqliteActualFoulTerminalApplicationRunner = (path: string): Sql
     check(sourceId);
     if (db.isTransaction) return retire(new Error('foul terminal runner has an unowned transaction'),[]);
     const setting = queryOnly(), before = counters(), savepoint = 'terminal_application_' + randomUUID().replaceAll('-','');
-    db.exec(write ? 'BEGIN IMMEDIATE' : 'BEGIN');
+    let began = false;
     try {
+      db.exec(write ? 'BEGIN IMMEDIATE' : 'BEGIN'); began = true;
+      if (!db.isTransaction) { failed = true; throw new Error('foul terminal runner did not acquire its transaction'); }
       db.exec('SAVEPOINT ' + savepoint); proof(() => assertStorage(db));
       const result = body(), after = counters();
       if (!db.isTransaction || queryOnly() !== setting || typeof before.changes !== 'number'
@@ -125,14 +130,16 @@ export const openSqliteActualFoulTerminalApplicationRunner = (path: string): Sql
       same(after.schema,before.schema,'foul terminal runner schema changed during operation');
       try { db.exec('RELEASE ' + savepoint); } catch (error) { failed = true; throw error; }
       if (!db.isTransaction) { failed = true; throw new Error('foul terminal runner owned transaction disappeared'); }
-      db.exec('COMMIT'); return result.value;
+      db.exec('COMMIT');
+      if (db.isTransaction || queryOnly() !== setting) { failed = true; throw new Error('foul terminal runner commit state differs'); }
+      return result.value;
     } catch (error) {
       const cleanup: unknown[] = [];
       try {
         if (db.isTransaction) {
           try { db.exec('ROLLBACK TO ' + savepoint); } catch (identity) { failed = true; cleanup.push(identity); }
           db.exec('ROLLBACK');
-        } else failed = true;
+        } else if (began) failed = true;
       } catch (rollback) { failed = true; cleanup.push(rollback); }
       try {
         if (queryOnly() !== setting) { db.exec('PRAGMA query_only=' + setting); failed = true; }

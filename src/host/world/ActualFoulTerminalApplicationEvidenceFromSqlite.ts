@@ -352,10 +352,11 @@ export const foulTerminalApplicationPin = (db: DatabaseSync, p: FoulTerminalAppl
   };
 };
 
-/** Archive authentication owns expected-self validation; discovery grants no
- * authority. No callback or today's head is required for an exact queue read. */
-export const foulTerminalApplicationEvidenceFromSqlite = (db: DatabaseSync) => {
-  const read = (sourceId: string): DurableFoulTerminalApplication | null => withBattedVenueLegalReadSnapshot(db, () => {
+/** Shared original archive authentication, independent of the public stage
+ * reader and downstream effects. Discovery grants no authority. The supported
+ * stages, exact wire bytes and pending mirror/currentness checks stay unchanged. */
+const readFoulTerminalOriginalArchive = (db: DatabaseSync,
+  sourceId: string): DurableFoulTerminalApplication | null => withBattedVenueLegalReadSnapshot(db, () => {
     if (!id(sourceId)) throw new Error('invalid foul terminal queue identity');
     const installed = assertFoulTerminalApplicationStorage(db);
     const rows = installed ? foulTerminalApplicationIdentityRows(db,sourceId) : [];
@@ -395,6 +396,27 @@ export const foulTerminalApplicationEvidenceFromSqlite = (db: DatabaseSync) => {
     assertQueueClaims(db,proposal,row,result.official);
     return freeze({ source,proposal,status:'OFFICIAL_APPLIED_PENDING_POST_PLAY',officialApplied:true,result });
   });
+
+/** Internal immutable ancestry seam. The actual archive stage is separate from
+ * the original acknowledgement evidence. An unacknowledged old-stage owner has
+ * no acknowledgement evidence; a truly absent owner remains null. This reader
+ * neither invokes the public reader nor authenticates/authorizes later effects.
+ * Completed stages and their schemas remain unsupported in this first split. */
+export const foulTerminalAcknowledgementAncestryFromSqlite = (db: DatabaseSync) => Object.freeze({
+  read(sourceId: string) {
+    const saved = readFoulTerminalOriginalArchive(db, sourceId);
+    if (!saved) return null;
+    return freeze({ archiveStage: saved.status,
+      evidence: saved.status === 'OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY'
+        ? { source: saved.source, proposal: saved.proposal, officialApplied: saved.officialApplied, result: saved.result }
+        : null });
+  },
+});
+
+/** Public old-stage reader shares only original authentication with immutable
+ * ancestry. Its result union and all queue/acknowledgement operations stay exact. */
+export const foulTerminalApplicationEvidenceFromSqlite = (db: DatabaseSync) => {
+  const read = (sourceId: string) => readFoulTerminalOriginalArchive(db, sourceId);
   return Object.freeze({ read,
     /** Internal db-bound transition proof, called under the runner's owned
      * post-acquisition read-only proof. It returns bytes/pins, not a durable

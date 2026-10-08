@@ -74,7 +74,7 @@ export const prepareLegacyPendingCopy = () => {
 
 /** Controller-only private-copy rebuild. The caller just created this copy
  * with COPYFILE_EXCL; no production opener invokes this function. */
-const extendPrivateTerminalCheck = (db: Database) => {
+export const extendPrivateTerminalCheck = (db: Database) => {
   assertFrozenTerminalSchema(db);
   const beforeSchema = schemaCensus(db), beforeTerminal = terminalSchema(db), beforeRows = rawCensus(db);
   expect(beforeSchema.userVersion).toBe(3);
