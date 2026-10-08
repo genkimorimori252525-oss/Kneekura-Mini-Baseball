@@ -63,3 +63,21 @@ it('RD06 projects one decision then one motor obligation from the durable renewa
     f.store.accept(decisionSource.sourceId);f.db.exec('BEGIN');expect(actualReceivedUmpireRenewalLiveWorkFromSqlite(f.db).read('received-a')).toMatchObject({kind:'received_renewal_work',stage:2,work:{kind:'renewal_motor'}});f.db.exec('COMMIT');
   }finally{if(f.db.isTransaction)f.db.exec('ROLLBACK');f.close();}
 });
+
+const committedFault=async(kind:'dependency'|'callback'|'current')=>{
+  const f=await fixture(),prepare=DatabaseSync.prototype.prepare,exec=DatabaseSync.prototype.exec;let owner:InstanceType<typeof DatabaseSync>|null=null,injected=false,committedRows:unknown;
+  try{
+    DatabaseSync.prototype.prepare=function(this:InstanceType<typeof DatabaseSync>,sql:string){const stmt=prepare.call(this,sql);if(sql.startsWith('INSERT INTO actual_received_umpire_renewal_decisions')){const run=stmt.run.bind(stmt),db=this;stmt.run=((...args:Parameters<typeof stmt.run>)=>{const result=run(...args);owner=db;return result;}) as typeof stmt.run;}return stmt;} as typeof prepare;
+    DatabaseSync.prototype.exec=function(this:InstanceType<typeof DatabaseSync>,sql:string){const result=exec.call(this,sql);if(this===owner&&sql==='COMMIT'&&!injected){injected=true;committedRows=f.db.prepare('SELECT * FROM actual_received_umpire_renewal_decisions').all();
+      if(kind==='callback')f.changeSource({...decisionSource,sourceVersion:'changed-after-commit'});
+      else exec.call(f.db,kind==='dependency'?'UPDATE original_dependency SET revision=1':'UPDATE original_dependency SET current_cut=9999');
+    }return result;};
+    expect(()=>f.store.accept(decisionSource.sourceId),'RENEWAL_POST_COMMIT_AUTHORITY_CHANGE_ESCAPED').toThrow(/uncertain.*retired/);expect(injected).toBe(true);
+    expect(()=>f.store.read(decisionSource.sourceId)).toThrow(/retired|closed/);
+    expect(f.db.prepare('SELECT * FROM actual_received_umpire_renewal_decisions').all()).toEqual(committedRows);
+    expect(f.db.prepare('SELECT stage FROM actual_received_umpire_renewal_heads').get()!.stage).toBe(2);
+  }finally{DatabaseSync.prototype.prepare=prepare;DatabaseSync.prototype.exec=exec;f.close();}
+};
+it('RD07 retires after COMMIT changes its dependency authority with committed owner rows conserved',()=>committedFault('dependency'));
+it('RD08 retires after COMMIT changes its callback authority with committed owner rows conserved',()=>committedFault('callback'));
+it('RD09 retires after COMMIT changes its current authority with committed owner rows conserved',()=>committedFault('current'));

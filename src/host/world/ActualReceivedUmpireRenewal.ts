@@ -7,6 +7,8 @@ export type RenewalDecisionSource = Readonly<{ sourceId: string; sourceVersion: 
   capability: 'received_umpire_renewal_decision_v1'; renewalEnrollmentSourceId: string }>;
 export type RenewalMotorSource = Readonly<{ sourceId: string; sourceVersion: string;
   capability: 'received_umpire_renewal_motor_v1'; renewalEnrollmentSourceId: string; renewalDecisionSourceId: string }>;
+export type RenewalAdoptionExecutionSource = Readonly<{sourceId:string;sourceVersion:string;baseFieldSourceId:string;previousExecutionSourceId:string;
+  action:Readonly<{kind:'received_renewal_adoption_v1';renewalEnrollmentSourceId:string;renewalMotorSourceId:string}>}>;
 const parse = <T extends {sourceId: string; sourceVersion: string; capability: string}>(raw: T, capability: string, refs: string[], id?: string): T => {
   const source = cloneInert(raw), keys = ['sourceId','sourceVersion','capability',...refs];
   if (!source || Object.keys(source).sort().join('|') !== keys.sort().join('|') || source.capability !== capability
@@ -17,6 +19,14 @@ const parse = <T extends {sourceId: string; sourceVersion: string; capability: s
 export const renewalEnrollmentInput = (s: RenewalEnrollmentSource, id?: string) => parse(s,'received_umpire_renewal_enrollment_v1',['receivedEnrollmentSourceId','receivedReplanSourceId'],id);
 export const renewalDecisionInput = (s: RenewalDecisionSource, id?: string) => parse(s,'received_umpire_renewal_decision_v1',['renewalEnrollmentSourceId'],id);
 export const renewalMotorInput = (s: RenewalMotorSource, id?: string) => parse(s,'received_umpire_renewal_motor_v1',['renewalEnrollmentSourceId','renewalDecisionSourceId'],id);
+export const renewalAdoptionInput=(raw:RenewalAdoptionExecutionSource,id?:string):RenewalAdoptionExecutionSource=>{
+  const s=cloneInert(raw);
+  if(!s||Object.keys(s).sort().join('|')!=='action|baseFieldSourceId|previousExecutionSourceId|sourceId|sourceVersion'
+    ||![s.sourceId,s.sourceVersion,s.baseFieldSourceId,s.previousExecutionSourceId].every(receivedId)||s.sourceId===s.previousExecutionSourceId
+    ||id!==undefined&&s.sourceId!==id||!s.action||Object.keys(s.action).sort().join('|')!=='kind|renewalEnrollmentSourceId|renewalMotorSourceId'
+    ||s.action.kind!=='received_renewal_adoption_v1'||!receivedId(s.action.renewalEnrollmentSourceId)||!receivedId(s.action.renewalMotorSourceId))throw new Error('invalid received renewal adoption Source');
+  return s;
+};
 export type RenewalCut = Readonly<{originTick:number;elapsedSeconds:number;tick:number;ticksPerSecond:number}>;
 export const renewalExactCut = (at: Omit<RenewalCut,'ticksPerSecond'>, ticksPerSecond:number):RenewalCut => {
   const cut=cloneInert({originTick:at.originTick,elapsedSeconds:at.elapsedSeconds,tick:at.tick,ticksPerSecond});

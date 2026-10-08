@@ -68,6 +68,11 @@ export const openSqliteActualReceivedUmpireRenewalDecisionStore=(path:string,aut
       if(tx.proof(qualify)!==open)throw new Error('received renewal decision closure changed after head');
       appendRenewalJournal(db,e,table,id);if(tx.proof(qualify)!==open)throw new Error('received renewal decision closure changed after journal');
       const saved=tx.proof(()=>own.read(id));if(!saved||json(saved)!==json(v))throw new Error('received renewal decision changed during write');durable=rows();return saved;
-    },()=>{if(json(rows())!==json(durable))throw new Error('received renewal decision committed rows differ');});
+    },()=>{
+      if(json(rows())!==json(durable))throw new Error('received renewal decision committed rows differ');
+      if(json(accepted(id))!==json(source))throw new Error('received renewal decision committed callback Source changed');
+      const d=own.withOriginal(id,derived=>{if(json(derived.value)!==json(proposal.value)||json(derived.original.value)!==json(e))throw new Error('received renewal decision committed original differs');return derived;});
+      if(!d)throw new Error('received renewal decision committed owner missing');originalOwner.qualifyCurrent(d.original);
+    });
   },close:tx.close});
 };

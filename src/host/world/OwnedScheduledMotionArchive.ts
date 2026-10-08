@@ -4,6 +4,7 @@ import type { AcceptedBattedWorldFieldExecution, DurableBattedWorldFieldExecutio
 import { actorHash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 
 export const ownedScheduledMotionSnapshotFormat = 'owned_scheduled_field_execution_manifest_v1' as const;
+export const receivedRenewalAdoptionSnapshotFormat = 'received_renewal_adoption_snapshot_v1' as const;
 const historyFormat = 'owned_scheduled_whole_history_manifest_v1' as const;
 const family = new Set(['owned_motion_v2', 'owned_acquisition_plan_v1', 'owned_throw_plan_v1']);
 const id = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value === value.trim();
@@ -99,7 +100,8 @@ const wholeHistory = (raw: unknown, physicalPitchSourceId: string, gameId: strin
 const archive = (snapshot: DurableBattedWorldFieldExecution): unknown => {
   const raw = object(snapshot, ['source', 'baseField', 'revision', 'history', 'execution']);
   const current = source(raw.source), history = array(raw.history).map(source);
-  if (!family.has(current.action.kind) && !history.some(value => family.has(value.action.kind))) return cloneInert(snapshot);
+  const renewal=(current.action.kind as string)==='received_renewal_adoption_v1';
+  if (!renewal && !family.has(current.action.kind) && !history.some(value => family.has(value.action.kind))) return cloneInert(snapshot);
   if (!positiveInteger(raw.revision) || raw.revision !== history.length || !history.length
     || inertJson(current) !== inertJson(history[history.length - 1])) fail();
   const baseField = cloneInert(raw.baseField) as DurableBattedWorldFieldExecution['baseField'];
@@ -121,7 +123,7 @@ const archive = (snapshot: DurableBattedWorldFieldExecution): unknown => {
     if (body.kind !== 'whole_play_history') fail();
     execution = { kind: body.kind, field: cloneInert(body.field), physicalHistory: wholeHistory(body.physicalHistory, physicalPitchSourceId, gameId) };
   } else execution = cloneInert(raw.execution);
-  return { snapshotFormat: ownedScheduledMotionSnapshotFormat, source: current, revision: raw.revision,
+  return { snapshotFormat: renewal?receivedRenewalAdoptionSnapshotFormat:ownedScheduledMotionSnapshotFormat, source: current, revision: raw.revision,
     baseField: { source: { sourceId: baseField.source.sourceId, sourceVersion: baseField.source.sourceVersion },
       sourceHash: inertHash(baseField.source), snapshotHash: inertHash(baseField), physicalPitchSourceId, gameId },
     history: envelopes, execution };

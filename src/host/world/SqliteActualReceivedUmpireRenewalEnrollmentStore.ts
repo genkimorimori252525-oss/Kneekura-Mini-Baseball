@@ -41,6 +41,11 @@ export const openSqliteActualReceivedUmpireRenewalEnrollmentStore=(path:string,a
       appendRenewalJournal(db,e,table,id);
       if(tx.proof(qualify)!==open)throw new Error('received renewal closure changed after journal');
       const saved=tx.proof(()=>own.read(id));if(!saved||json(saved)!==json(e))throw new Error('received renewal enrollment changed during write');durable=rows();return saved;
-    },()=>{if(json(rows())!==json(durable))throw new Error('received renewal committed rows differ');},()=>noClaims(proposal));
+    },()=>{
+      if(json(rows())!==json(durable))throw new Error('received renewal committed rows differ');
+      if(json(accepted(id))!==json(source))throw new Error('received renewal committed callback Source changed');
+      const d=own.withOriginal(id,original=>{if(json(original.value)!==json(proposal))throw new Error('received renewal committed original differs');return original;});
+      if(!d)throw new Error('received renewal committed owner missing');original.qualifyCurrent(d);
+    },()=>noClaims(proposal));
   },close:tx.close});
 };
