@@ -1,7 +1,7 @@
 import type { DatabaseSync } from 'node:sqlite';
 import { receivedEnrollmentInput, receivedId, type ReceivedEnrollmentSource } from './ActualReceivedUmpireDefender';
 import { receivedOwnerSchema } from './ActualReceivedUmpireDefenderSchema';
-import { receivedDefenderClaims } from './ActualReceivedUmpireDefenderClaims';
+import { receivedUnionClaims } from './ActualReceivedUmpireDefenderClaims';
 import { receivedEnrollmentEvidenceFromSqlite, type DurableReceivedEnrollment } from './ActualReceivedUmpireDefenderEvidence';
 import { receivedJournal, appendReceivedJournal, receivedSourceRow } from './ActualReceivedUmpireDefenderJournal';
 import { openReceivedTransaction, withReceivedReadProof } from './ActualReceivedUmpireDefenderTransaction';
@@ -37,12 +37,13 @@ export const openSqliteActualReceivedUmpireDefenderEnrollmentStore=(path:string,
     const {prior,source}=tx.read(()=>({prior:own.read(sourceId),source:accepted(sourceId)}));
     if(prior){if(source&&json(source)!==json(prior.source))throw new Error('received enrollment Source frozen differently');return tx.read(()=>{const saved=own.read(sourceId);if(!saved||json(saved)!==json(prior))throw new Error('received enrollment retry changed');return saved;});}
     if(!source)throw new Error('accepted received enrollment Source missing');
-    const proposal=tx.read(()=>{const derived=original.derive(source);original.qualifyCurrent(derived);if(receivedDefenderClaims(db,{gameId:derived.value.gameId,playId:derived.value.playId,physicalPitchSourceId:derived.value.source.physicalPitchSourceId}).length)throw new Error('received enrollment already has ownership claims');return derived.value;});
+    const proposal=tx.read(()=>{const derived=original.derive(source);original.qualifyCurrent(derived);if(receivedUnionClaims(db,{gameId:derived.value.gameId,playId:derived.value.playId,physicalPitchSourceId:derived.value.source.physicalPitchSourceId}).length)throw new Error('received enrollment already has ownership claims');return derived.value;});
+    const noClaims=()=>{if(receivedUnionClaims(db,{gameId:proposal.gameId,playId:proposal.playId,physicalPitchSourceId:proposal.source.physicalPitchSourceId}).length)throw new Error('received enrollment ownership appeared');};
     let durableRows:unknown;
     return tx.write({bootstrap:true,changes:2},()=>{
       const qualify=()=>{if(json(accepted(sourceId))!==json(source))throw new Error('received enrollment callback Source changed');const current=original.derive(source);if(json(current.value)!==json(proposal))throw new Error('received enrollment original proof changed');return original.qualifyCurrent(current);};
       const open=tx.proof(qualify);
-      if(tx.proof(()=>receivedDefenderClaims(db,{gameId:proposal.gameId,playId:proposal.playId,physicalPitchSourceId:proposal.source.physicalPitchSourceId})).length)throw new Error('received enrollment ownership appeared');
+      tx.proof(noClaims);
       db.prepare(`INSERT INTO ${table} VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(sourceId,source.sourceVersion,proposal.gameId,proposal.playId,source.physicalPitchSourceId,source.playerId,source.runtimeSourceId,
         proposal.cause.callSourceId,proposal.cause.originCommunicationSourceId,proposal.anchor.legacyAdmissionPrefix.count,proposal.anchor.legacyAdmissionPrefix.digest,json(source),hash(source),json(proposal),hash(proposal));
       if(tx.proof(qualify)!==open)throw new Error('received enrollment closure state changed');
@@ -52,6 +53,6 @@ export const openSqliteActualReceivedUmpireDefenderEnrollmentStore=(path:string,
       durableRows=[db.prepare(`SELECT * FROM ${table} WHERE source_id=?`).get(sourceId),db.prepare('SELECT * FROM actual_received_umpire_defender_admissions WHERE enrollment_source_id=? ORDER BY sequence').all(sourceId)];
       return saved;
     },()=>{const rows=[db.prepare(`SELECT * FROM ${table} WHERE source_id=?`).get(sourceId),db.prepare('SELECT * FROM actual_received_umpire_defender_admissions WHERE enrollment_source_id=? ORDER BY sequence').all(sourceId)];
-      if(json(rows)!==json(durableRows))throw new Error('received enrollment durable rows differ');});
+      if(json(rows)!==json(durableRows))throw new Error('received enrollment durable rows differ');},noClaims);
   },close:tx.close});
 };
