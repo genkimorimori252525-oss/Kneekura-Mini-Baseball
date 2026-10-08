@@ -10,7 +10,7 @@ import { actualObservationId as id, actualFieldObservationInput as input, sample
 import { actualObservationPhysicalPrefixEvidence } from './ActualObservationPhysicalPrefixHash';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { battedWorldFieldEvidenceFromSqlite } from './SqliteBattedWorldFieldStore';
-import { battedWorldFieldExecutionEvidenceFromSqlite } from './SqliteBattedWorldFieldExecutionStore';
+import { battedWorldFieldExecutionEvidenceFromSqlite, withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { playerObservationModelEvidenceFromSqlite } from './SqlitePlayerObservationModelStore';
 import { actualCommunicationEvidenceFromSqlite } from './SqliteActualCommunicationStore';
 import { actualCommunicationObservationAt } from './ActualCallCommunication';
@@ -258,18 +258,30 @@ export const openSqliteActualFieldObservationStore = (path: string, authority?: 
     source_id TEXT NOT NULL UNIQUE,revision INTEGER NOT NULL,PRIMARY KEY(physical_pitch_source_id,player_id));`);
   const own = actualFieldObservationEvidenceFromSqlite(db); let closed = false;
   const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed actual observation scope'); };
-  return Object.freeze({ read(sourceId) { check(sourceId); return own.read(sourceId); },
+  // Keep authority callbacks between fresh private snapshots. Existing caller
+  // and writer transactions retain their ownership and writable revalidation.
+  const reading = <T>(work: () => T): T => {
+    if (db.isTransaction) return work();
+    db.exec('BEGIN');
+    try { const value = withBattedWorldPhysicalReadTraversal(db, work); db.exec('COMMIT'); return value; }
+    catch (error) {
+      if (db.isTransaction) try { db.exec('ROLLBACK'); }
+      catch (cleanup) { throw new AggregateError([error, cleanup], 'actual observation private read rollback failed', { cause: error }); }
+      throw error;
+    }
+  };
+  return Object.freeze({ read(sourceId) { check(sourceId); return reading(() => own.read(sourceId)); },
     accept(sourceId) {
-      check(sourceId); const prior = own.read(sourceId), raw = authority?.readAcceptedObservation(sourceId) ?? null;
+      check(sourceId); const prior = reading(() => own.read(sourceId)), raw = authority?.readAcceptedObservation(sourceId) ?? null;
       const source = raw === null ? null : input(raw, sourceId);
       if (prior) {
         if (source && json(source) !== json(prior.source)) throw new Error('actual observation Source is frozen differently');
-        const saved = own.read(sourceId);
+        const saved = reading(() => own.read(sourceId));
         if (!saved || json(saved) !== json(prior)) throw new Error('actual observation original changed during retry');
         return saved;
       }
       if (!source) throw new Error('accepted actual observation Source is missing');
-      const value = own.derive(source); own.currentBefore(value);
+      const value = reading(() => { const derived = own.derive(source); own.currentBefore(derived); return derived; });
       db.exec('BEGIN IMMEDIATE');
       try {
         const liveFence = beginActualLivePitchWrite(db, source.physicalPitchSourceId, { owner: 'actual_field_observations', sourceId });
