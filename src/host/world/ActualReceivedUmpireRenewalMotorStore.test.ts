@@ -3,7 +3,7 @@ import { existsSync,mkdtempSync,rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect,it,vi } from 'vitest';
-import { actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { actorHash as hash,actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { installReceivedOwnerSchema } from './ActualReceivedUmpireDefenderSchema';
 import { openSqliteActualReceivedUmpireRenewalEnrollmentStore } from './SqliteActualReceivedUmpireRenewalEnrollmentStore';
 import { openSqliteActualReceivedUmpireRenewalDecisionStore } from './SqliteActualReceivedUmpireRenewalDecisionStore';
@@ -95,3 +95,30 @@ const committedFault=async(kind:'dependency'|'callback'|'current')=>{
 it('RM08 retires after COMMIT changes its dependency authority with committed owner rows conserved',()=>committedFault('dependency'));
 it('RM09 retires after COMMIT changes its callback authority with committed owner rows conserved',()=>committedFault('callback'));
 it('RM10 retires after COMMIT changes its current authority with committed owner rows conserved',()=>committedFault('current'));
+
+it('RM11 rejects an unjournaled physical renewal claim at the motor stage',async()=>{
+  const f=await fixture();try{f.store.accept(motorSource.sourceId);
+    f.db.exec('CREATE TABLE batted_world_field_executions(source_id TEXT,physical_pitch_source_id TEXT,base_field_source_id TEXT,previous_source_id TEXT,revision INTEGER,game_id TEXT,source_json TEXT,source_hash TEXT,snapshot_json TEXT,snapshot_hash TEXT)');
+    const s={sourceId:'unjournaled-renewal',sourceVersion:'fixture-v1',baseFieldSourceId:'field-a',previousExecutionSourceId:'execution-a',action:{kind:'received_renewal_adoption_v1',renewalEnrollmentSourceId:enrollmentSource.sourceId,renewalMotorSourceId:motorSource.sourceId}};
+    f.db.prepare('INSERT INTO batted_world_field_executions VALUES(?,?,?,?,?,?,?,?,?,?)').run(s.sourceId,'pitch','field-a','execution-a',11,'game-a',JSON.stringify(s),hash(s),JSON.stringify({source:s}),hash({source:s}));
+    expect(()=>f.store.read(motorSource.sourceId),'UNJOURNALED_RENEWAL_PHYSICAL_CLAIM_IGNORED').toThrow(/claim|physical|journal/);
+  }finally{f.close();}
+});
+
+it('RJ01 binds the actual snapshotFormat header and keeps the later physical result opaque',async()=>{
+  const f=await fixture();try{f.store.accept(motorSource.sourceId);
+    const {renewalJournal,appendRenewalJournal}=await import('./ActualReceivedUmpireRenewalJournal');
+    const e=JSON.parse(String(f.db.prepare('SELECT snapshot_json FROM actual_received_umpire_renewal_enrollments').get()!.snapshot_json)) as import('./ActualReceivedUmpireRenewalEvidence').DurableReceivedRenewalEnrollment;
+    const table='batted_world_field_executions',source={sourceId:'journaled-adoption',sourceVersion:'fixture-v1',baseFieldSourceId:e.anchor.baseField.sourceId,previousExecutionSourceId:e.anchor.physicalPredecessor.sourceId,
+      action:{kind:'received_renewal_adoption_v1',renewalEnrollmentSourceId:e.source.sourceId,renewalMotorSourceId:motorSource.sourceId}};
+    // Only metadata is claimed here. Actual Core output is covered by RN01.
+    const snapshot={snapshotFormat:'received_renewal_adoption_snapshot_v1',source,execution:'opaque later physical result'};
+    f.db.exec('CREATE TABLE batted_world_field_executions(source_id TEXT,physical_pitch_source_id TEXT,base_field_source_id TEXT,previous_source_id TEXT,revision INTEGER,game_id TEXT,source_json TEXT,source_hash TEXT,snapshot_json TEXT,snapshot_hash TEXT)');
+    f.db.prepare('INSERT INTO batted_world_field_executions VALUES(?,?,?,?,?,?,?,?,?,?)').run(source.sourceId,e.physicalPitchSourceId,source.baseFieldSourceId,source.previousExecutionSourceId,e.anchor.physicalPredecessor.revision+1,e.gameId,json(source),hash(source),json(snapshot),hash(snapshot));
+    f.db.prepare('UPDATE actual_received_umpire_renewal_heads SET stage=4,owner=?,source_id=?,adoption_source_id=?').run(table,source.sourceId,source.sourceId);appendRenewalJournal(f.db,e,table,source.sourceId);
+    expect(()=>renewalJournal(f.db,e),'ACTUAL_RENEWAL_SNAPSHOT_FORMAT_REJECTED').not.toThrow();expect(renewalJournal(f.db,e)).toHaveLength(4);
+    const wrong={format:snapshot.snapshotFormat,source,execution:snapshot.execution},entry=f.db.prepare('SELECT * FROM actual_received_umpire_renewal_admissions WHERE sequence=4').get()!,{receipt_hash:ignored,...body}=entry;body.snapshot_hash=hash(wrong);
+    f.db.prepare('UPDATE batted_world_field_executions SET snapshot_json=?,snapshot_hash=?').run(json(wrong),hash(wrong));f.db.prepare('UPDATE actual_received_umpire_renewal_admissions SET snapshot_hash=?,receipt_hash=? WHERE sequence=4').run(hash(wrong),hash(body));
+    expect(()=>renewalJournal(f.db,e)).toThrow(/header lineage/);
+  }finally{f.close();}
+});

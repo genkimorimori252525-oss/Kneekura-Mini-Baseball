@@ -64,9 +64,14 @@ export const receivedRenewalEnrollmentEvidenceFromSqlite=(db:DatabaseSync)=>{
       return {value,process,self,selves,model,baseField,execution,observation:original.observation};
     }),'received enrollment');
   };
-  const qualifyCurrent=(derived:ReturnType<typeof derive>)=>{
-    const {value,baseField,execution,observation}=derived;
-    battedWorldFieldEvidenceFromSqlite(db).current(baseField);battedWorldFieldExecutionEvidenceFromSqlite(db).current(execution);actualFieldObservationEvidenceFromSqlite(db).current(observation);
+  const qualifyNonPhysicalCurrent=(derived:ReturnType<typeof derive>)=>{
+    const {value,baseField,observation}=derived;
+    battedWorldFieldEvidenceFromSqlite(db).current(baseField);
+    // The observation was authenticated immutably by derive(). Its current head
+    // stays fixed while the separately qualified adoption advances physical ownership.
+    const observed=db.prepare('SELECT * FROM actual_field_observation_heads WHERE (physical_pitch_source_id=? AND player_id=?) OR source_id=?').all(value.physicalPitchSourceId,value.playerId,observation.source.sourceId);
+    if(observed.length!==1||observed[0].physical_pitch_source_id!==value.physicalPitchSourceId||observed[0].player_id!==value.playerId
+      ||observed[0].source_id!==observation.source.sourceId||observed[0].revision!==observation.revision)throw new Error('received renewal current observation head differs');
     const h=db.prepare('SELECT * FROM actual_received_umpire_defender_replan_heads WHERE enrollment_source_id=?').get(value.receivedEnrollmentSourceId);
     const d=db.prepare('SELECT source_id,revision FROM actual_defensive_decision_heads WHERE physical_pitch_source_id=? AND player_id=?').get(value.physicalPitchSourceId,value.playerId);
     const prefix=receivedLegacyAdmissionPrefix(db,value.runtimeSourceId);
@@ -75,6 +80,11 @@ export const receivedRenewalEnrollmentEvidenceFromSqlite=(db:DatabaseSync)=>{
       ||prefix.length!==value.anchor.legacyAdmissionPrefix.count||hash(prefix)!==value.anchor.legacyAdmissionPrefix.digest)throw new Error('received renewal current owner or original prefix differs');
     return actualLivePlayExtensionOpenState(db,value);
   };
-  return {derive,qualifyCurrent};
+  const qualifyCurrent=(derived:ReturnType<typeof derive>)=>{
+    battedWorldFieldExecutionEvidenceFromSqlite(db).current(derived.execution);
+    actualFieldObservationEvidenceFromSqlite(db).current(derived.observation);
+    return qualifyNonPhysicalCurrent(derived);
+  };
+  return {derive,qualifyCurrent,qualifyNonPhysicalCurrent};
 };
 export type DurableReceivedRenewalEnrollment=ReturnType<ReturnType<typeof receivedRenewalEnrollmentEvidenceFromSqlite>['derive']>['value'];

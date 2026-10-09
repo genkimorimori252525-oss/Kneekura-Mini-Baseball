@@ -25,7 +25,7 @@ import {fileHash,rawCensus,schemaCensus} from './ActualFoulTerminalAcknowledgeme
 import {withSqliteReadTransaction} from './SqliteReadTransaction.test-support';
 import {withBattedWorldPhysicalReadTraversal} from './SqliteBattedWorldFieldExecutionStore';
 import {assertContinuationRows,materializeContinuationTake,materializeContinuationClosure,materializeContinuationNextActor,
- terminalContinuationFixtureIds as ids,terminalContinuationGame,terminalContinuationStages,validateContinuationPredecessor,
+ terminalContinuationFixtureIds as ids,terminalContinuationGame,terminalContinuationStages,validateContinuationPredecessor,closureContinuationReceiptFields,
  type TerminalContinuationStage,type TerminalContinuationStageReceipt} from './TerminalContinuationFixtureInputs.test-support';
 const {DatabaseSync}=createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
 type Pin=Readonly<{path:string;sha256:string}>;
@@ -177,7 +177,7 @@ export const runTerminalContinuationStage=(raw:TerminalContinuationRun,progress:
   closeAll();closed(run.destinationPath);progress('all stage handles closed; reopening real owners');
   const reopened=openBase();same(inspect(reopened,run.stage),owners,'continuation reopened owner receipts differ');same(rawCensus(reopened.db),after,'continuation reopened readers wrote rows');same(schemaCensus(reopened.db),x.schema,'continuation reopened storage differs');
   closeAll();closed(run.destinationPath);closed(input.path);pin(input);pin(run.recipe);if(run.predecessorReceipt)pin(run.predecessorReceipt);
-  const receipt:TerminalContinuationStageReceipt={version:'terminal_continuation_stage_v1',stage:run.stage,sourceTree:run.sourceTree,input,output:{path:run.destinationPath,sha256:fileHash(run.destinationPath)},recipeHash:run.recipe.sha256,
+  const receipt:TerminalContinuationStageReceipt={...closureContinuationReceiptFields(prior),stage:run.stage,sourceTree:run.sourceTree,input,output:{path:run.destinationPath,sha256:fileHash(run.destinationPath)},recipeHash:run.recipe.sha256,
    predecessorReceiptHash:run.predecessorReceipt?.sha256??null,allHandlesClosed:true,reopened:true,originalRowsPreserved:true,ownerReceipts:owners,twoPriorCompletionLineage:run.stage==='next_actor'};
   mkdirSync(dirname(run.receiptPath),{recursive:true});writeFileSync(run.receiptPath,JSON.stringify(receipt,null,2)+'\n',{flag:'wx'});return receipt;
  }catch(error){failed=true;primary=error;throw error;}finally{

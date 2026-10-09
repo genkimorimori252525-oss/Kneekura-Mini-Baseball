@@ -1,3 +1,4 @@
+import { actualReceivedUmpireRenewalAdoptionEvidenceFromSqlite } from './SqliteActualReceivedUmpireRenewalAdoptionStore';
 import type { DatabaseSync } from 'node:sqlite';
 import { receivedUnionReferenceClaims } from './ActualReceivedUmpireDefenderClaims';
 import { receivedId } from './ActualReceivedUmpireDefender';
@@ -21,7 +22,13 @@ export const actualReceivedUmpireRenewalLiveWorkFromSqlite=(db:DatabaseSync)=>Ob
     const journal=renewalJournal(db,e),stage=journal.length;
     // Adoption gets a distinct current physical-head proof. Never requalify the
     // frozen old cut after that head advances.
-    if(stage===4)throw new Error('received renewal adoption current projection is not implemented');
+    if(stage===4){
+      const own=actualReceivedUmpireRenewalAdoptionEvidenceFromSqlite(db),adoption=own.read(String(journal[3].source_id));
+      if(!adoption)throw new Error('received renewal current physical adoption missing');own.current(adoption);
+      receivedRenewalEnrollmentEvidenceFromSqlite(db).qualifyNonPhysicalCurrent(original);
+      return freeze({kind:'received_renewal_work' as const,renewalEnrollmentSourceId:e.source.sourceId,originProcessSourceId:e.originProcessSourceId,
+        receivedReplanSourceId:e.receivedReplanSourceId,stage,cause:e.cause,work:{kind:'physical_continuation' as const,sourceId:adoption.source.sourceId,dueTick:e.cut.tick,cause:e.cause}});
+    }
     receivedRenewalEnrollmentEvidenceFromSqlite(db).qualifyCurrent(original);
     if(stage===2&&!actualReceivedUmpireRenewalDecisionEvidenceFromSqlite(db).read(String(journal[1].source_id)))throw new Error('received renewal work decision missing');
     if(stage===3&&!actualReceivedUmpireRenewalMotorEvidenceFromSqlite(db).read(String(journal[2].source_id)))throw new Error('received renewal work motor missing');

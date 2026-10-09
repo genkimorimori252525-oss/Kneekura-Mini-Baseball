@@ -269,7 +269,12 @@ const projectPhysicalPrefix = (input: PrefixInput, reference: (snapshot: Durable
       || value.source.action.kind !== value.execution.kind) throw new Error('actual field execution Source prefix differs');
     sources.add(value.source.sourceId);
     const execution = value.execution;
-    if (execution.kind === 'owned_acquisition_plan_v1') {
+    if(execution.kind==='received_renewal_adoption_v1'){
+      const motion=execution.field.motion;
+      if(pendingOwned||pendingThrow||pendingAcquisition||!cursor||json(motion.world.moment)!==json(horizon)
+        ||json(motion.cursor)!==json(cursor)||motion.carrierPlayerId!==carrierPlayerId||execution.field.baseContacts.length||motion.world.kind==='boundary')throw new Error('actual field received renewal changed its zero-horizon cut');
+      segment(motion.actors,motion.world.moment,true);currentField=execution.field;
+    } else if (execution.kind === 'owned_acquisition_plan_v1') {
       const plan = execution.plan;
       if (pendingOwned || pendingThrow || pendingAcquisition || cursor !== null || carrierPlayerId !== null
         || currentField.motion.response.kind !== 'capture_candidate' || json(execution.field) !== json(currentField)

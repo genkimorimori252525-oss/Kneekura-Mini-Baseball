@@ -1,6 +1,8 @@
 import { assertNoSamePaPlayerReservation } from './SamePlateAppearanceReservationGuard';
 import { assertNoActualRoleWorkloadCharge } from './ActualRoleWorkloadChargeGuard';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
+import { physicalStoreTransactionBoundary } from './PhysicalStoreTransactionBoundary';
+import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { assessOfficialPhysicalPitchWorkload, OFFICIAL_PHYSICAL_PITCH_WORKLOAD_VERSION,
@@ -78,7 +80,31 @@ evidenceGuard?: SqliteEvidenceGuard<OfficialPitchWorkloadRequest>): SqliteOffici
   const byScoring = db.prepare('SELECT * FROM official_pitch_workload_sources WHERE scoring_application_id=?');
   const getPolicy = db.prepare('SELECT * FROM official_pitch_workload_policies WHERE source_id=?');
   let closed = false;
-  const checkOpen = () => { if (closed) throw new Error('official pitch workload store is closed'); };
+  const boundary = physicalStoreTransactionBoundary(db, 'official pitch workload');
+  const checkOpen = () => { if (closed) throw new Error('official pitch workload store is closed'); boundary.check(); };
+  // A completed projection can cross only this adjacent comparison, while the
+  // same private transaction, read-only setting and all row/schema counters hold.
+  const postInsertProof = <T>(body: () => T): T => {
+    const setting = db.prepare('PRAGMA query_only').get()!.query_only;
+    if (!db.isTransaction || setting !== 0 && setting !== 1) throw new Error('pitch workload proof transaction is missing');
+    const identity = 'pitch_workload_proof_' + randomUUID().replaceAll('-', '');
+    const counters = () => json({ changes: db.prepare('SELECT total_changes() AS n').get()!.n,
+      main: db.prepare('PRAGMA main.schema_version').get()!.schema_version,
+      temp: db.prepare('PRAGMA temp.schema_version').get()!.schema_version,
+      user: db.prepare('PRAGMA main.user_version').get()!.user_version });
+    db.exec('SAVEPOINT ' + identity);
+    try {
+      db.exec('PRAGMA query_only=ON');
+      const before = counters(), value = withBattedVenueLegalReadSnapshot(db, body);
+      if (!db.isTransaction || db.prepare('PRAGMA query_only').get()!.query_only !== 1 || counters() !== before)
+        throw new Error('pitch workload post-insert proof changed transaction, schema or rows');
+      db.exec('RELEASE ' + identity);
+      return value;
+    } finally {
+      db.exec('PRAGMA query_only=' + setting);
+      if (db.prepare('PRAGMA query_only').get()!.query_only !== setting) throw new Error('pitch workload proof setting restoration failed');
+    }
+  };
   const project = (request: OfficialPitchWorkloadRequest, policy: AcceptedPhysicalPitchEffortPolicy) => {
     evidenceGuard?.(db, request, 'retry');
     const raw = sources.scoring.readAcceptedPlay(request.scoringApplicationId);
@@ -163,7 +189,7 @@ evidenceGuard?: SqliteEvidenceGuard<OfficialPitchWorkloadRequest>): SqliteOffici
         ...(initialWorld ? { initialWorld, officialEvidence } : {}),
         ...(physicalProgress ? { physicalProgress, progressEvidence } : {}) } };
   };
-  const decode = (row: SourceRow): OfficialPhysicalPitchActivity => {
+  const decodeProjection = (row: SourceRow): ReturnType<typeof project> => {
     try {
       const request = requestInput(JSON.parse(row.request_json) as OfficialPitchWorkloadRequest);
       const saved = getPolicy.get(request.policySourceId) as PolicyRow | undefined;
@@ -177,9 +203,10 @@ evidenceGuard?: SqliteEvidenceGuard<OfficialPitchWorkloadRequest>): SqliteOffici
         || row.scoring_application_id !== request.scoringApplicationId || row.policy_source_id !== policy.sourceId
         || json(request) !== row.request_json || json(expected.activity) !== row.source_json || json(stored) !== row.source_json
         || json(expected.proof) !== row.proof_json) throw new Error('physical pitch workload snapshot differs');
-      return expected.activity;
+      return expected;
     } catch (cause) { throw new Error('corrupt accepted official physical pitch workload Source', { cause }); }
   };
+  const decode = (row: SourceRow): OfficialPhysicalPitchActivity => decodeProjection(row).activity;
   return Object.freeze({
     accept(rawRequest): OfficialPhysicalPitchActivity {
       checkOpen(); const request = requestInput(rawRequest);
@@ -196,14 +223,13 @@ evidenceGuard?: SqliteEvidenceGuard<OfficialPitchWorkloadRequest>): SqliteOffici
       // Detach the independent calibration and finish cross-connection reads before any write.
       const policy = policyInput(authority?.readAcceptedPolicy(request.policySourceId) ?? null, request.policySourceId);
       const projected = project(request, policy), policyJson = json(effortPolicy(policy));
-      db.exec('BEGIN IMMEDIATE');
-      try {
+      return boundary.write(() => {
         const raced = byScoring.get(request.scoringApplicationId) as SourceRow | undefined;
         if (raced) {
           const existing = decode(raced);
           if (raced.request_json !== json(request) || json(existing) !== json(projected.activity)
             || (getPolicy.get(policy.sourceId) as PolicyRow).source_json !== json(policy)) throw new Error('physical pitch workload was frozen differently');
-          db.exec('COMMIT'); return existing;
+          return existing;
         }
         assertNoSamePaPlayerReservation(db, projected.activity);
         assertNoActualRoleWorkloadCharge(db, { careerId: projected.activity.careerId, gameId: projected.gameId,
@@ -220,20 +246,22 @@ evidenceGuard?: SqliteEvidenceGuard<OfficialPitchWorkloadRequest>): SqliteOffici
           .run(projected.activity.sourceEventId, projected.activity.careerId, projected.activity.playerId, projected.gameId,
             projected.playId, request.scoringApplicationId, policy.sourceId, json(request), json(projected.activity), json(projected.proof));
         assertNoSamePaPlayerReservation(db, projected.activity);
-        const activity = decode(bySource.get(projected.activity.sourceEventId) as SourceRow);
-        if (json(activity) !== json(projected.activity)
-          || json(project(request, policy).officialEvidence) !== json(projected.officialEvidence)
-          || (getPolicy.get(policy.sourceId) as PolicyRow).source_json !== json(policy)) {
-          throw new Error('physical pitch workload Source or calibration changed during acceptance');
-        }
-        db.exec('COMMIT'); return activity;
-      } catch (error) { db.exec('ROLLBACK'); throw error; }
+        return postInsertProof(() => {
+          const decoded = decodeProjection(bySource.get(projected.activity.sourceEventId) as SourceRow);
+          if (json(decoded.activity) !== json(projected.activity)
+            || json(decoded.officialEvidence) !== json(projected.officialEvidence)
+            || (getPolicy.get(policy.sourceId) as PolicyRow).source_json !== json(policy)) {
+            throw new Error('physical pitch workload Source or calibration changed during acceptance');
+          }
+          return decoded.activity;
+        });
+      });
     },
     readAcceptedActivity(sourceId): OfficialPhysicalPitchActivity | null {
       checkOpen(); if (!id(sourceId)) throw new Error('invalid official pitch workload Source identity');
       const row = bySource.get(sourceId) as SourceRow | undefined;
       return row ? decode(row) : null;
     },
-    close: () => { if (!closed) { db.close(); closed = true; } },
+    close: () => { if (!closed) { closed = true; boundary.close(); } },
   });
 };

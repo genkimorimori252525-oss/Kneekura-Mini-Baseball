@@ -13,6 +13,7 @@ import {openSqlitePlayerWorkloadRecoveryStore} from './SqlitePlayerWorkloadRecov
 import {openSqlitePlayerPitchTimingStore} from './SqlitePlayerPitchTimingStore';
 import {openSqlitePlayerReleaseGeometryStore} from './SqlitePlayerReleaseGeometryStore';
 import {openSqlitePitchFatiguePolicyStore} from './SqlitePitchFatiguePolicyStore';
+import type {DurablePhysicalPlayClosure} from './SqlitePhysicalPlayClosureStore';
 import {openSqlitePhysicalPitchProgressStore,type DurablePhysicalPitch} from './SqlitePhysicalPitchProgressStore';
 import {foulTerminalNextPlayReadinessFromSqlite} from './FoulTerminalNextPlayReadiness';
 import {readPhysicalPitchProgressFromSqlite,readOriginalPhysicalPitchPrefixFromSqlite} from './PhysicalPitchEvidenceFromSqlite';
@@ -65,6 +66,7 @@ export const createPitchStepTrace=(path:string)=>{
   try{value=body();}catch(error){try{append({event:'failed',spanId,label,error:error instanceof Error?error.message.slice(0,500):'owner failure'});}catch(logging){throw new AggregateError([error,logging],'pitch owner and trace failed',{cause:error});}throw error;}
   append({event:'complete',spanId,label,elapsedMs:performance.now()-start});return value;},
  returned(operation:'accept'|'retry',raw:DurablePhysicalPitch){const p=cloneInert(raw);assert(['accept','retry'].includes(operation)&&ids.takeIds.includes(p.source.sourceId as typeof ids.takeIds[number])&&[2,3].includes(p.progressRevision),'pitch returned-write observation differs');append({event:'owner_returned',operation,sourceId:p.source.sourceId,sourceHash:hash(p.source),snapshotHash:hash(p),progressRevision:p.progressRevision});},
+ returnedClosure(operation:'enqueue'|'retry',raw:DurablePhysicalPlayClosure){const value=cloneInert(raw);assert(['enqueue','retry'].includes(operation)&&value.source.sourceId===ids.closureSourceId&&value.status==='PENDING','closure returned observation differs');append({event:'closure_returned',operation,sourceId:value.source.sourceId,sourceHash:hash(value.source),proposalHash:hash(value.proposal),status:value.status});},
  close(){if(!closed){closed=true;try{fsyncSync(fd);}finally{closeSync(fd);}receipt={path,sha256:fileHash(path),events};}return receipt!;}};
 };
 const pin=(p:Pin)=>{assert(validPin(p)&&realpathSync(p.path)===p.path&&lstatSync(p.path).isFile(),'pitch step pin is not canonical');assert.equal(fileHash(p.path),p.sha256,'pitch step pinned bytes changed');};

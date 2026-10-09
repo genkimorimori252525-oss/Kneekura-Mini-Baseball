@@ -1,5 +1,8 @@
 import { createRequire } from 'node:module';
 import { createHash } from 'node:crypto';
+import type { DatabaseSync } from 'node:sqlite';
+import { nominalIdentity, assertNominalReference, nominalClaim } from './DispatchNominalSqliteOwnership';
+import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { validatePitchFatigueExecutionPolicy, type PitchFatigueExecutionPolicy } from '../../core/sim/pitch/PitchFatigueExecution';
 
@@ -20,6 +23,23 @@ const accepted = (raw: AcceptedPitchFatiguePolicy, sourceId: string): AcceptedPi
   if (!value || !id(value.sourceId) || value.sourceId !== sourceId || !id(value.sourceVersion)) throw new Error('invalid accepted pitch fatigue policy');
   const policy = validatePitchFatigueExecutionPolicy(base(value));
   return Object.freeze({ sourceId: value.sourceId, sourceVersion: value.sourceVersion, ...policy });
+};
+
+/** Reads an independently accepted policy on the caller's private connection. */
+export const readPitchFatiguePolicyFromSqlite = (db: DatabaseSync, ref: SamePaReference<'world_pitch_fatigue_policies'>): AcceptedPitchFatiguePolicy => {
+  const table = 'world_pitch_fatigue_policies', row = nominalIdentity(db, [table], table, ref.sourceId);
+  const value = accepted(JSON.parse(String(row.source_json)), ref.sourceId);
+  if (row.source_version !== value.sourceVersion || row.policy_id !== value.policyId || row.version !== value.version
+    || row.source_json !== json(value) || row.policy_json !== json(base(value)) || row.source_hash !== hash(value)) throw new Error('corrupt dispatch nominal response policy');
+  const aliases = db.prepare(`SELECT * FROM main.${table} WHERE (policy_id=$policy OR ${nominalClaim('source_json', ['policyId'], '$policy')})
+    AND (version=$version OR ${nominalClaim('source_json', ['version'], '$version')})`).all({ policy: value.policyId, version: value.version });
+  for (const alias of aliases) {
+    const candidate = accepted(JSON.parse(String(alias.source_json)), String(alias.source_id));
+    if (json(base(candidate)) !== json(base(value)) || alias.source_json !== json(candidate) || alias.source_hash !== hash(candidate)
+      || alias.policy_json !== json(base(candidate)) || alias.policy_id !== candidate.policyId || alias.version !== candidate.version
+      || alias.source_version !== candidate.sourceVersion) throw new Error('dispatch nominal response policy version differs');
+  }
+  assertNominalReference(ref, value, value, [table]); return value;
 };
 
 /** Explicit independently accepted response calibration; no implicit production policy. */
