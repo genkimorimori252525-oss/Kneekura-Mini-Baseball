@@ -5,6 +5,8 @@ import type { RuleProfileId } from '../model/RuleProfileRef';
 import type { CanonicalPlateAppearanceTimeline } from '../sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 import { deriveClosedNonLiveMatchState, type NonLiveOfficialContext } from './NonLiveOfficialApplication';
 import { cloneInert } from './OfficialWindowPolicy';
+import { classifyActualGroundOutForOfficialScoring,
+  type ActualGroundOutScoringInput } from './ActualGroundOutScoring';
 import {
   deriveClosedLiveBallMatchState,
   getOfficialPlayClosure,
@@ -41,14 +43,16 @@ export type OfficialScoringInput = Readonly<{
   | Readonly<{ kind: 'live_ball';
       scoringEvidence?: OfficialFairBallScoringEvidence;
       /** Native must authenticate the complete physical sidecar and independently owned end. */
-      fairCatchEvidence?: ActualFairFieldTimelineInput }>
+      fairCatchEvidence?: ActualFairFieldTimelineInput;
+      /** Original fair-ground first-base race and independently owned end. */
+      groundOutEvidence?: ActualGroundOutScoringInput }>
 );
 
 export type SupportedOfficialScoringRecord = Readonly<{
   playId: number;
   closureId: string;
   basisRulingId: string;
-  classification: 'base_on_balls' | 'strikeout' | 'foul_out' | 'fly_out'
+  classification: 'base_on_balls' | 'strikeout' | 'foul_out' | 'fly_out' | 'ground_out'
     | 'base_hit' | 'reached_on_error' | 'fielders_choice';
   battingTeam: 'away' | 'home';
   runsScored: number;
@@ -164,6 +168,15 @@ export const classifyClosedPlayForOfficialScoring = (
     const next = deriveClosedLiveBallMatchState(request.match, request.timeline, request.adjudication);
     const closure = getOfficialPlayClosure(request.adjudication);
     if (closure === null) throw new Error('official scoring requires OfficialPlayClosure');
+    if (request.groundOutEvidence !== undefined) {
+      if (request.scoringEvidence !== undefined || request.fairCatchEvidence !== undefined) {
+        throw new Error('ground-out scoring rejects competing scoring evidence');
+      }
+      return Object.freeze({ kind: 'supported', record: classifyActualGroundOutForOfficialScoring({
+        match: request.match, timeline: request.timeline, adjudication: request.adjudication,
+        evidence: request.groundOutEvidence,
+      }) });
+    }
     if (request.fairCatchEvidence !== undefined) {
       const physical = request.fairCatchEvidence;
       const caught = deriveBallWorldBattedRuleChronology(physical.field.evidence).ballEvidence;

@@ -87,7 +87,7 @@ it.each(['future','dropped'] as const)('ends only after actual sealed coverage a
   expect(result.playEnd.tick).toBe(h.seal.evaluationTick);expect(result.exactEnd.elapsedSeconds).toBeGreaterThan(h.work.originalInputs.action.calledAt.elapsedSeconds);
 });
 it('does not retire a due received batter through the operative OUT or a rule-system reset',()=>{
-  const h=setup('received');expect(h.run()).toEqual({kind:'pending',reason:'received_batter_retirement_controller_semantics_required'});
+  const h=setup('received');expect(h.run()).toEqual({kind:'pending',reason:'received_batter_response_and_adoption_required'});
 });
 it('requires original registration, real seal and independent current communication coverage',()=>{
   const h=setup();mocks.pair={...h.pair,fields:[{...h.root,source:{...h.root.source,liveProducerProfile:undefined}},...h.pair.fields.slice(1)]};

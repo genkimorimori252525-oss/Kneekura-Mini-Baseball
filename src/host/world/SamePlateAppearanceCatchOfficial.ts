@@ -13,9 +13,11 @@ import { actorFreeze as freeze, actorJson as json } from './PhysicalPlateAppeara
 
 export type SamePaCatchOfficialScheduler = Readonly<{ sourceId: string; sourceVersion: string; schedulerId: string;
   events: readonly Readonly<{ sourceId: string; sourceVersion: string; schedulerId: string; kind: 'advance_tick' | 'next_play_fence' }>[] }>;
-export type SamePaCatchOfficialInput = Readonly<{ sourceId: string; originalMatch: CanonicalMatchState; physicalEnd: PlayEndFact;
+export type SamePaCatchOfficialOpeningInput = Readonly<{ sourceId: string; originalMatch: CanonicalMatchState; physicalEnd: PlayEndFact;
   exactEnd: ActualObservationMoment; operative: Extract<SamePaCatchOperativeRuling, { kind: 'retired' }>;
-  callProvenance: OwnedLiveCallImportProvenance; policy?: ActualLiveOfficialPolicy | null; scheduler: SamePaCatchOfficialScheduler }>;
+  callProvenance: OwnedLiveCallImportProvenance; policy?: ActualLiveOfficialPolicy | null }>;
+export type SamePaCatchOfficialInput = SamePaCatchOfficialOpeningInput & Readonly<{ scheduler: SamePaCatchOfficialScheduler;
+  reviewed?: import('./ActualPostPlayReviewState').ActualPostPlayReviewProjection }>;
 export type SamePaCatchOfficial = Readonly<{ ledger: PlayAdjudicationLedger; evaluationTick: number;
   originalOperativeLedger: PlayAdjudicationLedger; appealApplicability: 'no_original_tag_up_participant' }> & (
   Readonly<{ kind: 'closed' }> | Readonly<{ kind: 'pending'; pendingReasons: readonly string[] }>);
@@ -26,8 +28,8 @@ export type SamePaCatchOfficial = Readonly<{ ledger: PlayAdjudicationLedger; eva
  * that owned accepted-input component; it must never name a fabricated sensor.
  * Post-play recording timestamps cannot overwrite the earlier action or rule
  * snapshot. Original event chronology remains in originalOperativeLedger. */
-export const deriveSamePaCatchOfficial = (raw: SamePaCatchOfficialInput): SamePaCatchOfficial => {
-  const input = cloneInert(raw), { sourceId, originalMatch: match, physicalEnd, exactEnd, operative, callProvenance: provenance, scheduler } = input;
+export const deriveSamePaCatchOfficialOpening = (raw: SamePaCatchOfficialOpeningInput) => {
+  const input = cloneInert(raw), { sourceId, originalMatch: match, physicalEnd, exactEnd, operative, callProvenance: provenance } = input;
   if (!text(sourceId) || !operative || operative.kind !== 'retired' || !text(operative.runnerId)
     || !Number.isSafeInteger(match.outs) || match.outs < 0 || match.outs > 2
     || Object.values(match.bases).some(r => r !== null) || operative.ledger.playId !== match.playId
@@ -49,6 +51,32 @@ export const deriveSamePaCatchOfficial = (raw: SamePaCatchOfficialInput): SamePa
       || !['CorrectRuleSnapshotRecorded', 'UnresolvedCorrectRuleSnapshotRecorded', 'OnFieldCallRecorded'].includes(e.kind))) {
     throw new Error('same-PA catch official original operative ledger differs');
   }
+  const profile = actualLiveAdjudicationProfile(match.ruleProfileId, input.policy ?? null);
+  let ledger = createPlayAdjudicationLedger({ playId: match.playId, ruleProfileId: match.ruleProfileId, playEnd: physicalEnd });
+  for (const [index, event] of operative.ledger.events.entries()) {
+    if (event.kind !== 'CorrectRuleSnapshotRecorded' && event.kind !== 'UnresolvedCorrectRuleSnapshotRecorded') continue;
+    const snapshot = event.snapshot, common = { eventId: `${sourceId}:rule-import:${index}`, tick: physicalEnd.tick,
+      snapshotId: snapshot.snapshotId, evidenceRevision: snapshot.evidenceRevision };
+    ledger = 'ruling' in snapshot ? recordCorrectRuleSnapshot(ledger, ledger.revision, { ...common, ruling: snapshot.ruling })
+      : recordUnresolvedCorrectRuleSnapshot(ledger, ledger.revision, { ...common, reason: snapshot.reason });
+  }
+  ledger = recordOwnedLiveCallImport(ledger, ledger.revision, { eventId: sourceId + ':call-import', tick: physicalEnd.tick,
+    call: operative.onFieldCall, provenance });
+  const reasons: string[] = [];
+  if (operative.onFieldCall.basisSnapshotId !== original.latestCorrectRule.snapshotId
+    || operative.onFieldCall.basisEvidenceRevision !== original.latestCorrectRule.evidenceRevision) reasons.push('on_field_call_stale');
+  for (const kind of ['appeal', 'review', 'challenge'] as const) {
+    const policy = profile.officialWindows?.[kind];
+    if (!policy) reasons.push('official_window_policy_unconfigured:' + kind);
+    else if (kind !== 'appeal' && policy.available) reasons.push('official_window_owner_unavailable:' + kind);
+  }
+  return freeze({ ledger, evaluationTick: physicalEnd.tick, originalOperativeLedger: operative.ledger,
+    appealApplicability: 'no_original_tag_up_participant' as const, pendingReasons: reasons });
+};
+
+/** Reviewed ledgers enter only through the Native pinned-journal consumer. */
+export const deriveSamePaCatchOfficial = (raw: SamePaCatchOfficialInput): SamePaCatchOfficial => {
+  const input = cloneInert(raw), { sourceId, originalMatch: match, operative, scheduler } = input;
   if (!fields(scheduler, ['sourceId', 'sourceVersion', 'schedulerId', 'events'])
     || ![scheduler.sourceId, scheduler.sourceVersion, scheduler.schedulerId].every(text) || !Array.isArray(scheduler.events)) {
     throw new Error('invalid same-PA catch official scheduler Source');
@@ -62,30 +90,22 @@ export const deriveSamePaCatchOfficial = (raw: SamePaCatchOfficialInput): SamePa
       || ids.has(event.sourceId) || fenced) throw new Error('same-PA catch official scheduler journal differs');
     ids.add(event.sourceId); fenced = event.kind === 'next_play_fence';
   }
-  const profile = actualLiveAdjudicationProfile(match.ruleProfileId, input.policy ?? null);
-  let ledger = createPlayAdjudicationLedger({ playId: match.playId, ruleProfileId: match.ruleProfileId, playEnd: physicalEnd });
-  for (const [index, event] of operative.ledger.events.entries()) {
-    if (event.kind !== 'CorrectRuleSnapshotRecorded' && event.kind !== 'UnresolvedCorrectRuleSnapshotRecorded') continue;
-    const snapshot = event.snapshot, common = { eventId: `${sourceId}:rule-import:${index}`, tick: physicalEnd.tick,
-      snapshotId: snapshot.snapshotId, evidenceRevision: snapshot.evidenceRevision };
-    ledger = 'ruling' in snapshot ? recordCorrectRuleSnapshot(ledger, ledger.revision, { ...common, ruling: snapshot.ruling })
-      : recordUnresolvedCorrectRuleSnapshot(ledger, ledger.revision, { ...common, reason: snapshot.reason });
-  }
-  ledger = recordOwnedLiveCallImport(ledger, ledger.revision, { eventId: sourceId + ':call-import', tick: physicalEnd.tick,
-    call: operative.onFieldCall, provenance });
-  let evaluationTick = physicalEnd.tick;
-  const result = () => ({ ledger, evaluationTick, originalOperativeLedger: operative.ledger,
-    appealApplicability: 'no_original_tag_up_participant' as const });
+  const opening = deriveSamePaCatchOfficialOpening(input), profile = actualLiveAdjudicationProfile(match.ruleProfileId, input.policy ?? null);
+  let ledger = opening.ledger, evaluationTick = opening.evaluationTick;
+  const result = () => ({ ledger, evaluationTick, originalOperativeLedger: opening.originalOperativeLedger,
+    appealApplicability: opening.appealApplicability });
   const pending = (pendingReasons: readonly string[]): SamePaCatchOfficial => freeze({ ...result(), kind: 'pending' as const, pendingReasons });
-  const reasons: string[] = [];
-  if (operative.onFieldCall.basisSnapshotId !== original.latestCorrectRule.snapshotId
-    || operative.onFieldCall.basisEvidenceRevision !== original.latestCorrectRule.evidenceRevision) reasons.push('on_field_call_stale');
-  for (const kind of ['appeal', 'review', 'challenge'] as const) {
-    const policy = profile.officialWindows?.[kind];
-    if (!policy) reasons.push('official_window_policy_unconfigured:' + kind);
-    else if (kind !== 'appeal' && policy.available) reasons.push('official_window_owner_unavailable:' + kind);
-  }
-  if (reasons.length) return pending(reasons);
+  if (input.reviewed) {
+    const review = input.reviewed;
+    // The recording Source IDs may differ. The exact snapshots and imported
+    // original call, including its original clock/provenance, may not.
+    const facts = (value: PlayAdjudicationLedger) => value.events.filter(e =>
+      ['CorrectRuleSnapshotRecorded', 'UnresolvedCorrectRuleSnapshotRecorded', 'OwnedLiveCallImported'].includes(e.kind))
+      .map(({ eventId: _eventId, ...event }) => event);
+    if (review.kind !== 'official_ready' || review.pendingReasons.length || json(facts(review.seed.ledger)) !== json(facts(opening.ledger))
+      || json(review.ruleProfile) !== json(profile) || review.cursor.tick < evaluationTick) throw new Error('reserved catch reviewed ledger or original seed differs');
+    ledger = review.ledger; evaluationTick = review.cursor.tick;
+  } else if (opening.pendingReasons.length) return pending(opening.pendingReasons);
   // Empty original bases and the accepted batter retirement have no original
   // tag-up participant. No appeal window is invented from a field horizon.
   for (const event of scheduler.events) {

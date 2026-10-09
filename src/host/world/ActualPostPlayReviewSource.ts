@@ -1,3 +1,4 @@
+import { samePaCatchReviewSeedInput, type SamePaCatchReviewSeedSource } from './SamePlateAppearanceCatchReviewSource';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { DecisionOpportunity, DecisionSubmission, HumanControlState } from '../../core/world/control/ControlTypes';
 import { createHumanControlState } from '../../core/world/control/HumanControl';
@@ -19,6 +20,7 @@ export type AcceptedActualPostPlayReviewSession = Readonly<{
   sourceId: string; sourceVersion: string; capability: 'actual_post_play_review_session_v1';
   adjudicationSourceId: string; adjudicationSnapshotHash: string;
   officialPolicy: ActualLiveOfficialPolicy | null; policy: ActualPostPlayReviewPolicy | null;
+  reservedCatchSeed?: SamePaCatchReviewSeedSource;
 }>;
 export type ActualPostPlayReviewEventAction =
   | Readonly<{ kind: 'advance_tick'; schedulerId: string }>
@@ -52,13 +54,18 @@ const ids = (value: readonly string[]) => Array.isArray(value) && value.length >
 /** Accepted input only. Native authenticates the seed and all external authority. */
 export const actualPostPlayReviewSessionInput = (raw: unknown, sourceId: string): AcceptedActualPostPlayReviewSession => {
   const s = cloneInert(raw) as AcceptedActualPostPlayReviewSession;
-  if (!fields(s, ['sourceId', 'sourceVersion', 'capability', 'adjudicationSourceId', 'adjudicationSnapshotHash', 'officialPolicy', 'policy'])
+  if (!fields(s, ['sourceId', 'sourceVersion', 'capability', 'adjudicationSourceId', 'adjudicationSnapshotHash', 'officialPolicy', 'policy',
+    ...(s && Object.hasOwn(s, 'reservedCatchSeed') ? ['reservedCatchSeed'] : [])])
     || s.sourceId !== sourceId || s.capability !== 'actual_post_play_review_session_v1'
     || ![s.sourceId, s.sourceVersion, s.adjudicationSourceId].every(id) || !postPlayHash(s.adjudicationSnapshotHash)) {
     throw new Error('invalid accepted post-play review session Source');
   }
   actualLiveAdjudicationInput({ sourceId: s.sourceId, sourceVersion: s.sourceVersion,
     physicalEndSourceId: s.adjudicationSourceId, policy: s.officialPolicy }, sourceId);
+  if (Object.hasOwn(s, 'reservedCatchSeed')) {
+    const seed = samePaCatchReviewSeedInput(s.reservedCatchSeed);
+    if (seed.sourceId !== s.adjudicationSourceId) throw new Error('reserved catch review seed identity differs');
+  }
   const p = s.policy;
   if (p !== null) {
     if (!fields(p, ['sourceId', 'sourceVersion', 'ruleProfileId', 'openingTrigger', 'clock', 'schedulerId', 'expiryScope', 'opportunities'])

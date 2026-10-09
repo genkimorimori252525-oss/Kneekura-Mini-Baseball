@@ -1,3 +1,5 @@
+import { assertNoSamePaCatchReviewSeal } from './SamePlateAppearanceCatchReviewSeal';
+import { assertSamePaBatterCatchOwnership } from './SamePlateAppearanceBatterCatchOwnership';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -158,6 +160,7 @@ withSamePaLifecycleReadPhase(db, () => {
     return {kind:'ready' as const,basis,timing,timingProfile,geometry,policy,model,original};
   };
   const derive = (source: Source,current: boolean): RecordValue|Pending => {
+    if(current){const b=readHistoricalSamePaLifecycleViewFromSqlite(db,source.viewReference);assertNoSamePaCatchReviewSeal(db,b.view.lineage.gameId,b.view.lineage.playId);}
     if(source.capability==='same_pa_physical_action_v1'){
       const x=actionInputs(source,current);if(x.kind!=='ready')return pending(x.reason);
       const b=x.basis;return freeze({kind:'same_pa_physical_action_prepared_v1',source,lineage:b.view.lineage,pitchOrdinal:b.nextPitchOrdinal,operationOrdinal:0,evaluationTick:b.view.cut.evaluationTick,
@@ -280,6 +283,7 @@ withSamePaLifecycleReadPhase(db, () => {
         same(value.source.fieldRootReference,source.fieldRootReference);const ref=value.source.previousFieldReference;
         const prior=linked(kindForOwner(ref.owner),ref);if(prior.kind!=='same_pa_physical_field_root_v1'&&prior.kind!=='same_pa_physical_field_step_v1')throw new Error('physical field action prefix differs');value=prior;}
     assertSamePaPhysicalThrowOwnership(source,prefix);
+    assertSamePaBatterCatchOwnership(source,prefix);
     if(source.action){
       const result=deriveSamePaPhysicalFieldAction(db,source,root,previous,action,b,prefix,current);
       return freeze({...common,source,kind:'same_pa_physical_field_step_v1',stage:'field',...result});

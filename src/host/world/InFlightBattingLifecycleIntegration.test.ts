@@ -1,3 +1,5 @@
+import { appendNativeBatterCatchHold } from './SamePlateAppearanceBatterCatchNative.test-support';
+import { appendFileSync } from 'node:fs';
 import { expect, it } from 'vitest';
 import { readSamePaFieldRuleEvidenceFromSqlite } from './SamePlateAppearanceFieldRuleEvidenceFromSqlite';
 import { readSamePaLiveWorkFromSqlite } from './SamePlateAppearanceLiveWorkFromSqlite';
@@ -26,6 +28,11 @@ import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support'
  * declaration is an independent finite synthetic calibration; nominal model
  * bytes remain owned and unchanged. It is not a production response model. */
 it('IFN01 original swing, secured fair catch, received response and exact physical end complete TOTAL, scoring and next-batter activation', () => {
+  const stage = (name: string) => {
+    const log = process.env.BASEBALL_GATE_ERRORS;
+    if (log) appendFileSync(log + '.IFN01-stages.jsonl', JSON.stringify({ name, at: Date.now(), rss: process.memoryUsage().rss }) + '\n');
+  };
+  stage('fixture-start');
   const declared = dispatchCalibrationValues().batter_observation;
   const explicitBatterObservation = { ...declared, calibration: { ...declared.calibration, errorParameters: { ...declared.calibration.errorParameters,
     minimumPositionErrorMeters: 0, maximumPositionErrorMeters: 0, minimumVelocityErrorMps: 0, maximumVelocityErrorMps: 0 } } };
@@ -47,6 +54,7 @@ it('IFN01 original swing, secured fair catch, received response and exact physic
   const h = samePaPhysicalLifecycleFixture({ explicitBatterObservation, explicitDefenderObservation, explicitDefenderLocomotion,
     explicitDefenderGloveOffsets: throwScene.gloveOffsets, originalBaseCenters, profile: { ruleProfileId: NPB_2026_RULE_PROFILE.id } }), { f } = h;
   try {
+    stage('fixture-ready');
     const before = h.current(), readyAtUs = Math.max(before.view.cut.evaluationTick, before.view.cut.bodyCut.completedAtTick);
     const originalHeads = f.db.prepare('SELECT * FROM world_player_workload_heads ORDER BY career_id,player_id').all();
     const action = h.prepareAction('in-flight-fixture:pitch3', 'observer_decision', { ...h.original.nominalPitch,
@@ -57,6 +65,7 @@ it('IFN01 original swing, secured fair catch, received response and exact physic
       fieldPreparations.push(prepareFreshPhysicalFieldFixture(h, action, owned.posture, owned.postureReference, 'in-flight-fixture:field3',
         { liveProducerProfile: 'same_pa_empty_base_catch_v1' }));
     });
+    stage('owned-swing-ready');
     expect(s.beforeLaunch.eventCount).toBe(1); expect(s.beforeLaunch.worldRevision).toBe(0);
     expect(s.intent.originalIntent.attempt).toBe('ordinary_swing');
     expect(s.posture.source.actionReference).toEqual(action.actionReference);
@@ -102,6 +111,7 @@ it('IFN01 original swing, secured fair catch, received response and exact physic
     expect(field.root.response.world.flight.initialBall.tick).toBe(s.resolution.contact!.tick);
     expect(field.step.evaluationTick).toBeGreaterThanOrEqual(field.root.evaluationTick);
     const thrown = appendNativePhysicalThrowReception(h, field, 'in-flight-fixture:throw');
+    stage('physical-throw-reception-ready');
     expect(thrown.secured.value.field.motion.carrierPlayerId).toBe('p2');
     expect(thrown.calibration.value.source.response).toEqual({ kind: 'accepted_execution_values_v1', values: throwScene.values });
     expect(thrown.calibration.replay).toEqual(thrown.calibration.value);
@@ -113,6 +123,7 @@ it('IFN01 original swing, secured fair catch, received response and exact physic
     expect(thrown.received.value.field.motion.carrierPlayerId).toBe('home-1');
     expect(thrown.received.value.field.motion.actors).toHaveLength(50);
     const fieldActions = appendNativePhysicalFieldActions(h, thrown.fieldForActions, 'in-flight-fixture:field-actions');
+    stage('field-action-adoption-ready');
     const observation = fieldActions.observation.value.actionResult, decision = fieldActions.decision.value.actionResult, motor = fieldActions.motion.value.actionResult;
     if (observation?.kind !== 'defender_observation_v1' || decision?.kind !== 'defender_decision_v1' || motor?.kind !== 'defender_motion_v1') throw new Error('IFN01 actual field chain kinds differ');
     expect(observation.receipt.at.tick).toBe(thrown.received.value.evaluationTick);
@@ -164,11 +175,13 @@ it('IFN01 original swing, secured fair catch, received response and exact physic
     expect(oldFieldRule.kind).toBe('same_pa_field_rule_evidence_v1');
     expect(() => withSqliteReadTransaction(f.db, () => readSamePaFieldRuleEvidenceFromSqlite(f.db, fieldActions.motionViewReference, 'current'))).toThrow();
 
-    // The original model makes one defender's receipt due now and the other
-    // nine receipts future. The Core reception calculation owns that result.
-    const caught = appendNativeCatchWork(h, fieldActions, 'in-flight-fixture:catch-information', { otherRecipientDelayTicks: 1_000_000 });
+    // The original model makes the defender and batter receipts due now and the other
+    // eight receipts future. The Core reception calculation owns that result.
+    const caught = appendNativeCatchWork(h, fieldActions, 'in-flight-fixture:catch-information', { otherRecipientDelayTicks: 1_000_000, batterRecipientDelayTicks: 0 });
     const caughtResponse = appendNativeCaughtDefenderResponse(h, fieldActions, caught, 'in-flight-fixture:catch-response');
-    const batterRun = appendNativeBatterRunCheckpoint(h, field.root, caughtResponse.adopted, s.posture, 'in-flight-fixture:batter-run');
+    const batterRun = appendNativeBatterRunCheckpoint(h, field.root, caughtResponse.adopted, s.posture, 'in-flight-fixture:batter-run', 10);
+    const batterHold = appendNativeBatterCatchHold(h, batterRun, caught, 'in-flight-fixture:batter-hold');
+    stage('received-defender-and-batter-adoption-ready');
 
     expect(f.db.prepare('SELECT * FROM world_player_workload_heads ORDER BY career_id,player_id').all()).toEqual(originalHeads);
     const reopenedPerception = f.x.f.track(openSqliteBattingPerceptionStore(f.path));
@@ -179,6 +192,7 @@ it('IFN01 original swing, secured fair catch, received response and exact physic
     expect(reopenedInput.acceptInput(s.input.source.sourceId)).toEqual(s.input);
     expect(reopenedEmotion.accept(s.emotion.source.sourceId)).toEqual(s.emotion);
     expect(h.physical.readOperation(reference('pa_physical_v1_commitments', s.commitment)).record).toEqual(s.commitment);
-    completeNativeFairCatchTerminal(h, field.root, batterRun.moved, caught, 'in-flight-fixture:fair-terminal');
+    completeNativeFairCatchTerminal(h, field.root, batterHold.moved, batterHold.caught, 'in-flight-fixture:fair-terminal');
+    stage('review-total-scoring-next-batter-complete');
   } finally { h.close(); }
 }, 1_200_000);

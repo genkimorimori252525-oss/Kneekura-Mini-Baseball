@@ -31,10 +31,13 @@ export const readSamePaAdmittedLiveWorkFromSqlite = (db: DatabaseSync, viewRefer
       const executions = pair.fields.flatMap(f => f.kind === 'same_pa_physical_field_step_v1' && f.actionResult?.kind === 'batter_run_motion_v1'
         && json(f.actionResult.planReference) === json(planReference) ? [{ reference: reference('pa_physical_v1_field_steps', f),
           at: { originTick: f.field.motion.world.moment.originTick, elapsedSeconds: f.field.motion.world.moment.elapsedSeconds, tick: f.evaluationTick } }] : []);
+      const superseded = live.census.batterCatchResponses.adopted.find(r => r.response.motionBasis.kind === 'runner_plan'
+        && json(r.response.motionBasis.planReference) === json(planReference));
       const endElapsedSeconds = (plan.plan.timeline.endTick - at.originTick) / ticksPerSecond;
       const last = executions.at(-1);
       return { planReference, playerId: plan.playerId, personId: plan.personId, plannedThroughTick: plan.plan.timeline.endTick, executions,
-        status: last && last.at.elapsedSeconds >= endElapsedSeconds ? 'executed_through_planned_end' as const : 'pending_motion' as const,
+        supersededBy: superseded ? { responseReference: superseded.responseReference, adoptionReference: superseded.consumerReference } : null,
+        status: superseded ? 'superseded_by_received_response' as const : last && last.at.elapsedSeconds >= endElapsedSeconds ? 'executed_through_planned_end' as const : 'pending_motion' as const,
         due: at.elapsedSeconds >= endElapsedSeconds ? 'due' as const : 'future' as const };
     });
   const observations = pair.fields.flatMap(f => {
@@ -46,8 +49,10 @@ export const readSamePaAdmittedLiveWorkFromSqlite = (db: DatabaseSync, viewRefer
   });
   const recipients = latest?.communication.recipients.map(r => {
     const observed = observations.filter(o => o.playerId === r.playerId && o.actionSourceId === latest.originalInputs.action!.sourceId);
-    const adopted = live.census.catchResponses.adopted.find(a => a.response.playerId === r.playerId && a.response.replan.cause?.callSourceId === latest.originalInputs.action!.sourceId);
-    const response = live.census.catchResponses.pending.find(a => a.response.playerId === r.playerId && a.response.replan.cause?.callSourceId === latest.originalInputs.action!.sourceId);
+    const adopted = live.census.batterCatchResponses.adopted.find(a => a.response.playerId === r.playerId && a.response.callSourceId === latest.originalInputs.action!.sourceId)
+      ?? live.census.catchResponses.adopted.find(a => a.response.playerId === r.playerId && a.response.replan.cause?.callSourceId === latest.originalInputs.action!.sourceId);
+    const response = live.census.batterCatchResponses.pending.find(a => a.response.playerId === r.playerId && a.response.callSourceId === latest.originalInputs.action!.sourceId)
+      ?? live.census.catchResponses.pending.find(a => a.response.playerId === r.playerId && a.response.replan.cause?.callSourceId === latest.originalInputs.action!.sourceId);
     return { playerId: r.playerId, reception: r, observations: observed,
       controllerResponse: adopted ? { kind: 'adopted' as const, evidence: adopted } : response ? { kind: 'pending' as const, evidence: response }
         : r.kind === 'dropped' ? { kind: 'not_triggered' as const, reason: 'call_not_recognized' }

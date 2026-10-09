@@ -1,3 +1,4 @@
+import { deriveSamePaCatchReviewNativeSeed } from './SamePlateAppearanceCatchReviewFromSqlite';
 import type { DatabaseSync } from 'node:sqlite';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
 import { readActualLiveOriginalFixture } from './ActualLiveOriginalFixtureFromSqlite';
@@ -17,6 +18,14 @@ export type PostPlayReviewNativeScope = Readonly<{
 }>;
 /** Reuse the actual owners on the caller's transaction; never reconstruct physics here. */
 export const derivePostPlayReviewSession = (db: PostPlayReviewDb, source: AcceptedActualPostPlayReviewSession) => {
+  if (source.reservedCatchSeed) {
+    const { seed, scope } = deriveSamePaCatchReviewNativeSeed(db, source.reservedCatchSeed);
+    if (source.policy?.opportunities.some(o => !Object.values(scope.clubs).includes(o.clubId))) throw new Error('reserved review entitlement fixture side differs');
+    const value = initializeActualPostPlayReview({ source, seed });
+    const intakeReasons = value.pendingReasons.filter(reason => reason.startsWith('official_window_policy_unconfigured:')
+      || reason === 'opening_event_unowned' || reason.startsWith('official_window_entitlement_unowned:'));
+    return freeze({ version: 'actual_post_play_review_session_archive_v1' as const, scope, value, intakeReasons });
+  }
   const adjudication = actualLiveAdjudicationEvidenceFromSqlite(db).read(source.adjudicationSourceId);
   if (!adjudication) throw new Error('accepted post-play adjudication seed is missing');
   const ends = actualFirstBaseClosedEvidenceFromSqlite(db), end = ends.read(adjudication.source.physicalEndSourceId);

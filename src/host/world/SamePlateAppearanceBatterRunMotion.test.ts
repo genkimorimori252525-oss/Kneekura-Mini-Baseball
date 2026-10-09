@@ -2,33 +2,16 @@ import { expect,it } from 'vitest';
 import * as motors from './SamePlateAppearancePhysicalFieldMotor';
 import { samePaPhysicalFieldActionInput } from './SamePlateAppearancePhysicalFieldAction';
 import { prepareBatterRunPlan } from './BatterRunPlan';
-import { createBattedBallFlightEvidence } from '../../core/sim/ball/BattedBallFlightEvidence';
-import { DEFAULT_BALL_FLIGHT_PARAMETERS } from '../../core/sim/ball/BallFlight';
-import { deriveBattedWorldFieldMotionAdoption, deriveBattedWorldFieldMotionCheckpoint } from '../../core/sim/ball/BattedWorldFieldMotion';
-import { geometry,material } from '../../core/sim/ball/BattedWorldScheduledFieldThrow.test-support';
+import { deriveBattedWorldFieldMotionCheckpoint } from '../../core/sim/ball/BattedWorldFieldMotion';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
-const zero={x:0,y:0,z:0},parameters={...DEFAULT_BALL_FLIGHT_PARAMETERS,gravityY:0};
+import { buildRouteFollowingController, sampleRouteFollowingController } from '../../core/sim/running/RunnerLocomotionController';
+import { sampleRunnerMotionTrajectory } from '../../core/sim/running/RunnerMotion';
+import { samplePiecewiseFieldActor } from '../../core/sim/ball/BattedWorldPiecewiseFieldMotion';
+import { deriveSamePaRunnerControllerMotion } from './SamePlateAppearanceRunnerControllerMotion';
+import { samePaBatterRunFixture as fixture } from './SamePlateAppearanceBatterRunFixtures.test-support';
+const zero={x:0,y:0,z:0};
 const invoke=()=>{const fn=(motors as unknown as {deriveSamePaBatterRunMotion?:Function}).deriveSamePaBatterRunMotion;
   expect(fn,'owned batter runner motor adoption is missing').toBeTypeOf('function');return fn!;};
-/** Existing Core physics with structural Source contracts only; no Native admission claim. */
-const fixture=(defender=false,defenderEndTick=5_000_000)=>{
-  const body={playerId:'batter',personId:'person',primitives:(['glove','body','tag_hand','left_foot','right_foot'] as const).map((role,i)=>({role,radius:0.05,offset:{x:i*0.1,y:role.endsWith('foot')?-1:0,z:0}}))};
-  const actors=body.primitives.map(p=>({playerId:'batter',primitive:{role:p.role,radius:p.radius,startTick:0,endTick:5_000_000,ticksPerSecond:1_000_000,
-    startCenter:{x:p.offset.x,y:1+p.offset.y,z:0},startVelocity:zero,acceleration:zero}}));
-  if(defender)actors.push(...actors.map(a=>({...a,playerId:'fielder',primitive:{...a.primitive,endTick:defenderEndTick,startCenter:{...a.primitive.startCenter,x:a.primitive.startCenter.x+50}}})));
-  const contact={tick:0,ballCenter:{x:100,y:10,z:100},point:{x:100,y:10,z:100},batPoint:{x:100,y:10,z:100},normal:{x:1,y:0,z:0},segmentT:0.5,exitVelocity:{x:1,y:0,z:0},exitSpin:zero};
-  const flight=createBattedBallFlightEvidence({contact,parameters,searchDurationTicks:0});
-  const response:any={world:{flight,parameters,throughTick:0,actors,surfaces:[]},actors:actors.map(a=>({playerId:a.playerId,profile:a.primitive.role==='glove'
-    ?{role:'glove',pocketCenterOffset:zero,bodyStability:1,parameters:{ticksPerSecond:1_000_000,ballMassKg:0.145,ballRadiusMeters:parameters.ballRadius,pocketRadiusMeters:0.1,centerRetentionCapacityJ:10,captureDissipationPowerW:100,failedContactRestitution:0.5,failedTangentialDamping:0,failedSpinDamping:0}}
-    :{role:a.primitive.role,material}})),surfaces:[]};
-  const shape=geometry(27),field=deriveBattedWorldFieldMotionAdoption({response,geometry:shape,actors,carrierPlayerId:null,cursor:{moment:{originTick:0,elapsedSeconds:0,ball:flight.initialBall},previousContacts:[]},availableAtTick:0,coverageThroughTick:Math.min(5_000_000,defenderEndTick),commands:actors.map(a=>({playerId:a.playerId,role:a.primitive.role,acceleration:zero}))});
-  const root:any={kind:'same_pa_physical_field_root_v1',source:{sourceId:'root',sourceVersion:'test'},physicalPitchSourceId:'pitch',lineage:{playId:1},response,geometry:shape,field,evaluationTick:0,timeline:{events:[],status:{kind:'batted_ball_pending'}}};
-  const exit:any={playerId:'batter',personId:'person',body,source:{fieldReference:reference('pa_physical_v1_field_roots',root)},state:{tick:0,planarVelocity:{x:0,z:0},bodyForwardUnit:{x:1,z:0}},root:{position:{x:0,y:1,z:0},velocity:zero},firstBaseCenter:{x:27,z:0},model:{source:{parameters:{ticksPerSecond:1_000_000,maximumBodyTurnRateRadiansPerSecond:Math.PI,lateralRealignmentAccelerationMps2:4,backwardRecoveryAccelerationMps2:3}},runnerModel:{source:{motion:{ticksPerSecond:1_000_000,reactionDelayTicks:0,accelerationMps2:2,brakingMps2:3,slideDecelerationMps2:4,topSpeedMps:5}}}}};
-  const intention={playerId:'batter',personId:'person',route:{segments:[{kind:'line' as const,start:{x:0,z:0},end:{x:30,z:0}}]},intent:{kind:'advance' as const,issuedTick:0},endTick:3_000_000};
-  const plan:any={kind:'owned_batter_run_plan_v1',source:{sourceId:'run',sourceVersion:'test',physicalPitchReference:{sourceId:'pitch'}},lineage:root.lineage,playerId:'batter',personId:'person',exitState:exit,plan:prepareBatterRunPlan(exit,intention)};
-  const source:any={throughTick:500_000,action:{kind:'batter_run_motion_v1',planReference:reference('world_batter_run_plans',plan)}};
-  return{root,plan,source};
-};
 it('BRF01 accepts the explicit runner plan reference in the physical action Source',()=>{
   expect(()=>samePaPhysicalFieldActionInput(fixture().source.action)).not.toThrow();
 });
@@ -117,4 +100,54 @@ it('BRF11 cannot revive a pre-call hold while a newer received caught response o
     actionResult:{kind:'defender_catch_response_v1',playerId:'fielder',replan:{phase:'decision_pending'},issuedBySourceId:null}};
   const source={...h.source,throughTick:3_000_000,action:{...h.source.action,stationaryHoldContinuations:[{playerId:'fielder',throughTick:3_000_000,decisionReference:reference('pa_physical_v1_field_steps',decision)}]}};
   expect(()=>fn(source,h.root,caught,h.plan,[h.root,first,decision,caught])).toThrow(/latest due owned decision/);
+});
+
+it('BRF12 reuses the original physical binding for a real hold controller without a batter-run plan',()=>{
+  const h=fixture(),first=completed(h,invoke()({...h.source,throughTick:1_500_000},h.root,h.root,h.plan,[h.root]),'before-hold');
+  const timeline=h.plan.plan.timeline,runnerMotionParameters=timeline.runnerMotionParameters;
+  const canonical=sampleRouteFollowingController(timeline.postLaunchController,timeline.launchKinematics,first.evaluationTick);
+  const controller=buildRouteFollowingController({canonical,startMotion:sampleRunnerMotionTrajectory(timeline.postLaunchTrajectory,first.evaluationTick),
+    route:timeline.route,intent:{kind:'hold',issuedTick:first.evaluationTick},parameters:runnerMotionParameters,endTick:3_000_000});
+  const input={root:h.root,previous:first,prefix:[h.root,first],throughTick:2_000_000,controller,runnerMotionParameters,body:h.plan.exitState.body,rootHeightMeters:1};
+  const value=deriveSamePaRunnerControllerMotion(input),body=value.field.motion.actors.find(a=>a.primitive.role==='body')!;
+  expect(value.evaluationTick).toBe(2_000_000);expect(value.coverageThroughTick).toBe(2_500_000);expect(value.planThroughTick).toBe(3_000_000);
+  expect(value.controllerSegmentIndex).toBe(0);expect('actionResult' in value).toBe(false);
+  expect(body.primitive.acceleration.x).toBe(-3);
+  expect(samplePiecewiseFieldActor(body,value.field.motion.world.moment).velocity.x).toBeCloseTo(1.5);
+  expect(samplePiecewiseFieldActor(body,value.field.motion.world.moment).center.x).toBeCloseTo(3.475);
+  expect(()=>deriveSamePaRunnerControllerMotion({...input,throughTick:2_500_001})).toThrow(/coverage/);
+  const stopped={...first,source:{sourceId:'hold-stop',sourceVersion:'test'},actionResult:null,
+    ...deriveSamePaRunnerControllerMotion({...input,throughTick:2_500_000})};
+  const held=deriveSamePaRunnerControllerMotion({...input,previous:stopped,prefix:[h.root,first,stopped],throughTick:3_000_000});
+  const heldBody=held.field.motion.actors.find(a=>a.primitive.role==='body')!;
+  expect(held.evaluationTick).toBe(3_000_000);expect(held.controllerSegmentIndex).toBe(1);
+  expect(heldBody.primitive.acceleration.x).toBe(0);
+  expect(samplePiecewiseFieldActor(heldBody,held.field.motion.world.moment).velocity.x).toBe(0);
+  expect(samplePiecewiseFieldActor(heldBody,held.field.motion.world.moment).center.x).toBeCloseTo(3.85);
+});
+
+it.each(['fractional-cut','clock','controller-identity','body-identity','velocity','height','curved-route','finite-route','missing-part'] as const)
+('BRF13 the shared binding rejects %s instead of creating new physical evidence',fault=>{
+  const h=fixture(),timeline=h.plan.plan.timeline;
+  const input:any={root:h.root,previous:h.root,prefix:[h.root],throughTick:500_000,controller:structuredClone(timeline.postLaunchController),
+    runnerMotionParameters:timeline.runnerMotionParameters,body:structuredClone(h.plan.exitState.body),rootHeightMeters:1};
+  if(fault==='fractional-cut')h.root.field=structuredClone(h.root.field),h.root.field.motion.world.moment.elapsedSeconds=0.0000001;
+  if(fault==='clock')input.runnerMotionParameters={...input.runnerMotionParameters,ticksPerSecond:2_000_000};
+  if(fault==='controller-identity')input.controller.basis.playerId='foreign';
+  if(fault==='body-identity')input.body.playerId='foreign';
+  if(fault==='velocity')h.root.field=structuredClone(h.root.field),h.root.field.motion.actors.forEach((a:any)=>a.primitive.startVelocity.x=1);
+  if(fault==='height')input.rootHeightMeters=2;
+  if(fault==='curved-route')input.controller.route={segments:[{kind:'arc',center:{x:0,z:0},radiusMeters:30,startAngleRadians:0,sweepRadians:1}]};
+  if(fault==='finite-route')input.controller.route.segments[0].end.x=1;
+  if(fault==='missing-part')input.body.primitives.pop();
+  expect(()=>deriveSamePaRunnerControllerMotion(input)).toThrow();
+});
+
+it('BRF14 the original batter-run wrapper cannot begin after an unexecuted plan start',()=>{
+  const h=fixture(),motion=h.root.field.motion;
+  const field=deriveBattedWorldFieldMotionCheckpoint({response:h.root.response,geometry:h.root.geometry,actors:motion.actors,cursor:motion.cursor,
+    carrierPlayerId:null,availableAtTick:0,coverageThroughTick:5_000_000,checkpointThroughTick:1,
+    commands:motion.actors.map((a:any)=>({playerId:a.playerId,role:a.primitive.role,acceleration:zero}))});
+  const late={...h.root,kind:'same_pa_physical_field_step_v1',source:{sourceId:'late',sourceVersion:'test'},field,evaluationTick:1};
+  expect(()=>invoke()(h.source,h.root,late,h.plan,[h.root,late])).toThrow(/unexecuted plan/);
 });

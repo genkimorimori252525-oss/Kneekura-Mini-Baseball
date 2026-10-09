@@ -1,3 +1,4 @@
+import { samePaCatchReviewSeedInput, type SamePaCatchReviewSeedSource } from './SamePlateAppearanceCatchReviewSource';
 import { cloneInert, openRuleProfileOfficialStateWindow } from '../../core/adjudication/OfficialWindowPolicy';
 import { getPlayAdjudicationState, getOfficialStateWindows, type PlayAdjudicationLedger,
   type OwnedLiveCallSourceReference, type OwnedLiveCallImported } from '../../core/adjudication/PlayAdjudicationLedger';
@@ -14,7 +15,7 @@ import { actualPostPlayReviewSessionInput, postPlayHash, postPlayRevision,
 
 /** A narrow projection of Native-authenticated seed and sealed-end evidence. */
 export type ActualPostPlayReviewSeed = Readonly<{
-  source: AcceptedActualLiveAdjudication; snapshotHash: string; gameId: string; playId: number;
+  source: AcceptedActualLiveAdjudication | SamePaCatchReviewSeedSource; snapshotHash: string; gameId: string; playId: number;
   physicalPitchSourceId: string; ruleProfile: RuleProfile; exactEnd: ActualObservationMoment;
   endReference: OwnedLiveCallSourceReference; kind: 'official_pending' | 'official_ready';
   ledger: PlayAdjudicationLedger; pendingReasons: readonly string[];
@@ -88,13 +89,18 @@ export const initializePostPlayReview = (raw: unknown): ActualPostPlayReviewProj
     'endReference', 'kind', 'ledger', 'pendingReasons']) || !id(seed.gameId) || !id(seed.physicalPitchSourceId)
     || !postPlayRevision(seed.playId) || !postPlayHash(seed.snapshotHash) || !Array.isArray(seed.pendingReasons)
     || !seed.pendingReasons.every(id) || !['official_pending', 'official_ready'].includes(seed.kind)) throw new Error('invalid post-play adjudication seed');
-  actualLiveAdjudicationInput(seed.source, seed.source?.sourceId);
+  const reserved = source.reservedCatchSeed;
+  if (reserved) {
+    samePaCatchReviewSeedInput(seed.source);
+    if (json(seed.source) !== json(reserved)) throw new Error('reserved catch review seed differs');
+  } else actualLiveAdjudicationInput(seed.source as AcceptedActualLiveAdjudication, seed.source?.sourceId);
   if (source.adjudicationSourceId !== seed.source.sourceId || source.adjudicationSnapshotHash !== seed.snapshotHash) {
     throw new Error('post-play adjudication seed identity or snapshot hash differs');
   }
   const reference = seed.endReference;
   if (!fields(reference, ['owner', 'sourceId', 'sourceVersion', 'sourceHash', 'snapshotHash'])
-    || reference.owner !== 'actual_first_base_play_ends' || reference.sourceId !== seed.source.physicalEndSourceId
+    || (reserved ? json({ owner: reference.owner, sourceId: reference.sourceId, sourceHash: reference.sourceHash, snapshotHash: reference.snapshotHash }) !== json(reserved.physicalOperationReference)
+      : reference.owner !== 'actual_first_base_play_ends' || reference.sourceId !== (seed.source as AcceptedActualLiveAdjudication).physicalEndSourceId)
     || ![reference.sourceId, reference.sourceVersion].every(id) || !postPlayHash(reference.sourceHash) || !postPlayHash(reference.snapshotHash)) {
     throw new Error('post-play physical end reference differs');
   }

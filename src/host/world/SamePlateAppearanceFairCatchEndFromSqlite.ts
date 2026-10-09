@@ -50,7 +50,7 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
     return pending('live_contact_or_possession_consumer_required');
   const seal = [...fields].reverse().find(f => f.kind === 'same_pa_physical_field_step_v1'
     && f.actionResult?.kind !== 'defender_observation_v1' && f.actionResult?.kind !== 'defender_decision_v1'
-    && f.actionResult?.kind !== 'defender_catch_response_v1');
+    && f.actionResult?.kind !== 'defender_catch_response_v1' && f.actionResult?.kind !== 'batter_catch_response_v1');
   const boundary = deriveQuantizerClosedGenerationBoundary({ originTick: at.originTick, throughTick: at.tick, ticksPerSecond: p.ticksPerSecond });
   if (seal?.kind !== 'same_pa_physical_field_step_v1' || seal.source.action?.kind !== 'retained_quantizer_checkpoint_v1'
     || seal.actionResult?.kind !== 'retained_quantizer_checkpoint_v1' || seal.actionResult.status !== 'checkpoint_reached'
@@ -61,7 +61,9 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
   if (census.defenderDecisions.pending.some(w => w.decisionDue === 'due' || w.movementDue === 'due')) return pending('due_defender_decision_or_adoption_required');
   if (census.catchResponses.pending.some(w => w.work.some(d => d.due === 'due') || w.response.replan.semantic !== 'ready'))
     return pending('received_controller_work_required');
-  if (census.runnerPlans.some(w => w.due === 'due' && w.status !== 'executed_through_planned_end')) return pending('due_original_runner_motion_required');
+  if ([...census.batterCatchResponses.pending, ...census.batterCatchResponses.adopted].some(r => r.work.some(w => w.due === 'due')))
+    return pending('due_received_batter_controller_work_required');
+  if (census.runnerPlans.some(w => w.due === 'due' && w.status !== 'executed_through_planned_end' && w.status !== 'superseded_by_received_response')) return pending('due_original_runner_motion_required');
   // Every actual latest observation needs its own ordinary decision or a
   // response that consumed this exact observation. Merely reading it is not a
   // controller completion, including when a different actor already adopted.
@@ -79,7 +81,7 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
   if (!communication.emitted || communication.recipients.some(r => r.reception.kind === 'pending')) return pending('original_call_information_generation_required');
   for (const r of communication.recipients) {
     if (r.reception.kind === 'received' && r.controllerResponse.kind !== 'adopted')
-      return pending(r.playerId === actor.binding.playerId ? 'received_batter_retirement_controller_semantics_required' : 'due_received_defender_adoption_required');
+      return pending(r.playerId === actor.binding.playerId ? 'received_batter_response_and_adoption_required' : 'due_received_defender_adoption_required');
     if (r.reception.kind === 'scheduled' && r.reception.reception.receivedAtElapsedSeconds <= at.elapsedSeconds)
       return pending('due_received_information_consumer_required');
   }
@@ -112,8 +114,10 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
       kind: 'in_flight_information', actorId: playerId, dueTick: w.dueTick, causeEventId: w.causeSourceId })) });
     const decisions = census.defenderDecisions.pending.filter(w => w.playerId === playerId).flatMap(w => [w.decisionTick, w.movementStartTick]);
     const responses = census.catchResponses.pending.filter(w => w.response.playerId === playerId).flatMap(w => w.work.map(d => d.dueTick));
+    const batterResponses = [...census.batterCatchResponses.pending, ...census.batterCatchResponses.adopted]
+      .filter(w => w.response.playerId === playerId).flatMap(w => w.work.map(d => d.dueTick));
     const plans = census.runnerPlans.filter(w => w.playerId === playerId && w.status === 'pending_motion').map(w => w.plannedThroughTick);
-    producer('controller_renewal', playerId, [...decisions, ...responses, ...plans], { decisions: [...decisions, ...responses, ...plans].map((dueTick, index) => ({
+    producer('controller_renewal', playerId, [...decisions, ...responses, ...batterResponses, ...plans], { decisions: [...decisions, ...responses, ...batterResponses, ...plans].map((dueTick, index) => ({
       workId: json(['controller', playerId, index]), kind: 'actor_decision', actorId: playerId, dueTick })) });
   }
   producer('ball_and_contact_generation', null, []);

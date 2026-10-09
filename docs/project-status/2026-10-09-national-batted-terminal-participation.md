@@ -77,11 +77,11 @@ exposure-to-practice scenario is separate evidence and is not repeated here.
 
 ## Remaining original-plan prerequisites
 
-- Individual statistics need a production attribution owner connecting original
-  actors and supported official outcomes, then season aggregation. Current
-  `SupportedOfficialScoringRecord` owns team/play classification and R/H/E, while
-  participation owns one game/Player fact. Neither supplies individual batting
-  opportunities, innings or season performance totals. The existing
+- [Original player outcome attribution and edition aggregation](2026-10-09-official-player-outcome-statistics.md)
+  now connect supported official classifications to original batter/pitcher
+  identities. Coverage is explicitly limited to admitted supported plays.
+  Complete individual AB, RBI, innings, pitcher liability and hit-base awards
+  still need their supported original scoring facts. The existing
   `ProductionOutcomeStatisticsBridge` remains validation-only.
 - Autonomous Career execution still needs defined non-pitch practice/repetition
   and durable source-change producers, prospective drill/opportunity/market

@@ -73,3 +73,33 @@ statistics and Career orchestration remain original-plan work.
 
 UI/design, new pitch arsenals and private database/log publication are outside
 this source checkpoint. It is neither whole-game nor whole-plan completion.
+
+## Later observed result: BI01
+
+At 11:18 UTC, BI01 completed its actual observation capture, delayed delivery,
+explicit assessment, emotion World CAS, effective batting calculation, second
+TAKE and callback-free historical replay on `19a2755` / `d28d35c7`. The intended
+single case passed with process exit 0 in 2,061.27 seconds and no survivors.
+
+The original bounded wrapper remains **failed** because a separate author's
+Vitest run created `.vite/vitest/results.json` in the shared dependency tree.
+Independent reconciliation verified that this was the sole difference: all
+3,134 source entries, all 992 actual dependency inputs, runtime and four controls
+were unchanged. The hash-matched JSON contains only another test's duration and
+failure flag. Installed Vitest 2.1.9 skips this cache's reads and writes when
+disabled, and BI01's pinned configuration included both `test.cache=false` and
+`--no-cache`. Its observed functional pass is therefore qualified with this
+specific generated-output exclusion; the wrapper was not rewritten or rerun.
+
+BI01 report SHA-256:
+`a3e98fb941c115f525a53db2c0b4bebfb87695a000f156607aa3ff24d6a74e87`.
+Original failed wrapper SHA-256:
+`92c7d5a32cdcf79ea5d0b1ece7783bd8e4fff4e4494c41cbd8297ad66e5d4fa0`.
+Independent reconciliation receipt SHA-256:
+`e21318fde676ef4bc8f58ebc6c99756927e8119314b1c997fcf49c76ab9d2157`.
+
+Future bounded executions exclude only that verified generated result path,
+record its before/after hashes separately, reject a redirecting symlink and
+retain every package input pin. The already-running IFN01 controls were left
+unchanged. This BI01 result does not qualify later source changes or the pending
+IFN01/BPN01/NAT-N01 compositions.

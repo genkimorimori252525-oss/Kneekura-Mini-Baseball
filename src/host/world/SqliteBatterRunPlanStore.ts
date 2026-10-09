@@ -1,3 +1,4 @@
+import { assertNoSamePaCatchReviewSeal } from './SamePlateAppearanceCatchReviewSeal';
 import type { DatabaseSync } from 'node:sqlite';
 import { actorJson as json,actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { bodyCompositionSourceClaim as claim } from './BodyMaterializationSqliteOwnership';
@@ -32,6 +33,7 @@ const make=(db:DatabaseSync):BatterRunArchiveOwner<Source,DurableBatterRunPlan>=
   scope:s=>({sql:`${claim('source_json',['physicalPitchReference','sourceId'])} OR ${claim('snapshot_json',['source','physicalPitchReference','sourceId'])}`,
     values:[s.physicalPitchReference.sourceId,s.physicalPitchReference.sourceId]}),
   assertCurrent:(value,inserted)=>{
+    assertNoSamePaCatchReviewSeal(db,value.lineage.gameId,value.lineage.playId);
     const basis=(inserted?readHistoricalSamePaLifecycleViewFromSqlite:readCurrentSamePaLifecycleViewFromSqlite)(db,value.source.viewReference);
     same(basis.view.lineage,value.lineage);assertSamePaLifecycleReservedStateFromSqlite(db,basis);
     if(inserted){

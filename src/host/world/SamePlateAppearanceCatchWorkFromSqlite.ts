@@ -1,3 +1,4 @@
+import { assertNoSamePaCatchReviewSeal } from './SamePlateAppearanceCatchReviewSeal';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
 import { actorFreeze as freeze, actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -40,6 +41,7 @@ const row = (db: DatabaseSync, id: string) => {
   return rows[0] ?? null;
 };
 const derive = (db: DatabaseSync, s: AcceptedSamePaCatchWork, raw: SamePaCatchWorkOriginals, current: boolean): SamePaCatchWork | Pending => {
+  if(current){const b=readHistoricalSamePaLifecycleViewFromSqlite(db,s.viewReference);assertNoSamePaCatchReviewSeal(db,b.view.lineage.gameId,b.view.lineage.playId);}
   const originals = samePaCatchWorkOriginalsInput(raw, s);
   const live = readSamePaLiveWorkFromSqlite(db, s.viewReference, current ? 'current' : 'historical', {
     sourceId: originals.source.sourceId, authority: samePaCatchOriginalAuthority(originals),

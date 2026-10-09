@@ -1,3 +1,4 @@
+import { appendNativeReservedCatchReview } from './SamePlateAppearanceCatchReviewNative.test-support';
 import { expect } from 'vitest';
 import type { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 import type { SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep, SamePaPhysicalFieldStepSource } from './SamePlateAppearancePhysicalEpisode';
@@ -52,22 +53,26 @@ export const completeNativeFairCatchTerminal = (h: ReturnType<typeof samePaPhysi
   const workReference = reference('pa_catch_v1_work', work); h.advance(workReference);
   const current = h.current(), admitted = withSqliteReadTransaction(f.db, () => readSamePaAdmittedLiveWorkFromSqlite(f.db, current.viewReference, 'current'));
   if (admitted.kind !== 'same_pa_live_work_read_v1' || admitted.communication.kind !== 'owned_same_pa_catch_communication_v1') throw new Error('IFN01 final admitted work missing');
-  expect(admitted.communication.recipients.filter(r => r.reception.kind === 'received')).toHaveLength(1);
-  expect(admitted.communication.recipients.filter(r => r.reception.kind === 'scheduled')).toHaveLength(9);
-  expect(admitted.communication.recipients.find(r => r.reception.kind === 'received')?.controllerResponse.kind).toBe('adopted');
-  expect(admitted.census.runnerPlans).toHaveLength(1); expect(admitted.census.runnerPlans[0].due).toBe('future');
+  expect(admitted.communication.recipients.filter(r => r.reception.kind === 'received')).toHaveLength(2);
+  expect(admitted.communication.recipients.filter(r => r.reception.kind === 'scheduled')).toHaveLength(8);
+  expect(admitted.communication.recipients.filter(r => r.reception.kind === 'received').every(r => r.controllerResponse.kind === 'adopted')).toBe(true);
+  expect(admitted.census.runnerPlans).toHaveLength(1); expect(admitted.census.runnerPlans[0].status).toBe('superseded_by_received_response');
   expect(admitted.census.observationRefresh.pending.every(item => item.due === 'future')).toBe(true);
+  const officialPolicy = { sourceId: label + ':window-policy', sourceVersion: 'explicit-fixture-v1', ruleProfileId: f.actor.match.ruleProfileId,
+    officialWindows: { appeal: { available: true }, review: { available: true }, challenge: { available: false } } };
+  const review = appendNativeReservedCatchReview(h, workReference, officialPolicy, label + ':review', 'explicit-fixture-scheduler');
   const source: Extract<AcceptedSamePaLifecycleOutcome, { kind: 'fair_catch' }> = { sourceId: label + ':outcome', sourceVersion: 'fixture-only-v1',
     capability: 'same_pa_lifecycle_outcome_v1', enrollmentReference: current.view.lineage.enrollmentReference, viewReference: current.viewReference,
     physicalOperationReference: current.view.cut.physicalOperationReference, kind: 'fair_catch', rulePolicy: null, catchWorkReference: workReference,
-    officialPolicy: { sourceId: label + ':window-policy', sourceVersion: 'explicit-fixture-v1', ruleProfileId: f.actor.match.ruleProfileId,
-      officialWindows: { appeal: { available: true }, review: { available: false }, challenge: { available: false } } },
+    officialPolicy, postPlayReviewReference: review.pin,
     official: { sourceId: label + ':scheduler', sourceVersion: 'fixture-only-v1', schedulerId: 'explicit-fixture-scheduler', events: [
       { sourceId: label + ':advance', sourceVersion: 'fixture-only-v1', schedulerId: 'explicit-fixture-scheduler', kind: 'advance_tick' },
       { sourceId: label + ':fence', sourceVersion: 'fixture-only-v1', schedulerId: 'explicit-fixture-scheduler', kind: 'next_play_fence' }] } };
   const completed = completeSamePaTerminalFixture(h, label, source);
-  expect(completed.outcome.fairCatch?.generation.receivedControllerHandoffs).toHaveLength(1);
-  expect(completed.outcome.fairCatch?.registry.frontier.information).toHaveLength(9 + admitted.census.observationRefresh.pending.length);
+  expect(completed.outcome.postPlayReview?.reference).toEqual(review.pin);
+  review.assertHistoricalReplay();
+  expect(completed.outcome.fairCatch?.generation.receivedControllerHandoffs).toHaveLength(2);
+  expect(completed.outcome.fairCatch?.registry.frontier.information).toHaveLength(8 + admitted.census.observationRefresh.pending.length);
   expect(completed.outcome.fairCatch?.registry.frontier.physical).toHaveLength(10);
   expect(completed.outcome.physicalEnd?.tick).toBe(sealed.evaluationTick);
   const history = withSqliteReadTransaction(f.db, () => readPhysicalClosureScoringHistory(f.db, { gameId: f.actor.source.gameId,

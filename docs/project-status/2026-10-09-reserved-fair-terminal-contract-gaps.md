@@ -418,3 +418,61 @@ test, so it is not evidence for the reserved end producer. All 11 scoring-store
 tests passed under Node 26.10.0 in 5.28 seconds. Changed-file-only strict
 TypeScript diagnostics passed for 14 source/test files; no full compiler or
 Native composition was launched here.
+
+## Explicit received batter hold and original physical adoption
+
+The next batch supplies the previously missing due-received batter consumer.
+`batter_catch_response_v1` is an independently accepted original hold choice,
+with provenance and the current reserved member. It authenticates the original
+caught action's actual recipient reception, current pitch and exact physical
+cut. It is a zero-time information/intent operation and preserves every body
+curve. The legal OUT and the correct-rule snapshot do not select the response.
+An absent accepted response remains pending as
+`received_batter_response_and_adoption_required`.
+
+The response either uses the already executed original advance controller, or
+an independently owned current swing-exit state and explicit route when no
+current-pitch run controller exists. Earlier pitches' plans remain historical
+and do not become incumbent controllers. Initial recovery must have the already
+supported static-pose binding; no bat axis supplies body facing. The moving
+branch samples the existing controller at the actual body cut and creates a
+new controller revision with the original accepted motion parameters. Existing
+`RunnerMotion` retains old control until its reaction time, then brakes under
+its accepted hold law. No new timing, trust, braking or recovery values are
+chosen by production code.
+
+`batter_catch_motion_v1` must actually execute the new controller before its
+reception is discharged. Its shared physical adapter retains all five parts,
+current position/velocity, finite route, analytic boundary and foreign command
+coverage. Unrelated physical progress is fenced before first adoption, and the
+old advance cannot replay afterward. Pending throw transfer keeps its original
+owner, so a conflicting hold response is rejected before acceptance. The
+current adapter still requires an exact integer cut and a first analytic piece
+with whole-tick execution coverage; a sub-tick-only initial braking piece is
+rejected, rather than changing its physiology or snapping the body to rest.
+
+The current work census records pending adoption, actual adoption, future
+reaction and controller deadlines. It marks an old run plan superseded only
+from the actual new motor receipt, without claiming that plan completed. The
+terminal producer census retains the response's future work, while the original
+controller-retirement inventory now includes its exact adopted primitives and
+horizons. The existing finalizer may end play with moving retired bodies once
+all independent physical, rule, communication and current work gates pass.
+This follows the participation/body distinction in
+`docs/game-design/06-world-first-runtime-contracts.md` §2, and the
+future-only effect of calls in `07-world-first-adjudication-contracts.md`.
+
+The next IFN01 source declares the batter's zero-delay reception before original
+catch-work acceptance. It executes ten ticks of the existing advance fixture,
+then accepts a separate hold and executes one real braking tick. The final
+census requires two adopted received participants and eight future recipients;
+it preserves the still-moving batter and the superseded plan archive. This
+Native extension is authored but unrun here. Automatic batter intent selection,
+turning recovery poses and sub-tick-only initial motor adoption are not added.
+
+Author evidence: 85 affected finite cases passed under Node 26.10.0 in 12.25
+seconds, using `--no-cache` and an external cache directory. The response tests
+use explicitly structural Native reader seams around actual Core communication,
+controller and body execution; they do not certify SQLite Source admission. The
+new IFN01 traversal, full compiler and consolidated Native gate remain unrun in
+this author worktree.

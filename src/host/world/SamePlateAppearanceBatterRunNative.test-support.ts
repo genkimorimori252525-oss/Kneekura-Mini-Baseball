@@ -20,9 +20,9 @@ import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support'
  * aligned facing and advance intention are synthetic inputs, never deductions
  * from the swing, bat axis or contact outcome. No foreign command is renewed. */
 export const appendNativeBatterRunCheckpoint = (h: ReturnType<typeof samePaPhysicalLifecycleFixture>, root: SamePaPhysicalFieldRoot,
-  previous: SamePaPhysicalFieldStep, posture: DurableBattingInvocationPosture, label: string) => {
+  previous: SamePaPhysicalFieldStep, posture: DurableBattingInvocationPosture, label: string, advanceTicks = 1) => {
   const { f } = h, binding = f.actor.binding, track = f.x.f.track, moment = previous.field.motion.world.moment;
-  const throughTick = previous.evaluationTick + 1, endTick = throughTick + 1;
+  const throughTick = previous.evaluationTick + advanceTicks, endTick = throughTick + 1;
   expect(previous.field.motion.cursor).not.toBeNull();
   expect(endTick).toBeLessThanOrEqual(Math.min(...previous.field.motion.actors.map(a => a.primitive.endTick)));
   const modelSource: AcceptedPlayerRunnerDecisionMotionModel = { sourceId: label + ':runner-model', sourceVersion: 'explicit-existing-core-fixture-v1',

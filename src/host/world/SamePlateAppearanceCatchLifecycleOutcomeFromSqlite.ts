@@ -1,14 +1,15 @@
+import { samePaCatchOfficialOpeningInputFromSqlite, deriveSamePaCatchReviewSeedFromSqlite } from './SamePlateAppearanceCatchReviewFromSqlite';
+import { actualPostPlayReviewEvidenceFromSqlite } from './ActualPostPlayReviewFromSqlite';
+import { assertNoUnpinnedPostPlayReview, postPlayReviewSessionClaims, postPlayReviewEventRows, postPlayReviewHeadRows } from './ActualPostPlayReviewNativeMetadata';
+import type { ActualPostPlayReviewProjection } from './ActualPostPlayReviewState';
 import type { DatabaseSync } from 'node:sqlite';
 import { deriveSamePaFairCatchEndFromSqlite } from './SamePlateAppearanceFairCatchEndFromSqlite';
 import { deriveSamePaCatchOfficial } from './SamePlateAppearanceCatchOfficial';
-import { readSamePaCatchWorkFromSqlite } from './SamePlateAppearanceCatchWorkFromSqlite';
 import { samePaOutcomeFieldEvidence, samePaOutcomeRetirement, readSamePaLifecycleResetFromSqlite } from './SamePlateAppearanceLifecycleOutcomeFromSqlite';
 import { samePaStartingBaseCenters } from './SamePlateAppearanceLifecycleStartingGeometry';
-import { readHistoricalSamePaLifecycleViewFromSqlite } from './SamePlateAppearanceLifecycleFromSqlite';
-import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { samePaLifecycleSchema } from './SamePlateAppearanceLifecycleStorage';
 import { samePaMetadataClaim as claim } from './SamePlateAppearanceReservationGuard';
-import { actorFreeze as freeze, actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { actorFreeze as freeze, actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import type { SamePaLifecycleViewBasis } from './SamePlateAppearanceLifecycle';
 import type { AcceptedSamePaLifecycleOutcome, SamePaLifecycleOutcome } from './SamePlateAppearanceLifecycleOutcome';
 
@@ -19,16 +20,32 @@ export const deriveSamePaCatchLifecycleOutcome = (db: DatabaseSync, source: Extr
   basis: SamePaLifecycleViewBasis, current: boolean): SamePaLifecycleOutcome | Readonly<{kind:'pending';reason:string}> => {
   const end = deriveSamePaFairCatchEndFromSqlite(db, source.viewReference, source.catchWorkReference, current ? 'current' : 'historical');
   if(end.kind==='pending')return end;
-  const work=readSamePaCatchWorkFromSqlite(db,source.catchWorkReference),action=work.originalInputs.action!;
-  const owned={...reference('pa_catch_v1_work',work),sourceVersion:work.source.sourceVersion};
-  const actionView=readHistoricalSamePaLifecycleViewFromSqlite(db,action.viewReference).view;
-  const ruleEvidence={...reference('pa_lifecycle_v1_execution_views',actionView),sourceVersion:actionView.source.sourceVersion};
-  const official=deriveSamePaCatchOfficial({sourceId:source.sourceId,originalMatch:end.originalMatch,physicalEnd:end.playEnd,exactEnd:end.exactEnd,
-    operative:end.operative,policy:source.officialPolicy,scheduler:source.official,callProvenance:{version:'owned_live_call_import_v1',
-      playId:basis.view.lineage.playId,gameId:basis.view.lineage.gameId,physicalPitchSourceId:end.physicalPitchReference.sourceId,
-      clock:{originTick:end.exactEnd.originTick,ticksPerSecond:end.scoringEvidence.field.evidence.ticksPerSecond},
-      calledAtElapsedSeconds:action.calledAt.elapsedSeconds,availableAtElapsedSeconds:action.calledAt.elapsedSeconds,
-      importedAtElapsedSeconds:end.exactEnd.elapsedSeconds,call:owned,perception:owned,policy:owned,ruleEvidence,reception:owned}});
+  const opening=samePaCatchOfficialOpeningInputFromSqlite(db,source.sourceId,end,source.officialPolicy);
+  const pin=source.postPlayReviewReference;
+  let reviewed:ActualPostPlayReviewProjection|undefined,postPlayReview:SamePaLifecycleOutcome['postPlayReview'];
+  const scope={gameId:basis.view.lineage.gameId,playId:basis.view.lineage.playId,physicalPitchSourceId:end.physicalPitchReference.sourceId};
+  if(pin===undefined)assertNoUnpinnedPostPlayReview(db,source.sourceId,scope);
+  else{
+    const owner=actualPostPlayReviewEvidenceFromSqlite(db),session=owner.session(pin.sessionSourceId);
+    if(!session)throw new Error('reserved catch pinned review session missing');
+    reviewed=owner.readCurrent(pin.sessionSourceId)??undefined;
+    const seedSource=session.value.source.reservedCatchSeed;
+    if(!reviewed||!seedSource||json(seedSource.viewReference)!==json(source.viewReference)
+      ||json(seedSource.catchWorkReference)!==json(source.catchWorkReference)
+      ||json(seedSource.physicalOperationReference)!==json(source.physicalOperationReference)
+      ||seedSource.policy!==null&&json(seedSource.policy)!==json(source.officialPolicy)||json(reviewed.source.officialPolicy)!==json(source.officialPolicy)
+      ||reviewed.source.policy?.schedulerId!==source.official.schedulerId)throw new Error('reserved catch review seed, policy or scheduler differs');
+    const authenticated=deriveSamePaCatchReviewSeedFromSqlite(db,seedSource,current?'current':'historical');
+    if(json(authenticated.seed)!==json(reviewed.seed)||json(authenticated.scope)!==json(session.scope)
+      ||json(pin)!==json({sessionSourceId:reviewed.source.sourceId,revision:reviewed.revision,headSourceId:reviewed.headSourceId,headHash:reviewed.headHash}))
+      throw new Error('reserved catch review current seed or head pin differs');
+    if(reviewed.kind!=='official_ready')return freeze({kind:'pending',reason:reviewed.pendingReasons.join('|')});
+    // The outcome's existing pre/in/post-write full receipt comparisons also
+    // pin admission_json and every session/event/head byte, beyond headHash.
+    postPlayReview={reference:pin,journalHash:hash({sessions:postPlayReviewSessionClaims(db,reviewed.source.adjudicationSourceId,scope),
+      events:postPlayReviewEventRows(db,pin.sessionSourceId),heads:postPlayReviewHeadRows(db,pin.sessionSourceId)})};
+  }
+  const official=deriveSamePaCatchOfficial({...opening,scheduler:source.official,...(reviewed?{reviewed}:{})});
   if(official.kind!=='closed')return freeze({kind:'pending',reason:official.pendingReasons.join('|')});
   for(const id of [source.official.sourceId,...source.official.events.map(e=>e.sourceId)])for(const table of Object.keys(samePaLifecycleSchema)){
     const conflicts=db.prepare(`SELECT source_id FROM main.${table} WHERE source_id=$id OR ${claim('source_json',['official','sourceId'],'$id')}
@@ -43,5 +60,5 @@ export const deriveSamePaCatchLifecycleOutcome = (db: DatabaseSync, source: Extr
   const physical=samePaOutcomeFieldEvidence(db,basis);
   return freeze({kind:'same_pa_lifecycle_outcome',source,lineage:basis.view.lineage,actor:basis.actor,disposition:'terminal',timeline:end.timeline,
     evaluationTick:official.evaluationTick,physicalCompletedAtTick:end.playEnd.tick,physicalEnd:end.playEnd,physicalProofHash:hash(end),
-    officialLedger:official.ledger,context:null,controllerRetirementBasis:samePaOutcomeRetirement(basis,physical.commands,end.playEnd.tick),baseCenters,fairCatch:end});
+    officialLedger:official.ledger,context:null,controllerRetirementBasis:samePaOutcomeRetirement(basis,physical.commands,end.playEnd.tick),baseCenters,fairCatch:end,...(postPlayReview?{postPlayReview}:{})});
 };

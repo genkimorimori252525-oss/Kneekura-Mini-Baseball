@@ -15,7 +15,10 @@ import { openSqlitePersonGenesisStore } from './SqlitePersonGenesisStore';
 import { openSqliteDevelopmentInitiationStore } from './SqliteDevelopmentInitiationStore';
 import { nationalExposureAppraisal, nationalExposureGenesisPolicies, nationalExposurePolicies } from './NationalExposureDevelopment.test-support';
 import type { AcceptedNationalExposureAppraisal } from './NationalExposureDevelopmentOrigin';
-import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { openSqliteOfficialPlayerOutcomeStore } from './SqliteOfficialPlayerOutcomeStore';
+import { openSqliteActualLiveScoringStore } from './SqliteActualLiveScoringStore';
+import type { AcceptedActualLiveScoringSource } from './ActualLiveScoringSource';
+import { actorJson as json, actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 
 /** One fresh National registration/fixture root, two successive original plays.
  * No donor, mocked reader, rewritten identity, or persisted physical result is
@@ -70,6 +73,34 @@ it('NAT-N01 one National game connects original terminal foul and next batted pl
     expect(f.roster.readHead('career-a', 'club-a')).toEqual(clubBefore);
     progress('two_original_participation_and_adoption_receipts');
 
+    const statistics = f.track(openSqliteOfficialPlayerOutcomeStore(path));
+    const foulStatisticsSource = { owner: 'actual_foul_terminal_applications' as const, sourceId: foul.terminal.terminalSource.sourceId };
+    const attributedFoul = statistics.apply(foulStatisticsSource);
+    expect(attributedFoul).toMatchObject({ kind: 'attributed', batterPlayerId: 'p9', pitcherPlayerId: 'p0', classification: 'strikeout' });
+    // Classification remains unavailable until its owned original ground-out
+    // sidecar is separately admitted by the existing scorer.
+    expect(statistics.apply({ owner: 'actual_live_play_closures', sourceId: live.closureSource.sourceId }))
+      .toMatchObject({ kind: 'unavailable', reason: 'supported_official_scoring_missing' });
+    const groundSource: AcceptedActualLiveScoringSource = { sourceId: 'national-live:ground-out', sourceVersion: 'owned-ground-out-v1',
+      gameId: f.source.gameId, scoringApplicationId: 'national-live:ground-out-score',
+      closureReference: { sourceId: live.closureSource.sourceId, proposalHash: hash(live.queued.proposal) },
+      evidence: { schemaVersion: 1, sourceKind: 'owned_ground_out', sourceEventId: 'national-live:ground-out',
+        playId: nextActor.match.playId, closureId: live.closureSource.sourceId, batterRunnerId: 'p10' } };
+    const originalClosure = f.db.prepare('SELECT * FROM actual_live_play_closures WHERE source_id=?').get(live.closureSource.sourceId);
+    const groundScoring = f.track(openSqliteActualLiveScoringStore(path,
+      { readAcceptedScoringSource: id => id === groundSource.sourceId ? groundSource : null }));
+    const scoredGround = groundScoring.submit(groundSource.sourceId);
+    expect(scoredGround.record).toMatchObject({ classification: 'ground_out', runsScored: 0, hitsCredited: 0, errorsCharged: 0 });
+    expect(f.db.prepare('SELECT * FROM actual_live_play_closures WHERE source_id=?').get(live.closureSource.sourceId)).toEqual(originalClosure);
+    const liveStatisticsSource = { owner: 'actual_live_play_closures' as const, sourceId: live.closureSource.sourceId };
+    const attributedGround = statistics.apply(liveStatisticsSource);
+    expect(attributedGround).toMatchObject({ kind: 'attributed', batterPlayerId: 'p10', pitcherPlayerId: 'p0', classification: 'ground_out' });
+    const statisticsScope = { careerId: 'career-a', competitionEditionId: foulReceipt.binding.competitionEditionId, playerId: 'p9', asOfDay: 121 };
+    const originalStatistics = statistics.aggregate(statisticsScope);
+    expect(originalStatistics).toMatchObject({ coverage: 'attributed_supported_plays_only', batting: { classifiedPlays: 1, outcomes: { strikeout: 1 } } });
+    expect(statistics.aggregate({ ...statisticsScope, playerId: 'p0' }).pitching.outcomes.strikeout).toBe(1);
+    expect(statistics.aggregate({ ...statisticsScope, playerId: 'p0' }).pitching.outcomes.ground_out).toBe(1);
+
     const person = f.track(openSqlitePersonGenesisStore(path));
     person.initializeCareer({ careerId: 'career-a', initializedAtDay: 10, careerSeed: 12345, policies: nationalExposureGenesisPolicies() });
     person.materializeBatch(['link-9', 'link-10']);
@@ -100,6 +131,8 @@ it('NAT-N01 one National game connects original terminal foul and next batted pl
     const db = new DatabaseSync(path), participation = new SqliteOfficialParticipationStore(path);
     const reopenedEpisodes = openSqliteDevelopmentInitiationStore(path, { roster: { readDevelopmentRosterChange: () => null },
       person: { read: () => null, readDevelopmentSeed: () => null }, appraisal: { readAcceptedAppraisal: () => null }, policies: { readAcceptedPolicies: () => null } });
+    const reopenedStatistics = openSqliteOfficialPlayerOutcomeStore(path);
+    const reopenedScoring = openSqliteActualLiveScoringStore(path);
     try {
       for (const receipt of [foulReceipt, liveReceipt]) expect(participation.readReceipt(receipt.receiptId)).toEqual(receipt);
       expect(participation.confirmNationalFoulTerminalPlayed(f.source.gameId, 'p9', foul.terminal.terminalSource.sourceId)).toEqual(foulReceipt);
@@ -109,7 +142,13 @@ it('NAT-N01 one National game connects original terminal foul and next batted pl
       for (const player of ['p9', 'p10']) expect(registrations.readRepresentation('career-a', player, 121)[0].seniorOfficialAppearanceDay).toBe(121);
       expect(json(readNationalMatchOrigin(db, f.source.gameId))).toBe(originBytes);
       expect(db.prepare('SELECT * FROM official_participation_receipts ORDER BY receipt_id').all()).toEqual(receiptRows);
+      expect(reopenedStatistics.apply(foulStatisticsSource)).toEqual(attributedFoul);
+      expect(reopenedStatistics.readApplication(foulStatisticsSource)).toEqual(attributedFoul);
+      expect(reopenedStatistics.aggregate(statisticsScope)).toEqual(originalStatistics);
+      expect(reopenedScoring.submit(groundSource.sourceId)).toEqual(scoredGround);
+      expect(reopenedStatistics.apply(liveStatisticsSource)).toEqual(attributedGround);
+      expect(reopenedStatistics.aggregate({ ...statisticsScope, playerId: 'p10' }).batting.outcomes.ground_out).toBe(1);
       progress('reopened_original_receipt_membership_and_exposure');
-    } finally { reopenedEpisodes.close(); participation.close(); db.close(); }
+    } finally { reopenedScoring.close(); reopenedStatistics.close(); reopenedEpisodes.close(); participation.close(); db.close(); }
   } finally { if (!originalClosed) f.close(); }
 }, 3_600_000);

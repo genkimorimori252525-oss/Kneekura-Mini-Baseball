@@ -1,3 +1,4 @@
+import { assertSamePaBatterCatchOwnership } from './SamePlateAppearanceBatterCatchOwnership';
 import { readBatterRunPlanFromSqlite } from './SqliteBatterRunPlanStore';
 import { deriveSamePaBatterRunMotion } from './SamePlateAppearanceBatterRunMotion';
 import type { DatabaseSync } from 'node:sqlite';
@@ -18,6 +19,8 @@ import { samePaPhysicalTimelineAtField } from './SamePlateAppearancePhysicalFiel
 import { readSamePaCatchObservationFromSqlite } from './SamePlateAppearanceCatchObservationFromSqlite';
 import { deriveSamePaCatchDefenderResponse } from './SamePlateAppearanceCatchDefenderResponse';
 import { deriveSamePaPhysicalQuantizerCheckpoint } from './SamePlateAppearancePhysicalQuantizerCheckpoint';
+import { deriveSamePaBatterCatchResponse } from './SamePlateAppearanceBatterCatchResponse';
+import { deriveSamePaBatterCatchMotion } from './SamePlateAppearanceBatterCatchMotion';
 import type { SamePaPhysicalFieldActionResult, SamePaPhysicalFieldReference } from './SamePlateAppearancePhysicalFieldAction';
 import type { SamePaPhysicalAction, SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep, SamePaPhysicalFieldStepSource } from './SamePlateAppearancePhysicalEpisode';
 import type { SamePaLifecycleViewBasis } from './SamePlateAppearanceLifecycle';
@@ -29,7 +32,7 @@ type Field = SamePaPhysicalFieldRoot | SamePaPhysicalFieldStep;
 const fieldReference = (field: Field) => reference(field.kind === 'same_pa_physical_field_root_v1' ? 'pa_physical_v1_field_roots' : 'pa_physical_v1_field_steps', field);
 const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw new Error('physical field action original dependency differs'); };
 const result = (step: Field) => step.kind === 'same_pa_physical_field_step_v1' ? step.actionResult : undefined;
-const noAdvance = (field: Field) => result(field)?.kind === 'defender_observation_v1' || result(field)?.kind === 'defender_decision_v1' || result(field)?.kind === 'defender_catch_response_v1';
+const noAdvance = (field: Field) => result(field)?.kind === 'defender_observation_v1' || result(field)?.kind === 'defender_decision_v1' || result(field)?.kind === 'defender_catch_response_v1' || result(field)?.kind === 'batter_catch_response_v1';
 /** Reconstruct the actual episode graph on the Native owner's pinned read phase.
  * Sources contain only accepted input references, view geometry and priorities. */
 export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePaPhysicalFieldStepSource, root: SamePaPhysicalFieldRoot,
@@ -42,6 +45,7 @@ export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePa
   if (!prefix.length || prefix[0].source.sourceId !== root.source.sourceId) throw new Error('physical field action original prefix missing');
   same(fieldReference(prefix.at(-1)!), source.previousFieldReference);
   assertSamePaPhysicalThrowOwnership(source, prefix);
+  assertSamePaBatterCatchOwnership(source, prefix);
   if (request.kind === 'retained_quantizer_checkpoint_v1') return deriveSamePaPhysicalQuantizerCheckpoint(source, root, previous);
   const linked = (ref: SamePaPhysicalFieldReference): Field => {
     const value = prefix.find(v => v.source.sourceId === ref.sourceId);
@@ -62,6 +66,8 @@ export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePa
   const latest = (kind: 'defender_observation_v1' | 'defender_decision_v1', playerId: string) => [...prefix].reverse().find(f => {
     const r = result(f); return r?.kind === kind && r.playerId === playerId;
   });
+  if (request.kind === 'batter_catch_response_v1') return stable(deriveSamePaBatterCatchResponse(db, source, root, previous, basis, prefix));
+  if (request.kind === 'batter_catch_motion_v1') return deriveSamePaBatterCatchMotion(source, root, previous, prefix);
   if (request.kind === 'defender_observation_v1') {
     const c = calibration(request.member, request.calibrationReference);
     if (c.route !== 'defender_observation') throw new Error('physical observation effective route differs');
@@ -135,6 +141,8 @@ export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePa
     return deriveSamePaPhysicalThrowPlan(source, root, previous, action, model, c.response.values);
   }
   if (request.kind === 'batter_run_motion_v1') {
+    if (prefix.some(f => f.kind === 'same_pa_physical_field_step_v1' && f.actionResult?.kind === 'batter_catch_response_v1'))
+      throw new Error('received batter response supersedes the original advance controller');
     const plan = readBatterRunPlanFromSqlite(db, request.planReference);
     if (plan.playerId !== action.actor.binding.playerId || plan.personId !== action.actor.binding.personId) throw new Error('physical batter-run original actor differs');
     return deriveSamePaBatterRunMotion(source, root, previous, plan, prefix);

@@ -1,5 +1,9 @@
+import { initializeActualPostPlayReview, advanceActualPostPlayReview } from './ActualPostPlayReview';
+import { actualLiveAdjudicationProfile } from './ActualLiveAdjudicationSource';
+import { actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import type { ActualPostPlayReviewEventAction, AcceptedActualPostPlayOfficialIntent } from './ActualPostPlayReviewSource';
 import { describe, expect, it } from 'vitest';
-import { deriveSamePaCatchOfficial } from './SamePlateAppearanceCatchOfficial';
+import { deriveSamePaCatchOfficial, deriveSamePaCatchOfficialOpening } from './SamePlateAppearanceCatchOfficial';
 import { deriveSamePaCatchOperativeRuling } from './SamePlateAppearanceCatchOperativeRuling';
 import { getOfficialPlayClosure, getPlayAdjudicationState, createPlayAdjudicationLedger,
   recordCorrectRuleSnapshot, recordOnFieldCall } from '../../core/adjudication/PlayAdjudicationLedger';
@@ -113,4 +117,51 @@ describe('reserved caught-action official closure', () => {
       : { ...input, originalMatch: { ...input.originalMatch, playId: 8 } };
     expect(() => deriveSamePaCatchOfficial(changed)).toThrow();
   });
+});
+
+
+it('reserved review preserves unresolved truth and the original call through an explicit accepted stands decision', () => {
+  const input = fixture(), policy = { ...input.policy, officialWindows: { ...input.policy.officialWindows, review: { available: true } } };
+  const opening = deriveSamePaCatchOfficialOpening({ ...input, policy });
+  const { sourceVersion: _version, ...physicalOperationReference } = ref('pa_physical_v1_field_steps', 'end-cut');
+  const source = { sourceId: 'review-seed', sourceVersion: 'fixture-v1', capability: 'same_pa_catch_review_seed_v1' as const,
+    viewReference: { ...physicalOperationReference, owner: 'pa_lifecycle_v1_execution_views' as const, sourceId: 'end-view' },
+    catchWorkReference: { ...physicalOperationReference, owner: 'pa_catch_v1_work' as const, sourceId: 'call-work' },
+    physicalOperationReference: { ...physicalOperationReference, owner: 'pa_physical_v1_field_steps' as const }, policy };
+  const seed = { source, snapshotHash: hash(opening), gameId: 'game', playId: 7, physicalPitchSourceId: 'reserved-pitch',
+    ruleProfile: actualLiveAdjudicationProfile(input.originalMatch.ruleProfileId, policy), exactEnd: input.exactEnd,
+    endReference: ref('pa_physical_v1_field_steps', 'end-cut'), kind: 'official_pending' as const, ledger: opening.ledger,
+    pendingReasons: opening.pendingReasons };
+  const session = { sourceId: 'review-session', sourceVersion: 'fixture-v1', capability: 'actual_post_play_review_session_v1' as const,
+    adjudicationSourceId: source.sourceId, adjudicationSnapshotHash: seed.snapshotHash, officialPolicy: policy, reservedCatchSeed: source,
+    policy: { sourceId: 'review-policy', sourceVersion: 'fixture-v1', ruleProfileId: policy.ruleProfileId,
+      openingTrigger: 'physical_play_end' as const, clock: 'post_play_discrete_tick_v1' as const, schedulerId: 'scheduler', expiryScope: 'request_admission' as const,
+      opportunities: [{ windowKind: 'review' as const, windowId: 'review', entitlementSourceId: 'entitlement', clubId: 'club',
+        requesterIds: ['reviewer'], reviewerIds: ['reviewer'] }] } };
+  let reviewed = initializeActualPostPlayReview({ source: session, seed });
+  expect(reviewed.kind).toBe('official_pending');
+  expect(() => deriveSamePaCatchOfficial({ ...input, policy, reviewed })).toThrow(/reviewed ledger/);
+  const step = (action: ActualPostPlayReviewEventAction, intent?: AcceptedActualPostPlayOfficialIntent) => {
+    reviewed = advanceActualPostPlayReview({ previous: reviewed, source: { sourceId: 'event:' + reviewed.revision,
+      sourceVersion: 'fixture-v1', capability: 'actual_post_play_review_event_v1', sessionSourceId: session.sourceId,
+      expectedRevision: reviewed.revision, parent: { sourceId: reviewed.headSourceId, snapshotHash: reviewed.headHash }, action }, ...(intent ? { intent } : {}) });
+  };
+  const call = input.operative.onFieldCall;
+  step({ kind: 'official_request', windowId: 'review', callId: call.callId, intentSourceId: 'request-intent' }, {
+    sourceId: 'request-intent', sourceVersion: 'fixture-v1', capability: 'actual_post_play_review_official_intent_v1',
+    sessionSourceId: session.sourceId, gameId: 'game', playId: 7, physicalPitchSourceId: 'reserved-pitch',
+    callId: call.callId, windowId: 'review', entitlementSourceId: 'entitlement', officialId: 'reviewer', action: 'request' });
+  expect(reviewed.requests[0].status).toBe('review_pending');
+  step({ kind: 'advance_tick', schedulerId: 'scheduler' });
+  step({ kind: 'decision', windowId: 'review', requestEventSourceId: 'event:0', reviewId: 'review-decision', callId: call.callId,
+    reviewerId: 'reviewer', basisSnapshotId: call.basisSnapshotId, basisEvidenceRevision: call.basisEvidenceRevision, decision: 'stands' });
+  const closed = deriveSamePaCatchOfficial({ ...input, policy, reviewed });
+  expect(closed.kind).toBe('closed'); expect(closed.evaluationTick).toBe(141);
+  expect(closed.originalOperativeLedger).toEqual(input.operative.ledger);
+  expect(closed.ledger.events.filter(e => e.kind === 'UnresolvedCorrectRuleSnapshotRecorded')).toEqual(
+    reviewed.ledger.events.filter(e => e.kind === 'UnresolvedCorrectRuleSnapshotRecorded'));
+  expect(closed.ledger.events.filter(e => e.kind === 'OwnedLiveCallImported')).toEqual(reviewed.ledger.events.filter(e => e.kind === 'OwnedLiveCallImported'));
+  expect(getOfficialPlayClosure(closed.ledger)?.finalRuling.source).toBe('review');
+  expect(() => initializeActualPostPlayReview({ source: session, seed: { ...seed, endReference: ref('actual_first_base_play_ends', 'end-cut') } })).toThrow(/physical end/);
+  expect(() => initializeActualPostPlayReview({ source: { ...session, reservedCatchSeed: undefined }, seed })).toThrow();
 });

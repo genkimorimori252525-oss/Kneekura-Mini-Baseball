@@ -40,6 +40,15 @@ export const postPlayReviewHeadRows = (db: PostPlayReviewDb, sessionSourceId: st
   ORDER BY session_source_id`).all({ id: sessionSourceId });
 
 export const assertNoPostPlayClosureReservation = (db: PostPlayReviewDb, adjudicationSourceId: string, scope: PostPlayReviewNativeScope) => {
+  if (postPlayTableExists(db, 'pa_lifecycle_v1_outcomes')) {
+    const reserved = db.prepare(`SELECT source_id FROM main.pa_lifecycle_v1_outcomes WHERE
+      (game_id=$game OR ${idClaim('snapshot_json', ['lineage','gameId'], '$game')})
+      AND (play_id=$play OR ${numberClaim('snapshot_json', ['lineage','playId'], '$play')})
+      AND (physical_pitch_source_id=$pitch OR ${idClaim('snapshot_json', ['controllerRetirementBasis','physicalPitchReference','sourceId'], '$pitch')}
+        OR ${idClaim('snapshot_json', ['fairCatch','physicalPitchReference','sourceId'], '$pitch')})`)
+      .all({ game: scope.gameId, play: scope.playId, pitch: scope.physicalPitchSourceId });
+    if (reserved.length) throw new Error('post-play review is reserved by a same-PA lifecycle outcome');
+  }
   if (!postPlayTableExists(db, 'actual_live_play_closures')) return;
   const rows = db.prepare(`SELECT source_id FROM actual_live_play_closures WHERE
     ${idClaim('source_json', ['adjudicationSourceId'], '$seed')}

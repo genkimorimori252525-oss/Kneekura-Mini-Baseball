@@ -14,7 +14,7 @@ import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support'
  * declared synthetic reception conditions exercise ownership, not perception
  * quality, controller completion or a fixture-selected official outcome. */
 export const appendNativeCatchWork = (h: ReturnType<typeof samePaPhysicalLifecycleFixture>, field: ReturnType<typeof appendNativePhysicalFieldActions>, label: string,
-  options: Readonly<{ otherRecipientDelayTicks?: number }> = {}) => {
+  options: Readonly<{ otherRecipientDelayTicks?: number; batterRecipientDelayTicks?: number }> = {}) => {
   const b = h.current(), moment = field.motion.value.field.motion.world.moment;
   const at = { originTick: moment.originTick, elapsedSeconds: moment.elapsedSeconds, tick: moment.ball.tick };
   const person: AcceptedSamePaOfficialPerson = h.save({ sourceId: label + ':person', sourceVersion: 'fixture-v1', capability: 'accepted_original_umpire_person_v1',
@@ -29,7 +29,8 @@ export const appendNativeCatchWork = (h: ReturnType<typeof samePaPhysicalLifecyc
     viewReference: b.viewReference, judgment: 'caught', calledAt: at });
   const model: AcceptedActualCommunicationModel = h.save({ sourceId: label + ':reception-model', sourceVersion: 'fixture-v1', gameId: b.view.lineage.gameId,
     physicalPitchSourceId: b.view.cut.physicalPitchReference.sourceId, parameters: { version: 'fixed_receiver_conditions_v1', timing: 'exact_sent_plus_core_delay_ticks_v1',
-      receivers: b.view.lineage.participantReferences.map(p => ({ playerId: p.playerId, conditions: { propagationDelayTicks: p.playerId === field.playerId ? 0 : options.otherRecipientDelayTicks ?? 0, recognitionBaseDelayTicks: 0,
+      receivers: b.view.lineage.participantReferences.map(p => ({ playerId: p.playerId, conditions: { propagationDelayTicks: p.playerId === field.playerId ? 0
+        : p.playerId === h.f.actor.binding.playerId ? options.batterRecipientDelayTicks ?? options.otherRecipientDelayTicks ?? 0 : options.otherRecipientDelayTicks ?? 0, recognitionBaseDelayTicks: 0,
         maxAdditionalRecognitionDelayTicks: 0, audibility: 1, recognition: 1, attention: 1, minimumRecognizableQuality: 0.5 } })) } });
   const communication: AcceptedSamePaCatchCommunication = h.save({ sourceId: label + ':communication', sourceVersion: 'fixture-v1', capability: 'same_pa_explicit_catch_communication_v1',
     viewReference: b.viewReference, actionReference: externalReference(action), modelReference: externalReference(model) });
@@ -41,7 +42,11 @@ export const appendNativeCatchWork = (h: ReturnType<typeof samePaPhysicalLifecyc
     readAcceptedReceptionModel: id => id === model.sourceId ? model : null }));
   const work = owner.accept(source.sourceId); if (work.kind !== 'same_pa_catch_work_v1') throw new Error('IFN01 catch original action admission pending');
   expect(work.communication.emitted?.content.judgment).toBe('caught'); expect(work.operative.kind).toBe('retired');
-  for (const recipient of work.communication.recipients) expect(recipient.kind).toBe(recipient.playerId !== field.playerId && options.otherRecipientDelayTicks ? 'scheduled' : 'received');
+  for (const recipient of work.communication.recipients) {
+    const delay = recipient.playerId === field.playerId ? 0 : recipient.playerId === h.f.actor.binding.playerId
+      ? options.batterRecipientDelayTicks ?? options.otherRecipientDelayTicks ?? 0 : options.otherRecipientDelayTicks ?? 0;
+    expect(recipient.kind).toBe(delay ? 'scheduled' : 'received');
+  }
   const workReference = reference('pa_catch_v1_work', work);
   expect(() => withSqliteReadTransaction(h.f.db, () => readSamePaAdmittedLiveWorkFromSqlite(h.f.db, b.viewReference, 'current'))).toThrow();
   h.advance(workReference);

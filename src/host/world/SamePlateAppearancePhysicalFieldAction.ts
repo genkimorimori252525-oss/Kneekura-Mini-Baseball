@@ -10,10 +10,13 @@ import type { SamePaPhysicalFieldMotor } from './SamePlateAppearancePhysicalFiel
 import type { SamePaCatchWorkReference } from './SamePlateAppearanceCatchWork';
 import type { SamePaCatchObservationEvidence } from './SamePlateAppearanceCatchObservationFromSqlite';
 import type { SamePaCatchDefenderResponse } from './SamePlateAppearanceCatchDefenderResponse';
+import { samePaBatterCatchResponseInput, type SamePaBatterCatchResponseRequest, type SamePaBatterCatchResponse } from './SamePlateAppearanceBatterCatchResponse';
 export type SamePaPhysicalFieldReference = SamePaReference<'pa_physical_v1_field_roots' | 'pa_physical_v1_field_steps'>;
 type CalibrationReference = SamePaReference<'pa_lifecycle_v1_execution_calibrations'>;
 type StepReference = SamePaReference<'pa_physical_v1_field_steps'>;
 export type SamePaPhysicalFieldAction =
+  | SamePaBatterCatchResponseRequest
+  | Readonly<{ kind: 'batter_catch_motion_v1'; responseReference: StepReference }>
   | Readonly<{ kind: 'retained_quantizer_checkpoint_v1' }>
   | Readonly<{ kind: 'batter_run_motion_v1'; planReference: SamePaReference<'world_batter_run_plans'>;
       stationaryHoldContinuations?: readonly Readonly<{ playerId: string; decisionReference: StepReference; throughTick: number }>[] }>
@@ -31,6 +34,9 @@ export type SamePaPhysicalFieldAction =
   | Readonly<{ kind: 'throw_checkpoint_v1'; planReference: StepReference; throughElapsedSeconds: number }>
   | Readonly<{ kind: 'capture_checkpoint_v1'; candidateReference: SamePaPhysicalFieldReference; throughElapsedSeconds: number }>;
 export type SamePaPhysicalFieldActionResult =
+  | SamePaBatterCatchResponse
+  | Readonly<{ kind: 'batter_catch_motion_v1'; responseReference: StepReference; playerId: string;
+      controllerSegmentIndex: number; coverageThroughTick: number; planThroughTick: number }>
   | Readonly<{ kind: 'retained_quantizer_checkpoint_v1'; boundary: import('../../core/sim/liveAction/QuantizerClosedGenerationBoundary').QuantizerClosedGenerationBoundary;
       status: 'checkpoint_reached' | 'physical_boundary' }>
   | SamePaCatchDefenderResponse
@@ -50,7 +56,10 @@ const unit = (v: unknown) => typeof v === 'number' && Number.isFinite(v) && v >=
 const member = (value: unknown, calibrationReference: unknown) => samePaDispatchMemberValid(value)
   && ref(calibrationReference, 'pa_lifecycle_v1_execution_calibrations');
 export const samePaPhysicalFieldActionInput = (a: SamePaPhysicalFieldAction): void => {
-  if (a?.kind === 'retained_quantizer_checkpoint_v1') {
+  if (a?.kind === 'batter_catch_response_v1') samePaBatterCatchResponseInput(a);
+  else if (a?.kind === 'batter_catch_motion_v1') {
+    if (!fields(a, ['kind', 'responseReference']) || !ref(a.responseReference, 'pa_physical_v1_field_steps')) throw new Error('invalid received batter motion Source');
+  } else if (a?.kind === 'retained_quantizer_checkpoint_v1') {
     if (!fields(a, ['kind'])) throw new Error('invalid retained quantizer checkpoint Source');
   } else if (a?.kind === 'defender_observation_v1') {
     const v = a.view, target = v?.attentionTarget;

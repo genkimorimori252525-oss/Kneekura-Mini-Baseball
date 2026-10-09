@@ -1,3 +1,4 @@
+import { deriveSamePaCatchReviewNativeSeed } from './SamePlateAppearanceCatchReviewFromSqlite';
 import { actualPostPlayReviewSessionInput, actualPostPlayReviewEventInput, actualPostPlayReviewIntentInput,
   postPlayHash, postPlayRevision, type AcceptedActualPostPlayReviewEvent, type AcceptedActualPostPlayReviewIntent,
   type AcceptedActualPostPlayReviewSession } from './ActualPostPlayReviewSource';
@@ -82,6 +83,7 @@ export const actualPostPlayReviewEvidenceFromSqlite = (db: PostPlayReviewDb) => 
     return { root, ...result.last };
   };
   const writable = (root: NativePostPlaySessionArchive) => {
+    if (root.value.source.reservedCatchSeed) deriveSamePaCatchReviewNativeSeed(db, root.value.source.reservedCatchSeed, true);
     assertPostPlayOriginalMatchOpen(db, root.scope);
     assertNoPostPlayClosureReservation(db, root.value.source.adjudicationSourceId, root.scope);
   };

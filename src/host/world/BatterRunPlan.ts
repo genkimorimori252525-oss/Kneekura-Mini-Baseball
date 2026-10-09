@@ -16,8 +16,8 @@ export type AcceptedBatterRunPlan=BatterRunIntent&Readonly<{
 }>;
 const tick=(n:number)=>Number.isSafeInteger(n)&&n>=0;
 const vector=(v:unknown)=>fields(v,['x','z'])&&Object.values(v).every(Number.isFinite);
-const intentInput=(s:BatterRunIntent)=>{
-  if(!id(s.playerId)||!id(s.personId)||!fields(s.intent,['kind','issuedTick'])||s.intent.kind!=='advance'||!tick(s.intent.issuedTick)||!tick(s.endTick)
+const intentInput=(s:BatterRunIntent,kind:'advance'|'hold'='advance')=>{
+  if(!id(s.playerId)||!id(s.personId)||!fields(s.intent,['kind','issuedTick'])||s.intent.kind!==kind||!tick(s.intent.issuedTick)||!tick(s.endTick)
     ||s.endTick<=s.intent.issuedTick||!fields(s.route,['segments'])||!Array.isArray(s.route.segments)||s.route.segments.length!==1
     ||s.route.segments.some(r=>r.kind!=='line'||!fields(r,['kind','start','end'])||!vector(r.start)||!vector(r.end)))throw new Error('invalid original straight batter-run intent');
   getRunnerRouteLength(s.route);
@@ -33,9 +33,9 @@ export const batterRunPlanInput=(raw:unknown,sourceId?:string):AcceptedBatterRun
 type Exit=Pick<DurableBatterSwingExitState,'playerId'|'personId'|'state'|'root'|'firstBaseCenter'|'model'>;
 /** Composition of accepted intention, existing kinematics and existing kernels.
  * A trajectory is a plan. Its samples are never evidence that a body executed. */
-export const prepareBatterRunPlan=(exit:Exit,raw:BatterRunIntent|null)=>{
+const prepareBatterPlan=(exit:Exit,raw:BatterRunIntent|null,kind:'advance'|'hold')=>{
   if(raw===null)return freeze({kind:'pending' as const,reason:'accepted_batter_run_intent_missing' as const,motionExecuted:false as const});
-  const intent=cloneInert(raw);intentInput(intent);
+  const intent=cloneInert(raw);intentInput(intent,kind);
   const start=sampleRunnerRoute(intent.route,0).position,length=getRunnerRouteLength(intent.route);
   const firstDistance=Math.hypot(exit.firstBaseCenter.x-start.x,exit.firstBaseCenter.z-start.z),first=sampleRunnerRoute(intent.route,firstDistance).position;
   const close=(a:number,b:number)=>Math.abs(a-b)<=Number.EPSILON*Math.max(1,Math.abs(a),Math.abs(b))*32;
@@ -52,3 +52,7 @@ export const prepareBatterRunPlan=(exit:Exit,raw:BatterRunIntent|null)=>{
   return freeze({kind:'prepared' as const,timeline,motionExecuted:false as const,physicalBinding:recovery.transition.recoverySeconds===0
     ?'owned_static_pose_straight_motion' as const:'swing_recovery_pose_binding_required' as const});
 };
+export const prepareBatterRunPlan=(exit:Exit,raw:BatterRunIntent|null)=>prepareBatterPlan(exit,raw,'advance');
+/** A separate accepted caught-response owner may request hold. This does not
+ * broaden or replace the original one-plan-per-pitch advance Source. */
+export const prepareBatterCatchHoldPlan=(exit:Exit,raw:BatterRunIntent)=>prepareBatterPlan(exit,raw,'hold');

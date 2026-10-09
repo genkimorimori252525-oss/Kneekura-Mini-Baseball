@@ -1,3 +1,5 @@
+import { postPlayHash, postPlayRevision } from './ActualPostPlayReviewSource';
+import type { ActualLivePostPlayReviewReference } from './ActualLivePlayClosureSource';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { BetweenPlayWorldSetup } from '../../core/adjudication/BetweenPlayWorldReset';
@@ -34,12 +36,13 @@ export type AcceptedSamePaLifecycleOutcome = SamePaLifecycleOutcomeSourceBase & 
   kind:'count_terminal'|'untouched_foul';rulePolicy:BallWorldSettledFoulDeadEvidenceInput['policy']|null;officialPolicy:ActualLiveOfficialPolicy|null;
   official:SamePaOriginalOfficialInstructions;
 }> | Readonly<{kind:'fair_catch';rulePolicy:null;catchWorkReference:SamePaReference<'pa_catch_v1_work'>;
-  official:import('./SamePlateAppearanceCatchOfficial').SamePaCatchOfficialScheduler}>);
+  official:import('./SamePlateAppearanceCatchOfficial').SamePaCatchOfficialScheduler;postPlayReviewReference?:ActualLivePostPlayReviewReference}>);
 export type SamePaLifecycleOutcome = Readonly<{
   kind:'same_pa_lifecycle_outcome';source:AcceptedSamePaLifecycleOutcome;lineage:SamePaExecutionLineage;actor:DurablePhysicalPlateAppearanceActor;
   disposition:'terminal'|'ordinary_foul';timeline:CanonicalPlateAppearanceTimeline;evaluationTick:number;physicalCompletedAtTick:number;
   physicalEnd:PlayEndFact|null;physicalProofHash:string;officialLedger:PlayAdjudicationLedger;context:NonLiveOfficialContext|null;
   controllerRetirementBasis:SamePaControllerRetirementBasis;baseCenters:BetweenPlayWorldSetup['baseCenters'];
+  postPlayReview?:Readonly<{reference:ActualLivePostPlayReviewReference;journalHash:string}>;
   fairCatch?:import('./SamePlateAppearanceFairCatchEndFromSqlite').SamePaFairCatchPhysicalEnd;
 }>;
 export type AcceptedSamePaLifecycleReset = Readonly<{
@@ -65,9 +68,12 @@ export const samePaLifecycleOutcomeInput=(raw:unknown,id?:string):AcceptedSamePa
     return freeze(s);
   }
   if(s.kind==='fair_catch'){
-    if(s.capability!=='same_pa_lifecycle_outcome_v1'||!base(s,['physicalOperationReference','kind','rulePolicy','officialPolicy','official','catchWorkReference'])
+    if(s.capability!=='same_pa_lifecycle_outcome_v1'||!base(s,['physicalOperationReference','kind','rulePolicy','officialPolicy','official','catchWorkReference',...(Object.hasOwn(s,'postPlayReviewReference')?['postPlayReviewReference']:[])])
       ||s.rulePolicy!==null||!ref(s.catchWorkReference,'pa_catch_v1_work')
       ||!['pa_physical_v1_field_roots','pa_physical_v1_field_steps'].some(owner=>ref(s.physicalOperationReference,owner)))throw new Error('invalid fair catch outcome Source');
+    if(Object.hasOwn(s,'postPlayReviewReference')){const r=s.postPlayReviewReference;
+      if(!fields(r,['sessionSourceId','revision','headSourceId','headHash'])||!r||!text(r.sessionSourceId)||!text(r.headSourceId)
+        ||!postPlayRevision(r.revision)||!postPlayHash(r.headHash))throw new Error('invalid reserved catch post-play review reference');}
     const o=s.official;if(!fields(o,['sourceId','sourceVersion','schedulerId','events'])||![o.sourceId,o.sourceVersion,o.schedulerId].every(text)
       ||!Array.isArray(o.events)||!o.events.length||o.events.some(e=>!fields(e,['sourceId','sourceVersion','schedulerId','kind'])
         ||![e.sourceId,e.sourceVersion,e.schedulerId].every(text)||typeof e.kind!=='string'||!['advance_tick','next_play_fence'].includes(e.kind))
