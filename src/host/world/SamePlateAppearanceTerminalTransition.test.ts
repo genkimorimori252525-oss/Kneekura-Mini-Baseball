@@ -1,3 +1,9 @@
+import { deriveSamePaTerminalFoulApplication } from './SamePlateAppearanceTerminalFoulApplication';
+import { deriveClosedNonLiveMatchState } from '../../core/adjudication/NonLiveOfficialApplication';
+import { createCanonicalPlateAppearanceTimeline, recordCountedPitch, recordBatBallContact, recordFoulBattedBall } from '../../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
+import { resolveBatBallContact } from '../../core/sim/contact/BatBallContact';
+import { createPlayAdjudicationLedger, recordCorrectRuleSnapshot, recordOnFieldCall, openOfficialStateWindow,
+  closeOfficialStateWindow, closeOfficialPlay } from '../../core/adjudication/PlayAdjudicationLedger';
 import { afterEach, expect, it, vi } from 'vitest';
 import { witnessSqliteWrite } from './SqliteWriteWitness.test-support';
 import { enrollmentFixture, count } from './SamePlateAppearanceEnrollment.test-support';
@@ -26,7 +32,7 @@ import * as settlementReader from './SamePlateAppearanceTerminalSettlementFromSq
 const close: (() => void)[] = [];
 afterEach(() => { close.splice(0).reverse().forEach(f => f()); vi.restoreAllMocks(); });
 const reference = <T extends string>(owner: T, value: { source: { sourceId: string } }) => ({ owner, sourceId: value.source.sourceId, sourceHash: hash(value.source), snapshotHash: hash(value) });
-const setup = (outs = 1, final = false) => {
+const setup = (outs = 1, final = false, terminalFoul = false) => {
   const f = enrollmentFixture(); close.push(f.close);
   const core = boundaryFixture('half_change_continuing', { playId: 1, outs, ...(final ? { inning: 9, half: 'bottom' as const } : {}) });
   const game = { seasonId: 'season', homeClubId: 'home', awayClubId: 'away', policy: { version: 'fixture-nine-innings', minimumInnings: 9, maximumInnings: 9, tiesAllowed: true } };
@@ -66,6 +72,28 @@ const setup = (outs = 1, final = false) => {
       physicalOperationReference: { owner: 'pa_take_successor_v1_pitch_actions', sourceId: 'pitch-3', sourceHash: hash('p-source'), snapshotHash: hash('p') },
       completedAtTick: core.proposal.clock.ruleTick, completeCoverageHash: hash('commands'),
       participants: enrollment.participants.map(p => ({ playerId: p.binding.playerId, personId: p.binding.personId, ownedCommands: [] })) } };
+  if (terminalFoul) {
+    // Existing CanonicalPlateAppearanceTimeline fixture contact, followed by
+    // the real Core foul-bunt count rule. Native physical readers remain the
+    // structural mocks declared above; no original artifact is synthesized.
+    let timeline = createCanonicalPlateAppearanceTimeline(endpoint.actor.match, 0);
+    timeline = recordCountedPitch(timeline, 1, { kind: 'called_strike' });
+    timeline = recordCountedPitch(timeline, 2, { kind: 'called_strike' });
+    const contact = resolveBatBallContact({ tick: 3, position: { x: 0, y: 1, z: 0.06 }, velocity: { x: 0, y: -1.5, z: -35 }, spin: { x: 0, y: 0, z: 0 } },
+      { pose: { grip: { x: -0.42, y: 1, z: 0 }, tip: { x: 0.42, y: 1, z: 0 } }, linearVelocity: { x: 0, y: 0, z: 22 }, angularVelocity: { x: 0, y: 0, z: 0 } });
+    if (!contact) throw new Error('existing contact fixture failed');
+    timeline = recordFoulBattedBall(recordBatBallContact(timeline, contact), 4, true, null);
+    const ruling = { outsAfter: outs + 1, basesAfter: endpoint.actor.match.bases, scoredRunnerIds: [] };
+    let ledger = createPlayAdjudicationLedger({ playId: endpoint.actor.match.playId, ruleProfileId: endpoint.actor.match.ruleProfileId,
+      playEnd: { kind: 'play_end', tick: 4, reason: 'dead_ball' } });
+    ledger = recordCorrectRuleSnapshot(ledger, ledger.revision, { eventId: 'foul-rule', snapshotId: 'foul-rule', evidenceRevision: 3, tick: 4, ruling });
+    ledger = openOfficialStateWindow(ledger, ledger.revision, { eventId: 'appeal-open', windowId: 'appeal', windowKind: 'appeal', tick: 4 });
+    ledger = recordOnFieldCall(ledger, ledger.revision, { eventId: 'assigned-call', callId: 'assigned-call', basisSnapshotId: 'foul-rule', basisEvidenceRevision: 3, tick: 4, ruling });
+    ledger = closeOfficialStateWindow(ledger, ledger.revision, { eventId: 'appeal-fence', windowId: 'appeal', reason: 'next_play_fence', tick: 5 });
+    ledger = closeOfficialPlay(ledger, ledger.revision, { eventId: 'official-close', closureId: 'terminal-foul', tick: 5 });
+    Object.assign(endpoint, { timeline, officialLedger: ledger, physicalCompletedAtTick: 4,
+      controllerRetirementBasis: { ...endpoint.controllerRetirementBasis, completedAtTick: 4 } });
+  }
   // The settlement proof is a structural mock of the separately tested owner.
   const settlementSource = { sourceId: 'settlement', sourceVersion: 'structural-v1', capability: 'same_pa_terminal_settlement_v1' as const,
     terminalReference: reference('pa_terminal_v1_endpoints', endpoint) };
@@ -174,4 +202,53 @@ it('rejects changed accepted Source and duplicate raw transition identity on ret
   const row = x.f.db.prepare('SELECT snapshot_json FROM pa_terminal_v1_transitions').get()!;
   x.f.db.prepare('UPDATE pa_terminal_v1_transitions SET snapshot_json=?').run('{"kind":"hidden",' + String(row.snapshot_json).slice(1));
   expect(() => x.owner.read(x.source.sourceId)).toThrow('canonical archive');
+});
+
+
+it('applies a terminal foul bunt through a distinct non-live ledger while preserving its physical end and assigned call', () => {
+  const x = setup(1, false, true), original = json(x.endpoint), saved = x.owner.complete(x.source.sourceId);
+  expect(saved.officialApplication.adjudication.playEnd).toBeNull();
+  expect(saved.officialApplication.adjudication.events).toEqual(x.endpoint.officialLedger.events);
+  expect(saved.official.receipt.appliedMatchState.outs).toBe(2);
+  expect(saved.scoring.record.classification).toBe('strikeout');
+  expect(saved.terminalFoul).toEqual({ kind: 'same_pa_terminal_foul_application_v1', physicalEnd: x.endpoint.officialLedger.playEnd,
+    originalLedgerHash: hash(x.endpoint.officialLedger), applicationLedgerHash: hash(saved.officialApplication.adjudication) });
+  expect(json(x.endpoint)).toBe(original);
+  expect(count(x.f.db, 'applications')).toBe(1); expect(count(x.f.db, 'official_scoring_applications')).toBe(1);
+  expect(x.owner.complete(x.source.sourceId)).toEqual(saved);
+  const reopened = openSqliteSamePlateAppearanceTerminalTransitionStore(x.f.path); close.push(() => reopened.close());
+  expect(reopened.read(x.source.sourceId)).toEqual(saved);
+});
+
+
+it('terminal foul adaptation retains occupied bases and lets the existing Core retire the half inning', () => {
+  const x = setup(1, false, true), bases = { first: 'runner-1', second: 'runner-2', third: 'runner-3' };
+  for (const outs of [1, 2]) {
+    const match = { ...x.endpoint.actor.match, outs, bases }, ruling = { outsAfter: outs + 1, basesAfter: bases, scoredRunnerIds: [] };
+    const endpoint = { ...x.endpoint, actor: { ...x.endpoint.actor, match }, officialLedger: { ...x.endpoint.officialLedger,
+      events: x.endpoint.officialLedger.events.map(e => e.kind === 'CorrectRuleSnapshotRecorded' ? { ...e, snapshot: { ...e.snapshot, ruling } }
+        : e.kind === 'OnFieldCallRecorded' ? { ...e, call: { ...e.call, ruling } } : e) } };
+    const saved = deriveSamePaTerminalFoulApplication(endpoint);
+    const next = deriveClosedNonLiveMatchState({ match, timeline: endpoint.timeline, adjudication: saved.adjudication, context: { kind: 'strikeout' } });
+    expect(next.score).toEqual(match.score); expect(next.playId).toBe(match.playId + 1);
+    expect(next.bases).toEqual(outs === 1 ? bases : { first: null, second: null, third: null });
+    expect(next.outs).toBe(outs === 1 ? 2 : 0); expect(next.half).toBe(outs === 1 ? 'top' : 'bottom');
+    expect(saved.adjudication.events).toEqual(endpoint.officialLedger.events);
+  }
+});
+
+it('terminal foul adaptation rejects missing or mismatched dead-ball provenance without touching the endpoint', () => {
+  const x = setup(1, false, true), e = x.endpoint, original = json(e);
+  const variants = [
+    { ...e, context: { kind: 'walk' as const, batterRunnerId: 'batter' } },
+    { ...e, officialLedger: { ...e.officialLedger, playEnd: null } },
+    { ...e, officialLedger: { ...e.officialLedger, playEnd: { kind: 'play_end' as const, tick: 4, reason: 'live_action_complete' as const } } },
+    { ...e, physicalCompletedAtTick: 3 }, { ...e, timeline: { ...e.timeline, lastEventTick: 3 } },
+    { ...e, timeline: { ...e.timeline, events: e.timeline.events.map(event => event.kind === 'FoulBattedBallResolved'
+      && event.payload.resolution.kind === 'uncaught_foul' && event.payload.resolution.countResult.kind === 'strikeout'
+      ? { ...event, payload: { ...event.payload, resolution: { ...event.payload.resolution,
+        countResult: { ...event.payload.resolution.countResult, cause: 'called_strike' as const } } } } : event) } },
+  ];
+  for (const changed of variants) expect(() => deriveSamePaTerminalFoulApplication(changed)).toThrow();
+  expect(json(e)).toBe(original); expect(count(x.f.db, 'applications')).toBe(0);
 });

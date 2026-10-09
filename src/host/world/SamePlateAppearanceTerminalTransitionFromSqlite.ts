@@ -1,4 +1,5 @@
 import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
+import { deriveSamePaTerminalFoulApplication } from './SamePlateAppearanceTerminalFoulApplication';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -152,8 +153,10 @@ export const deriveSamePaTerminalTransition = (db: DatabaseSync, raw: AcceptedSa
   const atTick = source.kind === 'continuing' ? source.nextStartedAtTick : source.completedAtTick;
   if (atTick <= closure.closedAtTick || atTick < endpoint.physicalCompletedAtTick || basis.participants.some(p => p.ownedCommands.some(c => hash(c.originalCommand) !== c.originalCommandHash)))
     throw new Error('same-PA transition original controller retirement differs');
+  const terminalFoul = !endpoint.fairCatch && endpoint.officialLedger.playEnd !== null
+    ? deriveSamePaTerminalFoulApplication(endpoint) : null;
   const identity = { matchId: endpoint.lineage.gameId, applicationId: source.applicationId,
-    expectedDurableRevision: actor.officialRevision, match: actor.match, adjudication: endpoint.officialLedger };
+    expectedDurableRevision: actor.officialRevision, match: actor.match, adjudication: terminalFoul?.adjudication ?? endpoint.officialLedger };
   const common = (() => {
     if(endpoint.fairCatch)return {...identity,kind:'live_ball' as const,physicalTimeline:endpoint.timeline};
     if(!endpoint.context)throw new Error('same-PA terminal non-live context missing');
@@ -181,6 +184,7 @@ export const deriveSamePaTerminalTransition = (db: DatabaseSync, raw: AcceptedSa
   const incomingDefenders = source.kind === 'continuing' ? defenders(db, endpoint, source, next, archived?.incomingDefenders) : [];
   return freeze({ kind: 'same_pa_terminal_transition_v1', source, lineage: endpoint.lineage, officialApplication, official, scoring,
     ...(scoringEvidence?{scoringEvidence}:{}),
+    ...(terminalFoul?{terminalFoul:terminalFoul.proof}:{}),
     completion: source.kind === 'game_final' ? 'game_final' : next.half === actor.match.half && next.inning === actor.match.inning ? 'next_play' : 'half_inning',
     controllerRetirement: { kind: 'rule_system_retire_original_play', atTick, previousPlayId: actor.match.playId, basis }, incomingDefenders,
     earlierHistory: earlier.map(({ applicationId, scoringApplicationId, closureRowHash, scoringRowHash }) => ({ applicationId, scoringApplicationId, closureRowHash, scoringRowHash })) });

@@ -1,4 +1,5 @@
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
+import { getRuleProfile } from '../../core/rules/RuleProfile';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { settleRegularSeasonGame, type RegularSeasonGameInput } from
   '../../core/world/competition/OfficialSeasonEconomySettlement';
@@ -152,6 +153,36 @@ export const prepareDomesticMatch = (
     stores.archive, stores.match, input);
   const match = stores.match.initializeMatch(input.gameId, input.matchState);
   return Object.freeze({ fixture, match });
+};
+
+export type DomesticOpeningMatchInput = Readonly<{
+  careerId: string; seasonId: string; gameId: string;
+  ruleProfileId: CanonicalMatchState['ruleProfileId']; playId: number;
+}>;
+
+/** Start an archived fixture at the same unplayed state required by the initial
+ * World owner. Rules and play identity are explicit; actors and physical setup
+ * remain owned by their accepted pregame/World sources. */
+export const prepareDomesticOpeningMatch = (
+  stores: DomesticSeasonStores,
+  raw: DomesticOpeningMatchInput,
+): PreparedDomesticMatch => {
+  const input = cloneInert(raw);
+  const fields = ['careerId', 'seasonId', 'gameId', 'ruleProfileId', 'playId'];
+  if (!input || Object.keys(input).length !== fields.length
+    || fields.some(key => !Object.hasOwn(input, key))
+    || [input.careerId, input.seasonId, input.gameId, input.ruleProfileId].some(value =>
+      typeof value !== 'string' || !value || value !== value.trim())
+    || !Number.isSafeInteger(input.playId) || input.playId < 0) {
+    throw new Error('invalid domestic opening Match input');
+  }
+  // Validate the registered profile before the existing fixture-first write.
+  const profile = getRuleProfile(input.ruleProfileId);
+  return prepareDomesticMatch(stores, { careerId: input.careerId,
+    seasonId: input.seasonId, gameId: input.gameId,
+    matchState: { ruleProfileId: profile.id, playId: input.playId,
+      inning: 1, half: 'top', outs: 0, balls: 0, strikes: 0,
+      bases: { first: null, second: null, third: null }, score: { away: 0, home: 0 } } });
 };
 
 type DomesticGameSettlementStores = DomesticSeasonStores & Readonly<{

@@ -23,7 +23,7 @@ import { readHistoricalSamePaExecutionView } from './SamePlateAppearanceHistoric
 import { readHistoricalSamePaLifecycleViewFromSqlite, readCurrentSamePaLifecycleViewFromSqlite, readSamePaLifecycleNextPitchBasisFromSqlite,
   readSamePaLifecycleCalibrationFromSqlite, readCurrentSamePaLifecycleCalibrationFromSqlite, withSamePaLifecycleReadPhase,
   assertSamePaLifecycleReservedStateFromSqlite, assertSamePaLifecycleWorkCoverage, readSamePaLifecycleRecordFromSqlite, memoSamePaLifecycleRead } from './SamePlateAppearanceLifecycleFromSqlite';
-import { readSamePaExecutedPitchFromSqlite } from './SqliteSamePlateAppearanceDispatchStore';
+import { readSamePaContinuationOriginalPitchFromSqlite } from './SamePlateAppearanceContinuationFromSqlite';
 import { readPlayerPitchTimingPrefixFromSqlite, selectPlayerPitchTimingProfileFromSqlitePrefix, assertCurrentPlayerPitchTimingPrefixFromSqlite } from './SqlitePlayerPitchTimingStore';
 import { readPlayerReleaseGeometryPrefixFromSqlite, assertCurrentPlayerReleaseGeometryPrefixFromSqlite } from './SqlitePlayerReleaseGeometryStore';
 import { readPitchFatiguePolicyFromSqlite } from './SqlitePitchFatiguePolicyStore';
@@ -150,7 +150,9 @@ withSamePaLifecycleReadPhase(db, () => {
     const release=readPlayerReleaseGeometryPrefixFromSqlite(db,source.releaseReference), geometry=release.changes.filter(c=>c.effectiveDay<=actor.binding.gameDay).at(-1)??release.baseline;
     const policy=readPitchFatiguePolicyFromSqlite(db,source.pitchResponseReference), models=playerBattingModelEvidenceFromSqlite(db), model=required(models.read(source.batterModelReference.sourceId));
     same(reference('world_player_batting_models',model),source.batterModelReference);
-    const original=readSamePaExecutedPitchFromSqlite(db,{owner:'pa_dispatch_v1_pitch_actions',sourceId:basis.view.lineage.firstPhysicalPitchSourceId,
+    // The lifecycle basis already authenticates this completed first pitch.
+    // Reuse it only inside the enclosing immutable continuation proof.
+    const original=readSamePaContinuationOriginalPitchFromSqlite(db,{owner:'pa_dispatch_v1_pitch_actions',sourceId:basis.view.lineage.firstPhysicalPitchSourceId,
       ...(() => { const row=db.prepare('SELECT source_hash,snapshot_hash FROM main.pa_dispatch_v1_pitch_actions WHERE source_id=?').get(basis.view.lineage.firstPhysicalPitchSourceId); if(!row)throw new Error('original pitch missing'); return {sourceHash:String(row.source_hash),snapshotHash:String(row.snapshot_hash)}; })()});
     for(const key of ['timingReference','releaseReference','pitchResponseReference','batterModelReference'] as const) same(source[key],original.action.source[key]);
     for(const key of ['matchSeed','outingId','moundReference'] as const) same(source.nominalPitch.delivery[key],original.action.source.nominalPitch.delivery[key]);

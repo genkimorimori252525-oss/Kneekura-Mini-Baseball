@@ -1,8 +1,8 @@
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
-import { actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
-import { openSqliteBattingPerceptionStore } from './SqliteBattingPerceptionStore';
+import { actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { openSqliteBattingPerceptionStore, readBattingPerceptionFromSqlite } from './SqliteBattingPerceptionStore';
 import { openSqliteBattingEmotionExecutionStore } from './SqliteBattingEmotionExecutionStore';
-import { openSqliteBattingExecutionInputStore } from './SqliteBattingExecutionInputStore';
+import { openSqliteBattingExecutionInputStore, readSamePaBattingIntentFromSqlite } from './SqliteBattingExecutionInputStore';
 import { readEmotionWorldRevisionFromSqlite } from './EmotionWorldRevisionFromSqlite';
 import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
 import { battingEmotionFrame } from './NativeBattingEmotionExecution';
@@ -12,21 +12,25 @@ import type { SamePaDispatchRoute } from './SamePlateAppearanceDispatchRoles';
 import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import type { DurableBattingInvocationPosture } from './NativeBattingPerception';
 import type { DurableSamePaBattingIntent, DurableSamePaBattingExecutionInput } from './NativeBattingExecutionInput';
-import type { SamePaPhysicalCommitmentSource } from './SamePlateAppearancePhysicalEpisode';
+import type { SamePaPhysicalCommitmentSource, SamePaPhysicalLaunch, SamePaPhysicalCut } from './SamePlateAppearancePhysicalEpisode';
+import { readCurrentSamePaInFlightCutFromSqlite, readSamePaPhysicalOperationFromSqlite } from './SamePlateAppearancePhysicalEpisodeFromSqlite';
+import { readHistoricalSamePaLifecycleViewFromSqlite, readSamePaLifecycleRecordFromSqlite, withSamePaLifecycleReadPhase } from './SamePlateAppearanceLifecycleFromSqlite';
 
 type Fixture = ReturnType<typeof samePaPhysicalLifecycleFixture>;
+type SwingOptions = Readonly<{ attempt?: DurableSamePaBattingIntent['originalIntent']['attempt'];
+  prepareCommitment?: (source: SamePaPhysicalCommitmentSource, input: DurableSamePaBattingExecutionInput) => SamePaPhysicalCommitmentSource }>;
+type OwnedSwingPrefix = Readonly<{ posture: DurableBattingInvocationPosture; intent: DurableSamePaBattingIntent;
+  launch: SamePaPhysicalLaunch; captureCut: SamePaPhysicalCut;
+  beforeLaunch: Readonly<{ posture: DurableBattingInvocationPosture; intent: DurableSamePaBattingIntent; eventCount: number; worldRevision: number }> }>;
 const provenance = (id: string) => ({ assessmentSourceId: id, assessmentVersion: 'fixture-only-v1', calibrationSourceId: 'existing-explicit-Core-fixture', calibrationVersion: 'fixture-only-v1' });
 /** Real Native segment. Each source is explicitly accepted; forecasts observe
  * an owned sample, and physical commitment alone calculates/adopts the input. */
 export const prepareInFlightBattingSwing = (h: Fixture, prepared: ReturnType<Fixture['prepareAction']>, label: string,
   onBeforeLaunch?: (owned: Readonly<{ posture: DurableBattingInvocationPosture; postureReference: SamePaReference<'batting_observation_v1_postures'>;
     intent: DurableSamePaBattingIntent; intentReference: SamePaReference<'batting_execution_v1_intents'> }>) => void,
-  options: Readonly<{ attempt?: DurableSamePaBattingIntent['originalIntent']['attempt'];
-    prepareCommitment?: (source: SamePaPhysicalCommitmentSource, input: DurableSamePaBattingExecutionInput) => SamePaPhysicalCommitmentSource }> = {}) => {
+  options: SwingOptions = {}) => {
   const { f, save, accepted } = h, track = f.x.f.track;
-  const proof = <T>(body: () => T) => withSqliteReadTransaction(f.db, body);
   const member = () => h.current().basis.members.find(m => m.playerId === f.actor.binding.playerId)!;
-  const calibration = (route: SamePaDispatchRoute) => reference('pa_lifecycle_v1_execution_calibrations', h.current().calibrationSet.calibrations.find(c => c.source.route === route && c.source.member.playerId === member().playerId)!);
   const perception = track(openSqliteBattingPerceptionStore(f.path, { readAcceptedPosture: id => accepted.get(id), readAcceptedObservation: id => accepted.get(id),
     readAcceptedDelivery: id => accepted.get(id), readAcceptedPrediction: id => accepted.get(id), readAcceptedAssessment: id => accepted.get(id) }));
   const inputOwner = track(openSqliteBattingExecutionInputStore(f.path, { readAcceptedIntent: id => accepted.get(id), readAcceptedInput: id => accepted.get(id) }));
@@ -48,6 +52,19 @@ export const prepareInFlightBattingSwing = (h: Fixture, prepared: ReturnType<Fix
   const captureCutSource = save({ sourceId: label + ':capture-cut', sourceVersion: 'fixture-only-v1', capability: 'same_pa_physical_cut_v1',
     viewReference: h.current().viewReference, launchReference, previousOperationReference: launchReference, throughTick: launch.evaluationTick + 50_000 });
   const captureCut = h.physical.acceptOperation(captureCutSource.sourceId); if (captureCut.kind !== 'same_pa_physical_cut_v1') throw new Error('real capture physical cut pending');
+  return continueInFlightBattingSwing(h, label, { beforeLaunch, posture, intent, launch, captureCut }, options, perception, inputOwner);
+};
+
+/** Shared existing suffix. All new records still pass through their actual owners. */
+const continueInFlightBattingSwing = (h: Fixture, label: string, prefix: OwnedSwingPrefix, options: SwingOptions,
+  perception: ReturnType<typeof openSqliteBattingPerceptionStore>, inputOwner: ReturnType<typeof openSqliteBattingExecutionInputStore>) => {
+  const { f, save, accepted } = h, track = f.x.f.track;
+  const proof = <T>(body: () => T) => withSqliteReadTransaction(f.db, body);
+  const member = () => h.current().basis.members.find(m => m.playerId === f.actor.binding.playerId)!;
+  const calibration = (route: SamePaDispatchRoute) => reference('pa_lifecycle_v1_execution_calibrations', h.current().calibrationSet.calibrations.find(c => c.source.route === route && c.source.member.playerId === member().playerId)!);
+  const { beforeLaunch, posture, intent, launch, captureCut } = prefix;
+  const postureReference = reference('batting_observation_v1_postures', posture), intentReference = reference('batting_execution_v1_intents', intent);
+  const launchReference = reference('pa_physical_v1_launches', launch);
   const captureCutReference = reference('pa_physical_v1_cuts', captureCut); h.advance(captureCutReference);
   const captureSource = save({ sourceId: label + ':capture', sourceVersion: 'fixture-only-v1', capability: 'owned_in_flight_batting_observation_v1',
     viewReference: h.current().viewReference, member: member(), postureReference, physicalPitchReference: launchReference, physicalOperationReference: captureCutReference,
@@ -127,4 +144,53 @@ export const prepareInFlightBattingSwing = (h: Fixture, prepared: ReturnType<Fix
   return { beforeLaunch, launch, launchReference, posture, postureReference, intent, intentReference, captureCut, capture, observationReference,
     earlyDelivery, wrongTimeRejected, staleCutRejected, deliveryCut, decisionCut, delivery, deliveryReference, forecast, score, emotion, input, inputReference, preparedWorldRevision, commitment, commitmentReference, resolution, resolutionReference,
     perception, inputOwner, emotionOwner };
+};
+
+/** Resume only the original first capture cut. References are locators; the
+ * existing readers authenticate every value, the exact current physical head,
+ * and the preceding historical lifecycle prefix before any new owner write. */
+export const resumeInFlightBattingSwing = (h: Fixture, label: string, pins: Readonly<{
+  postureReference: SamePaReference<'batting_observation_v1_postures'>;
+  intentReference: SamePaReference<'batting_execution_v1_intents'>;
+  launchReference: SamePaReference<'pa_physical_v1_launches'>;
+  captureCutReference: SamePaReference<'pa_physical_v1_cuts'>;
+}>, options: SwingOptions = {}) => {
+  const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw new Error('retained in-flight fixture original prefix differs'); };
+  const prefix = withSqliteReadTransaction(h.f.db, () => withSamePaLifecycleReadPhase(h.f.db, (): OwnedSwingPrefix => {
+    const cutProof = readCurrentSamePaInFlightCutFromSqlite(h.f.db, pins.captureCutReference);
+    const captureCut = cutProof.record, launch = readSamePaPhysicalOperationFromSqlite(h.f.db, pins.launchReference).record;
+    if (captureCut.kind !== 'same_pa_physical_cut_v1' || launch.kind !== 'same_pa_physical_launch_v1'
+      || captureCut.stage !== 'in_flight' || captureCut.operationOrdinal !== 1 || launch.operationOrdinal !== 0
+      || launch.source.sourceId !== label + ':launch' || captureCut.source.sourceId !== label + ':capture-cut'
+      || captureCut.source.throughTick !== launch.evaluationTick + 50_000) throw new Error('retained in-flight fixture requires its original first capture cut');
+    same(captureCut.source.launchReference, pins.launchReference); same(captureCut.source.previousOperationReference, pins.launchReference);
+    same(cutProof.actor, h.f.actor); same(captureCut.lineage, launch.lineage);
+    const historical = readHistoricalSamePaLifecycleViewFromSqlite(h.f.db, captureCut.source.viewReference);
+    same(h.current().viewReference, captureCut.source.viewReference); same(h.current().view, historical.view);
+    same(h.current().basis.members, historical.members); same(historical.view.cut.physicalOperationReference, pins.launchReference);
+    const oldPrefix = readSamePaLifecycleRecordFromSqlite(h.f.db, 'prefix', historical.view.source.prefixReference.sourceId);
+    if (!oldPrefix || oldPrefix.kind !== 'same_pa_lifecycle_prefix') throw new Error('retained in-flight fixture historical prefix missing');
+    same(reference('pa_lifecycle_v1_work_prefixes', oldPrefix), historical.view.source.prefixReference);
+    same(h.events, oldPrefix.source.eventReferences);
+    const posture = readBattingPerceptionFromSqlite(h.f.db, 'posture', pins.postureReference);
+    const intent = readSamePaBattingIntentFromSqlite(h.f.db, pins.intentReference);
+    if (posture.kind !== 'batting_invocation_posture') throw new Error('retained in-flight fixture original posture missing');
+    same(posture.source.actionReference, launch.source.actionReference); same(intent.source.postureReference, pins.postureReference);
+    same(posture.source.viewReference, launch.source.viewReference); same(intent.source.viewReference, launch.source.viewReference);
+    same(posture.lineage, launch.lineage); same(intent.lineage, launch.lineage);
+    if (options.attempt !== undefined) same(options.attempt, intent.originalIntent.attempt);
+    const before = readHistoricalSamePaLifecycleViewFromSqlite(h.f.db, launch.source.viewReference);
+    const beforePrefix = readSamePaLifecycleRecordFromSqlite(h.f.db, 'prefix', before.view.source.prefixReference.sourceId);
+    const world = readEmotionWorldRevisionFromSqlite(h.f.db, h.f.actor.binding.careerId);
+    if (!beforePrefix || beforePrefix.kind !== 'same_pa_lifecycle_prefix' || !world) throw new Error('retained in-flight fixture original context missing');
+    same(reference('pa_lifecycle_v1_work_prefixes', beforePrefix), before.view.source.prefixReference);
+    same(oldPrefix.source.eventReferences, [...beforePrefix.source.eventReferences, pins.launchReference]);
+    return { posture, intent, launch, captureCut, beforeLaunch: { posture, intent, eventCount: beforePrefix.source.eventReferences.length,
+      worldRevision: world.head.worldRevision } };
+  }));
+  const track = h.f.x.f.track, accepted = h.accepted;
+  const perception = track(openSqliteBattingPerceptionStore(h.f.path, { readAcceptedPosture: id => accepted.get(id), readAcceptedObservation: id => accepted.get(id),
+    readAcceptedDelivery: id => accepted.get(id), readAcceptedPrediction: id => accepted.get(id), readAcceptedAssessment: id => accepted.get(id) }));
+  const inputOwner = track(openSqliteBattingExecutionInputStore(h.f.path, { readAcceptedIntent: id => accepted.get(id), readAcceptedInput: id => accepted.get(id) }));
+  return continueInFlightBattingSwing(h, label, prefix, options, perception, inputOwner);
 };
