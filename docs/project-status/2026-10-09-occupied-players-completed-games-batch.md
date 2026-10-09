@@ -1,7 +1,9 @@
 # Occupied players and completed domestic games
 
 This batch connects original occupied participants through reserved play ownership
-and connects completed Match owners to existing season/Club settlement.
+and connects completed Match owners to existing season/Club settlement. The
+previously unresolved finite storage cases have now passed; the later verification
+section records exact source boundaries. Genuine full-path execution remains open.
 
 Source checkpoint: `78427b0a7aa90180824007876d27eb4f17a7c8c3`.
 Source tree: `b806bed054f76bd11c9b0ee5bbe43851cc00c454`.
@@ -90,6 +92,52 @@ Receipt SHA-256 values:
 - Storage capped terminal: `2e2ac85d0c82dcd1446d3ea86984347249c57c783a2b94851489e7955f92beb5`
 
 - Storage completed-file log: `f60d76b8477102a6252e973cd836e9529c48f04f035e7ef1e2ba944d9902bb6b`
+
+## Later bounded verification after the shared proof correction
+
+The reviewed enrollment claim-reuse correction has source tree
+`961f82251af828ce04b6eda334244761883603ec`. Its full compiler and catalog checks
+passed. Independent review found no blocking issue. The controlled same-database
+measurement and mutation checks are recorded in
+[`2026-10-09-enrollment-claim-proof-reuse.md`](../verification/2026-10-09-enrollment-claim-proof-reuse.md).
+
+The affected selection contains 165 cases: 157 existing storage/dispatch cases,
+five existing claim-guard cases and three new reuse regressions. Its first bounded run
+completed six files with 104 passing cases, then reached the 600.80-second cap.
+Those completed results are retained under the same reviewed Vitest rule; the
+original wrapper remains failed, with no final run-level summary. Dispatch's
+16 cases completed in 201.47 seconds and TOTAL's 21 in 126.72 seconds. These
+elapsed observations have different surrounding load from earlier runs and
+are not the controlled speedup measurement.
+
+The remaining 53 existing cases across nine files then all passed in 209.79
+seconds, with a final JSON report. The eight guard/reuse cases already passed
+in the author's selected run on the exact same source tree. No completed files
+were repeated to finish the remainder. All 165 affected cases therefore have
+observed passing component evidence. The affected selection covers 162 of the original 515 cases and adds three
+regressions. Together with the 353 earlier retained component cases, the original
+inventory is covered, with source boundaries retained; this is not described
+as one fresh whole-suite run.
+The optional artifact-dependent SP-E00 gate remains outside that inventory and
+unqualified.
+
+All bounded inputs remained exact and no descendant survived. The private
+run controls continue to pin every package input, except the previously
+verified generated result-cache output. One exact optional gate is explicitly
+excluded from finite-case credit; no arbitrary skipped cases are allowed.
+
+A following test-only change allows explicit private retention of the genuine
+Native database using the existing path seam. The retained-mode source tree
+is `4ed242b5c5b10610d443e2214e63659799c09a97`; full compilation passed in 33.51
+seconds. Explicit caller paths and the default in-memory behavior retain their
+prior precedence. The genuine IFN01 attempt uses that retained database and is
+still running as this section is written. Its partial rows are not a completed
+scenario result.
+
+- Remaining 53-case terminal: `99422fccda24bf568d96e8417eff51e58fb91d7c2b13a8161d957f75a24a8f44`
+- Remaining 53-case JSON: `2a95e8ee726cc06c88ba9569fae0695d54d16ce7af6eeb3f8aa3eda64c4c28e1`
+- Capped affected terminal: `706ec54e881900a293fe7a87cc3fe81ff4c5954f29631990543f6d4559f9f5fd`
+- Retained-mode compiler: `2268c537faeb8db03ed06dbe1e055097551d24019f05f170fc74e334b55ddb3e`
 
 ## Genuine execution and remaining work
 
