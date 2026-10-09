@@ -1,0 +1,15 @@
+# Direct Native pitch calculation and normal model prerequisites
+
+Source `af88dee0c796c29c4c7399bf3777dd261abeadda` / src tree `c4afa77078fcac0f014e3d92eec3a13caaceaa45` adds a narrow internal read-only pitch calculation seam. It accepts exact stored action/calibration references, opens its own Native proof and closes it. Public store methods, support flags, rights and physical/consumer writers are unchanged.
+
+Two direct Native tests reached the intended missing-entry RED, then passed after implementation. They use real actor, body, nominal-model, reservation, view and 32-calibration owners without actor/model mocks or module transformation. Projected fatigue affects actual pitch velocity/spin, while the projected revision is unavailable from the global workload selector. Repeated calculations preserve durable rows; absent/changed calibration and extra caller context reject. This qualifies a synthetic read-only calculation, not a genuine physical append or admission.
+
+The same source passed the full compiler. Its genuine SP-D01 prerequisite inventory passed one case in 0.564 seconds, using two independent query-only copies. It authenticated all ten target binding/Person/intake/day records against the earlier observed hashes. The target's nine fielding baselines are pristine and absent. The separately qualified candidate artifact contains exactly eight scope-correct normal Sources for two defenders: their fielding, observation, decision and locomotion models. The remaining seven defenders have no applicable normal baselines in that candidate artifact. No gameplay-bound row was transferred.
+
+The proposed eleven-Source batter fixture bundle matches the actual reserved batter's authenticated identity/day and member hashes. The candidate artifact has no normal body-materialization or batting-model owners. All model reuse and acceptance remain separate reviewed steps; no defaults, generated score or production calibration is claimed.
+
+Four small fielding-namespace cases passed after their intended RED, covering pristine versus installed-empty normal absence, aliases/partial/view/shadow/attached namespaces, surviving indexed/body/raw claims and unrelated opaque data. Existing qualified ancestor harnesses and protected paths are preserved.
+
+Receipts: compiler `47f4868c77dffee14eb562957107c52695cc5f6f09a79e5fcd1b019f551aaa21`; direct Native GREEN `062430dab00ff986626111c8a3a7e6c3b5d67dc46c39b63d7f33b7de8098dfb8`; SP-D01 terminal `93bdd7e9d91037d48b6e4a5dd20a0d40d51ba65837cf34042e540c0132d84fa9`; SP-D01 receipt `38bb9beebf012cdd632470d13a8cca3e2f70bc4fdfdae8dcfb789d3be8811f48`. All completed stages fully reaped their processes. SP-D01 preserved every row/rowid/schema and exact input/copy bytes, with no sidecars, changes, tables or owner effects.
+
+Versioned effective decision-to-command composition is next. Pending timing cannot issue motion, actual issuance and the same owned cut must be retained, and no nominal v1 decision may be relabeled. Atomic row order, append/replay and all-adapter admission remain subsequent gates.

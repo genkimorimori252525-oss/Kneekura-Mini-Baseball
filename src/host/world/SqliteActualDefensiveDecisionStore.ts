@@ -3,9 +3,8 @@ import { createRequire } from 'node:module';
 import { assertDefensiveMetadataUnambiguous as unambiguous, defensiveMetadataId as metadataId, defensiveMetadataScope as metadataScope } from './ActualDefensiveMetadata';
 import { sqliteJsonMetadataProjection as projection, sqliteJsonMetadataMatches as matches } from './SqliteOwnershipMetadata';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
-import { chooseDefensiveIntentCandidate, generateDefensiveIntentCandidates, type DefensiveIntentCandidate } from '../../core/sim/fielding/DefensiveDecision';
-import { resolveDefensiveDecisionTiming } from '../../core/sim/fielding/DefensiveDecisionTiming';
-import { resolveDefenderFirstStepTiming } from '../../core/sim/fielding/DefenderFirstStepTiming';
+import { type DefensiveIntentCandidate } from '../../core/sim/fielding/DefensiveDecision';
+import { calculateDefensiveExecution } from './DefensiveExecutionCalculation';
 import type { Vec2 } from '../../core/model/geometry';
 import { actualObservationId as id, type ActualObservationMoment } from './ActualFieldObservation';
 import { actualDefensiveBoundary, actualDefensiveContextFromSqlite, defensiveFields as fields, defensiveTick, type DefensiveDb } from './ActualDefensiveContext';
@@ -77,13 +76,10 @@ export const actualDefensiveDecisionEvidenceFromSqlite = (db: DefensiveDb) => {
     } else {
       const calibration = c.model.source.calibration, perceived = c.observation.receipt.perceived;
       if (perceived.communications.length || perceived.knownContext !== null) throw new Error('actual defensive semantic context/cues are not owned');
-      const chosen = chooseDefensiveIntentCandidate(generateDefensiveIntentCandidates({ perceivedWorld: perceived, self: { playerId: source.playerId },
-        prePlayPlan: c.plan.source.priorities, perceivedCues: [], minimumCueConfidence: calibration.minimumCueConfidence,
-        communicationTrust: calibration.communicationTrust }));
+      const calculated = calculateDefensiveExecution({ decision: { perceivedWorld: perceived, self: { playerId: source.playerId },
+        prePlayPlan: c.plan.source.priorities, perceivedCues: [] }, startedAtTick: actualDefensiveBoundary(at, c.ticksPerSecond), ratings: c.fieldingModel.source.ratings }, calibration);
+      const chosen = calculated.selected;
       if (chosen.intent.kind !== 'ball_handler' && chosen.intent.kind !== 'hold') throw new Error('unsupported actual defensive intent');
-      const startedAtTick = actualDefensiveBoundary(at, c.ticksPerSecond), ratings = c.fieldingModel.source.ratings;
-      const decision = resolveDefensiveDecisionTiming(startedAtTick, ratings.situationalAwareness, calibration.decisionTimingParameters);
-      const motor = resolveDefenderFirstStepTiming(decision.decisionTick, ratings.firstStep, calibration.firstStepTimingParameters);
       const ball = chosen.intent.kind === 'ball_handler' ? c.observation.receipt.samples.ball : null;
       if (ball && (ball.at.originTick !== at.originTick || ball.at.elapsedSeconds > at.elapsedSeconds)) throw new Error('actual defensive ball evidence is from the future');
       receipt = { originDecisionSourceId: source.sourceId, originObservationSourceId: source.observationSourceId, self: c.self,
@@ -91,8 +87,7 @@ export const actualDefensiveDecisionEvidenceFromSqlite = (db: DefensiveDb) => {
         selected: { ...chosen, evidenceKinds: chosen.evidenceKinds.map(k => k === 'pre_play_plan' ? 'accepted_contextual_priorities' : k) },
         target: chosen.intent.kind === 'ball_handler' ? { x: perceived.ball!.estimate.position.x, z: perceived.ball!.estimate.position.z } : null,
         evidence: ball ? { captureAt: ball.at, confidence: perceived.ball!.confidence } : null,
-        scheduling: { startedAtTick, decisionDelayTicks: decision.decisionDelayTicks, decisionTick: decision.decisionTick,
-          firstStepDelayTicks: motor.firstStepDelayTicks, movementStartTick: motor.movementStartTick },
+        scheduling: calculated.scheduling,
         lifecycle: { status: 'pending_decision', issuedAt: null, issuedBySourceId: null } };
     }
     const reached = (tick: number) => {

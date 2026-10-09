@@ -6,12 +6,13 @@ import { actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFro
 import type { DurableActualDefensiveDecision } from './SqliteActualDefensiveDecisionStore';
 import type { OwnedActualPlayerKinematics } from './SqliteActualPlayerKinematicsReader';
 import type { DurablePlayerLocomotionModel } from './SqlitePlayerLocomotionModelStore';
+import { createPlayerLocomotionCalibration, type PlayerLocomotionCalibration } from '../../core/sim/fielding/PlayerLocomotionCalibration';
 
 /** Internal calculation only: Native supplies rederived original dependencies on its own connection.
  * This creates intent-to-command evidence, never an execution or a route-progress transition. */
-export const deriveActualLocomotionReceipt = (decision: DurableActualDefensiveDecision, model: DurablePlayerLocomotionModel,
-  self: OwnedActualPlayerKinematics) => {
-  const d = decision.receipt, c = model.source.calibration, ratings = model.fieldingModel.source.ratings;
+export const deriveActualLocomotionReceiptWithCalibration = (decision: DurableActualDefensiveDecision, model: DurablePlayerLocomotionModel,
+  self: OwnedActualPlayerKinematics, rawCalibration: PlayerLocomotionCalibration) => {
+  const d = decision.receipt, c = createPlayerLocomotionCalibration(rawCalibration), ratings = model.fieldingModel.source.ratings;
   if (d.lifecycle.status !== 'issued' || !d.lifecycle.issuedAt || d.lifecycle.issuedBySourceId !== decision.source.sourceId) {
     throw new Error('actual locomotion requires an actually issued decision');
   }
@@ -62,4 +63,9 @@ export const deriveActualLocomotionReceipt = (decision: DurableActualDefensiveDe
       primitiveMotions: retainedRoles.map(p => ({ role: p.role, offsetAcceleration: p.offsetAcceleration })) },
     lifecycle: { status: 'adoption_pending' as const, executedThrough: null } }));
 };
+/** Existing Native v1 callers retain the unchanged nominal calibration.
+ * New Native adapters authenticate a separate effective Source before calling
+ * the shared calculation; the original model object and its hashes stay intact. */
+export const deriveActualLocomotionReceipt = (decision: DurableActualDefensiveDecision, model: DurablePlayerLocomotionModel,
+  self: OwnedActualPlayerKinematics) => deriveActualLocomotionReceiptWithCalibration(decision, model, self, model.source.calibration);
 export type ActualLocomotionReceipt = ReturnType<typeof deriveActualLocomotionReceipt>;

@@ -1,0 +1,13 @@
+# Same-PA normal-model inventory checkpoint
+
+The corrected genuine read-only inventory passed its sole selected case on source `1269aefa841ffbeee034cb730259ba5ef058e7d5` / src tree `dc1456067c3e4228cd78d671cf270ade8b5a2dda`. Production runtime remains the coherent PR379 implementation. The original failed inventory's assumption that field-model namespaces were installed was corrected in test support; that earlier gate retains zero credit.
+
+The actual closed view contains no applicable batting model for its reserved batter and none of the 27 required defender observation/decision/locomotion models. The normal batting reader supplied its explicit absence result. The three defender model families were genuinely pristine with no surviving typed/raw/indexed model or consumer claims. The original pitcher's timing and release baselines authenticated through their normal owners. The response-policy lineage reference remains explicitly pending.
+
+The one query-only traversal inventoried all ten members and 32 route bindings in 29 entries. It made zero changes and created no tables. All prior rows/rowids, schema and exact closed database bytes remained unchanged; four durable milestones closed and no sidecars or child processes remained. This is a qualified missing-input inventory, not model/calibration acceptance, dispatch readiness or physical execution.
+
+Seven small Native schema/claim tests passed on `ea7c881`; they cover pristine versus installed-empty normal absence, partial/alias/view/trigger/shadow/attached namespaces, escaped duplicate raw and surviving indexed claims, unrelated opaque payloads, malformed existing normal history, partial consumer schemas and surviving orphan consumer heads. The final full compiler passed on `1269aef`; the difference from that focused-test source only changes the genuine inventory harness's pitcher discovery and explicit policy-pending output.
+
+Receipts: final compiler SHA-256 `0408bb172a61607d10bef003651a12d5cd11146b818eef06bf48e12eacb5f0ad`; genuine terminal `bb76959b8af0947afc021df27723748c0cb118cda360ed4b778570621a035ed2`; inventory receipt `eed1a5c471aee55f7cee8b5d5ed7b6d406dc276f3a32933166a1d5246fd6d48c`. No private database, raw Source, control packet or log belongs in source publication.
+
+The next prerequisite work must supply independently accepted player-specific Sources through the existing normal owners and preserve observed Person/model references. No prior batter, zero/default model or generated fatigue calibration can fill a missing input. TAKE preparation remains separate from future invoked batting prediction/emotion/intent inputs.
