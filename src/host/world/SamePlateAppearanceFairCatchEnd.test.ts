@@ -156,3 +156,10 @@ it('rejects a phase projection from another physical prefix before finalization'
   mocks.live={...h.live,sourceLocalPhases:{...h.live.sourceLocalPhases,originalFieldPrefix:{...h.live.census.originalFieldPrefix,physicalPitchSourceId:'foreign'}}};
   expect(h.run).toThrow(/phase prefix/);
 });
+
+it('retains occupied advance ownership even while the original body is stationary during reaction', () => {
+  const h = setup('dropped', 1, 2);
+  mocks.live = { ...h.live, census: { ...h.live.census, occupiedRunnerMotions: [{ playerId: 'runner0',
+    adopted: true, work: [{ kind: 'reaction', due: 'future', dueTick: h.seal.evaluationTick + 1 }] }] } };
+  expect(h.run()).toEqual({ kind: 'pending', reason: 'occupied_runner_moving_controller_end_owner_required' });
+});

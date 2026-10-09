@@ -7,6 +7,7 @@ import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { SqliteOfficialParticipationStore, type OfficialParticipantBinding } from './SqliteOfficialParticipationStore';
+import { deriveCompletedFoulBatterParticipationWithOriginal, deriveCompletedPlayParticipationEvidence } from './CompletedPlayParticipationEvidenceFromSqlite';
 import * as live from './ActualLivePlayClosureEvidenceFromSqlite';
 import * as terminal from './ActualFoulTerminalPostPlayCompletionEvidenceFromSqlite';
 import * as national from './NationalMatchOriginFromSqlite';
@@ -115,4 +116,25 @@ it('uses the original National fixture without requiring a domestic season table
     game: { gameId: 'game', homeClubId: 'JP', awayClubId: 'KR' } });
   f.db.exec('UPDATE fixture_original_national SET valid=0');
   expect(() => readActualLiveOriginalFixture(f.db, 'game', f.bindings)).toThrow('original National proof changed');
+});
+
+
+it.each([false, true])('pairs the original foul batter with unchanged participation evidence using one completion read (final=%s)', final => {
+  const f = fixture('foul', final);
+  f.db.exec('BEGIN');
+  try {
+    const owner = vi.mocked(terminal.foulTerminalPostPlayCompletionEvidenceFromSqlite);
+    owner.mockClear();
+    const pair = deriveCompletedFoulBatterParticipationWithOriginal(f.db, 'close');
+    expect(owner).toHaveBeenCalledTimes(1);
+    expect(pair.original.proposal.source.sourceId).toBe('close');
+    expect(pair.evidence.receipt).toMatchObject({ evidenceKind: 'NATIONAL_FOUL_TERMINAL_V1', actorKind: 'BATTER',
+      binding: { playerId: 'p0' }, closureSourceId: 'close', playedPlayId: 7 });
+    expect(pair.evidence).toEqual(deriveCompletedPlayParticipationEvidence(f.db, 'game', 'p0', 'close', 'NATIONAL_FOUL_TERMINAL_V1'));
+    expect(Object.isFrozen(pair)).toBe(true);
+  } finally { f.db.exec('ROLLBACK'); }
+  f.db.exec('UPDATE fixture_original_national SET valid=0; BEGIN');
+  try { expect(() => deriveCompletedFoulBatterParticipationWithOriginal(f.db, 'close')).toThrow('original National proof changed'); }
+  finally { f.db.exec('ROLLBACK'); }
+  expect(() => deriveCompletedFoulBatterParticipationWithOriginal(f.db, 'close')).toThrow('Native owner transaction');
 });

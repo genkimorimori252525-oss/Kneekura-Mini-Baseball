@@ -1,3 +1,4 @@
+import { deriveSamePaOccupiedRunnerMotionCensus } from './SamePlateAppearanceOccupiedRunnerMotion';
 import { deriveSamePaOccupiedRunnerCatchCensus } from './SamePlateAppearanceOccupiedRunnerCatchCensus';
 import { deriveSamePaBatterCatchCensus } from './SamePlateAppearanceBatterCatchCensus';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -227,6 +228,8 @@ export const deriveSamePaLiveWorkCensus = (raw: SamePaLiveWorkCensusInput) => {
   return freeze({ kind: 'same_pa_live_work_census_v1' as const,
     originalFieldPrefix: { kind: 'original_field_prefix_only' as const, physicalPitchSourceId: root.physicalPitchSourceId,
       participantIds: input.participantIds, fieldReferences, rootReference: fieldReferences[0], endpointReference: fieldReferences.at(-1)!, at },
+    ...(input.fields.some(f => f.kind === 'same_pa_physical_field_step_v1' && f.actionResult?.kind === 'occupied_runner_motion_v1')
+      ? { occupiedRunnerMotions: deriveSamePaOccupiedRunnerMotionCensus(input.fields) } : {}),
     observationRefresh, defenderDecisions, catchResponses, batterCatchResponses: deriveSamePaBatterCatchCensus(input.fields),
     ...(root.source.liveProducerProfile === 'same_pa_stationary_occupied_catch_v1'
       || input.fields.some(f => f.kind === 'same_pa_physical_field_step_v1' && f.actionResult?.kind === 'occupied_runner_catch_response_v1')

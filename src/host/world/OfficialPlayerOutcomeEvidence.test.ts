@@ -6,10 +6,12 @@ import { deriveOfficialPlayerOutcomeFromSqlite as derive } from './OfficialPlaye
 
 // Dispatch/attribution tests substitute lower owners explicitly. Genuine
 // National proof remains in NAT-N01, not in these tiny database examples.
-const state = vi.hoisted(() => ({ values: new Map<string, unknown>(), completed: vi.fn(), live: vi.fn(), scored: vi.fn(), scorerRead: vi.fn() }));
+const state = vi.hoisted(() => ({ values: new Map<string, unknown>(), completed: vi.fn(), foulPair: vi.fn(), live: vi.fn(), scored: vi.fn(), scorerRead: vi.fn() }));
 vi.mock('./PhysicalPlayClosureEvidenceFromSqlite', () => ({ readPhysicalClosureProposal: () => state.values.get('physical') }));
 vi.mock('./CompletedPlayParticipationEvidenceFromSqlite', () => ({ deriveCompletedPlayParticipationEvidence: (...args: unknown[]) => {
   state.completed(...args); return { receipt: { original: 'completed-proof' } };
+}, deriveCompletedFoulBatterParticipationWithOriginal: (...args: unknown[]) => {
+  state.foulPair(...args); return { original: state.values.get('foul'), evidence: { receipt: { original: 'completed-proof' } } };
 } }));
 vi.mock('./ActualLiveParticipationEvidenceFromSqlite', () => ({ deriveActualLiveParticipationEvidence: (...args: unknown[]) => {
   state.live(...args); return { receipt: { original: 'live-proof' } };
@@ -81,6 +83,9 @@ it('requires the completed terminal scoring row and its exact original participa
     participants: [{ role: 'batter', binding: f.batter }, { role: 'defender', registeredPosition: 'P', binding: f.pitcher }] },
     result: { official: f.official, completion: { scoringReference: { scoringApplicationId: 'score', rowHash: hash(row) } } } });
   expect(f.read('actual_foul_terminal_applications')).toMatchObject({ kind: 'attributed', classification: 'strikeout' });
+  expect(state.foulPair).toHaveBeenCalledTimes(1);
+  expect(state.foulPair).toHaveBeenCalledWith(f.db, 'closure');
+  expect(state.completed).not.toHaveBeenCalled();
   f.db.prepare("UPDATE official_scoring_applications SET result_json='{}'").run();
   expect(() => f.read('actual_foul_terminal_applications')).toThrow('terminal scoring differs');
 });

@@ -1,8 +1,11 @@
 import { readSamePaLifecycleClaimRows } from './SamePlateAppearanceLifecycleClaimGuard';
+import { createRequire } from 'node:module';
+import { memoSamePaContinuationRead, withSamePaContinuationReadPhase } from './SamePlateAppearanceContinuationFromSqlite';
+import { assertBodyCompositionNativeConnection } from './BodyMaterializationSqliteOwnership';
 import { samePaPlayerClaimCanProceed } from './SamePlateAppearanceSettlementAdmission';
 import { assertSamePaTakeSuccessorStorage } from './SamePlateAppearanceTakeSuccessorStorage';
 import type { DatabaseSync } from 'node:sqlite';
-import { actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { actorHash as hash, actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { samePaEnrollmentRow, authenticateSamePaRow, samePaMetadataClaim as claim } from './SamePlateAppearanceReservationGuard';
 import { assertSamePaContinuationStorage } from './SamePlateAppearanceContinuationStorage';
 import { samePaContinuationSourceInput, samePaContinuationTables, samePaContinuationKind } from './SamePlateAppearanceContinuation';
@@ -16,7 +19,7 @@ const rootOwners = new Set(['pa_take_successor_v1_action_plans', 'pa_take_succes
   'pa_dispatch_v1_pitch_actions', 'pa_dispatch_v1_consumer_actions', 'pa_continuation_v1_work_prefixes', 'pa_continuation_v1_total_assessments', 'pa_continuation_v1_execution_views', 'pa_continuation_v1_execution_calibrations']);
 /** Only typed original root/reference metadata is followed. A shared Player or
  * baseline is never a causal game/play link. This guard owns no replay waiver. */
-const inspect = (db: Db) => {
+const inspectClaims = (db: Db) => {
   assertSamePaContinuationStorage(db); assertSamePaTakeSuccessorStorage(db);
   const predicate = prefixes.map(() => '(lower(name) GLOB ? OR lower(tbl_name) GLOB ?)').join(' OR '), args = prefixes.flatMap(p => [p, p]);
   if (db.prepare('SELECT 1 FROM temp.sqlite_master WHERE ' + predicate).get(...args)) fail();
@@ -94,6 +97,16 @@ const inspect = (db: Db) => {
     return { table, row, enrollments };
   });
   return [...inspected,...lifecycle.map(record=>({table:record.table,row:record.row,enrollments:record.enrollmentSourceIds.map(root)}))];
+};
+// Share only the completed typed ownership census inside one immutable Native
+// proof. Each caller still evaluates its current scope and admission fences.
+const inspect = (db: Db) => {
+  const { DatabaseSync: Native } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  return db instanceof Native && db.isTransaction && db.prepare('PRAGMA query_only').get()!.query_only === 1
+    ? withSamePaContinuationReadPhase(db, () => {
+      assertBodyCompositionNativeConnection(db);
+      return memoSamePaContinuationRead(db, 'continuation-claim-census', () => freeze(inspectClaims(db)));
+    }) : inspectClaims(db);
 };
 export const assertNoSamePaContinuationPlayerClaim = (db: Db, scope: { careerId: string; playerId: string }) => {
   for (const record of inspect(db)) {

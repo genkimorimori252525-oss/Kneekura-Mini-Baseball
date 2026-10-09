@@ -133,7 +133,15 @@ export const deriveSamePaFieldRuleEvidence = (raw: Input) => {
     ...(venue === undefined ? {} : { playableWalls: venue.playableWalls }), race: { outsAtStart: input.outsAtStart,
     batterRunnerId: input.batterRunnerId, defenderIds: input.defenderIds, originTick, ticksPerSecond: p.ticksPerSecond,
     horizonElapsedSeconds: horizon.elapsedSeconds, runnerHistory: batterFirstBase.history, defenders: defendersFirstBase } });
+  const hasOccupiedMotion = input.fields.some(f => f.kind === 'same_pa_physical_field_step_v1' && f.actionResult?.kind === 'occupied_runner_motion_v1');
+  const occupiedRunnerBaseContacts = hasOccupiedMotion ? runnerIds.map(playerId => ({ playerId,
+    bases: (['home', 'first', 'second', 'third'] as const).map(base => {
+      const bag = root.geometry.baseGeometry.bases[base];
+      return { base, history: deriveBallWorldPlayerBaseContactHistory({ segments, playerId, base: bag.region, baseSurfaceHeightMeters: bag.surfaceHeightMeters }) };
+    }),
+  })) : undefined;
   return freeze({ physical: { field, segments, controlWindows }, batterFirstBase, defendersFirstBase, rule,
+    ...(occupiedRunnerBaseContacts ? { occupiedRunnerBaseContacts } : {}),
     ...(venue === undefined ? {} : { venuePolicyReference: venue.venuePolicyReference }),
     terminal: { kind: 'pending' as const, reason: 'reserved_live_play_end_owner_missing' as const, physicalEnd: null } });
 };

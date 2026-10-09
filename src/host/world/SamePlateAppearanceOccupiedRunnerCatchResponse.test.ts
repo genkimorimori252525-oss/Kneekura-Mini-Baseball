@@ -102,3 +102,10 @@ it('OCR03 physical adoption rejects a changed body and cannot extend the origina
   expect(()=>h.move(50_000)).toThrow(/moving original/);
   const f=fixture();f.admit();expect(()=>f.move(2_000_001)).toThrow(/coverage/);
 });
+
+it('OCR04 cannot replace an occupied advance with the stationary received-hold owner during reaction', () => {
+  const h = fixture();
+  h.prefix.push({ ...h.root, kind: 'same_pa_physical_field_step_v1',
+    actionResult: { kind: 'occupied_runner_motion_v1', playerId: 'batter' } });
+  expect(h.respond).toThrow(/moving controller/);
+});

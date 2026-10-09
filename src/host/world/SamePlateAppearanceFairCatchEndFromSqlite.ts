@@ -29,6 +29,9 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
   const occupied = actor.world.runners.length > 0;
   if (root.source.liveProducerProfile !== (occupied ? 'same_pa_stationary_occupied_catch_v1' : 'same_pa_empty_base_catch_v1'))
     return pending('original_live_producer_profile_required');
+  // An adopted advance can remain physically stationary during reaction. It
+  // still owns motion and cannot use the stationary occupied end profile.
+  if (census.occupiedRunnerMotions?.length) return pending('occupied_runner_moving_controller_end_owner_required');
   const occupiedRunners = value.occupiedRunners;
   if (occupied && occupiedRunners?.kind !== 'same_pa_stationary_occupied_runners_v1')
     return pending('occupied_runner_original_base_contact_history_required');

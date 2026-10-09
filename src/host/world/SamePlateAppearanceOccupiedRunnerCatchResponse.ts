@@ -44,6 +44,9 @@ export const deriveSamePaOccupiedRunnerCatchResponse = (db: DatabaseSync, source
   const a = source.action, at = previous.field.motion.world.moment;
   if (a?.kind !== 'occupied_runner_catch_response_v1') throw new Error('occupied received hold Source missing');
   samePaOccupiedRunnerCatchResponseInput(a);
+  if (prefix.some(f => f.kind === 'same_pa_physical_field_step_v1' && f.actionResult?.kind === 'occupied_runner_motion_v1'
+    && f.actionResult.playerId === a.member.playerId))
+    throw new Error('occupied received hold cannot replace an original moving controller');
   same(a.member, basis.members.find(m => m.playerId === a.member.playerId));
   if (source.throughTick !== previous.evaluationTick || a.intent.issuedTick !== previous.evaluationTick || !previous.field.motion.cursor
     || at.elapsedSeconds !== (a.intent.issuedTick-at.originTick)/root.response.world.parameters.ticksPerSecond)

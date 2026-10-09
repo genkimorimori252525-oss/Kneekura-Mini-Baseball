@@ -8,11 +8,10 @@ import type { OfficialParticipantBinding } from './SqliteOfficialParticipationSt
 import { actorJson as json, actorHash as hash, actorFreeze as freeze, readPhysicalActorForPlayFromSqlite } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { readOfficialActorPersonLink } from './SqliteOfficialInitialWorldStore';
 import { readPhysicalClosureProposal } from './PhysicalPlayClosureEvidenceFromSqlite';
-import { deriveCompletedPlayParticipationEvidence } from './CompletedPlayParticipationEvidenceFromSqlite';
+import { deriveCompletedPlayParticipationEvidence, deriveCompletedFoulBatterParticipationWithOriginal } from './CompletedPlayParticipationEvidenceFromSqlite';
 import { deriveActualLiveParticipationEvidence } from './ActualLiveParticipationEvidenceFromSqlite';
 import { actualLivePlayClosureEvidenceFromSqlite } from './ActualLivePlayClosureEvidenceFromSqlite';
 import { actualLiveScoringEvidenceFromSqlite, assertActualLiveScoringStage } from './ActualLiveScoringEvidenceFromSqlite';
-import { foulTerminalPostPlayCompletionEvidenceFromSqlite } from './ActualFoulTerminalPostPlayCompletionEvidenceFromSqlite';
 import { readSamePaTransitionArchive, readSamePaTerminalTransitionFromSqlite } from './SamePlateAppearanceTerminalTransitionFromSqlite';
 import { readSamePaTerminalEndpointFromSqlite } from './SamePlateAppearanceTerminalEndpointFromSqlite';
 import { readSamePaTerminalReleaseFromSqlite } from './SamePlateAppearanceTerminalSettlementFromSqlite';
@@ -89,13 +88,11 @@ export const deriveOfficialPlayerOutcomeFromSqlite = (db: DatabaseSync, raw: Off
         p.expectedOfficial.receipt.durableRevision);
     }
     if (source.owner === 'actual_foul_terminal_applications') {
-      const original = foulTerminalPostPlayCompletionEvidenceFromSqlite(db).read(source.sourceId);
-      if (!original) throw new Error('official player outcome foul terminal is incomplete');
+      const { original, evidence: proof } = deriveCompletedFoulBatterParticipationWithOriginal(db, source.sourceId);
       const p = original.proposal, batters = p.participants.filter(a => a.role === 'batter');
       const pitchers = p.participants.filter(a => a.role === 'defender' && a.registeredPosition === 'P');
       if (batters.length !== 1 || pitchers.length !== 1) throw new Error('official player outcome terminal original actors differ');
-      const batter = batters[0].binding, proof = deriveCompletedPlayParticipationEvidence(db, p.gameId, batter.playerId,
-        source.sourceId, nationalBinding(batter) ? 'NATIONAL_FOUL_TERMINAL_V1' : 'FOUL_TERMINAL_V1');
+      const batter = batters[0].binding;
       const reference = original.result.completion.scoringReference;
       const row = db.prepare('SELECT * FROM main.official_scoring_applications WHERE scoring_application_id=?').get(reference.scoringApplicationId);
       if (!row || hash(row) !== reference.rowHash) throw new Error('official player outcome terminal scoring differs');

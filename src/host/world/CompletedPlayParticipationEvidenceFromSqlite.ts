@@ -102,8 +102,12 @@ const ordinaryOwner = (db: Db, sourceId: string) => {
   return saved;
 };
 
-export const deriveCompletedPlayParticipationEvidence = (db: Db, gameId: string, playerId: string,
-  sourceId: string, evidenceKind: CompletedPlayParticipationReceipt['evidenceKind']): CompletedPlayParticipationEvidence => {
+type CompletedFoulOriginal = NonNullable<ReturnType<ReturnType<typeof foulTerminalPostPlayCompletionEvidenceFromSqlite>['read']>>;
+// Only the two entry points below can supply this already authenticated original.
+// It never crosses an operation boundary or enters through a public argument.
+const deriveCompletedParticipation = (db: Db, gameId: string, playerId: string,
+  sourceId: string, evidenceKind: CompletedPlayParticipationReceipt['evidenceKind'],
+  authenticatedFoul?: CompletedFoulOriginal): CompletedPlayParticipationEvidence => {
   const connection = nativeTransaction(db);
   if (![gameId, playerId, sourceId].every(id)) throw new Error('invalid completed participation reference');
   return withBattedVenueLegalReadSnapshot(connection, () => {
@@ -135,7 +139,7 @@ export const deriveCompletedPlayParticipationEvidence = (db: Db, gameId: string,
     activationJson = json('result' in official ? { finalResult: official.result } : { activation: official.activation, nextWorld: official.nextWorld });
     final = 'result' in official;
   } else if (evidenceKind === 'FOUL_TERMINAL_V1' || evidenceKind === 'NATIONAL_FOUL_TERMINAL_V1') {
-    const completed = foulTerminalPostPlayCompletionEvidenceFromSqlite(connection).read(sourceId);
+    const completed = authenticatedFoul ?? foulTerminalPostPlayCompletionEvidenceFromSqlite(connection).read(sourceId);
     if (!completed) throw new Error('participation requires completed original terminal closure');
     const p = completed.proposal, c = completed.result.completion, receipt = completed.result.official.receipt;
     if (p.gameId !== gameId || p.source.sourceId !== sourceId || receipt.previousPlayId !== p.playId
@@ -160,6 +164,28 @@ export const deriveCompletedPlayParticipationEvidence = (db: Db, gameId: string,
   return freeze({ receipt: { evidenceKind, receiptId: participationReceiptId(gameId, playerId), binding: selected.binding,
     actorKind: selected.actorKind, closureSourceId: sourceId, closureApplicationId, closureProposalHash, playedPlayId, durableRevision },
   current: { stateJson, activationJson, final } });
+  });
+};
+
+/** Existing public evidence shape; callers never provide an original snapshot. */
+export const deriveCompletedPlayParticipationEvidence = (db: Db, gameId: string, playerId: string,
+  sourceId: string, evidenceKind: CompletedPlayParticipationReceipt['evidenceKind']): CompletedPlayParticipationEvidence =>
+  deriveCompletedParticipation(db, gameId, playerId, sourceId, evidenceKind);
+
+/** One owned read returns the original terminal and its authenticated batter
+ * participation together. Statistics keep independent proofs across writes. */
+export const deriveCompletedFoulBatterParticipationWithOriginal = (db: Db, sourceId: string) => {
+  const connection = nativeTransaction(db);
+  if (!id(sourceId)) throw new Error('invalid completed participation reference');
+  return withBattedVenueLegalReadSnapshot(connection, () => {
+    const original = foulTerminalPostPlayCompletionEvidenceFromSqlite(connection).read(sourceId);
+    if (!original) throw new Error('participation requires completed original terminal closure');
+    const batters = original.proposal.participants.filter(actor => actor.role === 'batter');
+    if (batters.length !== 1) throw new Error('completed participation terminal original batter differs');
+    const batter = batters[0].binding;
+    const evidence = deriveCompletedParticipation(connection, original.proposal.gameId, batter.playerId, sourceId,
+      nationalBinding(batter) ? 'NATIONAL_FOUL_TERMINAL_V1' : 'FOUL_TERMINAL_V1', original);
+    return freeze({ original, evidence });
   });
 };
 

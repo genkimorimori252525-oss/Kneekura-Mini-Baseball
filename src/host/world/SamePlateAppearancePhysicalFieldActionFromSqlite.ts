@@ -1,3 +1,5 @@
+import { deriveSamePaOccupiedRunnerMotion } from './SamePlateAppearanceOccupiedRunnerMotion';
+import { readSamePaOccupiedRunnerHoldFromSqlite } from './SqliteSamePlateAppearanceOccupiedRunnerHoldStore';
 import { deriveSamePaOccupiedRunnerCatchResponse, deriveSamePaOccupiedRunnerCatchMotion, assertSamePaOccupiedRunnerCatchOwnership } from './SamePlateAppearanceOccupiedRunnerCatchResponse';
 import { assertSamePaBatterCatchOwnership } from './SamePlateAppearanceBatterCatchOwnership';
 import { readBatterRunPlanFromSqlite } from './SqliteBatterRunPlanStore';
@@ -68,6 +70,13 @@ export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePa
   const latest = (kind: 'defender_observation_v1' | 'defender_decision_v1', playerId: string) => [...prefix].reverse().find(f => {
     const r = result(f); return r?.kind === kind && r.playerId === playerId;
   });
+  if (request.kind === 'occupied_runner_motion_v1') {
+    const posture = readBattingPerceptionFromSqlite(db, 'posture', root.source.postureReference);
+    if (posture.kind !== 'batting_invocation_posture'
+      || !posture.source.occupiedRunnerHoldReferences?.some(r => json(r) === json(request.holdReference)))
+      throw new Error('occupied runner motion original physical hold missing');
+    return deriveSamePaOccupiedRunnerMotion(source, root, previous, readSamePaOccupiedRunnerHoldFromSqlite(db, request.holdReference), basis, prefix);
+  }
   if (request.kind === 'occupied_runner_catch_response_v1') return stable(deriveSamePaOccupiedRunnerCatchResponse(db, source, root, previous, basis, prefix));
   if (request.kind === 'occupied_runner_catch_motion_v1') return deriveSamePaOccupiedRunnerCatchMotion(source, root, previous, prefix);
   if (request.kind === 'batter_catch_response_v1') return stable(deriveSamePaBatterCatchResponse(db, source, root, previous, basis, prefix));

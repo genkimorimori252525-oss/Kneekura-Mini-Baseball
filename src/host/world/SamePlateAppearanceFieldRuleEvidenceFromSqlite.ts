@@ -1,3 +1,4 @@
+import { deriveSamePaOccupiedRunnerTagUp } from './SamePlateAppearanceOccupiedRunnerTagUp';
 import { readBattingPerceptionFromSqlite } from './SqliteBattingPerceptionStore';
 import { readSamePaOccupiedRunnerHolds } from './SqliteSamePlateAppearanceOccupiedRunnerHoldStore';
 import { deriveSamePaStationaryOccupiedRunners } from './SamePlateAppearanceStationaryOccupiedRunners';
@@ -51,20 +52,23 @@ export const readSamePaFieldRuleEvidenceWithInputsFromSqlite = (db: DatabaseSync
     || json(contact.physicalPitchReference) !== json(cut.physicalPitchReference)
     || json(contact.lineage) !== json(view.lineage)) throw new Error('same-PA field-rule original contact resolution differs');
   const originalMatch = actor.match, originalTimeline = contact.record.timeline;
-  const occupiedRunners = occupiedRunnerIds.length ? (() => {
+  const occupied = occupiedRunnerIds.length ? (() => {
     const posture = readBattingPerceptionFromSqlite(db, 'posture', root.source.postureReference);
     if (posture.kind !== 'batting_invocation_posture') throw new Error('occupied rule original posture missing');
     const holds = readSamePaOccupiedRunnerHolds(db, actor, root.lineage.enrollmentReference, posture.source.occupiedRunnerHoldReferences,
       root.response.world.flight.initialBall.tick, last.evaluationTick);
-    return deriveSamePaStationaryOccupiedRunners({ match: originalMatch, root, holds, evidence });
+    return { stationary: deriveSamePaStationaryOccupiedRunners({ match: originalMatch, root, holds, evidence }),
+      ...(evidence.occupiedRunnerBaseContacts ? { tagUp: deriveSamePaOccupiedRunnerTagUp({ match: originalMatch, root, holds, evidence, fields }) } : {}) };
   })() : undefined;
+  const occupiedRunners = occupied?.stationary;
   const fairCatch = occupiedRunners?.kind === 'pending' ? occupiedRunners
     : deriveSamePaFairCatchRuleBasis({ originalMatch, originalTimeline, evidence, ...(occupiedRunners ? { occupiedRunners } : {}) });
   const value = freeze({ kind: 'same_pa_field_rule_evidence_v1' as const, viewReference, lineage: view.lineage, coverageHash: view.coverageHash,
     physicalPitchReference: cut.physicalPitchReference, physicalOperationReference: cut.physicalOperationReference,
     fieldReferences: fields.map(f => reference(f.kind === 'same_pa_physical_field_root_v1' ? 'pa_physical_v1_field_roots' : 'pa_physical_v1_field_steps', f)),
     evidenceHash: hash(evidence), evidence, originalMatch, originalTimeline,
-    contactReference: root.source.resolutionReference, fairCatch, ...(occupiedRunners ? { occupiedRunners } : {}) });
+    contactReference: root.source.resolutionReference, fairCatch, ...(occupiedRunners ? { occupiedRunners } : {}),
+    ...(occupied?.tagUp ? { occupiedRunnerTagUp: occupied.tagUp } : {}) });
   return Object.freeze({ kind: 'same_pa_field_rule_read_pair_v1' as const, value,
     fields: Object.freeze(fields), actor, view });
 });
