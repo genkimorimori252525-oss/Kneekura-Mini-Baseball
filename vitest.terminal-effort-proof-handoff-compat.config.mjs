@@ -1,0 +1,2 @@
+const cacheDir=process.env.BASEBALL_GATE_CACHE;
+export default {...(cacheDir?{cacheDir}:{}),test:{cache:false,include:['src/host/world/OfficialPitchWorkloadProofHandoff.test.ts','src/host/world/SqliteOfficialPitchWorkloadStore.test.ts','src/host/world/InitialOfficialPitchWorkload.test.ts','src/host/world/ActualRoleWorkloadChargeGuard.test.ts','src/host/world/SqlitePhysicalPlayClosureStore.test.ts']}};
