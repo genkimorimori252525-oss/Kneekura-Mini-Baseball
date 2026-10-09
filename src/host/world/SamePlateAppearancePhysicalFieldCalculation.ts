@@ -88,9 +88,9 @@ export const deriveSamePaPhysicalFieldRoot=(db:DatabaseSync,source:SamePaPhysica
   const field=source.throughTick===start?deriveBattedWorldFieldMotionAdoption(physical):deriveBattedWorldFieldMotionCheckpoint({...physical,checkpointThroughTick:source.throughTick});
   return freeze({response,geometry,field,geometryBindingHash,evaluationTick:field.motion.world.moment.ball.tick,timeline:samePaPhysicalTimelineAtField(resolution.timeline,field,response,geometry)});
 };
-export const deriveSamePaPhysicalFieldStep=(source:SamePaPhysicalFieldStepSource,root:SamePaPhysicalFieldRoot,previous:SamePaPhysicalFieldRoot|SamePaPhysicalFieldStep,currentTick:number)=>{
+export const deriveSamePaPhysicalFieldStep=(source:SamePaPhysicalFieldStepSource,root:SamePaPhysicalFieldRoot,previous:SamePaPhysicalFieldRoot|SamePaPhysicalFieldStep,currentTick:number,recordInitialGroundContact=true)=>{
   if(root.physicalPitchSourceId!==previous.physicalPitchSourceId||source.throughTick<=currentTick||source.throughTick<=previous.evaluationTick)throw new Error('physical field step is stale or foreign');
   const p=previous.field.motion;if(!p.cursor)throw new Error('field physical contact requires its concrete acquisition/response owner');
   const field=advanceBattedWorldFieldMotionCheckpoint({response:root.response,geometry:root.geometry,cursor:p.cursor,actors:p.actors,carrierPlayerId:p.carrierPlayerId,checkpointThroughTick:source.throughTick});
-  return freeze({field,evaluationTick:field.motion.world.moment.ball.tick,timeline:samePaPhysicalTimelineAtField(previous.timeline,field,root.response,root.geometry)});
+  return freeze({field,evaluationTick:field.motion.world.moment.ball.tick,timeline:recordInitialGroundContact?samePaPhysicalTimelineAtField(previous.timeline,field,root.response,root.geometry):previous.timeline});
 };

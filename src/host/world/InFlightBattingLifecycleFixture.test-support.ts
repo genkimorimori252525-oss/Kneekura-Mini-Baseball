@@ -11,7 +11,8 @@ import type { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysic
 import type { SamePaDispatchRoute } from './SamePlateAppearanceDispatchRoles';
 import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import type { DurableBattingInvocationPosture } from './NativeBattingPerception';
-import type { DurableSamePaBattingIntent } from './NativeBattingExecutionInput';
+import type { DurableSamePaBattingIntent, DurableSamePaBattingExecutionInput } from './NativeBattingExecutionInput';
+import type { SamePaPhysicalCommitmentSource } from './SamePlateAppearancePhysicalEpisode';
 
 type Fixture = ReturnType<typeof samePaPhysicalLifecycleFixture>;
 const provenance = (id: string) => ({ assessmentSourceId: id, assessmentVersion: 'fixture-only-v1', calibrationSourceId: 'existing-explicit-Core-fixture', calibrationVersion: 'fixture-only-v1' });
@@ -19,7 +20,9 @@ const provenance = (id: string) => ({ assessmentSourceId: id, assessmentVersion:
  * an owned sample, and physical commitment alone calculates/adopts the input. */
 export const prepareInFlightBattingSwing = (h: Fixture, prepared: ReturnType<Fixture['prepareAction']>, label: string,
   onBeforeLaunch?: (owned: Readonly<{ posture: DurableBattingInvocationPosture; postureReference: SamePaReference<'batting_observation_v1_postures'>;
-    intent: DurableSamePaBattingIntent; intentReference: SamePaReference<'batting_execution_v1_intents'> }>) => void) => {
+    intent: DurableSamePaBattingIntent; intentReference: SamePaReference<'batting_execution_v1_intents'> }>) => void,
+  options: Readonly<{ attempt?: DurableSamePaBattingIntent['originalIntent']['attempt'];
+    prepareCommitment?: (source: SamePaPhysicalCommitmentSource, input: DurableSamePaBattingExecutionInput) => SamePaPhysicalCommitmentSource }> = {}) => {
   const { f, save, accepted } = h, track = f.x.f.track;
   const proof = <T>(body: () => T) => withSqliteReadTransaction(f.db, body);
   const member = () => h.current().basis.members.find(m => m.playerId === f.actor.binding.playerId)!;
@@ -31,12 +34,12 @@ export const prepareInFlightBattingSwing = (h: Fixture, prepared: ReturnType<Fix
   const postureSource = save({ sourceId: label + ':posture', sourceVersion: 'fixture-only-v1', capability: 'owned_in_flight_batting_posture_v1',
     viewReference: h.current().viewReference, member: member(), actionReference: prepared.actionReference, modelReference: h.original.batterModelReference,
     sceneBodyReferences: h.sceneBodyReferences, geometry: { ...h.geometry, startedAtTick: prepared.action.bodyCut.completedAtTick,
-      attention: { target: { kind: 'ball' }, focusedSinceTick: prepared.action.bodyCut.completedAtTick }, bodyReadyTick: ready, latestMotorStartTick: ready + 1_000_000 },
+      attention: { target: { kind: 'ball' }, focusedSinceTick: prepared.action.bodyCut.completedAtTick }, bodyReadyTick: ready, latestMotorStartTick: ready + 1_000_000, validUntilTick: ready + 20_000_000 },
     provenance: provenance(label + ':posture-assessment') });
   const posture = perception.acceptPosture(postureSource.sourceId); if (posture.kind !== 'batting_invocation_posture') throw new Error('real per-pitch posture pending: ' + JSON.stringify(posture));
   const postureReference = reference('batting_observation_v1_postures', posture);
   const intentSource = save({ sourceId: label + ':intent', sourceVersion: 'fixture-only-v1', capability: 'owned_in_flight_same_pa_batting_intent_v1',
-    viewReference: h.current().viewReference, member: member(), postureReference, actorReference: posture.lineage.actorReference, attempt: 'ordinary_swing' });
+    viewReference: h.current().viewReference, member: member(), postureReference, actorReference: posture.lineage.actorReference, attempt: options.attempt ?? 'ordinary_swing' });
   const intent = inputOwner.acceptIntent(intentSource.sourceId); if (intent.kind !== 'same_pa_batting_intent') throw new Error('real original intent pending');
   const intentReference = reference('batting_execution_v1_intents', intent);
   onBeforeLaunch?.({ posture, postureReference, intent, intentReference });
@@ -112,8 +115,9 @@ export const prepareInFlightBattingSwing = (h: Fixture, prepared: ReturnType<Fix
   const input = inputOwner.acceptInput(inputSource.sourceId); if (input.kind !== 'same_pa_batting_input') throw new Error('real prepared input pending');
   const inputReference = reference('batting_execution_v1_inputs', input);
   const preparedWorldRevision = h.worldOwner.readHead(f.actor.binding.careerId)!.worldRevision;
-  const commitmentSource = save({ sourceId: label + ':commitment', sourceVersion: 'fixture-only-v1', capability: 'same_pa_physical_commitment_v1',
-    viewReference: h.current().viewReference, launchReference, previousOperationReference: decisionCutReference, inputReference, intentReference });
+  const commitmentDeclaration: SamePaPhysicalCommitmentSource = { sourceId: label + ':commitment', sourceVersion: 'fixture-only-v1', capability: 'same_pa_physical_commitment_v1',
+    viewReference: h.current().viewReference, launchReference, previousOperationReference: decisionCutReference, inputReference, intentReference };
+  const commitmentSource = save(options.prepareCommitment?.(commitmentDeclaration, input) ?? commitmentDeclaration);
   const commitment = h.physical.acceptOperation(commitmentSource.sourceId); if (commitment.kind !== 'same_pa_physical_commitment_v1') throw new Error('real effective commitment pending: ' + JSON.stringify(commitment));
   const commitmentReference = reference('pa_physical_v1_commitments', commitment); h.advance(commitmentReference);
   const resolutionSource = save({ sourceId: label + ':resolution', sourceVersion: 'fixture-only-v1', capability: 'same_pa_physical_resolution_v1',

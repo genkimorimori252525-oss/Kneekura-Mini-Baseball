@@ -35,6 +35,8 @@ import { samePaPhysicalEpisodeSourceInput as input, samePaPhysicalOperationOwner
 import { deriveSamePaPhysicalFieldRoot, deriveSamePaPhysicalFieldStep } from './SamePlateAppearancePhysicalFieldCalculation';
 import { deriveSamePaPhysicalFieldCalibration } from './SamePlateAppearancePhysicalFieldCalibration';
 import { deriveSamePaPhysicalFieldAction } from './SamePlateAppearancePhysicalFieldActionFromSqlite';
+import { assertSamePaPhysicalThrowOwnership, samePaPhysicalHasThrowRelease } from './SamePlateAppearancePhysicalFieldThrow';
+import { samePaBuntProfileAvailable } from './SamePlateAppearanceBuntProfile';
 
 type Kind = Exclude<SamePaPhysicalTableKind, 'head' | 'consumer' | 'consumption' | 'admission'>;
 type Pending = Readonly<{ kind: 'pending'; reason: string; missingSourceIds: readonly string[] }>;
@@ -211,6 +213,10 @@ withSamePaLifecycleReadPhase(db, () => {
     const previous=linked(kindForOwner(source.previousOperationReference.owner),source.previousOperationReference) as SamePaPhysicalOperation;
     if(!work(kindOf(previous.source))||previous.physicalPitchSourceId!==launch.source.sourceId||previous.pitchOrdinal!==launch.pitchOrdinal)throw new Error('physical previous operation belongs to another episode');
     const b=(current?readCurrentSamePaLifecycleViewFromSqlite:readHistoricalSamePaLifecycleViewFromSqlite)(db,source.viewReference);
+    // An outcome keeps the old physical predecessor for evidence; it does not
+    // authorize reopening that episode. A new launch has its own arm above.
+    if(b.view.cut.outcomeReference!==null||b.view.cut.resetReference!==null
+      ||['foul_official_pending','foul_reset_ready','terminal'].includes(b.view.cut.stage))throw new Error('physical continuation cannot reopen an owned outcome or reset');
     same(b.view.lineage,launch.lineage);same(b.view.cut.physicalPitchReference,source.launchReference);
     same(b.view.cut.physicalOperationReference,source.previousOperationReference);
     same(b.view.cut.bodyCut,action.bodyCut);
@@ -237,7 +243,8 @@ withSamePaLifecycleReadPhase(db, () => {
       const intent=readSamePaBattingIntentFromSqlite(db,source.intentReference);same(intent.lineage,launch.lineage);if(intent.originalIntent.actorSourceId!==action.actor.source.sourceId)throw new Error('physical original batting intent differs');
       const computed=calculateBattingExecution({nominalRequest:request.nominalRequest,effectiveValues:request.effectiveValues});if(!computed.ok)throw new Error('physical effective batting calculation invalid');
       const calculation=computed.value,commitment=calculation.commitment;if(calculation.status!=='READY'||!commitment)return pending('effective_batting_commitment_not_ready');
-      if(commitment.action==='SWING'&&intent.originalIntent.attempt!=='ordinary_swing')return pending('owned_bunt_physical_profile_required');
+      if(!samePaBuntProfileAvailable(source.buntProfileBinding,{intentReference:source.intentReference,originalIntent:intent.originalIntent,input:request,
+        modelReference:action.source.batterModelReference,calculation}))return pending('owned_bunt_physical_profile_required');
       if(commitment.decisionTick!==b.view.cut.evaluationTick||commitment.action==='SWING'&&(!commitment.trajectory||commitment.trajectory.startTick<b.view.cut.evaluationTick||commitment.trajectory.endTick>launch.trajectory.endTick))throw new Error('physical commitment timing differs');
       const world=current?readEmotionWorldRevisionFromSqlite(db,b.view.lineage.careerId):readHistoricalEmotionWorldRevisionFromSqlite(db,b.view.lineage.careerId,request.nominalRequest.currentFrame.worldRevision);
       if(!world)return pending('actual_world_head_missing');same(world.head.worldRevision,request.nominalRequest.currentFrame.worldRevision);
@@ -268,15 +275,16 @@ withSamePaLifecycleReadPhase(db, () => {
     }
     const root=linked('fieldRoot',source.fieldRootReference);if(root.kind!=='same_pa_physical_field_root_v1')throw new Error('physical field root kind differs');
     same(source.previousFieldReference,source.previousOperationReference);if(previous.kind!=='same_pa_physical_field_root_v1'&&previous.kind!=='same_pa_physical_field_step_v1')throw new Error('physical field predecessor differs');
-    if(source.action){
-      const prefix:(typeof root|typeof previous)[]=[];let value=previous;
+    const prefix:(typeof root|typeof previous)[]=[];let value=previous;
       for(;;){prefix.unshift(value);if(value.kind==='same_pa_physical_field_root_v1')break;
         same(value.source.fieldRootReference,source.fieldRootReference);const ref=value.source.previousFieldReference;
         const prior=linked(kindForOwner(ref.owner),ref);if(prior.kind!=='same_pa_physical_field_root_v1'&&prior.kind!=='same_pa_physical_field_step_v1')throw new Error('physical field action prefix differs');value=prior;}
+    assertSamePaPhysicalThrowOwnership(source,prefix);
+    if(source.action){
       const result=deriveSamePaPhysicalFieldAction(db,source,root,previous,action,b,prefix,current);
       return freeze({...common,source,kind:'same_pa_physical_field_step_v1',stage:'field',...result});
     }
-    return freeze({...common,source,kind:'same_pa_physical_field_step_v1',stage:'field',...deriveSamePaPhysicalFieldStep(source,root,previous,b.view.cut.evaluationTick)});
+    return freeze({...common,source,kind:'same_pa_physical_field_step_v1',stage:'field',...deriveSamePaPhysicalFieldStep(source,root,previous,b.view.cut.evaluationTick,!samePaPhysicalHasThrowRelease(prefix))});
   };
   const resolve=(action:SamePaPhysicalAction,launch:SamePaPhysicalLaunch,commitment:SamePaPhysicalCommitment|null)=>normalizeCore(commitment?.commitment.action==='SWING'
     ?resolveAndRecordAerodynamicRigidPitchAgainstBatter(launch.timeline,{action:{kind:'swing',swing:createRigidBatSwingWindowFromKinematicsV1(commitment.commitment.trajectory!,commitment.calculation.nominalRequest.source.batPhysical)},

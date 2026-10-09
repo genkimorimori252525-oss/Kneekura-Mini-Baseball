@@ -16,6 +16,7 @@ import type { SamePaLifecycleBodyCut } from './SamePlateAppearanceLifecycle';
 import { samePaPhysicalFieldCalibrationSourceInput, type SamePaPhysicalFieldCalibrationSource } from './SamePlateAppearancePhysicalFieldCalibration';
 export type { SamePaPhysicalFieldCalibrationSource } from './SamePlateAppearancePhysicalFieldCalibration';
 import { samePaPhysicalFieldActionInput, type SamePaPhysicalFieldAction, type SamePaPhysicalFieldActionResult } from './SamePlateAppearancePhysicalFieldAction';
+import { samePaBuntProfileBindingInput, type SamePaBuntProfileBinding } from './SamePlateAppearanceBuntProfile';
 
 export const samePaPhysicalOperationOwners = Object.freeze(['pa_physical_v1_launches', 'pa_physical_v1_cuts', 'pa_physical_v1_commitments',
   'pa_physical_v1_resolutions', 'pa_physical_v1_field_roots', 'pa_physical_v1_field_steps'] as const);
@@ -38,7 +39,8 @@ export type SamePaPhysicalLaunchSource = SourceBase & Readonly<{ capability: 'sa
 type OperationSource = SourceBase & Readonly<{ launchReference: SamePaPhysicalLaunchReference; previousOperationReference: SamePaPhysicalOperationReference }>;
 export type SamePaPhysicalCutSource = OperationSource & Readonly<{ capability: 'same_pa_physical_cut_v1'; throughTick: number }>;
 export type SamePaPhysicalCommitmentSource = OperationSource & Readonly<{ capability: 'same_pa_physical_commitment_v1';
-  inputReference: SamePaReference<'batting_execution_v1_inputs'>; intentReference: SamePaReference<'batting_execution_v1_intents'> }>;
+  inputReference: SamePaReference<'batting_execution_v1_inputs'>; intentReference: SamePaReference<'batting_execution_v1_intents'>;
+  buntProfileBinding?: SamePaBuntProfileBinding }>;
 export type SamePaPhysicalResolutionSource = OperationSource & Readonly<{ capability: 'same_pa_physical_resolution_v1'; throughTick: number;
   commitmentReference: SamePaReference<'pa_physical_v1_commitments'> | null }>;
 export type SamePaPhysicalFieldRootSource = OperationSource & Readonly<{ capability: 'same_pa_physical_field_root_v1';
@@ -128,7 +130,8 @@ export const samePaPhysicalEpisodeSourceInput = (raw: unknown, id?: string): Sam
     if (!ref(s.launchReference, 'pa_physical_v1_launches') || !operationRef(s.previousOperationReference) || s.previousOperationReference.sourceId === s.sourceId) throw new Error('invalid physical predecessor');
     const op = [...base, 'launchReference', 'previousOperationReference'];
     if (s.capability === 'same_pa_physical_cut_v1') { if (!fields(s, [...op, 'throughTick']) || !tick(s.throughTick)) throw new Error('invalid physical cut'); }
-    else if (s.capability === 'same_pa_physical_commitment_v1') { if (!fields(s, [...op, 'inputReference', 'intentReference']) || !ref(s.inputReference, 'batting_execution_v1_inputs') || !ref(s.intentReference, 'batting_execution_v1_intents')) throw new Error('invalid physical commitment'); }
+    else if (s.capability === 'same_pa_physical_commitment_v1') { if (!fields(s, [...op, 'inputReference', 'intentReference', ...('buntProfileBinding' in s ? ['buntProfileBinding'] : [])]) || !ref(s.inputReference, 'batting_execution_v1_inputs') || !ref(s.intentReference, 'batting_execution_v1_intents')) throw new Error('invalid physical commitment');
+      if ('buntProfileBinding' in s) samePaBuntProfileBindingInput(s.buntProfileBinding); }
     else if (s.capability === 'same_pa_physical_resolution_v1') { if (!fields(s, [...op, 'throughTick', 'commitmentReference']) || !tick(s.throughTick) || s.commitmentReference !== null && !ref(s.commitmentReference, 'pa_physical_v1_commitments')) throw new Error('invalid physical resolution'); }
     else if (s.capability === 'same_pa_physical_field_root_v1') { const f=s.fieldInputs; if (!fields(s, [...op, 'resolutionReference', 'fieldInputs', 'postureReference', 'commands', 'parameters', 'throughTick']) || !tick(s.throughTick)
       || !ref(s.resolutionReference, 'pa_physical_v1_resolutions') || !ref(s.postureReference, 'batting_observation_v1_postures')

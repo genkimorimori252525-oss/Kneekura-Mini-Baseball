@@ -6,14 +6,14 @@ import { readCurrentSamePaLifecycleViewFromSqlite } from './SamePlateAppearanceL
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
 import type { PlayerObservationCalibration } from '../../core/sim/perception/PlayerObservationCalibration';
-import type { AcceptedBattingObservationCalibration } from './PlayerBattingModel';
+import type { AcceptedBattingCapability, AcceptedBattingObservationCalibration } from './PlayerBattingModel';
 
 /** Real Source acceptance only. Each caller explicitly declares all ten TOTALs;
  * the32 response values remain the separately accepted original fixture values.
  * This helper never constructs a view, actor, model, or physical proof itself. */
 export const prepareSamePaLifecycleFixture=(f:ReturnType<typeof directNativeDispatchFixture>,anchorViewReference:SamePaReference<'pa_continuation_v1_execution_views'>,
   eventReferences:readonly SamePaLifecycleWorkReference[],label:string,effortUnitsByPlayer:Readonly<Record<string,number>>,
-  explicitBatterObservation?:AcceptedBattingObservationCalibration['values'],explicitDefenderObservation?:PlayerObservationCalibration)=>{
+  explicitBatterObservation?:AcceptedBattingObservationCalibration['values'],explicitDefenderObservation?:PlayerObservationCalibration,explicitBatterMotor?:AcceptedBattingCapability['values'])=>{
   const accepted=new Map<string,unknown>(),owner=f.x.f.track(openSqliteSamePlateAppearanceLifecycleStore(f.path,{
     readAcceptedPrefix:id=>accepted.get(id),readAcceptedTotal:id=>accepted.get(id),readAcceptedView:id=>accepted.get(id),readAcceptedCalibration:id=>accepted.get(id)}));
   const prefixSource={sourceId:label+':prefix',sourceVersion:'fixture-only-v1',capability:'same_pa_lifecycle_prefix_v1',
@@ -29,8 +29,8 @@ export const prepareSamePaLifecycleFixture=(f:ReturnType<typeof directNativeDisp
   accepted.set(viewSource.sourceId,viewSource);const view=owner.acceptView(viewSource.sourceId);if(view.kind==='pending')throw new Error('real lifecycle view pending');
   const viewReference=reference('pa_lifecycle_v1_execution_views',view),basis=withSqliteReadTransaction(f.db,()=>readCurrentSamePaLifecycleViewFromSqlite(f.db,viewReference));
   const calibrations=f.acceptedCalibrations.calibrations.map(c=>({...c.source,sourceId:label+':'+c.source.sourceId,capability:'same_pa_lifecycle_execution_calibration_v1',
-    viewReference,member:basis.members.find(m=>m.playerId===c.source.member.playerId)!,provenance:{...c.source.provenance,assessmentSourceId:label+':'+c.source.provenance.assessmentSourceId},
-    response:c.source.route==='batter_observation'&&explicitBatterObservation?{kind:'accepted_execution_values_v1',values:explicitBatterObservation}:c.source.route==='defender_observation'&&explicitDefenderObservation?{kind:'accepted_execution_values_v1',values:explicitDefenderObservation}:c.source.response}));
+    viewReference,member:basis.members.find(m=>m.playerId===c.source.member.playerId)!,provenance:{...c.source.provenance,assessmentSourceId:label+':'+c.source.provenance.assessmentSourceId,...(c.source.route==='batter_motor'&&explicitBatterMotor?{calibrationSourceId:label+':explicit-batter-motor',calibrationVersion:'fixture-only-declared-motor-v1'}:{})},
+    response:c.source.route==='batter_motor'&&explicitBatterMotor?{kind:'accepted_execution_values_v1',values:explicitBatterMotor}:c.source.route==='batter_observation'&&explicitBatterObservation?{kind:'accepted_execution_values_v1',values:explicitBatterObservation}:c.source.route==='defender_observation'&&explicitDefenderObservation?{kind:'accepted_execution_values_v1',values:explicitDefenderObservation}:c.source.response}));
   calibrations.forEach(s=>accepted.set(s.sourceId,s));const calibrationSet=owner.acceptCalibrationSet(calibrations.map(s=>s.sourceId));if(calibrationSet.kind!=='same_pa_lifecycle_calibration_set')throw new Error('real lifecycle32 calibration set pending');
   return {owner,accepted,prefixSource,prefix,prefixReference,totals,totalSet,viewSource,view,viewReference,basis,calibrations,calibrationSet};
 };

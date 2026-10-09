@@ -77,8 +77,8 @@ export const ref = (s: BodySourceRef): BodySourceRef => ({ sourceId: s.sourceId,
 
 /** This is the existing real body owner in the registered batter's own database.
  * Its combined gate must pass before these tests are eligible to establish batting RED. */
-export const registeredBatterBodyFixture = (materializationDay?: number) => {
-  const x = physicalPlateAppearanceActorFixture();
+export const registeredBatterBodyFixture = (materializationDay?: number, profile?: Parameters<typeof physicalPlateAppearanceActorFixture>[2]) => {
+  const x = physicalPlateAppearanceActorFixture(undefined, undefined, profile);
   try {
     const actor = x.actors.accept(x.source.sourceId), person = actor.person;
     const scope: Scope = { careerId: person.careerId, playerId: person.playerId,
@@ -124,8 +124,8 @@ export const registeredBatterBodyFixture = (materializationDay?: number) => {
   } catch (error) { x.f.close(); throw error; }
 };
 
-export const battingModelStanceFixture = (options: Readonly<{ modelDay?: number }> = {}) => {
-  const f = registeredBatterBodyFixture(options.modelDay);
+export const battingModelStanceFixture = (options: Readonly<{ modelDay?: number; profile?: Parameters<typeof physicalPlateAppearanceActorFixture>[2] }> = {}) => {
+  const f = registeredBatterBodyFixture(options.modelDay, options.profile);
   try {
     const exports = runtime as unknown as { openSqlitePlayerBattingModelStore?: OpenModel; openSqliteBattingStanceStore?: OpenStance };
     expect(typeof exports.openSqlitePlayerBattingModelStore,

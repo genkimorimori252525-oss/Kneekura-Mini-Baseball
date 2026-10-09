@@ -56,6 +56,7 @@ type ReadPhase = {
   records: Map<string, SamePaContinuationRecord>;
   pitches: Map<string, ReturnType<typeof readSamePaExecutedPitchFromSqlite>>;
   emptyViews: Map<string, ReturnType<typeof readHistoricalSamePaExecutionView>>;
+  shared: Map<string, unknown>;
   active: Set<string>;
 };
 // A nested normal owner may return through these exports. Only the outermost
@@ -64,7 +65,7 @@ const phases = new WeakMap<DatabaseSync, ReadPhase>();
 const readSignature = (db: DatabaseSync) => json({ transaction: db.isTransaction, query: db.prepare('PRAGMA query_only').get()!.query_only,
   changes: db.prepare('SELECT total_changes() n').get()!.n, main: db.prepare('PRAGMA main.schema_version').get()!.schema_version,
   temp: db.prepare('PRAGMA temp.schema_version').get()!.schema_version, user: db.prepare('PRAGMA main.user_version').get()!.user_version });
-const invalidate = (phase: ReadPhase) => { phase.failed = true; phase.records.clear(); phase.pitches.clear(); phase.emptyViews.clear(); phase.active.clear(); };
+const invalidate = (phase: ReadPhase) => { phase.failed = true; phase.records.clear(); phase.pitches.clear(); phase.emptyViews.clear(); phase.shared.clear(); phase.active.clear(); };
 const immutable = <T>(db: DatabaseSync, body: () => T): T => {
   const { DatabaseSync: Native } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
   if (!(db instanceof Native) || !db.isTransaction || db.prepare('PRAGMA query_only').get()!.query_only !== 1) throw new Error('same-PA continuation requires Native query-only ownership');
@@ -74,7 +75,7 @@ const immutable = <T>(db: DatabaseSync, body: () => T): T => {
       const value = body(); same(readSignature(db), active.signature); return value;
     } catch (error) { invalidate(active); throw error; }
   }
-  const phase: ReadPhase = { signature: readSignature(db), failed: false, records: new Map(), pitches: new Map(), emptyViews: new Map(), active: new Set() };
+  const phase: ReadPhase = { signature: readSignature(db), failed: false, records: new Map(), pitches: new Map(), emptyViews: new Map(), shared: new Map(), active: new Set() };
   const marker = 'pa_continuation_' + randomUUID().replaceAll('-', ''); db.exec('SAVEPOINT ' + marker); phases.set(db, phase);
   try { const value = body(); if (phase.failed) throw new Error('same-PA continuation phase expired');
     same(readSignature(db), phase.signature); db.exec('RELEASE ' + marker); return value;
@@ -84,6 +85,20 @@ const immutable = <T>(db: DatabaseSync, body: () => T): T => {
 };
 /** Internal synchronous owner composition only; never exposed through a Source or owner authority. */
 export const withSamePaContinuationReadPhase = <T>(db: DatabaseSync, body: () => T): T => immutable(db, body);
+/** Completed historical prerequisites belong to the enclosing continuation
+ * proof, including when individual readers enter shorter lifecycle phases.
+ * No map escapes the Native signature/savepoint fence or an owner operation. */
+export const memoSamePaContinuationRead = <T>(db: DatabaseSync, key: string, read: () => T): T => immutable(db, () => {
+  const phase = phases.get(db)!, name = 'shared:' + key;
+  if (phase.shared.has(name)) return phase.shared.get(name) as T;
+  if (phase.active.has(name)) throw new Error('same-PA continuation shared proof cycle');
+  phase.active.add(name);
+  try {
+    const value = read();
+    if (phase.failed) throw new Error('same-PA continuation phase expired');
+    phase.shared.set(name, value); return value;
+  } finally { phase.active.delete(name); }
+});
 const originalEmptyView = (db: DatabaseSync, ref: SamePaReference<'reserved_pa_execution_views'>) => {
   const phase = phases.get(db); if (!phase || phase.failed) throw new Error('same-PA continuation phase missing'); same(readSignature(db), phase.signature);
   const key = json(ref), prior = phase.emptyViews.get(key); if (prior) return prior;

@@ -25,7 +25,7 @@ it('PL01 one owned TAKE chain reaches a terminal walk, settles all ten participa
         physics:{...h.original.nominalPitch.delivery.physics,velocity:{...h.original.nominalPitch.delivery.physics.velocity,x:lateral}}}};
       const planned=h.prepareAction('physical-fixture:pitch'+ordinal,'declared_take',nominalPitch);
       const pose=h.preparePosture('physical-fixture:pitch'+ordinal,planned,{...h.geometry,startedAtTick:planned.action.bodyCut.completedAtTick,
-        attention:{target:{kind:'ball'},focusedSinceTick:planned.action.bodyCut.completedAtTick},bodyReadyTick:readyAtUs,latestMotorStartTick:readyAtUs});
+        attention:{target:{kind:'ball'},focusedSinceTick:planned.action.bodyCut.completedAtTick},bodyReadyTick:readyAtUs,latestMotorStartTick:readyAtUs,validUntilTick:readyAtUs+20_000_000});
       const prepared=h.prepareRight(planned,pose.postureReference);
       expect(prepared.action.pitchOrdinal).toBe(ordinal);expect(prepared.right.source.participantInputs).toHaveLength(10);
       expect(prepared.right.source.participantInputs.flatMap(p=>p.calibrationReferences)).toHaveLength(32);

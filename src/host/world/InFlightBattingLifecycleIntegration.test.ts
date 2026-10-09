@@ -1,8 +1,12 @@
 import { expect, it } from 'vitest';
+import { readSamePaFieldRuleEvidenceFromSqlite } from './SamePlateAppearanceFieldRuleEvidenceFromSqlite';
 import { REFERENCE_BASEBALL_AERODYNAMICS } from '../../core/sim/ball/BaseballAerodynamics';
 import { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 import { prepareInFlightBattingSwing } from './InFlightBattingLifecycleFixture.test-support';
 import { appendNativePhysicalFieldActions } from './SamePlateAppearancePhysicalFieldActionsNative.test-support';
+import { prepareNativePhysicalThrowCalibration } from './SamePlateAppearancePhysicalThrowNative.test-support';
+import { physicalThrowSceneFixture } from './SamePlateAppearancePhysicalThrowScene.test-support';
+import { appendNativePhysicalThrowReception } from './SamePlateAppearancePhysicalThrowReception.test-support';
 import { prepareFreshPhysicalFieldFixture } from './SamePlateAppearancePhysicalFieldFixture.test-support';
 import { dispatchCalibrationValues } from './SamePlateAppearanceDispatchCalibration.test-support';
 import { actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -24,7 +28,8 @@ it('IFN01 owned in-flight samples, delayed delivery, explicit appraisal and prep
     memoryDecayParameters: { ...defenderValues.memoryDecayParameters, ticksPerSecond: 1_000_000 },
     errorParameters: { ...defenderValues.errorParameters, minimumDetectionQuality: 0,
       minimumPositionErrorMeters: 0, maximumPositionErrorMeters: 0, minimumVelocityErrorMps: 0, maximumVelocityErrorMps: 0 } };
-  const h = samePaPhysicalLifecycleFixture({ explicitBatterObservation, explicitDefenderObservation }), { f } = h;
+  const throwScene = physicalThrowSceneFixture();
+  const h = samePaPhysicalLifecycleFixture({ explicitBatterObservation, explicitDefenderObservation, explicitDefenderGloveOffsets: throwScene.gloveOffsets }), { f } = h;
   try {
     const before = h.current(), readyAtUs = Math.max(before.view.cut.evaluationTick, before.view.cut.bodyCut.completedAtTick);
     const originalHeads = f.db.prepare('SELECT * FROM world_player_workload_heads ORDER BY career_id,player_id').all();
@@ -79,10 +84,21 @@ it('IFN01 owned in-flight samples, delayed delivery, explicit appraisal and prep
     expect(field.root.source.fieldInputs).toEqual({ kind: 'fresh_physical_field_calibration_v1', calibrationReference: fieldPreparation.calibrationReference });
     expect(field.root.response.world.flight.initialBall.tick).toBe(s.resolution.contact!.tick);
     expect(field.step.evaluationTick).toBeGreaterThanOrEqual(field.root.evaluationTick);
-    const fieldActions = appendNativePhysicalFieldActions(h, field, 'in-flight-fixture:field-actions');
+    const thrown = appendNativePhysicalThrowReception(h, field, 'in-flight-fixture:throw');
+    expect(thrown.secured.value.field.motion.carrierPlayerId).toBe('p2');
+    expect(thrown.calibration.value.source.response).toEqual({ kind: 'accepted_execution_values_v1', values: throwScene.values });
+    expect(thrown.calibration.replay).toEqual(thrown.calibration.value);
+    expect(thrown.planned.value.field).toEqual(thrown.secured.value.field);
+    expect(thrown.transfer.value.field.motion.carrierPlayerId).toBe('p2');
+    expect(thrown.released.value.field.motion.carrierPlayerId).toBeNull();
+    expect(thrown.reception.value.evaluationTick).toBeGreaterThan(thrown.released.value.evaluationTick);
+    expect(thrown.reception.value.field.motion.response.kind).toBe('capture_candidate');
+    expect(thrown.received.value.field.motion.carrierPlayerId).toBe('home-1');
+    expect(thrown.received.value.field.motion.actors).toHaveLength(50);
+    const fieldActions = appendNativePhysicalFieldActions(h, thrown.fieldForActions, 'in-flight-fixture:field-actions');
     const observation = fieldActions.observation.value.actionResult, decision = fieldActions.decision.value.actionResult, motor = fieldActions.motion.value.actionResult;
     if (observation?.kind !== 'defender_observation_v1' || decision?.kind !== 'defender_decision_v1' || motor?.kind !== 'defender_motion_v1') throw new Error('IFN01 actual field chain kinds differ');
-    expect(observation.receipt.at.tick).toBe(field.step.evaluationTick);
+    expect(observation.receipt.at.tick).toBe(thrown.received.value.evaluationTick);
     expect(observation.receipt.samples.ball).not.toBeNull();
     expect(decision.observationReference).toEqual(fieldActions.observation.operationReference);
     expect(decision.calculation.selected.intent.kind).toBe('ball_handler');
@@ -94,7 +110,28 @@ it('IFN01 owned in-flight samples, delayed delivery, explicit appraisal and prep
     expect(Math.hypot(motor.motors[0].segment.acceleration.x, motor.motors[0].segment.acceleration.z)).toBeGreaterThan(0);
     expect(fieldActions.motion.value.field.motion.actors).toHaveLength(50);
     expect(fieldActions.replay.record).toEqual(fieldActions.motion.value);
+    const throwCut = h.current().viewReference, physicalEventCount = h.events.length;
+    const throwCalibration = prepareNativePhysicalThrowCalibration(h, fieldActions.playerId, 'in-flight-fixture:throw-preparation');
+    expect(throwCalibration.value.source.viewReference).toEqual(throwCut);
+    expect(throwCalibration.replay).toEqual(throwCalibration.value);
+    expect(throwCalibration.value.nominalInputHash).toBe(hash(throwCalibration.model));
+    expect(h.current().calibrationSet.calibrations).toHaveLength(32);
+    expect(h.current().viewReference).toEqual(throwCut); expect(h.events).toHaveLength(physicalEventCount);
     expect(h.current().view.cut.stage).toBe('field_active');
+    const fieldView = h.current().viewReference;
+    const changesBeforeRule = f.db.prepare('SELECT total_changes() n').get()!.n;
+    const fieldRule = withSqliteReadTransaction(f.db, () => readSamePaFieldRuleEvidenceFromSqlite(f.db, fieldView, 'current'));
+    if (fieldRule.kind !== 'same_pa_field_rule_evidence_v1') throw new Error('IFN01 original field rule bridge is pending');
+    expect(fieldRule.physicalOperationReference).toEqual(fieldActions.motion.operationReference);
+    expect(fieldRule.evidence.physical.field.evidence.horizon).toEqual(fieldActions.motion.value.field.motion.world.moment);
+    expect(fieldRule.evidence.defendersFirstBase).toHaveLength(9);
+    expect(fieldRule.evidence.batterFirstBase.history.playerId).toBe(f.actor.binding.playerId);
+    expect(fieldRule.evidence.terminal).toEqual({ kind: 'pending', reason: 'reserved_live_play_end_owner_missing', physicalEnd: null });
+    expect(f.db.prepare('SELECT total_changes() n').get()!.n).toBe(changesBeforeRule);
+    const oldFieldRule = withSqliteReadTransaction(f.db, () => readSamePaFieldRuleEvidenceFromSqlite(f.db, fieldActions.motionViewReference, 'historical'));
+    expect(oldFieldRule.kind).toBe('same_pa_field_rule_evidence_v1');
+    expect(() => withSqliteReadTransaction(f.db, () => readSamePaFieldRuleEvidenceFromSqlite(f.db, fieldActions.motionViewReference, 'current'))).toThrow();
+
     expect(f.db.prepare('SELECT * FROM world_player_workload_heads ORDER BY career_id,player_id').all()).toEqual(originalHeads);
     const reopenedPerception = f.x.f.track(openSqliteBattingPerceptionStore(f.path));
     const reopenedInput = f.x.f.track(openSqliteBattingExecutionInputStore(f.path));

@@ -9,6 +9,7 @@ import { playerBattingModelEvidenceFromSqlite } from './PlayerBattingModelEviden
 import { playerObservationModelEvidenceFromSqlite } from './SqlitePlayerObservationModelStore';
 import { playerDecisionModelEvidenceFromSqlite } from './SqlitePlayerDecisionModelStore';
 import { playerLocomotionModelEvidenceFromSqlite } from './SqlitePlayerLocomotionModelStore';
+import { playerFieldingModelEvidenceFromSqlite } from './SqlitePlayerFieldingModelStore';
 import { readPlayerPitchTimingPrefixFromSqlite, assertCurrentPlayerPitchTimingPrefixFromSqlite } from './SqlitePlayerPitchTimingStore';
 import { readPitchFatiguePolicyFromSqlite } from './SqlitePitchFatiguePolicyStore';
 import { playerPersonLinkEvidenceFromSqlite } from './SqlitePlayerPersonLinkStore';
@@ -41,6 +42,14 @@ export const deriveSamePaLifecycleCalibration = (db: DatabaseSync, source: Accep
     const p = model[source.nominalParameterReference.parameterKey]; same(source.nominalParameterReference,
       { parameterKey: source.nominalParameterReference.parameterKey, sourceId: p.sourceId, sourceVersion: p.sourceVersion, sourceHash: hash(p) });
     if (current) same(owner.selectAtDay(binding.careerId, binding.playerId, binding.gameDay), model); nominal = p;
+  } else if (source.route === 'defender_throw') {
+    if (!actor.defenderBindings.some(b => b.playerId === binding.playerId)) throw new Error('lifecycle throw calibration requires original defender');
+    const owner = playerFieldingModelEvidenceFromSqlite(db), model = owner.read(source.nominalReference.sourceId);
+    if (!model) throw new Error('lifecycle original fielding model missing');
+    same(reference('world_player_fielding_models', model), source.nominalReference); same(model.person, person);
+    if (model.source.careerId !== binding.careerId || model.source.playerId !== binding.playerId || model.source.personLinkSourceId !== binding.personLinkSourceId
+      || model.source.acceptedAtDay > binding.gameDay) throw new Error('lifecycle throw original scope differs');
+    if (current) same(owner.selectAtDay(binding.careerId, binding.playerId, binding.gameDay), model); nominal = model;
   } else {
     if (!actor.defenderBindings.some(b => b.playerId === binding.playerId)) throw new Error('lifecycle defender calibration requires original defender');
     const owner = source.route === 'defender_observation' ? playerObservationModelEvidenceFromSqlite(db)

@@ -3,18 +3,21 @@ import { openSqlitePlayerBodyCapabilityMaterializationStore } from './SqlitePlay
 import { playerFieldingModelEvidenceFromSqlite } from './SqlitePlayerFieldingModelStore';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import type { BodyMaterializationRequest, AcceptedBodySource, AcceptedPoseSource } from './PlayerBodyCapabilityMaterialization';
+import type { Vec3 } from '../../core/model/geometry';
 
 /** Nine additional explicit synthetic measurement declarations. Numerical body,
  * pose and reach values are the existing NativeBattingModelStanceFixtures values;
  * every new Person/body/model binding is accepted through its real Native owner.
  * No stance archive, physical World, generated default or genuine file is used. */
-export const prepareSamePaSceneBodies = (f: ReturnType<typeof directNativeDispatchFixture>) => {
+export const prepareSamePaSceneBodies = (f: ReturnType<typeof directNativeDispatchFixture>, explicitGloveOffsets: Readonly<Record<string, Vec3>> = {}) => {
+  if (Object.keys(explicitGloveOffsets).some(id => !f.actor.defenderBindings.some(b => b.playerId === id))) throw new Error('explicit scene pose requires an original defender');
   const bodies = new Map<string, AcceptedBodySource>(), poses = new Map<string, AcceptedPoseSource>(), requests = new Map<string, BodyMaterializationRequest>();
   const parameters = f.actor.defenderBindings.map(binding => {
     const scope = { careerId: binding.careerId, playerId: binding.playerId, personId: binding.personId, personLinkSourceId: binding.personLinkSourceId };
     const body: AcceptedBodySource = { ...f.body, ...scope, sourceId: 'same-pa-scene-body:' + binding.playerId, sourceVersion: 'fixture-only-v1', acceptedAtDay: binding.gameDay };
     const pose: AcceptedPoseSource = { ...f.pose, ...scope, sourceId: 'same-pa-scene-pose:' + binding.playerId, sourceVersion: 'fixture-only-v1', acceptedAtDay: binding.gameDay,
-      bodyRef: { sourceId: body.sourceId, sourceVersion: body.sourceVersion } };
+      bodyRef: { sourceId: body.sourceId, sourceVersion: body.sourceVersion }, primitives: f.pose.primitives.map(p => p.role === 'glove' && explicitGloveOffsets[binding.playerId]
+        ? { ...p, offset: explicitGloveOffsets[binding.playerId] } : p) };
     const model = playerFieldingModelEvidenceFromSqlite(f.db).read('native-fielding:' + binding.playerId);
     if (!model) throw new Error('shared Native scene fixture original fielding model missing');
     const pitcher = f.actor.world.defenders.find(d => d.playerId === binding.playerId)?.registeredPosition === 'P';

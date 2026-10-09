@@ -1,5 +1,6 @@
 import type { PrePlayDefensivePlan } from '../../core/sim/fielding/DefensiveDecision';
 import type { BattedWorldScheduledFieldAcquisitionAdvance } from '../../core/sim/ball/BattedWorldScheduledFieldAcquisition';
+import type { BattedWorldScheduledFieldThrowAdvance, BattedWorldScheduledFieldThrowPlan } from '../../core/sim/ball/BattedWorldScheduledFieldThrow';
 import type { AcceptedActualFieldObservation, ActualFieldObservationReceipt } from './ActualFieldObservation';
 import type { DefensiveExecutionCalculation } from './DefensiveExecutionCalculation';
 import type { SamePaDispatchMember } from './SamePlateAppearanceDispatchRoles';
@@ -16,6 +17,9 @@ export type SamePaPhysicalFieldAction =
       observationReference: StepReference; priorities: PrePlayDefensivePlan }>
   | Readonly<{ kind: 'defender_motion_v1'; selections: readonly Readonly<{ member: SamePaDispatchMember;
       decisionReference: StepReference; calibrationReference: CalibrationReference }>[] }>
+  | Readonly<{ kind: 'throw_plan_v1'; member: SamePaDispatchMember; calibrationReference: CalibrationReference;
+      receiverPlayerId: string; coverageThroughTick: number }>
+  | Readonly<{ kind: 'throw_checkpoint_v1'; planReference: StepReference; throughElapsedSeconds: number }>
   | Readonly<{ kind: 'capture_checkpoint_v1'; candidateReference: SamePaPhysicalFieldReference; throughElapsedSeconds: number }>;
 export type SamePaPhysicalFieldActionResult =
   | Readonly<{ kind: 'defender_observation_v1'; playerId: string; samplingRequest: AcceptedActualFieldObservation; receipt: ActualFieldObservationReceipt; fieldingModelHash: string }>
@@ -23,6 +27,8 @@ export type SamePaPhysicalFieldActionResult =
       calculation: DefensiveExecutionCalculation; target: Readonly<{ x: number; z: number }> | null;
       availability: ActualFieldObservationReceipt['at']; fieldingModelHash: string }>
   | Readonly<{ kind: 'defender_motion_v1'; motors: readonly SamePaPhysicalFieldMotor[]; coverageThroughTick: number }>
+  | Readonly<{ kind: 'throw_plan_v1'; plan: BattedWorldScheduledFieldThrowPlan; fieldingModelHash: string }>
+  | Readonly<{ kind: 'throw_checkpoint_v1'; planReference: StepReference; progress: BattedWorldScheduledFieldThrowAdvance }>
   | Readonly<{ kind: 'capture_checkpoint_v1'; candidateReference: SamePaPhysicalFieldReference; progress: BattedWorldScheduledFieldAcquisitionAdvance }>;
 const vector = (v: unknown) => fields(v, ['x', 'y', 'z']) && Object.values(v).every(Number.isFinite);
 const unit = (v: unknown) => typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 1;
@@ -51,6 +57,13 @@ export const samePaPhysicalFieldActionInput = (a: SamePaPhysicalFieldAction): vo
       || new Set(a.selections.map(s => s.member?.playerId)).size !== a.selections.length
       || a.selections.some(s => !fields(s, ['member', 'decisionReference', 'calibrationReference']) || !member(s.member, s.calibrationReference)
         || !ref(s.decisionReference, 'pa_physical_v1_field_steps'))) throw new Error('invalid physical field motion Source');
+  } else if (a?.kind === 'throw_plan_v1') {
+    if (!fields(a, ['kind', 'member', 'calibrationReference', 'receiverPlayerId', 'coverageThroughTick']) || !member(a.member, a.calibrationReference)
+      || !text(a.receiverPlayerId) || a.receiverPlayerId === a.member.playerId || !Number.isSafeInteger(a.coverageThroughTick)
+      || a.coverageThroughTick < 0) throw new Error('invalid physical throw plan Source');
+  } else if (a?.kind === 'throw_checkpoint_v1') {
+    if (!fields(a, ['kind', 'planReference', 'throughElapsedSeconds']) || !ref(a.planReference, 'pa_physical_v1_field_steps')
+      || !Number.isFinite(a.throughElapsedSeconds) || a.throughElapsedSeconds < 0) throw new Error('invalid physical throw checkpoint Source');
   } else if (a?.kind === 'capture_checkpoint_v1') {
     if (!fields(a, ['kind', 'candidateReference', 'throughElapsedSeconds'])
       || !(ref(a.candidateReference, 'pa_physical_v1_field_roots') || ref(a.candidateReference, 'pa_physical_v1_field_steps'))

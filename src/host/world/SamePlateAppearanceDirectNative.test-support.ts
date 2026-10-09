@@ -17,8 +17,8 @@ import { dispatchCalibrationValues } from './SamePlateAppearanceDispatchCalibrat
  * reserved states and accepted32 rows use their unchanged real Native owners.
  * Numerical declarations reuse the existing explicit fixture values; no mock,
  * genuine donor, model default or production fatigue calibration is involved. */
-export const directNativeDispatchFixture = () => {
-  const f = battingModelStanceFixture(), db = f.x.f.db, track = f.x.f.track;
+export const directNativeDispatchFixture = (options: Parameters<typeof battingModelStanceFixture>[0] = {}) => {
+  const f = battingModelStanceFixture(options), db = f.x.f.db, track = f.x.f.track;
   try {
     const actor = f.actor, batting = f.modelStore.accept(f.source.sourceId), values = dispatchCalibrationValues();
     // Existing continuous fixture baseline/policy and effortUnits=2 are explicit

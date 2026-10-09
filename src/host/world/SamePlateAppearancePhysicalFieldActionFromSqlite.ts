@@ -6,10 +6,12 @@ import { actualDefensiveBoundary } from './ActualDefensiveContext';
 import { playerObservationModelEvidenceFromSqlite } from './SqlitePlayerObservationModelStore';
 import { playerDecisionModelEvidenceFromSqlite } from './SqlitePlayerDecisionModelStore';
 import { playerLocomotionModelEvidenceFromSqlite } from './SqlitePlayerLocomotionModelStore';
+import { playerFieldingModelEvidenceFromSqlite } from './SqlitePlayerFieldingModelStore';
 import { readBattingPerceptionFromSqlite } from './SqliteBattingPerceptionStore';
 import { readSamePaLifecycleCalibrationFromSqlite, readCurrentSamePaLifecycleCalibrationFromSqlite } from './SamePlateAppearanceLifecycleFromSqlite';
 import { samePaPhysicalDefenderSelf, deriveSamePaPhysicalFieldMotor } from './SamePlateAppearancePhysicalFieldMotor';
 import { deriveSamePaPhysicalFieldCapture } from './SamePlateAppearancePhysicalFieldCapture';
+import { assertSamePaPhysicalThrowOwnership, deriveSamePaPhysicalThrowPlan, deriveSamePaPhysicalThrowCheckpoint, samePaPhysicalHasThrowRelease } from './SamePlateAppearancePhysicalFieldThrow';
 import { samePaPhysicalTimelineAtField } from './SamePlateAppearancePhysicalFieldCalculation';
 import type { SamePaPhysicalFieldActionResult, SamePaPhysicalFieldReference } from './SamePlateAppearancePhysicalFieldAction';
 import type { SamePaPhysicalAction, SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep, SamePaPhysicalFieldStepSource } from './SamePlateAppearancePhysicalEpisode';
@@ -34,6 +36,7 @@ export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePa
   same(source.fieldRootReference, fieldReference(root));
   if (!prefix.length || prefix[0].source.sourceId !== root.source.sourceId) throw new Error('physical field action original prefix missing');
   same(fieldReference(prefix.at(-1)!), source.previousFieldReference);
+  assertSamePaPhysicalThrowOwnership(source, prefix);
   const linked = (ref: SamePaPhysicalFieldReference): Field => {
     const value = prefix.find(v => v.source.sourceId === ref.sourceId);
     if (!value) throw new Error('physical field dependency is outside the original prefix');
@@ -103,6 +106,22 @@ export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePa
     const value = deriveSamePaPhysicalFieldCapture(source, root, physical, candidate);
     return freeze({ ...value, timeline: previous.timeline });
   }
+  if (request.kind === 'throw_checkpoint_v1') return deriveSamePaPhysicalThrowCheckpoint(source, root, previous, prefix);
+  if (request.kind === 'throw_plan_v1') {
+    const c = calibration(request.member, request.calibrationReference);
+    if (c.route !== 'defender_throw') throw new Error('physical throw effective route differs');
+    const model = playerFieldingModelEvidenceFromSqlite(db).read(c.nominalReference.sourceId);
+    if (!model) throw new Error('physical throw nominal fielding model missing');
+    same(reference('world_player_fielding_models', model), c.nominalReference);
+    const posture = readBattingPerceptionFromSqlite(db, 'posture', root.source.postureReference);
+    if (posture.kind !== 'batting_invocation_posture') throw new Error('physical throw original bodies missing');
+    for (const playerId of [request.member.playerId, request.receiverPlayerId]) {
+      const body = posture.sceneBodies.find(b => b.source.playerId === playerId);
+      if (!body) throw new Error('physical throw original Person body missing');
+      samePaPhysicalDefenderSelf(action, root, previous, body.actor);
+    }
+    return deriveSamePaPhysicalThrowPlan(source, root, previous, action, model, c.response.values);
+  }
   const motion = previous.field.motion, p = root.response.world.parameters;
   if (!motion.cursor || source.throughTick <= previous.evaluationTick) throw new Error('physical moving field requires a resolved cursor and covered progress');
   const posture = readBattingPerceptionFromSqlite(db, 'posture', root.source.postureReference);
@@ -136,5 +155,5 @@ export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePa
     carrierPlayerId: motion.carrierPlayerId, availableAtTick: motors[0].segment.startTick, coverageThroughTick, checkpointThroughTick: source.throughTick, commands });
   const actionResult: SamePaPhysicalFieldActionResult = { kind: request.kind, motors, coverageThroughTick };
   return freeze({ field, evaluationTick: field.motion.world.moment.ball.tick,
-    timeline: samePaPhysicalTimelineAtField(previous.timeline, field, root.response, root.geometry), actionResult });
+    timeline: samePaPhysicalHasThrowRelease(prefix) ? previous.timeline : samePaPhysicalTimelineAtField(previous.timeline, field, root.response, root.geometry), actionResult });
 };

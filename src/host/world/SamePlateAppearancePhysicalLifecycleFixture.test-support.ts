@@ -15,18 +15,19 @@ import { openSqliteWorldControlStore } from './SqliteWorldControlStore';
 import type { SamePaLifecycleWorkReference } from './SamePlateAppearanceLifecycle';
 import type { SamePaPhysicalActionSource } from './SamePlateAppearancePhysicalEpisode';
 import type { PlayerObservationCalibration } from '../../core/sim/perception/PlayerObservationCalibration';
-import type { AcceptedBattingObservationCalibration } from './PlayerBattingModel';
+import type { AcceptedBattingCapability, AcceptedBattingObservationCalibration } from './PlayerBattingModel';
 import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import type { AcceptedInFlightBattingPosture } from './NativeInFlightBattingPerception';
+import type { Vec3 } from '../../core/model/geometry';
 
 /** Source-only synthetic ownership fixture. It performs the two earlier TAKEs
  * through the real owners, then exposes a current accepted lifecycle view.
  * No returned actor/view is manufactured or supplied to a production writer. */
-export const samePaPhysicalLifecycleFixture=(options:Readonly<{explicitBatterObservation?:AcceptedBattingObservationCalibration['values'];explicitDefenderObservation?:PlayerObservationCalibration}>={})=>{
-  const f=directNativeDispatchFixture(),accepted=new Map<string,unknown>(),track=f.x.f.track;
+export const samePaPhysicalLifecycleFixture=(options:Readonly<{explicitBatterObservation?:AcceptedBattingObservationCalibration['values'];explicitDefenderObservation?:PlayerObservationCalibration;explicitBatterMotor?:AcceptedBattingCapability['values'];profile?:NonNullable<Parameters<typeof directNativeDispatchFixture>[0]>['profile'];explicitDefenderGloveOffsets?:Readonly<Record<string,Vec3>>}>={})=>{
+  const f=directNativeDispatchFixture({profile:options.profile}),accepted=new Map<string,unknown>(),track=f.x.f.track;
   const save=<T extends {sourceId:string}>(s:T):T=>{accepted.set(s.sourceId,s);return s;};
   try{
-    const original=f.acceptedAction.source,sceneBodyReferences=prepareSamePaSceneBodies(f);
+    const original=f.acceptedAction.source,sceneBodyReferences=prepareSamePaSceneBodies(f,options.explicitDefenderGloveOffsets);
     const genesisSource=save({sourceId:'physical-fixture:emotion-genesis',sourceVersion:'fixture-only-v1',capability:'owned_batting_emotion_genesis_v1',
       viewReference:original.viewReference,member:deriveSamePaDispatchRoles(f.actor,f.view)[0].member,policy:policy(),provenance:{assessmentSourceId:'physical-fixture:genesis-assessment',
         assessmentVersion:'fixture-only-v1',calibrationSourceId:'existing-explicit-Core-fixture',calibrationVersion:'fixture-only-v1'}});
@@ -59,7 +60,7 @@ export const samePaPhysicalLifecycleFixture=(options:Readonly<{explicitBatterObs
       previousPitchReference:reference('pa_dispatch_v1_pitch_actions',first),nominalPitch:{...original.nominalPitch,delivery:{...original.nominalPitch.delivery,readyAtUs}},
       timingReference:original.timingReference,releaseReference:original.releaseReference,pitchResponseReference:original.pitchResponseReference,batterModelReference:original.batterModelReference});
     const secondAction=next.acceptAction(secondActionSource.sourceId);if(secondAction.kind==='pending')throw new Error('real second action pending');
-    const geometry={kind:'stationary_pre_pitch_scene_v1' as const,startedAtTick:secondAction.bodyCut.completedAtTick,validUntilTick:20_000_000,ticksPerSecond:1_000_000,
+    const geometry={kind:'stationary_pre_pitch_scene_v1' as const,startedAtTick:secondAction.bodyCut.completedAtTick,validUntilTick:readyAtUs+20_000_000,ticksPerSecond:1_000_000,
       handedness:'R' as const,centerOfMass:{x:-0.78,y:1,z:-0.16},eyePosition:{x:-0.78,y:1.6,z:-0.16},observerForward:{x:0,y:0,z:1},
       attention:{target:{kind:'ball' as const},focusedSinceTick:secondAction.bodyCut.completedAtTick},bodyReadyTick:readyAtUs,latestMotorStartTick:readyAtUs,
       plateZ:original.nominalPitch.batter.plateZ,strikeZone:original.nominalPitch.batter.strikeZone};
@@ -76,10 +77,10 @@ export const samePaPhysicalLifecycleFixture=(options:Readonly<{explicitBatterObs
     save({sourceId:postureSource.nextPhysicalPitchSourceId,sourceVersion:'fixture-only-v1',capability:'same_pa_successor_take_pitch_v1',actionReference:setupSource.actionReference,setupReference:reference('pa_take_successor_v1_setups',setup)});
     const second=next.acceptPhysicalPitch(postureSource.nextPhysicalPitchSourceId);if(second.kind==='pending')throw new Error('real second TAKE pending');
     const events:SamePaLifecycleWorkReference[]=[reference('pa_take_successor_v1_pitch_actions',second)];
-    let basis=prepareSamePaLifecycleFixture(f,anchor.viewReference,[...events],'physical-fixture:cut0',efforts,options.explicitBatterObservation,options.explicitDefenderObservation);
+    let basis=prepareSamePaLifecycleFixture(f,anchor.viewReference,[...events],'physical-fixture:cut0',efforts,options.explicitBatterObservation,options.explicitDefenderObservation,options.explicitBatterMotor);
     const physical=track(openSqliteSamePlateAppearancePhysicalEpisodeStore(f.path,{readAcceptedAction:id=>accepted.get(id),readAcceptedRight:id=>accepted.get(id),readAcceptedFieldCalibration:id=>accepted.get(id),readAcceptedOperation:id=>accepted.get(id)}));
     const current=()=>basis;
-    const advance=(ref:SamePaLifecycleWorkReference)=>{events.push(ref);basis=prepareSamePaLifecycleFixture(f,anchor.viewReference,[...events],'physical-fixture:cut'+events.length,efforts,options.explicitBatterObservation,options.explicitDefenderObservation);return basis;};
+    const advance=(ref:SamePaLifecycleWorkReference)=>{events.push(ref);basis=prepareSamePaLifecycleFixture(f,anchor.viewReference,[...events],'physical-fixture:cut'+events.length,efforts,options.explicitBatterObservation,options.explicitDefenderObservation,options.explicitBatterMotor);return basis;};
     const prepareAction=(label:string,battingMode:SamePaPhysicalActionSource['battingMode'],nominalPitch:SamePaPhysicalActionSource['nominalPitch'],actualFlightParameters=flight().parameters)=>{
       const s=save({sourceId:label+':action',sourceVersion:'fixture-only-v1',capability:'same_pa_physical_action_v1',viewReference:basis.viewReference,physicalPitchSourceId:label+':launch',battingMode,nominalPitch,
         timingReference:original.timingReference,releaseReference:original.releaseReference,pitchResponseReference:original.pitchResponseReference,batterModelReference:original.batterModelReference,

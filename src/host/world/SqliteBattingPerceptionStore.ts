@@ -1,4 +1,3 @@
-import { memoSamePaLifecycleRead } from './SamePlateAppearanceLifecycleFromSqlite';
 import { assertInFlightBattingWriteCurrentFromSqlite } from './InFlightBattingLifecycleFenceFromSqlite';
 import { isInFlightBattingPerceptionSource } from './NativeInFlightBattingPerception';
 import { deriveInFlightBattingPerception } from './InFlightBattingPerceptionFromSqlite';
@@ -18,7 +17,7 @@ import { deriveSamePaDispatchRoles } from './SamePlateAppearanceDispatchRoles';
 import { playerBattingModelEvidenceFromSqlite } from './PlayerBattingModelEvidence';
 import { playerBodyCapabilityMaterializationEvidenceFromSqlite } from './PlayerBodyCapabilityMaterializationEvidence';
 import { readSamePaPreparedActionFromSqlite, readSamePaExecutedPitchFromSqlite } from './SqliteSamePlateAppearanceDispatchStore';
-import { readHistoricalSamePaContinuationViewFromSqlite, readCurrentSamePaContinuationViewFromSqlite, readSamePaContinuationCalibrationFromSqlite, readCurrentSamePaContinuationCalibrationFromSqlite } from './SamePlateAppearanceContinuationFromSqlite';
+import { readHistoricalSamePaContinuationViewFromSqlite, readCurrentSamePaContinuationViewFromSqlite, readSamePaContinuationCalibrationFromSqlite, readCurrentSamePaContinuationCalibrationFromSqlite, memoSamePaContinuationRead } from './SamePlateAppearanceContinuationFromSqlite';
 import { assertSamePaOriginalMember } from './SamePlateAppearanceInvocationView';
 import { battingInvocationTransaction } from './BattingInvocationTransaction';
 import { deriveDeliveredBattingObservedMotionForecast } from './NativeBattingPrediction';
@@ -285,7 +284,7 @@ const assembly = (db: DatabaseSync, fresh: boolean) => {
       availableTick: prediction.forecast.availableTick, validUntilTick: prediction.forecast.validUntilTick, trajectory: prediction.forecast.trajectory, swingScore: source.score } });
   };
   function read(kind: Kind, id: string): RecordValue | null {
-    return memoSamePaLifecycleRead(db, 'batting-perception:historical:' + kind + ':' + id, () => {
+    return memoSamePaContinuationRead(db, 'batting-perception:historical:' + kind + ':' + id, () => {
       const key = kind + ':' + id, cached = records.get(key); if (cached) return cached;
       if (active.has(key)) return fail('cyclic original dependency');
       const row = identityRow(db, kind, id); if (!row) return null;

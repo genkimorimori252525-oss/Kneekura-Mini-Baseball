@@ -32,9 +32,11 @@ export const openSqliteSamePlateAppearanceLifecycleStore = (path: string, author
     const previous = db.prepare(`SELECT source_id FROM main.${tables[kind]} WHERE ${keys.map(k => k + '=?').join(' AND ')}`).get(...keys.map(k => row[k]));
     if (previous && previous.source_id !== row.source_id) throw new Error('same-PA lifecycle canonical Source alias rejected');
   };
-  const accept = (kind: Exclude<Kind, 'total' | 'calibration'>, id: string): RecordValue | Pending => {
-    const raw = (kind === 'prefix' ? authority?.readAcceptedPrefix : authority?.readAcceptedView)?.(id) ?? null;
+  const accept = (kind: Exclude<Kind, 'total'>, id: string): RecordValue | Pending => {
+    const raw = (kind === 'prefix' ? authority?.readAcceptedPrefix : kind === 'view' ? authority?.readAcceptedView : authority?.readAcceptedCalibration)?.(id) ?? null;
     const source = raw === null ? null : parsed(kind, raw, id), prior = read(kind, id);
+    if (kind === 'calibration' && (source && (source.capability !== 'same_pa_lifecycle_execution_calibration_v1' || source.route !== 'defender_throw')
+      || prior && (prior.kind !== 'same_pa_lifecycle_calibration' || prior.source.route !== 'defender_throw'))) throw new Error('optional lifecycle preparation requires defender_throw');
     if (prior) { if (source) same(prior.source, source); return prior; } if (!source) return pending([id]);
     const preflight = tx.run(false, proof => proof(() => ({ value: derive(db, source), rows: rows() })), () => {});
     const row = rowFor(preflight.value), expected = preflight.rows.map(r => [...r]); expected[names.indexOf(tables[kind])].push(row);
@@ -119,5 +121,6 @@ export const openSqliteSamePlateAppearanceLifecycleStore = (path: string, author
     acceptView: (id: string) => accept('view', id) as SamePaLifecycleView | Pending,
     readPrefix: (id: string) => read('prefix', id) as SamePaLifecyclePrefix | null, readView: (id: string) => read('view', id) as SamePaLifecycleView | null,
     acceptTotalSet: (ids: readonly string[]) => acceptSet('total', ids), acceptCalibrationSet: (ids: readonly string[]) => acceptSet('calibration', ids),
+    acceptThrowCalibration: (id: string) => accept('calibration', id) as SamePaLifecycleCalibration | Pending,
     close: tx.close });
 };
