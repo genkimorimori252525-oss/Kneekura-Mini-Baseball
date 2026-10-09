@@ -1,4 +1,4 @@
-import { battedWorldFieldGeometry, battedWorldFieldRootIdentity } from './BattedWorldFieldRoot';
+import { battedWorldFieldGeometry, battedWorldFieldRootIdentity, isBattedEpisodeFieldRoot } from './BattedWorldFieldRoot';
 export { battedWorldOriginalContactPrefix, type BattedWorldOriginalContactPrefix } from './BattedWorldOriginalContactPrefix';
 import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
 import { createOwnedScheduledMotionDependencyEncoding, createOwnedScheduledMotionPlanEncoding } from './OwnedScheduledMotionDependencyEncoding';
@@ -82,7 +82,7 @@ const projectPhysicalPrefix = (input: PrefixInput, reference: (snapshot: Durable
   if (!batter || flight.source.searchDurationTicks !== 0 || world.source.previousContactSourceId !== null
     || world.result.kind !== 'airborne' || world.result.throughTick !== originTick || json(world.result.ball) !== json(initial)
     || base.response.result.kind !== 'airborne' || json(base.response.result.ball) !== json(initial)
-    || base.rootKind !== 'episode_field_binding_v1' && (base.geometry.baseGeometry.source.flightSourceId !== flight.source.sourceId || json(base.geometry.baseGeometry.flight) !== json(flight))
+    || !isBattedEpisodeFieldRoot(base) && (base.geometry.baseGeometry.source.flightSourceId !== flight.source.sourceId || json(base.geometry.baseGeometry.flight) !== json(flight))
     || base.geometry.source.baseGeometrySourceId !== base.geometry.baseGeometry.source.sourceId
     || json(geometry.baseGeometry) !== json(base.geometry.baseGeometry.geometry)
     || json(createBattedWorldFieldGeometry({ baseGeometry: geometry.baseGeometry, baseModels: base.geometry.source.baseModels })) !== json(geometry)

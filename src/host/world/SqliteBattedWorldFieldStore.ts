@@ -1,5 +1,5 @@
 import { battedEpisodeFieldBindingEvidenceFromSqlite } from './SqliteBattedEpisodeFieldBindingStore';
-import { battedWorldFieldGeometry, battedWorldFieldRootIdentity, battedWorldFieldSourceRootIdentity, type BattedWorldFieldRoot, type BattedEpisodeFieldBindingOptIn } from './BattedWorldFieldRoot';
+import { battedWorldFieldGeometry, battedWorldFieldRootIdentity, battedWorldFieldSourceRootIdentity, isBattedEpisodeFieldRoot, type BattedWorldFieldRoot, type BattedEpisodeFieldBindingOptIn } from './BattedWorldFieldRoot';
 import { battedWorldFieldCalibrationEvidenceFromSqlite, acceptedBattedWorldFieldGeometryInput as geometryInput } from './BattedWorldFieldCalibrationEvidenceFromSqlite';
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
@@ -156,10 +156,13 @@ export const battedWorldFieldEvidenceFromSqlite = (db: Db) => {
   const root = (source: AcceptedBattedWorldFieldAction): Root => {
     if (battedWorldFieldSourceRootIdentity(source) !== 'legacy') {
       const binding = battedEpisodeFieldBindingEvidenceFromSqlite(db as import('node:sqlite').DatabaseSync).read(source.episodeFieldBinding!.sourceId);
-      if (!binding || binding.source.responseSourceId !== source.responseSourceId || binding.source.fieldCalibrationSourceId !== source.geometrySourceId) {
+      if (!binding || binding.source.version !== source.episodeFieldBinding!.version
+        || binding.source.responseSourceId !== source.responseSourceId || binding.source.fieldCalibrationSourceId !== source.geometrySourceId) {
         throw new Error('actual field episode binding or redundant original references differ');
       }
-      const value: Root = { rootKind: 'episode_field_binding_v1', episodeFieldBinding: binding, response: binding.response, geometry: binding.calibration };
+      const common = { episodeFieldBinding: binding, response: binding.response, geometry: binding.calibration };
+      const value: Root = source.episodeFieldBinding!.version === 'batted_episode_field_binding_v1'
+        ? { rootKind: 'episode_field_binding_v1', ...common } : { rootKind: 'episode_field_binding_v2', ...common };
       battedWorldFieldGeometry(value); return value;
     }
     const response = ownResponses.read(source.responseSourceId), geometry = readGeometry(source.geometrySourceId);
@@ -193,7 +196,7 @@ export const battedWorldFieldEvidenceFromSqlite = (db: Db) => {
     }
     const value = { source, response: original.response, geometry: original.geometry, revision: (previous?.revision ?? 0) + 1,
       history: [...(previous?.history ?? []), source], field, ...(pieceExecution ? { pieceExecution } : {}) };
-    return freeze(original.rootKind === 'episode_field_binding_v1'
+    return freeze(isBattedEpisodeFieldRoot(original)
       ? { ...value, rootKind: original.rootKind, episodeFieldBinding: original.episodeFieldBinding } : value);
   };
   const scope = (original: Root, throughSourceId?: string): readonly DurableBattedWorldFieldAction[] => {
@@ -276,9 +279,9 @@ export const battedWorldFieldEvidenceFromSqlite = (db: Db) => {
   };
   const currentRoot = (value: DurableBattedWorldFieldAction) => {
     noOldOwner(db, physicalId(value));
-    if (value.rootKind === 'episode_field_binding_v1') battedEpisodeFieldBindingEvidenceFromSqlite(db as import('node:sqlite').DatabaseSync).current(value.episodeFieldBinding);
+    if (isBattedEpisodeFieldRoot(value)) battedEpisodeFieldBindingEvidenceFromSqlite(db as import('node:sqlite').DatabaseSync).current(value.episodeFieldBinding);
     else { ownResponses.current(value.response); currentGeometry(value.geometry); }
-    const original: Root = value.rootKind === 'episode_field_binding_v1'
+    const original: Root = isBattedEpisodeFieldRoot(value)
       ? { rootKind: value.rootKind, episodeFieldBinding: value.episodeFieldBinding, response: value.response, geometry: value.geometry }
       : { response: value.response, geometry: value.geometry };
     if (json(root(value.source)) !== json(original)) throw new Error('actual field original changed during write');

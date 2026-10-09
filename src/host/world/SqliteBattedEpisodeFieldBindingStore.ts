@@ -9,7 +9,9 @@ import { battedBallFlightEvidenceFromSqlite } from './SqliteBattedBallFlightStor
 import { battedWorldFrameBaseCenters } from './SqliteBattedWorldBaseGeometryStore';
 import { battedWorldFieldCalibrationEvidenceFromSqlite } from './BattedWorldFieldCalibrationEvidenceFromSqlite';
 import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
+import { battedEpisodeV2ParticipantsMatch } from './BattedEpisodeParticipantBindingV2';
 import { sqliteJsonMetadataNodes as nodes } from './SqliteOwnershipMetadata';
+import { withActualLiveReadinessReadScope } from './ActualLivePlayReadinessFromSqlite';
 import type { AcceptedBattedEpisodeFieldBinding, BattedEpisodeFieldBindingAuthority,
   DurableBattedEpisodeFieldBinding, SqliteBattedEpisodeFieldBindingStore } from './BattedEpisodeFieldBinding';
 
@@ -20,10 +22,12 @@ type Row = { source_id: string; source_version: string; binding_version: string;
 const id = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value === value.trim();
 const input = (raw: AcceptedBattedEpisodeFieldBinding, sourceId: string): AcceptedBattedEpisodeFieldBinding => {
   const source = cloneInert(raw);
+  const v2 = source?.version === 'batted_episode_field_binding_v2';
   if (!source || typeof source !== 'object' || Array.isArray(source)
-    || Object.keys(source).sort().join('|') !== ['sourceId', 'sourceVersion', 'version', 'responseSourceId', 'fieldCalibrationSourceId'].sort().join('|')
-    || source.sourceId !== sourceId || source.version !== 'batted_episode_field_binding_v1'
-    || ![sourceId, source.sourceVersion, source.responseSourceId, source.fieldCalibrationSourceId].every(id)) {
+    || Object.keys(source).sort().join('|') !== ['sourceId', 'sourceVersion', 'version', 'responseSourceId', 'fieldCalibrationSourceId', ...(v2 ? ['physicalActorSourceId'] : [])].sort().join('|')
+    || source.sourceId !== sourceId || source.version !== 'batted_episode_field_binding_v1' && !v2
+    || ![sourceId, source.sourceVersion, source.responseSourceId, source.fieldCalibrationSourceId].every(id)
+    || v2 && !id(source.physicalActorSourceId)) {
     throw new Error('invalid accepted episode field binding Source');
   }
   return freeze(source);
@@ -50,7 +54,7 @@ const snapshot = <T>(db: Db, work: () => T): T => {
     const stamp = () => json([db.prepare('SELECT total_changes() AS n').get()!.n,
       db.prepare('PRAGMA main.schema_version').get()!.schema_version,
       db.prepare('PRAGMA temp.schema_version').get()!.schema_version]);
-    const before = stamp(); result = work();
+    const before = stamp(); result = withActualLiveReadinessReadScope(db, work);
     if (!db.isTransaction || db.prepare('PRAGMA query_only').get()!.query_only !== 1 || stamp() !== before) {
       throw new Error('episode binding snapshot changed during read');
     }
@@ -114,9 +118,17 @@ const bindingOwner = (db: Db) => {
       || json(world.result.ball) !== json(initial) || response.result.kind !== 'airborne' || json(response.result.ball) !== json(initial)) {
       throw new Error('episode field binding requires the unadvanced original bat contact root');
     }
+    // V2 explicitly names the current actor; v1 keeps its original ten bindings.
+    if (source.version === 'batted_episode_field_binding_v2'
+      && (source.physicalActorSourceId !== actor.source.sourceId || !actor.origin.actualLiveReadiness
+        || old.flight.physicalPitch.frame.match.playId >= pitch.frame.match.playId
+        || actor.binding.playerId === oldActor.binding.playerId)) {
+      throw new Error('episode v2 requires its distinct current actual-live actor and earlier calibration play');
+    }
     const bindings = [actor.binding, ...actor.defenderBindings], originalBindings = [oldActor.binding, ...oldActor.defenderBindings];
     if (bindings.length !== 10 || actor.defenderBindings.length !== 9 || new Set(bindings.map(binding => binding.playerId)).size !== 10
-      || json(bindings) !== json(originalBindings) || world.actors.length !== 50
+      || (source.version === 'batted_episode_field_binding_v1' ? json(bindings) !== json(originalBindings)
+        : !battedEpisodeV2ParticipantsMatch(actor, oldActor, world, response.model)) || world.actors.length !== 50
       || bindings.some(binding => world.modelActorEvidence.filter(item => json(item.binding) === json(binding)).length !== 1)
       || pitch.frame.gameId !== old.fixture.game_id || response.model.gameId !== old.fixture.game_id
       || world.model.gameId !== old.fixture.game_id || actor.binding.careerId !== oldActor.binding.careerId
