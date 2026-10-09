@@ -65,3 +65,30 @@ it('TC-S07 row preservation permits only each stage scoped changes and rejects u
  after[0].rows[0].state_json='old';after[1].rows[0].source_id='foreign';expect(()=>m.assertContinuationRows(before,after,'physical_k')).toThrow();
  const changed=structuredClone(before);changed[2].rows[0].revision=2;expect(()=>m.assertContinuationRows(before,changed,'closure_completed')).not.toThrow();expect(()=>m.assertContinuationRows(before,changed,'closure_queued')).toThrow();
 });
+
+it('TC-B01 derives the two new-PA TAKEs only from explicit away-3 and the preceding actual result',async()=>{
+ const {materializeContinuationBuntPrefixTake:take,terminalContinuationBuntPrefixIds:ids}=await import('./TerminalContinuationBatchInputs.test-support');const f=fixture()as any;
+ f.actor.source={sourceId:'terminal-continuation-bunt-actor',sourceVersion:'fixture-v1',gameId:'game-1',playerId:'away-3',activationApplicationId:'terminal-continuation-k-application'};f.actor.officialRevision=2;f.actor.match.playId=9;f.actor.match.outs=2;f.workload.revision=2;
+ for(let i=0;i<2;i++){const value=take(f.recipe,f.actor,f.workload,f.prefix);expect(value.sourceId).toBe(ids[i]);expect(value).not.toHaveProperty('initialWorldSourceId');expect('activationApplicationId'in value&&value.activationApplicationId).toBe('terminal-continuation-k-application');expect(value.request.workloadRevision).toBe(2);const p=previous(f,value,i);p.result.pitch.resolution.timeline.playId=9;f.prefix.push(p);}
+ expect(()=>take(f.recipe,f.actor,f.workload,f.prefix)).toThrow('both preceding TAKEs');
+});
+it('TC-B02 rejects changed actor workload recipe and non-strike new-PA predecessors',async()=>{
+ const {materializeContinuationBuntPrefixTake:take}=await import('./TerminalContinuationBatchInputs.test-support');const f=fixture()as any;
+ f.actor.source={sourceId:'terminal-continuation-bunt-actor',sourceVersion:'fixture-v1',gameId:'game-1',playerId:'away-3',activationApplicationId:'terminal-continuation-k-application'};f.actor.officialRevision=2;f.actor.match.playId=9;f.actor.match.outs=2;f.workload.revision=2;
+ for(const change of [(x:any)=>x.actor.source.playerId='away-4',(x:any)=>x.workload.revision=1,(x:any)=>x.recipe.request.delivery.physics.velocity.x=3]){const x=structuredClone(f);change(x);expect(()=>take(x.recipe,x.actor,x.workload,[])).toThrow();}
+ const p=previous(f,take(f.recipe,f.actor,f.workload,[]));p.result.pitch.resolution.timeline.playId=9;p.result.pitch.resolution.timeline.status.count.balls=1;expect(()=>take(f.recipe,f.actor,f.workload,[p]as any)).toThrow('actual chronological');
+});
+
+// These two orchestration checks use mocked return values only; no genuine pitch is qualified.
+it('TC-B03 accepts both Sources in one batch using the first returned tick for the second request',async()=>{
+ const {acceptContinuationTwoStrikePrefix}=await import('./TerminalContinuationPhysicalAttachment.test-support');const f=fixture()as any;
+ f.actor.source={sourceId:'terminal-continuation-bunt-actor',sourceVersion:'fixture-v1',gameId:'game-1',playerId:'away-3',activationApplicationId:'terminal-continuation-k-application'};f.actor.officialRevision=2;f.actor.match.playId=9;f.actor.match.outs=2;f.workload.revision=2;
+ const accepted=new Map(),calls:any[]=[];const owner={accept:(sourceId:string,revision:number)=>{calls.push([sourceId,revision]);const p=previous(f,accepted.get(sourceId),revision);p.result.pitch.resolution.timeline.playId=9;return p;}};
+ const values=acceptContinuationTwoStrikePrefix(owner as any,accepted,f.recipe,f.actor,f.workload);expect(calls).toEqual([['terminal-continuation-bunt-take-0',0],['terminal-continuation-bunt-take-1',1]]);expect(values[1].source.request.delivery.readyAtUs).toBe(values[0].result.pitch.resolution.timeline.lastEventTick);
+});
+it('TC-B04 preserves a differing actual outcome and stops before another pitch',async()=>{
+ const {acceptContinuationTwoStrikePrefix}=await import('./TerminalContinuationPhysicalAttachment.test-support');const f=fixture()as any;
+ f.actor.source={sourceId:'terminal-continuation-bunt-actor',sourceVersion:'fixture-v1',gameId:'game-1',playerId:'away-3',activationApplicationId:'terminal-continuation-k-application'};f.actor.officialRevision=2;f.actor.match.playId=9;f.actor.match.outs=2;f.workload.revision=2;
+ const accepted=new Map();let calls=0,observed:any;const owner={accept:(sourceId:string,revision:number)=>{calls++;const p=previous(f,accepted.get(sourceId),revision);p.result.pitch.resolution.timeline.playId=9;p.result.pitch.resolution.timeline.status.count={balls:1,strikes:0};return p;}};
+ expect(()=>acceptContinuationTwoStrikePrefix(owner as any,accepted,f.recipe,f.actor,f.workload,value=>{observed=value;})).toThrow('required strike');expect(calls).toBe(1);expect(observed.result.pitch.resolution.timeline.status.count).toEqual({balls:1,strikes:0});
+});

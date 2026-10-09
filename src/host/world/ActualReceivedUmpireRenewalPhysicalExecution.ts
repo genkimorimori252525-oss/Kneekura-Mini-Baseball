@@ -1,3 +1,4 @@
+import { battedWorldFieldGeometry } from './BattedWorldFieldRoot';
 import type { DatabaseSync } from 'node:sqlite';
 import { deriveBattedWorldFieldMotionAdoption,type BattedWorldFieldMotion } from '../../core/sim/ball/BattedWorldFieldMotion';
 import { battedWorldResponseInput } from './SqliteBattedWorldContinuationStore';
@@ -28,7 +29,7 @@ export const deriveReceivedRenewalPhysicalExecution=(db:DatabaseSync,raw:Renewal
     if(e.source.sourceId!==source.action.renewalEnrollmentSourceId||json(original.baseField.source)!==json(baseField.source)
       ||ownedScheduledMotionArchiveHash(original.execution)!==ownedScheduledMotionArchiveHash(previous))throw new Error('received renewal adoption original predecessor differs');
     const composition=deriveReceivedRenewalComposition(source,e,motor,original.selves,bindings,cut);
-    const field=deriveBattedWorldFieldMotionAdoption({response:battedWorldResponseInput(baseField.response),geometry:baseField.geometry.geometry,
+    const field=deriveBattedWorldFieldMotionAdoption({response:battedWorldResponseInput(baseField.response),geometry:battedWorldFieldGeometry(baseField),
       actors:state.actors,cursor:state.cursor!,carrierPlayerId:state.carrierPlayerId,availableAtTick:cut.tick,coverageThroughTick:composition.coverageThroughTick,
       commands:battedWorldMotionPrimitiveCommands(baseField.response,composition.commands)});
     const at=field.motion.world.moment;

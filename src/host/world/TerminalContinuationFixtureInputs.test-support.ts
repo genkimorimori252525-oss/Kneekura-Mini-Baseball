@@ -23,15 +23,20 @@ const same=(a:unknown,b:unknown,label:string)=>assert.equal(json(a),json(b),labe
 const tick=(v:unknown):v is number=>typeof v==='number'&&Number.isSafeInteger(v)&&v>=0;
 const digest=(v:unknown,size=64)=>typeof v==='string'&&new RegExp('^[a-f0-9]{'+size+'}$').test(v);
 const fields=(v:unknown,keys:string[])=>v!==null&&typeof v==='object'&&!Array.isArray(v)&&json(Object.keys(v).sort())===json(keys.sort());
-export const materializeContinuationTake=(rawRecipe:AcceptedPhysicalPitchActionSource,rawActor:DurablePhysicalPlateAppearanceActor,
- rawWorkload:PlayerWorkloadRecoveryState,rawPrefix:readonly DurablePhysicalPitch[]):AcceptedPhysicalPitchActionSource=>{
- const recipe=cloneInert(rawRecipe),actor=cloneInert(rawActor),workload=cloneInert(rawWorkload),prefix=cloneInert(rawPrefix),ids=terminalContinuationFixtureIds;
- physicalPitchActionInput(recipe,ids.recipePitchSourceId);
+/** Fixture authority capture only; this does not authenticate a physical result. */
+export const captureTerminalStraightTakeRecipe=(raw:AcceptedPhysicalPitchActionSource):Extract<AcceptedPhysicalPitchActionSource,{initialWorldSourceId:string}>=>{
+ const recipe=cloneInert(raw);
+ physicalPitchActionInput(recipe,terminalContinuationFixtureIds.recipePitchSourceId);
  assert('initialWorldSourceId'in recipe&&recipe.initialWorldSourceId==='initial-world'&&!('battingIntent'in recipe)&&!('prePitchRunner'in recipe),'fixture original TAKE recipe origin differs');
  same(recipe.request,{workloadRevision:0,policySourceId:'response',delivery:{careerId:'career-a',playerId:'p2',gameDay:10,matchSeed:19,moundReference:{x:0,y:0,z:18},outingId:'outing-1',readyAtUs:0,
   timingIntent:{deliveryMode:'NORMAL',cadenceIntent:'STANDARD'},physics:{velocity:{x:0,y:0,z:-30},spin:{x:0,y:100,z:0}}},flight:{durationUs:1500000,acceleration:{x:0,y:0,z:0}},
   batter:{action:{kind:'take'},plateZ:0,strikeZone:{centerX:0,halfWidth:.2,lowerY:1.4,upperY:1.8},ballRadiusMeters:.0366}},'fixture straight TAKE recipe differs');
  same(recipe.effortPolicy,{sourceId:'effort',sourceVersion:'fixture-v1',policyId:'effort',version:'v1',availableAtDay:1,effortUnitsPerPhysicalPitch:2},'fixture effort policy differs');
+ return freeze(recipe);
+};
+export const materializeContinuationTake=(rawRecipe:AcceptedPhysicalPitchActionSource,rawActor:DurablePhysicalPlateAppearanceActor,
+ rawWorkload:PlayerWorkloadRecoveryState,rawPrefix:readonly DurablePhysicalPitch[]):AcceptedPhysicalPitchActionSource=>{
+ const recipe=captureTerminalStraightTakeRecipe(rawRecipe),actor=cloneInert(rawActor),workload=cloneInert(rawWorkload),prefix=cloneInert(rawPrefix),ids=terminalContinuationFixtureIds;
  same(actor.source,{sourceId:ids.originalActorSourceId,sourceVersion:'fixture-v1',gameId:'game-1',playerId:'away-2',activationApplicationId:'terminal-match-application'},'fixture accepted actor differs');
  assert(recipe.gameId===actor.source.gameId&&recipe.sourceVersion==='fixture-v1'&&actor.officialRevision===1&&actor.match.playId===8&&actor.match.inning===1&&actor.match.half==='top'
   &&actor.match.outs===1&&actor.match.balls===0&&actor.match.strikes===0&&Object.values(actor.match.bases).every(x=>x===null),'fixture actor is not the accepted one-out activation');

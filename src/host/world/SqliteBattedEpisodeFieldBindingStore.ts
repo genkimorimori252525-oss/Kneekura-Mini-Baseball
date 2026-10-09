@@ -10,8 +10,10 @@ import { battedWorldFrameBaseCenters } from './SqliteBattedWorldBaseGeometryStor
 import { battedWorldFieldCalibrationEvidenceFromSqlite } from './BattedWorldFieldCalibrationEvidenceFromSqlite';
 import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
 import { battedEpisodeV2ParticipantsMatch } from './BattedEpisodeParticipantBindingV2';
+import { battedEpisodeCurrentParticipantsMatch } from './BattedEpisodeCurrentParticipants';
 import { sqliteJsonMetadataNodes as nodes } from './SqliteOwnershipMetadata';
 import { withActualLiveReadinessReadScope } from './ActualLivePlayReadinessFromSqlite';
+import { completedBattedEpisodeOriginInput, readCompletedBattedEpisodeOrigin } from './CompletedBattedEpisodeOrigin';
 import type { AcceptedBattedEpisodeFieldBinding, BattedEpisodeFieldBindingAuthority,
   DurableBattedEpisodeFieldBinding, SqliteBattedEpisodeFieldBindingStore } from './BattedEpisodeFieldBinding';
 
@@ -23,18 +25,20 @@ const id = (value: unknown): value is string => typeof value === 'string' && val
 const input = (raw: AcceptedBattedEpisodeFieldBinding, sourceId: string): AcceptedBattedEpisodeFieldBinding => {
   const source = cloneInert(raw);
   const v2 = source?.version === 'batted_episode_field_binding_v2';
+  const completed = source?.version === 'batted_episode_field_binding_v3' || source?.version === 'batted_episode_field_binding_v4';
   if (!source || typeof source !== 'object' || Array.isArray(source)
-    || Object.keys(source).sort().join('|') !== ['sourceId', 'sourceVersion', 'version', 'responseSourceId', 'fieldCalibrationSourceId', ...(v2 ? ['physicalActorSourceId'] : [])].sort().join('|')
-    || source.sourceId !== sourceId || source.version !== 'batted_episode_field_binding_v1' && !v2
+    || Object.keys(source).sort().join('|') !== ['sourceId', 'sourceVersion', 'version', 'responseSourceId', 'fieldCalibrationSourceId', ...(v2 || completed ? ['physicalActorSourceId'] : []), ...(completed ? ['completedOrigin'] : [])].sort().join('|')
+    || source.sourceId !== sourceId || source.version !== 'batted_episode_field_binding_v1' && !v2 && !completed
     || ![sourceId, source.sourceVersion, source.responseSourceId, source.fieldCalibrationSourceId].every(id)
-    || v2 && !id(source.physicalActorSourceId)) {
+    || (v2 || completed) && !id(source.physicalActorSourceId)) {
     throw new Error('invalid accepted episode field binding Source');
   }
+  if (completed) completedBattedEpisodeOriginInput(source.completedOrigin);
   return freeze(source);
 };
 
 /** A main-only immutable snapshot, without schema installation or changing a caller transaction. */
-const snapshot = <T>(db: Db, work: () => T): T => {
+const snapshot = <T>(db: Db, work: (check: () => void) => T): T => {
   const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
   if (!(db instanceof DatabaseSync)) throw new Error('episode binding evidence requires a real SQLite connection');
   const databases = db.prepare('PRAGMA database_list').all();
@@ -51,13 +55,15 @@ const snapshot = <T>(db: Db, work: () => T): T => {
   try {
     db.exec(outer ? `SAVEPOINT ${name}` : 'BEGIN'); opened = true;
     if (queryOnly === 0) db.exec('PRAGMA query_only=ON');
-    const stamp = () => json([db.prepare('SELECT total_changes() AS n').get()!.n,
+    const stamp = () => json([db.prepare('PRAGMA database_list').all(), db.prepare('SELECT total_changes() AS n').get()!.n,
       db.prepare('PRAGMA main.schema_version').get()!.schema_version,
       db.prepare('PRAGMA temp.schema_version').get()!.schema_version]);
-    const before = stamp(); result = withActualLiveReadinessReadScope(db, work);
-    if (!db.isTransaction || db.prepare('PRAGMA query_only').get()!.query_only !== 1 || stamp() !== before) {
-      throw new Error('episode binding snapshot changed during read');
-    }
+    const before = stamp(), check = () => {
+      if (!db.isTransaction || db.prepare('PRAGMA query_only').get()!.query_only !== 1 || stamp() !== before) {
+        throw new Error('episode binding snapshot changed during read');
+      }
+    };
+    result = withActualLiveReadinessReadScope(db, () => work(check)); check();
     db.exec(outer ? `RELEASE ${name}` : 'COMMIT'); opened = false;
     if (db.isTransaction !== outer) throw new Error('episode binding enclosing transaction changed');
   } catch (failure) { failed = true; error = failure; }
@@ -71,6 +77,28 @@ const snapshot = <T>(db: Db, work: () => T): T => {
   if (cleanup.length) throw new AggregateError([...(failed ? [error] : []), ...cleanup], 'episode binding read cleanup failed');
   if (failed) throw error;
   return result;
+};
+
+type BindingReadPhase = Readonly<{ check(): void; derived: Map<string, DurableBattedEpisodeFieldBinding> }>;
+const bindingReadPhases = new WeakMap<Db, BindingReadPhase>();
+
+/** One owner-controlled, synchronous read phase. A child starts empty and never
+ * promotes evidence. No proof survives a write, callback, commit or operation. */
+export const withBattedEpisodeFieldBindingReadPhase = <T>(db: Db, work: () => T): T => {
+  const prior = bindingReadPhases.get(db);
+  try {
+    return snapshot(db, check => {
+      bindingReadPhases.set(db, { check, derived: new Map() });
+      const result = work(); check(); return result;
+    });
+  } finally {
+    if (prior) bindingReadPhases.set(db, prior); else bindingReadPhases.delete(db);
+  }
+};
+const reading = <T>(db: Db, work: () => T): T => {
+  const phase = bindingReadPhases.get(db);
+  if (!phase) return snapshot(db, work);
+  phase.check(); const result = work(); phase.check(); return result;
 };
 
 const bindingOwner = (db: Db) => {
@@ -95,8 +123,8 @@ const bindingOwner = (db: Db) => {
       OR ${claim('snapshot_json', ['response', 'touch', 'worldContact', 'flight', 'source', 'physicalPitchSourceId'])}`)
     .all(value.physicalPitchSourceId, value.source.responseSourceId, value.source.responseSourceId,
       value.source.responseSourceId, value.physicalPitchSourceId, value.source.responseSourceId, value.physicalPitchSourceId, value.physicalPitchSourceId) as Row[];
-  const derive = (raw: AcceptedBattedEpisodeFieldBinding): DurableBattedEpisodeFieldBinding => {
-    const inert = cloneInert(raw), source = input(inert, inert.sourceId), response = responses.read(source.responseSourceId);
+  const deriveSource = (source: AcceptedBattedEpisodeFieldBinding): DurableBattedEpisodeFieldBinding => {
+    const response = responses.read(source.responseSourceId);
     const calibration = calibrations.readGeometry(source.fieldCalibrationSourceId);
     if (!response || !calibration) throw new Error('original episode response or field calibration is missing');
     calibrations.historicalGeometry(calibration);
@@ -125,10 +153,22 @@ const bindingOwner = (db: Db) => {
         || actor.binding.playerId === oldActor.binding.playerId)) {
       throw new Error('episode v2 requires its distinct current actual-live actor and earlier calibration play');
     }
+    if (source.version === 'batted_episode_field_binding_v3'
+      && (source.physicalActorSourceId !== actor.source.sourceId
+        || old.flight.physicalPitch.frame.match.playId >= pitch.frame.match.playId
+        || actor.binding.playerId === oldActor.binding.playerId)) {
+      throw new Error('episode v3 requires its distinct completed-origin actor and earlier calibration play');
+    }
+    if (source.version === 'batted_episode_field_binding_v4'
+      && (source.physicalActorSourceId !== actor.source.sourceId
+        || old.flight.physicalPitch.frame.match.playId >= pitch.frame.match.playId)) {
+      throw new Error('episode v4 requires its actual current completed-origin actor and earlier venue calibration');
+    }
     const bindings = [actor.binding, ...actor.defenderBindings], originalBindings = [oldActor.binding, ...oldActor.defenderBindings];
     if (bindings.length !== 10 || actor.defenderBindings.length !== 9 || new Set(bindings.map(binding => binding.playerId)).size !== 10
       || (source.version === 'batted_episode_field_binding_v1' ? json(bindings) !== json(originalBindings)
-        : !battedEpisodeV2ParticipantsMatch(actor, oldActor, world, response.model)) || world.actors.length !== 50
+        : source.version === 'batted_episode_field_binding_v4' ? !battedEpisodeCurrentParticipantsMatch(actor, world, response.model)
+          : !battedEpisodeV2ParticipantsMatch(actor, oldActor, world, response.model)) || world.actors.length !== 50
       || bindings.some(binding => world.modelActorEvidence.filter(item => json(item.binding) === json(binding)).length !== 1)
       || pitch.frame.gameId !== old.fixture.game_id || response.model.gameId !== old.fixture.game_id
       || world.model.gameId !== old.fixture.game_id || actor.binding.careerId !== oldActor.binding.careerId
@@ -140,7 +180,9 @@ const bindingOwner = (db: Db) => {
       || json(flight.source.execution.field) !== json(old.flight.source.execution.field)) {
       throw new Error('episode field binding original Player/Person/fixture/day or orientation differs');
     }
-    const centers = battedWorldFrameBaseCenters(db, flight);
+    const completed = source.version === 'batted_episode_field_binding_v3' || source.version === 'batted_episode_field_binding_v4'
+      ? readCompletedBattedEpisodeOrigin(db, actor, source.completedOrigin) : null;
+    const centers = completed === null ? battedWorldFrameBaseCenters(db, flight) : completed.baseCenters;
     if ((['first', 'second', 'third'] as const).some(base => json(centers[base]) !== json(old.source.bases[base].region.center))) {
       throw new Error('episode field binding authenticated frame base centers differ');
     }
@@ -148,7 +190,18 @@ const bindingOwner = (db: Db) => {
     const geometry = createBattedWorldFieldGeometry({ baseGeometry, baseModels: calibration.source.baseModels });
     if (json(geometry) !== json(calibration.geometry)) throw new Error('episode field binding accepted physical calibration differs');
     return freeze({ source, gameId: pitch.frame.gameId, playId: pitch.frame.match.playId, physicalPitchSourceId: pitch.source.sourceId,
-      contactSequence: contact.sequence, contactTick: contact.tick, response, calibration, geometry });
+      contactSequence: contact.sequence, contactTick: contact.tick, response, calibration, geometry,
+      ...(completed ? { completedOriginProof: { sourceHash: completed.sourceHash, applicationId: completed.applicationId,
+        durableRevision: completed.durableRevision, completionHash: completed.completionHash } } : {}) });
+  };
+  const derive = (raw: AcceptedBattedEpisodeFieldBinding): DurableBattedEpisodeFieldBinding => {
+    const inert = cloneInert(raw), source = input(inert, inert.sourceId), phase = bindingReadPhases.get(db);
+    phase?.check();
+    const key = json(source), prior = phase?.derived.get(key);
+    if (prior) return prior;
+    const value = deriveSource(source);
+    phase?.check(); phase?.derived.set(key, value);
+    return value;
   };
   const checkRow = (row: Row, value: DurableBattedEpisodeFieldBinding) => {
     const source = value.source;
@@ -180,9 +233,9 @@ const bindingOwner = (db: Db) => {
 
 export const battedEpisodeFieldBindingEvidenceFromSqlite = (db: Db) => {
   const own = bindingOwner(db);
-  return Object.freeze({ read: (sourceId: string) => snapshot(db, () => own.read(sourceId)),
-    derive: (source: AcceptedBattedEpisodeFieldBinding) => snapshot(db, () => own.derive(source)),
-    current: (value: DurableBattedEpisodeFieldBinding) => snapshot(db, () => own.current(value)) });
+  return Object.freeze({ read: (sourceId: string) => reading(db, () => own.read(sourceId)),
+    derive: (source: AcceptedBattedEpisodeFieldBinding) => reading(db, () => own.derive(source)),
+    current: (value: DurableBattedEpisodeFieldBinding) => reading(db, () => own.current(value)) });
 };
 export const openSqliteBattedEpisodeFieldBindingStore = (path: string,
   authority?: BattedEpisodeFieldBindingAuthority): SqliteBattedEpisodeFieldBindingStore => {

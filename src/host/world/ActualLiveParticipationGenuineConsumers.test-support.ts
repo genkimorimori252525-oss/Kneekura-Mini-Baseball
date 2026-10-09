@@ -158,7 +158,7 @@ export const verifyGenuineNationalRejection = () => withGenuineCopy(({ path, rec
   } finally { observer.close(); callups.close(); participation.close(); f.close(); }
 });
 
-/** Removing the raw discriminator guard must fail this exact-error check before legacy fields are interpreted. */
+/** Authentic tagged participation still cannot replace the consumer's original pregame roster evidence. */
 export const verifyGenuineRawRehabRejection = () => withGenuineCopy(({ path, receipt }) => {
   const { f, health, prepareGame } = healthRehabStoreFixture();
   try {
@@ -167,16 +167,16 @@ export const verifyGenuineRawRehabRejection = () => withGenuineCopy(({ path, rec
     const before = withSqliteReadTransaction(f.db, () => snapshot(f.db));
     readCopy(path, db => {
       assert.throws(() => captureClinicalGameRows(db, healthRehabDiagnosis.diagnosis, receipt.receiptId, prepared.snapshot.snapshotId),
-        { message: 'rehabilitation does not support tagged participation receipts' });
+        { message: 'clinical played original evidence is missing' });
     });
     assert.deepEqual(withSqliteReadTransaction(f.db, () => snapshot(f.db)), before, 'raw guard changed the isolated clinical consumer');
     assert.equal(health.readEffect('game'), null);
-    return { kind: 'GENUINE_PARTICIPATION_CONSUMER_GATE', caseId: 'C08-R', qualification: 'RAW_REHAB_TAG_REJECTION_ONLY',
-      fullOriginalDerivationsFromSource: 0, consumerUnchanged: true };
+    return { kind: 'GENUINE_PARTICIPATION_CONSUMER_GATE', caseId: 'C08-R', qualification: 'RAW_REHAB_ORIGINAL_ROSTER_REQUIRED',
+      fullOriginalDerivationsFromSource: 1, consumerUnchanged: true };
   } finally { f.close(); }
 });
 
-/** A real same-ID legacy receipt clears raw capture; removing the independent public guard must fail this leaf. */
+/** Same receipt ID in another database does not replace the local consumer's original receipt proof. */
 export const verifyGenuinePublicRehabRejection = () => withGenuineCopy(({ path, receipt }) => {
   const { f, health, sources, authority, prepareGame } = healthRehabStoreFixture(true, { gameId: receipt.binding.gameId });
   const participation = new SqliteOfficialParticipationStore(path);
@@ -191,7 +191,7 @@ export const verifyGenuinePublicRehabRejection = () => withGenuineCopy(({ path, 
     const guarded = openSqlitePlayerHealthRehabStore(f.path, { ...sources, participation }, authority);
     try {
       const before = withSqliteReadTransaction(f.db, () => snapshot(f.db));
-      assert.throws(() => guarded.apply('game', 2), { message: 'rehabilitation does not support tagged participation receipts' });
+      assert.throws(() => guarded.apply('game', 2), { message: 'clinical peer participation differs from local original proof' });
       assert.deepEqual(withSqliteReadTransaction(f.db, () => snapshot(f.db)), before, 'public rejection changed clinical effects or heads');
       assert.equal(health.readEffect('game'), null); assert.equal(health.readHead('career-a', 'p2')!.revision, 2);
     } finally { guarded.close(); }
@@ -212,7 +212,7 @@ export const verifyGenuinePublicRehabRejection = () => withGenuineCopy(({ path, 
       assert.deepEqual(reopened.apply('game', 2), ready);
     } finally { reopened.close(); }
     assert.deepEqual(withSqliteReadTransaction(f.db, () => snapshot(f.db)), accepted, 'legacy reopen/retry changed accepted bytes');
-    return { kind: 'GENUINE_PARTICIPATION_CONSUMER_GATE', caseId: 'C07-P', qualification: 'PUBLIC_REHAB_TAG_REJECTION_AND_SEPARATE_LEGACY_CONTROL',
+    return { kind: 'GENUINE_PARTICIPATION_CONSUMER_GATE', caseId: 'C07-P', qualification: 'PUBLIC_REHAB_LOCAL_PROOF_REQUIRED_AND_SEPARATE_LEGACY_CONTROL',
       fullOriginalDerivationsFromSource: 1, consumerUnchangedAtRejection: true,
       sameRequestedReceiptId: true, rawLegacyProofRows: rawRows.length, legacyApplyReopenRetry: true };
   } finally { participation.close(); f.close(); }

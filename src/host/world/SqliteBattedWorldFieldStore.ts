@@ -1,4 +1,4 @@
-import { battedEpisodeFieldBindingEvidenceFromSqlite } from './SqliteBattedEpisodeFieldBindingStore';
+import { battedEpisodeFieldBindingEvidenceFromSqlite, withBattedEpisodeFieldBindingReadPhase } from './SqliteBattedEpisodeFieldBindingStore';
 import { battedWorldFieldGeometry, battedWorldFieldRootIdentity, battedWorldFieldSourceRootIdentity, isBattedEpisodeFieldRoot, type BattedWorldFieldRoot, type BattedEpisodeFieldBindingOptIn } from './BattedWorldFieldRoot';
 import { battedWorldFieldCalibrationEvidenceFromSqlite, acceptedBattedWorldFieldGeometryInput as geometryInput } from './BattedWorldFieldCalibrationEvidenceFromSqlite';
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
@@ -162,7 +162,11 @@ export const battedWorldFieldEvidenceFromSqlite = (db: Db) => {
       }
       const common = { episodeFieldBinding: binding, response: binding.response, geometry: binding.calibration };
       const value: Root = source.episodeFieldBinding!.version === 'batted_episode_field_binding_v1'
-        ? { rootKind: 'episode_field_binding_v1', ...common } : { rootKind: 'episode_field_binding_v2', ...common };
+        ? { rootKind: 'episode_field_binding_v1', ...common }
+        : source.episodeFieldBinding!.version === 'batted_episode_field_binding_v2'
+          ? { rootKind: 'episode_field_binding_v2', ...common }
+          : source.episodeFieldBinding!.version === 'batted_episode_field_binding_v3'
+            ? { rootKind: 'episode_field_binding_v3', ...common } : { rootKind: 'episode_field_binding_v4', ...common };
       battedWorldFieldGeometry(value); return value;
     }
     const response = ownResponses.read(source.responseSourceId), geometry = readGeometry(source.geometrySourceId);
@@ -286,18 +290,32 @@ export const battedWorldFieldEvidenceFromSqlite = (db: Db) => {
       : { response: value.response, geometry: value.geometry };
     if (json(root(value.source)) !== json(original)) throw new Error('actual field original changed during write');
   };
-  const currentBefore = (value: DurableBattedWorldFieldAction) => {
+  const readPhase = <T>(source: AcceptedBattedWorldFieldAction, work: () => T): T =>
+    battedWorldFieldSourceRootIdentity(source) === 'legacy' ? work()
+      : withBattedEpisodeFieldBindingReadPhase(db as import('node:sqlite').DatabaseSync, work);
+  const currentBeforeWork = (value: DurableBattedWorldFieldAction) => {
     currentRoot(value); if (json(derive(value.source)) !== json(value)) throw new Error('actual field prefix changed before write');
   };
-  const current = (value: DurableBattedWorldFieldAction) => {
+  const currentBefore = (value: DurableBattedWorldFieldAction) => readPhase(value.source, () => currentBeforeWork(value));
+  const currentWork = (value: DurableBattedWorldFieldAction) => {
     currentRoot(value); const values = scope(value);
     if (values.length !== value.revision || json(values.at(-1)) !== json(value)) throw new Error('actual field prefix changed during write');
   };
+  const current = (value: DurableBattedWorldFieldAction) => readPhase(value.source, () => currentWork(value));
+  const prepare = (source: AcceptedBattedWorldFieldAction) => readPhase(source, () => {
+    const value = derive(source); currentBeforeWork(value); return value;
+  });
+  const verifySaved = (value: DurableBattedWorldFieldAction) => readPhase(value.source, () => {
+    currentWork(value); assertNoBattedWorldFieldExecutionOwner(db, physicalId(value));
+    const saved = read(value.source.sourceId);
+    if (!saved || json(saved) !== json(value)) throw new Error('actual field original changed during write');
+    return saved;
+  });
   const interpret = (sourceId: string) => {
     const value = read(sourceId);
     return value ? battedWorldFieldTerritoryFromPrefix(scope(value, sourceId)) : null;
   };
-  return { readGeometry, deriveGeometry, currentGeometry, read, interpret, derive, scope, currentBefore, current };
+  return { readGeometry, deriveGeometry, currentGeometry, read, interpret, derive, scope, currentBefore, current, prepare, verifySaved };
 };
 
 export const openSqliteBattedWorldFieldStore = (path: string, responses: Pick<SqliteBattedContactResponseStore, 'read'>,
@@ -346,7 +364,7 @@ export const openSqliteBattedWorldFieldStore = (path: string, responses: Pick<Sq
         const saved = own.read(sourceId); if (!saved || json(saved) !== json(prior)) throw new Error('actual field original changed during retry'); return saved;
       }
       if (!source) throw new Error('accepted actual field action Source is missing');
-      const value = own.derive(source); own.currentBefore(value); const peer = responses.read(source.responseSourceId);
+      const value = own.prepare(source); const peer = responses.read(source.responseSourceId);
       assertNoBattedWorldFieldExecutionOwner(db, physicalId(value));
       if (!peer || json(peer) !== json(value.response)) throw new Error('actual field peer original profile differs');
       db.exec('BEGIN IMMEDIATE');
@@ -363,8 +381,7 @@ export const openSqliteBattedWorldFieldStore = (path: string, responses: Pick<Sq
           if (Number(changed.changes) !== 1) throw new Error('actual field predecessor changed during write');
         }
         recordActualLivePlayAdmission(db, liveFence);
-        own.current(value); assertNoBattedWorldFieldExecutionOwner(db, pitchId); const saved = own.read(sourceId);
-        if (!saved || json(saved) !== json(value)) throw new Error('actual field original changed during write'); assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
+        const saved = own.verifySaved(value); assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     }, close() { if (!closed) { db.close(); closed = true; } },
   });

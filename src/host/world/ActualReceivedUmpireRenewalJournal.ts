@@ -51,7 +51,7 @@ export const renewalJournal=(db:DatabaseSync,e:DurableReceivedRenewalEnrollment)
   const claims=receivedRenewalClaims(db,e),expected=rows.length<4?rows.length*2+1:8;
   if(claims.length!==expected||claims.some(c=>c.owner!=='actual_received_umpire_renewal_heads'&&c.owner!=='actual_received_umpire_renewal_admissions'
     &&!rows.some(r=>r.owner===c.owner&&r.source_id===c.row.source_id)))throw new Error('received renewal journal orphan claims differ');
-  const physicalClaims=receivedUnionReferenceClaims(db,[{owner:'actual_received_umpire_renewal_enrollments',sourceId:e.source.sourceId}]).filter(c=>c.owner==='batted_world_field_executions');
+  const physicalClaims=receivedUnionReferenceClaims(db,[{owner:'actual_received_umpire_renewal_enrollments',sourceId:e.source.sourceId}]).filter(c=>c.owner==='batted_world_field_executions'&&!!db.prepare(`WITH document(value) AS (VALUES(?)) SELECT 1 FROM (${nodes('(SELECT value FROM document)',['action','kind'])}) n WHERE n.type='text' AND n.atom='received_renewal_adoption_v1' LIMIT 1`).get(String(c.row.source_json)));
   if(physicalClaims.length!==(rows.length===4?1:0)||rows.length===4&&physicalClaims[0].row.source_id!==rows[3].source_id)throw new Error('received renewal physical journal claims differ');
   return rows;
 };

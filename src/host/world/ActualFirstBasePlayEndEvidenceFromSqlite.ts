@@ -1,3 +1,4 @@
+import { receivedControllerTerminalCoverage,receivedRecipientConsumed } from './ActualReceivedUmpireTerminalCoverage';
 import { battedWorldFieldGeometry } from './BattedWorldFieldRoot';
 import { withSqliteMetadataStatementScope } from './SqliteMetadataStatementScope';
 import { retainActualLiveFutureControllerWork, actualLiveFutureControllerProducer, actualLiveFutureControllerDisposition } from './ActualLiveFutureControllerWork';
@@ -56,11 +57,6 @@ export const actualFirstBasePlayEndEvidenceFromSqlite = (db: Db) => ({
     const admissions = actualLiveRuntimeEvidenceFromSqlite(db).admissions(runtime);
     // Registration is before any field output. Each original physical source
     // must be present in the transaction-owned journal; SQL absence alone is not coverage.
-    for (const ref of scope.physicalReferences.filter(r => r.owner !== 'batted_world_contacts')) {
-      if (!admissions.some(a => a.owner === ref.owner && a.sourceId === ref.sourceId && a.snapshotHash === ref.hash)) {
-        throw new Error('actual PlayEnd physical producer bypassed runtime admission');
-      }
-    }
     const fields = battedWorldFieldEvidenceFromSqlite(db), executions = battedWorldFieldExecutionEvidenceFromSqlite(db);
     const baseField = owned ? owned.prefix!.baseField : fields.read(source.baseFieldSourceId)!;
     const prefix = owned ? owned.prefix! : { baseField, fields: fields.scope(baseField, source.baseFieldSourceId),
@@ -68,15 +64,27 @@ export const actualFirstBasePlayEndEvidenceFromSqlite = (db: Db) => ({
     if (owned && (db.isTransaction !== true || db.prepare('SELECT total_changes() AS changes').get()!.changes !== changes)) {
       throw new Error('actual PlayEnd physical dependencies changed during read');
     }
+    const received=prefix.executions.some(e=>e.execution.kind==='received_renewal_adoption_v1'||e.execution.kind==='received_renewal_continuation_v1')
+      ?receivedControllerTerminalCoverage(db as import('node:sqlite').DatabaseSync,runtime,prefix,current):null;
+    // The unchanged v1 journal covers its original producers. New received
+    // physical rows require their own fully authenticated extension admission.
+    for(const ref of scope.physicalReferences.filter(r=>r.owner!=='batted_world_contacts')){
+      if(!admissions.some(a=>a.owner===ref.owner&&a.sourceId===ref.sourceId&&a.snapshotHash===ref.hash)
+        &&!received?.physicalReferences.some(a=>a.owner===ref.owner&&a.sourceId===ref.sourceId&&a.snapshotHash===ref.hash))throw new Error('actual PlayEnd physical producer bypassed runtime or received admission');
+    }
     const ruleOwner = [...prefix.executions].reverse().find(e => e.execution.kind === 'first_base_race');
     if (!ruleOwner || ruleOwner.execution.kind !== 'first_base_race' || ruleOwner.source.action.kind !== 'first_base_race'
       || ruleOwner.source.action.custodyPolicy !== 'release_exclusive_v1') return pending(source, ['current_first_base_rule_coverage_pending']);
     const rule = ruleOwner.execution, wholeHistory = wholePlayPhysicalHistoryFromPrefix(prefix), physical = battedWorldFieldPhysicalPrefix(prefix);
     const ruleThrough = rule.field.motion.world.moment.elapsedSeconds;
     const suffix = prefix.executions.filter(e => e.revision > ruleOwner.revision);
-    if (suffix.some(e => e.execution.kind !== 'owned_motion_v2' || e.execution.composition.mode !== 'retained'
-      || e.execution.operation !== null || e.execution.adoption.status !== 'checkpoint_reached'
-      || e.execution.field.motion.world.kind !== 'moving')) return pending(source, ['later_physical_rule_consumer_pending']);
+    if(suffix.some(e=>{
+      if(e.execution.kind==='received_renewal_adoption_v1')return !received?.physicalReferences.some(r=>r.sourceId===e.source.sourceId);
+      if(e.execution.kind==='received_renewal_continuation_v1')return !received?.physicalReferences.some(r=>r.sourceId===e.source.sourceId)
+        ||e.execution.field.motion.world.kind!=='moving'||e.execution.field.baseContacts.length>0;
+      return e.execution.kind!=='owned_motion_v2'||e.execution.composition.mode!=='retained'||e.execution.operation!==null
+        ||e.execution.adoption.status!=='checkpoint_reached'||e.execution.field.motion.world.kind!=='moving';
+    }))return pending(source,['later_physical_rule_consumer_pending']);
     const at = scope.at, boundary = deriveQuantizerClosedGenerationBoundary({ originTick: at.originTick, throughTick: at.tick,
       ticksPerSecond: wholeHistory.origin.ticksPerSecond });
     const actual = [...prefix.executions].reverse().find(e => !['first_base_race', 'whole_play_history', 'base_touch_history'].includes(e.execution.kind));
@@ -84,6 +92,7 @@ export const actualFirstBasePlayEndEvidenceFromSqlite = (db: Db) => ({
       || actual.source.action.checkpoint.kind !== 'retained_quantizer_bucket_v1'
       || actual.execution.adoption.status !== 'checkpoint_reached' || at.elapsedSeconds !== boundary.lastIncludedElapsedSeconds
       || json(actual.execution.composition.quantizerBoundary) !== json(boundary)) return pending(source, ['physical_quantizer_generation_pending']);
+    if(received&&!received.allTransferred)return pending(source,['received_controller_handoff_pending']);
     if (rule.ballEvidence.kind !== 'grounded' || rule.ballEvidence.territory !== 'fair' || !rule.groundRule
       || rule.pendingContacts.length || wholeHistory.cursor === null || wholeHistory.carrierPlayerId === null) {
       return pending(source, ['live_contact_or_rule_policy_pending']);
@@ -114,7 +123,9 @@ export const actualFirstBasePlayEndEvidenceFromSqlite = (db: Db) => ({
       const row = inventory.decisions.filter(d => d.player_id === observation.player_id).at(-1);
       if (!row) return pending(source, ['observed_actor_decision_consumer_pending']);
       const decision = actualDefensiveDecisionEvidenceFromSqlite(db).read(row.source_id)!;
-      if (decision.source.observationSourceId !== observation.source_id) return pending(source, ['observed_actor_renewal_policy_pending']);
+      const receivedDecision=received?.recipients.find(r=>r.playerId===observation.player_id&&r.observationSourceId===observation.source_id
+        &&r.incumbentDecisionSourceId===decision.source.sourceId&&r.handoffSourceId!==null);
+      if(decision.source.observationSourceId!==observation.source_id&&!receivedDecision)return pending(source,['observed_actor_renewal_policy_pending']);
     }
     for (const work of decisionWork) {
       if (work.work.source.decisions.some(d => d.dueTick <= at.tick) || work.work.source.intents.some(d => d.dueTick <= at.tick)) {
@@ -162,12 +173,8 @@ export const actualFirstBasePlayEndEvidenceFromSqlite = (db: Db) => ({
     if (!communication.emitted || communication.pendingReason || communication.recipients.some(r => r.kind === 'pending')) {
       return pending(source, ['call_information_coverage_pending']);
     }
-    if (communication.recipients.some(r => r.kind === 'received'
-      || r.kind === 'scheduled' && r.reception.received.receivedAt <= at.tick)) {
-      // Reception alone is not a player decision. This bounded capability has no
-      // post-reception controller owner, so due deliveries require that owner.
-      return pending(source, ['received_call_controller_consumption_pending']);
-    }
+    if(communication.recipients.some(r=>(r.kind==='received'||r.kind==='scheduled'&&r.reception.received.receivedAt<=at.tick)
+      &&!receivedRecipientConsumed(received,communication,r.playerId,at)))return pending(source,['received_call_controller_consumption_pending']);
     // Authenticate every admitted umpire progression, including its earlier
     // scheduled receipt. A terminal call never blesses an altered pending row.
     for (const admitted of admissions.filter(a => a.owner === 'actual_first_base_umpire_calls')) {
@@ -181,8 +188,9 @@ export const actualFirstBasePlayEndEvidenceFromSqlite = (db: Db) => ({
       references.call, references.perception, references.policy,
       { owner: 'actual_call_communications', sourceId: communication.source.sourceId },
     ];
-    for (const ref of required) if (!admissions.some(a => a.owner === ref.owner && a.sourceId === ref.sourceId)) {
-      throw new Error('actual PlayEnd causal consumer bypassed runtime admission');
+    for(const ref of required)if(!admissions.some(a=>a.owner===ref.owner&&a.sourceId===ref.sourceId)
+      &&!received?.communicationReferences.some(a=>a.owner===ref.owner&&a.sourceId===ref.sourceId&&a.snapshotHash===hash(communication))){
+      throw new Error('actual PlayEnd causal consumer bypassed runtime or received admission');
     }
     let unconsumedBaseFacts = false;
     const bodyBaseHistoryHashes = scope.participants.flatMap(player => (['home', 'first', 'second', 'third'] as const).map(base => {
@@ -245,7 +253,8 @@ export const actualFirstBasePlayEndEvidenceFromSqlite = (db: Db) => ({
           { cause: consumption.successor.successorKey, consumer: source.umpireCallSourceId },
           { cause: source.umpireCallSourceId, consumer: `operative_retirement:${disposition.runnerId}` },
           { cause: source.umpireCallSourceId, consumer: source.communicationSourceId },
-          ...observationSchedules.flatMap(s => s.consumed.map(c => ({ cause: c.causeSourceId, consumer: c.consumerSourceId }))) ] },
-      futureWork });
+          ...observationSchedules.flatMap(s => s.consumed.map(c => ({ cause: c.causeSourceId, consumer: c.consumerSourceId }))),
+          ...(received?.recipients.map(r=>({cause:json([r.callSourceId,r.originCommunicationSourceId,r.playerId]),consumer:r.handoffSourceId!}))??[]) ] },
+      ...(received?{receivedControllerExtension:received}:{}),futureWork });
   })),
 });

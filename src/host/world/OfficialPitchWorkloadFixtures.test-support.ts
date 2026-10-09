@@ -17,7 +17,8 @@ import { openSqlitePlayerPersonLinkStore } from './SqlitePlayerPersonLinkStore';
 
 /** Explicit physical/profile fixtures; no production counts or calibration defaults. */
 export const officialPitchWorkloadFixture = (physical = true, deferPlay = false, databasePath?: string, bothSides = false,
-  fixture?: Parameters<SqliteOfficialStateStore['registerOfficialFixture']>[0], profile?: OriginalFixtureRuleProfile) => {
+  fixture?: Parameters<SqliteOfficialStateStore['registerOfficialFixture']>[0], profile?: OriginalFixtureRuleProfile,
+  rehabPlayerIds: readonly string[] = []) => {
   const initial = match(profile); // Validate before opening stores or persisting the initial Match.
   const path = databasePath ?? `file:official-pitch-workload-${crypto.randomUUID()}?mode=memory&cache=shared`;
   const stores: { close(): void }[] = [];
@@ -39,13 +40,13 @@ export const officialPitchWorkloadFixture = (physical = true, deferPlay = false,
   const playerIds = [...homeIds, ...awayIds];
   const initialRoster = createRosterState({ careerId: 'career-a', effectiveDay: 1,
     profiles: [{ profileId: 'fixture-league', version: 'v1', season: 1, competitionEditionId: 'league-season-1', activeLimit: null,
-      allowedAssignmentKinds: ['FIRST_TEAM'], rehabParticipationAllowed: false }],
+      allowedAssignmentKinds: ['FIRST_TEAM'], rehabParticipationAllowed: rehabPlayerIds.length > 0 }],
     units: [{ unitId: 'first-a', clubId: 'club-a', kind: 'FIRST_TEAM' }, ...(bothSides ? [{ unitId: 'first-b', clubId: 'club-b', kind: 'FIRST_TEAM' as const }] : [])],
     players: playerIds.map((playerId) => {
       const clubId = homeIds.includes(playerId) ? 'club-a' : 'club-b', unitId = clubId === 'club-a' ? 'first-a' : 'first-b';
       return { playerId, clubRights: { rightsHolderClubId: clubId, contractId: `contract-${playerId}` }, assignment: { unitId, clubId },
         registrations: [{ competitionEditionId: 'league-season-1', clubId, status: 'ACTIVE', eligibility: 'ELIGIBLE', evidenceId: 'fixture-registration' }],
-        availability: { status: 'AVAILABLE', evidenceId: 'fixture-health' } };
+        availability: { status: rehabPlayerIds.includes(playerId) ? 'REHAB' : 'AVAILABLE', evidenceId: 'fixture-health' } };
     }) });
   for (const clubId of bothSides ? ['club-a', 'club-b'] : ['club-a']) roster.initialize({ careerId: 'career-a', clubId, mood: null, roster: initialRoster });
   const links = track(openSqlitePlayerPersonLinkStore(path, { readAcceptedPlayerIntake: (sourceId) => playerIds.some((playerId) => sourceId === `intake-${playerId}`) ? {

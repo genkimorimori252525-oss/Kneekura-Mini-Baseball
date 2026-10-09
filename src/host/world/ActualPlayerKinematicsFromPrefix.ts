@@ -157,7 +157,7 @@ const deriveActualPlayerKinematicsFromPhysicalPrefix = (playerId: string, prefix
       events.push(adoptedPlans.has(action.planSourceId) ? { command: null, adoption: null }
         : commandEvent('throw_advance', 'batted_world_field_executions', planned.source, planned.source.action.throughTick, planned.source.action.commands, value.source));
       adoptedPlans.add(action.planSourceId);
-    } else if (action.kind === 'acquisition' || action.kind === 'acquisition_advance' || action.kind === 'retained_motion_checkpoint_v1') events.push({ command: null, adoption: null });
+    } else if (action.kind === 'received_renewal_continuation_v1' || action.kind === 'acquisition' || action.kind === 'acquisition_advance' || action.kind === 'retained_motion_checkpoint_v1') events.push({ command: null, adoption: null });
     // Both plans and all three observation Sources add no actual segment/adoption.
   }
   if (events.length !== physical.segments.length) throw new Error('actual Player kinematics execution segment classification differs');

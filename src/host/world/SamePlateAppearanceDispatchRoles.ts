@@ -80,9 +80,15 @@ export const deriveSamePaDispatchRoles = (rawActor: DurablePhysicalPlateAppearan
 
 export type SamePaDispatchPrerequisite = Readonly<{ playerId: string; route: SamePaDispatchRoute;
   reason: 'missing_calibration_reference' | 'unsupported_core_adapter' }>;
-/** This validator checkpoint has no execution adapters. Only code changes can
- * add a supported route; neither callers nor Sources supply a support/skip list. */
-const supportedAdapterRoutes: readonly SamePaDispatchRoute[] = Object.freeze([]);
+/** Preparation capabilities only: each route has a real numerical Native
+ * composition. The accepted original/current operation cut is authenticated
+ * separately at invocation; future field observations are not TAKE inputs.
+ * Keep this list explicit so adding a route cannot silently enable it. */
+const supportedAdapterRoutes: readonly SamePaDispatchRoute[] = Object.freeze([
+  'pitch_delivery', 'batter_observation', 'batter_decision', 'batter_motor', 'batter_swing',
+  'defender_observation', 'defender_decision', 'defender_locomotion',
+]);
+export const samePaNativeAdapterImplemented = (route: SamePaDispatchRoute): boolean => supportedAdapterRoutes.includes(route);
 export const samePaDispatchPrerequisites = (actor: DurablePhysicalPlateAppearanceActor, view: SamePaExecutionView,
   rawInputs: unknown): readonly SamePaDispatchPrerequisite[] => {
   const roles = deriveSamePaDispatchRoles(actor, view), inputs = samePaDispatchParticipantInputs(rawInputs);

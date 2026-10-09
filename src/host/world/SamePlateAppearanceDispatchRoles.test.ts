@@ -110,11 +110,10 @@ test('DR04 missing inputs enumerate exact player routes and implemented adapters
   const missing = api.samePaDispatchPrerequisites(f.actor, f.view, participantInputs);
   expect(missing.filter(p => p.reason === 'missing_calibration_reference')).toEqual(roles.flatMap(r => r.routes.map(route =>
     ({ playerId: r.member.playerId, route, reason: 'missing_calibration_reference' }))));
-  expect(missing.filter(p => p.reason === 'unsupported_core_adapter')).toHaveLength(32);
+  expect(missing.filter(p => p.reason === 'unsupported_core_adapter')).toHaveLength(0);
   const supplied = roles.map(r => ({ member: r.member, calibrationReferences: r.routes.map(route => ({ route,
     calibrationReference: calibrationRef(r.member.playerId + ':' + route) })) }));
-  expect(api.samePaDispatchPrerequisites(f.actor, f.view, supplied)).toEqual(roles.flatMap(r => r.routes.map(route =>
-    ({ playerId: r.member.playerId, route, reason: 'unsupported_core_adapter' }))));
+  expect(api.samePaDispatchPrerequisites(f.actor, f.view, supplied)).toEqual([]);
   expect(() => api.samePaDispatchPrerequisites(f.actor, f.view, supplied.map(r => ({ ...r, supported: true })))).toThrow();
 });
 

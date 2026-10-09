@@ -1,3 +1,5 @@
+import { receivedHandoffSchema,receivedHandoffTable } from './ActualReceivedUmpireHandoffSchema';
+import { receivedContinuationSchema,receivedContinuationTable } from './ActualReceivedUmpireContinuationSchema';
 import { receivedEnrollmentInput, receivedAvailabilityInput, receivedReplanInput } from './ActualReceivedUmpireDefender';
 import { receivedOwnerSchema, receivedOwnerTables, type ReceivedOwnerTable } from './ActualReceivedUmpireDefenderSchema';
 import { sqliteJsonMetadataNodes as nodes } from './SqliteOwnershipMetadata';
@@ -25,7 +27,7 @@ const referenceFields: Readonly<Record<string, string>> = {
   receivedEnrollmentSourceId: E, received_enrollment_source_id: E, receivedReplanSourceId: R, received_replan_source_id: R,
   renewalEnrollmentSourceId: NE, renewal_enrollment_source_id: NE, renewalDecisionSourceId: ND, renewal_decision_source_id: ND,
   renewalMotorSourceId: NM, renewal_motor_source_id: NM, physicalPredecessorSourceId: X, physical_predecessor_source_id: X,
-  adoption_source_id: X,previousExecutionSourceId:X,
+  adoption_source_id: X,previousExecutionSourceId:X,renewalAdoptionSourceId:X,
 };
 const anchorFields: Readonly<Record<string, string>> = {runtime: T, execution: X, observation: O, originObservation: O,
   decision: D, motor: M, adoption: X, communication: C, call: U,physicalPredecessor:X,receivedEnrollment:E,receivedReplan:R};
@@ -85,6 +87,8 @@ const nodeFor = (db: Db, owner: string, row: Record<string, unknown>): Node => {
     if (![NE,ND,NM,X].includes(String(row.owner))) throw new Error('received renewal head or journal owner metadata is unsupported');
     add(node,String(row.owner),row.source_id);
   } else add(node, owner === H ? R : owner, row.source_id);
+  if(owner===receivedContinuationTable)add(node,X,row.source_id);
+  if(owner===receivedHandoffTable)add(node,X,row.previous_source_id);
   for (const [key, snapshot] of [['source_json', false], ['snapshot_json', true]] as const) if (key in row) document(db, node, row[key], snapshot);
   if ([E,A,R].includes(owner)) {
     // Discovery above uses SQLite's duplicate-preserving metadata traversal.
@@ -121,8 +125,8 @@ const claims = (db: Db, scope: ReceivedClaimScope | null, references: readonly R
   // Family readers keep their original five-owner census. Fresh ingress always
   // inspects both namespaces and physical survivors, independently of old state.
   if (!union && old === 'pristine') return [];
-  const renewed=union?renewalOwnerSchema(db):'pristine';
-  const tables=[...(old==='installed'?receivedOwnerTables:[]),...(renewed==='installed'?renewalOwnerTables:[])];
+  const renewed=union?renewalOwnerSchema(db):'pristine',continued=union?receivedContinuationSchema(db):'pristine',handed=union?receivedHandoffSchema(db):'pristine';
+  const tables=[...(old==='installed'?receivedOwnerTables:[]),...(renewed==='installed'?renewalOwnerTables:[]),...(continued==='installed'?[receivedContinuationTable]:[]),...(handed==='installed'?[receivedHandoffTable]:[])];
   const extension = tables.flatMap(owner => db.prepare(`SELECT * FROM main.${owner}`).all().map(row => nodeFor(db, owner, row)));
   if (!union && !extension.length) return [];
   if(union&&!extension.length){
@@ -146,7 +150,7 @@ const claims = (db: Db, scope: ReceivedClaimScope | null, references: readonly R
   if (!discoverable.length) return [];
   const known = new Set<string>();
   for (const item of references) {
-    if (![...originals,E,A,R,...(union?[NE,ND,NM]:[])].includes(item.owner) || !reference(item.owner, item.sourceId)) throw new Error('invalid received defender original reference');
+    if (![...originals,E,A,R,...(union?[NE,ND,NM,receivedContinuationTable,receivedHandoffTable]:[])].includes(item.owner) || !reference(item.owner, item.sourceId)) throw new Error('invalid received defender original reference');
     known.add(reference(item.owner, item.sourceId)!);
   }
   if (scope?.physicalPitchSourceId !== undefined) known.add(reference(P, scope.physicalPitchSourceId)!);

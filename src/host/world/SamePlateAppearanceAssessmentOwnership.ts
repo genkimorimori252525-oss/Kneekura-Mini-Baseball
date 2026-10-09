@@ -1,10 +1,11 @@
+import { battingAssessmentOwners } from './BattingAssessmentOwnership';
 import type { DatabaseSync } from 'node:sqlite';
 import { samePaMetadataClaim as claim } from './SamePlateAppearanceReservationGuard';
 /** Assessment provenance denotes one independently accepted assessment, not a
  * calibration label shared by participants or a recycled prior-PA assessment.
  * Inspect typed raw identity claims without hydrating unrelated old payloads. */
 export const assertSamePaAssessmentOwnership=(db:Pick<DatabaseSync,'prepare'>,source:Readonly<{sourceId:string;provenance:Readonly<{assessmentSourceId:string}>}>)=>{
-  for(const table of ['reserved_pa_total_assessments','actual_role_workload_assessments']){
+  for(const table of [...battingAssessmentOwners,'reserved_pa_total_assessments','actual_role_workload_assessments','pa_continuation_v1_total_assessments','pa_continuation_v1_execution_calibrations']){
     const objects=db.prepare('SELECT type,name FROM main.sqlite_master WHERE lower(name)=lower(?)').all(table);
     if(db.prepare('SELECT 1 FROM temp.sqlite_master WHERE lower(name)=lower(?)').get(table))throw new Error('same-PA assessment ownership namespace shadowed');
     if(!objects.length)continue;

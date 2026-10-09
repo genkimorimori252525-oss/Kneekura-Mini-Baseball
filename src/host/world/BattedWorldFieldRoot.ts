@@ -6,11 +6,14 @@ import type { DurableBattedEpisodeFieldBinding } from './BattedEpisodeFieldBindi
 import { actorJson as json, actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
 
-export type BattedEpisodeFieldBindingOptIn = Readonly<{ version: 'batted_episode_field_binding_v1' | 'batted_episode_field_binding_v2'; sourceId: string }>;
+export type BattedEpisodeFieldBindingOptIn = Readonly<{ version: 'batted_episode_field_binding_v1' | 'batted_episode_field_binding_v2'
+  | 'batted_episode_field_binding_v3' | 'batted_episode_field_binding_v4'; sourceId: string }>;
 export type BattedWorldFieldRoot = Readonly<{ response: DurableBattedContactResponse; geometry: DurableBattedWorldFieldGeometry }> &
   (Readonly<{ rootKind?: never; episodeFieldBinding?: never }>
     | Readonly<{ rootKind: 'episode_field_binding_v1'; episodeFieldBinding: DurableBattedEpisodeFieldBinding }>
-    | Readonly<{ rootKind: 'episode_field_binding_v2'; episodeFieldBinding: DurableBattedEpisodeFieldBinding }>);
+    | Readonly<{ rootKind: 'episode_field_binding_v2'; episodeFieldBinding: DurableBattedEpisodeFieldBinding }>
+    | Readonly<{ rootKind: 'episode_field_binding_v3'; episodeFieldBinding: DurableBattedEpisodeFieldBinding }>
+    | Readonly<{ rootKind: 'episode_field_binding_v4'; episodeFieldBinding: DurableBattedEpisodeFieldBinding }>);
 type Source = Readonly<{ responseSourceId: string; geometrySourceId: string; episodeFieldBinding?: BattedEpisodeFieldBindingOptIn; kind?: string }>;
 const id = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value === value.trim();
 export const battedWorldFieldSourceRootIdentity = (source: Source): string => {
@@ -19,23 +22,40 @@ export const battedWorldFieldSourceRootIdentity = (source: Source): string => {
   if ('kind' in source || !binding || typeof binding !== 'object' || Array.isArray(binding)
     || Object.keys(binding).sort().join('|') !== 'sourceId|version'
     || binding.version !== 'batted_episode_field_binding_v1' && binding.version !== 'batted_episode_field_binding_v2'
+      && binding.version !== 'batted_episode_field_binding_v3' && binding.version !== 'batted_episode_field_binding_v4'
     || !id(binding.sourceId)) throw new Error('invalid episode field binding opt-in');
-  return json([binding.version === 'batted_episode_field_binding_v1' ? 'episode_field_binding_v1' : 'episode_field_binding_v2', binding.sourceId]);
+  return json([binding.version === 'batted_episode_field_binding_v1' ? 'episode_field_binding_v1'
+    : binding.version === 'batted_episode_field_binding_v2' ? 'episode_field_binding_v2'
+      : binding.version === 'batted_episode_field_binding_v3' ? 'episode_field_binding_v3' : 'episode_field_binding_v4', binding.sourceId]);
 };
 export const battedWorldFieldRootIdentity = (root: BattedWorldFieldRoot): string => {
   if (!('rootKind' in root) && !('episodeFieldBinding' in root)) return 'legacy';
   const version = root.rootKind === 'episode_field_binding_v1' ? 'batted_episode_field_binding_v1'
-    : root.rootKind === 'episode_field_binding_v2' ? 'batted_episode_field_binding_v2' : null;
+    : root.rootKind === 'episode_field_binding_v2' ? 'batted_episode_field_binding_v2'
+      : root.rootKind === 'episode_field_binding_v3' ? 'batted_episode_field_binding_v3'
+        : root.rootKind === 'episode_field_binding_v4' ? 'batted_episode_field_binding_v4' : null;
   if (!version || !root.episodeFieldBinding
     || root.episodeFieldBinding.source.version !== version || !id(root.episodeFieldBinding.source.sourceId)) {
     throw new Error('invalid actual field episode root kind or binding receipt');
+  }
+  if (version === 'batted_episode_field_binding_v3' || version === 'batted_episode_field_binding_v4') {
+    const proof = root.episodeFieldBinding.completedOriginProof, source = root.episodeFieldBinding.source, origin = source.completedOrigin;
+    if (!id(source.physicalActorSourceId) || !origin || Object.keys(origin).sort().join('|') !== 'kind|sourceId'
+      || !['physical_play_closure', 'foul_terminal_completion'].includes(origin.kind) || !id(origin.sourceId)
+      || !proof || Object.keys(proof).sort().join('|') !== 'applicationId|completionHash|durableRevision|sourceHash'
+      || !id(proof.applicationId) || !Number.isSafeInteger(proof.durableRevision) || proof.durableRevision < 1
+      || !/^[a-f0-9]{64}$/.test(proof.sourceHash) || !/^[a-f0-9]{64}$/.test(proof.completionHash)) {
+      throw new Error('invalid completed-origin field binding proof');
+    }
+  } else if ('completedOriginProof' in root.episodeFieldBinding) {
+    throw new Error('completed-origin proof requires a completed-origin field binding');
   }
   return json([root.rootKind, root.episodeFieldBinding.source.sourceId]);
 };
 
 /** Validate the discriminator before any consumer chooses the bound-root route. */
 export const isBattedEpisodeFieldRoot = (root: BattedWorldFieldRoot): root is
-  Extract<BattedWorldFieldRoot, { rootKind: 'episode_field_binding_v1' | 'episode_field_binding_v2' }> =>
+  Extract<BattedWorldFieldRoot, { rootKind: 'episode_field_binding_v1' | 'episode_field_binding_v2' | 'episode_field_binding_v3' | 'episode_field_binding_v4' }> =>
   battedWorldFieldRootIdentity(root) !== 'legacy';
 export const battedWorldFieldEpisodeBindingHash = (root: BattedWorldFieldRoot): string | undefined =>
   isBattedEpisodeFieldRoot(root) ? hash(root.episodeFieldBinding) : undefined;

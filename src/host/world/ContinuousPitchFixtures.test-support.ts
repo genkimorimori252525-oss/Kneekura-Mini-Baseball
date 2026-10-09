@@ -12,8 +12,8 @@ import { openSqlitePitchFatiguePolicyStore } from './SqlitePitchFatiguePolicySto
 import type { AcceptedPhysicalPitchActionSource } from './SqlitePhysicalPitchProgressStore';
 
 /** Actual Native owners, explicit synthetic bodies/physics/calibration, no forced count events. */
-export const continuousPitchFixture = (databasePath?: string, bothSides = false, fixture?: Parameters<typeof officialPitchWorkloadFixture>[4], profile?: Parameters<typeof officialPitchWorkloadFixture>[5]) => {
-  const f = officialPitchWorkloadFixture(true, true, databasePath, bothSides, fixture, profile);
+export const continuousPitchFixture = (databasePath?: string, bothSides = false, fixture?: Parameters<typeof officialPitchWorkloadFixture>[4], profile?: Parameters<typeof officialPitchWorkloadFixture>[5], rehabPlayerIds: readonly string[] = []) => {
+  const f = officialPitchWorkloadFixture(true, true, databasePath, bothSides, fixture, profile, rehabPlayerIds);
   const setup = { sourceId: 'initial-world', sourceVersion: 'fixture-v1', gameId: 'game-1', fixtureEventId: f.fixtureBinding.fixtureEventId,
     startedAtTick: 0, worldSetup: worldSetup('p2') };
   const initialWorlds = f.track(openSqliteOfficialInitialWorldStore(f.path, { matches: f.official, participation: f.participation }, { readAcceptedSetup: () => setup }));

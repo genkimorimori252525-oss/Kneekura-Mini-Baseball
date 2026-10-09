@@ -25,7 +25,8 @@ const original = (): BattedWorldFieldRoot => ({ rootKind: 'episode_field_binding
 // projection; current-batter authentication belongs to the later retained-input
 // root/read gate, which must obtain its actual binding through the Native reader.
 const projection = () => {
-  const source: AcceptedBattedEpisodeFieldBinding = { ...value.source, version: 'batted_episode_field_binding_v2',
+  const source: AcceptedBattedEpisodeFieldBinding = { sourceId: value.source.sourceId, sourceVersion: value.source.sourceVersion,
+    responseSourceId: value.source.responseSourceId, fieldCalibrationSourceId: value.source.fieldCalibrationSourceId, version: 'batted_episode_field_binding_v2',
     physicalActorSourceId: value.response.touch.worldContact.flight.physicalPitch.frame.batterActor!.source.sourceId };
   const root = { rootKind: 'episode_field_binding_v2', episodeFieldBinding: { ...value, source }, response: value.response, geometry: value.calibration };
   return root as unknown as BattedWorldFieldRoot;

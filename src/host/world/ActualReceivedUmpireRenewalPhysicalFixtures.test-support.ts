@@ -190,7 +190,7 @@ export const openPreparedReceivedRenewalPhysicalFixture = async (path: string) =
     db.exec('PRAGMA query_only=1');
     const c = context(db); enrollmentId = c.enrollmentSource.sourceId;
     const head = need(db.prepare('SELECT * FROM actual_received_umpire_renewal_heads WHERE renewal_enrollment_source_id=?').get(enrollmentId), 'prepared renewal head');
-    if (head.stage !== 2 && head.stage !== 3) throw new Error('prepared synthetic renewal stage differs');
+    if (head.stage !== 2 && head.stage !== 3 && head.stage !== 4) throw new Error('prepared synthetic renewal stage differs');
     const decisionId = String(head.renewal_decision_source_id);
     const motorId = head.renewal_motor_source_id === null ? null : String(head.renewal_motor_source_id);
     if ((head.stage === 2) !== (motorId === null)) throw new Error('prepared synthetic motor pointer differs');

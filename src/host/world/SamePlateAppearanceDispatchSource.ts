@@ -83,7 +83,11 @@ const actionValid = (s: AcceptedSamePaFirstPitchAction): boolean => {
     || !timingRef(s.timingReference) || !releaseRef(s.releaseReference) || !referenceValid(s.pitchResponseReference, 'world_pitch_fatigue_policies')
     || !referenceValid(s.batterModelReference, 'world_player_batting_models') || !fields(s.geometryReference, ['kind'])
     || s.geometryReference.kind !== 'action_source_take_geometry_v1' || !fields(s.nominalPitch, ['delivery', 'flight', 'batter'])) return false;
-  const { delivery: d, flight: f, batter: b } = s.nominalPitch;
+  return nominalTakeValid(s.nominalPitch);
+};
+const nominalTakeValid = (pitch: AcceptedSamePaFirstPitchAction['nominalPitch']): boolean => {
+  if (!fields(pitch, ['delivery', 'flight', 'batter'])) return false;
+  const { delivery: d, flight: f, batter: b } = pitch;
   if (!fields(d, ['matchSeed', 'moundReference', 'outingId', 'readyAtUs', 'timingIntent', 'physics'])
     || !integer(d.matchSeed) || d.matchSeed > 0xffff_ffff || !vector(d.moundReference) || !text(d.outingId) || !integer(d.readyAtUs)
     || !fields(d.timingIntent, ['deliveryMode', 'cadenceIntent'])
@@ -95,6 +99,11 @@ const actionValid = (s: AcceptedSamePaFirstPitchAction): boolean => {
   const z = b.strikeZone;
   return [z.centerX, z.lowerY, z.upperY].every(Number.isFinite) && positive(z.halfWidth) && z.upperY > z.lowerY;
 };
+export const samePaNominalTakeInput = (raw: unknown): AcceptedSamePaFirstPitchAction['nominalPitch'] => {
+  const pitch = cloneInert(raw) as AcceptedSamePaFirstPitchAction['nominalPitch'];
+  if (!nominalTakeValid(pitch)) throw new Error('invalid explicit same-PA nominal TAKE input'); return freeze(pitch);
+};
+
 const calibrationValid = (s: AcceptedSamePaExecutionCalibration): boolean => {
   if (!baseValid(s, ['member', 'route', 'nominalReference', 'nominalParameterReference', 'acceptedAtDay', 'provenance', 'response'])
     || !samePaDispatchMemberValid(s.member) || !samePaDispatchRouteValid(s.route) || !integer(s.acceptedAtDay)

@@ -1,3 +1,4 @@
+import { assertNoSamePaContinuationPlayerClaim, assertNoSamePaContinuationWorkClaim, assertNoSamePaContinuationEnrollmentClaim } from './SamePlateAppearanceContinuationClaimGuard';
 import type { DatabaseSync } from 'node:sqlite';
 import { actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { assertPaDispatchStorage, paDispatchSchema } from './SamePlateAppearanceDispatchStorage';
@@ -136,19 +137,20 @@ const inspect = (db: Db) => {
     return inspected;
   } catch { return fail(); }
 };
-const rawWork = (db: Db, table: string, scope: { gameId: string; playId: number; physicalPitchSourceId?: string }) => {
-  if (table === 'pa_dispatch_v1_pitch_heads') return db.prepare(`SELECT 1 FROM main.${table} WHERE (game_id=$game AND play_id=$play) OR first_pitch_source_id=$pitch`).get({ game: scope.gameId, play: scope.playId, pitch: scope.physicalPitchSourceId ?? null });
+const rawWorkRows = (db: Db, table: string, scope: { gameId: string; playId: number; physicalPitchSourceId?: string }) => {
+  if (table === 'pa_dispatch_v1_pitch_heads') return db.prepare(`SELECT * FROM main.${table} WHERE (game_id=$game AND play_id=$play) OR first_pitch_source_id=$pitch`).all({ game: scope.gameId, play: scope.playId, pitch: scope.physicalPitchSourceId ?? null });
   const paths = [['lineage'], []] as const;
-  return db.prepare(`SELECT 1 FROM main.${table} WHERE (game_id=$game AND play_id=$play) OR first_pitch_source_id=$pitch
+  return db.prepare(`SELECT * FROM main.${table} WHERE (game_id=$game AND play_id=$play) OR first_pitch_source_id=$pitch
     ${table === 'pa_dispatch_v1_consumer_actions' ? 'OR physical_source_id=$pitch' : table === 'pa_dispatch_v1_consumptions' || table === 'pa_dispatch_v1_episode_admissions' ? 'OR pitch_source_id=$pitch' : ''}
     OR ${claim('source_json', ['firstPhysicalPitchSourceId'], '$pitch')} OR ${claim('source_json', ['physicalSourceReference', 'sourceId'], '$pitch')}
     OR ${claim('snapshot_json', ['source', 'firstPhysicalPitchSourceId'], '$pitch')} OR ${claim('snapshot_json', ['source', 'physicalSourceReference', 'sourceId'], '$pitch')}
     OR ${claim('snapshot_json', ['lineage', 'firstPhysicalPitchSourceId'], '$pitch')}
     OR ${paths.map(path => `(${claim('snapshot_json', [...path, 'gameId'], '$game')} AND ${claim('snapshot_json', [...path, 'playId'], '$play', true)})`).join(' OR ')}`)
-    .get({ game: scope.gameId, play: scope.playId, pitch: scope.physicalPitchSourceId ?? null });
+    .all({ game: scope.gameId, play: scope.playId, pitch: scope.physicalPitchSourceId ?? null });
 };
 /** Unconditional writer fences: these functions accept no exemption. */
 export const assertNoPaDispatchPlayerClaim = (db: Db, scope: { careerId: string; playerId: string }): void => {
+  assertNoSamePaContinuationPlayerClaim(db, scope);
   for (const record of inspect(db)) {
     if (record.enrollments.some(e => e.careerId === scope.careerId && e.participants.some(p => p.binding.playerId === scope.playerId))) fail();
     if (record.table !== 'pa_dispatch_v1_pitch_heads' && db.prepare(`SELECT 1 FROM main.${record.table} WHERE
@@ -172,16 +174,37 @@ export const assertNoPaDispatchPlayerClaim = (db: Db, scope: { careerId: string;
   }
 };
 export const assertNoPaDispatchWorkClaim = (db: Db, scope: { gameId: string; playId: number; physicalPitchSourceId?: string }): void => {
+  assertNoSamePaContinuationWorkClaim(db, scope);
   for (const record of inspect(db)) if (record.enrollments.some(e => e.gameId === scope.gameId && e.playId === scope.playId
-    || e.source.firstPhysicalPitchSourceId === scope.physicalPitchSourceId) || rawWork(db, record.table, scope)) fail();
+    || e.source.firstPhysicalPitchSourceId === scope.physicalPitchSourceId) || rawWorkRows(db, record.table, scope).length) fail();
 };
 /** Called only by the old owner's existing original-enrollment read branch.
  * Prospective prerequisites are not causal work. Actual dispatch work always
  * invalidates a fresh empty-view proof, without changing the frozen v1 census. */
-export const assertFreshPaDispatchEnrollment = (db: Db, enrollmentSourceId: string): void => {
-  const records = inspect(db).filter(record => !prospective.includes(record.table)); if (!records.length) return;
+export const readPaDispatchWorkClaimRows = (db: Db, enrollmentSourceId: string): readonly Readonly<{ table: string; row: Row }>[] => {
+  const records = inspect(db).filter(record => !prospective.includes(record.table)); if (!records.length) return [];
   const row = samePaEnrollmentRow(db, enrollmentSourceId); if (!row) fail(); const original = authenticateSamePaRow(db, row);
-  for (const record of records) if (record.enrollments.some(e => e.source.sourceId === enrollmentSourceId)) fail();
   const scope = { gameId: original.gameId, playId: original.playId, physicalPitchSourceId: original.source.firstPhysicalPitchSourceId };
-  for (const table of new Set(records.map(record => record.table))) if (rawWork(db, table, scope)) fail();
+  const direct = new Map([...new Set(records.map(record => record.table))].map(table => [table, new Set(rawWorkRows(db, table, scope).map(json))]));
+  return records.filter(record => record.enrollments.some(e => e.source.sourceId === enrollmentSourceId) || direct.get(record.table)!.has(json(record.row)))
+    .map(({ table, row }) => ({ table, row }));
+};
+export const assertFreshPaDispatchEnrollment = (db: Db, enrollmentSourceId: string): void => {
+  assertNoSamePaContinuationEnrollmentClaim(db, enrollmentSourceId);
+  if (readPaDispatchWorkClaimRows(db, enrollmentSourceId).length) fail();
+};
+/** Read-only discovery for a prospective physical identity, including surviving
+ * consumers/heads/receipts when the pitch row itself is absent or moved. */
+export const readPaDispatchPhysicalClaimRows = (db: Db, physicalSourceId: string): readonly Readonly<{ table: string; row: Row }>[] => {
+  const records = inspect(db).filter(record => !prospective.includes(record.table)); if (!records.length) return [];
+  const roots = db.prepare(`SELECT source_id FROM main.same_pa_enrollments WHERE first_pitch_source_id=$id
+    OR ${claim('source_json', ['firstPhysicalPitchSourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'firstPhysicalPitchSourceId'], '$id')}`).all({ id: physicalSourceId });
+  const found = new Map<string, { table: string; row: Row }>();
+  for (const record of records) if (record.pitchIds.has(physicalSourceId)
+    || record.table === 'pa_dispatch_v1_pitch_actions' && record.sourceIds.has(physicalSourceId)
+    || record.refs.some(ref => ref.owner === 'pa_dispatch_v1_pitch_actions' && ref.sourceId === physicalSourceId)) {
+    found.set(record.table + ':' + json(record.row), { table: record.table, row: record.row });
+  }
+  for (const root of roots) for (const record of readPaDispatchWorkClaimRows(db, String(root.source_id))) found.set(record.table + ':' + json(record.row), record);
+  return [...found.values()];
 };

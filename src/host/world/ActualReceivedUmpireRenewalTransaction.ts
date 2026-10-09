@@ -1,9 +1,11 @@
+import { receivedHandoffSchema,installReceivedHandoffSchema,receivedHandoffTable } from './ActualReceivedUmpireHandoffSchema';
+import { receivedContinuationSchema,installReceivedContinuationSchema,receivedContinuationTable } from './ActualReceivedUmpireContinuationSchema';
 import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { createRequire } from 'node:module';
 import { renewalOwnerSchema, installRenewalOwnerSchema, renewalOwnerTables } from './ActualReceivedUmpireRenewalSchema';
 import { receivedOwnerSchema } from './ActualReceivedUmpireDefenderSchema';
 import { receivedReadProofRetired,retireReceivedReadProof } from './ActualReceivedUmpireDefenderTransaction';
-const ownerSchema=(db:Pick<import('node:sqlite').DatabaseSync,'prepare'>)=>{receivedOwnerSchema(db);return renewalOwnerSchema(db);};
+const ownerSchema=(db:Pick<import('node:sqlite').DatabaseSync,'prepare'>)=>{receivedOwnerSchema(db);receivedContinuationSchema(db);receivedHandoffSchema(db);return renewalOwnerSchema(db);};
 import { receivedId } from './ActualReceivedUmpireDefender';
 type Db = import('node:sqlite').DatabaseSync;
 // A private owner cannot safely reuse a connection whose proof cleanup failed,
@@ -105,7 +107,7 @@ export const openRenewalTransaction = (path: string) => {
       return value;
     } catch (error) { return commitAttempted ? uncertain(error) : rollback(error); }
   });
-  const write = <T>(options: Readonly<{bootstrap: boolean; changes: number}>, body: () => T, verifyCommitted: () => void,
+  const write = <T>(options: Readonly<{bootstrap: boolean; changes: number;continuationBootstrap?:boolean;handoffBootstrap?:boolean}>, body: () => T, verifyCommitted: () => void,
     beforeBootstrap?: () => void): T => use(() => {
     let ownerSentinel = false, finalizing = false;
     const releaseOwner = () => {
@@ -124,12 +126,14 @@ export const openRenewalTransaction = (path: string) => {
       if (!options.bootstrap && initial === 'pristine') throw new Error('received renewal enrollment schema is missing');
       const beforeSetup = db.prepare('SELECT * FROM main.sqlite_master ORDER BY name').all(), setupCounters = counters(db);
       if (initial === 'pristine') installRenewalOwnerSchema(db);
+      if(options.continuationBootstrap)installReceivedContinuationSchema(db);
+      if(options.handoffBootstrap)installReceivedHandoffSchema(db);
       ownerSchema(db);
       const afterSetup = db.prepare('SELECT * FROM main.sqlite_master ORDER BY name').all();
       if (counters(db)[0] !== setupCounters[0] || counters(db)[2] !== setupCounters[2]
         || beforeSetup.some(row => !afterSetup.some(after => equal(row, after)))
         || afterSetup.some(row => !beforeSetup.some(before => equal(row, before))
-          && !(renewalOwnerTables as readonly unknown[]).includes(row.tbl_name))) throw new Error('received renewal bootstrap schema conservation differs');
+          && !(renewalOwnerTables as readonly unknown[]).includes(row.tbl_name)&&!(options.continuationBootstrap&&row.tbl_name===receivedContinuationTable)&&!(options.handoffBootstrap&&row.tbl_name===receivedHandoffTable))) throw new Error('received renewal bootstrap schema conservation differs');
       const before = counters(db); const value = body();
       if (!db.isTransaction || db.prepare('PRAGMA query_only').get()!.query_only !== 0 || proofRetired(db)) {
         throw new Error('received renewal write transaction changed');

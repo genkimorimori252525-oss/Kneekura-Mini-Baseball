@@ -136,11 +136,13 @@ it('DO16 a nominal pitcher Person mismatch cannot hide behind an equal career an
   vi.spyOn(persons, 'playerPersonLinkEvidenceFromSqlite').mockReturnValue({ readLink: () => ({ ...original, personId: 'different-person' }) });
   expect(() => f.owner.acceptAction('action')).toThrow(/Person|person/);
 });
-it('DO07 unsupported consumers episodes and rights remain precisely pending and create no prospective work rows', async () => {
+it('DO07 missing calibration is pending and complete preparation accepts a right without future operation inputs', async () => {
   const f = await setup(), action = f.owner.acceptAction('action'), set = f.owner.acceptCalibrationSet(f.calibrations.map(s => s.sourceId));
   const participants = f.roles.map(role => ({ member: role.member, calibrationReferences: set.calibrations.filter((v: any) => v.source.member.playerId === role.member.playerId).map((v: any) => ({ route: v.source.route, calibrationReference: reference('pa_dispatch_v1_execution_calibrations', v) })) }));
-  const consumer = { ...f.base, sourceId: 'consumers', capability: 'same_pa_consumer_set_v1', actionReference: reference('pa_dispatch_v1_action_plans', action), participantInputs: participants }; f.accepted.set('consumers', consumer);
-  const pending = f.owner.acceptConsumerSet('consumers'); expect(pending.kind).toBe('pending'); expect(pending.prerequisites.filter((p: any) => p.reason === 'unsupported_core_adapter')).toHaveLength(32);
+  const consumer = { ...f.base, sourceId: 'consumers', capability: 'same_pa_consumer_set_v1', actionReference: reference('pa_dispatch_v1_action_plans', action),
+    participantInputs: participants.map((p, i) => i === 0 ? { ...p, calibrationReferences: p.calibrationReferences.slice(1) } : p) }; f.accepted.set('consumers', consumer);
+  const pending = f.owner.acceptConsumerSet('consumers'); expect(pending.kind).toBe('pending'); expect(pending.prerequisites).toEqual([
+    { playerId: f.roles[0].member.playerId, route: f.roles[0].routes[0], reason: 'missing_calibration_reference' }]);
   const dummy = { owner: 'pa_dispatch_v1_consumer_sets', sourceId: 'consumers', sourceHash: hash(consumer), snapshotHash: hash('not-accepted') };
   const episode = { ...f.base, sourceId: 'episode', capability: 'same_pa_first_pitch_episode_v1', actionReference: consumer.actionReference, consumerSetReference: dummy }; f.accepted.set('episode', episode);
   expect(f.owner.acceptEpisode('episode')).toMatchObject({ kind: 'pending', missingAcceptedSourceIds: ['consumers'] });
@@ -148,6 +150,14 @@ it('DO07 unsupported consumers episodes and rights remain precisely pending and 
     prefixReference: reference('reserved_pa_work_prefixes', f.prefix), episodeReference: { owner: 'pa_dispatch_v1_episodes', sourceId: 'episode', sourceHash: hash(episode), snapshotHash: hash('not-accepted') } });
   expect(f.owner.acceptRight('right')).toMatchObject({ kind: 'pending', missingAcceptedSourceIds: ['consumers', 'episode'] });
   for (const table of ['consumer_sets', 'episodes', 'rights', 'consumer_actions', 'pitch_actions', 'pitch_heads', 'consumptions', 'episode_admissions']) expect(f.db.prepare('SELECT count(*) AS n FROM pa_dispatch_v1_' + table).get()!.n).toBe(0);
+  const complete = { ...consumer, participantInputs: participants }; f.accepted.set('consumers', complete);
+  const acceptedConsumer = f.owner.acceptConsumerSet('consumers'); expect(acceptedConsumer.kind).toBe('consumer_set_prepared');
+  f.accepted.set('episode', { ...episode, consumerSetReference: reference('pa_dispatch_v1_consumer_sets', acceptedConsumer) });
+  const acceptedEpisode = f.owner.acceptEpisode('episode'); expect(acceptedEpisode.kind).toBe('prospective_episode_prepared');
+  f.accepted.set('right', { ...f.accepted.get('right')!, consumerSetReference: reference('pa_dispatch_v1_consumer_sets', acceptedConsumer),
+    episodeReference: reference('pa_dispatch_v1_episodes', acceptedEpisode) });
+  expect(f.owner.acceptRight('right').kind).toBe('immutable_right_prepared');
+  for (const table of ['consumer_actions', 'pitch_actions', 'pitch_heads', 'consumptions', 'episode_admissions']) expect(f.db.prepare('SELECT count(*) AS n FROM pa_dispatch_v1_' + table).get()!.n).toBe(0);
 });
 it('DO08 changed Sources nominal owners raw aliases and partial calibration rows reject without repair', async () => {
   const f = await setup(); f.owner.acceptAction('action'); const ids = f.calibrations.map(s => s.sourceId); f.owner.acceptCalibrationSet(ids);
