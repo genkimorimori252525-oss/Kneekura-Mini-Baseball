@@ -1,6 +1,6 @@
 import type { DatabaseSync } from 'node:sqlite';
 import { buildRouteFollowingController, createCanonicalRunnerKinematicsFromRouteMotion, type RouteFollowingController } from '../../core/sim/running/RunnerLocomotionController';
-import { sampleRunnerMotionTrajectory, type RunnerMotionParameters } from '../../core/sim/running/RunnerMotion';
+import { sampleRunnerMotionTrajectory, sampleRunnerMotionTrajectoryExact, buildRunnerMotionTrajectoryAtExactOrigin, type RunnerMotionParameters } from '../../core/sim/running/RunnerMotion';
 import { getRunnerRouteLength, type RunnerRoute } from '../../core/sim/running/RunnerRoute';
 import { samplePiecewiseFieldActor } from '../../core/sim/ball/BattedWorldPiecewiseFieldMotion';
 import { prepareBatterCatchHoldPlan } from './BatterRunPlan';
@@ -85,9 +85,12 @@ export const deriveSamePaBatterCatchResponse = (db: DatabaseSync, source: SamePa
     if (!journal.source.eventReferences.some(r => json(r) === json(a.motionBasis.kind === 'runner_plan' ? a.motionBasis.planReference : null))
       || !prefix.some(f => f.kind === 'same_pa_physical_field_step_v1' && f.actionResult?.kind === 'batter_run_motion_v1'
         && json(f.actionResult.planReference) === json(a.motionBasis.kind === 'runner_plan' ? a.motionBasis.planReference : null))
-      || plan.plan.physicalBinding !== 'owned_static_pose_straight_motion') throw new Error('received batter hold requires its actually executed original run plan');
+      || plan.plan.physicalBinding !== 'owned_static_pose_straight_motion' && !plan.completedRecovery) throw new Error('received batter hold requires its actually executed original run plan');
     exit = plan.exitState; parameters = plan.plan.timeline.runnerMotionParameters;
-    const startMotion = sampleRunnerMotionTrajectory(plan.plan.timeline.postLaunchTrajectory, a.intent.issuedTick);
+    const startMotion = plan.completedRecovery
+      ? {tick:a.intent.issuedTick,...sampleRunnerMotionTrajectoryExact(buildRunnerMotionTrajectoryAtExactOrigin(plan.plan.timeline.launchState,
+        plan.plan.timeline.postLaunchIntent,plan.plan.timeline.endTick,parameters,plan.completedRecovery.at),moment.elapsedSeconds-plan.completedRecovery.at.elapsedSeconds)}
+      : sampleRunnerMotionTrajectory(plan.plan.timeline.postLaunchTrajectory, a.intent.issuedTick);
     controller = buildRouteFollowingController({ canonical: createCanonicalRunnerKinematicsFromRouteMotion(plan.playerId, startMotion, plan.plan.timeline.route, plan.plan.timeline.postLaunchController.basis.motionRevision + 1),
       startMotion, route: plan.plan.timeline.route, intent: a.intent, parameters, endTick: a.endTick });
   } else {
@@ -111,9 +114,6 @@ export const deriveSamePaBatterCatchResponse = (db: DatabaseSync, source: SamePa
     if (s.bodyMode !== 'upright' || s.startRouteDistanceMeters < 0 || end < 0 || end > routeLength)
       throw new Error('received batter hold exceeds its original finite upright route');
   }
-  const firstPiece = controller.trajectory.segments[0];
-  if (!firstPiece || Math.floor(controller.trajectory.startTick + firstPiece.endElapsedSeconds * parameters.ticksPerSecond) <= a.intent.issuedTick)
-    throw new Error('received batter hold first analytic piece has no supported whole-tick adoption');
   const body = previous.field.motion.actors.find(a => a.playerId === actor.binding.playerId && a.primitive.role === 'body');
   const shape = exit.body.primitives.find(s => s.role === 'body');
   if (!body || !shape) throw new Error('received batter hold actual body missing');

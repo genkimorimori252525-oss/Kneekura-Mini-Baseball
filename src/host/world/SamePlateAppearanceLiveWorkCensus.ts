@@ -1,3 +1,4 @@
+import { samePaExactRunnerControllerCensus } from './SamePlateAppearanceExactRunnerControllerPiece';
 import { deriveSamePaLiveAppealCensus } from './SamePlateAppearanceLiveAppeal';
 import { deriveSamePaDefenderDepartureCensus } from './SamePlateAppearanceDefenderDeparture';
 import { deriveSamePaOccupiedRunnerMotionCensus } from './SamePlateAppearanceOccupiedRunnerMotion';
@@ -230,7 +231,20 @@ export const deriveSamePaLiveWorkCensus = (raw: SamePaLiveWorkCensusInput) => {
     releaseTick: pendingThrow.plan.transfer.throwReadyTick, releaseElapsedSeconds: pendingThrow.plan.releaseElapsedSeconds,
     coverageThroughTick: pendingThrow.plan.input.throughTick, due: due(pendingThrow.plan.transfer.throwReadyTick),
     phase: 'transfer' as const } : null;
+  const exactRunnerControllerPieces=samePaExactRunnerControllerCensus(input.fields);
+  const recoveryFields=input.fields.filter((f):f is SamePaPhysicalFieldStep=>f.kind==='same_pa_physical_field_step_v1'&&f.actionResult?.kind==='batter_recovery_motion_v1');
+  const lastRecovery=recoveryFields.at(-1),recovery=lastRecovery?.actionResult;
+  const batterRecovery=lastRecovery&&recovery?.kind==='batter_recovery_motion_v1'?{
+    recoveryReference:fieldReference(lastRecovery),playerId:recovery.playerId,bindingHash:recovery.recoveryBindingHash,
+    startTick:recovery.recoveryStartTick,launchTick:recovery.recoveryLaunchTick,
+    actualThroughElapsedSeconds:lastRecovery.field.motion.world.moment.elapsedSeconds,phaseComplete:recovery.recoveryComplete,
+    postLaunchConsumer:input.fields.flatMap(f=>f.kind==='same_pa_physical_field_step_v1'&&f.actionResult?.kind==='batter_run_motion_v1'
+      &&json(f.actionResult.completedRecoveryReference)===json(fieldReference(lastRecovery))
+      &&f.field.motion.world.moment.elapsedSeconds>lastRecovery.field.motion.world.moment.elapsedSeconds?[fieldReference(f)]:[])[0]??null,
+  }:null;
   return freeze({ kind: 'same_pa_live_work_census_v1' as const,
+    ...(exactRunnerControllerPieces.length ? {exactRunnerControllerPieces} : {}),
+    ...(batterRecovery ? {batterRecovery} : {}),
     ...(input.fields.some(f=>f.kind==='same_pa_physical_field_step_v1'&&f.actionResult?.kind==='defender_departure_purpose_v1')
       ? {defenderDepartures:deriveSamePaDefenderDepartureCensus(input.fields)} : {}),
     originalFieldPrefix: { kind: 'original_field_prefix_only' as const, physicalPitchSourceId: root.physicalPitchSourceId,

@@ -23,7 +23,7 @@ const pending = (reason: string) => freeze({ kind: 'pending' as const, reason })
 // These original field operations describe physical motion, capture and observed
 // responses only. Neither a throw attempt nor another adjudication is admitted.
 const supportedActions = new Set(['capture_checkpoint_v1', 'retained_quantizer_checkpoint_v1', 'defender_observation_v1',
-  'defender_decision_v1', 'defender_motion_v1', 'defender_catch_response_v1', 'batter_run_motion_v1',
+  'defender_decision_v1', 'defender_motion_v1', 'defender_catch_response_v1', 'batter_run_motion_v1', 'batter_recovery_motion_v1',
   'batter_catch_response_v1', 'batter_catch_motion_v1', 'occupied_runner_motion_v1',
   'occupied_runner_catch_response_v1', 'occupied_runner_catch_motion_v1']);
 

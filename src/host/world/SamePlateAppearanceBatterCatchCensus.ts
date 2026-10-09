@@ -1,3 +1,4 @@
+import { samePaExactRunnerControllerCensus } from './SamePlateAppearanceExactRunnerControllerPiece';
 import type { SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep } from './SamePlateAppearancePhysicalEpisode';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { actorFreeze as freeze, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -30,7 +31,9 @@ export const deriveSamePaBatterCatchCensus = (fields: readonly Field[]) => {
         throw new Error('received batter census original motor differs');
     }
     const first = executions.find(f => f.field.motion.world.moment.elapsedSeconds > field.field.motion.world.moment.elapsedSeconds);
+    const exact = samePaExactRunnerControllerCensus(fields).filter(w=>w.playerId===response.playerId).map(({playerId:_,controllerReference:__,...w})=>w);
     const work = first ? [
+      ...exact,
       ...(due(response.reactionTick)==='future' ? [{kind:'reaction' as const,dueTick:response.reactionTick,due:'future' as const}] : []),
       {kind:'controller_end' as const,dueTick:source.endTick,due:due(source.endTick)},
     ] : [{kind:'adoption' as const,dueTick:response.intent.issuedTick,due:due(response.intent.issuedTick)}];

@@ -35,6 +35,7 @@ import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './P
 import { battedWorldResponseInput } from './SqliteBattedWorldContinuationStore';
 import { battedWorldMotionCommandsInput, battedWorldMotionPrimitiveCommands, type AcceptedBattedWorldMotion } from './SqliteBattedWorldMotionStore';
 import { battedWorldFieldEvidenceFromSqlite, withBattedWorldFieldReadTraversal, activeBattedWorldFieldReadFrame, isAuthenticatedBattedWorldFieldTraversalValue, type DurableBattedWorldFieldAction, type SqliteBattedWorldFieldStore } from './SqliteBattedWorldFieldStore';
+import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
 import { playerFieldingModelEvidenceFromSqlite, type DurablePlayerFieldingModel } from './SqlitePlayerFieldingModelStore';
 import { battedWorldFieldPhysicalPrefix, battedWorldFieldBaseTouchHistoryFromPrefix, type BattedWorldFieldCustodyPolicy } from './BattedWorldFieldPhysicalPrefix';
 import { wholePlayPhysicalHistoryFromPrefix } from './WholePlayPhysicalHistoryFromPrefix';
@@ -638,6 +639,9 @@ export const openSqliteBattedWorldFieldExecutionStore = (path: string, fieldsOwn
     source_id TEXT NOT NULL UNIQUE,revision INTEGER NOT NULL);`);
   const own = battedWorldFieldExecutionEvidenceFromSqlite(db); let closed = false;
   const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed actual field execution scope'); };
+  // One immutable local phase only. The existing snapshot installs the physical
+  // traversal; delegated owners, authority/peer calls and writes stay outside.
+  const snapshot = <T>(work: () => T): T => withBattedVenueLegalReadSnapshot(db, work);
   const readOwner=(sourceId:string)=>{
     const row=db.prepare('SELECT source_json FROM batted_world_field_executions WHERE source_id=?').get(sourceId);
     if(row&&JSON.parse(String(row.source_json))?.action?.kind==='received_renewal_continuation_v1'){
@@ -648,7 +652,7 @@ export const openSqliteBattedWorldFieldExecutionStore = (path: string, fieldsOwn
     }
     if(receivedHandoffSchema(db)==='installed'&&db.prepare(`SELECT 1 FROM ${receivedHandoffTable} WHERE execution_source_id=?`).get(sourceId)){
       const reader=openSqliteActualReceivedUmpireHandoffStore(path);try{return reader.readPhysical(sourceId);}finally{reader.close();}
-    }return own.read(sourceId);
+    }return snapshot(() => own.read(sourceId));
   };
   return Object.freeze({ read(sourceId) { check(sourceId); return readOwner(sourceId); },
     accept(sourceId) {
@@ -661,12 +665,13 @@ export const openSqliteBattedWorldFieldExecutionStore = (path: string, fieldsOwn
       if (!source) throw new Error('accepted actual field execution Source is missing');
       if(source.action.kind==='received_renewal_continuation_v1')throw new Error('received continuation requires its private three-write owner');
       if(source.action.kind==='received_renewal_adoption_v1')throw new Error('received renewal adoption requires its private four-write owner');
-      const value = own.derive(source); own.currentBefore(value); const peer = fieldsOwner.read(source.baseFieldSourceId);
+      const value = snapshot(() => { const proposed = own.derive(source); own.currentBefore(proposed); return proposed; });
+      const peer = fieldsOwner.read(source.baseFieldSourceId);
       if (!peer || json(peer) !== json(value.baseField)) throw new Error('actual field execution peer original differs');
       db.exec('BEGIN IMMEDIATE');
       try {
         const liveFence = beginActualLivePitchWrite(db, physicalId(value.baseField), { owner: 'batted_world_field_executions', sourceId });
-        own.currentBefore(value); const pitchId = physicalId(value.baseField);
+        snapshot(() => own.currentBefore(value)); const pitchId = physicalId(value.baseField);
         const encoded = snapshotEncoding(value);
         db.prepare('INSERT INTO batted_world_field_executions VALUES (?,?,?,?,?,?,?,?,?,?)').run(sourceId, pitchId, source.baseFieldSourceId,
           source.previousExecutionSourceId, value.revision, value.baseField.response.model.gameId, json(source), hash(source), encoded.json, encoded.hash);
@@ -677,8 +682,12 @@ export const openSqliteBattedWorldFieldExecutionStore = (path: string, fieldsOwn
           if (Number(changed.changes) !== 1) throw new Error('actual field execution predecessor changed during write');
         }
         recordActualLivePlayAdmission(db, liveFence);
-        own.currentAdmission(value); const saved = own.read(sourceId);
-        if (!saved || snapshotJson(saved) !== snapshotJson(value)) throw new Error('actual field execution original changed during write'); assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
+        const saved = snapshot(() => {
+          own.currentAdmission(value); const saved = own.read(sourceId);
+          if (!saved || snapshotJson(saved) !== snapshotJson(value)) throw new Error('actual field execution original changed during write');
+          assertActualLivePlayWriteUnchanged(db, liveFence); return saved;
+        });
+        db.exec('COMMIT'); return saved;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     }, close() { if (!closed) { db.close(); closed = true; } },
   });

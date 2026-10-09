@@ -34,6 +34,8 @@ either proof changes. Reopening needs no live authority callbacks.
 
 ## Available aggregation and coverage
 
+The additive standard-scoring connection and remaining original source gaps are now documented in [`2026-10-09-standard-player-scoring-facts.md`](2026-10-09-standard-player-scoring-facts.md). The counts-only boundary below describes the initial batch; legacy stored records retain that shape.
+
 `aggregateOfficialPlayerOutcomes` groups eight supported official classes:
 base on balls, strikeout, foul out, fly out, ground out, base hit, reached on error and
 fielder's choice. Batter and pitcher tallies are separate. The result includes

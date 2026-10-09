@@ -32,3 +32,15 @@ it('BRP04 retains nonzero recovery as a plan that still needs physical pose bind
   const plan=prepare()(state,request);expect(plan.timeline.recovery.transition.recoverySeconds).toBe(0.5);
   expect(plan.physicalBinding).toBe('swing_recovery_pose_binding_required');expect(plan.motionExecuted).toBe(false);
 });
+
+it('BRP05 accepts an explicit completed recovery pin without changing legacy plan Source bytes',async()=>{
+  const {batterRunPlanInput}=await import('./BatterRunPlan');const {samePaExecutionReference:ref}=await import('./SamePlateAppearanceExecutionFromSqlite');
+  const pin=(owner:any,name:string)=>ref(owner,{source:{sourceId:name,sourceVersion:'test'}} as any);
+  const legacy={...intent(),sourceId:'plan',sourceVersion:'test',capability:'same_pa_batter_run_plan_v1' as const,
+    viewReference:pin('pa_lifecycle_v1_execution_views','view'),physicalPitchReference:pin('pa_physical_v1_launches','pitch'),exitStateReference:pin('world_batter_swing_exit_states','exit'),
+    provenance:{sourceRecordId:'accepted',sourceVersion:'test'}};
+  expect(batterRunPlanInput(legacy)).toEqual(legacy);
+  const source={...legacy,completedRecoveryReference:pin('pa_physical_v1_field_steps','recovered')};expect(batterRunPlanInput(source)).toEqual(source);
+  expect(()=>batterRunPlanInput({...source,completedRecoveryReference:pin('pa_physical_v1_field_roots','wrong')} as any)).toThrow();
+  expect(()=>batterRunPlanInput({...source,completedRecoveryReference:null} as any)).toThrow();
+});

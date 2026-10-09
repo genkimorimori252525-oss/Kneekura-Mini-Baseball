@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module';
 import type { PersistOfficialFinalInput, PersistOfficialPlayInput } from './SqliteOfficialStateStore';
-import type { OfficialFairBallScoringEvidence, SupportedOfficialScoringRecord } from '../core/adjudication/OfficialScoring';
+import type { OfficialFairBallScoringEvidence, OfficialCaughtFoulScoringEvidence, SupportedOfficialScoringRecord } from '../core/adjudication/OfficialScoring';
 import type { SqliteEvidenceGuard } from './SqliteEvidenceGuard';
 import { createSqliteOfficialScoringWriter } from './SqliteOfficialScoringWriter';
 import type { DatabaseSync as DatabaseSyncType } from 'node:sqlite';
@@ -32,7 +32,7 @@ export type OfficialFairCatchScoringEvidence = Readonly<{ schemaVersion: 1; sour
   physical: import('../core/adjudication/ActualFairCatchScoring').ActualFairCatchScoringInput }>;
 export type OfficialGroundOutScoringEvidence = Readonly<{ schemaVersion: 1; sourceKind: 'owned_ground_out'; sourceEventId: string;
   ground: import('../core/adjudication/ActualGroundOutScoring').ActualGroundOutScoringInput }>;
-export type AcceptedOfficialScoringEvidence = OfficialFairBallScoringEvidence | OfficialFairCatchScoringEvidence | OfficialGroundOutScoringEvidence;
+export type AcceptedOfficialScoringEvidence = OfficialFairBallScoringEvidence | OfficialCaughtFoulScoringEvidence | OfficialFairCatchScoringEvidence | OfficialGroundOutScoringEvidence;
 export type AcceptedScoredOfficialPlay = Readonly<{
   scoring: PersistedOfficialScoring;
   application: OfficialInput;

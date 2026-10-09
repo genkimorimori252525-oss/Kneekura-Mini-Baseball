@@ -4,7 +4,7 @@ import type { AcceptedOfficialScoringEvidence } from './SqliteOfficialScoringSto
 /** The writer and every archive consumer dispatch the same accepted evidence
  * format before the Core classifier rederives its complete physical sidecar. */
 export const officialScoringEvidenceArguments = (evidence: AcceptedOfficialScoringEvidence | null, sourceEventId: string):
-  Pick<Extract<OfficialScoringInput, { kind: 'live_ball' }>, 'scoringEvidence' | 'fairCatchEvidence' | 'groundOutEvidence'> => {
+  Pick<Extract<OfficialScoringInput, { kind: 'live_ball' }>, 'scoringEvidence' | 'fairCatchEvidence' | 'groundOutEvidence' | 'caughtFoulEvidence'> => {
   if (!evidence) return {};
   if (evidence.sourceEventId !== sourceEventId) throw new Error('official scoring evidence Source identity differs');
   if (evidence.sourceKind === 'owned_ground_out') {
@@ -18,5 +18,6 @@ export const officialScoringEvidenceArguments = (evidence: AcceptedOfficialScori
       throw new Error('invalid owned fair catch scoring evidence');
     return { fairCatchEvidence: evidence.physical };
   }
+  if (evidence.sourceKind === 'official_caught_foul_scorer_judgment') return { caughtFoulEvidence: evidence };
   return { scoringEvidence: evidence };
 };

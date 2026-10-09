@@ -12,6 +12,7 @@ export type AcceptedBatterRunPlan=BatterRunIntent&Readonly<{
   viewReference:SamePaReference<'pa_lifecycle_v1_execution_views'>;
   physicalPitchReference:SamePaReference<'pa_physical_v1_launches'>;
   exitStateReference:SamePaReference<'world_batter_swing_exit_states'>;
+  completedRecoveryReference?:SamePaReference<'pa_physical_v1_field_steps'>;
   provenance:Readonly<{sourceRecordId:string;sourceVersion:string}>;
 }>;
 const tick=(n:number)=>Number.isSafeInteger(n)&&n>=0;
@@ -24,9 +25,10 @@ const intentInput=(s:BatterRunIntent,kind:'advance'|'hold'='advance')=>{
 };
 export const batterRunPlanInput=(raw:unknown,sourceId?:string):AcceptedBatterRunPlan=>{
   const s=cloneInert(raw) as AcceptedBatterRunPlan;
-  if(!fields(s,['sourceId','sourceVersion','capability','viewReference','physicalPitchReference','exitStateReference','playerId','personId','route','intent','endTick','provenance'])
+  if(!fields(s,['sourceId','sourceVersion','capability','viewReference','physicalPitchReference','exitStateReference','playerId','personId','route','intent','endTick','provenance',...(Object.hasOwn(s,'completedRecoveryReference')?['completedRecoveryReference']:[])])
     ||!id(s.sourceId)||!id(s.sourceVersion)||sourceId!==undefined&&s.sourceId!==sourceId||s.capability!=='same_pa_batter_run_plan_v1'
     ||!ref(s.viewReference,'pa_lifecycle_v1_execution_views')||!ref(s.physicalPitchReference,'pa_physical_v1_launches')||!ref(s.exitStateReference,'world_batter_swing_exit_states')
+    ||Object.hasOwn(s,'completedRecoveryReference')&&!ref(s.completedRecoveryReference,'pa_physical_v1_field_steps')
     ||!fields(s.provenance,['sourceRecordId','sourceVersion'])||!Object.values(s.provenance).every(id))throw new Error('invalid accepted batter-run plan Source');
   intentInput(s);return freeze(s);
 };

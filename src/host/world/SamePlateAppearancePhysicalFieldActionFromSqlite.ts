@@ -1,3 +1,6 @@
+import { deriveSamePaBatterRecoveryMotion } from './SamePlateAppearanceBatterRecoveryMotion';
+import { batterSwingExitStateEvidenceFromSqlite } from './SqliteBatterSwingExitStateStore';
+import { assertSamePaExactRunnerControllerOwnership } from './SamePlateAppearanceExactRunnerControllerPiece';
 import { bindSamePaAppealThrow, deriveSamePaLiveAppealIndication, deriveSamePaLiveAppealContact } from './SamePlateAppearanceLiveAppeal';
 import { deriveSamePaDefenderDeparturePurpose } from './SamePlateAppearanceDefenderDeparture';
 import { deriveSamePaOccupiedRunnerMotion } from './SamePlateAppearanceOccupiedRunnerMotion';
@@ -49,6 +52,7 @@ export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePa
   same(source.fieldRootReference, fieldReference(root));
   if (!prefix.length || prefix[0].source.sourceId !== root.source.sourceId) throw new Error('physical field action original prefix missing');
   same(fieldReference(prefix.at(-1)!), source.previousFieldReference);
+  assertSamePaExactRunnerControllerOwnership(source, prefix);
   assertSamePaPhysicalThrowOwnership(source, prefix);
   assertSamePaBatterCatchOwnership(source, prefix);
   assertSamePaOccupiedRunnerCatchOwnership(source, prefix);
@@ -165,6 +169,11 @@ export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePa
       samePaPhysicalDefenderSelf(action, root, previous, body.actor);
     }
     return deriveSamePaPhysicalThrowPlan(source, root, previous, action, model, c.response.values);
+  }
+  if (request.kind === 'batter_recovery_motion_v1') {
+    const exit = batterSwingExitStateEvidenceFromSqlite(db).read(request.exitStateReference.sourceId);
+    if (!exit) throw new Error('physical recovery original swing-exit state missing');
+    return deriveSamePaBatterRecoveryMotion({throughTick:source.throughTick,action:request},root,previous,exit,prefix);
   }
   if (request.kind === 'batter_run_motion_v1') {
     if (prefix.some(f => f.kind === 'same_pa_physical_field_step_v1' && f.actionResult?.kind === 'batter_catch_response_v1'))

@@ -1,3 +1,4 @@
+import { samePaExactRunnerControllerCensus } from './SamePlateAppearanceExactRunnerControllerPiece';
 import { buildRouteFollowingController, type RouteFollowingController } from '../../core/sim/running/RunnerLocomotionController';
 import type { RunnerRoute } from '../../core/sim/running/RunnerRoute';
 import { deriveSamePaRunnerControllerMotion } from './SamePlateAppearanceRunnerControllerMotion';
@@ -20,6 +21,7 @@ export type SamePaOccupiedRunnerMotionRequest = Readonly<{
 export type SamePaOccupiedRunnerMotionResult = Readonly<{
   kind: 'occupied_runner_motion_v1'; playerId: string; personId: string;
   holdReference: SamePaOccupiedRunnerMotionRequest['holdReference']; controller: RouteFollowingController;
+  exactControllerPiece?: import('./SamePlateAppearanceExactRunnerControllerPiece').SamePaExactRunnerControllerPiece;
   reactionTick: number; controllerSegmentIndex: number; coverageThroughTick: number; planThroughTick: number;
 }>;
 const tick = (n: number) => Number.isSafeInteger(n) && n >= 0;
@@ -88,7 +90,8 @@ export const deriveSamePaOccupiedRunnerMotion = (source: SamePaPhysicalFieldStep
     controller, runnerMotionParameters: parameters, body: hold.body.actor, rootHeightMeters: hold.body.actor.bodyOriginHeightMeters });
   const actionResult: SamePaOccupiedRunnerMotionResult = { kind: a.kind, playerId, personId: hold.source.personId,
     holdReference: a.holdReference, controller, reactionTick, controllerSegmentIndex: value.controllerSegmentIndex,
-    coverageThroughTick: value.coverageThroughTick, planThroughTick: value.planThroughTick };
+    coverageThroughTick: value.coverageThroughTick, planThroughTick: value.planThroughTick,
+    ...(value.exactControllerPiece === undefined ? {} : { exactControllerPiece: value.exactControllerPiece }) };
   return freeze({ field: value.field, evaluationTick: value.evaluationTick, timeline: value.timeline, actionResult });
 };
 
@@ -127,7 +130,8 @@ export const deriveSamePaOccupiedRunnerMotionCensus = (prefix: readonly Field[])
       adopted, work: [
         ...(!adopted ? [{ kind: 'adoption' as const, dueTick: r.controller.basis.tick, due: due(r.controller.basis.tick) }] : []),
         ...(due(r.reactionTick) === 'future' ? [{ kind: 'reaction' as const, dueTick: r.reactionTick, due: 'future' as const }] : []),
-        { kind: 'controller_piece' as const, dueTick: r.coverageThroughTick, due: due(r.coverageThroughTick) },
+        ...(r.exactControllerPiece ? samePaExactRunnerControllerCensus(prefix).filter(w=>w.playerId===playerId).map(({playerId:_,controllerReference:__,...w})=>w)
+          : [{ kind: 'controller_piece' as const, dueTick: r.coverageThroughTick, due: due(r.coverageThroughTick) }]),
         { kind: 'controller_end' as const, dueTick: r.planThroughTick, due: due(r.planThroughTick) },
       ] };
   }));

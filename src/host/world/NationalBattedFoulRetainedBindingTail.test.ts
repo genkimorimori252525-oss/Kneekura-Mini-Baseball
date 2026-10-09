@@ -1,7 +1,8 @@
 import { createRequire } from 'node:module';
 import { expect, it } from 'vitest';
 import { nationalBattedFieldFixtureSource } from './NationalBattedFieldFixtures.test-support';
-import { assertNationalBattedFoulRetainedBindingFrontier } from './NationalBattedFoulRetainedBindingTail.test-support';
+import { actorJson as json, actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { assertNationalBattedFoulRetainedBindingFrontier, assertNationalBattedFoulRetainedAcquisitionSources } from './NationalBattedFoulRetainedBindingTail.test-support';
 
 const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
 const gameId = 'retained-common-national';
@@ -10,10 +11,14 @@ const fixture = () => {
   db.exec(`CREATE TABLE physical_pitch_progress_actions(source_id TEXT,game_id TEXT,play_id INTEGER,progress_revision INTEGER);
     CREATE TABLE physical_pitch_progress_heads(game_id TEXT,play_id INTEGER,revision INTEGER,last_source_id TEXT);
     CREATE TABLE batted_episode_field_bindings(source_id TEXT,binding_version TEXT,game_id TEXT,play_id INTEGER,physical_pitch_source_id TEXT,response_source_id TEXT,field_calibration_source_id TEXT);
-    CREATE TABLE batted_world_field_actions(physical_pitch_source_id TEXT);
-    CREATE TABLE batted_world_field_heads(physical_pitch_source_id TEXT);
-    CREATE TABLE batted_world_field_executions(physical_pitch_source_id TEXT);
-    CREATE TABLE actual_live_play_runtimes(source_id TEXT,game_id TEXT,play_id INTEGER);
+    CREATE TABLE batted_world_field_actions(source_id TEXT,physical_pitch_source_id TEXT,response_source_id TEXT,geometry_source_id TEXT,previous_source_id TEXT,
+      revision INTEGER,game_id TEXT,source_json TEXT,source_hash TEXT,snapshot_json TEXT,snapshot_hash TEXT);
+    CREATE TABLE batted_world_field_heads(physical_pitch_source_id TEXT,response_source_id TEXT,geometry_source_id TEXT,source_id TEXT,revision INTEGER);
+    CREATE TABLE batted_world_field_executions(source_id TEXT,physical_pitch_source_id TEXT,base_field_source_id TEXT,previous_source_id TEXT,revision INTEGER,game_id TEXT,
+      source_json TEXT,source_hash TEXT,snapshot_json TEXT,snapshot_hash TEXT);
+    CREATE TABLE batted_world_field_execution_heads(physical_pitch_source_id TEXT,base_field_source_id TEXT,source_id TEXT,revision INTEGER);
+    CREATE TABLE actual_live_play_admissions(runtime_source_id TEXT,sequence INTEGER,owner TEXT,source_id TEXT,source_hash TEXT,snapshot_hash TEXT);
+    CREATE TABLE actual_live_play_runtimes(source_id TEXT,game_id TEXT,play_id INTEGER,physical_pitch_source_id TEXT,source_json TEXT,source_hash TEXT,snapshot_json TEXT,snapshot_hash TEXT);
     CREATE TABLE actual_foul_terminal_applications(source_id TEXT,game_id TEXT,status TEXT,play_id INTEGER);
     CREATE TABLE official_participation_receipts(game_id TEXT,player_id TEXT);
     CREATE TABLE world_national_callups(event_id TEXT);`);
@@ -23,7 +28,7 @@ const fixture = () => {
     'national-live:pitch-0', 'national-live:response', 'national-foul:geometry');
   db.prepare('INSERT INTO actual_foul_terminal_applications VALUES(?,?,?,7)').run('national-foul:terminal', gameId, 'POST_PLAY_COMPLETED_CONTINUING');
   db.prepare('INSERT INTO official_participation_receipts VALUES(?,?)').run(gameId, 'p9');
-  db.exec("INSERT INTO batted_world_field_actions VALUES('national-foul:pitch-2'); INSERT INTO actual_live_play_runtimes VALUES('national-foul:end-runtime','retained-common-national',7)");
+  db.exec("INSERT INTO batted_world_field_actions(physical_pitch_source_id) VALUES('national-foul:pitch-2'); INSERT INTO actual_live_play_runtimes(source_id,game_id,play_id) VALUES('national-foul:end-runtime','retained-common-national',7)");
   return db;
 };
 const rows = (db: InstanceType<typeof DatabaseSync>) => db.prepare("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").all()
@@ -39,8 +44,8 @@ it.each([
   ['missing pitch', 'DELETE FROM physical_pitch_progress_actions'],
   ['wrong binding version', "UPDATE batted_episode_field_bindings SET binding_version='batted_episode_field_binding_v2'"],
   ['wrong original calibration', "UPDATE batted_episode_field_bindings SET field_calibration_source_id='national-live:geometry'"],
-  ['already registered runtime', "INSERT INTO actual_live_play_runtimes VALUES('live-play-runtime','retained-common-national',8)"],
-  ['already applied field', "INSERT INTO batted_world_field_actions VALUES('national-live:pitch-0')"],
+  ['already registered runtime', "INSERT INTO actual_live_play_runtimes(source_id,game_id,play_id) VALUES('live-play-runtime','retained-common-national',8)"],
+  ['already applied field', "INSERT INTO batted_world_field_actions(physical_pitch_source_id) VALUES('national-live:pitch-0')"],
   ['already applied statistics', 'CREATE TABLE official_player_outcome_applications(source_id TEXT); INSERT INTO official_player_outcome_applications VALUES(\'national-foul:terminal\')'],
   ['already participated next batter', "INSERT INTO official_participation_receipts VALUES('retained-common-national','p10')"],
 ])('rejects an unsupported structural binding cut: %s', (_label, mutation) => {
@@ -61,4 +66,61 @@ it.each([false, true])('preserves the original unaccepted field Source recipe (e
     ...(retained ? { episodeFieldBinding: binding } : {}),
   });
   expect(commands).toEqual(before);
+});
+
+// Metadata-only fixture checks. These rows intentionally do not constitute
+// physical owner evidence or qualify a genuine acquisition/continuation.
+const acquisitionCut = () => {
+  const db = fixture(), pitch = 'national-live:pitch-0', zero = { x: 0, y: 0, z: 0 };
+  const players = ['p0', 'p1', 'p10', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8'];
+  const first = nationalBattedFieldFixtureSource({ label: 'national-live', responseSourceId: 'national-live:response', geometrySourceId: 'national-foul:geometry',
+    initialBallTick: 123456, commands: players.map(playerId => ({ playerId, bodyAcceleration: zero,
+      primitiveMotions: [{ role: 'left_foot', offsetVelocity: zero, offsetAcceleration: zero }] })),
+    episodeFieldBinding: { version: 'batted_episode_field_binding_v3', sourceId: 'national-live:episode-binding' } });
+  const runtime = { sourceId: 'live-play-runtime', sourceVersion: 'fixture-v1', capability: 'causal_original_live_play_runtime_v1', physicalPitchSourceId: pitch };
+  const snapshot = { metadataTestOnly: true }, bytes = json(snapshot), digest = hash(snapshot);
+  db.prepare('INSERT INTO actual_live_play_runtimes VALUES(?,?,8,?,?,?,?,?)').run(runtime.sourceId, gameId, pitch, json(runtime), hash(runtime), bytes, digest);
+  const candidate = { ...first, sourceId: 'field-race-candidate-0', previousFieldSourceId: first.sourceId };
+  for (const [i, source] of [first, candidate].entries()) {
+    db.prepare('INSERT INTO batted_world_field_actions VALUES(?,?,?,?,?,?,?,?,?,?,?)').run(source.sourceId, pitch, source.responseSourceId, source.geometrySourceId,
+      source.previousFieldSourceId, i + 1, gameId, json(source), hash(source), bytes, digest);
+    db.prepare('INSERT INTO actual_live_play_admissions VALUES(?,?,?,?,?,?)').run(runtime.sourceId, i + 1, 'batted_world_field_actions', source.sourceId, hash(source), digest);
+  }
+  db.prepare('INSERT INTO batted_world_field_heads VALUES(?,?,?,?,2)').run(pitch, first.responseSourceId, first.geometrySourceId, candidate.sourceId);
+  const acquisition = { sourceId: 'field-race-acquisition', sourceVersion: 'fixture-v1', baseFieldSourceId: candidate.sourceId, previousExecutionSourceId: null,
+    action: { kind: 'owned_acquisition_plan_v1', knownWork: players.map(playerId => ({ playerId, decisionSourceId: null, motorSourceId: null })) } };
+  db.prepare('INSERT INTO batted_world_field_executions VALUES(?,?,?,NULL,1,?,?,?,?,?)').run(acquisition.sourceId, pitch, candidate.sourceId,
+    gameId, json(acquisition), hash(acquisition), bytes, digest);
+  db.prepare('INSERT INTO batted_world_field_execution_heads VALUES(?,?,?,1)').run(pitch, candidate.sourceId, acquisition.sourceId);
+  db.prepare('INSERT INTO actual_live_play_admissions VALUES(?,3,?,?,?,?)').run(runtime.sourceId, 'batted_world_field_executions', acquisition.sourceId, hash(acquisition), digest);
+  return { db, first };
+};
+it('admits only the complete acquisition metadata prefix and unchanged helper Sources without writes', () => {
+  const { db, first } = acquisitionCut(); try { const before = rows(db), changes = db.prepare('SELECT total_changes() AS n').get();
+    expect(assertNationalBattedFoulRetainedBindingFrontier(db)).toBe(gameId);
+    expect(() => assertNationalBattedFoulRetainedAcquisitionSources(db, first)).not.toThrow();
+    expect(rows(db)).toEqual(before); expect(db.prepare('SELECT total_changes() AS n').get()).toEqual(changes);
+  } finally { db.close(); }
+});
+it.each([
+  ['missing runtime admission', 'DELETE FROM actual_live_play_admissions WHERE sequence=2'],
+  ['wrong admitted snapshot', "UPDATE actual_live_play_admissions SET snapshot_hash='other' WHERE sequence=3"],
+  ['wrong execution head', "UPDATE batted_world_field_execution_heads SET source_id='field-race-capture-initialized'"],
+  ['extra initialized execution', "INSERT INTO batted_world_field_executions(source_id,physical_pitch_source_id,revision) VALUES('field-race-capture-initialized','national-live:pitch-0',2)"],
+  ['foreign ground owner', "UPDATE batted_world_field_actions SET physical_pitch_source_id='foreign' WHERE source_id='national-live:field'"],
+  ['changed archived bytes', "UPDATE batted_world_field_executions SET snapshot_json='{}' WHERE source_id='field-race-acquisition'"],
+])('rejects malformed acquisition metadata: %s', (_label, mutation) => {
+  const { db } = acquisitionCut(); try { db.exec(mutation); const before = rows(db);
+    expect(() => assertNationalBattedFoulRetainedBindingFrontier(db)).toThrow(); expect(rows(db)).toEqual(before);
+  } finally { db.close(); }
+});
+it.each([
+  ['runtime capability', "UPDATE actual_live_play_runtimes SET source_json=json_set(source_json,'$.capability','other') WHERE source_id='live-play-runtime'"],
+  ['field clock', "UPDATE batted_world_field_actions SET source_json=json_set(source_json,'$.throughTick',2123457) WHERE source_id='national-live:field'"],
+  ['candidate predecessor', "UPDATE batted_world_field_actions SET source_json=json_set(source_json,'$.previousFieldSourceId','foreign') WHERE source_id='field-race-candidate-0'"],
+  ['acquisition work', "UPDATE batted_world_field_executions SET source_json=json_set(source_json,'$.action.knownWork[0].motorSourceId','later') WHERE source_id='field-race-acquisition'"],
+])('compares retained proposals with the original helper recipe: %s', (_label, mutation) => {
+  const { db, first } = acquisitionCut(); try { db.exec(mutation); const before = rows(db);
+    expect(() => assertNationalBattedFoulRetainedAcquisitionSources(db, first)).toThrow(); expect(rows(db)).toEqual(before);
+  } finally { db.close(); }
 });

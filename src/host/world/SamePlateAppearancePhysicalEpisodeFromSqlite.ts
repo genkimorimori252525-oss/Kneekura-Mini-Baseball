@@ -1,3 +1,4 @@
+import { assertSamePaExactRunnerControllerOwnership } from './SamePlateAppearanceExactRunnerControllerPiece';
 import { assertSamePaOccupiedRunnerCatchOwnership } from './SamePlateAppearanceOccupiedRunnerCatchResponse';
 import { assertNoSamePaCatchReviewSeal } from './SamePlateAppearanceCatchReviewSeal';
 import { assertSamePaBatterCatchOwnership } from './SamePlateAppearanceBatterCatchOwnership';
@@ -288,6 +289,7 @@ withSamePaLifecycleReadPhase(db, () => {
       for(;;){prefix.unshift(value);if(value.kind==='same_pa_physical_field_root_v1')break;
         same(value.source.fieldRootReference,source.fieldRootReference);const ref=value.source.previousFieldReference;
         const prior=linked(kindForOwner(ref.owner),ref);if(prior.kind!=='same_pa_physical_field_root_v1'&&prior.kind!=='same_pa_physical_field_step_v1')throw new Error('physical field action prefix differs');value=prior;}
+    assertSamePaExactRunnerControllerOwnership(source,prefix);
     assertSamePaPhysicalThrowOwnership(source,prefix);
     assertSamePaBatterCatchOwnership(source,prefix);
     assertSamePaOccupiedRunnerCatchOwnership(source,prefix);

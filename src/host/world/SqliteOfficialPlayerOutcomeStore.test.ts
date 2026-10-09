@@ -48,6 +48,16 @@ vi.mock('./OfficialPlayerOutcomeEvidenceFromSqlite', async importOriginal => {
   };
 });
 
+// This suite substitutes both original evidence producers. Native owner history,
+// aggregation, read transactions and archived attribution bytes stay genuine.
+vi.mock('./OfficialPlayerScoringEvidenceFromSqlite', () => ({
+  deriveOfficialPlayerScoringFromSqlite(db: NativeDatabase, outcome: OfficialPlayerOutcomeAttribution) {
+    if (!db.isTransaction) throw new Error('synthetic scoring requires the owned read transaction');
+    return { atBats: { kind: 'known' as const, value: outcome.classification === 'strikeout' ? 1 : 0 },
+      runsBattedIn: { kind: 'known' as const, value: 0 }, hitBases: { kind: 'known' as const, value: 0 }, pitchingOuts: outcome.classification === 'strikeout' ? 1 : 0 };
+  },
+}));
+
 const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
 const stores: { close(): void }[] = [];
 afterEach(() => {
@@ -143,6 +153,11 @@ describe('official player outcome Native store with synthetic lower-owner substi
     f.store.apply(batting.source); f.store.apply(pitching.source);
     const result = f.store.aggregate(scope());
     expect(result.coverage).toBe('attributed_supported_plays_only');
+    expect(result.scoring.batting.atBats).toEqual({ value: 1, knownSubtotal: 1, unavailable: [] });
+    expect(result.scoring.pitching).toEqual({ outsRecorded: 0, inningsPitched: { completeInnings: 0, remainderOuts: 0 } });
+    const saved = f.census();
+    expect(f.open().aggregate(scope())).toEqual(result);
+    expect(f.census()).toEqual(saved);
     expect(result.batting).toMatchObject({ classifiedPlays: 1, outcomes: { strikeout: 1, base_on_balls: 0 } });
     expect(result.pitching).toMatchObject({ classifiedPlays: 1, outcomes: { strikeout: 0, base_on_balls: 1 } });
     expect(result.attributionIds).toEqual([batting.attributionId, pitching.attributionId].sort());

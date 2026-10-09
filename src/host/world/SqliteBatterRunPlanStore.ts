@@ -1,3 +1,6 @@
+import { assertSamePaBatterRecoveryComplete } from './SamePlateAppearanceBatterRecoveryMotion';
+import { readSamePaPhysicalOperationFromSqlite } from './SamePlateAppearancePhysicalEpisodeFromSqlite';
+import type { SamePaPhysicalFieldRoot,SamePaPhysicalFieldStep } from './SamePlateAppearancePhysicalEpisode';
 import { assertNoSamePaCatchReviewSeal } from './SamePlateAppearanceCatchReviewSeal';
 import type { DatabaseSync } from 'node:sqlite';
 import { actorJson as json,actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -23,9 +26,14 @@ const derive=(db:DatabaseSync,source:Source)=>withSamePaLifecycleReadPhase(db,()
   same(reference('pa_lifecycle_v1_work_prefixes',prefix),view.source.prefixReference);
   if(!prefix.source.eventReferences.some(r=>json(r)===json(exit.source.fieldReference)))throw new Error('batter-run state was unavailable to its original issuance view');
   const plan=prepareBatterRunPlan(exit,source);if(plan.kind!=='prepared')throw new Error('accepted batter-run plan unexpectedly pending');
+  const completedRecovery=source.completedRecoveryReference===undefined?undefined:(()=>{
+    const fields=prefix.source.eventReferences.filter((r):r is SamePaReference<'pa_physical_v1_field_roots'|'pa_physical_v1_field_steps'>=>r.owner==='pa_physical_v1_field_roots'||r.owner==='pa_physical_v1_field_steps')
+      .map(r=>readSamePaPhysicalOperationFromSqlite(db,r).record).filter((f):f is SamePaPhysicalFieldRoot|SamePaPhysicalFieldStep=>(f.kind==='same_pa_physical_field_root_v1'||f.kind==='same_pa_physical_field_step_v1')&&f.physicalPitchSourceId===source.physicalPitchReference.sourceId);
+    const proof=assertSamePaBatterRecoveryComplete(fields,exit,source.route,view.cut.evaluationTick);same(source.completedRecoveryReference,proof.recoveryReference);return proof;
+  })();
   return freeze({kind:'owned_batter_run_plan_v1' as const,source,lineage:view.lineage,physicalPitchReference:source.physicalPitchReference,
     viewReference:source.viewReference,playerId:exit.playerId,personId:exit.personId,evaluationTick:source.intent.issuedTick,
-    exitStateReference:source.exitStateReference,exitState:exit,plan});
+    exitStateReference:source.exitStateReference,exitState:exit,plan,...(completedRecovery===undefined?{}:{completedRecovery})});
 });
 export type DurableBatterRunPlan=ReturnType<typeof derive>;
 const make=(db:DatabaseSync):BatterRunArchiveOwner<Source,DurableBatterRunPlan>=>({input,derive:s=>derive(db,s),

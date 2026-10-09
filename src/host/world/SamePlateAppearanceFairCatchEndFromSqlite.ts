@@ -80,6 +80,7 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
     return pending('due_received_batter_controller_work_required');
   if ([...(census.occupiedRunnerCatchResponses?.pending ?? []), ...(census.occupiedRunnerCatchResponses?.adopted ?? [])].some(r => r.work.some(w => w.due === 'due')))
     return pending('due_received_occupied_runner_controller_work_required');
+  if (census.exactRunnerControllerPieces?.some(w=>w.due==='due')) return pending('due_exact_runner_controller_piece_required');
   if (census.runnerPlans.some(w => w.due === 'due' && w.status !== 'executed_through_planned_end' && w.status !== 'superseded_by_received_response')) return pending('due_original_runner_motion_required');
   // Every actual latest observation needs its own ordinary decision or a
   // response that consumed this exact observation. Merely reading it is not a

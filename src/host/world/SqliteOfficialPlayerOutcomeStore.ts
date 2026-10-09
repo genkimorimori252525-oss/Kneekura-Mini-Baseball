@@ -1,3 +1,5 @@
+import { aggregateOfficialPlayerScoring } from '../../core/world/competition/OfficialPlayerScoringStatistics';
+import { deriveOfficialPlayerScoringFromSqlite } from './OfficialPlayerScoringEvidenceFromSqlite';
 import { createRequire } from 'node:module';
 import { aggregateOfficialPlayerOutcomes, type OfficialPlayerOutcomeStatisticsScope } from '../../core/world/competition/OfficialPlayerOutcomeStatistics';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -187,7 +189,12 @@ export const openSqliteOfficialPlayerOutcomeStore = (path: string) => {
     aggregate(scope: OfficialPlayerOutcomeStatisticsScope) {
       // Core validates the exact scope before any database query.
       aggregateOfficialPlayerOutcomes([], scope);
-      return tx.read(() => freeze(aggregateOfficialPlayerOutcomes(history(scope.careerId, scope.competitionEditionId), scope)));
+      return tx.read(() => {
+        const originals = history(scope.careerId, scope.competitionEditionId);
+        const scoring = aggregateOfficialPlayerScoring(originals.map(outcome => ({ outcome,
+          contribution: deriveOfficialPlayerScoringFromSqlite(db, outcome) })), scope);
+        return freeze({ ...aggregateOfficialPlayerOutcomes(originals, scope), scoring });
+      });
     },
     close() { tx.close(); },
   });

@@ -1,3 +1,5 @@
+import { assertSamePaBatterRecoveryComplete } from './SamePlateAppearanceBatterRecoveryMotion';
+import { buildRunnerMotionTrajectoryAtExactOrigin } from '../../core/sim/running/RunnerMotion';
 import { deriveSamePaRunnerControllerMotion } from './SamePlateAppearanceRunnerControllerMotion';
 import type { SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep, SamePaPhysicalFieldStepSource } from './SamePlateAppearancePhysicalEpisode';
 import type { SamePaPhysicalFieldActionResult } from './SamePlateAppearancePhysicalFieldAction';
@@ -13,21 +15,30 @@ const fieldRef = (f: Field) => reference(f.kind === 'same_pa_physical_field_root
 export const deriveSamePaBatterRunMotion = (source: SamePaPhysicalFieldStepSource, root: SamePaPhysicalFieldRoot,
   previous: Field, plan: DurableBatterRunPlan, prefix: readonly Field[]) => {
   const request = source.action, motion = previous.field.motion, moment = motion.world.moment;
-  if (request?.kind !== 'batter_run_motion_v1' || !motion.cursor || source.throughTick <= previous.evaluationTick
-    || plan.plan.physicalBinding !== 'owned_static_pose_straight_motion') throw new Error('physical batter-run requires a supported resolved moving cut');
+  if (request?.kind !== 'batter_run_motion_v1' || !motion.cursor || source.throughTick < previous.evaluationTick
+    || plan.plan.physicalBinding !== 'owned_static_pose_straight_motion' && !plan.completedRecovery) throw new Error('physical batter-run requires a supported resolved moving cut');
   same(request.planReference, reference('world_batter_run_plans', plan)); same(plan.lineage, root.lineage);
   if (plan.source.physicalPitchReference.sourceId !== root.physicalPitchSourceId || root.physicalPitchSourceId !== previous.physicalPitchSourceId
     || !prefix.some(f => json(fieldRef(f)) === json(plan.exitState.source.fieldReference))) throw new Error('physical batter-run original exit is outside the prefix');
   const timeline = plan.plan.timeline, tick = moment.ball.tick;
   const prior = prefix.some(f => f.kind === 'same_pa_physical_field_step_v1' && f.actionResult?.kind === 'batter_run_motion_v1'
     && json(f.actionResult.planReference) === json(request.planReference));
-  if (!prior && tick !== timeline.startTick) throw new Error('physical batter-run cannot treat an unexecuted plan as prior motion');
+  if (!prior) {
+    if (plan.completedRecovery) {
+      same(assertSamePaBatterRecoveryComplete(prefix,plan.exitState,timeline.route,tick),plan.completedRecovery);
+      if (tick !== timeline.postLaunchController.basis.tick) throw new Error('physical batter-run recovery launch differs');
+    } else if (tick !== timeline.startTick) throw new Error('physical batter-run cannot treat an unexecuted plan as prior motion');
+  }
   const body = plan.exitState.body;
   if (body.playerId !== plan.playerId || body.personId !== plan.personId) throw new Error('physical batter-run original body identity differs');
   const value = deriveSamePaRunnerControllerMotion({ root, previous, prefix, throughTick: source.throughTick,
     controller: timeline.postLaunchController, runnerMotionParameters: timeline.runnerMotionParameters,
-    body, rootHeightMeters: plan.exitState.root.position.y, stationaryHoldContinuations: request.stationaryHoldContinuations });
+    body, rootHeightMeters: plan.exitState.root.position.y,
+    ...(plan.completedRecovery ? {exactTrajectory:buildRunnerMotionTrajectoryAtExactOrigin(timeline.launchState,timeline.postLaunchIntent,
+      timeline.endTick,timeline.runnerMotionParameters,plan.completedRecovery.at)} : {}), stationaryHoldContinuations: request.stationaryHoldContinuations });
   const actionResult: SamePaPhysicalFieldActionResult = { kind: request.kind, planReference: request.planReference, playerId: plan.playerId,
-    controllerSegmentIndex: value.controllerSegmentIndex, coverageThroughTick: value.coverageThroughTick, planThroughTick: value.planThroughTick };
+    ...(plan.completedRecovery ? {completedRecoveryReference:plan.completedRecovery.recoveryReference} : {}),
+    controllerSegmentIndex: value.controllerSegmentIndex, coverageThroughTick: value.coverageThroughTick, planThroughTick: value.planThroughTick,
+    ...(value.exactControllerPiece === undefined ? {} : { exactControllerPiece: value.exactControllerPiece }) };
   return freeze({ field: value.field, evaluationTick: value.evaluationTick, timeline: value.timeline, actionResult });
 };

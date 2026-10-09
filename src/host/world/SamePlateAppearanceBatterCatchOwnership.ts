@@ -8,7 +8,7 @@ type Field = SamePaPhysicalFieldRoot | SamePaPhysicalFieldStep;
 export const assertSamePaBatterCatchOwnership = (source: SamePaPhysicalFieldStepSource, prefix: readonly Field[]) => {
   const response = [...prefix].reverse().find(f => f.kind === 'same_pa_physical_field_step_v1' && f.actionResult?.kind === 'batter_catch_response_v1');
   if (!response) return;
-  if (source.action?.kind === 'batter_run_motion_v1') throw new Error('received batter response supersedes the original advance controller');
+  if (source.action?.kind === 'batter_run_motion_v1' || source.action?.kind === 'batter_recovery_motion_v1') throw new Error('received batter response supersedes the original advance controller');
   const responseReference = reference('pa_physical_v1_field_steps', response);
   const adopted = prefix.some(f => f.kind === 'same_pa_physical_field_step_v1' && f.actionResult?.kind === 'batter_catch_motion_v1'
     && json(f.actionResult.responseReference) === json(responseReference)

@@ -154,3 +154,21 @@ it('ORM07 consumes the current projected-workload member while retaining the ori
   expect(next.actionResult.controller).toEqual(first.actionResult.controller);
   expect(deriveSamePaOccupiedRunnerMotionCensus(h.prefix)).toHaveLength(1);
 });
+
+it('ORM exact speed-cap knots preserve the original occupied controller and future work within one tick',()=>{
+  const h=fixture();h.hold.model.source.motion.topSpeedMps=0.000001;
+  h.accepted.holdReference=reference('world_same_pa_occupied_runner_holds',h.hold);
+  h.move(100_000);const first=h.move(100_001),at=first.field.motion.world.moment;
+  expect(first.evaluationTick).toBe(100_001);expect(at.elapsedSeconds).toBeCloseTo(0.1000005,14);
+  expect(first.actionResult.exactControllerPiece.coverageThroughElapsedSeconds).toBe(at.elapsedSeconds);
+  const census=deriveSamePaOccupiedRunnerMotionCensus(h.prefix)[0];
+  expect(census.work).toContainEqual({kind:'controller_piece',dueTick:100_001,dueElapsedSeconds:at.elapsedSeconds,due:'due'});
+  const next=h.move(100_001);expect(next.evaluationTick).toBe(100_001);
+  expect(next.field.motion.world.moment.elapsedSeconds).toBe(0.100001);
+  expect(next.actionResult.controllerSegmentIndex).toBe(2);
+  expect(deriveSamePaOccupiedRunnerMotionCensus(h.prefix)[0].work).toContainEqual({kind:'controller_end',dueTick:3_000_000,due:'future'});
+  const history=h.evidence();expect(history.occupiedRunnerBaseContacts![0].playerId).toBe('runner');
+  const live=deriveSamePaLiveWorkCensus({fields:h.prefix,participantIds:['batter','fielder','runner'],observationPolicies:[],
+    possessionEvidence:{policy:'scheduled_capture_confirmation_v1',originTick:0,ticksPerSecond:1_000_000,throughElapsedSeconds:0.100001,pending:[]}});
+  expect(live.exactRunnerControllerPieces![0]).toMatchObject({playerId:'runner',due:'future',dueElapsedSeconds:3});
+});

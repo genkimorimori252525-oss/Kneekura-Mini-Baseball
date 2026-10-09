@@ -19,5 +19,6 @@ export const deriveSamePaBatterCatchMotion = (source: SamePaPhysicalFieldStepSou
     runnerMotionParameters: r.parameters, body: r.body, rootHeightMeters: r.rootHeightMeters });
   return freeze({ field: value.field, evaluationTick: value.evaluationTick, timeline: value.timeline,
     actionResult: { kind: a.kind, responseReference: a.responseReference, playerId: r.playerId, controllerSegmentIndex: value.controllerSegmentIndex,
-      coverageThroughTick: value.coverageThroughTick, planThroughTick: value.planThroughTick } });
+      coverageThroughTick: value.coverageThroughTick, planThroughTick: value.planThroughTick,
+    ...(value.exactControllerPiece === undefined ? {} : { exactControllerPiece: value.exactControllerPiece }) } });
 };

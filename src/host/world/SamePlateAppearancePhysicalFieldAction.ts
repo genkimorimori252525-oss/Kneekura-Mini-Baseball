@@ -1,3 +1,4 @@
+import { samePaBatterRecoveryInput, type SamePaBatterRecoveryRequest, type SamePaBatterRecoveryResult } from './SamePlateAppearanceBatterRecoveryMotion';
 import { samePaLiveAppealInput, type SamePaLiveAppealIndicationRequest, type SamePaLiveAppealContactRequest, type SamePaLiveAppealIndication, type SamePaLiveAppealContact } from './SamePlateAppearanceLiveAppeal';
 import { samePaOccupiedRunnerMotionInput, type SamePaOccupiedRunnerMotionRequest, type SamePaOccupiedRunnerMotionResult } from './SamePlateAppearanceOccupiedRunnerMotion';
 import { samePaOccupiedRunnerCatchResponseInput, type SamePaOccupiedRunnerCatchResponseRequest, type SamePaOccupiedRunnerCatchResponse, type SamePaOccupiedRunnerCatchMotionRequest } from './SamePlateAppearanceOccupiedRunnerCatchResponse';
@@ -20,6 +21,7 @@ export type SamePaPhysicalFieldReference = SamePaReference<'pa_physical_v1_field
 type CalibrationReference = SamePaReference<'pa_lifecycle_v1_execution_calibrations'>;
 type StepReference = SamePaReference<'pa_physical_v1_field_steps'>;
 export type SamePaPhysicalFieldAction =
+  | SamePaBatterRecoveryRequest
   | SamePaDefenderDeparturePurposeRequest
   | SamePaLiveAppealIndicationRequest | SamePaLiveAppealContactRequest
   | SamePaOccupiedRunnerMotionRequest
@@ -43,6 +45,7 @@ export type SamePaPhysicalFieldAction =
   | Readonly<{ kind: 'throw_checkpoint_v1'; planReference: StepReference; throughElapsedSeconds: number }>
   | Readonly<{ kind: 'capture_checkpoint_v1'; candidateReference: SamePaPhysicalFieldReference; throughElapsedSeconds: number }>;
 export type SamePaPhysicalFieldActionResult =
+  | SamePaBatterRecoveryResult
   | SamePaDefenderDeparturePurpose
   | SamePaLiveAppealIndication | SamePaLiveAppealContact
   | SamePaOccupiedRunnerMotionResult
@@ -50,12 +53,15 @@ export type SamePaPhysicalFieldActionResult =
   | Readonly<{ kind: 'occupied_runner_catch_motion_v1'; responseReference: StepReference; playerId: string; coverageThroughTick: number; planThroughTick: number }>
   | SamePaBatterCatchResponse
   | Readonly<{ kind: 'batter_catch_motion_v1'; responseReference: StepReference; playerId: string;
-      controllerSegmentIndex: number; coverageThroughTick: number; planThroughTick: number }>
+      controllerSegmentIndex: number; coverageThroughTick: number; planThroughTick: number;
+      exactControllerPiece?: import('./SamePlateAppearanceExactRunnerControllerPiece').SamePaExactRunnerControllerPiece }>
   | Readonly<{ kind: 'retained_quantizer_checkpoint_v1'; boundary: import('../../core/sim/liveAction/QuantizerClosedGenerationBoundary').QuantizerClosedGenerationBoundary;
       status: 'checkpoint_reached' | 'physical_boundary' }>
   | SamePaCatchDefenderResponse
   | Readonly<{ kind: 'batter_run_motion_v1'; planReference: SamePaReference<'world_batter_run_plans'>; playerId: string;
-      controllerSegmentIndex: number; coverageThroughTick: number; planThroughTick: number }>
+      completedRecoveryReference?: StepReference;
+      controllerSegmentIndex: number; coverageThroughTick: number; planThroughTick: number;
+      exactControllerPiece?: import('./SamePlateAppearanceExactRunnerControllerPiece').SamePaExactRunnerControllerPiece }>
   | Readonly<{ kind: 'defender_observation_v1'; playerId: string; samplingRequest: AcceptedActualFieldObservation; receipt: ActualFieldObservationReceipt;
       fieldingModelHash: string; catchCommunication?: SamePaCatchObservationEvidence }>
   | Readonly<{ kind: 'defender_decision_v1'; playerId: string; observationReference: StepReference;
@@ -71,7 +77,8 @@ const unit = (v: unknown) => typeof v === 'number' && Number.isFinite(v) && v >=
 const member = (value: unknown, calibrationReference: unknown) => samePaDispatchMemberValid(value)
   && ref(calibrationReference, 'pa_lifecycle_v1_execution_calibrations');
 export const samePaPhysicalFieldActionInput = (a: SamePaPhysicalFieldAction): void => {
-  if (a?.kind === 'defender_departure_purpose_v1') samePaDefenderDeparturePurposeInput(a);
+  if (a?.kind === 'batter_recovery_motion_v1') samePaBatterRecoveryInput(a);
+  else if (a?.kind === 'defender_departure_purpose_v1') samePaDefenderDeparturePurposeInput(a);
   else if (a?.kind === 'appeal_indication_v1' || a?.kind === 'appeal_contact_v1') samePaLiveAppealInput(a);
   else if (a?.kind === 'occupied_runner_motion_v1') samePaOccupiedRunnerMotionInput(a);
   else if (a?.kind === 'occupied_runner_catch_response_v1') samePaOccupiedRunnerCatchResponseInput(a);

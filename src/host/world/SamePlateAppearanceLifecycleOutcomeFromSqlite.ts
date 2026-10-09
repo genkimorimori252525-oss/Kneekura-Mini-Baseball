@@ -68,7 +68,7 @@ export const samePaOutcomeFieldEvidence=(db:DatabaseSync,b:SamePaLifecycleViewBa
   }
   const rootRef=reference('pa_physical_v1_field_roots',root);
   for(const actor of root.field.motion.actors)commands.push({kind:'field_primitive',sourceReference:rootRef,playerId:actor.playerId,role:actor.primitive.role,validThroughTick:actor.primitive.endTick,originalCommand:actor.primitive,originalCommandHash:hash(actor.primitive)});
-  for(const step of fields)if(step.kind==='same_pa_physical_field_step_v1'&&(step.actionResult?.kind==='defender_motion_v1'||step.actionResult?.kind==='batter_run_motion_v1'||step.actionResult?.kind==='batter_catch_motion_v1'||step.actionResult?.kind==='occupied_runner_catch_motion_v1'||step.actionResult?.kind==='occupied_runner_motion_v1')){
+  for(const step of fields)if(step.kind==='same_pa_physical_field_step_v1'&&(step.actionResult?.kind==='defender_motion_v1'||step.actionResult?.kind==='batter_recovery_motion_v1'||step.actionResult?.kind==='batter_run_motion_v1'||step.actionResult?.kind==='batter_catch_motion_v1'||step.actionResult?.kind==='occupied_runner_catch_motion_v1'||step.actionResult?.kind==='occupied_runner_motion_v1')){
     const stepRef=reference('pa_physical_v1_field_steps',step);
     for(const actor of step.field.motion.actors)commands.push({kind:'field_primitive',sourceReference:stepRef,playerId:actor.playerId,role:actor.primitive.role,
       validThroughTick:actor.primitive.endTick,originalCommand:actor.primitive,originalCommandHash:hash(actor.primitive)});

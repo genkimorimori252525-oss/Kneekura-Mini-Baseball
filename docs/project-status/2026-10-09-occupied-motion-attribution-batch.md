@@ -22,6 +22,63 @@ guard before every access. The measured census change reduced prepares by
 wall-time improvement. See the
 [measured comparison](../verification/2026-10-09-continuation-claim-proof-reuse.md).
 
+## Exact recovery, accepted scoring facts and retained continuation
+
+Straight controllers now execute one exact analytic piece at a time, including
+fractional braking and acceleration knots. Existing fixed world-axis body offsets
+follow the accepted swing-recovery root. The successor keeps its exact physical
+origin while preserving the absolute accepted intent, reaction and end times.
+When independent pieces expire together, a selected-owner zero-time renewal
+retains the other actor and its due obligation; it does not claim positive motion.
+The two timing/liveness review findings were corrected and narrowly reviewed.
+[Recovery contract](../implementation/2026-10-09-fixed-pose-batter-recovery.md).
+
+Standard player aggregates now derive AB, RBI, hit values and pitching outs from
+original accepted scoring and closure facts. Explicit scorer Sources carry new
+hit/RBI/sacrifice awards, including unsuccessful FC and the existing caught-foul
+judgment path. Missing judgments remain unavailable, and old attribution/scoring
+archives retain their bytes. Cross-play pitcher responsibility and earned-run
+ownership remain the next defined scoring work.
+[Scoring facts and limits](2026-10-09-standard-player-scoring-facts.md).
+
+The ordinary public field-execution owner now connects its existing physical
+proof traversal to each immutable read, preflight, prewrite and postwrite group.
+Peer/authority calls, writes, special delegated owners and independent retries
+remain separate. The retained National fixture also accepts its exact saved
+acquisition prefix; unchanged owners authenticate it before the first new capture
+initialization. Original 37 tail assertions and numeric inputs remain unchanged.
+[Execution boundaries](../verification/2026-10-09-field-execution-owner-read-phases.md)
+and [retained entry](2026-10-09-national-retained-binding-entry.md).
+
+At local `48c8a76dc28e778ebb95d3ecf06d4b2b52dbc684`, source
+`d8c2ab75104e5a19dbc7e99bd296fb69fef43572`, full nonvisual compilation passed
+in 29.42 seconds. All 291 selected cases across 23 files passed in 137.58 seconds,
+with no skipped or failed case. Exact file/title inventories, four unchanged input
+groups, no-survivor checks and all 18 protected blobs match. The initial compiler
+failure was confined to a test coordinate-key tuple; its corrected literal type
+changes no runtime behavior. The finite selection ran once after correction.
+
+Compiler configuration SHA-256: `9a65688f58c345d66a0c4c9c5b50297b06fa491b8769cc01580efff223b27a98`.
+Test configuration SHA-256: `b0320f11bff449423772f425bfb7f9e08fb18f28bdf24dfc85fc41c6ed19c4e4`.
+Test report SHA-256: `24452767af1eec11f856da9962107361841c3f569c55c86901aa26c307cbca6b`.
+
+The selection uses real Core calculations and selected Native owners, including
+explicitly synthetic field fixtures and substituted ancestry where documented.
+It does not qualify genuine same-PA recovery ancestry. The completed-recovery
+catch-response sampler has shared Core timing coverage rather than a separate
+direct branch regression. No wall-time improvement is claimed from replay counts.
+
+The National run on earlier source `44fd53ed` was interrupted during maintenance,
+with no terminal/report/after receipt. Runtime, ground, capture candidate and
+acquisition committed; capture initialization did not. The conserved final image
+matches the prior acquisition cut, and the complete 37-assertion result is unknown.
+The independent IFN run on source `bb1919e` reached its original 1200-second wall
+cap in 1200.637 seconds, with stable inputs and no surviving process. Corrected
+posture/launch, capture, delivery, forecast, accepted assessment, emotion and the
+decision cut committed. View cut8 is complete; cut9 work-prefix exists but its
+TOTAL/view is incomplete. Batting input/commitment, contact, field and end are
+absent. These are retained incomplete executions, not full scenario passes.
+
 ## Accepted postseason preparation and recoverable WBC delivery
 
 Accepted postseason plans now prepare real registered fixtures and opening

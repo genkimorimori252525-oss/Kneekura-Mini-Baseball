@@ -1,3 +1,4 @@
+import { assertSamePaExactRunnerControllerOwnership } from './SamePlateAppearanceExactRunnerControllerPiece';
 import { expect, it, vi } from 'vitest';
 import { samePaBatterRunFixture } from './SamePlateAppearanceBatterRunFixtures.test-support';
 import { prepareBatterRunPlan } from './BatterRunPlan';
@@ -136,6 +137,31 @@ it('BCR08 archives the actual adopted hold primitives and their future horizons 
     expect(command.validThroughTick).toBeGreaterThan(moved.evaluationTick);
   }
 });
-it('BCR09 rejects a sub-tick first braking piece before owning a response that this physical adapter cannot adopt',()=>{
-  const h=fixture(false,1,0);expect(h.respond).toThrow(/whole-tick adoption/);
+it('BCR09 keeps the sub-tick response pending until an actual positive-time motor consumes it',()=>{
+  const h=fixture(false,1,0);h.admit();
+  expect(deriveSamePaBatterCatchCensus(h.prefix).pending).toHaveLength(1);
+});
+
+it('BCR exact braking executes a sub-tick first piece and resumes within its same quantized tick',()=>{
+  const h=fixture(false,1,0),response=h.admit();
+  expect(response.actionResult.controller.trajectory.segments[0].endElapsedSeconds).toBeLessThan(0.000001);
+  const first=h.move(2),at=first.field.motion.world.moment;
+  expect(first.evaluationTick).toBe(2);expect(at.elapsedSeconds).toBeCloseTo(1/1_000_000+2/3_000_000,14);
+  const body=first.field.motion.actors.find((a:any)=>a.playerId==='batter'&&a.primitive.role==='body');
+  expect(samplePiecewiseFieldActor(body,at).velocity.x).toBeCloseTo(0,14);
+  expect(first.actionResult.exactControllerPiece.coverageThroughElapsedSeconds).toBe(at.elapsedSeconds);
+  const census=deriveSamePaBatterCatchCensus(h.prefix);
+  expect(census.pending).toEqual([]);expect(census.adopted[0].work).toContainEqual({kind:'controller_piece',dueTick:2,dueElapsedSeconds:at.elapsedSeconds,due:'due'});
+  expect(()=>assertSamePaExactRunnerControllerOwnership({throughTick:2} as any,h.prefix)).toThrow(/next owned motor/);
+  expect(()=>assertSamePaExactRunnerControllerOwnership({throughTick:2,action:{kind:'retained_quantizer_checkpoint_v1'}} as any,h.prefix)).toThrow(/next owned motor/);
+  expect(()=>assertSamePaExactRunnerControllerOwnership({throughTick:2,action:{kind:'defender_observation_v1'}} as any,h.prefix)).not.toThrow();
+  const before=JSON.stringify(first.field);
+  for(const issuedTick of [1,2]){
+    const fresh={...h.source,sourceId:'later-choice-'+issuedTick,throughTick:first.evaluationTick,action:{...h.request,intent:{kind:'hold' as const,issuedTick}}};
+    expect(()=>deriveSamePaBatterCatchResponse({} as any,fresh,h.root,first,h.basis,h.prefix)).toThrow(/exact original body cut/);
+  }
+  expect(JSON.stringify(first.field)).toBe(before);
+  const second=h.move(2);expect(second.evaluationTick).toBe(2);expect(second.field.motion.world.moment.elapsedSeconds).toBe(2/1_000_000);
+  expect(second.actionResult.controllerSegmentIndex).toBe(1);
+  expect(deriveSamePaBatterCatchCensus(h.prefix).adopted[0].work).toContainEqual({kind:'controller_end',dueTick:1_000_001,due:'future'});
 });
