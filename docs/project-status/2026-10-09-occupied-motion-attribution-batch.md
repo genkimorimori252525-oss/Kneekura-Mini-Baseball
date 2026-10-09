@@ -1,5 +1,7 @@
 # Occupied motion, appeals and durable attribution
 
+[Current nine-area entry point: remaining code, actual evidence and specification boundaries](2026-10-09-nonvisual-nine-area-status.md).
+
 The original occupied runner can now execute an explicitly accepted finite
 straight advance through the existing five-part body/controller. Its actual
 base departure and contact histories feed authenticated tag-up evidence.
