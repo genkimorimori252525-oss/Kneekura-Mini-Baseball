@@ -53,7 +53,7 @@ type Source = ReturnType<typeof parsed>;
 
 /** Private Native owner. No connection, callback proof, actor or currentness
  * exemption is accepted from a caller. This stage owns no execution writes. */
-export const openSqliteSamePlateAppearanceDispatchStore = (path: string, authority?: Authority) => {
+const createSqliteSamePlateAppearanceDispatchOwner = (path: string, authority?: Authority) => {
   if (!samePaText(path) || authority && Object.values(authority).some(v => typeof v !== 'function')) throw new Error('invalid same-PA dispatch owner');
   const { DatabaseSync: Native } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite'), db = new Native(path);
   let closed = false, failed = false;
@@ -292,7 +292,8 @@ export const openSqliteSamePlateAppearanceDispatchStore = (path: string, authori
     };
     // Calculation composition only; no existing preparation operation calls this
     // path. A future owned append must first close its all-adapter/current-cut and
-    // atomic replay gates. There is no public entry point or support promotion.
+    // atomic replay gates. The narrow read-only seam grants no execution authority
+    // and does not promote support.
     const calculateNative = (rawOperation: NativeOperation) => {
       assertActive(); const operation = cloneInert(rawOperation);
       if (!samePaFields(operation, ['route', 'calibrationReference', operation?.route === 'pitch_delivery' ? 'actionReference' : 'originalReference'])) {
@@ -418,7 +419,7 @@ export const openSqliteSamePlateAppearanceDispatchStore = (path: string, authori
       proof(() => { const saved = setProof(sources, true); if (!saved.present) throw new Error('dispatch calibration accepted set missing'); same(saved.value, preflight.value); same(ownedRows(), expectedRows); }); return preflight.value;
     }, value => { const saved = setProof(sources, true); if (!saved.present) throw new Error('dispatch calibration durable set missing'); same(saved.value, value); same(ownedRows(), expectedRows); });
   };
-  return Object.freeze({ acceptAction: (id: string) => accept('action', id) as SamePaPreparedAction | SamePaDispatchPending,
+  const store = Object.freeze({ acceptAction: (id: string) => accept('action', id) as SamePaPreparedAction | SamePaDispatchPending,
     readAction: (id: string) => read('action', id) as SamePaPreparedAction | null, acceptCalibrationSet,
     readCalibrationSet: (ids: readonly string[]) => { check(); const values = setIds(ids); return run(false, proof => proof(() => {
       const sources = assemble(false, read => values.map(id => { const v = read('calibration', id); if (!v) throw new Error('dispatch calibration required Source missing'); return v.source as AcceptedSamePaExecutionCalibration; }));
@@ -430,4 +431,27 @@ export const openSqliteSamePlateAppearanceDispatchStore = (path: string, authori
     acceptRight: (id: string) => accept('right', id) as SamePaPreparedRight | SamePaDispatchPending,
     readRight: (id: string) => read('right', id) as SamePaPreparedRight | null,
     close() { if (!closed) { db.close(); closed = true; } } });
+  const calculateFirstPitch = (raw: SamePaFirstPitchCalculationRequest) => {
+    check(); const request = cloneInert(raw);
+    if (!samePaFields(request, ['actionReference', 'calibrationReference'])
+      || !samePaReferenceValid(request.actionReference, 'pa_dispatch_v1_action_plans')
+      || !samePaReferenceValid(request.calibrationReference, 'pa_dispatch_v1_execution_calibrations')) throw new Error('invalid private pitch calculation input fields');
+    return run(false, proof => proof(() => assemble(true, (_read, _derive, _roles, calculate) =>
+      calculate({ route: 'pitch_delivery', actionReference: request.actionReference, calibrationReference: request.calibrationReference }))));
+  };
+  return { store, calculateFirstPitch };
+};
+
+export const openSqliteSamePlateAppearanceDispatchStore = (path: string, authority?: Authority) =>
+  createSqliteSamePlateAppearanceDispatchOwner(path, authority).store;
+export type SamePaFirstPitchCalculationRequest = Readonly<{
+  actionReference: SamePaReference<'pa_dispatch_v1_action_plans'>;
+  calibrationReference: SamePaReference<'pa_dispatch_v1_execution_calibrations'>;
+}>;
+/** Internal read-only calculation seam. It owns a fresh private Native proof,
+ * accepts only already stored exact references, and returns no admission right.
+ * It neither appends physical/consumer rows nor promotes public route support. */
+export const readSamePaFirstPitchCalculation = (path: string, request: SamePaFirstPitchCalculationRequest) => {
+  const owner = createSqliteSamePlateAppearanceDispatchOwner(path);
+  try { return owner.calculateFirstPitch(request); } finally { owner.store.close(); }
 };
