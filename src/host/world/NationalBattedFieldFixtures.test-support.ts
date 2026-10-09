@@ -17,7 +17,12 @@ import { calibrateActualFirstBaseWorldInputs, calibrateActualFirstBaseCaptureRes
 /** Existing explicit contact/body/material fixtures applied before acceptance to
  * the actual National actor. No domestic root, generated result, row rewrite or
  * copied database is involved. Both callers share the same original enrollment. */
-export const nationalBattedFieldFixture = (f: ReturnType<typeof nationalPhysicalFixture>,
+export type NationalBattedFieldContext = Pick<ReturnType<typeof nationalPhysicalFixture>,
+  'path' | 'db' | 'track' | 'close' | 'pitchSource' | 'workload' | 'effort' | 'actions' | 'pitches' | 'setup' | 'official' | 'links'> & Readonly<{
+    fixture: Readonly<{ binding: Readonly<{ venueId: string }> }>;
+    stores: Parameters<typeof resolveContinuousPlayerPitchAgainstBatterFromWorld>[0];
+  }>;
+export const nationalBattedFieldFixture = (f: NationalBattedFieldContext,
   actor: DurablePhysicalPlateAppearanceActor, label: string, kind: 'terminal_foul' | 'first_base') => {
   let timeline = createCanonicalPlateAppearanceTimeline(actor.match, actor.world.tick), index = 0;
   const action = (pitchIndex: number, readyAtUs: number): AcceptedPhysicalPitchActionSource => {

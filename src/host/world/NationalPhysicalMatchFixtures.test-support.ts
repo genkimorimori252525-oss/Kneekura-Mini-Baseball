@@ -109,16 +109,8 @@ export const nationalPhysicalFixture = (options: Parameters<typeof nationalPhysi
   const stores = { workload, timing, release, policies, effortPolicies: { readAcceptedPolicy: () => effort } };
   const actions = new Map<string, AcceptedPhysicalPitchActionSource>();
   const pitches = f.track(openSqlitePhysicalPitchProgressStore(f.path, { ...actorSources, runtime: stores }, { readAcceptedAction: id => actions.get(id) ?? null }));
-  const pitchSource = (index: number, readyAtUs: number) => {
-    const source: AcceptedPhysicalPitchActionSource = { sourceId: `pitch-${index}`, sourceVersion: 'fixture-v1', gameId,
-      initialWorldSourceId: 'initial-world', effortPolicy: effort, request: { workloadRevision: 0, policySourceId: response.sourceId,
-        delivery: { careerId: 'career-a', playerId: 'p0', gameDay: origin.fixture.gameDay, matchSeed: 19,
-          moundReference: { x: 0, y: 0, z: 18 }, outingId: 'outing-1', readyAtUs,
-          timingIntent: { deliveryMode: 'NORMAL', cadenceIntent: 'STANDARD' }, physics: { velocity: { x: 0, y: 0, z: -30 }, spin: { x: 0, y: 100, z: 0 } } },
-        flight: { durationUs: 1_500_000, acceleration: { x: 0, y: 0, z: 0 } },
-        batter: { action: { kind: 'take' }, plateZ: 0, strikeZone: { centerX: 0, halfWidth: 0.2, lowerY: 1.4, upperY: 1.8 }, ballRadiusMeters: 0.0366 } } };
-    return source;
-  };
+  const pitchSource = (index: number, readyAtUs: number) =>
+    nationalPhysicalPitchFixtureSource(gameId, origin.fixture.gameDay, effort, response.sourceId, index, readyAtUs);
   const pitch = (index: number, readyAtUs: number) => {
     const source = pitchSource(index, readyAtUs); actions.set(source.sourceId, source); return pitches.accept(source.sourceId, index);
   };
@@ -136,4 +128,18 @@ export const nationalPhysicalFixture = (options: Parameters<typeof nationalPhysi
   };
   return { ...f, origin, actor, actors, actorInputs, actorSources, initialWorlds, initial, workload, closePlay: close, closure, pitches, pitch,
     stores, baseline, response, effort, actions, pitchSource };
+};
+
+
+/** Original explicit National fixture recipe, shared by fresh and retained tails. */
+export const nationalPhysicalPitchFixtureSource = (gameId: string, gameDay: number,
+  effort: AcceptedPhysicalPitchActionSource['effortPolicy'], responseSourceId: string, index: number, readyAtUs: number): AcceptedPhysicalPitchActionSource => {
+  const source: AcceptedPhysicalPitchActionSource = { sourceId: `pitch-${index}`, sourceVersion: 'fixture-v1', gameId,
+    initialWorldSourceId: 'initial-world', effortPolicy: effort, request: { workloadRevision: 0, policySourceId: responseSourceId,
+      delivery: { careerId: 'career-a', playerId: 'p0', gameDay, matchSeed: 19,
+        moundReference: { x: 0, y: 0, z: 18 }, outingId: 'outing-1', readyAtUs,
+        timingIntent: { deliveryMode: 'NORMAL', cadenceIntent: 'STANDARD' }, physics: { velocity: { x: 0, y: 0, z: -30 }, spin: { x: 0, y: 100, z: 0 } } },
+      flight: { durationUs: 1_500_000, acceleration: { x: 0, y: 0, z: 0 } },
+      batter: { action: { kind: 'take' }, plateZ: 0, strikeZone: { centerX: 0, halfWidth: 0.2, lowerY: 1.4, upperY: 1.8 }, ballRadiusMeters: 0.0366 } } };
+  return source;
 };

@@ -40,7 +40,7 @@ export type {
 } from './OfficialScoring';
 export { prepareBetweenPlayWorld } from './BetweenPlayWorldReset';
 export type { BetweenPlayWorldSetup } from './BetweenPlayWorldReset';
-export type { TagUpAppealAttemptInput, TagUpAppealAttemptResolution } from './TagUpAppealOrchestration';
+export type { TagUpAppealAttemptInput, TagUpAppealAttemptResolution, ExactTagUpAppealAttemptInput, ExactTagUpAppealAttemptResolution } from './TagUpAppealOrchestration';
 
 export type {
   OfficialGameplayRuling,
@@ -51,6 +51,8 @@ export type {
   OfficialStateWindowKind,
   OfficialStateWindowCloseReason,
   OfficialStateWindow,
+  BallWorldAppealComplianceEvidence,
+  TagUpAppealComplianceEvidence,
   DefensiveAppealAttemptRecorded,
   OnFieldCall,
   ReviewDecisionKind,

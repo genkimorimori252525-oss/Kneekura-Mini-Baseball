@@ -1,7 +1,9 @@
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
+import type { BallWorldAppealComplianceEvidence } from '../../core/adjudication/PlayAdjudicationLedger';
 import { createRunnerBaseFactsFromBallWorldHistory } from '../../core/rules/BallWorldBaseContactPhysicalAdapter';
 import { createFlyBallFirstFielderTouchFact } from '../../core/rules/PhysicalRuleFacts';
 import { evaluateBallWorldTagUpCompliance } from '../../core/rules/BallWorldTagUpCompliance';
+import { createRunnerPrecedence } from '../../core/rules/RunnerPrecedence';
 import { deriveBallWorldPlayerBaseContactHistory } from '../../core/sim/ball/BallWorldPlayerBaseContactHistory';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
 import type { SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep } from './SamePlateAppearancePhysicalEpisode';
@@ -78,10 +80,25 @@ export const deriveSamePaOccupiedRunnerTagUp = (raw: Readonly<{
       : evaluateBallWorldTagUpCompliance({ history, originBase: startingBase,
         firstTouch: { fact: firstFielderTouch.fact, originTick: firstFielderTouch.moment.originTick,
           elapsedSeconds: firstFielderTouch.moment.elapsedSeconds } });
+    // These are inputs for a separately authenticated, executed defensive appeal.
+    // The consumer still requires the original physical end and official window.
+    const appealComplianceEvidence: BallWorldAppealComplianceEvidence | null = compliance.kind === 'pending' || !firstFielderTouch
+      ? null : { kind: 'ball_world_tag_up_history_v1', history, originBase: startingBase,
+        firstTouch: { fact: firstFielderTouch.fact, originTick: firstFielderTouch.moment.originTick,
+          elapsedSeconds: firstFielderTouch.moment.elapsedSeconds } };
+    const home = root.geometry.baseGeometry.bases.home;
+    const homeHistory = deriveBallWorldPlayerBaseContactHistory({ segments: evidence.physical.segments, playerId,
+      base: home.region, baseSurfaceHeightMeters: home.surfaceHeightMeters });
+    const homeTouches = createRunnerBaseFactsFromBallWorldHistory({ history: homeHistory, base: 'home' })
+      .filter(fact => fact.kind === 'runner_base_touch');
     return { playerId, personId: hold.source.personId, startingBase, holdReference: reference('world_same_pa_occupied_runner_holds', hold),
-      history, physicalRuleFacts, departure, retouch, compliance };
+      history, physicalRuleFacts, departure, retouch, compliance, appealComplianceEvidence, homeHistory, homeTouches };
   });
   return freeze({ kind: 'same_pa_occupied_runner_tag_up_evidence_v1' as const, physicalPitchSourceId: root.physicalPitchSourceId,
     evaluatedThrough: { originTick: ball.originTick, elapsedSeconds: ball.horizon.elapsedSeconds, tick: ball.horizon.ball.tick },
-    firstFielderTouch, runners, appeal: pending('original_defensive_appeal_action_required'), physicalEnd: null, officialRuling: null });
+    firstFielderTouch, runners,
+    // Raw home contacts are not credited runs. Existing appeal scoring requires
+    // a separately sustained appeal and uses this original Match precedence.
+    scoringBasis: { precedence: createRunnerPrecedence(match.bases, ball.batterRunnerId), homeTouches: runners.flatMap(r => r.homeTouches) },
+    appeal: pending('original_defensive_appeal_action_required'), physicalEnd: null, officialRuling: null });
 };

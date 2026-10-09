@@ -1,4 +1,4 @@
-# Occupied motion, tag-up and durable attribution batch
+# Occupied motion, appeals and durable attribution
 
 The original occupied runner can now execute an explicitly accepted finite
 straight advance through the existing five-part body/controller. Its actual
@@ -20,7 +20,48 @@ guard before every access. The measured census change reduced prepares by
 wall-time improvement. See the
 [measured comparison](../verification/2026-10-09-continuation-claim-proof-reuse.md).
 
-## Combined qualification
+## Latest combined qualification
+
+The following coherent continuation connects exact histories to the existing
+appeal ledger/orchestrator and exposes original runner precedence and actual
+home-contact evidence. Legacy appeal records remain supported; exact records
+revalidate their identities and histories during replay. This does not issue
+an appeal, credit a run, establish physical end or close an official window.
+Those independently owned inputs remain required.
+
+The shared in-flight/foul-reset/bunt fixture now derives its prelaunch motor
+window from the same owned cadence, fatigue and release calculation used by
+the actual launch. It retains the original one-second window and finite
+20-second body horizon, and checks the complete eventual delivery. A bounded
+hypothetical calculation of the retained input becomes READY within the owned
+flight with this corrected window; no retained Native declaration was changed.
+
+The original National second-play/Career tail and pitch recipe are shared
+with a retained-state reopen entry. Independent comparison preserves all 37
+original assertions and numeric inputs. Only the already closed foul-statistics
+apply/retry/read calls are skipped by retained execution. Its new genuine
+pitch, first-base race, official closure and remaining Career assertions have
+not run yet; they will use the original owners from the preserved prefix.
+
+Tested local commit: `5dc8d20b0fba34fe29227be854a563248bda5579`.
+Source tree: `a62fe84ed31bf6413e096a47ed9cd731a9bd56d3`.
+
+- Combined review is clear after fixing one malformed first-fielder identity
+  gap in exact appeal admission/replay.
+- Full nonvisual TypeScript compilation passed in 31.47 seconds.
+- All 109 selected cases in 14 files passed in 6.43 seconds. No failures,
+  skips or report-format reconciliation were needed. Exact source-file and
+  hierarchical-title inventories also match.
+- Source, executable package inputs, runtime and controls stayed exact;
+  no descendants survived. All 18 protected blobs remain unchanged.
+
+Compiler terminal SHA-256: `42fe485e51ed6f7f3999bce46ab6b8ad34421d4315bd31e33319d8817dc8e0e3`.
+Test terminal SHA-256: `cd61240bfd5221f45a654d2d1c53bd1fe21cf83c8752ac26453e972ce53458fc`.
+Test JSON SHA-256:
+`bf6fe15660af046135f1b0664cb3c2cccc8ed3dc59fca2197f6d1235bba90f0a`.
+
+## Preceding motion and attribution qualification
+
 
 Tested local commit: `22e1897d631188a18034f893f01fc7ddd6b1baa9`.
 Source tree: `f5390462cdd719202999b49003d34028919fa8c0`.
@@ -73,8 +114,10 @@ batting input. Commitment then returned
 The original fixture set its posture motor deadline one second after ready
 time, but the actual accepted cadence/motion released the pitch over ten
 seconds later. That scenario remains failed and incomplete; the original
-accepted posture and committed state remain unchanged. A future fixture
-correction must derive its prelaunch window from the existing pitch timing. Neither these partial boundaries nor the finite tests
+accepted posture and committed state remain unchanged. The fixture correction above derives its prelaunch window from the existing
+pitch timing. No pre-posture copy exists, so a future genuine execution must
+reconstruct the original fixture legitimately; no replay from altered history
+is claimed. Neither these partial boundaries nor the finite tests
 claim a completed full-game or IFN result. Private databases, logs and profiles
 are not part of this source checkpoint.
 

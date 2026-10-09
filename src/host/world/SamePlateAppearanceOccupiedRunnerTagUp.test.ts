@@ -5,6 +5,12 @@ import { quantizeEventTick } from '../../core/sim/ExactEventTime';
 import { geometry } from '../../core/sim/ball/BattedWorldScheduledFieldThrow.test-support';
 import { actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
+import { createPlayAdjudicationLedger, recordCorrectRuleSnapshot } from '../../core/adjudication/PlayAdjudicationLedger';
+import { openRuleProfileOfficialStateWindow } from '../../core/adjudication/OfficialWindowPolicy';
+import { orchestrateTagUpAppealAttempt } from '../../core/adjudication/TagUpAppealOrchestration';
+import { createDefensiveAppealAttemptFact } from '../../core/rules/PhysicalRuleFacts';
+import { NPB_2026_RULE_PROFILE } from '../../core/rules/RuleProfile';
+import { evaluateSustainedTagUpAppealScoring } from '../../core/rules/AppealOutScoring';
 const zero = { x: 0, y: 0, z: 0 };
 const roles = ['body', 'glove', 'tag_hand', 'left_foot', 'right_foot'] as const;
 /** Structural Native prefix. Real Core computes contacts from continuous body
@@ -103,6 +109,7 @@ it('ORT06 cannot infer departure from the observed horizon or tag-up obligation 
   expect(result.firstFielderTouch.fact.fielderId).toBe('fielder');
   expect(result.runners[0].physicalRuleFacts).toHaveLength(2);
   expect(result.runners[0].compliance).toEqual({ kind: 'pending', reason: 'actual_fly_catch_first_touch_required' });
+  expect(result.runners[0].appealComplianceEvidence).toBeNull();
 });
 it('ORT07 retains the original epoch and exact recorded times at a large safe tick origin', () => {
   const f = fixture(4, 1, 2 ** 52), result = project(f);
@@ -153,4 +160,42 @@ it('ORT10 preserves physically absent initial foot contact as pending instead of
   const result = project(f).runners[0];
   expect(result.history.contactAtStart).toBe(false); expect(result.physicalRuleFacts).toEqual([]);
   expect(result.compliance).toEqual({ kind: 'pending', reason: 'original_origin_base_contact_required' });
+  expect(result.appealComplianceEvidence).toBeNull();
+});
+
+it('ORT11 supplies original occupied-runner history directly to the existing appeal consumer only after independent end/window/attempt inputs', () => {
+  const f = fixture(), result = project(f), evidence = result.runners[0].appealComplianceEvidence;
+  expect(evidence).toMatchObject({ kind: 'ball_world_tag_up_history_v1', history: f.history, originBase: 'first' });
+  expect(result.appeal.kind).toBe('pending'); expect(result.officialRuling).toBeNull();
+  let ledger = createPlayAdjudicationLedger({ playId: 7, ruleProfileId: NPB_2026_RULE_PROFILE.id,
+    playEnd: { kind: 'play_end', tick: 2_000_000, reason: 'live_action_complete' } });
+  ledger = recordCorrectRuleSnapshot(ledger, ledger.revision, { eventId: 'rule', tick: 2_000_000, snapshotId: 'rule', evidenceRevision: 1,
+    ruling: { outsAfter: 1, basesAfter: f.match.bases, scoredRunnerIds: [] } });
+  ledger = openRuleProfileOfficialStateWindow(ledger, ledger.revision, { profile: NPB_2026_RULE_PROFILE,
+    eventId: 'open', tick: 2_000_001, windowId: 'appeal', windowKind: 'appeal' });
+  const resolved = orchestrateTagUpAppealAttempt(ledger, ledger.revision, { profile: NPB_2026_RULE_PROFILE, eventId: 'attempt', windowId: 'appeal',
+    attempt: createDefensiveAppealAttemptFact('fielder', 'runner', 1, 'tag_up_early_departure', 2_000_002), complianceEvidence: evidence });
+  expect(resolved.result.kind).toBe('out');
+  expect(resolved.ledger.events.at(-1)).toHaveProperty('complianceEvidence.history', f.history);
+  expect(result.physicalEnd).toBeNull(); expect(result.appeal.kind).toBe('pending');
+});
+it('ORT12 derives original precedence and real home touches without crediting a run or inventing a sustained appeal', () => {
+  const f = fixture(); f.match.bases = { first: null, second: null, third: 'runner' };
+  f.holds[0].startingBase = 3; f.holds[0].setup.position = { x: 0, z: 3 };
+  f.evidence.physical.segments = [{ originTick: 0, startElapsedSeconds: 0, endElapsedSeconds: 2,
+    actors: f.holds[0].body.actor.primitives.map((p: any) => ({ playerId: 'runner', primitive: {
+      role: p.role, radius: p.radius, startTick: 0, endTick: 4_000_000, ticksPerSecond: 1_000_000,
+      startCenter: { x: 0, y: 2 + p.offset.y, z: 3 }, startVelocity: zero, acceleration: { x: 0, y: 0, z: -2 } } })) }];
+  const bag = f.root.geometry.baseGeometry.bases.third;
+  const history = deriveBallWorldPlayerBaseContactHistory({ segments: f.evidence.physical.segments, playerId: 'runner', base: bag.region, baseSurfaceHeightMeters: bag.surfaceHeightMeters });
+  f.evidence.occupiedRunnerBaseContacts = [{ playerId: 'runner', bases: [{ base: 'third', history }] }];
+  const result = project(f), scoring = result.scoringBasis;
+  expect(scoring.precedence.runners).toEqual([{ runnerId: 'batter', originBase: 0 }, { runnerId: 'runner', originBase: 3 }]);
+  expect(scoring.homeTouches).toHaveLength(1); expect(scoring.homeTouches[0]).toMatchObject({ kind: 'runner_base_touch', runnerId: 'runner', base: 4 });
+  const touch = result.runners[0].homeHistory.events.find((e: any) => e.kind === 'touch');
+  expect(scoring.homeTouches[0].tick).toBe(touch.tick); expect(touch.elapsedSeconds).toBeGreaterThan(1.6);
+  const adjudicated = evaluateSustainedTagUpAppealScoring({ ...scoring,
+    appealOut: { kind: 'out', runnerId: 'runner', classification: 'tag_up_appeal', appealedBase: 3, outTick: 2_000_002, appealTick: 2_000_002 } });
+  expect(adjudicated.scored).toEqual([]); expect(adjudicated.suppressed).toEqual(scoring.homeTouches);
+  expect(result.officialRuling).toBeNull(); expect(result.appeal.kind).toBe('pending');
 });

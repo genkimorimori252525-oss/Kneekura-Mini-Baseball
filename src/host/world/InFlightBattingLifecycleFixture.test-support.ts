@@ -1,3 +1,9 @@
+import { SeedRoot } from '../../core/rng/SeedRoot';
+import { applyPitchFatigueToExecution } from '../../core/sim/pitch/PitchFatigueExecution';
+import { inFlightBattingFixtureTiming } from './InFlightBattingFixtureTiming.test-support';
+import { selectPlayerPitchTimingProfileFromSqlitePrefix } from './SqlitePlayerPitchTimingStore';
+import { readPlayerReleaseGeometryPrefixFromSqlite } from './SqlitePlayerReleaseGeometryStore';
+import { readPitchFatiguePolicyFromSqlite } from './SqlitePitchFatiguePolicyStore';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { openSqliteBattingPerceptionStore, readBattingPerceptionFromSqlite } from './SqliteBattingPerceptionStore';
@@ -35,10 +41,30 @@ export const prepareInFlightBattingSwing = (h: Fixture, prepared: ReturnType<Fix
     readAcceptedDelivery: id => accepted.get(id), readAcceptedPrediction: id => accepted.get(id), readAcceptedAssessment: id => accepted.get(id) }));
   const inputOwner = track(openSqliteBattingExecutionInputStore(f.path, { readAcceptedIntent: id => accepted.get(id), readAcceptedInput: id => accepted.get(id) }));
   const ready = prepared.action.source.nominalPitch.delivery.readyAtUs;
+  // Plan only this fixture's temporal declaration from the same owned inputs
+  // and existing Core timing used by launch. No pitch/observation is accepted here.
+  const timing = withSqliteReadTransaction(f.db, () => {
+    const action = prepared.action, basis = h.current(), nominal = action.source.nominalPitch, day = action.actor.binding.gameDay;
+    if (json(basis.viewReference) !== json(action.source.viewReference)) throw new Error('fixture timing requires its current action view');
+    const pitcher = action.physicalWorld.defenders.find(d => d.registeredPosition === 'P');
+    const state = basis.view.participants.find(p => p.playerId === pitcher?.playerId);
+    const calibration = basis.calibrationSet.calibrations.find(c => c.source.route === 'pitch_delivery' && c.source.member.playerId === pitcher?.playerId);
+    if (!state || calibration?.source.route !== 'pitch_delivery'
+      || json(calibration.source.response.policyReference) !== json(action.source.pitchResponseReference)) throw new Error('fixture timing lacks its owned pitcher response');
+    const profile = selectPlayerPitchTimingProfileFromSqlitePrefix(f.db, action.source.timingReference, day);
+    const history = readPlayerReleaseGeometryPrefixFromSqlite(f.db, action.source.releaseReference);
+    const geometry = history.changes.filter(c => c.effectiveDay <= day).at(-1) ?? history.baseline;
+    const { sourceId: _id, sourceVersion: _version, ...policy } = readPitchFatiguePolicyFromSqlite(f.db, action.source.pitchResponseReference);
+    const effective = applyPitchFatigueToExecution(profile, nominal.delivery.physics, state.projectedState.fatigue, policy, day);
+    return inFlightBattingFixtureTiming({ root: new SeedRoot(nominal.delivery.matchSeed), outingId: nominal.delivery.outingId,
+      playId: action.lineage.playId, pitchIndex: action.pitchOrdinal - 1, readyAtUs: ready, timingProfile: effective.timingProfile,
+      timingIntent: nominal.delivery.timingIntent, body: { ...geometry.body, moundReference: nominal.delivery.moundReference },
+      releaseProfile: geometry.profile, physics: effective.physics }, ready + 20_000_000);
+  });
   const postureSource = save({ sourceId: label + ':posture', sourceVersion: 'fixture-only-v1', capability: 'owned_in_flight_batting_posture_v1',
     viewReference: h.current().viewReference, member: member(), actionReference: prepared.actionReference, modelReference: h.original.batterModelReference,
     sceneBodyReferences: h.sceneBodyReferences, geometry: { ...h.geometry, startedAtTick: prepared.action.bodyCut.completedAtTick,
-      attention: { target: { kind: 'ball' }, focusedSinceTick: prepared.action.bodyCut.completedAtTick }, bodyReadyTick: ready, latestMotorStartTick: ready + 1_000_000, validUntilTick: ready + 20_000_000 },
+      attention: { target: { kind: 'ball' }, focusedSinceTick: prepared.action.bodyCut.completedAtTick }, ...timing.geometry },
     provenance: provenance(label + ':posture-assessment') });
   const posture = perception.acceptPosture(postureSource.sourceId); if (posture.kind !== 'batting_invocation_posture') throw new Error('real per-pitch posture pending: ' + JSON.stringify(posture));
   const postureReference = reference('batting_observation_v1_postures', posture);
@@ -49,6 +75,7 @@ export const prepareInFlightBattingSwing = (h: Fixture, prepared: ReturnType<Fix
   onBeforeLaunch?.({ posture, postureReference, intent, intentReference });
   const beforeLaunch = { posture, intent, eventCount: h.events.length, worldRevision: h.worldOwner.readHead(f.actor.binding.careerId)!.worldRevision };
   const launch = h.launch(h.prepareRight(prepared, postureReference)), launchReference = reference('pa_physical_v1_launches', launch);
+  if (json(launch.delivery) !== json(timing.delivery)) throw new Error('fixture planned delivery differs from the actual launch owner');
   const captureCutSource = save({ sourceId: label + ':capture-cut', sourceVersion: 'fixture-only-v1', capability: 'same_pa_physical_cut_v1',
     viewReference: h.current().viewReference, launchReference, previousOperationReference: launchReference, throughTick: launch.evaluationTick + 50_000 });
   const captureCut = h.physical.acceptOperation(captureCutSource.sourceId); if (captureCut.kind !== 'same_pa_physical_cut_v1') throw new Error('real capture physical cut pending');

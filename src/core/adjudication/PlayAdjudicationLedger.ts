@@ -4,12 +4,19 @@ import type { RuleProfileId } from '../model/RuleProfileRef';
 import type { PlayEndFact } from '../rules/PhysicalRuleFacts';
 import type { DefensiveAppealAttemptFact } from '../rules/PhysicalRuleFacts';
 import { evaluateTagUpCompliance, type TagUpComplianceInput } from '../rules/TagUpCompliance';
+import { evaluateBallWorldTagUpCompliance } from '../rules/BallWorldTagUpCompliance';
 import { NPB_2026_RULE_PROFILE } from '../rules/RuleProfile';
 import {
   applyResolvedLiveBallPlateAppearanceToMatchState,
   type ResolvedLiveBallPlateAppearance,
 } from '../sim/plateAppearance/PlateAppearanceMatchState';
 import type { CanonicalPlateAppearanceTimeline } from '../sim/plateAppearance/CanonicalPlateAppearanceTimeline';
+
+/** Native pins this history and first contact to their original physical sources.
+ * Core validates their chronology and preserves it across appeal ledger replay. */
+export type BallWorldAppealComplianceEvidence = Parameters<typeof evaluateBallWorldTagUpCompliance>[0]
+  & Readonly<{ kind: 'ball_world_tag_up_history_v1' }>;
+export type TagUpAppealComplianceEvidence = TagUpComplianceInput | BallWorldAppealComplianceEvidence;
 
 export type OfficialGameplayRuling = Readonly<{
   outsAfter: number;
@@ -129,7 +136,7 @@ export type DefensiveAppealAttemptRecorded = EventBase & Readonly<{
   windowId: string;
   timing: 'timely' | 'expired' | 'simultaneous_unresolved';
   attempt: DefensiveAppealAttemptFact;
-  complianceEvidence: TagUpComplianceInput;
+  complianceEvidence: TagUpAppealComplianceEvidence;
 }>;
 
 export type OnFieldCallRecorded = EventBase & Readonly<{
@@ -238,7 +245,7 @@ export type DefensiveAppealAttemptInput = Readonly<{
   windowId: string;
   timing: DefensiveAppealAttemptRecorded['timing'];
   attempt: DefensiveAppealAttemptFact;
-  complianceEvidence: TagUpComplianceInput;
+  complianceEvidence: TagUpAppealComplianceEvidence;
 }>;
 
 export type OnFieldCallInput = Readonly<{
@@ -425,8 +432,9 @@ const validateWindowKind = (value: OfficialStateWindowKind): OfficialStateWindow
 
 const freezeAppealEvidence = (
   attemptInput: DefensiveAppealAttemptFact,
-  evidenceInput: TagUpComplianceInput,
+  evidenceInput: TagUpAppealComplianceEvidence,
   eventTick: number,
+  physicalEndTick: number,
 ): Pick<DefensiveAppealAttemptRecorded, 'attempt' | 'complianceEvidence'> => {
   const attempt = cloneInertData(attemptInput, 'adjudication.appealAttempt');
   const evidence = cloneInertData(evidenceInput, 'adjudication.appealEvidence');
@@ -440,6 +448,21 @@ const freezeAppealEvidence = (
   factId(attempt.runnerId, 'appeal runnerId');
   if (![1, 2, 3, 4].includes(attempt.base)) throw new Error('appeal base must be a baseball base');
   if (tick(attempt.tick, 'appeal tick') !== eventTick) throw new Error('appeal attempt tick must match event tick');
+  if ('kind' in evidence) {
+    if (evidence.kind !== 'ball_world_tag_up_history_v1') throw new Error('unknown exact appeal evidence');
+    factId(evidence.firstTouch.fact.fielderId, 'firstTouch fielderId');
+    const compliance = evaluateBallWorldTagUpCompliance(evidence);
+    if (compliance.kind === 'pending') throw new Error('appeal requires supported original contact history');
+    if (attempt.runnerId !== compliance.runnerId || attempt.base !== compliance.originBase)
+      throw new Error('appeal must target the original exact-history runner and base');
+    const horizon = quantizeEventTick(evidence.history.originTick, evidence.history.endElapsedSeconds, evidence.history.ticksPerSecond);
+    if (horizon !== physicalEndTick || horizon > eventTick) throw new Error('exact appeal history must end at the original physical PlayEnd');
+    const freeze = <T>(value: T): T => {
+      if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); }
+      return value;
+    };
+    return { attempt: Object.freeze(attempt), complianceEvidence: freeze(evidence) };
+  }
   factId(evidence.runnerId, 'tag-up runnerId');
   if (![1, 2, 3, 4].includes(evidence.originBase)) throw new Error('tag-up origin must be a baseball base');
   if (evidence.firstTouch.kind !== 'fly_ball_first_fielder_touch') throw new Error('firstTouch kind is invalid');
@@ -833,7 +856,7 @@ const replayLedger = (ledgerInput: PlayAdjudicationLedger): {
       if (playEnd === null || replay.latestCorrect === null) {
         throw new Error('tag-up appeal requires physical PlayEnd and correct-rule snapshot');
       }
-      const evidence = freezeAppealEvidence(event.attempt, event.complianceEvidence, eventTick);
+      const evidence = freezeAppealEvidence(event.attempt, event.complianceEvidence, eventTick, playEnd.tick);
       validateAppealAttemptTiming(stateWindow, eventTick, event.timing, input.ruleProfileId);
       replay.appealSnapshotPending = true;
       if (event.timing === 'simultaneous_unresolved') replay.appealCallPending = true;
@@ -1089,7 +1112,7 @@ export const recordDefensiveAppealAttempt = (
   if (ledger.playEnd === null || replay.latestCorrect === null) {
     throw new Error('tag-up appeal requires physical PlayEnd and correct-rule snapshot');
   }
-  const evidence = freezeAppealEvidence(request.attempt, request.complianceEvidence, eventTick);
+  const evidence = freezeAppealEvidence(request.attempt, request.complianceEvidence, eventTick, ledger.playEnd.tick);
   validateAppealAttemptTiming(stateWindow, eventTick, request.timing, ledger.ruleProfileId);
   return append(ledger, Object.freeze({
     kind: 'DefensiveAppealAttemptRecorded', eventId, tick: eventTick,
