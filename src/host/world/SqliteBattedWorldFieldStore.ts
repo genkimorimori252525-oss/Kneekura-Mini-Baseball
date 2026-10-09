@@ -38,7 +38,8 @@ type Authority = Readonly<{ readAcceptedGeometry(sourceId: string): AcceptedBatt
 type Db = Pick<import('node:sqlite').DatabaseSync, 'prepare'>;
 // Only completed own reads can seed this synchronous physical traversal. No
 // public setter accepts evidence; caller-supplied scope objects are never seeds.
-type FieldReadTraversal = Readonly<{ identity: object; check(): void;
+type FieldReadSnapshot = { identity: object; failed: boolean; check(): void };
+type FieldReadTraversal = Readonly<{ identity: object; check(): void; snapshot: FieldReadSnapshot;
   nodes: Map<string, Readonly<{ value: DurableBattedWorldFieldAction; snapshotJson: string; snapshotHash: string }>>;
   roots: Map<string, DurableBattedWorldFieldAction>; authenticated: WeakSet<object> }>;
 const fieldReadTraversals = new WeakMap<Db, FieldReadTraversal>();
@@ -53,6 +54,17 @@ export const assertBattedWorldFieldReadFrame = (db: Db, identity: object): void 
   traversal.check();
 };
 
+/** Opaque outer snapshot for original National evidence, never a caller proof.
+ * Child field frames stay independent; any failed descendant expires reuse. */
+export const activeBattedWorldFieldReadSnapshot = (db: Db): object | null => {
+  const traversal = fieldReadTraversals.get(db);
+  if (!traversal) return null;
+  if (traversal.snapshot.failed) throw new Error('physical read snapshot failed');
+  try { traversal.check(); traversal.snapshot.check(); }
+  catch (error) { traversal.snapshot.failed = true; throw error; }
+  return traversal.snapshot.identity;
+};
+
 /** Internal root-owned read bracket. It never replaces a connection authorizer.
  * query_only belongs to this synchronous operation, not an adversarial SQL sandbox. */
 export const withBattedWorldFieldReadTraversal = <T>(db: Db, body: () => T): T => {
@@ -60,8 +72,11 @@ export const withBattedWorldFieldReadTraversal = <T>(db: Db, body: () => T): T =
   if (!(db instanceof DatabaseSync) || !db.isTransaction) return body();
   const prior = fieldReadTraversals.get(db), name = `physical_field_read_${randomUUID().replaceAll('-', '')}`;
   const queryOnly = () => db.prepare('PRAGMA query_only').get()!.query_only;
-  const beforeQueryOnly = queryOnly();
-  if (beforeQueryOnly !== 0 && beforeQueryOnly !== 1) throw new Error('physical read query-only state is unavailable');
+  let beforeQueryOnly: unknown;
+  try {
+    beforeQueryOnly = queryOnly();
+    if (beforeQueryOnly !== 0 && beforeQueryOnly !== 1) throw new Error('physical read query-only state is unavailable');
+  } catch (error) { if (prior) prior.snapshot.failed = true; throw error; }
   const stamp = () => [db.prepare('SELECT total_changes() AS changes').get()!.changes,
     db.prepare('PRAGMA main.schema_version').get()!.schema_version,
     db.prepare('PRAGMA temp.schema_version').get()!.schema_version] as const;
@@ -79,7 +94,9 @@ export const withBattedWorldFieldReadTraversal = <T>(db: Db, body: () => T): T =
         throw new Error('physical read transaction or dependencies changed during traversal');
       }
     };
-    completed = { identity: Object.freeze({}), check, nodes: new Map(), roots: new Map(), authenticated: new WeakSet() };
+    completed = { identity: Object.freeze({}), check,
+      snapshot: prior?.snapshot ?? { identity: Object.freeze({}), failed: false, check },
+      nodes: new Map(), roots: new Map(), authenticated: new WeakSet() };
     fieldReadTraversals.set(db, completed);
     value = body(); check();
     // Counters cannot identify rollback/rebegin. The private savepoint must
@@ -95,13 +112,17 @@ export const withBattedWorldFieldReadTraversal = <T>(db: Db, body: () => T): T =
       if (queryOnly() !== beforeQueryOnly) throw new Error('physical read query-only setting could not be restored');
     } catch (error) { cleanupErrors.push(error); }
   }
+  if (failed || cleanupErrors.length) {
+    const snapshot = completed?.snapshot ?? prior?.snapshot;
+    if (snapshot) snapshot.failed = true;
+  }
   if (cleanupErrors.length) throw new AggregateError([...(failed ? [failure] : []), ...cleanupErrors],
     'physical read transaction or setting cleanup failed', { cause: failed ? failure : cleanupErrors[0] });
   if (failed) throw failure;
   // A child always authenticates from fresh roots. Only its fully successful
   // bracket can make completed immutable nodes available to its direct parent.
   if (prior && completed) {
-    prior.check();
+    try { prior.check(); } catch (error) { prior.snapshot.failed = true; throw error; }
     for (const [key, entry] of completed.nodes) { prior.nodes.set(key, entry); prior.authenticated.add(entry.value); }
     for (const [key, root] of completed.roots) prior.roots.set(key, root);
   }

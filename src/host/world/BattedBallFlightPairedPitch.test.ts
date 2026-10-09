@@ -251,7 +251,12 @@ it('owned pair rejects guard removal followed by a same-connection write', () =>
       if (changed) return; changed = true;
       x.db.exec('PRAGMA query_only=OFF; UPDATE pair_change_probe SET value=1; PRAGMA query_only=ON');
     } });
-    expect(() => ownedRead(x.db, () => read(x.db, x.g.physical.source.sourceId))).toThrow(/changed|transaction|cleanup/);
+    let failure: unknown;
+    try { ownedRead(x.db, () => read(x.db, x.g.physical.source.sourceId)); } catch (error) { failure = error; }
+    expect(failure).toBeInstanceOf(Error);
+    expect((failure as Error).message).toBe('corrupt original physical pitch prefix');
+    expect((failure as Error).cause).toBeInstanceOf(Error);
+    expect(((failure as Error).cause as Error).message).toBe('physical read transaction or dependencies changed during traversal');
     expect(changed).toBe(true); expect(x.db.isTransaction).toBe(false); expect(queryOnly(x.db)).toBe(0);
     expect(activeBattedWorldFieldReadFrame(x.db)).toBeNull();
     expect(x.db.prepare('SELECT value FROM pair_change_probe').get()!.value).toBe(0);

@@ -1,4 +1,6 @@
 import { createRequire } from 'node:module';
+import { createHash } from 'node:crypto';
+import type { DatabaseSync } from 'node:sqlite';
 import { isDeepStrictEqual } from 'node:util';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { applyScheduleRevisions, createBaseScheduleSnapshot,
@@ -31,6 +33,13 @@ export type DurableLeagueSeasonEvents = Readonly<{
   profile: LeagueSeasonEventProfile;
   snapshot: LeagueSeasonEventSnapshot;
 }>;
+export type DomesticMarketTriggerReference = Readonly<{
+  owner: 'world_league_season_events';
+  careerId: string;
+  baseScheduleHash: string;
+  seasonEventsHash: string;
+  trigger: MarketDecisionTrigger;
+}>;
 export type SqliteDomesticScheduleStore = Readonly<{
   initialize(careerId: string,
     baseSchedule: BaseScheduleSnapshot): DurableDomesticSchedule;
@@ -44,6 +53,7 @@ export type SqliteDomesticScheduleStore = Readonly<{
     DurableLeagueSeasonEvents | null;
   marketTriggersOnDay(careerId: string, seasonId: string,
     day: number): readonly MarketDecisionTrigger[];
+  captureMarketTriggerReference(careerId: string, trigger: MarketDecisionTrigger): DomesticMarketTriggerReference;
   close(): void;
 }>;
 
@@ -63,6 +73,96 @@ const canonicalJson = (value: unknown): string => JSON.stringify(cloneInert(valu
     && !Array.isArray(item)
     ? Object.fromEntries(Object.entries(item).sort(([left], [right]) =>
       left < right ? -1 : left > right ? 1 : 0)) : item);
+
+const parse = (careerId: string, seasonId: string,
+  row: ArchiveRow, season: SeasonRow): DurableDomesticSchedule => {
+  const baseSchedule = JSON.parse(row.base_json) as BaseScheduleSnapshot;
+  const records = JSON.parse(row.records_json) as RevisionRecord[];
+  const reconstructed = createBaseScheduleSnapshot(baseSchedule);
+  if (!Array.isArray(records) || !day(row.revision)
+    || row.revision !== records.length
+    || canonicalJson(baseSchedule) !== row.base_json
+    || canonicalJson(records) !== row.records_json
+    || !isDeepStrictEqual(reconstructed, baseSchedule)
+    || baseSchedule.seasonId !== seasonId
+    || records.some((record, index) => !day(record.acceptedAtDay)
+      || !id(record.event?.eventId)
+      || record.acceptedAtDay > record.event.newDay
+      || (index > 0 && record.acceptedAtDay
+        < records[index - 1]!.acceptedAtDay))) {
+    throw new Error('corrupt durable domestic schedule');
+  }
+  const revisions = records.map((record) => record.event);
+  const current = captureOfficialStandingsSchedule(baseSchedule, revisions);
+  if (!isDeepStrictEqual(JSON.parse(season.schedule_json), current)) {
+    throw new Error('durable domestic schedule diverges from World season');
+  }
+  return Object.freeze({ careerId, seasonId, revision: row.revision,
+    baseSchedule, revisions: Object.freeze(revisions),
+    acceptedAtDays: Object.freeze(records.map((record) =>
+      record.acceptedAtDay)) });
+};
+const parseEvents = (careerId: string, seasonId: string,
+  schedule: DurableDomesticSchedule,
+  row: EventsRow): DurableLeagueSeasonEvents => {
+  const profile = JSON.parse(row.profile_json) as LeagueSeasonEventProfile;
+  const snapshot = JSON.parse(row.snapshot_json) as LeagueSeasonEventSnapshot;
+  const recomputed = createLeagueSeasonEventSnapshot(
+    schedule.baseSchedule, profile);
+  const current = applyScheduleRevisions(schedule.baseSchedule,
+    schedule.revisions);
+  if (canonicalJson(profile) !== row.profile_json
+    || canonicalJson(snapshot) !== row.snapshot_json
+    || !isDeepStrictEqual(snapshot, recomputed)
+    || (snapshot.allStarEvent !== null && current.games.some((game) =>
+      game.day === snapshot.allStarEvent!.day))) {
+    throw new Error('corrupt durable league season events');
+  }
+  return Object.freeze({ careerId, seasonId, profile, snapshot });
+};
+/** Read the calendar owner's original trigger on the consumer's SQLite connection.
+ * Event timing is frozen against the base calendar, not later rainout revisions. */
+export const readDomesticMarketTriggerFromSqlite = (
+  db: DatabaseSync, careerId: string, rawTrigger: MarketDecisionTrigger,
+): Readonly<{ reference: DomesticMarketTriggerReference; baseSchedule: BaseScheduleSnapshot }> => {
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  if (!(db instanceof DatabaseSync)) throw new Error('domestic market evidence requires an actual Native SQLite connection');
+  const trigger = cloneInert(rawTrigger);
+  const keys = ['seasonId', 'leagueId', 'windowId', 'type', 'day', 'policyVersion'];
+  if (!id(careerId) || !trigger || Object.keys(trigger).length !== keys.length
+    || keys.some(key => !Object.hasOwn(trigger, key)) || !day(trigger.day)
+    || ![trigger.seasonId, trigger.leagueId, trigger.windowId, trigger.policyVersion].every(id)) {
+    throw new Error('invalid domestic market trigger');
+  }
+  if (db.prepare('PRAGMA database_list').all().some(row => row.name !== 'main' && row.name !== 'temp')
+    || db.prepare("SELECT name FROM temp.sqlite_master WHERE type IN ('table','view') LIMIT 1").get()) {
+    throw new Error('domestic market evidence requires main-only storage');
+  }
+  const reading = () => {
+    const { seasonId } = trigger;
+    const archive = db.prepare('SELECT revision,base_json,records_json FROM main.world_domestic_schedules WHERE career_id=? AND season_id=?')
+      .get(careerId, seasonId) as ArchiveRow | undefined;
+    const season = db.prepare('SELECT revision,schedule_json,policy_json,results_json FROM main.world_season_heads WHERE career_id=? AND season_id=?')
+      .get(careerId, seasonId) as SeasonRow | undefined;
+    const events = db.prepare('SELECT profile_json,snapshot_json FROM main.world_league_season_events WHERE career_id=? AND season_id=?')
+      .get(careerId, seasonId) as EventsRow | undefined;
+    if (!archive || !season || !events) throw new Error('original domestic market calendar is missing');
+    const schedule = parse(careerId, seasonId, archive, season);
+    const original = parseEvents(careerId, seasonId, schedule, events);
+    const actual = marketDecisionTriggersOnDay(original.snapshot, trigger.day)
+      .find(item => item.windowId === trigger.windowId);
+    if (!actual || !isDeepStrictEqual(actual, trigger)) throw new Error('domestic market trigger differs from original calendar');
+    const hash = (value: unknown) => createHash('sha256').update(canonicalJson(value)).digest('hex');
+    return Object.freeze({ baseSchedule: schedule.baseSchedule, reference: Object.freeze({
+      owner: 'world_league_season_events' as const, careerId,
+      baseScheduleHash: hash(schedule.baseSchedule), seasonEventsHash: hash(original), trigger: actual,
+    }) });
+  };
+  if (db.isTransaction) return reading();
+  db.exec('BEGIN');
+  try { const result = reading(); db.exec('COMMIT'); return result; }
+  catch (error) { if (db.isTransaction) db.exec('ROLLBACK'); throw error; }
+};
 
 /** Stores the frozen generator output and accepted revisions beside World heads. */
 export const openSqliteDomesticScheduleStore = (
@@ -107,52 +207,6 @@ export const openSqliteDomesticScheduleStore = (
       db.exec('ROLLBACK');
       throw error;
     }
-  };
-  const parse = (careerId: string, seasonId: string,
-    row: ArchiveRow, season: SeasonRow): DurableDomesticSchedule => {
-    const baseSchedule = JSON.parse(row.base_json) as BaseScheduleSnapshot;
-    const records = JSON.parse(row.records_json) as RevisionRecord[];
-    const reconstructed = createBaseScheduleSnapshot(baseSchedule);
-    if (!Array.isArray(records) || !day(row.revision)
-      || row.revision !== records.length
-      || canonicalJson(baseSchedule) !== row.base_json
-      || canonicalJson(records) !== row.records_json
-      || !isDeepStrictEqual(reconstructed, baseSchedule)
-      || baseSchedule.seasonId !== seasonId
-      || records.some((record, index) => !day(record.acceptedAtDay)
-        || !id(record.event?.eventId)
-        || record.acceptedAtDay > record.event.newDay
-        || (index > 0 && record.acceptedAtDay
-          < records[index - 1]!.acceptedAtDay))) {
-      throw new Error('corrupt durable domestic schedule');
-    }
-    const revisions = records.map((record) => record.event);
-    const current = captureOfficialStandingsSchedule(baseSchedule, revisions);
-    if (!isDeepStrictEqual(JSON.parse(season.schedule_json), current)) {
-      throw new Error('durable domestic schedule diverges from World season');
-    }
-    return Object.freeze({ careerId, seasonId, revision: row.revision,
-      baseSchedule, revisions: Object.freeze(revisions),
-      acceptedAtDays: Object.freeze(records.map((record) =>
-        record.acceptedAtDay)) });
-  };
-  const parseEvents = (careerId: string, seasonId: string,
-    schedule: DurableDomesticSchedule,
-    row: EventsRow): DurableLeagueSeasonEvents => {
-    const profile = JSON.parse(row.profile_json) as LeagueSeasonEventProfile;
-    const snapshot = JSON.parse(row.snapshot_json) as LeagueSeasonEventSnapshot;
-    const recomputed = createLeagueSeasonEventSnapshot(
-      schedule.baseSchedule, profile);
-    const current = applyScheduleRevisions(schedule.baseSchedule,
-      schedule.revisions);
-    if (canonicalJson(profile) !== row.profile_json
-      || canonicalJson(snapshot) !== row.snapshot_json
-      || !isDeepStrictEqual(snapshot, recomputed)
-      || (snapshot.allStarEvent !== null && current.games.some((game) =>
-        game.day === snapshot.allStarEvent!.day))) {
-      throw new Error('corrupt durable league season events');
-    }
-    return Object.freeze({ careerId, seasonId, profile, snapshot });
   };
   const readSchedule = (careerId: string,
     seasonId: string): DurableDomesticSchedule | null => {
@@ -333,6 +387,9 @@ export const openSqliteDomesticScheduleStore = (
       const events = readEvents(careerId, seasonId);
       if (!events) throw new Error('league season events are not initialized');
       return marketDecisionTriggersOnDay(events.snapshot, eventDay);
+    },
+    captureMarketTriggerReference(careerId: string, trigger: MarketDecisionTrigger): DomesticMarketTriggerReference {
+      return readDomesticMarketTriggerFromSqlite(db, careerId, trigger).reference;
     },
     close(): void { db.close(); },
   });

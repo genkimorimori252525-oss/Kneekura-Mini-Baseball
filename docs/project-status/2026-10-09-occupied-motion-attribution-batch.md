@@ -22,6 +22,47 @@ wall-time improvement. See the
 
 
 
+## Original National snapshot reuse and calendar-backed recruitment
+
+The original National owner now shares its completed immutable proof across
+nested consumers of one unchanged Native snapshot. Every use still reads and
+authenticates the original archive and aliases. Failed children, cleanup,
+mutation and transaction replacement expire reuse; independent retries and
+later write phases authenticate afresh. On the same persisted foul-count read,
+both versions completed with the same result and unchanged database:
+776.135 ms before and 501.819 ms after, with full National replays reduced from
+two to one. This is one instrumented operation comparison, not a full-tail
+benchmark. [Scope and exact measurement](../verification/2026-10-09-national-origin-snapshot-reuse.md).
+
+An explicitly accepted market trigger now stays linked to its original season
+calendar through recruitment and the actual free-agent contract. Admission,
+post-insert validation, historical reads and retries authenticate the base
+calendar and event snapshot on the consuming Native connection. Legitimate
+schedule revisions preserve the original event; a coincident date never creates
+market causality. [Calendar connection](2026-10-09-market-trigger-recruitment.md).
+
+The complete production batch at local `10c02ddc8492bd1751e00b9fb5bb9568b0f71aa1`
+(source `23289c9e53461f0dcbac2e1f77b7276efc299a55`) passed the full nonvisual
+compiler in 29.44 seconds. The combined run passed 66 of 67 cases in eight files.
+Its one failure was the existing mutation test expecting a top-level guard error:
+the new earlier guard is correctly retained as the original-prefix error cause.
+Only that assertion changed at `8faa9a5b2c87eb9879c8519e1d4631791367a66e`
+(source `6341536024938335ef7a5e67257cc95fa9add7cb`), requiring both exact messages
+and retaining every rollback, transaction, frame and original-row assertion.
+All 23 cases in the affected file then passed in 16.40 seconds. The other 44
+passing cases are retained; the failed combined receipt is not relabeled.
+Independent review is clear, production is unchanged after its compiler run,
+all four input groups stayed stable and no processes survived.
+
+Combined report SHA-256: `be617a3410d20dea144e7cde58041ae77f89534d94b35d53a82a23bea33769d1`.
+Affected-file report SHA-256: `d8a70f9080a3cf173f74094f1b9ec3784150281ab8815a2d5005debec6924c89`.
+Compiler configuration SHA-256: `e6c060e2653da264182621a5dec007dfc7e322996cf2d43804704b4f42da987b`.
+
+The unchanged 37-assertion National continuation is prepared for one consolidated
+run after this checkpoint. No result from that run or complete moving-play
+appeal is claimed here. Explicit live appeal execution and missing authenticated
+legal-rights evidence remain work in progress; original scope stays open.
+
 ## Controlled body tags, persisted recruitment and original proof reuse
 
 Explicit runner-body appeals now use the actual ball-holding glove and the

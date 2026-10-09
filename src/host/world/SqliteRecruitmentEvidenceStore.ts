@@ -15,6 +15,7 @@ import { appendRecruitmentDecisionWithRosterNeedAndClubFinance, createRecruitmen
 import type { RecruitmentAuthorityProfile } from '../../core/world/scouting/RecruitmentAuthority';
 import { canonicalRosterEvidenceJson as json } from './RosterEvidenceJson';
 import { readAcceptedClubHistory } from './SqliteClubEventJournal';
+import { readDomesticMarketTriggerFromSqlite, type DomesticMarketTriggerReference } from './SqliteDomesticScheduleStore';
 
 export type AcceptedScoutingSource = Readonly<{ sourceId: string; sourceVersion: string }> &
   (Readonly<{ kind: 'EVIDENCE'; record: ScoutingEvidenceRecord }> | Readonly<{ kind: 'REPORT'; record: PlayerKnowledgeReport }>);
@@ -24,6 +25,8 @@ export type AcceptedRecruitmentSource = Readonly<{
   need: RosterNeedRequest; needPolicy: RosterNeedPlanningPolicy; authorityProfile: RecruitmentAuthorityProfile;
   proposedCurrentSeasonPayrollMinorUnits: number | null;
   decision: Omit<RecruitmentDecisionInput, 'rosterNeedSnapshot' | 'budgetContext'>;
+  /** Explicitly adopted cause; matching dates never create an association. */
+  marketOrigin?: DomesticMarketTriggerReference;
 }>;
 export type RecruitmentDecisionReference = Readonly<{
   owner: 'world_recruitment_decisions'; sourceId: string; sourceHash: string; snapshotHash: string;
@@ -61,13 +64,21 @@ const sourceInput = (raw: AcceptedScoutingSource, sourceId: string): AcceptedSco
 };
 const decisionInput = (raw: AcceptedRecruitmentSource, sourceId: string): AcceptedRecruitmentSource => {
   const s = JSON.parse(json(raw)) as AcceptedRecruitmentSource;
+  const hasMarketOrigin = s != null && Object.hasOwn(s, 'marketOrigin');
   if (!fields(s, ['sourceId', 'sourceVersion', 'expected', 'need', 'needPolicy', 'authorityProfile',
-    'proposedCurrentSeasonPayrollMinorUnits', 'decision']) || s.sourceId !== sourceId || !id(s.sourceId) || !id(s.sourceVersion)
+    'proposedCurrentSeasonPayrollMinorUnits', 'decision', ...(hasMarketOrigin ? ['marketOrigin'] : [])])
+    || s.sourceId !== sourceId || !id(s.sourceId) || !id(s.sourceVersion)
     || !fields(s.expected, ['clubRevision', 'rosterRevision', 'wageRevision', 'knowledgeRevision'])
     || !Object.values(s.expected).every(revision) || !id(s.decision?.careerId) || !id(s.decision.clubId)
     || !id(s.decision.decisionId) || (['BID', 'ACQUIRE'].includes(s.decision.decision)
       ? !revision(s.proposedCurrentSeasonPayrollMinorUnits) : s.proposedCurrentSeasonPayrollMinorUnits !== null)) {
     throw new Error('invalid accepted recruitment source');
+  }
+  const origin = s.marketOrigin;
+  if (hasMarketOrigin && (!origin || !fields(origin, ['owner', 'careerId', 'baseScheduleHash', 'seasonEventsHash', 'trigger'])
+    || origin.owner !== 'world_league_season_events' || origin.careerId !== s.decision.careerId
+    || !/^[0-9a-f]{64}$/.test(origin.baseScheduleHash) || !/^[0-9a-f]{64}$/.test(origin.seasonEventsHash))) {
+    throw new Error('invalid accepted recruitment market origin');
   }
   return s;
 };
@@ -127,6 +138,18 @@ const authenticateBasis = (db: DatabaseSync, source: AcceptedRecruitmentSource, 
     throw new Error('recruitment original basis differs');
   }
   const { careerId, clubId } = source.decision;
+  if (source.marketOrigin) {
+    const original = readDomesticMarketTriggerFromSqlite(db, careerId, source.marketOrigin.trigger);
+    if (json(original.reference) !== json(source.marketOrigin)
+      || !original.baseSchedule.memberClubIds.includes(clubId)
+      || !basis.club.season.plan.competitionEditionIds.includes(source.marketOrigin.trigger.seasonId)
+      || basis.club.season.plan.financialProfile.leagueId !== source.marketOrigin.trigger.leagueId) {
+      throw new Error('recruitment market origin differs from original Club calendar');
+    }
+    if (source.marketOrigin.trigger.day > source.decision.decidedAtDay) {
+      throw new Error('recruitment market origin is from the future');
+    }
+  }
   const history = readAcceptedClubHistory(db, careerId, clubId);
   const prior = history && replayClubEvents(history.checkpoint, history.acceptedEvents.filter(e => e.afterRevision <= source.expected.clubRevision));
   if (!prior?.ok || json(prior.value) !== json(readState(basis.club))) throw new Error('recruitment original Club history differs');

@@ -1,5 +1,5 @@
 import { readAdditionalNationalMatchFixture, readNativeNationalQualifierEdition } from './NativeNationalFixtureEvidenceFromSqlite';
-import { activeBattedWorldFieldReadFrame } from './SqliteBattedWorldFieldStore';
+import { activeBattedWorldFieldReadSnapshot } from './SqliteBattedWorldFieldStore';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -148,34 +148,45 @@ const derive = (db: DatabaseSync, source: NationalMatchOriginSource, originals?:
   return freeze({ source, fixture, participants });
 };
 const bracket = <T>(db: DatabaseSync, read: () => T): T => withBattedVenueLegalReadSnapshot(db, () => withCompetitionSourceReadPhase(read));
-// Completed replay only, confined to the existing Native query-only read frame.
-// Its owner guards all row/schema writes and releases its private savepoint before return.
-const originReads = new WeakMap<object, Map<string, DurableNationalMatchOrigin | null>>();
+// Only this original owner may reuse its positive completed proof across child
+// consumers of one Native snapshot. Every use still reads the original archive.
+type CompletedOrigin = Readonly<{ rowIdentity: string; value: DurableNationalMatchOrigin }>;
+const originReads = new WeakMap<object, Map<string, CompletedOrigin>>();
 /** Historical pins stop before later appearances, replacements and legal fact revisions. */
 export const readNationalMatchOrigin = (inputDb: Db, gameId: string): DurableNationalMatchOrigin | null => {
-  if (!id(gameId)) throw new Error('invalid National Match origin game');
-  const db = native(inputDb), frame = activeBattedWorldFieldReadFrame(db);
-  const cached = frame ? originReads.get(frame) : undefined;
-  if (cached?.has(gameId)) return cached.get(gameId)!;
+  const db = native(inputDb);
+  let completed: Readonly<{ snapshot: object; proof: CompletedOrigin }> | null = null;
   const value = bracket(db, () => {
+    if (!id(gameId)) throw new Error('invalid National Match origin game');
     if (!db.prepare("SELECT 1 FROM main.sqlite_master WHERE type='table' AND name='world_national_match_origins'").get()) return null;
     const rows = db.prepare(`SELECT * FROM world_national_match_origins WHERE game_id=$game
       OR ${claim('source_json', ['gameId'], '$game')} OR ${claim('snapshot_json', ['source', 'gameId'], '$game')}`).all({ game: gameId });
     if (!rows.length) return null;
     if (rows.length !== 1 || rows[0].game_id !== gameId) throw new Error('National Match origin game ownership differs');
-    const row = rows[0], source = sourceInput(JSON.parse(String(row.source_json))), saved = JSON.parse(String(row.snapshot_json)) as DurableNationalMatchOrigin;
+    const snapshot = activeBattedWorldFieldReadSnapshot(db);
+    if (!snapshot) throw new Error('National Match original snapshot is missing');
+    const cached = originReads.get(snapshot)?.get(gameId);
+    const row = freeze(cloneInert(rows[0])), rowIdentity = json(row);
+    const source = sourceInput(JSON.parse(String(row.source_json))), saved = JSON.parse(String(row.snapshot_json)) as DurableNationalMatchOrigin;
     const owners = db.prepare(`SELECT source_id FROM world_national_match_origins WHERE source_id=$source
       OR ${claim('source_json', ['sourceId'], '$source')} OR ${claim('snapshot_json', ['source', 'sourceId'], '$source')}`).all({ source: source.sourceId });
     if (owners.length !== 1 || row.source_id !== source.sourceId || row.game_id !== source.gameId || row.career_id !== source.careerId
       || row.edition_id !== source.editionId || row.source_json !== json(source) || row.source_hash !== hash(source)
       || row.snapshot_json !== json(saved) || row.snapshot_hash !== hash(saved)) throw new Error('National Match origin archive differs');
-    const actual = derive(db, source, saved.participants);
+    if (cached && rowIdentity !== cached.rowIdentity) throw new Error('National Match original archive changed within snapshot');
+    const actual = cached?.value ?? derive(db, source, saved.participants);
     if (json(actual) !== row.snapshot_json) throw new Error('National Match original evidence changed');
+    completed = { snapshot, proof: { rowIdentity, value: actual } };
     return actual;
   });
-  if (frame && activeBattedWorldFieldReadFrame(db) === frame) {
-    const values = originReads.get(frame) ?? new Map<string, DurableNationalMatchOrigin | null>();
-    values.set(gameId, value); originReads.set(frame, values);
+  // Publication follows successful child savepoint release, cleanup and parent
+  // validation. A standalone read has already left its snapshot and seeds none.
+  const accepted = completed as Readonly<{ snapshot: object; proof: CompletedOrigin }> | null;
+  const snapshot = accepted ? activeBattedWorldFieldReadSnapshot(db) : null;
+  if (snapshot && accepted) {
+    if (snapshot !== accepted.snapshot) throw new Error('National Match original snapshot changed');
+    const values = originReads.get(snapshot) ?? new Map<string, CompletedOrigin>();
+    values.set(gameId, accepted.proof); originReads.set(snapshot, values);
   }
   return value;
 };
