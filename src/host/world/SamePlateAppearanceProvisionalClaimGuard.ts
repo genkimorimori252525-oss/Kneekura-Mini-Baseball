@@ -1,8 +1,10 @@
 import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
+import { createRequire } from 'node:module';
+import { memoSamePaContinuationRead } from './SamePlateAppearanceContinuationFromSqlite';
 import { samePaPlayerClaimCanProceed } from './SamePlateAppearanceSettlementAdmission';
 import type { DatabaseSync } from 'node:sqlite';
 import { assertNoPaDispatchPlayerClaim, assertNoPaDispatchWorkClaim, assertFreshPaDispatchEnrollment } from './SamePlateAppearanceDispatchClaimGuard';
-import { actorHash as hash, actorJson as json, type DurablePhysicalPlateAppearanceActor } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { actorHash as hash, actorJson as json, actorFreeze as freeze, type DurablePhysicalPlateAppearanceActor } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { samePaId as id, type ReservedSamePlateAppearanceEnrollment } from './SamePlateAppearanceEnrollment';
 import { assertSamePaStorage, authenticateSamePaRow, samePaEnrollmentRow, samePaMetadataClaim as claim } from './SamePlateAppearanceReservationGuard';
 import { assertReservedPaStorage, reservedPaSchema } from './SamePlateAppearanceExecutionStorage';
@@ -136,11 +138,16 @@ const claims = (db: Db): Claim[] => {
   }
   return records;
 };
-const inspect = (db: Db): Claim[] => {
+const inspectClaims = (db: Db): Claim[] => {
   try { return claims(db); } catch (error) {
     if (error instanceof Error && /same-PA/.test(error.message)) throw error;
     return fail('owner metadata or dependency is malformed');
   }
+};
+const inspect = (db: Db): Claim[] => {
+  const { DatabaseSync: Native } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  return db instanceof Native && db.isTransaction && db.prepare('PRAGMA query_only').get()!.query_only === 1
+    ? memoSamePaContinuationRead(db, 'reserved-claim-census', () => freeze(inspectClaims(db))) : inspectClaims(db);
 };
 /** The optional own identity is only for existing dependency read proofs. No
  * fresh workload, charge or causal-work writer supplies this exemption. */

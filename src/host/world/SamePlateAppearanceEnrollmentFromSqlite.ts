@@ -1,4 +1,6 @@
 import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
+import { createRequire } from 'node:module';
+import { withSamePaContinuationReadPhase } from './SamePlateAppearanceContinuationFromSqlite';
 import type { DatabaseSync } from 'node:sqlite';
 import { readPhysicalPlateAppearanceActorFromSqlite, assertPhysicalActorOpenFrame,
   actorHash as hash, actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -10,7 +12,7 @@ import { assertSamePaRegistrationBeforeWork } from './ActualLiveRuntimeRegistrat
 import { assertNoActualRoleWorkloadCharge,assertNoLegacyPitchWorkloadCharge } from './ActualRoleWorkloadChargeGuard';
 import { assertHistoricalSamePaWorkloadCut } from './SamePlateAppearanceHistoricalWorkloadCut';
 type Db=Pick<DatabaseSync,'prepare'>;
-const deriveEnrollmentBasis = (db:Db,raw:unknown,ownSourceId?:string) => {
+const deriveEnrollment = (db:Db,raw:unknown,ownSourceId?:string) => {
   assertSamePaStorage(db);const source=samePlateAppearanceEnrollmentInput(raw);
   const actor=readPhysicalPlateAppearanceActorFromSqlite(db,source.actorReference.sourceId);
   if(!actor)throw new Error('same-PA original actor missing');
@@ -50,6 +52,14 @@ const deriveEnrollmentBasis = (db:Db,raw:unknown,ownSourceId?:string) => {
   return {actor,result:freeze({kind:'reserved' as const,source,careerId:actor.binding.careerId,gameId:scope.gameId,playId:scope.playId,actorHash:hash(actor),
     officialRevision:actor.officialRevision,worldHash:hash(actor.world),fixtureHash:actor.fixtureHash,participants,
     firstPitch:{physicalPitchSourceId:source.firstPhysicalPitchSourceId,state:'blocked_execution_basis' as const,predecessorResumeSourceId:null,consumingSourceId:null}})};
+};
+/** All participant fences inspect the same immutable claim census. The existing
+ * phase owns it; every independent proof after a write/retry starts afresh. */
+const deriveEnrollmentBasis = (db:Db,raw:unknown,ownSourceId?:string) => {
+  const { DatabaseSync: Native } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  const read = () => deriveEnrollment(db, raw, ownSourceId);
+  return db instanceof Native && db.isTransaction && db.prepare('PRAGMA query_only').get()!.query_only === 1
+    ? withSamePaContinuationReadPhase(db, read) : read();
 };
 export const deriveSamePlateAppearanceEnrollment = (db:Db,raw:unknown,ownSourceId?:string):SamePlateAppearanceEnrollmentResult => deriveEnrollmentBasis(db,raw,ownSourceId).result;
 /** Returns the actor from this exact authentication, for private read-only

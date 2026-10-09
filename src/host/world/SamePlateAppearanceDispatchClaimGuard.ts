@@ -1,7 +1,9 @@
 import { samePaPlayerClaimCanProceed } from './SamePlateAppearanceSettlementAdmission';
+import { createRequire } from 'node:module';
+import { memoSamePaContinuationRead } from './SamePlateAppearanceContinuationFromSqlite';
 import { assertNoSamePaContinuationPlayerClaim, assertNoSamePaContinuationWorkClaim, assertNoSamePaContinuationEnrollmentClaim } from './SamePlateAppearanceContinuationClaimGuard';
 import type { DatabaseSync } from 'node:sqlite';
-import { actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { actorHash as hash, actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { assertPaDispatchStorage, paDispatchSchema } from './SamePlateAppearanceDispatchStorage';
 import { samePaDispatchSourceInput } from './SamePlateAppearanceDispatchSource';
 import { samePaMetadataClaim as claim, authenticateSamePaRow, samePaEnrollmentRow } from './SamePlateAppearanceReservationGuard';
@@ -26,7 +28,7 @@ const futureReferences = (db: Db, row: Row) => ['source_json', 'snapshot_json'].
 /** Metadata-only future discovery. Physical payloads are never hydrated here.
  * Original links and all immutable prospective mirrors are checked before an
  * absent older namespace can make a surviving dispatch row disappear. */
-const inspect = (db: Db) => {
+const inspectClaims = (db: Db) => {
   if (!assertPaDispatchStorage(db)) return [];
   const records = Object.keys(paDispatchSchema).flatMap(table => db.prepare(`SELECT * FROM main.${table}`).all().map(row => ({ table, row })));
   if (!records.length) return [];
@@ -137,6 +139,11 @@ const inspect = (db: Db) => {
     }
     return inspected;
   } catch { return fail(); }
+};
+const inspect = (db: Db) => {
+  const { DatabaseSync: Native } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  return db instanceof Native && db.isTransaction && db.prepare('PRAGMA query_only').get()!.query_only === 1
+    ? memoSamePaContinuationRead(db, 'dispatch-claim-census', () => freeze(inspectClaims(db))) : inspectClaims(db);
 };
 const rawWorkRows = (db: Db, table: string, scope: { gameId: string; playId: number; physicalPitchSourceId?: string }) => {
   if (table === 'pa_dispatch_v1_pitch_heads') return db.prepare(`SELECT * FROM main.${table} WHERE (game_id=$game AND play_id=$play) OR first_pitch_source_id=$pitch`).all({ game: scope.gameId, play: scope.playId, pitch: scope.physicalPitchSourceId ?? null });

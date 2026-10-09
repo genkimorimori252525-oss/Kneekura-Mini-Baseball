@@ -65,11 +65,13 @@ legacy received-call contracts. Dispatch also completed all 16 cases in its
 one file, with an exit-zero terminal and JSON report (600.34 seconds). The
 storage group reached its 600.85-second cap after five completed files: 10
 terminal-transition, 21 TOTAL-set, 24 reservation-guard, 29 enrollment and four
-lifecycle-owner cases passed; one enrollment case was skipped. The remaining
-52 cases across nine files have no completed-file result. Applying the same
+lifecycle-owner cases passed. The optional artifact-dependent enrollment gate
+SP-E00 was skipped and is outside this finite selection. The remaining 53 cases
+across nine files have no completed-file result. Applying the same
 reviewed completed-file rule retains those 88 passing storage cases, with the
 failed wrapper and missing run-level summary preserved. Across the selection,
-462 cases are observed passing, one skipped and 52 unresolved. Neither capped
+462 finite cases are observed passing and 53 remain unresolved; the separate
+optional gate is unqualified. Neither capped
 wrapper nor the original 515-case selection is called a pass.
 
 Completed bounded checks retained exact source, executable dependencies,
