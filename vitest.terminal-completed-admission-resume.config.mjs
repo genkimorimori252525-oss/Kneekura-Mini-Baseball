@@ -1,0 +1,2 @@
+const cacheDir=process.env.BASEBALL_GATE_CACHE;
+export default {...(cacheDir?{cacheDir}:{}),test:{cache:false,include:['tools/verification/terminal-completion/TerminalCompletedAdmissionResume.test.ts','tools/verification/terminal-completion/TerminalCompletedEndpointRecovery.test.ts']}};
