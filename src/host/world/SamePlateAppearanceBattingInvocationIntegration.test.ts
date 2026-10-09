@@ -1,3 +1,4 @@
+import { appendFileSync } from 'node:fs';
 import { expect, it } from 'vitest';
 import { directNativeDispatchFixture } from './SamePlateAppearanceDirectNative.test-support';
 import { prepareSamePaSceneBodies } from './SamePlateAppearanceSceneBodies.test-support';
@@ -25,7 +26,13 @@ import type { SamePaContinuationInvocationReference } from './SamePlateAppearanc
  * fixtures. Score/appraisal are explicitly accepted assessments; no autonomous
  * model, genuine donor, neutral fallback, owner mock or readiness override. */
 it('BI01 original capture, delayed delivery, explicit assessment and actual World CAS feed the effective batting calculation and retained TAKE successor', () => {
+  const stage = (name: string) => {
+    const output = process.env.BASEBALL_GATE_ERRORS;
+    if (output) appendFileSync(output + '.BI01-stages.jsonl', JSON.stringify({ name, at: Date.now(), rss: process.memoryUsage().rss }) + '\n');
+  };
+  stage('fixture-start');
   const f = directNativeDispatchFixture(), accepted = new Map<string, unknown>(), track = f.x.f.track;
+  stage('fixture-ready');
   const proof = <T>(body: () => T) => withSqliteReadTransaction(f.db, body);
   const provenance = (id: string) => ({ assessmentSourceId: id, assessmentVersion: 'fixture-only-v1', calibrationSourceId: 'existing-explicit-Core-fixture', calibrationVersion: 'fixture-only-v1' });
   const save = <T extends { sourceId: string }>(s: T): T => { accepted.set(s.sourceId, s); return s; };
@@ -67,13 +74,16 @@ it('BI01 original capture, delayed delivery, explicit assessment and actual Worl
     save({ sourceId: original.firstPhysicalPitchSourceId, sourceVersion: 'fixture-only-v1', capability: 'same_pa_physical_pitch_v1', actionReference: f.request.actionReference,
       rightReference: reference('pa_dispatch_v1_rights', right) });
     const pitch = dispatch.acceptPhysicalPitch(original.firstPhysicalPitchSourceId); if (pitch.kind === 'pending') throw new Error('physical TAKE pending');
+    stage('first-take-complete');
     const operations: SamePaContinuationInvocationReference[] = [], efforts = Object.fromEntries(pitch.lineage.participantReferences.map(p => [p.playerId, 2]));
     let current = prepareSamePaNonemptyFixture(f, pitch, 'batch-cut0', efforts, operations);
     const member = () => current.basis.members.find(m => m.playerId === f.actor.binding.playerId)!;
     const calibration = (route: string) => reference('pa_continuation_v1_execution_calibrations', current.calibrationSet.calibrations.find(c => c.source.route === route && c.source.member.playerId === member().playerId)!);
     const advance = (ref: SamePaContinuationInvocationReference) => { const prior = current; operations.push(ref);
       expect(() => proof(() => readCurrentSamePaContinuationViewFromSqlite(f.db, prior.viewReference))).toThrow();
+      stage('coverage-' + operations.length + '-start');
       current = prepareSamePaNonemptyFixture(f, pitch, 'batch-cut' + operations.length, efforts, [...operations]);
+      stage('coverage-' + operations.length + '-ready');
       expect(proof(() => readHistoricalSamePaContinuationViewFromSqlite(f.db, prior.viewReference)).view).toEqual(prior.view); };
     const captureSource = save({ sourceId: 'batch-capture', sourceVersion: 'fixture-only-v1', capability: 'owned_batting_observation_v1', viewReference: current.viewReference,
       member: member(), postureReference, physicalPitchReference: reference('pa_dispatch_v1_pitch_actions', pitch), calibrationReference: calibration('batter_observation'),
@@ -83,6 +93,7 @@ it('BI01 original capture, delayed delivery, explicit assessment and actual Worl
     const observationReference = reference('batting_observation_v1_observations', capture); advance(observationReference);
     const next = track(openSqliteSamePlateAppearanceTakeSuccessorStore(f.path, { readAcceptedAction: id => accepted.get(id), readAcceptedSetup: id => accepted.get(id), readAcceptedPhysicalPitch: id => accepted.get(id) }));
     const prepareRetained = (id: string, readyAtUs: number) => {
+      stage(id + ':retained-preparation-start');
       const actionSource = save({ sourceId: id + ':action', sourceVersion: 'fixture-only-v1', capability: 'same_pa_next_take_action_v1', viewReference: current.viewReference,
         previousPitchReference: reference('pa_dispatch_v1_pitch_actions', pitch), nominalPitch: { ...original.nominalPitch, delivery: { ...original.nominalPitch.delivery, readyAtUs } },
         timingReference: original.timingReference, releaseReference: original.releaseReference, pitchResponseReference: original.pitchResponseReference, batterModelReference: original.batterModelReference });
@@ -98,6 +109,7 @@ it('BI01 original capture, delayed delivery, explicit assessment and actual Worl
     const deliveryPreparation = prepareRetained('batch-delivery-ready', ready);
     const deliverySource = save({ sourceId: 'batch-delivery', sourceVersion: 'fixture-only-v1', capability: 'owned_batting_observation_delivery_v1', viewReference: current.viewReference,
       member: member(), observationReference, completionReference: deliveryPreparation.actionReference, postureReference: deliveryPreparation.postureReference, calibrationReference: calibration('batter_observation') });
+    stage('delivery-start');
     const delivery = perception.acceptDelivery(deliverySource.sourceId); if (delivery.kind !== 'batting_observation_delivery') throw new Error('delivery pending');
     expect(delivery.delivery.evaluatedAtTick).toBe(ready); expect(delivery.originalCaptureHash).toBe(hash(capture));
     const deliveryReference = reference('batting_observation_v1_deliveries', delivery); advance(deliveryReference); expect(current.view.evaluationTick).toBe(ready);
@@ -128,6 +140,7 @@ it('BI01 original capture, delayed delivery, explicit assessment and actual Worl
     const emotionSource = save({ sourceId: 'batch-emotion', sourceVersion: 'fixture-only-v1', capability: 'owned_batting_emotion_execution_v1', executionId: 'batch-emotion-event', ...sourceFrame,
       member: member(), genesisReference: reference('batting_emotion_v1_geneses', genesis), expectedWorld, appraisalAssessment: a, baseline, executionModel: declared.model, provenance: provenance('batch-explicit-appraisal') });
     const emotionOwner = track(openSqliteBattingEmotionExecutionStore(f.path, { readAcceptedExecution: id => accepted.get(id) }));
+    stage('emotion-start');
     const emotion = emotionOwner.accept(emotionSource.sourceId); if (emotion.kind === 'pending') throw new Error('emotion pending');
     expect(worldOwner.readHead(f.actor.binding.careerId)!.worldRevision).toBe(1); expect(emotion.acceptance.afterEmotionRevision).toBe(1);
     const emotionReference = reference('batting_emotion_execution_v1_executions', emotion); advance(emotionReference);
@@ -135,6 +148,7 @@ it('BI01 original capture, delayed delivery, explicit assessment and actual Worl
       member: member(), postureReference, emotionReference, intentReference: null, assessmentReferences: [reference('batting_score_v1_assessments', score)],
       calibrationReferences: ['batter_decision', 'batter_motor', 'batter_swing'].map(route => ({ route, calibrationReference: calibration(route) })), directive: 'TAKE', expectedWorld: { ...expectedWorld, worldRevision: 1 } });
     const calculationOwner = track(openSqliteBattingExecutionInputStore(f.path, { readAcceptedInput: id => accepted.get(id), readAcceptedInvocation: id => accepted.get(id) }));
+    stage('calculation-start');
     const input = calculationOwner.acceptInput(inputSource.sourceId); if (input.kind !== 'same_pa_batting_input') throw new Error('input pending');
     const inputReference = reference('batting_execution_v1_inputs', input), direct = proof(() => calculateCurrentSamePaBattingFromSqlite(f.db, inputReference));
     expect(direct.motionIssued).toBe(false);
@@ -148,9 +162,12 @@ it('BI01 original capture, delayed delivery, explicit assessment and actual Worl
         .map(c => ({ route: c.source.route, calibrationReference: reference('pa_continuation_v1_execution_calibrations', c) })) })) });
     const setup = next.acceptSetup(setupSource.sourceId); if (setup.kind === 'pending') throw new Error('final setup pending');
     save({ sourceId: retained.nextPhysicalPitchSourceId, sourceVersion: 'fixture-only-v1', capability: 'same_pa_successor_take_pitch_v1', actionReference: retained.actionReference, setupReference: reference('pa_take_successor_v1_setups', setup) });
+    stage('second-take-start');
     const second = next.acceptPhysicalPitch(retained.nextPhysicalPitchSourceId); if (second.kind === 'pending') throw new Error('second TAKE pending');
+    stage('second-take-committed');
     expect(second.progressRevision).toBe(2); expect(second.frame.bodyCut.completedAtTick).toBeGreaterThanOrEqual(ready);
     expect(f.x.f.workload.readHead('career-a', 'p2')!.revision).toBe(1); expect(calculationOwner.readInvocation(call.sourceId)).toEqual(calculation);
     expect(emotionOwner.accept(emotionSource.sourceId)).toEqual(emotion); expect(perception.acceptDelivery(deliverySource.sourceId)).toEqual(delivery);
+    stage('historical-replay-complete');
   } finally { f.close(); }
 }, 1_200_000);

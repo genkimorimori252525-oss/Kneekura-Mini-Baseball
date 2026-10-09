@@ -69,6 +69,17 @@ const readonly = <T>(body: () => T) => {
 };
 const count = () => actualTables.map(t => Number(f.db.prepare('SELECT count(*) AS n FROM ' + t).get()!.n));
 const nativePrototype = () => (createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite')).DatabaseSync.prototype;
+// Recording spies retain every returned native StatementSync during replay.
+// Intercept only the fault scope and restore the exact original descriptor.
+const withNativePrepare = <T>(replacement: ReturnType<typeof nativePrototype>['prepare'], run: () => T): T => {
+  const prototype = nativePrototype(), original = Object.getOwnPropertyDescriptor(prototype, 'prepare');
+  if (!original || typeof original.value !== 'function') throw new Error('native prepare descriptor missing');
+  Object.defineProperty(prototype, 'prepare', { ...original, value: replacement });
+  try { return run(); } finally {
+    if (Object.getOwnPropertyDescriptor(prototype, 'prepare')?.value !== replacement) throw new Error('native prepare interceptor changed');
+    Object.defineProperty(prototype, 'prepare', original);
+  }
+};
 
 it('AX01 declared TAKE appends exactly five owned rows and replays unchanged after reopening', () => {
   const before = rawCensus(f.db), schema = schemaCensus(f.db), owner = open(), pitch = owner.acceptPhysicalPitch(physicalId);
@@ -117,27 +128,27 @@ it('AX05 each owned INSERT failure rolls back its whole prefix and a fresh retry
   const proto = nativePrototype(), original = proto.prepare;
   for (const table of actualTables) {
     const before = rawCensus(f.db); let hit = false;
-    const spy = vi.spyOn(proto, 'prepare').mockImplementation(function (this: import('node:sqlite').DatabaseSync, sql: string) {
+    withNativePrepare(function (this: import('node:sqlite').DatabaseSync, sql: string) {
       const statement = original.call(this, sql);
       if (sql.startsWith('INSERT INTO main.' + table + ' ')) statement.run = (() => { hit = true; throw new Error('injected owned row failure'); }) as typeof statement.run;
       return statement;
-    });
-    expect(() => open().acceptPhysicalPitch(physicalId)).toThrow(/injected/); spy.mockRestore();
+    }, () => expect(() => open().acceptPhysicalPitch(physicalId)).toThrow(/injected/));
     expect(hit).toBe(true); expect(rawCensus(f.db)).toEqual(before);
   }
   expect(open().acceptPhysicalPitch(physicalId).kind).toBe('same_pa_first_pitch_executed_v1'); expect(count()).toEqual([1, 1, 1, 1, 1]);
 });
 it('AX06 forced commit after an INSERT retains that durable prefix and retires without false rollback or repair', () => {
   const proto = nativePrototype(), original = proto.prepare; let hit = false;
-  const owner = open(), spy = vi.spyOn(proto, 'prepare').mockImplementation(function (this: import('node:sqlite').DatabaseSync, sql: string) {
+  const owner = open();
+  withNativePrepare(function (this: import('node:sqlite').DatabaseSync, sql: string) {
     const statement = original.call(this, sql);
     if (sql.startsWith('INSERT INTO main.pa_dispatch_v1_pitch_actions ')) {
       const run = statement.run.bind(statement), db = this;
       statement.run = ((...args: Parameters<typeof statement.run>) => { const result = run(...args); db.exec('COMMIT'); hit = true; return result; }) as typeof statement.run;
     }
     return statement;
-  });
-  expect(() => owner.acceptPhysicalPitch(physicalId)).toThrow(/retired/); spy.mockRestore(); expect(hit).toBe(true);
+  }, () => expect(() => owner.acceptPhysicalPitch(physicalId)).toThrow(/retired/));
+  expect(hit).toBe(true);
   expect(count()).toEqual([1, 1, 0, 0, 0]); expect(() => owner.readPhysicalPitch(physicalId)).toThrow(/retired|closed/);
   const before = rawCensus(f.db); expect(() => open().acceptPhysicalPitch(physicalId)).toThrow(); expect(rawCensus(f.db)).toEqual(before);
 });
@@ -238,11 +249,11 @@ it('AX09 real retained-body setup admits one second TAKE from the current cumula
   accepted.set(nextPhysicalPitchSourceId, { sourceId: nextPhysicalPitchSourceId, sourceVersion: 'fixture-only-v1', capability: 'same_pa_successor_take_pitch_v1',
     actionReference, setupReference: reference('pa_take_successor_v1_setups', setup) });
   const before = rawCensus(f.db), proto = nativePrototype(), prepare = proto.prepare; let fault = false;
-  const spy = vi.spyOn(proto, 'prepare').mockImplementation(function (this: import('node:sqlite').DatabaseSync, sql: string) {
+  withNativePrepare(function (this: import('node:sqlite').DatabaseSync, sql: string) {
     const statement = prepare.call(this, sql); if (sql.startsWith('INSERT INTO main.' + samePaTakeTables.head + ' ')) statement.run = (() => {
       fault = true; throw new Error('injected successor head failure'); }) as typeof statement.run; return statement;
-  });
-  expect(() => next.acceptPhysicalPitch(nextPhysicalPitchSourceId)).toThrow(/injected successor head failure/); spy.mockRestore(); expect(fault).toBe(true); expect(rawCensus(f.db)).toEqual(before);
+  }, () => expect(() => next.acceptPhysicalPitch(nextPhysicalPitchSourceId)).toThrow(/injected successor head failure/));
+  expect(fault).toBe(true); expect(rawCensus(f.db)).toEqual(before);
   const second = next.acceptPhysicalPitch(nextPhysicalPitchSourceId); if (second.kind === 'pending') throw new Error('unexpected pending second pitch');
   expect(second.progressRevision).toBe(2); expect(second.beforeTimeline).toEqual(first.result.resolution.timeline);
   expect(second.result.resolution.timeline.playId).toBe(first.result.resolution.timeline.playId); expect(second.originalActor).toEqual(first.originalActor);
