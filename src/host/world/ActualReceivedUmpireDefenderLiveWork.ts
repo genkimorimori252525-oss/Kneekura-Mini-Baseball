@@ -3,10 +3,13 @@ import { actualReceivedUmpireDefenderEnrollmentEvidenceFromSqlite } from './Sqli
 import { actualReceivedUmpireDefenderReplanEvidenceFromSqlite } from './SqliteActualReceivedUmpireDefenderReplanStore';
 import { actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { withReceivedReadProof } from './ActualReceivedUmpireDefenderTransaction';
+import { actualReceivedUmpireRenewalLiveWorkFromSqlite } from './ActualReceivedUmpireRenewalLiveWork';
 /** Exactly one outstanding obligation. No motion or closure consumption exists. */
 export const actualReceivedUmpireDefenderLiveWorkFromSqlite=(db:DatabaseSync)=>Object.freeze({read(enrollmentId:string){return withReceivedReadProof(db,()=>{
   const enrollment=actualReceivedUmpireDefenderEnrollmentEvidenceFromSqlite(db).read(enrollmentId);
   if(!enrollment)return null;
+  const renewal=actualReceivedUmpireRenewalLiveWorkFromSqlite(db).read(enrollmentId);
+  if(renewal)return renewal;
   const head=db.prepare('SELECT source_id FROM actual_received_umpire_defender_replan_heads WHERE enrollment_source_id=?').get(enrollmentId);
   const process=head?actualReceivedUmpireDefenderReplanEvidenceFromSqlite(db).read(String(head.source_id)):null;
   if(head&&!process)throw new Error('received pending work process is missing');

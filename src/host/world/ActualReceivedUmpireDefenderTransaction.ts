@@ -6,6 +6,12 @@ type Db = import('node:sqlite').DatabaseSync;
 // A private owner cannot safely reuse a connection whose proof cleanup failed,
 // even when a subsequent outer ROLLBACK happens to succeed.
 const failedProofCleanup = new WeakSet<Db>();
+/** A private outer owner must also retire after a nested old-family proof loses
+ * its cleanup boundary, even if the outer savepoint/rollback still succeeds. */
+export const receivedReadProofRetired=(db:Db):boolean=>failedProofCleanup.has(db);
+/** Shared failure signal only: a nested renewal proof cannot leave a reusable
+ * old-family private handle after its own cleanup boundary has failed. */
+export const retireReceivedReadProof=(db:Db):void=>{failedProofCleanup.add(db);};
 const counters = (db: Db) => [db.prepare('SELECT total_changes() AS n').get()!.n,
   db.prepare('PRAGMA main.schema_version').get()!.schema_version, db.prepare('PRAGMA temp.schema_version').get()!.schema_version];
 const equal = (left: unknown, right: unknown) => JSON.stringify(left) === JSON.stringify(right);
@@ -100,7 +106,8 @@ export const openReceivedTransaction = (path: string) => {
       return value;
     } catch (error) { return commitAttempted ? uncertain(error) : rollback(error); }
   });
-  const write = <T>(options: Readonly<{bootstrap: boolean; changes: number}>, body: () => T, verifyCommitted: () => void): T => use(() => {
+  const write = <T>(options: Readonly<{bootstrap: boolean; changes: number}>, body: () => T, verifyCommitted: () => void,
+    beforeBootstrap?: () => void): T => use(() => {
     let ownerSentinel = false, finalizing = false;
     const releaseOwner = () => {
       db.exec('RELEASE received_defender_write_owner');
@@ -111,6 +118,9 @@ export const openReceivedTransaction = (path: string) => {
       // This sentinel spans bootstrap, every producer/head/journal write and
       // their proofs. A COMMIT/ROLLBACK followed by BEGIN loses it permanently.
       ownerSentinel = true; db.exec('SAVEPOINT received_defender_write_owner');
+      // Concrete enrollment admission must reject surviving renewal claims
+      // before even reversible old-family setup is attempted.
+      if (beforeBootstrap) withReceivedReadProof(db,beforeBootstrap);
       const initial = receivedOwnerSchema(db);
       if (!options.bootstrap && initial === 'pristine') throw new Error('received defender enrollment schema is missing');
       const beforeSetup = db.prepare('SELECT * FROM main.sqlite_master ORDER BY name').all(), setupCounters = counters(db);
