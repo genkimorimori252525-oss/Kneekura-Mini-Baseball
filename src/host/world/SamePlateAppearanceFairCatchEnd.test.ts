@@ -101,6 +101,11 @@ it.each(['future','dropped'] as const)('ends only after actual sealed coverage a
 it('does not retire a due received batter through the operative OUT or a rule-system reset',()=>{
   const h=setup('received');expect(h.run()).toEqual({kind:'pending',reason:'received_batter_response_and_adoption_required'});
 });
+it('keeps an issued departure intent pending even when the offense is otherwise terminal',()=>{
+  const h=setup('dropped');
+  h.live.census.defenderDepartures={purposes:[{status:'active'}],sources:[]} as never;
+  expect(h.run()).toEqual({kind:'pending',reason:'original_defender_departure_execution_required'});
+});
 it('requires original registration, real seal and independent current communication coverage',()=>{
   const h=setup();mocks.pair={...h.pair,fields:[{...h.root,source:{...h.root.source,liveProducerProfile:undefined}},...h.pair.fields.slice(1)]};
   expect(h.run()).toMatchObject({reason:'original_live_producer_profile_required'});

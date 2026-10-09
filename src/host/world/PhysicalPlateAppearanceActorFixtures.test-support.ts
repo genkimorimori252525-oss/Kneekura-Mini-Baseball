@@ -4,8 +4,8 @@ import { openSqlitePhysicalPlayClosureStore, type AcceptedPhysicalPlayClosure } 
 import { openSqlitePhysicalPlateAppearanceActorStore, type AcceptedPhysicalPlateAppearanceActor } from './SqlitePhysicalPlateAppearanceActorStore';
 
 export const physicalPlateAppearanceActorFixture = (databasePath?: string, fixture?: Parameters<typeof continuousPitchFixture>[2], profile?: Parameters<typeof continuousPitchFixture>[3], rehabPlayerIds: readonly string[] = [],
-  originalBaseCenters?: Parameters<typeof continuousPitchFixture>[5]) => {
-  const f = continuousPitchFixture(databasePath, true, fixture, profile, rehabPlayerIds, originalBaseCenters);
+  originalBaseCenters?: Parameters<typeof continuousPitchFixture>[5], originalDefenders?: Parameters<typeof continuousPitchFixture>[6]) => {
+  const f = continuousPitchFixture(databasePath, true, fixture, profile, rehabPlayerIds, originalBaseCenters, originalDefenders);
   const source: AcceptedPhysicalPlateAppearanceActor = { sourceId: 'batter-1', sourceVersion: 'fixture-v1', gameId: 'game-1', playerId: 'away-1', initialWorldSourceId: 'initial-world' };
   const accepted = new Map<string, AcceptedPhysicalPlateAppearanceActor>([[source.sourceId, source]]);
   const sources = { matches: f.official, initialWorlds: f.initialWorlds, participation: f.participation };

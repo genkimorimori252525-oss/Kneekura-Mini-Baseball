@@ -89,6 +89,31 @@ it('uses the original exact compliance even when rights are admitted after later
     kind: 'no_violation', runnerId: 'runner', appealedBase: 1 } });
 });
 
+it('v2 preserves a prior initial Play clock through its owned canonical pitch continuation', () => {
+  const original: any = importedInput();
+  // Move this physical episode's clock while keeping its exact elapsed history.
+  original.provenance = { ...original.provenance, clock: { originTick: 100, ticksPerSecond: 1_000_000 } };
+  original.attempt = createDefensiveAppealAttemptFact('fielder', 'runner', 1, 'tag_up_early_departure', 1_000_100);
+  original.tick = 2_000_100;
+  original.complianceEvidence = { ...original.complianceEvidence,
+    history: { ...original.complianceEvidence.history, originTick: 100,
+      events: original.complianceEvidence.history.events.map((e: { tick: number }) => ({ ...e, originTick: 100, tick: e.tick + 100 })) },
+    firstTouch: { ...original.complianceEvidence.firstTouch, originTick: 100,
+      fact: createFlyBallFirstFielderTouchFact('catcher', 500_100) } };
+  const value = api.recordOwnedLiveAppealImport(initial(), 1, original), request = input();
+  request.tick = 2_000_101; request.provenance.originalImport = original.provenance;
+  request.evidence.version = 'owned_live_appeal_rights_evidence_v2';
+  request.evidence.liveAtExecution.at = { originTick: 40, elapsedSeconds: 0, tick: 40 };
+  request.evidence.liveAtExecution.initialContinuation = reference('owned-canonical-take-continuation');
+  expect(admissions(admit(value, value.revision, request))[0]).toMatchObject({ disposition: { kind: 'eligible' },
+    evidence: { liveAtExecution: { at: { originTick: 40, elapsedSeconds: 0, tick: 40 } } } });
+  for (const change of [
+    { ...request.evidence, version: 'owned_live_appeal_rights_evidence_v1' },
+    { ...request.evidence, liveAtExecution: { ...request.evidence.liveAtExecution, at: { originTick: 101, elapsedSeconds: 0, tick: 101 } } },
+    { ...request.evidence, liveAtExecution: { ...request.evidence.liveAtExecution, at: { originTick: 40, elapsedSeconds: 0, tick: 41 } } },
+  ]) expect(() => admit(value, value.revision, { ...request, evidence: change })).toThrow(/continuation clock or version/);
+});
+
 it.each([
   ['dead_ball', (v: any) => { v.evidence.liveAtExecution = { kind: 'dead', cause: reference('time'),
     at: { originTick: 0, elapsedSeconds: 0.9, tick: 900_000 } }; }],
@@ -129,6 +154,46 @@ it('can reject proved dead ball with an unresolved original appeal window', () =
   const request = input(); request.evidence.window = { kind: 'unresolved', reason: 'original_live_appeal_window_owner_required' };
   request.evidence.liveAtExecution = { kind: 'dead', cause: reference('time'), at: { originTick: 0, elapsedSeconds: 0.9, tick: 900_000 } };
   expect(admissions(admit(imported(), 2, request))[0].disposition).toEqual({ kind: 'ineligible', reason: 'dead_ball' });
+});
+
+it('v2 departure bounds prove only strictly later expiry, without inventing the first crossing', () => {
+  const request = input(); request.evidence.version = 'owned_live_appeal_rights_evidence_v2';
+  request.evidence.liveAtExecution = { kind: 'unknown', reason: 'initial_live_ball_owner_missing' };
+  request.evidence.window = { kind: 'closed_by', openedAtElapsedSeconds: 0.5,
+    closedNoLaterThanElapsedSeconds: 0.9, closeReason: 'defense_left_field', evidenceReference: reference('departure') };
+  const value = admit(imported(), 2, request);
+  expect(admissions(value)[0].disposition).toEqual({ kind: 'ineligible', reason: 'appeal_window_expired' });
+  expect(admissions(value)[0].evidence.window).not.toHaveProperty('closedAtElapsedSeconds');
+  expect(admissions(JSON.parse(JSON.stringify(value)))).toEqual(admissions(value));
+  for (const bound of [1, 1.1]) {
+    request.evidence.window.closedNoLaterThanElapsedSeconds = bound;
+    expect(() => admit(imported(), 2, request)).toThrow(/order remains unresolved/);
+  }
+  request.evidence.window.closedNoLaterThanElapsedSeconds = 0.9;
+  request.evidence.version = 'owned_live_appeal_rights_evidence_v1';
+  expect(() => admit(imported(), 2, request)).toThrow(/bounded original/);
+});
+
+it('v2 evaluates earlier first touch and restarted appeal execution separately without forfeiting on Time', () => {
+  const request=input(); request.evidence.version='owned_live_appeal_rights_evidence_v2';
+  request.evidence.liveAtFirstTouch={...request.evidence.liveAtExecution,coveredThroughElapsedSeconds:0.5};
+  request.evidence.liveAtExecution={...request.evidence.liveAtExecution,playDeclaration:reference('later-restart'),
+    at:{originTick:0,elapsedSeconds:0.75,tick:750_000}};
+  const value=admit(imported(),2,request), receipt=admissions(value)[0];
+  expect(receipt).toMatchObject({disposition:{kind:'eligible',result:{kind:'out',appealTick:1_000_000}},
+    evidence:{liveAtFirstTouch:{at:{elapsedSeconds:0}},liveAtExecution:{at:{elapsedSeconds:0.75}},appealThrowForfeitures:[]}});
+  expect(admissions(JSON.parse(JSON.stringify(value)))).toEqual(admissions(value));
+  const absent=structuredClone(request);delete absent.evidence.liveAtFirstTouch;
+  expect(()=>admit(imported(),2,absent)).toThrow(/before first-fielder/);
+  const simultaneous=structuredClone(request);simultaneous.evidence.liveAtExecution.at={originTick:0,elapsedSeconds:1,tick:1_000_000};
+  expect(()=>admit(imported(),2,simultaneous)).toThrow(/simultaneous Play/);
+  for(const first of [
+    {...request.evidence.liveAtFirstTouch,coveredThroughElapsedSeconds:0.49},
+    {...request.evidence.liveAtFirstTouch,at:{originTick:0,elapsedSeconds:0.5,tick:500_000}},
+    {...request.evidence.liveAtFirstTouch,at:{originTick:0,elapsedSeconds:0.6,tick:600_000}},
+  ]) expect(()=>admit(imported(),2,{...request,evidence:{...request.evidence,liveAtFirstTouch:first}})).toThrow();
+  request.evidence.version='owned_live_appeal_rights_evidence_v1';
+  expect(()=>admit(imported(),2,request)).toThrow(/requires v2/);
 });
 
 const invalid: [string, (v: any) => void][] = [

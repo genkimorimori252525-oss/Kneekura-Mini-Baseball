@@ -1,4 +1,5 @@
 import { deriveSamePaLiveAppealCensus } from './SamePlateAppearanceLiveAppeal';
+import { deriveSamePaDefenderDepartureCensus } from './SamePlateAppearanceDefenderDeparture';
 import { deriveSamePaOccupiedRunnerMotionCensus } from './SamePlateAppearanceOccupiedRunnerMotion';
 import { deriveSamePaOccupiedRunnerCatchCensus } from './SamePlateAppearanceOccupiedRunnerCatchCensus';
 import { deriveSamePaBatterCatchCensus } from './SamePlateAppearanceBatterCatchCensus';
@@ -95,7 +96,7 @@ export const deriveSamePaLiveWorkCensus = (raw: SamePaLiveWorkCensusInput) => {
       if (!previous || !source || !('member' in source) || source.kind !== r.kind || source.member.playerId !== r.playerId || !input.participantIds.includes(r.playerId))
         throw new Error('same-PA live-work sensory action identity differs');
       same(field.field, previous.field, 'sensory action changed physical state');
-    } else if (r?.kind === 'appeal_indication_v1' || r?.kind === 'appeal_contact_v1') {
+    } else if (r?.kind === 'appeal_indication_v1' || r?.kind === 'appeal_contact_v1' || r?.kind === 'defender_departure_purpose_v1') {
       if (!previous || source?.kind !== r.kind) throw new Error('same-PA live-work appeal action identity differs');
       same(field.field, previous.field, 'appeal action changed physical state');
     } else physical = field;
@@ -230,6 +231,8 @@ export const deriveSamePaLiveWorkCensus = (raw: SamePaLiveWorkCensusInput) => {
     coverageThroughTick: pendingThrow.plan.input.throughTick, due: due(pendingThrow.plan.transfer.throwReadyTick),
     phase: 'transfer' as const } : null;
   return freeze({ kind: 'same_pa_live_work_census_v1' as const,
+    ...(input.fields.some(f=>f.kind==='same_pa_physical_field_step_v1'&&f.actionResult?.kind==='defender_departure_purpose_v1')
+      ? {defenderDepartures:deriveSamePaDefenderDepartureCensus(input.fields)} : {}),
     originalFieldPrefix: { kind: 'original_field_prefix_only' as const, physicalPitchSourceId: root.physicalPitchSourceId,
       participantIds: input.participantIds, fieldReferences, rootReference: fieldReferences[0], endpointReference: fieldReferences.at(-1)!, at },
     ...(input.fields.some(f => f.kind === 'same_pa_physical_field_step_v1' && f.actionResult?.kind === 'occupied_runner_motion_v1')

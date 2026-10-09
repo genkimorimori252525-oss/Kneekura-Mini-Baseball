@@ -11,12 +11,16 @@ import { openSqlitePlayerReleaseGeometryStore } from './SqlitePlayerReleaseGeome
 import { openSqlitePitchFatiguePolicyStore } from './SqlitePitchFatiguePolicyStore';
 import type { AcceptedPhysicalPitchActionSource } from './SqlitePhysicalPitchProgressStore';
 
+/** Existing explicit fixture mound, shared with prospective original-world setup. */
+export const continuousPitchMoundReference = Object.freeze({ x: 0, y: 0, z: 18 });
+
 /** Actual Native owners, explicit synthetic bodies/physics/calibration, no forced count events. */
 export const continuousPitchFixture = (databasePath?: string, bothSides = false, fixture?: Parameters<typeof officialPitchWorkloadFixture>[4], profile?: Parameters<typeof officialPitchWorkloadFixture>[5], rehabPlayerIds: readonly string[] = [],
-  originalBaseCenters?: ReturnType<typeof worldSetup>['baseCenters']) => {
+  originalBaseCenters?: ReturnType<typeof worldSetup>['baseCenters'], originalDefenders?: ReturnType<typeof worldSetup>['defenders']) => {
   const f = officialPitchWorkloadFixture(true, true, databasePath, bothSides, fixture, profile, rehabPlayerIds);
   const setup = { sourceId: 'initial-world', sourceVersion: 'fixture-v1', gameId: 'game-1', fixtureEventId: f.fixtureBinding.fixtureEventId,
-    startedAtTick: 0, worldSetup: { ...worldSetup('p2'), ...(originalBaseCenters ? { baseCenters: originalBaseCenters } : {}) } };
+    startedAtTick: 0, worldSetup: { ...worldSetup('p2'), ...(originalBaseCenters ? { baseCenters: originalBaseCenters } : {}),
+      ...(originalDefenders === undefined ? {} : { defenders: originalDefenders }) } };
   const initialWorlds = f.track(openSqliteOfficialInitialWorldStore(f.path, { matches: f.official, participation: f.participation }, { readAcceptedSetup: () => setup }));
   const initial = initialWorlds.accept(setup.sourceId);
   const baseline = { sourceId: 'workload', sourceVersion: 'fixture-v1', personLinkSourceId: 'intake-p2', careerId: 'career-a', playerId: 'p2',
@@ -51,7 +55,7 @@ export const continuousPitchFixture = (databasePath?: string, bothSides = false,
   const effort = { sourceId: 'effort', sourceVersion: 'fixture-v1', policyId: 'effort', version: 'v1', availableAtDay: 1, effortUnitsPerPhysicalPitch: 2 };
   const input = { timeline: createCanonicalPlateAppearanceTimeline(initial.match, initial.world.tick), workloadRevision: 0,
     policySourceId: response.sourceId, effortPolicySourceId: effort.sourceId,
-    delivery: { careerId: 'career-a', playerId: 'p2', gameDay: 10, matchSeed: 19, moundReference: { x: 0, y: 0, z: 18 },
+    delivery: { careerId: 'career-a', playerId: 'p2', gameDay: 10, matchSeed: 19, moundReference: { ...continuousPitchMoundReference },
       outingId: 'outing-1', playId: initial.match.playId, pitchIndex: 0, readyAtUs: initial.world.tick,
       timingIntent: { deliveryMode: 'NORMAL' as const, cadenceIntent: 'STANDARD' as const },
       physics: { velocity: { x: 0, y: 0, z: -30 }, spin: { x: 0, y: 100, z: 0 } } },

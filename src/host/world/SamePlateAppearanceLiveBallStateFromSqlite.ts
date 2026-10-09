@@ -7,6 +7,7 @@ import { readCurrentSamePaLifecycleViewFromSqlite, readHistoricalSamePaLifecycle
   readSamePaLifecycleRecordFromSqlite, memoSamePaLifecycleRead, withSamePaLifecycleReadPhase } from './SamePlateAppearanceLifecycleFromSqlite';
 import { readSamePaFieldRuleEvidenceWithInputsFromSqlite } from './SamePlateAppearanceFieldRuleEvidenceFromSqlite';
 import { deriveSamePaVenueLegalCoverageFromPair } from './SamePlateAppearanceVenueLegalCoverage';
+import { readSamePaInitialLiveContinuationFromSqlite } from './SamePlateAppearanceInitialLiveContinuationFromSqlite';
 import { assertNoSamePaCatchReviewSeal } from './SamePlateAppearanceCatchReviewSeal';
 import { assertSamePaLiveBallStateStorage as storage } from './SamePlateAppearanceLiveBallStateStorage';
 import { samePaLiveBallStateTable as table, samePaLiveBallActionInput, samePaLiveBallOriginalsInput,
@@ -58,23 +59,32 @@ export const readSamePaLiveBallHistoryFromSqlite = (db: DatabaseSync,
       throw new Error('live-ball action history exceeds original physical cut');
     prior = action;
   }
-  const latestDeclaredState = actions.at(-1)?.state ?? 'unknown';
+  const initialLiveContinuation = readSamePaInitialLiveContinuationFromSqlite(db, viewReference, mode);
+  const initialLive = initialLiveContinuation && initialLiveContinuation.kind !== 'pending' ? initialLiveContinuation : null;
+  const latestDeclaredState = actions.at(-1)?.state ?? (initialLive ? 'live' : 'unknown');
   let status: 'unknown' | 'live' | 'dead' = latestDeclaredState;
-  let statusReason: string | null = latestDeclaredState === 'unknown' ? 'initial_live_ball_owner_missing' : null;
+  let statusReason: string | null = latestDeclaredState === 'unknown'
+    ? initialLiveContinuation?.kind === 'pending' ? initialLiveContinuation.reason : 'initial_live_ball_owner_missing' : null;
   const venue = latestDeclaredState === 'live' && pair.kind === 'same_pa_field_rule_read_pair_v1'
     ? deriveSamePaVenueLegalCoverageFromPair(pair) : null;
   if (latestDeclaredState === 'live') {
     if (!venue || venue.kind === 'pending') {
       status = 'unknown'; statusReason = 'original_post_play_legal_coverage_required';
     } else {
-      const result = deriveSamePaLiveBallPostPlayStatus(venue, actions.at(-1)!.occurredAt);
+      // The canonical continuation owns the interval up to this field origin.
+      // This is its coverage boundary, never a substituted Play occurrence.
+      const coverageFrom = actions.at(-1)?.occurredAt ?? { originTick: venue.input.originTick, elapsedSeconds: 0, tick: venue.input.originTick };
+      const result = deriveSamePaLiveBallPostPlayStatus(venue, coverageFrom);
       status = result.status; statusReason = result.reason;
     }
   }
-  const result = { kind: 'same_pa_live_ball_history_v1' as const, viewReference, lineage: b.view.lineage,
+  const result = { kind: initialLiveContinuation ? 'same_pa_live_ball_history_v2' as const : 'same_pa_live_ball_history_v1' as const,
+    ...(initialLiveContinuation ? { initialLiveContinuation } : {}), viewReference, lineage: b.view.lineage,
     physicalPitchReference: cut.physicalPitchReference, physicalOperationReference: cut.physicalOperationReference,
-    evaluatedThrough, initialState: 'unknown' as const, initialBoundary: 'initial_live_ball_owner_missing' as const,
-    coverageStart: actions[0]?.occurredAt ?? null, status, statusReason, latestDeclaredState,
+    evaluatedThrough, initialState: initialLive ? 'live' as const : 'unknown' as const,
+    initialBoundary: initialLive?.kind === 'same_pa_restart_live_continuation_v1' ? 'owned_reset_play_continuation' as const
+      : initialLive ? 'owned_canonical_take_continuation' as const : 'initial_live_ball_owner_missing' as const,
+    coverageStart: initialLive?.occurredAt ?? actions[0]?.occurredAt ?? null, status, statusReason, latestDeclaredState,
     actions, executionReferences: actions.map(a => reference(table, a)) };
   return freeze({ ...result, coverageHash: hash(result) });
 });

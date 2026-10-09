@@ -20,7 +20,56 @@ guard before every access. The measured census change reduced prepares by
 wall-time improvement. See the
 [measured comparison](../verification/2026-10-09-continuation-claim-proof-reuse.md).
 
-## Integrated legal rights, prospective National inputs and metadata compilation
+## Initial/restart live state and completed-game outcome delivery
+
+The current coherent batch connects accepted initial custody and a separate
+plate-umpire Play to the existing canonical pitch release, retained nonterminal
+TAKE continuation, and explicit Play at an original ordinary-foul reset. A valid
+earlier first touch and a later appeal may have separate live proofs across
+Time/restart. Time itself does not forfeit the right. Ordinary-play purposes
+close the window only at actual live release; equal or unknown ordering remains
+pending. Actual defensive departure toward an accepted exit supplies a negative
+closed-by bound without requiring bench arrival or inventing an exact crossing.
+[Scope, original contracts and fixture limits](2026-10-09-initial-play-and-appeal-window-continuity.md).
+
+Completed Match/fixture delivery now discovers each official play's original
+owner and uses the existing four-arm player-attribution path atomically.
+Missing, ambiguous or unavailable originals remain explicit. Owner-specific raw
+identity mirrors participate before uniqueness, and unavailable evidence is
+reauthenticated after later writes. There is no new scoring formula or second
+persistence journal. [Outcome delivery and limits](2026-10-09-completed-match-player-outcomes.md).
+
+At local `1bf7fb336d2e57e5090c0a3848b0cabe4a100432`, source
+`2645ab8489fa7885b493ca4824a142b6149b330a`, independent review is clear after
+correcting ordinary-release ordering, hidden competing ownership and stale
+unavailable evidence. The full nonvisual compiler passed in 29.93 seconds;
+all 343 selected cases in 28 files passed in 40.95 seconds. Exact file/title
+inventory, all four input groups and no-survivor checks passed. All 18 protected
+blobs remain exact. The initial compiler type-narrowing failures are preserved.
+An earlier finite-test admission had insufficient headroom while that compiler
+was active and executed zero tests; the completed selection ran after it exited.
+
+Compiler configuration SHA-256: `4d396f25456ebc6cad0464275cc685f277fe443451634471ecefe1283dde0629`.
+Test configuration SHA-256: `bb987b9f07852a61048528b7fd8dfccea57ed6c597fb29c4bca7e5eb755ef8ba`.
+Test report SHA-256: `fcc4ff80889a532f46d4a660909496be8ce04df36d9ef614517a3d4fa7c64e89`.
+
+The optional initial-Play fixture connection is prospective and keeps legacy
+v1 defaults. Its explicit plate/legal-region and umpire inputs still need a
+compatible genuine scenario; no new hand/catcher trajectory is required.
+Completed-game tests use real official/scoring rows with explicitly substituted
+physical owners, so they do not establish a genuine full physical game.
+
+Separately, the corrected fresh original NAT-N01 is running on preceding source
+`3e483486870321b18334b9270f19b269bfa469d9`. By 20:39 UTC it completed the first
+foul's official/scoring/ten-TOTAL effects and next World activation, established
+p9 participation/adoption and the genuine p10 actor, and committed the second
+pitch, flight, world contact and touch response using both accepted common
+models. The later geometry/field, closure and original Career/reopen assertions
+had no completed result at that checkpoint. This is not a whole-case pass or
+qualification of this newer source. A consistent private completed-foul backup
+retains the legitimate prefix; private databases and logs are not published.
+
+## Preceding legal rights, prospective National inputs and metadata compilation
 
 The current batch connects original venue coverage, explicit current-cut
 Play/Time declarations and complete appeal-purpose throw history to versioned
@@ -28,8 +77,8 @@ admission of the matching imported appeal. Failed appeal throws are included;
 carried or constrained outside geometry alone cannot prove entry into dead
 territory. Receipt occurrence, NPB forfeiture against all runners/bases, and
 independent moving-end, producer, snapshot, call and window obligations remain
-separate. Initial live-state continuity and the ordinary-play/departure producers
-remain unfinished. [Implemented scope and precise gaps](2026-10-09-live-appeal-rights-connection.md).
+separate. At that checkpoint, initial live-state continuity and ordinary-play/departure
+producers were unfinished; the current batch above supplies those connections. [Implemented scope and precise gaps](2026-10-09-live-appeal-rights-connection.md).
 
 The National fixture now declares all 19 eligible Player/Person bindings and
 one compatible world/response model before admission. Both planned Core physical
@@ -72,8 +121,8 @@ import does not retimestamp the attempt or substitute later retouch history.
 Continuous custody may span multiple physical checkpoints, with exact gaps and
 exclusive endpoints respected. Pending physical work stays in the live census.
 The later legal-rights batch above adds authenticated Play/Time/territory and
-NPB admission for supported original history. Initial legal continuity remains
-unfinished, and official application independently requires the moving-play end.
+NPB admission for supported original history. The later initial/restart batch supplies legal continuity; official application
+independently still requires the moving-play end.
 [Physical connection and remaining rights owner](2026-10-09-live-throw-appeal-connection.md).
 
 Actual accepted Manager hires now feed the existing scheduled staff-wage kernel

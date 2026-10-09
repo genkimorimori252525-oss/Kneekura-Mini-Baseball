@@ -29,6 +29,8 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
   const occupied = actor.world.runners.length > 0;
   if (census.liveAppeals?.pending.length) return pending('original_live_appeal_execution_required');
   if (census.liveAppeals?.executed.length) return pending('original_live_appeal_rule_and_rights_consumer_required');
+  if (census.defenderDepartures?.purposes.some(p => p.status === 'active'))
+    return pending('original_defender_departure_execution_required');
   if (root.source.liveProducerProfile !== (occupied ? 'same_pa_stationary_occupied_catch_v1' : 'same_pa_empty_base_catch_v1'))
     return pending('original_live_producer_profile_required');
   // An adopted advance can remain physically stationary during reaction. It
@@ -62,7 +64,8 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
   const seal = [...fields].reverse().find(f => f.kind === 'same_pa_physical_field_step_v1'
     && f.actionResult?.kind !== 'defender_observation_v1' && f.actionResult?.kind !== 'defender_decision_v1'
     && f.actionResult?.kind !== 'defender_catch_response_v1' && f.actionResult?.kind !== 'batter_catch_response_v1'
-    && f.actionResult?.kind !== 'occupied_runner_catch_response_v1');
+    && f.actionResult?.kind !== 'occupied_runner_catch_response_v1'
+    && f.actionResult?.kind !== 'defender_departure_purpose_v1');
   const boundary = deriveQuantizerClosedGenerationBoundary({ originTick: at.originTick, throughTick: at.tick, ticksPerSecond: p.ticksPerSecond });
   if (seal?.kind !== 'same_pa_physical_field_step_v1' || seal.source.action?.kind !== 'retained_quantizer_checkpoint_v1'
     || seal.actionResult?.kind !== 'retained_quantizer_checkpoint_v1' || seal.actionResult.status !== 'checkpoint_reached'
@@ -112,7 +115,7 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
     return pending('later_runner_base_rule_consumer_required');
   const prefix = readSamePaLifecycleRecordFromSqlite(db, 'prefix', view.source.prefixReference.sourceId);
   if (!prefix || prefix.kind !== 'same_pa_lifecycle_prefix') throw new Error('fair catch end original admission prefix missing');
-  const sources: LivePlaySource[] = [];
+  const sources: LivePlaySource[] = [...(census.defenderDepartures?.sources ?? [])];
   const producer = (domain: string, playerId: string | null, futureTicks: readonly number[], extra: Partial<LivePlaySource> = {}) => {
     const sourceId = json([view.lineage.enrollmentReference.sourceId, view.cut.physicalPitchReference.sourceId, domain, playerId]);
     if (futureTicks.some(t => t <= at.tick)) throw new Error('fair catch end producer retains due work');

@@ -6,13 +6,15 @@ import type { SamePaFieldThrowValues } from './SamePlateAppearanceLifecycleCalib
 import type { DurablePlayerFieldingModel } from './SqlitePlayerFieldingModelStore';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { actorFreeze as freeze, actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { bindSamePaOrdinaryPlayPurpose } from './SamePlateAppearanceOrdinaryPlay';
+export { deriveSamePaOrdinaryPlayAttempts } from './SamePlateAppearanceOrdinaryPlay';
 type Field = SamePaPhysicalFieldRoot | SamePaPhysicalFieldStep;
 const result = (field: Field) => field.kind === 'same_pa_physical_field_step_v1' ? field.actionResult : undefined;
 const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw new Error('physical throw original dependency differs'); };
 /** Sensory work does not retire a transfer. Only its own next Core checkpoint
  * can adopt physical progress until it has released or hit a real boundary. */
 export const samePaPhysicalPendingThrow = (prefix: readonly Field[]) => {
-  const last = [...prefix].reverse().find(f => { const r = result(f); return r?.kind !== 'appeal_indication_v1' && r?.kind !== 'appeal_contact_v1' && r?.kind !== 'defender_observation_v1' && r?.kind !== 'defender_decision_v1' && r?.kind !== 'defender_catch_response_v1' && r?.kind !== 'batter_catch_response_v1' && r?.kind !== 'occupied_runner_catch_response_v1'; });
+  const last = [...prefix].reverse().find(f => { const r = result(f); return r?.kind !== 'defender_departure_purpose_v1' && r?.kind !== 'appeal_indication_v1' && r?.kind !== 'appeal_contact_v1' && r?.kind !== 'defender_observation_v1' && r?.kind !== 'defender_decision_v1' && r?.kind !== 'defender_catch_response_v1' && r?.kind !== 'batter_catch_response_v1' && r?.kind !== 'occupied_runner_catch_response_v1'; });
   if (!last || last.kind !== 'same_pa_physical_field_step_v1') return null;
   const r = last.actionResult;
   if (r?.kind === 'throw_plan_v1') return { step: last, plan: r.plan, progress: null };
@@ -45,13 +47,15 @@ export const deriveSamePaPhysicalThrowPlan = (source: SamePaPhysicalFieldStepSou
     || motion.carrierPlayerId !== a.member.playerId || model.source.playerId !== a.member.playerId) throw new Error('physical throw requires the actual owned carrier cut');
   if (!action.actor.defenderBindings.some(b => b.playerId === a.receiverPlayerId)
     || a.coverageThroughTick > Math.min(...motion.actors.map(actor => actor.primitive.endTick))) throw new Error('physical throw original receiver or coverage differs');
+  const ordinaryPlayPurpose = bindSamePaOrdinaryPlayPurpose(source, root, action);
   const plan = prepareBattedWorldScheduledFieldThrow({ response: root.response, geometry: root.geometry, actors: motion.actors, cursor: motion.cursor,
     carrierPlayerId: a.member.playerId, receiverPlayerId: a.receiverPlayerId, availableAtTick: previous.evaluationTick, throughTick: a.coverageThroughTick,
     commands: motion.actors.map(actor => ({ playerId: actor.playerId, role: actor.primitive.role, acceleration: actor.primitive.acceleration })),
     ratings: model.source.ratings, transferParameters: values.transferParameters, throwCalibration: values.throwCalibration,
     seed: { matchSeed: action.source.nominalPitch.delivery.matchSeed, playId: root.lineage.playId, streamKey: source.sourceId } });
   const actionResult: SamePaPhysicalFieldActionResult = { kind: 'throw_plan_v1', plan, fieldingModelHash: hash(model),
-    ...(a.appealIndicationReference ? { appealIndicationReference: a.appealIndicationReference } : {}) };
+    ...(a.appealIndicationReference ? { appealIndicationReference: a.appealIndicationReference } : {}),
+    ...(ordinaryPlayPurpose ? { ordinaryPlayPurpose } : {}) };
   return freeze({ field: previous.field, evaluationTick: previous.evaluationTick, timeline: previous.timeline, actionResult });
 };
 export const deriveSamePaPhysicalThrowCheckpoint = (source: SamePaPhysicalFieldStepSource, root: SamePaPhysicalFieldRoot,

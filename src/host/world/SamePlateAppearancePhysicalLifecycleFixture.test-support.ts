@@ -20,12 +20,14 @@ import type { AcceptedBattingCapability, AcceptedBattingObservationCalibration }
 import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import type { AcceptedInFlightBattingPosture } from './NativeInFlightBattingPerception';
 import type { Vec3 } from '../../core/model/geometry';
+import { prepareSamePaInitialPlayFixture, samePaInitialPlayDefenders, type SamePaInitialPlayFixtureInputs } from './SamePlateAppearanceInitialBallFixture.test-support';
 
 /** Source-only synthetic ownership fixture. It performs the two earlier TAKEs
  * through the real owners, then exposes a current accepted lifecycle view.
  * No returned actor/view is manufactured or supplied to a production writer. */
-export const samePaPhysicalLifecycleFixture=(options:Readonly<{explicitBatterObservation?:AcceptedBattingObservationCalibration['values'];explicitDefenderObservation?:PlayerObservationCalibration;explicitBatterMotor?:AcceptedBattingCapability['values'];explicitDefenderLocomotion?:PlayerLocomotionCalibration;profile?:NonNullable<Parameters<typeof directNativeDispatchFixture>[0]>['profile'];originalBaseCenters?:NonNullable<Parameters<typeof directNativeDispatchFixture>[0]>['originalBaseCenters'];explicitDefenderGloveOffsets?:Readonly<Record<string,Vec3>>}>={})=>{
-  const f=directNativeDispatchFixture({profile:options.profile,originalBaseCenters:options.originalBaseCenters}),accepted=new Map<string,unknown>(),track=f.x.f.track;
+export const samePaPhysicalLifecycleFixture=(options:Readonly<{explicitBatterObservation?:AcceptedBattingObservationCalibration['values'];explicitDefenderObservation?:PlayerObservationCalibration;explicitBatterMotor?:AcceptedBattingCapability['values'];explicitDefenderLocomotion?:PlayerLocomotionCalibration;profile?:NonNullable<Parameters<typeof directNativeDispatchFixture>[0]>['profile'];originalBaseCenters?:NonNullable<Parameters<typeof directNativeDispatchFixture>[0]>['originalBaseCenters'];originalDefenders?:NonNullable<Parameters<typeof directNativeDispatchFixture>[0]>['originalDefenders'];initialPlay?:SamePaInitialPlayFixtureInputs;explicitDefenderGloveOffsets?:Readonly<Record<string,Vec3>>}>={})=>{
+  const originalDefenders=options.initialPlay===undefined?options.originalDefenders:samePaInitialPlayDefenders(options.originalDefenders);
+  const f=directNativeDispatchFixture({profile:options.profile,originalBaseCenters:options.originalBaseCenters,originalDefenders}),accepted=new Map<string,unknown>(),track=f.x.f.track;
   const save=<T extends {sourceId:string}>(s:T):T=>{accepted.set(s.sourceId,s);return s;};
   try{
     const original=f.acceptedAction.source,sceneBodyReferences=prepareSamePaSceneBodies(f,options.explicitDefenderGloveOffsets);
@@ -49,7 +51,10 @@ export const samePaPhysicalLifecycleFixture=(options:Readonly<{explicitBatterObs
     const rightSource=save({...base,sourceId:'physical-fixture:right',capability:'same_pa_first_pitch_right_v1',actionReference:f.request.actionReference,consumerSetReference,
       episodeReference:reference('pa_dispatch_v1_episodes',episode),prefixReference:f.view.source.prefixReference});
     const right=dispatch.acceptRight(rightSource.sourceId);if(right.kind!=='immutable_right_prepared')throw new Error('real fixture right pending');
-    save({sourceId:original.firstPhysicalPitchSourceId,sourceVersion:'fixture-only-v1',capability:'same_pa_physical_pitch_v1',actionReference:f.request.actionReference,rightReference:reference('pa_dispatch_v1_rights',right)});
+    const initialPlay=options.initialPlay===undefined?null:prepareSamePaInitialPlayFixture(f,accepted,sceneBodyReferences,options.initialPlay);
+    save(initialPlay===null
+      ?{sourceId:original.firstPhysicalPitchSourceId,sourceVersion:'fixture-only-v1',capability:'same_pa_physical_pitch_v1',actionReference:f.request.actionReference,rightReference:reference('pa_dispatch_v1_rights',right)}
+      :{sourceId:original.firstPhysicalPitchSourceId,sourceVersion:'fixture-only-v1',capability:'same_pa_physical_pitch_v2',actionReference:f.request.actionReference,rightReference:reference('pa_dispatch_v1_rights',right),initialPlayReference:initialPlay.initialPlayReference});
     const first=dispatch.acceptPhysicalPitch(original.firstPhysicalPitchSourceId);if(first.kind==='pending')throw new Error('real fixture first TAKE pending');
     // The same explicit cumulative effort2 declaration used by the prior Native
     // fixture is supplied independently for all ten participants at each cut.
@@ -103,6 +108,7 @@ export const samePaPhysicalLifecycleFixture=(options:Readonly<{explicitBatterObs
     };
     const launch=(prepared:ReturnType<typeof prepareRight>)=>{save({sourceId:prepared.action.physicalPitchSourceId,sourceVersion:'fixture-only-v1',capability:'same_pa_physical_launch_v1',viewReference:prepared.action.source.viewReference,
       actionReference:prepared.actionReference,rightReference:prepared.rightReference});const op=physical.acceptOperation(prepared.action.physicalPitchSourceId);if(op.kind!=='same_pa_physical_launch_v1')throw new Error('real later launch pending');advance(reference('pa_physical_v1_launches',op));return op;};
-    return{f,accepted,save,first,second,anchor,events,current,advance,physical,prepareAction,preparePosture,prepareRight,launch,sceneBodyReferences,geometry,original,efforts,genesis,worldOwner,close:f.close};
+    return{f,accepted,save,first,second,anchor,events,current,advance,physical,prepareAction,preparePosture,prepareRight,launch,sceneBodyReferences,geometry,original,efforts,genesis,worldOwner,close:f.close,
+      ...(initialPlay===null?{}:{initialPlay})};
   }catch(e){f.close();throw e;}
 };

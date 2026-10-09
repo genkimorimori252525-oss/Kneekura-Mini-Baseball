@@ -100,12 +100,15 @@ const actor = (db: PhysicalClosureDb, s: AcceptedPhysicalPlayClosure, pitch: Dur
 
 type EarlierScoring = Readonly<{ applicationId: string; scoringApplicationId: string; before: CanonicalMatchState;
   after: CanonicalMatchState; scoring: PersistedOfficialScoring; closureRowHash: string; scoringRowHash: string }>;
-const readPhysicalClosureScoringHistoryRows = (db: PhysicalClosureDb, frame: Readonly<{ gameId: string; officialRevision: number }>): EarlierScoring[] => {
+const readPhysicalClosureScoringHistoryRows = (db: PhysicalClosureDb, frame: Readonly<{ gameId: string; officialRevision: number }>,
+  final?: import('../../core/world/competition/OfficialGameCompletion').OfficialGameResult): EarlierScoring[] => {
   const rows = db.prepare("SELECT * FROM applications WHERE match_id=? AND json_extract(result_json,'$.receipt.durableRevision')<=? ORDER BY json_extract(result_json,'$.receipt.durableRevision')")
     .all(frame.gameId, frame.officialRevision) as { application_id: string; match_id: string; closure_id: string; request_hash: string; result_json: string }[];
   if (rows.length !== frame.officialRevision) throw new Error('physical closure prior application history is missing');
   return rows.map((row, index) => {
-    assertSamePaTerminalApplicationCompleted(db, row.application_id);
+    const finalPlay = final !== undefined && index === frame.officialRevision - 1;
+    if (finalPlay && (row.application_id !== final.applicationId || final.durableRevision !== index + 1)) throw new Error('completed scoring final application differs');
+    assertSamePaTerminalApplicationCompleted(db, row.application_id, finalPlay);
     const scored = db.prepare('SELECT * FROM official_scoring_applications WHERE official_application_id=?').get(row.application_id) as {
       scoring_application_id: string; match_id: string; official_application_id: string; closure_id: string; source_event_id: string; request_json: string; result_json: string;
     } | undefined;
@@ -117,10 +120,11 @@ const readPhysicalClosureScoringHistoryRows = (db: PhysicalClosureDb, frame: Rea
       // independently authenticated completed owner and all original effects
       // may supply a historical record; generic legacy writers stay blocked.
       const completed=foulTerminalPostPlayCompletionEvidenceFromSqlite(db as DatabaseSync).read(row.closure_id);
-      if(completed&&('finalResult'in completed.result.completion||completed.status==='POST_PLAY_COMPLETED_FINAL'))throw new Error('terminal final result cannot precede a later play');
+      if(completed&&('finalResult'in completed.result.completion||completed.status==='POST_PLAY_COMPLETED_FINAL')&&!finalPlay)throw new Error('terminal final result cannot precede a later play');
       if(!completed)throw new Error('terminal completion scoring history owner is missing');
       const p=completed.proposal,c=completed.result.completion,receipt=completed.result.official.receipt;
       const official=foulTerminalCompletedOfficial(completed.result.official,c),score=JSON.parse(scored.result_json) as PersistedOfficialScoring;
+      if(finalPlay&&(!('finalResult'in c)||closureJson(c.finalResult)!==closureJson(final)))throw new Error('completed terminal scoring final differs');
       if(p.gameId!==frame.gameId||p.source.applicationId!==row.application_id||p.originalOfficialRevision!==index
         ||receipt.durableRevision!==index+1||closureJson(a)!==closureJson(foulTerminalPendingInput(p))
         ||row.match_id!==p.gameId||row.closure_id!==p.source.sourceId||row.request_hash!==completed.result.official.pendingPostPlay.requestHash
@@ -130,6 +134,7 @@ const readPhysicalClosureScoringHistoryRows = (db: PhysicalClosureDb, frame: Rea
         after:receipt.appliedMatchState,scoring:score,closureRowHash:closureHash(row),scoringRowHash:closureHash(scored)};
     }
     const official = 'game' in a ? deriveOfficialFinalResult(a, index + 1) : deriveOfficialPlayResult(a, index + 1);
+    if(finalPlay&&(!('result'in official)||closureJson(official.result)!==closureJson(final)))throw new Error('completed scoring final differs');
     const sourceEventId = a.kind === 'non_live' ? `official-non-live:${a.applicationId}`
       : 'sourceEventId' in input ? input.sourceEventId! : `official-foul-out:${a.applicationId}`;
     const classified = classifyClosedPlayForOfficialScoring(a.kind === 'non_live' ? { kind: a.kind, match: a.match, timeline: a.timeline,
@@ -155,6 +160,13 @@ export const readPhysicalClosureScoringHistory = (db: PhysicalClosureDb, frame: 
   const read=()=>readPhysicalClosureScoringHistoryRows(db,frame);
   return db instanceof NativeDatabase ? withBattedVenueLegalReadSnapshot(db,read) : read();
 };
+/** Completed-game consumer only. A final terminal is permitted solely at the
+ * last revision of this exact final result; prior-play callers keep their
+ * original rejection. Reserved terminals still require authentic release. */
+export const readCompletedMatchScoringHistory = (db: DatabaseSync,
+  final: import('../../core/world/competition/OfficialGameCompletion').OfficialGameResult): EarlierScoring[] =>
+  withBattedVenueLegalReadSnapshot(db, () => readPhysicalClosureScoringHistoryRows(db,
+    { gameId: final.gameId, officialRevision: final.durableRevision }, final));
 /** The existing contiguous-history fold is shared unchanged with read-only
  * consumer verification; missing earlier scoring is never replaced by zero H/E. */
 export const derivePhysicalClosureLineScore = (history: readonly Readonly<{ before: CanonicalMatchState;

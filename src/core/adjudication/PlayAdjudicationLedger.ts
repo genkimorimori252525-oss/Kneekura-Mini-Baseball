@@ -184,20 +184,25 @@ export type OwnedLiveAppealImportInput = Omit<OwnedLiveAppealImported, 'kind'>;
 export type OwnedLiveAppealRightsMoment = Readonly<{
   originTick: number; elapsedSeconds: number; tick: number;
 }>;
+export type OwnedLiveAppealLiveEvidence = Readonly<{ kind: 'live'; playDeclaration: OwnedLiveCallSourceReference;
+  at: OwnedLiveAppealRightsMoment; coveredThroughElapsedSeconds: number;
+  initialContinuation?: OwnedLiveCallSourceReference }>;
 /** Native authenticates complete legal-state and all purpose-throw histories,
  * including nonforfeited throws. These are the exact facts extracted from those
  * owners, not caller-selected eligibility flags. Core validates and interprets
  * the facts again on replay; it does not authenticate Source hashes or geometry. */
 export type OwnedLiveAppealRightsEvidence = Readonly<{
-  version: 'owned_live_appeal_rights_evidence_v1';
+  version: 'owned_live_appeal_rights_evidence_v1' | 'owned_live_appeal_rights_evidence_v2';
   liveAtExecution:
-    | Readonly<{ kind: 'live'; playDeclaration: OwnedLiveCallSourceReference;
-        at: OwnedLiveAppealRightsMoment; coveredThroughElapsedSeconds: number }>
+    | OwnedLiveAppealLiveEvidence
     | Readonly<{ kind: 'dead'; cause: OwnedLiveCallSourceReference; at: OwnedLiveAppealRightsMoment }>
     | Readonly<{ kind: 'unknown'; reason: 'initial_live_ball_owner_missing' | 'original_live_ball_coverage_required' }>;
+  liveAtFirstTouch?: OwnedLiveAppealLiveEvidence;
   window: Readonly<{ openedAtElapsedSeconds: number; closedAtElapsedSeconds: number | null;
     closeReason: 'next_pitch_or_play' | 'defense_left_field' | null }>
-    | Readonly<{ kind: 'unresolved'; reason: 'original_live_appeal_window_owner_required' }>;
+    | Readonly<{ kind: 'unresolved'; reason: 'original_live_appeal_window_owner_required' }>
+    | Readonly<{ kind: 'closed_by'; openedAtElapsedSeconds: number; closedNoLaterThanElapsedSeconds: number;
+        closeReason: 'defense_left_field'; evidenceReference: OwnedLiveCallSourceReference }>;
   appealThrowForfeitures: readonly Readonly<{ indication: OwnedLiveCallSourceReference;
     throwPlan: OwnedLiveCallSourceReference; legalCoverage: OwnedLiveCallSourceReference;
     firstCertainDeadAtElapsedSeconds: number }>[];
@@ -798,36 +803,62 @@ const freezeLiveAppealRightsAdmission = (
   }
   const legalState = freezeImportReference(raw.legalState), venue = freezeImportReference(raw.venue);
   const evidence = request.evidence;
-  if (!importFields(evidence, ['version', 'liveAtExecution', 'window', 'appealThrowForfeitures'])
-    || evidence.version !== 'owned_live_appeal_rights_evidence_v1'
+  if (!importFields(evidence, ['version', 'liveAtExecution', 'window', 'appealThrowForfeitures', ...('liveAtFirstTouch' in evidence ? ['liveAtFirstTouch'] : [])])
+    || !['owned_live_appeal_rights_evidence_v1', 'owned_live_appeal_rights_evidence_v2'].includes(evidence.version)
     || !Array.isArray(evidence.appealThrowForfeitures)) throw new Error('invalid owned live-appeal rights evidence');
-  const validateMoment = (moment: OwnedLiveAppealRightsMoment): void => {
+  const validateMoment = (moment: OwnedLiveAppealRightsMoment, through = executedAt): void => {
     if (!importFields(moment, ['originTick', 'elapsedSeconds', 'tick']) || moment.originTick !== originTick
-      || momentTick(moment.elapsedSeconds) !== moment.tick || moment.elapsedSeconds > executedAt) {
+      || momentTick(moment.elapsedSeconds) !== moment.tick || moment.elapsedSeconds > through) {
       throw new Error('live appeal legal-state moment differs from original execution clock');
     }
   };
-  const live = evidence.liveAtExecution;
-  if (live?.kind === 'live') {
-    if (!importFields(live, ['kind', 'playDeclaration', 'at', 'coveredThroughElapsedSeconds'])) {
+  const validateLive = (live: OwnedLiveAppealLiveEvidence, through: number): void => {
+    const initial = 'initialContinuation' in live;
+    if (live?.kind !== 'live' || !importFields(live, ['kind', 'playDeclaration', 'at', 'coveredThroughElapsedSeconds', ...(initial ? ['initialContinuation'] : [])])) {
       throw new Error('invalid original live-ball coverage');
     }
-    freezeImportReference(live.playDeclaration); validateMoment(live.at);
+    freezeImportReference(live.playDeclaration);
+    if (initial) {
+      if (evidence.version !== 'owned_live_appeal_rights_evidence_v2'
+        || !importFields(live.at, ['originTick', 'elapsedSeconds', 'tick'])
+        || !Number.isSafeInteger(live.at.originTick) || live.at.originTick < 0
+        || live.at.elapsedSeconds !== 0 || live.at.tick !== live.at.originTick || live.at.tick > originTick)
+        throw new Error('initial live-ball continuation clock or version differs');
+      freezeImportReference(live.initialContinuation!);
+    } else validateMoment(live.at, through);
     momentTick(live.coveredThroughElapsedSeconds);
-    if (live.coveredThroughElapsedSeconds < executedAt || live.coveredThroughElapsedSeconds > raw.admittedAtElapsedSeconds) {
+    if (live.coveredThroughElapsedSeconds < through || live.coveredThroughElapsedSeconds > raw.admittedAtElapsedSeconds) {
       throw new Error('original live-ball coverage must include execution and precede admission');
     }
-  } else if (live?.kind === 'dead') {
+  };
+  const live = evidence.liveAtExecution;
+  if (live?.kind === 'live') validateLive(live, executedAt);
+  else if (live?.kind === 'dead') {
     if (!importFields(live, ['kind', 'cause', 'at'])) throw new Error('invalid original dead-ball cause');
     freezeImportReference(live.cause); validateMoment(live.at);
   } else if (live?.kind === 'unknown') {
     if (!importFields(live, ['kind', 'reason']) || (live.reason !== 'initial_live_ball_owner_missing'
       && live.reason !== 'original_live_ball_coverage_required')) throw new Error('invalid unknown live-ball owner');
   } else throw new Error('unknown original live-ball state');
+  if ('liveAtFirstTouch' in evidence) {
+    if (evidence.version !== 'owned_live_appeal_rights_evidence_v2' || !evidence.liveAtFirstTouch)
+      throw new Error('separate first-touch live evidence requires v2');
+    validateLive(evidence.liveAtFirstTouch, original.complianceEvidence.firstTouch.elapsedSeconds);
+  }
 
   const window = evidence.window;
   if (window && 'kind' in window) {
-    if (!importFields(window, ['kind', 'reason']) || window.kind !== 'unresolved'
+    if (window.kind === 'closed_by') {
+      if (evidence.version !== 'owned_live_appeal_rights_evidence_v2'
+        || !importFields(window, ['kind', 'openedAtElapsedSeconds', 'closedNoLaterThanElapsedSeconds', 'closeReason', 'evidenceReference'])
+        || window.closeReason !== 'defense_left_field' || !profile.appeal.defenseLeavingFieldClosesInningEndingWindow)
+        throw new Error('invalid bounded original defense-departure evidence');
+      momentTick(window.openedAtElapsedSeconds); momentTick(window.closedNoLaterThanElapsedSeconds);
+      freezeImportReference(window.evidenceReference);
+      if (window.openedAtElapsedSeconds > executedAt || window.closedNoLaterThanElapsedSeconds < window.openedAtElapsedSeconds
+        || window.closedNoLaterThanElapsedSeconds > raw.admittedAtElapsedSeconds)
+        throw new Error('bounded original defense-departure chronology differs');
+    } else if (!importFields(window, ['kind', 'reason']) || window.kind !== 'unresolved'
       || window.reason !== 'original_live_appeal_window_owner_required') throw new Error('invalid unresolved original appeal-window owner');
   } else {
     if (!importFields(window, ['openedAtElapsedSeconds', 'closedAtElapsedSeconds', 'closeReason'])) {
@@ -878,12 +909,22 @@ const freezeLiveAppealRightsAdmission = (
     disposition = { kind: 'ineligible', reason: 'dead_ball' };
   } else if (!('kind' in window) && window.closedAtElapsedSeconds !== null && window.closedAtElapsedSeconds < executedAt) {
     disposition = { kind: 'ineligible', reason: 'appeal_window_expired' };
+  } else if ('kind' in window && window.kind === 'closed_by') {
+    if (window.closedNoLaterThanElapsedSeconds >= executedAt) throw new Error('bounded defense-departure order remains unresolved');
+    disposition = { kind: 'ineligible', reason: 'appeal_window_expired' };
   } else {
     if (live.kind !== 'live') throw new Error('original live-ball owner or coverage remains unresolved');
     if ('kind' in window) throw new Error('original live-appeal window owner remains unresolved');
     if (window.openedAtElapsedSeconds === executedAt) throw new Error('exact simultaneous appeal-window opening remains unresolved');
     if (window.closedAtElapsedSeconds === executedAt) throw new Error('exact simultaneous appeal-window closure remains unresolved');
-    if (live.at.elapsedSeconds >= original.complianceEvidence.firstTouch.elapsedSeconds) {
+    const beginsBeforeExecution = live.initialContinuation
+      ? live.at.tick < originTick || executedAt > 0 : live.at.elapsedSeconds < executedAt;
+    if (!beginsBeforeExecution) throw new Error('exact simultaneous Play and appeal execution remain unresolved');
+    const firstLive = evidence.liveAtFirstTouch ?? live;
+    const beginsBeforeTouch = firstLive.initialContinuation
+      ? firstLive.at.tick < originTick || original.complianceEvidence.firstTouch.elapsedSeconds > 0
+      : firstLive.at.elapsedSeconds < original.complianceEvidence.firstTouch.elapsedSeconds;
+    if (!beginsBeforeTouch) {
       throw new Error('original live-ball coverage must begin before first-fielder contact');
     }
     if (profile.tagUp.legalReleaseBasis !== 'first_fielder_touch' || !profile.tagUp.earlyDepartureRequiresAppeal

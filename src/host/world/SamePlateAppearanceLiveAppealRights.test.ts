@@ -87,3 +87,63 @@ it('LAR08 mismatched original physical cut is rejected before evidence is admitt
   const h=fixture();h.history.evaluatedThrough=h.moment(4);
   expect(()=>derive(h)).toThrow(/original physical or legal cut/);
 });
+it('LAR09 owned initial Play retains its pre-pitch clock through canonical TAKE continuity',()=>{
+  const h=fixture(); h.history.actions=[];
+  const pin={owner:'initial-continuation',sourceId:'original-chain',sourceVersion:'test',sourceHash:hash('chain'),snapshotHash:hash('proof')};
+  const original={originTick:1,elapsedSeconds:0,tick:1};
+  h.history.kind='same_pa_live_ball_history_v2';
+  h.history.initialLiveContinuation={kind:'same_pa_initial_live_continuation_v1',lineage:h.history.lineage,
+    physicalPitchReference:h.history.physicalPitchReference,physicalOperationReference:h.history.physicalOperationReference,
+    occurredAt:original,coveredThroughTick:h.moment(3).tick,continuationReference:pin,
+    initialBinding:{playDeclaration:{...pin,owner:'pa_initial_ball_v1_plays',sourceId:'initial-play'}}};
+  expect(derive(h)).toMatchObject({kind:'ready',evidence:{version:'owned_live_appeal_rights_evidence_v2',
+    liveAtExecution:{kind:'live',at:original,initialContinuation:pin,coveredThroughElapsedSeconds:3}}});
+  h.history.actions=[h.play(2.5,'time')];
+  expect(derive(h)).toMatchObject({kind:'ready',evidence:{liveAtExecution:{kind:'dead',at:h.moment(2.5)}}});
+  h.history.initialLiveContinuation.coveredThroughTick++;
+  expect(()=>derive(h)).toThrow(/continuation original clock/);
+});
+it('LAR10 an unsupported canonical transition remains its specific missing-owner obligation',()=>{
+  const h=fixture(); h.history.actions=[];
+  h.history.initialLiveContinuation={kind:'pending',reason:'initial_live_continuation_after_official_outcome_requires_original_restart'};
+  expect(derive(h)).toEqual({kind:'pending',reason:'initial_live_continuation_after_official_outcome_requires_original_restart'});
+});
+it('LAR11 Time and a later restart preserve separate original first-touch and execution live proofs',()=>{
+  const h=fixture(); h.history.actions=[h.play(0.25),h.play(1.25,'time'),{...h.play(1.5),source:{sourceId:'restart',sourceVersion:'test'}}];
+  const result=derive(h);
+  expect(result).toMatchObject({kind:'ready',evidence:{version:'owned_live_appeal_rights_evidence_v2',
+    liveAtFirstTouch:{kind:'live',at:h.moment(0.25),coveredThroughElapsedSeconds:0.5},
+    liveAtExecution:{kind:'live',at:h.moment(1.5),coveredThroughElapsedSeconds:3},
+    window:{openedAtElapsedSeconds:1,closedAtElapsedSeconds:null},appealThrowForfeitures:[]}});
+  h.history.actions.shift();
+  expect(derive(h)).toEqual({kind:'pending',reason:'original_live_state_before_first_fielder_touch_required'});
+});
+it('LAR12 a restart does not erase an actual earlier appeal-throw forfeiture',()=>{
+  const h=fixture();h.history.actions=[h.play(0.25),h.play(2.6,'time'),{...h.play(2.75),source:{sourceId:'restart',sourceVersion:'test'}}];
+  h.venue.appealThrows[0].coverage.intervals[1]=h.interval(2,2.5,'unresolved');
+  h.venue.appealThrows[0].coverage.intervals[1].end.classification='out_of_play';
+  h.venue.appealThrows[0].coverage.kind='pending';
+  expect(derive(h)).toMatchObject({kind:'ready',evidence:{appealThrowForfeitures:[{firstCertainDeadAtElapsedSeconds:2.5}]}});
+});
+it('LAR13 later dead-territory geometry cannot turn an earlier actual Time into appeal-throw forfeiture',()=>{
+  const h=fixture();h.history.actions=[h.play(0.25),h.play(2.25,'time'),{...h.play(2.75),source:{sourceId:'restart',sourceVersion:'test'}}];
+  const thrown=h.venue.appealThrows[0]; thrown.segmentIndexes=[2,3];h.venue.fieldSegments.push({constraint:'free'});
+  thrown.coverage.intervals=[h.interval(2,2),h.interval(2,2.25),h.interval(2.25,2.5,'unresolved')];
+  thrown.coverage.intervals[2].end.classification='out_of_play';thrown.coverage.kind='pending';
+  expect(derive(h)).toMatchObject({kind:'ready',evidence:{appealThrowForfeitures:[],window:{closedAtElapsedSeconds:null}}});
+  thrown.coverage.intervals[1].classification='unresolved';
+  expect(derive(h)).toEqual({kind:'pending',reason:'original_complete_appeal_throw_rights_coverage_required'});
+  h.history.actions[1]=h.play(1.75,'time');
+  expect(derive(h)).toMatchObject({kind:'ready',evidence:{appealThrowForfeitures:[]}});
+});
+it('LAR14 an owned reset Play establishes this field without inventing initial live state before the reset',()=>{
+  const h=fixture();h.history.actions=[];
+  const pin={owner:'pa_restart_play_v1_actions',sourceId:'restart-play',sourceVersion:'test',sourceHash:hash('restart'),snapshotHash:hash('proof')};
+  h.history.kind='same_pa_live_ball_history_v2';
+  h.history.initialLiveContinuation={kind:'same_pa_restart_live_continuation_v1',lineage:h.history.lineage,
+    physicalPitchReference:h.history.physicalPitchReference,physicalOperationReference:h.history.physicalOperationReference,
+    occurredAt:{originTick:2,elapsedSeconds:0,tick:2},coveredThroughTick:h.moment(3).tick,
+    playDeclaration:pin,continuationReference:{...pin,owner:'same_pa_restart_live_continuation_v1'}};
+  expect(derive(h)).toMatchObject({kind:'ready',evidence:{version:'owned_live_appeal_rights_evidence_v2',
+    liveAtExecution:{kind:'live',playDeclaration:pin,at:{originTick:2,elapsedSeconds:0,tick:2}}}});
+});

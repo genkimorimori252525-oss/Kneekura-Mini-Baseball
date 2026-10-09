@@ -34,7 +34,7 @@ export const sortFoulApplicationOwnershipRows = (rows: Row[]): Row[] => rows.sor
  * column must exist with its native type; a missing mirror cannot prove absence.
  * The owner, not this rejection-only reader, authenticates its constraints. */
 export const foulApplicationOwnershipRows = (db: Db, table: string, columns: Readonly<Record<string, 'TEXT' | 'INTEGER'>>): Row[] => {
-  if (!/^[a-z_]+$/.test(table)) throw new Error('invalid foul application ownership table');
+  if (!/^[a-z_][a-z_0-9]*$/.test(table)) throw new Error('invalid foul application ownership table');
   const schema = db.prepare('SELECT name,type FROM main.sqlite_master WHERE lower(name)=lower(?)').all(table);
   if(db.prepare('SELECT name FROM temp.sqlite_master WHERE lower(name)=lower(?) OR lower(tbl_name)=lower(?)').all(table,table).length
     ||db.prepare("SELECT name FROM main.sqlite_master WHERE type='trigger' AND lower(tbl_name)=lower(?)").all(table).length)throw new Error('foul application ownership schema shadow or trigger differs: '+table);

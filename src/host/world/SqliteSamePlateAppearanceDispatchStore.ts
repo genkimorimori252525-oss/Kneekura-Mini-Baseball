@@ -1,3 +1,5 @@
+import { readSamePaInitialPlayFromSqlite } from './SqliteSamePlateAppearanceInitialBallStore';
+import { bindSamePaInitialPlayToPitch } from './SamePlateAppearanceInitialBallProof';
 import { battingAssessmentOwners } from './BattingAssessmentOwnership';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
@@ -472,7 +474,7 @@ const createSqliteSamePlateAppearanceDispatchOwner = (path: string, authority?: 
   };
   const physicalInput = (raw: unknown, id?: string): AcceptedSamePaPhysicalPitch => {
     const value = samePaDispatchSourceInput(raw, id);
-    if (value.capability !== 'same_pa_physical_pitch_v1') throw new Error('same-PA physical Source owner differs');
+    if (value.capability !== 'same_pa_physical_pitch_v1' && value.capability !== 'same_pa_physical_pitch_v2') throw new Error('same-PA physical Source owner differs');
     return value;
   };
   const derivePitchBundle = (mode: AssemblyMode, source: AcceptedSamePaPhysicalPitch) => assemble(mode, (read, _derive, _roles, calculate) => {
@@ -489,6 +491,8 @@ const createSqliteSamePlateAppearanceDispatchOwner = (path: string, authority?: 
     const calibration = read('calibration', calibrationReference.sourceId);
     if (!calibration || calibration.kind !== 'execution_calibration_prepared' || calibration.source.route !== 'pitch_delivery') throw new Error('same-PA accepted pitcher calibration missing');
     same(reference('pa_dispatch_v1_execution_calibrations', calibration), calibrationReference);
+    const initial = source.capability === 'same_pa_physical_pitch_v2' ? readSamePaInitialPlayFromSqlite(db, source.initialPlayReference) : null;
+    if (initial) { same(initial.setup.source.actionReference, source.actionReference); same(initial.setup.lineage, right.lineage); }
     const calculated = calculate({ route: 'pitch_delivery', actionReference: source.actionReference, calibrationReference }) as SamePaNativePitchCalculation;
     if (calculated.kind !== 'native_calculation_only' || calculated.route !== 'pitch_delivery') throw new Error('same-PA pitch calculation route differs');
     const actor = readPhysicalPlateAppearanceActorFromSqlite(db, calculated.frame.actorReference.sourceId);
@@ -505,7 +509,9 @@ const createSqliteSamePlateAppearanceDispatchOwner = (path: string, authority?: 
     const consumerReferences = [reference('pa_dispatch_v1_consumer_actions', consumer)];
     const pitch: SamePaExecutedPitch = freeze({ ...common, kind: 'same_pa_first_pitch_executed_v1', source, progressRevision: 1,
       episodeReference: right.source.episodeReference, originalActor: actor, frame: calculated.frame, beforeTimeline: calculated.beforeTimeline,
-      result: calculated.calculation, consumerReferences });
+      result: calculated.calculation, consumerReferences, ...(initial && source.capability === 'same_pa_physical_pitch_v2' ? {
+        initialLiveBallBinding: bindSamePaInitialPlayToPitch(initial.play, initial.setup, { sourceId: source.sourceId,
+          actionReference: source.actionReference, playReference: source.initialPlayReference, delivery: calculated.calculation.delivery, trajectory: calculated.calculation.trajectory }) } : {}) });
     const receiptSource = { sourceVersion: 'same-pa-dispatch-receipt-v1', rightReference: source.rightReference,
       episodeReference: right.source.episodeReference, physicalSourceReference: physical };
     const pitchReference = reference('pa_dispatch_v1_pitch_actions', pitch);

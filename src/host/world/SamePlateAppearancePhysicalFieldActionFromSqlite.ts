@@ -1,4 +1,5 @@
 import { bindSamePaAppealThrow, deriveSamePaLiveAppealIndication, deriveSamePaLiveAppealContact } from './SamePlateAppearanceLiveAppeal';
+import { deriveSamePaDefenderDeparturePurpose } from './SamePlateAppearanceDefenderDeparture';
 import { deriveSamePaOccupiedRunnerMotion } from './SamePlateAppearanceOccupiedRunnerMotion';
 import { readSamePaOccupiedRunnerHoldFromSqlite } from './SqliteSamePlateAppearanceOccupiedRunnerHoldStore';
 import { deriveSamePaOccupiedRunnerCatchResponse, deriveSamePaOccupiedRunnerCatchMotion, assertSamePaOccupiedRunnerCatchOwnership } from './SamePlateAppearanceOccupiedRunnerCatchResponse';
@@ -36,7 +37,7 @@ type Field = SamePaPhysicalFieldRoot | SamePaPhysicalFieldStep;
 const fieldReference = (field: Field) => reference(field.kind === 'same_pa_physical_field_root_v1' ? 'pa_physical_v1_field_roots' : 'pa_physical_v1_field_steps', field);
 const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw new Error('physical field action original dependency differs'); };
 const result = (step: Field) => step.kind === 'same_pa_physical_field_step_v1' ? step.actionResult : undefined;
-const noAdvance = (field: Field) => result(field)?.kind === 'appeal_indication_v1' || result(field)?.kind === 'appeal_contact_v1' || result(field)?.kind === 'defender_observation_v1' || result(field)?.kind === 'defender_decision_v1' || result(field)?.kind === 'defender_catch_response_v1' || result(field)?.kind === 'batter_catch_response_v1' || result(field)?.kind === 'occupied_runner_catch_response_v1';
+const noAdvance = (field: Field) => result(field)?.kind === 'defender_departure_purpose_v1' || result(field)?.kind === 'appeal_indication_v1' || result(field)?.kind === 'appeal_contact_v1' || result(field)?.kind === 'defender_observation_v1' || result(field)?.kind === 'defender_decision_v1' || result(field)?.kind === 'defender_catch_response_v1' || result(field)?.kind === 'batter_catch_response_v1' || result(field)?.kind === 'occupied_runner_catch_response_v1';
 /** Reconstruct the actual episode graph on the Native owner's pinned read phase.
  * Sources contain only accepted input references, view geometry and priorities. */
 export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePaPhysicalFieldStepSource, root: SamePaPhysicalFieldRoot,
@@ -77,6 +78,10 @@ export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePa
   }
   if (request.kind === 'appeal_contact_v1') return stable(deriveSamePaLiveAppealContact(source,root,previous,prefix,action.actor.match,
     action.actor.defenderBindings.map(b=>b.playerId),action.actor.binding.playerId));
+  if (request.kind === 'defender_departure_purpose_v1') {
+    same(request.member,basis.members.find(m=>m.playerId===request.member.playerId));
+    return stable(deriveSamePaDefenderDeparturePurpose(source,root,previous,action.actor));
+  }
   if (request.kind === 'occupied_runner_motion_v1') {
     const posture = readBattingPerceptionFromSqlite(db, 'posture', root.source.postureReference);
     if (posture.kind !== 'batting_invocation_posture'

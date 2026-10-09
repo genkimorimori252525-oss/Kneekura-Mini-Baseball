@@ -1,3 +1,4 @@
+import type { SamePaInitialPlayReference } from './SamePlateAppearanceInitialBallSource';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { samePaOccupiedRunnerHoldReferencesValid } from './SamePlateAppearanceOccupiedRunnerHold';
 import type { WorkloadBoundPlayerPitchRequest } from './WorkloadBoundPlayerPitchRuntime';
@@ -56,8 +57,10 @@ export type AcceptedSamePaFirstPitchEpisode = SamePaDispatchBase & Readonly<{ ca
 export type AcceptedSamePaFirstPitchRight = SamePaDispatchBase & Readonly<{ capability: 'same_pa_first_pitch_right_v1';
   prefixReference: SamePaReference<'reserved_pa_work_prefixes'>; actionReference: SamePaReference<'pa_dispatch_v1_action_plans'>;
   consumerSetReference: SamePaReference<'pa_dispatch_v1_consumer_sets'>; episodeReference: SamePaReference<'pa_dispatch_v1_episodes'> }>;
-export type AcceptedSamePaPhysicalPitch = Readonly<{ sourceId: string; sourceVersion: string; capability: 'same_pa_physical_pitch_v1';
+type AcceptedSamePaPhysicalPitchV1 = Readonly<{ sourceId: string; sourceVersion: string; capability: 'same_pa_physical_pitch_v1';
   rightReference: SamePaReference<'pa_dispatch_v1_rights'>; actionReference: SamePaReference<'pa_dispatch_v1_action_plans'> }>;
+export type AcceptedSamePaPhysicalPitch = AcceptedSamePaPhysicalPitchV1 | (Omit<AcceptedSamePaPhysicalPitchV1, 'capability'> & Readonly<{
+  capability: 'same_pa_physical_pitch_v2'; initialPlayReference: SamePaInitialPlayReference }>);
 /** A prospective physical Source reference deliberately has no result hash. */
 export type SamePaPhysicalSourceReference = Readonly<{ sourceId: string; sourceVersion: string; sourceHash: string }>;
 export type SamePaDerivedConsumption = Readonly<{ sourceId: string; sourceVersion: string; capability: 'same_pa_consumption_v1';
@@ -156,6 +159,10 @@ export const samePaDispatchSourceInput = (raw: unknown, sourceId?: string): Same
       valid = baseValid(s, ['prefixReference', 'actionReference', 'consumerSetReference', 'episodeReference'])
         && referenceValid(s.prefixReference, 'reserved_pa_work_prefixes') && referenceValid(s.actionReference, 'pa_dispatch_v1_action_plans')
         && referenceValid(s.consumerSetReference, 'pa_dispatch_v1_consumer_sets') && referenceValid(s.episodeReference, 'pa_dispatch_v1_episodes'); break;
+    case 'same_pa_physical_pitch_v2':
+      valid = fields(s, ['sourceId', 'sourceVersion', 'capability', 'rightReference', 'actionReference', 'initialPlayReference'])
+        && referenceValid(s.rightReference, 'pa_dispatch_v1_rights') && referenceValid(s.actionReference, 'pa_dispatch_v1_action_plans')
+        && referenceValid(s.initialPlayReference, 'pa_initial_ball_v1_plays'); break;
     case 'same_pa_physical_pitch_v1':
       valid = fields(s, ['sourceId', 'sourceVersion', 'capability', 'rightReference', 'actionReference'])
         && referenceValid(s.rightReference, 'pa_dispatch_v1_rights') && referenceValid(s.actionReference, 'pa_dispatch_v1_action_plans'); break;

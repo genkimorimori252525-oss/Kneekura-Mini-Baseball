@@ -1,3 +1,4 @@
+import type { SamePaInitialPitchLiveBinding } from './SamePlateAppearanceInitialBallProof';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { PitchTimingProfile } from '../../core/sim/pitch/PitchTimingModel';
 import type { PlayerWorkloadRecoveryState } from '../../core/world/development/PlayerWorkloadRecovery';
@@ -63,6 +64,7 @@ export type SamePaPitchConsumerRecord = RecordBase<SamePaPitchConsumerSource> & 
 export type SamePaExecutedPitch = RecordBase<AcceptedSamePaPhysicalPitch> & Readonly<{ kind: 'same_pa_first_pitch_executed_v1'; progressRevision: 1;
   episodeReference: SamePaReference<'pa_dispatch_v1_episodes'>; originalActor: DurablePhysicalPlateAppearanceActor;
   frame: SamePaNativePitchCalculation['frame']; beforeTimeline: SamePaNativePitchCalculation['beforeTimeline'];
+  initialLiveBallBinding?: SamePaInitialPitchLiveBinding;
   result: SamePaNativePitchCalculation['calculation']; consumerReferences: readonly SamePaReference<'pa_dispatch_v1_consumer_actions'>[] }>;
 export type SamePaConsumptionRecord = RecordBase<SamePaDerivedConsumption> & Readonly<{ kind: 'same_pa_consumed_v1';
   pitchReference: SamePaReference<'pa_dispatch_v1_pitch_actions'>; consumerReferences: readonly SamePaReference<'pa_dispatch_v1_consumer_actions'>[] }>;

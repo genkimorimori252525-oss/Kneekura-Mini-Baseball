@@ -78,8 +78,8 @@ export const ref = (s: BodySourceRef): BodySourceRef => ({ sourceId: s.sourceId,
 /** This is the existing real body owner in the registered batter's own database.
  * Its combined gate must pass before these tests are eligible to establish batting RED. */
 export const registeredBatterBodyFixture = (materializationDay?: number, profile?: Parameters<typeof physicalPlateAppearanceActorFixture>[2],
-  originalBaseCenters?: Parameters<typeof physicalPlateAppearanceActorFixture>[4]) => {
-  const x = physicalPlateAppearanceActorFixture(undefined, undefined, profile, [], originalBaseCenters);
+  originalBaseCenters?: Parameters<typeof physicalPlateAppearanceActorFixture>[4], originalDefenders?: Parameters<typeof physicalPlateAppearanceActorFixture>[5]) => {
+  const x = physicalPlateAppearanceActorFixture(undefined, undefined, profile, [], originalBaseCenters, originalDefenders);
   try {
     const actor = x.actors.accept(x.source.sourceId), person = actor.person;
     const scope: Scope = { careerId: person.careerId, playerId: person.playerId,
@@ -126,8 +126,8 @@ export const registeredBatterBodyFixture = (materializationDay?: number, profile
 };
 
 export const battingModelStanceFixture = (options: Readonly<{ modelDay?: number; profile?: Parameters<typeof physicalPlateAppearanceActorFixture>[2];
-  originalBaseCenters?: Parameters<typeof physicalPlateAppearanceActorFixture>[4] }> = {}) => {
-  const f = registeredBatterBodyFixture(options.modelDay, options.profile, options.originalBaseCenters);
+  originalBaseCenters?: Parameters<typeof physicalPlateAppearanceActorFixture>[4]; originalDefenders?: Parameters<typeof physicalPlateAppearanceActorFixture>[5] }> = {}) => {
+  const f = registeredBatterBodyFixture(options.modelDay, options.profile, options.originalBaseCenters, options.originalDefenders);
   try {
     const exports = runtime as unknown as { openSqlitePlayerBattingModelStore?: OpenModel; openSqliteBattingStanceStore?: OpenStance };
     expect(typeof exports.openSqlitePlayerBattingModelStore,

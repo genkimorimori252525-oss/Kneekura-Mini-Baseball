@@ -32,6 +32,17 @@ it('RT02 accepts bounded throw intent and original-plan checkpoints without call
     expect(() => samePaPhysicalFieldActionInput(changed as never)).toThrow();
   }
 });
+const ordinaryPurpose = { kind: 'ordinary_play_attempt_v1', runnerId: 'runner', targetBase: 'second', intent: 'attempt_retirement' } as const;
+it('RT09 accepts only explicit versioned retirement purpose, exclusive with an appeal', () => {
+  const plan = { kind: 'throw_plan_v1', member: member('carrier'), calibrationReference: ref('pa_lifecycle_v1_execution_calibrations'),
+    receiverPlayerId: 'receiver', coverageThroughTick: 5_000_000, ordinaryPlayPurpose: ordinaryPurpose };
+  expect(() => samePaPhysicalFieldActionInput(plan as never)).not.toThrow();
+  for (const changed of [{ ...plan, ordinaryPlayPurpose: undefined }, { ...plan, appealIndicationReference: ref('pa_physical_v1_field_steps') },
+    ...[{ ...ordinaryPurpose, kind: 'ordinary_play_attempt_v2' }, { ...ordinaryPurpose, intent: 'relay' },
+      { ...ordinaryPurpose, runnerId: '' }, { ...ordinaryPurpose, targetBase: 'mound' }, { ...ordinaryPurpose, isOut: true }]
+      .map(ordinaryPlayPurpose => ({ ...plan, ordinaryPlayPurpose }))])
+    expect(() => samePaPhysicalFieldActionInput(changed as never)).toThrow();
+});
 
 import { fixture, throwInput } from '../../core/sim/ball/BattedWorldScheduledFieldThrow.test-support';
 import { deriveBattedWorldFieldMotionAdoption } from '../../core/sim/ball/BattedWorldFieldMotion';
@@ -41,6 +52,9 @@ import { deriveSamePaPhysicalFieldStep } from './SamePlateAppearancePhysicalFiel
 import { assertSamePaPhysicalThrowOwnership, deriveSamePaPhysicalThrowPlan, deriveSamePaPhysicalThrowCheckpoint, samePaPhysicalPendingThrow,
   samePaPhysicalHasThrowRelease } from './SamePlateAppearancePhysicalFieldThrow';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
+import * as throwWork from './SamePlateAppearancePhysicalFieldThrow';
+import type { SamePaOrdinaryPlayPurpose } from './SamePlateAppearanceOrdinaryPlay';
+import { deriveSamePaLiveAppealRights } from './SamePlateAppearanceLiveAppealRights';
 import type { SamePaPhysicalAction, SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep, SamePaPhysicalFieldStepSource } from './SamePlateAppearancePhysicalEpisode';
 import type { DurablePlayerFieldingModel } from './SqlitePlayerFieldingModelStore';
 // Real Core custody and physics, structural episode records only. This does not
@@ -56,7 +70,10 @@ const throwFixture = (delay = 100_000, height = 5, originTick = 0, z = 5, gravit
     operationOrdinal: 0, response: input.response, geometry: input.geometry, field, evaluationTick: field.motion.world.moment.ball.tick,
     timeline: { playId: 1, startedAtTick: 0, lastEventTick: 0, nextSequence: 0, events: [], status: { kind: 'batted_ball_pending', count: { balls: 0, strikes: 0 } } },
     lineage: { playId: 1 } } as unknown as SamePaPhysicalFieldRoot;
-  const action = { physicalPitchSourceId: 'pitch', source: { nominalPitch: { delivery: { matchSeed: 42 } } }, actor: { defenderBindings: [{ playerId: 'carrier' }, { playerId: 'receiver' }] } } as unknown as SamePaPhysicalAction;
+  const action = { physicalPitchSourceId: 'pitch', source: { nominalPitch: { delivery: { matchSeed: 42 } } }, actor: {
+    binding: { playerId: 'batter' }, match: { playId: 1, bases: { first: 'runner', second: null, third: null } },
+    world: { defenders: [{ playerId: 'carrier', registeredPosition: 'P' }, { playerId: 'receiver', registeredPosition: '2B' }], runners: [{ playerId: 'runner' }] },
+    defenderBindings: [{ playerId: 'carrier' }, { playerId: 'receiver' }] } } as unknown as SamePaPhysicalAction;
   const model = { source: { sourceId: 'fielding-model', sourceVersion: 'author-fixture-only-v1', playerId: 'carrier', ratings: input.ratings,
     transferParameters: { ...input.transferParameters, maximumTransferDelayTicks: 500_000 }, throwCalibration: { ...input.throwCalibration, maximumReleaseSpeedMps: 15 } },
     person: { personId: 'carrier-person' } } as unknown as DurablePlayerFieldingModel;
@@ -147,4 +164,115 @@ it('RT08 throw-flight ground contact remains a physical boundary without becomin
   expect(moved.field.motion.world.contacts).toContainEqual(expect.objectContaining({ kind: 'ground' }));
   expect(moved.field.motion.carrierPlayerId).toBeNull(); expect(moved.timeline).toEqual(h.root.timeline);
   expect(moved.timeline.events).toEqual([]);
+});
+
+const ordinaryPlan = (h: ReturnType<typeof throwFixture>, purpose: SamePaOrdinaryPlayPurpose = ordinaryPurpose) => {
+  if (h.planSource.action?.kind !== 'throw_plan_v1') throw new Error('plan');
+  const source = { ...h.planSource, action: { ...h.planSource.action, ordinaryPlayPurpose: purpose } };
+  return h.save(source, deriveSamePaPhysicalThrowPlan(source, h.root, h.root, h.action, h.model, h.values));
+};
+it('RT10 preserves accepted purpose without changing throw physics or adding absent legacy fields', () => {
+  const h = throwFixture(), legacy = h.plan(), ordinary = ordinaryPlan(throwFixture());
+  expect(legacy.actionResult).not.toHaveProperty('ordinaryPlayPurpose');
+  expect(ordinary.actionResult).toEqual({ ...legacy.actionResult, ordinaryPlayPurpose: ordinaryPurpose });
+});
+it.each([100_000, 0])('RT15 an actual ordinary release retains exact appeal-window ordering (transfer delay %i)', transferDelay => {
+  const h = throwFixture(transferDelay), plan = ordinaryPlan(h), released = h.checkpoint(plan, 0.2);
+  const s = h.source(250_000), moved = deriveSamePaPhysicalFieldStep(s, h.root, released, released.evaluationTick, false);
+  const end = { ...released, ...moved, source: s, operationOrdinal: released.operationOrdinal + 1 };
+  delete end.actionResult;
+  h.prefix.push(end);
+  const moment = (elapsedSeconds: number) => ({ originTick: 0, elapsedSeconds, tick: Math.ceil(elapsedSeconds * 1_000_000) });
+  const viewReference = s.viewReference, endRef = reference('pa_physical_v1_field_steps', end);
+  const pitch = ref('pa_physical_v1_launches', 'pitch'), viewSource = { sourceId: 'rights-view', sourceVersion: 'fixture-only-v1' };
+  const pair: any = { fields: h.prefix, actor: { ...h.action.actor, match: { ...h.action.actor.match, outs: 1 } },
+    view: { source: viewSource, lineage: h.root.lineage }, value: { physicalPitchReference: pitch, physicalOperationReference: endRef,
+      evidence: { physical: { field: { evidence: { horizon: { elapsedSeconds: 0.25 },
+        acquisitions: [{ kind: 'secured', moment: moment(0.0625) }] } } } } } };
+  const history: any = { kind: 'same_pa_live_ball_history_v1', viewReference, lineage: h.root.lineage,
+    physicalPitchReference: pitch, physicalOperationReference: endRef, evaluatedThrough: moment(0.25),
+    actions: [{ source: { sourceId: 'original-play', sourceVersion: 'fixture-only-v1' }, state: 'live', occurredAt: moment(0) }] };
+  // The physical release is real Core output. Legal coverage below is a narrow
+  // authenticated-reader projection fixture, not a replacement Native proof.
+  const point = { classification: 'inside_playable_region', regionIds: ['accepted-interior'] };
+  const venue: any = { kind: 'same_pa_venue_legal_coverage_v1', policyReference: { sourceId: 'policy', sourceVersion: 'fixture-only-v1',
+    policyHash: hash('policy'), throughReference: endRef }, input: { originTick: 0, ticksPerSecond: 1_000_000 },
+    coverage: { intervals: [{ startElapsedSeconds: 0, endElapsedSeconds: 0.25, classification: point.classification, start: point, end: point }] },
+    fieldSegments: [{ constraint: 'free' }], carrierCoverage: [], unresolvedCarrierSpans: [], appealThrows: [] };
+  const receipt: any = { source: { action: { kind: 'appeal_contact_v1' }, viewReference, previousFieldReference: endRef },
+    actionResult: { kind: 'appeal_contact_v1', execution: { kind: 'executed', moment: moment(0.25),
+      complianceEvidence: { firstTouch: moment(0.05) } } } };
+  const result = deriveSamePaLiveAppealRights(pair, history, venue, receipt);
+  if (transferDelay === 0) {
+    expect(throwWork.deriveSamePaOrdinaryPlayAttempts(h.prefix, h.action)[0].moment).toEqual(moment(0.0625));
+    expect(result).toEqual({ kind: 'pending', reason: 'original_appeal_window_exact_order_required' });
+    return;
+  }
+  expect(result).toMatchObject({ kind: 'ready', evidence: { window: { openedAtElapsedSeconds: 0.0625,
+    closedAtElapsedSeconds: 0.1625, closeReason: 'next_pitch_or_play' } } });
+  const originalPlay = history.actions[0];
+  history.actions = [originalPlay,
+    { source: { sourceId: 'time-at-release', sourceVersion: 'fixture-only-v1' }, state: 'dead', occurredAt: moment(0.1625) },
+    { source: { sourceId: 'later-play', sourceVersion: 'fixture-only-v1' }, state: 'live', occurredAt: moment(0.2) }];
+  expect(deriveSamePaLiveAppealRights(pair, history, venue, receipt)).toEqual({
+    kind: 'pending', reason: 'original_ordinary_play_live_state_required' });
+  history.actions.push({ source: { sourceId: 'later-time', sourceVersion: 'fixture-only-v1' }, state: 'dead', occurredAt: moment(0.24) });
+  expect(deriveSamePaLiveAppealRights(pair, history, venue, receipt)).toMatchObject({
+    kind: 'ready', evidence: { liveAtExecution: { kind: 'dead', at: moment(0.24) } } });
+  history.actions = [];
+  expect(deriveSamePaLiveAppealRights(pair, history, venue, receipt)).toEqual({ kind: 'pending', reason: 'initial_live_ball_owner_missing' });
+});
+it('RT11 binds ordinary purpose to original pitch, defenders, active offensive runner and base', () => {
+  const h = throwFixture();
+  if (h.planSource.action?.kind !== 'throw_plan_v1') throw new Error('plan');
+  const source = { ...h.planSource, action: { ...h.planSource.action, ordinaryPlayPurpose: ordinaryPurpose } };
+  const derive = (action: SamePaPhysicalAction, s: SamePaPhysicalFieldStepSource = source, root = h.root) => deriveSamePaPhysicalThrowPlan(s, root, root, action, h.model, h.values);
+  for (const runnerId of ['batter', 'runner']) expect(() => derive(h.action,
+    { ...source, action: { ...source.action, ordinaryPlayPurpose: { ...ordinaryPurpose, runnerId } } })).not.toThrow();
+  for (const runnerId of ['outsider', 'carrier', 'receiver']) expect(() => derive(h.action,
+    { ...source, action: { ...source.action, ordinaryPlayPurpose: { ...ordinaryPurpose, runnerId } } })).toThrow(/ordinary play/);
+  expect(() => derive({ ...h.action, actor: { ...h.action.actor, world: { ...h.action.actor.world, runners: [] } } })).toThrow(/ordinary play/);
+  expect(() => derive({ ...h.action, actor: { ...h.action.actor, defenderBindings: h.action.actor.defenderBindings.slice(1) } })).toThrow(/ordinary play/);
+  expect(() => derive({ ...h.action, physicalPitchSourceId: 'another-pitch' })).toThrow();
+  expect(() => derive(h.action, source, { ...h.root, geometry: { ...h.root.geometry,
+    baseGeometry: { ...h.root.geometry.baseGeometry, bases: { ...h.root.geometry.baseGeometry.bases, second: undefined } } } } as never)).toThrow(/ordinary play/);
+});
+it('RT12 projects an attempted ordinary play only at its linked actual release, before any retirement', () => {
+  const h = throwFixture(), plan = ordinaryPlan(h);
+  expect(throwWork.deriveSamePaOrdinaryPlayAttempts(h.prefix, h.action)).toEqual([]);
+  h.checkpoint(plan, 0.1);
+  expect(throwWork.deriveSamePaOrdinaryPlayAttempts(h.prefix, h.action)).toEqual([]);
+  const released = h.checkpoint(plan, 0.2);
+  expect(throwWork.deriveSamePaOrdinaryPlayAttempts(h.prefix, h.action)).toEqual([{
+    kind: 'ordinary_play_attempt_v1', planReference: reference('pa_physical_v1_field_steps', plan),
+    releaseReference: reference('pa_physical_v1_field_steps', released), throwerId: 'carrier', receiverPlayerId: 'receiver',
+    purpose: ordinaryPurpose, moment: { originTick: 0, elapsedSeconds: 0.1625, tick: 162_500 },
+  }]);
+  expect(released.timeline.events).toEqual([]);
+});
+it('RT13 excludes unpurposed throws, appeal throws and transfers interrupted before release', () => {
+  const legacy = throwFixture(), legacyPlan = legacy.plan(); legacy.checkpoint(legacyPlan, 0.2);
+  expect(throwWork.deriveSamePaOrdinaryPlayAttempts(legacy.prefix, legacy.action)).toEqual([]);
+  const interrupted = throwFixture(2_000_000, 0.5, 0, 0), interruptedPlan = ordinaryPlan(interrupted);
+  interrupted.checkpoint(interruptedPlan, 3);
+  expect(throwWork.deriveSamePaOrdinaryPlayAttempts(interrupted.prefix, interrupted.action)).toEqual([]);
+  const appeal = throwFixture();
+  if (appeal.planSource.action?.kind !== 'throw_plan_v1') throw new Error('plan');
+  const source = { ...appeal.planSource, action: { ...appeal.planSource.action, appealIndicationReference: ref('pa_physical_v1_field_steps') as never } };
+  const plan = appeal.save(source, deriveSamePaPhysicalThrowPlan(source, appeal.root, appeal.root, appeal.action, appeal.model, appeal.values));
+  appeal.checkpoint(plan, 0.2);
+  expect(throwWork.deriveSamePaOrdinaryPlayAttempts(appeal.prefix, appeal.action)).toEqual([]);
+});
+it('RT14 rejects detached, reordered, duplicated or relabelled ordinary release receipts', () => {
+  const h = throwFixture(), plan = ordinaryPlan(h), release = h.checkpoint(plan, 0.2);
+  if (release.actionResult?.kind !== 'throw_checkpoint_v1' || plan.actionResult?.kind !== 'throw_plan_v1') throw new Error('throw');
+  const releaseResult = release.actionResult, planResult = plan.actionResult;
+  const project = (prefix: typeof h.prefix) => throwWork.deriveSamePaOrdinaryPlayAttempts(prefix, h.action);
+  expect(() => project([h.root, release, plan])).toThrow(/ordinary play/);
+  expect(() => project([...h.prefix, release])).toThrow(/ordinary play/);
+  expect(() => project([h.root, plan, { ...release, actionResult: { ...releaseResult,
+    planReference: { ...releaseResult.planReference, snapshotHash: hash('wrong') } } }])).toThrow(/ordinary play/);
+  expect(() => project([h.root, { ...plan, actionResult: { ...planResult,
+    ordinaryPlayPurpose: { ...ordinaryPurpose, targetBase: 'third' } } }, release])).toThrow(/ordinary play/);
+  expect(() => project([h.root, plan, { ...release, physicalPitchSourceId: 'other-pitch' }])).toThrow(/ordinary play/);
 });

@@ -14,10 +14,13 @@ import type { SamePaCatchWorkReference } from './SamePlateAppearanceCatchWork';
 import type { SamePaCatchObservationEvidence } from './SamePlateAppearanceCatchObservationFromSqlite';
 import type { SamePaCatchDefenderResponse } from './SamePlateAppearanceCatchDefenderResponse';
 import { samePaBatterCatchResponseInput, type SamePaBatterCatchResponseRequest, type SamePaBatterCatchResponse } from './SamePlateAppearanceBatterCatchResponse';
+import { samePaOrdinaryPlayPurposeValid, type SamePaOrdinaryPlayPurpose } from './SamePlateAppearanceOrdinaryPlay';
+import { samePaDefenderDeparturePurposeInput, type SamePaDefenderDeparturePurposeRequest, type SamePaDefenderDeparturePurpose } from './SamePlateAppearanceDefenderDeparture';
 export type SamePaPhysicalFieldReference = SamePaReference<'pa_physical_v1_field_roots' | 'pa_physical_v1_field_steps'>;
 type CalibrationReference = SamePaReference<'pa_lifecycle_v1_execution_calibrations'>;
 type StepReference = SamePaReference<'pa_physical_v1_field_steps'>;
 export type SamePaPhysicalFieldAction =
+  | SamePaDefenderDeparturePurposeRequest
   | SamePaLiveAppealIndicationRequest | SamePaLiveAppealContactRequest
   | SamePaOccupiedRunnerMotionRequest
   | SamePaOccupiedRunnerCatchResponseRequest | SamePaOccupiedRunnerCatchMotionRequest
@@ -36,10 +39,11 @@ export type SamePaPhysicalFieldAction =
   | Readonly<{ kind: 'defender_motion_v1'; selections: readonly Readonly<{ member: SamePaDispatchMember;
       decisionReference: StepReference; calibrationReference: CalibrationReference }>[] }>
   | Readonly<{ kind: 'throw_plan_v1'; member: SamePaDispatchMember; calibrationReference: CalibrationReference;
-      receiverPlayerId: string; coverageThroughTick: number; appealIndicationReference?: StepReference }>
+      receiverPlayerId: string; coverageThroughTick: number; appealIndicationReference?: StepReference; ordinaryPlayPurpose?: SamePaOrdinaryPlayPurpose }>
   | Readonly<{ kind: 'throw_checkpoint_v1'; planReference: StepReference; throughElapsedSeconds: number }>
   | Readonly<{ kind: 'capture_checkpoint_v1'; candidateReference: SamePaPhysicalFieldReference; throughElapsedSeconds: number }>;
 export type SamePaPhysicalFieldActionResult =
+  | SamePaDefenderDeparturePurpose
   | SamePaLiveAppealIndication | SamePaLiveAppealContact
   | SamePaOccupiedRunnerMotionResult
   | SamePaOccupiedRunnerCatchResponse
@@ -58,7 +62,8 @@ export type SamePaPhysicalFieldActionResult =
       calculation: DefensiveExecutionCalculation; target: Readonly<{ x: number; z: number }> | null;
       availability: ActualFieldObservationReceipt['at']; fieldingModelHash: string }>
   | Readonly<{ kind: 'defender_motion_v1'; motors: readonly SamePaPhysicalFieldMotor[]; coverageThroughTick: number }>
-  | Readonly<{ kind: 'throw_plan_v1'; plan: BattedWorldScheduledFieldThrowPlan; fieldingModelHash: string; appealIndicationReference?: StepReference }>
+  | Readonly<{ kind: 'throw_plan_v1'; plan: BattedWorldScheduledFieldThrowPlan; fieldingModelHash: string; appealIndicationReference?: StepReference;
+      ordinaryPlayPurpose?: SamePaOrdinaryPlayPurpose }>
   | Readonly<{ kind: 'throw_checkpoint_v1'; planReference: StepReference; progress: BattedWorldScheduledFieldThrowAdvance }>
   | Readonly<{ kind: 'capture_checkpoint_v1'; candidateReference: SamePaPhysicalFieldReference; progress: BattedWorldScheduledFieldAcquisitionAdvance }>;
 const vector = (v: unknown) => fields(v, ['x', 'y', 'z']) && Object.values(v).every(Number.isFinite);
@@ -66,7 +71,8 @@ const unit = (v: unknown) => typeof v === 'number' && Number.isFinite(v) && v >=
 const member = (value: unknown, calibrationReference: unknown) => samePaDispatchMemberValid(value)
   && ref(calibrationReference, 'pa_lifecycle_v1_execution_calibrations');
 export const samePaPhysicalFieldActionInput = (a: SamePaPhysicalFieldAction): void => {
-  if (a?.kind === 'appeal_indication_v1' || a?.kind === 'appeal_contact_v1') samePaLiveAppealInput(a);
+  if (a?.kind === 'defender_departure_purpose_v1') samePaDefenderDeparturePurposeInput(a);
+  else if (a?.kind === 'appeal_indication_v1' || a?.kind === 'appeal_contact_v1') samePaLiveAppealInput(a);
   else if (a?.kind === 'occupied_runner_motion_v1') samePaOccupiedRunnerMotionInput(a);
   else if (a?.kind === 'occupied_runner_catch_response_v1') samePaOccupiedRunnerCatchResponseInput(a);
   else if (a?.kind === 'occupied_runner_catch_motion_v1') {
@@ -105,8 +111,10 @@ export const samePaPhysicalFieldActionInput = (a: SamePaPhysicalFieldAction): vo
       || a.selections.some(s => !fields(s, ['member', 'decisionReference', 'calibrationReference']) || !member(s.member, s.calibrationReference)
         || !ref(s.decisionReference, 'pa_physical_v1_field_steps'))) throw new Error('invalid physical field motion Source');
   } else if (a?.kind === 'throw_plan_v1') {
-    if (!fields(a, ['kind', 'member', 'calibrationReference', 'receiverPlayerId', 'coverageThroughTick', ...('appealIndicationReference' in a ? ['appealIndicationReference'] : [])]) || !member(a.member, a.calibrationReference)
+    if (!fields(a, ['kind', 'member', 'calibrationReference', 'receiverPlayerId', 'coverageThroughTick', ...('appealIndicationReference' in a ? ['appealIndicationReference'] : []),
+      ...('ordinaryPlayPurpose' in a ? ['ordinaryPlayPurpose'] : [])]) || !member(a.member, a.calibrationReference)
       || 'appealIndicationReference' in a && !ref(a.appealIndicationReference,'pa_physical_v1_field_steps')
+      || 'ordinaryPlayPurpose' in a && (!samePaOrdinaryPlayPurposeValid(a.ordinaryPlayPurpose) || 'appealIndicationReference' in a)
       || !text(a.receiverPlayerId) || a.receiverPlayerId === a.member.playerId || !Number.isSafeInteger(a.coverageThroughTick)
       || a.coverageThroughTick < 0) throw new Error('invalid physical throw plan Source');
   } else if (a?.kind === 'throw_checkpoint_v1') {
