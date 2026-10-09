@@ -15,8 +15,8 @@ import { originalBattingIntentInput } from './OriginalBattingIntent';
 import { readBattingPerceptionFromSqlite } from './SqliteBattingPerceptionStore';
 import { readBattingEmotionExecutionFromSqlite, readCurrentBattingEmotionExecutionFromSqlite } from './SqliteBattingEmotionExecutionStore';
 import { readHistoricalSamePaContinuationViewFromSqlite, readCurrentSamePaContinuationViewFromSqlite,
-  readSamePaContinuationCalibrationFromSqlite, readCurrentSamePaContinuationCalibrationFromSqlite, readSamePaContinuationRecordFromSqlite } from './SamePlateAppearanceContinuationFromSqlite';
-import { readSamePaExecutedPitchFromSqlite } from './SqliteSamePlateAppearanceDispatchStore';
+  readSamePaContinuationCalibrationFromSqlite, readCurrentSamePaContinuationCalibrationFromSqlite, readSamePaContinuationRecordFromSqlite,
+  readSamePaContinuationOriginalPitchFromSqlite } from './SamePlateAppearanceContinuationFromSqlite';
 import { readEmotionWorldRevisionFromSqlite, readHistoricalEmotionWorldRevisionFromSqlite } from './EmotionWorldRevisionFromSqlite';
 import { readCurrentSamePaBattingKnowledgeFromSqlite } from './SamePlateAppearanceBattingKnowledgeFromSqlite';
 import { battingInvocationTransaction } from './BattingInvocationTransaction';
@@ -126,7 +126,7 @@ const assembly = (db: DatabaseSync) => {
     const world = current ? readEmotionWorldRevisionFromSqlite(db, b.view.lineage.careerId) : readHistoricalEmotionWorldRevisionFromSqlite(db, b.view.lineage.careerId, source.expectedWorld.worldRevision);
     if (!world) return pending('actual_world_control_head_missing');
     same(source.expectedWorld, { careerId: b.view.lineage.careerId, worldRevision: world.head.worldRevision, controlRevision: world.head.control.revision, controlHash: hash(world.head.control) });
-    const { pitch } = readSamePaExecutedPitchFromSqlite(db, b.view.physicalCut.pitchReference), timeline = pitch.result.resolution.timeline;
+    const { pitch } = readSamePaContinuationOriginalPitchFromSqlite(db, b.view.physicalCut.pitchReference), timeline = pitch.result.resolution.timeline;
     if (timeline.status.kind !== 'active') return pending('plate_appearance_terminal');
     if (posture.physicalPitchSourceId !== pitch.source.sourceId || b.view.evaluationTick > posture.source.geometry.validUntilTick) return pending('owned_current_batting_posture_unavailable');
     const predictions = source.assessmentReferences.map(ref => {

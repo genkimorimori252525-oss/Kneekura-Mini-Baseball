@@ -1,3 +1,5 @@
+import type { DatabaseSync as NativeDatabase } from 'node:sqlite';
+import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
@@ -78,13 +80,17 @@ const same = (left: unknown, right: unknown): boolean =>
 /** Reads the actual official application ledger; no caller-provided play result is trusted. */
 export class SqliteOfficialParticipationStore {
   private readonly db: InstanceType<typeof DatabaseSync>;
-  constructor(path: string, private readonly authority?: ParticipationAuthority) {
-    if (!id(path) || authority !== undefined && (!authority || typeof authority.readGame !== 'function'
+  private readonly ownsConnection: boolean;
+  constructor(path: string | NativeDatabase, private readonly authority?: ParticipationAuthority) {
+    if (typeof path === 'string' && !id(path) || authority !== undefined && (!authority || typeof authority.readGame !== 'function'
       || typeof authority.readRoster !== 'function'
       || typeof authority.readPersonLink !== 'function')) {
       throw new Error('participation requires an accepted source authority');
     }
-    this.db = new DatabaseSync(path);
+    this.ownsConnection = typeof path === 'string';
+    this.db = typeof path === 'string' ? new DatabaseSync(path) : path;
+    if (!(this.db instanceof DatabaseSync)) throw new Error('participation evidence requires a Native connection');
+    if (this.ownsConnection) {
     this.db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;');
     this.db.exec(`CREATE TABLE IF NOT EXISTS official_participant_bindings (
       game_id TEXT NOT NULL, player_id TEXT NOT NULL, binding_json TEXT NOT NULL,
@@ -95,9 +101,10 @@ export class SqliteOfficialParticipationStore {
       receipt_json TEXT NOT NULL, UNIQUE(game_id, player_id),
       FOREIGN KEY(game_id, player_id) REFERENCES official_participant_bindings(game_id, player_id)
     );`);
+    }
   }
 
-  close(): void { this.db.close(); }
+  close(): void { if (this.ownsConnection) this.db.close(); }
 
   bindPregame(input: OfficialParticipantBinding): OfficialParticipantBinding {
     if (!this.authority) throw new Error('pregame participation requires an accepted source authority');
@@ -397,12 +404,23 @@ export class SqliteOfficialParticipationStore {
   readAcceptedPopularityEvent(receiptId: string): AcceptedPublicCareerEvent | null {
     const receipt = this.readReceipt(receiptId);
     if (!receipt) return null;
-    const binding = receipt.binding;
-    return Object.freeze({ eventId: receipt.receiptId,
-      careerId: binding.careerId, personId: binding.personId,
-      kind: 'OFFICIAL_GAME', sourceRecordId: receipt.receiptId,
-      acceptedRevision: receipt.durableRevision,
-      occurredAtDay: binding.gameDay, acceptedAtDay: binding.gameDay,
-      transfer: null });
+    return officialParticipationCareerEvent(receipt);
   }
 }
+
+/** Projection only; the consuming persistence boundary authenticates the receipt first. */
+export const officialParticipationCareerEvent = (receipt: OfficialParticipationReceipt): AcceptedPublicCareerEvent => {
+  const binding = receipt.binding;
+  return Object.freeze({ eventId: receipt.receiptId,
+    careerId: binding.careerId, personId: binding.personId,
+    kind: 'OFFICIAL_GAME', sourceRecordId: receipt.receiptId,
+    acceptedRevision: receipt.durableRevision,
+    occurredAtDay: binding.gameDay, acceptedAtDay: binding.gameDay,
+    transfer: null });
+};
+
+/** Same receipt owner on the consumer's snapshot; no DDL, writer or close capability escapes. */
+export const officialParticipationEvidenceFromSqlite = (db: NativeDatabase): Pick<SqliteOfficialParticipationStore, 'readReceipt'> => {
+  const owner = new SqliteOfficialParticipationStore(db);
+  return Object.freeze({ readReceipt: (receiptId: string) => withBattedVenueLegalReadSnapshot(db, () => owner.readReceipt(receiptId)) });
+};

@@ -1,3 +1,4 @@
+import { NATIONAL_EXPOSURE_DEVELOPMENT_KIND, readNationalExposureDevelopmentBoundary } from './NationalExposureDevelopmentOrigin';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
 import { appendDevelopmentLearningEvent, type DevelopmentLearningEpisode, type DevelopmentLearningEventInput } from '../../core/world/development/DevelopmentLearningEpisode';
@@ -100,9 +101,12 @@ const learningEvidence = (connection: EvidenceDb, episodeId: string, readPhysica
   if (!initiation) throw new Error('practice learning initiation source is missing');
   const request = JSON.parse(initiation.request_json) as { executionId: string; personSourceId: string; kind?: unknown };
   if (Object.hasOwn(request, 'kind')) {
-    if (request.kind !== PRACTICE_DEVELOPMENT_KIND || !readPhysical) throw new Error('invalid practice learning initiation source kind');
-    const { saved } = readPracticeDevelopmentBoundary(connection, initiation, readPhysical);
-    return { sourceKind: PRACTICE_DEVELOPMENT_KIND, initiation, origin: saved,
+    const saved = request.kind === NATIONAL_EXPOSURE_DEVELOPMENT_KIND
+      ? readNationalExposureDevelopmentBoundary(connection as DatabaseSync, initiation).saved
+      : request.kind === PRACTICE_DEVELOPMENT_KIND && readPhysical
+        ? readPracticeDevelopmentBoundary(connection, initiation, readPhysical).saved : null;
+    if (!saved) throw new Error('invalid practice learning initiation source kind');
+    return { sourceKind: request.kind, initiation, origin: saved,
       link: connection.prepare('SELECT * FROM world_player_person_links WHERE source_id=?').get(request.personSourceId) ?? null,
       person: connection.prepare('SELECT * FROM world_person_priors WHERE source_id=?').get(request.personSourceId) ?? null,
       genesis: connection.prepare('SELECT * FROM world_person_genesis_careers WHERE career_id=?').get(initiation.career_id) ?? null };
@@ -280,7 +284,7 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
       const verified = verification(), attempt = decode(row, connection, row.revision, verified);
       const evidence = JSON.parse(row.learning_evidence_json) as { sourceKind?: unknown } | null;
       if (evidence !== null && Object.hasOwn(evidence, 'sourceKind')) {
-        if (evidence.sourceKind !== PRACTICE_DEVELOPMENT_KIND) throw new Error('invalid practice learning source kind');
+        if (evidence.sourceKind !== PRACTICE_DEVELOPMENT_KIND && evidence.sourceKind !== NATIONAL_EXPOSURE_DEVELOPMENT_KIND) throw new Error('invalid practice learning source kind');
         // The public DTO claims this earlier learning origin. Reauthenticate it
         // without making the internal physical decoder depend on an episode head.
         assertEpisodeBoundary(connection, row, verified);

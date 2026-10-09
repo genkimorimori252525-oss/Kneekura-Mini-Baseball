@@ -11,6 +11,7 @@ import { deriveBallWorldFieldFirstBaseRaceWithPossessionEvidence, type PendingFi
 import { actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import type { SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep } from './SamePlateAppearancePhysicalEpisode';
+import { samePaPlayableWallEvidence } from './SamePlateAppearancePlayableWallPolicy';
 type Field = SamePaPhysicalFieldRoot | SamePaPhysicalFieldStep;
 type Input = Readonly<{ fields: readonly Field[]; batterRunnerId: string; defenderIds: readonly string[]; outsAtStart: number }>;
 const fieldReference = (f: Field) => reference(f.kind === 'same_pa_physical_field_root_v1' ? 'pa_physical_v1_field_roots' : 'pa_physical_v1_field_steps', f);
@@ -125,9 +126,12 @@ export const deriveSamePaFieldRuleEvidence = (raw: Input) => {
   const batterFirstBase = historyFor(input.batterRunnerId), defendersFirstBase = input.defenderIds.map(historyFor);
   const possessionEvidence = { policy: 'scheduled_capture_confirmation_v1' as const, originTick, ticksPerSecond: p.ticksPerSecond,
     throughElapsedSeconds: horizon.elapsedSeconds, pending };
-  const rule = deriveBallWorldFieldFirstBaseRaceWithPossessionEvidence({ field, possessionEvidence, race: { outsAtStart: input.outsAtStart,
+  const venue = samePaPlayableWallEvidence(root, input.fields);
+  const rule = deriveBallWorldFieldFirstBaseRaceWithPossessionEvidence({ field, possessionEvidence,
+    ...(venue === undefined ? {} : { playableWalls: venue.playableWalls }), race: { outsAtStart: input.outsAtStart,
     batterRunnerId: input.batterRunnerId, defenderIds: input.defenderIds, originTick, ticksPerSecond: p.ticksPerSecond,
     horizonElapsedSeconds: horizon.elapsedSeconds, runnerHistory: batterFirstBase.history, defenders: defendersFirstBase } });
   return freeze({ physical: { field, segments, controlWindows }, batterFirstBase, defendersFirstBase, rule,
+    ...(venue === undefined ? {} : { venuePolicyReference: venue.venuePolicyReference }),
     terminal: { kind: 'pending' as const, reason: 'reserved_live_play_end_owner_missing' as const, physicalEnd: null } });
 };

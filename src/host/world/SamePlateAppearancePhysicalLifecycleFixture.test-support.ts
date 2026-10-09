@@ -15,6 +15,7 @@ import { openSqliteWorldControlStore } from './SqliteWorldControlStore';
 import type { SamePaLifecycleWorkReference } from './SamePlateAppearanceLifecycle';
 import type { SamePaPhysicalActionSource } from './SamePlateAppearancePhysicalEpisode';
 import type { PlayerObservationCalibration } from '../../core/sim/perception/PlayerObservationCalibration';
+import type { PlayerLocomotionCalibration } from '../../core/sim/fielding/PlayerLocomotionCalibration';
 import type { AcceptedBattingCapability, AcceptedBattingObservationCalibration } from './PlayerBattingModel';
 import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import type { AcceptedInFlightBattingPosture } from './NativeInFlightBattingPerception';
@@ -23,7 +24,7 @@ import type { Vec3 } from '../../core/model/geometry';
 /** Source-only synthetic ownership fixture. It performs the two earlier TAKEs
  * through the real owners, then exposes a current accepted lifecycle view.
  * No returned actor/view is manufactured or supplied to a production writer. */
-export const samePaPhysicalLifecycleFixture=(options:Readonly<{explicitBatterObservation?:AcceptedBattingObservationCalibration['values'];explicitDefenderObservation?:PlayerObservationCalibration;explicitBatterMotor?:AcceptedBattingCapability['values'];profile?:NonNullable<Parameters<typeof directNativeDispatchFixture>[0]>['profile'];explicitDefenderGloveOffsets?:Readonly<Record<string,Vec3>>}>={})=>{
+export const samePaPhysicalLifecycleFixture=(options:Readonly<{explicitBatterObservation?:AcceptedBattingObservationCalibration['values'];explicitDefenderObservation?:PlayerObservationCalibration;explicitBatterMotor?:AcceptedBattingCapability['values'];explicitDefenderLocomotion?:PlayerLocomotionCalibration;profile?:NonNullable<Parameters<typeof directNativeDispatchFixture>[0]>['profile'];explicitDefenderGloveOffsets?:Readonly<Record<string,Vec3>>}>={})=>{
   const f=directNativeDispatchFixture({profile:options.profile}),accepted=new Map<string,unknown>(),track=f.x.f.track;
   const save=<T extends {sourceId:string}>(s:T):T=>{accepted.set(s.sourceId,s);return s;};
   try{
@@ -77,10 +78,10 @@ export const samePaPhysicalLifecycleFixture=(options:Readonly<{explicitBatterObs
     save({sourceId:postureSource.nextPhysicalPitchSourceId,sourceVersion:'fixture-only-v1',capability:'same_pa_successor_take_pitch_v1',actionReference:setupSource.actionReference,setupReference:reference('pa_take_successor_v1_setups',setup)});
     const second=next.acceptPhysicalPitch(postureSource.nextPhysicalPitchSourceId);if(second.kind==='pending')throw new Error('real second TAKE pending');
     const events:SamePaLifecycleWorkReference[]=[reference('pa_take_successor_v1_pitch_actions',second)];
-    let basis=prepareSamePaLifecycleFixture(f,anchor.viewReference,[...events],'physical-fixture:cut0',efforts,options.explicitBatterObservation,options.explicitDefenderObservation,options.explicitBatterMotor);
+    let basis=prepareSamePaLifecycleFixture(f,anchor.viewReference,[...events],'physical-fixture:cut0',efforts,options.explicitBatterObservation,options.explicitDefenderObservation,options.explicitBatterMotor,options.explicitDefenderLocomotion);
     const physical=track(openSqliteSamePlateAppearancePhysicalEpisodeStore(f.path,{readAcceptedAction:id=>accepted.get(id),readAcceptedRight:id=>accepted.get(id),readAcceptedFieldCalibration:id=>accepted.get(id),readAcceptedOperation:id=>accepted.get(id)}));
     const current=()=>basis;
-    const advance=(ref:SamePaLifecycleWorkReference)=>{events.push(ref);basis=prepareSamePaLifecycleFixture(f,anchor.viewReference,[...events],'physical-fixture:cut'+events.length,efforts,options.explicitBatterObservation,options.explicitDefenderObservation,options.explicitBatterMotor);return basis;};
+    const advance=(ref:SamePaLifecycleWorkReference)=>{events.push(ref);basis=prepareSamePaLifecycleFixture(f,anchor.viewReference,[...events],'physical-fixture:cut'+events.length,efforts,options.explicitBatterObservation,options.explicitDefenderObservation,options.explicitBatterMotor,options.explicitDefenderLocomotion);return basis;};
     const prepareAction=(label:string,battingMode:SamePaPhysicalActionSource['battingMode'],nominalPitch:SamePaPhysicalActionSource['nominalPitch'],actualFlightParameters=flight().parameters)=>{
       const s=save({sourceId:label+':action',sourceVersion:'fixture-only-v1',capability:'same_pa_physical_action_v1',viewReference:basis.viewReference,physicalPitchSourceId:label+':launch',battingMode,nominalPitch,
         timingReference:original.timingReference,releaseReference:original.releaseReference,pitchResponseReference:original.pitchResponseReference,batterModelReference:original.batterModelReference,

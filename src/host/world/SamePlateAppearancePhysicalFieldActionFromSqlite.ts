@@ -1,3 +1,5 @@
+import { readBatterRunPlanFromSqlite } from './SqliteBatterRunPlanStore';
+import { deriveSamePaBatterRunMotion } from './SamePlateAppearanceBatterRunMotion';
 import type { DatabaseSync } from 'node:sqlite';
 import { deriveBattedWorldFieldMotionCheckpoint } from '../../core/sim/ball/BattedWorldFieldMotion';
 import { sampleExecutedFieldObservationWithCalibration } from './ExecutedFieldObservation';
@@ -13,6 +15,8 @@ import { samePaPhysicalDefenderSelf, deriveSamePaPhysicalFieldMotor } from './Sa
 import { deriveSamePaPhysicalFieldCapture } from './SamePlateAppearancePhysicalFieldCapture';
 import { assertSamePaPhysicalThrowOwnership, deriveSamePaPhysicalThrowPlan, deriveSamePaPhysicalThrowCheckpoint, samePaPhysicalHasThrowRelease } from './SamePlateAppearancePhysicalFieldThrow';
 import { samePaPhysicalTimelineAtField } from './SamePlateAppearancePhysicalFieldCalculation';
+import { readSamePaCatchObservationFromSqlite } from './SamePlateAppearanceCatchObservationFromSqlite';
+import { deriveSamePaCatchDefenderResponse } from './SamePlateAppearanceCatchDefenderResponse';
 import type { SamePaPhysicalFieldActionResult, SamePaPhysicalFieldReference } from './SamePlateAppearancePhysicalFieldAction';
 import type { SamePaPhysicalAction, SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep, SamePaPhysicalFieldStepSource } from './SamePlateAppearancePhysicalEpisode';
 import type { SamePaLifecycleViewBasis } from './SamePlateAppearanceLifecycle';
@@ -24,7 +28,7 @@ type Field = SamePaPhysicalFieldRoot | SamePaPhysicalFieldStep;
 const fieldReference = (field: Field) => reference(field.kind === 'same_pa_physical_field_root_v1' ? 'pa_physical_v1_field_roots' : 'pa_physical_v1_field_steps', field);
 const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw new Error('physical field action original dependency differs'); };
 const result = (step: Field) => step.kind === 'same_pa_physical_field_step_v1' ? step.actionResult : undefined;
-const noAdvance = (field: Field) => result(field)?.kind === 'defender_observation_v1' || result(field)?.kind === 'defender_decision_v1';
+const noAdvance = (field: Field) => result(field)?.kind === 'defender_observation_v1' || result(field)?.kind === 'defender_decision_v1' || result(field)?.kind === 'defender_catch_response_v1';
 /** Reconstruct the actual episode graph on the Native owner's pinned read phase.
  * Sources contain only accepted input references, view geometry and priorities. */
 export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePaPhysicalFieldStepSource, root: SamePaPhysicalFieldRoot,
@@ -77,9 +81,14 @@ export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePa
       playId: root.lineage.playId, playerIds: [action.actor.binding.playerId, ...action.actor.defenderBindings.map(b => b.playerId)],
       actors: motion.actors, surfaces: root.response.world.surfaces, bases: Object.values(root.geometry.bases), ballMoment,
     }, c.response.values, prior);
-    return stable({ kind: request.kind, playerId: request.member.playerId, samplingRequest, receipt, fieldingModelHash: hash(model.fieldingModel) });
+    const received = request.catchWorkReference ? readSamePaCatchObservationFromSqlite(db, request.catchWorkReference, basis, previous, receipt) : { receipt };
+    return stable({ kind: request.kind, playerId: request.member.playerId, samplingRequest, ...received, fieldingModelHash: hash(model.fieldingModel) });
   }
   if (request.kind === 'defender_decision_v1') {
+    const response = [...prefix].reverse().find(f => { const r = result(f); return r?.kind === 'defender_catch_response_v1' && r.playerId === request.member.playerId; });
+    if (response && !prefix.slice(prefix.indexOf(response) + 1).some(f => f.kind === 'same_pa_physical_field_step_v1'
+      && f.source.action?.kind === 'defender_motion_v1' && f.source.action.selections.some(s => s.member.playerId === request.member.playerId
+        && json(s.decisionReference) === json(fieldReference(response))))) throw new Error('received caught response still owns defender decision work');
     const c = calibration(request.member, request.calibrationReference);
     if (c.route !== 'defender_decision') throw new Error('physical decision effective route differs');
     const observation = linked(request.observationReference), r = result(observation);
@@ -97,6 +106,7 @@ export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePa
     return stable({ kind: request.kind, playerId: request.member.playerId, observationReference: request.observationReference, calculation,
       target: target === null ? null : { x: target.x, z: target.z }, availability: at, fieldingModelHash: hash(model.fieldingModel) });
   }
+  if (request.kind === 'defender_catch_response_v1') return stable(deriveSamePaCatchDefenderResponse(db, source, root, previous, basis, prefix));
   if (request.kind === 'capture_checkpoint_v1') {
     const physical = [...prefix].reverse().find(f => !noAdvance(f));
     if (!physical) throw new Error('physical capture predecessor missing');
@@ -122,6 +132,11 @@ export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePa
     }
     return deriveSamePaPhysicalThrowPlan(source, root, previous, action, model, c.response.values);
   }
+  if (request.kind === 'batter_run_motion_v1') {
+    const plan = readBatterRunPlanFromSqlite(db, request.planReference);
+    if (plan.playerId !== action.actor.binding.playerId || plan.personId !== action.actor.binding.personId) throw new Error('physical batter-run original actor differs');
+    return deriveSamePaBatterRunMotion(source, root, previous, plan, prefix);
+  }
   const motion = previous.field.motion, p = root.response.world.parameters;
   if (!motion.cursor || source.throughTick <= previous.evaluationTick) throw new Error('physical moving field requires a resolved cursor and covered progress');
   const posture = readBattingPerceptionFromSqlite(db, 'posture', root.source.postureReference);
@@ -131,14 +146,28 @@ export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePa
     const c = calibration(selection.member, selection.calibrationReference);
     if (c.route !== 'defender_locomotion') throw new Error('physical movement effective route differs');
     const decision = linked(selection.decisionReference), d = result(decision);
-    same(decision, latest('defender_decision_v1', selection.member.playerId));
-    if (d?.kind !== 'defender_decision_v1' || d.playerId !== selection.member.playerId) throw new Error('physical movement owned decision missing');
+    same(decision, [...prefix].reverse().find(f => { const r = result(f); return (r?.kind === 'defender_decision_v1' || r?.kind === 'defender_catch_response_v1') && r.playerId === selection.member.playerId; }));
+    if ((d?.kind !== 'defender_decision_v1' && d?.kind !== 'defender_catch_response_v1') || d.playerId !== selection.member.playerId) throw new Error('physical movement owned decision missing');
     const model = playerLocomotionModelEvidenceFromSqlite(db).read(c.nominalReference.sourceId);
     if (!model) throw new Error('physical movement nominal model missing');
     same(reference('world_player_locomotion_models', model), c.nominalReference); same(hash(model.fieldingModel), d.fieldingModelHash);
     const body = posture.sceneBodies.find(b => b.source.playerId === selection.member.playerId);
     if (!body) throw new Error('physical moving field original Person body missing');
     const self = samePaPhysicalDefenderSelf(action, root, previous, body.actor);
+    if (d.kind === 'defender_catch_response_v1') {
+      const r = d.replan, schedule = r.scheduling;
+      if (r.semantic !== 'ready' || r.phase !== 'renewal_due' || !r.selected || !r.selectedAt || !r.availableAt || !d.issuedBySourceId
+        || !schedule || schedule.firstStepDelayTicks === null || schedule.movementStartTick === null)
+        throw new Error('caught response has no actually issued and due motor');
+      const issued = prefix.find(f => f.source.sourceId === d.issuedBySourceId), issuedResult = issued && result(issued);
+      if (!issued || issuedResult?.kind !== 'defender_catch_response_v1' || issuedResult.issuedBySourceId !== issued.source.sourceId
+        || json(issuedResult.replan.selectedAt) !== json(r.selectedAt) || json(issuedResult.replan.selected) !== json(r.selected)
+        || issuedResult.replan.processSourceId !== r.processSourceId || issued.field.motion.world.moment.elapsedSeconds !== r.selectedAt.elapsedSeconds)
+        throw new Error('caught response original decision commitment missing');
+      return deriveSamePaPhysicalFieldMotor({ sourceId: issued.source.sourceId, playerId: d.playerId, physicalPitchSourceId: root.physicalPitchSourceId,
+        ticksPerSecond: p.ticksPerSecond, availability: r.availableAt, scheduling: { ...schedule, firstStepDelayTicks: schedule.firstStepDelayTicks, movementStartTick: schedule.movementStartTick },
+        selected: r.selected, target: r.target, lifecycle: { status: 'issued', issuedAt: r.selectedAt, issuedBySourceId: issued.source.sourceId } }, model, self, c.response.values);
+    }
     return deriveSamePaPhysicalFieldMotor({ sourceId: decision.source.sourceId, playerId: d.playerId, physicalPitchSourceId: root.physicalPitchSourceId,
       ticksPerSecond: p.ticksPerSecond, availability: d.availability, scheduling: d.calculation.scheduling, selected: d.calculation.selected, target: d.target,
       lifecycle: { status: 'issued', issuedAt: at, issuedBySourceId: decision.source.sourceId } }, model, self, c.response.values);

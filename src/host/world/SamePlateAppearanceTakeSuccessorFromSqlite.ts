@@ -12,9 +12,8 @@ import { actorHash as hash, actorJson as json, actorFreeze as freeze, assertPhys
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { samePaReferenceValid, samePaText, type SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import { samePaMetadataClaim as claim } from './SamePlateAppearanceReservationGuard';
-import { readSamePaExecutedPitchFromSqlite } from './SqliteSamePlateAppearanceDispatchStore';
 import { readCurrentSamePaContinuationViewFromSqlite, readHistoricalSamePaContinuationViewFromSqlite, readSamePaContinuationCalibrationFromSqlite,
-  readSamePaContinuationRecordFromSqlite, withSamePaContinuationReadPhase } from './SamePlateAppearanceContinuationFromSqlite';
+  readSamePaContinuationRecordFromSqlite, readSamePaContinuationOriginalPitchFromSqlite, withSamePaContinuationReadPhase } from './SamePlateAppearanceContinuationFromSqlite';
 import type { SamePaNonemptyPrefix } from './SamePlateAppearanceContinuation';
 import { readSamePaBattingInvocationClaims, readSamePaBattingInvocationFromSqlite } from './SamePlateAppearanceBattingInvocationFromSqlite';
 import { deriveSamePaContinuationCalibration } from './SamePlateAppearanceContinuationCalibration';
@@ -73,14 +72,14 @@ const assembly = <T>(db: DatabaseSync, mode: Mode, body: (api: {
   pitch(source: AcceptedSamePaSuccessorTakePitch): SamePaTakePitchBundle;
 }) => T): T => withSamePaContinuationReadPhase(db, () => {
   type ActionInputs = { result: SamePaNextTakeAction; basis: ReturnType<typeof readCurrentSamePaContinuationViewFromSqlite>;
-    original: ReturnType<typeof readSamePaExecutedPitchFromSqlite>; timing: ReturnType<typeof readPlayerPitchTimingPrefixFromSqlite>;
+    original: ReturnType<typeof readSamePaContinuationOriginalPitchFromSqlite>; timing: ReturnType<typeof readPlayerPitchTimingPrefixFromSqlite>;
     timingProfile: ReturnType<typeof selectPlayerPitchTimingProfileFromSqlitePrefix>; geometry: ReturnType<typeof readPlayerReleaseGeometryPrefixFromSqlite>['baseline'];
     policy: ReturnType<typeof readPitchFatiguePolicyFromSqlite>; model: NonNullable<ReturnType<ReturnType<typeof playerBattingModelEvidenceFromSqlite>['read']>>; prefix: SamePaNonemptyPrefix };
   const current = mode !== 'historical', actions = new Map<string, ActionInputs>();
   const authenticateAction = (source: AcceptedSamePaNextTakeAction): ActionInputs => {
     const key = json(source), prior = actions.get(key); if (prior) return prior;
     const basis = (mode === 'fresh' ? readCurrentSamePaContinuationViewFromSqlite : readHistoricalSamePaContinuationViewFromSqlite)(db, source.viewReference);
-    const original = readSamePaExecutedPitchFromSqlite(db, source.previousPitchReference), p = original.pitch, actor = basis.actor;
+    const original = readSamePaContinuationOriginalPitchFromSqlite(db, source.previousPitchReference), p = original.pitch, actor = basis.actor;
     same(basis.view.lineage, p.lineage); same(basis.view.physicalCut.pitchReference, source.previousPitchReference);
     if (p.result.resolution.timeline.status.kind !== 'active' || p.result.resolution.physical.kind !== 'taken') throw new Error('next TAKE requires a nonterminal taken predecessor');
     for (const field of ['timingReference', 'releaseReference', 'pitchResponseReference', 'batterModelReference'] as const) same(source[field], original.action.source[field]);

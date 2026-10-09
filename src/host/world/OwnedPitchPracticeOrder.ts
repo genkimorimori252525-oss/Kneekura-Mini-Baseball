@@ -1,3 +1,4 @@
+import { NATIONAL_EXPOSURE_DEVELOPMENT_KIND, readNationalExposureDevelopmentBoundary } from './NationalExposureDevelopmentOrigin';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { readState as readClubState } from '../../core/world/club/ClubSchemas';
@@ -129,6 +130,18 @@ const prescriptionValue = (raw: AcceptedPracticePrescription, r: PracticeOrderDe
   return freezePractice(p);
 };
 
+export type PracticeOrderExecutionReader = (connection: Db, executionId: string,
+  consumer: Readonly<{ careerId: string; managerId: string; revision: number }>) =>
+  Readonly<{ order: OwnedPracticeOrder; proof: unknown }> | null;
+// Only the real installed owner can bind its existing decoder. A look-alike
+// readOrder function or a supplied execution DTO grants no evidence authority.
+const executionReaders = new WeakMap<OwnedPracticeOrderMethods['readOrder'], PracticeOrderExecutionReader>();
+export const practiceOrderExecutionEvidenceFromOwner = (owner: Pick<OwnedPracticeOrderMethods, 'readOrder'>): PracticeOrderExecutionReader => {
+  const reader = executionReaders.get(owner?.readOrder);
+  if (!reader) throw new Error('Manager practice observation requires a genuine practice order owner');
+  return reader;
+};
+
 /** Raw immutable originals included in an actual attempt's existing source fingerprint. */
 export const captureOwnedPracticeOrderEvidence = (db: Db, sourceId: string): unknown | null => {
   if (!sourceId.startsWith('practice-order:')) return null;
@@ -236,7 +249,7 @@ export const installOwnedPracticeOrders = (db: DatabaseSync, sources: PracticeOr
     const m = r.managerSelection;
     if (!p.managerAction || p.managerAction.actionId !== r.actionId || boundary.careerId !== r.careerId
       || boundary.managerId !== m.managerId || boundary.revision !== m.expectedBeliefRevision) throw new Error('Manager practice belief or accepted action scope differs');
-    assertManagerBeliefBoundary(connection, boundary, mode);
+    assertManagerBeliefBoundary(connection, boundary, mode, readExecution);
     const selected = selectManagerControlledDecision(control, legal,
       { managerId: m.managerId, appointmentId: m.appointmentId, state: boundary.state.agent }, m.traceId);
     if (!selected.ok) throw new Error(`Manager practice selection rejected: ${selected.reason.code}`);
@@ -266,11 +279,12 @@ export const installOwnedPracticeOrders = (db: DatabaseSync, sources: PracticeOr
     if (typeof row?.initial_json !== 'string') throw new Error('practice order episode source is missing');
     const request = JSON.parse(row.request_json) as { kind?: unknown };
     if (Object.hasOwn(request, 'kind')) {
-      if (request.kind !== PRACTICE_DEVELOPMENT_KIND) throw new Error('invalid practice order initiation source kind');
-      // The earlier physical origin is checked on this reader/writer connection,
-      // including post-INSERT replay, without following the current episode head.
-      readPracticeDevelopmentBoundary(connection, row,
+      // Reauthenticate the immutable catalyst on this actual connection without
+      // following the episode's later learning head or current National roster.
+      if (request.kind === NATIONAL_EXPOSURE_DEVELOPMENT_KIND) readNationalExposureDevelopmentBoundary(connection as DatabaseSync, row);
+      else if (request.kind === PRACTICE_DEVELOPMENT_KIND) readPracticeDevelopmentBoundary(connection, row,
         attemptId => tools.readOriginAttempt(connection, attemptId, maximumTimingRevision));
+      else throw new Error('invalid practice order initiation source kind');
     }
     let state = JSON.parse(row.initial_json) as DevelopmentLearningEpisode;
     const events = connection.prepare('SELECT before_revision,after_revision,event_json,state_json FROM world_development_learning_events WHERE episode_id=? AND after_revision<=? ORDER BY after_revision')
@@ -402,6 +416,26 @@ export const installOwnedPracticeOrders = (db: DatabaseSync, sources: PracticeOr
     }
     return expected;
   };
+  const readExecution: PracticeOrderExecutionReader = (connection, executionId, consumer) => {
+    const row = connection.prepare('SELECT * FROM pitch_practice_orders WHERE execution_id=?').get(executionId) as OrderRow | undefined;
+    if (!row) return null;
+    const original = decisionRow(connection, row.decision_source_id);
+    if (!original) throw new Error('practice execution lacks its original decision');
+    const decision = JSON.parse(original.decision_json) as Decision;
+    // Check the strictly earlier prefix before recursive owner replay. A
+    // forged self/future dependency must fail without entering the decoder.
+    if (!managerDecision(decision) || decision.request.careerId !== consumer.careerId
+      || decision.request.managerSelection.managerId !== consumer.managerId
+      || !practiceRevision(consumer.revision) || !practiceRevision(decision.managerSelection.boundary.revision)
+      || decision.managerSelection.boundary.careerId !== consumer.careerId
+      || decision.managerSelection.boundary.managerId !== consumer.managerId
+      || decision.managerSelection.boundary.revision >= consumer.revision) {
+      throw new Error('practice execution requires an earlier same-Manager belief boundary');
+    }
+    const order = decodeOrder(connection, row);
+    if (order.execution.executionId !== executionId) throw new Error('practice execution identity differs');
+    return { order, proof: captureOwnedPracticeOrderEvidence(connection, order.sourceId) };
+  };
   const readOrderDecision = (sourceId: string) => { tools.check(sourceId); const row = decisionRow(db, sourceId); return row ? decodeDecision(db, row) : null; };
   const readOrder = (sourceId: string) => {
     tools.check(sourceId); const row = orderRow(db, sourceId);
@@ -437,7 +471,7 @@ export const installOwnedPracticeOrders = (db: DatabaseSync, sources: PracticeOr
           const resolved = resolveDecisionAuthority(heads.control, legal);
           if (!resolved.ok) throw new Error(`Manager practice authority rejected: ${resolved.reason.code}`);
           if (resolved.value.kind === 'HUMAN_REQUIRED') return { kind: 'pending' as const, reason: 'human_input_required' };
-          const boundary = readManagerBeliefBoundary(db, r.careerId, r.managerSelection.managerId, r.managerSelection.expectedBeliefRevision);
+          const boundary = readManagerBeliefBoundary(db, r.careerId, r.managerSelection.managerId, r.managerSelection.expectedBeliefRevision, readExecution);
           if (!boundary) return { kind: 'pending' as const, reason: 'manager_person_missing' };
           manager = managerEvidence(db, r, p, legal, heads.control, boundary, 'current');
         }
@@ -527,6 +561,7 @@ export const installOwnedPracticeOrders = (db: DatabaseSync, sources: PracticeOr
     },
     issueManagerOrder: raw => issueDecision(raw, true),
   };
+  executionReaders.set(methods.readOrder, readExecution);
   return { methods: Object.freeze(methods),
     assertPlanOpportunity(connection: Db, o: PitchPracticeOpportunity, bodyFrameOnly: boolean): void {
       const rows = reservedDecisions(connection, o.sourceId, practiceAttemptId(o));

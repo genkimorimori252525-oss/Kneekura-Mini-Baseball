@@ -1,3 +1,4 @@
+import { practiceOrderExecutionEvidenceFromOwner, type OwnedPracticeOrderMethods } from './OwnedPitchPracticeOrder';
 import { createRequire } from 'node:module';
 import { readState as readClubState } from
   '../../core/world/club/ClubSchemas';
@@ -140,10 +141,12 @@ type OpportunityRow = { issued_json: string };
 /** A separate roster head shares the world DB without writing its club head. */
 export const openSqliteManagerRosterDecisionStore = (
   databasePath: string,
+  practiceOwner?: Pick<OwnedPracticeOrderMethods, 'readOrder'>,
 ): SqliteManagerRosterDecisionStore => {
   if (!id(databasePath)) throw new Error('invalid world database path');
   const sqlite: typeof import('node:sqlite') =
     createRequire(import.meta.url)('node:sqlite');
+  const practiceReader = practiceOwner === undefined ? undefined : practiceOrderExecutionEvidenceFromOwner(practiceOwner);
   const db = new sqlite.DatabaseSync(databasePath);
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;');
   const rosterColumns = db.prepare(`PRAGMA table_info(world_roster_heads)`)
@@ -470,7 +473,7 @@ export const openSqliteManagerRosterDecisionStore = (
             { revision: number; state_json: string } | undefined
           : undefined;
         const personBoundary = personRow ? readManagerBeliefBoundary(db,
-          input.careerId, manager.value.managerId, personRow.revision) : null;
+          input.careerId, manager.value.managerId, personRow.revision, practiceReader) : null;
         if (personRow) {
           const person = JSON.parse(personRow.state_json) as {
             careerId: string; managerId: string; revision: number;
@@ -484,7 +487,7 @@ export const openSqliteManagerRosterDecisionStore = (
             throw new Error('caller Manager Person belief differs from durable head');
           }
           if (!personBoundary) throw new Error('Manager Person belief boundary is absent');
-          assertManagerBeliefBoundary(db, personBoundary, 'current');
+          assertManagerBeliefBoundary(db, personBoundary, 'current', practiceReader);
         } else {
           // Pre-history saves may have issued opportunities. A different
           // snapshot cannot become an implicit replacement Person seed.
@@ -593,7 +596,7 @@ export const openSqliteManagerRosterDecisionStore = (
           VALUES (?, ?, ?, ?)`).run(input.careerId,
           input.clubId, input.decisionId, issuedJson);
         for (const binding of input.candidates) assertCurrentMedicalRosterAction(db, input.careerId, binding);
-        if (personBoundary) assertManagerBeliefBoundary(db, personBoundary, 'current');
+        if (personBoundary) assertManagerBeliefBoundary(db, personBoundary, 'current', practiceReader);
         return frozenJson<DurableRosterOpportunity>(issuedJson);
       });
     },

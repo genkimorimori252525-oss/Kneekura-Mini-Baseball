@@ -1,5 +1,9 @@
 import { expect, it } from 'vitest';
 import { readSamePaFieldRuleEvidenceFromSqlite } from './SamePlateAppearanceFieldRuleEvidenceFromSqlite';
+import { readSamePaLiveWorkFromSqlite } from './SamePlateAppearanceLiveWorkFromSqlite';
+import { appendNativeCatchWork } from './SamePlateAppearanceCatchWorkNative.test-support';
+import { appendNativeBatterRunCheckpoint } from './SamePlateAppearanceBatterRunNative.test-support';
+import { appendNativeCaughtDefenderResponse } from './SamePlateAppearanceCatchResponseNative.test-support';
 import { REFERENCE_BASEBALL_AERODYNAMICS } from '../../core/sim/ball/BaseballAerodynamics';
 import { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 import { prepareInFlightBattingSwing } from './InFlightBattingLifecycleFixture.test-support';
@@ -29,7 +33,10 @@ it('IFN01 owned in-flight samples, delayed delivery, explicit appraisal and prep
     errorParameters: { ...defenderValues.errorParameters, minimumDetectionQuality: 0,
       minimumPositionErrorMeters: 0, maximumPositionErrorMeters: 0, minimumVelocityErrorMps: 0, maximumVelocityErrorMps: 0 } };
   const throwScene = physicalThrowSceneFixture();
-  const h = samePaPhysicalLifecycleFixture({ explicitBatterObservation, explicitDefenderObservation, explicitDefenderGloveOffsets: throwScene.gloveOffsets }), { f } = h;
+  // Independent synthetic accepted command coverage, long enough for the
+  // existing decision/first-step delays. No expired motor is renewed by time.
+  const explicitDefenderLocomotion = { ...dispatchCalibrationValues().defender_locomotion, maxIntegrationStepTicks: 500 };
+  const h = samePaPhysicalLifecycleFixture({ explicitBatterObservation, explicitDefenderObservation, explicitDefenderLocomotion, explicitDefenderGloveOffsets: throwScene.gloveOffsets }), { f } = h;
   try {
     const before = h.current(), readyAtUs = Math.max(before.view.cut.evaluationTick, before.view.cut.bodyCut.completedAtTick);
     const originalHeads = f.db.prepare('SELECT * FROM world_player_workload_heads ORDER BY career_id,player_id').all();
@@ -120,17 +127,36 @@ it('IFN01 owned in-flight samples, delayed delivery, explicit appraisal and prep
     expect(h.current().view.cut.stage).toBe('field_active');
     const fieldView = h.current().viewReference;
     const changesBeforeRule = f.db.prepare('SELECT total_changes() n').get()!.n;
-    const fieldRule = withSqliteReadTransaction(f.db, () => readSamePaFieldRuleEvidenceFromSqlite(f.db, fieldView, 'current'));
+    const liveWork = withSqliteReadTransaction(f.db, () => readSamePaLiveWorkFromSqlite(f.db, fieldView, 'current'));
+    if (liveWork.kind !== 'same_pa_live_work_read_v1') throw new Error('IFN01 original live-work binding is pending');
+    const fieldRule = liveWork.physical;
     if (fieldRule.kind !== 'same_pa_field_rule_evidence_v1') throw new Error('IFN01 original field rule bridge is pending');
     expect(fieldRule.physicalOperationReference).toEqual(fieldActions.motion.operationReference);
     expect(fieldRule.evidence.physical.field.evidence.horizon).toEqual(fieldActions.motion.value.field.motion.world.moment);
     expect(fieldRule.evidence.defendersFirstBase).toHaveLength(9);
     expect(fieldRule.evidence.batterFirstBase.history.playerId).toBe(f.actor.binding.playerId);
+    expect(fieldRule.originalMatch).toEqual(f.actor.match);
+    expect(fieldRule.originalTimeline).toEqual(s.resolution.timeline);
+    expect(fieldRule.contactReference).toEqual(s.resolutionReference);
+    if (fieldRule.fairCatch.kind === 'same_pa_fair_catch_rule_basis_v1') {
+      expect(fieldRule.fairCatch.correctRuling.outsAfter).toBe(f.actor.match.outs + 1);
+      expect(fieldRule.fairCatch.physicalEnd).toBeNull(); expect(fieldRule.fairCatch.operativeCall).toBeNull();
+    }
     expect(fieldRule.evidence.terminal).toEqual({ kind: 'pending', reason: 'reserved_live_play_end_owner_missing', physicalEnd: null });
+    expect(liveWork.census.participantCurves).toHaveLength(10);
+    expect(liveWork.census.defenderDecisions.consumed.some(d => d.decisionReference.sourceId === fieldActions.decision.value.source.sourceId)).toBe(true);
+    expect(liveWork.census.pendingPhysical.throw).toBeNull();
+    expect(liveWork.census.pendingPhysical.captures).toEqual([]);
+    expect(liveWork.communication).toEqual({ kind: 'pending', reason: 'accepted_original_catch_communication_source_missing' });
+    expect(liveWork.physicalEnd).toBeNull();
     expect(f.db.prepare('SELECT total_changes() n').get()!.n).toBe(changesBeforeRule);
     const oldFieldRule = withSqliteReadTransaction(f.db, () => readSamePaFieldRuleEvidenceFromSqlite(f.db, fieldActions.motionViewReference, 'historical'));
     expect(oldFieldRule.kind).toBe('same_pa_field_rule_evidence_v1');
     expect(() => withSqliteReadTransaction(f.db, () => readSamePaFieldRuleEvidenceFromSqlite(f.db, fieldActions.motionViewReference, 'current'))).toThrow();
+
+    const caught = appendNativeCatchWork(h, fieldActions, 'in-flight-fixture:catch-information');
+    const caughtResponse = appendNativeCaughtDefenderResponse(h, fieldActions, caught, 'in-flight-fixture:catch-response');
+    appendNativeBatterRunCheckpoint(h, field.root, caughtResponse.adopted, s.posture, 'in-flight-fixture:batter-run');
 
     expect(f.db.prepare('SELECT * FROM world_player_workload_heads ORDER BY career_id,player_id').all()).toEqual(originalHeads);
     const reopenedPerception = f.x.f.track(openSqliteBattingPerceptionStore(f.path));

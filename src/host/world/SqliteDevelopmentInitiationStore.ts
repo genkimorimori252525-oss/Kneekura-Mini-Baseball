@@ -15,6 +15,10 @@ import { PRACTICE_DEVELOPMENT_KIND, capturePracticeOriginEvidence, practiceOrigi
   readPracticeDevelopmentBoundary, resolvePracticeDevelopmentOrigin, validatePracticeDevelopmentIntake, validatePracticeDevelopmentRequest,
   type PracticeDevelopmentRequest, type PracticeDevelopmentSources, type PracticeOrigin, type PracticeOriginRow } from './PracticeDevelopmentOrigin';
 
+import { NATIONAL_EXPOSURE_DEVELOPMENT_KIND, captureNationalExposureEvidence, nationalExposureOriginRequest, nationalExposureOriginRow,
+  readNationalExposureDevelopmentBoundary, resolveNationalExposureOrigin, validateNationalExposureIntake, validateNationalExposureRequest,
+  type NationalExposureDevelopmentRequest, type NationalExposureDevelopmentSources, type NationalExposureOrigin, type NationalExposureOriginRow } from './NationalExposureDevelopmentOrigin';
+
 export type DevelopmentInitiationSourceRequest = Readonly<{
   episodeId: string;
   executionId: string;
@@ -36,6 +40,7 @@ export type SqliteDevelopmentInitiationStore = Readonly<{
   apply(input: DevelopmentInitiationSourceRequest):
     RecordedDevelopmentInitiation;
   applyPractice(input: PracticeDevelopmentRequest): RecordedDevelopmentInitiation;
+  applyNationalExposure(input: NationalExposureDevelopmentRequest): RecordedDevelopmentInitiation;
   advance(episodeId: string, sourceId: string,
     expectedRevision: number): DevelopmentLearningEpisode;
   read(episodeId: string): RecordedDevelopmentInitiation | null;
@@ -66,7 +71,7 @@ const canonicalJson = (value: unknown): string => JSON.stringify(
 /** Durable episode assessment and accepted learning progression for one Career. */
 export const openSqliteDevelopmentInitiationStore = (
   databasePath: string,
-  sources: Omit<DevelopmentAppraisalSources, 'history'> & Readonly<{ practice?: PracticeDevelopmentSources }>,
+  sources: Omit<DevelopmentAppraisalSources, 'history'> & Readonly<{ practice?: PracticeDevelopmentSources; nationalExposure?: NationalExposureDevelopmentSources }>,
   learningAuthority?: AcceptedDevelopmentLearningAuthority | null,
   evidenceGuard?: DevelopmentLearningEvidenceGuard,
 ): SqliteDevelopmentInitiationStore => {
@@ -104,6 +109,12 @@ export const openSqliteDevelopmentInitiationStore = (
     appraisal_source_id TEXT NOT NULL UNIQUE, source_version TEXT NOT NULL,
     origin_json TEXT NOT NULL, origin_hash TEXT NOT NULL,
     UNIQUE(career_id, player_id, discovery_event_id)
+  );
+  CREATE TABLE IF NOT EXISTS world_development_national_exposure_origins (
+    episode_id TEXT PRIMARY KEY, career_id TEXT NOT NULL, player_id TEXT NOT NULL,
+    game_id TEXT NOT NULL, participation_receipt_id TEXT NOT NULL UNIQUE, appraisal_source_id TEXT NOT NULL UNIQUE,
+    source_version TEXT NOT NULL, origin_json TEXT NOT NULL, origin_hash TEXT NOT NULL,
+    UNIQUE(career_id, game_id, player_id)
   );`);
   const get = db.prepare(`SELECT * FROM world_development_initiations
     WHERE episode_id=?`);
@@ -116,6 +127,7 @@ export const openSqliteDevelopmentInitiationStore = (
   const getLearningSource = db.prepare(`SELECT * FROM
     world_development_learning_events WHERE source_id=?`);
   const getOrigin = db.prepare('SELECT * FROM world_development_practice_origins WHERE episode_id=?');
+  const getNationalOrigin = db.prepare('SELECT * FROM world_development_national_exposure_origins WHERE episode_id=?');
   const readPhysical = (attemptId: string) => {
     if (!sources.practice) throw new Error('practice development physical source owner is required');
     return readOwnedPitchPracticeAttempt(sources.practice.attempts, db, attemptId);
@@ -124,11 +136,11 @@ export const openSqliteDevelopmentInitiationStore = (
     prior: readonly RecordedDevelopmentInitiation[]) =>
     resolveDevelopmentEpisodeFromAcceptedAppraisal({ ...sources,
       history: { readAcceptedPrior: () => prior } }, input);
-  const read = (episodeId: string): RecordedDevelopmentInitiation | null => {
+  const readCurrent = (episodeId: string): RecordedDevelopmentInitiation | null => {
     if (!id(episodeId)) throw new Error('invalid development episodeId');
     const row = get.get(episodeId) as InitiationRow | undefined;
     if (!row) {
-      if (getOrigin.get(episodeId)) throw new Error('orphan practice development origin');
+      if (getOrigin.get(episodeId) || getNationalOrigin.get(episodeId)) throw new Error('orphan development origin');
       return null;
     }
     const request = JSON.parse(row.request_json) as
@@ -141,12 +153,14 @@ export const openSqliteDevelopmentInitiationStore = (
       || canonicalJson(prior) !== row.prior_json) {
       throw new Error('corrupt development initiation source');
     }
-    if (Object.hasOwn(request, 'kind') && request.kind !== PRACTICE_DEVELOPMENT_KIND) {
+    if (Object.hasOwn(request, 'kind') && request.kind !== PRACTICE_DEVELOPMENT_KIND && request.kind !== NATIONAL_EXPOSURE_DEVELOPMENT_KIND) {
       throw new Error('invalid development initiation source kind');
     }
-    if (!Object.hasOwn(request, 'kind') && getOrigin.get(episodeId)) throw new Error('practice origin cannot use a legacy request');
+    if ((request.kind !== PRACTICE_DEVELOPMENT_KIND && getOrigin.get(episodeId))
+      || (request.kind !== NATIONAL_EXPOSURE_DEVELOPMENT_KIND && getNationalOrigin.get(episodeId))) throw new Error('development origin cannot use a different request kind');
     const initial = request.kind === PRACTICE_DEVELOPMENT_KIND
-      ? readPracticeDevelopmentBoundary(db, row, readPhysical).initial : resolve(request, prior);
+      ? readPracticeDevelopmentBoundary(db, row, readPhysical).initial
+      : request.kind === NATIONAL_EXPOSURE_DEVELOPMENT_KIND ? readNationalExposureDevelopmentBoundary(db, row).initial : resolve(request, prior);
     if (initial.assessment.careerId !== row.career_id
       || initial.assessment.playerId !== row.player_id
       || initial.assessment.atDay !== row.at_day
@@ -180,6 +194,13 @@ export const openSqliteDevelopmentInitiationStore = (
     return Object.freeze({ assessment: initial.assessment,
       episode: current });
   };
+  const readSnapshot = <T>(work: () => T): T => {
+    if (db.isTransaction) return work();
+    db.exec('BEGIN');
+    try { const result = work(); db.exec('COMMIT'); return result; }
+    catch (error) { db.exec('ROLLBACK'); throw error; }
+  };
+  const read = (episodeId: string) => readSnapshot(() => readCurrent(episodeId));
   const readAcceptedPrior = (careerId: string, playerId: string,
     atDay: number): readonly RecordedDevelopmentInitiation[] => {
     if (!id(careerId) || !id(playerId) || !day(atDay)) {
@@ -217,6 +238,63 @@ export const openSqliteDevelopmentInitiationStore = (
   };
   let closed = false;
   return Object.freeze({
+    applyNationalExposure(rawInput): RecordedDevelopmentInitiation {
+      const input = validateNationalExposureRequest(rawInput);
+      return transaction(() => {
+        const existing = read(input.episodeId);
+        const raw = sources.nationalExposure?.readAcceptedAppraisal(input.appraisalSourceId) ?? null;
+        const policyInput = sources.policies.readAcceptedPolicies(input.policySourceId);
+        if (existing) {
+          const saved = getNationalOrigin.get(input.episodeId) as NationalExposureOriginRow | undefined;
+          if (!saved) throw new Error('development episode already belongs to a different source');
+          const origin = JSON.parse(saved.origin_json) as NationalExposureOrigin;
+          if (canonicalJson(input) !== canonicalJson(origin.request)
+            || raw !== null && canonicalJson(raw) !== canonicalJson(origin.appraisal)
+            || policyInput !== null && canonicalJson(policyInput) !== canonicalJson(origin.policies)) {
+            throw new Error('National exposure accepted source is frozen differently');
+          }
+          return existing;
+        }
+        if (!raw || !policyInput) throw new Error('accepted National exposure appraisal or policies are missing');
+        const { appraisal, policies } = validateNationalExposureIntake(input, raw, policyInput);
+        if (db.prepare('SELECT episode_id FROM world_development_national_exposure_origins WHERE participation_receipt_id=?')
+          .get(input.participationReceiptId)) throw new Error('National participation exposure has already been consumed');
+        const evidence = captureNationalExposureEvidence(db, input, appraisal);
+        if (db.prepare('SELECT episode_id FROM world_development_national_exposure_origins WHERE career_id=? AND game_id=? AND player_id=?')
+          .get(appraisal.careerId, evidence.receipt.binding.gameId, input.playerId)) throw new Error('National game Player exposure has already been consumed');
+        const prior = readAcceptedPrior(appraisal.careerId, input.playerId, Number.MAX_SAFE_INTEGER);
+        const origin: NationalExposureOrigin = { request: input, appraisal, policies, evidence, prior };
+        const reserved = nationalExposureOriginRow(origin);
+        const assertOrigin = () => {
+          if (canonicalJson(getNationalOrigin.get(input.episodeId)) !== canonicalJson(reserved)
+            || canonicalJson(captureNationalExposureEvidence(db, input, appraisal)) !== canonicalJson(evidence)) {
+            throw new Error('National exposure source or reservation differs on writer');
+          }
+        };
+        // A dismissed appraisal also consumes this actual game/Player fact.
+        db.prepare(`INSERT INTO world_development_national_exposure_origins
+          (episode_id,career_id,player_id,game_id,participation_receipt_id,appraisal_source_id,source_version,origin_json,origin_hash)
+          VALUES (?,?,?,?,?,?,?,?,?)`).run(reserved.episode_id, reserved.career_id, reserved.player_id, reserved.game_id, reserved.participation_receipt_id,
+          reserved.appraisal_source_id, reserved.source_version, reserved.origin_json, reserved.origin_hash);
+        assertOrigin();
+        const result = resolveNationalExposureOrigin(origin);
+        const expected = { episode_id: input.episodeId, career_id: appraisal.careerId, player_id: input.playerId,
+          at_day: appraisal.appraisal.atDay, appraisal_source_id: input.appraisalSourceId,
+          request_json: canonicalJson(nationalExposureOriginRequest(origin)), prior_json: canonicalJson(prior),
+          assessment_json: canonicalJson(result.assessment), initial_json: canonicalJson(result.episode),
+          current_json: canonicalJson(result.episode), revision: result.episode.revision };
+        db.prepare(`INSERT INTO world_development_initiations
+          (episode_id,career_id,player_id,at_day,appraisal_source_id,request_json,prior_json,assessment_json,initial_json,current_json,revision)
+          VALUES (?,?,?,?,?,?,?,?,?,?,?)`).run(expected.episode_id, expected.career_id, expected.player_id, expected.at_day,
+          expected.appraisal_source_id, expected.request_json, expected.prior_json, expected.assessment_json, expected.initial_json,
+          expected.current_json, expected.revision);
+        assertOrigin();
+        if (canonicalJson(get.get(input.episodeId)) !== canonicalJson(expected)) throw new Error('National exposure written assessment differs');
+        const replayed = read(input.episodeId)!;
+        if (canonicalJson(replayed) !== canonicalJson(result)) throw new Error('National exposure written replay differs');
+        return replayed;
+      });
+    },
     applyPractice(rawInput): RecordedDevelopmentInitiation {
       const input = validatePracticeDevelopmentRequest(rawInput);
       return transaction(() => {

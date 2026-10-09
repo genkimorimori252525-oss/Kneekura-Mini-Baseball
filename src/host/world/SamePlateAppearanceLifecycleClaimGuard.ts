@@ -9,10 +9,14 @@ import { sqliteJsonMetadataNodes as nodes } from './SqliteOwnershipMetadata';
 import { assertSamePaLifecycleStorage } from './SamePlateAppearanceLifecycleStorage';
 import { assertSamePaPhysicalEpisodeStorage } from './SamePlateAppearancePhysicalEpisodeStorage';
 import { assertSamePaTerminalEndpointStorage } from './SamePlateAppearanceTerminalStorage';
+import { assertSamePaCatchWorkStorage } from './SamePlateAppearanceCatchWorkStorage';
+import { samePaCatchWorkInput } from './SamePlateAppearanceCatchWork';
+import { assertBatterRunPlanStorage } from './SqliteBatterRunPlanStore';
+import { batterRunPlanInput } from './BatterRunPlan';
 
 type Db = Pick<DatabaseSync, 'prepare'>;
 export type SamePaLifecycleClaimRow = Readonly<{ table: string; row: Record<string, unknown>; enrollmentSourceIds: readonly string[] }>;
-const patterns = ['pa_lifecycle_v1_*', 'pa_physical_v1_*', 'pa_terminal_v1_*'] as const;
+const patterns = ['pa_lifecycle_v1_*', 'pa_physical_v1_*', 'pa_terminal_v1_*', 'pa_catch_v1_*', 'world_batter_run_plans'] as const;
 const olderOwners = new Set(['same_pa_enrollments', 'physical_plate_appearance_actors', 'reserved_pa_work_prefixes', 'reserved_pa_total_assessments',
   'reserved_pa_execution_views', 'pa_dispatch_v1_action_plans', 'pa_dispatch_v1_execution_calibrations', 'pa_dispatch_v1_consumer_sets',
   'pa_dispatch_v1_episodes', 'pa_dispatch_v1_rights', 'pa_dispatch_v1_pitch_actions', 'pa_dispatch_v1_consumer_actions',
@@ -22,7 +26,7 @@ const olderOwners = new Set(['same_pa_enrollments', 'physical_plate_appearance_a
   'batting_score_v1_assessments', 'batting_emotion_v1_geneses', 'batting_emotion_execution_v1_executions', 'batting_execution_v1_intents',
   'batting_execution_v1_inputs', 'batting_execution_v1_executions']);
 const fail = (): never => { throw new Error('same-PA lifecycle has malformed or orphan original ownership claims'); };
-const knownOwner = (owner: string) => olderOwners.has(owner) || patterns.some(p => owner.startsWith(p.slice(0, -1)));
+const knownOwner = (owner: string) => olderOwners.has(owner) || patterns.some(p => p.endsWith('*') ? owner.startsWith(p.slice(0, -1)) : owner === p);
 const predicate = patterns.map(() => '(lower(name) GLOB ? OR lower(tbl_name) GLOB ?)').join(' OR ');
 const args = patterns.flatMap(p => [p, p]);
 
@@ -30,7 +34,8 @@ const args = patterns.flatMap(p => [p, p]);
  * enrollment authority after this discovery. No release, participant or
  * physical payload is interpreted here; shared Players never join PA graphs. */
 export const readSamePaLifecycleClaimRows = (db: Db): readonly SamePaLifecycleClaimRow[] => {
-  assertSamePaLifecycleStorage(db); assertSamePaPhysicalEpisodeStorage(db); assertSamePaTerminalEndpointStorage(db);
+  assertSamePaLifecycleStorage(db); assertSamePaPhysicalEpisodeStorage(db); assertSamePaTerminalEndpointStorage(db); assertSamePaCatchWorkStorage(db);
+  assertBatterRunPlanStorage(db);
   if (db.prepare('SELECT 1 FROM temp.sqlite_master WHERE ' + predicate).get(...args)) return fail();
   const catalog = db.prepare('SELECT type,name,tbl_name FROM main.sqlite_master WHERE ' + predicate).all(...args);
   if (catalog.some(r => r.type !== 'table' && r.type !== 'index')) return fail();
@@ -73,14 +78,16 @@ export const readSamePaLifecycleClaimRows = (db: Db): readonly SamePaLifecycleCl
         let source: Record<string, unknown>, snapshot: Record<string, unknown>;
         try { source = JSON.parse(row.source_json); snapshot = JSON.parse(row.snapshot_json); } catch { return fail(); }
         if (!source || !snapshot || Array.isArray(source) || Array.isArray(snapshot) || source.sourceId !== row.source_id
-          || source.sourceVersion !== row.source_version || json(source) !== row.source_json || json(snapshot) !== row.snapshot_json
+          || name !== 'world_batter_run_plans' && source.sourceVersion !== row.source_version || json(source) !== row.source_json || json(snapshot) !== row.snapshot_json
           || hash(source) !== row.source_hash || hash(snapshot) !== row.snapshot_hash || json(snapshot.source) !== json(source)) return fail();
       }
       if ('source_json' in row) {
         const source=JSON.parse(String(row.source_json));
         const lifecycleKinds:Record<string,string>={pa_lifecycle_v1_work_prefixes:'same_pa_lifecycle_prefix_v1',pa_lifecycle_v1_total_assessments:'same_pa_lifecycle_cumulative_total_v1',pa_lifecycle_v1_execution_views:'same_pa_lifecycle_cumulative_view_v1',pa_lifecycle_v1_execution_calibrations:'same_pa_lifecycle_execution_calibration_v1'};
         const physicalKinds:Record<string,string>={pa_physical_v1_field_calibrations:'same_pa_physical_field_calibration_v1',pa_physical_v1_action_plans:'same_pa_physical_action_v1',pa_physical_v1_rights:'same_pa_physical_right_v1',pa_physical_v1_launches:'same_pa_physical_launch_v1',pa_physical_v1_cuts:'same_pa_physical_cut_v1',pa_physical_v1_commitments:'same_pa_physical_commitment_v1',pa_physical_v1_resolutions:'same_pa_physical_resolution_v1',pa_physical_v1_field_roots:'same_pa_physical_field_root_v1',pa_physical_v1_field_steps:'same_pa_physical_field_step_v1'};
-        if(lifecycleKinds[name]){const s=samePaLifecycleSourceInput(source,String(row.source_id));if(s.capability!==lifecycleKinds[name])return fail();}
+        if(name==='world_batter_run_plans'){batterRunPlanInput(source,String(row.source_id));}
+        else if(name==='pa_catch_v1_work'){samePaCatchWorkInput(source,String(row.source_id));}
+        else if(lifecycleKinds[name]){const s=samePaLifecycleSourceInput(source,String(row.source_id));if(s.capability!==lifecycleKinds[name])return fail();}
         else if(name==='pa_lifecycle_v1_outcomes'||name==='pa_lifecycle_v1_resets'){const s=samePaLifecycleOutcomeInput(source,String(row.source_id));if(s.capability!==(name==='pa_lifecycle_v1_outcomes'?'same_pa_lifecycle_outcome_v1':'same_pa_lifecycle_reset_v1'))return fail();}
         else if(physicalKinds[name]){const s=samePaPhysicalEpisodeSourceInput(source,String(row.source_id));if(s.capability!==physicalKinds[name])return fail();}
         else if(name.startsWith('pa_physical_v1_')){const role=name==='pa_physical_v1_pitch_consumers'?'consumer':name==='pa_physical_v1_consumptions'?'consumption':name==='pa_physical_v1_admissions'?'admission':null;

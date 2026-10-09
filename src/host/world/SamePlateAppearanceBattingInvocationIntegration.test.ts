@@ -101,7 +101,8 @@ it('BI01 original capture, delayed delivery, explicit assessment and actual Worl
       const actionReference = reference('pa_take_successor_v1_action_plans', action), nextPhysicalPitchSourceId = id + ':pitch';
       const source = save({ ...postureSource, sourceId: id + ':posture', capability: 'owned_next_take_batting_posture_v1', viewReference: current.viewReference,
         member: member(), actionReference, nextPhysicalPitchSourceId, geometry: { ...geometry, startedAtTick: action.bodyCut.completedAtTick,
-          bodyReadyTick: readyAtUs, latestMotorStartTick: readyAtUs, attention: { target: { kind: 'ball' }, focusedSinceTick: action.bodyCut.completedAtTick } }, provenance: provenance(id + ':posture-assessment') });
+          bodyReadyTick: readyAtUs, latestMotorStartTick: readyAtUs, validUntilTick: readyAtUs + 20_000_000,
+          attention: { target: { kind: 'ball' }, focusedSinceTick: action.bodyCut.completedAtTick } }, provenance: provenance(id + ':posture-assessment') });
       const value = perception.acceptPosture(source.sourceId); if (value.kind !== 'batting_invocation_posture') throw new Error('retained posture pending');
       return { action, actionReference, nextPhysicalPitchSourceId, postureReference: reference('batting_observation_v1_postures', value) };
     };

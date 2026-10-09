@@ -1,4 +1,7 @@
 import { expect, it } from 'vitest';
+import { asRuleProfileId } from '../../core/model/RuleProfileRef';
+import { createCanonicalPlateAppearanceTimeline, recordBatBallContact } from '../../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
+import { deriveSamePaFairCatchRuleBasis } from './SamePlateAppearanceFairCatchRuleBasis';
 import { fixture, material, v, throwInput } from '../../core/sim/ball/BattedWorldScheduledFieldThrow.test-support';
 import { createBattedBallFlightEvidence } from '../../core/sim/ball/BattedBallFlightEvidence';
 import { prepareBattedWorldScheduledFieldThrow, advanceBattedWorldScheduledFieldThrow } from '../../core/sim/ball/BattedWorldScheduledFieldThrow';
@@ -109,4 +112,20 @@ it('FR07 contact by a non-defender stays a Core policy question and grants no ca
   const result = deriveSamePaFieldRuleEvidence({ ...h.scope, fields: [{ ...h.root, response, field, evaluationTick: field.motion.world.moment.ball.tick }] });
   expect(result.rule.ballEvidence).toEqual({ kind: 'unresolved', reason: 'non_defender_contact' });
   expect(result.rule.possessionEvidence.pending).toEqual([]); expect(result.physical.controlWindows).toEqual([]);
+});
+
+it.each([0, 2] as const)('FR08 binds an empty-base correct catch ruling with %s outs without creating an official call or end', outs => {
+  const h = setup(), plan = prepareBattedWorldScheduledFieldAcquisition({ response: h.root.response, geometry: h.root.geometry, field: h.root.field });
+  const secured = h.append(h.root, plan.fenceElapsedSeconds);
+  const originalMatch = { ruleProfileId: asRuleProfileId('npb-2026'), playId: 1, inning: 1, half: 'top' as const, outs,
+    balls: 0, strikes: 0, bases: { first: null, second: null, third: null }, score: { away: 0, home: 0 } };
+  const originalTimeline = recordBatBallContact(createCanonicalPlateAppearanceTimeline(originalMatch, 0), h.root.response.world.flight.contact);
+  const evidence = deriveSamePaFieldRuleEvidence({ ...h.scope, outsAtStart: outs, fields: [h.root, secured] });
+  const basis = deriveSamePaFairCatchRuleBasis({ originalMatch, originalTimeline, evidence });
+  expect(basis).toMatchObject({ kind: 'same_pa_fair_catch_rule_basis_v1', batterRunnerId: 'batter',
+    correctRuling: { outsAfter: outs + 1, basesAfter: originalMatch.bases, scoredRunnerIds: [] }, physicalEnd: null, operativeCall: null });
+  const candidate = deriveSamePaFieldRuleEvidence({ ...h.scope, outsAtStart: outs, fields: [h.root] });
+  expect(deriveSamePaFairCatchRuleBasis({ originalMatch, originalTimeline, evidence: candidate })).toEqual({ kind: 'pending', reason: 'actual_fair_catch_required' });
+  expect(() => deriveSamePaFairCatchRuleBasis({ originalMatch: { ...originalMatch, playId: 2 }, originalTimeline, evidence })).toThrow(/original empty-base contact scope/);
+  expect(() => deriveSamePaFairCatchRuleBasis({ originalMatch: { ...originalMatch, bases: { first: 'prior', second: null, third: null } }, originalTimeline, evidence })).toThrow(/original empty-base contact scope/);
 });

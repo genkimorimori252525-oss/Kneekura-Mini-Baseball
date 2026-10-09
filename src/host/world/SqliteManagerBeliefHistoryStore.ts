@@ -1,3 +1,6 @@
+import { practiceOrderExecutionEvidenceFromOwner, type OwnedPracticeOrderMethods } from './OwnedPitchPracticeOrder';
+import { MANAGER_PRACTICE_OBSERVATION_KIND, managerPracticeExecutionObservation, type ManagerPracticeObservationSource } from './ManagerPracticeExecutionObservation';
+import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { createRequire } from 'node:module';
 import { applyManagerExecutionObservation,
   createManagerBeliefHistory } from
@@ -22,6 +25,9 @@ export type DurableManagerBeliefObservation = Readonly<{
   event: ManagerBeliefHistoryEvent;
   state: ManagerBeliefHistory;
 }>;
+export type ManagerBeliefObservationRequest = Readonly<{
+  careerId: string; managerId: string; expectedRevision: number; executionId: string;
+}>;
 export type SqliteManagerBeliefHistoryStore = Readonly<{
   initializeFromOpportunity(input: Readonly<{ careerId: string;
     clubId: string; decisionId: string;
@@ -35,6 +41,7 @@ export type SqliteManagerBeliefHistoryStore = Readonly<{
   apply(input: Readonly<{ careerId: string; managerId: string;
     expectedRevision: number; executionId: string }>)
     : DurableManagerBeliefObservation;
+  applyPracticeOrder(input: ManagerBeliefObservationRequest): DurableManagerBeliefObservation;
   close(): void;
 }>;
 type HeadRow = { revision: number; state_json: string;
@@ -66,10 +73,12 @@ const canonicalJson = (value: unknown): string => {
 /** Only a validated, durable execution can become a Manager observation. */
 export const openSqliteManagerBeliefHistoryStore = (
   databasePath: string,
+  practiceOwner?: Pick<OwnedPracticeOrderMethods, 'readOrder'>,
 ): SqliteManagerBeliefHistoryStore => {
   if (!id(databasePath)) throw new Error('invalid world database path');
   const sqlite: typeof import('node:sqlite') =
     createRequire(import.meta.url)('node:sqlite');
+  const practiceReader = practiceOwner === undefined ? undefined : practiceOrderExecutionEvidenceFromOwner(practiceOwner);
   const db = new sqlite.DatabaseSync(databasePath);
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_manager_person_heads (
@@ -120,7 +129,15 @@ export const openSqliteManagerBeliefHistoryStore = (
       || canonicalJson(state) !== item.state_json) {
       throw new Error('corrupt durable Manager Person history');
     }
-    return state;
+    // Replay every original prefix: removing a tag must never turn a new
+    // observation into an unchecked legacy head. Valid legacy bytes stay intact.
+    return readManagerBeliefBoundary(db, careerId, managerId, item.revision, practiceReader)!.state;
+  };
+  const readSnapshot = <T>(work: () => T): T => {
+    if (db.isTransaction) return work();
+    db.exec('BEGIN');
+    try { const result = work(); db.exec('COMMIT'); return result; }
+    catch (error) { db.exec('ROLLBACK'); throw error; }
   };
   const transaction = <T>(work: () => T): T => {
     db.exec('BEGIN IMMEDIATE');
@@ -162,8 +179,22 @@ export const openSqliteManagerBeliefHistoryStore = (
       actionId: evidence.actionId,
       observedAtDay: execution.result.rosterEvent.effectiveDay });
   };
+  const decodedVerifiedObservation = (executionId: string, item: ObservationRow): DurableManagerBeliefObservation => {
+    const verified = readManagerBeliefBoundary(db, item.career_id, item.manager_id, item.revision, practiceReader);
+    const saved = JSON.parse(item.result_json) as DurableManagerBeliefObservation;
+    if (!verified || saved.executionId !== executionId || saved.careerId !== item.career_id || saved.managerId !== item.manager_id
+      || saved.revision !== item.revision || canonicalJson(saved.state) !== canonicalJson(verified.state)) {
+      throw new Error('corrupt durable Manager observation prefix');
+    }
+    return saved;
+  };
   const decodedObservation = (executionId: string,
     item: ObservationRow): DurableManagerBeliefObservation => {
+    const sourceTag = JSON.parse(item.source_json) as { kind?: unknown };
+    if (Object.hasOwn(sourceTag, 'kind')) {
+      if (sourceTag.kind !== MANAGER_PRACTICE_OBSERVATION_KIND) throw new Error('invalid Manager observation source kind');
+      return decodedVerifiedObservation(executionId, item);
+    }
     const request = JSON.parse(item.request_json) as
       { careerId: string; managerId: string;
         expectedRevision: number; executionId: string };
@@ -193,7 +224,9 @@ export const openSqliteManagerBeliefHistoryStore = (
         && head.state_json !== canonicalJson(saved.state))) {
       throw new Error('corrupt durable Manager observation');
     }
-    return saved;
+    // A legacy roster observation can contain earlier practice observations.
+    // Authenticate the entire returned historical prefix on this connection.
+    return decodedVerifiedObservation(executionId, item);
   };
   return Object.freeze({
     initializeFromOpportunity(input): void {
@@ -261,17 +294,55 @@ export const openSqliteManagerBeliefHistoryStore = (
       if (!id(careerId) || !id(managerId)) {
         throw new Error('invalid Manager Person scope');
       }
-      const item = row(careerId, managerId);
-      return item ? parsedHead(careerId, managerId, item) : null;
+      return readSnapshot(() => { const item = row(careerId, managerId); return item ? parsedHead(careerId, managerId, item) : null; });
     },
     readObservation(executionId):
       DurableManagerBeliefObservation | null {
       if (!id(executionId)) throw new Error('invalid executionId');
-      const item = observationRow(executionId);
-      return item ? decodedObservation(executionId, item) : null;
+      return readSnapshot(() => { const item = observationRow(executionId); return item ? decodedObservation(executionId, item) : null; });
     },
     readAtRevision(careerId, managerId, revision): ManagerBeliefHistory | null {
-      return readManagerBeliefBoundary(db, careerId, managerId, revision)?.state ?? null;
+      return readSnapshot(() => readManagerBeliefBoundary(db, careerId, managerId, revision, practiceReader)?.state ?? null);
+    },
+    applyPracticeOrder(rawInput): DurableManagerBeliefObservation {
+      const input = cloneInert(rawInput);
+      if (!input || Object.keys(input).sort().join('|') !== 'careerId|executionId|expectedRevision|managerId'
+        || !id(input.careerId) || !id(input.managerId) || !id(input.executionId) || !revision(input.expectedRevision)
+        || input.expectedRevision === Number.MAX_SAFE_INTEGER) throw new Error('invalid Manager practice observation request');
+      const requestJson = canonicalJson({ kind: MANAGER_PRACTICE_OBSERVATION_KIND, ...input });
+      return transaction(() => {
+        const prior = observationRow(input.executionId);
+        if (prior) {
+          if (prior.request_json !== requestJson) throw new Error('executionId used for different learning request');
+          return decodedVerifiedObservation(input.executionId, prior);
+        }
+        if (!practiceReader) throw new Error('Manager practice observation requires its genuine practice order reader');
+        const before = readManagerBeliefBoundary(db, input.careerId, input.managerId, input.expectedRevision, practiceReader)?.state;
+        const item = row(input.careerId, input.managerId);
+        if (!before || !item || item.revision !== input.expectedRevision || item.state_json !== canonicalJson(before)) {
+          throw new Error('stale or absent Manager Person revision');
+        }
+        const owned = practiceReader(db, input.executionId, { careerId: input.careerId, managerId: input.managerId, revision: before.revision + 1 });
+        if (!owned) throw new Error('actual Manager practice order execution is missing');
+        const source: ManagerPracticeObservationSource = { kind: MANAGER_PRACTICE_OBSERVATION_KIND, order: owned.order };
+        const observation = managerPracticeExecutionObservation(source);
+        const after = applyManagerExecutionObservation(before, input.expectedRevision, observation);
+        const saved: DurableManagerBeliefObservation = { executionId: input.executionId, careerId: input.careerId,
+          managerId: input.managerId, revision: after.revision, event: after.recent.at(-1)!, state: after };
+        const updated = db.prepare(`UPDATE world_manager_person_heads SET revision=?,state_json=?
+          WHERE career_id=? AND manager_id=? AND revision=? AND state_json=?`).run(after.revision, canonicalJson(after),
+          input.careerId, input.managerId, before.revision, item.state_json);
+        if (updated.changes !== 1) throw new Error('stale Manager Person revision');
+        db.prepare(`INSERT INTO world_manager_belief_observations
+          (execution_id,career_id,manager_id,revision,request_json,source_json,before_json,result_json)
+          VALUES (?,?,?,?,?,?,?,?)`).run(input.executionId, input.careerId, input.managerId, after.revision, requestJson,
+          canonicalJson(source), canonicalJson(before), canonicalJson(saved));
+        // Replaying on this writer after INSERT catches source and head mutation
+        // by triggers while preserving the original legacy observation bytes.
+        const replayed = decodedVerifiedObservation(input.executionId, observationRow(input.executionId)!);
+        if (canonicalJson(replayed) !== canonicalJson(saved)) throw new Error('Manager practice observation written result differs');
+        return replayed;
+      });
     },
     apply(input): DurableManagerBeliefObservation {
       if (!input || !id(input.careerId)
@@ -331,6 +402,8 @@ export const openSqliteManagerBeliefHistoryStore = (
             input.careerId, input.managerId, after.revision,
             requestJson, canonicalJson(source),
             canonicalJson(before), canonicalJson(saved));
+        const verified = readManagerBeliefBoundary(db, input.careerId, input.managerId, after.revision, practiceReader);
+        if (!verified || canonicalJson(verified.state) !== canonicalJson(after)) throw new Error('Manager history written replay differs');
         return saved;
       });
     },

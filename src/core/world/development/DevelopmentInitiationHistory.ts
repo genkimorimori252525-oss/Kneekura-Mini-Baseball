@@ -60,7 +60,8 @@ export const deriveDevelopmentInitiationHistory = (
     }
     if (episode.catalyst.family === 'PROMOTION_DEMOTION' && candidate.catalyst.family === 'PROMOTION_DEMOTION'
       ? episode.catalyst.direction === candidate.catalyst.direction
-      : episode.catalyst.family === 'TECHNICAL_DISCOVERY' && candidate.catalyst.family === 'TECHNICAL_DISCOVERY'
+      : ((episode.catalyst.family === 'TECHNICAL_DISCOVERY' && candidate.catalyst.family === 'TECHNICAL_DISCOVERY')
+        || (episode.catalyst.family === 'ELITE_EXPOSURE' && candidate.catalyst.family === 'ELITE_EXPOSURE'))
         && episode.catalyst.motifId === candidate.catalyst.motifId) {
       priorSameMotifAttempts += 1;
     }

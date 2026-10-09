@@ -51,3 +51,5 @@ export const samePaPhysicalDefenderSelf = (action: SamePaPhysicalAction, root: S
 export const deriveSamePaPhysicalFieldMotor = (decision: IssuedDefenderMotionDecision, model: DurablePlayerLocomotionModel,
   self: ReturnType<typeof samePaPhysicalDefenderSelf>, calibration: PlayerLocomotionCalibration) => deriveIssuedDefenderMotionReceipt(decision, model, self, calibration);
 export type SamePaPhysicalFieldMotor = ReturnType<typeof deriveSamePaPhysicalFieldMotor>;
+
+export { deriveSamePaBatterRunMotion } from './SamePlateAppearanceBatterRunMotion';

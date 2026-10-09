@@ -47,11 +47,13 @@ import { actualDefensiveDecisionEvidenceFromSqlite } from './SqliteActualDefensi
 import { ownedMotionLiveWork, type OwnedMotionLiveWork } from './OwnedMotionLiveWork';
 import { assertOwnedMotionPhysicalMetadata } from './OwnedMotionPhysicalMetadata';
 import { defensiveMetadataId as metadataId } from './ActualDefensiveMetadata';
+import { battedVenuePlayableWallPolicyInput, bindBattedVenuePlayableWalls,
+  type AcceptedBattedVenuePlayableWallPolicy, type BattedVenuePlayableWallReference } from './BattedVenuePlayableWallPolicy';
 
 type Action = ReceivedContinuationSource['action'] | RenewalAdoptionExecutionSource['action'] | OwnedScheduledMotionAction | OwnedMotionAction | Readonly<{ kind: 'acquisition' }>
   | Readonly<{ kind: 'acquisition_plan' }>
   | Readonly<{ kind: 'base_touch_history'; playerId: string; base: BattedWorldBaseId; custodyPolicy?: BattedWorldFieldCustodyPolicy }>
-  | Readonly<{ kind: 'first_base_race'; custodyPolicy?: BattedWorldFieldCustodyPolicy }>
+  | Readonly<{ kind: 'first_base_race'; custodyPolicy?: BattedWorldFieldCustodyPolicy; venuePolicy?: AcceptedBattedVenuePlayableWallPolicy }>
   | Readonly<{ kind: 'whole_play_history' }>
   | Readonly<{ kind: 'motion_checkpoint_v1'; availableAtTick: number; coverageThroughTick: number; checkpointThroughTick: number; commands: AcceptedBattedWorldMotion['commands'] }>
   | Readonly<{ kind: 'retained_motion_checkpoint_v1'; checkpointThroughTick: number }>
@@ -77,6 +79,7 @@ type Execution = ReceivedContinuationExecution | ReceivedRenewalPhysicalExecutio
     physicalRuleFacts: readonly (ReturnType<typeof createRunnerBaseFactsFromBallWorldHistory>[number] | ReturnType<typeof createControlledBaseFactsFromBallWorldContacts>[number])[] }>
     & ReturnType<typeof battedWorldFieldBaseTouchHistoryFromPrefix>)
   | (Readonly<{ kind: 'first_base_race'; field: BattedWorldFieldMotion;
+    venuePolicyReference?: BattedVenuePlayableWallReference;
     batterFirstBase: ReturnType<typeof battedWorldFieldBaseTouchHistoryFromPrefix>;
     defendersFirstBase: readonly ReturnType<typeof battedWorldFieldBaseTouchHistoryFromPrefix>[] }>
     & ReturnType<typeof deriveBallWorldFieldFirstBaseRace>
@@ -109,11 +112,14 @@ const input = (raw: AcceptedBattedWorldFieldExecution, sourceId: string): Accept
   if ((action?.kind === 'acquisition' || action?.kind === 'acquisition_plan' || action?.kind === 'whole_play_history') && fields(action, ['kind'])) return source;
   if (action?.kind === 'base_touch_history' || action?.kind === 'first_base_race') {
     const policyFields = 'custodyPolicy' in action ? ['custodyPolicy'] : [];
-    if (!fields(action, ['kind', ...(action.kind === 'base_touch_history' ? ['playerId', 'base'] : []), ...policyFields])
+    const venueFields = action.kind === 'first_base_race' && 'venuePolicy' in action ? ['venuePolicy'] : [];
+    if (!fields(action, ['kind', ...(action.kind === 'base_touch_history' ? ['playerId', 'base'] : []), ...policyFields, ...venueFields])
       || policyFields.length && action.custodyPolicy !== 'release_exclusive_v1'
       || action.kind === 'base_touch_history' && (!id(action.playerId) || !['home', 'first', 'second', 'third'].includes(action.base))) {
       throw new Error('invalid actual field observation Source or custody policy');
     }
+    if (action.kind === 'first_base_race' && venueFields.length) return { ...source,
+      action: { ...action, venuePolicy: battedVenuePlayableWallPolicyInput(action.venuePolicy!) } };
     return source;
   }
   if (action?.kind === 'throw_advance' || action?.kind === 'acquisition_advance') {
@@ -316,13 +322,15 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
         };
         const batterFirstBase = historyFor(batter.binding.playerId), defendersFirstBase = batter.defenderBindings.map((binding) => historyFor(binding.playerId));
         const ball = physical.field.evidence;
-        const raceInput = { field: physical.field, race: { outsAtStart: world.flight.physicalPitch.frame.match.outs,
+        const venue = source.action.venuePolicy === undefined ? undefined : bindBattedVenuePlayableWalls(source.action.venuePolicy, prefixInput);
+        const raceInput = { field: physical.field, ...(venue === undefined ? {} : { playableWalls: venue.playableWalls }), race: { outsAtStart: world.flight.physicalPitch.frame.match.outs,
           batterRunnerId: ball.batterRunnerId, defenderIds: ball.defenderIds, originTick: ball.originTick, ticksPerSecond: ball.ticksPerSecond,
           horizonElapsedSeconds: ball.horizon.elapsedSeconds, runnerHistory: batterFirstBase.history, defenders: defendersFirstBase } };
         const result = physical.possessionEvidence
           ? deriveBallWorldFieldFirstBaseRaceWithPossessionEvidence({ ...raceInput, possessionEvidence: physical.possessionEvidence })
           : deriveBallWorldFieldFirstBaseRace(raceInput);
-        execution = { kind: 'first_base_race', field: original, ...result, batterFirstBase, defendersFirstBase };
+        execution = { kind: 'first_base_race', field: original, ...result, batterFirstBase, defendersFirstBase,
+          ...(venue === undefined ? {} : { venuePolicyReference: venue.venuePolicyReference }) };
       }
     } else {
       let cursor: BattedWorldBallCursor | null = motion.cursor, carrierPlayerId = motion.carrierPlayerId;

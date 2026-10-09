@@ -14,6 +14,7 @@ import { readBattingPerceptionFromSqlite } from './SqliteBattingPerceptionStore'
 import type { SamePaPhysicalAction, SamePaPhysicalLaunch, SamePaPhysicalCommitment, SamePaPhysicalResolution,
   SamePaPhysicalFieldRootSource, SamePaPhysicalFieldStepSource, SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep, SamePaPhysicalFieldCalibration } from './SamePlateAppearancePhysicalEpisode';
 import type { SamePaLifecycleView } from './SamePlateAppearanceLifecycle';
+import { bindSamePaPlayableWallPolicy } from './SamePlateAppearancePlayableWallPolicy';
 const same=(a:unknown,b:unknown)=>{if(json(a)!==json(b))throw new Error('same-PA field original calibration/body/command differs');};
 const sourceModel=(ref:SamePaReference,model:{sourceId:string;sourceVersion:string}|null)=>{if(!model)throw new Error('same-PA field accepted model missing');same(ref,{owner:ref.owner,sourceId:model.sourceId,sourceHash:hash(model),snapshotHash:hash(model)});return model;};
 const zero=(v:unknown):boolean=>samePaFields(v,['x','y','z'])&&Object.values(v).every(n=>n===0);
@@ -55,6 +56,7 @@ export const deriveSamePaPhysicalFieldRoot=(db:DatabaseSync,source:SamePaPhysica
       model,responseModel,fixture:base.fixture,geometryBindingHash:hash(calibration)};
   })();
   const {geometry,model,responseModel,fixture,geometryBindingHash}=binding;
+  const venuePolicyBinding=bindSamePaPlayableWallPolicy(source,{actor,model,fixture,geometryBindingHash});
   for(const id of ['first','second','third'] as const)same(geometry.baseGeometry.bases[id].region.center,action.baseCenters[id]);
   if(model.kind!=='body_materialized_batted_model_v1'||model.gameId!==actor.source.gameId||model.careerId!==actor.binding.careerId||model.fixtureEventId!==actor.binding.fixtureEventId
     ||model.availableAtDay>actor.binding.gameDay||model.venueId!==fixture.venue_id||responseModel.gameId!==model.gameId||responseModel.careerId!==model.careerId
@@ -86,7 +88,8 @@ export const deriveSamePaPhysicalFieldRoot=(db:DatabaseSync,source:SamePaPhysica
   const commands=source.commands.flatMap(c=>c.primitiveMotions.map(r=>({playerId:c.playerId,role:r.role,acceleration:{x:c.bodyAcceleration.x+r.offsetAcceleration.x,y:c.bodyAcceleration.y+r.offsetAcceleration.y,z:c.bodyAcceleration.z+r.offsetAcceleration.z}})));
   const physical={response,geometry,actors,carrierPlayerId:null,cursor:{moment:{originTick:start,elapsedSeconds:0,ball:flight.initialBall},previousContacts:[]},availableAtTick:start,coverageThroughTick:end,commands};
   const field=source.throughTick===start?deriveBattedWorldFieldMotionAdoption(physical):deriveBattedWorldFieldMotionCheckpoint({...physical,checkpointThroughTick:source.throughTick});
-  return freeze({response,geometry,field,geometryBindingHash,evaluationTick:field.motion.world.moment.ball.tick,timeline:samePaPhysicalTimelineAtField(resolution.timeline,field,response,geometry)});
+  return freeze({response,geometry,field,geometryBindingHash,evaluationTick:field.motion.world.moment.ball.tick,timeline:samePaPhysicalTimelineAtField(resolution.timeline,field,response,geometry),
+    ...(venuePolicyBinding===undefined?{}:{venuePolicyBinding})});
 };
 export const deriveSamePaPhysicalFieldStep=(source:SamePaPhysicalFieldStepSource,root:SamePaPhysicalFieldRoot,previous:SamePaPhysicalFieldRoot|SamePaPhysicalFieldStep,currentTick:number,recordInitialGroundContact=true)=>{
   if(root.physicalPitchSourceId!==previous.physicalPitchSourceId||source.throughTick<=currentTick||source.throughTick<=previous.evaluationTick)throw new Error('physical field step is stale or foreign');

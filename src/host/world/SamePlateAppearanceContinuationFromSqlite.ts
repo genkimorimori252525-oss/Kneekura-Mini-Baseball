@@ -104,16 +104,27 @@ const originalEmptyView = (db: DatabaseSync, ref: SamePaReference<'reserved_pa_e
   const key = json(ref), prior = phase.emptyViews.get(key); if (prior) return prior;
   const value = readHistoricalSamePaExecutionView(db, ref); phase.emptyViews.set(key, value); return value;
 };
-const originalPitch = (db: DatabaseSync, ref: SamePaReference<'pa_dispatch_v1_pitch_actions'>) => {
-  const phase = phases.get(db); if (!phase || phase.failed) throw new Error('same-PA continuation phase missing'); same(readSignature(db), phase.signature);
-  const key = json(ref), prior = phase.pitches.get(key); if (prior) return prior;
-  const value = readSamePaExecutedPitchFromSqlite(db, ref); phase.pitches.set(key, value); return value;
-};
+/** Reuse the complete original dispatch proof only inside this immutable
+ * continuation phase. Current admission and workload checks remain separate. */
+export const readSamePaContinuationOriginalPitchFromSqlite = (db: DatabaseSync,
+  raw: SamePaReference<'pa_dispatch_v1_pitch_actions'>): ReturnType<typeof readSamePaExecutedPitchFromSqlite> => immutable(db, () => {
+  const ref = cloneInert(raw);
+  if (!samePaReferenceValid(ref, 'pa_dispatch_v1_pitch_actions')) throw new Error('invalid same-PA continuation original pitch reference');
+  const phase = phases.get(db)!, key = json(ref), activeKey = 'pitch:' + key, prior = phase.pitches.get(key);
+  if (prior) { same(prior.reference, ref); return prior; }
+  if (phase.active.has(activeKey)) throw new Error('same-PA continuation original pitch cycle');
+  phase.active.add(activeKey);
+  try {
+    const value = readSamePaExecutedPitchFromSqlite(db, ref); same(value.reference, ref);
+    if (phase.failed) throw new Error('same-PA continuation phase expired');
+    phase.pitches.set(key, value); return value;
+  } finally { phase.active.delete(activeKey); }
+});
 const assemble = <T>(db: DatabaseSync, current: boolean, body: (read: (kind: SamePaContinuationKind, id: string) => SamePaContinuationRecord | null,
   derive: (source: SamePaContinuationSource) => SamePaContinuationRecord) => T): T => immutable(db, () => {
   const phase = phases.get(db)!;
   const saved = phase.records;
-  const pitch = (ref: SamePaReference<'pa_dispatch_v1_pitch_actions'>) => originalPitch(db, ref);
+  const pitch = (ref: SamePaReference<'pa_dispatch_v1_pitch_actions'>) => readSamePaContinuationOriginalPitchFromSqlite(db, ref);
   const linked = (kind: SamePaContinuationKind, ref: SamePaReference) => {
     if (!samePaReferenceValid(ref, tables[kind])) throw new Error('same-PA continuation reference owner differs');
     const value = read(kind, ref.sourceId); if (!value) throw new Error('same-PA continuation original prerequisite missing'); same(reference(tables[kind], value), ref); return value;
@@ -259,7 +270,7 @@ const readView = (db: DatabaseSync, raw: SamePaReference<'pa_continuation_v1_exe
   return assemble(db, current, read => {
     const view = read('view', ref.sourceId) as SamePaContinuationView | null; if (!view) throw new Error('same-PA nonempty view missing'); same(reference(tables.view, view), ref);
     const prefix = read('prefix', view.source.prefixReference.sourceId) as SamePaNonemptyPrefix;
-    const original = originalPitch(db, prefix.source.pitchReference), actor = original.pitch.originalActor;
+    const original = readSamePaContinuationOriginalPitchFromSqlite(db, prefix.source.pitchReference), actor = original.pitch.originalActor;
     const old = originalEmptyView(db, prefix.source.originalViewReference).view;
     const members: readonly SamePaDispatchMember[] = deriveSamePaDispatchRoles(actor, old).map(role => ({ ...role.member,
       projectedStateHash: view.participants.find(p => p.playerId === role.member.playerId)!.projectedStateHash }));

@@ -19,6 +19,8 @@ import { assertSamePaLifecycleStorage } from './SamePlateAppearanceLifecycleStor
 import { deriveSamePaLifecycleCalibration, type SamePaLifecycleCalibration } from './SamePlateAppearanceLifecycleCalibration';
 import { readSamePaLifecycleOutcomeFromSqlite, readSamePaLifecycleResetFromSqlite } from './SamePlateAppearanceLifecycleOutcomeFromSqlite';
 import { samePaStartingBaseCenters } from './SamePlateAppearanceLifecycleStartingGeometry';
+import { readSamePaCatchWorkFromSqlite } from './SamePlateAppearanceCatchWorkFromSqlite';
+import { readBatterRunPlanFromSqlite } from './SqliteBatterRunPlanStore';
 import { samePaLifecycleTables as tables, samePaLifecycleSourceInput as input, samePaLifecycleWorkOwners,
   type SamePaLifecycleSource, type SamePaLifecycleRecord, type SamePaLifecyclePrefix, type SamePaLifecycleTotal,
   type SamePaLifecycleView, type SamePaLifecycleViewBasis, type SamePaLifecycleCut, type SamePaLifecycleNextPitchBasis,
@@ -152,6 +154,20 @@ const assemble = <T>(db: DatabaseSync, current: boolean, body: (read: (kind: Sam
           physicalPitchReference: op.physicalPitchReference, operationReference: ref, physicalOperationReference: ref as SamePaPhysicalOperationReference,
           pitchOrdinal: op.pitchOrdinal, evaluationTick: op.evaluationTick, timeline: op.timeline, physicalWorld: op.physicalWorld, bodyCut,
           outcomeReference: null, resetReference: null };
+      } else if (ref.owner === 'world_batter_run_plans') {
+        const op = readBatterRunPlanFromSqlite(db, { ...ref, owner: 'world_batter_run_plans' }); same(op, raw.value);
+        same(op.viewReference, viewRef); same(op.lineage, old.view.lineage); same(op.physicalPitchReference, cut.physicalPitchReference);
+        if (cut.stage !== 'field_active' || cut.outcomeReference || cut.resetReference || op.evaluationTick !== cut.evaluationTick
+          || op.playerId !== actor.binding.playerId || op.personId !== actor.binding.personId || op.plan.motionExecuted !== false)
+          throw new Error('batter run plan cannot advance the physical clock or claim execution');
+        cut = { ...cut, operationReference: ref };
+      } else if (ref.owner === 'pa_catch_v1_work') {
+        const op = readSamePaCatchWorkFromSqlite(db, { ...ref, owner: 'pa_catch_v1_work' }); same(op, raw.value);
+        same(op.source.viewReference, viewRef); same(op.lineage, old.view.lineage);
+        same(op.physicalPitchReference, cut.physicalPitchReference); same(op.physicalOperationReference, cut.physicalOperationReference);
+        if (cut.stage !== 'field_active' || op.evaluationTick !== cut.evaluationTick || cut.outcomeReference || cut.resetReference)
+          throw new Error('catch action and reception cannot advance physical time or reopen an outcome');
+        cut = { ...cut, operationReference: ref };
       } else if (ref.owner === tables.outcome) {
         const op = readSamePaLifecycleOutcomeFromSqlite(db, { ...ref, owner: 'pa_lifecycle_v1_outcomes' }); same(op, raw.value);
         same(op.source.viewReference, viewRef); same(op.lineage, old.view.lineage); same(op.source.physicalOperationReference, cut.physicalOperationReference);

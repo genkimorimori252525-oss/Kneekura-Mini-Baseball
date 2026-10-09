@@ -8,10 +8,11 @@ import { readCurrentSamePaLifecycleViewFromSqlite, readHistoricalSamePaLifecycle
 import { readSamePaPhysicalOperationFromSqlite } from './SamePlateAppearancePhysicalEpisodeFromSqlite';
 import type { SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep, SamePaPhysicalOperationReference } from './SamePlateAppearancePhysicalEpisode';
 import { deriveSamePaFieldRuleEvidence } from './SamePlateAppearanceFieldRuleEvidence';
+import { deriveSamePaFairCatchRuleBasis } from './SamePlateAppearanceFairCatchRuleBasis';
 /** Native read-only bridge. Historical reads replay the selected immutable cut;
  * current reads additionally require its complete live work/actual-head census.
  * The caller supplies only an owned view reference, never physical/rule values. */
-export const readSamePaFieldRuleEvidenceFromSqlite = (db: DatabaseSync,
+export const readSamePaFieldRuleEvidenceWithInputsFromSqlite = (db: DatabaseSync,
   raw: SamePaReference<'pa_lifecycle_v1_execution_views'>, mode: 'current' | 'historical') => withSamePaLifecycleReadPhase(db, () => {
   const viewReference = cloneInert(raw);
   if (!samePaReferenceValid(viewReference, 'pa_lifecycle_v1_execution_views') || !['current', 'historical'].includes(mode)) throw new Error('invalid same-PA field-rule view request');
@@ -35,8 +36,29 @@ export const readSamePaFieldRuleEvidenceFromSqlite = (db: DatabaseSync,
     || last.evaluationTick !== cut.evaluationTick || new Set([actor.binding.playerId, ...actor.defenderBindings.map(d => d.playerId)]).size !== 10) throw new Error('same-PA field-rule exact endpoint coverage differs');
   const evidence = deriveSamePaFieldRuleEvidence({ fields, batterRunnerId: actor.binding.playerId,
     defenderIds: actor.defenderBindings.map(d => d.playerId), outsAtStart: actor.match.outs });
-  return freeze({ kind: 'same_pa_field_rule_evidence_v1' as const, viewReference, lineage: view.lineage, coverageHash: view.coverageHash,
+  // The accepted view owns all three inputs in this one read phase. An eventual
+  // official/end adapter must not replace the original Match or contact timeline
+  // with a caller payload or the later Match head.
+  const root = fields[0];
+  if (root.kind !== 'same_pa_physical_field_root_v1') throw new Error('same-PA field-rule original root missing');
+  const contact = readSamePaPhysicalOperationFromSqlite(db, root.source.resolutionReference);
+  if (contact.record.kind !== 'same_pa_physical_resolution_v1'
+    || json(contact.physicalPitchReference) !== json(cut.physicalPitchReference)
+    || json(contact.lineage) !== json(view.lineage)) throw new Error('same-PA field-rule original contact resolution differs');
+  const originalMatch = actor.match, originalTimeline = contact.record.timeline;
+  const fairCatch = deriveSamePaFairCatchRuleBasis({ originalMatch, originalTimeline, evidence });
+  const value = freeze({ kind: 'same_pa_field_rule_evidence_v1' as const, viewReference, lineage: view.lineage, coverageHash: view.coverageHash,
     physicalPitchReference: cut.physicalPitchReference, physicalOperationReference: cut.physicalOperationReference,
     fieldReferences: fields.map(f => reference(f.kind === 'same_pa_physical_field_root_v1' ? 'pa_physical_v1_field_roots' : 'pa_physical_v1_field_steps', f)),
-    evidenceHash: hash(evidence), evidence });
+    evidenceHash: hash(evidence), evidence, originalMatch, originalTimeline,
+    contactReference: root.source.resolutionReference, fairCatch });
+  return Object.freeze({ kind: 'same_pa_field_rule_read_pair_v1' as const, value,
+    fields: Object.freeze(fields), actor, view });
 });
+/** Public evidence shape stays unchanged. The paired reader is an immediate
+ * same-snapshot dependency seam, never an accepted caller-supplied receipt. */
+export const readSamePaFieldRuleEvidenceFromSqlite = (db: DatabaseSync,
+  raw: SamePaReference<'pa_lifecycle_v1_execution_views'>, mode: 'current' | 'historical') => {
+  const pair = readSamePaFieldRuleEvidenceWithInputsFromSqlite(db, raw, mode);
+  return pair.kind === 'same_pa_field_rule_read_pair_v1' ? pair.value : pair;
+};
