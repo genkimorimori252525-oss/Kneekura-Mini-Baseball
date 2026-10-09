@@ -8,6 +8,7 @@ import * as actors from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { battedBallFlightEvidenceFromSqlite } from './SqliteBattedBallFlightStore';
 import { activeBattedWorldFieldReadFrame } from './SqliteBattedWorldFieldStore';
 import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
+import { assertNationalMatchBindings, readNationalMatchOrigin } from './NationalMatchOriginFromSqlite';
 import { ownedRead, pairedPitchFixture, queryOnly, requirePairedReader, type RawPitchRow } from './BattedBallFlightPairedPitch.test-support';
 const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
 
@@ -153,6 +154,29 @@ it('prepare-only flight adapter retains bounded legacy reads despite a transacti
     expect(actors.actorJson(value)).toBe(x.expectedJson);
     // Resolver still executes twice; the actor counter is connection-identity-filtered and not asserted for this adapter.
     expect(counts.executions).toEqual([0, 1, 2, 0, 1, 2]); expect(x.db.isTransaction).toBe(false);
+  } finally { x.close(); }
+});
+
+it.each(['table', 'view', 'upper_table', 'upper_view'] as const)('prepare-only Club adapter cannot bypass a National owner %s', kind => {
+  const x = pairedPitchFixture(); try {
+    const adapter = { isTransaction: true, prepare: x.db.prepare.bind(x.db) };
+    if (kind === 'table') x.db.exec('CREATE TABLE world_national_match_origins(source_id TEXT)');
+    else if (kind === 'view') x.db.exec('CREATE VIEW world_national_match_origins AS SELECT 1 AS source_id');
+    else if (kind === 'upper_table') x.db.exec('CREATE TABLE WORLD_NATIONAL_MATCH_ORIGINS(source_id TEXT)');
+    else x.db.exec('CREATE VIEW WORLD_NATIONAL_MATCH_ORIGINS AS SELECT 1 AS source_id');
+    expect(() => assertNationalMatchBindings(adapter, x.g.physical.frame.bindings))
+      .toThrow('National Match evidence requires a Native connection');
+    expect(() => battedBallFlightEvidenceFromSqlite(adapter).derive(x.g.input, null))
+      .toThrow('corrupt original physical pitch prefix');
+  } finally { x.close(); }
+});
+
+it('prepare-only adapter cannot authenticate National bindings or an absent National origin', () => {
+  const x = pairedPitchFixture(); try {
+    const adapter = { isTransaction: true, prepare: x.db.prepare.bind(x.db) };
+    const bindings = x.g.physical.frame.bindings.map(binding => ({ ...binding, nationalRosterSnapshotId: 'national-original' }));
+    expect(() => assertNationalMatchBindings(adapter, bindings)).toThrow('National Match evidence requires a Native connection');
+    expect(() => readNationalMatchOrigin(adapter, x.g.physical.frame.gameId)).toThrow('National Match evidence requires a Native connection');
   } finally { x.close(); }
 });
 

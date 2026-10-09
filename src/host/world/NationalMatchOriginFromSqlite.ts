@@ -182,6 +182,17 @@ export const readNationalMatchOrigin = (inputDb: Db, gameId: string): DurableNat
 /** One original replay for the whole actor frame; Club-only bindings retain their historical bytes. */
 export const assertNationalMatchBindings = (db: Db, bindings: readonly OfficialParticipantBinding[]): DurableNationalMatchOrigin | null => {
   if (!bindings.length) return null;
+  const { DatabaseSync: Native } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  if (!(db instanceof Native)) {
+    // The established prepare-only Club adapter retains its independent legacy
+    // replay. It cannot authenticate a National binding or a National owner,
+    // even when its wrapper claims to be inside a transaction.
+    if (bindings.some(nationalBinding)
+      || db.prepare('SELECT 1 FROM main.sqlite_master WHERE name=? COLLATE NOCASE').get('world_national_match_origins')) {
+      throw new Error('National Match evidence requires a Native connection');
+    }
+    return null;
+  }
   const origin = readNationalMatchOrigin(db, bindings[0].gameId);
   if (!origin) {
     if (bindings.some(nationalBinding)) throw new Error('National physical actors require original National Match evidence');

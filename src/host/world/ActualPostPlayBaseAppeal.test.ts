@@ -4,7 +4,7 @@ import { initializeActualPostPlayReview, advanceActualPostPlayReview } from './A
 import { reviewFixture } from './ActualPostPlayReviewContract.test-support';
 import { getOfficialStateWindows } from '../../core/adjudication/PlayAdjudicationLedger';
 import { createRequire } from 'node:module';
-import { createDefensiveAppealAttemptFact, createFlyBallFirstFielderTouchFact } from '../../core/rules/PhysicalRuleFacts';
+import { createControlledRunnerTagFact, createDefensiveAppealAttemptFact, createFlyBallFirstFielderTouchFact } from '../../core/rules/PhysicalRuleFacts';
 import { deriveBallWorldPlayerBaseContactHistory } from '../../core/sim/ball/BallWorldPlayerBaseContactHistory';
 import { capturePostPlayBaseAppeal } from './ActualPostPlayBaseAppealFromSqlite';
 
@@ -13,6 +13,7 @@ const initial = () => {
   return initializeActualPostPlayReview({ ...f, source: { ...f.source, baseAppealMode: 'original_catch_end_v1' } });
 };
 const action = { kind: 'defender_base_appeal', defenderId: 'fielder', runnerId: 'runner', base: 'first' } as const;
+const bodyAction = { ...action, kind: 'defender_runner_body_appeal' } as const;
 const event = (previous: ReturnType<typeof initial>, a: unknown = action) => ({ sourceId: 'appeal-event', sourceVersion: 'test',
   capability: 'actual_post_play_review_event_v1', sessionSourceId: previous.source.sourceId, expectedRevision: previous.revision,
   parent: { sourceId: previous.headSourceId, snapshotHash: previous.headHash }, action: a });
@@ -81,3 +82,74 @@ it('BPA07 Native admission stays pending without its original catch-end owner an
     db.exec('ROLLBACK');
   } finally { db.close(); }
 });
+
+// Like qualification above, this is structural reducer evidence only. The
+// Native path must derive the full physical contact object from original owners.
+const bodyQualification = (previous: ReturnType<typeof initial>): any => ({ ...qualification(previous),
+  runnerBodyContact: { kind: 'controlled_runner_body_tag_v1',
+    fact: createControlledRunnerTagFact('fielder', 'runner', previous.seed.exactEnd.tick) } });
+it('BPA08 accepts the explicit runner-body route without changing legacy appeal Source bytes', () => {
+  const previous = initial();
+  expect(actualPostPlayReviewEventInput(event(previous, bodyAction), 'appeal-event').action).toEqual(bodyAction);
+  expect(JSON.stringify(actualPostPlayReviewEventInput(event(previous), 'appeal-event'))).toBe(JSON.stringify(event(previous)));
+});
+it.each(['tick', 'attempt', 'runnerBodyContact', 'hasBall', 'bodyTouch'] as const)(
+  'BPA09 rejects caller-supplied %s in an accepted runner-body appeal Source', extra => {
+    const previous = initial();
+    expect(() => actualPostPlayReviewEventInput(event(previous, { ...bodyAction, [extra]: true }), 'appeal-event'))
+      .toThrow(/explicit defender/);
+  });
+it('BPA10 runner-body request alone cannot execute an appeal or mutate the ledger', () => {
+  const previous = initial();
+  expect(() => advanceActualPostPlayReview({ previous, source: event(previous, bodyAction) })).toThrow(/physical.*appeal|appeal.*physical/);
+  expect(previous.ledger.events.some(e => e.kind === 'DefensiveAppealAttemptRecorded')).toBe(false);
+});
+it('BPA11 consumes qualified runner-body evidence through the appeal ledger and awaits the correct snapshot', () => {
+  const previous = initial(), baseAppeal = bodyQualification(previous);
+  const after = advanceActualPostPlayReview({ previous, source: event(previous, bodyAction), baseAppeal });
+  expect(after.events[0]).toMatchObject({ source: { action: bodyAction }, baseAppeal });
+  expect(after.ledger.events.at(-1)).toMatchObject({ kind: 'DefensiveAppealAttemptRecorded', attempt: baseAppeal.attempt,
+    complianceEvidence: baseAppeal.complianceEvidence });
+  expect(after.pendingReasons).toContain('appeal_requires_updated_correct_rule_snapshot');
+  expect(after.ledger.playEnd).toEqual(previous.ledger.playEnd);
+  expect(after.kind).toBe('official_pending');
+});
+it.each(['base', 'body'] as const)('BPA12 rejects execution from the other route for the %s appeal', route => {
+  const previous = initial();
+  const source = event(previous, route === 'base' ? action : bodyAction);
+  const baseAppeal = route === 'base' ? bodyQualification(previous) : qualification(previous);
+  expect(() => advanceActualPostPlayReview({ previous, source, baseAppeal })).toThrow(/appeal.*route|route.*appeal/);
+});
+it.each(['base', 'body'] as const)('BPA13 rejects the same target across routes after a %s appeal', route => {
+  const previous = initial();
+  const after = advanceActualPostPlayReview({ previous, source: event(previous, route === 'base' ? action : bodyAction),
+    baseAppeal: route === 'base' ? qualification(previous) : bodyQualification(previous) });
+  const source = { ...event(after, route === 'base' ? bodyAction : action), sourceId: 'second-appeal' };
+  const baseAppeal = route === 'base' ? bodyQualification(previous) : qualification(previous);
+  expect(() => advanceActualPostPlayReview({ previous: after, source, baseAppeal })).toThrow(/same original base/);
+});
+it('BPA14 runner-body evidence cannot reuse contact after advancing the post-play clock', () => {
+  const previous = initial(), baseAppeal = bodyQualification(previous);
+  const advanced = advanceActualPostPlayReview({ previous, source: event(previous, { kind: 'advance_tick', schedulerId: 'scheduler' }) });
+  expect(() => advanceActualPostPlayReview({ previous: advanced,
+    source: { ...event(advanced, bodyAction), sourceId: 'late-body-appeal' }, baseAppeal })).toThrow(/original physical end cut/);
+});
+it('BPA15 runner-body Native admission requires the original catch-end owner and actual transaction', () => {
+  const previous = initial(), source = actualPostPlayReviewEventInput(event(previous, bodyAction), 'appeal-event');
+  expect(() => capturePostPlayBaseAppeal({ prepare: () => null } as any, {} as any, previous, source, true)).toThrow(/Native read transaction/);
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  const db = new DatabaseSync(':memory:');
+  try {
+    db.exec('BEGIN');
+    expect(capturePostPlayBaseAppeal(db, {} as any, previous, source, true)).toEqual({
+      kind: 'intent_pending', reason: 'original_base_appeal_reserved_catch_end_required' });
+    db.exec('ROLLBACK');
+  } finally { db.close(); }
+});
+it.each(['kind', 'defenderId', 'runnerId', 'tick'] as const)(
+  'BPA16 rejects a runner-body contact fact with changed %s', fault => {
+    const previous = initial(), baseAppeal = bodyQualification(previous);
+    baseAppeal.runnerBodyContact.fact[fault] = fault === 'tick' ? previous.seed.exactEnd.tick + 1 : 'different';
+    expect(() => advanceActualPostPlayReview({ previous, source: event(previous, bodyAction), baseAppeal }))
+      .toThrow(/runner.body.*contact|contact.*runner.body/);
+  });

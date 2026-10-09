@@ -4,6 +4,7 @@ import { asRuleProfileId } from '../../core/model/RuleProfileRef';
 import { fixture, material, v } from '../../core/sim/ball/BattedWorldScheduledFieldThrow.test-support';
 import { deriveInitialBattedWorldFieldMotion } from '../../core/sim/ball/BattedWorldFieldMotion';
 import { prepareBattedWorldScheduledFieldAcquisition } from '../../core/sim/ball/BattedWorldScheduledFieldAcquisition';
+import { deriveSamePaPhysicalQuantizerCheckpoint } from './SamePlateAppearancePhysicalQuantizerCheckpoint';
 import { deriveSamePaPhysicalFieldCapture } from './SamePlateAppearancePhysicalFieldCapture';
 import { deriveSamePaFieldRuleEvidence } from './SamePlateAppearanceFieldRuleEvidence';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
@@ -12,13 +13,15 @@ const roles = ['body', 'glove', 'tag_hand', 'left_foot', 'right_foot'] as const;
 const fieldRef = (f: any) => reference(f.kind === 'same_pa_physical_field_root_v1' ? 'pa_physical_v1_field_roots' : 'pa_physical_v1_field_steps', f);
 /** Structural Native records with real Core capture, continuous foot histories
  * and custody kernels. This fixture does not claim SQLite admission. */
-const setup = (originTick = 0, runnerSpeed = 2, defenderX = 3, defenderFootSpeed = 0) => {
-  const original = fixture(originTick, 1, 5, 5);
+const setup = (originTick = 0, runnerSpeed = 2, defenderX = 3, defenderFootSpeed = 0,
+  runnerBody?: Readonly<{ center: ReturnType<typeof v>; velocity: ReturnType<typeof v>; role?: 'body' | 'tag_hand' }>, power = 1) => {
+  const original = fixture(originTick, power, 5, 5);
   const actors = ['batter', 'carrier', 'runner'].flatMap((playerId, index) => roles.map(role => {
     const foot = role.endsWith('foot'), glove = playerId === 'carrier' && role === 'glove';
+    const body = playerId === 'runner' && role === (runnerBody?.role ?? 'body') ? runnerBody : undefined;
     return { playerId, primitive: { role, radius: 0.125, startTick: originTick, endTick: originTick + 5_000_000, ticksPerSecond: 1_000_000,
-      startCenter: glove ? v(2.25, 5, 5) : foot && playerId !== 'batter' ? v(playerId === 'carrier' ? defenderX : 3, 1, 0) : v(20 + index * 5, 10, 5),
-      startVelocity: glove ? v(1, 0, 0) : playerId === 'runner' ? v(0, 0, runnerSpeed)
+      startCenter: body ? body.center : glove ? v(2.25, 5, 5) : foot && playerId !== 'batter' ? v(playerId === 'carrier' ? defenderX : 3, 1, 0) : v(20 + index * 5, 10, 5),
+      startVelocity: body ? body.velocity : glove ? v(1, 0, 0) : playerId === 'runner' ? v(0, 0, runnerSpeed)
         : foot && playerId === 'carrier' ? v(0, 0, defenderFootSpeed) : v(0, 0, 0), acceleration: v(0, 0, 0) } };
   }));
   const response: any = { ...original.response, world: { ...original.response.world, actors }, actors: actors.map(a => ({ playerId: a.playerId,
@@ -102,4 +105,66 @@ it('BAE09 does not reuse an earlier base contact after the defender has left it'
   const h = setup(0, 2, 3, 2);
   expect(h.evidence.defendersFirstBase[0].history).toMatchObject({ contactAtStart: true, contactAtHorizon: false });
   expect(derive(h)).toMatchObject({ kind: 'pending', reason: 'current_defender_controlled_base_contact_required' });
+});
+
+const deriveBody = (input: ReturnType<typeof setup>): any => {
+  const fn = (appeal as { deriveSamePaRunnerBodyAppealExecution?: Function }).deriveSamePaRunnerBodyAppealExecution;
+  expect(fn, 'runner-body appeal physical qualification helper is missing').toBeTypeOf('function');
+  return fn!(input);
+};
+const touchingBody = { center: v(2.5, 5, 5), velocity: v(1, 0, 0) };
+it('RBA01 uses actual secure glove/body contact when the defender is away from the origin base', () => {
+  const h = setup(0, 2, 4, 0, touchingBody), before = JSON.stringify(h), result = deriveBody(h);
+  expect(derive(h)).toMatchObject({ kind: 'pending', reason: 'current_defender_controlled_base_contact_required' });
+  expect(result.kind, JSON.stringify(result)).toBe('ready');
+  expect(result.runnerBodyContact).toMatchObject({ kind: 'controlled_runner_body_tag_v1',
+    fact: { kind: 'controlled_runner_tag', defenderId: 'carrier', runnerId: 'runner', tick: result.moment.tick },
+    glove: { playerId: 'carrier', role: 'glove', radius: 0.125 }, runnerBody: { playerId: 'runner', role: 'body', radius: 0.125 } });
+  expect(result.attempt).toMatchObject({ runnerId: 'runner', base: 1, tick: result.moment.tick });
+  expect(result.compliance.kind).toBe('appealable_early_departure');
+  expect(result).not.toHaveProperty('defenderHistory'); expect(result).not.toHaveProperty('currentContact');
+  for (const key of ['out', 'officialRuling', 'physicalEnd', 'ledger', 'settlement']) expect(result).not.toHaveProperty(key);
+  expect(JSON.stringify(h)).toBe(before);
+});
+it.each([
+  ['missing', undefined],
+  ['earlier', { center: v(2.5, 5, 5), velocity: v(2, 0, 0) }],
+  ['future', { center: v(4, 5, 5), velocity: v(0, 0, 0) }],
+  ['other_primitive', { ...touchingBody, role: 'tag_hand' as const }],
+] as const)('RBA02 does not substitute %s contact for the current glove/body condition', (_, body) => {
+  expect(deriveBody(setup(0, 2, 4, 0, body))).toMatchObject({ kind: 'pending', reason: 'current_defender_controlled_runner_body_contact_required' });
+});
+it('RBA03 contact without completed custody stays pending', () => {
+  const h = setup(0, 2, 4, 0, touchingBody); h.fields = [h.root];
+  h.evidence = deriveSamePaFieldRuleEvidence({ fields: h.fields, batterRunnerId: 'batter', defenderIds: ['carrier'], occupiedRunnerIds: ['runner'], outsAtStart: 0 });
+  expect(deriveBody(h)).toMatchObject({ kind: 'pending', reason: 'actual_fair_catch_required' });
+});
+it('RBA04 keeps a compliant runner compliant after actual body-tag qualification', () => {
+  const result = deriveBody(setup(0, 0, 4, 0, touchingBody));
+  expect(result.kind).toBe('ready'); expect(result.compliance.kind).toBe('compliant');
+});
+it('RBA05 retains exact sampled contact at a fractional cut and large original clock', () => {
+  const origin = 2 ** 52, h = setup(origin, 2, 4, 0, touchingBody), previous = h.fields.at(-1)!;
+  const source: any = { ...previous.source, sourceId: 'exact-cut', previousOperationReference: fieldRef(previous),
+    previousFieldReference: fieldRef(previous), throughTick: previous.evaluationTick, action: { kind: 'retained_quantizer_checkpoint_v1' } };
+  h.fields.push({ ...previous, source, operationOrdinal: 3, ...deriveSamePaPhysicalQuantizerCheckpoint(source, h.root, previous) });
+  h.evidence = deriveSamePaFieldRuleEvidence({ fields: h.fields, batterRunnerId: 'batter', defenderIds: ['carrier'], occupiedRunnerIds: ['runner'], outsAtStart: 0 });
+  const at = h.evidence.physical.field.evidence.horizon, result = deriveBody(h);
+  expect(at.elapsedSeconds).not.toBe((at.ball.tick - origin) / 1_000_000);
+  expect(result.kind, JSON.stringify(result)).toBe('ready');
+  expect(result.moment).toEqual({ originTick: origin, elapsedSeconds: at.elapsedSeconds, tick: at.ball.tick });
+  expect(result.runnerBodyContact.glove.center.x).toBe(2.25 + at.elapsedSeconds);
+  expect(result.runnerBodyContact.runnerBody.center.x).toBe(touchingBody.center.x + at.elapsedSeconds);
+});
+it.each(['glove', 'body', 'custody', 'cursor'] as const)('RBA06 rejects a changed original %s projection', fault => {
+  const h: any = structuredClone(setup(0, 2, 4, 0, touchingBody));
+  if (fault === 'custody') h.evidence.physical.controlWindows[0].endInclusive = false;
+  else if (fault === 'cursor') h.fields.at(-1).field.motion.cursor.moment.elapsedSeconds += 0.001;
+  else h.evidence.physical.segments.at(-1).actors.find((a: any) => a.playerId === (fault === 'glove' ? 'carrier' : 'runner') && a.primitive.role === fault).primitive.radius += 0.01;
+  expect(() => deriveBody(h)).toThrow(/evidence|cut|custody/);
+});
+it('RBA07 preserves the no-throw live-prefix requirement for runner-body appeals', () => {
+  const h: any = structuredClone(setup(0, 2, 4, 0, touchingBody)), last = h.fields.at(-1);
+  h.fields.push({ ...last, source: { ...last.source, sourceId: 'throw', action: { kind: 'throw_plan_v1' } }, actionResult: { kind: 'throw_plan_v1' }, operationOrdinal: 3 });
+  expect(deriveBody(h)).toMatchObject({ kind: 'pending', reason: 'uninterrupted_fair_catch_prefix_required' });
 });

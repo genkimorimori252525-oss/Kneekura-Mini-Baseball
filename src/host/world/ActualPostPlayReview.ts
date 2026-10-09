@@ -73,15 +73,27 @@ const reduce = (previous: ActualPostPlayReviewProjection, raw: AcceptedActualPos
   const policy = previous.source.policy;
   let ledger = previous.ledger, cursor = previous.cursor;
   let requests = [...previous.requests], intent: AcceptedActualPostPlayReviewIntent | null = null;
-  if (action.kind !== 'defender_base_appeal' && baseAppeal !== undefined) throw new Error('unexpected physical base appeal evidence');
-  if (action.kind === 'defender_base_appeal') {
+  if (action.kind !== 'defender_base_appeal' && action.kind !== 'defender_runner_body_appeal'
+    && baseAppeal !== undefined) throw new Error('unexpected physical base appeal evidence');
+  if (action.kind === 'defender_base_appeal' || action.kind === 'defender_runner_body_appeal') {
     if (previous.source.baseAppealMode !== 'original_catch_end_v1' || !baseAppeal || baseAppeal.kind !== 'ready')
       throw new Error('original physical base appeal execution is required');
+    const bodyRoute = 'runnerBodyContact' in baseAppeal;
+    if ((action.kind === 'defender_runner_body_appeal') !== bodyRoute
+      || bodyRoute && baseAppeal.runnerBodyContact?.kind !== 'controlled_runner_body_tag_v1')
+      throw new Error('physical appeal execution route differs from explicit action');
+    if (bodyRoute) {
+      const tag = baseAppeal.runnerBodyContact.fact;
+      if (tag?.kind !== 'controlled_runner_tag' || tag.defenderId !== action.defenderId
+        || tag.runnerId !== action.runnerId || tag.tick !== baseAppeal.attempt.tick)
+        throw new Error('runner-body appeal contact fact differs from execution');
+    }
     if (cursor.offsetTicks !== 0 || cursor.tick !== previous.seed.exactEnd.tick || json(baseAppeal.moment) !== json(previous.seed.exactEnd)
       || baseAppeal.attempt.tick !== cursor.tick || baseAppeal.attempt.defenderId !== action.defenderId
       || baseAppeal.attempt.runnerId !== action.runnerId || baseAppeal.attempt.base !== ({ first: 1, second: 2, third: 3 } as const)[action.base])
       throw new Error('base appeal must execute at its original physical end cut');
-    if (previous.events.some(e => e.source.action.kind === 'defender_base_appeal' && e.source.action.runnerId === action.runnerId
+    if (previous.events.some(e => (e.source.action.kind === 'defender_base_appeal' || e.source.action.kind === 'defender_runner_body_appeal')
+      && e.source.action.runnerId === action.runnerId
       && e.source.action.base === action.base)) throw new Error('successive appeal at the same original base is not supported');
     ledger = orchestrateTagUpAppealAttempt(ledger, ledger.revision, { profile: previous.ruleProfile,
       eventId: `${source.sourceId}:appeal`, windowId: `${previous.source.sourceId}:base-appeal`,

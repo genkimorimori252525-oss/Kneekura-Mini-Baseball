@@ -1,5 +1,5 @@
 import { createRequire } from 'node:module';
-import { deriveSamePaBaseAppealExecution } from './SamePlateAppearanceBaseAppealExecution';
+import { deriveSamePaBaseAppealExecution, deriveSamePaRunnerBodyAppealExecution } from './SamePlateAppearanceBaseAppealExecution';
 import { deriveSamePaCatchReviewNativeSeed } from './SamePlateAppearanceCatchReviewFromSqlite';
 import { readSamePaFieldRuleEvidenceWithInputsFromSqlite } from './SamePlateAppearanceFieldRuleEvidenceFromSqlite';
 import type { PostPlayReviewDb, PostPlayReviewNativeScope } from './ActualPostPlayReviewNativeScope';
@@ -16,14 +16,15 @@ export type PostPlayBaseAppealAdmission = Readonly<{
 const pending = (reason: string) => freeze({ kind: 'intent_pending' as const, reason });
 
 /** The accepted event expresses the targeted appeal. Native executes it only
- * where original secure custody and base contact still concur. Its clock is the
- * original cut, never the time the caller happened to submit a request. */
+ * where original secure custody and the explicitly selected contact still concur.
+ * Its clock is the original cut, never the time the caller submitted a request. */
 export const capturePostPlayBaseAppeal = (db: PostPlayReviewDb, scope: PostPlayReviewNativeScope,
   previous: ActualPostPlayReviewProjection, source: AcceptedActualPostPlayReviewEvent, current: boolean) => {
   const Native = (createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite')).DatabaseSync;
   if (!(db instanceof Native) || !db.isTransaction) throw new Error('base appeal requires the Native read transaction');
   const action = source.action;
-  if (action.kind !== 'defender_base_appeal' || previous.source.baseAppealMode !== 'original_catch_end_v1')
+  if ((action.kind !== 'defender_base_appeal' && action.kind !== 'defender_runner_body_appeal')
+    || previous.source.baseAppealMode !== 'original_catch_end_v1')
     throw new Error('original base appeal action or enabled owner differs');
   const reserved = previous.source.reservedCatchSeed;
   if (!reserved) return pending('original_base_appeal_reserved_catch_end_required');
@@ -42,7 +43,8 @@ export const capturePostPlayBaseAppeal = (db: PostPlayReviewDb, scope: PostPlayR
     || actor.match.bases[action.base] !== action.runnerId || json(actor.match) !== json(scope.originalMatch)
     || json(value.physicalOperationReference) !== json(reserved.physicalOperationReference))
     throw new Error('base appeal original defender, occupied runner or field differs');
-  const execution = deriveSamePaBaseAppealExecution({ indication: { defenderId: action.defenderId, runnerId: action.runnerId, base: action.base },
+  const qualify = action.kind === 'defender_runner_body_appeal' ? deriveSamePaRunnerBodyAppealExecution : deriveSamePaBaseAppealExecution;
+  const execution = qualify({ indication: { defenderId: action.defenderId, runnerId: action.runnerId, base: action.base },
     match: actor.match, root, fields, evidence: value.evidence });
   if (execution.kind === 'pending') return pending(execution.reason);
   if (json(execution.moment) !== json(previous.seed.exactEnd)) throw new Error('base appeal execution differs from exact original cut');

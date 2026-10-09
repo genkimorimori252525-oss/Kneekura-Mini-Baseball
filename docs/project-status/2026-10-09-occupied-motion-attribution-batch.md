@@ -21,6 +21,67 @@ wall-time improvement. See the
 [measured comparison](../verification/2026-10-09-continuation-claim-proof-reuse.md).
 
 
+
+## Controlled body tags, persisted recruitment and original proof reuse
+
+Explicit runner-body appeals now use the actual ball-holding glove and the
+original runner's body geometry at the owned instant. The existing exact contact
+kernel, secure custody, original histories, first-event fence and official
+window/snapshot obligations remain required. Base-appeal archives retain their
+original shape. [Body-tag connection](2026-10-09-runner-body-appeal-connection.md).
+
+Scouting evidence and reports now feed a persisted accepted recruitment decision
+through the existing Core chronology, Club finance, wage, roster need and Front
+Office authority rules. The existing free-agent contract writer consumes that
+original reference on its own Native connection during admission, retry and
+historical reading. Actual contract effects and source-changing triggers are
+covered. Saved request bytes and the captured reference are revalidated before
+commit, preventing a trigger from deleting both reference indicators to downgrade
+the intake. Legacy request bytes are preserved. Estimates, chosen decisions and
+bilateral acceptance remain explicit accepted inputs; no autonomous candidate or
+negotiation producer is claimed.
+[Recruitment connection](2026-10-09-persisted-scouting-recruitment.md).
+
+The repeated physical prefix now shares a successful result only within its
+existing unchanged Native frame, with both raw audits, current head/metadata,
+mutation checks, namespace restrictions and caught-failure poisoning retained.
+Independent and child frames still reauthenticate. The paired 45-second probes
+recorded fewer replays and SQL prepares, but neither completed the requested
+actor read and their work amounts differ. These are diagnostic counts, not a
+completed-operation timing improvement.
+[Exact bounded evidence](../verification/2026-10-09-owned-physical-prefix-reuse.md).
+
+Independent combined review is clear after correcting a case-alias namespace
+guard and the contract-time downgrade. The ordinary prepare-only Club adapter
+retains its original non-Native replay only when no National owner object exists;
+National bindings and table/view aliases still require actual Native authority.
+
+- Full nonvisual TypeScript compilation passed in 29.96 seconds on local
+  `d97ac0ce2e438d96b838774d600635278032cc46`, source `a58e7dac35a72d7337d441054189a19dca0da484`.
+- All 179 selected cases in 14 files passed in 29.42 seconds on local
+  `45c0549489354ba7645fb0f2a4d672ae14065a99`. The unchanged 11,700-Player scale
+  case was explicitly excluded before execution and receives no pass credit.
+- The original wrapper remains failed: Vitest names this filtered case's status
+  `skipped`, while the wrapper expected `pending`. Exact passed file/title
+  inventory, the one exact excluded case and every other report/runtime check
+  were independently reconciled. Tests were not repeated for that bookkeeping.
+- The only later code delta is an explicit union type on a test fixture Map.
+  Its emitted JavaScript is byte-identical; the compiler then passed. Production
+  code and assertions match the reviewed, executed batch.
+- Source, executable package inputs, runtime and controls stayed exact. No
+  processes survived, and all 18 protected blobs remain unchanged.
+
+Test report SHA-256: `a8f4dcfe4bdd338bf1b24a7f31bdcfa785a837769b95201b67619c2c0b2a39a5`.
+Original test terminal SHA-256: `383886f154f1c02f944b265af2082134dc9986723e1a833ac8c3b0170376bcbe`.
+Final compiler configuration SHA-256: `918e2565214537abcb2edac2f7e0f57368140cd2a0cfe6eced5fe634ce72e082`.
+
+The corrected National original tail reached its 1,200.69-second wall cap after
+retained-context authentication. All 78 tables and all schemas equal the donor;
+no second pitch or downstream effect committed, none of its 37 remaining
+assertions completed, inputs stayed exact and no process survived. Its failed
+receipt is preserved. The original scope, moving-play settlement, complete
+positive Native appeals and remaining full physical/Career compositions stay open.
+
 ## Native original-base appeal journal connection
 
 The post-play journal now binds an explicitly indicated base appeal to the

@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import { createHash } from 'node:crypto';
 import { readState as readClubState } from
   '../../core/world/club/ClubSchemas';
 import type { ClubTransitionEvent, ClubWorldState } from
@@ -19,6 +20,7 @@ import type { AcceptedFreeAgentRightsSource } from
 import { appendAcceptedClubEvents,
   ensureClubEventJournalSchema } from './SqliteClubEventJournal';
 import { canonicalRosterEvidenceJson as canonicalJson } from './RosterEvidenceJson';
+import { readRecruitmentDecisionFromSqlite, type RecruitmentDecisionReference } from './SqliteRecruitmentEvidenceStore';
 
 export type FreeAgentContractStoreRequest = Readonly<{
   applicationId: string;
@@ -48,6 +50,10 @@ export type DurableFreeAgentContract = Readonly<{
   wageRevision: number;
   rightsEvent: FreeAgentRightsEvent;
 }>;
+export type AcceptedRecruitmentContractRequest = Omit<FreeAgentContractStoreRequest, 'decisions'> & Readonly<{
+  recruitmentReference: RecruitmentDecisionReference;
+}>;
+type ResolvedFreeAgentContractRequest = FreeAgentContractStoreRequest & Readonly<{ recruitmentReference?: RecruitmentDecisionReference }>;
 export type AcceptedPlayerPersonLinkAuthority = Readonly<{
   readAcceptedPlayerPersonLink(sourceId: string): Readonly<{
     careerId: string;
@@ -60,6 +66,7 @@ export type SqliteFreeAgentContractStore = Readonly<{
   readWageSchedules(careerId: string,
     clubId: string): ClubWageScheduleLedger | null;
   apply(request: FreeAgentContractStoreRequest): DurableFreeAgentContract;
+  applyAcceptedDecision(request: AcceptedRecruitmentContractRequest): DurableFreeAgentContract;
   readApplication(applicationId: string): DurableFreeAgentContract | null;
   readAcceptedFreeAgentRightsEvent(eventId: string):
     AcceptedFreeAgentRightsSource | null;
@@ -113,6 +120,9 @@ export const openSqliteFreeAgentContractStore = (
   CREATE TABLE IF NOT EXISTS world_accepted_free_agent_rights (
     event_id TEXT PRIMARY KEY, application_id TEXT NOT NULL UNIQUE,
     source_json TEXT NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS world_free_agent_recruitment_references (
+    application_id TEXT PRIMARY KEY, reference_json TEXT NOT NULL, request_hash TEXT NOT NULL
   );`);
   ensureClubEventJournalSchema(db);
   const getClub = db.prepare(`SELECT revision, state_json
@@ -139,6 +149,7 @@ export const openSqliteFreeAgentContractStore = (
   const rightsRow = (eventId: string): RightsRow | null =>
     (getRights.get(eventId) as RightsRow | undefined) ?? null;
   const transaction = <T>(work: () => T): T => {
+    if (db.isTransaction) return work();
     db.exec('BEGIN IMMEDIATE');
     try {
       const result = work();
@@ -147,6 +158,33 @@ export const openSqliteFreeAgentContractStore = (
     } catch (error) {
       db.exec('ROLLBACK');
       throw error;
+    }
+  };
+  const readSnapshot = <T>(work: () => T): T => {
+    if (db.isTransaction) return work();
+    db.exec('BEGIN');
+    try { const result = work(); db.exec('COMMIT'); return result; }
+    catch (error) { if (db.isTransaction) db.exec('ROLLBACK'); throw error; }
+  };
+  const recruitmentMarker = (applicationId: string) => db.prepare(
+    'SELECT reference_json,request_hash FROM main.world_free_agent_recruitment_references WHERE application_id=?')
+    .get(applicationId) as { reference_json: string; request_hash: string } | undefined;
+  const requestHash = (request: ResolvedFreeAgentContractRequest): string => createHash('sha256').update(canonicalJson(request)).digest('hex');
+  const assertRecruitment = (request: ResolvedFreeAgentContractRequest, first = false): void => {
+    const marker = recruitmentMarker(request.applicationId), hasReference = Object.hasOwn(request, 'recruitmentReference');
+    if (!marker && !hasReference) return;
+    const reference = request.recruitmentReference;
+    if (!hasReference || !reference || !id(reference.sourceId) || !marker && !first
+      || marker && (marker.reference_json !== canonicalJson(reference) || marker.request_hash !== requestHash(request))) {
+      throw new Error('accepted recruitment application reference differs');
+    }
+    const original = readRecruitmentDecisionFromSqlite(db, reference.sourceId);
+    if (!original || canonicalJson(reference) !== canonicalJson(original.reference)
+      || original.source.decision.decisionId !== request.decisionId || canonicalJson(original.ledger) !== canonicalJson(request.decisions)
+      || canonicalJson(original.basis.club) !== canonicalJson(request.beforeClub)
+      || canonicalJson(original.basis.roster) !== canonicalJson(request.roster)
+      || canonicalJson(original.basis.wages) !== canonicalJson(request.beforeSchedules)) {
+      throw new Error('accepted recruitment decision or original basis differs');
     }
   };
   const replay = (request: FreeAgentContractStoreRequest) =>
@@ -159,9 +197,10 @@ export const openSqliteFreeAgentContractStore = (
   DurableFreeAgentContract => {
     try {
       const request = JSON.parse(row.request_json) as
-        FreeAgentContractStoreRequest;
+        ResolvedFreeAgentContractRequest;
       const stored = JSON.parse(row.result_json) as
         DurableFreeAgentContract;
+      assertRecruitment(request);
       const computed = replay(request);
       const club = clubRow(row.career_id, row.club_id);
       const roster = rosterRow(row.career_id);
@@ -211,6 +250,130 @@ export const openSqliteFreeAgentContractStore = (
     }
   };
   let closed = false;
+  const applyResolvedRequest = (request: ResolvedFreeAgentContractRequest): DurableFreeAgentContract => {
+    if (!request || !id(request.applicationId)
+      || !revision(request.expectedClubRevision)
+      || !revision(request.expectedRosterRevision)
+      || !revision(request.expectedWageRevision)) {
+      throw new Error('invalid free-agent application');
+    }
+    canonicalJson(request);
+    // Core's event replay also compares some objects using JSON.stringify.
+    // Preserve their original field order for deterministic replay.
+    const requestJson = JSON.stringify(request);
+    return transaction(() => {
+      const prior = applicationRow(request.applicationId);
+      if (prior) {
+        const durable = decodeApplication(prior);
+        if (canonicalJson(JSON.parse(prior.request_json))
+          !== canonicalJson(request)) {
+          throw new Error('applicationId was used for different free-agent evidence');
+        }
+        return durable;
+      }
+      if (recruitmentMarker(request.applicationId)) throw new Error('orphan accepted recruitment application reference');
+      assertRecruitment(request, true);
+      const careerId = request.beforeClub.careerId;
+      const clubId = request.beforeClub.identity.clubId;
+      const club = clubRow(careerId, clubId);
+      const roster = rosterRow(careerId);
+      const wage = wageRow(careerId, clubId);
+      if (!club || !roster || !wage) {
+        throw new Error('world Club, roster or wage head is not initialized');
+      }
+      if (club.revision !== request.expectedClubRevision) {
+        throw new Error('stale world club revision');
+      }
+      if (roster.revision !== request.expectedRosterRevision) {
+        throw new Error('stale world roster revision');
+      }
+      if (wage.revision !== request.expectedWageRevision) {
+        throw new Error('stale world wage revision');
+      }
+      if (canonicalJson(readClubState(request.beforeClub))
+          !== club.state_json
+        || canonicalJson(createRosterState(request.roster))
+          !== roster.roster_json
+        || canonicalJson(request.beforeSchedules) !== wage.ledger_json) {
+        throw new Error('free-agent input does not match durable heads');
+      }
+      const computed = replay(request);
+      const link = request.personLink;
+      const acceptedLink = link && id(link.personLinkSourceId)
+        ? personLinkAuthority.readAcceptedPlayerPersonLink(
+          link.personLinkSourceId) : null;
+      if (!link || !id(link.personId)
+        || !id(link.personLinkSourceId)
+        || link.playerId !== computed.event.playerId
+        || acceptedLink?.careerId !== careerId
+        || acceptedLink.playerId !== link.playerId
+        || acceptedLink.personId !== link.personId) {
+        throw new Error('accepted player-person link is missing');
+      }
+      const nextClub = canonicalJson(request.afterClub);
+      const nextRoster = canonicalJson(computed.state);
+      const nextWage = canonicalJson(request.afterSchedules);
+      appendAcceptedClubEvents(db, request.beforeClub,
+        [request.clubEvent], request.afterClub);
+      const clubUpdate = db.prepare(`UPDATE world_club_heads
+        SET revision=?, state_json=?
+        WHERE career_id=? AND club_id=? AND revision=?
+        AND state_json=?`).run(request.afterClub.revision,
+        nextClub, careerId, clubId, request.expectedClubRevision,
+        club.state_json);
+      const rosterUpdate = db.prepare(`UPDATE world_roster_heads
+        SET revision=?, roster_json=?
+        WHERE career_id=? AND revision=?
+        AND roster_json=?`).run(computed.state.revision,
+        nextRoster, careerId,
+        request.expectedRosterRevision, roster.roster_json);
+      const wageUpdate = db.prepare(`UPDATE world_wage_schedule_heads
+        SET revision=?, ledger_json=?
+        WHERE career_id=? AND club_id=? AND revision=?
+        AND ledger_json=?`).run(request.afterSchedules.revision,
+        nextWage, careerId, clubId,
+        request.expectedWageRevision, wage.ledger_json);
+      if (clubUpdate.changes !== 1 || rosterUpdate.changes !== 1
+        || wageUpdate.changes !== 1) {
+        throw new Error('free-agent compare-and-swap failed');
+      }
+      const durable: DurableFreeAgentContract = {
+        applicationId: request.applicationId,
+        clubRevision: request.afterClub.revision,
+        rosterRevision: computed.state.revision,
+        wageRevision: request.afterSchedules.revision,
+        rightsEvent: computed.event,
+      };
+      const source: AcceptedFreeAgentRightsSource = {
+        rightsEvent: computed.event, personId: link.personId,
+        playerId: link.playerId,
+        personLinkSourceId: link.personLinkSourceId,
+      };
+      if (request.recruitmentReference) db.prepare('INSERT INTO main.world_free_agent_recruitment_references VALUES (?,?,?)')
+        .run(request.applicationId, canonicalJson(request.recruitmentReference), requestHash(request));
+      db.prepare(`INSERT INTO world_free_agent_applications
+        (application_id, career_id, club_id, club_revision,
+         roster_revision, wage_revision, rights_event_id,
+         request_json, result_json)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
+        request.applicationId, careerId, clubId,
+        durable.clubRevision, durable.rosterRevision,
+        durable.wageRevision, computed.event.eventId,
+        requestJson, canonicalJson(durable));
+      db.prepare(`INSERT INTO world_accepted_free_agent_rights
+        (event_id, application_id, source_json)
+        VALUES (?, ?, ?)`).run(computed.event.eventId,
+        request.applicationId, canonicalJson(source));
+      const saved = applicationRow(request.applicationId);
+      if (!saved || saved.request_json !== requestJson) {
+        throw new Error('free-agent application changed during admission');
+      }
+      // Authenticate the captured request too: rewritten rows must never turn
+      // an accepted recruitment application into a legacy application.
+      assertRecruitment(JSON.parse(requestJson) as ResolvedFreeAgentContractRequest);
+      return decodeApplication(saved);
+    });
+  };
   const api: SqliteFreeAgentContractStore = Object.freeze({
     initializeWageSchedules(ledger): void {
       if (!ledger || !id(ledger.careerId) || !id(ledger.clubId)) {
@@ -254,122 +417,30 @@ export const openSqliteFreeAgentContractStore = (
       return ledger;
     },
     apply(request): DurableFreeAgentContract {
-      if (!request || !id(request.applicationId)
-        || !revision(request.expectedClubRevision)
-        || !revision(request.expectedRosterRevision)
-        || !revision(request.expectedWageRevision)) {
-        throw new Error('invalid free-agent application');
+      if (Object.hasOwn(request, 'recruitmentReference') || recruitmentMarker(request.applicationId)) {
+        throw new Error('accepted recruitment application requires its original intake');
       }
-      canonicalJson(request);
-      // Core's event replay also compares some objects using JSON.stringify.
-      // Preserve their original field order for deterministic replay.
-      const requestJson = JSON.stringify(request);
+      return applyResolvedRequest(request);
+    },
+    applyAcceptedDecision(raw): DurableFreeAgentContract {
+      canonicalJson(raw);
+      const request = structuredClone(raw);
+      if (Object.hasOwn(request, 'decisions') || !Object.hasOwn(request, 'recruitmentReference')) {
+        throw new Error('accepted recruitment intake requires a decision reference');
+      }
       return transaction(() => {
-        const prior = applicationRow(request.applicationId);
-        if (prior) {
-          const durable = decodeApplication(prior);
-          if (canonicalJson(JSON.parse(prior.request_json))
-            !== canonicalJson(request)) {
-            throw new Error('applicationId was used for different free-agent evidence');
-          }
-          return durable;
-        }
-        const careerId = request.beforeClub.careerId;
-        const clubId = request.beforeClub.identity.clubId;
-        const club = clubRow(careerId, clubId);
-        const roster = rosterRow(careerId);
-        const wage = wageRow(careerId, clubId);
-        if (!club || !roster || !wage) {
-          throw new Error('world Club, roster or wage head is not initialized');
-        }
-        if (club.revision !== request.expectedClubRevision) {
-          throw new Error('stale world club revision');
-        }
-        if (roster.revision !== request.expectedRosterRevision) {
-          throw new Error('stale world roster revision');
-        }
-        if (wage.revision !== request.expectedWageRevision) {
-          throw new Error('stale world wage revision');
-        }
-        if (canonicalJson(readClubState(request.beforeClub))
-            !== club.state_json
-          || canonicalJson(createRosterState(request.roster))
-            !== roster.roster_json
-          || canonicalJson(request.beforeSchedules) !== wage.ledger_json) {
-          throw new Error('free-agent input does not match durable heads');
-        }
-        const computed = replay(request);
-        const link = request.personLink;
-        const acceptedLink = link && id(link.personLinkSourceId)
-          ? personLinkAuthority.readAcceptedPlayerPersonLink(
-            link.personLinkSourceId) : null;
-        if (!link || !id(link.personId)
-          || !id(link.personLinkSourceId)
-          || link.playerId !== computed.event.playerId
-          || acceptedLink?.careerId !== careerId
-          || acceptedLink.playerId !== link.playerId
-          || acceptedLink.personId !== link.personId) {
-          throw new Error('accepted player-person link is missing');
-        }
-        const nextClub = canonicalJson(request.afterClub);
-        const nextRoster = canonicalJson(computed.state);
-        const nextWage = canonicalJson(request.afterSchedules);
-        appendAcceptedClubEvents(db, request.beforeClub,
-          [request.clubEvent], request.afterClub);
-        const clubUpdate = db.prepare(`UPDATE world_club_heads
-          SET revision=?, state_json=?
-          WHERE career_id=? AND club_id=? AND revision=?
-          AND state_json=?`).run(request.afterClub.revision,
-          nextClub, careerId, clubId, request.expectedClubRevision,
-          club.state_json);
-        const rosterUpdate = db.prepare(`UPDATE world_roster_heads
-          SET revision=?, roster_json=?
-          WHERE career_id=? AND revision=?
-          AND roster_json=?`).run(computed.state.revision,
-          nextRoster, careerId,
-          request.expectedRosterRevision, roster.roster_json);
-        const wageUpdate = db.prepare(`UPDATE world_wage_schedule_heads
-          SET revision=?, ledger_json=?
-          WHERE career_id=? AND club_id=? AND revision=?
-          AND ledger_json=?`).run(request.afterSchedules.revision,
-          nextWage, careerId, clubId,
-          request.expectedWageRevision, wage.ledger_json);
-        if (clubUpdate.changes !== 1 || rosterUpdate.changes !== 1
-          || wageUpdate.changes !== 1) {
-          throw new Error('free-agent compare-and-swap failed');
-        }
-        const durable: DurableFreeAgentContract = {
-          applicationId: request.applicationId,
-          clubRevision: request.afterClub.revision,
-          rosterRevision: computed.state.revision,
-          wageRevision: request.afterSchedules.revision,
-          rightsEvent: computed.event,
-        };
-        const source: AcceptedFreeAgentRightsSource = {
-          rightsEvent: computed.event, personId: link.personId,
-          playerId: link.playerId,
-          personLinkSourceId: link.personLinkSourceId,
-        };
-        db.prepare(`INSERT INTO world_free_agent_applications
-          (application_id, career_id, club_id, club_revision,
-           roster_revision, wage_revision, rights_event_id,
-           request_json, result_json)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
-          request.applicationId, careerId, clubId,
-          durable.clubRevision, durable.rosterRevision,
-          durable.wageRevision, computed.event.eventId,
-          requestJson, canonicalJson(durable));
-        db.prepare(`INSERT INTO world_accepted_free_agent_rights
-          (event_id, application_id, source_json)
-          VALUES (?, ?, ?)`).run(computed.event.eventId,
-          request.applicationId, canonicalJson(source));
-        return decodeApplication(applicationRow(request.applicationId)!);
+        const accepted = readRecruitmentDecisionFromSqlite(db, request.recruitmentReference?.sourceId);
+        if (!accepted) throw new Error('accepted recruitment decision is missing');
+        return applyResolvedRequest({ ...request, decisions: accepted.ledger });
       });
     },
     readApplication(applicationId): DurableFreeAgentContract | null {
       if (!id(applicationId)) throw new Error('invalid free-agent applicationId');
-      const row = applicationRow(applicationId);
-      return row ? decodeApplication(row) : null;
+      return readSnapshot(() => {
+        const row = applicationRow(applicationId);
+        if (!row && recruitmentMarker(applicationId)) throw new Error('orphan accepted recruitment application reference');
+        return row ? decodeApplication(row) : null;
+      });
     },
     readAcceptedFreeAgentRightsEvent(eventId):
     AcceptedFreeAgentRightsSource | null {

@@ -25,6 +25,7 @@ export type AcceptedActualPostPlayReviewSession = Readonly<{
 }>;
 export type ActualPostPlayReviewEventAction =
   | Readonly<{ kind: 'defender_base_appeal'; defenderId: string; runnerId: string; base: 'first' | 'second' | 'third' }>
+  | Readonly<{ kind: 'defender_runner_body_appeal'; defenderId: string; runnerId: string; base: 'first' | 'second' | 'third' }>
   | Readonly<{ kind: 'advance_tick'; schedulerId: string }>
   | Readonly<{ kind: 'next_play_fence'; schedulerId: string }>
   | Readonly<{ kind: 'request'; windowId: string; callId: string; intentSourceId: string }>
@@ -100,7 +101,7 @@ export const actualPostPlayReviewEventInput = (raw: unknown, sourceId: string): 
     throw new Error('invalid accepted post-play review event Source or parent revision');
   }
   const a = s.action;
-  if (a?.kind === 'defender_base_appeal') {
+  if (a?.kind === 'defender_base_appeal' || a?.kind === 'defender_runner_body_appeal') {
     if (!fields(a, ['kind', 'defenderId', 'runnerId', 'base']) || ![a.defenderId, a.runnerId].every(id)
       || a.defenderId === a.runnerId || !['first', 'second', 'third'].includes(a.base)) throw new Error('invalid explicit defender base appeal');
   } else if (a?.kind === 'advance_tick' || a?.kind === 'next_play_fence') {

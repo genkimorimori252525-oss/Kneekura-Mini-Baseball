@@ -1,12 +1,14 @@
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { BallWorldAppealComplianceEvidence } from '../../core/adjudication/PlayAdjudicationLedger';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
-import { createDefensiveAppealAttemptFact, createFlyBallFirstFielderTouchFact } from '../../core/rules/PhysicalRuleFacts';
+import { createControlledRunnerTagFact, createDefensiveAppealAttemptFact, createFlyBallFirstFielderTouchFact } from '../../core/rules/PhysicalRuleFacts';
 import { evaluateBallWorldTagUpCompliance } from '../../core/rules/BallWorldTagUpCompliance';
 import { quantizeEventTick } from '../../core/sim/ExactEventTime';
-import type { BallWorldFieldBoundaryContact } from '../../core/sim/ball/BallWorldContinuation';
-import { deriveBallWorldPlayerBaseContactHistory } from '../../core/sim/ball/BallWorldPlayerBaseContactHistory';
+import type { BallWorldFieldBoundaryContact, BallWorldMoment, BallWorldMotionActor } from '../../core/sim/ball/BallWorldContinuation';
+import { deriveBallWorldPlayerBaseContactHistory, type BallWorldPlayerBaseContactHistory } from '../../core/sim/ball/BallWorldPlayerBaseContactHistory';
 import { findBallWorldControlledBaseContacts } from '../../core/sim/ball/BallWorldControlledBaseContacts';
+import { findAcceleratedSphereContactSeconds } from '../../core/sim/collision/AcceleratedSphereContact';
+import { samplePiecewiseFieldActor, validatePiecewiseFieldActors } from '../../core/sim/ball/BattedWorldPiecewiseFieldMotion';
 import { deriveSamePaFieldRuleEvidence } from './SamePlateAppearanceFieldRuleEvidence';
 import type { SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep } from './SamePlateAppearancePhysicalEpisode';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
@@ -31,11 +33,17 @@ const supportedActions = new Set(['capture_checkpoint_v1', 'retained_quantizer_c
  * fair-catch prefix admits no throw or unresolved/dead-ball contact. PlayEnd is
  * never used as live-ball evidence. Existing contact plus indicated intent needs
  * no invented movement or latency (OBR 5.09(c)(1), Comment, and TAG definition). */
-export const deriveSamePaBaseAppealExecution = (raw: Readonly<{
+type AppealInput = Readonly<{
   indication: Readonly<{ defenderId: string; runnerId: string; base: Base }>;
   match: CanonicalMatchState; root: SamePaPhysicalFieldRoot; fields: readonly Field[];
   evidence: ReturnType<typeof deriveSamePaFieldRuleEvidence>;
-}>) => {
+}>;
+type ContactInput = Readonly<{ input: AppealInput; motion: Field['field']['motion']; horizon: BallWorldMoment;
+  defenderHistory: BallWorldPlayerBaseContactHistory }>;
+// The callbacks are fixed by the two exports below; accepted inputs never
+// select a contact kernel or supply a custody/contact result.
+const deriveSamePaAppealExecution = <Contact extends object>(raw: AppealInput, missingContact: string,
+  contactAtCut: (input: ContactInput) => Contact | null) => {
   const { indication, match, root, fields, evidence } = cloneInert(raw);
   const ball = evidence?.physical?.field?.evidence;
   if (!samePaFields(indication, ['defenderId', 'runnerId', 'base']) || !samePaText(indication.defenderId)
@@ -86,7 +94,7 @@ export const deriveSamePaBaseAppealExecution = (raw: Readonly<{
     originTick: firstFrame.moment.originTick, elapsedSeconds: firstFrame.moment.elapsedSeconds };
   same(caught.firstFielderTouch, { fielderId: firstContact.playerId, tick: firstTouch.fact.tick, ballCenter: firstFrame.moment.ball.position });
   if (!motion.cursor || motion.carrierPlayerId !== indication.defenderId)
-    return pending('current_defender_controlled_base_contact_required');
+    return pending(missingContact);
   same(motion.cursor.moment, horizon);
   if (motion.response.kind !== 'carried') throw new Error('base appeal current carried custody differs');
   same(motion.response.cursor, motion.cursor);
@@ -103,10 +111,9 @@ export const deriveSamePaBaseAppealExecution = (raw: Readonly<{
   findBallWorldControlledBaseContacts({ history: defenderHistory, controlWindows });
   const currentControl = controlWindows.find(w => w.startElapsedSeconds <= horizon.elapsedSeconds
     && (w.endElapsedSeconds > horizon.elapsedSeconds || w.endElapsedSeconds === horizon.elapsedSeconds && w.endInclusive));
-  if (!currentControl || !defenderHistory.contactAtHorizon) return pending('current_defender_controlled_base_contact_required');
-  const currentContact = findBallWorldControlledBaseContacts({ history: defenderHistory,
-    controlWindows: [{ startElapsedSeconds: horizon.elapsedSeconds, endElapsedSeconds: horizon.elapsedSeconds, endInclusive: true }] });
-  if (currentContact.length !== 1) return pending('current_defender_controlled_base_contact_required');
+  if (!currentControl) return pending(missingContact);
+  const contact = contactAtCut({ input: { indication, match, root, fields, evidence }, motion, horizon, defenderHistory });
+  if (!contact) return pending(missingContact);
   const complianceEvidence: BallWorldAppealComplianceEvidence = { kind: 'ball_world_tag_up_history_v1', history,
     originBase: indication.base, firstTouch };
   const compliance = evaluateBallWorldTagUpCompliance(complianceEvidence);
@@ -116,6 +123,37 @@ export const deriveSamePaBaseAppealExecution = (raw: Readonly<{
     baseNumber[indication.base], 'tag_up_early_departure', moment.tick), moment, complianceEvidence, compliance,
     physicalPitchSourceId: root.physicalPitchSourceId, fieldRootReference: fieldReference(root), fieldReference: fieldReference(final),
     firstFielderTouchReference: fieldReference(firstSource), firstFielderTouchMoment: firstFrame.moment,
-    defenderHistory, currentControl, currentContact: currentContact[0],
+    ...contact, currentControl,
     livePrefixBasis: 'original_uninterrupted_fair_catch_v1' as const });
 };
+
+/** The original base-contact shape remains byte-compatible in canonical archives. */
+export const deriveSamePaBaseAppealExecution = (raw: AppealInput) => deriveSamePaAppealExecution(raw,
+  'current_defender_controlled_base_contact_required', ({ defenderHistory, horizon }) => {
+    if (!defenderHistory.contactAtHorizon) return null;
+    const contacts = findBallWorldControlledBaseContacts({ history: defenderHistory,
+      controlWindows: [{ startElapsedSeconds: horizon.elapsedSeconds, endElapsedSeconds: horizon.elapsedSeconds, endInclusive: true }] });
+    return contacts.length === 1 ? { defenderHistory, currentContact: contacts[0] } : null;
+  });
+
+/** A tag of the runner uses the actual ball-holding glove, not any limb of a
+ * defender who happens to possess the ball. The existing exact kernel checks
+ * only the owned instant; an earlier or forecast contact cannot execute intent. */
+export const deriveSamePaRunnerBodyAppealExecution = (raw: AppealInput) => deriveSamePaAppealExecution(raw,
+  'current_defender_controlled_runner_body_contact_required', ({ input, motion, horizon }) => {
+    validatePiecewiseFieldActors(input.root.response, horizon, motion.actors);
+    const gloveActor = motion.actors.find((a: BallWorldMotionActor) => a.playerId === input.indication.defenderId && a.primitive.role === 'glove');
+    const bodyActor = motion.actors.find((a: BallWorldMotionActor) => a.playerId === input.indication.runnerId && a.primitive.role === 'body');
+    if (!gloveActor || !bodyActor) throw new Error('runner-body appeal original contact primitives missing');
+    const glove = { playerId: gloveActor.playerId, role: 'glove' as const, radius: gloveActor.primitive.radius,
+      ...samplePiecewiseFieldActor(gloveActor, horizon) };
+    const runnerBody = { playerId: bodyActor.playerId, role: 'body' as const, radius: bodyActor.primitive.radius,
+      ...samplePiecewiseFieldActor(bodyActor, horizon) };
+    const contact = findAcceleratedSphereContactSeconds({ tick: horizon.ball.tick, center: glove.center,
+      velocity: glove.velocity, acceleration: gloveActor.primitive.acceleration, radius: glove.radius },
+    { tick: horizon.ball.tick, center: runnerBody.center, velocity: runnerBody.velocity,
+      acceleration: bodyActor.primitive.acceleration, radius: runnerBody.radius }, 0, 'include');
+    if (contact === null) return null;
+    return { runnerBodyContact: { kind: 'controlled_runner_body_tag_v1' as const,
+      fact: createControlledRunnerTagFact(glove.playerId, runnerBody.playerId, horizon.ball.tick), glove, runnerBody } };
+  });

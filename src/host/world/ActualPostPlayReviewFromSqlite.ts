@@ -45,7 +45,7 @@ export const actualPostPlayReviewEvidenceFromSqlite = (db: PostPlayReviewDb) => 
       || row.intent_json !== (intent === null ? null : json(intent)) || row.admission_json !== json(admission)) {
       throw new Error('Native review event archive or parent revision differs');
     }
-    if (source.action.kind === 'defender_base_appeal') {
+    if (source.action.kind === 'defender_base_appeal' || source.action.kind === 'defender_runner_body_appeal') {
       const actual = capturePostPlayBaseAppeal(db, root.scope, previous, source, false);
       if (intent !== null || actual.kind !== 'admitted' || json(actual.evidence) !== json(admission)) throw new Error('original base appeal execution archive differs');
     } else {
@@ -120,8 +120,9 @@ export const actualPostPlayReviewEvidenceFromSqlite = (db: PostPlayReviewDb) => 
     deriveEvent(source: AcceptedActualPostPlayReviewEvent, intent: AcceptedActualPostPlayReviewIntent | null) { return proof(() => {
       const current = currentDetails(source.sessionSourceId); if (!current) throw new Error('Native review session is missing');
       writable(current.root);
-      if (source.action.kind === 'defender_base_appeal' && intent !== null) throw new Error('base appeal cannot substitute a review intent');
-      const admission = source.action.kind === 'defender_base_appeal'
+      if ((source.action.kind === 'defender_base_appeal' || source.action.kind === 'defender_runner_body_appeal') && intent !== null)
+        throw new Error('base appeal cannot substitute a review intent');
+      const admission = source.action.kind === 'defender_base_appeal' || source.action.kind === 'defender_runner_body_appeal'
         ? capturePostPlayBaseAppeal(db, current.root.scope, current.value, source, true)
         : capturePostPlayReviewAdmission(db, current.root.scope, current.value, source, intent);
       if (admission.kind === 'intent_pending') return { kind: 'intent_pending' as const, reason: admission.reason };
@@ -131,7 +132,7 @@ export const actualPostPlayReviewEvidenceFromSqlite = (db: PostPlayReviewDb) => 
     }); },
     assertCurrentAdmission(result: NonNullable<ReturnType<typeof eventDetails>>) { return proof(() => {
       writable(result.root);
-      const current = result.source.action.kind === 'defender_base_appeal'
+      const current = result.source.action.kind === 'defender_base_appeal' || result.source.action.kind === 'defender_runner_body_appeal'
         ? capturePostPlayBaseAppeal(db, result.root.scope, result.previous, result.source, true)
         : capturePostPlayReviewAdmission(db, result.root.scope, result.previous, result.source, result.intent);
       if (current.kind !== 'admitted' || json(current.evidence) !== json(result.admissionEvidence)) throw new Error('Native review admission authority changed during write');

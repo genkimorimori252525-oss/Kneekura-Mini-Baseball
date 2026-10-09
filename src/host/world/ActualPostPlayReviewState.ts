@@ -1,5 +1,5 @@
 import { samePaCatchReviewSeedInput, type SamePaCatchReviewSeedSource } from './SamePlateAppearanceCatchReviewSource';
-import type { deriveSamePaBaseAppealExecution } from './SamePlateAppearanceBaseAppealExecution';
+import type { deriveSamePaBaseAppealExecution, deriveSamePaRunnerBodyAppealExecution } from './SamePlateAppearanceBaseAppealExecution';
 import { cloneInert, openRuleProfileOfficialStateWindow } from '../../core/adjudication/OfficialWindowPolicy';
 import { getPlayAdjudicationState, getOfficialStateWindows, type PlayAdjudicationLedger,
   type OwnedLiveCallSourceReference, type OwnedLiveCallImported } from '../../core/adjudication/PlayAdjudicationLedger';
@@ -14,7 +14,8 @@ import { actualPostPlayReviewSessionInput, postPlayHash, postPlayRevision,
   type AcceptedActualPostPlayReviewSession, type AcceptedActualPostPlayReviewEvent,
   type AcceptedActualPostPlayReviewIntent } from './ActualPostPlayReviewSource';
 
-export type PostPlayBaseAppealExecution = Extract<ReturnType<typeof deriveSamePaBaseAppealExecution>, { kind: 'ready' }>;
+export type PostPlayBaseAppealExecution = Extract<ReturnType<typeof deriveSamePaBaseAppealExecution>
+  | ReturnType<typeof deriveSamePaRunnerBodyAppealExecution>, { kind: 'ready' }>;
 
 /** A narrow projection of Native-authenticated seed and sealed-end evidence. */
 export type ActualPostPlayReviewSeed = Readonly<{

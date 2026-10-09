@@ -46,6 +46,13 @@ const fieldReadTraversals = new WeakMap<Db, FieldReadTraversal>();
 /** Opaque stack identity only. No context, cached value or mutable map escapes. */
 export const activeBattedWorldFieldReadFrame = (db: Db): object | null => fieldReadTraversals.get(db)?.identity ?? null;
 
+/** Completed dependent reads may reuse only inside this unchanged owner frame. */
+export const assertBattedWorldFieldReadFrame = (db: Db, identity: object): void => {
+  const traversal = fieldReadTraversals.get(db);
+  if (!traversal || traversal.identity !== identity) throw new Error('physical read owned frame changed');
+  traversal.check();
+};
+
 /** Internal root-owned read bracket. It never replaces a connection authorizer.
  * query_only belongs to this synchronous operation, not an adversarial SQL sandbox. */
 export const withBattedWorldFieldReadTraversal = <T>(db: Db, body: () => T): T => {
