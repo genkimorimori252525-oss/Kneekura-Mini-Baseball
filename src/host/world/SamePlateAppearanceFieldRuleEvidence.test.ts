@@ -12,6 +12,7 @@ import { samePaExecutionReference as reference } from './SamePlateAppearanceExec
 import { actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import type { SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep, SamePaPhysicalFieldStepSource } from './SamePlateAppearancePhysicalEpisode';
 import { deriveSamePaFieldRuleEvidence } from './SamePlateAppearanceFieldRuleEvidence';
+import { deriveSamePaLiveWorkCensus } from './SamePlateAppearanceLiveWorkCensus';
 const ref = (owner: string) => ({ owner, sourceId: owner, sourceHash: hash(owner), snapshotHash: hash(owner) });
 const fieldRef = (r: SamePaPhysicalFieldRoot | SamePaPhysicalFieldStep) => reference(r.kind === 'same_pa_physical_field_root_v1' ? 'pa_physical_v1_field_roots' : 'pa_physical_v1_field_steps', r);
 /** Explicit synthetic physical parameters. Core computes the contact/capture;
@@ -70,6 +71,34 @@ it('FR04 first-base history consumes both owned feet and rejects incomplete phys
   expect(() => deriveSamePaFieldRuleEvidence({ ...h.scope, fields: [{ ...changed, field }] })).toThrow(/coverage|feet|membership/);
 });
 
+it.each([1, 2, 3])('FR-occupied keeps %s additional complete stationary bodies in physical evidence and census', count => {
+  const h = setup(), original = h.root.response, occupiedRunnerIds = Array.from({ length: count }, (_, i) => 'occupied-' + i);
+  const extra = occupiedRunnerIds.flatMap((playerId, i) => original.world.actors.filter(a => a.playerId === 'batter').map(a => ({
+    playerId, primitive: { ...a.primitive, startCenter: { ...a.primitive.startCenter, x: 100 + i }, startVelocity: v(0, 0, 0) },
+  })));
+  const actors = [...original.world.actors, ...extra], response = { ...original, world: { ...original.world, actors },
+    actors: [...original.actors, ...extra.map(a => ({ playerId: a.playerId,
+      profile: original.actors.find(p => p.playerId === 'batter' && p.profile.role === a.primitive.role)!.profile }))] };
+  const field = deriveInitialBattedWorldFieldMotion({ response, geometry: h.root.geometry, availableAtTick: 0, throughTick: 1_000_000,
+    commands: actors.map(a => ({ playerId: a.playerId, role: a.primitive.role, acceleration: v(0, 0, 0) })) });
+  const root = { ...h.root, response, field, evaluationTick: field.motion.world.moment.ball.tick };
+  const evidence = deriveSamePaFieldRuleEvidence({ ...h.scope, occupiedRunnerIds, fields: [root] });
+  expect(evidence.physical.segments[0].actors).toHaveLength((3 + count) * 5);
+  expect(evidence.terminal.physicalEnd).toBeNull();
+  const census = deriveSamePaLiveWorkCensus({ fields: [root], participantIds: ['batter', 'carrier', 'receiver', ...occupiedRunnerIds],
+    observationPolicies: [], possessionEvidence: evidence.rule.possessionEvidence });
+  expect(census.originalFieldPrefix.participantIds).toEqual(['batter', 'carrier', 'receiver', ...occupiedRunnerIds]);
+  expect(census.participantCurves.map(p => p.playerId)).toEqual(census.originalFieldPrefix.participantIds);
+  for (const playerId of occupiedRunnerIds) {
+    const owned = census.participantCurves.find(p => p.playerId === playerId)!;
+    expect(owned.roles.map(r => r.role).sort()).toEqual(['body', 'glove', 'left_foot', 'right_foot', 'tag_hand']);
+    expect(owned.coverageThroughTick).toBe(1_000_000);
+  }
+  expect(() => deriveSamePaFieldRuleEvidence({ ...h.scope, fields: [root] })).toThrow(/membership/);
+  const missing = { ...root, field: { ...field, motion: { ...field.motion, actors: field.motion.actors.slice(0, -1) } } };
+  expect(() => deriveSamePaFieldRuleEvidence({ ...h.scope, occupiedRunnerIds, fields: [missing] })).toThrow(/coverage|membership/);
+});
+
 it('FR05 actual fair ground remains unresolved at first base without real controlled bag contact', () => {
   const h = setup(), original = h.root.response, parameters = { ...original.world.parameters, gravityY: -9.81 };
   const contact = { ...original.world.flight.contact, ballCenter: v(10, 1, 10), point: v(10, 1, 10), batPoint: v(10, 1, 10), exitVelocity: v(1, -1, 0) };
@@ -126,6 +155,7 @@ it.each([0, 2] as const)('FR08 binds an empty-base correct catch ruling with %s 
     correctRuling: { outsAfter: outs + 1, basesAfter: originalMatch.bases, scoredRunnerIds: [] }, physicalEnd: null, operativeCall: null });
   const candidate = deriveSamePaFieldRuleEvidence({ ...h.scope, outsAtStart: outs, fields: [h.root] });
   expect(deriveSamePaFairCatchRuleBasis({ originalMatch, originalTimeline, evidence: candidate })).toEqual({ kind: 'pending', reason: 'actual_fair_catch_required' });
-  expect(() => deriveSamePaFairCatchRuleBasis({ originalMatch: { ...originalMatch, playId: 2 }, originalTimeline, evidence })).toThrow(/original empty-base contact scope/);
-  expect(() => deriveSamePaFairCatchRuleBasis({ originalMatch: { ...originalMatch, bases: { first: 'prior', second: null, third: null } }, originalTimeline, evidence })).toThrow(/original empty-base contact scope/);
+  expect(() => deriveSamePaFairCatchRuleBasis({ originalMatch: { ...originalMatch, playId: 2 }, originalTimeline, evidence })).toThrow(/original contact scope/);
+  expect(deriveSamePaFairCatchRuleBasis({ originalMatch: { ...originalMatch, bases: { first: 'prior', second: null, third: null } }, originalTimeline, evidence }))
+    .toEqual({ kind: 'pending', reason: 'occupied_runner_original_base_contact_history_required' });
 });

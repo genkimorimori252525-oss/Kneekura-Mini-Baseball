@@ -54,7 +54,7 @@ const playerAuthorityLinks=(db:SamePaDb):string=>{
   const links:string[]=[];
   if(installed(db,'physical_plate_appearance_actors'))links.push(`EXISTS(SELECT 1 FROM main.physical_plate_appearance_actors a WHERE ${originalActorLink}
     AND (${claim('a.snapshot_json',['binding','careerId'],'$career')} OR ${claim('a.snapshot_json',['defenderBindings',{array:'all'},'careerId'],'$career')} OR ${claim('a.snapshot_json',['worldFixture','careerId'],'$career')})
-    AND (a.player_id=$player OR ${claim('a.source_json',['playerId'],'$player')} OR ${claim('a.snapshot_json',['binding','playerId'],'$player')} OR ${claim('a.snapshot_json',['defenderBindings',{array:'all'},'playerId'],'$player')}))`);
+    AND (a.player_id=$player OR ${claim('a.source_json',['playerId'],'$player')} OR ${claim('a.snapshot_json',['binding','playerId'],'$player')} OR ${claim('a.snapshot_json',['defenderBindings',{array:'all'},'playerId'],'$player')} OR ${claim('a.snapshot_json',['world','runners',{array:'all'},'playerId'],'$player')} OR ${claim('a.snapshot_json',['match','bases','first'],'$player')} OR ${claim('a.snapshot_json',['match','bases','second'],'$player')} OR ${claim('a.snapshot_json',['match','bases','third'],'$player')}))`);
   if(installed(db,'world_player_workload_baselines')){
     const refs=`${nodes('r.source_json',['participantBaselineReferences',{array:'all'}])} UNION ALL ${nodes('r.snapshot_json',['source','participantBaselineReferences',{array:'all'}])}`;
     const baselineReference=(value:string)=>claim('ref.value',['baselineSourceId'],value);
@@ -85,14 +85,14 @@ export const authenticateSamePaRow = (db:SamePaDb,row:Record<string,unknown>):Re
   if(v.kind!=='reserved'||json(v.source)!==json(source)||!id(v.careerId)||!id(v.gameId)||!Number.isSafeInteger(v.playId)||v.playId<0
     ||row.career_id!==v.careerId||row.game_id!==v.gameId||row.play_id!==v.playId||row.actor_source_id!==source.actorReference.sourceId
     ||row.first_pitch_source_id!==source.firstPhysicalPitchSourceId||row.source_json!==json(source)||row.source_hash!==hash(source)
-    ||row.snapshot_json!==json(v)||row.snapshot_hash!==hash(v)||!Array.isArray(v.participants)||v.participants.length!==10
-    ||new Set(v.participants.map(p=>p.binding.playerId)).size!==10||new Set(v.participants.map(p=>p.binding.personId)).size!==10
+    ||row.snapshot_json!==json(v)||row.snapshot_hash!==hash(v)||!Array.isArray(v.participants)||v.participants.length!==source.participantBaselineReferences.length
+    ||new Set(v.participants.map(p=>p.binding.playerId)).size!==source.participantBaselineReferences.length||new Set(v.participants.map(p=>p.binding.personId)).size!==source.participantBaselineReferences.length
     ||json(v.firstPitch)!==json({physicalPitchSourceId:source.firstPhysicalPitchSourceId,state:'blocked_execution_basis',predecessorResumeSourceId:null,consumingSourceId:null}))fail('immutable root differs');
   const activeMembers=db.prepare(`SELECT * FROM main.same_pa_participant_reservations m WHERE ${memberRoot('$id')}`).all({id:source.sourceId});
   const archivedMembers=readSamePaReleasedMembers(db,v);
   if(archivedMembers&&activeMembers.length)fail('released enrollment retains active member leases');
   const members=archivedMembers??activeMembers;
-  if(members.length!==10)fail('member set is incomplete');
+  if(members.length!==v.participants.length)fail('member set is incomplete');
   for(const p of v.participants){
     const ref=source.participantBaselineReferences.find(r=>r.playerId===p.binding.playerId),m=samePaMember(v,p);
     if(!ref||p.binding.careerId!==v.careerId||p.binding.gameId!==v.gameId||p.state.careerId!==v.careerId||p.state.playerId!==p.binding.playerId

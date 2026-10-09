@@ -52,7 +52,7 @@ const fixture=(initial=false,runTicks=1_000_000,reactionDelayTicks=100_000)=>{
     {propagationDelayTicks:0,recognitionBaseDelayTicks:0,maxAdditionalRecognitionDelayTicks:0,audibility:1,recognition:1,attention:1,minimumRecognizableQuality:0.5},new DeterministicRng(1));
   if(!reception)throw new Error('fixture reception failed');
   const workReference=ref('pa_catch_v1_work','work'),member={playerId:'batter',bindingHash:hash('b'),personHash:hash('p'),baselineSourceId:'baseline',reservedRevision:0,reservedStateHash:hash('s'),projectedStateHash:hash('projected')};
-  const basis:any={actor:{binding:{playerId:'batter',personId:'person'}},members:[member],view:{source:{prefixReference:ref('pa_lifecycle_v1_work_prefixes','prefix')},cut:{physicalPitchReference:pitch}}};
+  const basis:any={actor:{binding:{playerId:'batter',personId:'person'},world:{runners:[]},match},members:[member],view:{source:{prefixReference:ref('pa_lifecycle_v1_work_prefixes','prefix')},cut:{physicalPitchReference:pitch}}};
   mocks.physical=previous;mocks.plan=plan;mocks.exit=exit;
   mocks.journal={kind:'same_pa_lifecycle_prefix',source:{eventReferences:[workReference,...(initial?[]:[planReference])]}};
   mocks.work={lineage:h.root.lineage,physicalPitchReference:pitch,physicalOperationReference:reference(initial?'pa_physical_v1_field_roots':'pa_physical_v1_field_steps',previous),

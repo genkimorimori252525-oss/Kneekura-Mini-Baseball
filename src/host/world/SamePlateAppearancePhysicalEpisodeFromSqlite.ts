@@ -1,3 +1,4 @@
+import { assertSamePaOccupiedRunnerCatchOwnership } from './SamePlateAppearanceOccupiedRunnerCatchResponse';
 import { assertNoSamePaCatchReviewSeal } from './SamePlateAppearanceCatchReviewSeal';
 import { assertSamePaBatterCatchOwnership } from './SamePlateAppearanceBatterCatchOwnership';
 import { createRequire } from 'node:module';
@@ -17,6 +18,7 @@ import { samePaExecutionReference as reference } from './SamePlateAppearanceExec
 import { samePaReferenceValid, samePaText, type SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import { samePaMetadataClaim as claim } from './SamePlateAppearanceReservationGuard';
 import { samePaNativeAdapterImplemented, deriveSamePaDispatchRoles } from './SamePlateAppearanceDispatchRoles';
+import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
 import { readHistoricalSamePaExecutionView } from './SamePlateAppearanceHistoricalExecutionEvidenceFromSqlite';
 import { readHistoricalSamePaLifecycleViewFromSqlite, readCurrentSamePaLifecycleViewFromSqlite, readSamePaLifecycleNextPitchBasisFromSqlite,
   readSamePaLifecycleCalibrationFromSqlite, readCurrentSamePaLifecycleCalibrationFromSqlite, withSamePaLifecycleReadPhase,
@@ -156,7 +158,7 @@ withSamePaLifecycleReadPhase(db, () => {
     if(source.nominalPitch.batter.ballRadiusMeters!==model.equipment.values.ball.radiusM
       ||source.actualFlightParameters.aerodynamics.ballRadiusM!==model.equipment.values.ball.radiusM
       ||source.actualFlightParameters.aerodynamics.ballMassKg!==model.equipment.values.ball.massKg
-      ||basis.physicalWorld.runners.length)throw new Error('physical original equipment or runner scope differs');
+      )throw new Error('physical original equipment differs');
     return {kind:'ready' as const,basis,timing,timingProfile,geometry,policy,model,original};
   };
   const derive = (source: Source,current: boolean): RecordValue|Pending => {
@@ -184,7 +186,9 @@ withSamePaLifecycleReadPhase(db, () => {
       same(posture.source.member,x.basis.members.find(m=>m.playerId===action.actor.binding.playerId));same(posture.source.modelReference,action.source.batterModelReference);
       const g=posture.source.geometry,ready=action.source.nominalPitch.delivery.readyAtUs;
       if(posture.physicalPitchSourceId!==action.physicalPitchSourceId||g.startedAtTick!==action.bodyCut.completedAtTick||g.bodyReadyTick>ready||ready>g.validUntilTick)throw new Error('physical right per-pitch body readiness differs');
-      const old=readHistoricalSamePaExecutionView(db,x.original.pitch.viewReference).view,roles=deriveSamePaDispatchRoles(x.basis.actor,old);
+      const old=readHistoricalSamePaExecutionView(db,x.original.pitch.viewReference).view,roles=deriveSamePaDispatchRoles(x.basis.actor,old,
+        x.basis.actor.world.runners.length?readSamePaOriginalParticipants(db,x.basis.actor):undefined);
+      if(source.participantInputs.length!==roles.length)throw new Error('physical exact participant input set differs');
       for(const [i,role]of roles.entries()){const p=source.participantInputs[i],member=x.basis.members.find(m=>m.playerId===role.member.playerId)!;same(p.member,member);same(p.calibrationReferences.map(r=>r.route),role.routes);
         for(const r of p.calibrationReferences){if(!samePaNativeAdapterImplemented(r.route))return pending('required_native_adapter_missing');
           const c=(current?readCurrentSamePaLifecycleCalibrationFromSqlite:readSamePaLifecycleCalibrationFromSqlite)(db,r.calibrationReference);same(c.source.member,member);same(c.source.viewReference,source.viewReference);same(c.source.route,r.route);}}
@@ -284,6 +288,7 @@ withSamePaLifecycleReadPhase(db, () => {
         const prior=linked(kindForOwner(ref.owner),ref);if(prior.kind!=='same_pa_physical_field_root_v1'&&prior.kind!=='same_pa_physical_field_step_v1')throw new Error('physical field action prefix differs');value=prior;}
     assertSamePaPhysicalThrowOwnership(source,prefix);
     assertSamePaBatterCatchOwnership(source,prefix);
+    assertSamePaOccupiedRunnerCatchOwnership(source,prefix);
     if(source.action){
       const result=deriveSamePaPhysicalFieldAction(db,source,root,previous,action,b,prefix,current);
       return freeze({...common,source,kind:'same_pa_physical_field_step_v1',stage:'field',...result});

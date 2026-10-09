@@ -51,7 +51,7 @@ export const samePaTakeSuccessorSourceInput = (raw: unknown, id?: string): SameP
   } else if (s.capability === 'same_pa_retained_take_setup_v1') {
     if (!fields(s, ['sourceId', 'sourceVersion', 'capability', 'actionReference', 'postureReference', 'nextPhysicalPitchSourceId', 'participantInputs'])
       || !ref(s.actionReference, 'pa_take_successor_v1_action_plans') || !ref(s.postureReference, 'batting_observation_v1_postures') || !text(s.nextPhysicalPitchSourceId)
-      || !Array.isArray(s.participantInputs) || s.participantInputs.length !== 10 || new Set(s.participantInputs.map(p => p.member?.playerId)).size !== 10
+      || !Array.isArray(s.participantInputs) || s.participantInputs.length < 10 || s.participantInputs.length > 13 || new Set(s.participantInputs.map(p => p.member?.playerId)).size !== s.participantInputs.length
       || s.participantInputs.some(p => !fields(p, ['member', 'calibrationReferences']) || !samePaDispatchMemberValid(p.member) || !Array.isArray(p.calibrationReferences)
         || p.calibrationReferences.some(c => !fields(c, ['route', 'calibrationReference']) || !samePaDispatchRouteValid(c.route) || !ref(c.calibrationReference, 'pa_continuation_v1_execution_calibrations')))
       || s.participantInputs.flatMap(p => p.calibrationReferences).length !== 32

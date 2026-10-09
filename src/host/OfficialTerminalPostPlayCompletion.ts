@@ -1,3 +1,5 @@
+import { foulTerminalCompletionMatchEnvelope, foulTerminalCompletedOfficial } from './OfficialTerminalPostPlayReceipt';
+export { foulTerminalCompletionReference, foulTerminalCompletionMatchEnvelope, foulTerminalCompletedOfficial } from './OfficialTerminalPostPlayReceipt';
 import { resolveOfficialGameProgression,resolveOfficialGameBoundary } from '../core/world/competition/OfficialGameCompletion';
 import { actualFoulTerminalPostPlayBoundaryInput } from './world/ActualFoulTerminalPostPlayBoundary';
 import type { FoulTerminalCompletion,FoulTerminalBoundaryCompletion } from './world/ActualFoulTerminalPostPlayCompletion';
@@ -10,7 +12,7 @@ import { officialStateSerialized as json, officialStateHash as hash } from './Of
 import { actualFoulTerminalApplicationInput, type FoulTerminalApplicationProposal } from './world/ActualFoulTerminalApplication';
 import { actualFoulTerminalPostPlaySetupInput } from './world/ActualFoulTerminalPostPlaySetup';
 import type { DurableFoulTerminalCompletedApplication, FoulTerminalPostPlayCompletion,
-  FoulTerminalPostPlayCompletionReference, PersistOfficialCompletedTerminalResult } from './world/ActualFoulTerminalPostPlayCompletion';
+  PersistOfficialCompletedTerminalResult } from './world/ActualFoulTerminalPostPlayCompletion';
 import { deriveFoulTerminalAcknowledgedResult } from './world/FoulTerminalAcknowledgementResult';
 import { assertFoulTerminalApplicationStorage } from './world/ActualFoulTerminalApplicationStorage';
 import { foulTerminalApplicationIdentityRows, foulTerminalApplicationClaims, foulTerminalPostPlaySetupIdentityRows,
@@ -31,14 +33,6 @@ const parse=(v:unknown,label:string):unknown=>{
   if(typeof v!=='string')throw new Error('terminal completion '+label+' encoding missing');
   const parsed=cloneInert(JSON.parse(v));if(json(parsed)!==v)throw new Error('terminal completion '+label+' must be canonical');return parsed;
 };
-export const foulTerminalCompletionReference=(c:FoulTerminalCompletion):FoulTerminalPostPlayCompletionReference=>freeze({
-  version:c.version,completionId:c.completionId,terminalSourceId:c.terminalReference.sourceId,setupSourceId:c.source.sourceId,sourceHash:c.sourceHash,snapshotHash:c.snapshotHash,
-});
-export const foulTerminalCompletionMatchEnvelope=(c:FoulTerminalCompletion|PersistOfficialCompletedTerminalResult)=>
- 'finalResult' in c ? freeze({finalResult:c.finalResult}) : freeze({activation:c.activation,nextWorld:c.nextWorld});
-export const foulTerminalCompletedOfficial=(official:import('./OfficialPendingPostPlay').PersistOfficialPendingNonLiveResult,c:FoulTerminalCompletion):PersistOfficialCompletedTerminalResult=>freeze({
- ...official,completion:foulTerminalCompletionReference(c),...foulTerminalCompletionMatchEnvelope(c),
-});
 export const foulTerminalCompletionScope=(p:FoulTerminalApplicationProposal):FoulTerminalApplicationScope=>({
   official:{sourceId:p.officialReference.sessionSourceId,gameId:p.gameId,playId:p.playId,physicalPitchSourceId:p.physicalPitchSourceId,
     physicalEndSourceId:p.physicalEndReference.sourceId,consumptionSourceId:p.consumptionReference.sourceId,

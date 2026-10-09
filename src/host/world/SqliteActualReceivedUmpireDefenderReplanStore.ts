@@ -1,5 +1,5 @@
 import type { DatabaseSync } from 'node:sqlite';
-import { deriveReceivedUmpireDefenderReplan, type ReceivedUmpireDefenderReplanInput } from '../../core/sim/fielding/ReceivedUmpireDefenderReplan';
+import { deriveReceivedUmpireDefenderReplan, type ReceivedUmpireDefenderReplan, type ReceivedUmpireDefenderReplanInput } from '../../core/sim/fielding/ReceivedUmpireDefenderReplan';
 import { receivedReplanInput, type ReceivedReplanSource } from './ActualReceivedUmpireDefender';
 import { actualReceivedUmpireDefenderEnrollmentEvidenceFromSqlite } from './SqliteActualReceivedUmpireDefenderEnrollmentStore';
 import { receivedEnrollmentEvidenceFromSqlite } from './ActualReceivedUmpireDefenderEvidence';
@@ -9,7 +9,7 @@ import { openReceivedTransaction, withReceivedReadProof } from './ActualReceived
 import { actorHash as hash, actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 export type DurableReceivedReplan = Readonly<{source:ReceivedReplanSource;revision:number;originProcessSourceId:string;history:readonly ReceivedReplanSource[];
   enrollmentHash:string;previousReplanHash:string|null;policyAvailabilityHash:string|null;dependencyHashes:Readonly<Record<string,string>>;
-  input:ReceivedUmpireDefenderReplanInput;replan:ReturnType<typeof deriveReceivedUmpireDefenderReplan>}>;
+  input:ReceivedUmpireDefenderReplanInput;replan:ReceivedUmpireDefenderReplan}>;
 const table='actual_received_umpire_defender_replans';
 export const actualReceivedUmpireDefenderReplanEvidenceFromSqlite=(db:DatabaseSync)=>{
   const active=new Set<string>();

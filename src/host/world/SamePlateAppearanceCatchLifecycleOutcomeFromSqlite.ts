@@ -1,3 +1,5 @@
+import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
+import { samePaOccupiedRunnerHoldRetirement } from './SqliteSamePlateAppearanceOccupiedRunnerHoldStore';
 import { samePaCatchOfficialOpeningInputFromSqlite, deriveSamePaCatchReviewSeedFromSqlite } from './SamePlateAppearanceCatchReviewFromSqlite';
 import { actualPostPlayReviewEvidenceFromSqlite } from './ActualPostPlayReviewFromSqlite';
 import { assertNoUnpinnedPostPlayReview, postPlayReviewSessionClaims, postPlayReviewEventRows, postPlayReviewHeadRows } from './ActualPostPlayReviewNativeMetadata';
@@ -60,5 +62,5 @@ export const deriveSamePaCatchLifecycleOutcome = (db: DatabaseSync, source: Extr
   const physical=samePaOutcomeFieldEvidence(db,basis);
   return freeze({kind:'same_pa_lifecycle_outcome',source,lineage:basis.view.lineage,actor:basis.actor,disposition:'terminal',timeline:end.timeline,
     evaluationTick:official.evaluationTick,physicalCompletedAtTick:end.playEnd.tick,physicalEnd:end.playEnd,physicalProofHash:hash(end),
-    officialLedger:official.ledger,context:null,controllerRetirementBasis:samePaOutcomeRetirement(basis,physical.commands,end.playEnd.tick),baseCenters,fairCatch:end,...(postPlayReview?{postPlayReview}:{})});
+    officialLedger:official.ledger,context:null,controllerRetirementBasis:samePaOutcomeRetirement(basis,[...physical.commands,...samePaOccupiedRunnerHoldRetirement(db,basis.actor,basis.view.lineage.enrollmentReference,end.playEnd.tick)],end.playEnd.tick,readSamePaOriginalParticipants(db,basis.actor)),baseCenters,fairCatch:end,...(postPlayReview?{postPlayReview}:{})});
 };

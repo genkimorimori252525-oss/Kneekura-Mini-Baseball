@@ -1,3 +1,4 @@
+import { deriveSamePaOccupiedRunnerCatchResponse, deriveSamePaOccupiedRunnerCatchMotion, assertSamePaOccupiedRunnerCatchOwnership } from './SamePlateAppearanceOccupiedRunnerCatchResponse';
 import { assertSamePaBatterCatchOwnership } from './SamePlateAppearanceBatterCatchOwnership';
 import { readBatterRunPlanFromSqlite } from './SqliteBatterRunPlanStore';
 import { deriveSamePaBatterRunMotion } from './SamePlateAppearanceBatterRunMotion';
@@ -32,7 +33,7 @@ type Field = SamePaPhysicalFieldRoot | SamePaPhysicalFieldStep;
 const fieldReference = (field: Field) => reference(field.kind === 'same_pa_physical_field_root_v1' ? 'pa_physical_v1_field_roots' : 'pa_physical_v1_field_steps', field);
 const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw new Error('physical field action original dependency differs'); };
 const result = (step: Field) => step.kind === 'same_pa_physical_field_step_v1' ? step.actionResult : undefined;
-const noAdvance = (field: Field) => result(field)?.kind === 'defender_observation_v1' || result(field)?.kind === 'defender_decision_v1' || result(field)?.kind === 'defender_catch_response_v1' || result(field)?.kind === 'batter_catch_response_v1';
+const noAdvance = (field: Field) => result(field)?.kind === 'defender_observation_v1' || result(field)?.kind === 'defender_decision_v1' || result(field)?.kind === 'defender_catch_response_v1' || result(field)?.kind === 'batter_catch_response_v1' || result(field)?.kind === 'occupied_runner_catch_response_v1';
 /** Reconstruct the actual episode graph on the Native owner's pinned read phase.
  * Sources contain only accepted input references, view geometry and priorities. */
 export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePaPhysicalFieldStepSource, root: SamePaPhysicalFieldRoot,
@@ -46,6 +47,7 @@ export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePa
   same(fieldReference(prefix.at(-1)!), source.previousFieldReference);
   assertSamePaPhysicalThrowOwnership(source, prefix);
   assertSamePaBatterCatchOwnership(source, prefix);
+  assertSamePaOccupiedRunnerCatchOwnership(source, prefix);
   if (request.kind === 'retained_quantizer_checkpoint_v1') return deriveSamePaPhysicalQuantizerCheckpoint(source, root, previous);
   const linked = (ref: SamePaPhysicalFieldReference): Field => {
     const value = prefix.find(v => v.source.sourceId === ref.sourceId);
@@ -66,6 +68,8 @@ export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePa
   const latest = (kind: 'defender_observation_v1' | 'defender_decision_v1', playerId: string) => [...prefix].reverse().find(f => {
     const r = result(f); return r?.kind === kind && r.playerId === playerId;
   });
+  if (request.kind === 'occupied_runner_catch_response_v1') return stable(deriveSamePaOccupiedRunnerCatchResponse(db, source, root, previous, basis, prefix));
+  if (request.kind === 'occupied_runner_catch_motion_v1') return deriveSamePaOccupiedRunnerCatchMotion(source, root, previous, prefix);
   if (request.kind === 'batter_catch_response_v1') return stable(deriveSamePaBatterCatchResponse(db, source, root, previous, basis, prefix));
   if (request.kind === 'batter_catch_motion_v1') return deriveSamePaBatterCatchMotion(source, root, previous, prefix);
   if (request.kind === 'defender_observation_v1') {
@@ -86,7 +90,7 @@ export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePa
     const receipt = sampleExecutedFieldObservationWithCalibration(samplingRequest, {
       at: { originTick: moment.originTick, elapsedSeconds: moment.elapsedSeconds, tick: moment.ball.tick },
       ticksPerSecond: root.response.world.parameters.ticksPerSecond, matchSeed: action.source.nominalPitch.delivery.matchSeed,
-      playId: root.lineage.playId, playerIds: [action.actor.binding.playerId, ...action.actor.defenderBindings.map(b => b.playerId)],
+      playId: root.lineage.playId, playerIds: [action.actor.binding.playerId, ...action.actor.defenderBindings.map(b => b.playerId), ...action.actor.world.runners.map(r => r.playerId)],
       actors: motion.actors, surfaces: root.response.world.surfaces, bases: Object.values(root.geometry.bases), ballMoment,
     }, c.response.values, prior);
     const received = request.catchWorkReference ? readSamePaCatchObservationFromSqlite(db, request.catchWorkReference, basis, previous, receipt) : { receipt };

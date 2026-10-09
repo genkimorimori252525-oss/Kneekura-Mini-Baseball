@@ -31,7 +31,7 @@ export const readSamePaLiveWorkFromSqlite = (db: DatabaseSync,
       throw new Error('same-PA census original observation calibration differs');
     observationPolicies.push({ observationReference: reference('pa_physical_v1_field_steps', f), refreshPolicy: c.source.response.values.refreshPolicy });
   }
-  const participantIds = [pair.actor.binding.playerId, ...pair.actor.defenderBindings.map(d => d.playerId)];
+  const participantIds = [pair.actor.binding.playerId, ...pair.actor.defenderBindings.map(d => d.playerId), ...pair.actor.world.runners.map(r => r.playerId)];
   const census = deriveSamePaLiveWorkCensus({ fields: pair.fields, participantIds, observationPolicies,
     possessionEvidence: pair.value.evidence.rule.possessionEvidence });
   const result = <T>(call: T) => Object.freeze({ kind: 'same_pa_live_work_read_v1' as const,

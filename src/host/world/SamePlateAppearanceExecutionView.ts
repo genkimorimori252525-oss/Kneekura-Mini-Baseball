@@ -14,7 +14,7 @@ export const samePaViewInput=(raw:unknown,id?:string):AcceptedSamePaExecutionVie
   if(!samePaFields(value,['sourceId','sourceVersion','capability','enrollmentReference','prefixReference','participantTotalReferences'])
     ||!samePaText(value.sourceId)||!samePaText(value.sourceVersion)||id!==undefined&&value.sourceId!==id||value.capability!=='reserved_same_pa_cumulative_view_v1'
     ||!samePaReferenceValid(value.enrollmentReference,'same_pa_enrollments')||!samePaReferenceValid(value.prefixReference,'reserved_pa_work_prefixes')
-    ||!Array.isArray(value.participantTotalReferences)||value.participantTotalReferences.length!==10||new Set(value.participantTotalReferences.map(p=>p.playerId)).size!==10
+    ||!Array.isArray(value.participantTotalReferences)||(value.participantTotalReferences.length<10||value.participantTotalReferences.length>13)||new Set(value.participantTotalReferences.map(p=>p.playerId)).size!==value.participantTotalReferences.length
     ||value.participantTotalReferences.some(p=>!samePaFields(p,['playerId','assessmentReference'])||!samePaText(p.playerId)||!samePaReferenceValid(p.assessmentReference,'reserved_pa_total_assessments')))throw new Error('invalid same-PA cumulative view Source');
   return freeze(value);
 };

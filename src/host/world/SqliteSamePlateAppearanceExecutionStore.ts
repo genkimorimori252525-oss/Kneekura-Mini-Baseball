@@ -1,3 +1,4 @@
+import { readSamePlateAppearanceEnrollmentBasis } from './SamePlateAppearanceEnrollmentFromSqlite';
 import { createRequire } from 'node:module';
 import { randomUUID } from 'node:crypto';
 import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -5,9 +6,9 @@ import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldEx
 import { reservedPaSchema,assertReservedPaStorage } from './SamePlateAppearanceExecutionStorage';
 import { assertReservedPaClaims } from './SamePlateAppearanceProvisionalClaimGuard';
 import { actualLivePlayOwnerIdentityRow } from './ActualLivePlayOwnerMetadata';
-import { proveSamePaExecution,proveSamePaTotalSet,samePaExecutionTables,samePaExecutionInput,samePaExecutionRow,type SamePaExecutionKind,type SamePaExecutionResult } from './SamePlateAppearanceExecutionFromSqlite';
+import { proveSamePaExecution,proveSamePaTotalSet,samePaExecutionReference,samePaExecutionTables,samePaExecutionInput,samePaExecutionRow,type SamePaExecutionKind,type SamePaExecutionResult } from './SamePlateAppearanceExecutionFromSqlite';
 import { samePaText,type SamePaEmptyWorkPrefix } from './SamePlateAppearanceWorkPrefix';
-import type { SamePaCumulativeTotal } from './SamePlateAppearanceCumulativeTotal';
+import type { SamePaCumulativeTotal, AcceptedSamePaCumulativeTotal } from './SamePlateAppearanceCumulativeTotal';
 import type { SamePaExecutionView,SamePaTotalReference } from './SamePlateAppearanceExecutionView';
 import { samePaTotalInput } from './SamePlateAppearanceCumulativeTotal';
 import { assertSamePaTotalSetDistinct,samePaTotalSetIds,samePaTotalSetSources,samePaTotalSetReferences,type SamePaTotalSet } from './SamePlateAppearanceTotalSet';
@@ -94,23 +95,29 @@ export const openSqliteSamePlateAppearanceExecutionStore=(path:string,authority?
     return run(false,proof=>proof(()=>proveSamePaTotalSet(db,{references:refs}).value));
   };
   const acceptTotalSet=(sourceIds:readonly string[]):SamePaTotalSet|Pending=>{
-    check();const ids=samePaTotalSetIds(sourceIds),missing:string[]=[],captured=[];
+    check();const ids=samePaTotalSetIds(sourceIds),missing:string[]=[],captured:AcceptedSamePaCumulativeTotal[]=[];
     for(const id of ids){const raw=authority?.readAcceptedTotal?.(id)??null;if(raw===null)missing.push(id);else captured.push(samePaTotalInput(raw,id));}
     // Validate available Sources before returning pending; never synthesize an
     // accepted zero assessment for a missing input.
     assertSamePaTotalSetDistinct(captured);
+    if(captured.length&&missing.length)run(false,proof=>proof(()=>{
+      const first=captured[0],basis=readSamePlateAppearanceEnrollmentBasis(db,first.enrollmentReference.sourceId);
+      if(!basis||basis.enrollment.participants.length!==ids.length)throw new Error('same-PA TOTAL set original participant coverage incomplete');
+      same(samePaExecutionReference('same_pa_enrollments',basis.enrollment),first.enrollmentReference);
+      for(const source of captured){same(source.enrollmentReference,first.enrollmentReference);if(!basis.enrollment.participants.some(p=>p.binding.playerId===source.participantReference.playerId))throw new Error('same-PA TOTAL set foreign participant');}
+    }));
     if(missing.length){
       run(false,proof=>proof(()=>{
         if(!assertReservedPaStorage(db))return;
         assertReservedPaClaims(db);
         const present=ids.filter(id=>actualLivePlayOwnerIdentityRow(db,samePaExecutionTables.total,id)!==null).length;
-        if(present!==0&&present!==10)throw new Error('same-PA TOTAL set has mixed existing rows; partial set cannot be repaired');
+        if(present!==0&&present!==ids.length)throw new Error('same-PA TOTAL set has mixed existing rows; partial set cannot be repaired');
       }));
       return Object.freeze({kind:'pending',missingAcceptedSourceIds:Object.freeze(missing)});
     }
     const sources=samePaTotalSetSources(captured);
     const preflight=run(false,proof=>proof(()=>({proof:proveSamePaTotalSet(db,{sources}),rows:ownedRows()})));
-    if(preflight.proof.presentSourceIds.length===10)return preflight.proof.value;
+    if(preflight.proof.presentSourceIds.length===sources.length)return preflight.proof.value;
     return run(true,(proof,step)=>{
       const acquired=proof(()=>({proof:proveSamePaTotalSet(db,{sources}),rows:ownedRows()}));same(acquired,preflight);
       const expectedRows=acquired.rows.map(rows=>[...rows]),present:string[]=[],values=acquired.proof.value;

@@ -1,5 +1,5 @@
 import type { DatabaseSync } from 'node:sqlite';
-import { deriveReceivedUmpireDefenderReplan, type ReceivedUmpireDefenderReplan, type ReceivedUmpireDefenderReplanInput } from '../../core/sim/fielding/ReceivedUmpireDefenderReplan';
+import { deriveReceivedUmpireDefenderReplan, type ReceivedUmpireDefenderReplan, type ReceivedUmpireCaughtOutContent, type ReceivedUmpireDefenderReplanInput } from '../../core/sim/fielding/ReceivedUmpireDefenderReplan';
 import { buildPlayerPerceivedWorldState } from '../../core/sim/perception/PlayerPerceivedWorldState';
 import { readSamePaLifecycleCalibrationFromSqlite } from './SamePlateAppearanceLifecycleFromSqlite';
 import { playerDecisionModelEvidenceFromSqlite } from './SqlitePlayerDecisionModelStore';
@@ -13,7 +13,7 @@ import type { SamePaLifecycleViewBasis } from './SamePlateAppearanceLifecycle';
 type Field = SamePaPhysicalFieldRoot | SamePaPhysicalFieldStep;
 type StepRef = SamePaReference<'pa_physical_v1_field_steps'>;
 export type SamePaCatchDefenderResponse = Readonly<{ kind: 'defender_catch_response_v1'; playerId: string; observationReference: StepRef;
-  replan: ReceivedUmpireDefenderReplan; issuedBySourceId: string | null; fieldingModelHash: string }>;
+  replan: ReceivedUmpireDefenderReplan<ReceivedUmpireCaughtOutContent>; issuedBySourceId: string | null; fieldingModelHash: string }>;
 const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw new Error('same-PA caught response original dependency differs'); };
 const result = (f: Field) => f.kind === 'same_pa_physical_field_step_v1' ? f.actionResult : undefined;
 

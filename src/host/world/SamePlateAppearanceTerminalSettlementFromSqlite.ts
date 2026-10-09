@@ -33,9 +33,9 @@ export const deriveSamePaTerminalSettlementPlan = (db: DatabaseSync, raw: Accept
   same(endpoint.enrollmentReference, { owner: 'same_pa_enrollments', sourceId: enrollment.source.sourceId, sourceHash: hash(enrollment.source), snapshotHash: hash(enrollment) }, 'enrollment reference differs');
   same(endpoint.lineage.enrollmentReference, endpoint.enrollmentReference, 'endpoint lineage differs');
   if (endpoint.lineage.careerId !== enrollment.careerId || endpoint.lineage.gameId !== enrollment.gameId || endpoint.lineage.playId !== enrollment.playId
-    || endpoint.participants.length !== 10 || new Set(endpoint.participants.map(p => p.playerId)).size !== 10
-    || new Set(endpoint.participants.map(p => p.activity.sourceEventId)).size !== 10
-    || new Set(endpoint.participants.map(p => p.totalReference.sourceId)).size !== 10) throw new Error('same-PA settlement final ten-player membership differs');
+    || endpoint.participants.length !== enrollment.participants.length || new Set(endpoint.participants.map(p => p.playerId)).size !== enrollment.participants.length
+    || new Set(endpoint.participants.map(p => p.activity.sourceEventId)).size !== enrollment.participants.length
+    || new Set(endpoint.participants.map(p => p.totalReference.sourceId)).size !== enrollment.participants.length) throw new Error('same-PA settlement final original participant membership differs');
   for (const participant of endpoint.participants) {
     const original = enrollment.participants.find(p => p.binding.playerId === participant.playerId);
     if (!original || participant.activity.kind !== 'MATCH' || participant.activity.careerId !== enrollment.careerId
@@ -84,7 +84,7 @@ export const readSamePaTerminalReleaseFromSqlite = (db: DatabaseSync, enrollment
   if (!release) return null;
   same(readSamePaReleasedClaimCensus(db, enrollmentSourceId), release.claimCensus, 'released preparation/work claim census changed');
   const settled = readSamePaTerminalSettlementFromSqlite(db, release.settlementReference);
-  if (settled.kind !== 'settled') throw new Error('same-PA release requires ten exact durable effects');
+  if (settled.kind !== 'settled') throw new Error('same-PA release requires every exact durable effect');
   const transition = readSamePaTerminalTransitionFromSqlite(db, release.terminalReference, 'historical');
   if (transition.kind !== 'completed') throw new Error('same-PA release transition is incomplete');
   same(transition.reference, release.transitionReference, 'release transition reference differs');

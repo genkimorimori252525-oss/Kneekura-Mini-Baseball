@@ -51,7 +51,7 @@ export type SamePaPhysicalFieldRootSource = OperationSource & Readonly<{ capabil
     |Readonly<{kind:'fresh_physical_field_calibration_v1';calibrationReference:SamePaReference<'pa_physical_v1_field_calibrations'>}>;
   commands: import('./SqliteBattedWorldContactStore').AcceptedBattedWorldContact['commands']; parameters: Required<BallFlightParameters>; throughTick: number;
   venuePolicy?: AcceptedBattedVenuePlayableWallPolicy;
-  liveProducerProfile?: 'same_pa_empty_base_catch_v1' }>;
+  liveProducerProfile?: 'same_pa_empty_base_catch_v1' | 'same_pa_stationary_occupied_catch_v1' }>;
 export type SamePaPhysicalFieldStepSource = OperationSource & Readonly<{ capability: 'same_pa_physical_field_step_v1';
   fieldRootReference: SamePaReference<'pa_physical_v1_field_roots'>; previousFieldReference: SamePaReference<'pa_physical_v1_field_roots' | 'pa_physical_v1_field_steps'>;
   throughTick: number; action?: SamePaPhysicalFieldAction }>;
@@ -125,7 +125,7 @@ export const samePaPhysicalEpisodeSourceInput = (raw: unknown, id?: string): Sam
   } else if (s.capability === 'same_pa_physical_right_v1') {
     if (!fields(s, [...base, 'actionReference', 'postureReference', 'participantInputs']) || !ref(s.actionReference, 'pa_physical_v1_action_plans')
       || !ref(s.postureReference, 'batting_observation_v1_postures') || !Array.isArray(s.participantInputs)
-      || s.participantInputs.length !== 10 || new Set(s.participantInputs.map(p => p.member?.playerId)).size !== 10
+      || s.participantInputs.length < 10 || s.participantInputs.length > 13 || new Set(s.participantInputs.map(p => p.member?.playerId)).size !== s.participantInputs.length
       || s.participantInputs.some(p => !fields(p, ['member', 'calibrationReferences']) || !samePaDispatchMemberValid(p.member) || !Array.isArray(p.calibrationReferences)
         || p.calibrationReferences.some(r => !fields(r, ['route', 'calibrationReference']) || !samePaDispatchRouteValid(r.route) || !ref(r.calibrationReference, 'pa_lifecycle_v1_execution_calibrations')))
       || s.participantInputs.flatMap(p => p.calibrationReferences).length !== 32 || new Set(s.participantInputs.flatMap((p: SamePaPhysicalRightSource['participantInputs'][number]) => p.calibrationReferences.map(r => r.calibrationReference.sourceId))).size !== 32) throw new Error('invalid physical all-ten right');
@@ -139,10 +139,10 @@ export const samePaPhysicalEpisodeSourceInput = (raw: unknown, id?: string): Sam
       if ('buntProfileBinding' in s) samePaBuntProfileBindingInput(s.buntProfileBinding); }
     else if (s.capability === 'same_pa_physical_resolution_v1') { if (!fields(s, [...op, 'throughTick', 'commitmentReference']) || !tick(s.throughTick) || s.commitmentReference !== null && !ref(s.commitmentReference, 'pa_physical_v1_commitments')) throw new Error('invalid physical resolution'); }
     else if (s.capability === 'same_pa_physical_field_root_v1') { const f=s.fieldInputs; if (!fields(s, [...op, 'resolutionReference', 'fieldInputs', 'postureReference', 'commands', 'parameters', 'throughTick', ...('venuePolicy' in s ? ['venuePolicy'] : []), ...('liveProducerProfile' in s ? ['liveProducerProfile'] : [])]) || !tick(s.throughTick)
-      || 'liveProducerProfile' in s && s.liveProducerProfile !== 'same_pa_empty_base_catch_v1'
+      || 'liveProducerProfile' in s && !['same_pa_empty_base_catch_v1', 'same_pa_stationary_occupied_catch_v1'].includes(s.liveProducerProfile!)
       || !ref(s.resolutionReference, 'pa_physical_v1_resolutions') || !ref(s.postureReference, 'batting_observation_v1_postures')
       ||!(f?.kind==='reused_normal_field_inputs_v1'&&fields(f,['kind','geometryReference','modelReference','responseModelReference'])&&ref(f.geometryReference,'batted_world_field_geometries')&&ref(f.modelReference,'batted_world_models')&&ref(f.responseModelReference,'batted_contact_response_models')
-        ||f?.kind==='fresh_physical_field_calibration_v1'&&fields(f,['kind','calibrationReference'])&&ref(f.calibrationReference,'pa_physical_v1_field_calibrations'))|| !Array.isArray(s.commands) || s.commands.length !== 10
+        ||f?.kind==='fresh_physical_field_calibration_v1'&&fields(f,['kind','calibrationReference'])&&ref(f.calibrationReference,'pa_physical_v1_field_calibrations'))|| !Array.isArray(s.commands) || s.commands.length < 10 || s.commands.length > 13
       || !fields(s.parameters, ['ticksPerSecond', 'gravityY', 'ballRadius', 'groundRestitution', 'groundFriction', 'groundRollingDecelerationMps2', 'integrationStepTicks', 'restingVerticalSpeed'])
       || Object.values(s.parameters).some(n => typeof n !== 'number' || !Number.isFinite(n))) throw new Error('invalid physical field root');
       if ('venuePolicy' in s) battedVenuePlayableWallPolicyInput(s.venuePolicy!); }

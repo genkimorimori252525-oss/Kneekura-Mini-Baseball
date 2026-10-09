@@ -1,3 +1,4 @@
+import { readHistoricalSamePlateAppearanceEnrollment } from './SamePlateAppearanceEnrollmentFromSqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { createRequire } from 'node:module';
 import { actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -53,11 +54,21 @@ export const openSqliteSamePlateAppearanceContinuationStore = (path: string, aut
   };
   const acceptSet = (kind: 'total' | 'calibration', suppliedIds: readonly string[]) => {
     const rawIds = cloneInert(suppliedIds);
-    const count = kind === 'total' ? 10 : 32;
-    if (!Array.isArray(rawIds) || rawIds.length !== count || rawIds.some(id => !samePaText(id)) || new Set(rawIds).size !== count) throw new Error('same-PA continuation exact participant set required');
+    const count = kind === 'total' && Array.isArray(rawIds) ? rawIds.length : 32;
+    if (!Array.isArray(rawIds) || kind === 'total' && (count < 10 || count > 13) || rawIds.length !== count || rawIds.some(id => !samePaText(id)) || new Set(rawIds).size !== count) throw new Error('same-PA continuation exact participant set required');
     const ids = [...rawIds], captured = ids.map(id => { const raw = (kind === 'total' ? authority?.readAcceptedTotal : authority?.readAcceptedCalibration)?.(id) ?? null;
       return raw === null ? null : parsed(kind, raw, id); });
     const prior = tx.run(false, proof => proof(() => readSet(db, kind, ids)), () => {});
+    const originalSource = captured.find(Boolean) ?? prior.find(Boolean)?.source;
+    if (kind === 'total' && originalSource && captured.some(s => !s) && !prior.every(Boolean)) tx.run(false, proof => proof(() => {
+      const enrollment = readHistoricalSamePlateAppearanceEnrollment(db, originalSource.enrollmentReference.sourceId);
+      if (!enrollment || enrollment.participants.length !== count) throw new Error('same-PA TOTAL set original membership incomplete');
+      same(reference('same_pa_enrollments',enrollment),originalSource.enrollmentReference);
+      for (const source of captured) if (source) {
+        same(source.enrollmentReference,originalSource.enrollmentReference);
+        if (!('participantReference' in source) || !enrollment.participants.some(p => p.binding.playerId === source.participantReference.playerId)) throw new Error('same-PA TOTAL set foreign original participant');
+      }
+    }), () => {});
     if (prior.some(Boolean) && prior.some(v => !v)) throw new Error('same-PA continuation partial accepted set cannot be repaired');
     if (prior.every(Boolean)) {
       prior.forEach((v, i) => { if (captured[i]) same(v!.source, captured[i]); });
@@ -84,7 +95,7 @@ export const openSqliteSamePlateAppearanceContinuationStore = (path: string, aut
     }, value => { same(setResult(kind, readSet(db, kind, ids) as RecordValue[]), value); same(rows(), expected); });
   };
   const assertSet = (kind: 'total' | 'calibration', values: readonly RecordValue[]) => {
-    const first = values[0]; if (!first || values.length !== (kind === 'total' ? 10 : 32)) throw new Error('same-PA continuation set incomplete');
+    const first = values[0]; if (!first || values.length !== (kind === 'total' ? first.lineage.participantReferences.length : 32)) throw new Error('same-PA continuation set incomplete');
     const assessments = new Set<string>();
     for (const value of values) {
       same(value.lineage, first.lineage);

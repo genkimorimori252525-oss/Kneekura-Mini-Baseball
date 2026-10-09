@@ -8,7 +8,7 @@ const same=(a:unknown,b:unknown)=>{if(json(a)!==json(b))throw new Error('same-PA
 /** Internal normal-owner composition. The enclosing lifecycle phase has already
  * authenticated the actor; this verifies its exact setup Source, never infers
  * base locations from player positions or another game's geometry. */
-export const samePaStartingBaseCenters=(db:DatabaseSync,actor:DurablePhysicalPlateAppearanceActor):BetweenPlayWorldSetup['baseCenters']=>{
+export const samePaStartingBaseCenters=(db:Pick<DatabaseSync,'prepare'>,actor:DurablePhysicalPlateAppearanceActor):BetweenPlayWorldSetup['baseCenters']=>{
   let setup: BetweenPlayWorldSetup | undefined;
   if('initialWorldSourceId' in actor.source){
     const row=db.prepare('SELECT * FROM main.official_initial_world_sources WHERE source_id=?').get(actor.source.initialWorldSourceId);

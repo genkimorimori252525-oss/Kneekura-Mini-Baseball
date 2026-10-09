@@ -126,7 +126,7 @@ export const assertNoSamePaContinuationWorkClaim = (db: Db, scope: { gameId: str
     || scopeClaimed(db, record.row, scope)) fail();
 };
 export const assertNoSamePaContinuationEnrollmentClaim = (db: Db, enrollmentSourceId: string) => {
-  const preparation = new Set(['pa_take_successor_v1_action_plans', 'pa_take_successor_v1_setups', 'batting_execution_v1_intents', 'batting_execution_v1_inputs', 'batting_observation_v1_postures', 'batting_score_v1_assessments', 'batting_emotion_v1_geneses']);
+  const preparation = new Set(['pa_take_successor_v1_action_plans', 'pa_take_successor_v1_setups', 'batting_execution_v1_intents', 'batting_execution_v1_inputs', 'batting_observation_v1_postures', 'batting_score_v1_assessments', 'batting_emotion_v1_geneses', 'world_same_pa_occupied_runner_holds']);
   for (const record of inspect(db)) if (!preparation.has(record.table) && record.enrollments.some(e => e.source.sourceId === enrollmentSourceId)) fail();
 };
 

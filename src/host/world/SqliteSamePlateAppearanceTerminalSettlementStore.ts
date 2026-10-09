@@ -160,7 +160,7 @@ export const openSqliteSamePlateAppearanceTerminalSettlementStore = (path: strin
           claimCensus: readSamePaReleasedClaimCensus(db, enrollment.source.sourceId) } as SamePaTerminalRelease };
       });
       // One owned release transaction archives every original lease byte and
-      // retires exactly those ten active rows. No authority callback intervenes.
+      // retires exactly those original active rows. No authority callback intervenes.
       db.prepare('INSERT INTO main.pa_settlement_v1_releases VALUES(?,?,?,?,?)').run(...Object.values(samePaTerminalReleaseRow(prepared.release)));
       for (const row of prepared.release.memberRows) {
         const changed = db.prepare('DELETE FROM main.same_pa_participant_reservations WHERE enrollment_source_id=? AND player_id=? AND member_json=?')
@@ -169,7 +169,7 @@ export const openSqliteSamePlateAppearanceTerminalSettlementStore = (path: strin
       }
       const saved = proof(() => readSamePaTerminalReleaseFromSqlite(db, prepared.enrollment.source.sourceId));
       same(saved, prepared.release, 'released member archive differs');
-      return { value: prepared.release, changes: 11 };
+      return { value: prepared.release, changes: 1 + prepared.release.memberRows.length };
     });
     return committed(value, () => same(readSamePaTerminalReleaseFromSqlite(db, value.enrollmentReference.sourceId), value, 'committed release differs'));
   };

@@ -86,9 +86,9 @@ export const samePaLifecycleSourceInput = (raw: unknown, id?: string): SamePaLif
     && Number.isFinite(s.effortUnits) && s.effortUnits >= 0 && fields(s.provenance, ['assessmentSourceId', 'assessmentVersion', 'calibrationSourceId', 'calibrationVersion'])
     && Object.values(s.provenance).every(text);
   else if (s.capability === 'same_pa_lifecycle_cumulative_view_v1') valid = base(s, ['prefixReference', 'participantTotalReferences'])
-    && ref(s.prefixReference, 'pa_lifecycle_v1_work_prefixes') && Array.isArray(s.participantTotalReferences) && s.participantTotalReferences.length === 10
-    && new Set(s.participantTotalReferences.map(p => p.playerId)).size === 10
-    && new Set(s.participantTotalReferences.map(p => p.assessmentReference?.sourceId)).size === 10
+    && ref(s.prefixReference, 'pa_lifecycle_v1_work_prefixes') && Array.isArray(s.participantTotalReferences) && s.participantTotalReferences.length >= 10 && s.participantTotalReferences.length <= 13
+    && new Set(s.participantTotalReferences.map(p => p.playerId)).size === s.participantTotalReferences.length
+    && new Set(s.participantTotalReferences.map(p => p.assessmentReference?.sourceId)).size === s.participantTotalReferences.length
     && s.participantTotalReferences.every(p => fields(p, ['playerId', 'assessmentReference']) && text(p.playerId) && ref(p.assessmentReference, 'pa_lifecycle_v1_total_assessments'));
   if (!valid) throw new Error('invalid same-PA lifecycle Source'); return freeze(s);
 };

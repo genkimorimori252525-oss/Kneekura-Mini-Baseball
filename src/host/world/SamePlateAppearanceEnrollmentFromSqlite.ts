@@ -1,3 +1,4 @@
+import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
 import type { DatabaseSync } from 'node:sqlite';
 import { readPhysicalPlateAppearanceActorFromSqlite, assertPhysicalActorOpenFrame,
   actorHash as hash, actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -18,13 +19,10 @@ const deriveEnrollmentBasis = (db:Db,raw:unknown,ownSourceId?:string) => {
   if(actorRows.length!==1||row.source_id!==source.actorReference.sourceId||row.source_hash!==source.actorReference.sourceHash||row.snapshot_hash!==source.actorReference.snapshotHash
     ||row.source_json!==json(actor.source)||row.snapshot_json!==json(actor)||row.source_hash!==hash(actor.source)||row.snapshot_hash!==hash(actor))throw new Error('same-PA original actor reference differs');
   assertPhysicalActorOpenFrame(db,actor);
-  const bindings=[actor.binding,...actor.defenderBindings].sort((a,b)=>a.playerId<b.playerId?-1:a.playerId>b.playerId?1:0);
-  if(actor.world.runners.length||Object.values(actor.match.bases).some(p=>p!==null)||bindings.length!==10
-    ||new Set(bindings.map(p=>p.playerId)).size!==10||new Set(bindings.map(p=>p.personId)).size!==10||actor.world.defenders.length!==9
-    ||new Set(actor.world.defenders.map(p=>p.playerId)).size!==9
-    ||bindings.some(b=>b.careerId!==actor.binding.careerId||b.gameId!==actor.source.gameId||b.gameDay!==actor.binding.gameDay||b.fixtureEventId!==actor.binding.fixtureEventId
-      ||b.competitionEditionId!==actor.binding.competitionEditionId||!source.participantBaselineReferences.some(p=>p.playerId===b.playerId))
-    ||actor.defenderBindings.some(b=>!actor.world.defenders.some(p=>p.playerId===b.playerId)))throw new Error('same-PA exact original participant membership differs');
+  const originals=readSamePaOriginalParticipants(db,actor),bindings=originals.map(p=>p.binding).sort((a,b)=>a.playerId<b.playerId?-1:a.playerId>b.playerId?1:0);
+  if((source.capability==='reserved_same_pa_enrollment_v1')!==(originals.length===10)
+    ||source.participantBaselineReferences.length!==bindings.length
+    ||bindings.some(b=>!source.participantBaselineReferences.some(p=>p.playerId===b.playerId)))throw new Error('same-PA exact original participant membership differs');
   const scope={gameId:actor.source.gameId,playId:actor.match.playId,physicalPitchSourceId:source.firstPhysicalPitchSourceId};
   assertNoSamePaWorkReservation(db,scope,ownSourceId);assertSamePaRegistrationBeforeWork(db,{...scope,actorSourceId:actor.source.sourceId,
     ...('initialWorldSourceId' in actor.source?{initialWorldSourceId:actor.source.initialWorldSourceId}:{activationApplicationId:actor.source.activationApplicationId})});
@@ -44,7 +42,7 @@ const deriveEnrollmentBasis = (db:Db,raw:unknown,ownSourceId?:string) => {
     if(!state){if(bases.length)throw new Error('same-PA supplied baseline is foreign');missingBaselinePlayerIds.push(binding.playerId);return [];}
     if(bases.length!==1||bases[0].career_id!==binding.careerId||bases[0].player_id!==binding.playerId||bases[0].source_id!==ref.baselineSourceId
       ||JSON.parse(String(bases[0].source_json)).sourceId!==ref.baselineSourceId||state.revision!==ref.revision||hash(state)!==ref.stateHash||state.effectiveDay>binding.gameDay)throw new Error('same-PA current baseline reference is stale or foreign');
-    const person=binding.playerId===actor.binding.playerId?actor.person:actor.defenderPersons.find(p=>p.playerId===binding.playerId);
+    const person=originals.find(p=>p.binding.playerId===binding.playerId)?.person;
     if(!person||person.personId!==binding.personId||person.sourceId!==binding.personLinkSourceId)throw new Error('same-PA original Person differs');
     return [{binding,personHash:hash(person),baselineSourceId:ref.baselineSourceId,baselineSourceHash:hash(JSON.parse(String(bases[0].source_json))),state}];
   });
@@ -71,15 +69,15 @@ export const readHistoricalSamePlateAppearanceEnrollment = (db:Db,sourceId:strin
   if(!actor||json(enrollment.source.actorReference)!==json({owner:'physical_plate_appearance_actors',sourceId:actor.source.sourceId,sourceHash:hash(actor.source),snapshotHash:hash(actor)})
     ||enrollment.actorHash!==hash(actor)||enrollment.officialRevision!==actor.officialRevision
     ||enrollment.worldHash!==hash(actor.world)||enrollment.fixtureHash!==actor.fixtureHash)throw new Error('historical same-PA enrollment actor differs');
-  const bindings=[actor.binding,...actor.defenderBindings].sort((a,b)=>a.playerId<b.playerId?-1:a.playerId>b.playerId?1:0);
-  if(json(bindings)!==json(enrollment.participants.map(p=>p.binding)))throw new Error('historical same-PA enrollment participants differ');
+  const originals=readSamePaOriginalParticipants(db,actor),bindings=originals.map(p=>p.binding).sort((a,b)=>a.playerId<b.playerId?-1:a.playerId>b.playerId?1:0);
+  if((enrollment.source.capability==='reserved_same_pa_enrollment_v1')!==(originals.length===10)||json(bindings)!==json(enrollment.participants.map(p=>p.binding)))throw new Error('historical same-PA enrollment participants differ');
   for(const p of enrollment.participants){
     const baselines=db.prepare(`SELECT * FROM main.world_player_workload_baselines WHERE source_id=$id OR ${claim('source_json',['sourceId'],'$id')}`).all({id:p.baselineSourceId});
     if(baselines.length!==1||baselines[0].source_id!==p.baselineSourceId||baselines[0].career_id!==p.binding.careerId||baselines[0].player_id!==p.binding.playerId
       ||hash(JSON.parse(String(baselines[0].source_json)))!==p.baselineSourceHash)throw new Error('historical same-PA enrollment baseline Source differs');
     assertHistoricalSamePaWorkloadCut(db,p.binding.careerId,p.binding.playerId,p.state.revision);
     const state=readActualRoleWorkloadState(db,p.binding.careerId,p.binding.playerId,p.state.revision,p.binding.personLinkSourceId);
-    const person=p.binding.playerId===actor.binding.playerId?actor.person:actor.defenderPersons.find(v=>v.playerId===p.binding.playerId);
+    const person=originals.find(v=>v.binding.playerId===p.binding.playerId)?.person;
     if(json(state)!==json(p.state)||!person||hash(person)!==p.personHash)throw new Error('historical same-PA enrollment reserved state or Person differs');
   }
   return freeze(enrollment);

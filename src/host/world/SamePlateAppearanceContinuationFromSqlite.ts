@@ -1,3 +1,4 @@
+import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
 import { readSamePaSuccessorWorkClaimRows } from './SamePlateAppearanceContinuationClaimGuard';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { battingAssessmentOwners } from './BattingAssessmentOwnership';
@@ -149,8 +150,9 @@ const assemble = <T>(db: DatabaseSync, current: boolean, body: (read: (kind: Sam
         assertSamePaRegistrationBeforeWork(db, { gameId: actor.source.gameId, playId: actor.match.playId,
           physicalPitchSourceId: p.source.sourceId, actorSourceId: actor.source.sourceId,
           ...('initialWorldSourceId' in actor.source ? { initialWorldSourceId: actor.source.initialWorldSourceId } : { activationApplicationId: actor.source.activationApplicationId }) });
+        const bindings = readSamePaOriginalParticipants(db, actor).map(p => p.binding);
         for (const participant of view.participants) {
-          const b = [actor.binding, ...actor.defenderBindings].find(b => b.playerId === participant.playerId)!;
+          const b = bindings.find(b => b.playerId === participant.playerId)!;
           same(readActualRoleWorkloadState(db, b.careerId, b.playerId, undefined, b.personLinkSourceId), participant.reservedState);
         }
       }
@@ -184,7 +186,7 @@ const assemble = <T>(db: DatabaseSync, current: boolean, body: (read: (kind: Sam
         const priorView = readHistoricalSamePaContinuationViewFromSqlite(db, opSource.viewReference).view;
         if (!Number.isSafeInteger(operation.evaluationTick) || operation.evaluationTick < evaluationTick || operation.evaluationTick < priorView.evaluationTick) throw new Error('same-PA invocation evaluation time backdates its owned cut');
         evaluationTick = operation.evaluationTick;
-        const reservedMember = deriveSamePaDispatchRoles(actor, view).find(role => role.member.playerId === operation.member.playerId)?.member;
+        const reservedMember = deriveSamePaDispatchRoles(actor, view, readSamePaOriginalParticipants(db, actor)).find(role => role.member.playerId === operation.member.playerId)?.member;
         if (!reservedMember) throw new Error('same-PA invocation original participant missing');
         same(operation.member, { ...reservedMember, projectedStateHash: priorView.participants.find(p => p.playerId === operation.member.playerId)!.projectedStateHash });
       }
@@ -205,7 +207,7 @@ const assemble = <T>(db: DatabaseSync, current: boolean, body: (read: (kind: Sam
       const prefix = linked('prefix', view.source.prefixReference) as SamePaNonemptyPrefix;
       const original = pitch(prefix.source.pitchReference), actor = original.pitch.originalActor;
       const old = originalEmptyView(db, prefix.source.originalViewReference).view;
-      const members = deriveSamePaDispatchRoles(actor, old).map(role => ({ ...role.member,
+      const members = deriveSamePaDispatchRoles(actor, old, readSamePaOriginalParticipants(db, actor)).map(role => ({ ...role.member,
         projectedStateHash: view.participants.find(p => p.playerId === role.member.playerId)!.projectedStateHash }));
       assessmentOwnership(source);
       return deriveSamePaContinuationCalibration(db, source, { actor, view, members }, current);
@@ -227,8 +229,9 @@ const assemble = <T>(db: DatabaseSync, current: boolean, body: (read: (kind: Sam
     }
     const original = pitch(prefix.source.pitchReference), actor = original.pitch.originalActor;
     const originalView = originalEmptyView(db, prefix.source.originalViewReference).view;
+    same(source.participantTotalReferences.map(p => p.playerId).sort(), originalView.participants.map(p => p.playerId).sort());
     const participants = originalView.participants.map(p => {
-      const r = source.participantTotalReferences.find(r => r.playerId === p.playerId); if (!r) throw new Error('same-PA continuation all-ten TOTAL coverage missing');
+      const r = source.participantTotalReferences.find(r => r.playerId === p.playerId); if (!r) throw new Error('same-PA continuation complete original TOTAL coverage missing');
       const total = linked('total', r.assessmentReference) as SamePaContinuationTotal;
       same(total.source.prefixReference, source.prefixReference); same(total.source.enrollmentReference, source.enrollmentReference);
       same(total.source.participantReference, prefix.lineage.participantReferences.find(r => r.playerId === p.playerId)); same(total.coverageHash, prefix.coverageHash);
@@ -240,7 +243,7 @@ const assemble = <T>(db: DatabaseSync, current: boolean, body: (read: (kind: Sam
       return { playerId: p.playerId, totalReference: r.assessmentReference, reservedState: p.reservedState, activity,
         projectedState, projectedStateHash: hash(projectedState) };
     });
-    if (participants.length !== 10 || actor.binding.gameDay !== participants[0].activity.atDay) throw new Error('same-PA continuation original day/ten coverage differs');
+    if (participants.length !== prefix.lineage.participantReferences.length || actor.binding.gameDay !== participants[0].activity.atDay) throw new Error('same-PA continuation original day/participant coverage differs');
     return freeze({ kind: 'nonempty_basis_prepared', source, lineage: prefix.lineage, coverageHash: prefix.coverageHash,
       assessmentSetHash: hash([...source.participantTotalReferences].sort((a, b) => a.playerId < b.playerId ? -1 : a.playerId > b.playerId ? 1 : 0)), evaluationTick: prefix.evaluationTick, physicalCut: prefix.endpoint, participants });
   };
@@ -272,7 +275,7 @@ const readView = (db: DatabaseSync, raw: SamePaReference<'pa_continuation_v1_exe
     const prefix = read('prefix', view.source.prefixReference.sourceId) as SamePaNonemptyPrefix;
     const original = readSamePaContinuationOriginalPitchFromSqlite(db, prefix.source.pitchReference), actor = original.pitch.originalActor;
     const old = originalEmptyView(db, prefix.source.originalViewReference).view;
-    const members: readonly SamePaDispatchMember[] = deriveSamePaDispatchRoles(actor, old).map(role => ({ ...role.member,
+    const members: readonly SamePaDispatchMember[] = deriveSamePaDispatchRoles(actor, old, readSamePaOriginalParticipants(db, actor)).map(role => ({ ...role.member,
       projectedStateHash: view.participants.find(p => p.playerId === role.member.playerId)!.projectedStateHash }));
     return freeze({ actor, view, members });
   });

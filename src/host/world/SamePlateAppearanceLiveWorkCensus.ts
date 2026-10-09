@@ -1,3 +1,4 @@
+import { deriveSamePaOccupiedRunnerCatchCensus } from './SamePlateAppearanceOccupiedRunnerCatchCensus';
 import { deriveSamePaBatterCatchCensus } from './SamePlateAppearanceBatterCatchCensus';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { quantizeEventTick } from '../../core/sim/ExactEventTime';
@@ -88,7 +89,7 @@ export const deriveSamePaLiveWorkCensus = (raw: SamePaLiveWorkCensusInput) => {
     }
     const r = result(field), source = field.kind === 'same_pa_physical_field_step_v1' ? field.source.action : undefined;
     if (source && source.kind !== r?.kind) throw new Error('same-PA live-work original action result missing or different');
-    if (r?.kind === 'defender_observation_v1' || r?.kind === 'defender_decision_v1' || r?.kind === 'defender_catch_response_v1' || r?.kind === 'batter_catch_response_v1') {
+    if (r?.kind === 'defender_observation_v1' || r?.kind === 'defender_decision_v1' || r?.kind === 'defender_catch_response_v1' || r?.kind === 'batter_catch_response_v1' || r?.kind === 'occupied_runner_catch_response_v1') {
       if (!previous || !source || !('member' in source) || source.kind !== r.kind || source.member.playerId !== r.playerId || !input.participantIds.includes(r.playerId))
         throw new Error('same-PA live-work sensory action identity differs');
       same(field.field, previous.field, 'sensory action changed physical state');
@@ -226,7 +227,10 @@ export const deriveSamePaLiveWorkCensus = (raw: SamePaLiveWorkCensusInput) => {
   return freeze({ kind: 'same_pa_live_work_census_v1' as const,
     originalFieldPrefix: { kind: 'original_field_prefix_only' as const, physicalPitchSourceId: root.physicalPitchSourceId,
       participantIds: input.participantIds, fieldReferences, rootReference: fieldReferences[0], endpointReference: fieldReferences.at(-1)!, at },
-    observationRefresh, defenderDecisions, catchResponses, batterCatchResponses: deriveSamePaBatterCatchCensus(input.fields), participantCurves, pendingPhysical: { captures, throw: throwing },
+    observationRefresh, defenderDecisions, catchResponses, batterCatchResponses: deriveSamePaBatterCatchCensus(input.fields),
+    ...(root.source.liveProducerProfile === 'same_pa_stationary_occupied_catch_v1'
+      || input.fields.some(f => f.kind === 'same_pa_physical_field_step_v1' && f.actionResult?.kind === 'occupied_runner_catch_response_v1')
+      ? { occupiedRunnerCatchResponses: deriveSamePaOccupiedRunnerCatchCensus(input.fields) } : {}), participantCurves, pendingPhysical: { captures, throw: throwing },
     unownedDomains: ['calls', 'receptions', 'producer_completeness', 'live_play_end'] as const });
 };
 export type SamePaLiveWorkCensus = ReturnType<typeof deriveSamePaLiveWorkCensus>;

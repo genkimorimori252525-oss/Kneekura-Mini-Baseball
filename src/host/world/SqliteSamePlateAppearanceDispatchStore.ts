@@ -7,6 +7,8 @@ import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldEx
 import { paDispatchSchema, assertPaDispatchStorage } from './SamePlateAppearanceDispatchStorage';
 import { samePaDispatchSourceInput, assertSamePaDispatchSourceBasis, type SamePaDispatchBase, type AcceptedSamePaFirstPitchAction, type AcceptedSamePaExecutionCalibration, type AcceptedSamePaPhysicalPitch } from './SamePlateAppearanceDispatchSource';
 import { deriveSamePaDispatchRoles, samePaDispatchPrerequisites, type SamePaDispatchRoleBinding, type SamePaDispatchRoute } from './SamePlateAppearanceDispatchRoles';
+import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
+import { readSamePaOccupiedRunnerHolds } from './SqliteSamePlateAppearanceOccupiedRunnerHoldStore';
 import { dispatchRow, dispatchTables, dispatchCapabilities, type DispatchKind, type SamePaDispatchRecord, type SamePaPreparedAction,
   type SamePaPreparedCalibration, type SamePaDispatchPending, type SamePaCalibrationSet, type SamePaPreparedConsumers,
   type SamePaPreparedEpisode, type SamePaPreparedRight } from './SamePlateAppearanceDispatchRecords';
@@ -121,8 +123,9 @@ const createSqliteSamePlateAppearanceDispatchOwner = (path: string, authority?: 
     assertSamePaRegistrationBeforeWork(db, { gameId: actor.source.gameId, playId: actor.match.playId,
       physicalPitchSourceId: view.lineage.firstPhysicalPitchSourceId, actorSourceId: actor.source.sourceId,
       ...('initialWorldSourceId' in actor.source ? { initialWorldSourceId: actor.source.initialWorldSourceId } : { activationApplicationId: actor.source.activationApplicationId }) });
+    const bindings = readSamePaOriginalParticipants(db, actor).map(p => p.binding);
     for (const participant of view.participants) {
-      const binding = [actor.binding, ...actor.defenderBindings].find(b => b.playerId === participant.playerId)!;
+      const binding = bindings.find(b => b.playerId === participant.playerId)!;
       same(readActualRoleWorkloadState(db, binding.careerId, binding.playerId, undefined, binding.personLinkSourceId), participant.reservedState);
     }
   };
@@ -134,7 +137,8 @@ const createSqliteSamePlateAppearanceDispatchOwner = (path: string, authority?: 
     calculate: (operation: NativeOperation) => unknown) => T): T => {
     if (!db.isTransaction || setting() !== 1) throw new Error('dispatch assembly requires a private read-only snapshot');
     const fresh = mode === 'fresh', current = mode !== 'historical'; let active = true;
-    type Basis = { actor: DurablePhysicalPlateAppearanceActor; view: SamePaExecutionView; sourceBasis: Pick<SamePaDispatchBase, 'enrollmentReference' | 'viewReference' | 'firstPhysicalPitchSourceId'> & { gameDay: number }; roles: readonly SamePaDispatchRoleBinding[] };
+    type Basis = { actor: DurablePhysicalPlateAppearanceActor; view: SamePaExecutionView; sourceBasis: Pick<SamePaDispatchBase, 'enrollmentReference' | 'viewReference' | 'firstPhysicalPitchSourceId'> & { gameDay: number }; roles: readonly SamePaDispatchRoleBinding[];
+      originals: ReturnType<typeof readSamePaOriginalParticipants> | undefined };
     const before = counters(), bases = new Map<string, Basis>(), values = new Map<string, SamePaDispatchRecord>();
     const assertActive = () => { if (!active || !db.isTransaction || setting() !== 1) throw new Error('dispatch assembly expired'); same(counters(), before); };
     const basis = (source: SamePaDispatchBase): Basis => {
@@ -146,7 +150,8 @@ const createSqliteSamePlateAppearanceDispatchOwner = (path: string, authority?: 
       same(reference('physical_plate_appearance_actors', actor), view.lineage.actorReference);
       const sourceBasis = { enrollmentReference: view.lineage.enrollmentReference, viewReference: source.viewReference,
         firstPhysicalPitchSourceId: view.lineage.firstPhysicalPitchSourceId, gameDay: actor.binding.gameDay };
-      assertSamePaDispatchSourceBasis(source, sourceBasis); const value = { actor, view, sourceBasis, roles: deriveSamePaDispatchRoles(actor, view) };
+      const originals = actor.world.runners.length ? readSamePaOriginalParticipants(db, actor) : undefined;
+      assertSamePaDispatchSourceBasis(source, sourceBasis); const value = { actor, view, sourceBasis, originals, roles: deriveSamePaDispatchRoles(actor, view, originals) };
       if (fresh) assertFreshPaDispatchEnrollment(db, source.enrollmentReference.sourceId);
       if (mode === 'owned_append') assertCurrentReservedBasis(actor, view);
       bases.set(key, value); return value;
@@ -296,6 +301,8 @@ const createSqliteSamePlateAppearanceDispatchOwner = (path: string, authority?: 
       assertActive(); canonical(kind, source); const b = basis(source), lineage = b.view.lineage, roles = b.roles;
       if (source.capability === 'same_pa_first_pitch_action_v1') {
         const input = authenticateActionInputs(source);
+        readSamePaOccupiedRunnerHolds(db, b.actor, source.enrollmentReference, source.occupiedRunnerHoldReferences,
+          b.actor.world.tick, source.nominalPitch.delivery.readyAtUs);
         return freeze({ kind: 'action_prepared', source, lineage, roles, timingProfileHash: hash(input.timingProfile), releaseGeometryHash: hash(input.geometry),
           bodyMaterializationHash: hash(input.model.bodyMaterialization), equipmentHash: hash(input.model.equipment) });
       }
@@ -306,7 +313,7 @@ const createSqliteSamePlateAppearanceDispatchOwner = (path: string, authority?: 
       const missing: string[] = [], prerequisites: SamePaDispatchPending['prerequisites'][number][] = [];
       if (!linked('action', source.actionReference, source)) missing.push(source.actionReference.sourceId);
       if (source.capability === 'same_pa_consumer_set_v1') {
-        prerequisites.push(...samePaDispatchPrerequisites(b.actor, b.view, source.participantInputs));
+        prerequisites.push(...samePaDispatchPrerequisites(b.actor, b.view, source.participantInputs, b.originals));
         for (const input of source.participantInputs) for (const ref of input.calibrationReferences) {
           const value = linked('calibration', ref.calibrationReference, source) as SamePaPreparedCalibration | null;
           if (!value) { missing.push(ref.calibrationReference.sourceId); prerequisites.push({ playerId: input.member.playerId, route: ref.route, reason: 'missing_accepted_calibration' }); }
@@ -316,7 +323,7 @@ const createSqliteSamePlateAppearanceDispatchOwner = (path: string, authority?: 
         return freeze({ kind: 'consumer_set_prepared', source, lineage, roles });
       }
       if (!linked('consumer', source.consumerSetReference, source)) missing.push(source.consumerSetReference.sourceId);
-      prerequisites.push(...samePaDispatchPrerequisites(b.actor, b.view, roles.map(role => ({ member: role.member, calibrationReferences: [] }))).filter(p => p.reason === 'unsupported_core_adapter'));
+      prerequisites.push(...samePaDispatchPrerequisites(b.actor, b.view, roles.map(role => ({ member: role.member, calibrationReferences: [] })), b.originals).filter(p => p.reason === 'unsupported_core_adapter'));
       if (source.capability === 'same_pa_first_pitch_right_v1') {
         same(source.prefixReference, b.view.source.prefixReference);
         if (!linked('episode', source.episodeReference, source)) missing.push(source.episodeReference.sourceId);
@@ -363,6 +370,8 @@ const createSqliteSamePlateAppearanceDispatchOwner = (path: string, authority?: 
         const trajectory = createPitchTrajectoryFromRelease(delivery.release, nominal.flight.acceleration, delivery.release.releaseAtUs + nominal.flight.durationUs);
         const resolution = resolveAndRecordPitchAgainstBatter(timeline, { ...nominal.batter, trajectory });
         if (resolution.kind !== 'recorded') throw new Error('Native same-PA TAKE calculation is unresolved');
+        readSamePaOccupiedRunnerHolds(db, actor, source.enrollmentReference, source.occupiedRunnerHoldReferences,
+          actor.world.tick, Math.max(resolution.timeline.lastEventTick, delivery.timeline.followThroughEndUs));
         assertActive();
         return freeze({ kind: 'native_calculation_only' as const, route: operation.route, operation,
           frame: { kind: 'reserved_same_pa_pitch_frame_v1' as const, actorReference: input.basis.view.lineage.actorReference,

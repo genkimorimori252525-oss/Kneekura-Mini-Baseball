@@ -1,5 +1,6 @@
 import { deriveBallWorldBattedRuleChronology } from '../rules/BallWorldBattedRuleChronology';
-import { projectActualFairFieldTimeline, type ActualFairFieldTimelineInput } from '../sim/plateAppearance/ActualFairFieldTimeline';
+import { projectActualFairFieldTimeline } from '../sim/plateAppearance/ActualFairFieldTimeline';
+import { validateActualFairCatchStationaryRunners, type ActualFairCatchScoringInput } from './ActualFairCatchScoring';
 import type { CanonicalMatchState } from '../model/CanonicalMatchState';
 import type { RuleProfileId } from '../model/RuleProfileRef';
 import type { CanonicalPlateAppearanceTimeline } from '../sim/plateAppearance/CanonicalPlateAppearanceTimeline';
@@ -43,7 +44,7 @@ export type OfficialScoringInput = Readonly<{
   | Readonly<{ kind: 'live_ball';
       scoringEvidence?: OfficialFairBallScoringEvidence;
       /** Native must authenticate the complete physical sidecar and independently owned end. */
-      fairCatchEvidence?: ActualFairFieldTimelineInput;
+      fairCatchEvidence?: ActualFairCatchScoringInput;
       /** Original fair-ground first-base race and independently owned end. */
       groundOutEvidence?: ActualGroundOutScoringInput }>
 );
@@ -179,9 +180,14 @@ export const classifyClosedPlayForOfficialScoring = (
     }
     if (request.fairCatchEvidence !== undefined) {
       const physical = request.fairCatchEvidence;
+      const keys = ['originalTimeline', 'field', 'playEnd', ...('occupiedRunners' in physical ? ['occupiedRunners'] : [])];
+      if (Object.keys(physical).sort().join('|') !== keys.sort().join('|')) throw new Error('invalid fair catch scoring sidecar');
       const caught = deriveBallWorldBattedRuleChronology(physical.field.evidence).ballEvidence;
-      const projection = projectActualFairFieldTimeline(physical);
+      const projection = projectActualFairFieldTimeline({ originalTimeline: physical.originalTimeline, field: physical.field, playEnd: physical.playEnd });
       const batter = physical.field.evidence.batterRunnerId;
+      validateActualFairCatchStationaryRunners({ originalMatch: request.match, batterRunnerId: batter,
+        originTick: physical.field.evidence.originTick, ticksPerSecond: physical.field.evidence.ticksPerSecond,
+        endElapsedSeconds: physical.field.evidence.horizon.elapsedSeconds, occupiedRunners: physical.occupiedRunners });
       if (request.scoringEvidence !== undefined
         || caught.kind !== 'fly_catch'
         || projection.kind !== 'projected'
@@ -189,11 +195,10 @@ export const classifyClosedPlayForOfficialScoring = (
         || canonicalJson(physical.playEnd) !== canonicalJson(closure.playEnd)
         || physical.originalTimeline.playId !== request.match.playId
         || !nonEmpty(batter) || caught.correctRuleResult.batterRunnerId !== batter
-        || Object.values(request.match.bases).some((runnerId) => runnerId !== null)
-        || Object.values(closure.officialDelta.basesAfter).some((runnerId) => runnerId !== null)
+        || canonicalJson(closure.officialDelta.basesAfter) !== canonicalJson(request.match.bases)
         || closure.officialDelta.scoredRunnerIds.length !== 0
         || closure.officialDelta.outsAfter !== request.match.outs + 1) {
-        throw new Error('fair catch scoring requires its exact physical projection and closed empty-base batter retirement');
+        throw new Error('fair catch scoring requires its exact physical projection and closed original-base batter retirement');
       }
       const battingTeam = request.match.half === 'top' ? 'away' : 'home';
       return Object.freeze({ kind: 'supported', record: Object.freeze({

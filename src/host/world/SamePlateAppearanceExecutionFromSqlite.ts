@@ -74,6 +74,7 @@ const prove=(db:DatabaseSync,request:SingleRequest|SetRequest):SamePaExecutionRe
     }
     const source=samePaViewInput(raw),prefix=referenced('prefix',source.prefixReference) as SamePaEmptyWorkPrefix;
     same(prefix.lineage.enrollmentReference,source.enrollmentReference);const l=lineage(source.enrollmentReference),{enrollment:e}=basis(source.enrollmentReference);
+    same(source.participantTotalReferences.map(p=>p.playerId).sort(),e.participants.map(p=>p.binding.playerId).sort());
     const participants=e.participants.map(p=>{
       const ref=source.participantTotalReferences.find(r=>r.playerId===p.binding.playerId);if(!ref)throw new Error('same-PA view participant TOTAL missing');
       const total=referenced('total',ref.assessmentReference) as SamePaCumulativeTotal;
@@ -104,6 +105,7 @@ const prove=(db:DatabaseSync,request:SingleRequest|SetRequest):SamePaExecutionRe
         same(total.source.participantReference.playerId,ref.playerId);return total.source;
       }));
       const first=sources[0],l=lineage(first.enrollmentReference);
+      if(sources.length!==l.participantReferences.length)throw new Error('same-PA TOTAL set original participant coverage incomplete');
       same(sources.map(s=>s.participantReference.playerId),l.participantReferences.map(p=>p.playerId).sort());
       const presentSourceIds:string[]=[],totals:SamePaCumulativeTotal[]=[];
       for(const source of sources){
@@ -115,7 +117,7 @@ const prove=(db:DatabaseSync,request:SingleRequest|SetRequest):SamePaExecutionRe
         if(stored){same(stored,total);presentSourceIds.push(source.sourceId);}totals.push(total);
       }
       if(request.expectedPresent!==undefined)same(presentSourceIds,[...request.expectedPresent].sort((a,b)=>sources.findIndex(s=>s.sourceId===a)-sources.findIndex(s=>s.sourceId===b)));
-      else if(presentSourceIds.length!==0&&presentSourceIds.length!==10)throw new Error('same-PA TOTAL set has mixed existing rows; partial set cannot be repaired');
+      else if(presentSourceIds.length!==0&&presentSourceIds.length!==l.participantReferences.length)throw new Error('same-PA TOTAL set has mixed existing rows; partial set cannot be repaired');
       const participantTotalReferences=totals.map(total=>({playerId:total.source.participantReference.playerId,assessmentReference:samePaExecutionReference('reserved_pa_total_assessments',total)}));
       if(refs)same(participantTotalReferences,refs);
       check();return freeze({value:{kind:'total_set',totals,participantTotalReferences},presentSourceIds});

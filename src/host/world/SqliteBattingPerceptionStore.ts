@@ -3,6 +3,8 @@ import { isInFlightBattingPerceptionSource } from './NativeInFlightBattingPercep
 import { deriveInFlightBattingPerception } from './InFlightBattingPerceptionFromSqlite';
 import type { LegacyBattingPerceptionSource } from './NativeBattingPerception';
 import { createRequire } from 'node:module';
+import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
+import { readSamePaOccupiedRunnerHolds } from './SqliteSamePlateAppearanceOccupiedRunnerHoldStore';
 import type { DatabaseSync } from 'node:sqlite';
 import { SeedRoot } from '../../core/rng/SeedRoot';
 import { calculateBattingObservation } from '../../core/world/psychology/batting/BattingObservationCalculation';
@@ -147,7 +149,7 @@ const assembly = (db: DatabaseSync, fresh: boolean) => {
     }
     const view = readHistoricalSamePaExecutionView(db, source.viewReference).view, actor = readPhysicalPlateAppearanceActorFromSqlite(db, view.lineage.actorReference.sourceId);
     if (!actor) return fail('original actor missing');
-    const member = deriveSamePaDispatchRoles(actor, view)[0].member; same(source.member, member); return { view, actor, member, current };
+    const member = deriveSamePaDispatchRoles(actor, view, actor.world.runners.length ? readSamePaOriginalParticipants(db, actor) : undefined)[0].member; same(source.member, member); return { view, actor, member, current };
   }
   const basis = (s: LegacyBattingPerceptionSource, current = false) => { const key = json(s.viewReference), known = bases.get(key); if (known && (!current || known.current)) { same(known.member, s.member); return known; }
     const value = original(s, current); bases.set(key, value); return value; };
@@ -173,13 +175,17 @@ const assembly = (db: DatabaseSync, fresh: boolean) => {
         || nominal.observationCalibration.values.calibration.memoryDecayParameters.ticksPerSecond !== g.ticksPerSecond
         || nominal.predictionCalibration.values.parameters.ticksPerSecond !== g.ticksPerSecond) return fail('posture original clock or geometry differs');
       same(g.strikeZone, action.source.nominalPitch.batter.strikeZone);
-      if (b.actor.world.runners.length || b.actor.world.defenders.some(d => d.velocity.x !== 0 || d.velocity.z !== 0)) return pending('owned_moving_body_cut_required');
-      const expected = b.actor.defenderBindings.map(d => d.playerId).sort(); same(source.sceneBodyReferences.map(r => r.playerId).sort(), expected);
+      if ([...b.actor.world.runners, ...b.actor.world.defenders].some(d => d.velocity.x !== 0 || d.velocity.z !== 0)) return pending('owned_moving_body_cut_required');
+      const originals = readSamePaOriginalParticipants(db, b.actor), holds = readSamePaOccupiedRunnerHolds(db, b.actor,
+        lineage.enrollmentReference, source.occupiedRunnerHoldReferences, g.startedAtTick, g.validUntilTick);
+      if (action.kind === 'action_prepared') same(source.occupiedRunnerHoldReferences, action.source.occupiedRunnerHoldReferences);
+      const expected = originals.filter(p => p.role !== 'batter').map(p => p.binding.playerId).sort(); same(source.sceneBodyReferences.map(r => r.playerId).sort(), expected);
       const bodies = playerBodyCapabilityMaterializationEvidenceFromSqlite(db), sceneBodies = source.sceneBodyReferences.map(pin => {
         const body = bodies.read(pin.bodyReference.sourceId); if (!body) return null; same(reference(pin.bodyReference.owner, body), pin.bodyReference);
-        const person = b.actor.defenderPersons.find(p => p.playerId === pin.playerId); same(body.person, person);
+        const participant = originals.find(p => p.binding.playerId === pin.playerId)!; same(body.person, participant.person);
+        if (participant.role === 'runner') same(pin.bodyReference, holds.find(h => h.source.playerId === pin.playerId)!.source.bodyReference);
         if (body.source.playerId !== pin.playerId || body.source.careerId !== b.actor.binding.careerId || body.source.atDay > b.actor.binding.gameDay
-          || !['defender', 'pitcher'].includes(body.source.role)) return fail('scene body original scope differs'); return body;
+          || !(participant.role === 'runner' ? body.source.role === 'runner' : ['defender', 'pitcher'].includes(body.source.role))) return fail('scene body original scope differs'); return body;
       });
       if (sceneBodies.some(v => v === null)) return pending('original_scene_body_missing', source.sceneBodyReferences.filter((_, i) => sceneBodies[i] === null).map(r => r.bodyReference.sourceId));
       if (current && source.capability === 'owned_batting_invocation_posture_v1') {
@@ -218,7 +224,8 @@ const assembly = (db: DatabaseSync, fresh: boolean) => {
       // Use the exact owned continuous crossing sample. Sampling the trajectory
       // at its rounded tick could inspect an instant after the executed cut.
       const sample = b.view.physicalCut.crossing, occluders = posture.sceneBodies.flatMap(body => {
-        const player = b.actor.world.defenders.find(d => d.playerId === body.source.playerId)!;
+        const player = [...b.actor.world.defenders, ...b.actor.world.runners].find(d => d.playerId === body.source.playerId);
+        if (!player) return fail('original scene body participant missing');
         return body.actor.primitives.map(p => ({ center: { x: player.position.x + p.offset.x, y: body.actor.bodyOriginHeightMeters + p.offset.y, z: player.position.z + p.offset.z }, radiusMeters: p.radius }));
       });
       const seed = new SeedRoot(action.source.nominalPitch.delivery.matchSeed).streamSeed(b.actor.match.playId, 'perception', json(['owned_batting_observation_v1', posture.source.sourceId, pitch.source.sourceId, source.observedTick]));

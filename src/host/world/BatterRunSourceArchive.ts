@@ -7,7 +7,7 @@ import { battingInvocationTransaction } from './BattingInvocationTransaction';
 import { sqliteJsonMetadataNodes, type SqliteJsonMetadataPath } from './SqliteOwnershipMetadata';
 import { samePaText as id } from './SamePlateAppearanceWorkPrefix';
 
-type Table = 'world_player_batter_run_transition_models' | 'world_batter_swing_exit_states' | 'world_batter_run_plans';
+type Table = 'world_player_batter_run_transition_models' | 'world_batter_swing_exit_states' | 'world_batter_run_plans' | 'world_same_pa_occupied_runner_holds';
 type Source = Readonly<{ sourceId: string }>;
 type Row = { source_id: string; ownership_key: string; source_json: string; source_hash: string; snapshot_json: string; snapshot_hash: string };
 export type BatterRunArchiveOwner<S extends Source,V extends Readonly<{source:S}>> = Readonly<{
@@ -30,6 +30,27 @@ export const assertBatterRunArchiveStorage=(db:Pick<DatabaseSync,'prepare'>,tabl
   return true;
 };
 const assertNoMissingOriginalClaim=(db:Pick<DatabaseSync,'prepare'>,table:Table,sourceId?:string)=>{
+  if(table==='world_same_pa_occupied_runner_holds'){
+    const typed=(document:string,path:SqliteJsonMetadataPath)=>`EXISTS(SELECT 1 FROM (${sqliteJsonMetadataNodes(document,path)}) reference,
+      json_each(CASE WHEN reference.type='object' THEN reference.value ELSE '{}' END) owner,
+      json_each(CASE WHEN reference.type='object' THEN reference.value ELSE '{}' END) identity
+      WHERE owner.key='owner' AND owner.type='text' AND owner.atom='world_same_pa_occupied_runner_holds'
+      AND identity.key='sourceId' AND identity.type='text'${sourceId===undefined?'':' AND identity.atom=?'})`;
+    for(const dependent of ['batting_observation_v1_postures','pa_dispatch_v1_action_plans'])if(installed(db,dependent)&&db.prepare(`SELECT 1 FROM main.${dependent} WHERE
+      ${typed('source_json',['occupiedRunnerHoldReferences',{array:'all'}])} OR
+      ${typed('snapshot_json',['source','occupiedRunnerHoldReferences',{array:'all'}])} LIMIT 1`)
+      .get(...(sourceId===undefined?[]:[sourceId,sourceId])))throw new Error('occupied runner missing original has a surviving typed posture claim');
+    if(installed(db,'pa_physical_v1_field_steps')&&db.prepare(`SELECT 1 FROM main.pa_physical_v1_field_steps WHERE
+      ${typed('source_json',['action','holdReference'])} OR ${typed('snapshot_json',['source','action','holdReference'])}
+      OR ${typed('snapshot_json',['actionResult','holdReference'])} LIMIT 1`)
+      .get(...(sourceId===undefined?[]:[sourceId,sourceId,sourceId])))throw new Error('occupied runner missing original has a surviving typed response claim');
+    for(const [dependent,path] of [
+      ['pa_lifecycle_v1_outcomes',['controllerRetirementBasis','participants',{array:'all'},'ownedCommands',{array:'all'},'sourceReference']],
+      ['pa_lifecycle_v1_resets',['retirement','basis','participants',{array:'all'},'ownedCommands',{array:'all'},'sourceReference']],
+    ] as const)if(installed(db,dependent)&&db.prepare(`SELECT 1 FROM main.${dependent} WHERE ${typed('snapshot_json',path)} LIMIT 1`)
+      .get(...(sourceId===undefined?[]:[sourceId])))throw new Error('occupied runner missing original has a surviving typed retirement claim');
+    return;
+  }
   const dependent=table==='world_player_batter_run_transition_models'?{table:'world_batter_swing_exit_states',path:['transitionModelReference','sourceId']}
     :table==='world_batter_swing_exit_states'?{table:'world_batter_run_plans',path:['exitStateReference','sourceId']}
     :{table:'pa_physical_v1_field_steps',path:['action','planReference','sourceId']};
@@ -49,7 +70,7 @@ const assertNoMissingOriginalClaim=(db:Pick<DatabaseSync,'prepare'>,table:Table,
       .get(...(sourceId===undefined?[]:[sourceId,sourceId])))throw new Error('batter-run missing original has a surviving typed lifecycle claim');
   }
 };
-/** Mechanism for these three immutable input owners only. No execution or physical head. */
+/** Mechanism for immutable running input owners only. No execution or physical head. */
 export const batterRunArchiveFromSqlite = <S extends Source,V extends Readonly<{source:S}>>(db:DatabaseSync,table:Table,own:BatterRunArchiveOwner<S,V>) => {
   const rowsFor = (sourceId:string):Row[] => {
     assertBodyCompositionNativeConnection(db);

@@ -1,3 +1,4 @@
+import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
 import type { DatabaseSync } from 'node:sqlite';
 import { createLivePlayRegistry, resolveLivePlayRegistry, type LivePlaySource } from '../../core/sim/liveAction/LivePlayRegistry';
 import { deriveQuantizerClosedGenerationBoundary } from '../../core/sim/liveAction/QuantizerClosedGenerationBoundary';
@@ -25,7 +26,12 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
   if (live.kind !== 'same_pa_live_work_read_v1' || pair.kind !== 'same_pa_field_rule_read_pair_v1') return pending('owned_active_field_cut_required');
   const { value, fields, actor, view } = pair, census = live.census, root = fields[0], last = fields.at(-1)!;
   if (root.kind !== 'same_pa_physical_field_root_v1') throw new Error('fair catch end original root missing');
-  if (root.source.liveProducerProfile !== 'same_pa_empty_base_catch_v1') return pending('original_live_producer_profile_required');
+  const occupied = actor.world.runners.length > 0;
+  if (root.source.liveProducerProfile !== (occupied ? 'same_pa_stationary_occupied_catch_v1' : 'same_pa_empty_base_catch_v1'))
+    return pending('original_live_producer_profile_required');
+  const occupiedRunners = value.occupiedRunners;
+  if (occupied && occupiedRunners?.kind !== 'same_pa_stationary_occupied_runners_v1')
+    return pending('occupied_runner_original_base_contact_history_required');
   const work = readSamePaCatchWorkFromSqlite(db, catchWorkReference), communication = live.communication;
   if (communication.kind !== 'owned_same_pa_catch_communication_v1') return pending('owned_catch_communication_required');
   if (json(communication.latestReference) !== json(catchWorkReference) || json(work.physicalOperationReference) !== json(view.cut.physicalOperationReference)
@@ -50,7 +56,8 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
     return pending('live_contact_or_possession_consumer_required');
   const seal = [...fields].reverse().find(f => f.kind === 'same_pa_physical_field_step_v1'
     && f.actionResult?.kind !== 'defender_observation_v1' && f.actionResult?.kind !== 'defender_decision_v1'
-    && f.actionResult?.kind !== 'defender_catch_response_v1' && f.actionResult?.kind !== 'batter_catch_response_v1');
+    && f.actionResult?.kind !== 'defender_catch_response_v1' && f.actionResult?.kind !== 'batter_catch_response_v1'
+    && f.actionResult?.kind !== 'occupied_runner_catch_response_v1');
   const boundary = deriveQuantizerClosedGenerationBoundary({ originTick: at.originTick, throughTick: at.tick, ticksPerSecond: p.ticksPerSecond });
   if (seal?.kind !== 'same_pa_physical_field_step_v1' || seal.source.action?.kind !== 'retained_quantizer_checkpoint_v1'
     || seal.actionResult?.kind !== 'retained_quantizer_checkpoint_v1' || seal.actionResult.status !== 'checkpoint_reached'
@@ -63,6 +70,8 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
     return pending('received_controller_work_required');
   if ([...census.batterCatchResponses.pending, ...census.batterCatchResponses.adopted].some(r => r.work.some(w => w.due === 'due')))
     return pending('due_received_batter_controller_work_required');
+  if ([...(census.occupiedRunnerCatchResponses?.pending ?? []), ...(census.occupiedRunnerCatchResponses?.adopted ?? [])].some(r => r.work.some(w => w.due === 'due')))
+    return pending('due_received_occupied_runner_controller_work_required');
   if (census.runnerPlans.some(w => w.due === 'due' && w.status !== 'executed_through_planned_end' && w.status !== 'superseded_by_received_response')) return pending('due_original_runner_motion_required');
   // Every actual latest observation needs its own ordinary decision or a
   // response that consumed this exact observation. Merely reading it is not a
@@ -76,17 +85,18 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
       && ![...census.catchResponses.pending, ...census.catchResponses.adopted].some(w => w.response.playerId === playerId
         && json(w.response.observationReference) === json(ref))) return pending('observed_actor_controller_consumer_required');
   }
-  const ids = [actor.binding.playerId, ...actor.defenderBindings.map(p => p.playerId)];
+  const ids = readSamePaOriginalParticipants(db, actor).map(p => p.binding.playerId), runnerIds = actor.world.runners.map(r => r.playerId);
   if (json(communication.recipients.map(r => r.playerId).sort()) !== json([...ids].sort())) throw new Error('fair catch end original recipient membership differs');
   if (!communication.emitted || communication.recipients.some(r => r.reception.kind === 'pending')) return pending('original_call_information_generation_required');
   for (const r of communication.recipients) {
     if (r.reception.kind === 'received' && r.controllerResponse.kind !== 'adopted')
-      return pending(r.playerId === actor.binding.playerId ? 'received_batter_response_and_adoption_required' : 'due_received_defender_adoption_required');
+      return pending(r.playerId === actor.binding.playerId ? 'received_batter_response_and_adoption_required'
+        : runnerIds.includes(r.playerId) ? 'received_occupied_runner_response_and_adoption_required' : 'due_received_defender_adoption_required');
     if (r.reception.kind === 'scheduled' && r.reception.reception.receivedAtElapsedSeconds <= at.elapsedSeconds)
       return pending('due_received_information_consumer_required');
   }
-  // Empty starting bases remove tag-up participants. This first catch end does
-  // not consume additional runner/base rule events after the established catch.
+  // Every original participant contributes real body/base history. Occupied
+  // runners additionally require uninterrupted original-base history above.
   const bodyBaseHistories = ids.flatMap(playerId => (['home', 'first', 'second', 'third'] as const).map(base => {
     const bag = root.geometry.baseGeometry.bases[base], history = deriveBallWorldPlayerBaseContactHistory({
       segments: value.evidence.physical.segments, playerId, base: bag.region, baseSurfaceHeightMeters: bag.surfaceHeightMeters });
@@ -107,7 +117,7 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
   for (const playerId of ids) {
     const curves = census.participantCurves.find(c => c.playerId === playerId)!;
     producer('body_motion', playerId, [curves.coverageThroughTick], { physical: [{ workId: json(['body', playerId]),
-      kind: playerId === actor.binding.playerId ? 'runner_motion' : 'defender_motion', actorId: playerId,
+      kind: playerId === actor.binding.playerId || runnerIds.includes(playerId) ? 'runner_motion' : 'defender_motion', actorId: playerId,
       throughTick: curves.coverageThroughTick, actionKey: json(curves.roles.map(r => r.curveReference)) }] });
     const refresh = census.observationRefresh.pending.filter(w => w.playerId === playerId);
     producer('observation_scheduling', playerId, refresh.map(w => w.dueTick), { information: refresh.map(w => ({ workId: json(['refresh', playerId, w.causeSourceId]),
@@ -116,8 +126,10 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
     const responses = census.catchResponses.pending.filter(w => w.response.playerId === playerId).flatMap(w => w.work.map(d => d.dueTick));
     const batterResponses = [...census.batterCatchResponses.pending, ...census.batterCatchResponses.adopted]
       .filter(w => w.response.playerId === playerId).flatMap(w => w.work.map(d => d.dueTick));
+    const occupiedResponses = [...(census.occupiedRunnerCatchResponses?.pending ?? []), ...(census.occupiedRunnerCatchResponses?.adopted ?? [])]
+      .filter(w => w.response.playerId === playerId).flatMap(w => w.work.map(d => d.dueTick));
     const plans = census.runnerPlans.filter(w => w.playerId === playerId && w.status === 'pending_motion').map(w => w.plannedThroughTick);
-    producer('controller_renewal', playerId, [...decisions, ...responses, ...batterResponses, ...plans], { decisions: [...decisions, ...responses, ...batterResponses, ...plans].map((dueTick, index) => ({
+    producer('controller_renewal', playerId, [...decisions, ...responses, ...batterResponses, ...occupiedResponses, ...plans], { decisions: [...decisions, ...responses, ...batterResponses, ...occupiedResponses, ...plans].map((dueTick, index) => ({
       workId: json(['controller', playerId, index]), kind: 'actor_decision', actorId: playerId, dueTick })) });
   }
   producer('ball_and_contact_generation', null, []);
@@ -127,10 +139,15 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
   producer('communication_ingress', null, scheduled.map(r => r.dueTick), { information: scheduled.map(r => ({ workId: json(['call', r.playerId]),
     kind: 'in_flight_information', actorId: r.playerId, dueTick: r.dueTick, causeEventId: work.originalInputs.action!.sourceId })) });
   const registry = resolveLivePlayRegistry(createLivePlayRegistry({ playId: view.lineage.playId, revision: 1, sources }),
-    { tick: at.tick, terminal: 'all_offense_terminal', actors: ids.map(actorId => ({ actorId, kind: 'acting' as const })) });
-  if (registry.resolution.kind !== 'ended') throw new Error('fair catch complete Native census failed the existing physical finalizer');
-  const scoringEvidence = { originalTimeline: value.originalTimeline, field: value.evidence.physical.field, playEnd: registry.resolution.playEnd };
-  const projected = projectActualFairFieldTimeline(scoringEvidence);
+    { tick: at.tick, terminal: !occupied || work.operative.onFieldCall.ruling.outsAfter === 3 ? 'all_offense_terminal' : 'none',
+      actors: ids.map(actorId => ({ actorId, kind: 'acting' as const })) });
+  // A hold horizon is still an admitted finite command. For a non-third-out
+  // occupied play, retain all future producers in the ordinary frontier until
+  // their real completion owners exist; never manufacture cancellation here.
+  if (registry.resolution.kind !== 'ended') return pending('occupied_live_producer_completion_required');
+  const scoringEvidence = { originalTimeline: value.originalTimeline, field: value.evidence.physical.field, playEnd: registry.resolution.playEnd,
+    ...(occupiedRunners?.kind === 'same_pa_stationary_occupied_runners_v1' ? { occupiedRunners } : {}) };
+  const projected = projectActualFairFieldTimeline({ originalTimeline: scoringEvidence.originalTimeline, field: scoringEvidence.field, playEnd: scoringEvidence.playEnd });
   if (projected.kind !== 'projected') return pending('physical_catch_timeline_projection:' + projected.reason);
   return freeze({ kind: 'same_pa_fair_catch_physical_end_v1' as const, playEnd: registry.resolution.playEnd, exactEnd: at,
     physicalPitchReference: value.physicalPitchReference, physicalOperationReference: value.physicalOperationReference,
@@ -146,6 +163,6 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
       receivedControllerHandoffs: communication.recipients.flatMap(r => r.controllerResponse.kind === 'adopted'
         ? [{ playerId: r.playerId, responseReference: r.controllerResponse.evidence.responseReference,
           adoptionReference: r.controllerResponse.evidence.consumerReference, sealReference: reference('pa_physical_v1_field_steps', seal) }] : []) },
-    scoringEvidence, timeline: projected.timeline });
+    ...(occupiedRunners?.kind === 'same_pa_stationary_occupied_runners_v1' ? { occupiedRunners } : {}), scoringEvidence, timeline: projected.timeline });
 });
 export type SamePaFairCatchPhysicalEnd = Extract<ReturnType<typeof deriveSamePaFairCatchEndFromSqlite>, { kind: 'same_pa_fair_catch_physical_end_v1' }>;

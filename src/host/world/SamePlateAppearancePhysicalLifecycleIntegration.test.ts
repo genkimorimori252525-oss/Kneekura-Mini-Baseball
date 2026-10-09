@@ -7,6 +7,7 @@ import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support'
 import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { physicalEpisodeTables } from './SamePlateAppearancePhysicalEpisodeStorage';
 import { witnessSqliteWrite } from './SqliteWriteWitness.test-support';
+import { continueSamePaOccupiedWalkFixture } from './SamePlateAppearanceOccupiedContinuation.test-support';
 import { completeSamePaTerminalFixture } from './SamePlateAppearanceTerminalLifecycleFixture.test-support';
 
 /** Real Native original-owner scenario, collected for the one consolidated
@@ -64,5 +65,6 @@ it('PL01 one owned TAKE chain reaches a terminal walk, settles all ten participa
     expect(reopened.acceptOperation('physical-fixture:pitch3:launch').kind).toBe('same_pa_physical_launch_v1');
     expect(reopened.acceptOperation('physical-fixture:pitch6:resolution').kind).toBe('same_pa_physical_resolution_v1');
     expect(json(allRows())).toBe(saved);
+    continueSamePaOccupiedWalkFixture(h,completed,'physical-fixture:occupied-next');
   }finally{h.close();}
 },1_200_000);

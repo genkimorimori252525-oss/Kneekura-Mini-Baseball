@@ -13,23 +13,25 @@ import { samePaExecutionReference as reference } from './SamePlateAppearanceExec
 import type { SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep } from './SamePlateAppearancePhysicalEpisode';
 import { samePaPlayableWallEvidence } from './SamePlateAppearancePlayableWallPolicy';
 type Field = SamePaPhysicalFieldRoot | SamePaPhysicalFieldStep;
-type Input = Readonly<{ fields: readonly Field[]; batterRunnerId: string; defenderIds: readonly string[]; outsAtStart: number }>;
+type Input = Readonly<{ fields: readonly Field[]; batterRunnerId: string; defenderIds: readonly string[]; outsAtStart: number;
+  occupiedRunnerIds?: readonly string[] }>;
 const fieldReference = (f: Field) => reference(f.kind === 'same_pa_physical_field_root_v1' ? 'pa_physical_v1_field_roots' : 'pa_physical_v1_field_steps', f);
 const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw new Error('same-PA field-rule original prefix or custody differs'); };
 
 /** Pure projection of already executed original records. Only the SQLite reader
  * authenticates their ownership. No motor, runner route or physical end is created. */
 export const deriveSamePaFieldRuleEvidence = (raw: Input) => {
-  const input = cloneInert(raw), root = input.fields[0];
+  const input = cloneInert(raw), root = input.fields[0], runnerIds = input.occupiedRunnerIds ?? [];
   if (!root || root.kind !== 'same_pa_physical_field_root_v1' || root.field.motion.carrierPlayerId !== null
-    || !Array.isArray(input.defenderIds) || new Set([input.batterRunnerId, ...input.defenderIds]).size !== input.defenderIds.length + 1)
+    || !Array.isArray(input.defenderIds) || !Array.isArray(runnerIds) || runnerIds.length > 3
+    || new Set([input.batterRunnerId, ...input.defenderIds, ...runnerIds]).size !== input.defenderIds.length + runnerIds.length + 1)
     throw new Error('same-PA field-rule original root or membership missing');
   const initial = root.response.world.flight.initialBall, p = root.response.world.parameters, originTick = initial.tick;
   const contacts: BallWorldBattedRuleContactFrame[] = [], baseContacts: BallWorldFieldTerritoryInput['baseContacts'][number][] = [];
   const acquisitions: BallWorldFieldTerritoryInput['evidence']['acquisitions'][number][] = [];
   const groundSegments: NonNullable<BallWorldFieldTerritoryInput['groundSegments']>[number][] = [];
   const segments: BallWorldPlayerBaseContactSegment[] = [], controlWindows: { playerId: string; startElapsedSeconds: number; endElapsedSeconds: number; endInclusive: boolean }[] = [];
-  const ids = [input.batterRunnerId, ...input.defenderIds], roles = ['body', 'glove', 'tag_hand', 'left_foot', 'right_foot'];
+  const ids = [input.batterRunnerId, ...input.defenderIds, ...runnerIds], roles = ['body', 'glove', 'tag_hand', 'left_foot', 'right_foot'];
   let horizon: BallWorldMoment = { originTick, elapsedSeconds: 0, ball: initial }, previous: Field | null = null;
   let pending: PendingFieldPossession[] = [];
   const appendContacts = (f: Field, constraint?: Readonly<{ incoming: BallWorldMoment; constrained: BallWorldMoment }>) => {

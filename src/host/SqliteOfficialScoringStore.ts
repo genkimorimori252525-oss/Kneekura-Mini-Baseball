@@ -29,7 +29,7 @@ export type AcceptedOfficialScoringEvidenceAuthority = Readonly<{
 /** Physical rule sidecar from an independently authenticated closed catch owner.
  * Its original end and complete timeline are rechecked by the shared classifier. */
 export type OfficialFairCatchScoringEvidence = Readonly<{ schemaVersion: 1; sourceKind: 'owned_fair_catch'; sourceEventId: string;
-  physical: import('../core/sim/plateAppearance/ActualFairFieldTimeline').ActualFairFieldTimelineInput }>;
+  physical: import('../core/adjudication/ActualFairCatchScoring').ActualFairCatchScoringInput }>;
 export type OfficialGroundOutScoringEvidence = Readonly<{ schemaVersion: 1; sourceKind: 'owned_ground_out'; sourceEventId: string;
   ground: import('../core/adjudication/ActualGroundOutScoring').ActualGroundOutScoringInput }>;
 export type AcceptedOfficialScoringEvidence = OfficialFairBallScoringEvidence | OfficialFairCatchScoringEvidence | OfficialGroundOutScoringEvidence;

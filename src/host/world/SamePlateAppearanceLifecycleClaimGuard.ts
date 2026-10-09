@@ -13,10 +13,12 @@ import { assertSamePaCatchWorkStorage } from './SamePlateAppearanceCatchWorkStor
 import { samePaCatchWorkInput } from './SamePlateAppearanceCatchWork';
 import { assertBatterRunPlanStorage } from './SqliteBatterRunPlanStore';
 import { batterRunPlanInput } from './BatterRunPlan';
+import { assertSamePaOccupiedRunnerHoldStorage } from './SqliteSamePlateAppearanceOccupiedRunnerHoldStore';
+import { samePaOccupiedRunnerHoldInput } from './SamePlateAppearanceOccupiedRunnerHold';
 
 type Db = Pick<DatabaseSync, 'prepare'>;
 export type SamePaLifecycleClaimRow = Readonly<{ table: string; row: Record<string, unknown>; enrollmentSourceIds: readonly string[] }>;
-const patterns = ['pa_lifecycle_v1_*', 'pa_physical_v1_*', 'pa_terminal_v1_*', 'pa_catch_v1_*', 'world_batter_run_plans'] as const;
+const patterns = ['pa_lifecycle_v1_*', 'pa_physical_v1_*', 'pa_terminal_v1_*', 'pa_catch_v1_*', 'world_batter_run_plans', 'world_same_pa_occupied_runner_holds'] as const;
 const olderOwners = new Set(['same_pa_enrollments', 'physical_plate_appearance_actors', 'reserved_pa_work_prefixes', 'reserved_pa_total_assessments',
   'reserved_pa_execution_views', 'pa_dispatch_v1_action_plans', 'pa_dispatch_v1_execution_calibrations', 'pa_dispatch_v1_consumer_sets',
   'pa_dispatch_v1_episodes', 'pa_dispatch_v1_rights', 'pa_dispatch_v1_pitch_actions', 'pa_dispatch_v1_consumer_actions',
@@ -36,6 +38,7 @@ const args = patterns.flatMap(p => [p, p]);
 export const readSamePaLifecycleClaimRows = (db: Db): readonly SamePaLifecycleClaimRow[] => {
   assertSamePaLifecycleStorage(db); assertSamePaPhysicalEpisodeStorage(db); assertSamePaTerminalEndpointStorage(db); assertSamePaCatchWorkStorage(db);
   assertBatterRunPlanStorage(db);
+  assertSamePaOccupiedRunnerHoldStorage(db);
   if (db.prepare('SELECT 1 FROM temp.sqlite_master WHERE ' + predicate).get(...args)) return fail();
   const catalog = db.prepare('SELECT type,name,tbl_name FROM main.sqlite_master WHERE ' + predicate).all(...args);
   if (catalog.some(r => r.type !== 'table' && r.type !== 'index')) return fail();
@@ -78,7 +81,7 @@ export const readSamePaLifecycleClaimRows = (db: Db): readonly SamePaLifecycleCl
         let source: Record<string, unknown>, snapshot: Record<string, unknown>;
         try { source = JSON.parse(row.source_json); snapshot = JSON.parse(row.snapshot_json); } catch { return fail(); }
         if (!source || !snapshot || Array.isArray(source) || Array.isArray(snapshot) || source.sourceId !== row.source_id
-          || name !== 'world_batter_run_plans' && source.sourceVersion !== row.source_version || json(source) !== row.source_json || json(snapshot) !== row.snapshot_json
+          || !['world_batter_run_plans', 'world_same_pa_occupied_runner_holds'].includes(name) && source.sourceVersion !== row.source_version || json(source) !== row.source_json || json(snapshot) !== row.snapshot_json
           || hash(source) !== row.source_hash || hash(snapshot) !== row.snapshot_hash || json(snapshot.source) !== json(source)) return fail();
       }
       if ('source_json' in row) {
@@ -86,6 +89,7 @@ export const readSamePaLifecycleClaimRows = (db: Db): readonly SamePaLifecycleCl
         const lifecycleKinds:Record<string,string>={pa_lifecycle_v1_work_prefixes:'same_pa_lifecycle_prefix_v1',pa_lifecycle_v1_total_assessments:'same_pa_lifecycle_cumulative_total_v1',pa_lifecycle_v1_execution_views:'same_pa_lifecycle_cumulative_view_v1',pa_lifecycle_v1_execution_calibrations:'same_pa_lifecycle_execution_calibration_v1'};
         const physicalKinds:Record<string,string>={pa_physical_v1_field_calibrations:'same_pa_physical_field_calibration_v1',pa_physical_v1_action_plans:'same_pa_physical_action_v1',pa_physical_v1_rights:'same_pa_physical_right_v1',pa_physical_v1_launches:'same_pa_physical_launch_v1',pa_physical_v1_cuts:'same_pa_physical_cut_v1',pa_physical_v1_commitments:'same_pa_physical_commitment_v1',pa_physical_v1_resolutions:'same_pa_physical_resolution_v1',pa_physical_v1_field_roots:'same_pa_physical_field_root_v1',pa_physical_v1_field_steps:'same_pa_physical_field_step_v1'};
         if(name==='world_batter_run_plans'){batterRunPlanInput(source,String(row.source_id));}
+        else if(name==='world_same_pa_occupied_runner_holds'){samePaOccupiedRunnerHoldInput(source,String(row.source_id));}
         else if(name==='pa_catch_v1_work'){samePaCatchWorkInput(source,String(row.source_id));}
         else if(lifecycleKinds[name]){const s=samePaLifecycleSourceInput(source,String(row.source_id));if(s.capability!==lifecycleKinds[name])return fail();}
         else if(name==='pa_lifecycle_v1_outcomes'||name==='pa_lifecycle_v1_resets'){const s=samePaLifecycleOutcomeInput(source,String(row.source_id));if(s.capability!==(name==='pa_lifecycle_v1_outcomes'?'same_pa_lifecycle_outcome_v1':'same_pa_lifecycle_reset_v1'))return fail();}

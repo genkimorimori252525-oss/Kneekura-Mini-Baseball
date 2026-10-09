@@ -1,4 +1,6 @@
 import { cloneInert, advanceRuleProfileOfficialWindows } from '../../core/adjudication/OfficialWindowPolicy';
+import { validateActualFairCatchStationaryRunners, type ActualFairCatchStationaryOccupiedRunners,
+  type ActualFairCatchAppealApplicability } from '../../core/adjudication/ActualFairCatchScoring';
 import { createPlayAdjudicationLedger, recordCorrectRuleSnapshot, recordUnresolvedCorrectRuleSnapshot, recordOwnedLiveCallImport,
   closeOfficialPlay, getOfficialStateWindows, getPlayAdjudicationState, type OwnedLiveCallImportProvenance,
   type PlayAdjudicationLedger } from '../../core/adjudication/PlayAdjudicationLedger';
@@ -15,11 +17,12 @@ export type SamePaCatchOfficialScheduler = Readonly<{ sourceId: string; sourceVe
   events: readonly Readonly<{ sourceId: string; sourceVersion: string; schedulerId: string; kind: 'advance_tick' | 'next_play_fence' }>[] }>;
 export type SamePaCatchOfficialOpeningInput = Readonly<{ sourceId: string; originalMatch: CanonicalMatchState; physicalEnd: PlayEndFact;
   exactEnd: ActualObservationMoment; operative: Extract<SamePaCatchOperativeRuling, { kind: 'retired' }>;
-  callProvenance: OwnedLiveCallImportProvenance; policy?: ActualLiveOfficialPolicy | null }>;
+  callProvenance: OwnedLiveCallImportProvenance; policy?: ActualLiveOfficialPolicy | null;
+  occupiedRunners?: ActualFairCatchStationaryOccupiedRunners }>;
 export type SamePaCatchOfficialInput = SamePaCatchOfficialOpeningInput & Readonly<{ scheduler: SamePaCatchOfficialScheduler;
   reviewed?: import('./ActualPostPlayReviewState').ActualPostPlayReviewProjection }>;
 export type SamePaCatchOfficial = Readonly<{ ledger: PlayAdjudicationLedger; evaluationTick: number;
-  originalOperativeLedger: PlayAdjudicationLedger; appealApplicability: 'no_original_tag_up_participant' }> & (
+  originalOperativeLedger: PlayAdjudicationLedger; appealApplicability: ActualFairCatchAppealApplicability }> & (
   Readonly<{ kind: 'closed' }> | Readonly<{ kind: 'pending'; pendingReasons: readonly string[] }>);
 
 /** Native supplies an independently proved end and authenticates every original
@@ -32,7 +35,7 @@ export const deriveSamePaCatchOfficialOpening = (raw: SamePaCatchOfficialOpening
   const input = cloneInert(raw), { sourceId, originalMatch: match, physicalEnd, exactEnd, operative, callProvenance: provenance } = input;
   if (!text(sourceId) || !operative || operative.kind !== 'retired' || !text(operative.runnerId)
     || !Number.isSafeInteger(match.outs) || match.outs < 0 || match.outs > 2
-    || Object.values(match.bases).some(r => r !== null) || operative.ledger.playId !== match.playId
+    || operative.ledger.playId !== match.playId
     || operative.ledger.ruleProfileId !== match.ruleProfileId || operative.ledger.playEnd !== null
     || physicalEnd.kind !== 'play_end' || physicalEnd.reason !== 'live_action_complete' || physicalEnd.tick !== exactEnd.tick
     || provenance.playId !== match.playId || provenance.clock.originTick !== exactEnd.originTick
@@ -43,7 +46,10 @@ export const deriveSamePaCatchOfficialOpening = (raw: SamePaCatchOfficialOpening
     || quantizeEventTick(operative.at.originTick, operative.at.elapsedSeconds, provenance.clock.ticksPerSecond) !== operative.at.tick) {
     throw new Error('same-PA catch official original scope, physical end or call clock differs');
   }
-  const expectedRuling = { outsAfter: match.outs + 1, basesAfter: { first: null, second: null, third: null }, scoredRunnerIds: [] };
+  const appealApplicability = validateActualFairCatchStationaryRunners({ originalMatch: match, batterRunnerId: operative.runnerId,
+    originTick: exactEnd.originTick, ticksPerSecond: provenance.clock.ticksPerSecond,
+    endElapsedSeconds: exactEnd.elapsedSeconds, occupiedRunners: input.occupiedRunners });
+  const expectedRuling = { outsAfter: match.outs + 1, basesAfter: match.bases, scoredRunnerIds: [] };
   if (json(operative.onFieldCall.ruling) !== json(expectedRuling)) throw new Error('same-PA catch official operative retirement differs');
   const original = getPlayAdjudicationState(operative.ledger);
   if (original.kind !== 'official_adjudication_open' || original.calls.length !== 1 || original.reviews.length || original.openWindows.length
@@ -71,7 +77,7 @@ export const deriveSamePaCatchOfficialOpening = (raw: SamePaCatchOfficialOpening
     else if (kind !== 'appeal' && policy.available) reasons.push('official_window_owner_unavailable:' + kind);
   }
   return freeze({ ledger, evaluationTick: physicalEnd.tick, originalOperativeLedger: operative.ledger,
-    appealApplicability: 'no_original_tag_up_participant' as const, pendingReasons: reasons });
+    appealApplicability, pendingReasons: reasons });
 };
 
 /** Reviewed ledgers enter only through the Native pinned-journal consumer. */
@@ -106,8 +112,9 @@ export const deriveSamePaCatchOfficial = (raw: SamePaCatchOfficialInput): SamePa
       || json(review.ruleProfile) !== json(profile) || review.cursor.tick < evaluationTick) throw new Error('reserved catch reviewed ledger or original seed differs');
     ledger = review.ledger; evaluationTick = review.cursor.tick;
   } else if (opening.pendingReasons.length) return pending(opening.pendingReasons);
-  // Empty original bases and the accepted batter retirement have no original
-  // tag-up participant. No appeal window is invented from a field horizon.
+  // Empty bases have no original tag-up participant. Independently owned
+  // stationary runners never left their original bases. Neither proof creates
+  // an appeal window or expires one from a field horizon.
   for (const event of scheduler.events) {
     if (event.kind === 'advance_tick') {
       if (evaluationTick === Number.MAX_SAFE_INTEGER) throw new Error('same-PA catch official scheduler clock overflow');

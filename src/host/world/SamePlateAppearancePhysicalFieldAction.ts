@@ -1,3 +1,4 @@
+import { samePaOccupiedRunnerCatchResponseInput, type SamePaOccupiedRunnerCatchResponseRequest, type SamePaOccupiedRunnerCatchResponse, type SamePaOccupiedRunnerCatchMotionRequest } from './SamePlateAppearanceOccupiedRunnerCatchResponse';
 import type { PrePlayDefensivePlan } from '../../core/sim/fielding/DefensiveDecision';
 import type { BattedWorldScheduledFieldAcquisitionAdvance } from '../../core/sim/ball/BattedWorldScheduledFieldAcquisition';
 import type { BattedWorldScheduledFieldThrowAdvance, BattedWorldScheduledFieldThrowPlan } from '../../core/sim/ball/BattedWorldScheduledFieldThrow';
@@ -15,6 +16,7 @@ export type SamePaPhysicalFieldReference = SamePaReference<'pa_physical_v1_field
 type CalibrationReference = SamePaReference<'pa_lifecycle_v1_execution_calibrations'>;
 type StepReference = SamePaReference<'pa_physical_v1_field_steps'>;
 export type SamePaPhysicalFieldAction =
+  | SamePaOccupiedRunnerCatchResponseRequest | SamePaOccupiedRunnerCatchMotionRequest
   | SamePaBatterCatchResponseRequest
   | Readonly<{ kind: 'batter_catch_motion_v1'; responseReference: StepReference }>
   | Readonly<{ kind: 'retained_quantizer_checkpoint_v1' }>
@@ -34,6 +36,8 @@ export type SamePaPhysicalFieldAction =
   | Readonly<{ kind: 'throw_checkpoint_v1'; planReference: StepReference; throughElapsedSeconds: number }>
   | Readonly<{ kind: 'capture_checkpoint_v1'; candidateReference: SamePaPhysicalFieldReference; throughElapsedSeconds: number }>;
 export type SamePaPhysicalFieldActionResult =
+  | SamePaOccupiedRunnerCatchResponse
+  | Readonly<{ kind: 'occupied_runner_catch_motion_v1'; responseReference: StepReference; playerId: string; coverageThroughTick: number; planThroughTick: number }>
   | SamePaBatterCatchResponse
   | Readonly<{ kind: 'batter_catch_motion_v1'; responseReference: StepReference; playerId: string;
       controllerSegmentIndex: number; coverageThroughTick: number; planThroughTick: number }>
@@ -56,7 +60,10 @@ const unit = (v: unknown) => typeof v === 'number' && Number.isFinite(v) && v >=
 const member = (value: unknown, calibrationReference: unknown) => samePaDispatchMemberValid(value)
   && ref(calibrationReference, 'pa_lifecycle_v1_execution_calibrations');
 export const samePaPhysicalFieldActionInput = (a: SamePaPhysicalFieldAction): void => {
-  if (a?.kind === 'batter_catch_response_v1') samePaBatterCatchResponseInput(a);
+  if (a?.kind === 'occupied_runner_catch_response_v1') samePaOccupiedRunnerCatchResponseInput(a);
+  else if (a?.kind === 'occupied_runner_catch_motion_v1') {
+    if (!fields(a, ['kind','responseReference']) || !ref(a.responseReference, 'pa_physical_v1_field_steps')) throw new Error('invalid occupied received motor Source');
+  } else if (a?.kind === 'batter_catch_response_v1') samePaBatterCatchResponseInput(a);
   else if (a?.kind === 'batter_catch_motion_v1') {
     if (!fields(a, ['kind', 'responseReference']) || !ref(a.responseReference, 'pa_physical_v1_field_steps')) throw new Error('invalid received batter motion Source');
   } else if (a?.kind === 'retained_quantizer_checkpoint_v1') {

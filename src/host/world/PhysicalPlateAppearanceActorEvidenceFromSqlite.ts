@@ -47,7 +47,7 @@ export const physicalActorInput = (raw: AcceptedPhysicalPlateAppearanceActor, so
   }
   return s;
 };
-const readBinding = (db: ActorDb, gameId: string, playerId: string): OfficialParticipantBinding => {
+export const readPhysicalActorBinding = (db: ActorDb, gameId: string, playerId: string): OfficialParticipantBinding => {
   const row = db.prepare('SELECT binding_json FROM official_participant_bindings WHERE game_id=? AND player_id=?').get(gameId, playerId) as { binding_json: string } | undefined;
   const binding = row ? JSON.parse(row.binding_json) as OfficialParticipantBinding : null;
   if (!binding || JSON.stringify(binding) !== row!.binding_json || binding.gameId !== gameId || binding.playerId !== playerId) throw new Error('physical batter actor binding differs');
@@ -107,9 +107,9 @@ export const derivePhysicalPlateAppearanceActor = (db: ActorDb, source: Accepted
       applicationHash = actorHash(row); scoringHash = actorHash(score);
     }
   }
-  const binding = readBinding(db, source.gameId, source.playerId), battingSide = match.half === 'top' ? 'AWAY' : 'HOME';
+  const binding = readPhysicalActorBinding(db, source.gameId, source.playerId), battingSide = match.half === 'top' ? 'AWAY' : 'HOME';
   const fixture = db.prepare('SELECT * FROM official_fixtures WHERE game_id=?').get(source.gameId) as { fixture_event_id: string } | undefined;
-  const defenderBindings = world.defenders.map((d) => readBinding(db, source.gameId, d.playerId));
+  const defenderBindings = world.defenders.map((d) => readPhysicalActorBinding(db, source.gameId, d.playerId));
   const national = assertNationalMatchBindings(db, [binding, ...defenderBindings]);
   const season = national ? null : db.prepare('SELECT schedule_json FROM world_season_heads WHERE career_id=? AND season_id=?')
     .get(binding.careerId, binding.competitionEditionId) as { schedule_json: string } | undefined;

@@ -35,7 +35,45 @@ const fixture = (outs = 0) => {
       { sourceId: 'scheduler-fence', sourceVersion: 'fixture-v1', schedulerId: 'scheduler', kind: 'next_play_fence' as const }] } };
 };
 
+const occupiedFixture = (outs = 0) => {
+  const input = fixture(outs), originalMatch = { ...input.originalMatch,
+    bases: { first: 'runner-1', second: null, third: 'runner-3' } };
+  const onFieldCall = { ...input.operative.onFieldCall, ruling: { outsAfter: outs + 1,
+    basesAfter: originalMatch.bases, scoredRunnerIds: [] as const } };
+  let ledger = createPlayAdjudicationLedger({ playId: originalMatch.playId, ruleProfileId: originalMatch.ruleProfileId, playEnd: null });
+  ledger = recordCorrectRuleSnapshot(ledger, 0, { eventId: 'occupied-rule', tick: 110,
+    snapshotId: onFieldCall.basisSnapshotId, evidenceRevision: onFieldCall.basisEvidenceRevision, ruling: onFieldCall.ruling });
+  ledger = recordOnFieldCall(ledger, ledger.revision, { eventId: 'occupied-call', ...onFieldCall });
+  const runners = (['first', 'third'] as const).map(startingBase => {
+    const playerId = originalMatch.bases[startingBase];
+    return { playerId, startingBase, holdReference: { owner: 'world_same_pa_occupied_runner_holds' as const,
+      sourceId: 'hold:' + playerId, sourceHash: 'a'.repeat(64), snapshotHash: 'b'.repeat(64) }, history: {
+      playerId, originTick: 100, ticksPerSecond: 1000, startElapsedSeconds: 0, endElapsedSeconds: 0.04,
+      contactAtStart: true, contactAtHorizon: true, episodes: [{ startElapsedSeconds: 0, endElapsedSeconds: 0.04 }],
+      events: [{ kind: 'touch' as const, originTick: 100, elapsedSeconds: 0, tick: 100 }],
+    } };
+  });
+  return { ...input, originalMatch, operative: { ...input.operative, onFieldCall, ledger },
+    occupiedRunners: { kind: 'same_pa_stationary_occupied_runners_v1' as const, runners } };
+};
+
 describe('reserved caught-action official closure', () => {
+  it.each([0, 1, 2])('preserves stationary original runners and records appeal applicability with %i previous outs', outs => {
+    const input = occupiedFixture(outs), result = deriveSamePaCatchOfficial(input);
+    expect(result).toMatchObject({ kind: 'closed', appealApplicability: 'original_runners_never_left_original_bases' });
+    expect(getOfficialPlayClosure(result.ledger)?.officialDelta).toMatchObject({
+      outsAfter: outs + 1, basesAfter: input.originalMatch.bases, scoredRunnerIds: [],
+    });
+  });
+
+  it.each(['missing', 'departure', 'short_history', 'foreign_hold'] as const)('rejects occupied original proof fault %s', fault => {
+    const input = occupiedFixture(), proof = structuredClone(input.occupiedRunners);
+    if (fault === 'departure') proof.runners[0].history.contactAtHorizon = false;
+    if (fault === 'short_history') proof.runners[0].history.endElapsedSeconds = 0.03;
+    if (fault === 'foreign_hold') proof.runners[0].holdReference.owner = 'foreign' as typeof proof.runners[0]['holdReference']['owner'];
+    expect(() => deriveSamePaCatchOfficial({ ...input, occupiedRunners: fault === 'missing' ? undefined : proof })).toThrow();
+  });
+
   it.each([0, 1, 2])('imports original call timing and unresolved truth with %i previous outs', outs => {
     const input = fixture(outs), before = JSON.stringify(input), result = deriveSamePaCatchOfficial(input);
     expect(result).toMatchObject({ kind: 'closed', evaluationTick: 140, appealApplicability: 'no_original_tag_up_participant' });

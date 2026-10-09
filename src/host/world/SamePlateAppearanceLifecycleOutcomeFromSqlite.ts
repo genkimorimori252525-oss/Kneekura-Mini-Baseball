@@ -1,3 +1,5 @@
+import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
+import { samePaOccupiedRunnerHoldRetirement } from './SqliteSamePlateAppearanceOccupiedRunnerHoldStore';
 import { readSamePaLifecycleClaimRows } from './SamePlateAppearanceLifecycleClaimGuard';
 import { deriveSamePaCatchLifecycleOutcome } from './SamePlateAppearanceCatchLifecycleOutcomeFromSqlite';
 import { createRequire } from 'node:module';
@@ -66,7 +68,7 @@ export const samePaOutcomeFieldEvidence=(db:DatabaseSync,b:SamePaLifecycleViewBa
   }
   const rootRef=reference('pa_physical_v1_field_roots',root);
   for(const actor of root.field.motion.actors)commands.push({kind:'field_primitive',sourceReference:rootRef,playerId:actor.playerId,role:actor.primitive.role,validThroughTick:actor.primitive.endTick,originalCommand:actor.primitive,originalCommandHash:hash(actor.primitive)});
-  for(const step of fields)if(step.kind==='same_pa_physical_field_step_v1'&&(step.actionResult?.kind==='defender_motion_v1'||step.actionResult?.kind==='batter_run_motion_v1'||step.actionResult?.kind==='batter_catch_motion_v1')){
+  for(const step of fields)if(step.kind==='same_pa_physical_field_step_v1'&&(step.actionResult?.kind==='defender_motion_v1'||step.actionResult?.kind==='batter_run_motion_v1'||step.actionResult?.kind==='batter_catch_motion_v1'||step.actionResult?.kind==='occupied_runner_catch_motion_v1')){
     const stepRef=reference('pa_physical_v1_field_steps',step);
     for(const actor of step.field.motion.actors)commands.push({kind:'field_primitive',sourceReference:stepRef,playerId:actor.playerId,role:actor.primitive.role,
       validThroughTick:actor.primitive.endTick,originalCommand:actor.primitive,originalCommandHash:hash(actor.primitive)});
@@ -78,10 +80,14 @@ export const samePaOutcomeFieldEvidence=(db:DatabaseSync,b:SamePaLifecycleViewBa
     horizon:last.field.motion.world.moment,contacts,acquisitions},baseContacts,groundSegments};
   return{field,commands,root,last};
 };
-export const samePaOutcomeRetirement=(b:SamePaLifecycleViewBasis,commands:readonly SamePaControllerCommand[],completedAtTick:number):SamePaControllerRetirementBasis=>freeze({
+export const samePaOutcomeRetirement=(b:SamePaLifecycleViewBasis,commands:readonly SamePaControllerCommand[],completedAtTick:number,originals?:ReturnType<typeof readSamePaOriginalParticipants>):SamePaControllerRetirementBasis=>{
+  if(!originals&&(b.actor.world.runners.length||Object.values(b.actor.match.bases).some(p=>p!==null)))throw new Error('lifecycle retirement original runner membership missing');
+  const bindings=originals?originals.map(p=>p.binding):[b.actor.binding,...b.actor.defenderBindings];
+  return freeze({
   kind:'same_pa_original_controller_retirement_basis_v1',physicalPitchReference:b.view.cut.physicalPitchReference,physicalOperationReference:b.view.cut.physicalOperationReference,
-  completedAtTick,completeCoverageHash:b.view.coverageHash,participants:[b.actor.binding,...b.actor.defenderBindings].map(p=>({playerId:p.playerId,personId:p.personId,
+  completedAtTick,completeCoverageHash:b.view.coverageHash,participants:bindings.map(p=>({playerId:p.playerId,personId:p.personId,
     ownedCommands:commands.filter(c=>c.playerId===p.playerId)}))});
+};
 const outcome=(db:DatabaseSync,source:AcceptedSamePaLifecycleOutcome,current:boolean):SamePaLifecycleOutcome|Pending=>{
   const b=(current?readCurrentSamePaLifecycleViewFromSqlite:readHistoricalSamePaLifecycleViewFromSqlite)(db,source.viewReference),c=b.view.cut;
   same(source.enrollmentReference,b.view.lineage.enrollmentReference);same(source.physicalOperationReference,c.physicalOperationReference);
@@ -116,6 +122,7 @@ const outcome=(db:DatabaseSync,source:AcceptedSamePaLifecycleOutcome,current:boo
       completed=Math.max(completed,launch.delivery.timeline.followThroughEndUs,...commands.map(c=>c.validThroughTick));proof=op.record;
     }
   }
+  commands.push(...samePaOccupiedRunnerHoldRetirement(db,b.actor,b.view.lineage.enrollmentReference,completed));
   const terminal=timeline.status.kind==='walk'||timeline.status.kind==='strikeout';if(!terminal&&timeline.status.kind!=='active')return pending('unsupported_original_outcome');
   const context=timeline.status.kind==='walk'?{kind:'walk' as const,batterRunnerId:b.actor.binding.playerId}:timeline.status.kind==='strikeout'?{kind:'strikeout' as const}:null;
   const profile=actualLiveAdjudicationProfile(b.actor.match.ruleProfileId,source.officialPolicy);
@@ -146,7 +153,7 @@ const outcome=(db:DatabaseSync,source:AcceptedSamePaLifecycleOutcome,current:boo
   if(!fenced)return pending('official_next_pitch_fence_required');
   const baseCenters=c.bodyCut.worldReference.owner==='pa_lifecycle_v1_resets'?readSamePaLifecycleResetFromSqlite(db,{...c.bodyCut.worldReference,owner:'pa_lifecycle_v1_resets'}).source.worldSetup.baseCenters:samePaStartingBaseCenters(db,b.actor);
   return freeze({kind:'same_pa_lifecycle_outcome',source,lineage:b.view.lineage,actor:b.actor,disposition:terminal?'terminal':'ordinary_foul',timeline,evaluationTick:tick,physicalCompletedAtTick:completed,
-    physicalEnd,physicalProofHash:hash(proof),officialLedger:ledger,context,controllerRetirementBasis:samePaOutcomeRetirement(b,commands,completed),baseCenters});
+    physicalEnd,physicalProofHash:hash(proof),officialLedger:ledger,context,controllerRetirementBasis:samePaOutcomeRetirement(b,commands,completed,readSamePaOriginalParticipants(db,b.actor)),baseCenters});
 };
 const reset=(db:DatabaseSync,source:AcceptedSamePaLifecycleReset,current:boolean):SamePaLifecycleReset|Pending=>{
   const b=(current?readCurrentSamePaLifecycleViewFromSqlite:readHistoricalSamePaLifecycleViewFromSqlite)(db,source.viewReference),out=readSamePaLifecycleOutcomeFromSqlite(db,source.outcomeReference);

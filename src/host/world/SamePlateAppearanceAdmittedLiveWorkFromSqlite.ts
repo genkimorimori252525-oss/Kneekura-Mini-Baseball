@@ -49,9 +49,11 @@ export const readSamePaAdmittedLiveWorkFromSqlite = (db: DatabaseSync, viewRefer
   });
   const recipients = latest?.communication.recipients.map(r => {
     const observed = observations.filter(o => o.playerId === r.playerId && o.actionSourceId === latest.originalInputs.action!.sourceId);
-    const adopted = live.census.batterCatchResponses.adopted.find(a => a.response.playerId === r.playerId && a.response.callSourceId === latest.originalInputs.action!.sourceId)
+    const adopted = live.census.occupiedRunnerCatchResponses?.adopted.find(a => a.response.playerId === r.playerId && a.response.callSourceId === latest.originalInputs.action!.sourceId)
+      ?? live.census.batterCatchResponses.adopted.find(a => a.response.playerId === r.playerId && a.response.callSourceId === latest.originalInputs.action!.sourceId)
       ?? live.census.catchResponses.adopted.find(a => a.response.playerId === r.playerId && a.response.replan.cause?.callSourceId === latest.originalInputs.action!.sourceId);
-    const response = live.census.batterCatchResponses.pending.find(a => a.response.playerId === r.playerId && a.response.callSourceId === latest.originalInputs.action!.sourceId)
+    const response = live.census.occupiedRunnerCatchResponses?.pending.find(a => a.response.playerId === r.playerId && a.response.callSourceId === latest.originalInputs.action!.sourceId)
+      ?? live.census.batterCatchResponses.pending.find(a => a.response.playerId === r.playerId && a.response.callSourceId === latest.originalInputs.action!.sourceId)
       ?? live.census.catchResponses.pending.find(a => a.response.playerId === r.playerId && a.response.replan.cause?.callSourceId === latest.originalInputs.action!.sourceId);
     return { playerId: r.playerId, reception: r, observations: observed,
       controllerResponse: adopted ? { kind: 'adopted' as const, evidence: adopted } : response ? { kind: 'pending' as const, evidence: response }

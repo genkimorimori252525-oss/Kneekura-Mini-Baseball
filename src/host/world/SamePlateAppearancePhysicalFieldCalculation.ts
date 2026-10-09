@@ -1,4 +1,6 @@
 import type { DatabaseSync } from 'node:sqlite';
+import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
+import { readSamePaOccupiedRunnerHolds } from './SqliteSamePlateAppearanceOccupiedRunnerHoldStore';
 import { createBattedBallFlightEvidence } from '../../core/sim/ball/BattedBallFlightEvidence';
 import { createBattedWorldBaseGeometry } from '../../core/sim/ball/BattedWorldBaseGeometry';
 import { createBattedWorldFieldGeometry, deriveBattedWorldFieldMotionAdoption, deriveBattedWorldFieldMotionCheckpoint, advanceBattedWorldFieldMotionCheckpoint } from '../../core/sim/ball/BattedWorldFieldMotion';
@@ -37,7 +39,8 @@ export const deriveSamePaPhysicalFieldRoot=(db:DatabaseSync,source:SamePaPhysica
   calibration:SamePaPhysicalFieldCalibration|null;
 }>)=>{
   const {launch,action,resolution,currentView}=input,actor=action.actor;
-  if(source.liveProducerProfile&&Object.values(actor.match.bases).some(id=>id!==null))throw new Error('reserved live producer profile requires original empty bases');
+  if(source.liveProducerProfile==='same_pa_empty_base_catch_v1'&&Object.values(actor.match.bases).some(id=>id!==null))throw new Error('reserved live producer profile requires original empty bases');
+  if(source.liveProducerProfile==='same_pa_stationary_occupied_catch_v1'&&!Object.values(actor.match.bases).some(id=>id!==null))throw new Error('occupied live producer profile requires original occupied bases');
   if(!resolution.contact||resolution.physicalPitchSourceId!==launch.source.sourceId||resolution.timeline.status.kind!=='batted_ball_pending')throw new Error('physical field root requires actual bat contact');
   if(source.throughTick<currentView.cut.evaluationTick||source.throughTick<resolution.evaluationTick)throw new Error('physical field root backdates its current cut');
   const binding=(()=>{
@@ -64,13 +67,14 @@ export const deriveSamePaPhysicalFieldRoot=(db:DatabaseSync,source:SamePaPhysica
     ||responseModel.fixtureEventId!==model.fixtureEventId||responseModel.venueId!==model.venueId||responseModel.availableAtDay>actor.binding.gameDay)throw new Error('field normal model scope differs');
   const posture=readBattingPerceptionFromSqlite(db,'posture',source.postureReference);if(posture.kind!=='batting_invocation_posture'||posture.physicalPitchSourceId!==launch.source.sourceId)throw new Error('field current episode posture missing');
   same(posture.lineage,launch.lineage);same(posture.source.modelReference,action.source.batterModelReference);same(posture.source.actionReference,launch.source.actionReference);
-  const bodies=[posture.model.bodyMaterialization,...posture.sceneBodies],bindings=[actor.binding,...actor.defenderBindings],p=source.parameters;
-  if(model.actors.length!==10||responseModel.actors.length!==10||bodies.length!==10||new Set(bodies.map(b=>b.source.playerId)).size!==10
-    ||source.commands.length!==10||new Set(source.commands.map(c=>c.playerId)).size!==10||p.ticksPerSecond!==launch.trajectory.parameters.ticksPerSecond
+  const bodies=[posture.model.bodyMaterialization,...posture.sceneBodies],bindings=readSamePaOriginalParticipants(db,actor).map(p=>p.binding),p=source.parameters,count=bindings.length;
+  if(model.actors.length!==count||responseModel.actors.length!==count||bodies.length!==count||new Set(bodies.map(b=>b.source.playerId)).size!==count
+    ||source.commands.length!==count||new Set(source.commands.map(c=>c.playerId)).size!==count||p.ticksPerSecond!==launch.trajectory.parameters.ticksPerSecond
     ||p.ballRadius!==posture.model.equipment.values.ball.radiusM||p.integrationStepTicks<=0||!Number.isSafeInteger(p.integrationStepTicks)
     ||p.groundRestitution<0||p.groundRestitution>1||p.groundFriction<0||p.groundFriction>1||p.groundRollingDecelerationMps2<0||p.restingVerticalSpeed<0)throw new Error('field ten bodies or explicit physical parameters differ');
   if(responseModel.actors.some(a=>a.primitives.some(profile=>profile.role==='glove'&&profile.parameters.ballMassKg!==posture.model.equipment.values.ball.massKg)))throw new Error('field response original ball mass differs');
   const start=resolution.contact.tick,end=posture.source.geometry.validUntilTick;if(source.throughTick>end||end<start)throw new Error('field body coverage unavailable');
+  const holds=readSamePaOccupiedRunnerHolds(db,actor,action.lineage.enrollmentReference,posture.source.occupiedRunnerHoldReferences,start,end);
   const actors=bodies.flatMap(body=>{
     const binding=bindings.find(b=>b.playerId===body.source.playerId),shape=model.actors.find(a=>a.playerId===body.source.playerId),profile=responseModel.actors.find(a=>a.playerId===body.source.playerId),command=source.commands.find(c=>c.playerId===body.source.playerId);
     if(!binding||!shape||!profile||!command||binding.personId!==body.person.personId||binding.personLinkSourceId!==body.person.sourceId||profile.personId!==binding.personId)throw new Error('field original Person/body missing');
@@ -78,8 +82,12 @@ export const deriveSamePaPhysicalFieldRoot=(db:DatabaseSync,source:SamePaPhysica
     if(!samePaFields(command,['playerId','bodyAcceleration','primitiveMotions'])||!zero(command.bodyAcceleration)||command.primitiveMotions.length!==5
       ||new Set(command.primitiveMotions.map(r=>r.role)).size!==5||command.primitiveMotions.some(r=>!samePaFields(r,['role','offsetVelocity','offsetAcceleration'])||!roles.includes(r.role)||!zero(r.offsetVelocity)||!zero(r.offsetAcceleration)))throw new Error('moving field commands require an owned effective controller');
     const defender=action.physicalWorld.defenders.find(d=>d.playerId===body.source.playerId);
-    if(defender&&(defender.velocity.x!==0||defender.velocity.z!==0))throw new Error('retained field body has moving original state');
-    const position=defender?{x:defender.position.x,y:body.actor.bodyOriginHeightMeters,z:defender.position.z}:posture.source.geometry.centerOfMass;
+    const runner=action.physicalWorld.runners.find(r=>r.playerId===body.source.playerId),worldActor=defender??runner;
+    if(worldActor&&(worldActor.velocity.x!==0||worldActor.velocity.z!==0))throw new Error('retained field body has moving original state');
+    if(runner){const hold=holds.find(h=>h.source.playerId===body.source.playerId);if(!hold)throw new Error('field runner original finite command missing');
+      same(hold.body,body);same(hold.setup.position,runner.position);}
+    if(!worldActor&&body.source.playerId!==actor.binding.playerId)throw new Error('field original participant position missing');
+    const position=worldActor?{x:worldActor.position.x,y:body.actor.bodyOriginHeightMeters,z:worldActor.position.z}:posture.source.geometry.centerOfMass;
     return body.actor.primitives.map(shape=>({playerId:body.source.playerId,primitive:composeDefenderPhysicalPrimitiveSegment({startTick:start,endTick:end,ticksPerSecond:p.ticksPerSecond,
       startPosition:position,startVelocity:{x:0,y:0,z:0},acceleration:command.bodyAcceleration},{role:shape.role,radius:shape.radius,startTick:start,endTick:end,ticksPerSecond:p.ticksPerSecond,
       startOffset:shape.offset,offsetVelocity:command.primitiveMotions.find(r=>r.role===shape.role)!.offsetVelocity,offsetAcceleration:command.primitiveMotions.find(r=>r.role===shape.role)!.offsetAcceleration})}));

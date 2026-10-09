@@ -4,7 +4,7 @@ import type { OfficialParticipantBinding } from './SqliteOfficialParticipationSt
 import { actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 export type SamePlateAppearanceBaselineReference = Readonly<{ playerId: string; baselineSourceId: string; revision: number; stateHash: string }>;
 export type AcceptedSamePlateAppearanceEnrollment = Readonly<{
-  sourceId: string; sourceVersion: string; capability: 'reserved_same_pa_enrollment_v1';
+  sourceId: string; sourceVersion: string; capability: 'reserved_same_pa_enrollment_v1' | 'reserved_same_pa_enrollment_v2';
   actorReference: Readonly<{ owner: 'physical_plate_appearance_actors'; sourceId: string; sourceHash: string; snapshotHash: string }>;
   firstPhysicalPitchSourceId: string; executionBasis: 'reserved_cumulative_actual_role_total_v1';
   participantBaselineReferences: readonly SamePlateAppearanceBaselineReference[];
@@ -24,11 +24,11 @@ export const samePlateAppearanceEnrollmentInput = (raw: unknown, sourceId?: stri
   const s = cloneInert(raw) as AcceptedSamePlateAppearanceEnrollment;
   if (!fields(s, ['sourceId','sourceVersion','capability','actorReference','firstPhysicalPitchSourceId','executionBasis','participantBaselineReferences'])
     || ![s.sourceId,s.sourceVersion,s.firstPhysicalPitchSourceId].every(samePaId) || sourceId !== undefined && s.sourceId !== sourceId
-    || s.capability !== 'reserved_same_pa_enrollment_v1' || s.executionBasis !== 'reserved_cumulative_actual_role_total_v1'
+    || !['reserved_same_pa_enrollment_v1','reserved_same_pa_enrollment_v2'].includes(s.capability) || s.executionBasis !== 'reserved_cumulative_actual_role_total_v1'
     || !fields(s.actorReference,['owner','sourceId','sourceHash','snapshotHash']) || s.actorReference.owner !== 'physical_plate_appearance_actors'
     || !samePaId(s.actorReference.sourceId) || !sha(s.actorReference.sourceHash) || !sha(s.actorReference.snapshotHash)
-    || !Array.isArray(s.participantBaselineReferences) || s.participantBaselineReferences.length !== 10
-    || new Set(s.participantBaselineReferences.map(p => p.playerId)).size !== 10
+    || !Array.isArray(s.participantBaselineReferences) || (s.capability === 'reserved_same_pa_enrollment_v1' ? s.participantBaselineReferences.length !== 10 : s.participantBaselineReferences.length < 11 || s.participantBaselineReferences.length > 13)
+    || new Set(s.participantBaselineReferences.map(p => p.playerId)).size !== s.participantBaselineReferences.length
     || s.participantBaselineReferences.some(p => !fields(p,['playerId','baselineSourceId','revision','stateHash'])
       || !samePaId(p.playerId) || !samePaId(p.baselineSourceId) || !Number.isSafeInteger(p.revision) || p.revision < 0 || !sha(p.stateHash))) {
     throw new Error('invalid accepted same-PA enrollment Source');

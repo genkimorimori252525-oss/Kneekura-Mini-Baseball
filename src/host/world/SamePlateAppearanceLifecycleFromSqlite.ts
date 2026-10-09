@@ -1,3 +1,4 @@
+import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
 import { randomUUID } from 'node:crypto';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -209,8 +210,9 @@ const assemble = <T>(db: DatabaseSync, current: boolean, body: (read: (kind: Sam
       if (!activity || activity.kind !== 'MATCH' || source.effortUnits < activity.effortUnits) throw new Error('lifecycle TOTAL cannot erase earlier work');
       assessmentOwnership(source); return freeze({ kind: 'same_pa_lifecycle_total', source, lineage: prefix.lineage, coverageHash: prefix.coverageHash, effortUnits: source.effortUnits });
     }
+    same(source.participantTotalReferences.map(p => p.playerId).sort(), old.view.participants.map(p => p.playerId).sort());
     const participants = old.view.participants.map(p => {
-      const r = source.participantTotalReferences.find(r => r.playerId === p.playerId); if (!r) throw new Error('lifecycle all-ten TOTAL missing');
+      const r = source.participantTotalReferences.find(r => r.playerId === p.playerId); if (!r) throw new Error('lifecycle complete original TOTAL missing');
       const total = linked('total', r.assessmentReference) as SamePaLifecycleTotal; same(total.source.prefixReference, source.prefixReference); same(total.source.enrollmentReference, source.enrollmentReference);
       same(total.source.participantReference, prefix.lineage.participantReferences.find(r => r.playerId === p.playerId)); same(total.coverageHash, prefix.coverageHash);
       if (p.activity.kind !== 'MATCH') throw new Error('lifecycle reserved activity differs');
@@ -218,7 +220,7 @@ const assemble = <T>(db: DatabaseSync, current: boolean, body: (read: (kind: Sam
       const projectedState = advancePlayerWorkloadRecovery(p.reservedState, p.reservedState.revision, activity);
       return { playerId: p.playerId, totalReference: r.assessmentReference, reservedState: p.reservedState, activity, projectedState, projectedStateHash: hash(projectedState) };
     });
-    if (participants.length !== 10) throw new Error('lifecycle all-ten participant set differs');
+    if (participants.length !== prefix.lineage.participantReferences.length) throw new Error('lifecycle complete original participant set differs');
     return freeze({ kind: 'same_pa_lifecycle_view', source, lineage: prefix.lineage, coverageHash: prefix.coverageHash,
       assessmentSetHash: hash([...source.participantTotalReferences].sort((a,b) => a.playerId.localeCompare(b.playerId))), cut: prefix.cut, participants });
   };
@@ -268,7 +270,8 @@ export const readSamePaLifecycleNextPitchBasisFromSqlite = (db: DatabaseSync, re
  * ancestry. Arguments are freshly rederived data, never accepted proof tokens. */
 export const assertSamePaLifecycleReservedStateFromSqlite=(db:DatabaseSync,b:Pick<SamePaLifecycleViewBasis,'actor'> & {view:{participants:readonly Pick<SamePaLifecycleView['participants'][number],'playerId'|'reservedState'>[]}})=>{
   assertPhysicalActorOpenFrame(db,b.actor);
-  for(const p of b.view.participants){const binding=[b.actor.binding,...b.actor.defenderBindings].find(x=>x.playerId===p.playerId);if(!binding)throw new Error('lifecycle reserved binding missing');
+  const bindings=readSamePaOriginalParticipants(db,b.actor).map(p=>p.binding);
+  for(const p of b.view.participants){const binding=bindings.find(x=>x.playerId===p.playerId);if(!binding)throw new Error('lifecycle reserved binding missing');
     same(readActualRoleWorkloadState(db,binding.careerId,binding.playerId,undefined,binding.personLinkSourceId),p.reservedState);}
 };
 export const assertSamePaLifecycleWorkCoverage=(db:DatabaseSync,enrollment:SamePaReference<'same_pa_enrollments'>,anchorRef:SamePaReference<'pa_continuation_v1_execution_views'>,events:readonly SamePaLifecycleWorkReference[])=>{

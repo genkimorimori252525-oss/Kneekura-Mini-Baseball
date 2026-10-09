@@ -16,7 +16,7 @@ export const samePaBatterRunForeignCoverage=(root:SamePaPhysicalFieldRoot,previo
   const horizons=new Map(root.field.motion.actors.filter(a=>a.playerId!==runnerId).map(a=>[key(a.playerId,a.primitive.role),a.primitive.endTick]));
   for(let i=1;i<prefix.length;i++){
     const before=prefix[i-1],field=prefix[i],action=field.kind==='same_pa_physical_field_step_v1'?field.source.action:undefined;
-    const runner=field.kind==='same_pa_physical_field_step_v1'&&(field.actionResult?.kind==='batter_run_motion_v1'||field.actionResult?.kind==='batter_catch_motion_v1')&&field.actionResult.playerId===runnerId;
+    const runner=field.kind==='same_pa_physical_field_step_v1'&&(field.actionResult?.kind==='batter_run_motion_v1'||field.actionResult?.kind==='batter_catch_motion_v1'||field.actionResult?.kind==='occupied_runner_catch_motion_v1')&&field.actionResult.playerId===runnerId;
     for(const a of field.field.motion.actors.filter(a=>a.playerId!==runnerId)){
       const id=key(a.playerId,a.primitive.role),old=before.field.motion.actors.find(o=>key(o.playerId,o.primitive.role)===id);
       if(!old||!horizons.has(id))throw new Error('batter-run command continuation participant differs');

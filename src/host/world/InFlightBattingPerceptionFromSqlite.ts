@@ -1,4 +1,6 @@
 import type { DatabaseSync } from 'node:sqlite';
+import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
+import { readSamePaOccupiedRunnerHolds } from './SqliteSamePlateAppearanceOccupiedRunnerHoldStore';
 import { SeedRoot } from '../../core/rng/SeedRoot';
 import { calculateBattingObservation } from '../../core/world/psychology/batting/BattingObservationCalculation';
 import { actorHash as hash, actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -46,13 +48,17 @@ export const deriveInFlightBattingPerception = (db: DatabaseSync, source: InFlig
       || nominal.observationCalibration.values.calibration.memoryDecayParameters.ticksPerSecond !== g.ticksPerSecond
       || nominal.predictionCalibration.values.parameters.ticksPerSecond !== g.ticksPerSecond) return fail('posture original clock or geometry differs');
     same(g.strikeZone, action.source.nominalPitch.batter.strikeZone);
-    if (action.physicalWorld.runners.length || action.physicalWorld.defenders.some(d => d.velocity.x !== 0 || d.velocity.z !== 0)) return pending('owned_moving_body_cut_required');
-    same(source.sceneBodyReferences.map(r => r.playerId).sort(), b.actor.defenderBindings.map(d => d.playerId).sort());
+    if ([...action.physicalWorld.runners, ...action.physicalWorld.defenders].some(d => d.velocity.x !== 0 || d.velocity.z !== 0)) return pending('owned_moving_body_cut_required');
+    if (action.physicalWorld.runners.length && action.bodyCut.origin === 'foul_reset') return pending('occupied_runner_reset_command_required');
+    const originals = readSamePaOriginalParticipants(db, b.actor), holds = readSamePaOccupiedRunnerHolds(db, b.actor,
+      lineage.enrollmentReference, source.occupiedRunnerHoldReferences, g.startedAtTick, g.validUntilTick);
+    same(source.sceneBodyReferences.map(r => r.playerId).sort(), originals.filter(p => p.role !== 'batter').map(p => p.binding.playerId).sort());
     const owner = playerBodyCapabilityMaterializationEvidenceFromSqlite(db), sceneBodies = source.sceneBodyReferences.map(pin => {
       const body = owner.read(pin.bodyReference.sourceId); if (!body) return null; same(reference(pin.bodyReference.owner, body), pin.bodyReference);
-      same(body.person, b.actor.defenderPersons.find(p => p.playerId === pin.playerId));
+      const participant = originals.find(p => p.binding.playerId === pin.playerId)!; same(body.person, participant.person);
+      if (participant.role === 'runner') same(pin.bodyReference, holds.find(h => h.source.playerId === pin.playerId)!.source.bodyReference);
       if (body.source.playerId !== pin.playerId || body.source.careerId !== lineage.careerId || body.source.atDay > b.actor.binding.gameDay
-        || !['defender', 'pitcher'].includes(body.source.role)) return fail('normal scene body scope or day differs'); return body;
+        || !(participant.role === 'runner' ? body.source.role === 'runner' : ['defender', 'pitcher'].includes(body.source.role))) return fail('normal scene body scope or day differs'); return body;
     });
     if (sceneBodies.some(v => v === null)) return pending('original_scene_body_missing', source.sceneBodyReferences.filter((_, i) => sceneBodies[i] === null).map(r => r.bodyReference.sourceId));
     return freeze({ kind: 'batting_invocation_posture', source, lineage, physicalPitchSourceId: action.physicalPitchSourceId, model: nominal, sceneBodies: sceneBodies as NonNullable<typeof sceneBodies[number]>[] });
@@ -90,7 +96,7 @@ export const deriveInFlightBattingPerception = (db: DatabaseSync, source: InFlig
     const eventSequence = (previous?.kind === 'batting_observation' ? previous.eventSequence : 0) + 1;
     if (!Number.isSafeInteger(eventSequence)) return fail('sensory sequence overflow');
     const occluders = posture.sceneBodies.flatMap(body => {
-      const player = cut.physicalWorld.defenders.find(d => d.playerId === body.source.playerId); if (!player) return fail('starting-world defender missing');
+      const player = [...cut.physicalWorld.defenders, ...cut.physicalWorld.runners].find(d => d.playerId === body.source.playerId); if (!player) return fail('starting-world scene participant missing');
       if (player.velocity.x !== 0 || player.velocity.z !== 0) return fail('moving defender requires owned body trajectory');
       return body.actor.primitives.map(p => ({ center: { x: player.position.x + p.offset.x, y: body.actor.bodyOriginHeightMeters + p.offset.y, z: player.position.z + p.offset.z }, radiusMeters: p.radius }));
     });

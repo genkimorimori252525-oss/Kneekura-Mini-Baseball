@@ -95,6 +95,26 @@ it('CC05 rejects injected end/ruling fields and leaves uncovered receiver bodies
   const value = deriveSamePaCatchCommunication({ ...f, scope: { ...f.scope, segments: [] } });
   expect(value.recipients.every(r => r.kind === 'pending' && r.reason === 'receiver_pose_coverage_unavailable')).toBe(true);
 });
+it.each([1, 2, 3])('CC-occupied retains %s runner receivers and requires their original conditions and body coverage', count => {
+  const f = fixture(), ids = Array.from({ length: count }, (_, i) => 'runner-' + i);
+  const model = { ...f.model, parameters: { ...f.model.parameters!, receivers: [...f.model.parameters!.receivers,
+    ...ids.map(playerId => ({ playerId, conditions: f.model.parameters!.receivers[0].conditions }))] } };
+  const scope = { ...f.scope, participantIds: [...f.scope.participantIds, ...ids], segments: f.scope.segments.map(s => ({ ...s,
+    actors: [...s.actors, ...ids.map(playerId => ({ ...s.actors[0], playerId,
+      primitive: { ...s.actors[0].primitive, startVelocity: point } }))] })) };
+  const input = { ...f, model, scope, source: { ...f.source, modelReference: originalRef(model) } };
+  const value = deriveSamePaCatchCommunication(input);
+  expect(value.recipients.map(r => r.playerId)).toEqual([...scope.participantIds].sort());
+  for (const playerId of ids) {
+    expect(value.recipients.find(r => r.playerId === playerId)).toMatchObject({ kind: 'received', receiverPosition: { x: 1, y: 1, z: 0 } });
+    expect(samePaCatchCommunicationObservationAt(value, playerId, scope.at).kind).toBe('received');
+  }
+  const absent = deriveSamePaCatchCommunication({ ...input, scope: { ...scope, segments: f.scope.segments } });
+  expect(absent.recipients.filter(r => ids.includes(r.playerId)).every(r => r.kind === 'pending' && r.reason === 'receiver_pose_coverage_unavailable')).toBe(true);
+  const uncalibrated = deriveSamePaCatchCommunication({ ...input, model: f.model, source: f.source });
+  expect(uncalibrated.recipients.filter(r => ids.includes(r.playerId)).every(r => r.kind === 'pending' && r.reason === 'receiver_conditions_unavailable')).toBe(true);
+  expect(value.consumedRecipients).toEqual([]); expect(value.physicalEnd).toBeNull();
+});
 it('CW01 captures inert independent Sources and rejects caller closure or changed original action', () => {
   const f = fixture('not_caught'), originals = { source: f.source, action: f.action, assignment: f.assignment, person: f.person, model: f.model };
   const source = samePaCatchWorkInput({ sourceId: 'work', sourceVersion: 'fixture-v1', capability: 'same_pa_catch_work_v1',

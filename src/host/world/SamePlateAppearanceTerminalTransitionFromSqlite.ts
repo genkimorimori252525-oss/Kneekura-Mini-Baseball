@@ -1,3 +1,4 @@
+import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -121,7 +122,7 @@ const defenders = (db: DatabaseSync, endpoint: SamePaTerminalEndpoint, source: E
   if (new Set(result.map(d => d.personId)).size !== 9) throw new Error('same-PA transition incoming defender Persons overlap');
   return result;
 };
-/** The complete immutable endpoint and all ten normal workload effects are
+/** The complete immutable endpoint and all original participant normal workload effects are
  * authenticated before deriving any Match/scoring/activation mutation. */
 export const deriveSamePaTerminalTransition = (db: DatabaseSync, raw: AcceptedSamePaTerminalTransition,
   archived?: SamePaTerminalTransitionRecord, mode: SamePaTerminalProofMode = archived ? 'historical' : 'current'): SamePaTerminalTransitionRecord => {
@@ -129,19 +130,19 @@ export const deriveSamePaTerminalTransition = (db: DatabaseSync, raw: AcceptedSa
   const endpoint = readSamePaTerminalEndpointFromSqlite(db, source.terminalReference, mode);
   same(source.terminalReference, { owner: 'pa_terminal_v1_endpoints', sourceId: endpoint.source.sourceId, sourceHash: hash(endpoint.source), snapshotHash: hash(endpoint) }, 'endpoint reference differs');
   const settled = readSamePaTerminalSettlementFromSqlite(db, source.settlementReference);
-  if (settled.kind !== 'settled' || settled.participants.length !== 10 || settled.participants.some(p => !p.applied)
-    || new Set(settled.participants.map(p => p.playerId)).size !== 10) throw new Error('same-PA transition requires ten settled normal workload effects');
+  if (settled.kind !== 'settled' || settled.participants.length !== endpoint.lineage.participantReferences.length || settled.participants.some(p => !p.applied)
+    || new Set(settled.participants.map(p => p.playerId)).size !== endpoint.lineage.participantReferences.length) throw new Error('same-PA transition requires complete settled normal workload effects');
   same(settled.plan.source.terminalReference, source.terminalReference, 'settlement endpoint differs');
   same(settled.plan.lineage, endpoint.lineage, 'settlement lineage differs');
   same(settled.plan.coverageHash, endpoint.coverageHash, 'final coverage differs');
-  same(settled.plan.participants, endpoint.participants, 'final ten TOTALs differ');
+  same(settled.plan.participants, endpoint.participants, 'final complete TOTALs differ');
   const actor = endpoint.actor, basis = endpoint.controllerRetirementBasis, closure = getOfficialPlayClosure(endpoint.officialLedger);
   if (actor.source.gameId !== endpoint.lineage.gameId || actor.match.playId !== endpoint.lineage.playId || actor.binding.careerId !== endpoint.lineage.careerId
     || !closure || basis.completedAtTick !== endpoint.physicalCompletedAtTick || endpoint.physicalCompletedAtTick > closure.closedAtTick
-    || basis.participants.length !== 10 || new Set(basis.participants.map(p => p.playerId)).size !== 10)
+    || basis.participants.length !== endpoint.lineage.participantReferences.length || new Set(basis.participants.map(p => p.playerId)).size !== endpoint.lineage.participantReferences.length)
     throw new Error('same-PA transition final physical/official identity differs');
-  const bindings = [actor.binding, ...actor.defenderBindings];
-  same(basis.participants.map(p => [p.playerId, p.personId]).sort(), bindings.map(p => [p.playerId, p.personId]).sort(), 'retirement ten-player membership differs');
+  const bindings = readSamePaOriginalParticipants(db,actor).map(p=>p.binding);
+  same(basis.participants.map(p => [p.playerId, p.personId]).sort(), bindings.map(p => [p.playerId, p.personId]).sort(), 'retirement original participant membership differs');
   if (mode === 'current') for (const participant of settled.participants) {
     const binding = bindings.find(b => b.playerId === participant.playerId);
     if (!binding) throw new Error('same-PA transition settled Player membership differs');

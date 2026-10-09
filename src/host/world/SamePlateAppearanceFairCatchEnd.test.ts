@@ -1,3 +1,4 @@
+import { deriveSamePaStationaryOccupiedRunners, type SamePaStationaryHoldBasis } from './SamePlateAppearanceStationaryOccupiedRunners';
 import { expect, it, vi } from 'vitest';
 import type { DatabaseSync } from 'node:sqlite';
 import { fixture, material, v } from '../../core/sim/ball/BattedWorldScheduledFieldThrow.test-support';
@@ -19,6 +20,7 @@ import { samePaExecutionReference as reference } from './SamePlateAppearanceExec
 import { actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import type { SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep, SamePaPhysicalFieldStepSource } from './SamePlateAppearancePhysicalEpisode';
 const mocks=vi.hoisted(()=>({pair:null as unknown,original:null as unknown,live:null as unknown,work:null as unknown,prefix:null as unknown}));
+vi.mock('./SamePlateAppearanceOriginalParticipants',()=>({readSamePaOriginalParticipants:(_db:unknown,actor:any)=>[actor.binding,...actor.defenderBindings,...actor.world.runners.map((r:any)=>({playerId:r.playerId}))].map(binding=>({binding}))}));
 vi.mock('./SamePlateAppearanceFieldRuleEvidenceFromSqlite',()=>({readSamePaFieldRuleEvidenceWithInputsFromSqlite:(_db:unknown,r:{sourceId:string})=>r.sourceId==='call-view'?mocks.original:mocks.pair}));
 vi.mock('./SamePlateAppearanceAdmittedLiveWorkFromSqlite',()=>({readSamePaAdmittedLiveWorkFromSqlite:()=>mocks.live}));
 vi.mock('./SamePlateAppearanceCatchWorkFromSqlite',()=>({readSamePaCatchWorkFromSqlite:()=>mocks.work}));
@@ -27,20 +29,22 @@ const ref=<T extends string>(owner:T,sourceId=owner as string)=>({owner,sourceId
 const fieldRef=(f:SamePaPhysicalFieldRoot|SamePaPhysicalFieldStep)=>reference(f.kind==='same_pa_physical_field_root_v1'?'pa_physical_v1_field_roots':'pa_physical_v1_field_steps',f);
 /** Structural Native read seams only. Core generates all contact, acquisition,
  * physical suffix, census and reception facts; no durable ownership is claimed. */
-const setup=(reception:'future'|'dropped'|'received'='future')=>{
-  const input=fixture(0,1,5,5),ids=['batter','carrier','receiver',...Array.from({length:7},(_,i)=>'defender-'+i)],roles=['body','glove','tag_hand','left_foot','right_foot'] as const;
+const setup=(reception:'future'|'dropped'|'received'='future',occupiedCount=0,outs=0)=>{
+  const runnerIds=Array.from({length:occupiedCount},(_,i)=>'runner-'+i);
+  const input=fixture(0,1,5,5),ids=['batter','carrier','receiver',...Array.from({length:7},(_,i)=>'defender-'+i),...runnerIds],roles=['body','glove','tag_hand','left_foot','right_foot'] as const;
   const actors=ids.flatMap((playerId,index)=>roles.map((role,j)=>{
     const glove=input.response.world.actors.find(a=>a.playerId===playerId)?.primitive;
+    const runner=runnerIds.indexOf(playerId),bag=runner<0?null:input.geometry.baseGeometry.bases[(['first','second','third'] as const)[runner]];
     return{playerId,primitive:{role,radius:0.125,startTick:0,endTick:5_000_000,ticksPerSecond:1_000_000,
-      startCenter:role==='glove'&&glove?glove.startCenter:v(20+index*5,10+j,5),startVelocity:glove?.startVelocity??v(0,0,0),acceleration:v(0,0,0)}};
+      startCenter:bag?v(bag.region.center.x,role.endsWith('foot')?1:2,bag.region.center.z):role==='glove'&&glove?glove.startCenter:v(20+index*5,10+j,5),startVelocity:glove?.startVelocity??v(0,0,0),acceleration:v(0,0,0)}};
   }));
   const response={...input.response,world:{...input.response.world,actors},actors:actors.map(a=>({playerId:a.playerId,
     profile:a.primitive.role==='glove'?input.response.actors[0].profile:{role:a.primitive.role,material}}))};
   const field=deriveInitialBattedWorldFieldMotion({...input,response,commands:actors.map(a=>({playerId:a.playerId,role:a.primitive.role,acceleration:v(0,0,0)}))});
-  const match={ruleProfileId:asRuleProfileId('npb-2026'),playId:1,inning:1,half:'top' as const,outs:0,balls:0,strikes:0,bases:{first:null,second:null,third:null},score:{away:0,home:0}};
+  const match={ruleProfileId:asRuleProfileId('npb-2026'),playId:1,inning:1,half:'top' as const,outs,balls:0,strikes:0,bases:{first:runnerIds[0]??null,second:runnerIds[1]??null,third:runnerIds[2]??null},score:{away:0,home:0}};
   const timeline=recordBatBallContact(createCanonicalPlateAppearanceTimeline(match,0),response.world.flight.contact);
   const lineage={enrollmentReference:ref('same_pa_enrollments','enrollment'),actorReference:ref('physical_plate_appearance_actors','actor'),careerId:'career',gameId:'game',playId:1,firstPhysicalPitchSourceId:'pitch',participantReferences:[]};
-  const root={kind:'same_pa_physical_field_root_v1',source:{sourceId:'root',sourceVersion:'fixture-only',parameters:response.world.parameters,liveProducerProfile:'same_pa_empty_base_catch_v1'},
+  const root={kind:'same_pa_physical_field_root_v1',source:{sourceId:'root',sourceVersion:'fixture-only',parameters:response.world.parameters,liveProducerProfile:occupiedCount?'same_pa_stationary_occupied_catch_v1':'same_pa_empty_base_catch_v1'},
     physicalPitchSourceId:'pitch',pitchOrdinal:1,operationOrdinal:1,evaluationTick:field.motion.world.moment.ball.tick,response,geometry:input.geometry,field,lineage,timeline} as unknown as SamePaPhysicalFieldRoot;
   const source=(old:SamePaPhysicalFieldRoot|SamePaPhysicalFieldStep,id:string,throughTick:number,action:SamePaPhysicalFieldStepSource['action']):SamePaPhysicalFieldStepSource=>({sourceId:id,sourceVersion:'fixture-only',capability:'same_pa_physical_field_step_v1',
     viewReference:ref('pa_lifecycle_v1_execution_views'),launchReference:ref('pa_physical_v1_launches','pitch'),previousOperationReference:fieldRef(old),previousFieldReference:fieldRef(old),fieldRootReference:reference('pa_physical_v1_field_roots',root),throughTick,action});
@@ -48,14 +52,20 @@ const setup=(reception:'future'|'dropped'|'received'='future')=>{
   const capture:SamePaPhysicalFieldStep={...root,...deriveSamePaPhysicalFieldCapture(cs,root,root,root),kind:'same_pa_physical_field_step_v1',source:cs,operationOrdinal:2};
   const ss=source(capture,'seal',capture.evaluationTick,{kind:'retained_quantizer_checkpoint_v1'});
   const seal:SamePaPhysicalFieldStep={...capture,...deriveSamePaPhysicalQuantizerCheckpoint(ss,root,capture),source:ss,operationOrdinal:3};
-  const scope={batterRunnerId:'batter',defenderIds:ids.slice(1),outsAtStart:0};
+  const scope={batterRunnerId:'batter',defenderIds:ids.slice(1,10),outsAtStart:outs,occupiedRunnerIds:runnerIds};
   const evidence=deriveSamePaFieldRuleEvidence({...scope,fields:[root,capture,seal]}),originalEvidence=deriveSamePaFieldRuleEvidence({...scope,fields:[root,capture]});
-  const fairCatch=deriveSamePaFairCatchRuleBasis({originalMatch:match,originalTimeline:timeline,evidence}),originalCatch=deriveSamePaFairCatchRuleBasis({originalMatch:match,originalTimeline:timeline,evidence:originalEvidence});
+  const holds:SamePaStationaryHoldBasis[]=runnerIds.map((playerId,i)=>({source:{sourceId:'hold-'+i,sourceVersion:'test',playerId,enrollmentReference:lineage.enrollmentReference,coverageThroughTick:5_000_000},
+    startingBase:([1,2,3] as const)[i],setup:{position:input.geometry.baseGeometry.bases[(['first','second','third'] as const)[i]].region.center},
+    body:{actor:{bodyOriginHeightMeters:2,primitives:roles.map(role=>({role,radius:0.125,offset:v(0,role.endsWith('foot')?-1:0,0)}))}}}));
+  const proof=(e:any)=>occupiedCount?deriveSamePaStationaryOccupiedRunners({match,root,holds,evidence:e}):undefined;
+  const occupiedRunners=proof(evidence),originalOccupiedRunners=proof(originalEvidence);
+  if(occupiedRunners?.kind==='pending'||originalOccupiedRunners?.kind==='pending')throw new Error('fixture stationary history missing');
+  const fairCatch=deriveSamePaFairCatchRuleBasis({originalMatch:match,originalTimeline:timeline,evidence,...(occupiedRunners?{occupiedRunners}:{})}),originalCatch=deriveSamePaFairCatchRuleBasis({originalMatch:match,originalTimeline:timeline,evidence:originalEvidence,...(originalOccupiedRunners?{occupiedRunners:originalOccupiedRunners}:{})});
   const moment=seal.field.motion.world.moment,at={originTick:0,elapsedSeconds:moment.elapsedSeconds,tick:moment.ball.tick};
   const calledMoment=capture.field.motion.world.moment,calledAt={originTick:0,elapsedSeconds:calledMoment.elapsedSeconds,tick:calledMoment.ball.tick};
   const action={sourceId:'action',sourceVersion:'fixture-only',capability:'same_pa_explicit_catch_action_v1' as const,assignmentReference:{sourceId:'assignment',sourceVersion:'fixture-only',sourceHash:hash('assignment')},
     officialId:'umpire',personId:'umpire-person',viewReference:ref('pa_lifecycle_v1_execution_views','call-view'),judgment:'caught' as const,calledAt};
-  const operative=deriveSamePaCatchOperativeRuling({action,originalMatch:match,batterRunnerId:'batter',basisTick:calledAt.tick,basisEvidenceRevision:2,fairCatch:originalCatch});
+  const operative=deriveSamePaCatchOperativeRuling({action,originalMatch:match,batterRunnerId:'batter',basisTick:calledAt.tick,basisEvidenceRevision:2,fairCatch:originalCatch,...(originalOccupiedRunners?{occupiedRunners:originalOccupiedRunners}:{})});
   const emitted={sourceId:'umpire',targetScope:{kind:'nearby' as const},kind:'callout' as const,issuedAt:calledAt.tick,content:{actionSourceId:'action',officialId:'umpire',personId:'umpire-person',judgment:'caught' as const,calledAt}};
   const recipients=ids.map(playerId=>{
     const received=resolveExactCommunicationReception(emitted,calledAt.elapsedSeconds,{originTick:0,ticksPerSecond:1_000_000},{propagationDelayTicks:reception==='future'?100:0,
@@ -65,10 +75,10 @@ const setup=(reception:'future'|'dropped'|'received'='future')=>{
   });
   const catchWorkReference=ref('pa_catch_v1_work','work'),physicalPitchReference=ref('pa_physical_v1_launches','pitch'),viewReference=ref('pa_lifecycle_v1_execution_views','end-view');
   const view={source:{prefixReference:ref('pa_lifecycle_v1_work_prefixes','prefix')},lineage,coverageHash:hash('coverage'),cut:{physicalPitchReference,physicalOperationReference:fieldRef(seal)}};
-  const actor={binding:{playerId:'batter'},defenderBindings:ids.slice(1).map(playerId=>({playerId}))};
-  const value={fairCatch,evidence,evidenceHash:hash(evidence),viewReference,lineage,originalMatch:match,originalTimeline:timeline,physicalPitchReference,physicalOperationReference:fieldRef(seal),fieldReferences:[root,capture,seal].map(fieldRef)};
+  const actor={binding:{playerId:'batter'},defenderBindings:ids.slice(1,10).map(playerId=>({playerId})),world:{runners:runnerIds.map(playerId=>({playerId}))},match};
+  const value={occupiedRunners,fairCatch,evidence,evidenceHash:hash(evidence),viewReference,lineage,originalMatch:match,originalTimeline:timeline,physicalPitchReference,physicalOperationReference:fieldRef(seal),fieldReferences:[root,capture,seal].map(fieldRef)};
   const pair={kind:'same_pa_field_rule_read_pair_v1',value,fields:[root,capture,seal],actor,view};
-  const original={...pair,value:{...value,fairCatch:originalCatch,evidence:originalEvidence,viewReference:action.viewReference,evidenceHash:hash(originalEvidence)}};
+  const original={...pair,value:{...value,occupiedRunners:originalOccupiedRunners,fairCatch:originalCatch,evidence:originalEvidence,viewReference:action.viewReference,evidenceHash:hash(originalEvidence)}};
   const census={...deriveSamePaLiveWorkCensus({fields:pair.fields,participantIds:ids,observationPolicies:[],possessionEvidence:evidence.rule.possessionEvidence}),runnerPlans:[]};
   const live={kind:'same_pa_live_work_read_v1',census,communication:{kind:'owned_same_pa_catch_communication_v1',latestReference:catchWorkReference,emitted,recipients}};
   const work={lineage,physicalPitchReference,physicalOperationReference:fieldRef(seal),operative,originalInputs:{action},communication:{evaluatedThrough:at}};
@@ -77,7 +87,7 @@ const setup=(reception:'future'|'dropped'|'received'='future')=>{
   return{run,pair,original,live,work,seal,root};
 };
 it.each(['future','dropped'] as const)('ends only after actual sealed coverage and keeps genuine %s receptions in the finalizer',kind=>{
-  const h=setup(kind),result=h.run();expect(result.kind).toBe('same_pa_fair_catch_physical_end_v1');
+  const h=setup(kind),result=h.run();expect(h.live.census).not.toHaveProperty('occupiedRunnerCatchResponses');expect(result.kind).toBe('same_pa_fair_catch_physical_end_v1');
   if(result.kind==='pending')throw new Error(result.reason);
   expect(result.registry.resolution.kind).toBe('ended');expect(result.registry.frontier.physical).toHaveLength(10);
   expect(result.registry.frontier.actors.every(a=>a.kind==='acting')).toBe(true);
@@ -120,4 +130,18 @@ it('accepts only original catch-work, physical-cut and scheduler references at o
   expect(samePaLifecycleOutcomeInput(source)).toEqual(source);
   for(const extra of [{playEnd:{tick:1}},{registry:{}},{complete:true},{ruling:{outsAfter:1}}])expect(()=>samePaLifecycleOutcomeInput({...source,...extra})).toThrow();
   expect(()=>samePaLifecycleOutcomeInput({...source,catchWorkReference:ref('actual_call_communications','legacy')})).toThrow();
+});
+it.each([1,2,3])('occupied third-out keeps %s original runners, future work and exact base histories in the authenticated end',count=>{
+  const h=setup('future',count,2),result=h.run();expect(result.kind).toBe('same_pa_fair_catch_physical_end_v1');
+  if(result.kind==='pending')throw new Error(result.reason);
+  expect(result.occupiedRunners?.runners).toHaveLength(count);
+  expect(h.live.census).toHaveProperty('occupiedRunnerCatchResponses',{pending:[],adopted:[]});
+  expect(result.scoringEvidence.occupiedRunners).toEqual(result.occupiedRunners);
+  expect(result.registry.frontier.physical).toHaveLength(10+count);
+  expect(result.registry.frontier.information).toHaveLength(10+count);
+  expect(result.generation.bodyBaseHistoryHashes).toHaveLength(4*(10+count));
+});
+it('occupied non-third-out retains future live producers and never adopts the empty-base terminal shortcut',()=>{
+  const h=setup('future',3,0);
+  expect(h.run()).toEqual({kind:'pending',reason:'occupied_live_producer_completion_required'});
 });

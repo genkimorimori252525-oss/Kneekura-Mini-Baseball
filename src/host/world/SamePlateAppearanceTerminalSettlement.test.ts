@@ -10,11 +10,17 @@ import { samePaTerminalSettlementInput, type AcceptedSamePaTerminalSettlement } 
 import type { SamePaTerminalEndpoint, SamePaTerminalTransitionRead } from './SamePlateAppearanceTerminalEndpoint';
 import * as terminal from './SamePlateAppearanceTerminalEndpointFromSqlite';
 import * as transitions from './SamePlateAppearanceTerminalTransitionFromSqlite';
+import * as settlementEvidence from './SamePlateAppearanceTerminalSettlementFromSqlite';
 import { samePaSettlementSchema } from './SamePlateAppearanceTerminalSettlementStorage';
 import { assertNoSamePaWorkReservation } from './SamePlateAppearanceReservationGuard';
 import { reservedPaSchema } from './SamePlateAppearanceExecutionStorage';
 import { readReservedPaClaimRows } from './SamePlateAppearanceProvisionalClaimGuard';
 import { boundaryFixture } from './ActualFoulTerminalBoundaryFixtures.test-support';
+import * as startingGeometry from './SamePlateAppearanceLifecycleStartingGeometry';
+import { readActualRoleWorkloadState } from './ActualRoleWorkloadState';
+import type { AcceptedPlayerIntakeSource } from './SqlitePlayerPersonLinkStore';
+import type { DatabaseSync } from 'node:sqlite';
+import { readSamePaTerminalReleaseArchive } from './SamePlateAppearanceTerminalReleaseArchive';
 
 // Isolated structural Native tests: original actor and physical/official
 // terminal readers are mocked. All ten workload activities, CAS, transactions,
@@ -22,10 +28,37 @@ import { boundaryFixture } from './ActualFoulTerminalBoundaryFixtures.test-suppo
 const owners: { close(): void }[] = [], fixtures: ReturnType<typeof enrollmentFixture>[] = [];
 afterEach(() => { owners.splice(0).reverse().forEach(owner => owner.close()); fixtures.splice(0).reverse().forEach(f => f.close()); vi.restoreAllMocks(); });
 const reference = <T extends string>(owner: T, value: { source: { sourceId: string } }) => ({ owner, sourceId: value.source.sourceId, sourceHash: hash(value.source), snapshotHash: hash(value) });
-const setup = () => {
+const setup = (runnerCount = 0) => {
   const f = enrollmentFixture(); fixtures.push(f);
-  const enroll = openSqliteSamePlateAppearanceEnrollmentStore(f.path, { readAcceptedEnrollment: () => f.source }); owners.push(enroll);
-  const enrollment = enroll.accept(f.source.sourceId);
+  const enrollmentSource = structuredClone(f.source);
+  if (runnerCount) {
+    // Original actor/geometry remain explicitly substituted for this isolated
+    // transaction test. Runner Person rows, baselines, reservation, release SQL
+    // and its total_changes guard use the real owners.
+    const actor = f.actor as any, centers = { first: { x: 27, z: 0 }, second: { x: 27, z: 27 }, third: { x: 0, z: 27 } };
+    actor.match.half = 'top'; actor.match.balls = 0; actor.match.strikes = 0; actor.world.tick = 100;
+    f.db.exec('CREATE TABLE official_participant_bindings(game_id TEXT,player_id TEXT,binding_json TEXT)');
+    const originalRead = f.personLinks.readLink, runnerPersons = new Map<string, AcceptedPlayerIntakeSource>();
+    vi.spyOn(f.personLinks, 'readLink').mockImplementation(id => runnerPersons.get(id) ?? originalRead(id));
+    vi.spyOn(startingGeometry, 'samePaStartingBaseCenters').mockReturnValue(centers);
+    const runnerBaselines = Array.from({ length: runnerCount }, (_, i) => {
+      const playerId = 'runner-' + (i + 1), base = (['first', 'second', 'third'] as const)[i];
+      const person: AcceptedPlayerIntakeSource = { ...actor.person, sourceId: 'intake-' + playerId, playerId, personId: 'person-' + playerId, sourceRecordId: 'record-' + playerId };
+      runnerPersons.set(person.sourceId, person);
+      f.db.prepare('INSERT INTO world_player_person_links VALUES(?,?,?,?,?,?,?)').run(person.sourceId, person.careerId, playerId, person.personId, person.rosterRevision, person.acceptedAtDay, json(person));
+      const binding = { ...actor.binding, playerId, personId: person.personId, personLinkSourceId: person.sourceId };
+      f.db.prepare('INSERT INTO official_participant_bindings VALUES(?,?,?)').run(binding.gameId, playerId, json(binding));
+      const baseline = { ...f.baselines.values().next().value!, sourceId: 'baseline-' + playerId, playerId, personLinkSourceId: person.sourceId };
+      f.baselines.set(baseline.sourceId, baseline); f.workload.initialize(baseline.sourceId);
+      actor.match.bases[base] = playerId; actor.world.runners.push({ playerId, position: centers[base], velocity: { x: 0, z: 0 } });
+      return { playerId, baselineSourceId: baseline.sourceId, revision: 0, stateHash: hash(readActualRoleWorkloadState(f.db, binding.careerId, playerId)) };
+    });
+    f.persistActor();
+    Object.assign(enrollmentSource, { capability: 'reserved_same_pa_enrollment_v2', actorReference: reference('physical_plate_appearance_actors', actor),
+      participantBaselineReferences: [...enrollmentSource.participantBaselineReferences, ...runnerBaselines] });
+  }
+  const enroll = openSqliteSamePlateAppearanceEnrollmentStore(f.path, { readAcceptedEnrollment: () => enrollmentSource }); owners.push(enroll);
+  const enrollment = enroll.accept(enrollmentSource.sourceId);
   if (enrollment.kind !== 'reserved') throw new Error('test reservation missing');
   const enrollmentReference = reference('same_pa_enrollments', enrollment);
   const lineage = { enrollmentReference, actorReference: enrollment.source.actorReference, careerId: enrollment.careerId,
@@ -133,6 +166,44 @@ it('rolls back release and all active lease retirements after reaching the fourt
   try{expect(() => x.owner.release(x.source.sourceId)).toThrow('structural fourth lease delete');expect(deletes).toBe(4);}finally{witness.close();}
   expect(count(x.f.db, 'same_pa_participant_reservations')).toBe(10); expect(count(x.f.db, 'pa_settlement_v1_releases')).toBe(0);
   expect(x.owner.release(x.source.sourceId).memberRows).toHaveLength(10);
+});
+it('occupied release with three runners accounts for every original lease and rolls back partial deletion', () => {
+  const runnerCount = 3, x = setup(runnerCount), frozen = x.owner.freeze(x.source.sourceId);
+  // Substitute already-settled lower evidence and its replay with the real
+  // structural release archive reader. This qualifies the public transaction,
+  // not a genuine physical/official/workload chain.
+  const settled = { ...frozen, kind: 'settled' as const, participants: frozen.participants.map(p => ({ ...p, applied: true })) };
+  vi.spyOn(settlementEvidence, 'readSamePaTerminalSettlementFromSqlite').mockImplementation((_db, ref) => {
+    expect(ref).toEqual(settled.reference); return settled;
+  });
+  vi.spyOn(settlementEvidence, 'readSamePaTerminalReleaseFromSqlite').mockImplementation(readSamePaTerminalReleaseArchive);
+  x.complete();
+  const rows = () => ['pa_settlement_v1_releases', 'same_pa_participant_reservations'].map(table => x.f.db.prepare('SELECT rowid,* FROM main.' + table + ' ORDER BY rowid').all());
+  const before = json(rows()); let deleted = 0;
+  const fault = witnessSqliteWrite(/^DELETE FROM main\.same_pa_participant_reservations/, () => {
+    if (++deleted === 4) throw new Error('occupied fourth lease effect'); return true;
+  });
+  try { expect(() => x.owner.release(x.source.sourceId)).toThrow('occupied fourth lease effect'); expect(deleted).toBe(4); }
+  finally { fault.close(); }
+  expect(json(rows())).toBe(before);
+  let connection: DatabaseSync | undefined, beforeChanges: number | undefined, writes = 0;
+  const witness = witnessSqliteWrite(/^(?:INSERT INTO main\.pa_settlement_v1_releases|DELETE FROM main\.same_pa_participant_reservations)/, db => {
+    if (!connection) { connection = db; beforeChanges = Number(db.prepare('SELECT total_changes() n').get()!.n); }
+    expect(db).toBe(connection); writes++; return true;
+  }, 'before');
+  try {
+    // This invokes the real public writer and its unchanged transaction guard.
+    // A constant11 accounting value fails here for every occupied membership.
+    const released = x.owner.release(x.source.sourceId);
+    expect(released.memberRows).toHaveLength(10 + runnerCount);
+    expect(connection).toBeDefined();
+    expect(Number(connection!.prepare('SELECT total_changes() n').get()!.n) - beforeChanges!).toBe(11 + runnerCount);
+    expect(writes).toBe(11 + runnerCount); expect(connection!.isTransaction).toBe(false);
+    expect(count(x.f.db, 'pa_settlement_v1_releases')).toBe(1); expect(count(x.f.db, 'same_pa_participant_reservations')).toBe(0);
+    const saved = json(rows()); expect(x.owner.release(x.source.sourceId)).toEqual(released); expect(json(rows())).toBe(saved);
+    expect(writes).toBe(11 + runnerCount);
+    expect(Number(connection!.prepare('SELECT total_changes() n').get()!.n) - beforeChanges!).toBe(11 + runnerCount);
+  } finally { witness.close(); }
 });
 it('rejects malformed partial settlement storage without upgrading it on open', () => {
   const f = enrollmentFixture(); fixtures.push(f); f.db.exec(samePaSettlementSchema.pa_settlement_v1_plans);

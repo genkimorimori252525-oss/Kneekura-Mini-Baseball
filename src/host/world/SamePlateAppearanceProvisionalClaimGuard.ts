@@ -1,7 +1,8 @@
+import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
 import { samePaPlayerClaimCanProceed } from './SamePlateAppearanceSettlementAdmission';
 import type { DatabaseSync } from 'node:sqlite';
 import { assertNoPaDispatchPlayerClaim, assertNoPaDispatchWorkClaim, assertFreshPaDispatchEnrollment } from './SamePlateAppearanceDispatchClaimGuard';
-import { actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { actorHash as hash, actorJson as json, type DurablePhysicalPlateAppearanceActor } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { samePaId as id, type ReservedSamePlateAppearanceEnrollment } from './SamePlateAppearanceEnrollment';
 import { assertSamePaStorage, authenticateSamePaRow, samePaEnrollmentRow, samePaMetadataClaim as claim } from './SamePlateAppearanceReservationGuard';
 import { assertReservedPaStorage, reservedPaSchema } from './SamePlateAppearanceExecutionStorage';
@@ -56,13 +57,13 @@ const authenticatedLineage = (db: Db, ref: Reference): Lineage => {
   const root: ReservedSamePlateAppearanceEnrollment = authenticateSamePaRow(db, row!);
   const actorRef = root.source.actorReference, actor = authorityRow(db, 'physical_plate_appearance_actors', actorRef.sourceId, true);
   const actorSource = document<{ sourceId: string; gameId: string; playerId: string }>(actor.source_json);
-  const actorValue = document<{ source: unknown; binding: { careerId: string; playerId: string }; match: { playId: number }; defenderBindings: unknown[] }>(actor.snapshot_json);
+  const actorValue = document<DurablePhysicalPlateAppearanceActor>(actor.snapshot_json);
   if (actor.source_hash !== actorRef.sourceHash || actor.snapshot_hash !== actorRef.snapshotHash
     || actor.source_hash !== hash(actorSource) || actor.snapshot_hash !== hash(actorValue) || json(actorValue.source) !== json(actorSource)
     || actorSource.sourceId !== actorRef.sourceId || actorSource.gameId !== root.gameId || actorValue.match.playId !== root.playId
     || actorValue.binding.careerId !== root.careerId || actor.game_id !== root.gameId || actor.play_id !== root.playId
     || actor.player_id !== actorSource.playerId || actorSource.playerId !== actorValue.binding.playerId
-    || json([actorValue.binding, ...actorValue.defenderBindings].sort((a, b) => String((a as { playerId: string }).playerId).localeCompare(String((b as { playerId: string }).playerId)))) !== json(root.participants.map(p => p.binding).sort((a, b) => a.playerId.localeCompare(b.playerId)))) fail('original actor authority differs');
+    || json(readSamePaOriginalParticipants(db,actorValue).map(p=>p.binding).sort((a,b)=>a.playerId.localeCompare(b.playerId))) !== json(root.participants.map(p => p.binding).sort((a, b) => a.playerId.localeCompare(b.playerId)))) fail('original actor authority differs');
   const participantReferences = root.participants.map(p => {
     const baseline = authorityRow(db, 'world_player_workload_baselines', p.baselineSourceId, false);
     const source = document<{ sourceId: string; careerId: string; playerId: string }>(baseline.source_json);
@@ -111,8 +112,8 @@ const claims = (db: Db): Claim[] => {
         } else {
           if (!fields(source, ['sourceId', 'sourceVersion', 'capability', 'enrollmentReference', 'prefixReference', 'participantTotalReferences'])
             || source.capability !== 'reserved_same_pa_cumulative_view_v1' || value.kind !== 'basis_prepared'
-            || !Array.isArray(source.participantTotalReferences) || source.participantTotalReferences.length !== 10
-            || new Set(source.participantTotalReferences.map(p => p.playerId)).size !== 10
+            || !Array.isArray(source.participantTotalReferences) || source.participantTotalReferences.length !== lineage.participantReferences.length
+            || new Set(source.participantTotalReferences.map(p => p.playerId)).size !== lineage.participantReferences.length
             || source.participantTotalReferences.some(p => !fields(p, ['playerId', 'assessmentReference']) || !lineage!.participantReferences.some(r => r.playerId === p.playerId))
             || row.assessment_set_hash !== hash([...source.participantTotalReferences].sort((a, b) => a.playerId < b.playerId ? -1 : a.playerId > b.playerId ? 1 : 0))) fail('view assessment set differs');
         }

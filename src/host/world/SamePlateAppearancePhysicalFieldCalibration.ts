@@ -1,4 +1,5 @@
 import type { DatabaseSync } from 'node:sqlite';
+import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { replayClubEvents } from '../../core/world/club/ClubEvents';
 import { createBattedWorldBaseGeometry, type BattedWorldBaseGeometryInput } from '../../core/sim/ball/BattedWorldBaseGeometry';
@@ -48,13 +49,14 @@ export const deriveSamePaPhysicalFieldCalibration=(db:DatabaseSync,source:SamePa
   const row=db.prepare('SELECT * FROM main.world_batted_body_materializations WHERE source_id=?').get(source.bodyModelReference.sourceId);
   if(!model||!row)throw new Error('field calibration normal body assembly missing');
   same(source.bodyModelReference,{owner:'world_batted_body_materializations',sourceId:model.sourceId,sourceHash:hash(JSON.parse(String(row.source_json))),snapshotHash:hash(model)});
-  const bodies=[posture.model.bodyMaterialization,...posture.sceneBodies];
+  const bodies=[posture.model.bodyMaterialization,...posture.sceneBodies],participants=readSamePaOriginalParticipants(db,actor);
   if(model.gameId!==actor.source.gameId||model.careerId!==actor.binding.careerId||model.fixtureEventId!==actor.binding.fixtureEventId||model.venueId!==fixture.venue_id
-    ||model.availableAtDay>actor.binding.gameDay||model.actors.length!==10||bodies.length!==10)throw new Error('field calibration actual all-ten model scope differs');
+    ||model.availableAtDay>actor.binding.gameDay||model.actors.length!==participants.length||bodies.length!==participants.length)throw new Error('field calibration exact participant model scope differs');
+  same(bodies.map(b=>b.source.playerId).sort(),participants.map(p=>p.binding.playerId).sort());
   for(const body of bodies)same(model.actors.find(a=>a.playerId===body.source.playerId),body.actor);
   const response=source.responseModel;
   if(response.gameId!==model.gameId||response.careerId!==model.careerId||response.fixtureEventId!==model.fixtureEventId||response.venueId!==model.venueId
-    ||response.availableAtDay>actor.binding.gameDay||response.actors.length!==10||source.parameters.ballRadius!==posture.model.equipment.values.ball.radiusM
+    ||response.availableAtDay>actor.binding.gameDay||response.actors.length!==participants.length||source.parameters.ballRadius!==posture.model.equipment.values.ball.radiusM
     ||source.parameters.ticksPerSecond!==action.source.actualFlightParameters.ticksPerSecond)throw new Error('field calibration response/equipment scope differs');
   for(const a of model.actors){const r=response.actors.find(r=>r.playerId===a.playerId);if(!r||r.personId!==a.personId)throw new Error('field calibration original response Person missing');
     if(r.primitives.some(p=>p.role==='glove'&&p.parameters.ballMassKg!==posture.model.equipment.values.ball.massKg))throw new Error('field calibration glove ball equipment differs');}

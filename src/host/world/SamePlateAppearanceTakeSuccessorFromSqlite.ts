@@ -20,6 +20,7 @@ import { deriveSamePaContinuationCalibration } from './SamePlateAppearanceContin
 import { readActualRoleWorkloadState } from './ActualRoleWorkloadState';
 import { readHistoricalSamePaExecutionView } from './SamePlateAppearanceHistoricalExecutionEvidenceFromSqlite';
 import { deriveSamePaDispatchRoles, samePaNativeAdapterImplemented } from './SamePlateAppearanceDispatchRoles';
+import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
 import { assertSamePaRegistrationBeforeWork } from './ActualLiveRuntimeRegistration';
 import { readPlayerPitchTimingPrefixFromSqlite, selectPlayerPitchTimingProfileFromSqlitePrefix, assertCurrentPlayerPitchTimingPrefixFromSqlite } from './SqlitePlayerPitchTimingStore';
 import { readPlayerReleaseGeometryPrefixFromSqlite, assertCurrentPlayerReleaseGeometryPrefixFromSqlite } from './SqlitePlayerReleaseGeometryStore';
@@ -95,7 +96,8 @@ const assembly = <T>(db: DatabaseSync, mode: Mode, body: (api: {
       assertPhysicalActorOpenFrame(db, actor);
       assertSamePaRegistrationBeforeWork(db, { gameId: actor.source.gameId, playId: actor.match.playId, physicalPitchSourceId: p.source.sourceId,
         actorSourceId: actor.source.sourceId, ...('initialWorldSourceId' in actor.source ? { initialWorldSourceId: actor.source.initialWorldSourceId } : { activationApplicationId: actor.source.activationApplicationId }) });
-      for (const participant of basis.view.participants) { const b = [actor.binding, ...actor.defenderBindings].find(b => b.playerId === participant.playerId)!;
+      const bindings = readSamePaOriginalParticipants(db, actor).map(p => p.binding);
+      for (const participant of basis.view.participants) { const b = bindings.find(b => b.playerId === participant.playerId)!;
         same(readActualRoleWorkloadState(db, b.careerId, b.playerId, undefined, b.personLinkSourceId), participant.reservedState); }
       same(readSamePaBattingInvocationClaims(db, { enrollmentSourceId: p.lineage.enrollmentReference.sourceId, physicalPitchSourceId: p.source.sourceId }).map(json).sort(), prefix.source.operationReferences.map(json).sort());
     }
@@ -105,7 +107,7 @@ const assembly = <T>(db: DatabaseSync, mode: Mode, body: (api: {
     if (!model) throw new Error('next TAKE normal batter model missing'); same(reference('world_player_batting_models', model), source.batterModelReference);
     if (current) { assertCurrentPlayerPitchTimingPrefixFromSqlite(db, source.timingReference, actor.binding.gameDay); assertCurrentPlayerReleaseGeometryPrefixFromSqlite(db, source.releaseReference, actor.binding.gameDay);
       same(models.selectAtDay(actor.binding.careerId, actor.binding.playerId, actor.binding.gameDay), model); }
-    if (actor.world.runners.length || actor.world.defenders.some(d => d.velocity.x !== 0 || d.velocity.z !== 0)) throw new Error('next TAKE retained body cut requires stationary original participants');
+    if ([...actor.world.runners, ...actor.world.defenders].some(d => d.velocity.x !== 0 || d.velocity.z !== 0)) throw new Error('next TAKE retained body cut requires stationary original participants');
     const completedAtTick = Math.max(p.result.resolution.timeline.lastEventTick, p.result.delivery.timeline.followThroughEndUs, basis.view.evaluationTick);
     if (source.nominalPitch.delivery.readyAtUs < completedAtTick || source.nominalPitch.batter.ballRadiusMeters !== model.equipment.values.ball.radiusM) throw new Error('next TAKE ready time or original equipment differs');
     const bodyCut = { kind: 'retained_stationary_take_body_cut_v1' as const, completedAtTick, previousPhysicalCut: basis.view.physicalCut,
@@ -121,7 +123,9 @@ const assembly = <T>(db: DatabaseSync, mode: Mode, body: (api: {
   };
   const setup = (source: AcceptedSamePaRetainedTakeSetup): SamePaRetainedTakeSetup | SamePaTakePending => {
     const action = readAction(source.actionReference), input = authenticateAction(action.source), { basis } = input;
-    const old = readHistoricalSamePaExecutionView(db, input.original.pitch.viewReference).view, roles = deriveSamePaDispatchRoles(basis.actor, old);
+    const old = readHistoricalSamePaExecutionView(db, input.original.pitch.viewReference).view, roles = deriveSamePaDispatchRoles(basis.actor, old,
+      basis.actor.world.runners.length ? readSamePaOriginalParticipants(db, basis.actor) : undefined);
+    if (source.participantInputs.length !== roles.length) throw new Error('next TAKE exact participant input set differs');
     for (const [i, role] of roles.entries()) {
       const participant = source.participantInputs[i], member = basis.members.find(m => m.playerId === role.member.playerId)!;
       same(participant.member, member); same(participant.calibrationReferences.map(c => c.route), role.routes);

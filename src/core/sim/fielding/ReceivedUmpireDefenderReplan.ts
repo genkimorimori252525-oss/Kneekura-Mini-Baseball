@@ -6,11 +6,13 @@ import { resolveDefensiveDecisionTiming } from './DefensiveDecisionTiming';
 import { resolveDefenderFirstStepTiming } from './DefenderFirstStepTiming';
 import { findNextDefensiveReplanTick } from './DefensiveReplan';
 import type {
+  ReceivedUmpireCallContent, ReceivedUmpireCaughtOutContent,
   ReceivedUmpireCallMoment as Moment, ReceivedUmpireCallOrder as Order, ReceivedUmpireCallCause as Cause,
   ReceivedUmpireDefenderOriginEvidence as Origin, ReceivedUmpireDefenderPolicyBinding as Binding,
   ReceivedUmpireDefenderReplanInput as Input, ReceivedUmpireDefenderReplan as Result,
 } from './ReceivedUmpireDefenderReplanTypes';
 export type * from './ReceivedUmpireDefenderReplanTypes';
+type Content = ReceivedUmpireCallContent | ReceivedUmpireCaughtOutContent;
 
 function check(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(`received umpire defender replan: ${message}`);
@@ -54,27 +56,27 @@ function boundary(at: Moment, ticksPerSecond: number): number {
   }
   return at.originTick + lower;
 }
-function predecessorBasis(input: Input): Origin['predecessor'] {
+function predecessorBasis<C extends Content>(input: Input<C>): Origin<C>['predecessor'] {
   const p = input.predecessor;
   return { originDecisionSourceId: p.originDecisionSourceId, originObservationSourceId: p.originObservationSourceId,
     originObservationHash: p.originObservationHash, availability: p.availability, informationOrder: p.informationOrder,
     command: p.command, motor: p.motor };
 }
-function originEvidence(input: Input): Origin {
+function originEvidence<C extends Content>(input: Input<C>): Origin<C> {
   return { physicalPitchSourceId: input.physicalPitchSourceId, playerId: input.playerId, receiverRole: input.receiverRole,
     ticksPerSecond: input.ticksPerSecond, communication: input.communication, observation: input.observation,
     model: input.model, contextualPlan: input.contextualPlan, predecessor: predecessorBasis(input) };
 }
-function causeFor(origin: Origin): Cause {
+function causeFor<C extends Content>(origin: Origin<C>): Cause {
   return { physicalPitchSourceId: origin.physicalPitchSourceId, playerId: origin.playerId,
     callSourceId: origin.communication.callSourceId, originCommunicationSourceId: origin.communication.originCommunicationSourceId };
 }
-function baseline(origin: Origin): readonly DefensiveIntentCandidate[] {
+function baseline<C extends Content>(origin: Origin<C>): readonly DefensiveIntentCandidate[] {
   return generateDefensiveIntentCandidates({ perceivedWorld: origin.observation.perceived, self: { playerId: origin.playerId },
     prePlayPlan: origin.contextualPlan.priorities, perceivedCues: [], minimumCueConfidence: origin.model.minimumCueConfidence,
     communicationTrust: origin.model.communicationTrust });
 }
-function validatePolicy(policy: NonNullable<Input['policy']>, input: Input): void {
+function validatePolicy<C extends Content>(policy: NonNullable<Input<C>['policy']>, input: Input<C>): void {
   fields(policy, ['sourceId', 'hash', 'availableAt', 'profiles']); id(policy.sourceId); id(policy.hash);
   moment(policy.availableAt, input.currentCut.originTick, input.ticksPerSecond);
   check(policy.availableAt.elapsedSeconds <= input.currentCut.elapsedSeconds, 'policy is not yet available');
@@ -84,7 +86,7 @@ function validatePolicy(policy: NonNullable<Input['policy']>, input: Input): voi
     fields(profile, ['ballPursuitPriority', 'holdPriority']); unit(profile.ballPursuitPriority); unit(profile.holdPriority);
   }
 }
-function validateInput(input: Input): void {
+function validateInput<C extends Content>(input: Input<C>): void {
   fields(input, ['processSourceId', 'physicalPitchSourceId', 'playerId', 'receiverRole', 'ticksPerSecond', 'currentCut',
     'communication', 'observation', 'predecessor', 'model', 'contextualPlan', 'policy', 'previous']);
   [input.processSourceId, input.physicalPitchSourceId, input.playerId].forEach(id);
@@ -155,7 +157,7 @@ function validateInput(input: Input): void {
   if (input.policy !== null) validatePolicy(input.policy, input);
 }
 
-function proposal(origin: Origin, binding: Binding | null): Pick<Result, 'semantic' | 'candidates' | 'selected' | 'target'> {
+function proposal<C extends Content>(origin: Origin<C>, binding: Binding | null): Pick<Result<C>, 'semantic' | 'candidates' | 'selected' | 'target'> {
   const empty = { candidates: [], selected: null, target: null } as const;
   if (origin.receiverRole !== 'defender') return { ...empty, semantic: 'receiver_role_unavailable' };
   if (origin.predecessor.motor.adoptionSourceId === null) return { ...empty, semantic: 'predecessor_work_pending' };
@@ -186,10 +188,10 @@ function proposal(origin: Origin, binding: Binding | null): Pick<Result, 'semant
 }
 
 /** Pure scheduling/decision receipt only. Native must authenticate every supplied owner and prior receipt. */
-export function deriveReceivedUmpireDefenderReplan(raw: Input): Result {
+export function deriveReceivedUmpireDefenderReplan<C extends Content = ReceivedUmpireCallContent>(raw: Input<C>): Result<C> {
   const input = cloneInert(raw); validateInput(input);
   const previous = input.previous;
-  const empty: Result = { processSourceId: input.processSourceId, cause: null, originEvidence: null, policyBinding: null,
+  const empty: Result<C> = { processSourceId: input.processSourceId, cause: null, originEvidence: null, policyBinding: null,
     trigger: 'no_new_trigger', semantic: 'ready', phase: null, originObservationSourceId: null, receivedAt: null, availableAt: null,
     scheduling: null, candidates: [], selected: null, selectedAt: null, target: null, retainedCommand: input.predecessor.command, work: [] };
   if (input.observation.reception.kind === 'scheduled') {
@@ -241,8 +243,8 @@ export function deriveReceivedUmpireDefenderReplan(raw: Input): Result {
   const proposed = proposal(origin, binding);
   const decisionSeconds = (timing.decisionTick - input.currentCut.originTick) / input.ticksPerSecond;
   const now = input.currentCut.elapsedSeconds;
-  const decisionWork: Result['work'] = [{ kind: 'decision', sourceId: input.processSourceId, cause, dueTick: timing.decisionTick }];
-  const result: Result = { ...common, ...proposed, trigger: 'communication_received', policyBinding: binding, scheduling,
+  const decisionWork: Result<C>['work'] = [{ kind: 'decision', sourceId: input.processSourceId, cause, dueTick: timing.decisionTick }];
+  const result: Result<C> = { ...common, ...proposed, trigger: 'communication_received', policyBinding: binding, scheduling,
     phase: now < decisionSeconds ? 'pending_decision' : 'semantic_pending', work: decisionWork };
   const selectedAt = previous?.selectedAt ?? null;
   if (selectedAt === null && (previous?.phase === 'missed_commitment' || now > decisionSeconds && proposed.semantic === 'ready')) {

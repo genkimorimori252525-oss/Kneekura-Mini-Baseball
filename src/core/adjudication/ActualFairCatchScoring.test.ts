@@ -9,7 +9,7 @@ import { fixture } from '../sim/ball/BattedWorldScheduledFieldThrow.test-support
 import { projectActualFairFieldTimeline, type ActualFairFieldTimelineInput } from '../sim/plateAppearance/ActualFairFieldTimeline';
 import { createCanonicalPlateAppearanceTimeline, recordBatBallContact } from '../sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 import { classifyClosedPlayForOfficialScoring } from './OfficialScoring';
-import { closeOfficialPlay, createPlayAdjudicationLedger, recordCorrectRuleSnapshot } from './PlayAdjudicationLedger';
+import { closeOfficialPlay, createPlayAdjudicationLedger, deriveClosedLiveBallMatchState, recordCorrectRuleSnapshot } from './PlayAdjudicationLedger';
 
 // Reconstructed after the executor reset. The scheduled Core acquisition is real
 // calculation; the supplied end and closed ledger do not claim Native ownership.
@@ -94,4 +94,71 @@ it('FC05 rederives the physical sidecar and rejects omitted capture, changed pro
   const occupied = { ...h.before, bases: { first: 'prior-runner', second: null, third: null } };
   expect(() => classifyClosedPlayForOfficialScoring({ ...base, match: occupied,
     adjudication: closed(occupied, h.input, { outsAfter: 1, basesAfter: occupied.bases, scoredRunnerIds: [] }) })).toThrow();
+});
+
+// Pure boundary fixture only: Native must authenticate the hold and executed
+// zero-motion prefix before these histories can enter its scoring sidecar.
+const occupiedRequest = (outs: 0 | 1 | 2 = 0) => {
+  const h = setup(outs), clock = h.input.field.evidence;
+  const before = { ...h.before, bases: { first: 'runner-1', second: 'runner-2', third: 'runner-3' } };
+  const runners = (['first', 'second', 'third'] as const).map(startingBase => {
+    const playerId = before.bases[startingBase];
+    return { playerId, startingBase, holdReference: { owner: 'world_same_pa_occupied_runner_holds' as const,
+      sourceId: 'hold:' + playerId, sourceHash: 'a'.repeat(64), snapshotHash: 'b'.repeat(64) }, history: {
+      playerId, originTick: clock.originTick, ticksPerSecond: clock.ticksPerSecond, startElapsedSeconds: 0,
+      endElapsedSeconds: clock.horizon.elapsedSeconds, contactAtStart: true, contactAtHorizon: true,
+      episodes: [{ startElapsedSeconds: 0, endElapsedSeconds: clock.horizon.elapsedSeconds }],
+      events: [{ kind: 'touch' as const, originTick: clock.originTick, elapsedSeconds: 0, tick: clock.originTick }],
+    } };
+  });
+  const occupiedRunners = { kind: 'same_pa_stationary_occupied_runners_v1' as const, runners };
+  const input = { ...h.input, occupiedRunners };
+  return { input, before, request: { kind: 'live_ball' as const, match: before,
+    timeline: projected(h.input), adjudication: closed(before, h.input), fairCatchEvidence: input } };
+};
+
+it.each([0, 1, 2] as const)('FC06 preserves the proven original runners through scoring with %s initial outs', outs => {
+  const h = occupiedRequest(outs), original = JSON.stringify(h.request);
+  expect(classifyClosedPlayForOfficialScoring(h.request)).toMatchObject({ kind: 'supported', record: {
+    classification: 'fly_out', runsScored: 0, hitsCredited: 0, errorsCharged: 0,
+  } });
+  const next = deriveClosedLiveBallMatchState(h.before, h.request.timeline, h.request.adjudication);
+  expect(next.bases).toEqual(outs === 2 ? { first: null, second: null, third: null } : h.before.bases);
+  expect(next.half).toBe(outs === 2 ? 'bottom' : 'top');
+  expect(JSON.stringify(h.request)).toBe(original);
+});
+
+it.each(['missing', 'incomplete', 'foreign_runner', 'wrong_base', 'duplicate_hold', 'partial_prefix', 'changed_horizon',
+  'departure', 'hidden_departure', 'contact_gap', 'wrong_clock'] as const)(
+  'FC07 rejects stationary scoring proof fault %s', fault => {
+    const h = occupiedRequest(), proof = structuredClone(h.input.occupiedRunners), first = proof.runners[0];
+    if (fault === 'incomplete') proof.runners.pop();
+    if (fault === 'foreign_runner') first.playerId = first.history.playerId = 'stranger';
+    if (fault === 'wrong_base') first.startingBase = 'second';
+    if (fault === 'duplicate_hold') proof.runners[1].holdReference = { ...first.holdReference };
+    if (fault === 'partial_prefix') first.history.startElapsedSeconds = first.history.episodes[0].startElapsedSeconds = 0.00001;
+    if (fault === 'changed_horizon') first.history.endElapsedSeconds += 0.00001;
+    if (fault === 'departure') first.history.contactAtHorizon = false;
+    if (fault === 'hidden_departure') Object.assign(first.history.events[0], { kind: 'departure' });
+    if (fault === 'contact_gap') first.history.episodes.push({ startElapsedSeconds: 0, endElapsedSeconds: first.history.endElapsedSeconds });
+    if (fault === 'wrong_clock') first.history.ticksPerSecond++;
+    const physical = fault === 'missing' ? { originalTimeline: h.input.originalTimeline, field: h.input.field, playEnd: h.input.playEnd }
+      : { ...h.input, occupiedRunners: proof };
+    expect(() => classifyClosedPlayForOfficialScoring({ ...h.request, fairCatchEvidence: physical })).toThrow();
+  });
+
+it('FC08 rejects a final ruling that erases or advances a proven original runner', () => {
+  const h = occupiedRequest();
+  for (const basesAfter of [{ first: null, second: null, third: null },
+    { first: 'runner-2', second: 'runner-1', third: 'runner-3' }]) {
+    expect(() => classifyClosedPlayForOfficialScoring({ ...h.request,
+      adjudication: closed(h.before, h.input, { outsAfter: 1, basesAfter, scoredRunnerIds: [] }) })).toThrow();
+  }
+});
+
+it('FC09 rejects an occupied proof attached to an empty original match or an unknown physical sidecar field', () => {
+  const h = occupiedRequest(), empty = setup();
+  expect(() => classifyClosedPlayForOfficialScoring({ ...request(empty), fairCatchEvidence: h.input })).toThrow();
+  expect(() => classifyClosedPlayForOfficialScoring({ ...h.request, fairCatchEvidence: { ...h.input,
+    inventedEndAuthority: true } as typeof h.input })).toThrow(/sidecar/);
 });

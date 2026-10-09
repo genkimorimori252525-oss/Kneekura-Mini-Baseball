@@ -1,4 +1,5 @@
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
+import { samePaOccupiedRunnerHoldReferencesValid } from './SamePlateAppearanceOccupiedRunnerHold';
 import type { WorkloadBoundPlayerPitchRequest } from './WorkloadBoundPlayerPitchRuntime';
 import type { TakePitchAgainstBatterInput } from '../../core/sim/pitching/PitchAgainstBatter';
 import { createPlayerObservationCalibration, type PlayerObservationCalibration } from '../../core/sim/perception/PlayerObservationCalibration';
@@ -24,6 +25,7 @@ export type AcceptedSamePaFirstPitchAction = SamePaDispatchBase & Readonly<{
   timingReference: SamePaTimingReference; releaseReference: SamePaReleaseReference;
   pitchResponseReference: SamePaReference<'world_pitch_fatigue_policies'>; batterModelReference: SamePaReference<'world_player_batting_models'>;
   geometryReference: Readonly<{ kind: 'action_source_take_geometry_v1' }>;
+  occupiedRunnerHoldReferences?: readonly SamePaReference<'world_same_pa_occupied_runner_holds'>[];
 }>;
 type ExecutionValues = {
   batter_observation: AcceptedBattingObservationCalibration['values']; batter_decision: AcceptedBattingDecisionModel['values'];
@@ -78,7 +80,8 @@ const baseValid = (s: SamePaDispatchBase, extra: readonly string[]) => fields(s,
   && referenceValid(s.enrollmentReference, 'same_pa_enrollments') && referenceValid(s.viewReference, 'reserved_pa_execution_views') && text(s.firstPhysicalPitchSourceId);
 const actionValid = (s: AcceptedSamePaFirstPitchAction): boolean => {
   if (!baseValid(s, ['variant', 'pitcherPlayerId', 'batterPlayerId', 'nominalPitch', 'timingReference', 'releaseReference',
-    'pitchResponseReference', 'batterModelReference', 'geometryReference']) || s.variant !== 'declared_take_v1'
+    'pitchResponseReference', 'batterModelReference', 'geometryReference', ...('occupiedRunnerHoldReferences' in s ? ['occupiedRunnerHoldReferences'] : [])]) || s.variant !== 'declared_take_v1'
+    || 'occupiedRunnerHoldReferences' in s && !samePaOccupiedRunnerHoldReferencesValid(s.occupiedRunnerHoldReferences)
     || !text(s.pitcherPlayerId) || !text(s.batterPlayerId) || s.pitcherPlayerId === s.batterPlayerId
     || !timingRef(s.timingReference) || !releaseRef(s.releaseReference) || !referenceValid(s.pitchResponseReference, 'world_pitch_fatigue_policies')
     || !referenceValid(s.batterModelReference, 'world_player_batting_models') || !fields(s.geometryReference, ['kind'])

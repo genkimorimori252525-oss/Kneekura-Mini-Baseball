@@ -1,3 +1,4 @@
+import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
 import { createRequire } from 'node:module';
 import { randomUUID } from 'node:crypto';
 import type { DatabaseSync } from 'node:sqlite';
@@ -44,12 +45,12 @@ export const readHistoricalSamePaExecutionView=(db:DatabaseSync,rawReference:unk
     if(!actor)throw new Error('historical same-PA actor missing');same(samePaExecutionReference('physical_plate_appearance_actors',actor),enrollment.source.actorReference);
     same({actorHash:hash(actor),officialRevision:actor.officialRevision,worldHash:hash(actor.world),fixtureHash:actor.fixtureHash},
       {actorHash:enrollment.actorHash,officialRevision:enrollment.officialRevision,worldHash:enrollment.worldHash,fixtureHash:enrollment.fixtureHash});
-    const bindings=[actor.binding,...actor.defenderBindings].sort((a,b)=>a.playerId<b.playerId?-1:a.playerId>b.playerId?1:0);
+    const originals=readSamePaOriginalParticipants(db,actor),bindings=originals.map(p=>p.binding).sort((a,b)=>a.playerId<b.playerId?-1:a.playerId>b.playerId?1:0);
     same(bindings,enrollment.participants.map(p=>p.binding));
     for(const p of enrollment.participants){
       assertHistoricalSamePaWorkloadCut(db,p.binding.careerId,p.binding.playerId,p.state.revision);
       const state=readActualRoleWorkloadState(db,p.binding.careerId,p.binding.playerId,p.state.revision,p.binding.personLinkSourceId);same(state,p.state);
-      const person=p.binding.playerId===actor.binding.playerId?actor.person:actor.defenderPersons.find(x=>x.playerId===p.binding.playerId);
+      const person=originals.find(x=>x.binding.playerId===p.binding.playerId)?.person;
       if(!person)throw new Error('historical same-PA original Person missing');same(hash(person),p.personHash);
     }
     return {enrollment,actor};
@@ -83,6 +84,7 @@ export const readHistoricalSamePaExecutionView=(db:DatabaseSync,rawReference:unk
     }else{
       const source=samePaViewInput(raw),prefix=read('prefix',source.prefixReference) as SamePaEmptyWorkPrefix,l=lineage(source.enrollmentReference),{enrollment:e}=basis(source.enrollmentReference);
       same(prefix.lineage.enrollmentReference,source.enrollmentReference);
+      same(source.participantTotalReferences.map(p=>p.playerId).sort(),e.participants.map(p=>p.binding.playerId).sort());
       const participants=e.participants.map(p=>{const ref=source.participantTotalReferences.find(r=>r.playerId===p.binding.playerId);if(!ref)throw new Error('historical same-PA TOTAL missing');
         const total=read('total',ref.assessmentReference) as SamePaCumulativeTotal;same(total.source.enrollmentReference,source.enrollmentReference);same(total.source.prefixReference,source.prefixReference);
         same(total.source.participantReference,l.participantReferences.find(r=>r.playerId===p.binding.playerId));same(total.coverageHash,prefix.coverageHash);

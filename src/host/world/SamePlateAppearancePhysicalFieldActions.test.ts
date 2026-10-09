@@ -85,6 +85,7 @@ const authorFixture = () => {
     commands: actors.map(a => ({ playerId: a.playerId, role: a.primitive.role, acceleration: a.primitive.acceleration })) });
   const root = rootOf({ response, geometry: raw.geometry, field }), m = member('p1'), members = bodies.map(b => member(b.source.playerId));
   const action = { physicalPitchSourceId: 'pitch', source: { nominalPitch: { delivery: { matchSeed: 19 } } }, actor: { binding: { playerId: 'p0' },
+    world: { runners: [] },
     defenderBindings: bodies.slice(1).map(b => ({ playerId: b.source.playerId, personId: b.actor.personId, personLinkSourceId: b.source.playerId + ':link', gameDay: 1 })) } } as unknown as SamePaPhysicalAction;
   const view = { source: { sourceId: 'author-view', sourceVersion: 'fixture-only-v1' }, cut: { evaluationTick: 0 } };
   let basis = { view, members } as unknown as SamePaLifecycleViewBasis;

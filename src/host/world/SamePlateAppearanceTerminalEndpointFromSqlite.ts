@@ -37,7 +37,8 @@ const derive=(db:DatabaseSync,source:AcceptedSamePaTerminalEndpoint,fresh:boolea
   same(source.enrollmentReference,v.lineage.enrollmentReference);same(source.outcomeReference,v.cut.outcomeReference);
   if(v.cut.stage!=='terminal')throw new Error('terminal endpoint requires a completed original PA outcome');
   const outcome=readSamePaLifecycleOutcomeFromSqlite(db,source.outcomeReference);same(outcome.lineage,v.lineage);same(outcome.timeline,v.cut.timeline);
-  if(outcome.disposition!=='terminal'||(!outcome.context&&!outcome.fairCatch)||v.participants.length!==10||new Set(v.participants.map(p=>p.playerId)).size!==10)throw new Error('terminal endpoint outcome/ten coverage incomplete');
+  same(v.participants.map(p=>p.playerId).sort(),v.lineage.participantReferences.map(p=>p.playerId).sort());
+  if(outcome.disposition!=='terminal'||(!outcome.context&&!outcome.fairCatch)||v.participants.length!==v.lineage.participantReferences.length||new Set(v.participants.map(p=>p.playerId)).size!==v.lineage.participantReferences.length)throw new Error('terminal endpoint outcome/participant coverage incomplete');
   if(outcome.fairCatch){same(outcome.fairCatch.timeline,v.cut.timeline);same(outcome.fairCatch.playEnd,outcome.officialLedger.playEnd);
     same(hash(outcome.fairCatch),outcome.physicalProofHash);if(outcome.source.kind!=='fair_catch'||outcome.context!==null)throw new Error('terminal catch endpoint original owner differs');}
   else if(!['walk','strikeout'].includes(v.cut.timeline.status.kind))throw new Error('terminal endpoint original non-live outcome differs');

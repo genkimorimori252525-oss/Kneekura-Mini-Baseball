@@ -8,7 +8,7 @@ export type SamePaTotalSet=Readonly<{kind:'total_set';totals:readonly SamePaCumu
 const order=(a:string,b:string)=>a<b?-1:a>b?1:0;
 export const samePaTotalSetIds=(raw:unknown):readonly string[]=>{
   const ids=cloneInert(raw) as string[];
-  if(!Array.isArray(ids)||ids.length!==10||!ids.every(samePaText)||new Set(ids).size!==10)throw new Error('same-PA TOTAL set needs exactly ten distinct Source identities');
+  if(!Array.isArray(ids)||(ids.length<10||ids.length>13)||!ids.every(samePaText)||new Set(ids).size!==ids.length)throw new Error('same-PA TOTAL set needs a complete set of distinct Source identities');
   return freeze(ids);
 };
 /** Also checks the available subset before a missing-input pending result. */
@@ -18,13 +18,13 @@ export const assertSamePaTotalSetDistinct=(sources:readonly AcceptedSamePaCumula
     ||sources.some(s=>sources.some(other=>other.sourceId!==s.sourceId&&other.sourceId===s.provenance.assessmentSourceId)))throw new Error('same-PA TOTAL set duplicate participant or assessment provenance ownership');
 };
 export const samePaTotalSetSources=(raw:readonly unknown[]):readonly AcceptedSamePaCumulativeTotal[]=>{
-  if(raw.length!==10)throw new Error('same-PA TOTAL set needs exactly ten Sources');
+  if(raw.length<10||raw.length>13)throw new Error('same-PA TOTAL set needs a complete set of distinct Sources');
   const sources=raw.map(s=>samePaTotalInput(s));assertSamePaTotalSetDistinct(sources);
   return freeze(sources.sort((a,b)=>order(a.participantReference.playerId,b.participantReference.playerId)));
 };
 export const samePaTotalSetReferences=(raw:unknown):readonly SamePaTotalReference[]=>{
   const refs=cloneInert(raw) as SamePaTotalReference[];
-  if(!Array.isArray(refs)||refs.length!==10||refs.some(r=>!samePaFields(r,['playerId','assessmentReference'])||!samePaText(r.playerId)||!samePaReferenceValid(r.assessmentReference,'reserved_pa_total_assessments'))
-    ||new Set(refs.map(r=>r.playerId)).size!==10||new Set(refs.map(r=>r.assessmentReference.sourceId)).size!==10)throw new Error('same-PA TOTAL set needs exactly ten participant owner references');
+  if(!Array.isArray(refs)||(refs.length<10||refs.length>13)||refs.some(r=>!samePaFields(r,['playerId','assessmentReference'])||!samePaText(r.playerId)||!samePaReferenceValid(r.assessmentReference,'reserved_pa_total_assessments'))
+    ||new Set(refs.map(r=>r.playerId)).size!==refs.length||new Set(refs.map(r=>r.assessmentReference.sourceId)).size!==refs.length)throw new Error('same-PA TOTAL set needs a complete set of distinct participant owner references');
   return freeze(refs.sort((a,b)=>order(a.playerId,b.playerId)));
 };

@@ -1,5 +1,7 @@
+import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
+import type { ActualFairCatchStationaryOccupiedRunners } from '../../core/adjudication/ActualFairCatchScoring';
 import { actualLiveAdjudicationProfile } from './ActualLiveAdjudicationSource';
 import { deriveSamePaFairCatchEndFromSqlite, type SamePaFairCatchPhysicalEnd } from './SamePlateAppearanceFairCatchEndFromSqlite';
 import { deriveSamePaCatchOfficialOpening, type SamePaCatchOfficialOpeningInput } from './SamePlateAppearanceCatchOfficial';
@@ -13,12 +15,14 @@ import type { PostPlayReviewNativeScope, PostPlayReviewDb } from './ActualPostPl
 import { actorHash as hash, actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 
 export const samePaCatchOfficialOpeningInputFromSqlite = (db: DatabaseSync, sourceId: string,
-  end: SamePaFairCatchPhysicalEnd, policy: SamePaCatchReviewSeedSource['policy']): SamePaCatchOfficialOpeningInput => {
+  end: SamePaFairCatchPhysicalEnd & Readonly<{ occupiedRunners?: ActualFairCatchStationaryOccupiedRunners }>,
+  policy: SamePaCatchReviewSeedSource['policy']): SamePaCatchOfficialOpeningInput => {
   const work = readSamePaCatchWorkFromSqlite(db, end.catchWorkReference), action = work.originalInputs.action!;
   const owned = { ...reference('pa_catch_v1_work', work), sourceVersion: work.source.sourceVersion };
   const actionView = readHistoricalSamePaLifecycleViewFromSqlite(db, action.viewReference).view;
   const ruleEvidence = { ...reference('pa_lifecycle_v1_execution_views', actionView), sourceVersion: actionView.source.sourceVersion };
   return { sourceId, originalMatch: end.originalMatch, physicalEnd: end.playEnd, exactEnd: end.exactEnd,
+    ...(end.occupiedRunners ? { occupiedRunners: end.occupiedRunners } : {}),
     operative: end.operative, policy, callProvenance: { version: 'owned_live_call_import_v1',
       playId: work.lineage.playId, gameId: work.lineage.gameId, physicalPitchSourceId: end.physicalPitchReference.sourceId,
       clock: { originTick: end.exactEnd.originTick, ticksPerSecond: end.scoringEvidence.field.evidence.ticksPerSecond },
@@ -39,10 +43,10 @@ export const deriveSamePaCatchReviewSeedFromSqlite = (db: DatabaseSync, raw: Sam
   const physical = readSamePaPhysicalOperationFromSqlite(db, source.physicalOperationReference).record;
   const endReference = { ...source.physicalOperationReference, sourceVersion: physical.source.sourceVersion };
   const opening = deriveSamePaCatchOfficialOpening(samePaCatchOfficialOpeningInputFromSqlite(db, source.sourceId, end, source.policy));
-  const actor = basis.actor, first = actor.binding, bindings = [first, ...actor.defenderBindings];
+  const actor = basis.actor, first = actor.binding, bindings = readSamePaOriginalParticipants(db, actor).map(p => p.binding);
   const clubs = { HOME: actor.worldFixture.game.homeClubId, AWAY: actor.worldFixture.game.awayClubId };
-  if (bindings.length !== 10 || new Set(bindings.map(b => b.playerId)).size !== 10
-    || new Set(bindings.map(b => b.personId)).size !== 10 || clubs.HOME === clubs.AWAY
+  if (bindings.length !== 10 + actor.world.runners.length || new Set(bindings.map(b => b.playerId)).size !== bindings.length
+    || new Set(bindings.map(b => b.personId)).size !== bindings.length || clubs.HOME === clubs.AWAY
     || bindings.some(b => b.gameId !== first.gameId || b.careerId !== first.careerId
       || b.competitionEditionId !== first.competitionEditionId || b.fixtureEventId !== first.fixtureEventId
       || b.gameDay !== first.gameDay || b.clubId !== clubs[b.side])) throw new Error('reserved catch review original fixture participants differ');

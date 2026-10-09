@@ -1,4 +1,5 @@
 import { inFlightBattingPerceptionSourceInput, isInFlightBattingPerceptionSource, type InFlightBattingPerceptionSource, type AcceptedInFlightBattingPosture, type AcceptedInFlightBattingObservation, type AcceptedInFlightBattingDelivery, type AcceptedInFlightBattingPrediction, type AcceptedInFlightBattingScore } from './NativeInFlightBattingPerception';
+import { samePaOccupiedRunnerHoldReferencesValid } from './SamePlateAppearanceOccupiedRunnerHold';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { Vec3 } from '../../core/model/geometry';
 import type { AttentionState } from '../../core/sim/perception/Observation';
@@ -23,6 +24,7 @@ export type AcceptedBattingInvocationPosture = Base & Readonly<{
     handedness: 'R' | 'L'; centerOfMass: Vec3; eyePosition: Vec3; observerForward: Vec3; attention: AttentionState;
     bodyReadyTick: number; latestMotorStartTick: number; plateZ: number; strikeZone: BattingSource['strikeZone'] }>;
   sceneBodyReferences: readonly Readonly<{ playerId: string; bodyReference: SamePaReference<'world_player_body_materializations'> }>[];
+  occupiedRunnerHoldReferences?: readonly SamePaReference<'world_same_pa_occupied_runner_holds'>[];
   provenance: AcceptedBattingScoreAssessment['provenance'];
 }>;
 export type AcceptedNextTakeBattingPosture = Omit<AcceptedBattingInvocationPosture, 'capability' | 'viewReference' | 'actionReference'> & Readonly<{
@@ -77,7 +79,8 @@ export const battingPerceptionSourceInput = (kind: BattingPerceptionKind, raw: u
     || !ref(s.viewReference, s.capability === 'owned_batting_invocation_posture_v1' ? 'reserved_pa_execution_views' : 'pa_continuation_v1_execution_views') || !samePaDispatchMemberValid(s.member)) return fail();
   if (kind === 'posture' && (s.capability === 'owned_batting_invocation_posture_v1' || s.capability === 'owned_next_take_batting_posture_v1')) {
     const next = s.capability === 'owned_next_take_batting_posture_v1';
-    if (!fields(s, [...baseKeys, 'actionReference', 'modelReference', 'geometry', 'sceneBodyReferences', 'provenance', ...(next ? ['nextPhysicalPitchSourceId'] : [])])
+    if (!fields(s, [...baseKeys, 'actionReference', 'modelReference', 'geometry', 'sceneBodyReferences', 'provenance', ...(next ? ['nextPhysicalPitchSourceId'] : []), ...('occupiedRunnerHoldReferences' in s ? ['occupiedRunnerHoldReferences'] : [])])
+      || 'occupiedRunnerHoldReferences' in s && !samePaOccupiedRunnerHoldReferencesValid(s.occupiedRunnerHoldReferences)
       || !ref(s.actionReference, next ? 'pa_take_successor_v1_action_plans' : 'pa_dispatch_v1_action_plans') || next && !text(s.nextPhysicalPitchSourceId) || !ref(s.modelReference, 'world_player_batting_models')
       || !fields(s.provenance, ['assessmentSourceId', 'assessmentVersion', 'calibrationSourceId', 'calibrationVersion']) || !Object.values(s.provenance).every(text)) return fail();
     const g = s.geometry;
@@ -93,9 +96,10 @@ export const battingPerceptionSourceInput = (kind: BattingPerceptionKind, raw: u
     if (!(target.kind === 'ball' && fields(target, ['kind']) || target.kind === 'player' && fields(target, ['kind', 'playerId']) && text(target.playerId)
       || target.kind === 'coach' && fields(target, ['kind', 'coachId']) && text(target.coachId)
       || target.kind === 'base' && fields(target, ['kind', 'base']) && [1, 2, 3, 4].includes(target.base))) return fail();
-    if (!Array.isArray(s.sceneBodyReferences) || s.sceneBodyReferences.length !== 9 || s.sceneBodyReferences.some(b => !fields(b, ['playerId', 'bodyReference']) || !text(b.playerId)
-      || !ref(b.bodyReference, 'world_player_body_materializations')) || new Set(s.sceneBodyReferences.map(b => b.playerId)).size !== 9
-      || new Set(s.sceneBodyReferences.map(b => b.bodyReference.sourceId)).size !== 9) return fail();
+    const sceneCount = 9 + (s.occupiedRunnerHoldReferences?.length ?? 0);
+    if (!Array.isArray(s.sceneBodyReferences) || s.sceneBodyReferences.length !== sceneCount || s.sceneBodyReferences.some(b => !fields(b, ['playerId', 'bodyReference']) || !text(b.playerId)
+      || !ref(b.bodyReference, 'world_player_body_materializations')) || new Set(s.sceneBodyReferences.map(b => b.playerId)).size !== sceneCount
+      || new Set(s.sceneBodyReferences.map(b => b.bodyReference.sourceId)).size !== sceneCount) return fail();
   } else if (kind === 'observation' && s.capability === 'owned_batting_observation_v1') {
     if (!fields(s, [...baseKeys, 'postureReference', 'physicalPitchReference', 'calibrationReference', 'observedTick', 'deliveryCutTick', 'previousObservationReference'])
       || !ref(s.postureReference, 'batting_observation_v1_postures') || !ref(s.physicalPitchReference, 'pa_dispatch_v1_pitch_actions')

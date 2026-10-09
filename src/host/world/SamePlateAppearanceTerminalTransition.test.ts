@@ -101,7 +101,7 @@ it('uses normal Match and scoring writers once and archives exact retirement bef
   const reopened = openSqliteSamePlateAppearanceTerminalTransitionStore(x.f.path); close.push(() => reopened.close()); expect(reopened.read(x.source.sourceId)).toEqual(saved);
 });
 it('rejects incomplete ten-player settlement before any official mutation', () => {
-  const x = setup(); x.incomplete(); expect(() => x.owner.complete(x.source.sourceId)).toThrow('ten settled');
+  const x = setup(); x.incomplete(); expect(() => x.owner.complete(x.source.sourceId)).toThrow('complete settled');
   expect(count(x.f.db, 'applications')).toBe(0); expect(count(x.f.db, 'pa_terminal_v1_transitions')).toBe(0);
 });
 it('keeps historical completion readable after the current Match advances', () => {
