@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest';
 import { asRuleProfileId } from '../../model/RuleProfileRef';
 import { createBaseScheduleSnapshot } from './LeagueSchedule';
-import { applyOfficialTiebreakGame, buildOfficialStandings,
+import { applyOfficialTiebreakGame, assertOfficialTiebreakGamePlan, buildOfficialStandings,
   createLeagueGroupAlignment, projectOfficialGroupStandings } from './OfficialStandings';
 import type { OfficialGameResult } from './OfficialGameCompletion';
 
@@ -60,6 +60,21 @@ it('ranks only a fully completed official season against the frozen schedule', (
     result(0, 2, 1), { ...result(1, 3, 0), closureId: 'closure-0' },
     result(2, 1, 2), result(3, 1, 0),
   ], policy).orderedClubIds).toEqual(['a', 'b']);
+});
+
+it('validates the unresolved pair and season before a tiebreak result exists', () => {
+  const standings = buildOfficialStandings(schedule, [
+    result(0, 1, 0), result(1, 0, 1), result(2, 1, 0), result(3, 0, 1),
+  ], policy);
+  const plan = { version: 'tiebreak-v1', gameId: 'tiebreak-1', seasonId: 'season-1',
+    homeClubId: 'a', awayClubId: 'b' };
+  expect(() => assertOfficialTiebreakGamePlan(standings, plan)).not.toThrow();
+  expect(() => assertOfficialTiebreakGamePlan(standings, { ...plan, awayClubId: 'c' }))
+    .toThrow('official two-club tie');
+  expect(() => assertOfficialTiebreakGamePlan(standings, { ...plan, awayClubId: 'a' }))
+    .toThrow('official two-club tie');
+  expect(() => assertOfficialTiebreakGamePlan(standings, { ...plan, seasonId: 'wrong-season' }))
+    .toThrow('season must match official standings');
 });
 
 it('leaves an exact unresolved tie open for a profile-defined tiebreak game', () => {

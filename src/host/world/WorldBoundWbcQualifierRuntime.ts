@@ -13,7 +13,7 @@ import type { SqliteWbcGlobalQualifierPodStore } from './SqliteWbcGlobalQualifie
 import type { SqliteWbcQualifierScheduleStore } from './SqliteWbcQualifierScheduleStore';
 import type { SqliteNationalQualificationHistoryStore } from './SqliteNationalQualificationHistoryStore';
 import type { SqliteWbcBerthStore } from './SqliteWbcBerthStore';
-import { deliverCompletedGamePlayerOutcomes, type CompletedGameOutcomeStores } from './CompletedGamePlayerOutcomeDelivery';
+import type { CompletedGameOutcomeStores } from './CompletedGamePlayerOutcomeDelivery';
 
 export type WorldBoundWbcQualifierStores = CompletedGameOutcomeStores & Readonly<{
   qualification: Pick<SqliteWbcWorldQualificationStore, 'initialize' | 'readSnapshot'>;
@@ -22,7 +22,7 @@ export type WorldBoundWbcQualifierStores = CompletedGameOutcomeStores & Readonly
   access: Pick<SqliteWbcQualifierHostAccessStore, 'record'>;
   hosts: Pick<SqliteWbcQualifierHostCandidateStore, 'initialize' | 'recordCompletedEdition'>;
   editions: Pick<SqliteWbcQualifierEditionStore, 'initialize'>;
-  pods: Pick<SqliteWbcGlobalQualifierPodStore, 'initialize' | 'finalize' | 'readEvidence'>;
+  pods: Pick<SqliteWbcGlobalQualifierPodStore, 'initialize' | 'finalize' | 'readEvidence' | 'readCompletion' | 'listPendingCompletions' | 'deliverOutcomes'>;
   schedules: Pick<SqliteWbcQualifierScheduleStore, 'initialize'>;
   history: Pick<SqliteNationalQualificationHistoryStore, 'recordQualifier'>;
   berths: Pick<SqliteWbcBerthStore, 'initialize'>;
@@ -62,7 +62,10 @@ export const initializeWorldBoundWbcQualifier = (
     selectedAtDay: edition.selectedAtDay, drawSeed: edition.drawSeed,
     drawPolicyVersion: edition.profile.drawPolicyVersion, policy: input.hostPolicy }));
   const savedEdition = withCompetitionSourceReadPhase(() => stores.editions.initialize(edition));
-  withCompetitionSourceReadPhase(() => stores.pods.initialize({ careerId: request.careerId, edition: savedEdition.edition }));
+  const prior = stores.pods.readCompletion(request.careerId, request.qualifierEditionId);
+  const completion = prior ? prior.commitment : { version: 'wbc_player_outcomes_v1' as const, wbcEditionId: request.editionId };
+  withCompetitionSourceReadPhase(() => stores.pods.initialize({ careerId: request.careerId, edition: savedEdition.edition,
+    ...(completion ? { completion } : {}) }));
   const schedule = withCompetitionSourceReadPhase(() => stores.schedules.initialize({ careerId: request.careerId,
     editionId: request.qualifierEditionId, policy: input.schedulePolicy }));
   return Object.freeze({ qualification, ranking: savedRanking, selection: savedSelection, edition: savedEdition, schedule });
@@ -75,6 +78,10 @@ export const completeWorldBoundWbcQualifier = (
   const accepted = stores.qualification.readSnapshot(careerId, wbcEditionId);
   if (!accepted) throw new Error('World WBC qualifier qualification is missing');
   const qualifierEditionId = accepted.input.qualifierEditionId;
+  const completion = stores.pods.readCompletion(careerId, qualifierEditionId);
+  if (completion?.commitment && completion.commitment.wbcEditionId !== wbcEditionId) {
+    throw new Error('WBC qualifier outcome completion edition differs');
+  }
   if (!withCompetitionSourceReadPhase(() => stores.pods.finalize(careerId, qualifierEditionId))) return null;
   withCompetitionSourceReadPhase(() => stores.history.recordQualifier(careerId, qualifierEditionId));
   withCompetitionSourceReadPhase(() => stores.hosts.recordCompletedEdition(careerId, qualifierEditionId));
@@ -83,7 +90,15 @@ export const completeWorldBoundWbcQualifier = (
   if (!evidence || evidence.edition.editionId !== qualifierEditionId) {
     throw new Error('World WBC qualifier outcome delivery lacks completed original evidence');
   }
-  const playerOutcomes = deliverCompletedGamePlayerOutcomes(stores, careerId, qualifierEditionId,
-    [...evidence.semifinalResults, ...evidence.finalResults]);
+  const playerOutcomes = withCompetitionSourceReadPhase(() => stores.pods.deliverOutcomes(careerId, qualifierEditionId, stores));
   return Object.freeze({ ...allocation, playerOutcomes });
 };
+
+/** Resume the frozen WBC-to-qualifier identity; completed pods stay pending until delivery. */
+export const resumePendingWorldBoundWbcQualifier = (stores: WorldBoundWbcQualifierStores) =>
+  Object.freeze(stores.pods.listPendingCompletions().map(({ careerId, editionId, commitment }) => {
+    const wbcEditionId = commitment!.wbcEditionId;
+    const accepted = stores.qualification.readSnapshot(careerId, wbcEditionId);
+    if (accepted?.input.qualifierEditionId !== editionId) throw new Error('WBC qualifier pending completion identity differs');
+    return Object.freeze({ careerId, editionId, result: completeWorldBoundWbcQualifier(stores, careerId, wbcEditionId) });
+  }));

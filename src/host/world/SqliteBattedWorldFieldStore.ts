@@ -1,4 +1,5 @@
 import { battedEpisodeFieldBindingEvidenceFromSqlite, withBattedEpisodeFieldBindingReadPhase } from './SqliteBattedEpisodeFieldBindingStore';
+import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { battedWorldFieldGeometry, battedWorldFieldRootIdentity, battedWorldFieldSourceRootIdentity, isBattedEpisodeFieldRoot, type BattedWorldFieldRoot, type BattedEpisodeFieldBindingOptIn } from './BattedWorldFieldRoot';
 import { battedWorldFieldCalibrationEvidenceFromSqlite, acceptedBattedWorldFieldGeometryInput as geometryInput } from './BattedWorldFieldCalibrationEvidenceFromSqlite';
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
@@ -320,7 +321,7 @@ export const battedWorldFieldEvidenceFromSqlite = (db: Db) => {
   };
   const readPhase = <T>(source: AcceptedBattedWorldFieldAction, work: () => T): T =>
     battedWorldFieldSourceRootIdentity(source) === 'legacy' ? work()
-      : withBattedEpisodeFieldBindingReadPhase(db as import('node:sqlite').DatabaseSync, work);
+      : withBattedEpisodeFieldBindingReadPhase(db as import('node:sqlite').DatabaseSync, () => withBattedWorldPhysicalReadTraversal(db, work));
   const currentBeforeWork = (value: DurableBattedWorldFieldAction) => {
     currentRoot(value); if (json(derive(value.source)) !== json(value)) throw new Error('actual field prefix changed before write');
   };

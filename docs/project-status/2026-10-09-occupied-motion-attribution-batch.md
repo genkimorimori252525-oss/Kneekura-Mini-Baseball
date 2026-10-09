@@ -20,6 +20,54 @@ guard before every access. The measured census change reduced prepares by
 wall-time improvement. See the
 [measured comparison](../verification/2026-10-09-continuation-claim-proof-reuse.md).
 
+## Accepted postseason preparation and recoverable WBC delivery
+
+Accepted postseason plans now prepare real registered fixtures and opening
+Matches for Direct, Conference, North America and Winter formats. Existing
+resolvers determine legal participants, stage and next required game; accepted
+game days stay inside the archived postseason window. Club journal venues and
+the existing participant authority remain authoritative. Plan prefixes use CAS
+and keep original game provenance through extension and title finalization.
+A later same-day Club event retains the already accepted fixture's original
+journal revision. No dates, home-game patterns or autonomous schedule are chosen.
+[Accepted inputs and four-format connection](2026-10-09-domestic-postseason-preparation.md).
+
+New WBC runtime admissions retain their required individual-outcome delivery in
+the existing knockout/pod owner rows. Pending discovery and runtime resume reach
+already finalized editions after reopen. Missing authority or failed delivery
+remains pending; exact receipt/original checks before and after the final write
+protect completion CAS. Existing history/ranking/hosting/berth owners retain
+their idempotency. Historical unmarked rows retain explicit retry only; this adds
+no scheduler. [WBC recovery contract](2026-10-09-wbc-outcome-recovery.md).
+
+Runtime registration and bound-field preparation now connect their existing
+immutable read groups to the physical proof scope. Callback, write and retry
+boundaries remain separate. Small genuine-owner regressions establish retained
+checks, trigger rollback and fewer repeated proofs within a phase; no runtime or
+field wall-time improvement is claimed from these counts.
+[Read-phase connections](../verification/2026-10-09-actual-live-runtime-read-phases.md).
+
+At local `445392998ce8af9f430e28d2f8f519623648de67`, source
+`bb1919e361d700db9163dee1313688ee6c6d001e`, the coherent batch has clear independent
+review after correcting receipt post-write authentication and historical Club
+revision replay. The full nonvisual compiler passed in 29.92 seconds.
+All 140 selected cases across 18 files passed in 74.48 seconds.
+All four input groups remained stable, every process was reaped and all 18
+protected blobs match. The initial test-only union-narrowing compiler failure
+is preserved; the finite selection ran once after that correction.
+
+Compiler configuration SHA-256: `b22534251066da2c4878f33a26bf063ad95432cec4e9b188b02abfd9df07086d`.
+Test configuration SHA-256: `04f2c424041300cf8596b1f70fb681a315a59074ed29391f7595bb450d84437e`.
+Test report SHA-256: `b77caafec02a1c6d77c3a0a80e331c9df46cf17c0490b569cb0fd1eac6e09048`.
+
+The postseason and WBC checks use real persistence/fixture/Match effects with
+explicit structural completed-result or outcome seams. They do not establish a
+full physical season. Separately, the genuine National tail on preceding source
+`44fd53edccb5604ec98fa4825840fad675ed6ec7` resumed the conserved v3 binding,
+committed the second-play runtime and ground-field revision, and entered the
+original contact step. At this checkpoint no complete 37-assertion tail result
+exists. A legitimate consistent ground prefix is retained privately.
+
 ## Completed-game callers, durable retry and binding reuse
 
 Four domestic completion adapters now call the existing completed-Match player
@@ -40,8 +88,9 @@ frames. [Scope and verification](../verification/2026-10-09-episode-binding-owne
 A test-only retained National entry authenticates the saved original binding
 and resumes the existing field/runtime tail without repeating already committed
 admissions. All 37 assertions and their numeric inputs remain byte-identical.
-Its genuine continuation and the matched retained binding timing comparison
-have not run at this checkpoint.
+The matched retained binding read later completed in 41.214 and 15.634 seconds,
+returning identical bytes with all 77 tables unchanged. This narrower read result
+is documented in the linked comparison; genuine tail completion remains open.
 [Retained entry](2026-10-09-national-retained-binding-entry.md).
 
 The assembled 18-path batch at local `90da89a509177dc71a9026ea5066dd3b85460a08`,

@@ -1,3 +1,4 @@
+import type { SqliteDomesticCompetitionSeasonStore } from './SqliteDomesticCompetitionSeasonStore';
 import { isDeepStrictEqual } from 'node:util';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { replayClubEvents } from '../../core/world/club/ClubEvents';
@@ -41,6 +42,7 @@ export const createDomesticParticipationAuthority = (sources: Readonly<{
   match: SqliteOfficialStateStore;
   /** The accepted global Player–Person link source. */
   personLinks: AcceptedPlayerPersonLinkAuthority;
+  postseason?: Pick<SqliteDomesticCompetitionSeasonStore, 'readPostseasonGame'>;
 }>): ParticipationAuthority => {
   if (!sources || !id(sources.careerId) || !id(sources.seasonId)
     || !sources.world || !sources.schedule || !sources.roster
@@ -60,6 +62,13 @@ export const createDomesticParticipationAuthority = (sources: Readonly<{
       const schedule = applyScheduleRevisions(archive.baseSchedule,
         archive.revisions);
       const game = schedule.games.find((item) => item.gameId === gameId);
+      if (!game && sources.postseason) {
+        const accepted = sources.postseason.readPostseasonGame(sources.careerId, sources.seasonId, gameId);
+        if (!accepted || accepted.careerId !== sources.careerId || accepted.seasonId !== sources.seasonId
+          || accepted.gameId !== gameId || !isDeepStrictEqual(accepted.fixture, fixture)) return null;
+        return Object.freeze({ careerId: accepted.careerId, competitionEditionId: accepted.seasonId, gameDay: accepted.gameDay,
+          homeClubId: accepted.homeClubId, awayClubId: accepted.awayClubId, fixtureEventId: fixture.fixtureEventId });
+      }
       if (!game || !isDeepStrictEqual(season.schedule,
         captureOfficialStandingsSchedule(archive.baseSchedule,
           archive.revisions))

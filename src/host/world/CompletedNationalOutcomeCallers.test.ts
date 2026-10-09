@@ -1,3 +1,4 @@
+import { deliverCompletedGamePlayerOutcomes, type CompletedGameOutcomeStores } from './CompletedGamePlayerOutcomeDelivery';
 import { expect, it } from 'vitest';
 import { asRuleProfileId } from '../../core/model/RuleProfileRef';
 import type { OfficialGameResult } from '../../core/world/competition/OfficialGameCompletion';
@@ -33,9 +34,12 @@ const fixture = (kind: 'finals' | 'qualifier') => {
     state.writes.add(input.gameId);
     return state.mismatch ? { ...original[index], finalResult: { ...finals[index], venueBinding: { ...finals[index].venueBinding!, fixtureRevision: 7 } } } : original[index];
   } };
+  const legacyCompletion = { readCompletion: () => ({ careerId: 'career', editionId, status: 'LEGACY' as const }),
+    deliverOutcomes: (_careerId: string, _editionId: string, stores: CompletedGameOutcomeStores) =>
+      deliverCompletedGamePlayerOutcomes(stores, 'career', editionId, finals) };
   const finalsStores = {
     outcomes: outcomeOwner, editions: { readSnapshot: () => ({ kind: 'WBC' }) },
-    knockout: { readPlan: () => ({}), finalize: () => state.complete ? {} : null,
+    knockout: { ...legacyCompletion, readPlan: () => ({}), finalize: () => state.complete ? {} : null,
       readEvidence: () => state.evidenceMissing ? null : ({ source: { groupEdition: { editionId }, knockoutEdition: { editionId }, groupResults: finals.slice(0, 36) },
         roundOf16Results: finals.slice(36, 44), quarterfinalResults: finals.slice(44, 48), semifinalResults: finals.slice(48, 50), finalResult: finals[50] }) },
     history: { record: () => { state.events.push('history'); return { snapshotId: 'history' }; } },
@@ -43,7 +47,7 @@ const fixture = (kind: 'finals' | 'qualifier') => {
   } as unknown as WorldBoundWbcFinalsStores;
   const qualifierStores = {
     outcomes: outcomeOwner, qualification: { readSnapshot: () => ({ input: { qualifierEditionId: editionId } }) },
-    pods: { finalize: () => state.complete ? {} : null, readEvidence: () => state.evidenceMissing ? null : ({ edition: { editionId },
+    pods: { ...legacyCompletion, finalize: () => state.complete ? {} : null, readEvidence: () => state.evidenceMissing ? null : ({ edition: { editionId },
       semifinalResults: finals.slice(0, 8), finalResults: finals.slice(8) }) },
     history: { recordQualifier: () => { state.events.push('history'); return {}; } },
     hosts: { recordCompletedEdition: () => { state.events.push('hosting'); return {}; } },

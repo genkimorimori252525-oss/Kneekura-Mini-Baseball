@@ -1,3 +1,6 @@
+import type { WbcOutcomeCompletionCommitment, WbcOutcomeCompletion } from './SqliteWbcFinalsKnockoutStore';
+import { deliverCompletedGamePlayerOutcomes, type CompletedGameOutcomeStores, type CompletedGamePlayerOutcomeDelivery } from './CompletedGamePlayerOutcomeDelivery';
+import { withCompetitionSourceReadPhase } from './CompetitionSourceReadScope';
 import type { DatabaseSync } from 'node:sqlite';
 import { createCompetitionSourceReader } from './CompetitionSourceReadScope';
 import { createRequire } from 'node:module';
@@ -20,6 +23,7 @@ import { readDurableOfficialGameResult,
 
 export type WbcGlobalQualifierPodRequest = Readonly<{
   careerId: string;
+  completion?: WbcOutcomeCompletionCommitment;
   edition: WbcGlobalQualifierEdition;
 }>;
 export type WbcGlobalQualifierPodEvidence = Readonly<{
@@ -44,6 +48,9 @@ export type SqliteWbcGlobalQualifierPodStore = Readonly<{
     editionId: string): WbcGlobalQualifierOutcome | null;
   readEvidence(careerId: string,
     editionId: string): WbcGlobalQualifierPodEvidence | null;
+  readCompletion(careerId: string, editionId: string): WbcOutcomeCompletion | null;
+  listPendingCompletions(): readonly WbcOutcomeCompletion[];
+  deliverOutcomes(careerId: string, editionId: string, stores: CompletedGameOutcomeStores): CompletedGamePlayerOutcomeDelivery;
   close(): void;
 }>;
 type Row = { request_json: string; plan_json: string;
@@ -87,12 +94,26 @@ const createSqliteWbcGlobalQualifierPodStore = (
     outcome_json TEXT,
     PRIMARY KEY (career_id, edition_id)
   );`);
+  const columns = db.prepare('PRAGMA table_info(world_wbc_qualifier_pods)').all() as { name: string }[];
+  if (!columns.some(column => column.name === 'outcome_delivery_json')) {
+    db.exec('ALTER TABLE world_wbc_qualifier_pods ADD COLUMN outcome_delivery_json TEXT');
+  }
   }
   const get = db.prepare(`SELECT request_json, plan_json, outcome_json
     FROM world_wbc_qualifier_pods
     WHERE career_id=? AND edition_id=?`);
   const row = (careerId: string, editionId: string): Row | null =>
     (get.get(careerId, editionId) as Row | undefined) ?? null;
+  const commitment = (request: WbcGlobalQualifierPodRequest): WbcOutcomeCompletionCommitment | undefined => {
+    if (!Object.hasOwn(request, 'completion')) return undefined;
+    const value = request.completion;
+    if (!value || value.version !== 'wbc_player_outcomes_v1' || !id(value.wbcEditionId)
+
+      || canonicalJson(value) !== canonicalJson({ version: value.version, wbcEditionId: value.wbcEditionId })) {
+      throw new Error('invalid WBC outcome completion commitment');
+    }
+    return Object.freeze({ ...value });
+  };
   const projectPlan = (request: WbcGlobalQualifierPodRequest):
     WbcGlobalQualifierPlan => {
     if (sources.editions) {
@@ -154,6 +175,7 @@ const createSqliteWbcGlobalQualifierPodStore = (
     try {
       const request = JSON.parse(stored.request_json) as
         WbcGlobalQualifierPodRequest;
+      commitment(request);
       const plan = projectPlan(request);
       if (request.careerId !== careerId
         || request.edition.editionId !== editionId
@@ -183,12 +205,13 @@ const createSqliteWbcGlobalQualifierPodStore = (
       throw new Error('invalid WBC qualifier pod scope');
     }
   };
-  return Object.freeze({
+  const owner: SqliteWbcGlobalQualifierPodStore = Object.freeze({
     initialize(rawRequest: WbcGlobalQualifierPodRequest):
       WbcGlobalQualifierPlan {
       assertScope(rawRequest?.careerId,
         rawRequest?.edition?.editionId);
       const request = cloneInert(rawRequest);
+      commitment(request);
       const plan = projectPlan(request);
       db.exec('BEGIN IMMEDIATE');
       try {
@@ -291,11 +314,80 @@ const createSqliteWbcGlobalQualifierPodStore = (
         finalResults: stage.finalResults!,
         outcome: current.outcome });
     },
+    readCompletion(careerId: string, editionId: string): WbcOutcomeCompletion | null {
+      assertScope(careerId, editionId);
+      const stored = row(careerId, editionId);
+      if (!stored) return null;
+      const prior = withCompetitionSourceReadPhase(() => replay(careerId, editionId, stored));
+      const required = commitment(prior.request);
+      const delivery = db.prepare('SELECT outcome_delivery_json FROM world_wbc_qualifier_pods WHERE career_id=? AND edition_id=?')
+        .get(careerId, editionId) as { outcome_delivery_json: string | null };
+      if (!required && delivery.outcome_delivery_json !== null) throw new Error('legacy WBC completion has an unexpected receipt');
+      if (delivery.outcome_delivery_json !== null) {
+        const evidence = withCompetitionSourceReadPhase(() => owner.readEvidence(careerId, editionId));
+        if (!evidence || canonicalJson([...evidence.semifinalResults, ...evidence.finalResults]) !== delivery.outcome_delivery_json) {
+          throw new Error('WBC outcome completion original finals differ');
+        }
+      }
+      return Object.freeze({ careerId, editionId, ...(required ? { commitment: required } : {}),
+        status: !required ? 'LEGACY' : delivery.outcome_delivery_json === null ? 'PENDING' : 'COMPLETED' });
+    },
+    listPendingCompletions(): readonly WbcOutcomeCompletion[] {
+      if (closed) throw new Error('WBC completion store is closed');
+      const rows = db.prepare(`SELECT career_id, edition_id FROM world_wbc_qualifier_pods WHERE outcome_delivery_json IS NULL AND json_type(request_json, '$.completion') IS NOT NULL ORDER BY career_id, edition_id`)
+        .all() as { career_id: string; edition_id: string }[];
+      return Object.freeze(rows.map(value => owner.readCompletion(value.career_id, value.edition_id)!)
+        .filter(value => value.status === 'PENDING'));
+    },
+    deliverOutcomes(careerId: string, editionId: string, stores: CompletedGameOutcomeStores): CompletedGamePlayerOutcomeDelivery {
+      const before = owner.readCompletion(careerId, editionId);
+      const stored = row(careerId, editionId);
+      const evidence = withCompetitionSourceReadPhase(() => owner.readEvidence(careerId, editionId));
+      if (!before || !stored || !evidence) throw new Error('WBC outcome delivery lacks completed original evidence');
+      const finals = [...evidence.semifinalResults, ...evidence.finalResults];
+      const receipt = canonicalJson(finals);
+      const delivered = deliverCompletedGamePlayerOutcomes(stores, careerId, editionId, finals);
+      // Legacy rows retain explicit delivery without retroactive enrollment.
+      if (!before.commitment || delivered.kind === 'unavailable') return delivered;
+      db.exec('BEGIN IMMEDIATE');
+      try {
+        const latest = row(careerId, editionId);
+        const evidence = withCompetitionSourceReadPhase(() => owner.readEvidence(careerId, editionId));
+        if (!latest || canonicalJson(latest) !== canonicalJson(stored) || !evidence
+          || canonicalJson([...evidence.semifinalResults, ...evidence.finalResults]) !== receipt) {
+          throw new Error('WBC outcome completion original changed during delivery');
+        }
+        const completion = owner.readCompletion(careerId, editionId)!;
+        if (completion.status === 'PENDING') {
+          const changed = db.prepare(`UPDATE world_wbc_qualifier_pods SET outcome_delivery_json=?
+            WHERE career_id=? AND edition_id=? AND request_json=? AND plan_json=? AND outcome_json=? AND outcome_delivery_json IS NULL`)
+            .run(receipt, careerId, editionId, stored.request_json, stored.plan_json, stored.outcome_json!);
+          if (changed.changes !== 1) throw new Error('WBC outcome completion CAS lost');
+        }
+        // The UPDATE may execute triggers. Authenticate the saved bytes and
+        // originals in a new proof phase while rollback is still possible.
+        const persisted = row(careerId, editionId);
+        const saved = db.prepare('SELECT outcome_delivery_json FROM world_wbc_qualifier_pods WHERE career_id=? AND edition_id=?')
+          .get(careerId, editionId) as { outcome_delivery_json: string | null } | undefined;
+        if (!persisted || canonicalJson(persisted) !== canonicalJson(stored) || saved?.outcome_delivery_json !== receipt) {
+          throw new Error('WBC outcome completion persisted original differs');
+        }
+        withCompetitionSourceReadPhase(() => {
+          const evidence = owner.readEvidence(careerId, editionId);
+          if (!evidence || canonicalJson([...evidence.semifinalResults, ...evidence.finalResults]) !== receipt) {
+            throw new Error('WBC outcome completion persisted original differs');
+          }
+        });
+        db.exec('COMMIT');
+        return delivered;
+      } catch (error) { db.exec('ROLLBACK'); throw error; }
+    },
     close(): void {
       if (!closed && !borrowed) db.close();
       closed = true;
     },
   });
+  return owner;
 };
 
 /** Existing path facade retains connection/schema ownership. */
