@@ -20,7 +20,38 @@ guard before every access. The measured census change reduced prepares by
 wall-time improvement. See the
 [measured comparison](../verification/2026-10-09-continuation-claim-proof-reuse.md).
 
-## Latest combined qualification
+## Reopen and assessment correction
+
+The first retained National-tail attempt stopped in 6.91 seconds before its
+new pitch: its reopen adapter omitted the accepted pregame Source authority.
+All 78 table contents/schema and the original donor DB/WAL/SHM were conserved.
+The adapter now supplies the authenticated National fixture and actual
+Player/Person readers. Its affected initial-world check authenticates all nine
+original defenders with zero table/schema changes (0.747 seconds in the case;
+8.55 seconds including the bounded runner). The original 37 tail assertions
+remain unchanged; the failed attempt is preserved.
+
+The same corrective batch removes demonstrated repetition from the reserved
+assessment ownership proof within the existing immutable scope. Reserved
+queries fall from 2,880 to 480 with identical complete persisted results;
+other assessment checks are unchanged. The 28.33 to 27.50 second observation
+is a modest wall-time difference, not a major performance claim. See
+[the affected controls and comparison](../verification/2026-10-09-reserved-assessment-proof-reuse.md).
+
+Tested local commit: `7d2babe50a0d67f99d39f36430eba92933f83231`.
+Source tree: `494a19790a4e28d7e61c43c795814240a35ff922`.
+Independent corrective review is clear; full compilation passed in 31.44
+seconds and all six affected ownership/phase controls passed in 5.40 seconds.
+The two unchanged author write-fault cases retain their separately observed
+passing results. All pinned inputs stayed exact, all 18 protected blobs remain
+unchanged and no descendant survived. Unaffected 109-case evidence below is
+retained; it was not rerun for this correction.
+
+Compiler terminal SHA-256: `dbb425cb2b16fce5b4405b21d3346c389fe0efa842782381b61c8223c9d681eb`.
+Affected test JSON SHA-256:
+`0c7c9df12dbf06efda9862a3ea051c47d580b4e054c6986b839e13649766a94e`.
+
+## Appeal and fixture combined qualification
 
 The following coherent continuation connects exact histories to the existing
 appeal ledger/orchestrator and exposes original runner precedence and actual

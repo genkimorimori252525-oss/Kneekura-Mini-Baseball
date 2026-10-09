@@ -34,10 +34,17 @@ export const continueRetainedNationalBattedFoulOriginalTail = (path: string, pro
   const track=<T extends {close():void}>(store:T):T=>{handles.push(store);return store;};
   const close=()=>{if(!closed){closed=true;handles.reverse().forEach(store=>store.close());db.close();}};
   try {
-    const official=track(new SqliteOfficialStateStore(path)), participation=track(new SqliteOfficialParticipationStore(path));
+    const official=track(new SqliteOfficialStateStore(path));
     const links=track(openSqlitePlayerPersonLinkStore(path));
+    // Historical reopening still needs accepted fixture/Person authority. The
+    // original National origin owns those fixture pins after Match advancement.
+    const participation=track(new SqliteOfficialParticipationStore(path,{
+      readGame:gameId=>{const saved=readNationalMatchOrigin(db,gameId);return saved?nationalFixtureGame(saved.fixture):null;},
+      readRoster:()=>null,
+      readPersonLink:(playerId,sourceId)=>{const link=links.readLink(sourceId);return link?.playerId===playerId?link:null;},
+    }));
     const initialWorlds=track(openSqliteOfficialInitialWorldStore(path,{matches:official,participation}));
-    const initial=initialWorlds.readAcceptedSource('initial-world');assert(initial);
+    const initial=withBattedVenueLegalReadSnapshot(db,()=>initialWorlds.readAcceptedSource('initial-world'));assert(initial);
     const original=withBattedVenueLegalReadSnapshot(db,()=>{
       const nextActor=readPhysicalPlateAppearanceActorFromSqlite(db,'national-live:batter');assert(nextActor);
       assert.equal(nextActor.binding.playerId,'p10');assert.equal(nextActor.match.playId,8);
