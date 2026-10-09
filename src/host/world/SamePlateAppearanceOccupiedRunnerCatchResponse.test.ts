@@ -7,6 +7,7 @@ import { resolveExactCommunicationReception } from '../../core/sim/perception/Ex
 import { DeterministicRng } from '../../core/rng/DeterministicRng';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { deriveSamePaCatchPhaseWork } from './SamePlateAppearanceCatchPhaseWork';
 const mocks = vi.hoisted(() => ({ work: null as any, journal: null as any, pair: null as any, hold: null as any }));
 vi.mock('./SamePlateAppearanceCatchWorkFromSqlite', () => ({ readSamePaCatchWorkFromSqlite: () => mocks.work }));
 vi.mock('./SamePlateAppearanceLifecycleFromSqlite', () => ({ readSamePaLifecycleRecordFromSqlite: () => mocks.journal }));
@@ -56,6 +57,17 @@ const fixture = () => {
 };
 it('OCR01 separately accepts the received hold, requires real adoption and retains reaction plus finite controller work', () => {
   const h=fixture(), before=JSON.stringify(h.root.field);h.admit();
+  const phases = () => {
+    const m = h.prefix.at(-1).field.motion.world.moment;
+    const census = { originalFieldPrefix: { physicalPitchSourceId: h.root.physicalPitchSourceId,
+      participantIds: ['batter'], fieldReferences: h.prefix.map(f => reference(f.kind === 'same_pa_physical_field_root_v1' ? 'pa_physical_v1_field_roots' : 'pa_physical_v1_field_steps', f)),
+      at: { originTick: m.originTick, elapsedSeconds: m.elapsedSeconds, tick: m.ball.tick } },
+      defenderDecisions: { pending: [], consumed: [] }, catchResponses: { pending: [], adopted: [] },
+      batterCatchResponses: { pending: [], adopted: [] }, occupiedRunnerCatchResponses: deriveSamePaOccupiedRunnerCatchCensus(h.prefix) };
+    return deriveSamePaCatchPhaseWork({ fields: h.prefix, census: census as never, calls: [] });
+  };
+  expect(phases().phases.find(p => p.kind === 'decision_issue')!.source).toHaveProperty('completion');
+  expect(phases().phases.find(p => p.kind === 'motor_adoption')!.source).not.toHaveProperty('completion');
   expect(JSON.stringify(h.prefix[1].field)).toBe(before);
   expect(mocks.work.operative.ledger.events[0].kind).toBe('UnresolvedCorrectRuleSnapshotRecorded');
   expect(mocks.work.operative.onFieldCall.ruling.basesAfter.first).toBe('batter');
@@ -63,6 +75,9 @@ it('OCR01 separately accepts the received hold, requires real adoption and retai
   expect(() => assertSamePaOccupiedRunnerCatchOwnership({...h.source,action:undefined,throughTick:1},h.prefix)).toThrow(/first physical/);
   expect(() => assertSamePaOccupiedRunnerCatchOwnership({...h.source,action:{kind:'occupied_runner_catch_motion_v1',responseReference:ref('pa_physical_v1_field_steps','foreign')}},h.prefix)).toThrow(/own first/);
   const moved=h.move(50_000), census=deriveSamePaOccupiedRunnerCatchCensus(h.prefix);
+  expect(phases().phases.find(p => p.kind === 'motor_adoption')).toMatchObject({
+    completionReference: reference('pa_physical_v1_field_steps', moved),
+    successors: [{ domain: 'body_motion', playerId: 'batter' }, { domain: 'controller_renewal', playerId: 'batter' }] });
   expect(census.pending).toEqual([]);expect(census.adopted).toHaveLength(1);
   expect(census.adopted[0].work).toEqual([{kind:'reaction',dueTick:100_000,due:'future'},{kind:'controller_end',dueTick:2_000_000,due:'future'}]);
   expect(moved.field.motion.actors.filter((a:any)=>a.playerId==='batter').every((a:any)=>Object.values(a.primitive.startVelocity).every(v=>v===0))).toBe(true);

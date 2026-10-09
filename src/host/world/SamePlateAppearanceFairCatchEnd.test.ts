@@ -14,6 +14,7 @@ import { deriveSamePaFieldRuleEvidence } from './SamePlateAppearanceFieldRuleEvi
 import { deriveSamePaFairCatchRuleBasis } from './SamePlateAppearanceFairCatchRuleBasis';
 import { deriveSamePaCatchOperativeRuling } from './SamePlateAppearanceCatchOperativeRuling';
 import { deriveSamePaLiveWorkCensus } from './SamePlateAppearanceLiveWorkCensus';
+import { deriveSamePaCatchPhaseWork } from './SamePlateAppearanceCatchPhaseWork';
 import { deriveSamePaFairCatchEndFromSqlite } from './SamePlateAppearanceFairCatchEndFromSqlite';
 import { samePaLifecycleOutcomeInput } from './SamePlateAppearanceLifecycleOutcome';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
@@ -80,7 +81,8 @@ const setup=(reception:'future'|'dropped'|'received'='future',occupiedCount=0,ou
   const pair={kind:'same_pa_field_rule_read_pair_v1',value,fields:[root,capture,seal],actor,view};
   const original={...pair,value:{...value,occupiedRunners:originalOccupiedRunners,fairCatch:originalCatch,evidence:originalEvidence,viewReference:action.viewReference,evidenceHash:hash(originalEvidence)}};
   const census={...deriveSamePaLiveWorkCensus({fields:pair.fields,participantIds:ids,observationPolicies:[],possessionEvidence:evidence.rule.possessionEvidence}),runnerPlans:[]};
-  const live={kind:'same_pa_live_work_read_v1',census,communication:{kind:'owned_same_pa_catch_communication_v1',latestReference:catchWorkReference,emitted,recipients}};
+  const live={kind:'same_pa_live_work_read_v1',census,communication:{kind:'owned_same_pa_catch_communication_v1',latestReference:catchWorkReference,emitted,recipients},
+    ...(occupiedCount?{sourceLocalPhases:deriveSamePaCatchPhaseWork({fields:pair.fields,census,calls:[]})}:{})};
   const work={lineage,physicalPitchReference,physicalOperationReference:fieldRef(seal),operative,originalInputs:{action},communication:{evaluatedThrough:at}};
   mocks.pair=pair;mocks.original=original;mocks.live=live;mocks.work=work;mocks.prefix={kind:'same_pa_lifecycle_prefix',source:{eventReferences:[...value.fieldReferences,catchWorkReference]}};
   const run=()=>deriveSamePaFairCatchEndFromSqlite({} as DatabaseSync,viewReference,catchWorkReference,'historical');
@@ -140,8 +142,17 @@ it.each([1,2,3])('occupied third-out keeps %s original runners, future work and 
   expect(result.registry.frontier.physical).toHaveLength(10+count);
   expect(result.registry.frontier.information).toHaveLength(10+count);
   expect(result.generation.bodyBaseHistoryHashes).toHaveLength(4*(10+count));
+  expect(h.live.sourceLocalPhases?.phases.find(p=>p.kind==='acquisition')?.source).toHaveProperty('completion');
+  expect(result.generation).not.toHaveProperty('sourceLocalPhases');
+  expect(result.generation.producerIds).toHaveLength(34+3*count);
+  expect(result.registry.registry.sources.filter(s=>s.sourceId.includes('body_motion')).every(s=>!s.completion)).toBe(true);
 });
 it('occupied non-third-out retains future live producers and never adopts the empty-base terminal shortcut',()=>{
   const h=setup('future',3,0);
   expect(h.run()).toEqual({kind:'pending',reason:'occupied_live_producer_completion_required'});
+});
+it('rejects a phase projection from another physical prefix before finalization',()=>{
+  const h=setup('future',1,2);
+  mocks.live={...h.live,sourceLocalPhases:{...h.live.sourceLocalPhases,originalFieldPrefix:{...h.live.census.originalFieldPrefix,physicalPitchSourceId:'foreign'}}};
+  expect(h.run).toThrow(/phase prefix/);
 });

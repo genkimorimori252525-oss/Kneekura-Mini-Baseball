@@ -7,6 +7,7 @@ import { readSamePaLifecycleRecordFromSqlite, withSamePaLifecycleReadPhase } fro
 import { readSamePaCatchWorkFromSqlite } from './SamePlateAppearanceCatchWorkFromSqlite';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { readBatterRunPlanFromSqlite } from './SqliteBatterRunPlanStore';
+import { deriveSamePaCatchPhaseWork } from './SamePlateAppearanceCatchPhaseWork';
 
 /** Complete current prefix ownership includes the accepted original call,
  * exact reception and actual sensory consumers. A sensory consumer alone is
@@ -60,7 +61,9 @@ export const readSamePaAdmittedLiveWorkFromSqlite = (db: DatabaseSync, viewRefer
         : r.kind === 'dropped' ? { kind: 'not_triggered' as const, reason: 'call_not_recognized' }
         : { kind: 'pending' as const, reason: r.kind === 'received' ? 'received_catch_controller_response_required' : 'catch_information_not_received' } };
   }) ?? [];
-  return freeze({ ...live, census: { ...live.census, runnerPlans,
+  return freeze({ ...live,
+    ...(pair.actor.world.runners.length ? { sourceLocalPhases: deriveSamePaCatchPhaseWork({ fields: pair.fields, census: live.census, calls }) } : {}),
+    census: { ...live.census, runnerPlans,
     unownedDomains: latest ? ['controller_responses', 'producer_completeness', 'live_play_end'] as const : live.census.unownedDomains },
     communication: latest ? { kind: 'owned_same_pa_catch_communication_v1' as const,
     workReferences: calls.map(w => reference('pa_catch_v1_work', w)), latestReference: reference('pa_catch_v1_work', latest),

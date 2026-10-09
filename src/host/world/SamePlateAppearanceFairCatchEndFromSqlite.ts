@@ -138,9 +138,26 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
   const scheduled = communication.recipients.flatMap(r => r.reception.kind === 'scheduled' ? [{ playerId: r.playerId, dueTick: r.reception.reception.received.receivedAt }] : []);
   producer('communication_ingress', null, scheduled.map(r => r.dueTick), { information: scheduled.map(r => ({ workId: json(['call', r.playerId]),
     kind: 'in_flight_information', actorId: r.playerId, dueTick: r.dueTick, causeEventId: work.originalInputs.action!.sourceId })) });
-  const registry = resolveLivePlayRegistry(createLivePlayRegistry({ playId: view.lineage.playId, revision: 1, sources }),
-    { tick: at.tick, terminal: !occupied || work.operative.onFieldCall.ruling.outsAfter === 3 ? 'all_offense_terminal' : 'none',
-      actors: ids.map(actorId => ({ actorId, kind: 'acting' as const })) });
+  if (occupied) {
+    if (!live.sourceLocalPhases) throw new Error('fair catch end original phase ownership missing');
+    if (json(live.sourceLocalPhases.originalFieldPrefix) !== json(census.originalFieldPrefix))
+      throw new Error('fair catch end original phase prefix differs');
+    // Local receipt completion never retires reusable producer domains. Every
+    // declared successor must still have its independent source in this registry.
+    for (const phase of live.sourceLocalPhases.phases) for (const successor of phase.successors) {
+      const id = json([view.lineage.enrollmentReference.sourceId, view.cut.physicalPitchReference.sourceId, successor.domain, successor.playerId]);
+      if (!sources.some(s => s.sourceId === id && s.completion === undefined)) throw new Error('fair catch end phase successor omitted');
+    }
+  }
+  const request = { tick: at.tick, terminal: !occupied || work.operative.onFieldCall.ruling.outsAfter === 3 ? 'all_offense_terminal' as const : 'none' as const,
+    actors: ids.map(actorId => ({ actorId, kind: 'acting' as const })) };
+  // The additive read sidecar checks operation-local work without rewriting
+  // existing v1 outcome archives. Their domain registry still retains every
+  // successor and remains the persisted generation/watermark proof.
+  if (occupied && resolveLivePlayRegistry(createLivePlayRegistry({ playId: view.lineage.playId, revision: 1,
+    sources: [...sources, ...live.sourceLocalPhases!.sources] }), request).resolution.kind !== 'ended')
+    return pending('occupied_live_producer_completion_required');
+  const registry = resolveLivePlayRegistry(createLivePlayRegistry({ playId: view.lineage.playId, revision: 1, sources }), request);
   // A hold horizon is still an admitted finite command. For a non-third-out
   // occupied play, retain all future producers in the ordinary frontier until
   // their real completion owners exist; never manufacture cancellation here.

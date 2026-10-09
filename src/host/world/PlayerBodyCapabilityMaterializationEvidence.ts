@@ -1,4 +1,6 @@
 import { deriveDefenderPhysicalReachCalibration } from '../../core/sim/fielding/DefenderPhysicalProfileCalibration';
+import { createRequire } from 'node:module';
+import { memoSamePaContinuationRead, withSamePaContinuationReadPhase } from './SamePlateAppearanceContinuationFromSqlite';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { playerPersonLinkEvidenceFromSqlite } from './SqlitePlayerPersonLinkStore';
 import { playerFieldingModelEvidenceFromSqlite } from './SqlitePlayerFieldingModelStore';
@@ -118,12 +120,24 @@ export const playerBodyCapabilityMaterializationEvidenceFromSqlite = (db: BodyCo
       }
     }
   };
-  const readArchive = (sourceId: string): ArchivedBodyMaterialization | null => {
+  const authenticateArchive = (sourceId: string): ArchivedBodyMaterialization | null => {
     if (!bodySourceId(sourceId)) throw new Error('invalid body materialization identity');
     const rows = identities(sourceId);
     if (rows.length > 1 || rows.length === 1 && rows[0].source_id !== sourceId) throw new Error('original body materialization Source ownership differs');
     const row = rows[0]; if (!row) return null;
     const archive = parseRow(row); assertParameterPins(archive); return archive;
+  };
+  /** Sibling Native readers may share only the complete immutable archive.
+   * Main-owner checks still run on every access; writes and independent proofs
+   * keep their original authentication path and never inherit this evidence. */
+  const readArchive = (sourceId: string): ArchivedBodyMaterialization | null => {
+    const { DatabaseSync: Native } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+    if (!(db instanceof Native) || !db.isTransaction || db.prepare('PRAGMA query_only').get()!.query_only !== 1) return authenticateArchive(sourceId);
+    return withSamePaContinuationReadPhase(db, () => {
+      if (!bodySourceId(sourceId)) throw new Error('invalid body materialization identity');
+      assertBodyCompositionNativeConnection(db);
+      return memoSamePaContinuationRead(db, 'body-materialization-archive:' + sourceId, () => authenticateArchive(sourceId));
+    });
   };
   return Object.freeze({ derive, assertParameterPins, readArchive,
     read: (sourceId: string): BodyMaterializationReceipt | null => {

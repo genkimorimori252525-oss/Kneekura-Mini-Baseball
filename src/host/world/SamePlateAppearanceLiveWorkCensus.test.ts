@@ -10,9 +10,14 @@ import { actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSql
 import type { SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep } from './SamePlateAppearancePhysicalEpisode';
 import type { SamePaPhysicalFieldActionResult } from './SamePlateAppearancePhysicalFieldAction';
 import { deriveSamePaLiveWorkCensus, type SamePaLiveWorkCensusInput } from './SamePlateAppearanceLiveWorkCensus';
+import { deriveSamePaCatchPhaseWork } from './SamePlateAppearanceCatchPhaseWork';
+import type { SamePaCatchWork } from './SamePlateAppearanceCatchWorkFromSqlite';
+import { resolveExactCommunicationReception } from '../../core/sim/perception/ExactCommunication';
+import { DeterministicRng } from '../../core/rng/DeterministicRng';
+import { deriveSamePaCatchOperativeRuling } from './SamePlateAppearanceCatchOperativeRuling';
 type Field = SamePaPhysicalFieldRoot | SamePaPhysicalFieldStep;
 const fieldRef = (f: Field) => reference(f.kind === 'same_pa_physical_field_root_v1' ? 'pa_physical_v1_field_roots' : 'pa_physical_v1_field_steps', f);
-const ref = (owner: string) => ({ owner, sourceId: owner, sourceHash: hash(owner), snapshotHash: hash(owner) });
+const ref = <O extends string>(owner: O) => ({ owner, sourceId: owner, sourceHash: hash(owner), snapshotHash: hash(owner) });
 const roles = ['body', 'glove', 'tag_hand', 'left_foot', 'right_foot'] as const;
 /** Core supplies actual contact/capture/throw. The small sensory records exercise
  * the pure census contract only; this fixture does not claim Native ownership. */
@@ -29,7 +34,7 @@ const setup = () => {
   const field = deriveInitialBattedWorldFieldMotion({ ...original, response, commands: actors.map(a => ({ playerId: a.playerId, role: a.primitive.role, acceleration: v(0, 0, 0) })) });
   const root = { kind: 'same_pa_physical_field_root_v1', source: { sourceId: 'root', sourceVersion: 'fixture-only', parameters: response.world.parameters },
     physicalPitchSourceId: 'pitch', pitchOrdinal: 3, operationOrdinal: 3, evaluationTick: field.motion.world.moment.ball.tick,
-    response, geometry: original.geometry, field, lineage: { playId: 1 }, timeline: { playId: 1, startedAtTick: 0, lastEventTick: 0, nextSequence: 0,
+    response, geometry: original.geometry, field, lineage: { playId: 1, enrollmentReference: ref('same_pa_enrollments') }, timeline: { playId: 1, startedAtTick: 0, lastEventTick: 0, nextSequence: 0,
       events: [], status: { kind: 'batted_ball_pending', count: { balls: 0, strikes: 0 } } } } as unknown as SamePaPhysicalFieldRoot;
   const scope = { participantIds, batterRunnerId: 'batter', defenderIds: ['carrier', 'receiver'], outsAtStart: 0 };
   const step = (previous: Field, sourceId: string, actionResult?: SamePaPhysicalFieldActionResult,
@@ -197,6 +202,8 @@ it('LC14 received proposals keep their due work and cannot masquerade as motor i
   const census = h.census([h.root, seen, response]);
   expect(census.catchResponses.pending).toMatchObject([{ responseReference: fieldRef(response), work: [{ kind: 'decision', due: 'future' }] }]);
   expect(census.catchResponses.adopted).toEqual([]); expect(census.pendingPhysical.captures).toHaveLength(1);
+  const phases = deriveSamePaCatchPhaseWork({ fields: [h.root, seen, response], census, calls: [] });
+  expect(phases.phases.filter(p => p.kind === 'decision_issue' || p.kind === 'motor_adoption').every(p => !p.source.completion)).toBe(true);
   const motor = h.step(response, 'false-issuance', { kind: 'defender_motion_v1', motors: [{ self: { playerId: 'carrier' }, command: { playerId: 'carrier' }, issuedAt: at, startAt: at }] } as never,
     { kind: 'defender_motion_v1', selections: [{ member: { playerId: 'carrier' }, decisionReference: fieldRef(response) }] } as never);
   expect(() => h.census([h.root, seen, response, motor])).toThrow(/not issued or due/);
@@ -213,8 +220,101 @@ it('LC15 received work is consumed only by matching actual motor adoption and ke
     { kind: 'defender_motion_v1', selections: [{ member: { playerId: 'carrier' }, decisionReference: fieldRef(response) }] } as never);
   const census = h.census([h.root, secured, seen, response, motor]);
   expect(census.catchResponses.pending).toEqual([]); expect(census.catchResponses.adopted).toMatchObject([{ consumerReference: fieldRef(motor), at }]);
+  const phaseWork = deriveSamePaCatchPhaseWork({ fields: [h.root, secured, seen, response, motor], census, calls: [] });
+  expect(phaseWork.phases.find(p => p.kind === 'decision_issue')).toMatchObject({ completionReference: fieldRef(response) });
+  expect(phaseWork.phases.find(p => p.kind === 'motor_adoption')).toMatchObject({ completionReference: fieldRef(motor) });
   const altered = structuredClone(motor) as SamePaPhysicalFieldStep;
   if (altered.actionResult?.kind !== 'defender_motion_v1') throw new Error('fixture motor missing');
   const bad = { ...altered, actionResult: { ...altered.actionResult, motors: altered.actionResult.motors.map(m => ({ ...m, issuedAt: { ...at, elapsedSeconds: 1 } })) } };
   expect(() => h.census([h.root, secured, seen, response, bad])).toThrow(/issuance differs/);
+});
+
+it('CP01 completes an executed sample without consuming its decision or caused refresh', () => {
+  const h = setup(), seen = h.observation(h.root, 'sample'), fields = [h.root, seen];
+  const result = deriveSamePaCatchPhaseWork({ fields, census: h.census(fields), calls: [] });
+  const sample = result.phases.find(p => p.kind === 'observation_sample');
+  expect(sample).toMatchObject({ originReference: fieldRef(seen), completionReference: fieldRef(seen),
+    source: { completion: { completedAtTick: seen.evaluationTick }, queue: null },
+    successors: [{ domain: 'controller_renewal', playerId: 'carrier' }, { domain: 'observation_scheduling', playerId: 'carrier' }] });
+  expect(result).not.toHaveProperty('playEnd');
+  expect(h.census(fields).observationRefresh.pending).toHaveLength(1);
+});
+
+it('CP02 completes only the exactly consumed decision/adoption and leaves the body controller open', () => {
+  const h = setup(), plan = prepareBattedWorldScheduledFieldAcquisition({ response: h.root.response, geometry: h.root.geometry, field: h.root.field });
+  const secured = h.capture(h.root, plan.fenceElapsedSeconds), seen = h.observation(secured, 'sample'), chosen = h.decision(seen, 'choice', seen, 0, 0);
+  const fields = [h.root, secured, seen, chosen], before = deriveSamePaCatchPhaseWork({ fields, census: h.census(fields), calls: [] });
+  expect(before.phases.find(p => p.kind === 'decision_issue')!.source).not.toHaveProperty('completion');
+  const motor = h.step(chosen, 'motor', { kind: 'defender_motion_v1', motors: [{ self: { playerId: 'carrier' }, command: { playerId: 'carrier' } }] } as never,
+    { kind: 'defender_motion_v1', selections: [{ member: { playerId: 'carrier' }, decisionReference: fieldRef(chosen) }] } as never);
+  const afterFields = [...fields, motor], census = h.census(afterFields);
+  const after = deriveSamePaCatchPhaseWork({ fields: afterFields, census, calls: [] });
+  for (const kind of ['decision_issue', 'motor_adoption']) expect(after.phases.find(p => p.kind === kind)).toMatchObject({
+    originReference: fieldRef(chosen), completionReference: fieldRef(motor), source: { completion: { completedAtTick: motor.evaluationTick } } });
+  expect(after.phases.find(p => p.kind === 'motor_adoption')!.successors).toEqual([
+    { domain: 'body_motion', playerId: 'carrier' }, { domain: 'controller_renewal', playerId: 'carrier' }]);
+  const forged = { ...census, defenderDecisions: { ...census.defenderDecisions, consumed: census.defenderDecisions.consumed.map(d => ({
+    ...d, consumerReference: { ...d.consumerReference, snapshotHash: hash('foreign') } })) } };
+  expect(() => deriveSamePaCatchPhaseWork({ fields: afterFields, census: forged, calls: [] })).toThrow(/original|reference/);
+});
+
+it('CP03 completes a secured acquisition but keeps custody and rule consumption separate', () => {
+  const h = setup(), plan = prepareBattedWorldScheduledFieldAcquisition({ response: h.root.response, geometry: h.root.geometry, field: h.root.field });
+  const half = h.capture(h.root, plan.fenceElapsedSeconds / 2), earlyFields = [h.root, half];
+  expect(deriveSamePaCatchPhaseWork({ fields: earlyFields, census: h.census(earlyFields), calls: [] }).phases
+    .filter(p => p.kind === 'acquisition' && p.source.completion)).toEqual([]);
+  const secured = h.capture(h.root, plan.fenceElapsedSeconds), fields = [h.root, secured];
+  const result = deriveSamePaCatchPhaseWork({ fields, census: h.census(fields), calls: [] });
+  expect(result.phases.find(p => p.kind === 'acquisition')).toMatchObject({ originReference: fieldRef(h.root),
+    completionReference: fieldRef(secured), source: { completion: { completedAtTick: secured.evaluationTick } },
+    successors: [{ domain: 'ball_and_contact_generation', playerId: null }, { domain: 'canonical_fair_catch_rule_consumption', playerId: null }] });
+});
+
+it('CP04 owns per-recipient delivery, preserves future reception and pins the first actual terminal receipt', () => {
+  const h = setup(), plan = prepareBattedWorldScheduledFieldAcquisition({ response: h.root.response, geometry: h.root.geometry, field: h.root.field });
+  const secured = h.capture(h.root, plan.fenceElapsedSeconds), calledAt = { originTick: 0, elapsedSeconds: 0, tick: 0 };
+  const emitted = { sourceId: 'umpire', targetScope: { kind: 'nearby' as const }, kind: 'callout' as const, issuedAt: 0,
+    content: { actionSourceId: 'call', officialId: 'umpire', personId: 'umpire-person', judgment: 'caught' as const, calledAt } };
+  const action = { sourceId: 'call', sourceVersion: 'fixture-only', capability: 'same_pa_explicit_catch_action_v1' as const,
+    assignmentReference: { sourceId: 'assignment', sourceVersion: 'fixture-only', sourceHash: hash('assignment') },
+    officialId: 'umpire', personId: 'umpire-person', viewReference: ref('pa_lifecycle_v1_execution_views'), judgment: 'caught' as const, calledAt };
+  const operative = deriveSamePaCatchOperativeRuling({ action, originalMatch: { playId: 1, ruleProfileId: 'npb-2026', outs: 0,
+    bases: { first: null, second: null, third: null } } as never, batterRunnerId: 'batter', basisTick: 0, basisEvidenceRevision: 1,
+    fairCatch: { kind: 'pending', reason: 'actual_fair_catch_required' } });
+  // A small structural owner seam around real Core reception results. These
+  // records exercise phase projection, not SQLite admission or a genuine game.
+  const call = (field: Field, id: string, previous: SamePaCatchWork | null): SamePaCatchWork => {
+    const moment = field.field.motion.world.moment, at = { originTick: moment.originTick, elapsedSeconds: moment.elapsedSeconds, tick: moment.ball.tick };
+    return { source: { sourceId: id, priorWorkReference: previous ? reference('pa_catch_v1_work', previous) : null }, lineage: h.root.lineage,
+      physicalPitchReference: { sourceId: 'pitch' }, physicalOperationReference: fieldRef(field), evaluationTick: at.tick,
+      originalInputs: { action }, operative, communication: { emitted, evaluatedThrough: at,
+        recipients: h.scope.participantIds.map(playerId => {
+          const reception = resolveExactCommunicationReception(emitted, 0, { originTick: 0, ticksPerSecond: 1_000_000 },
+            { propagationDelayTicks: 100, recognitionBaseDelayTicks: 0, maxAdditionalRecognitionDelayTicks: 0,
+              audibility: playerId === 'receiver' ? 0 : 1, recognition: 1, attention: 1, minimumRecognizableQuality: 0.5 }, new DeterministicRng(1));
+          return !reception ? { playerId, kind: 'dropped', reason: 'not_recognizable' }
+            : reception.receivedAtElapsedSeconds > at.elapsedSeconds ? { playerId, kind: 'scheduled', reception, receiverPosition: null }
+              : { playerId, kind: 'received', reception, receiverPosition: v(0, 0, 0) };
+        }) } } as unknown as SamePaCatchWork;
+  };
+  const first = call(h.root, 'delivery-start', null);
+  const initial = deriveSamePaCatchPhaseWork({ fields: [h.root], census: h.census([h.root]), calls: [first] });
+  expect(initial.phases.find(p => p.playerId === 'batter')!.source).not.toHaveProperty('completion');
+  expect(initial.phases.find(p => p.playerId === 'receiver')).toMatchObject({ completionReference: reference('pa_catch_v1_work', first), successors: [] });
+  expect(initial.phases.find(p => p.kind === 'catch_rule_evidence')).toMatchObject({
+    source: { completion: { basisEventId: 'call:rule-evidence' } }, successors: [{ domain: 'canonical_fair_catch_rule_consumption', playerId: null }] });
+  expect(operative.kind === 'retired' && operative.ledger.events[0].kind).toBe('UnresolvedCorrectRuleSnapshotRecorded');
+  const next = call(secured, 'delivery-finished', first), fields = [h.root, secured], census = h.census(fields);
+  const result = deriveSamePaCatchPhaseWork({ fields, census, calls: [first, next] });
+  const delivered = result.phases.find(p => p.kind === 'communication_delivery' && p.playerId === 'batter')!;
+  expect(delivered).toMatchObject({ originReference: reference('pa_catch_v1_work', first), completionReference: reference('pa_catch_v1_work', next),
+    source: { completion: { completedAtTick: next.evaluationTick } }, successors: [{ domain: 'controller_renewal', playerId: 'batter' }] });
+  expect(delivered.source.sourceId).toBe(initial.phases.find(p => p.playerId === 'batter')!.source.sourceId);
+  expect(delivered.source.revision).toBeGreaterThan(initial.phases.find(p => p.playerId === 'batter')!.source.revision);
+  const later = call(secured, 'later-read', next);
+  expect(deriveSamePaCatchPhaseWork({ fields, census, calls: [first, next, later] }).phases.find(p => p.kind === 'communication_delivery' && p.playerId === 'batter')!.completionReference)
+    .toEqual(reference('pa_catch_v1_work', next));
+  const duplicate = { ...next, communication: { ...next.communication, recipients: [...next.communication.recipients, next.communication.recipients[0]] } };
+  expect(() => deriveSamePaCatchPhaseWork({ fields, census, calls: [first, duplicate] })).toThrow(/scope/);
+  expect(() => deriveSamePaCatchPhaseWork({ fields, census, calls: [{ ...next, physicalOperationReference: ref('pa_physical_v1_field_steps') } as never] })).toThrow(/reference/);
 });
