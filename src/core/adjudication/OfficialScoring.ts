@@ -1,3 +1,5 @@
+import { deriveBallWorldBattedRuleChronology } from '../rules/BallWorldBattedRuleChronology';
+import { projectActualFairFieldTimeline, type ActualFairFieldTimelineInput } from '../sim/plateAppearance/ActualFairFieldTimeline';
 import type { CanonicalMatchState } from '../model/CanonicalMatchState';
 import type { RuleProfileId } from '../model/RuleProfileRef';
 import type { CanonicalPlateAppearanceTimeline } from '../sim/plateAppearance/CanonicalPlateAppearanceTimeline';
@@ -37,14 +39,16 @@ export type OfficialScoringInput = Readonly<{
 }> & (
   | Readonly<{ kind: 'non_live'; context: NonLiveOfficialContext }>
   | Readonly<{ kind: 'live_ball';
-      scoringEvidence?: OfficialFairBallScoringEvidence }>
+      scoringEvidence?: OfficialFairBallScoringEvidence;
+      /** Native must authenticate the complete physical sidecar and independently owned end. */
+      fairCatchEvidence?: ActualFairFieldTimelineInput }>
 );
 
 export type SupportedOfficialScoringRecord = Readonly<{
   playId: number;
   closureId: string;
   basisRulingId: string;
-  classification: 'base_on_balls' | 'strikeout' | 'foul_out'
+  classification: 'base_on_balls' | 'strikeout' | 'foul_out' | 'fly_out'
     | 'base_hit' | 'reached_on_error' | 'fielders_choice';
   battingTeam: 'away' | 'home';
   runsScored: number;
@@ -155,6 +159,32 @@ export const classifyClosedPlayForOfficialScoring = (
     const next = deriveClosedLiveBallMatchState(request.match, request.timeline, request.adjudication);
     const closure = getOfficialPlayClosure(request.adjudication);
     if (closure === null) throw new Error('official scoring requires OfficialPlayClosure');
+    if (request.fairCatchEvidence !== undefined) {
+      const physical = request.fairCatchEvidence;
+      const caught = deriveBallWorldBattedRuleChronology(physical.field.evidence).ballEvidence;
+      const projection = projectActualFairFieldTimeline(physical);
+      const batter = physical.field.evidence.batterRunnerId;
+      if (request.scoringEvidence !== undefined
+        || caught.kind !== 'fly_catch'
+        || projection.kind !== 'projected'
+        || JSON.stringify(projection.timeline) !== JSON.stringify(request.timeline)
+        || JSON.stringify(physical.playEnd) !== JSON.stringify(closure.playEnd)
+        || physical.originalTimeline.playId !== request.match.playId
+        || !nonEmpty(batter) || caught.correctRuleResult.batterRunnerId !== batter
+        || Object.values(request.match.bases).some((runnerId) => runnerId !== null)
+        || Object.values(closure.officialDelta.basesAfter).some((runnerId) => runnerId !== null)
+        || closure.officialDelta.scoredRunnerIds.length !== 0
+        || closure.officialDelta.outsAfter !== request.match.outs + 1) {
+        throw new Error('fair catch scoring requires its exact physical projection and closed empty-base batter retirement');
+      }
+      const battingTeam = request.match.half === 'top' ? 'away' : 'home';
+      return Object.freeze({ kind: 'supported', record: Object.freeze({
+        playId: closure.playId, closureId: closure.closureId,
+        basisRulingId: closure.finalRuling.rulingId,
+        classification: 'fly_out', battingTeam,
+        runsScored: 0, hitsCredited: 0, errorsCharged: 0,
+      }) });
+    }
     if (request.scoringEvidence !== undefined) {
       validateFairBallScoringEvidence(request.scoringEvidence,
         request.match, request.timeline, closure);
