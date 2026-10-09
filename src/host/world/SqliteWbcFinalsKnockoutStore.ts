@@ -1,3 +1,4 @@
+import type { DatabaseSync } from 'node:sqlite';
 import { createCompetitionSourceReader, withCompetitionSourceReadScope } from './CompetitionSourceReadScope';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -59,22 +60,26 @@ const canonicalJson = (value: unknown): string => JSON.stringify(
         left < right ? -1 : left > right ? 1 : 0)) : item);
 
 /** Advance four knockout stages only when prior Match finals exist. */
-export const openSqliteWbcFinalsKnockoutStore = (
-  databasePath: string,
+const createSqliteWbcFinalsKnockoutStore = (
+  databasePath: string | DatabaseSync,
   sources: Readonly<{
     groups: Pick<SqliteWbcFinalsGroupStore, 'readEvidence'>;
     editions?: Pick<SqliteNationalCompetitionEditionStore, 'readWbcKnockoutEdition'>;
     matches: PostseasonMatchSource;
   }>,
+  originalFixtureInputs = false,
 ): SqliteWbcFinalsKnockoutStore => {
-  if (!id(databasePath)) {
+  if (typeof databasePath === 'string' && !id(databasePath)) {
     throw new Error('invalid WBC knockout database path');
   }
   const readEvidence = createCompetitionSourceReader(sources.groups.readEvidence, sources.groups);
   const readWbcKnockoutEdition = sources.editions ? createCompetitionSourceReader(sources.editions.readWbcKnockoutEdition, sources.editions) : undefined;
   const sqlite: typeof import('node:sqlite') =
     createRequire(import.meta.url)('node:sqlite');
-  const db = new sqlite.DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new sqlite.DatabaseSync(databasePath);
+  if (!(db instanceof sqlite.DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_wbc_finals_knockout (
     career_id TEXT NOT NULL, edition_id TEXT NOT NULL,
@@ -82,6 +87,7 @@ export const openSqliteWbcFinalsKnockoutStore = (
     outcome_json TEXT,
     PRIMARY KEY (career_id, edition_id)
   );`);
+  }
   const get = db.prepare(`SELECT request_json, plan_json, outcome_json
     FROM world_wbc_finals_knockout WHERE career_id=? AND edition_id=?`);
   const row = (careerId: string, editionId: string): Row | null =>
@@ -113,7 +119,7 @@ export const openSqliteWbcFinalsKnockoutStore = (
       : Object.freeze(finals.filter((result) => result !== null));
   };
   const stages = (request: WbcFinalsKnockoutRequest,
-    plan: WbcKnockoutPlan): Readonly<{
+    plan: WbcKnockoutPlan, stopAt?: 'QUARTERFINAL' | 'SEMIFINAL' | 'FINAL'): Readonly<{
       source: WbcKnockoutSource;
       roundOf16Results: readonly OfficialGameResult[] | null;
       quarterfinalGames: readonly WbcKnockoutGame[] | null;
@@ -131,6 +137,8 @@ export const openSqliteWbcFinalsKnockoutStore = (
       semifinalResults: null, finalGame: null, finalResult: null };
     const quarterfinalGames = planWbcQuarterfinals(plan,
       roundOf16Results, official);
+    if (stopAt === 'QUARTERFINAL') return { source: official, roundOf16Results, quarterfinalGames,
+      quarterfinalResults: null, semifinalGames: null, semifinalResults: null, finalGame: null, finalResult: null };
     const quarterfinalResults = results(quarterfinalGames);
     if (!quarterfinalResults) return { source: official,
       roundOf16Results, quarterfinalGames,
@@ -138,6 +146,8 @@ export const openSqliteWbcFinalsKnockoutStore = (
       semifinalResults: null, finalGame: null, finalResult: null };
     const semifinalGames = planWbcSemifinals(plan,
       roundOf16Results, quarterfinalResults, official);
+    if (stopAt === 'SEMIFINAL') return { source: official, roundOf16Results, quarterfinalGames,
+      quarterfinalResults, semifinalGames, semifinalResults: null, finalGame: null, finalResult: null };
     const semifinalResults = results(semifinalGames);
     if (!semifinalResults) return { source: official,
       roundOf16Results, quarterfinalGames,
@@ -145,6 +155,8 @@ export const openSqliteWbcFinalsKnockoutStore = (
       semifinalResults: null, finalGame: null, finalResult: null };
     const finalGame = planWbcFinal(plan, roundOf16Results,
       quarterfinalResults, semifinalResults, official);
+    if (stopAt === 'FINAL') return { source: official, roundOf16Results, quarterfinalGames,
+      quarterfinalResults, semifinalGames, semifinalResults, finalGame, finalResult: null };
     const finalResult = readDurableOfficialGameResult(sources.matches,
       finalGame.gameId);
     return { source: official, roundOf16Results,
@@ -177,7 +189,7 @@ export const openSqliteWbcFinalsKnockoutStore = (
         throw new Error('WBC knockout plan replay differs');
       }
       let outcome: WbcKnockoutOutcome | null = null;
-      if (stored.outcome_json !== null) {
+      if (stored.outcome_json !== null && !originalFixtureInputs) {
         const saved = JSON.parse(stored.outcome_json) as
           WbcKnockoutOutcome;
         outcome = projectOutcome(request, plan);
@@ -250,7 +262,7 @@ export const openSqliteWbcFinalsKnockoutStore = (
       return withCompetitionSourceReadScope(() => {
         const prior = read(careerId, editionId);
         return prior ? stages(prior.request,
-          prior.plan).quarterfinalGames : null;
+          prior.plan, originalFixtureInputs ? 'QUARTERFINAL' : undefined).quarterfinalGames : null;
       });
     },
     semifinalGames(careerId: string, editionId: string):
@@ -258,7 +270,7 @@ export const openSqliteWbcFinalsKnockoutStore = (
       return withCompetitionSourceReadScope(() => {
         const prior = read(careerId, editionId);
         return prior ? stages(prior.request,
-          prior.plan).semifinalGames : null;
+          prior.plan, originalFixtureInputs ? 'SEMIFINAL' : undefined).semifinalGames : null;
       });
     },
     finalGame(careerId: string, editionId: string):
@@ -266,7 +278,7 @@ export const openSqliteWbcFinalsKnockoutStore = (
       return withCompetitionSourceReadScope(() => {
         const prior = read(careerId, editionId);
         return prior ? stages(prior.request,
-          prior.plan).finalGame : null;
+          prior.plan, originalFixtureInputs ? 'FINAL' : undefined).finalGame : null;
       });
     },
     finalize(careerId: string, editionId: string):
@@ -318,8 +330,24 @@ export const openSqliteWbcFinalsKnockoutStore = (
       });
     },
     close(): void {
-      if (!closed) db.close();
+      if (!closed && !borrowed) db.close();
       closed = true;
     },
   });
+};
+
+/** Existing path facade retains connection/schema ownership. */
+export const openSqliteWbcFinalsKnockoutStore = (databasePath: string, sources: Parameters<typeof createSqliteWbcFinalsKnockoutStore>[1]): SqliteWbcFinalsKnockoutStore =>
+  createSqliteWbcFinalsKnockoutStore(databasePath, sources);
+
+/** Same owner replay on a consuming Native connection; only read capabilities escape. */
+export const wbcFinalsKnockoutEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteWbcFinalsKnockoutStore>[1]): Pick<SqliteWbcFinalsKnockoutStore, 'readEdition' | 'readPlan' | 'quarterfinalGames' | 'semifinalGames' | 'finalGame' | 'readOutcome' | 'readEvidence'> => {
+  const owner = createSqliteWbcFinalsKnockoutStore(db, sources);
+  return Object.freeze({ readEdition: owner.readEdition, readPlan: owner.readPlan, quarterfinalGames: owner.quarterfinalGames, semifinalGames: owner.semifinalGames, finalGame: owner.finalGame, readOutcome: owner.readOutcome, readEvidence: owner.readEvidence });
+};
+
+/** Original playable fixture inputs exclude current/later round outcomes. */
+export const wbcFinalsKnockoutFixtureEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteWbcFinalsKnockoutStore>[1]): Pick<SqliteWbcFinalsKnockoutStore, 'readEdition' | 'readPlan' | 'quarterfinalGames' | 'semifinalGames' | 'finalGame'> => {
+  const owner = createSqliteWbcFinalsKnockoutStore(db, sources, true);
+  return Object.freeze({ readEdition: owner.readEdition, readPlan: owner.readPlan, quarterfinalGames: owner.quarterfinalGames, semifinalGames: owner.semifinalGames, finalGame: owner.finalGame });
 };

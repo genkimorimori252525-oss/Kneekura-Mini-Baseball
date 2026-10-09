@@ -55,7 +55,7 @@ export type ActualLiveParticipationReceipt = Readonly<{
   closureProposalHash: string; playedPlayId: number; durableRevision: number;
 }>;
 export type CompletedPlayParticipationReceipt = Readonly<{
-  evidenceKind: 'PHYSICAL_PLAY_V1' | 'FOUL_TERMINAL_V1'; receiptId: string; binding: OfficialParticipantBinding;
+  evidenceKind: 'PHYSICAL_PLAY_V1' | 'FOUL_TERMINAL_V1' | 'NATIONAL_PHYSICAL_PLAY_V1'; receiptId: string; binding: OfficialParticipantBinding;
   actorKind: 'DEFENDER' | 'BATTER' | 'RUNNER'; closureSourceId: string; closureApplicationId: string;
   closureProposalHash: string; playedPlayId: number; durableRevision: number;
 }>;
@@ -352,6 +352,10 @@ export class SqliteOfficialParticipationStore {
 
   confirmPhysicalPlayed(gameId: string, playerId: string, closureSourceId: string): CompletedPlayParticipationReceipt {
     return this.confirmCompletedPlayed(gameId, playerId, closureSourceId, 'PHYSICAL_PLAY_V1');
+  }
+
+  confirmNationalPhysicalPlayed(gameId: string, playerId: string, closureSourceId: string): CompletedPlayParticipationReceipt {
+    return this.confirmCompletedPlayed(gameId, playerId, closureSourceId, 'NATIONAL_PHYSICAL_PLAY_V1');
   }
 
   confirmFoulTerminalPlayed(gameId: string, playerId: string, closureSourceId: string): CompletedPlayParticipationReceipt {

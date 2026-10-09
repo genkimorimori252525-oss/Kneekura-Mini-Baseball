@@ -1,3 +1,4 @@
+import type { DatabaseSync } from 'node:sqlite';
 import { createCompetitionSourceReader, withCompetitionSourceReadScope } from './CompetitionSourceReadScope';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -67,20 +68,24 @@ const freeze = <T>(value: T): T => {
 };
 
 /** Assemble edition identities from accepted qualification/draw and organizer host sources. */
-export const openSqliteNationalCompetitionEditionStore = (
-  databasePath: string, sources: NationalCompetitionEditionSources,
+const createSqliteNationalCompetitionEditionStore = (
+  databasePath: string | DatabaseSync, sources: NationalCompetitionEditionSources,
 ): SqliteNationalCompetitionEditionStore => {
-  if (!id(databasePath)) throw new Error('invalid national edition database path');
+  if (typeof databasePath === 'string' && !id(databasePath)) throw new Error('invalid national edition database path');
   const readDraw = createCompetitionSourceReader(sources.draws.readDraw, sources.draws);
   const readCandidates = createCompetitionSourceReader(sources.hosts.readCandidates, sources.hosts);
   const sqlite: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
-  const db = new sqlite.DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new sqlite.DatabaseSync(databasePath);
+  if (!(db instanceof sqlite.DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_national_competition_editions (
     career_id TEXT NOT NULL, edition_id TEXT NOT NULL,
     request_json TEXT NOT NULL, snapshot_json TEXT NOT NULL,
     PRIMARY KEY (career_id, edition_id)
   );`);
+  }
   const get = db.prepare(`SELECT request_json, snapshot_json FROM world_national_competition_editions
     WHERE career_id=? AND edition_id=?`);
   const row = (careerId: string, editionId: string): Row | null =>
@@ -217,6 +222,16 @@ export const openSqliteNationalCompetitionEditionStore = (
       const snapshot = readSnapshot(careerId, editionId);
       return snapshot?.kind === 'WBC' ? snapshot.knockoutEdition : null;
     },
-    close(): void { if (!closed) db.close(); closed = true; },
+    close(): void { if (!closed && !borrowed) db.close(); closed = true; },
   });
+};
+
+/** Existing path facade retains connection/schema ownership. */
+export const openSqliteNationalCompetitionEditionStore = (databasePath: string, sources: Parameters<typeof createSqliteNationalCompetitionEditionStore>[1]): SqliteNationalCompetitionEditionStore =>
+  createSqliteNationalCompetitionEditionStore(databasePath, sources);
+
+/** Same owner replay on a consuming Native connection; only read capabilities escape. */
+export const nationalCompetitionEditionEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteNationalCompetitionEditionStore>[1]): Pick<SqliteNationalCompetitionEditionStore, 'readSnapshot' | 'readPremierEdition' | 'readWbcEdition' | 'readWbcKnockoutEdition'> => {
+  const owner = createSqliteNationalCompetitionEditionStore(db, sources);
+  return Object.freeze({ readSnapshot: owner.readSnapshot, readPremierEdition: owner.readPremierEdition, readWbcEdition: owner.readWbcEdition, readWbcKnockoutEdition: owner.readWbcKnockoutEdition });
 };

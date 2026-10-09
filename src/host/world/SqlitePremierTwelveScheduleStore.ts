@@ -1,3 +1,4 @@
+import type { DatabaseSync } from 'node:sqlite';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { planPremierTwelveSchedule, type PremierTwelveSchedule,
@@ -24,19 +25,23 @@ const canonicalJson = (value: unknown): string => JSON.stringify(
         left < right ? -1 : left > right ? 1 : 0)) : item);
 
 /** The accepted Edition/plan owns every slot, including unqualified knockout slots. */
-export const openSqlitePremierTwelveScheduleStore = (
-  databasePath: string,
+const createSqlitePremierTwelveScheduleStore = (
+  databasePath: string | DatabaseSync,
   sources: Readonly<{ groups: Pick<SqlitePremierTwelveGroupStore, 'readEdition' | 'readPlan'> }>,
 ): SqlitePremierTwelveScheduleStore => {
-  if (!id(databasePath)) throw new Error('invalid Premier12 schedule database path');
+  if (typeof databasePath === 'string' && !id(databasePath)) throw new Error('invalid Premier12 schedule database path');
   const sqlite: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
-  const db = new sqlite.DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new sqlite.DatabaseSync(databasePath);
+  if (!(db instanceof sqlite.DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_premier_twelve_schedules (
     career_id TEXT NOT NULL, edition_id TEXT NOT NULL,
     request_json TEXT NOT NULL, schedule_json TEXT NOT NULL,
     PRIMARY KEY (career_id, edition_id)
   );`);
+  }
   const get = db.prepare(`SELECT request_json, schedule_json
     FROM world_premier_twelve_schedules WHERE career_id=? AND edition_id=?`);
   const row = (careerId: string, editionId: string): Row | null =>
@@ -103,8 +108,18 @@ export const openSqlitePremierTwelveScheduleStore = (
       return stored ? replay(careerId, editionId, stored) : null;
     },
     close(): void {
-      if (!closed) db.close();
+      if (!closed && !borrowed) db.close();
       closed = true;
     },
   });
+};
+
+/** Existing path facade retains connection/schema ownership. */
+export const openSqlitePremierTwelveScheduleStore = (databasePath: string, sources: Parameters<typeof createSqlitePremierTwelveScheduleStore>[1]): SqlitePremierTwelveScheduleStore =>
+  createSqlitePremierTwelveScheduleStore(databasePath, sources);
+
+/** Same owner replay on the consuming Native connection; no writer or close capability escapes. */
+export const premierTwelveScheduleEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqlitePremierTwelveScheduleStore>[1]): Pick<SqlitePremierTwelveScheduleStore, 'readSchedule'> => {
+  const owner = createSqlitePremierTwelveScheduleStore(db, sources);
+  return Object.freeze({ readSchedule: owner.readSchedule });
 };

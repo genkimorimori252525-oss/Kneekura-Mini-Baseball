@@ -1,3 +1,4 @@
+import { assertNationalMatchBindings } from './NationalMatchOriginFromSqlite';
 import { assertFoulTerminalPriorActivation } from './FoulTerminalCompletionAncestryGuard';
 import { originalBattingIntentInput } from './OriginalBattingIntent';
 import { derivePrePitchRunnerExecution } from './PrePitchRunnerEvidenceFromSqlite';
@@ -46,6 +47,9 @@ export const capturePhysicalPitchEvidence = (db: Pick<DatabaseSync, 'prepare'>,
       || binding.clubId !== first.clubId || binding.side !== first.side) throw new Error('physical pitch actor binding evidence differs');
     readOfficialActorPersonLink(db, binding);
   }
+  const national = assertNationalMatchBindings(db, [...frame.bindings,
+    ...(frame.batterActor ? [frame.batterActor.binding] : []), ...(frame.prePitchRunner ? [frame.prePitchRunner.binding] : [])]);
+  if (national) result.nationalMatchOrigin = [hash(national)];
   const scope = [frame.workload.careerId, frame.workload.playerId];
   for (const table of ['world_pitch_timing_baselines', 'world_pitch_timing_updates', 'world_player_release_baselines',
     'world_player_release_changes', 'world_player_workload_baselines', 'world_player_workload_activities']) {

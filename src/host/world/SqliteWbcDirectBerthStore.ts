@@ -1,3 +1,4 @@
+import type { DatabaseSync } from 'node:sqlite';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { planWbcDirectBerths, type WbcBerthAuthority,
@@ -31,8 +32,8 @@ const canonicalJson = (value: unknown): string => JSON.stringify(
         left < right ? -1 : left > right ? 1 : 0)) : item);
 
 /** Freeze twenty direct WBC berths before selecting qualifier entrants. */
-export const openSqliteWbcDirectBerthStore = (
-  databasePath: string,
+const createSqliteWbcDirectBerthStore = (
+  databasePath: string | DatabaseSync,
   sources: Readonly<{
     editionCutoff: WbcBerthAuthority['editionCutoff'];
     editionCutoffForCareer?: (careerId: string, editionId: string) =>
@@ -43,18 +44,22 @@ export const openSqliteWbcDirectBerthStore = (
     nations: Pick<SqliteNationCompetitionRegionStore, 'authority'>;
   }>,
 ): SqliteWbcDirectBerthStore => {
-  if (!id(databasePath)) {
+  if (typeof databasePath === 'string' && !id(databasePath)) {
     throw new Error('invalid WBC direct berth database path');
   }
   const sqlite: typeof import('node:sqlite') =
     createRequire(import.meta.url)('node:sqlite');
-  const db = new sqlite.DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new sqlite.DatabaseSync(databasePath);
+  if (!(db instanceof sqlite.DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_wbc_direct_berths (
     career_id TEXT NOT NULL, edition_id TEXT NOT NULL,
     request_json TEXT NOT NULL, direct_json TEXT NOT NULL,
     PRIMARY KEY (career_id, edition_id)
   );`);
+  }
   const get = db.prepare(`SELECT request_json, direct_json
     FROM world_wbc_direct_berths WHERE career_id=? AND edition_id=?`);
   const row = (careerId: string, editionId: string): Row | null =>
@@ -140,8 +145,18 @@ export const openSqliteWbcDirectBerthStore = (
       return stored ? replay(careerId, editionId, stored) : null;
     },
     close(): void {
-      if (!closed) db.close();
+      if (!closed && !borrowed) db.close();
       closed = true;
     },
   });
+};
+
+/** Existing path facade retains connection/schema ownership. */
+export const openSqliteWbcDirectBerthStore = (databasePath: string, sources: Parameters<typeof createSqliteWbcDirectBerthStore>[1]): SqliteWbcDirectBerthStore =>
+  createSqliteWbcDirectBerthStore(databasePath, sources);
+
+/** Same owner replay on a consuming Native connection; only read capabilities escape. */
+export const wbcDirectBerthEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteWbcDirectBerthStore>[1]): Pick<SqliteWbcDirectBerthStore, 'readDirect'> => {
+  const owner = createSqliteWbcDirectBerthStore(db, sources);
+  return Object.freeze({ readDirect: owner.readDirect });
 };

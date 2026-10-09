@@ -1,3 +1,4 @@
+import { assertNationalMatchBindings, nationalBinding } from './NationalMatchOriginFromSqlite';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
 import type { CompletedPlayParticipationReceipt, OfficialParticipantBinding } from './SqliteOfficialParticipationStore';
@@ -28,7 +29,7 @@ const nativeTransaction = (db: Db): DatabaseSync => {
 /** Membership comes from the closed play's original frame, never its successor World. */
 const participant = (db: Db, gameId: string, playerId: string, actors: readonly Actor[], scope: Readonly<{
   careerId: string; seasonId: string; game: { gameId: string; homeClubId: string; awayClubId: string };
-}>, fieldingSide: 'HOME' | 'AWAY'): Actor => {
+}>, fieldingSide: 'HOME' | 'AWAY', national = false): Actor => {
   if (!actors.length || actors.filter(a => a.actorKind === 'DEFENDER').length !== 9
     || new Set(actors.map(a => a.binding.playerId)).size !== actors.length
     || new Set(actors.map(a => a.binding.personId)).size !== actors.length || scope.game.gameId !== gameId) {
@@ -38,8 +39,9 @@ const participant = (db: Db, gameId: string, playerId: string, actors: readonly 
   if (selected.length !== 1) throw new Error('player is absent from original completed play actors');
   for (const actor of actors) {
     const b = actor.binding, document = readOwnedParticipationBindingJson(db, gameId, b.playerId);
-    if (!document || json(JSON.parse(document)) !== json(b) || Object.hasOwn(b, 'nationalRegistrationEventId')
-      || Object.hasOwn(b, 'nationalRosterSnapshotId')) throw new Error('completed participation original domestic binding differs');
+    if (!document || json(JSON.parse(document)) !== json(b) || nationalBinding(b) !== national) {
+      throw new Error(national ? 'completed participation original National binding differs' : 'completed participation original domestic binding differs');
+    }
     for (const key of bindingFields) {
       const numeric = key === 'gameDay' || key === 'rosterRevision', value = b[key];
       if (numeric ? typeof value !== 'number' || !Number.isSafeInteger(value) || value < 0 : !id(value)) {
@@ -56,7 +58,13 @@ const participant = (db: Db, gameId: string, playerId: string, actors: readonly 
       throw new Error('completed participation original role or Person scope differs');
     }
   }
-  assertParticipationDomesticSeason(db, scope.careerId, scope.seasonId);
+  if (national) {
+    const origin = assertNationalMatchBindings(db, actors.map(a => a.binding));
+    if (!origin || origin.fixture.competitionEditionId !== scope.seasonId || origin.fixture.careerId !== scope.careerId
+      || origin.fixture.homeClubId !== scope.game.homeClubId || origin.fixture.awayClubId !== scope.game.awayClubId) {
+      throw new Error('completed participation original National fixture differs');
+    }
+  } else assertParticipationDomesticSeason(db, scope.careerId, scope.seasonId);
   return selected[0];
 };
 
@@ -101,7 +109,7 @@ export const deriveCompletedPlayParticipationEvidence = (db: Db, gameId: string,
   return withBattedVenueLegalReadSnapshot(connection, () => {
   let selected: Actor, closureApplicationId: string, closureProposalHash: string, playedPlayId: number, durableRevision: number;
   let stateJson: string, activationJson: string, final: boolean;
-  if (evidenceKind === 'PHYSICAL_PLAY_V1') {
+  if (evidenceKind === 'PHYSICAL_PLAY_V1' || evidenceKind === 'NATIONAL_PHYSICAL_PLAY_V1') {
     const saved = ordinaryOwner(db, sourceId), p = saved.proposal, f = p.physicalPitch.frame, official = p.expectedOfficial;
     if (saved.row.game_id !== gameId || p.application.matchId !== gameId || f.gameId !== gameId
       || official.receipt.previousPlayId !== f.match.playId || official.receipt.durableRevision !== f.officialRevision + 1) {
@@ -120,7 +128,7 @@ export const deriveCompletedPlayParticipationEvidence = (db: Db, gameId: string,
       || f.prePitchRunner && f.world.runners.filter(r => r.playerId === f.prePitchRunner!.binding.playerId).length !== 1) {
       throw new Error('completed participation original World membership differs');
     }
-    selected = participant(db, gameId, playerId, actors, p.worldFixture, f.match.half === 'top' ? 'HOME' : 'AWAY');
+    selected = participant(db, gameId, playerId, actors, p.worldFixture, f.match.half === 'top' ? 'HOME' : 'AWAY', evidenceKind === 'NATIONAL_PHYSICAL_PLAY_V1');
     closureApplicationId = p.application.applicationId; closureProposalHash = hash(p); playedPlayId = f.match.playId;
     durableRevision = official.receipt.durableRevision;
     stateJson = json('result' in official ? official.receipt.appliedMatchState : official.activation.nextMatchState);

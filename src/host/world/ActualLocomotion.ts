@@ -14,8 +14,15 @@ export type IssuedDefenderMotionDecision = Readonly<{ sourceId: string; playerId
   Pick<ActualDefensiveDecisionReceipt, 'lifecycle' | 'ticksPerSecond' | 'availability' | 'scheduling' | 'selected' | 'target'>;
 /** Shared pure motion input. A new versioned decision is never cast or relabeled
  * as a DurableActualDefensiveDecision; Native owns its distinct provenance. */
-export const deriveIssuedDefenderMotionReceipt = (decision: IssuedDefenderMotionDecision, model: DurablePlayerLocomotionModel,
-  self: OwnedActualPlayerKinematics, rawCalibration: PlayerLocomotionCalibration) => {
+export type IssuedDefenderMotionSelf = Pick<OwnedActualPlayerKinematics,
+  'playerId' | 'personId' | 'personLinkSourceId' | 'gameDay' | 'physicalPitchSourceId' | 'at' | 'ticksPerSecond' | 'root'> & Readonly<{
+  origin: Pick<OwnedActualPlayerKinematics['origin'], 'kind'>;
+  roles: readonly Pick<OwnedActualPlayerKinematics['roles'][number], 'role' | 'radiusMeters' | 'relativeAcceleration' | 'declaredPose' | 'canonicalRoundingResidual' | 'canonicalActor'>[];
+  activeCommand: Pick<OwnedActualPlayerKinematics['activeCommand'], 'acceptedThroughTick'>;
+}>;
+/** A structural self seam preserves each Native family's own provenance. */
+export const deriveIssuedDefenderMotionReceipt = <Self extends IssuedDefenderMotionSelf>(decision: IssuedDefenderMotionDecision, model: DurablePlayerLocomotionModel,
+  self: Self, rawCalibration: PlayerLocomotionCalibration) => {
   const d = decision, c = createPlayerLocomotionCalibration(rawCalibration), ratings = model.fieldingModel.source.ratings;
   if (d.lifecycle.status !== 'issued' || !d.lifecycle.issuedAt || d.lifecycle.issuedBySourceId !== decision.sourceId) {
     throw new Error('actual locomotion requires an actually issued decision');
@@ -48,8 +55,9 @@ export const deriveIssuedDefenderMotionReceipt = (decision: IssuedDefenderMotion
     || JSON.stringify(p.relativeAcceleration) !== JSON.stringify(p.declaredPose.relativeAcceleration))) {
     throw new Error('actual locomotion retained acceleration residual is unsupported');
   }
+  const activeCommand: Self['activeCommand'] = self.activeCommand;
   const retainedRoles = self.roles.map(p => ({ role: p.role, radiusMeters: p.radiusMeters,
-    command: self.activeCommand, acceptedThroughTick: Math.min(p.canonicalActor.primitive.endTick, self.activeCommand.acceptedThroughTick),
+    command: activeCommand, acceptedThroughTick: Math.min(p.canonicalActor.primitive.endTick, self.activeCommand.acceptedThroughTick),
     offsetAcceleration: p.declaredPose.relativeAcceleration }));
   const maximumEnd = startTick + c.maxIntegrationStepTicks;
   if (!defensiveTick(maximumEnd)) throw new Error('actual locomotion end tick overflow');

@@ -1,3 +1,4 @@
+import type { DatabaseSync } from 'node:sqlite';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -40,12 +41,15 @@ const freeze = <T>(value: T): T => {
 };
 
 /** City infrastructure is owned here; Club stadium metrics remain accepted Club projections. */
-export const openSqliteWorldHostInfrastructureStore = (
-  databasePath: string, sources: WorldHostInfrastructureSources,
+const createSqliteWorldHostInfrastructureStore = (
+  databasePath: string | DatabaseSync, sources: WorldHostInfrastructureSources,
 ): SqliteWorldHostInfrastructureStore => {
-  if (!id(databasePath)) throw new Error('invalid World host infrastructure database path');
+  if (typeof databasePath === 'string' && !id(databasePath)) throw new Error('invalid World host infrastructure database path');
   const sqlite: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
-  const db = new sqlite.DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new sqlite.DatabaseSync(databasePath);
+  if (!(db instanceof sqlite.DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_host_venue_events (
     career_id TEXT NOT NULL, venue_id TEXT NOT NULL, revision INTEGER NOT NULL,
@@ -53,6 +57,7 @@ export const openSqliteWorldHostInfrastructureStore = (
     event_json TEXT NOT NULL, chain_hash TEXT NOT NULL,
     PRIMARY KEY (career_id, venue_id, revision), UNIQUE (career_id, source_event_id)
   );`);
+  }
   const rows = db.prepare(`SELECT revision, effective_day, source_event_id, event_json, chain_hash
     FROM world_host_venue_events WHERE career_id=? AND venue_id=? ORDER BY revision`);
   const eventById = db.prepare(`SELECT venue_id, event_json FROM world_host_venue_events
@@ -184,6 +189,16 @@ export const openSqliteWorldHostInfrastructureStore = (
       }
       return Object.freeze(projected);
     },
-    close(): void { if (!closed) db.close(); closed = true; },
+    close(): void { if (!closed && !borrowed) db.close(); closed = true; },
   });
+};
+
+/** Existing path facade retains connection/schema ownership. */
+export const openSqliteWorldHostInfrastructureStore = (databasePath: string, sources: Parameters<typeof createSqliteWorldHostInfrastructureStore>[1]): SqliteWorldHostInfrastructureStore =>
+  createSqliteWorldHostInfrastructureStore(databasePath, sources);
+
+/** Same owner replay on a consuming Native connection; only read capabilities escape. */
+export const worldHostInfrastructureEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteWorldHostInfrastructureStore>[1]): Pick<SqliteWorldHostInfrastructureStore, 'readVenues'> => {
+  const owner = createSqliteWorldHostInfrastructureStore(db, sources);
+  return Object.freeze({ readVenues: owner.readVenues });
 };

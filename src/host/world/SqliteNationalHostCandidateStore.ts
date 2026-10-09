@@ -1,3 +1,4 @@
+import type { DatabaseSync } from 'node:sqlite';
 import { createCompetitionSourceReader } from './CompetitionSourceReadScope';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
@@ -49,16 +50,19 @@ const freeze = <T>(value: T): T => {
 };
 
 /** Organizer-only candidate generation from historical facilities and completed official editions. */
-export const openSqliteNationalHostCandidateStore = (
-  databasePath: string, sources: NationalHostCandidateSources,
+const createSqliteNationalHostCandidateStore = (
+  databasePath: string | DatabaseSync, sources: NationalHostCandidateSources,
 ): SqliteNationalHostCandidateStore => {
-  if (!id(databasePath)) throw new Error('invalid national host candidate database path');
+  if (typeof databasePath === 'string' && !id(databasePath)) throw new Error('invalid national host candidate database path');
   const readSelection = createCompetitionSourceReader(sources.selections.readSelection, sources.selections);
   const readVenues = createCompetitionSourceReader(sources.infrastructure.readVenues, sources.infrastructure);
   const readHistory = createCompetitionSourceReader<[string, number], ReturnType<typeof sources.history.readHistory>>(sources.history.readHistory, sources.history);
   const readSnapshot = createCompetitionSourceReader(sources.editions.readSnapshot, sources.editions);
   const sqlite: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
-  const db = new sqlite.DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new sqlite.DatabaseSync(databasePath);
+  if (!(db instanceof sqlite.DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_national_host_candidate_policies (
     career_id TEXT NOT NULL, policy_version TEXT NOT NULL, policy_json TEXT NOT NULL,
@@ -68,6 +72,7 @@ export const openSqliteNationalHostCandidateStore = (
     career_id TEXT NOT NULL, edition_id TEXT NOT NULL, request_json TEXT NOT NULL, snapshot_json TEXT NOT NULL,
     PRIMARY KEY (career_id, edition_id)
   );`);
+  }
   const get = db.prepare(`SELECT request_json, snapshot_json FROM world_national_host_candidates
     WHERE career_id=? AND edition_id=?`);
   const getPolicy = db.prepare(`SELECT policy_json FROM world_national_host_candidate_policies
@@ -172,6 +177,16 @@ export const openSqliteNationalHostCandidateStore = (
       if (snapshot.asOfDay !== beforeDay) throw new Error('national host candidate cutoff differs');
       return snapshot;
     },
-    close(): void { if (!closed) db.close(); closed = true; },
+    close(): void { if (!closed && !borrowed) db.close(); closed = true; },
   });
+};
+
+/** Existing path facade retains connection/schema ownership. */
+export const openSqliteNationalHostCandidateStore = (databasePath: string, sources: Parameters<typeof createSqliteNationalHostCandidateStore>[1]): SqliteNationalHostCandidateStore =>
+  createSqliteNationalHostCandidateStore(databasePath, sources);
+
+/** Same owner replay on a consuming Native connection; only read capabilities escape. */
+export const nationalHostCandidateEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteNationalHostCandidateStore>[1]): Pick<SqliteNationalHostCandidateStore, 'readCandidates'> => {
+  const owner = createSqliteNationalHostCandidateStore(db, sources);
+  return Object.freeze({ readCandidates: owner.readCandidates });
 };

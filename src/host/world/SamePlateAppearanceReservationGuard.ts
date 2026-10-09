@@ -1,3 +1,5 @@
+import { samePaPlayerClaimCanProceed } from './SamePlateAppearanceSettlementAdmission';
+import { readSamePaReleasedMembers } from './SamePlateAppearanceTerminalReleaseArchive';
 import { assertNoReservedPaPlayerClaim, assertNoReservedPaWorkClaim } from './SamePlateAppearanceProvisionalClaimGuard';
 import { actualLivePlayOwnerIdentityRow } from './ActualLivePlayOwnerMetadata';
 import type { DatabaseSync } from 'node:sqlite';
@@ -86,7 +88,10 @@ export const authenticateSamePaRow = (db:SamePaDb,row:Record<string,unknown>):Re
     ||row.snapshot_json!==json(v)||row.snapshot_hash!==hash(v)||!Array.isArray(v.participants)||v.participants.length!==10
     ||new Set(v.participants.map(p=>p.binding.playerId)).size!==10||new Set(v.participants.map(p=>p.binding.personId)).size!==10
     ||json(v.firstPitch)!==json({physicalPitchSourceId:source.firstPhysicalPitchSourceId,state:'blocked_execution_basis',predecessorResumeSourceId:null,consumingSourceId:null}))fail('immutable root differs');
-  const members=db.prepare(`SELECT * FROM main.same_pa_participant_reservations m WHERE ${memberRoot('$id')}`).all({id:source.sourceId});
+  const activeMembers=db.prepare(`SELECT * FROM main.same_pa_participant_reservations m WHERE ${memberRoot('$id')}`).all({id:source.sourceId});
+  const archivedMembers=readSamePaReleasedMembers(db,v);
+  if(archivedMembers&&activeMembers.length)fail('released enrollment retains active member leases');
+  const members=archivedMembers??activeMembers;
   if(members.length!==10)fail('member set is incomplete');
   for(const p of v.participants){
     const ref=source.participantBaselineReferences.find(r=>r.playerId===p.binding.playerId),m=samePaMember(v,p);
@@ -104,9 +109,11 @@ export const assertNoSamePaPlayerReservation = (db:SamePaDb,scope:Readonly<{care
   if(!assertSamePaStorage(db))return;const q=playerClaim(scope);
   const links=playerAuthorityLinks(db);
   const own:Record<string,string>=ownSourceId===undefined?{}:{own:ownSourceId};
-  if(db.prepare(`SELECT 1 FROM main.same_pa_enrollments r WHERE ${ownSourceId===undefined?'1':'r.source_id IS NOT $own'} AND (${q.sql}${links}) LIMIT 1`).get({...q.params,...own}))fail('blocks new global Player workload');
+  const roots=db.prepare(`SELECT r.source_id FROM main.same_pa_enrollments r WHERE ${ownSourceId===undefined?'1':'r.source_id IS NOT $own'} AND (${q.sql}${links})`).all({...q.params,...own});
+  if(roots.some(row=>!samePaPlayerClaimCanProceed(db,String(row.source_id),scope)))fail('blocks new global Player workload');
   // Orphans remain claims, even if an external fault removed the root.
-  if(db.prepare(`SELECT 1 FROM main.same_pa_participant_reservations m WHERE (m.career_id=$career OR ${claim('m.member_json',['careerId'],'$career')}) AND (m.player_id=$player OR ${claim('m.member_json',['playerId'],'$player')}) AND ${ownSourceId===undefined?'1':`NOT (${memberRoot('$own')})`}`).get({...q.params,...own}))fail('orphan member blocks new global Player workload');
+  const members=db.prepare(`SELECT m.enrollment_source_id FROM main.same_pa_participant_reservations m WHERE (m.career_id=$career OR ${claim('m.member_json',['careerId'],'$career')}) AND (m.player_id=$player OR ${claim('m.member_json',['playerId'],'$player')}) AND ${ownSourceId===undefined?'1':`NOT (${memberRoot('$own')})`}`).all({...q.params,...own});
+  if(members.some(row=>!samePaPlayerClaimCanProceed(db,String(row.enrollment_source_id),scope)))fail('orphan member blocks new global Player workload');
 };
 export const assertNoSamePaWorkReservation = (db:SamePaDb,scope:SamePaScope,ownSourceId?:string):void => {
   assertNoReservedPaWorkClaim(db,scope,ownSourceId);

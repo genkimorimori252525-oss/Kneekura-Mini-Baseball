@@ -12,7 +12,8 @@ export type BattedWorldMotionInput = Readonly<{
   carrierPlayerId: string | null; availableAtTick: number; throughTick: number; commands: readonly BattedWorldPrimitiveMotionCommand[];
 }>;
 type CarriedResponse = Readonly<{ kind: 'carried'; cursor: BattedWorldBallCursor }>
-  | Readonly<{ kind: 'unresolved'; reason: 'carried_contact'; cursor: null }>;
+  | Readonly<{ kind: 'unresolved'; reason: 'carried_contact'; cursor: null }>
+  | Readonly<{ kind: 'capture_pending' | 'capture_interrupted'; cursor: null }>;
 export type BattedWorldMotion = Readonly<{
   actors: readonly BallWorldMotionActor[]; carrierPlayerId: string | null;
   world: BallWorldContinuation | AcceleratedBallWorldMotion;

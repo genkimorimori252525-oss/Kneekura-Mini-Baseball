@@ -9,7 +9,7 @@ export const battingAssessmentOwners = Object.freeze(['batting_observation_v1_po
  * discovered here; every reached owner still reconstructs its own behavior. */
 export const assertBattingAssessmentOwnership = (db: DatabaseSync, owner: string, source: Readonly<{ sourceId: string; provenance: Readonly<{ assessmentSourceId: string }> }>) => {
   assertBodyCompositionNativeConnection(db);
-  for (const table of [...battingAssessmentOwners, 'pa_dispatch_v1_execution_calibrations', 'pa_continuation_v1_execution_calibrations',
+  for (const table of [...battingAssessmentOwners, 'pa_lifecycle_v1_total_assessments', 'pa_lifecycle_v1_execution_calibrations', 'pa_dispatch_v1_execution_calibrations', 'pa_continuation_v1_execution_calibrations',
     'reserved_pa_total_assessments', 'pa_continuation_v1_total_assessments', 'actual_role_workload_assessments']) {
     const metadata = db.prepare('SELECT type,name FROM main.sqlite_master WHERE lower(name)=lower(?)').all(table);
     if (!metadata.length) continue;

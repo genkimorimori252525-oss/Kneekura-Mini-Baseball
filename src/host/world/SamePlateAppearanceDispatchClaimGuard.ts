@@ -1,3 +1,4 @@
+import { samePaPlayerClaimCanProceed } from './SamePlateAppearanceSettlementAdmission';
 import { assertNoSamePaContinuationPlayerClaim, assertNoSamePaContinuationWorkClaim, assertNoSamePaContinuationEnrollmentClaim } from './SamePlateAppearanceContinuationClaimGuard';
 import type { DatabaseSync } from 'node:sqlite';
 import { actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -152,6 +153,7 @@ const rawWorkRows = (db: Db, table: string, scope: { gameId: string; playId: num
 export const assertNoPaDispatchPlayerClaim = (db: Db, scope: { careerId: string; playerId: string }): void => {
   assertNoSamePaContinuationPlayerClaim(db, scope);
   for (const record of inspect(db)) {
+    if (record.enrollments.length && record.enrollments.every(e => samePaPlayerClaimCanProceed(db, e.source.sourceId, scope))) continue;
     if (record.enrollments.some(e => e.careerId === scope.careerId && e.participants.some(p => p.binding.playerId === scope.playerId))) fail();
     if (record.table !== 'pa_dispatch_v1_pitch_heads' && db.prepare(`SELECT 1 FROM main.${record.table} WHERE
       (career_id=$career OR ${claim('snapshot_json', ['lineage', 'careerId'], '$career')}) AND
@@ -189,6 +191,10 @@ export const readPaDispatchWorkClaimRows = (db: Db, enrollmentSourceId: string):
   return records.filter(record => record.enrollments.some(e => e.source.sourceId === enrollmentSourceId) || direct.get(record.table)!.has(json(record.row)))
     .map(({ table, row }) => ({ table, row }));
 };
+/** Release also pins prospective action/calibration/right rows. */
+export const readPaDispatchClaimRows = (db: Db, enrollmentSourceId: string) => inspect(db)
+  .filter(record => record.enrollments.some(e => e.source.sourceId === enrollmentSourceId))
+  .map(({ table, row }) => ({ table, row }));
 export const assertFreshPaDispatchEnrollment = (db: Db, enrollmentSourceId: string): void => {
   assertNoSamePaContinuationEnrollmentClaim(db, enrollmentSourceId);
   if (readPaDispatchWorkClaimRows(db, enrollmentSourceId).length) fail();

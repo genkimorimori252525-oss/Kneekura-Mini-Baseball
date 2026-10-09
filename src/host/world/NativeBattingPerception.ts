@@ -1,3 +1,4 @@
+import { inFlightBattingPerceptionSourceInput, isInFlightBattingPerceptionSource, type InFlightBattingPerceptionSource, type AcceptedInFlightBattingPosture, type AcceptedInFlightBattingObservation, type AcceptedInFlightBattingDelivery, type AcceptedInFlightBattingPrediction, type AcceptedInFlightBattingScore } from './NativeInFlightBattingPerception';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { Vec3 } from '../../core/model/geometry';
 import type { AttentionState } from '../../core/sim/perception/Observation';
@@ -46,18 +47,19 @@ export type AcceptedBattingObservationDelivery = Base<SamePaCurrentExecutionView
   calibrationReference: SamePaReference<'pa_continuation_v1_execution_calibrations'>;
 }>;
 type OwnedScope = Readonly<{ lineage: SamePaExecutionLineage; physicalPitchSourceId: string }>;
-export type DurableBattingInvocationPosture = OwnedScope & Readonly<{ kind: 'batting_invocation_posture'; source: AcceptedBattingInvocationPosture | AcceptedNextTakeBattingPosture;
+export type DurableBattingInvocationPosture = OwnedScope & Readonly<{ kind: 'batting_invocation_posture'; source: AcceptedBattingInvocationPosture | AcceptedNextTakeBattingPosture | AcceptedInFlightBattingPosture;
   model: DurablePlayerBattingModelV1; sceneBodies: readonly BodyMaterializationReceipt[] }>;
-export type DurableBattingObservation = OwnedScope & Readonly<{ kind: 'batting_observation'; source: AcceptedBattingObservation;
+export type DurableBattingObservation = OwnedScope & Readonly<{ kind: 'batting_observation'; source: AcceptedBattingObservation | AcceptedInFlightBattingObservation;
   modelReference: SamePaReference<'world_player_batting_models'>; eventSequence: number; lastCapturedTick: number | null; physicalCutHash: string; calculation: BattingObservationCalculation }>;
-export type DurableBattingObservedPrediction = OwnedScope & Readonly<{ kind: 'batting_observed_prediction'; source: AcceptedBattingObservedPrediction;
-  physicalPitchReference: SamePaReference<'pa_dispatch_v1_pitch_actions'>; forecast: BattingObservedMotionForecast }>;
-export type DurableBattingObservationDelivery = OwnedScope & Readonly<{ kind: 'batting_observation_delivery'; source: AcceptedBattingObservationDelivery;
-  physicalPitchReference: SamePaReference<'pa_dispatch_v1_pitch_actions'>; originalCaptureHash: string; eventSequence: number; delivery: BattingObservationDelivery;
-  temporalCut: Readonly<{ kind: 'retained_stationary_delivery_cut_v1'; fromTick: number; throughTick: number; originalWorldHash: string }> }>;
-export type DurableBattingScoreAssessment = OwnedScope & Readonly<{ kind: 'batting_score_assessment'; source: AcceptedBattingScoreAssessment | AcceptedCurrentBattingScoreAssessment;
+export type DurableBattingObservedPrediction = OwnedScope & Readonly<{ kind: 'batting_observed_prediction'; source: AcceptedBattingObservedPrediction | AcceptedInFlightBattingPrediction;
+  physicalPitchReference: SamePaReference<'pa_dispatch_v1_pitch_actions' | 'pa_physical_v1_launches'>; forecast: BattingObservedMotionForecast }>;
+export type DurableBattingObservationDelivery = OwnedScope & Readonly<{ kind: 'batting_observation_delivery'; source: AcceptedBattingObservationDelivery | AcceptedInFlightBattingDelivery;
+  physicalPitchReference: SamePaReference<'pa_dispatch_v1_pitch_actions' | 'pa_physical_v1_launches'>; originalCaptureHash: string; eventSequence: number; delivery: BattingObservationDelivery;
+  temporalCut: Readonly<{ kind: 'retained_stationary_delivery_cut_v1'; fromTick: number; throughTick: number; originalWorldHash: string }> | Readonly<{ kind: 'owned_in_flight_delivery_cut_v1'; fromTick: number; throughTick: number; originalWorldHash: string; physicalOperationReference: SamePaReference<'pa_physical_v1_launches' | 'pa_physical_v1_cuts'> }> }>;
+export type DurableBattingScoreAssessment = OwnedScope & Readonly<{ kind: 'batting_score_assessment'; source: AcceptedBattingScoreAssessment | AcceptedCurrentBattingScoreAssessment | AcceptedInFlightBattingScore;
   prediction: BattingSource['predictions'][number] }>;
-export type BattingPerceptionSource = AcceptedBattingInvocationPosture | AcceptedNextTakeBattingPosture | AcceptedBattingObservation | AcceptedBattingObservationDelivery | AcceptedBattingObservedPrediction | AcceptedBattingScoreAssessment | AcceptedCurrentBattingScoreAssessment;
+export type LegacyBattingPerceptionSource = AcceptedBattingInvocationPosture | AcceptedNextTakeBattingPosture | AcceptedBattingObservation | AcceptedBattingObservationDelivery | AcceptedBattingObservedPrediction | AcceptedBattingScoreAssessment | AcceptedCurrentBattingScoreAssessment;
+export type BattingPerceptionSource = LegacyBattingPerceptionSource | InFlightBattingPerceptionSource;
 export type BattingPerceptionRecord = DurableBattingInvocationPosture | DurableBattingObservation | DurableBattingObservationDelivery | DurableBattingObservedPrediction | DurableBattingScoreAssessment;
 export type BattingPerceptionKind = 'posture' | 'observation' | 'delivery' | 'prediction' | 'assessment';
 export const battingPerceptionTables = Object.freeze({ posture: 'batting_observation_v1_postures', observation: 'batting_observation_v1_observations',
@@ -67,8 +69,10 @@ const vector = (v: unknown) => fields(v, ['x', 'y', 'z']) && Object.values(v).ev
 const fail = (): never => { throw new Error('invalid explicit batting perception Source'); };
 const baseKeys = ['sourceId', 'sourceVersion', 'capability', 'viewReference', 'member'];
 export const battingPerceptionSourceInput = (kind: BattingPerceptionKind, raw: unknown, id?: string): BattingPerceptionSource => {
+  const checked = cloneInert(raw);
+  if (isInFlightBattingPerceptionSource(checked)) return inFlightBattingPerceptionSourceInput(kind, checked, id);
   if (kind === 'assessment') { const value = cloneInert(raw) as { capability?: unknown }; return value?.capability === 'owned_batting_current_score_assessment_v1' ? currentBattingScoreAssessmentInput(value, id) : battingScoreAssessmentInput(value, id); }
-  const s = cloneInert(raw) as Exclude<BattingPerceptionSource, AcceptedBattingScoreAssessment | AcceptedCurrentBattingScoreAssessment>;
+  const s = cloneInert(raw) as Exclude<LegacyBattingPerceptionSource, AcceptedBattingScoreAssessment | AcceptedCurrentBattingScoreAssessment>;
   if (!s || !text(s.sourceId) || !text(s.sourceVersion) || id !== undefined && s.sourceId !== id
     || !ref(s.viewReference, s.capability === 'owned_batting_invocation_posture_v1' ? 'reserved_pa_execution_views' : 'pa_continuation_v1_execution_views') || !samePaDispatchMemberValid(s.member)) return fail();
   if (kind === 'posture' && (s.capability === 'owned_batting_invocation_posture_v1' || s.capability === 'owned_next_take_batting_posture_v1')) {

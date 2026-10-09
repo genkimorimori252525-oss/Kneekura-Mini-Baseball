@@ -11,9 +11,9 @@ import type { WbcFinalsGroupEdition } from
 import type { OfficialGameResult } from
   '../../core/world/competition/OfficialGameCompletion';
 import type { PostseasonMatchSource } from './PostseasonResultsFromMatches';
-import { openSqliteWbcFinalsGroupStore } from
+import { openSqliteWbcFinalsGroupStore, wbcFinalsGroupInputEvidenceFromSqlite } from
   './SqliteWbcFinalsGroupStore';
-import { openSqliteWbcFinalsKnockoutStore } from
+import { openSqliteWbcFinalsKnockoutStore, wbcFinalsKnockoutFixtureEvidenceFromSqlite } from
   './SqliteWbcFinalsKnockoutStore';
 import { openSqliteOfficialWbcHistoryStore } from
   './SqliteOfficialWbcHistoryStore';
@@ -185,6 +185,33 @@ it('freezes six WBC pools and replays 36 official Match finals', () => {
     expect(champion.championNationId).toBe(finalGame.homeNationId);
     expect(knockout.readEvidence('career-1',
       edition.editionId)?.outcome).toEqual(champion);
+    const originalDb = new DatabaseSync(path);
+    try {
+      originalDb.exec('PRAGMA query_only=ON');
+      const groupsBeforePlay = wbcFinalsGroupInputEvidenceFromSqlite(originalDb, { ...sources,
+        matches: { getMatch: () => { throw new Error('current group result is not an original input'); },
+          getOfficialFixture: () => { throw new Error('current group result is not an original input'); } } });
+      expect(groupsBeforePlay.readPlan('career-1', edition.editionId)).toEqual(plan);
+      expect(Object.keys(groupsBeforePlay).sort()).toEqual(['readEdition', 'readPlan']);
+      let forbidden = new Set<string>();
+      const prior = wbcFinalsKnockoutFixtureEvidenceFromSqlite(originalDb, { groups: store, matches: {
+        getMatch: gameId => { if (forbidden.has(gameId)) throw new Error('future round is not an original input'); return matches.getMatch(gameId); },
+        getOfficialFixture: matches.getOfficialFixture,
+      } });
+      forbidden = new Set([...quarters, ...semis, finalGame].map(game => game.gameId));
+      expect(prior.readPlan('career-1', edition.editionId)).toEqual(knockoutPlan);
+      expect(prior.quarterfinalGames('career-1', edition.editionId)).toEqual(quarters);
+      forbidden = new Set([...semis, finalGame].map(game => game.gameId));
+      expect(prior.semifinalGames('career-1', edition.editionId)).toEqual(semis);
+      forbidden = new Set([finalGame.gameId]);
+      expect(prior.finalGame('career-1', edition.editionId)).toEqual(finalGame);
+      originalDb.exec('PRAGMA query_only=OFF');
+      originalDb.exec('BEGIN');
+      originalDb.prepare("UPDATE world_wbc_finals_knockout SET outcome_json='{}'").run();
+      expect(prior.finalGame('career-1', edition.editionId)).toEqual(finalGame);
+      originalDb.exec('ROLLBACK');
+      expect(originalDb.prepare('SELECT 1 AS alive').get()?.alive).toBe(1);
+    } finally { if (originalDb.isTransaction) originalDb.exec('ROLLBACK'); originalDb.close(); }
     const historySources = { finals: knockout,
       regions: { readRegion: (_careerId: string,
         nationId: string) => {

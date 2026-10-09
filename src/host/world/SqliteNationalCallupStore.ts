@@ -1,5 +1,8 @@
+import { readTaggedParticipationReceipt } from './TaggedParticipationEvidenceFromSqlite';
+import { assertNationalMatchBindings, nationalFixtureGame } from './NationalMatchOriginFromSqlite';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
+import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { canonicalRosterEvidenceJson as json } from './RosterEvidenceJson';
 import { evaluateNationalEligibility, snapshotNationalEligibilityPolicy,
@@ -11,7 +14,7 @@ import type { SqlitePlayerPersonLinkStore, DurablePlayerPersonLink } from './Sql
 import type { SqliteNationalEligibilityFactStore, NationalEligibilityFactsSnapshot } from './SqliteNationalEligibilityFactStore';
 import type { SqliteNationalRosterSnapshotStore, AcceptedNationalRosterSnapshot } from './SqliteNationalRosterSnapshotStore';
 import type { SqliteNationCompetitionRegionStore } from './SqliteNationCompetitionRegionStore';
-import type { SqliteOfficialParticipationStore, DurableParticipationReceipt, ParticipationAuthority } from './SqliteOfficialParticipationStore';
+import type { SqliteOfficialParticipationStore, OfficialParticipationReceipt, ParticipationAuthority } from './SqliteOfficialParticipationStore';
 import type { SqliteWbcQualifierEditionStore } from './SqliteWbcQualifierEditionStore';
 import { createCompetitionSourceReader, withCompetitionSourceReadScope, withCompetitionSourceReadPhase } from './CompetitionSourceReadScope';
 
@@ -42,7 +45,7 @@ export type NationalAppearanceRequest = Readonly<{
 export type DurableNationalAppearance = Readonly<{
   kind: 'APPEARANCE'; revision: number; previousSnapshotId: string | null; snapshotId: string;
   input: NationalAppearanceRequest;
-  source: Readonly<{ registrationSnapshotId: string; receipt: DurableParticipationReceipt;
+  source: Readonly<{ registrationSnapshotId: string; receipt: OfficialParticipationReceipt;
     game: NonNullable<ReturnType<ParticipationAuthority['readGame']>> }>;
 }>;
 type Entry = DurableNationalCallup | DurableNationalAppearance;
@@ -106,8 +109,8 @@ const representation = (history: readonly Entry[], playerId: string): NationalRe
 };
 
 /** A representative roster has its own accepted journal and never changes Club assignment. */
-export const openSqliteNationalCallupStore = (databasePath: string, sources: NationalCallupSources): SqliteNationalCallupStore => {
-  if (!id(databasePath)) throw new Error('invalid national callup database path');
+const createSqliteNationalCallupStore = (databasePath: string | DatabaseSync, sources: NationalCallupSources): SqliteNationalCallupStore => {
+  if (typeof databasePath === 'string' && !id(databasePath)) throw new Error('invalid national callup database path');
   const readSelection = createCompetitionSourceReader(sources.selections.readSelection, sources.selections);
   const readQualifier = sources.qualifierEditions
     ? createCompetitionSourceReader(sources.qualifierEditions.readSnapshot, sources.qualifierEditions) : null;
@@ -132,13 +135,17 @@ export const openSqliteNationalCallupStore = (databasePath: string, sources: Nat
       entrantNationIds: qualifier.edition.pods.flatMap((pod) => pod.entrants.map((entry) => entry.nationId)).sort() });
   };
   const { DatabaseSync }: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
-  const db = new DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new DatabaseSync(databasePath);
+  if (!(db instanceof DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_national_callups (
     career_id TEXT NOT NULL, revision INTEGER NOT NULL, event_id TEXT NOT NULL,
     effective_day INTEGER NOT NULL, entry_json TEXT NOT NULL,
     PRIMARY KEY(career_id, revision), UNIQUE(career_id, event_id)
   );`);
+  }
   let closed = false;
   const scope = (careerId: string, reference: string, beforeDay = Number.MAX_SAFE_INTEGER): void => {
     if (closed || !id(careerId) || !id(reference) || !day(beforeDay)) throw new Error('invalid national callup scope');
@@ -213,13 +220,27 @@ export const openSqliteNationalCallupStore = (databasePath: string, sources: Nat
     if (history.some((item) => item.kind === 'APPEARANCE' && item.input.receiptId === input.receiptId)) {
       throw new Error('national participation receipt is already adopted');
     }
-    const receipt = sources.participation?.readReceipt(input.receiptId);
+    const stored = db.prepare("SELECT 1 FROM main.sqlite_master WHERE type='table' AND name='official_participation_receipts'").get()
+      ? db.prepare('SELECT receipt_json FROM official_participation_receipts WHERE receipt_id=?').get(input.receiptId) : undefined;
+    const ownNational = stored && JSON.parse(String(stored.receipt_json)).evidenceKind === 'NATIONAL_PHYSICAL_PLAY_V1';
+    const receipt = ownNational ? readTaggedParticipationReceipt(db, input.receiptId) : sources.participation?.readReceipt(input.receiptId);
     if (!receipt) throw new Error('national appearance requires actual official participation receipt');
-    if ('evidenceKind' in receipt) throw new Error('national appearance does not support tagged participation receipts');
+    const tagged = 'evidenceKind' in receipt;
+    if (tagged && receipt.evidenceKind !== 'NATIONAL_PHYSICAL_PLAY_V1') throw new Error('national appearance does not support tagged participation receipts');
     const binding = receipt.binding;
-    const game = sources.games?.readGame(binding.gameId);
-    const registration = active(history.filter((item) => effectiveDay(item) <= binding.gameDay))
-      .find((item) => item.input.eventId === binding.nationalRegistrationEventId);
+    let game = tagged ? undefined : sources.games?.readGame(binding.gameId);
+    let originalRegistration: string | undefined;
+    if (tagged) {
+      if (!ownNational) throw new Error('National appearance Native original receipt is missing');
+      const origin = assertNationalMatchBindings(db, [binding]);
+      if (!origin) throw new Error('National appearance Native original fixture differs');
+      game = nationalFixtureGame(origin.fixture);
+      originalRegistration = origin.participants.find(p => p.binding.playerId === binding.playerId)!.registrationSnapshotId;
+    }
+    const registration = tagged
+      ? history.find((entry): entry is DurableNationalCallup => entry.kind === 'CALLUP' && entry.snapshotId === originalRegistration)
+      : active(history.filter((item) => effectiveDay(item) <= binding.gameDay))
+        .find((item) => item.input.eventId === binding.nationalRegistrationEventId);
     const roster = binding.nationalRosterSnapshotId
       ? readRosterSnapshot(input.careerId, binding.nationalRosterSnapshotId) : null;
     const player = roster?.roster.players.find((item) => item.playerId === binding.playerId);
@@ -326,6 +347,10 @@ export const openSqliteNationalCallupStore = (databasePath: string, sources: Nat
           const entry = projectAppearance(input, history);
           db.prepare(`INSERT INTO world_national_callups (career_id, revision, event_id, effective_day, entry_json)
             VALUES (?, ?, ?, ?, ?)`).run(input.careerId, entry.revision, input.eventId, input.acceptedAtDay, json(entry));
+          if ('evidenceKind' in entry.source.receipt) {
+            const after = withCompetitionSourceReadPhase(() => replay(input.careerId, Number.MAX_SAFE_INTEGER, entry.revision).at(-1));
+            if (json(after) !== json(entry)) throw new Error('National appearance original evidence changed during admission');
+          }
           db.exec('COMMIT'); return entry;
         } catch (error) { db.exec('ROLLBACK'); throw error; }
         });
@@ -353,6 +378,16 @@ export const openSqliteNationalCallupStore = (databasePath: string, sources: Nat
     },
     readEligibilityAtDay: (careerId: string, eventId: string, beforeDay: number) => evaluate(careerId, eventId, beforeDay),
     readEligibilitySnapshot: evaluate,
-    close(): void { if (!closed) db.close(); closed = true; },
+    close(): void { if (!closed && !borrowed) db.close(); closed = true; },
   });
+};
+
+/** Existing string-path facade owns its connection and schema. */
+export const openSqliteNationalCallupStore = (databasePath: string, sources: Parameters<typeof createSqliteNationalCallupStore>[1]): SqliteNationalCallupStore =>
+  createSqliteNationalCallupStore(databasePath, sources);
+
+/** Read-only projection of the same owner on a consumer connection. No opener, schema writes or close capability. */
+export const nationalCallupEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteNationalCallupStore>[1]): Pick<SqliteNationalCallupStore, 'readRegistration' | 'readActiveRoster' | 'readRepresentation' | 'readRosterSnapshot' | 'readEligibilityAtDay' | 'readEligibilitySnapshot'> => {
+  const owner = createSqliteNationalCallupStore(db, sources);
+  return Object.freeze({ readRegistration: owner.readRegistration, readActiveRoster: owner.readActiveRoster, readRepresentation: owner.readRepresentation, readRosterSnapshot: owner.readRosterSnapshot, readEligibilityAtDay: owner.readEligibilityAtDay, readEligibilitySnapshot: owner.readEligibilitySnapshot });
 };

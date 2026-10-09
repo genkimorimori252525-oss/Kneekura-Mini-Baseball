@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { PremierTwelveAuthority } from
   '../../core/world/competition/PremierTwelve';
@@ -63,13 +64,16 @@ const isoDay = (value: unknown): number | null => {
 };
 
 /** A saved World reservation supplies the edition window and selection authority. */
-export const openSqliteNationalCompetitionSelectionStore = (
-  databasePath: string,
+const createSqliteNationalCompetitionSelectionStore = (
+  databasePath: string | DatabaseSync,
   sources: Readonly<{ cycle: Pick<SqliteWorldCompetitionCycleStore, 'readCycle'> }>,
 ): SqliteNationalCompetitionSelectionStore => {
-  if (!id(databasePath)) throw new Error('invalid national selection database path');
+  if (typeof databasePath === 'string' && !id(databasePath)) throw new Error('invalid national selection database path');
   const sqlite: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
-  const db = new sqlite.DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new sqlite.DatabaseSync(databasePath);
+  if (!(db instanceof sqlite.DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_national_selections (
     career_id TEXT NOT NULL, edition_id TEXT NOT NULL,
@@ -77,6 +81,7 @@ export const openSqliteNationalCompetitionSelectionStore = (
     request_json TEXT NOT NULL, selection_json TEXT NOT NULL,
     PRIMARY KEY (career_id, edition_id), UNIQUE (career_id, cycle_ordinal, kind)
   );`);
+  }
   const get = db.prepare(`SELECT cycle_ordinal, kind, request_json, selection_json
     FROM world_national_selections WHERE career_id=? AND edition_id=?`);
   const row = (careerId: string, editionId: string): Row | null =>
@@ -203,8 +208,18 @@ export const openSqliteNationalCompetitionSelectionStore = (
         readSelection(careerId, editionId)?.qualificationCutoff ?? null });
     },
     close(): void {
-      if (!closed) db.close();
+      if (!closed && !borrowed) db.close();
       closed = true;
     },
   });
+};
+
+/** Existing string-path facade owns its connection and schema. */
+export const openSqliteNationalCompetitionSelectionStore = (databasePath: string, sources: Parameters<typeof createSqliteNationalCompetitionSelectionStore>[1]): SqliteNationalCompetitionSelectionStore =>
+  createSqliteNationalCompetitionSelectionStore(databasePath, sources);
+
+/** Read-only projection of the same owner on a consumer connection. No opener, schema writes or close capability. */
+export const nationalCompetitionSelectionEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteNationalCompetitionSelectionStore>[1]): Pick<SqliteNationalCompetitionSelectionStore, 'readSelection' | 'readWbcPredecessors' | 'authority'> => {
+  const owner = createSqliteNationalCompetitionSelectionStore(db, sources);
+  return Object.freeze({ readSelection: owner.readSelection, readWbcPredecessors: owner.readWbcPredecessors, authority: owner.authority });
 };

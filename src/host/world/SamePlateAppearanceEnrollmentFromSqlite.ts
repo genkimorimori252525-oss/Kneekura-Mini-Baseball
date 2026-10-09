@@ -7,6 +7,7 @@ import { assertSamePaStorage,assertNoSamePaPlayerReservation,assertNoSamePaWorkR
   authenticateSamePaRow,samePaEnrollmentRow,samePaMetadataClaim as claim } from './SamePlateAppearanceReservationGuard';
 import { assertSamePaRegistrationBeforeWork } from './ActualLiveRuntimeRegistration';
 import { assertNoActualRoleWorkloadCharge,assertNoLegacyPitchWorkloadCharge } from './ActualRoleWorkloadChargeGuard';
+import { assertHistoricalSamePaWorkloadCut } from './SamePlateAppearanceHistoricalWorkloadCut';
 type Db=Pick<DatabaseSync,'prepare'>;
 const deriveEnrollmentBasis = (db:Db,raw:unknown,ownSourceId?:string) => {
   assertSamePaStorage(db);const source=samePlateAppearanceEnrollmentInput(raw);
@@ -61,3 +62,25 @@ export const readSamePlateAppearanceEnrollmentBasis = (db:Db,sourceId:string) =>
   if(json(value)!==json(basis.result))throw new Error('same-PA enrollment prerequisites changed');return {enrollment:freeze(value),actor:basis.actor};
 };
 export const readSamePlateAppearanceEnrollment = (db:Db,sourceId:string) => readSamePlateAppearanceEnrollmentBasis(db,sourceId)?.enrollment??null;
+/** Original reservation evidence after causal work, settlement or release.
+ * This historical arm grants no current execution or workload admission. */
+export const readHistoricalSamePlateAppearanceEnrollment = (db:Db,sourceId:string) => {
+  const row=samePaEnrollmentRow(db,sourceId);if(!row)return null;
+  const enrollment=authenticateSamePaRow(db,row);
+  const actor=readPhysicalPlateAppearanceActorFromSqlite(db,enrollment.source.actorReference.sourceId);
+  if(!actor||json(enrollment.source.actorReference)!==json({owner:'physical_plate_appearance_actors',sourceId:actor.source.sourceId,sourceHash:hash(actor.source),snapshotHash:hash(actor)})
+    ||enrollment.actorHash!==hash(actor)||enrollment.officialRevision!==actor.officialRevision
+    ||enrollment.worldHash!==hash(actor.world)||enrollment.fixtureHash!==actor.fixtureHash)throw new Error('historical same-PA enrollment actor differs');
+  const bindings=[actor.binding,...actor.defenderBindings].sort((a,b)=>a.playerId<b.playerId?-1:a.playerId>b.playerId?1:0);
+  if(json(bindings)!==json(enrollment.participants.map(p=>p.binding)))throw new Error('historical same-PA enrollment participants differ');
+  for(const p of enrollment.participants){
+    const baselines=db.prepare(`SELECT * FROM main.world_player_workload_baselines WHERE source_id=$id OR ${claim('source_json',['sourceId'],'$id')}`).all({id:p.baselineSourceId});
+    if(baselines.length!==1||baselines[0].source_id!==p.baselineSourceId||baselines[0].career_id!==p.binding.careerId||baselines[0].player_id!==p.binding.playerId
+      ||hash(JSON.parse(String(baselines[0].source_json)))!==p.baselineSourceHash)throw new Error('historical same-PA enrollment baseline Source differs');
+    assertHistoricalSamePaWorkloadCut(db,p.binding.careerId,p.binding.playerId,p.state.revision);
+    const state=readActualRoleWorkloadState(db,p.binding.careerId,p.binding.playerId,p.state.revision,p.binding.personLinkSourceId);
+    const person=p.binding.playerId===actor.binding.playerId?actor.person:actor.defenderPersons.find(v=>v.playerId===p.binding.playerId);
+    if(json(state)!==json(p.state)||!person||hash(person)!==p.personHash)throw new Error('historical same-PA enrollment reserved state or Person differs');
+  }
+  return freeze(enrollment);
+};

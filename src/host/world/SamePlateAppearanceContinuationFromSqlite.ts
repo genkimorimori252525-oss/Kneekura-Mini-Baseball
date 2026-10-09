@@ -18,7 +18,7 @@ import { assertSamePaContinuationStorage } from './SamePlateAppearanceContinuati
 import { samePaContinuationTables as tables, samePaContinuationSourceInput as input, samePaContinuationKind,
   type SamePaContinuationKind, type SamePaContinuationSource, type SamePaContinuationRecord, type SamePaNonemptyPrefix,
   type SamePaContinuationTotal, type SamePaContinuationView } from './SamePlateAppearanceContinuation';
-import { readSamePaBattingInvocationFromSqlite, readSamePaBattingInvocationClaims } from './SamePlateAppearanceBattingInvocationFromSqlite';
+import { readLegacySamePaBattingInvocationFromSqlite, readSamePaBattingInvocationClaims } from './SamePlateAppearanceBattingInvocationFromSqlite';
 import { deriveSamePaContinuationCalibration, type SamePaContinuationCalibration } from './SamePlateAppearanceContinuationCalibration';
 const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw new Error('same-PA continuation original ownership or current coverage differs'); };
 export const samePaContinuationRow = (value: SamePaContinuationRecord): Record<string, string | number> => {
@@ -104,7 +104,7 @@ const assemble = <T>(db: DatabaseSync, current: boolean, body: (read: (kind: Sam
     const value = read(kind, ref.sourceId); if (!value) throw new Error('same-PA continuation original prerequisite missing'); same(reference(tables[kind], value), ref); return value;
   };
   const assessmentOwnership = (source: Extract<SamePaContinuationSource, { provenance: unknown }>) => {
-      for (const table of [...battingAssessmentOwners, 'pa_continuation_v1_total_assessments', 'pa_continuation_v1_execution_calibrations', 'reserved_pa_total_assessments', 'actual_role_workload_assessments', 'pa_dispatch_v1_execution_calibrations']) {
+      for (const table of [...battingAssessmentOwners, 'pa_lifecycle_v1_total_assessments', 'pa_lifecycle_v1_execution_calibrations', 'pa_continuation_v1_total_assessments', 'pa_continuation_v1_execution_calibrations', 'reserved_pa_total_assessments', 'actual_role_workload_assessments', 'pa_dispatch_v1_execution_calibrations']) {
         if (!db.prepare('SELECT 1 FROM main.sqlite_master WHERE name=?').get(table)) continue;
         const rows = db.prepare(`SELECT source_id FROM main.${table} WHERE source_id=$id OR ${claim('source_json', ['sourceId'], '$id')}
           OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')} OR ${claim('source_json', ['provenance', 'assessmentSourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'provenance', 'assessmentSourceId'], '$id')}`).all({ id: source.provenance.assessmentSourceId });
@@ -152,7 +152,7 @@ const assemble = <T>(db: DatabaseSync, current: boolean, body: (read: (kind: Sam
         if (priorPrefixSource.capability !== 'same_pa_completed_take_prefix_v1' || priorPrefixSource.sourceId === source.sourceId) throw new Error('same-PA invocation cyclic prefix');
         same(priorPrefixSource.pitchReference, source.pitchReference); same(priorPrefixSource.enrollmentReference, source.enrollmentReference);
         same(priorPrefixSource.originalViewReference, source.originalViewReference); same(priorPrefixSource.operationReferences, source.operationReferences.slice(0, index));
-        const operation = readSamePaBattingInvocationFromSqlite(db, opRef);
+        const operation = readLegacySamePaBattingInvocationFromSqlite(db, opRef);
         same(operation.record, opRecord); same(operation.executionViewReference, opSource.viewReference); same(operation.physicalPitchReference, source.pitchReference);
         previousViewReference = operation.executionViewReference;
         const priorView = readHistoricalSamePaContinuationViewFromSqlite(db, opSource.viewReference).view;

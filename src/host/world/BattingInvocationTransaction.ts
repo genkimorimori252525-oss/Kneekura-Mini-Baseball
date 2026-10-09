@@ -1,4 +1,4 @@
-import { withSamePaContinuationReadPhase } from './SamePlateAppearanceContinuationFromSqlite';
+import { withSamePaLifecycleReadPhase } from './SamePlateAppearanceLifecycleFromSqlite';
 import { randomUUID } from 'node:crypto';
 import type { DatabaseSync } from 'node:sqlite';
 import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -24,7 +24,7 @@ export const battingInvocationTransaction = (db: DatabaseSync, storage: () => un
     const identity = () => { if (!db.isTransaction || setting() !== originalSetting) throw new Error('batting invocation transaction changed');
       try { db.exec('RELEASE ' + marker); identified = false; db.exec('SAVEPOINT ' + marker); identified = true; } catch (e) { uncertain = true; throw e; } };
     const proof = <R>(fn: () => R): R => { identity(); account(); db.exec('PRAGMA query_only=1');
-      try { const value = withBattedWorldPhysicalReadTraversal(db, () => withSamePaContinuationReadPhase(db, fn)); if (!db.isTransaction || setting() !== 1) throw new Error('batting invocation proof changed'); account(); return value; }
+      try { const value = withBattedWorldPhysicalReadTraversal(db, () => withSamePaLifecycleReadPhase(db, fn)); if (!db.isTransaction || setting() !== 1) throw new Error('batting invocation proof changed'); account(); return value; }
       finally { db.exec('PRAGMA query_only=' + originalSetting); identity(); account(); } };
     const step = (fn: () => void, rows: number, schemas = 0) => { identity(); account(); fn(); expected = { ...expected, changes: expected.changes + rows, main: Number(expected.main) + schemas }; identity(); account(); };
     try {

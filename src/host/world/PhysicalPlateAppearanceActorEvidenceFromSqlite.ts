@@ -1,3 +1,4 @@
+import { assertNationalMatchBindings } from './NationalMatchOriginFromSqlite';
 import type { FoulTerminalReadinessReference } from './ActualFoulTerminalPostPlayCompletion';
 import { readFoulTerminalPhysicalActivation, assertFoulTerminalPhysicalActivationCurrent } from './FoulTerminalNextPlayReadiness';
 import { assertFoulTerminalPriorActivation } from './FoulTerminalCompletionAncestryGuard';
@@ -107,15 +108,17 @@ export const derivePhysicalPlateAppearanceActor = (db: ActorDb, source: Accepted
   }
   const binding = readBinding(db, source.gameId, source.playerId), battingSide = match.half === 'top' ? 'AWAY' : 'HOME';
   const fixture = db.prepare('SELECT * FROM official_fixtures WHERE game_id=?').get(source.gameId) as { fixture_event_id: string } | undefined;
-  const season = db.prepare('SELECT schedule_json FROM world_season_heads WHERE career_id=? AND season_id=?')
+  const defenderBindings = world.defenders.map((d) => readBinding(db, source.gameId, d.playerId));
+  const national = assertNationalMatchBindings(db, [binding, ...defenderBindings]);
+  const season = national ? null : db.prepare('SELECT schedule_json FROM world_season_heads WHERE career_id=? AND season_id=?')
     .get(binding.careerId, binding.competitionEditionId) as { schedule_json: string } | undefined;
   const schedule = season ? JSON.parse(season.schedule_json) as { seasonId: string; games: { gameId: string; homeClubId: string; awayClubId: string }[] } : null;
-  const games = schedule?.games?.filter((g) => g.gameId === source.gameId);
-  if (!schedule || schedule.seasonId !== binding.competitionEditionId || !games || games.length !== 1
-    || games[0].homeClubId === games[0].awayClubId || binding.clubId !== (battingSide === 'HOME' ? games[0].homeClubId : games[0].awayClubId)) throw new Error('physical batter actor actual World fixture differs');
+  const games = national ? [{ gameId: source.gameId, homeClubId: national.fixture.homeClubId, awayClubId: national.fixture.awayClubId }]
+    : schedule?.seasonId === binding.competitionEditionId ? schedule.games?.filter((g) => g.gameId === source.gameId) : undefined;
+  if (!games || games.length !== 1 || games[0].homeClubId === games[0].awayClubId
+    || binding.clubId !== (battingSide === 'HOME' ? games[0].homeClubId : games[0].awayClubId)) throw new Error('physical batter actor actual World fixture differs');
   const worldFixture = { careerId: binding.careerId, competitionEditionId: binding.competitionEditionId,
     game: { gameId: games[0].gameId, homeClubId: games[0].homeClubId, awayClubId: games[0].awayClubId } };
-  const defenderBindings = world.defenders.map((d) => readBinding(db, source.gameId, d.playerId));
   if (!fixture || world.defenders.length !== 9 || new Set(world.defenders.map((d) => d.playerId)).size !== 9
     || binding.side !== battingSide || Object.values(match.bases).includes(binding.playerId)
     || defenderBindings.some((d) => d.side !== (battingSide === 'HOME' ? 'AWAY' : 'HOME') || d.clubId !== (d.side === 'HOME' ? games[0].homeClubId : games[0].awayClubId)

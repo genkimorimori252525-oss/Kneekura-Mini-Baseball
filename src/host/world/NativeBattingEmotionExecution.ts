@@ -1,3 +1,4 @@
+import { inFlightBattingCutReferenceValid, type InFlightBattingCutReference } from './NativeInFlightBattingPerception';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { EmotionState } from '../../core/world/psychology/EmotionTypes';
 import type { AppraisalInput } from '../../core/world/psychology/appraisal/AppraisalTypes';
@@ -14,7 +15,7 @@ import type { EmotionWorldRevision } from './EmotionWorldRevisionFromSqlite';
 import type { DurableBattingObservation, DurableBattingObservationDelivery } from './NativeBattingPerception';
 import type { AcceptedBattingScoreAssessment } from './NativeBattingScoreAssessment';
 
-export type AcceptedBattingEmotionExecution = Readonly<{
+export type AcceptedLegacyBattingEmotionExecution = Readonly<{
   sourceId: string; sourceVersion: string; capability: 'owned_batting_emotion_execution_v1'; executionId: string;
   viewReference: SamePaCurrentExecutionViewReference; member: SamePaDispatchMember;
   observationReference: SamePaReference<'batting_observation_v1_observations'>;
@@ -26,9 +27,14 @@ export type AcceptedBattingEmotionExecution = Readonly<{
   baseline: Omit<EmotionFreeDecisionBaseline, 'frame'>; executionModel: ExecutionModel;
   provenance: AcceptedBattingScoreAssessment['provenance'];
 }>;
+export type AcceptedInFlightBattingEmotionExecution = Omit<AcceptedLegacyBattingEmotionExecution, 'capability' | 'viewReference'> & Readonly<{
+  capability: 'owned_in_flight_batting_emotion_execution_v1'; viewReference: SamePaReference<'pa_lifecycle_v1_execution_views'>;
+  physicalPitchReference: SamePaReference<'pa_physical_v1_launches'>; physicalOperationReference: InFlightBattingCutReference;
+}>;
+export type AcceptedBattingEmotionExecution = AcceptedLegacyBattingEmotionExecution | AcceptedInFlightBattingEmotionExecution;
 export type DurableBattingEmotionExecution = Readonly<{
   kind: 'batting_emotion_execution'; source: AcceptedBattingEmotionExecution; lineage: SamePaExecutionLineage;
-  physicalPitchSourceId: string; physicalPitchReference: SamePaReference<'pa_dispatch_v1_pitch_actions'>;
+  physicalPitchSourceId: string; physicalPitchReference: SamePaReference<'pa_dispatch_v1_pitch_actions' | 'pa_physical_v1_launches'>;
   worldBefore: EmotionWorldRevision; acceptance: EmotionExecutionAcceptance;
 }>;
 const tick = (v: unknown) => Number.isSafeInteger(v) && Number(v) >= 0;
@@ -36,10 +42,12 @@ const fail = (detail: string): never => { throw new Error('batting emotion execu
 const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) fail('original factual scope or frame differs'); };
 export const battingEmotionExecutionInput = (raw: unknown, id?: string): AcceptedBattingEmotionExecution => {
   const s = cloneInert(raw) as AcceptedBattingEmotionExecution;
+  const inFlight = s?.capability === 'owned_in_flight_batting_emotion_execution_v1';
   if (!fields(s, ['sourceId', 'sourceVersion', 'capability', 'executionId', 'viewReference', 'member', 'observationReference', 'deliveryReference', 'genesisReference',
-    'previousExecutionReference', 'expectedWorld', 'appraisalAssessment', 'baseline', 'executionModel', 'provenance'])
-    || !text(s.sourceId) || !text(s.sourceVersion) || !text(s.executionId) || id !== undefined && s.sourceId !== id || s.capability !== 'owned_batting_emotion_execution_v1'
-    || !ref(s.viewReference, 'pa_continuation_v1_execution_views') || !samePaDispatchMemberValid(s.member)
+    'previousExecutionReference', 'expectedWorld', 'appraisalAssessment', 'baseline', 'executionModel', 'provenance', ...(inFlight ? ['physicalPitchReference', 'physicalOperationReference'] : [])])
+    || !text(s.sourceId) || !text(s.sourceVersion) || !text(s.executionId) || id !== undefined && s.sourceId !== id || !inFlight && s.capability !== 'owned_batting_emotion_execution_v1'
+    || !ref(s.viewReference, inFlight ? 'pa_lifecycle_v1_execution_views' : 'pa_continuation_v1_execution_views')
+    || inFlight && (!ref(s.physicalPitchReference, 'pa_physical_v1_launches') || !inFlightBattingCutReferenceValid(s.physicalOperationReference)) || !samePaDispatchMemberValid(s.member)
     || !ref(s.deliveryReference, 'batting_observation_v1_deliveries') || !ref(s.observationReference, 'batting_observation_v1_observations') || !ref(s.genesisReference, 'batting_emotion_v1_geneses')
     || s.previousExecutionReference !== null && !ref(s.previousExecutionReference, 'batting_emotion_execution_v1_executions')
     || !fields(s.expectedWorld, ['careerId', 'worldRevision', 'controlRevision', 'controlHash']) || !text(s.expectedWorld.careerId)
@@ -69,7 +77,7 @@ export const battingEmotionFrame = (source: Pick<AcceptedBattingEmotionExecution
  * accepted primitives; this creates no autonomous assessment or default state. */
 export const deriveBattingEmotionExecution = (source: AcceptedBattingEmotionExecution, basis: Readonly<{
   actor: DurablePhysicalPlateAppearanceActor; lineage: SamePaExecutionLineage; worldBefore: EmotionWorldRevision; beforeEmotion: EmotionState;
-  observation: DurableBattingObservation; delivery: DurableBattingObservationDelivery; time: ExecutionFrame['time']; physicalPitchReference: SamePaReference<'pa_dispatch_v1_pitch_actions'>;
+  observation: DurableBattingObservation; delivery: DurableBattingObservationDelivery; time: ExecutionFrame['time']; physicalPitchReference: SamePaReference<'pa_dispatch_v1_pitch_actions' | 'pa_physical_v1_launches'>;
 }>): DurableBattingEmotionExecution => {
   const { actor, observation, delivery, worldBefore, beforeEmotion } = basis;
   const frame = battingEmotionFrame(source, actor, worldBefore, basis.time), a = readAppraisalInput(source.appraisalAssessment);

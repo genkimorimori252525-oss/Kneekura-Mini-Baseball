@@ -1,3 +1,4 @@
+import type { DatabaseSync } from 'node:sqlite';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { withCompetitionSourceReadScope, withCompetitionSourceReadPhase } from './CompetitionSourceReadScope';
@@ -36,19 +37,23 @@ const freeze = <T>(value: T): T => {
 };
 
 /** Country roster capability comes from accepted World Players; no region or rating grants eligibility. */
-export const openSqliteNationalRosterEligibilityStore = (databasePath: string, sources: Readonly<{
+const createSqliteNationalRosterEligibilityStore = (databasePath: string | DatabaseSync, sources: Readonly<{
   selections: Pick<SqliteNationalCompetitionSelectionStore, 'readSelection'>;
   nations: Pick<SqliteNationCompetitionRegionStore, 'readRegion'>;
   callups: Pick<SqliteNationalCallupStore, 'readRosterSnapshot' | 'readEligibilityAtDay' | 'readEligibilitySnapshot'>;
 }>): SqliteNationalRosterEligibilityStore => {
-  if (!id(databasePath)) throw new Error('invalid national roster eligibility database path');
+  if (typeof databasePath === 'string' && !id(databasePath)) throw new Error('invalid national roster eligibility database path');
   const { DatabaseSync }: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
-  const db = new DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new DatabaseSync(databasePath);
+  if (!(db instanceof DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_national_roster_eligibility (
     career_id TEXT NOT NULL, snapshot_id TEXT NOT NULL, edition_id TEXT NOT NULL, as_of_day INTEGER NOT NULL,
     request_json TEXT NOT NULL, snapshot_json TEXT NOT NULL, PRIMARY KEY(career_id, snapshot_id)
   );`);
+  }
   let closed = false;
   const scope = (careerId: string, reference: string): void => {
     if (closed || !id(careerId) || !id(reference)) throw new Error('invalid national roster eligibility scope');
@@ -143,6 +148,16 @@ export const openSqliteNationalRosterEligibilityStore = (databasePath: string, s
       const snapshot = read(careerId, snapshotId);
       return snapshot?.input.editionId === editionId ? snapshot.eligibility : null;
     },
-    close(): void { if (!closed) db.close(); closed = true; },
+    close(): void { if (!closed && !borrowed) db.close(); closed = true; },
   });
+};
+
+/** Existing path facade retains connection/schema ownership. */
+export const openSqliteNationalRosterEligibilityStore = (databasePath: string, sources: Parameters<typeof createSqliteNationalRosterEligibilityStore>[1]): SqliteNationalRosterEligibilityStore =>
+  createSqliteNationalRosterEligibilityStore(databasePath, sources);
+
+/** Same owner replay on a consuming Native connection; only read capabilities escape. */
+export const nationalRosterEligibilityEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteNationalRosterEligibilityStore>[1]): Pick<SqliteNationalRosterEligibilityStore, 'readEligibility' | 'readEligibilityForEdition'> => {
+  const owner = createSqliteNationalRosterEligibilityStore(db, sources);
+  return Object.freeze({ readEligibility: owner.readEligibility, readEligibilityForEdition: owner.readEligibilityForEdition });
 };

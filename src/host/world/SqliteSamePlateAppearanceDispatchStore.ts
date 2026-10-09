@@ -223,7 +223,7 @@ const createSqliteSamePlateAppearanceDispatchOwner = (path: string, authority?: 
       const common = { basis: b, role, player, person, member: role.member,
         reservedState: participant.reservedState, projectedState: participant.projectedState };
       const authenticated = <T extends { route: SamePaDispatchRoute; nominal: unknown }>(input: T) => {
-        for (const table of [...battingAssessmentOwners, 'pa_dispatch_v1_execution_calibrations', 'reserved_pa_total_assessments', 'actual_role_workload_assessments', 'pa_continuation_v1_total_assessments', 'pa_continuation_v1_execution_calibrations']) {
+        for (const table of [...battingAssessmentOwners, 'pa_lifecycle_v1_total_assessments', 'pa_lifecycle_v1_execution_calibrations', 'pa_dispatch_v1_execution_calibrations', 'reserved_pa_total_assessments', 'actual_role_workload_assessments', 'pa_continuation_v1_total_assessments', 'pa_continuation_v1_execution_calibrations']) {
           if (!db.prepare('SELECT 1 FROM main.sqlite_master WHERE name=?').get(table)) continue;
           const rows = db.prepare(`SELECT source_id FROM main.${table} WHERE source_id=$id OR ${claim('source_json', ['sourceId'], '$id')}
             OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')} OR ${claim('source_json', ['provenance', 'assessmentSourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'provenance', 'assessmentSourceId'], '$id')}`).all({ id: source.provenance.assessmentSourceId });

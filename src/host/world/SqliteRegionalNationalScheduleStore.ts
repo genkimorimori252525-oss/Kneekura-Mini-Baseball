@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { planRegionalNationalSchedule, type RegionalNationalSchedule,
   type RegionalNationalSchedulePolicy } from '../../core/world/competition/RegionalNationalSchedule';
@@ -31,25 +32,29 @@ const canonicalJson = (value: unknown): string => JSON.stringify(cloneInert(valu
     ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)) : item);
 
 /** World calendar, group Edition and future knockout Edition remain frozen through replay. */
-export const openSqliteRegionalNationalScheduleStore = (
-  databasePath: string,
+const createSqliteRegionalNationalScheduleStore = (
+  databasePath: string | DatabaseSync,
   sources: Readonly<{
     groups: Pick<SqliteRegionalNationalGroupStore, 'readEdition' | 'readPlan'>;
     selections: Pick<SqliteNationalCompetitionSelectionStore, 'readSelection'>;
     editions?: Pick<SqliteRegionalNationalEditionStore, 'readEdition' | 'readKnockoutEdition'>;
   }>,
 ): SqliteRegionalNationalScheduleStore => {
-  if (!id(databasePath)) throw new Error('invalid regional national schedule database path');
+  if (typeof databasePath === 'string' && !id(databasePath)) throw new Error('invalid regional national schedule database path');
   const readKnockoutEdition = sources.editions ? createCompetitionSourceReader(sources.editions.readKnockoutEdition, sources.editions) : undefined;
   const readAcceptedEdition = sources.editions ? createCompetitionSourceReader(sources.editions.readEdition, sources.editions) : undefined;
   const sqlite: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
-  const db = new sqlite.DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new sqlite.DatabaseSync(databasePath);
+  if (!(db instanceof sqlite.DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_regional_national_schedules (
     career_id TEXT NOT NULL, edition_id TEXT NOT NULL,
     request_json TEXT NOT NULL, schedule_json TEXT NOT NULL,
     PRIMARY KEY (career_id, edition_id)
   );`);
+  }
   const get = db.prepare(`SELECT request_json, schedule_json
     FROM world_regional_national_schedules WHERE career_id=? AND edition_id=?`);
   const row = (careerId: string, editionId: string): Row | null =>
@@ -119,6 +124,13 @@ export const openSqliteRegionalNationalScheduleStore = (
       assertScope(careerId, editionId);
       const stored = row(careerId, editionId); return stored ? replay(careerId, editionId, stored) : null;
     },
-    close(): void { if (!closed) db.close(); closed = true; },
+    close(): void { if (!closed && !borrowed) db.close(); closed = true; },
   });
+};
+
+export const openSqliteRegionalNationalScheduleStore = (path: string, sources: Parameters<typeof createSqliteRegionalNationalScheduleStore>[1]): SqliteRegionalNationalScheduleStore =>
+  createSqliteRegionalNationalScheduleStore(path, sources);
+export const regionalNationalScheduleEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteRegionalNationalScheduleStore>[1]): Pick<SqliteRegionalNationalScheduleStore, 'readSchedule'> => {
+  const owner = createSqliteRegionalNationalScheduleStore(db, sources);
+  return Object.freeze({ readSchedule: owner.readSchedule });
 };

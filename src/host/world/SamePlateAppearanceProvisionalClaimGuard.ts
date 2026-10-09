@@ -1,3 +1,4 @@
+import { samePaPlayerClaimCanProceed } from './SamePlateAppearanceSettlementAdmission';
 import type { DatabaseSync } from 'node:sqlite';
 import { assertNoPaDispatchPlayerClaim, assertNoPaDispatchWorkClaim, assertFreshPaDispatchEnrollment } from './SamePlateAppearanceDispatchClaimGuard';
 import { actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -146,7 +147,8 @@ export const assertNoReservedPaPlayerClaim = (db: Db, scope: Readonly<{ careerId
   if (ownEnrollmentSourceId === undefined) assertNoPaDispatchPlayerClaim(db, scope);
   else assertFreshPaDispatchEnrollment(db, ownEnrollmentSourceId);
   if (inspect(db).some(record => record.lineage.enrollmentReference.sourceId !== ownEnrollmentSourceId && record.lineage.careerId === scope.careerId
-    && record.lineage.participantReferences.some(p => p.playerId === scope.playerId))) fail('blocks new global Player workload');
+    && record.lineage.participantReferences.some(p => p.playerId === scope.playerId)
+    && !samePaPlayerClaimCanProceed(db, record.lineage.enrollmentReference.sourceId, scope))) fail('blocks new global Player workload');
 };
 export const assertNoReservedPaWorkClaim = (db: Db, scope: Readonly<{ gameId: string; playId: number; physicalPitchSourceId?: string }>, ownEnrollmentSourceId?: string): void => {
   if (ownEnrollmentSourceId === undefined) assertNoPaDispatchWorkClaim(db, scope);
@@ -158,3 +160,7 @@ export const assertNoReservedPaWorkClaim = (db: Db, scope: Readonly<{ gameId: st
 /** Owner reads inspect surviving links even when the requested Source is absent.
  * Independently accepted prefixes/TOTALs need no not-yet-accepted view or TOTAL. */
 export const assertReservedPaClaims = (db: Db): void => { inspect(db); };
+/** Complete scoped census, including abandoned prospective prerequisites. */
+export const readReservedPaClaimRows = (db: Db, enrollmentSourceId: string) => inspect(db)
+  .filter(record => record.lineage.enrollmentReference.sourceId === enrollmentSourceId)
+  .map(record => ({ table: record.owner, row: record.row }));

@@ -1,3 +1,5 @@
+import { readSamePaLifecycleClaimRows } from './SamePlateAppearanceLifecycleClaimGuard';
+import { samePaPlayerClaimCanProceed } from './SamePlateAppearanceSettlementAdmission';
 import { assertSamePaTakeSuccessorStorage } from './SamePlateAppearanceTakeSuccessorStorage';
 import type { DatabaseSync } from 'node:sqlite';
 import { actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -20,6 +22,7 @@ const inspect = (db: Db) => {
   if (db.prepare('SELECT 1 FROM temp.sqlite_master WHERE ' + predicate).get(...args)) fail();
   const catalog = db.prepare('SELECT type,name,tbl_name FROM main.sqlite_master WHERE ' + predicate).all(...args);
   if (catalog.some(r => r.type !== 'table' && r.type !== 'index')) fail();
+  const lifecycle=readSamePaLifecycleClaimRows(db);
   const records = catalog.filter(r => r.type === 'table').flatMap(t => db.prepare('SELECT * FROM main."' + String(t.name).replaceAll('"', '""') + '"').all()
     .map(row => ({ table: String(t.name), row })));
   const roots = new Map<string, ReturnType<typeof authenticateSamePaRow>>();
@@ -56,7 +59,7 @@ const inspect = (db: Db) => {
       for (const id of ids) root(id); const value = [...ids]; resolvedRefs.set(key, value); return value;
     } finally { active.delete(key); }
   };
-  return records.map(({ table, row }) => {
+  const inspected=records.map(({ table, row }) => {
     if (table !== 'pa_take_successor_v1_pitch_heads' && ('first_source_id' in row || 'last_source_id' in row)) {
       const owner = table === 'batting_emotion_execution_v1_heads' ? 'batting_emotion_execution_v1_executions'
         : table === 'batting_execution_v1_heads' ? 'batting_execution_v1_executions' : row.owner;
@@ -90,9 +93,11 @@ const inspect = (db: Db) => {
     }
     return { table, row, enrollments };
   });
+  return [...inspected,...lifecycle.map(record=>({table:record.table,row:record.row,enrollments:record.enrollmentSourceIds.map(root)}))];
 };
 export const assertNoSamePaContinuationPlayerClaim = (db: Db, scope: { careerId: string; playerId: string }) => {
   for (const record of inspect(db)) {
+    if (record.enrollments.length && record.enrollments.every(e => samePaPlayerClaimCanProceed(db, e.source.sourceId, scope))) continue;
     if (record.enrollments.some(e => e.careerId === scope.careerId && e.participants.some(p => p.binding.playerId === scope.playerId))) fail();
     // Retained member references preserve the global Player fence even if a
     // damaged row points its game index at an unrelated otherwise valid root.
@@ -132,3 +137,7 @@ export const readSamePaSuccessorWorkClaimRows = (db: Db, scope: Readonly<{ enrol
       || scope.physicalPitchSourceId !== undefined && (r.table === 'pa_take_successor_v1_pitch_actions' && r.row.source_id === scope.physicalPitchSourceId
         || scopeClaimed(db, r.row, { gameId: '', playId: -1, physicalPitchSourceId: scope.physicalPitchSourceId }))))
     .map(({ table, row }) => ({ table, row }));
+/** Unlike the current-work filter, release retains every preparation claim. */
+export const readSamePaContinuationClaimRows = (db: Db, enrollmentSourceId: string) => inspect(db)
+  .filter(record => record.enrollments.some(e => e.source.sourceId === enrollmentSourceId))
+  .map(({ table, row }) => ({ table, row }));

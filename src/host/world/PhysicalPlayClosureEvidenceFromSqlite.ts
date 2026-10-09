@@ -1,3 +1,5 @@
+import { assertSamePaTerminalApplicationCompleted } from './SamePlateAppearanceTerminalActivation';
+import { assertNationalMatchBindings } from './NationalMatchOriginFromSqlite';
 import { createRequire } from 'node:module';
 import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
 import { foulTerminalPostPlayCompletionEvidenceFromSqlite } from './ActualFoulTerminalPostPlayCompletionEvidenceFromSqlite';
@@ -66,6 +68,15 @@ const fixture = (db: PhysicalClosureDb, pitch: DurablePhysicalPitch): OfficialGa
   return { gameId: row.game_id, venueId: row.venue_id, fixtureEventId: row.fixture_event_id, fixtureRevision: row.fixture_revision };
 };
 const worldFixture = (db: PhysicalClosureDb, s: AcceptedPhysicalPlayClosure, pitch: DurablePhysicalPitch) => {
+  const national = assertNationalMatchBindings(db, pitch.frame.bindings);
+  if (national) {
+    const f = national.fixture;
+    if (f.competitionEditionId !== s.game.seasonId || f.homeClubId !== s.game.homeClubId || f.awayClubId !== s.game.awayClubId
+      || f.careerId !== pitch.frame.workload.careerId) throw new Error('actual physical closure National fixture differs');
+    return { careerId: f.careerId, seasonId: f.competitionEditionId,
+      game: { gameId: pitch.frame.gameId, homeClubId: f.homeClubId, awayClubId: f.awayClubId } };
+  }
+
   const row = db.prepare('SELECT schedule_json FROM world_season_heads WHERE career_id=? AND season_id=?')
     .get(pitch.frame.workload.careerId, s.game.seasonId) as { schedule_json: string } | undefined;
   const schedule = row ? JSON.parse(row.schedule_json) as OfficialStandingsSchedule : null;
@@ -82,6 +93,7 @@ const actor = (db: PhysicalClosureDb, s: AcceptedPhysicalPlayClosure, pitch: Dur
     || b.careerId !== pitch.frame.workload.careerId || b.side !== side || b.competitionEditionId !== s.game.seasonId
     || b.gameDay !== pitch.frame.bindings[0].gameDay || b.fixtureEventId !== pitch.frame.bindings[0].fixtureEventId
     || b.clubId !== (side === 'HOME' ? s.game.homeClubId : s.game.awayClubId)) throw new Error('actual physical closure actor binding differs');
+  assertNationalMatchBindings(db, [b]);
   return { binding: b, person: readOfficialActorPersonLink(db, b) };
 };
 
@@ -92,6 +104,7 @@ const readPhysicalClosureScoringHistoryRows = (db: PhysicalClosureDb, frame: Rea
     .all(frame.gameId, frame.officialRevision) as { application_id: string; match_id: string; closure_id: string; request_hash: string; result_json: string }[];
   if (rows.length !== frame.officialRevision) throw new Error('physical closure prior application history is missing');
   return rows.map((row, index) => {
+    assertSamePaTerminalApplicationCompleted(db, row.application_id);
     const scored = db.prepare('SELECT * FROM official_scoring_applications WHERE official_application_id=?').get(row.application_id) as {
       scoring_application_id: string; match_id: string; official_application_id: string; closure_id: string; source_event_id: string; request_json: string; result_json: string;
     } | undefined;

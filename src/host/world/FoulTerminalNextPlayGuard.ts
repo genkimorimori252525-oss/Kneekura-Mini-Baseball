@@ -1,3 +1,4 @@
+import { assertSamePaTerminalApplicationCompleted } from './SamePlateAppearanceTerminalActivation';
 import {foulTerminalNextPlayReadinessFromSqlite} from './FoulTerminalNextPlayReadiness';
 import {activeBattedWorldFieldReadFrame} from './SqliteBattedWorldFieldStore';
 import {foulApplicationOwnershipRows} from './ActualFoulTerminalApplicationOwnership';
@@ -53,6 +54,7 @@ const completion = (db: Db, sourceId: string) => {
 type HistoricalTerminalReadiness=ReturnType<ReturnType<typeof foulTerminalNextPlayReadinessFromSqlite>['readHistorical']>;
 const admission = (db: Db, applicationId: string | null, paired: boolean): Readonly<{archive:DurableFoulTerminalCompletedApplication|null;readiness:HistoricalTerminalReadiness|null}> => {
   if (applicationId === null) return {archive:null,readiness:null};
+  assertSamePaTerminalApplicationCompleted(db, applicationId);
   if (typeof applicationId !== 'string' || !applicationId || applicationId !== applicationId.trim()) {
     throw new Error('invalid terminal pending admission application identity');
   }

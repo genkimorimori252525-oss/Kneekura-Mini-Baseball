@@ -60,6 +60,9 @@ const modelInput = (raw: AcceptedBattedContactResponseModel, sourceId: string): 
     || m.surfaces.some((s) => !fields(s, ['surfaceId', 'material']) || !id(s.surfaceId) || !material(s.material))) throw new Error('invalid accepted batted response model');
   return m;
 };
+// Shared domain validation for independently accepted physical-family profile
+// inputs. This export neither persists nor admits an old contact/flight row.
+export const acceptedBattedContactResponseModelInput = modelInput;
 
 export const battedContactResponseEvidenceFromSqlite = (
   db: Pick<import('node:sqlite').DatabaseSync, 'prepare'>,

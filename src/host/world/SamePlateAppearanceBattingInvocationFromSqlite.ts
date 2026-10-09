@@ -31,3 +31,13 @@ export const readSamePaBattingInvocationFromSqlite = (db: DatabaseSync, raw: Sam
 };
 export const readSamePaBattingInvocationClaims = (db: DatabaseSync, input: Parameters<typeof readBattingPerceptionInvocationClaims>[1]) =>
   [...readBattingPerceptionInvocationClaims(db, input).map(row => row.reference), ...readBattingEmotionExecutionClaims(db, input), ...readSamePaBattingCalculationClaims(db, input)];
+
+/** The earlier completed first-TAKE chain has a narrower owner family. Keep
+ * that boundary explicit when additive lifecycle Sources share work tables. */
+export const readLegacySamePaBattingInvocationFromSqlite = (db: DatabaseSync, ref: SamePaBattingInvocationReference) => {
+  const operation = readSamePaBattingInvocationFromSqlite(db, ref);
+  if (operation.executionViewReference.owner !== 'pa_continuation_v1_execution_views'
+    || operation.physicalPitchReference.owner !== 'pa_dispatch_v1_pitch_actions') throw new Error('completed first-TAKE invocation owner differs');
+  return { ...operation, executionViewReference: { ...operation.executionViewReference, owner: 'pa_continuation_v1_execution_views' as const },
+    physicalPitchReference: { ...operation.physicalPitchReference, owner: 'pa_dispatch_v1_pitch_actions' as const } };
+};

@@ -1,3 +1,4 @@
+import type { DatabaseSync } from 'node:sqlite';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -31,10 +32,13 @@ const assertEvent = (event: WorldQualifierHostAccessEvent): void => {
 };
 
 /** World owns calibrated access assessments; each assessment is bound to the actual pod draw. */
-export const openSqliteWbcQualifierHostAccessStore = (databasePath: string): SqliteWbcQualifierHostAccessStore => {
-  if (!id(databasePath)) throw new Error('invalid qualifier host access database path');
+const createSqliteWbcQualifierHostAccessStore = (databasePath: string | DatabaseSync): SqliteWbcQualifierHostAccessStore => {
+  if (typeof databasePath === 'string' && !id(databasePath)) throw new Error('invalid qualifier host access database path');
   const { DatabaseSync }: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
-  const db = new DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new DatabaseSync(databasePath);
+  if (!(db instanceof DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_wbc_qualifier_host_access_events (
     career_id TEXT NOT NULL, edition_id TEXT NOT NULL, draw_snapshot_id TEXT NOT NULL,
@@ -43,6 +47,7 @@ export const openSqliteWbcQualifierHostAccessStore = (databasePath: string): Sql
     PRIMARY KEY(career_id, edition_id, draw_snapshot_id, pod_index, venue_id, revision),
     UNIQUE(career_id, source_event_id)
   );`);
+  }
   const rows = db.prepare(`SELECT revision, effective_day, source_event_id, event_json, chain_hash
     FROM world_wbc_qualifier_host_access_events WHERE career_id=? AND edition_id=? AND draw_snapshot_id=?
     AND pod_index=? AND venue_id=? AND effective_day<=? ORDER BY revision`);
@@ -111,6 +116,16 @@ export const openSqliteWbcQualifierHostAccessStore = (databasePath: string): Sql
         asOfDay: beforeDay, assessments, prefixHashes: latest.map((item) => item.chainHash) })}`;
       return freeze({ snapshotId, qualifierEditionId, drawSnapshotId, asOfDay: beforeDay, assessments });
     },
-    close(): void { if (!closed) db.close(); closed = true; },
+    close(): void { if (!closed && !borrowed) db.close(); closed = true; },
   });
+};
+
+/** Existing path facade retains connection/schema ownership. */
+export const openSqliteWbcQualifierHostAccessStore = (databasePath: string): SqliteWbcQualifierHostAccessStore =>
+  createSqliteWbcQualifierHostAccessStore(databasePath);
+
+/** Same owner replay on a consuming Native connection; only read capabilities escape. */
+export const wbcQualifierHostAccessEvidenceFromSqlite = (db: DatabaseSync): Pick<SqliteWbcQualifierHostAccessStore, 'readAccess'> => {
+  const owner = createSqliteWbcQualifierHostAccessStore(db);
+  return Object.freeze({ readAccess: owner.readAccess });
 };

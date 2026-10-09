@@ -1,3 +1,8 @@
+import { memoSamePaLifecycleRead } from './SamePlateAppearanceLifecycleFromSqlite';
+import { assertInFlightBattingWriteCurrentFromSqlite } from './InFlightBattingLifecycleFenceFromSqlite';
+import { isInFlightBattingPerceptionSource } from './NativeInFlightBattingPerception';
+import { deriveInFlightBattingPerception } from './InFlightBattingPerceptionFromSqlite';
+import type { LegacyBattingPerceptionSource } from './NativeBattingPerception';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
 import { SeedRoot } from '../../core/rng/SeedRoot';
@@ -60,11 +65,16 @@ const storage = (db: DatabaseSync): boolean => {
 const canonical = (s: Source): string => {
   switch (s.capability) {
     case 'owned_batting_invocation_posture_v1': return json([s.viewReference.sourceId, s.member.playerId, s.actionReference.sourceId]);
+    case 'owned_in_flight_batting_posture_v1':
     case 'owned_next_take_batting_posture_v1': return json([s.viewReference.sourceId, s.member.playerId, s.actionReference.sourceId]);
+    case 'owned_in_flight_batting_observation_v1':
     case 'owned_batting_observation_v1': return json([s.postureReference.sourceId, s.physicalPitchReference.sourceId, s.observedTick]);
+    case 'owned_in_flight_batting_observation_delivery_v1':
     case 'owned_batting_observation_delivery_v1': return json(sourceCaptureKey(s.observationReference));
+    case 'owned_in_flight_batting_observed_prediction_v1':
     case 'owned_batting_observed_prediction_v1': return json([s.observationReference.sourceId, s.modelReference, s.predictionParameterReference]);
     case 'owned_batting_score_assessment_v1':
+    case 'owned_in_flight_batting_score_assessment_v1':
     case 'owned_batting_current_score_assessment_v1': return json([s.predictionReference, s.modelReference, s.member, s.observationCutReference, s.viewReference]);
   }
 };
@@ -129,7 +139,7 @@ const assembly = (db: DatabaseSync, fresh: boolean) => {
     assertWorkHead(db, ...scope);
   };
   const bases = new Map<string, ReturnType<typeof original>>();
-  function original(source: Source, current: boolean) {
+  function original(source: LegacyBattingPerceptionSource, current: boolean) {
     if (source.viewReference.owner === 'pa_continuation_v1_execution_views') {
       const result = (current ? readCurrentSamePaContinuationViewFromSqlite : readHistoricalSamePaContinuationViewFromSqlite)(db, source.viewReference);
       const member = result.members.find(m => m.playerId === source.member.playerId); if (!member) return fail('current view original member missing');
@@ -140,17 +150,18 @@ const assembly = (db: DatabaseSync, fresh: boolean) => {
     if (!actor) return fail('original actor missing');
     const member = deriveSamePaDispatchRoles(actor, view)[0].member; same(source.member, member); return { view, actor, member, current };
   }
-  const basis = (s: Source, current = false) => { const key = json(s.viewReference), known = bases.get(key); if (known && (!current || known.current)) { same(known.member, s.member); return known; }
+  const basis = (s: LegacyBattingPerceptionSource, current = false) => { const key = json(s.viewReference), known = bases.get(key); if (known && (!current || known.current)) { same(known.member, s.member); return known; }
     const value = original(s, current); bases.set(key, value); return value; };
   const linked = (kind: Kind, ref: SamePaReference): RecordValue | null => { if (!samePaReferenceValid(ref, tables[kind])) return fail('reference owner differs');
     const value = read(kind, ref.sourceId); if (value) same(reference(tables[kind], value), ref); return value; };
-  const model = (s: Source, ref: SamePaReference<'world_player_batting_models'>, current = false) => {
+  const model = (s: LegacyBattingPerceptionSource, ref: SamePaReference<'world_player_batting_models'>, current = false) => {
     const b = basis(s), value = playerBattingModelEvidenceFromSqlite(db).read(ref.sourceId); if (!value) return fail('normal batting model missing'); same(reference(ref.owner, value), ref);
     same(value.person, b.actor.person); if (value.source.careerId !== b.actor.binding.careerId || value.source.playerId !== b.member.playerId || value.source.acceptedAtDay > b.actor.binding.gameDay) return fail('normal model scope differs');
     if (current) same(playerBattingModelEvidenceFromSqlite(db).selectAtDay(b.actor.binding.careerId, b.actor.binding.playerId, b.actor.binding.gameDay), value);
     return value;
   };
   const derive = (source: Source, current: boolean): RecordValue | Pending => {
+    if (isInFlightBattingPerceptionSource(source)) return deriveInFlightBattingPerception(db, source, current, { linked, observationHead: (e, p, a) => workHead(db, tables.observation, e, p, a) as { first_source_id: unknown; last_source_id: unknown } | null });
     const b = basis(source, current), lineage = b.view.lineage;
     if (source.capability === 'owned_batting_invocation_posture_v1' || source.capability === 'owned_next_take_batting_posture_v1') {
       assertBattingAssessmentOwnership(db, tables.posture, source);
@@ -199,7 +210,7 @@ const assembly = (db: DatabaseSync, fresh: boolean) => {
         || b.view.evaluationTick !== source.observedTick || source.deliveryCutTick > g.validUntilTick) return pending('owned_current_ball_capture_cut_unavailable');
       const previous = source.previousObservationReference === null ? null : linked('observation', source.previousObservationReference) as DurableBattingObservation | null;
       if (source.previousObservationReference && !previous) return pending('previous_observation_missing', [source.previousObservationReference.sourceId]);
-      if (previous) { same(previous.source.postureReference, source.postureReference); same(previous.source.physicalPitchReference, source.physicalPitchReference);
+      if (previous) { if (previous.source.capability !== 'owned_batting_observation_v1') return fail('legacy sensory predecessor owner differs'); same(previous.source.postureReference, source.postureReference); same(previous.source.physicalPitchReference, source.physicalPitchReference);
         if (previous.source.observedTick >= source.observedTick || previous.source.deliveryCutTick > source.deliveryCutTick) return fail('observation chronology differs'); }
       const head = workHead(db, tables.observation, lineage.enrollmentReference.sourceId, pitch.source.sourceId, source.member.playerId);
       if (current && (head?.last_source_id ?? null) !== (previous?.source.sourceId ?? null)) return fail('observation must extend the actual current sensory head');
@@ -225,6 +236,7 @@ const assembly = (db: DatabaseSync, fresh: boolean) => {
     if (source.capability === 'owned_batting_observation_delivery_v1') {
       const capture = linked('observation', source.observationReference) as DurableBattingObservation | null;
       if (!capture) return pending('original_capture_missing', [source.observationReference.sourceId]);
+      if (capture.source.capability !== 'owned_batting_observation_v1') return fail('legacy delivery capture owner differs');
       assertSamePaOriginalMember(capture.source.member, source.member); same(capture.lineage, lineage);
       if (b.view.kind !== 'nonempty_basis_prepared') return fail('delivery requires a current nonempty view');
       same(capture.source.physicalPitchReference, b.view.physicalCut.pitchReference);
@@ -247,10 +259,12 @@ const assembly = (db: DatabaseSync, fresh: boolean) => {
     if (source.capability === 'owned_batting_observed_prediction_v1') {
       const observation = linked('observation', source.observationReference) as DurableBattingObservation | null;
       if (!observation) return pending('original_observation_missing', [source.observationReference.sourceId]);
+      if (observation.source.capability !== 'owned_batting_observation_v1') return fail('legacy prediction capture owner differs');
       assertSamePaOriginalMember(observation.source.member, source.member); same(observation.lineage, lineage); same(observation.modelReference, source.modelReference);
       if (b.view.kind !== 'nonempty_basis_prepared' || b.view.physicalCut.pitchReference.sourceId !== observation.physicalPitchSourceId) return fail('prediction current physical cut differs');
       const delivered = linked('delivery', source.deliveryReference) as DurableBattingObservationDelivery | null;
       if (!delivered) return pending('owned_observation_delivery_missing', [source.deliveryReference.sourceId]);
+      if (delivered.source.capability !== 'owned_batting_observation_delivery_v1') return fail('legacy prediction delivery owner differs');
       same(delivered.source.observationReference, source.observationReference); same(delivered.originalCaptureHash, hash(observation));
       same(delivered.lineage, lineage); assertSamePaOriginalMember(delivered.source.member, source.member);
       const nominal = model(source, source.modelReference, current), parameter = nominal.predictionCalibration;
@@ -261,6 +275,7 @@ const assembly = (db: DatabaseSync, fresh: boolean) => {
     }
     const prediction = linked('prediction', source.predictionReference) as DurableBattingObservedPrediction | null;
     if (!prediction) return pending('original_prediction_missing', [source.predictionReference.sourceId]);
+    if (prediction.source.capability !== 'owned_batting_observed_prediction_v1') return fail('legacy assessment prediction owner differs');
     if (source.capability !== 'owned_batting_current_score_assessment_v1') return fail('archived empty-view score cannot become a current invocation input');
     assertBattingAssessmentOwnership(db, tables.assessment, source);
     assertCurrentBattingScoreAssessmentBasis(source, { predictionReference: reference('batting_prediction_v1_predictions', prediction), modelReference: prediction.source.modelReference,
@@ -270,16 +285,18 @@ const assembly = (db: DatabaseSync, fresh: boolean) => {
       availableTick: prediction.forecast.availableTick, validUntilTick: prediction.forecast.validUntilTick, trajectory: prediction.forecast.trajectory, swingScore: source.score } });
   };
   function read(kind: Kind, id: string): RecordValue | null {
-    const key = kind + ':' + id, cached = records.get(key); if (cached) return cached;
-    if (active.has(key)) return fail('cyclic original dependency');
-    const row = identityRow(db, kind, id); if (!row) return null;
-    active.add(key); try {
-      const source = battingPerceptionSourceInput(kind, JSON.parse(String(row.source_json)), id), value = derive(source, false);
-      if (value.kind === 'pending') return fail('durable row lost original prerequisite');
-      same(row, rowFor(value)); assertCanonical(db, kind, source);
-      if (invocationKind(kind)) assertHead(kind, value);
-      records.set(key, value); return value;
-    } finally { active.delete(key); }
+    return memoSamePaLifecycleRead(db, 'batting-perception:historical:' + kind + ':' + id, () => {
+      const key = kind + ':' + id, cached = records.get(key); if (cached) return cached;
+      if (active.has(key)) return fail('cyclic original dependency');
+      const row = identityRow(db, kind, id); if (!row) return null;
+      active.add(key); try {
+        const source = battingPerceptionSourceInput(kind, JSON.parse(String(row.source_json)), id), value = derive(source, false);
+        if (value.kind === 'pending') return fail('durable row lost original prerequisite');
+        same(row, rowFor(value)); assertCanonical(db, kind, source);
+        if (invocationKind(kind)) assertHead(kind, value);
+        records.set(key, value); return value;
+      } finally { active.delete(key); }
+    });
   }
   return { derive: (source: Source) => derive(source, fresh), read };
 };
@@ -316,6 +333,9 @@ export const openSqliteBattingPerceptionStore = (path: string, authority?: Reado
   const Native = (createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite')).DatabaseSync, db = new Native(path), tx = battingInvocationTransaction(db, () => storage(db));
   const accept = (kind: Kind, id: string): RecordValue | Pending => {
     if (!samePaText(id)) return fail('invalid Source identity');
+    let fresh = false;
+    const fence = (value: RecordValue) => { if (fresh && isInFlightBattingPerceptionSource(value.source)) assertInFlightBattingWriteCurrentFromSqlite(db, value.source.viewReference,
+      invocationKind(kind) ? reference(tables[kind] as 'batting_observation_v1_observations' | 'batting_observation_v1_deliveries' | 'batting_prediction_v1_predictions', value) : null); };
     return tx.run(true, (proof, step) => {
       const prepared = proof(() => {
         const owner = assembly(db, false), existing = owner.read(kind, id), callbacks = { posture: authority?.readAcceptedPosture, observation: authority?.readAcceptedObservation, delivery: authority?.readAcceptedDelivery,
@@ -324,7 +344,7 @@ export const openSqliteBattingPerceptionStore = (path: string, authority?: Reado
         if (!source) return { value: pending('accepted_source_missing', [id]), existing: false };
         assertCanonical(db, kind, source); return { value: assembly(db, true).derive(source), existing: false };
       });
-      const value = prepared.value; if (prepared.existing || value.kind === 'pending') return value;
+      const value = prepared.value; if (prepared.existing || value.kind === 'pending') return value; fresh = true;
       if (!proof(() => storage(db))) step(() => db.exec(Object.values(schema).join(';')), 0, names.length + 1);
       proof(() => { assertCanonical(db, kind, value.source); same(assembly(db, true).derive(value.source), value); if (identityRow(db, kind, id)) fail('unexpected owner appeared'); });
       const scope = [tables[kind], value.lineage.enrollmentReference.sourceId, value.physicalPitchSourceId, value.source.member.playerId] as const;
@@ -347,8 +367,8 @@ export const openSqliteBattingPerceptionStore = (path: string, authority?: Reado
           if (result.changes !== 1) fail('invocation head CAS differs');
         }, 1);
       }
-      proof(() => same(assembly(db, false).read(kind, id), value)); return value;
-    }, value => { const saved = assembly(db, false).read(kind, id); if (value.kind === 'pending') { if (saved) fail('pending operation acquired a durable claim'); } else same(saved, value); });
+      proof(() => { same(assembly(db, false).read(kind, id), value); fence(value); }); return value;
+    }, value => { const saved = assembly(db, false).read(kind, id); if (value.kind === 'pending') { if (saved) fail('pending operation acquired a durable claim'); } else { same(saved, value); fence(value); } });
   };
   const read = (kind: Kind, id: string) => { if (!samePaText(id)) return fail('invalid Source identity'); return tx.run(false, proof => proof(() => assembly(db, false).read(kind, id)), value => same(assembly(db, false).read(kind, id), value)); };
   return Object.freeze({ acceptPosture: (id: string) => accept('posture', id), acceptObservation: (id: string) => accept('observation', id),

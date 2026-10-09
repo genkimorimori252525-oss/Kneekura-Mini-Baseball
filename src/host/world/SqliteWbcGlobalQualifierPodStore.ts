@@ -1,3 +1,4 @@
+import type { DatabaseSync } from 'node:sqlite';
 import { createCompetitionSourceReader } from './CompetitionSourceReadScope';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -57,16 +58,17 @@ const canonicalJson = (value: unknown): string => JSON.stringify(
         left < right ? -1 : left > right ? 1 : 0)) : item);
 
 /** Advance the four pods only through twelve durable Match finals. */
-export const openSqliteWbcGlobalQualifierPodStore = (
-  databasePath: string,
+const createSqliteWbcGlobalQualifierPodStore = (
+  databasePath: string | DatabaseSync,
   sources: Readonly<{
     selection: Pick<SqliteWbcQualifierSelectionStore,
       'readSelection'>;
     matches: PostseasonMatchSource;
     editions?: Pick<SqliteWbcQualifierEditionStore, 'readEdition'>;
   }>,
+  originalFixtureInputs = false,
 ): SqliteWbcGlobalQualifierPodStore => {
-  if (!id(databasePath)) {
+  if (typeof databasePath === 'string' && !id(databasePath)) {
     throw new Error('invalid WBC Global Qualifier database path');
   }
   const readSelected = createCompetitionSourceReader(sources.selection.readSelection, sources.selection);
@@ -74,7 +76,10 @@ export const openSqliteWbcGlobalQualifierPodStore = (
     ? createCompetitionSourceReader(sources.editions.readEdition, sources.editions) : null;
   const sqlite: typeof import('node:sqlite') =
     createRequire(import.meta.url)('node:sqlite');
-  const db = new sqlite.DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new sqlite.DatabaseSync(databasePath);
+  if (!(db instanceof sqlite.DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_wbc_qualifier_pods (
     career_id TEXT NOT NULL, edition_id TEXT NOT NULL,
@@ -82,6 +87,7 @@ export const openSqliteWbcGlobalQualifierPodStore = (
     outcome_json TEXT,
     PRIMARY KEY (career_id, edition_id)
   );`);
+  }
   const get = db.prepare(`SELECT request_json, plan_json, outcome_json
     FROM world_wbc_qualifier_pods
     WHERE career_id=? AND edition_id=?`);
@@ -125,6 +131,7 @@ export const openSqliteWbcGlobalQualifierPodStore = (
     }
     const finalGames = planWbcGlobalQualifierFinals(plan,
       semifinalResults, request.edition);
+    if (originalFixtureInputs) return { semifinalResults, finalGames, finalResults: null, outcome: null };
     const finalResults = results(finalGames);
     if (!finalResults) return { semifinalResults, finalGames,
       finalResults: null, outcome: null };
@@ -154,7 +161,7 @@ export const openSqliteWbcGlobalQualifierPodStore = (
         || canonicalJson(plan) !== stored.plan_json) {
         throw new Error('WBC qualifier plan replay differs');
       }
-      if (stored.outcome_json !== null) {
+      if (stored.outcome_json !== null && !originalFixtureInputs) {
         const stage = stages(request, plan);
         if (!stage.outcome
           || canonicalJson(stage.outcome)
@@ -285,8 +292,24 @@ export const openSqliteWbcGlobalQualifierPodStore = (
         outcome: current.outcome });
     },
     close(): void {
-      if (!closed) db.close();
+      if (!closed && !borrowed) db.close();
       closed = true;
     },
   });
+};
+
+/** Existing path facade retains connection/schema ownership. */
+export const openSqliteWbcGlobalQualifierPodStore = (databasePath: string, sources: Parameters<typeof createSqliteWbcGlobalQualifierPodStore>[1]): SqliteWbcGlobalQualifierPodStore =>
+  createSqliteWbcGlobalQualifierPodStore(databasePath, sources);
+
+/** Same owner replay on a consuming Native connection; only read capabilities escape. */
+export const wbcGlobalQualifierPodEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteWbcGlobalQualifierPodStore>[1]): Pick<SqliteWbcGlobalQualifierPodStore, 'readEdition' | 'readPlan' | 'finalGames' | 'readEvidence'> => {
+  const owner = createSqliteWbcGlobalQualifierPodStore(db, sources);
+  return Object.freeze({ readEdition: owner.readEdition, readPlan: owner.readPlan, finalGames: owner.finalGames, readEvidence: owner.readEvidence });
+};
+
+/** Original playable fixture inputs exclude current/later round outcomes. */
+export const wbcGlobalQualifierPodFixtureEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteWbcGlobalQualifierPodStore>[1]): Pick<SqliteWbcGlobalQualifierPodStore, 'readEdition' | 'readPlan' | 'finalGames'> => {
+  const owner = createSqliteWbcGlobalQualifierPodStore(db, sources, true);
+  return Object.freeze({ readEdition: owner.readEdition, readPlan: owner.readPlan, finalGames: owner.finalGames });
 };

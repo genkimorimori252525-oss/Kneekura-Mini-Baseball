@@ -10,7 +10,7 @@ import { assertTaggedParticipationFields, participationReceiptId, readOwnedParti
 type Db = Pick<DatabaseSync, 'prepare'>;
 export type TaggedParticipationReceipt = ActualLiveParticipationReceipt | CompletedPlayParticipationReceipt;
 export const isSupportedParticipationKind = (kind: unknown): kind is TaggedParticipationReceipt['evidenceKind'] =>
-  kind === 'ACTUAL_LIVE_V1' || kind === 'PHYSICAL_PLAY_V1' || kind === 'FOUL_TERMINAL_V1';
+  kind === 'ACTUAL_LIVE_V1' || kind === 'PHYSICAL_PLAY_V1' || kind === 'FOUL_TERMINAL_V1' || kind === 'NATIONAL_PHYSICAL_PLAY_V1';
 
 /** Shared consumer-side rederivation. The caller owns the Native read/write transaction. */
 export const readTaggedParticipationReceipt = (db: Db, receiptId: string): TaggedParticipationReceipt => withBattedVenueLegalReadSnapshot(db as DatabaseSync, () => {

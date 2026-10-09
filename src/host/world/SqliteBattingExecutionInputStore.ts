@@ -1,3 +1,6 @@
+import { assertInFlightBattingWriteCurrentFromSqlite } from './InFlightBattingLifecycleFenceFromSqlite';
+import { deriveInFlightSamePaBattingIntent, deriveInFlightSamePaBattingInput } from './InFlightBattingExecutionInputFromSqlite';
+import type { DurableSamePaBattingIntent } from './NativeBattingExecutionInput';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
 import { calculateBattingExecution, prepareBattingExecution } from '../../core/world/psychology/batting/BattingCommitment';
@@ -29,9 +32,9 @@ type Pending = Readonly<{ kind: 'pending'; reason: string; missingSourceIds: rea
 const pending = (reason: string, missingSourceIds: readonly string[] = []): Pending => freeze({ kind: 'pending', reason, missingSourceIds });
 const fail = (detail: string): never => { throw new Error('owned batting calculation ' + detail); };
 const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) fail('original input or durable row differs'); };
-const kindOf = (s: Source): Kind => s.capability === 'owned_same_pa_batting_intent_v1' ? 'intent' : s.capability === 'owned_same_pa_batting_execution_input_v1' ? 'input' : 'invocation';
-const canonical = (s: Source) => s.capability === 'owned_same_pa_batting_intent_v1' ? json([s.postureReference, s.actorReference])
-  : s.capability === 'owned_same_pa_batting_execution_input_v1' ? json([s.viewReference, s.member, s.postureReference, s.emotionReference, s.assessmentReferences, s.calibrationReferences, s.expectedWorld])
+const kindOf = (s: Source): Kind => s.capability === 'owned_same_pa_batting_intent_v1' || s.capability === 'owned_in_flight_same_pa_batting_intent_v1' ? 'intent' : s.capability === 'owned_same_pa_batting_execution_input_v1' || s.capability === 'owned_in_flight_same_pa_batting_execution_input_v1' ? 'input' : 'invocation';
+const canonical = (s: Source) => s.capability === 'owned_same_pa_batting_intent_v1' || s.capability === 'owned_in_flight_same_pa_batting_intent_v1' ? json([s.postureReference, s.actorReference])
+  : s.capability === 'owned_same_pa_batting_execution_input_v1' || s.capability === 'owned_in_flight_same_pa_batting_execution_input_v1' ? json([s.viewReference, s.member, s.postureReference, s.emotionReference, s.assessmentReferences, s.calibrationReferences, s.expectedWorld])
     : json(s.inputReference);
 const storage = (db: DatabaseSync): boolean => {
   assertBodyCompositionNativeConnection(db);
@@ -90,6 +93,10 @@ const assembly = (db: DatabaseSync) => {
   const linked = (kind: Kind, ref: SamePaReference) => { if (!samePaReferenceValid(ref, tables[kind])) return fail('reference owner differs');
     const value = read(kind, ref.sourceId); if (value) same(reference(tables[kind], value), ref); return value; };
   const derive = (source: Source, current: boolean): RecordValue | Pending => {
+    if (source.capability === 'owned_in_flight_same_pa_batting_intent_v1') return deriveInFlightSamePaBattingIntent(db, source, current);
+    if (source.capability === 'owned_in_flight_same_pa_batting_execution_input_v1') return deriveInFlightSamePaBattingInput(db, source, current, pin => {
+      const value = linked('intent', pin); if (value !== null && value.kind !== 'same_pa_batting_intent') return fail('original intent owner differs'); return value;
+    });
     if (source.capability === 'owned_same_pa_batting_intent_v1') {
       const posture = readBattingPerceptionFromSqlite(db, 'posture', source.postureReference); if (posture.kind !== 'batting_invocation_posture') return fail('original posture owner differs');
       same(posture.source.viewReference, source.viewReference); same(posture.source.member, source.member); same(posture.lineage.actorReference, source.actorReference);
@@ -101,11 +108,12 @@ const assembly = (db: DatabaseSync) => {
     const member = b.members.find(m => m.playerId === source.member.playerId); if (!member || b.actor.binding.playerId !== member.playerId) return fail('actual batting participant missing'); same(member, source.member);
     if (source.capability === 'owned_same_pa_batting_calculation_v1') {
       const input = linked('input', source.inputReference); if (!input) return pending('original_batting_input_missing', [source.inputReference.sourceId]);
-      if (input.kind !== 'same_pa_batting_input') return fail('original execution input owner differs'); same(input.source.viewReference, source.viewReference); same(input.source.member, source.member);
+      if (input.kind !== 'same_pa_batting_input' || input.source.capability !== 'owned_same_pa_batting_execution_input_v1'
+        || input.physicalPitchReference.owner !== 'pa_dispatch_v1_pitch_actions') return fail('original execution input owner differs'); same(input.source.viewReference, source.viewReference); same(input.source.member, source.member);
       if (current) same(derive(input.source, true), input);
       const result = calculateBattingExecution({ nominalRequest: input.nominalRequest, effectiveValues: input.effectiveValues });
       if (!result.ok) return fail('effective Core calculation rejected: ' + result.reason.path);
-      return freeze({ kind: 'same_pa_batting_calculation', source, lineage: b.view.lineage, physicalPitchSourceId: input.physicalPitchSourceId, physicalPitchReference: input.physicalPitchReference,
+      return freeze({ kind: 'same_pa_batting_calculation', source, lineage: b.view.lineage, physicalPitchSourceId: input.physicalPitchSourceId, physicalPitchReference: { ...input.physicalPitchReference, owner: input.physicalPitchReference.owner },
         calculation: result.value, invokedRoutes: result.value.commitment?.action === 'SWING' ? ['batter_decision', 'batter_motor', 'batter_swing'] as const : ['batter_decision'] as const,
         motionIssued: false, physicalEffect: 'none', physicalAdmission: 'completed_take_requires_forward_physical_right' });
     }
@@ -162,6 +170,11 @@ const readInput = (db: DatabaseSync, ref: SamePaReference<'batting_execution_v1_
   if (!samePaReferenceValid(ref, tables.input)) return fail('invalid input reference'); const owner = assembly(db), value = owner.read('input', ref.sourceId);
   if (!value || value.kind !== 'same_pa_batting_input') return fail('original input missing'); same(reference(tables.input, value), ref); if (current) same(owner.derive(value.source, true), value); return value;
 };
+export const readSamePaBattingIntentFromSqlite = (db: DatabaseSync, ref: SamePaReference<'batting_execution_v1_intents'>): DurableSamePaBattingIntent => {
+  if (!samePaReferenceValid(ref, tables.intent)) return fail('invalid intent reference');
+  const value = assembly(db).read('intent', ref.sourceId); if (!value || value.kind !== 'same_pa_batting_intent') return fail('original intent missing');
+  same(reference(tables.intent, value), ref); return value;
+};
 export const readSamePaBattingExecutionInputFromSqlite = (db: DatabaseSync, ref: SamePaReference<'batting_execution_v1_inputs'>) => readInput(db, ref, false);
 export const readCurrentSamePaBattingExecutionInputFromSqlite = (db: DatabaseSync, ref: SamePaReference<'batting_execution_v1_inputs'>) => readInput(db, ref, true);
 /** Internal Native numerical adapter. Exact accepted input owns the original
@@ -192,12 +205,24 @@ export const openSqliteBattingExecutionInputStore = (path: string, authority?: R
   const Native = (createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite')).DatabaseSync, db = new Native(path), tx = battingInvocationTransaction(db, () => storage(db));
   const accept = (kind: Kind, id: string): RecordValue | Pending => {
     if (!samePaText(id)) return fail('invalid Source identity');
+    let fresh = false;
+    const fence = (value: RecordValue) => {
+      if (!fresh || value.source.capability !== 'owned_in_flight_same_pa_batting_intent_v1'
+        && value.source.capability !== 'owned_in_flight_same_pa_batting_execution_input_v1') return;
+      assertInFlightBattingWriteCurrentFromSqlite(db, value.source.viewReference, null);
+      if (value.source.capability === 'owned_in_flight_same_pa_batting_execution_input_v1') {
+        const world = readEmotionWorldRevisionFromSqlite(db, value.lineage.careerId);
+        if (!world) return fail('in-flight input World head missing');
+        same(value.source.expectedWorld, { careerId: value.lineage.careerId, worldRevision: world.head.worldRevision,
+          controlRevision: world.head.control.revision, controlHash: hash(world.head.control) });
+      }
+    };
     return tx.run(true, (proof, step) => {
       const prepared = proof(() => { const existing = assembly(db).read(kind, id), callbacks = { intent: authority?.readAcceptedIntent, input: authority?.readAcceptedInput, invocation: authority?.readAcceptedInvocation }, raw = callbacks[kind]?.(id);
         const source = raw == null ? null : battingExecutionInputSource(raw, id); if (source && kindOf(source) !== kind) return fail('accepted Source owner differs');
         if (existing) { if (source) same(existing.source, source); return { value: existing, existing: true }; }
         if (!source) return { value: pending('accepted_source_missing', [id]), existing: false }; assertCanonical(db, kind, source); return { value: assembly(db).derive(source, true), existing: false }; });
-      const value = prepared.value; if (prepared.existing || value.kind === 'pending') return value;
+      const value = prepared.value; if (prepared.existing || value.kind === 'pending') return value; fresh = true;
       if (!proof(() => storage(db))) step(() => db.exec(Object.values(schemas).join(';')), 0, 4);
       const beforeHead = proof(() => { assertCanonical(db, kind, value.source); same(assembly(db).derive(value.source, true), value); if (identityRow(db, kind, id)) return fail('unexpected Source appeared');
         if (kind !== 'invocation') return null; assertHead(db, ids(value)); return head(db, ids(value)); });
@@ -211,8 +236,8 @@ export const openSqliteBattingExecutionInputStore = (path: string, authority?: R
             .run(next.revision, next.last_source_id, next.last_snapshot_hash, ...ids(value), beforeHead.revision, beforeHead.last_source_id, beforeHead.last_snapshot_hash);
           if (result.changes !== 1) fail('invocation head CAS differs'); }, 1);
       }
-      proof(() => same(assembly(db).read(kind, id), value)); return value;
-    }, value => { const saved = assembly(db).read(kind, id); if (value.kind === 'pending') { if (saved) fail('pending Source acquired a durable row'); } else same(saved, value); });
+      proof(() => { same(assembly(db).read(kind, id), value); fence(value); }); return value;
+    }, value => { const saved = assembly(db).read(kind, id); if (value.kind === 'pending') { if (saved) fail('pending Source acquired a durable row'); } else { same(saved, value); fence(value); } });
   };
   const read = (kind: Kind, id: string) => { if (!samePaText(id)) return fail('invalid Source identity'); return tx.run(false, proof => proof(() => assembly(db).read(kind, id)), value => same(assembly(db).read(kind, id), value)); };
   return Object.freeze({ acceptIntent: (id: string) => accept('intent', id), acceptInput: (id: string) => accept('input', id), invoke: (id: string) => accept('invocation', id),

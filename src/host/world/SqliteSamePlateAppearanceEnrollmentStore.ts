@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module';
 import { randomUUID } from 'node:crypto';
-import { deriveSamePlateAppearanceEnrollment,readSamePlateAppearanceEnrollment } from './SamePlateAppearanceEnrollmentFromSqlite';
+import { deriveSamePlateAppearanceEnrollment,readSamePlateAppearanceEnrollment,readHistoricalSamePlateAppearanceEnrollment } from './SamePlateAppearanceEnrollmentFromSqlite';
 import { samePlateAppearanceEnrollmentInput,samePaId } from './SamePlateAppearanceEnrollment';
 import { assertSamePaStorage,samePaSchema,samePaMember,samePaSlot } from './SamePlateAppearanceReservationGuard';
 import { actorJson as json,actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -61,7 +61,10 @@ export const openSqliteSamePlateAppearanceEnrollmentStore = (path:string,
     }
   };
   const read=(sourceId:string)=>{check();if(!samePaId(sourceId))throw new Error('invalid same-PA Source identity');return run(false,proof=>proof(()=>readSamePlateAppearanceEnrollment(db,sourceId)));};
-  return Object.freeze({read,accept(sourceId:string){
+  return Object.freeze({read,readHistorical(sourceId:string){
+    check();if(!samePaId(sourceId))throw new Error('invalid same-PA Source identity');
+    return run(false,proof=>proof(()=>readHistoricalSamePlateAppearanceEnrollment(db,sourceId)));
+  },accept(sourceId:string){
     check();if(!samePaId(sourceId))throw new Error('invalid same-PA Source identity');
     const raw=authority?.readAcceptedEnrollment(sourceId)??null,source=raw===null?null:samePlateAppearanceEnrollmentInput(raw,sourceId);
     const prior=read(sourceId);
