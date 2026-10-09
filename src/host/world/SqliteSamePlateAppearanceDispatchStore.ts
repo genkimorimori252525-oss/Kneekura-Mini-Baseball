@@ -3,8 +3,8 @@ import { randomUUID } from 'node:crypto';
 import { actorHash as hash, actorJson as json, actorFreeze as freeze, readPhysicalPlateAppearanceActorFromSqlite, type DurablePhysicalPlateAppearanceActor } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { paDispatchSchema, assertPaDispatchStorage } from './SamePlateAppearanceDispatchStorage';
-import { samePaDispatchSourceInput, assertSamePaDispatchSourceBasis, type SamePaDispatchBase, type AcceptedSamePaExecutionCalibration } from './SamePlateAppearanceDispatchSource';
-import { deriveSamePaDispatchRoles, samePaDispatchPrerequisites, type SamePaDispatchRoleBinding } from './SamePlateAppearanceDispatchRoles';
+import { samePaDispatchSourceInput, assertSamePaDispatchSourceBasis, type SamePaDispatchBase, type AcceptedSamePaFirstPitchAction, type AcceptedSamePaExecutionCalibration } from './SamePlateAppearanceDispatchSource';
+import { deriveSamePaDispatchRoles, samePaDispatchPrerequisites, type SamePaDispatchRoleBinding, type SamePaDispatchRoute } from './SamePlateAppearanceDispatchRoles';
 import { dispatchRow, dispatchTables, dispatchCapabilities, type DispatchKind, type SamePaDispatchRecord, type SamePaPreparedAction,
   type SamePaPreparedCalibration, type SamePaDispatchPending, type SamePaCalibrationSet, type SamePaPreparedConsumers,
   type SamePaPreparedEpisode, type SamePaPreparedRight } from './SamePlateAppearanceDispatchRecords';
@@ -12,7 +12,7 @@ import { proveSamePaExecution, samePaExecutionReference as reference } from './S
 import { readHistoricalSamePaExecutionView } from './SamePlateAppearanceHistoricalExecutionEvidenceFromSqlite';
 import { assertFreshPaDispatchEnrollment } from './SamePlateAppearanceDispatchClaimGuard';
 import { samePaMetadataClaim as claim } from './SamePlateAppearanceReservationGuard';
-import { samePaText, type SamePaReference } from './SamePlateAppearanceWorkPrefix';
+import { samePaText, samePaFields, samePaReferenceValid, type SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import type { SamePaExecutionView } from './SamePlateAppearanceExecutionView';
 import { nominalTable } from './DispatchNominalSqliteOwnership';
 import { readPlayerPitchTimingPrefixFromSqlite, selectPlayerPitchTimingProfileFromSqlitePrefix, assertCurrentPlayerPitchTimingPrefixFromSqlite } from './SqlitePlayerPitchTimingStore';
@@ -24,6 +24,21 @@ import { playerDecisionModelEvidenceFromSqlite } from './SqlitePlayerDecisionMod
 import { playerLocomotionModelEvidenceFromSqlite } from './SqlitePlayerLocomotionModelStore';
 import { playerPersonLinkEvidenceFromSqlite } from './SqlitePlayerPersonLinkStore';
 import { resolvePitcherReleasePosition } from '../../core/sim/pitch/PitcherReleaseGeometry';
+import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
+import { SeedRoot } from '../../core/rng/SeedRoot';
+import { applyPitchFatigueToExecution } from '../../core/sim/pitch/PitchFatigueExecution';
+import { resolveCanonicalPitchDelivery } from '../../core/sim/pitch/CanonicalPitchDelivery';
+import { createPitchTrajectoryFromRelease } from '../../core/sim/pitch/CanonicalPitchRelease';
+import { createCanonicalPlateAppearanceTimeline } from '../../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
+import { resolveAndRecordPitchAgainstBatter } from '../../core/sim/pitching/PitchAgainstBatter';
+import { calculateSamePaOriginalConsumerFromSqlite, readSamePaOriginalConsumerIdentityFromSqlite } from './SamePlateAppearanceOriginalConsumerCalculation';
+// Invocation inputs are separate from the prepared all-ten model/calibration set.
+// These operations and their calculations never leave the private owner API.
+type NativeOperation = Readonly<{ calibrationReference: SamePaReference<'pa_dispatch_v1_execution_calibrations'> }> & (
+  | Readonly<{ route: 'pitch_delivery'; actionReference: SamePaReference<'pa_dispatch_v1_action_plans'> }>
+  | Readonly<{ route: 'defender_observation'; originalReference: SamePaReference<'actual_field_observations'> }>
+  | Readonly<{ route: 'defender_decision'; originalReference: SamePaReference<'actual_defensive_decisions'> }>
+  | Readonly<{ route: 'defender_locomotion'; originalReference: SamePaReference<'actual_locomotion_receipts'> }>);
 type Authority = Readonly<{ readAcceptedAction?(id: string): unknown; readAcceptedCalibration?(id: string): unknown;
   readAcceptedConsumerSet?(id: string): unknown; readAcceptedEpisode?(id: string): unknown; readAcceptedRight?(id: string): unknown }>;
 const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw new Error('same-PA dispatch frozen dependency or write accounting differs'); };
@@ -86,7 +101,8 @@ export const openSqliteSamePlateAppearanceDispatchStore = (path: string, authori
   // Every assembly is lexical to one read-only proof. No memo survives a DDL,
   // DML, transaction boundary, committed proof, or subsequent owner operation.
   const assemble = <T>(fresh: boolean, body: (read: (kind: DispatchKind, id: string) => SamePaDispatchRecord | null,
-    derive: (kind: DispatchKind, source: Source) => SamePaDispatchRecord | SamePaDispatchPending, roles: (source: Source) => readonly SamePaDispatchRoleBinding[]) => T): T => {
+    derive: (kind: DispatchKind, source: Source) => SamePaDispatchRecord | SamePaDispatchPending, roles: (source: Source) => readonly SamePaDispatchRoleBinding[],
+    calculate: (operation: NativeOperation) => unknown) => T): T => {
     if (!db.isTransaction || setting() !== 1) throw new Error('dispatch assembly requires a private read-only snapshot');
     type Basis = { actor: DurablePhysicalPlateAppearanceActor; view: SamePaExecutionView; sourceBasis: Pick<SamePaDispatchBase, 'enrollmentReference' | 'viewReference' | 'firstPhysicalPitchSourceId'> & { gameDay: number }; roles: readonly SamePaDispatchRoleBinding[] };
     const before = counters(), bases = new Map<string, Basis>(), values = new Map<string, SamePaDispatchRecord>();
@@ -139,63 +155,111 @@ export const openSqliteSamePlateAppearanceDispatchStore = (path: string, authori
       const value = read(kind, ref.sourceId); if (!value) return null; same(reference(dispatchTables[kind], value), ref);
       assertSamePaDispatchSourceBasis(value.source, basis(source).sourceBasis); return value;
     };
-    const derive = (kind: DispatchKind, source: Source): SamePaDispatchRecord | SamePaDispatchPending => {
-      assertActive(); canonical(kind, source); const b = basis(source), lineage = b.view.lineage, roles = b.roles;
-      if (source.capability === 'same_pa_first_pitch_action_v1') {
-        const pitcher = roles.find(r => r.role === 'P')!;
-        if (source.pitcherPlayerId !== pitcher.member.playerId || source.batterPlayerId !== b.actor.binding.playerId
-          || source.nominalPitch.delivery.readyAtUs < b.actor.world.tick) throw new Error('same-PA dispatch action original actors or chronology differ');
-        const timing = readPlayerPitchTimingPrefixFromSqlite(db, source.timingReference), release = readPlayerReleaseGeometryPrefixFromSqlite(db, source.releaseReference), policy = readPitchFatiguePolicyFromSqlite(db, source.pitchResponseReference);
-        pitcherPerson('world_pitch_timing_baselines', source, pitcher.member.playerId); pitcherPerson('world_player_release_baselines', source, pitcher.member.playerId);
-        if ([timing, release].some(v => v.careerId !== lineage.careerId || v.playerId !== pitcher.member.playerId) || policy.availableAtDay > b.actor.binding.gameDay) throw new Error('same-PA dispatch delivery original Player or day differs');
-        const timingProfile = selectPlayerPitchTimingProfileFromSqlitePrefix(db, source.timingReference, b.actor.binding.gameDay);
-        if (fresh) { assertCurrentPlayerPitchTimingPrefixFromSqlite(db, source.timingReference, b.actor.binding.gameDay); assertCurrentPlayerReleaseGeometryPrefixFromSqlite(db, source.releaseReference, b.actor.binding.gameDay); }
-        const geometry = release.changes.filter(c => c.effectiveDay <= b.actor.binding.gameDay).at(-1) ?? release.baseline;
-        if (geometry.effectiveDay > b.actor.binding.gameDay) throw new Error('same-PA dispatch release geometry is future');
-        resolvePitcherReleasePosition({ ...geometry.body, moundReference: source.nominalPitch.delivery.moundReference }, geometry.profile);
-        const model = batting(source.batterModelReference, source);
-        if (model.equipment.values.ball.radiusM !== source.nominalPitch.batter.ballRadiusMeters
-          || model.observationCalibration.values.calibration.memoryDecayParameters.ticksPerSecond !== 1_000_000
-          || model.predictionCalibration.values.parameters.ticksPerSecond !== 1_000_000) throw new Error('same-PA dispatch TAKE equipment or actor clock differs');
-        return freeze({ kind: 'action_prepared', source, lineage, roles, timingProfileHash: hash(timingProfile), releaseGeometryHash: hash(geometry),
-          bodyMaterializationHash: hash(model.bodyMaterialization), equipmentHash: hash(model.equipment) });
-      }
-      if (source.capability === 'same_pa_execution_calibration_v1') {
-        const role = roles.find(r => r.member.playerId === source.member.playerId);
-        if (!role || !role.routes.includes(source.route)) throw new Error('same-PA dispatch calibration original role differs'); same(source.member, role.member);
-        const player = [b.actor.binding, ...b.actor.defenderBindings].find(p => p.playerId === source.member.playerId)!;
-        const person = [b.actor.person, ...b.actor.defenderPersons].find(p => p.playerId === source.member.playerId)!;
-        let nominal: unknown;
-        if (source.route === 'pitch_delivery') {
-          const timing = readPlayerPitchTimingPrefixFromSqlite(db, source.nominalReference), policy = readPitchFatiguePolicyFromSqlite(db, source.response.policyReference);
-          pitcherPerson('world_pitch_timing_baselines', source, source.member.playerId);
-          if (timing.careerId !== player.careerId || timing.playerId !== player.playerId || policy.availableAtDay > player.gameDay) throw new Error('dispatch calibration pitcher scope differs');
-          selectPlayerPitchTimingProfileFromSqlitePrefix(db, source.nominalReference, player.gameDay);
-          if (fresh) assertCurrentPlayerPitchTimingPrefixFromSqlite(db, source.nominalReference, player.gameDay); nominal = timing;
-          const actionRow = assertPaDispatchStorage(db) ? db.prepare('SELECT source_id FROM main.pa_dispatch_v1_action_plans WHERE enrollment_source_id=? AND first_pitch_source_id=?').get(source.enrollmentReference.sourceId, source.firstPhysicalPitchSourceId) : null;
-          if (!actionRow) return pending([], [{ playerId: source.member.playerId, route: 'pitch_delivery', reason: 'missing_action_plan' }]);
-          const action = read('action', String(actionRow.source_id)) as SamePaPreparedAction;
-          same(action.source.timingReference, source.nominalReference); same(action.source.pitchResponseReference, source.response.policyReference);
-        } else if (source.nominalParameterReference) {
-          const model = batting(source.nominalReference as SamePaReference<'world_player_batting_models'>, source), pin = source.nominalParameterReference;
-          const parameter = model[pin.parameterKey];
-          same({ parameterKey: pin.parameterKey, sourceId: parameter.sourceId, sourceVersion: parameter.sourceVersion, sourceHash: hash(parameter) }, pin); nominal = parameter;
-        } else {
-          const ref = source.nominalReference; nominalTable(db, ref.owner);
-          const owner = source.route === 'defender_observation' ? playerObservationModelEvidenceFromSqlite(db)
-            : source.route === 'defender_decision' ? playerDecisionModelEvidenceFromSqlite(db) : playerLocomotionModelEvidenceFromSqlite(db);
-          const model = owner.read(ref.sourceId); if (!model) throw new Error('dispatch calibration original nominal model missing'); same(reference(ref.owner, model), ref);
-          if (model.source.careerId !== player.careerId || model.source.playerId !== player.playerId || model.source.personLinkSourceId !== player.personLinkSourceId
-            || model.source.acceptedAtDay > player.gameDay) throw new Error('dispatch calibration nominal Player or day differs');
-          same(model.fieldingModel.person, person); if (fresh) same(owner.selectAtDay(player.careerId, player.playerId, player.gameDay), model); nominal = model;
-        }
+    const authenticateActionInputs = (source: AcceptedSamePaFirstPitchAction) => {
+      assertActive(); const b = basis(source), lineage = b.view.lineage, roles = b.roles;
+      const pitcher = roles.find(r => r.role === 'P')!;
+      if (source.pitcherPlayerId !== pitcher.member.playerId || source.batterPlayerId !== b.actor.binding.playerId
+        || source.nominalPitch.delivery.readyAtUs < b.actor.world.tick) throw new Error('same-PA dispatch action original actors or chronology differ');
+      const timing = readPlayerPitchTimingPrefixFromSqlite(db, source.timingReference), release = readPlayerReleaseGeometryPrefixFromSqlite(db, source.releaseReference), policy = readPitchFatiguePolicyFromSqlite(db, source.pitchResponseReference);
+      pitcherPerson('world_pitch_timing_baselines', source, pitcher.member.playerId); pitcherPerson('world_player_release_baselines', source, pitcher.member.playerId);
+      if ([timing, release].some(v => v.careerId !== lineage.careerId || v.playerId !== pitcher.member.playerId) || policy.availableAtDay > b.actor.binding.gameDay) throw new Error('same-PA dispatch delivery original Player or day differs');
+      const timingProfile = selectPlayerPitchTimingProfileFromSqlitePrefix(db, source.timingReference, b.actor.binding.gameDay);
+      if (fresh) { assertCurrentPlayerPitchTimingPrefixFromSqlite(db, source.timingReference, b.actor.binding.gameDay); assertCurrentPlayerReleaseGeometryPrefixFromSqlite(db, source.releaseReference, b.actor.binding.gameDay); }
+      const geometry = release.changes.filter(c => c.effectiveDay <= b.actor.binding.gameDay).at(-1) ?? release.baseline;
+      if (geometry.effectiveDay > b.actor.binding.gameDay) throw new Error('same-PA dispatch release geometry is future');
+      resolvePitcherReleasePosition({ ...geometry.body, moundReference: source.nominalPitch.delivery.moundReference }, geometry.profile);
+      const model = batting(source.batterModelReference, source);
+      if (model.equipment.values.ball.radiusM !== source.nominalPitch.batter.ballRadiusMeters
+        || model.observationCalibration.values.calibration.memoryDecayParameters.ticksPerSecond !== 1_000_000
+        || model.predictionCalibration.values.parameters.ticksPerSecond !== 1_000_000) throw new Error('same-PA dispatch TAKE equipment or actor clock differs');
+      assertActive();
+      return { source, basis: b, pitcher, timing, timingProfile, release, geometry, policy, model };
+    };
+    // Keep actual typed owner values separate from their stable record projection.
+    // These values never leave this assembly or become a caller-owned proof.
+    const authenticateCalibrationInputs = (source: AcceptedSamePaExecutionCalibration) => {
+      assertActive(); const b = basis(source), role = b.roles.find(r => r.member.playerId === source.member.playerId);
+      if (!role || !role.routes.includes(source.route)) throw new Error('same-PA dispatch calibration original role differs'); same(source.member, role.member);
+      const player = [b.actor.binding, ...b.actor.defenderBindings].find(p => p.playerId === source.member.playerId)!;
+      const person = [b.actor.person, ...b.actor.defenderPersons].find(p => p.playerId === source.member.playerId)!;
+      const participant = b.view.participants.find(p => p.playerId === source.member.playerId)!;
+      const common = { basis: b, role, player, person, member: role.member,
+        reservedState: participant.reservedState, projectedState: participant.projectedState };
+      const authenticated = <T extends { route: SamePaDispatchRoute; nominal: unknown }>(input: T) => {
         for (const table of ['pa_dispatch_v1_execution_calibrations', 'reserved_pa_total_assessments', 'actual_role_workload_assessments']) {
           if (!db.prepare('SELECT 1 FROM main.sqlite_master WHERE name=?').get(table)) continue;
           const rows = db.prepare(`SELECT source_id FROM main.${table} WHERE source_id=$id OR ${claim('source_json', ['sourceId'], '$id')}
             OR ${claim('source_json', ['provenance', 'assessmentSourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'provenance', 'assessmentSourceId'], '$id')}`).all({ id: source.provenance.assessmentSourceId });
           if (rows.some(row => table !== dispatchTables.calibration || row.source_id !== source.sourceId)) throw new Error('dispatch calibration assessment provenance ownership differs');
         }
-        return freeze({ kind: 'execution_calibration_prepared', source, lineage, role: role.role, nominalInputHash: hash(nominal), effectiveResponseHash: hash(source.response) });
+        assertActive(); return { kind: 'authenticated_calibration' as const, ...common, ...input };
+      };
+      if (source.route === 'pitch_delivery') {
+        const timing = readPlayerPitchTimingPrefixFromSqlite(db, source.nominalReference), policy = readPitchFatiguePolicyFromSqlite(db, source.response.policyReference);
+        pitcherPerson('world_pitch_timing_baselines', source, source.member.playerId);
+        if (timing.careerId !== player.careerId || timing.playerId !== player.playerId || policy.availableAtDay > player.gameDay) throw new Error('dispatch calibration pitcher scope differs');
+        const timingProfile = selectPlayerPitchTimingProfileFromSqlitePrefix(db, source.nominalReference, player.gameDay);
+        if (fresh) assertCurrentPlayerPitchTimingPrefixFromSqlite(db, source.nominalReference, player.gameDay);
+        const actionRow = assertPaDispatchStorage(db) ? db.prepare('SELECT source_id FROM main.pa_dispatch_v1_action_plans WHERE enrollment_source_id=? AND first_pitch_source_id=?').get(source.enrollmentReference.sourceId, source.firstPhysicalPitchSourceId) : null;
+        if (!actionRow) return pending([], [{ playerId: source.member.playerId, route: 'pitch_delivery', reason: 'missing_action_plan' }]);
+        const action = read('action', String(actionRow.source_id)) as SamePaPreparedAction;
+        same(action.source.timingReference, source.nominalReference); same(action.source.pitchResponseReference, source.response.policyReference);
+        return authenticated({ route: source.route, source, nominal: timing, timingProfile, effective: policy });
+      }
+      if (source.nominalParameterReference) {
+        const model = batting(source.nominalReference, source), pin = source.nominalParameterReference, parameter = model[pin.parameterKey];
+        same({ parameterKey: pin.parameterKey, sourceId: parameter.sourceId, sourceVersion: parameter.sourceVersion, sourceHash: hash(parameter) }, pin);
+        switch (source.route) {
+          case 'batter_observation': return authenticated({ route: source.route, source, model, nominal: model.observationCalibration, effective: source.response.values });
+          case 'batter_decision': return authenticated({ route: source.route, source, model, nominal: model.decisionModel, effective: source.response.values });
+          case 'batter_motor': return authenticated({ route: source.route, source, model, nominal: model.capability, effective: source.response.values });
+          case 'batter_swing': return authenticated({ route: source.route, source, model, nominal: model.repertoire, effective: source.response.values });
+        }
+      }
+      const ref = source.nominalReference; nominalTable(db, ref.owner);
+      const original = <M extends NonNullable<ReturnType<ReturnType<typeof playerObservationModelEvidenceFromSqlite>['read']>>
+        | NonNullable<ReturnType<ReturnType<typeof playerDecisionModelEvidenceFromSqlite>['read']>>
+        | NonNullable<ReturnType<ReturnType<typeof playerLocomotionModelEvidenceFromSqlite>['read']>>>(owner: {
+          read(id: string): M | null; selectAtDay(career: string, player: string, day: number): M;
+        }): M => {
+        const model = owner.read(ref.sourceId); if (!model) throw new Error('dispatch calibration original nominal model missing'); same(reference(ref.owner, model), ref);
+        if (model.source.careerId !== player.careerId || model.source.playerId !== player.playerId || model.source.personLinkSourceId !== player.personLinkSourceId
+          || model.source.acceptedAtDay > player.gameDay) throw new Error('dispatch calibration nominal Player or day differs');
+        same(model.fieldingModel.person, person); if (fresh) same(owner.selectAtDay(player.careerId, player.playerId, player.gameDay), model); return model;
+      };
+      switch (source.route) {
+        case 'defender_observation': return authenticated({ route: source.route, source, nominal: original(playerObservationModelEvidenceFromSqlite(db)), effective: source.response.values });
+        case 'defender_decision': return authenticated({ route: source.route, source, nominal: original(playerDecisionModelEvidenceFromSqlite(db)), effective: source.response.values });
+        case 'defender_locomotion': return authenticated({ route: source.route, source, nominal: original(playerLocomotionModelEvidenceFromSqlite(db)), effective: source.response.values });
+      }
+      throw new Error('dispatch calibration route differs');
+    };
+    const calibrationRecord = (input: Exclude<ReturnType<typeof authenticateCalibrationInputs>, SamePaDispatchPending>): SamePaPreparedCalibration =>
+      freeze({ kind: 'execution_calibration_prepared', source: input.source, lineage: input.basis.view.lineage, role: input.role.role,
+        nominalInputHash: hash(input.nominal), effectiveResponseHash: hash(input.source.response) });
+    // Deriving a prospective calibration is never evidence that its accepted row
+    // exists. Actual use independently authenticates the entire stored row here.
+    const acceptedCalibrationInputs = (ref: SamePaReference<'pa_dispatch_v1_execution_calibrations'>) => {
+      assertActive();
+      if (!samePaReferenceValid(ref, 'pa_dispatch_v1_execution_calibrations')) throw new Error('invalid Native calibration reference');
+      const row = identityRow('calibration', ref.sourceId); if (!row) throw new Error('Native invocation requires an accepted calibration row');
+      const source = parsed('calibration', JSON.parse(String(row.source_json)), ref.sourceId);
+      if (source.capability !== 'same_pa_execution_calibration_v1') throw new Error('Native calibration owner differs');
+      canonical('calibration', source);
+      const input = authenticateCalibrationInputs(source); if (input.kind === 'pending') throw new Error('Native accepted calibration is incomplete');
+      const record = calibrationRecord(input); same(row, dispatchRow(record)); same(reference('pa_dispatch_v1_execution_calibrations', record), ref);
+      assertActive(); return input;
+    };
+    const derive = (kind: DispatchKind, source: Source): SamePaDispatchRecord | SamePaDispatchPending => {
+      assertActive(); canonical(kind, source); const b = basis(source), lineage = b.view.lineage, roles = b.roles;
+      if (source.capability === 'same_pa_first_pitch_action_v1') {
+        const input = authenticateActionInputs(source);
+        return freeze({ kind: 'action_prepared', source, lineage, roles, timingProfileHash: hash(input.timingProfile), releaseGeometryHash: hash(input.geometry),
+          bodyMaterializationHash: hash(input.model.bodyMaterialization), equipmentHash: hash(input.model.equipment) });
+      }
+      if (source.capability === 'same_pa_execution_calibration_v1') {
+        const input = authenticateCalibrationInputs(source); if (input.kind === 'pending') return input;
+        return calibrationRecord(input);
       }
       const missing: string[] = [], prerequisites: SamePaDispatchPending['prerequisites'][number][] = [];
       if (!linked('action', source.actionReference, source)) missing.push(source.actionReference.sourceId);
@@ -226,7 +290,72 @@ export const openSqliteSamePlateAppearanceDispatchStore = (path: string, authori
       const source = parsed(kind, JSON.parse(String(row.source_json)), id), value = derive(kind, source);
       if (value.kind === 'pending') throw new Error('same-PA dispatch saved prerequisite is unsupported or incomplete'); same(row, dispatchRow(value)); values.set(key, value); return value;
     };
-    try { const value = body(read, derive, source => basis(source).roles); assertActive(); return value; } finally { bases.clear(); values.clear(); }
+    // Calculation composition only; no existing preparation operation calls this
+    // path. A future owned append must first close its all-adapter/current-cut and
+    // atomic replay gates. There is no public entry point or support promotion.
+    const calculateNative = (rawOperation: NativeOperation) => {
+      assertActive(); const operation = cloneInert(rawOperation);
+      if (!samePaFields(operation, ['route', 'calibrationReference', operation?.route === 'pitch_delivery' ? 'actionReference' : 'originalReference'])) {
+        throw new Error('invalid Native consumer operation fields');
+      }
+      const input = acceptedCalibrationInputs(operation.calibrationReference);
+      if (input.route !== operation.route) throw new Error('Native consumer calibration route differs');
+      if (operation.route === 'pitch_delivery' && input.route === 'pitch_delivery') {
+        if (!samePaReferenceValid(operation.actionReference, 'pa_dispatch_v1_action_plans')) throw new Error('invalid Native action reference');
+        const action = read('action', operation.actionReference.sourceId);
+        if (!action || action.kind !== 'action_prepared') throw new Error('Native pitch action missing');
+        same(reference('pa_dispatch_v1_action_plans', action), operation.actionReference);
+        const original = authenticateActionInputs(action.source), actor = original.basis.actor, source = original.source;
+        assertSamePaDispatchSourceBasis(source, input.basis.sourceBasis); same(source.timingReference, input.source.nominalReference);
+        same(source.pitchResponseReference, input.source.response.policyReference); same(original.policy, input.effective);
+        same(original.pitcher.member, input.member); same(original.timing, input.nominal); same(original.timingProfile, input.timingProfile);
+        const { sourceId: _sourceId, sourceVersion: _sourceVersion, ...response } = input.effective;
+        const effective = applyPitchFatigueToExecution(original.timingProfile, source.nominalPitch.delivery.physics,
+          input.projectedState.fatigue, response, input.player.gameDay);
+        const timeline = createCanonicalPlateAppearanceTimeline(actor.match, actor.world.tick), nominal = source.nominalPitch;
+        const delivery = resolveCanonicalPitchDelivery({ root: new SeedRoot(nominal.delivery.matchSeed), outingId: nominal.delivery.outingId,
+          playId: actor.match.playId, pitchIndex: 0, readyAtUs: nominal.delivery.readyAtUs, timingIntent: nominal.delivery.timingIntent,
+          timingProfile: effective.timingProfile, body: { ...original.geometry.body, moundReference: nominal.delivery.moundReference },
+          releaseProfile: original.geometry.profile, physics: effective.physics });
+        const trajectory = createPitchTrajectoryFromRelease(delivery.release, nominal.flight.acceleration, delivery.release.releaseAtUs + nominal.flight.durationUs);
+        const resolution = resolveAndRecordPitchAgainstBatter(timeline, { ...nominal.batter, trajectory });
+        if (resolution.kind !== 'recorded') throw new Error('Native same-PA TAKE calculation is unresolved');
+        assertActive();
+        return freeze({ kind: 'native_calculation_only' as const, route: operation.route, operation,
+          frame: { kind: 'reserved_same_pa_pitch_frame_v1' as const, actorReference: input.basis.view.lineage.actorReference,
+            viewReference: input.source.viewReference, member: input.member, binding: input.player, person: input.person,
+            reservedActualState: input.reservedState, projectedExecutionState: input.projectedState,
+            nominalTiming: original.timingProfile, nominalRelease: original.geometry, nominalBattingModel: original.model,
+            acceptedPitchResponse: input.effective }, beforeTimeline: timeline, calculation: { delivery, trajectory, resolution } });
+      }
+      // The only presently implemented view covers the pre-pitch empty prefix.
+      // A later original field operation cannot turn that cut into fresh coverage.
+      // Historical reconstruction below is not permission to execute it now.
+      if (fresh) throw new Error('Native defender invocation requires supported nonempty current-view coverage');
+      if (operation.route === 'pitch_delivery') throw new Error('Native pitcher calibration route differs');
+      const originalIdentity = readSamePaOriginalConsumerIdentityFromSqlite(db, operation.route === 'defender_observation'
+        ? { route: operation.route, originalReference: operation.originalReference }
+        : operation.route === 'defender_decision' ? { route: operation.route, originalReference: operation.originalReference }
+          : { route: operation.route, originalReference: operation.originalReference });
+      if (originalIdentity.original.source.playerId !== input.member.playerId
+        || originalIdentity.original.source.physicalPitchSourceId !== input.source.firstPhysicalPitchSourceId) throw new Error('Native original operation member or pitch differs');
+      same(originalIdentity.nominal, input.nominal); assertActive();
+      const result = operation.route === 'defender_observation' && input.route === 'defender_observation'
+        ? calculateSamePaOriginalConsumerFromSqlite(db, { route: operation.route, originalReference: operation.originalReference, effectiveCalibration: input.effective })
+        : operation.route === 'defender_decision' && input.route === 'defender_decision'
+          ? calculateSamePaOriginalConsumerFromSqlite(db, { route: operation.route, originalReference: operation.originalReference, effectiveCalibration: input.effective })
+          : operation.route === 'defender_locomotion' && input.route === 'defender_locomotion'
+            ? calculateSamePaOriginalConsumerFromSqlite(db, { route: operation.route, originalReference: operation.originalReference, effectiveCalibration: input.effective })
+            : null;
+      if (!result) throw new Error('unsupported Native consumer operation');
+      if (result.original.source.playerId !== input.member.playerId
+        || result.original.source.physicalPitchSourceId !== input.source.firstPhysicalPitchSourceId) throw new Error('Native original operation member or pitch differs');
+      same(result.original, originalIdentity.original); same(result.nominal, input.nominal); assertActive();
+      return freeze({ kind: 'historical_original_calculation_only' as const, route: result.route, operation,
+        viewReference: input.source.viewReference, member: input.member, reservedActualState: input.reservedState,
+        projectedExecutionState: input.projectedState, original: result.original, nominal: result.nominal, calculation: result.calculation });
+    };
+    try { const value = body(read, derive, source => basis(source).roles, calculateNative); assertActive(); return value; } finally { bases.clear(); values.clear(); }
   };
   const read = (kind: DispatchKind, id: string) => { check(); if (!samePaText(id)) throw new Error('invalid dispatch Source identity');
     return run(false, proof => proof(() => assemble(false, read => read(kind, id)))); };
