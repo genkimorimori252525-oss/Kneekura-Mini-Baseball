@@ -1,3 +1,4 @@
+import { sqliteMetadataAll } from './SqliteMetadataStatementScope';
 import { samePaPlayerClaimCanProceed } from './SamePlateAppearanceSettlementAdmission';
 import { createRequire } from 'node:module';
 import { memoSamePaContinuationRead } from './SamePlateAppearanceContinuationFromSqlite';
@@ -17,12 +18,12 @@ const capabilities = ['same_pa_first_pitch_action_v1', 'same_pa_execution_calibr
 function fail(): never { throw new Error('same-PA dispatch claim original ownership is missing, malformed or blocks fresh work'); }
 const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) fail(); };
 const rawIds = (db: Db, row: Row, column: string, path: Parameters<typeof nodes>[1]): string[] =>
-  db.prepare(`SELECT atom FROM (${nodes('$document', path)}) WHERE type='text'`).all({ document: String(row[column]) }).map(r => String(r.atom));
+  sqliteMetadataAll(db, `SELECT atom FROM (${nodes('$document', path)}) WHERE type='text'`, String(row[column])).map(r => String(r.atom));
 const futureReferences = (db: Db, row: Row) => ['source_json', 'snapshot_json'].filter(column => column in row).flatMap(column =>
-  db.prepare(`SELECT owner.atom AS owner,identity.atom AS sourceId FROM json_tree(CASE WHEN json_valid($document) THEN $document ELSE 'null' END) container,
+  sqliteMetadataAll(db, `SELECT owner.atom AS owner,identity.atom AS sourceId FROM json_tree(CASE WHEN json_valid($document) THEN $document ELSE 'null' END) container,
     json_each(CASE WHEN container.type='object' THEN container.value ELSE '{}' END) owner,
     json_each(CASE WHEN container.type='object' THEN container.value ELSE '{}' END) identity
-    WHERE owner.key='owner' AND owner.type='text' AND identity.key='sourceId' AND identity.type='text'`).all({ document: String(row[column]) })
+    WHERE owner.key='owner' AND owner.type='text' AND identity.key='sourceId' AND identity.type='text'`, String(row[column]))
     .map(ref => ({ owner: String(ref.owner), sourceId: String(ref.sourceId) })));
 
 /** Metadata-only future discovery. Physical payloads are never hydrated here.

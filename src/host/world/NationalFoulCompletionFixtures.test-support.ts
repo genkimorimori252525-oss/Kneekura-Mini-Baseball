@@ -1,3 +1,4 @@
+import { nationalFoulTotalEffortUnits } from './NationalBattedFixtureDeclaration.test-support';
 import assert from 'node:assert/strict';
 import type { nationalBattedFieldFixture } from './NationalBattedFieldFixtures.test-support';
 import { attachOriginalSettledFoulRuntime } from './ActualSettledFoulStopFixtures.test-support';
@@ -53,7 +54,7 @@ export const completeNationalFoulFixture = (root: ReturnType<typeof nationalBatt
   const context = foulTerminalRoleWorkloadContextFromSqlite(f.db, terminal.terminalSource.sourceId);
   // Exact existing W02 explicit TOTAL fixture vector. These are accepted test
   // observations, never a generated production effort model or a prefix charge.
-  const efforts = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
+  const efforts = nationalFoulTotalEffortUnits;
   const assessments = new Map<string, AcceptedFoulTerminalRoleWorkloadAssessment>();
   for (const [i, actor] of context.actors.entries()) {
     const b = actor.binding;

@@ -25,6 +25,7 @@ export type AcceptedActualPostPlayReviewSession = Readonly<{
   baseAppealMode?: 'original_catch_end_v1';
 }>;
 export type ActualPostPlayReviewEventAction =
+  | Readonly<{ kind: 'admit_live_appeal_rights'; executionReference: SamePaReference<'pa_physical_v1_field_steps'> }>
   | Readonly<{ kind: 'import_live_appeal'; executionReference: SamePaReference<'pa_physical_v1_field_steps'> }>
   | Readonly<{ kind: 'defender_base_appeal'; defenderId: string; runnerId: string; base: 'first' | 'second' | 'third' }>
   | Readonly<{ kind: 'defender_runner_body_appeal'; defenderId: string; runnerId: string; base: 'first' | 'second' | 'third' }>
@@ -103,7 +104,7 @@ export const actualPostPlayReviewEventInput = (raw: unknown, sourceId: string): 
     throw new Error('invalid accepted post-play review event Source or parent revision');
   }
   const a = s.action;
-  if (a?.kind === 'import_live_appeal') {
+  if (a?.kind === 'import_live_appeal' || a?.kind === 'admit_live_appeal_rights') {
     if (!fields(a, ['kind', 'executionReference']) || !samePaReferenceValid(a.executionReference, 'pa_physical_v1_field_steps'))
       throw new Error('invalid original live appeal execution reference');
   } else if (a?.kind === 'defender_base_appeal' || a?.kind === 'defender_runner_body_appeal') {

@@ -1,3 +1,4 @@
+import { capturePostPlayLiveAppealRights, type PostPlayLiveAppealRightsAdmission } from './ActualPostPlayLiveAppealRightsFromSqlite';
 import { deriveSamePaCatchReviewNativeSeed } from './SamePlateAppearanceCatchReviewFromSqlite';
 import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { capturePostPlayBaseAppeal, type PostPlayBaseAppealAdmission } from './ActualPostPlayBaseAppealFromSqlite';
@@ -14,7 +15,7 @@ import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './P
 
 export type NativePostPlaySessionArchive = ReturnType<typeof derivePostPlayReviewSession>;
 export type NativePostPlayEventReceipt = Readonly<{ source: AcceptedActualPostPlayReviewEvent;
-  value: ActualPostPlayReviewProjection; admissionEvidence: PostPlayReviewAdmission | PostPlayBaseAppealAdmission | PostPlayLiveAppealAdmission }>;
+  value: ActualPostPlayReviewProjection; admissionEvidence: PostPlayReviewAdmission | PostPlayBaseAppealAdmission | PostPlayLiveAppealAdmission | PostPlayLiveAppealRightsAdmission }>;
 export const actualPostPlayReviewEvidenceFromSqlite = (db: PostPlayReviewDb) => {
   // All evidence operations share the existing Native proof bracket, including
   // when called inside the journal's writable transaction. It restores the
@@ -39,26 +40,30 @@ export const actualPostPlayReviewEvidenceFromSqlite = (db: PostPlayReviewDb) => 
     const source = actualPostPlayReviewEventInput(JSON.parse(String(row.source_json)), sourceId);
     const parsedIntent = row.intent_json === null ? null : JSON.parse(String(row.intent_json));
     const intent = parsedIntent === null ? null : actualPostPlayReviewIntentInput(parsedIntent, parsedIntent.sourceId);
-    const admission = JSON.parse(String(row.admission_json)) as PostPlayReviewAdmission | PostPlayBaseAppealAdmission | PostPlayLiveAppealAdmission;
+    const admission = JSON.parse(String(row.admission_json)) as PostPlayReviewAdmission | PostPlayBaseAppealAdmission | PostPlayLiveAppealAdmission | PostPlayLiveAppealRightsAdmission;
     if (row.session_source_id !== root.value.source.sourceId || !postPlayRevision(row.revision) || row.revision !== previous.revision + 1
       || row.parent_source_id !== source.parent.sourceId || row.parent_snapshot_hash !== source.parent.snapshotHash
       || row.source_json !== json(source) || row.source_hash !== hash(source)
       || row.intent_json !== (intent === null ? null : json(intent)) || row.admission_json !== json(admission)) {
       throw new Error('Native review event archive or parent revision differs');
     }
-    if (source.action.kind === 'import_live_appeal') {
+    if (source.action.kind === 'admit_live_appeal_rights') {
+      const actual = capturePostPlayLiveAppealRights(db,root.scope,previous,source,false);
+      if (intent !== null || actual.kind !== 'admitted' || json(actual.evidence) !== json(admission)) throw new Error('original live appeal rights archive differs');
+    } else if (source.action.kind === 'import_live_appeal') {
       const actual = capturePostPlayLiveAppeal(db, root.scope, previous, source, false);
       if (intent !== null || actual.kind !== 'admitted' || json(actual.evidence) !== json(admission)) throw new Error('original live appeal import archive differs');
     } else if (source.action.kind === 'defender_base_appeal' || source.action.kind === 'defender_runner_body_appeal') {
       const actual = capturePostPlayBaseAppeal(db, root.scope, previous, source, false);
       if (intent !== null || actual.kind !== 'admitted' || json(actual.evidence) !== json(admission)) throw new Error('original base appeal execution archive differs');
     } else {
-      if (admission.kind === 'base_appeal' || admission.kind === 'live_appeal_import') throw new Error('unexpected physical appeal admission');
+      if (admission.kind === 'base_appeal' || admission.kind === 'live_appeal_import' || admission.kind === 'live_appeal_rights') throw new Error('unexpected physical appeal admission');
       replayPostPlayReviewAdmission(root.scope, previous, source, intent, admission);
     }
     const value = advanceActualPostPlayReview({ previous, source, ...(intent === null ? {} : { intent }),
       ...(admission.kind === 'base_appeal' ? { baseAppeal: admission.execution } : {}),
-      ...(admission.kind === 'live_appeal_import' ? { liveAppealImport: admission.liveAppealImport } : {}) });
+      ...(admission.kind === 'live_appeal_import' ? { liveAppealImport: admission.liveAppealImport } : {}),
+      ...(admission.kind === 'live_appeal_rights' ? { liveAppealRights: admission.liveAppealRights } : {}) });
     if (row.snapshot_json !== json(value) || row.snapshot_hash !== hash(value)) throw new Error('Native review event snapshot differs');
     return { source, intent, value, admissionEvidence: admission, previous };
   };
@@ -126,9 +131,11 @@ export const actualPostPlayReviewEvidenceFromSqlite = (db: PostPlayReviewDb) => 
       const current = currentDetails(source.sessionSourceId); if (!current) throw new Error('Native review session is missing');
       writable(current.root);
       if ((source.action.kind === 'defender_base_appeal' || source.action.kind === 'defender_runner_body_appeal'
-        || source.action.kind === 'import_live_appeal') && intent !== null)
+        || source.action.kind === 'import_live_appeal' || source.action.kind === 'admit_live_appeal_rights') && intent !== null)
         throw new Error('base appeal cannot substitute a review intent');
-      const admission = source.action.kind === 'import_live_appeal'
+      const admission = source.action.kind === 'admit_live_appeal_rights'
+        ? capturePostPlayLiveAppealRights(db,current.root.scope,current.value,source,true)
+        : source.action.kind === 'import_live_appeal'
         ? capturePostPlayLiveAppeal(db, current.root.scope, current.value, source, true)
         : source.action.kind === 'defender_base_appeal' || source.action.kind === 'defender_runner_body_appeal'
         ? capturePostPlayBaseAppeal(db, current.root.scope, current.value, source, true)
@@ -136,12 +143,15 @@ export const actualPostPlayReviewEvidenceFromSqlite = (db: PostPlayReviewDb) => 
       if (admission.kind === 'intent_pending') return { kind: 'intent_pending' as const, reason: admission.reason };
       const value = advanceActualPostPlayReview({ previous: current.value, source, ...(intent === null ? {} : { intent }),
         ...(admission.evidence.kind === 'base_appeal' ? { baseAppeal: admission.evidence.execution } : {}),
-        ...(admission.evidence.kind === 'live_appeal_import' ? { liveAppealImport: admission.evidence.liveAppealImport } : {}) });
+        ...(admission.evidence.kind === 'live_appeal_import' ? { liveAppealImport: admission.evidence.liveAppealImport } : {}),
+        ...(admission.evidence.kind === 'live_appeal_rights' ? { liveAppealRights: admission.evidence.liveAppealRights } : {}) });
       return { kind: 'admitted' as const, root: current.root, previous: current.value, value, admissionEvidence: admission.evidence };
     }); },
     assertCurrentAdmission(result: NonNullable<ReturnType<typeof eventDetails>>) { return proof(() => {
       writable(result.root);
-      const current = result.source.action.kind === 'import_live_appeal'
+      const current = result.source.action.kind === 'admit_live_appeal_rights'
+        ? capturePostPlayLiveAppealRights(db,result.root.scope,result.previous,result.source,true)
+        : result.source.action.kind === 'import_live_appeal'
         ? capturePostPlayLiveAppeal(db, result.root.scope, result.previous, result.source, true)
         : result.source.action.kind === 'defender_base_appeal' || result.source.action.kind === 'defender_runner_body_appeal'
         ? capturePostPlayBaseAppeal(db, result.root.scope, result.previous, result.source, true)

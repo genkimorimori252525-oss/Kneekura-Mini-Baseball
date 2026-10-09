@@ -7,6 +7,7 @@ import { createDefensiveAppealAttemptFact, createFlyBallFirstFielderTouchFact } 
 import { deriveBallWorldPlayerBaseContactHistory } from '../../core/sim/ball/BallWorldPlayerBaseContactHistory';
 import { getPlayAdjudicationState, getOfficialStateWindows } from '../../core/adjudication/PlayAdjudicationLedger';
 import { capturePostPlayLiveAppeal } from './ActualPostPlayLiveAppealFromSqlite';
+import { capturePostPlayLiveAppealRights } from './ActualPostPlayLiveAppealRightsFromSqlite';
 import type { PostPlayLiveAppealImport } from './ActualPostPlayReviewState';
 
 const initial = () => initializeActualPostPlayReview(reviewFixture({ truth: 'safe' }));
@@ -126,4 +127,47 @@ it('LPI10 Native import refuses database substitutes and requires a real read tr
       reason: 'original_live_appeal_independent_play_end_owner_required' });
     db.exec('ROLLBACK');
   } finally { db.close(); }
+});
+
+const rightsAction={kind:'admit_live_appeal_rights',executionReference} as const;
+it('LPI11 rights admission accepts only the existing immutable execution reference',()=>{
+  const previous=initial(),source=event(previous,rightsAction,'rights');
+  expect(actualPostPlayReviewEventInput(source,'rights')).toEqual(source);
+  for(const extra of ['live','dead','occurredAt','forfeited','window','evidence'])
+    expect(()=>actualPostPlayReviewEventInput(event(previous,{...rightsAction,[extra]:true},'rights'),'rights')).toThrow();
+  expect(()=>advanceActualPostPlayReview({previous,source})).toThrow(/original live appeal rights evidence/);
+});
+it('LPI12 later rights admission discharges exactly its dependency and requires refreshed rule/official evidence',()=>{
+  const first=initial(),liveAppealImport=imported(first);
+  const previous=advanceActualPostPlayReview({previous:first,source:event(first),liveAppealImport});
+  const {originTick,ticksPerSecond}=previous.cursor;
+  const cause={...executionReference,owner:'pa_live_ball_v1_actions',sourceId:'time',sourceVersion:'test'};
+  const liveAppealRights={provenance:{version:'owned_live_appeal_rights_admission_v1' as const,
+    originalImport:liveAppealImport.provenance,admittedAtElapsedSeconds:previous.seed.exactEnd.elapsedSeconds,
+    legalState:cause,venue:{...cause,owner:'same_pa_venue_legal_coverage_v1',sourceId:'venue'}},
+    evidence:{version:'owned_live_appeal_rights_evidence_v1' as const,liveAtExecution:{kind:'dead' as const,cause,
+      at:{originTick,elapsedSeconds:2.5,tick:originTick+2.5*ticksPerSecond}},
+      window:{kind:'unresolved' as const,reason:'original_live_appeal_window_owner_required' as const},appealThrowForfeitures:[]}};
+  const after=advanceActualPostPlayReview({previous,source:event(previous,rightsAction,'rights'),liveAppealRights});
+  expect(after.ledger.events.at(-1)).toMatchObject({kind:'OwnedLiveAppealRightsAdmitted',disposition:{kind:'ineligible',reason:'dead_ball'},
+    provenance:{originalImport:liveAppealImport.provenance}});
+  expect(after.pendingReasons).not.toContain('original_live_ball_and_appeal_rights_required');
+  expect(after.pendingReasons).toContain('appeal_requires_updated_correct_rule_snapshot');
+  expect(after.ledger.playEnd).toEqual(previous.ledger.playEnd);
+  expect(getOfficialStateWindows(after.ledger)).toEqual(getOfficialStateWindows(previous.ledger));
+  expect(after.kind).toBe('official_pending');
+  const replayed=advanceActualPostPlayReview({previous:after,source:event(after,{kind:'advance_tick',schedulerId:'scheduler'},'later-rights')});
+  expect(replayed.ledger.events).toEqual(after.ledger.events);
+  expect(()=>advanceActualPostPlayReview({previous:after,source:event(after,rightsAction,'duplicate-rights'),liveAppealRights})).toThrow(/pending original/);
+});
+it('LPI13 Native rights admission requires the same real transaction and independent physical end as import',()=>{
+  const previous=initial(),source=actualPostPlayReviewEventInput(event(previous,rightsAction,'rights'),'rights');
+  expect(()=>capturePostPlayLiveAppealRights({prepare:()=>null} as any,{} as any,previous,source,true)).toThrow(/Native read transaction/);
+  const {DatabaseSync}=createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite'),db=new DatabaseSync(':memory:');
+  try{
+    expect(()=>capturePostPlayLiveAppealRights(db,{} as any,previous,source,true)).toThrow(/Native read transaction/);
+    db.exec('BEGIN');
+    expect(capturePostPlayLiveAppealRights(db,{} as any,previous,source,true)).toEqual({kind:'intent_pending',reason:'original_live_appeal_independent_play_end_owner_required'});
+    db.exec('ROLLBACK');
+  }finally{db.close();}
 });

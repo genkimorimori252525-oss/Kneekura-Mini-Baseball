@@ -1,3 +1,4 @@
+import { declareNationalBattedFixture, checkNationalBattedFixture } from './NationalBattedFixtureDeclaration.test-support';
 import { mkdtempSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -17,8 +18,15 @@ it('NAT-N01 one National game connects original terminal foul and next batted pl
   const path = join(mkdtempSync(join(tmpdir(), 'national-batted-foul-consumers-')), 'national.sqlite');
   const progress = (phase: string) => console.info('NATIONAL_BATTED_FOUL_PHASE', phase);
   console.info('NATIONAL_BATTED_FOUL_PRIVATE_DB', path);
-  const f = nationalPhysicalFixture({ databasePath: path, profile: { ruleProfileId: NPB_2026_RULE_PROFILE.id } });
+  const original = nationalPhysicalFixture({ databasePath: path, profile: { ruleProfileId: NPB_2026_RULE_PROFILE.id } });
   try {
+    const battedFixtureDeclaration = declareNationalBattedFixture({ gameId: original.source.gameId, careerId: original.source.careerId,
+      fixtureEventId: original.fixture.binding.fixtureEventId, venueId: original.fixture.binding.venueId, gameDay: original.origin.fixture.gameDay,
+      roster: original.origin.participants.map(p => ({ playerId: p.binding.playerId, personId: p.binding.personId })),
+      match: original.actor.match, setup: original.setup });
+    const f = { ...original, battedFixtureDeclaration };
+    checkNationalBattedFixture(battedFixtureDeclaration);
+    progress('prospective_full_roster_and_both_core_scenes_checked');
     const originBytes = json(f.origin), clubBefore = f.roster.readHead('career-a', 'club-a')!;
     progress('original_national_registration_and_actor');
     const foulRoot = nationalBattedFieldFixture(f, f.actor, 'national-foul', 'terminal_foul');
@@ -40,5 +48,5 @@ it('NAT-N01 one National game connects original terminal foul and next batted pl
     progress('original_second_batter_after_foul');
     continueNationalBattedFoulOriginalTail({ f, nextActor, foulTerminalSource: foul.terminal.terminalSource,
       foulReceipt, adoptedFoul, originBytes, clubBefore, progress });
-  } finally { f.close(); }
+  } finally { original.close(); }
 }, 3_600_000);

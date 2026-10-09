@@ -20,7 +20,48 @@ guard before every access. The measured census change reduced prepares by
 wall-time improvement. See the
 [measured comparison](../verification/2026-10-09-continuation-claim-proof-reuse.md).
 
+## Integrated legal rights, prospective National inputs and metadata compilation
 
+The current batch connects original venue coverage, explicit current-cut
+Play/Time declarations and complete appeal-purpose throw history to versioned
+admission of the matching imported appeal. Failed appeal throws are included;
+carried or constrained outside geometry alone cannot prove entry into dead
+territory. Receipt occurrence, NPB forfeiture against all runners/bases, and
+independent moving-end, producer, snapshot, call and window obligations remain
+separate. Initial live-state continuity and the ordinary-play/departure producers
+remain unfinished. [Implemented scope and precise gaps](2026-10-09-live-appeal-rights-connection.md).
+
+The National fixture now declares all 19 eligible Player/Person bindings and
+one compatible world/response model before admission. Both planned Core physical
+scenes are checked upfront. Its next play reuses original game geometry through
+the existing completed-foul v3 binding. This prospectively adopts the existing
+first-base glove calibration for the initial foul as well; no historical model
+or failed database was rewritten. The original 37 tail assertions are unchanged.
+No legitimate pre-model database survives, so the corrected original NAT-N01
+still needs one fresh genuine execution. [Correction and limits](2026-10-09-national-common-fixture-correction.md).
+
+An existing metadata statement scope now avoids repeated SQL compilation inside
+the existing immutable continuation phase. On identical genuine capture-cut
+inputs, the completed operation took 27.038 then 22.748 seconds. Metadata
+compilations fell from 21,320 to 60 while every one of the 21,320 executions,
+all other prepare counts, returned result and complete database output remained
+equal. This is one operation measurement, not a full IFN completion forecast.
+[Exact comparison](../verification/2026-10-09-ifn-metadata-compilation-reuse.md).
+
+The assembled 46-path diff received an independent review with no blocking
+findings. All 454 selected cases in 35 files passed in 17.40 seconds at
+`038313362cc8c26ab2a8d90f4941b811c8d59308`.
+The full compiler found three unused declarations; cleanup changed only two
+unused callback names and removed a type-only import. At
+`b727017643d63d70d73e56b07e099ef11cfbeeda`, source
+`3e483486870321b18334b9270f19b269bfa469d9`, the full compiler passed in
+28.96 seconds and only the 16 affected cases were rerun, passing in 6.93 seconds.
+The original failed compiler receipt is preserved. All runs kept four stable
+input groups and no surviving process; all 18 protected blobs are exact.
+
+Combined test report SHA-256: `9cb6bfae847ecf77efca1233e2f4d33febc029aacbf64ea1ef6f9bae5fce8e6e`.
+Final compiler configuration SHA-256: `9313f2ebb2d5027c2aa6992440d1a602e0d9ca1ecbf50da603e0d5eb516b5bb3`.
+Affected test report SHA-256: `7669760e76e3524b848efb0643d86bb34919e7b8efcc6bd29a4d4774f806d6ef`.
 
 ## Live throw appeal execution, staff wages and terminal-original reuse
 
@@ -30,8 +71,9 @@ the occurrence moment and the runner's history at that moment; later journal
 import does not retimestamp the attempt or substitute later retouch history.
 Continuous custody may span multiple physical checkpoints, with exact gaps and
 exclusive endpoints respected. Pending physical work stays in the live census.
-Authenticated live-ball/Time/territory and NPB appeal-rights admission are still
-missing, and official application independently requires the moving-play end.
+The later legal-rights batch above adds authenticated Play/Time/territory and
+NPB admission for supported original history. Initial legal continuity remains
+unfinished, and official application independently requires the moving-play end.
 [Physical connection and remaining rights owner](2026-10-09-live-throw-appeal-connection.md).
 
 Actual accepted Manager hires now feed the existing scheduled staff-wage kernel
@@ -73,8 +115,23 @@ remaining assertions have no completed result. Its failed terminal is retained.
 The retained adapter now accepts that exact single named pitch/head frontier or
 the original empty frontier. It still passes the regenerated Source through the
 existing pitch owner's full authenticated exact retry before later work. The
-original 37 assertions and numeric recipe are unchanged. A consistent copy is
-prepared for continuation after this checkpoint; no new run result is claimed.
+original 37 assertions and numeric recipe were unchanged in the subsequent run.
+That continuation failed after 182.13 seconds with the actual owner rejection
+`batted World game model is frozen differently`, without a resource guard.
+The retained pitch retried successfully and the new flight/head committed; those
+were the only two new rows. Every earlier row, the other 76 tables and all 78
+schemas remained unchanged. Contact, field, closure and the 37 downstream
+assertions did not complete. All four input groups stayed stable and no process
+survived; the failed report SHA-256 is
+`b41a7ed81b165b4dc0afb585efb912ff2e6aebcf1709aa8ef261f83d54bc53a2`.
+
+The original frozen game model omits next batter p10 and fixes a different p0
+glove offset from the next first-base fixture. The game-wide response model also
+omits p10 and fixes a different capture dissipation. Reusing the original Source
+IDs alone cannot resolve these conflicts. The saved lineage remains failure
+evidence. A prospective correction must supply the full eligible roster and
+compatible shared geometry/calibration before initial acceptance; it cannot
+replace the already accepted models or weaken their ownership checks.
 IFN's corrected original entry is prepared but remains unlaunched, because the
 available measurements do not establish a full-case completion budget.
 

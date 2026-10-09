@@ -1,3 +1,4 @@
+import { withSqliteMetadataStatementScope } from './SqliteMetadataStatementScope';
 import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
 import { readSamePaSuccessorWorkClaimRows } from './SamePlateAppearanceContinuationClaimGuard';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -78,7 +79,7 @@ const immutable = <T>(db: DatabaseSync, body: () => T): T => {
   }
   const phase: ReadPhase = { signature: readSignature(db), failed: false, records: new Map(), pitches: new Map(), emptyViews: new Map(), shared: new Map(), active: new Set() };
   const marker = 'pa_continuation_' + randomUUID().replaceAll('-', ''); db.exec('SAVEPOINT ' + marker); phases.set(db, phase);
-  try { const value = body(); if (phase.failed) throw new Error('same-PA continuation phase expired');
+  try { const value = withSqliteMetadataStatementScope(db, body); if (phase.failed) throw new Error('same-PA continuation phase expired');
     same(readSignature(db), phase.signature); db.exec('RELEASE ' + marker); return value;
   } catch (error) { if (db.isTransaction) try { db.exec('RELEASE ' + marker); } catch (cleanup) {
     throw new AggregateError([error, cleanup], 'same-PA continuation original proof identity changed', { cause: error }); } throw error;

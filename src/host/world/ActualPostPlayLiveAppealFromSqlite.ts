@@ -21,11 +21,10 @@ const pending = (reason: string) => freeze({ kind: 'intent_pending' as const, re
 /** Import a historical execution, never execute a new appeal after PlayEnd.
  * Both the receipt and its independently owned end are replayed in the Native
  * session proof bracket. The receipt cannot provide its own PlayEnd or rights. */
-export const capturePostPlayLiveAppeal = (db: PostPlayReviewDb, scope: PostPlayReviewNativeScope,
-  previous: ActualPostPlayReviewProjection, source: AcceptedActualPostPlayReviewEvent, current: boolean) => {
+export const readPostPlayOriginalLiveAppeal = (db: PostPlayReviewDb, scope: PostPlayReviewNativeScope,
+  previous: ActualPostPlayReviewProjection, executionReference: SamePaReference<'pa_physical_v1_field_steps'>, current: boolean) => {
   const Native = (createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite')).DatabaseSync;
   if (!(db instanceof Native) || !db.isTransaction) throw new Error('live appeal import requires the Native read transaction');
-  if (source.action.kind !== 'import_live_appeal') throw new Error('original live appeal import action differs');
   const reserved = previous.source.reservedCatchSeed;
   if (!reserved) return pending('original_live_appeal_independent_play_end_owner_required');
   const original = deriveSamePaCatchReviewNativeSeed(db, reserved, current);
@@ -38,7 +37,6 @@ export const capturePostPlayLiveAppeal = (db: PostPlayReviewDb, scope: PostPlayR
     || json(actor.match) !== json(scope.originalMatch) || json(value.physicalOperationReference) !== json(reserved.physicalOperationReference)
     || json(root.lineage) !== json(view.lineage)) throw new Error('live appeal original root or end prefix differs');
 
-  const executionReference = source.action.executionReference;
   const proof = readSamePaPhysicalOperationFromSqlite(db, executionReference), receipt = proof.record;
   if (receipt.kind !== 'same_pa_physical_field_step_v1' || receipt.actionResult?.kind !== 'appeal_contact_v1'
     || receipt.source.action?.kind !== 'appeal_contact_v1') throw new Error('original live appeal execution receipt required');
@@ -109,6 +107,15 @@ export const capturePostPlayLiveAppeal = (db: PostPlayReviewDb, scope: PostPlayR
       importedAtElapsedSeconds: end.elapsedSeconds + clock.offsetTicks / clock.ticksPerSecond,
       indication: indication.reference, throwPlan: throwPlan.reference,
       execution: { ...executionReference, sourceVersion: receipt.source.sourceVersion } }, rights: execution.rights };
+  return freeze({kind:'ready' as const, liveAppealImport, receipt});
+};
+
+export const capturePostPlayLiveAppeal = (db: PostPlayReviewDb, scope: PostPlayReviewNativeScope,
+  previous: ActualPostPlayReviewProjection, source: AcceptedActualPostPlayReviewEvent, current: boolean) => {
+  if (source.action.kind !== 'import_live_appeal') throw new Error('original live appeal import action differs');
+  const original = readPostPlayOriginalLiveAppeal(db,scope,previous,source.action.executionReference,current);
+  if (original.kind !== 'ready') return original;
+  const {liveAppealImport} = original;
   const evidence: PostPlayLiveAppealAdmission = { version: 'actual_post_play_live_appeal_admission_v1', kind: 'live_appeal_import',
     gameId: scope.gameId, playId: scope.playId, physicalPitchSourceId: scope.physicalPitchSourceId,
     sourceId: source.sourceId, sourceHash: hash(source), originalSeedHash: previous.seed.snapshotHash, liveAppealImport };

@@ -1,3 +1,4 @@
+import { sqliteMetadataAll } from './SqliteMetadataStatementScope';
 import { samePaLifecycleSourceInput } from './SamePlateAppearanceLifecycle';
 import { samePaLifecycleOutcomeInput } from './SamePlateAppearanceLifecycleOutcome';
 import { samePaPhysicalEpisodeSourceInput } from './SamePlateAppearancePhysicalEpisode';
@@ -11,6 +12,8 @@ import { assertSamePaPhysicalEpisodeStorage } from './SamePlateAppearancePhysica
 import { assertSamePaTerminalEndpointStorage } from './SamePlateAppearanceTerminalStorage';
 import { assertSamePaCatchWorkStorage } from './SamePlateAppearanceCatchWorkStorage';
 import { samePaCatchWorkInput } from './SamePlateAppearanceCatchWork';
+import { assertSamePaLiveBallStateStorage } from './SamePlateAppearanceLiveBallStateStorage';
+import { samePaLiveBallActionInput } from './SamePlateAppearanceLiveBallStateSource';
 import { assertBatterRunPlanStorage } from './SqliteBatterRunPlanStore';
 import { batterRunPlanInput } from './BatterRunPlan';
 import { assertSamePaOccupiedRunnerHoldStorage } from './SqliteSamePlateAppearanceOccupiedRunnerHoldStore';
@@ -18,7 +21,7 @@ import { samePaOccupiedRunnerHoldInput } from './SamePlateAppearanceOccupiedRunn
 
 type Db = Pick<DatabaseSync, 'prepare'>;
 export type SamePaLifecycleClaimRow = Readonly<{ table: string; row: Record<string, unknown>; enrollmentSourceIds: readonly string[] }>;
-const patterns = ['pa_lifecycle_v1_*', 'pa_physical_v1_*', 'pa_terminal_v1_*', 'pa_catch_v1_*', 'world_batter_run_plans', 'world_same_pa_occupied_runner_holds'] as const;
+const patterns = ['pa_lifecycle_v1_*', 'pa_physical_v1_*', 'pa_terminal_v1_*', 'pa_catch_v1_*', 'pa_live_ball_v1_*', 'world_batter_run_plans', 'world_same_pa_occupied_runner_holds'] as const;
 const olderOwners = new Set(['same_pa_enrollments', 'physical_plate_appearance_actors', 'reserved_pa_work_prefixes', 'reserved_pa_total_assessments',
   'reserved_pa_execution_views', 'pa_dispatch_v1_action_plans', 'pa_dispatch_v1_execution_calibrations', 'pa_dispatch_v1_consumer_sets',
   'pa_dispatch_v1_episodes', 'pa_dispatch_v1_rights', 'pa_dispatch_v1_pitch_actions', 'pa_dispatch_v1_consumer_actions',
@@ -39,15 +42,16 @@ export const readSamePaLifecycleClaimRows = (db: Db): readonly SamePaLifecycleCl
   assertSamePaLifecycleStorage(db); assertSamePaPhysicalEpisodeStorage(db); assertSamePaTerminalEndpointStorage(db); assertSamePaCatchWorkStorage(db);
   assertBatterRunPlanStorage(db);
   assertSamePaOccupiedRunnerHoldStorage(db);
+  assertSamePaLiveBallStateStorage(db);
   if (db.prepare('SELECT 1 FROM temp.sqlite_master WHERE ' + predicate).get(...args)) return fail();
   const catalog = db.prepare('SELECT type,name,tbl_name FROM main.sqlite_master WHERE ' + predicate).all(...args);
   if (catalog.some(r => r.type !== 'table' && r.type !== 'index')) return fail();
   const metadata = (row: Record<string, unknown>, path: Parameters<typeof nodes>[1]) => ['source_json', 'snapshot_json'].filter(c => c in row).flatMap(c =>
-    db.prepare(`SELECT atom FROM (${nodes('$document', path)}) WHERE type='text'`).all({ document: String(row[c]) }).map(r => String(r.atom)));
-  const references = (row: Record<string, unknown>) => ['source_json', 'snapshot_json'].filter(c => c in row).flatMap(c => db.prepare(`SELECT o.atom owner,i.atom sourceId
+    sqliteMetadataAll(db, `SELECT atom FROM (${nodes('$document', path)}) WHERE type='text'`, String(row[c])).map(r => String(r.atom)));
+  const references = (row: Record<string, unknown>) => ['source_json', 'snapshot_json'].filter(c => c in row).flatMap(c => sqliteMetadataAll(db, `SELECT o.atom owner,i.atom sourceId
     FROM json_tree(CASE WHEN json_valid($document) THEN $document ELSE 'null' END) obj,
       json_each(CASE WHEN obj.type='object' THEN obj.value ELSE '{}' END) o,json_each(CASE WHEN obj.type='object' THEN obj.value ELSE '{}' END) i
-    WHERE o.key='owner' AND o.type='text' AND i.key='sourceId' AND i.type='text'`).all({ document: String(row[c]) })
+    WHERE o.key='owner' AND o.type='text' AND i.key='sourceId' AND i.type='text'`, String(row[c]))
     .map(r => ({ owner: String(r.owner), sourceId: String(r.sourceId) })));
   const directIds = (row: Record<string, unknown>) => [...(typeof row.enrollment_source_id === 'string' ? [row.enrollment_source_id] : []),
     ...metadata(row, ['enrollmentReference', 'sourceId']), ...metadata(row, ['source', 'enrollmentReference', 'sourceId']), ...metadata(row, ['lineage', 'enrollmentReference', 'sourceId'])];
@@ -91,6 +95,7 @@ export const readSamePaLifecycleClaimRows = (db: Db): readonly SamePaLifecycleCl
         if(name==='world_batter_run_plans'){batterRunPlanInput(source,String(row.source_id));}
         else if(name==='world_same_pa_occupied_runner_holds'){samePaOccupiedRunnerHoldInput(source,String(row.source_id));}
         else if(name==='pa_catch_v1_work'){samePaCatchWorkInput(source,String(row.source_id));}
+        else if(name==='pa_live_ball_v1_actions'){samePaLiveBallActionInput(source,String(row.source_id));}
         else if(lifecycleKinds[name]){const s=samePaLifecycleSourceInput(source,String(row.source_id));if(s.capability!==lifecycleKinds[name])return fail();}
         else if(name==='pa_lifecycle_v1_outcomes'||name==='pa_lifecycle_v1_resets'){const s=samePaLifecycleOutcomeInput(source,String(row.source_id));if(s.capability!==(name==='pa_lifecycle_v1_outcomes'?'same_pa_lifecycle_outcome_v1':'same_pa_lifecycle_reset_v1'))return fail();}
         else if(physicalKinds[name]){const s=samePaPhysicalEpisodeSourceInput(source,String(row.source_id));if(s.capability!==physicalKinds[name])return fail();}

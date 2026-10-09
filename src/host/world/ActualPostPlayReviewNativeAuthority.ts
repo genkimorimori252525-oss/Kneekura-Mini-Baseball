@@ -28,7 +28,7 @@ const capture = (scope: PostPlayReviewNativeScope, previous: ActualPostPlayRevie
   const common = { version: 'actual_post_play_review_admission_v1' as const, careerId: scope.careerId,
     gameId: scope.gameId, playId: scope.playId, policyHash: hash(policy) };
   const action = source.action;
-  if (action.kind === 'import_live_appeal') throw new Error('live appeal import requires its original physical execution owner');
+  if (action.kind === 'import_live_appeal' || action.kind === 'admit_live_appeal_rights') throw new Error('live appeal import requires its original physical execution owner');
   if (action.kind === 'defender_base_appeal' || action.kind === 'defender_runner_body_appeal')
     throw new Error('defender appeal requires its original physical execution owner');
   if (action.kind === 'advance_tick' || action.kind === 'next_play_fence') {

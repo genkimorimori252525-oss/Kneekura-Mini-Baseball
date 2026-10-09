@@ -1,6 +1,6 @@
 import { cloneInert, advanceRuleProfileOfficialWindows, evaluateRuleProfileOfficialWindowTiming } from '../../core/adjudication/OfficialWindowPolicy';
 import { orchestrateTagUpAppealAttempt } from '../../core/adjudication/TagUpAppealOrchestration';
-import { closeOfficialStateWindow, getOfficialStateWindows, recordReviewDecision, recordOwnedLiveAppealImport } from '../../core/adjudication/PlayAdjudicationLedger';
+import { closeOfficialStateWindow, getOfficialStateWindows, recordReviewDecision, recordOwnedLiveAppealImport, recordOwnedLiveAppealRightsAdmission } from '../../core/adjudication/PlayAdjudicationLedger';
 import { selectControlledDecision } from '../../core/world/control/ControlledDecision';
 import { attributeExecutedDecision } from '../../core/world/control/DecisionEvidence';
 import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -10,7 +10,7 @@ import { actualPostPlayReviewEventInput, actualPostPlayReviewIntentInput,
   type ActualPostPlayReviewEventAction } from './ActualPostPlayReviewSource';
 import { initializePostPlayReview, finalizePostPlayReview, postPlayOpenState, originalPostPlayCall,
   type ActualPostPlayReviewProjection, type ActualPostPlayReviewRequest, type PostPlayBaseAppealExecution,
-  type PostPlayLiveAppealImport } from './ActualPostPlayReviewState';
+  type PostPlayLiveAppealImport, type PostPlayLiveAppealRights } from './ActualPostPlayReviewState';
 
 export type { ActualPostPlayReviewProjection, ActualPostPlayReviewSeed } from './ActualPostPlayReviewState';
 export const initializeActualPostPlayReview = (raw: unknown): ActualPostPlayReviewProjection => initializePostPlayReview(raw);
@@ -62,7 +62,7 @@ const validateOfficialIntent = (previous: ActualPostPlayReviewProjection,
 /** Internal reduction always receives either initialization or a freshly replayed predecessor. */
 const reduce = (previous: ActualPostPlayReviewProjection, raw: AcceptedActualPostPlayReviewEvent,
   intentInput: AcceptedActualPostPlayReviewIntent | null, baseAppeal?: PostPlayBaseAppealExecution,
-  liveAppealImport?: PostPlayLiveAppealImport): ActualPostPlayReviewProjection => {
+  liveAppealImport?: PostPlayLiveAppealImport, liveAppealRights?: PostPlayLiveAppealRights): ActualPostPlayReviewProjection => {
   const source = actualPostPlayReviewEventInput(raw, raw?.sourceId), action = source.action;
   if (source.sessionSourceId !== previous.source.sourceId || source.expectedRevision !== previous.revision) {
     throw new Error('post-play session or Native revision differs');
@@ -78,7 +78,18 @@ const reduce = (previous: ActualPostPlayReviewProjection, raw: AcceptedActualPos
   if (action.kind !== 'defender_base_appeal' && action.kind !== 'defender_runner_body_appeal'
     && baseAppeal !== undefined) throw new Error('unexpected physical base appeal evidence');
   if (action.kind !== 'import_live_appeal' && liveAppealImport !== undefined) throw new Error('unexpected owned live appeal import evidence');
-  if (action.kind === 'import_live_appeal') {
+  if (action.kind !== 'admit_live_appeal_rights' && liveAppealRights !== undefined) throw new Error('unexpected live appeal rights evidence');
+  if (action.kind === 'admit_live_appeal_rights') {
+    if (!liveAppealRights || !fields(liveAppealRights, ['provenance', 'evidence'])) throw new Error('original live appeal rights evidence required');
+    const p = liveAppealRights.provenance, original = p.originalImport, execution = original.execution;
+    if (json({owner:execution.owner,sourceId:execution.sourceId,sourceHash:execution.sourceHash,snapshotHash:execution.snapshotHash}) !== json(action.executionReference)
+      || original.gameId !== previous.seed.gameId || original.playId !== previous.seed.playId
+      || original.physicalPitchSourceId !== previous.seed.physicalPitchSourceId
+      || original.clock.originTick !== cursor.originTick || original.clock.ticksPerSecond !== cursor.ticksPerSecond
+      || p.admittedAtElapsedSeconds !== previous.seed.exactEnd.elapsedSeconds + cursor.offsetTicks / cursor.ticksPerSecond)
+      throw new Error('original live appeal rights scope, occurrence or admission clock differs');
+    ledger = recordOwnedLiveAppealRightsAdmission(ledger, ledger.revision, {...liveAppealRights,eventId:source.sourceId+':appeal-rights',tick:cursor.tick});
+  } else if (action.kind === 'import_live_appeal') {
     if (!liveAppealImport || !fields(liveAppealImport, ['attempt', 'complianceEvidence', 'provenance', 'rights']))
       throw new Error('owned live appeal import evidence is required');
     const p = liveAppealImport.provenance, execution = p?.execution;
@@ -189,6 +200,7 @@ const reduce = (previous: ActualPostPlayReviewProjection, raw: AcceptedActualPos
     events: [...previous.events, { source, intent, tick: cursor.tick,
       ...(baseAppeal === undefined ? {} : { baseAppeal }),
       ...(liveAppealImport === undefined ? {} : { liveAppealImport }),
+      ...(liveAppealRights === undefined ? {} : { liveAppealRights }),
       coreEventIds: ledger.events.slice(previous.ledger.events.length).map(e => e.eventId) }] });
 };
 
@@ -196,14 +208,15 @@ const reduce = (previous: ActualPostPlayReviewProjection, raw: AcceptedActualPos
 export const advanceActualPostPlayReview = (raw: unknown): ActualPostPlayReviewProjection => {
   const input = cloneInert(raw) as Readonly<{ previous: ActualPostPlayReviewProjection;
     source: AcceptedActualPostPlayReviewEvent; intent?: AcceptedActualPostPlayReviewIntent; baseAppeal?: PostPlayBaseAppealExecution;
-    liveAppealImport?: PostPlayLiveAppealImport }>;
+    liveAppealImport?: PostPlayLiveAppealImport; liveAppealRights?: PostPlayLiveAppealRights }>;
   if (!fields(input, ['previous', 'source', ...(Object.hasOwn(input, 'intent') ? ['intent'] : []),
     ...(Object.hasOwn(input, 'baseAppeal') ? ['baseAppeal'] : []),
-    ...(Object.hasOwn(input, 'liveAppealImport') ? ['liveAppealImport'] : [])])) throw new Error('invalid post-play continuation input');
+    ...(Object.hasOwn(input, 'liveAppealImport') ? ['liveAppealImport'] : []),
+    ...(Object.hasOwn(input, 'liveAppealRights') ? ['liveAppealRights'] : [])])) throw new Error('invalid post-play continuation input');
   const previous = input.previous;
   if (!previous || !Array.isArray(previous.events)) throw new Error('invalid post-play predecessor');
   let replayed = initializePostPlayReview({ source: previous.source, seed: previous.seed });
-  for (const event of previous.events) replayed = reduce(replayed, event.source, event.intent, event.baseAppeal, event.liveAppealImport);
+  for (const event of previous.events) replayed = reduce(replayed, event.source, event.intent, event.baseAppeal, event.liveAppealImport, event.liveAppealRights);
   if (json(replayed) !== json(previous)) throw new Error('post-play predecessor archive or head differs');
-  return reduce(replayed, input.source, input.intent ?? null, input.baseAppeal, input.liveAppealImport);
+  return reduce(replayed, input.source, input.intent ?? null, input.baseAppeal, input.liveAppealImport, input.liveAppealRights);
 };

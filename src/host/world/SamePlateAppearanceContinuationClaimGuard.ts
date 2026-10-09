@@ -1,3 +1,4 @@
+import { sqliteMetadataAll } from './SqliteMetadataStatementScope';
 import { readSamePaLifecycleClaimRows } from './SamePlateAppearanceLifecycleClaimGuard';
 import { createRequire } from 'node:module';
 import { memoSamePaContinuationRead, withSamePaContinuationReadPhase } from './SamePlateAppearanceContinuationFromSqlite';
@@ -31,11 +32,10 @@ const inspectClaims = (db: Db) => {
   const roots = new Map<string, ReturnType<typeof authenticateSamePaRow>>();
   const root = (id: string) => { let value = roots.get(id); if (!value) { const row = samePaEnrollmentRow(db, id); if (!row) fail(); value = authenticateSamePaRow(db, row!); roots.set(id, value); } return value; };
   const metadata = (row: Record<string, unknown>, path: Parameters<typeof nodes>[1]) => ['source_json', 'snapshot_json'].filter(c => c in row).flatMap(c =>
-    db.prepare(`SELECT atom FROM (${nodes('$document', path)}) WHERE type='text'`).all({ document: String(row[c]) }).map(r => String(r.atom)));
-  const refs = (row: Record<string, unknown>) => ['source_json', 'snapshot_json'].filter(c => c in row).flatMap(c => db.prepare(`SELECT o.atom owner,i.atom sourceId
+    sqliteMetadataAll(db, `SELECT atom FROM (${nodes('$document', path)}) WHERE type='text'`, String(row[c])).map(r => String(r.atom)));
+  const refs = (row: Record<string, unknown>) => ['source_json', 'snapshot_json'].filter(c => c in row).flatMap(c => sqliteMetadataAll(db, `SELECT o.atom owner,i.atom sourceId
     FROM json_tree(CASE WHEN json_valid($document) THEN $document ELSE 'null' END) obj,json_each(CASE WHEN obj.type='object' THEN obj.value ELSE '{}' END) o,
-    json_each(CASE WHEN obj.type='object' THEN obj.value ELSE '{}' END) i WHERE o.key='owner' AND o.type='text' AND i.key='sourceId' AND i.type='text'`)
-    .all({ document: String(row[c]) }).map(r => ({ owner: String(r.owner), sourceId: String(r.sourceId) })));
+    json_each(CASE WHEN obj.type='object' THEN obj.value ELSE '{}' END) i WHERE o.key='owner' AND o.type='text' AND i.key='sourceId' AND i.type='text'`, String(row[c])).map(r => ({ owner: String(r.owner), sourceId: String(r.sourceId) })));
   const resolvedRefs = new Map<string, string[]>();
   const fromRef = (ref: { owner: string; sourceId: string }, active = new Set<string>()): string[] => {
     if (!rootOwners.has(ref.owner)) return [];

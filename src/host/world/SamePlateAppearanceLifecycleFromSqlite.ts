@@ -21,6 +21,7 @@ import { deriveSamePaLifecycleCalibration, type SamePaLifecycleCalibration } fro
 import { readSamePaLifecycleOutcomeFromSqlite, readSamePaLifecycleResetFromSqlite } from './SamePlateAppearanceLifecycleOutcomeFromSqlite';
 import { samePaStartingBaseCenters } from './SamePlateAppearanceLifecycleStartingGeometry';
 import { readSamePaCatchWorkFromSqlite } from './SamePlateAppearanceCatchWorkFromSqlite';
+import { readSamePaLiveBallStateFromSqlite } from './SamePlateAppearanceLiveBallStateFromSqlite';
 import { readBatterRunPlanFromSqlite } from './SqliteBatterRunPlanStore';
 import { samePaLifecycleTables as tables, samePaLifecycleSourceInput as input, samePaLifecycleWorkOwners,
   type SamePaLifecycleSource, type SamePaLifecycleRecord, type SamePaLifecyclePrefix, type SamePaLifecycleTotal,
@@ -168,6 +169,13 @@ const assemble = <T>(db: DatabaseSync, current: boolean, body: (read: (kind: Sam
         same(op.physicalPitchReference, cut.physicalPitchReference); same(op.physicalOperationReference, cut.physicalOperationReference);
         if (cut.stage !== 'field_active' || op.evaluationTick !== cut.evaluationTick || cut.outcomeReference || cut.resetReference)
           throw new Error('catch action and reception cannot advance physical time or reopen an outcome');
+        cut = { ...cut, operationReference: ref };
+      } else if (ref.owner === 'pa_live_ball_v1_actions') {
+        const op = readSamePaLiveBallStateFromSqlite(db, { ...ref, owner: 'pa_live_ball_v1_actions' }); same(op, raw.value);
+        same(op.source.viewReference, viewRef); same(op.lineage, old.view.lineage);
+        same(op.physicalPitchReference, cut.physicalPitchReference); same(op.physicalOperationReference, cut.physicalOperationReference);
+        if (cut.stage !== 'field_active' || op.evaluationTick !== cut.evaluationTick || cut.outcomeReference || cut.resetReference)
+          throw new Error('official Play or Time cannot advance physical time or reopen an outcome');
         cut = { ...cut, operationReference: ref };
       } else if (ref.owner === tables.outcome) {
         const op = readSamePaLifecycleOutcomeFromSqlite(db, { ...ref, owner: 'pa_lifecycle_v1_outcomes' }); same(op, raw.value);

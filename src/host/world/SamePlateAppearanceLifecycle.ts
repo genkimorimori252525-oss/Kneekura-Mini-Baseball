@@ -12,7 +12,7 @@ import type { SamePaDispatchMember } from './SamePlateAppearanceDispatchRoles';
 export const samePaLifecycleWorkOwners = Object.freeze(['pa_take_successor_v1_pitch_actions', 'pa_physical_v1_launches', 'pa_physical_v1_cuts',
   'pa_physical_v1_commitments', 'pa_physical_v1_resolutions', 'pa_physical_v1_field_roots', 'pa_physical_v1_field_steps',
   'batting_observation_v1_observations', 'batting_observation_v1_deliveries', 'batting_prediction_v1_predictions',
-  'batting_emotion_execution_v1_executions', 'batting_execution_v1_executions', 'pa_catch_v1_work', 'world_batter_run_plans', 'pa_lifecycle_v1_outcomes', 'pa_lifecycle_v1_resets'] as const);
+  'batting_emotion_execution_v1_executions', 'batting_execution_v1_executions', 'pa_catch_v1_work', 'pa_live_ball_v1_actions', 'world_batter_run_plans', 'pa_lifecycle_v1_outcomes', 'pa_lifecycle_v1_resets'] as const);
 export type SamePaLifecycleWorkReference = SamePaReference<typeof samePaLifecycleWorkOwners[number]>;
 export type SamePaLifecycleViewReference = SamePaReference<'pa_lifecycle_v1_execution_views'>;
 export type SamePaLifecyclePitchReference = SamePaReference<'pa_dispatch_v1_pitch_actions' | 'pa_take_successor_v1_pitch_actions' | 'pa_physical_v1_launches'>;
