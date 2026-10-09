@@ -19,7 +19,7 @@ export const managerBoundaryPolicy = { policyId: 'execution-learning', version: 
   availableAtDay: 10, successfulExecutionMean: 1,
   evidenceWeight: 1, uncertaintyFloor: 0.1,
   recentHistoryLimit: 8 };
-const setupExecution = (databasePath: string) => {
+const setupExecution = (databasePath: string, stableEstimate = false) => {
   const world = openSqliteWorldSettlementStore(databasePath);
   try {
     world.initialize({ careerId: 'career-a', clubs: [club()],
@@ -80,7 +80,7 @@ const setupExecution = (databasePath: string) => {
             evidence: 1 },
           resourceHealth: { mean: 1, uncertainty: 0,
             evidence: 1 },
-          executionFeasibility: { mean: 0.2,
+          executionFeasibility: stableEstimate ? { mean: 1, uncertainty: 0.1, evidence: 2 ** 54 } : { mean: 0.2,
             uncertainty: 0.4, evidence: 1 },
           opponentInformationResponse: { mean: 1,
             uncertainty: 0, evidence: 1 } },
@@ -120,11 +120,11 @@ const setupExecution = (databasePath: string) => {
 };
 
 
-export const managerBoundaryFixture = (cleanup: (() => void)[]) => {
+export const managerBoundaryFixture = (cleanup: (() => void)[], stableEstimate = false) => {
   const directory = mkdtempSync(join(tmpdir(), 'kneekura-manager-boundary-'));
   cleanup.push(() => rmSync(directory, { recursive: true, force: true }));
   const databasePath = join(directory, 'world.sqlite');
-  setupExecution(databasePath);
+  setupExecution(databasePath, stableEstimate);
   let history = openSqliteManagerBeliefHistoryStore(databasePath);
   let historyOpen = true;
   cleanup.push(() => { if (historyOpen) { history.close(); historyOpen = false; } });

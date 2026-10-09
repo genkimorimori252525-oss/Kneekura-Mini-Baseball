@@ -48,6 +48,8 @@ export type IssueRosterOpportunityInput = Readonly<{
   worldRevision: number;
   candidates: readonly LegalRosterActionBinding[];
   selectionAgent: ManagerDecisionAgent;
+  /** Optional accepted original history identity; legacy receipts omit it. */
+  managerBeliefRevision?: number;
   candidateActionIds?: readonly string[];
 }>;
 export type DurableRosterOpportunity = Readonly<{
@@ -60,6 +62,8 @@ export type DurableRosterOpportunity = Readonly<{
   opportunity: DecisionOpportunity;
   bindings: readonly LegalRosterActionBinding[];
   selectionAgent: ManagerDecisionAgent;
+  /** Optional accepted original history identity; legacy receipts omit it. */
+  managerBeliefRevision?: number;
   candidateActionIds?: readonly string[];
 }>;
 export type RosterExecutionRequest = Omit<
@@ -236,6 +240,13 @@ export const openSqliteManagerRosterDecisionStore = (
       || issued.bindings.some((binding, index) =>
         binding.actionId !== issued.opportunity.legalActionIds[index])) {
       throw new Error('corrupt issued roster opportunity');
+    }
+    if (issued.managerBeliefRevision !== undefined) {
+      if (!revision(issued.managerBeliefRevision)) throw new Error('invalid issued Manager belief revision');
+      const belief = readManagerBeliefBoundary(db, careerId, issued.selectionAgent.managerId, issued.managerBeliefRevision, practiceReader);
+      if (!belief || canonicalJson(belief.state.agent) !== canonicalJson(issued.selectionAgent.state)) {
+        throw new Error('issued opportunity differs from its original Manager belief');
+      }
     }
     return issued;
   };
@@ -430,6 +441,8 @@ export const openSqliteManagerRosterDecisionStore = (
         || input.candidates.length === 0) {
         throw new Error('invalid roster opportunity request');
       }
+      const managerBeliefRevision = input.managerBeliefRevision;
+      if (managerBeliefRevision !== undefined && !revision(managerBeliefRevision)) throw new Error('invalid accepted Manager belief revision');
       return transaction(() => {
         const clubRecord = clubRow(input.careerId, input.clubId);
         const rosterRecord = headRow(input.careerId);
@@ -472,6 +485,9 @@ export const openSqliteManagerRosterDecisionStore = (
           .get(input.careerId, manager.value.managerId) as
             { revision: number; state_json: string } | undefined
           : undefined;
+        if (managerBeliefRevision !== undefined && personRow?.revision !== managerBeliefRevision) {
+          throw new Error('stale accepted Manager belief revision');
+        }
         const personBoundary = personRow ? readManagerBeliefBoundary(db,
           input.careerId, manager.value.managerId, personRow.revision, practiceReader) : null;
         if (personRow) {
@@ -579,6 +595,7 @@ export const openSqliteManagerRosterDecisionStore = (
           clubAsOfDay: input.clubAsOfDay,
           control, opportunity, bindings: input.candidates,
           selectionAgent: input.selectionAgent,
+          ...(managerBeliefRevision === undefined ? {} : { managerBeliefRevision }),
           ...(input.candidateActionIds === undefined ? {}
             : { candidateActionIds: input.candidateActionIds }),
         });
@@ -597,7 +614,9 @@ export const openSqliteManagerRosterDecisionStore = (
           input.clubId, input.decisionId, issuedJson);
         for (const binding of input.candidates) assertCurrentMedicalRosterAction(db, input.careerId, binding);
         if (personBoundary) assertManagerBeliefBoundary(db, personBoundary, 'current', practiceReader);
-        return frozenJson<DurableRosterOpportunity>(issuedJson);
+        const saved = opportunityRow(input.careerId, input.clubId, input.decisionId);
+        if (!saved || saved.issued_json !== issuedJson) throw new Error('issued roster opportunity changed during admission');
+        return parsedOpportunity(input.careerId, input.clubId, input.decisionId, saved);
       });
     },
     readOpportunity(careerId: string, clubId: string,

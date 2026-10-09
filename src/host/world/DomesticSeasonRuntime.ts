@@ -150,10 +150,13 @@ export const prepareDomesticMatch = (
   stores: DomesticSeasonStores,
   input: Readonly<{ careerId: string; seasonId: string;
     gameId: string; matchState: CanonicalMatchState }>,
+  acceptedDay?: number,
 ): PreparedDomesticMatch => {
   const fixture = registerDomesticFixtureFromWorld(stores.world,
-    stores.archive, stores.match, input);
-  const match = stores.match.initializeMatch(input.gameId, input.matchState);
+    stores.archive, stores.match, input, acceptedDay);
+  const match = acceptedDay === undefined ? stores.match.initializeMatch(input.gameId, input.matchState)
+    : stores.match.initializeMatch(input.gameId, input.matchState, db =>
+    stores.archive.assertFixtureDayAtWrite(db, { careerId: input.careerId, seasonId: input.seasonId, gameId: input.gameId, day: acceptedDay }, fixture.binding));
   return Object.freeze({ fixture, match });
 };
 
@@ -168,6 +171,7 @@ export type DomesticOpeningMatchInput = Readonly<{
 export const prepareDomesticOpeningMatch = (
   stores: DomesticSeasonStores,
   raw: DomesticOpeningMatchInput,
+  acceptedDay?: number,
 ): PreparedDomesticMatch => {
   const input = cloneInert(raw);
   const fields = ['careerId', 'seasonId', 'gameId', 'ruleProfileId', 'playId'];
@@ -184,7 +188,7 @@ export const prepareDomesticOpeningMatch = (
     seasonId: input.seasonId, gameId: input.gameId,
     matchState: { ruleProfileId: profile.id, playId: input.playId,
       inning: 1, half: 'top', outs: 0, balls: 0, strikes: 0,
-      bases: { first: null, second: null, third: null }, score: { away: 0, home: 0 } } });
+      bases: { first: null, second: null, third: null }, score: { away: 0, home: 0 } } }, acceptedDay);
 };
 
 type DomesticGameSettlementStores = DomesticSeasonStores & Readonly<{
@@ -442,3 +446,28 @@ const prepareDomesticGameWorldBasis = (
   return { request, settlement };
 };
 import { isDeepStrictEqual } from 'node:util';
+
+/** Resume the retained original, including a historical schedule prefix after an
+ * unrelated accepted rainout. Re-read admission evidence before every retry. */
+export const resumeDomesticGameSettlement = (
+  stores: DomesticGameSettlementStores & CompletedGameOutcomeStores,
+  applicationId: string,
+) => {
+  const entry = stores.outbox.read(applicationId);
+  if (!entry) throw new Error('domestic settlement receipt is missing');
+  assertDomesticGameSources(stores, entry.request, true);
+  return stores.outbox.resume(applicationId, { matchStore: stores.match, worldStore: stores.world, outcomes: stores.outcomes });
+};
+export const resumeFoulDomesticGameSettlement = (
+  stores: DomesticGameSettlementStores & CompletedGameOutcomeStores & Pick<FoulTerminalWorldSettlementStores, 'foulTerminal'>,
+  applicationId: string,
+) => {
+  const entry = stores.outbox.completedTerminal.read(applicationId);
+  if (!entry) throw new Error('domestic terminal settlement receipt is missing');
+  assertDomesticGameSourceBasis(stores, entry.request.final.game, entry.request.worldInput, true);
+  return stores.outbox.completedTerminal.resume(applicationId, {
+    matchStore: stores.match, worldStore: stores.world, outcomes: stores.outcomes, foulTerminal: stores.foulTerminal });
+};
+
+export { dispatchDomesticCalendarDay } from './DomesticCalendarDayDispatch';
+export type { DomesticCalendarDayInput, DomesticCalendarDayStores, DomesticCalendarDayDispatch } from './DomesticCalendarDayDispatch';

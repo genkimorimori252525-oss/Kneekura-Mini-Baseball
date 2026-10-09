@@ -1,4 +1,6 @@
 import { NATIONAL_EXPOSURE_DEVELOPMENT_KIND, readNationalExposureDevelopmentBoundary } from './NationalExposureDevelopmentOrigin';
+import { assertNonPitchLearningEvent } from './SqliteNonPitchRepetitionStore';
+import { isNonPitchRepetitionEvent } from './NonPitchDevelopmentRepetition';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
 import { appendDevelopmentLearningEvent, type DevelopmentLearningEpisode, type DevelopmentLearningEventInput } from '../../core/world/development/DevelopmentLearningEpisode';
@@ -283,12 +285,15 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
     const readPublicAttempt = (row: Row, connection: EvidenceDb): PitchPracticeAttempt => {
       const verified = verification(), attempt = decode(row, connection, row.revision, verified);
       const evidence = JSON.parse(row.learning_evidence_json) as { sourceKind?: unknown } | null;
+      const originalEpisode = JSON.parse(row.episode_before_json) as DevelopmentLearningEpisode | null;
+      const hasNonPitchRepetition = originalEpisode?.events.some(isNonPitchRepetitionEvent) ?? false;
       if (evidence !== null && Object.hasOwn(evidence, 'sourceKind')) {
         if (evidence.sourceKind !== PRACTICE_DEVELOPMENT_KIND && evidence.sourceKind !== NATIONAL_EXPOSURE_DEVELOPMENT_KIND) throw new Error('invalid practice learning source kind');
         // The public DTO claims this earlier learning origin. Reauthenticate it
         // without making the internal physical decoder depend on an episode head.
         assertEpisodeBoundary(connection, row, verified);
       }
+      else if (hasNonPitchRepetition) assertEpisodeBoundary(connection, row, verified);
       return attempt;
     };
     const read = (attemptId: string): PitchPracticeAttempt | null => { check(attemptId); const row = rowById(db, attemptId); return row ? readPublicAttempt(row, db) : null; };
@@ -335,6 +340,7 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
         const event = JSON.parse(update.event_json) as DevelopmentLearningEventInput;
         if (update.before_revision !== current.revision || update.after_revision !== current.revision + 1 || update.episode_id !== expected.episodeId
           || json(event) !== update.event_json) throw new Error('practice episode prefix differs');
+        assertNonPitchLearningEvent(sources.episodes, connection, event, 'read');
         if (event.kind === 'PRACTICE_RECORDED') {
           const dependency = rowByActivity(connection, event.sourceEventId);
           if (dependency) {

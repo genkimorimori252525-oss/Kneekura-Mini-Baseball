@@ -39,10 +39,14 @@ export type RecruitmentEvidenceAuthority = Readonly<{
   readAcceptedScoutingSource(sourceId: string): AcceptedScoutingSource | null;
   readAcceptedRecruitmentSource(sourceId: string): AcceptedRecruitmentSource | null;
 }>;
+export type RecruitmentMarketAdmission = Readonly<{ origin: DomesticMarketTriggerReference; decisionDay: number }>;
+export class AcceptedRecruitmentSourceMissingError extends Error {
+  constructor() { super('accepted recruitment source is missing'); }
+}
 export type SqliteRecruitmentEvidenceStore = Readonly<{
   acceptScouting(sourceId: string, expectedRevision: number): ClubScoutingKnowledge;
   readKnowledge(careerId: string, clubId: string): ClubScoutingKnowledge | null;
-  acceptDecision(sourceId: string, expectedRevision: number): DurableRecruitmentDecision;
+  acceptDecision(sourceId: string, expectedRevision: number, marketAdmission?: RecruitmentMarketAdmission): DurableRecruitmentDecision;
   readDecision(sourceId: string): DurableRecruitmentDecision | null;
   close(): void;
 }>;
@@ -253,16 +257,25 @@ export const openSqliteRecruitmentEvidenceStore = (path: string, authority?: Rec
       });
     },
     readDecision(sourceId) { check(); return readRecruitmentDecisionFromSqlite(db, sourceId); },
-    acceptDecision(sourceId, expectedRevision) {
+    acceptDecision(sourceId, expectedRevision, rawMarketAdmission) {
       if (!id(sourceId) || !revision(expectedRevision)) throw new Error('invalid recruitment intake revision');
+      const marketAdmission = rawMarketAdmission === undefined ? null : JSON.parse(json(rawMarketAdmission)) as RecruitmentMarketAdmission;
+      if (marketAdmission && (!fields(marketAdmission, ['origin', 'decisionDay']) || !revision(marketAdmission.decisionDay))) {
+        throw new Error('invalid recruitment market admission');
+      }
       return transaction(() => {
         const raw = authority?.readAcceptedRecruitmentSource(sourceId) ?? null;
         const source = raw === null ? null : decisionInput(raw, sourceId), prior = readRecruitmentDecisionFromSqlite(db, sourceId);
+        const original = prior?.source ?? source;
+        if (original && marketAdmission && (json(original.marketOrigin ?? null) !== json(marketAdmission.origin)
+          || original.decision.decidedAtDay !== marketAdmission.decisionDay)) {
+          throw new Error('recruitment decision differs from accepted calendar day or market origin');
+        }
         if (prior) {
           if (prior.ledger.revision !== expectedRevision + 1 || source && json(source) !== json(prior.source)) throw new Error('recruitment source is frozen differently');
           return prior;
         }
-        if (!source) throw new Error('accepted recruitment source is missing');
+        if (!source) throw new AcceptedRecruitmentSourceMissingError();
         const { careerId, clubId } = source.decision, history = decisionHistory(db, careerId, clubId);
         if (history.ledger.revision !== expectedRevision) throw new Error('stale recruitment decision revision');
         const basis = readBasis(db, source), knowledge = scoutingHistory(db, careerId, clubId).state;

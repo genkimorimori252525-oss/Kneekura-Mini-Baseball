@@ -1,3 +1,7 @@
+import type { AcceptedOfficialScoringEvidenceAuthority } from '../SqliteOfficialScoringStore';
+import { totalOfficialPitchingRuns, type OfficialPitchingRun } from '../../core/world/competition/OfficialPitchingRunResponsibility';
+import { readOfficialPitchingRunOriginal } from './OfficialPitchingRunEvidenceFromSqlite';
+import { officialPitchingRunJudgments } from './OfficialPitchingRunJudgments';
 import { aggregateOfficialPlayerScoring } from '../../core/world/competition/OfficialPlayerScoringStatistics';
 import { deriveOfficialPlayerScoringFromSqlite } from './OfficialPlayerScoringEvidenceFromSqlite';
 import { createRequire } from 'node:module';
@@ -23,7 +27,8 @@ export type CompletedMatchPlayerOutcomes = Readonly<{
 /** Append-only attribution; every read/retry and aggregate authenticates its
  * complete edition history on this private connection. No statistics feed back
  * into Match truth or become an implicit scoring/calibration policy. */
-export const openSqliteOfficialPlayerOutcomeStore = (path: string) => {
+export const openSqliteOfficialPlayerOutcomeStore = (path: string,
+  authority?: Pick<AcceptedOfficialScoringEvidenceAuthority, 'readAcceptedPitchingRunJudgment'>) => {
   if (!id(path)) throw new Error('invalid official player outcome path');
   const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
   const db = new DatabaseSync(path);
@@ -84,6 +89,16 @@ export const openSqliteOfficialPlayerOutcomeStore = (path: string) => {
     }
     return values;
   };
+  const pitching = officialPitchingRunJudgments(db, (careerId, gameId) => {
+    const original = readOfficialPitchingRunOriginal(db, careerId, gameId);
+    if (original) {
+      const retained = history(careerId, original.competitionEditionId).filter(value => value.gameId === gameId);
+      if (retained.some(value => !original.outcomes.some(current => current && json(current) === json(value)))) {
+        throw new Error('pitching responsibility retained original ownership differs');
+      }
+    }
+    return original;
+  }, authority);
   const apply = (source: OfficialPlayerOutcomeSource): OfficialPlayerOutcomeEvidence => {
     const owned = derive(db, source);
     if (owned.kind === 'unavailable') {
@@ -118,6 +133,14 @@ export const openSqliteOfficialPlayerOutcomeStore = (path: string) => {
     return owned;
   };
   return Object.freeze({
+    readCompletedGamePitching(scope: Readonly<{ careerId: string; gameId: string }>) {
+      if (!scope || Object.keys(scope).sort().join('|') !== 'careerId|gameId' || !id(scope.careerId) || !id(scope.gameId)) throw new Error('invalid pitching responsibility scope');
+      return tx.read(() => pitching.read(scope.careerId, scope.gameId));
+    },
+    applyPitchingRunJudgment(sourceEventId: string) {
+      if (!id(sourceEventId)) throw new Error('invalid pitching run judgment Source');
+      return tx.write(() => pitching.apply(sourceEventId));
+    },
     apply(raw: OfficialPlayerOutcomeSource) {
       const source = input(raw);
       return tx.write(() => apply(source));
@@ -193,7 +216,20 @@ export const openSqliteOfficialPlayerOutcomeStore = (path: string) => {
         const originals = history(scope.careerId, scope.competitionEditionId);
         const scoring = aggregateOfficialPlayerScoring(originals.map(outcome => ({ outcome,
           contribution: deriveOfficialPlayerScoringFromSqlite(db, outcome) })), scope);
-        return freeze({ ...aggregateOfficialPlayerOutcomes(originals, scope), scoring });
+        const games = [...new Set(originals.filter(o => o.pitcherPlayerId === scope.playerId && o.gameDay <= scope.asOfDay).map(o => o.gameId))].sort();
+        const runs: OfficialPitchingRun[] = [], unavailableGames: string[] = [];
+        for (const gameId of games) {
+          const completed = pitching.read(scope.careerId, gameId);
+          if (!completed) { unavailableGames.push(gameId); continue; }
+          const sides = new Set(completed.outcomes.filter(o => o?.pitcherPlayerId === scope.playerId).map(o => o!.pitcher.side.toLowerCase()));
+          if (sides.size !== 1 || completed.competitionEditionId !== scope.competitionEditionId) throw new Error('pitching responsibility aggregate scope differs');
+          runs.push(...completed.runs.filter(run => sides.has(run.fieldingSide)));
+        }
+        const totals = totalOfficialPitchingRuns(runs, scope.playerId);
+        return freeze({ ...aggregateOfficialPlayerOutcomes(originals, scope), scoring,
+          pitchingResponsibility: { coverage: 'completed_attributed_games_only' as const, gameIds: games,
+            unavailableGames, runs, ...totals,
+            ...(unavailableGames.length ? { runsAllowed: { ...totals.runsAllowed, value: null }, earnedRuns: { ...totals.earnedRuns, value: null } } : {}) } });
       });
     },
     close() { tx.close(); },

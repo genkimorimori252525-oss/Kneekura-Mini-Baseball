@@ -1,4 +1,5 @@
 import { NATIONAL_EXPOSURE_DEVELOPMENT_KIND, readNationalExposureDevelopmentBoundary } from './NationalExposureDevelopmentOrigin';
+import { assertNonPitchLearningEvent } from './SqliteNonPitchRepetitionStore';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { readState as readClubState } from '../../core/world/club/ClubSchemas';
@@ -291,6 +292,7 @@ export const installOwnedPracticeOrders = (db: DatabaseSync, sources: PracticeOr
       .all(expected.episodeId, expected.revision) as { before_revision: number; after_revision: number; event_json: string; state_json: string }[];
     for (const event of events) {
       if (event.before_revision !== state.revision || event.after_revision !== state.revision + 1) throw new Error('practice order episode prefix differs');
+      assertNonPitchLearningEvent(episodes, connection, JSON.parse(event.event_json), 'read');
       state = appendDevelopmentLearningEvent(state, state.revision, JSON.parse(event.event_json));
       if (json(state) !== event.state_json) throw new Error('practice order original episode result differs');
     }

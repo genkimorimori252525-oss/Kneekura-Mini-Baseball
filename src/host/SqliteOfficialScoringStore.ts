@@ -23,6 +23,9 @@ export type PersistedOfficialScoring = Readonly<{
   record: SupportedOfficialScoringRecord;
 }>;
 export type AcceptedOfficialScoringEvidenceAuthority = Readonly<{
+  /** Additive completed-game assessment; existing play scoring archives stay immutable. */
+  readAcceptedPitchingRunJudgment?(sourceEventId: string):
+    import('../core/world/competition/OfficialPitchingRunResponsibility').OfficialPitchingRunJudgment | null;
   readAcceptedOfficialScoringEvidence(sourceEventId: string):
     AcceptedOfficialScoringEvidence | null;
 }>;

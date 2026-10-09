@@ -587,3 +587,70 @@ The original nine-area scope remains open. Moving-runner official appeal and
 scoring windows, causal non-third-out completion, remaining physical/reset/bunt
 compositions, and accepted autonomous game/season inputs still need completion.
 No numerical model or new runner route/turn policy is invented here.
+
+
+## Accepted Career days, pitcher responsibility and game repetitions
+
+Tested local commit: `35f3a5539d47e0bf3bf738e5ce1e8e04ea10caf6`.
+Source tree: `762ef2bd2aaa0b1b758ac5a0ceb3456f43cad392`.
+
+The integrated slice connects three original non-design areas:
+
+- Explicit accepted domestic days dispatch existing games, retained outcomes,
+  accepted recruitment/contracts and Manager roster work. The original day and
+  belief revision survive through actual Native write boundaries and historical
+  retry. Missing commands and unfinished receipts remain visible; no automatic
+  day completion or clock advancement is inferred.
+- Completed original scoring and player attribution identify inherited runner
+  responsibility across between-play pitching changes. Accepted run judgments
+  bind exact run stints and original pitcher liability. Missing facts and
+  unsupported mid-PA or complex retirement ordering remain unknown.
+- Prospective original-player opportunities connect actual batting contact,
+  glove contact and batter-runner motion to accepted relevance/exposure factors
+  and the existing learning owner. Historical MATCH workload supplies fatigue;
+  adoption charges no duplicate workload. Reserved/occupied adapters, mixed
+  exposure and standalone drills remain separate implementation work.
+
+The retained IFN decision-cut fixture is also connected. Its original fresh
+scenario and post-decision assertions retain their bytes; unarchived earlier
+transient outcomes are excluded from a resumed-tail claim. No actual IFN
+continuation ran as part of these finite checks.
+
+Independent review and corrective review are clear. Corrections bind Career day
+and equal-state belief revision at admission, retain every selected-player
+reservation identity mirror, and repair four older test fixtures while still
+witnessing their intended transaction rollback or authenticated-history refusal.
+All 18 protected blobs match.
+
+Full nonvisual compilation passed in 27.91 seconds. All 228 selected cases in
+22 files passed in 24.90 seconds, with zero skips or failures. Exact file and
+hierarchical-title inventories match; source, executable dependencies, runtime
+and controls stayed stable, with no surviving processes. The initial compiler
+failure is retained: three existing-type annotations corrected literal widening,
+an implicitly-any callback and an explicit reduced-proof test seam. Runtime
+behavior was unchanged, and the finite selection ran once after correction.
+
+Compiler configuration SHA-256:
+`88375016ae710a17185adbf2aba0e6eb41fc728e9c7009f9cddcb88902179212`.
+Finite configuration SHA-256:
+`9fcedb448cf8605ecb9b6cbd34e85990fa8cccd8d3177951a9ccabcb81a7e360`.
+Finite report SHA-256:
+`b1810303a091b9c1ba862bfa74594b6dc3431d2df1c5e9de0af2537dc4cfe463`.
+
+The separate genuine National continuation on source `d8c2ab75` retained four
+new capture/feet operations through execution revision 5. It reached the
+1200-second wall cap during the first defender observation admission; the
+37-assertion tail remains incomplete. Its closed consistent image equals the
+saved feet boundary, so future execution starts at the uncommitted observation.
+No original data or model was replaced.
+
+A separate passive historical execution read completed in 18.68 seconds and
+conserved its exact return and all 77 tables, schemas and rowids with zero writes.
+It locates most cost in original binding authentication; it does not measure an
+observation-admission improvement. A bounded existing-scope wiring correction
+and the retained-feet entry are being prepared independently.
+
+These selected Native checks use real owners with the synthetic or substituted
+ancestry stated in each component note. They do not establish a full physical
+game, season, three-exercise repetition scenario or overall nine-area completion.
+Private databases, logs, profiles and controls remain unpublished.

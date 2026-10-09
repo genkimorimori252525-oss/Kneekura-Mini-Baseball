@@ -30,6 +30,17 @@ vi.mock('./OfficialPlayerOutcomeEvidenceFromSqlite', async original => ({
     return JSON.parse(String(row.evidence_json));
   },
 }));
+// This fixture labels synthetic strikeouts as each physical owner; the terminal
+// scoring original is substituted with that same real archived scoring row.
+vi.mock('./ActualFoulTerminalScoringEvidenceFromSqlite', () => ({
+  terminalScoringProof: (_db: NativeDatabase, read: () => unknown) => read(),
+  foulTerminalScoringEvidenceFromSqlite(db: NativeDatabase) {
+    return { prepare(sourceId: string) {
+      const row = db.prepare('SELECT request_json,result_json FROM official_scoring_applications WHERE closure_id=?').get(sourceId);
+      return row ? { input: JSON.parse(String(row.request_json)).input, result: JSON.parse(String(row.result_json)) } : null;
+    } };
+  },
+}));
 const releases = vi.hoisted(() => ({ finalAllowed: [] as boolean[] }));
 vi.mock('./SamePlateAppearanceTerminalActivation', () => ({
   assertSamePaTerminalApplicationCompleted(_db: NativeDatabase, _id: string, allowFinal = false) { releases.finalAllowed.push(allowFinal); },
@@ -209,4 +220,18 @@ it('reauthenticates unavailable evidence after later writes and rolls back a cha
   expect(() => f.store.applyCompletedGame(scope)).toThrow('unavailable original changed during admission');
   expect(f.retained()).toEqual({ applications: [], heads: [] });
   expect(JSON.parse(String(f.db.prepare("SELECT evidence_json FROM test_outcome_originals WHERE source_id='closure-0'").get()!.evidence_json))).toEqual(unavailable);
+});
+
+it.each([false, true])('reads completed original pitching responsibility without rewriting archives (foul final: %s)', foul => {
+  const f = fixture(); if (foul) f.foulFinal(); f.store.applyCompletedGame(scope);
+  const archive = () => ({ official: f.db.prepare('SELECT * FROM applications ORDER BY application_id').all(),
+    scoring: f.db.prepare('SELECT * FROM official_scoring_applications ORDER BY scoring_application_id').all() });
+  const originalArchives = archive();
+  const before = f.retained(), result = f.store.readCompletedGamePitching(scope);
+  expect(result?.runs).toEqual([]);
+  expect(result?.outcomes).toHaveLength(6);
+  expect(result?.judgmentSourceEventId).toBeNull();
+  expect(f.store.aggregate({ careerId: 'career', competitionEditionId: 'edition', playerId: 'AWAY', asOfDay: 5 }).pitchingResponsibility)
+    .toMatchObject({ coverage: 'completed_attributed_games_only', gameIds: ['game'], runsAllowed: { value: 0 }, earnedRuns: { value: 0 } });
+  f.store.close(); expect(f.open().readCompletedGamePitching(scope)).toEqual(result); expect(f.retained()).toEqual(before); expect(archive()).toEqual(originalArchives);
 });

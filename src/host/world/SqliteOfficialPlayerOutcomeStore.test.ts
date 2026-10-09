@@ -58,6 +58,8 @@ vi.mock('./OfficialPlayerScoringEvidenceFromSqlite', () => ({
   },
 }));
 
+vi.mock('./OfficialPitchingRunEvidenceFromSqlite', () => ({ readOfficialPitchingRunOriginal: () => null }));
+
 const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
 const stores: { close(): void }[] = [];
 afterEach(() => {

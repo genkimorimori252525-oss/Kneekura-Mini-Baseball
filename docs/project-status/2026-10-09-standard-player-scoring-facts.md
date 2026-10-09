@@ -42,3 +42,5 @@ The final selected `ActualLiveScoringAdmission.test.ts` case passed in 7.71 seco
 
 
 The follow-on Source/dispatch selection passed 22 cases across `OfficialScorerJudgmentExtensions.test.ts`, `OfficialPlayerScoringStatistics.test.ts` and `OfficialScoring.test.ts` in 5.45 seconds. The four new cases use real Native official/scoring archives with explicit closed Core fixtures and substituted player attribution. They cover unsuccessful FC sacrifice, caught-foul sacrifice/RBI, exact retry/reopen without callbacks, unchanged official rows and rejection of mismatched original runner/catch/award facts. They do not qualify autonomous physical catch generation.
+
+The later [pitching responsibility connection](2026-10-09-pitching-run-responsibility.md) implements original runner stints, inherited charges and additive accepted earned judgments. Its explicit unsupported event boundaries supersede the earlier general responsibility-owner gap above.
