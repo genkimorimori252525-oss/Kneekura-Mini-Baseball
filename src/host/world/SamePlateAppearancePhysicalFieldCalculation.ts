@@ -37,6 +37,7 @@ export const deriveSamePaPhysicalFieldRoot=(db:DatabaseSync,source:SamePaPhysica
   calibration:SamePaPhysicalFieldCalibration|null;
 }>)=>{
   const {launch,action,resolution,currentView}=input,actor=action.actor;
+  if(source.liveProducerProfile&&Object.values(actor.match.bases).some(id=>id!==null))throw new Error('reserved live producer profile requires original empty bases');
   if(!resolution.contact||resolution.physicalPitchSourceId!==launch.source.sourceId||resolution.timeline.status.kind!=='batted_ball_pending')throw new Error('physical field root requires actual bat contact');
   if(source.throughTick<currentView.cut.evaluationTick||source.throughTick<resolution.evaluationTick)throw new Error('physical field root backdates its current cut');
   const binding=(()=>{

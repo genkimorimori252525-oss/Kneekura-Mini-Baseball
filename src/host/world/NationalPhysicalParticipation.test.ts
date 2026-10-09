@@ -5,6 +5,7 @@ import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicy
 import { appendPopularityExposure, createPopularityHistory } from '../../core/world/popularity/PopularityObservationSource';
 import { expect, it } from 'vitest';
 import { nationalPhysicalPregameFixture, nationalPhysicalFixture } from './NationalPhysicalMatchFixtures.test-support';
+import { readActualLiveOriginalFixture } from './ActualLiveOriginalFixtureFromSqlite';
 
 it('captures the accepted Regional fixture and immutable original National membership without changing Club assignments', () => {
   const f = nationalPhysicalPregameFixture();
@@ -14,6 +15,10 @@ it('captures the accepted Regional fixture and immutable original National membe
     expect(origin.fixture).toMatchObject({ competitionScope: 'NATIONAL', homeClubId: 'JP', awayClubId: 'KR', gameDay: 121 });
     expect(origin.participants).toHaveLength(19);
     expect(origin.participants[0].eligibility.decision.eligible).toBe(true);
+    expect(readActualLiveOriginalFixture(f.db, f.source.gameId, origin.participants.map(p => p.binding))).toEqual({
+      careerId: 'career-a', seasonId: f.source.editionId,
+      game: { gameId: f.source.gameId, homeClubId: 'JP', awayClubId: 'KR' },
+    });
     expect(f.origins.capture(f.source)).toEqual(origin);
     expect(f.roster.readHead('career-a', 'club-a')).toEqual(before);
   } finally { f.close(); }

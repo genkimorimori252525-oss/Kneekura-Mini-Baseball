@@ -14,6 +14,7 @@ export type SamePaPhysicalFieldReference = SamePaReference<'pa_physical_v1_field
 type CalibrationReference = SamePaReference<'pa_lifecycle_v1_execution_calibrations'>;
 type StepReference = SamePaReference<'pa_physical_v1_field_steps'>;
 export type SamePaPhysicalFieldAction =
+  | Readonly<{ kind: 'retained_quantizer_checkpoint_v1' }>
   | Readonly<{ kind: 'batter_run_motion_v1'; planReference: SamePaReference<'world_batter_run_plans'>;
       stationaryHoldContinuations?: readonly Readonly<{ playerId: string; decisionReference: StepReference; throughTick: number }>[] }>
   | Readonly<{ kind: 'defender_observation_v1'; member: SamePaDispatchMember; calibrationReference: CalibrationReference;
@@ -30,6 +31,8 @@ export type SamePaPhysicalFieldAction =
   | Readonly<{ kind: 'throw_checkpoint_v1'; planReference: StepReference; throughElapsedSeconds: number }>
   | Readonly<{ kind: 'capture_checkpoint_v1'; candidateReference: SamePaPhysicalFieldReference; throughElapsedSeconds: number }>;
 export type SamePaPhysicalFieldActionResult =
+  | Readonly<{ kind: 'retained_quantizer_checkpoint_v1'; boundary: import('../../core/sim/liveAction/QuantizerClosedGenerationBoundary').QuantizerClosedGenerationBoundary;
+      status: 'checkpoint_reached' | 'physical_boundary' }>
   | SamePaCatchDefenderResponse
   | Readonly<{ kind: 'batter_run_motion_v1'; planReference: SamePaReference<'world_batter_run_plans'>; playerId: string;
       controllerSegmentIndex: number; coverageThroughTick: number; planThroughTick: number }>
@@ -47,7 +50,9 @@ const unit = (v: unknown) => typeof v === 'number' && Number.isFinite(v) && v >=
 const member = (value: unknown, calibrationReference: unknown) => samePaDispatchMemberValid(value)
   && ref(calibrationReference, 'pa_lifecycle_v1_execution_calibrations');
 export const samePaPhysicalFieldActionInput = (a: SamePaPhysicalFieldAction): void => {
-  if (a?.kind === 'defender_observation_v1') {
+  if (a?.kind === 'retained_quantizer_checkpoint_v1') {
+    if (!fields(a, ['kind'])) throw new Error('invalid retained quantizer checkpoint Source');
+  } else if (a?.kind === 'defender_observation_v1') {
     const v = a.view, target = v?.attentionTarget;
     if (!fields(a, ['kind', 'member', 'calibrationReference', 'previousObservationReference', 'view', ...('catchWorkReference' in a ? ['catchWorkReference'] : [])]) || !member(a.member, a.calibrationReference)
       || 'catchWorkReference' in a && !ref(a.catchWorkReference, 'pa_catch_v1_work')

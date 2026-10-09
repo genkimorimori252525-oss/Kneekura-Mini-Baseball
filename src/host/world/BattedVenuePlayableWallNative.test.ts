@@ -1,5 +1,6 @@
 // Genuine Native consumer gate for the coordinator's consolidated run.
 import { expect, it } from 'vitest';
+import { NPB_2026_RULE_PROFILE } from '../../core/rules/RuleProfile';
 import { createBattedBallFlightEvidence } from '../../core/sim/ball/BattedBallFlightEvidence';
 import { battedWorldFieldFixture } from './BattedWorldFieldFixtures.test-support';
 import { openSqliteBattedWorldFieldExecutionStore, type AcceptedBattedWorldFieldExecution } from './SqliteBattedWorldFieldExecutionStore';
@@ -8,44 +9,58 @@ import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSql
 
 it('WALL-N01 binds an actual later wall to accepted grounded-fair policy and replays its immutable original venue', () => {
   // This explicit test geometry/material is a physical input, not game calibration.
-  const x = battedWorldFieldFixture(undefined, true, false, undefined, { groundRestitution: 0,
+  const x = battedWorldFieldFixture(undefined, true, false, 0, { groundRestitution: 0,
+    originalProfile: { ruleProfileId: NPB_2026_RULE_PROFILE.id },
     world(world) {
       const parameters = world.flight.source.execution.ballFlightParameters;
       const forecast = createBattedBallFlightEvidence({ contact: world.flight.flight.contact, parameters, searchDurationTicks: 2_000_000 });
       const ground = forecast.firstGroundContact!;
       const v = ground.state.velocity, length = Math.hypot(v.x, v.z);
       if (!(length > 0)) throw new Error('WALL_NATIVE_GROUND_APPROACH_REQUIRED');
-      const center = { x: ground.state.position.x + v.x / length * 0.5, z: ground.state.position.z + v.z / length * 0.5 };
+      const bases = world.flight.physicalPitch.frame.initialWorld!.source.worldSetup.baseCenters;
+      // The policy requires fair territory to exist before the wall. Place the
+      // test surface beyond the original gates, then execute that ground path.
+      const distance = Math.max(0, ...[bases.first, bases.third].map(base =>
+        ((base.x - ground.state.position.x) * v.x + (base.z - ground.state.position.z) * v.z) / length)) + 1;
+      const center = { x: ground.state.position.x + v.x / length * distance, z: ground.state.position.z + v.z / length * distance };
       const model = world.models.get(world.model.sourceId)!;
       world.models.set(model.sourceId, { ...model, surfaces: [{ surfaceId: 'accepted-playable-wall',
         start: { x: center.x - v.z / length * 10, z: center.z + v.x / length * 10 },
         end: { x: center.x + v.z / length * 10, z: center.z - v.x / length * 10 }, minimumHeight: 0, maximumHeight: 10 }] });
     } });
   try {
-    let field = x.fields.accept(x.source.sourceId);
+    // This is the original accepted horizon, set before any field action exists.
+    const physicalSource = { ...x.source, throughTick: x.source.availableAtTick + 3_000_000 };
+    x.sources.set(physicalSource.sourceId, physicalSource);
+    let field = x.fields.accept(physicalSource.sourceId);
     const isWall = () => field.field.motion.world.kind === 'boundary'
       && field.field.motion.world.contacts.length === 1
       && field.field.motion.world.contacts[0].kind === 'surface'
       && field.field.motion.world.contacts[0].surfaceId === 'accepted-playable-wall';
     for (let i = 0; i < 16 && !isWall(); i++) {
-      const source = { ...x.source, sourceId: `wall-physical-${i}`, previousFieldSourceId: field.source.sourceId };
+      const source = { ...physicalSource, sourceId: `wall-physical-${i}`, previousFieldSourceId: field.source.sourceId };
       x.sources.set(source.sourceId, source); field = x.fields.accept(source.sourceId);
     }
     expect(isWall(), 'WALL_NATIVE_PHYSICAL_CONTACT_PREREQUISITE').toBe(true);
     const world = field.response.touch.worldContact, pitch = world.flight.physicalPitch;
+    expect(pitch.frame.match.ruleProfileId).toBe(NPB_2026_RULE_PROFILE.id);
+    expect(x.f.official.getMatch(pitch.frame.gameId)?.matchState.ruleProfileId).toBe(NPB_2026_RULE_PROFILE.id);
     const policy: AcceptedBattedVenuePlayableWallPolicy = { sourceId: 'venue-wall', sourceVersion: 'explicit-fixture-v1',
       version: 'batted_venue_playable_wall_policy_v1', gameId: pitch.frame.gameId, playId: pitch.frame.match.playId,
       physicalPitchSourceId: pitch.source.sourceId, fixtureEventId: world.model.fixtureEventId, venueId: world.model.venueId,
       baseFieldSourceId: field.source.sourceId, worldModelSourceId: world.model.sourceId,
       worldModelSourceVersion: world.model.sourceVersion, availableAtDay: pitch.frame.batterActor!.binding.gameDay,
       rulePolicy: { version: 'grounded_fair_playable_wall_v1', ruleProfileId: pitch.frame.match.ruleProfileId,
-        rulesRevision: '2026', surfaceIds: ['accepted-playable-wall'] } };
+        rulesRevision: NPB_2026_RULE_PROFILE.rulesRevision, surfaceIds: ['accepted-playable-wall'] } };
     const legacy: AcceptedBattedWorldFieldExecution = { sourceId: 'wall-rule-legacy', sourceVersion: 'v1',
       baseFieldSourceId: field.source.sourceId, previousExecutionSourceId: null, action: { kind: 'first_base_race' } };
     const sources = new Map([[legacy.sourceId, legacy]]), authority = { readAcceptedExecution: (id: string) => sources.get(id) ?? null };
     const store = x.f.track(openSqliteBattedWorldFieldExecutionStore(x.f.path, x.fields, authority));
     const old = store.accept(legacy.sourceId);
     if (old.execution.kind !== 'first_base_race') throw new Error('first-base rule expected');
+    expect(old.execution.fieldTerritory).toMatchObject({ kind: 'resolved', territory: 'fair', basis: 'base_gate' });
+    if (old.execution.fieldTerritory.kind !== 'resolved') throw new Error('WALL_NATIVE_INDEPENDENT_FAIR_PREREQUISITE');
+    expect(old.execution.fieldTerritory.moment.elapsedSeconds).toBeLessThan(field.field.motion.world.moment.elapsedSeconds);
     expect(old.execution.pendingContacts).toContainEqual(expect.objectContaining({ reason: 'surface_policy_pending' }));
     expect(old.execution.groundRule).toBeNull();
     const source: AcceptedBattedWorldFieldExecution = { ...legacy, sourceId: 'wall-rule-policy', previousExecutionSourceId: legacy.sourceId,

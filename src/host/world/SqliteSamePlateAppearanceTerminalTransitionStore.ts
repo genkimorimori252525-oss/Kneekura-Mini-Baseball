@@ -65,16 +65,18 @@ export const openSqliteSamePlateAppearanceTerminalTransitionStore = (path: strin
             .get(source.scoringApplicationId, source.applicationId)) throw new Error('same-PA transition has an unowned preexisting official effect');
       });
       const application = candidate.officialApplication;
-      // This endpoint family owns closed walk/strikeout outcomes. A live-ball
-      // application needs its own scoring evidence and cannot use this arm.
-      if (application.kind !== 'non_live') throw new Error('same-PA terminal transition requires its owned non-live scoring arm');
+      if ((application.kind === 'live_ball') !== !!candidate.scoringEvidence) throw new Error('same-PA terminal scoring evidence arm differs');
       if ('game' in application) same(official.prepareFinalization(application).write().readResult(), candidate.official, 'normal final result differs');
       else {
         const prepared = official.prepareActivation(application);
         if (prepared.kind !== 'write') throw new Error('same-PA transition unexpected official retry');
         same(prepared.write().readResult(), candidate.official, 'normal activation result differs');
       }
-      same(scoring.apply({ scoringApplicationId: source.scoringApplicationId, officialApplication: application }), candidate.scoring, 'normal scoring result differs');
+      const scored=application.kind==='live_ball'
+        ?createSqliteOfficialScoringWriter(db,{readAcceptedOfficialScoringEvidence:sourceEventId=>sourceEventId===candidate.scoringEvidence!.sourceEventId?candidate.scoringEvidence!:null})
+          .apply({scoringApplicationId:source.scoringApplicationId,officialApplication:application,sourceEventId:candidate.scoringEvidence!.sourceEventId})
+        :scoring.apply({ scoringApplicationId: source.scoringApplicationId, officialApplication: application });
+      same(scored, candidate.scoring, 'normal scoring result differs');
       db.prepare('INSERT INTO main.pa_terminal_v1_transitions VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)').run(...Object.values(samePaTransitionRow(candidate)));
       proof(() => {
         same(deriveSamePaTerminalTransition(db, source, candidate, 'current'), candidate, 'basis changed after effects');

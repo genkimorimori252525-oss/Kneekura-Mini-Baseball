@@ -4,6 +4,8 @@ import { readSamePaLiveWorkFromSqlite } from './SamePlateAppearanceLiveWorkFromS
 import { appendNativeCatchWork } from './SamePlateAppearanceCatchWorkNative.test-support';
 import { appendNativeBatterRunCheckpoint } from './SamePlateAppearanceBatterRunNative.test-support';
 import { appendNativeCaughtDefenderResponse } from './SamePlateAppearanceCatchResponseNative.test-support';
+import { completeNativeFairCatchTerminal } from './SamePlateAppearanceFairCatchTerminalNative.test-support';
+import { NPB_2026_RULE_PROFILE } from '../../core/rules/RuleProfile';
 import { REFERENCE_BASEBALL_AERODYNAMICS } from '../../core/sim/ball/BaseballAerodynamics';
 import { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 import { prepareInFlightBattingSwing } from './InFlightBattingLifecycleFixture.test-support';
@@ -23,20 +25,27 @@ import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support'
 /** One real Native scenario for the integrated batch. The exact-observation
  * declaration is an independent finite synthetic calibration; nominal model
  * bytes remain owned and unchanged. It is not a production response model. */
-it('IFN01 owned in-flight samples, delayed delivery, explicit appraisal and prepared input feed atomic ordinary swing commitment', () => {
+it('IFN01 original swing, secured fair catch, received response and exact physical end complete TOTAL, scoring and next-batter activation', () => {
   const declared = dispatchCalibrationValues().batter_observation;
   const explicitBatterObservation = { ...declared, calibration: { ...declared.calibration, errorParameters: { ...declared.calibration.errorParameters,
     minimumPositionErrorMeters: 0, maximumPositionErrorMeters: 0, minimumVelocityErrorMps: 0, maximumVelocityErrorMps: 0 } } };
   const defenderValues = dispatchCalibrationValues().defender_observation;
   const explicitDefenderObservation = { ...defenderValues,
     memoryDecayParameters: { ...defenderValues.memoryDecayParameters, ticksPerSecond: 1_000_000 },
+    // Original fixture sensory cadence covers this short response interval;
+    // its still-future refresh remains visible in the final work census.
+    refreshPolicy: { attendedIntervalTicks: 1_000, peripheralIntervalTicks: 1_000 },
     errorParameters: { ...defenderValues.errorParameters, minimumDetectionQuality: 0,
       minimumPositionErrorMeters: 0, maximumPositionErrorMeters: 0, minimumVelocityErrorMps: 0, maximumVelocityErrorMps: 0 } };
   const throwScene = physicalThrowSceneFixture();
   // Independent synthetic accepted command coverage, long enough for the
   // existing decision/first-step delays. No expired motor is renewed by time.
   const explicitDefenderLocomotion = { ...dispatchCalibrationValues().defender_locomotion, maxIntegrationStepTicks: 500 };
-  const h = samePaPhysicalLifecycleFixture({ explicitBatterObservation, explicitDefenderObservation, explicitDefenderLocomotion, explicitDefenderGloveOffsets: throwScene.gloveOffsets }), { f } = h;
+  // Original accepted initial-world geometry. The centered diamond is declared
+  // before the actor, swing and field exist; no later territory is relabeled.
+  const originalBaseCenters = { first: { x: 19.09, z: 19.09 }, second: { x: 0, z: 38.18 }, third: { x: -19.09, z: 19.09 } };
+  const h = samePaPhysicalLifecycleFixture({ explicitBatterObservation, explicitDefenderObservation, explicitDefenderLocomotion,
+    explicitDefenderGloveOffsets: throwScene.gloveOffsets, originalBaseCenters, profile: { ruleProfileId: NPB_2026_RULE_PROFILE.id } }), { f } = h;
   try {
     const before = h.current(), readyAtUs = Math.max(before.view.cut.evaluationTick, before.view.cut.bodyCut.completedAtTick);
     const originalHeads = f.db.prepare('SELECT * FROM world_player_workload_heads ORDER BY career_id,player_id').all();
@@ -45,7 +54,8 @@ it('IFN01 owned in-flight samples, delayed delivery, explicit appraisal and prep
       { ticksPerSecond: 1_000_000, integrationStepTicks: 2_000, gravityY: -9.81, aerodynamics: REFERENCE_BASEBALL_AERODYNAMICS });
     const fieldPreparations: ReturnType<typeof prepareFreshPhysicalFieldFixture>[] = [];
     const s = prepareInFlightBattingSwing(h, action, 'in-flight-fixture:pitch3', owned => {
-      fieldPreparations.push(prepareFreshPhysicalFieldFixture(h, action, owned.posture, owned.postureReference, 'in-flight-fixture:field3'));
+      fieldPreparations.push(prepareFreshPhysicalFieldFixture(h, action, owned.posture, owned.postureReference, 'in-flight-fixture:field3',
+        { liveProducerProfile: 'same_pa_empty_base_catch_v1' }));
     });
     expect(s.beforeLaunch.eventCount).toBe(1); expect(s.beforeLaunch.worldRevision).toBe(0);
     expect(s.intent.originalIntent.attempt).toBe('ordinary_swing');
@@ -138,10 +148,10 @@ it('IFN01 owned in-flight samples, delayed delivery, explicit appraisal and prep
     expect(fieldRule.originalMatch).toEqual(f.actor.match);
     expect(fieldRule.originalTimeline).toEqual(s.resolution.timeline);
     expect(fieldRule.contactReference).toEqual(s.resolutionReference);
-    if (fieldRule.fairCatch.kind === 'same_pa_fair_catch_rule_basis_v1') {
-      expect(fieldRule.fairCatch.correctRuling.outsAfter).toBe(f.actor.match.outs + 1);
-      expect(fieldRule.fairCatch.physicalEnd).toBeNull(); expect(fieldRule.fairCatch.operativeCall).toBeNull();
-    }
+    expect(fieldRule.fairCatch.kind).toBe('same_pa_fair_catch_rule_basis_v1');
+    if (fieldRule.fairCatch.kind !== 'same_pa_fair_catch_rule_basis_v1') throw new Error('IFN01 real secured capture is not an airborne fair catch');
+    expect(fieldRule.fairCatch.correctRuling.outsAfter).toBe(f.actor.match.outs + 1);
+    expect(fieldRule.fairCatch.physicalEnd).toBeNull(); expect(fieldRule.fairCatch.operativeCall).toBeNull();
     expect(fieldRule.evidence.terminal).toEqual({ kind: 'pending', reason: 'reserved_live_play_end_owner_missing', physicalEnd: null });
     expect(liveWork.census.participantCurves).toHaveLength(10);
     expect(liveWork.census.defenderDecisions.consumed.some(d => d.decisionReference.sourceId === fieldActions.decision.value.source.sourceId)).toBe(true);
@@ -154,9 +164,11 @@ it('IFN01 owned in-flight samples, delayed delivery, explicit appraisal and prep
     expect(oldFieldRule.kind).toBe('same_pa_field_rule_evidence_v1');
     expect(() => withSqliteReadTransaction(f.db, () => readSamePaFieldRuleEvidenceFromSqlite(f.db, fieldActions.motionViewReference, 'current'))).toThrow();
 
-    const caught = appendNativeCatchWork(h, fieldActions, 'in-flight-fixture:catch-information');
+    // The original model makes one defender's receipt due now and the other
+    // nine receipts future. The Core reception calculation owns that result.
+    const caught = appendNativeCatchWork(h, fieldActions, 'in-flight-fixture:catch-information', { otherRecipientDelayTicks: 1_000_000 });
     const caughtResponse = appendNativeCaughtDefenderResponse(h, fieldActions, caught, 'in-flight-fixture:catch-response');
-    appendNativeBatterRunCheckpoint(h, field.root, caughtResponse.adopted, s.posture, 'in-flight-fixture:batter-run');
+    const batterRun = appendNativeBatterRunCheckpoint(h, field.root, caughtResponse.adopted, s.posture, 'in-flight-fixture:batter-run');
 
     expect(f.db.prepare('SELECT * FROM world_player_workload_heads ORDER BY career_id,player_id').all()).toEqual(originalHeads);
     const reopenedPerception = f.x.f.track(openSqliteBattingPerceptionStore(f.path));
@@ -167,5 +179,6 @@ it('IFN01 owned in-flight samples, delayed delivery, explicit appraisal and prep
     expect(reopenedInput.acceptInput(s.input.source.sourceId)).toEqual(s.input);
     expect(reopenedEmotion.accept(s.emotion.source.sourceId)).toEqual(s.emotion);
     expect(h.physical.readOperation(reference('pa_physical_v1_commitments', s.commitment)).record).toEqual(s.commitment);
+    completeNativeFairCatchTerminal(h, field.root, batterRun.moved, caught, 'in-flight-fixture:fair-terminal');
   } finally { h.close(); }
 }, 1_200_000);

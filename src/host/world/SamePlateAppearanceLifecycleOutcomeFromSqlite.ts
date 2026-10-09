@@ -1,4 +1,5 @@
 import { readSamePaLifecycleClaimRows } from './SamePlateAppearanceLifecycleClaimGuard';
+import { deriveSamePaCatchLifecycleOutcome } from './SamePlateAppearanceCatchLifecycleOutcomeFromSqlite';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
 import { deriveBallWorldSettledFoulDeadEvidence } from '../../core/rules/BallWorldSettledFoulDeadEvidence';
@@ -39,7 +40,7 @@ const row=(db:DatabaseSync,kind:Kind,id:string)=>{
     db.prepare(`SELECT * FROM main.${table} WHERE source_id=$id OR ${claim('source_json',['sourceId'],'$id')} OR ${claim('snapshot_json',['source','sourceId'],'$id')}`).all({id}).map(row=>({table,row}))):[];
   if(rows.length>1||rows.length===1&&(rows[0].table!==tables[kind]||rows[0].row.source_id!==id))throw new Error('lifecycle closure identity alias differs');if(!rows.length)readSamePaLifecycleClaimRows(db);return rows[0]?.row??null;
 };
-const fieldEvidence=(db:DatabaseSync,b:SamePaLifecycleViewBasis)=>{
+export const samePaOutcomeFieldEvidence=(db:DatabaseSync,b:SamePaLifecycleViewBasis)=>{
   const prefix=readSamePaLifecycleRecordFromSqlite(db,'prefix',b.view.source.prefixReference.sourceId) as SamePaLifecyclePrefix;
   const fields:(SamePaPhysicalFieldRoot|SamePaPhysicalFieldStep)[]=[],commands:SamePaControllerCommand[]=[];
   for(const ref of prefix.source.eventReferences){
@@ -65,7 +66,7 @@ const fieldEvidence=(db:DatabaseSync,b:SamePaLifecycleViewBasis)=>{
   }
   const rootRef=reference('pa_physical_v1_field_roots',root);
   for(const actor of root.field.motion.actors)commands.push({kind:'field_primitive',sourceReference:rootRef,playerId:actor.playerId,role:actor.primitive.role,validThroughTick:actor.primitive.endTick,originalCommand:actor.primitive,originalCommandHash:hash(actor.primitive)});
-  for(const step of fields)if(step.kind==='same_pa_physical_field_step_v1'&&step.actionResult?.kind==='defender_motion_v1'){
+  for(const step of fields)if(step.kind==='same_pa_physical_field_step_v1'&&(step.actionResult?.kind==='defender_motion_v1'||step.actionResult?.kind==='batter_run_motion_v1')){
     const stepRef=reference('pa_physical_v1_field_steps',step);
     for(const actor of step.field.motion.actors)commands.push({kind:'field_primitive',sourceReference:stepRef,playerId:actor.playerId,role:actor.primitive.role,
       validThroughTick:actor.primitive.endTick,originalCommand:actor.primitive,originalCommandHash:hash(actor.primitive)});
@@ -77,7 +78,7 @@ const fieldEvidence=(db:DatabaseSync,b:SamePaLifecycleViewBasis)=>{
     horizon:last.field.motion.world.moment,contacts,acquisitions},baseContacts,groundSegments};
   return{field,commands,root,last};
 };
-const retirement=(b:SamePaLifecycleViewBasis,commands:readonly SamePaControllerCommand[],completedAtTick:number):SamePaControllerRetirementBasis=>freeze({
+export const samePaOutcomeRetirement=(b:SamePaLifecycleViewBasis,commands:readonly SamePaControllerCommand[],completedAtTick:number):SamePaControllerRetirementBasis=>freeze({
   kind:'same_pa_original_controller_retirement_basis_v1',physicalPitchReference:b.view.cut.physicalPitchReference,physicalOperationReference:b.view.cut.physicalOperationReference,
   completedAtTick,completeCoverageHash:b.view.coverageHash,participants:[b.actor.binding,...b.actor.defenderBindings].map(p=>({playerId:p.playerId,personId:p.personId,
     ownedCommands:commands.filter(c=>c.playerId===p.playerId)}))});
@@ -85,10 +86,11 @@ const outcome=(db:DatabaseSync,source:AcceptedSamePaLifecycleOutcome,current:boo
   const b=(current?readCurrentSamePaLifecycleViewFromSqlite:readHistoricalSamePaLifecycleViewFromSqlite)(db,source.viewReference),c=b.view.cut;
   same(source.enrollmentReference,b.view.lineage.enrollmentReference);same(source.physicalOperationReference,c.physicalOperationReference);
   if(c.outcomeReference||c.resetReference)throw new Error('lifecycle outcome already consumed');
+  if(source.kind==='fair_catch')return deriveSamePaCatchLifecycleOutcome(db,source,b,current);
   let timeline=c.timeline,completed=c.evaluationTick,physicalEnd:SamePaLifecycleOutcome['physicalEnd']=null,proof:unknown,commands:SamePaControllerCommand[]=[];
   if(source.kind==='untouched_foul'){
     if(c.stage!=='field_active'||timeline.status.kind!=='batted_ball_pending')return pending('actual_untouched_field_cut_required');
-    const owned=fieldEvidence(db,b);if(source.rulePolicy?.ruleProfileId!==b.actor.match.ruleProfileId)throw new Error('lifecycle foul policy differs from Match');
+    const owned=samePaOutcomeFieldEvidence(db,b);if(source.rulePolicy?.ruleProfileId!==b.actor.match.ruleProfileId)throw new Error('lifecycle foul policy differs from Match');
     const evidence=deriveBallWorldSettledFoulDeadEvidence({field:owned.field,count:timeline.status.count,policy:source.rulePolicy!});
     if(evidence.interpretation.kind!=='dead_ball')return pending(evidence.interpretation.reason);
     completed=evidence.interpretation.moment.ball.tick;if(completed!==c.evaluationTick)throw new Error('lifecycle physical stop must be the exact current cut');
@@ -121,9 +123,9 @@ const outcome=(db:DatabaseSync,source:AcceptedSamePaLifecycleOutcome,current:boo
     if(kind!=='appeal'&&profile.officialWindows[kind]!.available)return pending('owned_'+kind+'_decision_required');}
   const instructionIds=[source.official.assignment.sourceId,source.official.call.sourceId,...source.official.events.map(e=>e.sourceId)];
   for(const id of instructionIds){for(const table of Object.keys(samePaLifecycleSchema)){
-    const conflicts=db.prepare(`SELECT source_id FROM main.${table} WHERE source_id=$id OR ${claim('source_json',['official','assignment','sourceId'],'$id')}
+    const conflicts=db.prepare(`SELECT source_id FROM main.${table} WHERE source_id=$id OR ${claim('source_json',['official','sourceId'],'$id')} OR ${claim('source_json',['official','assignment','sourceId'],'$id')}
       OR ${claim('source_json',['official','call','sourceId'],'$id')} OR ${claim('source_json',['official','events',{array:'all'},'sourceId'],'$id')}
-      OR ${claim('snapshot_json',['source','official','assignment','sourceId'],'$id')} OR ${claim('snapshot_json',['source','official','call','sourceId'],'$id')}
+      OR ${claim('snapshot_json',['source','official','sourceId'],'$id')} OR ${claim('snapshot_json',['source','official','assignment','sourceId'],'$id')} OR ${claim('snapshot_json',['source','official','call','sourceId'],'$id')}
       OR ${claim('snapshot_json',['source','official','events',{array:'all'},'sourceId'],'$id')}`).all({id});
     if(conflicts.some(r=>table!==tables.outcome||r.source_id!==source.sourceId))throw new Error('original official instruction Source already has another owner');
   }}
@@ -144,7 +146,7 @@ const outcome=(db:DatabaseSync,source:AcceptedSamePaLifecycleOutcome,current:boo
   if(!fenced)return pending('official_next_pitch_fence_required');
   const baseCenters=c.bodyCut.worldReference.owner==='pa_lifecycle_v1_resets'?readSamePaLifecycleResetFromSqlite(db,{...c.bodyCut.worldReference,owner:'pa_lifecycle_v1_resets'}).source.worldSetup.baseCenters:samePaStartingBaseCenters(db,b.actor);
   return freeze({kind:'same_pa_lifecycle_outcome',source,lineage:b.view.lineage,actor:b.actor,disposition:terminal?'terminal':'ordinary_foul',timeline,evaluationTick:tick,physicalCompletedAtTick:completed,
-    physicalEnd,physicalProofHash:hash(proof),officialLedger:ledger,context,controllerRetirementBasis:retirement(b,commands,completed),baseCenters});
+    physicalEnd,physicalProofHash:hash(proof),officialLedger:ledger,context,controllerRetirementBasis:samePaOutcomeRetirement(b,commands,completed),baseCenters});
 };
 const reset=(db:DatabaseSync,source:AcceptedSamePaLifecycleReset,current:boolean):SamePaLifecycleReset|Pending=>{
   const b=(current?readCurrentSamePaLifecycleViewFromSqlite:readHistoricalSamePaLifecycleViewFromSqlite)(db,source.viewReference),out=readSamePaLifecycleOutcomeFromSqlite(db,source.outcomeReference);

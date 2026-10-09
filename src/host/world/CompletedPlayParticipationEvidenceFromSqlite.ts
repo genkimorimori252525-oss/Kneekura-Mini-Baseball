@@ -134,7 +134,7 @@ export const deriveCompletedPlayParticipationEvidence = (db: Db, gameId: string,
     stateJson = json('result' in official ? official.receipt.appliedMatchState : official.activation.nextMatchState);
     activationJson = json('result' in official ? { finalResult: official.result } : { activation: official.activation, nextWorld: official.nextWorld });
     final = 'result' in official;
-  } else if (evidenceKind === 'FOUL_TERMINAL_V1') {
+  } else if (evidenceKind === 'FOUL_TERMINAL_V1' || evidenceKind === 'NATIONAL_FOUL_TERMINAL_V1') {
     const completed = foulTerminalPostPlayCompletionEvidenceFromSqlite(connection).read(sourceId);
     if (!completed) throw new Error('participation requires completed original terminal closure');
     const p = completed.proposal, c = completed.result.completion, receipt = completed.result.official.receipt;
@@ -145,7 +145,7 @@ export const deriveCompletedPlayParticipationEvidence = (db: Db, gameId: string,
     }
     selected = participant(db, gameId, playerId, p.participants.map(a => ({ binding: a.binding,
       actorKind: a.role === 'batter' ? 'BATTER' : 'DEFENDER' })), { ...p.seasonFixture, seasonId: p.seasonFixture.competitionEditionId },
-    p.applicationBody.match.half === 'top' ? 'HOME' : 'AWAY');
+    p.applicationBody.match.half === 'top' ? 'HOME' : 'AWAY', evidenceKind === 'NATIONAL_FOUL_TERMINAL_V1');
     closureApplicationId = p.source.applicationId; closureProposalHash = hash(p); playedPlayId = p.playId;
     durableRevision = receipt.durableRevision; stateJson = json('finalResult' in c ? receipt.appliedMatchState : c.activation.nextMatchState);
     activationJson = json('finalResult' in c ? { finalResult: c.finalResult } : { activation: c.activation, nextWorld: c.nextWorld });

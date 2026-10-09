@@ -4,6 +4,8 @@ import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { deriveClosedNonLiveMatchState, confirmDurableClosedNonLiveStateApplication } from '../../core/adjudication/NonLiveOfficialApplication';
 import { classifyClosedPlayForOfficialScoring } from '../../core/adjudication/OfficialScoring';
 import { getOfficialPlayClosure } from '../../core/adjudication/PlayAdjudicationLedger';
+import { deriveClosedLiveBallMatchState } from '../../core/adjudication/PlayAdjudicationLedger';
+import { confirmDurableClosedLiveBallStateApplication } from '../../core/adjudication/NextPlayActivation';
 import { prepareBetweenPlayWorld } from '../../core/adjudication/BetweenPlayWorldReset';
 import { resolveOfficialGameProgression } from '../../core/world/competition/OfficialGameCompletion';
 import { deriveOfficialPlayResult, deriveOfficialFinalResult } from '../SqliteOfficialStateWriter';
@@ -149,17 +151,26 @@ export const deriveSamePaTerminalTransition = (db: DatabaseSync, raw: AcceptedSa
   const atTick = source.kind === 'continuing' ? source.nextStartedAtTick : source.completedAtTick;
   if (atTick <= closure.closedAtTick || atTick < endpoint.physicalCompletedAtTick || basis.participants.some(p => p.ownedCommands.some(c => hash(c.originalCommand) !== c.originalCommandHash)))
     throw new Error('same-PA transition original controller retirement differs');
-  const common = { kind: 'non_live' as const, matchId: endpoint.lineage.gameId, applicationId: source.applicationId,
-    expectedDurableRevision: actor.officialRevision, match: actor.match, timeline: endpoint.timeline, adjudication: endpoint.officialLedger, context: endpoint.context };
-  const next = deriveClosedNonLiveMatchState(common), receipt = confirmDurableClosedNonLiveStateApplication({ ...common, persistedMatchState: next,
-    durableRevision: actor.officialRevision + 1 });
+  const identity = { matchId: endpoint.lineage.gameId, applicationId: source.applicationId,
+    expectedDurableRevision: actor.officialRevision, match: actor.match, adjudication: endpoint.officialLedger };
+  const common = (() => {
+    if(endpoint.fairCatch)return {...identity,kind:'live_ball' as const,physicalTimeline:endpoint.timeline};
+    if(!endpoint.context)throw new Error('same-PA terminal non-live context missing');
+    return {...identity,kind:'non_live' as const,timeline:endpoint.timeline,context:endpoint.context};
+  })();
+  const next = common.kind==='live_ball'?deriveClosedLiveBallMatchState(common.match,common.physicalTimeline,common.adjudication):deriveClosedNonLiveMatchState(common);
+  const receipt = common.kind==='live_ball'?confirmDurableClosedLiveBallStateApplication({...common,persistedMatchState:next,durableRevision:actor.officialRevision+1})
+    :confirmDurableClosedNonLiveStateApplication({...common,persistedMatchState:next,durableRevision:actor.officialRevision+1});
   const venueBinding = fixture(db, endpoint, source), game = { ...source.game, venueBinding };
   const boundary = resolveOfficialGameProgression({ ...game, gameId: common.matchId, priorMatch: actor.match, application: receipt });
   if ((source.kind === 'game_final') !== (boundary.kind === 'GAME_FINAL_PENDING_SCORING')) throw new Error('same-PA transition Source does not match official game boundary');
-  const classified = classifyClosedPlayForOfficialScoring(common);
+  const scoringEvidence = endpoint.fairCatch ? {schemaVersion:1 as const,sourceKind:'owned_fair_catch' as const,
+    sourceEventId:'same-pa-fair-catch:'+endpoint.source.sourceId,physical:endpoint.fairCatch.scoringEvidence} : undefined;
+  const classified = common.kind==='live_ball'?classifyClosedPlayForOfficialScoring({kind:'live_ball',match:common.match,timeline:common.physicalTimeline,
+    adjudication:common.adjudication,fairCatchEvidence:scoringEvidence!.physical}):classifyClosedPlayForOfficialScoring(common);
   if (classified.kind !== 'supported') throw new Error('same-PA transition official scoring unsupported');
   const scoring = { scoringApplicationId: source.scoringApplicationId, matchId: common.matchId, officialApplicationId: source.applicationId,
-    closureId: receipt.closureId, sourceEventId: 'official-non-live:' + source.applicationId, record: classified.record };
+    closureId: receipt.closureId, sourceEventId: scoringEvidence?.sourceEventId ?? 'official-non-live:' + source.applicationId, record: classified.record };
   const earlier = source.kind === 'game_final' ? readPhysicalClosureScoringHistory(db, { gameId: common.matchId, officialRevision: actor.officialRevision }) : [];
   if (earlier.some(e => e.applicationId === source.applicationId || e.scoringApplicationId === source.scoringApplicationId)) throw new Error('same-PA final history cannot include current transition');
   const officialApplication = source.kind === 'game_final'
@@ -168,6 +179,7 @@ export const deriveSamePaTerminalTransition = (db: DatabaseSync, raw: AcceptedSa
   const official = 'game' in officialApplication ? deriveOfficialFinalResult(officialApplication, receipt.durableRevision) : deriveOfficialPlayResult(officialApplication, receipt.durableRevision);
   const incomingDefenders = source.kind === 'continuing' ? defenders(db, endpoint, source, next, archived?.incomingDefenders) : [];
   return freeze({ kind: 'same_pa_terminal_transition_v1', source, lineage: endpoint.lineage, officialApplication, official, scoring,
+    ...(scoringEvidence?{scoringEvidence}:{}),
     completion: source.kind === 'game_final' ? 'game_final' : next.half === actor.match.half && next.inning === actor.match.inning ? 'next_play' : 'half_inning',
     controllerRetirement: { kind: 'rule_system_retire_original_play', atTick, previousPlayId: actor.match.playId, basis }, incomingDefenders,
     earlierHistory: earlier.map(({ applicationId, scoringApplicationId, closureRowHash, scoringRowHash }) => ({ applicationId, scoringApplicationId, closureRowHash, scoringRowHash })) });
@@ -186,7 +198,8 @@ export const assertSamePaTransitionEffects = (db: DatabaseSync, value: SamePaTer
       || values(db, String(r.request_json), ['input', 'officialApplication', 'applicationId']).includes(a.applicationId)
       || values(db, String(r.result_json), ['officialApplicationId']).includes(a.applicationId));
   same(scores, [{ scoring_application_id: s.scoringApplicationId, match_id: a.matchId, official_application_id: a.applicationId, closure_id: s.closureId,
-    source_event_id: s.sourceEventId, request_json: json({ input: { scoringApplicationId: s.scoringApplicationId, officialApplication: a }, evidence: null }), result_json: json(s) }], 'scoring effect differs');
+    source_event_id: s.sourceEventId, request_json: json({ input: { scoringApplicationId: s.scoringApplicationId, officialApplication: a,
+      ...(value.scoringEvidence?{sourceEventId:value.scoringEvidence.sourceEventId}:{}) }, evidence: value.scoringEvidence??null }), result_json: json(s) }], 'scoring effect differs');
   if (mode === 'current') same(ownerRows(db, 'matches', { match_id: 'TEXT', durable_revision: 'INTEGER', state_json: 'TEXT', activation_json: 'TEXT' })
     .filter(r => r.match_id === a.matchId || values(db, String(r.activation_json), ['activation', 'applicationId']).includes(a.applicationId)
       || values(db, String(r.activation_json), ['finalResult', 'applicationId']).includes(a.applicationId)), [{ match_id: a.matchId,

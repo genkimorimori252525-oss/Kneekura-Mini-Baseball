@@ -35,13 +35,17 @@ const row=(db:DatabaseSync,id:string)=>{
 const derive=(db:DatabaseSync,source:AcceptedSamePaTerminalEndpoint,fresh:boolean):SamePaTerminalEndpoint=>{
   const basis=(fresh?readCurrentSamePaLifecycleViewFromSqlite:readHistoricalSamePaLifecycleViewFromSqlite)(db,source.finalViewReference),v=basis.view;
   same(source.enrollmentReference,v.lineage.enrollmentReference);same(source.outcomeReference,v.cut.outcomeReference);
-  if(v.cut.stage!=='terminal'||!['walk','strikeout'].includes(v.cut.timeline.status.kind))throw new Error('terminal endpoint requires a completed original PA outcome');
+  if(v.cut.stage!=='terminal')throw new Error('terminal endpoint requires a completed original PA outcome');
   const outcome=readSamePaLifecycleOutcomeFromSqlite(db,source.outcomeReference);same(outcome.lineage,v.lineage);same(outcome.timeline,v.cut.timeline);
-  if(outcome.disposition!=='terminal'||!outcome.context||v.participants.length!==10||new Set(v.participants.map(p=>p.playerId)).size!==10)throw new Error('terminal endpoint outcome/ten coverage incomplete');
+  if(outcome.disposition!=='terminal'||(!outcome.context&&!outcome.fairCatch)||v.participants.length!==10||new Set(v.participants.map(p=>p.playerId)).size!==10)throw new Error('terminal endpoint outcome/ten coverage incomplete');
+  if(outcome.fairCatch){same(outcome.fairCatch.timeline,v.cut.timeline);same(outcome.fairCatch.playEnd,outcome.officialLedger.playEnd);
+    same(hash(outcome.fairCatch),outcome.physicalProofHash);if(outcome.source.kind!=='fair_catch'||outcome.context!==null)throw new Error('terminal catch endpoint original owner differs');}
+  else if(!['walk','strikeout'].includes(v.cut.timeline.status.kind))throw new Error('terminal endpoint original non-live outcome differs');
   same(outcome.controllerRetirementBasis.physicalPitchReference,v.cut.physicalPitchReference);
   return freeze({kind:'same_pa_terminal_endpoint_v1',source,lineage:v.lineage,enrollmentReference:source.enrollmentReference,finalViewReference:source.finalViewReference,outcomeReference:source.outcomeReference,
     gameDay:basis.actor.binding.gameDay,coverageHash:v.coverageHash,timeline:v.cut.timeline,participants:v.participants,actor:basis.actor,officialLedger:outcome.officialLedger,
-    context:outcome.context,physicalCompletedAtTick:outcome.physicalCompletedAtTick,controllerRetirementBasis:outcome.controllerRetirementBasis,baseCenters:outcome.baseCenters});
+    context:outcome.context,physicalCompletedAtTick:outcome.physicalCompletedAtTick,controllerRetirementBasis:outcome.controllerRetirementBasis,baseCenters:outcome.baseCenters,
+    ...(outcome.fairCatch?{fairCatch:outcome.fairCatch}:{})});
 };
 const currentCoverage=(db:DatabaseSync,v:SamePaTerminalEndpoint)=>{
   const basis=readHistoricalSamePaLifecycleViewFromSqlite(db,v.finalViewReference),prefix=readSamePaLifecycleRecordFromSqlite(db,'prefix',basis.view.source.prefixReference.sourceId);

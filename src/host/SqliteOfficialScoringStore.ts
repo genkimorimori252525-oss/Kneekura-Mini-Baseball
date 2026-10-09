@@ -24,8 +24,13 @@ export type PersistedOfficialScoring = Readonly<{
 }>;
 export type AcceptedOfficialScoringEvidenceAuthority = Readonly<{
   readAcceptedOfficialScoringEvidence(sourceEventId: string):
-    OfficialFairBallScoringEvidence | null;
+    OfficialFairBallScoringEvidence | OfficialFairCatchScoringEvidence | null;
 }>;
+/** Physical rule sidecar from an independently authenticated closed catch owner.
+ * Its original end and complete timeline are rechecked by the shared classifier. */
+export type OfficialFairCatchScoringEvidence = Readonly<{ schemaVersion: 1; sourceKind: 'owned_fair_catch'; sourceEventId: string;
+  physical: import('../core/sim/plateAppearance/ActualFairFieldTimeline').ActualFairFieldTimelineInput }>;
+export type AcceptedOfficialScoringEvidence = OfficialFairBallScoringEvidence | OfficialFairCatchScoringEvidence;
 export type AcceptedScoredOfficialPlay = Readonly<{
   scoring: PersistedOfficialScoring;
   application: OfficialInput;

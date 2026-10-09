@@ -6,7 +6,8 @@ import { evaluateDevelopmentReceptivity } from '../../core/world/development/Dev
 import { resolveDevelopmentEpisodeInitiation } from '../../core/world/development/DevelopmentEpisodeInitiation';
 import type { AcceptedDevelopmentAppraisal, AcceptedDevelopmentPolicies } from './DevelopmentEpisodeFromAcceptedAppraisal';
 import { practiceFields as fields, practiceHash as hash, practiceId as id, practiceJson as json } from './PitchPracticeAttempt';
-import { officialParticipationEvidenceFromSqlite, type CompletedPlayParticipationReceipt } from './SqliteOfficialParticipationStore';
+import { officialParticipationEvidenceFromSqlite } from './SqliteOfficialParticipationStore';
+import { isNationalParticipationKind, type TaggedParticipationReceipt } from './TaggedParticipationEvidenceFromSqlite';
 import { personGenesisEvidenceFromSqlite, type DurablePersonPriors } from './SqlitePersonGenesisStore';
 import { readClinicalPersonLink } from './HealthRehabEvidenceFromSqlite';
 import type { PracticeInitiationRow } from './PracticeDevelopmentOrigin';
@@ -20,7 +21,7 @@ export type NationalExposureDevelopmentSources = Readonly<{
   readAcceptedAppraisal(sourceId: string): AcceptedNationalExposureAppraisal | null;
 }>;
 export type NationalExposureEvidence = Readonly<{
-  receipt: CompletedPlayParticipationReceipt; person: DurablePersonPriors;
+  receipt: TaggedParticipationReceipt; person: DurablePersonPriors;
   personLink: ReturnType<typeof readClinicalPersonLink>; genesis: unknown; careerDevelopmentSeed: number;
 }>;
 export type NationalExposureOrigin = Readonly<{
@@ -55,7 +56,7 @@ export const validateNationalExposureIntake = (request: NationalExposureDevelopm
 export const captureNationalExposureEvidence = (db: DatabaseSync, request: NationalExposureDevelopmentRequest,
   appraisal: AcceptedNationalExposureAppraisal): NationalExposureEvidence => {
   const receipt = officialParticipationEvidenceFromSqlite(db).readReceipt(request.participationReceiptId);
-  if (!receipt || !('evidenceKind' in receipt) || receipt.evidenceKind !== 'NATIONAL_PHYSICAL_PLAY_V1') {
+  if (!receipt || !('evidenceKind' in receipt) || !isNationalParticipationKind(receipt.evidenceKind)) {
     throw new Error('National exposure requires an actual supported National participation receipt');
   }
   const binding = receipt.binding;

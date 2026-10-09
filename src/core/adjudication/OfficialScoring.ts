@@ -70,6 +70,11 @@ const nonEmpty = (value: unknown): value is string =>
   && value === value.trim();
 const safeTick = (value: unknown): value is number =>
   Number.isSafeInteger(value) && (value as number) >= 0;
+// Native archives sort object keys. Equality must preserve all values and array
+// order without making JavaScript insertion order part of physical truth.
+const canonicalJson = (value: unknown): string => JSON.stringify(value, (_key, item: unknown) =>
+  item && typeof item === 'object' && !Array.isArray(item)
+    ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)) : item);
 
 const validateFairBallScoringEvidence = (
   evidence: OfficialFairBallScoringEvidence,
@@ -167,8 +172,8 @@ export const classifyClosedPlayForOfficialScoring = (
       if (request.scoringEvidence !== undefined
         || caught.kind !== 'fly_catch'
         || projection.kind !== 'projected'
-        || JSON.stringify(projection.timeline) !== JSON.stringify(request.timeline)
-        || JSON.stringify(physical.playEnd) !== JSON.stringify(closure.playEnd)
+        || canonicalJson(projection.timeline) !== canonicalJson(request.timeline)
+        || canonicalJson(physical.playEnd) !== canonicalJson(closure.playEnd)
         || physical.originalTimeline.playId !== request.match.playId
         || !nonEmpty(batter) || caught.correctRuleResult.batterRunnerId !== batter
         || Object.values(request.match.bases).some((runnerId) => runnerId !== null)

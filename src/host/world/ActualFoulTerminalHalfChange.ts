@@ -6,6 +6,7 @@ import type {FoulTerminalApplicationProposal} from './ActualFoulTerminalApplicat
 import type {FoulTerminalIncomingDefender,FoulTerminalHalfChangeCompletion} from './ActualFoulTerminalPostPlayCompletion';
 import {readOfficialActorPersonLink} from './SqliteOfficialInitialWorldStore';
 import type {OfficialParticipantBinding} from './SqliteOfficialParticipationStore';
+import {assertNationalMatchBindings} from './NationalMatchOriginFromSqlite';
 import {readActualRoleWorkloadState} from './ActualRoleWorkloadState';
 import {actorJson as json,actorHash as hash,actorFreeze as freeze} from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import {foulApplicationOwnershipRows} from './ActualFoulTerminalApplicationOwnership';
@@ -38,8 +39,10 @@ export const deriveFoulTerminalIncomingDefenders=(db:DatabaseSync,p:FoulTerminal
  prepareBetweenPlayWorld(next,source.nextStartedAtTick,source.worldSetup);
  const ids=source.worldSetup.defenders.map(d=>d.playerId).sort();
  if(archived&&json(archived.map(d=>d.playerId))!==json(ids))throw new Error('terminal completion incoming defense archive order differs');
+ const incoming=ids.map(playerId=>binding(db,p,playerId));
+ assertNationalMatchBindings(db,incoming);
  const result=ids.map((playerId,i)=>{
-  const b=binding(db,p,playerId),state=readActualRoleWorkloadState(db,b.careerId,playerId,archived?.[i].workloadRevision,b.personLinkSourceId);
+  const b=incoming[i],state=readActualRoleWorkloadState(db,b.careerId,playerId,archived?.[i].workloadRevision,b.personLinkSourceId);
   if(!state||state.careerId!==b.careerId||state.playerId!==playerId||state.effectiveDay>b.gameDay)throw new Error('terminal completion incoming defense workload missing or differs');
   const ref={playerId,personId:b.personId,bindingHash:hash(b),workloadRevision:state.revision,workloadHash:hash(state)};
   if(archived&&json(archived[i])!==json(ref))throw new Error('terminal completion incoming defense archived workload differs');return ref;

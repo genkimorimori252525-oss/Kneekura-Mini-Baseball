@@ -13,7 +13,8 @@ type Fixture=ReturnType<typeof samePaPhysicalLifecycleFixture>;
  * Normal ten-body assembly is accepted without an old flight, contact, field
  * row, or copied receipt. The new calibration preparation emits no work fact. */
 export const prepareFreshPhysicalFieldFixture=(h:Fixture,prepared:ReturnType<Fixture['prepareAction']>,posture:DurableBattingInvocationPosture,
-  postureReference:SamePaReference<'batting_observation_v1_postures'>,label:string)=>{
+  postureReference:SamePaReference<'batting_observation_v1_postures'>,label:string,
+  options:Readonly<{liveProducerProfile?:'same_pa_empty_base_catch_v1'}>={})=>{
   const {f}=h,action=prepared.action,bodies=[posture.model.bodyMaterialization,...posture.sceneBodies];
   const fixture=f.db.prepare('SELECT * FROM official_fixtures WHERE game_id=?').get(f.actor.source.gameId)!;
   const assembly:BattedBodyModelAssembly={sourceId:label+':body-model',sourceVersion:'fixture-only-v1',kind:'body_materialized_batted_model_v1',
@@ -43,6 +44,7 @@ export const prepareFreshPhysicalFieldFixture=(h:Fixture,prepared:ReturnType<Fix
     const rootSource=h.save({sourceId:label+':field-root',sourceVersion:'fixture-only-v1',capability:'same_pa_physical_field_root_v1',viewReference:h.current().viewReference,
       launchReference:resolution.source.launchReference,previousOperationReference:resolutionReference,resolutionReference,postureReference,
       fieldInputs:{kind:'fresh_physical_field_calibration_v1',calibrationReference},parameters,throughTick:resolution.contact.tick,
+      ...(options.liveProducerProfile?{liveProducerProfile:options.liveProducerProfile}:{}),
       commands:model.actors.map(a=>({playerId:a.playerId,bodyAcceleration:{x:0,y:0,z:0},primitiveMotions:a.primitives.map(p=>({role:p.role,offsetVelocity:{x:0,y:0,z:0},offsetAcceleration:{x:0,y:0,z:0}}))}))});
     const root=h.physical.acceptOperation(rootSource.sourceId);if(root.kind!=='same_pa_physical_field_root_v1')throw new Error('real fresh field root pending');
     const rootReference=reference('pa_physical_v1_field_roots',root);h.advance(rootReference);

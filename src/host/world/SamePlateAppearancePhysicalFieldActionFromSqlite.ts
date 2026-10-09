@@ -17,6 +17,7 @@ import { assertSamePaPhysicalThrowOwnership, deriveSamePaPhysicalThrowPlan, deri
 import { samePaPhysicalTimelineAtField } from './SamePlateAppearancePhysicalFieldCalculation';
 import { readSamePaCatchObservationFromSqlite } from './SamePlateAppearanceCatchObservationFromSqlite';
 import { deriveSamePaCatchDefenderResponse } from './SamePlateAppearanceCatchDefenderResponse';
+import { deriveSamePaPhysicalQuantizerCheckpoint } from './SamePlateAppearancePhysicalQuantizerCheckpoint';
 import type { SamePaPhysicalFieldActionResult, SamePaPhysicalFieldReference } from './SamePlateAppearancePhysicalFieldAction';
 import type { SamePaPhysicalAction, SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep, SamePaPhysicalFieldStepSource } from './SamePlateAppearancePhysicalEpisode';
 import type { SamePaLifecycleViewBasis } from './SamePlateAppearanceLifecycle';
@@ -41,6 +42,7 @@ export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePa
   if (!prefix.length || prefix[0].source.sourceId !== root.source.sourceId) throw new Error('physical field action original prefix missing');
   same(fieldReference(prefix.at(-1)!), source.previousFieldReference);
   assertSamePaPhysicalThrowOwnership(source, prefix);
+  if (request.kind === 'retained_quantizer_checkpoint_v1') return deriveSamePaPhysicalQuantizerCheckpoint(source, root, previous);
   const linked = (ref: SamePaPhysicalFieldReference): Field => {
     const value = prefix.find(v => v.source.sourceId === ref.sourceId);
     if (!value) throw new Error('physical field dependency is outside the original prefix');

@@ -1,4 +1,4 @@
-import { readTaggedParticipationReceipt } from './TaggedParticipationEvidenceFromSqlite';
+import { isNationalParticipationKind, readTaggedParticipationReceipt } from './TaggedParticipationEvidenceFromSqlite';
 import { assertNationalMatchBindings, nationalFixtureGame } from './NationalMatchOriginFromSqlite';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
@@ -222,11 +222,11 @@ const createSqliteNationalCallupStore = (databasePath: string | DatabaseSync, so
     }
     const stored = db.prepare("SELECT 1 FROM main.sqlite_master WHERE type='table' AND name='official_participation_receipts'").get()
       ? db.prepare('SELECT receipt_json FROM official_participation_receipts WHERE receipt_id=?').get(input.receiptId) : undefined;
-    const ownNational = stored && JSON.parse(String(stored.receipt_json)).evidenceKind === 'NATIONAL_PHYSICAL_PLAY_V1';
+    const ownNational = stored && isNationalParticipationKind(JSON.parse(String(stored.receipt_json)).evidenceKind);
     const receipt = ownNational ? readTaggedParticipationReceipt(db, input.receiptId) : sources.participation?.readReceipt(input.receiptId);
     if (!receipt) throw new Error('national appearance requires actual official participation receipt');
     const tagged = 'evidenceKind' in receipt;
-    if (tagged && receipt.evidenceKind !== 'NATIONAL_PHYSICAL_PLAY_V1') throw new Error('national appearance does not support tagged participation receipts');
+    if (tagged && !isNationalParticipationKind(receipt.evidenceKind)) throw new Error('national appearance does not support tagged participation receipts');
     const binding = receipt.binding;
     let game = tagged ? undefined : sources.games?.readGame(binding.gameId);
     let originalRegistration: string | undefined;

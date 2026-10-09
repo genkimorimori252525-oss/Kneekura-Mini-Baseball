@@ -10,7 +10,7 @@ import type { DurableParticipationReceipt, OfficialParticipationReceipt } from '
 import type { PersistOfficialPlayResult, PersistOfficialFinalResult } from '../SqliteOfficialStateStore';
 import type { AcceptedHealthRehabEffect } from './SqlitePlayerHealthRehabStore';
 import { participationHasRawDiscriminator } from './ActualLiveParticipationMetadata';
-import { readTaggedParticipationReceipt } from './TaggedParticipationEvidenceFromSqlite';
+import { isNationalParticipationKind, readTaggedParticipationReceipt } from './TaggedParticipationEvidenceFromSqlite';
 import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
 
 type Db = Pick<DatabaseSync, 'prepare'>;
@@ -95,7 +95,7 @@ export const readClinicalParticipationReceipt = (db: Db, receiptId: string): Off
 };
 export const captureClinicalGameRows = (db: Db, diagnosis: PlayerHealthDiagnosis, receiptId: string, snapshotId: string): readonly string[] => withBattedVenueLegalReadSnapshot(db as DatabaseSync, () => {
   const receipt = readClinicalParticipationReceipt(db, receiptId), b = receipt.binding;
-  if ('evidenceKind' in receipt && receipt.evidenceKind === 'NATIONAL_PHYSICAL_PLAY_V1') throw new Error('clinical rehabilitation requires an eligible domestic REHAB fixture');
+  if ('evidenceKind' in receipt && isNationalParticipationKind(receipt.evidenceKind)) throw new Error('clinical rehabilitation requires an eligible domestic REHAB fixture');
   if (b.careerId !== diagnosis.careerId || b.playerId !== diagnosis.playerId) throw new Error('clinical played actor scope differs');
   if (!db.prepare("SELECT 1 FROM main.sqlite_master WHERE type='table' AND name='world_national_roster_snapshots'").get()) {
     throw new Error('clinical played original evidence is missing');

@@ -18,15 +18,16 @@ import type { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysic
  * original official instructions and reference-only completion Sources. The
  * window/game/setup values reuse the existing explicit official fixtures.
  * No endpoint, workload AFTER, official result or released claim is injected. */
-export const completeSamePaTerminalFixture = (h: ReturnType<typeof samePaPhysicalLifecycleFixture>, label: string) => {
+export const completeSamePaTerminalFixture = (h: ReturnType<typeof samePaPhysicalLifecycleFixture>, label: string,
+  originalCatchOutcome?: Extract<AcceptedSamePaLifecycleOutcome, { kind: 'fair_catch' }>) => {
   const { f } = h, track = f.x.f.track, cut = h.current(), enrollmentReference = h.original.enrollmentReference;
-  if (cut.view.cut.timeline.status.kind !== 'walk' && cut.view.cut.timeline.status.kind !== 'strikeout') throw new Error('owned terminal count required');
+  if (!originalCatchOutcome && cut.view.cut.timeline.status.kind !== 'walk' && cut.view.cut.timeline.status.kind !== 'strikeout') throw new Error('owned terminal count required');
   const enrollmentOwner = track(openSqliteSamePlateAppearanceEnrollmentStore(f.path));
   const originalEnrollment = enrollmentOwner.readHistorical(enrollmentReference.sourceId);
   expect(originalEnrollment?.kind).toBe('reserved');
   const beforeActivities = f.db.prepare('SELECT * FROM world_player_workload_activities ORDER BY source_id').all();
   const beforeHeads = f.db.prepare('SELECT * FROM world_player_workload_heads ORDER BY career_id,player_id').all();
-  const source: AcceptedSamePaLifecycleOutcome = {
+  const source: AcceptedSamePaLifecycleOutcome = originalCatchOutcome ?? {
     sourceId: label + ':outcome', sourceVersion: 'fixture-only-v1', capability: 'same_pa_lifecycle_outcome_v1',
     enrollmentReference, viewReference: cut.viewReference, physicalOperationReference: cut.view.cut.physicalOperationReference,
     kind: 'count_terminal', rulePolicy: null,
@@ -91,6 +92,13 @@ export const completeSamePaTerminalFixture = (h: ReturnType<typeof samePaPhysica
   h.save(transitionSource);
   const transitions = track(openSqliteSamePlateAppearanceTerminalTransitionStore(f.path, { readAcceptedTransition: id => h.accepted.get(id) }));
   const transition = transitions.complete(transitionSource.sourceId);
+  if (source.kind === 'fair_catch') {
+    expect(outcome.fairCatch?.kind).toBe('same_pa_fair_catch_physical_end_v1');
+    expect(transition.officialApplication.kind).toBe('live_ball');
+    expect(transition.scoring.record).toMatchObject({ classification: 'fly_out', runsScored: 0, hitsCredited: 0, errorsCharged: 0 });
+    expect(transition.scoringEvidence?.physical).toEqual(outcome.fairCatch?.scoringEvidence);
+    expect(transition.official.receipt.appliedMatchState.outs).toBe(f.actor.match.outs + 1);
+  }
   expect(transition.completion).toBe('next_play'); expect(transition.controllerRetirement.basis).toEqual(endpoint.controllerRetirementBasis);
   expect(transition.official.receipt.durableRevision).toBe(f.actor.officialRevision + 1);
   expect('activation' in transition.official).toBe(true);

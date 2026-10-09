@@ -13,55 +13,77 @@ import type { OwnedMotionV2Action } from './OwnedScheduledBattedWorldMotion';
 import { installOwnedScheduledDecision } from './OwnedScheduledMotionDecisionFixtures.test-support';
 import { ownedScheduledMotionPhase as phase } from './OwnedScheduledMotionTiming.test-support';
 
-/** Accepted fixture inputs, never injected outcomes: the forecast locates a glove
- * and defines motor accelerations before the original contact Source is accepted.
- * The actual ground, contact, capture, foot histories and rule are owner outputs. */
+type FirstBaseFieldRoot = ReturnType<typeof battedWorldFieldFixture>;
+type FirstBaseWorldRoot = Parameters<NonNullable<NonNullable<Parameters<typeof battedWorldFieldFixture>[4]>['world']>>[0];
+export type ActualFirstBaseWorldInputs = Pick<FirstBaseWorldRoot, 'flight' | 'model' | 'models' | 'source' | 'sources'>;
+export type ActualFirstBaseFieldRoot = Pick<FirstBaseFieldRoot, 'worldContact' | 'flight' | 'response' | 'source' | 'sources' | 'fields'> &
+  Readonly<{ f: Pick<FirstBaseFieldRoot['f'], 'path' | 'db' | 'track' | 'close'> }>;
+
+/** Forecast calibration is accepted before the original contact Source. The
+ * registered pitcher identity comes from the original frame, including National roots. */
+export const calibrateActualFirstBaseWorldInputs = (world: ActualFirstBaseWorldInputs,
+  acceptedFirstBase?: Readonly<{ x: number; z: number }>): number => {
+  const flight = world.flight, p = flight.source.execution.ballFlightParameters, frame = flight.physicalPitch.frame;
+  const predicted = createBattedBallFlightEvidence({ contact: flight.flight.contact, parameters: p, searchDurationTicks: 2_000_000 });
+  const ground = predicted.firstGroundContact;
+  if (!ground) throw new Error('explicit first-base fixture forecast has no ground contact');
+  const forecastGroundElapsedSeconds = (ground.tick - flight.flight.initialBall.tick) / p.ticksPerSecond;
+  const originalModel = world.models.get(world.model.sourceId)!, pitcher = frame.world.defenders.find(d => d.registeredPosition === 'P')!;
+  const dt = (ground.tick - frame.world.tick) / p.ticksPerSecond;
+  const model = { ...originalModel, actors: originalModel.actors.map(actor => actor.playerId !== pitcher.playerId ? actor : { ...actor,
+    primitives: actor.primitives.map(primitive => primitive.role !== 'glove' ? primitive : { ...primitive, offset: {
+      x: ground.state.position.x - pitcher.position.x - pitcher.velocity.x * dt, y: p.ballRadius + 0.02,
+      z: ground.state.position.z + 0.12 - pitcher.position.z - pitcher.velocity.z * dt,
+    } }) }) };
+  world.models.set(model.sourceId, model);
+  const at = flight.flight.contact.tick, batter = frame.batterActor!, action = flight.physicalPitch.source.request.batter.action;
+  if (action.kind !== 'swing') throw new Error('original first-base fixture swing missing');
+  const swing = sampleBatterSwingState(action.swing.stateAtStart, at - action.swing.startTick, action.swing.ticksPerSecond);
+  const bag = acceptedFirstBase ?? frame.initialWorld?.source.worldSetup.baseCenters.first;
+  if (!bag) throw new Error('first-base calibration requires the original accepted base center');
+  const source = world.sources.get(world.source.sourceId)!;
+  world.sources.set(source.sourceId, { ...source, commands: source.commands.map(command => {
+    if (command.playerId !== pitcher.playerId && command.playerId !== batter.binding.playerId) return command;
+    const actor = model.actors.find(a => a.playerId === command.playerId)!, foot = actor.primitives.find(p => p.role === 'left_foot')!;
+    const motor = command.primitiveMotions.find(p => p.role === 'left_foot')!;
+    const defender = frame.world.defenders.find(d => d.playerId === command.playerId);
+    const body = defender ? sampleDefenderBodyKinematicsSegment(projectDefenderBodyKinematicsSegment({ startTick: frame.world.tick,
+      endTick: at, ticksPerSecond: p.ticksPerSecond, startPosition: defender.position, startVelocity: defender.velocity,
+      acceleration: { x: command.bodyAcceleration.x, z: command.bodyAcceleration.z }, target: null }, actor.bodyOriginHeightMeters), at)
+      : { position: { x: swing.pose.grip.x - model.batterGripOffset.x, y: swing.pose.grip.y - model.batterGripOffset.y,
+        z: swing.pose.grip.z - model.batterGripOffset.z }, velocity: swing.linearVelocity };
+    const position = { x: body.position.x + foot.offset.x, y: body.position.y + foot.offset.y, z: body.position.z + foot.offset.z };
+    const velocity = { x: body.velocity.x + motor.offsetVelocity.x, y: body.velocity.y + motor.offsetVelocity.y, z: body.velocity.z + motor.offsetVelocity.z };
+    const seconds = forecastGroundElapsedSeconds + (command.playerId === pitcher.playerId ? 0.24 : 0.28);
+    const acceleration = firstBaseFixtureFootAcceleration(position, velocity, command.bodyAcceleration, { ...bag, y: 0.1 }, seconds);
+    return { ...command, primitiveMotions: command.primitiveMotions.map(m => m.role !== 'left_foot' ? m : { ...m, offsetAcceleration: acceleration }) };
+  }) });
+  return forecastGroundElapsedSeconds;
+};
+
+export const calibrateActualFirstBaseCaptureResponse = (value: Pick<FirstBaseFieldRoot, 'responseModel' | 'responseModels'>): void => {
+  value.responseModels.set(value.responseModel.sourceId, { ...value.responseModel,
+    actors: value.responseModel.actors.map(actor => ({ ...actor, primitives: actor.primitives.map(profile => profile.role !== 'glove' ? profile
+      : { ...profile, parameters: { ...profile.parameters, captureDissipationPowerW: 100_000_000 } }) })) });
+};
+
+/** Accepted fixture inputs, never injected outcomes. The actual ground,
+ * contact, capture, foot histories and rule remain owner outputs. */
 export const actualFirstBasePlayEndFixture = (path: string, originalProfile?: NonNullable<Parameters<typeof battedWorldFieldFixture>[4]>['originalProfile']) => {
   let forecastGroundElapsedSeconds = NaN;
   const x = phase('first-base:original-pitch-and-inputs', () => battedWorldFieldFixture(path, true, false, undefined, {
     originalProfile,
-    world(world) {
-      const flight = world.flight, p = flight.source.execution.ballFlightParameters, frame = flight.physicalPitch.frame;
-      const predicted = createBattedBallFlightEvidence({ contact: flight.flight.contact, parameters: p, searchDurationTicks: 2_000_000 });
-      const ground = predicted.firstGroundContact;
-      if (!ground) throw new Error('explicit first-base fixture forecast has no ground contact');
-      forecastGroundElapsedSeconds = (ground.tick - flight.flight.initialBall.tick) / p.ticksPerSecond;
-      const originalModel = world.models.get(world.model.sourceId)!, pitcher = frame.world.defenders.find(d => d.playerId === 'p2')!;
-      const dt = (ground.tick - frame.world.tick) / p.ticksPerSecond;
-      const model = { ...originalModel, actors: originalModel.actors.map(actor => actor.playerId !== 'p2' ? actor : { ...actor,
-        primitives: actor.primitives.map(primitive => primitive.role !== 'glove' ? primitive : { ...primitive, offset: {
-          x: ground.state.position.x - pitcher.position.x - pitcher.velocity.x * dt, y: p.ballRadius + 0.02,
-          z: ground.state.position.z + 0.12 - pitcher.position.z - pitcher.velocity.z * dt,
-        } }) }) };
-      world.models.set(model.sourceId, model);
-      const at = flight.flight.contact.tick, batter = frame.batterActor!, action = flight.physicalPitch.source.request.batter.action;
-      if (action.kind !== 'swing') throw new Error('original first-base fixture swing missing');
-      const swing = sampleBatterSwingState(action.swing.stateAtStart, at - action.swing.startTick, action.swing.ticksPerSecond);
-      const bag = frame.initialWorld!.source.worldSetup.baseCenters.first;
-      const source = world.sources.get(world.source.sourceId)!;
-      world.sources.set(source.sourceId, { ...source, commands: source.commands.map(command => {
-        if (command.playerId !== 'p2' && command.playerId !== batter.binding.playerId) return command;
-        const actor = model.actors.find(a => a.playerId === command.playerId)!, foot = actor.primitives.find(p => p.role === 'left_foot')!;
-        const motor = command.primitiveMotions.find(p => p.role === 'left_foot')!;
-        const defender = frame.world.defenders.find(d => d.playerId === command.playerId);
-        const body = defender ? sampleDefenderBodyKinematicsSegment(projectDefenderBodyKinematicsSegment({ startTick: frame.world.tick,
-          endTick: at, ticksPerSecond: p.ticksPerSecond, startPosition: defender.position, startVelocity: defender.velocity,
-          acceleration: { x: command.bodyAcceleration.x, z: command.bodyAcceleration.z }, target: null }, actor.bodyOriginHeightMeters), at)
-          : { position: { x: swing.pose.grip.x - model.batterGripOffset.x, y: swing.pose.grip.y - model.batterGripOffset.y,
-            z: swing.pose.grip.z - model.batterGripOffset.z }, velocity: swing.linearVelocity };
-        const position = { x: body.position.x + foot.offset.x, y: body.position.y + foot.offset.y, z: body.position.z + foot.offset.z };
-        const velocity = { x: body.velocity.x + motor.offsetVelocity.x, y: body.velocity.y + motor.offsetVelocity.y, z: body.velocity.z + motor.offsetVelocity.z };
-        const seconds = forecastGroundElapsedSeconds + (command.playerId === 'p2' ? 0.24 : 0.28);
-        const acceleration = firstBaseFixtureFootAcceleration(position, velocity, command.bodyAcceleration, { ...bag, y: 0.1 }, seconds);
-        return { ...command, primitiveMotions: command.primitiveMotions.map(m => m.role !== 'left_foot' ? m : { ...m, offsetAcceleration: acceleration }) };
-      }) });
-    },
-    response(value) {
-      value.responseModels.set(value.responseModel.sourceId, { ...value.responseModel,
-        actors: value.responseModel.actors.map(actor => ({ ...actor, primitives: actor.primitives.map(profile => profile.role !== 'glove' ? profile
-          : { ...profile, parameters: { ...profile.parameters, captureDissipationPowerW: 100_000_000 } }) })) });
-    },
+    world(world) { forecastGroundElapsedSeconds = calibrateActualFirstBaseWorldInputs(world); },
+    response: calibrateActualFirstBaseCaptureResponse,
   }));
+  return attachActualFirstBasePlayEndFixture(path, x, forecastGroundElapsedSeconds);
+};
+
+/** Attach the original all-ten owner chain before its first field output. The
+ * caller supplies its independently accepted original response and field inputs. */
+export const attachActualFirstBasePlayEndFixture = <T extends ActualFirstBaseFieldRoot>(
+  path: string, x: T, forecastGroundElapsedSeconds: number,
+) => {
   try {
     if (x.worldContact.result.kind !== 'airborne' || x.flight.source.searchDurationTicks !== 0) throw new Error('original zero-horizon fixture input changed');
     const pitchId = x.response.touch.worldContact.flight.source.physicalPitchSourceId;
@@ -125,7 +147,7 @@ export const actualFirstBasePlayEndFixture = (path: string, originalProfile?: No
       baseFieldSourceId: baseField.source.sourceId, previousExecutionSourceId: quantized.source.sourceId,
       action: { kind: 'first_base_race', custodyPolicy: 'release_exclusive_v1' } };
     sources.set(source.sourceId, source);
-    return { ...x, runtime, pitchId, firstField, baseField, playerIds, prefix, knownWork, sources, authority, executions,
+    return { ...(x as Omit<T, 'source' | 'sources' | 'authority'>), runtime, pitchId, firstField, baseField, playerIds, prefix, knownWork, sources, authority, executions,
       source, planned, initialized, damping, captured, feet, decision, motor, adopted, quantized,
       fieldSource: x.source, fieldSources: x.sources, fixtureInputs: { forecastGroundElapsedSeconds, defenderOffsetSeconds: .24,
         batterOffsetSeconds: .28, physicalCutOffsetSeconds: .30, captureDissipationPowerW: 100_000_000 } };

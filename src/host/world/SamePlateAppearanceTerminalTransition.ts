@@ -21,6 +21,7 @@ export type SamePaTerminalTransitionRecord = Readonly<{
   kind: 'same_pa_terminal_transition_v1'; source: AcceptedSamePaTerminalTransition; lineage: SamePaTerminalEndpoint['lineage'];
   officialApplication: PersistOfficialPlayInput | PersistOfficialFinalInput; official: PersistOfficialPlayResult | PersistOfficialFinalResult;
   scoring: PersistedOfficialScoring; completion: SamePaTerminalTransitionProof['completion'];
+  scoringEvidence?:import('../SqliteOfficialScoringStore').OfficialFairCatchScoringEvidence;
   controllerRetirement: Readonly<{ kind: 'rule_system_retire_original_play'; atTick: number; previousPlayId: number;
     basis: SamePaTerminalEndpoint['controllerRetirementBasis'] }>;
   incomingDefenders: readonly SamePaTransitionDefender[];

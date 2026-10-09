@@ -45,7 +45,7 @@ const attachSettledFoulOwners=<T extends SettledFoulRoot>(path:string,x:T,rawIds
     const accepted = source(capability); runtimeSources.set(accepted.sourceId, accepted); return runtimes.accept(accepted.sourceId);
   };
   const inputArchiveBytes = () => nativeSettledFoulInputArchiveBytes(x.f.db);
-  const beforePhysicalBytes = inputArchiveBytes(), originalMatchBytes = JSON.stringify(x.f.official.getMatch('game-1'));
+  const beforePhysicalBytes = inputArchiveBytes(), originalMatchBytes = JSON.stringify(x.f.official.getMatch(pitch.frame.gameId));
   const advanceToFoul = () => {
     const fields: DurableBattedWorldFieldAction[] = [x.fields.accept(x.source.sourceId)];
     const first = fields[0], horizonTick = first.field.motion.world.moment.ball.tick + 100_000_000;

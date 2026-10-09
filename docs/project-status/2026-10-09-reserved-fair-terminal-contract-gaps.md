@@ -312,3 +312,109 @@ issuer, actual adoption and its census. They remain unrun until the combined
 gate. `not_caught` still carries no fabricated SAFE ruling. Batter received-call
 semantics, complete producer closure, independent PlayEnd and final official/
 scoring application remain outside this proved defender connection.
+
+## Next functional batch: registered catch end through reserved scoring
+
+The subsequent batch connects a bounded empty-base fair catch to the original
+lifecycle outcome, terminal endpoint, ten-participant TOTAL settlement and
+normal official/scoring writers. It does not reinterpret an old field root as
+registered: the original accepted root must include
+`liveProducerProfile: 'same_pa_empty_base_catch_v1'` before its first output.
+That profile binds the existing source-driven body, observation, controller,
+ball/contact, rule-consumption, original-action and communication domains. A
+target's observation-refresh deadline still comes only from an actual detected
+observation under the accepted refresh policy. No initial sensory event or new
+numerical law is manufactured for an unobserved participant.
+
+`retained_quantizer_checkpoint_v1` executes the existing exact physical
+continuation to the last representable time in the current quantized tick.
+It retains every original actor curve, stops at a genuine contact, and rejects
+expired coverage. Its result does not declare an end. The Native catch-end
+reader separately requires the original registration, complete current prefix,
+all ten participants and fifty role curves, actual custody, no pending capture
+or transfer, latest-observation consumers, every due decision and motor adoption,
+due runner-plan execution, complete reception generation and every due received
+controller response. A due received batter remains pending with
+`received_batter_retirement_controller_semantics_required`; the current Core
+defender replan's `receiver_role_unavailable` branch is still not a batter law.
+
+The end reader also reauthenticates the call's historical field view. Its
+original catch, fair-territory moment and correct ruling must still apply,
+with no new contact/acquisition/base facts. An earlier unresolved call basis or
+a later rule-relevant physical event remains pending for its actual consumer.
+The rule-consumption receipt records both original and final evidence hashes.
+Only after those independent checks does the existing `LivePlayRegistry`
+finalizer receive `all_offense_terminal` from the accepted caught OUT. Moving
+bodies, future commands, future sensory work and future receptions remain in
+the registry; they are not labeled settled or silently removed. A genuinely
+dropped or still-future message does not invent a received-controller obligation.
+
+The independently calculated physical-end receipt is saved inside the existing
+lifecycle outcome transaction, which already excludes later physical work.
+The outcome's Source supplies references and an original official scheduler,
+not a caller-selected end, registry, completion claim or ruling. The separate
+official projector imports the owned accepted judgment through
+`recordOwnedLiveCallImport`, retaining the original earlier call time and its
+original rule snapshot. The catch-work owner reference authenticates the
+accepted judgment/policy components; it is not an autonomous umpire sensor.
+With empty original bases there is no supported tag-up participant. Missing
+window policy or enabled review/challenge without an actual decision owner
+stays pending. Only the supplied original scheduler events advance official
+time or provide the final fence.
+
+The terminal transition now selects the live-ball application arm only from
+that rederived fair-catch outcome, after the same ten settled TOTAL effects.
+It uses the existing Match writer and a physical `owned_fair_catch` scoring
+sidecar through the existing scoring writer. The shared classifier rederives
+the secured catch, exact timeline and physical end before assigning the narrow
+empty-base one-out `fly_out` result with zero hits/errors/runs. Archive replay
+uses canonical object equality because the SQLite writer sorts object keys;
+key insertion order is not physical truth. No second workload application or
+legacy ActualLive owner identity is introduced.
+
+Author evidence for this batch is bounded: 52 tests passed under Node 26.10.0
+in five files, including actual Core capture and quantizer motion, fail-closed
+end prerequisites, original-call/window behavior, and finite SQLite scoring
+restart/tamper checks. The end-reader tests use explicitly structural Native
+read seams and do not certify original database provenance. Changed-file-only
+strict TypeScript diagnostics passed for 22 files. The full compiler, genuine
+reserved outcome/settlement/transition/release traversal, interruption/reopen
+checks for that traversal, and the consolidated Native gate remain unrun here.
+Earlier frozen Native results do not cover this batch.
+
+## Consolidated Native composition and downstream archive correction
+
+The existing IFN01 scenario now requires its actual executed acquisition to
+produce an airborne fair catch and continues through the reserved terminal
+path. Its centered diamond, NPB profile and live-producer profile are original
+accepted inputs, supplied before the initial world, actor and physical field.
+The fixture's explicit sensory refresh interval is 1,000 ticks and its motor
+coverage is 500 ticks, both accepted before execution. One defender receives
+the original caught action immediately and actually adopts its response; the
+other nine original reception delays are 1,000,000 ticks. Their future messages
+and the future sensory refresh remain in the census. The existing one-tick
+batter execution retains a later accepted plan end and body coverage.
+
+The continuation executes the retained quantizer checkpoint, refreshes the
+owned catch-work receipt at that exact physical cut, and invokes the original
+outcome, official windows, endpoint, ten TOTAL effects, Match/scoring transition
+and release. Assertions cover callback-free historical replay, unchanged rows
+on retry, next-batter activation and later scoring-history reconstruction.
+Neither the catch nor its physical end is supplied as a fixture result.
+IFN01 remains **unrun** in this author checkout; its genuine physical geometry,
+full ownership traversal and runtime cost await the single consolidated gate.
+
+The batch review exposed a separate concrete archive dispatch defect: the
+scoring writer understood `owned_fair_catch`, but the next-batter and later
+scoring-history readers still interpreted every live sidecar as a scorer
+judgment. All three now share the same accepted Source-kind/envelope dispatch
+before the existing Core classifier rederives the physical catch, timeline and
+end. A bounded finite SQLite regression uses real original registrations,
+initial-world and actor owners around the existing Core secured-capture fixture.
+Removing its acquisition rejects both consumers without accepting the next
+actor; restoring it activates the next batter, reconstructs history and reopens
+the accepted actor. Its end is explicitly supplied for this finite classifier
+test, so it is not evidence for the reserved end producer. All 11 scoring-store
+tests passed under Node 26.10.0 in 5.28 seconds. Changed-file-only strict
+TypeScript diagnostics passed for 14 source/test files; no full compiler or
+Native composition was launched here.

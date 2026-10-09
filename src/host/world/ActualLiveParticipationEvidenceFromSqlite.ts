@@ -1,4 +1,5 @@
 import type { DatabaseSync } from 'node:sqlite';
+import { assertNationalMatchBindings, nationalBinding } from './NationalMatchOriginFromSqlite';
 import type { ActualLiveParticipationReceipt, OfficialParticipantBinding } from './SqliteOfficialParticipationStore';
 import { actualLivePlayClosureEvidenceFromSqlite, actualLiveClosureApplicationRows,
   assertActualLiveClosureStage, type ActualLivePlayClosureProposal } from './ActualLivePlayClosureEvidenceFromSqlite';
@@ -18,8 +19,11 @@ const bindingFields = ['gameId', 'careerId', 'competitionEditionId', 'gameDay', 
 
 /** Reconstruct the original persisted fact. No live authority, replacement closure, or cross-transaction cache. */
 export const deriveActualLiveParticipationEvidence = (db: Db, gameId: string,
-  playerId: string, closureSourceId: string): ActualLiveParticipationEvidence => {
+  playerId: string, closureSourceId: string,
+  evidenceKind: ActualLiveParticipationReceipt['evidenceKind'] = 'ACTUAL_LIVE_V1'): ActualLiveParticipationEvidence => {
   if (![gameId, playerId, closureSourceId].every(id)) throw new Error('invalid actual-live participation reference');
+  if (evidenceKind !== 'ACTUAL_LIVE_V1' && evidenceKind !== 'NATIONAL_ACTUAL_LIVE_V1') throw new Error('unsupported actual-live participation format');
+  const national = evidenceKind === 'NATIONAL_ACTUAL_LIVE_V1';
   const closure = actualLivePlayClosureEvidenceFromSqlite(db).read(closureSourceId);
   if (!closure || closure.status !== 'OFFICIAL_APPLIED' || !closure.officialApplied || !closure.result) {
     throw new Error('actual-live participation requires an applied original closure');
@@ -52,8 +56,8 @@ export const deriveActualLiveParticipationEvidence = (db: Db, gameId: string,
     const b = actor.binding, person = actor.person;
     const document = readOwnedParticipationBindingJson(db, gameId, b.playerId);
     if (document === null || json(JSON.parse(document)) !== json(b)
-      || Object.hasOwn(b, 'nationalRegistrationEventId') || Object.hasOwn(b, 'nationalRosterSnapshotId')) {
-      throw new Error('actual-live participation original domestic binding differs');
+      || nationalBinding(b) !== national) {
+      throw new Error(national ? 'actual-live participation original National binding differs' : 'actual-live participation original domestic binding differs');
     }
     for (const key of bindingFields) {
       const value = b[key];
@@ -82,9 +86,16 @@ export const deriveActualLiveParticipationEvidence = (db: Db, gameId: string,
     throw new Error('actual-live participation original batter role differs');
   }
   const binding: OfficialParticipantBinding = selected[0].binding;
-  assertParticipationDomesticSeason(db, binding.careerId, binding.competitionEditionId);
+  if (national) {
+    const origin = assertNationalMatchBindings(db, actors.map(a => a.binding));
+    if (!origin || origin.fixture.competitionEditionId !== p.seasonFixture.seasonId
+      || origin.fixture.careerId !== p.seasonFixture.careerId || origin.fixture.fixtureEventId !== p.fixture.fixture_event_id
+      || origin.fixture.homeClubId !== p.seasonFixture.game.homeClubId || origin.fixture.awayClubId !== p.seasonFixture.game.awayClubId) {
+      throw new Error('actual-live participation original National fixture differs');
+    }
+  } else assertParticipationDomesticSeason(db, binding.careerId, binding.competitionEditionId);
   const role = participants.find(actor => actor.playerId === playerId)!.role;
-  return freeze({ proposal: p, receipt: { evidenceKind: 'ACTUAL_LIVE_V1' as const,
+  return freeze({ proposal: p, receipt: { evidenceKind,
     receiptId: participationReceiptId(gameId, playerId), binding, actorKind: role,
     closureSourceId, closureApplicationId: p.application.applicationId, closureProposalHash: hash(p),
     playedPlayId: p.playId, durableRevision: receipt.durableRevision } });

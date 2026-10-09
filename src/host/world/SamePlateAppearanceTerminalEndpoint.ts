@@ -26,7 +26,8 @@ export type SamePaTerminalEndpoint = Readonly<{
   participants: readonly SamePaTerminalParticipant[];
   actor: import('./PhysicalPlateAppearanceActorEvidenceFromSqlite').DurablePhysicalPlateAppearanceActor;
   officialLedger: import('../../core/adjudication/PlayAdjudicationLedger').PlayAdjudicationLedger;
-  context: import('../../core/adjudication/NonLiveOfficialApplication').NonLiveOfficialContext;
+  context: import('../../core/adjudication/NonLiveOfficialApplication').NonLiveOfficialContext | null;
+  fairCatch?: import('./SamePlateAppearanceFairCatchEndFromSqlite').SamePaFairCatchPhysicalEnd;
   physicalCompletedAtTick: number;
   controllerRetirementBasis: import('./SamePlateAppearanceLifecycleOutcome').SamePaControllerRetirementBasis;
   baseCenters: import('../../core/adjudication/BetweenPlayWorldReset').BetweenPlayWorldSetup['baseCenters'];

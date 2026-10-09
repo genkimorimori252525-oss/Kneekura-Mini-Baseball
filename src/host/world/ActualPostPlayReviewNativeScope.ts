@@ -1,6 +1,6 @@
 import type { DatabaseSync } from 'node:sqlite';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
-import type { OfficialStandingsSchedule } from '../../core/world/competition/OfficialStandings';
+import { readActualLiveOriginalFixture } from './ActualLiveOriginalFixtureFromSqlite';
 import { actualLiveAdjudicationEvidenceFromSqlite } from './ActualLiveAdjudicationFromSqlite';
 import { actualFirstBaseClosedEvidenceFromSqlite } from './SqliteActualFirstBasePlayEndStore';
 import { battedWorldFieldEvidenceFromSqlite } from './SqliteBattedWorldFieldStore';
@@ -36,13 +36,9 @@ export const derivePostPlayReviewSession = (db: PostPlayReviewDb, source: Accept
   if (bindings.length !== 10 || new Set(bindings.map(b => b.playerId)).size !== 10
     || new Set(bindings.map(b => b.personId)).size !== 10) throw new Error('post-play original frame participants differ');
   const fixture = db.prepare('SELECT * FROM official_fixtures WHERE game_id=?').get(end.gameId);
-  const row = db.prepare('SELECT schedule_json FROM world_season_heads WHERE career_id=? AND season_id=?')
-    .get(first.careerId, first.competitionEditionId);
-  const schedule = row && JSON.parse(String(row.schedule_json)) as OfficialStandingsSchedule | undefined;
-  const games = schedule?.games.filter(g => g.gameId === end.gameId);
-  if (!fixture || fixture.fixture_event_id !== first.fixtureEventId || !schedule
-    || schedule.seasonId !== first.competitionEditionId || !games || games.length !== 1) throw new Error('post-play original fixture ownership differs');
-  const clubs = { HOME: games[0].homeClubId, AWAY: games[0].awayClubId };
+  const { game } = readActualLiveOriginalFixture(db, end.gameId, bindings);
+  if (!fixture || fixture.fixture_event_id !== first.fixtureEventId) throw new Error('post-play original fixture ownership differs');
+  const clubs = { HOME: game.homeClubId, AWAY: game.awayClubId };
   if (clubs.HOME === clubs.AWAY || bindings.some(b => b.careerId !== first.careerId || b.competitionEditionId !== first.competitionEditionId
     || b.gameId !== end.gameId || b.gameDay !== first.gameDay || b.fixtureEventId !== first.fixtureEventId
     || (b.side !== 'HOME' && b.side !== 'AWAY') || b.clubId !== clubs[b.side])

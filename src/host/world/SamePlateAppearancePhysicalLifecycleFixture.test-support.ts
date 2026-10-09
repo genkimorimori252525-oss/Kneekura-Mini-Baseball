@@ -24,8 +24,8 @@ import type { Vec3 } from '../../core/model/geometry';
 /** Source-only synthetic ownership fixture. It performs the two earlier TAKEs
  * through the real owners, then exposes a current accepted lifecycle view.
  * No returned actor/view is manufactured or supplied to a production writer. */
-export const samePaPhysicalLifecycleFixture=(options:Readonly<{explicitBatterObservation?:AcceptedBattingObservationCalibration['values'];explicitDefenderObservation?:PlayerObservationCalibration;explicitBatterMotor?:AcceptedBattingCapability['values'];explicitDefenderLocomotion?:PlayerLocomotionCalibration;profile?:NonNullable<Parameters<typeof directNativeDispatchFixture>[0]>['profile'];explicitDefenderGloveOffsets?:Readonly<Record<string,Vec3>>}>={})=>{
-  const f=directNativeDispatchFixture({profile:options.profile}),accepted=new Map<string,unknown>(),track=f.x.f.track;
+export const samePaPhysicalLifecycleFixture=(options:Readonly<{explicitBatterObservation?:AcceptedBattingObservationCalibration['values'];explicitDefenderObservation?:PlayerObservationCalibration;explicitBatterMotor?:AcceptedBattingCapability['values'];explicitDefenderLocomotion?:PlayerLocomotionCalibration;profile?:NonNullable<Parameters<typeof directNativeDispatchFixture>[0]>['profile'];originalBaseCenters?:NonNullable<Parameters<typeof directNativeDispatchFixture>[0]>['originalBaseCenters'];explicitDefenderGloveOffsets?:Readonly<Record<string,Vec3>>}>={})=>{
+  const f=directNativeDispatchFixture({profile:options.profile,originalBaseCenters:options.originalBaseCenters}),accepted=new Map<string,unknown>(),track=f.x.f.track;
   const save=<T extends {sourceId:string}>(s:T):T=>{accepted.set(s.sourceId,s);return s;};
   try{
     const original=f.acceptedAction.source,sceneBodyReferences=prepareSamePaSceneBodies(f,options.explicitDefenderGloveOffsets);

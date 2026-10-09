@@ -1,0 +1,111 @@
+import { playerObservationCalibrationFixture } from '../../core/sim/perception/PlayerObservationCalibrationFixtures.test-support';
+import type { AcceptedActualFirstBaseUmpireSetup } from './ActualFirstBaseUmpire';
+import type { attachActualFirstBasePlayEndFixture } from './ActualFirstBasePlayEndFixtures.test-support';
+import { actualPlayersKinematicsFromPrefix } from './ActualPlayerKinematicsFromPrefix';
+import { ownedMotionKnownWorkFromSqlite } from './OwnedMotionKnownWorkFromSqlite';
+import { battedWorldFieldEvidenceFromSqlite, type DurableBattedWorldFieldAction } from './SqliteBattedWorldFieldStore';
+import type { DurableActualLivePlayRuntime } from './ActualLivePlayRuntime';
+import { battedWorldFieldExecutionEvidenceFromSqlite, openSqliteBattedWorldFieldExecutionStore,
+  type AcceptedBattedWorldFieldExecution } from './SqliteBattedWorldFieldExecutionStore';
+import { openSqliteActualLiveRuleConsumptionStore } from './SqliteActualLiveRuleConsumptionStore';
+import { openSqliteActualFirstBaseUmpireStore } from './SqliteActualFirstBaseUmpireStore';
+import { openSqliteActualCommunicationStore } from './SqliteActualCommunicationStore';
+import { openSqliteActualFirstBasePlayEndStore } from './SqliteActualFirstBasePlayEndStore';
+import { openSqliteActualLiveAdjudicationStore } from './SqliteActualLiveAdjudicationStore';
+import { openSqliteActualLivePlayClosureStore } from './SqliteActualLivePlayClosureStore';
+import type { AcceptedActualLiveAdjudication } from './ActualLiveAdjudicationSource';
+import type { AcceptedActualLivePlayClosure } from './ActualLivePlayClosureSource';
+
+export type ActualFirstBaseOfficialRoot = Pick<ReturnType<typeof attachActualFirstBasePlayEndFixture>,
+  'f' | 'pitchId' | 'source' | 'captured' | 'executions'> & Readonly<{
+    runtime: DurableActualLivePlayRuntime; baseField: DurableBattedWorldFieldAction;
+  }>;
+
+/** Original positive-test calibration and official policy attached to the
+ * caller's existing physical owners. No physical result or identity is replaced. */
+export const attachActualFirstBaseOfficialFixture = <T extends ActualFirstBaseOfficialRoot>(path: string, x: T) => {
+  const race = x.executions.accept(x.source.sourceId);
+  if (race.execution.kind !== 'first_base_race') throw new Error('original first-base race owner is missing');
+  const p = playerObservationCalibrationFixture();
+  const tps = x.baseField.response.touch.worldContact.flight.source.execution.ballFlightParameters.ticksPerSecond;
+  const center = x.baseField.geometry.geometry.baseGeometry.bases.first.region.center;
+  const acknowledgement = { sourceId: 'rule-consumption', sourceVersion: 'fixture-v1', capability: 'actual_first_base_rule_consumption_v1' as const,
+    captureExecutionSourceId: x.captured.source.sourceId, ruleExecutionSourceId: race.source.sourceId };
+  const consumptions = x.f.track(openSqliteActualLiveRuleConsumptionStore(path,
+    { readAcceptedConsumption: id => id === acknowledgement.sourceId ? acknowledgement : null }));
+  const consumption = consumptions.accept(acknowledgement.sourceId);
+  const setup: AcceptedActualFirstBaseUmpireSetup = { sourceId: 'play-end-umpire-setup', sourceVersion: 'fixture-v1', gameId: x.runtime.gameId,
+    physicalPitchSourceId: x.pitchId, umpireId: 'umpire-1', pose: { version: 'static_first_base_view_v1', position: { ...center, y: 20 },
+      forward: { x: 0, y: -1, z: 0 }, validFromElapsedSeconds: 0, validThroughElapsedSeconds: 10 }, attention: { control: 1, touch: 1 },
+    calibration: { version: 'first_base_timing_triangular_v1', perceptionAbility: 0.8, callDelaySeconds: 2 / tps,
+      geometryParameters: { ...p.geometryParameters, fullQualityHalfAngleRadians: Math.PI - .01, maxVisibleHalfAngleRadians: Math.PI,
+        fullQualityDistanceMeters: 100, maxObservableDistanceMeters: 1000, fullQualityRelativeSpeedMps: 100000, maxRelativeSpeedMps: 1000000 },
+      qualityParameters: p.qualityParameters,
+      timingErrorParameters: { minimumDetectionQuality: .1, minimumTimeErrorSeconds: 0, maximumTimeErrorSeconds: 0 } } };
+  const observation = { sourceId: 'play-end-umpire-observation', sourceVersion: 'fixture-v1', setupSourceId: setup.sourceId,
+    ruleExecutionSourceId: race.source.sourceId };
+  const sources = new Map<string, AcceptedBattedWorldFieldExecution>();
+  const physicalWriter = x.f.track(openSqliteBattedWorldFieldExecutionStore(path, { read: battedWorldFieldEvidenceFromSqlite(x.f.db).read },
+    { readAcceptedExecution: id => sources.get(id) ?? null }));
+  const extendBucket = (sourceId: string, previous: string, throughTick: number) => {
+    const prefix = { baseField: x.baseField, fields: battedWorldFieldEvidenceFromSqlite(x.f.db).scope(x.baseField, x.baseField.source.sourceId),
+      executions: battedWorldFieldExecutionEvidenceFromSqlite(x.f.db).scope(x.baseField, previous) };
+    const ids = x.runtime.membership.participants.map(player => player.playerId);
+    const source: AcceptedBattedWorldFieldExecution = { sourceId, sourceVersion: 'fixture-v1', baseFieldSourceId: x.baseField.source.sourceId,
+      previousExecutionSourceId: previous, action: { kind: 'owned_motion_v2', checkpoint: { kind: 'retained_quantizer_bucket_v1', throughTick },
+        knownWork: ownedMotionKnownWorkFromSqlite(x.f.db, x.pitchId, ids),
+        contributions: actualPlayersKinematicsFromPrefix(ids, prefix).map(self => ({ kind: 'retained', playerId: self.playerId, command: self.activeCommand })) } };
+    sources.set(sourceId, source); return physicalWriter.accept(sourceId);
+  };
+  const waitingSource = { sourceId: 'scheduled-operative-call', sourceVersion: 'fixture-v1', observationSourceId: observation.sourceId,
+    currentExecutionSourceId: race.source.sourceId };
+  const calls = new Map([[waitingSource.sourceId, waitingSource]]);
+  const umpires = x.f.track(openSqliteActualFirstBaseUmpireStore(path, { readAcceptedSetup: () => setup,
+    readAcceptedObservation: () => observation, readAcceptedCall: id => calls.get(id) ?? null }));
+  umpires.acceptSetup(setup.sourceId);
+  const observed = umpires.observe(observation.sourceId), waiting = umpires.advanceCall(waitingSource.sourceId);
+  if (waiting.schedule.kind !== 'scheduled') throw new Error('original first-base delayed call was not scheduled');
+  const due = extendBucket('actual-call-due-cut', race.source.sourceId, race.execution.field.motion.world.moment.ball.tick + 3);
+  const callSource = { ...waitingSource, sourceId: 'operative-call', currentExecutionSourceId: due.source.sourceId };
+  calls.set(callSource.sourceId, callSource);
+  const call = umpires.advanceCall(callSource.sourceId);
+  const final = extendBucket('actual-post-call-quantizer-tail', due.source.sourceId, due.execution.field.motion.world.moment.ball.tick + 1);
+  if (call.schedule.kind !== 'called' || call.schedule.call !== 'out') throw new Error('original first-base operative retirement is missing');
+  const model = { sourceId: 'call-reception-model', sourceVersion: 'fixture-v1', gameId: x.runtime.gameId, physicalPitchSourceId: x.pitchId,
+    parameters: { version: 'fixed_receiver_conditions_v1' as const, timing: 'exact_sent_plus_core_delay_ticks_v1' as const,
+      receivers: x.runtime.membership.participants.map(player => ({ playerId: player.playerId, conditions: { propagationDelayTicks: 100,
+        recognitionBaseDelayTicks: 0, maxAdditionalRecognitionDelayTicks: 0, audibility: 1, recognition: 1, attention: 1, minimumRecognizableQuality: .5 } })) } };
+  const communicationSource = { sourceId: 'call-information', sourceVersion: 'fixture-v1', callSourceId: call.source.sourceId,
+    modelSourceId: model.sourceId, currentExecutionSourceId: final.source.sourceId, previousCommunicationSourceId: null };
+  const communications = x.f.track(openSqliteActualCommunicationStore(path,
+    { readAcceptedModel: () => model, readAcceptedCommunication: () => communicationSource }));
+  communications.acceptModel(model.sourceId);
+  const communication = communications.accept(communicationSource.sourceId);
+  const endSource = { sourceId: 'physical-end', sourceVersion: 'fixture-v1', runtimeSourceId: x.runtime.source.sourceId,
+    baseFieldSourceId: x.baseField.source.sourceId, executionSourceId: final.source.sourceId, ruleConsumptionSourceId: acknowledgement.sourceId,
+    umpireCallSourceId: call.source.sourceId, communicationSourceId: communication.source.sourceId };
+  const ends = x.f.track(openSqliteActualFirstBasePlayEndStore(path, { readAcceptedEnd: id => id === endSource.sourceId ? endSource : null }));
+  const end = ends.accept(endSource.sourceId);
+  const frame = x.baseField.response.touch.worldContact.flight.physicalPitch.frame;
+  const adjudicationSource: AcceptedActualLiveAdjudication = { sourceId: 'fixture-actual-live-adjudication', sourceVersion: 'fixture-v1',
+    physicalEndSourceId: end.source.sourceId, policy: { sourceId: 'explicit-fixture-official-policy', sourceVersion: 'fixture-v1',
+      ruleProfileId: frame.match.ruleProfileId,
+      officialWindows: { appeal: { available: true }, review: { available: false }, challenge: { available: false } } } };
+  const adjudications = x.f.track(openSqliteActualLiveAdjudicationStore(path,
+    { readAcceptedAdjudication: id => id === adjudicationSource.sourceId ? adjudicationSource : null }));
+  const adjudication = adjudications.accept(adjudicationSource.sourceId);
+  if (adjudication.kind !== 'official_ready') throw new Error(`original first-base adjudication is pending: ${adjudication.pendingReasons.join(', ')}`);
+  const closureSource: AcceptedActualLivePlayClosure = { sourceId: 'fixture-actual-live-closure', sourceVersion: 'fixture-v1',
+    adjudicationSourceId: adjudication.source.sourceId, applicationId: 'fixture-actual-live-application',
+    closureTick: end.playEnd.tick + 1, nextStartedAtTick: end.playEnd.tick + 2, controllerReset: 'rule_system_retire_original_play',
+    worldSetup: { baseCenters: { first: x.baseField.geometry.geometry.baseGeometry.bases.first.region.center,
+      second: x.baseField.geometry.geometry.baseGeometry.bases.second.region.center,
+      third: x.baseField.geometry.geometry.baseGeometry.bases.third.region.center },
+      defenders: frame.world.defenders.map(d => ({ playerId: d.playerId, registeredPosition: d.registeredPosition, position: d.position })),
+      activePreviousPlayControllerIds: [] } };
+  const closures = x.f.track(openSqliteActualLivePlayClosureStore(path,
+    { readAcceptedClosure: id => id === closureSource.sourceId ? closureSource : null }));
+  const queued = closures.enqueue(closureSource.sourceId), closure = closures.resume(closureSource.sourceId);
+  return { ...x, race, consumptions, consumption, umpires, observed, waiting, due, call, final, communications, communication,
+    endSource, ends, end, adjudicationSource, adjudications, adjudication, closureSource, closures, queued, closure };
+};

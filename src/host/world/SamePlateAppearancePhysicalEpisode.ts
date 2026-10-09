@@ -50,7 +50,8 @@ export type SamePaPhysicalFieldRootSource = OperationSource & Readonly<{ capabil
   fieldInputs: Readonly<{kind:'reused_normal_field_inputs_v1';geometryReference:SamePaReference<'batted_world_field_geometries'>;modelReference:SamePaReference<'batted_world_models'>;responseModelReference:SamePaReference<'batted_contact_response_models'>}>
     |Readonly<{kind:'fresh_physical_field_calibration_v1';calibrationReference:SamePaReference<'pa_physical_v1_field_calibrations'>}>;
   commands: import('./SqliteBattedWorldContactStore').AcceptedBattedWorldContact['commands']; parameters: Required<BallFlightParameters>; throughTick: number;
-  venuePolicy?: AcceptedBattedVenuePlayableWallPolicy }>;
+  venuePolicy?: AcceptedBattedVenuePlayableWallPolicy;
+  liveProducerProfile?: 'same_pa_empty_base_catch_v1' }>;
 export type SamePaPhysicalFieldStepSource = OperationSource & Readonly<{ capability: 'same_pa_physical_field_step_v1';
   fieldRootReference: SamePaReference<'pa_physical_v1_field_roots'>; previousFieldReference: SamePaReference<'pa_physical_v1_field_roots' | 'pa_physical_v1_field_steps'>;
   throughTick: number; action?: SamePaPhysicalFieldAction }>;
@@ -137,7 +138,8 @@ export const samePaPhysicalEpisodeSourceInput = (raw: unknown, id?: string): Sam
     else if (s.capability === 'same_pa_physical_commitment_v1') { if (!fields(s, [...op, 'inputReference', 'intentReference', ...('buntProfileBinding' in s ? ['buntProfileBinding'] : [])]) || !ref(s.inputReference, 'batting_execution_v1_inputs') || !ref(s.intentReference, 'batting_execution_v1_intents')) throw new Error('invalid physical commitment');
       if ('buntProfileBinding' in s) samePaBuntProfileBindingInput(s.buntProfileBinding); }
     else if (s.capability === 'same_pa_physical_resolution_v1') { if (!fields(s, [...op, 'throughTick', 'commitmentReference']) || !tick(s.throughTick) || s.commitmentReference !== null && !ref(s.commitmentReference, 'pa_physical_v1_commitments')) throw new Error('invalid physical resolution'); }
-    else if (s.capability === 'same_pa_physical_field_root_v1') { const f=s.fieldInputs; if (!fields(s, [...op, 'resolutionReference', 'fieldInputs', 'postureReference', 'commands', 'parameters', 'throughTick', ...('venuePolicy' in s ? ['venuePolicy'] : [])]) || !tick(s.throughTick)
+    else if (s.capability === 'same_pa_physical_field_root_v1') { const f=s.fieldInputs; if (!fields(s, [...op, 'resolutionReference', 'fieldInputs', 'postureReference', 'commands', 'parameters', 'throughTick', ...('venuePolicy' in s ? ['venuePolicy'] : []), ...('liveProducerProfile' in s ? ['liveProducerProfile'] : [])]) || !tick(s.throughTick)
+      || 'liveProducerProfile' in s && s.liveProducerProfile !== 'same_pa_empty_base_catch_v1'
       || !ref(s.resolutionReference, 'pa_physical_v1_resolutions') || !ref(s.postureReference, 'batting_observation_v1_postures')
       ||!(f?.kind==='reused_normal_field_inputs_v1'&&fields(f,['kind','geometryReference','modelReference','responseModelReference'])&&ref(f.geometryReference,'batted_world_field_geometries')&&ref(f.modelReference,'batted_world_models')&&ref(f.responseModelReference,'batted_contact_response_models')
         ||f?.kind==='fresh_physical_field_calibration_v1'&&fields(f,['kind','calibrationReference'])&&ref(f.calibrationReference,'pa_physical_v1_field_calibrations'))|| !Array.isArray(s.commands) || s.commands.length !== 10

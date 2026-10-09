@@ -10,14 +10,15 @@ import { createHash } from 'node:crypto';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { derivePhysicalNonLiveClosure } from '../../core/adjudication/PhysicalNonLiveClosure';
-import { classifyClosedPlayForOfficialScoring, type OfficialFairBallScoringEvidence, type SupportedOfficialScoringRecord } from '../../core/adjudication/OfficialScoring';
+import { classifyClosedPlayForOfficialScoring, type SupportedOfficialScoringRecord } from '../../core/adjudication/OfficialScoring';
+import { officialScoringEvidenceArguments } from '../OfficialScoringEvidence';
 import { prepareBetweenPlayWorld, type BetweenPlayWorldSetup } from '../../core/adjudication/BetweenPlayWorldReset';
 import { confirmDurableClosedNonLiveStateApplication } from '../../core/adjudication/NonLiveOfficialApplication';
 import { resolveOfficialGameBoundary, type GameCompletionPolicy, type OfficialGameVenueBinding } from '../../core/world/competition/OfficialGameCompletion';
 import { createCanonicalLineScoreSnapshot, type CanonicalInningLineScore } from '../../core/model/CanonicalLineScoreSnapshot';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
 import { deriveOfficialPlayResult, deriveOfficialFinalResult, type PersistOfficialPlayInput, type PersistOfficialFinalInput } from '../SqliteOfficialStateStore';
-import type { PersistedOfficialScoring, PersistOfficialScoringInput } from '../SqliteOfficialScoringStore';
+import type { PersistedOfficialScoring, PersistOfficialScoringInput, AcceptedOfficialScoringEvidence } from '../SqliteOfficialScoringStore';
 import type { DurablePhysicalPitch } from './SqlitePhysicalPitchProgressStore';
 import { capturePhysicalPitchEvidence, readPhysicalPitchProgressFromSqlite } from './PhysicalPitchEvidenceFromSqlite';
 import { assertInitialOfficialWorldEvidence, readOfficialActorPersonLink } from './SqliteOfficialInitialWorldStore';
@@ -109,7 +110,7 @@ const readPhysicalClosureScoringHistoryRows = (db: PhysicalClosureDb, frame: Rea
       scoring_application_id: string; match_id: string; official_application_id: string; closure_id: string; source_event_id: string; request_json: string; result_json: string;
     } | undefined;
     if (!scored) throw new Error('physical closure prior scoring history is missing');
-    const saved = JSON.parse(scored.request_json) as { input: PersistOfficialScoringInput; evidence: OfficialFairBallScoringEvidence | null };
+    const saved = JSON.parse(scored.request_json) as { input: PersistOfficialScoringInput; evidence: AcceptedOfficialScoringEvidence | null };
     const input = saved.input, a = input.officialApplication;
     if ('mode' in a && a.mode === 'non_live_pending_post_play_v1') {
       // Terminal scoring keeps its immutable pending input forever. Only the
@@ -129,11 +130,11 @@ const readPhysicalClosureScoringHistoryRows = (db: PhysicalClosureDb, frame: Rea
         after:receipt.appliedMatchState,scoring:score,closureRowHash:closureHash(row),scoringRowHash:closureHash(scored)};
     }
     const official = 'game' in a ? deriveOfficialFinalResult(a, index + 1) : deriveOfficialPlayResult(a, index + 1);
-    const classified = classifyClosedPlayForOfficialScoring(a.kind === 'non_live' ? { kind: a.kind, match: a.match, timeline: a.timeline,
-      adjudication: a.adjudication, context: a.context } : { kind: a.kind, match: a.match, timeline: a.physicalTimeline,
-      adjudication: a.adjudication, ...(saved.evidence ? { scoringEvidence: saved.evidence } : {}) });
     const sourceEventId = a.kind === 'non_live' ? `official-non-live:${a.applicationId}`
       : 'sourceEventId' in input ? input.sourceEventId! : `official-foul-out:${a.applicationId}`;
+    const classified = classifyClosedPlayForOfficialScoring(a.kind === 'non_live' ? { kind: a.kind, match: a.match, timeline: a.timeline,
+      adjudication: a.adjudication, context: a.context } : { kind: a.kind, match: a.match, timeline: a.physicalTimeline,
+      adjudication: a.adjudication, ...officialScoringEvidenceArguments(saved.evidence, sourceEventId) });
     if (classified.kind !== 'supported') throw new Error('physical closure prior official score is unsupported');
     const score: PersistedOfficialScoring = { scoringApplicationId: input.scoringApplicationId, matchId: a.matchId,
       officialApplicationId: a.applicationId, closureId: official.receipt.closureId, sourceEventId, record: classified.record };

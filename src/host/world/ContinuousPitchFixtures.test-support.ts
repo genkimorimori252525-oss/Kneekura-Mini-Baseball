@@ -12,10 +12,11 @@ import { openSqlitePitchFatiguePolicyStore } from './SqlitePitchFatiguePolicySto
 import type { AcceptedPhysicalPitchActionSource } from './SqlitePhysicalPitchProgressStore';
 
 /** Actual Native owners, explicit synthetic bodies/physics/calibration, no forced count events. */
-export const continuousPitchFixture = (databasePath?: string, bothSides = false, fixture?: Parameters<typeof officialPitchWorkloadFixture>[4], profile?: Parameters<typeof officialPitchWorkloadFixture>[5], rehabPlayerIds: readonly string[] = []) => {
+export const continuousPitchFixture = (databasePath?: string, bothSides = false, fixture?: Parameters<typeof officialPitchWorkloadFixture>[4], profile?: Parameters<typeof officialPitchWorkloadFixture>[5], rehabPlayerIds: readonly string[] = [],
+  originalBaseCenters?: ReturnType<typeof worldSetup>['baseCenters']) => {
   const f = officialPitchWorkloadFixture(true, true, databasePath, bothSides, fixture, profile, rehabPlayerIds);
   const setup = { sourceId: 'initial-world', sourceVersion: 'fixture-v1', gameId: 'game-1', fixtureEventId: f.fixtureBinding.fixtureEventId,
-    startedAtTick: 0, worldSetup: worldSetup('p2') };
+    startedAtTick: 0, worldSetup: { ...worldSetup('p2'), ...(originalBaseCenters ? { baseCenters: originalBaseCenters } : {}) } };
   const initialWorlds = f.track(openSqliteOfficialInitialWorldStore(f.path, { matches: f.official, participation: f.participation }, { readAcceptedSetup: () => setup }));
   const initial = initialWorlds.accept(setup.sourceId);
   const baseline = { sourceId: 'workload', sourceVersion: 'fixture-v1', personLinkSourceId: 'intake-p2', careerId: 'career-a', playerId: 'p2',
@@ -57,7 +58,7 @@ export const continuousPitchFixture = (databasePath?: string, bothSides = false,
     flight: { durationUs: 1_500_000, acceleration: { x: 0, y: 0, z: 0 } },
     batter: { action: { kind: 'take' as const }, plateZ: 0, strikeZone: { centerX: 0, halfWidth: 0.2, lowerY: 1.4, upperY: 1.8 }, ballRadiusMeters: 0.0366 } };
   return { path: f.path, links: f.links, official: f.official, scoring: f.scoring, participation: f.participation, world: f.world, roster: f.roster,
-    firstInput: f.firstInput, db: f.db, track: f.track, close: f.close, initialWorlds, initial, baseline,
+    firstInput: { ...f.firstInput, worldSetup: setup.worldSetup }, db: f.db, track: f.track, close: f.close, initialWorlds, initial, baseline,
     timing, release, workload, policies, response, effort, input, activities,
     stores: { workload, timing, release, policies, effortPolicies: { readAcceptedPolicy: (id: string) => id === effort.sourceId ? effort : null } } };
 };

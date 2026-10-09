@@ -13,6 +13,8 @@ import { samePaExecutionReference as reference } from './SamePlateAppearanceExec
 import { samePaPhysicalEpisodeSourceInput as parse, type SamePaPhysicalAction, type SamePaPhysicalFieldRoot, type SamePaPhysicalFieldStep, type SamePaPhysicalFieldStepSource } from './SamePlateAppearancePhysicalEpisode';
 import { deriveSamePaPhysicalFieldCapture } from './SamePlateAppearancePhysicalFieldCapture';
 import { deriveSamePaPhysicalFieldStep } from './SamePlateAppearancePhysicalFieldCalculation';
+import { deriveSamePaPhysicalQuantizerCheckpoint } from './SamePlateAppearancePhysicalQuantizerCheckpoint';
+import { deriveQuantizerClosedGenerationBoundary } from '../../core/sim/liveAction/QuantizerClosedGenerationBoundary';
 import { deriveSamePaPhysicalFieldAction } from './SamePlateAppearancePhysicalFieldActionFromSqlite';
 import type { SamePaPhysicalFieldAction } from './SamePlateAppearancePhysicalFieldAction';
 import type { SamePaLifecycleViewBasis } from './SamePlateAppearanceLifecycle';
@@ -122,6 +124,24 @@ const authorFixture = () => {
     prefix.push(step); basis = { ...basis, view: { ...basis.view, cut: { ...basis.view.cut, evaluationTick: step.evaluationTick } } }; return step; };
   return { root, action, basis, values, m, calibrate, prefix, run, observe, decide, waitUntil };
 };
+it('FQ01 executes the exact retained quantizer suffix without changing command ownership or declaring an end', () => {
+  const h=authorFixture(), previous=h.waitUntil(100), before=JSON.stringify(previous.field.motion.actors);
+  const sealed=h.run({kind:'retained_quantizer_checkpoint_v1'}), boundary=deriveQuantizerClosedGenerationBoundary({originTick:0,throughTick:100,ticksPerSecond:1_000_000});
+  expect(sealed.actionResult).toEqual({kind:'retained_quantizer_checkpoint_v1',boundary,status:'checkpoint_reached'});
+  expect(sealed.evaluationTick).toBe(100);expect(sealed.field.motion.world.moment.elapsedSeconds).toBe(boundary.lastIncludedElapsedSeconds);
+  expect(sealed.field.motion.world.moment.elapsedSeconds).toBeGreaterThan(previous.field.motion.world.moment.elapsedSeconds);
+  expect(JSON.stringify(sealed.field.motion.actors)).toBe(before);expect(sealed.timeline).toEqual(previous.timeline);
+  expect(sealed).not.toHaveProperty('playEnd');expect(sealed).not.toHaveProperty('completion');
+  expect(()=>h.run({kind:'retained_quantizer_checkpoint_v1'})).toThrow(/interval/);
+});
+it('FQ02 rejects caller end, time, replacement commands and a checkpoint beyond expired role coverage', () => {
+  const h=authorFixture(), previous=h.waitUntil(100), source={...base(previous,h.root,100),action:{kind:'retained_quantizer_checkpoint_v1' as const}};
+  expect(parse(source)).toEqual(source);
+  for(const extra of [{playEnd:true},{throughElapsedSeconds:1},{actors:[]},{completed:true}])expect(()=>parse({...source,action:{...source.action,...extra}})).toThrow();
+  const expired={...previous,field:{...previous.field,motion:{...previous.field.motion,actors:previous.field.motion.actors.map(a=>({...a,primitive:{...a.primitive,endTick:100}}))}}};
+  expect(()=>deriveSamePaPhysicalQuantizerCheckpoint(source,h.root,expired)).toThrow(/coverage/);
+  expect(()=>deriveSamePaPhysicalQuantizerCheckpoint({...source,throughTick:101},h.root,previous)).toThrow(/current original/);
+});
 it('FA04 actual-cut perception, existing decision latency and effective movement preserve all ten physical contributors', () => {
   const h = authorFixture(), observation = h.observe();
   expect(observation.actionResult?.kind).toBe('defender_observation_v1');
