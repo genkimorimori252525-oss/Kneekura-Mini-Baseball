@@ -28,6 +28,7 @@ const capture = (scope: PostPlayReviewNativeScope, previous: ActualPostPlayRevie
   const common = { version: 'actual_post_play_review_admission_v1' as const, careerId: scope.careerId,
     gameId: scope.gameId, playId: scope.playId, policyHash: hash(policy) };
   const action = source.action;
+  if (action.kind === 'defender_base_appeal') throw new Error('defender appeal requires its original physical execution owner');
   if (action.kind === 'advance_tick' || action.kind === 'next_play_fence') {
     if (intent !== null || inputs !== null || action.schedulerId !== policy.schedulerId) throw new Error('post-play scheduler authority differs');
     return freeze({ kind: 'admitted', evidence: { ...common, kind: 'scheduler', actorId: action.schedulerId, clubId: null, inputs: null, inputHashes: null } });

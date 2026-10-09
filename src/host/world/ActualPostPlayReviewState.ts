@@ -1,4 +1,5 @@
 import { samePaCatchReviewSeedInput, type SamePaCatchReviewSeedSource } from './SamePlateAppearanceCatchReviewSource';
+import type { deriveSamePaBaseAppealExecution } from './SamePlateAppearanceBaseAppealExecution';
 import { cloneInert, openRuleProfileOfficialStateWindow } from '../../core/adjudication/OfficialWindowPolicy';
 import { getPlayAdjudicationState, getOfficialStateWindows, type PlayAdjudicationLedger,
   type OwnedLiveCallSourceReference, type OwnedLiveCallImported } from '../../core/adjudication/PlayAdjudicationLedger';
@@ -12,6 +13,8 @@ import { actorHash as hash, actorJson as json, actorFreeze as freeze } from './P
 import { actualPostPlayReviewSessionInput, postPlayHash, postPlayRevision,
   type AcceptedActualPostPlayReviewSession, type AcceptedActualPostPlayReviewEvent,
   type AcceptedActualPostPlayReviewIntent } from './ActualPostPlayReviewSource';
+
+export type PostPlayBaseAppealExecution = Extract<ReturnType<typeof deriveSamePaBaseAppealExecution>, { kind: 'ready' }>;
 
 /** A narrow projection of Native-authenticated seed and sealed-end evidence. */
 export type ActualPostPlayReviewSeed = Readonly<{
@@ -28,6 +31,7 @@ export type ActualPostPlayReviewRequest = Readonly<{
 export type ActualPostPlayReviewJournalEvent = Readonly<{
   source: AcceptedActualPostPlayReviewEvent; intent: AcceptedActualPostPlayReviewIntent | null;
   tick: number; coreEventIds: readonly string[];
+  baseAppeal?: PostPlayBaseAppealExecution;
 }>;
 export type ActualPostPlayReviewProjection = Readonly<{
   source: AcceptedActualPostPlayReviewSession; seed: ActualPostPlayReviewSeed; ruleProfile: RuleProfile;
@@ -54,6 +58,9 @@ export const finalizePostPlayReview = (body: PostPlayProjectionBody): ActualPost
   const replaced = new Set(['on_field_call_stale', 'official_window_owner_unavailable:review', 'official_window_owner_unavailable:challenge',
     'official_window_policy_unconfigured:review', 'official_window_policy_unconfigured:challenge']);
   const pending = body.seed.pendingReasons.filter(reason => !replaced.has(reason));
+  const lastAppeal = body.ledger.events.reduce((last, e, i) => e.kind === 'DefensiveAppealAttemptRecorded' ? i : last, -1);
+  const lastRule = body.ledger.events.reduce((last, e, i) => e.kind === 'CorrectRuleSnapshotRecorded' || e.kind === 'UnresolvedCorrectRuleSnapshotRecorded' ? i : last, -1);
+  if (lastAppeal > lastRule) pending.push('appeal_requires_updated_correct_rule_snapshot');
   for (const kind of ['review', 'challenge'] as const) {
     const policy = body.ruleProfile.officialWindows?.[kind];
     if (!policy) pending.push(`official_window_policy_unconfigured:${kind}`);
@@ -121,6 +128,12 @@ export const initializePostPlayReview = (raw: unknown): ActualPostPlayReviewProj
   const ruleProfile = actualLiveAdjudicationProfile(seed.ruleProfile.id, source.officialPolicy);
   if (source.policy !== null && source.policy.ruleProfileId !== ruleProfile.id) throw new Error('post-play session policy RuleProfile differs');
   let ledger = seed.ledger;
+  if (source.baseAppealMode) {
+    if (ruleProfile.id !== 'npb-2026' || ruleProfile.officialWindows?.appeal?.available !== true)
+      throw new Error('original base appeal requires registered NPB appeal availability');
+    ledger = openRuleProfileOfficialStateWindow(ledger, ledger.revision, { profile: ruleProfile,
+      eventId: `${source.sourceId}:open:base-appeal`, tick: at.tick, windowId: `${source.sourceId}:base-appeal`, windowKind: 'appeal' });
+  }
   for (const kind of ['review', 'challenge'] as const) {
     const opportunity = source.policy?.opportunities.find(o => o.windowKind === kind);
     const policy = ruleProfile.officialWindows?.[kind];

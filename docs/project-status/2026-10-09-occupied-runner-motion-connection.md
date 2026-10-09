@@ -43,6 +43,8 @@ The new exact-consumer positive cases first failed at the old tick-only ledger. 
 
 ## Remaining code and policy boundaries
 
+Follow-up: [the bounded Native base-appeal connection](2026-10-09-native-base-appeal-connection.md) now supplies the explicit-indication/current-controlled-contact execution path at an independently owned original catch end. Its primary-rule check distinguishes ordinary owner implementation from missing gameplay semantics. The remaining statements below describe the earlier motion/evidence checkpoint; the linked record narrows what remains pending.
+
 The original stationary fair-catch scoring and closure owners still reject moving history. The new tag-up sidecar is legal evidence, not an official ruling or physical end. The live census continues to retain all existing reaction, observation, controller and custody work.
 
 No accepted/executed defensive appeal producer exists in the Native same-PA path, so `original_defensive_appeal_action_required` remains pending. `ActualPostPlayReviewSource` currently admits review/challenge and fence events, not an appeal attempt. The pure `createDefensiveAppealAttemptFact` constructor validates a fact but cannot authenticate or execute a defender action. The timeline orchestration variant additionally requires a real completed physical timeline.

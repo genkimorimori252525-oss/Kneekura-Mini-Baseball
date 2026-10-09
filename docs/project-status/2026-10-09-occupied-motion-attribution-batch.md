@@ -20,6 +20,26 @@ guard before every access. The measured census change reduced prepares by
 wall-time improvement. See the
 [measured comparison](../verification/2026-10-09-continuation-claim-proof-reuse.md).
 
+
+## Native original-base appeal journal connection
+
+The post-play journal now binds an explicitly indicated base appeal to the
+original defender's secure possession and actual base contact at the unchanged
+catch-end cut. Original rule conditions and existing physical evidence determine
+the execution; no movement, delay or ruling is supplied by the caller.
+The exact-history appeal ledger and remaining official obligations stay in force.
+[Connection and rule basis](2026-10-09-native-base-appeal-connection.md).
+
+On local commit `0805f39184ca99f666902c37c42c52417f30a530`, source
+`13bbeabbfd0b05cbe71f0f55700c5d573a4ed426`, full nonvisual compilation passed
+in 30.96 seconds and 94 cases in seven files passed in 9.92 seconds.
+Independent review is clear after repairing the Native read-only proof bracket;
+four real SQLite controls cover mode restoration and blocked proof-time writes.
+Inputs remain exact, all 18 protected blobs are unchanged and no processes
+survived. This closes the bounded host connection and its combined qualification;
+a complete positive Native appeal scenario and moving-play settlement remain open.
+
+
 ## Reopen and assessment correction
 
 The first retained National-tail attempt stopped in 6.91 seconds before its
@@ -70,9 +90,10 @@ flight with this corrected window; no retained Native declaration was changed.
 The original National second-play/Career tail and pitch recipe are shared
 with a retained-state reopen entry. Independent comparison preserves all 37
 original assertions and numeric inputs. Only the already closed foul-statistics
-apply/retry/read calls are skipped by retained execution. Its new genuine
-pitch, first-base race, official closure and remaining Career assertions have
-not run yet; they will use the original owners from the preserved prefix.
+apply/retry/read calls are skipped by retained execution. Its corrected genuine execution is running from the preserved prefix. At the
+latest inspected checkpoint it has reopened the original context but has not
+yet committed the next pitch; race, official closure and remaining Career
+assertions are still unqualified.
 
 Tested local commit: `5dc8d20b0fba34fe29227be854a563248bda5579`.
 Source tree: `a62fe84ed31bf6413e096a47ed9cd731a9bd56d3`.

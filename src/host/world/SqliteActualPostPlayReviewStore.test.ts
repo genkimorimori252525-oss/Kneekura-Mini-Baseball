@@ -1,6 +1,7 @@
 import { expect, it, vi } from 'vitest';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
+import * as fieldStore from './SqliteBattedWorldFieldStore';
 import { accepted, assertReviewFixtureConnectionsClosed, nativeReviewFactory, nativeReviewFixture } from './ActualPostPlayReviewNativeFixtures.test-support';
 import { eventSource, decisionSource, reviewFixture } from './ActualPostPlayReviewContract.test-support';
 import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -20,10 +21,10 @@ vi.mock('./SqliteActualFirstBasePlayEndStore', () => ({ actualFirstBaseClosedEvi
   reference: (id: string) => { const row = db.prepare("SELECT reference_json FROM fixture_review_inputs WHERE kind='end' AND source_id=?").get(id);
     return row ? JSON.parse(String(row.reference_json)) : null; },
 }) }));
-vi.mock('./SqliteBattedWorldFieldStore', () => ({ battedWorldFieldEvidenceFromSqlite: (db: DatabaseSync) => ({
+vi.spyOn(fieldStore, 'battedWorldFieldEvidenceFromSqlite').mockImplementation(db => ({
   read: (id: string) => { const row = db.prepare("SELECT value_json FROM fixture_review_inputs WHERE kind='field' AND source_id=?").get(id);
     return row ? JSON.parse(String(row.value_json)) : null; },
-}) }));
+}) as ReturnType<typeof fieldStore.battedWorldFieldEvidenceFromSqlite>);
 const { DatabaseSync: Database } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
 
 it.each(['adjudication', 'end'])('requires the actual %s owner before reserving the play', kind => {

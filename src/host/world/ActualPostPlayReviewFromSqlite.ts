@@ -1,4 +1,6 @@
 import { deriveSamePaCatchReviewNativeSeed } from './SamePlateAppearanceCatchReviewFromSqlite';
+import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
+import { capturePostPlayBaseAppeal, type PostPlayBaseAppealAdmission } from './ActualPostPlayBaseAppealFromSqlite';
 import { actualPostPlayReviewSessionInput, actualPostPlayReviewEventInput, actualPostPlayReviewIntentInput,
   postPlayHash, postPlayRevision, type AcceptedActualPostPlayReviewEvent, type AcceptedActualPostPlayReviewIntent,
   type AcceptedActualPostPlayReviewSession } from './ActualPostPlayReviewSource';
@@ -11,8 +13,12 @@ import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './P
 
 export type NativePostPlaySessionArchive = ReturnType<typeof derivePostPlayReviewSession>;
 export type NativePostPlayEventReceipt = Readonly<{ source: AcceptedActualPostPlayReviewEvent;
-  value: ActualPostPlayReviewProjection; admissionEvidence: PostPlayReviewAdmission }>;
+  value: ActualPostPlayReviewProjection; admissionEvidence: PostPlayReviewAdmission | PostPlayBaseAppealAdmission }>;
 export const actualPostPlayReviewEvidenceFromSqlite = (db: PostPlayReviewDb) => {
+  // All evidence operations share the existing Native proof bracket, including
+  // when called inside the journal's writable transaction. It restores the
+  // caller's query_only setting before INSERT/UPDATE or Source callbacks.
+  const proof = <T>(read: () => T): T => withBattedWorldPhysicalReadTraversal(db, read);
   const session = (sourceId: string): NativePostPlaySessionArchive | null => {
     if (!postPlayTableExists(db, 'actual_post_play_review_sessions')) return null;
     const row = postPlayReviewIdentityRow(db, 'session', sourceId); if (!row) return null;
@@ -32,15 +38,22 @@ export const actualPostPlayReviewEvidenceFromSqlite = (db: PostPlayReviewDb) => 
     const source = actualPostPlayReviewEventInput(JSON.parse(String(row.source_json)), sourceId);
     const parsedIntent = row.intent_json === null ? null : JSON.parse(String(row.intent_json));
     const intent = parsedIntent === null ? null : actualPostPlayReviewIntentInput(parsedIntent, parsedIntent.sourceId);
-    const admission = JSON.parse(String(row.admission_json)) as PostPlayReviewAdmission;
+    const admission = JSON.parse(String(row.admission_json)) as PostPlayReviewAdmission | PostPlayBaseAppealAdmission;
     if (row.session_source_id !== root.value.source.sourceId || !postPlayRevision(row.revision) || row.revision !== previous.revision + 1
       || row.parent_source_id !== source.parent.sourceId || row.parent_snapshot_hash !== source.parent.snapshotHash
       || row.source_json !== json(source) || row.source_hash !== hash(source)
       || row.intent_json !== (intent === null ? null : json(intent)) || row.admission_json !== json(admission)) {
       throw new Error('Native review event archive or parent revision differs');
     }
-    replayPostPlayReviewAdmission(root.scope, previous, source, intent, admission);
-    const value = advanceActualPostPlayReview({ previous, source, ...(intent === null ? {} : { intent }) });
+    if (source.action.kind === 'defender_base_appeal') {
+      const actual = capturePostPlayBaseAppeal(db, root.scope, previous, source, false);
+      if (intent !== null || actual.kind !== 'admitted' || json(actual.evidence) !== json(admission)) throw new Error('original base appeal execution archive differs');
+    } else {
+      if (admission.kind === 'base_appeal') throw new Error('unexpected base appeal admission');
+      replayPostPlayReviewAdmission(root.scope, previous, source, intent, admission);
+    }
+    const value = advanceActualPostPlayReview({ previous, source, ...(intent === null ? {} : { intent }),
+      ...(admission.kind === 'base_appeal' ? { baseAppeal: admission.execution } : {}) });
     if (row.snapshot_json !== json(value) || row.snapshot_hash !== hash(value)) throw new Error('Native review event snapshot differs');
     return { source, intent, value, admissionEvidence: admission, previous };
   };
@@ -88,31 +101,40 @@ export const actualPostPlayReviewEvidenceFromSqlite = (db: PostPlayReviewDb) => 
     assertNoPostPlayClosureReservation(db, root.value.source.adjudicationSourceId, root.scope);
   };
   return {
-    session, currentDetails, eventDetails, writable,
-    readSession(sourceId: string) { return session(sourceId)?.value ?? null; },
-    readCurrent(sourceId: string) { return currentDetails(sourceId)?.value ?? null; },
-    readAt(sourceId: string, revision: number) { const root = session(sourceId); return root ? at(root, revision)?.value ?? null : null; },
-    readEvent(sourceId: string): NativePostPlayEventReceipt | null {
+    session: (sourceId: string) => proof(() => session(sourceId)),
+    currentDetails: (sourceId: string) => proof(() => currentDetails(sourceId)),
+    eventDetails: (sourceId: string) => proof(() => eventDetails(sourceId)),
+    writable: (root: NativePostPlaySessionArchive) => proof(() => writable(root)),
+    readSession(sourceId: string) { return proof(() => session(sourceId)?.value ?? null); },
+    readCurrent(sourceId: string) { return proof(() => currentDetails(sourceId)?.value ?? null); },
+    readAt(sourceId: string, revision: number) { return proof(() => { const root = session(sourceId); return root ? at(root, revision)?.value ?? null : null; }); },
+    readEvent(sourceId: string): NativePostPlayEventReceipt | null { return proof(() => {
       const result = eventDetails(sourceId);
       return result && freeze({ source: result.source, value: result.value, admissionEvidence: result.admissionEvidence });
-    },
-    deriveSession(source: AcceptedActualPostPlayReviewSession) {
+    }); },
+    deriveSession(source: AcceptedActualPostPlayReviewSession) { return proof(() => {
       const root = derivePostPlayReviewSession(db, source); writable(root);
       if (postPlayReviewSessionClaims(db, source.adjudicationSourceId, root.scope).length) throw new Error('Native review session/play already has an owner');
       return root;
-    },
-    deriveEvent(source: AcceptedActualPostPlayReviewEvent, intent: AcceptedActualPostPlayReviewIntent | null) {
+    }); },
+    deriveEvent(source: AcceptedActualPostPlayReviewEvent, intent: AcceptedActualPostPlayReviewIntent | null) { return proof(() => {
       const current = currentDetails(source.sessionSourceId); if (!current) throw new Error('Native review session is missing');
       writable(current.root);
-      const admission = capturePostPlayReviewAdmission(db, current.root.scope, current.value, source, intent);
+      if (source.action.kind === 'defender_base_appeal' && intent !== null) throw new Error('base appeal cannot substitute a review intent');
+      const admission = source.action.kind === 'defender_base_appeal'
+        ? capturePostPlayBaseAppeal(db, current.root.scope, current.value, source, true)
+        : capturePostPlayReviewAdmission(db, current.root.scope, current.value, source, intent);
       if (admission.kind === 'intent_pending') return { kind: 'intent_pending' as const, reason: admission.reason };
-      const value = advanceActualPostPlayReview({ previous: current.value, source, ...(intent === null ? {} : { intent }) });
+      const value = advanceActualPostPlayReview({ previous: current.value, source, ...(intent === null ? {} : { intent }),
+        ...(admission.evidence.kind === 'base_appeal' ? { baseAppeal: admission.evidence.execution } : {}) });
       return { kind: 'admitted' as const, root: current.root, previous: current.value, value, admissionEvidence: admission.evidence };
-    },
-    assertCurrentAdmission(result: NonNullable<ReturnType<typeof eventDetails>>) {
+    }); },
+    assertCurrentAdmission(result: NonNullable<ReturnType<typeof eventDetails>>) { return proof(() => {
       writable(result.root);
-      const current = capturePostPlayReviewAdmission(db, result.root.scope, result.previous, result.source, result.intent);
+      const current = result.source.action.kind === 'defender_base_appeal'
+        ? capturePostPlayBaseAppeal(db, result.root.scope, result.previous, result.source, true)
+        : capturePostPlayReviewAdmission(db, result.root.scope, result.previous, result.source, result.intent);
       if (current.kind !== 'admitted' || json(current.evidence) !== json(result.admissionEvidence)) throw new Error('Native review admission authority changed during write');
-    },
+    }); },
   };
 };

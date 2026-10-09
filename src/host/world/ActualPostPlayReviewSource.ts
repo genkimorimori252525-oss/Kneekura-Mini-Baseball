@@ -21,8 +21,10 @@ export type AcceptedActualPostPlayReviewSession = Readonly<{
   adjudicationSourceId: string; adjudicationSnapshotHash: string;
   officialPolicy: ActualLiveOfficialPolicy | null; policy: ActualPostPlayReviewPolicy | null;
   reservedCatchSeed?: SamePaCatchReviewSeedSource;
+  baseAppealMode?: 'original_catch_end_v1';
 }>;
 export type ActualPostPlayReviewEventAction =
+  | Readonly<{ kind: 'defender_base_appeal'; defenderId: string; runnerId: string; base: 'first' | 'second' | 'third' }>
   | Readonly<{ kind: 'advance_tick'; schedulerId: string }>
   | Readonly<{ kind: 'next_play_fence'; schedulerId: string }>
   | Readonly<{ kind: 'request'; windowId: string; callId: string; intentSourceId: string }>
@@ -55,11 +57,13 @@ const ids = (value: readonly string[]) => Array.isArray(value) && value.length >
 export const actualPostPlayReviewSessionInput = (raw: unknown, sourceId: string): AcceptedActualPostPlayReviewSession => {
   const s = cloneInert(raw) as AcceptedActualPostPlayReviewSession;
   if (!fields(s, ['sourceId', 'sourceVersion', 'capability', 'adjudicationSourceId', 'adjudicationSnapshotHash', 'officialPolicy', 'policy',
-    ...(s && Object.hasOwn(s, 'reservedCatchSeed') ? ['reservedCatchSeed'] : [])])
+    ...(s && Object.hasOwn(s, 'reservedCatchSeed') ? ['reservedCatchSeed'] : []),
+    ...(s && Object.hasOwn(s, 'baseAppealMode') ? ['baseAppealMode'] : [])])
     || s.sourceId !== sourceId || s.capability !== 'actual_post_play_review_session_v1'
     || ![s.sourceId, s.sourceVersion, s.adjudicationSourceId].every(id) || !postPlayHash(s.adjudicationSnapshotHash)) {
     throw new Error('invalid accepted post-play review session Source');
   }
+  if (Object.hasOwn(s, 'baseAppealMode') && s.baseAppealMode !== 'original_catch_end_v1') throw new Error('unsupported original base appeal mode');
   actualLiveAdjudicationInput({ sourceId: s.sourceId, sourceVersion: s.sourceVersion,
     physicalEndSourceId: s.adjudicationSourceId, policy: s.officialPolicy }, sourceId);
   if (Object.hasOwn(s, 'reservedCatchSeed')) {
@@ -96,7 +100,10 @@ export const actualPostPlayReviewEventInput = (raw: unknown, sourceId: string): 
     throw new Error('invalid accepted post-play review event Source or parent revision');
   }
   const a = s.action;
-  if (a?.kind === 'advance_tick' || a?.kind === 'next_play_fence') {
+  if (a?.kind === 'defender_base_appeal') {
+    if (!fields(a, ['kind', 'defenderId', 'runnerId', 'base']) || ![a.defenderId, a.runnerId].every(id)
+      || a.defenderId === a.runnerId || !['first', 'second', 'third'].includes(a.base)) throw new Error('invalid explicit defender base appeal');
+  } else if (a?.kind === 'advance_tick' || a?.kind === 'next_play_fence') {
     if (!fields(a, ['kind', 'schedulerId']) || !id(a.schedulerId)) throw new Error('invalid post-play scheduler action');
   } else if (a?.kind === 'request' || a?.kind === 'decline' || a?.kind === 'official_request') {
     if (!fields(a, ['kind', 'windowId', 'callId', 'intentSourceId']) || ![a.windowId, a.callId, a.intentSourceId].every(id)) {
