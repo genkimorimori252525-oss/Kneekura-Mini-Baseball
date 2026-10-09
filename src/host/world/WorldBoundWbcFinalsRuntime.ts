@@ -13,15 +13,16 @@ import type { SqliteWbcFinalsKnockoutStore } from './SqliteWbcFinalsKnockoutStor
 import type { SqliteWbcFinalsScheduleStore } from './SqliteWbcFinalsScheduleStore';
 import type { SqliteOfficialWbcHistoryStore } from './SqliteOfficialWbcHistoryStore';
 import type { SqliteWorldNationalRankingHistoryStore } from './SqliteWorldNationalRankingHistoryStore';
+import { deliverCompletedGamePlayerOutcomes, type CompletedGameOutcomeStores } from './CompletedGamePlayerOutcomeDelivery';
 
-export type WorldBoundWbcFinalsStores = Readonly<{
+export type WorldBoundWbcFinalsStores = CompletedGameOutcomeStores & Readonly<{
   selections: Pick<SqliteNationalCompetitionSelectionStore, 'readSelection'>;
   rankings: Pick<SqliteWorldNationalRankingSnapshotStore, 'initialize'>;
   draws: Pick<SqliteNationalCompetitionDrawStore, 'initialize'>;
   hosts: Pick<SqliteNationalHostCandidateStore, 'initialize'>;
   editions: Pick<SqliteNationalCompetitionEditionStore, 'initialize' | 'readSnapshot'>;
   groups: Pick<SqliteWbcFinalsGroupStore, 'initialize' | 'finalize'>;
-  knockout: Pick<SqliteWbcFinalsKnockoutStore, 'initialize' | 'finalize' | 'readPlan'>;
+  knockout: Pick<SqliteWbcFinalsKnockoutStore, 'initialize' | 'finalize' | 'readPlan' | 'readEvidence'>;
   schedules: Pick<SqliteWbcFinalsScheduleStore, 'initialize'>;
   history: Pick<SqliteOfficialWbcHistoryStore, 'record'>;
   rankingHistory: Pick<SqliteWorldNationalRankingHistoryStore, 'recordWbc'>;
@@ -78,5 +79,13 @@ export const completeWorldBoundWbcFinals = (stores: WorldBoundWbcFinalsStores, c
   if (!withCompetitionSourceReadPhase(() => stores.knockout.finalize(careerId, editionId))) return null;
   const history = withCompetitionSourceReadPhase(() => stores.history.record(careerId, editionId));
   const ranking = withCompetitionSourceReadPhase(() => stores.rankingHistory.recordWbc(careerId, editionId));
-  return Object.freeze({ history, ranking });
+  const evidence = withCompetitionSourceReadPhase(() => stores.knockout.readEvidence(careerId, editionId));
+  if (!evidence || evidence.source.groupEdition.editionId !== editionId || evidence.source.knockoutEdition.editionId !== editionId) {
+    throw new Error('World WBC finals outcome delivery lacks completed original evidence');
+  }
+  const playerOutcomes = deliverCompletedGamePlayerOutcomes(stores, careerId, editionId, [
+    ...evidence.source.groupResults, ...evidence.roundOf16Results, ...evidence.quarterfinalResults,
+    ...evidence.semifinalResults, evidence.finalResult,
+  ]);
+  return Object.freeze({ history, ranking, playerOutcomes });
 };

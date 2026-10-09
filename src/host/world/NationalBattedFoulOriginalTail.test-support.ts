@@ -18,25 +18,34 @@ import type { CompletedPlayParticipationReceipt } from './SqliteOfficialParticip
 import type { DurableNationalAppearance } from './SqliteNationalCallupStore';
 import type { OfficialPlayerOutcomeAttribution } from './OfficialPlayerOutcomeEvidenceFromSqlite';
 
-export type NationalBattedFoulTailContext = NationalBattedFieldContext & Pick<ReturnType<typeof nationalPhysicalFixture>,
-  'source' | 'roster' | 'callups' | 'facts'> & Readonly<{
+export type NationalBattedFoulConsumerContext = Pick<ReturnType<typeof nationalPhysicalFixture>,
+  'path' | 'db' | 'track' | 'close' | 'source' | 'roster' | 'callups' | 'facts' | 'participation'> & Readonly<{
     origins: Pick<ReturnType<typeof nationalPhysicalFixture>['origins'], 'read'>;
-    participation: ReturnType<typeof nationalPhysicalFixture>['participation'];
   }>;
-/** The unchanged original NAT-N01 second-play/Career tail. A retained caller
- * can supply its already closed foul attribution as an expected result; this
- * never substitutes for any new play, scoring or Career owner's evidence. */
-export const continueNationalBattedFoulOriginalTail = (input: Readonly<{
-  f: NationalBattedFoulTailContext; nextActor: DurablePhysicalPlateAppearanceActor;
+export type NationalBattedFoulTailContext = NationalBattedFieldContext & NationalBattedFoulConsumerContext;
+export type NationalBattedFoulFieldRoot = Omit<ReturnType<typeof nationalBattedFieldFixture>, 'f'> & Readonly<{
+  f: Pick<NationalBattedFoulConsumerContext, 'path' | 'db' | 'track' | 'close'>;
+}>;
+type TailInput = Readonly<{
+  nextActor: DurablePhysicalPlateAppearanceActor;
   foulTerminalSource: Readonly<{sourceId:string;applicationId:string}>;
   foulReceipt: CompletedPlayParticipationReceipt; adoptedFoul: DurableNationalAppearance;
   originBytes: string; clubBefore: ReturnType<NationalBattedFoulTailContext['roster']['readHead']>;
   progress: (phase:string)=>void; preservedFoulStatistics?: OfficialPlayerOutcomeAttribution;
+}>;
+/** Fresh and pitch-retained callers still admit their original complete second-play prefix. */
+export const continueNationalBattedFoulOriginalTail = (input: TailInput & Readonly<{ f: NationalBattedFoulTailContext }>) =>
+  continueNationalBattedFoulOriginalTailFromField({ ...input,
+    liveRoot: nationalBattedFieldFixture(input.f, input.nextActor, 'national-live', 'first_base') });
+
+/** The unchanged original 37 assertions, entered after the real field binding.
+ * A retained root contains owner-authenticated evidence, never caller substitutes. */
+export const continueNationalBattedFoulOriginalTailFromField = (input: TailInput & Readonly<{
+  f: NationalBattedFoulConsumerContext; liveRoot: NationalBattedFoulFieldRoot;
 }>) => {
-  const {f,nextActor,foulTerminalSource,foulReceipt,adoptedFoul,originBytes,clubBefore,progress,preservedFoulStatistics}=input;
+  const {f,nextActor,foulTerminalSource,foulReceipt,adoptedFoul,originBytes,clubBefore,progress,preservedFoulStatistics,liveRoot}=input;
   const path=f.path;
   const foulAppearance={eventId:'national-foul:appearance',careerId:'career-a',receiptId:foulReceipt.receiptId,acceptedAtDay:121};
-  const liveRoot = nationalBattedFieldFixture(f, nextActor, 'national-live', 'first_base');
   expect(liveRoot.physical.frame.initialWorld).toBeNull();
   expect(liveRoot.physical.frame.activationApplicationId).toBe(foulTerminalSource.applicationId);
   expect(liveRoot.forecastGroundElapsedSeconds).not.toBeNull();

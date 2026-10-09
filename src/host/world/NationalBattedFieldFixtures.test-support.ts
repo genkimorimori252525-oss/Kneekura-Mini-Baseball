@@ -24,6 +24,18 @@ export type NationalBattedFieldContext = Pick<ReturnType<typeof nationalPhysical
     battedFixtureDeclaration?: NationalBattedFixtureDeclaration;
     stores: Parameters<typeof resolveContinuousPlayerPitchAgainstBatterFromWorld>[0];
   }>;
+/** The original unapplied field command, shared with an authenticated retained binding. */
+export const nationalBattedFieldFixtureSource = (input: Readonly<{
+  label: string; responseSourceId: string; geometrySourceId: string; initialBallTick: number;
+  commands: AcceptedBattedWorldContact['commands'];
+  episodeFieldBinding?: Extract<AcceptedBattedWorldFieldAction, { kind?: never }>['episodeFieldBinding'];
+}>): Extract<AcceptedBattedWorldFieldAction, { kind?: never }> => ({
+  sourceId: input.label + ':field', sourceVersion: 'fixture-v1', responseSourceId: input.responseSourceId,
+  geometrySourceId: input.geometrySourceId, previousFieldSourceId: null, availableAtTick: input.initialBallTick,
+  throughTick: input.initialBallTick + 2_000_000, commands: input.commands.map(c => ({ playerId: c.playerId,
+    bodyAcceleration: c.bodyAcceleration, primitiveMotions: c.primitiveMotions.map(m => ({ role: m.role, offsetAcceleration: m.offsetAcceleration })) })),
+  ...(input.episodeFieldBinding ? { episodeFieldBinding: input.episodeFieldBinding } : {}),
+});
 export const nationalBattedFieldFixture = (f: NationalBattedFieldContext,
   actor: DurablePhysicalPlateAppearanceActor, label: string, kind: 'terminal_foul' | 'first_base') => {
   const declaration = f.battedFixtureDeclaration;
@@ -108,12 +120,9 @@ export const nationalBattedFieldFixture = (f: NationalBattedFieldContext,
   const bindingSource = declaration && kind === 'first_base' ? { sourceId: label + ':episode-binding', sourceVersion: 'fixture-v1',
     version: 'batted_episode_field_binding_v3' as const, responseSourceId: response.source.sourceId, fieldCalibrationSourceId: geometrySource.sourceId,
     physicalActorSourceId: actor.source.sourceId, completedOrigin: { kind: 'foul_terminal_completion' as const, sourceId: 'national-foul:terminal' } } : null;
-  const fieldInput = { sourceId: label + ':field', sourceVersion: 'fixture-v1', responseSourceId: response.source.sourceId,
-    geometrySourceId: geometrySource.sourceId, previousFieldSourceId: null, availableAtTick: flight.flight.initialBall.tick,
-    throughTick: flight.flight.initialBall.tick + 2_000_000, commands: worldContact.source.commands.map(c => ({ playerId: c.playerId,
-      bodyAcceleration: c.bodyAcceleration, primitiveMotions: c.primitiveMotions.map(m => ({ role: m.role, offsetAcceleration: m.offsetAcceleration })) })) };
-  const fieldSource: Extract<AcceptedBattedWorldFieldAction, { kind?: never }> = bindingSource
-    ? { ...fieldInput, episodeFieldBinding: { version: bindingSource.version, sourceId: bindingSource.sourceId } } : fieldInput;
+  const fieldSource = nationalBattedFieldFixtureSource({ label, responseSourceId: response.source.sourceId,
+    geometrySourceId: geometrySource.sourceId, initialBallTick: flight.flight.initialBall.tick, commands: worldContact.source.commands,
+    ...(bindingSource ? { episodeFieldBinding: { version: bindingSource.version, sourceId: bindingSource.sourceId } } : {}) });
   const sources = new Map<string, AcceptedBattedWorldFieldAction>([[fieldSource.sourceId, fieldSource]]);
   const fields = f.track(openSqliteBattedWorldFieldStore(f.path, responses, bases, {
     readAcceptedGeometry: id => id === geometrySource.sourceId ? geometrySource : null, readAcceptedAction: id => sources.get(id) ?? null }));

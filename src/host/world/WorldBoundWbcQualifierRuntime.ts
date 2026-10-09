@@ -13,15 +13,16 @@ import type { SqliteWbcGlobalQualifierPodStore } from './SqliteWbcGlobalQualifie
 import type { SqliteWbcQualifierScheduleStore } from './SqliteWbcQualifierScheduleStore';
 import type { SqliteNationalQualificationHistoryStore } from './SqliteNationalQualificationHistoryStore';
 import type { SqliteWbcBerthStore } from './SqliteWbcBerthStore';
+import { deliverCompletedGamePlayerOutcomes, type CompletedGameOutcomeStores } from './CompletedGamePlayerOutcomeDelivery';
 
-export type WorldBoundWbcQualifierStores = Readonly<{
+export type WorldBoundWbcQualifierStores = CompletedGameOutcomeStores & Readonly<{
   qualification: Pick<SqliteWbcWorldQualificationStore, 'initialize' | 'readSnapshot'>;
   rankings: Pick<SqliteWorldNationalRankingSnapshotStore, 'initialize'>;
   selection: Pick<SqliteWbcQualifierSelectionStore, 'initialize'>;
   access: Pick<SqliteWbcQualifierHostAccessStore, 'record'>;
   hosts: Pick<SqliteWbcQualifierHostCandidateStore, 'initialize' | 'recordCompletedEdition'>;
   editions: Pick<SqliteWbcQualifierEditionStore, 'initialize'>;
-  pods: Pick<SqliteWbcGlobalQualifierPodStore, 'initialize' | 'finalize'>;
+  pods: Pick<SqliteWbcGlobalQualifierPodStore, 'initialize' | 'finalize' | 'readEvidence'>;
   schedules: Pick<SqliteWbcQualifierScheduleStore, 'initialize'>;
   history: Pick<SqliteNationalQualificationHistoryStore, 'recordQualifier'>;
   berths: Pick<SqliteWbcBerthStore, 'initialize'>;
@@ -77,5 +78,12 @@ export const completeWorldBoundWbcQualifier = (
   if (!withCompetitionSourceReadPhase(() => stores.pods.finalize(careerId, qualifierEditionId))) return null;
   withCompetitionSourceReadPhase(() => stores.history.recordQualifier(careerId, qualifierEditionId));
   withCompetitionSourceReadPhase(() => stores.hosts.recordCompletedEdition(careerId, qualifierEditionId));
-  return withCompetitionSourceReadPhase(() => stores.berths.initialize({ careerId, input: accepted.input }));
+  const allocation = withCompetitionSourceReadPhase(() => stores.berths.initialize({ careerId, input: accepted.input }));
+  const evidence = withCompetitionSourceReadPhase(() => stores.pods.readEvidence(careerId, qualifierEditionId));
+  if (!evidence || evidence.edition.editionId !== qualifierEditionId) {
+    throw new Error('World WBC qualifier outcome delivery lacks completed original evidence');
+  }
+  const playerOutcomes = deliverCompletedGamePlayerOutcomes(stores, careerId, qualifierEditionId,
+    [...evidence.semifinalResults, ...evidence.finalResults]);
+  return Object.freeze({ ...allocation, playerOutcomes });
 };

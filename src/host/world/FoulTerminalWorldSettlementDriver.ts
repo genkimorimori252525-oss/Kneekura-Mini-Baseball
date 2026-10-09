@@ -9,17 +9,18 @@ import type { PersistOfficialCompletedTerminalResult } from './ActualFoulTermina
 import type { OfficialWorldSettlementRequest } from './OfficialWorldSettlementDriver';
 import { assertDurableOfficialGameFinal, assertOfficialWorldSettlementScope } from './OfficialWorldSettlementDriver';
 import type { DurableWorldApplication } from './SqliteWorldSettlementStore';
+import type { CompletedGameOutcomeCommitment, CompletedGameOutcomeStores } from './CompletedGamePlayerOutcomeDelivery';
 
 export type CompletedFoulTerminalGame = Readonly<{
   careerId: string; terminalSourceId: string; originalInput: PersistOfficialPendingNonLiveInput;
   official: Extract<PersistOfficialCompletedTerminalResult, { finalResult: unknown }>;
   game: OfficialGameBoundaryInput;
 }>;
-export type FoulTerminalWorldSettlementStores = Pick<OfficialWorldSettlementRequest, 'matchStore' | 'worldStore'> & Readonly<{
+export type FoulTerminalWorldSettlementStores = Pick<OfficialWorldSettlementRequest, 'matchStore' | 'worldStore'> & CompletedGameOutcomeStores & Readonly<{
   foulTerminal: Pick<SqliteActualFoulTerminalApplicationStore, 'read'>;
 }>;
 export type DurableFoulTerminalWorldSettlementRequest = Pick<OfficialWorldSettlementRequest,
-  'worldInput' | 'expectedSeasonRevision' | 'expectedClubRevision'> & Readonly<{
+  'worldInput' | 'expectedSeasonRevision' | 'expectedClubRevision'> & CompletedGameOutcomeCommitment & Readonly<{
   kind: 'foul_terminal_world_settlement_v1'; final: CompletedFoulTerminalGame;
 }>;
 export type FoulTerminalWorldSettlementResult = Readonly<{

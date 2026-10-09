@@ -14,6 +14,7 @@ import { battedEpisodeCurrentParticipantsMatch } from './BattedEpisodeCurrentPar
 import { sqliteJsonMetadataNodes as nodes } from './SqliteOwnershipMetadata';
 import { withActualLiveReadinessReadScope } from './ActualLivePlayReadinessFromSqlite';
 import { completedBattedEpisodeOriginInput, readCompletedBattedEpisodeOrigin } from './CompletedBattedEpisodeOrigin';
+import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
 import type { AcceptedBattedEpisodeFieldBinding, BattedEpisodeFieldBindingAuthority,
   DurableBattedEpisodeFieldBinding, SqliteBattedEpisodeFieldBindingStore } from './BattedEpisodeFieldBinding';
 
@@ -250,23 +251,25 @@ export const openSqliteBattedEpisodeFieldBindingStore = (path: string,
   } catch (error) { db.close(); throw error; }
   const own = bindingOwner(db); let closed = false;
   const check = () => { if (closed) throw new Error('closed episode field binding store'); };
-  return Object.freeze({ read(sourceId) { check(); return snapshot(db, () => own.read(sourceId)); },
+  const readPhase = <T>(work: () => T): T => withBattedEpisodeFieldBindingReadPhase(db,
+    () => withBattedVenueLegalReadSnapshot(db, work));
+  return Object.freeze({ read(sourceId) { check(); return readPhase(() => own.read(sourceId)); },
     accept(sourceId) {
-      check(); const prior = snapshot(db, () => own.read(sourceId));
+      check(); const prior = readPhase(() => own.read(sourceId));
       const raw = authority?.readAcceptedBinding(sourceId) ?? null, source = raw === null ? null : input(raw, sourceId);
       if (prior) {
         if (source && json(source) !== json(prior.source)) throw new Error('episode field binding Source is frozen differently');
-        return snapshot(db, () => {
+        return readPhase(() => {
           const saved = own.read(sourceId);
           if (!saved || json(saved) !== json(prior)) throw new Error('episode field binding changed during retry');
           return saved;
         });
       }
       if (!source) throw new Error('accepted episode field binding Source is missing');
-      const value = snapshot(db, () => { const proposed = own.derive(source); own.current(proposed); return proposed; });
+      const value = readPhase(() => { const proposed = own.derive(source); own.current(proposed); return proposed; });
       db.exec('BEGIN IMMEDIATE');
       try {
-        snapshot(db, () => {
+        readPhase(() => {
           if (own.identities(sourceId).length || own.scope(value).length) throw new Error('episode pitch/response already has a binding owner');
           own.current(value);
         });
@@ -279,7 +282,7 @@ export const openSqliteBattedEpisodeFieldBindingStore = (path: string,
           source.version, value.gameId, value.playId, value.physicalPitchSourceId, source.responseSourceId, source.fieldCalibrationSourceId,
           json(source), hash(source), json(value), hash(value));
         witnessed();
-        const saved = snapshot(db, () => { own.current(value); return own.read(sourceId); });
+        const saved = readPhase(() => { own.current(value); return own.read(sourceId); });
         witnessed();
         if (!saved || json(saved) !== json(value)) throw new Error('episode binding changed during insertion');
         db.exec('COMMIT'); return saved;

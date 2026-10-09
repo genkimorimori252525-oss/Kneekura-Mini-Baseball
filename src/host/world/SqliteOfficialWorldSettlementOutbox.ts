@@ -7,10 +7,12 @@ import { applyAndSettleOfficialRegularSeasonGame,
   type OfficialWorldSettlementResult } from './OfficialWorldSettlementDriver';
 import type { SqliteWorldSettlementStore } from
   './SqliteWorldSettlementStore';
+import { deliverCompletedGamePlayerOutcomes, type CompletedGameOutcomeCommitment, type CompletedGameOutcomeStores,
+  type WithCompletedGamePlayerOutcomes } from './CompletedGamePlayerOutcomeDelivery';
 
 export type DurableOfficialWorldSettlementRequest = Omit<
-  OfficialWorldSettlementRequest, 'matchStore' | 'worldStore'>;
-export type OfficialWorldSettlementStores = Readonly<{
+  OfficialWorldSettlementRequest, 'matchStore' | 'worldStore'> & CompletedGameOutcomeCommitment;
+export type OfficialWorldSettlementStores = CompletedGameOutcomeStores & Readonly<{
   matchStore: SqliteOfficialStateStore;
   worldStore: SqliteWorldSettlementStore;
 }>;
@@ -28,8 +30,8 @@ export type FoulTerminalWorldSettlementOutbox = Readonly<{
   enqueue(request: DurableFoulTerminalWorldSettlementRequest): FoulTerminalWorldOutboxEntry;
   read(applicationId: string): FoulTerminalWorldOutboxEntry | null;
   listPending(): readonly FoulTerminalWorldOutboxEntry[];
-  resume(applicationId: string, stores: FoulTerminalWorldSettlementStores): FoulTerminalWorldSettlementResult;
-  submit(request: DurableFoulTerminalWorldSettlementRequest, stores: FoulTerminalWorldSettlementStores): FoulTerminalWorldSettlementResult;
+  resume(applicationId: string, stores: FoulTerminalWorldSettlementStores): WithCompletedGamePlayerOutcomes<FoulTerminalWorldSettlementResult>;
+  submit(request: DurableFoulTerminalWorldSettlementRequest, stores: FoulTerminalWorldSettlementStores): WithCompletedGamePlayerOutcomes<FoulTerminalWorldSettlementResult>;
 }>;
 export type SqliteOfficialWorldSettlementOutbox = Readonly<{
   completedTerminal: FoulTerminalWorldSettlementOutbox;
@@ -38,9 +40,9 @@ export type SqliteOfficialWorldSettlementOutbox = Readonly<{
   read(applicationId: string): OfficialWorldOutboxEntry | null;
   listPending(): readonly OfficialWorldOutboxEntry[];
   resume(applicationId: string,
-    stores: OfficialWorldSettlementStores): OfficialWorldSettlementResult;
+    stores: OfficialWorldSettlementStores): WithCompletedGamePlayerOutcomes<OfficialWorldSettlementResult>;
   submit(request: DurableOfficialWorldSettlementRequest,
-    stores: OfficialWorldSettlementStores): OfficialWorldSettlementResult;
+    stores: OfficialWorldSettlementStores): WithCompletedGamePlayerOutcomes<OfficialWorldSettlementResult>;
   close(): void;
 }>;
 
@@ -48,6 +50,11 @@ const id = (value: unknown): value is string =>
   typeof value === 'string' && value.length > 0 && value === value.trim();
 const revision = (value: unknown): value is number =>
   Number.isSafeInteger(value) && (value as number) >= 0;
+const requiredOutcomes = (request: CompletedGameOutcomeCommitment): boolean => {
+  if (!Object.hasOwn(request, 'outcomeDelivery')) return false;
+  if (request.outcomeDelivery !== 'required_completed_match_outcomes_v1') throw new Error('invalid outbox outcome commitment');
+  return true;
+};
 
 /** Canonical, lossless JSON for exact applicationId retry evidence. */
 const canonicalJson = (value: unknown): string => {
@@ -155,6 +162,7 @@ export const openSqliteOfficialWorldSettlementOutbox = (
     try {
       const request = JSON.parse(stored.request_json) as
         DurableOfficialWorldSettlementRequest;
+      requiredOutcomes(request);
       const result = stored.result_json === null ? null
         : JSON.parse(stored.result_json) as OfficialWorldSettlementResult;
       if (!id(stored.application_id)
@@ -183,6 +191,7 @@ export const openSqliteOfficialWorldSettlementOutbox = (
   const decodeTerminal = (stored: Row): FoulTerminalWorldOutboxEntry => {
     try {
       const request = JSON.parse(stored.request_json) as DurableFoulTerminalWorldSettlementRequest;
+      requiredOutcomes(request);
       const result = stored.result_json === null ? null : JSON.parse(stored.result_json) as FoulTerminalWorldSettlementResult;
       if (!isTerminal(stored) || !id(stored.application_id) || !id(request.final.terminalSourceId)
         || request.final.official.receipt.applicationId !== stored.application_id
@@ -225,9 +234,12 @@ export const openSqliteOfficialWorldSettlementOutbox = (
       const entry = completedTerminal.read(applicationId);
       if (!entry) throw new Error('completed terminal World outbox intake is missing');
       const result = settleCompletedFoulTerminalWorldGame(entry.request, stores, entry.result ?? undefined);
-      if (entry.status === 'COMPLETED') return result;
+      const playerOutcomes = requiredOutcomes(entry.request) ? deliverCompletedGamePlayerOutcomes(stores,
+        entry.request.worldInput.attendance.careerId, result.final.finalResult.seasonId, [result.final.finalResult]) : undefined;
+      const returned = playerOutcomes ? Object.freeze({ ...result, playerOutcomes }) : result;
+      if (entry.status === 'COMPLETED' || playerOutcomes?.kind === 'unavailable') return returned;
       const resultJson = canonicalJson(result);
-      return transaction(() => {
+      const completed = transaction(() => {
         const current = row(applicationId);
         if (!current || current.request_json !== canonicalJson(entry.request)) throw new Error('completed terminal World outbox intake changed');
         const latest = decodeTerminal(current);
@@ -240,6 +252,7 @@ export const openSqliteOfficialWorldSettlementOutbox = (
         if (changed.changes !== 1) throw new Error('completed terminal World outbox completion CAS failed');
         return decodeTerminal(row(applicationId)!).result!;
       });
+      return playerOutcomes ? Object.freeze({ ...completed, playerOutcomes }) : completed;
     },
     submit(request, stores) {
       const entry = completedTerminal.enqueue(request); return completedTerminal.resume(entry.applicationId, stores);
@@ -279,14 +292,16 @@ export const openSqliteOfficialWorldSettlementOutbox = (
     listPending(): readonly OfficialWorldOutboxEntry[] {
       return (pending.all() as Row[]).filter(stored => !isTerminal(stored)).map(decode);
     },
-    resume(applicationId, stores): OfficialWorldSettlementResult {
+    resume(applicationId, stores): WithCompletedGamePlayerOutcomes<OfficialWorldSettlementResult> {
       const entry = api.read(applicationId);
       if (!entry) throw new Error('official world outbox intake is missing');
-      if (entry.status === 'COMPLETED') return entry.result!;
-      const result = applyAndSettleOfficialRegularSeasonGame({
-        ...entry.request, ...stores });
+      const result = entry.status === 'COMPLETED' ? entry.result! : applyAndSettleOfficialRegularSeasonGame({ ...entry.request, ...stores });
+      const playerOutcomes = requiredOutcomes(entry.request) ? deliverCompletedGamePlayerOutcomes(stores,
+        entry.request.worldInput.attendance.careerId, result.final.result.seasonId, [result.final.result]) : undefined;
+      const returned = playerOutcomes ? Object.freeze({ ...result, playerOutcomes }) : result;
+      if (entry.status === 'COMPLETED' || playerOutcomes?.kind === 'unavailable') return returned;
       const resultJson = canonicalJson(result);
-      return transaction(() => {
+      const completed = transaction(() => {
         const current = row(applicationId);
         if (!current) throw new Error('official world outbox intake is missing');
         const latest = decode(current);
@@ -308,8 +323,9 @@ export const openSqliteOfficialWorldSettlementOutbox = (
         }
         return decode(row(applicationId)!).result!;
       });
+      return playerOutcomes ? Object.freeze({ ...completed, playerOutcomes }) : completed;
     },
-    submit(request, stores): OfficialWorldSettlementResult {
+    submit(request, stores): WithCompletedGamePlayerOutcomes<OfficialWorldSettlementResult> {
       const entry = api.enqueue(request);
       return api.resume(entry.applicationId, stores);
     },

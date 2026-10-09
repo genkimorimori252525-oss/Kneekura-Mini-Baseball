@@ -13,7 +13,8 @@ import { state } from '../../core/world/club/ClubFixtures.test-support';
 import { createClubWageScheduleLedger } from '../../core/world/club/ClubWageScheduleLedger';
 import { createBaseScheduleSnapshot } from '../../core/world/competition/LeagueSchedule';
 import { SqliteOfficialStateStore } from '../SqliteOfficialStateStore';
-import { initializeDomesticSeason, prepareDomesticMatch, settlePhysicalDomesticGame, settleSamePaDomesticGame, settleFoulTerminalDomesticGame, reviseDomesticSeasonSchedule } from './DomesticSeasonRuntime';
+import { initializeDomesticSeason, prepareDomesticMatch, settleActualLiveDomesticGame, settlePhysicalDomesticGame, settleSamePaDomesticGame, settleFoulTerminalDomesticGame, reviseDomesticSeasonSchedule } from './DomesticSeasonRuntime';
+import type { CompletedGameOutcomeStores } from './CompletedGamePlayerOutcomeDelivery';
 import { openSqliteDomesticScheduleStore } from './SqliteDomesticScheduleStore';
 import { openSqliteWorldSettlementStore } from './SqliteWorldSettlementStore';
 import { openSqliteMatchdayAttendanceStore } from './SqliteMatchdayAttendanceStore';
@@ -100,23 +101,97 @@ const fixture = () => {
     result: { sourceId: 'apply', official: pending, completion } } as unknown as DurableFoulTerminalApplication;
   const terminalFinal = foulTerminalCompletedOfficial(pending, completion);
   const stateful = { foul: foul as DurableFoulTerminalApplication | null, physical: physical as DurablePhysicalPlayClosure | null, transition: transition as SamePaTerminalTransitionRecord | null,
-    release: release as SamePaTerminalRelease | null, rejectOriginal: false };
+    release: release as SamePaTerminalRelease | null, rejectOriginal: false, outcomes: { applyCompletedGame: () => ({
+      finalResult: final.result, coverage: 'attributed_supported_plays_only', plays: [],
+    }) } as CompletedGameOutcomeStores['outcomes'] };
   const owners = {
     foulTerminal: { read: () => { if (stateful.rejectOriginal) throw new Error('original foul archive changed'); return stateful.foul; } },
     physicalClosure: { read: () => { if (stateful.rejectOriginal) throw new Error('original workload archive changed'); return stateful.physical; } },
     transition: { read: () => { if (stateful.rejectOriginal) throw new Error('original terminal archive changed'); return stateful.transition; } },
     settlement: { readRelease: () => stateful.release },
+    closure: { readHistoricalReadiness: () => ({ kind: 'game_final', settlement: { kind: 'complete' }, closure: { proposal: {
+      application: finalInput, expectedOfficial: final, seasonFixture: { careerId: 'career-a' }, source: { finalScoring: { sourceId: 'scorer' } },
+    } } }) } as unknown as Parameters<typeof settleActualLiveDomesticGame>[0]['closure'],
   };
   const common = { attendanceFactId: 'gate', expectedSeasonRevision: 0, expectedClubRevision: 0,
     wageSchedules: createClubWageScheduleLedger('career-a', 'club-a'), finalizedAtDay: 11,
     revenuePolicy: { version: 'fixture-v1', availableAtDay: 11, seasonId: 'league-season-1', currency: 'SIM', recognizedMinorUnitsPerAttendee: 5 } };
-  const run = (kind: 'physical' | 'same_pa' | 'foul', target = stores, changed = {}) => kind === 'physical'
-    ? settlePhysicalDomesticGame({ ...target, ...owners }, { ...common, closureSourceId: 'physical', ...changed })
-    : kind === 'same_pa' ? settleSamePaDomesticGame({ ...target, ...owners }, { ...common, transitionSourceId: 'transition', ...changed })
-    : settleFoulTerminalDomesticGame({ ...target, ...owners }, { ...common, terminalSourceId: 'apply', ...changed });
+  const run = (kind: 'physical' | 'same_pa' | 'foul' | 'actual_live', target = stores, changed = {}) => {
+    const all = { ...target, ...owners, outcomes: stateful.outcomes };
+    return kind === 'physical' ? settlePhysicalDomesticGame(all, { ...common, closureSourceId: 'physical', ...changed })
+      : kind === 'same_pa' ? settleSamePaDomesticGame(all, { ...common, transitionSourceId: 'transition', ...changed })
+        : kind === 'actual_live' ? settleActualLiveDomesticGame(all, { ...common, closureSourceId: 'actual', ...changed })
+          : settleFoulTerminalDomesticGame(all, { ...common, terminalSourceId: 'apply', ...changed });
+  };
   return { path, db, stores, final, terminalFinal, finalInput, common, run, stateful, keep, owners,
     entry: (kind: string, target = stores) => kind === 'foul' ? target.outbox.completedTerminal.read('apply') : target.outbox.read('apply'), reopen: () => { close(); return open(); } };
 };
+
+it.each(['physical', 'same_pa', 'foul', 'actual_live'] as const)('recovers %s outcome failure through persisted pending enumeration and resume', kind => {
+  const f = fixture(), calls: string[] = [];
+  let interrupted = true;
+  const unavailable = { finalResult: f.final.result, coverage: 'attributed_supported_plays_only' as const,
+    plays: [{ applicationId: 'apply', playId: 7, durableRevision: 1,
+      outcome: { kind: 'unavailable' as const, reason: 'original_owner_missing' as const, sources: [] } }] };
+  f.stateful.outcomes = { applyCompletedGame: input => {
+    expect(input).toEqual({ careerId: 'career-a', gameId: 'series:1' });
+    expect(f.db.prepare('SELECT COUNT(*) AS n FROM world_settlement_applications').get()!.n).toBe(1);
+    calls.push(input.gameId);
+    if (interrupted) throw new Error('interrupted outcome delivery');
+    return unavailable;
+  } };
+  expect(() => f.run(kind)).toThrow('interrupted outcome delivery');
+  expect(f.entry(kind)!.status).toBe('PENDING');
+  expect(f.entry(kind)!.request.outcomeDelivery).toBe('required_completed_match_outcomes_v1');
+  interrupted = false;
+  f.stores.outbox.close();
+  const reopened = { ...f.stores, outbox: f.keep(openSqliteOfficialWorldSettlementOutbox(f.path)) };
+  const listPending = () => kind === 'foul' ? reopened.outbox.completedTerminal.listPending() : reopened.outbox.listPending();
+  const resume = (withOwner: boolean) => {
+    const saved = listPending()[0];
+    expect(saved.applicationId).toBe('apply');
+    const delivery = { matchStore: reopened.match, worldStore: reopened.world, foulTerminal: f.owners.foulTerminal,
+      outcomes: withOwner ? f.stateful.outcomes : undefined };
+    return kind === 'foul' ? reopened.outbox.completedTerminal.resume(saved.applicationId, delivery)
+      : reopened.outbox.resume(saved.applicationId, delivery);
+  };
+  expect(resume(false).playerOutcomes).toMatchObject({ kind: 'unavailable', reason: 'outcome_authority_missing' });
+  expect(listPending()).toHaveLength(1);
+  const result = resume(true), again = f.run(kind, reopened);
+  expect(result.playerOutcomes).toMatchObject({ kind: 'delivered', coverage: 'attributed_supported_plays_only', games: [unavailable] });
+  expect(again).toEqual(result); expect(calls).toEqual(['series:1', 'series:1', 'series:1']);
+  expect(listPending()).toEqual([]); expect(f.entry(kind, reopened)!.status).toBe('COMPLETED');
+  expect(f.entry(kind, reopened)!.result).not.toHaveProperty('playerOutcomes');
+  expect(reopened.world.readSeason('career-a', 'league-season-1')!.revision).toBe(1);
+});
+
+it.each(['physical', 'same_pa', 'foul', 'actual_live'] as const)('reports missing %s outcome authority and rejects a mismatched returned final', kind => {
+  const f = fixture(); f.stateful.outcomes = undefined;
+  expect(f.run(kind).playerOutcomes).toEqual({ kind: 'unavailable', reason: 'outcome_authority_missing',
+    careerId: 'career-a', competitionEditionId: 'league-season-1', gameIds: ['series:1'] });
+  f.stateful.outcomes = { applyCompletedGame: () => ({ finalResult: { ...f.final.result, applicationId: 'wrong' },
+    coverage: 'all_official_plays_attributed', plays: [] }) };
+  expect(() => f.run(kind)).toThrow('outcome delivery original final differs');
+  expect(f.stores.world.readSeason('career-a', 'league-season-1')!.revision).toBe(1);
+  expect(f.entry(kind)!.status).toBe('PENDING');
+});
+
+it.each(['physical', 'foul'] as const)('preserves historical completed %s request/result bytes and explicit retry limits', kind => {
+  const f = fixture(); f.stateful.outcomes = undefined; f.run(kind);
+  // Represent an already deployed legacy request without the new commitment.
+  const { outcomeDelivery: _commitment, ...legacy } = f.entry(kind)!.request;
+  const canonical = (value: unknown): string => JSON.stringify(value, (_key, item: unknown) => item && typeof item === 'object' && !Array.isArray(item)
+    ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a.localeCompare(b))) : item);
+  f.db.prepare('UPDATE world_settlement_outbox SET request_json=? WHERE application_id=?').run(canonical(legacy), 'apply');
+  const delivery = { matchStore: f.stores.match, worldStore: f.stores.world, foulTerminal: f.owners.foulTerminal };
+  if (kind === 'foul') f.stores.outbox.completedTerminal.resume('apply', delivery); else f.stores.outbox.resume('apply', delivery);
+  const before = f.db.prepare('SELECT * FROM world_settlement_outbox').all();
+  f.stateful.outcomes = { applyCompletedGame: () => { throw new Error('legacy explicit outcome failed'); } };
+  expect(() => f.run(kind)).toThrow('legacy explicit outcome failed');
+  expect(f.db.prepare('SELECT * FROM world_settlement_outbox').all()).toEqual(before);
+  expect(f.entry(kind)!.status).toBe('COMPLETED'); expect(f.entry(kind)!.request).not.toHaveProperty('outcomeDelivery');
+  expect(kind === 'foul' ? f.stores.outbox.completedTerminal.listPending() : f.stores.outbox.listPending()).toEqual([]);
+});
 
 it.each(['physical', 'same_pa', 'foul'] as const)('settles the original %s final exactly once and resumes after reopen', kind => {
   const f = fixture(), saved = f.run(kind);

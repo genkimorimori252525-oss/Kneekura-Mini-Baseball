@@ -20,6 +20,42 @@ guard before every access. The measured census change reduced prepares by
 wall-time improvement. See the
 [measured comparison](../verification/2026-10-09-continuation-claim-proof-reuse.md).
 
+## Completed-game callers, durable retry and binding reuse
+
+Four domestic completion adapters now call the existing completed-Match player
+outcome owner. New domestic requests persist the required outcome commitment
+in the existing World outbox. Delivery runs before the completion CAS; an
+exception or missing required owner retains PENDING for listPending/resume after
+reopen. Legacy request/result bytes stay unchanged. WBC finals and qualifier
+completion deliver their 51 and 12 original games respectively, with partial
+coverage explicit. WBC automatic restart recovery remains a separate code gap;
+this checkpoint supports explicit completion retry.
+[Caller and recovery boundaries](2026-10-09-completed-outcome-callers.md).
+
+Public episode-binding reads now enter the existing binding proof scope and
+venue snapshot together. Repeated derivation is reused only in that immutable
+operation; callbacks, writes and independent retries retain separate fresh
+frames. [Scope and verification](../verification/2026-10-09-episode-binding-owner-read-phases.md).
+
+A test-only retained National entry authenticates the saved original binding
+and resumes the existing field/runtime tail without repeating already committed
+admissions. All 37 assertions and their numeric inputs remain byte-identical.
+Its genuine continuation and the matched retained binding timing comparison
+have not run at this checkpoint.
+[Retained entry](2026-10-09-national-retained-binding-entry.md).
+
+The assembled 18-path batch at local `90da89a509177dc71a9026ea5066dd3b85460a08`,
+source `44fd53edccb5604ec98fa4825840fad675ed6ec7`, received independent review
+with no P1/P2 findings. The full compiler passed in 28.95 seconds.
+All 117 selected cases across 12 files passed in 29.43 seconds;
+source, dependencies, runtime and controls stayed exact, with no survivors.
+All 18 protected blobs match. These finite checks do not establish a complete
+physical game or close the original nine-area scope.
+
+Compiler configuration SHA-256: `b122e0b5e42069c0c11d2f619af6e1dcbfa2584d20a7ba3fda91448a063db34b`.
+Test configuration SHA-256: `9826c15770b46602cfd600abadd5fc113d07568e3bede376913c1ef8a039b3a0`.
+Test report SHA-256: `1628487dd025aef831967d0daf61906d995e718637dc2211a76a2c248137cef4`.
+
 ## Initial/restart live state and completed-game outcome delivery
 
 The current coherent batch connects accepted initial custody and a separate
@@ -59,15 +95,17 @@ compatible genuine scenario; no new hand/catcher trajectory is required.
 Completed-game tests use real official/scoring rows with explicitly substituted
 physical owners, so they do not establish a genuine full physical game.
 
-Separately, the corrected fresh original NAT-N01 is running on preceding source
-`3e483486870321b18334b9270f19b269bfa469d9`. By 20:39 UTC it completed the first
-foul's official/scoring/ten-TOTAL effects and next World activation, established
-p9 participation/adoption and the genuine p10 actor, and committed the second
-pitch, flight, world contact and touch response using both accepted common
-models. The later geometry/field, closure and original Career/reopen assertions
-had no completed result at that checkpoint. This is not a whole-case pass or
-qualification of this newer source. A consistent private completed-foul backup
-retains the legitimate prefix; private databases and logs are not published.
+The corrected fresh original NAT-N01 on preceding source
+`3e483486870321b18334b9270f19b269bfa469d9` was interrupted during maintenance.
+Its process session no longer exists and no terminal, test report or after-run
+receipt survived, so the whole case remains unqualified. Saved evidence proves
+the first foul's official/scoring/ten-TOTAL effects, next World activation,
+p9 participation/adoption, genuine p10 actor, second pitch/flight/contact/response
+and the second v3 episode binding committed. The subsequent first-base runtime
+registration began, but no second field/closure, p10 receipt or player-statistics
+row committed. Original database/WAL/SHM bytes and a consistent 77-table image
+are preserved. The new retained entry below can continue this legitimate state;
+private databases and logs are not published.
 
 ## Preceding legal rights, prospective National inputs and metadata compilation
 
