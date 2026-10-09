@@ -12,7 +12,7 @@ const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw new Er
 /** Sensory work does not retire a transfer. Only its own next Core checkpoint
  * can adopt physical progress until it has released or hit a real boundary. */
 export const samePaPhysicalPendingThrow = (prefix: readonly Field[]) => {
-  const last = [...prefix].reverse().find(f => { const r = result(f); return r?.kind !== 'defender_observation_v1' && r?.kind !== 'defender_decision_v1' && r?.kind !== 'defender_catch_response_v1' && r?.kind !== 'batter_catch_response_v1' && r?.kind !== 'occupied_runner_catch_response_v1'; });
+  const last = [...prefix].reverse().find(f => { const r = result(f); return r?.kind !== 'appeal_indication_v1' && r?.kind !== 'appeal_contact_v1' && r?.kind !== 'defender_observation_v1' && r?.kind !== 'defender_decision_v1' && r?.kind !== 'defender_catch_response_v1' && r?.kind !== 'batter_catch_response_v1' && r?.kind !== 'occupied_runner_catch_response_v1'; });
   if (!last || last.kind !== 'same_pa_physical_field_step_v1') return null;
   const r = last.actionResult;
   if (r?.kind === 'throw_plan_v1') return { step: last, plan: r.plan, progress: null };
@@ -50,7 +50,8 @@ export const deriveSamePaPhysicalThrowPlan = (source: SamePaPhysicalFieldStepSou
     commands: motion.actors.map(actor => ({ playerId: actor.playerId, role: actor.primitive.role, acceleration: actor.primitive.acceleration })),
     ratings: model.source.ratings, transferParameters: values.transferParameters, throwCalibration: values.throwCalibration,
     seed: { matchSeed: action.source.nominalPitch.delivery.matchSeed, playId: root.lineage.playId, streamKey: source.sourceId } });
-  const actionResult: SamePaPhysicalFieldActionResult = { kind: 'throw_plan_v1', plan, fieldingModelHash: hash(model) };
+  const actionResult: SamePaPhysicalFieldActionResult = { kind: 'throw_plan_v1', plan, fieldingModelHash: hash(model),
+    ...(a.appealIndicationReference ? { appealIndicationReference: a.appealIndicationReference } : {}) };
   return freeze({ field: previous.field, evaluationTick: previous.evaluationTick, timeline: previous.timeline, actionResult });
 };
 export const deriveSamePaPhysicalThrowCheckpoint = (source: SamePaPhysicalFieldStepSource, root: SamePaPhysicalFieldRoot,

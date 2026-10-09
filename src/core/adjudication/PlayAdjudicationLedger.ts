@@ -5,7 +5,7 @@ import type { PlayEndFact } from '../rules/PhysicalRuleFacts';
 import type { DefensiveAppealAttemptFact } from '../rules/PhysicalRuleFacts';
 import { evaluateTagUpCompliance, type TagUpComplianceInput } from '../rules/TagUpCompliance';
 import { evaluateBallWorldTagUpCompliance } from '../rules/BallWorldTagUpCompliance';
-import { NPB_2026_RULE_PROFILE } from '../rules/RuleProfile';
+import { getRuleProfile, NPB_2026_RULE_PROFILE } from '../rules/RuleProfile';
 import {
   applyResolvedLiveBallPlateAppearanceToMatchState,
   type ResolvedLiveBallPlateAppearance,
@@ -161,6 +161,25 @@ export type OwnedLiveCallImported = EventBase & Readonly<{
 }>;
 export type OwnedLiveCallImportInput = Omit<OwnedLiveCallImported, 'kind'>;
 
+/** Missing evidence owner, not an adjudicated appeal result. A future rights-admission
+ * event must bind this same original execution to authenticated live-ball/window,
+ * territory and forfeiture evidence under the ledger's RuleProfile before clearing it. */
+export type OwnedLiveAppealRightsDependency = Readonly<{
+  kind: 'pending'; reason: 'original_live_ball_and_appeal_rights_required';
+}>;
+export type OwnedLiveAppealImportProvenance = Readonly<{
+  version: 'owned_live_appeal_import_v1'; playId: number; gameId: string; physicalPitchSourceId: string;
+  clock: Readonly<{ originTick: number; ticksPerSecond: number }>;
+  indicatedAtElapsedSeconds: number; executedAtElapsedSeconds: number; importedAtElapsedSeconds: number;
+  indication: OwnedLiveCallSourceReference; throwPlan: OwnedLiveCallSourceReference; execution: OwnedLiveCallSourceReference;
+}>;
+export type OwnedLiveAppealImported = EventBase & Readonly<{
+  kind: 'OwnedLiveAppealImported'; attempt: DefensiveAppealAttemptFact;
+  complianceEvidence: BallWorldAppealComplianceEvidence;
+  provenance: OwnedLiveAppealImportProvenance; rights: OwnedLiveAppealRightsDependency;
+}>;
+export type OwnedLiveAppealImportInput = Omit<OwnedLiveAppealImported, 'kind'>;
+
 export type ReviewDecisionRecorded = EventBase & Readonly<{
   kind: 'ReviewDecisionRecorded';
   review: ReviewDecision;
@@ -181,6 +200,7 @@ export type PlayAdjudicationEvent =
   | DefensiveAppealAttemptRecorded
   | OnFieldCallRecorded
   | OwnedLiveCallImported
+  | OwnedLiveAppealImported
   | ReviewDecisionRecorded
   | OfficialPlayClosed;
 
@@ -288,6 +308,8 @@ type Replay = {
   lastTick: number;
   appealSnapshotPending: boolean;
   appealCallPending: boolean;
+  pendingLiveAppeals: OwnedLiveAppealImported[];
+  liveAppealExecutionIds: Set<string>;
 };
 
 const cloneInertData = <T>(input: T, path = 'adjudication'): T => {
@@ -626,6 +648,82 @@ const freezeLiveCallImport = (raw: OwnedLiveCallImportProvenance, call: OnFieldC
     ruleEvidence: freezeImportReference(raw.ruleEvidence), reception: raw.reception === null ? null : freezeImportReference(raw.reception) });
 };
 
+const sourceIdentity = (reference: OwnedLiveCallSourceReference): string =>
+  JSON.stringify([reference.owner, reference.sourceId]);
+
+/** Import original physical execution only. Native authenticates the Sources and exact
+ * original PlayEnd; this ledger can compare PlayEnd only at its authoritative tick. */
+const freezeLiveAppealImport = (
+  request: OwnedLiveAppealImportInput,
+  ledger: Pick<PlayAdjudicationLedger, 'playId' | 'ruleProfileId' | 'playEnd'>,
+  replay: Replay,
+): OwnedLiveAppealImported => {
+  getRuleProfile(ledger.ruleProfileId);
+  if (ledger.playEnd === null || replay.latestCorrect === null) {
+    throw new Error('owned live-appeal import requires physical PlayEnd and correct-rule snapshot');
+  }
+  const { provenance: raw, attempt, complianceEvidence: evidence, rights } = request;
+  if (!importFields(raw, ['version', 'playId', 'gameId', 'physicalPitchSourceId', 'clock',
+    'indicatedAtElapsedSeconds', 'executedAtElapsedSeconds', 'importedAtElapsedSeconds', 'indication', 'throwPlan', 'execution'])
+    || raw.version !== 'owned_live_appeal_import_v1' || raw.playId !== ledger.playId
+    || !importFields(raw.clock, ['originTick', 'ticksPerSecond'])
+    || !Number.isSafeInteger(raw.clock.ticksPerSecond) || raw.clock.ticksPerSecond <= 0) {
+    throw new Error('invalid owned live-appeal import provenance');
+  }
+  if (!importFields(rights, ['kind', 'reason']) || rights.kind !== 'pending'
+    || rights.reason !== 'original_live_ball_and_appeal_rights_required') {
+    throw new Error('owned live-appeal requires its unresolved original rights dependency');
+  }
+  if (!importFields(attempt, ['kind', 'defenderId', 'runnerId', 'base', 'reason', 'tick'])
+    || attempt.kind !== 'defensive_appeal_attempt' || attempt.reason !== 'tag_up_early_departure'
+    || ![1, 2, 3, 4].includes(attempt.base)) {
+    throw new Error('owned live-appeal requires an original defensive appeal attempt');
+  }
+  importId(attempt.defenderId, 'appeal defenderId'); importId(attempt.runnerId, 'appeal runnerId');
+  const { originTick, ticksPerSecond } = raw.clock;
+  const indicatedTick = quantizeEventTick(originTick, raw.indicatedAtElapsedSeconds, ticksPerSecond);
+  const executedTick = quantizeEventTick(originTick, raw.executedAtElapsedSeconds, ticksPerSecond);
+  const importedTick = quantizeEventTick(originTick, raw.importedAtElapsedSeconds, ticksPerSecond);
+  if (tick(attempt.tick, 'appeal execution tick') !== executedTick || indicatedTick > executedTick
+    || executedTick > ledger.playEnd.tick || ledger.playEnd.tick > importedTick || importedTick !== request.tick
+    || raw.indicatedAtElapsedSeconds > raw.executedAtElapsedSeconds
+    || raw.executedAtElapsedSeconds > raw.importedAtElapsedSeconds) {
+    throw new Error('owned live-appeal execution or import clock differs');
+  }
+  if (!importFields(evidence, ['kind', 'history', 'originBase', 'firstTouch'])
+    || evidence.kind !== 'ball_world_tag_up_history_v1'
+    || !['first', 'second', 'third'].includes(evidence.originBase)
+    || evidence.history.originTick !== originTick || evidence.history.ticksPerSecond !== ticksPerSecond
+    || evidence.history.endElapsedSeconds !== raw.executedAtElapsedSeconds) {
+    throw new Error('owned live-appeal history must end exactly at original execution');
+  }
+  importId(evidence.firstTouch.fact.fielderId, 'firstTouch fielderId');
+  const compliance = evaluateBallWorldTagUpCompliance(evidence);
+  if (compliance.kind === 'pending') throw new Error('owned live-appeal requires supported original contact history');
+  if (attempt.runnerId !== compliance.runnerId || attempt.base !== compliance.originBase) {
+    throw new Error('owned live-appeal must target the original exact-history runner and base');
+  }
+  const indication = freezeImportReference(raw.indication), throwPlan = freezeImportReference(raw.throwPlan),
+    execution = freezeImportReference(raw.execution);
+  if (new Set([indication, throwPlan, execution].map(sourceIdentity)).size !== 3) {
+    throw new Error('owned live-appeal Sources must have distinct original identities');
+  }
+  if (replay.liveAppealExecutionIds.has(sourceIdentity(execution))) {
+    throw new Error('original live-appeal execution was already imported');
+  }
+  const provenance: OwnedLiveAppealImportProvenance = Object.freeze({ version: raw.version, playId: ledger.playId,
+    gameId: importId(raw.gameId, 'gameId'), physicalPitchSourceId: importId(raw.physicalPitchSourceId, 'physicalPitchSourceId'),
+    clock: Object.freeze({ originTick, ticksPerSecond }), indicatedAtElapsedSeconds: raw.indicatedAtElapsedSeconds,
+    executedAtElapsedSeconds: raw.executedAtElapsedSeconds, importedAtElapsedSeconds: raw.importedAtElapsedSeconds,
+    indication, throwPlan, execution });
+  const freeze = <T>(value: T): T => {
+    if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); }
+    return value;
+  };
+  return Object.freeze({ kind: 'OwnedLiveAppealImported', eventId: request.eventId, tick: request.tick,
+    attempt: Object.freeze(attempt), complianceEvidence: freeze(evidence), provenance, rights: Object.freeze(rights) });
+};
+
 const freezeReview = (review: ReviewDecision): ReviewDecision => {
   const decision = validateReviewDecision(review.decision);
   const replacementRuling = review.replacementRuling === null
@@ -662,6 +760,9 @@ const latestReviewForCall = (replay: Replay, callId: string): ReviewDecision | n
 };
 
 const deriveFinalRuling = (replay: Replay): FinalOfficialRuling => {
+  if (replay.pendingLiveAppeals.length > 0) {
+    throw new Error('original live-ball and appeal rights require an authenticated owner before official ruling');
+  }
   const correct = replay.latestCorrect;
   if (correct === null) {
     throw new Error('correct-rule snapshot is required before official closure');
@@ -780,6 +881,8 @@ const replayLedger = (ledgerInput: PlayAdjudicationLedger): {
     lastTick: playEnd?.tick ?? 0,
     appealSnapshotPending: false,
     appealCallPending: false,
+    pendingLiveAppeals: [],
+    liveAppealExecutionIds: new Set(),
   };
   const events: PlayAdjudicationEvent[] = [];
 
@@ -872,6 +975,17 @@ const replayLedger = (ledgerInput: PlayAdjudicationLedger): {
       replay.callIds.add(call.callId); replay.calls.push(call);
       // A historical call cannot resolve a new post-play appeal obligation.
       events.push(Object.freeze({ kind: event.kind, eventId: event.eventId, tick: eventTick, call, provenance }));
+      continue;
+    }
+
+    if (event.kind === 'OwnedLiveAppealImported') {
+      if (!importFields(event, ['kind', 'eventId', 'tick', 'attempt', 'complianceEvidence', 'provenance', 'rights'])) {
+        throw new Error('invalid owned live-appeal import event');
+      }
+      const imported = freezeLiveAppealImport(event, { playId, ruleProfileId: input.ruleProfileId, playEnd }, replay);
+      replay.pendingLiveAppeals.push(imported);
+      replay.liveAppealExecutionIds.add(sourceIdentity(imported.provenance.execution));
+      events.push(imported);
       continue;
     }
 
@@ -1165,6 +1279,19 @@ export const recordOwnedLiveCallImport = (ledgerInput: PlayAdjudicationLedger, e
   return append(ledger, Object.freeze({ kind: 'OwnedLiveCallImported', eventId, tick: eventTick, call, provenance }));
 };
 
+/** Recording time remains post-play; occurrence and compliance stop at the original
+ * field execution. This event cannot adjudicate OUT or establish legal appeal rights. */
+export const recordOwnedLiveAppealImport = (ledgerInput: PlayAdjudicationLedger, expectedRevision: number,
+  input: OwnedLiveAppealImportInput): PlayAdjudicationLedger => {
+  const { ledger, replay } = requireOpen(ledgerInput, expectedRevision);
+  const request = cloneInertData(input, 'adjudication.liveAppealImport');
+  if (!importFields(request, ['eventId', 'tick', 'attempt', 'complianceEvidence', 'provenance', 'rights'])) {
+    throw new Error('invalid owned live-appeal import request');
+  }
+  ensureNewEventId(replay, request.eventId); requireEventTick(replay, request.tick);
+  return append(ledger, freezeLiveAppealImport(request, ledger, replay));
+};
+
 export const recordReviewDecision = (
   ledgerInput: PlayAdjudicationLedger,
   expectedRevision: number,
@@ -1231,6 +1358,12 @@ export const getOfficialPlayClosure = (
 export const getOfficialStateWindows = (
   ledgerInput: PlayAdjudicationLedger,
 ): readonly OfficialStateWindow[] => Object.freeze([...replayLedger(ledgerInput).replay.windows.values()]);
+
+/** Separate from legacy state shapes. Only a future authenticated admission bound to
+ * the same execution may discharge this dependency; snapshots/calls/windows cannot. */
+export const getPendingOwnedLiveAppealImports = (
+  ledgerInput: PlayAdjudicationLedger,
+): readonly OwnedLiveAppealImported[] => Object.freeze([...replayLedger(ledgerInput).replay.pendingLiveAppeals]);
 
 export const getPlayAdjudicationState = (
   ledgerInput: PlayAdjudicationLedger,

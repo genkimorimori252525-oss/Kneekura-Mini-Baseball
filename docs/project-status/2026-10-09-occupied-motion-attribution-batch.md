@@ -22,6 +22,62 @@ wall-time improvement. See the
 
 
 
+## Live throw appeal execution, staff wages and terminal-original reuse
+
+An explicit live appeal indication now binds the existing real throw to its
+receiver's actual controlled base or runner-body contact. The receipt preserves
+the occurrence moment and the runner's history at that moment; later journal
+import does not retimestamp the attempt or substitute later retouch history.
+Continuous custody may span multiple physical checkpoints, with exact gaps and
+exclusive endpoints respected. Pending physical work stays in the live census.
+Authenticated live-ball/Time/territory and NPB appeal-rights admission are still
+missing, and official application independently requires the moving-play end.
+[Physical connection and remaining rights owner](2026-10-09-live-throw-appeal-connection.md).
+
+Actual accepted Manager hires now feed the existing scheduled staff-wage kernel
+through the durable Club economy batch and driver. Saved cash, wage commitments,
+receipts and Club events retain journal/CAS/retry semantics. Original hire and
+wage evidence is authenticated before and after writes and during historical
+reads; the pre-hire Club snapshot is anchored to its accepted journal prefix.
+Payroll-run identity and the existing payment policy remain accepted inputs.
+[Staff wage connection](2026-10-09-staff-wage-economy.md).
+
+One terminal completion operation previously reconstructed the same historical
+proposal for ancestry, scoring and workload. Successful proof is now retained
+only in its existing unchanged Native snapshot, with all raw identity, stage,
+ancestry, mirror, handoff and policy checks retained on every access. Both genuine
+completed reads returned the same 104,822-byte result: complete projections fell
+from three to one and SQL prepares from 86,523 to 32,391. Observed times were
+37.582 and 13.556 seconds, but concurrent load differed; no controlled timing
+speedup is claimed. [Exact measurement and limits](../verification/2026-10-09-terminal-original-snapshot-reuse.md).
+
+The assembled 34-path batch at `1e79390bc398caf93c4833496d062f775cd73085`,
+source `3554109fa2c0f878893fa44a1a7ef1ebf22290d2`, passed the full nonvisual
+compiler in 30.43 seconds and all 358 selected cases in 29 files in 19.93 seconds.
+There were zero failed or skipped cases, exact file/title inventory, four stable
+input groups and no surviving processes. Independent review is clear after
+correcting segmented custody and historical hire-snapshot anchoring. All 18
+protected blobs remain exact.
+
+Compiler configuration SHA-256: `0f573811aa6b2f85d6b10fe7dad7a0e48a6b1f2c181abdf260f10f66941877c3`.
+Test configuration SHA-256: `1d7a744bfc503c391e6aa8eb71e9d4f4dfaa9d3520ca815b8991cd6300eb84ae`.
+Test report SHA-256: `cbc11604b82ee9470ecbccf11e4cd0738ac79aa610f0b8ef0330fb379c7c24e6`.
+
+The preceding National continuation still failed at its 1,200.78-second cap,
+but it genuinely committed play 8's first pitch and its head. Those are the only
+two appended rows; all prior rows, the other 76 tables, all 78 schemas, the closed
+p9 statistics and original donor files are unchanged. No flight, contact, field
+or closure committed, no physical-helper result returned, and the full 37
+remaining assertions have no completed result. Its failed terminal is retained.
+
+The retained adapter now accepts that exact single named pitch/head frontier or
+the original empty frontier. It still passes the regenerated Source through the
+existing pitch owner's full authenticated exact retry before later work. The
+original 37 assertions and numeric recipe are unchanged. A consistent copy is
+prepared for continuation after this checkpoint; no new run result is claimed.
+IFN's corrected original entry is prepared but remains unlaunched, because the
+available measurements do not establish a full-case completion budget.
+
 ## Original National snapshot reuse and calendar-backed recruitment
 
 The original National owner now shares its completed immutable proof across

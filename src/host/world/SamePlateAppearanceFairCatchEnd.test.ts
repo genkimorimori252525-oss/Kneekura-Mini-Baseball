@@ -163,3 +163,13 @@ it('retains occupied advance ownership even while the original body is stationar
     adopted: true, work: [{ kind: 'reaction', due: 'future', dueTick: h.seal.evaluationTick + 1 }] }] } };
   expect(h.run()).toEqual({ kind: 'pending', reason: 'occupied_runner_moving_controller_end_owner_required' });
 });
+
+
+it.each(['pending', 'executed'] as const)('retains %s live appeal work before all-offense-terminal closure', status => {
+  const h = setup('dropped', 1, 2);
+  mocks.live = { ...h.live, census: { ...h.live.census, liveAppeals: {
+    pending: status === 'pending' ? [{}] : [], executed: status === 'executed' ? [{}] : [], sources: [],
+  } } };
+  expect(h.run()).toEqual({ kind: 'pending', reason: status === 'pending'
+    ? 'original_live_appeal_execution_required' : 'original_live_appeal_rule_and_rights_consumer_required' });
+});

@@ -71,6 +71,7 @@ it('LC01 exposes original prefix coverage, role curves and pending capture witho
   expect(result.participantCurves.every(p => p.roles.length === 5 && p.coverageThroughTick === 5_000_000)).toBe(true);
   expect(result.pendingPhysical.captures).toMatchObject([{ playerId: 'carrier', candidateReference: fieldRef(h.root), due: 'future' }]);
   expect(result.unownedDomains).toEqual(['calls', 'receptions', 'producer_completeness', 'live_play_end']);
+  expect(result).not.toHaveProperty('liveAppeals');
   expect(result).not.toHaveProperty('completion'); expect(result).not.toHaveProperty('physicalEnd'); expect(result).not.toHaveProperty('officialResult');
 });
 it('LC02 refresh work is observer-specific and elapsed time alone does not consume it', () => {

@@ -24,6 +24,22 @@ import { nationalPhysicalPitchFixtureSource } from './NationalPhysicalMatchFixtu
 import { continueNationalBattedFoulOriginalTail, type NationalBattedFoulTailContext } from './NationalBattedFoulOriginalTail.test-support';
 import type { OfficialPlayerOutcomeAttribution } from './OfficialPlayerOutcomeEvidenceFromSqlite';
 
+/** Only the untouched second play or its one committed original pitch is a
+ * supported retained cut. The unchanged helper's exact retry still authenticates
+ * the complete Source/history; these structural rows never supply owner evidence. */
+export const assertNationalBattedFoulRetainedPitchFrontier = (
+  db: Pick<import('node:sqlite').DatabaseSync, 'prepare'>, gameId: string,
+) => {
+  const scope={game:gameId,source:'national-live:pitch-0'};
+  const actions=db.prepare(`SELECT source_id,game_id,play_id,progress_revision FROM physical_pitch_progress_actions
+    WHERE (game_id=$game AND play_id=8) OR source_id=$source`).all(scope).map(row=>({...row}));
+  const heads=db.prepare(`SELECT game_id,play_id,revision,last_source_id FROM physical_pitch_progress_heads
+    WHERE (game_id=$game AND play_id=8) OR last_source_id=$source`).all(scope).map(row=>({...row}));
+  if (actions.length===0) { assert.deepEqual(heads,[]); return; }
+  assert.deepEqual(actions,[{source_id:scope.source,game_id:gameId,play_id:8,progress_revision:1}]);
+  assert.deepEqual(heads,[{game_id:gameId,play_id:8,revision:1,last_source_id:scope.source}]);
+};
+
 /** This specific NAT-N01 cut already owns the completed foul, its appearance,
  * next batter and strikeout attribution. Reopen their stores without invoking
  * initialization/enrollment/admission. Every new play still uses real owners. */
@@ -52,7 +68,7 @@ export const continueRetainedNationalBattedFoulOriginalTail = (path: string, pro
       assert.deepEqual(nextActor.match,{balls:0,bases:{first:null,second:null,third:null},half:'top',inning:1,outs:1,playId:8,
         ruleProfileId:'npb-2026',score:{away:0,home:0},strikes:0});
       const gameId=nextActor.source.gameId;assert.equal(initial.source.gameId,gameId);
-      assert.equal(db.prepare('SELECT COUNT(*) AS n FROM physical_pitch_progress_actions WHERE game_id=? AND play_id=?').get(gameId,8)!.n,0);
+      assertNationalBattedFoulRetainedPitchFrontier(db,gameId);
       const prefix=readPhysicalPitchProgressFromSqlite(db,gameId,7);
       assert.deepEqual(prefix.map(pitch=>pitch.source.sourceId),['national-foul:pitch-0','national-foul:pitch-1','national-foul:pitch-2']);
       const origin=readNationalMatchOrigin(db,gameId);assert(origin);

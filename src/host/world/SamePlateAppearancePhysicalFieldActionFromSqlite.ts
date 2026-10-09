@@ -1,3 +1,4 @@
+import { bindSamePaAppealThrow, deriveSamePaLiveAppealIndication, deriveSamePaLiveAppealContact } from './SamePlateAppearanceLiveAppeal';
 import { deriveSamePaOccupiedRunnerMotion } from './SamePlateAppearanceOccupiedRunnerMotion';
 import { readSamePaOccupiedRunnerHoldFromSqlite } from './SqliteSamePlateAppearanceOccupiedRunnerHoldStore';
 import { deriveSamePaOccupiedRunnerCatchResponse, deriveSamePaOccupiedRunnerCatchMotion, assertSamePaOccupiedRunnerCatchOwnership } from './SamePlateAppearanceOccupiedRunnerCatchResponse';
@@ -35,7 +36,7 @@ type Field = SamePaPhysicalFieldRoot | SamePaPhysicalFieldStep;
 const fieldReference = (field: Field) => reference(field.kind === 'same_pa_physical_field_root_v1' ? 'pa_physical_v1_field_roots' : 'pa_physical_v1_field_steps', field);
 const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw new Error('physical field action original dependency differs'); };
 const result = (step: Field) => step.kind === 'same_pa_physical_field_step_v1' ? step.actionResult : undefined;
-const noAdvance = (field: Field) => result(field)?.kind === 'defender_observation_v1' || result(field)?.kind === 'defender_decision_v1' || result(field)?.kind === 'defender_catch_response_v1' || result(field)?.kind === 'batter_catch_response_v1' || result(field)?.kind === 'occupied_runner_catch_response_v1';
+const noAdvance = (field: Field) => result(field)?.kind === 'appeal_indication_v1' || result(field)?.kind === 'appeal_contact_v1' || result(field)?.kind === 'defender_observation_v1' || result(field)?.kind === 'defender_decision_v1' || result(field)?.kind === 'defender_catch_response_v1' || result(field)?.kind === 'batter_catch_response_v1' || result(field)?.kind === 'occupied_runner_catch_response_v1';
 /** Reconstruct the actual episode graph on the Native owner's pinned read phase.
  * Sources contain only accepted input references, view geometry and priorities. */
 export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePaPhysicalFieldStepSource, root: SamePaPhysicalFieldRoot,
@@ -70,6 +71,12 @@ export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePa
   const latest = (kind: 'defender_observation_v1' | 'defender_decision_v1', playerId: string) => [...prefix].reverse().find(f => {
     const r = result(f); return r?.kind === kind && r.playerId === playerId;
   });
+  if (request.kind === 'appeal_indication_v1') {
+    same(request.member,basis.members.find(m=>m.playerId===request.member.playerId));
+    return stable(deriveSamePaLiveAppealIndication(source,root,previous,action.actor.match,action.actor.defenderBindings.map(b=>b.playerId)));
+  }
+  if (request.kind === 'appeal_contact_v1') return stable(deriveSamePaLiveAppealContact(source,root,previous,prefix,action.actor.match,
+    action.actor.defenderBindings.map(b=>b.playerId),action.actor.binding.playerId));
   if (request.kind === 'occupied_runner_motion_v1') {
     const posture = readBattingPerceptionFromSqlite(db, 'posture', root.source.postureReference);
     if (posture.kind !== 'batting_invocation_posture'
@@ -139,6 +146,7 @@ export const deriveSamePaPhysicalFieldAction = (db: DatabaseSync, source: SamePa
   }
   if (request.kind === 'throw_checkpoint_v1') return deriveSamePaPhysicalThrowCheckpoint(source, root, previous, prefix);
   if (request.kind === 'throw_plan_v1') {
+    bindSamePaAppealThrow(source,prefix);
     const c = calibration(request.member, request.calibrationReference);
     if (c.route !== 'defender_throw') throw new Error('physical throw effective route differs');
     const model = playerFieldingModelEvidenceFromSqlite(db).read(c.nominalReference.sourceId);

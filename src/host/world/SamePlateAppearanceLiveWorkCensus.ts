@@ -1,3 +1,4 @@
+import { deriveSamePaLiveAppealCensus } from './SamePlateAppearanceLiveAppeal';
 import { deriveSamePaOccupiedRunnerMotionCensus } from './SamePlateAppearanceOccupiedRunnerMotion';
 import { deriveSamePaOccupiedRunnerCatchCensus } from './SamePlateAppearanceOccupiedRunnerCatchCensus';
 import { deriveSamePaBatterCatchCensus } from './SamePlateAppearanceBatterCatchCensus';
@@ -94,6 +95,9 @@ export const deriveSamePaLiveWorkCensus = (raw: SamePaLiveWorkCensusInput) => {
       if (!previous || !source || !('member' in source) || source.kind !== r.kind || source.member.playerId !== r.playerId || !input.participantIds.includes(r.playerId))
         throw new Error('same-PA live-work sensory action identity differs');
       same(field.field, previous.field, 'sensory action changed physical state');
+    } else if (r?.kind === 'appeal_indication_v1' || r?.kind === 'appeal_contact_v1') {
+      if (!previous || source?.kind !== r.kind) throw new Error('same-PA live-work appeal action identity differs');
+      same(field.field, previous.field, 'appeal action changed physical state');
     } else physical = field;
     if (r?.kind === 'defender_observation_v1') {
       const policy = policies.get(json(ref));
@@ -230,6 +234,9 @@ export const deriveSamePaLiveWorkCensus = (raw: SamePaLiveWorkCensusInput) => {
       participantIds: input.participantIds, fieldReferences, rootReference: fieldReferences[0], endpointReference: fieldReferences.at(-1)!, at },
     ...(input.fields.some(f => f.kind === 'same_pa_physical_field_step_v1' && f.actionResult?.kind === 'occupied_runner_motion_v1')
       ? { occupiedRunnerMotions: deriveSamePaOccupiedRunnerMotionCensus(input.fields) } : {}),
+    ...(input.fields.some(f => f.kind === 'same_pa_physical_field_step_v1'
+      && (f.actionResult?.kind === 'appeal_indication_v1' || f.actionResult?.kind === 'appeal_contact_v1'))
+      ? { liveAppeals: deriveSamePaLiveAppealCensus(input.fields) } : {}),
     observationRefresh, defenderDecisions, catchResponses, batterCatchResponses: deriveSamePaBatterCatchCensus(input.fields),
     ...(root.source.liveProducerProfile === 'same_pa_stationary_occupied_catch_v1'
       || input.fields.some(f => f.kind === 'same_pa_physical_field_step_v1' && f.actionResult?.kind === 'occupied_runner_catch_response_v1')

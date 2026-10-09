@@ -19,6 +19,7 @@ import { foulOfficialEvidenceFromSqlite } from './ActualFoulOfficialEvidenceFrom
 import { foulOfficialEventInput, deriveFoulOfficialOpeningClock, foulOfficialRevision } from './ActualFoulOfficialSource';
 import { readOriginalPhysicalPitchPrefixFromSqlite } from './PhysicalPitchEvidenceFromSqlite';
 import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
+import { activeBattedWorldFieldReadSnapshot } from './SqliteBattedWorldFieldStore';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { actualFoulTerminalApplicationInput, type AcceptedFoulTerminalApplication, type FoulTerminalApplicationEvaluation,
   type FoulTerminalApplicationBody, type FoulTerminalPhysicalPitchReference, type FoulTerminalParticipant,
@@ -300,8 +301,13 @@ export const foulTerminalApplicationPin = (db: DatabaseSync, p: FoulTerminalAppl
 /** Shared original archive authentication, independent of the public stage
  * reader and downstream effects. Discovery grants no authority. The supported
  * stages, exact wire bytes and pending mirror/currentness checks stay unchanged. */
+const originalTerminalProposals = new WeakMap<object, Map<string, Readonly<{
+  rowIdentity: string; proposal: FoulTerminalApplicationProposal;
+}>>>();
 const readFoulTerminalOriginalArchive = (db: DatabaseSync,
-  sourceId: string): DurableFoulTerminalApplication | null => withBattedVenueLegalReadSnapshot(db, () => {
+  sourceId: string): DurableFoulTerminalApplication | null => {
+  let completed: Readonly<{ snapshot: object; rowIdentity: string }> | null = null;
+  const saved = withBattedVenueLegalReadSnapshot(db, (): DurableFoulTerminalApplication | null => {
     if (!id(sourceId)) throw new Error('invalid foul terminal queue identity');
     const installed = assertFoulTerminalApplicationStorage(db);
     const rows = installed ? foulTerminalApplicationIdentityRows(db,sourceId) : [];
@@ -310,7 +316,7 @@ const readFoulTerminalOriginalArchive = (db: DatabaseSync,
       return null;
     }
     if (rows.length !== 1 || rows[0].source_id !== sourceId) throw new Error('foul terminal queue Source identity ownership differs');
-    const row = rows[0];
+    const row = freeze(cloneInert(rows[0]));
     if ((row.status !== 'QUEUED' || row.result_json !== null)
       && (row.status !== 'OFFICIAL_APPLIED_PENDING_POST_PLAY' || typeof row.result_json !== 'string')
       && (row.status !== 'OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY' || typeof row.result_json !== 'string')
@@ -322,9 +328,17 @@ const readFoulTerminalOriginalArchive = (db: DatabaseSync,
     if ((row.status === 'POST_PLAY_COMPLETED_CONTINUING' || row.status === 'POST_PLAY_COMPLETED_FINAL')) assertFoulTerminalApplicationStorage(db,row.status==='POST_PLAY_COMPLETED_FINAL'?'finalCompletion':'completion');
     const source = actualFoulTerminalApplicationInput(JSON.parse(row.source_json),sourceId);
     if (row.source_json !== json(source) || row.source_hash !== hash(source)) throw new Error('foul terminal queue Source archive differs');
+    const reusable = row.status === 'OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY'
+      || row.status === 'POST_PLAY_COMPLETED_CONTINUING' || row.status === 'POST_PLAY_COMPLETED_FINAL';
+    const snapshot = reusable ? activeBattedWorldFieldReadSnapshot(db) : null;
+    const rowIdentity = json(row), prior = snapshot ? originalTerminalProposals.get(snapshot)?.get(sourceId) : undefined;
     const proposal = withFoulTerminalOriginalScope(db,sourceId,String(row.game_id),Number(row.play_id),
-      () => deriveFoulTerminalApplicationProposal(db,source,'historical'));
+      () => {
+        if (prior && prior.rowIdentity !== rowIdentity) throw new Error('foul terminal original archive changed within snapshot');
+        return prior?.proposal ?? deriveFoulTerminalApplicationProposal(db,source,'historical');
+      });
     if (proposal.kind !== 'terminal_non_live_projected') throw new Error('foul terminal queued original proof became pending');
+    if (snapshot) completed = { snapshot, rowIdentity };
     if (row.status === 'QUEUED') {
       same(row,queueRow(proposal),'foul terminal queue archive encoding, hashes or cached scope differ');
       assertQueueClaims(db,proposal,row);
@@ -354,6 +368,18 @@ const readFoulTerminalOriginalArchive = (db: DatabaseSync,
     assertQueueClaims(db,proposal,row,result.official);
     return freeze({ source,proposal,status:'OFFICIAL_APPLIED_PENDING_POST_PLAY',officialApplied:true,result });
   });
+  // Only a fully authenticated original archive can publish its proposal after
+  // child cleanup. Later scoring/workload/completion effects are never cached.
+  const accepted = completed as Readonly<{ snapshot: object; rowIdentity: string }> | null;
+  const snapshot = accepted ? activeBattedWorldFieldReadSnapshot(db) : null;
+  if (saved && accepted && snapshot) {
+    if (snapshot !== accepted.snapshot) throw new Error('foul terminal original snapshot changed');
+    const values = originalTerminalProposals.get(snapshot) ?? new Map();
+    values.set(sourceId, { rowIdentity: accepted.rowIdentity, proposal: saved.proposal });
+    originalTerminalProposals.set(snapshot, values);
+  }
+  return saved;
+};
 
 /** Internal immutable ancestry seam. The actual archive stage is separate from
  * the original acknowledgement evidence. An unacknowledged old-stage owner has

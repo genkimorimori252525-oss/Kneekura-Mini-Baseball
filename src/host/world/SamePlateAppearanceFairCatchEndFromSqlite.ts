@@ -27,6 +27,8 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
   const { value, fields, actor, view } = pair, census = live.census, root = fields[0], last = fields.at(-1)!;
   if (root.kind !== 'same_pa_physical_field_root_v1') throw new Error('fair catch end original root missing');
   const occupied = actor.world.runners.length > 0;
+  if (census.liveAppeals?.pending.length) return pending('original_live_appeal_execution_required');
+  if (census.liveAppeals?.executed.length) return pending('original_live_appeal_rule_and_rights_consumer_required');
   if (root.source.liveProducerProfile !== (occupied ? 'same_pa_stationary_occupied_catch_v1' : 'same_pa_empty_base_catch_v1'))
     return pending('original_live_producer_profile_required');
   // An adopted advance can remain physically stationary during reaction. It

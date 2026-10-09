@@ -6,6 +6,7 @@ import { parseOpportunity, parseSubmission } from '../../core/world/control/Cont
 import { actualLiveAdjudicationInput, type ActualLiveOfficialPolicy } from './ActualLiveAdjudicationSource';
 import { actualLivePlayFields as fields, actualLivePlayId as id } from './ActualLivePlayScope';
 import { actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { samePaReferenceValid, type SamePaReference } from './SamePlateAppearanceWorkPrefix';
 
 export type ActualPostPlayReviewOpportunity = Readonly<{
   windowKind: 'review' | 'challenge'; windowId: string; entitlementSourceId: string;
@@ -24,6 +25,7 @@ export type AcceptedActualPostPlayReviewSession = Readonly<{
   baseAppealMode?: 'original_catch_end_v1';
 }>;
 export type ActualPostPlayReviewEventAction =
+  | Readonly<{ kind: 'import_live_appeal'; executionReference: SamePaReference<'pa_physical_v1_field_steps'> }>
   | Readonly<{ kind: 'defender_base_appeal'; defenderId: string; runnerId: string; base: 'first' | 'second' | 'third' }>
   | Readonly<{ kind: 'defender_runner_body_appeal'; defenderId: string; runnerId: string; base: 'first' | 'second' | 'third' }>
   | Readonly<{ kind: 'advance_tick'; schedulerId: string }>
@@ -101,7 +103,10 @@ export const actualPostPlayReviewEventInput = (raw: unknown, sourceId: string): 
     throw new Error('invalid accepted post-play review event Source or parent revision');
   }
   const a = s.action;
-  if (a?.kind === 'defender_base_appeal' || a?.kind === 'defender_runner_body_appeal') {
+  if (a?.kind === 'import_live_appeal') {
+    if (!fields(a, ['kind', 'executionReference']) || !samePaReferenceValid(a.executionReference, 'pa_physical_v1_field_steps'))
+      throw new Error('invalid original live appeal execution reference');
+  } else if (a?.kind === 'defender_base_appeal' || a?.kind === 'defender_runner_body_appeal') {
     if (!fields(a, ['kind', 'defenderId', 'runnerId', 'base']) || ![a.defenderId, a.runnerId].every(id)
       || a.defenderId === a.runnerId || !['first', 'second', 'third'].includes(a.base)) throw new Error('invalid explicit defender base appeal');
   } else if (a?.kind === 'advance_tick' || a?.kind === 'next_play_fence') {
