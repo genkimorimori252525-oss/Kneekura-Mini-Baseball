@@ -50,17 +50,31 @@ Exact file/title reconciliation SHA-256:
 On the retained genuine National foul state, the original completion,
 participation and appearance owners authenticated successfully. A first
 player-statistics application then committed one batting/pitching attribution
-in 369.41 seconds with all original tables unchanged. Its combined lane
-reached the 600-second cap during exact retry; retry and reopened reading
-remain unqualified. They will continue from that committed private copy,
-without repeating admission or the completed preamble.
+in 369.41 seconds with all original tables unchanged. Its original combined
+lane reached the 600-second cap during exact retry and remains failed.
+A fresh consistent copy of that committed state then ran only exact retry
+and reopened reading on source `f5390462`, passing in 299.82 seconds.
+Both returned the original attribution, retained exactly one application/head,
+and preserved every table/schema. The original donor DB/WAL/SHM stayed exact;
+source, package, runtime and control inputs stayed stable with no survivors.
+Admission and the completed preamble were not repeated. This closes the real
+statistics consumer across the recorded source boundaries; it does not turn
+the historical capped full NAT-N01 scenario into a passing case.
+
+Retry/reopen terminal SHA-256:
+`b5093f221256a185fe9d44c3f0ee50251fd78080bb56cff95c2d605606c5df86`.
+Retry/reopen test JSON SHA-256:
+`36bcf622c96b8e5fa9b7e6d941caa6aaeca32edaf6b404db7a04d2176afde677`.
 
 The retained in-flight scenario reached real observation, delivery, forecast,
 accepted assessment, emotion update, the decision-time physical cut and
 batting input. Commitment then returned
 `pending / effective_batting_commitment_not_ready` after 1,459 seconds.
-That scenario remains failed and incomplete; its committed state is retained
-for direct diagnosis. Neither these partial boundaries nor the finite tests
+The original fixture set its posture motor deadline one second after ready
+time, but the actual accepted cadence/motion released the pitch over ten
+seconds later. That scenario remains failed and incomplete; the original
+accepted posture and committed state remain unchanged. A future fixture
+correction must derive its prelaunch window from the existing pitch timing. Neither these partial boundaries nor the finite tests
 claim a completed full-game or IFN result. Private databases, logs and profiles
 are not part of this source checkpoint.
 
