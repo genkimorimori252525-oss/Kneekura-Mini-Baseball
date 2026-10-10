@@ -94,8 +94,10 @@ export const actualRunnerDecisionInputEvidenceFromSqlite = (db: DatabaseSync): A
       || model.source.motion.ticksPerSecond !== self.ticksPerSecond) {
       throw new Error('runner decision-input exact cut, Person, model or physical clock differs');
     }
-    const selected = models.selectAtDay(runner.binding.careerId, self.playerId, self.gameDay);
-    if (json(selected) !== json(model)) throw new Error('runner decision-input model is outside its accepted day baseline');
+    if (model.source.acceptedAtDay > self.gameDay || current
+      && json(models.selectAtDay(runner.binding.careerId, self.playerId, self.gameDay)) !== json(model)) {
+      throw new Error('runner decision-input model is outside its accepted day history');
+    }
     if (current) {
       fields.current(field); observations.current(observation); assertOriginalRunnerPublicKnowledgeCurrent(db, publicKnowledge);
     }

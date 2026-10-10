@@ -1,3 +1,4 @@
+import { isStandalonePracticeEvent } from './SqliteStandalonePracticeStore';
 // Synthetic accepted calibration/opportunities; real SQLite owners and delivery
 // models. These fixtures are not production practice scheduling or learning.
 import { createRequire } from 'node:module';
@@ -198,7 +199,7 @@ export async function practiceFixture(cleanup: (() => void)[], hooks: PracticeFi
     ((db: EvidenceDb, event: DevelopmentLearningEventInput, phase: string) => void)?]) => ReturnType<typeof openSqliteDevelopmentInitiationStore>;
   const openEpisodes = () => keep(openEpisode(path, episodeSources(), { readAcceptedLearningEvent: id =>
     learningEvents.get(id) ?? owner?.readAcceptedLearningEvent(id) ?? null },
-  (db, event, phase) => { if (event.kind === 'PRACTICE_RECORDED' && !isNonPitchRepetitionEvent(event)) owner?.assertLearningEvidence(db, event, phase); }));
+  (db, event, phase) => { if (event.kind === 'PRACTICE_RECORDED' && !isNonPitchRepetitionEvent(event) && !isStandalonePracticeEvent(event)) owner?.assertLearningEvidence(db, event, phase); }));
   let episodes = openEpisodes();
   const initiated = episodes.apply({ episodeId: 'episode', executionId: 'promotion-execution', playerId: 'p1',
     personSourceId: intake.sourceId, appraisalSourceId: 'appraisal', policySourceId: 'learning-policies' });

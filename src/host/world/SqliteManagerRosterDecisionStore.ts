@@ -82,6 +82,12 @@ export type RosterExecutionRequest = Omit<
       | 'rosterCommand' | 'rosterEvent' | 'decision'
       | 'execution' | 'mood'>;
   }>;
+export type IssuedRosterExecutionRequest = Readonly<{
+  careerId: string; clubId: string; decisionId: string;
+  traceId: string; executionId: string;
+  /** Consequence evidence stays explicit; selection and administrative writes are derived. */
+  moodContext?: RosterExecutionRequest['moodContext'];
+}>;
 export type DurableRosterExecution = Readonly<{
   executionId: string;
   careerId: string;
@@ -106,6 +112,7 @@ export type SqliteManagerRosterDecisionStore = Readonly<{
   readDevelopmentRosterChange(executionId: string):
     DurableDevelopmentRosterChange | null;
   apply(request: RosterExecutionRequest): DurableRosterExecution;
+  executeIssued(request: IssuedRosterExecutionRequest): DurableRosterExecution;
   close(): void;
 }>;
 
@@ -372,7 +379,7 @@ const createRosterOwner = (
       throw new Error('corrupt durable roster execution', { cause });
     }
   };
-  return Object.freeze({
+  const api: SqliteManagerRosterDecisionStore = Object.freeze({
     initialize(input: InitializeRosterHead): void {
       if (!input || !id(input.careerId) || !id(input.clubId)) {
         throw new Error('invalid roster head initialization');
@@ -660,6 +667,47 @@ const createRosterOwner = (
       }
       return Object.freeze({ before, after, event });
     },
+    executeIssued(raw: IssuedRosterExecutionRequest): DurableRosterExecution {
+      const input = frozenJson<IssuedRosterExecutionRequest>(canonicalJson(raw));
+      const fields = ['careerId', 'clubId', 'decisionId', 'traceId', 'executionId',
+        ...(input && Object.hasOwn(input, 'moodContext') ? ['moodContext'] : [])];
+      if (!input || Object.keys(input).length !== fields.length || fields.some(key => !Object.hasOwn(input, key))
+        || ![input.careerId, input.clubId, input.decisionId, input.traceId, input.executionId].every(id)
+        || (input.moodContext !== undefined && (input.moodContext === null || typeof input.moodContext !== 'object'))) {
+        throw new Error('invalid issued roster execution');
+      }
+      const issued = api.readOpportunity(input.careerId, input.clubId, input.decisionId);
+      if (!issued) throw new Error('issued roster opportunity is missing');
+      const selection = selectManagerControlledDecision(issued.control, issued.opportunity,
+        issued.selectionAgent, input.traceId, issued.candidateActionIds);
+      if (!selection.ok) throw new Error(`issued roster selection failed: ${selection.reason.code}`);
+      const binding = issued.bindings.find(candidate => candidate.actionId === selection.value.decision.actionId);
+      if (!binding || issued.opportunity.worldRevision === Number.MAX_SAFE_INTEGER) {
+        throw new Error('issued roster execution lacks a binding or next World revision');
+      }
+      const prior = executionRow(input.executionId);
+      let expectedMoodRevision: number | null;
+      if (prior) {
+        // Reuse only authenticated original request evidence. A later mood or
+        // Manager/control head cannot change an exact completed retry.
+        parsedExecution(input.executionId, prior);
+        expectedMoodRevision = (JSON.parse(prior.request_json) as RosterExecutionRequest).expectedMoodRevision;
+      } else {
+        const head = api.readHead(input.careerId, input.clubId);
+        if (!head) throw new Error('issued roster execution lacks its current roster head');
+        expectedMoodRevision = head.mood?.revision ?? null;
+      }
+      // The existing writer reauthenticates these originals and current CAS in
+      // its own Native transaction. A race is rejected, never silently rebased.
+      return api.apply({ careerId: input.careerId, clubId: input.clubId,
+        expectedClubRevision: issued.clubRevision, expectedRosterRevision: issued.rosterRevision,
+        expectedMoodRevision, control: issued.control, opportunity: issued.opportunity,
+        selection: selection.value, selectionAgent: issued.selectionAgent, binding,
+        ...(issued.candidateActionIds === undefined ? {} : { candidateActionIds: issued.candidateActionIds }),
+        clubAsOfDay: issued.clubAsOfDay, currentWorldRevision: issued.opportunity.worldRevision,
+        afterWorldRevision: issued.opportunity.worldRevision + 1, executionId: input.executionId,
+        ...(input.moodContext === undefined ? {} : { moodContext: input.moodContext }) });
+    },
     apply(request: RosterExecutionRequest): DurableRosterExecution {
       if (!request || !id(request.careerId)
         || !id(request.clubId) || !id(request.executionId)
@@ -824,6 +872,7 @@ const createRosterOwner = (
     },
     close(): void { if (ownsConnection) db.close(); },
   });
+  return api;
 };
 
 export const openSqliteManagerRosterDecisionStore = (databasePath: string,

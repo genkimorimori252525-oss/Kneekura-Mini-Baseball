@@ -10,7 +10,7 @@ import { readPitchFatiguePolicyFromSqlite } from './SqlitePitchFatiguePolicyStor
 import { readNativeDevelopmentEpisodeFromSqlite } from './NativeDevelopmentEpisodeFromSqlite';
 import { createPitchPracticeOwner, type PitchPracticeSources } from './SqlitePitchPracticeAttemptStore';
 import type { PracticeOrderExecutionReader } from './OwnedPitchPracticeOrder';
-import { practiceHash as hash, practiceId as id, practiceRevision as revision,
+import { practiceActivityId, practiceHash as hash, practiceId as id, practiceRevision as revision,
   practiceTimingAtRevision, type PitchPracticeFrame, type PitchPracticeOpportunity } from './PitchPracticeAttempt';
 
 type Db = DatabaseSync;
@@ -110,6 +110,17 @@ export const readNativePitchPracticeRepetitionFromSqlite = (db: Db, eventId: str
   native(db);
   if (!id(eventId)) throw new Error('invalid Native practice repetition identity');
   return reader(db).readRepetition(db, eventId);
+};
+
+/** A workload receipt can precede learning after an interrupted settlement.
+ * Let the original owner determine applicability from its pinned episode, then
+ * authenticate that exact application before another practice family advances. */
+export const assertNativePitchPracticeLearningSettledFromSqlite = (db: Db, attemptId: string): void => {
+  native(db);
+  const own = reader(db);
+  if (!id(attemptId) || !own.readAttempt(db, attemptId)) throw new Error('original practice attempt is missing');
+  const event = own.api.readAcceptedLearningEvent(practiceActivityId(attemptId));
+  if (event) own.readRepetition(db, event.sourceEventId);
 };
 
 export const readNativePracticeOrderExecutionFromSqlite: PracticeOrderExecutionReader = (connection, executionId, consumer) => {

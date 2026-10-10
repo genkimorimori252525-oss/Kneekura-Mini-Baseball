@@ -104,7 +104,7 @@ export const actualFirstBasePlayEndFixture = (path: string, originalProfile?: No
 /** Attach the original all-ten owner chain before its first field output. The
  * caller supplies its independently accepted original response and field inputs. */
 export const attachActualFirstBasePlayEndFixture = <T extends ActualFirstBaseFieldRoot>(
-  path: string, x: T, forecastGroundElapsedSeconds: number, retainedPhysicalCut?: 'feet',
+  path: string, x: T, forecastGroundElapsedSeconds: number, retainedPhysicalCut?: 'feet' | 'feet_with_decision_model',
 ) => {
   try {
     if (x.worldContact.result.kind !== 'airborne' || x.flight.source.searchDurationTicks !== 0) throw new Error('original zero-horizon fixture input changed');
@@ -114,7 +114,7 @@ export const attachActualFirstBasePlayEndFixture = <T extends ActualFirstBaseFie
     // This is a real immutable owner read, never a supplied saved snapshot.
     // Its historical values construct proposals/checks only; later admissions
     // still use their real owners and independent transaction fences.
-    const retained = retainedPhysicalCut === 'feet' ? phase('first-base:read-owned-feet-history', () => withBattedVenueLegalReadSnapshot(x.f.db, () => {
+    const retained = retainedPhysicalCut ? phase('first-base:read-owned-feet-history', () => withBattedVenueLegalReadSnapshot(x.f.db, () => {
       const saved = battedWorldFieldExecutionEvidenceFromSqlite(x.f.db).readWithExecutions('field-race-feet');
       if (!saved) throw new Error('retained first-base feet owner is missing');
       const ids = ['field-race-acquisition', 'field-race-capture-initialized', 'field-race-capture-fence', 'field-race-capture-confirmed', 'field-race-feet'];
@@ -186,7 +186,8 @@ export const attachActualFirstBasePlayEndFixture = <T extends ActualFirstBaseFie
       { kind: 'motion', throughTick: origin + Math.ceil((forecastGroundElapsedSeconds + 0.30) * tps) });
     const actor = x.response.touch.worldContact.flight.physicalPitch.frame.batterActor!.defenderBindings
       .find(b => b.playerId !== plan.acquirerPlayerId)!.playerId;
-    const decision = installOwnedScheduledDecision({ f: x.f, baseField }, actor, feet.source.sourceId, 0, 1_000_000);
+    const decision = installOwnedScheduledDecision({ f: x.f, baseField }, actor, feet.source.sourceId, 0, 1_000_000,
+      retainedPhysicalCut === 'feet_with_decision_model' ? 'observation_and_model' : undefined);
     const motor = decision.issue(feet.source.sourceId);
     const adopted = step('field-race-real-motor', feet.source.sourceId,
       { kind: 'motion', throughTick: feet.execution.field.motion.world.moment.ball.tick + 1 }, [actor]);

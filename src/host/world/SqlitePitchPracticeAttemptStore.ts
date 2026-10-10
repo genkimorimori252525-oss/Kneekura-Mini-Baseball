@@ -1,3 +1,4 @@
+import { isStandalonePracticeEvent, assertStandalonePracticeBeforePitch } from './SqliteStandalonePracticeStore';
 import { NATIONAL_EXPOSURE_DEVELOPMENT_KIND, readNationalExposureDevelopmentBoundary } from './NationalExposureDevelopmentOrigin';
 import { assertNonPitchLearningEvent } from './SqliteNonPitchRepetitionStore';
 import { isNonPitchRepetitionEvent } from './NonPitchDevelopmentRepetition';
@@ -320,7 +321,7 @@ export const createPitchPracticeOwner = (db: DatabaseSync, sources: PitchPractic
       const verified = verification(), attempt = decode(row, connection, row.revision, verified);
       const evidence = JSON.parse(row.learning_evidence_json) as { sourceKind?: unknown } | null;
       const originalEpisode = JSON.parse(row.episode_before_json) as DevelopmentLearningEpisode | null;
-      const hasNonPitchRepetition = originalEpisode?.events.some(isNonPitchRepetitionEvent) ?? false;
+      const hasNonPitchRepetition = originalEpisode?.events.some(event => isNonPitchRepetitionEvent(event) || isStandalonePracticeEvent(event)) ?? false;
       if (evidence !== null && Object.hasOwn(evidence, 'sourceKind')) {
         if (evidence.sourceKind !== PRACTICE_DEVELOPMENT_KIND && evidence.sourceKind !== NATIONAL_EXPOSURE_DEVELOPMENT_KIND) throw new Error('invalid practice learning source kind');
         // The public DTO claims this earlier learning origin. Reauthenticate it
@@ -333,6 +334,7 @@ export const createPitchPracticeOwner = (db: DatabaseSync, sources: PitchPractic
     const read = (attemptId: string): PitchPracticeAttempt | null => { check(attemptId); const row = rowById(db, attemptId); return row ? readPublicAttempt(row, db) : null; };
     const required = (attemptId: string): PitchPracticeAttempt => { const attempt = read(attemptId); if (!attempt) throw new Error('practice attempt is missing'); return attempt; };
     const assertAdmission = (o: PitchPracticeOpportunity): PitchPracticePriorClock | null => {
+      assertStandalonePracticeBeforePitch(db, o);
       if (rowById(db, practiceAttemptId(o))) throw new Error('practice identity already belongs to another source alias');
       const previous = db.prepare('SELECT * FROM pitch_practice_attempts WHERE career_id=? AND opportunity_id=? ORDER BY ordinal DESC LIMIT 1')
         .get(o.careerId, o.opportunityId) as Row | undefined;

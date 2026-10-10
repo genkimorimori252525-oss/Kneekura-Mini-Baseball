@@ -1,3 +1,4 @@
+import { assertStandalonePracticeLearningEvent } from './SqliteStandalonePracticeStore';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
 import { appendDevelopmentLearningEvent, type DevelopmentLearningEventInput } from '../../core/world/development/DevelopmentLearningEpisode';
@@ -139,6 +140,7 @@ const repetitionReader = (development: Pick<SqliteDevelopmentInitiationStore, 'r
 export const assertNonPitchLearningEvent = (development: Pick<SqliteDevelopmentInitiationStore, 'read'>,
   connection: Parameters<DevelopmentLearningEvidenceGuard>[0], event: DevelopmentLearningEventInput,
   phase: Parameters<DevelopmentLearningEvidenceGuard>[2]): void => {
+  assertStandalonePracticeLearningEvent(development, connection, event, phase);
   if (!isNonPitchRepetitionEvent(event)) return;
   const { DatabaseSync: Native } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
   if (!(connection instanceof Native) || !connection.isTransaction && (phase === 'write' || phase === 'written')) {

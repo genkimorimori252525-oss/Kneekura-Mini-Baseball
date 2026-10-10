@@ -41,7 +41,7 @@ export const continueNationalBattedFoulOriginalTail = (input: TailInput & Readon
 /** The unchanged original 37 assertions, entered after the real field binding.
  * A retained root contains owner-authenticated evidence, never caller substitutes. */
 export const continueNationalBattedFoulOriginalTailFromField = (input: TailInput & Readonly<{
-  f: NationalBattedFoulConsumerContext; liveRoot: NationalBattedFoulFieldRoot; retainedPhysicalCut?: 'feet';
+  f: NationalBattedFoulConsumerContext; liveRoot: NationalBattedFoulFieldRoot; retainedPhysicalCut?: 'feet' | 'feet_with_decision_model';
 }>) => {
   const {f,nextActor,foulTerminalSource,foulReceipt,adoptedFoul,originBytes,clubBefore,progress,preservedFoulStatistics,liveRoot}=input;
   const path=f.path;

@@ -58,6 +58,9 @@ export const actualLocomotionEvidenceFromSqlite = (db: DefensiveDb) => {
       throw new Error('actual locomotion game/day/Person differs');
     }
     if (current) {
+      if (json(playerLocomotionModelEvidenceFromSqlite(db).selectAtDay(context.binding.careerId, source.playerId, self.gameDay)) !== json(model)) {
+        throw new Error('actual locomotion current accepted model differs');
+      }
       const head = db.prepare('SELECT source_id FROM actual_defensive_decision_heads WHERE physical_pitch_source_id=? AND player_id=?')
         .get(source.physicalPitchSourceId, source.playerId);
       if (head?.source_id !== source.decisionSourceId) throw new Error('actual locomotion decision head is stale');

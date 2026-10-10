@@ -9,6 +9,8 @@ export type AcceptedPlayerBatterRunTransitionModel = Readonly<{
   sourceId: string; sourceVersion: string; capability: 'batter_run_transition_model_v1'; careerId: string; playerId: string;
   personLinkSourceId: string; acceptedAtDay: number;
   runnerModelReference: SamePaReference<'world_player_runner_decision_motion_models'>;
+  runnerRebinding?: Readonly<{ kind: 'accepted_runner_model_rebinding_v1';
+    originalModelReference: SamePaReference<'world_player_batter_run_transition_models'> }>;
   parameters: BatterSwingExitRunTransitionParameters;
 }>;
 export type DurablePlayerBatterRunTransitionModel = Readonly<{
@@ -16,7 +18,8 @@ export type DurablePlayerBatterRunTransitionModel = Readonly<{
 }>;
 export const playerBatterRunTransitionModelInput = (raw: unknown, sourceId?: string): AcceptedPlayerBatterRunTransitionModel => {
   const s = cloneInert(raw) as AcceptedPlayerBatterRunTransitionModel;
-  if (!fields(s, ['sourceId','sourceVersion','capability','careerId','playerId','personLinkSourceId','acceptedAtDay','runnerModelReference','parameters'])
+  if (!fields(s, ['sourceId','sourceVersion','capability','careerId','playerId','personLinkSourceId','acceptedAtDay','runnerModelReference','parameters',
+    ...(s && Object.hasOwn(s, 'runnerRebinding') ? ['runnerRebinding'] : [])])
     || s.capability !== 'batter_run_transition_model_v1' || sourceId !== undefined && s.sourceId !== sourceId
     || ![s.sourceId,s.sourceVersion,s.careerId,s.playerId,s.personLinkSourceId].every(id)
     || !Number.isSafeInteger(s.acceptedAtDay) || s.acceptedAtDay < 0
@@ -25,5 +28,9 @@ export const playerBatterRunTransitionModelInput = (raw: unknown, sourceId?: str
     || !Number.isSafeInteger(s.parameters.ticksPerSecond) || s.parameters.ticksPerSecond <= 0
     || ![s.parameters.maximumBodyTurnRateRadiansPerSecond,s.parameters.lateralRealignmentAccelerationMps2,s.parameters.backwardRecoveryAccelerationMps2]
       .every(n => Number.isFinite(n) && n > 0)) throw new Error('invalid accepted batter-run transition model Source');
+  if (Object.hasOwn(s, 'runnerRebinding') && (!fields(s.runnerRebinding, ['kind', 'originalModelReference'])
+    || s.runnerRebinding!.kind !== 'accepted_runner_model_rebinding_v1'
+    || !ref(s.runnerRebinding!.originalModelReference, 'world_player_batter_run_transition_models')
+    || s.runnerRebinding!.originalModelReference.sourceId === s.sourceId)) throw new Error('invalid batter-run original model rebinding');
   return freeze(s);
 };

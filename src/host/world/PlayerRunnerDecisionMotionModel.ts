@@ -1,3 +1,4 @@
+import { physicalCapabilityDevelopmentInput, type AcceptedPhysicalCapabilityDevelopment } from './AcceptedPhysicalCapabilityDevelopment';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { RunnerDecisionInput } from '../../core/sim/running/RunnerDecision';
 import type { RunnerMotionParameters } from '../../core/sim/running/RunnerMotion';
@@ -9,6 +10,7 @@ export type RunnerDecisionParameters = Pick<RunnerDecisionInput, 'minimumCueConf
 /** Explicit accepted runner inputs only. This owns no live knowledge, choice or motor command. */
 export type AcceptedPlayerRunnerDecisionMotionModel = Readonly<{
   sourceId: string; sourceVersion: string; capability: 'runner_decision_motion_v1'; careerId: string; playerId: string;
+  developmentProvenance?: AcceptedPhysicalCapabilityDevelopment;
   personLinkSourceId: string; acceptedAtDay: number; decision: RunnerDecisionParameters; motion: RunnerMotionParameters;
 }>;
 export const runnerModelId = (value: unknown): value is string => typeof value === 'string' && !!value.length && value === value.trim();
@@ -20,7 +22,8 @@ const unit = (value: number) => Number.isFinite(value) && value >= 0 && value <=
 export const playerRunnerDecisionMotionModelInput = (raw: AcceptedPlayerRunnerDecisionMotionModel,
   sourceId?: string): AcceptedPlayerRunnerDecisionMotionModel => {
   const source = cloneInert(raw), id = runnerModelId, tick = runnerModelDay;
-  if (!fields(source, ['sourceId', 'sourceVersion', 'capability', 'careerId', 'playerId', 'personLinkSourceId', 'acceptedAtDay', 'decision', 'motion'])
+  if (!fields(source, ['sourceId', 'sourceVersion', 'capability', 'careerId', 'playerId', 'personLinkSourceId', 'acceptedAtDay', 'decision', 'motion',
+    ...(source && Object.hasOwn(source, 'developmentProvenance') ? ['developmentProvenance'] : [])])
     || sourceId !== undefined && source.sourceId !== sourceId || source.capability !== 'runner_decision_motion_v1'
     || ![source.sourceId, source.sourceVersion, source.careerId, source.playerId, source.personLinkSourceId].every(id) || !tick(source.acceptedAtDay)
     || !fields(source.decision, ['minimumCueConfidence', 'coachTrust', 'minimumAdvanceSafetyMarginTicks', 'decisionAbility', 'timingParameters'])
@@ -36,5 +39,6 @@ export const playerRunnerDecisionMotionModelInput = (raw: AcceptedPlayerRunnerDe
   // their nonzero evidence and issue ticks before adopting a motor.
   const slowest = resolveRunnerDecisionTiming(0, 0, source.decision.timingParameters);
   if (!Number.isSafeInteger(slowest.decisionTick + source.motion.reactionDelayTicks)) throw new Error('runner decision/motor delay composition overflows');
+  if (Object.hasOwn(source, 'developmentProvenance')) physicalCapabilityDevelopmentInput(source.developmentProvenance!, 'runner_decision_motion');
   return freeze(source);
 };

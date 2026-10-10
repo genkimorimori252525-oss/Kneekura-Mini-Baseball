@@ -44,6 +44,7 @@ const derive=(db:DatabaseSync,source:Source)=>withSamePaLifecycleReadPhase(db,()
 export type DurableBatterSwingExitState=ReturnType<typeof derive>;
 const make=(db:DatabaseSync):BatterRunArchiveOwner<Source,DurableBatterSwingExitState>=>({input,derive:s=>derive(db,s),
   key:s=>json([s.fieldReference.owner,s.fieldReference.sourceId]),
+  assertCurrent:value=>same(playerBatterRunTransitionModelEvidenceFromSqlite(db).selectAtDay(value.model.source.careerId,value.playerId,value.gameDay),value.model),
   scope:s=>({sql:`${claim('source_json',['fieldReference','sourceId'])} OR ${claim('snapshot_json',['source','fieldReference','sourceId'])}`,
     values:[s.fieldReference.sourceId,s.fieldReference.sourceId]}),
 });

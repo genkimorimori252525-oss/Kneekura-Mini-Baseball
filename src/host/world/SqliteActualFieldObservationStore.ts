@@ -65,6 +65,9 @@ export const actualFieldObservationEvidenceFromSqlite = (db: Db) => {
       || model.source.personLinkSourceId !== actor.binding.personLinkSourceId || json(model.fieldingModel.person) !== json(actor.person)
       || model.source.acceptedAtDay > actor.binding.gameDay) throw new Error('actual observation Player/Person/model scope or day differs');
     if (current) {
+      if (json(models.selectAtDay(actor.binding.careerId, source.playerId, actor.binding.gameDay)) !== json(model)) {
+        throw new Error('actual observation current model differs');
+      }
       fields.current(baseField);
       const last = executionPrefix.at(-1);
       if (last) executions.current(last);

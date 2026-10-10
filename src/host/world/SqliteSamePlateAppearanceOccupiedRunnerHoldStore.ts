@@ -33,10 +33,9 @@ const derive = (db: DatabaseSync, source: Source) => {
   same(reference('world_player_body_materializations', body), source.bodyReference);
   same(reference('world_player_runner_decision_motion_models', model), source.runnerModelReference);
   same(body.person, participant.person); same(model.person, participant.person);
-  same(models.selectAtDay(enrollment.careerId, source.playerId, actor.binding.gameDay), model);
   if (body.source.role !== 'runner' || body.source.careerId !== enrollment.careerId || body.source.playerId !== source.playerId
     || body.source.atDay > actor.binding.gameDay || model.source.careerId !== enrollment.careerId || model.source.playerId !== source.playerId
-    || model.source.motion.ticksPerSecond !== 1_000_000) throw new Error('occupied runner original body/model scope or clock differs');
+    || model.source.acceptedAtDay > actor.binding.gameDay || model.source.motion.ticksPerSecond !== 1_000_000) throw new Error('occupied runner original body/model scope or clock differs');
   const runner = actor.world.runners.find(r => r.playerId === source.playerId)!;
   const setup = { ...runner, personId: source.personId, tick: actor.world.tick };
   const actors = samePaOccupiedRunnerHoldCurves(source, setup, body.actor, model.source.motion.ticksPerSecond);
@@ -55,6 +54,7 @@ const make = (db: DatabaseSync): BatterRunArchiveOwner<Source, DurableSamePaOccu
     const enrollment = readHistoricalSamePlateAppearanceEnrollment(db, value.source.enrollmentReference.sourceId)!;
     const actor = readPhysicalPlateAppearanceActorFromSqlite(db, value.actorReference.sourceId)!;
     assertPhysicalActorOpenFrame(db, actor);
+    same(playerRunnerDecisionMotionModelEvidenceFromSqlite(db).selectAtDay(value.careerId, value.source.playerId, actor.binding.gameDay), value.model);
     // An original pre-pitch command cannot be accepted retroactively after its
     // first physical consumer. Immutable retries remain historical reads.
     if (db.prepare("SELECT 1 FROM main.sqlite_master WHERE type='table' AND name='pa_dispatch_v1_pitch_actions'").get()

@@ -1,3 +1,4 @@
+import { isStandalonePracticeEvent, readStandalonePracticeRepetition } from './SqliteStandalonePracticeStore';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -53,6 +54,12 @@ const derive = (db: DatabaseSync, owners: DevelopmentPracticeExposureOwners | nu
   const repetitions = episode.practiceSourceEventIds.map(eventId => {
     const event = episode.events.find(value => value.sourceEventId === eventId && value.kind === 'PRACTICE_RECORDED');
     if (!event) throw new Error('practice exposure original episode event is missing');
+    if (isStandalonePracticeEvent(event)) {
+      const owned = readStandalonePracticeRepetition(db, owners?.development ?? null, eventId);
+      if (factors.has(eventId) || owned.episodeId !== episode.episodeId || owned.careerId !== episode.careerId
+        || owned.playerId !== episode.playerId || json(owned.event) !== json(event)) throw new Error('practice exposure standalone ownership differs');
+      proofs.push({ eventId, kind: 'STANDALONE', hash: owned.proofHash }); return owned.repetition;
+    }
     if (isNonPitchRepetitionEvent(event)) {
       const owned = owners ? readOwnedNonPitchRepetition(owners.development, db, eventId) : readNativeNonPitchRepetitionFromSqlite(db, eventId);
       if (factors.has(eventId) || owned.episodeId !== episode.episodeId || owned.careerId !== episode.careerId

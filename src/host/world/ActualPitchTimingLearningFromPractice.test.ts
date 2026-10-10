@@ -1,7 +1,9 @@
+import { createRequire } from 'node:module';
 import { afterEach, expect, it } from 'vitest';
 import { witnessSqliteWrite } from './SqliteWriteWitness.test-support';
 import { assessDevelopmentPracticeExposure } from '../../core/world/development/DevelopmentPracticeExposure';
 import { actualLearningFixture, type PairPlan } from './ActualPitchTimingLearningFromPractice.test-support';
+import { readNativePitchPracticeAttemptFromSqlite } from './NativePitchPracticeEvidenceFromSqlite';
 
 const cleanup: (() => void)[] = [];
 afterEach(() => { while (cleanup.length) cleanup.pop()!(); });
@@ -288,13 +290,30 @@ it('keeps original physical proofs and direct timing reads acyclic after a suppl
     previousAttemptId: null, atDay: 17, readyAtUs: 0, episode: null });
   const next = f.base.owner.begin(opportunity.sourceId);
   expect(next.frame.timing.revision).toBe(1); expect(next.frame.timing.profile.quickSpeedFactor).toBe(2.4);
+  const completed = f.base.assess(f.base.owner.advance(next.attemptId, next.revision, next.plannedDelivery.timeline.followThroughEndUs));
+  expect(f.base.owner.settle(completed.attemptId).kind).toBe('complete');
   expect(f.adapter.settleLearning(evidence.input.sourceId)).toEqual(result);
   f.clearAuthorities(); f.reopen();
   expect(f.base.sources.timing.readHead('career-a', 'p1')).toEqual(result.source);
   expect(f.base.owner.read(f.first.attemptId)).toEqual(original);
-  expect(f.base.owner.read(next.attemptId)).toEqual(next);
+  expect(f.base.owner.read(next.attemptId)).toEqual(completed);
   expect(evidence.pairs.map(p => [f.base.owner.read(p.normal.attemptId)!.observation, f.base.owner.read(p.quick.attemptId)!.observation])).toEqual(raw);
   expect(f.base.sources.timing.apply(evidence.input.sourceId, 0)).toEqual(result.source);
+  // Reuse this original measured-learning setup to exercise the postbaseline
+  // Native branch. All writer decoders and intake authorities are closed.
+  f.base.close();
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  const db = new DatabaseSync(f.base.path); cleanup.push(() => db.close());
+  db.exec('BEGIN');
+  try {
+    const native = readNativePitchPracticeAttemptFromSqlite(db, completed.attemptId);
+    expect(native).toEqual(completed);
+    expect(native!.frame.timing.revision).toBe(1);
+    // Its new timing depends on the original measured practice/exposure
+    // prefix, even though the consumed standalone opportunity has no episode.
+    db.prepare("UPDATE pitch_practice_standardized_measurements SET source_hash='broken' WHERE source_id=?").run(ids[0]);
+    expect(() => readNativePitchPracticeAttemptFromSqlite(db, completed.attemptId)).toThrow();
+  } finally { db.exec('ROLLBACK'); }
 });
 
 it.each(['write', 'retry'] as const)('rejects original probe corruption on timing %s through the consumer guard', async phase => {

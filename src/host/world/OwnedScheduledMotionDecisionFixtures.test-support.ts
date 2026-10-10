@@ -1,3 +1,5 @@
+import assert from 'node:assert/strict';
+import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { installSyntheticObservation } from './ActualFieldObservationFixtures.test-support';
 import { playerDecisionCalibrationFixture } from '../../core/sim/fielding/PlayerDecisionCalibrationFixtures.test-support';
 import { playerLocomotionCalibrationFixture } from '../../core/sim/fielding/PlayerLocomotionCalibrationFixtures.test-support';
@@ -14,10 +16,15 @@ type Fixture = Readonly<{ f: Pick<ReturnType<typeof ownedScheduledMotionFixture>
 /** Synthetic source-owned timing/coverage. Every observation, decision and motor is
  * still admitted by its real Native owner; this never supplies an acceleration. */
 export const installOwnedScheduledDecision = (x: Fixture, playerId: string, executionSourceId: string,
-  delayTicks = 0, coverageTicks = 1_000_000) => {
+  delayTicks = 0, coverageTicks = 1_000_000, retained?: 'observation_and_model') => {
   const phase = <T>(name: string, run: () => T) => ownedScheduledMotionPhase(`${playerId}:${name}`, run);
   const observer = phase('install-observation', () => installSyntheticObservation(x, playerId, executionSourceId));
-  const observation = phase('accept-observation', () => observer.observations.accept(observer.observationSource.sourceId));
+  const observation = retained ? phase('read-original-observation', () => {
+    const saved = observer.observations.read(observer.observationSource.sourceId);
+    assert(saved, 'retained original observation is missing');
+    assert.equal(json(saved.source), json(observer.observationSource), 'retained observation differs from the original fixture Source');
+    return saved;
+  }) : phase('accept-observation', () => observer.observations.accept(observer.observationSource.sourceId));
   const fielding = observer.observationModel.fieldingModel, b = x.baseField.response.touch.worldContact
     .modelActorEvidence.find(a => a.binding.playerId === playerId)!.binding;
   const calibration = { ...playerDecisionCalibrationFixture(),
@@ -25,7 +32,13 @@ export const installOwnedScheduledDecision = (x: Fixture, playerId: string, exec
     firstStepTimingParameters: { minimumFirstStepDelayTicks: 0, maximumFirstStepDelayTicks: 0, fixedMotorOffsetTicks: 0 } };
   const decisionModelSource = { sourceId: `scheduled-decision-model-${playerId}`, sourceVersion: 'synthetic-v1', careerId: b.careerId,
     playerId, personLinkSourceId: b.personLinkSourceId, fieldingModelSourceId: fielding.source.sourceId, acceptedAtDay: b.gameDay, calibration };
-  phase('accept-decision-model', () => x.f.track(openSqlitePlayerDecisionModelStore(x.f.path, { readAcceptedModel: () => decisionModelSource })).accept(decisionModelSource.sourceId));
+  if (retained) phase('read-original-decision-model', () => {
+    const saved = x.f.track(openSqlitePlayerDecisionModelStore(x.f.path)).read(decisionModelSource.sourceId);
+    assert(saved, 'retained original decision model is missing');
+    assert.equal(json(saved.source), json(decisionModelSource), 'retained decision model differs from the original fixture Source');
+    assert.equal(json(saved.fieldingModel), json(fielding), 'retained decision model original fielding owner differs');
+  });
+  else phase('accept-decision-model', () => x.f.track(openSqlitePlayerDecisionModelStore(x.f.path, { readAcceptedModel: () => decisionModelSource })).accept(decisionModelSource.sourceId));
   const planSource = { sourceId: `scheduled-priorities-${playerId}`, sourceVersion: 'synthetic-v1', provenance: 'accepted_at_actual_observation' as const,
     physicalPitchSourceId: observation.source.physicalPitchSourceId, careerId: b.careerId, playerId, personLinkSourceId: b.personLinkSourceId,
     gameDay: b.gameDay, fieldingModelSourceId: fielding.source.sourceId, observationSourceId: observation.source.sourceId,

@@ -1,3 +1,4 @@
+import { isStandalonePracticeEvent, readStandalonePracticeRepetition } from './SqliteStandalonePracticeStore';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
 import { appendDevelopmentLearningEvent, type DevelopmentLearningEpisode, type DevelopmentLearningEventInput } from '../../core/world/development/DevelopmentLearningEpisode';
@@ -71,8 +72,9 @@ export const readNativeDevelopmentEpisodeFromSqlite = (db: DatabaseSync, episode
       const peers = db.prepare(`SELECT * FROM world_development_learning_events WHERE source_id=$id
         OR ${claim('event_json', ['sourceEventId'], '$id')}`).all({ id: event.sourceEventId });
       if (peers.length !== 1) throw new Error('Native development learning Source ownership differs');
-      if (event.kind === 'PRACTICE_RECORDED' || isNonPitchRepetitionEvent(event) || event.sourceEventId.startsWith('practice-workload:pitch-practice:')) {
-        const owned = isNonPitchRepetitionEvent(event) ? readNativeNonPitchRepetitionFromSqlite(db, event.sourceEventId)
+      if (event.kind === 'PRACTICE_RECORDED' || isStandalonePracticeEvent(event) || isNonPitchRepetitionEvent(event) || event.sourceEventId.startsWith('practice-workload:pitch-practice:')) {
+        const owned = isStandalonePracticeEvent(event) ? readStandalonePracticeRepetition(db, null, event.sourceEventId)
+          : isNonPitchRepetitionEvent(event) ? readNativeNonPitchRepetitionFromSqlite(db, event.sourceEventId)
           : event.sourceEventId.startsWith('practice-workload:pitch-practice:') ? readNativePitchPracticeRepetitionFromSqlite(db, event.sourceEventId)
             : (() => { throw new Error('Native development practice owner is unsupported'); })();
         if (owned.episodeId !== episodeId || owned.careerId !== row.career_id || owned.playerId !== row.player_id) {

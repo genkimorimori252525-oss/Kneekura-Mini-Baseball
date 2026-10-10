@@ -12,6 +12,8 @@ import { actualDefensiveBoundary, actualDefensiveContextFromSqlite, defensiveFie
 import { actualDefensivePlanEvidenceFromSqlite } from './SqliteActualDefensivePlanStore';
 import { playerDecisionModelEvidenceFromSqlite } from './SqlitePlayerDecisionModelStore';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { physicalStoreTransactionBoundary } from './PhysicalStoreTransactionBoundary';
+import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 
 /** No caller clock, outcome, target, cue or physical execution. Later Sources advance the same decision, never replan. */
 export type AcceptedActualDefensiveDecision = Readonly<{
@@ -58,6 +60,7 @@ export const actualDefensiveDecisionEvidenceFromSqlite = (db: DefensiveDb) => {
       || !context.observation.history.some(s => s.sourceId === plan.source.observationSourceId)) {
       throw new Error('actual defensive decision original model/plan/Player/Person/day or availability differs');
     }
+    if (current && json(models.selectAtDay(b.careerId, source.playerId, b.gameDay)) !== json(model)) throw new Error('actual defensive decision current model differs');
     return { ...context, plan, model };
   };
   const execute = (source: AcceptedActualDefensiveDecision, previous: DurableActualDefensiveDecision | null): DurableActualDefensiveDecision => {
@@ -221,19 +224,23 @@ export const openSqliteActualDefensiveDecisionStore = (path: string, authority?:
     CREATE TABLE IF NOT EXISTS actual_defensive_decision_heads (physical_pitch_source_id TEXT NOT NULL,player_id TEXT NOT NULL,
     source_id TEXT NOT NULL UNIQUE,revision INTEGER NOT NULL,PRIMARY KEY(physical_pitch_source_id,player_id));`);
   const own = actualDefensiveDecisionEvidenceFromSqlite(db); let closed = false;
+  // Context and its plan still execute every original ownership/current check;
+  // only completed physical roots are shared inside each unchanged read phase.
+  const reads = physicalStoreTransactionBoundary(db, 'actual defensive decision read');
   const check = () => { if (closed) throw new Error('closed actual defensive decision store'); };
-  return Object.freeze({ read(sourceId: string) { check(); return own.read(sourceId); },
+  return Object.freeze({ read(sourceId: string) { check(); return reads.read(() => own.read(sourceId)); },
     accept(sourceId: string): DurableActualDefensiveDecision {
-      check(); const prior = own.read(sourceId), raw = authority?.readAcceptedDecision(sourceId) ?? null, source = raw === null ? null : input(raw, sourceId);
+      check(); const prior = reads.read(() => own.read(sourceId)), raw = authority?.readAcceptedDecision(sourceId) ?? null, source = raw === null ? null : input(raw, sourceId);
       if (prior) {
         if (source && json(source) !== json(prior.source)) throw new Error('actual defensive decision Source frozen differently');
-        const saved = own.read(sourceId); if (!saved || json(saved) !== json(prior)) throw new Error('actual defensive decision changed during retry'); return saved;
+        const saved = reads.read(() => own.read(sourceId)); if (!saved || json(saved) !== json(prior)) throw new Error('actual defensive decision changed during retry'); return saved;
       }
       if (!source) throw new Error('accepted actual defensive decision Source missing');
-      const value = own.derive(source); own.before(value); db.exec('BEGIN IMMEDIATE');
+      const value = reads.read(() => { const derived = own.derive(source); own.before(derived); return derived; });
+      db.exec('BEGIN IMMEDIATE');
       try {
         const liveFence = beginActualLivePitchWrite(db, source.physicalPitchSourceId, { owner: 'actual_defensive_decisions', sourceId });
-        own.before(value);
+        withBattedWorldPhysicalReadTraversal(db, () => own.before(value));
         db.prepare('INSERT INTO actual_defensive_decisions VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)').run(sourceId, source.sourceVersion,
           source.physicalPitchSourceId, source.playerId, source.observationSourceId, source.decisionModelSourceId, source.planSourceId,
           source.previousDecisionSourceId, value.revision, json(source), hash(source), json(value), hash(value));
@@ -245,9 +252,12 @@ export const openSqliteActualDefensiveDecisionStore = (path: string, authority?:
           if (Number(changed.changes) !== 1) throw new Error('actual defensive decision predecessor changed during write');
         }
         recordActualLivePlayAdmission(db, liveFence);
-        own.current(value); const saved = own.read(sourceId);
-        if (!saved || json(saved) !== json(value)) throw new Error('actual defensive decision original changed during write');
-        assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
+        const saved = withBattedWorldPhysicalReadTraversal(db, () => {
+          own.current(value); const original = own.read(sourceId);
+          if (!original || json(original) !== json(value)) throw new Error('actual defensive decision original changed during write');
+          assertActualLivePlayWriteUnchanged(db, liveFence); return original;
+        });
+        db.exec('COMMIT'); return saved;
       } catch (e) { db.exec('ROLLBACK'); throw e; }
-    }, close() { if (!closed) { db.close(); closed = true; } } });
+    }, close() { if (!closed) { reads.close(); closed = true; } } });
 };

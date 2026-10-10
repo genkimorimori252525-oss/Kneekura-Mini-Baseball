@@ -33,7 +33,7 @@ export const playerBodyCapabilityMaterializationEvidenceFromSqlite = (db: BodyCo
     db.prepare(`SELECT * FROM main.${table} WHERE source_id=? OR ${claim('source_json', ['sourceId'])}
       OR ${claim('snapshot_json', ['source', 'sourceId'])}`).all(sourceId, sourceId, sourceId) as Row[];
   const derive = (s: BodyMaterializationRequest, parameters: BodyMaterializationParameters,
-    pinnedRelease?: PlayerReleaseGeometryProof | null): BodyMaterializationDerivation => {
+    pinnedRelease?: PlayerReleaseGeometryProof | null, current = true): BodyMaterializationDerivation => {
     assertBodyCompositionNativeConnection(db);
     if (!bodyCompositionTableInstalled(db, 'world_player_person_links') || !bodyCompositionTableInstalled(db, 'world_roster_heads')) {
       throw new Error('original body Person/roster owner is missing');
@@ -57,7 +57,8 @@ export const playerBodyCapabilityMaterializationEvidenceFromSqlite = (db: BodyCo
       fieldingModel = owner.read(s.fieldingModelRef.sourceId);
       if (!fieldingModel || fieldingModel.source.sourceVersion !== s.fieldingModelRef.sourceVersion
         || json(fieldingModel.person) !== json(person)
-        || json(owner.selectAtDay(s.careerId, s.playerId, s.atDay)) !== json(fieldingModel)) {
+        || fieldingModel.source.acceptedAtDay > s.atDay
+        || current && json(owner.selectAtDay(s.careerId, s.playerId, s.atDay)) !== json(fieldingModel)) {
         throw new Error('body materialization applicable fielding Source differs');
       }
     }
@@ -98,7 +99,7 @@ export const playerBodyCapabilityMaterializationEvidenceFromSqlite = (db: BodyCo
     const source = bodyMaterializationSourceInput(JSON.parse(row.source_json) as BodyMaterializationRequest, row.source_id);
     const archived = JSON.parse(row.snapshot_json) as ArchivedBodyMaterialization;
     if (!bodySourceFields(archived, receiptFields)) throw new Error('invalid original body composition snapshot');
-    const result = derive(source, archived, archived.releaseProof);
+    const result = derive(source, archived, archived.releaseProof, false);
     if (result.kind !== 'materialized' || row.source_version !== source.sourceVersion || row.career_id !== source.careerId
       || row.player_id !== source.playerId || row.person_id !== source.personId || row.person_link_source_id !== source.personLinkSourceId
       || row.at_day !== source.atDay || row.role !== source.role || row.source_json !== json(source) || row.source_hash !== hash(source)
@@ -115,7 +116,16 @@ export const playerBodyCapabilityMaterializationEvidenceFromSqlite = (db: BodyCo
         OR ${claim('source_json', [refKey, 'sourceId'])} OR ${claim('snapshot_json', ['source', refKey, 'sourceId'])}`)
         .all(source.sourceId, source.sourceId, source.sourceId) as Row[];
       for (const row of rows) {
-        const original = parseRow(row);
+        // A later body can share measurements while pinning a developed
+        // fielding model. Its parameter claim is not an authority for this
+        // earlier body's physical/development ancestry.
+        const original = JSON.parse(row.snapshot_json) as ArchivedBodyMaterialization;
+        const bodySource = bodyMaterializationSourceInput(JSON.parse(row.source_json), row.source_id);
+        if (!bodySourceFields(original, receiptFields) || json(original.source) !== json(bodySource)
+          || row.source_version !== bodySource.sourceVersion || row.career_id !== bodySource.careerId || row.player_id !== bodySource.playerId
+          || row.person_id !== bodySource.personId || row.person_link_source_id !== bodySource.personLinkSourceId || row.at_day !== bodySource.atDay || row.role !== bodySource.role
+          || row.source_json !== json(bodySource) || row.source_hash !== hash(bodySource)
+          || row.snapshot_json !== json(original) || row.snapshot_hash !== hash(original)) throw new Error('corrupt body parameter Source claim');
         if (json(original[key]) !== json(source)) throw new Error('accepted body parameter Source was reused with a different payload');
       }
     }

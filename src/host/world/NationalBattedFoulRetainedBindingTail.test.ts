@@ -160,3 +160,54 @@ it.each([
     expect(() => assertNationalBattedFoulRetainedBindingFrontier(db)).toThrow(); expect(rows(db)).toEqual(before);
   } finally { db.close(); }
 });
+
+
+const decisionModelCut = () => {
+  const { db, first } = feetCut(), pitch = 'national-live:pitch-0';
+  db.exec(`DROP TABLE actual_field_observations; DROP TABLE actual_field_observation_heads;
+    CREATE TABLE actual_field_observations(source_id TEXT,physical_pitch_source_id TEXT,player_id TEXT,base_field_source_id TEXT,execution_source_id TEXT,
+      observation_model_source_id TEXT,previous_source_id TEXT,revision INTEGER,source_json TEXT,source_hash TEXT,snapshot_json TEXT,snapshot_hash TEXT);
+    CREATE TABLE actual_field_observation_heads(physical_pitch_source_id TEXT,player_id TEXT,source_id TEXT,revision INTEGER);
+    CREATE TABLE world_player_decision_models(source_id TEXT,source_version TEXT,career_id TEXT,player_id TEXT,person_link_source_id TEXT,
+      fielding_model_source_id TEXT,accepted_at_day INTEGER,source_json TEXT,source_hash TEXT,snapshot_json TEXT,snapshot_hash TEXT);`);
+  const observation = { sourceId: 'actual-observation-p1-1', sourceVersion: 'synthetic-v1', physicalPitchSourceId: pitch, playerId: 'p1',
+    baseFieldSourceId: 'field-race-candidate-0', executionSourceId: 'field-race-feet', observationModelSourceId: 'actual-observation-model-p1',
+    previousObservationSourceId: null, view: { poseVersion: 'synthetic-body-translation-world-axes-v1', bodyRelativeEyeOffset: { x: 0, y: 3, z: 0 },
+      forward: { x: 0, y: 0, z: 1 }, attentionTarget: { kind: 'ball' } } };
+  const model = { sourceId: 'scheduled-decision-model-p1', sourceVersion: 'synthetic-v1', careerId: 'career-a', playerId: 'p1',
+    personLinkSourceId: 'link-1', fieldingModelSourceId: 'observation-fielding-p1', acceptedAtDay: 121, calibration: { metadataTestOnly: true } };
+  const snapshot = { metadataTestOnly: true };
+  db.prepare('INSERT INTO actual_field_observations VALUES(?,?,?,?,?,?,NULL,1,?,?,?,?)').run(observation.sourceId, pitch, 'p1',
+    observation.baseFieldSourceId, observation.executionSourceId, observation.observationModelSourceId, json(observation), hash(observation), json(snapshot), hash(snapshot));
+  db.prepare('INSERT INTO actual_field_observation_heads VALUES(?,?,?,1)').run(pitch, 'p1', observation.sourceId);
+  db.prepare('INSERT INTO actual_live_play_admissions VALUES(?,8,?,?,?,?)').run('live-play-runtime', 'actual_field_observations', observation.sourceId, hash(observation), hash(snapshot));
+  db.prepare('INSERT INTO world_player_decision_models VALUES(?,?,?,?,?,?,?,?,?,?,?)').run(model.sourceId, model.sourceVersion, model.careerId, model.playerId,
+    model.personLinkSourceId, model.fieldingModelSourceId, model.acceptedAtDay, json(model), hash(model), json(snapshot), hash(snapshot));
+  return { db, first };
+};
+it.each([false, true])('admits exact observation and decision-model metadata before the first plan, preserving rows (empty plan schema: %s)', emptyPlan => {
+  const { db, first } = decisionModelCut(); try {
+    if (emptyPlan) db.exec('CREATE TABLE actual_defensive_plans(source_id TEXT)');
+    const before = rows(db), changes = db.prepare('SELECT total_changes() AS n').get();
+    expect(assertNationalBattedFoulRetainedBindingFrontier(db)).toBe(gameId);
+    expect(() => assertNationalBattedFoulRetainedAcquisitionSources(db, first)).not.toThrow();
+    expect(rows(db)).toEqual(before); expect(db.prepare('SELECT total_changes() AS n').get()).toEqual(changes);
+  } finally { db.close(); }
+});
+it.each([
+  ['wrong observation execution', "UPDATE actual_field_observations SET execution_source_id='field-race-capture-confirmed'"],
+  ['wrong observation player', "UPDATE actual_field_observations SET player_id='p2'"],
+  ['wrong observation head', "UPDATE actual_field_observation_heads SET revision=2"],
+  ['missing observation admission', 'DELETE FROM actual_live_play_admissions WHERE sequence=8'],
+  ['wrong observation archive hash', "UPDATE actual_field_observations SET snapshot_hash='changed'"],
+  ['missing decision model', 'DELETE FROM world_player_decision_models'],
+  ['wrong model player', "UPDATE world_player_decision_models SET player_id='p2'"],
+  ['changed model archive', "UPDATE world_player_decision_models SET source_json='{}'"],
+  ['already committed plan', "CREATE TABLE actual_defensive_plans(source_id TEXT); INSERT INTO actual_defensive_plans VALUES('scheduled-priorities-p1')"],
+  ['already committed decision', "CREATE TABLE actual_defensive_decisions(source_id TEXT); INSERT INTO actual_defensive_decisions VALUES('scheduled-decision-p1')"],
+  ['already accepted motor model', "CREATE TABLE world_player_locomotion_models(source_id TEXT); INSERT INTO world_player_locomotion_models VALUES('scheduled-locomotion-model-p1')"],
+])('rejects unsupported observation and model metadata: %s', (_label, mutation) => {
+  const { db } = decisionModelCut(); try { db.exec(mutation); const before = rows(db);
+    expect(() => assertNationalBattedFoulRetainedBindingFrontier(db)).toThrow(); expect(rows(db)).toEqual(before);
+  } finally { db.close(); }
+});

@@ -9,7 +9,8 @@ import { AcceptedRecruitmentSourceMissingError, type SqliteRecruitmentEvidenceSt
   type DurableRecruitmentDecision } from './SqliteRecruitmentEvidenceStore';
 import type { AcceptedRecruitmentContractRequest, DurableFreeAgentContract, SqliteFreeAgentContractStore } from './SqliteFreeAgentContractStore';
 import { issueManagerRosterOpportunityFromBelief, type ManagerRosterOpportunityFromBeliefInput } from './ManagerRosterOpportunityFromBelief';
-import type { DurableRosterExecution, DurableRosterOpportunity, RosterExecutionRequest, SqliteManagerRosterDecisionStore } from './SqliteManagerRosterDecisionStore';
+import type { DurableRosterExecution, DurableRosterOpportunity, IssuedRosterExecutionRequest,
+  RosterExecutionRequest, SqliteManagerRosterDecisionStore } from './SqliteManagerRosterDecisionStore';
 import type { SqliteManagerBeliefHistoryStore } from './SqliteManagerBeliefHistoryStore';
 import type { SqliteOfficialWorldSettlementOutbox } from './SqliteOfficialWorldSettlementOutbox';
 import type { SqliteMatchdayAttendanceStore } from './SqliteMatchdayAttendanceStore';
@@ -24,7 +25,9 @@ export type DomesticCalendarDayInput = Readonly<{
   market: readonly Readonly<{ sourceId: string; expectedRevision: number; decisionDay: number; origin: DomesticMarketTriggerReference;
     contract?: Omit<AcceptedRecruitmentContractRequest, 'recruitmentReference'> }>[];
   roster: readonly Readonly<{ opportunity: ManagerRosterOpportunityFromBeliefInput; managerBeliefRevision: number;
-    execution?: RosterExecutionRequest }>[];
+    execution?: RosterExecutionRequest;
+    /** Explicitly request selection and execution from the original issued belief. */
+    managerExecution?: Omit<IssuedRosterExecutionRequest, 'careerId' | 'clubId' | 'decisionId'> }>[];
 }>;
 export type DomesticCalendarDayStores = DomesticSeasonStores & CompletedGameOutcomeStores & Readonly<{
   recruitment?: SqliteRecruitmentEvidenceStore; contracts?: SqliteFreeAgentContractStore;
@@ -47,6 +50,9 @@ const rejected = (id: string, error: unknown): DayItem<never> => ({ id, status: 
 const id = (v: unknown): v is string => typeof v === 'string' && !!v && v.trim() === v;
 const revision = (v: unknown): v is number => typeof v === 'number' && Number.isSafeInteger(v) && v >= 0;
 const unique = (values: readonly string[]): boolean => new Set(values).size === values.length;
+const managerExecutionInput = (value: NonNullable<DomesticCalendarDayInput['roster'][number]['managerExecution']>): boolean =>
+  !!value && Object.keys(value).every(key => ['traceId', 'executionId', 'moodContext'].includes(key))
+    && id(value.traceId) && id(value.executionId);
 
 /** Execute an explicitly accepted day against the existing durable owners.
  * There is deliberately no day-completed flag: absent commands, unfinished Match
@@ -63,6 +69,8 @@ export const dispatchDomesticCalendarDay = (stores: DomesticCalendarDayStores, r
       || v.origin.trigger.day > v.decisionDay || (v.contract && (v.contract.acceptance.careerId !== input.careerId
         || v.contract.acceptance.acceptedAtDay > input.day || v.contract.clubEvent.command.effectiveDay > input.day)))
     || input.roster.some(v => !revision(v.managerBeliefRevision) || v.opportunity.careerId !== input.careerId
+      || (v.execution !== undefined && v.managerExecution !== undefined)
+      || (v.managerExecution !== undefined && !managerExecutionInput(v.managerExecution))
       || v.opportunity.clubAsOfDay !== input.day || (v.execution && (v.execution.careerId !== input.careerId
         || v.execution.clubId !== v.opportunity.clubId || v.execution.clubAsOfDay !== input.day
         || v.execution.opportunity.decisionId !== v.opportunity.decisionId)))) {
@@ -193,6 +201,12 @@ export const dispatchDomesticCalendarDay = (stores: DomesticCalendarDayStores, r
         opportunity = issueManagerRosterOpportunityFromBelief(stores.roster, stores.belief, request, task.managerBeliefRevision);
       }
       acceptedOpportunity = opportunity;
+      if (task.managerExecution) {
+        const execution = stores.roster.executeIssued({ ...task.managerExecution,
+          careerId: input.careerId, clubId: request.clubId, decisionId: request.decisionId });
+        roster.push({ id: key, status: 'APPLIED', result: { opportunity, execution } });
+        continue;
+      }
       if (!task.execution) { roster.push({ id: key, status: 'INCOMPLETE', reason: 'ACCEPTED_ROSTER_EXECUTION_INPUT', result: { opportunity } }); continue; }
       if (!equal(task.execution.opportunity, opportunity.opportunity) || !equal(task.execution.control, opportunity.control)
         || !equal(task.execution.selectionAgent, opportunity.selectionAgent)) throw new Error('accepted roster execution differs from its original opportunity');
