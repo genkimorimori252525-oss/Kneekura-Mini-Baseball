@@ -46,6 +46,18 @@ Independent review was clear. Full TypeScript passed in **29.917 seconds**, and 
 
 ## Genuine retained boundaries
 
+### Latest recovery boundary, 12:56 UTC
+
+The terminal proof phase batch is now [centrally qualified](2026-10-10-terminal-proof-recovery.md#recovered-central-qualification): independent review, full compiler and the affected 26 finite checks pass on code `3f45955f486df0f89a3bcbba4388fb9cabbb20c0` / src `728b6e36cee03cc0667904b6ada2ea7661d5b427`. This preserves separate immutable prewrite, postwrite and read scopes, including a fresh completed-retry proof after the accepted-Source callback. It does not change the fixed older sources of the following long runs.
+
+National session 68332 returned an actual wall-cap failure after **14,401.081 seconds**, exit -15. Call information and physical-end acceptance returned and were checkpointed; adjudication did not return. The supervisor reported all four pin groups stable, no survivors and no formal Vitest result. The whole 37-assertion case remains unproved.
+
+IFR10 session 43897 emitted a wall-cap failure after **14,409.332 seconds**, exit -15, with stable pins and no formal Vitest result. Original decision-wait progress, selected-at/issuer, movement-wait progress, and renewal-due/original-issuer assertions passed. Response:7 adoption returned, but the later motor-issued-at, adopted census, batter and closure assertions remain pending. Checkpoint 19 was the last confirmed consistent image; cut32 view returned, but checkpoint 20 was never confirmed. Its supervisor still reported one D-state process. The transport subsequently disconnected, so cleanup was not established.
+
+The executor recovered at 12:56 UTC with both former workspaces absent. The above private images, journals and held LAN02/FR01 controls were not recovered. Published code was restored exactly from `507e347`; historical evidence keeps its original source attribution. A new genuine run must regenerate the minimum required original prefix. The old successful portions are not fresh whole-scenario passes, and the unresolved commit/pointer/checkpoint outcomes are not credited. Public original entries remain available; reconstructed controls require their own review and exact attribution before another long run.
+
+### Earlier source-attributed runs
+
 National session 26061 ran on published 30726dd, code 7b164769 / src 761ad21a. It failed its 1200.55-second wall cap after two successful operations: original rule consumption (193.61 seconds) and umpire setup (119.38 seconds). Observation did not return or commit. The final consistent database equals the second returned checkpoint. All 37 original assertions remained unfulfilled as a whole at that boundary.
 
 The successor National session 68107 used published `ac31dcc`, code `8e8b2435` / src `8d094d5c`, and resumed that exact setup checkpoint. Observation (121.624 seconds), scheduled call (126.147 seconds), due physical cut (185.292 seconds) and the operative out call (135.816 seconds) all returned and committed. It failed its 1200.522-second wall cap while preparing the next physical proposal, before that acceptance was entered. The final consistent image exactly matches the fourth returned checkpoint; old rows are conserved apart from the expected physical-head update. Pins stayed stable and no processes survived. The post-call cut, communication, closure and whole 37-assertion result remain incomplete.
