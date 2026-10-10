@@ -52,3 +52,12 @@ it('rejects a moved pitch index while retaining historical actor evidence', () =
     domain: 'TECHNICAL', exercise: 'FIELDING_GLOVE_CONTACT' }, false)).toEqual(original); }
   finally { f.db.exec('ROLLBACK'); }
 });
+it('rejects prospective admission through the original owner when the reserved physical namespace is partial', () => {
+  const { f, read } = fixture();
+  expect(read()).toMatchObject({ playerId: 'p2', playId: 7 });
+  // Real original actor/reservation readers own namespace integrity. The
+  // non-pitch adapter must retain that boundary; no downstream census is
+  // substituted and corrupt historical ownership is not claimed readable.
+  f.db.exec('CREATE TABLE pa_physical_v1_launches(source_id TEXT)');
+  expect(read).toThrow('same-PA physical episode namespace is partial or malformed');
+});

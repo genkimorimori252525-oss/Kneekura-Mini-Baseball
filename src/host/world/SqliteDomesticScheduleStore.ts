@@ -45,6 +45,8 @@ export type DomesticMarketTriggerReference = Readonly<{
 }>;
 export type DomesticCareerDay = Readonly<{
   careerId: string; day: number;
+  /** The selected original calendar, also retained outside its game window. */
+  seasonId?: string;
   missingScheduleSeasonIds: readonly string[];
   seasons: readonly Readonly<{ schedule: DurableDomesticSchedule; games: readonly ScheduleGame[];
     marketTriggers: readonly DomesticMarketTriggerReference[]; eventsMissing: boolean }>[];
@@ -52,7 +54,7 @@ export type DomesticCareerDay = Readonly<{
 export type SqliteDomesticScheduleStore = Readonly<{
   assertFixtureDayAtWrite(writer: Pick<DatabaseSync, 'prepare'>,
     scope: Readonly<{ careerId: string; seasonId: string; gameId: string; day: number }>, fixture: OfficialGameVenueBinding): void;
-  readCareerDay(careerId: string, day: number): DomesticCareerDay;
+  readCareerDay(careerId: string, day: number, seasonId?: string): DomesticCareerDay;
   initialize(careerId: string,
     baseSchedule: BaseScheduleSnapshot): DurableDomesticSchedule;
   read(careerId: string, seasonId: string): DurableDomesticSchedule | null;
@@ -288,15 +290,26 @@ export const openSqliteDomesticScheduleStore = (
       }
       assertDomesticFixtureDayFromSqlite(writer, scope, fixture);
     },
-    readCareerDay(careerId: string, eventDay: number): DomesticCareerDay {
-      if (!id(careerId) || !day(eventDay)) throw new Error('invalid domestic Career day');
+    readCareerDay(careerId: string, eventDay: number, requestedSeasonId?: string): DomesticCareerDay {
+      if (!id(careerId) || !day(eventDay) || (requestedSeasonId !== undefined && !id(requestedSeasonId))) {
+        throw new Error('invalid domestic Career day');
+      }
       db.exec('BEGIN');
       try {
         const scopes = db.prepare(`SELECT season_id FROM world_season_heads WHERE career_id=?
           UNION SELECT season_id FROM world_domestic_schedules WHERE career_id=? ORDER BY season_id`)
           .all(careerId, careerId) as { season_id: string }[];
+        // These day numbers can have different seasonDayOne origins. A common
+        // number does not authorize dispatch across the Career's calendars.
+        if (requestedSeasonId === undefined && scopes.length > 1) {
+          throw new Error('domestic Career day requires an explicit season scope');
+        }
+        if (requestedSeasonId !== undefined && !scopes.some(scope => scope.season_id === requestedSeasonId)) {
+          throw new Error('domestic Career day season is not registered');
+        }
+        const selectedSeasonId = requestedSeasonId ?? scopes[0]?.season_id;
         const missingScheduleSeasonIds: string[] = [], seasons: DomesticCareerDay['seasons'][number][] = [];
-        for (const { season_id: seasonId } of scopes) {
+        for (const { season_id: seasonId } of scopes.filter(scope => scope.season_id === selectedSeasonId)) {
           const schedule = readSchedule(careerId, seasonId);
           if (!schedule) { missingScheduleSeasonIds.push(seasonId); continue; }
           const current = applyScheduleRevisions(schedule.baseSchedule, schedule.revisions);
@@ -309,7 +322,8 @@ export const openSqliteDomesticScheduleStore = (
             marketTriggers: Object.freeze(marketTriggers), eventsMissing: events === null }));
         }
         db.exec('COMMIT');
-        return Object.freeze({ careerId, day: eventDay, missingScheduleSeasonIds: Object.freeze(missingScheduleSeasonIds), seasons: Object.freeze(seasons) });
+        return Object.freeze({ careerId, day: eventDay, ...(selectedSeasonId === undefined ? {} : { seasonId: selectedSeasonId }),
+          missingScheduleSeasonIds: Object.freeze(missingScheduleSeasonIds), seasons: Object.freeze(seasons) });
       } catch (error) { if (db.isTransaction) db.exec('ROLLBACK'); throw error; }
     },
     initialize(careerId: string,

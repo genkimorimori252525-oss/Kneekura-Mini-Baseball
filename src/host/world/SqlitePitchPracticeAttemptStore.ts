@@ -1,6 +1,8 @@
 import { NATIONAL_EXPOSURE_DEVELOPMENT_KIND, readNationalExposureDevelopmentBoundary } from './NationalExposureDevelopmentOrigin';
 import { assertNonPitchLearningEvent } from './SqliteNonPitchRepetitionStore';
 import { isNonPitchRepetitionEvent } from './NonPitchDevelopmentRepetition';
+import { defensiveMetadataId as metadataClaim } from './ActualDefensiveMetadata';
+import { sqliteJsonMetadataNodes } from './SqliteOwnershipMetadata';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
 import { appendDevelopmentLearningEvent, type DevelopmentLearningEpisode, type DevelopmentLearningEventInput } from '../../core/world/development/DevelopmentLearningEpisode';
@@ -41,6 +43,20 @@ type EvidenceDb = Pick<DatabaseSync, 'prepare'>;
 // Bind the real owner's existing decoder, not a caller-supplied completed DTO.
 // This stores a reader capability only; every call replays the requested prefix.
 const physicalReaders = new WeakMap<object, (db: EvidenceDb, attemptId: string, timingCeiling?: number) => PitchPracticeAttempt | null>();
+type OwnedPitchRepetition = Readonly<{ event: DevelopmentLearningEventInput; episodeId: string;
+  careerId: string; playerId: string; fatigue: number; healthAvailability: number; proofHash: string }>;
+const repetitionReaders = new WeakMap<object, (db: EvidenceDb, eventId: string) => OwnedPitchRepetition>();
+/** The original physical owner authenticates learning and workload on the
+ * consumer's Native snapshot. A structural read()/guard DTO is insufficient. */
+export const readOwnedPitchPracticeRepetition = (owner: Pick<SqlitePitchPracticeAttemptStore, 'read'>,
+  db: DatabaseSync, eventId: string): OwnedPitchRepetition => {
+  const { DatabaseSync: Native } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  const reader = repetitionReaders.get(owner);
+  if (!(db instanceof Native) || !db.isTransaction || !reader || !practiceId(eventId)) {
+    throw new Error('practice exposure requires an owned Native repetition snapshot');
+  }
+  return reader(db, eventId);
+};
 export const readOwnedPitchPracticeAttempt = (owner: Pick<SqlitePitchPracticeAttemptStore, 'read'>,
   db: EvidenceDb, attemptId: string, timingCeiling?: number): PitchPracticeAttempt | null => {
   if (timingCeiling !== undefined && !practiceRevision(timingCeiling)) throw new Error('invalid practice timing ceiling');
@@ -525,6 +541,29 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
       check(attemptId);
       const row = rowById(connection, attemptId);
       return row ? decode(row, connection, row.revision, { ...verification(), timingCeiling }) : null;
+    });
+    repetitionReaders.set(api, (connection, eventId) => {
+      check(eventId);
+      const row = rowByActivity(connection, eventId);
+      if (!row) throw new Error('practice exposure original attempt is missing');
+      const attempt = decode(row, connection), event = learningEvent(attempt), receipt = workloadReceipt(attempt, connection);
+      if (!event || !receipt || !attempt.opportunity.episode || receipt.activity.kind !== 'PRACTICE') {
+        throw new Error('practice exposure original completed repetition is missing');
+      }
+      const o = attempt.opportunity;
+      const claims = connection.prepare(`SELECT attempt_id FROM pitch_practice_attempts WHERE activity_id=$event OR attempt_id=$attempt
+        OR ${metadataClaim('assessment_json', ['attemptId'], '$attempt')}
+        OR ((career_id=$career OR ${metadataClaim('opportunity_json', ['careerId'], '$career')})
+          AND (opportunity_id=$opportunity OR ${metadataClaim('opportunity_json', ['opportunityId'], '$opportunity')})
+          AND (ordinal=$ordinal OR EXISTS(SELECT 1 FROM (${sqliteJsonMetadataNodes('opportunity_json', ['ordinal'])}) claim
+            WHERE claim.type='integer' AND claim.atom=$ordinal)))`).all({ event: eventId, attempt: attempt.attemptId,
+        career: o.careerId, opportunity: o.opportunityId, ordinal: o.ordinal });
+      if (claims.length !== 1 || claims[0].attempt_id !== attempt.attemptId) throw new Error('practice exposure original attempt ownership differs');
+      assertLearningEvidence(connection, event, 'read');
+      return freezePractice({ event, episodeId: attempt.opportunity.episode.episodeId,
+        careerId: attempt.opportunity.careerId, playerId: attempt.opportunity.playerId,
+        fatigue: receipt.before.fatigue, healthAvailability: receipt.activity.healthAvailability,
+        proofHash: practiceHash({ attempt, receipt, event }) });
     });
     return api;
   } catch (error) { db.close(); throw error; }

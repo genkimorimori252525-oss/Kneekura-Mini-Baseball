@@ -41,7 +41,7 @@ export const continueNationalBattedFoulOriginalTail = (input: TailInput & Readon
 /** The unchanged original 37 assertions, entered after the real field binding.
  * A retained root contains owner-authenticated evidence, never caller substitutes. */
 export const continueNationalBattedFoulOriginalTailFromField = (input: TailInput & Readonly<{
-  f: NationalBattedFoulConsumerContext; liveRoot: NationalBattedFoulFieldRoot;
+  f: NationalBattedFoulConsumerContext; liveRoot: NationalBattedFoulFieldRoot; retainedPhysicalCut?: 'feet';
 }>) => {
   const {f,nextActor,foulTerminalSource,foulReceipt,adoptedFoul,originBytes,clubBefore,progress,preservedFoulStatistics,liveRoot}=input;
   const path=f.path;
@@ -49,7 +49,7 @@ export const continueNationalBattedFoulOriginalTailFromField = (input: TailInput
   expect(liveRoot.physical.frame.initialWorld).toBeNull();
   expect(liveRoot.physical.frame.activationApplicationId).toBe(foulTerminalSource.applicationId);
   expect(liveRoot.forecastGroundElapsedSeconds).not.toBeNull();
-  const physical = attachActualFirstBasePlayEndFixture(path, liveRoot, liveRoot.forecastGroundElapsedSeconds!);
+  const physical = attachActualFirstBasePlayEndFixture(path, liveRoot, liveRoot.forecastGroundElapsedSeconds!, input.retainedPhysicalCut);
   progress('actual_second_play_capture_and_motion');
   const live = attachActualFirstBaseOfficialFixture(path, physical);
   expect(live.race.execution.kind).toBe('first_base_race');

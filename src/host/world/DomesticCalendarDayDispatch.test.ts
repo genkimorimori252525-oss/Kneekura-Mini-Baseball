@@ -220,3 +220,88 @@ it('distinguishes an absent accepted decision source from a rejected source and 
   const result=dispatchDomesticCalendarDay({...final.stores,attendance:final.attendance},baseInput);
   expect(result.games[0]).toMatchObject({status:'REJECTED',reason:'domestic World result lacks its authentic Match final'});
 });
+
+import { bootstrap, value } from '../../core/world/club/ClubFixtures.test-support';
+import { createClubFromSeed } from '../../core/world/club';
+import { captureOfficialStandingsSchedule } from '../../core/world/competition/OfficialStandingsScheduleSource';
+import { generateWorldBoundLeagueSchedule } from '../../core/world/competition/WorldLeagueSchedule';
+import { planWorldCompetitionCycle } from '../../core/world/competition/WorldCompetitionCycleCalendar';
+import { worldCycleInput } from './WorldCompetitionCycleFixtures.test-support';
+const secondLocalSeason=(f:ReturnType<typeof acceptedRecruitmentDayFixture>)=>{
+  const seed=bootstrap();
+  seed.seed.identity.clubId='club-c';
+  seed.initial.references.rivalryStateRefs=[];
+  seed.initial.season.competitionEditionIds=['league-season-2'];
+  seed.initial.season.financialProfile.leagueId='league-c';
+  const club=value(createClubFromSeed(seed));
+  const {schedule}=generateWorldBoundLeagueSchedule({seasonId:'league-season-2',leagueId:'league-c',
+    calendarProfileVersion:'calendar-v1',generatorVersion:'generator-v1',scheduleSeed:'second-seed',
+    opponentMatrixVersion:'matrix-v1',regularSeasonGamesPerClub:2,memberClubIds:['club-c','club-d'],
+    opponentMatrix:[{homeClubId:'club-c',awayClubId:'club-d',gameCount:2}],allowedDays:[10,11,12],reservedWindows:[],
+    preferredSeriesLength:2,minimumDaysBetweenRounds:0},planWorldCompetitionCycle(worldCycleInput(1)),'ASIA_PACIFIC','2035-06-01');
+  f.world.initialize({careerId:'career-a',clubs:[club],schedule:captureOfficialStandingsSchedule(schedule,[]),
+    standingsPolicy:f.world.readSeason('career-a','league-season-1')!.standingsPolicy});
+  f.calendar!.initialize('career-a',schedule);
+  f.calendar!.initializeEvents('career-a',schedule.seasonId,{version:'events-v1',allStarEnabled:false,
+    marketWindows:[],rosterExpansionEnabled:false,awardSelectionPolicyVersion:'awards-v1'});
+  return schedule;
+};
+it('rejects an unscoped multi-season day before preparing an opening or resuming another local calendar',()=>{
+  const {f,match,stores,attendance,outbox}=pendingFinalFixture(),schedule=secondLocalSeason(f);
+  const input={...baseInput,openings:[{careerId:'career-a',seasonId:schedule.seasonId,gameId:schedule.games[0].gameId,
+    ruleProfileId:NPB_2026_RULE_PROFILE.id,playId:0}]};
+  const original=outbox.read('final-2');
+  expect(()=>dispatchDomesticCalendarDay({...stores,attendance},input)).toThrow('explicit season');
+  expect(match.getMatch(schedule.games[0].gameId)).toBeNull();
+  expect(outbox.read('final-2')).toEqual(original);
+  expect(f.world.readSeason('career-a','league-season-1')!.results).toHaveLength(0);
+  expect(match.getMatch('series:1')!.finalResult).toBeNull();
+  expect(f.world.readClub('career-a','club-a')!.revision).toBe(0);
+  expect(()=>f.calendar!.readCareerDay('career-a',900)).toThrow('explicit season');
+});
+it('pins one explicit original calendar across reopen and leaves another seasons pending settlement untouched',()=>{
+  const {f,match,stores,attendance,outbox}=pendingFinalFixture(),schedule=secondLocalSeason(f);
+  const input={...baseInput,seasonId:schedule.seasonId,openings:[{careerId:'career-a',seasonId:schedule.seasonId,gameId:schedule.games[0].gameId,
+    ruleProfileId:NPB_2026_RULE_PROFILE.id,playId:0}]};
+  const original=outbox.read('final-2');
+  const result=dispatchDomesticCalendarDay({...stores,attendance},input);
+  expect(result.calendar.seasonId).toBe(schedule.seasonId);
+  expect(result.calendar.seasons.map(s=>s.schedule.seasonId)).toEqual([schedule.seasonId]);
+  expect(result.games.map(g=>g.id)).toEqual([schedule.games[0].gameId]);
+  expect(result.settlements).toEqual([]);
+  expect(result.outstanding.some(v=>v.reason==='ACCEPTED_MARKET_DECISION_INPUT')).toBe(false);
+  expect(match.getMatch(schedule.games[0].gameId)).not.toBeNull();
+  expect(match.getMatch('series:1')!.finalResult).toBeNull();
+  expect(f.world.readSeason('career-a','league-season-1')!.results).toHaveLength(0);
+  expect(f.world.readClub('career-a','club-a')!.revision).toBe(0);
+  expect(outbox.read('final-2')).toEqual(original);
+  const archive=openSqliteDomesticScheduleStore(f.path);closes.push(()=>archive.close());
+  expect(dispatchDomesticCalendarDay({...stores,archive,attendance},input)).toEqual(result);
+  const selected=dispatchDomesticCalendarDay({...stores,archive,attendance},{...baseInput,seasonId:'league-season-1'});
+  expect(selected.settlements[0]).toMatchObject({id:'final-2',status:'INCOMPLETE',reason:'PLAYER_OUTCOME_DELIVERY'});
+  expect(match.getMatch('series:1')!.finalResult).not.toBeNull();
+  expect(f.world.readSeason('career-a','league-season-1')!.results).toHaveLength(1);
+  expect(f.world.readClub('career-a','club-a')!.revision).toBe(1);
+  expect(outbox.read('final-2')!.status).toBe('PENDING');
+});
+
+it.each(['opening','market'] as const)('rejects a foreign explicit %s before any accepted-day effects',kind=>{
+  const {f,match,stores,attendance,outbox}=pendingFinalFixture(),schedule=secondLocalSeason(f);
+  const origin=f.calendar!.captureMarketTriggerReference('career-a',f.calendar!.marketTriggersOnDay('career-a','league-season-1',10)[0]);
+  const opening={careerId:'career-a',seasonId:schedule.seasonId,gameId:schedule.games[0].gameId,ruleProfileId:NPB_2026_RULE_PROFILE.id,playId:0};
+  const input={...baseInput,seasonId:schedule.seasonId,openings:[opening,...(kind==='opening'?[{...opening,seasonId:'league-season-1',gameId:'series:1'}]:[])],
+    market:kind==='market'?[{sourceId:f.source.sourceId,expectedRevision:0,decisionDay:10,origin}]:[]};
+  const original=outbox.read('final-2');
+  expect(()=>dispatchDomesticCalendarDay({...stores,attendance},input)).toThrow('accepted season scope');
+  expect(match.getOfficialFixture(schedule.games[0].gameId)).toBeNull();
+  expect(match.getMatch(schedule.games[0].gameId)).toBeNull();
+  expect(match.getMatch('series:1')!.finalResult).toBeNull();
+  expect(outbox.read('final-2')).toEqual(original);
+  expect(f.owner.readDecision(f.source.sourceId)).toBeNull();
+});
+it('rejects an unknown explicit season and retains selected scope outside its scheduled window',()=>{
+  const f=acceptedRecruitmentDayFixture(closes,directories),archive=f.calendar!;
+  expect(()=>archive.readCareerDay('career-a',10,'absent')).toThrow('registered');
+  expect(()=>archive.readCareerDay('career-a',10,' ')).toThrow('invalid');
+  expect(archive.readCareerDay('career-a',900,'league-season-1')).toMatchObject({seasonId:'league-season-1',seasons:[]});
+});

@@ -654,3 +654,66 @@ These selected Native checks use real owners with the synthetic or substituted
 ancestry stated in each component note. They do not establish a full physical
 game, season, three-exercise repetition scenario or overall nine-area completion.
 Private databases, logs, profiles and controls remain unpublished.
+
+
+## Retained continuations, scoped seasons and mixed repetitions
+
+Tested local commit: `7a16f016631ea807c9e0562f9ac4ec6a7a8537a6`.
+Source tree: `19e4c160bb77e9ac2fa6984cbb47f3ca3d452f8e`.
+
+The assembled 21-file slice preserves the original nine-area scope:
+
+- The National fixture authenticates the retained feet history once and starts
+  at its first uncommitted observation. All 37 original assertion expressions,
+  numeric inputs and continuation from actor selection remain unchanged.
+  Completed runtime/field/capture public admissions are not repeated.
+- Observation writer validation now reuses original physical roots within its
+  prewrite phase and a separate postwrite phase. Writes, callbacks, independent
+  retries and public reads retain fresh boundaries. Native regression covers
+  original-root reuse, post-INSERT rollback and callback corruption rejection.
+- Repetitions now consume supported ordinary episode-bound and reserved
+  fair-catch physical endpoints, including original occupied membership. Actual
+  motion is still required for running; stationary participants are excluded.
+  A durable mixed-exposure Source authenticates complete ordered pitch/non-pitch
+  event coverage, original workload health/fatigue and explicit accepted factors
+  on its own Native snapshot, with retry/reopen and INSERT rollback.
+- A real small Native reproduction showed that an accepted day opening one
+  season could also settle another season's retained final with the same local
+  day number, changing World standings and Club revenue. Explicit season scope
+  now confines due games and both outboxes; ambiguous multi-season or foreign
+  opening/market commands reject before effects. Single-season callers remain
+  compatible. This adds no global epoch conversion or automatic Career clock.
+
+Independent whole-batch review found no remaining P1/P2 issue. All 18 protected
+blobs match. Full nonvisual compilation passed in 28.92 seconds; all 204 selected
+cases in 15 files passed in 101.55 seconds, with zero skipped or failed cases.
+File/title inventories match exactly; source, executable dependencies, runtime
+and controls stayed stable and no processes survived. The initial compiler
+failure is retained: an unused test import and the declared boolean return of
+an explicitly substituted physical-closure seam were corrected. Production
+behavior was unchanged by that correction; the finite selection ran once.
+
+Compiler configuration SHA-256:
+`9f25702d47d7bc385777305ca7df8d316ae8ff11ebbc3f0311726cf04aab312f`.
+Finite configuration SHA-256:
+`e8a9ce69195b968aa24ddf339275b37028ee40574c8d9e8b1200cce5065b0ab5`.
+Finite report SHA-256:
+`e3d328725a88d5bc6bb71fc71b4b2decc5ac95dedbe71db77a528cefa9126af5`.
+
+The separate IFN continuation stayed on published source `762ef2bd`. It committed
+cut9 TOTAL/view/calibration and batting input, saving a consistent compressed
+image after each returned operation. Maintenance removed its process session
+without a terminal/report. Its preserved WAL also contained the committed
+batting commitment, physical head ordinal 4 and matching World revision 2/event;
+cut10, resolution and field were absent. Original main/WAL/SHM bytes and all
+source/package/runtime/control pins remain conserved. The run's full result is
+unknown; it is not labeled a timeout or pass. A private continuation is prepared
+from this original commitment, with the previous transient-assertion exclusions
+unchanged.
+
+Reserved/occupied physical adapter tests explicitly substitute their declared
+lower ancestry. Neither these finite results nor the interrupted IFN prefix
+prove a complete original physical scenario. National's full tail, moving
+non-third-out lifecycle decisions, other physical/reset/bunt compositions,
+standalone drills, capability adaptation and global Career timing remain open.
+No private database, log, profile or control file is published.

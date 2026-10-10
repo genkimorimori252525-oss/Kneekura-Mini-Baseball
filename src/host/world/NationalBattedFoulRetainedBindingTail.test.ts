@@ -124,3 +124,39 @@ it.each([
     expect(() => assertNationalBattedFoulRetainedAcquisitionSources(db, first)).toThrow(); expect(rows(db)).toEqual(before);
   } finally { db.close(); }
 });
+
+const feetCut = () => {
+  const { db, first } = acquisitionCut(), pitch = 'national-live:pitch-0';
+  const ids = ['field-race-acquisition', 'field-race-capture-initialized', 'field-race-capture-fence', 'field-race-capture-confirmed', 'field-race-feet'];
+  for (let i = 1; i < ids.length; i++) {
+    const source = { sourceId: ids[i], sourceVersion: 'fixture-v1', baseFieldSourceId: 'field-race-candidate-0', previousExecutionSourceId: ids[i - 1],
+      action: { metadataTestOnly: true } };
+    const snapshot = { metadataTestOnly: true, revision: i + 1 };
+    db.prepare('INSERT INTO batted_world_field_executions VALUES(?,?,?,?,?,?,?,?,?,?)').run(ids[i], pitch, source.baseFieldSourceId, source.previousExecutionSourceId,
+      i + 1, gameId, json(source), hash(source), json(snapshot), hash(snapshot));
+    db.prepare('INSERT INTO actual_live_play_admissions VALUES(?,?,?,?,?,?)').run('live-play-runtime', i + 3, 'batted_world_field_executions', ids[i], hash(source), hash(snapshot));
+  }
+  db.exec("UPDATE batted_world_field_execution_heads SET source_id='field-race-feet',revision=5");
+  db.exec(`CREATE TABLE world_player_fielding_models(source_id TEXT); INSERT INTO world_player_fielding_models VALUES('observation-fielding-p1');
+    CREATE TABLE world_player_observation_models(source_id TEXT); INSERT INTO world_player_observation_models VALUES('actual-observation-model-p1');
+    CREATE TABLE actual_field_observations(source_id TEXT); CREATE TABLE actual_field_observation_heads(source_id TEXT);`);
+  return { db, first };
+};
+it('admits exactly the feet metadata cut before observation without claiming its rows as physical proof', () => {
+  const { db, first } = feetCut(); try { const before = rows(db), changes = db.prepare('SELECT total_changes() AS n').get();
+    expect(assertNationalBattedFoulRetainedBindingFrontier(db)).toBe(gameId);
+    expect(() => assertNationalBattedFoulRetainedAcquisitionSources(db, first)).not.toThrow();
+    expect(rows(db)).toEqual(before); expect(db.prepare('SELECT total_changes() AS n').get()).toEqual(changes);
+  } finally { db.close(); }
+});
+it.each([
+  ['missing capture predecessor', "DELETE FROM batted_world_field_executions WHERE source_id='field-race-capture-fence'"],
+  ['wrong feet head', 'UPDATE batted_world_field_execution_heads SET revision=4'],
+  ['observation already admitted', "INSERT INTO actual_field_observations VALUES('actual-observation-p1-1')"],
+  ['different observation model', "UPDATE world_player_observation_models SET source_id='different'"],
+  ['later motor work', "CREATE TABLE actual_locomotion_receipts(source_id TEXT); INSERT INTO actual_locomotion_receipts VALUES('scheduled-motor-p1')"],
+])('rejects unsupported feet metadata: %s', (_label, mutation) => {
+  const { db } = feetCut(); try { db.exec(mutation); const before = rows(db);
+    expect(() => assertNationalBattedFoulRetainedBindingFrontier(db)).toThrow(); expect(rows(db)).toEqual(before);
+  } finally { db.close(); }
+});

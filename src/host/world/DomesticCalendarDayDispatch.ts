@@ -18,6 +18,8 @@ import type { CompletedGameOutcomeStores } from './CompletedGamePlayerOutcomeDel
 
 export type DomesticCalendarDayInput = Readonly<{
   careerId: string; day: number;
+  /** Required once multiple original season calendars are registered. */
+  seasonId?: string;
   openings: readonly DomesticOpeningMatchInput[];
   market: readonly Readonly<{ sourceId: string; expectedRevision: number; decisionDay: number; origin: DomesticMarketTriggerReference;
     contract?: Omit<AcceptedRecruitmentContractRequest, 'recruitmentReference'> }>[];
@@ -52,6 +54,7 @@ const unique = (values: readonly string[]): boolean => new Set(values).size === 
 export const dispatchDomesticCalendarDay = (stores: DomesticCalendarDayStores, raw: DomesticCalendarDayInput): DomesticCalendarDayDispatch => {
   const input = cloneInert(raw);
   if (!input || !id(input.careerId) || !revision(input.day) || !Array.isArray(input.openings)
+    || (input.seasonId !== undefined && !id(input.seasonId))
     || !Array.isArray(input.market) || !Array.isArray(input.roster)
     || !unique(input.openings.map(v => v.gameId)) || !unique(input.market.map(v => v.sourceId))
     || !unique(input.roster.map(v => JSON.stringify([v.opportunity.clubId, v.opportunity.decisionId])))
@@ -66,7 +69,12 @@ export const dispatchDomesticCalendarDay = (stores: DomesticCalendarDayStores, r
     throw new Error('invalid accepted domestic calendar day input');
   }
   // Read the actual archive, never reinterpret a World decision revision as time.
-  const calendar = stores.archive.readCareerDay(input.careerId, input.day);
+  const calendar = stores.archive.readCareerDay(input.careerId, input.day, input.seasonId);
+  const seasonId = calendar.seasonId;
+  if (input.openings.some(opening => opening.seasonId !== seasonId)
+    || input.market.some(task => task.origin.trigger.seasonId !== seasonId)) {
+    throw new Error('domestic day command differs from its accepted season scope');
+  }
   const outstanding: DayItem[] = calendar.missingScheduleSeasonIds.map(seasonId => missing(seasonId, 'ACCEPTED_DATED_SCHEDULE'));
   for (const season of calendar.seasons) if (season.eventsMissing) outstanding.push(missing(season.schedule.seasonId, 'ACCEPTED_SEASON_EVENT_PROFILE'));
   const due = calendar.seasons.flatMap(season => season.games.map(game => ({ seasonId: season.schedule.seasonId, game })));
@@ -75,6 +83,7 @@ export const dispatchDomesticCalendarDay = (stores: DomesticCalendarDayStores, r
     v.seasonId === opening.seasonId && v.game.gameId === opening.gameId)).map(opening =>
     rejected(opening.gameId, new Error('opening Match is not due on the accepted calendar day')));
   const authenticateGame = (seasonId: string, gameId: string, exactDay: boolean) => {
+    if (seasonId !== calendar.seasonId) throw new Error('domestic game differs from the accepted season scope');
     const archive = stores.archive.read(input.careerId, seasonId);
     if (!archive) throw new Error('domestic day original schedule is missing');
     const game = applyScheduleRevisions(archive.baseSchedule, archive.revisions).games.find(v => v.gameId === gameId);
@@ -120,7 +129,7 @@ export const dispatchDomesticCalendarDay = (stores: DomesticCalendarDayStores, r
     ...stores.outbox.completedTerminal.listPending().map(entry => ({ kind: 'terminal' as const, entry,
       careerId: entry.request.final.careerId, seasonId: entry.request.final.game.seasonId,
       gameId: entry.request.final.game.gameId, day: Math.max(entry.request.worldInput.attendance.observedAtDay, entry.request.worldInput.finalizedAtDay) }))];
-    for (const item of pending.filter(v => v.careerId === input.careerId && v.day <= input.day)) {
+    for (const item of pending.filter(v => v.careerId === input.careerId && v.seasonId === seasonId && v.day <= input.day)) {
       const key = item.entry.applicationId;
       try {
         if (!stores.attendance) { settlements.push(missing(key, 'ACCEPTED_ATTENDANCE_OWNER')); continue; }

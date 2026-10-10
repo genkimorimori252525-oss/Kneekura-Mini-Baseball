@@ -1,3 +1,6 @@
+import assert from 'node:assert/strict';
+import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
 import type { AcceptedBattedWorldContact } from './SqliteBattedWorldContactStore';
 import type { AcceptedBattedWorldFieldAction } from './SqliteBattedWorldFieldStore';
 import { battedWorldFieldFixture } from './BattedWorldFieldFixtures.test-support';
@@ -5,7 +8,7 @@ import { createBattedBallFlightEvidence } from '../../core/sim/ball/BattedBallFl
 import { sampleBatterSwingState } from '../../core/sim/contact/BatBallContact';
 import { projectDefenderBodyKinematicsSegment, sampleDefenderBodyKinematicsSegment } from '../../core/sim/fielding/DefenderBodyKinematics';
 import { firstBaseFixtureFootAcceleration } from './ActualFirstBaseFixtureCalibration.test-support';
-import { openSqliteActualLivePlayRuntimeStore } from './SqliteActualLivePlayRuntimeStore';
+import { openSqliteActualLivePlayRuntimeStore, actualLiveRuntimeEvidenceFromSqlite } from './SqliteActualLivePlayRuntimeStore';
 import { openSqliteBattedWorldFieldExecutionStore, battedWorldFieldExecutionEvidenceFromSqlite,
   type AcceptedBattedWorldFieldExecution } from './SqliteBattedWorldFieldExecutionStore';
 import { battedWorldFieldEvidenceFromSqlite } from './SqliteBattedWorldFieldStore';
@@ -101,20 +104,40 @@ export const actualFirstBasePlayEndFixture = (path: string, originalProfile?: No
 /** Attach the original all-ten owner chain before its first field output. The
  * caller supplies its independently accepted original response and field inputs. */
 export const attachActualFirstBasePlayEndFixture = <T extends ActualFirstBaseFieldRoot>(
-  path: string, x: T, forecastGroundElapsedSeconds: number,
+  path: string, x: T, forecastGroundElapsedSeconds: number, retainedPhysicalCut?: 'feet',
 ) => {
   try {
     if (x.worldContact.result.kind !== 'airborne' || x.flight.source.searchDurationTicks !== 0) throw new Error('original zero-horizon fixture input changed');
     const pitchId = x.response.touch.worldContact.flight.source.physicalPitchSourceId;
     const runtimeSource = { sourceId: 'live-play-runtime', sourceVersion: 'fixture-v1',
       capability: 'causal_original_live_play_runtime_v1' as const, physicalPitchSourceId: pitchId };
-    const runtime = phase('first-base:register-original-runtime', () => x.f.track(openSqliteActualLivePlayRuntimeStore(path,
+    // This is a real immutable owner read, never a supplied saved snapshot.
+    // Its historical values construct proposals/checks only; later admissions
+    // still use their real owners and independent transaction fences.
+    const retained = retainedPhysicalCut === 'feet' ? phase('first-base:read-owned-feet-history', () => withBattedVenueLegalReadSnapshot(x.f.db, () => {
+      const saved = battedWorldFieldExecutionEvidenceFromSqlite(x.f.db).readWithExecutions('field-race-feet');
+      if (!saved) throw new Error('retained first-base feet owner is missing');
+      const ids = ['field-race-acquisition', 'field-race-capture-initialized', 'field-race-capture-fence', 'field-race-capture-confirmed', 'field-race-feet'];
+      assert.deepEqual(saved.executions.map(value => value.source.sourceId), ids);
+      assert.equal(saved.value.source.sourceId, ids.at(-1));
+      const baseField = saved.value.baseField;
+      const fields = battedWorldFieldEvidenceFromSqlite(x.f.db).scope(baseField, baseField.source.sourceId);
+      assert.deepEqual(fields.map(value => value.source.sourceId), [x.source.sourceId, 'field-race-candidate-0']);
+      assert.equal(json(fields[0].source), json(x.source)); assert.equal(json(baseField.response), json(x.response));
+      assert.equal(json(baseField.source), json({ ...x.source, sourceId: 'field-race-candidate-0', previousFieldSourceId: x.source.sourceId }));
+      const runtime = actualLiveRuntimeEvidenceFromSqlite(x.f.db).read(runtimeSource.sourceId);
+      if (!runtime) throw new Error('retained first-base runtime owner is missing');
+      assert.equal(json(runtime.source), json(runtimeSource));
+      return { runtime, fields, baseField, executions: saved.executions };
+    })) : null;
+    const runtime = retained?.runtime ?? phase('first-base:register-original-runtime', () => x.f.track(openSqliteActualLivePlayRuntimeStore(path,
       { readAcceptedRuntime: id => id === runtimeSource.sourceId ? runtimeSource : null })).accept(runtimeSource.sourceId));
-    const firstField = phase('first-base:actual-ground', () => x.fields.accept(x.source.sourceId));
+    const firstField = retained?.fields[0] ?? phase('first-base:actual-ground', () => x.fields.accept(x.source.sourceId));
     if (firstField.field.motion.world.kind !== 'boundary' || !firstField.field.motion.world.contacts.some(c => c.kind === 'ground')) {
       throw new Error('first-base fixture did not reach actual ground before fielder contact');
     }
-    let baseField = firstField;
+    let baseField = retained?.baseField ?? firstField;
+    if (retained) for (const field of retained.fields) x.sources.set(field.source.sourceId, field.source);
     for (let index = 0; index < 12 && baseField.field.motion.response.kind !== 'capture_candidate'; index++) {
       const source = { ...x.source, sourceId: `field-race-candidate-${index}`, previousFieldSourceId: baseField.source.sourceId };
       x.sources.set(source.sourceId, source); baseField = phase(`first-base:actual-contact-${index}`, () => x.fields.accept(source.sourceId));
@@ -125,12 +148,19 @@ export const attachActualFirstBasePlayEndFixture = <T extends ActualFirstBaseFie
     const sources = new Map<string, AcceptedBattedWorldFieldExecution>();
     const authority = { readAcceptedExecution: (id: string) => sources.get(id) ?? null };
     const executions = x.f.track(openSqliteBattedWorldFieldExecutionStore(path, x.fields, authority));
-    const prefix = (through: string | null) => ({ baseField, fields: battedWorldFieldEvidenceFromSqlite(x.f.db).scope(baseField, baseField.source.sourceId),
-      executions: battedWorldFieldExecutionEvidenceFromSqlite(x.f.db).scope(baseField, through) });
+    const prefix = (through: string | null) => {
+      const retainedIndex = retained?.executions.findIndex(value => value.source.sourceId === through) ?? -1;
+      return retainedIndex >= 0 ? { baseField, fields: retained!.fields, executions: retained!.executions.slice(0, retainedIndex + 1) }
+        : { baseField, fields: battedWorldFieldEvidenceFromSqlite(x.f.db).scope(baseField, baseField.source.sourceId),
+          executions: battedWorldFieldExecutionEvidenceFromSqlite(x.f.db).scope(baseField, through) };
+    };
     const knownWork = () => ownedMotionKnownWorkFromSqlite(x.f.db, pitchId, playerIds);
     const accept = (sourceId: string, previousExecutionSourceId: string | null, action: AcceptedBattedWorldFieldExecution['action']) => {
       const source = { sourceId, sourceVersion: 'fixture-v1', baseFieldSourceId: baseField.source.sourceId, previousExecutionSourceId, action };
-      sources.set(sourceId, source); return phase(`first-base:accept:${sourceId}`, () => executions.accept(sourceId));
+      sources.set(sourceId, source);
+      const saved = retained?.executions.find(value => value.source.sourceId === sourceId);
+      if (saved) { assert.equal(json(saved.source), json(source), 'retained first-base execution differs from the original recipe'); return saved; }
+      return phase(`first-base:accept:${sourceId}`, () => executions.accept(sourceId));
     };
     const step = (sourceId: string, previous: string, checkpoint: OwnedMotionV2Action['checkpoint'], selectedPlayers: readonly string[] = []) => {
       const known = knownWork(), action: OwnedMotionV2Action = { kind: 'owned_motion_v2', checkpoint, knownWork: known,

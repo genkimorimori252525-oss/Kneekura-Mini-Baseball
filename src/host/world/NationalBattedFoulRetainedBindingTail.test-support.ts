@@ -40,7 +40,7 @@ export const assertNationalBattedFoulRetainedBindingFrontier = (db: Pick<Db, 'pr
   const fields = db.prepare(`SELECT * FROM batted_world_field_actions WHERE physical_pitch_source_id=? OR source_id IN (?,?) ORDER BY revision`)
     .all(pitch, ...fieldIds);
   const heads = db.prepare(`SELECT * FROM batted_world_field_heads WHERE physical_pitch_source_id=? OR source_id IN (?,?)`).all(pitch, ...fieldIds);
-  const executions = db.prepare(`SELECT * FROM batted_world_field_executions WHERE physical_pitch_source_id=? OR source_id='field-race-acquisition'`).all(pitch);
+  const executions = db.prepare(`SELECT * FROM batted_world_field_executions WHERE physical_pitch_source_id=? OR source_id='field-race-acquisition' ORDER BY revision`).all(pitch);
   const executionHeads = db.prepare(`SELECT * FROM batted_world_field_execution_heads WHERE physical_pitch_source_id=? OR source_id='field-race-acquisition'`).all(pitch);
   const runtimes = db.prepare(`SELECT * FROM actual_live_play_runtimes WHERE (game_id=? AND play_id=8) OR physical_pitch_source_id=? OR source_id='live-play-runtime'`).all(gameId, pitch);
   const admissions = db.prepare(`SELECT * FROM actual_live_play_admissions WHERE runtime_source_id='live-play-runtime'
@@ -48,17 +48,27 @@ export const assertNationalBattedFoulRetainedBindingFrontier = (db: Pick<Db, 'pr
   if (!fields.length && !executions.length && !runtimes.length) {
     assert.deepEqual(heads, []); assert.deepEqual(executionHeads, []); assert.deepEqual(admissions, []);
   } else {
-    // The only later cut is the actual complete acquisition prefix, not an
-    // arbitrary partly executed helper. Each existing owner retries it below.
+    // Only the complete acquisition or feet prefix is supported. The feet
+    // entry authenticates history once; it does not retry completed admissions.
     assert.deepEqual(runtimes.map(r => [r.source_id, r.game_id, r.play_id, r.physical_pitch_source_id]),
       [['live-play-runtime', gameId, 8, pitch]]);
     assert.deepEqual(fields.map(r => [r.source_id, r.revision, r.previous_source_id, r.game_id, r.physical_pitch_source_id, r.response_source_id, r.geometry_source_id]),
       fieldIds.map((id, i) => [id, i + 1, i ? fieldIds[0] : null, gameId, pitch, 'national-live:response', 'national-foul:geometry']));
     assert.deepEqual(heads.map(r => ({ ...r })), [{ physical_pitch_source_id: pitch, response_source_id: 'national-live:response',
       geometry_source_id: 'national-foul:geometry', source_id: fieldIds[1], revision: 2 }]);
+    const executionIds = executions.length === 5 ? ['field-race-acquisition', 'field-race-capture-initialized', 'field-race-capture-fence',
+      'field-race-capture-confirmed', 'field-race-feet'] : ['field-race-acquisition'];
     assert.deepEqual(executions.map(r => [r.source_id, r.revision, r.previous_source_id, r.game_id, r.physical_pitch_source_id, r.base_field_source_id]),
-      [['field-race-acquisition', 1, null, gameId, pitch, fieldIds[1]]]);
-    assert.deepEqual(executionHeads.map(r => ({ ...r })), [{ physical_pitch_source_id: pitch, base_field_source_id: fieldIds[1], source_id: 'field-race-acquisition', revision: 1 }]);
+      executionIds.map((id, i) => [id, i + 1, i ? executionIds[i - 1] : null, gameId, pitch, fieldIds[1]]));
+    assert.deepEqual(executionHeads.map(r => ({ ...r })), [{ physical_pitch_source_id: pitch, base_field_source_id: fieldIds[1], source_id: executionIds.at(-1), revision: executionIds.length }]);
+    if (executionIds.length === 5) {
+      assert.deepEqual(db.prepare('SELECT source_id FROM world_player_fielding_models').all().map(r => ({ ...r })), [{ source_id: 'observation-fielding-p1' }]);
+      assert.deepEqual(db.prepare('SELECT source_id FROM world_player_observation_models').all().map(r => ({ ...r })), [{ source_id: 'actual-observation-model-p1' }]);
+      for (const table of ['actual_field_observations', 'actual_field_observation_heads'])
+        assert.equal(db.prepare(`SELECT count(*) AS n FROM ${table}`).get()!.n, 0);
+      for (const table of ['actual_defensive_decisions', 'actual_locomotion_receipts']) if (db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?").get(table))
+        assert.equal(db.prepare(`SELECT count(*) AS n FROM ${table}`).get()!.n, 0);
+    }
     const retained = [...fields, ...executions];
     for (const row of [...runtimes, ...retained]) for (const part of ['source', 'snapshot']) {
       assert.equal(typeof row[part + '_json'], 'string');
@@ -96,7 +106,7 @@ export const assertNationalBattedFoulRetainedAcquisitionSources = (db: Pick<Db, 
       action: { kind: 'owned_acquisition_plan_v1', knownWork } }));
 };
 
-/** Resume the genuine common-model binding cut or its exact acquisition prefix.
+/** Resume the genuine binding, acquisition, or owned feet cut.
  * No pitch, flight, contact, response, binding or foul admission is retried.
  * This lineage has no foul statistics yet: every original attribution assertion
  * remains in the shared tail, including admission and reopened exact retry. */
@@ -111,14 +121,16 @@ export const continueRetainedNationalBattedFoulBindingTail = (path: string, prog
     if (failures.length) throw new AggregateError(failures, 'retained National binding cleanup failed');
   };
   try {
-    const { binding, origin } = withBattedVenueLegalReadSnapshot(db, () => {
+    const { binding, origin, retainedPhysicalCut } = withBattedVenueLegalReadSnapshot(db, () => {
       const gameId = assertNationalBattedFoulRetainedBindingFrontier(db);
       const binding = battedEpisodeFieldBindingEvidenceFromSqlite(db).read('national-live:episode-binding'); assert(binding);
       assert.equal(binding.gameId, gameId); assert.equal(binding.playId, 8);
       assert.deepEqual(binding.source, { sourceId: 'national-live:episode-binding', sourceVersion: 'fixture-v1', version: 'batted_episode_field_binding_v3',
         responseSourceId: 'national-live:response', fieldCalibrationSourceId: 'national-foul:geometry', physicalActorSourceId: 'national-live:batter',
         completedOrigin: { kind: 'foul_terminal_completion', sourceId: 'national-foul:terminal' } });
-      const origin = readNationalMatchOrigin(db, gameId); assert(origin); return { binding, origin };
+      const origin = readNationalMatchOrigin(db, gameId); assert(origin);
+      const retainedPhysicalCut = db.prepare("SELECT source_id FROM batted_world_field_execution_heads WHERE physical_pitch_source_id=?").get('national-live:pitch-0')?.source_id === 'field-race-feet' ? 'feet' as const : undefined;
+      return { binding, origin, retainedPhysicalCut };
     });
     const response = binding.response, worldContact = response.touch.worldContact, flight = worldContact.flight, physical = flight.physicalPitch;
     const nextActor = physical.frame.batterActor; assert(nextActor);
@@ -157,7 +169,7 @@ export const continueRetainedNationalBattedFoulBindingTail = (path: string, prog
     const f: NationalBattedFoulConsumerContext = { path, db, track, close, source: origin.source, roster, callups, facts, participation,
       origins: { read: gameId => readNationalMatchOrigin(db, gameId) } };
     progress('retained_original_binding_authenticated');
-    continueNationalBattedFoulOriginalTailFromField({ f, nextActor, liveRoot: { f, actor: nextActor, physical, flight, worldContact, response,
+    continueNationalBattedFoulOriginalTailFromField({ f, nextActor, retainedPhysicalCut, liveRoot: { f, actor: nextActor, physical, flight, worldContact, response,
       fields, source, sources, geometry: binding.calibration, forecastGroundElapsedSeconds },
       foulTerminalSource: { sourceId: 'national-foul:terminal', applicationId: 'national-foul:application' }, foulReceipt, adoptedFoul,
       originBytes: json(origin), clubBefore: roster.readHead('career-a', 'club-a'), progress });

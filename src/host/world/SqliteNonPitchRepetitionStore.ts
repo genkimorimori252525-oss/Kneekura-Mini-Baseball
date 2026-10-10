@@ -144,6 +144,21 @@ export const assertNonPitchLearningEvent = (development: Pick<SqliteDevelopmentI
   withBattedVenueLegalReadSnapshot(connection, () => repetitionReader(development).evidenceGuard(connection, event, phase));
 };
 
+/** Reconstruct the original repetition on an owning consumer's transaction.
+ * The development owner capability and fixed event guard remain mandatory. */
+export const readOwnedNonPitchRepetition = (development: Pick<SqliteDevelopmentInitiationStore, 'read'>,
+  connection: DatabaseSync, eventId: string) => {
+  const { DatabaseSync: Native } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  if (!(connection instanceof Native) || !connection.isTransaction || !id(eventId)) {
+    throw new Error('non-pitch exposure requires an owned Native repetition snapshot');
+  }
+  const reader = repetitionReader(development), value = reader.byEvent(connection, eventId);
+  reader.evidenceGuard(connection, value.event!, 'read');
+  return freeze({ event: value.event!, repetition: value.repetition!, episodeId: value.reservation.episode.episodeId,
+    careerId: value.reservation.frame.careerId, playerId: value.reservation.frame.playerId,
+    proofHash: hash(value) });
+};
+
 /** One prospective original game/Player/play repetition. Game workload remains
  * MATCH: this owner never charges effort a second time or manufactures ability. */
 export const openSqliteNonPitchRepetitionStore = (path: string, development: Pick<SqliteDevelopmentInitiationStore, 'read' | 'advance'>,

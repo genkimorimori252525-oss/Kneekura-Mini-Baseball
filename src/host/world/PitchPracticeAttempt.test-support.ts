@@ -29,6 +29,7 @@ import { openSqlitePlayerWorkloadRecoveryStore } from './SqlitePlayerWorkloadRec
 import { openSqlitePitchFatiguePolicyStore, type AcceptedPitchFatiguePolicy } from './SqlitePitchFatiguePolicyStore';
 import { openSqliteDevelopmentInitiationStore } from './SqliteDevelopmentInitiationStore';
 import type { DevelopmentAppraisalSources } from './DevelopmentEpisodeFromAcceptedAppraisal';
+import { isNonPitchRepetitionEvent } from './NonPitchDevelopmentRepetition';
 
 // Test-owned contract for the absent producer. No production stub is installed.
 export type PracticeOpportunity = {
@@ -197,7 +198,7 @@ export async function practiceFixture(cleanup: (() => void)[], hooks: PracticeFi
     ((db: EvidenceDb, event: DevelopmentLearningEventInput, phase: string) => void)?]) => ReturnType<typeof openSqliteDevelopmentInitiationStore>;
   const openEpisodes = () => keep(openEpisode(path, episodeSources(), { readAcceptedLearningEvent: id =>
     learningEvents.get(id) ?? owner?.readAcceptedLearningEvent(id) ?? null },
-  (db, event, phase) => { if (event.kind === 'PRACTICE_RECORDED') owner?.assertLearningEvidence(db, event, phase); }));
+  (db, event, phase) => { if (event.kind === 'PRACTICE_RECORDED' && !isNonPitchRepetitionEvent(event)) owner?.assertLearningEvidence(db, event, phase); }));
   let episodes = openEpisodes();
   const initiated = episodes.apply({ episodeId: 'episode', executionId: 'promotion-execution', playerId: 'p1',
     personSourceId: intake.sourceId, appraisalSourceId: 'appraisal', policySourceId: 'learning-policies' });

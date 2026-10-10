@@ -285,7 +285,9 @@ export const openSqliteActualFieldObservationStore = (path: string, authority?: 
       db.exec('BEGIN IMMEDIATE');
       try {
         const liveFence = beginActualLivePitchWrite(db, source.physicalPitchSourceId, { owner: 'actual_field_observations', sourceId });
-        own.currentBefore(value);
+        // The two writer proofs are separate immutable phases. No original
+        // field/execution proof crosses the observation/head/admission writes.
+        withBattedWorldPhysicalReadTraversal(db, () => own.currentBefore(value));
         db.prepare('INSERT INTO actual_field_observations VALUES (?,?,?,?,?,?,?,?,?,?,?,?)').run(sourceId, source.physicalPitchSourceId,
           source.playerId, source.baseFieldSourceId, source.executionSourceId, source.observationModelSourceId, source.previousObservationSourceId,
           value.revision, json(source), hash(source), json(value), hash(value));
@@ -298,9 +300,12 @@ export const openSqliteActualFieldObservationStore = (path: string, authority?: 
           if (Number(changed.changes) !== 1) throw new Error('actual observation predecessor changed during write');
         }
         recordActualLivePlayAdmission(db, liveFence);
-        own.current(value); const saved = own.read(sourceId);
-        if (!saved || json(saved) !== json(value)) throw new Error('actual observation original changed during write');
-        assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
+        const saved = withBattedWorldPhysicalReadTraversal(db, () => {
+          own.current(value); const original = own.read(sourceId);
+          if (!original || json(original) !== json(value)) throw new Error('actual observation original changed during write');
+          assertActualLivePlayWriteUnchanged(db, liveFence); return original;
+        });
+        db.exec('COMMIT'); return saved;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     }, close() { if (!closed) { db.close(); closed = true; } },
   });
