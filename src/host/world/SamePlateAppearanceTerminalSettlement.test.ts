@@ -13,6 +13,7 @@ import * as transitions from './SamePlateAppearanceTerminalTransitionFromSqlite'
 import * as settlementEvidence from './SamePlateAppearanceTerminalSettlementFromSqlite';
 import { samePaSettlementSchema } from './SamePlateAppearanceTerminalSettlementStorage';
 import { assertNoSamePaWorkReservation } from './SamePlateAppearanceReservationGuard';
+import * as reservations from './SamePlateAppearanceReservationGuard';
 import { reservedPaSchema } from './SamePlateAppearanceExecutionStorage';
 import { readReservedPaClaimRows } from './SamePlateAppearanceProvisionalClaimGuard';
 import { boundaryFixture } from './ActualFoulTerminalBoundaryFixtures.test-support';
@@ -21,6 +22,8 @@ import { readActualRoleWorkloadState } from './ActualRoleWorkloadState';
 import type { AcceptedPlayerIntakeSource } from './SqlitePlayerPersonLinkStore';
 import type { DatabaseSync } from 'node:sqlite';
 import { readSamePaTerminalReleaseArchive } from './SamePlateAppearanceTerminalReleaseArchive';
+import { samePaPlayerClaimCanProceed, withSamePaSettlementActivityWrite, withSamePaSettlementClaimReadPhase } from './SamePlateAppearanceSettlementAdmission';
+import { playerWorkloadRecoveryStoreFromSqlite } from './SqlitePlayerWorkloadRecoveryStore';
 
 // Isolated structural Native tests: original actor and physical/official
 // terminal readers are mocked. All ten workload activities, CAS, transactions,
@@ -146,6 +149,129 @@ it('resumes a partially committed ten-player settlement without repeating earlie
   expect(count(x.f.db, 'world_player_workload_activities')).toBe(4); expect(count(x.f.db, 'same_pa_participant_reservations')).toBe(10);
   expect(() => x.fresh()).toThrow(/same-PA/); x.f.db.exec('DROP TRIGGER stop_fifth');
   expect(x.owner.settle(x.source.sourceId).kind).toBe('settled'); expect(count(x.f.db, 'world_player_workload_activities')).toBe(10);
+});
+it('reconstructs one terminal per reservation assertion and starts fresh after every workload boundary', () => {
+  const x = setup(); x.owner.freeze(x.source.sourceId);
+  for (const ddl of Object.values(reservedPaSchema)) x.f.db.exec(ddl);
+  const source = { sourceId: 'claim-prefix', sourceVersion: 'structural-v1', capability: 'reserved_same_pa_empty_prefix_v1', enrollmentReference: x.endpoint.enrollmentReference };
+  const value = { kind: 'empty_prefix', source, lineage: x.endpoint.lineage, physicalRevision: 0 };
+  x.f.db.prepare('INSERT INTO reserved_pa_work_prefixes VALUES(?,?,?,?,?,?,?,?,?,?,?,?)').run(source.sourceId, x.enrollment.source.sourceId,
+    x.enrollment.careerId, x.enrollment.gameId, x.enrollment.playId, x.enrollment.source.actorReference.sourceId, x.enrollment.source.firstPhysicalPitchSourceId,
+    0, json(source), hash(source), json(value), hash(value));
+  const assertReservation = reservations.assertNoSamePaPlayerReservation;
+  const endpoint = vi.mocked(terminal.readSamePaTerminalEndpointFromSqlite);
+  const phases: { reads: number; activities: number }[] = [];
+  vi.spyOn(reservations, 'assertNoSamePaPlayerReservation').mockImplementation((db, scope, own) => {
+    const before = endpoint.mock.calls.length, activities = Number(count(db, 'world_player_workload_activities'));
+    assertReservation(db, scope, own);
+    phases.push({ reads: endpoint.mock.calls.length - before, activities });
+  });
+  expect(x.owner.settle(x.source.sourceId).kind).toBe('settled');
+  // Preparation, enrollment-root and member-lease claims authenticate the same
+  // real settlement. Each of the four callback/write-separated assertions owns a
+  // fresh proof, including when neither row counters nor query_only changed.
+  expect(phases).toEqual(Array.from({ length: 10 }, (_, i) => [i, i, i + 1, i + 1]
+    .map(activities => ({ reads: 1, activities }))).flat());
+  const completed = endpoint.mock.calls.length;
+  expect(x.owner.settle(x.source.sourceId).kind).toBe('settled');
+  expect(endpoint.mock.calls.length).toBeGreaterThan(completed);
+  expect(phases).toHaveLength(40);
+  const reopened = openSqliteSamePlateAppearanceTerminalSettlementStore(x.f.path, x.f.personLinks); owners.push(reopened);
+  const retried = endpoint.mock.calls.length;
+  expect(reopened.read(x.source.sourceId)!.kind).toBe('settled');
+  expect(endpoint.mock.calls.length).toBeGreaterThan(retried);
+});
+it.each(['accepted', 'write', 'written'] as const)('rechecks reservation evidence after the %s callback', boundary => {
+  const x = setup(), frozen = x.owner.freeze(x.source.sourceId), participant = frozen.participants[0], db = x.f.db;
+  const corrupt = () => db.prepare('UPDATE same_pa_participant_reservations SET member_json=? WHERE player_id=?').run('{}', participant.playerId);
+  const workload = playerWorkloadRecoveryStoreFromSqlite(db, x.f.personLinks, {
+    readAcceptedBaseline: () => null,
+    readAcceptedActivity: () => { if (boundary === 'accepted') corrupt(); return participant.activity; },
+  }, {
+    transaction: body => body(),
+    activity: (_db, _activity, phase) => { if (boundary === phase) corrupt(); },
+  });
+  db.exec('BEGIN');
+  try {
+    expect(() => withSamePaSettlementActivityWrite(db, frozen.reference, participant.playerId,
+      () => workload.apply(participant.activity.sourceEventId, participant.reservedState.revision))).toThrow(/member ownership/);
+  } finally { db.exec('ROLLBACK'); }
+  expect(count(db, 'world_player_workload_activities')).toBe(0);
+  expect(x.owner.read(x.source.sourceId)!.participants.every(p => !p.applied)).toBe(true);
+});
+it.each(['reservation', 'standalone'] as const)('rejects replaced admission transactions on the %s path', path => {
+  const x = setup(), frozen = x.owner.freeze(x.source.sourceId), participant = frozen.participants[0], db = x.f.db;
+  const claim = () => path === 'reservation'
+    ? reservations.assertNoSamePaPlayerReservation(db, participant.activity)
+    : expect(samePaPlayerClaimCanProceed(db, x.enrollment.source.sourceId, participant.activity)).toBe(true);
+  db.exec('BEGIN');
+  try {
+    expect(() => withSamePaSettlementActivityWrite(db, frozen.reference, participant.playerId, () => {
+      claim(); db.exec('ROLLBACK; BEGIN'); claim();
+    })).toThrow(/savepoint/);
+  } finally { if (db.isTransaction) db.exec('ROLLBACK'); }
+  // The rejected scope leaves no reusable admission or completed claim proof.
+  db.exec('BEGIN');
+  try { withSamePaSettlementActivityWrite(db, frozen.reference, participant.playerId, claim); }
+  finally { db.exec('ROLLBACK'); }
+});
+it('rejects admission-marker replacement inside an immutable reservation assertion', () => {
+  const x = setup(), frozen = x.owner.freeze(x.source.sourceId), participant = frozen.participants[0], db = x.f.db;
+  let marker = '';
+  const exec = db.exec;
+  vi.spyOn(db, 'exec').mockImplementation(function(sql) {
+    if (sql.startsWith('SAVEPOINT pa_settlement_activity_')) marker = sql.slice('SAVEPOINT '.length);
+    return exec.call(db, sql);
+  });
+  db.exec('BEGIN');
+  try {
+    expect(() => withSamePaSettlementActivityWrite(db, frozen.reference, participant.playerId, () => {
+      vi.mocked(terminal.readSamePaTerminalEndpointFromSqlite).mockImplementation(() => {
+        expect(marker).not.toBe('');
+        // Preserve transaction and counters while removing the child proof
+        // savepoints. Their final validation must reject even a completed memo.
+        db.exec('RELEASE ' + marker); db.exec('SAVEPOINT ' + marker);
+        return x.endpoint;
+      });
+      reservations.assertNoSamePaPlayerReservation(db, participant.activity);
+    })).toThrow();
+  } finally { if (db.isTransaction) db.exec('ROLLBACK'); }
+  expect(count(db, 'world_player_workload_activities')).toBe(0);
+});
+it('shares only the settlement proof while checking each enrollment, Player and exact activity', () => {
+  const x = setup(), frozen = x.owner.freeze(x.source.sourceId), participant = frozen.participants[0], db = x.f.db;
+  db.exec('BEGIN');
+  try {
+    withSamePaSettlementActivityWrite(db, frozen.reference, participant.playerId, () =>
+      withSamePaSettlementClaimReadPhase(db, participant.activity, () => {
+        const before = vi.mocked(terminal.readSamePaTerminalEndpointFromSqlite).mock.calls.length;
+        const claim = (enrollment: string, activity: typeof participant.activity) => samePaPlayerClaimCanProceed(db, enrollment, activity);
+        expect(claim(x.enrollment.source.sourceId, participant.activity)).toBe(true);
+        expect(claim('other-enrollment', participant.activity)).toBe(false);
+        expect(claim(x.enrollment.source.sourceId, { ...participant.activity, careerId: 'other-career' })).toBe(false);
+        expect(claim(x.enrollment.source.sourceId, { ...participant.activity, playerId: 'other-player' })).toBe(false);
+        expect(claim(x.enrollment.source.sourceId, { ...participant.activity, evidenceId: 'other-evidence' })).toBe(false);
+        expect(vi.mocked(terminal.readSamePaTerminalEndpointFromSqlite).mock.calls.length - before).toBe(1);
+      }));
+  } finally { db.exec('ROLLBACK'); }
+});
+it('keeps the admitted reference immutable and invalidates cached proofs after a mutation', () => {
+  const x = setup(), frozen = x.owner.freeze(x.source.sourceId), participant = frozen.participants[0], db = x.f.db;
+  const ref = { ...frozen.reference };
+  const claim = () => samePaPlayerClaimCanProceed(db, x.enrollment.source.sourceId, participant.activity);
+  db.exec('BEGIN');
+  try {
+    expect(() => withSamePaSettlementActivityWrite(db, ref, participant.playerId, () =>
+      withSamePaSettlementClaimReadPhase(db, participant.activity, () => {
+        expect(claim()).toBe(true);
+        expect(Object.isFrozen(ref)).toBe(true);
+        db.exec('PRAGMA query_only=0');
+        db.prepare('UPDATE same_pa_participant_reservations SET member_json=? WHERE player_id=?').run('{}', participant.playerId);
+        db.exec('PRAGMA query_only=1');
+        expect(claim).toThrow(/ownership|coverage/);
+        expect(claim).toThrow(/expired/);
+      }))).toThrow();
+  } finally { db.exec('ROLLBACK'); }
 });
 it('rejects changed final TOTAL projection or frozen Source before another activity', () => {
   const x = setup(); x.owner.freeze(x.source.sourceId);

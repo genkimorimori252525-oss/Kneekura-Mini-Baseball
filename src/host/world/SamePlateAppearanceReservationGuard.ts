@@ -1,4 +1,4 @@
-import { samePaPlayerClaimCanProceed } from './SamePlateAppearanceSettlementAdmission';
+import { samePaPlayerClaimCanProceed, withSamePaSettlementClaimReadPhase } from './SamePlateAppearanceSettlementAdmission';
 import { readSamePaReleasedMembers } from './SamePlateAppearanceTerminalReleaseArchive';
 import { assertNoReservedPaPlayerClaim, assertNoReservedPaWorkClaim } from './SamePlateAppearanceProvisionalClaimGuard';
 import { actualLivePlayOwnerIdentityRow } from './ActualLivePlayOwnerMetadata';
@@ -104,7 +104,7 @@ export const authenticateSamePaRow = (db:SamePaDb,row:Record<string,unknown>):Re
   if(slots.length!==1||json(slots[0])!==json({enrollment_source_id:source.sourceId,first_pitch_source_id:source.firstPhysicalPitchSourceId,game_id:v.gameId,play_id:v.playId,state:'blocked_execution_basis',predecessor_resume_source_id:null,consuming_source_id:null,slot_json:json(samePaSlot(v))}))fail('first-pitch slot differs');
   return v;
 };
-export const assertNoSamePaPlayerReservation = (db:SamePaDb,scope:Readonly<{careerId:string;playerId:string}>,ownSourceId?:string):void => {
+export const assertNoSamePaPlayerReservation = (db:SamePaDb,scope:Readonly<{careerId:string;playerId:string}>,ownSourceId?:string):void => withSamePaSettlementClaimReadPhase(db,scope,()=>{
   assertNoReservedPaPlayerClaim(db,scope,ownSourceId);
   if(!assertSamePaStorage(db))return;const q=playerClaim(scope);
   const links=playerAuthorityLinks(db);
@@ -114,7 +114,7 @@ export const assertNoSamePaPlayerReservation = (db:SamePaDb,scope:Readonly<{care
   // Orphans remain claims, even if an external fault removed the root.
   const members=db.prepare(`SELECT m.enrollment_source_id FROM main.same_pa_participant_reservations m WHERE (m.career_id=$career OR ${claim('m.member_json',['careerId'],'$career')}) AND (m.player_id=$player OR ${claim('m.member_json',['playerId'],'$player')}) AND ${ownSourceId===undefined?'1':`NOT (${memberRoot('$own')})`}`).all({...q.params,...own});
   if(members.some(row=>!samePaPlayerClaimCanProceed(db,String(row.enrollment_source_id),scope)))fail('orphan member blocks new global Player workload');
-};
+});
 export const assertNoSamePaWorkReservation = (db:SamePaDb,scope:SamePaScope,ownSourceId?:string):void => {
   assertNoReservedPaWorkClaim(db,scope,ownSourceId);
   if(!assertSamePaStorage(db))return;const q=scopeClaim(scope);
