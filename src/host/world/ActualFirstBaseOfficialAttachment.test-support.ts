@@ -60,10 +60,10 @@ export const attachActualFirstBaseOfficialFixture = <T extends ActualFirstBaseOf
   const sources = new Map<string, AcceptedBattedWorldFieldExecution>();
   const physicalWriter = x.f.track(openSqliteBattedWorldFieldExecutionStore(path, { read: battedWorldFieldEvidenceFromSqlite(x.f.db).read },
     { readAcceptedExecution: id => sources.get(id) ?? null }));
-  const extendBucket = (sourceId: string, previous: string, throughTick: number) => {
+  const extendBucket = (sourceId: string, previous: string, throughTick: number,
+    prefix: Parameters<typeof actualPlayersKinematicsFromPrefix>[1]) => {
     const saved = completed.has(sourceId) ? physicalWriter.read(sourceId) : null;
     if (completed.has(sourceId)) assert(saved, 'retained official physical original is missing');
-    const prefix: Parameters<typeof actualPlayersKinematicsFromPrefix>[1] = x.prefix(previous);
     const priorAction = saved ? prefix.executions.slice().reverse().find(value => 'knownWork' in value.source.action)?.source.action : undefined;
     if (saved) assert(priorAction && 'knownWork' in priorAction, 'retained official predecessor has no original known work');
     const ids = x.runtime.membership.participants.map(player => player.playerId);
@@ -82,11 +82,15 @@ export const attachActualFirstBaseOfficialFixture = <T extends ActualFirstBaseOf
   const observed = completed.has(observation.sourceId) ? original(umpires.readObservation(observation.sourceId), observation) : umpires.observe(observation.sourceId);
   const waiting = completed.has(waitingSource.sourceId) ? original(umpires.readCall(waitingSource.sourceId), waitingSource) : umpires.advanceCall(waitingSource.sourceId);
   if (waiting.schedule.kind !== 'scheduled') throw new Error('original first-base delayed call was not scheduled');
-  const due = extendBucket('actual-call-due-cut', race.source.sourceId, race.execution.field.motion.world.moment.ball.tick + 3);
+  const racePrefix = x.prefix(race.source.sourceId);
+  const due = extendBucket('actual-call-due-cut', race.source.sourceId, race.execution.field.motion.world.moment.ball.tick + 3, racePrefix);
   const callSource = { ...waitingSource, sourceId: 'operative-call', currentExecutionSourceId: due.source.sourceId };
   calls.set(callSource.sourceId, callSource);
   const call = completed.has(callSource.sourceId) ? original(umpires.readCall(callSource.sourceId), callSource) : umpires.advanceCall(callSource.sourceId);
-  const final = extendBucket('actual-post-call-quantizer-tail', due.source.sourceId, due.execution.field.motion.world.moment.ball.tick + 1);
+  // Proposal data comes from the authenticated race and the actual returned due
+  // execution. New work discovery and the accepting owner's checks stay fresh.
+  const final = extendBucket('actual-post-call-quantizer-tail', due.source.sourceId, due.execution.field.motion.world.moment.ball.tick + 1,
+    { ...racePrefix, executions: [...racePrefix.executions, due] });
   if (call.schedule.kind !== 'called' || call.schedule.call !== 'out') throw new Error('original first-base operative retirement is missing');
   const model = { sourceId: 'call-reception-model', sourceVersion: 'fixture-v1', gameId: x.runtime.gameId, physicalPitchSourceId: x.pitchId,
     parameters: { version: 'fixed_receiver_conditions_v1' as const, timing: 'exact_sent_plus_core_delay_ticks_v1' as const,
