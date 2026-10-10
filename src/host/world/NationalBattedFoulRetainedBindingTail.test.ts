@@ -23,11 +23,13 @@ const fixture = () => {
     CREATE TABLE actual_live_play_runtimes(source_id TEXT,game_id TEXT,play_id INTEGER,physical_pitch_source_id TEXT,source_json TEXT,source_hash TEXT,snapshot_json TEXT,snapshot_hash TEXT);
     CREATE TABLE actual_foul_terminal_applications(source_id TEXT,game_id TEXT,status TEXT,play_id INTEGER);
     CREATE TABLE official_participation_receipts(game_id TEXT,player_id TEXT);
-    CREATE TABLE world_national_callups(event_id TEXT);`);
+    CREATE TABLE world_national_callups(event_id TEXT);
+    CREATE TABLE actual_live_play_fences(game_id TEXT,play_id INTEGER,physical_pitch_source_id TEXT,closure_source_id TEXT);`);
   db.prepare('INSERT INTO physical_pitch_progress_actions VALUES(?,?,8,1)').run('national-live:pitch-0', gameId);
   db.prepare('INSERT INTO physical_pitch_progress_heads VALUES(?,8,1,?)').run(gameId, 'national-live:pitch-0');
   db.prepare('INSERT INTO batted_episode_field_bindings VALUES(?,?,?,?,?,?,?)').run('national-live:episode-binding', 'batted_episode_field_binding_v3', gameId, 8,
     'national-live:pitch-0', 'national-live:response', 'national-foul:geometry');
+  db.prepare('INSERT INTO actual_live_play_fences VALUES(?,7,?,?)').run(gameId, 'national-foul:pitch-2', 'national-foul:end');
   db.prepare('INSERT INTO actual_foul_terminal_applications VALUES(?,?,?,7)').run('national-foul:terminal', gameId, 'POST_PLAY_COMPLETED_CONTINUING');
   db.prepare('INSERT INTO official_participation_receipts VALUES(?,?)').run(gameId, 'p9');
   db.exec("INSERT INTO batted_world_field_actions(physical_pitch_source_id) VALUES('national-foul:pitch-2'); INSERT INTO actual_live_play_runtimes(source_id,game_id,play_id) VALUES('national-foul:end-runtime','retained-common-national',7)");
@@ -428,9 +430,51 @@ it.each([2, 7])('admits a fixed official prefix of %i stages with its separate p
 it.each([
   ['hole before a later call', 'DELETE FROM actual_first_base_umpire_observations', 'retained official prefix has a hole'],
   ['foreign setup pitch', "UPDATE actual_first_base_umpire_setups SET physical_pitch_source_id='foreign'", 'retained official owner scope differs'],
-  ['later communication claim', "CREATE TABLE actual_call_communications(source_id TEXT); INSERT INTO actual_call_communications VALUES('call-information')", 'unsupported later official owner'],
+  ['communication before its original model', "CREATE TABLE actual_call_communications(source_id TEXT); INSERT INTO actual_call_communications VALUES('call-information')", 'retained official prefix has a hole'],
 ])('rejects a fixed official prefix with %s', (_label, mutation, message) => {
   const { db } = officialPrefixCut(7); try { db.exec(mutation); const before = rows(db);
     expect(() => assertNationalBattedFoulRetainedBindingFrontier(db)).toThrow(message); expect(rows(db)).toEqual(before);
+  } finally { db.close(); }
+});
+
+const officialSuffixCut = (stage: 'model' | 'communication' | 'end' | 'adjudication' | 'queued' | 'applied') => {
+  const { db, first } = officialPrefixCut(7), pitch = 'national-live:pitch-0', snapshot = { metadataTestOnly: true };
+  const archive = (sourceId: string) => { const source = { sourceId, sourceVersion: 'fixture-v1', metadataTestOnly: true };
+    return [json(source), hash(source), json(snapshot), hash(snapshot)]; };
+  db.exec(`CREATE TABLE actual_communication_models(source_id TEXT,source_version TEXT,game_id TEXT,physical_pitch_source_id TEXT,source_json TEXT,source_hash TEXT,snapshot_json TEXT,snapshot_hash TEXT);
+    CREATE TABLE actual_call_communications(source_id TEXT,source_version TEXT,game_id TEXT,play_id INTEGER,physical_pitch_source_id TEXT,call_source_id TEXT,model_source_id TEXT,current_execution_source_id TEXT,previous_source_id TEXT,revision INTEGER,source_json TEXT,source_hash TEXT,snapshot_json TEXT,snapshot_hash TEXT);
+    CREATE TABLE actual_call_communication_heads(call_source_id TEXT,source_id TEXT,revision INTEGER);
+    CREATE TABLE actual_first_base_play_ends(source_id TEXT,game_id TEXT,play_id INTEGER,physical_pitch_source_id TEXT,source_json TEXT,source_hash TEXT,snapshot_json TEXT,snapshot_hash TEXT);
+    CREATE TABLE IF NOT EXISTS actual_live_play_fences(game_id TEXT,play_id INTEGER,physical_pitch_source_id TEXT,closure_source_id TEXT);
+    CREATE TABLE actual_live_adjudications(source_id TEXT,game_id TEXT,play_id INTEGER,physical_end_source_id TEXT,source_json TEXT,source_hash TEXT,snapshot_json TEXT,snapshot_hash TEXT);
+    CREATE TABLE actual_live_play_closures(source_id TEXT,game_id TEXT,play_id INTEGER,application_id TEXT,status TEXT,source_json TEXT,source_hash TEXT,proposal_json TEXT,proposal_hash TEXT,result_json TEXT);`);
+  db.prepare('INSERT INTO actual_communication_models VALUES(?,?,?,?,?,?,?,?)').run('call-reception-model', 'fixture-v1', gameId, pitch, ...archive('call-reception-model'));
+  if (stage === 'model') return { db, first };
+  db.prepare('INSERT INTO actual_call_communications VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)').run('call-information', 'fixture-v1', gameId, 8, pitch,
+    'operative-call', 'call-reception-model', 'actual-post-call-quantizer-tail', null, 1, ...archive('call-information'));
+  db.exec("INSERT INTO actual_call_communication_heads VALUES('operative-call','call-information',1)");
+  const [, sourceHash, , snapshotHash] = archive('call-information');
+  db.prepare('INSERT INTO actual_live_play_admissions VALUES(?,?,?,?,?,?)').run('live-play-runtime', 22, 'actual_call_communications', 'call-information', sourceHash, snapshotHash);
+  if (stage === 'communication') return { db, first };
+  db.prepare('INSERT INTO actual_first_base_play_ends VALUES(?,?,?,?,?,?,?,?)').run('physical-end', gameId, 8, pitch, ...archive('physical-end'));
+  db.prepare('INSERT INTO actual_live_play_fences VALUES(?,?,?,?)').run(gameId, 8, pitch, 'physical-end');
+  if (stage === 'end') return { db, first };
+  db.prepare('INSERT INTO actual_live_adjudications VALUES(?,?,?,?,?,?,?,?)').run('fixture-actual-live-adjudication', gameId, 8, 'physical-end', ...archive('fixture-actual-live-adjudication'));
+  if (stage === 'adjudication') return { db, first };
+  const [sourceJson, closureHash] = archive('fixture-actual-live-closure');
+  db.prepare('INSERT INTO actual_live_play_closures VALUES(?,?,?,?,?,?,?,?,?,?)').run('fixture-actual-live-closure', gameId, 8, 'fixture-actual-live-application',
+    stage === 'queued' ? 'QUEUED' : 'OFFICIAL_APPLIED', sourceJson, closureHash, json(snapshot), hash(snapshot), stage === 'queued' ? null : json(snapshot));
+  return { db, first };
+};
+it.each(['model', 'queued', 'applied'] as const)('admits the original official suffix at %s without treating metadata as owner evidence', stage => {
+  const { db, first } = officialSuffixCut(stage); try { const before = rows(db);
+    expect(assertNationalBattedFoulRetainedBindingFrontier(db)).toBe(gameId);
+    expect(() => assertNationalBattedFoulRetainedAcquisitionSources(db, first)).not.toThrow(); expect(rows(db)).toEqual(before);
+  } finally { db.close(); }
+});
+it('rejects an original official suffix whose communication predecessor or head is missing', () => {
+  const { db } = officialSuffixCut('applied'); try {
+    db.exec('DELETE FROM actual_call_communication_heads'); const before = rows(db);
+    expect(() => assertNationalBattedFoulRetainedBindingFrontier(db)).toThrow(); expect(rows(db)).toEqual(before);
   } finally { db.close(); }
 });

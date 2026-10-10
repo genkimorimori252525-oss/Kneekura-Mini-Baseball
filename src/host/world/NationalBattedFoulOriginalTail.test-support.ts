@@ -1,3 +1,5 @@
+import assert from 'node:assert/strict';
+import { assertNationalOriginalStatisticsBoundary, type NationalOriginalStatisticsBoundary } from './NationalBattedFoulOriginalStatisticsBoundary.test-support';
 import { createRequire } from 'node:module';
 import { expect } from 'vitest';
 import type { nationalPhysicalFixture } from './NationalPhysicalMatchFixtures.test-support';
@@ -9,7 +11,7 @@ import { nationalRegistrationEvidenceFromSqlite, readNationalMatchOrigin } from 
 import { openSqlitePersonGenesisStore } from './SqlitePersonGenesisStore';
 import { openSqliteDevelopmentInitiationStore } from './SqliteDevelopmentInitiationStore';
 import { nationalExposureAppraisal, nationalExposureGenesisPolicies, nationalExposurePolicies } from './NationalExposureDevelopment.test-support';
-import type { AcceptedNationalExposureAppraisal } from './NationalExposureDevelopmentOrigin';
+import type { NationalExposureOrigin, AcceptedNationalExposureAppraisal } from './NationalExposureDevelopmentOrigin';
 import { openSqliteOfficialPlayerOutcomeStore } from './SqliteOfficialPlayerOutcomeStore';
 import { openSqliteActualLiveScoringStore } from './SqliteActualLiveScoringStore';
 import type { AcceptedActualLiveScoringSource } from './ActualLiveScoringSource';
@@ -32,14 +34,16 @@ type TailInput = Readonly<{
   foulReceipt: CompletedPlayParticipationReceipt; adoptedFoul: DurableNationalAppearance;
   originBytes: string; clubBefore: ReturnType<NationalBattedFoulTailContext['roster']['readHead']>;
   progress: (phase:string)=>void; preservedFoulStatistics?: OfficialPlayerOutcomeAttribution;
+  statisticsBoundary?: NationalOriginalStatisticsBoundary;
 }>;
 /** Fresh and pitch-retained callers still admit their original complete second-play prefix. */
 export const continueNationalBattedFoulOriginalTail = (input: TailInput & Readonly<{ f: NationalBattedFoulTailContext }>) =>
   continueNationalBattedFoulOriginalTailFromField({ ...input,
     liveRoot: nationalBattedFieldFixture(input.f, input.nextActor, 'national-live', 'first_base') });
 
-/** The unchanged original 37 assertions, entered after the real field binding.
- * A retained root contains owner-authenticated evidence, never caller substitutes. */
+/** Default entry executes the original 37 assertions. A witnessed statistics
+ * entry relies on the prior source-pinned run for its already completed checks.
+ * Every retained domain value still comes from its real owner. */
 export const continueNationalBattedFoulOriginalTailFromField = (input: TailInput & Readonly<{
   f: NationalBattedFoulConsumerContext; liveRoot: NationalBattedFoulFieldRoot; retainedPhysicalCut?: Parameters<typeof attachActualFirstBasePlayEndFixture>[3];
 }>) => {
@@ -55,27 +59,47 @@ export const continueNationalBattedFoulOriginalTailFromField = (input: TailInput
   expect(live.race.execution.kind).toBe('first_base_race');
   expect(live.end.kind).toBe('ended');
   expect(live.closure.official.receipt).toMatchObject({ durableRevision: 2, previousPlayId: nextActor.match.playId });
-  const liveReceipt = f.participation.confirmNationalActualLivePlayed(f.source.gameId, 'p10', live.closureSource.sourceId);
-  expect(liveReceipt).toMatchObject({ evidenceKind: 'NATIONAL_ACTUAL_LIVE_V1', actorKind: 'BATTER_RUNNER', durableRevision: 2,
-    binding: { playerId: 'p10', nationalRegistrationEventId: 'call-10' } });
-  const liveAppearance = { eventId: 'national-live:appearance', careerId: 'career-a', receiptId: liveReceipt.receiptId, acceptedAtDay: 121 };
-  f.callups.adoptAppearance(liveAppearance);
-  expect(f.callups.adoptAppearance(foulAppearance)).toEqual(adoptedFoul);
-  expect(f.participation.confirmNationalFoulTerminalPlayed(f.source.gameId, 'p9', foulTerminalSource.sourceId)).toEqual(foulReceipt);
-  expect(() => f.participation.confirmNationalActualLivePlayed(f.source.gameId, 'p9', live.closureSource.sourceId)).toThrow('recorded differently');
-  expect(f.db.prepare('SELECT count(*) AS n FROM official_participation_receipts').get()).toEqual({ n: 2 });
-  expect(json(f.origins.read(f.source.gameId))).toBe(originBytes);
-  expect(f.roster.readHead('career-a', 'club-a')).toEqual(clubBefore);
-  progress('two_original_participation_and_adoption_receipts');
-
   const statistics = f.track(openSqliteOfficialPlayerOutcomeStore(path));
   const foulStatisticsSource = { owner: 'actual_foul_terminal_applications' as const, sourceId: foulTerminalSource.sourceId };
-  const attributedFoul = preservedFoulStatistics ?? statistics.apply(foulStatisticsSource);
-  expect(attributedFoul).toMatchObject({ kind: 'attributed', batterPlayerId: 'p9', pitcherPlayerId: 'p0', classification: 'strikeout' });
-  // Classification remains unavailable until its owned original ground-out
-  // sidecar is separately admitted by the existing scorer.
-  expect(statistics.apply({ owner: 'actual_live_play_closures', sourceId: live.closureSource.sourceId }))
-    .toMatchObject({ kind: 'unavailable', reason: 'supported_official_scoring_missing' });
+  let liveReceipt: ReturnType<NationalBattedFoulConsumerContext['participation']['confirmNationalActualLivePlayed']>;
+  let attributedFoul: ReturnType<typeof statistics.apply>;
+  if (input.statisticsBoundary) {
+    assertNationalOriginalStatisticsBoundary(input.statisticsBoundary);
+    const row = f.db.prepare('SELECT receipt_id FROM official_participation_receipts WHERE game_id=? AND player_id=?').get(f.source.gameId, 'p10');
+    const receipt = row && f.participation.readReceipt(String(row.receipt_id));
+    assert(receipt && 'evidenceKind' in receipt && receipt.evidenceKind === 'NATIONAL_ACTUAL_LIVE_V1'
+      && receipt.closureSourceId === live.closureSource.sourceId, 'retained original live participation is missing');
+    assert.equal(receipt.binding.playerId, 'p10'); liveReceipt = receipt;
+    const appearance = { eventId: 'national-live:appearance', careerId: 'career-a', receiptId: liveReceipt.receiptId, acceptedAtDay: 121 };
+    assert.equal(f.callups.readRepresentation('career-a', 'p10', 121)[0]?.seniorOfficialAppearanceDay, 121);
+    const savedAppearance = f.db.prepare('SELECT entry_json FROM world_national_callups WHERE event_id=?').get(appearance.eventId);
+    assert(savedAppearance); assert.equal(json(JSON.parse(String(savedAppearance.entry_json)).input), json(appearance), 'retained appearance Source differs');
+    const attributed = statistics.readApplication(foulStatisticsSource);
+    assert(attributed && attributed.kind === 'attributed', 'retained original foul statistics are missing'); attributedFoul = attributed;
+    assert.equal(attributedFoul.source.sourceId, foulTerminalSource.sourceId);
+    progress('verified_original_missing_scoring_assertion_boundary');
+  } else {
+    liveReceipt = f.participation.confirmNationalActualLivePlayed(f.source.gameId, 'p10', live.closureSource.sourceId);
+    expect(liveReceipt).toMatchObject({ evidenceKind: 'NATIONAL_ACTUAL_LIVE_V1', actorKind: 'BATTER_RUNNER', durableRevision: 2,
+      binding: { playerId: 'p10', nationalRegistrationEventId: 'call-10' } });
+    const liveAppearance = { eventId: 'national-live:appearance', careerId: 'career-a', receiptId: liveReceipt.receiptId, acceptedAtDay: 121 };
+    f.callups.adoptAppearance(liveAppearance);
+    expect(f.callups.adoptAppearance(foulAppearance)).toEqual(adoptedFoul);
+    expect(f.participation.confirmNationalFoulTerminalPlayed(f.source.gameId, 'p9', foulTerminalSource.sourceId)).toEqual(foulReceipt);
+    expect(() => f.participation.confirmNationalActualLivePlayed(f.source.gameId, 'p9', live.closureSource.sourceId)).toThrow('recorded differently');
+    expect(f.db.prepare('SELECT count(*) AS n FROM official_participation_receipts').get()).toEqual({ n: 2 });
+    expect(json(f.origins.read(f.source.gameId))).toBe(originBytes);
+    expect(f.roster.readHead('career-a', 'club-a')).toEqual(clubBefore);
+    progress('two_original_participation_and_adoption_receipts');
+
+    attributedFoul = preservedFoulStatistics ?? statistics.apply(foulStatisticsSource);
+    expect(attributedFoul).toMatchObject({ kind: 'attributed', batterPlayerId: 'p9', pitcherPlayerId: 'p0', classification: 'strikeout' });
+    // Classification remains unavailable until its owned original ground-out
+    // sidecar is separately admitted by the existing scorer.
+    expect(statistics.apply({ owner: 'actual_live_play_closures', sourceId: live.closureSource.sourceId }))
+      .toMatchObject({ kind: 'unavailable', reason: 'supported_official_scoring_missing' });
+    progress('original_missing_scoring_assertion_completed');
+  }
   const groundSource: AcceptedActualLiveScoringSource = { sourceId: 'national-live:ground-out', sourceVersion: 'owned-ground-out-v1',
     gameId: f.source.gameId, scoringApplicationId: 'national-live:ground-out-score',
     closureReference: { sourceId: live.closureSource.sourceId, proposalHash: hash(live.queued.proposal) },
@@ -84,11 +108,13 @@ export const continueNationalBattedFoulOriginalTailFromField = (input: TailInput
   const originalClosure = f.db.prepare('SELECT * FROM actual_live_play_closures WHERE source_id=?').get(live.closureSource.sourceId);
   const groundScoring = f.track(openSqliteActualLiveScoringStore(path,
     { readAcceptedScoringSource: id => id === groundSource.sourceId ? groundSource : null }));
-  const scoredGround = groundScoring.submit(groundSource.sourceId);
+  const savedGround = input.statisticsBoundary ? groundScoring.read(groundSource.sourceId) : null;
+  if (savedGround) assert.equal(json(savedGround.source), json(groundSource), 'retained ground scoring Source differs');
+  const scoredGround = savedGround?.result ?? (savedGround ? groundScoring.resume(groundSource.sourceId) : groundScoring.submit(groundSource.sourceId));
   expect(scoredGround.record).toMatchObject({ classification: 'ground_out', runsScored: 0, hitsCredited: 0, errorsCharged: 0 });
   expect(f.db.prepare('SELECT * FROM actual_live_play_closures WHERE source_id=?').get(live.closureSource.sourceId)).toEqual(originalClosure);
   const liveStatisticsSource = { owner: 'actual_live_play_closures' as const, sourceId: live.closureSource.sourceId };
-  const attributedGround = statistics.apply(liveStatisticsSource);
+  const attributedGround = input.statisticsBoundary ? statistics.readApplication(liveStatisticsSource) ?? statistics.apply(liveStatisticsSource) : statistics.apply(liveStatisticsSource);
   expect(attributedGround).toMatchObject({ kind: 'attributed', batterPlayerId: 'p10', pitcherPlayerId: 'p0', classification: 'ground_out' });
   const statisticsScope = { careerId: 'career-a', competitionEditionId: foulReceipt.binding.competitionEditionId, playerId: 'p9', asOfDay: 121 };
   const originalStatistics = statistics.aggregate(statisticsScope);
@@ -97,8 +123,18 @@ export const continueNationalBattedFoulOriginalTailFromField = (input: TailInput
   expect(statistics.aggregate({ ...statisticsScope, playerId: 'p0' }).pitching.outcomes.ground_out).toBe(1);
 
   const person = f.track(openSqlitePersonGenesisStore(path));
-  person.initializeCareer({ careerId: 'career-a', initializedAtDay: 10, careerSeed: 12345, policies: nationalExposureGenesisPolicies() });
-  person.materializeBatch(['link-9', 'link-10']);
+  const genesis = { careerId: 'career-a', initializedAtDay: 10, careerSeed: 12345, policies: nationalExposureGenesisPolicies() };
+  if (input.statisticsBoundary && person.readDevelopmentSeed(genesis.careerId) !== null) {
+    const saved = f.db.prepare('SELECT initialized_at_day,career_seed,policies_json FROM world_person_genesis_careers WHERE career_id=?').get(genesis.careerId); assert(saved);
+    assert.equal(saved.initialized_at_day, genesis.initializedAtDay); assert.equal(saved.career_seed, genesis.careerSeed);
+    assert.equal(json(JSON.parse(String(saved.policies_json))), json(genesis.policies), 'retained genesis Source differs');
+  } else person.initializeCareer(genesis);
+  const savedPeople = input.statisticsBoundary ? ['link-9', 'link-10'].map(id => person.read(id)) : [];
+  if (savedPeople.some(Boolean)) {
+    assert(savedPeople.every(Boolean), 'retained original Person batch is incomplete');
+    savedPeople.forEach((value, i) => assert.deepEqual([value!.careerId, value!.playerId, value!.personId, value!.sourceId],
+      ['career-a', `p${i + 9}`, `person-${i + 9}`, `link-${i + 9}`]));
+  } else person.materializeBatch(['link-9', 'link-10']);
   const policies = nationalExposurePolicies(), appraisals = new Map<string, AcceptedNationalExposureAppraisal>();
   const requests = [foulReceipt, liveReceipt].map(receipt => {
     const appraisal = nationalExposureAppraisal(receipt.binding.playerId, receipt.binding.gameDay);
@@ -109,7 +145,16 @@ export const continueNationalBattedFoulOriginalTailFromField = (input: TailInput
   const episodes = f.track(openSqliteDevelopmentInitiationStore(path, { roster: f.roster, person,
     appraisal: { readAcceptedAppraisal: () => null }, policies: { readAcceptedPolicies: id => id === policies.sourceId ? policies : null },
     nationalExposure: { readAcceptedAppraisal: id => appraisals.get(id) ?? null } }));
-  const initiations = requests.map(request => episodes.applyNationalExposure(request));
+  const initiations = requests.map(request => {
+    const saved = input.statisticsBoundary ? episodes.read(request.episodeId) : null;
+    if (!saved) return episodes.applyNationalExposure(request);
+    const row = f.db.prepare('SELECT origin_json FROM world_development_national_exposure_origins WHERE episode_id=?').get(request.episodeId); assert(row);
+    const origin = JSON.parse(String(row.origin_json)) as NationalExposureOrigin;
+    assert.equal(json(origin.request), json(request), 'retained exposure request differs');
+    assert.equal(json(origin.appraisal), json(appraisals.get(request.appraisalSourceId)), 'retained exposure appraisal differs');
+    assert.equal(json(origin.policies), json(policies), 'retained exposure policies differ');
+    return saved;
+  });
   for (const [i, initiation] of initiations.entries()) {
     expect(initiation.episode.catalyst).toMatchObject({ family: 'ELITE_EXPOSURE', sourceEventId: requests[i].participationReceiptId });
     expect(episodes.applyNationalExposure(requests[i])).toEqual(initiation);
@@ -117,8 +162,13 @@ export const continueNationalBattedFoulOriginalTailFromField = (input: TailInput
   const alias = nationalExposureAppraisal('p9', 121, '-same-game'); appraisals.set(alias.sourceId, alias);
   expect(() => episodes.applyNationalExposure({ ...requests[0], episodeId: alias.episodeId, appraisalSourceId: alias.sourceId })).toThrow('consumed');
   // A later legal fact does not revise either original representation snapshot.
-  f.facts.record({ careerId: 'career-a', personLinkSourceId: 'link-9', active: false,
-    fact: { evidenceId: 'national-later-revocation', playerId: 'p9', personId: 'person-9', nationId: 'KR', basis: 'CITIZENSHIP', effectiveFromDay: 121 } });
+  const revocation = { careerId: 'career-a', personLinkSourceId: 'link-9', active: false,
+    fact: { evidenceId: 'national-later-revocation', playerId: 'p9', personId: 'person-9', nationId: 'KR', basis: 'CITIZENSHIP' as const, effectiveFromDay: 121 } };
+  const savedRevocation = input.statisticsBoundary && f.db.prepare('SELECT entry_json FROM world_national_eligibility_facts WHERE evidence_id=?').get(revocation.fact.evidenceId);
+  if (savedRevocation) {
+    assert(f.facts.readFacts('career-a', 'p9', 121), 'retained eligibility facts missing');
+    assert.equal(json(JSON.parse(String(savedRevocation.entry_json)).input), json(revocation), 'retained revocation Source differs');
+  } else f.facts.record(revocation);
   const receiptRows = f.db.prepare('SELECT * FROM official_participation_receipts ORDER BY receipt_id').all();
   f.close(); progress('all_original_handles_closed');
 

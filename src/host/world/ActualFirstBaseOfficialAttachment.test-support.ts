@@ -100,13 +100,14 @@ export const attachActualFirstBaseOfficialFixture = <T extends ActualFirstBaseOf
     modelSourceId: model.sourceId, currentExecutionSourceId: final.source.sourceId, previousCommunicationSourceId: null };
   const communications = x.f.track(openSqliteActualCommunicationStore(path,
     { readAcceptedModel: () => model, readAcceptedCommunication: () => communicationSource }));
-  communications.acceptModel(model.sourceId);
-  const communication = communications.accept(communicationSource.sourceId);
+  if (completed.has(model.sourceId)) original(communications.readModel(model.sourceId), model); else communications.acceptModel(model.sourceId);
+  const communication = completed.has(communicationSource.sourceId)
+    ? original(communications.read(communicationSource.sourceId), communicationSource) : communications.accept(communicationSource.sourceId);
   const endSource = { sourceId: 'physical-end', sourceVersion: 'fixture-v1', runtimeSourceId: x.runtime.source.sourceId,
     baseFieldSourceId: x.baseField.source.sourceId, executionSourceId: final.source.sourceId, ruleConsumptionSourceId: acknowledgement.sourceId,
     umpireCallSourceId: call.source.sourceId, communicationSourceId: communication.source.sourceId };
   const ends = x.f.track(openSqliteActualFirstBasePlayEndStore(path, { readAcceptedEnd: id => id === endSource.sourceId ? endSource : null }));
-  const end = ends.accept(endSource.sourceId);
+  const end = completed.has(endSource.sourceId) ? original(ends.read(endSource.sourceId), endSource) : ends.accept(endSource.sourceId);
   const frame = x.baseField.response.touch.worldContact.flight.physicalPitch.frame;
   const adjudicationSource: AcceptedActualLiveAdjudication = { sourceId: 'fixture-actual-live-adjudication', sourceVersion: 'fixture-v1',
     physicalEndSourceId: end.source.sourceId, policy: { sourceId: 'explicit-fixture-official-policy', sourceVersion: 'fixture-v1',
@@ -114,7 +115,8 @@ export const attachActualFirstBaseOfficialFixture = <T extends ActualFirstBaseOf
       officialWindows: { appeal: { available: true }, review: { available: false }, challenge: { available: false } } } };
   const adjudications = x.f.track(openSqliteActualLiveAdjudicationStore(path,
     { readAcceptedAdjudication: id => id === adjudicationSource.sourceId ? adjudicationSource : null }));
-  const adjudication = adjudications.accept(adjudicationSource.sourceId);
+  const adjudication = completed.has(adjudicationSource.sourceId)
+    ? original(adjudications.read(adjudicationSource.sourceId), adjudicationSource) : adjudications.accept(adjudicationSource.sourceId);
   if (adjudication.kind !== 'official_ready') throw new Error(`original first-base adjudication is pending: ${adjudication.pendingReasons.join(', ')}`);
   const closureSource: AcceptedActualLivePlayClosure = { sourceId: 'fixture-actual-live-closure', sourceVersion: 'fixture-v1',
     adjudicationSourceId: adjudication.source.sourceId, applicationId: 'fixture-actual-live-application',
@@ -126,7 +128,8 @@ export const attachActualFirstBaseOfficialFixture = <T extends ActualFirstBaseOf
       activePreviousPlayControllerIds: [] } };
   const closures = x.f.track(openSqliteActualLivePlayClosureStore(path,
     { readAcceptedClosure: id => id === closureSource.sourceId ? closureSource : null }));
-  const queued = closures.enqueue(closureSource.sourceId), closure = closures.resume(closureSource.sourceId);
+  const queued = completed.has(closureSource.sourceId) ? original(closures.read(closureSource.sourceId), closureSource) : closures.enqueue(closureSource.sourceId);
+  const closure = queued.result ?? closures.resume(closureSource.sourceId);
   return { ...x, race, consumptions, consumption, umpires, observed, waiting, due, call, final, communications, communication,
     endSource, ends, end, adjudicationSource, adjudications, adjudication, closureSource, closures, queued, closure };
 };
