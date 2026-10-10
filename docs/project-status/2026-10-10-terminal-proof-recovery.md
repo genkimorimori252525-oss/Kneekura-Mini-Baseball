@@ -158,3 +158,15 @@ The PL01 suffix authenticates the retained owners and executes the missing
 settlement/transition/release/reopen/occupied-next-pitch body without regenerating
 the six-TAKE prefix. It still reports `wholeCasePass: false`; neither new run has
 a completion result at this publication. LAN remains held for a subsequent lane.
+
+## Ordinary workload reservation release proof scope
+
+PL01の保持suffix（固定公開 `d6dfd095` / src `023b3d8b`）で、元10人決済が20:16:54に実返却した。同じfrozen plan入力を使う旧sourceでは決済が残り約194分の上限まで未返却だったが、今回の決済は1,154.082秒で完了した。成功同士の対応する時間比は算出しない。その後、元公式transition・release、close/reopenと決済retryのassertionを通過し、occupied次打者のmodel受理まで進んだ。新打者workload baseline初期化は20:35:04に開始し、本保存時点では未返却で、元suffix全体も未完である。
+
+この待機操作に限定したコード確認で、通常のNative予約assertionがsettlement activity admissionを持たず、既存の読み取りphaseへ入らないことを確認した。各歴史recordが同じenrollmentの完了releaseを再構築していた。実行中の内部stackや経過時間の内訳を測った結果ではない。
+
+`SamePlateAppearanceSettlementAdmission.ts` の既存assertion wrapperを通常のNative transactionにも適用し、1回の確認内だけで完了release原本をenrollment別に再利用する。raw archive/census、career/player/activityの判定は毎回行う。受理callbackやDMLを跨がず、初期化にある4回の独立確認、transactionの再認証、retry、finally cleanupを保つ。matching admissionのsavepoint検査は子phaseの作成前に行う。非Native/minimal Dbとtransaction外の既存挙動は維持した。
+
+一括reviewはCLEAR。固定src `e5f3ed76710da25007774d59ba7ce661614f39b1` で全compilerが31.794秒、関連71件／6 filesが183.415秒でPASSした。対象はTerminalSettlement、ContinuationReadPhase、ReservationGuard、DispatchClaimGuard、EnrollmentClaimReuse、SqlitePlayerWorkloadRecoveryStore。全source/dependency/runtime/control pinは不変で、guardと残存processはない。正式結果SHA256は `0ffb1843d19b5c98788b2bf79bd82ef47e467cd6099036f771fb64deaec5dc1a`。
+
+限定回帰では、同じ確認内でのrelease復元4回→1回、各initialize確認内2回→1回を確認し、異なるscope・欠けたenrollment・callback mutation・retryの新鮮さ・cleanupを検査した。原本terminal proofを一部structural fixtureで扱う回帰であり、この新sourceのgenuine経過時間や全体完了を認定するものではない。実行中IFNは固定 `35c05066` / src `7e90c1ac`、PL suffixは固定 `d6dfd095` / src `023b3d8b` を維持する。待機中LANへの新source適用は、元のcallback・geometry・assertion・制限とsource pinを保持した差分確認後に行う。

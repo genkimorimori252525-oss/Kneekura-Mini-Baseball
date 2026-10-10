@@ -24,6 +24,9 @@ import type { DatabaseSync } from 'node:sqlite';
 import { readSamePaTerminalReleaseArchive } from './SamePlateAppearanceTerminalReleaseArchive';
 import { samePaPlayerClaimCanProceed, withSamePaSettlementActivityWrite, withSamePaSettlementClaimReadPhase } from './SamePlateAppearanceSettlementAdmission';
 import { playerWorkloadRecoveryStoreFromSqlite } from './SqlitePlayerWorkloadRecoveryStore';
+import { paDispatchSchema } from './SamePlateAppearanceDispatchStorage';
+import { withSamePaContinuationReadPhase } from './SamePlateAppearanceContinuationFromSqlite';
+import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 
 // Isolated structural Native tests: original actor and physical/official
 // terminal readers are mocked. All ten workload activities, CAS, transactions,
@@ -113,6 +116,32 @@ const setup = (runnerCount = 0) => {
     return f.workload.apply('later', 1);
   };
   return { f, enroll, enrollment, endpoint, source, sources, owner, complete, fresh };
+};
+// Metadata-only future dispatch claims. The existing endpoint/transition stubs
+// remain explicit; these rows qualify neither physical work nor a real PA.
+const releasedClaims = () => {
+  const x = setup(), db = x.f.db;
+  for (const sql of Object.values(paDispatchSchema)) db.exec(sql);
+  for (let i = 0; i < 2; i++) {
+    const source = { sourceId: 'historical-consumer-' + i }, snapshot = { source };
+    db.prepare('INSERT INTO pa_dispatch_v1_consumer_actions VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)').run(
+      source.sourceId, 'structural-v1', x.enrollment.careerId, x.enrollment.gameId, x.enrollment.playId,
+      x.enrollment.source.sourceId, x.enrollment.source.firstPhysicalPitchSourceId, 'structural-view',
+      'structural-right', x.enrollment.source.firstPhysicalPitchSourceId, x.f.players[0], 'structural-route', i,
+      json(source), hash(source), json(snapshot), hash(snapshot));
+  }
+  x.owner.settle(x.source.sourceId); x.complete(); x.owner.release(x.source.sourceId);
+  return x;
+};
+const newBaseline = (x: ReturnType<typeof setup>) => {
+  const original = x.f.baselines.values().next().value!, playerId = 'ordinary-new-batter';
+  const person = { ...x.f.personLinks.readLink(original.personLinkSourceId)!, sourceId: 'intake-' + playerId,
+    playerId, personId: 'person-' + playerId, sourceRecordId: 'record-' + playerId };
+  x.f.db.prepare('INSERT INTO world_player_person_links VALUES(?,?,?,?,?,?,?)').run(person.sourceId, person.careerId,
+    playerId, person.personId, person.rosterRevision, person.acceptedAtDay, json(person));
+  const readLink = x.f.personLinks.readLink;
+  vi.spyOn(x.f.personLinks, 'readLink').mockImplementation(id => id === person.sourceId ? person : readLink(id));
+  return { ...original, sourceId: 'baseline-' + playerId, playerId, personLinkSourceId: person.sourceId };
 };
 it('requires a reference-only terminal settlement Source without caller totals or release flags', () => {
   const source = { sourceId: 'settlement', sourceVersion: 'v1', capability: 'same_pa_terminal_settlement_v1',
@@ -254,6 +283,92 @@ it('shares only the settlement proof while checking each enrollment, Player and 
         expect(vi.mocked(terminal.readSamePaTerminalEndpointFromSqlite).mock.calls.length - before).toBe(1);
       }));
   } finally { db.exec('ROLLBACK'); }
+});
+it('reuses the complete released proof only within one ordinary reservation assertion', () => {
+  const x = releasedClaims(), db = x.f.db, scope = { careerId: x.enrollment.careerId, playerId: x.f.players[0] };
+  const release = vi.spyOn(settlementEvidence, 'readSamePaTerminalReleaseFromSqlite');
+  const claim = (enrollment = x.enrollment.source.sourceId, member = scope) => samePaPlayerClaimCanProceed(db, enrollment, member);
+  db.exec('BEGIN');
+  try {
+    // Even an enclosing owner read must not extend one assertion's memo into
+    // another assertion after its own wrapper returns.
+    withBattedWorldPhysicalReadTraversal(db, () => withSamePaContinuationReadPhase(db, () => {
+      withSamePaSettlementClaimReadPhase(db, scope, () => {
+        expect(claim()).toBe(true); expect(claim()).toBe(true);
+        expect(claim('other-enrollment')).toBe(false);
+        expect(claim(undefined, { ...scope, careerId: 'other-career' })).toBe(false);
+        expect(claim(undefined, { ...scope, playerId: 'other-player' })).toBe(false);
+        expect(release).toHaveBeenCalledTimes(1);
+      });
+      withSamePaSettlementClaimReadPhase(db, scope, () => expect(claim()).toBe(true));
+      expect(release).toHaveBeenCalledTimes(2);
+    }));
+    expect(db.prepare('PRAGMA query_only').get()!.query_only).toBe(0);
+    expect(() => withSamePaSettlementClaimReadPhase(db, scope, () => {
+      expect(claim()).toBe(true);
+      db.exec('PRAGMA query_only=0; UPDATE pa_dispatch_v1_consumer_actions SET source_version=\'changed\'; PRAGMA query_only=1');
+      expect(claim).toThrow(); expect(claim).toThrow(/expired/);
+    })).toThrow();
+  } finally { if (db.isTransaction) db.exec('ROLLBACK'); }
+  expect(db.prepare('PRAGMA query_only').get()!.query_only).toBe(0);
+  db.exec('BEGIN');
+  try { withSamePaSettlementClaimReadPhase(db, scope, () => expect(claim()).toBe(true)); }
+  finally { db.exec('ROLLBACK'); }
+});
+it('ends each ordinary initialize claim before callbacks, writes and an exact retry', () => {
+  const x = releasedClaims(), db = x.f.db, baseline = newBaseline(x);
+  const release = vi.spyOn(settlementEvidence, 'readSamePaTerminalReleaseFromSqlite');
+  const assertReservation = reservations.assertNoSamePaPlayerReservation;
+  const phases: { reads: number; baselines: number }[] = [], callbacks: string[] = [];
+  vi.spyOn(reservations, 'assertNoSamePaPlayerReservation').mockImplementation((connection, scope, own) => {
+    const before = release.mock.calls.length;
+    assertReservation(connection, scope, own);
+    expect(db.prepare('PRAGMA query_only').get()!.query_only).toBe(0);
+    phases.push({ reads: release.mock.calls.length - before, baselines: Number(count(db, 'world_player_workload_baselines')) });
+  });
+  const workload = playerWorkloadRecoveryStoreFromSqlite(db, x.f.personLinks, {
+    readAcceptedBaseline: () => { expect(db.prepare('PRAGMA query_only').get()!.query_only).toBe(0); return baseline; },
+    readAcceptedActivity: () => null,
+  }, { baseline: (_db, _input, phase) => { callbacks.push(phase); expect(db.prepare('PRAGMA query_only').get()!.query_only).toBe(0); } });
+  const initial = workload.initialize(baseline.sourceId);
+  expect(phases).toEqual([10, 10, 11, 11].map(baselines => ({ reads: 1, baselines })));
+  expect(callbacks).toEqual(['write', 'written']);
+  expect(workload.initialize(baseline.sourceId)).toEqual(initial);
+  expect(callbacks).toEqual(['write', 'written', 'retry']); expect(phases).toHaveLength(4);
+  // A later assertion must authenticate new raw census contents even if it
+  // follows an exact initialization retry.
+  db.prepare('UPDATE pa_dispatch_v1_consumer_actions SET source_version=?').run('changed');
+  db.exec('BEGIN');
+  try { expect(() => reservations.assertNoSamePaPlayerReservation(db, baseline)).toThrow(/claim census changed/); }
+  finally { db.exec('ROLLBACK'); }
+});
+it.each(['accepted', 'write', 'written'] as const)('ordinary initialize rechecks release census after the %s callback', boundary => {
+  const x = releasedClaims(), db = x.f.db, baseline = newBaseline(x);
+  const corrupt = () => {
+    expect(db.prepare('PRAGMA query_only').get()!.query_only).toBe(0);
+    db.prepare('UPDATE pa_dispatch_v1_consumer_actions SET source_version=?').run('changed');
+  };
+  const workload = playerWorkloadRecoveryStoreFromSqlite(db, x.f.personLinks, {
+    readAcceptedBaseline: () => { if (boundary === 'accepted') corrupt(); return baseline; }, readAcceptedActivity: () => null,
+  }, { baseline: (_db, _input, phase) => { if (boundary === phase) corrupt(); } });
+  expect(() => workload.initialize(baseline.sourceId)).toThrow(/claim census changed/);
+  expect(count(db, 'world_player_workload_baselines')).toBe(10);
+  expect(workload.readHead(baseline.careerId, baseline.playerId)).toBeNull();
+  expect(db.isTransaction).toBe(false); expect(db.prepare('PRAGMA query_only').get()!.query_only).toBe(0);
+});
+it('keeps mismatched settlement admission fenced and minimal non-Native claim callers compatible', () => {
+  const x = setup(), frozen = x.owner.freeze(x.source.sourceId), db = x.f.db;
+  const [admitted, other] = frozen.participants;
+  db.exec('BEGIN');
+  try {
+    withSamePaSettlementActivityWrite(db, frozen.reference, admitted.playerId, () => {
+      expect(() => reservations.assertNoSamePaPlayerReservation(db, other.activity)).toThrow(/blocks new global Player workload/);
+      expect(db.prepare('PRAGMA query_only').get()!.query_only).toBe(0);
+      expect(() => reservations.assertNoSamePaPlayerReservation(db, admitted.activity)).not.toThrow();
+    });
+  } finally { db.exec('ROLLBACK'); }
+  const fake = { prepare: () => { throw new Error('unused fake prepare'); } };
+  expect(withSamePaSettlementClaimReadPhase(fake, admitted.activity, () => 'unscoped')).toBe('unscoped');
 });
 it('keeps the admitted reference immutable and invalidates cached proofs after a mutation', () => {
   const x = setup(), frozen = x.owner.freeze(x.source.sourceId), participant = frozen.participants[0], db = x.f.db;
