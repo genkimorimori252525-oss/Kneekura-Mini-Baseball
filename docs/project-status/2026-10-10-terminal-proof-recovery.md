@@ -53,3 +53,13 @@ For a recovered private copy at that exact binding frontier:
 3. Keep the ordinary continuation's original assertions. A successful continuation does not turn an interrupted fresh run into a whole fresh-case PASS. Do not delete accepted rows or present an arbitrary later checkpoint as this frontier. The separate statistics-only entry requires its own explicit original-boundary evidence.
 
 The foul-reset entry currently has no intermediate-snapshot resume mode. Its committed snapshots must not be described as automatically resumable. Snapshot data, private paths, logs and environment controls are not published here.
+
+## Fresh first-base proposal scope
+
+The running original National case spent about 740.5 seconds between real-motor adoption and the next quantizer acceptance. Inspection found that the fresh fixture's pure field/execution prefix construction lacked the outer immutable scope already used by its retained branch. Nested motor/decision reads therefore ended their individual snapshots before the parent could reuse the completed National original proof.
+
+The one-site correction wraps only those fresh fields/executions reads in the existing `withBattedVenueLegalReadSnapshot`. Retained reconstruction, source values, read order and assertions are unchanged. Current known-work discovery, kinematics, accepted callbacks and writes remain outside that phase; independent acceptance and retry still authenticate separately.
+
+Independent review was **CLEAR**. The corrected src tree is `5ceb4ceece5e8c43b31382b7d4f42d7f09b9ba40`; the changed fixture file SHA256 is `132eb86573523042e010989c092e108e00b40fea309365ddf186e7520ce70812`. Full compiler passed in **36.146 seconds**, and the two existing snapshot/traversal regression files passed **31/31 cases in 28.000 seconds**. Source, dependency, runtime and control pins were stable, no resource guard fired and no child survived. Formal finite report SHA256: `7f5a58f650cfba334782a5ba293b2f2c6f232c82d2781cd6465149a412aa8371`.
+
+Those checks verify the compiler and existing proof-scope isolation/invalidation behavior; they do not execute the whole genuine fixture or measure an elapsed-time improvement. Both running Native cases keep their original fixed `d4a17d49` source. No long case was restarted for this correction.

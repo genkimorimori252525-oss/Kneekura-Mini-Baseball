@@ -174,9 +174,11 @@ export const attachActualFirstBasePlayEndFixture = <T extends ActualFirstBaseFie
     const executions = x.f.track(openSqliteBattedWorldFieldExecutionStore(path, x.fields, authority));
     const prefix = (through: string | null): Parameters<typeof actualPlayersKinematicsFromPrefix>[1] => {
       const retainedIndex = retained?.executions.findIndex(value => value.source.sourceId === through) ?? -1;
+      // Share only this immutable proposal read; admissions start after it closes.
       return retainedIndex >= 0 ? { baseField, fields: retained!.fields, executions: retained!.executions.slice(0, retainedIndex + 1) }
-        : { baseField, fields: battedWorldFieldEvidenceFromSqlite(x.f.db).scope(baseField, baseField.source.sourceId),
-          executions: battedWorldFieldExecutionEvidenceFromSqlite(x.f.db).scope(baseField, through) };
+        : withBattedVenueLegalReadSnapshot(x.f.db, () => ({ baseField,
+          fields: battedWorldFieldEvidenceFromSqlite(x.f.db).scope(baseField, baseField.source.sourceId),
+          executions: battedWorldFieldExecutionEvidenceFromSqlite(x.f.db).scope(baseField, through) }));
     };
     const knownWork = () => ownedMotionKnownWorkFromSqlite(x.f.db, pitchId, playerIds);
     const accept = (sourceId: string, previousExecutionSourceId: string | null, action: AcceptedBattedWorldFieldExecution['action']) => {
