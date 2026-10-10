@@ -1,4 +1,5 @@
 import { expect } from 'vitest';
+import { openSqliteSamePlateAppearancePhysicalEpisodeStore } from './SqliteSamePlateAppearancePhysicalEpisodeStore';
 import type { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 import type { completeSamePaTerminalFixture } from './SamePlateAppearanceTerminalLifecycleFixture.test-support';
 import { actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -23,11 +24,25 @@ import type { AcceptedSamePaOccupiedRunnerHold } from './SamePlateAppearanceOccu
 import type { AcceptedSamePaFirstPitchAction } from './SamePlateAppearanceDispatchSource';
 import { prepareSamePaInitialPlayFixture, type SamePaInitialPlayFixtureInputs } from './SamePlateAppearanceInitialBallFixture.test-support';
 
+type PhysicalFixture = ReturnType<typeof samePaPhysicalLifecycleFixture>;
+type NativeFixture = PhysicalFixture['f'];
+/** Only dependencies used by this continuation; full fresh fixtures retain
+ * their wider type when composing further occupied physical lifecycles. */
+export type SamePaOccupiedWalkBase = Pick<NativeFixture,
+  'db' | 'path' | 'actor' | 'body' | 'pose' | 'reach' | 'capability' | 'repertoire' | 'decision' | 'equipment'
+  | 'observation' | 'prediction' | 'scope' | 'requests' | 'materializations' | 'acceptedCalibrations'> & Readonly<{
+  stance: Pick<NativeFixture['stance'], 'handedness' | 'centerOfMass' | 'eyePosition'>;
+  x: Pick<NativeFixture['x'], 'actors' | 'accepted'> & {
+    f: Pick<NativeFixture['x']['f'], 'track' | 'participation' | 'baseline' | 'links'>;
+  };
+}>;
+type OccupiedContext<F extends SamePaOccupiedWalkBase> = Pick<PhysicalFixture, 'original' | 'sceneBodyReferences'> & { f: F };
+
 /** One extension of PL01's genuinely completed walk. Every new numerical value
  * is a separately accepted synthetic Source using the existing body/batting,
  * runner and dispatch recipes. No archive, state, pitch or count is transplanted.
  * This helper is authored for the parent's single combined Native run. */
-export const continueSamePaOccupiedWalkFixture = (h: ReturnType<typeof samePaPhysicalLifecycleFixture>,
+export const continueSamePaOccupiedWalkFixture = <F extends SamePaOccupiedWalkBase>(h: OccupiedContext<F>,
   completed: ReturnType<typeof completeSamePaTerminalFixture>, label: string,
   options: Readonly<{ initialPlay?: SamePaInitialPlayFixtureInputs }> = {}) => {
   const { f } = h, { db, path } = f, track = f.x.f.track;
@@ -218,4 +233,20 @@ export const continueSamePaOccupiedWalkFixture = (h: ReturnType<typeof samePaPhy
   return {actor,enrollment,view,hold,action,calibrations,consumers,episode,right,pitch,
     f:{...fixture,dispatch:reopened},accepted,save,originals,roles,sceneBodyReferences,batting,runnerBody:runnerBody.value,runnerModel,
     ...(initialPlay===null?{}:{initialPlay})};
+};
+
+/** PL01's original post-terminal assertions, shared with its retained suffix. */
+export const finishSamePaPhysicalWalkFixture = <F extends SamePaOccupiedWalkBase>(h: OccupiedContext<F>,
+  completed: ReturnType<typeof completeSamePaTerminalFixture>, saved: string) => {
+  const { f } = h;
+  const allRows=()=>['pa_physical_v1_launches','pa_physical_v1_pitch_consumers','pa_physical_v1_consumptions','pa_physical_v1_admissions'].map(t=>f.db.prepare('SELECT * FROM '+t+' ORDER BY rowid').all());
+  expect(completed.endpoint.timeline.status.kind).toBe('walk');
+  expect(completed.transition.official.receipt.appliedMatchState.outs).toBe(f.actor.match.outs);
+  expect(completed.transition.official.receipt.appliedMatchState.bases.first).toBe(f.actor.binding.playerId);
+  expect(completed.release.memberRows).toHaveLength(10);
+  const reopened=f.x.f.track(openSqliteSamePlateAppearancePhysicalEpisodeStore(f.path));
+  expect(reopened.acceptOperation('physical-fixture:pitch3:launch').kind).toBe('same_pa_physical_launch_v1');
+  expect(reopened.acceptOperation('physical-fixture:pitch6:resolution').kind).toBe('same_pa_physical_resolution_v1');
+  expect(json(allRows())).toBe(saved);
+  return continueSamePaOccupiedWalkFixture(h,completed,'physical-fixture:occupied-next');
 };

@@ -32,7 +32,8 @@ export const samePaInitialPlayDefenders = (originalDefenders = worldSetup('p2').
 /** Accept the actual prospective posture, secure held-ball instant and separate
  * plate-umpire Play. No hand-to-release path or historical World is rewritten. */
 type InitialPlayFixtureContext = Pick<ReturnType<typeof directNativeDispatchFixture>,
-  'actor' | 'view' | 'acceptedAction' | 'request' | 'db' | 'path' | 'x'> & Readonly<{
+  'actor' | 'view' | 'acceptedAction' | 'request' | 'db' | 'path'> & Readonly<{
+    x: { f: Pick<ReturnType<typeof directNativeDispatchFixture>['x']['f'], 'track'> };
     stance: Pick<ReturnType<typeof directNativeDispatchFixture>['stance'], 'handedness' | 'centerOfMass' | 'eyePosition'>;
   }>;
 

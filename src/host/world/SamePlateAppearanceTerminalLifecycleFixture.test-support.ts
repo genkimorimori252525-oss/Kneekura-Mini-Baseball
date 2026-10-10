@@ -1,4 +1,5 @@
 import { expect } from 'vitest';
+import type { SQLOutputValue } from 'node:sqlite';
 import { getOfficialPlayClosure } from '../../core/adjudication/PlayAdjudicationLedger';
 import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { readActualRoleWorkloadState } from './ActualRoleWorkloadState';
@@ -9,10 +10,23 @@ import { openSqliteSamePlateAppearanceTerminalSettlementStore } from './SqliteSa
 import { openSqliteSamePlateAppearanceTerminalTransitionStore } from './SqliteSamePlateAppearanceTerminalTransitionStore';
 import { openSqliteSamePlateAppearanceEnrollmentStore } from './SqliteSamePlateAppearanceEnrollmentStore';
 import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
+import { physicalPlateAppearanceFixtureGame } from './PhysicalPlateAppearanceActorFixtures.test-support';
+import type { ReservedSamePlateAppearanceEnrollment } from './SamePlateAppearanceEnrollment';
+import type { SamePaLifecycleOutcome } from './SamePlateAppearanceLifecycleOutcome';
+import type { SamePaTerminalEndpoint } from './SamePlateAppearanceTerminalEndpoint';
 import type { AcceptedSamePaLifecycleOutcome } from './SamePlateAppearanceLifecycleOutcome';
 import type { AcceptedSamePaTerminalEndpoint } from './SamePlateAppearanceTerminalEndpoint';
 import type { AcceptedSamePaTerminalTransition } from './SamePlateAppearanceTerminalTransition';
 import type { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
+
+type PhysicalFixture = ReturnType<typeof samePaPhysicalLifecycleFixture>;
+export type SamePaTerminalCompletionContext = Pick<PhysicalFixture, 'save' | 'accepted'> & Readonly<{
+  f: Pick<PhysicalFixture['f'], 'db' | 'path' | 'actor'> & {
+    x: { f: Pick<PhysicalFixture['f']['x']['f'], 'track' | 'links'> & {
+      firstInput: Pick<PhysicalFixture['f']['x']['f']['firstInput'], 'worldSetup'>;
+    } };
+  };
+}>;
 
 /** Append to the existing real physical chain. The only new declarations are
  * original official instructions and reference-only completion Sources. The
@@ -63,6 +77,26 @@ export const completeSamePaTerminalFixture = (h: ReturnType<typeof samePaPhysica
   const endpoint = endpoints.accept(endpointSource.sourceId); if (endpoint.kind !== 'same_pa_terminal_endpoint_v1') throw new Error('real final endpoint pending');
   expect(endpoint.participants).toHaveLength(participantCount); expect(endpoint.participants).toEqual(final.view.participants);
   expect(f.db.prepare('SELECT * FROM world_player_workload_heads ORDER BY career_id,player_id').all()).toEqual(beforeHeads);
+  return completeSamePaFrozenTerminalFixture(h, label, { source, outcome, endpoint, originalEnrollment, beforeActivities },
+    { outcomes, endpoints, enrollmentOwner });
+};
+
+/** Shared, unchanged remaining assertions for fresh PL01 and the authenticated
+ * pre-effect frozen checkpoint. A retained run proves this suffix only. */
+export const completeSamePaFrozenTerminalFixture = (h: SamePaTerminalCompletionContext, label: string,
+  retained: Readonly<{ source: AcceptedSamePaLifecycleOutcome; outcome: SamePaLifecycleOutcome; endpoint: SamePaTerminalEndpoint;
+    originalEnrollment: ReservedSamePlateAppearanceEnrollment;
+    beforeActivities: Record<string, SQLOutputValue>[] }>,
+  owners: Readonly<{ outcomes: ReturnType<typeof openSqliteSamePlateAppearanceLifecycleOutcomeStore>;
+    endpoints: ReturnType<typeof openSqliteSamePlateAppearanceTerminalEndpointStore>;
+    enrollmentOwner: ReturnType<typeof openSqliteSamePlateAppearanceEnrollmentStore> }>) => {
+  const { f } = h, track = f.x.f.track;
+  const { source, outcome, endpoint, originalEnrollment, beforeActivities } = retained;
+  const { outcomes, endpoints, enrollmentOwner } = owners;
+  const endpointSource = endpoint.source, enrollmentReference = endpoint.enrollmentReference;
+  const participantCount = originalEnrollment.participants.length;
+  const closure = getOfficialPlayClosure(outcome.officialLedger);
+  if (!closure) throw new Error('real terminal official window remains open');
   const settlementSource = h.save({ sourceId: label + ':settlement', sourceVersion: 'fixture-only-v1', capability: 'same_pa_terminal_settlement_v1',
     terminalReference: reference('pa_terminal_v1_endpoints', endpoint) });
   const settlements = track(openSqliteSamePlateAppearanceTerminalSettlementStore(f.path, f.x.f.links, { readAcceptedSettlement: id => h.accepted.get(id) }));
@@ -90,7 +124,7 @@ export const completeSamePaTerminalFixture = (h: ReturnType<typeof samePaPhysica
     sourceId: label + ':transition', sourceVersion: 'fixture-only-v1', capability: 'same_pa_terminal_transition_v1',
     terminalReference: settlementSource.terminalReference, settlementReference: settled.reference,
     applicationId: label + ':application', scoringApplicationId: label + ':scoring', controllerReset: 'rule_system_retire_original_play',
-    game: f.x.closeInput(0).game, kind: 'continuing', nextStartedAtTick: closure.closedAtTick + 1, worldSetup: f.x.f.firstInput.worldSetup,
+    game: physicalPlateAppearanceFixtureGame(), kind: 'continuing', nextStartedAtTick: closure.closedAtTick + 1, worldSetup: f.x.f.firstInput.worldSetup,
   };
   h.save(transitionSource);
   const transitions = track(openSqliteSamePlateAppearanceTerminalTransitionStore(f.path, { readAcceptedTransition: id => h.accepted.get(id) }));

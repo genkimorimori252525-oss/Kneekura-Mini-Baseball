@@ -2,13 +2,12 @@ import { expect, it } from 'vitest';
 import { NPB_2026_RULE_PROFILE } from '../../core/rules/RuleProfile';
 import { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
-import { openSqliteSamePlateAppearancePhysicalEpisodeStore } from './SqliteSamePlateAppearancePhysicalEpisodeStore';
 import { readCurrentSamePaLifecycleViewFromSqlite, readHistoricalSamePaLifecycleViewFromSqlite } from './SamePlateAppearanceLifecycleFromSqlite';
 import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
 import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { physicalEpisodeTables } from './SamePlateAppearancePhysicalEpisodeStorage';
 import { witnessSqliteWrite } from './SqliteWriteWitness.test-support';
-import { continueSamePaOccupiedWalkFixture } from './SamePlateAppearanceOccupiedContinuation.test-support';
+import { finishSamePaPhysicalWalkFixture } from './SamePlateAppearanceOccupiedContinuation.test-support';
 import { completeSamePaTerminalFixture } from './SamePlateAppearanceTerminalLifecycleFixture.test-support';
 
 /** Real Native original-owner scenario, collected for the one consolidated
@@ -58,14 +57,6 @@ it('PL01 one owned TAKE chain reaches a terminal walk, settles all ten participa
     const saved=json(allRows());expect(h.physical.acceptOperation('physical-fixture:pitch4:launch').kind).toBe('same_pa_physical_launch_v1');expect(json(allRows())).toBe(saved);
     for(const name of ['pa_physical_v1_launches','pa_physical_v1_pitch_consumers','pa_physical_v1_consumptions','pa_physical_v1_admissions'])expect(f.db.prepare('SELECT count(*) n FROM '+name).get()!.n).toBe(4);
     const completed=completeSamePaTerminalFixture(h,'physical-fixture:terminal');
-    expect(completed.endpoint.timeline.status.kind).toBe('walk');
-    expect(completed.transition.official.receipt.appliedMatchState.outs).toBe(f.actor.match.outs);
-    expect(completed.transition.official.receipt.appliedMatchState.bases.first).toBe(f.actor.binding.playerId);
-    expect(completed.release.memberRows).toHaveLength(10);
-    const reopened=f.x.f.track(openSqliteSamePlateAppearancePhysicalEpisodeStore(f.path));
-    expect(reopened.acceptOperation('physical-fixture:pitch3:launch').kind).toBe('same_pa_physical_launch_v1');
-    expect(reopened.acceptOperation('physical-fixture:pitch6:resolution').kind).toBe('same_pa_physical_resolution_v1');
-    expect(json(allRows())).toBe(saved);
-    continueSamePaOccupiedWalkFixture(h,completed,'physical-fixture:occupied-next');
+    finishSamePaPhysicalWalkFixture(h,completed,saved);
   }finally{h.close();}
 },1_200_000);
