@@ -1,5 +1,7 @@
 # Terminal proof phase recovery checkpoint (2026-10-10)
 
+The preservation history below has since been recovered and centrally qualified in published commit `d4a17d490cba76cac4e8427503ee9ec726e7b758`; see [the final qualification](#recovered-central-qualification).
+
 This separate branch preserves a reviewed three-file change while local filesystem operations are stalled. The qualified integration branch and PR374 remain at `d4cd8067346d8ad1aa5eed9d1ccaa695d39ce791`. This preservation commit is separate from the unresolved local Git commit.
 
 ## Change
@@ -37,3 +39,17 @@ Final tested code is `3f45955f486df0f89a3bcbba4388fb9cabbb20c0`, src tree `728b6
 - Source, dependency, runtime and control snapshots stayed identical. No child processes survived. The known generated Vitest results cache is excluded only at its specific output path; test caching is disabled.
 
 The initial compiler failure remains separate from the successful final run. These finite transaction/retry checks still do not establish the long genuine scenarios or an elapsed-time speedup.
+
+## Fresh Native continuation and private snapshot recovery
+
+The original National and same-PA foul-reset entries are running on the fixed published commit `d4a17d490cba76cac4e8427503ee9ec726e7b758`, src tree `728b6e36cee03cc0667904b6ada2ea7661d5b427`, with Node 26.10.0. Their original callbacks and assertions remain intact. Each has a 14,400-second outer limit; the National run started at 13:35:08 UTC and the foul-reset run at 13:44:32 UTC. Neither has a whole-scenario result at this checkpoint.
+
+National completed the original foul terminal and participation, then committed the next actor's genuine pitch, flight, world contact, fielder touch and response. At 14:17:49 UTC, `national-live:episode-binding` returned and its consistent SQLite snapshot was saved before the subsequent live runtime operation. These are committed stage boundaries, not the original tail's 37-assertion completion.
+
+For a recovered private copy at that exact binding frontier:
+
+1. Restore the same published source and original lockfile/runtime. Verify the private snapshot's retained checksum and SQLite integrity before use; keep the archive unchanged and decompress to a writable working copy.
+2. Use `continueRetainedNationalBattedFoulBindingTail(path, progress)` from [NationalBattedFoulRetainedBindingTail.test-support.ts](../../src/host/world/NationalBattedFoulRetainedBindingTail.test-support.ts). The function authenticates the saved binding, actor, Match origin and foul lineage through the existing owners, then continues the original field/runtime and official/statistics/Career tail.
+3. Keep the ordinary continuation's original assertions. A successful continuation does not turn an interrupted fresh run into a whole fresh-case PASS. Do not delete accepted rows or present an arbitrary later checkpoint as this frontier. The separate statistics-only entry requires its own explicit original-boundary evidence.
+
+The foul-reset entry currently has no intermediate-snapshot resume mode. Its committed snapshots must not be described as automatically resumable. Snapshot data, private paths, logs and environment controls are not published here.
