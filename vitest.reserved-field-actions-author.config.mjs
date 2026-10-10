@@ -1,0 +1,1 @@
+export default { test: { cache: false, include: ['src/host/world/SamePlateAppearancePhysicalFieldActions.test.ts', 'src/host/world/SamePlateAppearancePhysicalEpisode.test.ts'], pool: 'forks', poolOptions: { forks: { singleFork: true } } } };

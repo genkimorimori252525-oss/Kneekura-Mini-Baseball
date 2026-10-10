@@ -1,3 +1,4 @@
+import type { DatabaseSync } from 'node:sqlite';
 import { createCompetitionSourceReader } from './CompetitionSourceReadScope';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
@@ -50,14 +51,17 @@ const freeze = <T>(value: T): T => {
 };
 
 /** Native organizer candidate owner, with acyclic official hosting predecessors. */
-export const openSqliteWbcQualifierHostCandidateStore = (
-  databasePath: string, sources: WbcQualifierHostCandidateSources,
+const createSqliteWbcQualifierHostCandidateStore = (
+  databasePath: string | DatabaseSync, sources: WbcQualifierHostCandidateSources,
 ): SqliteWbcQualifierHostCandidateStore => {
-  if (!id(databasePath)) throw new Error('invalid qualifier host candidate database path');
+  if (typeof databasePath === 'string' && !id(databasePath)) throw new Error('invalid qualifier host candidate database path');
   const readSelected = createCompetitionSourceReader(sources.selection.readSelection, sources.selection);
   const readSelectedRequest = createCompetitionSourceReader(sources.selection.readRequest, sources.selection);
   const { DatabaseSync }: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
-  const db = new DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new DatabaseSync(databasePath);
+  if (!(db instanceof DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_wbc_qualifier_host_candidates (
     career_id TEXT NOT NULL, edition_id TEXT NOT NULL, selected_day INTEGER NOT NULL,
@@ -69,6 +73,7 @@ export const openSqliteWbcQualifierHostCandidateStore = (
     career_id TEXT NOT NULL, edition_id TEXT NOT NULL, selected_day INTEGER NOT NULL,
     completed_day INTEGER NOT NULL, snapshot_json TEXT NOT NULL, PRIMARY KEY(career_id, edition_id)
   );`);
+  }
   const get = db.prepare('SELECT selected_day, request_json, snapshot_json FROM world_wbc_qualifier_host_candidates WHERE career_id=? AND edition_id=?');
   const getPolicy = db.prepare('SELECT policy_json FROM world_wbc_qualifier_candidate_policies WHERE career_id=? AND policy_version=?');
   const getHistory = db.prepare('SELECT edition_id, selected_day, completed_day, snapshot_json FROM world_wbc_qualifier_hosting_history WHERE career_id=? AND edition_id=?');
@@ -190,6 +195,16 @@ export const openSqliteWbcQualifierHostCandidateStore = (
         db.exec('COMMIT'); return projected;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     },
-    close(): void { if (!closed) db.close(); closed = true; },
+    close(): void { if (!closed && !borrowed) db.close(); closed = true; },
   });
+};
+
+/** Existing path facade retains connection/schema ownership. */
+export const openSqliteWbcQualifierHostCandidateStore = (databasePath: string, sources: Parameters<typeof createSqliteWbcQualifierHostCandidateStore>[1]): SqliteWbcQualifierHostCandidateStore =>
+  createSqliteWbcQualifierHostCandidateStore(databasePath, sources);
+
+/** Same owner replay on a consuming Native connection; only read capabilities escape. */
+export const wbcQualifierHostCandidateEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteWbcQualifierHostCandidateStore>[1]): Pick<SqliteWbcQualifierHostCandidateStore, 'readCandidates'> => {
+  const owner = createSqliteWbcQualifierHostCandidateStore(db, sources);
+  return Object.freeze({ readCandidates: owner.readCandidates });
 };

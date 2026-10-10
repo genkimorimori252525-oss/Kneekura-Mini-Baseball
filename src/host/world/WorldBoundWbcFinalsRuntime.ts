@@ -13,15 +13,16 @@ import type { SqliteWbcFinalsKnockoutStore } from './SqliteWbcFinalsKnockoutStor
 import type { SqliteWbcFinalsScheduleStore } from './SqliteWbcFinalsScheduleStore';
 import type { SqliteOfficialWbcHistoryStore } from './SqliteOfficialWbcHistoryStore';
 import type { SqliteWorldNationalRankingHistoryStore } from './SqliteWorldNationalRankingHistoryStore';
+import type { CompletedGameOutcomeStores } from './CompletedGamePlayerOutcomeDelivery';
 
-export type WorldBoundWbcFinalsStores = Readonly<{
+export type WorldBoundWbcFinalsStores = CompletedGameOutcomeStores & Readonly<{
   selections: Pick<SqliteNationalCompetitionSelectionStore, 'readSelection'>;
   rankings: Pick<SqliteWorldNationalRankingSnapshotStore, 'initialize'>;
   draws: Pick<SqliteNationalCompetitionDrawStore, 'initialize'>;
   hosts: Pick<SqliteNationalHostCandidateStore, 'initialize'>;
   editions: Pick<SqliteNationalCompetitionEditionStore, 'initialize' | 'readSnapshot'>;
   groups: Pick<SqliteWbcFinalsGroupStore, 'initialize' | 'finalize'>;
-  knockout: Pick<SqliteWbcFinalsKnockoutStore, 'initialize' | 'finalize' | 'readPlan'>;
+  knockout: Pick<SqliteWbcFinalsKnockoutStore, 'initialize' | 'finalize' | 'readPlan' | 'readEvidence' | 'readCompletion' | 'listPendingCompletions' | 'deliverOutcomes'>;
   schedules: Pick<SqliteWbcFinalsScheduleStore, 'initialize'>;
   history: Pick<SqliteOfficialWbcHistoryStore, 'record'>;
   rankingHistory: Pick<SqliteWorldNationalRankingHistoryStore, 'recordWbc'>;
@@ -67,7 +68,10 @@ export const initializeWorldBoundWbcKnockout = (stores: WorldBoundWbcFinalsStore
   const snapshot = stores.editions.readSnapshot(careerId, editionId);
   if (!snapshot || snapshot.kind !== 'WBC') throw new Error('World WBC finals requires accepted WBC Edition');
   if (!withCompetitionSourceReadPhase(() => stores.groups.finalize(careerId, editionId))) return null;
-  return withCompetitionSourceReadPhase(() => stores.knockout.initialize({ careerId, edition: snapshot.knockoutEdition }));
+  const prior = stores.knockout.readCompletion(careerId, editionId);
+  const completion = prior ? prior.commitment : { version: 'wbc_player_outcomes_v1' as const, wbcEditionId: editionId };
+  return withCompetitionSourceReadPhase(() => stores.knockout.initialize({ careerId, edition: snapshot.knockoutEdition,
+    ...(completion ? { completion } : {}) }));
 };
 
 /** Incomplete finals never become historical qualification or ranking evidence. */
@@ -78,5 +82,15 @@ export const completeWorldBoundWbcFinals = (stores: WorldBoundWbcFinalsStores, c
   if (!withCompetitionSourceReadPhase(() => stores.knockout.finalize(careerId, editionId))) return null;
   const history = withCompetitionSourceReadPhase(() => stores.history.record(careerId, editionId));
   const ranking = withCompetitionSourceReadPhase(() => stores.rankingHistory.recordWbc(careerId, editionId));
-  return Object.freeze({ history, ranking });
+  const evidence = withCompetitionSourceReadPhase(() => stores.knockout.readEvidence(careerId, editionId));
+  if (!evidence || evidence.source.groupEdition.editionId !== editionId || evidence.source.knockoutEdition.editionId !== editionId) {
+    throw new Error('World WBC finals outcome delivery lacks completed original evidence');
+  }
+  const playerOutcomes = withCompetitionSourceReadPhase(() => stores.knockout.deliverOutcomes(careerId, editionId, stores));
+  return Object.freeze({ history, ranking, playerOutcomes });
 };
+
+/** Restart discovery remains in the accepted knockout owner, including finalized editions. */
+export const resumePendingWorldBoundWbcFinals = (stores: WorldBoundWbcFinalsStores) =>
+  Object.freeze(stores.knockout.listPendingCompletions().map(({ careerId, editionId }) =>
+    Object.freeze({ careerId, editionId, result: completeWorldBoundWbcFinals(stores, careerId, editionId) })));

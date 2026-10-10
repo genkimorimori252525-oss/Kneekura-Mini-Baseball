@@ -8,7 +8,7 @@ import type { WbcRegionalPlacement } from '../../core/world/competition/WbcBerth
 import { EMPTY_WBC_REGIONAL_COEFFICIENT_POLICY_REGISTRY, registerWbcRegionalCoefficientPolicy } from
   '../../core/world/competition/WbcRegionalCoefficients';
 import type { OfficialWbcWorldEdition } from '../../core/world/competition/WbcRegionalCoefficients';
-import { openSqliteWbcWorldQualificationStore } from './SqliteWbcWorldQualificationStore';
+import { openSqliteWbcWorldQualificationStore, wbcWorldQualificationEvidenceFromSqlite } from './SqliteWbcWorldQualificationStore';
 import { openSqliteWorldCompetitionCycleStore } from './SqliteWorldCompetitionCycleStore';
 import { openSqliteNationalCompetitionSelectionStore } from './SqliteNationalCompetitionSelectionStore';
 import { openSqliteNationCompetitionRegionStore } from './SqliteNationCompetitionRegionStore';
@@ -112,6 +112,19 @@ it('derives and pins World predecessor and current regional sources before initi
     expect(Object.isFrozen(snapshot.previousWorldEditions[0].games)).toBe(true);
     expect(store.initialize(request)).toEqual(snapshot);
     expect(store.readDirect('career-1', request.editionId)).toEqual(snapshot.direct);
+    const borrowedDb = new DatabaseSync(path);
+    try {
+      borrowedDb.exec('PRAGMA query_only=ON');
+      const reader = wbcWorldQualificationEvidenceFromSqlite(borrowedDb, sources);
+      expect(Object.keys(reader).sort()).toEqual(['readDirect', 'readSnapshot']);
+      expect(reader.readSnapshot('career-1', request.editionId)).toEqual(snapshot);
+      expect(reader.readDirect('career-1', request.editionId)).toEqual(snapshot.direct);
+      expect(reader.readDirect('career-1', 'wbc-2032')).toBeNull();
+      changedPastSource = true;
+      expect(() => reader.readSnapshot('career-1', request.editionId)).toThrow('corrupt');
+      changedPastSource = false;
+      expect(borrowedDb.prepare('SELECT 1 AS alive').get()?.alive).toBe(1);
+    } finally { changedPastSource = false; borrowedDb.close(); }
     changedPastSource = true;
     expect(() => store.readSnapshot('career-1', request.editionId)).toThrow('corrupt');
     changedPastSource = false;

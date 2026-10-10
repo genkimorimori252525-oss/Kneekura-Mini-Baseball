@@ -15,14 +15,14 @@ type Moment = Readonly<{ originTick: number; elapsedSeconds: number; tick: numbe
 type State = { position: Vec3; velocity: Vec3; acceleration: Vec3 };
 type Command = AcceptedBattedWorldMotion['commands'][number];
 export type ActualPlayerCommandAdoption = Readonly<{
-  kind: 'contact' | 'field' | 'owned_motion_v1' | 'owned_motion_v2' | 'motion' | 'motion_checkpoint_v1' | 'throw' | 'throw_advance';
+  kind: 'received_renewal_adoption_v1' | 'contact' | 'field' | 'owned_motion_v1' | 'owned_motion_v2' | 'motion' | 'motion_checkpoint_v1' | 'throw' | 'throw_advance';
   owner: 'batted_world_contacts' | 'batted_world_field_actions' | 'batted_world_field_executions';
   sourceId: string; sourceVersion: string; sourceHash: string; adoptionSourceId: string; adoptionSourceHash: string;
   adoptedAt: Moment; executedThrough: Moment; acceptedThroughTick: number;
 }>;
 export type ActualPlayerOwnedMotionCoverage = Readonly<{
   compositionSourceId: string; physicalThroughTick: number;
-  rootAuthority: Readonly<{ owner: ActualPlayerCommandAdoption['owner'] | 'actual_locomotion_receipts'; sourceId: string;
+  rootAuthority: Readonly<{ owner: ActualPlayerCommandAdoption['owner'] | 'actual_locomotion_receipts' | 'actual_received_umpire_renewal_motors'; sourceId: string;
     sourceHash: string; adoptionOwner: ActualPlayerCommandAdoption['owner']; adoptionSourceId: string; adoptionSourceHash: string; acceptedThroughTick: number }>;
   roleAuthorities: readonly Readonly<{ role: DefenderPhysicalPrimitiveRole; command: ActualPlayerCommandAdoption; acceptedThroughTick: number }>[];
 }>;
@@ -123,7 +123,12 @@ const deriveActualPlayerKinematicsFromPhysicalPrefix = (playerId: string, prefix
   const adoptedPlans = new Set<string>();
   for (const value of prefix.executions) {
     const action = value.source.action;
-    if (action.kind === 'owned_motion_v2' && value.execution.kind === 'owned_motion_v2') {
+    if(action.kind==='received_renewal_adoption_v1'&&value.execution.kind==='received_renewal_adoption_v1'){
+      const c=value.execution.composition,contribution=c.contributors.find(p=>p.playerId===playerId);
+      if(!contribution)throw new Error('actual Player received renewal contribution missing');
+      const event=contribution.kind==='renewal_motor'?commandEvent('received_renewal_adoption_v1','batted_world_field_executions',value.source,contribution.rootAuthority.acceptedThroughTick,c.commands):{command:null,adoption:null};
+      events.push({...event,ownedMotionCoverage:{compositionSourceId:value.source.sourceId,physicalThroughTick:c.coverageThroughTick,rootAuthority:contribution.rootAuthority,roleAuthorities:contribution.roleAuthorities}});
+    } else if (action.kind === 'owned_motion_v2' && value.execution.kind === 'owned_motion_v2') {
       const c = value.execution.composition, contribution = c.contributors.find(c => c.playerId === playerId);
       if (!contribution) throw new Error('actual Player owned composition contribution is missing');
       // A common physical rebase is not a new command issuance for retained Players.
@@ -152,7 +157,7 @@ const deriveActualPlayerKinematicsFromPhysicalPrefix = (playerId: string, prefix
       events.push(adoptedPlans.has(action.planSourceId) ? { command: null, adoption: null }
         : commandEvent('throw_advance', 'batted_world_field_executions', planned.source, planned.source.action.throughTick, planned.source.action.commands, value.source));
       adoptedPlans.add(action.planSourceId);
-    } else if (action.kind === 'acquisition' || action.kind === 'acquisition_advance' || action.kind === 'retained_motion_checkpoint_v1') events.push({ command: null, adoption: null });
+    } else if (action.kind === 'received_renewal_continuation_v1' || action.kind === 'acquisition' || action.kind === 'acquisition_advance' || action.kind === 'retained_motion_checkpoint_v1') events.push({ command: null, adoption: null });
     // Both plans and all three observation Sources add no actual segment/adoption.
   }
   if (events.length !== physical.segments.length) throw new Error('actual Player kinematics execution segment classification differs');

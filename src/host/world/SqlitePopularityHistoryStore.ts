@@ -1,3 +1,6 @@
+import { officialParticipationEvidenceFromSqlite, officialParticipationCareerEvent, type OfficialParticipationReceipt } from './SqliteOfficialParticipationStore';
+import { readClinicalPersonLink } from './HealthRehabEvidenceFromSqlite';
+import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
 import { createRequire } from 'node:module';
 import { adaptFreeAgentRightsEvent, appendPopularityExposure,
   createPopularityHistory, type AudienceResponseEvidence,
@@ -36,12 +39,21 @@ export type DurablePopularityApplication = Readonly<{
     personLinkSourceId: string;
   }>;
 }>;
+export type DurableOfficialGamePopularityApplication = Readonly<{
+  eventId: string; history: PopularityHistory;
+  source: Readonly<{ kind: 'OFFICIAL_GAME'; participationReceiptId: string;
+    personLinkSourceId: string; gameId: string; competitionEditionId: string }>;
+}>;
+export type DurablePopularityEventApplication = DurablePopularityApplication | DurableOfficialGamePopularityApplication;
+type OfficialPopularitySource = Readonly<{ kind: 'OFFICIAL_PARTICIPATION_V1'; receipt: OfficialParticipationReceipt;
+  personLink: ReturnType<typeof readClinicalPersonLink> }>;
 export type SqlitePopularityHistoryStore = Readonly<{
   initialize(careerId: string, personId: string,
     initialClubId: string | null): PopularityHistory;
   readHead(careerId: string, personId: string): PopularityHistory | null;
-  readApplication(eventId: string): DurablePopularityApplication | null;
+  readApplication(eventId: string): DurablePopularityEventApplication | null;
   apply(request: PopularityStoreRequest): DurablePopularityApplication;
+  applyOfficialParticipation(request: PopularityStoreRequest): DurableOfficialGamePopularityApplication;
   close(): void;
 }>;
 
@@ -118,9 +130,9 @@ type ApplicationRow = { event_id: string; career_id: string;
 
 /** Owns only popularity state. Match/Club settlement and gate counts stay separate. */
 export const openSqlitePopularityHistoryStore = (databasePath: string,
-  authority: AcceptedFreeAgentRightsAuthority): SqlitePopularityHistoryStore => {
-  if (!id(databasePath) || !authority
-    || typeof authority.readAcceptedFreeAgentRightsEvent !== 'function') {
+  authority?: AcceptedFreeAgentRightsAuthority | null): SqlitePopularityHistoryStore => {
+  if (!id(databasePath) || authority != null
+    && typeof authority.readAcceptedFreeAgentRightsEvent !== 'function') {
     throw new Error('popularity store requires an accepted source authority');
   }
   const sqlite: typeof import('node:sqlite') =
@@ -160,6 +172,12 @@ export const openSqlitePopularityHistoryStore = (databasePath: string,
       throw error;
     }
   };
+  const readSnapshot = <T>(read: () => T): T => {
+    if (db.isTransaction) return read();
+    db.exec('BEGIN');
+    try { const result = read(); db.exec('COMMIT'); return result; }
+    catch (error) { if (db.isTransaction) db.exec('ROLLBACK'); throw error; }
+  };
   const decodeHead = (row: HeadRow, careerId: string,
     personId: string): PopularityHistory => {
     try {
@@ -175,9 +193,11 @@ export const openSqlitePopularityHistoryStore = (databasePath: string,
       throw new Error('corrupt durable popularity head', { cause });
     }
   };
-  const decodeApplication = (row: ApplicationRow):
-  DurablePopularityApplication => {
+  const decodeApplicationRow = (row: ApplicationRow):
+  DurablePopularityEventApplication => {
     try {
+      const source = JSON.parse(row.source_json);
+      if (source?.kind === 'OFFICIAL_PARTICIPATION_V1') return decodeOfficialApplication(row);
       const before = JSON.parse(row.before_json) as PopularityHistory;
       const request = JSON.parse(row.request_json) as PopularityStoreRequest;
       const accepted = JSON.parse(row.source_json) as
@@ -220,6 +240,67 @@ export const openSqlitePopularityHistoryStore = (databasePath: string,
       throw new Error('corrupt durable popularity application', { cause });
     }
   };
+  const readOfficialSource = (eventId: string): OfficialPopularitySource => withBattedVenueLegalReadSnapshot(db, () => {
+    const receipt = officialParticipationEvidenceFromSqlite(db).readReceipt(eventId);
+    if (!receipt) throw new Error('accepted official participation source is absent');
+    const binding = receipt.binding, personLink = readClinicalPersonLink(db, binding.personLinkSourceId);
+    if (personLink.careerId !== binding.careerId || personLink.playerId !== binding.playerId
+      || personLink.personId !== binding.personId || personLink.acceptedAtDay > binding.gameDay) {
+      throw new Error('official popularity original Person link differs');
+    }
+    return Object.freeze({ kind: 'OFFICIAL_PARTICIPATION_V1', receipt, personLink });
+  });
+  const officialApplication = (request: PopularityStoreRequest, source: OfficialPopularitySource,
+    before: PopularityHistory): DurableOfficialGamePopularityApplication => {
+    const receipt = source.receipt, binding = receipt.binding;
+    if (request.eventId !== receipt.receiptId || request.careerId !== binding.careerId
+      || request.personId !== binding.personId || request.playerId !== binding.playerId) {
+      throw new Error('official popularity request differs from original participation');
+    }
+    return Object.freeze({ eventId: request.eventId,
+      history: appendPopularityExposure(before, request.expectedRevision, officialParticipationCareerEvent(receipt),
+        request.evidence, request.policy, request.asOfDay),
+      source: Object.freeze({ kind: 'OFFICIAL_GAME', participationReceiptId: receipt.receiptId,
+        personLinkSourceId: binding.personLinkSourceId, gameId: binding.gameId, competitionEditionId: binding.competitionEditionId }) });
+  };
+  const decodeOfficialApplication = (row: ApplicationRow): DurableOfficialGamePopularityApplication => {
+    const request = JSON.parse(row.request_json) as PopularityStoreRequest;
+    const before = JSON.parse(row.before_json) as PopularityHistory;
+    const head = headRow(row.career_id, row.person_id);
+    const source = readOfficialSource(row.event_id), expected = officialApplication(request, source, before);
+    if (!head || !revision(row.from_revision) || row.to_revision !== row.from_revision + 1
+      || head.revision < row.to_revision || request.eventId !== row.event_id || request.careerId !== row.career_id
+      || request.personId !== row.person_id || request.expectedRevision !== row.from_revision || before.revision !== row.from_revision
+      || expected.history.revision !== row.to_revision || canonicalJson(request) !== row.request_json
+      || canonicalJson(before) !== row.before_json || canonicalJson(source) !== row.source_json
+      || canonicalJson(expected) !== row.result_json || head.revision === row.to_revision && head.state_json !== canonicalJson(expected.history)) {
+      throw new Error('official popularity source or application replay differs');
+    }
+    return expected;
+  };
+  const verifyOfficialHistory = (state: PopularityHistory): PopularityHistory => {
+    for (let index = 0; index < state.processedEvents.length; index++) {
+      const event = state.processedEvents[index];
+      if (event.kind !== 'OFFICIAL_GAME') continue;
+      const row = applicationRow(event.eventId);
+      if (!row) throw new Error('official popularity application is missing');
+      const saved = decodeOfficialApplication(row), history = saved.history;
+      if (row.to_revision !== index + 1 || canonicalJson({ ...state, revision: history.revision, effectiveDay: history.effectiveDay,
+        processedEvents: state.processedEvents.slice(0, index + 1), observations: state.observations.slice(0, history.observations.length),
+        transfers: state.transfers.slice(0, history.transfers.length) }) !== canonicalJson(history)) {
+        throw new Error('official popularity history prefix differs');
+      }
+    }
+    return state;
+  };
+  const decodeApplication = (row: ApplicationRow): DurablePopularityEventApplication => {
+    const application = decodeApplicationRow(row);
+    // The row decoder authenticates this event; also authenticate its entire
+    // official BEFORE prefix on reads, retries and after INSERT. Do not replay
+    // the current physical receipt twice or depend on later current-head events.
+    verifyOfficialHistory(JSON.parse(row.before_json) as PopularityHistory);
+    return application;
+  };
   let closed = false;
   return Object.freeze({
     initialize(careerId: string, personId: string,
@@ -229,7 +310,7 @@ export const openSqlitePopularityHistoryStore = (databasePath: string,
       return transaction(() => {
         const row = headRow(careerId, personId);
         if (row) {
-          const existing = decodeHead(row, careerId, personId);
+          const existing = verifyOfficialHistory(decodeHead(row, careerId, personId));
           if (existing.initialClubId !== initialClubId) {
             throw new Error('popularity head identity already initialized differently');
           }
@@ -246,13 +327,17 @@ export const openSqlitePopularityHistoryStore = (databasePath: string,
       if (!id(careerId) || !id(personId)) {
         throw new Error('invalid popularity head identity');
       }
-      const row = headRow(careerId, personId);
-      return row ? decodeHead(row, careerId, personId) : null;
+      return readSnapshot(() => {
+        const row = headRow(careerId, personId);
+        return row ? verifyOfficialHistory(decodeHead(row, careerId, personId)) : null;
+      });
     },
-    readApplication(eventId: string): DurablePopularityApplication | null {
+    readApplication(eventId: string): DurablePopularityEventApplication | null {
       if (!id(eventId)) throw new Error('invalid popularity eventId');
-      const row = applicationRow(eventId);
-      return row ? decodeApplication(row) : null;
+      return readSnapshot(() => {
+        const row = applicationRow(eventId);
+        return row ? decodeApplication(row) : null;
+      });
     },
     apply(request: PopularityStoreRequest): DurablePopularityApplication {
       if (!request || !id(request.eventId) || !id(request.careerId)
@@ -268,15 +353,16 @@ export const openSqlitePopularityHistoryStore = (databasePath: string,
           if (prior.request_json !== requestJson) {
             throw new Error('eventId was used for different popularity evidence');
           }
-          return durable;
+          if (durable.source.kind !== 'FREE_AGENT_RIGHTS_ACQUIRED') throw new Error('eventId belongs to official participation');
+          return durable as DurablePopularityApplication;
         }
         const row = headRow(request.careerId, request.personId);
         if (!row) throw new Error('popularity head is not initialized');
-        const before = decodeHead(row, request.careerId, request.personId);
+        const before = verifyOfficialHistory(decodeHead(row, request.careerId, request.personId));
         if (row.revision !== request.expectedRevision) {
           throw new Error('stale popularity revision');
         }
-        const accepted = authority.readAcceptedFreeAgentRightsEvent(
+        const accepted = authority?.readAcceptedFreeAgentRightsEvent(
           request.eventId);
         if (!accepted
           || accepted.rightsEvent?.eventId !== request.eventId) {
@@ -316,7 +402,37 @@ export const openSqlitePopularityHistoryStore = (databasePath: string,
           request.careerId, request.personId, request.expectedRevision,
           next.revision, row.state_json, requestJson,
           canonicalJson(accepted), canonicalJson(durable));
-        return decodeApplication(applicationRow(request.eventId)!);
+        return decodeApplication(applicationRow(request.eventId)!) as DurablePopularityApplication;
+      });
+    },
+    applyOfficialParticipation(request: PopularityStoreRequest): DurableOfficialGamePopularityApplication {
+      if (!request || !id(request.eventId) || !id(request.careerId) || !id(request.personId)
+        || !id(request.playerId) || !revision(request.expectedRevision)) throw new Error('invalid official popularity request');
+      const requestJson = canonicalJson(request);
+      return transaction(() => {
+        const prior = applicationRow(request.eventId);
+        if (prior) {
+          const durable = decodeApplication(prior);
+          if (durable.source.kind !== 'OFFICIAL_GAME' || prior.request_json !== requestJson) {
+            throw new Error('eventId was used for different popularity evidence');
+          }
+          return durable as DurableOfficialGamePopularityApplication;
+        }
+        const row = headRow(request.careerId, request.personId);
+        if (!row) throw new Error('popularity head is not initialized');
+        const before = verifyOfficialHistory(decodeHead(row, request.careerId, request.personId));
+        if (before.revision !== request.expectedRevision) throw new Error('stale popularity revision');
+        const source = readOfficialSource(request.eventId), durable = officialApplication(request, source, before);
+        const updated = db.prepare(`UPDATE popularity_heads SET revision=?, state_json=?
+          WHERE career_id=? AND person_id=? AND revision=? AND state_json=?`).run(durable.history.revision,
+          canonicalJson(durable.history), request.careerId, request.personId, request.expectedRevision, row.state_json);
+        if (updated.changes !== 1) throw new Error('popularity compare-and-swap failed');
+        db.prepare(`INSERT INTO popularity_event_applications
+          (event_id, career_id, person_id, from_revision, to_revision, before_json, request_json, source_json, result_json)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(request.eventId, request.careerId, request.personId,
+          request.expectedRevision, durable.history.revision, row.state_json, requestJson, canonicalJson(source), canonicalJson(durable));
+        // Authenticate again after the real INSERT; a trigger cannot substitute the original receipt or Person.
+        return decodeApplication(applicationRow(request.eventId)!) as DurableOfficialGamePopularityApplication;
       });
     },
     close(): void {

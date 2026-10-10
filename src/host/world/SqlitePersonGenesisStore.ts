@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { UINT32_RANGE } from
   '../../core/world/development/DevelopmentRandom';
@@ -62,12 +63,15 @@ const canonicalJson = (value: unknown): string => JSON.stringify(
 
 /** Hidden genesis data stays in World storage; Match and public projections do not read it. */
 export const openSqlitePersonGenesisStore = (
-  databasePath: string,
+  databasePath: string | DatabaseSync,
 ): SqlitePersonGenesisStore => {
-  if (!id(databasePath)) throw new Error('invalid Person genesis path');
+  if (typeof databasePath === 'string' && !id(databasePath)) throw new Error('invalid Person genesis path');
   const Database = (createRequire(import.meta.url)('node:sqlite') as
     typeof import('node:sqlite')).DatabaseSync;
-  const db = new Database(databasePath);
+  const ownsConnection = typeof databasePath === 'string';
+  const db = typeof databasePath === 'string' ? new Database(databasePath) : databasePath;
+  if (!(db instanceof Database)) throw new Error('Person genesis requires a Native connection');
+  if (ownsConnection) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   ensurePlayerPersonLinkSchema(db);
   db.exec(`CREATE TABLE IF NOT EXISTS world_person_genesis_careers (
@@ -83,6 +87,7 @@ export const openSqlitePersonGenesisStore = (
     priors_json TEXT NOT NULL,
     UNIQUE(career_id, player_id), UNIQUE(career_id, person_id)
   );`);
+  }
   const careerQuery = db.prepare(`SELECT initialized_at_day,
     career_seed, seed_derivation_version, policies_json
     FROM world_person_genesis_careers
@@ -291,6 +296,12 @@ export const openSqlitePersonGenesisStore = (
       }
       return pinned.career_seed;
     },
-    close(): void { if (!closed) { db.close(); closed = true; } },
+    close(): void { if (!closed) { if (ownsConnection) db.close(); closed = true; } },
   });
+};
+
+/** Reuses the genesis owner's replay on the consumer connection without DDL or writes. */
+export const personGenesisEvidenceFromSqlite = (db: DatabaseSync): Pick<SqlitePersonGenesisStore, 'read' | 'readDevelopmentSeed'> => {
+  const owner = openSqlitePersonGenesisStore(db);
+  return Object.freeze({ read: owner.read, readDevelopmentSeed: owner.readDevelopmentSeed });
 };

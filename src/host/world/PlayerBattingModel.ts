@@ -1,6 +1,6 @@
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
-import { createPlayerObservationCalibration, type PlayerObservationCalibration } from '../../core/sim/perception/PlayerObservationCalibration';
-import { resolvePreferredContactDepthV1 } from '../../core/sim/pitching/CourseAwareSwingKinematicsV1';
+import { type PlayerObservationCalibration } from '../../core/sim/perception/PlayerObservationCalibration';
+import { battingCapabilityValuesInput, battingRepertoireValuesInput, battingDecisionValuesInput, battingObservationValuesInput } from './PlayerBattingExecutionCalibration';
 import { sampleBatRadius, sampleBatEffectiveMass } from '../../core/sim/contact/RigidBatBallContact';
 import { validateBaseballAerodynamicCoefficientProfile } from '../../core/sim/ball/BaseballAerodynamicCoefficientProfile';
 import { validateBaseballSpinDecayParameters } from '../../core/sim/ball/BaseballSpinDecay';
@@ -25,10 +25,20 @@ export type AcceptedBattingPredictionCalibration = Parameter<Readonly<{
   observerKnownSpinPrior: Readonly<{ x: number; y: number; z: number }>;
   parameters: AerodynamicPitchTrajectory['parameters'];
 }>>;
+/** An explicit accepted reassessment, never an exposure-to-ability formula.
+ * Assessment/calibration identifiers are accepted provenance, not measurements
+ * produced by this owner. Original owners authenticate both evidence pins. */
+export type AcceptedBattingDevelopmentProvenance = Readonly<{
+  kind: 'accepted_batting_capability_development_v1';
+  originalModelRef: BodySourceRef; originalModelSourceHash: string; originalModelSnapshotHash: string;
+  exposureRef: BodySourceRef; exposureSourceHash: string; exposureSnapshotHash: string;
+  assessmentRef: BodySourceRef; calibrationRef: BodySourceRef; replacementCapabilityHash: string;
+}>;
 export type AcceptedPlayerBattingModelV1 = BodySourceRef & Scope & Readonly<{
   acceptedAtDay: number; bodyMaterializationRef: BodySourceRef; bodyRef: BodySourceRef; poseRef: BodySourceRef;
   capabilityRef: BodySourceRef; repertoireRef: BodySourceRef; decisionModelRef: BodySourceRef;
   equipmentRef: BodySourceRef; observationCalibrationRef: BodySourceRef; predictionCalibrationRef: BodySourceRef;
+  developmentProvenance?: AcceptedBattingDevelopmentProvenance;
 }>;
 export type DurablePlayerBattingModelV1 = Readonly<{
   source: AcceptedPlayerBattingModelV1; person: DurablePlayerPersonLink; bodyMaterialization: BodyMaterializationReceipt;
@@ -72,10 +82,22 @@ const vector = (value: Readonly<{ x: number; y: number; z: number }>): void => {
 
 export const battingModelSourceInput = (raw: AcceptedPlayerBattingModelV1, sourceId: string): AcceptedPlayerBattingModelV1 => {
   const source = cloneInert(raw);
-  requireFields(source, ['sourceId', 'sourceVersion', ...scopeFields, 'acceptedAtDay', ...referenceKeys]);
+  requireFields(source, ['sourceId', 'sourceVersion', ...scopeFields, 'acceptedAtDay', ...referenceKeys], ['developmentProvenance']);
   if (source.sourceId !== sourceId || ![source.sourceId, source.sourceVersion, ...scopeFields.map(key => source[key])].every(id)
     || !day(source.acceptedAtDay) || !referenceKeys.every(key => validBodySourceRef(source[key]))) {
     throw new Error('invalid accepted Player batting model Source');
+  }
+  if (Object.hasOwn(source, 'developmentProvenance')) {
+    const p = source.developmentProvenance;
+    requireFields(p, ['kind', 'originalModelRef', 'originalModelSourceHash', 'originalModelSnapshotHash',
+      'exposureRef', 'exposureSourceHash', 'exposureSnapshotHash', 'assessmentRef', 'calibrationRef', 'replacementCapabilityHash']);
+    if (!p || p.kind !== 'accepted_batting_capability_development_v1'
+      || ![p.originalModelRef, p.exposureRef, p.assessmentRef, p.calibrationRef].every(validBodySourceRef)
+      || p.originalModelRef.sourceId === source.sourceId
+      || ![p.originalModelSourceHash, p.originalModelSnapshotHash, p.exposureSourceHash,
+        p.exposureSnapshotHash, p.replacementCapabilityHash].every(value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value))) {
+      throw new Error('invalid accepted batting development provenance');
+    }
   }
   return source;
 };
@@ -93,36 +115,12 @@ export const battingModelParametersInput = (raw: BattingModelParameters, source:
       throw new Error('accepted batting parameter scope, version or day differs');
     }
   }
-  const capability = values.capability.values;
-  requireFields(capability, ['motorLatencyTicks', 'technicalTimingOffsetTicks', 'maximumSweetSpotSpeedMps']);
-  if (!positiveTick(capability.motorLatencyTicks) || !Number.isSafeInteger(capability.technicalTimingOffsetTicks)
-    || !positive(capability.maximumSweetSpotSpeedMps)) throw new Error('invalid accepted batting motor capability');
+  battingCapabilityValuesInput(values.capability.values);
 
-  const repertoire = values.repertoire.values;
-  requireFields(repertoire, ['repertoireId', 'repertoireVersion', 'profiles']);
-  if (!id(repertoire.repertoireId) || !id(repertoire.repertoireVersion) || !Array.isArray(repertoire.profiles)
-    || repertoire.profiles.length < 1 || repertoire.profiles.length > 32) throw new Error('invalid accepted batting repertoire');
-  const ids = new Set<string>();
-  const profileFields = ['profileId', 'version', 'batLengthM', 'sweetSpotT', 'centerContactDepthM', 'contactDepthPopulationStdDevM',
-    'insideOutsideDepthGainM', 'heightDepthGainM', 'baseContactSweetSpotSpeedMps', 'contactDepthSpeedGainMpsPerM',
-    'basePreContactSeconds', 'insideOutsideTimingGainSeconds', 'heightTimingGainSeconds', 'followThroughSeconds',
-    'highAttackAngleDeg', 'middleAttackAngleDeg', 'lowAttackAngleDeg', 'courseAttackDirectionGainDeg', 'nominalContactSurfaceDistanceM'];
-  repertoire.profiles.forEach((row, index) => {
-    requireFields(row, ['minimumAggression', 'profile']); requireFields(row.profile, profileFields);
-    if (!unit(row.minimumAggression) || (index === 0 ? row.minimumAggression !== 0 : row.minimumAggression <= repertoire.profiles[index - 1].minimumAggression)
-      || !id(row.profile.profileId) || !id(row.profile.version) || ids.has(row.profile.profileId)
-      || row.profile.batLengthM !== repertoire.profiles[0].profile.batLengthM
-      || row.profile.sweetSpotT !== repertoire.profiles[0].profile.sweetSpotT) throw new Error('invalid accepted batting course repertoire');
-    // Same pure profile-validation route as Core BattingValidation; discard the scalar, retain original bytes.
-    resolvePreferredContactDepthV1({ heightNormalized: 0, insideOutsideNormalized: 0 }, row.profile);
-    ids.add(row.profile.profileId);
-  });
+  battingRepertoireValuesInput(values.repertoire.values);
 
-  const decision = values.decisionModel.values;
-  requireFields(decision, ['modelId', 'version', 'threshold', 'aggressionWeight']);
-  if (!id(decision.modelId) || !id(decision.version) || !unit(decision.threshold) || !unit(decision.aggressionWeight)) {
-    throw new Error('invalid accepted batting decision parameters');
-  }
+  battingDecisionValuesInput(values.decisionModel.values);
+
   const equipment = values.equipment.values;
   requireFields(equipment, ['batPhysical', 'ball']);
   const bat = equipment.batPhysical, ball = equipment.ball;
@@ -140,10 +138,7 @@ export const battingModelParametersInput = (raw: BattingModelParameters, source:
     bat.normalEffectiveMassProfile!.knots.forEach(knot => requireFields(knot, ['t', 'effectiveMassKg']));
     sampleBatEffectiveMass(bat.normalEffectiveMassProfile!, 0.5);
   }
-  const observation = values.observationCalibration.values;
-  requireFields(observation, ['calibration', 'deliveryLatencyTicks']);
-  if (!positiveTick(observation.deliveryLatencyTicks)) throw new Error('accepted batting sensory delivery latency must be positive');
-  createPlayerObservationCalibration(observation.calibration);
+  battingObservationValuesInput(values.observationCalibration.values);
 
   const prediction = values.predictionCalibration.values;
   requireFields(prediction, ['algorithm', 'horizonTicks', 'observerKnownSpinPrior', 'parameters']); vector(prediction.observerKnownSpinPrior);

@@ -1,3 +1,5 @@
+import { assertStandalonePracticeWorkloadActivity } from './SqliteStandalonePracticeStore';
+import { assertNoSamePaPlayerReservation } from './SamePlateAppearanceReservationGuard';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -174,7 +176,9 @@ export const playerWorkloadRecoveryStoreFromSqlite = (db: DatabaseSync,
         if (getActivity.get(sourceId)) throw new Error('Player workload sourceId belongs to an activity');
         if (!input) throw new Error('accepted Player workload baseline is missing');
         const initial = initialState(input, sourceId);
+        assertNoSamePaPlayerReservation(db, input);
         guards.baseline?.(db, input, 'write');
+        assertNoSamePaPlayerReservation(db, input);
         const saved = getPolicy.get(initial.careerId, initial.policy.policyId, initial.policy.version) as { policy_json: string } | undefined;
         const policyJson = json(initial.policy);
         if (saved && saved.policy_json !== policyJson) throw new Error('Player workload policy version is already frozen differently');
@@ -183,7 +187,9 @@ export const playerWorkloadRecoveryStoreFromSqlite = (db: DatabaseSync,
         db.prepare('INSERT INTO world_player_workload_baselines VALUES (?, ?, ?, ?, ?)')
           .run(sourceId, initial.careerId, initial.playerId, json(input), json(initial));
         db.prepare('INSERT INTO world_player_workload_heads VALUES (?, ?, ?, ?)').run(initial.careerId, initial.playerId, 0, json(initial));
+        assertNoSamePaPlayerReservation(db, input);
         guards.baseline?.(db, input, 'written');
+        assertNoSamePaPlayerReservation(db, input);
         return replay(initial.careerId, initial.playerId)!;
       });
     },
@@ -197,12 +203,16 @@ export const playerWorkloadRecoveryStoreFromSqlite = (db: DatabaseSync,
         if (prior) {
           if (expectedRevision !== prior.before.revision) throw new Error('Player workload retry revision differs');
           if (activity && json(activity) !== json(prior.activity)) throw new Error('Player workload activity is already frozen differently');
+          assertStandalonePracticeWorkloadActivity(db, prior.activity, 'retry');
           guards.activity?.(db, prior.activity, 'retry');
           return prior.after;
         }
         if (getBaselineBySource.get(sourceId)) throw new Error('Player workload sourceId belongs to a baseline');
         if (!activity || activity.sourceEventId !== sourceId) throw new Error('accepted Player workload activity is missing or differs');
+        assertNoSamePaPlayerReservation(db, activity);
+        assertStandalonePracticeWorkloadActivity(db, activity, 'write');
         guards.activity?.(db, activity, 'write');
+        assertNoSamePaPlayerReservation(db, activity);
         const before = replay(activity.careerId, activity.playerId);
         if (!before) throw new Error('Player workload baseline is missing');
         const after = advancePlayerWorkloadRecovery(before, expectedRevision, activity);
@@ -212,7 +222,10 @@ export const playerWorkloadRecoveryStoreFromSqlite = (db: DatabaseSync,
           WHERE career_id=? AND player_id=? AND revision=? AND state_json=?`)
           .run(after.revision, json(after), before.careerId, before.playerId, before.revision, json(before));
         if (result.changes !== 1) throw new Error('Player workload head CAS failed');
+        assertNoSamePaPlayerReservation(db, activity);
+        assertStandalonePracticeWorkloadActivity(db, activity, 'written');
         guards.activity?.(db, activity, 'written');
+        assertNoSamePaPlayerReservation(db, activity);
         return replay(before.careerId, before.playerId)!;
       });
     },

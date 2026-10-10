@@ -1,7 +1,7 @@
 import type { DatabaseSync, StatementSync } from 'node:sqlite';
 type Db = Pick<DatabaseSync, 'prepare'>;
 
-// Entries exist only during one synchronous PlayEnd derive. Keep the original
+// Entries exist only during one synchronous owner proof. Keep the original
 // connection identity: other owners use it for their own private replay context.
 const scopes = new WeakMap<Db, Map<string, StatementSync>>();
 
@@ -26,9 +26,15 @@ const read = <T>(db: Db, sql: string, execute: (statement: StatementSync) => T):
   finally { statements?.set(sql, statement); }
 };
 
-// Deliberately only the metadata readers' two binding shapes. Every call executes
-// against the current raw document; raw-row/head queries keep their original path.
+// Document metadata readers keep their two original binding shapes. Every call
+// executes against the current raw document; no projection result is retained.
 export const sqliteMetadataGet = (db: Db, sql: string, document: string) =>
   read(db, sql, statement => statement.get(document));
 export const sqliteMetadataAll = (db: Db, sql: string, document: string) =>
   read(db, sql, statement => statement.all({ document }));
+
+// Lifecycle identity/assessment claims use the same immutable owner scope.
+// Rebind and execute the original typed-JSON query for every identity; only its
+// compiled statement is shared, never a row, parsed claim or validation result.
+export const sqliteMetadataClaimRows = (db: Db, sql: string, id: string) =>
+  read(db, sql, statement => statement.all({ id }));

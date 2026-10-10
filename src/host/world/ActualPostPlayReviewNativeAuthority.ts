@@ -28,6 +28,9 @@ const capture = (scope: PostPlayReviewNativeScope, previous: ActualPostPlayRevie
   const common = { version: 'actual_post_play_review_admission_v1' as const, careerId: scope.careerId,
     gameId: scope.gameId, playId: scope.playId, policyHash: hash(policy) };
   const action = source.action;
+  if (action.kind === 'import_live_appeal' || action.kind === 'admit_live_appeal_rights') throw new Error('live appeal import requires its original physical execution owner');
+  if (action.kind === 'defender_base_appeal' || action.kind === 'defender_runner_body_appeal')
+    throw new Error('defender appeal requires its original physical execution owner');
   if (action.kind === 'advance_tick' || action.kind === 'next_play_fence') {
     if (intent !== null || inputs !== null || action.schedulerId !== policy.schedulerId) throw new Error('post-play scheduler authority differs');
     return freeze({ kind: 'admitted', evidence: { ...common, kind: 'scheduler', actorId: action.schedulerId, clubId: null, inputs: null, inputHashes: null } });
@@ -42,11 +45,15 @@ const capture = (scope: PostPlayReviewNativeScope, previous: ActualPostPlayRevie
     || intent.physicalPitchSourceId !== scope.physicalPitchSourceId || intent.callId !== action.callId
     || intent.windowId !== action.windowId || intent.sourceId !== action.intentSourceId
     || intent.entitlementSourceId !== opportunity.entitlementSourceId) throw new Error('post-play admitted intent scope differs');
-  if (action.kind === 'official_request') {
+  if (action.kind === 'official_request' || action.kind === 'accept_live_appeal_result') {
     if (inputs !== null || intent.capability !== 'actual_post_play_review_official_intent_v1'
+      || intent.action !== (action.kind === 'official_request' ? 'request' : 'accept_live_appeal_result')
       || !opportunity.requesterIds.includes(intent.officialId) || !opportunity.reviewerIds.includes(intent.officialId)) {
       throw new Error('post-play official request authority differs');
     }
+    if (action.kind === 'accept_live_appeal_result' && (intent.action !== action.kind
+      || json(intent.executionReferences) !== json(action.executionReferences) || intent.basisSnapshotId !== action.basisSnapshotId
+      || intent.basisEvidenceRevision !== action.basisEvidenceRevision)) throw new Error('post-play official appeal acceptance basis differs');
     return freeze({ kind: 'admitted', evidence: { ...common, kind: 'official', actorId: intent.officialId, clubId: opportunity.clubId, inputs: null, inputHashes: null } });
   }
   if (intent.capability !== 'actual_post_play_review_intent_v1' || !inputs

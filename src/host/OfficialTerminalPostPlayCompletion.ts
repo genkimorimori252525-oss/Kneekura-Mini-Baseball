@@ -1,3 +1,8 @@
+import { foulTerminalCompletionMatchEnvelope, foulTerminalCompletedOfficial } from './OfficialTerminalPostPlayReceipt';
+export { foulTerminalCompletionReference, foulTerminalCompletionMatchEnvelope, foulTerminalCompletedOfficial } from './OfficialTerminalPostPlayReceipt';
+import { resolveOfficialGameProgression,resolveOfficialGameBoundary } from '../core/world/competition/OfficialGameCompletion';
+import { actualFoulTerminalPostPlayBoundaryInput } from './world/ActualFoulTerminalPostPlayBoundary';
+import type { FoulTerminalCompletion,FoulTerminalBoundaryCompletion } from './world/ActualFoulTerminalPostPlayCompletion';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../core/adjudication/OfficialWindowPolicy';
 import { activateNextNonLivePlateAppearance } from '../core/adjudication/NonLiveOfficialApplication';
@@ -7,7 +12,7 @@ import { officialStateSerialized as json, officialStateHash as hash } from './Of
 import { actualFoulTerminalApplicationInput, type FoulTerminalApplicationProposal } from './world/ActualFoulTerminalApplication';
 import { actualFoulTerminalPostPlaySetupInput } from './world/ActualFoulTerminalPostPlaySetup';
 import type { DurableFoulTerminalCompletedApplication, FoulTerminalPostPlayCompletion,
-  FoulTerminalPostPlayCompletionReference, PersistOfficialCompletedTerminalResult } from './world/ActualFoulTerminalPostPlayCompletion';
+  PersistOfficialCompletedTerminalResult } from './world/ActualFoulTerminalPostPlayCompletion';
 import { deriveFoulTerminalAcknowledgedResult } from './world/FoulTerminalAcknowledgementResult';
 import { assertFoulTerminalApplicationStorage } from './world/ActualFoulTerminalApplicationStorage';
 import { foulTerminalApplicationIdentityRows, foulTerminalApplicationClaims, foulTerminalPostPlaySetupIdentityRows,
@@ -28,12 +33,6 @@ const parse=(v:unknown,label:string):unknown=>{
   if(typeof v!=='string')throw new Error('terminal completion '+label+' encoding missing');
   const parsed=cloneInert(JSON.parse(v));if(json(parsed)!==v)throw new Error('terminal completion '+label+' must be canonical');return parsed;
 };
-export const foulTerminalCompletionReference=(c:FoulTerminalPostPlayCompletion):FoulTerminalPostPlayCompletionReference=>freeze({
-  version,completionId:c.completionId,terminalSourceId:c.terminalReference.sourceId,setupSourceId:c.source.sourceId,sourceHash:c.sourceHash,snapshotHash:c.snapshotHash,
-});
-export const foulTerminalCompletedOfficial=(official:import('./OfficialPendingPostPlay').PersistOfficialPendingNonLiveResult,c:FoulTerminalPostPlayCompletion):PersistOfficialCompletedTerminalResult=>freeze({
-  ...official,completion:foulTerminalCompletionReference(c),activation:c.activation,nextWorld:c.nextWorld,
-});
 export const foulTerminalCompletionScope=(p:FoulTerminalApplicationProposal):FoulTerminalApplicationScope=>({
   official:{sourceId:p.officialReference.sessionSourceId,gameId:p.gameId,playId:p.playId,physicalPitchSourceId:p.physicalPitchSourceId,
     physicalEndSourceId:p.physicalEndReference.sourceId,consumptionSourceId:p.consumptionReference.sourceId,
@@ -57,7 +56,7 @@ const coverage=(v:unknown):boolean=>v===null||fields(v,['compositionSourceId','p
   &&tick(v.rootAuthority.acceptedThroughTick)&&Array.isArray(v.roleAuthorities)&&v.roleAuthorities.every(r=>fields(r,['role','command','acceptedThroughTick'])
     &&['glove','body','tag_hand','left_foot','right_foot'].includes(String(r.role))&&command(r.command)&&tick(r.acceptedThroughTick));
 /** Exact local wire validation, not original physical/effect authentication. */
-export const validateFoulTerminalCompletionWire=(raw:unknown,p:FoulTerminalApplicationProposal,
+const validateFoulTerminalV1CompletionWire=(raw:unknown,p:FoulTerminalApplicationProposal,
   original:ReturnType<typeof deriveFoulTerminalAcknowledgedResult>):FoulTerminalPostPlayCompletion=>{
   const c=cloneInert(raw) as FoulTerminalPostPlayCompletion;
   if(!fields(c,['version','completionId','source','sourceHash','terminalReference','officialReference','scoringReference','workloadReference','controllerRetirement','activation','nextWorld','snapshotHash'])
@@ -100,6 +99,79 @@ export const validateFoulTerminalCompletionWire=(raw:unknown,p:FoulTerminalAppli
   const {snapshotHash,...payload}=c;same(snapshotHash,hash(payload),'snapshot hash differs');return freeze(c);
 };
 
+const validateFoulTerminalBoundaryCompletionWire=(raw:unknown,p:FoulTerminalApplicationProposal,
+  original:ReturnType<typeof deriveFoulTerminalAcknowledgedResult>):FoulTerminalBoundaryCompletion=>{
+  const c=cloneInert(raw) as FoulTerminalBoundaryCompletion;
+  if(!fields(c,['version','kind','completionId','source','sourceHash','terminalReference','officialReference','scoringReference','workloadReference','controllerRetirement','snapshotHash',...(c.kind==='game_final'?['scoringHistoryReference','finalResult']:['incomingDefenders','activation','nextWorld'])])
+    ||c.version!=='actual_foul_terminal_post_play_completion_v2'||!['half_change_continuing','game_final'].includes(c.kind)||!digest(c.snapshotHash))throw new Error('terminal completion archive envelope differs');
+  const source=actualFoulTerminalPostPlayBoundaryInput(c.source,c.source.sourceId);
+  same(c.sourceHash,hash(source),'setup Source hash differs');
+  same(c.completionId,json([c.version,p.source.sourceId,source.sourceId]),'identity differs');
+  const ref={owner:'actual_foul_terminal_applications',sourceId:p.source.sourceId,sourceVersion:p.source.sourceVersion,sourceHash:hash(p.source),proposalHash:hash(p)};
+  same(c.terminalReference,ref,'original reference differs');same(source.terminalReference,ref,'setup reference differs');
+  same(c.officialReference,{applicationId:original.official.receipt.applicationId,receiptHash:hash(original.official.receipt),
+    pendingPostPlayHash:hash(original.official.pendingPostPlay),acknowledgementHash:hash(original.acknowledgement)},'official reference differs');
+  if(!fields(c.scoringReference,['scoringApplicationId','rowHash'])||c.scoringReference.scoringApplicationId!==json(['actual_foul_terminal_scoring_v1',p.source.sourceId])
+    ||!digest(c.scoringReference.rowHash)||!fields(c.workloadReference,['terminalSourceId','planHash','participantEffects'])
+    ||c.workloadReference.terminalSourceId!==p.source.sourceId||!digest(c.workloadReference.planHash)||!Array.isArray(c.workloadReference.participantEffects))throw new Error('terminal completion effect reference differs');
+  const effects=c.workloadReference.participantEffects;
+  if(effects.length!==10||effects.some(e=>!fields(e,['playerId','activitySourceId','beforeRevision','afterRevision','activityHash','afterHash'])
+    ||![e.playerId,e.activitySourceId].every(id)||![e.activityHash,e.afterHash].every(digest)||!tick(e.beforeRevision)||!tick(e.afterRevision)||e.afterRevision!==e.beforeRevision+1)
+    ||new Set(effects.map(e=>e.playerId)).size!==10||new Set(effects.map(e=>e.activitySourceId)).size!==10)throw new Error('terminal completion exact ten effects differ');
+  same(effects.map(e=>e.playerId),effects.map(e=>e.playerId).sort(),'effect order differs');
+  if(source.kind!==c.kind)throw new Error('terminal completion boundary kind differs');
+  const atTick=source.kind==='game_final'?source.completedAtTick:source.nextStartedAtTick;
+  const retirement=c.controllerRetirement;
+  if(!fields(retirement,['version','kind','sourceId','previousPlayId','atTick','physicalEndReference','retired','retainedOriginalFutureWork',...(c.kind==='game_final'?[]:['nextPlayId'])])
+    ||retirement.version!==(c.kind==='game_final'?'actual_foul_terminal_controller_retirement_v2':'actual_foul_terminal_controller_retirement_v1')||retirement.kind!=='rule_system_retire_original_play'
+    ||retirement.sourceId!==source.sourceId||retirement.previousPlayId!==p.playId||(c.kind!=='game_final'&&(!('nextPlayId'in retirement)||retirement.nextPlayId!==p.nextMatch.playId))
+    ||retirement.atTick!==atTick||!Array.isArray(retirement.retired)||retirement.retired.length!==10
+    ||retirement.retired.some(r=>!fields(r,['playerId','personId','activeCommand','ownedMotionCoverage'])||![r.playerId,r.personId].every(id)||!command(r.activeCommand)||!coverage(r.ownedMotionCoverage))
+    ||!fields(retirement.retainedOriginalFutureWork,['controllers'])||!Array.isArray(retirement.retainedOriginalFutureWork.controllers)
+    ||retirement.retainedOriginalFutureWork.controllers.some(r=>!fields(r,['playerId','sourceId','dueTick'])||![r.playerId,r.sourceId].every(id)||!tick(r.dueTick)))throw new Error('terminal completion retirement shape differs');
+  same(retirement.physicalEndReference,p.physicalEndReference,'retirement physical reference differs');
+  same(retirement.retired.map(r=>[r.playerId,r.personId]),[...p.participants].sort((a,b)=>a.binding.playerId<b.binding.playerId?-1:a.binding.playerId>b.binding.playerId?1:0)
+    .map(a=>[a.binding.playerId,a.person.personId]),'retired original participants differ');
+  same(retirement.retired.map(r=>r.playerId),effects.map(e=>e.playerId),'effect and retirement membership differs');
+  const body=p.applicationBody,receipt=original.official.receipt,progression=original.official.pendingPostPlay.gameProgression;
+  if(!body.game||body.match.outs!==2||body.context.kind!=='strikeout'||Object.values(body.match.bases).some(v=>v!==null)
+   ||Object.values(receipt.appliedMatchState.bases).some(v=>v!==null)||atTick<p.clock.closureTick)throw new Error('terminal completion boundary requires third-out empty bases and original game policy');
+  const derivedProgression=resolveOfficialGameProgression({...body.game,gameId:p.gameId,priorMatch:body.match,application:receipt});
+  same(progression,derivedProgression,'original boundary progression differs');
+  if(c.kind==='game_final'){
+   if(derivedProgression.kind!=='GAME_FINAL_PENDING_SCORING')throw new Error('terminal completion final requires pending finality');
+   const history=c.scoringHistoryReference;
+   if(!fields(history,['throughDurableRevision','earlier'])||history.throughDurableRevision!==p.originalOfficialRevision||!Array.isArray(history.earlier)
+    ||history.earlier.length!==p.originalOfficialRevision||history.earlier.some(r=>!fields(r,['applicationId','scoringApplicationId','closureRowHash','scoringRowHash'])
+     ||![r.applicationId,r.scoringApplicationId].every(id)||![r.closureRowHash,r.scoringRowHash].every(digest)||r.applicationId===receipt.applicationId||r.scoringApplicationId===c.scoringReference.scoringApplicationId)
+    ||new Set(history.earlier.map(r=>r.applicationId)).size!==history.earlier.length||new Set(history.earlier.map(r=>r.scoringApplicationId)).size!==history.earlier.length)throw new Error('terminal completion final history reference differs');
+   const boundary=resolveOfficialGameBoundary({...body.game,gameId:p.gameId,priorMatch:body.match,application:receipt,lineScore:c.finalResult.lineScore});
+   if(boundary.kind!=='GAME_FINAL'||boundary.result.completionReason!==derivedProgression.completionReason)throw new Error('terminal completion final boundary differs');
+   same(c.finalResult,boundary.result,'final result derivation differs');
+  }else{
+   if(source.kind!=='half_change_continuing'||derivedProgression.kind!=='GAME_CONTINUES'||body.match.half===receipt.appliedMatchState.half
+    ||receipt.appliedMatchState.outs!==0||receipt.appliedMatchState.balls!==0||receipt.appliedMatchState.strikes!==0)throw new Error('terminal completion half-change requires continuing reset');
+   const incoming=c.incomingDefenders;
+   if(!Array.isArray(incoming)||incoming.length!==9||incoming.some(d=>!fields(d,['playerId','personId','bindingHash','workloadRevision','workloadHash'])
+    ||![d.playerId,d.personId].every(id)||![d.bindingHash,d.workloadHash].every(digest)||!tick(d.workloadRevision))
+    ||new Set(incoming.map(d=>d.playerId)).size!==9||new Set(incoming.map(d=>d.personId)).size!==9)throw new Error('terminal completion incoming defense references differ');
+   same(incoming.map(d=>d.playerId),source.worldSetup.defenders.map(d=>d.playerId).sort(),'incoming defense order or membership differs');
+   const activation=activateNextNonLivePlateAppearance({match:body.match,timeline:body.timeline,adjudication:body.adjudication,context:body.context,
+    application:receipt,nextStartedAtTick:source.nextStartedAtTick});
+   same(c.activation,activation,'activation derivation differs');
+   same(c.nextWorld,prepareBetweenPlayWorld(activation.nextMatchState,source.nextStartedAtTick,source.worldSetup),'world derivation differs');
+  }
+  const {snapshotHash,...payload}=c;same(snapshotHash,hash(payload),'snapshot hash differs');return freeze(c);
+};
+
+/** Exact version dispatch preserves the v1 same-half contract. */
+export const validateFoulTerminalCompletionWire=(raw:unknown,p:FoulTerminalApplicationProposal,
+ original:ReturnType<typeof deriveFoulTerminalAcknowledgedResult>):FoulTerminalCompletion=>{
+ const inert=cloneInert(raw) as FoulTerminalCompletion;
+ return inert?.version==='actual_foul_terminal_post_play_completion_v2'
+  ?validateFoulTerminalBoundaryCompletionWire(inert,p,original):validateFoulTerminalV1CompletionWire(inert,p,original);
+};
+
 /** Local three-mirror decoding only. Full original physical/scoring/workload
  * owners must still authenticate every successful completion/readiness read. */
 export const readFoulTerminalCompletionMirrors=(db:Db,sourceId:string,current=false)=>{
@@ -107,7 +179,8 @@ export const readFoulTerminalCompletionMirrors=(db:Db,sourceId:string,current=fa
     ||!assertFoulTerminalApplicationStorage(db as DatabaseSync,'completion'))throw new Error('terminal completion exact storage prerequisite missing');
   const rows=foulTerminalApplicationIdentityRows(db,sourceId);
   if(rows.length!==1||rows[0].source_id!==sourceId)throw new Error('terminal completion original ownership missing or ambiguous');
-  const row=rows[0];if(row.status!=='POST_PLAY_COMPLETED_CONTINUING')throw new Error('terminal completion remains pending');
+  const row=rows[0];if(row.status!=='POST_PLAY_COMPLETED_CONTINUING'&&row.status!=='POST_PLAY_COMPLETED_FINAL')throw new Error('terminal completion remains pending');
+  if(row.status==='POST_PLAY_COMPLETED_FINAL')assertFoulTerminalApplicationStorage(db as DatabaseSync,'finalCompletion');
   const source=actualFoulTerminalApplicationInput(parse(row.source_json,'original Source'),sourceId);
   const p=parse(row.proposal_json,'proposal') as FoulTerminalApplicationProposal;
   if(p?.kind!=='terminal_non_live_projected'||p.officialApplied!==false||!p.applicationBody||!p.clock||!Array.isArray(p.participants))throw new Error('terminal completion proposal shape differs');
@@ -120,13 +193,15 @@ export const readFoulTerminalCompletionMirrors=(db:Db,sourceId:string,current=fa
   if(!fields(result,['sourceId','official','acknowledgement','completion']))throw new Error('terminal completion result shape differs');
   same({sourceId:result.sourceId,official:result.official,acknowledgement:result.acknowledgement},original,'original acknowledged bytes differ');
   const completion=validateFoulTerminalCompletionWire(result.completion,p,original),applicationResult=foulTerminalCompletedOfficial(official,completion);
+  const final='finalResult'in completion;
+  if((row.status==='POST_PLAY_COMPLETED_FINAL')!==final)throw new Error('terminal completion archive stage differs');
   const application=db.prepare('SELECT * FROM main.applications WHERE application_id=?').get(source.applicationId);
   same(application,{application_id:source.applicationId,match_id:p.gameId,closure_id:sourceId,request_hash:official.pendingPostPlay.requestHash,result_json:json(applicationResult)},'application mirror differs');
   const match=db.prepare('SELECT * FROM main.matches WHERE match_id=?').get(p.gameId);
   if(!match||!tick(match.durable_revision)||match.durable_revision<official.receipt.durableRevision)throw new Error('terminal completion Match revision differs');
   const expectedMatch={match_id:p.gameId,durable_revision:official.receipt.durableRevision,state_json:json(official.receipt.appliedMatchState),
-    activation_json:json({activation:completion.activation,nextWorld:completion.nextWorld})};
-  if(current||match.durable_revision===official.receipt.durableRevision)same(match,expectedMatch,'Match mirror differs');
+    activation_json:json(foulTerminalCompletionMatchEnvelope(completion))};
+  if(current||final||match.durable_revision===official.receipt.durableRevision)same(match,expectedMatch,'Match mirror differs');
   same(foulTerminalApplicationClaims(db,foulTerminalCompletionScope(p)),[row],'raw original ownership differs');
   same(foulTerminalPostPlaySetupIdentityRows(db,completion.source.sourceId),[row],'raw setup ownership differs');
   const claims=officialApplicationOwnershipClaims(db,foulTerminalCompletionScope(p));
@@ -134,7 +209,7 @@ export const readFoulTerminalCompletionMirrors=(db:Db,sourceId:string,current=fa
   const setupClaims=officialApplicationPostPlaySetupIdentityClaims(db,completion.source.sourceId);
   if(!setupClaims.some(c=>c.table==='applications'&&json(c.row)===json(application))||setupClaims.some(c=>
     !(c.table==='applications'&&json(c.row)===json(application))&&!(c.table==='matches'&&json(c.row)===json(expectedMatch))))throw new Error('terminal completion raw setup official mirror differs');
-  const archive:DurableFoulTerminalCompletedApplication=freeze({source,proposal:p,status:'POST_PLAY_COMPLETED_CONTINUING',officialApplied:true,
+  const archive:DurableFoulTerminalCompletedApplication=freeze({source,proposal:p,status:final?'POST_PLAY_COMPLETED_FINAL':'POST_PLAY_COMPLETED_CONTINUING',officialApplied:true,
     result:{...original,completion}});
   return freeze({archive,applicationResult,row,application:application!,match});
 };

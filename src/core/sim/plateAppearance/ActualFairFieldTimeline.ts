@@ -1,3 +1,4 @@
+import { deriveBallWorldBattedRuleChronology } from '../../rules/BallWorldBattedRuleChronology';
 import { cloneInert } from '../../adjudication/OfficialWindowPolicy';
 import { deriveBallWorldFieldTerritory, type BallWorldFieldTerritoryInput } from '../../rules/BallWorldFieldTerritory';
 import type { PlayEndFact } from '../../rules/PhysicalRuleFacts';
@@ -42,9 +43,10 @@ export const projectActualFairFieldTimeline = (raw: ActualFairFieldTimelineInput
   }
   if (playEnd.tick !== evidence.horizon.ball.tick) throw new Error('actual fair-field play end must match the proved physical horizon');
   if (territory.kind !== 'resolved' || territory.territory !== 'fair') return freeze({ kind: 'unsupported', reason: 'fair_territory_unavailable' });
+  const caught = deriveBallWorldBattedRuleChronology(evidence).ballEvidence.kind === 'fly_catch';
   const ground = evidence.contacts.find(frame => frame.contacts.some(contact => contact.kind === 'ground'));
-  if (!ground) return freeze({ kind: 'unsupported', reason: 'ground_unavailable' });
-  if (ground.moment.elapsedSeconds > territory.moment.elapsedSeconds) {
+  if (!caught && !ground) return freeze({ kind: 'unsupported', reason: 'ground_unavailable' });
+  if (!caught && ground && ground.moment.elapsedSeconds > territory.moment.elapsedSeconds) {
     return freeze({ kind: 'unsupported', reason: 'ground_after_fair_projection_unsupported' });
   }
   const touched = evidence.contacts.find(frame => frame.contacts.some(contact => contact.kind === 'actor' && evidence.defenderIds.includes(contact.playerId)));
@@ -56,11 +58,14 @@ export const projectActualFairFieldTimeline = (raw: ActualFairFieldTimelineInput
     return freeze({ kind: 'unsupported', reason: 'prior_fielder_touch_projection_unsupported' });
   }
   let timeline = original;
-  const actions: { at: number; order: number; apply(): void }[] = [{ at: ground.moment.elapsedSeconds, order: 0, apply() {
+  const actions: { at: number; order: number; apply(): void }[] = [
+    { at: territory.moment.elapsedSeconds, order: 2, apply() { timeline = recordFairBattedBall(timeline, territory.moment.ball.tick); } },
+  ];
+  if (!caught && ground) actions.push({ at: ground.moment.elapsedSeconds, order: 0, apply() {
     const ball = ground.moment.ball;
     timeline = recordBattedBallFirstGroundContact(timeline, { tick: ball.tick, position: { x: ball.position.x, z: ball.position.z },
       classification: classifyBallAgainstFairTerritory(evidence.field, ball.position, evidence.ballRadiusMeters) });
-  } }, { at: territory.moment.elapsedSeconds, order: 2, apply() { timeline = recordFairBattedBall(timeline, territory.moment.ball.tick); } }];
+  } });
   if (touched && fielder) actions.push({ at: touched.moment.elapsedSeconds, order: 1, apply() {
     const ball = touched.moment.ball;
     timeline = recordBattedBallFirstFielderTouch(timeline, { fielderId: fielder.playerId, tick: ball.tick, ballCenter: ball.position,

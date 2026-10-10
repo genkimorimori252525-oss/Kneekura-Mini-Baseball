@@ -1,5 +1,6 @@
-import { battedEpisodeFieldBindingEvidenceFromSqlite } from './SqliteBattedEpisodeFieldBindingStore';
-import { battedWorldFieldGeometry, battedWorldFieldRootIdentity, battedWorldFieldSourceRootIdentity, type BattedWorldFieldRoot, type BattedEpisodeFieldBindingOptIn } from './BattedWorldFieldRoot';
+import { battedEpisodeFieldBindingEvidenceFromSqlite, withBattedEpisodeFieldBindingReadPhase } from './SqliteBattedEpisodeFieldBindingStore';
+import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
+import { battedWorldFieldGeometry, battedWorldFieldRootIdentity, battedWorldFieldSourceRootIdentity, isBattedEpisodeFieldRoot, type BattedWorldFieldRoot, type BattedEpisodeFieldBindingOptIn } from './BattedWorldFieldRoot';
 import { battedWorldFieldCalibrationEvidenceFromSqlite, acceptedBattedWorldFieldGeometryInput as geometryInput } from './BattedWorldFieldCalibrationEvidenceFromSqlite';
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
@@ -38,13 +39,32 @@ type Authority = Readonly<{ readAcceptedGeometry(sourceId: string): AcceptedBatt
 type Db = Pick<import('node:sqlite').DatabaseSync, 'prepare'>;
 // Only completed own reads can seed this synchronous physical traversal. No
 // public setter accepts evidence; caller-supplied scope objects are never seeds.
-type FieldReadTraversal = Readonly<{ identity: object; check(): void;
+type FieldReadSnapshot = { identity: object; failed: boolean; check(): void };
+type FieldReadTraversal = Readonly<{ identity: object; check(): void; snapshot: FieldReadSnapshot;
   nodes: Map<string, Readonly<{ value: DurableBattedWorldFieldAction; snapshotJson: string; snapshotHash: string }>>;
   roots: Map<string, DurableBattedWorldFieldAction>; authenticated: WeakSet<object> }>;
 const fieldReadTraversals = new WeakMap<Db, FieldReadTraversal>();
 
 /** Opaque stack identity only. No context, cached value or mutable map escapes. */
 export const activeBattedWorldFieldReadFrame = (db: Db): object | null => fieldReadTraversals.get(db)?.identity ?? null;
+
+/** Completed dependent reads may reuse only inside this unchanged owner frame. */
+export const assertBattedWorldFieldReadFrame = (db: Db, identity: object): void => {
+  const traversal = fieldReadTraversals.get(db);
+  if (!traversal || traversal.identity !== identity) throw new Error('physical read owned frame changed');
+  traversal.check();
+};
+
+/** Opaque outer snapshot for original National evidence, never a caller proof.
+ * Child field frames stay independent; any failed descendant expires reuse. */
+export const activeBattedWorldFieldReadSnapshot = (db: Db): object | null => {
+  const traversal = fieldReadTraversals.get(db);
+  if (!traversal) return null;
+  if (traversal.snapshot.failed) throw new Error('physical read snapshot failed');
+  try { traversal.check(); traversal.snapshot.check(); }
+  catch (error) { traversal.snapshot.failed = true; throw error; }
+  return traversal.snapshot.identity;
+};
 
 /** Internal root-owned read bracket. It never replaces a connection authorizer.
  * query_only belongs to this synchronous operation, not an adversarial SQL sandbox. */
@@ -53,8 +73,11 @@ export const withBattedWorldFieldReadTraversal = <T>(db: Db, body: () => T): T =
   if (!(db instanceof DatabaseSync) || !db.isTransaction) return body();
   const prior = fieldReadTraversals.get(db), name = `physical_field_read_${randomUUID().replaceAll('-', '')}`;
   const queryOnly = () => db.prepare('PRAGMA query_only').get()!.query_only;
-  const beforeQueryOnly = queryOnly();
-  if (beforeQueryOnly !== 0 && beforeQueryOnly !== 1) throw new Error('physical read query-only state is unavailable');
+  let beforeQueryOnly: unknown;
+  try {
+    beforeQueryOnly = queryOnly();
+    if (beforeQueryOnly !== 0 && beforeQueryOnly !== 1) throw new Error('physical read query-only state is unavailable');
+  } catch (error) { if (prior) prior.snapshot.failed = true; throw error; }
   const stamp = () => [db.prepare('SELECT total_changes() AS changes').get()!.changes,
     db.prepare('PRAGMA main.schema_version').get()!.schema_version,
     db.prepare('PRAGMA temp.schema_version').get()!.schema_version] as const;
@@ -72,7 +95,9 @@ export const withBattedWorldFieldReadTraversal = <T>(db: Db, body: () => T): T =
         throw new Error('physical read transaction or dependencies changed during traversal');
       }
     };
-    completed = { identity: Object.freeze({}), check, nodes: new Map(), roots: new Map(), authenticated: new WeakSet() };
+    completed = { identity: Object.freeze({}), check,
+      snapshot: prior?.snapshot ?? { identity: Object.freeze({}), failed: false, check },
+      nodes: new Map(), roots: new Map(), authenticated: new WeakSet() };
     fieldReadTraversals.set(db, completed);
     value = body(); check();
     // Counters cannot identify rollback/rebegin. The private savepoint must
@@ -88,13 +113,17 @@ export const withBattedWorldFieldReadTraversal = <T>(db: Db, body: () => T): T =
       if (queryOnly() !== beforeQueryOnly) throw new Error('physical read query-only setting could not be restored');
     } catch (error) { cleanupErrors.push(error); }
   }
+  if (failed || cleanupErrors.length) {
+    const snapshot = completed?.snapshot ?? prior?.snapshot;
+    if (snapshot) snapshot.failed = true;
+  }
   if (cleanupErrors.length) throw new AggregateError([...(failed ? [failure] : []), ...cleanupErrors],
     'physical read transaction or setting cleanup failed', { cause: failed ? failure : cleanupErrors[0] });
   if (failed) throw failure;
   // A child always authenticates from fresh roots. Only its fully successful
   // bracket can make completed immutable nodes available to its direct parent.
   if (prior && completed) {
-    prior.check();
+    try { prior.check(); } catch (error) { prior.snapshot.failed = true; throw error; }
     for (const [key, entry] of completed.nodes) { prior.nodes.set(key, entry); prior.authenticated.add(entry.value); }
     for (const [key, root] of completed.roots) prior.roots.set(key, root);
   }
@@ -156,10 +185,17 @@ export const battedWorldFieldEvidenceFromSqlite = (db: Db) => {
   const root = (source: AcceptedBattedWorldFieldAction): Root => {
     if (battedWorldFieldSourceRootIdentity(source) !== 'legacy') {
       const binding = battedEpisodeFieldBindingEvidenceFromSqlite(db as import('node:sqlite').DatabaseSync).read(source.episodeFieldBinding!.sourceId);
-      if (!binding || binding.source.responseSourceId !== source.responseSourceId || binding.source.fieldCalibrationSourceId !== source.geometrySourceId) {
+      if (!binding || binding.source.version !== source.episodeFieldBinding!.version
+        || binding.source.responseSourceId !== source.responseSourceId || binding.source.fieldCalibrationSourceId !== source.geometrySourceId) {
         throw new Error('actual field episode binding or redundant original references differ');
       }
-      const value: Root = { rootKind: 'episode_field_binding_v1', episodeFieldBinding: binding, response: binding.response, geometry: binding.calibration };
+      const common = { episodeFieldBinding: binding, response: binding.response, geometry: binding.calibration };
+      const value: Root = source.episodeFieldBinding!.version === 'batted_episode_field_binding_v1'
+        ? { rootKind: 'episode_field_binding_v1', ...common }
+        : source.episodeFieldBinding!.version === 'batted_episode_field_binding_v2'
+          ? { rootKind: 'episode_field_binding_v2', ...common }
+          : source.episodeFieldBinding!.version === 'batted_episode_field_binding_v3'
+            ? { rootKind: 'episode_field_binding_v3', ...common } : { rootKind: 'episode_field_binding_v4', ...common };
       battedWorldFieldGeometry(value); return value;
     }
     const response = ownResponses.read(source.responseSourceId), geometry = readGeometry(source.geometrySourceId);
@@ -193,7 +229,7 @@ export const battedWorldFieldEvidenceFromSqlite = (db: Db) => {
     }
     const value = { source, response: original.response, geometry: original.geometry, revision: (previous?.revision ?? 0) + 1,
       history: [...(previous?.history ?? []), source], field, ...(pieceExecution ? { pieceExecution } : {}) };
-    return freeze(original.rootKind === 'episode_field_binding_v1'
+    return freeze(isBattedEpisodeFieldRoot(original)
       ? { ...value, rootKind: original.rootKind, episodeFieldBinding: original.episodeFieldBinding } : value);
   };
   const scope = (original: Root, throughSourceId?: string): readonly DurableBattedWorldFieldAction[] => {
@@ -276,25 +312,39 @@ export const battedWorldFieldEvidenceFromSqlite = (db: Db) => {
   };
   const currentRoot = (value: DurableBattedWorldFieldAction) => {
     noOldOwner(db, physicalId(value));
-    if (value.rootKind === 'episode_field_binding_v1') battedEpisodeFieldBindingEvidenceFromSqlite(db as import('node:sqlite').DatabaseSync).current(value.episodeFieldBinding);
+    if (isBattedEpisodeFieldRoot(value)) battedEpisodeFieldBindingEvidenceFromSqlite(db as import('node:sqlite').DatabaseSync).current(value.episodeFieldBinding);
     else { ownResponses.current(value.response); currentGeometry(value.geometry); }
-    const original: Root = value.rootKind === 'episode_field_binding_v1'
+    const original: Root = isBattedEpisodeFieldRoot(value)
       ? { rootKind: value.rootKind, episodeFieldBinding: value.episodeFieldBinding, response: value.response, geometry: value.geometry }
       : { response: value.response, geometry: value.geometry };
     if (json(root(value.source)) !== json(original)) throw new Error('actual field original changed during write');
   };
-  const currentBefore = (value: DurableBattedWorldFieldAction) => {
+  const readPhase = <T>(source: AcceptedBattedWorldFieldAction, work: () => T): T =>
+    battedWorldFieldSourceRootIdentity(source) === 'legacy' ? work()
+      : withBattedEpisodeFieldBindingReadPhase(db as import('node:sqlite').DatabaseSync, () => withBattedWorldPhysicalReadTraversal(db, work));
+  const currentBeforeWork = (value: DurableBattedWorldFieldAction) => {
     currentRoot(value); if (json(derive(value.source)) !== json(value)) throw new Error('actual field prefix changed before write');
   };
-  const current = (value: DurableBattedWorldFieldAction) => {
+  const currentBefore = (value: DurableBattedWorldFieldAction) => readPhase(value.source, () => currentBeforeWork(value));
+  const currentWork = (value: DurableBattedWorldFieldAction) => {
     currentRoot(value); const values = scope(value);
     if (values.length !== value.revision || json(values.at(-1)) !== json(value)) throw new Error('actual field prefix changed during write');
   };
+  const current = (value: DurableBattedWorldFieldAction) => readPhase(value.source, () => currentWork(value));
+  const prepare = (source: AcceptedBattedWorldFieldAction) => readPhase(source, () => {
+    const value = derive(source); currentBeforeWork(value); return value;
+  });
+  const verifySaved = (value: DurableBattedWorldFieldAction) => readPhase(value.source, () => {
+    currentWork(value); assertNoBattedWorldFieldExecutionOwner(db, physicalId(value));
+    const saved = read(value.source.sourceId);
+    if (!saved || json(saved) !== json(value)) throw new Error('actual field original changed during write');
+    return saved;
+  });
   const interpret = (sourceId: string) => {
     const value = read(sourceId);
     return value ? battedWorldFieldTerritoryFromPrefix(scope(value, sourceId)) : null;
   };
-  return { readGeometry, deriveGeometry, currentGeometry, read, interpret, derive, scope, currentBefore, current };
+  return { readGeometry, deriveGeometry, currentGeometry, read, interpret, derive, scope, currentBefore, current, prepare, verifySaved };
 };
 
 export const openSqliteBattedWorldFieldStore = (path: string, responses: Pick<SqliteBattedContactResponseStore, 'read'>,
@@ -343,7 +393,7 @@ export const openSqliteBattedWorldFieldStore = (path: string, responses: Pick<Sq
         const saved = own.read(sourceId); if (!saved || json(saved) !== json(prior)) throw new Error('actual field original changed during retry'); return saved;
       }
       if (!source) throw new Error('accepted actual field action Source is missing');
-      const value = own.derive(source); own.currentBefore(value); const peer = responses.read(source.responseSourceId);
+      const value = own.prepare(source); const peer = responses.read(source.responseSourceId);
       assertNoBattedWorldFieldExecutionOwner(db, physicalId(value));
       if (!peer || json(peer) !== json(value.response)) throw new Error('actual field peer original profile differs');
       db.exec('BEGIN IMMEDIATE');
@@ -360,8 +410,7 @@ export const openSqliteBattedWorldFieldStore = (path: string, responses: Pick<Sq
           if (Number(changed.changes) !== 1) throw new Error('actual field predecessor changed during write');
         }
         recordActualLivePlayAdmission(db, liveFence);
-        own.current(value); assertNoBattedWorldFieldExecutionOwner(db, pitchId); const saved = own.read(sourceId);
-        if (!saved || json(saved) !== json(value)) throw new Error('actual field original changed during write'); assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
+        const saved = own.verifySaved(value); assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     }, close() { if (!closed) { db.close(); closed = true; } },
   });

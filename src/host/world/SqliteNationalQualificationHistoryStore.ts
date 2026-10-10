@@ -1,3 +1,4 @@
+import type { DatabaseSync } from 'node:sqlite';
 import { createRequire } from 'node:module';
 import { createCompetitionSourceReader } from './CompetitionSourceReadScope';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -92,8 +93,8 @@ const validSavedHistory = (saved: NationalQualificationHistory): boolean =>
       && item.resultApplicationIds.includes(winner.officialFinalApplicationId)));
 
 /** Official regional placements become cutoff-aware WBC berth sources. */
-export const openSqliteNationalQualificationHistoryStore = (
-  databasePath: string,
+const createSqliteNationalQualificationHistoryStore = (
+  databasePath: string | DatabaseSync,
   sources: Readonly<{
     knockouts: Pick<SqliteRegionalNationalKnockoutStore,
       'readEvidence'>;
@@ -103,12 +104,15 @@ export const openSqliteNationalQualificationHistoryStore = (
       'readSelection'>;
   }>,
 ): SqliteNationalQualificationHistoryStore => {
-  if (!id(databasePath)) {
+  if (typeof databasePath === 'string' && !id(databasePath)) {
     throw new Error('invalid national qualification database path');
   }
   const sqlite: typeof import('node:sqlite') =
     createRequire(import.meta.url)('node:sqlite');
-  const db = new sqlite.DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new sqlite.DatabaseSync(databasePath);
+  if (!(db instanceof sqlite.DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_national_qualification_heads (
     career_id TEXT PRIMARY KEY, competition_ids_json TEXT NOT NULL
@@ -120,6 +124,7 @@ export const openSqliteNationalQualificationHistoryStore = (
     PRIMARY KEY (career_id, ordinal),
     UNIQUE (career_id, edition_id)
   );`);
+  }
   const getHead = db.prepare(`SELECT competition_ids_json
     FROM world_national_qualification_heads WHERE career_id=?`);
   const getEvents = db.prepare(`SELECT ordinal, edition_id, request_json, history_json
@@ -364,8 +369,18 @@ export const openSqliteNationalQualificationHistoryStore = (
       } });
     },
     close(): void {
-      if (!closed) db.close();
+      if (!closed && !borrowed) db.close();
       closed = true;
     },
   });
+};
+
+/** Existing path facade retains connection/schema ownership. */
+export const openSqliteNationalQualificationHistoryStore = (databasePath: string, sources: Parameters<typeof createSqliteNationalQualificationHistoryStore>[1]): SqliteNationalQualificationHistoryStore =>
+  createSqliteNationalQualificationHistoryStore(databasePath, sources);
+
+/** Same owner replay on a consuming Native connection; only read capabilities escape. */
+export const nationalQualificationHistoryEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteNationalQualificationHistoryStore>[1]): Pick<SqliteNationalQualificationHistoryStore, 'regionalAuthority' | 'qualifierAuthority'> => {
+  const owner = createSqliteNationalQualificationHistoryStore(db, sources);
+  return Object.freeze({ regionalAuthority: owner.regionalAuthority, qualifierAuthority: owner.qualifierAuthority });
 };

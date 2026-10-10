@@ -32,7 +32,7 @@ const ownedMotionInput = (raw: OwnedMotionAction, includeV2: boolean): OwnedMoti
       const r = c.command;
       if (!fields(c, ['kind', 'playerId', 'command']) || !fields(r, ['kind', 'owner', 'sourceId', 'sourceVersion', 'sourceHash',
         'adoptionSourceId', 'adoptionSourceHash', 'adoptedAt', 'executedThrough', 'acceptedThroughTick'])
-        || !['contact', 'field', 'motion', 'motion_checkpoint_v1', 'owned_motion_v1', 'throw', 'throw_advance', ...(includeV2 ? ['owned_motion_v2'] : [])].includes(r.kind)
+        || !['contact', 'field', 'motion', 'motion_checkpoint_v1', 'owned_motion_v1', 'throw', 'throw_advance', ...(includeV2 ? ['owned_motion_v2','received_renewal_adoption_v1'] : [])].includes(r.kind)
         || !['batted_world_contacts', 'batted_world_field_actions', 'batted_world_field_executions'].includes(r.owner)
         || ![r.sourceId, r.sourceVersion, r.sourceHash, r.adoptionSourceId, r.adoptionSourceHash].every(id)
         || !moment(r.adoptedAt) || !moment(r.executedThrough) || !tick(r.acceptedThroughTick)) throw new Error('invalid retained motion command reference');

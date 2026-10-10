@@ -1,3 +1,4 @@
+import { assertNoSamePaOriginalPitchReservation } from './SamePlateAppearanceReservationGuard';
 import { assertActualLiveRegistrationBeforeWork } from './ActualLiveRuntimeRegistration';
 import { createHash } from 'node:crypto';
 import { actualLivePlayOwnerIdentityRow, actualLiveRuntimeClaims } from './ActualLivePlayOwnerMetadata';
@@ -8,6 +9,7 @@ import { actualLivePlayRuntimeInput as input, deriveActualLiveRuntimeMembership,
 import { actualLivePlayEvidenceFromSqlite } from './ActualLivePlayEvidenceFromSqlite';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { actualLiveAdmissionOwners, beginActualLivePlayRegistration, assertActualLivePlayRegistrationUnchanged } from './ActualLivePlayFence';
+import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 type Db = Pick<import('node:sqlite').DatabaseSync, 'prepare'>;
 export const actualLiveRuntimeEvidenceFromSqlite = (db: Db) => {
   const derive = (source: AcceptedActualLivePlayRuntime, current = false): DurableActualLivePlayRuntime => {
@@ -70,7 +72,7 @@ export const openSqliteActualLivePlayRuntimeStore = (path: string,
     assertActualLiveRegistrationBeforeWork(db, { gameId: value.gameId, playId: value.playId, physicalPitchSourceId: value.source.physicalPitchSourceId });
   };
   const snapshot = <T>(body: () => T): T => {
-    db.exec('BEGIN'); try { const value = body(); db.exec('COMMIT'); return value; }
+    db.exec('BEGIN'); try { const value = withBattedWorldPhysicalReadTraversal(db, body); db.exec('COMMIT'); return value; }
     catch (error) { db.exec('ROLLBACK'); throw error; }
   };
   return Object.freeze({ read(sourceId: string) { check(); return snapshot(() => own.read(sourceId)); },
@@ -86,16 +88,21 @@ export const openSqliteActualLivePlayRuntimeStore = (path: string,
         });
       }
       if (!source) throw new Error('accepted actual live runtime Source missing');
-      const value = own.derive(source, true); before(value); db.exec('BEGIN IMMEDIATE');
+      snapshot(() => assertNoSamePaOriginalPitchReservation(db,source.physicalPitchSourceId));
+      const value = snapshot(() => { const proposed = own.derive(source, true); before(proposed); return proposed; });
+      db.exec('BEGIN IMMEDIATE');
       try {
         const fence = beginActualLivePlayRegistration(db, { gameId: value.gameId, playId: value.playId, physicalPitchSourceId: source.physicalPitchSourceId });
-        before(value);
+        withBattedWorldPhysicalReadTraversal(db, () => before(value));
         db.prepare('INSERT INTO actual_live_play_runtimes VALUES(?,?,?,?,?,?,?,?)').run(sourceId, value.gameId, value.playId,
           source.physicalPitchSourceId, json(source), hash(source), json(value), hash(value));
-        before(value); const saved = own.read(sourceId);
-        if (!saved || json(saved) !== json(value)) throw new Error('actual live runtime changed during registration');
-        if (own.admissions(saved).length !== 0) throw new Error('actual live runtime admission appeared during registration');
-        assertActualLivePlayRegistrationUnchanged(db, fence);
+        const saved = withBattedWorldPhysicalReadTraversal(db, () => {
+          before(value); const saved = own.read(sourceId);
+          if (!saved || json(saved) !== json(value)) throw new Error('actual live runtime changed during registration');
+          if (own.admissions(saved).length !== 0) throw new Error('actual live runtime admission appeared during registration');
+          assertActualLivePlayRegistrationUnchanged(db, fence);
+          return saved;
+        });
         db.exec('COMMIT'); return saved;
       } catch (e) { db.exec('ROLLBACK'); throw e; }
     }, close() { if (!closed) { db.close(); closed = true; } },

@@ -6,6 +6,11 @@ export {
   closeOfficialStateWindow,
   recordOnFieldCall,
   recordOwnedLiveCallImport,
+  recordOwnedLiveAppealImport,
+  recordOwnedLiveAppealRightsAdmission,
+  interpretOriginalLiveAppealRights,
+  getPendingOwnedLiveAppealImports,
+  getOwnedLiveAppealRightsAdmissions,
   recordReviewDecision,
   closeOfficialPlay,
   getPlayAdjudicationState,
@@ -40,7 +45,7 @@ export type {
 } from './OfficialScoring';
 export { prepareBetweenPlayWorld } from './BetweenPlayWorldReset';
 export type { BetweenPlayWorldSetup } from './BetweenPlayWorldReset';
-export type { TagUpAppealAttemptInput, TagUpAppealAttemptResolution } from './TagUpAppealOrchestration';
+export type { TagUpAppealAttemptInput, TagUpAppealAttemptResolution, ExactTagUpAppealAttemptInput, ExactTagUpAppealAttemptResolution } from './TagUpAppealOrchestration';
 
 export type {
   OfficialGameplayRuling,
@@ -51,6 +56,8 @@ export type {
   OfficialStateWindowKind,
   OfficialStateWindowCloseReason,
   OfficialStateWindow,
+  BallWorldAppealComplianceEvidence,
+  TagUpAppealComplianceEvidence,
   DefensiveAppealAttemptRecorded,
   OnFieldCall,
   ReviewDecisionKind,
@@ -70,6 +77,17 @@ export type {
   OwnedLiveCallImportProvenance,
   OwnedLiveCallImported,
   OwnedLiveCallImportInput,
+  OwnedLiveAppealRightsDependency,
+  OwnedLiveAppealImportProvenance,
+  OwnedLiveAppealImported,
+  OwnedLiveAppealImportInput,
+  OwnedLiveAppealRightsMoment,
+  OwnedLiveAppealRightsEvidence,
+  OwnedLiveAppealRightsAdmissionProvenance,
+  OwnedLiveAppealRightsDisposition,
+  OwnedLiveAppealRightsAdmitted,
+  OwnedLiveAppealRightsAdmissionInput,
+  OriginalLiveAppealRightsInput,
   ReviewDecisionInput,
   CloseOfficialPlayInput,
 } from './PlayAdjudicationLedger';

@@ -1,3 +1,4 @@
+import { isStandalonePracticeEvent } from './SqliteStandalonePracticeStore';
 // Synthetic accepted calibration/opportunities; real SQLite owners and delivery
 // models. These fixtures are not production practice scheduling or learning.
 import { createRequire } from 'node:module';
@@ -29,6 +30,7 @@ import { openSqlitePlayerWorkloadRecoveryStore } from './SqlitePlayerWorkloadRec
 import { openSqlitePitchFatiguePolicyStore, type AcceptedPitchFatiguePolicy } from './SqlitePitchFatiguePolicyStore';
 import { openSqliteDevelopmentInitiationStore } from './SqliteDevelopmentInitiationStore';
 import type { DevelopmentAppraisalSources } from './DevelopmentEpisodeFromAcceptedAppraisal';
+import { isNonPitchRepetitionEvent } from './NonPitchDevelopmentRepetition';
 
 // Test-owned contract for the absent producer. No production stub is installed.
 export type PracticeOpportunity = {
@@ -75,6 +77,7 @@ export type PracticeOwner = {
 type PracticeModule = { openSqlitePitchPracticeAttemptStore(path: string, sources: unknown, authority?: unknown): PracticeOwner };
 
 export type PracticeFixtureHooks = {
+  additionalPlayerIds?: readonly string[];
   managerBeliefCandidates?: readonly import('../../core/world/manager/ManagerDecision').ManagerActionBelief[];
   quickSpeedFactor?: number;
   controlDomainIds?: readonly string[];
@@ -102,8 +105,9 @@ export async function practiceFixture(cleanup: (() => void)[], hooks: PracticeFi
     profiles: [{ profileId: 'fixture-league', version: 'v1', season: 1, competitionEditionId: 'league-season-1', activeLimit: null,
       allowedAssignmentKinds: ['FIRST_TEAM', 'RESERVE'], rehabParticipationAllowed: false }],
     units: [{ unitId: 'reserve', clubId: 'club-a', kind: 'RESERVE' }, { unitId: 'first', clubId: 'club-a', kind: 'FIRST_TEAM' }],
-    players: [{ playerId: 'p1', clubRights: { rightsHolderClubId: 'club-a', contractId: 'contract-p1' },
-      assignment: { unitId: 'reserve', clubId: 'club-a' }, registrations: [], availability: { status: 'AVAILABLE', evidenceId: 'accepted-health' } }] }) });
+    players: ['p1', ...(hooks.additionalPlayerIds ?? [])].map(playerId => ({ playerId,
+      clubRights: { rightsHolderClubId: 'club-a', contractId: playerId === 'p1' ? 'contract-p1' : `contract:${playerId}` },
+      assignment: { unitId: 'reserve', clubId: 'club-a' }, registrations: [], availability: { status: 'AVAILABLE' as const, evidenceId: 'accepted-health' } })) }) });
   const intake = { sourceId: 'intake-p1', sourceVersion: 'fixture-v1', careerId: 'career-a', playerId: 'p1', personId: 'person-p1',
     sourceRecordId: 'fixture-intake', acceptedRevision: 0, acceptedAtDay: 10, rosterRevision: 0 };
   let links = keep(openSqlitePlayerPersonLinkStore(path, { readAcceptedPlayerIntake: id => id === intake.sourceId ? intake : null }));
@@ -197,7 +201,7 @@ export async function practiceFixture(cleanup: (() => void)[], hooks: PracticeFi
     ((db: EvidenceDb, event: DevelopmentLearningEventInput, phase: string) => void)?]) => ReturnType<typeof openSqliteDevelopmentInitiationStore>;
   const openEpisodes = () => keep(openEpisode(path, episodeSources(), { readAcceptedLearningEvent: id =>
     learningEvents.get(id) ?? owner?.readAcceptedLearningEvent(id) ?? null },
-  (db, event, phase) => { if (event.kind === 'PRACTICE_RECORDED') owner?.assertLearningEvidence(db, event, phase); }));
+  (db, event, phase) => { if (event.kind === 'PRACTICE_RECORDED' && !isNonPitchRepetitionEvent(event) && !isStandalonePracticeEvent(event)) owner?.assertLearningEvidence(db, event, phase); }));
   let episodes = openEpisodes();
   const initiated = episodes.apply({ episodeId: 'episode', executionId: 'promotion-execution', playerId: 'p1',
     personSourceId: intake.sourceId, appraisalSourceId: 'appraisal', policySourceId: 'learning-policies' });

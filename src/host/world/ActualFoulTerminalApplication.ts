@@ -130,3 +130,5 @@ export const actualFoulTerminalApplicationInput = (raw: unknown, sourceId: strin
 
 export { actualFoulTerminalPostPlaySetupInput, type AcceptedFoulTerminalPostPlaySetup,
   type FoulTerminalPostPlayReference, type FoulTerminalPostPlaySetupAuthority } from './ActualFoulTerminalPostPlaySetup';
+
+export {actualFoulTerminalPostPlayBoundaryInput,actualFoulTerminalPostPlayInput,type AcceptedFoulTerminalPostPlayBoundary,type AcceptedFoulTerminalPostPlayInput} from './ActualFoulTerminalPostPlayBoundary';

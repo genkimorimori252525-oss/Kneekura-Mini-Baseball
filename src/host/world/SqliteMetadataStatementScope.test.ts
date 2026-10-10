@@ -3,7 +3,8 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, it } from 'vitest';
-import { sqliteMetadataGet as get, sqliteMetadataAll as all, withSqliteMetadataStatementScope as scope } from './SqliteMetadataStatementScope';
+import { sqliteMetadataGet as get, sqliteMetadataAll as all, sqliteMetadataClaimRows as claims, withSqliteMetadataStatementScope as scope } from './SqliteMetadataStatementScope';
+import { samePaMetadataClaim as claim } from './SamePlateAppearanceReservationGuard';
 const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
 
 const counted = (db: import('node:sqlite').DatabaseSync) => {
@@ -46,6 +47,30 @@ it('isolates nested scopes and connections then restores the outer scope', () =>
     });
     expect([observed.count(sql), other.count(sql)]).toEqual([2, 2]);
   } finally { observed.close(); other.close(); db.close(); peer.close(); }
+});
+
+it('rebinds ownership identities and reexecutes typed duplicate/escaped claims after mutations', () => {
+  const db = new DatabaseSync(':memory:'), observed = counted(db);
+  const sql = `SELECT source_id FROM metadata WHERE source_id=$id OR ${claim('source_json', ['sourceId'], '$id')}
+    OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')} ORDER BY source_id`;
+  try {
+    db.exec('CREATE TABLE metadata(source_id TEXT,source_json TEXT,snapshot_json TEXT)');
+    const insert = db.prepare('INSERT INTO metadata VALUES(?,?,?)');
+    insert.run('first', '{"sourceId":"first"}', '{"source":{"sourceId":"first"}}');
+    insert.run('second', '{"sourceId":"second"}', '{"source":{"sourceId":"second"}}');
+    scope(db, () => {
+      expect(claims(db, sql, 'first').map(r => r.source_id)).toEqual(['first']);
+      expect(claims(db, sql, 'second').map(r => r.source_id)).toEqual(['second']);
+      insert.run('alias', '{"sourceId":"other","sourceId":"first"}', '{"so\\u0075rce":{"sourceId":"second"}}');
+      expect(claims(db, sql, 'first').map(r => r.source_id)).toEqual(['alias', 'first']);
+      expect(claims(db, sql, 'second').map(r => r.source_id)).toEqual(['alias', 'second']);
+      db.exec("UPDATE metadata SET source_json='[\"first\"]',snapshot_json='null' WHERE source_id='alias'");
+      expect(claims(db, sql, 'first').map(r => r.source_id)).toEqual(['first']);
+      expect(observed.count(sql)).toBe(1);
+    });
+    scope(db, () => expect(claims(db, sql, 'second').map(r => r.source_id)).toEqual(['second']));
+    expect(observed.count(sql)).toBe(2);
+  } finally { observed.close(); db.close(); }
 });
 
 it('preserves SQL errors and disposes the scope on exceptional exit', () => {

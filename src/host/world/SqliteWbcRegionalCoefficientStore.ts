@@ -1,3 +1,4 @@
+import type { DatabaseSync } from 'node:sqlite';
 import { createRequire } from 'node:module';
 import { createCompetitionSourceReader } from './CompetitionSourceReadScope';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -44,24 +45,28 @@ const canonicalJson = (value: unknown): string => JSON.stringify(
         left < right ? -1 : left > right ? 1 : 0)) : item);
 
 /** Two official WBC editions set the next tournament's regional scores. */
-export const openSqliteWbcRegionalCoefficientStore = (
-  databasePath: string,
+const createSqliteWbcRegionalCoefficientStore = (
+  databasePath: string | DatabaseSync,
   sources: Readonly<{
     history: Pick<SqliteOfficialWbcHistoryStore, 'readEdition'>;
   }>,
 ): SqliteWbcRegionalCoefficientStore => {
-  if (!id(databasePath)) {
+  if (typeof databasePath === 'string' && !id(databasePath)) {
     throw new Error('invalid WBC coefficient database path');
   }
   const sqlite: typeof import('node:sqlite') =
     createRequire(import.meta.url)('node:sqlite');
-  const db = new sqlite.DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new sqlite.DatabaseSync(databasePath);
+  if (!(db instanceof sqlite.DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_wbc_regional_coefficients (
     career_id TEXT NOT NULL, newer_edition_id TEXT NOT NULL,
     request_json TEXT NOT NULL, coefficients_json TEXT NOT NULL,
     PRIMARY KEY (career_id, newer_edition_id)
   );`);
+  }
   const get = db.prepare(`SELECT newer_edition_id, request_json,
     coefficients_json FROM world_wbc_regional_coefficients
     WHERE career_id=? ORDER BY newer_edition_id`);
@@ -189,8 +194,18 @@ export const openSqliteWbcRegionalCoefficientStore = (
       } });
     },
     close(): void {
-      if (!closed) db.close();
+      if (!closed && !borrowed) db.close();
       closed = true;
     },
   });
+};
+
+/** Existing path facade retains connection/schema ownership. */
+export const openSqliteWbcRegionalCoefficientStore = (databasePath: string, sources: Parameters<typeof createSqliteWbcRegionalCoefficientStore>[1]): SqliteWbcRegionalCoefficientStore =>
+  createSqliteWbcRegionalCoefficientStore(databasePath, sources);
+
+/** Same owner replay on a consuming Native connection; only read capabilities escape. */
+export const wbcRegionalCoefficientEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteWbcRegionalCoefficientStore>[1]): Pick<SqliteWbcRegionalCoefficientStore, 'readSnapshot' | 'authority'> => {
+  const owner = createSqliteWbcRegionalCoefficientStore(db, sources);
+  return Object.freeze({ readSnapshot: owner.readSnapshot, authority: owner.authority });
 };

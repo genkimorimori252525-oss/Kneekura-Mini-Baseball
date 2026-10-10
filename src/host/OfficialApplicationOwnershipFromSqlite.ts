@@ -101,6 +101,8 @@ const activationClaim = (row: Row, m: Metadata, scope: FoulTerminalApplicationSc
   || foulTerminalCompletionPhysicalEndClaim(m,'activation_json',[],scope.official.physicalEndSourceId)
   || row.match_id === scope.official.gameId && (previousPlay(m, 'activation_json', [], scope.official.playId)
     || m.value('activation_json', ['previousPlayId']).includes(scope.official.playId))
+  || (m.value('activation_json',['finalResult','gameId']).includes(scope.official.gameId)||m.value('activation_json',['completion','finalResult','gameId']).includes(scope.official.gameId))
+    && previousPlay(m,'activation_json',[],scope.official.playId)
   || m.value('activation_json', ['pendingPostPlay','matchId']).includes(scope.official.gameId)
     && (m.value('activation_json', ['pendingPostPlay','previousPlayId']).includes(scope.official.playId)
       || foulTerminalCompletionPreviousPlayClaim(m,'activation_json',[],scope.official.playId));
@@ -113,7 +115,8 @@ export const officialMatchActivationClaims = (db: Db, row: Row, scope: FoulTermi
 
 export const officialApplicationRawIdentities = (db:Db,table:Table,row:Row) => rowIdentities(table,row,metadata(db,row));
 const officialOriginalScopeClaim = (row:Row,m:Metadata,gameId:string,playId:number):boolean => {
-  const game = row.match_id === gameId || m.value('result_json',['result','gameId']).includes(gameId)
+  const game = row.match_id === gameId || m.value('result_json',['finalResult','gameId']).includes(gameId)
+    || m.value('result_json',['completion','finalResult','gameId']).includes(gameId) || m.value('result_json',['result','gameId']).includes(gameId)
     || m.value('result_json',['pendingPostPlay','matchId']).includes(gameId);
   return game && previousPlay(m,'result_json',[],playId);
 };
@@ -152,7 +155,10 @@ const closureScope = (row: Row, m: Metadata, scope: FoulTerminalApplicationScope
   const game = row.game_id === s.gameId || m.value('proposal_json', ['gameId']).includes(s.gameId)
     || m.value('proposal_json', ['application', 'matchId']).includes(s.gameId)
     || m.value('result_json', ['gameId']).includes(s.gameId)
-    || m.value('result_json', ['official','pendingPostPlay','matchId']).includes(s.gameId);
+    || m.value('result_json', ['official','pendingPostPlay','matchId']).includes(s.gameId)
+    || [['proposal_json',['expectedOfficial']],['result_json',['official']]] .some(([column,prefix])=>
+      m.value(column as string,[...prefix as string[],'finalResult','gameId']).includes(s.gameId)
+      ||m.value(column as string,[...prefix as string[],'completion','finalResult','gameId']).includes(s.gameId));
   if (foulTerminalCompletionPhysicalEndClaim(m,'proposal_json',['expectedOfficial'],s.physicalEndSourceId)
     || foulTerminalCompletionPhysicalEndClaim(m,'result_json',['official'],s.physicalEndSourceId)) return true;
   return game && (previousPlay(m, 'proposal_json', ['expectedOfficial'], s.playId)

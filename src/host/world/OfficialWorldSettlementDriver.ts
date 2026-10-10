@@ -1,4 +1,6 @@
 import { isDeepStrictEqual } from 'node:util';
+import type { OfficialGameBoundaryInput, OfficialGameResult } from '../../core/world/competition/OfficialGameCompletion';
+import type { OfficialStateApplicationReceipt } from '../../core/adjudication/NextPlayActivation';
 import type { RegularSeasonGameInput } from
   '../../core/world/competition/OfficialSeasonEconomySettlement';
 import { settleRegularSeasonGame } from
@@ -31,29 +33,10 @@ export const applyAndSettleOfficialRegularSeasonGame = (
   request: OfficialWorldSettlementRequest,
 ): OfficialWorldSettlementResult => {
   const { matchStore, worldStore, finalInput, worldInput } = request;
-  const scheduled = worldInput.schedule.games.find((game) =>
-    game.gameId === finalInput.matchId);
-  if (!scheduled
-    || worldInput.schedule.seasonId !== finalInput.game.seasonId
-    || scheduled.homeClubId !== finalInput.game.homeClubId
-    || scheduled.awayClubId !== finalInput.game.awayClubId
-    || worldInput.homeClub.identity.clubId !== scheduled.homeClubId
-    || worldInput.homeClub.careerId !== worldInput.attendance.careerId
-    || worldInput.attendance.gameId !== finalInput.matchId
-    || worldInput.revenuePolicy.seasonId !== finalInput.game.seasonId) {
-    throw new Error('official world settlement scope mismatch');
-  }
-
+  assertOfficialWorldSettlementScope({ ...finalInput.game, gameId: finalInput.matchId }, worldInput);
   const final = matchStore.applyAndFinalize(finalInput);
-  const durableMatch = matchStore.getMatch(finalInput.matchId);
-  if (!durableMatch || durableMatch.finalResult === null
-    || durableMatch.durableRevision !== final.receipt.durableRevision
-    || final.receipt.applicationId !== finalInput.applicationId
-    || !isDeepStrictEqual(durableMatch.finalResult, final.result)
-    || !isDeepStrictEqual(durableMatch.matchState,
-      final.receipt.appliedMatchState)) {
-    throw new Error('official Match final is not durable or authentic');
-  }
+  if (final.receipt.applicationId !== finalInput.applicationId) throw new Error('official Match final is not durable or authentic');
+  assertDurableOfficialGameFinal(matchStore, finalInput.matchId, final.receipt, final.result);
 
   const game = { ...finalInput.game, gameId: finalInput.matchId,
     priorMatch: finalInput.match, application: final.receipt };
@@ -64,4 +47,37 @@ export const applyAndSettleOfficialRegularSeasonGame = (
   const world = worldStore.persist(settlement,
     request.expectedSeasonRevision, request.expectedClubRevision);
   return Object.freeze({ final, world });
+};
+
+export const assertOfficialWorldSettlementScope = (
+  game: Pick<OfficialGameBoundaryInput, 'gameId' | 'seasonId' | 'homeClubId' | 'awayClubId'>,
+  worldInput: OfficialWorldSettlementRequest['worldInput'],
+): void => {
+  const scheduled = worldInput.schedule.games.find((scheduledGame) =>
+    scheduledGame.gameId === game.gameId);
+  if (!scheduled
+    || worldInput.schedule.seasonId !== game.seasonId
+    || scheduled.homeClubId !== game.homeClubId
+    || scheduled.awayClubId !== game.awayClubId
+    || worldInput.homeClub.identity.clubId !== scheduled.homeClubId
+    || worldInput.homeClub.careerId !== worldInput.attendance.careerId
+    || worldInput.attendance.gameId !== game.gameId
+    || worldInput.revenuePolicy.seasonId !== game.seasonId) {
+    throw new Error('official world settlement scope mismatch');
+  }
+};
+
+export const assertDurableOfficialGameFinal = (
+  matchStore: Pick<SqliteOfficialStateStore, 'getMatch'>, gameId: string,
+  receipt: OfficialStateApplicationReceipt, result: OfficialGameResult,
+): void => {
+  const durableMatch = matchStore.getMatch(gameId);
+  if (!durableMatch || durableMatch.finalResult === null
+    || durableMatch.durableRevision !== receipt.durableRevision
+    || receipt.applicationId !== result.applicationId
+    || !isDeepStrictEqual(durableMatch.finalResult, result)
+    || !isDeepStrictEqual(durableMatch.matchState,
+      receipt.appliedMatchState)) {
+    throw new Error('official Match final is not durable or authentic');
+  }
 };

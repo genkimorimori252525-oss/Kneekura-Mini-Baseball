@@ -21,6 +21,9 @@ import { openSqliteDomesticScheduleStore } from './SqliteDomesticScheduleStore';
 import { openSqliteManagerRosterDecisionStore } from './SqliteManagerRosterDecisionStore';
 import { SqliteOfficialParticipationStore } from './SqliteOfficialParticipationStore';
 import { createDomesticParticipationAuthority } from './SqliteOfficialParticipationAuthority';
+import { bindDomesticPregameParticipantFromWorld } from './SqliteOfficialParticipationAuthority';
+import { prepareDomesticOpeningMatch } from './DomesticSeasonRuntime';
+import { NPB_2026_RULE_PROFILE } from '../../core/rules/RuleProfile';
 import { appendAcceptedClubEvents } from './SqliteClubEventJournal';
 
 const directories: string[] = [];
@@ -68,7 +71,7 @@ const applyPlay = (store: SqliteOfficialStateStore,
   const playEnd = { kind: 'play_end' as const, tick: endTick,
     reason: 'live_action_complete' as const };
   let ledger = createPlayAdjudicationLedger({
-    playId, ruleProfileId, playEnd });
+    playId, ruleProfileId: prior.ruleProfileId, playEnd });
   ledger = recordCorrectRuleSnapshot(ledger, 0, {
     eventId: `rule-${playId}`, tick: endTick + 1,
     snapshotId: `snapshot-${playId}`, evidenceRevision: 1,
@@ -257,4 +260,60 @@ it('fails closed when the accepted player-person link is unavailable', () => {
     playerId: 'player-a', personId: 'person-a',
     personLinkSourceId: 'unaccepted', rosterRevision: 0 }))
     .toThrow('lacks accepted fixture, roster, or person source');
+});
+
+const selectedParticipant = { gameId: 'series-a:1', clubId: 'club-a', playerId: 'player-a', personLinkSourceId: 'person-link-a' };
+const openingParticipation = () => {
+  const storesInput = setup();
+  const sources = { ...storesInput, careerId: 'career-a', seasonId: 'league-season-1', schedule: storesInput.archive,
+    personLinks: { readAcceptedPlayerPersonLink: (sourceId: string) => sourceId === 'person-link-a' || sourceId === 'person-link-other'
+      ? { careerId: 'career-a', playerId: 'player-a', personId: 'person-a' } : null } };
+  const participation = new SqliteOfficialParticipationStore(sources.matchPath, createDomesticParticipationAuthority(sources));
+  stores.push(participation);
+  const prepared = prepareDomesticOpeningMatch(sources, { careerId: sources.careerId, seasonId: sources.seasonId,
+    gameId: selectedParticipant.gameId, ruleProfileId: NPB_2026_RULE_PROFILE.id, playId: 7 });
+  return { ...sources, participation, prepared };
+};
+
+it('binds an explicitly selected opening participant using the accepted schedule, roster and Person identity', () => {
+  const sources = openingParticipation();
+  const result = bindDomesticPregameParticipantFromWorld(sources, selectedParticipant);
+  expect(result).toEqual({ ...selectedParticipant, careerId: 'career-a', competitionEditionId: 'league-season-1', gameDay: 11,
+    side: 'HOME', personId: 'person-a', rosterRevision: 0, fixtureEventId: sources.prepared.fixture.binding.fixtureEventId });
+  expect(sources.participation.readPregameBinding(selectedParticipant.gameId, selectedParticipant.playerId)).toEqual(result);
+  const advanced = applyPlay(sources.match, sources.prepared.match.matchState, 0, 500);
+  expect(bindDomesticPregameParticipantFromWorld(sources, selectedParticipant)).toEqual(result);
+  expect(sources.match.getMatch(selectedParticipant.gameId)?.durableRevision).toBe(advanced.receipt.durableRevision);
+  expect(() => bindDomesticPregameParticipantFromWorld(sources, { ...selectedParticipant, personLinkSourceId: 'person-link-other' }))
+    .toThrow('binding already differs');
+});
+
+it.each([
+  { ...selectedParticipant, gameId: 'not-scheduled' },
+  { ...selectedParticipant, clubId: 'not-in-game' },
+  { ...selectedParticipant, clubId: 'club-b' },
+  { ...selectedParticipant, personLinkSourceId: 'missing' },
+  { ...selectedParticipant, personId: 'caller-person' },
+  { ...selectedParticipant, rosterRevision: 100 },
+])('refuses missing or caller-replaced original participant evidence: %j', request => {
+  const sources = openingParticipation();
+  expect(() => bindDomesticPregameParticipantFromWorld(sources, request as never))
+    .toThrow(/domestic pregame/);
+  expect(sources.participation.readPregameBinding(selectedParticipant.gameId, selectedParticipant.playerId)).toBeNull();
+});
+
+it('reopens after an interrupted participant write and retains the existing binding identity', () => {
+  const sources = openingParticipation();
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  const db = new DatabaseSync(sources.matchPath); stores.push(db);
+  db.exec("CREATE TRIGGER fail_binding BEFORE INSERT ON official_participant_bindings BEGIN SELECT RAISE(ABORT,'binding interrupted'); END");
+  expect(() => bindDomesticPregameParticipantFromWorld(sources, selectedParticipant)).toThrow('binding interrupted');
+  expect(sources.participation.readPregameBinding(selectedParticipant.gameId, selectedParticipant.playerId)).toBeNull();
+  db.exec('DROP TRIGGER fail_binding');
+  const participation = new SqliteOfficialParticipationStore(sources.matchPath, createDomesticParticipationAuthority(sources));
+  stores.push(participation);
+  const result = bindDomesticPregameParticipantFromWorld({ ...sources, participation }, selectedParticipant);
+  expect(bindDomesticPregameParticipantFromWorld(sources, selectedParticipant)).toEqual(result);
+  expect(db.prepare('SELECT count(*) AS n FROM official_participant_bindings').get()?.n).toBe(1);
+  expect(db.prepare('SELECT count(*) AS n FROM official_participation_receipts').get()?.n).toBe(0);
 });

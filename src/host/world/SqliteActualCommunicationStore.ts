@@ -234,7 +234,9 @@ export const openSqliteActualCommunicationStore = (path: string, authority?: Act
       try {
         const liveFence = beginActualLivePitchWrite(db, value.physicalPitchSourceId, { owner: 'actual_call_communications', sourceId });
         if (json(own.rowsFor(source.callSourceId)) !== pins) throw new Error('actual communication prior rows changed before admission');
-        own.currentBefore(value);
+        // Each immutable proof phase is independent. INSERT, its triggers and
+        // the live fence stay outside; postwrite must replay fresh dependencies.
+        withBattedWorldPhysicalReadTraversal(db, () => own.currentBefore(value));
         db.prepare('INSERT INTO actual_call_communications VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)').run(sourceId, source.sourceVersion,
           value.gameId, value.playId, value.physicalPitchSourceId, source.callSourceId, source.modelSourceId, source.currentExecutionSourceId,
           source.previousCommunicationSourceId, value.revision, json(source), hash(source), json(value), hash(value));
@@ -246,8 +248,11 @@ export const openSqliteActualCommunicationStore = (path: string, authority?: Act
         }
         recordActualLivePlayAdmission(db, liveFence);
         if (json(own.rowsFor(source.callSourceId).filter(r => r.source_id !== sourceId)) !== pins) throw new Error('actual communication prior rows changed after insert');
-        own.current(value); const saved = own.read(sourceId);
-        if (!saved || json(saved) !== json(value)) throw new Error('actual communication original changed after insert');
+        const saved = withBattedWorldPhysicalReadTraversal(db, () => {
+          own.current(value); const saved = own.read(sourceId);
+          if (!saved || json(saved) !== json(value)) throw new Error('actual communication original changed after insert');
+          return saved;
+        });
         assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     }, close() { if (!closed) { closed = true; db.close(); } },

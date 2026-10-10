@@ -1,3 +1,9 @@
+import { isStandalonePracticeEvent, assertStandalonePracticeBeforePitch } from './SqliteStandalonePracticeStore';
+import { NATIONAL_EXPOSURE_DEVELOPMENT_KIND, readNationalExposureDevelopmentBoundary } from './NationalExposureDevelopmentOrigin';
+import { assertNonPitchLearningEvent } from './SqliteNonPitchRepetitionStore';
+import { isNonPitchRepetitionEvent } from './NonPitchDevelopmentRepetition';
+import { defensiveMetadataId as metadataClaim } from './ActualDefensiveMetadata';
+import { sqliteJsonMetadataNodes } from './SqliteOwnershipMetadata';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
 import { appendDevelopmentLearningEvent, type DevelopmentLearningEpisode, type DevelopmentLearningEventInput } from '../../core/world/development/DevelopmentLearningEpisode';
@@ -13,7 +19,7 @@ import { PRACTICE_DEVELOPMENT_KIND, readPracticeDevelopmentBoundary, type Practi
   type PracticePhysicalReader } from './PracticeDevelopmentOrigin';
 import { installActualPracticeLearning, type ActualPracticeLearningAuthority, type ActualPracticeLearningMethods } from './ActualPitchTimingLearningFromPractice';
 import { captureOwnedPracticeOrderEvidence, installOwnedPracticeOrders, type OwnedPracticeOrderMethods,
-  type PracticeOrderAuthority, type PracticeOrderSources } from './OwnedPitchPracticeOrder';
+  type PracticeOrderAuthority, type PracticeOrderSources, type PracticeOrderExecutionReader } from './OwnedPitchPracticeOrder';
 import type { ManagerPracticeOrderMethods } from './ManagerPracticeOrderFromBelief';
 import { freezePractice, planPracticeDelivery, practiceActivityId, practiceAttemptId, practiceFields, practiceHash,
   practiceId, practiceJson as json, practicePhases, practiceRevision, practiceTimingAtRevision, practiceWorkload,
@@ -38,6 +44,20 @@ type EvidenceDb = Pick<DatabaseSync, 'prepare'>;
 // Bind the real owner's existing decoder, not a caller-supplied completed DTO.
 // This stores a reader capability only; every call replays the requested prefix.
 const physicalReaders = new WeakMap<object, (db: EvidenceDb, attemptId: string, timingCeiling?: number) => PitchPracticeAttempt | null>();
+export type OwnedPitchRepetition = Readonly<{ event: DevelopmentLearningEventInput; episodeId: string;
+  careerId: string; playerId: string; fatigue: number; healthAvailability: number; proofHash: string }>;
+const repetitionReaders = new WeakMap<object, (db: EvidenceDb, eventId: string) => OwnedPitchRepetition>();
+/** The original physical owner authenticates learning and workload on the
+ * consumer's Native snapshot. A structural read()/guard DTO is insufficient. */
+export const readOwnedPitchPracticeRepetition = (owner: Pick<SqlitePitchPracticeAttemptStore, 'read'>,
+  db: DatabaseSync, eventId: string): OwnedPitchRepetition => {
+  const { DatabaseSync: Native } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  const reader = repetitionReaders.get(owner);
+  if (!(db instanceof Native) || !db.isTransaction || !reader || !practiceId(eventId)) {
+    throw new Error('practice exposure requires an owned Native repetition snapshot');
+  }
+  return reader(db, eventId);
+};
 export const readOwnedPitchPracticeAttempt = (owner: Pick<SqlitePitchPracticeAttemptStore, 'read'>,
   db: EvidenceDb, attemptId: string, timingCeiling?: number): PitchPracticeAttempt | null => {
   if (timingCeiling !== undefined && !practiceRevision(timingCeiling)) throw new Error('invalid practice timing ceiling');
@@ -100,9 +120,12 @@ const learningEvidence = (connection: EvidenceDb, episodeId: string, readPhysica
   if (!initiation) throw new Error('practice learning initiation source is missing');
   const request = JSON.parse(initiation.request_json) as { executionId: string; personSourceId: string; kind?: unknown };
   if (Object.hasOwn(request, 'kind')) {
-    if (request.kind !== PRACTICE_DEVELOPMENT_KIND || !readPhysical) throw new Error('invalid practice learning initiation source kind');
-    const { saved } = readPracticeDevelopmentBoundary(connection, initiation, readPhysical);
-    return { sourceKind: PRACTICE_DEVELOPMENT_KIND, initiation, origin: saved,
+    const saved = request.kind === NATIONAL_EXPOSURE_DEVELOPMENT_KIND
+      ? readNationalExposureDevelopmentBoundary(connection as DatabaseSync, initiation).saved
+      : request.kind === PRACTICE_DEVELOPMENT_KIND && readPhysical
+        ? readPracticeDevelopmentBoundary(connection, initiation, readPhysical).saved : null;
+    if (!saved) throw new Error('invalid practice learning initiation source kind');
+    return { sourceKind: request.kind, initiation, origin: saved,
       link: connection.prepare('SELECT * FROM world_player_person_links WHERE source_id=?').get(request.personSourceId) ?? null,
       person: connection.prepare('SELECT * FROM world_person_priors WHERE source_id=?').get(request.personSourceId) ?? null,
       genesis: connection.prepare('SELECT * FROM world_person_genesis_careers WHERE career_id=?').get(initiation.career_id) ?? null };
@@ -131,6 +154,11 @@ type Verification = {
 };
 const verification = (): Verification => ({ physical: new Map(), learning: new Map() });
 
+export type NativePitchPracticeReadInputs = Readonly<{
+  captureFrame(opportunity: PitchPracticeOpportunity): PitchPracticeFrame;
+  readEpisodePrefix(connection: EvidenceDb, episodeId: string, revision: number): DevelopmentLearningEpisode | null;
+}>;
+
 /** Owns consumed standalone delivery phases, not Match time or standardized learning. */
 export const openSqlitePitchPracticeAttemptStore = (databasePath: string, sources: PitchPracticeSources,
   authority?: PitchPracticeAuthority): SqlitePitchPracticeAttemptStore => {
@@ -154,6 +182,14 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
       assessment_source_id TEXT UNIQUE, assessment_json TEXT, assessment_hash TEXT,
       UNIQUE(career_id, opportunity_id, ordinal)
     );`);
+    return createPitchPracticeOwner(db, sources, authority).api;
+  } catch (error) { db.close(); throw error; }
+};
+
+/** Shared original decoders. Native history supplies only connection-bound
+ * readers; it does not install tables or register process-lifetime authority. */
+export const createPitchPracticeOwner = (db: DatabaseSync, sources: PitchPracticeSources,
+  authority?: PitchPracticeAuthority, native?: NativePitchPracticeReadInputs) => {
     let closed = false;
     const check = (value: string): void => { if (closed || !practiceId(value)) throw new Error('invalid or closed practice scope'); };
     const rowById = (connection: EvidenceDb, attemptId: string): Row | undefined =>
@@ -161,11 +197,16 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
     const rowByActivity = (connection: EvidenceDb, activityId: string): Row | undefined =>
       connection.prepare('SELECT * FROM pitch_practice_attempts WHERE activity_id=?').get(activityId) as Row | undefined;
     const transaction = <T>(work: () => T): T => {
+      if (native) throw new Error('Native historical practice reader cannot write');
       db.exec('BEGIN IMMEDIATE');
       try { const result = work(); db.exec('COMMIT'); return result; }
       catch (error) { db.exec('ROLLBACK'); throw error; }
     };
     const captureFrame = (o: PitchPracticeOpportunity, fresh: boolean): PitchPracticeFrame => {
+      if (native) {
+        if (fresh) throw new Error('Native historical practice reader cannot admit an opportunity');
+        return native.captureFrame(o);
+      }
       const personLink = sources.personLinks.readLink(o.personLinkSourceId), person = sources.person.read(o.personLinkSourceId);
       if (!personLink || !person || personLink.careerId !== o.careerId || personLink.playerId !== o.playerId
         || personLink.acceptedAtDay > o.atDay || person.careerId !== o.careerId || person.playerId !== o.playerId
@@ -279,17 +320,21 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
     const readPublicAttempt = (row: Row, connection: EvidenceDb): PitchPracticeAttempt => {
       const verified = verification(), attempt = decode(row, connection, row.revision, verified);
       const evidence = JSON.parse(row.learning_evidence_json) as { sourceKind?: unknown } | null;
+      const originalEpisode = JSON.parse(row.episode_before_json) as DevelopmentLearningEpisode | null;
+      const hasNonPitchRepetition = originalEpisode?.events.some(event => isNonPitchRepetitionEvent(event) || isStandalonePracticeEvent(event)) ?? false;
       if (evidence !== null && Object.hasOwn(evidence, 'sourceKind')) {
-        if (evidence.sourceKind !== PRACTICE_DEVELOPMENT_KIND) throw new Error('invalid practice learning source kind');
+        if (evidence.sourceKind !== PRACTICE_DEVELOPMENT_KIND && evidence.sourceKind !== NATIONAL_EXPOSURE_DEVELOPMENT_KIND) throw new Error('invalid practice learning source kind');
         // The public DTO claims this earlier learning origin. Reauthenticate it
         // without making the internal physical decoder depend on an episode head.
         assertEpisodeBoundary(connection, row, verified);
       }
+      else if (hasNonPitchRepetition) assertEpisodeBoundary(connection, row, verified);
       return attempt;
     };
     const read = (attemptId: string): PitchPracticeAttempt | null => { check(attemptId); const row = rowById(db, attemptId); return row ? readPublicAttempt(row, db) : null; };
     const required = (attemptId: string): PitchPracticeAttempt => { const attempt = read(attemptId); if (!attempt) throw new Error('practice attempt is missing'); return attempt; };
     const assertAdmission = (o: PitchPracticeOpportunity): PitchPracticePriorClock | null => {
+      assertStandalonePracticeBeforePitch(db, o);
       if (rowById(db, practiceAttemptId(o))) throw new Error('practice identity already belongs to another source alias');
       const previous = db.prepare('SELECT * FROM pitch_practice_attempts WHERE career_id=? AND opportunity_id=? ORDER BY ordinal DESC LIMIT 1')
         .get(o.careerId, o.opportunityId) as Row | undefined;
@@ -321,6 +366,20 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
         if (!origin || origin.sequence >= row.sequence) throw new Error('practice origin physical dependency must be earlier');
         return decode(origin, connection, origin.revision, verified);
       })) !== row.learning_evidence_json) throw new Error('practice original learning source evidence differs');
+      if (native) {
+        // Reject a future physical dependency before entering another episode
+        // decoder, just as the original owner does for its frozen prefix.
+        const prefix = connection.prepare(`SELECT event_json FROM world_development_learning_events
+          WHERE episode_id=? AND after_revision<=? ORDER BY after_revision`).all(expected.episodeId, expected.revision);
+        for (const update of prefix) {
+          const event = JSON.parse(String(update.event_json)) as DevelopmentLearningEventInput;
+          const dependency = event.kind === 'PRACTICE_RECORDED' ? rowByActivity(connection, event.sourceEventId) : undefined;
+          if (dependency && dependency.sequence >= row.sequence) throw new Error('practice learning dependency must be earlier');
+        }
+        const original = native.readEpisodePrefix(connection, expected.episodeId, expected.revision);
+        if (!original || json(original) !== json(expected)) throw new Error('practice Native episode prefix differs');
+        return original;
+      }
       const initial = connection.prepare('SELECT initial_json FROM world_development_initiations WHERE episode_id=?').get(expected.episodeId) as EpisodeRow | undefined;
       if (!initial) throw new Error('practice episode source is missing');
       let current = JSON.parse(initial.initial_json) as DevelopmentLearningEpisode;
@@ -331,6 +390,7 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
         const event = JSON.parse(update.event_json) as DevelopmentLearningEventInput;
         if (update.before_revision !== current.revision || update.after_revision !== current.revision + 1 || update.episode_id !== expected.episodeId
           || json(event) !== update.event_json) throw new Error('practice episode prefix differs');
+        assertNonPitchLearningEvent(sources.episodes, connection, event, 'read');
         if (event.kind === 'PRACTICE_RECORDED') {
           const dependency = rowByActivity(connection, event.sourceEventId);
           if (dependency) {
@@ -382,6 +442,7 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
     };
     const orders: ReturnType<typeof installOwnedPracticeOrders> = installOwnedPracticeOrders(db, sources.orders, sources.episodes, authority,
       { check, transaction, inspectFrame: captureFrame, frameEvidence: physicalEvidence, assertAdmission,
+        ...(native ? { readEpisodePrefix: native.readEpisodePrefix } : {}),
         readOriginAttempt(connection, attemptId, maximumTimingRevision) {
           const row = rowById(connection, attemptId);
           if (!row) return null;
@@ -392,15 +453,16 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
           return decode(row, connection, row.revision, { ...verification(), timingCeiling: maximumTimingRevision });
         },
         assertProbeReservation: (connection, o) => learning.assertProbeReservation(connection, o),
-        probeReservationEvidence: (connection, o) => learning.probeReservationEvidence(connection, o) });
+        probeReservationEvidence: (connection, o) => learning.probeReservationEvidence(connection, o) }, !native);
     const learning: ReturnType<typeof installActualPracticeLearning> = installActualPracticeLearning(db, sources, authority, { check, transaction,
       readAttempt(connection, attemptId, maximumTimingRevision) {
         const row = rowById(connection, attemptId);
         return row ? decode(row, connection, row.revision, { ...verification(), timingCeiling: maximumTimingRevision }) : null;
       },
       inspectFrame: captureFrame, frameEvidence: physicalEvidence, assertLearningEvidence,
+      ...(native ? { readEpisodePrefix: native.readEpisodePrefix } : {}),
       assertPlanOpportunity: orders.assertPlanOpportunity,
-    });
+    }, !native);
     const api: SqlitePitchPracticeAttemptStore = Object.freeze({
       ...learning,
       ...orders.methods,
@@ -509,13 +571,36 @@ export const openSqlitePitchPracticeAttemptStore = (databasePath: string, source
         if (json(episode) !== json(appendDevelopmentLearningEvent(before, before.revision, event))) throw new Error('practice episode result differs');
         return freezePractice({ kind: 'complete', activity, workload, episode });
       },
-      close() { if (!closed) { db.close(); closed = true; } },
+      close() { if (!closed) { if (!native) db.close(); closed = true; } },
     });
-    physicalReaders.set(api, (connection, attemptId, timingCeiling) => {
+    const readAttempt = (connection: EvidenceDb, attemptId: string, timingCeiling?: number): PitchPracticeAttempt | null => {
       check(attemptId);
       const row = rowById(connection, attemptId);
       return row ? decode(row, connection, row.revision, { ...verification(), timingCeiling }) : null;
-    });
-    return api;
-  } catch (error) { db.close(); throw error; }
+    };
+    const readRepetition = (connection: EvidenceDb, eventId: string): OwnedPitchRepetition => {
+      check(eventId);
+      const row = rowByActivity(connection, eventId);
+      if (!row) throw new Error('practice exposure original attempt is missing');
+      const attempt = decode(row, connection), event = learningEvent(attempt), receipt = workloadReceipt(attempt, connection);
+      if (!event || !receipt || !attempt.opportunity.episode || receipt.activity.kind !== 'PRACTICE') {
+        throw new Error('practice exposure original completed repetition is missing');
+      }
+      const o = attempt.opportunity;
+      const claims = connection.prepare(`SELECT attempt_id FROM pitch_practice_attempts WHERE activity_id=$event OR attempt_id=$attempt
+        OR ${metadataClaim('assessment_json', ['attemptId'], '$attempt')}
+        OR ((career_id=$career OR ${metadataClaim('opportunity_json', ['careerId'], '$career')})
+          AND (opportunity_id=$opportunity OR ${metadataClaim('opportunity_json', ['opportunityId'], '$opportunity')})
+          AND (ordinal=$ordinal OR EXISTS(SELECT 1 FROM (${sqliteJsonMetadataNodes('opportunity_json', ['ordinal'])}) claim
+            WHERE claim.type='integer' AND claim.atom=$ordinal)))`).all({ event: eventId, attempt: attempt.attemptId,
+        career: o.careerId, opportunity: o.opportunityId, ordinal: o.ordinal });
+      if (claims.length !== 1 || claims[0].attempt_id !== attempt.attemptId) throw new Error('practice exposure original attempt ownership differs');
+      assertLearningEvidence(connection, event, 'read');
+      return freezePractice({ event, episodeId: attempt.opportunity.episode.episodeId,
+        careerId: attempt.opportunity.careerId, playerId: attempt.opportunity.playerId,
+        fatigue: receipt.before.fatigue, healthAvailability: receipt.activity.healthAvailability,
+        proofHash: practiceHash({ attempt, receipt, event }) });
+    };
+    if (!native) { physicalReaders.set(api, readAttempt); repetitionReaders.set(api, readRepetition); }
+    return { api, readAttempt, readRepetition, readOrderExecution: orders.readExecution as PracticeOrderExecutionReader };
 };

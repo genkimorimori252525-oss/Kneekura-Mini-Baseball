@@ -1,3 +1,4 @@
+import type { DatabaseSync } from 'node:sqlite';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { deriveOfficialWbcWorldEdition,
@@ -28,19 +29,22 @@ const canonicalJson = (value: unknown): string => JSON.stringify(
         left < right ? -1 : left > right ? 1 : 0)) : item);
 
 /** Every historical WBC score is reproduced from 51 Match applications. */
-export const openSqliteOfficialWbcHistoryStore = (
-  databasePath: string,
+const createSqliteOfficialWbcHistoryStore = (
+  databasePath: string | DatabaseSync,
   sources: Readonly<{
     finals: Pick<SqliteWbcFinalsKnockoutStore, 'readEvidence'>;
     regions: Pick<SqliteNationCompetitionRegionStore, 'readRegion'>;
   }>,
 ): SqliteOfficialWbcHistoryStore => {
-  if (!id(databasePath)) {
+  if (typeof databasePath === 'string' && !id(databasePath)) {
     throw new Error('invalid official WBC history database path');
   }
   const sqlite: typeof import('node:sqlite') =
     createRequire(import.meta.url)('node:sqlite');
-  const db = new sqlite.DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new sqlite.DatabaseSync(databasePath);
+  if (!(db instanceof sqlite.DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_official_wbc_editions (
     career_id TEXT NOT NULL, ordinal INTEGER NOT NULL,
@@ -48,6 +52,7 @@ export const openSqliteOfficialWbcHistoryStore = (
     PRIMARY KEY (career_id, ordinal),
     UNIQUE (career_id, edition_id)
   );`);
+  }
   const get = db.prepare(`SELECT ordinal, edition_id, snapshot_json
     FROM world_official_wbc_editions WHERE career_id=? ORDER BY ordinal`);
   const rows = (careerId: string): Row[] =>
@@ -141,8 +146,18 @@ export const openSqliteOfficialWbcHistoryStore = (
       return Object.freeze(replay(careerId));
     },
     close(): void {
-      if (!closed) db.close();
+      if (!closed && !borrowed) db.close();
       closed = true;
     },
   });
+};
+
+/** Existing path facade retains connection/schema ownership. */
+export const openSqliteOfficialWbcHistoryStore = (databasePath: string, sources: Parameters<typeof createSqliteOfficialWbcHistoryStore>[1]): SqliteOfficialWbcHistoryStore =>
+  createSqliteOfficialWbcHistoryStore(databasePath, sources);
+
+/** Same owner replay on a consuming Native connection; only read capabilities escape. */
+export const officialWbcHistoryEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteOfficialWbcHistoryStore>[1]): Pick<SqliteOfficialWbcHistoryStore, 'readEdition' | 'readHistory'> => {
+  const owner = createSqliteOfficialWbcHistoryStore(db, sources);
+  return Object.freeze({ readEdition: owner.readEdition, readHistory: owner.readHistory });
 };

@@ -8,6 +8,8 @@ import { actualObservationId as id } from './ActualFieldObservation';
 import { actualDefensiveContextFromSqlite, defensiveFields as fields, defensiveTick, type DefensiveDb } from './ActualDefensiveContext';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import type { OfficialParticipantBinding } from './SqliteOfficialParticipationStore';
+import { physicalStoreTransactionBoundary } from './PhysicalStoreTransactionBoundary';
+import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 
 /** Explicit imported contextual priorities; this does not claim that pre-play planning was executed. */
 export type AcceptedActualDefensivePlan = Readonly<{
@@ -98,26 +100,33 @@ export const openSqliteActualDefensivePlanStore = (path: string, authority?: Aut
     source_json TEXT NOT NULL,source_hash TEXT NOT NULL,snapshot_json TEXT NOT NULL,snapshot_hash TEXT NOT NULL,
     UNIQUE(physical_pitch_source_id,player_id));`);
   const own = actualDefensivePlanEvidenceFromSqlite(db); let closed = false;
+  // Each read ends before callbacks or the next writer transaction. Writer
+  // verification below uses separate traversals on either side of its writes.
+  const reads = physicalStoreTransactionBoundary(db, 'actual defensive plan read');
   const check = () => { if (closed) throw new Error('closed actual defensive plan store'); };
-  return Object.freeze({ read(sourceId: string) { check(); return own.read(sourceId); },
+  return Object.freeze({ read(sourceId: string) { check(); return reads.read(() => own.read(sourceId)); },
     accept(sourceId: string): DurableActualDefensivePlan {
-      check(); const prior = own.read(sourceId), raw = authority?.readAcceptedPlan(sourceId) ?? null, source = raw === null ? null : input(raw, sourceId);
+      check(); const prior = reads.read(() => own.read(sourceId)), raw = authority?.readAcceptedPlan(sourceId) ?? null, source = raw === null ? null : input(raw, sourceId);
       if (prior) {
         if (source && json(source) !== json(prior.source)) throw new Error('actual defensive plan Source frozen differently');
-        const saved = own.read(sourceId); if (!saved || json(saved) !== json(prior)) throw new Error('actual defensive plan changed during retry'); return saved;
+        const saved = reads.read(() => own.read(sourceId)); if (!saved || json(saved) !== json(prior)) throw new Error('actual defensive plan changed during retry'); return saved;
       }
       if (!source) throw new Error('accepted actual defensive plan Source missing');
-      const value = own.derive(source); own.before(value); db.exec('BEGIN IMMEDIATE');
+      const value = reads.read(() => { const derived = own.derive(source); own.before(derived); return derived; });
+      db.exec('BEGIN IMMEDIATE');
       try {
         const liveFence = beginActualLivePitchWrite(db, source.physicalPitchSourceId, { owner: 'actual_defensive_plans', sourceId });
-        own.before(value);
+        withBattedWorldPhysicalReadTraversal(db, () => own.before(value));
         db.prepare('INSERT INTO actual_defensive_plans VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)').run(sourceId, source.sourceVersion, source.physicalPitchSourceId,
           source.careerId, source.playerId, source.personLinkSourceId, source.fieldingModelSourceId, source.gameDay, source.observationSourceId,
           json(source), hash(source), json(value), hash(value));
         recordActualLivePlayAdmission(db, liveFence);
-        const saved = own.read(sourceId);
-        if (!saved || json(saved) !== json(value) || json(own.derive(source, true)) !== json(value)) throw new Error('actual defensive plan changed during write');
-        assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
+        const saved = withBattedWorldPhysicalReadTraversal(db, () => {
+          const original = own.read(sourceId);
+          if (!original || json(original) !== json(value) || json(own.derive(source, true)) !== json(value)) throw new Error('actual defensive plan changed during write');
+          assertActualLivePlayWriteUnchanged(db, liveFence); return original;
+        });
+        db.exec('COMMIT'); return saved;
       } catch (e) { db.exec('ROLLBACK'); throw e; }
-    }, close() { if (!closed) { db.close(); closed = true; } } });
+    }, close() { if (!closed) { reads.close(); closed = true; } } });
 };

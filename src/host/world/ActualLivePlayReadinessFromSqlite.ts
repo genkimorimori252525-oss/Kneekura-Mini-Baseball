@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import { randomUUID } from 'node:crypto';
 import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { resolveOfficialGameProgression } from '../../core/world/competition/OfficialGameCompletion';
 import { actualLivePlayClosureInput } from './ActualLivePlayClosureSource';
@@ -8,6 +9,56 @@ import { readActualRoleWorkloadState } from './ActualRoleWorkloadState';
 import { assertActualLiveReadyEffects, type ActualLiveReadinessScope, type ActualLiveReadinessReference } from './ActualLivePlayReadiness';
 import type { ActualAdjudicationDb } from './ActualLiveAdjudicationFromSqlite';
 import { actorHash as hash, actorFreeze as freeze, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+type ReadinessReadScope = Readonly<{ check(): void; completed: Map<string, unknown> }>;
+const readinessReadScopes = new WeakMap<ActualAdjudicationDb, ReadinessReadScope>();
+
+/** One owner-controlled synchronous snapshot. No supplied evidence can seed it.
+ * Independent/nested brackets start empty; completed children are not promoted.
+ * The caller retains responsibility for its enclosing transaction. */
+export const withActualLiveReadinessReadScope = <T>(db: ActualAdjudicationDb, work: () => T): T => {
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  if (!(db instanceof DatabaseSync) || !db.isTransaction) throw new Error('readiness scope requires a Native read snapshot');
+  const queryOnly = () => db.prepare('PRAGMA query_only').get()!.query_only;
+  const databases = () => json(db.prepare('PRAGMA database_list').all());
+  if (queryOnly() !== 1 || db.prepare('PRAGMA database_list').all().some(row => row.name !== 'main' && row.name !== 'temp')
+    || db.prepare("SELECT name FROM temp.sqlite_master WHERE type IN ('table','view') LIMIT 1").get()) {
+    throw new Error('readiness scope requires main-only query-only authority');
+  }
+  const originalDatabases = databases();
+  const stamp = () => json([db.prepare('SELECT total_changes() AS n').get()!.n,
+    db.prepare('PRAGMA main.schema_version').get()!.schema_version,
+    db.prepare('PRAGMA temp.schema_version').get()!.schema_version]);
+  const name = `actual_readiness_scope_${randomUUID().replaceAll('-', '')}`, prior = readinessReadScopes.get(db);
+  let opened = false, failed = false, failure: unknown, value!: T;
+  const cleanup: unknown[] = [];
+  try {
+    db.exec(`SAVEPOINT ${name}`); opened = true;
+    const before = stamp();
+    const scope: ReadinessReadScope = { completed: new Map(), check: () => {
+      if (!db.isTransaction || queryOnly() !== 1 || stamp() !== before || databases() !== originalDatabases
+        || readinessReadScopes.get(db) !== scope) throw new Error('readiness scope snapshot changed');
+    } };
+    readinessReadScopes.set(db, scope);
+    value = work(); scope.check();
+    // Stamps cannot distinguish rollback/rebegin. The private savepoint must
+    // still belong to the original transaction before the scope result escapes.
+    db.exec(`RELEASE ${name}`); opened = false;
+    scope.check();
+  } catch (error) { failed = true; failure = error; }
+  finally {
+    if (prior) readinessReadScopes.set(db, prior); else readinessReadScopes.delete(db);
+    if (opened) try { db.exec(`RELEASE ${name}`); } catch (error) { cleanup.push(error); }
+    try {
+      if (queryOnly() !== 1) db.exec('PRAGMA query_only=ON');
+      if (queryOnly() !== 1) throw new Error('readiness scope read setting restore failed');
+    } catch (error) { cleanup.push(error); }
+  }
+  if (cleanup.length) throw new AggregateError([...(failed ? [failure] : []), ...cleanup],
+    'readiness scope cleanup failed', { cause: failed ? failure : cleanup[0] });
+  if (failed) throw failure;
+  return value;
+};
+
 /** Readiness is a connection of independently owned effects. Unsupported official
  * scoring is retained and is never used as a substitute workload/setup authority. */
 export const actualLivePlayReadinessFromSqlite = (db: ActualAdjudicationDb) => {
@@ -69,7 +120,15 @@ export const actualLivePlayReadinessFromSqlite = (db: ActualAdjudicationDb) => {
       controllerResetHash: hash(p.controllerReset), physicalEndReference: p.physicalEndReference, wholeHistoryReference: p.wholeHistoryReference };
     return freeze({ kind: 'ready' as const, closure, settlement, reference });
     };
-    return transactional ? withBattedWorldPhysicalReadTraversal(db, execute) : execute();
+    const scope = readinessReadScopes.get(db), key = scope ? json([closureSourceId, currentHeads]) : '';
+    scope?.check();
+    if (scope?.completed.has(key)) return scope.completed.get(key) as ReturnType<typeof execute>;
+    const result = transactional ? withBattedWorldPhysicalReadTraversal(db, execute) : execute();
+    scope?.check();
+    // Publish only this owner's complete immutable readiness, after the physical
+    // traversal and all its cleanup have returned successfully.
+    if (scope && result.kind === 'ready') scope.completed.set(key, result);
+    return result;
   };
   return { read: (sourceId: string) => read(sourceId, true), readHistorical: (sourceId: string) => read(sourceId, false) };
 };

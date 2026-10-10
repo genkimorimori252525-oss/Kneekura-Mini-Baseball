@@ -1,6 +1,9 @@
 import { createRequire } from 'node:module';
+import { createHash } from 'node:crypto';
+import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { readState } from '../../core/world/club/ClubSchemas';
+import { replayClubEvents } from '../../core/world/club/ClubEvents';
 import type { ClubWorldState } from '../../core/world/club/ClubTypes';
 import { getClubSeasonStaffWageAllocations,
   type ClubWageScheduleLedger } from
@@ -19,7 +22,7 @@ import type { ManagerHiringBrief, ManagerMarketTerms } from
   '../../core/world/manager/ManagerMarketShortlist';
 import { executeManagerHireTransaction,
   type ManagerHireTransaction,
-  type ManagerHireTransactionIds } from
+  type ManagerHireTransactionIds, type ManagerHireWageReference } from
   '../../core/world/manager/ManagerHireTransaction';
 import { appendAcceptedClubEvents, ensureClubEventJournalSchema,
   readAcceptedClubHistory } from './SqliteClubEventJournal';
@@ -55,6 +58,7 @@ export type SqliteManagerHireStore = Readonly<{
     clubId: string): MatchdayClubHistory | null;
   apply(request: ManagerHireStoreRequest): DurableManagerHire;
   readApplication(applicationId: string): DurableManagerHire | null;
+  captureStaffWageReference(applicationId: string): ManagerHireWageReference;
   close(): void;
 }>;
 
@@ -74,6 +78,97 @@ const canonicalJson = (value: unknown): string =>
     item !== null && typeof item === 'object' && !Array.isArray(item)
       ? Object.fromEntries(Object.entries(item).sort(([a], [b]) =>
         a < b ? -1 : a > b ? 1 : 0)) : item);
+
+const compute = (request: ManagerHireStoreRequest,
+  before: ClubWorldState,
+  schedules: ClubWageScheduleLedger): ManagerHireTransaction =>
+  executeManagerHireTransaction(before, schedules,
+    request.evidence, request.brief, request.candidates,
+    request.offer, request.acceptance, request.ids);
+const decodeManagerHireApplication = (db: DatabaseSync, row: ApplicationRow): DurableManagerHire => {
+  try {
+    const request = JSON.parse(row.request_json) as
+      ManagerHireStoreRequest;
+    const before = readState(JSON.parse(row.before_club_json));
+    const priorSchedules = JSON.parse(row.before_wage_json) as
+      ClubWageScheduleLedger;
+    const stored = JSON.parse(row.result_json) as DurableManagerHire;
+    const recomputed = compute(request, before, priorSchedules);
+    const head = db.prepare('SELECT revision,state_json FROM main.world_club_heads WHERE career_id=? AND club_id=?')
+      .get(row.career_id, row.club_id) as ClubRow | undefined;
+    const wage = db.prepare('SELECT revision,ledger_json FROM main.world_wage_schedule_heads WHERE career_id=? AND club_id=?')
+      .get(row.career_id, row.club_id) as WageRow | undefined;
+    const history = readAcceptedClubHistory(db, row.career_id,
+      row.club_id);
+    const original = history && replayClubEvents(history.checkpoint,
+      history.acceptedEvents.filter(event => event.afterRevision <= request.expectedClubRevision));
+    if (!head || !wage || !history
+      || !original?.ok || original.value.revision !== request.expectedClubRevision
+      || canonicalJson(original.value) !== row.before_club_json
+      || request.applicationId !== row.application_id
+      || request.careerId !== row.career_id
+      || request.clubId !== row.club_id
+      || before.revision !== request.expectedClubRevision
+      || priorSchedules.revision !== request.expectedWageRevision
+      || stored.applicationId !== row.application_id
+      || stored.club.revision !== row.club_revision
+      || stored.schedules.revision !== row.wage_revision
+      || head.revision < row.club_revision
+      || wage.revision < row.wage_revision
+      || canonicalJson(request) !== row.request_json
+      || canonicalJson(before) !== row.before_club_json
+      || canonicalJson(priorSchedules) !== row.before_wage_json
+      || canonicalJson(stored) !== row.result_json
+      || canonicalJson(recomputed)
+        !== canonicalJson({ club: stored.club,
+          clubEvent: stored.clubEvent, schedules: stored.schedules,
+          hire: stored.hire })
+      || !history.acceptedEvents.some((event) =>
+        canonicalJson(event) === canonicalJson(stored.clubEvent))
+      || (head.revision === row.club_revision
+        && head.state_json !== canonicalJson(stored.club))
+      || (wage.revision === row.wage_revision
+        && wage.ledger_json !== canonicalJson(stored.schedules))) {
+      throw new Error('manager hire application mismatch');
+    }
+    return stored;
+  } catch (cause) {
+    throw new Error('corrupt durable manager hire application', { cause });
+  }
+};
+/** Reuses the hiring owner's original replay on the wage writer's real connection. */
+export const readManagerHireWageEvidenceFromSqlite = (db: DatabaseSync, applicationId: string):
+Readonly<{ reference: ManagerHireWageReference; application: DurableManagerHire }> | null => {
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  if (!(db instanceof DatabaseSync)) throw new Error('Manager hire evidence requires an actual Native SQLite connection');
+  if (!id(applicationId)) throw new Error('invalid Manager hire wage reference');
+  if (db.prepare('PRAGMA database_list').all().some(row => row.name !== 'main' && row.name !== 'temp')
+    || db.prepare("SELECT name FROM temp.sqlite_master WHERE type IN ('table','view') LIMIT 1").get()) {
+    throw new Error('Manager hire evidence requires main-only storage');
+  }
+  const reading = () => {
+    const row = db.prepare('SELECT * FROM main.world_manager_hire_applications WHERE application_id=?')
+      .get(applicationId) as ApplicationRow | undefined;
+    if (!row) return null;
+    const application = decodeManagerHireApplication(db, row), request = JSON.parse(row.request_json) as ManagerHireStoreRequest;
+    const observed = readManagerCandidateEvidenceLedger(db, row.career_id, row.club_id);
+    let original = createManagerCandidateEvidenceLedger(row.career_id, row.club_id);
+    if (!observed || observed.revision < request.evidence.revision) throw new Error('original Manager hiring observations are missing');
+    for (const observation of observed.observations.slice(0, request.evidence.revision)) {
+      original = appendManagerCandidateObservation(original, original.revision, observation);
+    }
+    if (canonicalJson(original) !== canonicalJson(request.evidence)) throw new Error('original Manager hiring observations differ');
+    const hash = (value: string) => createHash('sha256').update(value).digest('hex');
+    return Object.freeze({ application, reference: Object.freeze({ applicationId,
+      requestHash: hash(row.request_json),
+      snapshotHash: hash(JSON.stringify([row.before_club_json, row.before_wage_json, row.result_json])),
+    }) });
+  };
+  if (db.isTransaction) return reading();
+  db.exec('BEGIN');
+  try { const result = reading(); db.exec('COMMIT'); return result; }
+  catch (error) { if (db.isTransaction) db.exec('ROLLBACK'); throw error; }
+};
 
 /** Adopts a bilateral Manager hire, wage liability and Club event together. */
 export const openSqliteManagerHireStore = (
@@ -131,57 +226,7 @@ export const openSqliteManagerHireStore = (
       throw error;
     }
   };
-  const compute = (request: ManagerHireStoreRequest,
-    before: ClubWorldState,
-    schedules: ClubWageScheduleLedger): ManagerHireTransaction =>
-    executeManagerHireTransaction(before, schedules,
-      request.evidence, request.brief, request.candidates,
-      request.offer, request.acceptance, request.ids);
-  const decode = (row: ApplicationRow): DurableManagerHire => {
-    try {
-      const request = JSON.parse(row.request_json) as
-        ManagerHireStoreRequest;
-      const before = readState(JSON.parse(row.before_club_json));
-      const priorSchedules = JSON.parse(row.before_wage_json) as
-        ClubWageScheduleLedger;
-      const stored = JSON.parse(row.result_json) as DurableManagerHire;
-      const recomputed = compute(request, before, priorSchedules);
-      const head = clubRow(row.career_id, row.club_id);
-      const wage = wageRow(row.career_id, row.club_id);
-      const history = readAcceptedClubHistory(db, row.career_id,
-        row.club_id);
-      if (!head || !wage || !history
-        || request.applicationId !== row.application_id
-        || request.careerId !== row.career_id
-        || request.clubId !== row.club_id
-        || before.revision !== request.expectedClubRevision
-        || priorSchedules.revision !== request.expectedWageRevision
-        || stored.applicationId !== row.application_id
-        || stored.club.revision !== row.club_revision
-        || stored.schedules.revision !== row.wage_revision
-        || head.revision < row.club_revision
-        || wage.revision < row.wage_revision
-        || canonicalJson(request) !== row.request_json
-        || canonicalJson(before) !== row.before_club_json
-        || canonicalJson(priorSchedules) !== row.before_wage_json
-        || canonicalJson(stored) !== row.result_json
-        || canonicalJson(recomputed)
-          !== canonicalJson({ club: stored.club,
-            clubEvent: stored.clubEvent, schedules: stored.schedules,
-            hire: stored.hire })
-        || !history.acceptedEvents.some((event) =>
-          canonicalJson(event) === canonicalJson(stored.clubEvent))
-        || (head.revision === row.club_revision
-          && head.state_json !== canonicalJson(stored.club))
-        || (wage.revision === row.wage_revision
-          && wage.ledger_json !== canonicalJson(stored.schedules))) {
-        throw new Error('manager hire application mismatch');
-      }
-      return stored;
-    } catch (cause) {
-      throw new Error('corrupt durable manager hire application', { cause });
-    }
-  };
+  const decode = (row: ApplicationRow) => decodeManagerHireApplication(db, row);
   let closed = false;
   const api: SqliteManagerHireStore = Object.freeze({
     initializeWageSchedules(ledger): void {
@@ -314,6 +359,11 @@ export const openSqliteManagerHireStore = (
           canonicalJson(beforeSchedules), canonicalJson(durable));
         return decode(applicationRow(request.applicationId)!);
       });
+    },
+    captureStaffWageReference(applicationId): ManagerHireWageReference {
+      const evidence = readManagerHireWageEvidenceFromSqlite(db, applicationId);
+      if (!evidence) throw new Error('accepted Manager hire is missing');
+      return evidence.reference;
     },
     readApplication(applicationId): DurableManagerHire | null {
       if (!id(applicationId)) {

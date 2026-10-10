@@ -1,3 +1,4 @@
+import type { DatabaseSync } from 'node:sqlite';
 import { createCompetitionSourceReader, withCompetitionSourceReadScope } from './CompetitionSourceReadScope';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -51,8 +52,8 @@ const canonicalJson = (value: unknown): string => JSON.stringify(
         left < right ? -1 : left > right ? 1 : 0)) : item);
 
 /** Freeze six national pools and rank 36 official venue-bound games. */
-export const openSqliteWbcFinalsGroupStore = (
-  databasePath: string,
+const createSqliteWbcFinalsGroupStore = (
+  databasePath: string | DatabaseSync,
   sources: Readonly<{
     berths: Readonly<{ readAllocation(careerId: string,
       editionId: string): WbcBerthAllocation | null }>;
@@ -61,8 +62,9 @@ export const openSqliteWbcFinalsGroupStore = (
     draws?: Pick<SqliteNationalCompetitionDrawStore, 'readDraw'>;
     editions?: Pick<SqliteNationalCompetitionEditionStore, 'readWbcEdition'>;
   }>,
+  originalFixtureInputs = false,
 ): SqliteWbcFinalsGroupStore => {
-  if (!id(databasePath)) {
+  if (typeof databasePath === 'string' && !id(databasePath)) {
     throw new Error('invalid WBC finals group database path');
   }
   const readAllocation = createCompetitionSourceReader(sources.berths.readAllocation, sources.berths);
@@ -71,7 +73,10 @@ export const openSqliteWbcFinalsGroupStore = (
   const readWbcEdition = sources.editions ? createCompetitionSourceReader(sources.editions.readWbcEdition, sources.editions) : undefined;
   const sqlite: typeof import('node:sqlite') =
     createRequire(import.meta.url)('node:sqlite');
-  const db = new sqlite.DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new sqlite.DatabaseSync(databasePath);
+  if (!(db instanceof sqlite.DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_wbc_finals_groups (
     career_id TEXT NOT NULL, edition_id TEXT NOT NULL,
@@ -79,6 +84,7 @@ export const openSqliteWbcFinalsGroupStore = (
     outcome_json TEXT,
     PRIMARY KEY (career_id, edition_id)
   );`);
+  }
   const get = db.prepare(`SELECT request_json, plan_json, outcome_json
     FROM world_wbc_finals_groups WHERE career_id=? AND edition_id=?`);
   const row = (careerId: string, editionId: string): Row | null =>
@@ -152,7 +158,7 @@ export const openSqliteWbcFinalsGroupStore = (
         throw new Error('WBC group plan replay differs');
       }
       let outcome: WbcFinalsGroupOutcome | null = null;
-      if (stored.outcome_json !== null) {
+      if (stored.outcome_json !== null && !originalFixtureInputs) {
         const saved = JSON.parse(stored.outcome_json) as
           WbcFinalsGroupOutcome;
         outcome = projectOutcome(request, plan);
@@ -268,8 +274,24 @@ export const openSqliteWbcFinalsGroupStore = (
       });
     },
     close(): void {
-      if (!closed) db.close();
+      if (!closed && !borrowed) db.close();
       closed = true;
     },
   });
+};
+
+/** Existing path facade retains connection/schema ownership. */
+export const openSqliteWbcFinalsGroupStore = (databasePath: string, sources: Parameters<typeof createSqliteWbcFinalsGroupStore>[1]): SqliteWbcFinalsGroupStore =>
+  createSqliteWbcFinalsGroupStore(databasePath, sources);
+
+/** Same owner replay on a consuming Native connection; only read capabilities escape. */
+export const wbcFinalsGroupEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteWbcFinalsGroupStore>[1]): Pick<SqliteWbcFinalsGroupStore, 'readEdition' | 'readPlan' | 'readOutcome' | 'readEvidence'> => {
+  const owner = createSqliteWbcFinalsGroupStore(db, sources);
+  return Object.freeze({ readEdition: owner.readEdition, readPlan: owner.readPlan, readOutcome: owner.readOutcome, readEvidence: owner.readEvidence });
+};
+
+/** Original playable fixture inputs exclude current/later round outcomes. */
+export const wbcFinalsGroupInputEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteWbcFinalsGroupStore>[1]): Pick<SqliteWbcFinalsGroupStore, 'readEdition' | 'readPlan'> => {
+  const owner = createSqliteWbcFinalsGroupStore(db, sources, true);
+  return Object.freeze({ readEdition: owner.readEdition, readPlan: owner.readPlan });
 };

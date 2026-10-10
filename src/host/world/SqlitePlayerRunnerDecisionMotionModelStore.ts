@@ -1,7 +1,9 @@
 import { createRequire } from 'node:module';
+import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
+import { assertPhysicalCapabilityDevelopment, withPhysicalCapabilityReplay } from './AcceptedPhysicalCapabilityDevelopment';
+import { bodyCompositionTableInstalled, withBodyCompositionTransaction } from './BodyMaterializationSqliteOwnership';
 import { sqliteJsonMetadataNodes as nodes, sqliteJsonMetadataProjection as projection,
   sqliteJsonMetadataMatches as matches } from './SqliteOwnershipMetadata';
-import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { playerRunnerDecisionMotionModelInput as input, runnerModelId as id, runnerModelDay as day,
   type AcceptedPlayerRunnerDecisionMotionModel } from './PlayerRunnerDecisionMotionModel';
 export type { AcceptedPlayerRunnerDecisionMotionModel } from './PlayerRunnerDecisionMotionModel';
@@ -35,18 +37,30 @@ const scopeClaim = (column: string, path: readonly string[]): string => {
 const sourceClaim = (column: string, path: readonly string[]): string =>
   `EXISTS (SELECT 1 FROM (${nodes(column, path)}) claim WHERE claim.type='text' AND claim.atom=?)`;
 
+const baselineTable = 'world_player_runner_decision_motion_models';
+const developmentTable = 'world_player_runner_decision_motion_developments';
+type HistoryRow = Row & { owner_table: string };
+
 /** Reconstructs explicit runner parameters and their original Player/Person link; no defender model or live truth dependency. */
 export const playerRunnerDecisionMotionModelEvidenceFromSqlite = (db: Pick<import('node:sqlite').DatabaseSync, 'prepare'>) => {
   const derive = (raw: AcceptedPlayerRunnerDecisionMotionModel): DurablePlayerRunnerDecisionMotionModel => {
     const source = input(raw);
-    const person = playerPersonLinkEvidenceFromSqlite(db).readLink(source.personLinkSourceId);
-    if (!person || person.sourceId !== source.personLinkSourceId || person.careerId !== source.careerId
-      || person.playerId !== source.playerId || source.acceptedAtDay < person.acceptedAtDay) {
-      throw new Error('runner decision-motion model original Person scope or day differs');
-    }
-    return freeze({ source, person });
+    return withPhysicalCapabilityReplay(db, 'runner_decision_motion', source.sourceId, () => {
+      const person = playerPersonLinkEvidenceFromSqlite(db).readLink(source.personLinkSourceId);
+      if (!person || person.sourceId !== source.personLinkSourceId || person.careerId !== source.careerId
+        || person.playerId !== source.playerId || source.acceptedAtDay < person.acceptedAtDay) {
+        throw new Error('runner decision-motion model original Person scope or day differs');
+      }
+      const value = freeze({ source, person });
+      if (source.developmentProvenance) {
+        const prior = read(source.developmentProvenance.originalModelRef.sourceId);
+        if (!prior) throw new Error('original runner decision-motion development model is missing');
+        assertPhysicalCapabilityDevelopment(db, source, prior, 'runner_decision_motion');
+      }
+      return value;
+    });
   };
-  const metadata = (row: Row): void => {
+  const metadata = (row: HistoryRow): void => {
     const source = { sourceId: row.source_id, sourceVersion: row.source_version, capability: row.capability,
       careerId: row.career_id, playerId: row.player_id, personLinkSourceId: row.person_link_source_id,
       acceptedAtDay: row.accepted_at_day };
@@ -57,7 +71,7 @@ export const playerRunnerDecisionMotionModelEvidenceFromSqlite = (db: Pick<impor
         (SELECT owner.type FROM (${owners}) owner) AS type,
         (SELECT CASE WHEN owner.type='object' THEN ${projection('owner.value', Object.keys(expected))} END
           FROM (${owners}) owner) AS identity
-        FROM world_player_runner_decision_motion_models WHERE source_id=?`)
+        FROM ${row.owner_table} WHERE source_id=?`)
         .get(row.source_id) as { n: number; type: string; identity: string | null } | undefined;
       if (!entry || entry.n !== 1 || entry.type !== 'object' || !matches(entry.identity, expected)) {
         throw new Error('Player runner decision-motion ownership metadata differs');
@@ -68,58 +82,82 @@ export const playerRunnerDecisionMotionModelEvidenceFromSqlite = (db: Pick<impor
     check('snapshot_json', ['person'], { sourceId: row.person_link_source_id,
       careerId: row.career_id, playerId: row.player_id });
   };
-  const scope = (careerId: string, playerId: string): readonly DurablePlayerRunnerDecisionMotionModel[] => {
-    // Each ownership mirror participates; only matching rows cross the full archive read boundary.
-    const rows = db.prepare(`SELECT * FROM world_player_runner_decision_motion_models WHERE (career_id=? AND player_id=?)
-      OR ${scopeClaim('source_json', [])}
-      OR ${scopeClaim('snapshot_json', ['source'])}
-      OR ${scopeClaim('snapshot_json', ['person'])}`)
-      .all(careerId, playerId, careerId, playerId, careerId, playerId, careerId, playerId) as Row[];
-    if (rows.length > 1) throw new Error('Player runner decision-motion baseline scope differs');
-    return rows.map((row) => {
-      metadata(row);
-      const source = input(JSON.parse(row.source_json) as AcceptedPlayerRunnerDecisionMotionModel, row.source_id), value = derive(source);
-      if (source.careerId !== careerId || source.playerId !== playerId || row.career_id !== careerId || row.player_id !== playerId
+  const tables = () => [baselineTable, ...(bodyCompositionTableInstalled(db, developmentTable) ? [developmentTable] : [])];
+  const claims = (row: HistoryRow) => {
+    metadata(row);
+    const source = input(JSON.parse(row.source_json), row.source_id), archived = JSON.parse(row.snapshot_json) as DurablePlayerRunnerDecisionMotionModel;
+    if (!archived || Object.keys(archived).sort().join('|') !== ['source', 'person'].sort().join('|')
+      || json(archived.source) !== json(source) || (row.owner_table === developmentTable) !== !!source.developmentProvenance) {
+      throw new Error('invalid original Player runner decision-motion development archive');
+    }
+    if (row.career_id !== source.careerId || row.player_id !== source.playerId
         || row.source_version !== source.sourceVersion || row.capability !== source.capability || row.person_link_source_id !== source.personLinkSourceId
         || row.accepted_at_day !== source.acceptedAtDay
         || row.source_json !== json(source) || row.source_hash !== hash(source)
-        || row.snapshot_json !== json(value) || row.snapshot_hash !== hash(value)) throw new Error('corrupt original Player runner decision-motion model archive');
-      return value;
-    });
+        || row.snapshot_json !== json(archived) || row.snapshot_hash !== hash(archived)) throw new Error('corrupt original Player runner decision-motion model archive');
+    return { row, source };
+  };
+  const scope = (careerId: string, playerId: string) => {
+    const rows = tables().flatMap(table => db.prepare(`SELECT *, '${table}' AS owner_table FROM ${table} WHERE (career_id=? AND player_id=?)
+      OR ${scopeClaim('source_json', [])}
+      OR ${scopeClaim('snapshot_json', ['source'])}
+      OR ${scopeClaim('snapshot_json', ['person'])}`)
+      .all(careerId, playerId, careerId, playerId, careerId, playerId, careerId, playerId) as HistoryRow[]);
+    const values = rows.map(claims).sort((a, b) => a.source.acceptedAtDay - b.source.acceptedAtDay);
+    for (const [index, value] of values.entries()) {
+      const prior = values[index - 1], p = value.source.developmentProvenance;
+      if (value.source.careerId !== careerId || value.source.playerId !== playerId
+        || (!prior ? !!p : !p || prior.source.acceptedAtDay >= value.source.acceptedAtDay
+          || p.originalModelRef.sourceId !== prior.source.sourceId || p.originalModelRef.sourceVersion !== prior.source.sourceVersion
+          || p.originalModelSourceHash !== prior.row.source_hash || p.originalModelSnapshotHash !== prior.row.snapshot_hash)) {
+        throw new Error('Player runner decision-motion baseline scope or development history differs');
+      }
+    }
+    return values;
   };
   const read = (sourceId: string): DurablePlayerRunnerDecisionMotionModel | null => {
     if (!id(sourceId)) throw new Error('invalid Player runner decision-motion model scope');
-    const rows = db.prepare(`SELECT * FROM world_player_runner_decision_motion_models WHERE source_id=?
-      OR ${sourceClaim('source_json', ['sourceId'])}
-      OR ${sourceClaim('snapshot_json', ['source', 'sourceId'])}`)
-      .all(sourceId, sourceId, sourceId) as Row[];
-    if (rows.length > 1) throw new Error('Player runner decision-motion Source ownership scope differs');
-    const row = rows[0];
-    if (!row) return null;
-    if (row.source_id !== sourceId) throw new Error('Player runner decision-motion Source identity mirror differs');
-    metadata(row);
-    const source = input(JSON.parse(row.source_json) as AcceptedPlayerRunnerDecisionMotionModel, sourceId);
-    const value = scope(source.careerId, source.playerId)[0];
-    if (!value || value.source.sourceId !== sourceId) throw new Error('Player runner decision-motion model is outside its own baseline');
+    const rows = tables().flatMap(table => db.prepare(`SELECT *, '${table}' AS owner_table FROM ${table} WHERE source_id=?
+      OR ${sourceClaim('source_json', ['sourceId'])} OR ${sourceClaim('snapshot_json', ['source', 'sourceId'])}`)
+      .all(sourceId, sourceId, sourceId) as HistoryRow[]);
+    if (rows.length > 1 || rows.length === 1 && rows[0].source_id !== sourceId) throw new Error('Player runner decision-motion Source ownership scope differs');
+    if (!rows.length) return null;
+    const { source } = claims(rows[0]); scope(source.careerId, source.playerId);
+    const value = derive(source);
+    if (rows[0].snapshot_json !== json(value)) throw new Error('corrupt original Player runner decision-motion model archive');
     return value;
   };
   const selectAtDay = (careerId: string, playerId: string, atDay: number): DurablePlayerRunnerDecisionMotionModel => {
     if (!id(careerId) || !id(playerId) || !day(atDay)) throw new Error('invalid Player runner decision-motion model day');
-    const value = scope(careerId, playerId)[0];
-    if (!value) throw new Error('accepted Player runner decision-motion baseline is missing');
-    if (value.source.acceptedAtDay > atDay) throw new Error('Player runner decision-motion model is from a future day');
-    return value;
+    const selected = scope(careerId, playerId).filter(value => value.source.acceptedAtDay <= atDay).at(-1);
+    if (!selected) throw new Error('accepted Player runner decision-motion baseline is missing or from a future day');
+    return read(selected.source.sourceId)!;
   };
   const before = (raw: DurablePlayerRunnerDecisionMotionModel): void => {
     const value = cloneInert(raw);
-    const source = input(value.source);
-    if (scope(source.careerId, source.playerId).length) throw new Error('Player runner decision-motion baseline already exists');
-    if (json(derive(source)) !== json(value)) throw new Error('Player runner decision-motion original changed before write');
+    input(value.source);
+    const current = scope(value.source.careerId, value.source.playerId).at(-1), p = value.source.developmentProvenance;
+    if (p ? !current || current.source.sourceId !== p.originalModelRef.sourceId || current.source.acceptedAtDay >= value.source.acceptedAtDay : !!current) {
+      throw new Error('Player runner decision-motion baseline already exists or development predecessor differs');
+    }
+    if (json(derive(value.source)) !== json(value)) throw new Error('Player runner decision-motion original changed before write');
   };
-  return { derive, read, selectAtDay, before };
+  const after = (raw: DurablePlayerRunnerDecisionMotionModel) => {
+    const value = cloneInert(raw);
+    input(value.source);
+    if (scope(value.source.careerId, value.source.playerId).at(-1)?.source.sourceId !== value.source.sourceId) {
+      throw new Error('accepted model history changed during insertion');
+    }
+  };
+  const snapshot = <T>(body: () => T): T => {
+    const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+    return db instanceof DatabaseSync ? withBodyCompositionTransaction(db, false, body) : body();
+  };
+  return { derive, before, after, read: (id: string) => snapshot(() => read(id)),
+    selectAtDay: (career: string, player: string, day: number) => snapshot(() => selectAtDay(career, player, day)) };
 };
 
-/** One immutable accepted baseline per Player. Later development needs its own validated history, not an overwrite. */
+/** Append-only accepted development keeps the original baseline table and bytes. */
 export const openSqlitePlayerRunnerDecisionMotionModelStore = (path: string, authority?: Authority): SqlitePlayerRunnerDecisionMotionModelStore => {
   if (!id(path) || authority != null && typeof authority.readAcceptedModel !== 'function') throw new Error('invalid Player runner decision-motion model sources');
   const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
@@ -130,6 +168,11 @@ export const openSqlitePlayerRunnerDecisionMotionModelStore = (path: string, aut
     person_link_source_id TEXT NOT NULL, accepted_at_day INTEGER NOT NULL,
     source_json TEXT NOT NULL, source_hash TEXT NOT NULL, snapshot_json TEXT NOT NULL, snapshot_hash TEXT NOT NULL,
     UNIQUE(career_id,player_id));`);
+  db.exec(`CREATE TABLE IF NOT EXISTS world_player_runner_decision_motion_developments (
+    source_id TEXT PRIMARY KEY, source_version TEXT NOT NULL, capability TEXT NOT NULL, career_id TEXT NOT NULL, player_id TEXT NOT NULL,
+    person_link_source_id TEXT NOT NULL, accepted_at_day INTEGER NOT NULL,
+    source_json TEXT NOT NULL, source_hash TEXT NOT NULL, snapshot_json TEXT NOT NULL, snapshot_hash TEXT NOT NULL,
+    UNIQUE(career_id,player_id,accepted_at_day));`);
   const own = playerRunnerDecisionMotionModelEvidenceFromSqlite(db);
   let closed = false;
   const check = (): void => { if (closed) throw new Error('closed Player runner decision-motion model store'); };
@@ -137,28 +180,26 @@ export const openSqlitePlayerRunnerDecisionMotionModelStore = (path: string, aut
     read(sourceId) { check(); return own.read(sourceId); },
     selectAtDay(careerId, playerId, atDay) { check(); return own.selectAtDay(careerId, playerId, atDay); },
     accept(sourceId) {
-      check();
-      const prior = own.read(sourceId), raw = authority?.readAcceptedModel(sourceId) ?? null;
-      const source = raw === null ? null : input(raw, sourceId);
-      if (prior) {
-        if (source && json(source) !== json(prior.source)) throw new Error('Player runner decision-motion Source is frozen differently');
-        const original = own.read(sourceId);
-        if (!original || json(original) !== json(prior)) throw new Error('Player runner decision-motion original changed during retry');
-        return original;
-      }
-      if (!source) throw new Error('accepted Player runner decision-motion model Source is missing');
-      const value = own.derive(source);
-      own.before(value);
-      db.exec('BEGIN IMMEDIATE');
-      try {
+      check(); return withBodyCompositionTransaction(db, true, () => {
+        const prior = own.read(sourceId), raw = authority?.readAcceptedModel(sourceId) ?? null;
+        const source = raw === null ? null : input(raw, sourceId);
+        if (prior) {
+          if (source && json(source) !== json(prior.source)) throw new Error('Player runner decision-motion Source is frozen differently');
+          const original = own.read(sourceId);
+          if (!original || json(original) !== json(prior)) throw new Error('Player runner decision-motion original changed during retry');
+          return original;
+        }
+        if (!source) throw new Error('accepted Player runner decision-motion model Source is missing');
+        const value = own.derive(source);
         own.before(value);
-        db.prepare('INSERT INTO world_player_runner_decision_motion_models VALUES (?,?,?,?,?,?,?,?,?,?,?)').run(sourceId, source.sourceVersion, source.capability,
+        const table = source.developmentProvenance ? developmentTable : baselineTable;
+        db.prepare(`INSERT INTO ${table} VALUES (?,?,?,?,?,?,?,?,?,?,?)`).run(sourceId, source.sourceVersion, source.capability,
           source.careerId, source.playerId, source.personLinkSourceId, source.acceptedAtDay,
           json(source), hash(source), json(value), hash(value));
         const saved = own.read(sourceId);
         if (!saved || json(saved) !== json(value)) throw new Error('Player runner decision-motion original changed during write');
-        db.exec('COMMIT'); return saved;
-      } catch (error) { db.exec('ROLLBACK'); throw error; }
+        own.after(saved); return saved;
+      });
     },
     close() { if (!closed) { db.close(); closed = true; } },
   });

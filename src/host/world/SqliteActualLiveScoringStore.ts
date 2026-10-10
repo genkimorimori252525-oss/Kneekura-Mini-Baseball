@@ -2,7 +2,7 @@ import { createRequire } from 'node:module';
 import { openSqliteOfficialScoringStore } from '../SqliteOfficialScoringStore';
 import { actualLiveScoringInput as input, type ActualLiveScoringAuthority, type AcceptedActualLiveScoringSource } from './ActualLiveScoringSource';
 import { actualLiveScoringEvidenceFromSqlite, deriveActualLiveScoringProposal, assertActualLiveScoringStage,
-  actualLiveScoringRequest, type ActualLiveScoringArchive } from './ActualLiveScoringEvidenceFromSqlite';
+  actualLiveScoringRequest, actualLiveAcceptedScoringEvidence, type ActualLiveScoringArchive } from './ActualLiveScoringEvidenceFromSqlite';
 import { assertActualScoringOwnership } from './ActualLiveScoringMetadata';
 import { actualLivePlayId as id } from './ActualLivePlayScope';
 import { actorJson as json, actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -50,7 +50,8 @@ export const openSqliteActualLiveScoringStore = (path: string, authority?: Actua
   // The accepted evidence callback below reads only our persisted Source. The
   // guard separately reauthenticates that Source on the scorer's own connection.
   const scoring = openSqliteOfficialScoringStore(path, { readAcceptedOfficialScoringEvidence(sourceId) {
-    return read(sourceId)?.source.evidence ?? null;
+    const original = read(sourceId);
+    return original ? actualLiveAcceptedScoringEvidence(original.proposal) : null;
   } }, (connection, application, phase) => {
     if (!active) throw new Error('actual scoring writer has no active queued Source');
     const value = same(actualLiveScoringEvidenceFromSqlite(connection).readSource(active.source.sourceId), active);

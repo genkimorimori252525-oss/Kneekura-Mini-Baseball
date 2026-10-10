@@ -335,19 +335,30 @@ export const projectOfficialGroupStandings = (
   });
 };
 
-/** Applies one official deciding game to an unresolved two-club tie. */
-export const applyOfficialTiebreakGame = <T extends OfficialStandingsSnapshot>(
-  standings: T,
+/** Validate an official deciding-game plan before its result exists. */
+export const assertOfficialTiebreakGamePlan = (
+  standings: OfficialStandingsSnapshot,
   plan: OfficialTiebreakGamePlan,
-  result: OfficialGameResult,
-): T => {
+): void => {
   const groupIndex = standings.unresolvedTieGroups.findIndex((group) =>
     group.length === 2 && group.includes(plan.homeClubId) && group.includes(plan.awayClubId));
   if (!plan.version || !plan.gameId || !plan.homeClubId || !plan.awayClubId
     || plan.homeClubId === plan.awayClubId || groupIndex < 0) {
     throw new Error('tiebreak game must resolve an official two-club tie');
   }
-  if (plan.seasonId !== standings.seasonId || result.seasonId !== standings.seasonId) {
+  if (plan.seasonId !== standings.seasonId) {
+    throw new Error('tiebreak game season must match official standings');
+  }
+};
+
+/** Applies one official deciding game to an unresolved two-club tie. */
+export const applyOfficialTiebreakGame = <T extends OfficialStandingsSnapshot>(
+  standings: T,
+  plan: OfficialTiebreakGamePlan,
+  result: OfficialGameResult,
+): T => {
+  assertOfficialTiebreakGamePlan(standings, plan);
+  if (result.seasonId !== standings.seasonId) {
     throw new Error('tiebreak game season must match official standings');
   }
   const winner = result.homeRuns > result.awayRuns ? result.homeClubId
@@ -372,6 +383,8 @@ export const applyOfficialTiebreakGame = <T extends OfficialStandingsSnapshot>(
   }
   positions.splice(first, 2, winner, loser);
   const rowsByClub = new Map(standings.rows.map((row) => [row.clubId, row]));
+  const groupIndex = standings.unresolvedTieGroups.findIndex((group) =>
+    group.length === 2 && group.includes(plan.homeClubId) && group.includes(plan.awayClubId));
   const unresolvedTieGroups = standings.unresolvedTieGroups.filter((_, index) => index !== groupIndex);
   return Object.freeze({ ...standings,
     rows: Object.freeze(positions.map((clubId) => rowsByClub.get(clubId)!)),

@@ -1,3 +1,4 @@
+import { quantizeEventTick } from '../ExactEventTime';
 import { cloneInert } from '../../adjudication/OfficialWindowPolicy';
 import type { Vec3 } from '../../model/geometry';
 import type { DefenderPhysicalPrimitiveRole } from '../fielding/DefenderPhysicalPrimitive';
@@ -12,7 +13,8 @@ export type BattedWorldMotionInput = Readonly<{
   carrierPlayerId: string | null; availableAtTick: number; throughTick: number; commands: readonly BattedWorldPrimitiveMotionCommand[];
 }>;
 type CarriedResponse = Readonly<{ kind: 'carried'; cursor: BattedWorldBallCursor }>
-  | Readonly<{ kind: 'unresolved'; reason: 'carried_contact'; cursor: null }>;
+  | Readonly<{ kind: 'unresolved'; reason: 'carried_contact'; cursor: null }>
+  | Readonly<{ kind: 'capture_pending' | 'capture_interrupted'; cursor: null }>;
 export type BattedWorldMotion = Readonly<{
   actors: readonly BallWorldMotionActor[]; carrierPlayerId: string | null;
   world: BallWorldContinuation | AcceleratedBallWorldMotion;
@@ -24,10 +26,13 @@ const key = (playerId: string, role: string) => JSON.stringify([playerId, role])
 const freeze = <T>(value: T): T => { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
 
 /** Shared actor basis for accepted future motion, including a transfer that must stop before its release. */
-const prepareMotion = (raw: BattedWorldMotionInput, exactCoverage = false) => {
+const prepareMotion = (raw: BattedWorldMotionInput, exactCoverage = false, availableAtElapsedSeconds?: number) => {
   const input = cloneInert(raw), moment = input?.cursor?.moment, p = input?.response?.world?.parameters;
+  if (availableAtElapsedSeconds !== undefined && (!exactCoverage || !moment || !p || !Number.isFinite(availableAtElapsedSeconds)
+    || availableAtElapsedSeconds < 0 || quantizeEventTick(moment.originTick,availableAtElapsedSeconds,p.ticksPerSecond) !== input.availableAtTick))
+    throw new Error('exact batted command availability differs from its occurrence tick');
   if (!moment || !p || !tick(input.availableAtTick)
-    || (exactCoverage ? (input.availableAtTick - moment.originTick) / p.ticksPerSecond > moment.elapsedSeconds : input.availableAtTick > moment.ball.tick)
+    || (exactCoverage ? (availableAtElapsedSeconds ?? (input.availableAtTick - moment.originTick) / p.ticksPerSecond) > moment.elapsedSeconds : input.availableAtTick > moment.ball.tick)
     || !tick(input.throughTick)
     || (exactCoverage ? (input.throughTick - moment.originTick) / p.ticksPerSecond <= moment.elapsedSeconds : input.throughTick <= moment.ball.tick) || !Array.isArray(input.actors) || !input.actors.length
     || !Array.isArray(input.commands) || input.commands.length !== input.actors.length
@@ -56,7 +61,7 @@ const prepareMotion = (raw: BattedWorldMotionInput, exactCoverage = false) => {
   return { input, actors };
 };
 /** Exact-time preparation used only by the additive versioned checkpoint contract. */
-export const deriveBattedWorldMotionActorsAtExactCoverage = (raw: BattedWorldMotionInput): readonly BallWorldMotionActor[] => freeze(prepareMotion(raw, true).actors);
+export const deriveBattedWorldMotionActorsAtExactCoverage = (raw: BattedWorldMotionInput, availableAtElapsedSeconds?: number): readonly BallWorldMotionActor[] => freeze(prepareMotion(raw, true, availableAtElapsedSeconds).actors);
 export const deriveBattedWorldMotionActors = (raw: BattedWorldMotionInput): readonly BallWorldMotionActor[] => freeze(prepareMotion(raw).actors);
 
 /** Starts accepted future motion at the true preceding state. A caller result or old trajectory never selects a new start. */

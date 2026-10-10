@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { planWorldCompetitionCycle,
   type WorldCompetitionCycleInput,
@@ -25,19 +26,23 @@ const canonicalJson = (value: unknown): string => JSON.stringify(
         left < right ? -1 : left > right ? 1 : 0)) : item);
 
 /** Freeze an accepted four-year cycle before domestic schedules consume it. */
-export const openSqliteWorldCompetitionCycleStore = (
-  databasePath: string,
+const createSqliteWorldCompetitionCycleStore = (
+  databasePath: string | DatabaseSync,
 ): SqliteWorldCompetitionCycleStore => {
-  if (!id(databasePath)) throw new Error('invalid world calendar database path');
+  if (typeof databasePath === 'string' && !id(databasePath)) throw new Error('invalid world calendar database path');
   const sqlite: typeof import('node:sqlite') =
     createRequire(import.meta.url)('node:sqlite');
-  const db = new sqlite.DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new sqlite.DatabaseSync(databasePath);
+  if (!(db instanceof sqlite.DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_competition_cycles (
     career_id TEXT NOT NULL, cycle_ordinal INTEGER NOT NULL,
     request_json TEXT NOT NULL, plan_json TEXT NOT NULL,
     PRIMARY KEY (career_id, cycle_ordinal)
   );`);
+  }
   const get = db.prepare(`SELECT request_json, plan_json
     FROM world_competition_cycles WHERE career_id=? AND cycle_ordinal=?`);
   const first = db.prepare(`SELECT request_json FROM world_competition_cycles
@@ -116,8 +121,18 @@ export const openSqliteWorldCompetitionCycleStore = (
       return stored ? parse(careerId, cycleOrdinal, stored) : null;
     },
     close(): void {
-      if (!closed) db.close();
+      if (!closed && !borrowed) db.close();
       closed = true;
     },
   });
+};
+
+/** Existing string-path facade owns its connection and schema. */
+export const openSqliteWorldCompetitionCycleStore = (databasePath: string): SqliteWorldCompetitionCycleStore =>
+  createSqliteWorldCompetitionCycleStore(databasePath);
+
+/** Read-only projection of the same owner on a consumer connection. No opener, schema writes or close capability. */
+export const worldCompetitionCycleEvidenceFromSqlite = (db: DatabaseSync): Pick<SqliteWorldCompetitionCycleStore, 'readCycle'> => {
+  const owner = createSqliteWorldCompetitionCycleStore(db);
+  return Object.freeze({ readCycle: owner.readCycle });
 };

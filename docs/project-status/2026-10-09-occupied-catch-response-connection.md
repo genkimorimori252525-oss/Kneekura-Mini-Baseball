@@ -1,0 +1,19 @@
+# Stationary occupied catch owner connection
+
+This batch continues the accepted non-design runtime work. Presentation and the protected legacy runner-contact-wait owner are unchanged.
+
+- The original occupied runner hold owner remains the only finite pre-pitch stationary authority. A new accepted `occupied_runner_catch_response_v1` consumes an actually received original caught call and separately chooses hold. The current original member, Player/Person, hold, model, physical cut and admission journal are authenticated together. Stationary runner applicability is separate from catch correctness, so an independently accepted caught call can retain an unresolved correct-rule snapshot.
+- `occupied_runner_catch_motion_v1` is a separate physical consumer. Receipt and choice alone cannot certify adoption. The actual five original body primitives must still match the stationary command, and its finite coverage cannot be extended. Pending first adoption fences unrelated progress. The census retains reaction and controller-end work independently for every original runner. Its new arm is omitted on legacy empty-base prefixes to preserve persisted census hashes.
+- The stationary rule sidecar rederives all original occupied bodies over the complete executed field prefix. Every runner must remain motionless at its original root, with uninterrupted two-foot-union contact on the original occupied base from contact through the exact horizon. Moving history, base departure, absent coverage or a different body cannot produce this proof.
+- The catch result, official opening/review and scoring sidecar preserve original bases. The existing third-out transition clears bases only when applying the inning change. The full original participant set contributes reception, body/base generation, controller retirement, TOTAL and release evidence.
+- An occupied third-out may use the existing all-offense-terminal finalizer only after the independently accepted operative batter retirement and independently derived physical fair-catch evidence agree. The retained quantizer seal and all due consumers remain required; future producers stay in the census and registry.
+
+## Remaining production owner gap
+
+An occupied non-third-out still returns `occupied_live_producer_completion_required`. The existing finite-motion owner classifies its unexecuted tail as future work and a reached horizon as a controller-coverage handoff. It does not issue producer completion. `ActorPolicySettlement` requires already-complete sources before a stationary hold can be settled for the play. There is no original same-PA owner yet that authenticates completion of all body, observation-refresh, controller-renewal and communication-ingress producers for that non-terminal case.
+
+The new path therefore retains those producers and uses the ordinary non-terminal ActionFrontier. It does not cancel future messages/controllers, treat hold or horizon as PlayEnd, or reuse the empty-base terminal bypass. A future completion adapter needs original source-local completion and all successor work consumed under the existing contracts, rather than a new inactivity timeout or blanket cancellation policy. Moving runners, tag-up and force/appeal outcomes remain pending without their own executed history and consumers.
+
+## Bounded author verification
+
+The new response/history tests and existing batter-response, field-evidence and original-hold ownership tests pass (57 tests). The separately authored official/scoring tests pass (49 tests). An additional 12 end-owner seam tests pass, including actual Core-generated field/capture/seal histories for one to three original occupied runners, third-out retention of future work, and non-third-out pending. These are focused Core calculations and small ownership-seam checks, not a claim of a complete occupied Native lifecycle run. One consolidated compiler/review/integration gate remains with the integration owner.

@@ -48,7 +48,7 @@ export const openSqlitePlayerBodyCapabilityMaterializationStore = (
               if (raw === null) throw new Error('accepted retry materialization Source is missing');
               const source = bodyMaterializationSourceInput(raw, sourceId);
               if (json(source) !== json(prior.source)) throw new Error('body materialization Source is frozen differently');
-              const result = actors.derive(source, parameters(source), prior.releaseProof);
+              const result = actors.derive(source, parameters(source), prior.releaseProof, false);
               if (result.kind !== 'materialized' || json(result.archive) !== json(prior)) throw new Error('body materialization retry inputs changed');
             }
             const current = actors.readArchive(sourceId);

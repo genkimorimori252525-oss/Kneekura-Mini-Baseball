@@ -1,6 +1,9 @@
+import * as appealRuling from './ActualPostPlayLiveAppealRuling';
+import { getPlayAdjudicationState, recordCorrectRuleSnapshot, recordOnFieldCall } from '../../core/adjudication/PlayAdjudicationLedger';
 import { expect, it, vi } from 'vitest';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
+import * as fieldStore from './SqliteBattedWorldFieldStore';
 import { accepted, assertReviewFixtureConnectionsClosed, nativeReviewFactory, nativeReviewFixture } from './ActualPostPlayReviewNativeFixtures.test-support';
 import { eventSource, decisionSource, reviewFixture } from './ActualPostPlayReviewContract.test-support';
 import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -20,10 +23,10 @@ vi.mock('./SqliteActualFirstBasePlayEndStore', () => ({ actualFirstBaseClosedEvi
   reference: (id: string) => { const row = db.prepare("SELECT reference_json FROM fixture_review_inputs WHERE kind='end' AND source_id=?").get(id);
     return row ? JSON.parse(String(row.reference_json)) : null; },
 }) }));
-vi.mock('./SqliteBattedWorldFieldStore', () => ({ battedWorldFieldEvidenceFromSqlite: (db: DatabaseSync) => ({
+vi.spyOn(fieldStore, 'battedWorldFieldEvidenceFromSqlite').mockImplementation(db => ({
   read: (id: string) => { const row = db.prepare("SELECT value_json FROM fixture_review_inputs WHERE kind='field' AND source_id=?").get(id);
     return row ? JSON.parse(String(row.value_json)) : null; },
-}) }));
+}) as ReturnType<typeof fieldStore.battedWorldFieldEvidenceFromSqlite>);
 const { DatabaseSync: Database } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
 
 it.each(['adjudication', 'end'])('requires the actual %s owner before reserving the play', kind => {
@@ -215,4 +218,54 @@ it('rejects a changed accepted Source callback without leaving a partial event/h
     expect(() => store.acceptEvent(step.sourceId)).toThrow(/Source|changed|frozen/); expect(x.rows()).toEqual(before);
     expect(json(store.readCurrent(x.session.sourceId))).toBe(json(initial));
   } finally { store.close(); x.db.close(); }
+});
+
+
+it('public appeal acceptance loads, freezes and persists its exact official intent', () => {
+  const x = nativeReviewFixture(), open = nativeReviewFactory(), readIntent = vi.fn(x.authority.readAcceptedIntent);
+  let store = open(x.path, { ...x.authority, readAcceptedIntent: readIntent });
+  // This test isolates the public journal/authority boundary. Physical appeal
+  // composition is a controlled seam; SQLite, official authority, reducer,
+  // accepted callbacks, transaction pins and stored intent replay remain real.
+  const consume = vi.spyOn(appealRuling, 'acceptPostPlayLiveAppealResult').mockImplementation((previous, source) => {
+    const state = getPlayAdjudicationState(previous.ledger);
+    if (state.kind !== 'official_adjudication_open') throw new Error('fixture ledger closed');
+    const snapshotId = source.sourceId + ':fixture-snapshot', evidenceRevision = state.latestCorrectRule.evidenceRevision + 1;
+    const ruling = state.calls[0].ruling;
+    const ruled = recordCorrectRuleSnapshot(previous.ledger, previous.ledger.revision, { eventId: source.sourceId + ':fixture-rule',
+      tick: previous.cursor.tick, snapshotId, evidenceRevision, ruling });
+    return recordOnFieldCall(ruled, ruled.revision, { eventId: source.sourceId + ':fixture-call-event', callId: source.sourceId + ':fixture-call',
+      tick: previous.cursor.tick, basisSnapshotId: snapshotId, basisEvidenceRevision: evidenceRevision, ruling });
+  });
+  try {
+    const initial = accepted(store.acceptSession(x.session.sourceId)), state = getPlayAdjudicationState(initial.ledger);
+    if (state.kind !== 'official_adjudication_open') throw new Error('fixture initial ledger closed');
+    const executionReferences = [{ owner: 'pa_physical_v1_field_steps', sourceId: 'original-execution', sourceHash: 'a'.repeat(64), snapshotHash: 'b'.repeat(64) }];
+    const intent = { ...x.official(), sourceId: 'accepted-appeal-intent', action: 'accept_live_appeal_result', executionReferences,
+      basisSnapshotId: state.latestCorrectRule.snapshotId, basisEvidenceRevision: state.latestCorrectRule.evidenceRevision };
+    const source = { sourceId: 'accepted-appeal-event', sourceVersion: 'fixture-v1', capability: 'actual_post_play_review_event_v1',
+      sessionSourceId: initial.source.sourceId, expectedRevision: initial.revision,
+      parent: { sourceId: initial.headSourceId, snapshotHash: initial.headHash }, action: { kind: 'accept_live_appeal_result',
+        executionReferences, callId: intent.callId, windowId: intent.windowId, intentSourceId: intent.sourceId,
+        basisSnapshotId: intent.basisSnapshotId, basisEvidenceRevision: intent.basisEvidenceRevision } };
+    x.events.set(source.sourceId, source);
+    const before = x.rows();
+    expect(() => store.acceptEvent(source.sourceId)).toThrow(/intent/);
+    expect(x.rows()).toEqual(before); expect(consume).not.toHaveBeenCalled();
+    x.intents.set(intent.sourceId, intent);
+    const result = accepted(store.acceptEvent(source.sourceId));
+    expect(result.kind).toBe('official_ready');
+    expect(readIntent.mock.calls.every(([id]) => id === intent.sourceId)).toBe(true);
+    const saved = x.db.prepare('SELECT intent_json,admission_json FROM actual_post_play_review_events WHERE source_id=?').get(source.sourceId)!;
+    expect(saved.intent_json).toBe(json(intent));
+    expect(JSON.parse(String(saved.admission_json))).toMatchObject({ kind: 'official', actorId: intent.officialId });
+    x.intents.set(intent.sourceId, { ...intent, sourceVersion: 'changed' });
+    const adopted = x.rows();
+    expect(() => store.acceptEvent(source.sourceId)).toThrow(/intent.*frozen differently/);
+    expect(x.rows()).toEqual(adopted);
+    store.close(); x.db.close(); assertReviewFixtureConnectionsClosed();
+    store = open(x.path);
+    expect(store.readCurrent(initial.source.sourceId)).toEqual(result);
+    expect(store.acceptEvent(source.sourceId)).toEqual({ kind: 'accepted', value: result });
+  } finally { store.close(); if (x.db.isOpen) x.db.close(); consume.mockRestore(); }
 });

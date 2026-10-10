@@ -1,0 +1,86 @@
+# Terminal proof phase recovery checkpoint (2026-10-10)
+
+The preservation history below has since been recovered and centrally qualified in published commit `d4a17d490cba76cac4e8427503ee9ec726e7b758`; see [the final qualification](#recovered-central-qualification).
+
+This separate branch preserves a reviewed three-file change while local filesystem operations are stalled. The qualified integration branch and PR374 remain at `d4cd8067346d8ad1aa5eed9d1ccaa695d39ce791`. This preservation commit is separate from the unresolved local Git commit.
+
+## Change
+
+Adjudication and closure now own the existing immutable physical-proof scope across each pure read phase. Prewrite derivation, postwrite authentication, public reads and official validation use separate snapshots; INSERT/UPDATE, triggers, accepted callbacks and independent retries stay outside earlier proofs. Completed closure retries authenticate again after the accepted-Source callback, rejecting a receipt whose original evidence changed during that callback. Domain rules, Source shapes, CAS and genuine scenario assertions are unchanged.
+
+## Evidence and remaining validation
+
+- The author ran the three affected finite test files on Node26.10.0 with a 512MiB heap and a 35-second external cap: **26 cases passed in 5.19seconds**.
+- Independent whole-batch review was **CLEAR**.
+- These tests use real SQLite transaction/archive/retry boundaries with explicit seams for expensive physical evidence. They do not establish genuine physical acceptance or elapsed-time speedup.
+- **Full compiler and final central verification have not run for this change.** They remain required after the filesystem recovers. The earlier qualified results retain their separate source attribution.
+- The running National and IFR continuations retain their fixed older source and independent results; this branch supplies no new whole-scenario completion credit.
+
+The exact final file bytes were recovered from retained review diffs and the known GitHub baseline, then matched to the frozen SHA256 values in memory without additional filesystem reads:
+
+| File under src/host/world | SHA256 |
+| --- | --- |
+| SqliteActualLiveAdjudicationStore.ts | acb380baf4f20139c284e50d09ba8f505acf8e795fd053126ebc2d043d42495b |
+| SqliteActualLivePlayClosureStore.ts | 40f3ce08d5ffd966648a95a3166aecf9347103eab0f9599808bdd755d886e250 |
+| ActualAdjudicationClosureReadPair.test.ts | da61607c5062a4e3210724b2d94b5fff8a2f3d9ab2cf8704c5bd88d1f5503b6a |
+
+Only source, tests and this explanation are preserved here. Private databases, WALs, logs and controls are excluded. No merge, deployment, home-PC CI or new game-model decision is part of this checkpoint.
+
+## Recovered central qualification
+
+At 12:56 UTC the executor responded again, but the former scratch checkout, shared Git directory and private checkpoints were absent. A fresh clone recovered this exact three-file checkpoint and verified all hashes above. Node 26.10.0, the original lockfile dependencies and the generated catalog were restored. No missing private database or interrupted commit was inferred to have completed.
+
+The first full compiler run failed at the closure validator's connection type: the existing official guard exposes `Pick<DatabaseSync, 'prepare'>`, while the local proof helper required the full Native type. The correction retains that public type and checks `instanceof DatabaseSync` before using transaction methods. The real official writer supplies its Native connection; unexpected connections reject. Independent review of this correction was clear.
+
+Final tested code is `3f45955f486df0f89a3bcbba4388fb9cabbb20c0`, src tree `728b6e36cee03cc0667904b6ada2ea7661d5b427`:
+
+- Full TypeScript, including the original long entries: **PASS, 32.506 seconds**, peak RSS 2,172,136 KiB.
+- The three affected finite files: **26/26 PASS, 7.351 seconds**, peak RSS 533,028 KiB. The formal report SHA256 is `2417e7fc8d94ecabcea4ce069b760ef5d2493973473e0bcf1d2ea76ecacbdd9c`.
+- Source, dependency, runtime and control snapshots stayed identical. No child processes survived. The known generated Vitest results cache is excluded only at its specific output path; test caching is disabled.
+
+The initial compiler failure remains separate from the successful final run. These finite transaction/retry checks still do not establish the long genuine scenarios or an elapsed-time speedup.
+
+## Fresh Native continuation and private snapshot recovery
+
+The original National and same-PA foul-reset entries are running on the fixed published commit `d4a17d490cba76cac4e8427503ee9ec726e7b758`, src tree `728b6e36cee03cc0667904b6ada2ea7661d5b427`, with Node 26.10.0. Their original callbacks and assertions remain intact. Each has a 14,400-second outer limit; the National run started at 13:35:08 UTC and the foul-reset run at 13:44:32 UTC. Neither has a whole-scenario result at this checkpoint.
+
+National completed the original foul terminal and participation, then committed the next actor's genuine pitch, flight, world contact, fielder touch and response. At 14:17:49 UTC, `national-live:episode-binding` returned and its consistent SQLite snapshot was saved before the subsequent live runtime operation. These are committed stage boundaries, not the original tail's 37-assertion completion.
+
+For a recovered private copy at that exact binding frontier:
+
+1. Restore the same published source and original lockfile/runtime. Verify the private snapshot's retained checksum and SQLite integrity before use; keep the archive unchanged and decompress to a writable working copy.
+2. Use `continueRetainedNationalBattedFoulBindingTail(path, progress)` from [NationalBattedFoulRetainedBindingTail.test-support.ts](../../src/host/world/NationalBattedFoulRetainedBindingTail.test-support.ts). The function authenticates the saved binding, actor, Match origin and foul lineage through the existing owners, then continues the original field/runtime and official/statistics/Career tail.
+3. Keep the ordinary continuation's original assertions. A successful continuation does not turn an interrupted fresh run into a whole fresh-case PASS. Do not delete accepted rows or present an arbitrary later checkpoint as this frontier. The separate statistics-only entry requires its own explicit original-boundary evidence.
+
+The foul-reset entry currently has no intermediate-snapshot resume mode. Its committed snapshots must not be described as automatically resumable. Snapshot data, private paths, logs and environment controls are not published here.
+
+## Fresh first-base proposal scope
+
+The running original National case spent about 740.5 seconds between real-motor adoption and the next quantizer acceptance. Inspection found that the fresh fixture's pure field/execution prefix construction lacked the outer immutable scope already used by its retained branch. Nested motor/decision reads therefore ended their individual snapshots before the parent could reuse the completed National original proof.
+
+The one-site correction wraps only those fresh fields/executions reads in the existing `withBattedVenueLegalReadSnapshot`. Retained reconstruction, source values, read order and assertions are unchanged. Current known-work discovery, kinematics, accepted callbacks and writes remain outside that phase; independent acceptance and retry still authenticate separately.
+
+Independent review was **CLEAR**. The corrected src tree is `5ceb4ceece5e8c43b31382b7d4f42d7f09b9ba40`; the changed fixture file SHA256 is `132eb86573523042e010989c092e108e00b40fea309365ddf186e7520ce70812`. Full compiler passed in **36.146 seconds**, and the two existing snapshot/traversal regression files passed **31/31 cases in 28.000 seconds**. Source, dependency, runtime and control pins were stable, no resource guard fired and no child survived. Formal finite report SHA256: `7f5a58f650cfba334782a5ba293b2f2c6f232c82d2781cd6465149a412aa8371`.
+
+Those checks verify the compiler and existing proof-scope isolation/invalidation behavior; they do not execute the whole genuine fixture or measure an elapsed-time improvement. Both running Native cases keep their original fixed `d4a17d49` source. No long case was restarted for this correction.
+
+## FR01 original fresh scenario completed
+
+The original `SamePlateAppearanceFoulResetIntegration.test.ts` single case **passed in full** on fixed published `d4a17d490cba76cac4e8427503ee9ec726e7b758`, src `728b6e36cee03cc0667904b6ada2ea7661d5b427`. It completed actual swing/contact, untouched rolling-stop foul, official closure, controller retirement/reset, the fourth ordinary TAKE, conservation checks, exact retries and Native reopen. The original callback and helper assertions were preserved; no result was assembled from partial runs.
+
+The case took **7,505.785 seconds** and its supervisor completed in **7,511.742 seconds**, exit 0. Peak aggregate RSS was **802,312 KiB**. No guard fired, all source/dependency/runtime/control/evidence pins matched, the parent was reaped and no process remained. Formal Vitest report SHA256: `685407d61b0958a6df6b451725ee0cd8b97619fcda2db31be4daf9cea56a29e7`; terminal receipt SHA256: `dce4776a44475cf2eb626772f263b15daa81edd0cd4b9bb27f1342ee74138a50`. The final consistent snapshot is retained privately; the later outcome/reset/launch retries made no writes.
+
+This closes the original FR01 representative, including its full fourth-pitch and retry/reopen suffix. It does not establish occupied PL01, live appeal, National's full original tail or a whole game/season. The later fresh first-base fixture correction was not used by this fixed-source run. PL01 started in the released verification slot at 15:52:14 UTC under the same qualified original source and unchanged shared controls, with a 14,400-second outer cap. National subsequently returned the explicit failure described below; no third long Native lane was added.
+
+
+## National fresh failure and preserved adjudication frontier
+
+The original fresh National case returned **FAILED** after **9,184.775 seconds** on fixed published `d4a17d490cba76cac4e8427503ee9ec726e7b758`, src `728b6e36cee03cc0667904b6ada2ea7661d5b427`. Real adjudication committed after the complete physical-end and operative-call prefix. The next closure enqueue raised `deriveOfficialPlayResult is not a function` before making a change. The original whole case and its 37-assertion tail are unfinished.
+
+All eight source/dependency/runtime/control/evidence pin classes remained stable. Exit was 1, no resource guard fired, peak aggregate RSS was 1,366,624 KiB, the parent was reaped and no process remained. Formal report SHA256: `0217ba503cbc5e4decde56fba4a5b0c08074182691566cb67569e7ddaaa88aac`; terminal receipt SHA256: `90aaed6b9f49f38658928300b780d1376fc85d51ee6cbe122cb14a8c96f699f6`.
+
+A bounded import-only comparison reproduced the failure without a database or physical prefix: the original fixture import graph exposes the function normally; adding the persistence observer freezes an uninitialized cyclic re-export through an object spread. This is a verification observer namespace defect; the production re-export exists. The correction must preserve live exports and wrap only the observed owner constructors/factories. No game behavior or production import is changed to bypass it.
+
+The final adjudication snapshot passed integrity, schema, original-rowid census and content/hash checks. Its 101 tables and 267 rows differ from the preceding physical-end snapshot only by the adjudication table and one original row. Closure and later statistics remain absent. The ordinary `continueRetainedNationalBattedFoulBindingTail` entry supports this contiguous official prefix and keeps every original tail assertion, including the missing-scoring assertion. Resume uses a new private writable copy, authenticates the retained original owners and continues the missing suffix. This structural audit is not a successful execution; the failed fresh result remains failed. Private data, paths and monitoring controls are excluded from this publication.
+
+The corrected observer passed six bounded checks across the National fresh/retained, IFN and LAN import graphs plus namespace and real-owner mechanics (report span 25.013 seconds). A separate affected SQLite rollback check passed in 0.291 seconds, preserving exact return/throw identity, actual rollback, unchanged retry and one snapshot per committed change. These are observer checks, not genuine play assertions. Product source, the failed fresh receipt and the active PL01 source/controls were untouched; no full compiler or long prefix was repeated for this private correction.

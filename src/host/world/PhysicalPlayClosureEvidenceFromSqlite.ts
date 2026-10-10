@@ -1,3 +1,5 @@
+import { assertSamePaTerminalApplicationCompleted } from './SamePlateAppearanceTerminalActivation';
+import { assertNationalMatchBindings } from './NationalMatchOriginFromSqlite';
 import { createRequire } from 'node:module';
 import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
 import { foulTerminalPostPlayCompletionEvidenceFromSqlite } from './ActualFoulTerminalPostPlayCompletionEvidenceFromSqlite';
@@ -8,14 +10,15 @@ import { createHash } from 'node:crypto';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { derivePhysicalNonLiveClosure } from '../../core/adjudication/PhysicalNonLiveClosure';
-import { classifyClosedPlayForOfficialScoring, type OfficialFairBallScoringEvidence, type SupportedOfficialScoringRecord } from '../../core/adjudication/OfficialScoring';
+import { classifyClosedPlayForOfficialScoring, type SupportedOfficialScoringRecord } from '../../core/adjudication/OfficialScoring';
+import { officialScoringEvidenceArguments } from '../OfficialScoringEvidence';
 import { prepareBetweenPlayWorld, type BetweenPlayWorldSetup } from '../../core/adjudication/BetweenPlayWorldReset';
 import { confirmDurableClosedNonLiveStateApplication } from '../../core/adjudication/NonLiveOfficialApplication';
 import { resolveOfficialGameBoundary, type GameCompletionPolicy, type OfficialGameVenueBinding } from '../../core/world/competition/OfficialGameCompletion';
 import { createCanonicalLineScoreSnapshot, type CanonicalInningLineScore } from '../../core/model/CanonicalLineScoreSnapshot';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
 import { deriveOfficialPlayResult, deriveOfficialFinalResult, type PersistOfficialPlayInput, type PersistOfficialFinalInput } from '../SqliteOfficialStateStore';
-import type { PersistedOfficialScoring, PersistOfficialScoringInput } from '../SqliteOfficialScoringStore';
+import type { PersistedOfficialScoring, PersistOfficialScoringInput, AcceptedOfficialScoringEvidence } from '../SqliteOfficialScoringStore';
 import type { DurablePhysicalPitch } from './SqlitePhysicalPitchProgressStore';
 import { capturePhysicalPitchEvidence, readPhysicalPitchProgressFromSqlite } from './PhysicalPitchEvidenceFromSqlite';
 import { assertInitialOfficialWorldEvidence, readOfficialActorPersonLink } from './SqliteOfficialInitialWorldStore';
@@ -66,6 +69,15 @@ const fixture = (db: PhysicalClosureDb, pitch: DurablePhysicalPitch): OfficialGa
   return { gameId: row.game_id, venueId: row.venue_id, fixtureEventId: row.fixture_event_id, fixtureRevision: row.fixture_revision };
 };
 const worldFixture = (db: PhysicalClosureDb, s: AcceptedPhysicalPlayClosure, pitch: DurablePhysicalPitch) => {
+  const national = assertNationalMatchBindings(db, pitch.frame.bindings);
+  if (national) {
+    const f = national.fixture;
+    if (f.competitionEditionId !== s.game.seasonId || f.homeClubId !== s.game.homeClubId || f.awayClubId !== s.game.awayClubId
+      || f.careerId !== pitch.frame.workload.careerId) throw new Error('actual physical closure National fixture differs');
+    return { careerId: f.careerId, seasonId: f.competitionEditionId,
+      game: { gameId: pitch.frame.gameId, homeClubId: f.homeClubId, awayClubId: f.awayClubId } };
+  }
+
   const row = db.prepare('SELECT schedule_json FROM world_season_heads WHERE career_id=? AND season_id=?')
     .get(pitch.frame.workload.careerId, s.game.seasonId) as { schedule_json: string } | undefined;
   const schedule = row ? JSON.parse(row.schedule_json) as OfficialStandingsSchedule : null;
@@ -82,30 +94,37 @@ const actor = (db: PhysicalClosureDb, s: AcceptedPhysicalPlayClosure, pitch: Dur
     || b.careerId !== pitch.frame.workload.careerId || b.side !== side || b.competitionEditionId !== s.game.seasonId
     || b.gameDay !== pitch.frame.bindings[0].gameDay || b.fixtureEventId !== pitch.frame.bindings[0].fixtureEventId
     || b.clubId !== (side === 'HOME' ? s.game.homeClubId : s.game.awayClubId)) throw new Error('actual physical closure actor binding differs');
+  assertNationalMatchBindings(db, [b]);
   return { binding: b, person: readOfficialActorPersonLink(db, b) };
 };
 
 type EarlierScoring = Readonly<{ applicationId: string; scoringApplicationId: string; before: CanonicalMatchState;
   after: CanonicalMatchState; scoring: PersistedOfficialScoring; closureRowHash: string; scoringRowHash: string }>;
-const readPhysicalClosureScoringHistoryRows = (db: PhysicalClosureDb, frame: Readonly<{ gameId: string; officialRevision: number }>): EarlierScoring[] => {
+const readPhysicalClosureScoringHistoryRows = (db: PhysicalClosureDb, frame: Readonly<{ gameId: string; officialRevision: number }>,
+  final?: import('../../core/world/competition/OfficialGameCompletion').OfficialGameResult): EarlierScoring[] => {
   const rows = db.prepare("SELECT * FROM applications WHERE match_id=? AND json_extract(result_json,'$.receipt.durableRevision')<=? ORDER BY json_extract(result_json,'$.receipt.durableRevision')")
     .all(frame.gameId, frame.officialRevision) as { application_id: string; match_id: string; closure_id: string; request_hash: string; result_json: string }[];
   if (rows.length !== frame.officialRevision) throw new Error('physical closure prior application history is missing');
   return rows.map((row, index) => {
+    const finalPlay = final !== undefined && index === frame.officialRevision - 1;
+    if (finalPlay && (row.application_id !== final.applicationId || final.durableRevision !== index + 1)) throw new Error('completed scoring final application differs');
+    assertSamePaTerminalApplicationCompleted(db, row.application_id, finalPlay);
     const scored = db.prepare('SELECT * FROM official_scoring_applications WHERE official_application_id=?').get(row.application_id) as {
       scoring_application_id: string; match_id: string; official_application_id: string; closure_id: string; source_event_id: string; request_json: string; result_json: string;
     } | undefined;
     if (!scored) throw new Error('physical closure prior scoring history is missing');
-    const saved = JSON.parse(scored.request_json) as { input: PersistOfficialScoringInput; evidence: OfficialFairBallScoringEvidence | null };
+    const saved = JSON.parse(scored.request_json) as { input: PersistOfficialScoringInput; evidence: AcceptedOfficialScoringEvidence | null };
     const input = saved.input, a = input.officialApplication;
     if ('mode' in a && a.mode === 'non_live_pending_post_play_v1') {
       // Terminal scoring keeps its immutable pending input forever. Only the
       // independently authenticated completed owner and all original effects
       // may supply a historical record; generic legacy writers stay blocked.
       const completed=foulTerminalPostPlayCompletionEvidenceFromSqlite(db as DatabaseSync).read(row.closure_id);
+      if(completed&&('finalResult'in completed.result.completion||completed.status==='POST_PLAY_COMPLETED_FINAL')&&!finalPlay)throw new Error('terminal final result cannot precede a later play');
       if(!completed)throw new Error('terminal completion scoring history owner is missing');
       const p=completed.proposal,c=completed.result.completion,receipt=completed.result.official.receipt;
       const official=foulTerminalCompletedOfficial(completed.result.official,c),score=JSON.parse(scored.result_json) as PersistedOfficialScoring;
+      if(finalPlay&&(!('finalResult'in c)||closureJson(c.finalResult)!==closureJson(final)))throw new Error('completed terminal scoring final differs');
       if(p.gameId!==frame.gameId||p.source.applicationId!==row.application_id||p.originalOfficialRevision!==index
         ||receipt.durableRevision!==index+1||closureJson(a)!==closureJson(foulTerminalPendingInput(p))
         ||row.match_id!==p.gameId||row.closure_id!==p.source.sourceId||row.request_hash!==completed.result.official.pendingPostPlay.requestHash
@@ -115,11 +134,12 @@ const readPhysicalClosureScoringHistoryRows = (db: PhysicalClosureDb, frame: Rea
         after:receipt.appliedMatchState,scoring:score,closureRowHash:closureHash(row),scoringRowHash:closureHash(scored)};
     }
     const official = 'game' in a ? deriveOfficialFinalResult(a, index + 1) : deriveOfficialPlayResult(a, index + 1);
-    const classified = classifyClosedPlayForOfficialScoring(a.kind === 'non_live' ? { kind: a.kind, match: a.match, timeline: a.timeline,
-      adjudication: a.adjudication, context: a.context } : { kind: a.kind, match: a.match, timeline: a.physicalTimeline,
-      adjudication: a.adjudication, ...(saved.evidence ? { scoringEvidence: saved.evidence } : {}) });
+    if(finalPlay&&(!('result'in official)||closureJson(official.result)!==closureJson(final)))throw new Error('completed scoring final differs');
     const sourceEventId = a.kind === 'non_live' ? `official-non-live:${a.applicationId}`
       : 'sourceEventId' in input ? input.sourceEventId! : `official-foul-out:${a.applicationId}`;
+    const classified = classifyClosedPlayForOfficialScoring(a.kind === 'non_live' ? { kind: a.kind, match: a.match, timeline: a.timeline,
+      adjudication: a.adjudication, context: a.context } : { kind: a.kind, match: a.match, timeline: a.physicalTimeline,
+      adjudication: a.adjudication, ...officialScoringEvidenceArguments(saved.evidence, sourceEventId) });
     if (classified.kind !== 'supported') throw new Error('physical closure prior official score is unsupported');
     const score: PersistedOfficialScoring = { scoringApplicationId: input.scoringApplicationId, matchId: a.matchId,
       officialApplicationId: a.applicationId, closureId: official.receipt.closureId, sourceEventId, record: classified.record };
@@ -140,6 +160,13 @@ export const readPhysicalClosureScoringHistory = (db: PhysicalClosureDb, frame: 
   const read=()=>readPhysicalClosureScoringHistoryRows(db,frame);
   return db instanceof NativeDatabase ? withBattedVenueLegalReadSnapshot(db,read) : read();
 };
+/** Completed-game consumer only. A final terminal is permitted solely at the
+ * last revision of this exact final result; prior-play callers keep their
+ * original rejection. Reserved terminals still require authentic release. */
+export const readCompletedMatchScoringHistory = (db: DatabaseSync,
+  final: import('../../core/world/competition/OfficialGameCompletion').OfficialGameResult): EarlierScoring[] =>
+  withBattedVenueLegalReadSnapshot(db, () => readPhysicalClosureScoringHistoryRows(db,
+    { gameId: final.gameId, officialRevision: final.durableRevision }, final));
 /** The existing contiguous-history fold is shared unchanged with read-only
  * consumer verification; missing earlier scoring is never replaced by zero H/E. */
 export const derivePhysicalClosureLineScore = (history: readonly Readonly<{ before: CanonicalMatchState;

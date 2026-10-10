@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
   advanceRunnerMotion,
+  buildRunnerMotionTrajectoryAtExactOrigin,
   buildRunnerMotionTrajectory,
   sampleRunnerMotionTrajectory,
+  sampleRunnerMotionTrajectoryExact,
   type RunnerMotionParameters,
   type RunnerMotionState,
 } from './RunnerMotion';
@@ -23,6 +25,30 @@ const state = (overrides: Partial<RunnerMotionState> = {}): RunnerMotionState =>
   driveDirection: 0,
   bodyMode: 'upright',
   ...overrides,
+});
+
+it.each([0,100_000])('exact origin keeps absolute reaction and end timing with delay %s',reactionDelayTicks=>{
+  const origin={originTick:0,elapsedSeconds:1.00000025,tick:1_000_001},start=state({tick:origin.tick,speedMps:1});
+  const motion=buildRunnerMotionTrajectoryAtExactOrigin(start,{kind:'advance',issuedTick:origin.tick},2_000_000,
+    {...parameters,reactionDelayTicks},origin);
+  const reaction=(origin.tick+reactionDelayTicks)/parameters.ticksPerSecond-origin.elapsedSeconds;
+  const before=sampleRunnerMotionTrajectoryExact(motion,(origin.tick/parameters.ticksPerSecond-origin.elapsedSeconds)/2);
+  expect(before.driveDirection).toBe(0);expect(before.speedMps).toBeLessThan(1);
+  expect(motion.segments[0].endElapsedSeconds).toBe(reaction);
+  const at=sampleRunnerMotionTrajectoryExact(motion,reaction);
+  expect(at.driveDirection).toBe(1);expect(at.speedMps).toBeCloseTo(1-parameters.brakingMps2*reaction,12);
+  expect(origin.elapsedSeconds+motion.durationSeconds).toBe(2);
+  expect(sampleRunnerMotionTrajectoryExact(motion,motion.durationSeconds).speedMps).toBe(motion.endState.speedMps);
+});
+
+it('does not discard a positive sub-picosecond interval before an exact-origin intent is issued',()=>{
+  const origin={originTick:0,elapsedSeconds:1.000001-5e-13,tick:1_000_001};
+  const motion=buildRunnerMotionTrajectoryAtExactOrigin(state({tick:origin.tick,speedMps:1}),{kind:'advance',issuedTick:origin.tick},
+    2_000_000,{...parameters,reactionDelayTicks:0},origin);
+  const remaining=1.000001-origin.elapsedSeconds;
+  expect(motion.segments[0].endElapsedSeconds).toBe(remaining);
+  expect(sampleRunnerMotionTrajectoryExact(motion,remaining/2).driveDirection).toBe(0);
+  expect(sampleRunnerMotionTrajectoryExact(motion,remaining).driveDirection).toBe(1);
 });
 
 describe('sampleRunnerMotionTrajectory', () => {

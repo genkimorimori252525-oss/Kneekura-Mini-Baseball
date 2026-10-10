@@ -30,6 +30,8 @@ export type WholePlayPhysicalStep = Owned & (
     field: BattedWorldFieldMotion; operation: WholePlayOwnedOperation | null }>
   |
   Readonly<{ kind: 'motion' | 'retained_motion_checkpoint_v1'; startCursor: BattedWorldBallCursor; field: BattedWorldFieldMotion }>
+  | Readonly<{ kind: 'received_renewal_adoption_v1'; startCursor: BattedWorldBallCursor; field: BattedWorldFieldMotion }>
+  | Readonly<{ kind: 'received_renewal_continuation_v1'; startCursor: BattedWorldBallCursor; field: BattedWorldFieldMotion }>
   | Readonly<{ kind: 'acquisition'; field: BattedWorldFieldMotion; acquisition: BattedWorldFieldAcquisition }>
   | Readonly<{ kind: 'throw'; startCursor: BattedWorldBallCursor; field: BattedWorldFieldMotion; throw: BattedWorldFieldThrow }>
   | Readonly<{ kind: 'acquisition_advance'; planSourceId: string; field: BattedWorldFieldMotion; progress: BattedWorldScheduledFieldAcquisitionAdvance }>
@@ -87,7 +89,7 @@ const freeze = <T>(value: T): T => {
 };
 function fail(reason: string): never { throw new Error(`whole-play history ${reason}`); }
 
-/** The new bounded manifest family repeats immutable plans per physical step.
+/** Bounded owned/received families retain full actor and operation records per physical step.
  * Clone each inert record independently; old histories keep their original whole-input
  * validation and limits. Descriptor inspection never evaluates caller accessors. */
 const cloneOwnedHistoryInput = (raw: CanonicalWholePlayHistoryInput): CanonicalWholePlayHistoryInput => {
@@ -105,7 +107,8 @@ const cloneOwnedHistoryInput = (raw: CanonicalWholePlayHistoryInput): CanonicalW
     if (!item || !item.enumerable || !('value' in item) || !item.value || typeof item.value !== 'object') return cloneInert(raw);
     const kind = Object.getOwnPropertyDescriptor(item.value, 'kind');
     if (!kind || !kind.enumerable || !('value' in kind)) return cloneInert(raw);
-    owned ||= ['owned_motion_v2', 'owned_acquisition_plan_v1', 'owned_throw_plan_v1'].includes(kind.value);
+    owned ||= ['owned_motion_v2', 'owned_acquisition_plan_v1', 'owned_throw_plan_v1',
+      'received_renewal_adoption_v1', 'received_renewal_continuation_v1'].includes(kind.value);
     values.push(item.value);
   }
   if (!owned) return cloneInert(raw);
@@ -555,11 +558,17 @@ export const deriveCanonicalWholePlayHistory = (raw: CanonicalWholePlayHistoryIn
         checkBoundary(capture.world, capture.baseContacts);
       }
       occurrence(end, ref, capture.kind === 'secured' ? 'acquisition_secured' : 'acquisition_interrupted'); horizon = end;
-    } else if (step.kind === 'motion' || step.kind === 'retained_motion_checkpoint_v1' || step.kind === 'throw') {
+    } else if (step.kind === 'motion' || step.kind === 'retained_motion_checkpoint_v1' || step.kind === 'throw'
+      || step.kind === 'received_renewal_adoption_v1' || step.kind === 'received_renewal_continuation_v1') {
       if (!fields(step, ['source', 'previousSourceId', 'kind', 'startCursor', 'field', ...(step.kind === 'throw' ? ['throw'] : [])])
         || !cursor || json(step.startCursor) !== json(cursor)) fail('physical step lacks its exact preceding cursor');
       checkCursor(step.startCursor);
-      if (step.kind === 'retained_motion_checkpoint_v1') {
+      if (step.kind === 'received_renewal_adoption_v1'
+        && (json(step.field.motion.world.moment) !== json(horizon) || json(step.field.motion.cursor) !== json(cursor)
+          || step.field.baseContacts.length || step.field.motion.world.kind === 'boundary')) fail('received renewal adoption changed its zero-duration cut');
+      if (step.kind === 'received_renewal_continuation_v1'
+        && step.field.motion.world.moment.elapsedSeconds <= horizon.elapsedSeconds) fail('received renewal continuation lacks positive elapsed time');
+      if (step.kind === 'retained_motion_checkpoint_v1' || step.kind === 'received_renewal_continuation_v1') {
         if (json(step.field.motion.actors) !== json(actors)) fail('retained motion actor curves differ');
         actors.forEach((actor) => validateActor(actor, step.field.motion.world.moment));
       } else rebaseActors(step.field.motion.actors, step.field.motion.world.moment);

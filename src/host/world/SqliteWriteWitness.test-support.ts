@@ -7,7 +7,7 @@ const sameDescriptor = (actual: PropertyDescriptor | undefined, expected: Proper
 /** Test-only observation after the real SQLite statement and its triggers finish.
  * Never use a mock/spy here: its global result history retains every unrelated
  * native StatementSync throughout a potentially long physical derivation. */
-export const witnessSqliteWrite = (sql: string | RegExp, observed: (db: DatabaseSync) => boolean) => {
+export const witnessSqliteWrite = (sql: string | RegExp, observed: (db: DatabaseSync) => boolean, phase: 'before' | 'after' = 'after') => {
   const pattern = typeof sql === 'string' ? null : new RegExp(sql.source, sql.flags.replace(/[gy]/g, ''));
   const sqlite = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
   const prototype = sqlite.DatabaseSync.prototype, descriptor = Object.getOwnPropertyDescriptor(prototype, 'prepare');
@@ -21,8 +21,11 @@ export const witnessSqliteWrite = (sql: string | RegExp, observed: (db: Database
     if (!closed && (pattern ? pattern.test(text) : text === sql)) {
       const connection = this, run = statement.run, originalRun = Object.getOwnPropertyDescriptor(statement, 'run');
       const wrappedRun = (...args: unknown[]) => {
+        // Explicit pre-effect faults preserve tests whose original contract
+        // aborts before the selected statement. Existing callers observe after.
+        if (!closed && phase === 'before') reached = observed(connection) || reached;
         const result = Reflect.apply(run, statement, args);
-        if (!closed) reached = observed(connection) || reached;
+        if (!closed && phase === 'after') reached = observed(connection) || reached;
         return result;
       };
       const installedRun = { configurable: true, writable: true, enumerable: originalRun?.enumerable ?? false, value: wrappedRun };

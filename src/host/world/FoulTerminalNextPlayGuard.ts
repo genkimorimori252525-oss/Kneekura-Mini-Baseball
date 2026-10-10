@@ -1,3 +1,7 @@
+import { assertSamePaTerminalApplicationCompleted } from './SamePlateAppearanceTerminalActivation';
+import {foulTerminalNextPlayReadinessFromSqlite} from './FoulTerminalNextPlayReadiness';
+import {activeBattedWorldFieldReadFrame} from './SqliteBattedWorldFieldStore';
+import {foulApplicationOwnershipRows} from './ActualFoulTerminalApplicationOwnership';
 import { officialActivationApplicationOwnershipClaims, officialApplicationHasTerminalStageClaim, officialApplicationRawIdentities } from '../OfficialApplicationOwnershipFromSqlite';
 import { assertFoulTerminalPriorActivation } from './FoulTerminalCompletionAncestryGuard';
 import type { DatabaseSync, SQLOutputValue } from 'node:sqlite';
@@ -8,14 +12,7 @@ import { originalFoulMetadataValues as values } from './OriginalFoulOwnershipMet
 
 type Db = Pick<DatabaseSync, 'prepare'>;
 const rows = (db: Db, table: string, required: readonly string[]): Record<string, SQLOutputValue>[] => {
-  const schema = db.prepare('SELECT type FROM main.sqlite_master WHERE name=?').all(table);
-  if (!schema.length) return [];
-  if (schema.length !== 1 || schema[0].type !== 'table') throw new Error('terminal pending admission owner schema differs');
-  const columns = db.prepare('PRAGMA main.table_info(' + table + ')').all();
-  if (required.some(name => columns.filter(c => c.name === name && c.type === 'TEXT').length !== 1)) {
-    throw new Error('terminal pending admission owner columns differ');
-  }
-  return db.prepare('SELECT * FROM main.' + table).all();
+  return foulApplicationOwnershipRows(db,table,Object.fromEntries(required.map(name=>[name,'TEXT' as const])));
 };
 const document = (row: Record<string, SQLOutputValue>, column: string) => typeof row[column] === 'string' ? row[column] as string : '';
 const hasPending = (db: Db, doc: string) => !!db.prepare(`SELECT 1 FROM json_tree(CASE WHEN json_valid(?) THEN ? ELSE 'null' END)
@@ -33,7 +30,7 @@ export const foulTerminalNextPlayScopeRows = (db: Db, gameId: string, playId: nu
     ['result_json',['acknowledgement','applicationReference','matchId'],['acknowledgement','applicationReference','previousPlayId']],
   ] as const) if (values(db,document(row,column),gamePath).includes(gameId) && values(db,document(row,column),playPath).includes(playId)) return true;
   const doc = document(row,'result_json');
-  const game = row.game_id === gameId || values(db,document(row,'proposal_json'),['gameId']).includes(gameId)
+  const game = row.game_id === gameId || values(db,doc,['completion','finalResult','gameId']).includes(gameId) || values(db,document(row,'proposal_json'),['gameId']).includes(gameId)
     || values(db,doc,['official','pendingPostPlay','matchId']).includes(gameId)
     || values(db,doc,['acknowledgement','applicationReference','matchId']).includes(gameId);
   return game && (values(db,doc,['official','receipt','previousPlayId']).includes(playId)
@@ -47,14 +44,17 @@ const completion = (db: Db, sourceId: string) => {
   const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
   if (!(db instanceof DatabaseSync)) throw new Error('terminal completion admission requires a Native connection');
   const saved = foulTerminalPostPlayCompletionEvidenceFromSqlite(db).read(sourceId);
+  if(saved&&('finalResult'in saved.result.completion||saved.status==='POST_PLAY_COMPLETED_FINAL'))throw new Error('terminal final completion has no next-play activation');
   if (!saved) throw new Error('terminal completed admission owner is missing');
   return saved;
 };
 /** Legacy name retained for existing callers. A surviving pending claim still
  * blocks; the sole exception is the exact fully authenticated completion and
  * its intentionally retained original pendingPostPlay in the application. */
-export const assertNoFoulTerminalNextPlay = (db: Db, applicationId: string | null): DurableFoulTerminalCompletedApplication | null => {
-  if (applicationId === null) return null;
+type HistoricalTerminalReadiness=ReturnType<ReturnType<typeof foulTerminalNextPlayReadinessFromSqlite>['readHistorical']>;
+const admission = (db: Db, applicationId: string | null, paired: boolean): Readonly<{archive:DurableFoulTerminalCompletedApplication|null;readiness:HistoricalTerminalReadiness|null}> => {
+  if (applicationId === null) return {archive:null,readiness:null};
+  assertSamePaTerminalApplicationCompleted(db, applicationId);
   if (typeof applicationId !== 'string' || !applicationId || applicationId !== applicationId.trim()) {
     throw new Error('invalid terminal pending admission application identity');
   }
@@ -90,7 +90,8 @@ export const assertNoFoulTerminalNextPlay = (db: Db, applicationId: string | nul
   }
   if (selected && (selected.application_id !== applicationId || typeof selected.source_id !== 'string'
     || selected.status !== 'POST_PLAY_COMPLETED_CONTINUING')) reject();
-  const saved = selected ? completion(db,String(selected.source_id)) : null;
+  const readiness = paired && selected ? foulTerminalNextPlayReadinessFromSqlite(db).readHistorical(String(selected.source_id)) : null;
+  const saved = readiness?.archive ?? (selected ? completion(db,String(selected.source_id)) : null);
   if (saved && saved.source.applicationId !== applicationId) reject();
   for (const row of applications) {
     const doc = document(row,'result_json');
@@ -106,7 +107,7 @@ export const assertNoFoulTerminalNextPlay = (db: Db, applicationId: string | nul
   }
   for (const row of rows(db,'matches',['match_id','activation_json'])) {
     const doc = document(row,'activation_json');
-    const games = [row.match_id,...values(db,doc,['pendingPostPlay','matchId'])];
+    const games = [row.match_id,...values(db,doc,['finalResult','gameId']),...values(db,doc,['completion','finalResult','gameId']),...values(db,doc,['pendingPostPlay','matchId'])];
     const plays = [...values(db,doc,['pendingPostPlay','previousPlayId']),...values(db,doc,['completion','activation','previousPlayId']),
       ...values(db,doc,['completion','controllerRetirement','previousPlayId'])];
     if (values(db,doc,['pendingPostPlay','applicationId']).includes(applicationId)
@@ -114,5 +115,14 @@ export const assertNoFoulTerminalNextPlay = (db: Db, applicationId: string | nul
       || values(db,doc,['completion','activation','applicationId']).includes(applicationId)
       || games.some(game => typeof game === 'string' && plays.some(play => typeof play === 'number' && scopes.get(game)?.has(play)))) reject();
   }
-  return saved;
+  return {archive:saved,readiness};
+};
+export const assertNoFoulTerminalNextPlay = (db: Db, applicationId: string | null): DurableFoulTerminalCompletedApplication | null => admission(db,applicationId,false).archive;
+/** Only this owned Native read may carry its completed target through the later
+ * scope census. No caller evidence, mutable cache or cross-operation handoff. */
+export const readFoulTerminalNextPlayAdmission = (db: Db, applicationId: string) => {
+  const {DatabaseSync}=createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  if(!(db instanceof DatabaseSync)||!db.isTransaction||activeBattedWorldFieldReadFrame(db)===null
+    ||db.prepare('PRAGMA query_only').get()!.query_only!==1)throw new Error('paired terminal admission requires an owned Native read frame');
+  return admission(db,applicationId,true);
 };

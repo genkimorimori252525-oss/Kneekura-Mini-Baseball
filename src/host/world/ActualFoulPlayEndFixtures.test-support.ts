@@ -1,6 +1,7 @@
 import { expect } from 'vitest';
 import type { DatabaseSync } from 'node:sqlite';
-import { originalSettledFoulRuntimeFixture } from './ActualSettledFoulStopFixtures.test-support';
+import {cloneInert} from '../../core/adjudication/OfficialWindowPolicy';
+import { attachOriginalSettledFoulRuntime, originalSettledFoulRuntimeFixture } from './ActualSettledFoulStopFixtures.test-support';
 import { openSqliteActualSettledFoulStopProducerStore } from './SqliteActualSettledFoulStopProducerStore';
 import { actualFoulRuleConsumptionEvidenceFromSqlite, openSqliteActualFoulRuleConsumptionStore } from './SqliteActualFoulRuleConsumptionStore';
 import { actualLiveRuntimeEvidenceFromSqlite } from './SqliteActualLivePlayRuntimeStore';
@@ -50,21 +51,21 @@ const ownerCensus = (db: DatabaseSync): readonly FoulOwnerCensusEntry[] => {
   }));
 };
 
-/** Genuine original owners only. This creates a fresh end-policy enrollment
- * before work; it never upgrades the earlier count-policy fixture or writes a
- * physical/end snapshot directly. The proposed end owner is not called here. */
-export const originalFoulEndFixture = (path: string, originalAttempt: 'ordinary_swing' | 'bunt' = 'ordinary_swing') => {
-  const x = originalSettledFoulRuntimeFixture(path, {
-    pitchPhysics: { velocity: { x: 3, y: 0, z: -30 } },
-    originalContact: { precedingTakenPitches: 2, attempt: originalAttempt },
-  });
+export type OriginalFoulEndAttachmentIds=Readonly<{runtimeSourceId:string;stopSourceId:string;countSourceId:string;endpointSourceId:string}>;
+const legacyFoulEndIds:OriginalFoulEndAttachmentIds={runtimeSourceId:'foul-end-runtime',stopSourceId:'foul-end-stop',countSourceId:'foul-end-count',endpointSourceId:'foul-end-quantizer-endpoint'};
+/** Current-play continuation uses accepted root owners; the legacy constructor
+ * below retains its original root-building responsibility and Source bytes. */
+export const attachOriginalFoulEnd=<T extends ReturnType<typeof attachOriginalSettledFoulRuntime>>(path:string,x:T,
+ originalAttempt:'ordinary_swing'|'bunt',rawIds:OriginalFoulEndAttachmentIds)=>{
+ const sourceIds=cloneInert(rawIds),names=Object.values(sourceIds);
+ if(json(Object.keys(sourceIds).sort())!==json(['runtimeSourceId','stopSourceId','countSourceId','endpointSourceId'].sort())||names.length!==4||new Set(names).size!==4||names.some(id=>typeof id!=='string'||!id.length||id.trim()!==id))throw new Error('foul-end attachment requires explicit distinct Source identities');
   try {
-    const originalRootBytes = json(rootBytes(x.f.db));
-    const runtimeSource = { sourceId: 'foul-end-runtime', sourceVersion: 'contract-v1',
+    const originalRootBytes = json(rootBytes(x.f.db)),originalOwnerRows=ownerCensus(x.f.db).map(({owner})=>({owner,rows:x.f.db.prepare("SELECT 1 FROM main.sqlite_master WHERE type='table' AND name=?").get(owner)?x.f.db.prepare('SELECT * FROM main.'+owner+' ORDER BY source_id').all():[]}));
+    const runtimeSource = { sourceId: sourceIds.runtimeSourceId, sourceVersion: 'contract-v1',
       capability: 'causal_original_settled_foul_end_runtime_v1', physicalPitchSourceId: x.physical.source.sourceId };
     x.runtimeSources.set(runtimeSource.sourceId, runtimeSource as never);
     const runtime = x.runtimes.accept(runtimeSource.sourceId), foul = x.advanceToFoul(), policy = x.acceptPolicy(foul.first);
-    const stopSource = { sourceId: 'foul-end-stop', sourceVersion: 'contract-v1',
+    const stopSource = { sourceId: sourceIds.stopSourceId, sourceVersion: 'contract-v1',
       capability: 'actual_original_settled_foul_stop_producer_v1' as const, physicalPitchSourceId: x.physical.source.sourceId,
       runtimeSourceId: runtime.source.sourceId, policySourceId: policy.policySource.sourceId,
       baseFieldSourceId: foul.last.source.sourceId, executionSourceId: null };
@@ -72,7 +73,7 @@ export const originalFoulEndFixture = (path: string, originalAttempt: 'ordinary_
       readAcceptedProduction: id => id === stopSource.sourceId ? stopSource : null,
     }));
     const production = producer.accept(stopSource.sourceId);
-    const countSource = { sourceId: 'foul-end-count', sourceVersion: 'contract-v1',
+    const countSource = { sourceId: sourceIds.countSourceId, sourceVersion: 'contract-v1',
       capability: 'actual_original_settled_foul_rule_consumption_v1' as const,
       runtimeSourceId: runtime.source.sourceId, stopProductionSourceId: production.source.sourceId };
     const counts = x.f.track(openSqliteActualFoulRuleConsumptionStore(path, {
@@ -92,27 +93,39 @@ export const originalFoulEndFixture = (path: string, originalAttempt: 'ordinary_
       return { baseField, fields: fields.scope(baseField, baseFieldSourceId),
         executions: battedWorldFieldExecutionEvidenceFromSqlite(db).scope(baseField, executionSourceId) };
     };
-    const ids = runtime.membership.participants.map(p => p.playerId), beforePrefix = prefix(x.f.db, null);
+    const ids = runtime.membership.participants.map(p => p.playerId), beforePrefix = foul.prefix;
     const selves = actualPlayersKinematicsFromPrefix(ids, beforePrefix), moment = foul.last.field.motion.world.moment;
     const ticksPerSecond = foul.last.response.touch.worldContact.flight.source.execution.ballFlightParameters.ticksPerSecond;
     const boundary = deriveQuantizerClosedGenerationBoundary({ originTick: moment.originTick, throughTick: moment.ball.tick, ticksPerSecond });
-    const executionSource: AcceptedBattedWorldFieldExecution = { sourceId: 'foul-end-quantizer-endpoint', sourceVersion: 'contract-v1',
+    const executionSource: AcceptedBattedWorldFieldExecution = { sourceId: sourceIds.endpointSourceId, sourceVersion: 'contract-v1',
       baseFieldSourceId, previousExecutionSourceId: null, action: { kind: 'owned_motion_v2',
         checkpoint: { kind: 'retained_quantizer_bucket_v1', throughTick: moment.ball.tick },
         knownWork: ownedMotionKnownWorkFromSqlite(x.f.db, x.physical.source.sourceId, ids),
         contributions: selves.map(self => ({ kind: 'retained', playerId: self.playerId, command: self.activeCommand })) } };
     executionSources.set(executionSource.sourceId, executionSource);
     const endpoint = executions.accept(executionSource.sourceId);
-    return { ...x, originalAttempt, originalRootBytes, runtimeSource, runtime, foul, policy, producer, production, counts, count, query, historicalCensus,
+    return { ...x, originalAttempt, originalRootBytes, originalOwnerRows, runtimeSource, runtime, foul, policy, producer, production, counts, count, query, historicalCensus,
       prefix, ids, selves, moment, ticksPerSecond, boundary, executionSource, executionSources, executions, endpoint };
   } catch (error) { x.f.close(); throw error; }
 };
+/** Genuine original owners only. This creates a fresh end-policy enrollment
+ * before work; it never upgrades the earlier count-policy fixture or writes a
+ * physical/end snapshot directly. The proposed end owner is not called here. */
+export const originalFoulEndFixture = (path: string, originalAttempt: 'ordinary_swing' | 'bunt' = 'ordinary_swing') => {
+  const x = originalSettledFoulRuntimeFixture(path, {
+    pitchPhysics: { velocity: { x: 3, y: 0, z: -30 } },
+    originalContact: { precedingTakenPitches: 2, attempt: originalAttempt },
+  });
+  return attachOriginalFoulEnd(path,x,originalAttempt,legacyFoulEndIds);
+};
+
 export type OriginalFoulEndFixture = ReturnType<typeof originalFoulEndFixture>;
+export type AttachedOriginalFoulEnd = ReturnType<typeof attachOriginalFoulEnd>;
 
 /** Fixture applicability, not an end certificate. In this one freshly built DB
  * every governed row is inspected without scope filtering. Other games/opaque
  * rows are tested by the later production census contracts, not accepted here. */
-export const assertOriginalFoulEndPrerequisites = (x: OriginalFoulEndFixture, db = x.f.db) => {
+export const assertOriginalFoulEndPrerequisites = (x: AttachedOriginalFoulEnd, db = x.f.db) => {
   const before = foulEndLogicalBytes(db), runtime = actualLiveRuntimeEvidenceFromSqlite(db).read(x.runtime.source.sourceId);
   expect(runtime).toEqual(x.runtime); expect(runtime!.source.capability).toBe('causal_original_settled_foul_end_runtime_v1');
   expect(runtime!.membership.liveRulePolicy).toBe('untouched_settled_foul_end_v1');
@@ -176,7 +189,9 @@ export const assertOriginalFoulEndPrerequisites = (x: OriginalFoulEndFixture, db
     if (!db.prepare("SELECT 1 FROM main.sqlite_master WHERE type='table' AND name=?").get(owner)) continue;
     const rows = db.prepare('SELECT source_id FROM main.' + owner + ' ORDER BY source_id').all();
     if (roots.has(owner)) continue; // Each real zero-horizon root was authenticated by R and the original physical prefix.
-    expect(rows.map(row => row.source_id)).toEqual(expectedAdmissions.filter(a => a.owner === owner).map(a => a.sourceId).sort());
+    const prior=x.originalOwnerRows.find(value=>value.owner===owner)?.rows??[];
+    for(const row of prior){const stored=db.prepare('SELECT * FROM main.'+owner+' WHERE source_id=?').get(row.source_id);expect(json(stored)).toBe(json(row));}
+    expect(rows.map(row => row.source_id)).toEqual([...prior.map(row=>row.source_id),...expectedAdmissions.filter(a => a.owner === owner).map(a => a.sourceId)].sort());
   }
   expect(foulEndLogicalBytes(db)).toBe(before);
   return { prefix, physical, history, after, baseHistories, admissions, census, ownerCensus: ownerCensus(db) };
