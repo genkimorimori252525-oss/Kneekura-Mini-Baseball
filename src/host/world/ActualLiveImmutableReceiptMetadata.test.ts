@@ -12,9 +12,19 @@ it('rolls back the entire receipt delta when a trigger inserts a hidden capture-
   const dir=mkdtempSync(join(tmpdir(),'review-live-metadata-')), path=join(dir,'receipt.db');
   const source={sourceId:'ack',captureExecutionSourceId:'capture'};
   const derive=(s:typeof source)=>({source:s,revision:1,physicalPitchSourceId:'pitch',ownershipKey:json(['capture',s.captureExecutionSourceId]),history:[s],consumption:{capture:{sourceId:s.captureExecutionSourceId}}});
-  const store=openActualLiveImmutableReceiptStore(path,'actual_live_rule_consumptions',()=>({
-    input:(s:typeof source)=>s,derive,ownershipField:'captureExecutionSourceId' as const,
-  }),()=>source);
+  let privateDb: import('node:sqlite').DatabaseSync | null = null;
+  const store=openActualLiveImmutableReceiptStore(path,'actual_live_rule_consumptions',ownerDb=>{
+    privateDb=ownerDb;
+    return { input:(s:typeof source)=>s, derive:(s:typeof source)=>{
+      expect(ownerDb.isTransaction).toBe(true);
+      expect(ownerDb.prepare('PRAGMA query_only').get()!.query_only).toBe(1);
+      return derive(s);
+    }, ownershipField:'captureExecutionSourceId' as const };
+  },()=>{
+    expect(privateDb!.isTransaction).toBe(false);
+    expect(privateDb!.prepare('PRAGMA query_only').get()!.query_only).toBe(0);
+    return source;
+  });
   const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
   const db=new DatabaseSync(path);
   try {

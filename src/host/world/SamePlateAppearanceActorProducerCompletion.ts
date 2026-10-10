@@ -105,7 +105,9 @@ export const deriveSamePaActorProducerWork=(input:Readonly<{fields:readonly Fiel
     for(const f of fields){
       const r=f.kind==='same_pa_physical_field_step_v1'?f.actionResult:undefined;
       if((r?.kind!=='batter_run_motion_v1'&&r?.kind!=='occupied_runner_motion_v1'&&r?.kind!=='batter_recovery_motion_v1')||r.playerId!==playerId)continue;
-      add('controller_renewal',ref(f),'executed_motion',afterHold(playerId,ref(f)),[f.evaluationTick]);
+      const proof=afterHold(playerId,ref(f));
+      add('controller_renewal',ref(f),'executed_motion',proof,[f.evaluationTick]);
+      if(proof&&r.kind==='occupied_runner_motion_v1')consumedControllerReferences.push(ref(f));
     }
     for(const plan of input.runnerPlans??[]){
       if(plan.playerId!==playerId)continue;
@@ -133,7 +135,7 @@ export const deriveSamePaActorProducerWork=(input:Readonly<{fields:readonly Fiel
       for(const piece of census.exactRunnerControllerPieces??[]){
         if(piece.playerId!==playerId)continue;
         const f=original(piece.controllerReference).f,r=f.kind==='same_pa_physical_field_step_v1'?f.actionResult:undefined;
-        if(r?.kind==='batter_catch_motion_v1'&&json(r.responseReference)===json(hold.commandReference))consumedControllerReferences.push(piece.controllerReference);
+        if((r?.kind==='batter_catch_motion_v1'||r?.kind==='occupied_runner_catch_motion_v1')&&json(r.responseReference)===json(hold.commandReference))consumedControllerReferences.push(piece.controllerReference);
       }
     return{playerId,policyReference:policy.policyReference,observationScheduling:{complete:observationSources.every(s=>s.completion!==undefined),sources:observationSources},
       controllerRenewal:{complete:controllerSources.every(s=>s.completion!==undefined),sources:controllerSources},consumedControllerReferences,hold};

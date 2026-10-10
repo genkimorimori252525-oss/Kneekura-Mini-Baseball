@@ -25,6 +25,8 @@ export type AcceptedActualPostPlayReviewSession = Readonly<{
   baseAppealMode?: 'original_catch_end_v1';
 }>;
 export type ActualPostPlayReviewEventAction =
+  | Readonly<{ kind: 'accept_live_appeal_result'; executionReferences: readonly SamePaReference<'pa_physical_v1_field_steps'>[];
+      callId: string; windowId: string; intentSourceId: string; basisSnapshotId: string; basisEvidenceRevision: number }>
   | Readonly<{ kind: 'admit_live_appeal_rights'; executionReference: SamePaReference<'pa_physical_v1_field_steps'> }>
   | Readonly<{ kind: 'import_live_appeal'; executionReference: SamePaReference<'pa_physical_v1_field_steps'> }>
   | Readonly<{ kind: 'defender_base_appeal'; defenderId: string; runnerId: string; base: 'first' | 'second' | 'third' }>
@@ -50,12 +52,18 @@ export type AcceptedActualPostPlayControlledIntent = Readonly<{
 }>;
 export type AcceptedActualPostPlayOfficialIntent = Pick<AcceptedActualPostPlayControlledIntent,
   'sourceId' | 'sourceVersion' | 'sessionSourceId' | 'gameId' | 'playId' | 'physicalPitchSourceId' | 'callId' | 'windowId' | 'entitlementSourceId'>
-  & Readonly<{ capability: 'actual_post_play_review_official_intent_v1'; officialId: string; action: 'request' }>;
+  & Readonly<{ capability: 'actual_post_play_review_official_intent_v1'; officialId: string }>
+  & (Readonly<{ action: 'request' }> | Readonly<{ action: 'accept_live_appeal_result';
+      executionReferences: readonly SamePaReference<'pa_physical_v1_field_steps'>[];
+      basisSnapshotId: string; basisEvidenceRevision: number }>);
 export type AcceptedActualPostPlayReviewIntent = AcceptedActualPostPlayControlledIntent | AcceptedActualPostPlayOfficialIntent;
 export const postPlayHash = (value: unknown): value is string => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
 export const postPlayRevision = (value: unknown): value is number => Number.isSafeInteger(value) && (value as number) >= 0;
 const ids = (value: readonly string[]) => Array.isArray(value) && value.length > 0
   && value.every(id) && new Set(value).size === value.length;
+const executions = (value: readonly SamePaReference<'pa_physical_v1_field_steps'>[]) => Array.isArray(value) && value.length > 0
+  && value.every(pin => samePaReferenceValid(pin, 'pa_physical_v1_field_steps'))
+  && new Set(value.map(pin => pin.sourceId)).size === value.length;
 
 /** Accepted input only. Native authenticates the seed and all external authority. */
 export const actualPostPlayReviewSessionInput = (raw: unknown, sourceId: string): AcceptedActualPostPlayReviewSession => {
@@ -104,7 +112,11 @@ export const actualPostPlayReviewEventInput = (raw: unknown, sourceId: string): 
     throw new Error('invalid accepted post-play review event Source or parent revision');
   }
   const a = s.action;
-  if (a?.kind === 'import_live_appeal' || a?.kind === 'admit_live_appeal_rights') {
+  if (a?.kind === 'accept_live_appeal_result') {
+    if (!fields(a, ['kind', 'executionReferences', 'callId', 'windowId', 'intentSourceId', 'basisSnapshotId', 'basisEvidenceRevision'])
+      || !executions(a.executionReferences) || ![a.callId, a.windowId, a.intentSourceId, a.basisSnapshotId].every(id)
+      || !postPlayRevision(a.basisEvidenceRevision)) throw new Error('invalid explicit live appeal result acceptance');
+  } else if (a?.kind === 'import_live_appeal' || a?.kind === 'admit_live_appeal_rights') {
     if (!fields(a, ['kind', 'executionReference']) || !samePaReferenceValid(a.executionReference, 'pa_physical_v1_field_steps'))
       throw new Error('invalid original live appeal execution reference');
   } else if (a?.kind === 'defender_base_appeal' || a?.kind === 'defender_runner_body_appeal') {
@@ -131,12 +143,15 @@ export const actualPostPlayReviewIntentInput = (raw: unknown, sourceId: string):
   const s = cloneInert(raw) as AcceptedActualPostPlayReviewIntent;
   if (s?.capability === 'actual_post_play_review_official_intent_v1') {
     if (!fields(s, ['sourceId', 'sourceVersion', 'capability', 'sessionSourceId', 'gameId', 'playId', 'physicalPitchSourceId',
-      'callId', 'windowId', 'entitlementSourceId', 'officialId', 'action'])
-      || s.sourceId !== sourceId || s.action !== 'request' || !postPlayRevision(s.playId)
+      'callId', 'windowId', 'entitlementSourceId', 'officialId', 'action',
+      ...(s.action === 'accept_live_appeal_result' ? ['executionReferences', 'basisSnapshotId', 'basisEvidenceRevision'] : [])])
+      || s.sourceId !== sourceId || !['request', 'accept_live_appeal_result'].includes(s.action) || !postPlayRevision(s.playId)
       || ![s.sourceId, s.sourceVersion, s.sessionSourceId, s.gameId, s.physicalPitchSourceId,
         s.callId, s.windowId, s.entitlementSourceId, s.officialId].every(id)) {
       throw new Error('invalid accepted post-play official intent Source');
     }
+    if (s.action === 'accept_live_appeal_result' && (!executions(s.executionReferences)
+      || !id(s.basisSnapshotId) || !postPlayRevision(s.basisEvidenceRevision))) throw new Error('invalid official appeal result basis');
     return freeze(s);
   }
   if (!fields(s, ['sourceId', 'sourceVersion', 'capability', 'sessionSourceId', 'gameId', 'playId', 'physicalPitchSourceId',

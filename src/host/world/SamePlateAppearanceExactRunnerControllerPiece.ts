@@ -13,7 +13,7 @@ export const samePaExactRunnerControllerPieces = (prefix: readonly Field[]) => {
   const pieces = new Map<string, { playerId: string; reference: ReturnType<typeof reference>; piece: SamePaExactRunnerControllerPiece }>();
   for (const f of prefix) {
     const r = f.kind === 'same_pa_physical_field_step_v1' ? f.actionResult : undefined;
-    if (r?.kind !== 'batter_recovery_motion_v1' && r?.kind !== 'batter_run_motion_v1' && r?.kind !== 'batter_catch_motion_v1' && r?.kind !== 'occupied_runner_motion_v1') continue;
+    if (r?.kind !== 'batter_recovery_motion_v1' && r?.kind !== 'batter_run_motion_v1' && r?.kind !== 'batter_catch_motion_v1' && r?.kind !== 'occupied_runner_motion_v1' && r?.kind !== 'occupied_runner_catch_motion_v1') continue;
     const piece = r.exactControllerPiece;
     if (!piece) { pieces.delete(r.playerId); continue; }
     const at = f.field.motion.world.moment, p = (prefix[0] as SamePaPhysicalFieldRoot).response.world.parameters;
@@ -39,6 +39,9 @@ export const samePaExactRunnerControllerCensus = (prefix: readonly Field[]) => {
 export const assertSamePaExactRunnerControllerOwnership = (source: SamePaPhysicalFieldStepSource, prefix: readonly Field[]) => {
   const a=source.action,kind=a?.kind;
   if(kind==='batter_recovery_motion_v1'||kind==='batter_run_motion_v1'||kind==='batter_catch_motion_v1'||kind==='occupied_runner_motion_v1')return;
+  if(kind==='occupied_runner_catch_motion_v1'&&prefix.some(f=>f.kind==='same_pa_physical_field_step_v1'
+    &&f.actionResult?.kind==='occupied_runner_catch_response_v1'&&f.actionResult.motionBasis
+    &&f.source.sourceId===a.responseReference.sourceId))return;
   if(kind==='defender_observation_v1'||kind==='defender_decision_v1'||kind==='defender_catch_response_v1'
     ||kind==='batter_catch_response_v1'||kind==='occupied_runner_catch_response_v1'||kind==='appeal_indication_v1'
     ||kind==='appeal_contact_v1'||kind==='defender_departure_purpose_v1')return;

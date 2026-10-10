@@ -1,5 +1,6 @@
 import { validateActualFairCatchStationaryRunners, type ActualFairCatchStationaryOccupiedRunners } from '../../core/adjudication/ActualFairCatchScoring';
 import { quantizeEventTick } from '../../core/sim/ExactEventTime';
+import { validateActualFairCatchOccupiedRunnerEvidence, type ActualFairCatchOccupiedRunnerEvidence } from '../../core/rules/FairCatchRunnerOutcome';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { createPlayAdjudicationLedger, recordCorrectRuleSnapshot, recordUnresolvedCorrectRuleSnapshot, recordOnFieldCall } from '../../core/adjudication/PlayAdjudicationLedger';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
@@ -14,8 +15,8 @@ import type { samePaCatchCommunicationObservationAt } from './SamePlateAppearanc
  * accepted judgment; the correct snapshot is never used to select that action. */
 export const deriveSamePaCatchOperativeRuling = (raw: Readonly<{ action: AcceptedSamePaCatchAction; originalMatch: CanonicalMatchState;
   batterRunnerId: string; basisTick: number; basisEvidenceRevision: number; fairCatch: ReturnType<typeof deriveSamePaFairCatchRuleBasis>;
-  occupiedRunners?: ActualFairCatchStationaryOccupiedRunners }>) => {
-  const { action, originalMatch: match, batterRunnerId, basisTick, basisEvidenceRevision, fairCatch, occupiedRunners } = cloneInert(raw);
+  occupiedRunners?: ActualFairCatchStationaryOccupiedRunners; occupiedRunnerEvidence?: ActualFairCatchOccupiedRunnerEvidence }>) => {
+  const { action, originalMatch: match, batterRunnerId, basisTick, basisEvidenceRevision, fairCatch, occupiedRunners, occupiedRunnerEvidence } = cloneInert(raw);
   samePaCatchActionInput(action, action.sourceId);
   if (!batterRunnerId || !Number.isInteger(match.outs) || match.outs < 0 || match.outs > 2
     || !Number.isSafeInteger(basisTick) || basisTick < 0 || basisTick > action.calledAt.tick
@@ -23,12 +24,15 @@ export const deriveSamePaCatchOperativeRuling = (raw: Readonly<{ action: Accepte
   if (action.judgment === 'not_caught') return freeze({ kind: 'active' as const, runnerId: batterRunnerId,
     causeActionSourceId: action.sourceId, onFieldCall: null, ledger: null });
   if (Object.values(match.bases).some(id => id !== null)) {
-    const history = occupiedRunners?.runners[0]?.history;
+    const history = occupiedRunnerEvidence?.runners[0]?.bases[0]?.history ?? occupiedRunners?.runners[0]?.history;
     if (!history || quantizeEventTick(history.originTick, history.endElapsedSeconds, history.ticksPerSecond) !== basisTick)
       throw new Error('occupied caught action requires original stationary runner rule ownership');
-    validateActualFairCatchStationaryRunners({ originalMatch: match, batterRunnerId, originTick: history.originTick,
+    if (occupiedRunnerEvidence) validateActualFairCatchOccupiedRunnerEvidence({ originalMatch: match, batterRunnerId,
+      originTick: history.originTick, ticksPerSecond: history.ticksPerSecond, endElapsedSeconds: history.endElapsedSeconds,
+      runnerEvidence: occupiedRunnerEvidence });
+    else validateActualFairCatchStationaryRunners({ originalMatch: match, batterRunnerId, originTick: history.originTick,
       ticksPerSecond: history.ticksPerSecond, endElapsedSeconds: history.endElapsedSeconds, occupiedRunners });
-  } else if (occupiedRunners) throw new Error('empty caught action has unexpected occupied proof');
+  } else if (occupiedRunners || occupiedRunnerEvidence) throw new Error('empty caught action has unexpected occupied proof');
   let ledger = createPlayAdjudicationLedger({ playId: match.playId, ruleProfileId: match.ruleProfileId, playEnd: null });
   const basis = { eventId: action.sourceId + ':rule-evidence', tick: basisTick, snapshotId: action.sourceId + ':rule-snapshot', evidenceRevision: basisEvidenceRevision };
   ledger = fairCatch.kind === 'same_pa_fair_catch_rule_basis_v1'

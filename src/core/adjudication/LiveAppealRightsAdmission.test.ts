@@ -263,3 +263,61 @@ it('snapshots inert evidence, requires the current revision and exports additive
   expect((publicApi as any).recordOwnedLiveAppealRightsAdmission).toBe((api as any).recordOwnedLiveAppealRightsAdmission);
   expect((publicApi as any).getOwnedLiveAppealRightsAdmissions).toBe((api as any).getOwnedLiveAppealRightsAdmissions);
 });
+
+const originalRightsInput = (held = false): api.OriginalLiveAppealRightsInput => {
+  const original = importedInput('', held), request = input();
+  return { ruleProfileId: NPB_2026_RULE_PROFILE.id, attempt: original.attempt,
+    complianceEvidence: original.complianceEvidence, clock: original.provenance.clock,
+    indicatedAtElapsedSeconds: original.provenance.indicatedAtElapsedSeconds,
+    executedAtElapsedSeconds: original.provenance.executedAtElapsedSeconds,
+    evaluatedThroughElapsedSeconds: 1, evidence: request.evidence };
+};
+
+it('interprets actual original appeal rights before PlayEnd with the unchanged later ledger disposition', () => {
+  for (const held of [false, true]) {
+    const source = originalRightsInput(held), before = JSON.stringify(source);
+    const result = api.interpretOriginalLiveAppealRights(source);
+    expect(result).toEqual(admissions(admit(imported(held), 2, input()))[0].disposition);
+    expect(JSON.stringify(source)).toBe(before);
+    expect(Object.isFrozen(result)).toBe(true);
+    expect(result).not.toHaveProperty('playEnd');
+    expect(result).not.toHaveProperty('ruling');
+  }
+  expect(publicApi.interpretOriginalLiveAppealRights).toBe(api.interpretOriginalLiveAppealRights);
+});
+
+it('preserves exact rights ordering before the separately recorded official import', () => {
+  for (const offset of [-1e-12, 1e-12]) {
+    const source = originalRightsInput();
+    const evidence = { ...source.evidence, window: { openedAtElapsedSeconds: 0,
+      closedAtElapsedSeconds: 1 + offset, closeReason: 'next_pitch_or_play' as const } };
+    const result = api.interpretOriginalLiveAppealRights({ ...source, evaluatedThroughElapsedSeconds: 1.000001, evidence });
+    const request = input(); request.evidence = evidence;
+    expect(result).toEqual(admissions(admit(imported(), 2, request))[0].disposition);
+    expect(result.kind).toBe(offset < 0 ? 'ineligible' : 'eligible');
+  }
+});
+
+it('requires the actual target and execution cut independently of a post-end import', () => {
+  const source = originalRightsInput();
+  const bad: api.OriginalLiveAppealRightsInput[] = [
+    { ...source, attempt: { ...source.attempt, runnerId: 'foreign-runner' } },
+    { ...source, attempt: { ...source.attempt, base: 2 } },
+    { ...source, attempt: { ...source.attempt, tick: source.attempt.tick + 1 } },
+    { ...source, indicatedAtElapsedSeconds: 1 + 1e-12 },
+    { ...source, evaluatedThroughElapsedSeconds: 1 - 1e-12 },
+    { ...source, complianceEvidence: { ...source.complianceEvidence,
+      history: { ...source.complianceEvidence.history, endElapsedSeconds: 1 + 1e-12 } } },
+  ];
+  for (const value of bad) expect(() => api.interpretOriginalLiveAppealRights(value)).toThrow();
+  expect(() => api.interpretOriginalLiveAppealRights({ ...source, playEnd: { tick: 1_000_000 } } as any)).toThrow(/input/);
+});
+
+it('does not execute active rights input or trust a caller disposition', () => {
+  const source: any = originalRightsInput(); let reads = 0;
+  Object.defineProperty(source, 'evidence', { enumerable: true, get() { reads++; return input().evidence; } });
+  expect(() => api.interpretOriginalLiveAppealRights(source)).toThrow(/active properties/);
+  expect(reads).toBe(0);
+  expect(() => api.interpretOriginalLiveAppealRights({ ...originalRightsInput(), disposition: { kind: 'eligible' } } as any))
+    .toThrow(/input/);
+});

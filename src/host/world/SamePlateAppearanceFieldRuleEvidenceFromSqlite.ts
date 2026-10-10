@@ -14,6 +14,8 @@ import { readSamePaPhysicalOperationFromSqlite } from './SamePlateAppearancePhys
 import type { SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep, SamePaPhysicalOperationReference } from './SamePlateAppearancePhysicalEpisode';
 import { deriveSamePaFieldRuleEvidence } from './SamePlateAppearanceFieldRuleEvidence';
 import { deriveSamePaFairCatchRuleBasis } from './SamePlateAppearanceFairCatchRuleBasis';
+import type { ActualFairCatchOccupiedRunnerEvidence } from '../../core/rules/FairCatchRunnerOutcome';
+import { readSamePaRunnerAppealEvidenceFromSqlite } from './SamePlateAppearanceRunnerAppealEvidenceFromSqlite';
 /** Native read-only bridge. Historical reads replay the selected immutable cut;
  * current reads additionally require its complete live work/actual-head census.
  * The caller supplies only an owned view reference, never physical/rule values. */
@@ -61,13 +63,22 @@ export const readSamePaFieldRuleEvidenceWithInputsFromSqlite = (db: DatabaseSync
       ...(evidence.occupiedRunnerBaseContacts ? { tagUp: deriveSamePaOccupiedRunnerTagUp({ match: originalMatch, root, holds, evidence, fields }) } : {}) };
   })() : undefined;
   const occupiedRunners = occupied?.stationary;
-  const fairCatch = occupiedRunners?.kind === 'pending' ? occupiedRunners
-    : deriveSamePaFairCatchRuleBasis({ originalMatch, originalTimeline, evidence, ...(occupiedRunners ? { occupiedRunners } : {}) });
+  const appeals = occupied?.tagUp ? readSamePaRunnerAppealEvidenceFromSqlite(db, fields, evidence.physical.field.evidence.horizon.elapsedSeconds) : undefined;
+  const occupiedRunnerEvidence: ActualFairCatchOccupiedRunnerEvidence | undefined = occupied?.tagUp && evidence.occupiedRunnerBaseContacts
+    ? { kind: 'same_pa_occupied_fair_catch_runner_evidence_v1', runners: occupied.tagUp.runners.map(r => ({ playerId: r.playerId,
+      startingBase: r.startingBase, holdReference: r.holdReference,
+      bases: evidence.occupiedRunnerBaseContacts!.find(h => h.playerId === r.playerId)!.bases })),
+      ...(appeals?.kind === 'ready' && appeals.appeals.length ? { appeals: appeals.appeals } : {}) } : undefined;
+  const fairCatch = appeals?.kind === 'pending' ? appeals
+    : occupiedRunnerEvidence ? deriveSamePaFairCatchRuleBasis({ originalMatch, originalTimeline, evidence, occupiedRunnerEvidence })
+      : occupiedRunners?.kind === 'pending' ? occupiedRunners
+        : deriveSamePaFairCatchRuleBasis({ originalMatch, originalTimeline, evidence, ...(occupiedRunners ? { occupiedRunners } : {}) });
   const value = freeze({ kind: 'same_pa_field_rule_evidence_v1' as const, viewReference, lineage: view.lineage, coverageHash: view.coverageHash,
     physicalPitchReference: cut.physicalPitchReference, physicalOperationReference: cut.physicalOperationReference,
     fieldReferences: fields.map(f => reference(f.kind === 'same_pa_physical_field_root_v1' ? 'pa_physical_v1_field_roots' : 'pa_physical_v1_field_steps', f)),
     evidenceHash: hash(evidence), evidence, originalMatch, originalTimeline,
     contactReference: root.source.resolutionReference, fairCatch, ...(occupiedRunners ? { occupiedRunners } : {}),
+    ...(occupiedRunnerEvidence ? { occupiedRunnerEvidence } : {}),
     ...(occupied?.tagUp ? { occupiedRunnerTagUp: occupied.tagUp } : {}) });
   return Object.freeze({ kind: 'same_pa_field_rule_read_pair_v1' as const, value,
     fields: Object.freeze(fields), actor, view });

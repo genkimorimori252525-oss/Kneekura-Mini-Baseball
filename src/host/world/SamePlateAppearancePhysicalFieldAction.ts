@@ -51,7 +51,8 @@ export type SamePaPhysicalFieldActionResult =
   | SamePaLiveAppealIndication | SamePaLiveAppealContact
   | SamePaOccupiedRunnerMotionResult
   | SamePaOccupiedRunnerCatchResponse
-  | Readonly<{ kind: 'occupied_runner_catch_motion_v1'; responseReference: StepReference; playerId: string; coverageThroughTick: number; planThroughTick: number }>
+  | Readonly<{ kind: 'occupied_runner_catch_motion_v1'; responseReference: StepReference; playerId: string; coverageThroughTick: number; planThroughTick: number;
+      controllerSegmentIndex?:number;exactControllerPiece?:import('./SamePlateAppearanceExactRunnerControllerPiece').SamePaExactRunnerControllerPiece }>
   | SamePaBatterCatchResponse
   | Readonly<{ kind: 'batter_catch_motion_v1'; responseReference: StepReference; playerId: string;
       controllerSegmentIndex: number; coverageThroughTick: number; planThroughTick: number;

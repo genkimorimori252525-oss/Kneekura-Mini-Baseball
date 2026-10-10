@@ -23,6 +23,8 @@ export const samePaCatchOfficialOpeningInputFromSqlite = (db: DatabaseSync, sour
   const ruleEvidence = { ...reference('pa_lifecycle_v1_execution_views', actionView), sourceVersion: actionView.source.sourceVersion };
   return { sourceId, originalMatch: end.originalMatch, physicalEnd: end.playEnd, exactEnd: end.exactEnd,
     ...(end.occupiedRunners ? { occupiedRunners: end.occupiedRunners } : {}),
+    ...(end.occupiedRunnerEvidence ? { runnerOutcomeEvidence: { field: end.scoringEvidence.field,
+      runnerEvidence: end.occupiedRunnerEvidence } } : {}),
     operative: end.operative, policy, callProvenance: { version: 'owned_live_call_import_v1',
       playId: work.lineage.playId, gameId: work.lineage.gameId, physicalPitchSourceId: end.physicalPitchReference.sourceId,
       clock: { originTick: end.exactEnd.originTick, ticksPerSecond: end.scoringEvidence.field.evidence.ticksPerSecond },
@@ -63,7 +65,8 @@ export const deriveSamePaCatchReviewSeedFromSqlite = (db: DatabaseSync, raw: Sam
     playId: scope.playId, physicalPitchSourceId: scope.physicalPitchSourceId,
     ruleProfile: actualLiveAdjudicationProfile(actor.match.ruleProfileId, source.policy), exactEnd: end.exactEnd,
     endReference, kind: opening.pendingReasons.length ? 'official_pending' : 'official_ready',
-    ledger: opening.ledger, pendingReasons: opening.pendingReasons };
+    ledger: opening.ledger, pendingReasons: opening.pendingReasons,
+    ...(opening.fairCatchRunnerOutcome ? { fairCatchRunnerOutcome: opening.fairCatchRunnerOutcome } : {}) };
   return freeze({ seed, scope });
 });
 

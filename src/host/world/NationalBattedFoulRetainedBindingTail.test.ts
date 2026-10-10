@@ -351,3 +351,37 @@ it('reconstructs the saved motor adoption census while new quantizer work still 
   expect(() => firstBaseFixtureKnownWork(players, saved, current, [])).toThrow(/original motor adoption/);
   expect(firstBaseFixtureKnownWork(players, undefined, current)).toBe(work); expect(calls).toBe(1);
 });
+
+const firstBaseRaceCut = () => {
+  const { db, first } = adoptedMotorCut(), pitch = 'national-live:pitch-0', snapshot = { metadataTestOnly: true };
+  const sources = [
+    { sourceId: 'field-race-quantizer-tail', sourceVersion: 'fixture-v1', baseFieldSourceId: 'field-race-candidate-0',
+      previousExecutionSourceId: 'field-race-real-motor', action: { metadataTestOnly: true } },
+    { sourceId: 'field-first-base-race', sourceVersion: 'fixture-v1', baseFieldSourceId: 'field-race-candidate-0',
+      previousExecutionSourceId: 'field-race-quantizer-tail', action: { kind: 'first_base_race', custodyPolicy: 'release_exclusive_v1' } },
+  ];
+  for (const [i, source] of sources.entries()) {
+    db.prepare('INSERT INTO batted_world_field_executions VALUES(?,?,?,?,?,?,?,?,?,?)').run(source.sourceId, pitch, source.baseFieldSourceId,
+      source.previousExecutionSourceId, i + 7, gameId, json(source), hash(source), json(snapshot), hash(snapshot));
+    db.prepare('INSERT INTO actual_live_play_admissions VALUES(?,?,?,?,?,?)').run('live-play-runtime', i + 13,
+      'batted_world_field_executions', source.sourceId, hash(source), hash(snapshot));
+  }
+  db.exec("UPDATE batted_world_field_execution_heads SET source_id='field-first-base-race',revision=8; CREATE TABLE actual_live_rule_consumptions(source_id TEXT)");
+  return { db, first };
+};
+it('admits the returned quantizer and first-base race frontier before its empty rule-consumption owner, without changing rows', () => {
+  const { db, first } = firstBaseRaceCut(); try { const before = rows(db), changes = db.prepare('SELECT total_changes() AS n').get();
+    expect(assertNationalBattedFoulRetainedBindingFrontier(db)).toBe(gameId);
+    expect(() => assertNationalBattedFoulRetainedAcquisitionSources(db, first)).not.toThrow();
+    expect(rows(db)).toEqual(before); expect(db.prepare('SELECT total_changes() AS n').get()).toEqual(changes);
+  } finally { db.close(); }
+});
+it.each([
+  ['missing quantizer predecessor', "DELETE FROM batted_world_field_executions WHERE source_id='field-race-quantizer-tail'"],
+  ['race skips quantizer predecessor', "UPDATE batted_world_field_executions SET previous_source_id='field-race-real-motor' WHERE source_id='field-first-base-race'"],
+  ['rule consumption already committed', "INSERT INTO actual_live_rule_consumptions VALUES('rule-consumption')"],
+])('rejects an unsupported first-base race frontier: %s', (_label, mutation) => {
+  const { db } = firstBaseRaceCut(); try { db.exec(mutation); const before = rows(db);
+    expect(() => assertNationalBattedFoulRetainedBindingFrontier(db)).toThrow(); expect(rows(db)).toEqual(before);
+  } finally { db.close(); }
+});

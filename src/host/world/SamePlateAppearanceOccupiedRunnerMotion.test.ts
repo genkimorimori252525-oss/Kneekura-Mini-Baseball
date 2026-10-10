@@ -143,7 +143,7 @@ it('ORM06 preserves a later foreign replacement horizon and refuses received-res
   h.prefix.push(changed); expect(() => h.move(110_001)).toThrow(/coverage/);
   const other = fixture(); other.prefix.push({ ...other.root, kind: 'same_pa_physical_field_step_v1',
     source: { sourceId: 'received', sourceVersion: 'test' }, actionResult: { kind: 'occupied_runner_catch_response_v1', playerId: 'runner' } });
-  expect(() => other.move(50_000)).toThrow(/supersedes/);
+  expect(() => other.move(50_000)).toThrow(/actual first motor/);
 });
 it('ORM07 consumes the current projected-workload member while retaining the original issued controller', () => {
   const h = fixture(), first = h.move(100_000);

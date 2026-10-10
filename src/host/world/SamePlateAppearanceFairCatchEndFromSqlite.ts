@@ -1,4 +1,8 @@
+import { readSamePaVenueLegalCoverageFromPair } from './SamePlateAppearanceVenueLegalCoverage';
+import { readSamePaLiveBallHistoryFromSqlite } from './SamePlateAppearanceLiveBallStateFromSqlite';
 import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
+import type { ActualFairCatchScoringInput, ActualFairCatchStationaryOccupiedRunners } from '../../core/adjudication/ActualFairCatchScoring';
+import type { ActualFairCatchOccupiedRunnerEvidence, ActualFairCatchOccupiedRunnerOutcome } from '../../core/rules/FairCatchRunnerOutcome';
 import type { DatabaseSync } from 'node:sqlite';
 import { createLivePlayRegistry, resolveLivePlayRegistry, type LivePlaySource } from '../../core/sim/liveAction/LivePlayRegistry';
 import { deriveQuantizerClosedGenerationBoundary } from '../../core/sim/liveAction/QuantizerClosedGenerationBoundary';
@@ -31,16 +35,14 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
   if (root.kind !== 'same_pa_physical_field_root_v1') throw new Error('fair catch end original root missing');
   const occupied = actor.world.runners.length > 0;
   if (census.liveAppeals?.pending.length) return pending('original_live_appeal_execution_required');
-  if (census.liveAppeals?.executed.length) return pending('original_live_appeal_rule_and_rights_consumer_required');
   if (census.defenderDepartures?.purposes.some(p => p.status === 'active'))
     return pending('original_defender_departure_execution_required');
   if (root.source.liveProducerProfile !== (occupied ? 'same_pa_stationary_occupied_catch_v1' : 'same_pa_empty_base_catch_v1'))
     return pending('original_live_producer_profile_required');
-  // An adopted advance can remain physically stationary during reaction. It
-  // still owns motion and cannot use the stationary occupied end profile.
-  if (census.occupiedRunnerMotions?.length) return pending('occupied_runner_moving_controller_end_owner_required');
+  const runnerEvidence = value.occupiedRunnerEvidence;
+  const movingOutcome = !!runnerEvidence;
   const occupiedRunners = value.occupiedRunners;
-  if (occupied && occupiedRunners?.kind !== 'same_pa_stationary_occupied_runners_v1')
+  if (occupied && occupiedRunners?.kind !== 'same_pa_stationary_occupied_runners_v1' && !runnerEvidence)
     return pending('occupied_runner_original_base_contact_history_required');
   const work = readSamePaCatchWorkFromSqlite(db, catchWorkReference), communication = live.communication;
   if (communication.kind !== 'owned_same_pa_catch_communication_v1') return pending('owned_catch_communication_required');
@@ -52,7 +54,7 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
   if (work.operative.kind !== 'retired' || work.operative.runnerId !== actor.binding.playerId) return pending('operative_batter_retirement_required');
   // This policy is authenticated from original actor Sources on this same read
   // cut. Legacy terminal outputs retain their v1 registry and archive shape.
-  const quiescent = occupied && work.operative.onFieldCall.ruling.outsAfter !== 3;
+  const quiescent = occupied && (movingOutcome || work.operative.onFieldCall.ruling.outsAfter !== 3);
   const actorWork = quiescent ? live.actorProducerWork : undefined;
   if (actorWork && json(actorWork.originalFieldPrefix) !== json(census.originalFieldPrefix))
     throw new Error('fair catch end actor producer original prefix differs');
@@ -64,17 +66,42 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
   const controllerComplete = (playerId: string) => domainComplete(actorProof(playerId)?.controllerRenewal);
   const consumedController = (playerId: string, pin: SamePaReference) => controllerComplete(playerId)
     && !!actorProof(playerId)?.consumedControllerReferences.some(r => json(r) === json(pin));
-  if (value.fairCatch.kind !== 'same_pa_fair_catch_rule_basis_v1') return pending('actual_fair_catch_required');
+  if (value.fairCatch.kind !== 'same_pa_fair_catch_rule_basis_v1') return pending(value.fairCatch.reason);
+  if (census.occupiedRunnerMotions?.some(m => !runnerEvidence || !m.supersededBy
+    || !consumedController(m.playerId, m.commandReference) || !consumedController(m.playerId, m.latestMotionReference)
+    || !consumedController(m.playerId, m.supersededBy.responseReference))) return pending('occupied_runner_moving_controller_end_owner_required');
+  const appeals = runnerEvidence?.appeals ?? [];
+  if ((census.liveAppeals?.executed.length ?? 0) !== appeals.length || census.liveAppeals?.executed.some(e =>
+    !appeals.some(a => json(a.executionReference) === json(e.executionReference))))
+    return pending('original_live_appeal_rule_and_rights_consumer_required');
   const originalRule = readSamePaFieldRuleEvidenceWithInputsFromSqlite(db, work.originalInputs.action!.viewReference, 'historical');
-  if (originalRule.kind !== 'same_pa_field_rule_read_pair_v1' || originalRule.value.fairCatch.kind !== 'same_pa_fair_catch_rule_basis_v1')
+  if (originalRule.kind !== 'same_pa_field_rule_read_pair_v1') return pending('original_call_fair_catch_rule_applicability_required');
+  const originalEvidence = originalRule.value.evidence, finalCatch = value.fairCatch;
+  if (originalEvidence.rule.ballEvidence.kind !== 'fly_catch' || originalEvidence.rule.fieldTerritory.kind !== 'resolved'
+    || originalEvidence.rule.fieldTerritory.territory !== 'fair'
+    || json(originalEvidence.rule.ballDecisionMoment) !== json(finalCatch.catchMoment)
+    || json(originalEvidence.rule.fieldTerritory.moment) !== json(finalCatch.territoryMoment))
     return pending('original_call_fair_catch_rule_applicability_required');
-  const originalCatch = originalRule.value.fairCatch, finalCatch = value.fairCatch;
-  if (json(originalCatch.catchMoment) !== json(finalCatch.catchMoment) || json(originalCatch.territoryMoment) !== json(finalCatch.territoryMoment)
-    || json(originalCatch.correctRuling) !== json(finalCatch.correctRuling) || originalCatch.batterRunnerId !== finalCatch.batterRunnerId
-    || json(originalRule.value.evidence.physical.field.evidence.contacts) !== json(value.evidence.physical.field.evidence.contacts)
-    || json(originalRule.value.evidence.physical.field.evidence.acquisitions) !== json(value.evidence.physical.field.evidence.acquisitions)
-    || json(originalRule.value.evidence.physical.field.baseContacts) !== json(value.evidence.physical.field.baseContacts))
+  if (!movingOutcome && originalRule.value.fairCatch.kind !== 'same_pa_fair_catch_rule_basis_v1')
+    return pending('original_call_fair_catch_rule_applicability_required');
+  if (!movingOutcome && originalRule.value.fairCatch.kind === 'same_pa_fair_catch_rule_basis_v1'
+    && json(originalRule.value.fairCatch.correctRuling) !== json(finalCatch.correctRuling))
     return pending('later_rule_relevant_physical_consumer_required');
+  const ballChanged = json(originalEvidence.physical.field.evidence.contacts) !== json(value.evidence.physical.field.evidence.contacts)
+    || json(originalEvidence.physical.field.evidence.acquisitions) !== json(value.evidence.physical.field.evidence.acquisitions);
+  if (json(originalEvidence.physical.field.baseContacts) !== json(value.evidence.physical.field.baseContacts)
+    || ballChanged && !appeals.length) return pending('later_rule_relevant_physical_consumer_required');
+  if (ballChanged) {
+    const venue = readSamePaVenueLegalCoverageFromPair(pair);
+    if (venue.kind === 'pending') return pending(venue.reason);
+    if (venue.coverage.intervals.some(i => i.classification !== 'inside_playable_region')
+      || venue.carrierCoverage.some(c => c.coverage.intervals.some(i => i.classification !== 'inside_playable_region'))
+      || venue.unresolvedCarrierSpans.length) return pending('original_complete_appeal_throw_rights_coverage_required');
+    const history = readSamePaLiveBallHistoryFromSqlite(db, viewReference, mode);
+    if (history.status !== 'live') return pending(history.statusReason ?? 'original_live_ball_at_end_required');
+    if (fields.some(f => f.kind === 'same_pa_physical_field_step_v1' && f.actionResult?.kind === 'throw_plan_v1'
+      && !f.actionResult.appealIndicationReference)) return pending('later_nonappeal_rule_consumer_required');
+  }
   if (value.fairCatch.pendingContacts.length || value.fairCatch.pendingPossession.length || census.pendingPhysical.captures.length
     || census.pendingPhysical.throw || !last.field.motion.cursor || !last.field.motion.carrierPlayerId)
     return pending('live_contact_or_possession_consumer_required');
@@ -82,7 +109,8 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
     && f.actionResult?.kind !== 'defender_observation_v1' && f.actionResult?.kind !== 'defender_decision_v1'
     && f.actionResult?.kind !== 'defender_catch_response_v1' && f.actionResult?.kind !== 'batter_catch_response_v1'
     && f.actionResult?.kind !== 'occupied_runner_catch_response_v1'
-    && f.actionResult?.kind !== 'defender_departure_purpose_v1');
+    && f.actionResult?.kind !== 'defender_departure_purpose_v1'
+    && f.actionResult?.kind !== 'appeal_contact_v1' && f.actionResult?.kind !== 'appeal_indication_v1');
   const boundary = deriveQuantizerClosedGenerationBoundary({ originTick: at.originTick, throughTick: at.tick, ticksPerSecond: p.ticksPerSecond });
   if (seal?.kind !== 'same_pa_physical_field_step_v1' || seal.source.action?.kind !== 'retained_quantizer_checkpoint_v1'
     || seal.actionResult?.kind !== 'retained_quantizer_checkpoint_v1' || seal.actionResult.status !== 'checkpoint_reached'
@@ -135,7 +163,7 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
     return pending('later_runner_base_rule_consumer_required');
   const prefix = readSamePaLifecycleRecordFromSqlite(db, 'prefix', view.source.prefixReference.sourceId);
   if (!prefix || prefix.kind !== 'same_pa_lifecycle_prefix') throw new Error('fair catch end original admission prefix missing');
-  const sources: LivePlaySource[] = [...(census.defenderDepartures?.sources ?? [])];
+  const sources: LivePlaySource[] = [...(census.defenderDepartures?.sources ?? []), ...(census.liveAppeals?.sources ?? [])];
   const sourceId = (domain: string, playerId: string | null) => json([view.lineage.enrollmentReference.sourceId, view.cut.physicalPitchReference.sourceId, domain, playerId]);
   const completion = (basis: unknown) => ({ completion: { completedAtTick: at.tick, basisEventId: json(basis) } });
   const sealReference = reference('pa_physical_v1_field_steps', seal);
@@ -209,7 +237,7 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
     return complete ? { actorId, kind: 'settled_for_play', settledAt: at.tick,
       basisEventId: json({ policyReference: proof.policyReference, hold: proof.hold, sealReference }) } : { actorId, kind: 'acting' };
   });
-  const request = { tick: at.tick, terminal: !occupied || work.operative.onFieldCall.ruling.outsAfter === 3 ? 'all_offense_terminal' as const : 'none' as const,
+  const request = { tick: at.tick, terminal: !occupied || !movingOutcome && work.operative.onFieldCall.ruling.outsAfter === 3 ? 'all_offense_terminal' as const : 'none' as const,
     actors: dispositions };
   // Legacy archives retain their domain registry. New quiescent outcomes also
   // persist every operation-local and actor-policy obligation in that registry.
@@ -221,10 +249,15 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
   // Unproved holds, future delivery and independent unfinished obligations
   // remain in the ordinary frontier; no closure label cancels them.
   if (registry.resolution.kind !== 'ended') return pending('occupied_live_producer_completion_required');
-  const scoringEvidence = { originalTimeline: value.originalTimeline, field: value.evidence.physical.field, playEnd: registry.resolution.playEnd,
-    ...(occupiedRunners?.kind === 'same_pa_stationary_occupied_runners_v1' ? { occupiedRunners } : {}) };
+  const scoringEvidence: ActualFairCatchScoringInput = { originalTimeline: value.originalTimeline, field: value.evidence.physical.field, playEnd: registry.resolution.playEnd,
+    ...(runnerEvidence ? { occupiedRunnerEvidence: runnerEvidence }
+      : occupiedRunners?.kind === 'same_pa_stationary_occupied_runners_v1' ? { occupiedRunners } : {}) };
   const projected = projectActualFairFieldTimeline({ originalTimeline: scoringEvidence.originalTimeline, field: scoringEvidence.field, playEnd: scoringEvidence.playEnd });
   if (projected.kind !== 'projected') return pending('physical_catch_timeline_projection:' + projected.reason);
+  const runnerProof: Readonly<{ occupiedRunners?: ActualFairCatchStationaryOccupiedRunners;
+    occupiedRunnerEvidence?: ActualFairCatchOccupiedRunnerEvidence; runnerOutcome?: ActualFairCatchOccupiedRunnerOutcome }> = runnerEvidence
+    ? { occupiedRunnerEvidence: runnerEvidence, runnerOutcome: finalCatch.runnerOutcome }
+    : occupiedRunners?.kind === 'same_pa_stationary_occupied_runners_v1' ? { occupiedRunners } : {};
   return freeze({ kind: 'same_pa_fair_catch_physical_end_v1' as const, playEnd: registry.resolution.playEnd, exactEnd: at,
     physicalPitchReference: value.physicalPitchReference, physicalOperationReference: value.physicalOperationReference,
     catchWorkReference, originalMatch: value.originalMatch, operative: work.operative, registry,
@@ -237,11 +270,12 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
       bodyBaseHistoryHashes: bodyBaseHistories.map(({ playerId, base, history }) => ({ playerId, base, hash: hash(history) })),
       ruleConsumption: { kind: 'owned_same_pa_fair_catch_rule_consumption_v1' as const, fieldReferences: value.fieldReferences,
         ruleEvidenceHash: value.evidenceHash, originalCallRuleViewReference: originalRule.value.viewReference,
-        originalCallRuleEvidenceHash: originalRule.value.evidenceHash, applicability:'unchanged_original_fair_catch_no_new_contact_or_base_fact' as const,
+        originalCallRuleEvidenceHash: originalRule.value.evidenceHash, applicability: movingOutcome ? 'original_fair_catch_with_composed_runner_rights_v1' as const : 'unchanged_original_fair_catch_no_new_contact_or_base_fact' as const,
+        ...(movingOutcome ? { runnerEvidenceHash: hash(runnerEvidence), runnerOutcome: finalCatch.runnerOutcome } : {}),
         consumedAt: at, batterRunnerId: actor.binding.playerId },
       receivedControllerHandoffs: communication.recipients.flatMap(r => r.controllerResponse.kind === 'adopted'
         ? [{ playerId: r.playerId, responseReference: r.controllerResponse.evidence.responseReference,
           adoptionReference: r.controllerResponse.evidence.consumerReference, sealReference: reference('pa_physical_v1_field_steps', seal) }] : []) },
-    ...(occupiedRunners?.kind === 'same_pa_stationary_occupied_runners_v1' ? { occupiedRunners } : {}), scoringEvidence, timeline: projected.timeline });
+    ...runnerProof, scoringEvidence, timeline: projected.timeline });
 });
 export type SamePaFairCatchPhysicalEnd = Extract<ReturnType<typeof deriveSamePaFairCatchEndFromSqlite>, { kind: 'same_pa_fair_catch_physical_end_v1' }>;

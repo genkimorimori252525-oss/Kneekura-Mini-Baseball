@@ -4,11 +4,12 @@ import { closeOfficialStateWindow, getOfficialStateWindows, recordReviewDecision
 import { selectControlledDecision } from '../../core/world/control/ControlledDecision';
 import { attributeExecutedDecision } from '../../core/world/control/DecisionEvidence';
 import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { acceptPostPlayLiveAppealResult } from './ActualPostPlayLiveAppealRuling';
 import { actualLivePlayFields as fields } from './ActualLivePlayScope';
 import { actualPostPlayReviewEventInput, actualPostPlayReviewIntentInput,
   type AcceptedActualPostPlayReviewEvent, type AcceptedActualPostPlayReviewIntent,
   type ActualPostPlayReviewEventAction } from './ActualPostPlayReviewSource';
-import { initializePostPlayReview, finalizePostPlayReview, postPlayOpenState, originalPostPlayCall,
+import { initializePostPlayReview, finalizePostPlayReview, postPlayOpenState, originalPostPlayCall, postPlayFairCatchRunnerRuling,
   type ActualPostPlayReviewProjection, type ActualPostPlayReviewRequest, type PostPlayBaseAppealExecution,
   type PostPlayLiveAppealImport, type PostPlayLiveAppealRights } from './ActualPostPlayReviewState';
 
@@ -43,10 +44,14 @@ const validateIntent = (previous: ActualPostPlayReviewProjection, source: Accept
 };
 
 const validateOfficialIntent = (previous: ActualPostPlayReviewProjection,
-  action: Extract<ActualPostPlayReviewEventAction, { kind: 'official_request' }>, raw: AcceptedActualPostPlayReviewIntent | null) => {
+  action: Extract<ActualPostPlayReviewEventAction, { kind: 'official_request' | 'accept_live_appeal_result' }>, raw: AcceptedActualPostPlayReviewIntent | null) => {
   if (raw === null) throw new Error('accepted post-play official intent is missing');
   const intent = actualPostPlayReviewIntentInput(raw, action.intentSourceId);
   if (intent.capability !== 'actual_post_play_review_official_intent_v1') throw new Error('official post-play intent capability differs');
+  if (intent.action !== (action.kind === 'official_request' ? 'request' : 'accept_live_appeal_result')
+    || action.kind === 'accept_live_appeal_result' && (intent.action !== action.kind
+      || json(intent.executionReferences) !== json(action.executionReferences) || intent.basisSnapshotId !== action.basisSnapshotId
+      || intent.basisEvidenceRevision !== action.basisEvidenceRevision)) throw new Error('official appeal intent action or basis differs');
   const entitlement = previous.source.policy?.opportunities.find(o => o.windowId === action.windowId), { seed } = previous;
   if (!entitlement || intent.sessionSourceId !== previous.source.sourceId || intent.gameId !== seed.gameId
     || intent.playId !== seed.playId || intent.physicalPitchSourceId !== seed.physicalPitchSourceId
@@ -70,7 +75,7 @@ const reduce = (previous: ActualPostPlayReviewProjection, raw: AcceptedActualPos
   if (source.parent.sourceId !== previous.headSourceId || source.parent.snapshotHash !== previous.headHash) throw new Error('post-play parent hash differs');
   if (source.sourceId === previous.source.sourceId || previous.events.some(e => e.source.sourceId === source.sourceId)) throw new Error('duplicate post-play event Source');
   if (previous.revision === Number.MAX_SAFE_INTEGER) throw new Error('post-play Native revision overflow');
-  if (action.kind !== 'request' && action.kind !== 'decline' && action.kind !== 'official_request'
+  if (action.kind !== 'request' && action.kind !== 'decline' && action.kind !== 'official_request' && action.kind !== 'accept_live_appeal_result'
     && intentInput !== null) throw new Error('unexpected post-play intent evidence');
   const policy = previous.source.policy;
   let ledger = previous.ledger, cursor = previous.cursor;
@@ -79,7 +84,16 @@ const reduce = (previous: ActualPostPlayReviewProjection, raw: AcceptedActualPos
     && baseAppeal !== undefined) throw new Error('unexpected physical base appeal evidence');
   if (action.kind !== 'import_live_appeal' && liveAppealImport !== undefined) throw new Error('unexpected owned live appeal import evidence');
   if (action.kind !== 'admit_live_appeal_rights' && liveAppealRights !== undefined) throw new Error('unexpected live appeal rights evidence');
-  if (action.kind === 'admit_live_appeal_rights') {
+  if (action.kind === 'accept_live_appeal_result') {
+    intent = validateOfficialIntent(previous, action, intentInput).intent;
+    const window = getOfficialStateWindows(ledger).find(w => w.windowId === action.windowId);
+    if (!window || window.closedAtTick !== null || requests.some(r => r.windowId === action.windowId)
+      || evaluateRuleProfileOfficialWindowTiming(ledger, previous.ruleProfile, action.windowId, cursor.tick) !== 'timely')
+      throw new Error('official appeal acceptance requires an unused timely assigned opportunity');
+    ledger = acceptPostPlayLiveAppealResult(previous, source);
+    ledger = closeOfficialStateWindow(ledger, ledger.revision, { eventId: source.sourceId + ':accepted', tick: cursor.tick,
+      windowId: action.windowId, reason: 'resolved' });
+  } else if (action.kind === 'admit_live_appeal_rights') {
     if (!liveAppealRights || !fields(liveAppealRights, ['provenance', 'evidence'])) throw new Error('original live appeal rights evidence required');
     const p = liveAppealRights.provenance, original = p.originalImport, execution = original.execution;
     if (json({owner:execution.owner,sourceId:execution.sourceId,sourceHash:execution.sourceHash,snapshotHash:execution.snapshotHash}) !== json(action.executionReference)
@@ -177,7 +191,8 @@ const reduce = (previous: ActualPostPlayReviewProjection, raw: AcceptedActualPos
       let pendingReason: string | null = null;
       if (action.decision === 'overturned') {
         if (!('ruling' in latest)) pendingReason = 'review_replacement_evidence_unresolved';
-        else if (latest.ruling.basesAfter.second !== null || latest.ruling.basesAfter.third !== null || latest.ruling.scoredRunnerIds.length) {
+        else if ((latest.ruling.basesAfter.second !== null || latest.ruling.basesAfter.third !== null || latest.ruling.scoredRunnerIds.length)
+          && !postPlayFairCatchRunnerRuling(previous.seed, ledger)) {
           pendingReason = 'review_replacement_placement_unsupported';
         }
       }

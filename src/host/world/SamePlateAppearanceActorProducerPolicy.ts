@@ -3,7 +3,7 @@ import type { SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep } from './SamePla
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { actorFreeze as freeze, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
-import type { RunnerMotionTrajectory } from '../../core/sim/running/RunnerMotion';
+import type { RunnerMotionTrajectory, ExactRunnerMotionTrajectory } from '../../core/sim/running/RunnerMotion';
 
 export const SAME_PA_ACTOR_PRODUCER_POLICY = 'consume_issued_work_reconsider_information_v1' as const;
 export type SamePaActorProducerPolicy = typeof SAME_PA_ACTOR_PRODUCER_POLICY;
@@ -41,7 +41,7 @@ export const samePaCurrentStoppedHold = (fields: readonly Field[], playerId: str
       const state=samplePiecewiseFieldActor(a,f.field.motion.world.moment),initial=samplePiecewiseFieldActor(original,root.field.motion.world.moment);
       return json(state.center)===json(initial.center)&&Object.values(state.velocity).every(n=>n===0)&&Object.values(a.primitive.acceleration).every(n=>n===0);
     });});
-  let adopted: {index:number;commandReference:SamePaReference;consumerReference:SamePaReference;startedAtElapsedSeconds:number;trajectory?:RunnerMotionTrajectory;originalStationary?:true}|null=originalUnchanged?{index:0,commandReference:ref(root),consumerReference:ref(root),startedAtElapsedSeconds:at(root).elapsedSeconds,originalStationary:true}:null;
+  let adopted: {index:number;commandReference:SamePaReference;consumerReference:SamePaReference;startedAtElapsedSeconds:number;trajectory?:RunnerMotionTrajectory|ExactRunnerMotionTrajectory;originalStationary?:true}|null=originalUnchanged?{index:0,commandReference:ref(root),consumerReference:ref(root),startedAtElapsedSeconds:at(root).elapsedSeconds,originalStationary:true}:null;
   for(const [index,f] of fields.entries()){
     if(f.kind!=='same_pa_physical_field_step_v1')continue;
     const a=f.source.action,r=f.actionResult;
@@ -59,12 +59,12 @@ export const samePaCurrentStoppedHold = (fields: readonly Field[], playerId: str
       const prior=adopted?.commandReference;
       if(!prior||json(prior)!==json(a.responseReference))adopted={index,commandReference:a.responseReference,consumerReference:ref(f),
         startedAtElapsedSeconds:(response.reactionTick-at(f).originTick)/f.field.motion.actors[0].primitive.ticksPerSecond,
-        ...(response.kind==='batter_catch_response_v1'?{trajectory:response.controller.trajectory}:{})};
+        ...(response.kind==='batter_catch_response_v1'?{trajectory:response.controller.trajectory}:response.controller?{trajectory:response.exactTrajectory??response.controller.trajectory}:{})};
     }else if((r?.kind==='batter_run_motion_v1'||r?.kind==='occupied_runner_motion_v1'||r?.kind==='batter_recovery_motion_v1')&&r.playerId===playerId)adopted=null;
   }
   if(!adopted)return null;
   if(adopted.trajectory){
-    const trajectory=adopted.trajectory,elapsed=at(last).elapsedSeconds-(trajectory.startTick-at(last).originTick)/trajectory.ticksPerSecond;
+    const trajectory=adopted.trajectory,elapsed=at(last).elapsedSeconds-('origin' in trajectory?trajectory.origin.elapsedSeconds:(trajectory.startTick-at(last).originTick)/trajectory.ticksPerSecond);
     if(trajectory.segments.some(s=>s.endElapsedSeconds>elapsed&&(s.accelerationMps2!==0||s.startSpeedMps!==0||s.driveDirection!==0||s.bodyMode!=='upright')))return null;
   }
   const stopped=(f:Field)=>{

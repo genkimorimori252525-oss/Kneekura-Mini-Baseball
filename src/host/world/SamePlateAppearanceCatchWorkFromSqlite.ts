@@ -70,13 +70,14 @@ const derive = (db: DatabaseSync, s: AcceptedSamePaCatchWork, raw: SamePaCatchWo
   const actionBasis = readSamePaFieldRuleEvidenceFromSqlite(db, originals.action!.viewReference, 'historical');
   if (actionBasis.kind !== 'same_pa_field_rule_evidence_v1') throw new Error('original catch action rule basis missing');
   if (originals.action!.judgment === 'caught' && Object.values(actionBasis.originalMatch.bases).some(id => id !== null)
-    && actionBasis.occupiedRunners?.kind !== 'same_pa_stationary_occupied_runners_v1')
+    && actionBasis.occupiedRunners?.kind !== 'same_pa_stationary_occupied_runners_v1' && !actionBasis.occupiedRunnerEvidence)
     return pending('occupied_runner_original_base_contact_history_required');
   const operative = deriveSamePaCatchOperativeRuling({ action: originals.action!, originalMatch: actionBasis.originalMatch,
     batterRunnerId: actionBasis.evidence.physical.field.evidence.batterRunnerId,
     basisTick: actionBasis.evidence.physical.field.evidence.horizon.ball.tick, basisEvidenceRevision: actionBasis.fieldReferences.length,
     fairCatch: actionBasis.fairCatch, ...(actionBasis.occupiedRunners?.kind === 'same_pa_stationary_occupied_runners_v1'
-      ? { occupiedRunners: actionBasis.occupiedRunners } : {}) });
+      ? { occupiedRunners: actionBasis.occupiedRunners } : {}),
+    ...(actionBasis.occupiedRunnerEvidence ? { occupiedRunnerEvidence: actionBasis.occupiedRunnerEvidence } : {}) });
   return freeze({ kind: 'same_pa_catch_work_v1', source: s, lineage: b.view.lineage, physicalPitchReference: cut.physicalPitchReference,
     physicalOperationReference: cut.physicalOperationReference, evaluationTick: cut.evaluationTick, originalInputs: originals,
     communication: proposal, operative, fieldCoverageHash: physicalCoverageHash, fieldCensusHash: censusHash });

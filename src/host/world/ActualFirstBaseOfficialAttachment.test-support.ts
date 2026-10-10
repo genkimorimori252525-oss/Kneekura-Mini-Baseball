@@ -19,12 +19,13 @@ import type { AcceptedActualLivePlayClosure } from './ActualLivePlayClosureSourc
 export type ActualFirstBaseOfficialRoot = Pick<ReturnType<typeof attachActualFirstBasePlayEndFixture>,
   'f' | 'pitchId' | 'source' | 'captured' | 'executions'> & Readonly<{
     runtime: DurableActualLivePlayRuntime; baseField: DurableBattedWorldFieldAction;
+    retainedRace?: ReturnType<typeof attachActualFirstBasePlayEndFixture>['retainedRace'];
   }>;
 
 /** Original positive-test calibration and official policy attached to the
  * caller's existing physical owners. No physical result or identity is replaced. */
 export const attachActualFirstBaseOfficialFixture = <T extends ActualFirstBaseOfficialRoot>(path: string, x: T) => {
-  const race = x.executions.accept(x.source.sourceId);
+  const race = x.retainedRace ?? x.executions.accept(x.source.sourceId);
   if (race.execution.kind !== 'first_base_race') throw new Error('original first-base race owner is missing');
   const p = playerObservationCalibrationFixture();
   const tps = x.baseField.response.touch.worldContact.flight.source.execution.ballFlightParameters.ticksPerSecond;

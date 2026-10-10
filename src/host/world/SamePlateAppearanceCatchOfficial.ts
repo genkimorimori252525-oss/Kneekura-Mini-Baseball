@@ -7,22 +7,25 @@ import { createPlayAdjudicationLedger, recordCorrectRuleSnapshot, recordUnresolv
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
 import type { PlayEndFact } from '../../core/rules/PhysicalRuleFacts';
 import { quantizeEventTick } from '../../core/sim/ExactEventTime';
+import { deriveActualFairCatchOccupiedRunnerOutcome, type ActualFairCatchOccupiedRunnerEvidence } from '../../core/rules/FairCatchRunnerOutcome';
+import type { ActualFairFieldTimelineInput } from '../../core/sim/plateAppearance/ActualFairFieldTimeline';
 import { actualLiveAdjudicationProfile, type ActualLiveOfficialPolicy } from './ActualLiveAdjudicationSource';
 import type { ActualObservationMoment } from './ActualFieldObservation';
 import type { SamePaCatchOperativeRuling } from './SamePlateAppearanceCatchOperativeRuling';
 import { samePaFields as fields, samePaText as text } from './SamePlateAppearanceWorkPrefix';
-import { actorFreeze as freeze, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { actorFreeze as freeze, actorJson as json, actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 
 export type SamePaCatchOfficialScheduler = Readonly<{ sourceId: string; sourceVersion: string; schedulerId: string;
   events: readonly Readonly<{ sourceId: string; sourceVersion: string; schedulerId: string; kind: 'advance_tick' | 'next_play_fence' }>[] }>;
 export type SamePaCatchOfficialOpeningInput = Readonly<{ sourceId: string; originalMatch: CanonicalMatchState; physicalEnd: PlayEndFact;
   exactEnd: ActualObservationMoment; operative: Extract<SamePaCatchOperativeRuling, { kind: 'retired' }>;
   callProvenance: OwnedLiveCallImportProvenance; policy?: ActualLiveOfficialPolicy | null;
-  occupiedRunners?: ActualFairCatchStationaryOccupiedRunners }>;
+  occupiedRunners?: ActualFairCatchStationaryOccupiedRunners;
+  runnerOutcomeEvidence?: Readonly<{ field: ActualFairFieldTimelineInput['field']; runnerEvidence: ActualFairCatchOccupiedRunnerEvidence }> }>;
 export type SamePaCatchOfficialInput = SamePaCatchOfficialOpeningInput & Readonly<{ scheduler: SamePaCatchOfficialScheduler;
   reviewed?: import('./ActualPostPlayReviewState').ActualPostPlayReviewProjection }>;
 export type SamePaCatchOfficial = Readonly<{ ledger: PlayAdjudicationLedger; evaluationTick: number;
-  originalOperativeLedger: PlayAdjudicationLedger; appealApplicability: ActualFairCatchAppealApplicability }> & (
+  originalOperativeLedger: PlayAdjudicationLedger; appealApplicability: ActualFairCatchAppealApplicability | 'original_runner_rights_composed_v1' }> & (
   Readonly<{ kind: 'closed' }> | Readonly<{ kind: 'pending'; pendingReasons: readonly string[] }>);
 
 /** Native supplies an independently proved end and authenticates every original
@@ -46,7 +49,15 @@ export const deriveSamePaCatchOfficialOpening = (raw: SamePaCatchOfficialOpening
     || quantizeEventTick(operative.at.originTick, operative.at.elapsedSeconds, provenance.clock.ticksPerSecond) !== operative.at.tick) {
     throw new Error('same-PA catch official original scope, physical end or call clock differs');
   }
-  const appealApplicability = validateActualFairCatchStationaryRunners({ originalMatch: match, batterRunnerId: operative.runnerId,
+  const runnerOutcome = input.runnerOutcomeEvidence ? deriveActualFairCatchOccupiedRunnerOutcome({ originalMatch: match,
+    ...input.runnerOutcomeEvidence }) : undefined;
+  if (runnerOutcome?.kind === 'pending') throw new Error('same-PA catch official runner outcome unresolved: ' + runnerOutcome.reason);
+  if (input.runnerOutcomeEvidence && (input.runnerOutcomeEvidence.field.evidence.batterRunnerId !== operative.runnerId
+    || input.runnerOutcomeEvidence.field.evidence.originTick !== exactEnd.originTick
+    || input.runnerOutcomeEvidence.field.evidence.horizon.elapsedSeconds !== exactEnd.elapsedSeconds
+    || input.runnerOutcomeEvidence.field.evidence.ticksPerSecond !== provenance.clock.ticksPerSecond))
+    throw new Error('same-PA catch official runner outcome exact end differs');
+  const appealApplicability = runnerOutcome ? 'original_runner_rights_composed_v1' as const : validateActualFairCatchStationaryRunners({ originalMatch: match, batterRunnerId: operative.runnerId,
     originTick: exactEnd.originTick, ticksPerSecond: provenance.clock.ticksPerSecond,
     endElapsedSeconds: exactEnd.elapsedSeconds, occupiedRunners: input.occupiedRunners });
   const expectedRuling = { outsAfter: match.outs + 1, basesAfter: match.bases, scoredRunnerIds: [] };
@@ -68,15 +79,28 @@ export const deriveSamePaCatchOfficialOpening = (raw: SamePaCatchOfficialOpening
   }
   ledger = recordOwnedLiveCallImport(ledger, ledger.revision, { eventId: sourceId + ':call-import', tick: physicalEnd.tick,
     call: operative.onFieldCall, provenance });
+  // Final runner rights may resolve only after the immutable caught call. Store
+  // that newer truth independently; an accepted review must update the call.
+  if (runnerOutcome && (!('ruling' in original.latestCorrectRule)
+    || json(original.latestCorrectRule.ruling) !== json(runnerOutcome.correctRuling))) {
+    ledger = recordCorrectRuleSnapshot(ledger, ledger.revision, { eventId: sourceId + ':runner-rule-evidence', tick: physicalEnd.tick,
+      snapshotId: operative.causeActionSourceId + ':runner-rule-snapshot:' + hash(input.runnerOutcomeEvidence), evidenceRevision: original.latestCorrectRule.evidenceRevision + 1,
+      ruling: runnerOutcome.correctRuling });
+  }
+  const current = getPlayAdjudicationState(ledger);
+  if (current.kind !== 'official_adjudication_open') throw new Error('catch official opening unexpectedly closed');
   const reasons: string[] = [];
-  if (operative.onFieldCall.basisSnapshotId !== original.latestCorrectRule.snapshotId
-    || operative.onFieldCall.basisEvidenceRevision !== original.latestCorrectRule.evidenceRevision) reasons.push('on_field_call_stale');
+  if (operative.onFieldCall.basisSnapshotId !== current.latestCorrectRule.snapshotId
+    || operative.onFieldCall.basisEvidenceRevision !== current.latestCorrectRule.evidenceRevision) reasons.push('on_field_call_stale');
+  if (input.runnerOutcomeEvidence?.runnerEvidence.appeals?.length) reasons.push('original_live_appeal_official_judgment_required');
   for (const kind of ['appeal', 'review', 'challenge'] as const) {
     const policy = profile.officialWindows?.[kind];
     if (!policy) reasons.push('official_window_policy_unconfigured:' + kind);
     else if (kind !== 'appeal' && policy.available) reasons.push('official_window_owner_unavailable:' + kind);
   }
   return freeze({ ledger, evaluationTick: physicalEnd.tick, originalOperativeLedger: operative.ledger,
+    ...(runnerOutcome ? { fairCatchRunnerOutcome: { originalMatch: match, ...input.runnerOutcomeEvidence!,
+      snapshotId: current.latestCorrectRule.snapshotId, evidenceRevision: current.latestCorrectRule.evidenceRevision } } : {}),
     appealApplicability, pendingReasons: reasons });
 };
 
@@ -109,6 +133,7 @@ export const deriveSamePaCatchOfficial = (raw: SamePaCatchOfficialInput): SamePa
       ['CorrectRuleSnapshotRecorded', 'UnresolvedCorrectRuleSnapshotRecorded', 'OwnedLiveCallImported'].includes(e.kind))
       .map(({ eventId: _eventId, ...event }) => event);
     if (review.kind !== 'official_ready' || review.pendingReasons.length || json(facts(review.seed.ledger)) !== json(facts(opening.ledger))
+      || json(review.seed.fairCatchRunnerOutcome ?? null) !== json(opening.fairCatchRunnerOutcome ?? null)
       || json(review.ruleProfile) !== json(profile) || review.cursor.tick < evaluationTick) throw new Error('reserved catch reviewed ledger or original seed differs');
     ledger = review.ledger; evaluationTick = review.cursor.tick;
   } else if (opening.pendingReasons.length) return pending(opening.pendingReasons);
@@ -123,7 +148,8 @@ export const deriveSamePaCatchOfficial = (raw: SamePaCatchOfficialInput): SamePa
     try {
       ledger = advanceRuleProfileOfficialWindows(ledger, ledger.revision, { profile,
         boundary: event.kind === 'advance_tick' ? 'expiration' : 'next_play_fence', tick: evaluationTick,
-        eventIdPrefix: event.sourceId, inningEnding: operative.onFieldCall.ruling.outsAfter === 3 });
+        eventIdPrefix: event.sourceId, inningEnding: !opening.fairCatchRunnerOutcome ? operative.onFieldCall.ruling.outsAfter === 3 : (() => { const state = getPlayAdjudicationState(ledger);
+          return state.kind === 'official_adjudication_open' && 'ruling' in state.latestCorrectRule && state.latestCorrectRule.ruling.outsAfter === 3; })() });
     } catch (error) {
       if (error instanceof Error && ['official-state window remains open under RuleProfile', 'same-tick appeal boundary is unresolved'].includes(error.message)) return pending([error.message]);
       throw error;

@@ -1,3 +1,4 @@
+import { deriveBallWorldPlayerBaseContactHistory } from '../../core/sim/ball/BallWorldPlayerBaseContactHistory';
 import { deriveSamePaStationaryOccupiedRunners, type SamePaStationaryHoldBasis } from './SamePlateAppearanceStationaryOccupiedRunners';
 import { expect, it, vi } from 'vitest';
 import type { DatabaseSync } from 'node:sqlite';
@@ -342,3 +343,41 @@ it.each([0, 1, 3])('preserves complete archived terminal output with %s occupied
   withActorCompletion(h);
   expect(h.run()).toEqual(before);
 });
+
+it.each(['complete', 'unconsumed_command', 'unconsumed_latest', 'no_adoption', 'new_information'] as const)(
+  'connects resolved moving runner rights only with its own completed controller: %s', fault => {
+    const h = withActorCompletion(setup('dropped', 1, 0, true)), runner = h.pair.value.occupiedRunners!.runners[0];
+    // Native-authenticated structural seam: the complete contact evidence here
+    // supports the original base, while the historical motion obligation remains.
+    const occupiedRunnerEvidence = { kind: 'same_pa_occupied_fair_catch_runner_evidence_v1' as const, runners: [{
+      playerId: runner.playerId, startingBase: runner.startingBase, holdReference: runner.holdReference,
+      bases: (['home', 'first', 'second', 'third'] as const).map(base => ({ base,
+        history: deriveBallWorldPlayerBaseContactHistory({ segments: h.pair.value.evidence.physical.segments,
+          playerId: runner.playerId, base: h.root.geometry.baseGeometry.bases[base].region,
+          baseSurfaceHeightMeters: h.root.geometry.baseGeometry.bases[base].surfaceHeightMeters }) })),
+    }] };
+    const fairCatch = deriveSamePaFairCatchRuleBasis({ originalMatch: h.pair.value.originalMatch,
+      originalTimeline: h.pair.value.originalTimeline, evidence: h.pair.value.evidence, occupiedRunnerEvidence });
+    expect(fairCatch.kind).toBe('same_pa_fair_catch_rule_basis_v1');
+    mocks.pair = { ...h.pair, value: { ...h.pair.value, occupiedRunners: { kind: 'pending', reason: 'moving' }, occupiedRunnerEvidence, fairCatch } };
+    mocks.original = { ...h.original, value: { ...h.original.value, fairCatch: { kind: 'pending', reason: 'stopped_between_bases' } } };
+    const commandReference = fieldRef(h.pair.fields[1]), latestMotionReference = fieldRef(h.seal), responseReference = fieldRef(h.root);
+    const actor = h.actorProducerWork.actors.find(a => a.playerId === runner.playerId)!;
+    actor.consumedControllerReferences = [commandReference, latestMotionReference, responseReference];
+    if (fault === 'unconsumed_command') actor.consumedControllerReferences = [latestMotionReference, responseReference];
+    if (fault === 'unconsumed_latest') actor.consumedControllerReferences = [commandReference, responseReference];
+    if (fault === 'new_information') actor.controllerRenewal.complete = false;
+    mocks.live = { ...h.live, census: { ...h.live.census, occupiedRunnerMotions: [{ playerId: runner.playerId,
+      commandReference, latestMotionReference, adopted: true, work: [],
+      ...(fault === 'no_adoption' ? {} : { supersededBy: { responseReference, adoptionReference: latestMotionReference } }) }] } };
+    const result = h.run();
+    if (fault !== 'complete') expect(result).toEqual({ kind: 'pending', reason: 'occupied_runner_moving_controller_end_owner_required' });
+    else {
+      expect(result.kind).toBe('same_pa_fair_catch_physical_end_v1');
+      if (result.kind === 'pending') throw new Error(result.reason);
+      expect(result.scoringEvidence.occupiedRunnerEvidence).toEqual(occupiedRunnerEvidence);
+      expect(result.generation.ruleConsumption).toMatchObject({ applicability: 'original_fair_catch_with_composed_runner_rights_v1',
+        runnerOutcome: { finalRunnerLedger: { bases: h.pair.value.originalMatch.bases, scoredRunnerIds: [], retiredRunnerIds: ['batter'] } } });
+      expect(result.registry.frontier.actors.every(a => a.kind === 'settled_for_play')).toBe(true);
+    }
+  });

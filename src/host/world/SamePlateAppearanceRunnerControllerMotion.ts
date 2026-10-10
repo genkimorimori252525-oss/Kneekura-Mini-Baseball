@@ -114,7 +114,16 @@ export const deriveSamePaRunnerControllerMotion = (input: SamePaRunnerController
   const acceleration = { x: tangent.x * segment.accelerationMps2, y: 0, z: tangent.z * segment.accelerationMps2 };
   const commands = motion.actors.map(a => ({ playerId: a.playerId, role: a.primitive.role,
     acceleration: a.playerId === playerId ? acceleration : a.primitive.acceleration }));
-  const basis = { response: root.response, geometry: root.geometry, actors: motion.actors, cursor: motion.cursor,
+  // A newly adopted analytic rest piece owns exact zero velocity. The body
+  // above already matched that canonical state under the existing arithmetic
+  // continuity check; retain its exact centers and original preceding history.
+  // Without this reanchor, roundoff from braking would become perpetual drift.
+  const canonicalRest=segment.startSpeedMps===0&&segment.accelerationMps2===0&&segment.driveDirection===0
+    &&expected.velocity.x===0&&expected.velocity.z===0;
+  const adoptionActors=canonicalRest&&(b.velocity.x!==0||b.velocity.z!==0)?motion.actors.map(a=>a.playerId!==playerId?a:({
+    ...a,startElapsedSeconds:moment.elapsedSeconds,primitive:{...a.primitive,startTick:moment.originTick,
+      startCenter:sample(a).position,startVelocity:{x:0,y:0,z:0}}})):motion.actors;
+  const basis = { response: root.response, geometry: root.geometry, actors: adoptionActors, cursor: motion.cursor,
     carrierPlayerId: motion.carrierPlayerId, availableAtTick: exact ? controller.basis.tick : tick, coverageThroughTick, commands };
   const derived = exact ? deriveBattedWorldFieldMotionExactCheckpointV1({ ...basis,
     ...(origin ? {availableAtElapsedSeconds:origin.elapsedSeconds} : {}), checkpointThroughElapsedSeconds: sameCut ? moment.elapsedSeconds : Math.min(requested,exactEnd) })

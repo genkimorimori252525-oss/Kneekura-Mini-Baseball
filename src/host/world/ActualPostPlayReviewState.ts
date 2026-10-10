@@ -7,6 +7,8 @@ import { getPlayAdjudicationState, getOfficialStateWindows, type PlayAdjudicatio
 import type { RuleProfile } from '../../core/rules/RuleProfile';
 import type { DecisionEvidenceProjection } from '../../core/world/control/ControlTypes';
 import { quantizeEventTick } from '../../core/sim/ExactEventTime';
+import { deriveActualFairCatchOccupiedRunnerOutcome } from '../../core/rules/FairCatchRunnerOutcome';
+import type { deriveSamePaCatchOfficialOpening } from './SamePlateAppearanceCatchOfficial';
 import { actualLiveAdjudicationInput, actualLiveAdjudicationProfile, type AcceptedActualLiveAdjudication } from './ActualLiveAdjudicationSource';
 import type { ActualObservationMoment } from './ActualFieldObservation';
 import { actualLivePlayFields as fields, actualLivePlayId as id } from './ActualLivePlayScope';
@@ -27,6 +29,7 @@ export type ActualPostPlayReviewSeed = Readonly<{
   physicalPitchSourceId: string; ruleProfile: RuleProfile; exactEnd: ActualObservationMoment;
   endReference: OwnedLiveCallSourceReference; kind: 'official_pending' | 'official_ready';
   ledger: PlayAdjudicationLedger; pendingReasons: readonly string[];
+  fairCatchRunnerOutcome?: NonNullable<ReturnType<typeof deriveSamePaCatchOfficialOpening>['fairCatchRunnerOutcome']>;
 }>;
 export type ActualPostPlayReviewRequest = Readonly<{
   sourceId: string; windowId: string; callId: string; tick: number; intentSourceId: string;
@@ -60,10 +63,27 @@ export const originalPostPlayCall = (ledger: PlayAdjudicationLedger): OwnedLiveC
   return imports[0];
 };
 
+/** A reserved Native seed supplies the full original evidence. The review may
+ * use only the exact snapshot independently rederived from those runner rights. */
+export const postPlayFairCatchRunnerRuling = (seed: ActualPostPlayReviewSeed, ledger: PlayAdjudicationLedger) => {
+  const proof = seed.fairCatchRunnerOutcome;
+  if (!proof) return null;
+  if (!fields(proof, ['originalMatch', 'field', 'runnerEvidence', 'snapshotId', 'evidenceRevision'])
+    || !('viewReference' in seed.source) || proof.originalMatch.playId !== seed.playId
+    || proof.originalMatch.ruleProfileId !== seed.ruleProfile.id
+    || proof.field.evidence.horizon.elapsedSeconds !== seed.exactEnd.elapsedSeconds
+    || proof.field.evidence.originTick !== seed.exactEnd.originTick) throw new Error('reserved runner review original evidence differs');
+  const outcome = deriveActualFairCatchOccupiedRunnerOutcome(proof), latest = postPlayOpenState(ledger).latestCorrectRule;
+  if (outcome.kind === 'pending') throw new Error('reserved runner review outcome unresolved: ' + outcome.reason);
+  return latest.snapshotId === proof.snapshotId && latest.evidenceRevision === proof.evidenceRevision
+    && 'ruling' in latest && json(latest.ruling) === json(outcome.correctRuling) ? outcome.correctRuling : null;
+};
+
 /** Readiness is derived anew; a closed opportunity does not cure a stale call. */
 export const finalizePostPlayReview = (body: PostPlayProjectionBody): ActualPostPlayReviewProjection => {
   const replaced = new Set(['on_field_call_stale', 'official_window_owner_unavailable:review', 'official_window_owner_unavailable:challenge',
     'official_window_policy_unconfigured:review', 'official_window_policy_unconfigured:challenge']);
+  if (body.events.some(e => e.source.action.kind === 'accept_live_appeal_result')) replaced.add('original_live_appeal_official_judgment_required');
   const pending = body.seed.pendingReasons.filter(reason => !replaced.has(reason));
   const lastAppeal = body.ledger.events.reduce((last, e, i) => e.kind === 'DefensiveAppealAttemptRecorded' || e.kind === 'OwnedLiveAppealImported' || e.kind === 'OwnedLiveAppealRightsAdmitted' ? i : last, -1);
   const lastRule = body.ledger.events.reduce((last, e, i) => e.kind === 'CorrectRuleSnapshotRecorded' || e.kind === 'UnresolvedCorrectRuleSnapshotRecorded' ? i : last, -1);
@@ -85,7 +105,7 @@ export const finalizePostPlayReview = (body: PostPlayProjectionBody): ActualPost
     if (request.status === 'timing_unresolved') pending.push(`review_timing_unresolved:${request.sourceId}`);
     if (request.pendingReason !== null) pending.push(request.pendingReason);
   }
-  const state = postPlayOpenState(body.ledger), call = originalPostPlayCall(body.ledger).call;
+  const state = postPlayOpenState(body.ledger), call = state.calls.at(-1) ?? originalPostPlayCall(body.ledger).call;
   const review = [...state.reviews].reverse().find(r => r.callId === call.callId);
   const ruling = review ?? call;
   if (ruling.basisSnapshotId !== state.latestCorrectRule.snapshotId || ruling.basisEvidenceRevision !== state.latestCorrectRule.evidenceRevision) {
@@ -101,14 +121,17 @@ export const initializePostPlayReview = (raw: unknown): ActualPostPlayReviewProj
   if (!fields(input, ['source', 'seed'])) throw new Error('invalid post-play review initialization');
   const source = actualPostPlayReviewSessionInput(input.source, input.source?.sourceId), seed = input.seed;
   if (!fields(seed, ['source', 'snapshotHash', 'gameId', 'playId', 'physicalPitchSourceId', 'ruleProfile', 'exactEnd',
-    'endReference', 'kind', 'ledger', 'pendingReasons']) || !id(seed.gameId) || !id(seed.physicalPitchSourceId)
+    'endReference', 'kind', 'ledger', 'pendingReasons', ...(Object.hasOwn(seed, 'fairCatchRunnerOutcome') ? ['fairCatchRunnerOutcome'] : [])]) || !id(seed.gameId) || !id(seed.physicalPitchSourceId)
     || !postPlayRevision(seed.playId) || !postPlayHash(seed.snapshotHash) || !Array.isArray(seed.pendingReasons)
     || !seed.pendingReasons.every(id) || !['official_pending', 'official_ready'].includes(seed.kind)) throw new Error('invalid post-play adjudication seed');
   const reserved = source.reservedCatchSeed;
   if (reserved) {
     samePaCatchReviewSeedInput(seed.source);
     if (json(seed.source) !== json(reserved)) throw new Error('reserved catch review seed differs');
-  } else actualLiveAdjudicationInput(seed.source as AcceptedActualLiveAdjudication, seed.source?.sourceId);
+  } else {
+    if (seed.fairCatchRunnerOutcome) throw new Error('runner outcome requires the original reserved catch seed');
+    actualLiveAdjudicationInput(seed.source as AcceptedActualLiveAdjudication, seed.source?.sourceId);
+  }
   if (source.adjudicationSourceId !== seed.source.sourceId || source.adjudicationSnapshotHash !== seed.snapshotHash) {
     throw new Error('post-play adjudication seed identity or snapshot hash differs');
   }
@@ -120,6 +143,8 @@ export const initializePostPlayReview = (raw: unknown): ActualPostPlayReviewProj
     throw new Error('post-play physical end reference differs');
   }
   const state = postPlayOpenState(seed.ledger), imported = originalPostPlayCall(seed.ledger), clock = imported.provenance.clock;
+  if (seed.fairCatchRunnerOutcome && !postPlayFairCatchRunnerRuling(seed, seed.ledger))
+    throw new Error('reserved runner review current correct snapshot differs');
   if (seed.ledger.playId !== seed.playId || seed.ledger.ruleProfileId !== seed.ruleProfile.id
     || seed.ledger.events.some(e => !['CorrectRuleSnapshotRecorded', 'UnresolvedCorrectRuleSnapshotRecorded', 'OwnedLiveCallImported'].includes(e.kind))
     || imported.provenance.gameId !== seed.gameId || imported.provenance.playId !== seed.playId

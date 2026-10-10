@@ -64,8 +64,11 @@ export const deriveSamePaOccupiedRunnerMotion = (source: SamePaPhysicalFieldStep
     throw new Error('occupied runner motion original identity or finite coverage differs');
   same(runner.position, hold.setup.position);
   if (prefix.some(f => f.kind === 'same_pa_physical_field_step_v1'
+    && f.actionResult?.kind === 'occupied_runner_catch_motion_v1' && f.actionResult.playerId === playerId))
+    throw new Error('adopted occupied runner response supersedes its original advance');
+  if (prefix.some(f => f.kind === 'same_pa_physical_field_step_v1'
     && f.actionResult?.kind === 'occupied_runner_catch_response_v1' && f.actionResult.playerId === playerId))
-    throw new Error('received occupied runner response supersedes its original advance');
+    throw new Error('pending occupied runner response requires its actual first motor');
   const prior = [...prefix].reverse().find(f => f.kind === 'same_pa_physical_field_step_v1'
     && f.actionResult?.kind === a.kind && f.actionResult.playerId === playerId);
   let controller: RouteFollowingController;
@@ -126,8 +129,14 @@ export const deriveSamePaOccupiedRunnerMotionCensus = (prefix: readonly Field[])
   return freeze([...commands].map(([playerId, { first, latest, adopted }]) => {
     const r = latest.actionResult;
     if (r?.kind !== 'occupied_runner_motion_v1') throw new Error('occupied runner motion census latest controller missing');
+    const response=prefix.find(f=>f.kind==='same_pa_physical_field_step_v1'&&f.actionResult?.kind==='occupied_runner_catch_response_v1'
+      &&f.actionResult.playerId===playerId&&f.actionResult.motionBasis
+      &&json(f.actionResult.motionBasis.motionReference)===json(reference('pa_physical_v1_field_steps',latest)));
+    const responseReference=response?reference('pa_physical_v1_field_steps',response):undefined;
+    const adoption=responseReference&&prefix.find(f=>f.kind==='same_pa_physical_field_step_v1'&&f.actionResult?.kind==='occupied_runner_catch_motion_v1'
+      &&f.actionResult.playerId===playerId&&json(f.actionResult.responseReference)===json(responseReference));
     return { playerId, commandReference: reference('pa_physical_v1_field_steps', first), latestMotionReference: reference('pa_physical_v1_field_steps', latest),
-      adopted, work: [
+      adopted,...(adoption?{supersededBy:{responseReference:responseReference!,adoptionReference:reference('pa_physical_v1_field_steps',adoption)}}:{}), work: adoption?[]:[
         ...(!adopted ? [{ kind: 'adoption' as const, dueTick: r.controller.basis.tick, due: due(r.controller.basis.tick) }] : []),
         ...(due(r.reactionTick) === 'future' ? [{ kind: 'reaction' as const, dueTick: r.reactionTick, due: 'future' as const }] : []),
         ...(r.exactControllerPiece ? samePaExactRunnerControllerCensus(prefix).filter(w=>w.playerId===playerId).map(({playerId:_,controllerReference:__,...w})=>w)

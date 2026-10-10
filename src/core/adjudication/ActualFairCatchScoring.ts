@@ -1,3 +1,4 @@
+import type { ActualFairCatchOccupiedRunnerEvidence } from '../rules/FairCatchRunnerOutcome';
 import type { CanonicalMatchState } from '../model/CanonicalMatchState';
 import type { BallWorldPlayerBaseContactHistory } from '../sim/ball/BallWorldPlayerBaseContactHistory';
 import type { ActualFairFieldTimelineInput } from '../sim/plateAppearance/ActualFairFieldTimeline';
@@ -15,6 +16,7 @@ export type ActualFairCatchStationaryOccupiedRunners = Readonly<{
 }>;
 export type ActualFairCatchScoringInput = ActualFairFieldTimelineInput & Readonly<{
   occupiedRunners?: ActualFairCatchStationaryOccupiedRunners;
+  occupiedRunnerEvidence?: ActualFairCatchOccupiedRunnerEvidence;
 }>;
 export type ActualFairCatchAppealApplicability = 'no_original_tag_up_participant' | 'original_runners_never_left_original_bases';
 

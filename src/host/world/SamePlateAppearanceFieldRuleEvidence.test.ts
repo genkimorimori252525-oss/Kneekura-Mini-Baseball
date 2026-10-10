@@ -85,6 +85,13 @@ it.each([1, 2, 3])('FR-occupied keeps %s additional complete stationary bodies i
   const evidence = deriveSamePaFieldRuleEvidence({ ...h.scope, occupiedRunnerIds, fields: [root] });
   expect(evidence.physical.segments[0].actors).toHaveLength((3 + count) * 5);
   expect(evidence.terminal.physicalEnd).toBeNull();
+  expect(evidence).not.toHaveProperty('occupiedRunnerBaseContacts');
+  const appealMarker = { ...root, kind: 'same_pa_physical_field_step_v1', operationOrdinal: root.operationOrdinal + 1,
+    source: { ...root.source, sourceId: 'appeal-indication', previousOperationReference: fieldRef(root), previousFieldReference: fieldRef(root), fieldRootReference: fieldRef(root) },
+    actionResult: { kind: 'appeal_indication_v1' } } as unknown as SamePaPhysicalFieldStep;
+  const appealEvidence = deriveSamePaFieldRuleEvidence({ ...h.scope, occupiedRunnerIds, fields: [root, appealMarker] });
+  expect(appealEvidence.occupiedRunnerBaseContacts).toHaveLength(count);
+  expect(appealEvidence.occupiedRunnerBaseContacts!.every(r => r.bases.length === 4)).toBe(true);
   const census = deriveSamePaLiveWorkCensus({ fields: [root], participantIds: ['batter', 'carrier', 'receiver', ...occupiedRunnerIds],
     observationPolicies: [], possessionEvidence: evidence.rule.possessionEvidence });
   expect(census.originalFieldPrefix.participantIds).toEqual(['batter', 'carrier', 'receiver', ...occupiedRunnerIds]);

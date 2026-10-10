@@ -1,3 +1,4 @@
+import { deriveActualFairCatchOccupiedRunnerOutcome } from '../rules/FairCatchRunnerOutcome';
 import { deriveBallWorldBattedRuleChronology } from '../rules/BallWorldBattedRuleChronology';
 import { projectActualFairFieldTimeline } from '../sim/plateAppearance/ActualFairFieldTimeline';
 import { validateActualFairCatchStationaryRunners, type ActualFairCatchScoringInput } from './ActualFairCatchScoring';
@@ -262,12 +263,17 @@ export const classifyClosedPlayForOfficialScoring = (
     }
     if (request.fairCatchEvidence !== undefined) {
       const physical = request.fairCatchEvidence;
-      const keys = ['originalTimeline', 'field', 'playEnd', ...('occupiedRunners' in physical ? ['occupiedRunners'] : [])];
+      const keys = ['originalTimeline', 'field', 'playEnd', ...('occupiedRunners' in physical ? ['occupiedRunners'] : []),
+        ...('occupiedRunnerEvidence' in physical ? ['occupiedRunnerEvidence'] : [])];
+      if ('occupiedRunners' in physical && 'occupiedRunnerEvidence' in physical) throw new Error('fair catch scoring rejects competing runner evidence');
       if (Object.keys(physical).sort().join('|') !== keys.sort().join('|')) throw new Error('invalid fair catch scoring sidecar');
       const caught = deriveBallWorldBattedRuleChronology(physical.field.evidence).ballEvidence;
       const projection = projectActualFairFieldTimeline({ originalTimeline: physical.originalTimeline, field: physical.field, playEnd: physical.playEnd });
       const batter = physical.field.evidence.batterRunnerId;
-      validateActualFairCatchStationaryRunners({ originalMatch: request.match, batterRunnerId: batter,
+      const occupiedOutcome = physical.occupiedRunnerEvidence === undefined ? null : deriveActualFairCatchOccupiedRunnerOutcome({
+        originalMatch: request.match, field: physical.field, runnerEvidence: physical.occupiedRunnerEvidence });
+      if (occupiedOutcome?.kind === 'pending') throw new Error('fair catch scoring requires resolved occupied runner claims: ' + occupiedOutcome.reason);
+      if (!occupiedOutcome) validateActualFairCatchStationaryRunners({ originalMatch: request.match, batterRunnerId: batter,
         originTick: physical.field.evidence.originTick, ticksPerSecond: physical.field.evidence.ticksPerSecond,
         endElapsedSeconds: physical.field.evidence.horizon.elapsedSeconds, occupiedRunners: physical.occupiedRunners });
       if (request.scoringEvidence !== undefined
@@ -277,17 +283,17 @@ export const classifyClosedPlayForOfficialScoring = (
         || canonicalJson(physical.playEnd) !== canonicalJson(closure.playEnd)
         || physical.originalTimeline.playId !== request.match.playId
         || !nonEmpty(batter) || caught.correctRuleResult.batterRunnerId !== batter
-        || canonicalJson(closure.officialDelta.basesAfter) !== canonicalJson(request.match.bases)
-        || closure.officialDelta.scoredRunnerIds.length !== 0
-        || closure.officialDelta.outsAfter !== request.match.outs + 1) {
-        throw new Error('fair catch scoring requires its exact physical projection and closed original-base batter retirement');
+        || canonicalJson(closure.officialDelta.basesAfter) !== canonicalJson(occupiedOutcome?.correctRuling.basesAfter ?? request.match.bases)
+        || canonicalJson(closure.officialDelta.scoredRunnerIds) !== canonicalJson(occupiedOutcome?.correctRuling.scoredRunnerIds ?? [])
+        || closure.officialDelta.outsAfter !== (occupiedOutcome?.correctRuling.outsAfter ?? request.match.outs + 1)) {
+        throw new Error('fair catch scoring requires its exact physical projection and closed runner outcome');
       }
       const battingTeam = request.match.half === 'top' ? 'away' : 'home';
       return Object.freeze({ kind: 'supported', record: Object.freeze({
         playId: closure.playId, closureId: closure.closureId,
         basisRulingId: closure.finalRuling.rulingId,
         classification: 'fly_out', battingTeam,
-        runsScored: 0, hitsCredited: 0, errorsCharged: 0,
+        runsScored: occupiedOutcome?.finalRunnerLedger.scoredRunnerIds.length ?? 0, hitsCredited: 0, errorsCharged: 0,
       }) });
     }
     if (request.scoringEvidence !== undefined) {

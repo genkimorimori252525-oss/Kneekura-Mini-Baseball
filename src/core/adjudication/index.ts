@@ -8,6 +8,7 @@ export {
   recordOwnedLiveCallImport,
   recordOwnedLiveAppealImport,
   recordOwnedLiveAppealRightsAdmission,
+  interpretOriginalLiveAppealRights,
   getPendingOwnedLiveAppealImports,
   getOwnedLiveAppealRightsAdmissions,
   recordReviewDecision,
@@ -86,6 +87,7 @@ export type {
   OwnedLiveAppealRightsDisposition,
   OwnedLiveAppealRightsAdmitted,
   OwnedLiveAppealRightsAdmissionInput,
+  OriginalLiveAppealRightsInput,
   ReviewDecisionInput,
   CloseOfficialPlayInput,
 } from './PlayAdjudicationLedger';
