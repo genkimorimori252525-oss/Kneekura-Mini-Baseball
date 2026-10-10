@@ -102,11 +102,59 @@ Terminal/actor proofs are explicitly mocked in the structural settlement fixture
 
 ## National retained official and scoring progress
 
-The ordinary adjudication-frontier continuation started at 16:27:19 UTC on the unchanged fixed published `d4a17d49` / src `728b6e36`. Closure enqueue and official application completed, reaching Match revision 2, play 9 and two outs. A consistent official-applied snapshot supports the ordinary retained entry before live participation/statistics. Live participation and call-up adoption then completed, and the original missing-scoring assertion actually passed at 17:02:17 UTC.
+The ordinary adjudication-frontier continuation **completed all 37 original tail
+assertions** in one passing `NAT-R184` case on fixed published
+`d4a17d490cba76cac4e8427503ee9ec726e7b758`, src
+`728b6e36cee03cc0667904b6ada2ea7661d5b427`. It started at 16:27:19 UTC and the
+last reopened aggregate returned at 19:54:36 UTC. Closure and official application,
+participation/call-up adoption, the actual missing-scoring assertion, official
+scoring, individual statistics, both National exposures, ordinary retries and
+all original close/reopen checks completed. Match reached revision 2, play 9 and
+two outs. The final eligibility fact was a genuine additional commit; the latest
+returned checkpoint is 14, correcting the earlier partial-progress reference to
+checkpoint 13.
 
-Real `OfficialScoring.apply` committed at 17:28:45 UTC; the outer scoring submit returned at 17:35:40 UTC. `OfficialPlayerOutcome.apply` returned at 18:02:18 UTC, followed by the original aggregates and both National exposures/retries. All original handles closed at 18:36:54 UTC. Reopened participation, exposure and foul-statistics checks then returned, including the foul aggregate at 19:11:20 UTC. The reopened groundout scoring retry and later original assertions remain unfinished; no full 37-assertion result has returned. A statistics-stage snapshot alone is not claimed to support arbitrary continuation: the separate later entry still requires its original-boundary evidence. The earlier fresh failure remains failed, and these committed stages do not form a whole-case PASS. PL01 remains on its own unchanged fixed source after the real six-TAKE terminal walk, with ten-participant settlement and the occupied next-pitch suffix unfinished. The new assertion-scope correction is reserved for subsequent qualified executions; neither active case was modified or restarted.
+The case took **12,431.697 seconds**; the enclosing controlled execution took
+**12,438.205 seconds**, exit 0, peak aggregate RSS 1,076,040 KiB. All seven pin
+groups stayed stable, no guard fired, process enumeration completed and no child
+remained. All 35 observed owner calls returned: 33 normally and two expected
+no-write rejections for changed duplicate participation and repeated exposure
+consumption. The final database has 113 tables with a matching preserved census.
 
+- Formal report SHA256: `aeaf660680c64c6a3e15dc6b8e9ed99ea102da4425f4c365bf0b6a4a250b132c`.
+- Terminal receipt SHA256: `8d4cd74edf13fa17abb95a042811dac619826b202b6d63a9000df0baea267bf6`.
+
+This closes the original retained 37-assertion tail. The prior fresh execution
+remains **FAILED at 9,184.775 seconds**; the three fresh-entry assertions were
+not rerun. Prefix and suffix evidence are not relabeled as a fresh whole-case
+PASS. Later production performance changes were not used by this fixed-source
+continuation. Whole game/season and the other original representative paths
+remain separate open work.
 
 ## PL01 frozen-boundary continuation qualification
 
-The [PL01 retained suffix](2026-10-10-pl01-retained-terminal-suffix.md) now reuses the original terminal and occupied-next-pitch assertion bodies from the exact audited six-TAKE/frozen-plan boundary. The complete test-support batch passed independent review, full compiler and five focused input/import checks. No production owner changed and no new Native run started. Its retained prefix and future suffix remain separately attributed; existing PL01 continues on its original source.
+The [PL01 retained suffix](2026-10-10-pl01-retained-terminal-suffix.md) now reuses the original terminal and occupied-next-pitch assertion bodies from the exact audited six-TAKE/frozen-plan boundary. The complete test-support batch passed independent review, full compiler and five focused input/import checks. No production owner changed. Its retained prefix and continued suffix remain separately attributed; actual execution status follows below.
+
+
+## PL01 original cap and remaining-suffix release
+
+The original PL01 case on fixed `d4a17d49` / src `728b6e36` returned **FAILED**
+at its **14,400.167-second wall cap**, exit -15. Its five rollback points, genuine
+six-TAKE terminal walk, endpoint and ten-participant settlement freeze completed.
+Settlement call 181 did not return; official completion, release, occupied next
+pitch and subsequent retry/reopen assertions remain unproved. No final Vitest
+report exists. All pins stayed stable, the parent and descendants were reaped,
+and no process remained. Peak aggregate RSS was 712,644 KiB. Terminal receipt
+SHA256: `01284ad6d5a6532aa9297c529e958de556feb4d95167bd92ace8447b47a70be3`.
+The last returned consistent boundary is the audited frozen-plan checkpoint 173.
+Unreturned settlement work receives no completion credit.
+
+After actual terminal and cleanup confirmation, the original IFN case started
+at **19:52:56 UTC** on qualified `35c05066` / src `7e90c1ac`. After National
+finished, the exact checkpoint-173 PL01 suffix started at **19:56:02 UTC** on
+qualified `d6dfd095` / src `023b3d8b`. Both retain their fixed source, original
+assertions and existing four-hour maximum; at most two long Native lanes run.
+The PL01 suffix authenticates the retained owners and executes the missing
+settlement/transition/release/reopen/occupied-next-pitch body without regenerating
+the six-TAKE prefix. It still reports `wholeCasePass: false`; neither new run has
+a completion result at this publication. LAN remains held for a subsequent lane.
