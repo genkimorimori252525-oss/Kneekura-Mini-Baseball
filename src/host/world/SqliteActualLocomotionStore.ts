@@ -12,6 +12,8 @@ import { sqliteJsonMetadataNodes as nodes, sqliteJsonMetadataProjection as proje
 import { actualDefensiveDecisionEvidenceFromSqlite } from './SqliteActualDefensiveDecisionStore';
 import { actualPlayerKinematicsEvidenceFromSqlite } from './SqliteActualPlayerKinematicsReader';
 import { playerLocomotionModelEvidenceFromSqlite } from './SqlitePlayerLocomotionModelStore';
+import { physicalStoreTransactionBoundary } from './PhysicalStoreTransactionBoundary';
+import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 
 /** Exactly one initial step per Player/pitch. Continuation/replan requires a new capability/owner contract. */
@@ -156,24 +158,31 @@ export const openSqliteActualLocomotionStore = (path: string, authority?: Author
     CREATE TABLE IF NOT EXISTS actual_locomotion_heads (physical_pitch_source_id TEXT NOT NULL,player_id TEXT NOT NULL,
       source_id TEXT NOT NULL UNIQUE,revision INTEGER NOT NULL,PRIMARY KEY(physical_pitch_source_id,player_id));`);
   const own = actualLocomotionEvidenceFromSqlite(db); let closed = false;
+  // Decision, context, self and availability retain all their checks. Completed
+  // physical roots are shared only inside each unchanged owner read phase.
+  const reads = physicalStoreTransactionBoundary(db, 'actual locomotion read');
   const check = () => { if (closed) throw new Error('closed actual locomotion store'); };
-  return Object.freeze({ read(sourceId: string) { check(); return own.read(sourceId); }, accept(sourceId: string): DurableActualLocomotion {
-    check(); const prior = own.read(sourceId), raw = authority?.readAcceptedLocomotion(sourceId) ?? null, source = raw === null ? null : input(raw, sourceId);
+  return Object.freeze({ read(sourceId: string) { check(); return reads.read(() => own.read(sourceId)); }, accept(sourceId: string): DurableActualLocomotion {
+    check(); const prior = reads.read(() => own.read(sourceId)), raw = authority?.readAcceptedLocomotion(sourceId) ?? null, source = raw === null ? null : input(raw, sourceId);
     if (prior) {
       if (source && json(source) !== json(prior.source)) throw new Error('actual locomotion Source frozen differently');
-      const saved = own.read(sourceId); if (!saved || json(saved) !== json(prior)) throw new Error('actual locomotion changed during retry'); return saved;
+      const saved = reads.read(() => own.read(sourceId)); if (!saved || json(saved) !== json(prior)) throw new Error('actual locomotion changed during retry'); return saved;
     }
     if (!source) throw new Error('accepted actual locomotion Source missing');
-    const value = own.derive(source); own.before(value); db.exec('BEGIN IMMEDIATE');
+    const value = reads.read(() => { const derived = own.derive(source); own.before(derived); return derived; });
+    db.exec('BEGIN IMMEDIATE');
     try {
         const liveFence = beginActualLivePitchWrite(db, source.physicalPitchSourceId, { owner: 'actual_locomotion_receipts', sourceId });
-      own.before(value);
+      withBattedWorldPhysicalReadTraversal(db, () => own.before(value));
       db.prepare('INSERT INTO actual_locomotion_receipts VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)').run(sourceId, source.sourceVersion, source.capability,
         source.physicalPitchSourceId, source.playerId, source.decisionSourceId, source.locomotionModelSourceId, source.baseFieldSourceId, source.executionSourceId,
         json(source), hash(source), json(value), hash(value));
       db.prepare('INSERT INTO actual_locomotion_heads VALUES (?,?,?,1)').run(source.physicalPitchSourceId, source.playerId, sourceId);
       recordActualLivePlayAdmission(db, liveFence);
-      const saved = own.current(value); assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
+      const saved = withBattedWorldPhysicalReadTraversal(db, () => {
+        const original = own.current(value); assertActualLivePlayWriteUnchanged(db, liveFence); return original;
+      });
+      db.exec('COMMIT'); return saved;
     } catch (error) { db.exec('ROLLBACK'); throw error; }
-  }, close() { if (!closed) { db.close(); closed = true; } } });
+  }, close() { if (!closed) { reads.close(); closed = true; } } });
 };

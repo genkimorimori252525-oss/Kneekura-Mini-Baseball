@@ -44,3 +44,28 @@ Before the first incomplete operation, the existing helper reads the observation
 The prior logs record only the outer `ActualDefensivePlan.accept` entry and no return. There is no recorded inner span or performance profile, so the stalled read cannot be assigned to initial derivation, before-write proof or anchored reconstruction. Zero committed plan rows cannot distinguish those stages because an in-flight transaction may have rolled back at the wall guard. Source inspection identifies repeated original observation/field reads within those phases, but does not establish which one was active at termination.
 
 Author checks: the two new supported-frontier cases first failed at the old zero-observation guard; all 40 focused metadata/Source guard cases subsequently passed in 5.79 seconds under a 45-second cap. Focused TypeScript compilation passed. These finite checks do not execute the genuine observation/model reads or remaining tail. The next run stays held for integration review, qualification/public preservation of its exact next source, and the current IFN terminal. No new runtime snapshot, private database copy, long gate or cap expansion was made for this donor.
+
+
+## Returned plan, decision and locomotion-model boundary (2026-10-10)
+
+The entry also admits the exact pre-motor boundary: original feet revision 5,
+`actual-observation-p1-1`, `scheduled-decision-model-p1`,
+`scheduled-priorities-p1`, `scheduled-decision-p1` revision 1/head, and
+`scheduled-locomotion-model-p1`. Both motor receipt and head must remain absent
+or empty. Complete Source/snapshot hashes and the ordered runtime admission
+ledger are checked structurally; these checks do not supply owner evidence.
+
+The existing public plan, decision and locomotion-model readers authenticate
+those original receipts and compare each Source with the unchanged fixture
+recipe. Historical acquisition/capture proposals use the already authenticated
+execution Sources, requiring their original all-null known-work census. Later
+decision heads cannot rewrite those historical proposals. Every new operation
+still discovers current work through the original owner census.
+
+The first incomplete operation remains `scheduled-motor-p1` through the existing
+actual-locomotion owner. Its Source builder, subsequent physical operations and
+all 37 original tail assertions are unchanged. No transient receipt is invented,
+no previously committed admission is repeated, and neither this finite metadata
+coverage nor the prior plan/decision returns qualifies the unfinished Native tail.
+The prior 1200.689-second wall failure and its immutable input/output images remain
+separate evidence; the next Native run requires a qualified source and release.

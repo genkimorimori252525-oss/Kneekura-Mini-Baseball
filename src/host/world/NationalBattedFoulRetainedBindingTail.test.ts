@@ -1,5 +1,7 @@
 import { createRequire } from 'node:module';
 import { expect, it } from 'vitest';
+import { firstBaseFixtureKnownWork } from './ActualFirstBasePlayEndFixtures.test-support';
+import type { AcceptedBattedWorldFieldExecution } from './SqliteBattedWorldFieldExecutionStore';
 import { nationalBattedFieldFixtureSource } from './NationalBattedFieldFixtures.test-support';
 import { actorJson as json, actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { assertNationalBattedFoulRetainedBindingFrontier, assertNationalBattedFoulRetainedAcquisitionSources } from './NationalBattedFoulRetainedBindingTail.test-support';
@@ -209,5 +211,82 @@ it.each([
 ])('rejects unsupported observation and model metadata: %s', (_label, mutation) => {
   const { db } = decisionModelCut(); try { db.exec(mutation); const before = rows(db);
     expect(() => assertNationalBattedFoulRetainedBindingFrontier(db)).toThrow(); expect(rows(db)).toEqual(before);
+  } finally { db.close(); }
+});
+
+
+const motorModelCut = () => {
+  const { db, first } = decisionModelCut(), pitch = 'national-live:pitch-0';
+  db.exec(`CREATE TABLE actual_defensive_plans(source_id TEXT,source_version TEXT,physical_pitch_source_id TEXT,career_id TEXT,player_id TEXT,
+    person_link_source_id TEXT,fielding_model_source_id TEXT,game_day INTEGER,observation_source_id TEXT,source_json TEXT,source_hash TEXT,snapshot_json TEXT,snapshot_hash TEXT);
+    CREATE TABLE actual_defensive_decisions(source_id TEXT,source_version TEXT,physical_pitch_source_id TEXT,player_id TEXT,observation_source_id TEXT,
+    decision_model_source_id TEXT,plan_source_id TEXT,previous_source_id TEXT,revision INTEGER,source_json TEXT,source_hash TEXT,snapshot_json TEXT,snapshot_hash TEXT);
+    CREATE TABLE actual_defensive_decision_heads(physical_pitch_source_id TEXT,player_id TEXT,source_id TEXT,revision INTEGER);
+    CREATE TABLE world_player_locomotion_models(source_id TEXT,source_version TEXT,capability TEXT,career_id TEXT,player_id TEXT,person_link_source_id TEXT,
+    fielding_model_source_id TEXT,accepted_at_day INTEGER,source_json TEXT,source_hash TEXT,snapshot_json TEXT,snapshot_hash TEXT);`);
+  const plan = { sourceId: 'scheduled-priorities-p1', sourceVersion: 'synthetic-v1', physicalPitchSourceId: pitch, careerId: 'career-a', playerId: 'p1',
+    personLinkSourceId: 'link-1', fieldingModelSourceId: 'observation-fielding-p1', gameDay: 121, observationSourceId: 'actual-observation-p1-1' };
+  const decision = { sourceId: 'scheduled-decision-p1', sourceVersion: 'synthetic-v1', physicalPitchSourceId: pitch, playerId: 'p1',
+    observationSourceId: plan.observationSourceId, decisionModelSourceId: 'scheduled-decision-model-p1', planSourceId: plan.sourceId, previousDecisionSourceId: null };
+  const model = { sourceId: 'scheduled-locomotion-model-p1', sourceVersion: 'synthetic-v1', capability: 'defender_locomotion_v1', careerId: 'career-a',
+    playerId: 'p1', personLinkSourceId: 'link-1', fieldingModelSourceId: 'observation-fielding-p1', acceptedAtDay: 121 };
+  const snapshot = { metadataTestOnly: true };
+  db.prepare('INSERT INTO actual_defensive_plans VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)').run(plan.sourceId, plan.sourceVersion, pitch, plan.careerId, plan.playerId,
+    plan.personLinkSourceId, plan.fieldingModelSourceId, plan.gameDay, plan.observationSourceId, json(plan), hash(plan), json(snapshot), hash(snapshot));
+  db.prepare('INSERT INTO actual_defensive_decisions VALUES(?,?,?,?,?,?,?,NULL,1,?,?,?,?)').run(decision.sourceId, decision.sourceVersion, pitch, decision.playerId,
+    decision.observationSourceId, decision.decisionModelSourceId, decision.planSourceId, json(decision), hash(decision), json(snapshot), hash(snapshot));
+  db.prepare('INSERT INTO actual_defensive_decision_heads VALUES(?,?,?,1)').run(pitch, 'p1', decision.sourceId);
+  db.prepare('INSERT INTO world_player_locomotion_models VALUES(?,?,?,?,?,?,?,?,?,?,?,?)').run(model.sourceId, model.sourceVersion, model.capability,
+    model.careerId, model.playerId, model.personLinkSourceId, model.fieldingModelSourceId, model.acceptedAtDay, json(model), hash(model), json(snapshot), hash(snapshot));
+  for (const [i, [owner, source]] of [['actual_defensive_plans', plan], ['actual_defensive_decisions', decision]].entries())
+    db.prepare('INSERT INTO actual_live_play_admissions VALUES(?,?,?,?,?,?)').run('live-play-runtime', i + 9, owner as string,
+      (source as typeof plan).sourceId, hash(source), hash(snapshot));
+  return { db, first };
+};
+it.each([false, true])('admits exactly the returned plan/decision/locomotion-model cut with the original acquisition census (empty motor schema: %s)', emptyMotor => {
+  const { db, first } = motorModelCut(); try {
+    if (emptyMotor) db.exec('CREATE TABLE actual_locomotion_receipts(source_id TEXT); CREATE TABLE actual_locomotion_heads(source_id TEXT)');
+    const before = rows(db), changes = db.prepare('SELECT total_changes() AS n').get();
+    expect(assertNationalBattedFoulRetainedBindingFrontier(db)).toBe(gameId);
+    expect(() => assertNationalBattedFoulRetainedAcquisitionSources(db, first)).not.toThrow();
+    expect(rows(db)).toEqual(before); expect(db.prepare('SELECT total_changes() AS n').get()).toEqual(changes);
+  } finally { db.close(); }
+});
+it.each([
+  ['missing original plan', 'DELETE FROM actual_defensive_plans'],
+  ['wrong plan observation', "UPDATE actual_defensive_plans SET observation_source_id='foreign'"],
+  ['wrong decision predecessor', "UPDATE actual_defensive_decisions SET previous_source_id='foreign'"],
+  ['wrong decision head', 'UPDATE actual_defensive_decision_heads SET revision=2'],
+  ['missing decision admission', 'DELETE FROM actual_live_play_admissions WHERE sequence=10'],
+  ['changed plan archive', "UPDATE actual_defensive_plans SET snapshot_json='{}'"],
+  ['changed motor model archive', "UPDATE world_player_locomotion_models SET source_hash='other'"],
+  ['wrong motor model capability', "UPDATE world_player_locomotion_models SET capability='other'"],
+  ['missing motor model', 'DELETE FROM world_player_locomotion_models'],
+  ['already committed motor receipt', "CREATE TABLE actual_locomotion_receipts(source_id TEXT); INSERT INTO actual_locomotion_receipts VALUES('scheduled-motor-p1')"],
+  ['already committed motor head', "CREATE TABLE actual_locomotion_heads(source_id TEXT); INSERT INTO actual_locomotion_heads VALUES('scheduled-motor-p1')"],
+])('rejects unsupported retained motor boundary: %s', (_label, mutation) => {
+  const { db } = motorModelCut(); try { db.exec(mutation); const before = rows(db);
+    expect(() => assertNationalBattedFoulRetainedBindingFrontier(db)).toThrow(); expect(rows(db)).toEqual(before);
+  } finally { db.close(); }
+});
+
+it('uses authenticated historical acquisition work while new operations keep current decision discovery', () => {
+  const players = ['p0', 'p1'], original = players.map(playerId => ({ playerId, decisionSourceId: null, motorSourceId: null }));
+  const saved: AcceptedBattedWorldFieldExecution = { sourceId: 'field-race-acquisition', sourceVersion: 'fixture-v1',
+    baseFieldSourceId: 'field-race-candidate-0', previousExecutionSourceId: null, action: { kind: 'owned_acquisition_plan_v1', knownWork: original } };
+  const later = [{ playerId: 'p0', decisionSourceId: null, motorSourceId: null },
+    { playerId: 'p1', decisionSourceId: 'scheduled-decision-p1', motorSourceId: 'scheduled-motor-p1' }];
+  let calls = 0; const current = () => { calls++; return later; };
+  expect(firstBaseFixtureKnownWork(players, saved, current)).toBe(original); expect(calls).toBe(0);
+  expect(firstBaseFixtureKnownWork(players, undefined, current)).toBe(later); expect(calls).toBe(1);
+  expect(() => firstBaseFixtureKnownWork(players, { ...saved, action: { kind: 'owned_acquisition_plan_v1', knownWork: later } }, current)).toThrow(/pre-decision work/);
+  expect(calls).toBe(1); expect(saved.action).toEqual({ kind: 'owned_acquisition_plan_v1', knownWork: original });
+});
+
+it('keeps current work rejection for an earlier acquisition cut with unsupported later owners', () => {
+  const { db, first } = acquisitionCut(); try {
+    db.exec("CREATE TABLE actual_defensive_decisions(source_id TEXT); INSERT INTO actual_defensive_decisions VALUES('scheduled-decision-p1')");
+    const before = rows(db);
+    expect(() => assertNationalBattedFoulRetainedAcquisitionSources(db, first)).toThrow(); expect(rows(db)).toEqual(before);
   } finally { db.close(); }
 });

@@ -101,10 +101,21 @@ export const actualFirstBasePlayEndFixture = (path: string, originalProfile?: No
   return attachActualFirstBasePlayEndFixture(path, x, forecastGroundElapsedSeconds);
 };
 
+/** Rebuild only proposals from authenticated historical Sources. New operations
+ * continue to discover current owned work through the original caller. */
+export const firstBaseFixtureKnownWork = (playerIds: readonly string[], saved: AcceptedBattedWorldFieldExecution | undefined,
+  current: () => ReturnType<typeof ownedMotionKnownWorkFromSqlite>) => {
+  if (!saved) return current();
+  assert('knownWork' in saved.action, 'retained first-base execution has no original known work');
+  assert.deepEqual(saved.action.knownWork, playerIds.map(playerId => ({ playerId, decisionSourceId: null, motorSourceId: null })),
+    'retained first-base execution differs from original pre-decision work');
+  return saved.action.knownWork;
+};
+
 /** Attach the original all-ten owner chain before its first field output. The
  * caller supplies its independently accepted original response and field inputs. */
 export const attachActualFirstBasePlayEndFixture = <T extends ActualFirstBaseFieldRoot>(
-  path: string, x: T, forecastGroundElapsedSeconds: number, retainedPhysicalCut?: 'feet' | 'feet_with_decision_model',
+  path: string, x: T, forecastGroundElapsedSeconds: number, retainedPhysicalCut?: 'feet' | 'feet_with_decision_model' | 'feet_with_motor_model',
 ) => {
   try {
     if (x.worldContact.result.kind !== 'airborne' || x.flight.source.searchDurationTicks !== 0) throw new Error('original zero-horizon fixture input changed');
@@ -163,13 +174,14 @@ export const attachActualFirstBasePlayEndFixture = <T extends ActualFirstBaseFie
       return phase(`first-base:accept:${sourceId}`, () => executions.accept(sourceId));
     };
     const step = (sourceId: string, previous: string, checkpoint: OwnedMotionV2Action['checkpoint'], selectedPlayers: readonly string[] = []) => {
-      const known = knownWork(), action: OwnedMotionV2Action = { kind: 'owned_motion_v2', checkpoint, knownWork: known,
+      const known = firstBaseFixtureKnownWork(playerIds, retained?.executions.find(v => v.source.sourceId === sourceId)?.source, knownWork), action: OwnedMotionV2Action = { kind: 'owned_motion_v2', checkpoint, knownWork: known,
         contributions: actualPlayersKinematicsFromPrefix(playerIds, prefix(previous)).map(self => selectedPlayers.includes(self.playerId)
           ? { kind: 'motor', playerId: self.playerId, motorSourceId: known.find(w => w.playerId === self.playerId)!.motorSourceId! }
           : { kind: 'retained', playerId: self.playerId, command: self.activeCommand }) };
       return accept(sourceId, previous, action);
     };
-    const planned = accept('field-race-acquisition', null, { kind: 'owned_acquisition_plan_v1', knownWork: knownWork() });
+    const planned = accept('field-race-acquisition', null, { kind: 'owned_acquisition_plan_v1',
+      knownWork: firstBaseFixtureKnownWork(playerIds, retained?.executions[0].source, knownWork) });
     if (planned.execution.kind !== 'owned_acquisition_plan_v1') throw new Error('first-base owned acquisition plan');
     const plan = planned.execution.plan;
     const initialized = step('field-race-capture-initialized', planned.source.sourceId,
@@ -187,7 +199,8 @@ export const attachActualFirstBasePlayEndFixture = <T extends ActualFirstBaseFie
     const actor = x.response.touch.worldContact.flight.physicalPitch.frame.batterActor!.defenderBindings
       .find(b => b.playerId !== plan.acquirerPlayerId)!.playerId;
     const decision = installOwnedScheduledDecision({ f: x.f, baseField }, actor, feet.source.sourceId, 0, 1_000_000,
-      retainedPhysicalCut === 'feet_with_decision_model' ? 'observation_and_model' : undefined);
+      retainedPhysicalCut === 'feet_with_motor_model' ? 'decision_and_locomotion_model'
+        : retainedPhysicalCut === 'feet_with_decision_model' ? 'observation_and_model' : undefined);
     const motor = decision.issue(feet.source.sourceId);
     const adopted = step('field-race-real-motor', feet.source.sourceId,
       { kind: 'motion', throughTick: feet.execution.field.motion.world.moment.ball.tick + 1 }, [actor]);
