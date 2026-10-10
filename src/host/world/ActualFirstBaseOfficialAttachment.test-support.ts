@@ -1,3 +1,5 @@
+import assert from 'node:assert/strict';
+import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { playerObservationCalibrationFixture } from '../../core/sim/perception/PlayerObservationCalibrationFixtures.test-support';
 import type { AcceptedActualFirstBaseUmpireSetup } from './ActualFirstBaseUmpire';
 import type { attachActualFirstBasePlayEndFixture } from './ActualFirstBasePlayEndFixtures.test-support';
@@ -5,7 +7,7 @@ import { actualPlayersKinematicsFromPrefix } from './ActualPlayerKinematicsFromP
 import { ownedMotionKnownWorkFromSqlite } from './OwnedMotionKnownWorkFromSqlite';
 import { battedWorldFieldEvidenceFromSqlite, type DurableBattedWorldFieldAction } from './SqliteBattedWorldFieldStore';
 import type { DurableActualLivePlayRuntime } from './ActualLivePlayRuntime';
-import { battedWorldFieldExecutionEvidenceFromSqlite, openSqliteBattedWorldFieldExecutionStore,
+import { openSqliteBattedWorldFieldExecutionStore,
   type AcceptedBattedWorldFieldExecution } from './SqliteBattedWorldFieldExecutionStore';
 import { openSqliteActualLiveRuleConsumptionStore } from './SqliteActualLiveRuleConsumptionStore';
 import { openSqliteActualFirstBaseUmpireStore } from './SqliteActualFirstBaseUmpireStore';
@@ -17,14 +19,23 @@ import type { AcceptedActualLiveAdjudication } from './ActualLiveAdjudicationSou
 import type { AcceptedActualLivePlayClosure } from './ActualLivePlayClosureSource';
 
 export type ActualFirstBaseOfficialRoot = Pick<ReturnType<typeof attachActualFirstBasePlayEndFixture>,
-  'f' | 'pitchId' | 'source' | 'captured' | 'executions'> & Readonly<{
+  'f' | 'pitchId' | 'source' | 'captured' | 'executions' | 'prefix'> & Readonly<{
     runtime: DurableActualLivePlayRuntime; baseField: DurableBattedWorldFieldAction;
     retainedRace?: ReturnType<typeof attachActualFirstBasePlayEndFixture>['retainedRace'];
+    retainedOfficialPrefix?: ReturnType<typeof attachActualFirstBasePlayEndFixture>['retainedOfficialPrefix'];
   }>;
 
 /** Original positive-test calibration and official policy attached to the
  * caller's existing physical owners. No physical result or identity is replaced. */
 export const attachActualFirstBaseOfficialFixture = <T extends ActualFirstBaseOfficialRoot>(path: string, x: T) => {
+  const completed = new Set(x.retainedOfficialPrefix?.completedSourceIds ?? []);
+  // These flags select reads only. The real owner must return the original value,
+  // and its Source must match the unchanged declaration before it can be reused.
+  const original = <V extends { source: unknown }>(value: V | null, source: unknown): V => {
+    assert(value, 'retained official original is missing');
+    assert.equal(json(value.source), json(source), 'retained official Source differs from the original recipe');
+    return value;
+  };
   const race = x.retainedRace ?? x.executions.accept(x.source.sourceId);
   if (race.execution.kind !== 'first_base_race') throw new Error('original first-base race owner is missing');
   const p = playerObservationCalibrationFixture();
@@ -34,7 +45,8 @@ export const attachActualFirstBaseOfficialFixture = <T extends ActualFirstBaseOf
     captureExecutionSourceId: x.captured.source.sourceId, ruleExecutionSourceId: race.source.sourceId };
   const consumptions = x.f.track(openSqliteActualLiveRuleConsumptionStore(path,
     { readAcceptedConsumption: id => id === acknowledgement.sourceId ? acknowledgement : null }));
-  const consumption = consumptions.accept(acknowledgement.sourceId);
+  const consumption = completed.has(acknowledgement.sourceId)
+    ? original(consumptions.read(acknowledgement.sourceId), acknowledgement) : consumptions.accept(acknowledgement.sourceId);
   const setup: AcceptedActualFirstBaseUmpireSetup = { sourceId: 'play-end-umpire-setup', sourceVersion: 'fixture-v1', gameId: x.runtime.gameId,
     physicalPitchSourceId: x.pitchId, umpireId: 'umpire-1', pose: { version: 'static_first_base_view_v1', position: { ...center, y: 20 },
       forward: { x: 0, y: -1, z: 0 }, validFromElapsedSeconds: 0, validThroughElapsedSeconds: 10 }, attention: { control: 1, touch: 1 },
@@ -49,27 +61,31 @@ export const attachActualFirstBaseOfficialFixture = <T extends ActualFirstBaseOf
   const physicalWriter = x.f.track(openSqliteBattedWorldFieldExecutionStore(path, { read: battedWorldFieldEvidenceFromSqlite(x.f.db).read },
     { readAcceptedExecution: id => sources.get(id) ?? null }));
   const extendBucket = (sourceId: string, previous: string, throughTick: number) => {
-    const prefix = { baseField: x.baseField, fields: battedWorldFieldEvidenceFromSqlite(x.f.db).scope(x.baseField, x.baseField.source.sourceId),
-      executions: battedWorldFieldExecutionEvidenceFromSqlite(x.f.db).scope(x.baseField, previous) };
+    const saved = completed.has(sourceId) ? physicalWriter.read(sourceId) : null;
+    if (completed.has(sourceId)) assert(saved, 'retained official physical original is missing');
+    const prefix: Parameters<typeof actualPlayersKinematicsFromPrefix>[1] = x.prefix(previous);
+    const priorAction = saved ? prefix.executions.slice().reverse().find(value => 'knownWork' in value.source.action)?.source.action : undefined;
+    if (saved) assert(priorAction && 'knownWork' in priorAction, 'retained official predecessor has no original known work');
     const ids = x.runtime.membership.participants.map(player => player.playerId);
     const source: AcceptedBattedWorldFieldExecution = { sourceId, sourceVersion: 'fixture-v1', baseFieldSourceId: x.baseField.source.sourceId,
       previousExecutionSourceId: previous, action: { kind: 'owned_motion_v2', checkpoint: { kind: 'retained_quantizer_bucket_v1', throughTick },
-        knownWork: ownedMotionKnownWorkFromSqlite(x.f.db, x.pitchId, ids),
+        knownWork: priorAction && 'knownWork' in priorAction ? priorAction.knownWork : ownedMotionKnownWorkFromSqlite(x.f.db, x.pitchId, ids),
         contributions: actualPlayersKinematicsFromPrefix(ids, prefix).map(self => ({ kind: 'retained', playerId: self.playerId, command: self.activeCommand })) } };
-    sources.set(sourceId, source); return physicalWriter.accept(sourceId);
+    sources.set(sourceId, source); return saved ? original(saved, source) : physicalWriter.accept(sourceId);
   };
   const waitingSource = { sourceId: 'scheduled-operative-call', sourceVersion: 'fixture-v1', observationSourceId: observation.sourceId,
     currentExecutionSourceId: race.source.sourceId };
   const calls = new Map([[waitingSource.sourceId, waitingSource]]);
   const umpires = x.f.track(openSqliteActualFirstBaseUmpireStore(path, { readAcceptedSetup: () => setup,
     readAcceptedObservation: () => observation, readAcceptedCall: id => calls.get(id) ?? null }));
-  umpires.acceptSetup(setup.sourceId);
-  const observed = umpires.observe(observation.sourceId), waiting = umpires.advanceCall(waitingSource.sourceId);
+  if (completed.has(setup.sourceId)) original(umpires.readSetup(setup.sourceId), setup); else umpires.acceptSetup(setup.sourceId);
+  const observed = completed.has(observation.sourceId) ? original(umpires.readObservation(observation.sourceId), observation) : umpires.observe(observation.sourceId);
+  const waiting = completed.has(waitingSource.sourceId) ? original(umpires.readCall(waitingSource.sourceId), waitingSource) : umpires.advanceCall(waitingSource.sourceId);
   if (waiting.schedule.kind !== 'scheduled') throw new Error('original first-base delayed call was not scheduled');
   const due = extendBucket('actual-call-due-cut', race.source.sourceId, race.execution.field.motion.world.moment.ball.tick + 3);
   const callSource = { ...waitingSource, sourceId: 'operative-call', currentExecutionSourceId: due.source.sourceId };
   calls.set(callSource.sourceId, callSource);
-  const call = umpires.advanceCall(callSource.sourceId);
+  const call = completed.has(callSource.sourceId) ? original(umpires.readCall(callSource.sourceId), callSource) : umpires.advanceCall(callSource.sourceId);
   const final = extendBucket('actual-post-call-quantizer-tail', due.source.sourceId, due.execution.field.motion.world.moment.ball.tick + 1);
   if (call.schedule.kind !== 'called' || call.schedule.call !== 'out') throw new Error('original first-base operative retirement is missing');
   const model = { sourceId: 'call-reception-model', sourceVersion: 'fixture-v1', gameId: x.runtime.gameId, physicalPitchSourceId: x.pitchId,

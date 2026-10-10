@@ -6,6 +6,7 @@ import { samePaMetadataClaim as claim } from './SamePlateAppearanceReservationGu
 import { samePaText } from './SamePlateAppearanceWorkPrefix';
 import { readHistoricalSamePaExecutionView } from './SamePlateAppearanceHistoricalExecutionEvidenceFromSqlite';
 import { deriveSamePaDispatchRoles } from './SamePlateAppearanceDispatchRoles';
+import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
 import { battingEmotionGenesisInput, deriveBattingEmotionGenesis, type AcceptedBattingEmotionGenesis, type DurableBattingEmotionGenesis } from './NativeBattingEmotion';
 import { battingInvocationTransaction } from './BattingInvocationTransaction';
 import { assertBattingEmotionExecutionStorage } from './SqliteBattingEmotionExecutionStore';
@@ -39,7 +40,7 @@ const derive = (db: DatabaseSync, source: AcceptedBattingEmotionGenesis) => {
   const view = readHistoricalSamePaExecutionView(db, source.viewReference).view;
   const actor = readPhysicalPlateAppearanceActorFromSqlite(db, view.lineage.actorReference.sourceId);
   if (!actor) return fail('original actor missing');
-  same(source.member, deriveSamePaDispatchRoles(actor, view)[0].member);
+  same(source.member, deriveSamePaDispatchRoles(actor, view, actor.world.runners.length ? readSamePaOriginalParticipants(db, actor) : undefined)[0].member);
   return deriveBattingEmotionGenesis(source, { careerId: actor.binding.careerId, matchId: actor.source.gameId, playerId: actor.binding.playerId });
 };
 const identityRow = (db: DatabaseSync, id: string) => {

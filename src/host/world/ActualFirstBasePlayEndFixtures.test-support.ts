@@ -114,12 +114,17 @@ export const firstBaseFixtureKnownWork = (playerIds: readonly string[], saved: A
   return saved.action.knownWork;
 };
 
+export type RetainedFirstBaseCut = 'feet' | 'feet_with_decision_model' | 'feet_with_motor_model' | 'adopted_motor' | 'first_base_race'
+  | Readonly<{ kind: 'official_prefix'; physicalHeadSourceId: 'field-first-base-race' | 'actual-call-due-cut' | 'actual-post-call-quantizer-tail';
+    completedSourceIds: readonly string[] }>;
+
 /** Attach the original all-ten owner chain before its first field output. The
  * caller supplies its independently accepted original response and field inputs. */
 export const attachActualFirstBasePlayEndFixture = <T extends ActualFirstBaseFieldRoot>(
-  path: string, x: T, forecastGroundElapsedSeconds: number, retainedPhysicalCut?: 'feet' | 'feet_with_decision_model' | 'feet_with_motor_model' | 'adopted_motor' | 'first_base_race',
+  path: string, x: T, forecastGroundElapsedSeconds: number, retainedPhysicalCut?: RetainedFirstBaseCut,
 ) => {
   try {
+    const retainedOfficialPrefix = typeof retainedPhysicalCut === 'object' ? retainedPhysicalCut : undefined;
     if (x.worldContact.result.kind !== 'airborne' || x.flight.source.searchDurationTicks !== 0) throw new Error('original zero-horizon fixture input changed');
     const pitchId = x.response.touch.worldContact.flight.source.physicalPitchSourceId;
     const runtimeSource = { sourceId: 'live-play-runtime', sourceVersion: 'fixture-v1',
@@ -128,13 +133,15 @@ export const attachActualFirstBasePlayEndFixture = <T extends ActualFirstBaseFie
     // Its historical values construct proposals/checks only; later admissions
     // still use their real owners and independent transaction fences.
     const retained = retainedPhysicalCut ? phase('first-base:read-owned-feet-history', () => withBattedVenueLegalReadSnapshot(x.f.db, () => {
-      const through = retainedPhysicalCut === 'first_base_race' ? 'field-first-base-race'
-        : retainedPhysicalCut === 'adopted_motor' ? 'field-race-real-motor' : 'field-race-feet';
+      const through = retainedOfficialPrefix?.physicalHeadSourceId ?? (retainedPhysicalCut === 'first_base_race' ? 'field-first-base-race'
+        : retainedPhysicalCut === 'adopted_motor' ? 'field-race-real-motor' : 'field-race-feet');
       const saved = battedWorldFieldExecutionEvidenceFromSqlite(x.f.db).readWithExecutions(through);
       if (!saved) throw new Error('retained first-base physical owner is missing');
       const ids = ['field-race-acquisition', 'field-race-capture-initialized', 'field-race-capture-fence', 'field-race-capture-confirmed', 'field-race-feet',
-        ...(retainedPhysicalCut === 'adopted_motor' || retainedPhysicalCut === 'first_base_race' ? ['field-race-real-motor'] : []),
-        ...(retainedPhysicalCut === 'first_base_race' ? ['field-race-quantizer-tail', 'field-first-base-race'] : [])];
+        ...(retainedOfficialPrefix || retainedPhysicalCut === 'adopted_motor' || retainedPhysicalCut === 'first_base_race' ? ['field-race-real-motor'] : []),
+        ...(retainedOfficialPrefix || retainedPhysicalCut === 'first_base_race' ? ['field-race-quantizer-tail', 'field-first-base-race'] : []),
+        ...(retainedOfficialPrefix && retainedOfficialPrefix.physicalHeadSourceId !== 'field-first-base-race' ? ['actual-call-due-cut'] : []),
+        ...(retainedOfficialPrefix?.physicalHeadSourceId === 'actual-post-call-quantizer-tail' ? ['actual-post-call-quantizer-tail'] : [])];
       assert.deepEqual(saved.executions.map(value => value.source.sourceId), ids);
       assert.equal(saved.value.source.sourceId, ids.at(-1));
       const baseField = saved.value.baseField;
@@ -165,7 +172,7 @@ export const attachActualFirstBasePlayEndFixture = <T extends ActualFirstBaseFie
     const sources = new Map<string, AcceptedBattedWorldFieldExecution>();
     const authority = { readAcceptedExecution: (id: string) => sources.get(id) ?? null };
     const executions = x.f.track(openSqliteBattedWorldFieldExecutionStore(path, x.fields, authority));
-    const prefix = (through: string | null) => {
+    const prefix = (through: string | null): Parameters<typeof actualPlayersKinematicsFromPrefix>[1] => {
       const retainedIndex = retained?.executions.findIndex(value => value.source.sourceId === through) ?? -1;
       return retainedIndex >= 0 ? { baseField, fields: retained!.fields, executions: retained!.executions.slice(0, retainedIndex + 1) }
         : { baseField, fields: battedWorldFieldEvidenceFromSqlite(x.f.db).scope(baseField, baseField.source.sourceId),
@@ -206,7 +213,7 @@ export const attachActualFirstBasePlayEndFixture = <T extends ActualFirstBaseFie
     const actor = x.response.touch.worldContact.flight.physicalPitch.frame.batterActor!.defenderBindings
       .find(b => b.playerId !== plan.acquirerPlayerId)!.playerId;
     const decision = installOwnedScheduledDecision({ f: x.f, baseField }, actor, feet.source.sourceId, 0, 1_000_000,
-      retainedPhysicalCut === 'adopted_motor' || retainedPhysicalCut === 'first_base_race' ? 'adopted_motor' : retainedPhysicalCut === 'feet_with_motor_model' ? 'decision_and_locomotion_model'
+      retainedOfficialPrefix || retainedPhysicalCut === 'adopted_motor' || retainedPhysicalCut === 'first_base_race' ? 'adopted_motor' : retainedPhysicalCut === 'feet_with_motor_model' ? 'decision_and_locomotion_model'
         : retainedPhysicalCut === 'feet_with_decision_model' ? 'observation_and_model' : undefined);
     const motor = decision.issue(feet.source.sourceId);
     const adopted = step('field-race-real-motor', feet.source.sourceId,
@@ -220,7 +227,7 @@ export const attachActualFirstBasePlayEndFixture = <T extends ActualFirstBaseFie
     const retainedRace = retained?.executions.find(value => value.source.sourceId === source.sourceId);
     if (retainedRace) assert.equal(json(retainedRace.source), json(source), 'retained first-base race differs from the original recipe');
     return { ...(x as Omit<T, 'source' | 'sources' | 'authority'>), runtime, pitchId, firstField, baseField, playerIds, prefix, knownWork, sources, authority, executions,
-      source, planned, initialized, damping, captured, feet, decision, motor, adopted, quantized, retainedRace,
+      source, planned, initialized, damping, captured, feet, decision, motor, adopted, quantized, retainedRace, retainedOfficialPrefix,
       fieldSource: x.source, fieldSources: x.sources, fixtureInputs: { forecastGroundElapsedSeconds, defenderOffsetSeconds: .24,
         batterOffsetSeconds: .28, physicalCutOffsetSeconds: .30, captureDissipationPowerW: 100_000_000 } };
   } catch (error) { x.f.close(); throw error; }

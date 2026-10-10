@@ -25,6 +25,9 @@ export const completeSamePaTerminalFixture = (h: ReturnType<typeof samePaPhysica
   const enrollmentOwner = track(openSqliteSamePlateAppearanceEnrollmentStore(f.path));
   const originalEnrollment = enrollmentOwner.readHistorical(enrollmentReference.sourceId);
   expect(originalEnrollment?.kind).toBe('reserved');
+  if (originalEnrollment?.kind !== 'reserved') throw new Error('real original participant enrollment missing');
+  const participantCount = originalEnrollment.participants.length;
+  expect(participantCount).toBe(10 + f.actor.world.runners.length);
   const beforeActivities = f.db.prepare('SELECT * FROM world_player_workload_activities ORDER BY source_id').all();
   const beforeHeads = f.db.prepare('SELECT * FROM world_player_workload_heads ORDER BY career_id,player_id').all();
   const source: AcceptedSamePaLifecycleOutcome = originalCatchOutcome ?? {
@@ -49,7 +52,7 @@ export const completeSamePaTerminalFixture = (h: ReturnType<typeof samePaPhysica
   const outcomes = track(openSqliteSamePlateAppearanceLifecycleOutcomeStore(f.path, { readAcceptedOutcome: id => h.accepted.get(id) }));
   const outcome = outcomes.acceptOutcome(source.sourceId);
   if (outcome.kind !== 'same_pa_lifecycle_outcome') throw new Error('real terminal official closure pending');
-  expect(outcome.disposition).toBe('terminal'); expect(outcome.controllerRetirementBasis.participants).toHaveLength(10);
+  expect(outcome.disposition).toBe('terminal'); expect(outcome.controllerRetirementBasis.participants).toHaveLength(participantCount);
   const closure = getOfficialPlayClosure(outcome.officialLedger); if (!closure) throw new Error('real terminal official window remains open');
   h.advance(reference('pa_lifecycle_v1_outcomes', outcome));
   const final = h.current(); expect(final.view.cut.stage).toBe('terminal');
@@ -58,7 +61,7 @@ export const completeSamePaTerminalFixture = (h: ReturnType<typeof samePaPhysica
   h.save(endpointSource);
   const endpoints = track(openSqliteSamePlateAppearanceTerminalEndpointStore(f.path, { readAcceptedEndpoint: id => h.accepted.get(id) }));
   const endpoint = endpoints.accept(endpointSource.sourceId); if (endpoint.kind !== 'same_pa_terminal_endpoint_v1') throw new Error('real final endpoint pending');
-  expect(endpoint.participants).toHaveLength(10); expect(endpoint.participants).toEqual(final.view.participants);
+  expect(endpoint.participants).toHaveLength(participantCount); expect(endpoint.participants).toEqual(final.view.participants);
   expect(f.db.prepare('SELECT * FROM world_player_workload_heads ORDER BY career_id,player_id').all()).toEqual(beforeHeads);
   const settlementSource = h.save({ sourceId: label + ':settlement', sourceVersion: 'fixture-only-v1', capability: 'same_pa_terminal_settlement_v1',
     terminalReference: reference('pa_terminal_v1_endpoints', endpoint) });
@@ -70,7 +73,7 @@ export const completeSamePaTerminalFixture = (h: ReturnType<typeof samePaPhysica
   expect(settled.kind).toBe('settled'); expect(settled.participants.every(p => p.applied)).toBe(true);
   expect(settled.plan.participants).toEqual(endpoint.participants);
   const afterActivities = f.db.prepare('SELECT * FROM world_player_workload_activities ORDER BY source_id').all();
-  expect(afterActivities).toHaveLength(beforeActivities.length + 10);
+  expect(afterActivities).toHaveLength(beforeActivities.length + participantCount);
   expect(afterActivities.filter(row => beforeActivities.some(old => old.source_id === row.source_id))).toEqual(beforeActivities);
   withSqliteReadTransaction(f.db, () => {
     for (const p of settled.participants) {
@@ -82,7 +85,7 @@ export const completeSamePaTerminalFixture = (h: ReturnType<typeof samePaPhysica
     }
   });
   expect(() => settlements.release(settlementSource.sourceId)).toThrow('completed PA transition');
-  expect(f.db.prepare('SELECT count(*) n FROM same_pa_participant_reservations WHERE enrollment_source_id=?').get(enrollmentReference.sourceId)!.n).toBe(10);
+  expect(f.db.prepare('SELECT count(*) n FROM same_pa_participant_reservations WHERE enrollment_source_id=?').get(enrollmentReference.sourceId)!.n).toBe(participantCount);
   const transitionSource: AcceptedSamePaTerminalTransition = {
     sourceId: label + ':transition', sourceVersion: 'fixture-only-v1', capability: 'same_pa_terminal_transition_v1',
     terminalReference: settlementSource.terminalReference, settlementReference: settled.reference,
@@ -106,7 +109,7 @@ export const completeSamePaTerminalFixture = (h: ReturnType<typeof samePaPhysica
   expect(f.db.prepare('SELECT count(*) n FROM applications WHERE application_id=?').get(transitionSource.applicationId)!.n).toBe(1);
   expect(f.db.prepare('SELECT count(*) n FROM official_scoring_applications WHERE scoring_application_id=?').get(transitionSource.scoringApplicationId)!.n).toBe(1);
   const release = settlements.release(settlementSource.sourceId);
-  expect(release.memberRows).toHaveLength(10); expect(release.settlementReference).toEqual(settled.reference);
+  expect(release.memberRows).toHaveLength(participantCount); expect(release.settlementReference).toEqual(settled.reference);
   expect(f.db.prepare('SELECT count(*) n FROM same_pa_participant_reservations WHERE enrollment_source_id=?').get(enrollmentReference.sourceId)!.n).toBe(0);
   const bytes = () => json(['world_player_workload_activities', 'world_player_workload_heads', 'same_pa_enrollments', 'same_pa_participant_reservations',
     'pa_lifecycle_v1_outcomes', 'pa_terminal_v1_endpoints', 'pa_terminal_v1_transitions', 'pa_settlement_v1_plans', 'pa_settlement_v1_releases',

@@ -6,7 +6,7 @@ import {actorHash as hash,actorJson as json} from './PhysicalPlateAppearanceActo
 import * as original from './SamePlateAppearanceContinuationFromSqlite';
 import * as second from './SamePlateAppearanceTakeSuccessorFromSqlite';
 import * as claims from './SamePlateAppearanceContinuationClaimGuard';
-import {readCurrentSamePaLifecycleViewFromSqlite} from './SamePlateAppearanceLifecycleFromSqlite';
+import {readCurrentSamePaLifecycleViewFromSqlite,deriveCurrentSamePaLifecycleFromSqlite,withSamePaLifecycleReadPhase} from './SamePlateAppearanceLifecycleFromSqlite';
 import {withSqliteReadTransaction} from './SqliteReadTransaction.test-support';
 import {openSqliteSamePlateAppearanceLifecycleStore} from './SqliteSamePlateAppearanceLifecycleStore';
 import {samePaLifecycleSchema} from './SamePlateAppearanceLifecycleStorage';
@@ -70,4 +70,31 @@ it('LO04 current complete coverage rejects an additional typed-discovered work c
   const before=f.f.db.prepare('SELECT total_changes() n').get()!.n;
   expect(()=>withSqliteReadTransaction(f.f.db,()=>readCurrentSamePaLifecycleViewFromSqlite(f.f.db,reference('pa_lifecycle_v1_execution_views',view)))).toThrow(/coverage/);
   expect(f.owner.readView(p.view.sourceId)).toEqual(view);expect(f.f.db.prepare('SELECT total_changes() n').get()!.n).toBe(before);
+});
+it('LO05 completed assessment ownership stays within its original source, assessment and mutation epoch',()=>{
+  const f=fixture(),p=f.prepare(),db=f.f.db,source=p.totals[0],prepare=db.prepare.bind(db);let scans=0;
+  vi.spyOn(db,'prepare').mockImplementation(sql=>{
+    const statement=prepare(sql);
+    if(sql.startsWith('SELECT source_id FROM main.pa_lifecycle_v1_total_assessments WHERE source_id=$id')){
+      const all=statement.all.bind(statement);statement.all=(...args)=>{scans++;return Reflect.apply(all,statement,args);};
+    }
+    return statement;
+  });
+  const read=()=>deriveCurrentSamePaLifecycleFromSqlite(db,source);
+  const proof=<T>(body:()=>T)=>withSqliteReadTransaction(db,()=>original.withSamePaContinuationReadPhase(db,body));
+  proof(()=>{
+    const first=withSamePaLifecycleReadPhase(db,read),count=scans;expect(count).toBeGreaterThan(0);
+    expect(withSamePaLifecycleReadPhase(db,read)).toEqual(first);expect(scans).toBe(count);
+  });
+  const before=scans;proof(read);expect(scans).toBeGreaterThan(before);
+  for(const changed of [{...source,sourceId:'alias'}, {...source,provenance:p.totals[1].provenance}]){
+    expect(()=>proof(()=>{read();deriveCurrentSamePaLifecycleFromSqlite(db,changed);})).toThrow(/assessment|claimed/);
+  }
+  const alias={...p.totals[1],provenance:source.provenance};
+  const mutate=()=>db.prepare('UPDATE pa_lifecycle_v1_total_assessments SET source_json=? WHERE source_id=?').run(json(alias),alias.sourceId);
+  expect(()=>proof(()=>{
+    read();db.exec('PRAGMA query_only=0');mutate();db.exec('PRAGMA query_only=1');
+    expect(read).toThrow();expect(read).toThrow(/expired/);
+  })).toThrow(/expired/);
+  expect(()=>proof(read)).not.toThrow();mutate();expect(()=>proof(read)).toThrow(/assessment|claimed/);
 });

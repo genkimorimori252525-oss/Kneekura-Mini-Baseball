@@ -18,7 +18,8 @@ vi.mock('./SqliteBattedWorldFieldExecutionStore', () => {
     state.physicalReads++;
     return { source: { sourceId: id }, generation: state.generation, baseField: { source: { sourceId: 'field' } } };
   };
-  return { battedWorldFieldExecutionEvidenceFromSqlite: () => ({ read, scope: () => [], current: () => {},
+  return { withBattedWorldPhysicalReadTraversal: <T>(_db: unknown, body: () => T): T => body(),
+    battedWorldFieldExecutionEvidenceFromSqlite: () => ({ read, scope: () => [], current: () => {},
     readWithExecutions: (id: string) => ({ value: read(id), executions: [] }),
   }) };
 });

@@ -3,7 +3,9 @@ import { actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSql
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { openSqlitePlayerBodyCapabilityMaterializationStore } from './SqlitePlayerBodyCapabilityMaterializationStore';
 import type { BattedBodyModelAssembly } from './PlayerBodyCapabilityMaterialization';
-import type { SamePaPhysicalFieldCalibrationSource, SamePaPhysicalResolution } from './SamePlateAppearancePhysicalEpisode';
+import type { SamePaPhysicalFieldCalibrationSource, SamePaPhysicalResolution, SamePaPhysicalFieldRootSource } from './SamePlateAppearancePhysicalEpisode';
+import type { BallWorldVenueLegalPolicy } from '../../core/rules/BallWorldVenueLegalCoverage';
+import type { AcceptedBattedVenueLegalCoveragePolicy } from './BattedVenueLegalCoveragePolicy';
 import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import type { DurableBattingInvocationPosture } from './NativeBattingPerception';
 import type { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
@@ -14,7 +16,10 @@ type Fixture=ReturnType<typeof samePaPhysicalLifecycleFixture>;
  * row, or copied receipt. The new calibration preparation emits no work fact. */
 export const prepareFreshPhysicalFieldFixture=(h:Fixture,prepared:ReturnType<Fixture['prepareAction']>,posture:DurableBattingInvocationPosture,
   postureReference:SamePaReference<'batting_observation_v1_postures'>,label:string,
-  options:Readonly<{liveProducerProfile?:'same_pa_empty_base_catch_v1'}>={})=>{
+  options:Readonly<{liveProducerProfile?:SamePaPhysicalFieldRootSource['liveProducerProfile'];
+    actorProducerPolicies?:SamePaPhysicalFieldRootSource['actorProducerPolicies'];
+    bags?:Readonly<{halfSize:{x:number;z:number};surfaceHeightMeters:number}>;
+    legalVenue?:Readonly<{rulePolicy:BallWorldVenueLegalPolicy;pitcherPlate:NonNullable<AcceptedBattedVenueLegalCoveragePolicy['pitcherPlate']>}>}>={})=>{
   const {f}=h,action=prepared.action,bodies=[posture.model.bodyMaterialization,...posture.sceneBodies];
   const fixture=f.db.prepare('SELECT * FROM official_fixtures WHERE game_id=?').get(f.actor.source.gameId)!;
   const assembly:BattedBodyModelAssembly={sourceId:label+':body-model',sourceVersion:'fixture-only-v1',kind:'body_materialized_batted_model_v1',
@@ -26,7 +31,7 @@ export const prepareFreshPhysicalFieldFixture=(h:Fixture,prepared:ReturnType<Fix
   const model=bodyOwner.acceptModel(assembly.sourceId),bodyModelReference={owner:'world_batted_body_materializations' as const,sourceId:assembly.sourceId,sourceHash:hash(assembly),snapshotHash:hash(model)};
   const center=action.baseCenters,ray=(p:{x:number;z:number})=>({x:p.x/Math.hypot(p.x,p.z),z:p.z/Math.hypot(p.x,p.z)});
   const field=createFairTerritoryWedge({homePlate:{x:0,z:0},firstBaseLineUnit:ray(center.first),thirdBaseLineUnit:ray(center.third)});
-  const bag=(center:{x:number;z:number})=>({region:{center,halfSize:{x:0.01,z:0.2},rotationRadians:0},surfaceHeightMeters:0.1});
+  const bag=(center:{x:number;z:number})=>({region:{center,halfSize:options.bags?.halfSize??{x:0.01,z:0.2},rotationRadians:0},surfaceHeightMeters:options.bags?.surfaceHeightMeters??0.1});
   const material={restitution:0.5,tangentialDamping:0.25,spinDamping:0.2},baseModel={bottomY:0,material};
   const parameters={ticksPerSecond:1_000_000,gravityY:-9.81,ballRadius:0.0366,groundRestitution:0.35,groundFriction:0.78,
     groundRollingDecelerationMps2:4,integrationStepTicks:2_000,restingVerticalSpeed:0.5};
@@ -45,6 +50,12 @@ export const prepareFreshPhysicalFieldFixture=(h:Fixture,prepared:ReturnType<Fix
       launchReference:resolution.source.launchReference,previousOperationReference:resolutionReference,resolutionReference,postureReference,
       fieldInputs:{kind:'fresh_physical_field_calibration_v1',calibrationReference},parameters,throughTick:resolution.contact.tick,
       ...(options.liveProducerProfile?{liveProducerProfile:options.liveProducerProfile}:{}),
+      ...(options.actorProducerPolicies?{actorProducerPolicies:options.actorProducerPolicies}:{}),
+      ...(options.legalVenue?{venueLegalCoveragePolicy:{sourceId:label+':legal-venue',sourceVersion:'fixture-only-v1',version:'batted_venue_legal_coverage_policy_v1' as const,
+        gameId:f.actor.source.gameId,careerId:f.actor.binding.careerId,playId:f.actor.match.playId,physicalPitchSourceId:resolution.source.launchReference.sourceId,
+        fixtureEventId:model.fixtureEventId,venueId:model.venueId,baseFieldSourceId:label+':field-root',worldModelSourceId:model.sourceId,worldModelSourceVersion:model.sourceVersion,
+        responseModelSourceId:source.responseModel.sourceId,responseModelSourceVersion:source.responseModel.sourceVersion,geometryBindingHash:hash(calibration),
+        availableAtDay:f.actor.binding.gameDay,rulePolicy:options.legalVenue.rulePolicy,pitcherPlate:options.legalVenue.pitcherPlate}}:{}),
       commands:model.actors.map(a=>({playerId:a.playerId,bodyAcceleration:{x:0,y:0,z:0},primitiveMotions:a.primitives.map(p=>({role:p.role,offsetVelocity:{x:0,y:0,z:0},offsetAcceleration:{x:0,y:0,z:0}}))}))});
     const root=h.physical.acceptOperation(rootSource.sourceId);if(root.kind!=='same_pa_physical_field_root_v1')throw new Error('real fresh field root pending');
     const rootReference=reference('pa_physical_v1_field_roots',root);h.advance(rootReference);

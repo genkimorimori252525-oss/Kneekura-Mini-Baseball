@@ -5,7 +5,7 @@ import { quantizeEventTick } from '../../core/sim/ExactEventTime';
 import { defensiveMetadataId as metadataId } from './ActualDefensiveMetadata';
 import { readOriginalPhysicalPitchPrefixFromSqlite } from './PhysicalPitchEvidenceFromSqlite';
 import { battedWorldFieldEvidenceFromSqlite } from './SqliteBattedWorldFieldStore';
-import { battedWorldFieldExecutionEvidenceFromSqlite } from './SqliteBattedWorldFieldExecutionStore';
+import { battedWorldFieldExecutionEvidenceFromSqlite, withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { actorHash as hash, actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { actualFirstBaseSetupInput, actualFirstBaseObservationInput, actualFirstBaseCallInput, sampleActualFirstBaseUmpireObservation,
   deriveActualFirstBaseUmpireCall, actualFirstBaseOffensiveDisposition, umpireId as id,
@@ -218,41 +218,60 @@ export const openSqliteActualFirstBaseUmpireStore = (path: string, authority?: A
   const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed actual umpire Source'); };
   const get = (kind: Kind, sourceId: string): Durable | null => kind === 'setup' ? own.readSetup(sourceId)
     : kind === 'observation' ? own.readObservation(sourceId) : own.readCall(sourceId);
+  const snapshot = <T>(body: () => T): T => {
+    db.exec('BEGIN');
+    try { const value = withBattedWorldPhysicalReadTraversal(db, body); db.exec('COMMIT'); return value; }
+    catch (error) { try { db.exec('ROLLBACK'); } catch { /* retain original failure */ } throw error; }
+  };
   const accept = (kind: Kind, sourceId: string): Durable => {
-    check(sourceId); const prior = get(kind, sourceId), raw = kind === 'setup' ? authority?.readAcceptedSetup(sourceId)
+    check(sourceId); const prior = snapshot(() => get(kind, sourceId)), raw = kind === 'setup' ? authority?.readAcceptedSetup(sourceId)
       : kind === 'observation' ? authority?.readAcceptedObservation(sourceId) : authority?.readAcceptedCall(sourceId);
     const source = raw == null ? null : input(kind, raw, sourceId);
     if (prior) {
       if (source && json(source) !== json(prior.source)) throw new Error('actual umpire Source is frozen differently');
-      const saved = get(kind, sourceId);
-      if (!saved || json(saved) !== json(prior)) throw new Error('actual umpire original changed during retry');
-      return saved;
+      return snapshot(() => {
+        const saved = get(kind, sourceId);
+        if (!saved || json(saved) !== json(prior)) throw new Error('actual umpire original changed during retry');
+        return saved;
+      });
     }
     if (!source) throw new Error('accepted actual umpire Source is unavailable');
     const observationId = kind === 'call' ? (source as AcceptedActualFirstBaseUmpireCall).observationSourceId : null;
-    const priorCallRows = observationId === null ? null : own.captureCallRowset(observationId);
+    const { value, priorCallRows } = snapshot(() => {
+      const priorCallRows = observationId === null ? null : own.captureCallRowset(observationId);
+      const value = own.derive(kind, source); own.admission(kind, value, false);
+      if (observationId !== null && priorCallRows !== null) own.assertCallRowset(observationId, priorCallRows);
+      return { value, priorCallRows };
+    });
     const assertPriorCalls = (inserted: boolean) => {
       if (observationId !== null && priorCallRows !== null) own.assertCallRowset(observationId, priorCallRows, inserted ? sourceId : null);
     };
-    const value = own.derive(kind, source); own.admission(kind, value, false); assertPriorCalls(false);
     db.exec('BEGIN IMMEDIATE');
     try {
-      assertPriorCalls(false); own.admission(kind, value, false); assertPriorCalls(false); const scope = scopeOf(kind, value);
+      // Only immutable sibling reads share this phase. The live fence, INSERT
+      // and its triggers stay outside; postwrite starts with fresh dependencies.
+      withBattedWorldPhysicalReadTraversal(db, () => {
+        assertPriorCalls(false); own.admission(kind, value, false); assertPriorCalls(false);
+      });
+      const scope = scopeOf(kind, value);
       const liveFence = beginActualLivePitchWrite(db, scope.pitchId, { owner: tables[kind], sourceId });
       db.prepare(`INSERT INTO ${tables[kind]} VALUES (?,?,?,?,?,?,?,?,?,?,?)`).run(sourceId, source.sourceVersion,
         scope.gameId, scope.pitchId, scope.umpireId, scope.dependencyId, scope.currentId, json(source), hash(source), json(value), hash(value));
       recordActualLivePlayAdmission(db, liveFence);
-      assertPriorCalls(true); const saved = get(kind, sourceId);
-      if (!saved || json(saved) !== json(value)) throw new Error('actual umpire original changed after insert');
-      own.admission(kind, value, true); assertPriorCalls(true); assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return value;
+      withBattedWorldPhysicalReadTraversal(db, () => {
+        assertPriorCalls(true); const saved = get(kind, sourceId);
+        if (!saved || json(saved) !== json(value)) throw new Error('actual umpire original changed after insert');
+        own.admission(kind, value, true); assertPriorCalls(true); assertActualLivePlayWriteUnchanged(db, liveFence);
+      });
+      db.exec('COMMIT'); return value;
     } catch (error) { try { db.exec('ROLLBACK'); } catch { /* retain original failure */ } throw error; }
   };
   return freeze({ acceptSetup(sourceId: string) { return accept('setup', sourceId) as DurableActualFirstBaseUmpireSetup; },
-    readSetup(sourceId: string) { check(sourceId); return own.readSetup(sourceId); },
+    readSetup(sourceId: string) { check(sourceId); return snapshot(() => own.readSetup(sourceId)); },
     observe(sourceId: string) { return accept('observation', sourceId) as DurableActualFirstBaseUmpireObservation; },
-    readObservation(sourceId: string) { check(sourceId); return own.readObservation(sourceId); },
+    readObservation(sourceId: string) { check(sourceId); return snapshot(() => own.readObservation(sourceId)); },
     advanceCall(sourceId: string) { return accept('call', sourceId) as DurableActualFirstBaseUmpireCall; },
-    readCall(sourceId: string) { check(sourceId); return own.readCall(sourceId); },
-    readAvailableCall(sourceId: string, at: ActualObservationMoment) { check(sourceId); return own.readAvailableCall(sourceId, at); },
+    readCall(sourceId: string) { check(sourceId); return snapshot(() => own.readCall(sourceId)); },
+    readAvailableCall(sourceId: string, at: ActualObservationMoment) { check(sourceId); return snapshot(() => own.readAvailableCall(sourceId, at)); },
     close() { if (!closed) { closed = true; db.close(); } } });
 };

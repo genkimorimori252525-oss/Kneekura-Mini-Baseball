@@ -1,3 +1,4 @@
+import { sqliteMetadataClaimRows } from './SqliteMetadataStatementScope';
 import { readSamePaInitialPlayFromSqlite } from './SqliteSamePlateAppearanceInitialBallStore';
 import { bindSamePaInitialPlayToPitch } from './SamePlateAppearanceInitialBallProof';
 import { battingAssessmentOwners } from './BattingAssessmentOwnership';
@@ -112,8 +113,8 @@ const createSqliteSamePlateAppearanceDispatchOwner = (path: string, authority?: 
   const ownedRows = () => storage() ? Object.keys(paDispatchSchema).map(t => db.prepare(`SELECT * FROM main.${t} ORDER BY rowid`).all()) : Object.keys(paDispatchSchema).map(() => []);
   const identityIn = (table: string, id: string) => {
     if (!storage()) return null;
-    const claims = Object.keys(paDispatchSchema).filter(table => table !== 'pa_dispatch_v1_pitch_heads').flatMap(table => db.prepare(`SELECT * FROM main.${table} WHERE source_id=$id OR ${claim('source_json', ['sourceId'], '$id')}
-      OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')}`).all({ id }).map(row => ({ table, row })));
+    const claims = Object.keys(paDispatchSchema).filter(table => table !== 'pa_dispatch_v1_pitch_heads').flatMap(table => sqliteMetadataClaimRows(db, `SELECT * FROM main.${table} WHERE source_id=$id OR ${claim('source_json', ['sourceId'], '$id')}
+      OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')}`, id).map(row => ({ table, row })));
     if (claims.length > 1 || claims.length === 1 && (claims[0].table !== table || claims[0].row.source_id !== id)) throw new Error('same-PA dispatch raw Source identity alias differs');
     return claims[0]?.row ?? null;
   };
@@ -232,8 +233,8 @@ const createSqliteSamePlateAppearanceDispatchOwner = (path: string, authority?: 
       const authenticated = <T extends { route: SamePaDispatchRoute; nominal: unknown }>(input: T) => {
         for (const table of [...battingAssessmentOwners, 'pa_lifecycle_v1_total_assessments', 'pa_lifecycle_v1_execution_calibrations', 'pa_dispatch_v1_execution_calibrations', 'reserved_pa_total_assessments', 'actual_role_workload_assessments', 'pa_continuation_v1_total_assessments', 'pa_continuation_v1_execution_calibrations']) {
           if (!db.prepare('SELECT 1 FROM main.sqlite_master WHERE name=?').get(table)) continue;
-          const rows = db.prepare(`SELECT source_id FROM main.${table} WHERE source_id=$id OR ${claim('source_json', ['sourceId'], '$id')}
-            OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')} OR ${claim('source_json', ['provenance', 'assessmentSourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'provenance', 'assessmentSourceId'], '$id')}`).all({ id: source.provenance.assessmentSourceId });
+          const rows = sqliteMetadataClaimRows(db, `SELECT source_id FROM main.${table} WHERE source_id=$id OR ${claim('source_json', ['sourceId'], '$id')}
+            OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')} OR ${claim('source_json', ['provenance', 'assessmentSourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'provenance', 'assessmentSourceId'], '$id')}`, source.provenance.assessmentSourceId);
           if (rows.some(row => table !== dispatchTables.calibration || row.source_id !== source.sourceId)) throw new Error('dispatch calibration assessment provenance ownership differs');
         }
         assertActive(); return { kind: 'authenticated_calibration' as const, ...common, ...input };

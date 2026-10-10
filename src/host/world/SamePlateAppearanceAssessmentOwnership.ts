@@ -1,3 +1,4 @@
+import { sqliteMetadataClaimRows } from './SqliteMetadataStatementScope';
 import { battingAssessmentOwners } from './BattingAssessmentOwnership';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
@@ -22,9 +23,9 @@ const namespaces=(db:Db)=>{
 };
 const inspect=(db:Db,source:Source,tables:readonly string[])=>{
   for(const table of tables){
-    const rows=db.prepare(`SELECT source_id FROM main.${table} WHERE source_id=$id OR ${claim('source_json',['sourceId'],'$id')}
+    const rows=sqliteMetadataClaimRows(db, `SELECT source_id FROM main.${table} WHERE source_id=$id OR ${claim('source_json',['sourceId'],'$id')}
       OR ${claim('snapshot_json',['source','sourceId'],'$id')} OR ${claim('source_json',['provenance','assessmentSourceId'],'$id')}
-      OR ${claim('snapshot_json',['source','provenance','assessmentSourceId'],'$id')}`).all({id:source.provenance.assessmentSourceId});
+      OR ${claim('snapshot_json',['source','provenance','assessmentSourceId'],'$id')}`, source.provenance.assessmentSourceId);
     if(rows.some(row=>table!=='reserved_pa_total_assessments'||row.source_id!==source.sourceId))throw new Error('same-PA assessment provenance ownership is duplicate or belongs to prior work');
   }
 };

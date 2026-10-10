@@ -21,13 +21,15 @@ import type { AcceptedBodySource, AcceptedPoseSource, BodyMaterializationRequest
 import type { AcceptedPlayerBattingModelV1 } from './PlayerBattingModel';
 import type { AcceptedSamePaOccupiedRunnerHold } from './SamePlateAppearanceOccupiedRunnerHold';
 import type { AcceptedSamePaFirstPitchAction } from './SamePlateAppearanceDispatchSource';
+import { prepareSamePaInitialPlayFixture, type SamePaInitialPlayFixtureInputs } from './SamePlateAppearanceInitialBallFixture.test-support';
 
 /** One extension of PL01's genuinely completed walk. Every new numerical value
  * is a separately accepted synthetic Source using the existing body/batting,
  * runner and dispatch recipes. No archive, state, pitch or count is transplanted.
  * This helper is authored for the parent's single combined Native run. */
 export const continueSamePaOccupiedWalkFixture = (h: ReturnType<typeof samePaPhysicalLifecycleFixture>,
-  completed: ReturnType<typeof completeSamePaTerminalFixture>, label: string) => {
+  completed: ReturnType<typeof completeSamePaTerminalFixture>, label: string,
+  options: Readonly<{ initialPlay?: SamePaInitialPlayFixtureInputs }> = {}) => {
   const { f } = h, { db, path } = f, track = f.x.f.track;
   if (!('activation' in completed.transition.official)) throw new Error('occupied fixture needs the real continuing transition');
   const activation = completed.transition.official.activation;
@@ -58,9 +60,10 @@ export const continueSamePaOccupiedWalkFixture = (h: ReturnType<typeof samePaPhy
   const pose:AcceptedPoseSource = {...f.pose,...common,sourceId:label+':batter-pose',sourceVersion:'fixture-only-v1',bodyRef:ref(body)};
   const bodySource:BodyMaterializationRequest = {...scope,sourceId:label+':batter-body-composition',sourceVersion:'fixture-only-v1',atDay:actor.binding.gameDay,
     role:'batter',bodyRef:ref(body),poseRef:ref(pose),reachCalibrationRef:ref(f.reach),fieldingModelRef:null,releaseGeometryRef:null};
+  const requests = new Map([[bodySource.sourceId, bodySource]]), bodies = new Map([[body.sourceId, body]]), poses = new Map([[pose.sourceId, pose]]);
   const bodyOwner = track(openSqlitePlayerBodyCapabilityMaterializationStore(path,{
-    readAcceptedMaterialization:id=>id===bodySource.sourceId?bodySource:null,readAcceptedBody:id=>id===body.sourceId?body:null,
-    readAcceptedPose:id=>id===pose.sourceId?pose:null,readAcceptedReachCalibration:id=>id===f.reach.sourceId?f.reach:null,
+    readAcceptedMaterialization:id=>requests.get(id)??null,readAcceptedBody:id=>bodies.get(id)??null,
+    readAcceptedPose:id=>poses.get(id)??null,readAcceptedReachCalibration:id=>id===f.reach.sourceId?f.reach:null,
   }));
   const bodyResult = bodyOwner.accept(bodySource.sourceId);
   if (bodyResult.kind!=='materialized') throw new Error('occupied fixture next batter body pending');
@@ -73,12 +76,15 @@ export const continueSamePaOccupiedWalkFixture = (h: ReturnType<typeof samePaPhy
   const modelSource:AcceptedPlayerBattingModelV1 = {...common,sourceId:label+':batter-model',sourceVersion:'fixture-only-v1',
     bodyMaterializationRef:ref(bodySource),bodyRef:ref(body),poseRef:ref(pose),capabilityRef:ref(capability),repertoireRef:ref(repertoire),
     decisionModelRef:ref(decision),equipmentRef:ref(equipment),observationCalibrationRef:ref(observation),predictionCalibrationRef:ref(prediction)};
-  const batting = track(openSqlitePlayerBattingModelStore(path,{
-    readAcceptedModel:id=>id===modelSource.sourceId?modelSource:null,readAcceptedCapability:id=>id===capability.sourceId?capability:null,
-    readAcceptedRepertoire:id=>id===repertoire.sourceId?repertoire:null,readAcceptedDecisionModel:id=>id===decision.sourceId?decision:null,
-    readAcceptedEquipment:id=>id===equipment.sourceId?equipment:null,readAcceptedObservationCalibration:id=>id===observation.sourceId?observation:null,
-    readAcceptedPredictionCalibration:id=>id===prediction.sourceId?prediction:null,
-  })).accept(modelSource.sourceId);
+  const models = new Map([[modelSource.sourceId, modelSource]]), capabilities = new Map([[capability.sourceId, capability]]),
+    repertoires = new Map([[repertoire.sourceId, repertoire]]), decisions = new Map([[decision.sourceId, decision]]),
+    equipments = new Map([[equipment.sourceId, equipment]]), observations = new Map([[observation.sourceId, observation]]),
+    predictions = new Map([[prediction.sourceId, prediction]]);
+  const authority = { readAcceptedModel:(id:string)=>models.get(id)??null,readAcceptedCapability:(id:string)=>capabilities.get(id)??null,
+    readAcceptedRepertoire:(id:string)=>repertoires.get(id)??null,readAcceptedDecisionModel:(id:string)=>decisions.get(id)??null,
+    readAcceptedEquipment:(id:string)=>equipments.get(id)??null,readAcceptedObservationCalibration:(id:string)=>observations.get(id)??null,
+    readAcceptedPredictionCalibration:(id:string)=>predictions.get(id)??null };
+  const modelStore = track(openSqlitePlayerBattingModelStore(path,authority)), batting = modelStore.accept(modelSource.sourceId);
   expect(batting.person).toEqual(actor.person); expect(batting.bodyMaterialization).toEqual(bodyResult.value);
 
   // The walked runner keeps its own original body/pose/reach and receives a
@@ -173,7 +179,21 @@ export const continueSamePaOccupiedWalkFixture = (h: ReturnType<typeof samePaPhy
   const rightSource=save({...base,sourceId:label+':right',capability:'same_pa_first_pitch_right_v1',actionReference,consumerSetReference,
     episodeReference:reference('pa_dispatch_v1_episodes',episode),prefixReference:view.source.prefixReference});
   const right=dispatch.acceptRight(rightSource.sourceId);if(right.kind!=='immutable_right_prepared')throw new Error('occupied fixture first right pending');
-  save({sourceId:base.firstPhysicalPitchSourceId,sourceVersion:'fixture-only-v1',capability:'same_pa_physical_pitch_v1',actionReference,rightReference:reference('pa_dispatch_v1_rights',right)});
+  const pitchCalibration = calibrations.calibrations.find(c=>c.source.route==='pitch_delivery')!;
+  // This is only a fixture composition. All actor/model/view/calibration records
+  // are the unchanged values returned by their owners above. The original
+  // stance declaration supplies explicit geometry, never a new stance receipt.
+  const fixture = {...f,actor,person:actor.person,scope,day:actor.binding.gameDay,parameterDay:actor.binding.gameDay,
+    body,pose,receipt:bodyResult.value,requests,bodies,poses,materializations:bodyOwner,
+    source:modelSource,capability,repertoire,decision,equipment,observation,prediction,authority,
+    models,capabilities,repertoires,decisions,equipments,observations,predictions,modelStore,
+    view,acceptedAction:action,acceptedCalibrations:calibrations,pitchCalibration,
+    request:{actionReference,calibrationReference:reference('pa_dispatch_v1_execution_calibrations',pitchCalibration)}};
+  const sceneBodyReferences = [...h.sceneBodyReferences,{playerId:runnerBinding.playerId,bodyReference:hold.source.bodyReference}];
+  const initialPlay = options.initialPlay===undefined?null:prepareSamePaInitialPlayFixture(fixture,accepted,sceneBodyReferences,options.initialPlay,label);
+  save(initialPlay===null
+    ?{sourceId:base.firstPhysicalPitchSourceId,sourceVersion:'fixture-only-v1',capability:'same_pa_physical_pitch_v1',actionReference,rightReference:reference('pa_dispatch_v1_rights',right)}
+    :{sourceId:base.firstPhysicalPitchSourceId,sourceVersion:'fixture-only-v1',capability:'same_pa_physical_pitch_v2',actionReference,rightReference:reference('pa_dispatch_v1_rights',right),initialPlayReference:initialPlay.initialPlayReference});
   const pitch=dispatch.acceptPhysicalPitch(base.firstPhysicalPitchSourceId);if(pitch.kind==='pending')throw new Error('occupied fixture real declared TAKE pending');
   expect(pitch.originalActor).toEqual(actor);expect(pitch.lineage.participantReferences).toHaveLength(11);
   expect(pitch.beforeTimeline).toEqual(prefix.timeline);
@@ -195,5 +215,7 @@ export const continueSamePaOccupiedWalkFixture = (h: ReturnType<typeof samePaPhy
   const reopened=track(openSqliteSamePlateAppearanceDispatchStore(path));
   expect(reopened.acceptPhysicalPitch(pitch.source.sourceId)).toEqual(pitch);expect(reopened.readPhysicalPitch(pitch.source.sourceId)).toEqual(pitch);
   expect(bytes()).toBe(saved);
-  return {actor,enrollment,view,hold,action,calibrations,consumers,episode,right,pitch};
+  return {actor,enrollment,view,hold,action,calibrations,consumers,episode,right,pitch,
+    f:{...fixture,dispatch:reopened},accepted,save,originals,roles,sceneBodyReferences,batting,runnerBody:runnerBody.value,runnerModel,
+    ...(initialPlay===null?{}:{initialPlay})};
 };

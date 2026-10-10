@@ -1,4 +1,4 @@
-import { withSqliteMetadataStatementScope } from './SqliteMetadataStatementScope';
+import { sqliteMetadataClaimRows, withSqliteMetadataStatementScope } from './SqliteMetadataStatementScope';
 import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
 import { readSamePaSuccessorWorkClaimRows } from './SamePlateAppearanceContinuationClaimGuard';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -33,10 +33,10 @@ export const samePaContinuationRow = (value: SamePaContinuationRecord): Record<s
     enrollment_source_id: l.enrollmentReference.sourceId, actor_source_id: l.actorReference.sourceId, first_pitch_source_id: l.firstPhysicalPitchSourceId,
     ...extra, source_json: json(s), source_hash: hash(s), snapshot_json: json(value), snapshot_hash: hash(value) };
 };
-export const samePaContinuationIdentityRow = (db: DatabaseSync, kind: SamePaContinuationKind, id: string) => {
+const inspectContinuationIdentity = (db: DatabaseSync, kind: SamePaContinuationKind, id: string) => {
   const installed = assertSamePaContinuationStorage(db);
-  const rows = installed ? Object.values(tables).flatMap(table => db.prepare(`SELECT * FROM main.${table} WHERE source_id=$id
-    OR ${claim('source_json', ['sourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')}`).all({ id }).map(row => ({ table, row }))) : [];
+  const rows = installed ? Object.values(tables).flatMap(table => sqliteMetadataClaimRows(db, `SELECT * FROM main.${table} WHERE source_id=$id
+    OR ${claim('source_json', ['sourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')}`, id).map(row => ({ table, row }))) : [];
   if (rows.length > 1 || rows.length === 1 && (rows[0].table !== tables[kind] || rows[0].row.source_id !== id)) throw new Error('same-PA continuation Source identity alias differs');
   if (!rows.length) {
     const descendants = db.prepare("SELECT name FROM main.sqlite_master WHERE type='table' AND (name GLOB 'pa_continuation_v1_*' OR name GLOB 'batting_observation_v1_*' OR name GLOB 'batting_prediction_v1_*' OR name GLOB 'batting_emotion_execution_v1_*' OR name GLOB 'batting_execution_v1_*')").all();
@@ -52,6 +52,12 @@ export const samePaContinuationIdentityRow = (db: DatabaseSync, kind: SamePaCont
     }
   }
   return rows[0]?.row ?? null;
+};
+export const samePaContinuationIdentityRow = (db: DatabaseSync, kind: SamePaContinuationKind, id: string) => {
+  const { DatabaseSync: Native } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  return db instanceof Native && db.isTransaction && db.prepare('PRAGMA query_only').get()!.query_only === 1
+    ? memoSamePaContinuationRead(db, 'continuation-identity:' + json([kind, id]), () => freeze(inspectContinuationIdentity(db, kind, id)))
+    : inspectContinuationIdentity(db, kind, id);
 };
 type ReadPhase = {
   signature: string; failed: boolean;
@@ -131,14 +137,15 @@ const assemble = <T>(db: DatabaseSync, current: boolean, body: (read: (kind: Sam
     if (!samePaReferenceValid(ref, tables[kind])) throw new Error('same-PA continuation reference owner differs');
     const value = read(kind, ref.sourceId); if (!value) throw new Error('same-PA continuation original prerequisite missing'); same(reference(tables[kind], value), ref); return value;
   };
-  const assessmentOwnership = (source: Extract<SamePaContinuationSource, { provenance: unknown }>) => {
+  const assessmentOwnership = (source: Extract<SamePaContinuationSource, { provenance: unknown }>) =>
+    memoSamePaContinuationRead(db, 'continuation-assessment:' + json([tables[samePaContinuationKind(source)], source.sourceId, source.provenance.assessmentSourceId]), () => {
       for (const table of [...battingAssessmentOwners, 'pa_lifecycle_v1_total_assessments', 'pa_lifecycle_v1_execution_calibrations', 'pa_continuation_v1_total_assessments', 'pa_continuation_v1_execution_calibrations', 'reserved_pa_total_assessments', 'actual_role_workload_assessments', 'pa_dispatch_v1_execution_calibrations']) {
         if (!db.prepare('SELECT 1 FROM main.sqlite_master WHERE name=?').get(table)) continue;
-        const rows = db.prepare(`SELECT source_id FROM main.${table} WHERE source_id=$id OR ${claim('source_json', ['sourceId'], '$id')}
-          OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')} OR ${claim('source_json', ['provenance', 'assessmentSourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'provenance', 'assessmentSourceId'], '$id')}`).all({ id: source.provenance.assessmentSourceId });
+        const rows = sqliteMetadataClaimRows(db, `SELECT source_id FROM main.${table} WHERE source_id=$id OR ${claim('source_json', ['sourceId'], '$id')}
+          OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')} OR ${claim('source_json', ['provenance', 'assessmentSourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'provenance', 'assessmentSourceId'], '$id')}`, source.provenance.assessmentSourceId);
         if (rows.some(row => table !== (source.capability === 'same_pa_nonempty_cumulative_total_v1' ? tables.total : tables.calibration) || row.source_id !== source.sourceId)) throw new Error('same-PA continuation assessment identity belongs to other work');
       }
-  };
+    });
   const derive = (source: SamePaContinuationSource): SamePaContinuationRecord => {
     if (source.capability === 'same_pa_completed_take_prefix_v1') {
       const original = pitch(source.pitchReference), p = original.pitch, actor = p.originalActor;
@@ -164,8 +171,8 @@ const assemble = <T>(db: DatabaseSync, current: boolean, body: (read: (kind: Sam
       // Establish the strictly shorter prior-view direction from exact raw
       // owner references before invoking any recursive behavioral replay.
       for (const [index, opRef] of source.operationReferences.entries()) {
-        const rows = db.prepare(`SELECT * FROM main.${opRef.owner} WHERE source_id=$id OR ${claim('source_json', ['sourceId'], '$id')}
-          OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')}`).all({ id: opRef.sourceId });
+        const rows = sqliteMetadataClaimRows(db, `SELECT * FROM main.${opRef.owner} WHERE source_id=$id OR ${claim('source_json', ['sourceId'], '$id')}
+          OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')}`, opRef.sourceId);
         if (rows.length !== 1 || rows[0].source_id !== opRef.sourceId) throw new Error('same-PA invocation identity missing or aliased');
         const row = rows[0], opSource = JSON.parse(String(row.source_json)), opRecord = JSON.parse(String(row.snapshot_json));
         same(opRecord.source, opSource); same({ owner: opRef.owner, sourceId: opSource.sourceId, sourceHash: hash(opSource), snapshotHash: hash(opRecord) }, opRef);

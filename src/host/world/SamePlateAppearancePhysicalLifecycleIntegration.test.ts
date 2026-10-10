@@ -1,4 +1,5 @@
 import { expect, it } from 'vitest';
+import { NPB_2026_RULE_PROFILE } from '../../core/rules/RuleProfile';
 import { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { openSqliteSamePlateAppearancePhysicalEpisodeStore } from './SqliteSamePlateAppearancePhysicalEpisodeStore';
@@ -14,7 +15,7 @@ import { completeSamePaTerminalFixture } from './SamePlateAppearanceTerminalLife
  * integrated verification. Synthetic Sources remain explicit and accepted by
  * normal owners. No transformed module, prior-view mock, or row transplantation. */
 it('PL01 one owned TAKE chain reaches a terminal walk, settles all ten participants, completes the official transition and releases after reopen',()=>{
-  const h=samePaPhysicalLifecycleFixture(),{f}=h;
+  const h=samePaPhysicalLifecycleFixture({profile:{ruleProfileId:NPB_2026_RULE_PROFILE.id}}),{f}=h;
   try{
     const originalHeads=f.db.prepare('SELECT * FROM world_player_workload_heads ORDER BY career_id,player_id').all();
     for(const [ordinal,lateral]of [[3,2],[4,-2],[5,2],[6,-2]] as const){

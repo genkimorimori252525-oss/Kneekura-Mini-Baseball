@@ -1,5 +1,7 @@
+import { sqliteMetadataClaimRows } from './SqliteMetadataStatementScope';
 import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
 import { randomUUID } from 'node:crypto';
+import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { advancePlayerWorkloadRecovery, type PlayerWorkloadActivity } from '../../core/world/development/PlayerWorkloadRecovery';
@@ -9,7 +11,7 @@ import { samePaReferenceValid, samePaText, type SamePaReference } from './SamePl
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { samePaMetadataClaim as claim } from './SamePlateAppearanceReservationGuard';
 import { readActualRoleWorkloadState } from './ActualRoleWorkloadState';
-import { readHistoricalSamePaContinuationViewFromSqlite, readSamePaContinuationRecordFromSqlite, withSamePaContinuationReadPhase } from './SamePlateAppearanceContinuationFromSqlite';
+import { readHistoricalSamePaContinuationViewFromSqlite, readSamePaContinuationRecordFromSqlite, withSamePaContinuationReadPhase, memoSamePaContinuationRead } from './SamePlateAppearanceContinuationFromSqlite';
 import { readSamePaSuccessorTakePitchFromSqlite } from './SamePlateAppearanceTakeSuccessorFromSqlite';
 import { readSamePaPhysicalOperationFromSqlite } from './SamePlateAppearancePhysicalEpisodeFromSqlite';
 import { samePaPhysicalOperationOwners, type SamePaPhysicalOperationReference } from './SamePlateAppearancePhysicalEpisode';
@@ -43,10 +45,10 @@ export const samePaLifecycleRow = (v: SamePaLifecycleRecord): Record<string, str
     enrollment_source_id: l.enrollmentReference.sourceId, actor_source_id: l.actorReference.sourceId, first_pitch_source_id: l.firstPhysicalPitchSourceId,
     ...extra, source_json: json(s), source_hash: hash(s), snapshot_json: json(v), snapshot_hash: hash(v) };
 };
-export const samePaLifecycleIdentityRow = (db: DatabaseSync, kind: SamePaLifecycleKind, id: string) => {
+const inspectLifecycleIdentity = (db: DatabaseSync, kind: SamePaLifecycleKind, id: string) => {
   const installed = assertSamePaLifecycleStorage(db);
-  const rows = installed ? Object.values(tables).flatMap(table => db.prepare(`SELECT * FROM main.${table} WHERE source_id=$id
-    OR ${claim('source_json', ['sourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')}`).all({ id }).map(row => ({ table, row }))) : [];
+  const rows = installed ? Object.values(tables).flatMap(table => sqliteMetadataClaimRows(db, `SELECT * FROM main.${table} WHERE source_id=$id
+    OR ${claim('source_json', ['sourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')}`, id).map(row => ({ table, row }))) : [];
   if (rows.length > 1 || rows.length === 1 && (rows[0].table !== tables[kind] || rows[0].row.source_id !== id)) throw new Error('lifecycle Source identity alias differs');
   if (!rows.length) {
     // A removed owner remains claimed through typed references in either mirror.
@@ -59,6 +61,14 @@ export const samePaLifecycleIdentityRow = (db: DatabaseSync, kind: SamePaLifecyc
     }
   }
   return rows[0]?.row ?? null;
+};
+/** Completed raw identity proof only. The enclosing Native snapshot owns the
+ * memo; current behavioral replay/admission remains the caller's responsibility. */
+export const samePaLifecycleIdentityRow = (db: DatabaseSync, kind: SamePaLifecycleKind, id: string) => {
+  const { DatabaseSync: Native } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  return db instanceof Native && db.isTransaction && db.prepare('PRAGMA query_only').get()!.query_only === 1
+    ? memoSamePaContinuationRead(db, 'lifecycle-identity:' + json([kind, id]), () => freeze(inspectLifecycleIdentity(db, kind, id)))
+    : inspectLifecycleIdentity(db, kind, id);
 };
 type Anchor = ReturnType<typeof readHistoricalSamePaContinuationViewFromSqlite>;
 type Phase = { signature: string; failed: boolean; records: Map<string, SamePaLifecycleRecord>; anchors: Map<string, Anchor>;
@@ -95,8 +105,8 @@ const physical = (db: DatabaseSync, ref: SamePaPhysicalOperationReference) => {
 const exactRaw = (db: DatabaseSync, ref: SamePaReference) => {
   const catalog = db.prepare('SELECT name,type FROM main.sqlite_master WHERE lower(name)=lower(?)').all(ref.owner);
   if (catalog.length !== 1 || catalog[0].type !== 'table' || catalog[0].name !== ref.owner || !/^[a-z0-9_]+$/.test(ref.owner)) throw new Error('lifecycle referenced namespace missing or aliased');
-  const rows = db.prepare(`SELECT * FROM main.${ref.owner} WHERE source_id=$id OR ${claim('source_json', ['sourceId'], '$id')}
-    OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')}`).all({ id: ref.sourceId });
+  const rows = sqliteMetadataClaimRows(db, `SELECT * FROM main.${ref.owner} WHERE source_id=$id OR ${claim('source_json', ['sourceId'], '$id')}
+    OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')}`, ref.sourceId);
   if (rows.length !== 1 || rows[0].source_id !== ref.sourceId) throw new Error('lifecycle raw identity missing or moved');
   const row = rows[0], source = JSON.parse(String(row.source_json)), value = JSON.parse(String(row.snapshot_json));
   same(value.source, source); same(reference(ref.owner, value), ref);
@@ -114,13 +124,14 @@ const assemble = <T>(db: DatabaseSync, current: boolean, body: (read: (kind: Sam
     const prefix = linked('prefix', view.source.prefixReference) as SamePaLifecyclePrefix, old = anchor(db, prefix.source.anchorViewReference);
     return freeze({ actor: old.actor, view, members: old.members.map(m => ({ ...m, projectedStateHash: view.participants.find(p => p.playerId === m.playerId)!.projectedStateHash })) });
   };
-  const assessmentOwnership = (s: Extract<SamePaLifecycleSource, { provenance: unknown }>) => {
-    for (const table of [...battingAssessmentOwners, 'pa_lifecycle_v1_total_assessments', 'pa_lifecycle_v1_execution_calibrations', 'pa_continuation_v1_total_assessments', 'pa_continuation_v1_execution_calibrations', 'reserved_pa_total_assessments', 'actual_role_workload_assessments', 'pa_dispatch_v1_execution_calibrations']) {
-      if (!db.prepare('SELECT 1 FROM main.sqlite_master WHERE name=?').get(table)) continue;
-      const rows = db.prepare(`SELECT source_id FROM main.${table} WHERE source_id=$id OR ${claim('source_json', ['provenance', 'assessmentSourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'provenance', 'assessmentSourceId'], '$id')}`).all({ id: s.provenance.assessmentSourceId });
-      if (rows.some(r => table !== tables[samePaLifecycleKind(s)] || r.source_id !== s.sourceId)) throw new Error('lifecycle assessment identity already claimed');
-    }
-  };
+  const assessmentOwnership = (s: Extract<SamePaLifecycleSource, { provenance: unknown }>) =>
+    memoSamePaContinuationRead(db, 'lifecycle-assessment:' + json([tables[samePaLifecycleKind(s)], s.sourceId, s.provenance.assessmentSourceId]), () => {
+      for (const table of [...battingAssessmentOwners, 'pa_lifecycle_v1_total_assessments', 'pa_lifecycle_v1_execution_calibrations', 'pa_continuation_v1_total_assessments', 'pa_continuation_v1_execution_calibrations', 'reserved_pa_total_assessments', 'actual_role_workload_assessments', 'pa_dispatch_v1_execution_calibrations']) {
+        if (!db.prepare('SELECT 1 FROM main.sqlite_master WHERE name=?').get(table)) continue;
+        const rows = sqliteMetadataClaimRows(db, `SELECT source_id FROM main.${table} WHERE source_id=$id OR ${claim('source_json', ['provenance', 'assessmentSourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'provenance', 'assessmentSourceId'], '$id')}`, s.provenance.assessmentSourceId);
+        if (rows.some(r => table !== tables[samePaLifecycleKind(s)] || r.source_id !== s.sourceId)) throw new Error('lifecycle assessment identity already claimed');
+      }
+  });
   const derivePrefix = (source: AcceptedSamePaLifecyclePrefix): SamePaLifecyclePrefix => {
     const first = source.eventReferences[0]; if (first.owner !== 'pa_take_successor_v1_pitch_actions') throw new Error('lifecycle requires original second TAKE anchor');
     const bundle = second(db, { ...first, owner: 'pa_take_successor_v1_pitch_actions' }), old = anchor(db, source.anchorViewReference), actor = old.actor;

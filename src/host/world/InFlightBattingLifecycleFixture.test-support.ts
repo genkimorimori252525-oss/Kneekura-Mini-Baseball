@@ -43,6 +43,8 @@ export const prepareInFlightBattingSwing = (h: Fixture, prepared: ReturnType<Fix
     readAcceptedDelivery: id => accepted.get(id), readAcceptedPrediction: id => accepted.get(id), readAcceptedAssessment: id => accepted.get(id) }));
   const inputOwner = track(openSqliteBattingExecutionInputStore(f.path, { readAcceptedIntent: id => accepted.get(id), readAcceptedInput: id => accepted.get(id) }));
   const ready = prepared.action.source.nominalPitch.delivery.readyAtUs;
+  const holdReferences = h.original.occupiedRunnerHoldReferences;
+  const validUntilTick = holdReferences === undefined ? ready + 20_000_000 : Math.min(ready + 20_000_000, h.geometry.validUntilTick);
   // Plan only this fixture's temporal declaration from the same owned inputs
   // and existing Core timing used by launch. No pitch/observation is accepted here.
   const timing = withSqliteReadTransaction(f.db, () => {
@@ -61,12 +63,13 @@ export const prepareInFlightBattingSwing = (h: Fixture, prepared: ReturnType<Fix
     return inFlightBattingFixtureTiming({ root: new SeedRoot(nominal.delivery.matchSeed), outingId: nominal.delivery.outingId,
       playId: action.lineage.playId, pitchIndex: action.pitchOrdinal - 1, readyAtUs: ready, timingProfile: effective.timingProfile,
       timingIntent: nominal.delivery.timingIntent, body: { ...geometry.body, moundReference: nominal.delivery.moundReference },
-      releaseProfile: geometry.profile, physics: effective.physics }, ready + 20_000_000);
+      releaseProfile: geometry.profile, physics: effective.physics }, validUntilTick);
   });
   const postureSource = save({ sourceId: label + ':posture', sourceVersion: 'fixture-only-v1', capability: 'owned_in_flight_batting_posture_v1',
     viewReference: h.current().viewReference, member: member(), actionReference: prepared.actionReference, modelReference: h.original.batterModelReference,
     sceneBodyReferences: h.sceneBodyReferences, geometry: { ...h.geometry, startedAtTick: prepared.action.bodyCut.completedAtTick,
       attention: { target: { kind: 'ball' }, focusedSinceTick: prepared.action.bodyCut.completedAtTick }, ...timing.geometry },
+    ...(holdReferences === undefined ? {} : { occupiedRunnerHoldReferences: holdReferences }),
     provenance: provenance(label + ':posture-assessment') });
   const posture = perception.acceptPosture(postureSource.sourceId); if (posture.kind !== 'batting_invocation_posture') throw new Error('real per-pitch posture pending: ' + JSON.stringify(posture));
   const postureReference = reference('batting_observation_v1_postures', posture);

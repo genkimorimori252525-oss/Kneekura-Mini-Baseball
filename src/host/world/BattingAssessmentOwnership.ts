@@ -1,3 +1,4 @@
+import { sqliteMetadataClaimRows } from './SqliteMetadataStatementScope';
 import type { DatabaseSync } from 'node:sqlite';
 import { samePaMetadataClaim as claim } from './SamePlateAppearanceReservationGuard';
 import { assertBodyCompositionNativeConnection } from './BodyMaterializationSqliteOwnership';
@@ -14,9 +15,8 @@ export const assertBattingAssessmentOwnership = (db: DatabaseSync, owner: string
     const metadata = db.prepare('SELECT type,name FROM main.sqlite_master WHERE lower(name)=lower(?)').all(table);
     if (!metadata.length) continue;
     if (metadata.length !== 1 || metadata[0].type !== 'table' || metadata[0].name !== table) throw new Error('batting assessment original owner namespace differs');
-    const rows = db.prepare(`SELECT source_id FROM main.${table} WHERE source_id=$id OR ${claim('source_json', ['sourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')}
-      OR ${claim('source_json', ['provenance', 'assessmentSourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'provenance', 'assessmentSourceId'], '$id')}`)
-      .all({ id: source.provenance.assessmentSourceId });
+    const rows = sqliteMetadataClaimRows(db, `SELECT source_id FROM main.${table} WHERE source_id=$id OR ${claim('source_json', ['sourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')}
+      OR ${claim('source_json', ['provenance', 'assessmentSourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'provenance', 'assessmentSourceId'], '$id')}`, source.provenance.assessmentSourceId);
     if (rows.some(row => table !== owner || row.source_id !== source.sourceId)) throw new Error('batting accepted assessment identity belongs to another owner');
   }
 };

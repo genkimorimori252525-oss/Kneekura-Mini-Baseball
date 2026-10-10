@@ -379,9 +379,58 @@ it('admits the returned quantizer and first-base race frontier before its empty 
 it.each([
   ['missing quantizer predecessor', "DELETE FROM batted_world_field_executions WHERE source_id='field-race-quantizer-tail'"],
   ['race skips quantizer predecessor', "UPDATE batted_world_field_executions SET previous_source_id='field-race-real-motor' WHERE source_id='field-first-base-race'"],
-  ['rule consumption already committed', "INSERT INTO actual_live_rule_consumptions VALUES('rule-consumption')"],
+  ['unproven rule-consumption row', "INSERT INTO actual_live_rule_consumptions VALUES('rule-consumption')"],
 ])('rejects an unsupported first-base race frontier: %s', (_label, mutation) => {
   const { db } = firstBaseRaceCut(); try { db.exec(mutation); const before = rows(db);
     expect(() => assertNationalBattedFoulRetainedBindingFrontier(db)).toThrow(); expect(rows(db)).toEqual(before);
+  } finally { db.close(); }
+});
+
+// Structural rows only: the continuation still obtains every value from its real owner.
+const officialPrefixCut = (length: number) => {
+  const { db, first } = firstBaseRaceCut(), pitch = 'national-live:pitch-0', snapshot = { metadataTestOnly: true };
+  db.exec('DROP TABLE actual_live_rule_consumptions; CREATE TABLE actual_live_rule_consumptions(source_id TEXT,ownership_key TEXT,source_json TEXT,source_hash TEXT,snapshot_json TEXT,snapshot_hash TEXT)');
+  for (const table of ['actual_first_base_umpire_setups', 'actual_first_base_umpire_observations', 'actual_first_base_umpire_calls'])
+    db.exec(`CREATE TABLE ${table}(source_id TEXT,source_version TEXT,game_id TEXT,physical_pitch_source_id TEXT,umpire_id TEXT,dependency_source_id TEXT,
+      current_execution_source_id TEXT,source_json TEXT,source_hash TEXT,snapshot_json TEXT,snapshot_hash TEXT)`);
+  const stages = [
+    ['actual_live_rule_consumptions', 'rule-consumption'], ['actual_first_base_umpire_setups', 'play-end-umpire-setup'],
+    ['actual_first_base_umpire_observations', 'play-end-umpire-observation'], ['actual_first_base_umpire_calls', 'scheduled-operative-call'],
+    ['batted_world_field_executions', 'actual-call-due-cut'], ['actual_first_base_umpire_calls', 'operative-call'],
+    ['batted_world_field_executions', 'actual-post-call-quantizer-tail'],
+  ];
+  for (const [i, [owner, sourceId]] of stages.slice(0, length).entries()) {
+    const source = { sourceId, sourceVersion: 'fixture-v1', metadataTestOnly: true };
+    if (owner === 'actual_live_rule_consumptions') db.prepare(`INSERT INTO ${owner} VALUES(?,?,?,?,?,?)`)
+      .run(sourceId, 'metadata-test-only', json(source), hash(source), json(snapshot), hash(snapshot));
+    else if (owner === 'batted_world_field_executions') {
+      const previous = sourceId === 'actual-call-due-cut' ? 'field-first-base-race' : 'actual-call-due-cut', revision = sourceId === 'actual-call-due-cut' ? 9 : 10;
+      db.prepare(`INSERT INTO ${owner} VALUES(?,?,?,?,?,?,?,?,?,?)`).run(sourceId, pitch, 'field-race-candidate-0', previous,
+        revision, gameId, json(source), hash(source), json(snapshot), hash(snapshot));
+      db.prepare('UPDATE batted_world_field_execution_heads SET source_id=?,revision=?').run(sourceId, revision);
+    } else {
+      const dependency = i === 1 ? pitch : i === 2 ? 'play-end-umpire-setup' : 'play-end-umpire-observation';
+      const current = i === 1 ? null : i === 5 ? 'actual-call-due-cut' : 'field-first-base-race';
+      db.prepare(`INSERT INTO ${owner} VALUES(?,?,?,?,?,?,?,?,?,?,?)`).run(sourceId, source.sourceVersion, gameId, pitch, 'umpire-1', dependency,
+        current, json(source), hash(source), json(snapshot), hash(snapshot));
+    }
+    db.prepare('INSERT INTO actual_live_play_admissions VALUES(?,?,?,?,?,?)').run('live-play-runtime', i + 15, owner, sourceId, hash(source), hash(snapshot));
+  }
+  return { db, first };
+};
+it.each([2, 7])('admits a fixed official prefix of %i stages with its separate physical head and no writes', length => {
+  const { db, first } = officialPrefixCut(length); try { const before = rows(db), changes = db.prepare('SELECT total_changes() AS n').get();
+    expect(assertNationalBattedFoulRetainedBindingFrontier(db)).toBe(gameId);
+    expect(() => assertNationalBattedFoulRetainedAcquisitionSources(db, first)).not.toThrow();
+    expect(rows(db)).toEqual(before); expect(db.prepare('SELECT total_changes() AS n').get()).toEqual(changes);
+  } finally { db.close(); }
+});
+it.each([
+  ['hole before a later call', 'DELETE FROM actual_first_base_umpire_observations', 'retained official prefix has a hole'],
+  ['foreign setup pitch', "UPDATE actual_first_base_umpire_setups SET physical_pitch_source_id='foreign'", 'retained official owner scope differs'],
+  ['later communication claim', "CREATE TABLE actual_call_communications(source_id TEXT); INSERT INTO actual_call_communications VALUES('call-information')", 'unsupported later official owner'],
+])('rejects a fixed official prefix with %s', (_label, mutation, message) => {
+  const { db } = officialPrefixCut(7); try { db.exec(mutation); const before = rows(db);
+    expect(() => assertNationalBattedFoulRetainedBindingFrontier(db)).toThrow(message); expect(rows(db)).toEqual(before);
   } finally { db.close(); }
 });
