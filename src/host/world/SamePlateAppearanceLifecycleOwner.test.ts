@@ -6,6 +6,8 @@ import {actorHash as hash,actorJson as json} from './PhysicalPlateAppearanceActo
 import * as original from './SamePlateAppearanceContinuationFromSqlite';
 import * as second from './SamePlateAppearanceTakeSuccessorFromSqlite';
 import * as claims from './SamePlateAppearanceContinuationClaimGuard';
+import * as physical from './SamePlateAppearancePhysicalEpisodeFromSqlite';
+import type {SamePaPhysicalOperationProof} from './SamePlateAppearancePhysicalEpisode';
 import {readCurrentSamePaLifecycleViewFromSqlite,deriveCurrentSamePaLifecycleFromSqlite,withSamePaLifecycleReadPhase} from './SamePlateAppearanceLifecycleFromSqlite';
 import {withSqliteReadTransaction} from './SqliteReadTransaction.test-support';
 import {openSqliteSamePlateAppearanceLifecycleStore} from './SqliteSamePlateAppearanceLifecycleStore';
@@ -97,4 +99,48 @@ it('LO05 completed assessment ownership stays within its original source, assess
     expect(read).toThrow();expect(read).toThrow(/expired/);
   })).toThrow(/expired/);
   expect(()=>proof(read)).not.toThrow();mutate();expect(()=>proof(read)).toThrow(/assessment|claimed/);
+});
+
+it('LO06 reuses complete raw direction proofs only for the exact reference inside one immutable phase',()=>{
+  const f=fixture(),p=f.prepare(),view=f.owner.acceptView(p.view.sourceId),db=f.f.db;
+  if(view.kind!=='same_pa_lifecycle_view')throw new Error('view pending');
+  // This extends the same structural boundary: the physical owner is mocked,
+  // while exact raw rows, hashes, shorter-prefix direction and lifecycle replay are real.
+  const source={sourceId:'mock-physical-cut',viewReference:reference('pa_lifecycle_v1_execution_views',view),
+    previousOperationReference:p.prefix.cut.physicalOperationReference};
+  const record={kind:'same_pa_physical_cut_v1',source},ref=reference('pa_physical_v1_cuts',record);
+  db.exec('CREATE TABLE pa_physical_v1_cuts(source_id TEXT PRIMARY KEY,source_json TEXT,source_hash TEXT,snapshot_json TEXT,snapshot_hash TEXT)');
+  const raw={source_id:source.sourceId,source_json:json(source),source_hash:hash(source),snapshot_json:json(record),snapshot_hash:hash(record)};
+  db.prepare('INSERT INTO pa_physical_v1_cuts VALUES(?,?,?,?,?)').run(...Object.values(raw));
+  const operation={reference:ref,record,viewReference:source.viewReference,lineage:p.prefix.lineage,evaluationTick:351,pitchOrdinal:2,
+    timeline:p.prefix.cut.timeline,kind:record.kind,stage:'in_flight',physicalPitchReference:p.prefix.cut.physicalPitchReference,
+    actor:f.f.actor,physicalWorld:p.prefix.cut.physicalWorld,bodyCut:p.prefix.cut.bodyCut} as unknown as SamePaPhysicalOperationProof;
+  vi.spyOn(physical,'readSamePaPhysicalOperationFromSqlite').mockReturnValue(operation);
+  vi.mocked(claims.readSamePaContinuationClaimRows).mockReturnValue([{table:ref.owner,row:raw}]);
+  const extended:AcceptedSamePaLifecyclePrefix={...f.prefixSource,sourceId:'extended-prefix',eventReferences:[...f.prefixSource.eventReferences,ref]};
+  const prepare=db.prepare.bind(db);let scans=0;
+  vi.spyOn(db,'prepare').mockImplementation(sql=>{
+    const statement=prepare(sql);
+    if(sql.startsWith('SELECT * FROM main.pa_physical_v1_cuts WHERE source_id=$id')){
+      const all=statement.all.bind(statement);statement.all=(...args)=>{scans++;return Reflect.apply(all,statement,args);};
+    }
+    return statement;
+  });
+  const read=(s=extended)=>deriveCurrentSamePaLifecycleFromSqlite(db,s);
+  const proof=<T>(body:()=>T)=>withSqliteReadTransaction(db,()=>original.withSamePaContinuationReadPhase(db,body));
+  proof(()=>{
+    const first=withSamePaLifecycleReadPhase(db,()=>read()),count=scans;expect(count).toBeGreaterThan(0);
+    expect(withSamePaLifecycleReadPhase(db,()=>read())).toEqual(first);expect(scans).toBe(count);
+  });
+  const completed=scans;proof(()=>read());expect(scans).toBeGreaterThan(completed);
+  for(const changed of [{...ref,sourceHash:hash('foreign-source')},{...ref,snapshotHash:hash('foreign-snapshot')}]){
+    expect(()=>proof(()=>{read();read({...extended,eventReferences:[extended.eventReferences[0],changed]});})).toThrow(/ownership|hash/);
+  }
+  expect(()=>proof(()=>{
+    read();db.exec("PRAGMA query_only=0; UPDATE pa_physical_v1_cuts SET snapshot_hash='changed'; PRAGMA query_only=1");
+    expect(()=>read()).toThrow();expect(()=>read()).toThrow(/expired/);
+  })).toThrow(/expired/);
+  expect(()=>proof(()=>read())).not.toThrow();
+  db.exec("UPDATE pa_physical_v1_cuts SET snapshot_hash='changed'");
+  expect(()=>proof(()=>read())).toThrow(/hash/);
 });

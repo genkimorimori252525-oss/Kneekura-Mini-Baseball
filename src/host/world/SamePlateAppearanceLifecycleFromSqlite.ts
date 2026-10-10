@@ -102,7 +102,9 @@ const physical = (db: DatabaseSync, ref: SamePaPhysicalOperationReference) => {
   const p = phases.get(db)!; const key = json(ref), saved = p.physical.get(key); if (saved) return saved;
   const value = readSamePaPhysicalOperationFromSqlite(db, ref); p.physical.set(key, value); return value;
 };
-const exactRaw = (db: DatabaseSync, ref: SamePaReference) => {
+// Repeated shorter-prefix edges share only the complete raw reference proof.
+// Behavioral replay and current admission remain independent below.
+const exactRaw = (db: DatabaseSync, ref: SamePaReference) => memoSamePaContinuationRead(db, 'lifecycle-raw:' + json(ref), () => {
   const catalog = db.prepare('SELECT name,type FROM main.sqlite_master WHERE lower(name)=lower(?)').all(ref.owner);
   if (catalog.length !== 1 || catalog[0].type !== 'table' || catalog[0].name !== ref.owner || !/^[a-z0-9_]+$/.test(ref.owner)) throw new Error('lifecycle referenced namespace missing or aliased');
   const rows = sqliteMetadataClaimRows(db, `SELECT * FROM main.${ref.owner} WHERE source_id=$id OR ${claim('source_json', ['sourceId'], '$id')}
@@ -111,8 +113,8 @@ const exactRaw = (db: DatabaseSync, ref: SamePaReference) => {
   const row = rows[0], source = JSON.parse(String(row.source_json)), value = JSON.parse(String(row.snapshot_json));
   same(value.source, source); same(reference(ref.owner, value), ref);
   if (row.source_hash !== ref.sourceHash || row.snapshot_hash !== ref.snapshotHash || row.source_json !== json(source) || row.snapshot_json !== json(value)) throw new Error('lifecycle raw identity hashes differ');
-  return { row, source, value };
-};
+  return freeze({ row, source, value });
+});
 const assemble = <T>(db: DatabaseSync, current: boolean, body: (read: (kind: SamePaLifecycleKind, id: string) => SamePaLifecycleRecord | null,
   derive: (source: SamePaLifecycleSource) => SamePaLifecycleRecord) => T): T => withSamePaLifecycleReadPhase(db, () => {
   const phase = phases.get(db)!;
