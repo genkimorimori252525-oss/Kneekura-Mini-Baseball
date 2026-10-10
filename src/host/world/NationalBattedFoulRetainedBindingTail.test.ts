@@ -290,3 +290,64 @@ it('keeps current work rejection for an earlier acquisition cut with unsupported
     expect(() => assertNationalBattedFoulRetainedAcquisitionSources(db, first)).toThrow(); expect(rows(db)).toEqual(before);
   } finally { db.close(); }
 });
+
+
+const adoptedMotorCut = () => {
+  const { db, first } = motorModelCut(), pitch = 'national-live:pitch-0';
+  db.exec(`CREATE TABLE actual_locomotion_receipts(source_id TEXT,source_version TEXT,capability TEXT,physical_pitch_source_id TEXT,player_id TEXT,
+    decision_source_id TEXT,locomotion_model_source_id TEXT,base_field_source_id TEXT,execution_source_id TEXT,source_json TEXT,source_hash TEXT,snapshot_json TEXT,snapshot_hash TEXT);
+    CREATE TABLE actual_locomotion_heads(physical_pitch_source_id TEXT,player_id TEXT,source_id TEXT,revision INTEGER);`);
+  const motor = { sourceId: 'scheduled-motor-p1', sourceVersion: 'synthetic-v1', capability: 'initial_defender_step_v1', physicalPitchSourceId: pitch,
+    playerId: 'p1', decisionSourceId: 'scheduled-decision-p1', locomotionModelSourceId: 'scheduled-locomotion-model-p1',
+    baseFieldSourceId: 'field-race-candidate-0', executionSourceId: 'field-race-feet' };
+  const adopted = { sourceId: 'field-race-real-motor', sourceVersion: 'fixture-v1', baseFieldSourceId: motor.baseFieldSourceId,
+    previousExecutionSourceId: 'field-race-feet', action: { metadataTestOnly: true } };
+  const snapshot = { metadataTestOnly: true };
+  db.prepare('INSERT INTO actual_locomotion_receipts VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)').run(motor.sourceId, motor.sourceVersion, motor.capability,
+    pitch, motor.playerId, motor.decisionSourceId, motor.locomotionModelSourceId, motor.baseFieldSourceId, motor.executionSourceId,
+    json(motor), hash(motor), json(snapshot), hash(snapshot));
+  db.prepare('INSERT INTO actual_locomotion_heads VALUES(?,?,?,1)').run(pitch, 'p1', motor.sourceId);
+  db.prepare('INSERT INTO batted_world_field_executions VALUES(?,?,?,?,6,?,?,?,?,?)').run(adopted.sourceId, pitch, adopted.baseFieldSourceId,
+    adopted.previousExecutionSourceId, gameId, json(adopted), hash(adopted), json(snapshot), hash(snapshot));
+  db.exec("UPDATE batted_world_field_execution_heads SET source_id='field-race-real-motor',revision=6");
+  for (const [i, [owner, source]] of [['actual_locomotion_receipts', motor], ['batted_world_field_executions', adopted]].entries())
+    db.prepare('INSERT INTO actual_live_play_admissions VALUES(?,?,?,?,?,?)').run('live-play-runtime', i + 11, owner as string,
+      (source as typeof motor).sourceId, hash(source), hash(snapshot));
+  return { db, first };
+};
+it('admits exactly the returned motor and revision-six adoption while conserving the original pre-decision Sources', () => {
+  const { db, first } = adoptedMotorCut(); try { const before = rows(db), changes = db.prepare('SELECT total_changes() AS n').get();
+    expect(assertNationalBattedFoulRetainedBindingFrontier(db)).toBe(gameId);
+    expect(() => assertNationalBattedFoulRetainedAcquisitionSources(db, first)).not.toThrow();
+    expect(rows(db)).toEqual(before); expect(db.prepare('SELECT total_changes() AS n').get()).toEqual(changes);
+  } finally { db.close(); }
+});
+it.each([
+  ['missing motor', 'DELETE FROM actual_locomotion_receipts'],
+  ['wrong motor predecessor', "UPDATE actual_locomotion_receipts SET execution_source_id='field-race-real-motor'"],
+  ['wrong motor decision', "UPDATE actual_locomotion_receipts SET decision_source_id='other'"],
+  ['changed motor archive', "UPDATE actual_locomotion_receipts SET snapshot_hash='other'"],
+  ['wrong motor head', 'UPDATE actual_locomotion_heads SET revision=2'],
+  ['missing motor admission', 'DELETE FROM actual_live_play_admissions WHERE sequence=11'],
+  ['wrong adoption predecessor', "UPDATE batted_world_field_executions SET previous_source_id='field-race-capture-confirmed' WHERE source_id='field-race-real-motor'"],
+  ['wrong adoption head', 'UPDATE batted_world_field_execution_heads SET revision=7'],
+  ['wrong admission order', 'UPDATE actual_live_play_admissions SET sequence=13 WHERE sequence=11'],
+  ['already admitted quantizer', "INSERT INTO batted_world_field_executions(source_id,physical_pitch_source_id,revision) VALUES('field-race-quantizer-tail','national-live:pitch-0',7)"],
+])('rejects unsupported adopted motor frontier: %s', (_label, mutation) => {
+  const { db } = adoptedMotorCut(); try { db.exec(mutation); const before = rows(db);
+    expect(() => assertNationalBattedFoulRetainedBindingFrontier(db)).toThrow(); expect(rows(db)).toEqual(before);
+  } finally { db.close(); }
+});
+
+it('reconstructs the saved motor adoption census while new quantizer work still discovers current ownership', () => {
+  const players = ['p0', 'p1'];
+  const work = [{ playerId: 'p0', decisionSourceId: null, motorSourceId: null },
+    { playerId: 'p1', decisionSourceId: 'scheduled-decision-p1', motorSourceId: 'scheduled-motor-p1' }];
+  const saved: AcceptedBattedWorldFieldExecution = { sourceId: 'field-race-real-motor', sourceVersion: 'fixture-v1',
+    baseFieldSourceId: 'field-race-candidate-0', previousExecutionSourceId: 'field-race-feet',
+    action: { kind: 'owned_motion_v2', checkpoint: { kind: 'motion', throughTick: 12 }, knownWork: work, contributions: [] } };
+  let calls = 0; const current = () => { calls++; return work; };
+  expect(firstBaseFixtureKnownWork(players, saved, current, ['p1'])).toBe(work); expect(calls).toBe(0);
+  expect(() => firstBaseFixtureKnownWork(players, saved, current, [])).toThrow(/original motor adoption/);
+  expect(firstBaseFixtureKnownWork(players, undefined, current)).toBe(work); expect(calls).toBe(1);
+});

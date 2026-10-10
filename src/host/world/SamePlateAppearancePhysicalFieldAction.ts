@@ -1,4 +1,5 @@
 import { samePaBatterRecoveryInput, type SamePaBatterRecoveryRequest, type SamePaBatterRecoveryResult } from './SamePlateAppearanceBatterRecoveryMotion';
+import { samePaActorProducerPolicyValid, type SamePaActorProducerPolicy } from './SamePlateAppearanceActorProducerPolicy';
 import { samePaLiveAppealInput, type SamePaLiveAppealIndicationRequest, type SamePaLiveAppealContactRequest, type SamePaLiveAppealIndication, type SamePaLiveAppealContact } from './SamePlateAppearanceLiveAppeal';
 import { samePaOccupiedRunnerMotionInput, type SamePaOccupiedRunnerMotionRequest, type SamePaOccupiedRunnerMotionResult } from './SamePlateAppearanceOccupiedRunnerMotion';
 import { samePaOccupiedRunnerCatchResponseInput, type SamePaOccupiedRunnerCatchResponseRequest, type SamePaOccupiedRunnerCatchResponse, type SamePaOccupiedRunnerCatchMotionRequest } from './SamePlateAppearanceOccupiedRunnerCatchResponse';
@@ -32,7 +33,7 @@ export type SamePaPhysicalFieldAction =
   | Readonly<{ kind: 'batter_run_motion_v1'; planReference: SamePaReference<'world_batter_run_plans'>;
       stationaryHoldContinuations?: readonly Readonly<{ playerId: string; decisionReference: StepReference; throughTick: number }>[] }>
   | Readonly<{ kind: 'defender_observation_v1'; member: SamePaDispatchMember; calibrationReference: CalibrationReference;
-      previousObservationReference: StepReference | null; view: AcceptedActualFieldObservation['view']; catchWorkReference?: SamePaCatchWorkReference }>
+      previousObservationReference: StepReference | null; view: AcceptedActualFieldObservation['view']; catchWorkReference?: SamePaCatchWorkReference; actorProducerPolicy?: SamePaActorProducerPolicy }>
   | Readonly<{ kind: 'defender_decision_v1'; member: SamePaDispatchMember; calibrationReference: CalibrationReference;
       observationReference: StepReference; priorities: PrePlayDefensivePlan }>
   | Readonly<{ kind: 'defender_catch_response_v1'; member: SamePaDispatchMember; observationReference: StepReference;
@@ -91,7 +92,8 @@ export const samePaPhysicalFieldActionInput = (a: SamePaPhysicalFieldAction): vo
     if (!fields(a, ['kind'])) throw new Error('invalid retained quantizer checkpoint Source');
   } else if (a?.kind === 'defender_observation_v1') {
     const v = a.view, target = v?.attentionTarget;
-    if (!fields(a, ['kind', 'member', 'calibrationReference', 'previousObservationReference', 'view', ...('catchWorkReference' in a ? ['catchWorkReference'] : [])]) || !member(a.member, a.calibrationReference)
+    if (!fields(a, ['kind', 'member', 'calibrationReference', 'previousObservationReference', 'view', ...('catchWorkReference' in a ? ['catchWorkReference'] : []), ...('actorProducerPolicy' in a ? ['actorProducerPolicy'] : [])]) || !member(a.member, a.calibrationReference)
+      || 'actorProducerPolicy' in a && !samePaActorProducerPolicyValid(a.actorProducerPolicy)
       || 'catchWorkReference' in a && !ref(a.catchWorkReference, 'pa_catch_v1_work')
       || a.previousObservationReference !== null && !ref(a.previousObservationReference, 'pa_physical_v1_field_steps')
       || !fields(v, ['poseVersion', 'bodyRelativeEyeOffset', 'forward', 'attentionTarget']) || !text(v.poseVersion)

@@ -150,8 +150,12 @@ const physicalId = (field: DurableBattedWorldFieldAction) => field.response.touc
 // Private, synchronous dependency-replay context. Only this owner installs already
 // validated predecessors. Every reuse rechecks the exact rows on this same connection;
 // this is neither a caller evidence callback nor a cross-operation validation cache.
-const dependencyPrefixes = new WeakMap<Db, Readonly<{ baseField: DurableBattedWorldFieldAction;
-  values: readonly DurableBattedWorldFieldExecution[]; encoding: ReturnType<typeof createOwnedScheduledMotionDependencyEncoding> }>>();
+// A newer pitch may authenticate its completed earlier-pitch origin while reading
+// a motor. Rank ceilings belong to their physical pitch, not the whole connection.
+// Copy the active map on descent so other pitches and same-pitch parents survive
+// nested return/throw; finally restores the exact preceding map.
+const dependencyPrefixes = new WeakMap<Db, ReadonlyMap<string, Readonly<{ baseField: DurableBattedWorldFieldAction;
+  values: readonly DurableBattedWorldFieldExecution[]; encoding: ReturnType<typeof createOwnedScheduledMotionDependencyEncoding> }>>>();
 
 // This map only exists on the stack of one root PlayEnd derive. It holds
 // completed immutable physical nodes, never cross-owner result proofs.
@@ -199,7 +203,7 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
       if(!previous||previous.execution.kind!=='received_renewal_adoption_v1'||previous.source.sourceId!==continuation.action.renewalAdoptionSourceId
         ||previous.execution.adoption.renewalEnrollmentSourceId!==continuation.action.renewalEnrollmentSourceId)throw new Error('received continuation predecessor rank or owner differs');
       const context=dependencyPrefixes.get(db);
-      dependencyPrefixes.set(db,{baseField,values:prefix,encoding:createOwnedScheduledMotionDependencyEncoding()});
+      dependencyPrefixes.set(db,new Map(context).set(physicalId(baseField),{baseField,values:prefix,encoding:createOwnedScheduledMotionDependencyEncoding()}));
       try{return freeze({source:continuation,baseField,revision:previous.revision+1,history:[...previous.history,continuation],
         execution:deriveReceivedContinuationExecution(db as import('node:sqlite').DatabaseSync,continuation,baseField,prefix)});}
       finally{if(context)dependencyPrefixes.set(db,context);else dependencyPrefixes.delete(db);}
@@ -211,7 +215,7 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
       preflightReceivedRenewalAdoption(native,{source:renewal,gameId:baseField.response.model.gameId,physicalPitchSourceId:physicalId(baseField),
         predecessor:{sourceId:previous.source.sourceId,revision:previous.revision},cut:renewalExactCut({originTick:state.moment.originTick,elapsedSeconds:state.moment.elapsedSeconds,tick:state.moment.ball.tick},baseField.response.touch.worldContact.flight.source.execution.ballFlightParameters.ticksPerSecond)});
       const context=dependencyPrefixes.get(db);
-      dependencyPrefixes.set(db,{baseField,values:prefix,encoding:createOwnedScheduledMotionDependencyEncoding()});
+      dependencyPrefixes.set(db,new Map(context).set(physicalId(baseField),{baseField,values:prefix,encoding:createOwnedScheduledMotionDependencyEncoding()}));
       try{return freeze({source:renewal,baseField,revision:previous.revision+1,history:[...previous.history,renewal],execution:deriveReceivedRenewalPhysicalExecution(native,renewal,baseField,prefix)});}
       finally{if(context)dependencyPrefixes.set(db,context);else dependencyPrefixes.delete(db);}
     }
@@ -226,7 +230,7 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
       preflightOwnedMotionCausality(db, { baseField, executionPrefix: prefix, motorSourceIds, decisionSourceIds,
         ...(action.kind === 'owned_motion_v2' ? { motorCutPolicy: 'observer_suffix_v2' as const } : {}) });
       const context = dependencyPrefixes.get(db);
-      dependencyPrefixes.set(db, { baseField, values: prefix, encoding: createOwnedScheduledMotionDependencyEncoding() });
+      dependencyPrefixes.set(db, new Map(context).set(physicalId(baseField), { baseField, values: prefix, encoding: createOwnedScheduledMotionDependencyEncoding() }));
       try {
         const motors = motorSourceIds.map(sourceId => { const value = actualLocomotionEvidenceFromSqlite(db).read(sourceId);
           if (!value) throw new Error('owned operation motor receipt is missing'); return value; });
@@ -354,7 +358,7 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
         // Strict decreasing physical rank is proved before entering any dependency reader.
         preflightOwnedMotionCausality(db, { baseField, executionPrefix: prefix, motorSourceIds, decisionSourceIds });
         const previousContext = dependencyPrefixes.get(db);
-        dependencyPrefixes.set(db, { baseField, values: prefix, encoding: createOwnedScheduledMotionDependencyEncoding() });
+        dependencyPrefixes.set(db, new Map(previousContext).set(physicalId(baseField), { baseField, values: prefix, encoding: createOwnedScheduledMotionDependencyEncoding() }));
         try {
           const motors = motorSourceIds.map(sourceId => {
             const value = actualLocomotionEvidenceFromSqlite(db).read(sourceId);
@@ -472,7 +476,7 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
     }
     const bound = throughSourceId === null ? -1 : throughSourceId === undefined ? rows.length - 1 : rows.findIndex((row) => row.source_id === throughSourceId);
     if (bound < 0 && throughSourceId !== null) throw new Error('actual field execution Source is outside original prefix');
-    const original = dependencyPrefixes.get(db);
+    const original = dependencyPrefixes.get(db)?.get(pitchId);
     if (original) {
       // Keep the proven ceiling at the actual reader descent too: a concurrent WAL
       // mutation between metadata preflight and dereference cannot reopen replay.

@@ -1,4 +1,5 @@
 import { samePaExactRunnerControllerCensus } from './SamePlateAppearanceExactRunnerControllerPiece';
+import { samePaActorProducerPolicyDeclarations, samePaCurrentStoppedHold } from './SamePlateAppearanceActorProducerPolicy';
 import { deriveSamePaLiveAppealCensus } from './SamePlateAppearanceLiveAppeal';
 import { deriveSamePaDefenderDepartureCensus } from './SamePlateAppearanceDefenderDeparture';
 import { deriveSamePaOccupiedRunnerMotionCensus } from './SamePlateAppearanceOccupiedRunnerMotion';
@@ -61,6 +62,10 @@ export const deriveSamePaLiveWorkCensus = (raw: SamePaLiveWorkCensusInput) => {
   const responses = new Map<string, { responseReference: StepReference; response: SamePaCatchDefenderResponse }>();
   const responseReferences = new Map<string, { responseReference: StepReference; response: SamePaCatchDefenderResponse }>();
   const responseConsumers = new Map<string, { consumerReference: StepReference; at: typeof at }>();
+  const actorPolicies=new Map<string,ReturnType<typeof samePaActorProducerPolicyDeclarations>[number]>();
+  const terminalObservations:{playerId:string;observationReference:StepReference;policyReference:SamePaPhysicalFieldReference;
+    hold:NonNullable<ReturnType<typeof samePaCurrentStoppedHold>>;
+    reconsiderationRefresh:readonly {target:Observation['attentionTarget'];dueTick:number}[]}[]=[];
   let previous: Field | undefined, physical: Field = root;
   for (let index = 0; index < input.fields.length; index++) {
     const field = input.fields[index], ref = fieldReferences[index], motion = field.field.motion, moment = motion.world.moment;
@@ -93,6 +98,11 @@ export const deriveSamePaLiveWorkCensus = (raw: SamePaLiveWorkCensusInput) => {
     }
     const r = result(field), source = field.kind === 'same_pa_physical_field_step_v1' ? field.source.action : undefined;
     if (source && source.kind !== r?.kind) throw new Error('same-PA live-work original action result missing or different');
+    for(const declaration of samePaActorProducerPolicyDeclarations(field)){
+      if(!input.participantIds.includes(declaration.playerId)||field.kind==='same_pa_physical_field_step_v1'&&(!r||!('playerId' in r)||r.playerId!==declaration.playerId))
+        throw new Error('same-PA actor producer original declaration differs');
+      if(!actorPolicies.has(declaration.playerId))actorPolicies.set(declaration.playerId,declaration);
+    }
     if (r?.kind === 'defender_observation_v1' || r?.kind === 'defender_decision_v1' || r?.kind === 'defender_catch_response_v1' || r?.kind === 'batter_catch_response_v1' || r?.kind === 'occupied_runner_catch_response_v1') {
       if (!previous || !source || !('member' in source) || source.kind !== r.kind || source.member.playerId !== r.playerId || !input.participantIds.includes(r.playerId))
         throw new Error('same-PA live-work sensory action identity differs');
@@ -111,8 +121,17 @@ export const deriveSamePaLiveWorkCensus = (raw: SamePaLiveWorkCensusInput) => {
       if (source?.kind !== 'defender_observation_v1') throw new Error('same-PA live-work observation Source missing');
       same(r.samplingRequest.view.attentionTarget, source.view.attentionTarget, 'observation attention differs');
       const records = observations.get(r.playerId) ?? [];
+      const declared=actorPolicies.get(r.playerId),priorObservation=records.at(-1)?.sourceId;
+      const issuedConsumed=![...decisions].some(([key,d])=>d.playerId===r.playerId&&!consumers.has(key))
+        &&![...responses].some(([key,d])=>d.response.playerId===r.playerId&&!responseConsumers.has(key));
+      const priorConsidered=!priorObservation||[...decisions].some(([key,d])=>d.playerId===r.playerId&&d.observationReference.sourceId===priorObservation&&consumers.has(key))
+        ||[...responses].some(([key,d])=>d.response.playerId===r.playerId&&d.response.observationReference.sourceId===priorObservation&&responseConsumers.has(key));
+      const held=declared&&issuedConsumed&&priorConsidered?samePaCurrentStoppedHold(input.fields.slice(0,index),r.playerId):null;
+      if(held)terminalObservations.push({playerId:r.playerId,observationReference:ref as StepReference,policyReference:declared!.policyReference,hold:held,
+        reconsiderationRefresh:r.receipt.results.filter(v=>v.status==='detected').map(v=>{const dueTick=r.receipt.at.tick+(json(v.target)===json(r.samplingRequest.view.attentionTarget)?policy.attendedIntervalTicks:policy.peripheralIntervalTicks);
+          if(!tick(dueTick))throw new Error('same-PA terminal observation refresh deadline invalid');return{target:v.target,dueTick};})});
       records.push({ sourceId: field.source.sourceId, at: r.receipt.at, attentionTarget: r.samplingRequest.view.attentionTarget,
-        results: r.receipt.results, refreshPolicy: policy });
+        results: r.receipt.results, refreshPolicy: policy,...(held?{continuationPolicy:'consume_without_refresh_successor_v1' as const}:{}) });
       observations.set(r.playerId, records); observationReferences.set(field.source.sourceId, ref as StepReference);
     } else if (r?.kind === 'defender_decision_v1') {
       const observed = original.get(r.observationReference.sourceId), observation = observed && result(observed.field);
@@ -243,6 +262,7 @@ export const deriveSamePaLiveWorkCensus = (raw: SamePaLiveWorkCensusInput) => {
       &&f.field.motion.world.moment.elapsedSeconds>lastRecovery.field.motion.world.moment.elapsedSeconds?[fieldReference(f)]:[])[0]??null,
   }:null;
   return freeze({ kind: 'same_pa_live_work_census_v1' as const,
+    ...(actorPolicies.size?{actorProducerPolicies:[...actorPolicies.values()],terminalObservations}:{}),
     ...(exactRunnerControllerPieces.length ? {exactRunnerControllerPieces} : {}),
     ...(batterRecovery ? {batterRecovery} : {}),
     ...(input.fields.some(f=>f.kind==='same_pa_physical_field_step_v1'&&f.actionResult?.kind==='defender_departure_purpose_v1')

@@ -1,4 +1,5 @@
 import type { DatabaseSync } from 'node:sqlite';
+import { samePaActorProducerPolicyValid, type SamePaActorProducerPolicy } from './SamePlateAppearanceActorProducerPolicy';
 import { buildRouteFollowingController, createCanonicalRunnerKinematicsFromRouteMotion, type RouteFollowingController } from '../../core/sim/running/RunnerLocomotionController';
 import { sampleRunnerMotionTrajectory, sampleRunnerMotionTrajectoryExact, buildRunnerMotionTrajectoryAtExactOrigin, type RunnerMotionParameters } from '../../core/sim/running/RunnerMotion';
 import { getRunnerRouteLength, type RunnerRoute } from '../../core/sim/running/RunnerRoute';
@@ -26,7 +27,7 @@ export type SamePaBatterCatchMotionBasis =
 export type SamePaBatterCatchResponseRequest = Readonly<{ kind: 'batter_catch_response_v1'; member: SamePaDispatchMember;
   catchWorkReference: SamePaReference<'pa_catch_v1_work'>; motionBasis: SamePaBatterCatchMotionBasis;
   intent: Readonly<{ kind: 'hold'; issuedTick: number }>; endTick: number;
-  provenance: Readonly<{ sourceRecordId: string; sourceVersion: string }> }>;
+  provenance: Readonly<{ sourceRecordId: string; sourceVersion: string }>; actorProducerPolicy?: SamePaActorProducerPolicy }>;
 export type SamePaBatterCatchResponse = Readonly<{ kind: 'batter_catch_response_v1'; playerId: string; personId: string;
   catchWorkReference: SamePaReference<'pa_catch_v1_work'>; callSourceId: string;
   reception: NonNullable<ReturnType<typeof samePaCaughtOutReception>>; motionBasis: SamePaBatterCatchMotionBasis;
@@ -36,7 +37,8 @@ export type SamePaBatterCatchResponse = Readonly<{ kind: 'batter_catch_response_
 const tick = (v: number) => Number.isSafeInteger(v) && v >= 0;
 export const samePaBatterCatchResponseInput = (a: SamePaBatterCatchResponseRequest): void => {
   const b = a.motionBasis;
-  if (!fields(a, ['kind', 'member', 'catchWorkReference', 'motionBasis', 'intent', 'endTick', 'provenance']) || a.kind !== 'batter_catch_response_v1'
+  if (!fields(a, ['kind', 'member', 'catchWorkReference', 'motionBasis', 'intent', 'endTick', 'provenance', ...('actorProducerPolicy' in a ? ['actorProducerPolicy'] : [])]) || a.kind !== 'batter_catch_response_v1'
+    || 'actorProducerPolicy' in a && !samePaActorProducerPolicyValid(a.actorProducerPolicy)
     || !samePaDispatchMemberValid(a.member) || !ref(a.catchWorkReference, 'pa_catch_v1_work')
     || !fields(a.intent, ['kind', 'issuedTick']) || a.intent.kind !== 'hold' || !tick(a.intent.issuedTick) || !tick(a.endTick) || a.endTick <= a.intent.issuedTick
     || !fields(a.provenance, ['sourceRecordId', 'sourceVersion']) || !Object.values(a.provenance).every(text)

@@ -8,6 +8,7 @@ import { readSamePaCatchWorkFromSqlite } from './SamePlateAppearanceCatchWorkFro
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { readBatterRunPlanFromSqlite } from './SqliteBatterRunPlanStore';
 import { deriveSamePaCatchPhaseWork } from './SamePlateAppearanceCatchPhaseWork';
+import { deriveSamePaActorProducerWork } from './SamePlateAppearanceActorProducerCompletion';
 
 /** Complete current prefix ownership includes the accepted original call,
  * exact reception and actual sensory consumers. A sensory consumer alone is
@@ -61,7 +62,10 @@ export const readSamePaAdmittedLiveWorkFromSqlite = (db: DatabaseSync, viewRefer
         : r.kind === 'dropped' ? { kind: 'not_triggered' as const, reason: 'call_not_recognized' }
         : { kind: 'pending' as const, reason: r.kind === 'received' ? 'received_catch_controller_response_required' : 'catch_information_not_received' } };
   }) ?? [];
+  const actorProducerWork=deriveSamePaActorProducerWork({fields:pair.fields,census:live.census,calls,runnerPlans,
+    playOpen:pair.view.cut.stage==='field_active'&&!pair.view.cut.outcomeReference&&!pair.view.cut.resetReference});
   return freeze({ ...live,
+    ...(actorProducerWork?{actorProducerWork}:{}),
     ...(pair.actor.world.runners.length ? { sourceLocalPhases: deriveSamePaCatchPhaseWork({ fields: pair.fields, census: live.census, calls }) } : {}),
     census: { ...live.census, runnerPlans,
     unownedDomains: latest ? ['controller_responses', 'producer_completeness', 'live_play_end'] as const : live.census.unownedDomains },

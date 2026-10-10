@@ -16,7 +16,7 @@ type Fixture = Readonly<{ f: Pick<ReturnType<typeof ownedScheduledMotionFixture>
 /** Synthetic source-owned timing/coverage. Every observation, decision and motor is
  * still admitted by its real Native owner; this never supplies an acceleration. */
 export const installOwnedScheduledDecision = (x: Fixture, playerId: string, executionSourceId: string,
-  delayTicks = 0, coverageTicks = 1_000_000, retained?: 'observation_and_model' | 'decision_and_locomotion_model') => {
+  delayTicks = 0, coverageTicks = 1_000_000, retained?: 'observation_and_model' | 'decision_and_locomotion_model' | 'adopted_motor') => {
   const phase = <T>(name: string, run: () => T) => ownedScheduledMotionPhase(`${playerId}:${name}`, run);
   const observer = phase('install-observation', () => installSyntheticObservation(x, playerId, executionSourceId));
   const observation = retained ? phase('read-original-observation', () => {
@@ -43,7 +43,7 @@ export const installOwnedScheduledDecision = (x: Fixture, playerId: string, exec
     physicalPitchSourceId: observation.source.physicalPitchSourceId, careerId: b.careerId, playerId, personLinkSourceId: b.personLinkSourceId,
     gameDay: b.gameDay, fieldingModelSourceId: fielding.source.sourceId, observationSourceId: observation.source.sourceId,
     priorities: { ballPursuitPriority: 1, baseCoverPriorities: [], relayPriority: 0, backupPriority: 0, deepCoveragePriority: 0, holdPriority: 0 } };
-  if (retained === 'decision_and_locomotion_model') phase('read-original-defensive-plan', () => {
+  if ((retained === 'decision_and_locomotion_model' || retained === 'adopted_motor')) phase('read-original-defensive-plan', () => {
     const saved = x.f.track(openSqliteActualDefensivePlanStore(x.f.path)).read(planSource.sourceId);
     assert(saved, 'retained original defensive plan is missing');
     assert.equal(json(saved.source), json(planSource), 'retained defensive plan differs from original fixture Source');
@@ -54,7 +54,7 @@ export const installOwnedScheduledDecision = (x: Fixture, playerId: string, exec
     planSourceId: planSource.sourceId, previousDecisionSourceId: null };
   const decisionSources = new Map([[decisionSource.sourceId, decisionSource]]);
   const decisions = x.f.track(openSqliteActualDefensiveDecisionStore(x.f.path, { readAcceptedDecision: id => decisionSources.get(id) ?? null }));
-  let decision = retained === 'decision_and_locomotion_model' ? phase('read-original-decision', () => {
+  let decision = (retained === 'decision_and_locomotion_model' || retained === 'adopted_motor') ? phase('read-original-decision', () => {
     const saved = decisions.read(decisionSource.sourceId);
     assert(saved, 'retained original defensive decision is missing');
     assert.equal(json(saved.source), json(decisionSource), 'retained defensive decision differs from original fixture Source');
@@ -71,7 +71,7 @@ export const installOwnedScheduledDecision = (x: Fixture, playerId: string, exec
   const modelSource = { sourceId: `scheduled-locomotion-model-${playerId}`, sourceVersion: 'synthetic-v1', capability: 'defender_locomotion_v1' as const,
     careerId: b.careerId, playerId, personLinkSourceId: b.personLinkSourceId, fieldingModelSourceId: fielding.source.sourceId,
     acceptedAtDay: b.gameDay, calibration: { ...playerLocomotionCalibrationFixture(), maxIntegrationStepTicks: coverageTicks } };
-  if (retained === 'decision_and_locomotion_model') phase('read-original-locomotion-model', () => {
+  if ((retained === 'decision_and_locomotion_model' || retained === 'adopted_motor')) phase('read-original-locomotion-model', () => {
     const saved = x.f.track(openSqlitePlayerLocomotionModelStore(x.f.path)).read(modelSource.sourceId);
     assert(saved, 'retained original locomotion model is missing');
     assert.equal(json(saved.source), json(modelSource), 'retained locomotion model differs from original fixture Source');
@@ -84,7 +84,14 @@ export const installOwnedScheduledDecision = (x: Fixture, playerId: string, exec
     const source: AcceptedActualLocomotion = { sourceId: `scheduled-motor-${playerId}`, sourceVersion: 'synthetic-v1', capability: 'initial_defender_step_v1',
       physicalPitchSourceId: decision.source.physicalPitchSourceId, playerId, decisionSourceId: decision.source.sourceId,
       locomotionModelSourceId: modelSource.sourceId, baseFieldSourceId: x.baseField.source.sourceId, executionSourceId };
-    motorSources.set(source.sourceId, source); return phase('issue-initial-motor', () => motors.accept(source.sourceId));
+    motorSources.set(source.sourceId, source);
+    if (retained === 'adopted_motor') return phase('read-original-motor', () => {
+      const saved = motors.read(source.sourceId);
+      assert(saved, 'retained original motor is missing');
+      assert.equal(json(saved.source), json(source), 'retained motor differs from original fixture Source');
+      return saved;
+    });
+    return phase('issue-initial-motor', () => motors.accept(source.sourceId));
   };
   return { observer, observation, fielding, b, decision, decisions, decisionSources, revise, issue, motors, motorSources };
 };

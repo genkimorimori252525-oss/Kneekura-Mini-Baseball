@@ -1,3 +1,4 @@
+import { samePaActorProducerPolicyValid, type SamePaActorProducerPolicy } from './SamePlateAppearanceActorProducerPolicy';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { CanonicalWorldSnapshot } from '../../core/model/CanonicalWorldSnapshot';
 import type { CanonicalPlateAppearanceTimeline } from '../../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
@@ -53,7 +54,8 @@ export type SamePaPhysicalFieldRootSource = OperationSource & Readonly<{ capabil
   commands: import('./SqliteBattedWorldContactStore').AcceptedBattedWorldContact['commands']; parameters: Required<BallFlightParameters>; throughTick: number;
   venuePolicy?: AcceptedBattedVenuePlayableWallPolicy;
   venueLegalCoveragePolicy?: AcceptedBattedVenueLegalCoveragePolicy;
-  liveProducerProfile?: 'same_pa_empty_base_catch_v1' | 'same_pa_stationary_occupied_catch_v1' }>;
+  liveProducerProfile?: 'same_pa_empty_base_catch_v1' | 'same_pa_stationary_occupied_catch_v1';
+  actorProducerPolicies?: readonly Readonly<{playerId:string;policy:SamePaActorProducerPolicy}>[] }>;
 export type SamePaPhysicalFieldStepSource = OperationSource & Readonly<{ capability: 'same_pa_physical_field_step_v1';
   fieldRootReference: SamePaReference<'pa_physical_v1_field_roots'>; previousFieldReference: SamePaReference<'pa_physical_v1_field_roots' | 'pa_physical_v1_field_steps'>;
   throughTick: number; action?: SamePaPhysicalFieldAction }>;
@@ -140,13 +142,17 @@ export const samePaPhysicalEpisodeSourceInput = (raw: unknown, id?: string): Sam
     else if (s.capability === 'same_pa_physical_commitment_v1') { if (!fields(s, [...op, 'inputReference', 'intentReference', ...('buntProfileBinding' in s ? ['buntProfileBinding'] : [])]) || !ref(s.inputReference, 'batting_execution_v1_inputs') || !ref(s.intentReference, 'batting_execution_v1_intents')) throw new Error('invalid physical commitment');
       if ('buntProfileBinding' in s) samePaBuntProfileBindingInput(s.buntProfileBinding); }
     else if (s.capability === 'same_pa_physical_resolution_v1') { if (!fields(s, [...op, 'throughTick', 'commitmentReference']) || !tick(s.throughTick) || s.commitmentReference !== null && !ref(s.commitmentReference, 'pa_physical_v1_commitments')) throw new Error('invalid physical resolution'); }
-    else if (s.capability === 'same_pa_physical_field_root_v1') { const f=s.fieldInputs; if (!fields(s, [...op, 'resolutionReference', 'fieldInputs', 'postureReference', 'commands', 'parameters', 'throughTick', ...('venuePolicy' in s ? ['venuePolicy'] : []), ...('venueLegalCoveragePolicy' in s ? ['venueLegalCoveragePolicy'] : []), ...('liveProducerProfile' in s ? ['liveProducerProfile'] : [])]) || !tick(s.throughTick)
+    else if (s.capability === 'same_pa_physical_field_root_v1') { const f=s.fieldInputs; if (!fields(s, [...op, 'resolutionReference', 'fieldInputs', 'postureReference', 'commands', 'parameters', 'throughTick', ...('venuePolicy' in s ? ['venuePolicy'] : []), ...('venueLegalCoveragePolicy' in s ? ['venueLegalCoveragePolicy'] : []), ...('liveProducerProfile' in s ? ['liveProducerProfile'] : []), ...('actorProducerPolicies' in s ? ['actorProducerPolicies'] : [])]) || !tick(s.throughTick)
       || 'liveProducerProfile' in s && !['same_pa_empty_base_catch_v1', 'same_pa_stationary_occupied_catch_v1'].includes(s.liveProducerProfile!)
       || !ref(s.resolutionReference, 'pa_physical_v1_resolutions') || !ref(s.postureReference, 'batting_observation_v1_postures')
       ||!(f?.kind==='reused_normal_field_inputs_v1'&&fields(f,['kind','geometryReference','modelReference','responseModelReference'])&&ref(f.geometryReference,'batted_world_field_geometries')&&ref(f.modelReference,'batted_world_models')&&ref(f.responseModelReference,'batted_contact_response_models')
         ||f?.kind==='fresh_physical_field_calibration_v1'&&fields(f,['kind','calibrationReference'])&&ref(f.calibrationReference,'pa_physical_v1_field_calibrations'))|| !Array.isArray(s.commands) || s.commands.length < 10 || s.commands.length > 13
       || !fields(s.parameters, ['ticksPerSecond', 'gravityY', 'ballRadius', 'groundRestitution', 'groundFriction', 'groundRollingDecelerationMps2', 'integrationStepTicks', 'restingVerticalSpeed'])
       || Object.values(s.parameters).some(n => typeof n !== 'number' || !Number.isFinite(n))) throw new Error('invalid physical field root');
+      if ('actorProducerPolicies' in s && (!Array.isArray(s.actorProducerPolicies)||!s.actorProducerPolicies.length
+        ||new Set(s.actorProducerPolicies.map(p=>p.playerId)).size!==s.actorProducerPolicies.length
+        ||s.actorProducerPolicies.some(p=>!fields(p,['playerId','policy'])||!text(p.playerId)||!samePaActorProducerPolicyValid(p.policy)
+          ||!s.commands.some(c=>c.playerId===p.playerId))))throw new Error('invalid physical field root actor producer policy');
       if ('venuePolicy' in s) battedVenuePlayableWallPolicyInput(s.venuePolicy!);
       if ('venueLegalCoveragePolicy' in s) battedVenueLegalCoveragePolicyInput(s.venueLegalCoveragePolicy!); }
     else if (s.capability === 'same_pa_physical_field_step_v1') { if (!fields(s, [...op, 'fieldRootReference', 'previousFieldReference', 'throughTick', ...('action' in s ? ['action'] : [])]) || !tick(s.throughTick)

@@ -1,4 +1,5 @@
 import type { DatabaseSync } from 'node:sqlite';
+import { samePaActorProducerPolicyValid, type SamePaActorProducerPolicy } from './SamePlateAppearanceActorProducerPolicy';
 import { deriveBattedWorldFieldMotionCheckpoint } from '../../core/sim/ball/BattedWorldFieldMotion';
 import { samplePiecewiseFieldActor } from '../../core/sim/ball/BattedWorldPiecewiseFieldMotion';
 import { readSamePaFieldRuleEvidenceWithInputsFromSqlite } from './SamePlateAppearanceFieldRuleEvidenceFromSqlite';
@@ -21,7 +22,7 @@ type StepReference = SamePaReference<'pa_physical_v1_field_steps'>;
 export type SamePaOccupiedRunnerCatchResponseRequest = Readonly<{ kind: 'occupied_runner_catch_response_v1'; member: SamePaDispatchMember;
   catchWorkReference: SamePaReference<'pa_catch_v1_work'>; holdReference: SamePaReference<'world_same_pa_occupied_runner_holds'>;
   intent: Readonly<{ kind: 'hold'; issuedTick: number }>; endTick: number;
-  provenance: Readonly<{ sourceRecordId: string; sourceVersion: string }> }>;
+  provenance: Readonly<{ sourceRecordId: string; sourceVersion: string }>; actorProducerPolicy?: SamePaActorProducerPolicy }>;
 export type SamePaOccupiedRunnerCatchResponse = Readonly<{ kind: 'occupied_runner_catch_response_v1'; playerId: string; personId: string;
   catchWorkReference: SamePaReference<'pa_catch_v1_work'>; holdReference: SamePaReference<'world_same_pa_occupied_runner_holds'>;
   callSourceId: string; reception: NonNullable<ReturnType<typeof samePaCaughtOutReception>>;
@@ -30,7 +31,8 @@ export type SamePaOccupiedRunnerCatchResponse = Readonly<{ kind: 'occupied_runne
 const tick = (n: number) => Number.isSafeInteger(n) && n >= 0;
 const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw new Error('occupied received hold original binding differs'); };
 export const samePaOccupiedRunnerCatchResponseInput = (a: SamePaOccupiedRunnerCatchResponseRequest) => {
-  if (!fields(a, ['kind','member','catchWorkReference','holdReference','intent','endTick','provenance'])
+  if (!fields(a, ['kind','member','catchWorkReference','holdReference','intent','endTick','provenance',...('actorProducerPolicy' in a?['actorProducerPolicy']:[])])
+    ||'actorProducerPolicy' in a&&!samePaActorProducerPolicyValid(a.actorProducerPolicy)
     || a.kind !== 'occupied_runner_catch_response_v1' || !samePaDispatchMemberValid(a.member)
     || !ref(a.catchWorkReference, 'pa_catch_v1_work') || !ref(a.holdReference, 'world_same_pa_occupied_runner_holds')
     || !fields(a.intent, ['kind','issuedTick']) || a.intent.kind !== 'hold' || !tick(a.intent.issuedTick) || !tick(a.endTick) || a.endTick <= a.intent.issuedTick

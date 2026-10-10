@@ -69,3 +69,29 @@ no previously committed admission is repeated, and neither this finite metadata
 coverage nor the prior plan/decision returns qualifies the unfinished Native tail.
 The prior 1200.689-second wall failure and its immutable input/output images remain
 separate evidence; the next Native run requires a qualified source and release.
+
+
+## Returned motor and physical adoption boundary (2026-10-10)
+
+A second supported frontier retains both `scheduled-motor-p1` and the successful
+`field-race-real-motor` execution at revision 6. The structural guard requires the
+exact motor Source references, its revision-1 head, the original five physical
+predecessors, and the interleaved twelve-entry runtime ledger. Missing motor,
+partial adoption, later quantizer work, changed hashes, or mismatched heads remain
+unsupported.
+
+The physical reader authenticates the whole original execution history through
+revision 6. The locomotion public reader independently authenticates the original
+motor and compares its complete Source with the unchanged fixture builder. The
+adoption proposal is rebuilt from authenticated feet evidence, its original p1
+motor/decision census and the existing one-tick recipe, then compared with the
+saved complete Source. Neither committed motor nor adoption admission is called
+again. Acquisition/capture history still requires all-null original work; the
+new quantizer operation still uses current owned-work discovery.
+
+The unchanged suffix starts with `field-race-quantizer-tail`; all 37 original tail
+assertions remain. The earlier genuine attempt returned both motor and adoption
+but failed during original pitch dependency reconstruction before quantizer
+admission. Its failure, checkpoint, and model inputs remain intact. This fixture
+entry does not bypass the production historical-reader defect; authenticating
+revision 6 requires the independently reviewed nested-pitch scope correction.
