@@ -1,4 +1,7 @@
-import { practiceOrderExecutionEvidenceFromOwner, type OwnedPracticeOrderMethods } from './OwnedPitchPracticeOrder';
+import { practiceOrderExecutionEvidenceFromOwner, type OwnedPracticeOrderMethods, type PracticeOrderExecutionReader } from './OwnedPitchPracticeOrder';
+import type { DatabaseSync } from 'node:sqlite';
+import { assertBodyCompositionNativeConnection } from './BodyMaterializationSqliteOwnership';
+import { readNativePracticeOrderExecutionFromSqlite } from './NativePitchPracticeEvidenceFromSqlite';
 import { createRequire } from 'node:module';
 import { readState as readClubState } from
   '../../core/world/club/ClubSchemas';
@@ -143,15 +146,18 @@ type ExecutionRow = { career_id: string; club_id: string;
 type OpportunityRow = { issued_json: string };
 
 /** A separate roster head shares the world DB without writing its club head. */
-export const openSqliteManagerRosterDecisionStore = (
-  databasePath: string,
-  practiceOwner?: Pick<OwnedPracticeOrderMethods, 'readOrder'>,
+const createRosterOwner = (
+  databasePath: string | DatabaseSync,
+  practiceReader?: PracticeOrderExecutionReader,
 ): SqliteManagerRosterDecisionStore => {
-  if (!id(databasePath)) throw new Error('invalid world database path');
   const sqlite: typeof import('node:sqlite') =
     createRequire(import.meta.url)('node:sqlite');
-  const practiceReader = practiceOwner === undefined ? undefined : practiceOrderExecutionEvidenceFromOwner(practiceOwner);
-  const db = new sqlite.DatabaseSync(databasePath);
+  const ownsConnection = typeof databasePath === 'string';
+  if (ownsConnection ? !id(databasePath) : !(databasePath instanceof sqlite.DatabaseSync) || !databasePath.isTransaction) {
+    throw new Error('invalid world database path or Native roster snapshot');
+  }
+  const db = typeof databasePath === 'string' ? new sqlite.DatabaseSync(databasePath) : databasePath;
+  if (ownsConnection) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;');
   const rosterColumns = db.prepare(`PRAGMA table_info(world_roster_heads)`)
     .all() as { name: string }[];
@@ -183,6 +189,7 @@ export const openSqliteManagerRosterDecisionStore = (
     decision_id TEXT NOT NULL, issued_json TEXT NOT NULL,
     PRIMARY KEY (career_id, club_id, decision_id)
   );`);
+  }
   const clubStatement = db.prepare(`SELECT revision, state_json
     FROM world_club_heads WHERE career_id=? AND club_id=?`);
   const headStatement = db.prepare(`SELECT revision, roster_json
@@ -815,6 +822,27 @@ export const openSqliteManagerRosterDecisionStore = (
         return durable;
       });
     },
-    close(): void { db.close(); },
+    close(): void { if (ownsConnection) db.close(); },
+  });
+};
+
+export const openSqliteManagerRosterDecisionStore = (databasePath: string,
+  practiceOwner?: Pick<OwnedPracticeOrderMethods, 'readOrder'>): SqliteManagerRosterDecisionStore =>
+  createRosterOwner(databasePath, practiceOwner === undefined ? undefined : practiceOrderExecutionEvidenceFromOwner(practiceOwner));
+
+/** Reuse the original roster decoder on its consumer's active Native snapshot,
+ * without schema setup, writes, a second connection or a fabricated execution. */
+export const managerRosterEvidenceFromSqlite = (db: DatabaseSync):
+  Pick<SqliteManagerRosterDecisionStore, 'readDevelopmentRosterChange' | 'readExecution' | 'readOpportunity'> => {
+  const owner = createRosterOwner(db, readNativePracticeOrderExecutionFromSqlite);
+  const read = <T>(body: () => T): T => {
+    if (!db.isTransaction) throw new Error('Native roster evidence requires an active transaction');
+    assertBodyCompositionNativeConnection(db); return body();
+  };
+  return Object.freeze({
+    readDevelopmentRosterChange: (id: string) => read(() => owner.readDevelopmentRosterChange(id)),
+    readExecution: (id: string) => read(() => owner.readExecution(id)),
+    readOpportunity: (careerId: string, clubId: string, decisionId: string) =>
+      read(() => owner.readOpportunity(careerId, clubId, decisionId)),
   });
 };

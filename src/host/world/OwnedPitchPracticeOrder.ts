@@ -75,6 +75,7 @@ type Tools = Readonly<{
   readOriginAttempt(connection: Db, attemptId: string, maximumTimingRevision: number): PitchPracticeAttempt | null;
   assertProbeReservation(connection: Db, opportunity: PitchPracticeOpportunity): void;
   probeReservationEvidence(connection: Db, opportunity: PitchPracticeOpportunity): unknown | null;
+  readEpisodePrefix?(connection: Db, episodeId: string, revision: number): DevelopmentLearningEpisode | null;
 }>;
 type BodyHead = { revision: number; state_json: string };
 type Heads = Readonly<{ worldRevision: number; control: HumanControlState; controlJson: string; club: ClubWorldState; roster: RosterState;
@@ -158,9 +159,10 @@ export const captureOwnedPracticeOrderEvidence = (db: Db, sourceId: string): unk
 
 /** A single legal-action/order owner inside the existing practice transaction. */
 export const installOwnedPracticeOrders = (db: DatabaseSync, sources: PracticeOrderSources | undefined,
-  episodes: Pick<SqliteDevelopmentInitiationStore, 'read'>, authority: PracticeOrderAuthority | undefined, tools: Tools) => {
+  episodes: Pick<SqliteDevelopmentInitiationStore, 'read'>, authority: PracticeOrderAuthority | undefined, tools: Tools,
+  initialize = true) => {
   if (authority?.readAcceptedPracticePrescription !== undefined && typeof authority.readAcceptedPracticePrescription !== 'function') throw new Error('invalid practice prescription authority');
-  db.exec(`CREATE TABLE IF NOT EXISTS pitch_practice_order_decisions (
+  if (initialize) db.exec(`CREATE TABLE IF NOT EXISTS pitch_practice_order_decisions (
     source_id TEXT PRIMARY KEY, career_id TEXT NOT NULL, club_id TEXT NOT NULL, decision_id TEXT NOT NULL,
     prescription_source_id TEXT NOT NULL UNIQUE, attempt_id TEXT NOT NULL UNIQUE,
     decision_json TEXT NOT NULL, frame_json TEXT NOT NULL, episode_json TEXT NOT NULL, heads_json TEXT NOT NULL, evidence_json TEXT NOT NULL,
@@ -286,6 +288,12 @@ export const installOwnedPracticeOrders = (db: DatabaseSync, sources: PracticeOr
       else if (request.kind === PRACTICE_DEVELOPMENT_KIND) readPracticeDevelopmentBoundary(connection, row,
         attemptId => tools.readOriginAttempt(connection, attemptId, maximumTimingRevision));
       else throw new Error('invalid practice order initiation source kind');
+    }
+    if (tools.readEpisodePrefix) {
+      if (!same(tools.readEpisodePrefix(connection, expected.episodeId, expected.revision), expected)) {
+        throw new Error('practice order original Native episode boundary differs');
+      }
+      return;
     }
     let state = JSON.parse(row.initial_json) as DevelopmentLearningEpisode;
     const events = connection.prepare('SELECT before_revision,after_revision,event_json,state_json FROM world_development_learning_events WHERE episode_id=? AND after_revision<=? ORDER BY after_revision')
@@ -563,8 +571,8 @@ export const installOwnedPracticeOrders = (db: DatabaseSync, sources: PracticeOr
     },
     issueManagerOrder: raw => issueDecision(raw, true),
   };
-  executionReaders.set(methods.readOrder, readExecution);
-  return { methods: Object.freeze(methods),
+  if (initialize) executionReaders.set(methods.readOrder, readExecution);
+  return { methods: Object.freeze(methods), readExecution,
     assertPlanOpportunity(connection: Db, o: PitchPracticeOpportunity, bodyFrameOnly: boolean): void {
       const rows = reservedDecisions(connection, o.sourceId, practiceAttemptId(o));
       for (const row of rows) {

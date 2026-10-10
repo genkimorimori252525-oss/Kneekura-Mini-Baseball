@@ -2,7 +2,7 @@ import { afterEach, expect, it, vi } from 'vitest';
 import { practiceFixture } from './PitchPracticeAttempt.test-support';
 import { openSqliteNonPitchRepetitionStore } from './SqliteNonPitchRepetitionStore';
 import { nonPitchRepetitionEventId, type AcceptedNonPitchRepetitionAssessment, type NonPitchRepetitionOpportunity } from './NonPitchDevelopmentRepetition';
-import { openSqliteDevelopmentPracticeExposureStore, type AcceptedDevelopmentPracticeExposure } from './SqliteDevelopmentPracticeExposureStore';
+import { openSqliteDevelopmentPracticeExposureStore, readNativeDevelopmentPracticeExposureFromSqlite, type AcceptedDevelopmentPracticeExposure } from './SqliteDevelopmentPracticeExposureStore';
 import { readOwnedPitchPracticeRepetition, type SqlitePitchPracticeAttemptStore } from './SqlitePitchPracticeAttemptStore';
 import * as physical from './NonPitchRepetitionEvidenceFromSqlite';
 import { actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -81,6 +81,9 @@ it('freezes one complete mixed bundle with original fatigue/health and exact ret
   exposure.close(); f.recordRecovery(); f.reopen();
   const reopened = openSqliteDevelopmentPracticeExposureStore(f.path, { development: f.sources.episodes, pitchPractice: pitchOwner() }); cleanup.push(reopened.close);
   expect(reopened.read(accepted.sourceId)).toEqual(saved); expect(reopened.accept(accepted.sourceId)).toEqual(saved);
+  f.db.exec('BEGIN');
+  try { expect(readNativeDevelopmentPracticeExposureFromSqlite(f.db, accepted.sourceId)).toEqual(saved); }
+  finally { f.db.exec('ROLLBACK'); }
 });
 
 it.each(['pitch', 'non-pitch'] as const)('rejects original %s corruption on exposure read and exact retry', async kind => {

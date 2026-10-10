@@ -4,7 +4,8 @@ import { expect, it, vi } from 'vitest';
 vi.mock('./ActualPostPlayReviewFromSqlite', () => ({}));
 import { NPB_2026_RULE_PROFILE } from '../../core/rules/RuleProfile';
 import { fixture, throwInput } from '../../core/sim/ball/BattedWorldScheduledFieldThrow.test-support';
-import { deriveInitialBattedWorldFieldMotion, advanceBattedWorldFieldMotionCheckpoint } from '../../core/sim/ball/BattedWorldFieldMotion';
+import { createBattedBallFlightEvidence } from '../../core/sim/ball/BattedBallFlightEvidence';
+import { deriveInitialBattedWorldFieldMotion, deriveBattedWorldFieldMotionAdoption, advanceBattedWorldFieldMotionCheckpoint } from '../../core/sim/ball/BattedWorldFieldMotion';
 import { prepareBattedWorldScheduledFieldAcquisition, advanceBattedWorldScheduledFieldAcquisition } from '../../core/sim/ball/BattedWorldScheduledFieldAcquisition';
 import { prepareBattedWorldScheduledFieldThrow, advanceBattedWorldScheduledFieldThrow } from '../../core/sim/ball/BattedWorldScheduledFieldThrow';
 import { actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -32,15 +33,19 @@ const context = () => {
 };
 // Structural reader seam with real Core acquisition/throw/motion. This does not
 // claim that the synthetic reduced participant set is a Native admission.
-const original = (f = fixture()) => {
-  const c = context(), p = policy(), lineage = { gameId: 'game', careerId: 'career', playId: 1 };
+const original = (f = fixture(), p = policy()) => {
+  const c = context(), lineage = { gameId: 'game', careerId: 'career', playId: 1 };
   const source: any = { sourceId: 'root', sourceVersion: 'synthetic-v1', capability: 'same_pa_physical_field_root_v1',
     viewReference: ref('pa_lifecycle_v1_execution_views'), launchReference: ref('pa_physical_v1_launches', 'pitch'),
     previousOperationReference: ref('pa_physical_v1_resolutions'), resolutionReference: ref('pa_physical_v1_resolutions'),
     postureReference: ref('batting_observation_v1_postures'), fieldInputs: { kind: 'fresh_physical_field_calibration_v1', calibrationReference: ref('pa_physical_v1_field_calibrations') },
     commands: Array.from({ length: 10 }, (_, i) => ({ playerId: String(i), bodyAcceleration: { x: 0, y: 0, z: 0 }, primitiveMotions: [] })),
     parameters: f.response.world.parameters, throughTick: 0, venueLegalCoveragePolicy: p };
-  const field = deriveInitialBattedWorldFieldMotion(f);
+  const initial = f.response.world.flight.initialBall;
+  const field = f.throughTick === initial.tick ? deriveBattedWorldFieldMotionAdoption({ response: f.response, geometry: f.geometry,
+    actors: f.response.world.actors, carrierPlayerId: null, availableAtTick: initial.tick,
+    coverageThroughTick: f.response.world.throughTick, commands: f.commands,
+    cursor: { moment: { originTick: initial.tick, elapsedSeconds: 0, ball: initial }, previousContacts: [] } }) : deriveInitialBattedWorldFieldMotion(f);
   const root: any = { kind: 'same_pa_physical_field_root_v1', source, lineage, physicalPitchSourceId: 'pitch', field,
     response: f.response, geometry: f.geometry, geometryBindingHash: c.geometryBindingHash,
     venueLegalCoveragePolicyBinding: bindSamePaVenueLegalCoveragePolicy(source, c as any) };
@@ -154,4 +159,91 @@ it('VL05 retains unconfirmed capture constraints until secured reception and exc
   if (value.kind !== 'same_pa_venue_legal_coverage_v1') throw new Error('coverage required');
   expect(value.appealThrows[0].segmentIndexes).toEqual([5, 6, 7]);
   expect(value.fieldSegments.slice(5).map(s => s.constraint)).toEqual(['free', 'glove_constraint', 'glove_constraint', 'carried']);
+});
+
+const rollingFixture = (x = 1, deceleration = 1) => {
+  const f = fixture(7, 1, 0.125, 1.5), parameters = { ...f.response.world.parameters, groundRollingDecelerationMps2: deceleration };
+  const contact = { ...f.response.world.flight.contact, ballCenter: { x, y: 0.125, z: 1.5 } };
+  const actors = f.response.world.actors.map(a => ({ ...a, primitive: { ...a.primitive, startCenter: { x: 50, y: 2, z: 50 } } }));
+  return { ...f, throughTick: 7, response: { ...f.response, world: { ...f.response.world, parameters, actors,
+    flight: createBattedBallFlightEvidence({ contact, parameters, searchDurationTicks: 0 }) } } };
+};
+const advanceFree = (h: ReturnType<typeof original>, sourceId: string, seconds: number) => {
+  const prior = h.records.at(-1).field.motion;
+  const field = advanceBattedWorldFieldMotionCheckpoint({ response: h.f.response, geometry: h.f.geometry,
+    cursor: prior.cursor, actors: prior.actors, carrierPlayerId: null, checkpointThroughTick: 7 + seconds * 1_000_000 });
+  return h.add(sourceId, field, undefined);
+};
+it.each([[1, 'inside_playable_region'], [-10, 'out_of_play']] as const)(
+  'VL06 projects executed rolling, stop and resting pieces continuously at x=%s', (x, classification) => {
+    const h = original(rollingFixture(x));
+    advanceFree(h, 'rolling', 0.5);
+    const stopped = advanceFree(h, 'stop', 4);
+    expect(stopped.field.motion.world).toMatchObject({ kind: 'boundary', phase: 'rolling', moment: { elapsedSeconds: 2 } });
+    advanceFree(h, 'resting', 4);
+    const before = JSON.stringify(h.records), value = readSamePaVenueLegalCoverageFromPair(h.pair());
+    if (value.kind !== 'same_pa_venue_legal_coverage_v1') throw new Error('coverage required');
+    expect(value.coverage.kind).toBe('complete');
+    expect(value.coverage.intervals.map(s => s.classification)).toEqual(Array(4).fill(classification));
+    expect(value.input.segments.map(s => [s.startElapsedSeconds, s.endElapsedSeconds])).toEqual([[0, 0], [0, 0.5], [0.5, 2], [2, 4]]);
+    expect(value.input.segments.map(s => s.acceleration?.x)).toEqual([-1, -1, -1, 0]);
+    expect(value.input.segments[3].basis.ball.velocity).toEqual({ x: 0, y: 0, z: 0 });
+    expect(value.coverage.firstCertainOutOfPlay?.elapsedSeconds ?? null).toBe(classification === 'out_of_play' ? 0 : null);
+    expect(value.fieldSegments.map(s => s.segmentIndex)).toEqual([0, 1, 2, 3]);
+    expect(JSON.stringify(h.records)).toBe(before);
+  });
+it('VL07 retains zero-deceleration rolling without fabricating a stop and keeps unknown legal space unresolved', () => {
+  const h = original(rollingFixture(1, 0));
+  advanceFree(h, 'rolling', 0.5);
+  const cut = reference('pa_physical_v1_field_steps', h.records.at(-1));
+  advanceFree(h, 'outside-certified-space', 4);
+  const earlier = readSamePaVenueLegalCoverageFromPair(h.pair(), cut), value = readSamePaVenueLegalCoverageFromPair(h.pair());
+  if (earlier.kind !== 'same_pa_venue_legal_coverage_v1' || value.kind !== 'same_pa_venue_legal_coverage_v1') throw new Error('coverage required');
+  expect(earlier.coverage.kind).toBe('complete');
+  expect(earlier.input.segments[1].acceleration).toEqual({ x: -0, y: 0, z: -0 });
+  expect(value.coverage.kind).toBe('pending');
+  expect(value.coverage.uncertainSpans.map(s => s.segmentIndex)).toEqual([2]);
+  expect(value.coverage.firstCertainOutOfPlay).toBeNull();
+  expect(h.records.at(-1).field.motion.world).toMatchObject({ kind: 'moving', phase: 'rolling', moment: { elapsedSeconds: 4 } });
+});
+it('VL08 does not certify a free curve without its physical phase or beyond its rolling-stop partition', () => {
+  const h = original(rollingFixture());
+  const row = advanceFree(h, 'rolling', 0.5), real = row.field;
+  for (const unsupported of ['missing-phase', 'past-stop'] as const) {
+    row.field = structuredClone(real);
+    const world = row.field.motion.world;
+    if (unsupported === 'missing-phase') delete world.phase;
+    else world.moment = { ...world.moment, elapsedSeconds: 4, ball: { ...world.moment.ball, tick: 4_000_007 } };
+    const value = readSamePaVenueLegalCoverageFromPair(h.pair());
+    if (value.kind !== 'same_pa_venue_legal_coverage_v1') throw new Error('coverage required');
+    expect(value.input.segments[1].acceleration).toBeNull();
+    expect(value.coverage.intervals[1].classification).toBe('unresolved');
+  }
+});
+it('VL09 preserves live coverage through ground contact, no-advance observation/decision and the actual rolling/resting continuation', () => {
+  const f = rollingFixture(), parameters = { ...f.response.world.parameters, groundRestitution: 0, groundFriction: 1 };
+  const contact = { ...f.response.world.flight.contact, ballCenter: { x: 1, y: 0.625, z: 1.5 }, exitVelocity: { x: 2, y: -1, z: 0 } };
+  const h = original({ ...f, response: { ...f.response, world: { ...f.response.world, parameters,
+    flight: createBattedBallFlightEvidence({ contact, parameters, searchDurationTicks: 0 }) } } });
+  const ground = advanceFree(h, 'ground-contact', 1);
+  expect(ground.field.motion.world).toMatchObject({ phase: 'airborne', moment: { elapsedSeconds: 0.5, ball: { velocity: { y: -1 } } } });
+  expect(ground.field.motion.cursor.moment.ball.velocity).toEqual({ x: 2, y: 0, z: 0 });
+  // Native stable() copies the field unchanged for these actions. Preserve a
+  // serialized copy too, so this seam does not rely on object identity.
+  h.add('observation', ground.field, { kind: 'defender_observation_v1' });
+  const decision = h.add('decision', structuredClone(ground.field), { kind: 'defender_decision_v1' });
+  const decisionReference = reference('pa_physical_v1_field_steps', decision);
+  advanceFree(h, 'rolling', 0.75);
+  advanceFree(h, 'rolling-stop', 4);
+  advanceFree(h, 'resting', 4);
+  const before = JSON.stringify(h.records), cut = readSamePaVenueLegalCoverageFromPair(h.pair(), decisionReference);
+  const value = readSamePaVenueLegalCoverageFromPair(h.pair());
+  if (cut.kind !== 'same_pa_venue_legal_coverage_v1' || value.kind !== 'same_pa_venue_legal_coverage_v1') throw new Error('coverage required');
+  expect(cut.coverage.kind).toBe('complete');
+  expect(value.coverage.kind).toBe('complete');
+  expect(value.input.segments.slice(2, 4).map(s => [s.startElapsedSeconds, s.endElapsedSeconds, s.basis.elapsedSeconds])).toEqual([[0.5, 0.5, 0.5], [0.5, 0.5, 0.5]]);
+  expect(value.input.segments.slice(2, 4).every(s => s.basis === s.endpoint)).toBe(true);
+  expect(value.input.segments.slice(4).map(s => [s.startElapsedSeconds, s.endElapsedSeconds, s.acceleration?.x])).toEqual([[0.5, 0.75, -1], [0.75, 2.5, -1], [2.5, 4, 0]]);
+  expect(value.coverage.intervals.every(s => s.classification === 'inside_playable_region')).toBe(true);
+  expect(JSON.stringify(h.records)).toBe(before);
 });

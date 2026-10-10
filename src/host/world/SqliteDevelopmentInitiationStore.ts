@@ -12,6 +12,9 @@ import { resolveDevelopmentEpisodeFromAcceptedAppraisal,
   type DevelopmentAppraisalSources } from
   './DevelopmentEpisodeFromAcceptedAppraisal';
 import { readOwnedPitchPracticeAttempt } from './SqlitePitchPracticeAttemptStore';
+import { rosterDevelopmentOriginSchema, captureRosterDevelopmentOrigin, readRosterDevelopmentOrigin,
+  readRosterDevelopmentBoundary, resolveRosterDevelopmentOrigin, type RosterDevelopmentOrigin } from './RosterDevelopmentOrigin';
+import { actorHash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { PRACTICE_DEVELOPMENT_KIND, capturePracticeOriginEvidence, practiceOriginRequest, practiceOriginRow,
   readPracticeDevelopmentBoundary, resolvePracticeDevelopmentOrigin, validatePracticeDevelopmentIntake, validatePracticeDevelopmentRequest,
   type PracticeDevelopmentRequest, type PracticeDevelopmentSources, type PracticeOrigin, type PracticeOriginRow } from './PracticeDevelopmentOrigin';
@@ -42,6 +45,7 @@ export type SqliteDevelopmentInitiationStore = Readonly<{
     RecordedDevelopmentInitiation;
   applyPractice(input: PracticeDevelopmentRequest): RecordedDevelopmentInitiation;
   applyNationalExposure(input: NationalExposureDevelopmentRequest): RecordedDevelopmentInitiation;
+  archiveRosterOrigin(episodeId: string): RecordedDevelopmentInitiation;
   advance(episodeId: string, sourceId: string,
     expectedRevision: number): DevelopmentLearningEpisode;
   read(episodeId: string): RecordedDevelopmentInitiation | null;
@@ -129,6 +133,7 @@ export const openSqliteDevelopmentInitiationStore = (
     source_version TEXT NOT NULL, origin_json TEXT NOT NULL, origin_hash TEXT NOT NULL,
     UNIQUE(career_id, game_id, player_id)
   );`);
+  db.exec(rosterDevelopmentOriginSchema);
   const get = db.prepare(`SELECT * FROM world_development_initiations
     WHERE episode_id=?`);
   const getPrior = db.prepare(`SELECT episode_id FROM
@@ -183,7 +188,8 @@ export const openSqliteDevelopmentInitiationStore = (
         if (!sources.practice) throw new Error('practice development physical source owner is required');
         return readOwnedPitchPracticeAttempt(sources.practice.attempts, connection, attemptId);
       }).initial
-      : request.kind === NATIONAL_EXPOSURE_DEVELOPMENT_KIND ? readNationalExposureDevelopmentBoundary(connection, row).initial : resolve(request, prior);
+      : request.kind === NATIONAL_EXPOSURE_DEVELOPMENT_KIND ? readNationalExposureDevelopmentBoundary(connection, row).initial
+        : readRosterDevelopmentOrigin(connection, episodeId) ? readRosterDevelopmentBoundary(connection, row).initial : resolve(request, prior);
     if (initial.assessment.careerId !== row.career_id
       || initial.assessment.playerId !== row.player_id
       || initial.assessment.atDay !== row.at_day
@@ -266,7 +272,28 @@ export const openSqliteDevelopmentInitiationStore = (
     }
   };
   let closed = false;
+  const archiveRosterOrigin = (episodeId: string, accepted?: RosterDevelopmentOrigin): RecordedDevelopmentInitiation => {
+    const row = get.get(episodeId) as InitiationRow | undefined;
+    if (!row) throw new Error('roster development original episode is missing');
+    const request = JSON.parse(row.request_json) as DevelopmentInitiationSourceRequest & { kind?: unknown };
+    if (Object.hasOwn(request, 'kind')) throw new Error('roster development cannot replace another origin kind');
+    const existing = readRosterDevelopmentOrigin(db, episodeId);
+    if (existing) return readRosterDevelopmentBoundary(db, row).initial;
+    const appraisal = accepted?.appraisal ?? sources.appraisal.readAcceptedAppraisal(request.appraisalSourceId);
+    const policies = accepted?.policies ?? sources.policies.readAcceptedPolicies(request.policySourceId);
+    if (!appraisal || !policies) throw new Error('original accepted roster appraisal/policy inputs are unavailable');
+    const origin = accepted ?? captureRosterDevelopmentOrigin(request, appraisal, policies, JSON.parse(row.prior_json) as RecordedDevelopmentInitiation[]);
+    db.prepare('INSERT INTO world_development_roster_origins VALUES(?,?,?,?)')
+      .run(episodeId, request.appraisalSourceId, canonicalJson(origin), actorHash(origin));
+    const saved = get.get(episodeId) as InitiationRow | undefined;
+    if (!saved || canonicalJson(saved) !== canonicalJson(row)) throw new Error('roster development original initiation changed during archive admission');
+    return readRosterDevelopmentBoundary(db, saved).initial;
+  };
   const api: SqliteDevelopmentInitiationStore = Object.freeze({
+    archiveRosterOrigin(episodeId: string) {
+      if (!id(episodeId)) throw new Error('invalid roster development episode identity');
+      return transaction(() => archiveRosterOrigin(episodeId));
+    },
     applyNationalExposure(rawInput): RecordedDevelopmentInitiation {
       const input = validateNationalExposureRequest(rawInput);
       return transaction(() => {
@@ -397,8 +424,8 @@ export const openSqliteDevelopmentInitiationStore = (
           }
           return existing;
         }
-        const appraisal = sources.appraisal.readAcceptedAppraisal(
-          input.appraisalSourceId);
+        const appraisal = cloneInert(sources.appraisal.readAcceptedAppraisal(
+          input.appraisalSourceId));
         if (!appraisal) {
           throw new Error('accepted development appraisal is missing');
         }
@@ -406,7 +433,11 @@ export const openSqliteDevelopmentInitiationStore = (
         // assessments or learning states when this request is backdated.
         const prior = readAcceptedPrior(appraisal.careerId,
           appraisal.playerId, Number.MAX_SAFE_INTEGER);
-        const result = resolve(input, prior);
+        const persistedRoster = !!db.prepare("SELECT 1 FROM main.sqlite_master WHERE type='table' AND name='world_roster_executions'").get();
+        const policies = persistedRoster ? sources.policies.readAcceptedPolicies(input.policySourceId) : null;
+        if (persistedRoster && !policies) throw new Error('original accepted roster policies are unavailable');
+        const origin = policies ? captureRosterDevelopmentOrigin(input, appraisal, policies, prior) : null;
+        const result = origin ? resolveRosterDevelopmentOrigin(db, origin) : resolve(input, prior);
         db.prepare(`INSERT INTO world_development_initiations
           (episode_id, career_id, player_id, at_day,
            appraisal_source_id, request_json, prior_json,
@@ -418,6 +449,10 @@ export const openSqliteDevelopmentInitiationStore = (
             canonicalJson(prior), canonicalJson(result.assessment),
             canonicalJson(result.episode),
             canonicalJson(result.episode), result.episode.revision);
+        // Actual persisted roster owners can preserve their independently
+        // accepted inputs immediately. Legacy structural source contracts keep
+        // their old bytes; the new Native gate requires explicit reacquisition.
+        if (origin) archiveRosterOrigin(input.episodeId, origin);
         return read(input.episodeId)!;
       });
     },

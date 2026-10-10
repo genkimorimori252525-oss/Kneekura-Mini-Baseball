@@ -3,6 +3,7 @@ import type { DatabaseSync } from 'node:sqlite';
 import { appendDevelopmentLearningEvent, type DevelopmentLearningEventInput } from '../../core/world/development/DevelopmentLearningEpisode';
 import { assessDevelopmentPracticeExposure, type DevelopmentPracticeBundle } from '../../core/world/development/DevelopmentPracticeExposure';
 import { readOwnedDevelopmentEpisode, type SqliteDevelopmentInitiationStore, type DevelopmentLearningEvidenceGuard } from './SqliteDevelopmentInitiationStore';
+import { readNativeDevelopmentEpisodeFromSqlite } from './NativeDevelopmentEpisodeFromSqlite';
 import { nonPitchOpportunityInput, nonPitchAssessmentInput, nonPitchId as id, nonPitchRepetitionEventId,
   isNonPitchRepetitionEvent, type NonPitchRepetitionAuthority, type NonPitchRepetitionOpportunity } from './NonPitchDevelopmentRepetition';
 import { readNonPitchRepetitionFrame, readNonPitchRepetitionCompletion } from './NonPitchRepetitionEvidenceFromSqlite';
@@ -24,7 +25,8 @@ type LearningRow = { source_id: string; episode_id: string; before_revision: num
 const playClaim = (path: readonly string[]) => `EXISTS(SELECT 1 FROM (${sqliteJsonMetadataNodes('snapshot_json', path)}) p
   WHERE p.type='integer' AND p.atom=$play)`;
 
-const repetitionReader = (development: Pick<SqliteDevelopmentInitiationStore, 'read'>) => {
+const nativeHistory = Symbol('native non-pitch historical replay');
+const repetitionReader = (development: Pick<SqliteDevelopmentInitiationStore, 'read'> | typeof nativeHistory) => {
   const { DatabaseSync: Native } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
   const reservationRow = (connection: Db, sourceId: string): ReservationRow | null => {
     const rows = connection.prepare(`SELECT * FROM non_pitch_repetition_opportunities WHERE source_id=$id
@@ -35,7 +37,8 @@ const repetitionReader = (development: Pick<SqliteDevelopmentInitiationStore, 'r
   };
   const deriveReservation = (connection: Db, source: NonPitchRepetitionOpportunity, fresh: boolean): Reservation => {
     const frame = readNonPitchRepetitionFrame(connection, source, fresh);
-    const accepted = readOwnedDevelopmentEpisode(development, connection, source.episodeId, source.episodeRevision);
+    const accepted = development === nativeHistory ? readNativeDevelopmentEpisodeFromSqlite(connection, source.episodeId, source.episodeRevision)
+      : readOwnedDevelopmentEpisode(development, connection, source.episodeId, source.episodeRevision);
     const episode = accepted?.episode;
     if (!episode || episode.careerId !== frame.careerId || episode.playerId !== frame.playerId
       || episode.domain !== source.domain || !['HYPOTHESIS', 'PRACTICING'].includes(episode.stage)
@@ -146,7 +149,7 @@ export const assertNonPitchLearningEvent = (development: Pick<SqliteDevelopmentI
 
 /** Reconstruct the original repetition on an owning consumer's transaction.
  * The development owner capability and fixed event guard remain mandatory. */
-export const readOwnedNonPitchRepetition = (development: Pick<SqliteDevelopmentInitiationStore, 'read'>,
+const readRepetitionOnSnapshot = (development: Pick<SqliteDevelopmentInitiationStore, 'read'> | typeof nativeHistory,
   connection: DatabaseSync, eventId: string) => {
   const { DatabaseSync: Native } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
   if (!(connection instanceof Native) || !connection.isTransaction || !id(eventId)) {
@@ -158,6 +161,10 @@ export const readOwnedNonPitchRepetition = (development: Pick<SqliteDevelopmentI
     careerId: value.reservation.frame.careerId, playerId: value.reservation.frame.playerId,
     proofHash: hash(value) });
 };
+export const readOwnedNonPitchRepetition = (development: Pick<SqliteDevelopmentInitiationStore, 'read'>,
+  connection: DatabaseSync, eventId: string) => readRepetitionOnSnapshot(development, connection, eventId);
+export const readNativeNonPitchRepetitionFromSqlite = (connection: DatabaseSync, eventId: string) =>
+  readRepetitionOnSnapshot(nativeHistory, connection, eventId);
 
 /** One prospective original game/Player/play repetition. Game workload remains
  * MATCH: this owner never charges effort a second time or manufactures ability. */

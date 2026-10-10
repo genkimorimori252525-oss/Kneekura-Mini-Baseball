@@ -1,7 +1,7 @@
 import type { Vec3 } from '../../core/model/geometry';
 import { deriveBallWorldVenueLegalCoverage, type BallWorldVenueLegalCoverageInput, type BallWorldVenueLegalSegment } from '../../core/rules/BallWorldVenueLegalCoverage';
 import { getRuleProfile } from '../../core/rules/RuleProfile';
-import type { BallWorldMoment, BallWorldMotionActor } from '../../core/sim/ball/BallWorldContinuation';
+import { ballWorldFreeMotionCurve, type BallWorldMoment, type BallWorldMotionActor } from '../../core/sim/ball/BallWorldContinuation';
 import { prepareBattedWorldScheduledFieldAcquisition } from '../../core/sim/ball/BattedWorldScheduledFieldAcquisition';
 import { samplePiecewiseFieldActor } from '../../core/sim/ball/BattedWorldPiecewiseFieldMotion';
 import { quantizeEventTick } from '../../core/sim/ExactEventTime';
@@ -78,13 +78,22 @@ export const readSamePaVenueLegalCoverageFromPair = (pair: Pair, throughReferenc
       const plan = prepareBattedWorldScheduledFieldAcquisition({ response: root.response, geometry: root.geometry, field: candidate.field });
       basis = plan.initialConstraintMoment; carrier = plan.acquirerPlayerId; actors = candidate.field.motion.actors;
     }
-    if (carrier) acceleration = actors.find(a => a.playerId === carrier && a.primitive.role === 'glove')?.primitive.acceleration ?? null;
+    if (prior && endpoint.elapsedSeconds === start && json(f.field) === json(prior.field)) {
+      // Stable Native actions retain the last pre-response contact World while
+      // its cursor already holds the response. This unchanged physical point
+      // has no intervening curve or phase to reconstruct.
+      basis = endpoint; acceleration = zero;
+    } else if (carrier) acceleration = actors.find(a => a.playerId === carrier && a.primitive.role === 'glove')?.primitive.acceleration ?? null;
     else if (!prior || prior.field.motion.cursor) {
       const world = f.field.motion.world;
-      if ('phase' in world && world.phase === 'airborne') acceleration = { x: 0, y: p.gravityY, z: 0 };
-      else if ('phase' in world && world.phase === 'resting') acceleration = zero;
-      // Rolling curves retain explicit uncertainty here. Their friction/stop
-      // partitions must come from a future dedicated physical projection.
+      if ('phase' in world) {
+        const curve = ballWorldFreeMotionCurve(basis.ball, p);
+        // Every authenticated field row ends at its first physical boundary.
+        // The stop row owns the last rolling piece; only its subsequent cursor
+        // supplies resting motion. Never extrapolate the polynomial past it.
+        if (curve.phase === world.phase && (curve.rollingStopAfterSeconds === null
+          || endpoint.elapsedSeconds <= basis.elapsedSeconds + curve.rollingStopAfterSeconds)) acceleration = curve.acceleration;
+      }
     }
     const segment = { startElapsedSeconds: start, endElapsedSeconds: endpoint.elapsedSeconds, basis, endpoint, acceleration };
     segments.push(segment);

@@ -68,10 +68,10 @@ its original standardized NORMAL/QUICK measurement pairs.
 
 These are code/ownership gaps, not requests to invent numerical defaults:
 
-- Batting already has immutable dated capability/model compositions and
-  historical selection. A consolidated-learning adapter still needs to bind an
-  explicitly accepted replacement capability and prior model to its original
-  exposure, and make that provenance mandatory in later model readers.
+- Batting's explicit replacement capability and original model are now bound to
+  consolidated exposure by the [accepted capability history
+  connection](2026-10-10-accepted-batting-capability-history.md). Generic model
+  readers replay that provenance while retaining the existing dated selection.
 - Fielding, runner decision/motion and defender locomotion owners currently
   enforce one immutable Player baseline. They need validated append-only
   adaptation histories and historical selectors before explicit changed models

@@ -159,11 +159,11 @@ const releaseSnapshotAtDay = (source: PlayerReleaseGeometryHistory, atDay: numbe
 
 /** Bounded endpoint reader using the exact original release validators. Future
  * changes and mutable heads are outside this immutable historical cut. */
-export const readPlayerReleaseGeometryPrefixFromSqlite = (db: DatabaseSync,
-  ref: SamePaReference<'world_player_release_baselines' | 'world_player_release_changes'>): PlayerReleaseGeometryHistory => {
+const replayPlayerReleaseGeometryPrefixFromSqlite = (db: DatabaseSync,
+  owner: 'world_player_release_baselines' | 'world_player_release_changes', sourceId: string): PlayerReleaseGeometryHistory => {
   const tables = ['world_player_release_baselines', 'world_player_release_changes'];
-  const endpoint = nominalIdentity(db, tables, ref.owner, ref.sourceId), endpointSource = JSON.parse(String(endpoint.source_json));
-  const cut = ref.owner === tables[0] ? 0 : endpoint.revision;
+  const endpoint = nominalIdentity(db, tables, owner, sourceId);
+  const cut = owner === tables[0] ? 0 : endpoint.revision;
   if (!day(cut)) throw new Error('invalid dispatch nominal release cut');
   const careerId = String(endpoint.career_id), playerId = String(endpoint.player_id);
   const scope = `(career_id=$career OR ${nominalClaim('source_json', ['careerId'], '$career')}) AND (player_id=$player OR ${nominalClaim('source_json', ['playerId'], '$player')})`;
@@ -186,7 +186,33 @@ export const readPlayerReleaseGeometryPrefixFromSqlite = (db: DatabaseSync,
   }
   if (current.revision !== cut) throw new Error('dispatch nominal release endpoint is missing');
   nominalSame(endpoint, cut === 0 ? row : changes.at(-1));
-  assertNominalReference(ref, endpointSource, current, tables); return current;
+  return current;
+};
+
+export const readPlayerReleaseGeometryPrefixFromSqlite = (db: DatabaseSync,
+  ref: SamePaReference<'world_player_release_baselines' | 'world_player_release_changes'>): PlayerReleaseGeometryHistory => {
+  const tables = ['world_player_release_baselines', 'world_player_release_changes'];
+  const current = replayPlayerReleaseGeometryPrefixFromSqlite(db, ref.owner, ref.sourceId);
+  const endpoint = nominalIdentity(db, tables, ref.owner, ref.sourceId);
+  assertNominalReference(ref, JSON.parse(String(endpoint.source_json)), current, tables);
+  return current;
+};
+
+/** Existing practice pins a revision, not a separately accepted model receipt.
+ * Replay that exact original prefix without consulting a later mutable head. */
+export const readPlayerReleaseGeometryAtRevisionFromSqlite = (db: DatabaseSync,
+  careerId: string, playerId: string, revision: number): PlayerReleaseGeometryHistory => {
+  if (!id(careerId) || !id(playerId) || !day(revision)) throw new Error('invalid native release revision');
+  const owner = revision === 0 ? 'world_player_release_baselines' : 'world_player_release_changes';
+  const rows = db.prepare(`SELECT * FROM main.${owner} WHERE
+    (career_id=$career OR ${nominalClaim('source_json', ['careerId'], '$career')})
+    AND (player_id=$player OR ${nominalClaim('source_json', ['playerId'], '$player')})
+    ${revision === 0 ? '' : 'AND revision=$revision'}`)
+    .all(revision === 0 ? { career: careerId, player: playerId } : { career: careerId, player: playerId, revision });
+  if (rows.length !== 1) throw new Error('native release revision is missing or ambiguous');
+  const value = replayPlayerReleaseGeometryPrefixFromSqlite(db, owner, String(rows[0].source_id));
+  if (value.careerId !== careerId || value.playerId !== playerId || value.revision !== revision) throw new Error('native release revision differs');
+  return value;
 };
 
 const storedPlayerReleaseGeometryReader = (db: Pick<DatabaseSync, 'prepare'>,

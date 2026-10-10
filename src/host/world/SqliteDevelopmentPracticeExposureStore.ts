@@ -5,6 +5,10 @@ import { assessDevelopmentPracticeExposure, type DevelopmentPracticeBundle, type
 import { readOwnedDevelopmentEpisode, type SqliteDevelopmentInitiationStore } from './SqliteDevelopmentInitiationStore';
 import { readOwnedPitchPracticeRepetition, type SqlitePitchPracticeAttemptStore } from './SqlitePitchPracticeAttemptStore';
 import { readOwnedNonPitchRepetition } from './SqliteNonPitchRepetitionStore';
+import { readNativeNonPitchRepetitionFromSqlite } from './SqliteNonPitchRepetitionStore';
+import { readNativeDevelopmentEpisodeFromSqlite } from './NativeDevelopmentEpisodeFromSqlite';
+import { readNativePitchPracticeRepetitionFromSqlite } from './NativePitchPracticeEvidenceFromSqlite';
+import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
 import { isNonPitchRepetitionEvent, nonPitchFields as fields, nonPitchId as id } from './NonPitchDevelopmentRepetition';
 import { defensiveMetadataId as claim } from './ActualDefensiveMetadata';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -41,23 +45,25 @@ const input = (raw: unknown, sourceId: string): AcceptedDevelopmentPracticeExpos
 
 /** One ordered, complete episode bundle, authenticated on the consumer's Native
  * snapshot. Different repetition owners cannot substitute for one another. */
-const derive = (db: DatabaseSync, owners: DevelopmentPracticeExposureOwners, source: AcceptedDevelopmentPracticeExposure) => {
-  const episode = readOwnedDevelopmentEpisode(owners.development, db, source.episodeId, source.episodeRevision)?.episode;
+const derive = (db: DatabaseSync, owners: DevelopmentPracticeExposureOwners | null, source: AcceptedDevelopmentPracticeExposure) => {
+  const episode = (owners ? readOwnedDevelopmentEpisode(owners.development, db, source.episodeId, source.episodeRevision)
+    : readNativeDevelopmentEpisodeFromSqlite(db, source.episodeId, source.episodeRevision))?.episode;
   if (!episode || episode.stage !== 'CONSOLIDATED') throw new Error('practice exposure original consolidated episode is missing');
   const factors = new Map(source.pitchFactors.map(item => [item.sourceEventId, item])), proofs: unknown[] = [];
   const repetitions = episode.practiceSourceEventIds.map(eventId => {
     const event = episode.events.find(value => value.sourceEventId === eventId && value.kind === 'PRACTICE_RECORDED');
     if (!event) throw new Error('practice exposure original episode event is missing');
     if (isNonPitchRepetitionEvent(event)) {
-      const owned = readOwnedNonPitchRepetition(owners.development, db, eventId);
+      const owned = owners ? readOwnedNonPitchRepetition(owners.development, db, eventId) : readNativeNonPitchRepetitionFromSqlite(db, eventId);
       if (factors.has(eventId) || owned.episodeId !== episode.episodeId || owned.careerId !== episode.careerId
         || owned.playerId !== episode.playerId || json(owned.event) !== json(event)) throw new Error('practice exposure non-pitch ownership differs');
       proofs.push({ eventId, kind: 'NON_PITCH', hash: owned.proofHash }); return owned.repetition;
     }
-    if (!eventId.startsWith('practice-workload:pitch-practice:') || !owners.pitchPractice) {
+    if (!eventId.startsWith('practice-workload:pitch-practice:') || owners && !owners.pitchPractice) {
       throw new Error('practice exposure repetition owner is unsupported or missing');
     }
-    const coefficients = factors.get(eventId), owned = readOwnedPitchPracticeRepetition(owners.pitchPractice, db, eventId);
+    const coefficients = factors.get(eventId), owned = owners ? readOwnedPitchPracticeRepetition(owners.pitchPractice!, db, eventId)
+      : readNativePitchPracticeRepetitionFromSqlite(db, eventId);
     if (!coefficients || owned.episodeId !== episode.episodeId || owned.careerId !== episode.careerId
       || owned.playerId !== episode.playerId || json(owned.event) !== json(event)) throw new Error('practice exposure pitch ownership or coefficients differ');
     factors.delete(eventId); proofs.push({ eventId, kind: 'PITCH', hash: owned.proofHash });
@@ -70,6 +76,24 @@ const derive = (db: DatabaseSync, owners: DevelopmentPracticeExposureOwners, sou
 };
 export type DurableDevelopmentPracticeExposure = ReturnType<typeof derive>;
 type Row = { source_id: string; episode_id: string; episode_revision: number; source_json: string; snapshot_json: string; snapshot_hash: string };
+const readSaved = (db: DatabaseSync, owners: DevelopmentPracticeExposureOwners | null, sourceId: string): DurableDevelopmentPracticeExposure | null => {
+  if (!id(sourceId)) throw new Error('invalid practice exposure identity');
+  const rows = db.prepare(`SELECT * FROM development_practice_exposures WHERE source_id=$id
+    OR ${claim('source_json', ['sourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')}`).all({ id: sourceId }) as Row[];
+  if (rows.length > 1 || rows.length === 1 && rows[0].source_id !== sourceId) throw new Error('practice exposure Source ownership differs');
+  const row = rows[0]; if (!row) return null;
+  const source = input(JSON.parse(row.source_json), sourceId), value = derive(db, owners, source);
+  if (row.episode_id !== source.episodeId || row.episode_revision !== source.episodeRevision || row.source_json !== json(source)
+    || row.snapshot_json !== json(value) || row.snapshot_hash !== hash(value)) throw new Error('practice exposure original archive differs');
+  return value;
+};
+/** Independent historical authority for later capability/model consumers. No
+ * live writer handle, registry or mutable current source selection is needed. */
+export const readNativeDevelopmentPracticeExposureFromSqlite = (db: DatabaseSync, sourceId: string): DurableDevelopmentPracticeExposure | null => {
+  const { DatabaseSync: Native } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  if (!(db instanceof Native) || !db.isTransaction) throw new Error('Native practice exposure requires an active read snapshot');
+  return withBattedVenueLegalReadSnapshot(db, () => readSaved(db, null, sourceId));
+};
 export const openSqliteDevelopmentPracticeExposureStore = (path: string, owners: DevelopmentPracticeExposureOwners,
   authority?: Readonly<{ readAcceptedExposure(sourceId: string): AcceptedDevelopmentPracticeExposure | null }>) => {
   if (!id(path) || !owners?.development || typeof owners.development.read !== 'function'
@@ -83,17 +107,7 @@ export const openSqliteDevelopmentPracticeExposureStore = (path: string, owners:
     if (closed) throw new Error('closed practice exposure owner'); db.exec(write ? 'BEGIN IMMEDIATE' : 'BEGIN');
     try { const value = body(); db.exec('COMMIT'); return value; } catch (error) { db.exec('ROLLBACK'); throw error; }
   };
-  const read = (sourceId: string): DurableDevelopmentPracticeExposure | null => {
-    if (!id(sourceId)) throw new Error('invalid practice exposure identity');
-    const rows = db.prepare(`SELECT * FROM development_practice_exposures WHERE source_id=$id
-      OR ${claim('source_json', ['sourceId'], '$id')} OR ${claim('snapshot_json', ['source', 'sourceId'], '$id')}`).all({ id: sourceId }) as Row[];
-    if (rows.length > 1 || rows.length === 1 && rows[0].source_id !== sourceId) throw new Error('practice exposure Source ownership differs');
-    const row = rows[0]; if (!row) return null;
-    const source = input(JSON.parse(row.source_json), sourceId), value = derive(db, owners, source);
-    if (row.episode_id !== source.episodeId || row.episode_revision !== source.episodeRevision || row.source_json !== json(source)
-      || row.snapshot_json !== json(value) || row.snapshot_hash !== hash(value)) throw new Error('practice exposure original archive differs');
-    return value;
-  };
+  const read = (sourceId: string) => readSaved(db, owners, sourceId);
   return Object.freeze({
     accept(sourceId: string): DurableDevelopmentPracticeExposure {
       if (!id(sourceId)) throw new Error('invalid practice exposure identity');
