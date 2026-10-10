@@ -1,3 +1,4 @@
+import { assertStandaloneContactInput, isStandaloneContactCommand, readStandaloneContactFrame, executeStandaloneContact, type StandaloneContactCommand } from './StandalonePracticeContact';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { Vec2, Vec3 } from '../../core/model/geometry';
@@ -19,12 +20,15 @@ import { playerWorkloadRecoveryStoreFromSqlite } from './SqlitePlayerWorkloadRec
 import { nonPitchFields as fields, nonPitchId as id } from './NonPitchDevelopmentRepetition';
 import { actorFreeze as freeze, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 
+export type StandaloneSwingCommand = Readonly<{ issuedTick: number; bodyReadyTick: number; profileId: string; profileVersion: string;
+  plan: Omit<CourseAwareSwingPlanInputV1, 'profile' | 'ticksPerSecond'> }>;
+
 /** These are prospective commands. No contact, success or learning result is an input. */
 export type StandalonePracticeCommand =
   | Readonly<{ kind: 'RUNNING_MOTION'; initial: RunnerMotionState; intent: RunnerMotionIntent; routeOrigin: Vec3; routeDirection: Vec2 }>
   | Readonly<{ kind: 'DEFENDER_FOOTWORK'; initial: DefenderMotionState; target: Vec2 | null; rootHeightMeters: number }>
-  | Readonly<{ kind: 'DRY_SWING'; issuedTick: number; bodyReadyTick: number; profileId: string; profileVersion: string;
-      plan: Omit<CourseAwareSwingPlanInputV1, 'profile' | 'ticksPerSecond'> }>;
+  | (StandaloneSwingCommand & Readonly<{ kind: 'DRY_SWING' }>)
+  | StandaloneContactCommand;
 export type AcceptedStandalonePractice = Readonly<{
   sourceId: string; sourceVersion: string; opportunityId: string; careerId: string; playerId: string; personLinkSourceId: string;
   atDay: number; startTick: number; endTick: number; ticksPerSecond: number; workloadRevision: number;
@@ -55,16 +59,19 @@ export const standalonePracticeInput = (raw: unknown, sourceId: string): Accepte
     if (!fields(c, ['kind', 'initial', 'target', 'rootHeightMeters']) || !fields(c.initial, ['tick', 'position', 'velocity'])
       || c.initial.tick !== s.startTick || !vector(c.initial.position, ['x', 'z']) || !vector(c.initial.velocity, ['x', 'z'])
       || c.target !== null && !vector(c.target, ['x', 'z']) || !Number.isFinite(c.rootHeightMeters)) throw new Error('invalid standalone footwork command');
-  } else if (c?.kind === 'DRY_SWING') {
+  } else if (c?.kind === 'DRY_SWING' || c?.kind === 'BATTING_CONTACT') {
     const p = c.plan;
-    if (!fields(c, ['kind', 'issuedTick', 'bodyReadyTick', 'profileId', 'profileVersion', 'plan']) || ![c.profileId, c.profileVersion].every(id)
+    if (!fields(c, ['kind', 'issuedTick', 'bodyReadyTick', 'profileId', 'profileVersion', 'plan',
+      ...(c.kind === 'BATTING_CONTACT' ? ['pitchAttemptId', 'calibrationRef', 'parameters'] : [])]) || ![c.profileId, c.profileVersion].every(id)
       || !standaloneTick(c.issuedTick) || c.issuedTick > s.startTick || !standaloneTick(c.bodyReadyTick) || c.bodyReadyTick > s.startTick
       || !fields(p, ['handedness', 'batterCenterOfMass', 'targetBallCenterAtPlate', 'strikeZone', 'contactTick',
         ...(p && Object.hasOwn(p, 'targetBallCenterAtContact') ? ['targetBallCenterAtContact'] : [])])
       || !['R', 'L'].includes(p.handedness) || !vector(p.batterCenterOfMass, ['x', 'y', 'z']) || !vector(p.targetBallCenterAtPlate, ['x', 'y', 'z'])
       || Object.hasOwn(p, 'targetBallCenterAtContact') && !vector(p.targetBallCenterAtContact, ['x', 'y', 'z'])
       || !fields(p.strikeZone, ['centerX', 'halfWidth', 'lowerY', 'upperY']) || !standaloneTick(p.contactTick)) throw new Error('invalid standalone dry swing command');
-  } else throw new Error('unsupported standalone practice command');
+    if (c.kind === 'BATTING_CONTACT') assertStandaloneContactInput(c);
+  } else if (c?.kind === 'STATIONARY_GLOVE_RECEIVE') assertStandaloneContactInput(c);
+  else throw new Error('unsupported standalone practice command');
   return freeze(s);
 };
 
@@ -82,7 +89,7 @@ export const readStandalonePracticeMotionFrame = (db: DatabaseSync, source: Acce
   const link = playerPersonLinkEvidenceFromSqlite(db).readLink(source.personLinkSourceId);
   const workloadOwner = playerWorkloadRecoveryStoreFromSqlite(db, playerPersonLinkEvidenceFromSqlite(db));
   const workload = workloadOwner.selectAtRevision(source.careerId, source.playerId, source.workloadRevision);
-  const role = source.command.kind === 'RUNNING_MOTION' ? 'runner' : source.command.kind === 'DEFENDER_FOOTWORK' ? 'defender' : 'batter';
+  const role = source.command.kind === 'RUNNING_MOTION' ? 'runner' : ['DEFENDER_FOOTWORK', 'STATIONARY_GLOVE_RECEIVE'].includes(source.command.kind) ? 'defender' : 'batter';
   if (!body || !link || body.source.careerId !== source.careerId || body.source.playerId !== source.playerId
     || body.source.personLinkSourceId !== source.personLinkSourceId || body.source.role !== role || body.source.atDay > source.atDay
     || json(body.person) !== json(link) || workload.effectiveDay > source.atDay) throw new Error('standalone practice original body/Person/workload differs');
@@ -91,6 +98,7 @@ export const readStandalonePracticeMotionFrame = (db: DatabaseSync, source: Acce
     if (model.source.careerId !== source.careerId || model.source.playerId !== source.playerId
       || model.source.personLinkSourceId !== source.personLinkSourceId || model.source.acceptedAtDay > source.atDay) throw new Error('standalone practice original model scope differs');
   };
+  if (isStandaloneContactCommand(source.command)) return readStandaloneContactFrame(db, source, fresh, body, workload);
   if (source.command.kind === 'RUNNING_MOTION') {
     const owner = playerRunnerDecisionMotionModelEvidenceFromSqlite(db), model = owner.read(source.modelSourceId);
     if (!model) throw new Error('standalone runner model is missing'); scope(model);
@@ -114,11 +122,26 @@ export const readStandalonePracticeMotionFrame = (db: DatabaseSync, source: Acce
 };
 export type StandalonePracticeMotionFrame = ReturnType<typeof readStandalonePracticeMotionFrame>;
 
+export const standalonePracticeSwingTrajectory = (s: AcceptedStandalonePractice, c: StandaloneSwingCommand, model: DurablePlayerBattingModelV1) => {
+  assertBattingClock(s.ticksPerSecond, model);
+  const profiles = model.repertoire.values.profiles.filter(item => item.profile.profileId === c.profileId && item.profile.version === c.profileVersion);
+  if (profiles.length !== 1) throw new Error('standalone swing explicit profile is missing or ambiguous');
+  const plan = planCourseAwareSwingKinematicsV1({ ...c.plan, ticksPerSecond: s.ticksPerSecond, profile: profiles[0].profile });
+  const motor = model.capability.values;
+  const preferred = shiftSwingKinematicsTrajectoryV1(plan.trajectory, motor.technicalTimingOffsetTicks);
+  const motorStartTick = resolveMotorStart(preferred.startTick, c.issuedTick, c.bodyReadyTick, motor.motorLatencyTicks);
+  const trajectory = shiftSwingKinematicsTrajectoryV1(preferred, motorStartTick - preferred.startTick);
+  if (trajectory.startTick !== s.startTick || trajectory.endTick !== s.endTick) throw new Error('standalone swing prescribed motor interval differs');
+  assertSwingSpeedEnvelope(trajectory, motor.maximumSweetSpotSpeedMps);
+  return trajectory;
+};
+
 /** Calculate only the consumed prefix. The caller owns adopting it durably;
  * target/contact-named swing knots do not denote a bat/ball occurrence. */
 export const executeStandalonePracticeMotion = (s: AcceptedStandalonePractice, frame: StandalonePracticeMotionFrame, throughTick: number) => {
   if (!standaloneTick(throughTick) || throughTick < s.startTick || throughTick > s.endTick) throw new Error('standalone practice consumed interval differs');
   const c = s.command;
+  if (isStandaloneContactCommand(c) && (frame.kind === 'BATTING_CONTACT' || frame.kind === 'STATIONARY_GLOVE_RECEIVE')) return executeStandaloneContact(s, frame, throughTick);
   if (c.kind === 'RUNNING_MOTION' && frame.kind === c.kind) {
     if (Math.abs(c.initial.speedMps) > frame.model.source.motion.topSpeedMps) throw new Error('standalone runner inherited speed exceeds capability');
     const trajectory = buildRunnerMotionTrajectory(c.initial, c.intent, throughTick - s.startTick, frame.model.source.motion);
@@ -145,16 +168,7 @@ export const executeStandalonePracticeMotion = (s: AcceptedStandalonePractice, f
         || segment.acceleration.x !== 0 || segment.acceleration.z !== 0)) }));
   }
   if (c.kind === 'DRY_SWING' && frame.kind === c.kind) {
-    assertBattingClock(s.ticksPerSecond, frame.model);
-    const profiles = frame.model.repertoire.values.profiles.filter(item => item.profile.profileId === c.profileId && item.profile.version === c.profileVersion);
-    if (profiles.length !== 1) throw new Error('standalone swing explicit profile is missing or ambiguous');
-    const plan = planCourseAwareSwingKinematicsV1({ ...c.plan, ticksPerSecond: s.ticksPerSecond, profile: profiles[0].profile });
-    const motor = frame.model.capability.values;
-    const preferred = shiftSwingKinematicsTrajectoryV1(plan.trajectory, motor.technicalTimingOffsetTicks);
-    const motorStartTick = resolveMotorStart(preferred.startTick, c.issuedTick, c.bodyReadyTick, motor.motorLatencyTicks);
-    const trajectory = shiftSwingKinematicsTrajectoryV1(preferred, motorStartTick - preferred.startTick);
-    if (trajectory.startTick !== s.startTick || trajectory.endTick !== s.endTick) throw new Error('standalone swing prescribed motor interval differs');
-    assertSwingSpeedEnvelope(trajectory, motor.maximumSweetSpotSpeedMps);
+    const trajectory = standalonePracticeSwingTrajectory(s, c, frame.model);
     const sample = sampleSwingKinematicsV1(trajectory, throughTick);
     return freeze(cloneInert({ kind: c.kind, trajectory, consumedThroughTick: throughTick, sample, moved: throughTick > s.startTick }));
   }

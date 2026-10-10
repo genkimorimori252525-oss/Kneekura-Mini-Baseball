@@ -1,3 +1,4 @@
+import { isStandaloneContactCommand, readStandaloneConsumedRelease } from './StandalonePracticeContact';
 import { readNativePitchPracticeAttemptFromSqlite, assertNativePitchPracticeLearningSettledFromSqlite } from './NativePitchPracticeEvidenceFromSqlite';
 import { practiceActivityId, practiceWorkload } from './PitchPracticeAttempt';
 import { createRequire } from 'node:module';
@@ -75,10 +76,12 @@ const reader = (db: DatabaseSync, development: Development) => {
   };
   const peers = (value: Reservation) => db.prepare(`SELECT * FROM main.standalone_practice_commands WHERE event_id=$event
     OR ${claim('snapshot_json', ['eventId'], '$event')}
+    OR ($pitch IS NOT NULL AND (${claim('source_json', ['command', 'pitchAttemptId'], '$pitch')}
+      OR ${claim('snapshot_json', ['source', 'command', 'pitchAttemptId'], '$pitch')}))
     OR ((career_id=$career OR ${claim('source_json', ['careerId'], '$career')} OR ${claim('snapshot_json', ['episode', 'careerId'], '$career')})
       AND (player_id=$player OR ${claim('source_json', ['playerId'], '$player')} OR ${claim('snapshot_json', ['episode', 'playerId'], '$player')})
       AND (opportunity_id=$opportunity OR ${claim('source_json', ['opportunityId'], '$opportunity')} OR workload_revision=$revision))`)
-    .all({ event: value.eventId, career: value.source.careerId, player: value.source.playerId,
+    .all({ pitch: isStandaloneContactCommand(value.source.command) ? value.source.command.pitchAttemptId : null, event: value.eventId, career: value.source.careerId, player: value.source.playerId,
       opportunity: value.source.opportunityId, revision: value.source.workloadRevision }) as Row[];
   const reservation = (sourceId: string) => {
     const row = rowFor(sourceId); if (!row) return null;
@@ -89,6 +92,11 @@ const reader = (db: DatabaseSync, development: Development) => {
     return value;
   };
   const required = (sourceId: string) => { const value = reservation(sourceId); if (!value) throw new Error('standalone practice command is missing'); return value; };
+  const execution = (value: Reservation, throughTick: number) => {
+    const proof = readStandaloneConsumedRelease(db, value.source, throughTick);
+    const result = executeStandalonePracticeMotion(value.source, value.frame, throughTick);
+    return isStandaloneContactCommand(value.source.command) ? freeze({ ...result, releaseProof: proof }) : result;
+  };
   const progress = (value: Reservation, revision?: number) => {
     const source = value.source;
     let current = freeze({ sourceId: source.sourceId, revision: 0, throughTick: source.startTick, execution: value.initial });
@@ -99,11 +107,12 @@ const reader = (db: DatabaseSync, development: Development) => {
       if (revision !== undefined && row.revision > revision) continue;
       if (row.before_revision !== current.revision || row.revision !== current.revision + 1 || row.through_tick <= current.throughTick) throw new Error('standalone consumed progress is not contiguous');
       current = freeze({ sourceId: source.sourceId, revision: row.revision, throughTick: row.through_tick,
-        execution: executeStandalonePracticeMotion(source, value.frame, row.through_tick) });
+        execution: execution(value, row.through_tick) });
       if (row.snapshot_json !== json(current) || row.snapshot_hash !== hash(current)) throw new Error('standalone consumed physical archive differs');
     }
     if (revision !== undefined && current.revision !== revision) throw new Error('standalone consumed revision is missing');
-    const complete = current.throughTick === source.endTick;
+    const complete = current.throughTick === source.endTick
+      && !('completionAllowed' in current.execution && !current.execution.completionAllowed);
     return freeze({ reservation: value, progress: current, complete,
       physicalProofHash: complete ? hash({ reservation: value, progress: current }) : null });
   };
@@ -111,7 +120,10 @@ const reader = (db: DatabaseSync, development: Development) => {
   const deriveAssessment = (assessment: AcceptedStandalonePracticeAssessment) => {
     const physicalValue = physical(assessment.opportunitySourceId), value = physicalValue.reservation;
     if (!physicalValue.complete || physicalValue.physicalProofHash !== assessment.physicalProofHash) throw new Error('standalone original consumed completion differs');
-    if (assessment.relevant && !physicalValue.progress.execution.moved) throw new Error('stationary standalone command is not a relevant motion repetition');
+    const execution = physicalValue.progress.execution;
+    if (assessment.relevant && !('repetitionOccurred' in execution ? execution.repetitionOccurred : execution.moved)) {
+      throw new Error('stationary or contact-free standalone command has no relevant consumed physical repetition');
+    }
     const s = value.source;
     const activity: PlayerWorkloadActivity = { sourceEventId: value.eventId, sourceVersion: 'standalone-practice-workload-v1',
       evidenceId: assessment.physicalProofHash, careerId: s.careerId, playerId: s.playerId, atDay: s.atDay, kind: 'PRACTICE',
@@ -168,7 +180,7 @@ const reader = (db: DatabaseSync, development: Development) => {
     if (row && (row.source_id !== event.sourceEventId || row.episode_id !== before.episodeId || row.before_revision !== before.revision
       || row.after_revision !== after.revision || row.event_json !== json(event) || row.state_json !== json(after))) throw new Error('standalone original learning application differs');
   };
-  return { derive, peers, reservation, physical, required, assessed, deriveAssessment, byEvent, workloadEvidence, learningGuard };
+  return { derive, peers, reservation, physical, required, assessed, deriveAssessment, byEvent, workloadEvidence, learningGuard, execution };
 };
 
 /** The existing pitching owner uses the same Player clock exclusion. This
@@ -308,7 +320,7 @@ export const openSqliteStandalonePracticeStore = (path: string, development: Pic
         const workload = playerWorkloadRecoveryStoreFromSqlite(db, playerPersonLinkEvidenceFromSqlite(db)).readHead(s.careerId, s.playerId);
         if (workload?.revision !== s.workloadRevision) throw new Error('standalone physical work lost its original workload revision');
         assertNoSamePaPlayerReservation(db, s);
-        const progress = { sourceId, revision: expectedRevision + 1, throughTick, execution: executeStandalonePracticeMotion(s, before.reservation.frame, throughTick) };
+        const progress = { sourceId, revision: expectedRevision + 1, throughTick, execution: own.execution(before.reservation, throughTick) };
         db.prepare('INSERT INTO main.standalone_practice_progress VALUES(?,?,?,?,?,?)').run(sourceId, progress.revision, expectedRevision, throughTick, json(progress), hash(progress));
         const after = own.physical(sourceId);
         if (json(after.progress) !== json(progress) || json(playerWorkloadRecoveryStoreFromSqlite(db, playerPersonLinkEvidenceFromSqlite(db))
