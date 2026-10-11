@@ -4,11 +4,11 @@
 
 最新の検証済みsrc treeは `e5f3ed76710da25007774d59ba7ce661614f39b1`。通常のworkload予約確認でも既存の1確認内のimmutable読み取りを再利用し、同じenrollmentの完了release原本を共有する最小修正を接続した。一括review CLEAR、全compiler31.794秒、関連71件／6 files183.415秒がPASS。4個の独立assertionとcallback・書込み・retryごとの再認証を保持する。復元回数の減少は時間性能の証明とは扱わない。[通常claim修正と実証境界](2026-10-10-terminal-proof-recovery.md#ordinary-workload-reservation-release-proof-scope)。
 
-元FR01のfresh caseは全体PASS。Nationalは保存済み裁定境界から元37 assertionの保持続行がPASSし、旧fresh failedは別に保持する。PL01は旧freshが上限failed、現在の保持suffixでは10人決済・公式交代・release・元retry/reopenまで返却し、occupied次球は未完。IFNは固定sourceで実行中、LANは次の実行枠待ち。[正確なsource帰属と実結果](2026-10-10-terminal-proof-recovery.md)を参照し、異なるsourceや部分結果を足して全体PASSとはしない。
+元FR01のfresh caseは全体PASS。Nationalは保存済み裁定境界から元37 assertionの保持続行がPASSし、旧fresh failedは別に保持する。PL01は旧freshと保持suffixがそれぞれ上限failed。保持suffixで10人決済・公式交代・release・元retry/reopenは返却したが、新打者baselineは未返却で、最後の保存点からoccupied次球だけを続ける接続を準備する。元IFN freshも上限failedとなり、catch-response:6とcut31 prefix/TOTALを保持し、未返却view以降だけを続ける接続を準備する。LANは固定公開 `d47512d8` で2026-10-10 23:54:14 UTCから実行中。[正確なsource帰属と実結果](2026-10-10-terminal-proof-recovery.md)を参照し、異なるsourceや部分結果を足して全体PASSとはしない。
 
 1. **統合・archive互換** — 各owner、保存履歴、practice/能力/Manager、実接触/foul、同一PAと終端・成績の接続は一括review・compiler・関連検証済み。残るのはcurrent whole/archiveと元full Positiveの完了証拠。旧TODOだけを根拠に接続済みAPIを再実装しない。[統合記録](2026-10-10-native-continuation-batch.md#consolidated-verification)
 
-2. **Field取得・支配・持替え・送球** — actual acquisition/custody/carried continuation、reserved same-PAのtransfer/release/中断/自由球は接続済み。過去の保持IFRでは実捕球・支配・送受球・動作の部分assertionが通過したが、上限や保守中断で全体未完。現在のIFNは元のfresh caseを実行中。残るのはcatch-responseからterminal/scoring/次打者までを含む元シナリオ全体の実証。[接続範囲](2026-10-09-reserved-field-foul-batch.md)
+2. **Field取得・支配・持替え・送球** — actual acquisition/custody/carried continuation、reserved same-PAのtransfer/release/中断/自由球は接続済み。過去の保持IFRでは実捕球・支配・送受球・動作の部分assertionが通過したが、上限や保守中断で全体未完。元IFN freshは固定 `35c05066` で14,400.211秒の上限failed。catch-response:6とcut31 prefix/TOTALを保存し、view以降が未完。残るのは後続response/motorからterminal/scoring/次打者までを含む元シナリオ全体の実証。[接続範囲](2026-10-09-reserved-field-foul-batch.md)
 
 3. **足・塁・race・catch/foul/retention/juggle** — actual足/塁/支配履歴、first-base判定、occupied runnerの直線移動・tag-up/retouch・home-touch、受信holdと停止、対応範囲の合法最終塁/得点は接続済み。Nationalの元first-base/call履歴から公式結果までの保持継続は完了した。移動occupied等の残るgenuine合成とlegal分岐の実証は残る。曖昧な権利・対応外順序・欠落原本はpendingを保持する。[exact履歴と消費境界](2026-10-09-occupied-runner-motion-connection.md)
 
