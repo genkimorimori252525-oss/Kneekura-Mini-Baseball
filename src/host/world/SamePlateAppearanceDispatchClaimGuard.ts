@@ -178,8 +178,8 @@ export const assertNoPaDispatchPlayerClaim = (db: Db, scope: { careerId: string;
       if (db.prepare(`SELECT 1 FROM (${members}) member,main.world_player_workload_baselines baseline WHERE member.type='object'
         AND (baseline.career_id=$career OR ${claim('baseline.source_json', ['careerId'], '$career')} OR ${claim('baseline.initial_json', ['careerId'], '$career')})
         AND (baseline.player_id=$player OR ${claim('baseline.source_json', ['playerId'], '$player')} OR ${claim('baseline.initial_json', ['playerId'], '$player')})
-        AND (${claim('member.value', ['baselineSourceId'], 'baseline.source_id')} OR EXISTS(SELECT 1 FROM (${nodes('baseline.source_json', ['sourceId'])}) identity
-          WHERE identity.type='text' AND ${claim('member.value', ['baselineSourceId'], 'identity.atom')}))`).get({ source: String(record.row.source_json), snapshot: String(record.row.snapshot_json), career: scope.careerId, player: scope.playerId })) fail();
+        AND (${claim('member.value', ['baselineSourceId'], 'baseline.source_id')} OR EXISTS(SELECT 1 FROM (${nodes('baseline.source_json', ['sourceId'])}) original_baseline
+          WHERE original_baseline.type='text' AND ${claim('member.value', ['baselineSourceId'], 'original_baseline.atom')}))`).get({ source: String(record.row.source_json), snapshot: String(record.row.snapshot_json), career: scope.careerId, player: scope.playerId })) fail();
     }
   }
 };

@@ -2,7 +2,7 @@
 
 範囲は[PR340保存時の正本 §5](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/blob/6509e61f2474cc6bcfadda129f4b3c9621855c2c/docs/project-status/2026-10-04-nonvisual-implementation-checkpoint.md#5-残る確定済み非デザイン計画)を維持する。UI/design、新arsenal、未承認の数値モデルは含めない。以下は現在のコード・実証・仕様判断の入口であり、[従来の詳細な実行履歴](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/blob/91cd3035f8d8309eaafae34f44f312fd2e86759a/docs/project-status/2026-10-09-nonvisual-nine-area-status.md)を置き換えて成功へ読み替えるものではない。
 
-最新の検証済みsrc treeは `912c0a98573ab8d90307fc83d1a8f0670ea92464`。IFN cp273とPL cp8の残り専用入口を一括reviewし、全compiler31.088秒と入力/importの9件5.844秒がPASSした。保存原本のowner認証から未実施操作だけを続け、以前のfailedを全体PASSに読み替えない。実Native続行は未開始。[IFN入口](2026-10-11-ifn01-original-retained-suffix.md)・[PL入口](2026-10-11-pl01-cp8-occupied-suffix.md)。
+現在の修正src treeは `9945219b1e94a0fda85cb2923194f5b77657c45e`。元IFN cp273とPL cp8の残り専用実行で、復旧contextの全head数と参加者数の混同、dispatch claim SQLの別名衝突がそれぞれ実際に拒否を起こした。保存履歴を改変せず同じバッチで修正・reviewした。全compiler30.576秒がPASS、関連選択検証は9件PASS＋不正な追加テスト期待を修正した1件の再実行PASS。元の失敗結果と検証sourceの帰属は保持し、全体再検証を反復していない。修正後の実Native続行は未開始。[IFN修正と検証](2026-10-11-ifn01-original-retained-suffix.md#consolidated-correction-qualification)・[PL拒否原因](2026-10-11-pl01-cp8-occupied-suffix.md#actual-first-continuation-and-correlated-baseline-correction)。
 
 直前のproduction修正srcは `e5f3ed76710da25007774d59ba7ce661614f39b1`。通常のworkload予約確認でも既存の1確認内のimmutable読み取りを再利用し、同じenrollmentの完了release原本を共有する最小修正を接続した。一括review CLEAR、全compiler31.794秒、関連71件／6 files183.415秒がPASS。4個の独立assertionとcallback・書込み・retryごとの再認証を保持する。復元回数の減少は時間性能の証明とは扱わない。[通常claim修正と実証境界](2026-10-10-terminal-proof-recovery.md#ordinary-workload-reservation-release-proof-scope)。
 

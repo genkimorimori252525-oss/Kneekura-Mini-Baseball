@@ -130,6 +130,11 @@ it('DO15 moved future indexes cannot hide a typed reference to the original pros
   f.db.prepare('UPDATE pa_dispatch_v1_pitch_actions SET career_id=?,source_json=?,snapshot_json=?').run('moved-career', JSON.stringify({ member: f.roles[0].member }), '"opaque future payload"');
   expect(() => assertFreshPaDispatchEnrollment(f.db, 'enrollment')).not.toThrow();
   expect(() => assertNoPaDispatchPlayerClaim(f.db, { careerId: 'career-a', playerId: 'away-2' })).toThrow(/dispatch/);
+  // Moving the original baseline index corrupts the provisional enrollment's
+  // authority. Both fresh enrollment and global Player work must stay fenced.
+  f.db.prepare('UPDATE world_player_workload_baselines SET source_id=? WHERE source_id=?').run('moved-baseline', f.roles[0].member.baselineSourceId);
+  expect(() => assertFreshPaDispatchEnrollment(f.db, 'enrollment')).toThrow(/dispatch/);
+  expect(() => assertNoPaDispatchPlayerClaim(f.db, { careerId: 'career-a', playerId: 'away-2' })).toThrow(/dispatch/);
 });
 it('DO16 a nominal pitcher Person mismatch cannot hide behind an equal career and Player identity', async () => {
   const f = await setup(), original = f.actor.defenderPersons[0];

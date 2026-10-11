@@ -85,3 +85,11 @@ requires nor synthesizes missing witness files.
   during author checks.
 
 The joint IFN/PL batch at source tree `912c0a98573ab8d90307fc83d1a8f0670ea92464` then passed independent review of all 22 changed files, full compiler (31.088 seconds), and nine focused input/import checks (5.844 seconds). All pin groups stayed stable, no resource guard fired and no child survived. Formal report SHA-256: `478f5f2ba86a0d6dca9b42e40bb36f8dbf87d04ede6cb67e336cd898d0771376`. Runtime owner admission and the remaining occupied suffix are still unexecuted. Earlier failed runs retain their own attribution.
+
+## Actual first continuation and correlated-baseline correction
+
+The first cp8 continuation on fixed `fd0846a5` failed functionally after 334.506 seconds, exit 1, with no resource guard. Original terminal/actor/model authentication completed; the first remaining new-batter workload initialization rejected the dispatch ownership claim. That owner call committed no change and no new checkpoint was saved. The original gzip stayed unchanged, all handles and processes closed, and all pins stayed stable. Terminal SHA-256: `2a1c9076ea427f48e8a843c8526e974a56385262020479457229d1a13b6c8b39`. The result remains FAILED with `wholeCasePass:false`.
+
+The dispatch-claim SQL used `identity` for both an outer baseline identity and the inner metadata identity. This shadowing turned the original-baseline comparison into a self-comparison, so inserting an unrelated new-batter baseline caused a false claim. Renaming only the outer alias restores the correlation. Existing active, malformed and moved-identity rejection remains intact; no saved row or original Source is replaced. The enriched regression uses retained member/lineage metadata and covers all four initialization assertions and exact retry. The same helper's existing call sites were checked for this precise collision.
+
+The correction was integrated with the IFN workload-census fix and passed the [consolidated correction qualification](2026-10-11-ifn01-original-retained-suffix.md#consolidated-correction-qualification). The completed compiler, nine unchanged passing selected checks, and final DO15-only pass are separately attributed. A corrected genuine remaining-only retry is still pending; cp8 remains the input boundary.

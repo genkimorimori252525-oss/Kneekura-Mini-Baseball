@@ -76,3 +76,35 @@ and result for inspection; the pinned gzip is checked again after cleanup.
 The joint IFN/PL batch at source tree `912c0a98573ab8d90307fc83d1a8f0670ea92464` passed independent review of all 22 changed files, full compiler (31.088 seconds), and all nine focused input/import checks (5.844 seconds). All source, dependency, runtime and control pins remained stable, no resource guard fired and no child survived. Formal report SHA-256: `478f5f2ba86a0d6dca9b42e40bb36f8dbf87d04ede6cb67e336cd898d0771376`.
 
 These bounded checks do not establish runtime owner admission, suffix PASS, or a whole IFN01 case PASS. The exact remaining-only Native entry is prepared separately under the existing reviewed resource controls.
+
+## First admission failure and workload-context correction
+
+The first retained execution failed before any observed mutating owner call or new checkpoint:
+the recovery entry incorrectly equated the ten reserved PA participants with
+the complete workload-head census. The original both-sides fixture also owns
+the independent away pitcher's `p-away` head, initialized from `workload-away`
+and `intake-p-away`. The retained database correctly contains eleven heads.
+
+Admission now authenticates the ten reserved participant states and that
+original independent pitcher's binding, Person chain, baseline and unchanged
+revision-zero state separately. The exact full census is still required, and
+all eleven heads are returned for the unchanged original final assertion.
+Missing, extra, substituted or corrupted heads are refused. None of the
+original 232 shared assertion statements changed.
+
+Under Node 26, the focused regression first reproduced `11 !== 10`, then all
+eight cases passed (1.264 seconds of tests; 6.23 seconds total). A read-only
+audit of one owned copy of the pinned checkpoint passed 78 persisted-context
+checks. The corrected helper also passed against that copy using production
+enrollment, binding and workload readers in 33 milliseconds, with zero database
+changes and the raw hash unchanged. These checks do not execute the lifecycle
+or remaining suffix. The prior execution remains failed; correction-batch
+compiler qualification and a new controlled suffix execution are separate.
+
+## Consolidated correction qualification
+
+The IFN context correction and the PL dispatch-claim correlation correction were reviewed as one seven-file batch. Full compiler passed in 30.576 seconds on source tree `1172ceda12c24f60334a60051bdd92957fd40591`. The selected Node 26 run passed the eight IFN context cases and the PL ordinary-initialization regression; one new DO15 expectation incorrectly allowed a deliberately moved original baseline and failed. That failed report is retained, SHA-256 `b8ec96d1c958fd7d16e6ae6ffb8cb93349529d293d56b7862b567eb3675806c9`.
+
+The final test-only correction requires the existing fail-closed behavior. Only DO15 was rerun: PASS in 16.712 seconds, report SHA-256 `923b78f1af097992a04fa0383efec55547b3671c77357e33456ea698a0f819eb`, final source tree `9945219b1e94a0fda85cb2923194f5b77657c45e`. Production and IFN code were unchanged by this last test expectation adjustment; unrelated checks and the compiler were not repeated. All controlled input pins stayed stable, no resource guard fired and no child survived. These are nine preserved passing checks plus the corrected tenth check, not a relabeled passing first run.
+
+The prior two observer import checks retain their `fd0846a5` attribution. Independent static review allows their reuse: the IFN helper introduces no new runtime owner or cycle, and the PL correction changes SQL correlation only. Genuine continuation after these fixes has not started.

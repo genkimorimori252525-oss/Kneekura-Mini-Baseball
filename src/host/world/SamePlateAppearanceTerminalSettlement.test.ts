@@ -123,7 +123,8 @@ const releasedClaims = () => {
   const x = setup(), db = x.f.db;
   for (const sql of Object.values(paDispatchSchema)) db.exec(sql);
   for (let i = 0; i < 2; i++) {
-    const source = { sourceId: 'historical-consumer-' + i }, snapshot = { source };
+    const source = { sourceId: 'historical-consumer-' + i, member: x.endpoint.lineage.participantReferences[0] };
+    const snapshot = { source, lineage: x.endpoint.lineage };
     db.prepare('INSERT INTO pa_dispatch_v1_consumer_actions VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)').run(
       source.sourceId, 'structural-v1', x.enrollment.careerId, x.enrollment.gameId, x.enrollment.playId,
       x.enrollment.source.sourceId, x.enrollment.source.firstPhysicalPitchSourceId, 'structural-view',
@@ -315,7 +316,7 @@ it('reuses the complete released proof only within one ordinary reservation asse
   try { withSamePaSettlementClaimReadPhase(db, scope, () => expect(claim()).toBe(true)); }
   finally { db.exec('ROLLBACK'); }
 });
-it('ends each ordinary initialize claim before callbacks, writes and an exact retry', () => {
+it('keeps unrelated retained baselines separate across all four initialize claims and an exact retry', () => {
   const x = releasedClaims(), db = x.f.db, baseline = newBaseline(x);
   const release = vi.spyOn(settlementEvidence, 'readSamePaTerminalReleaseFromSqlite');
   const assertReservation = reservations.assertNoSamePaPlayerReservation;

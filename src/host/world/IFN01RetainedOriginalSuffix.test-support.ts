@@ -3,14 +3,14 @@ import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
-import { actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import type { SamePaPhysicalFieldAction } from './SamePlateAppearancePhysicalFieldAction';
 import type { SamePaPhysicalFieldStep, SamePaPhysicalFieldStepSource } from './SamePlateAppearancePhysicalEpisode';
 import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
 import { readSamePaLifecycleCalibrationFromSqlite } from './SamePlateAppearanceLifecycleFromSqlite';
-import { readActualRoleWorkloadState } from './ActualRoleWorkloadState';
+import { readIFN01RetainedWorkloadHeads } from './IFN01RetainedWorkloadContext.test-support';
 import { SqliteOfficialStateStore } from '../SqliteOfficialStateStore';
 import { SqliteOfficialParticipationStore } from './SqliteOfficialParticipationStore';
 import { openSqliteWorldSettlementStore } from './SqliteWorldSettlementStore';
@@ -92,14 +92,7 @@ export const runIFN01RetainedOriginalSuffix = (input: IFN01RetainedSuffixInput, 
     const enrollment = track(openSqliteSamePlateAppearanceEnrollmentStore(path)).readHistorical('native-enrollment');
     assert(enrollment?.kind === 'reserved', 'IFN01 original enrollment missing');
     assert.deepEqual(enrollment.source.actorReference, reference('physical_plate_appearance_actors', actor));
-    const originalHeads = db.prepare('SELECT * FROM world_player_workload_heads ORDER BY career_id,player_id').all();
-    assert.equal(originalHeads.length, 10);
-    for (const participant of enrollment.participants) {
-      const b = participant.binding;
-      const state = withSqliteReadTransaction(db, () => readActualRoleWorkloadState(db, b.careerId, b.playerId, undefined, b.personLinkSourceId));
-      assert.deepEqual(state, participant.state, 'IFN01 reserved participant head already changed');
-      assert.equal(hash(state), enrollment.source.participantBaselineReferences.find(p => p.playerId === b.playerId)!.stateHash);
-    }
+    const originalHeads = readIFN01RetainedWorkloadHeads(db, enrollment, participation);
     assert.deepEqual(db.prepare('SELECT source_id FROM world_player_workload_activities ORDER BY source_id').all().map(r => r.source_id), ['prior-independent-native-fixture-work']);
     const dispatch = track(openSqliteSamePlateAppearanceDispatchStore(path));
     const acceptedAction = dispatch.readAction('native-action'); assert(acceptedAction, 'IFN01 original dispatch action missing');
