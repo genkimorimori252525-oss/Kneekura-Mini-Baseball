@@ -3,11 +3,11 @@ import { prepareBattedWorldScheduledFieldAcquisition } from '../../core/sim/ball
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { prepareNativePhysicalThrowCalibration } from './SamePlateAppearancePhysicalThrowNative.test-support';
 import { physicalThrowSceneFixture } from './SamePlateAppearancePhysicalThrowScene.test-support';
-import type { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
+import type { SamePaPreparedPhysicalLifecycle } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 import type { prepareFreshPhysicalFieldFixture } from './SamePlateAppearancePhysicalFieldFixture.test-support';
 import type { SamePaPhysicalFieldAction } from './SamePlateAppearancePhysicalFieldAction';
 import type { SamePaPhysicalFieldStepSource } from './SamePlateAppearancePhysicalEpisode';
-type Fixture = ReturnType<typeof samePaPhysicalLifecycleFixture>;
+type Fixture = SamePaPreparedPhysicalLifecycle;
 type Field = ReturnType<ReturnType<typeof prepareFreshPhysicalFieldFixture>['appendField']>;
 /** Continue IFN01's real first glove boundary under its original static curves.
  * The only future values in Sources are bounded horizons and an explicit target.

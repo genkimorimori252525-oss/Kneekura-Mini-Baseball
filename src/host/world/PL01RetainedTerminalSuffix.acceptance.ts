@@ -3,7 +3,7 @@ import { it } from 'vitest';
 import { runPL01RetainedTerminalSuffix } from './PL01RetainedTerminalSuffix.test-support';
 import type { PL01RetainedSuffixInput } from './PL01RetainedCheckpoint.test-support';
 
-it('PL01-R2 continues exact cp8 from the unperformed new-batter baseline through original occupied-next-pitch assertions (remaining suffix only)', () => {
+it('PL01-R3 continues exact corrected-run cp1 after the accepted new-batter baseline through original occupied enrollment and next-pitch assertions (remaining suffix only)', () => {
   const path = process.env.BASEBALL_PL01_RETAINED_INPUT;
   if (!path) throw new Error('reviewed PL01 retained suffix input is required');
   const input = JSON.parse(readFileSync(path, 'utf8')) as PL01RetainedSuffixInput;

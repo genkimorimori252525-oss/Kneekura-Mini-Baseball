@@ -1,12 +1,12 @@
-# 元の非デザイン9領域：現在の残件入口（2026-10-10）
+# 元の非デザイン9領域：現在の残件入口（2026-10-11）
 
 範囲は[PR340保存時の正本 §5](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/blob/6509e61f2474cc6bcfadda129f4b3c9621855c2c/docs/project-status/2026-10-04-nonvisual-implementation-checkpoint.md#5-残る確定済み非デザイン計画)を維持する。UI/design、新arsenal、未承認の数値モデルは含めない。以下は現在のコード・実証・仕様判断の入口であり、[従来の詳細な実行履歴](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/blob/91cd3035f8d8309eaafae34f44f312fd2e86759a/docs/project-status/2026-10-09-nonvisual-nine-area-status.md)を置き換えて成功へ読み替えるものではない。
 
-現在の修正src treeは `9945219b1e94a0fda85cb2923194f5b77657c45e`。元IFN cp273とPL cp8の残り専用実行で、復旧contextの全head数と参加者数の混同、dispatch claim SQLの別名衝突がそれぞれ実際に拒否を起こした。保存履歴を改変せず同じバッチで修正・reviewした。全compiler30.576秒がPASS、関連選択検証は9件PASS＋不正な追加テスト期待を修正した1件の再実行PASS。元の失敗結果と検証sourceの帰属は保持し、全体再検証を反復していない。修正後の実Native続行は未開始。[IFN修正と検証](2026-10-11-ifn01-original-retained-suffix.md#consolidated-correction-qualification)・[PL拒否原因](2026-10-11-pl01-cp8-occupied-suffix.md#actual-first-continuation-and-correlated-baseline-correction)。
+現在の統合src treeは `3dcc76c69323fdd3461d4af7ec7f61bafe646e2a`。新しいenrollmentの受理前・参加者の途中書込みでも、完成済み履歴を要求していたclaim確認を修正した。新対象はimmutable rootのscopeで照合し、既存ownerは従来どおり完全な原本・member・slotを認証する。PLの受理済みbaselineからの続行とLANの保存済みactor/modelからの続行を同じ27ファイルのバッチへ統合し、独立review CLEAR、全compiler32.590秒、関連24件／7 files64.617秒がPASS。元の失敗履歴とsource帰属は保持し、完了済み前半は繰り返さない。[修正と検証](2026-10-10-terminal-proof-recovery.md#fresh-enrollment-claims-and-exact-pllan-continuation-batch)。
 
 直前のproduction修正srcは `e5f3ed76710da25007774d59ba7ce661614f39b1`。通常のworkload予約確認でも既存の1確認内のimmutable読み取りを再利用し、同じenrollmentの完了release原本を共有する最小修正を接続した。一括review CLEAR、全compiler31.794秒、関連71件／6 files183.415秒がPASS。4個の独立assertionとcallback・書込み・retryごとの再認証を保持する。復元回数の減少は時間性能の証明とは扱わない。[通常claim修正と実証境界](2026-10-10-terminal-proof-recovery.md#ordinary-workload-reservation-release-proof-scope)。
 
-元FR01のfresh caseは全体PASS。Nationalは保存済み裁定境界から元37 assertionの保持続行がPASSし、旧fresh failedは別に保持する。PL01は旧freshと保持suffixがそれぞれ上限failed。保持suffixで10人決済・公式交代・release・元retry/reopenは返却したが、新打者baselineは未返却で、最後の保存点からoccupied次球だけを続ける入口が一括review・compiler・入力検査を通過した。元IFN freshも上限failedとなり、catch-response:6とcut31 prefix/TOTALを保持し、未返却view以降だけを続ける入口も同じバッチで検証した。LANは固定公開 `d47512d8` で2026-10-10 23:54:14 UTCから実行中。[正確なsource帰属と実結果](2026-10-10-terminal-proof-recovery.md)を参照し、異なるsourceや部分結果を足して全体PASSとはしない。
+元FR01のfresh caseは全体PASS。Nationalは保存済み裁定境界から元37 assertionの保持続行がPASSし、旧fresh failedは別に保持する。PLは公開 `e6de9bb3` で新打者baselineが実commitした後、次のenrollmentで659.251秒の機能failed。受理済みbaselineを保持するcp1入口を検証した。LANの旧固定 `d47512d8` は通常walkの決済・遷移・release・retry/reopenと次actor/modelまで返却後、既知の旧baseline claim拒否で4558.949秒の機能failed。cp181から残りだけを続ける入口を同時に検証した。修正版IFNは `e6de9bb3` で2026-10-11 01:03:06 UTCからcp273の残りを実行中、全体結果はまだない。PL/LANの新しい続行は未開始。[正確なsource帰属と実結果](2026-10-10-terminal-proof-recovery.md)を参照し、異なるsourceや部分結果を足して全体PASSとはしない。
 
 1. **統合・archive互換** — 各owner、保存履歴、practice/能力/Manager、実接触/foul、同一PAと終端・成績の接続は一括review・compiler・関連検証済み。残るのはcurrent whole/archiveと元full Positiveの完了証拠。旧TODOだけを根拠に接続済みAPIを再実装しない。[統合記録](2026-10-10-native-continuation-batch.md#consolidated-verification)
 

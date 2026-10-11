@@ -7,7 +7,7 @@ import { samePaPlayerClaimCanProceed } from './SamePlateAppearanceSettlementAdmi
 import { assertSamePaTakeSuccessorStorage } from './SamePlateAppearanceTakeSuccessorStorage';
 import type { DatabaseSync } from 'node:sqlite';
 import { actorHash as hash, actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
-import { samePaEnrollmentRow, authenticateSamePaRow, samePaMetadataClaim as claim } from './SamePlateAppearanceReservationGuard';
+import { samePaEnrollmentRow, authenticateSamePaRow, samePaMetadataClaim as claim, type SamePaScope } from './SamePlateAppearanceReservationGuard';
 import { assertSamePaContinuationStorage } from './SamePlateAppearanceContinuationStorage';
 import { samePaContinuationSourceInput, samePaContinuationTables, samePaContinuationKind } from './SamePlateAppearanceContinuation';
 import { sqliteJsonMetadataNodes as nodes } from './SqliteOwnershipMetadata';
@@ -138,9 +138,10 @@ export const assertNoSamePaContinuationWorkClaim = (db: Db, scope: { gameId: str
   for (const record of inspect(db)) if (record.enrollments.some(e => e.gameId === scope.gameId && e.playId === scope.playId || e.source.firstPhysicalPitchSourceId === scope.physicalPitchSourceId)
     || scopeClaimed(db, record.row, scope)) fail();
 };
-export const assertNoSamePaContinuationEnrollmentClaim = (db: Db, enrollmentSourceId: string) => {
+export const assertNoSamePaContinuationEnrollmentClaim = (db: Db, enrollmentSourceId: string, scope?: SamePaScope) => {
   const preparation = new Set(['pa_take_successor_v1_action_plans', 'pa_take_successor_v1_setups', 'batting_execution_v1_intents', 'batting_execution_v1_inputs', 'batting_observation_v1_postures', 'batting_score_v1_assessments', 'batting_emotion_v1_geneses', 'world_same_pa_occupied_runner_holds']);
-  for (const record of inspect(db)) if (!preparation.has(record.table) && record.enrollments.some(e => e.source.sourceId === enrollmentSourceId)) fail();
+  for (const record of inspect(db)) if (!preparation.has(record.table) && (record.enrollments.some(e => e.source.sourceId === enrollmentSourceId)
+    || scope && scopeClaimed(db, record.row, scope))) fail();
 };
 
 /** Future successor discovery remains metadata-only for an older current view. */

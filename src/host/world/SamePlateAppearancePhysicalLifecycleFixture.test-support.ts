@@ -65,11 +65,23 @@ export const samePaPhysicalLifecycleFixture=(options:Readonly<{explicitBatterObs
   }catch(e){f.close();throw e;}
 };
 
+/** Only dependencies used by the original continuation and its field/terminal
+ * callers. Fresh fixtures retain their wider type through generic inference. */
+type DirectFixture = ReturnType<typeof directNativeDispatchFixture>;
+export type SamePaPhysicalContinuationContext = Pick<DirectFixture,
+  'db' | 'path' | 'actor' | 'acceptedAction' | 'acceptedCalibrations' | 'view' | 'close'> & {
+  x: Pick<DirectFixture['x'], 'accepted' | 'actors' | 'sources'> & {
+    f: Pick<DirectFixture['x']['f'], 'track' | 'links'> & {
+      firstInput: Pick<DirectFixture['x']['f']['firstInput'], 'worldSetup'>;
+    };
+  };
+};
+
 /** Continue genuinely accepted first-pitch records with the same second TAKE
  * and lifecycle owners. A label gives another PA disjoint fixture Sources;
  * original participants are always read from that PA's accepted actor. */
-export const prepareSamePaPhysicalLifecycleContinuation = (
-  f: ReturnType<typeof directNativeDispatchFixture>, accepted: Map<string, unknown>, first: SamePaExecutedPitch,
+export const prepareSamePaPhysicalLifecycleContinuation = <F extends SamePaPhysicalContinuationContext>(
+  f: F, accepted: Map<string, unknown>, first: SamePaExecutedPitch,
   sceneBodyReferences: ReturnType<typeof prepareSamePaSceneBodies>, genesis: DurableBattingEmotionGenesis,
   worldOwner: ReturnType<typeof openSqliteWorldControlStore>,
   options: Readonly<{ explicitBatterObservation?: AcceptedBattingObservationCalibration['values'];
@@ -151,3 +163,6 @@ export type SamePaPhysicalLifecycleSuffix = Pick<PhysicalLifecycleFixture, 'save
     };
   };
 };
+
+/** The actual original continuation returned from the required dependencies. */
+export type SamePaPreparedPhysicalLifecycle = ReturnType<typeof prepareSamePaPhysicalLifecycleContinuation<SamePaPhysicalContinuationContext>>;

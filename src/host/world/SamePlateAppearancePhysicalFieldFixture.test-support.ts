@@ -8,8 +8,8 @@ import type { BallWorldVenueLegalPolicy } from '../../core/rules/BallWorldVenueL
 import type { AcceptedBattedVenueLegalCoveragePolicy } from './BattedVenueLegalCoveragePolicy';
 import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import type { DurableBattingInvocationPosture } from './NativeBattingPerception';
-import type { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
-type Fixture=ReturnType<typeof samePaPhysicalLifecycleFixture>;
+import type { SamePaPreparedPhysicalLifecycle } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
+type Fixture=SamePaPreparedPhysicalLifecycle;
 
 /** Explicit values from BattedWorldContact/Field/ContactResponse fixtures.
  * Normal ten-body assembly is accepted without an old flight, contact, field

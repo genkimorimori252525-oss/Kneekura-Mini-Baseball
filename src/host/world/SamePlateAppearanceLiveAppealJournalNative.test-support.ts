@@ -8,7 +8,7 @@ import type { AcceptedActualPostPlayOfficialIntent, AcceptedActualPostPlayReview
 import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { deriveSamePaCatchReviewSeedFromSqlite } from './SamePlateAppearanceCatchReviewFromSqlite';
 import type { SamePaCatchReviewSeedSource } from './SamePlateAppearanceCatchReviewSource';
-import type { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
+import type { SamePaPreparedPhysicalLifecycle } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import { openSqliteActualPostPlayReviewStore } from './SqliteActualPostPlayReviewStore';
 import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
@@ -16,7 +16,7 @@ import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support'
 /** Import the original live appeal only after the physical end is independently
  * sealed. Native replays the field receipt, original rights and caught call;
  * accepted Sources contain references and an explicit official instruction. */
-export const appendNativeLiveAppealJournal = (h: ReturnType<typeof samePaPhysicalLifecycleFixture>,
+export const appendNativeLiveAppealJournal = (h: SamePaPreparedPhysicalLifecycle,
   catchWorkReference: SamePaReference<'pa_catch_v1_work'>,
   executionReference: SamePaReference<'pa_physical_v1_field_steps'>,
   policy: ActualLiveOfficialPolicy, label: string, schedulerId: string) => {

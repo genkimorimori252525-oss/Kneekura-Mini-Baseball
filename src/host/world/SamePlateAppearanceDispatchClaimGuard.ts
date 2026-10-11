@@ -7,7 +7,7 @@ import type { DatabaseSync } from 'node:sqlite';
 import { actorHash as hash, actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { assertPaDispatchStorage, paDispatchSchema } from './SamePlateAppearanceDispatchStorage';
 import { samePaDispatchSourceInput } from './SamePlateAppearanceDispatchSource';
-import { samePaMetadataClaim as claim, authenticateSamePaRow, samePaEnrollmentRow } from './SamePlateAppearanceReservationGuard';
+import { samePaMetadataClaim as claim, authenticateSamePaRow, samePaEnrollmentRow, readSamePaEnrollmentClaimScope, type SamePaScope } from './SamePlateAppearanceReservationGuard';
 import { assertReservedPaClaims } from './SamePlateAppearanceProvisionalClaimGuard';
 import { actualLivePlayOwnerIdentityRow } from './ActualLivePlayOwnerMetadata';
 import { sqliteJsonMetadataNodes as nodes } from './SqliteOwnershipMetadata';
@@ -188,6 +188,12 @@ export const assertNoPaDispatchWorkClaim = (db: Db, scope: { gameId: string; pla
   for (const record of inspect(db)) if (record.enrollments.some(e => e.gameId === scope.gameId && e.playId === scope.playId
     || e.source.firstPhysicalPitchSourceId === scope.physicalPitchSourceId) || rawWorkRows(db, record.table, scope).length) fail();
 };
+const scopedWorkRows = (db: Db, records: ReturnType<typeof inspect>, enrollmentSourceId: string, scope: SamePaScope | null) => {
+  const direct = new Map([...new Set(records.map(record => record.table))].map(table =>
+    [table, new Set(scope ? rawWorkRows(db, table, scope).map(json) : [])]));
+  return records.filter(record => record.enrollments.some(e => e.source.sourceId === enrollmentSourceId) || direct.get(record.table)!.has(json(record.row)))
+    .map(({ table, row }) => ({ table, row }));
+};
 /** Called only by the old owner's existing original-enrollment read branch.
  * Prospective prerequisites are not causal work. Actual dispatch work always
  * invalidates a fresh empty-view proof, without changing the frozen v1 census. */
@@ -195,17 +201,19 @@ export const readPaDispatchWorkClaimRows = (db: Db, enrollmentSourceId: string):
   const records = inspect(db).filter(record => !prospective.includes(record.table)); if (!records.length) return [];
   const row = samePaEnrollmentRow(db, enrollmentSourceId); if (!row) fail(); const original = authenticateSamePaRow(db, row);
   const scope = { gameId: original.gameId, playId: original.playId, physicalPitchSourceId: original.source.firstPhysicalPitchSourceId };
-  const direct = new Map([...new Set(records.map(record => record.table))].map(table => [table, new Set(rawWorkRows(db, table, scope).map(json))]));
-  return records.filter(record => record.enrollments.some(e => e.source.sourceId === enrollmentSourceId) || direct.get(record.table)!.has(json(record.row)))
-    .map(({ table, row }) => ({ table, row }));
+  return scopedWorkRows(db, records, enrollmentSourceId, scope);
 };
 /** Release also pins prospective action/calibration/right rows. */
 export const readPaDispatchClaimRows = (db: Db, enrollmentSourceId: string) => inspect(db)
   .filter(record => record.enrollments.some(e => e.source.sourceId === enrollmentSourceId))
   .map(({ table, row }) => ({ table, row }));
 export const assertFreshPaDispatchEnrollment = (db: Db, enrollmentSourceId: string): void => {
-  assertNoSamePaContinuationEnrollmentClaim(db, enrollmentSourceId);
-  if (readPaDispatchWorkClaimRows(db, enrollmentSourceId).length) fail();
+  // Authenticate all existing owners before selecting the prospective target.
+  // That target can be absent or have an owned root awaiting its member writes.
+  const records = inspect(db).filter(record => !prospective.includes(record.table));
+  const scope = readSamePaEnrollmentClaimScope(db, enrollmentSourceId);
+  assertNoSamePaContinuationEnrollmentClaim(db, enrollmentSourceId, scope ?? undefined);
+  if (scopedWorkRows(db, records, enrollmentSourceId, scope).length) fail();
 };
 /** Read-only discovery for a prospective physical identity, including surviving
  * consumers/heads/receipts when the pitch row itself is absent or moved. */

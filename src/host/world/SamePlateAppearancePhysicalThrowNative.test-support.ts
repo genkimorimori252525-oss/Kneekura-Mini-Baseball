@@ -4,8 +4,8 @@ import { readSamePaLifecycleCalibrationFromSqlite } from './SamePlateAppearanceL
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
 import type { AcceptedSamePaLifecycleThrowCalibration, SamePaFieldThrowValues } from './SamePlateAppearanceLifecycleCalibrationSource';
-import type { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
-type Fixture = ReturnType<typeof samePaPhysicalLifecycleFixture>;
+import type { SamePaPreparedPhysicalLifecycle } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
+type Fixture = SamePaPreparedPhysicalLifecycle;
 /** Additive qualification arm for an existing genuine current-cut fixture.
  * It explicitly accepts that fixture's nominal transfer/throw values as the
  * effective response; this is not a production fatigue policy or default.

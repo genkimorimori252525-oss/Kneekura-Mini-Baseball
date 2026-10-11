@@ -77,9 +77,7 @@ export const samePaMember = (value:ReservedSamePlateAppearanceEnrollment,p:Reser
   revision:p.state.revision,stateHash:hash(p.state),baselineSourceHash:p.baselineSourceHash,bindingHash:hash(p.binding),personHash:p.personHash,
 });
 export const samePaSlot = (value:ReservedSamePlateAppearanceEnrollment)=>({enrollmentSourceId:value.source.sourceId,gameId:value.gameId,playId:value.playId,...value.firstPitch});
-/** Validate complete immutable root/member/right mirrors. Deleting a member
- * never converts the surviving root's claim into a free participant. */
-export const authenticateSamePaRow = (db:SamePaDb,row:Record<string,unknown>):ReservedSamePlateAppearanceEnrollment => {
+const authenticateSamePaRoot = (row:Record<string,unknown>):ReservedSamePlateAppearanceEnrollment => {
   const source=input(JSON.parse(String(row.source_json)),String(row.source_id));
   const v=JSON.parse(String(row.snapshot_json)) as ReservedSamePlateAppearanceEnrollment;
   if(v.kind!=='reserved'||json(v.source)!==json(source)||!id(v.careerId)||!id(v.gameId)||!Number.isSafeInteger(v.playId)||v.playId<0
@@ -88,6 +86,20 @@ export const authenticateSamePaRow = (db:SamePaDb,row:Record<string,unknown>):Re
     ||row.snapshot_json!==json(v)||row.snapshot_hash!==hash(v)||!Array.isArray(v.participants)||v.participants.length!==source.participantBaselineReferences.length
     ||new Set(v.participants.map(p=>p.binding.playerId)).size!==source.participantBaselineReferences.length||new Set(v.participants.map(p=>p.binding.personId)).size!==source.participantBaselineReferences.length
     ||json(v.firstPitch)!==json({physicalPitchSourceId:source.firstPhysicalPitchSourceId,state:'blocked_execution_basis',predecessorResumeSourceId:null,consumingSourceId:null}))fail('immutable root differs');
+  return v;
+};
+/** Fresh claim discovery also runs between the enrollment owner's INSERTs.
+ * Its immutable root supplies scope, not proof of completed member/right writes.
+ * Every surviving work owner still requires authenticateSamePaRow below. */
+export const readSamePaEnrollmentClaimScope = (db:SamePaDb,sourceId:string):SamePaScope|null => {
+  const row=samePaEnrollmentRow(db,sourceId);if(!row)return null;
+  const root=authenticateSamePaRoot(row);
+  return {gameId:root.gameId,playId:root.playId,physicalPitchSourceId:root.source.firstPhysicalPitchSourceId};
+};
+/** Validate complete immutable root/member/right mirrors. Deleting a member
+ * never converts the surviving root's claim into a free participant. */
+export const authenticateSamePaRow = (db:SamePaDb,row:Record<string,unknown>):ReservedSamePlateAppearanceEnrollment => {
+  const v=authenticateSamePaRoot(row),source=v.source;
   const activeMembers=db.prepare(`SELECT * FROM main.same_pa_participant_reservations m WHERE ${memberRoot('$id')}`).all({id:source.sourceId});
   const archivedMembers=readSamePaReleasedMembers(db,v);
   if(archivedMembers&&activeMembers.length)fail('released enrollment retains active member leases');

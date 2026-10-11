@@ -1,5 +1,5 @@
 import { expect } from 'vitest';
-import type { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
+import type { SamePaPreparedPhysicalLifecycle } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 import type { SamePaPhysicalFieldStep } from './SamePlateAppearancePhysicalEpisode';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { samePaOfficialSourceReference as originalRef, type AcceptedSamePaOfficialPerson, type AcceptedSamePaCatchAssignment,
@@ -12,7 +12,7 @@ import { openSqliteSamePlateAppearanceCatchWorkStore } from './SamePlateAppearan
  * SamePlateAppearanceCatchCommunication.test.ts. Every original participant gets
  * a real dropped receipt; none is omitted or marked complete by the caller.
  * Root stationary commands still prove each actor's own physical obligations. */
-export const appendNativeLiveAppealCatch = (h: ReturnType<typeof samePaPhysicalLifecycleFixture>, secured: SamePaPhysicalFieldStep, label: string) => {
+export const appendNativeLiveAppealCatch = (h: SamePaPreparedPhysicalLifecycle, secured: SamePaPhysicalFieldStep, label: string) => {
   const b=h.current(),moment=secured.field.motion.world.moment;
   const at={originTick:moment.originTick,elapsedSeconds:moment.elapsedSeconds,tick:moment.ball.tick};
   const person:AcceptedSamePaOfficialPerson=h.save({sourceId:label+':person',sourceVersion:'fixture-v1',capability:'accepted_original_umpire_person_v1',

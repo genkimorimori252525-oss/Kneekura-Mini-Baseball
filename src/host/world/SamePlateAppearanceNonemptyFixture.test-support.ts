@@ -9,7 +9,9 @@ import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support'
 /** Real synthetic Source acceptance only. Every participant TOTAL must be
  * supplied explicitly by the test. Response values are the existing separately
  * declared32 fixture values, never a production fatigue mapping/default. */
-export const prepareSamePaNonemptyFixture = (f: ReturnType<typeof directNativeDispatchFixture>, pitch: SamePaExecutedPitch,
+export const prepareSamePaNonemptyFixture = (f: Pick<ReturnType<typeof directNativeDispatchFixture>, 'db' | 'path' | 'acceptedCalibrations'> & {
+  x: { f: Pick<ReturnType<typeof directNativeDispatchFixture>['x']['f'], 'track'> };
+}, pitch: SamePaExecutedPitch,
   label: string, effortUnitsByPlayer: Readonly<Record<string, number>>, operationReferences: readonly SamePaContinuationInvocationReference[]) => {
   const accepted = new Map<string, unknown>();
   const owner = f.x.f.track(openSqliteSamePlateAppearanceContinuationStore(f.path, { readAcceptedPrefix: id => accepted.get(id),

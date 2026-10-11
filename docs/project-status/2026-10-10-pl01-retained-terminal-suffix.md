@@ -2,7 +2,8 @@
 
 Historical cp173 contract: published commit
 `d6dfd095dd6c59fd195484394d1be21e0705dfdc`. The existing exact entry has since
-advanced to cp8; see [the remaining occupied suffix](2026-10-11-pl01-cp8-occupied-suffix.md).
+advanced through [cp8](2026-10-11-pl01-cp8-occupied-suffix.md) to
+[corrected-run cp1](2026-10-11-pl01-cp1-enrollment-suffix.md).
 The text below records the earlier contract and author checks.
 
 This is a test-support entry for exactly the returned-owner checkpoint 173 of

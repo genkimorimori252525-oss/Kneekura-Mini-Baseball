@@ -23,7 +23,7 @@ import { battingEmotionFrame } from './NativeBattingEmotionExecution';
 import { request as emotionFixture } from '../../core/world/psychology/execution/ExecutionFixtures.test-support';
 import type { SamePaLifecyclePrefix, SamePaLifecycleView } from './SamePlateAppearanceLifecycle';
 import type { DurableBattingEmotionExecution } from './NativeBattingEmotionExecution';
-import type { samePaPhysicalLifecycleFixture, SamePaPhysicalLifecycleSuffix } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
+import type { SamePaPreparedPhysicalLifecycle, SamePaPhysicalLifecycleSuffix } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 import type { SamePaDispatchRoute } from './SamePlateAppearanceDispatchRoles';
 import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import type { DurableBattingInvocationPosture, DurableBattingScoreAssessment } from './NativeBattingPerception';
@@ -32,7 +32,7 @@ import type { SamePaPhysicalCommitmentSource, SamePaPhysicalLaunch, SamePaPhysic
 import { readCurrentSamePaInFlightCutFromSqlite, readSamePaPhysicalOperationFromSqlite } from './SamePlateAppearancePhysicalEpisodeFromSqlite';
 import { readCurrentSamePaLifecycleViewFromSqlite, readHistoricalSamePaLifecycleViewFromSqlite, readSamePaLifecycleRecordFromSqlite, withSamePaLifecycleReadPhase } from './SamePlateAppearanceLifecycleFromSqlite';
 
-type Fixture = ReturnType<typeof samePaPhysicalLifecycleFixture>;
+type Fixture = SamePaPreparedPhysicalLifecycle;
 type SwingOptions = Readonly<{ attempt?: DurableSamePaBattingIntent['originalIntent']['attempt'];
   prepareCommitment?: (source: SamePaPhysicalCommitmentSource, input: DurableSamePaBattingExecutionInput) => SamePaPhysicalCommitmentSource }>;
 type OwnedSwingPrefix = Readonly<{ posture: DurableBattingInvocationPosture; intent: DurableSamePaBattingIntent;

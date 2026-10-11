@@ -1,8 +1,8 @@
 import { expect } from 'vitest';
 import { policy } from '../../core/world/psychology/EmotionFixtures.test-support';
 import { openSqliteBattingEmotionStore } from './SqliteBattingEmotionStore';
-import { continueSamePaOccupiedWalkFixture } from './SamePlateAppearanceOccupiedContinuation.test-support';
-import { prepareSamePaPhysicalLifecycleContinuation, type samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
+import { continueSamePaOccupiedWalkFixture, type SamePaOccupiedWalkBase } from './SamePlateAppearanceOccupiedContinuation.test-support';
+import { prepareSamePaPhysicalLifecycleContinuation, type samePaPhysicalLifecycleFixture, type SamePaPhysicalContinuationContext } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 import type { completeSamePaTerminalFixture } from './SamePlateAppearanceTerminalLifecycleFixture.test-support';
 import type { SamePaInitialPlayFixtureInputs } from './SamePlateAppearanceInitialBallFixture.test-support';
 
@@ -16,6 +16,16 @@ export const prepareSamePaOccupiedPhysicalFixture = (previous: ReturnType<typeof
   completed: ReturnType<typeof completeSamePaTerminalFixture>, label: string,
   options: LifecycleOptions & Readonly<{ initialPlay: SamePaInitialPlayFixtureInputs }>) => {
   const occupied = continueSamePaOccupiedWalkFixture(previous,completed,label,{initialPlay:options.initialPlay});
+  return completeSamePaOccupiedPhysicalFixture(previous, occupied, label, options);
+};
+
+/** Exact original emotion/second-TAKE/lifecycle tail, after occupied first TAKE.
+ * Retained LAN01 supplies only accepted owners from the original baseline tail. */
+export const completeSamePaOccupiedPhysicalFixture = <F extends SamePaOccupiedWalkBase & {
+  close: () => void; x: SamePaPhysicalContinuationContext['x'];
+}>(previous: Pick<ReturnType<typeof samePaPhysicalLifecycleFixture>, 'worldOwner'>,
+  occupied: ReturnType<typeof continueSamePaOccupiedWalkFixture<F>>, label: string,
+  options: LifecycleOptions & Readonly<{ initialPlay: SamePaInitialPlayFixtureInputs }>) => {
   const { f, accepted, save } = occupied, original = occupied.action.source;
   const genesisSource = save({sourceId:label+':emotion-genesis',sourceVersion:'fixture-only-v1',capability:'owned_batting_emotion_genesis_v1',
     viewReference:original.viewReference,member:occupied.roles[0].member,policy:policy(),provenance:{assessmentSourceId:label+':genesis-assessment',
@@ -23,7 +33,7 @@ export const prepareSamePaOccupiedPhysicalFixture = (previous: ReturnType<typeof
   const owner = f.x.f.track(openSqliteBattingEmotionStore(f.path,{readAcceptedGenesis:id=>accepted.get(id)}));
   const genesis = owner.acceptGenesis(genesisSource.sourceId);
   if(genesis.kind!=='batting_emotion_genesis')throw new Error('occupied fixture next batter emotion genesis pending');
-  const lifecycle: ReturnType<typeof samePaPhysicalLifecycleFixture> = prepareSamePaPhysicalLifecycleContinuation(f,accepted,occupied.pitch,occupied.sceneBodyReferences,
+  const lifecycle = prepareSamePaPhysicalLifecycleContinuation(f,accepted,occupied.pitch,occupied.sceneBodyReferences,
     genesis,previous.worldOwner,options,label);
   expect(lifecycle.first.originalActor).toEqual(occupied.actor);
   expect(lifecycle.second.originalActor).toEqual(occupied.actor);

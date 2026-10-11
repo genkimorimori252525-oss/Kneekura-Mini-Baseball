@@ -1,5 +1,9 @@
 # PL01-R2: remaining occupied suffix from cp8
 
+Historical cp8 contract and execution record. The exact entry has advanced to
+[corrected-run cp1](2026-10-11-pl01-cp1-enrollment-suffix.md); the text below
+preserves the earlier boundary and its separately attributed results.
+
 The existing exact retained entry now accepts only cp8 from the completed
 PL01-R run. The earlier cp173 contract remains published at commit
 `d6dfd095dd6c59fd195484394d1be21e0705dfdc`; its historical controls, frozen source,
@@ -93,3 +97,15 @@ The first cp8 continuation on fixed `fd0846a5` failed functionally after 334.506
 The dispatch-claim SQL used `identity` for both an outer baseline identity and the inner metadata identity. This shadowing turned the original-baseline comparison into a self-comparison, so inserting an unrelated new-batter baseline caused a false claim. Renaming only the outer alias restores the correlation. Existing active, malformed and moved-identity rejection remains intact; no saved row or original Source is replaced. The enriched regression uses retained member/lineage metadata and covers all four initialization assertions and exact retry. The same helper's existing call sites were checked for this precise collision.
 
 The correction was integrated with the IFN workload-census fix and passed the [consolidated correction qualification](2026-10-11-ifn01-original-retained-suffix.md#consolidated-correction-qualification). The completed compiler, nine unchanged passing selected checks, and final DO15-only pass are separately attributed. A corrected genuine remaining-only retry is still pending; cp8 remains the input boundary.
+
+## Actual corrected continuation
+
+The corrected retry on `e6de9bb39dda0df4412824f450189d65f8148a5d`, source tree
+`9945219b1e94a0fda85cb2923194f5b77657c45e`, returned successfully from new-batter
+baseline initialization and saved cp1. Its next owner call, the original
+eleven-participant enrollment, failed a guard. The run ended FAILED, exit 1,
+with cleanup complete. Terminal SHA-256:
+`c4a5ebbb69970ee54cc72843724501c8cfd8ffbfd8b2d19d530687e68efeb1e0`.
+No occupied enrollment or pitch succeeded, and no whole-suffix PASS is claimed.
+The latest exact entry preserves the returned baseline and starts with the
+remaining enrollment through the unchanged original helper.

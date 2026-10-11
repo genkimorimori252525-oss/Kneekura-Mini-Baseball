@@ -27,6 +27,9 @@ import { playerWorkloadRecoveryStoreFromSqlite } from './SqlitePlayerWorkloadRec
 import { paDispatchSchema } from './SamePlateAppearanceDispatchStorage';
 import { withSamePaContinuationReadPhase } from './SamePlateAppearanceContinuationFromSqlite';
 import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
+import { samePaTakeSuccessorSchema } from './SamePlateAppearanceTakeSuccessorStorage';
+import { openSqliteSamePlateAppearanceExecutionStore } from './SqliteSamePlateAppearanceExecutionStore';
+import { assertFreshPaDispatchEnrollment } from './SamePlateAppearanceDispatchClaimGuard';
 
 // Isolated structural Native tests: original actor and physical/official
 // terminal readers are mocked. All ten workload activities, CAS, transactions,
@@ -119,8 +122,8 @@ const setup = (runnerCount = 0) => {
 };
 // Metadata-only future dispatch claims. The existing endpoint/transition stubs
 // remain explicit; these rows qualify neither physical work nor a real PA.
-const releasedClaims = () => {
-  const x = setup(), db = x.f.db;
+const releasedClaims = (runnerCount = 0, successor = false) => {
+  const x = setup(runnerCount), db = x.f.db;
   for (const sql of Object.values(paDispatchSchema)) db.exec(sql);
   for (let i = 0; i < 2; i++) {
     const source = { sourceId: 'historical-consumer-' + i, member: x.endpoint.lineage.participantReferences[0] };
@@ -130,6 +133,15 @@ const releasedClaims = () => {
       x.enrollment.source.sourceId, x.enrollment.source.firstPhysicalPitchSourceId, 'structural-view',
       'structural-right', x.enrollment.source.firstPhysicalPitchSourceId, x.f.players[0], 'structural-route', i,
       json(source), hash(source), json(snapshot), hash(snapshot));
+  }
+  if (successor) {
+    for (const sql of Object.values(samePaTakeSuccessorSchema)) db.exec(sql);
+    const source = { sourceId: 'historical-take', enrollmentReference: x.endpoint.enrollmentReference };
+    const snapshot = { source, lineage: x.endpoint.lineage };
+    db.prepare('INSERT INTO pa_take_successor_v1_consumptions VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)').run(
+      source.sourceId, 'structural-v1', x.enrollment.careerId, x.enrollment.gameId, x.enrollment.playId,
+      x.enrollment.source.sourceId, x.enrollment.source.actorReference.sourceId, x.enrollment.source.firstPhysicalPitchSourceId,
+      'structural-view', 'structural-setup', 'structural-successor-pitch', json(source), hash(source), json(snapshot), hash(snapshot));
   }
   x.owner.settle(x.source.sourceId); x.complete(); x.owner.release(x.source.sourceId);
   return x;
@@ -468,20 +480,65 @@ it('rejects duplicate raw release identities before allowing later workload or h
   expect(() => x.enroll.readHistorical(x.f.source.sourceId)).toThrow(/same-PA release/);
   expect(count(x.f.db, 'world_player_workload_activities')).toBe(10);
 });
-it('keeps historical enrollment readable and allows a distinct next PA reservation after release', () => {
-  const x = setup(); x.owner.settle(x.source.sourceId); x.complete(); x.owner.release(x.source.sourceId);
+it('keeps released dispatch and continuation history while enrolling and preparing a distinct occupied PA', () => {
+  const x = releasedClaims(1, true);
   const old = structuredClone(x.f.actor), next = { ...old,
     source: { ...old.source, sourceId: 'next-actor' }, match: { ...old.match, playId: 2 } };
   x.f.db.prepare('INSERT INTO physical_plate_appearance_actors VALUES(?,?,?,?,?,?,?,?,?)').run(next.source.sourceId, next.source.sourceVersion,
     next.source.gameId, next.match.playId, next.source.playerId, json(next.source), hash(next.source), json(next), hash(next));
   vi.mocked(actorOwner.readPhysicalPlateAppearanceActorFromSqlite).mockImplementation((_db, id) => id === old.source.sourceId ? old : id === next.source.sourceId ? next : null);
-  const source = { ...x.f.source, sourceId: 'next-enrollment', actorReference: reference('physical_plate_appearance_actors', next), firstPhysicalPitchSourceId: 'next-pitch',
-    participantBaselineReferences: x.f.source.participantBaselineReferences.map(p => {
+  const source = { ...x.enrollment.source, sourceId: 'next-enrollment', actorReference: reference('physical_plate_appearance_actors', next), firstPhysicalPitchSourceId: 'next-pitch',
+    participantBaselineReferences: x.enrollment.source.participantBaselineReferences.map(p => {
       const state = x.f.workload.readHead('career-a', p.playerId)!; return { ...p, revision: state.revision, stateHash: hash(state) };
     }) };
   const owner = openSqliteSamePlateAppearanceEnrollmentStore(x.f.path, { readAcceptedEnrollment: () => source }); owners.push(owner);
-  expect(owner.accept(source.sourceId).kind).toBe('reserved'); expect(count(x.f.db, 'same_pa_participant_reservations')).toBe(10);
+  const enrolled = owner.accept(source.sourceId);
+  expect(enrolled.kind).toBe('reserved'); expect(count(x.f.db, 'same_pa_participant_reservations')).toBe(11);
+  expect(owner.accept(source.sourceId)).toEqual(enrolled);
   expect(x.enroll.readHistorical(x.f.source.sourceId)).toEqual(x.enrollment);
+  if (enrolled.kind !== 'reserved') throw new Error('next enrollment missing');
+  const accepted = new Map<string, unknown>();
+  const execution = openSqliteSamePlateAppearanceExecutionStore(x.f.path, {
+    readAcceptedPrefix: id => accepted.get(id), readAcceptedTotal: id => accepted.get(id), readAcceptedView: id => accepted.get(id),
+  }); owners.push(execution);
+  const prefixSource = { sourceId: 'next-prefix', sourceVersion: 'structural-v1', capability: 'reserved_same_pa_empty_prefix_v1',
+    enrollmentReference: reference('same_pa_enrollments', enrolled) }; accepted.set(prefixSource.sourceId, prefixSource);
+  const prefix = execution.acceptPrefix(prefixSource.sourceId);
+  if (prefix.kind !== 'empty_prefix') throw new Error('next prefix missing');
+  const totals = prefix.lineage.participantReferences.map(participantReference => ({ sourceId: 'next-total:' + participantReference.playerId,
+    sourceVersion: 'structural-v1', capability: 'reserved_same_pa_cumulative_total_v1', enrollmentReference: prefixSource.enrollmentReference,
+    prefixReference: reference('reserved_pa_work_prefixes', prefix), participantReference, effortUnits: 0,
+    provenance: { assessmentSourceId: 'next-assessment:' + participantReference.playerId, assessmentVersion: 'structural-v1',
+      calibrationSourceId: 'next-empty', calibrationVersion: 'structural-v1' } }));
+  totals.forEach(total => accepted.set(total.sourceId, total));
+  const totalSet = execution.acceptTotalSet(totals.map(total => total.sourceId));
+  if (totalSet.kind !== 'total_set') throw new Error('next TOTAL set missing');
+  const viewSource = { sourceId: 'next-view', sourceVersion: 'structural-v1', capability: 'reserved_same_pa_cumulative_view_v1',
+    enrollmentReference: prefixSource.enrollmentReference, prefixReference: reference('reserved_pa_work_prefixes', prefix),
+    participantTotalReferences: totalSet.participantTotalReferences }; accepted.set(viewSource.sourceId, viewSource);
+  expect(execution.acceptView(viewSource.sourceId).kind).toBe('basis_prepared');
+  expect(() => assertFreshPaDispatchEnrollment(x.f.db, source.sourceId)).not.toThrow();
+  expect(() => assertFreshPaDispatchEnrollment(x.f.db, x.enrollment.source.sourceId)).toThrow(/continuation|dispatch/);
+  expect(x.enroll.readHistorical(x.f.source.sourceId)).toEqual(x.enrollment);
+  // A copied raw scope must not disappear behind the retained old root/index.
+  for (const table of ['pa_dispatch_v1_consumer_actions', 'pa_take_successor_v1_consumptions']) {
+    x.f.db.exec('SAVEPOINT raw_scope');
+    try {
+      const row = x.f.db.prepare('SELECT source_id,snapshot_json FROM ' + table + ' LIMIT 1').get()!;
+      const value = JSON.parse(String(row.snapshot_json));
+      value.lineage.gameId = enrolled.gameId; value.lineage.playId = enrolled.playId;
+      x.f.db.prepare('UPDATE ' + table + ' SET snapshot_json=?,snapshot_hash=? WHERE source_id=?').run(json(value), hash(value), row.source_id);
+      expect(() => assertFreshPaDispatchEnrollment(x.f.db, source.sourceId)).toThrow(/continuation|dispatch/);
+    } finally { x.f.db.exec('ROLLBACK TO raw_scope; RELEASE raw_scope'); }
+  }
+  x.f.db.exec('SAVEPOINT missing_owner');
+  try {
+    x.f.db.prepare('UPDATE pa_dispatch_v1_consumer_actions SET enrollment_source_id=?').run('missing-enrollment');
+    expect(() => assertFreshPaDispatchEnrollment(x.f.db, 'not-yet-created')).toThrow(/dispatch/);
+  } finally { x.f.db.exec('ROLLBACK TO missing_owner; RELEASE missing_owner'); }
+  // Scope discovery never substitutes for the owner's complete member proof.
+  x.f.db.prepare('DELETE FROM same_pa_participant_reservations WHERE enrollment_source_id=? AND player_id=?').run(source.sourceId, enrolled.participants[0].binding.playerId);
+  expect(() => owner.read(source.sourceId)).toThrow(/member set is incomplete/);
 });
 it('pins abandoned preparation bytes and rejects a changed valid claim after release', () => {
   const x = setup(); x.owner.settle(x.source.sourceId); x.complete();

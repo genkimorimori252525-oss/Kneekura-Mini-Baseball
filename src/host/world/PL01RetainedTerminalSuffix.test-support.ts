@@ -32,7 +32,7 @@ import { preparePL01RetainedCheckpoint, type PL01RetainedSuffixInput } from './P
 import type { AcceptedPlayerWorkloadBaseline } from './SqlitePlayerWorkloadRecoveryStore';
 import type { BodyMaterializationRequest } from './PlayerBodyCapabilityMaterialization';
 
-/** Reopens only the exact PL01-R cp8 boundary. Owner readers authenticate all
+/** Reopens only the exact corrected PL01-R2 cp1 boundary. Readers authenticate all
  * recovered values. The original occupied tail owns every subsequent effect;
  * no TAKE prefix, model receipt, workload AFTER, or official result is recreated. */
 export const runPL01RetainedTerminalSuffix = (input: PL01RetainedSuffixInput, log: (phase: string) => void = () => {}) => {
@@ -93,8 +93,9 @@ export const runPL01RetainedTerminalSuffix = (input: PL01RetainedSuffixInput, lo
       assert.equal(db.prepare('SELECT count(*) n FROM ' + table).get()!.n, 1);
     }
     assert.equal(db.prepare('SELECT count(*) n FROM same_pa_enrollments').get()!.n, 1);
-    assert.equal(db.prepare('SELECT count(*) n FROM world_player_workload_baselines WHERE player_id=?').get('away-2')!.n, 0);
-    assert.equal(db.prepare('SELECT count(*) n FROM world_player_workload_heads WHERE player_id=?').get('away-2')!.n, 0);
+    assert.equal(db.prepare('SELECT count(*) n FROM world_player_workload_baselines WHERE player_id=?').get('away-2')!.n, 1);
+    assert.equal(db.prepare('SELECT count(*) n FROM world_player_workload_heads WHERE player_id=?').get('away-2')!.n, 1);
+    assert.equal(db.prepare('SELECT count(*) n FROM world_player_workload_activities WHERE player_id=?').get('away-2')!.n, 0);
     settlementOwner.close();
 
     mark('authenticate-original-occupied-continuation-inputs');
@@ -136,6 +137,20 @@ export const runPL01RetainedTerminalSuffix = (input: PL01RetainedSuffixInput, lo
     assert.equal(nextActor.binding.playerId, 'away-2');
     assert.deepEqual(nextActor.source, { sourceId: label + ':actor', sourceVersion: 'fixture-only-v1', gameId: actor.source.gameId,
       playerId: 'away-2', activationApplicationId: transition.source.applicationId });
+    // The unchanged occupied helper created this exact Source from its original
+    // explicit baseline. Replay authenticates Person, policy, initial state and
+    // current head; the completed initialization must never be repeated.
+    const nextBaseline = { ...baseline, sourceId: label + ':new-batter-baseline', playerId: nextActor.binding.playerId,
+      personLinkSourceId: nextActor.binding.personLinkSourceId };
+    assert.equal(nextBaseline.careerId, nextActor.binding.careerId);
+    const nextBaselineRow = db.prepare('SELECT * FROM world_player_workload_baselines WHERE source_id=?').get(nextBaseline.sourceId);
+    assert(nextBaselineRow, 'PL01 completed new-batter baseline missing');
+    assert.equal(nextBaselineRow.source_json, json(nextBaseline));
+    assert.deepEqual(links.readLink(nextActor.binding.personLinkSourceId), nextActor.person);
+    const nextState = readActualRoleWorkloadState(db, nextActor.binding.careerId, nextActor.binding.playerId, undefined, nextActor.binding.personLinkSourceId);
+    assert(nextState, 'PL01 completed new-batter workload head missing'); assert.equal(nextState.revision, 0);
+    assert.equal(json(nextState), nextBaselineRow.initial_json);
+    assert.equal(createHash('sha256').update(JSON.stringify(nextState)).digest('hex'), pin.newBatterBaselineResultHash);
     const originals = readSamePaOriginalParticipants(db, nextActor); assert.equal(originals.length, 11);
     const nextModelStore = track(openSqlitePlayerBattingModelStore(path));
     const nextBatting = nextModelStore.read(label + ':batter-model'); assert(nextBatting, 'PL01 accepted next batting model missing');
@@ -180,18 +195,19 @@ export const runPL01RetainedTerminalSuffix = (input: PL01RetainedSuffixInput, lo
       models, capabilities, repertoires, decisions, equipments, observations, predictions, modelStore: nextModelStore, batting: nextBatting,
       runnerBinding: actor.binding, runnerBody: { kind: 'materialized', value: runnerReceipt }, runnerModel,
     };
-    mark('run-original-occupied-tail-from-new-batter-baseline');
+    mark('run-original-occupied-tail-with-completed-baseline-from-enrollment');
     continueSamePaOccupiedWalkFromBaselineFixture(h, { outcome, endpoint, settled, transition, release }, label, prepared);
     passed = true;
   } finally {
     const closeErrors: unknown[] = [];
     for (const store of stores.reverse()) { try { store.close(); } catch (error) { closeErrors.push(error); } }
     const originalUnchanged = createHash('sha256').update(readFileSync(capturedInput.checkpointGzip)).digest('hex') === pin.gzipSha256;
-    const result = { kind: 'pl01_cp8_occupied_suffix_result_v1',
+    const result = { kind: 'pl01_cp1_enrollment_suffix_result_v1',
       retainedPrefix: { sourceCommit: pin.sourceCommit, sourceTree: pin.sourceTree, databaseSha256: pin.databaseSha256,
-        boundary: 'completed terminal settlement/transition/release and accepted next actor/body/batting/runner models; new-batter baseline absent',
+        boundary: 'completed terminal settlement/transition/release, accepted next actor/body/batting/runner models and new-batter baseline; occupied enrollment absent',
         previouslyCompletedAssertions: 'historical evidence only; not rerun or credited as this suffix',
-        priorCp173ContractCommit: pin.sourceCommit, priorCp173DatabaseSha256: pin.priorCp173DatabaseSha256 },
+        priorCp173ContractCommit: pin.priorCp173ContractCommit, priorCp173DatabaseSha256: pin.priorCp173DatabaseSha256,
+        priorCp8ContractCommit: pin.priorCp8ContractCommit, priorCp8DatabaseSha256: pin.priorCp8DatabaseSha256 },
       historicalProvenance: { originalRunControlSha256: pin.runControlSha256, checkpointReceiptSha256: pin.receiptSha256, priorRunTerminalSha256: pin.priorRunTerminalSha256,
         sourceIdentityBasis: 'previously_audited_checkpoint', privateWitnessFilesRechecked: witnessRecheck },
       continuedSuffix: passed && closeErrors.length === 0 && originalUnchanged ? 'PASS' : 'FAILED',
