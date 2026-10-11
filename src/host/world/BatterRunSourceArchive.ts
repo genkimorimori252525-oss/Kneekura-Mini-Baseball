@@ -51,10 +51,16 @@ const assertNoMissingOriginalClaim=(db:Pick<DatabaseSync,'prepare'>,table:Table,
       .get(...(sourceId===undefined?[]:[sourceId])))throw new Error('occupied runner missing original has a surviving typed retirement claim');
     return;
   }
-  const dependent=table==='world_player_batter_run_transition_models'?{table:'world_batter_swing_exit_states',path:['transitionModelReference','sourceId']}
-    :table==='world_batter_swing_exit_states'?{table:'world_batter_run_plans',path:['exitStateReference','sourceId']}
-    :{table:'pa_physical_v1_field_steps',path:['action','planReference','sourceId']};
-  const nodes=(document:string,path:string[])=>`EXISTS(SELECT 1 FROM (${sqliteJsonMetadataNodes(document,path)}) claim WHERE claim.type='text'${sourceId===undefined?'':' AND claim.atom=?'})`;
+  const dependent=table==='world_player_batter_run_transition_models'?{table:'world_batter_swing_exit_states',path:['transitionModelReference']}
+    :table==='world_batter_swing_exit_states'?{table:'world_batter_run_plans',path:['exitStateReference']}
+    :{table:'pa_physical_v1_field_steps',path:['action','planReference']};
+  // Shared reference names also belong to other owners (for example throw
+  // checkpoints). Preserve raw duplicates, but bind owner/id in one reference.
+  const nodes=(document:string,path:string[])=>`EXISTS(SELECT 1 FROM (${sqliteJsonMetadataNodes(document,path)}) reference,
+    json_each(CASE WHEN reference.type='object' THEN reference.value ELSE '{}' END) owner,
+    json_each(CASE WHEN reference.type='object' THEN reference.value ELSE '{}' END) identity
+    WHERE owner.key='owner' AND owner.type='text' AND owner.atom='${table}'
+      AND identity.key='sourceId' AND identity.type='text'${sourceId===undefined?'':' AND identity.atom=?'})`;
   if(installed(db,dependent.table)&&db.prepare(`SELECT 1 FROM main.${dependent.table} WHERE ${nodes('source_json',dependent.path)} OR ${nodes('snapshot_json',['source',...dependent.path])} LIMIT 1`)
     .get(...(sourceId===undefined?[]:[sourceId,sourceId])))throw new Error('batter-run missing original has a surviving typed dependent claim');
   if(table==='world_batter_run_plans'&&installed(db,'pa_lifecycle_v1_work_prefixes')){

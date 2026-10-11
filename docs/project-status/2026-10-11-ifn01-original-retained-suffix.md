@@ -1,5 +1,9 @@
 # IFN01 original retained cut31 suffix
 
+This is the historical cp273 contract. The current exact entry has advanced to
+[cp10 after the accepted exit-state](2026-10-11-ifn01-cp10-batter-plan-suffix.md).
+The cp273 and corrected-run failures remain failed; completed work is not replayed.
+
 This entry continues only the original IFN01 checkpoint `000273.sqlite.gz` after
 the original run failed its 14,400-second wall cap. It is not a new whole-case
 pass and does not regenerate the completed TAKE, swing, field, throw, received

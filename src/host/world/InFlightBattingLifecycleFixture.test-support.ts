@@ -356,8 +356,17 @@ export const completeInFlightBattingFairCatchSuffix = (h: SamePaPhysicalLifecycl
   caught: Pick<ReturnType<typeof appendNativeCatchWork>, 'work' | 'workReference'>,
   s: Pick<ReturnType<typeof prepareInFlightBattingSwing>, 'posture' | 'capture' | 'delivery' | 'input' | 'emotion' | 'commitment'>,
   originalHeads: Record<string, SQLOutputValue>[], stage: (name: string) => void) => {
-  const { f } = h;
   const batterRun = appendNativeBatterRunCheckpoint(h, field.root, caughtResponse.adopted, s.posture, 'in-flight-fixture:batter-run', 10);
+  return completeInFlightBattingAfterBatterRun(h, field, batterRun, caught, s, originalHeads, stage);
+};
+
+/** Original post-batter-run assertion and terminal tail, also used by cp10. */
+export const completeInFlightBattingAfterBatterRun = (h: SamePaPhysicalLifecycleSuffix, field: Readonly<{ root: SamePaPhysicalFieldRoot }>,
+  batterRun: ReturnType<typeof appendNativeBatterRunCheckpoint>,
+  caught: Pick<ReturnType<typeof appendNativeCatchWork>, 'work' | 'workReference'>,
+  s: Pick<ReturnType<typeof prepareInFlightBattingSwing>, 'posture' | 'capture' | 'delivery' | 'input' | 'emotion' | 'commitment'>,
+  originalHeads: Record<string, SQLOutputValue>[], stage: (name: string) => void) => {
+  const { f } = h;
   const batterHold = appendNativeBatterCatchHold(h, batterRun, caught, 'in-flight-fixture:batter-hold');
   stage('received-defender-and-batter-adoption-ready');
 

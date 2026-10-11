@@ -6,7 +6,7 @@ import { samplePiecewiseFieldActor } from '../../core/sim/ball/BattedWorldPiecew
 import { input as runnerFixture } from './PrePitchRunnerFixtures.test-support';
 import { openSqlitePlayerRunnerDecisionMotionModelStore, type AcceptedPlayerRunnerDecisionMotionModel } from './SqlitePlayerRunnerDecisionMotionModelStore';
 import { openSqlitePlayerBatterRunTransitionModelStore } from './SqlitePlayerBatterRunTransitionModelStore';
-import { openSqliteBatterSwingExitStateStore } from './SqliteBatterSwingExitStateStore';
+import { openSqliteBatterSwingExitStateStore, type DurableBatterSwingExitState } from './SqliteBatterSwingExitStateStore';
 import { openSqliteBatterRunPlanStore } from './SqliteBatterRunPlanStore';
 import type { AcceptedPlayerBatterRunTransitionModel } from './PlayerBatterRunTransitionModel';
 import type { AcceptedBatterSwingExitState } from './BatterSwingExitState';
@@ -15,13 +15,25 @@ import { samePaExecutionReference as reference } from './SamePlateAppearanceExec
 import { readSamePaAdmittedLiveWorkFromSqlite } from './SamePlateAppearanceAdmittedLiveWorkFromSqlite';
 import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
 
+/** Exact original geometric calculation, shared with retained owner context. */
+export const nativeBatterRunCheckpointGeometry = (binding: SamePaPhysicalLifecycleSuffix['f']['actor']['binding'],
+  root: SamePaPhysicalFieldRoot, previous: SamePaPhysicalFieldStep, posture: DurableBattingInvocationPosture) => {
+  const moment = previous.field.motion.world.moment;
+  const actor = previous.field.motion.actors.find(a => a.playerId === binding.playerId && a.primitive.role === 'body');
+  const shape = posture.model.bodyMaterialization.actor.primitives.find(p => p.role === 'body');
+  if (!actor || !shape) throw new Error('IFN01 original batter body is missing');
+  const before = samplePiecewiseFieldActor(actor, moment), start = { x: before.center.x - shape.offset.x, z: before.center.z - shape.offset.z };
+  const first = root.geometry.baseGeometry.bases.first.region.center, delta = { x: first.x - start.x, z: first.z - start.z }, distance = Math.hypot(delta.x, delta.z);
+  return { before, start, delta, distance };
+};
+
 /** Extend IFN01's same genuine chain by one covered tick. All numerical model
  * declarations reuse explicit runner/recovery fixtures. The separately accepted
  * aligned facing and advance intention are synthetic inputs, never deductions
  * from the swing, bat axis or contact outcome. No foreign command is renewed. */
 export const appendNativeBatterRunCheckpoint = (h: SamePaPhysicalLifecycleSuffix, root: SamePaPhysicalFieldRoot,
   previous: SamePaPhysicalFieldStep, posture: DurableBattingInvocationPosture, label: string, advanceTicks = 1) => {
-  const { f } = h, binding = f.actor.binding, track = f.x.f.track, moment = previous.field.motion.world.moment;
+  const { f } = h, binding = f.actor.binding, track = f.x.f.track;
   const throughTick = previous.evaluationTick + advanceTicks, endTick = throughTick + 1;
   expect(previous.field.motion.cursor).not.toBeNull();
   expect(endTick).toBeLessThanOrEqual(Math.min(...previous.field.motion.actors.map(a => a.primitive.endTick)));
@@ -36,17 +48,23 @@ export const appendNativeBatterRunCheckpoint = (h: SamePaPhysicalLifecycleSuffix
     parameters: { ticksPerSecond: runner.source.motion.ticksPerSecond, maximumBodyTurnRateRadiansPerSecond: Math.PI,
       lateralRealignmentAccelerationMps2: 4, backwardRecoveryAccelerationMps2: 3 } };
   const recovery = track(openSqlitePlayerBatterRunTransitionModelStore(f.path, { readAcceptedModel: id => id === recoverySource.sourceId ? recoverySource : null })).accept(recoverySource.sourceId);
-  const actor = previous.field.motion.actors.find(a => a.playerId === binding.playerId && a.primitive.role === 'body');
-  const shape = posture.model.bodyMaterialization.actor.primitives.find(p => p.role === 'body');
-  if (!actor || !shape) throw new Error('IFN01 original batter body is missing');
-  const before = samplePiecewiseFieldActor(actor, moment), start = { x: before.center.x - shape.offset.x, z: before.center.z - shape.offset.z };
-  const first = root.geometry.baseGeometry.bases.first.region.center, delta = { x: first.x - start.x, z: first.z - start.z }, distance = Math.hypot(delta.x, delta.z);
+  const { before, start, delta, distance } = nativeBatterRunCheckpointGeometry(binding, root, previous, posture);
   expect(distance).toBeGreaterThan(0);
   const stateSource: AcceptedBatterSwingExitState = { sourceId: label + ':exit-state', sourceVersion: 'explicit-aligned-facing-fixture-v1',
     capability: 'same_pa_batter_swing_exit_state_v1', fieldReference: reference('pa_physical_v1_field_steps', previous),
     transitionModelReference: reference('world_player_batter_run_transition_models', recovery), bodyForwardUnit: { x: delta.x / distance, z: delta.z / distance } };
   const state = track(openSqliteBatterSwingExitStateStore(f.path, { readAcceptedState: id => id === stateSource.sourceId ? stateSource : null })).accept(stateSource.sourceId);
   expect(state.state.planarVelocity).toEqual({ x: 0, z: 0 }); expect(state.motionIssued).toBe(false);
+  return completeNativeBatterRunPlanCheckpoint(h, root, previous, label, { state, before, start, delta, throughTick, endTick });
+};
+
+/** Original plan-open/accept and motion/assertion tail after the exit-state
+ * owner has committed. No runner/recovery/exit-state owner is invoked here. */
+export const completeNativeBatterRunPlanCheckpoint = (h: SamePaPhysicalLifecycleSuffix, root: SamePaPhysicalFieldRoot,
+  previous: SamePaPhysicalFieldStep, label: string, prepared: Pick<ReturnType<typeof nativeBatterRunCheckpointGeometry>, 'before' | 'start' | 'delta'> &
+    Readonly<{ state: DurableBatterSwingExitState; throughTick: number; endTick: number }>) => {
+  const { f } = h, binding = f.actor.binding, track = f.x.f.track;
+  const { state, before, start, delta, throughTick, endTick } = prepared;
   const source: AcceptedBatterRunPlan = { sourceId: label + ':issued-plan', sourceVersion: 'explicit-advance-fixture-v1', capability: 'same_pa_batter_run_plan_v1',
     viewReference: h.current().viewReference, physicalPitchReference: previous.source.launchReference, exitStateReference: reference('world_batter_swing_exit_states', state),
     playerId: binding.playerId, personId: binding.personId, route: { segments: [{ kind: 'line', start, end: { x: start.x + 2 * delta.x, z: start.z + 2 * delta.z } }] },
