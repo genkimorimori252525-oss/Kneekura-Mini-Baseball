@@ -1,4 +1,5 @@
 import { expect } from 'vitest';
+import { samePaOccupiedPitchBytes, finishSamePaOccupiedPitchReadback } from './SamePlateAppearanceOccupiedReadback.test-support';
 import { openSqliteSamePlateAppearancePhysicalEpisodeStore } from './SqliteSamePlateAppearancePhysicalEpisodeStore';
 import type { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 import type { completeSamePaTerminalFixture } from './SamePlateAppearanceTerminalLifecycleFixture.test-support';
@@ -266,14 +267,11 @@ export const completeSamePaOccupiedWalkFromRightFixture = <F extends SamePaOccup
   expect(hold.source.coverageThroughTick).toBeGreaterThanOrEqual(Math.max(pitch.result.resolution.timeline.lastEventTick,pitch.result.delivery.timeline.followThroughEndUs));
   expect(json(db.prepare('SELECT * FROM matches WHERE match_id=?').get(actor.source.gameId))).toBe(officialBefore);
   for(const p of enrollment.participants)expect(readActualRoleWorkloadState(db,enrollment.careerId,p.binding.playerId,undefined,p.binding.personLinkSourceId)).toEqual(p.state);
-  const bytes=()=>json(['same_pa_enrollments','same_pa_participant_reservations','reserved_pa_work_prefixes','reserved_pa_total_assessments','reserved_pa_execution_views',
-    'world_same_pa_occupied_runner_holds','pa_dispatch_v1_action_plans','pa_dispatch_v1_execution_calibrations','pa_dispatch_v1_consumer_sets','pa_dispatch_v1_episodes',
-    'pa_dispatch_v1_rights','pa_dispatch_v1_consumer_actions','pa_dispatch_v1_pitch_actions','pa_dispatch_v1_pitch_heads','pa_dispatch_v1_consumptions','pa_dispatch_v1_episode_admissions']
-    .map(table=>db.prepare('SELECT * FROM main.'+table+' ORDER BY rowid').all()));
+  const bytes=()=>samePaOccupiedPitchBytes(db);
   const saved=bytes();dispatch.close();
   const reopened=track(openSqliteSamePlateAppearanceDispatchStore(path));
-  expect(reopened.acceptPhysicalPitch(pitch.source.sourceId)).toEqual(pitch);expect(reopened.readPhysicalPitch(pitch.source.sourceId)).toEqual(pitch);
-  expect(bytes()).toBe(saved);
+  expect(reopened.acceptPhysicalPitch(pitch.source.sourceId)).toEqual(pitch);
+  finishSamePaOccupiedPitchReadback(reopened,pitch,bytes,saved);
   return {actor,enrollment,view,hold,action,calibrations,consumers,episode,right,pitch,
     f:{...fixture,dispatch:reopened},accepted,save,originals,roles,sceneBodyReferences,batting,runnerBody:runnerBody.value,runnerModel,
     ...(initialPlay===null?{}:{initialPlay})};

@@ -1,5 +1,10 @@
 # PL01-R3: remaining occupied enrollment from corrected-run cp1
 
+Historical contract and qualification. The actual run reached the accepted
+occupied pitch and returned its reopened retry before the wall cap. The exact
+entry has advanced to [cp11 readback](2026-10-11-pl01-cp11-readback-suffix.md);
+the earlier statements below describe this cp1 contract at its qualification.
+
 The existing exact retained entry now accepts only cp1 from the corrected
 PL01-R2 run. This advances the completed boundary by one returned owner call;
 it adds no checkpoint selector or alternate fixture. The original fresh PL
