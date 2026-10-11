@@ -121,8 +121,26 @@ dependency, runtime and control pins remained stable; no resource guard fired
 and no process survived. Formal report SHA-256:
 `453f7443628658c73a0820e721fe083ecd0c469ae2b75967369bad706864daf9`.
 
-The actual owner read remains pending. A plain existing supervisor and entry
-are sufficient: this remaining path has no mutating-owner calls to observe or
-checkpoint, and the already preserved exact input remains the recovery point.
-No new Native continuation, smoke run or whole-case PASS is claimed here.
-The separate IFN/LAN executions are untouched.
+## Actual remaining suffix PASS
+
+On 2026-10-11 at 07:41:22 UTC, the remaining readback ran on local commit
+`c4eb8d5e67135b35a4415dd72c7d5deaa8834522`, equivalent published commit
+`838320cb792cdae6d7d2023d1d9de75b8079bb4f`, source subtree
+`b96eb4fe15f2577d0041b5c9389f0c5f10e3e59f`. The original owner read deep equality
+and sixteen-table comparison both passed. The actual case took 131.087 seconds;
+the controlled run completed in 137.094 seconds, exit 0, with one passed case
+and zero failures or skips. All ten pin groups remained stable, no guard fired,
+and process enumeration/cleanup completed with no survivors.
+
+The whole retained history and original cp11 remained unchanged; all handles
+closed. A plain existing supervisor was sufficient because this suffix has no
+mutating-owner calls. There was no new smoke or completed-writer replay.
+
+- Terminal SHA-256: `85aa874c9cf174c1ea32432d4615b658054afe692fed97c212b296a85ab694e1`
+- Result SHA-256: `9923888de7874df8cf569cf60a4df377cddf798cc4fb4bcfa8e53a5f428a7c61`
+- Formal report SHA-256: `1734a690927d40f48ad63a0e1974b30f5c458f1ec3289654ff4ae83ea464087d`
+
+This closes PL's previously unconfirmed original readback assertions. Earlier
+writers and reopened retry remain evidence from their original source. The old
+four-hour failed run stays failed, and `wholeCasePass` remains false: this is
+an exact retained suffix PASS, not one fresh case on the latest source.

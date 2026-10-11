@@ -15,6 +15,7 @@ import { deriveSamePaFieldRuleEvidence } from './SamePlateAppearanceFieldRuleEvi
 import { deriveSamePaFairCatchRuleBasis } from './SamePlateAppearanceFairCatchRuleBasis';
 import { deriveSamePaCatchOperativeRuling } from './SamePlateAppearanceCatchOperativeRuling';
 import { deriveSamePaLiveWorkCensus } from './SamePlateAppearanceLiveWorkCensus';
+import { deriveActualLiveObservationSchedule } from './ActualLiveObservationSchedule';
 import { deriveSamePaCatchPhaseWork } from './SamePlateAppearanceCatchPhaseWork';
 import { deriveSamePaFairCatchEndFromSqlite } from './SamePlateAppearanceFairCatchEndFromSqlite';
 import { samePaLifecycleOutcomeInput } from './SamePlateAppearanceLifecycleOutcome';
@@ -90,6 +91,63 @@ const setup=(reception:'future'|'dropped'|'received'='future',occupiedCount=0,ou
   const run=()=>deriveSamePaFairCatchEndFromSqlite({} as DatabaseSync,viewReference,catchWorkReference,'historical');
   return{run,pair,original,live,work,seal,root};
 };
+// IFN final checkpoint 000035 retained three equal-deadline refreshes from one
+// observation: ball and two players. A later refresh_not_due sample consumed
+// none. Rebase those original target/observer roles onto this structural seam.
+const targetRefresh = (h: ReturnType<typeof setup>) => {
+  const targets = [{ kind: 'ball' }, { kind: 'player', playerId: 'batter' }, { kind: 'player', playerId: 'receiver' }] as const;
+  const observation = { sourceId: 'original-sample', at: h.work.originalInputs.action.calledAt,
+    attentionTarget: targets[0], refreshPolicy: { attendedIntervalTicks: 1000, peripheralIntervalTicks: 1000 },
+    results: targets.map(target => ({ target, status: 'detected' as const })) };
+  const schedule = deriveActualLiveObservationSchedule([observation, { ...observation, sourceId: 'received-sample',
+    at: h.work.communication.evaluatedThrough, results: targets.map(target => ({ target, status: 'refresh_not_due' as const })) }]);
+  expect(schedule.consumed).toEqual([]);
+  return schedule.pending.map(work => ({ ...work, playerId: 'carrier', due: 'future' as const,
+    causeReference: ref('pa_physical_v1_field_steps', work.causeSourceId) }));
+};
+it.each([0, 1])('keeps every target refresh from one observation at an all-offense-terminal end with %s occupied runners', occupiedCount => {
+  const h = setup('future', occupiedCount, 2), before = h.run();
+  if (before.kind === 'pending') throw new Error(before.reason);
+  const refresh = targetRefresh(h);
+  h.live.census.observationRefresh = { ...h.live.census.observationRefresh, pending: refresh };
+  const result = h.run();
+  if (result.kind === 'pending') throw new Error(result.reason);
+  expect(result.registry.resolution).toMatchObject({ kind: 'ended', reason: 'all_offense_terminal' });
+  expect(result.playEnd).toEqual(before.playEnd);
+  expect(result.registry.frontier.physical).toEqual(before.registry.frontier.physical);
+  expect(result.registry.frontier.actors).toEqual(before.registry.frontier.actors);
+  const information = result.registry.frontier.information.filter(w => w.causeEventId === 'original-sample');
+  expect(information).toHaveLength(3);
+  expect(new Set(information.map(w => w.workId)).size).toBe(3);
+  expect(information.map(w => ({ actorId: w.actorId, dueTick: w.dueTick, causeEventId: w.causeEventId })))
+    .toEqual(refresh.map(w => ({ actorId: w.playerId, dueTick: w.dueTick, causeEventId: w.causeSourceId })));
+  expect(information.map(w => JSON.parse(w.workId))).toEqual(refresh.map(w => ['refresh', w.playerId, w.causeSourceId, w.target]));
+  expect(result.registry.frontier.information.filter(w => w.causeEventId !== 'original-sample')).toEqual(before.registry.frontier.information);
+  h.live.census.observationRefresh = { ...h.live.census.observationRefresh, pending: [...refresh].reverse() };
+  const reordered = h.run();
+  if (reordered.kind === 'pending') throw new Error(reordered.reason);
+  expect(reordered.registry.frontier.information.filter(w => w.causeEventId === 'original-sample')).toEqual([...information].reverse());
+  h.live.census.observationRefresh = { ...h.live.census.observationRefresh,
+    pending: [refresh[0], { ...refresh[0], target: { kind: 'player', playerId: 'ball' } }] };
+  const typedTargets = h.run();
+  if (typedTargets.kind === 'pending') throw new Error(typedTargets.reason);
+  expect(new Set(typedTargets.registry.frontier.information.filter(w => w.causeEventId === 'original-sample').map(w => w.workId)).size).toBe(2);
+  h.live.census.observationRefresh = { ...h.live.census.observationRefresh, pending: [...refresh, refresh[0]] };
+  expect(h.run).toThrow('live-action work ids must be unique across frontier categories');
+});
+it.each([0, 1])('preserves the complete legacy singleton-refresh end receipt with %s occupied runners', occupiedCount => {
+  const h = setup('future', occupiedCount, 2), refresh = targetRefresh(h);
+  h.live.census.observationRefresh = { ...h.live.census.observationRefresh, pending: [refresh[0]] };
+  const result = h.run();
+  if (result.kind === 'pending') throw new Error(result.reason);
+  expect(result.registry.frontier.information.find(w => w.causeEventId === 'original-sample')?.workId)
+    .toBe('["refresh","carrier","original-sample"]');
+  // Captured from the unchanged implementation before the target-ID fix.
+  // Historical outcomes and review seeds include this entire end receipt.
+  expect(hash(result)).toBe(occupiedCount === 0
+    ? 'c2d9ff8a70a5d26e88599f5d85634cc7029948e90984576d24fab4b60693b336'
+    : 'b3c1aaa9b1e37babd9b763aaa54bd836296cdf9b97c1e314e8a6b2fc0d3d7b7d');
+});
 it.each(['future','dropped'] as const)('ends only after actual sealed coverage and keeps genuine %s receptions in the finalizer',kind=>{
   const h=setup(kind),result=h.run();expect(h.live.census).not.toHaveProperty('occupiedRunnerCatchResponses');expect(result.kind).toBe('same_pa_fair_catch_physical_end_v1');
   if(result.kind==='pending')throw new Error(result.reason);
@@ -255,10 +313,10 @@ it.each(['hold', 'observation', 'controller', 'source', 'empty_sources', 'actor'
   expect(h.run()).toEqual({ kind: 'pending', reason: 'occupied_live_producer_completion_required' });
 });
 
-it('retains an original future refresh even beside completed observation-source evidence', () => {
+it('retains distinct original target refreshes even beside completed observation-source evidence', () => {
   const h = withActorCompletion(setup('dropped', 1, 0, true));
   h.live.census.observationRefresh = { ...h.live.census.observationRefresh,
-    pending: [{ playerId: 'carrier', causeSourceId: 'original-sample', due: 'future', dueTick: h.seal.evaluationTick + 1 }] as never };
+    pending: targetRefresh(h) };
   expect(h.run()).toEqual({ kind: 'pending', reason: 'occupied_live_producer_completion_required' });
 });
 

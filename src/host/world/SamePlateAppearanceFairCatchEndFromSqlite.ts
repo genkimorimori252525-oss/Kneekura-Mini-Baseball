@@ -187,9 +187,14 @@ export const deriveSamePaFairCatchEndFromSqlite = (db: DatabaseSync,
       kind: playerId === actor.binding.playerId || runnerIds.includes(playerId) ? 'runner_motion' : 'defender_motion', actorId: playerId,
       throughTick: curves.coverageThroughTick, actionKey: json(curves.roles.map(r => r.curveReference)) }] });
     const refresh = census.observationRefresh.pending.filter(w => w.playerId === playerId);
+    const refreshCounts = new Map<string, number>();
+    for (const w of refresh) refreshCounts.set(w.causeSourceId, (refreshCounts.get(w.causeSourceId) ?? 0) + 1);
     if (observationComplete(playerId)) producer('observation_scheduling', playerId, [], completion({ policyReference: proof!.policyReference,
       observationSourcesHash: hash(proof!.observationScheduling.sources) }));
-    else producer('observation_scheduling', playerId, refresh.map(w => w.dueTick), { information: refresh.map(w => ({ workId: json(['refresh', playerId, w.causeSourceId]),
+    // One observation may detect several targets. Preserve each target's own
+    // obligation; retain legacy singleton IDs because end receipts are archived.
+    else producer('observation_scheduling', playerId, refresh.map(w => w.dueTick), { information: refresh.map(w => ({
+      workId: json(['refresh', playerId, w.causeSourceId, ...(refreshCounts.get(w.causeSourceId)! > 1 ? [w.target] : [])]),
       kind: 'in_flight_information', actorId: playerId, dueTick: w.dueTick, causeEventId: w.causeSourceId })) });
     const decisions = census.defenderDecisions.pending.filter(w => w.playerId === playerId).flatMap(w => [w.decisionTick, w.movementStartTick]);
     const responses = census.catchResponses.pending.filter(w => w.response.playerId === playerId).flatMap(w => w.work.map(d => d.dueTick));

@@ -58,6 +58,17 @@ export const completeNativeFairCatchTerminal = (h: SamePaPhysicalLifecycleSuffix
   expect(admitted.communication.recipients.filter(r => r.reception.kind === 'received').every(r => r.controllerResponse.kind === 'adopted')).toBe(true);
   expect(admitted.census.runnerPlans).toHaveLength(1); expect(admitted.census.runnerPlans[0].status).toBe('superseded_by_received_response');
   expect(admitted.census.observationRefresh.pending.every(item => item.due === 'future')).toBe(true);
+  return completeNativeFairCatchTerminalReview(h, sealed, work, admitted, works, label);
+};
+
+/** Exact original tail after the terminal catch work and cut39 calibrations.
+ * Retained callers authenticate these owners first; no completed writer runs. */
+export const completeNativeFairCatchTerminalReview = (h: SamePaPhysicalLifecycleSuffix, sealed: SamePaPhysicalFieldStep,
+  work: ReturnType<typeof appendNativeCatchWork>['work'],
+  admitted: Readonly<{ census: { observationRefresh: { pending: readonly unknown[] } } }>,
+  works: Readonly<{ close(): void }>, label: string) => {
+  const { f } = h, track = f.x.f.track, current = h.current();
+  const workReference = reference('pa_catch_v1_work', work), workSource = work.source;
   const officialPolicy = { sourceId: label + ':window-policy', sourceVersion: 'explicit-fixture-v1', ruleProfileId: f.actor.match.ruleProfileId,
     officialWindows: { appeal: { available: true }, review: { available: true }, challenge: { available: false } } };
   const review = appendNativeReservedCatchReview(h, workReference, officialPolicy, label + ':review', 'explicit-fixture-scheduler');

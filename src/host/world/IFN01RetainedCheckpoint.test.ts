@@ -6,11 +6,14 @@ import { captureIFN01RetainedSuffixInput, prepareIFN01RetainedCheckpoint, IFN01_
 
 const input = () => ({ nativeReleased: true, checkpointGzip: '/private/checkpoint.sqlite.gz', destinationDirectory: '/private/new-suffix' });
 describe('exact IFN01 retained input boundary, without opening Native owners', () => {
-  it('admits only cp10 while retaining cp273 as historical attribution', () => {
-    expect(IFN01_RETAINED_CHECKPOINT.databaseSha256).toBe('5e73efba78d5ef5e31192cfc645d7090bc819015dd4d41b07236131ee3533455');
-    expect(IFN01_RETAINED_CHECKPOINT.tableCount).toBe(114);
+  it('admits only final cp35 and retains earlier cp10/cp273 as historical attribution', () => {
+    expect(IFN01_RETAINED_CHECKPOINT.databaseSha256).toBe('c40827396eaba6cde88649f815fe139e106799cb785e64e56558d952eb02ef1f');
+    expect(IFN01_RETAINED_CHECKPOINT.tableCount).toBe(115);
     expect(IFN01_RETAINED_CHECKPOINT.originalCp273.databaseSha256).toBe('e0f15ab4cb9574131c48fb854c8a28c19162375329b24d6a69f7e38fd3b2beab');
     expect(Object.isFrozen(IFN01_RETAINED_CHECKPOINT.originalCp273)).toBe(true);
+    expect(IFN01_RETAINED_CHECKPOINT.priorCp10.databaseSha256).toBe('5e73efba78d5ef5e31192cfc645d7090bc819015dd4d41b07236131ee3533455');
+    expect(IFN01_RETAINED_CHECKPOINT.terminalSha256).toBe('2c8626e71833ae2233396b1cc62603b014df355c366282ef72c2932d6905780d');
+    expect(IFN01_RETAINED_CHECKPOINT.sourceTree).toBe('25eda7eba860f766be6c6c3cdd99fa2d57ecc921');
   });
   it('rejects unreleased execution before attempting filesystem access', () => {
     expect(() => prepareIFN01RetainedCheckpoint({ ...input(), nativeReleased: false })).toThrow('reviewed and released');

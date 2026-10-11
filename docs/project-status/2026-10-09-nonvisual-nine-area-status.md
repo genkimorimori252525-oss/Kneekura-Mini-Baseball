@@ -2,7 +2,7 @@
 
 範囲は[PR340保存時の正本 §5](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/blob/6509e61f2474cc6bcfadda129f4b3c9621855c2c/docs/project-status/2026-10-04-nonvisual-implementation-checkpoint.md#5-残る確定済み非デザイン計画)を維持する。UI/design、新arsenal、未承認の数値モデルは含めない。以下は現在のコード・実証・仕様判断の入口であり、[従来の詳細な実行履歴](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/blob/91cd3035f8d8309eaafae34f44f312fd2e86759a/docs/project-status/2026-10-09-nonvisual-nine-area-status.md)を置き換えて成功へ読み替えるものではない。
 
-現在の統合src treeは `b96eb4fe15f2577d0041b5c9389f0c5f10e3e59f`。PLは実投球と再オープン後のretryが返却した後、固定4時間上限に達した。残る元のowner読戻し比較と16表の比較だけを保存cp11から実行する入口へ縮小し、完了済み前半・writer・retryを再構成しない。元の比較式をfresh経路と共有し、production proofはそのまま1回の実owner readが担う。10ファイル一括review CLEAR、compiler30.987秒と8件／2 files5.640秒がPASS。実読戻しの続行は未実行。[失敗境界・比較の保存・検証](2026-10-11-pl01-cp11-readback-suffix.md)。
+現在の統合src treeは `2fc762c3c19107b6a8c9476381bb3e2ca13abbd6`。IFNの元続行はcut39まで実受理後、複数観測対象のrefresh仕事ID衝突で機能失敗した。対象別IDと既存singleton履歴の互換を守る修正、保存cp35から未実行のreview／終端だけを再開する入口を一括実装した。compiler33.404秒と57件／3 files20.644秒がPASS。genuine再開は未実行。[修正と保存境界](2026-10-11-ifn01-cp35-review-suffix.md)。PLの最後の元readback／16表比較は公開 `838320cb` の保持続行で137.094秒PASSし、未確認の比較を閉じた。[PL実結果](2026-10-11-pl01-cp11-readback-suffix.md#actual-remaining-suffix-pass)。
 
 前の統合src treeは `e5380afb413a5afae2bd4880ab47a5474c990f24`。LANの初期Playと後続2球目で、occupied holdを必要なquery-only transactionの外から読んでいたfixtureを同じまとまりで修正した。実受理済みrightまでのcp11を認証し、その後の元の処理だけを続ける入口と合わせて一括review CLEAR、compiler32.717秒と11件／3 files6.752秒がPASS。初回compilerの型エラーは保持し、既存型で修正した。元の後半15 assertionsとLAN callbackは同一で、固定sourceのgenuine残処理を実行中。[失敗境界・修正・検証](2026-10-11-lan01-cp11-initial-play-suffix.md)。
 
@@ -14,11 +14,11 @@
 
 以前の通常claim修正srcは `e5f3ed76710da25007774d59ba7ce661614f39b1`。通常のworkload予約確認でも既存の1確認内のimmutable読み取りを再利用し、同じenrollmentの完了release原本を共有する最小修正を接続した。一括review CLEAR、全compiler31.794秒、関連71件／6 files183.415秒がPASS。4個の独立assertionとcallback・書込み・retryごとの再認証を保持する。復元回数の減少は時間性能の証明とは扱わない。[通常claim修正と実証境界](2026-10-10-terminal-proof-recovery.md#ordinary-workload-reservation-release-proof-scope)。
 
-元FR01のfresh caseは全体PASS。Nationalは保存済み裁定境界から元37 assertionの保持続行がPASSし、旧fresh failedは別に保持する。IFNの固定 `c7928d3c` 相当sourceの続行は、元の打者走行plan、最初10 ticksの身体移動、cut33/34、plan retry、batter-holdまで実返却し、cut35を処理中。走り切りやclosure/scoringは未完。PLの固定 `4d452cea` は元のoccupied投球を05:22:26にcommit、再オープン後の同一source retryを05:31:23に変更なしで返却したが、14,400.134秒のwall failedとなった。最終読戻し・表比較の結果はない。LANの固定 `4d452cea` のfixture read失敗は保持し、修正版 `7c6c29cf` 相当sourceのcp11続行を05:35:26に開始した。旧失敗と各保存点は保持する。[正確なsource帰属と実結果](2026-10-10-terminal-proof-recovery.md)を参照し、異なるsourceや部分結果を足して全体PASSとはしない。
+元FR01のfresh caseは全体PASS。Nationalは保存済み裁定境界から元37 assertionの保持続行がPASSし、旧fresh failedは別に保持する。IFNの固定 `c7928d3c` 相当sourceは、打者plan、10ticks移動、1tick hold、seal、終端catchwork、cut39全calibrationまで実返却後、10,064.263秒でrefresh仕事ID衝突の機能FAILEDとなった。微小残速度は元のall_offense_terminal経路の意図した状態であり、停止・quiescenceの証明とはしない。PLの固定 `4d452cea` の14,400.134秒wall failedと、`838320cb` の最後readback suffix PASSを分ける。LANの固定 `7c6c29cf` 相当sourceは初期Play・実投球・変更なしretry・anchor viewまで実受理し、swing／throw／appeal本体と全体結果が残る。[source帰属と実結果](2026-10-10-terminal-proof-recovery.md)を参照し、異なるsourceや部分結果を足して全体PASSとはしない。
 
 1. **統合・archive互換** — 各owner、保存履歴、practice/能力/Manager、実接触/foul、同一PAと終端・成績の接続は一括review・compiler・関連検証済み。残るのはcurrent whole/archiveと元full Positiveの完了証拠。旧TODOだけを根拠に接続済みAPIを再実装しない。[統合記録](2026-10-10-native-continuation-batch.md#consolidated-verification)
 
-2. **Field取得・支配・持替え・送球** — actual acquisition/custody/carried continuation、reserved same-PAのtransfer/release/中断/自由球は接続済み。過去の保持IFRでは実捕球・支配・送受球・動作の部分assertionが通過したが、上限や保守中断で全体未完。元IFN freshは固定 `35c05066` で14,400.211秒の上限failed。catch-response:6とcut31 prefix/TOTALを保存した。その後の固定e6続行でresponse7、cut32一式と打者exit-stateまで実受理され、次のplan openの誤拒否が今回修正された。残るのはplan/motorからterminal/scoring/次打者までを含む元シナリオ全体の実証。[接続範囲](2026-10-09-reserved-field-foul-batch.md)
+2. **Field取得・支配・持替え・送球** — actual acquisition/custody/carried continuation、reserved same-PAのtransfer/release/中断/自由球は接続済み。過去の保持IFRでは実捕球・支配・送受球・動作の部分assertionが通過したが、上限や保守中断で全体未完。元IFN freshは固定 `35c05066` で14,400.211秒の上限failed。catch-response:6とcut31 prefix/TOTALを保存した。その後の固定e6続行でresponse7、cut32一式と打者exit-stateまで実受理され、次のplan openの誤拒否が今回修正された。plan/motorとhold/sealは実受理済み。残るのは修正済みIDでのreviewからterminal/scoring/次打者までの実証。[接続範囲](2026-10-09-reserved-field-foul-batch.md)
 
 3. **足・塁・race・catch/foul/retention/juggle** — actual足/塁/支配履歴、first-base判定、occupied runnerの直線移動・tag-up/retouch・home-touch、受信holdと停止、対応範囲の合法最終塁/得点は接続済み。Nationalの元first-base/call履歴から公式結果までの保持継続は完了した。移動occupied等の残るgenuine合成とlegal分岐の実証は残る。曖昧な権利・対応外順序・欠落原本はpendingを保持する。[exact履歴と消費境界](2026-10-09-occupied-runner-motion-connection.md)
 
@@ -26,7 +26,7 @@
 
 5. **因果timeline・closure・scoring・workload** — pitchから公式結果、TOTAL workload、既存8種類の打者/投手集計、AB/RBI/投球out数/長打種別、明示記録員判断、継承走者の投手責任は接続済み。未受理の判断はunknownを保持する。承認済みactor終了policy、他actor/通信/身体/custody/contact/ruleの独立証拠、occupied停止から公式適用も接続済み。National保持37 assertionとPLの実10人決済は返却済み。残るのはIFN/LAN/occupiedなど元genuine終端合成の完了証拠。[統計範囲](2026-10-09-official-player-outcome-statistics.md)・[終了policy](../implementation/2026-10-10-actor-producer-completion-policy.md)
 
-6. **次pitch・between-play・foul reset** — 正規reset、controller退役、新launch/次actor、terminal foul、accepted bunt bindingは接続済み。元FR01は実swing/contact→foul停止→公式適用→reset→第4投TAKE→retry/reopenまでfresh全体PASS。BPNは旧sourceの回収可能な元21 assertionの保持続行がPASSし、fresh全体とは区別する。残るのはoccupied PL01とfull-owner half/final/次play合成の完了証拠。resetへ追加歩行や新bunt物理モデルを要件化しない。[継続範囲](2026-10-09-terminal-and-season-continuation.md)
+6. **次pitch・between-play・foul reset** — 正規reset、controller退役、新launch/次actor、terminal foul、accepted bunt bindingは接続済み。元FR01は実swing/contact→foul停止→公式適用→reset→第4投TAKE→retry/reopenまでfresh全体PASS。BPNは旧sourceの回収可能な元21 assertionの保持続行がPASSし、fresh全体とは区別する。occupied PL01の最後readbackは保持続行でPASSし、元の未確認比較を閉じた。残るのはfull-owner half/final/次play合成の完了証拠。resetへ追加歩行や新bunt物理モデルを要件化しない。[継続範囲](2026-10-09-terminal-and-season-continuation.md)
 
 7. **身体・locomotion・perception・controller** — owned body/model、受信判断/hold、有限直線5部位motion、exact sub-tick braking、既存固定offsetによる非zero swing recovery、絶対発行/反応時刻は接続・一括検証済み。actor終了policyは明示opt-inで、既発義務と閉鎖前の新情報を保持する。動いたoccupied runnerのroute/body/calibrationから実停止する接続も存在する。残るのは元same-PA ancestryを含むgenuine合成の実証。[recovery境界](../implementation/2026-10-09-owned-batter-run-binding.md#bounded-continuation-follow-up)
 

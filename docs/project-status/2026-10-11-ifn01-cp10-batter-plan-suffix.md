@@ -1,5 +1,7 @@
 # IFN01 exact cp10 batter-plan continuation
 
+Historical entry: superseded by the [final cp35 CatchReview continuation](2026-10-11-ifn01-cp35-review-suffix.md) after the cp10 run genuinely failed. The record below describes the earlier cp10 contract.
+
 The corrected retained run on `e6de9bb39dda0df4412824f450189d65f8148a5d`
 failed after 3,022.982 seconds. Its completed work includes cut31/32, the original
 `catch-response:7` motor adoption, runner and recovery models, and the accepted
