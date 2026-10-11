@@ -26,6 +26,14 @@ The shared post-cut assertion helper rechecks the original actor/lineage compari
 
 `LAN01-R4` reports `lan01_cp23_original_remaining_suffix_result_v1`. A successful suffix would still report `wholeCasePass: false`. Source checks and lightweight seam/input tests cannot establish a genuine cp23 continuation pass; that requires a separately reviewed and released Native run.
 
+## R4 historical-read correction
+
+The first cp23 continuation failed after 392.152 seconds, before any owner writer or new checkpoint. Its current enrollment reader attempted to reacquire the old pre-physical admission and correctly encountered the already accepted continuation claim. The terminal retained all nine pin categories and completed cleanup; terminal SHA-256 is `48042dd4c85e8955c0d270fb395309e11f386e87fea598da5f8a4c1776b9c022`.
+
+The retained entry now authenticates the old occupied enrollment and empty execution view through existing historical readers in a helper-owned query-only transaction. The historical view reader also authenticates the original empty prefix and every zero TOTAL, so the entry no longer calls fresh prefix/view/TOTAL owners after physical work. Historical view and enrollment references must agree exactly. Current workload checks and `readCurrentSamePaLifecycleViewFromSqlite` remain separate and unchanged; historical authentication grants no new execution admission. All other retained owner reads were checked together and already use historical or properly scoped owner APIs. No production claim or guard is relaxed.
+
+The earlier result's `originalPostCutAssertionsRechecked: true` was a declaration emitted before the assertion phase and is not evidence that those assertions ran. The corrected entry starts that flag at false and sets it only after the shared post-cut assertions return successfully. Existing prefix-history and suffix-pass flags already depend on completed work. Finite regression checks cover historical selection despite blocked fresh admission, rejection propagation and scope restoration, and foreign/alternate reference rejection. A genuine corrected cp23 run is still required.
+
 ## Bounded author verification
 
 The membership regression reproduced the valid-order mismatch before the fix.
@@ -62,3 +70,18 @@ zero skipped. Source/dependency/runtime/control pins stayed stable, no guard
 fired, and no surviving process remained. Formal report SHA-256:
 `0b7224a9dfb28bfdcb4b3851d332343d6b33db75dba9b2ecafbdf35e3430a015`.
 The exact cp23 Native suffix remains unexecuted at this source checkpoint.
+
+## Historical authentication qualification
+
+The four-file correction received independent review CLEAR. Integrated code
+`573f85cb024133d654c050165cad7c96c98a70e4`, source subtree
+`58f6c35f960058451e78e7066873c33ed40d45f4`, passed the full compiler in
+31.482 seconds. The intended two files passed all 12 cases in 6.754 seconds,
+zero failed/skipped/todo; report SHA-256
+`005894024fa501327c3e5e1e5271efd67793f0879fc20a129e0f0e306931e02b`.
+The wrapper incorrectly expected ten cases and recorded a failed count check.
+That original result remains unchanged. Independent reconciliation verified the
+fixed source has seven checkpoint and five historical-admission cases, matching
+the report names and all 4,487 unchanged input pins. No rerun was needed.
+This establishes the bounded correction; actual cp23 authentication and the
+remaining original Native callback still require execution.

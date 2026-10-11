@@ -43,7 +43,7 @@ import { openSqliteBattingEmotionStore } from './SqliteBattingEmotionStore';
 import { readCurrentSamePaLifecycleViewFromSqlite, readSamePaLifecycleSetFromSqlite } from './SamePlateAppearanceLifecycleFromSqlite';
 import { deriveSamePaDispatchRoles } from './SamePlateAppearanceDispatchRoles';
 import { continueLAN01OriginalLiveAppealAssertions } from './LAN01OriginalLiveAppealAssertions.test-support';
-import { openSqliteSamePlateAppearanceExecutionStore } from './SqliteSamePlateAppearanceExecutionStore';
+import { readLAN01RetainedHistoricalAdmission } from './LAN01RetainedHistoricalAdmission.test-support';
 import type { BodyMaterializationRequest } from './PlayerBodyCapabilityMaterialization';
 
 /** Reopens only exact LAN01-R3 cp23 after the second TAKE and cut0 calibration.
@@ -53,6 +53,7 @@ export const runLAN01RetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, 
   const { path, pin, input: capturedInput, witnessRecheck } = prepareLAN01RetainedCheckpoint(input), stores: { close(): void }[] = [];
   const track = <T extends { close(): void }>(store: T): T => { stores.push(store); return store; };
   let phase = 'open-private-checkpoint', passed = false, originalPrefixHistoryUnchanged = false;
+  let originalPostCutAssertionsRechecked = false;
   const mark = (name: string) => { phase = name; log(name); };
   try {
     const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
@@ -197,8 +198,9 @@ export const runLAN01RetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, 
     const accepted = new Map<string, unknown>();
     const previous = { f, sceneBodyReferences: [...posture.source.sceneBodyReferences] };
     mark('authenticate-accepted-occupied-baseline-through-view');
-    const occupiedEnrollment = enrollmentOwner.read(label + ':enrollment');
-    assert(occupiedEnrollment?.kind === 'reserved', 'LAN01 occupied enrollment missing');
+    const occupiedAction = dispatch.readAction(label + ':action'); assert(occupiedAction, 'LAN01 accepted occupied action missing');
+    const { enrollment: occupiedEnrollment, view } = readLAN01RetainedHistoricalAdmission(db, occupiedAction.source.viewReference);
+    assert.equal(occupiedEnrollment.kind, 'reserved');
     assert.deepEqual(occupiedEnrollment.source.actorReference, reference('physical_plate_appearance_actors', nextActor));
     assert.equal(occupiedEnrollment.source.firstPhysicalPitchSourceId, label + ':pitch');
     assert.equal(occupiedEnrollment.participants.length, 11);
@@ -223,16 +225,14 @@ export const runLAN01RetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, 
       }
     });
     const enrollmentReference = reference('same_pa_enrollments', occupiedEnrollment);
-    const execution = track(openSqliteSamePlateAppearanceExecutionStore(path));
-    const prefix = execution.readPrefix(label + ':prefix'); assert(prefix, 'LAN01 occupied empty prefix missing');
-    assert.deepEqual(prefix.source.enrollmentReference, enrollmentReference); assert.deepEqual(prefix.timeline.events, []);
-    const view = execution.readView(label + ':view'); assert(view, 'LAN01 occupied zero-TOTAL view missing');
-    const prefixReference = reference('reserved_pa_work_prefixes', prefix);
-    assert.deepEqual(view.source.enrollmentReference, enrollmentReference); assert.deepEqual(view.source.prefixReference, prefixReference);
-    const totals = execution.readTotalSet(view.source.participantTotalReferences);
-    assert.equal(totals.totals.length, 11);
-    assert.deepEqual(totals.totals.map(t => t.source.sourceId), prefix.lineage.participantReferences.map(p => label + ':total:' + p.playerId));
-    assert(totals.totals.every(t => t.source.effortUnits === 0));
+    // The historical reader above already authenticates the exact immutable
+    // empty prefix and all zero TOTAL rows as dependencies of this view.
+    // Fresh ExecutionStore reads would reacquire a pre-physical reservation.
+    assert.deepEqual(view.source.enrollmentReference, enrollmentReference);
+    assert.equal(view.source.prefixReference.sourceId, label + ':prefix');
+    assert.equal(view.source.participantTotalReferences.length, 11);
+    assert.deepEqual(view.source.participantTotalReferences.map(t => t.assessmentReference.sourceId),
+      view.lineage.participantReferences.map(p => label + ':total:' + p.playerId));
     assert.deepEqual(view.participants.map(p => p.playerId), occupiedEnrollment.participants.map(p => p.binding.playerId));
     assert(view.participants.every(p => p.activity.kind === 'MATCH' && p.activity.effortUnits === 0));
     assert.equal(hash(view), pin.viewSnapshotHash);
@@ -243,7 +243,6 @@ export const runLAN01RetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, 
     assert.deepEqual(hold.source.bodyReference, reference('world_player_body_materializations', runnerReceipt));
     assert.deepEqual(hold.source.runnerModelReference, reference('world_player_runner_decision_motion_models', runnerModel));
     assert.equal(hold.source.coverageThroughTick - hold.source.intent.issuedTick, scene.occupiedHoldDurationUs);
-    const occupiedAction = dispatch.readAction(label + ':action'); assert(occupiedAction, 'LAN01 accepted occupied action missing');
     assert.deepEqual(occupiedAction.source.enrollmentReference, enrollmentReference);
     assert.deepEqual(occupiedAction.source.viewReference, reference('reserved_pa_execution_views', view));
     assert.deepEqual(occupiedAction.source.batterModelReference, reference('world_player_batting_models', nextBatting));
@@ -334,6 +333,7 @@ export const runLAN01RetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, 
     const physical = finishSamePaOccupiedPhysicalFixtureAssertions(lifecycle, {
       actor: nextActor, enrollment: occupiedEnrollment, hold, initialPlay: { play },
     });
+    originalPostCutAssertionsRechecked = true;
     continueLAN01OriginalLiveAppealAssertions(previous, physical, scene, mark);
     for (const history of histories) assert.equal(json(rows(history.table).slice(0, history.rows.length)), json(history.rows),
       'LAN01 retained original prefix history changed: ' + history.table);
@@ -346,9 +346,9 @@ export const runLAN01RetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, 
     const result = { kind: 'lan01_cp23_original_remaining_suffix_result_v1',
       retainedPrefix: { sourceCommit: pin.sourceCommit, sourceTree: pin.sourceTree, databaseSha256: pin.databaseSha256,
         boundary: 'completed original walk, finite hold/initial Play/first TAKE and retry, second TAKE, cut0 prefix/11 TOTALs/view/32 calibrations; third action absent',
-        previouslyCompletedAssertions: 'walk and completed TAKE/retry/readback assertions are historical evidence; original post-cut actor and membership assertions are rechecked',
+        previouslyCompletedAssertions: 'walk and completed TAKE/retry/readback assertions are historical evidence; post-cut assertions are required before the remaining callback and reported by their reached flag',
         originalRunOutcome: 'FAILED_FIXTURE_PARTICIPANT_ORDER_COMPARISON',
-        priorOccupiedFirstPitchAndRetry: 'historical successful evidence only; no completed writer or retry replayed', retainedPrefixAssertionsRerun: false, originalPostCutAssertionsRechecked: true,
+        priorOccupiedFirstPitchAndRetry: 'historical successful evidence only; no completed writer or retry replayed', retainedPrefixAssertionsRerun: false, originalPostCutAssertionsRechecked,
         checkpointSequence: pin.checkpointSequence, returnedOwnerCall: pin.returnedOwnerCall, completedOccupiedWritersReplayed: false },
       historicalProvenance: { originalRunControlSha256: pin.runControlSha256, checkpointReceiptSha256: pin.receiptSha256, priorRunTerminalSha256: pin.priorRunTerminalSha256,
         priorVitestReportSha256: pin.priorVitestReportSha256, returnedCalibrationSetSha256: pin.returnedCalibrationSetHash, tableCensusSha256: pin.censusSha256, priorCp5: pin.priorCp5, failedCp11Continuation: pin.failedCp11Continuation, sourceIdentityBasis: 'exact_pinned_original_checkpoint', privateWitnessFilesRechecked: witnessRecheck },
