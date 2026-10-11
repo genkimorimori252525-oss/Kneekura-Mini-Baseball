@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { captureLAN01RetainedSuffixInput, prepareLAN01RetainedCheckpoint } from './LAN01RetainedCheckpoint.test-support';
 
 const input = () => ({ nativeReleased: true, checkpointGzip: '/private/checkpoint.sqlite.gz', destinationDirectory: '/private/new-suffix' });
-describe('exact LAN01-R2 cp11 input boundary, without opening Native owners', () => {
+describe('exact LAN01-R3 cp5 input boundary, without opening Native owners', () => {
   it('rejects unreleased execution before attempting filesystem access', () => {
     expect(() => prepareLAN01RetainedCheckpoint({ ...input(), nativeReleased: false })).toThrow('reviewed and released');
   });
@@ -55,8 +55,11 @@ it('retains the exact original post-right body for fresh and retained occupied c
   const source = readFileSync(new URL('./SamePlateAppearanceOccupiedContinuation.test-support.ts', import.meta.url), 'utf8');
   const start = "  const pitchCalibration = calibrations.calibrations.find(c=>c.source.route==='pitch_delivery')!;";
   const tail = source.slice(source.indexOf(start), source.indexOf('\n};\n\n/** Fresh PL01'));
-  // Original body at 527ec838, before extraction; includes every first-TAKE,
-  // held-window, unchanged-Match and retry/reopen assertion in its original order.
-  expect(createHash('sha256').update(tail).digest('hex')).toBe('cabfc0599002da8d4a887fb6406df978ae4461c7a6400588f4dcc3681239a591');
-  expect(tail.match(/\bexpect\(/g)).toHaveLength(15);
+  // Current shared body at 32d744b9, after readback extraction; includes first-TAKE,
+  // held-window, unchanged-Match, retry and the original readback helper in order.
+  expect(createHash('sha256').update(tail).digest('hex')).toBe('c690551b62745929558c15efa9a3c904b3c9bee5e5ad70d046fb7b8a6dac2049');
+  expect(tail.match(/\bexpect\(/g)).toHaveLength(13);
+  const readback = readFileSync(new URL('./SamePlateAppearanceOccupiedReadback.test-support.ts', import.meta.url), 'utf8');
+  expect(readback.match(/\bexpect\(/g)).toHaveLength(2);
+  expect(tail).toContain('finishSamePaOccupiedPitchReadback(reopened,pitch,bytes,saved)');
 });

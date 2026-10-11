@@ -1,4 +1,5 @@
 import { expect } from 'vitest';
+import { readSamePaOccupiedRunnerHoldFromSqlite } from './SqliteSamePlateAppearanceOccupiedRunnerHoldStore';
 import type { SQLOutputValue } from 'node:sqlite';
 import { appendNativeBatterCatchHold } from './SamePlateAppearanceBatterCatchNative.test-support';
 import { appendNativeBatterRunCheckpoint } from './SamePlateAppearanceBatterRunNative.test-support';
@@ -52,7 +53,10 @@ export const prepareInFlightBattingSwing = (h: Fixture, prepared: ReturnType<Fix
   const inputOwner = track(openSqliteBattingExecutionInputStore(f.path, { readAcceptedIntent: id => accepted.get(id), readAcceptedInput: id => accepted.get(id) }));
   const ready = prepared.action.source.nominalPitch.delivery.readyAtUs;
   const holdReferences = h.original.occupiedRunnerHoldReferences;
-  const validUntilTick = holdReferences === undefined ? ready + 20_000_000 : Math.min(ready + 20_000_000, h.geometry.validUntilTick);
+  // This new pitch declares its own posture interval. A preceding TAKE's
+  // posture cannot supply the runner's remaining issued coverage.
+  const validUntilTick = holdReferences === undefined ? ready + 20_000_000 : withSqliteReadTransaction(f.db, () => Math.min(ready + 20_000_000,
+    ...(holdReferences ?? []).map(pin => readSamePaOccupiedRunnerHoldFromSqlite(f.db, pin).source.coverageThroughTick)));
   // Plan only this fixture's temporal declaration from the same owned inputs
   // and existing Core timing used by launch. No pitch/observation is accepted here.
   const timing = withSqliteReadTransaction(f.db, () => {

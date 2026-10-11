@@ -4,6 +4,7 @@ import { expect, it, vi } from 'vitest';
 import { withSamePaLifecycleReadPhase } from './SamePlateAppearanceLifecycleFromSqlite';
 import { prepareSamePaInitialPlayFixture } from './SamePlateAppearanceInitialBallFixture.test-support';
 import { prepareSamePaPhysicalLifecycleContinuation } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
+import { prepareInFlightBattingSwing } from './InFlightBattingLifecycleFixture.test-support';
 
 const boundary = vi.hoisted(() => ({
   db: null as DatabaseSync | null, posture: null as unknown, reads: [] as string[], failure: null as Error | null,
@@ -32,6 +33,7 @@ vi.mock('./SqliteBattingPerceptionStore', () => ({
     acceptPosture: (id: string) => { outsideRead(); boundary.posture = authority.readAcceptedPosture(id); throw new Error('first posture writer'); },
   }),
 }));
+vi.mock('./SqliteBattingExecutionInputStore', () => ({ openSqliteBattingExecutionInputStore: () => ({}) }));
 vi.mock('./SamePlateAppearanceNonemptyFixture.test-support', () => ({
   prepareSamePaNonemptyFixture: () => { outsideRead(); throw new Error('first continuation writer'); },
 }));
@@ -78,5 +80,18 @@ it('propagates failed occupied evidence, restores the connection and never prepa
     expect(() => prepareSamePaInitialPlayFixture(f as unknown as Parameters<typeof prepareSamePaInitialPlayFixture>[0], accepted, [],
       {} as Parameters<typeof prepareSamePaInitialPlayFixture>[3])).toThrow(failure);
     expect(accepted.size).toBe(0); expect(boundary.posture).toBe(null); outsideRead();
+  } finally { db.close(); }
+});
+
+it('reads the occupied swing hold in its own query-only scope and restores the connection before an interrupted timing check', () => {
+  const { db, f } = fixture();
+  type Args = Parameters<typeof prepareInFlightBattingSwing>;
+  const h = { f, accepted: new Map(), save: () => {}, original: f.acceptedAction.source,
+    current: () => { throw new Error('timing calculation boundary'); } } as unknown as Args[0];
+  const prepared = { action: { source: f.acceptedAction.source } } as unknown as Args[1];
+  try {
+    expect(() => prepareInFlightBattingSwing(h, prepared, 'swing')).toThrow('timing calculation boundary');
+    expect(boundary.reads).toEqual(['first-hold', 'second-hold']);
+    expect(boundary.posture).toBe(null); outsideRead();
   } finally { db.close(); }
 });

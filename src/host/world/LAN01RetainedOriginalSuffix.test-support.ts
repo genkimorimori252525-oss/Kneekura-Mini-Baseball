@@ -27,7 +27,7 @@ import { openSqliteSamePlateAppearanceTerminalSettlementStore } from './SqliteSa
 import { openSqliteSamePlateAppearanceTerminalTransitionStore } from './SqliteSamePlateAppearanceTerminalTransitionStore';
 import { openSqlitePlayerRunnerDecisionMotionModelStore } from './SqlitePlayerRunnerDecisionMotionModelStore';
 import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
-import { completeSamePaOccupiedWalkFromRightFixture, type SamePaPreparedOccupiedWalkFixture } from './SamePlateAppearanceOccupiedContinuation.test-support';
+import { continueSamePaOccupiedWalkFromViewFixture, type SamePaPreparedOccupiedWalkFixture } from './SamePlateAppearanceOccupiedContinuation.test-support';
 import { prepareLAN01RetainedCheckpoint, type LAN01RetainedSuffixInput } from './LAN01RetainedCheckpoint.test-support';
 import type { AcceptedPlayerWorkloadBaseline } from './SqlitePlayerWorkloadRecoveryStore';
 import { liveAppealSceneFixture } from './SamePlateAppearanceLiveAppealScene.test-support';
@@ -37,13 +37,11 @@ import { openSqliteWorldControlStore } from './SqliteWorldControlStore';
 import { completeSamePaOccupiedPhysicalFixture } from './SamePlateAppearanceOccupiedPhysicalFixture.test-support';
 import { continueLAN01OriginalLiveAppealAssertions } from './LAN01OriginalLiveAppealAssertions.test-support';
 import { openSqliteSamePlateAppearanceExecutionStore } from './SqliteSamePlateAppearanceExecutionStore';
-import { openSqliteSamePlateAppearanceOccupiedRunnerHoldStore } from './SqliteSamePlateAppearanceOccupiedRunnerHoldStore';
-import { deriveSamePaDispatchRoles } from './SamePlateAppearanceDispatchRoles';
 import type { BodyMaterializationRequest } from './PlayerBodyCapabilityMaterialization';
 
-/** Reopens only the exact LAN01-R1 cp11 boundary. Owner readers authenticate all
+/** Reopens only the exact LAN01-R1 cp5 boundary before its runner hold. Owner readers authenticate all
  * recovered values. The original occupied tail owns every subsequent effect;
- * no TAKE prefix, model receipt, workload AFTER, or official result is recreated. */
+ * the completed walk, models and pre-hold workload owners are not recreated. */
 export const runLAN01RetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, log: (phase: string) => void = () => {}) => {
   const { path, pin, input: capturedInput, witnessRecheck } = prepareLAN01RetainedCheckpoint(input), stores: { close(): void }[] = [];
   const track = <T extends { close(): void }>(store: T): T => { stores.push(store); return store; };
@@ -61,7 +59,7 @@ export const runLAN01RetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, 
       'pa_lifecycle_v1_execution_views', 'pa_lifecycle_v1_execution_calibrations', 'world_player_body_materializations',
       'world_player_batting_models', 'world_player_runner_decision_motion_models', 'world_player_workload_activities',
       'world_player_workload_baselines', 'same_pa_enrollments', 'reserved_pa_work_prefixes', 'reserved_pa_total_assessments',
-      'reserved_pa_execution_views', 'world_same_pa_occupied_runner_holds', 'pa_dispatch_v1_action_plans',
+      'reserved_pa_execution_views', 'pa_dispatch_v1_action_plans',
       'pa_dispatch_v1_execution_calibrations', 'pa_dispatch_v1_consumer_sets', 'pa_dispatch_v1_episodes', 'pa_dispatch_v1_rights'];
     const rows = (table: string) => db.prepare('SELECT rowid,* FROM ' + table + ' ORDER BY rowid').all();
     const histories = historyTables.map(table => ({ table, rows: rows(table) }));
@@ -210,7 +208,7 @@ export const runLAN01RetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, 
       models, capabilities, repertoires, decisions, equipments, observations, predictions, modelStore: nextModelStore, batting: nextBatting,
       runnerBinding: actor.binding, runnerBody: { kind: 'materialized', value: runnerReceipt }, runnerModel,
     };
-    mark('authenticate-accepted-occupied-baseline-through-right');
+    mark('authenticate-accepted-occupied-baseline-through-view');
     const occupiedEnrollment = enrollmentOwner.read(label + ':enrollment');
     assert(occupiedEnrollment?.kind === 'reserved', 'LAN01 occupied enrollment missing');
     assert.deepEqual(occupiedEnrollment.source.actorReference, reference('physical_plate_appearance_actors', nextActor));
@@ -241,7 +239,7 @@ export const runLAN01RetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, 
     const prefix = execution.readPrefix(label + ':prefix'); assert(prefix, 'LAN01 occupied empty prefix missing');
     assert.deepEqual(prefix.source.enrollmentReference, enrollmentReference); assert.deepEqual(prefix.timeline.events, []);
     const view = execution.readView(label + ':view'); assert(view, 'LAN01 occupied zero-TOTAL view missing');
-    const prefixReference = reference('reserved_pa_work_prefixes', prefix), viewReference = reference('reserved_pa_execution_views', view);
+    const prefixReference = reference('reserved_pa_work_prefixes', prefix);
     assert.deepEqual(view.source.enrollmentReference, enrollmentReference); assert.deepEqual(view.source.prefixReference, prefixReference);
     const totals = execution.readTotalSet(view.source.participantTotalReferences);
     assert.equal(totals.totals.length, 11);
@@ -249,56 +247,30 @@ export const runLAN01RetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, 
     assert(totals.totals.every(t => t.source.effortUnits === 0));
     assert.deepEqual(view.participants.map(p => p.playerId), occupiedEnrollment.participants.map(p => p.binding.playerId));
     assert(view.participants.every(p => p.activity.kind === 'MATCH' && p.activity.effortUnits === 0));
-    const hold = track(openSqliteSamePlateAppearanceOccupiedRunnerHoldStore(path)).read(label + ':runner-hold');
-    assert(hold, 'LAN01 accepted occupied hold missing');
-    assert.deepEqual(hold.source.enrollmentReference, enrollmentReference);
-    assert.deepEqual(hold.body, runnerReceipt); assert.deepEqual(hold.model, runnerModel);
-    assert.deepEqual(hold.setup.position, endpoint.baseCenters.first); assert.equal(hold.motionExecuted, false); assert.equal(hold.actors.length, 5);
-    assert.equal(hold.source.coverageThroughTick, nextActor.world.tick + 20_000_000);
-    const roles = deriveSamePaDispatchRoles(nextActor, view, originals);
-    assert.equal(roles.length, 11); assert.deepEqual(roles.find(r => r.role === 'runner')?.routes, []);
-    const occupiedDispatch = track(openSqliteSamePlateAppearanceDispatchStore(path, { readAcceptedPhysicalPitch: id => accepted.get(id) }));
-    const action = occupiedDispatch.readAction(label + ':action'); assert(action, 'LAN01 accepted occupied action missing');
-    assert.deepEqual(action.source, { sourceVersion: 'fixture-only-v1', enrollmentReference, viewReference,
-      firstPhysicalPitchSourceId: label + ':pitch', sourceId: label + ':action', capability: 'same_pa_first_pitch_action_v1', variant: 'declared_take_v1',
-      pitcherPlayerId: h.original.pitcherPlayerId, batterPlayerId: nextActor.binding.playerId,
-      nominalPitch: { ...h.original.nominalPitch, delivery: { ...h.original.nominalPitch.delivery, readyAtUs: nextActor.world.tick } },
-      timingReference: h.original.timingReference, releaseReference: h.original.releaseReference, pitchResponseReference: h.original.pitchResponseReference,
-      batterModelReference: reference('world_player_batting_models', nextBatting), geometryReference: { kind: 'action_source_take_geometry_v1' },
-      occupiedRunnerHoldReferences: [reference('world_same_pa_occupied_runner_holds', hold)] });
-    const occupiedCalibrationIds = roles.flatMap(role => role.routes.map(route => label + ':calibration:' + role.member.playerId + ':' + route));
-    const calibrations = occupiedDispatch.readCalibrationSet(occupiedCalibrationIds); assert.equal(calibrations.calibrations.length, 32);
-    const actionReference = reference('pa_dispatch_v1_action_plans', action);
-    const consumers = occupiedDispatch.readConsumerSet(label + ':consumers'); assert(consumers, 'LAN01 accepted occupied consumers missing');
-    assert.deepEqual(consumers.source.actionReference, actionReference);
-    assert.deepEqual(consumers.source.participantInputs, roles.map(role => ({ member: role.member,
-      calibrationReferences: calibrations.calibrations.filter(c => c.source.member.playerId === role.member.playerId)
-        .map(c => ({ route: c.source.route, calibrationReference: reference('pa_dispatch_v1_execution_calibrations', c) })) })));
-    const consumerSetReference = reference('pa_dispatch_v1_consumer_sets', consumers);
-    const episode = occupiedDispatch.readEpisode(label + ':episode'); assert(episode, 'LAN01 accepted occupied episode missing');
-    assert.deepEqual(episode.source.actionReference, actionReference); assert.deepEqual(episode.source.consumerSetReference, consumerSetReference);
-    const right = occupiedDispatch.readRight(label + ':right'); assert(right, 'LAN01 accepted occupied right missing');
-    assert.deepEqual(right.source.actionReference, actionReference); assert.deepEqual(right.source.consumerSetReference, consumerSetReference);
-    assert.deepEqual(right.source.episodeReference, reference('pa_dispatch_v1_episodes', episode)); assert.deepEqual(right.source.prefixReference, prefixReference);
-    assert.equal(hash(right), pin.rightSnapshotHash);
-    for (const table of ['pa_initial_ball_v1_setups', 'pa_initial_ball_v1_plays']) {
+    assert.equal(hash(view), pin.viewSnapshotHash);
+    for (const table of ['world_same_pa_occupied_runner_holds', 'pa_initial_ball_v1_setups', 'pa_initial_ball_v1_plays']) {
       assert.equal(db.prepare("SELECT count(*) n FROM sqlite_schema WHERE type='table' AND name=?").get(table)!.n, 0);
     }
-    for (const [table, id] of [['batting_observation_v1_postures', label + ':initial-posture'], ['pa_dispatch_v1_pitch_actions', label + ':pitch']]) {
+    for (const [table, id] of [['batting_observation_v1_postures', label + ':initial-posture'],
+      ['pa_dispatch_v1_action_plans', label + ':action'], ['pa_dispatch_v1_consumer_sets', label + ':consumers'],
+      ['pa_dispatch_v1_episodes', label + ':episode'], ['pa_dispatch_v1_rights', label + ':right'],
+      ['pa_dispatch_v1_pitch_actions', label + ':pitch'], ['pa_take_successor_v1_action_plans', label + ':second-action']]) {
       assert.equal(db.prepare('SELECT count(*) n FROM ' + table + ' WHERE source_id=?').get(id)!.n, 0);
     }
+    assert.equal(db.prepare('SELECT count(*) n FROM pa_dispatch_v1_execution_calibrations WHERE enrollment_source_id=?')
+      .get(occupiedEnrollment.source.sourceId)!.n, 0);
     // This is the original callback declaration for the unperformed lane. Its
     // geometry comes from the same short-diamond recipe already checked above.
     const previous = h, declared = dispatchCalibrationValues().batter_observation;
     const explicitBatterObservation={...declared,calibration:{...declared.calibration,errorParameters:{...declared.calibration.errorParameters,
       minimumPositionErrorMeters:0,maximumPositionErrorMeters:0,minimumVelocityErrorMps:0,maximumVelocityErrorMps:0}}};
-    const options={explicitBatterObservation,initialPlay:{venue:{pitcherPlate:scene.pitcherPlate,rulePolicy:scene.rulePolicy},
+    const options={explicitBatterObservation,occupiedHoldDurationUs:scene.occupiedHoldDurationUs,initialPlay:{venue:{pitcherPlate:scene.pitcherPlate,rulePolicy:scene.rulePolicy},
       officialPerson:{sourceId:'lan01:initial-person',sourceVersion:'fixture-only-v1',capability:'accepted_original_umpire_person_v1' as const,
         careerId:previous.f.actor.binding.careerId,officialId:'lan01:plate-umpire',personId:'lan01:plate-umpire-person'},
       assignmentPolicy:{sourceId:'lan01:initial-policy',sourceVersion:'fixture-only-v1',ruleProfileId:NPB_2026_RULE_PROFILE.id,kind:'accepted_original_live_ball_action_v1' as const}}};
-    mark('run-original-occupied-tail-from-initial-play');
-    const occupied = completeSamePaOccupiedWalkFromRightFixture(h, label, prepared,
-      { enrollment: occupiedEnrollment, prefix, view, hold, roles, dispatch: occupiedDispatch, action, calibrations, consumers, episode, right }, options);
+    mark('run-original-occupied-tail-from-finite-hold');
+    const occupied = continueSamePaOccupiedWalkFromViewFixture(h, { endpoint }, label, prepared,
+      { enrollment: occupiedEnrollment, prefix, view }, options);
     const physical = completeSamePaOccupiedPhysicalFixture({ worldOwner }, occupied, label, options);
     continueLAN01OriginalLiveAppealAssertions(previous, physical, scene, mark);
     for (const history of histories) assert.equal(json(rows(history.table).slice(0, history.rows.length)), json(history.rows),
@@ -309,14 +281,16 @@ export const runLAN01RetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, 
     const closeErrors: unknown[] = [];
     for (const store of stores.reverse()) { try { store.close(); } catch (error) { closeErrors.push(error); } }
     const originalUnchanged = createHash('sha256').update(readFileSync(capturedInput.checkpointGzip)).digest('hex') === pin.gzipSha256;
-    const result = { kind: 'lan01_cp11_original_remaining_suffix_result_v1',
+    const result = { kind: 'lan01_cp5_original_remaining_suffix_result_v1',
       retainedPrefix: { sourceCommit: pin.sourceCommit, sourceTree: pin.sourceTree, databaseSha256: pin.databaseSha256,
-        boundary: 'completed original walk and occupied baseline/enrollment/zero TOTAL/view/hold/action/32 calibrations/consumer/episode/right; initial Play and physical pitch absent',
+        boundary: 'completed original walk and occupied baseline/enrollment/empty prefix/11 zero TOTALs/view; runner hold and all dependent occupied actions absent',
         previouslyCompletedAssertions: 'historical evidence only; not rerun or credited as this suffix',
-        originalRunOutcome: 'FAILED_QUERY_ONLY_FIXTURE_READ', earlierAssertionsRerun: false,
-        completedOccupiedWriterCalls: 11, completedOccupiedWritersReplayed: false },
+        originalRunOutcome: 'FAILED_QUERY_ONLY_FIXTURE_READ',
+        descendantContinuationOutcome: 'FAILED_IMMUTABLE_HOLD_EXHAUSTED',
+        priorOccupiedFirstPitchAndRetry: 'historical successful evidence only; must rerun under the newly issued hold', retainedPrefixAssertionsRerun: false,
+        completedOccupiedWriterCalls: 5, completedOccupiedWritersReplayed: false },
       historicalProvenance: { originalRunControlSha256: pin.runControlSha256, checkpointReceiptSha256: pin.receiptSha256, priorRunTerminalSha256: pin.priorRunTerminalSha256,
-        priorVitestReportSha256: pin.priorVitestReportSha256, returnedRightResultSha256: pin.rightResultHash, tableCensusSha256: pin.censusSha256, priorCp181: pin.priorCp181, sourceIdentityBasis: 'exact_pinned_original_checkpoint', privateWitnessFilesRechecked: witnessRecheck },
+        priorVitestReportSha256: pin.priorVitestReportSha256, returnedViewResultSha256: pin.viewResultHash, tableCensusSha256: pin.censusSha256, priorCp181: pin.priorCp181, failedCp11Continuation: pin.failedCp11Continuation, sourceIdentityBasis: 'exact_pinned_original_checkpoint', privateWitnessFilesRechecked: witnessRecheck },
       continuedSuffix: passed && closeErrors.length === 0 && originalUnchanged ? 'PASS' : 'FAILED',
       lastPhase: phase, allHandlesClosed: closeErrors.length === 0, originalCheckpointUnchanged: originalUnchanged,
       originalPrefixHistoryUnchanged, wholeCasePass: false, databasePath: path };

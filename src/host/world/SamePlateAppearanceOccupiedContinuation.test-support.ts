@@ -1,4 +1,5 @@
 import { expect } from 'vitest';
+import { checkSamePaOccupiedPhysicalTimingFromSqlite } from './SamePlateAppearanceOccupiedTiming.test-support';
 import { samePaOccupiedPitchBytes, finishSamePaOccupiedPitchReadback } from './SamePlateAppearanceOccupiedReadback.test-support';
 import { openSqliteSamePlateAppearancePhysicalEpisodeStore } from './SqliteSamePlateAppearancePhysicalEpisodeStore';
 import type { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
@@ -132,9 +133,9 @@ export type SamePaPreparedOccupiedWalkFixture = ReturnType<typeof prepareSamePaO
  * still perform every original acceptance before sharing the post-right tail. */
 export const continueSamePaOccupiedWalkFromBaselineFixture = <F extends SamePaOccupiedWalkBase>(h: OccupiedContext<F>,
   completed: ReturnType<typeof completeSamePaTerminalFixture>, label: string, prepared: SamePaPreparedOccupiedWalkFixture,
-  options: Readonly<{ initialPlay?: SamePaInitialPlayFixtureInputs }> = {}) => {
+  options: Readonly<{ initialPlay?: SamePaInitialPlayFixtureInputs; occupiedHoldDurationUs?: number }> = {}) => {
   const { f } = h, { db, path } = f, track = f.x.f.track;
-  const { actor, originals, accepted, save, batting, runnerBinding, runnerBody, runnerModel } = prepared;
+  const { actor, originals, accepted, save } = prepared;
   if (!readActualRoleWorkloadState(db,actor.binding.careerId,actor.binding.playerId,undefined,actor.binding.personLinkSourceId)) {
     const baseline = {...f.x.f.baseline,sourceId:label+':new-batter-baseline',playerId:actor.binding.playerId,personLinkSourceId:actor.binding.personLinkSourceId};
     track(openSqlitePlayerWorkloadRecoveryStore(path,f.x.f.links,{readAcceptedBaseline:id=>id===baseline.sourceId?baseline:null,readAcceptedActivity:()=>null})).initialize(baseline.sourceId);
@@ -163,10 +164,27 @@ export const continueSamePaOccupiedWalkFromBaselineFixture = <F extends SamePaOc
   const view=execution.acceptView(viewSource.sourceId);if(view.kind!=='basis_prepared')throw new Error('occupied fixture initial view pending');
   expect(view.participants.map(p=>p.playerId)).toEqual(enrollment.participants.map(p=>p.binding.playerId));
   expect(prefix.timeline.events).toEqual([]);expect(view.participants.every(p=>p.activity.kind==='MATCH'&&p.activity.effortUnits===0)).toBe(true);
+  return continueSamePaOccupiedWalkFromViewFixture(h, completed, label, prepared, { enrollment, prefix, view }, options);
+};
+
+/** Exact pre-hold seam. Existing baseline/enrollment/zero-TOTAL owners are read
+ * and authenticated by retained callers, never replayed by this tail. */
+export const continueSamePaOccupiedWalkFromViewFixture = <F extends SamePaOccupiedWalkBase>(h: OccupiedContext<F>,
+  completed: Pick<ReturnType<typeof completeSamePaTerminalFixture>, 'endpoint'>, label: string, prepared: SamePaPreparedOccupiedWalkFixture,
+  admitted: Pick<SamePaOccupiedRightFixture, 'enrollment' | 'prefix' | 'view'>,
+  options: Readonly<{ initialPlay?: SamePaInitialPlayFixtureInputs; occupiedHoldDurationUs?: number }> = {}) => {
+  const { f } = h, { db, path } = f, track = f.x.f.track;
+  const { actor, originals, accepted, save, batting, runnerBinding, runnerBody, runnerModel } = prepared;
+  const { enrollment, prefix, view } = admitted, prefixSource = prefix.source, enrollmentSource = enrollment.source;
+  const duration = options.occupiedHoldDurationUs ?? 20_000_000;
+  if (!Number.isSafeInteger(duration) || duration <= 0) throw new Error('occupied fixture finite hold duration invalid');
+  // Only LAN's explicit three-pitch lane opts in; the completed single-TAKE PL
+  // fixture keeps its original twenty-second Source and does not run this check.
+  if (options.occupiedHoldDurationUs !== undefined) checkSamePaOccupiedPhysicalTimingFromSqlite(db, actor, h.original, view, actor.world.tick + duration);
   const holdSource:AcceptedSamePaOccupiedRunnerHold={sourceId:label+':runner-hold',sourceVersion:'fixture-only-v1',capability:'same_pa_occupied_runner_hold_v1',
     enrollmentReference:prefixSource.enrollmentReference,playerId:runnerBinding.playerId,personId:runnerBinding.personId,
     bodyReference:reference('world_player_body_materializations',runnerBody.value),runnerModelReference:reference('world_player_runner_decision_motion_models',runnerModel),
-    intent:{kind:'hold',issuedTick:actor.world.tick},coverageThroughTick:actor.world.tick+20_000_000,
+    intent:{kind:'hold',issuedTick:actor.world.tick},coverageThroughTick:actor.world.tick+duration,
     provenance:{sourceRecordId:label+':independently-issued-hold',sourceVersion:'fixture-only-v1'}};
   const hold=track(openSqliteSamePlateAppearanceOccupiedRunnerHoldStore(path,{readAcceptedHold:id=>id===holdSource.sourceId?holdSource:null})).accept(holdSource.sourceId);
   expect(hold.setup.position).toEqual(completed.endpoint.baseCenters.first);expect(hold.motionExecuted).toBe(false);expect(hold.actors).toHaveLength(5);
@@ -231,7 +249,7 @@ export type SamePaOccupiedRightFixture = Readonly<{
  * owners enter here without replaying baseline/enrollment/dispatch writers. */
 export const completeSamePaOccupiedWalkFromRightFixture = <F extends SamePaOccupiedWalkBase>(h: OccupiedContext<F>,
   label: string, prepared: SamePaPreparedOccupiedWalkFixture, admitted: SamePaOccupiedRightFixture,
-  options: Readonly<{ initialPlay?: SamePaInitialPlayFixtureInputs }> = {}) => {
+  options: Readonly<{ initialPlay?: SamePaInitialPlayFixtureInputs; occupiedHoldDurationUs?: number }> = {}) => {
   const { f } = h, { db, path } = f, track = f.x.f.track;
   const { actor, originals, officialBefore, accepted, save, scope, body, pose, bodyResult, bodyOwner, requests, bodies, poses,
     capability, repertoire, decision, equipment, observation, prediction, modelSource, authority,
@@ -280,7 +298,7 @@ export const completeSamePaOccupiedWalkFromRightFixture = <F extends SamePaOccup
 /** Fresh PL01 still prepares its original actor/models and then uses the same tail. */
 export const continueSamePaOccupiedWalkFixture = <F extends SamePaOccupiedWalkBase>(h: OccupiedContext<F>,
   completed: ReturnType<typeof completeSamePaTerminalFixture>, label: string,
-  options: Readonly<{ initialPlay?: SamePaInitialPlayFixtureInputs }> = {}) =>
+  options: Readonly<{ initialPlay?: SamePaInitialPlayFixtureInputs; occupiedHoldDurationUs?: number }> = {}) =>
   continueSamePaOccupiedWalkFromBaselineFixture(h, completed, label, prepareSamePaOccupiedWalkFixture(h, completed, label), options);
 
 /** PL01's original post-terminal assertions, shared with its retained suffix. */

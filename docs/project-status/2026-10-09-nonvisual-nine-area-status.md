@@ -2,7 +2,7 @@
 
 範囲は[PR340保存時の正本 §5](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/blob/6509e61f2474cc6bcfadda129f4b3c9621855c2c/docs/project-status/2026-10-04-nonvisual-implementation-checkpoint.md#5-残る確定済み非デザイン計画)を維持する。UI/design、新arsenal、未承認の数値モデルは含めない。以下は現在のコード・実証・仕様判断の入口であり、[従来の詳細な実行履歴](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/blob/91cd3035f8d8309eaafae34f44f312fd2e86759a/docs/project-status/2026-10-09-nonvisual-nine-area-status.md)を置き換えて成功へ読み替えるものではない。
 
-現在の統合src treeは `2fc762c3c19107b6a8c9476381bb3e2ca13abbd6`。IFNの元続行はcut39まで実受理後、複数観測対象のrefresh仕事ID衝突で機能失敗した。対象別IDと既存singleton履歴の互換を守る修正、保存cp35から未実行のreview／終端だけを再開する入口を一括実装した。compiler33.404秒と57件／3 files20.644秒がPASS。genuine再開は未実行。[修正と保存境界](2026-10-11-ifn01-cp35-review-suffix.md)。PLの最後の元readback／16表比較は公開 `838320cb` の保持続行で137.094秒PASSし、未確認の比較を閉じた。[PL実結果](2026-10-11-pl01-cp11-readback-suffix.md#actual-remaining-suffix-pass)。
+現在の統合src treeは `f1543cc585cc2181c40e39a17bb4731f49268f2d`。LANの第2TAKEが元の20秒holdを越えて拒否されたため、元3投と後続動作を既存Coreで事前照合する明示60秒holdと、新しい第三投postureの期限を一括修正した。受理済みholdは変更せず、保存cp5のhold受理前から依存する投球だけを再実行する。compiler34.407秒と20件／6files8.470秒はPASS、修正後genuineは未実行。[根拠・正規の再開境界](2026-10-11-lan01-cp5-pre-hold-suffix.md)。PLの最後readback／16表比較は保持続行で137.094秒PASS。IFNは修正済み仕事IDで元のreview sessionとrequest eventを実受理し、後続処理中。
 
 前の統合src treeは `e5380afb413a5afae2bd4880ab47a5474c990f24`。LANの初期Playと後続2球目で、occupied holdを必要なquery-only transactionの外から読んでいたfixtureを同じまとまりで修正した。実受理済みrightまでのcp11を認証し、その後の元の処理だけを続ける入口と合わせて一括review CLEAR、compiler32.717秒と11件／3 files6.752秒がPASS。初回compilerの型エラーは保持し、既存型で修正した。元の後半15 assertionsとLAN callbackは同一で、固定sourceのgenuine残処理を実行中。[失敗境界・修正・検証](2026-10-11-lan01-cp11-initial-play-suffix.md)。
 
@@ -14,7 +14,7 @@
 
 以前の通常claim修正srcは `e5f3ed76710da25007774d59ba7ce661614f39b1`。通常のworkload予約確認でも既存の1確認内のimmutable読み取りを再利用し、同じenrollmentの完了release原本を共有する最小修正を接続した。一括review CLEAR、全compiler31.794秒、関連71件／6 files183.415秒がPASS。4個の独立assertionとcallback・書込み・retryごとの再認証を保持する。復元回数の減少は時間性能の証明とは扱わない。[通常claim修正と実証境界](2026-10-10-terminal-proof-recovery.md#ordinary-workload-reservation-release-proof-scope)。
 
-元FR01のfresh caseは全体PASS。Nationalは保存済み裁定境界から元37 assertionの保持続行がPASSし、旧fresh failedは別に保持する。IFNの固定 `c7928d3c` 相当sourceは、打者plan、10ticks移動、1tick hold、seal、終端catchwork、cut39全calibrationまで実返却後、10,064.263秒でrefresh仕事ID衝突の機能FAILEDとなった。微小残速度は元のall_offense_terminal経路の意図した状態であり、停止・quiescenceの証明とはしない。PLの固定 `4d452cea` の14,400.134秒wall failedと、`838320cb` の最後readback suffix PASSを分ける。LANの固定 `7c6c29cf` 相当sourceは初期Play・実投球・変更なしretry・anchor viewまで実受理し、swing／throw／appeal本体と全体結果が残る。[source帰属と実結果](2026-10-10-terminal-proof-recovery.md)を参照し、異なるsourceや部分結果を足して全体PASSとはしない。
+元FR01のfresh caseは全体PASS。Nationalは保存裁定から元37 assertionの保持続行がPASSし、旧fresh failedは別に保持する。PLの固定 `4d452cea` の14,400.134秒wall failedと、`838320cb` の最後readback suffix PASSを分ける。IFNの固定 `c7928d3c` はcut39後のrefresh仕事ID衝突で10,064.263秒の機能FAILED。修正済み `2c616b51` 相当sourceのcp35続行はreview session/requestを実受理し、全体未完。微小残速度は元all_offense_terminalの意図した状態で、停止・quiescenceの証明とはしない。LANの固定 `7c6c29cf` 相当sourceはinitial Play・初回投球/retry・anchor一式・第2setupまで実受理後、9,045.463秒で保持期限不足の機能FAILED。旧cp5以前を保ち、十分なholdから依存する第1投以後をやり直す。[source帰属と実結果](2026-10-10-terminal-proof-recovery.md)を参照し、異なるsourceや部分結果を足して全体PASSとはしない。
 
 1. **統合・archive互換** — 各owner、保存履歴、practice/能力/Manager、実接触/foul、同一PAと終端・成績の接続は一括review・compiler・関連検証済み。残るのはcurrent whole/archiveと元full Positiveの完了証拠。旧TODOだけを根拠に接続済みAPIを再実装しない。[統合記録](2026-10-10-native-continuation-batch.md#consolidated-verification)
 

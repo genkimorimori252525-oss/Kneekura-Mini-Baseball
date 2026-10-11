@@ -14,8 +14,8 @@ type LifecycleOptions = NonNullable<Parameters<typeof prepareSamePaPhysicalLifec
  * The explicitly supplied initial Play precedes the occupied first pitch. */
 export const prepareSamePaOccupiedPhysicalFixture = (previous: ReturnType<typeof samePaPhysicalLifecycleFixture>,
   completed: ReturnType<typeof completeSamePaTerminalFixture>, label: string,
-  options: LifecycleOptions & Readonly<{ initialPlay: SamePaInitialPlayFixtureInputs }>) => {
-  const occupied = continueSamePaOccupiedWalkFixture(previous,completed,label,{initialPlay:options.initialPlay});
+  options: LifecycleOptions & Readonly<{ initialPlay: SamePaInitialPlayFixtureInputs; occupiedHoldDurationUs?: number }>) => {
+  const occupied = continueSamePaOccupiedWalkFixture(previous,completed,label,{initialPlay:options.initialPlay,occupiedHoldDurationUs:options.occupiedHoldDurationUs});
   return completeSamePaOccupiedPhysicalFixture(previous, occupied, label, options);
 };
 
@@ -25,7 +25,7 @@ export const completeSamePaOccupiedPhysicalFixture = <F extends SamePaOccupiedWa
   close: () => void; x: SamePaPhysicalContinuationContext['x'];
 }>(previous: Pick<ReturnType<typeof samePaPhysicalLifecycleFixture>, 'worldOwner'>,
   occupied: ReturnType<typeof continueSamePaOccupiedWalkFixture<F>>, label: string,
-  options: LifecycleOptions & Readonly<{ initialPlay: SamePaInitialPlayFixtureInputs }>) => {
+  options: LifecycleOptions & Readonly<{ initialPlay: SamePaInitialPlayFixtureInputs; occupiedHoldDurationUs?: number }>) => {
   const { f, accepted, save } = occupied, original = occupied.action.source;
   const genesisSource = save({sourceId:label+':emotion-genesis',sourceVersion:'fixture-only-v1',capability:'owned_batting_emotion_genesis_v1',
     viewReference:original.viewReference,member:occupied.roles[0].member,policy:policy(),provenance:{assessmentSourceId:label+':genesis-assessment',

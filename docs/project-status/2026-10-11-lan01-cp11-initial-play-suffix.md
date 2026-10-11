@@ -1,5 +1,8 @@
 # LAN01-R2: original remainder after the accepted occupied right
 
+Historical R2 input and qualification. R2 later failed on its immutable occupied
+hold horizon; the current exact entry uses [R3 pre-hold cp5](2026-10-11-lan01-cp5-pre-hold-suffix.md).
+
 LAN01-R1 on `4d452cea7ee37d41ca4f517612ffa96a7bb878d2`
 (source tree `3dcc76c69323fdd3461d4af7ec7f61bafe646e2a`) ended FAILED
 at 2026-10-11 04:45:35 UTC after 9,955.857 seconds. Its eleven writer calls

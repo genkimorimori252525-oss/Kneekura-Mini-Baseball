@@ -8,6 +8,8 @@ import { physicalThrowSceneFixture } from './SamePlateAppearancePhysicalThrowSce
  * Bag extents reuse BattedWorldBaseContactFixtures; the top plane is the exact
  * existing Native measurement (body height .95 plus foot offset -.88). */
 export const liveAppealSceneFixture = () => ({
+  // Three separately timed pitches plus the original field/appeal suffix.
+  occupiedHoldDurationUs: 60_000_000,
   originalBaseCenters: { first: { x: 1, z: 1 }, second: { x: 0, z: 2 }, third: { x: -1, z: 1 } },
   bags: { halfSize: { x: .2, z: .2 }, surfaceHeightMeters: .95 - .88 },
   pitcherPlate: { region: { center: { x: 0, z: 0 }, halfSize: { x: .4, z: .2 }, rotationRadians: 0 }, surfaceHeightMeters: .95 - .88 },

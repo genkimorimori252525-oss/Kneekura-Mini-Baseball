@@ -54,7 +54,7 @@ it('LAN01 original occupied live appeal reaches explicit official acceptance, cl
     expect(walked.endpoint.timeline.status.kind).toBe('walk');expect(walked.release.memberRows).toHaveLength(10);
     stage('walk-applied-checkpoint');
     const h=prepareSamePaOccupiedPhysicalFixture(previous,walked,'lan01:occupied',{
-      explicitBatterObservation,initialPlay:{venue:{pitcherPlate:scene.pitcherPlate,rulePolicy:scene.rulePolicy},
+      explicitBatterObservation,occupiedHoldDurationUs:scene.occupiedHoldDurationUs,initialPlay:{venue:{pitcherPlate:scene.pitcherPlate,rulePolicy:scene.rulePolicy},
         officialPerson:{sourceId:'lan01:initial-person',sourceVersion:'fixture-only-v1',capability:'accepted_original_umpire_person_v1',
           careerId:previous.f.actor.binding.careerId,officialId:'lan01:plate-umpire',personId:'lan01:plate-umpire-person'},
         assignmentPolicy:{sourceId:'lan01:initial-policy',sourceVersion:'fixture-only-v1',ruleProfileId:NPB_2026_RULE_PROFILE.id,kind:'accepted_original_live_ball_action_v1'}}});
