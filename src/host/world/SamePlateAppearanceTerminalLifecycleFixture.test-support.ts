@@ -93,7 +93,7 @@ export const completeSamePaFrozenTerminalFixture = (h: SamePaTerminalCompletionC
   const { f } = h, track = f.x.f.track;
   const { source, outcome, endpoint, originalEnrollment, beforeActivities } = retained;
   const { outcomes, endpoints, enrollmentOwner } = owners;
-  const endpointSource = endpoint.source, enrollmentReference = endpoint.enrollmentReference;
+  const enrollmentReference = endpoint.enrollmentReference;
   const participantCount = originalEnrollment.participants.length;
   const closure = getOfficialPlayClosure(outcome.officialLedger);
   if (!closure) throw new Error('real terminal official window remains open');
@@ -142,6 +142,30 @@ export const completeSamePaFrozenTerminalFixture = (h: SamePaTerminalCompletionC
   if ('activation' in transition.official) expect(transition.official.activation.nextMatchState.playId).toBe(f.actor.match.playId + 1);
   expect(f.db.prepare('SELECT count(*) n FROM applications WHERE application_id=?').get(transitionSource.applicationId)!.n).toBe(1);
   expect(f.db.prepare('SELECT count(*) n FROM official_scoring_applications WHERE scoring_application_id=?').get(transitionSource.scoringApplicationId)!.n).toBe(1);
+  return completeSamePaTerminalReleaseFixture(h, { outcome, endpoint, settled, transition, originalEnrollment },
+    { outcomes, endpoints, settlements, transitions, enrollmentOwner });
+};
+
+/** The original release/readback tail, shared with exact post-transition IFN01 cp13.
+ * The retained entry authenticates completed records; it never repeats effects. */
+export const completeSamePaTerminalReleaseFixture = (h: Readonly<{
+  f: Pick<SamePaTerminalCompletionContext['f'], 'db' | 'path'> & {
+    x: { f: Pick<SamePaTerminalCompletionContext['f']['x']['f'], 'track' | 'links'> } } }>,
+  retained: Readonly<{ outcome: SamePaLifecycleOutcome; endpoint: SamePaTerminalEndpoint;
+    settled: NonNullable<ReturnType<ReturnType<typeof openSqliteSamePlateAppearanceTerminalSettlementStore>['read']>>;
+    transition: NonNullable<ReturnType<ReturnType<typeof openSqliteSamePlateAppearanceTerminalTransitionStore>['read']>>;
+    originalEnrollment: ReservedSamePlateAppearanceEnrollment }>,
+  owners: Readonly<{ outcomes: ReturnType<typeof openSqliteSamePlateAppearanceLifecycleOutcomeStore>;
+    endpoints: ReturnType<typeof openSqliteSamePlateAppearanceTerminalEndpointStore>;
+    settlements: ReturnType<typeof openSqliteSamePlateAppearanceTerminalSettlementStore>;
+    transitions: ReturnType<typeof openSqliteSamePlateAppearanceTerminalTransitionStore>;
+    enrollmentOwner: ReturnType<typeof openSqliteSamePlateAppearanceEnrollmentStore> }>) => {
+  const { f } = h, track = f.x.f.track;
+  const { outcome, endpoint, settled, transition, originalEnrollment } = retained;
+  const { outcomes, endpoints, settlements, transitions, enrollmentOwner } = owners;
+  const source = outcome.source, endpointSource = endpoint.source, settlementSource = settled.plan.source,
+    transitionSource = transition.source, enrollmentReference = endpoint.enrollmentReference,
+    participantCount = originalEnrollment.participants.length;
   const release = settlements.release(settlementSource.sourceId);
   expect(release.memberRows).toHaveLength(participantCount); expect(release.settlementReference).toEqual(settled.reference);
   expect(f.db.prepare('SELECT count(*) n FROM same_pa_participant_reservations WHERE enrollment_source_id=?').get(enrollmentReference.sourceId)!.n).toBe(0);

@@ -67,8 +67,8 @@ export const completeNativeFairCatchTerminalReview = (h: SamePaPhysicalLifecycle
   work: ReturnType<typeof appendNativeCatchWork>['work'],
   admitted: Readonly<{ census: { observationRefresh: { pending: readonly unknown[] } } }>,
   works: Readonly<{ close(): void }>, label: string) => {
-  const { f } = h, track = f.x.f.track, current = h.current();
-  const workReference = reference('pa_catch_v1_work', work), workSource = work.source;
+  const { f } = h, current = h.current();
+  const workReference = reference('pa_catch_v1_work', work);
   const officialPolicy = { sourceId: label + ':window-policy', sourceVersion: 'explicit-fixture-v1', ruleProfileId: f.actor.match.ruleProfileId,
     officialWindows: { appeal: { available: true }, review: { available: true }, challenge: { available: false } } };
   const review = appendNativeReservedCatchReview(h, workReference, officialPolicy, label + ':review', 'explicit-fixture-scheduler');
@@ -80,6 +80,21 @@ export const completeNativeFairCatchTerminalReview = (h: SamePaPhysicalLifecycle
       { sourceId: label + ':advance', sourceVersion: 'fixture-only-v1', schedulerId: 'explicit-fixture-scheduler', kind: 'advance_tick' },
       { sourceId: label + ':fence', sourceVersion: 'fixture-only-v1', schedulerId: 'explicit-fixture-scheduler', kind: 'next_play_fence' }] } };
   const completed = completeSamePaTerminalFixture(h, label, source);
+  return completeNativeFairCatchTerminalReadback(h, { sealed, work, admitted, completed, review }, works, label);
+};
+
+/** Remaining original fair-catch checks after terminal release and readback. */
+export const completeNativeFairCatchTerminalReadback = (h: Readonly<{
+  f: Pick<SamePaPhysicalLifecycleSuffix['f'], 'db' | 'path' | 'actor'> & {
+    x: Pick<SamePaPhysicalLifecycleSuffix['f']['x'], 'accepted' | 'actors' | 'sources'> & {
+      f: Pick<SamePaPhysicalLifecycleSuffix['f']['x']['f'], 'track'> } } }>,
+  retained: Readonly<{ sealed: SamePaPhysicalFieldStep; work: ReturnType<typeof appendNativeCatchWork>['work'];
+    admitted: Readonly<{ census: { observationRefresh: { pending: readonly unknown[] } } }>;
+    completed: ReturnType<typeof completeSamePaTerminalFixture>;
+    review: Pick<ReturnType<typeof appendNativeReservedCatchReview>, 'pin' | 'assertHistoricalReplay'> }>,
+  works: Readonly<{ close(): void }>, label: string) => {
+  const { f } = h, track = f.x.f.track;
+  const { sealed, work, admitted, completed, review } = retained, workSource = work.source;
   expect(completed.outcome.postPlayReview?.reference).toEqual(review.pin);
   review.assertHistoricalReplay();
   expect(completed.outcome.fairCatch?.generation.receivedControllerHandoffs).toHaveLength(2);

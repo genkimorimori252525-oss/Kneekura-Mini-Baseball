@@ -61,5 +61,12 @@ export const appendNativeReservedCatchReview = (h: SamePaPhysicalLifecycleSuffix
   const reopened=h.f.x.f.track(openSqliteActualPostPlayReviewStore(h.f.path));
   expect(reopened.readCurrent(session.sourceId)).toEqual(value);expect(accept(reopened.acceptSession(session.sourceId))).toEqual(reopened.readSession(session.sourceId));
   expect(rows()).toBe(saved);
-  return{pin,value,assertHistoricalReplay:()=>{expect(reopened.readCurrent(session.sourceId)).toEqual(value);expect(rows()).toBe(saved);}};
+  return{pin,value,assertHistoricalReplay:nativeReservedCatchReviewReplay(reopened,session,value,rows,saved)};
 };
+
+/** Keep the original historical review assertions shared after a retained release. */
+export const nativeReservedCatchReviewReplay = (
+  reopened: Pick<ReturnType<typeof openSqliteActualPostPlayReviewStore>, 'readCurrent'>,
+  session: Pick<AcceptedActualPostPlayReviewSession, 'sourceId'>,
+  value: NonNullable<ReturnType<typeof reopened.readCurrent>>, rows: () => string, saved: string) =>
+  () => {expect(reopened.readCurrent(session.sourceId)).toEqual(value);expect(rows()).toBe(saved);};

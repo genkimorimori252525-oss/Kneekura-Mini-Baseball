@@ -1,5 +1,7 @@
 # IFN01 final cp35 CatchReview continuation
 
+Historical entry: the [post-transition cp13 release continuation](2026-10-11-ifn01-cp13-release-suffix.md) resumes after this run reached its wall limit with settlement and official transition committed.
+
 The retained cp10 run on local commit `527ec838a703d9a121f4b96858db310817edccc0`
 (public commit `c7928d3c5773604c21bd7b3c35eabb210344d26d`, source subtree
 `25eda7eba860f766be6c6c3cdd99fa2d57ecc921`) genuinely failed after
