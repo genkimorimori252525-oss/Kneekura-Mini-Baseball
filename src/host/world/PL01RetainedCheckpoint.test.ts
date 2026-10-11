@@ -5,13 +5,14 @@ import { join } from 'node:path';
 import { capturePL01RetainedSuffixInput, preparePL01RetainedCheckpoint } from './PL01RetainedCheckpoint.test-support';
 
 const input = () => ({ nativeReleased: true, checkpointGzip: '/private/checkpoint.sqlite.gz', destinationDirectory: '/private/new-suffix' });
-describe('exact PL01 retained input boundary, without opening Native owners', () => {
+describe('exact PL01-R2 cp8 input boundary, without opening Native owners', () => {
   it('rejects unreleased execution before attempting filesystem access', () => {
     expect(() => preparePL01RetainedCheckpoint({ ...input(), nativeReleased: false })).toThrow('reviewed and released');
   });
   it('rejects an injected baseline or alternate result even with otherwise valid controls', () => {
     expect(() => capturePL01RetainedSuffixInput({ ...input(), baseline: {} } as ReturnType<typeof input>)).toThrow('input fields differ');
     expect(() => capturePL01RetainedSuffixInput({ ...input(), desiredCount: { balls: 4, strikes: 2 } } as ReturnType<typeof input>)).toThrow('input fields differ');
+    expect(() => capturePL01RetainedSuffixInput({ ...input(), stage: 'cp173' } as ReturnType<typeof input>)).toThrow('input fields differ');
   });
   it('does not execute caller getters and keeps captured paths independent', () => {
     const source = input(); let invoked = 0;

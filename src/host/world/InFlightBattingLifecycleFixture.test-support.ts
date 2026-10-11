@@ -1,3 +1,11 @@
+import { expect } from 'vitest';
+import type { SQLOutputValue } from 'node:sqlite';
+import { appendNativeBatterCatchHold } from './SamePlateAppearanceBatterCatchNative.test-support';
+import { appendNativeBatterRunCheckpoint } from './SamePlateAppearanceBatterRunNative.test-support';
+import { completeNativeFairCatchTerminal } from './SamePlateAppearanceFairCatchTerminalNative.test-support';
+import type { appendNativeCatchWork } from './SamePlateAppearanceCatchWorkNative.test-support';
+import type { completeNativeCaughtDefenderAdoption } from './SamePlateAppearanceCatchResponseNative.test-support';
+import type { SamePaPhysicalFieldRoot } from './SamePlateAppearancePhysicalEpisode';
 import { SeedRoot } from '../../core/rng/SeedRoot';
 import { applyPitchFatigueToExecution } from '../../core/sim/pitch/PitchFatigueExecution';
 import { inFlightBattingFixtureTiming } from './InFlightBattingFixtureTiming.test-support';
@@ -15,7 +23,7 @@ import { battingEmotionFrame } from './NativeBattingEmotionExecution';
 import { request as emotionFixture } from '../../core/world/psychology/execution/ExecutionFixtures.test-support';
 import type { SamePaLifecyclePrefix, SamePaLifecycleView } from './SamePlateAppearanceLifecycle';
 import type { DurableBattingEmotionExecution } from './NativeBattingEmotionExecution';
-import type { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
+import type { samePaPhysicalLifecycleFixture, SamePaPhysicalLifecycleSuffix } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 import type { SamePaDispatchRoute } from './SamePlateAppearanceDispatchRoles';
 import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import type { DurableBattingInvocationPosture, DurableBattingScoreAssessment } from './NativeBattingPerception';
@@ -339,4 +347,29 @@ export const assertInFlightDecisionRetryFrontier = (input: Readonly<{
   same(pendingPrefix.cut.physicalOperationReference, decisionReference);
   same(completedView.cut.physicalOperationReference, decisionCut.source.previousOperationReference);
   for (const value of [pendingPrefix, completedView, decisionCut]) same(value.lineage, priorPrefix.lineage);
+};
+
+/** Original IFN01 post-response assertions and remaining batter/terminal chain.
+ * Retained execution gets no credit for the earlier, already executed checks. */
+export const completeInFlightBattingFairCatchSuffix = (h: SamePaPhysicalLifecycleSuffix,
+  field: Readonly<{ root: SamePaPhysicalFieldRoot }>, caughtResponse: ReturnType<typeof completeNativeCaughtDefenderAdoption>,
+  caught: Pick<ReturnType<typeof appendNativeCatchWork>, 'work' | 'workReference'>,
+  s: Pick<ReturnType<typeof prepareInFlightBattingSwing>, 'posture' | 'capture' | 'delivery' | 'input' | 'emotion' | 'commitment'>,
+  originalHeads: Record<string, SQLOutputValue>[], stage: (name: string) => void) => {
+  const { f } = h;
+  const batterRun = appendNativeBatterRunCheckpoint(h, field.root, caughtResponse.adopted, s.posture, 'in-flight-fixture:batter-run', 10);
+  const batterHold = appendNativeBatterCatchHold(h, batterRun, caught, 'in-flight-fixture:batter-hold');
+  stage('received-defender-and-batter-adoption-ready');
+
+  expect(f.db.prepare('SELECT * FROM world_player_workload_heads ORDER BY career_id,player_id').all()).toEqual(originalHeads);
+  const reopenedPerception = f.x.f.track(openSqliteBattingPerceptionStore(f.path));
+  const reopenedInput = f.x.f.track(openSqliteBattingExecutionInputStore(f.path));
+  const reopenedEmotion = f.x.f.track(openSqliteBattingEmotionExecutionStore(f.path));
+  expect(reopenedPerception.acceptObservation(s.capture.source.sourceId)).toEqual(s.capture);
+  expect(reopenedPerception.acceptDelivery(s.delivery.source.sourceId)).toEqual(s.delivery);
+  expect(reopenedInput.acceptInput(s.input.source.sourceId)).toEqual(s.input);
+  expect(reopenedEmotion.accept(s.emotion.source.sourceId)).toEqual(s.emotion);
+  expect(h.physical.readOperation(reference('pa_physical_v1_commitments', s.commitment)).record).toEqual(s.commitment);
+  completeNativeFairCatchTerminal(h, field.root, batterHold.moved, batterHold.caught, 'in-flight-fixture:fair-terminal');
+  stage('review-total-scoring-next-batter-complete');
 };

@@ -17,9 +17,9 @@ import type { SamePaTerminalEndpoint } from './SamePlateAppearanceTerminalEndpoi
 import type { AcceptedSamePaLifecycleOutcome } from './SamePlateAppearanceLifecycleOutcome';
 import type { AcceptedSamePaTerminalEndpoint } from './SamePlateAppearanceTerminalEndpoint';
 import type { AcceptedSamePaTerminalTransition } from './SamePlateAppearanceTerminalTransition';
-import type { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
+import type { SamePaPhysicalLifecycleSuffix } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 
-type PhysicalFixture = ReturnType<typeof samePaPhysicalLifecycleFixture>;
+type PhysicalFixture = SamePaPhysicalLifecycleSuffix;
 export type SamePaTerminalCompletionContext = Pick<PhysicalFixture, 'save' | 'accepted'> & Readonly<{
   f: Pick<PhysicalFixture['f'], 'db' | 'path' | 'actor'> & {
     x: { f: Pick<PhysicalFixture['f']['x']['f'], 'track' | 'links'> & {
@@ -32,7 +32,7 @@ export type SamePaTerminalCompletionContext = Pick<PhysicalFixture, 'save' | 'ac
  * original official instructions and reference-only completion Sources. The
  * window/game/setup values reuse the existing explicit official fixtures.
  * No endpoint, workload AFTER, official result or released claim is injected. */
-export const completeSamePaTerminalFixture = (h: ReturnType<typeof samePaPhysicalLifecycleFixture>, label: string,
+export const completeSamePaTerminalFixture = (h: SamePaPhysicalLifecycleSuffix, label: string,
   originalCatchOutcome?: Extract<AcceptedSamePaLifecycleOutcome, { kind: 'fair_catch' }>) => {
   const { f } = h, track = f.x.f.track, cut = h.current(), enrollmentReference = h.original.enrollmentReference;
   if (!originalCatchOutcome && cut.view.cut.timeline.status.kind !== 'walk' && cut.view.cut.timeline.status.kind !== 'strikeout') throw new Error('owned terminal count required');

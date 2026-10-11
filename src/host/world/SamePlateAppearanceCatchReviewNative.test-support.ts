@@ -1,6 +1,6 @@
 import { expect } from 'vitest';
 import { getPlayAdjudicationState } from '../../core/adjudication/PlayAdjudicationLedger';
-import type { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
+import type { SamePaPhysicalLifecycleSuffix } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import type { ActualLiveOfficialPolicy } from './ActualLiveAdjudicationSource';
 import type { SamePaCatchReviewSeedSource } from './SamePlateAppearanceCatchReviewSource';
@@ -14,7 +14,7 @@ import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSql
 /** Append the existing original review journal only after physical generation
  * and every received controller have reached the terminal cut. The seed is
  * rederived by its Native reader; no ledger or end enters accepted input. */
-export const appendNativeReservedCatchReview = (h: ReturnType<typeof samePaPhysicalLifecycleFixture>,
+export const appendNativeReservedCatchReview = (h: SamePaPhysicalLifecycleSuffix,
   catchWorkReference: SamePaReference<'pa_catch_v1_work'>, policy: ActualLiveOfficialPolicy, label: string, schedulerId: string) => {
   const current=h.current(),physicalOperationReference=current.view.cut.physicalOperationReference;
   if(physicalOperationReference.owner!=='pa_physical_v1_field_roots'&&physicalOperationReference.owner!=='pa_physical_v1_field_steps')

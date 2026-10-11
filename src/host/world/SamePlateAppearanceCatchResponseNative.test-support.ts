@@ -1,5 +1,5 @@
 import { expect } from 'vitest';
-import type { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
+import type { samePaPhysicalLifecycleFixture, SamePaPhysicalLifecycleSuffix } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 import type { appendNativePhysicalFieldActions } from './SamePlateAppearancePhysicalFieldActionsNative.test-support';
 import type { appendNativeCatchWork } from './SamePlateAppearanceCatchWorkNative.test-support';
 import type { SamePaPhysicalFieldAction } from './SamePlateAppearancePhysicalFieldAction';
@@ -66,6 +66,18 @@ export const appendNativeCaughtDefenderResponse = (h: ReturnType<typeof samePaPh
   expect(responseResult().replan.selectedAt?.tick).toBe(decisionTick); expect(responseResult().issuedBySourceId).toBe(response.source.sourceId);
   const issuer = response.source.sourceId, movementStartTick = responseResult().replan.scheduling!.movementStartTick!;
   advanceTo(movementStartTick); if (movementStartTick !== decisionTick) resume();
+  return completeNativeCaughtDefenderAdoption(h, field, unavailable, response, issuer, append);
+};
+
+/** Original remaining response/motor assertions after the returned movement-start
+ * response. The normal case and exact retained cut31 entry share this body. */
+export const completeNativeCaughtDefenderAdoption = (h: SamePaPhysicalLifecycleSuffix,
+  field: Pick<ReturnType<typeof appendNativePhysicalFieldActions>, 'playerId'>,
+  unavailable: SamePaPhysicalFieldStep, response: SamePaPhysicalFieldStep, issuer: string,
+  append: (throughTick: number, action?: SamePaPhysicalFieldAction) => SamePaPhysicalFieldStep) => {
+  const member = () => h.current().basis.members.find(m => m.playerId === field.playerId)!;
+  const responseResult = () => { if (response.actionResult?.kind !== 'defender_catch_response_v1') throw new Error('IFN01 real response missing'); return response.actionResult; };
+  const previous = response;
   expect(responseResult().replan.phase).toBe('renewal_due'); expect(responseResult().issuedBySourceId).toBe(issuer);
   const c = h.current().calibrationSet.calibrations.find(c => c.source.member.playerId === field.playerId && c.source.route === 'defender_locomotion')!;
   const adopted = append(previous.evaluationTick + 1, { kind: 'defender_motion_v1', selections: [{ member: member(),

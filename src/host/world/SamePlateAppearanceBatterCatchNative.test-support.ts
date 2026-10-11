@@ -1,5 +1,5 @@
 import { expect } from 'vitest';
-import type { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
+import type { SamePaPhysicalLifecycleSuffix } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 import type { appendNativeCatchWork } from './SamePlateAppearanceCatchWorkNative.test-support';
 import type { appendNativeBatterRunCheckpoint } from './SamePlateAppearanceBatterRunNative.test-support';
 import { openSqliteSamePlateAppearanceCatchWorkStore } from './SamePlateAppearanceCatchWorkFromSqlite';
@@ -11,8 +11,8 @@ import { readSamePaAdmittedLiveWorkFromSqlite } from './SamePlateAppearanceAdmit
 import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
 /** Same original IFN graph. The original reception model already includes the
  * batter; this Source explicitly chooses hold and the field owner executes it. */
-export const appendNativeBatterCatchHold = (h: ReturnType<typeof samePaPhysicalLifecycleFixture>, run: ReturnType<typeof appendNativeBatterRunCheckpoint>,
-  caught: ReturnType<typeof appendNativeCatchWork>, label: string) => {
+export const appendNativeBatterCatchHold = (h: SamePaPhysicalLifecycleSuffix, run: ReturnType<typeof appendNativeBatterRunCheckpoint>,
+  caught: Pick<ReturnType<typeof appendNativeCatchWork>, 'work' | 'workReference'>, label: string) => {
   const previous=run.moved,cut=h.current(),model=caught.work.originalInputs.model;
   if(!model)throw new Error('IFN01 batter hold original reception model missing');
   const communication=h.save({...caught.work.originalInputs.source,sourceId:label+':communication',viewReference:cut.viewReference});

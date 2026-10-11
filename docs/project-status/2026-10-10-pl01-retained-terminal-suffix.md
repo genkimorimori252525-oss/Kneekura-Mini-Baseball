@@ -1,5 +1,10 @@
 # PL01 retained terminal suffix
 
+Historical cp173 contract: published commit
+`d6dfd095dd6c59fd195484394d1be21e0705dfdc`. The existing exact entry has since
+advanced to cp8; see [the remaining occupied suffix](2026-10-11-pl01-cp8-occupied-suffix.md).
+The text below records the earlier contract and author checks.
+
 This is a test-support entry for exactly the returned-owner checkpoint 173 of
 PL01, observed after settlement `freeze` call 179. It does not create a generic
 recovery API or change a production owner.

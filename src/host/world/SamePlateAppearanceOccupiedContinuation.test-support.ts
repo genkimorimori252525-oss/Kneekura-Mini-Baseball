@@ -42,9 +42,8 @@ type OccupiedContext<F extends SamePaOccupiedWalkBase> = Pick<PhysicalFixture, '
  * is a separately accepted synthetic Source using the existing body/batting,
  * runner and dispatch recipes. No archive, state, pitch or count is transplanted.
  * This helper is authored for the parent's single combined Native run. */
-export const continueSamePaOccupiedWalkFixture = <F extends SamePaOccupiedWalkBase>(h: OccupiedContext<F>,
-  completed: ReturnType<typeof completeSamePaTerminalFixture>, label: string,
-  options: Readonly<{ initialPlay?: SamePaInitialPlayFixtureInputs }> = {}) => {
+const prepareSamePaOccupiedWalkFixture = <F extends SamePaOccupiedWalkBase>(h: OccupiedContext<F>,
+  completed: ReturnType<typeof completeSamePaTerminalFixture>, label: string) => {
   const { f } = h, { db, path } = f, track = f.x.f.track;
   if (!('activation' in completed.transition.official)) throw new Error('occupied fixture needs the real continuing transition');
   const activation = completed.transition.official.activation;
@@ -121,6 +120,23 @@ export const continueSamePaOccupiedWalkFixture = <F extends SamePaOccupiedWalkBa
   // The ten prior participants retain their real settled AFTER. Only the new
   // batter may need a baseline, using the existing explicit fixture policy.
   for (const p of completed.settled.participants) expect(readActualRoleWorkloadState(db,actor.binding.careerId,p.playerId)).toEqual(p.projectedState);
+  return { actor, originals, officialBefore, accepted, save, scope, body, pose, bodyResult, bodyOwner, requests, bodies, poses,
+    capability, repertoire, decision, equipment, observation, prediction, modelSource, authority,
+    models, capabilities, repertoires, decisions, equipments, observations, predictions, modelStore, batting,
+    runnerBinding, runnerBody, runnerModel };
+};
+export type SamePaPreparedOccupiedWalkFixture = ReturnType<typeof prepareSamePaOccupiedWalkFixture>;
+
+/** The exact original tail beginning at the new-batter baseline. Retained cp8
+ * supplies only authenticated accepted owners and fixture maps to this seam. */
+export const continueSamePaOccupiedWalkFromBaselineFixture = <F extends SamePaOccupiedWalkBase>(h: OccupiedContext<F>,
+  completed: ReturnType<typeof completeSamePaTerminalFixture>, label: string, prepared: SamePaPreparedOccupiedWalkFixture,
+  options: Readonly<{ initialPlay?: SamePaInitialPlayFixtureInputs }> = {}) => {
+  const { f } = h, { db, path } = f, track = f.x.f.track;
+  const { actor, originals, officialBefore, accepted, save, scope, body, pose, bodyResult, bodyOwner, requests, bodies, poses,
+    capability, repertoire, decision, equipment, observation, prediction, modelSource, authority,
+    models, capabilities, repertoires, decisions, equipments, observations, predictions, modelStore, batting,
+    runnerBinding, runnerBody, runnerModel } = prepared;
   if (!readActualRoleWorkloadState(db,actor.binding.careerId,actor.binding.playerId,undefined,actor.binding.personLinkSourceId)) {
     const baseline = {...f.x.f.baseline,sourceId:label+':new-batter-baseline',playerId:actor.binding.playerId,personLinkSourceId:actor.binding.personLinkSourceId};
     track(openSqlitePlayerWorkloadRecoveryStore(path,f.x.f.links,{readAcceptedBaseline:id=>id===baseline.sourceId?baseline:null,readAcceptedActivity:()=>null})).initialize(baseline.sourceId);
@@ -234,6 +250,12 @@ export const continueSamePaOccupiedWalkFixture = <F extends SamePaOccupiedWalkBa
     f:{...fixture,dispatch:reopened},accepted,save,originals,roles,sceneBodyReferences,batting,runnerBody:runnerBody.value,runnerModel,
     ...(initialPlay===null?{}:{initialPlay})};
 };
+
+/** Fresh PL01 still prepares its original actor/models and then uses the same tail. */
+export const continueSamePaOccupiedWalkFixture = <F extends SamePaOccupiedWalkBase>(h: OccupiedContext<F>,
+  completed: ReturnType<typeof completeSamePaTerminalFixture>, label: string,
+  options: Readonly<{ initialPlay?: SamePaInitialPlayFixtureInputs }> = {}) =>
+  continueSamePaOccupiedWalkFromBaselineFixture(h, completed, label, prepareSamePaOccupiedWalkFixture(h, completed, label), options);
 
 /** PL01's original post-terminal assertions, shared with its retained suffix. */
 export const finishSamePaPhysicalWalkFixture = <F extends SamePaOccupiedWalkBase>(h: OccupiedContext<F>,

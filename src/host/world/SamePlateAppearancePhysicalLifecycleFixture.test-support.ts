@@ -138,3 +138,16 @@ export const prepareSamePaPhysicalLifecycleContinuation = (
     actionReference:prepared.actionReference,rightReference:prepared.rightReference});const op=physical.acceptOperation(prepared.action.physicalPitchSourceId);if(op.kind!=='same_pa_physical_launch_v1')throw new Error('real later launch pending');advance(reference('pa_physical_v1_launches',op));return op;};
   return {f,accepted,save,first,second,anchor,events,current,advance,physical,prepareAction,preparePosture,prepareRight,launch,sceneBodyReferences,geometry,original,efforts,genesis,worldOwner,close:f.close};
 };
+
+/** The existing same-PA field/terminal helpers need only these original owners.
+ * Reopening an admitted boundary never fabricates the earlier fixture return. */
+type PhysicalLifecycleFixture = ReturnType<typeof samePaPhysicalLifecycleFixture>;
+export type SamePaPhysicalLifecycleSuffix = Pick<PhysicalLifecycleFixture, 'save' | 'accepted' | 'current' | 'advance' | 'physical' | 'original'> & {
+  f: Pick<PhysicalLifecycleFixture['f'], 'db' | 'path' | 'actor'> & {
+    x: Pick<PhysicalLifecycleFixture['f']['x'], 'accepted' | 'actors' | 'sources'> & {
+      f: Pick<PhysicalLifecycleFixture['f']['x']['f'], 'track' | 'links'> & {
+        firstInput: Pick<PhysicalLifecycleFixture['f']['x']['f']['firstInput'], 'worldSetup'>;
+      };
+    };
+  };
+};

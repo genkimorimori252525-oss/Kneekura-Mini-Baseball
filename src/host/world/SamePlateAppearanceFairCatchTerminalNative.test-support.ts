@@ -1,6 +1,6 @@
 import { appendNativeReservedCatchReview } from './SamePlateAppearanceCatchReviewNative.test-support';
 import { expect } from 'vitest';
-import type { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
+import type { SamePaPhysicalLifecycleSuffix } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 import type { SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep, SamePaPhysicalFieldStepSource } from './SamePlateAppearancePhysicalEpisode';
 import type { appendNativeCatchWork } from './SamePlateAppearanceCatchWorkNative.test-support';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
@@ -17,8 +17,8 @@ import type { AcceptedSamePaLifecycleOutcome } from './SamePlateAppearanceLifecy
 
 /** Continue IFN01's original Native graph. No field, end, controller-completion
  * receipt, workload AFTER, official result or scoring record is supplied here. */
-export const completeNativeFairCatchTerminal = (h: ReturnType<typeof samePaPhysicalLifecycleFixture>, root: SamePaPhysicalFieldRoot,
-  previous: SamePaPhysicalFieldStep, caught: ReturnType<typeof appendNativeCatchWork>, label: string) => {
+export const completeNativeFairCatchTerminal = (h: SamePaPhysicalLifecycleSuffix, root: SamePaPhysicalFieldRoot,
+  previous: SamePaPhysicalFieldStep, caught: Pick<ReturnType<typeof appendNativeCatchWork>, 'work' | 'workReference'>, label: string) => {
   const { f } = h, track = f.x.f.track, before = h.current();
   const originalRule = withSqliteReadTransaction(f.db, () => readSamePaFieldRuleEvidenceFromSqlite(f.db, before.viewReference, 'current'));
   if (originalRule.kind !== 'same_pa_field_rule_evidence_v1' || originalRule.fairCatch.kind !== 'same_pa_fair_catch_rule_basis_v1')

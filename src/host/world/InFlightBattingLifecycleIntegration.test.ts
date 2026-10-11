@@ -1,16 +1,13 @@
-import { appendNativeBatterCatchHold } from './SamePlateAppearanceBatterCatchNative.test-support';
 import { appendFileSync } from 'node:fs';
 import { expect, it } from 'vitest';
 import { readSamePaFieldRuleEvidenceFromSqlite } from './SamePlateAppearanceFieldRuleEvidenceFromSqlite';
 import { readSamePaLiveWorkFromSqlite } from './SamePlateAppearanceLiveWorkFromSqlite';
 import { appendNativeCatchWork } from './SamePlateAppearanceCatchWorkNative.test-support';
-import { appendNativeBatterRunCheckpoint } from './SamePlateAppearanceBatterRunNative.test-support';
 import { appendNativeCaughtDefenderResponse } from './SamePlateAppearanceCatchResponseNative.test-support';
-import { completeNativeFairCatchTerminal } from './SamePlateAppearanceFairCatchTerminalNative.test-support';
 import { NPB_2026_RULE_PROFILE } from '../../core/rules/RuleProfile';
 import { REFERENCE_BASEBALL_AERODYNAMICS } from '../../core/sim/ball/BaseballAerodynamics';
 import { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
-import { prepareInFlightBattingSwing } from './InFlightBattingLifecycleFixture.test-support';
+import { prepareInFlightBattingSwing, completeInFlightBattingFairCatchSuffix } from './InFlightBattingLifecycleFixture.test-support';
 import { appendNativePhysicalFieldActions } from './SamePlateAppearancePhysicalFieldActionsNative.test-support';
 import { prepareNativePhysicalThrowCalibration } from './SamePlateAppearancePhysicalThrowNative.test-support';
 import { physicalThrowSceneFixture } from './SamePlateAppearancePhysicalThrowScene.test-support';
@@ -18,10 +15,7 @@ import { appendNativePhysicalThrowReception } from './SamePlateAppearancePhysica
 import { prepareFreshPhysicalFieldFixture } from './SamePlateAppearancePhysicalFieldFixture.test-support';
 import { dispatchCalibrationValues } from './SamePlateAppearanceDispatchCalibration.test-support';
 import { actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
-import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
-import { openSqliteBattingPerceptionStore } from './SqliteBattingPerceptionStore';
-import { openSqliteBattingExecutionInputStore, readCurrentSamePaBattingExecutionInputFromSqlite } from './SqliteBattingExecutionInputStore';
-import { openSqliteBattingEmotionExecutionStore } from './SqliteBattingEmotionExecutionStore';
+import { readCurrentSamePaBattingExecutionInputFromSqlite } from './SqliteBattingExecutionInputStore';
 import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
 
 /** One real Native scenario for the integrated batch. The exact-observation
@@ -179,20 +173,6 @@ it('IFN01 original swing, secured fair catch, received response and exact physic
     // eight receipts future. The Core reception calculation owns that result.
     const caught = appendNativeCatchWork(h, fieldActions, 'in-flight-fixture:catch-information', { otherRecipientDelayTicks: 1_000_000, batterRecipientDelayTicks: 0 });
     const caughtResponse = appendNativeCaughtDefenderResponse(h, fieldActions, caught, 'in-flight-fixture:catch-response');
-    const batterRun = appendNativeBatterRunCheckpoint(h, field.root, caughtResponse.adopted, s.posture, 'in-flight-fixture:batter-run', 10);
-    const batterHold = appendNativeBatterCatchHold(h, batterRun, caught, 'in-flight-fixture:batter-hold');
-    stage('received-defender-and-batter-adoption-ready');
-
-    expect(f.db.prepare('SELECT * FROM world_player_workload_heads ORDER BY career_id,player_id').all()).toEqual(originalHeads);
-    const reopenedPerception = f.x.f.track(openSqliteBattingPerceptionStore(f.path));
-    const reopenedInput = f.x.f.track(openSqliteBattingExecutionInputStore(f.path));
-    const reopenedEmotion = f.x.f.track(openSqliteBattingEmotionExecutionStore(f.path));
-    expect(reopenedPerception.acceptObservation(s.capture.source.sourceId)).toEqual(s.capture);
-    expect(reopenedPerception.acceptDelivery(s.delivery.source.sourceId)).toEqual(s.delivery);
-    expect(reopenedInput.acceptInput(s.input.source.sourceId)).toEqual(s.input);
-    expect(reopenedEmotion.accept(s.emotion.source.sourceId)).toEqual(s.emotion);
-    expect(h.physical.readOperation(reference('pa_physical_v1_commitments', s.commitment)).record).toEqual(s.commitment);
-    completeNativeFairCatchTerminal(h, field.root, batterHold.moved, batterHold.caught, 'in-flight-fixture:fair-terminal');
-    stage('review-total-scoring-next-batter-complete');
+    completeInFlightBattingFairCatchSuffix(h, field, caughtResponse, caught, s, originalHeads, stage);
   } finally { h.close(); }
 }, 1_200_000);

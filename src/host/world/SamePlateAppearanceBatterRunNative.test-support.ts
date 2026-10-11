@@ -1,5 +1,5 @@
 import { expect } from 'vitest';
-import type { samePaPhysicalLifecycleFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
+import type { SamePaPhysicalLifecycleSuffix } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 import type { SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep, SamePaPhysicalFieldStepSource } from './SamePlateAppearancePhysicalEpisode';
 import type { DurableBattingInvocationPosture } from './NativeBattingPerception';
 import { samplePiecewiseFieldActor } from '../../core/sim/ball/BattedWorldPiecewiseFieldMotion';
@@ -19,7 +19,7 @@ import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support'
  * declarations reuse explicit runner/recovery fixtures. The separately accepted
  * aligned facing and advance intention are synthetic inputs, never deductions
  * from the swing, bat axis or contact outcome. No foreign command is renewed. */
-export const appendNativeBatterRunCheckpoint = (h: ReturnType<typeof samePaPhysicalLifecycleFixture>, root: SamePaPhysicalFieldRoot,
+export const appendNativeBatterRunCheckpoint = (h: SamePaPhysicalLifecycleSuffix, root: SamePaPhysicalFieldRoot,
   previous: SamePaPhysicalFieldStep, posture: DurableBattingInvocationPosture, label: string, advanceTicks = 1) => {
   const { f } = h, binding = f.actor.binding, track = f.x.f.track, moment = previous.field.motion.world.moment;
   const throughTick = previous.evaluationTick + advanceTicks, endTick = throughTick + 1;
