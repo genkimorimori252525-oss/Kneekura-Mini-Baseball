@@ -127,16 +127,13 @@ const prepareSamePaOccupiedWalkFixture = <F extends SamePaOccupiedWalkBase>(h: O
 };
 export type SamePaPreparedOccupiedWalkFixture = ReturnType<typeof prepareSamePaOccupiedWalkFixture>;
 
-/** The exact original tail beginning at the new-batter baseline. Retained cp8
- * supplies only authenticated accepted owners and fixture maps to this seam. */
+/** The original tail beginning at the new-batter baseline. Fresh fixtures
+ * still perform every original acceptance before sharing the post-right tail. */
 export const continueSamePaOccupiedWalkFromBaselineFixture = <F extends SamePaOccupiedWalkBase>(h: OccupiedContext<F>,
   completed: ReturnType<typeof completeSamePaTerminalFixture>, label: string, prepared: SamePaPreparedOccupiedWalkFixture,
   options: Readonly<{ initialPlay?: SamePaInitialPlayFixtureInputs }> = {}) => {
   const { f } = h, { db, path } = f, track = f.x.f.track;
-  const { actor, originals, officialBefore, accepted, save, scope, body, pose, bodyResult, bodyOwner, requests, bodies, poses,
-    capability, repertoire, decision, equipment, observation, prediction, modelSource, authority,
-    models, capabilities, repertoires, decisions, equipments, observations, predictions, modelStore, batting,
-    runnerBinding, runnerBody, runnerModel } = prepared;
+  const { actor, originals, accepted, save, batting, runnerBinding, runnerBody, runnerModel } = prepared;
   if (!readActualRoleWorkloadState(db,actor.binding.careerId,actor.binding.playerId,undefined,actor.binding.personLinkSourceId)) {
     const baseline = {...f.x.f.baseline,sourceId:label+':new-batter-baseline',playerId:actor.binding.playerId,personLinkSourceId:actor.binding.personLinkSourceId};
     track(openSqlitePlayerWorkloadRecoveryStore(path,f.x.f.links,{readAcceptedBaseline:id=>id===baseline.sourceId?baseline:null,readAcceptedActivity:()=>null})).initialize(baseline.sourceId);
@@ -210,6 +207,37 @@ export const continueSamePaOccupiedWalkFromBaselineFixture = <F extends SamePaOc
   const rightSource=save({...base,sourceId:label+':right',capability:'same_pa_first_pitch_right_v1',actionReference,consumerSetReference,
     episodeReference:reference('pa_dispatch_v1_episodes',episode),prefixReference:view.source.prefixReference});
   const right=dispatch.acceptRight(rightSource.sourceId);if(right.kind!=='immutable_right_prepared')throw new Error('occupied fixture first right pending');
+  return completeSamePaOccupiedWalkFromRightFixture(h, label, prepared,
+    { enrollment, prefix, view, hold, roles, dispatch, action, calibrations, consumers, episode, right }, options);
+};
+
+type OccupiedDispatchStore = ReturnType<typeof openSqliteSamePlateAppearanceDispatchStore>;
+export type SamePaOccupiedRightFixture = Readonly<{
+  enrollment: import('./SamePlateAppearanceEnrollment').ReservedSamePlateAppearanceEnrollment;
+  prefix: import('./SamePlateAppearanceWorkPrefix').SamePaEmptyWorkPrefix;
+  view: import('./SamePlateAppearanceExecutionView').SamePaExecutionView;
+  hold: import('./SqliteSamePlateAppearanceOccupiedRunnerHoldStore').DurableSamePaOccupiedRunnerHold;
+  roles: ReturnType<typeof deriveSamePaDispatchRoles>;
+  dispatch: OccupiedDispatchStore;
+  action: NonNullable<ReturnType<OccupiedDispatchStore['readAction']>>;
+  calibrations: import('./SamePlateAppearanceDispatchRecords').SamePaCalibrationSet;
+  consumers: NonNullable<ReturnType<OccupiedDispatchStore['readConsumerSet']>>;
+  episode: NonNullable<ReturnType<OccupiedDispatchStore['readEpisode']>>;
+  right: NonNullable<ReturnType<OccupiedDispatchStore['readRight']>>;
+}>;
+
+/** Exact remaining original body after accepted first-pitch right. Recovered
+ * owners enter here without replaying baseline/enrollment/dispatch writers. */
+export const completeSamePaOccupiedWalkFromRightFixture = <F extends SamePaOccupiedWalkBase>(h: OccupiedContext<F>,
+  label: string, prepared: SamePaPreparedOccupiedWalkFixture, admitted: SamePaOccupiedRightFixture,
+  options: Readonly<{ initialPlay?: SamePaInitialPlayFixtureInputs }> = {}) => {
+  const { f } = h, { db, path } = f, track = f.x.f.track;
+  const { actor, originals, officialBefore, accepted, save, scope, body, pose, bodyResult, bodyOwner, requests, bodies, poses,
+    capability, repertoire, decision, equipment, observation, prediction, modelSource, authority,
+    models, capabilities, repertoires, decisions, equipments, observations, predictions, modelStore, batting,
+    runnerBinding, runnerBody, runnerModel } = prepared;
+  const { enrollment, prefix, view, hold, roles, dispatch, action, calibrations, consumers, episode, right } = admitted;
+  const actionReference = reference('pa_dispatch_v1_action_plans', action), base = action.source;
   const pitchCalibration = calibrations.calibrations.find(c=>c.source.route==='pitch_delivery')!;
   // This is only a fixture composition. All actor/model/view/calibration records
   // are the unchanged values returned by their owners above. The original

@@ -1,3 +1,4 @@
+import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
 import { flight } from '../../core/world/psychology/batting/BattingFixtures.test-support';
 import { policy } from '../../core/world/psychology/EmotionFixtures.test-support';
 import { directNativeDispatchFixture } from './SamePlateAppearanceDirectNative.test-support';
@@ -89,11 +90,13 @@ export const prepareSamePaPhysicalLifecycleContinuation = <F extends SamePaPhysi
     explicitDefenderLocomotion?: PlayerLocomotionCalibration }> = {}, label = 'physical-fixture') => {
   const track = f.x.f.track, original = f.acceptedAction.source;
   const save = <T extends { sourceId: string }>(source: T): T => { accepted.set(source.sourceId, source); return source; };
-  const originals = f.actor.world.runners.length ? readSamePaOriginalParticipants(f.db, f.actor) : undefined;
-  const roles = deriveSamePaDispatchRoles(f.actor, f.view, originals);
   const holdReferences = original.occupiedRunnerHoldReferences;
-  const throughTick = Math.min(Infinity, ...(holdReferences ?? [])
-    .map(pin => readSamePaOccupiedRunnerHoldFromSqlite(f.db, pin).source.coverageThroughTick));
+  const { originals, throughTick } = withSqliteReadTransaction(f.db, () => ({
+    originals: f.actor.world.runners.length ? readSamePaOriginalParticipants(f.db, f.actor) : undefined,
+    throughTick: Math.min(Infinity, ...(holdReferences ?? [])
+      .map(pin => readSamePaOccupiedRunnerHoldFromSqlite(f.db, pin).source.coverageThroughTick)),
+  }));
+  const roles = deriveSamePaDispatchRoles(f.actor, f.view, originals);
   const occupiedPosture = holdReferences === undefined ? {} : { occupiedRunnerHoldReferences: holdReferences };
   // The same explicit cumulative effort2 declaration used by the prior Native
   // fixture is supplied independently for every original participant at each cut.

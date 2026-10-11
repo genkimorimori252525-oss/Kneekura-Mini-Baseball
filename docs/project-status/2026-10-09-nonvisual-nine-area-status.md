@@ -2,7 +2,9 @@
 
 範囲は[PR340保存時の正本 §5](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/blob/6509e61f2474cc6bcfadda129f4b3c9621855c2c/docs/project-status/2026-10-04-nonvisual-implementation-checkpoint.md#5-残る確定済み非デザイン計画)を維持する。UI/design、新arsenal、未承認の数値モデルは含めない。以下は現在のコード・実証・仕様判断の入口であり、[従来の詳細な実行履歴](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/blob/91cd3035f8d8309eaafae34f44f312fd2e86759a/docs/project-status/2026-10-09-nonvisual-nine-area-status.md)を置き換えて成功へ読み替えるものではない。
 
-現在の統合src treeは `25eda7eba860f766be6c6c3cdd99fa2d57ecc921`。dispatchの1回のquery-only proofへ既存のcontinuation read phaseを適用し、enrollmentと直後のguardが同じ原本を再認証する重複を除いた。書込み・callback・commit・retry境界を維持する最小変更で、独立review CLEAR、compiler35.416秒と関連17件／4 files78.338秒がPASS。最初の27件選択の180秒cap失敗は保持する。実時間の改善量は未測定。[保存された実進行と検証](2026-10-10-terminal-proof-recovery.md#dispatch-proof-lifetime-and-continued-original-execution)。
+現在の統合src treeは `e5380afb413a5afae2bd4880ab47a5474c990f24`。LANの初期Playと後続2球目で、occupied holdを必要なquery-only transactionの外から読んでいたfixtureを同じまとまりで修正した。実受理済みrightまでのcp11を認証し、その後の元の処理だけを続ける入口と合わせて一括review CLEAR、compiler32.717秒と11件／3 files6.752秒がPASS。初回compilerの型エラーは保持し、既存型で修正した。元の後半15 assertionsとLAN callbackは同一で、genuine残処理は未実行。[失敗境界・修正・検証](2026-10-11-lan01-cp11-initial-play-suffix.md)。
+
+前の統合src treeは `25eda7eba860f766be6c6c3cdd99fa2d57ecc921`。dispatchの1回のquery-only proofへ既存のcontinuation read phaseを適用し、enrollmentと直後のguardが同じ原本を再認証する重複を除いた。書込み・callback・commit・retry境界を維持する最小変更で、独立review CLEAR、compiler35.416秒と関連17件／4 files78.338秒がPASS。最初の27件選択の180秒cap失敗は保持する。実時間の改善量は未測定。[保存された実進行と検証](2026-10-10-terminal-proof-recovery.md#dispatch-proof-lifetime-and-continued-original-execution)。
 
 直前の統合src treeは `3a3fd7e273694796e4db7e3971ceb021215533f7`。打者走行の欠落原本確認が別ownerの送球planReferenceを誤認する3分岐を修正し、参照内のownerとsourceIdを同時に照合する。実受理済みexit-stateを保持するIFN cp10入口と合わせ、独立review CLEAR、修正後の全compiler31.202秒と関連45件／7 files8.167秒がPASS。初回compilerの型不整合は保持し、元32経路の明示検査を加えて修正した。[修正・失敗履歴・検証](2026-10-10-terminal-proof-recovery.md#typed-batter-plan-claims-and-exact-ifn-cp10-batch)。
 
@@ -10,7 +12,7 @@
 
 以前の通常claim修正srcは `e5f3ed76710da25007774d59ba7ce661614f39b1`。通常のworkload予約確認でも既存の1確認内のimmutable読み取りを再利用し、同じenrollmentの完了release原本を共有する最小修正を接続した。一括review CLEAR、全compiler31.794秒、関連71件／6 files183.415秒がPASS。4個の独立assertionとcallback・書込み・retryごとの再認証を保持する。復元回数の減少は時間性能の証明とは扱わない。[通常claim修正と実証境界](2026-10-10-terminal-proof-recovery.md#ordinary-workload-reservation-release-proof-scope)。
 
-元FR01のfresh caseは全体PASS。Nationalは保存済み裁定境界から元37 assertionの保持続行がPASSし、旧fresh failedは別に保持する。修正版IFNは固定 `e6de9bb3` でcatch-response7、cut32一式、走者/recovery modelとexit-stateまで実commit後、次のplan store openで3,022.982秒の機能failed。cp10からplan受理以降だけを続ける修正版入口が検証済みで、実行は待機中。PLは固定 `4d452cea` で元11人enrollmentとoccupied prefixがcommitし、TOTAL以降を実行中。LANも同じ固定sourceで新打者baselineがcommitし、enrollment以降を実行中。旧失敗と各保存点は保持する。[正確なsource帰属と実結果](2026-10-10-terminal-proof-recovery.md)を参照し、異なるsourceや部分結果を足して全体PASSとはしない。
+元FR01のfresh caseは全体PASS。Nationalは保存済み裁定境界から元37 assertionの保持続行がPASSし、旧fresh failedは別に保持する。IFNの固定 `e6de9bb3` の機能failed後、固定 `c7928d3c` 相当のsourceでcp10から続行し、05:06 UTC時点で元の打者走行planとcut33 prefix/TOTAL/viewまで実commitした。motor以降の全体結果は未完。PLは固定 `4d452cea` で元11人enrollmentからoccupied rightまでcommitし、最初のoccupied投球が未返却。LANは同じ固定sourceでrightまで11 writer callsがcommit後、初期Playのfixture readで9,955.857秒の機能failed。初期Playと投球は未実行で、cp11からの修正済み入口が次の実行対象。旧失敗と各保存点は保持する。[正確なsource帰属と実結果](2026-10-10-terminal-proof-recovery.md)を参照し、異なるsourceや部分結果を足して全体PASSとはしない。
 
 1. **統合・archive互換** — 各owner、保存履歴、practice/能力/Manager、実接触/foul、同一PAと終端・成績の接続は一括review・compiler・関連検証済み。残るのはcurrent whole/archiveと元full Positiveの完了証拠。旧TODOだけを根拠に接続済みAPIを再実装しない。[統合記録](2026-10-10-native-continuation-batch.md#consolidated-verification)
 

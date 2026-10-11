@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { existsSync, readFileSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -5,7 +6,7 @@ import { join } from 'node:path';
 import { captureLAN01RetainedSuffixInput, prepareLAN01RetainedCheckpoint } from './LAN01RetainedCheckpoint.test-support';
 
 const input = () => ({ nativeReleased: true, checkpointGzip: '/private/checkpoint.sqlite.gz', destinationDirectory: '/private/new-suffix' });
-describe('exact LAN01-R1 cp181 input boundary, without opening Native owners', () => {
+describe('exact LAN01-R2 cp11 input boundary, without opening Native owners', () => {
   it('rejects unreleased execution before attempting filesystem access', () => {
     expect(() => prepareLAN01RetainedCheckpoint({ ...input(), nativeReleased: false })).toThrow('reviewed and released');
   });
@@ -49,3 +50,13 @@ it('loads the exact remaining entry without invoking Native owners', async () =>
   const entry = await import('./LAN01RetainedOriginalSuffix.test-support');
   expect(typeof entry.runLAN01RetainedOriginalSuffix).toBe('function');
 }, 30_000);
+
+it('retains the exact original post-right body for fresh and retained occupied callers', () => {
+  const source = readFileSync(new URL('./SamePlateAppearanceOccupiedContinuation.test-support.ts', import.meta.url), 'utf8');
+  const start = "  const pitchCalibration = calibrations.calibrations.find(c=>c.source.route==='pitch_delivery')!;";
+  const tail = source.slice(source.indexOf(start), source.indexOf('\n};\n\n/** Fresh PL01'));
+  // Original body at 527ec838, before extraction; includes every first-TAKE,
+  // held-window, unchanged-Match and retry/reopen assertion in its original order.
+  expect(createHash('sha256').update(tail).digest('hex')).toBe('cabfc0599002da8d4a887fb6406df978ae4461c7a6400588f4dcc3681239a591');
+  expect(tail.match(/\bexpect\(/g)).toHaveLength(15);
+});

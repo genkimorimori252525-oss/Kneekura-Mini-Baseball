@@ -1,5 +1,9 @@
 # LAN01-R1: exact original remainder from cp181
 
+This is the historical cp181 contract and its original qualification. The
+current single retained entry has advanced after LAN01-R1 failed at the initial
+Play read; see [LAN01-R2 cp11](2026-10-11-lan01-cp11-initial-play-suffix.md).
+
 The original LAN01 run on `d47512d8517f3ac5c502b8e6af9b543cc58a84c6`
 (source tree `e5f3ed76710da25007774d59ba7ce661614f39b1`) failed functionally
 after 4,558.949 seconds. It completed the genuine walk, ten-participant

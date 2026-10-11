@@ -1,3 +1,4 @@
+import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
 import { composeDefenderPhysicalPrimitiveSegment } from '../../core/sim/fielding/DefenderPhysicalPrimitive';
 import { continuousPitchMoundReference } from './ContinuousPitchFixtures.test-support';
 import { worldSetup } from './OfficialParticipationPlayFixtures.test-support';
@@ -44,10 +45,12 @@ export const prepareSamePaInitialPlayFixture = (f: InitialPlayFixtureContext,
   const get = (id: string) => accepted.get(id), track = f.x.f.track, original = f.acceptedAction.source;
   const at = f.actor.world.tick, readyAtUs = original.nominalPitch.delivery.readyAtUs;
   const holdReferences = original.occupiedRunnerHoldReferences;
-  const validUntilTick = Math.min(readyAtUs + 20_000_000, ...(holdReferences ?? [])
-    .map(pin => readSamePaOccupiedRunnerHoldFromSqlite(f.db, pin).source.coverageThroughTick));
+  const { validUntilTick, originals } = withSqliteReadTransaction(f.db, () => ({
+    validUntilTick: Math.min(readyAtUs + 20_000_000, ...(holdReferences ?? [])
+      .map(pin => readSamePaOccupiedRunnerHoldFromSqlite(f.db, pin).source.coverageThroughTick)),
+    originals: f.actor.world.runners.length ? readSamePaOriginalParticipants(f.db, f.actor) : undefined,
+  }));
   const perception = track(openSqliteBattingPerceptionStore(f.path, { readAcceptedPosture: get }));
-  const originals = f.actor.world.runners.length ? readSamePaOriginalParticipants(f.db, f.actor) : undefined;
   const postureSource: AcceptedBattingInvocationPosture = save({ sourceId: label + ':initial-posture', sourceVersion: 'fixture-only-v1',
     capability: 'owned_batting_invocation_posture_v1', viewReference: original.viewReference,
     member: deriveSamePaDispatchRoles(f.actor, f.view, originals)[0].member, actionReference: f.request.actionReference,
