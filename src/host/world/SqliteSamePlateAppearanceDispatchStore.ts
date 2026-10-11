@@ -7,6 +7,7 @@ import type { DatabaseSync } from 'node:sqlite';
 import { randomUUID } from 'node:crypto';
 import { actorHash as hash, actorJson as json, actorFreeze as freeze, readPhysicalPlateAppearanceActorFromSqlite, assertPhysicalActorOpenFrame, type DurablePhysicalPlateAppearanceActor } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
+import { withSamePaContinuationReadPhase } from './SamePlateAppearanceContinuationFromSqlite';
 import { paDispatchSchema, assertPaDispatchStorage } from './SamePlateAppearanceDispatchStorage';
 import { samePaDispatchSourceInput, assertSamePaDispatchSourceBasis, type SamePaDispatchBase, type AcceptedSamePaFirstPitchAction, type AcceptedSamePaExecutionCalibration, type AcceptedSamePaPhysicalPitch } from './SamePlateAppearanceDispatchSource';
 import { deriveSamePaDispatchRoles, samePaDispatchPrerequisites, type SamePaDispatchRoleBinding, type SamePaDispatchRoute } from './SamePlateAppearanceDispatchRoles';
@@ -92,7 +93,7 @@ const createSqliteSamePlateAppearanceDispatchOwner = (path: string, authority?: 
     const identityCheck = () => { if (!db.isTransaction || setting() !== originalSetting) throw new Error('same-PA dispatch transaction or setting changed');
       try { db.exec('RELEASE ' + identity); identityReady = false; db.exec('SAVEPOINT ' + identity); identityReady = true; } catch (e) { uncertain = true; throw e; } };
     const proof = <R>(fn: () => R): R => { identityCheck(); account(); schemaMemo = null; db.exec('PRAGMA query_only=1');
-      try { const value = withBattedWorldPhysicalReadTraversal(db, fn); if (!db.isTransaction || setting() !== 1) throw new Error('same-PA dispatch proof transaction changed'); account(); return value; }
+      try { const value = withBattedWorldPhysicalReadTraversal(db, () => withSamePaContinuationReadPhase(db, fn)); if (!db.isTransaction || setting() !== 1) throw new Error('same-PA dispatch proof transaction changed'); account(); return value; }
       finally { schemaMemo = null; db.exec('PRAGMA query_only=' + originalSetting); identityCheck(); account(); } };
     const step = (fn: () => void, rows: number, schemas = 0) => { identityCheck(); account(); fn(); expected = { ...expected, changes: expected.changes + rows, main: expected.main + schemas }; identityCheck(); account(); };
     try {

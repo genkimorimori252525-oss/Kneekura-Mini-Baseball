@@ -2,7 +2,9 @@
 
 範囲は[PR340保存時の正本 §5](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/blob/6509e61f2474cc6bcfadda129f4b3c9621855c2c/docs/project-status/2026-10-04-nonvisual-implementation-checkpoint.md#5-残る確定済み非デザイン計画)を維持する。UI/design、新arsenal、未承認の数値モデルは含めない。以下は現在のコード・実証・仕様判断の入口であり、[従来の詳細な実行履歴](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/blob/91cd3035f8d8309eaafae34f44f312fd2e86759a/docs/project-status/2026-10-09-nonvisual-nine-area-status.md)を置き換えて成功へ読み替えるものではない。
 
-現在の統合src treeは `3a3fd7e273694796e4db7e3971ceb021215533f7`。打者走行の欠落原本確認が別ownerの送球planReferenceを誤認する3分岐を修正し、参照内のownerとsourceIdを同時に照合する。実受理済みexit-stateを保持するIFN cp10入口と合わせ、独立review CLEAR、修正後の全compiler31.202秒と関連45件／7 files8.167秒がPASS。初回compilerの型不整合は保持し、元32経路の明示検査を加えて修正した。[修正・失敗履歴・検証](2026-10-10-terminal-proof-recovery.md#typed-batter-plan-claims-and-exact-ifn-cp10-batch)。
+現在の統合src treeは `25eda7eba860f766be6c6c3cdd99fa2d57ecc921`。dispatchの1回のquery-only proofへ既存のcontinuation read phaseを適用し、enrollmentと直後のguardが同じ原本を再認証する重複を除いた。書込み・callback・commit・retry境界を維持する最小変更で、独立review CLEAR、compiler35.416秒と関連17件／4 files78.338秒がPASS。最初の27件選択の180秒cap失敗は保持する。実時間の改善量は未測定。[保存された実進行と検証](2026-10-10-terminal-proof-recovery.md#dispatch-proof-lifetime-and-continued-original-execution)。
+
+直前の統合src treeは `3a3fd7e273694796e4db7e3971ceb021215533f7`。打者走行の欠落原本確認が別ownerの送球planReferenceを誤認する3分岐を修正し、参照内のownerとsourceIdを同時に照合する。実受理済みexit-stateを保持するIFN cp10入口と合わせ、独立review CLEAR、修正後の全compiler31.202秒と関連45件／7 files8.167秒がPASS。初回compilerの型不整合は保持し、元32経路の明示検査を加えて修正した。[修正・失敗履歴・検証](2026-10-10-terminal-proof-recovery.md#typed-batter-plan-claims-and-exact-ifn-cp10-batch)。
 
 前回の統合src treeは `3dcc76c69323fdd3461d4af7ec7f61bafe646e2a`。新しいenrollmentの受理前・参加者の途中書込みでも、完成済み履歴を要求していたclaim確認を修正した。新対象はimmutable rootのscopeで照合し、既存ownerは従来どおり完全な原本・member・slotを認証する。PLの受理済みbaselineからの続行とLANの保存済みactor/modelからの続行を同じ27ファイルのバッチへ統合し、独立review CLEAR、全compiler32.590秒、関連24件／7 files64.617秒がPASS。元の失敗履歴とsource帰属は保持し、完了済み前半は繰り返さない。[修正と検証](2026-10-10-terminal-proof-recovery.md#fresh-enrollment-claims-and-exact-pllan-continuation-batch)。
 
