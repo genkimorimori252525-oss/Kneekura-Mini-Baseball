@@ -43,3 +43,39 @@ fired and cleanup completed. Formal report SHA-256:
 The first 32.245-second compiler failure remains separate; the corrections add
 an explicit field-step owner guard and type the bounded test-only fake.
 No genuine cp13 continuation or suffix PASS is established by these checks.
+
+## Executed remaining suffix
+
+The exact cp13 continuation subsequently **passed** on local source
+`849e39ab2d9adf92aa586c4ae7c44db10a804cf3`, public commit
+`1835b6f8b59eefdf0c95e0f73040cf1ae5d6158f`, source subtree
+`8b8f163940ba6d14c5727e136a3330db90631c3c`. The original remaining release,
+same-source retries/readbacks, review history, scoring, next-batter acceptance
+and retry, and catch-work readback all completed. Vitest reports one passed
+case, zero failed or skipped, in 9,302.341 seconds. The bounded process ended
+with exit 0 in 9,307.868 seconds, peak RSS 788,172 KiB, no guard, all nine pin
+groups stable, complete process enumeration and cleanup, and no remaining
+processes. All database handles closed. Original checkpoint bytes and prior
+history remained unchanged.
+
+Release committed at 12:39:00.061 UTC, removing the ten reservations while
+preserving the original release members, workload AFTER and official/scoring
+records. The next actor committed at 14:05:34.593 UTC: `away-2` /
+`person-away-2`, game 1, play 8, official revision 1 and one out. Its Match/world
+references match the accepted official next-play activation. Both release and
+next-actor same-source retries returned without changes. The final returned-owner
+checkpoint has 122 tables and 2,083 rows; it preserves one official transition,
+application and scoring application, ten completed workload effects, one
+release archive and zero reservations.
+
+- Terminal SHA-256: `e65e23974bc9a396ded1d61c68d798d298efc250f17727535096252b5b7ad9cb`.
+- Formal Vitest report SHA-256: `50500e787a8ecadc5b3ceae3529b11358d15c1384008224708be9d32c20fd3f2`.
+- Suffix result SHA-256: `2642b1d97c91b13e6f0677a2b73d0081d897fdcf605bf7e24ea2dd4c5afe5a0e`.
+
+This closes the original IFN remaining path from the retained catch/review and
+official effects through release and the next batter. Its evidence is split
+across the explicitly identified source generations and durable operation
+boundaries. The earlier 14,400.107-second cap remains FAILED; completed prefix
+assertions were not rerun and completed effects were not reapplied. The final
+result intentionally retains `wholeCasePass: false`; this is a successful
+remaining suffix, not a fresh whole-case pass on the latest integrated source.
