@@ -142,12 +142,12 @@ export type SamePaPhysicalLifecycleRetainedCut = Readonly<{
   geometry: AcceptedInFlightBattingPosture['geometry']; genesis: DurableBattingEmotionGenesis;
   worldOwner: ReturnType<typeof openSqliteWorldControlStore>;
   roles: ReturnType<typeof deriveSamePaDispatchRoles>; throughTick: number;
-  /** Exact authenticated LAN delivery-cut prefix; the delivery itself is not admitted yet. */
+  /** Exact authenticated LAN cut5 delivery boundary or cut9 accepted-input boundary. */
   eventReferences?: readonly SamePaLifecycleWorkReference[];
 }>;
 
 /** Resume after the two accepted TAKEs and complete cut0 calibration set, or
- * the exact authenticated LAN delivery-cut prefix supplied by its retained entry.
+ * the exact authenticated LAN delivery/input prefix supplied by its retained entry.
  * This restores future fixture closures around authenticated owner values;
  * no preceding action, posture, pitch, prefix, TOTAL or calibration is written. */
 export const completeSamePaPhysicalLifecycleFromCutFixture = <F extends SamePaPhysicalContinuationContext>(
@@ -166,10 +166,13 @@ export const completeSamePaPhysicalLifecycleFromCutFixture = <F extends SamePaPh
   if(prepared.eventReferences!==undefined){
     const identities=[['pa_take_successor_v1_pitch_actions','lan01:occupied:second-pitch'],['pa_physical_v1_launches','lan01:swing:launch'],
       ['pa_physical_v1_cuts','lan01:swing:capture-cut'],['batting_observation_v1_observations','lan01:swing:capture'],['pa_physical_v1_cuts','lan01:swing:delivery-cut']];
-    if(label!=='lan01:occupied'||prepared.basis.viewReference.sourceId!=='lan01:occupied:cut5:view'
-      ||json(events.map(ref=>[ref.owner,ref.sourceId]))!==json(identities)
+    const inputIdentities=[...identities,['batting_observation_v1_deliveries','lan01:swing:delivery'],['batting_prediction_v1_predictions','lan01:swing:forecast'],
+      ['batting_emotion_execution_v1_executions','lan01:swing:emotion'],['pa_physical_v1_cuts','lan01:swing:decision-cut']];
+    const exactDelivery=prepared.basis.viewReference.sourceId==='lan01:occupied:cut5:view'&&json(events.map(ref=>[ref.owner,ref.sourceId]))===json(identities);
+    const exactInput=prepared.basis.viewReference.sourceId==='lan01:occupied:cut9:view'&&json(events.map(ref=>[ref.owner,ref.sourceId]))===json(inputIdentities);
+    if(label!=='lan01:occupied'||!exactDelivery&&!exactInput
       ||json(events[0])!==json(reference('pa_take_successor_v1_pitch_actions',second))
-      ||json(prepared.basis.view.cut.physicalOperationReference)!==json(events.at(-1)))throw new Error('retained physical fixture requires the exact LAN delivery-cut prefix');
+      ||json(prepared.basis.view.cut.physicalOperationReference)!==json(events.at(-1)))throw new Error('retained physical fixture requires the exact LAN delivery-cut prefix or accepted-input prefix');
   }
   let basis: SamePaPhysicalLifecycleCutBasis = prepared.basis;
   const perception=track(openSqliteBattingPerceptionStore(f.path,{readAcceptedPosture:id=>accepted.get(id)}));

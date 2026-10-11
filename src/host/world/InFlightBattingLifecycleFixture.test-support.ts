@@ -17,7 +17,7 @@ import { samePaExecutionReference as reference } from './SamePlateAppearanceExec
 import { actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { openSqliteBattingPerceptionStore, readBattingPerceptionFromSqlite } from './SqliteBattingPerceptionStore';
 import { openSqliteBattingEmotionExecutionStore, readBattingEmotionExecutionFromSqlite } from './SqliteBattingEmotionExecutionStore';
-import { openSqliteBattingExecutionInputStore, readSamePaBattingIntentFromSqlite } from './SqliteBattingExecutionInputStore';
+import { openSqliteBattingExecutionInputStore, readSamePaBattingIntentFromSqlite, readSamePaBattingExecutionInputFromSqlite } from './SqliteBattingExecutionInputStore';
 import { assertInFlightBattingWriteCurrentFromSqlite } from './InFlightBattingLifecycleFenceFromSqlite';
 import { readEmotionWorldRevisionFromSqlite } from './EmotionWorldRevisionFromSqlite';
 import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
@@ -194,10 +194,11 @@ const completeInFlightBattingDelivery = (h: Fixture, label: string, prefix: Owne
 
 /** The original input/commitment/resolution declarations, shared by fresh and
  * retained decision-cut fixtures. Callers must first admit the exact cut. */
-const completeInFlightBattingDecision = (h: Fixture, label: string, prefix: Readonly<{
+type OwnedDecisionPrefix = Readonly<{
   posture: DurableBattingInvocationPosture; intent: DurableSamePaBattingIntent; launch: SamePaPhysicalLaunch;
   decisionCut: SamePaPhysicalCut; score: DurableBattingScoreAssessment; emotion: DurableBattingEmotionExecution;
-}>, options: SwingOptions, inputOwner: ReturnType<typeof openSqliteBattingExecutionInputStore>,
+}>;
+const completeInFlightBattingDecision = (h: Fixture, label: string, prefix: OwnedDecisionPrefix, options: SwingOptions, inputOwner: ReturnType<typeof openSqliteBattingExecutionInputStore>,
   expectedWorld: DurableBattingEmotionExecution['source']['expectedWorld']) => {
   const { f, save } = h, { posture, intent, launch, decisionCut, score, emotion } = prefix;
   const member = () => h.current().basis.members.find(m => m.playerId === f.actor.binding.playerId)!;
@@ -211,6 +212,17 @@ const completeInFlightBattingDecision = (h: Fixture, label: string, prefix: Read
     calibrationReferences: (['batter_decision', 'batter_motor', 'batter_swing'] as const).map(route => ({ route, calibrationReference: calibration(route) })),
     directive: 'SWING', expectedWorld: { ...expectedWorld, worldRevision: emotion.acceptance.afterWorldRevision } });
   const input = inputOwner.acceptInput(inputSource.sourceId); if (input.kind !== 'same_pa_batting_input') throw new Error('real prepared input pending');
+  return completeInFlightBattingInput(h, label, { ...prefix, input }, options);
+};
+
+/** The original remaining body starts immediately after accepted input. No
+ * observation, emotion, input or cut9 work is repeated by this continuation. */
+const completeInFlightBattingInput = (h: Fixture, label: string, prefix: OwnedDecisionPrefix & Readonly<{
+  input: DurableSamePaBattingExecutionInput;
+}>, options: SwingOptions) => {
+  const { f, save } = h, { intent, launch, decisionCut, input } = prefix;
+  const intentReference = reference('batting_execution_v1_intents', intent);
+  const launchReference = reference('pa_physical_v1_launches', launch), decisionCutReference = reference('pa_physical_v1_cuts', decisionCut);
   const inputReference = reference('batting_execution_v1_inputs', input);
   const preparedWorldRevision = h.worldOwner.readHead(f.actor.binding.careerId)!.worldRevision;
   const commitmentDeclaration: SamePaPhysicalCommitmentSource = { sourceId: label + ':commitment', sourceVersion: 'fixture-only-v1', capability: 'same_pa_physical_commitment_v1',
@@ -365,67 +377,68 @@ export const resumeInFlightBattingDelivery = (h: Fixture, label: string, pins: R
 };
 
 
-/** The original decision-cut is already physical and admitted. Its interrupted
- * TOTAL/view must be retried by the fixture before this suffix can write input.
- * Earlier transient rejection flags are deliberately not reconstructed. */
-export const resumeInFlightBattingDecisionCut = (h: Fixture, label: string, pins: Readonly<{
-  postureReference: SamePaReference<'batting_observation_v1_postures'>;
-  intentReference: SamePaReference<'batting_execution_v1_intents'>;
-  launchReference: SamePaReference<'pa_physical_v1_launches'>;
-  captureCutReference: SamePaReference<'pa_physical_v1_cuts'>;
-  observationReference: SamePaReference<'batting_observation_v1_observations'>;
-  deliveryCutReference: SamePaReference<'pa_physical_v1_cuts'>;
-  deliveryReference: SamePaReference<'batting_observation_v1_deliveries'>;
+type RetainedDecisionPins = RetainedDeliveryPins & Readonly<{
   predictionReference: SamePaReference<'batting_prediction_v1_predictions'>;
   scoreReference: SamePaReference<'batting_score_v1_assessments'>;
   emotionReference: SamePaReference<'batting_emotion_execution_v1_executions'>;
   decisionCutReference: SamePaReference<'pa_physical_v1_cuts'>;
   decisionPrefixReference: SamePaReference<'pa_lifecycle_v1_work_prefixes'>;
-}>, options: SwingOptions = {}) => {
+}>;
+
+/** Shared read extraction only. Each caller separately chooses the appropriate
+ * authenticated lifecycle basis inside its one existing query-only phase. */
+const readRetainedInFlightBattingDecisionCut = (h: Fixture, label: string, pins: RetainedDecisionPins, options: SwingOptions,
+  readAuthenticatedCurrent: () => ReturnType<typeof readHistoricalSamePaLifecycleViewFromSqlite>) => {
   const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw new Error('retained decision-cut original prefix differs'); };
-  const retained = withSqliteReadTransaction(h.f.db, () => withSamePaLifecycleReadPhase(h.f.db, () => {
-    const proof = readCurrentSamePaInFlightCutFromSqlite(h.f.db, pins.decisionCutReference), decisionCut = proof.record;
-    const operation = (ref: SamePaReference<'pa_physical_v1_cuts' | 'pa_physical_v1_launches'>) => readSamePaPhysicalOperationFromSqlite(h.f.db, ref).record;
-    const launch = operation(pins.launchReference), captureCut = operation(pins.captureCutReference), deliveryCut = operation(pins.deliveryCutReference);
-    if (launch.kind !== 'same_pa_physical_launch_v1' || captureCut.kind !== 'same_pa_physical_cut_v1'
-      || deliveryCut.kind !== 'same_pa_physical_cut_v1' || decisionCut.kind !== 'same_pa_physical_cut_v1'
-      || launch.operationOrdinal !== 0 || captureCut.operationOrdinal !== 1 || deliveryCut.operationOrdinal !== 2 || decisionCut.operationOrdinal !== 3
-      || launch.source.sourceId !== label + ':launch' || captureCut.source.sourceId !== label + ':capture-cut'
-      || deliveryCut.source.sourceId !== label + ':delivery-cut' || decisionCut.source.sourceId !== label + ':decision-cut')
-      throw new Error('retained decision-cut requires the original physical chain');
-    same(captureCut.source.previousOperationReference, pins.launchReference); same(deliveryCut.source.previousOperationReference, pins.captureCutReference);
-    same(decisionCut.source.previousOperationReference, pins.deliveryCutReference); same(proof.actor, h.f.actor);
-    const current = h.current(), prefix = readSamePaLifecycleRecordFromSqlite(h.f.db, 'prefix', pins.decisionPrefixReference.sourceId);
-    if (prefix?.kind !== 'same_pa_lifecycle_prefix') throw new Error('retained decision-cut admission missing');
-    same(reference('pa_lifecycle_v1_work_prefixes', prefix), pins.decisionPrefixReference);
-    const authenticatedCurrent = readCurrentSamePaLifecycleViewFromSqlite(h.f.db, current.viewReference);
-    same(current.view, authenticatedCurrent.view); same(current.basis.members, authenticatedCurrent.members);
-    same(current.view.source.prefixReference, pins.decisionPrefixReference); same(current.view.cut.physicalOperationReference, pins.decisionCutReference);
-    same(h.events, prefix.source.eventReferences); same(h.events.at(-1), pins.decisionCutReference);
-    const posture = readBattingPerceptionFromSqlite(h.f.db, 'posture', pins.postureReference);
-    const capture = readBattingPerceptionFromSqlite(h.f.db, 'observation', pins.observationReference);
-    const delivery = readBattingPerceptionFromSqlite(h.f.db, 'delivery', pins.deliveryReference);
-    const forecast = readBattingPerceptionFromSqlite(h.f.db, 'prediction', pins.predictionReference);
-    const score = readBattingPerceptionFromSqlite(h.f.db, 'assessment', pins.scoreReference);
-    const intent = readSamePaBattingIntentFromSqlite(h.f.db, pins.intentReference), emotion = readBattingEmotionExecutionFromSqlite(h.f.db, pins.emotionReference);
-    if (posture.kind !== 'batting_invocation_posture' || capture.kind !== 'batting_observation' || delivery.kind !== 'batting_observation_delivery'
-      || forecast.kind !== 'batting_observed_prediction' || score.kind !== 'batting_score_assessment') throw new Error('retained decision-cut original batting receipts missing');
-    for (const value of [posture, capture, delivery, forecast, score, intent, emotion, captureCut, deliveryCut, decisionCut]) same(value.lineage, launch.lineage);
-    same(posture.source.actionReference, launch.source.actionReference); same(intent.source.postureReference, pins.postureReference);
-    same(capture.source.postureReference, pins.postureReference); same(delivery.source.observationReference, pins.observationReference);
-    same(forecast.source.observationReference, pins.observationReference); same(forecast.source.deliveryReference, pins.deliveryReference);
-    same(score.source.predictionReference, pins.predictionReference); same(emotion.source.observationReference, pins.observationReference);
-    same(emotion.source.deliveryReference, pins.deliveryReference); same(decisionCut.source.throughTick, emotion.acceptance.proposal.inputs.swingDecision.tick);
-    if (options.attempt !== undefined) same(options.attempt, intent.originalIntent.attempt);
-    const before = readHistoricalSamePaLifecycleViewFromSqlite(h.f.db, launch.source.viewReference);
-    const beforePrefix = readSamePaLifecycleRecordFromSqlite(h.f.db, 'prefix', before.view.source.prefixReference.sourceId);
-    if (beforePrefix?.kind !== 'same_pa_lifecycle_prefix') throw new Error('retained decision-cut prelaunch prefix missing');
-    same(reference('pa_lifecycle_v1_work_prefixes', beforePrefix), before.view.source.prefixReference);
-    same(prefix.source.eventReferences, [...beforePrefix.source.eventReferences, pins.launchReference, pins.captureCutReference,
-      pins.observationReference, pins.deliveryCutReference, pins.deliveryReference, pins.predictionReference, pins.emotionReference, pins.decisionCutReference]);
-    return { posture, intent, launch, captureCut, capture, deliveryCut, delivery, forecast, score, emotion, decisionCut,
-      beforeLaunch: { posture, intent, eventCount: beforePrefix.source.eventReferences.length, worldRevision: emotion.source.expectedWorld.worldRevision } };
-  }));
+  const proof = readCurrentSamePaInFlightCutFromSqlite(h.f.db, pins.decisionCutReference), decisionCut = proof.record;
+  const operation = (ref: SamePaReference<'pa_physical_v1_cuts' | 'pa_physical_v1_launches'>) => readSamePaPhysicalOperationFromSqlite(h.f.db, ref).record;
+  const launch = operation(pins.launchReference), captureCut = operation(pins.captureCutReference), deliveryCut = operation(pins.deliveryCutReference);
+  if (launch.kind !== 'same_pa_physical_launch_v1' || captureCut.kind !== 'same_pa_physical_cut_v1'
+    || deliveryCut.kind !== 'same_pa_physical_cut_v1' || decisionCut.kind !== 'same_pa_physical_cut_v1'
+    || launch.operationOrdinal !== 0 || captureCut.operationOrdinal !== 1 || deliveryCut.operationOrdinal !== 2 || decisionCut.operationOrdinal !== 3
+    || launch.source.sourceId !== label + ':launch' || captureCut.source.sourceId !== label + ':capture-cut'
+    || deliveryCut.source.sourceId !== label + ':delivery-cut' || decisionCut.source.sourceId !== label + ':decision-cut')
+    throw new Error('retained decision-cut requires the original physical chain');
+  same(captureCut.source.previousOperationReference, pins.launchReference); same(deliveryCut.source.previousOperationReference, pins.captureCutReference);
+  same(decisionCut.source.previousOperationReference, pins.deliveryCutReference); same(proof.actor, h.f.actor);
+  const current = h.current(), prefix = readSamePaLifecycleRecordFromSqlite(h.f.db, 'prefix', pins.decisionPrefixReference.sourceId);
+  if (prefix?.kind !== 'same_pa_lifecycle_prefix') throw new Error('retained decision-cut admission missing');
+  same(reference('pa_lifecycle_v1_work_prefixes', prefix), pins.decisionPrefixReference);
+  const authenticatedCurrent = readAuthenticatedCurrent();
+  same(current.view, authenticatedCurrent.view); same(current.basis.members, authenticatedCurrent.members);
+  same(current.view.source.prefixReference, pins.decisionPrefixReference); same(current.view.cut.physicalOperationReference, pins.decisionCutReference);
+  same(h.events, prefix.source.eventReferences); same(h.events.at(-1), pins.decisionCutReference);
+  const posture = readBattingPerceptionFromSqlite(h.f.db, 'posture', pins.postureReference);
+  const capture = readBattingPerceptionFromSqlite(h.f.db, 'observation', pins.observationReference);
+  const delivery = readBattingPerceptionFromSqlite(h.f.db, 'delivery', pins.deliveryReference);
+  const forecast = readBattingPerceptionFromSqlite(h.f.db, 'prediction', pins.predictionReference);
+  const score = readBattingPerceptionFromSqlite(h.f.db, 'assessment', pins.scoreReference);
+  const intent = readSamePaBattingIntentFromSqlite(h.f.db, pins.intentReference), emotion = readBattingEmotionExecutionFromSqlite(h.f.db, pins.emotionReference);
+  if (posture.kind !== 'batting_invocation_posture' || capture.kind !== 'batting_observation' || delivery.kind !== 'batting_observation_delivery'
+    || forecast.kind !== 'batting_observed_prediction' || score.kind !== 'batting_score_assessment') throw new Error('retained decision-cut original batting receipts missing');
+  for (const value of [posture, capture, delivery, forecast, score, intent, emotion, captureCut, deliveryCut, decisionCut]) same(value.lineage, launch.lineage);
+  same(posture.source.actionReference, launch.source.actionReference); same(intent.source.postureReference, pins.postureReference);
+  same(capture.source.postureReference, pins.postureReference); same(delivery.source.observationReference, pins.observationReference);
+  same(forecast.source.observationReference, pins.observationReference); same(forecast.source.deliveryReference, pins.deliveryReference);
+  same(score.source.predictionReference, pins.predictionReference); same(emotion.source.observationReference, pins.observationReference);
+  same(emotion.source.deliveryReference, pins.deliveryReference); same(decisionCut.source.throughTick, emotion.acceptance.proposal.inputs.swingDecision.tick);
+  if (options.attempt !== undefined) same(options.attempt, intent.originalIntent.attempt);
+  const before = readHistoricalSamePaLifecycleViewFromSqlite(h.f.db, launch.source.viewReference);
+  const beforePrefix = readSamePaLifecycleRecordFromSqlite(h.f.db, 'prefix', before.view.source.prefixReference.sourceId);
+  if (beforePrefix?.kind !== 'same_pa_lifecycle_prefix') throw new Error('retained decision-cut prelaunch prefix missing');
+  same(reference('pa_lifecycle_v1_work_prefixes', beforePrefix), before.view.source.prefixReference);
+  same(prefix.source.eventReferences, [...beforePrefix.source.eventReferences, pins.launchReference, pins.captureCutReference,
+    pins.observationReference, pins.deliveryCutReference, pins.deliveryReference, pins.predictionReference, pins.emotionReference, pins.decisionCutReference]);
+  return { posture, intent, launch, captureCut, capture, deliveryCut, delivery, forecast, score, emotion, decisionCut,
+    beforeLaunch: { posture, intent, eventCount: beforePrefix.source.eventReferences.length, worldRevision: emotion.source.expectedWorld.worldRevision } };
+};
+
+/** The original decision-cut is already physical and admitted. Its interrupted
+ * TOTAL/view must be retried by the fixture before this suffix can write input.
+ * Earlier transient rejection flags are deliberately not reconstructed. */
+export const resumeInFlightBattingDecisionCut = (h: Fixture, label: string, pins: RetainedDecisionPins, options: SwingOptions = {}) => {
+  const retained = withSqliteReadTransaction(h.f.db, () => withSamePaLifecycleReadPhase(h.f.db, () =>
+    readRetainedInFlightBattingDecisionCut(h, label, pins, options, () => readCurrentSamePaLifecycleViewFromSqlite(h.f.db, h.current().viewReference))));
   const { f, accepted } = h, track = f.x.f.track;
   const perception = track(openSqliteBattingPerceptionStore(f.path));
   const inputOwner = track(openSqliteBattingExecutionInputStore(f.path, { readAcceptedInput: id => accepted.get(id) }));
@@ -433,6 +446,93 @@ export const resumeInFlightBattingDecisionCut = (h: Fixture, label: string, pins
   const completed = completeInFlightBattingDecision(h, label, retained, options, inputOwner, retained.emotion.source.expectedWorld);
   return { ...retained, ...completed, postureReference: pins.postureReference, intentReference: pins.intentReference, launchReference: pins.launchReference,
     observationReference: pins.observationReference, deliveryReference: pins.deliveryReference, perception, inputOwner, emotionOwner };
+};
+
+
+type RetainedInputPins = RetainedDecisionPins & Readonly<{
+  cut9ViewReference: SamePaReference<'pa_lifecycle_v1_execution_views'>;
+  inputReference: SamePaReference<'batting_execution_v1_inputs'>;
+}>;
+type OwnedInputSwingPrefix = ReturnType<typeof readRetainedInFlightBattingDecisionCut> & Readonly<{
+  input: DurableSamePaBattingExecutionInput;
+}>;
+/** Exact LAN R6 cp21 only, inside the retained entry's existing query-only
+ * lifecycle phase. Historical owners prove the completed graph; the physical
+ * head, unchanged World and AFTER fence independently prove its live extent. */
+export const readRetainedInFlightBattingInput = (h: Fixture, label: string, pins: RetainedInputPins): OwnedInputSwingPrefix => {
+  const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw new Error('retained LAN input original prefix differs'); };
+  if (label !== 'lan01:swing' || pins.cut9ViewReference.sourceId !== 'lan01:occupied:cut9:view'
+    || pins.decisionPrefixReference.sourceId !== 'lan01:occupied:cut9:prefix') throw new Error('retained input fixture requires the original LAN cut9');
+  const current = h.current(), historical = readHistoricalSamePaLifecycleViewFromSqlite(h.f.db, pins.cut9ViewReference);
+  same(current.viewReference, pins.cut9ViewReference); same(historical.actor, h.f.actor);
+  const retained = readRetainedInFlightBattingDecisionCut(h, label, pins, {}, () => historical);
+  const { posture, intent, launch, captureCut, capture, deliveryCut, delivery, forecast, score, emotion, decisionCut } = retained;
+  const input = readSamePaBattingExecutionInputFromSqlite(h.f.db, pins.inputReference);
+  if (posture.source.capability !== 'owned_in_flight_batting_posture_v1'
+    || intent.source.capability !== 'owned_in_flight_same_pa_batting_intent_v1'
+    || capture.source.capability !== 'owned_in_flight_batting_observation_v1'
+    || delivery.source.capability !== 'owned_in_flight_batting_observation_delivery_v1'
+    || forecast.source.capability !== 'owned_in_flight_batting_observed_prediction_v1'
+    || score.source.capability !== 'owned_in_flight_batting_score_assessment_v1'
+    || emotion.source.capability !== 'owned_in_flight_batting_emotion_execution_v1'
+    || input.kind !== 'same_pa_batting_input' || input.source.capability !== 'owned_in_flight_same_pa_batting_execution_input_v1'
+    || launch.stage !== 'in_flight' || captureCut.stage !== 'in_flight' || deliveryCut.stage !== 'in_flight' || decisionCut.stage !== 'in_flight')
+    throw new Error('retained LAN input original batting receipts missing');
+  for (const [value, suffix] of [[posture, 'posture'], [intent, 'intent'], [capture, 'capture'], [delivery, 'delivery'],
+    [forecast, 'forecast'], [score, 'score'], [emotion, 'emotion'], [input, 'input']] as const) same(value.source.sourceId, label + ':' + suffix);
+  same(input.lineage, launch.lineage); same(input.physicalPitchReference, pins.launchReference);
+  same(posture.source.viewReference, launch.source.viewReference); same(intent.source.viewReference, launch.source.viewReference);
+  for (const cut of [captureCut, deliveryCut, decisionCut]) same(cut.source.launchReference, pins.launchReference);
+  same(captureCut.source.throughTick, launch.evaluationTick + 50_000);
+  same(capture.source.physicalPitchReference, pins.launchReference); same(capture.source.physicalOperationReference, pins.captureCutReference);
+  same(capture.source.previousObservationReference, null); same(capture.source.observedTick, captureCut.evaluationTick);
+  same(deliveryCut.source.throughTick, captureCut.evaluationTick + capture.calculation.effectiveValues.deliveryLatencyTicks);
+  same(delivery.source.physicalPitchReference, pins.launchReference); same(delivery.source.physicalOperationReference, pins.deliveryCutReference);
+  same(emotion.source.physicalPitchReference, pins.launchReference); same(emotion.source.physicalOperationReference, pins.deliveryCutReference);
+  same(delivery.source.viewReference.sourceId, 'lan01:occupied:cut5:view'); same(forecast.source.viewReference.sourceId, 'lan01:occupied:cut6:view');
+  same(score.source.viewReference.sourceId, 'lan01:occupied:cut7:view'); same(emotion.source.viewReference.sourceId, 'lan01:occupied:cut7:view');
+  same(decisionCut.source.viewReference.sourceId, 'lan01:occupied:cut8:view');
+  same(input.source.viewReference, pins.cut9ViewReference); same(input.source.postureReference, pins.postureReference);
+  same(input.source.intentReference, pins.intentReference); same(input.source.emotionReference, pins.emotionReference);
+  same(input.source.physicalPitchReference, pins.launchReference); same(input.source.physicalOperationReference, pins.decisionCutReference);
+  same(input.source.assessmentReferences, [pins.scoreReference]); same(input.source.directive, 'SWING');
+  const member = current.basis.members.find(m => m.playerId === h.f.actor.binding.playerId);
+  if (!member) throw new Error('retained LAN input original batter missing');
+  same(input.source.member, member);
+  same(input.source.calibrationReferences, (['batter_decision', 'batter_motor', 'batter_swing'] as const).map(route => {
+    const calibration = current.calibrationSet.calibrations.find(c => c.source.route === route && c.source.member.playerId === member.playerId);
+    if (!calibration) throw new Error('retained LAN input cut9 calibration missing');
+    return { route, calibrationReference: reference('pa_lifecycle_v1_execution_calibrations', calibration) };
+  }));
+  same(input.source.expectedWorld, { ...emotion.source.expectedWorld, worldRevision: emotion.acceptance.afterWorldRevision });
+  const before = readHistoricalSamePaLifecycleViewFromSqlite(h.f.db, launch.source.viewReference);
+  const beforePrefix = readSamePaLifecycleRecordFromSqlite(h.f.db, 'prefix', before.view.source.prefixReference.sourceId);
+  const prefix = readSamePaLifecycleRecordFromSqlite(h.f.db, 'prefix', pins.decisionPrefixReference.sourceId);
+  if (beforePrefix?.kind !== 'same_pa_lifecycle_prefix' || prefix?.kind !== 'same_pa_lifecycle_prefix') throw new Error('retained LAN input original prefix missing');
+  same(before.view.source.sourceId, 'lan01:occupied:cut0:view'); same(beforePrefix.source.sourceId, 'lan01:occupied:cut0:prefix');
+  same(beforePrefix.source.eventReferences, [reference('pa_take_successor_v1_pitch_actions', h.second)]);
+  same(prefix.source.anchorViewReference, h.anchor.viewReference);
+  const world = readEmotionWorldRevisionFromSqlite(h.f.db, h.f.actor.binding.careerId);
+  if (!world) throw new Error('retained LAN input current World missing');
+  same(input.source.expectedWorld, { careerId: h.f.actor.binding.careerId, worldRevision: world.head.worldRevision,
+    controlRevision: world.head.control.revision, controlHash: hash(world.head.control) });
+  // Accepted input is not a lifecycle event. The actual input owner's AFTER
+  // fence therefore proves exactly the nine admitted events with a null append.
+  assertInFlightBattingWriteCurrentFromSqlite(h.f.db, pins.cut9ViewReference, null);
+  return { ...retained, input };
+};
+
+/** Resume the unchanged body immediately after input acceptance, outside the
+ * restoration read scope. Physical owners recheck each new write normally. */
+export const continueRetainedInFlightBattingInput = (h: Fixture, label: string, retained: OwnedInputSwingPrefix, options: SwingOptions = {}) => {
+  if (label !== 'lan01:swing' || retained.input.source.sourceId !== label + ':input'
+    || options.attempt !== undefined && options.attempt !== retained.intent.originalIntent.attempt)
+    throw new Error('retained LAN input original invocation differs');
+  const completed = completeInFlightBattingInput(h, label, retained, options);
+  return { ...retained, ...completed, postureReference: reference('batting_observation_v1_postures', retained.posture),
+    intentReference: reference('batting_execution_v1_intents', retained.intent), launchReference: reference('pa_physical_v1_launches', retained.launch),
+    observationReference: reference('batting_observation_v1_observations', retained.capture),
+    deliveryReference: reference('batting_observation_v1_deliveries', retained.delivery) };
 };
 
 

@@ -5,9 +5,8 @@ import { dirname, isAbsolute, join } from 'node:path';
 import { gunzipSync } from 'node:zlib';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 
-/** Exact LAN01-R5 cp27 after valid third-pitch delivery and complete cut5.
- * The first remaining writer is cut6 prefix; earlier checkpoints are provenance only. */
-export const LAN01_RETAINED_CHECKPOINT = Object.freeze({
+/** Preserved LAN01-R5 cp27 delivery boundary and its earlier provenance. */
+const LAN01_PRIOR_CP27 = Object.freeze({
   sourceCommit: 'b38668807c4117b3053a50e4696735842373e2a3',
   publicSourceCommit: '9ada8883bb9553b08777379e6fefd5e8609e3ea6',
   sourceTree: '58f6c35f960058451e78e7066873c33ed40d45f4',
@@ -59,6 +58,41 @@ export const LAN01_RETAINED_CHECKPOINT = Object.freeze({
     originalRunOutcome: 'FAILED_IMMUTABLE_HOLD_EXHAUSTED', reusableAsCorrectedPrefix: false,
   }),
 });
+
+/** Exact LAN01-R6 cp21 after accepted third-pitch input and complete cut9.
+ * The first remaining writer is commitment; earlier checkpoints are provenance only. */
+export const LAN01_RETAINED_CHECKPOINT = Object.freeze({
+  ...LAN01_PRIOR_CP27,
+  sourceCommit: '7d04312564243f83d9db94e0f692693ab94a6b30',
+  publicSourceCommit: '7b989ef996035c0ad2fc1bbaf549b12f7d45634a',
+  sourceTree: '4f67963c020d6768cfd9d90468cda7f15ef9c105',
+  runControlSha256: 'b508b5b94f604203c303cdaf6a939ec762f5c274f56243c23c815f42904bff4c',
+  receiptSha256: '1a154dc1cc0c8e027495d819e3349eccb1d806eaadd7e46bd5953602a6a4e506',
+  censusSha256: 'c7f1af266abe03727895125ecb3e3fbe11baaeb306f66b9072551612c2b0705e',
+  priorRunTerminalSha256: null,
+  priorRunObservationSha256: 'fa60da67d0796f6594de6ea31cb5bdb870daaafa9e337092c5f0d57fee4e20d6',
+  priorRunOutcome: 'INTERRUPTED_AFTER_ENVIRONMENT_CHANGE_TERMINAL_UNKNOWN',
+  priorVitestReportSha256: null, priorSuffixResultPresent: false,
+  gzipSha256: 'c11060ee2789fb3a3e4414975731d561beb0779d2e3822016c87a5e95dae7974', gzipBytes: 921724,
+  databaseSha256: 'd6db63ca4b6302e7810db064de3b9fda451d67b25a453299b8a7334de946f85a', databaseBytes: 14417920,
+  tableCount: 117, rowCount: 1290, checkpointSequence: 21, returnedOwnerCall: 21,
+  returnedInputHash: 'bebb859a96ba407d7db163cf84e7c1a8cc4c77d9444a5092a9c072ca17511797',
+  firstRemainingWriter: Object.freeze({
+    owner: 'SamePlateAppearancePhysicalEpisode', method: 'acceptOperation', sourceId: 'lan01:swing:commitment',
+    argumentsHash: '55ca606ba61b079c7f08142b1223ac14fc1944d70a50907dd7c51335ecf466c1',
+  }),
+  inputBoundary: Object.freeze({
+    ...LAN01_PRIOR_CP27.deliveryBoundary,
+    predictionReference: { owner: 'batting_prediction_v1_predictions' as const, sourceId: 'lan01:swing:forecast', sourceHash: '9b8b53ddc17cc89b6d74e04911fa371d95a86a836261a34d393288515c078f07', snapshotHash: '9c6210faa4c84e2bd6897e7f554d1d3776c954c4b561b1abc27686672eeaf93e' },
+    scoreReference: { owner: 'batting_score_v1_assessments' as const, sourceId: 'lan01:swing:score', sourceHash: 'a8610d3eceda2cce6d1d13a918ac467cc1a8099537a2e295ebb2922c9fdbf91f', snapshotHash: 'a35aa83fcd40f2e9be9b6910dee638625828a4fe629221efdf8265f7e3c9cea3' },
+    emotionReference: { owner: 'batting_emotion_execution_v1_executions' as const, sourceId: 'lan01:swing:emotion', sourceHash: '09a5b9e01139682591c791b55facf60e88b7d0e06568772d37ed24cd5927236b', snapshotHash: '5fe4af53843d48d480b4435890bab7e9637950414d312ebe9194a04ee048a521' },
+    decisionCutReference: { owner: 'pa_physical_v1_cuts' as const, sourceId: 'lan01:swing:decision-cut', sourceHash: '9929d9c3b6500cc47ec0336a86eb8bf3414dfc21c629cc19bc1db9778b2176a6', snapshotHash: '7a93f018c4233f3ac5d063f340026b2c8e289ff2a854a8a0192f19f7a1d385cc' },
+    decisionPrefixReference: { owner: 'pa_lifecycle_v1_work_prefixes' as const, sourceId: 'lan01:occupied:cut9:prefix', sourceHash: '3ff1726d0067cd9afb251350f028b5bfcf70ec70434091780259a8ab4ec3c7ac', snapshotHash: 'c9127809ec5dc94ee06950e7696421eb4852fe3e6cfb5a4243a29e168a1a8e87' },
+    inputReference: { owner: 'batting_execution_v1_inputs' as const, sourceId: 'lan01:swing:input', sourceHash: '45f087b14a3e9ff81a23b885df411f24698fc1210d08ef71b82e7e41dbb5428d', snapshotHash: 'e9ee71e4525091ac0942ef60f7240fa092703e971294492e796a4885d31301ac' },
+    cut9ViewReference: { owner: 'pa_lifecycle_v1_execution_views' as const, sourceId: 'lan01:occupied:cut9:view', sourceHash: 'fc9cdadb774d5834cff2f166793c3b5271a5da822402884292ee1c24d30e4b6e', snapshotHash: '9e83c718644d104c39bf8b35e553b5ad88975d2a21bf04f9e5cb73403607455e' },
+  }),
+  priorCp27: LAN01_PRIOR_CP27,
+});
 export type LAN01RetainedSuffixInput = Readonly<{
   nativeReleased: boolean; checkpointGzip: string; destinationDirectory: string;
 }>;
@@ -82,7 +116,7 @@ export const prepareLAN01RetainedCheckpoint = (raw: LAN01RetainedSuffixInput) =>
     assert(lstatSync(path).isFile(), 'LAN01 input must be a regular file');
     const bytes = readFileSync(path); assert.equal(sha256(bytes), expected, 'LAN01 retained input hash differs'); return bytes;
   };
-  // The independently audited byte pins identify cp27 even after its original
+  // The independently audited byte pins identify cp21 even after its original
   // private witness files are lost. Exact bytes bind the audited schema/rowid
   // census. No replacement witness is synthesized.
   const gzip = pinnedFile(input.checkpointGzip, pin.gzipSha256); assert.equal(gzip.length, pin.gzipBytes);
@@ -90,7 +124,7 @@ export const prepareLAN01RetainedCheckpoint = (raw: LAN01RetainedSuffixInput) =>
   assert.equal(bytes.length, pin.databaseBytes); assert.equal(sha256(bytes), pin.databaseSha256);
   assert.equal(realpathSync(dirname(input.destinationDirectory)), dirname(input.destinationDirectory), 'LAN01 output parent must be canonical');
   mkdirSync(input.destinationDirectory, { mode: 0o700 });
-  const path = join(input.destinationDirectory, 'lan01-cp27-delivery-suffix.sqlite');
+  const path = join(input.destinationDirectory, 'lan01-cp21-input-suffix.sqlite');
   writeFileSync(path, bytes, { flag: 'wx', mode: 0o600 });
   assert.equal(sha256(readFileSync(path)), pin.databaseSha256);
   return { input, path, pin, witnessRecheck: { originalRunControl: false, checkpointReceipt: false, tableCensus: false, priorRunTerminal: false } as const };
