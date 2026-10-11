@@ -3,7 +3,7 @@ import { expect } from 'vitest';
 import { REFERENCE_BASEBALL_AERODYNAMICS } from '../../core/sim/ball/BaseballAerodynamics';
 import type { SamePaPreparedPhysicalLifecycle } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 import { completeSamePaTerminalFixture } from './SamePlateAppearanceTerminalLifecycleFixture.test-support';
-import type { completeSamePaOccupiedPhysicalFixture } from './SamePlateAppearanceOccupiedPhysicalFixture.test-support';
+import type { SamePaOccupiedPhysicalSuffix } from './SamePlateAppearanceOccupiedPhysicalFixture.test-support';
 import { prepareInFlightBattingSwing } from './InFlightBattingLifecycleFixture.test-support';
 import { prepareFreshPhysicalFieldFixture } from './SamePlateAppearancePhysicalFieldFixture.test-support';
 import { appendNativePhysicalThrowReception } from './SamePlateAppearancePhysicalThrowReception.test-support';
@@ -22,7 +22,7 @@ import type { AcceptedSamePaLifecycleOutcome } from './SamePlateAppearanceLifecy
  * Earlier walk/prefix assertions are historical evidence, never suffix credit. */
 export const continueLAN01OriginalLiveAppealAssertions = (
   previous: { f: Pick<SamePaPreparedPhysicalLifecycle['f'], 'actor'>; sceneBodyReferences: SamePaPreparedPhysicalLifecycle['sceneBodyReferences'] },
-  h: ReturnType<typeof completeSamePaOccupiedPhysicalFixture>, scene: ReturnType<typeof liveAppealSceneFixture>, stage: (name: string) => void,
+  h: SamePaOccupiedPhysicalSuffix, scene: ReturnType<typeof liveAppealSceneFixture>, stage: (name: string) => void,
 ) => {
     expect(h.f.actor.match.bases).toEqual({first:previous.f.actor.binding.playerId,second:null,third:null});
     expect(h.initialPlay?.play.state).toBe('live');expect(h.genesis.scope.playerId).toBe(h.f.actor.binding.playerId);

@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { captureLAN01RetainedSuffixInput, prepareLAN01RetainedCheckpoint } from './LAN01RetainedCheckpoint.test-support';
 
 const input = () => ({ nativeReleased: true, checkpointGzip: '/private/checkpoint.sqlite.gz', destinationDirectory: '/private/new-suffix' });
-describe('exact LAN01-R3 cp5 input boundary, without opening Native owners', () => {
+describe('exact LAN01-R4 cp23 input boundary, without opening Native owners', () => {
   it('rejects unreleased execution before attempting filesystem access', () => {
     expect(() => prepareLAN01RetainedCheckpoint({ ...input(), nativeReleased: false })).toThrow('reviewed and released');
   });

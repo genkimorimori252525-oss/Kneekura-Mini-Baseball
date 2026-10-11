@@ -27,21 +27,28 @@ import { openSqliteSamePlateAppearanceTerminalSettlementStore } from './SqliteSa
 import { openSqliteSamePlateAppearanceTerminalTransitionStore } from './SqliteSamePlateAppearanceTerminalTransitionStore';
 import { openSqlitePlayerRunnerDecisionMotionModelStore } from './SqlitePlayerRunnerDecisionMotionModelStore';
 import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
-import { continueSamePaOccupiedWalkFromViewFixture, type SamePaPreparedOccupiedWalkFixture } from './SamePlateAppearanceOccupiedContinuation.test-support';
 import { prepareLAN01RetainedCheckpoint, type LAN01RetainedSuffixInput } from './LAN01RetainedCheckpoint.test-support';
 import type { AcceptedPlayerWorkloadBaseline } from './SqlitePlayerWorkloadRecoveryStore';
 import { liveAppealSceneFixture } from './SamePlateAppearanceLiveAppealScene.test-support';
 import { dispatchCalibrationValues } from './SamePlateAppearanceDispatchCalibration.test-support';
-import { NPB_2026_RULE_PROFILE } from '../../core/rules/RuleProfile';
 import { openSqliteWorldControlStore } from './SqliteWorldControlStore';
-import { completeSamePaOccupiedPhysicalFixture } from './SamePlateAppearanceOccupiedPhysicalFixture.test-support';
+import { finishSamePaOccupiedPhysicalFixtureAssertions } from './SamePlateAppearanceOccupiedPhysicalFixture.test-support';
+import { completeSamePaPhysicalLifecycleFromCutFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
+import { openSqliteSamePlateAppearanceOccupiedRunnerHoldStore } from './SqliteSamePlateAppearanceOccupiedRunnerHoldStore';
+import { openSqliteSamePlateAppearanceInitialBallStore } from './SqliteSamePlateAppearanceInitialBallStore';
+import { openSqliteSamePlateAppearanceTakeSuccessorStore } from './SqliteSamePlateAppearanceTakeSuccessorStore';
+import { openSqliteSamePlateAppearanceLifecycleStore } from './SqliteSamePlateAppearanceLifecycleStore';
+import { openSqliteSamePlateAppearanceContinuationStore } from './SqliteSamePlateAppearanceContinuationStore';
+import { openSqliteBattingEmotionStore } from './SqliteBattingEmotionStore';
+import { readCurrentSamePaLifecycleViewFromSqlite, readSamePaLifecycleSetFromSqlite } from './SamePlateAppearanceLifecycleFromSqlite';
+import { deriveSamePaDispatchRoles } from './SamePlateAppearanceDispatchRoles';
 import { continueLAN01OriginalLiveAppealAssertions } from './LAN01OriginalLiveAppealAssertions.test-support';
 import { openSqliteSamePlateAppearanceExecutionStore } from './SqliteSamePlateAppearanceExecutionStore';
 import type { BodyMaterializationRequest } from './PlayerBodyCapabilityMaterialization';
 
-/** Reopens only the exact LAN01-R1 cp5 boundary before its runner hold. Owner readers authenticate all
- * recovered values. The original occupied tail owns every subsequent effect;
- * the completed walk, models and pre-hold workload owners are not recreated. */
+/** Reopens only exact LAN01-R3 cp23 after the second TAKE and cut0 calibration.
+ * Existing owners authenticate all recovered values before the original failed
+ * membership assertion and unperformed third-pitch/live-appeal suffix. */
 export const runLAN01RetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, log: (phase: string) => void = () => {}) => {
   const { path, pin, input: capturedInput, witnessRecheck } = prepareLAN01RetainedCheckpoint(input), stores: { close(): void }[] = [];
   const track = <T extends { close(): void }>(store: T): T => { stores.push(store); return store; };
@@ -60,7 +67,11 @@ export const runLAN01RetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, 
       'world_player_batting_models', 'world_player_runner_decision_motion_models', 'world_player_workload_activities',
       'world_player_workload_baselines', 'same_pa_enrollments', 'reserved_pa_work_prefixes', 'reserved_pa_total_assessments',
       'reserved_pa_execution_views', 'pa_dispatch_v1_action_plans',
-      'pa_dispatch_v1_execution_calibrations', 'pa_dispatch_v1_consumer_sets', 'pa_dispatch_v1_episodes', 'pa_dispatch_v1_rights'];
+      'pa_dispatch_v1_execution_calibrations', 'pa_dispatch_v1_consumer_sets', 'pa_dispatch_v1_episodes', 'pa_dispatch_v1_rights',
+      'world_same_pa_occupied_runner_holds', 'pa_initial_ball_v1_setups', 'pa_initial_ball_v1_plays',
+      'batting_observation_v1_postures', 'batting_emotion_v1_geneses', 'pa_continuation_v1_work_prefixes',
+      'pa_continuation_v1_total_assessments', 'pa_continuation_v1_execution_views', 'pa_continuation_v1_execution_calibrations',
+      'pa_take_successor_v1_action_plans', 'pa_take_successor_v1_setups'];
     const rows = (table: string) => db.prepare('SELECT rowid,* FROM ' + table + ' ORDER BY rowid').all();
     const histories = historyTables.map(table => ({ table, rows: rows(table) }));
     const priorActivities = db.prepare('SELECT * FROM world_player_workload_activities ORDER BY source_id').all();
@@ -182,32 +193,9 @@ export const runLAN01RetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, 
     const runnerModel = track(openSqlitePlayerRunnerDecisionMotionModelStore(path)).read(label + ':runner-model');
     assert(runnerModel, 'LAN01 accepted original runner model missing'); assert.deepEqual(runnerModel.person, actor.person);
     assert.equal(createHash('sha256').update(JSON.stringify(runnerModel)).digest('hex'), pin.runnerModelResultHash);
-    // Restore only maps and wrappers around values already authenticated above.
-    // No model, body, actor, settlement, transition or release writer is called.
-    const modelSource = nextBatting.source, capability = nextBatting.capability, repertoire = nextBatting.repertoire;
-    const decision = nextBatting.decisionModel, equipment = nextBatting.equipment;
-    const observation = nextBatting.observationCalibration, prediction = nextBatting.predictionCalibration;
-    const models = new Map([[modelSource.sourceId, modelSource]]), capabilities = new Map([[capability.sourceId, capability]]),
-      repertoires = new Map([[repertoire.sourceId, repertoire]]), decisions = new Map([[decision.sourceId, decision]]),
-      equipments = new Map([[equipment.sourceId, equipment]]), observations = new Map([[observation.sourceId, observation]]),
-      predictions = new Map([[prediction.sourceId, prediction]]);
-    const authority = { readAcceptedModel: (id: string) => models.get(id) ?? null, readAcceptedCapability: (id: string) => capabilities.get(id) ?? null,
-      readAcceptedRepertoire: (id: string) => repertoires.get(id) ?? null, readAcceptedDecisionModel: (id: string) => decisions.get(id) ?? null,
-      readAcceptedEquipment: (id: string) => equipments.get(id) ?? null, readAcceptedObservationCalibration: (id: string) => observations.get(id) ?? null,
-      readAcceptedPredictionCalibration: (id: string) => predictions.get(id) ?? null };
+    // Future fixture closures use only genuine owner records and fresh Source maps.
     const accepted = new Map<string, unknown>();
-    const save = <T extends { sourceId: string }>(source: T): T => { accepted.set(source.sourceId, source); return source; };
-    const h = { f, accepted, save, original: acceptedAction.source, sceneBodyReferences: [...posture.source.sceneBodyReferences] };
-    const prepared: SamePaPreparedOccupiedWalkFixture = {
-      actor: nextActor, originals, officialBefore: json(db.prepare('SELECT * FROM matches WHERE match_id=?').get(nextActor.source.gameId)),
-      accepted, save, scope: { careerId: nextActor.person.careerId, playerId: nextActor.person.playerId,
-        personId: nextActor.person.personId, personLinkSourceId: nextActor.person.sourceId },
-      body: nextBody, pose: nextPose, bodyResult: { kind: 'materialized', value: nextReceipt }, bodyOwner: nextBodyOwner,
-      requests: nextRequests, bodies: nextBodies, poses: nextPoses,
-      capability, repertoire, decision, equipment, observation, prediction, modelSource, authority,
-      models, capabilities, repertoires, decisions, equipments, observations, predictions, modelStore: nextModelStore, batting: nextBatting,
-      runnerBinding: actor.binding, runnerBody: { kind: 'materialized', value: runnerReceipt }, runnerModel,
-    };
+    const previous = { f, sceneBodyReferences: [...posture.source.sceneBodyReferences] };
     mark('authenticate-accepted-occupied-baseline-through-view');
     const occupiedEnrollment = enrollmentOwner.read(label + ':enrollment');
     assert(occupiedEnrollment?.kind === 'reserved', 'LAN01 occupied enrollment missing');
@@ -248,30 +236,104 @@ export const runLAN01RetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, 
     assert.deepEqual(view.participants.map(p => p.playerId), occupiedEnrollment.participants.map(p => p.binding.playerId));
     assert(view.participants.every(p => p.activity.kind === 'MATCH' && p.activity.effortUnits === 0));
     assert.equal(hash(view), pin.viewSnapshotHash);
-    for (const table of ['world_same_pa_occupied_runner_holds', 'pa_initial_ball_v1_setups', 'pa_initial_ball_v1_plays']) {
-      assert.equal(db.prepare("SELECT count(*) n FROM sqlite_schema WHERE type='table' AND name=?").get(table)!.n, 0);
-    }
-    for (const [table, id] of [['batting_observation_v1_postures', label + ':initial-posture'],
-      ['pa_dispatch_v1_action_plans', label + ':action'], ['pa_dispatch_v1_consumer_sets', label + ':consumers'],
-      ['pa_dispatch_v1_episodes', label + ':episode'], ['pa_dispatch_v1_rights', label + ':right'],
-      ['pa_dispatch_v1_pitch_actions', label + ':pitch'], ['pa_take_successor_v1_action_plans', label + ':second-action']]) {
+    mark('authenticate-completed-occupied-takes-and-cut0');
+    const hold = track(openSqliteSamePlateAppearanceOccupiedRunnerHoldStore(path)).read(label + ':runner-hold');
+    assert(hold, 'LAN01 accepted finite occupied hold missing');
+    assert.deepEqual(hold.source.enrollmentReference, enrollmentReference);
+    assert.deepEqual(hold.source.bodyReference, reference('world_player_body_materializations', runnerReceipt));
+    assert.deepEqual(hold.source.runnerModelReference, reference('world_player_runner_decision_motion_models', runnerModel));
+    assert.equal(hold.source.coverageThroughTick - hold.source.intent.issuedTick, scene.occupiedHoldDurationUs);
+    const occupiedAction = dispatch.readAction(label + ':action'); assert(occupiedAction, 'LAN01 accepted occupied action missing');
+    assert.deepEqual(occupiedAction.source.enrollmentReference, enrollmentReference);
+    assert.deepEqual(occupiedAction.source.viewReference, reference('reserved_pa_execution_views', view));
+    assert.deepEqual(occupiedAction.source.batterModelReference, reference('world_player_batting_models', nextBatting));
+    assert.deepEqual(occupiedAction.source.occupiedRunnerHoldReferences, [reference('world_same_pa_occupied_runner_holds', hold)]);
+    const occupiedCalibrationIds = db.prepare('SELECT source_id FROM pa_dispatch_v1_execution_calibrations WHERE enrollment_source_id=? ORDER BY rowid')
+      .all(occupiedEnrollment.source.sourceId).map(row => String(row.source_id));
+    const occupiedCalibrations = dispatch.readCalibrationSet(occupiedCalibrationIds);
+    assert.equal(occupiedCalibrations.calibrations.length, 32);
+    const first = dispatch.readPhysicalPitch(label + ':pitch'); assert(first, 'LAN01 completed first TAKE missing');
+    assert.equal(hash(first), pin.firstPitchSnapshotHash); assert.deepEqual(first.originalActor, nextActor);
+    assert.deepEqual(first.source.actionReference, reference('pa_dispatch_v1_action_plans', occupiedAction));
+    const initialOwner = track(openSqliteSamePlateAppearanceInitialBallStore(path));
+    const play = initialOwner.readPlay(label + ':initial-play'); assert(play?.kind === 'same_pa_initial_play_v1', 'LAN01 accepted initial Play missing');
+    assert(first.source.capability === 'same_pa_physical_pitch_v2');
+    assert.deepEqual(first.source.initialPlayReference, reference('pa_initial_ball_v1_plays', play));
+    const next = track(openSqliteSamePlateAppearanceTakeSuccessorStore(path));
+    const second = next.readPhysicalPitch(label + ':second-pitch'); assert(second, 'LAN01 completed second TAKE missing');
+    assert.equal(hash(second), pin.secondPitchSnapshotHash); assert.deepEqual(second.originalActor, nextActor);
+    assert.deepEqual(second.previousPitchReference, reference('pa_dispatch_v1_pitch_actions', first));
+    const secondAction = next.readAction(label + ':second-action'); assert(secondAction, 'LAN01 accepted second action missing');
+    assert.deepEqual(second.source.actionReference, reference('pa_take_successor_v1_action_plans', secondAction));
+    const secondSetup = next.readSetup(label + ':second-setup'); assert(secondSetup, 'LAN01 accepted second setup missing');
+    assert.deepEqual(second.source.setupReference, reference('pa_take_successor_v1_setups', secondSetup));
+    const secondPosture = track(openSqliteBattingPerceptionStore(path)).readPosture(label + ':second-posture');
+    assert(secondPosture?.kind === 'batting_invocation_posture' && secondPosture.source.capability === 'owned_next_take_batting_posture_v1');
+    assert.equal(hash(secondPosture), pin.secondPostureSnapshotHash); assert.deepEqual(secondPosture.model, nextBatting);
+    assert.deepEqual(secondSetup.source.postureReference, reference('batting_observation_v1_postures', secondPosture));
+    assert.deepEqual(secondPosture.source.occupiedRunnerHoldReferences, occupiedAction.source.occupiedRunnerHoldReferences);
+    const sceneBodyReferences = [...secondPosture.source.sceneBodyReferences];
+    assert.deepEqual(sceneBodyReferences, [...previous.sceneBodyReferences, { playerId: actor.binding.playerId, bodyReference: hold.source.bodyReference }]);
+    const anchorOwner = track(openSqliteSamePlateAppearanceContinuationStore(path));
+    const anchorView = anchorOwner.readView(label + ':anchor:view'); assert(anchorView, 'LAN01 completed anchor view missing');
+    assert.equal(hash(anchorView), pin.anchorViewSnapshotHash);
+    const anchorReference = reference('pa_continuation_v1_execution_views', anchorView);
+    assert.deepEqual(second.viewReference, anchorReference); assert.deepEqual(secondPosture.source.viewReference, anchorReference);
+    const cutAccepted = new Map<string, unknown>();
+    const lifecycleOwner = track(openSqliteSamePlateAppearanceLifecycleStore(path, { readAcceptedCalibration: id => cutAccepted.get(id) }));
+    const cutPrefix = lifecycleOwner.readPrefix(label + ':cut0:prefix'); assert(cutPrefix, 'LAN01 completed cut0 prefix missing');
+    assert.deepEqual(cutPrefix.source.enrollmentReference, enrollmentReference);
+    assert.deepEqual(cutPrefix.source.anchorViewReference, anchorReference);
+    assert.deepEqual(cutPrefix.source.eventReferences, [reference('pa_take_successor_v1_pitch_actions', second)]);
+    const cutView = lifecycleOwner.readView(label + ':cut0:view'); assert(cutView, 'LAN01 completed cut0 view missing');
+    assert.equal(hash(cutView), pin.cut0ViewSnapshotHash);
+    assert.deepEqual(cutView.source.prefixReference, reference('pa_lifecycle_v1_work_prefixes', cutPrefix));
+    const cutReference = reference('pa_lifecycle_v1_execution_views', cutView);
+    const cutBasis = withSqliteReadTransaction(db, () => readCurrentSamePaLifecycleViewFromSqlite(db, cutReference));
+    assert.deepEqual(cutBasis.actor, nextActor); assert.deepEqual(cutBasis.view, cutView);
+    assert.equal(cutView.cut.stage, 'retained_take'); assert.equal(cutView.cut.pitchOrdinal, 2);
+    assert.deepEqual(cutView.cut.timeline, second.result.resolution.timeline);
+    assert.deepEqual(cutView.cut.physicalOperationReference, reference('pa_take_successor_v1_pitch_actions', second));
+    const cutTotals = withSqliteReadTransaction(db, () => readSamePaLifecycleSetFromSqlite(db, 'total', cutView.source.participantTotalReferences.map(p => p.assessmentReference.sourceId)));
+    assert.equal(cutTotals.length, 11);
+    cutTotals.forEach((total, i) => {
+      assert(total?.kind === 'same_pa_lifecycle_total'); assert.equal(total.source.effortUnits, 2);
+      assert.deepEqual(reference('pa_lifecycle_v1_total_assessments', total), cutView.source.participantTotalReferences[i].assessmentReference);
+    });
+    const cutCalibrationIds = occupiedCalibrations.calibrations.map(c => label + ':cut0:' + c.source.sourceId);
+    const readCalibrations = withSqliteReadTransaction(db, () => readSamePaLifecycleSetFromSqlite(db, 'calibration', cutCalibrationIds));
+    const calibrations = readCalibrations.map((calibration, i) => {
+      assert(calibration?.kind === 'same_pa_lifecycle_calibration', 'LAN01 complete cut0 calibration missing');
+      assert.equal(calibration.source.sourceId, cutCalibrationIds[i]);
+      assert.deepEqual(calibration.source.viewReference, cutReference);
+      assert.deepEqual(calibration.source.member, cutBasis.members.find(m => m.playerId === occupiedCalibrations.calibrations[i].source.member.playerId));
+      assert.equal(calibration.source.route, occupiedCalibrations.calibrations[i].source.route);
+      return calibration;
+    });
+    assert.equal(calibrations.length, 32); assert.equal(new Set(calibrations.map(c => c.source.sourceId)).size, 32);
+    const calibrationSet = { kind: 'same_pa_lifecycle_calibration_set' as const, calibrations,
+      calibrationReferences: calibrations.map(c => reference('pa_lifecycle_v1_execution_calibrations', c)) };
+    const genesis = track(openSqliteBattingEmotionStore(path)).readGenesis(label + ':emotion-genesis');
+    assert(genesis, 'LAN01 accepted occupied emotion genesis missing');
+    const roles = deriveSamePaDispatchRoles(nextActor, view, originals);
+    assert.deepEqual(genesis.source.member, roles[0].member); assert.deepEqual(genesis.source.viewReference, occupiedAction.source.viewReference);
+    for (const [table, id] of [['pa_physical_v1_action_plans', 'lan01:swing:action'], ['batting_observation_v1_postures', 'lan01:swing:posture'],
+      ['pa_physical_v1_launches', 'lan01:swing:launch']]) {
       assert.equal(db.prepare('SELECT count(*) n FROM ' + table + ' WHERE source_id=?').get(id)!.n, 0);
     }
-    assert.equal(db.prepare('SELECT count(*) n FROM pa_dispatch_v1_execution_calibrations WHERE enrollment_source_id=?')
-      .get(occupiedEnrollment.source.sourceId)!.n, 0);
-    // This is the original callback declaration for the unperformed lane. Its
-    // geometry comes from the same short-diamond recipe already checked above.
-    const previous = h, declared = dispatchCalibrationValues().batter_observation;
-    const explicitBatterObservation={...declared,calibration:{...declared.calibration,errorParameters:{...declared.calibration.errorParameters,
-      minimumPositionErrorMeters:0,maximumPositionErrorMeters:0,minimumVelocityErrorMps:0,maximumVelocityErrorMps:0}}};
-    const options={explicitBatterObservation,occupiedHoldDurationUs:scene.occupiedHoldDurationUs,initialPlay:{venue:{pitcherPlate:scene.pitcherPlate,rulePolicy:scene.rulePolicy},
-      officialPerson:{sourceId:'lan01:initial-person',sourceVersion:'fixture-only-v1',capability:'accepted_original_umpire_person_v1' as const,
-        careerId:previous.f.actor.binding.careerId,officialId:'lan01:plate-umpire',personId:'lan01:plate-umpire-person'},
-      assignmentPolicy:{sourceId:'lan01:initial-policy',sourceVersion:'fixture-only-v1',ruleProfileId:NPB_2026_RULE_PROFILE.id,kind:'accepted_original_live_ball_action_v1' as const}}};
-    mark('run-original-occupied-tail-from-finite-hold');
-    const occupied = continueSamePaOccupiedWalkFromViewFixture(h, { endpoint }, label, prepared,
-      { enrollment: occupiedEnrollment, prefix, view }, options);
-    const physical = completeSamePaOccupiedPhysicalFixture({ worldOwner }, occupied, label, options);
+    const declared = dispatchCalibrationValues().batter_observation;
+    const explicitBatterObservation = { ...declared, calibration: { ...declared.calibration, errorParameters: { ...declared.calibration.errorParameters,
+      minimumPositionErrorMeters: 0, maximumPositionErrorMeters: 0, minimumVelocityErrorMps: 0, maximumVelocityErrorMps: 0 } } };
+    const nextFixture = { ...f, actor: nextActor, view, acceptedAction: occupiedAction, acceptedCalibrations: occupiedCalibrations };
+    mark('resume-original-third-pitch-after-authenticated-cut0');
+    const lifecycle = completeSamePaPhysicalLifecycleFromCutFixture(nextFixture, accepted, {
+      first, second, anchor: { viewReference: anchorReference },
+      basis: { view: cutView, viewReference: cutReference, basis: cutBasis, calibrationSet, owner: lifecycleOwner, accepted: cutAccepted },
+      sceneBodyReferences, geometry: secondPosture.source.geometry, genesis, worldOwner, roles, throughTick: hold.source.coverageThroughTick,
+    }, { explicitBatterObservation }, label);
+    const physical = finishSamePaOccupiedPhysicalFixtureAssertions(lifecycle, {
+      actor: nextActor, enrollment: occupiedEnrollment, hold, initialPlay: { play },
+    });
     continueLAN01OriginalLiveAppealAssertions(previous, physical, scene, mark);
     for (const history of histories) assert.equal(json(rows(history.table).slice(0, history.rows.length)), json(history.rows),
       'LAN01 retained original prefix history changed: ' + history.table);
@@ -281,16 +343,15 @@ export const runLAN01RetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, 
     const closeErrors: unknown[] = [];
     for (const store of stores.reverse()) { try { store.close(); } catch (error) { closeErrors.push(error); } }
     const originalUnchanged = createHash('sha256').update(readFileSync(capturedInput.checkpointGzip)).digest('hex') === pin.gzipSha256;
-    const result = { kind: 'lan01_cp5_original_remaining_suffix_result_v1',
+    const result = { kind: 'lan01_cp23_original_remaining_suffix_result_v1',
       retainedPrefix: { sourceCommit: pin.sourceCommit, sourceTree: pin.sourceTree, databaseSha256: pin.databaseSha256,
-        boundary: 'completed original walk and occupied baseline/enrollment/empty prefix/11 zero TOTALs/view; runner hold and all dependent occupied actions absent',
-        previouslyCompletedAssertions: 'historical evidence only; not rerun or credited as this suffix',
-        originalRunOutcome: 'FAILED_QUERY_ONLY_FIXTURE_READ',
-        descendantContinuationOutcome: 'FAILED_IMMUTABLE_HOLD_EXHAUSTED',
-        priorOccupiedFirstPitchAndRetry: 'historical successful evidence only; must rerun under the newly issued hold', retainedPrefixAssertionsRerun: false,
-        completedOccupiedWriterCalls: 5, completedOccupiedWritersReplayed: false },
+        boundary: 'completed original walk, finite hold/initial Play/first TAKE and retry, second TAKE, cut0 prefix/11 TOTALs/view/32 calibrations; third action absent',
+        previouslyCompletedAssertions: 'walk and completed TAKE/retry/readback assertions are historical evidence; original post-cut actor and membership assertions are rechecked',
+        originalRunOutcome: 'FAILED_FIXTURE_PARTICIPANT_ORDER_COMPARISON',
+        priorOccupiedFirstPitchAndRetry: 'historical successful evidence only; no completed writer or retry replayed', retainedPrefixAssertionsRerun: false, originalPostCutAssertionsRechecked: true,
+        checkpointSequence: pin.checkpointSequence, returnedOwnerCall: pin.returnedOwnerCall, completedOccupiedWritersReplayed: false },
       historicalProvenance: { originalRunControlSha256: pin.runControlSha256, checkpointReceiptSha256: pin.receiptSha256, priorRunTerminalSha256: pin.priorRunTerminalSha256,
-        priorVitestReportSha256: pin.priorVitestReportSha256, returnedViewResultSha256: pin.viewResultHash, tableCensusSha256: pin.censusSha256, priorCp181: pin.priorCp181, failedCp11Continuation: pin.failedCp11Continuation, sourceIdentityBasis: 'exact_pinned_original_checkpoint', privateWitnessFilesRechecked: witnessRecheck },
+        priorVitestReportSha256: pin.priorVitestReportSha256, returnedCalibrationSetSha256: pin.returnedCalibrationSetHash, tableCensusSha256: pin.censusSha256, priorCp5: pin.priorCp5, failedCp11Continuation: pin.failedCp11Continuation, sourceIdentityBasis: 'exact_pinned_original_checkpoint', privateWitnessFilesRechecked: witnessRecheck },
       continuedSuffix: passed && closeErrors.length === 0 && originalUnchanged ? 'PASS' : 'FAILED',
       lastPhase: phase, allHandlesClosed: closeErrors.length === 0, originalCheckpointUnchanged: originalUnchanged,
       originalPrefixHistoryUnchanged, wholeCasePass: false, databasePath: path };

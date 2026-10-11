@@ -2,9 +2,9 @@ import { expect } from 'vitest';
 import { policy } from '../../core/world/psychology/EmotionFixtures.test-support';
 import { openSqliteBattingEmotionStore } from './SqliteBattingEmotionStore';
 import { continueSamePaOccupiedWalkFixture, type SamePaOccupiedWalkBase } from './SamePlateAppearanceOccupiedContinuation.test-support';
-import { prepareSamePaPhysicalLifecycleContinuation, type samePaPhysicalLifecycleFixture, type SamePaPhysicalContinuationContext } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
+import { prepareSamePaPhysicalLifecycleContinuation, type samePaPhysicalLifecycleFixture, type SamePaPhysicalContinuationContext, type SamePaPreparedPhysicalLifecycle } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 import type { completeSamePaTerminalFixture } from './SamePlateAppearanceTerminalLifecycleFixture.test-support';
-import type { SamePaInitialPlayFixtureInputs } from './SamePlateAppearanceInitialBallFixture.test-support';
+import type { SamePaInitialPlayFixtureInputs, prepareSamePaInitialPlayFixture } from './SamePlateAppearanceInitialBallFixture.test-support';
 
 type LifecycleOptions = NonNullable<Parameters<typeof prepareSamePaPhysicalLifecycleContinuation>[6]>;
 
@@ -35,10 +35,33 @@ export const completeSamePaOccupiedPhysicalFixture = <F extends SamePaOccupiedWa
   if(genesis.kind!=='batting_emotion_genesis')throw new Error('occupied fixture next batter emotion genesis pending');
   const lifecycle = prepareSamePaPhysicalLifecycleContinuation(f,accepted,occupied.pitch,occupied.sceneBodyReferences,
     genesis,previous.worldOwner,options,label);
+  return finishSamePaOccupiedPhysicalFixtureAssertions(lifecycle, occupied);
+};
+
+type OccupiedPhysicalAssertions = Readonly<{
+  actor: import('./PhysicalPlateAppearanceActorEvidenceFromSqlite').DurablePhysicalPlateAppearanceActor;
+  enrollment: import('./SamePlateAppearanceEnrollment').ReservedSamePlateAppearanceEnrollment;
+  hold: import('./SqliteSamePlateAppearanceOccupiedRunnerHoldStore').DurableSamePaOccupiedRunnerHold;
+  initialPlay?: Pick<ReturnType<typeof prepareSamePaInitialPlayFixture>, 'play'>;
+}>;
+
+/** The same original post-cut assertions serve fresh and retained callers.
+ * Dispatch members have role order; enrollment participants have player-key
+ * order. Compare exact membership without mutating either accepted sequence. */
+export const finishSamePaOccupiedPhysicalFixtureAssertions = <L extends SamePaPreparedPhysicalLifecycle, O extends OccupiedPhysicalAssertions>(
+  lifecycle: L, occupied: O) => {
   expect(lifecycle.first.originalActor).toEqual(occupied.actor);
   expect(lifecycle.second.originalActor).toEqual(occupied.actor);
   expect(lifecycle.current().view.lineage.participantReferences).toHaveLength(11);
   expect(lifecycle.current().basis.actor).toEqual(occupied.actor);
-  expect(lifecycle.current().basis.members.map(member=>member.playerId)).toEqual(occupied.enrollment.participants.map(p=>p.binding.playerId));
+  const members = lifecycle.current().basis.members.map(member=>member.playerId);
+  const participants = occupied.enrollment.participants.map(p=>p.binding.playerId);
+  expect(new Set(members).size).toBe(members.length);
+  expect(new Set(participants).size).toBe(participants.length);
+  expect(members).toHaveLength(11);
+  expect(participants).toHaveLength(11);
+  expect([...members].sort()).toEqual([...participants].sort());
   return {...lifecycle,occupied,...(occupied.initialPlay===undefined?{}:{initialPlay:occupied.initialPlay})};
 };
+
+export type SamePaOccupiedPhysicalSuffix = ReturnType<typeof finishSamePaOccupiedPhysicalFixtureAssertions>;

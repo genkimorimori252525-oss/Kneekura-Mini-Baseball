@@ -1,5 +1,9 @@
 # LAN01-R3: correct the original hold before its acceptance
 
+Historical R3 boundary. R3 completed both occupied TAKEs and cut0 calibration,
+then failed a fixture participant-order assertion. The current retained entry
+uses [the exact cp23 cut0 boundary](../verification/2026-10-11-lan-cut0-membership-retained-boundary.md).
+
 The cp11 continuation ended FAILED at 2026-10-11 08:06:11 UTC after
 9,045.463 seconds. Call 14, `acceptPhysicalPitch('lan01:occupied:second-pitch')`,
 committed no change: the accepted second-TAKE posture expired before the actual
@@ -133,11 +137,13 @@ subtree `f1543cc585cc2181c40e39a17bb4731f49268f2d`, the full compiler passed in
 stable; no guard or surviving process remained. Formal report SHA-256:
 `f192f39e68ef120662a4d549103ef9c5689dc934a3f1148394cabd4527e42aa5`.
 
-The corrected continuation runs on fixed local `b1a8c797`, public `5c5e4b1d`,
+The corrected continuation ran on fixed local `b1a8c797`, public `5c5e4b1d`,
 source subtree `f1543cc585cc2181c40e39a17bb4731f49268f2d`. It committed the
 60-second hold and initial Play, then the first called strike and unchanged
 same-argument retry. The second called strike committed at 11:56:50 UTC on
 2026-10-11, crossing the prior readiness rejection: count 0–2, successor
 revision 2, and both pitches' original history retained. Its first-pitch
-operation took 3,854.898 seconds. The third pitch and full original callback
-remain unfinished; this is partial returned-owner evidence, not a case PASS.
+operation took 3,854.898 seconds. The run later failed after cut0 calibration
+at the original fixture membership-order assertion, before the third action.
+The [contract correction and exact cp23 continuation](../verification/2026-10-11-lan-cut0-membership-retained-boundary.md)
+preserve both completed pitches. The third pitch and full callback remain unfinished.

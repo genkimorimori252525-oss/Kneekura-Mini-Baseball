@@ -10,6 +10,7 @@ import { deriveSamePaDispatchRoles } from './SamePlateAppearanceDispatchRoles';
 import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
 import { readSamePaOccupiedRunnerHoldFromSqlite } from './SqliteSamePlateAppearanceOccupiedRunnerHoldStore';
 import type { SamePaExecutedPitch } from './SamePlateAppearanceDispatchExecution';
+import type { SamePaSuccessorTakePitch } from './SamePlateAppearanceTakeSuccessor';
 import type { DurableBattingEmotionGenesis } from './NativeBattingEmotion';
 import { openSqliteSamePlateAppearanceDispatchStore } from './SqliteSamePlateAppearanceDispatchStore';
 import { openSqliteSamePlateAppearanceTakeSuccessorStore } from './SqliteSamePlateAppearanceTakeSuccessorStore';
@@ -125,7 +126,40 @@ export const prepareSamePaPhysicalLifecycleContinuation = <F extends SamePaPhysi
   save({sourceId:postureSource.nextPhysicalPitchSourceId,sourceVersion:'fixture-only-v1',capability:'same_pa_successor_take_pitch_v1',actionReference:setupSource.actionReference,setupReference:reference('pa_take_successor_v1_setups',setup)});
   const second=next.acceptPhysicalPitch(postureSource.nextPhysicalPitchSourceId);if(second.kind==='pending')throw new Error('real second TAKE pending');
   const events:SamePaLifecycleWorkReference[]=[reference('pa_take_successor_v1_pitch_actions',second)];
-  let basis=prepareSamePaLifecycleFixture(f,anchor.viewReference,[...events],label+':cut0',efforts,options.explicitBatterObservation,options.explicitDefenderObservation,options.explicitBatterMotor,options.explicitDefenderLocomotion);
+  const basis=prepareSamePaLifecycleFixture(f,anchor.viewReference,[...events],label+':cut0',efforts,options.explicitBatterObservation,options.explicitDefenderObservation,options.explicitBatterMotor,options.explicitDefenderLocomotion);
+  return completeSamePaPhysicalLifecycleFromCutFixture(f, accepted,
+    { first, second, anchor, basis, sceneBodyReferences, geometry, genesis, worldOwner, roles, throughTick }, options, label);
+};
+
+export type SamePaPhysicalLifecycleCutBasis = Pick<ReturnType<typeof prepareSamePaLifecycleFixture>,
+  'view' | 'viewReference' | 'basis' | 'calibrationSet' | 'owner' | 'accepted'>;
+export type SamePaPhysicalLifecycleRetainedCut = Readonly<{
+  first: SamePaExecutedPitch; second: SamePaSuccessorTakePitch;
+  anchor: Pick<ReturnType<typeof prepareSamePaNonemptyFixture>, 'viewReference'>;
+  basis: SamePaPhysicalLifecycleCutBasis;
+  sceneBodyReferences: ReturnType<typeof prepareSamePaSceneBodies>;
+  geometry: AcceptedInFlightBattingPosture['geometry']; genesis: DurableBattingEmotionGenesis;
+  worldOwner: ReturnType<typeof openSqliteWorldControlStore>;
+  roles: ReturnType<typeof deriveSamePaDispatchRoles>; throughTick: number;
+}>;
+
+/** Resume only after the two accepted TAKEs and complete cut0 calibration set.
+ * This restores future fixture closures around authenticated owner values;
+ * no preceding action, posture, pitch, prefix, TOTAL or calibration is written. */
+export const completeSamePaPhysicalLifecycleFromCutFixture = <F extends SamePaPhysicalContinuationContext>(
+  f: F, accepted: Map<string, unknown>, prepared: SamePaPhysicalLifecycleRetainedCut,
+  options: Readonly<{ explicitBatterObservation?: AcceptedBattingObservationCalibration['values'];
+    explicitDefenderObservation?: PlayerObservationCalibration; explicitBatterMotor?: AcceptedBattingCapability['values'];
+    explicitDefenderLocomotion?: PlayerLocomotionCalibration }> = {}, label = 'physical-fixture') => {
+  const { first, second, anchor, sceneBodyReferences, geometry, genesis, worldOwner, roles, throughTick } = prepared;
+  const track = f.x.f.track, original = f.acceptedAction.source;
+  const save = <T extends { sourceId: string }>(source: T): T => { accepted.set(source.sourceId, source); return source; };
+  const holdReferences = original.occupiedRunnerHoldReferences;
+  const occupiedPosture = holdReferences === undefined ? {} : { occupiedRunnerHoldReferences: holdReferences };
+  const efforts=Object.fromEntries(first.lineage.participantReferences.map(p=>[p.playerId,2]));
+  const events:SamePaLifecycleWorkReference[]=[reference('pa_take_successor_v1_pitch_actions',second)];
+  let basis: SamePaPhysicalLifecycleCutBasis = prepared.basis;
+  const perception=track(openSqliteBattingPerceptionStore(f.path,{readAcceptedPosture:id=>accepted.get(id)}));
   const physical=track(openSqliteSamePlateAppearancePhysicalEpisodeStore(f.path,{readAcceptedAction:id=>accepted.get(id),readAcceptedRight:id=>accepted.get(id),readAcceptedFieldCalibration:id=>accepted.get(id),readAcceptedOperation:id=>accepted.get(id)}));
   const current=()=>basis;
   const advance=(ref:SamePaLifecycleWorkReference)=>{events.push(ref);basis=prepareSamePaLifecycleFixture(f,anchor.viewReference,[...events],label+':cut'+events.length,efforts,options.explicitBatterObservation,options.explicitDefenderObservation,options.explicitBatterMotor,options.explicitDefenderLocomotion);return basis;};
