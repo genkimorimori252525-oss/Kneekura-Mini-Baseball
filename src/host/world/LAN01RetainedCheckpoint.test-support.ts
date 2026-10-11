@@ -5,20 +5,20 @@ import { dirname, isAbsolute, join } from 'node:path';
 import { gunzipSync } from 'node:zlib';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 
-/** Exact LAN01-R3 cp23 after both occupied TAKEs and complete cut0 calibration.
- * Earlier cp5/cp11 boundaries are provenance only, never alternate input stages. */
+/** Exact LAN01-R5 cp27 after valid third-pitch delivery and complete cut5.
+ * The first remaining writer is cut6 prefix; earlier checkpoints are provenance only. */
 export const LAN01_RETAINED_CHECKPOINT = Object.freeze({
-  sourceCommit: 'b1a8c797fe1b293663a94d3c259498760c20b190',
-  publicSourceCommit: '5c5e4b1dbdb039ed70e673b80284c933fd878ee7',
-  sourceTree: 'f1543cc585cc2181c40e39a17bb4731f49268f2d',
-  runControlSha256: '4ea3e15efa5f07c648719b7019a989aed2c9b25e0daeaa1b902494c46a2324db',
-  receiptSha256: '9ee4d4d324637d4e23a9905b7a18d1bd68a299319978dbd1c659d172c3c822ec',
-  censusSha256: '70e6675322b16ef26dbecddb0b76b7036745011233ab24bbd16da94d9123abfe',
-  priorRunTerminalSha256: '3e4e465d0c0ae8c45f2786d8a44518f3eaeeb2a09f201c0bc52c569c19adcdaa',
-  priorVitestReportSha256: '6332a9004fcb072d31183fa3b876560249a12618e546234c8647e4ee89e9ffbf',
-  gzipSha256: '20eb34335f9256a4237bfebfb1c0736bb9cf05b56d39947785243c2cd7a9f95d', gzipBytes: 674045,
-  databaseSha256: 'd0505072f55baf7a073563814e5fd82c643f7b8a8ab39b8d36f096ada5fb79b7', databaseBytes: 10137600,
-  tableCount: 111, checkpointSequence: 23, returnedOwnerCall: 24,
+  sourceCommit: 'b38668807c4117b3053a50e4696735842373e2a3',
+  publicSourceCommit: '9ada8883bb9553b08777379e6fefd5e8609e3ea6',
+  sourceTree: '58f6c35f960058451e78e7066873c33ed40d45f4',
+  runControlSha256: 'f60765c5fa947248f29c05edef04f55523ac29cf3041aba05145f4b3999df304',
+  receiptSha256: 'f24b161688e37f9bc71365e856ab1f9c9bc355b9249b642444bf7036d081f4b4',
+  censusSha256: 'b9f288b5ffe06b73ea4ee3ddf45758a05d98e72bb867c42f3d0b804bbbd21432',
+  priorRunTerminalSha256: '2896744a52c7b580bbd1495c220f9da8931d0fe3fd5da32c970d7751a14eb11f',
+  priorVitestReportSha256: null, priorSuffixResultPresent: false,
+  gzipSha256: '7e296210d3e8cb32dcb07160ecd6223e2b6fb7ed85449319286dda2564e9d29c', gzipBytes: 803695,
+  databaseSha256: '84e88bebcd4779c4222f3f32d5b3e48fc47d6c3c3e7dc4c27e30a0661dda5579', databaseBytes: 12349440,
+  tableCount: 115, checkpointSequence: 27, returnedOwnerCall: 30,
   runnerModelResultHash: '35997800a5657833158e32f402af8329e57b4f21e778ee745aa20f692b574f0c',
   viewSnapshotHash: 'd6d7cd1cc61228cc13e68cc50e2310f3dda0cc55dd02d6af7396a1717c33452b',
   firstPitchSnapshotHash: '68e29c4cd60a0c7d3410156046228c5b38572a6d5b47a8bcd5113e0e1bab6d08',
@@ -26,7 +26,26 @@ export const LAN01_RETAINED_CHECKPOINT = Object.freeze({
   anchorViewSnapshotHash: '5c08bc1c38f9a668153bd3d0bbe9c7d679d57b50120f0250edb23aa54466c0f9',
   cut0ViewSnapshotHash: '568fa0da5a5de99433ebac948f632126943af5cc21ca825c92e0695a288217c1',
   secondPostureSnapshotHash: '11c1f85eef98f38a8a1af82dd840e94ff58a79a6e21c8f4a9d17e53dad3fc0dd',
-  returnedCalibrationSetHash: '153d8d896485cf29ef3952735f0043e410615f22e99a3452eb2253f0326665cf',
+  returnedDeliveryHash: '5f830eee747970f9ff1ab96c3fd694f840e3a9ee7fefae26e628e76495e9fa3c',
+  deliveryBoundary: Object.freeze({
+    postureReference: { owner: 'batting_observation_v1_postures' as const, sourceId: 'lan01:swing:posture', sourceHash: '82606c4f3b619e8d953e7c86aa296f3d009f3f486ad3f61433ee0289598a17f4', snapshotHash: '911abceea086956bab311509f6dfdbd292e8921764b2c7d2aa68dfdd01d0a147' },
+    intentReference: { owner: 'batting_execution_v1_intents' as const, sourceId: 'lan01:swing:intent', sourceHash: 'facfec19572a71e974d746ded4c3313f1b56c411212f299df69c37da38162c40', snapshotHash: 'af28a8bcf00b23e24fbbcac2ce4361bd4ad942235ed4f0429531803bba93e985' },
+    launchReference: { owner: 'pa_physical_v1_launches' as const, sourceId: 'lan01:swing:launch', sourceHash: '86e6f2ec29849ce53ea2f5c60fe9352cb877fdd21b84ed9950542d0e17a60125', snapshotHash: 'f795d16d79150bc52295b1dcdbdfb12fdd1d45ccee8dcec46b493a862cc7fc55' },
+    captureCutReference: { owner: 'pa_physical_v1_cuts' as const, sourceId: 'lan01:swing:capture-cut', sourceHash: 'd58821eae3289e93a28dbaab49bdafa4603af5968daea54d56d9b021faef9a85', snapshotHash: '957a204c0b084132e398c9699ef3b55b481e13d5c183103cfb79a41bde92a1bd' },
+    observationReference: { owner: 'batting_observation_v1_observations' as const, sourceId: 'lan01:swing:capture', sourceHash: 'a485edf179288fd151988f1f227d30fd026b4eb4735f0afd4e72644124818c7c', snapshotHash: '2bbe48c45033678822606d4926abd63584aee6dacea42446e18182a26135f26d' },
+    deliveryCutReference: { owner: 'pa_physical_v1_cuts' as const, sourceId: 'lan01:swing:delivery-cut', sourceHash: 'a387d3a515548989e80e151a62de57d2fd477e4b92a152cfaa1df752a3f003a0', snapshotHash: '4efb6dc64fa98a1e10dde2bf1c5d8da95de09ce88043c72aae45a9396af6cf15' },
+    deliveryReference: { owner: 'batting_observation_v1_deliveries' as const, sourceId: 'lan01:swing:delivery', sourceHash: 'ad139f8c2323d89a9956e9a280e3eb4848447f4b8d0de7a1a393b130e2bd917d', snapshotHash: 'e89cff6d316ac087e2b0331f8f53ca6e6a87fcad725f459cc3a24dacc297ead8' },
+    fieldCalibrationReference: { owner: 'pa_physical_v1_field_calibrations' as const, sourceId: 'lan01:field:calibration', sourceHash: '0e166b7e541b3f366456517af104532adbd0775d7dfc3d474d26657fbbd02cbe', snapshotHash: '59ebcd47d379609f23624e36edc7ad0978435c333ea49057bb16b61b9072cc15' },
+    cut5ViewReference: { owner: 'pa_lifecycle_v1_execution_views' as const, sourceId: 'lan01:occupied:cut5:view', sourceHash: 'e4167fa24fe30c577b3c6354b9ece63d13cd81f55737f2f25373efa3949c2a23', snapshotHash: '40ff1dc543c78790031480d9666c8c21782bc306bc6cd77fb08034ed181fe430' },
+  }),
+  priorCp23: Object.freeze({
+    sourceCommit: 'b1a8c797fe1b293663a94d3c259498760c20b190', publicSourceCommit: '5c5e4b1dbdb039ed70e673b80284c933fd878ee7',
+    sourceTree: 'f1543cc585cc2181c40e39a17bb4731f49268f2d',
+    gzipSha256: '20eb34335f9256a4237bfebfb1c0736bb9cf05b56d39947785243c2cd7a9f95d',
+    databaseSha256: 'd0505072f55baf7a073563814e5fd82c643f7b8a8ab39b8d36f096ada5fb79b7',
+    receiptSha256: '9ee4d4d324637d4e23a9905b7a18d1bd68a299319978dbd1c659d172c3c822ec',
+    boundary: 'both occupied TAKEs and complete cut0; third action absent',
+  }),
   priorCp5: Object.freeze({
     sourceCommit: '4d452cea7ee37d41ca4f517612ffa96a7bb878d2', sourceTree: '3dcc76c69323fdd3461d4af7ec7f61bafe646e2a',
     gzipSha256: 'fac97a92b42c858860babd827d975a693e1754f6498686edbd15928a3d612e6f',
@@ -63,7 +82,7 @@ export const prepareLAN01RetainedCheckpoint = (raw: LAN01RetainedSuffixInput) =>
     assert(lstatSync(path).isFile(), 'LAN01 input must be a regular file');
     const bytes = readFileSync(path); assert.equal(sha256(bytes), expected, 'LAN01 retained input hash differs'); return bytes;
   };
-  // The independently audited byte pins identify cp23 even after its original
+  // The independently audited byte pins identify cp27 even after its original
   // private witness files are lost. Exact bytes bind the audited schema/rowid
   // census. No replacement witness is synthesized.
   const gzip = pinnedFile(input.checkpointGzip, pin.gzipSha256); assert.equal(gzip.length, pin.gzipBytes);
@@ -71,7 +90,7 @@ export const prepareLAN01RetainedCheckpoint = (raw: LAN01RetainedSuffixInput) =>
   assert.equal(bytes.length, pin.databaseBytes); assert.equal(sha256(bytes), pin.databaseSha256);
   assert.equal(realpathSync(dirname(input.destinationDirectory)), dirname(input.destinationDirectory), 'LAN01 output parent must be canonical');
   mkdirSync(input.destinationDirectory, { mode: 0o700 });
-  const path = join(input.destinationDirectory, 'lan01-cp23-cut0-suffix.sqlite');
+  const path = join(input.destinationDirectory, 'lan01-cp27-delivery-suffix.sqlite');
   writeFileSync(path, bytes, { flag: 'wx', mode: 0o600 });
   assert.equal(sha256(readFileSync(path)), pin.databaseSha256);
   return { input, path, pin, witnessRecheck: { originalRunControl: false, checkpointReceipt: false, tableCensus: false, priorRunTerminal: false } as const };

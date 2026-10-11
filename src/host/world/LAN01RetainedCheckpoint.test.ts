@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { captureLAN01RetainedSuffixInput, prepareLAN01RetainedCheckpoint } from './LAN01RetainedCheckpoint.test-support';
 
 const input = () => ({ nativeReleased: true, checkpointGzip: '/private/checkpoint.sqlite.gz', destinationDirectory: '/private/new-suffix' });
-describe('exact LAN01-R4 cp23 input boundary, without opening Native owners', () => {
+describe('exact LAN01-R5 cp27 input boundary, without opening Native owners', () => {
   it('rejects unreleased execution before attempting filesystem access', () => {
     expect(() => prepareLAN01RetainedCheckpoint({ ...input(), nativeReleased: false })).toThrow('reviewed and released');
   });
@@ -35,15 +35,23 @@ describe('exact LAN01-R4 cp23 input boundary, without opening Native owners', ()
   });
 });
 
-it('keeps the original unperformed LAN callback statements and assertions byte-identical', () => {
+it('keeps the original LAN callback and its post-swing remainder byte-identical', () => {
   const original = readFileSync(new URL('./SamePlateAppearanceLiveAppealNativeIntegration.test.ts', import.meta.url), 'utf8');
   const retained = readFileSync(new URL('./LAN01OriginalLiveAppealAssertions.test-support.ts', import.meta.url), 'utf8');
   const start = '    expect(h.f.actor.match.bases)';
   const originalTail = original.slice(original.indexOf(start), original.indexOf('  }finally{previous.close();}'));
-  const retainedTail = retained.slice(retained.indexOf(start), retained.lastIndexOf('};'));
+  const split = '    const preparation=preparations[0];';
+  const call = '    return continueLAN01OriginalLiveAppealAfterSwingAssertions(previous, h, preparations, swing, stage);';
+  const prior = retained.slice(retained.indexOf(start), retained.indexOf(call));
+  const remaining = retained.slice(retained.indexOf(split), retained.lastIndexOf('};'));
+  const retainedTail = prior + remaining;
   expect(originalTail.length).toBeGreaterThan(5000);
   expect(retainedTail).toBe(originalTail);
   expect(originalTail.match(/\bexpect\(/g)).toHaveLength(20);
+  expect(retained).toContain(call);
+  expect(prior.match(/\bexpect\(/g)).toHaveLength(4);
+  expect(remaining.match(/\bexpect\(/g)).toHaveLength(16);
+  expect(remaining).toBe(originalTail.slice(originalTail.indexOf(split)));
 });
 
 it('loads the exact remaining entry without invoking Native owners', async () => {

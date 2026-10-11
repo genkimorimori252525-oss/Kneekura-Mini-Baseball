@@ -38,6 +38,19 @@ export const continueLAN01OriginalLiveAppealAssertions = (
         liveProducerProfile:'same_pa_stationary_occupied_catch_v1',bags:scene.bags,legalVenue:scene,
         actorProducerPolicies:h.current().basis.members.map(m=>({playerId:m.playerId,policy:SAME_PA_ACTOR_PRODUCER_POLICY}))}));
     });
+    return continueLAN01OriginalLiveAppealAfterSwingAssertions(previous, h, preparations, swing, stage);
+};
+
+/** Original post-swing callback remainder. The preceding four assertions and
+ * completed preparation are historical evidence at the retained delivery cut;
+ * this shared tail gives fresh callers all twenty assertions in original order. */
+export const continueLAN01OriginalLiveAppealAfterSwingAssertions = (
+  previous: { f: Pick<SamePaPreparedPhysicalLifecycle['f'], 'actor'> },
+  h: SamePaPreparedPhysicalLifecycle & { occupied: Pick<SamePaOccupiedPhysicalSuffix['occupied'], 'hold'> },
+  preparations: readonly Pick<ReturnType<typeof prepareFreshPhysicalFieldFixture>, 'model' | 'appendField'>[],
+  swing: Pick<ReturnType<typeof prepareInFlightBattingSwing>, 'posture' | 'resolution' | 'resolutionReference'>,
+  stage: (name: string) => void,
+) => {
     const preparation=preparations[0];expect(preparations).toHaveLength(1);expect(preparation.model.actors).toHaveLength(11);
     expect(preparation.model.actors).toEqual([swing.posture.model.bodyMaterialization,...swing.posture.sceneBodies].map(b=>b.actor));
     expect(swing.posture.source.occupiedRunnerHoldReferences).toEqual(h.original.occupiedRunnerHoldReferences);

@@ -1,3 +1,5 @@
+> Historical cut0/cp23 boundary. The current retained entry is pinned to the later valid-delivery cp27 boundary described in [the delivery continuation record](2026-10-11-lan-delivery-retained-boundary.md). This earlier record gives no new assertion credit.
+
 # LAN01 cut0 membership and exact retained boundary
 
 LAN01-R3 ran the corrected finite-hold recipe from the original pre-hold checkpoint. It completed the accepted 60-second hold, initial Play, first occupied TAKE and its retry/readback, emotion genesis, nonempty anchor, second TAKE, and cut0 prefix, all 11 TOTALs, view, and 32 calibrations. It then failed the fixture's positional comparison between dispatch members and enrollment participants, before the third action.

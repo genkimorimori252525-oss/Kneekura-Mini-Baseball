@@ -1,3 +1,4 @@
+import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
 import { flight } from '../../core/world/psychology/batting/BattingFixtures.test-support';
 import { policy } from '../../core/world/psychology/EmotionFixtures.test-support';
@@ -141,9 +142,12 @@ export type SamePaPhysicalLifecycleRetainedCut = Readonly<{
   geometry: AcceptedInFlightBattingPosture['geometry']; genesis: DurableBattingEmotionGenesis;
   worldOwner: ReturnType<typeof openSqliteWorldControlStore>;
   roles: ReturnType<typeof deriveSamePaDispatchRoles>; throughTick: number;
+  /** Exact authenticated LAN delivery-cut prefix; the delivery itself is not admitted yet. */
+  eventReferences?: readonly SamePaLifecycleWorkReference[];
 }>;
 
-/** Resume only after the two accepted TAKEs and complete cut0 calibration set.
+/** Resume after the two accepted TAKEs and complete cut0 calibration set, or
+ * the exact authenticated LAN delivery-cut prefix supplied by its retained entry.
  * This restores future fixture closures around authenticated owner values;
  * no preceding action, posture, pitch, prefix, TOTAL or calibration is written. */
 export const completeSamePaPhysicalLifecycleFromCutFixture = <F extends SamePaPhysicalContinuationContext>(
@@ -157,7 +161,16 @@ export const completeSamePaPhysicalLifecycleFromCutFixture = <F extends SamePaPh
   const holdReferences = original.occupiedRunnerHoldReferences;
   const occupiedPosture = holdReferences === undefined ? {} : { occupiedRunnerHoldReferences: holdReferences };
   const efforts=Object.fromEntries(first.lineage.participantReferences.map(p=>[p.playerId,2]));
-  const events:SamePaLifecycleWorkReference[]=[reference('pa_take_successor_v1_pitch_actions',second)];
+  const events:SamePaLifecycleWorkReference[]=prepared.eventReferences===undefined
+    ?[reference('pa_take_successor_v1_pitch_actions',second)]:[...prepared.eventReferences];
+  if(prepared.eventReferences!==undefined){
+    const identities=[['pa_take_successor_v1_pitch_actions','lan01:occupied:second-pitch'],['pa_physical_v1_launches','lan01:swing:launch'],
+      ['pa_physical_v1_cuts','lan01:swing:capture-cut'],['batting_observation_v1_observations','lan01:swing:capture'],['pa_physical_v1_cuts','lan01:swing:delivery-cut']];
+    if(label!=='lan01:occupied'||prepared.basis.viewReference.sourceId!=='lan01:occupied:cut5:view'
+      ||json(events.map(ref=>[ref.owner,ref.sourceId]))!==json(identities)
+      ||json(events[0])!==json(reference('pa_take_successor_v1_pitch_actions',second))
+      ||json(prepared.basis.view.cut.physicalOperationReference)!==json(events.at(-1)))throw new Error('retained physical fixture requires the exact LAN delivery-cut prefix');
+  }
   let basis: SamePaPhysicalLifecycleCutBasis = prepared.basis;
   const perception=track(openSqliteBattingPerceptionStore(f.path,{readAcceptedPosture:id=>accepted.get(id)}));
   const physical=track(openSqliteSamePlateAppearancePhysicalEpisodeStore(f.path,{readAcceptedAction:id=>accepted.get(id),readAcceptedRight:id=>accepted.get(id),readAcceptedFieldCalibration:id=>accepted.get(id),readAcceptedOperation:id=>accepted.get(id)}));

@@ -3,23 +3,24 @@ import { actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSql
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { openSqlitePlayerBodyCapabilityMaterializationStore } from './SqlitePlayerBodyCapabilityMaterializationStore';
 import type { BattedBodyModelAssembly } from './PlayerBodyCapabilityMaterialization';
-import type { SamePaPhysicalFieldCalibrationSource, SamePaPhysicalResolution, SamePaPhysicalFieldRootSource } from './SamePlateAppearancePhysicalEpisode';
+import type { SamePaPhysicalFieldCalibrationSource, SamePaPhysicalFieldCalibration, SamePaPhysicalResolution, SamePaPhysicalFieldRootSource } from './SamePlateAppearancePhysicalEpisode';
 import type { BallWorldVenueLegalPolicy } from '../../core/rules/BallWorldVenueLegalCoverage';
 import type { AcceptedBattedVenueLegalCoveragePolicy } from './BattedVenueLegalCoveragePolicy';
 import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import type { DurableBattingInvocationPosture } from './NativeBattingPerception';
-import type { SamePaPreparedPhysicalLifecycle } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
+import type { SamePaPreparedPhysicalLifecycle, SamePaPhysicalLifecycleSuffix } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 type Fixture=SamePaPreparedPhysicalLifecycle;
+type PhysicalFieldFixtureOptions=Readonly<{liveProducerProfile?:SamePaPhysicalFieldRootSource['liveProducerProfile'];
+  actorProducerPolicies?:SamePaPhysicalFieldRootSource['actorProducerPolicies'];
+  bags?:Readonly<{halfSize:{x:number;z:number};surfaceHeightMeters:number}>;
+  legalVenue?:Readonly<{rulePolicy:BallWorldVenueLegalPolicy;pitcherPlate:NonNullable<AcceptedBattedVenueLegalCoveragePolicy['pitcherPlate']>}>}>;
 
 /** Explicit values from BattedWorldContact/Field/ContactResponse fixtures.
  * Normal ten-body assembly is accepted without an old flight, contact, field
  * row, or copied receipt. The new calibration preparation emits no work fact. */
 export const prepareFreshPhysicalFieldFixture=(h:Fixture,prepared:ReturnType<Fixture['prepareAction']>,posture:DurableBattingInvocationPosture,
   postureReference:SamePaReference<'batting_observation_v1_postures'>,label:string,
-  options:Readonly<{liveProducerProfile?:SamePaPhysicalFieldRootSource['liveProducerProfile'];
-    actorProducerPolicies?:SamePaPhysicalFieldRootSource['actorProducerPolicies'];
-    bags?:Readonly<{halfSize:{x:number;z:number};surfaceHeightMeters:number}>;
-    legalVenue?:Readonly<{rulePolicy:BallWorldVenueLegalPolicy;pitcherPlate:NonNullable<AcceptedBattedVenueLegalCoveragePolicy['pitcherPlate']>}>}>={})=>{
+  options:PhysicalFieldFixtureOptions={})=>{
   const {f}=h,action=prepared.action,bodies=[posture.model.bodyMaterialization,...posture.sceneBodies];
   const fixture=f.db.prepare('SELECT * FROM official_fixtures WHERE game_id=?').get(f.actor.source.gameId)!;
   const assembly:BattedBodyModelAssembly={sourceId:label+':body-model',sourceVersion:'fixture-only-v1',kind:'body_materialized_batted_model_v1',
@@ -43,6 +44,17 @@ export const prepareFreshPhysicalFieldFixture=(h:Fixture,prepared:ReturnType<Fix
         pocketCenterOffset:{x:0,y:0,z:-0.08},bodyStability:1,parameters:{ticksPerSecond:1_000_000,ballMassKg:0.145,ballRadiusMeters:0.0366,pocketRadiusMeters:0.2,
           centerRetentionCapacityJ:1_000_000,captureDissipationPowerW:1000,failedContactRestitution:0.5,failedTangentialDamping:0.25,failedSpinDamping:0.2}})})),surfaces:[]}};
   h.save(source);const calibration=h.physical.acceptFieldCalibration(source.sourceId);if(calibration.kind!=='same_pa_physical_field_calibration_prepared_v1')throw new Error('real fresh field calibration pending');
+  return continuePhysicalFieldFixtureFromCalibration(h,calibration,label,options);
+};
+
+/** The exact existing field append declarations consume an owner-authenticated
+ * calibration, including its original action/posture-bound body model. Reopening
+ * a retained fixture constructs this closure without accepting either again. */
+export const continuePhysicalFieldFixtureFromCalibration=(
+  h:Pick<SamePaPhysicalLifecycleSuffix,'f'|'save'|'physical'|'current'|'advance'>,
+  calibration:SamePaPhysicalFieldCalibration,label:string,options:Omit<PhysicalFieldFixtureOptions,'bags'>={})=>{
+  const {f}=h,source=calibration.source,model=calibration.calibration.model;
+  const postureReference=source.postureReference,parameters=source.parameters;
   const calibrationReference=reference('pa_physical_v1_field_calibrations',calibration);
   const appendField=(resolution:SamePaPhysicalResolution,resolutionReference:SamePaReference<'pa_physical_v1_resolutions'>)=>{
     if(!resolution.contact)throw new Error('real fresh field requires actual contact');
