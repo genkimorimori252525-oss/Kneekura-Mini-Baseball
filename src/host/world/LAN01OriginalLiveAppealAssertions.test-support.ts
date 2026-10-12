@@ -62,6 +62,18 @@ export const continueLAN01OriginalLiveAppealAfterSwingAssertions = (
     let caught:ReturnType<typeof appendNativeLiveAppealCatch>|undefined;
     const thrown=appendNativePhysicalThrowReception(h,field,'lan01:appeal-throw',{appealRunnerId:previous.f.actor.binding.playerId,
       onSecured:secured=>{caught=appendNativeLiveAppealCatch(h,secured,'lan01:caught');}});
+    return continueLAN01OriginalLiveAppealAfterThrowAssertions(h, field, caught, thrown, stage);
+};
+
+/** The first four and next five callback assertions are historical at R9.
+ * These eleven original post-throw assertions remain pending in the same order. */
+export const continueLAN01OriginalLiveAppealAfterThrowAssertions = (
+  h: SamePaPreparedPhysicalLifecycle,
+  field: ReturnType<ReturnType<typeof prepareFreshPhysicalFieldFixture>['appendField']>,
+  caught: Pick<ReturnType<typeof appendNativeLiveAppealCatch>, 'refresh'> | undefined,
+  thrown: Pick<ReturnType<typeof appendNativePhysicalThrowReception>, 'released' | 'appealed'>,
+  stage: (name: string) => void,
+) => {
     if(!caught||!thrown.appealed||thrown.appealed.value.actionResult?.kind!=='appeal_contact_v1')throw new Error('LAN01 original appeal receipt missing');
     expect(thrown.appealed.value.actionResult.execution.kind).toBe('executed');
     expect(thrown.appealed.value.field.motion.carrierPlayerId).toBe('home-1');

@@ -6,24 +6,27 @@ import { join } from 'node:path';
 import { captureLAN01RetainedSuffixInput, LAN01_RETAINED_CHECKPOINT, prepareLAN01RetainedCheckpoint } from './LAN01RetainedCheckpoint.test-support';
 
 const input = () => ({ nativeReleased: true, checkpointGzip: '/private/checkpoint.sqlite.gz', destinationDirectory: '/private/new-suffix' });
-describe('exact LAN01-R6 cp19 swing-calibration boundary, without opening Native owners', () => {
-  it('pins only the pre-calibration cp19 view and preserves the failed ground-contact lineage', () => {
+describe('exact LAN01-R9 cp39 throw-plan boundary, without opening Native owners', () => {
+  it('pins only the returned throw plan and preserves earlier failed lineage evidence', () => {
     const pin = LAN01_RETAINED_CHECKPOINT;
-    expect([pin.checkpointSequence, pin.returnedOwnerCall, pin.gzipBytes, pin.databaseBytes, pin.tableCount, pin.rowCount]).toEqual([19, 19, 897694, 14032896, 117, 1257]);
-    expect(pin.gzipSha256).toBe('1ff55c8e79eaee682eff205541416d6fe6d4434bfde056ac11085f7a0e59c96b');
-    expect(pin.databaseSha256).toBe('bf869360d63a56535e0e20b97df6ad831e2dfa93e58cb6355a8b9270ce95511d');
-    expect(pin.receiptSha256).toBe('2e684a90f3c112d217206e05470201a998311bfa1c0a627e97c614f4872863e9');
-    expect(pin.priorRunTerminalSha256).toBeNull();
-    expect(pin.priorRunOutcome).toBe('INTERRUPTED_AFTER_ENVIRONMENT_CHANGE_TERMINAL_UNKNOWN');
-    expect(pin.priorRunObservationSha256).toBe('fa60da67d0796f6594de6ea31cb5bdb870daaafa9e337092c5f0d57fee4e20d6');
-    expect(pin.firstRemainingWriter).toEqual({ owner: 'SamePlateAppearanceLifecycle', method: 'acceptCalibrationSet', sourceIdPrefix: 'lan01:occupied:cut9:',
-      argumentsHash: '34eaf330c3eec2898008592b4c72a0873bf1a93cda66c466f0a294cddf0df7e0' });
-    expect(pin.decisionBoundary).not.toHaveProperty('inputReference');
-    for (const [key, value] of Object.entries(pin.decisionBoundary)) expect(pin.priorCp21.inputBoundary[key as keyof typeof pin.priorCp21.inputBoundary]).toBe(value);
+    expect([pin.checkpointSequence, pin.returnedOwnerCall, pin.gzipBytes, pin.databaseBytes, pin.tableCount, pin.rowCount]).toEqual([39, 39, 1146096, 18231296, 118, 1615]);
+    expect(pin.gzipSha256).toBe('f308ac8c6633f2ad91c57d890f3a48761799dee56f9af92413e7db53b3183b2c');
+    expect(pin.databaseSha256).toBe('39b508368773cc8cfa3bf962e8fed261f097519898210640badea9b7565363ce');
+    expect(pin.receiptSha256).toBe('0f36afa9c07c59aa574d2c763532f8b121ed1480ec64a6a1f9bdb70987096db0');
+    expect(pin.priorRunTerminalSha256).toBe('8dbface89e12ce4c3da0e1a4eb366da9cfd0dabeddb6394ad626dbccd7f4164b');
+    expect(pin.priorRunOutcome).toBe('FAILED_WALL_AFTER_THROW_PLAN_BEFORE_CUT17_PREFIX_RETURN');
+    expect(pin.priorRunObservationSha256).toBeNull();
+    expect(pin.firstRemainingWriter).toEqual({ owner: 'SamePlateAppearanceLifecycle', method: 'acceptPrefix', sourceId: 'lan01:occupied:cut17:prefix',
+      argumentsHash: '0f457df054a7328753c0637fe77a41b132541d9d0ea08a1f1498e42109218ac6' });
+    expect(pin.throwBoundary.plannedReference.sourceId).toBe('lan01:appeal-throw:3');
+    expect(pin.throwBoundary.plannedReference.snapshotHash).toBe('f5b70b23c04266c2357802456faae54dedd64c004b920eb308b52a1b7d8ac6c3');
+    expect(pin.priorCp19.checkpointSequence).toBe(19);
+    expect(pin.priorCp19.gzipSha256).toBe('1ff55c8e79eaee682eff205541416d6fe6d4434bfde056ac11085f7a0e59c96b');
+    expect(pin.priorCp19.priorRunTerminalSha256).toBeNull();
+    expect(pin.priorCp19.priorRunObservationSha256).toBe('fa60da67d0796f6594de6ea31cb5bdb870daaafa9e337092c5f0d57fee4e20d6');
+    expect(pin.throwBoundary.inputReference).not.toEqual(pin.priorCp21.inputBoundary.inputReference);
     expect(pin.failedGroundContactLineage.reusableAsCorrectedSuffix).toBe(false);
-    expect(pin.failedGroundContactLineage.terminalSha256).toBe('76197083717093fefb2e3cf3114c6bd3554044b889c7c192c990f036a92d14ca');
     expect(pin.priorCp14.checkpointSequence).toBe(14);
-    expect(pin.priorCp14.gzipSha256).toBe('c28e883a9cbc2317e3e629e99807c26715b56d41e22f85deb4d1435761883128');
   });
   it('preserves exact cp21 input bytes and its cp27 historical provenance', () => {
     const pin = LAN01_RETAINED_CHECKPOINT.priorCp21;
@@ -65,7 +68,7 @@ describe('exact LAN01-R6 cp19 swing-calibration boundary, without opening Native
     expect(pin.firstRemainingWriter).toEqual({ owner: 'SamePlateAppearancePhysicalEpisode', method: 'acceptOperation', sourceId: 'lan01:swing:commitment',
       argumentsHash: '55ca606ba61b079c7f08142b1223ac14fc1944d70a50907dd7c51335ecf466c1' });
   });
-  it('keeps canonical authentication before exclusive cp19 materialization and readback', () => {
+  it('keeps canonical authentication before exclusive cp39 materialization and readback', () => {
     const source = readFileSync(new URL('./LAN01RetainedCheckpoint.test-support.ts', import.meta.url), 'utf8');
     const materializer = source.slice(source.indexOf('export const prepareLAN01RetainedCheckpoint'));
     expect(materializer).toContain("assert.equal(realpathSync(path), path, 'LAN01 input must be a canonical file path')");
@@ -76,7 +79,7 @@ describe('exact LAN01-R6 cp19 swing-calibration boundary, without opening Native
     expect(authenticated).toBeGreaterThan(-1); expect(exclusiveDirectory).toBeGreaterThan(authenticated);
     expect(exclusiveFile).toBeGreaterThan(exclusiveDirectory);
     expect(materializer.indexOf('assert.equal(sha256(readFileSync(path)), pin.databaseSha256)')).toBeGreaterThan(exclusiveFile);
-    expect(materializer).toContain("join(input.destinationDirectory, 'lan01-cp19-swing-calibration-suffix.sqlite')");
+    expect(materializer).toContain("join(input.destinationDirectory, 'lan01-cp39-throw-plan-suffix.sqlite')");
     expect(materializer).toContain('const input = captureLAN01RetainedSuffixInput(raw), pin = LAN01_RETAINED_CHECKPOINT');
     expect(materializer).not.toContain('recursive: true');
   });
@@ -108,23 +111,31 @@ describe('exact LAN01-R6 cp19 swing-calibration boundary, without opening Native
   });
 });
 
-it('keeps the original LAN callback and its post-swing remainder byte-identical', () => {
+it('keeps the original twenty LAN callback assertions and the final eleven byte-identical', () => {
   const original = readFileSync(new URL('./SamePlateAppearanceLiveAppealNativeIntegration.test.ts', import.meta.url), 'utf8');
   const retained = readFileSync(new URL('./LAN01OriginalLiveAppealAssertions.test-support.ts', import.meta.url), 'utf8');
   const start = '    expect(h.f.actor.match.bases)';
   const originalTail = original.slice(original.indexOf(start), original.indexOf('  }finally{previous.close();}'));
-  const split = '    const preparation=preparations[0];';
-  const call = '    return continueLAN01OriginalLiveAppealAfterSwingAssertions(previous, h, preparations, swing, stage);';
-  const prior = retained.slice(retained.indexOf(start), retained.indexOf(call));
-  const remaining = retained.slice(retained.indexOf(split), retained.lastIndexOf('};'));
-  const retainedTail = prior + remaining;
-  expect(originalTail.length).toBeGreaterThan(5000);
-  expect(retainedTail).toBe(originalTail);
+  const swingSplit = '    const preparation=preparations[0];';
+  const swingCall = '    return continueLAN01OriginalLiveAppealAfterSwingAssertions(previous, h, preparations, swing, stage);';
+  const throwSplit = "    if(!caught||!thrown.appealed||thrown.appealed.value.actionResult?.kind!=='appeal_contact_v1')";
+  const throwCall = '    return continueLAN01OriginalLiveAppealAfterThrowAssertions(h, field, caught, thrown, stage);';
+  const initial = retained.slice(retained.indexOf(start), retained.indexOf(swingCall));
+  const beforeThrow = retained.slice(retained.indexOf(swingSplit), retained.indexOf(throwCall));
+  const remaining = retained.slice(retained.indexOf(throwSplit), retained.lastIndexOf('};'));
+  expect(initial + beforeThrow + remaining).toBe(originalTail);
   expect(originalTail.match(/\bexpect\(/g)).toHaveLength(20);
-  expect(retained).toContain(call);
-  expect(prior.match(/\bexpect\(/g)).toHaveLength(4);
-  expect(remaining.match(/\bexpect\(/g)).toHaveLength(16);
-  expect(remaining).toBe(originalTail.slice(originalTail.indexOf(split)));
+  expect(initial.match(/\bexpect\(/g)).toHaveLength(4);
+  expect(beforeThrow.match(/\bexpect\(/g)).toHaveLength(5);
+  expect(remaining.match(/\bexpect\(/g)).toHaveLength(11);
+  expect(remaining).toBe(originalTail.slice(originalTail.indexOf(throwSplit)));
+  const entry = readFileSync(new URL('./LAN01RetainedOriginalSuffix.test-support.ts', import.meta.url), 'utf8');
+  expect(entry).toContain('historicalOriginalCallbackAssertionCount: 9');
+  expect(entry).toContain('historicalR9CallbackAssertionCount: 5');
+  expect(entry).toContain('remainingOriginalCallbackAssertionCount: 11');
+  expect(entry).toContain('let remainingOriginalCallbackAssertionsExecuted = false, originalThrowRemainderExecuted = false');
+  expect(entry.indexOf('originalThrowRemainderExecuted = true')).toBeGreaterThan(entry.indexOf('const thrown = resumeNativePhysicalThrowReceptionAfterPlan('));
+  expect(entry.indexOf('remainingOriginalCallbackAssertionsExecuted = true')).toBeGreaterThan(entry.indexOf('    continueLAN01OriginalLiveAppealAfterThrowAssertions('));
 });
 
 it('loads the exact remaining entry without invoking Native owners', async () => {

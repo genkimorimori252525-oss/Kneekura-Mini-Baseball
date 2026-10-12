@@ -5,8 +5,8 @@ import { samePaExecutionReference as reference } from './SamePlateAppearanceExec
 import { samePaOfficialSourceReference as originalRef, type AcceptedSamePaOfficialPerson, type AcceptedSamePaCatchAssignment,
   type AcceptedSamePaCatchAction, type AcceptedSamePaCatchCommunication } from './SamePlateAppearanceCatchCommunicationSource';
 import type { AcceptedActualCommunicationModel } from './ActualCallCommunication';
-import type { AcceptedSamePaCatchWork } from './SamePlateAppearanceCatchWork';
-import { openSqliteSamePlateAppearanceCatchWorkStore } from './SamePlateAppearanceCatchWorkFromSqlite';
+import type { AcceptedSamePaCatchWork, SamePaCatchWorkOriginals, SamePaCatchWorkReference } from './SamePlateAppearanceCatchWork';
+import { openSqliteSamePlateAppearanceCatchWorkStore, type SamePaCatchWork } from './SamePlateAppearanceCatchWorkFromSqlite';
 
 /** This bounded fixture declares the existing dropped-reception conditions from
  * SamePlateAppearanceCatchCommunication.test.ts. Every original participant gets
@@ -30,8 +30,17 @@ export const appendNativeLiveAppealCatch = (h: SamePaPreparedPhysicalLifecycle, 
         maxAdditionalRecognitionDelayTicks:0,audibility:0,recognition:1,attention:1,minimumRecognizableQuality:.5}}))}});
   const communication:AcceptedSamePaCatchCommunication=h.save({sourceId:label+':communication',sourceVersion:'fixture-v1',capability:'same_pa_explicit_catch_communication_v1',
     viewReference:b.viewReference,actionReference:originalRef(action),modelReference:originalRef(model)});
-  const get=(id:string)=>h.accepted.get(id)??null;
-  const owner=h.f.x.f.track(openSqliteSamePlateAppearanceCatchWorkStore(h.f.path,{readAcceptedWork:get,readAcceptedCommunication:get,
+  const accept=prepareNativeLiveAppealCatchAcceptance(h,{source:communication,action,assignment,person,model},label);
+  const original=accept('original',null);
+  return{...original,refresh:()=>accept('sealed',original.workReference)};
+};
+
+/** Reuse authenticated original dependencies; only the later sealed sources are saved. */
+const prepareNativeLiveAppealCatchAcceptance = (h: SamePaPreparedPhysicalLifecycle, originals: SamePaCatchWorkOriginals, label: string) => {
+  const {source:communication,action,model}=originals;
+  if(!action||!originals.assignment||!originals.person||!model)throw new Error('LAN01 original caught dependencies missing');
+  const get=(id:string)=>[communication,action,originals.assignment,originals.person,model].find(value=>value?.sourceId===id)??h.accepted.get(id)??null;
+  const owner=h.f.x.f.track(openSqliteSamePlateAppearanceCatchWorkStore(h.f.path,{readAcceptedWork:id=>h.accepted.get(id)??null,readAcceptedCommunication:get,
     readAcceptedAction:get,readAcceptedAssignment:get,readAcceptedOfficialPerson:get,readAcceptedReceptionModel:id=>id===model.sourceId?model:null}));
   const accept=(name:string,priorWorkReference:AcceptedSamePaCatchWork['priorWorkReference'])=>{
     const current=h.current();
@@ -44,6 +53,12 @@ export const appendNativeLiveAppealCatch = (h: SamePaPreparedPhysicalLifecycle, 
     expect(work.operative.kind).toBe('retired');expect(work.originalInputs.action).toEqual(action);
     const workReference=reference('pa_catch_v1_work',work);h.advance(workReference);return{work,workReference};
   };
-  const original=accept('original',null);
-  return{...original,refresh:()=>accept('sealed',original.workReference)};
+  return accept;
 };
+
+/** The original caught work was already admitted at cut15. Opening this seam
+ * cannot reaccept it or fabricate its prior-work Source; refresh keeps its pin. */
+export const resumeNativeLiveAppealCatch = (h: SamePaPreparedPhysicalLifecycle,
+  original: Readonly<{work:SamePaCatchWork;workReference:SamePaCatchWorkReference}>, label: string) => ({
+  refresh:()=>prepareNativeLiveAppealCatchAcceptance(h,original.work.originalInputs,label)('sealed',original.workReference),
+});
