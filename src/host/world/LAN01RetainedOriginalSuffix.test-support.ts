@@ -42,21 +42,21 @@ import { openSqliteBattingEmotionStore } from './SqliteBattingEmotionStore';
 import { readSamePaLifecycleRecordFromSqlite, readSamePaLifecycleSetFromSqlite, withSamePaLifecycleReadPhase } from './SamePlateAppearanceLifecycleFromSqlite';
 import { deriveSamePaDispatchRoles } from './SamePlateAppearanceDispatchRoles';
 import { continueLAN01OriginalLiveAppealAfterSwingAssertions } from './LAN01OriginalLiveAppealAssertions.test-support';
-import { readRetainedInFlightBattingInput, continueRetainedInFlightBattingInput } from './InFlightBattingLifecycleFixture.test-support';
-import { continuePhysicalFieldFixtureFromCalibration } from './SamePlateAppearancePhysicalFieldFixture.test-support';
+import { readLAN01RetainedFieldBoundary } from './LAN01RetainedFieldBoundary.test-support';
+import { completeSamePaLifecycleFixtureCalibrations } from './SamePlateAppearanceLifecycleFixture.test-support';
+import { appendPhysicalFieldFixtureStep } from './SamePlateAppearancePhysicalFieldFixture.test-support';
 import { readSamePaPhysicalFieldCalibrationFromSqlite } from './SamePlateAppearancePhysicalEpisodeFromSqlite';
-import { SAME_PA_ACTOR_PRODUCER_POLICY } from './SamePlateAppearanceActorProducerPolicy';
 import { readLAN01RetainedHistoricalAdmission } from './LAN01RetainedHistoricalAdmission.test-support';
 import type { BodyMaterializationRequest } from './PlayerBodyCapabilityMaterialization';
 
-/** Reopens only exact LAN01-R6 cp21 after the accepted third-pitch input.
- * Completed Sources are historical evidence. The first new writer is the
- * original commitment, followed by the unchanged swing/live-appeal remainder. */
+/** Reopens only exact LAN01-R7 cp14 after the accepted cut12 view.
+ * Completed Sources are historical evidence. Only the original pending
+ * calibration set precedes the unchanged field-step/live-appeal remainder. */
 export const runLAN01RetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, log: (phase: string) => void = () => {}) => {
   const { path, pin, input: capturedInput, witnessRecheck } = prepareLAN01RetainedCheckpoint(input), stores: { close(): void }[] = [];
   const track = <T extends { close(): void }>(store: T): T => { stores.push(store); return store; };
   let phase = 'open-private-checkpoint', passed = false, originalPrefixHistoryUnchanged = false;
-  let remainingOriginalCallbackAssertionsExecuted = false;
+  let remainingOriginalCallbackAssertionsExecuted = false, cut12CalibrationSetExecuted = false;
   const mark = (name: string) => { phase = name; log(name); };
   try {
     const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
@@ -77,6 +77,7 @@ export const runLAN01RetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, 
       'pa_continuation_v1_total_assessments', 'pa_continuation_v1_execution_views', 'pa_continuation_v1_execution_calibrations',
       'pa_take_successor_v1_action_plans', 'pa_take_successor_v1_setups', 'pa_physical_v1_action_plans',
       'pa_physical_v1_rights', 'pa_physical_v1_field_calibrations', 'pa_physical_v1_cuts',
+      'pa_physical_v1_commitments', 'pa_physical_v1_field_roots',
       'world_batted_body_materializations', 'batting_execution_v1_intents', 'batting_observation_v1_observations',
       'batting_observation_v1_deliveries', 'batting_prediction_v1_predictions', 'batting_score_v1_assessments',
       'batting_emotion_execution_v1_executions', 'batting_execution_v1_inputs', 'world_decision_revision_events'];
@@ -295,7 +296,7 @@ export const runLAN01RetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, 
     const nextFixture = { ...f, actor: nextActor, view, acceptedAction: occupiedAction, acceptedCalibrations: occupiedCalibrations };
     const cutAccepted = new Map<string, unknown>();
     const lifecycleOwner = track(openSqliteSamePlateAppearanceLifecycleStore(path, { readAcceptedCalibration: id => cutAccepted.get(id) }));
-    mark('authenticate-completed-input-and-current-after-state');
+    mark('authenticate-completed-field-root-and-cut12-view-with-current-after-state');
     // One ephemeral read phase authenticates related immutable ancestry. No proof
     // cache escapes this scope; every subsequent writer performs its own fences.
     const restored = withSqliteReadTransaction(db, () => withSamePaLifecycleReadPhase(db, () => {
@@ -329,65 +330,71 @@ export const runLAN01RetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, 
         return calibration;
       });
       assert.equal(calibrations.length, 32); assert.equal(new Set(calibrations.map(c => c.source.sourceId)).size, 32);
-      const pins = pin.inputBoundary;
-      const latest = readHistoricalSamePaLifecycleViewFromSqlite(db, pins.cut9ViewReference);
+      const pins = pin.fieldBoundary;
+      const latest = readHistoricalSamePaLifecycleViewFromSqlite(db, pins.cut12ViewReference);
       assert.deepEqual(latest.actor, nextActor);
       const prefix = readSamePaLifecycleRecordFromSqlite(db, 'prefix', latest.view.source.prefixReference.sourceId);
-      assert(prefix?.kind === 'same_pa_lifecycle_prefix', 'LAN01 complete cut9 prefix missing');
-      assert.equal(prefix.source.sourceId, label + ':cut9:prefix');
-      assert.deepEqual(reference('pa_lifecycle_v1_work_prefixes', prefix), pins.decisionPrefixReference);
+      assert(prefix?.kind === 'same_pa_lifecycle_prefix', 'LAN01 complete cut12 prefix missing');
+      assert.equal(prefix.source.sourceId, label + ':cut12:prefix');
+      const prefixReference = reference('pa_lifecycle_v1_work_prefixes', prefix);
+      assert.deepEqual(prefixReference, pins.cut12PrefixReference);
       assert.deepEqual(prefix.source.anchorViewReference, anchorReference);
       assert.deepEqual(prefix.source.enrollmentReference, enrollmentReference);
       assert.deepEqual(prefix.source.eventReferences, [reference('pa_take_successor_v1_pitch_actions', second),
         pins.launchReference, pins.captureCutReference, pins.observationReference, pins.deliveryCutReference,
-        pins.deliveryReference, pins.predictionReference, pins.emotionReference, pins.decisionCutReference]);
-      assert.deepEqual(latest.view.cut.physicalOperationReference, pins.decisionCutReference);
-      assert.equal(latest.view.cut.pitchOrdinal, 3); assert.equal(latest.view.cut.stage, 'in_flight');
-      const totals = readSamePaLifecycleSetFromSqlite(db, 'total', latest.view.source.participantTotalReferences.map(p => p.assessmentReference.sourceId));
-      assert.equal(totals.length, 11);
-      totals.forEach((total, i) => {
+        pins.deliveryReference, pins.predictionReference, pins.emotionReference, pins.decisionCutReference,
+        pins.commitmentReference, pins.resolutionReference, pins.fieldRootReference]);
+      assert.deepEqual(latest.view.cut.physicalOperationReference, pins.fieldRootReference);
+      assert.equal(latest.view.cut.pitchOrdinal, 3); assert.equal(latest.view.cut.stage, 'field_active');
+      const totals = readSamePaLifecycleSetFromSqlite(db, 'total', latest.view.source.participantTotalReferences.map(p => p.assessmentReference.sourceId)).map((total, i) => {
         assert(total?.kind === 'same_pa_lifecycle_total'); assert.equal(total.source.effortUnits, 2);
         assert.deepEqual(reference('pa_lifecycle_v1_total_assessments', total), latest.view.source.participantTotalReferences[i].assessmentReference);
+        return total;
       });
-      const latestCalibrations = readSamePaLifecycleSetFromSqlite(db, 'calibration', occupiedCalibrations.calibrations.map(c => label + ':cut9:' + c.source.sourceId)).map((c, i) => {
-        assert(c?.kind === 'same_pa_lifecycle_calibration', 'LAN01 complete cut9 calibration missing');
-        assert.deepEqual(c.source.viewReference, pins.cut9ViewReference);
-        assert.deepEqual(c.source.member, latest.members.find(m => m.playerId === occupiedCalibrations.calibrations[i].source.member.playerId));
-        assert.equal(c.source.route, occupiedCalibrations.calibrations[i].source.route); return c;
-      });
-      assert.equal(latestCalibrations.length, 32); assert.equal(new Set(latestCalibrations.map(c => c.source.sourceId)).size, 32);
-      for (const [table, id] of [['pa_lifecycle_v1_work_prefixes', label + ':cut10:prefix'],
-        ['pa_physical_v1_commitments', 'lan01:swing:commitment'],
-        ['pa_physical_v1_resolutions', 'lan01:swing:resolution']]) {
+      assert.equal(totals.length, 11);
+      const pendingCalibrationIds = occupiedCalibrations.calibrations.map(c => label + ':cut12:' + c.source.sourceId);
+      assert.equal(pendingCalibrationIds.length, 32);
+      assert.equal(createHash('sha256').update(JSON.stringify([pendingCalibrationIds])).digest('hex'), pin.firstRemainingWriter.argumentsHash);
+      assert.equal(db.prepare('SELECT count(*) n FROM pa_lifecycle_v1_execution_calibrations WHERE view_source_id=?').get(pins.cut12ViewReference.sourceId)!.n, 0);
+      for (const [table, id] of [['pa_lifecycle_v1_work_prefixes', label + ':cut13:prefix'],
+        ['pa_physical_v1_field_steps', 'lan01:field:field-step']]) {
         assert.equal(db.prepare('SELECT count(*) n FROM ' + table + ' WHERE source_id=?').get(id)!.n, 0);
       }
-      const lifecycle = completeSamePaPhysicalLifecycleFromCutFixture(nextFixture, accepted, {
-        first, second, anchor: { viewReference: anchorReference },
-        basis: { view: latest.view, viewReference: pins.cut9ViewReference, basis: latest,
-          calibrationSet: { kind: 'same_pa_lifecycle_calibration_set', calibrations: latestCalibrations,
-            calibrationReferences: latestCalibrations.map(c => reference('pa_lifecycle_v1_execution_calibrations', c)) }, owner: lifecycleOwner, accepted: cutAccepted },
-        eventReferences: prefix.source.eventReferences,
-        sceneBodyReferences, geometry: secondPosture.source.geometry, genesis, worldOwner, roles, throughTick: hold.source.coverageThroughTick,
-      }, { explicitBatterObservation }, label);
-      const physical = { ...lifecycle, occupied: { actor: nextActor, enrollment: occupiedEnrollment, hold }, initialPlay: { play } };
-      const swingPrefix = readRetainedInFlightBattingInput(physical, 'lan01:swing', pins);
+      const field = readLAN01RetainedFieldBoundary({ db, actor: nextActor, second, anchorViewReference: anchorReference,
+        current: { view: latest.view, viewReference: pins.cut12ViewReference, basis: latest }, eventReferences: prefix.source.eventReferences }, pins);
       const calibration = readSamePaPhysicalFieldCalibrationFromSqlite(db, pins.fieldCalibrationReference);
       assert.deepEqual(calibration.source.viewReference, cutReference);
-      assert.deepEqual(calibration.source.actionReference, swingPrefix.posture.source.actionReference);
+      assert.deepEqual(calibration.source.actionReference, field.posture.source.actionReference);
       assert.deepEqual(calibration.source.postureReference, pins.postureReference);
       assert.equal(calibration.source.bodyModelReference.sourceId, 'lan01:field:body-model');
+      assert(field.root.source.fieldInputs.kind === 'fresh_physical_field_calibration_v1');
+      assert.deepEqual(field.root.source.fieldInputs.calibrationReference, pins.fieldCalibrationReference);
       for (const table of ['pa_physical_v1_field_calibrations', 'world_batted_body_materializations']) {
         assert.equal(db.prepare('SELECT count(*) n FROM ' + table + ' WHERE source_id LIKE ?').get('lan01:field:%')!.n, 1);
       }
-      const preparation = continuePhysicalFieldFixtureFromCalibration(physical, calibration, 'lan01:field', {
-        liveProducerProfile: 'same_pa_stationary_occupied_catch_v1', legalVenue: scene,
-        actorProducerPolicies: latest.members.map(m => ({ playerId: m.playerId, policy: SAME_PA_ACTOR_PRODUCER_POLICY })),
-      });
-      return { physical, swingPrefix, preparation };
+      return { field, calibration, events: prefix.source.eventReferences, prepared: {
+        owner: lifecycleOwner, accepted: cutAccepted, prefixSource: prefix.source, prefix, prefixReference,
+        totals: totals.map(total => total.source), totalSet: { kind: 'same_pa_lifecycle_total_set' as const, totals,
+          participantTotalReferences: latest.view.source.participantTotalReferences },
+        viewSource: latest.view.source, view: latest.view, viewReference: pins.cut12ViewReference, basis: latest,
+      } };
     }));
-    mark('resume-original-unreturned-commitment-after-authenticated-input');
-    const swing = continueRetainedInFlightBattingInput(restored.physical, 'lan01:swing', restored.swingPrefix);
-    continueLAN01OriginalLiveAppealAfterSwingAssertions(previous, restored.physical, [restored.preparation], swing, mark);
+    mark('resume-original-unreturned-cut12-calibrations-after-authenticated-view');
+    const completedBasis = completeSamePaLifecycleFixtureCalibrations(nextFixture, label + ':cut12', restored.prepared, explicitBatterObservation);
+    cut12CalibrationSetExecuted = true;
+    const lifecycle = completeSamePaPhysicalLifecycleFromCutFixture(nextFixture, accepted, {
+      first, second, anchor: { viewReference: anchorReference }, basis: completedBasis, eventReferences: restored.events,
+      sceneBodyReferences, geometry: secondPosture.source.geometry, genesis, worldOwner, roles, throughTick: hold.source.coverageThroughTick,
+    }, { explicitBatterObservation }, label);
+    const physical = { ...lifecycle, occupied: { actor: nextActor, enrollment: occupiedEnrollment, hold }, initialPlay: { play } };
+    const pins = pin.fieldBoundary;
+    const preparation = { model: restored.calibration.calibration.model,
+      appendField: (resolution: typeof restored.field.resolution, resolutionReference: typeof pins.resolutionReference) => {
+        assert.deepEqual(resolution, restored.field.resolution); assert.deepEqual(resolutionReference, pins.resolutionReference);
+        return appendPhysicalFieldFixtureStep(physical, resolution, restored.field.root, pins.fieldRootReference, 'lan01:field');
+      } };
+    const swing = { posture: restored.field.posture, resolution: restored.field.resolution, resolutionReference: pins.resolutionReference };
+    continueLAN01OriginalLiveAppealAfterSwingAssertions(previous, physical, [preparation], swing, mark);
     remainingOriginalCallbackAssertionsExecuted = true;
     for (const history of histories) assert.equal(json(rows(history.table).slice(0, history.rows.length)), json(history.rows),
       'LAN01 retained original prefix history changed: ' + history.table);
@@ -397,15 +404,15 @@ export const runLAN01RetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, 
     const closeErrors: unknown[] = [];
     for (const store of stores.reverse()) { try { store.close(); } catch (error) { closeErrors.push(error); } }
     const originalUnchanged = createHash('sha256').update(readFileSync(capturedInput.checkpointGzip)).digest('hex') === pin.gzipSha256;
-    const result = { kind: 'lan01_cp21_original_remaining_suffix_result_v1',
+    const result = { kind: 'lan01_cp14_original_remaining_suffix_result_v1',
       retainedPrefix: { sourceCommit: pin.sourceCommit, sourceTree: pin.sourceTree, databaseSha256: pin.databaseSha256,
-        boundary: 'completed original walk, both occupied TAKEs, original third action/posture/intent/field calibration/launch/capture/delivery/forecast/assessment/emotion/decision-cut, complete cut9 and accepted input; commitment and cut10 absent',
+        boundary: 'completed original walk, both occupied TAKEs, third-pitch input/commitment/resolution with actual contact/field-root, cut12 prefix and all11 TOTALs/view; cut12 calibrations and field-step absent',
         previouslyCompletedAssertions: 'walk, both TAKEs, occupied preparation and first four original LAN callback assertions are historical evidence only',
-        originalRunOutcome: pin.priorRunOutcome, priorRunCleanupVerified: false,
-        priorOccupiedFirstPitchAndRetry: 'historical successful evidence only; no completed writer or retry replayed', retainedPrefixAssertionsRerun: false, historicalOriginalCallbackAssertionCount: 4, remainingOriginalCallbackAssertionCount: 16, remainingOriginalCallbackAssertionsExecuted,
+        originalRunOutcome: pin.priorRunOutcome, priorRunCleanupVerified: true,
+        priorOccupiedFirstPitchAndRetry: 'historical successful evidence only; no completed writer or retry replayed', retainedPrefixAssertionsRerun: false, historicalOriginalCallbackAssertionCount: 4, remainingOriginalCallbackAssertionCount: 16, remainingOriginalCallbackAssertionsExecuted, cut12CalibrationSetExecuted,
         checkpointSequence: pin.checkpointSequence, returnedOwnerCall: pin.returnedOwnerCall, completedOccupiedWritersReplayed: false, completedThirdPitchWritersReplayed: false },
       historicalProvenance: { originalRunControlSha256: pin.runControlSha256, checkpointReceiptSha256: pin.receiptSha256, priorRunTerminalSha256: pin.priorRunTerminalSha256, priorRunObservationSha256: pin.priorRunObservationSha256, firstRemainingWriter: pin.firstRemainingWriter,
-        priorVitestReportSha256: pin.priorVitestReportSha256, returnedInputSha256: pin.returnedInputHash, returnedDeliverySha256: pin.returnedDeliveryHash, tableCensusSha256: pin.censusSha256, priorCp27: pin.priorCp27, priorCp23: pin.priorCp23, priorCp5: pin.priorCp5, failedCp11Continuation: pin.failedCp11Continuation, sourceIdentityBasis: 'exact_pinned_original_checkpoint', privateWitnessFilesRechecked: witnessRecheck },
+        priorVitestReportSha256: pin.priorVitestReportSha256, returnedViewSha256: pin.returnedViewHash, returnedInputSha256: pin.returnedInputHash, returnedDeliverySha256: pin.returnedDeliveryHash, tableCensusSha256: pin.censusSha256, priorCp21: pin.priorCp21, priorCp27: pin.priorCp27, priorCp23: pin.priorCp23, priorCp5: pin.priorCp5, failedCp11Continuation: pin.failedCp11Continuation, sourceIdentityBasis: 'exact_pinned_original_checkpoint', privateWitnessFilesRechecked: witnessRecheck },
       continuedSuffix: passed && closeErrors.length === 0 && originalUnchanged ? 'PASS' : 'FAILED',
       lastPhase: phase, allHandlesClosed: closeErrors.length === 0, originalCheckpointUnchanged: originalUnchanged,
       originalPrefixHistoryUnchanged, wholeCasePass: false, databasePath: path };

@@ -1,4 +1,4 @@
-import type { SamePaLifecyclePrefix, SamePaLifecycleTotal, SamePaLifecycleTotalReference } from './SamePlateAppearanceLifecycle';
+import type { SamePaLifecyclePrefix, SamePaLifecycleTotal, SamePaLifecycleTotalReference, SamePaLifecycleView, SamePaLifecycleViewBasis } from './SamePlateAppearanceLifecycle';
 import type { directNativeDispatchFixture } from './SamePlateAppearanceDirectNative.test-support';
 import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import type { SamePaLifecycleWorkReference } from './SamePlateAppearanceLifecycle';
@@ -16,6 +16,11 @@ export type SamePaLifecycleFixtureContext = Pick<DirectFixture, 'db' | 'path' | 
 };
 type PreparedLifecycleTotals = Readonly<{ kind: 'same_pa_lifecycle_total_set'; totals: readonly SamePaLifecycleTotal[];
   participantTotalReferences: readonly SamePaLifecycleTotalReference[] }>;
+type PreparedLifecyclePrefixTotals = Readonly<{owner:ReturnType<typeof openSqliteSamePlateAppearanceLifecycleStore>;accepted:Map<string,unknown>;
+  prefixSource:SamePaLifecyclePrefix['source'];prefix:SamePaLifecyclePrefix;prefixReference:SamePaReference<'pa_lifecycle_v1_work_prefixes'>;
+  totals:readonly SamePaLifecycleTotal['source'][];totalSet:PreparedLifecycleTotals}>;
+type PreparedLifecycleView = PreparedLifecyclePrefixTotals & Readonly<{viewSource:SamePaLifecycleView['source'];view:SamePaLifecycleView;
+  viewReference:SamePaReference<'pa_lifecycle_v1_execution_views'>;basis:SamePaLifecycleViewBasis}>;
 
 /** Real Source acceptance only. Each caller explicitly declares all ten TOTALs;
  * the32 response values remain the separately accepted original fixture values.
@@ -40,16 +45,26 @@ export const prepareSamePaLifecycleFixture=(f:SamePaLifecycleFixtureContext,anch
 /** Shared original view/calibration tail. Retained IFN01 calls this only after
  * its exact persisted prefix and complete TOTAL set pass the real owner reads. */
 export const completeSamePaLifecycleFixtureView=(f:SamePaLifecycleFixtureContext,label:string,
-  prepared:Readonly<{owner:ReturnType<typeof openSqliteSamePlateAppearanceLifecycleStore>;accepted:Map<string,unknown>;
-    prefixSource:SamePaLifecyclePrefix['source'];prefix:SamePaLifecyclePrefix;prefixReference:SamePaReference<'pa_lifecycle_v1_work_prefixes'>;
-    totals:readonly SamePaLifecycleTotal['source'][];totalSet:PreparedLifecycleTotals}>,
+  prepared:PreparedLifecyclePrefixTotals,
   explicitBatterObservation?:AcceptedBattingObservationCalibration['values'],explicitDefenderObservation?:PlayerObservationCalibration,
   explicitBatterMotor?:AcceptedBattingCapability['values'],explicitDefenderLocomotion?:PlayerLocomotionCalibration)=>{
   const {owner,accepted,prefixSource,prefix,prefixReference,totals,totalSet}=prepared;
-  const viewSource={sourceId:label+':view',sourceVersion:'fixture-only-v1',capability:'same_pa_lifecycle_cumulative_view_v1',enrollmentReference:prefix.lineage.enrollmentReference,prefixReference,
+  const viewSource:SamePaLifecycleView['source']={sourceId:label+':view',sourceVersion:'fixture-only-v1',capability:'same_pa_lifecycle_cumulative_view_v1',enrollmentReference:prefix.lineage.enrollmentReference,prefixReference,
     participantTotalReferences:totalSet.participantTotalReferences};
   accepted.set(viewSource.sourceId,viewSource);const view=owner.acceptView(viewSource.sourceId);if(view.kind==='pending')throw new Error('real lifecycle view pending');
   const viewReference=reference('pa_lifecycle_v1_execution_views',view),basis=withSqliteReadTransaction(f.db,()=>readCurrentSamePaLifecycleViewFromSqlite(f.db,viewReference));
+  return completeSamePaLifecycleFixtureCalibrations(f,label,{owner,accepted,prefixSource,prefix,prefixReference,totals,totalSet,viewSource,view,viewReference,basis},
+    explicitBatterObservation,explicitDefenderObservation,explicitBatterMotor,explicitDefenderLocomotion);
+};
+
+/** Original calibration-only tail after a genuine accepted view and its basis.
+ * The retained LAN cut12 entry authenticates all preceding owner records before
+ * calling this first unperformed writer; no prefix, TOTAL or view is accepted. */
+export const completeSamePaLifecycleFixtureCalibrations=(f:SamePaLifecycleFixtureContext,label:string,
+  prepared:PreparedLifecycleView,
+  explicitBatterObservation?:AcceptedBattingObservationCalibration['values'],explicitDefenderObservation?:PlayerObservationCalibration,
+  explicitBatterMotor?:AcceptedBattingCapability['values'],explicitDefenderLocomotion?:PlayerLocomotionCalibration)=>{
+  const {owner,accepted,prefixSource,prefix,prefixReference,totals,totalSet,viewSource,view,viewReference,basis}=prepared;
   const calibrations=f.acceptedCalibrations.calibrations.map(c=>({...c.source,sourceId:label+':'+c.source.sourceId,capability:'same_pa_lifecycle_execution_calibration_v1',
     viewReference,member:basis.members.find(m=>m.playerId===c.source.member.playerId)!,provenance:{...c.source.provenance,assessmentSourceId:label+':'+c.source.provenance.assessmentSourceId,...(c.source.route==='batter_motor'&&explicitBatterMotor?{calibrationSourceId:label+':explicit-batter-motor',calibrationVersion:'fixture-only-declared-motor-v1'}:{}),...(c.source.route==='defender_locomotion'&&explicitDefenderLocomotion?{calibrationSourceId:label+':explicit-defender-locomotion',calibrationVersion:'fixture-only-declared-coverage-v1'}:{})},
     response:c.source.route==='defender_locomotion'&&explicitDefenderLocomotion?{kind:'accepted_execution_values_v1',values:explicitDefenderLocomotion}:c.source.route==='batter_motor'&&explicitBatterMotor?{kind:'accepted_execution_values_v1',values:explicitBatterMotor}:c.source.route==='batter_observation'&&explicitBatterObservation?{kind:'accepted_execution_values_v1',values:explicitBatterObservation}:c.source.route==='defender_observation'&&explicitDefenderObservation?{kind:'accepted_execution_values_v1',values:explicitDefenderObservation}:c.source.response}));

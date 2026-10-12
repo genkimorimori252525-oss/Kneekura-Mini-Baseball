@@ -142,7 +142,7 @@ export type SamePaPhysicalLifecycleRetainedCut = Readonly<{
   geometry: AcceptedInFlightBattingPosture['geometry']; genesis: DurableBattingEmotionGenesis;
   worldOwner: ReturnType<typeof openSqliteWorldControlStore>;
   roles: ReturnType<typeof deriveSamePaDispatchRoles>; throughTick: number;
-  /** Exact authenticated LAN cut5 delivery boundary or cut9 accepted-input boundary. */
+  /** Exact authenticated LAN cut5 delivery, cut9 input or cut12 field-root boundary. */
   eventReferences?: readonly SamePaLifecycleWorkReference[];
 }>;
 
@@ -168,11 +168,14 @@ export const completeSamePaPhysicalLifecycleFromCutFixture = <F extends SamePaPh
       ['pa_physical_v1_cuts','lan01:swing:capture-cut'],['batting_observation_v1_observations','lan01:swing:capture'],['pa_physical_v1_cuts','lan01:swing:delivery-cut']];
     const inputIdentities=[...identities,['batting_observation_v1_deliveries','lan01:swing:delivery'],['batting_prediction_v1_predictions','lan01:swing:forecast'],
       ['batting_emotion_execution_v1_executions','lan01:swing:emotion'],['pa_physical_v1_cuts','lan01:swing:decision-cut']];
+    const fieldIdentities=[...inputIdentities,['pa_physical_v1_commitments','lan01:swing:commitment'],['pa_physical_v1_resolutions','lan01:swing:resolution'],
+      ['pa_physical_v1_field_roots','lan01:field:field-root']];
     const exactDelivery=prepared.basis.viewReference.sourceId==='lan01:occupied:cut5:view'&&json(events.map(ref=>[ref.owner,ref.sourceId]))===json(identities);
     const exactInput=prepared.basis.viewReference.sourceId==='lan01:occupied:cut9:view'&&json(events.map(ref=>[ref.owner,ref.sourceId]))===json(inputIdentities);
-    if(label!=='lan01:occupied'||!exactDelivery&&!exactInput
+    const exactField=prepared.basis.viewReference.sourceId==='lan01:occupied:cut12:view'&&json(events.map(ref=>[ref.owner,ref.sourceId]))===json(fieldIdentities);
+    if(label!=='lan01:occupied'||!exactDelivery&&!exactInput&&!exactField
       ||json(events[0])!==json(reference('pa_take_successor_v1_pitch_actions',second))
-      ||json(prepared.basis.view.cut.physicalOperationReference)!==json(events.at(-1)))throw new Error('retained physical fixture requires the exact LAN delivery-cut prefix or accepted-input prefix');
+      ||json(prepared.basis.view.cut.physicalOperationReference)!==json(events.at(-1)))throw new Error('retained physical fixture requires the exact LAN delivery-cut prefix or accepted-input prefix or field-root prefix');
   }
   let basis: SamePaPhysicalLifecycleCutBasis = prepared.basis;
   const perception=track(openSqliteBattingPerceptionStore(f.path,{readAcceptedPosture:id=>accepted.get(id)}));

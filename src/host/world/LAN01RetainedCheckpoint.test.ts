@@ -6,9 +6,25 @@ import { join } from 'node:path';
 import { captureLAN01RetainedSuffixInput, LAN01_RETAINED_CHECKPOINT, prepareLAN01RetainedCheckpoint } from './LAN01RetainedCheckpoint.test-support';
 
 const input = () => ({ nativeReleased: true, checkpointGzip: '/private/checkpoint.sqlite.gz', destinationDirectory: '/private/new-suffix' });
-describe('exact LAN01-R6 cp21 accepted-input boundary, without opening Native owners', () => {
-  it('pins only cp21 input bytes and preserves cp27 as historical provenance', () => {
+describe('exact LAN01-R7 cp14 field-calibration boundary, without opening Native owners', () => {
+  it('pins only the exact cp14 view boundary and original pending calibration writer', () => {
     const pin = LAN01_RETAINED_CHECKPOINT;
+    expect([pin.checkpointSequence, pin.returnedOwnerCall, pin.gzipBytes, pin.databaseBytes, pin.tableCount, pin.rowCount]).toEqual([14, 14, 999475, 15671296, 117, 1397]);
+    expect(pin.gzipSha256).toBe('c28e883a9cbc2317e3e629e99807c26715b56d41e22f85deb4d1435761883128');
+    expect(pin.databaseSha256).toBe('17698377c8347d6ddcb145852cafda439193512de56b2f206f2f894c3171fd9f');
+    expect(pin.receiptSha256).toBe('be09d528d29b47b5e381f7d6137762f37a60fd2702f72cba151504681ad4caed');
+    expect(pin.priorRunTerminalSha256).toBe('8a48d3907ac9924c50f65ca063dd002edc08024bc8060d594532324c8319592c');
+    expect(pin.priorRunOutcome).toBe('FAILED_WALL_AFTER_CUT12_VIEW_BEFORE_CALIBRATION_RETURN');
+    expect(pin.priorRunObservationSha256).toBeNull();
+    expect(pin.firstRemainingWriter).toEqual({ owner: 'SamePlateAppearanceLifecycle', method: 'acceptCalibrationSet', sourceIdPrefix: 'lan01:occupied:cut12:',
+      argumentsHash: 'f3bcf512bce0a0727213fd030e508dc720796a93a694d5a5c17b541d4c960434' });
+    for (const [key, value] of Object.entries(pin.inputBoundary)) expect(pin.fieldBoundary[key as keyof typeof pin.fieldBoundary]).toBe(value);
+    expect([pin.fieldBoundary.commitmentReference.sourceId, pin.fieldBoundary.resolutionReference.sourceId, pin.fieldBoundary.fieldRootReference.sourceId,
+      pin.fieldBoundary.cut12PrefixReference.sourceId, pin.fieldBoundary.cut12ViewReference.sourceId])
+      .toEqual(['lan01:swing:commitment', 'lan01:swing:resolution', 'lan01:field:field-root', 'lan01:occupied:cut12:prefix', 'lan01:occupied:cut12:view']);
+  });
+  it('preserves exact cp21 input bytes and its cp27 historical provenance', () => {
+    const pin = LAN01_RETAINED_CHECKPOINT.priorCp21;
     expect({ gzipSha256: pin.gzipSha256, gzipBytes: pin.gzipBytes, databaseSha256: pin.databaseSha256, databaseBytes: pin.databaseBytes,
       receiptSha256: pin.receiptSha256, censusSha256: pin.censusSha256, tableCount: pin.tableCount, rowCount: pin.rowCount,
       checkpointSequence: pin.checkpointSequence, returnedOwnerCall: pin.returnedOwnerCall }).toEqual({
@@ -29,7 +45,7 @@ describe('exact LAN01-R6 cp21 accepted-input boundary, without opening Native ow
     expect(pin.priorVitestReportSha256).toBeNull(); expect(pin.priorSuffixResultPresent).toBe(false);
   });
   it('extends the unchanged delivery pins through accepted input and complete cut9 only', () => {
-    const pin = LAN01_RETAINED_CHECKPOINT;
+    const pin = LAN01_RETAINED_CHECKPOINT.priorCp21;
     for (const [key, value] of Object.entries(pin.deliveryBoundary)) {
       expect(pin.inputBoundary[key as keyof typeof pin.inputBoundary]).toBe(value);
     }
@@ -47,7 +63,7 @@ describe('exact LAN01-R6 cp21 accepted-input boundary, without opening Native ow
     expect(pin.firstRemainingWriter).toEqual({ owner: 'SamePlateAppearancePhysicalEpisode', method: 'acceptOperation', sourceId: 'lan01:swing:commitment',
       argumentsHash: '55ca606ba61b079c7f08142b1223ac14fc1944d70a50907dd7c51335ecf466c1' });
   });
-  it('keeps canonical authentication before exclusive cp21 materialization and readback', () => {
+  it('keeps canonical authentication before exclusive cp14 materialization and readback', () => {
     const source = readFileSync(new URL('./LAN01RetainedCheckpoint.test-support.ts', import.meta.url), 'utf8');
     const materializer = source.slice(source.indexOf('export const prepareLAN01RetainedCheckpoint'));
     expect(materializer).toContain("assert.equal(realpathSync(path), path, 'LAN01 input must be a canonical file path')");
@@ -58,7 +74,7 @@ describe('exact LAN01-R6 cp21 accepted-input boundary, without opening Native ow
     expect(authenticated).toBeGreaterThan(-1); expect(exclusiveDirectory).toBeGreaterThan(authenticated);
     expect(exclusiveFile).toBeGreaterThan(exclusiveDirectory);
     expect(materializer.indexOf('assert.equal(sha256(readFileSync(path)), pin.databaseSha256)')).toBeGreaterThan(exclusiveFile);
-    expect(materializer).toContain("join(input.destinationDirectory, 'lan01-cp21-input-suffix.sqlite')");
+    expect(materializer).toContain("join(input.destinationDirectory, 'lan01-cp14-field-calibration-suffix.sqlite')");
     expect(materializer).toContain('const input = captureLAN01RetainedSuffixInput(raw), pin = LAN01_RETAINED_CHECKPOINT');
     expect(materializer).not.toContain('recursive: true');
   });

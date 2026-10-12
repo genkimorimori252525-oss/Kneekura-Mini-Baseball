@@ -1,5 +1,7 @@
 # LAN01 retained accepted-input boundary
 
+Historical boundary: R7 later returned the physical commitment, contact resolution, field root, and cut12 view. The current exact entry is documented in [the pending-calibration continuation record](2026-10-12-lan-field-calibration-retained-boundary.md); the cp21 helper remains covered by its finite compatibility tests.
+
 The retained entry is restricted to LAN01-R6 checkpoint 21, after the accepted third-pitch batting input and complete cut9. Its generating public source is `7b989ef996035c0ad2fc1bbaf549b12f7d45634a`, source tree `4f67963c020d6768cfd9d90468cda7f15ef9c105`. LAN01-R7 names the proposed remaining-suffix acceptance case. New Native execution remains held; this change does not establish a remaining-suffix or whole-case PASS.
 
 R6 was interrupted after an environment change. Its last observed heartbeat was 2026-10-11 21:31:46 UTC, at 14,189.087680332 elapsed seconds. At 21:35:36 UTC the former execution session was unavailable and the original process IDs were absent. There is no formal terminal receipt, Vitest report, suffix result, confirmed cleanup, or completed wall-limit failure to credit. The separate parent observation has SHA-256 `fa60da67d0796f6594de6ea31cb5bdb870daaafa9e337092c5f0d57fee4e20d6`; it is recorded as an observation, never as a terminal receipt.

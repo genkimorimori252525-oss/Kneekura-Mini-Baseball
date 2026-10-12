@@ -3,7 +3,7 @@ import { actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSql
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { openSqlitePlayerBodyCapabilityMaterializationStore } from './SqlitePlayerBodyCapabilityMaterializationStore';
 import type { BattedBodyModelAssembly } from './PlayerBodyCapabilityMaterialization';
-import type { SamePaPhysicalFieldCalibrationSource, SamePaPhysicalFieldCalibration, SamePaPhysicalResolution, SamePaPhysicalFieldRootSource } from './SamePlateAppearancePhysicalEpisode';
+import type { SamePaPhysicalFieldCalibrationSource, SamePaPhysicalFieldCalibration, SamePaPhysicalResolution, SamePaPhysicalFieldRoot, SamePaPhysicalFieldRootSource } from './SamePlateAppearancePhysicalEpisode';
 import type { BallWorldVenueLegalPolicy } from '../../core/rules/BallWorldVenueLegalCoverage';
 import type { AcceptedBattedVenueLegalCoveragePolicy } from './BattedVenueLegalCoveragePolicy';
 import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
@@ -71,12 +71,23 @@ export const continuePhysicalFieldFixtureFromCalibration=(
       commands:model.actors.map(a=>({playerId:a.playerId,bodyAcceleration:{x:0,y:0,z:0},primitiveMotions:a.primitives.map(p=>({role:p.role,offsetVelocity:{x:0,y:0,z:0},offsetAcceleration:{x:0,y:0,z:0}}))}))});
     const root=h.physical.acceptOperation(rootSource.sourceId);if(root.kind!=='same_pa_physical_field_root_v1')throw new Error('real fresh field root pending');
     const rootReference=reference('pa_physical_v1_field_roots',root);h.advance(rootReference);
+    return appendPhysicalFieldFixtureStep(h,resolution,root,rootReference,label);
+  };
+  return{source,calibration,calibrationReference,model,appendField};
+};
+
+/** Shared original field-step body after the root is accepted and admitted.
+ * A retained LAN cut12 caller supplies its authenticated resolution and root;
+ * the first operation accepted here is the existing field-step Source. */
+export const appendPhysicalFieldFixtureStep=(
+  h:Pick<SamePaPhysicalLifecycleSuffix,'save'|'physical'|'current'|'advance'>,
+  resolution:SamePaPhysicalResolution,root:SamePaPhysicalFieldRoot,
+  rootReference:SamePaReference<'pa_physical_v1_field_roots'>,label:string)=>{
+  if(!resolution.contact)throw new Error('real fresh field requires actual contact');
     if(!root.field.motion.cursor)throw new Error('explicit stationary field fixture has an unresolved initial contact');
     const stepSource=h.save({sourceId:label+':field-step',sourceVersion:'fixture-only-v1',capability:'same_pa_physical_field_step_v1',viewReference:h.current().viewReference,
       launchReference:resolution.source.launchReference,previousOperationReference:rootReference,fieldRootReference:rootReference,previousFieldReference:rootReference,
       throughTick:resolution.contact.tick+2_000_000});
     const step=h.physical.acceptOperation(stepSource.sourceId);if(step.kind!=='same_pa_physical_field_step_v1')throw new Error('real retained field step pending');
     const stepReference=reference('pa_physical_v1_field_steps',step);h.advance(stepReference);return{root,rootReference,step,stepReference};
-  };
-  return{source,calibration,calibrationReference,model,appendField};
 };
