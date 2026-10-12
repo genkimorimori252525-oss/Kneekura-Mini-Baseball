@@ -95,7 +95,7 @@ const LAN01_PRIOR_CP21 = Object.freeze({
 });
 /** Exact LAN01-R7 cp14 after cut12 prefix, eleven TOTALs and view.
  * The first remaining writer is the original complete calibration set. */
-export const LAN01_RETAINED_CHECKPOINT = Object.freeze({
+const LAN01_PRIOR_CP14 = Object.freeze({
   ...LAN01_PRIOR_CP21,
   sourceCommit: 'c8c9e657faf94b4a2e02d51d38b97297429732da',
   publicSourceCommit: '092b768cb5c8b3072031df9400c87f88814fbc54',
@@ -126,6 +126,50 @@ export const LAN01_RETAINED_CHECKPOINT = Object.freeze({
   }),
   priorCp21: LAN01_PRIOR_CP21,
 });
+/** Exact LAN01-R6 cp19: the cut9 view is accepted but its calibration set is
+ * absent. The later ground-contact lineage remains failed evidence only. */
+export const LAN01_RETAINED_CHECKPOINT = Object.freeze({
+  ...LAN01_PRIOR_CP27,
+  sourceCommit: LAN01_PRIOR_CP21.sourceCommit, publicSourceCommit: LAN01_PRIOR_CP21.publicSourceCommit,
+  sourceTree: LAN01_PRIOR_CP21.sourceTree, runControlSha256: LAN01_PRIOR_CP21.runControlSha256,
+  priorRunTerminalSha256: null, priorRunObservationSha256: LAN01_PRIOR_CP21.priorRunObservationSha256,
+  priorRunOutcome: LAN01_PRIOR_CP21.priorRunOutcome,
+  receiptSha256: '2e684a90f3c112d217206e05470201a998311bfa1c0a627e97c614f4872863e9',
+  censusSha256: '91a4f460ef426113790873993623d0c5ed2e2b4f5f5047055a4115dadd30a42b',
+  contentAuditSha256: 'dec2d14ffe07d932699b80ccdc746a60a897486c0396698edf9dceeb51de5659',
+  gzipSha256: '1ff55c8e79eaee682eff205541416d6fe6d4434bfde056ac11085f7a0e59c96b', gzipBytes: 897694,
+  databaseSha256: 'bf869360d63a56535e0e20b97df6ad831e2dfa93e58cb6355a8b9270ce95511d', databaseBytes: 14032896,
+  tableCount: 117, rowCount: 1257, checkpointSequence: 19, returnedOwnerCall: 19,
+  returnedViewHash: '8d8da8ca92da7a4b0c41cfdd9fc69c7d4ce0d0a0021e99645da7acf57bf3f6cb',
+  firstRemainingWriter: Object.freeze({
+    owner: 'SamePlateAppearanceLifecycle', method: 'acceptCalibrationSet', sourceIdPrefix: 'lan01:occupied:cut9:',
+    // The owner arguments contain the same 32 IDs. Only the not-yet-accepted
+    // batter_swing Source values deliberately change at this boundary.
+    argumentsHash: '34eaf330c3eec2898008592b4c72a0873bf1a93cda66c466f0a294cddf0df7e0',
+  }),
+  decisionBoundary: Object.freeze({
+    ...LAN01_PRIOR_CP27.deliveryBoundary,
+    predictionReference: LAN01_PRIOR_CP21.inputBoundary.predictionReference,
+    scoreReference: LAN01_PRIOR_CP21.inputBoundary.scoreReference,
+    emotionReference: LAN01_PRIOR_CP21.inputBoundary.emotionReference,
+    decisionCutReference: LAN01_PRIOR_CP21.inputBoundary.decisionCutReference,
+    decisionPrefixReference: LAN01_PRIOR_CP21.inputBoundary.decisionPrefixReference,
+    cut9ViewReference: LAN01_PRIOR_CP21.inputBoundary.cut9ViewReference,
+  }),
+  priorCp21: LAN01_PRIOR_CP21,
+  priorCp14: LAN01_PRIOR_CP14,
+  priorCp27: LAN01_PRIOR_CP27,
+  failedGroundContactLineage: Object.freeze({
+    publicSourceCommit: '3dfe091e660f967e3f94f1c88ce7f8464e3b9c09', sourceTree: '002147bcb96b59188946a284859f0a27dc529583',
+    terminalSha256: '76197083717093fefb2e3cf3114c6bd3554044b889c7c192c990f036a92d14ca',
+    reportSha256: 'fe2420e91fa7198ebd66d77dac2886f17f2f7f134155f030b9a2d34b9aabeb71',
+    resultSha256: 'bf438c9d4d2996a753ce4d690a0212eac44e771c1e615ddb381da14f56917373',
+    gzipSha256: 'f1e77cdc8ced9e639fefb02a732f09e9952f6b619df8ccdd03ce5d685d658590',
+    databaseSha256: '2d51b8a4a62d7f8bf2aa8d14aa4ad4bcd359eedbc55ba5fe76b68949bbba29f1',
+    originalRunOutcome: 'FAILED_ACTUAL_FIELD_SOLE_GLOVE_ACQUISITION_CANDIDATE_MISSING',
+    reusableAsCorrectedSuffix: false,
+  }),
+});
 export type LAN01RetainedSuffixInput = Readonly<{
   nativeReleased: boolean; checkpointGzip: string; destinationDirectory: string;
 }>;
@@ -149,7 +193,7 @@ export const prepareLAN01RetainedCheckpoint = (raw: LAN01RetainedSuffixInput) =>
     assert(lstatSync(path).isFile(), 'LAN01 input must be a regular file');
     const bytes = readFileSync(path); assert.equal(sha256(bytes), expected, 'LAN01 retained input hash differs'); return bytes;
   };
-  // The independently audited byte pins identify cp14 even after its original
+  // The independently audited byte pins identify cp19 even after its original
   // private witness files are lost. Exact bytes bind the audited schema/rowid
   // census. No replacement witness is synthesized.
   const gzip = pinnedFile(input.checkpointGzip, pin.gzipSha256); assert.equal(gzip.length, pin.gzipBytes);
@@ -157,7 +201,7 @@ export const prepareLAN01RetainedCheckpoint = (raw: LAN01RetainedSuffixInput) =>
   assert.equal(bytes.length, pin.databaseBytes); assert.equal(sha256(bytes), pin.databaseSha256);
   assert.equal(realpathSync(dirname(input.destinationDirectory)), dirname(input.destinationDirectory), 'LAN01 output parent must be canonical');
   mkdirSync(input.destinationDirectory, { mode: 0o700 });
-  const path = join(input.destinationDirectory, 'lan01-cp14-field-calibration-suffix.sqlite');
+  const path = join(input.destinationDirectory, 'lan01-cp19-swing-calibration-suffix.sqlite');
   writeFileSync(path, bytes, { flag: 'wx', mode: 0o600 });
   assert.equal(sha256(readFileSync(path)), pin.databaseSha256);
   return { input, path, pin, witnessRecheck: { originalRunControl: false, checkpointReceipt: false, tableCensus: false, priorRunTerminal: false } as const };

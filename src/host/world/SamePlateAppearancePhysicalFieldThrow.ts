@@ -6,9 +6,17 @@ import type { SamePaFieldThrowValues } from './SamePlateAppearanceLifecycleCalib
 import type { DurablePlayerFieldingModel } from './SqlitePlayerFieldingModelStore';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { actorFreeze as freeze, actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
-import { bindSamePaOrdinaryPlayPurpose } from './SamePlateAppearanceOrdinaryPlay';
+import { bindSamePaOrdinaryPlayPurpose, type SamePaOrdinaryPlayAuthority } from './SamePlateAppearanceOrdinaryPlay';
 export { deriveSamePaOrdinaryPlayAttempts } from './SamePlateAppearanceOrdinaryPlay';
 type Field = SamePaPhysicalFieldRoot | SamePaPhysicalFieldStep;
+/** Dependencies of the pure throw calculation, not an accepted-action receipt. */
+export type SamePaPhysicalThrowAction = SamePaOrdinaryPlayAuthority & Readonly<{
+  source: Readonly<{ nominalPitch: Readonly<{
+    delivery: Pick<SamePaPhysicalAction['source']['nominalPitch']['delivery'], 'matchSeed'>;
+  }> }>;
+}>;
+type SamePaPhysicalThrowModel = Readonly<{ source: Pick<DurablePlayerFieldingModel['source'], 'playerId' | 'ratings'> }>;
+
 const result = (field: Field) => field.kind === 'same_pa_physical_field_step_v1' ? field.actionResult : undefined;
 const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw new Error('physical throw original dependency differs'); };
 /** Sensory work does not retire a transfer. Only its own next Core checkpoint
@@ -40,7 +48,7 @@ export const samePaPhysicalHasThrowRelease = (prefix: readonly Field[]): boolean
 /** Retain every owned acceleration and the original fielding ratings. The two
  * effective parameter groups come only from the accepted current-view Source. */
 export const deriveSamePaPhysicalThrowPlan = (source: SamePaPhysicalFieldStepSource, root: SamePaPhysicalFieldRoot,
-  previous: Field, action: SamePaPhysicalAction, model: DurablePlayerFieldingModel, values: SamePaFieldThrowValues) => {
+  previous: Field, action: SamePaPhysicalThrowAction, model: SamePaPhysicalThrowModel, values: SamePaFieldThrowValues) => {
   const a = source.action, motion = previous.field.motion;
   if (a?.kind !== 'throw_plan_v1' || root.physicalPitchSourceId !== previous.physicalPitchSourceId || root.physicalPitchSourceId !== action.physicalPitchSourceId
     || source.throughTick !== previous.evaluationTick || !motion.cursor || motion.response.kind !== 'carried'

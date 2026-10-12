@@ -17,6 +17,7 @@ import { readSamePaFieldRuleEvidenceFromSqlite } from './SamePlateAppearanceFiel
 import { readPhysicalClosureScoringHistory } from './PhysicalPlayClosureEvidenceFromSqlite';
 import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
 import type { AcceptedSamePaLifecycleOutcome } from './SamePlateAppearanceLifecycleOutcome';
+import { declareLAN01SwingCalibration } from './LAN01SwingCalibration.test-support';
 
 /** Verbatim original callback remainder after occupied physical preparation.
  * Earlier walk/prefix assertions are historical evidence, never suffix credit. */
@@ -28,6 +29,7 @@ export const continueLAN01OriginalLiveAppealAssertions = (
     expect(h.initialPlay?.play.state).toBe('live');expect(h.genesis.scope.playerId).toBe(h.f.actor.binding.playerId);
     expect(h.sceneBodyReferences.filter(p=>p.playerId!==previous.f.actor.binding.playerId)).toEqual(previous.sceneBodyReferences);
     stage('occupied-live-play-and-takes');
+    declareLAN01SwingCalibration(h.f);
     const before=h.current(),readyAtUs=Math.max(before.view.cut.evaluationTick,before.view.cut.bodyCut.completedAtTick);
     const action=h.prepareAction('lan01:swing','observer_decision',{...h.original.nominalPitch,
       delivery:{...h.original.nominalPitch.delivery,readyAtUs,physics:{velocity:{x:0,y:3.5,z:-40},spin:{x:0,y:0,z:0}}}},

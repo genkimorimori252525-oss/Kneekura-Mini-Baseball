@@ -1,7 +1,8 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { beforeEach, expect, it, vi } from 'vitest';
-import { readRetainedInFlightBattingInput, continueRetainedInFlightBattingInput } from './InFlightBattingLifecycleFixture.test-support';
+import { readRetainedInFlightBattingInput, continueRetainedInFlightBattingInput,
+  readRetainedInFlightBattingDecisionView, continueRetainedInFlightBattingDecision } from './InFlightBattingLifecycleFixture.test-support';
 import { completeSamePaPhysicalLifecycleFromCutFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -11,7 +12,7 @@ const boundary = vi.hoisted(() => ({
   replay: vi.fn(() => { throw new Error('completed batting writer replayed'); }),
   after: vi.fn(), currentView: vi.fn(() => { throw new Error('historical cut9 read as current'); }),
   queryScope: vi.fn(() => { throw new Error('nested restoration query scope'); }),
-  operation: vi.fn(), advance: vi.fn(),
+  operation: vi.fn(), advance: vi.fn(), input: vi.fn(), readInput: vi.fn(),
 }));
 vi.mock('./SqliteReadTransaction.test-support', () => ({ withSqliteReadTransaction: boundary.queryScope }));
 vi.mock('./SamePlateAppearanceLifecycleFromSqlite', () => ({
@@ -32,8 +33,8 @@ vi.mock('./SqliteBattingPerceptionStore', () => ({
 }));
 vi.mock('./SqliteBattingExecutionInputStore', () => ({
   readSamePaBattingIntentFromSqlite: (_db: unknown, pin: { sourceId: string }) => boundary.records.get(pin.sourceId),
-  readSamePaBattingExecutionInputFromSqlite: (_db: unknown, pin: { sourceId: string }) => boundary.records.get(pin.sourceId),
-  openSqliteBattingExecutionInputStore: () => ({ acceptIntent: boundary.replay, acceptInput: boundary.replay }),
+  readSamePaBattingExecutionInputFromSqlite: (_db: unknown, pin: { sourceId: string }) => boundary.readInput(pin),
+  openSqliteBattingExecutionInputStore: () => ({ acceptIntent: boundary.replay, acceptInput: boundary.input }),
 }));
 vi.mock('./SqliteBattingEmotionExecutionStore', () => ({
   readBattingEmotionExecutionFromSqlite: (_db: unknown, pin: { sourceId: string }) => boundary.records.get(pin.sourceId),
@@ -118,12 +119,84 @@ const inputs = () => {
   const h = completeSamePaPhysicalLifecycleFromCutFixture(f, new Map(), prepared, {}, 'lan01:occupied');
   const read = () => readRetainedInFlightBattingInput(h, 'lan01:swing', pins);
   const resume = () => continueRetainedInFlightBattingInput(h, 'lan01:swing', read());
-  return { f, h, prepared, pins, read, resume, prefix, input, emotion, decisionCut, captureCut, beforePrefix, eventReferences, calibrations };
+  const decisionContext = { f: { db: f.db, actor: f.actor }, second: h.second, anchor: h.anchor, events: h.events,
+    current: () => ({ view: h.current().view, viewReference: h.current().viewReference, basis: h.current().basis }) };
+  const readDecision = () => readRetainedInFlightBattingDecisionView(decisionContext, 'lan01:swing', pins);
+  return { f, h, prepared, pins, read, resume, readDecision, decisionContext, prefix, input, emotion, decisionCut, captureCut, beforePrefix, eventReferences, calibrations };
 };
 beforeEach(() => {
   boundary.records.clear(); boundary.views.clear(); boundary.replay.mockClear(); boundary.currentView.mockClear(); boundary.queryScope.mockClear();
-  boundary.advance.mockReset(); boundary.after.mockReset(); boundary.operation.mockReset();
+  boundary.advance.mockReset(); boundary.after.mockReset(); boundary.operation.mockReset(); boundary.input.mockReset(); boundary.readInput.mockReset();
   boundary.operation.mockImplementation(() => { throw new Error('first unperformed commitment'); });
+  boundary.input.mockImplementation(() => { throw new Error('first unperformed input'); });
+  boundary.readInput.mockImplementation((pin: { sourceId: string }) => boundary.records.get(pin.sourceId));
+});
+it('reads cp19 decision view with only nine events and no calibration set or accepted input', () => {
+  const x = inputs();
+  for (const value of [x.input, ...x.calibrations]) boundary.records.delete(value.source.sourceId);
+  const retained = x.readDecision();
+  expect(retained.decisionCut).toBe(x.decisionCut); expect(retained.beforeLaunch.worldRevision).toBe(4);
+  expect(retained.beforeLaunch.eventCount).toBe(1); expect(x.decisionContext.events).toEqual(x.eventReferences);
+  expect(x.decisionContext.current()).not.toHaveProperty('calibrationSet'); expect(retained).not.toHaveProperty('input');
+  expect(boundary.after).toHaveBeenCalledTimes(1); expect(boundary.after).toHaveBeenCalledWith(x.f.db, x.pins.cut9ViewReference, null);
+  expect(boundary.readInput).not.toHaveBeenCalled(); expect(boundary.input).not.toHaveBeenCalled();
+  expect(boundary.operation).not.toHaveBeenCalled(); expect(boundary.advance).not.toHaveBeenCalled(); expect(boundary.replay).not.toHaveBeenCalled();
+  expect(boundary.currentView).not.toHaveBeenCalled(); expect(boundary.queryScope).not.toHaveBeenCalled();
+});
+it('continues cp19 with the original first input Source using newly accepted cut9 calibrations', () => {
+  const x = inputs(), retained = x.readDecision();
+  for (const calibration of x.calibrations) calibration.source.sourceId += ':newly-accepted';
+  expect(() => continueRetainedInFlightBattingDecision(x.h, 'lan01:swing', retained)).toThrow('first unperformed input');
+  expect(boundary.input).toHaveBeenCalledTimes(1); expect(boundary.input).toHaveBeenCalledWith('lan01:swing:input');
+  expect(x.h.accepted.get('lan01:swing:input')).toEqual({ sourceId: 'lan01:swing:input', sourceVersion: 'fixture-only-v1',
+    capability: 'owned_in_flight_same_pa_batting_execution_input_v1', viewReference: x.pins.cut9ViewReference, member: x.input.source.member,
+    postureReference: x.pins.postureReference, emotionReference: x.pins.emotionReference, intentReference: x.pins.intentReference,
+    physicalPitchReference: x.pins.launchReference, physicalOperationReference: x.pins.decisionCutReference, assessmentReferences: [x.pins.scoreReference],
+    calibrationReferences: x.calibrations.map(c => ({ route: c.source.route, calibrationReference: reference('pa_lifecycle_v1_execution_calibrations', c) })),
+    directive: 'SWING', expectedWorld: { ...x.emotion.source.expectedWorld, worldRevision: 5 } });
+  expect(boundary.after).toHaveBeenCalledTimes(1);
+  expect(boundary.after.mock.invocationCallOrder[0]).toBeLessThan(boundary.input.mock.invocationCallOrder[0]);
+  expect(boundary.readInput).not.toHaveBeenCalled(); expect(boundary.operation).not.toHaveBeenCalled();
+  expect(boundary.advance).not.toHaveBeenCalled(); expect(boundary.replay).not.toHaveBeenCalled(); expect(boundary.queryScope).not.toHaveBeenCalled();
+});
+it('returns the full cp19 swing context through the unchanged input and physical tail', () => {
+  const x = inputs(), retained = x.readDecision();
+  boundary.input.mockReturnValue(x.input);
+  boundary.operation.mockImplementation((id: string) => ({ kind: id.endsWith(':commitment') ? 'same_pa_physical_commitment_v1' : 'same_pa_physical_resolution_v1', source: x.h.accepted.get(id) }));
+  boundary.advance.mockImplementation((_f: unknown, _anchor: unknown, _events: unknown, label: string) => ({ ...x.h.current(), viewReference: reference('pa_lifecycle_v1_execution_views', { source: { sourceId: label + ':view' } }) }));
+  const result = continueRetainedInFlightBattingDecision(x.h, 'lan01:swing', retained);
+  expect(result.input).toBe(x.input); expect(result.beforeLaunch).toBe(retained.beforeLaunch); expect(result.preparedWorldRevision).toBe(5);
+  expect(result).toMatchObject({ postureReference: x.pins.postureReference, intentReference: x.pins.intentReference, launchReference: x.pins.launchReference,
+    observationReference: x.pins.observationReference, deliveryReference: x.pins.deliveryReference });
+  expect(result.inputOwner.acceptInput).toBe(boundary.input); expect(result.perception.acceptPosture).toBe(boundary.replay); expect(result.emotionOwner.accept).toBe(boundary.replay);
+  expect(boundary.operation.mock.calls).toEqual([['lan01:swing:commitment'], ['lan01:swing:resolution']]);
+  expect(boundary.input.mock.invocationCallOrder[0]).toBeLessThan(boundary.operation.mock.invocationCallOrder[0]);
+  expect(boundary.advance.mock.calls.map(call => call[3])).toEqual(['lan01:occupied:cut10', 'lan01:occupied:cut11']);
+  expect(boundary.after).toHaveBeenCalledTimes(1); expect(boundary.readInput).not.toHaveBeenCalled(); expect(boundary.replay).not.toHaveBeenCalled();
+});
+it('rejects cp19 current AFTER failure before the first input owner', () => {
+  const x = inputs(); boundary.after.mockImplementation(() => { throw new Error('later work already exists'); });
+  expect(x.readDecision).toThrow('later work already exists');
+  expect(boundary.input).not.toHaveBeenCalled(); expect(boundary.operation).not.toHaveBeenCalled(); expect(boundary.replay).not.toHaveBeenCalled();
+});
+it.each([
+  ['changed original receipt', (x: ReturnType<typeof inputs>) => { x.emotion.source.capability = 'another-emotion'; }],
+  ['wrong physical predecessor', (x: ReturnType<typeof inputs>) => { x.decisionCut.source.previousOperationReference = x.pins.launchReference; }],
+  ['missing admitted emotion', (x: ReturnType<typeof inputs>) => { x.prefix.source.eventReferences = x.eventReferences.filter(r => r !== x.pins.emotionReference); }],
+  ['different original second TAKE', (x: ReturnType<typeof inputs>) => { x.decisionContext.second = { ...x.h.second, source: { ...x.h.second.source, sourceId: 'other:second-pitch' } }; }],
+  ['different original anchor', (x: ReturnType<typeof inputs>) => { x.beforePrefix.source.anchorViewReference = { ...x.h.anchor.viewReference, sourceId: 'other:anchor:view' }; }],
+  ['moved in-flight head', (x: ReturnType<typeof inputs>) => { boundary.cutProof = { ...boundary.cutProof, record: x.captureCut }; }],
+  ['moved World after emotion', () => { boundary.world.head.worldRevision++; }],
+] as const)('rejects cp19 %s before calibration or input continuation', (_name, mutate) => {
+  const x = inputs(); mutate(x); expect(x.readDecision).toThrow();
+  expect(boundary.input).not.toHaveBeenCalled(); expect(boundary.operation).not.toHaveBeenCalled();
+  expect(boundary.advance).not.toHaveBeenCalled(); expect(boundary.replay).not.toHaveBeenCalled(); expect(boundary.readInput).not.toHaveBeenCalled();
+});
+it('rejects a changed cp19 invocation before the first input owner', () => {
+  const x = inputs(), retained = x.readDecision();
+  expect(() => continueRetainedInFlightBattingDecision(x.h, 'other:swing', retained)).toThrow('original invocation differs');
+  expect(() => continueRetainedInFlightBattingDecision(x.h, 'lan01:swing', retained, { attempt: 'bunt' })).toThrow('original invocation differs');
+  expect(boundary.input).not.toHaveBeenCalled(); expect(boundary.operation).not.toHaveBeenCalled();
 });
 it('restores nine admitted events and reaches the exact original commitment as its first writer', () => {
   const x = inputs(), retained = x.read();

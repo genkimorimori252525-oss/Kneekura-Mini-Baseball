@@ -19,6 +19,7 @@ import { readSamePaFieldRuleEvidenceFromSqlite } from './SamePlateAppearanceFiel
 import { readPhysicalClosureScoringHistory } from './PhysicalPlayClosureEvidenceFromSqlite';
 import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
 import type { AcceptedSamePaLifecycleOutcome } from './SamePlateAppearanceLifecycleOutcome';
+import { declareLAN01SwingCalibration } from './LAN01SwingCalibration.test-support';
 
 /** One genuine Native route. No physical reader is replaced and no execution
  * row is supplied. This new geometry-qualified scenario has its own proof label;
@@ -62,6 +63,7 @@ it('LAN01 original occupied live appeal reaches explicit official acceptance, cl
     expect(h.initialPlay?.play.state).toBe('live');expect(h.genesis.scope.playerId).toBe(h.f.actor.binding.playerId);
     expect(h.sceneBodyReferences.filter(p=>p.playerId!==previous.f.actor.binding.playerId)).toEqual(previous.sceneBodyReferences);
     stage('occupied-live-play-and-takes');
+    declareLAN01SwingCalibration(h.f);
     const before=h.current(),readyAtUs=Math.max(before.view.cut.evaluationTick,before.view.cut.bodyCut.completedAtTick);
     const action=h.prepareAction('lan01:swing','observer_decision',{...h.original.nominalPitch,
       delivery:{...h.original.nominalPitch.delivery,readyAtUs,physics:{velocity:{x:0,y:3.5,z:-40},spin:{x:0,y:0,z:0}}}},

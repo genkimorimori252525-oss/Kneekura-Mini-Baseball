@@ -6,7 +6,20 @@ import { actorFreeze as freeze, actorJson as json } from './PhysicalPlateAppeara
 
 type Field = SamePaPhysicalFieldRoot | SamePaPhysicalFieldStep;
 type StepReference = SamePaReference<'pa_physical_v1_field_steps'>;
-export type SamePaOrdinaryPlayAuthority = Pick<SamePaPhysicalAction, 'actor' | 'physicalPitchSourceId'>;
+/** Read-only membership projection consumed by the pure purpose calculation.
+ * Native callers still obtain these fields from their authenticated action. */
+export type SamePaOrdinaryPlayAuthority = Readonly<{
+  physicalPitchSourceId: SamePaPhysicalAction['physicalPitchSourceId'];
+  actor: Readonly<{
+    binding: Pick<SamePaPhysicalAction['actor']['binding'], 'playerId'>;
+    match: Pick<SamePaPhysicalAction['actor']['match'], 'playId' | 'bases'>;
+    defenderBindings: readonly Pick<SamePaPhysicalAction['actor']['defenderBindings'][number], 'playerId'>[];
+    world: Readonly<{
+      runners: readonly Pick<SamePaPhysicalAction['actor']['world']['runners'][number], 'playerId'>[];
+      defenders: readonly Pick<SamePaPhysicalAction['actor']['world']['defenders'][number], 'playerId'>[];
+    }>;
+  }>;
+}>;
 /** Accepted purpose names the attempted retirement, never its physical or legal outcome. */
 export type SamePaOrdinaryPlayPurpose = Readonly<{ kind: 'ordinary_play_attempt_v1'; runnerId: string;
   targetBase: 'first' | 'second' | 'third' | 'home'; intent: 'attempt_retirement' }>;
