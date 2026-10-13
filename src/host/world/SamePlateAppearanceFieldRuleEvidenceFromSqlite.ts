@@ -9,7 +9,7 @@ import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './P
 import { samePaReferenceValid, type SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { readCurrentSamePaLifecycleViewFromSqlite, readHistoricalSamePaLifecycleViewFromSqlite,
-  readSamePaLifecycleRecordFromSqlite, withSamePaLifecycleReadPhase } from './SamePlateAppearanceLifecycleFromSqlite';
+  readSamePaLifecycleRecordFromSqlite, withSamePaLifecycleReadPhase, memoSamePaLifecycleRead } from './SamePlateAppearanceLifecycleFromSqlite';
 import { readSamePaPhysicalOperationFromSqlite } from './SamePlateAppearancePhysicalEpisodeFromSqlite';
 import type { SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep, SamePaPhysicalOperationReference } from './SamePlateAppearancePhysicalEpisode';
 import { deriveSamePaFieldRuleEvidence } from './SamePlateAppearanceFieldRuleEvidence';
@@ -27,6 +27,10 @@ export const readSamePaFieldRuleEvidenceWithInputsFromSqlite = (db: DatabaseSync
   const { view, actor } = basis, cut = view.cut;
   if (cut.stage !== 'field_active' || cut.timeline.status.kind !== 'batted_ball_pending' || cut.outcomeReference || cut.resetReference)
     return freeze({ kind: 'pending' as const, reason: 'owned_active_field_cut_required' as const });
+  // Only a complete pair is shared in this existing immutable phase. Keep
+  // validation and current/historical admission above the lookup; a caught
+  // invalid request must still expire the surrounding phase's proofs.
+  return memoSamePaLifecycleRead(db, 'field-rule-pair:' + json([mode, viewReference]), () => {
   const participants = readSamePaOriginalParticipants(db, actor), occupiedRunnerIds = participants.filter(p => p.role === 'runner').map(p => p.binding.playerId);
   const prefix = readSamePaLifecycleRecordFromSqlite(db, 'prefix', view.source.prefixReference.sourceId);
   if (!prefix || prefix.kind !== 'same_pa_lifecycle_prefix' || json(reference('pa_lifecycle_v1_work_prefixes', prefix)) !== json(view.source.prefixReference)) throw new Error('same-PA field-rule complete lifecycle prefix missing');
@@ -82,6 +86,7 @@ export const readSamePaFieldRuleEvidenceWithInputsFromSqlite = (db: DatabaseSync
     ...(occupied?.tagUp ? { occupiedRunnerTagUp: occupied.tagUp } : {}) });
   return Object.freeze({ kind: 'same_pa_field_rule_read_pair_v1' as const, value,
     fields: Object.freeze(fields), actor, view });
+  });
 });
 /** Public evidence shape stays unchanged. The paired reader is an immediate
  * same-snapshot dependency seam, never an accepted caller-supplied receipt. */

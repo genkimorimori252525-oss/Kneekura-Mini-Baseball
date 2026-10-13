@@ -1,4 +1,5 @@
-import { expect, it } from 'vitest';
+import { createRequire } from 'node:module';
+import { expect, it, vi } from 'vitest';
 import { asRuleProfileId } from '../../core/model/RuleProfileRef';
 import { createCanonicalPlateAppearanceTimeline, recordBatBallContact } from '../../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 import { deriveSamePaFairCatchRuleBasis } from './SamePlateAppearanceFairCatchRuleBasis';
@@ -9,10 +10,17 @@ import { deriveInitialBattedWorldFieldMotion } from '../../core/sim/ball/BattedW
 import { prepareBattedWorldScheduledFieldAcquisition } from '../../core/sim/ball/BattedWorldScheduledFieldAcquisition';
 import { deriveSamePaPhysicalFieldCapture } from './SamePlateAppearancePhysicalFieldCapture';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
-import { actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { actorHash as hash, actorFreeze as freeze, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import type { SamePaPhysicalFieldRoot, SamePaPhysicalFieldStep, SamePaPhysicalFieldStepSource } from './SamePlateAppearancePhysicalEpisode';
 import { deriveSamePaFieldRuleEvidence } from './SamePlateAppearanceFieldRuleEvidence';
 import { deriveSamePaLiveWorkCensus } from './SamePlateAppearanceLiveWorkCensus';
+import { withSamePaLifecycleReadPhase } from './SamePlateAppearanceLifecycleFromSqlite';
+import { readSamePaFieldRuleEvidenceWithInputsFromSqlite as readPair, readSamePaFieldRuleEvidenceFromSqlite as readEvidence } from './SamePlateAppearanceFieldRuleEvidenceFromSqlite';
+import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
+import * as lifecycleReader from './SamePlateAppearanceLifecycleFromSqlite';
+import * as physicalReader from './SamePlateAppearancePhysicalEpisodeFromSqlite';
+import * as participantReader from './SamePlateAppearanceOriginalParticipants';
+
 const ref = (owner: string) => ({ owner, sourceId: owner, sourceHash: hash(owner), snapshotHash: hash(owner) });
 const fieldRef = (r: SamePaPhysicalFieldRoot | SamePaPhysicalFieldStep) => reference(r.kind === 'same_pa_physical_field_root_v1' ? 'pa_physical_v1_field_roots' : 'pa_physical_v1_field_steps', r);
 /** Explicit synthetic physical parameters. Core computes the contact/capture;
@@ -165,4 +173,106 @@ it.each([0, 2] as const)('FR08 binds an empty-base correct catch ruling with %s 
   expect(() => deriveSamePaFairCatchRuleBasis({ originalMatch: { ...originalMatch, playId: 2 }, originalTimeline, evidence })).toThrow(/original contact scope/);
   expect(deriveSamePaFairCatchRuleBasis({ originalMatch: { ...originalMatch, bases: { first: 'prior', second: null, third: null } }, originalTimeline, evidence }))
     .toEqual({ kind: 'pending', reason: 'occupied_runner_original_base_contact_history_required' });
+});
+
+const pairFixture = (stage: 'field_active' | 'retained_take' = 'field_active') => {
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  const db = new DatabaseSync(':memory:'), h = setup();
+  const originalMatch = { ruleProfileId: asRuleProfileId('npb-2026'), playId: 1, inning: 1, half: 'top' as const, outs: 0,
+    balls: 0, strikes: 0, bases: { first: null, second: null, third: null }, score: { away: 0, home: 0 } };
+  const physicalPitchReference = ref('pa_physical_v1_launches');
+  const contact = freeze({ kind: 'same_pa_physical_resolution_v1', source: { sourceId: 'contact' },
+    timeline: recordBatBallContact(createCanonicalPlateAppearanceTimeline(originalMatch, 0), h.root.response.world.flight.contact) });
+  const contactReference = reference('pa_physical_v1_resolutions', contact);
+  const root = freeze({ ...h.root, source: { ...h.root.source, resolutionReference: contactReference } });
+  const prefix = freeze({ kind: 'same_pa_lifecycle_prefix', source: { sourceId: 'pair-prefix', eventReferences: [fieldRef(root)] } });
+  const view = freeze({ source: { sourceId: 'pair-view', prefixReference: reference('pa_lifecycle_v1_work_prefixes', prefix) },
+    lineage: root.lineage, coverageHash: hash('pair-coverage'), participants: ['batter', 'carrier', 'receiver'],
+    cut: { stage, timeline: root.timeline, outcomeReference: null, resetReference: null,
+      physicalPitchReference, physicalOperationReference: fieldRef(root), evaluationTick: root.evaluationTick } });
+  const viewReference = reference('pa_lifecycle_v1_execution_views', view);
+  const basis = freeze({ view, actor: { binding: { playerId: 'batter' },
+    defenderBindings: [{ playerId: 'carrier' }, { playerId: 'receiver' }], world: { runners: [] }, match: originalMatch } });
+  const participants = ['batter', 'carrier', 'receiver'].map(playerId => ({ binding: { playerId }, role: playerId === 'batter' ? 'batter' : 'defender' }));
+  const operations = new Map<string, unknown>([
+    [json(fieldRef(root)), freeze({ record: root, physicalPitchReference, lineage: root.lineage })],
+    [json(contactReference), freeze({ record: contact, physicalPitchReference, lineage: root.lineage })],
+  ]);
+  // Only archived baseball inputs are substituted. The paired reader, pure
+  // Core projection, Native transaction and phase guards remain real.
+  const reads: string[] = [];
+  const readBasis = (mode: string, pin: unknown) => {
+    if (json(pin) !== json(viewReference)) throw new Error('fixture view reference differs');
+    reads.push(mode); return basis as unknown as ReturnType<typeof lifecycleReader.readCurrentSamePaLifecycleViewFromSqlite>;
+  };
+  vi.spyOn(lifecycleReader, 'readCurrentSamePaLifecycleViewFromSqlite').mockImplementation((_db, pin) => readBasis('current', pin));
+  vi.spyOn(lifecycleReader, 'readHistoricalSamePaLifecycleViewFromSqlite').mockImplementation((_db, pin) => readBasis('historical', pin));
+  vi.spyOn(lifecycleReader, 'readSamePaLifecycleRecordFromSqlite').mockReturnValue(prefix as never);
+  vi.spyOn(physicalReader, 'readSamePaPhysicalOperationFromSqlite').mockImplementation((_db, pin) => {
+    const value = operations.get(json(pin));
+    if (!value) throw new Error('fixture physical reference differs');
+    return value as ReturnType<typeof physicalReader.readSamePaPhysicalOperationFromSqlite>;
+  });
+  vi.spyOn(participantReader, 'readSamePaOriginalParticipants').mockReturnValue(participants as never);
+  const phase = <T>(body: () => T) => withSqliteReadTransaction(db, () => withSamePaLifecycleReadPhase(db, body));
+  return { db, viewReference, phase, reads, close: () => { vi.restoreAllMocks(); db.close(); } };
+};
+
+it('FR09 shares one completed field-rule pair across nested evidence consumers only within its exact mode and read phase', () => {
+  const x = pairFixture();
+  try {
+    const first = x.phase(() => {
+      const pair = readPair(x.db, x.viewReference, 'current');
+      expect(pair.kind).toBe('same_pa_field_rule_read_pair_v1');
+      if (pair.kind !== 'same_pa_field_rule_read_pair_v1') throw new Error('fixture field pair pending');
+      expect(readPair(x.db, { ...x.viewReference }, 'current')).toBe(pair);
+      expect(readEvidence(x.db, x.viewReference, 'current')).toBe(pair.value);
+      const historical = readPair(x.db, x.viewReference, 'historical');
+      expect(historical).toEqual(pair); expect(historical).not.toBe(pair);
+      expect(readPair(x.db, x.viewReference, 'historical')).toBe(historical);
+      expect(() => { (pair.fields as unknown as unknown[]).push(pair.fields[0]); }).toThrow(TypeError);
+      expect(() => { (pair.actor.match as { outs: number }).outs = 2; }).toThrow(TypeError);
+      expect(() => { (pair.fields[0].field.motion.actors as unknown as unknown[]).pop(); }).toThrow(TypeError);
+      return pair;
+    });
+    const after = x.phase(() => readPair(x.db, x.viewReference, 'current'));
+    expect(after).toEqual(first); expect(after).not.toBe(first);
+    expect(x.reads).toContain('historical');
+    expect(() => readPair(x.db, x.viewReference, 'current')).toThrow(/query-only ownership/);
+  } finally { x.close(); }
+});
+
+it('FR10 never serves a completed pair for an altered full reference or caught invalid request', () => {
+  const x = pairFixture();
+  const variants = [
+    { ...x.viewReference, sourceId: 'other-view' },
+    { ...x.viewReference, sourceHash: hash('other-source') },
+    { ...x.viewReference, snapshotHash: hash('other-snapshot') },
+    { ...x.viewReference, owner: 'pa_lifecycle_v1_work_prefixes' },
+  ];
+  try {
+    for (const ref of variants) expect(() => x.phase(() => {
+      readPair(x.db, x.viewReference, 'current');
+      expect(() => readPair(x.db, ref as typeof x.viewReference, 'current')).toThrow(/reference|request/);
+      expect(() => readPair(x.db, x.viewReference, 'current')).toThrow(/expired/);
+    })).toThrow(/expired/);
+    expect(() => x.phase(() => {
+      readPair(x.db, x.viewReference, 'current');
+      expect(() => readPair(x.db, x.viewReference, 'invalid' as 'current')).toThrow(/invalid/);
+      expect(() => readPair(x.db, x.viewReference, 'current')).toThrow(/expired/);
+    })).toThrow(/expired/);
+    expect(x.phase(() => readPair(x.db, x.viewReference, 'current')).kind).toBe('same_pa_field_rule_read_pair_v1');
+  } finally { x.close(); }
+});
+
+it('FR11 leaves an inactive field pending result outside the completed-pair memo', () => {
+  const x = pairFixture('retained_take');
+  try {
+    x.phase(() => {
+      const first = readPair(x.db, x.viewReference, 'historical');
+      const second = readPair(x.db, x.viewReference, 'historical');
+      expect(first).toEqual({ kind: 'pending', reason: 'owned_active_field_cut_required' });
+      expect(second).toEqual(first); expect(second).not.toBe(first);
+    });
+  } finally { x.close(); }
 });
