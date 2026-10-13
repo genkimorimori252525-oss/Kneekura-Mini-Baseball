@@ -142,7 +142,7 @@ export type SamePaPhysicalLifecycleRetainedCut = Readonly<{
   geometry: AcceptedInFlightBattingPosture['geometry']; genesis: DurableBattingEmotionGenesis;
   worldOwner: ReturnType<typeof openSqliteWorldControlStore>;
   roles: ReturnType<typeof deriveSamePaDispatchRoles>; throughTick: number;
-  /** Exact authenticated LAN cut5 delivery, cut9 input, cut12 root, cut16 indication or cut21 received boundary. */
+  /** Exact authenticated LAN cut5 delivery, cut9 input, cut12 root, cut16 indication, cut21 received or cut24 sealed CatchWork boundary. */
   eventReferences?: readonly SamePaLifecycleWorkReference[];
 }>;
 
@@ -173,14 +173,18 @@ export const completeSamePaPhysicalLifecycleFromCutFixture = <F extends SamePaPh
     const throwIdentities=[...fieldIdentities,['pa_physical_v1_field_steps','lan01:field:field-step'],['pa_physical_v1_field_steps','lan01:appeal-throw:1'],
       ['pa_catch_v1_work','lan01:caught:work:original'],['pa_physical_v1_field_steps','lan01:appeal-throw:2']];
     const receivedIdentities=[...throwIdentities,...[3,4,5,6,7].map(n=>['pa_physical_v1_field_steps','lan01:appeal-throw:'+n])];
+    const sealedIdentities=[...receivedIdentities,['pa_physical_v1_field_steps','lan01:appeal-throw:8'],
+      ['pa_physical_v1_field_steps','lan01:seal'],['pa_catch_v1_work','lan01:caught:work:sealed']];
     const exactDelivery=prepared.basis.viewReference.sourceId==='lan01:occupied:cut5:view'&&json(events.map(ref=>[ref.owner,ref.sourceId]))===json(identities);
     const exactInput=prepared.basis.viewReference.sourceId==='lan01:occupied:cut9:view'&&json(events.map(ref=>[ref.owner,ref.sourceId]))===json(inputIdentities);
     const exactField=prepared.basis.viewReference.sourceId==='lan01:occupied:cut12:view'&&json(events.map(ref=>[ref.owner,ref.sourceId]))===json(fieldIdentities);
     const exactThrow=prepared.basis.viewReference.sourceId==='lan01:occupied:cut16:view'&&json(events.map(ref=>[ref.owner,ref.sourceId]))===json(throwIdentities);
     const exactReceived=prepared.basis.viewReference.sourceId==='lan01:occupied:cut21:view'&&json(events.map(ref=>[ref.owner,ref.sourceId]))===json(receivedIdentities);
-    if(label!=='lan01:occupied'||!exactDelivery&&!exactInput&&!exactField&&!exactThrow&&!exactReceived
+    const exactSealed=prepared.basis.viewReference.sourceId==='lan01:occupied:cut24:view'&&json(events.map(ref=>[ref.owner,ref.sourceId]))===json(sealedIdentities)
+      &&json(prepared.basis.view.cut.operationReference)===json(events.at(-1));
+    if(label!=='lan01:occupied'||!exactDelivery&&!exactInput&&!exactField&&!exactThrow&&!exactReceived&&!exactSealed
       ||json(events[0])!==json(reference('pa_take_successor_v1_pitch_actions',second))
-      ||json(prepared.basis.view.cut.physicalOperationReference)!==json(events.at(-1)))throw new Error('retained physical fixture requires the exact LAN delivery-cut prefix or accepted-input prefix or field-root prefix or pre-throw-plan prefix or received prefix');
+      ||json(prepared.basis.view.cut.physicalOperationReference)!==json(events.at(exactSealed?-2:-1)))throw new Error('retained physical fixture requires the exact LAN delivery-cut prefix or accepted-input prefix or field-root prefix or pre-throw-plan prefix or received prefix or sealed CatchWork prefix');
   }
   let basis: SamePaPhysicalLifecycleCutBasis = prepared.basis;
   const perception=track(openSqliteBattingPerceptionStore(f.path,{readAcceptedPosture:id=>accepted.get(id)}));

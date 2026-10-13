@@ -8,7 +8,7 @@ import { prepareInFlightBattingSwing } from './InFlightBattingLifecycleFixture.t
 import { prepareFreshPhysicalFieldFixture } from './SamePlateAppearancePhysicalFieldFixture.test-support';
 import { appendNativePhysicalThrowReception } from './SamePlateAppearancePhysicalThrowReception.test-support';
 import { appendNativeLiveAppealCatch } from './SamePlateAppearanceLiveAppealCatchNative.test-support';
-import { appendNativeLiveAppealJournal } from './SamePlateAppearanceLiveAppealJournalNative.test-support';
+import { appendNativeLiveAppealJournal, type RetainedNativeLiveAppealSession } from './SamePlateAppearanceLiveAppealJournalNative.test-support';
 import { liveAppealSceneFixture } from './SamePlateAppearanceLiveAppealScene.test-support';
 import { SAME_PA_ACTOR_PRODUCER_POLICY } from './SamePlateAppearanceActorProducerPolicy';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
@@ -87,7 +87,20 @@ export const continueLAN01OriginalLiveAppealAfterThrowAssertions = (
     const sealed=h.physical.acceptOperation(sealSource.sourceId);
     if(sealed.kind!=='same_pa_physical_field_step_v1'||sealed.actionResult?.kind!=='retained_quantizer_checkpoint_v1')throw new Error('LAN01 retained seal missing');
     expect(sealed.actionResult.status).toBe('checkpoint_reached');h.advance(reference('pa_physical_v1_field_steps',sealed));
-    const finalCall=caught.refresh(),current=h.current();
+    const finalCall=caught.refresh();
+    return continueLAN01OriginalLiveAppealSealedAssertions(h, finalCall, thrown.appealed.operationReference, stage);
+};
+
+/** Original post-seal reads, journal, terminal closure and readbacks. cp16 has
+ * already passed the first three assertions; they remain current revalidation,
+ * while only the final four callback assertions count as new suffix evidence. */
+export const continueLAN01OriginalLiveAppealSealedAssertions = (
+  h: SamePaPreparedPhysicalLifecycle,
+  finalCall: Pick<ReturnType<typeof appendNativeLiveAppealCatch>, 'workReference'>,
+  executionReference: NonNullable<ReturnType<typeof appendNativePhysicalThrowReception>['appealed']>['operationReference'],
+  stage: (name: string) => void, retainedSession?: RetainedNativeLiveAppealSession,
+) => {
+    const current=h.current();
     const live=withSqliteReadTransaction(h.f.db,()=>readSamePaAdmittedLiveWorkFromSqlite(h.f.db,current.viewReference,'current'));
     if(live.kind!=='same_pa_live_work_read_v1')throw new Error('LAN01 admitted original work missing');
     expect(live.actorProducerWork?.actors).toHaveLength(11);
@@ -97,7 +110,7 @@ export const continueLAN01OriginalLiveAppealAfterThrowAssertions = (
     expect(rule.fairCatch.correctRuling).toEqual({outsAfter:h.f.actor.match.outs+1,basesAfter:h.f.actor.match.bases,scoredRunnerIds:[]});
     const officialPolicy={sourceId:'lan01:window-policy',sourceVersion:'fixture-only-v1',ruleProfileId:NPB_2026_RULE_PROFILE.id,
       officialWindows:{appeal:{available:true},review:{available:true},challenge:{available:false}}};
-    const journal=appendNativeLiveAppealJournal(h,finalCall.workReference,thrown.appealed.operationReference,officialPolicy,'lan01:journal','lan01:scheduler');
+    const journal=appendNativeLiveAppealJournal(h,finalCall.workReference,executionReference,officialPolicy,'lan01:journal','lan01:scheduler',retainedSession);
     stage('original-rights-and-explicit-official-acceptance');
     const source:Extract<AcceptedSamePaLifecycleOutcome,{kind:'fair_catch'}>={sourceId:'lan01:terminal:outcome',sourceVersion:'fixture-only-v1',
       capability:'same_pa_lifecycle_outcome_v1',enrollmentReference:current.view.lineage.enrollmentReference,viewReference:current.viewReference,

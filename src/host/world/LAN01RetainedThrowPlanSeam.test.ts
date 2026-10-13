@@ -225,7 +225,7 @@ it('refreshes from the authenticated catch dependencies with only the new sealed
   expect([...accepted.keys()]).toEqual(['lan01:caught:communication:sealed', 'lan01:caught:work:sealed']); expect(boundary.replay).not.toHaveBeenCalled();
 });
 
-it('restores exact cut16 and cut21 and rejects missing, extra or changed admitted events while preserving earlier seams', () => {
+it('restores exact cut16, cut21 and sealed cut24 and rejects changed admitted events while preserving earlier seams', () => {
   const second = record('lan01:occupied:second-pitch', { lineage: { participantReferences: [] } });
   const identities = [
     ['pa_take_successor_v1_pitch_actions', 'lan01:occupied:second-pitch'], ['pa_physical_v1_launches', 'lan01:swing:launch'],
@@ -238,14 +238,16 @@ it('restores exact cut16 and cut21 and rejects missing, extra or changed admitte
     ['pa_catch_v1_work', 'lan01:caught:work:original'], ['pa_physical_v1_field_steps', 'lan01:appeal-throw:2'],
     ['pa_physical_v1_field_steps', 'lan01:appeal-throw:3'], ['pa_physical_v1_field_steps', 'lan01:appeal-throw:4'],
     ['pa_physical_v1_field_steps', 'lan01:appeal-throw:5'], ['pa_physical_v1_field_steps', 'lan01:appeal-throw:6'],
-    ['pa_physical_v1_field_steps', 'lan01:appeal-throw:7'],
+    ['pa_physical_v1_field_steps', 'lan01:appeal-throw:7'], ['pa_physical_v1_field_steps', 'lan01:appeal-throw:8'],
+    ['pa_physical_v1_field_steps', 'lan01:seal'], ['pa_catch_v1_work', 'lan01:caught:work:sealed'],
   ] as const;
   const events = identities.map(([owner, id], index) => reference(owner, index === 0 ? second : record(id)));
   const prepared = (n: number) => ({ first: second, second, anchor: {}, eventReferences: events.slice(0, n),
-    basis: { viewReference: pin('lan01:occupied:cut' + n + ':view'), view: { cut: { physicalOperationReference: events[n - 1] } } } });
+    basis: { viewReference: pin('lan01:occupied:cut' + n + ':view'), view: { cut: {
+      operationReference: events[n - 1], physicalOperationReference: events[n === 24 ? 22 : n - 1] } } } });
   const f = { path: '/unused/finite-prefix.sqlite', acceptedAction: { source: {} }, x: { f: { track: <T>(owner: T) => owner } } };
   const restore = (value: any) => completeSamePaPhysicalLifecycleFromCutFixture(f as never, new Map(), value as never, {}, 'lan01:occupied');
-  for (const n of [5, 9, 12, 16, 21]) { const value = prepared(n), restored = restore(value); expect(restored.events).toEqual(value.eventReferences); expect(restored.current()).toBe(value.basis); }
+  for (const n of [5, 9, 12, 16, 21, 24]) { const value = prepared(n), restored = restore(value); expect(restored.events).toEqual(value.eventReferences); expect(restored.current()).toBe(value.basis); }
   const exact = prepared(16), oldEvents = events.slice(0, 16);
   for (const value of [
     { ...exact, eventReferences: oldEvents.slice(0, -1) },
@@ -255,13 +257,20 @@ it('restores exact cut16 and cut21 and rejects missing, extra or changed admitte
     { ...exact, basis: { ...exact.basis, viewReference: pin('lan01:occupied:cut17:view') } },
     { ...exact, basis: { ...exact.basis, view: { cut: { physicalOperationReference: events[13] } } } },
   ]) expect(() => restore(value)).toThrow('exact LAN delivery-cut prefix');
-  const received = prepared(21);
+  const received = prepared(21), receivedEvents = events.slice(0, 21);
   for (const value of [
-    { ...received, eventReferences: events.slice(0, -1) },
-    { ...received, eventReferences: [...events, reference('pa_physical_v1_field_steps', record(label + ':8'))] },
-    { ...received, eventReferences: events.map((value, index) => index === 16 ? { ...value, sourceId: label + ':other-plan' } : value) },
+    { ...received, eventReferences: receivedEvents.slice(0, -1) },
+    { ...received, eventReferences: [...receivedEvents, reference('pa_physical_v1_field_steps', record(label + ':8'))] },
+    { ...received, eventReferences: receivedEvents.map((value, index) => index === 16 ? { ...value, sourceId: label + ':other-plan' } : value) },
     { ...received, basis: { ...received.basis, viewReference: pin('lan01:occupied:cut22:view') } },
     { ...received, basis: { ...received.basis, view: { cut: { physicalOperationReference: events[19] } } } },
+  ]) expect(() => restore(value)).toThrow('exact LAN delivery-cut prefix');
+  const sealed = prepared(24);
+  for (const value of [
+    { ...sealed, eventReferences: events.slice(0, -1) },
+    { ...sealed, eventReferences: [...events.slice(0, 22), events[23], events[22]] },
+    { ...sealed, basis: { ...sealed.basis, view: { cut: { operationReference: events[22], physicalOperationReference: events[22] } } } },
+    { ...sealed, basis: { ...sealed.basis, view: { cut: { operationReference: events[23], physicalOperationReference: events[23] } } } },
   ]) expect(() => restore(value)).toThrow('exact LAN delivery-cut prefix');
   expect(boundary.replay).not.toHaveBeenCalled(); expect(boundary.calibration).not.toHaveBeenCalled(); expect(boundary.catchOwner).not.toHaveBeenCalled();
 });

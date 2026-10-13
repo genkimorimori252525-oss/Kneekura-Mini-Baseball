@@ -87,8 +87,9 @@ describe('exact LAN01-R11 cp24 received boundary, without opening Native owners'
     expect(authenticated).toBeGreaterThan(-1); expect(exclusiveDirectory).toBeGreaterThan(authenticated);
     expect(exclusiveFile).toBeGreaterThan(exclusiveDirectory);
     expect(materializer.indexOf('assert.equal(sha256(readFileSync(path)), pin.databaseSha256)')).toBeGreaterThan(exclusiveFile);
-    expect(materializer).toContain("join(input.destinationDirectory, 'lan01-cp24-pending-appeal-suffix.sqlite')");
-    expect(materializer).toContain('const input = captureLAN01RetainedSuffixInput(raw), pin = LAN01_RETAINED_CHECKPOINT');
+    expect(materializer).toContain("materializeLAN01RetainedCheckpoint(raw, LAN01_RETAINED_CHECKPOINT, 'lan01-cp24-pending-appeal-suffix.sqlite')");
+    expect(materializer).toContain('const input = captureLAN01RetainedSuffixInput(raw)');
+    expect(materializer).toContain('join(input.destinationDirectory, filename)');
     expect(materializer).not.toContain('recursive: true');
   });
   it('rejects unreleased execution before attempting filesystem access', () => {
@@ -130,7 +131,13 @@ it('keeps the original twenty LAN callback assertions and the final eleven byte-
   const throwCall = '    return continueLAN01OriginalLiveAppealAfterThrowAssertions(h, field, caught, thrown, stage);';
   const initial = retained.slice(retained.indexOf(start), retained.indexOf(swingCall));
   const beforeThrow = retained.slice(retained.indexOf(swingSplit), retained.indexOf(throwCall));
-  const remaining = retained.slice(retained.indexOf(throwSplit), retained.lastIndexOf('};'));
+  const beforeSeal = retained.slice(retained.indexOf(throwSplit), retained.indexOf('    const finalCall=caught.refresh();'));
+  const afterSeal = retained.slice(retained.indexOf('    const live=withSqliteReadTransaction'), retained.lastIndexOf('};'))
+    .replace('executionReference,officialPolicy', 'thrown.appealed.operationReference,officialPolicy')
+    .replace("'lan01:scheduler',retainedSession)", "'lan01:scheduler')");
+  const remaining = beforeSeal + '    const finalCall=caught.refresh(),current=h.current();\n' + afterSeal;
+  expect(afterSeal.match(/\bexpect\(/g)).toHaveLength(7);
+  expect(retained).toContain('return continueLAN01OriginalLiveAppealSealedAssertions(h, finalCall, thrown.appealed.operationReference, stage)');
   expect(initial + beforeThrow + remaining).toBe(originalTail);
   expect(originalTail.match(/\bexpect\(/g)).toHaveLength(20);
   expect(initial.match(/\bexpect\(/g)).toHaveLength(4);

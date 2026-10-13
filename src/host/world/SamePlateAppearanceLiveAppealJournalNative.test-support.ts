@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict';
 import { expect } from 'vitest';
 import { closeOfficialPlay, closeOfficialStateWindow, getOfficialPlayClosure, getOfficialStateWindows,
   getOwnedLiveAppealRightsAdmissions, getPendingOwnedLiveAppealImports, getPlayAdjudicationState,
@@ -5,7 +6,7 @@ import { closeOfficialPlay, closeOfficialStateWindow, getOfficialPlayClosure, ge
 import type { ActualLiveOfficialPolicy } from './ActualLiveAdjudicationSource';
 import type { AcceptedActualPostPlayOfficialIntent, AcceptedActualPostPlayReviewEvent,
   AcceptedActualPostPlayReviewSession, ActualPostPlayReviewEventAction } from './ActualPostPlayReviewSource';
-import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { actorJson as json, actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { deriveSamePaCatchReviewSeedFromSqlite } from './SamePlateAppearanceCatchReviewFromSqlite';
 import type { SamePaCatchReviewSeedSource } from './SamePlateAppearanceCatchReviewSource';
 import type { SamePaPreparedPhysicalLifecycle } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
@@ -13,13 +14,40 @@ import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import { openSqliteActualPostPlayReviewStore } from './SqliteActualPostPlayReviewStore';
 import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
 
+export type RetainedNativeLiveAppealSession = Readonly<{
+  sourceId: string; sourceHash: string; revision: 0; headSourceId: string; headHash: string;
+  projectionSnapshotHash: string; seedSnapshotHash: string;
+}>;
+
+/** Read the genuine revision-zero owner projection. The resumed entry supplies
+ * an exact checkpoint pin; a later head or substituted Source is rejected.
+ * The original independent acceptSession retry at the end remains unchanged. */
+export const readRetainedNativeLiveAppealSession = (
+  owner: Pick<ReturnType<typeof openSqliteActualPostPlayReviewStore>, 'readCurrent'>,
+  session: AcceptedActualPostPlayReviewSession, retained: RetainedNativeLiveAppealSession,
+) => {
+  assert.equal(session.sourceId, retained.sourceId, 'LAN01 retained journal session identity differs');
+  assert.equal(hash(session), retained.sourceHash, 'LAN01 retained journal session Source differs');
+  assert.equal(retained.revision, 0, 'LAN01 retained journal must precede import');
+  const value = owner.readCurrent(session.sourceId);
+  assert(value, 'LAN01 retained journal session missing');
+  assert.deepEqual(value.source, session, 'LAN01 retained journal stored Source differs');
+  assert.equal(value.revision, retained.revision, 'LAN01 retained journal revision differs');
+  assert.equal(value.headSourceId, retained.headSourceId, 'LAN01 retained journal head identity differs');
+  assert.equal(value.headHash, retained.headHash, 'LAN01 retained journal head hash differs');
+  assert.equal(value.events.length, 0, 'LAN01 retained journal already contains events');
+  assert.equal(value.seed.snapshotHash, retained.seedSnapshotHash, 'LAN01 retained journal seed differs');
+  assert.equal(hash(value), retained.projectionSnapshotHash, 'LAN01 retained journal projection differs');
+  return value;
+};
+
 /** Import the original live appeal only after the physical end is independently
  * sealed. Native replays the field receipt, original rights and caught call;
  * accepted Sources contain references and an explicit official instruction. */
 export const appendNativeLiveAppealJournal = (h: SamePaPreparedPhysicalLifecycle,
   catchWorkReference: SamePaReference<'pa_catch_v1_work'>,
   executionReference: SamePaReference<'pa_physical_v1_field_steps'>,
-  policy: ActualLiveOfficialPolicy, label: string, schedulerId: string) => {
+  policy: ActualLiveOfficialPolicy, label: string, schedulerId: string, retainedSession?: RetainedNativeLiveAppealSession) => {
   const current = h.current(), physicalOperationReference = current.view.cut.physicalOperationReference;
   if (physicalOperationReference.owner !== 'pa_physical_v1_field_roots' && physicalOperationReference.owner !== 'pa_physical_v1_field_steps')
     throw new Error('Native live appeal journal requires its original sealed physical field');
@@ -57,7 +85,8 @@ export const appendNativeLiveAppealJournal = (h: SamePaPreparedPhysicalLifecycle
     if (result.kind !== 'accepted') throw new Error('Native live appeal journal intake pending: ' + json(result));
     return result.value;
   };
-  let value = accept(owner.acceptSession(session.sourceId));
+  let value = retainedSession === undefined ? accept(owner.acceptSession(session.sourceId))
+    : readRetainedNativeLiveAppealSession(owner, session, retainedSession);
   expect(value.kind).toBe('official_pending');
   const append = (name: string, action: ActualPostPlayReviewEventAction) => {
     const source: AcceptedActualPostPlayReviewEvent = h.save({ sourceId: label + ':' + name, sourceVersion: 'explicit-fixture-v1',

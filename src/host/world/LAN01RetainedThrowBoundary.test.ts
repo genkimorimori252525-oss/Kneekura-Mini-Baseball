@@ -1,7 +1,7 @@
 import { beforeEach, expect, it, vi } from 'vitest';
 import { actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
-import { readLAN01RetainedReceivedBoundary, readLAN01RetainedThrowBoundary } from './LAN01RetainedThrowBoundary.test-support';
+import { readLAN01RetainedReceivedBoundary, readLAN01RetainedThrowBoundary, readLAN01RetainedSealedBoundary } from './LAN01RetainedThrowBoundary.test-support';
 
 const boundary = vi.hoisted(() => ({
   records: new Map<string, any>(), views: new Map<string, any>(), world: null as any,
@@ -393,4 +393,71 @@ it('propagates the received physical head rejection before a future appeal can r
 it('still authenticates the original caught history before adopting a received boundary', () => {
   const f = receivedFixture(); f.caught.originalInputs.action.judgment = 'not_caught';
   expect(() => readLAN01RetainedReceivedBoundary(f.context, f.pins)).toThrow(/caught owner reference differs/);
+});
+
+
+// Extend the same finite declarations through seal/CatchWork. These synthetic
+// records exercise graph/fence wiring only; Native authentication is separate.
+const sealedFixture = () => {
+  const f = receivedFixture(), { pins, record, nextView } = f;
+  const events = [...f.context.eventReferences];
+  const append = (id: string, previous: any, viewReference: any, ordinal: number, action: any, actionResult: any) =>
+    record('same_pa_physical_field_step_v1', id, { physicalPitchSourceId: pins.launchReference.sourceId,
+      pitchOrdinal: 3, operationOrdinal: ordinal, stage: 'field', timeline: f.root.timeline,
+      evaluationTick: f.received.evaluationTick, viewReference, field: f.received.field, actionResult,
+      source: { viewReference, launchReference: pins.launchReference, previousOperationReference: previous,
+        previousFieldReference: previous, fieldRootReference: pins.fieldRootReference, throughTick: f.received.evaluationTick, action } });
+  const appealed = append('lan01:appeal-throw:8', pins.receivedReference, pins.cut21ViewReference, 15,
+    { kind: 'appeal_contact_v1', indicationReference: pins.indicatedReference, throwPlanReference: pins.plannedReference },
+    { kind: 'appeal_contact_v1', execution: { kind: 'executed' } });
+  pins.appealedReference = reference('pa_physical_v1_field_steps', appealed); events.push(pins.appealedReference);
+  pins.cut22ViewReference = nextView(22, events, pins.appealedReference, appealed.evaluationTick).viewReference;
+  const sealed = append('lan01:seal', pins.appealedReference, pins.cut22ViewReference, 16,
+    { kind: 'retained_quantizer_checkpoint_v1' }, { kind: 'retained_quantizer_checkpoint_v1', status: 'checkpoint_reached' });
+  pins.sealedReference = reference('pa_physical_v1_field_steps', sealed); events.push(pins.sealedReference);
+  pins.cut23ViewReference = nextView(23, events, pins.sealedReference, sealed.evaluationTick).viewReference;
+  const sealedCatch = record('same_pa_catch_work_v1', 'lan01:caught:work:sealed', {
+    physicalPitchReference: pins.launchReference, physicalOperationReference: pins.sealedReference, evaluationTick: sealed.evaluationTick,
+    source: { viewReference: pins.cut23ViewReference, priorWorkReference: pins.caughtReference, enrollmentReference: f.root.lineage.enrollmentReference } });
+  pins.sealedCatchReference = reference('pa_catch_v1_work', sealedCatch); events.push(pins.sealedCatchReference);
+  const current = nextView(24, events, pins.sealedCatchReference, sealed.evaluationTick);
+  current.view.cut.physicalOperationReference = pins.sealedReference;
+  current.viewReference = reference('pa_lifecycle_v1_execution_views', current.view);
+  pins.cut24ViewReference = current.viewReference; pins.cut24PrefixReference = current.view.source.prefixReference;
+  f.context.current = current; f.context.eventReferences = events;
+  return { ...f, appealed, sealed, sealedCatch };
+};
+
+it('adopts the sealed cut24 with distinct admitted CatchWork and physical seal and only current coverage24', () => {
+  const f = sealedFixture(), result = readLAN01RetainedSealedBoundary(f.context, f.pins);
+  expect(result.appealed.value).toBe(f.appealed); expect(result.sealed.value).toBe(f.sealed);
+  expect(result.sealedCaught.work).toBe(f.sealedCatch);
+  expect(boundary.reserved.mock.calls).toEqual([[f.context.db, f.context.current.basis]]);
+  expect(boundary.coverage.mock.calls).toEqual([[f.context.db, f.root.lineage.enrollmentReference,
+    f.context.anchorViewReference, f.context.eventReferences]]);
+  expect(boundary.forbidden).not.toHaveBeenCalled();
+});
+
+it('rejects changed seal, CatchWork predecessor, admitted ordering or physical cut before current admission', () => {
+  for (const change of [
+    (f: ReturnType<typeof sealedFixture>) => { f.pins.sealedReference = { ...f.pins.sealedReference, snapshotHash: hash('changed') }; },
+    (f: ReturnType<typeof sealedFixture>) => { f.sealedCatch.source.priorWorkReference = f.pins.sealedReference; },
+    (f: ReturnType<typeof sealedFixture>) => { f.context.eventReferences = f.context.eventReferences.slice(0, -1); },
+    (f: ReturnType<typeof sealedFixture>) => { f.context.current.view.cut.physicalOperationReference = f.pins.sealedCatchReference; },
+    (f: ReturnType<typeof sealedFixture>) => { boundary.records.delete(f.pins.sealedReference.sourceId); },
+  ]) {
+    const f = sealedFixture(); change(f); boundary.reserved.mockClear(); boundary.coverage.mockClear();
+    expect(() => readLAN01RetainedSealedBoundary(f.context, f.pins)).toThrow();
+    expect(boundary.reserved).not.toHaveBeenCalled(); expect(boundary.coverage).not.toHaveBeenCalled();
+  }
+  expect(boundary.forbidden).not.toHaveBeenCalled();
+});
+
+it('propagates independent current reservation and coverage rejection after sealed history reads', () => {
+  const f = sealedFixture(); boundary.reserved.mockImplementationOnce(() => { throw new Error('current reserved state changed'); });
+  expect(() => readLAN01RetainedSealedBoundary(f.context, f.pins)).toThrow('current reserved state changed');
+  expect(boundary.coverage).not.toHaveBeenCalled();
+  boundary.coverage.mockImplementationOnce(() => { throw new Error('extra current work'); });
+  expect(() => readLAN01RetainedSealedBoundary(f.context, f.pins)).toThrow('extra current work');
+  expect(boundary.forbidden).not.toHaveBeenCalled();
 });

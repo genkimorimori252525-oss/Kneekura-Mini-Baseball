@@ -254,6 +254,43 @@ export const LAN01_RETAINED_CHECKPOINT = Object.freeze({
   }),
   priorCp39: LAN01_PRIOR_CP39,
 });
+/** Exact LAN01-R12 cp16: cut24 and the original review session returned.
+ * The interrupted import is absent; this pin cannot select an arbitrary head. */
+export const LAN01_RETAINED_REVIEW_SESSION_CHECKPOINT = Object.freeze({
+  ...LAN01_RETAINED_CHECKPOINT,
+  sourceCommit: 'c0b62314033de11d978fcfbf91fbc01fbcfa5153',
+  publicSourceCommit: '1e748d8b227afde81c2d49a0a1e16fe460ee796f',
+  sourceTree: '7107950525f037364c1cf2c39770589edcf1dfec',
+  runControlSha256: '019fc4c86a4c2f79f8a1d209c49369716cd3d027f1d3485baa9240fa0df54ff3',
+  receiptSha256: '42d3ebf86a6b70e1a55911da7c616dd09a4931616b9675ac9d4e4e35b0df1f59',
+  censusSha256: '9c108b7e97b0df30c0644c1ee6d096cf32a4fe3c6176a7621d952bfedb7d3795',
+  contentAuditSha256: '5f1f23d80c1e2120f566ec759f2ea7e649945c0dd9c0337f9137658e91b60be1',
+  priorRunTerminalSha256: '4c2b0790438a5fbfd3a3d2ede0478f66606b4f2f7e48230d2fcd78357b274f14',
+  priorRunOutcome: 'FAILED_WALL_AFTER_REVIEW_SESSION_BEFORE_ORIGINAL_IMPORT_RETURN',
+  gzipSha256: '71f3622b6f27a262bd744373ee2bb3cdc64ff5bc1439f05bd2b8cdd33388fe01',
+  databaseSha256: '4b5f4a7eac0aff693cd34aaf116ac8df35aa5fc76f0e333555217edca161bccd',
+  gzipBytes: 1401243, databaseBytes: 22630400, tableCount: 121, rowCount: 1984,
+  checkpointSequence: 16, returnedOwnerCall: 16,
+  returnedCalibrationSetHash: 'c7bc507dc1c0e38ab25ef41c38db7dda20148a3190cbd2fb9d05f1d5a81687a5',
+  firstRemainingWriter: Object.freeze({ owner: 'ActualPostPlayReview', method: 'acceptEvent', sourceId: 'lan01:journal:import',
+    argumentsHash: '872b5286e1b9fb07b972d95e84c22f4f86287633e48133b51d5fbd3512b9b73b' }),
+  sealedBoundary: Object.freeze({
+    ...LAN01_RETAINED_CHECKPOINT.receivedBoundary,
+    appealedReference: { owner: 'pa_physical_v1_field_steps' as const, sourceId: 'lan01:appeal-throw:8', sourceHash: 'cdad2482f0fde2743f4f460cbb7c31273d0a33f59526f78d033313eca90a37b4', snapshotHash: 'de37b9015482a6e4ab16d40013e8ef8fd1c8a9669dd2d935c509243f05462e55' },
+    sealedReference: { owner: 'pa_physical_v1_field_steps' as const, sourceId: 'lan01:seal', sourceHash: 'cdecfc4f30117acf5140092bf0032601d3568a2e7055849dc3a1a1dbb820416e', snapshotHash: '37545f34eaa985ee8d932b519677a1bc7cb3ab7a25e3c39510dc15e13fc72843' },
+    sealedCatchReference: { owner: 'pa_catch_v1_work' as const, sourceId: 'lan01:caught:work:sealed', sourceHash: '60c37c563d05f1e79fb8a17fc1d556c3570705634443d34f00d11ae7aebd875d', snapshotHash: 'b738ff317f3ad874122c2520c5833f9e97ab17b96e59da55ea339ce583c956b3' },
+    cut22ViewReference: { owner: 'pa_lifecycle_v1_execution_views' as const, sourceId: 'lan01:occupied:cut22:view', sourceHash: 'baa38ecc5eae6b1be93b03f581d058e88cc343bd4f759d236b1d917b244d7585', snapshotHash: '88ae3e799ee4154ca0023f19253aa52e7bd850bf465efcb37a8f3327383f8db7' },
+    cut23ViewReference: { owner: 'pa_lifecycle_v1_execution_views' as const, sourceId: 'lan01:occupied:cut23:view', sourceHash: 'c8d0f091b39edf96f994a19c1ec2ed3304d9fc968c5d9de4f122af3dace8d019', snapshotHash: '1631f2acab7e06357086c5d42165b611477e9daa1e1438f3cd05dabc615c6928' },
+    cut24ViewReference: { owner: 'pa_lifecycle_v1_execution_views' as const, sourceId: 'lan01:occupied:cut24:view', sourceHash: '787e1856c919f70fb6fd258dbe3609fb7cccf30802620bb22e58aee42edc113e', snapshotHash: 'c987caf4756f474d55caa1ec1a885dcea5dee204e21bba620efaa1a170365678' },
+    cut24PrefixReference: { owner: 'pa_lifecycle_v1_work_prefixes' as const, sourceId: 'lan01:occupied:cut24:prefix', sourceHash: 'd5fccf8fb21301e3460192d35b6d38e093d910a7f7a19290256c730903284ac8', snapshotHash: '6d19eb420e109694de171afbac6955a633adb884efd96e9a74749063eed16d98' },
+  }),
+  sessionArchiveSnapshotHash: '755dab73958f28ce8d845cf6b189107be68cffaac4d4d1a2be6e4504b5b95d1d',
+  reviewSession: Object.freeze({ sourceId: 'lan01:journal:session', sourceHash: 'd7650b3244fb66a57d7db36bb4b245c9afe758437c7692cc3a5bdde898a16415',
+    revision: 0 as const, headSourceId: 'lan01:journal:session', headHash: '730e4e610a733eda1707b0f559c5414e7b46e7a082163e583f7b7d0e7788439b',
+    projectionSnapshotHash: '608e74174f1c94eee5f2322e664d111b5ad5c66ae27e8be3a1efd301582752a5', seedSnapshotHash: 'faddad40873d7b2d04f45d104f89503078ca99cc8d84c09b77a2348e7a8a4784' }),
+  priorCp24: LAN01_RETAINED_CHECKPOINT,
+});
+
 export type LAN01RetainedSuffixInput = Readonly<{
   nativeReleased: boolean; checkpointGzip: string; destinationDirectory: string;
 }>;
@@ -270,22 +307,30 @@ export const captureLAN01RetainedSuffixInput = (raw: LAN01RetainedSuffixInput): 
 
 /** Authenticate before creating anything. No source database is opened, and a
  * destination is exclusive: a failed suffix always leaves inspectable evidence. */
-export const prepareLAN01RetainedCheckpoint = (raw: LAN01RetainedSuffixInput) => {
-  const input = captureLAN01RetainedSuffixInput(raw), pin = LAN01_RETAINED_CHECKPOINT;
+export const prepareLAN01RetainedCheckpoint = (raw: LAN01RetainedSuffixInput) =>
+  materializeLAN01RetainedCheckpoint(raw, LAN01_RETAINED_CHECKPOINT, 'lan01-cp24-pending-appeal-suffix.sqlite');
+
+export const prepareLAN01RetainedReviewSessionCheckpoint = (raw: LAN01RetainedSuffixInput) =>
+  materializeLAN01RetainedCheckpoint(raw, LAN01_RETAINED_REVIEW_SESSION_CHECKPOINT, 'lan01-cp16-pending-import-suffix.sqlite');
+
+const materializeLAN01RetainedCheckpoint = <P extends typeof LAN01_RETAINED_CHECKPOINT | typeof LAN01_RETAINED_REVIEW_SESSION_CHECKPOINT>(
+  raw: LAN01RetainedSuffixInput, pin: P, filename: string,
+) => {
+  const input = captureLAN01RetainedSuffixInput(raw);
   const pinnedFile = (path: string, expected: string) => {
     assert.equal(realpathSync(path), path, 'LAN01 input must be a canonical file path');
     assert(lstatSync(path).isFile(), 'LAN01 input must be a regular file');
     const bytes = readFileSync(path); assert.equal(sha256(bytes), expected, 'LAN01 retained input hash differs'); return bytes;
   };
-  // The independently audited byte pins identify cp24 even after its original
-  // private witness files are lost. Exact bytes bind the audited schema/rowid
-  // census. No replacement witness is synthesized.
+  // Each entry fixes its own audited bytes. The cp24 path still makes no claim
+  // that its lost original witnesses were rechecked. Materialization itself
+  // validates bytes; the release packet separately binds receipt and terminal.
   const gzip = pinnedFile(input.checkpointGzip, pin.gzipSha256); assert.equal(gzip.length, pin.gzipBytes);
   const bytes = gunzipSync(gzip, { maxOutputLength: pin.databaseBytes });
   assert.equal(bytes.length, pin.databaseBytes); assert.equal(sha256(bytes), pin.databaseSha256);
   assert.equal(realpathSync(dirname(input.destinationDirectory)), dirname(input.destinationDirectory), 'LAN01 output parent must be canonical');
   mkdirSync(input.destinationDirectory, { mode: 0o700 });
-  const path = join(input.destinationDirectory, 'lan01-cp24-pending-appeal-suffix.sqlite');
+  const path = join(input.destinationDirectory, filename);
   writeFileSync(path, bytes, { flag: 'wx', mode: 0o600 });
   assert.equal(sha256(readFileSync(path)), pin.databaseSha256);
   return { input, path, pin, witnessRecheck: { originalRunControl: false, checkpointReceipt: false, tableCensus: false, priorRunTerminal: false } as const };

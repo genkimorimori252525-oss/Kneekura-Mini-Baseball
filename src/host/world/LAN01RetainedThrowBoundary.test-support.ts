@@ -299,7 +299,7 @@ export const readLAN01RetainedThrowBoundary = (context: Context, pins: LAN01Reta
 /** Exact LAN01-R11 cp24 only: original receiver capture :7 and complete cut21.
  * The caller owns the same query-only proof scope, TOTAL/calibration set and
  * explicit absence of future appeal :8. No prefix is extended by this reader. */
-export const readLAN01RetainedReceivedBoundary = (context: Context, pins: LAN01RetainedReceivedBoundaryPins) => {
+const readLAN01RetainedReceivedHistory = (context: Context, pins: LAN01RetainedReceivedBoundaryPins) => {
   const { db, actor, current, anchorViewReference } = context;
   const cut16 = readHistoricalSamePaLifecycleViewFromSqlite(db, pins.cut16ViewReference);
   const history = readLAN01RetainedThrowHistory({ ...context,
@@ -420,9 +420,109 @@ export const readLAN01RetainedReceivedBoundary = (context: Context, pins: LAN01R
       same(basis, current.basis, 'cut21 current basis'); same(view, current.view, 'cut21 current view');
     }
   }
-  // Historical owner reads prove the committed physical head; current coverage21
-  // excludes all later work, including a pre-existing appeal :8 or cut22 tail.
+  return { commitment: history.commitment, events, boundary: { field, indicated, planned,
+    released: { value: released, operationReference: pins.releasedReference },
+    received: { candidate: reception, value: received, operationReference: pins.receivedReference }, caught } };
+};
+
+export const readLAN01RetainedReceivedBoundary = (context: Context, pins: LAN01RetainedReceivedBoundaryPins) => {
+  const proof = readLAN01RetainedReceivedHistory(context, pins);
+  // Current coverage21 still excludes every later operation at the old boundary.
+  assertCurrentFences(context, proof.commitment, proof.events);
+  return proof.boundary;
+};
+
+
+export type LAN01RetainedSealedBoundaryPins = LAN01RetainedReceivedBoundaryPins & Readonly<{
+  appealedReference: SamePaReference<'pa_physical_v1_field_steps'>;
+  sealedReference: SamePaReference<'pa_physical_v1_field_steps'>;
+  sealedCatchReference: SamePaReference<'pa_catch_v1_work'>;
+  cut22ViewReference: SamePaReference<'pa_lifecycle_v1_execution_views'>;
+  cut23ViewReference: SamePaReference<'pa_lifecycle_v1_execution_views'>;
+  cut24ViewReference: SamePaReference<'pa_lifecycle_v1_execution_views'>;
+  cut24PrefixReference: SamePaReference<'pa_lifecycle_v1_work_prefixes'>;
+}>;
+
+/** Exact R12 cp16 physical boundary: appeal, seal and sealed CatchWork are
+ * already committed and admitted through cut24. Historical cut21 is never
+ * mistaken for current state. This reader performs no acceptance or advance. */
+export const readLAN01RetainedSealedBoundary = (context: Context, pins: LAN01RetainedSealedBoundaryPins) => {
+  const { db, actor, current, anchorViewReference } = context;
+  const cut21 = readHistoricalSamePaLifecycleViewFromSqlite(db, pins.cut21ViewReference);
+  const history = readLAN01RetainedReceivedHistory({ ...context,
+    current: { view: cut21.view, viewReference: pins.cut21ViewReference, basis: cut21 },
+    eventReferences: context.eventReferences.slice(0, 21) }, pins);
+  const events = [...history.events, pins.appealedReference, pins.sealedReference, pins.sealedCatchReference];
+  same(context.eventReferences, events, 'twenty-four admitted event references');
+  same(current.viewReference, pins.cut24ViewReference, 'cut24 current view reference');
+  for (const [pin, id] of [[pins.appealedReference, 'lan01:appeal-throw:8'], [pins.sealedReference, 'lan01:seal'],
+    [pins.sealedCatchReference, 'lan01:caught:work:sealed'], [pins.cut22ViewReference, 'lan01:occupied:cut22:view'],
+    [pins.cut23ViewReference, 'lan01:occupied:cut23:view'], [pins.cut24ViewReference, 'lan01:occupied:cut24:view'],
+    [pins.cut24PrefixReference, 'lan01:occupied:cut24:prefix']] as const) same(pin.sourceId, id, 'sealed boundary identity');
+  const appealProof = readSamePaPhysicalOperationFromSqlite(db, pins.appealedReference);
+  const sealProof = readSamePaPhysicalOperationFromSqlite(db, pins.sealedReference);
+  assert(appealProof?.record.kind === 'same_pa_physical_field_step_v1', 'LAN01 retained original appeal missing');
+  assert(sealProof?.record.kind === 'same_pa_physical_field_step_v1', 'LAN01 retained physical seal missing');
+  const appealed = appealProof.record, sealed = sealProof.record, root = history.boundary.field.root;
+  for (const [proof, value, pin, previous, view, ordinal] of [
+    [appealProof, appealed, pins.appealedReference, pins.receivedReference, pins.cut21ViewReference, 15],
+    [sealProof, sealed, pins.sealedReference, pins.appealedReference, pins.cut22ViewReference, 16],
+  ] as const) {
+    same(reference('pa_physical_v1_field_steps', value), pin, 'sealed physical owner reference');
+    same(proof.reference, pin, 'sealed physical proof reference'); same(proof.actor, actor, 'sealed actor');
+    same(value.lineage, root.lineage, 'sealed lineage'); same(value.source.launchReference, pins.launchReference, 'sealed launch');
+    same(value.source.previousOperationReference, previous, 'sealed predecessor');
+    same(value.source.previousFieldReference, previous, 'sealed previous field');
+    same(value.source.fieldRootReference, pins.fieldRootReference, 'sealed field root');
+    same(value.source.viewReference, view, 'sealed source view'); same(value.viewReference, view, 'sealed adopted view');
+    same(value.operationOrdinal, ordinal, 'sealed operation ordinal'); same(value.pitchOrdinal, 3, 'sealed pitch ordinal');
+    same(value.stage, 'field', 'sealed physical stage'); same(value.timeline, root.timeline, 'sealed timeline');
+    same(proof.bodyCut, current.view.cut.bodyCut, 'sealed body cut'); same(proof.physicalWorld, current.view.cut.physicalWorld, 'sealed physical World');
+  }
+  same(appealed.source.action, { kind: 'appeal_contact_v1', indicationReference: pins.indicatedReference,
+    throwPlanReference: pins.plannedReference }, 'original appeal instruction');
+  assert(appealed.actionResult?.kind === 'appeal_contact_v1', 'LAN01 retained appeal result missing');
+  same(appealed.actionResult.execution.kind, 'executed', 'original appeal executed');
+  same(appealed.field.motion.carrierPlayerId, 'home-1', 'original appeal carrier');
+  same(sealed.source.action, { kind: 'retained_quantizer_checkpoint_v1' }, 'original physical seal instruction');
+  assert(sealed.actionResult?.kind === 'retained_quantizer_checkpoint_v1', 'LAN01 retained seal result missing');
+  same(sealed.actionResult.status, 'checkpoint_reached', 'original physical seal status');
+  same(sealed.source.throughTick, appealed.evaluationTick, 'original seal horizon');
+  const sealedCatch = readSamePaCatchWorkFromSqlite(db, pins.sealedCatchReference);
+  assert(sealedCatch?.kind === 'same_pa_catch_work_v1', 'LAN01 retained sealed CatchWork missing');
+  same(reference('pa_catch_v1_work', sealedCatch), pins.sealedCatchReference, 'sealed CatchWork reference');
+  same(sealedCatch.source.viewReference, pins.cut23ViewReference, 'sealed CatchWork view');
+  same(sealedCatch.source.priorWorkReference, pins.caughtReference, 'sealed CatchWork predecessor');
+  same(sealedCatch.source.enrollmentReference, root.lineage.enrollmentReference, 'sealed CatchWork enrollment');
+  same(sealedCatch.physicalOperationReference, pins.sealedReference, 'sealed CatchWork physical end');
+  same(sealedCatch.physicalPitchReference, pins.launchReference, 'sealed CatchWork pitch');
+  same(sealedCatch.lineage, root.lineage, 'sealed CatchWork lineage');
+  same(sealedCatch.evaluationTick, sealed.evaluationTick, 'sealed CatchWork tick');
+  for (const [pin, operation, physical, value, ordinal] of [
+    [pins.cut22ViewReference, pins.appealedReference, pins.appealedReference, appealed, 22],
+    [pins.cut23ViewReference, pins.sealedReference, pins.sealedReference, sealed, 23],
+    [pins.cut24ViewReference, pins.sealedCatchReference, pins.sealedReference, sealed, 24],
+  ] as const) {
+    const basis = readHistoricalSamePaLifecycleViewFromSqlite(db, pin), view = basis.view;
+    same(reference('pa_lifecycle_v1_execution_views', view), pin, 'sealed owner view');
+    same(basis.actor, actor, 'sealed view actor'); same(view.lineage, root.lineage, 'sealed view lineage'); assertOriginalMembers(basis);
+    const prefix = readSamePaLifecycleRecordFromSqlite(db, 'prefix', view.source.prefixReference.sourceId);
+    assert(prefix?.kind === 'same_pa_lifecycle_prefix', 'LAN01 retained sealed prefix missing');
+    same(prefix.source.sourceId, 'lan01:occupied:cut' + ordinal + ':prefix', 'sealed prefix identity');
+    same(reference('pa_lifecycle_v1_work_prefixes', prefix), view.source.prefixReference, 'sealed prefix owner reference');
+    same(prefix.source.enrollmentReference, root.lineage.enrollmentReference, 'sealed prefix enrollment');
+    same(prefix.source.anchorViewReference, anchorViewReference, 'sealed prefix anchor');
+    same(prefix.source.eventReferences, events.slice(0, ordinal), 'sealed prefix events');
+    same(view.cut, { stage: 'field_active', pitchOrdinal: 3, physicalPitchReference: pins.launchReference,
+      operationReference: operation, physicalOperationReference: physical, timeline: value.timeline, evaluationTick: value.evaluationTick,
+      physicalWorld: current.view.cut.physicalWorld, bodyCut: current.view.cut.bodyCut, outcomeReference: null, resetReference: null }, 'sealed view cut');
+    if (ordinal === 24) {
+      same(view.source.prefixReference, pins.cut24PrefixReference, 'cut24 prefix');
+      same(basis, current.basis, 'cut24 current basis'); same(view, current.view, 'cut24 current view');
+    }
+  }
   assertCurrentFences(context, history.commitment, events);
-  return { field, indicated, planned, released: { value: released, operationReference: pins.releasedReference },
-    received: { candidate: reception, value: received, operationReference: pins.receivedReference }, caught };
+  return { ...history.boundary, appealed: { value: appealed, operationReference: pins.appealedReference },
+    sealed: { value: sealed, operationReference: pins.sealedReference },
+    sealedCaught: { work: sealedCatch, workReference: pins.sealedCatchReference } };
 };
