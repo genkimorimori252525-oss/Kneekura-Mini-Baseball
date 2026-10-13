@@ -18,13 +18,15 @@ import { samePaTotalInput,type SamePaCumulativeTotal } from './SamePlateAppearan
 import { samePaViewInput,samePaAssessmentSetHash,type SamePaExecutionView } from './SamePlateAppearanceExecutionView';
 import { samePaExecutionInput,samePaExecutionReference,samePaExecutionRow,samePaExecutionTables,type SamePaExecutionKind,type SamePaExecutionResult } from './SamePlateAppearanceExecutionFromSqlite';
 import { assertSamePaAssessmentOwnership } from './SamePlateAppearanceAssessmentOwnership';
+import { withSamePaContinuationReadPhase, memoSamePaContinuationRead } from './SamePlateAppearanceContinuationFromSqlite';
+import { assertBodyCompositionNativeConnection } from './BodyMaterializationSqliteOwnership';
 export type HistoricalSamePaExecutionView=Readonly<{kind:'historical_same_pa_execution_view_v1';reference:SamePaReference<'reserved_pa_execution_views'>;view:SamePaExecutionView}>;
 const same=(a:unknown,b:unknown)=>{if(json(a)!==json(b))throw new Error('historical same-PA original dependency or immutable state differs');};
 
 /** Historical evidence only. The cut is the original reserved revision and
  * accepted empty-prefix record, never a caller cutoff or a current-head test.
  * This reader grants no fresh admission and never follows the future pitch. */
-export const readHistoricalSamePaExecutionView=(db:DatabaseSync,rawReference:unknown):HistoricalSamePaExecutionView=>{
+export const readHistoricalSamePaExecutionView=(db:DatabaseSync,rawReference:unknown):HistoricalSamePaExecutionView=>withSamePaContinuationReadPhase(db,()=>{
   const {DatabaseSync:Native}=createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
   if(!(db instanceof Native)||!db.isTransaction||db.prepare('PRAGMA query_only').get()!.query_only!==1)throw new Error('historical same-PA requires a Native query-only owned snapshot');
   const signature=()=>json({transaction:db.isTransaction,query:db.prepare('PRAGMA query_only').get()!.query_only,
@@ -97,7 +99,11 @@ export const readHistoricalSamePaExecutionView=(db:DatabaseSync,rawReference:unk
   };
   try{check();db.exec('SAVEPOINT '+identity);identityReady=true;
     if(!assertReservedPaStorage(db))throw new Error('historical same-PA owner storage missing');assertReservedPaClaims(db);
-    const value=freeze({kind:'historical_same_pa_execution_view_v1' as const,reference:requested,view:read('view',requested) as SamePaExecutionView});
+    // Completed historical values may cross child readers, but every call
+    // retains its original local proof and connection checks, including ATTACH.
+    assertBodyCompositionNativeConnection(db);
+    const value=memoSamePaContinuationRead(db,'historical-reserved-view:'+json(requested),()=>
+      freeze({kind:'historical_same_pa_execution_view_v1' as const,reference:requested,view:read('view',requested) as SamePaExecutionView}));
     check();db.exec('RELEASE '+identity);identityReady=false;return value;
   }finally{bases.clear();values.clear();if(identityReady&&db.isTransaction)db.exec('RELEASE '+identity);}
-};
+});

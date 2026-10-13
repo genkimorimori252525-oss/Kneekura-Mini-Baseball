@@ -5,6 +5,10 @@ import { actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSql
 import { rawCensus,schemaCensus } from './ActualFoulTerminalAcknowledgementCutover.test-support';
 import * as actorOwner from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import * as physicalOwner from './PhysicalPitchEvidenceFromSqlite';
+import { readHistoricalSamePaExecutionView as readHistorical } from './SamePlateAppearanceHistoricalExecutionEvidenceFromSqlite';
+import { withSamePaContinuationReadPhase } from './SamePlateAppearanceContinuationFromSqlite';
+import { withSamePaLifecycleReadPhase } from './SamePlateAppearanceLifecycleFromSqlite';
+import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
 const fixtures:ReturnType<typeof executionViewFixture>[]=[],readers:{close():void}[]=[];
 afterEach(()=>{vi.restoreAllMocks();readers.splice(0).reverse().forEach(r=>r.close());fixtures.splice(0).reverse().forEach(f=>f.close());});
 const setup=()=>{const f=executionViewFixture();fixtures.push(f);const p=f.prepare(),view=f.owner.acceptView(p.viewSource.sourceId);if(view.kind!=='basis_prepared')throw new Error('fixture view missing');
@@ -51,4 +55,46 @@ it('HI08 surviving raw past activity and Source aliases cannot hide behind futur
     expect(()=>f.reader.read(f.viewReference)).toThrow(/historical|ownership|cut|alias|differs/);
     f.db.prepare("DELETE FROM world_player_workload_activities WHERE source_id='future-index-alias'").run();
   }
+});
+
+it('HI09 shares the complete original view across child readers only for the full reference and immutable phase',()=>{
+  const f=setup(),phase=<T>(body:()=>T)=>withSqliteReadTransaction(f.db,()=>withSamePaContinuationReadPhase(f.db,body));
+  const read=()=>readHistorical(f.db,f.viewReference);
+  const first=phase(()=>{
+    const value=withSamePaLifecycleReadPhase(f.db,read);
+    expect(withSamePaLifecycleReadPhase(f.db,()=>readHistorical(f.db,{...f.viewReference}))).toBe(value);
+    expect(read()).toBe(value);
+    expect(()=>{(value.view.participants[0] as {playerId:string}).playerId='changed';}).toThrow(TypeError);
+    return value;
+  });
+  const retry=phase(read);expect(retry).toEqual(first);expect(retry).not.toBe(first);
+  for(const changed of [{...f.viewReference,sourceId:'missing'}, {...f.viewReference,sourceHash:'f'.repeat(64)},
+    {...f.viewReference,snapshotHash:'f'.repeat(64)}, {...f.viewReference,owner:'reserved_pa_work_prefixes'}]){
+    expect(()=>phase(()=>{
+      read();expect(()=>readHistorical(f.db,changed)).toThrow();expect(read).toThrow(/expired/);
+    })).toThrow(/^same-PA continuation phase expired$/);
+  }
+  // Even a failure after a completed hit must retire the enclosing proof.
+  // On this hit the first local RELEASE is the reader's post-result check.
+  const exec=f.db.exec.bind(f.db);let failedRelease=false;
+  expect(()=>phase(()=>{
+    read();const release=vi.spyOn(f.db,'exec').mockImplementation(sql=>{
+      if(!failedRelease&&sql.startsWith('RELEASE historical_pa_')){failedRelease=true;throw new Error('late historical savepoint failure');}
+      exec(sql);
+    });
+    try{expect(read).toThrow('late historical savepoint failure');expect(read).toThrow(/expired/);}
+    finally{release.mockRestore();}
+  })).toThrow(/^same-PA continuation phase expired$/);
+  expect(failedRelease).toBe(true);
+  expect(phase(read)).toEqual(first);expect(read).toThrow(/query-only|owned snapshot/);
+});
+
+it('HI10 rejects attached owners after a completed original view and authenticates a new retry',()=>{
+  const f=setup(),phase=<T>(body:()=>T)=>withSqliteReadTransaction(f.db,()=>withSamePaContinuationReadPhase(f.db,body));
+  const read=()=>readHistorical(f.db,f.viewReference);
+  expect(()=>phase(()=>{
+    read();f.db.exec("ATTACH DATABASE ':memory:' AS peer");
+    expect(read).toThrow(/original main owners/);expect(read).toThrow(/expired/);
+  })).toThrow(/^same-PA continuation phase expired$/);
+  f.db.exec('DETACH DATABASE peer');expect(phase(read).view).toEqual(f.view);
 });
