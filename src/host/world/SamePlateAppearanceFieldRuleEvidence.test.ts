@@ -276,3 +276,17 @@ it('FR11 leaves an inactive field pending result outside the completed-pair memo
     });
   } finally { x.close(); }
 });
+
+it('FR12 rejects an attached owner after a completed pair and expires the enclosing proof', () => {
+  const x = pairFixture();
+  try {
+    expect(() => x.phase(() => {
+      readPair(x.db, x.viewReference, 'historical');
+      x.db.exec("ATTACH DATABASE ':memory:' AS peer");
+      expect(() => readPair(x.db, x.viewReference, 'historical')).toThrow(/original main owners/);
+      expect(() => readPair(x.db, x.viewReference, 'historical')).toThrow(/expired/);
+    })).toThrow(/^(?:same-PA continuation phase|lifecycle proof) expired$/);
+    x.db.exec('DETACH DATABASE peer');
+    expect(x.phase(() => readPair(x.db, x.viewReference, 'historical')).kind).toBe('same_pa_field_rule_read_pair_v1');
+  } finally { x.close(); }
+});

@@ -1,7 +1,8 @@
 import type { DatabaseSync } from 'node:sqlite';
+import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze, assertPhysicalActorOpenFrame,
   readPhysicalPlateAppearanceActorFromSqlite, type DurablePhysicalPlateAppearanceActor } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
-import { bodyCompositionSourceClaim as claim } from './BodyMaterializationSqliteOwnership';
+import { bodyCompositionSourceClaim as claim, assertBodyCompositionNativeConnection } from './BodyMaterializationSqliteOwnership';
 import { batterRunArchiveFromSqlite, openBatterRunSourceArchive, assertBatterRunArchiveStorage, type BatterRunArchiveOwner } from './BatterRunSourceArchive';
 import { samePaOccupiedRunnerHoldInput as input, samePaOccupiedRunnerHoldCurves,
   type AcceptedSamePaOccupiedRunnerHold as Source } from './SamePlateAppearanceOccupiedRunnerHold';
@@ -12,7 +13,7 @@ import { playerRunnerDecisionMotionModelEvidenceFromSqlite } from './SqlitePlaye
 import { readActualRoleWorkloadState } from './ActualRoleWorkloadState';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import { samePaReferenceValid, type SamePaReference } from './SamePlateAppearanceWorkPrefix';
-import { withSamePaLifecycleReadPhase } from './SamePlateAppearanceLifecycleFromSqlite';
+import { withSamePaLifecycleReadPhase, memoSamePaLifecycleRead } from './SamePlateAppearanceLifecycleFromSqlite';
 const table = 'world_same_pa_occupied_runner_holds' as const;
 const same = (a: unknown, b: unknown) => { if (json(a) !== json(b)) throw new Error('occupied runner original hold ownership differs'); };
 const derive = (db: DatabaseSync, source: Source) => {
@@ -65,11 +66,16 @@ const make = (db: DatabaseSync): BatterRunArchiveOwner<Source, DurableSamePaOccu
   },
 });
 export const assertSamePaOccupiedRunnerHoldStorage = (db: Pick<DatabaseSync, 'prepare'>) => assertBatterRunArchiveStorage(db, table);
-export const readSamePaOccupiedRunnerHoldFromSqlite = (db: DatabaseSync, pin: SamePaReference<typeof table>) => {
+export const readSamePaOccupiedRunnerHoldFromSqlite = (db: DatabaseSync, raw: SamePaReference<typeof table>) => withSamePaLifecycleReadPhase(db, () => {
+  const pin = cloneInert(raw);
   if (!samePaReferenceValid(pin, table)) throw new Error('invalid occupied runner hold reference');
-  const value = batterRunArchiveFromSqlite(db, table, make(db)).read(pin.sourceId);
-  if (!value) throw new Error('original occupied runner hold missing'); same(reference(table, value), pin); return value;
-};
+  // ATTACH is outside the phase signature; keep the original archive guard on hits.
+  assertBodyCompositionNativeConnection(db);
+  return memoSamePaLifecycleRead(db, 'occupied-runner-hold:' + json(pin), () => {
+    const value = batterRunArchiveFromSqlite(db, table, make(db)).read(pin.sourceId);
+    if (!value) throw new Error('original occupied runner hold missing'); same(reference(table, value), pin); return value;
+  });
+});
 /** Read only selected original commands. Neither another player's body nor a
  * posture's declared horizon can replace this runner's finite issued coverage. */
 export const readSamePaOccupiedRunnerHolds = (db: DatabaseSync, actor: DurablePhysicalPlateAppearanceActor,

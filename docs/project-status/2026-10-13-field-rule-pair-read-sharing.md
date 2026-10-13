@@ -89,13 +89,39 @@ because the newly saved CatchWork is not yet in its lifecycle census.
 
 Checkpoint 15 is a later alternative for one current admitted-live-work read at
 the complete cut24. It covers a larger graph and is not needed for the first
-bounded comparison. The coordinator started the baseline single-operation
-comparison at 18:50 UTC on October 13; the candidate is held until baseline
-cleanup. Each variant has a one-hour cap, independent process and identical
-saved input. Existing R12 plus one comparison is the maximum concurrency.
-The actual operation wall/CPU time, complete returned hashes, input immutability
-and concurrent-run conditions are recorded separately. There is no measured
-speed result or successful comparison claim at this checkpoint.
+bounded comparison. The coordinator completed one successful comparison per version on October 13:
+
+| Same saved-input read | Baseline | Field-rule sharing |
+| --- | ---: | ---: |
+| Operation wall seconds | 588.335 | 492.347 |
+| Operation CPU seconds (user + system) | 590.059 | 493.971 |
+| Wrapper wall seconds | 588.657 | 492.703 |
+
+The measured read saved 95.988 seconds (16.3%); CPU decreased 16.3% as well.
+This is one paired measurement, not a distribution or whole-case forecast.
+Both versions returned exactly the same 19,442-byte result file, with SHA256
+`13926d7045da1234faf1463f9996414f651e3f422666733c2e0e601fd3c17787`.
+Their canonical value matched the accepted database snapshot and hash
+`b738ff317f3ad874122c2520c5833f9e97ab17b96e59da55ea339ce583c956b3`.
+The ordinary returned JSON hash matched between the two readers:
+`9defa24cb5d82fd19ba590c3156ba4f83e9ddf519adf9c6707e9d2b39ff881e4`.
+It differs from the prior acceptance observer's raw hash; canonical equality
+with the saved record and raw equality between these two reads are separate
+claims.
+
+Both database images remained byte-identical to the audited input. Both runs
+closed their read transaction, restored query-only state, retained all four
+input pin groups and reaped all children. Each used a fresh Node26 process,
+identical heap/RSS controls and identical saved input; restoration stayed outside
+the operation timer. R12 remained active throughout both runs. Its CPU heartbeat
+progress is recorded, but equal external contention is not assumed. The visible
+CPU quota file was unavailable, so quota equivalence is not claimed.
+The comparison receipt hash is
+`f304f82b86dc727a7799b0f8261ecf03d5461018a9af5c4c5bca4df6d39f9d9e`.
+
+The next related optimization examines repeated immutable occupied-runner hold
+and completed second-TAKE reads within the existing proof phase. Their time
+contribution and incremental improvement remain unmeasured.
 
 ## Separate possible follow-up
 

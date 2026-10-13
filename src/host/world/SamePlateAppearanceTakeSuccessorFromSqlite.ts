@@ -3,6 +3,7 @@ import { battingInvocationTransaction } from './BattingInvocationTransaction';
 import { readSamePaSuccessorWorkClaimRows } from './SamePlateAppearanceContinuationClaimGuard';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
+import { assertBodyCompositionNativeConnection } from './BodyMaterializationSqliteOwnership';
 import { SeedRoot } from '../../core/rng/SeedRoot';
 import { applyPitchFatigueToExecution } from '../../core/sim/pitch/PitchFatigueExecution';
 import { resolveCanonicalPitchDelivery } from '../../core/sim/pitch/CanonicalPitchDelivery';
@@ -13,7 +14,7 @@ import { samePaExecutionReference as reference } from './SamePlateAppearanceExec
 import { samePaReferenceValid, samePaText, type SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import { samePaMetadataClaim as claim } from './SamePlateAppearanceReservationGuard';
 import { readCurrentSamePaContinuationViewFromSqlite, readHistoricalSamePaContinuationViewFromSqlite, readSamePaContinuationCalibrationFromSqlite,
-  readSamePaContinuationRecordFromSqlite, readSamePaContinuationOriginalPitchFromSqlite, withSamePaContinuationReadPhase } from './SamePlateAppearanceContinuationFromSqlite';
+  readSamePaContinuationRecordFromSqlite, readSamePaContinuationOriginalPitchFromSqlite, withSamePaContinuationReadPhase, memoSamePaContinuationRead } from './SamePlateAppearanceContinuationFromSqlite';
 import type { SamePaNonemptyPrefix } from './SamePlateAppearanceContinuation';
 import { readSamePaBattingInvocationClaims, readSamePaBattingInvocationFromSqlite } from './SamePlateAppearanceBattingInvocationFromSqlite';
 import { deriveSamePaContinuationCalibration } from './SamePlateAppearanceContinuationCalibration';
@@ -239,10 +240,15 @@ const readCompletedPitch = (db: DatabaseSync, id: string) => withSamePaContinuat
   for (const entry of expected.filter(e => e.table !== samePaTakeTables.head)) same(samePaTakeIdentityRow(db, entry.table, String(entry.row.source_id)), entry.row);
   return bundle;
 });
-export const readSamePaSuccessorTakePitchFromSqlite = (db: DatabaseSync, raw: SamePaReference<'pa_take_successor_v1_pitch_actions'>) => {
+export const readSamePaSuccessorTakePitchFromSqlite = (db: DatabaseSync, raw: SamePaReference<'pa_take_successor_v1_pitch_actions'>) => withSamePaContinuationReadPhase(db, () => {
   const ref = cloneInert(raw); if (!samePaReferenceValid(ref, samePaTakeTables.pitch)) throw new Error('invalid successor TAKE pitch reference');
-  const value = readCompletedPitch(db, ref.sourceId); if (!value) throw new Error('successor TAKE pitch missing'); same(reference(samePaTakeTables.pitch, value.pitch), ref); return value;
-};
+  // Historical assembly reads original body/model owners even when its lower
+  // records are shared. Preserve that connection guard before a completed hit.
+  assertBodyCompositionNativeConnection(db);
+  return memoSamePaContinuationRead(db, 'successor-take-pitch:' + json(ref), () => {
+    const value = readCompletedPitch(db, ref.sourceId); if (!value) throw new Error('successor TAKE pitch missing'); same(reference(samePaTakeTables.pitch, value.pitch), ref); return value;
+  });
+});
 
 type TakeAuthority = Readonly<{ readAcceptedAction?(id: string): unknown; readAcceptedSetup?(id: string): unknown; readAcceptedPhysicalPitch?(id: string): unknown }>;
 /** The complete bounded second-pitch owner. Stage selection is lexical to this

@@ -3,6 +3,7 @@ import { readBattingPerceptionFromSqlite } from './SqliteBattingPerceptionStore'
 import { readSamePaOccupiedRunnerHolds } from './SqliteSamePlateAppearanceOccupiedRunnerHoldStore';
 import { deriveSamePaStationaryOccupiedRunners } from './SamePlateAppearanceStationaryOccupiedRunners';
 import type { DatabaseSync } from 'node:sqlite';
+import { assertBodyCompositionNativeConnection } from './BodyMaterializationSqliteOwnership';
 import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
@@ -30,6 +31,7 @@ export const readSamePaFieldRuleEvidenceWithInputsFromSqlite = (db: DatabaseSync
   // Only a complete pair is shared in this existing immutable phase. Keep
   // validation and current/historical admission above the lookup; a caught
   // invalid request must still expire the surrounding phase's proofs.
+  assertBodyCompositionNativeConnection(db);
   return memoSamePaLifecycleRead(db, 'field-rule-pair:' + json([mode, viewReference]), () => {
   const participants = readSamePaOriginalParticipants(db, actor), occupiedRunnerIds = participants.filter(p => p.role === 'runner').map(p => p.binding.playerId);
   const prefix = readSamePaLifecycleRecordFromSqlite(db, 'prefix', view.source.prefixReference.sourceId);

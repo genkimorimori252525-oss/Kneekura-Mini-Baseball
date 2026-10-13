@@ -1,6 +1,11 @@
-import { expect, it } from 'vitest';
+import { expect, it, vi } from 'vitest';
 import { actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { samePaTakeSuccessorSourceInput } from './SamePlateAppearanceTakeSuccessor';
+import { createRequire } from 'node:module';
+import { readSamePaSuccessorTakePitchFromSqlite as readPitch } from './SamePlateAppearanceTakeSuccessorFromSqlite';
+import { withSamePaContinuationReadPhase } from './SamePlateAppearanceContinuationFromSqlite';
+import * as continuation from './SamePlateAppearanceContinuationFromSqlite';
+import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
 const ref = (owner: string, id = owner) => ({ owner, sourceId: id, sourceHash: hash(id), snapshotHash: hash('result:' + id) });
 /** Existing ContinuousPitchFixtures nominal values; parser-only identities do
  * not claim a physical cut, ready body, Native Source or calibration proof. */
@@ -36,4 +41,42 @@ it('NT02 retained setup requires ten distinct participants and exactly32 indepen
   const missing = structuredClone(s); missing.participantInputs[0].calibrationReferences.pop(); expect(() => samePaTakeSuccessorSourceInput(missing)).toThrow();
   const duplicate = structuredClone(s); duplicate.participantInputs[0].calibrationReferences.push(duplicate.participantInputs[0].calibrationReferences[0]); expect(() => samePaTakeSuccessorSourceInput(duplicate)).toThrow();
   expect(() => samePaTakeSuccessorSourceInput({ ...s, physicalReady: true })).toThrow();
+});
+
+it('NT03 rejects invalid historical pitch references inside the phase and requires original main owners', () => {
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  const db = new DatabaseSync(':memory:');
+  const pin = ref('pa_take_successor_v1_pitch_actions') as Parameters<typeof readPitch>[1];
+  const phase = <T>(body: () => T) => withSqliteReadTransaction(db, () => withSamePaContinuationReadPhase(db, body));
+  try {
+    expect(() => phase(() => {
+      expect(() => readPitch(db, { ...pin, owner: 'pa_take_successor_v1_setups' } as unknown as typeof pin)).toThrow(/invalid/);
+      expect(() => readPitch(db, pin)).toThrow(/expired/);
+    })).toThrow(/^(?:same-PA continuation phase|lifecycle proof) expired$/);
+    expect(() => phase(() => readPitch(db, pin))).toThrow(/pitch missing/);
+    db.exec("ATTACH DATABASE ':memory:' AS peer");
+    expect(() => phase(() => readPitch(db, pin))).toThrow(/original main owners/);
+    db.exec('DETACH DATABASE peer');
+    expect(() => phase(() => readPitch(db, pin))).toThrow(/pitch missing/);
+  } finally { if (db.isTransaction) db.exec('ROLLBACK'); db.close(); }
+});
+
+it('NT04 checks the Native owner boundary before a completed historical pitch memo hit', () => {
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  const db = new DatabaseSync(':memory:');
+  const pin = ref('pa_take_successor_v1_pitch_actions') as Parameters<typeof readPitch>[1];
+  // Only the completed-memo return is stubbed. This checks public hit ordering,
+  // not bundle authentication; saved cp11 comparison covers the real full replay.
+  const completed = Object.freeze({ kind: 'explicit-completed-proof-boundary' });
+  const originalMemo = continuation.memoSamePaContinuationRead;
+  vi.spyOn(continuation, 'memoSamePaContinuationRead').mockImplementation(((connection, key, read) =>
+    key.startsWith('successor-take-pitch:') ? completed : originalMemo(connection, key, read)) as typeof originalMemo);
+  try {
+    expect(() => withSqliteReadTransaction(db, () => withSamePaContinuationReadPhase(db, () => {
+      expect(readPitch(db, pin)).toBe(completed);
+      db.exec("ATTACH DATABASE ':memory:' AS peer");
+      expect(() => readPitch(db, pin)).toThrow(/original main owners/);
+      expect(() => readPitch(db, pin)).toThrow(/expired/);
+    }))).toThrow(/^(?:same-PA continuation phase|lifecycle proof) expired$/);
+  } finally { vi.restoreAllMocks(); if (db.isTransaction) db.exec('ROLLBACK'); db.close(); }
 });
