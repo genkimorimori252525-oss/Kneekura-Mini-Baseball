@@ -172,7 +172,7 @@ const LAN01_PRIOR_CP19 = Object.freeze({
 });
 /** Exact LAN01-R9 cp39: the original throw plan is committed; cut17 is absent.
  * Transfer, release, reception and the original appeal remain future work. */
-export const LAN01_RETAINED_CHECKPOINT = Object.freeze({
+const LAN01_PRIOR_CP39 = Object.freeze({
   ...LAN01_PRIOR_CP19,
   sourceCommit: '6bab1f7bf8781458cfa55cb97385d14dd0248bbe',
   publicSourceCommit: '7b4c332f9797c3d5772d75dd958a8bc511186755',
@@ -216,6 +216,44 @@ export const LAN01_RETAINED_CHECKPOINT = Object.freeze({
   }),
   priorCp19: LAN01_PRIOR_CP19,
 });
+/** Exact LAN01-R11 cp24: receiver capture and complete cut21 are committed.
+ * The first remaining writer is the original appeal :8, with no accepted replay. */
+export const LAN01_RETAINED_CHECKPOINT = Object.freeze({
+  ...LAN01_PRIOR_CP39,
+  sourceCommit: '950e6339b1d027103e8591dff17cb3578860d99d',
+  publicSourceCommit: 'f79cfd633217b929d26ae5b6d9ee3e793898acfc',
+  sourceTree: 'bd4f3827a9f03c48feac0ceccf9cb79fe565f120',
+  runControlSha256: '53308132f9a593c64ec820b49d4f2f4636b05b64c8c626e48a102125af229693',
+  receiptSha256: 'bfae561d54eb4b9d397f1ef7a3ed5465289810d2877625c14d607273ac3cde2e',
+  censusSha256: '7401983e44afd2d575bdbb337e403d225e178dfa488b9bfbd25ec003e3279f4c',
+  contentAuditSha256: 'd6dde99c5edd4cf4ad5dc17183224aede448df6b28e42a2af0cafb2ec8b75241',
+  priorRunTerminalSha256: '0f2fcbfc829661254a3800b121c5b80acebb1748aec071e01474a58aef9c2b22',
+  priorRunObservationSha256: null,
+  priorRunOutcome: 'FAILED_WALL_AFTER_CUT21_BEFORE_ORIGINAL_APPEAL_RETURN',
+  priorVitestReportSha256: null, priorSuffixResultPresent: false,
+  gzipSha256: '71e9ba5e7d41d393dceb5f22a3047a00ed81d75a3acd6d2e3997a2d718920c44', gzipBytes: 1306612,
+  databaseSha256: '7828c45d0d9f67dfee4050e4e51b463ce421f5524e593891c8186f75a165735a', databaseBytes: 21020672,
+  tableCount: 118, rowCount: 1844, checkpointSequence: 24, returnedOwnerCall: 24,
+  returnedCalibrationSetHash: '9cf4ce7196bd56710880d9903591b5d8eb0eb400cc8604aaab839e15cee3ae85',
+  firstRemainingWriter: Object.freeze({
+    owner: 'SamePlateAppearancePhysicalEpisode', method: 'acceptOperation', sourceId: 'lan01:appeal-throw:8',
+    argumentsHash: '925361e75a972242e7059a78df662a8ceffeb7df47ead5a7ff41bd52d4db1aa5',
+  }),
+  receivedBoundary: Object.freeze({
+    ...LAN01_PRIOR_CP39.throwBoundary,
+    transferReference: { owner: 'pa_physical_v1_field_steps' as const, sourceId: 'lan01:appeal-throw:4', sourceHash: '96d7a50427ac3b804e01bec5e819f872c442a6d238946420e51b63821ccc16cf', snapshotHash: 'e20441e4017a4a4014d21cd0d0e8458117afa32d2a739a62b3edd4b27ca99e91' },
+    releasedReference: { owner: 'pa_physical_v1_field_steps' as const, sourceId: 'lan01:appeal-throw:5', sourceHash: 'b30a1a1c9c5e2d37e28133ecd94c396d6cef2453c1035266a85939bc5156614b', snapshotHash: '6344e122c5515f69f03a15207b442f666e912486672569360617bc03355d1a3e' },
+    receptionReference: { owner: 'pa_physical_v1_field_steps' as const, sourceId: 'lan01:appeal-throw:6', sourceHash: '1a01e1ca8693d86e29b5d51f10aa2fa561387fcf14969b94dcd9457849d40afd', snapshotHash: '9c752cdcc7e85efebd4facc7f2c14ef98259446f04883db9116e5992815b3c32' },
+    receivedReference: { owner: 'pa_physical_v1_field_steps' as const, sourceId: 'lan01:appeal-throw:7', sourceHash: '8a551df71517fa9e2a11a1386fcf07f9c6be3affc28e6205373a5c24bd83cfa0', snapshotHash: '6040fe39b6721791734558905bae7c66309c509a3a0073bfbdbf91da7b1ca3c2' },
+    cut17ViewReference: { owner: 'pa_lifecycle_v1_execution_views' as const, sourceId: 'lan01:occupied:cut17:view', sourceHash: '06f74bc4a4c43a36ca24e2044ac0b22439dc048fd1da54cbfc54582aec014709', snapshotHash: 'fdd44184724eba859687c5c51776353e9339f08b9200bdd6158fd8d7ffc4c494' },
+    cut18ViewReference: { owner: 'pa_lifecycle_v1_execution_views' as const, sourceId: 'lan01:occupied:cut18:view', sourceHash: '43f5e6dc422cc95989e0486a6e748123b76c196483c1c0243e9ce3c6f7780f75', snapshotHash: 'c096605c622abce5e11e4aeaa84b76c33f74077c602e8ddd2aa38b9233c1b0d5' },
+    cut19ViewReference: { owner: 'pa_lifecycle_v1_execution_views' as const, sourceId: 'lan01:occupied:cut19:view', sourceHash: 'af1f234310ad6bb0c9b83ec3b7bddc5b57538143870ddcd5f5b9d9ca3a9bf6e3', snapshotHash: '01a2181dddf45d37e794e6237672794e6e4bdbfa7c3c189bbb2578f4fe5f8468' },
+    cut20ViewReference: { owner: 'pa_lifecycle_v1_execution_views' as const, sourceId: 'lan01:occupied:cut20:view', sourceHash: '1e5239d86f106c099d07fb9019c2044f1e6df79e07ea87024060a3bd6dc9d529', snapshotHash: 'b675e4fa9d3b1833f2c6a1ec1afd62afb017fd4d5754fb90b92f69a79205ce9e' },
+    cut21ViewReference: { owner: 'pa_lifecycle_v1_execution_views' as const, sourceId: 'lan01:occupied:cut21:view', sourceHash: '627d3cf3b95343f9c39db745bbd2a4f358d373657376521e275e03f4fea81137', snapshotHash: '599ac218180d48edf4981d5fad58dda10f135212b870554dab60621a22ccf551' },
+    cut21PrefixReference: { owner: 'pa_lifecycle_v1_work_prefixes' as const, sourceId: 'lan01:occupied:cut21:prefix', sourceHash: 'c584f405bdd1550efcda722ea49909b7daf014b40b287855e0d0ed1cdae7b9ac', snapshotHash: '7f5df58d0749f19a41ffe1dc92cf16d4515d80e3dd41758d48f72e6392f83a18' },
+  }),
+  priorCp39: LAN01_PRIOR_CP39,
+});
 export type LAN01RetainedSuffixInput = Readonly<{
   nativeReleased: boolean; checkpointGzip: string; destinationDirectory: string;
 }>;
@@ -239,7 +277,7 @@ export const prepareLAN01RetainedCheckpoint = (raw: LAN01RetainedSuffixInput) =>
     assert(lstatSync(path).isFile(), 'LAN01 input must be a regular file');
     const bytes = readFileSync(path); assert.equal(sha256(bytes), expected, 'LAN01 retained input hash differs'); return bytes;
   };
-  // The independently audited byte pins identify cp39 even after its original
+  // The independently audited byte pins identify cp24 even after its original
   // private witness files are lost. Exact bytes bind the audited schema/rowid
   // census. No replacement witness is synthesized.
   const gzip = pinnedFile(input.checkpointGzip, pin.gzipSha256); assert.equal(gzip.length, pin.gzipBytes);
@@ -247,7 +285,7 @@ export const prepareLAN01RetainedCheckpoint = (raw: LAN01RetainedSuffixInput) =>
   assert.equal(bytes.length, pin.databaseBytes); assert.equal(sha256(bytes), pin.databaseSha256);
   assert.equal(realpathSync(dirname(input.destinationDirectory)), dirname(input.destinationDirectory), 'LAN01 output parent must be canonical');
   mkdirSync(input.destinationDirectory, { mode: 0o700 });
-  const path = join(input.destinationDirectory, 'lan01-cp39-throw-plan-suffix.sqlite');
+  const path = join(input.destinationDirectory, 'lan01-cp24-pending-appeal-suffix.sqlite');
   writeFileSync(path, bytes, { flag: 'wx', mode: 0o600 });
   assert.equal(sha256(readFileSync(path)), pin.databaseSha256);
   return { input, path, pin, witnessRecheck: { originalRunControl: false, checkpointReceipt: false, tableCensus: false, priorRunTerminal: false } as const };

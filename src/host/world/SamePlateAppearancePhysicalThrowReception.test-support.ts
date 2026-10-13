@@ -11,10 +11,12 @@ type Fixture = SamePaPreparedPhysicalLifecycle;
 type Field = ReturnType<ReturnType<typeof prepareFreshPhysicalFieldFixture>['appendField']>;
 type Operation = Readonly<{ value: SamePaPhysicalFieldStep; operationReference: ReturnType<typeof reference<'pa_physical_v1_field_steps'>> }>;
 type PlannedAppeal = Readonly<{ planned: Operation; indicated: Operation }>;
+type ReceivedAppeal = PlannedAppeal & Readonly<{ released: Operation; received: Operation }>;
 
-/** The same append/capture closures own the fresh path and the exact LAN plan tail. */
-const nativePhysicalThrowOperations = (h: Fixture, field: Field, label: string, retained?: PlannedAppeal) => {
-  let previous = retained?.planned.value ?? field.step, ordinal = retained ? 3 : 0;
+/** The same append/capture closures own the fresh path and exact LAN tails. */
+const nativePhysicalThrowOperations = (h: Fixture, field: Field, label: string, retained?: PlannedAppeal | ReceivedAppeal) => {
+  const received = retained && 'received' in retained ? retained.received : null;
+  let previous = received?.value ?? retained?.planned.value ?? field.step, ordinal = received ? 7 : retained ? 3 : 0;
   const root = field.root, p = root.response.world.parameters;
   const append = (throughTick: number, action?: SamePaPhysicalFieldAction) => {
     const previousReference = reference('pa_physical_v1_field_steps', previous);
@@ -33,6 +35,10 @@ const nativePhysicalThrowOperations = (h: Fixture, field: Field, label: string, 
     if (secured.value.actionResult?.kind !== 'capture_checkpoint_v1' || secured.value.actionResult.progress.kind !== 'secured') throw new Error('Native scheduled glove capture was not secured');
     return { candidate, ...secured };
   };
+  const appeal = (planned: Operation, indicated: Operation | null) => {
+  const appealed=indicated?append(previous.evaluationTick,{kind:'appeal_contact_v1',indicationReference:indicated.operationReference,throwPlanReference:planned.operationReference}):null;
+  return appealed;
+  };
   const finish = (planned: Operation, indicated: Operation | null) => {
   if (planned.value.actionResult?.kind !== 'throw_plan_v1') throw new Error('Native scheduled throw plan missing');
   const plan = planned.value.actionResult.plan, start = plan.input.cursor.moment;
@@ -46,12 +52,12 @@ const nativePhysicalThrowOperations = (h: Fixture, field: Field, label: string, 
   const reception = append(released.value.evaluationTick + 100_000);
   const received = capture();
   if (received.value.field.motion.carrierPlayerId !== 'home-1') throw new Error('IFN01 receiver did not secure actual flight');
-  const appealed=indicated?append(previous.evaluationTick,{kind:'appeal_contact_v1',indicationReference:indicated.operationReference,throwPlanReference:planned.operationReference}):null;
+  const appealed=appeal(planned,indicated);
   return { planned, transfer, released, reception, received,
     ...(indicated&&appealed?{indicated,appealed}:{}),
     fieldForActions: { ...field, step: appealed?.value??received.value, stepReference: appealed?.operationReference??received.operationReference } };
   };
-  return { append, capture, finish, previous: () => previous };
+  return { append, capture, appeal, finish, previous: () => previous };
 };
 
 /** Continue IFN01's real first glove boundary under its original static curves.
@@ -81,4 +87,22 @@ export const resumeNativePhysicalThrowReceptionAfterPlan = (h: Fixture, field: F
     throw new Error('Native retained LAN throw plan boundary differs');
   h.advance(retained.planned.operationReference);
   return nativePhysicalThrowOperations(h, field, label, retained).finish(retained.planned, retained.indicated);
+};
+
+/** R11 already owns receive :7 and its cut21 admission. The first new writer
+ * is the original appeal :8; append owns its subsequent cut22 admission. */
+export const resumeNativePhysicalThrowReceptionAfterReceive = (h: Fixture, field: Field, label: string, retained: ReceivedAppeal) => {
+  for (const [operation, ordinal] of [[retained.planned, 3], [retained.indicated, 2], [retained.released, 5], [retained.received, 7]] as const) {
+    const pin = reference('pa_physical_v1_field_steps', operation.value), original = operation.operationReference;
+    if (operation.value.kind !== 'same_pa_physical_field_step_v1' || pin.sourceId !== label + ':' + ordinal
+      || original.owner !== pin.owner || original.sourceId !== pin.sourceId || original.sourceHash !== pin.sourceHash || original.snapshotHash !== pin.snapshotHash)
+      throw new Error('Native retained LAN receiver boundary differs');
+  }
+  if (retained.planned.value.actionResult?.kind !== 'throw_plan_v1' || retained.indicated.value.actionResult?.kind !== 'appeal_indication_v1'
+    || retained.released.value.actionResult?.kind !== 'throw_checkpoint_v1' || retained.released.value.actionResult.progress.kind !== 'released'
+    || retained.received.value.actionResult?.kind !== 'capture_checkpoint_v1' || retained.received.value.actionResult.progress.kind !== 'secured'
+    || retained.received.value.field.motion.carrierPlayerId !== 'home-1') throw new Error('Native retained LAN receiver boundary differs');
+  const appealed = nativePhysicalThrowOperations(h, field, label, retained).appeal(retained.planned, retained.indicated)!;
+  return { ...retained, appealed,
+    fieldForActions: { ...field, step: appealed.value, stepReference: appealed.operationReference } };
 };

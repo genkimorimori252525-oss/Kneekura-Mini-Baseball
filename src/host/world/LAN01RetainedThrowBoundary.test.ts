@@ -1,7 +1,7 @@
 import { beforeEach, expect, it, vi } from 'vitest';
 import { actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
-import { readLAN01RetainedThrowBoundary } from './LAN01RetainedThrowBoundary.test-support';
+import { readLAN01RetainedReceivedBoundary, readLAN01RetainedThrowBoundary } from './LAN01RetainedThrowBoundary.test-support';
 
 const boundary = vi.hoisted(() => ({
   records: new Map<string, any>(), views: new Map<string, any>(), world: null as any,
@@ -40,7 +40,10 @@ vi.mock('./SqliteReadTransaction.test-support', () => ({ withSqliteReadTransacti
 // Finite owner-reader boundary declarations. No Native database or owner runs;
 // the real helper must reject an altered graph and propagate independent fences.
 const fixture = () => {
-  const pin = (owner: any, sourceId: string) => reference(owner, { source: { sourceId } });
+  const pin = (owner: any, sourceId: string) => {
+    const source: { sourceId: string; sourceVersion: string } = { sourceId, sourceVersion: 'fixture-only-v1' };
+    return reference(owner, { source });
+  };
   const enrollmentReference = pin('same_pa_enrollments', 'lan01:occupied:enrollment');
   const playerIds = ['away-2', 'p2', ...Array.from({ length: 8 }, (_, i) => 'home-' + (i + 1)), 'away-1'];
   const members = playerIds.map(playerId => ({ playerId, bindingHash: hash(playerId), personHash: hash(playerId),
@@ -50,9 +53,9 @@ const fixture = () => {
   const participants = members.map(m => ({ playerId: m.playerId, projectedStateHash: m.projectedStateHash }));
   const lineage = { enrollmentReference, careerId: 'career-a', participantReferences };
   const physicalWorld = { original: 'World' }, bodyCut = { original: 'body' };
-  const actor = { source: { sourceId: 'occupied-actor' }, binding: { careerId: 'career-a', playerId: 'away-2' } };
+  const actor = { source: { sourceId: 'occupied-actor', sourceVersion: 'fixture-only-v1' }, binding: { careerId: 'career-a', playerId: 'away-2' } };
   const record = (kind: string, sourceId: string, values: any = {}) => {
-    const value = { kind, lineage, ...values, source: { sourceId, ...values.source } };
+    const value = { kind, lineage, ...values, source: { sourceId, sourceVersion: 'fixture-only-v1', ...values.source } };
     boundary.records.set(sourceId, value); return value;
   };
   const timeline = { events: [{ kind: 'TakenPitchPlateCrossed' }, { kind: 'PitchAdjudicated' },
@@ -112,6 +115,7 @@ const fixture = () => {
   pins.resolutionReference = reference('pa_physical_v1_resolutions', resolution);
   const root = record('same_pa_physical_field_root_v1', 'lan01:field:field-root', {
     ...common, timeline: contactTimeline, stage: 'field', operationOrdinal: 6, evaluationTick: 200,
+    response: { world: { parameters: { ticksPerSecond: 1_000_000 } } }, geometry: { original: 'geometry' },
     source: { viewReference: pin('pa_lifecycle_v1_execution_views', 'lan01:occupied:cut11:view'), launchReference: pins.launchReference,
       previousOperationReference: pins.resolutionReference, resolutionReference: pins.resolutionReference, postureReference: pins.postureReference,
       fieldInputs: { kind: 'fresh_physical_field_calibration_v1', calibrationReference: pins.fieldCalibrationReference }, throughTick: 200 } });
@@ -139,8 +143,9 @@ const fixture = () => {
     boundary.views.set(next.source.sourceId, basis);
     return { view: next, viewReference: reference('pa_lifecycle_v1_execution_views', next), basis, prefix };
   };
-  const moment = { originTick: 103_000_000, elapsedSeconds: 0.218722, ball: { tick: 103_218_722 } };
-  const carried = { motion: { carrierPlayerId: 'p2', response: { kind: 'carried' }, world: { moment },
+  const moment = { originTick: 103_126_327, elapsedSeconds: 0.092395, ball: { tick: 103_218_722 } };
+  const cursor = { moment, previousContacts: [] };
+  const carried = { motion: { carrierPlayerId: 'p2', response: { kind: 'carried', cursor }, cursor, world: { moment },
     actors: playerIds.map(playerId => ({ playerId, primitive: { endTick: 111_694_321 } })) } };
   const stepRecord = (id: string, ordinal: number, viewReference: any, previous: any, action: any, actionResult: any) =>
     record('same_pa_physical_field_step_v1', id, { ...common, timeline: contactTimeline, stage: 'field', operationOrdinal: ordinal,
@@ -160,9 +165,11 @@ const fixture = () => {
   const caught = record('same_pa_catch_work_v1', 'lan01:caught:work:original', {
     physicalPitchReference: pins.launchReference, physicalOperationReference: pins.securedReference, evaluationTick: moment.ball.tick,
     source: { enrollmentReference, viewReference: pins.cut14ViewReference, priorWorkReference: null },
-    originalInputs: { source: { sourceId: 'lan01:caught:communication:original', viewReference: pins.cut14ViewReference },
-      action: { sourceId: 'lan01:caught:action', viewReference: pins.cut14ViewReference, judgment: 'caught' },
-      assignment: { sourceId: 'lan01:caught:assignment' }, person: { sourceId: 'lan01:caught:person' }, model: { sourceId: 'lan01:caught:reception-model' } } });
+    originalInputs: { source: { sourceId: 'lan01:caught:communication:original', sourceVersion: 'fixture-only-v1', viewReference: pins.cut14ViewReference },
+      action: { sourceId: 'lan01:caught:action', sourceVersion: 'fixture-only-v1', viewReference: pins.cut14ViewReference, judgment: 'caught' },
+      assignment: { sourceId: 'lan01:caught:assignment', sourceVersion: 'fixture-only-v1' },
+      person: { sourceId: 'lan01:caught:person', sourceVersion: 'fixture-only-v1' },
+      model: { sourceId: 'lan01:caught:reception-model', sourceVersion: 'fixture-only-v1' } } });
   pins.caughtReference = reference('pa_catch_v1_work', caught); eventReferences.push(pins.caughtReference);
   const view15 = nextView(15, eventReferences, pins.securedReference, moment.ball.tick); pins.cut15ViewReference = view15.viewReference;
   const thrower = members.find(m => m.playerId === 'p2');
@@ -179,14 +186,16 @@ const fixture = () => {
   const planned = stepRecord('lan01:appeal-throw:3', 10, pins.cut16ViewReference, pins.indicatedReference,
     { kind: 'throw_plan_v1', member: thrower, calibrationReference: pins.throwCalibrationReference, receiverPlayerId: 'home-1',
       coverageThroughTick: 111_694_321, appealIndicationReference: pins.indicatedReference },
-    { kind: 'throw_plan_v1', plan: { original: 'owned-plan' }, appealIndicationReference: pins.indicatedReference });
+    { kind: 'throw_plan_v1', plan: { input: { cursor, carrierPlayerId: 'p2', receiverPlayerId: 'home-1', response: root.response, geometry: root.geometry },
+      actors: carried.motion.actors, transfer: { throwReadyTick: 103_218_932 }, releaseElapsedSeconds: 0.092605 }, appealIndicationReference: pins.indicatedReference });
   pins.plannedReference = reference('pa_physical_v1_field_steps', planned);
   boundary.operation.mockImplementation((_db: unknown, ref: any) => {
     const value = boundary.records.get(ref.sourceId);
     return value && { record: value, actor, reference: ref, physicalPitchReference: pins.launchReference, physicalWorld, bodyCut };
   });
   const context: any = { db: { prepare: boundary.forbidden }, actor, second, anchorViewReference, current, eventReferences };
-  return { context, pins, posture, input, intent, commitment, resolution, root, step, secured, indicated, planned, throwCalibration, caught, prefix };
+  return { context, pins, posture, input, intent, commitment, resolution, root, step, secured, indicated, planned, throwCalibration, caught, prefix,
+    record, nextView };
 };
 
 beforeEach(() => { vi.clearAllMocks(); boundary.records.clear(); boundary.views.clear(); boundary.reserved.mockReset(); boundary.coverage.mockReset(); });
@@ -250,4 +259,138 @@ it.each(['reserved', 'coverage'] as const)('propagates the independent current %
 it('propagates committed physical head rejection without using an in-flight reader', () => {
   const f = fixture(); boundary.operation.mockImplementation(() => { throw new Error('physical operation is not covered by its committed head'); });
   expect(() => readLAN01RetainedThrowBoundary(f.context, f.pins)).toThrow(/committed head/);
+});
+
+// These inert records declare the finite accepted R11 graph. They never run a
+// physical kernel, construct an owner, open SQLite, or append a future appeal.
+const receivedFixture = (alter?: (name: string, value: any) => void) => {
+  const f = fixture(), { pins, record, nextView, planned } = f;
+  const plan = planned.actionResult.plan;
+  const events = [...f.context.eventReferences, pins.plannedReference];
+  const view17 = nextView(17, events, pins.plannedReference, planned.evaluationTick);
+  pins.cut17ViewReference = view17.viewReference;
+  const field = (tick: number, elapsedSeconds: number, carrierPlayerId: string | null, responseKind: string) => {
+    const moment = { originTick: 103_126_327, elapsedSeconds, ball: { tick } };
+    const cursor = responseKind === 'capture_candidate' ? null : { moment, previousContacts: [] };
+    return { baseContacts: [], motion: { actors: planned.field.motion.actors, carrierPlayerId,
+      world: { kind: responseKind === 'capture_candidate' ? 'boundary' : 'moving', moment },
+      cursor, response: { kind: responseKind, cursor } } };
+  };
+  const step = (name: string, id: number, current: any, previous: any, physicalField: any, throughTick: number,
+    action?: any, actionResult?: any) => {
+    const value = record('same_pa_physical_field_step_v1', 'lan01:appeal-throw:' + id, {
+      physicalPitchSourceId: pins.launchReference.sourceId, pitchOrdinal: 3, operationOrdinal: id + 7, stage: 'field',
+      timeline: f.root.timeline, evaluationTick: physicalField.motion.world.moment.ball.tick, viewReference: current.viewReference,
+      field: physicalField, ...(actionResult ? { actionResult } : {}),
+      source: { capability: 'same_pa_physical_field_step_v1', viewReference: current.viewReference,
+        launchReference: pins.launchReference, previousOperationReference: previous, previousFieldReference: previous,
+        fieldRootReference: pins.fieldRootReference, throughTick, ...(action ? { action } : {}) } });
+    alter?.(name, value);
+    const operationReference = reference('pa_physical_v1_field_steps', value);
+    events.push(operationReference);
+    return { value, operationReference, current: nextView(id + 14, events, operationReference, value.evaluationTick) };
+  };
+  const transferField = field(103_218_827, 0.0925, 'p2', 'carried');
+  const transfer = step('transfer', 4, view17, pins.plannedReference, transferField, 103_218_827,
+    { kind: 'throw_checkpoint_v1', planReference: pins.plannedReference, throughElapsedSeconds: 0.0925 },
+    { kind: 'throw_checkpoint_v1', planReference: pins.plannedReference, progress: { kind: 'transfer', field: transferField,
+      transfer: plan.transfer, startCursor: plan.input.cursor, checkpointElapsedSeconds: [0.0925], planIdentity: JSON.stringify(plan) } });
+  pins.transferReference = transfer.operationReference; pins.cut18ViewReference = transfer.current.viewReference;
+  const releasedField = field(103_218_932, 0.092605, null, 'moving');
+  const released = step('released', 5, transfer.current, pins.transferReference, releasedField, 103_218_932,
+    { kind: 'throw_checkpoint_v1', planReference: pins.plannedReference, throughElapsedSeconds: 0.092605 },
+    { kind: 'throw_checkpoint_v1', planReference: pins.plannedReference, progress: { kind: 'released', field: releasedField,
+      transfer: plan.transfer, startCursor: transferField.motion.cursor, checkpointElapsedSeconds: [0.0925, 0.092605],
+      releaseCursor: releasedField.motion.cursor, launch: { releaseTick: 103_218_932 }, planIdentity: JSON.stringify(plan) } });
+  pins.releasedReference = released.operationReference; pins.cut19ViewReference = released.current.viewReference;
+  const receptionField: any = field(103_251_165, 0.12483757186509337, null, 'capture_candidate');
+  receptionField.motion.world.contacts = [{ kind: 'actor', role: 'glove', playerId: 'home-1', moment: receptionField.motion.world.moment }];
+  const reception = step('reception', 6, released.current, pins.releasedReference, receptionField, 103_318_932);
+  pins.receptionReference = reception.operationReference; pins.cut20ViewReference = reception.current.viewReference;
+  const receivedField = field(103_280_489, 0.154162, 'home-1', 'carried');
+  const received = step('received', 7, reception.current, pins.receptionReference, receivedField, 103_280_489,
+    { kind: 'capture_checkpoint_v1', candidateReference: pins.receptionReference, throughElapsedSeconds: 0.154162 },
+    { kind: 'capture_checkpoint_v1', candidateReference: pins.receptionReference, progress: { kind: 'secured',
+      planIdentity: JSON.stringify({ input: { response: f.root.response, geometry: f.root.geometry, field: receptionField },
+        candidateSecureTick: 103_280_489, fenceElapsedSeconds: 0.154162 }),
+      checkpointElapsedSeconds: [0.154162], startMoment: receptionField.motion.world.moment,
+      world: receivedField.motion.world, cursor: receivedField.motion.cursor,
+      acquisition: { kind: 'secured', acquirerPlayerId: 'home-1', contactMoment: receptionField.motion.world.moment,
+        secureTick: 103_280_489 } } });
+  pins.receivedReference = received.operationReference; pins.cut21ViewReference = received.current.viewReference;
+  pins.cut21PrefixReference = received.current.view.source.prefixReference;
+  f.context.current = received.current; f.context.eventReferences = events;
+  return { ...f, transfer: transfer.value, released: released.value, reception: reception.value, received: received.value };
+};
+
+it('adopts the exact received boundary and fences only its twenty-one admitted events without writers', () => {
+  const f = receivedFixture();
+  const result = readLAN01RetainedReceivedBoundary(f.context, f.pins);
+  expect(result).toEqual({ field: { root: f.root, rootReference: f.pins.fieldRootReference, step: f.step,
+    stepReference: f.pins.fieldStepReference, resolution: f.resolution, resolutionReference: f.pins.resolutionReference },
+    indicated: { value: f.indicated, operationReference: f.pins.indicatedReference },
+    planned: { value: f.planned, operationReference: f.pins.plannedReference },
+    released: { value: f.released, operationReference: f.pins.releasedReference },
+    received: { candidate: f.reception, value: f.received, operationReference: f.pins.receivedReference },
+    caught: { work: f.caught, workReference: f.pins.caughtReference } });
+  expect(result.received.value).toBe(f.received); expect(result.received.candidate).toBe(f.reception);
+  expect(result.caught.work.originalInputs).toBe(f.caught.originalInputs);
+  expect(f.context.eventReferences).toHaveLength(21);
+  expect(boundary.reserved).toHaveBeenCalledTimes(1);
+  expect(boundary.reserved).toHaveBeenCalledWith(f.context.db, f.context.current.basis);
+  expect(boundary.coverage).toHaveBeenCalledTimes(1);
+  expect(boundary.coverage).toHaveBeenCalledWith(f.context.db, f.root.lineage.enrollmentReference,
+    f.context.anchorViewReference, f.context.eventReferences);
+  expect(boundary.operation.mock.calls.map(c => c[1].sourceId)).toEqual([
+    'lan01:field:field-root', 'lan01:swing:commitment', 'lan01:swing:resolution', 'lan01:field:field-step',
+    'lan01:appeal-throw:1', 'lan01:appeal-throw:2', 'lan01:appeal-throw:3', 'lan01:appeal-throw:4',
+    'lan01:appeal-throw:5', 'lan01:appeal-throw:6', 'lan01:appeal-throw:7']);
+  expect(boundary.forbidden).not.toHaveBeenCalled();
+});
+it('rejects a missing received owner instead of treating a candidate as possession', () => {
+  const f = receivedFixture(); boundary.records.delete(f.received.source.sourceId);
+  expect(() => readLAN01RetainedReceivedBoundary(f.context, f.pins)).toThrow(/received.*missing/);
+});
+it.each(['transfer', 'released', 'reception', 'received'] as const)('rejects changed received-boundary %s ownership', name => {
+  const f = receivedFixture(); f[name].changed = true;
+  expect(() => readLAN01RetainedReceivedBoundary(f.context, f.pins)).toThrow(/owner reference differs/);
+});
+it.each(['missing', 'extra', 'future-appeal'] as const)('rejects %s work at the complete cut21 boundary', change => {
+  const f = receivedFixture();
+  f.context.eventReferences = change === 'missing' ? f.context.eventReferences.slice(0, -1)
+    : [...f.context.eventReferences, change === 'extra' ? f.pins.receivedReference
+      : { ...f.pins.receivedReference, sourceId: 'lan01:appeal-throw:8' }];
+  expect(() => readLAN01RetainedReceivedBoundary(f.context, f.pins)).toThrow(/twenty-one admitted event references differs/);
+  expect(boundary.coverage).not.toHaveBeenCalled();
+});
+it.each(['transfer', 'released', 'received'] as const)('rejects rehashed %s semantics instead of adopting a matching label', name => {
+  const f = receivedFixture((key, value) => {
+    if (key === name) value.actionResult.progress.kind = name === 'received' ? 'fence_pending' : 'interrupted';
+  });
+  expect(() => readLAN01RetainedReceivedBoundary(f.context, f.pins)).toThrow(/progress differs/);
+  expect(boundary.reserved).not.toHaveBeenCalled();
+});
+it.each(['member', 'world', 'view'] as const)('rejects changed current %s at cut21 after authenticating history', change => {
+  const f = receivedFixture();
+  if (change === 'member') f.context.current.basis.members = f.context.current.basis.members.map((m: any, i: number) =>
+    i ? m : { ...m, baselineSourceId: 'replacement' });
+  if (change === 'world') boundary.world.head.worldRevision++;
+  if (change === 'view') f.context.current.viewReference = f.pins.cut20ViewReference;
+  expect(() => readLAN01RetainedReceivedBoundary(f.context, f.pins)).toThrow(/differs/);
+});
+it.each(['reserved', 'coverage'] as const)('propagates the received boundary current %s fence', fence => {
+  const f = receivedFixture(); boundary[fence].mockImplementation(() => { throw new Error('received current ' + fence + ' rejected'); });
+  expect(() => readLAN01RetainedReceivedBoundary(f.context, f.pins)).toThrow('received current ' + fence + ' rejected');
+});
+it('propagates the received physical head rejection before a future appeal can run', () => {
+  const f = receivedFixture(), read = boundary.operation.getMockImplementation()!;
+  boundary.operation.mockImplementation((db: unknown, ref: any) => {
+    if (ref.sourceId === 'lan01:appeal-throw:7') throw new Error('physical operation is not covered by its committed head');
+    return read(db, ref);
+  });
+  expect(() => readLAN01RetainedReceivedBoundary(f.context, f.pins)).toThrow(/committed head/);
+});
+it('still authenticates the original caught history before adopting a received boundary', () => {
+  const f = receivedFixture(); f.caught.originalInputs.action.judgment = 'not_caught';
+  expect(() => readLAN01RetainedReceivedBoundary(f.context, f.pins)).toThrow(/caught owner reference differs/);
 });

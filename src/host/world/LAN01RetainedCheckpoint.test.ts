@@ -6,25 +6,33 @@ import { join } from 'node:path';
 import { captureLAN01RetainedSuffixInput, LAN01_RETAINED_CHECKPOINT, prepareLAN01RetainedCheckpoint } from './LAN01RetainedCheckpoint.test-support';
 
 const input = () => ({ nativeReleased: true, checkpointGzip: '/private/checkpoint.sqlite.gz', destinationDirectory: '/private/new-suffix' });
-describe('exact LAN01-R9 cp39 throw-plan boundary, without opening Native owners', () => {
-  it('pins only the returned throw plan and preserves earlier failed lineage evidence', () => {
+describe('exact LAN01-R11 cp24 received boundary, without opening Native owners', () => {
+  it('pins only complete cut21 after receiver capture and preserves earlier failed lineage evidence', () => {
     const pin = LAN01_RETAINED_CHECKPOINT;
-    expect([pin.checkpointSequence, pin.returnedOwnerCall, pin.gzipBytes, pin.databaseBytes, pin.tableCount, pin.rowCount]).toEqual([39, 39, 1146096, 18231296, 118, 1615]);
-    expect(pin.gzipSha256).toBe('f308ac8c6633f2ad91c57d890f3a48761799dee56f9af92413e7db53b3183b2c');
-    expect(pin.databaseSha256).toBe('39b508368773cc8cfa3bf962e8fed261f097519898210640badea9b7565363ce');
-    expect(pin.receiptSha256).toBe('0f36afa9c07c59aa574d2c763532f8b121ed1480ec64a6a1f9bdb70987096db0');
-    expect(pin.priorRunTerminalSha256).toBe('8dbface89e12ce4c3da0e1a4eb366da9cfd0dabeddb6394ad626dbccd7f4164b');
-    expect(pin.priorRunOutcome).toBe('FAILED_WALL_AFTER_THROW_PLAN_BEFORE_CUT17_PREFIX_RETURN');
+    expect([pin.checkpointSequence, pin.returnedOwnerCall, pin.gzipBytes, pin.databaseBytes, pin.tableCount, pin.rowCount]).toEqual([24, 24, 1306612, 21020672, 118, 1844]);
+    expect(pin.gzipSha256).toBe('71e9ba5e7d41d393dceb5f22a3047a00ed81d75a3acd6d2e3997a2d718920c44');
+    expect(pin.databaseSha256).toBe('7828c45d0d9f67dfee4050e4e51b463ce421f5524e593891c8186f75a165735a');
+    expect(pin.receiptSha256).toBe('bfae561d54eb4b9d397f1ef7a3ed5465289810d2877625c14d607273ac3cde2e');
+    expect(pin.priorRunTerminalSha256).toBe('0f2fcbfc829661254a3800b121c5b80acebb1748aec071e01474a58aef9c2b22');
+    expect(pin.priorRunOutcome).toBe('FAILED_WALL_AFTER_CUT21_BEFORE_ORIGINAL_APPEAL_RETURN');
     expect(pin.priorRunObservationSha256).toBeNull();
-    expect(pin.firstRemainingWriter).toEqual({ owner: 'SamePlateAppearanceLifecycle', method: 'acceptPrefix', sourceId: 'lan01:occupied:cut17:prefix',
-      argumentsHash: '0f457df054a7328753c0637fe77a41b132541d9d0ea08a1f1498e42109218ac6' });
-    expect(pin.throwBoundary.plannedReference.sourceId).toBe('lan01:appeal-throw:3');
-    expect(pin.throwBoundary.plannedReference.snapshotHash).toBe('f5b70b23c04266c2357802456faae54dedd64c004b920eb308b52a1b7d8ac6c3');
+    expect(pin.firstRemainingWriter).toEqual({ owner: 'SamePlateAppearancePhysicalEpisode', method: 'acceptOperation', sourceId: 'lan01:appeal-throw:8',
+      argumentsHash: '925361e75a972242e7059a78df662a8ceffeb7df47ead5a7ff41bd52d4db1aa5' });
+    expect(pin.receivedBoundary.receivedReference.sourceId).toBe('lan01:appeal-throw:7');
+    expect(pin.receivedBoundary.cut21ViewReference.sourceId).toBe('lan01:occupied:cut21:view');
+    for (const [key, value] of Object.entries(pin.priorCp39.throwBoundary)) {
+      expect(pin.receivedBoundary[key as keyof typeof pin.priorCp39.throwBoundary]).toBe(value);
+    }
+    expect(pin.priorCp39.checkpointSequence).toBe(39);
+    expect(pin.priorCp39.throwBoundary.plannedReference.sourceId).toBe('lan01:appeal-throw:3');
+    expect(pin.priorCp39.throwBoundary.plannedReference.snapshotHash).toBe('f5b70b23c04266c2357802456faae54dedd64c004b920eb308b52a1b7d8ac6c3');
+    expect(pin.priorCp39.gzipSha256).toBe('f308ac8c6633f2ad91c57d890f3a48761799dee56f9af92413e7db53b3183b2c');
+    expect(pin.priorCp39.priorRunTerminalSha256).toBe('8dbface89e12ce4c3da0e1a4eb366da9cfd0dabeddb6394ad626dbccd7f4164b');
     expect(pin.priorCp19.checkpointSequence).toBe(19);
     expect(pin.priorCp19.gzipSha256).toBe('1ff55c8e79eaee682eff205541416d6fe6d4434bfde056ac11085f7a0e59c96b');
     expect(pin.priorCp19.priorRunTerminalSha256).toBeNull();
     expect(pin.priorCp19.priorRunObservationSha256).toBe('fa60da67d0796f6594de6ea31cb5bdb870daaafa9e337092c5f0d57fee4e20d6');
-    expect(pin.throwBoundary.inputReference).not.toEqual(pin.priorCp21.inputBoundary.inputReference);
+    expect(pin.receivedBoundary.inputReference).not.toEqual(pin.priorCp21.inputBoundary.inputReference);
     expect(pin.failedGroundContactLineage.reusableAsCorrectedSuffix).toBe(false);
     expect(pin.priorCp14.checkpointSequence).toBe(14);
   });
@@ -68,7 +76,7 @@ describe('exact LAN01-R9 cp39 throw-plan boundary, without opening Native owners
     expect(pin.firstRemainingWriter).toEqual({ owner: 'SamePlateAppearancePhysicalEpisode', method: 'acceptOperation', sourceId: 'lan01:swing:commitment',
       argumentsHash: '55ca606ba61b079c7f08142b1223ac14fc1944d70a50907dd7c51335ecf466c1' });
   });
-  it('keeps canonical authentication before exclusive cp39 materialization and readback', () => {
+  it('keeps canonical authentication before exclusive cp24 materialization and readback', () => {
     const source = readFileSync(new URL('./LAN01RetainedCheckpoint.test-support.ts', import.meta.url), 'utf8');
     const materializer = source.slice(source.indexOf('export const prepareLAN01RetainedCheckpoint'));
     expect(materializer).toContain("assert.equal(realpathSync(path), path, 'LAN01 input must be a canonical file path')");
@@ -79,7 +87,7 @@ describe('exact LAN01-R9 cp39 throw-plan boundary, without opening Native owners
     expect(authenticated).toBeGreaterThan(-1); expect(exclusiveDirectory).toBeGreaterThan(authenticated);
     expect(exclusiveFile).toBeGreaterThan(exclusiveDirectory);
     expect(materializer.indexOf('assert.equal(sha256(readFileSync(path)), pin.databaseSha256)')).toBeGreaterThan(exclusiveFile);
-    expect(materializer).toContain("join(input.destinationDirectory, 'lan01-cp39-throw-plan-suffix.sqlite')");
+    expect(materializer).toContain("join(input.destinationDirectory, 'lan01-cp24-pending-appeal-suffix.sqlite')");
     expect(materializer).toContain('const input = captureLAN01RetainedSuffixInput(raw), pin = LAN01_RETAINED_CHECKPOINT');
     expect(materializer).not.toContain('recursive: true');
   });
@@ -133,8 +141,8 @@ it('keeps the original twenty LAN callback assertions and the final eleven byte-
   expect(entry).toContain('historicalOriginalCallbackAssertionCount: 9');
   expect(entry).toContain('historicalR9CallbackAssertionCount: 5');
   expect(entry).toContain('remainingOriginalCallbackAssertionCount: 11');
-  expect(entry).toContain('let remainingOriginalCallbackAssertionsExecuted = false, originalThrowRemainderExecuted = false');
-  expect(entry.indexOf('originalThrowRemainderExecuted = true')).toBeGreaterThan(entry.indexOf('const thrown = resumeNativePhysicalThrowReceptionAfterPlan('));
+  expect(entry).toContain('let remainingOriginalCallbackAssertionsExecuted = false, originalPendingAppealExecuted = false');
+  expect(entry.indexOf('originalPendingAppealExecuted = true')).toBeGreaterThan(entry.indexOf('const thrown = resumeNativePhysicalThrowReceptionAfterReceive('));
   expect(entry.indexOf('remainingOriginalCallbackAssertionsExecuted = true')).toBeGreaterThan(entry.indexOf('    continueLAN01OriginalLiveAppealAfterThrowAssertions('));
 });
 

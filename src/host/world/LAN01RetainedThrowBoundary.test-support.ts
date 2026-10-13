@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import type { DatabaseSync } from 'node:sqlite';
+import { quantizeEventTick } from '../../core/sim/ExactEventTime';
 import { actorHash as hash, type DurablePhysicalPlateAppearanceActor } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
@@ -12,6 +13,7 @@ import { readSamePaBattingExecutionInputFromSqlite, readSamePaBattingIntentFromS
 import { readBattingPerceptionFromSqlite } from './SqliteBattingPerceptionStore';
 import { readEmotionWorldRevisionFromSqlite } from './EmotionWorldRevisionFromSqlite';
 import { readSamePaCatchWorkFromSqlite } from './SamePlateAppearanceCatchWorkFromSqlite';
+import type { SamePaPhysicalCommitment } from './SamePlateAppearancePhysicalEpisode';
 
 export type LAN01RetainedThrowBoundaryPins = Readonly<{
   postureReference: SamePaReference<'batting_observation_v1_postures'>;
@@ -46,6 +48,18 @@ export type LAN01RetainedThrowBoundaryPins = Readonly<{
   cut16PrefixReference: SamePaReference<'pa_lifecycle_v1_work_prefixes'>;
   cut16ViewReference: SamePaReference<'pa_lifecycle_v1_execution_views'>;
 }>;
+export type LAN01RetainedReceivedBoundaryPins = LAN01RetainedThrowBoundaryPins & Readonly<{
+  transferReference: SamePaReference<'pa_physical_v1_field_steps'>;
+  releasedReference: SamePaReference<'pa_physical_v1_field_steps'>;
+  receptionReference: SamePaReference<'pa_physical_v1_field_steps'>;
+  receivedReference: SamePaReference<'pa_physical_v1_field_steps'>;
+  cut17ViewReference: SamePaReference<'pa_lifecycle_v1_execution_views'>;
+  cut18ViewReference: SamePaReference<'pa_lifecycle_v1_execution_views'>;
+  cut19ViewReference: SamePaReference<'pa_lifecycle_v1_execution_views'>;
+  cut20ViewReference: SamePaReference<'pa_lifecycle_v1_execution_views'>;
+  cut21ViewReference: SamePaReference<'pa_lifecycle_v1_execution_views'>;
+  cut21PrefixReference: SamePaReference<'pa_lifecycle_v1_work_prefixes'>;
+}>;
 type Context = Readonly<{
   db: DatabaseSync; actor: DurablePhysicalPlateAppearanceActor; second: SamePaSuccessorTakePitch;
   anchorViewReference: SamePaReference<'pa_continuation_v1_execution_views'>;
@@ -53,13 +67,24 @@ type Context = Readonly<{
   eventReferences: readonly SamePaLifecycleWorkReference[];
 }>;
 
-/** Exact LAN01-R9 cp39 only. The caller owns the existing query-only proof
- * scope, all cut16 TOTAL/calibration rows and absence of cut17 or later work.
- * Historical owners authenticate the original graph. Independent current
- * fences cover the returned but not yet lifecycle-admitted throw plan :3. */
-export const readLAN01RetainedThrowBoundary = (context: Context, pins: LAN01RetainedThrowBoundaryPins) => {
+const same = (actual: unknown, expected: unknown, what: string) => assert.deepEqual(actual, expected, 'LAN01 retained throw ' + what + ' differs');
+const assertOriginalMembers = (basis: SamePaLifecycleViewBasis) => {
+  const playerIds = ['away-2', 'p2', ...Array.from({ length: 8 }, (_, i) => 'home-' + (i + 1)), 'away-1'];
+  for (const values of [basis.members, basis.view.participants, basis.view.lineage.participantReferences,
+    basis.view.source.participantTotalReferences]) same(values.map(v => v.playerId).sort(), [...playerIds].sort(), 'eleven original members');
+  for (const member of basis.members) {
+    const participant = basis.view.lineage.participantReferences.find(p => p.playerId === member.playerId)!;
+    const projected = basis.view.participants.find(p => p.playerId === member.playerId)!;
+    same(member, { playerId: participant.playerId, bindingHash: participant.bindingHash, personHash: participant.personHash,
+      baselineSourceId: participant.baselineSourceId, reservedRevision: participant.revision, reservedStateHash: participant.stateHash,
+      projectedStateHash: projected.projectedStateHash }, 'original member baseline');
+  }
+};
+
+/** Immutable cut16 and its original plan history. This never applies current
+ * reserved-state or coverage fences to a historical lifecycle cut. */
+const readLAN01RetainedThrowHistory = (context: Context, pins: LAN01RetainedThrowBoundaryPins, historical: SamePaLifecycleViewBasis) => {
   const { db, actor, second, anchorViewReference, current } = context;
-  const same = (actual: unknown, expected: unknown, what: string) => assert.deepEqual(actual, expected, 'LAN01 retained throw ' + what + ' differs');
   const identities: readonly (readonly [SamePaReference, string])[] = [
     [pins.postureReference, 'lan01:swing:posture'], [pins.intentReference, 'lan01:swing:intent'], [pins.inputReference, 'lan01:swing:input'],
     [pins.launchReference, 'lan01:swing:launch'], [pins.captureCutReference, 'lan01:swing:capture-cut'], [pins.observationReference, 'lan01:swing:capture'],
@@ -86,7 +111,6 @@ export const readLAN01RetainedThrowBoundary = (context: Context, pins: LAN01Reta
   const events = [...fieldEvents, pins.fieldStepReference, pins.securedReference, pins.caughtReference, pins.indicatedReference];
   same(context.eventReferences, events, 'sixteen admitted event references');
   same(current.viewReference, pins.cut16ViewReference, 'current view reference');
-  const historical = readHistoricalSamePaLifecycleViewFromSqlite(db, pins.cut16ViewReference);
   same(historical, current.basis, 'cut16 basis'); same(historical.actor, actor, 'actor'); same(historical.view, current.view, 'cut16 view');
   same(reference('pa_lifecycle_v1_execution_views', current.view), pins.cut16ViewReference, 'cut16 owner reference');
   same(current.view.source.prefixReference, pins.cut16PrefixReference, 'cut16 prefix reference');
@@ -102,16 +126,7 @@ export const readLAN01RetainedThrowBoundary = (context: Context, pins: LAN01Reta
     same(value.source.enrollmentReference, current.view.lineage.enrollmentReference, 'prefix enrollment');
     same(value.source.anchorViewReference, anchorViewReference, 'prefix anchor'); same(value.source.eventReferences, expectedEvents, 'prefix event references');
   }
-  const playerIds = ['away-2', 'p2', ...Array.from({ length: 8 }, (_, i) => 'home-' + (i + 1)), 'away-1'];
-  for (const values of [current.basis.members, current.view.participants, current.view.lineage.participantReferences,
-    current.view.source.participantTotalReferences]) same(values.map(v => v.playerId).sort(), [...playerIds].sort(), 'eleven original members');
-  for (const member of current.basis.members) {
-    const participant = current.view.lineage.participantReferences.find(p => p.playerId === member.playerId)!;
-    const projected = current.view.participants.find(p => p.playerId === member.playerId)!;
-    same(member, { playerId: participant.playerId, bindingHash: participant.bindingHash, personHash: participant.personHash,
-      baselineSourceId: participant.baselineSourceId, reservedRevision: participant.revision, reservedStateHash: participant.stateHash,
-      projectedStateHash: projected.projectedStateHash }, 'original member baseline');
-  }
+  assertOriginalMembers(current.basis);
 
   // These historical readers prove their original physical head chain and each
   // owner's stored effects. An in-flight current reader cannot admit a field root.
@@ -252,18 +267,162 @@ export const readLAN01RetainedThrowBoundary = (context: Context, pins: LAN01Reta
   same(current.view.cut.physicalOperationReference, pins.indicatedReference, 'cut16 physical operation');
   same(current.view.cut.timeline, indicated.timeline, 'cut16 timeline'); same(current.view.cut.evaluationTick, indicated.evaluationTick, 'cut16 tick');
   same(current.view.cut.outcomeReference, null, 'cut16 outcome'); same(current.view.cut.resetReference, null, 'cut16 reset');
-  // The physical owner authenticates its committed head and exact coverage
-  // excludes every later operation: :3 is the actual head, still outside cut16.
-  assertSamePaLifecycleReservedStateFromSqlite(db, historical);
-  assertSamePaLifecycleWorkCoverage(db, root.lineage.enrollmentReference, anchorViewReference, [...events, pins.plannedReference]);
+  return { events, commitment, boundary: { field: { root, rootReference: pins.fieldRootReference, step, stepReference: pins.fieldStepReference,
+    resolution, resolutionReference: pins.resolutionReference },
+    secured: { value: secured, operationReference: pins.securedReference }, indicated: { value: indicated, operationReference: pins.indicatedReference },
+    planned: { value: planned, operationReference: pins.plannedReference }, throwCalibration,
+    caught: { work: caught, workReference: pins.caughtReference } } };
+};
+
+const assertCurrentFences = (context: Context, commitment: SamePaPhysicalCommitment, events: readonly SamePaLifecycleWorkReference[]) => {
+  const { db, actor, current, anchorViewReference } = context;
+  assertSamePaLifecycleReservedStateFromSqlite(db, current.basis);
+  assertSamePaLifecycleWorkCoverage(db, commitment.lineage.enrollmentReference, anchorViewReference, events);
   const world = readEmotionWorldRevisionFromSqlite(db, actor.binding.careerId);
   assert(world, 'LAN01 retained throw current World missing');
   same(world.head.worldRevision, commitment.afterWorldRevision, 'current World revision');
   same(world.head.control.revision, commitment.controlRevision, 'current World control revision');
   same(hash(world.head.control), commitment.controlHash, 'current World control hash');
-  return { field: { root, rootReference: pins.fieldRootReference, step, stepReference: pins.fieldStepReference,
-    resolution, resolutionReference: pins.resolutionReference },
-    secured: { value: secured, operationReference: pins.securedReference }, indicated: { value: indicated, operationReference: pins.indicatedReference },
-    planned: { value: planned, operationReference: pins.plannedReference }, throwCalibration,
-    caught: { work: caught, workReference: pins.caughtReference } };
+};
+
+/** Exact LAN01-R9 cp39 only. The caller owns the existing query-only proof
+ * scope, all cut16 TOTAL/calibration rows and absence of cut17 or later work. */
+export const readLAN01RetainedThrowBoundary = (context: Context, pins: LAN01RetainedThrowBoundaryPins) => {
+  const historical = readHistoricalSamePaLifecycleViewFromSqlite(context.db, pins.cut16ViewReference);
+  const proof = readLAN01RetainedThrowHistory(context, pins, historical);
+  // The physical owner authenticates its committed head; exact coverage excludes
+  // every later operation, while :3 remains outside cut16's admitted prefix.
+  assertCurrentFences(context, proof.commitment, [...proof.events, pins.plannedReference]);
+  return proof.boundary;
+};
+
+/** Exact LAN01-R11 cp24 only: original receiver capture :7 and complete cut21.
+ * The caller owns the same query-only proof scope, TOTAL/calibration set and
+ * explicit absence of future appeal :8. No prefix is extended by this reader. */
+export const readLAN01RetainedReceivedBoundary = (context: Context, pins: LAN01RetainedReceivedBoundaryPins) => {
+  const { db, actor, current, anchorViewReference } = context;
+  const cut16 = readHistoricalSamePaLifecycleViewFromSqlite(db, pins.cut16ViewReference);
+  const history = readLAN01RetainedThrowHistory({ ...context,
+    current: { view: cut16.view, viewReference: pins.cut16ViewReference, basis: cut16 },
+    eventReferences: context.eventReferences.slice(0, 16) }, pins, cut16);
+  const { field, indicated, planned, caught } = history.boundary, { root } = field;
+  const events = [...history.events, pins.plannedReference, pins.transferReference, pins.releasedReference,
+    pins.receptionReference, pins.receivedReference];
+  same(context.eventReferences, events, 'twenty-one admitted event references');
+  same(current.viewReference, pins.cut21ViewReference, 'cut21 current view reference');
+  for (const [pin, id] of [[pins.transferReference, 'lan01:appeal-throw:4'], [pins.releasedReference, 'lan01:appeal-throw:5'],
+    [pins.receptionReference, 'lan01:appeal-throw:6'], [pins.receivedReference, 'lan01:appeal-throw:7'],
+    [pins.cut17ViewReference, 'lan01:occupied:cut17:view'], [pins.cut18ViewReference, 'lan01:occupied:cut18:view'],
+    [pins.cut19ViewReference, 'lan01:occupied:cut19:view'], [pins.cut20ViewReference, 'lan01:occupied:cut20:view'],
+    [pins.cut21ViewReference, 'lan01:occupied:cut21:view'], [pins.cut21PrefixReference, 'lan01:occupied:cut21:prefix']] as const)
+    same(pin.sourceId, id, 'received boundary identity');
+
+  const transferProof = readSamePaPhysicalOperationFromSqlite(db, pins.transferReference);
+  const releasedProof = readSamePaPhysicalOperationFromSqlite(db, pins.releasedReference);
+  const receptionProof = readSamePaPhysicalOperationFromSqlite(db, pins.receptionReference);
+  const receivedProof = readSamePaPhysicalOperationFromSqlite(db, pins.receivedReference);
+  assert(transferProof?.record.kind === 'same_pa_physical_field_step_v1', 'LAN01 retained throw transfer missing');
+  assert(releasedProof?.record.kind === 'same_pa_physical_field_step_v1', 'LAN01 retained throw released operation missing');
+  assert(receptionProof?.record.kind === 'same_pa_physical_field_step_v1', 'LAN01 retained throw reception missing');
+  assert(receivedProof?.record.kind === 'same_pa_physical_field_step_v1', 'LAN01 retained throw received operation missing');
+  const transfer = transferProof.record, released = releasedProof.record, reception = receptionProof.record, received = receivedProof.record;
+  for (const [value, proof, pin, previous, view, ordinal, tick] of [
+    [transfer, transferProof, pins.transferReference, pins.plannedReference, pins.cut17ViewReference, 11, 103_218_827],
+    [released, releasedProof, pins.releasedReference, pins.transferReference, pins.cut18ViewReference, 12, 103_218_932],
+    [reception, receptionProof, pins.receptionReference, pins.releasedReference, pins.cut19ViewReference, 13, 103_251_165],
+    [received, receivedProof, pins.receivedReference, pins.receptionReference, pins.cut20ViewReference, 14, 103_280_489],
+  ] as const) {
+    same(reference('pa_physical_v1_field_steps', value), pin, 'received field owner reference');
+    same(proof.reference, pin, 'received physical proof reference'); same(proof.actor, actor, 'received actor');
+    same(value.lineage, root.lineage, 'received lineage'); same(proof.physicalPitchReference, pins.launchReference, 'received pitch reference');
+    same(value.source.launchReference, pins.launchReference, 'received launch');
+    same(value.physicalPitchSourceId, pins.launchReference.sourceId, 'received pitch identity');
+    same(value.source.previousOperationReference, previous, 'received predecessor'); same(value.source.previousFieldReference, previous, 'received previous field');
+    same(value.source.fieldRootReference, pins.fieldRootReference, 'received field root'); same(value.source.viewReference, view, 'received source view');
+    same(value.viewReference, view, 'received adopted view'); same(value.operationOrdinal, ordinal, 'received operation ordinal');
+    same(value.pitchOrdinal, 3, 'received pitch ordinal'); same(value.stage, 'field', 'received physical stage');
+    same(value.evaluationTick, tick, 'received original tick'); same(value.field.motion.world.moment.ball.tick, tick, 'received actual moment tick');
+    same(value.timeline, root.timeline, 'received timeline'); same(proof.bodyCut, current.view.cut.bodyCut, 'received body cut');
+    same(proof.physicalWorld, current.view.cut.physicalWorld, 'received physical World');
+  }
+  assert(planned.value.actionResult?.kind === 'throw_plan_v1', 'LAN01 retained throw original plan missing');
+  const plan = planned.value.actionResult.plan, start = plan.input.cursor.moment, midpoint = (start.elapsedSeconds + plan.releaseElapsedSeconds) / 2;
+  same(plan.input.carrierPlayerId, 'p2', 'original thrower'); same(plan.input.receiverPlayerId, 'home-1', 'original receiver');
+  same(plan.input.cursor, planned.value.field.motion.cursor, 'original throw cursor');
+  same(plan.input.response, root.response, 'original throw response'); same(plan.input.geometry, root.geometry, 'original throw geometry');
+  for (const value of [transfer, released, reception, received]) same(value.field.motion.actors, plan.actors, 'original throw actors');
+  assert(transfer.actionResult?.kind === 'throw_checkpoint_v1' && released.actionResult?.kind === 'throw_checkpoint_v1', 'LAN01 retained throw checkpoints missing');
+  same(transfer.actionResult.progress.kind, 'transfer', 'transfer progress'); same(released.actionResult.progress.kind, 'released', 'released progress');
+  for (const [value, elapsed, checkpoints, priorCursor] of [[transfer, midpoint, [midpoint], plan.input.cursor],
+    [released, plan.releaseElapsedSeconds, [midpoint, plan.releaseElapsedSeconds], transfer.field.motion.cursor]] as const) {
+    assert(value.actionResult?.kind === 'throw_checkpoint_v1', 'LAN01 retained throw checkpoint missing');
+    const progress = value.actionResult.progress;
+    same(value.source.action, { kind: 'throw_checkpoint_v1', planReference: pins.plannedReference, throughElapsedSeconds: elapsed }, 'original throw checkpoint');
+    same(value.source.throughTick, quantizeEventTick(start.originTick, elapsed, root.response.world.parameters.ticksPerSecond), 'throw checkpoint horizon');
+    same(value.actionResult.planReference, pins.plannedReference, 'checkpoint plan'); same(progress.field, value.field, 'checkpoint physical field');
+    same(JSON.parse(progress.planIdentity), plan, 'checkpoint original plan'); same(progress.transfer, plan.transfer, 'checkpoint transfer timing');
+    same(progress.checkpointElapsedSeconds, checkpoints, 'checkpoint history'); same(progress.startCursor, priorCursor, 'checkpoint start cursor');
+  }
+  same(transfer.field.motion.carrierPlayerId, 'p2', 'transfer carrier'); same(transfer.field.motion.response.kind, 'carried', 'transfer response');
+  assert(released.actionResult.progress.kind === 'released', 'LAN01 retained throw released progress differs');
+  same(released.actionResult.progress.launch.releaseTick, plan.transfer.throwReadyTick, 'actual release tick');
+  same(released.evaluationTick, plan.transfer.throwReadyTick, 'release ready tick');
+  same(released.field.motion.carrierPlayerId, null, 'released carrier'); same(released.field.motion.response.kind, 'moving', 'released response');
+  same(reception.source.action, undefined, 'reception action'); same(reception.actionResult, undefined, 'reception result');
+  same(reception.source.throughTick, released.evaluationTick + 100_000, 'reception search horizon');
+  same(reception.field.motion.carrierPlayerId, null, 'candidate carrier'); same(reception.field.motion.cursor, null, 'candidate cursor');
+  same(reception.field.motion.response.kind, 'capture_candidate', 'candidate response');
+  const candidateWorld = reception.field.motion.world;
+  assert(candidateWorld.kind === 'boundary', 'LAN01 retained throw receiver contact missing');
+  same(candidateWorld.contacts.length, 1, 'receiver contact count');
+  const contact = candidateWorld.contacts[0];
+  assert(contact.kind === 'actor', 'LAN01 retained throw receiver contact actor missing');
+  same(contact.playerId, 'home-1', 'receiver contact player'); same(contact.role, 'glove', 'receiver contact role');
+  same(contact.moment, candidateWorld.moment, 'receiver contact moment');
+  assert(received.source.action?.kind === 'capture_checkpoint_v1' && received.actionResult?.kind === 'capture_checkpoint_v1', 'LAN01 retained throw receiver capture missing');
+  same(received.actionResult.progress.kind, 'secured', 'received progress');
+  assert(received.actionResult.progress.kind === 'secured', 'LAN01 retained throw received progress differs');
+  const capture = received.actionResult.progress;
+  const capturePlan = JSON.parse(capture.planIdentity);
+  same(capturePlan.input, { response: root.response, geometry: root.geometry, field: reception.field }, 'received original capture input');
+  same(capturePlan.candidateSecureTick, received.evaluationTick, 'received original secure tick');
+  same(capturePlan.fenceElapsedSeconds, received.source.action.throughElapsedSeconds, 'received original capture fence');
+  same(received.source.action.candidateReference, pins.receptionReference, 'received candidate');
+  same(received.actionResult.candidateReference, pins.receptionReference, 'received result candidate');
+  same(received.source.throughTick, received.evaluationTick, 'received horizon');
+  same(received.source.throughTick, quantizeEventTick(candidateWorld.moment.originTick, received.source.action.throughElapsedSeconds,
+    root.response.world.parameters.ticksPerSecond), 'received exact horizon');
+  same(capture.checkpointElapsedSeconds, [received.source.action.throughElapsedSeconds], 'received checkpoint history');
+  same(capture.startMoment, candidateWorld.moment, 'received original contact');
+  same(capture.acquisition.acquirerPlayerId, 'home-1', 'received acquirer'); same(capture.acquisition.secureTick, received.evaluationTick, 'received secure tick');
+  same(capture.acquisition.contactMoment, candidateWorld.moment, 'received acquisition contact');
+  same(capture.world, received.field.motion.world, 'received actual World'); same(capture.cursor, received.field.motion.cursor, 'received actual cursor');
+  same(received.field.motion.carrierPlayerId, 'home-1', 'received carrier'); same(received.field.motion.response.kind, 'carried', 'received response');
+
+  for (const [pin, value, operation, ordinal] of [[pins.cut17ViewReference, planned.value, pins.plannedReference, 17],
+    [pins.cut18ViewReference, transfer, pins.transferReference, 18], [pins.cut19ViewReference, released, pins.releasedReference, 19],
+    [pins.cut20ViewReference, reception, pins.receptionReference, 20], [pins.cut21ViewReference, received, pins.receivedReference, 21]] as const) {
+    const basis = readHistoricalSamePaLifecycleViewFromSqlite(db, pin), view = basis.view;
+    same(reference('pa_lifecycle_v1_execution_views', view), pin, 'received owner view'); same(basis.actor, actor, 'received view actor');
+    same(view.lineage, root.lineage, 'received view lineage'); assertOriginalMembers(basis);
+    const prefix = readSamePaLifecycleRecordFromSqlite(db, 'prefix', view.source.prefixReference.sourceId);
+    assert(prefix?.kind === 'same_pa_lifecycle_prefix', 'LAN01 retained throw received prefix missing');
+    same(prefix.source.sourceId, 'lan01:occupied:cut' + ordinal + ':prefix', 'received prefix identity');
+    same(reference('pa_lifecycle_v1_work_prefixes', prefix), view.source.prefixReference, 'received prefix owner reference');
+    same(prefix.source.enrollmentReference, root.lineage.enrollmentReference, 'received prefix enrollment');
+    same(prefix.source.anchorViewReference, anchorViewReference, 'received prefix anchor');
+    same(prefix.source.eventReferences, events.slice(0, ordinal), 'received prefix events');
+    same(view.cut, { stage: 'field_active', pitchOrdinal: 3, physicalPitchReference: pins.launchReference,
+      operationReference: operation, physicalOperationReference: operation, timeline: value.timeline, evaluationTick: value.evaluationTick,
+      physicalWorld: current.view.cut.physicalWorld, bodyCut: current.view.cut.bodyCut, outcomeReference: null, resetReference: null }, 'received view cut');
+    if (ordinal === 21) {
+      same(view.source.prefixReference, pins.cut21PrefixReference, 'cut21 prefix');
+      same(basis, current.basis, 'cut21 current basis'); same(view, current.view, 'cut21 current view');
+    }
+  }
+  // Historical owner reads prove the committed physical head; current coverage21
+  // excludes all later work, including a pre-existing appeal :8 or cut22 tail.
+  assertCurrentFences(context, history.commitment, events);
+  return { field, indicated, planned, released: { value: released, operationReference: pins.releasedReference },
+    received: { candidate: reception, value: received, operationReference: pins.receivedReference }, caught };
 };

@@ -1,7 +1,8 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { beforeEach, expect, it, vi } from 'vitest';
-import { appendNativePhysicalThrowReception, resumeNativePhysicalThrowReceptionAfterPlan } from './SamePlateAppearancePhysicalThrowReception.test-support';
+import { appendNativePhysicalThrowReception, resumeNativePhysicalThrowReceptionAfterPlan,
+  resumeNativePhysicalThrowReceptionAfterReceive } from './SamePlateAppearancePhysicalThrowReception.test-support';
 import { resumeNativeLiveAppealCatch } from './SamePlateAppearanceLiveAppealCatchNative.test-support';
 import { completeSamePaPhysicalLifecycleFromCutFixture } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
@@ -23,7 +24,7 @@ vi.mock('./SqliteSamePlateAppearancePhysicalEpisodeStore', () => ({ openSqliteSa
 
 // Bounded owner-call declarations. No mocked value authenticates a retained DB
 // or claims that a Native capture, plan, release or catch acceptance executed.
-const record = (sourceId: string, values: any = {}) => ({ ...values, source: { sourceId, ...values.source } });
+const record = (sourceId: string, values: any = {}) => ({ ...values, source: { sourceId, sourceVersion: 'fixture-only-v1', ...values.source } });
 const pin = (sourceId: string) => reference('pa_lifecycle_v1_execution_views', record(sourceId));
 const label = 'lan01:appeal-throw';
 const throwInputs = (cutOrdinal = 16) => {
@@ -34,9 +35,9 @@ const throwInputs = (cutOrdinal = 16) => {
   const root = record('lan01:field:field-root', { source: { launchReference: reference('pa_physical_v1_launches', record('lan01:swing:launch')) },
     response: { world: { parameters: { ticksPerSecond: 1000 } } }, geometry: { original: true } });
   const field = { root, rootReference: reference('pa_physical_v1_field_roots', root), step, stepReference: reference('pa_physical_v1_field_steps', step) };
-  const operation = (ordinal: number, actionResult: any) => {
-    const value = record(label + ':' + ordinal, { kind: 'same_pa_physical_field_step_v1', evaluationTick: 2100,
-      actionResult, field: { motion: motion('p2') } });
+  const operation = (ordinal: number, actionResult: any, carrier: string | null = 'p2', evaluationTick = 2100) => {
+    const value = record(label + ':' + ordinal, { kind: 'same_pa_physical_field_step_v1', evaluationTick,
+      actionResult, field: { motion: motion(carrier) } });
     return { value, operationReference: reference('pa_physical_v1_field_steps', value) };
   };
   const retained = { planned: operation(3, { kind: 'throw_plan_v1', plan }), indicated: operation(2, { kind: 'appeal_indication_v1' }) };
@@ -58,7 +59,15 @@ const throwInputs = (cutOrdinal = 16) => {
   boundary.acquisition.mockReturnValue({ candidateSecureTick: 110_100, fenceElapsedSeconds: 110 });
   boundary.calibration.mockReturnValue({ calibrationReference: reference('pa_lifecycle_v1_execution_calibrations', record(label + ':throw-calibration')) });
   const resume = () => resumeNativePhysicalThrowReceptionAfterPlan(h as never, field as never, label, retained as never);
-  return { h, field, retained, resume, accepted, calls, plan };
+  return { h, field, retained, resume, accepted, calls, plan, operation };
+};
+const receivedInputs = () => {
+  const x = throwInputs(21);
+  const retained = { ...x.retained,
+    released: x.operation(5, { kind: 'throw_checkpoint_v1', progress: { kind: 'released' } }, null, 4100),
+    received: x.operation(7, { kind: 'capture_checkpoint_v1', progress: { kind: 'secured' } }, 'home-1', 110_100) };
+  const resume = () => resumeNativePhysicalThrowReceptionAfterReceive(x.h as never, x.field as never, label, retained as never);
+  return { ...x, retained, resume };
 };
 
 beforeEach(() => {
@@ -96,6 +105,75 @@ it('stops at the first cut17 admission failure without saving or accepting a tra
   expect(boundary.acquisition).not.toHaveBeenCalled(); expect(boundary.calibration).not.toHaveBeenCalled(); expect(boundary.replay).not.toHaveBeenCalled();
 });
 
+it('starts the exact received cut21 tail with original appeal 8 and then advances that receipt as cut22', () => {
+  const x = receivedInputs(), before = JSON.stringify(x.retained), result = x.resume();
+  expect(x.calls).toEqual(['save:' + label + ':8', 'accept:' + label + ':8', 'advance:' + label + ':8']);
+  expect(x.accepted.get(label + ':8')).toEqual({ sourceId: label + ':8', sourceVersion: 'fixture-only-v1', capability: 'same_pa_physical_field_step_v1',
+    viewReference: pin('lan01:occupied:cut21:view'), launchReference: x.field.root.source.launchReference,
+    previousOperationReference: x.retained.received.operationReference, previousFieldReference: x.retained.received.operationReference,
+    fieldRootReference: x.field.rootReference, throughTick: x.retained.received.value.evaluationTick,
+    action: { kind: 'appeal_contact_v1', indicationReference: x.retained.indicated.operationReference, throwPlanReference: x.retained.planned.operationReference } });
+  expect(x.h.current().viewReference).toEqual(pin('lan01:occupied:cut22:view'));
+  expect(x.h.advance.mock.calls).toEqual([[result.appealed!.operationReference]]);
+  expect(result.released).toBe(x.retained.released); expect(result.received).toBe(x.retained.received);
+  expect(result.planned).toBe(x.retained.planned); expect(result.indicated).toBe(x.retained.indicated);
+  expect(result.appealed!.value.actionResult).toEqual({ kind: 'appeal_contact_v1', execution: { kind: 'executed' } });
+  expect(result.fieldForActions.step).toBe(result.appealed!.value); expect(result.fieldForActions.stepReference).toBe(result.appealed!.operationReference);
+  expect(JSON.stringify(x.retained)).toBe(before);
+});
+
+it('excludes all already completed throw owners and their lifecycle admissions from the received tail', () => {
+  const x = receivedInputs(); x.resume();
+  expect([...x.accepted.keys()]).toEqual([label + ':8']);
+  expect(x.h.physical.acceptOperation.mock.calls).toEqual([[label + ':8']]);
+  expect(x.h.advance.mock.calls.map(([value]) => value.sourceId)).toEqual([label + ':8']);
+  expect(boundary.acquisition).not.toHaveBeenCalled(); expect(boundary.calibration).not.toHaveBeenCalled();
+  expect(boundary.catchOwner).not.toHaveBeenCalled(); expect(boundary.catchAccept).not.toHaveBeenCalled(); expect(boundary.replay).not.toHaveBeenCalled();
+});
+
+it('does not advance cut21 when original appeal acceptance throws or remains pending', () => {
+  for (const pending of [false, true]) {
+    const x = receivedInputs();
+    x.h.physical.acceptOperation.mockImplementation((id: string) => {
+      x.calls.push('accept:' + id);
+      if (!pending) throw new Error('original appeal pending');
+      return { kind: 'pending' } as never;
+    });
+    expect(x.resume).toThrow(pending ? 'Native throw/reception physical step pending' : 'original appeal pending');
+    expect(x.calls).toEqual(['save:' + label + ':8', 'accept:' + label + ':8']);
+    expect([...x.accepted.keys()]).toEqual([label + ':8']); expect(x.h.advance).not.toHaveBeenCalled();
+    expect(x.h.current().viewReference).toEqual(pin('lan01:occupied:cut21:view'));
+  }
+  expect(boundary.acquisition).not.toHaveBeenCalled(); expect(boundary.calibration).not.toHaveBeenCalled(); expect(boundary.replay).not.toHaveBeenCalled();
+});
+
+it('rejects changed retained operation identities or receipt kinds before the first appeal writer', () => {
+  type Inputs = ReturnType<typeof receivedInputs>;
+  const changes: ((x: Inputs) => void)[] = [];
+  for (const name of ['planned', 'indicated', 'released', 'received'] as const) {
+    changes.push(x => { x.retained[name].operationReference = { ...x.retained[name].operationReference, snapshotHash: 'changed' }; });
+    changes.push(x => { x.retained[name].operationReference = { ...x.retained[name].operationReference, sourceHash: 'changed' }; });
+    changes.push(x => {
+      x.retained[name].value.source.sourceId += ':other';
+      x.retained[name].operationReference = reference('pa_physical_v1_field_steps', x.retained[name].value);
+    });
+    changes.push(x => {
+      x.retained[name].value.actionResult = null;
+      x.retained[name].operationReference = reference('pa_physical_v1_field_steps', x.retained[name].value);
+    });
+  }
+  changes.push(x => {
+    x.retained.received.value.field.motion.carrierPlayerId = 'p2';
+    x.retained.received.operationReference = reference('pa_physical_v1_field_steps', x.retained.received.value);
+  });
+  for (const change of changes) {
+    const x = receivedInputs(); change(x);
+    expect(x.resume).toThrow('Native retained LAN receiver boundary differs');
+    expect(x.calls).toEqual([]); expect(x.accepted.size).toBe(0); expect(x.h.physical.acceptOperation).not.toHaveBeenCalled(); expect(x.h.advance).not.toHaveBeenCalled();
+  }
+  expect(boundary.acquisition).not.toHaveBeenCalled(); expect(boundary.calibration).not.toHaveBeenCalled(); expect(boundary.replay).not.toHaveBeenCalled();
+});
+
 it.each([false, true])('keeps the fresh IFN/LAN append path and its optional original appeal (appeal=%s)', appeal => {
   const x = throwInputs(13), onSecured = vi.fn();
   const result = appendNativePhysicalThrowReception(x.h as never, x.field as never, label,
@@ -117,7 +195,7 @@ it('refreshes from the authenticated catch dependencies with only the new sealed
   const model = { sourceId: 'original-model', sourceVersion: 'fixture-v1', parameters: { declared: 'dropped-original-receivers' } };
   const communication = { sourceId: 'lan01:caught:communication:original', sourceVersion: 'fixture-v1', capability: 'same_pa_explicit_catch_communication_v1',
     actionReference: originalRef(action as never), modelReference: originalRef(model as never), viewReference: pin('lan01:occupied:cut14:view') };
-  const work = record('lan01:caught:work:original', { originalInputs: { source: communication, action, assignment, person, model } });
+  const work = record('lan01:caught:work:original', { source: { sourceVersion: 'fixture-v1' }, originalInputs: { source: communication, action, assignment, person, model } });
   const original = { work, workReference: reference('pa_catch_v1_work', work) }, before = JSON.stringify(original);
   const enrollmentReference = reference('same_pa_enrollments', record('original-enrollment'));
   const h = { accepted, advance, current: () => ({ viewReference: pin('lan01:occupied:cut23:view'), view: { lineage: { enrollmentReference } } }),
@@ -147,7 +225,7 @@ it('refreshes from the authenticated catch dependencies with only the new sealed
   expect([...accepted.keys()]).toEqual(['lan01:caught:communication:sealed', 'lan01:caught:work:sealed']); expect(boundary.replay).not.toHaveBeenCalled();
 });
 
-it('restores exact cut16 and rejects missing, extra or changed admitted events while preserving earlier seams', () => {
+it('restores exact cut16 and cut21 and rejects missing, extra or changed admitted events while preserving earlier seams', () => {
   const second = record('lan01:occupied:second-pitch', { lineage: { participantReferences: [] } });
   const identities = [
     ['pa_take_successor_v1_pitch_actions', 'lan01:occupied:second-pitch'], ['pa_physical_v1_launches', 'lan01:swing:launch'],
@@ -158,32 +236,46 @@ it('restores exact cut16 and rejects missing, extra or changed admitted events w
     ['pa_physical_v1_resolutions', 'lan01:swing:resolution'], ['pa_physical_v1_field_roots', 'lan01:field:field-root'],
     ['pa_physical_v1_field_steps', 'lan01:field:field-step'], ['pa_physical_v1_field_steps', 'lan01:appeal-throw:1'],
     ['pa_catch_v1_work', 'lan01:caught:work:original'], ['pa_physical_v1_field_steps', 'lan01:appeal-throw:2'],
+    ['pa_physical_v1_field_steps', 'lan01:appeal-throw:3'], ['pa_physical_v1_field_steps', 'lan01:appeal-throw:4'],
+    ['pa_physical_v1_field_steps', 'lan01:appeal-throw:5'], ['pa_physical_v1_field_steps', 'lan01:appeal-throw:6'],
+    ['pa_physical_v1_field_steps', 'lan01:appeal-throw:7'],
   ] as const;
   const events = identities.map(([owner, id], index) => reference(owner, index === 0 ? second : record(id)));
   const prepared = (n: number) => ({ first: second, second, anchor: {}, eventReferences: events.slice(0, n),
     basis: { viewReference: pin('lan01:occupied:cut' + n + ':view'), view: { cut: { physicalOperationReference: events[n - 1] } } } });
   const f = { path: '/unused/finite-prefix.sqlite', acceptedAction: { source: {} }, x: { f: { track: <T>(owner: T) => owner } } };
   const restore = (value: any) => completeSamePaPhysicalLifecycleFromCutFixture(f as never, new Map(), value as never, {}, 'lan01:occupied');
-  for (const n of [5, 9, 12, 16]) { const value = prepared(n), restored = restore(value); expect(restored.events).toEqual(value.eventReferences); expect(restored.current()).toBe(value.basis); }
-  const exact = prepared(16);
+  for (const n of [5, 9, 12, 16, 21]) { const value = prepared(n), restored = restore(value); expect(restored.events).toEqual(value.eventReferences); expect(restored.current()).toBe(value.basis); }
+  const exact = prepared(16), oldEvents = events.slice(0, 16);
   for (const value of [
-    { ...exact, eventReferences: events.slice(0, -1) },
-    { ...exact, eventReferences: [...events, reference('pa_physical_v1_field_steps', record(label + ':3'))] },
-    { ...exact, eventReferences: events.map((value, index) => index === 14 ? { ...value, sourceId: 'other-caught-work' } : value) },
-    { ...exact, eventReferences: events.map((value, index) => index === 0 ? { ...value, snapshotHash: 'changed' } : value) },
+    { ...exact, eventReferences: oldEvents.slice(0, -1) },
+    { ...exact, eventReferences: [...oldEvents, reference('pa_physical_v1_field_steps', record(label + ':3'))] },
+    { ...exact, eventReferences: oldEvents.map((value, index) => index === 14 ? { ...value, sourceId: 'other-caught-work' } : value) },
+    { ...exact, eventReferences: oldEvents.map((value, index) => index === 0 ? { ...value, snapshotHash: 'changed' } : value) },
     { ...exact, basis: { ...exact.basis, viewReference: pin('lan01:occupied:cut17:view') } },
     { ...exact, basis: { ...exact.basis, view: { cut: { physicalOperationReference: events[13] } } } },
+  ]) expect(() => restore(value)).toThrow('exact LAN delivery-cut prefix');
+  const received = prepared(21);
+  for (const value of [
+    { ...received, eventReferences: events.slice(0, -1) },
+    { ...received, eventReferences: [...events, reference('pa_physical_v1_field_steps', record(label + ':8'))] },
+    { ...received, eventReferences: events.map((value, index) => index === 16 ? { ...value, sourceId: label + ':other-plan' } : value) },
+    { ...received, basis: { ...received.basis, viewReference: pin('lan01:occupied:cut22:view') } },
+    { ...received, basis: { ...received.basis, view: { cut: { physicalOperationReference: events[19] } } } },
   ]) expect(() => restore(value)).toThrow('exact LAN delivery-cut prefix');
   expect(boundary.replay).not.toHaveBeenCalled(); expect(boundary.calibration).not.toHaveBeenCalled(); expect(boundary.catchOwner).not.toHaveBeenCalled();
 });
 
-it('shares the unchanged original append, capture, throw, catch Source and catch assertion bodies', () => {
+it('rejoins the extracted original appeal line and preserves append, capture, throw, catch Source and catch assertion bodies', () => {
   const throwSource = readFileSync(new URL('./SamePlateAppearancePhysicalThrowReception.test-support.ts', import.meta.url), 'utf8');
   const catchSource = readFileSync(new URL('./SamePlateAppearanceLiveAppealCatchNative.test-support.ts', import.meta.url), 'utf8');
   const slice = (source: string, start: string, end: string) => source.slice(source.indexOf(start), source.indexOf(end, source.indexOf(start)));
+  const originalAppeal = slice(throwSource, '  const appealed=indicated?', '  return appealed;');
+  expect(throwSource.split('  const appealed=indicated?')).toHaveLength(2);
   const bodies = [
-    slice(throwSource, '  const append =', '  const finish ='),
-    slice(throwSource, "  if (planned.value.actionResult?.kind !== 'throw_plan_v1')", '  return { planned, transfer,'),
+    slice(throwSource, '  const append =', '  const appeal ='),
+    slice(throwSource, "  if (planned.value.actionResult?.kind !== 'throw_plan_v1')", '  return { planned, transfer,')
+      .replace('  const appealed=appeal(planned,indicated);\n', originalAppeal),
     slice(throwSource, '  const secured = capture()', '  return { secured, calibration,').replaceAll('operations.previous()', 'previous'),
     slice(catchSource, '  const b=h.current()', '  const accept=prepareNativeLiveAppealCatchAcceptance'),
     slice(catchSource, '  const accept=(name:string', '  return accept;'),
