@@ -74,10 +74,31 @@ The combined qualification SHA-256 is
 the formal test report SHA-256 is
 `68c964a185c01df8a32a663eb2caf1d90aa07771bb50893fef108ae0a18def23`.
 
+## Same-input measured result
+
 The saved cp11 sealed CatchWork operation completed in 388.349 seconds on the
-previous qualified hold/TAKE source, with the full 19,442-byte return unchanged.
-That completed result stays the fixed baseline. The coordinator's existing
-comparison runs this candidate once on the same saved input and operation.
-Repeated callgraph work is proven, but its runtime share and any incremental
-speed improvement remain unmeasured. The fixed R12 source/run and the separate
-fixture-only tail grouping proposal are unchanged.
+previous qualified hold/TAKE source. Reusing that completed result without
+rerunning the baseline, this source returned the same operation in **230.227
+seconds**, a further **40.7%** wall-time reduction. CPU time fell from 389.901 to
+231.386 seconds. The original version took 588.335 seconds, so the combined wall
+reduction is **60.9%**. Each version was measured once in its own process with the
+same audited input and Node 26.10.0. Existing R12 stayed active at both boundaries;
+CPU quota was unavailable, so equal external contention is not established.
+These results do not forecast whole-case completion time.
+
+The candidate's complete 19,442-byte returned file exactly matches the previous
+versions (SHA-256
+`13926d7045da1234faf1463f9996414f651e3f422666733c2e0e601fd3c17787`).
+Its canonical result hash is
+`b738ff317f3ad874122c2520c5833f9e97ab17b96e59da55ea339ce583c956b3`,
+and returned JSON hash is
+`9defa24cb5d82fd19ba590c3156ba4f83e9ddf519adf9c6707e9d2b39ff881e4`.
+Database bytes stayed unchanged (SHA-256
+`8e6f32a43867accb7cea531381f782c8f2748161c27db6dee6f94e6ebbdfd4c7`),
+with query-only restored and the read transaction closed. All four pin groups
+were stable, no wall/RSS/reserve guard fired, and the wrapper exited successfully
+with the parent reaped and remaining process group empty. Its total elapsed time
+was 230.536 seconds. The fixed R12 source/run remains unchanged.
+
+The comparison report SHA-256 is
+`4749f0d336262b69b0dd010a4902219318956347f49eab3033f1ad5b562da7ce`.
