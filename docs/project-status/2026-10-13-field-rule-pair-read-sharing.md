@@ -119,9 +119,11 @@ CPU quota file was unavailable, so quota equivalence is not claimed.
 The comparison receipt hash is
 `f304f82b86dc727a7799b0f8261ecf03d5461018a9af5c4c5bca4df6d39f9d9e`.
 
-The next related optimization examines repeated immutable occupied-runner hold
-and completed second-TAKE reads within the existing proof phase. Their time
-contribution and incremental improvement remain unmeasured.
+The related [hold/TAKE and connection-guard batch](2026-10-13-hold-and-take-read-sharing.md)
+subsequently completed the same read in 388.349 seconds, a further 21.1% decrease.
+Its additional guard review and regression checks also close an ATTACH refusal
+gap discovered in this earlier pair-sharing version. Individual memo time
+contributions remain unmeasured.
 
 ## Separate possible follow-up
 

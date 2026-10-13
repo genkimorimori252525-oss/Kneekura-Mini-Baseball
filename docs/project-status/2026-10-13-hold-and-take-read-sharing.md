@@ -91,10 +91,31 @@ versus 590.059 seconds). Its complete 19,442-byte return matched and the databas
 was unchanged. Those measurements do not qualify the new connection boundary
 or the additional hold/TAKE change.
 
-Use that successful A result as the fixed baseline, without rerunning it. The
-coordinator's existing comparison reuses the exact cp11 saved input and
-`read-catch-template.ts` once for this candidate. Compare successful operation
-wall/CPU time, complete return bytes, database immutability and all input pins.
-The share of remaining runtime attributable to either added memo is unmeasured;
-fewer replays alone are not a speed claim. The fixed R12 run and source remain
-unchanged, and the separate read-only tail grouping proposal is not included.
+The coordinator reused that successful A result as the baseline without rerunning
+it. The candidate used the same audited cp11 copy and `read-catch-template.ts`,
+completed normally, and returned the exact same 19,442 bytes.
+
+| Same saved-input read | A baseline | Hold/TAKE plus connection guards |
+| --- | ---: | ---: |
+| Operation wall seconds | 492.347 | 388.349 |
+| Operation CPU seconds (user + system) | 493.971 | 389.901 |
+| Wrapper wall seconds | 492.703 | 388.719 |
+
+The incremental wall decrease was 103.998 seconds (21.1%). Against the original
+588.335-second version, the combined measured decrease was 34.0%. These are one
+successful measurement per version, with no whole-case forecast. The individual
+contribution of the hold and TAKE changes is not separately measured.
+
+The returned file SHA256 remained
+`13926d7045da1234faf1463f9996414f651e3f422666733c2e0e601fd3c17787`.
+Raw returned JSON and accepted canonical hashes matched the earlier read.
+Database bytes stayed unchanged, all four input pin groups were stable,
+query-only/transaction state was restored and all child processes were reaped.
+R12 continued throughout; its recorded CPU heartbeat advanced, but equal external
+contention and global CPU quota are not claimed. The comparison receipt hash is
+`947f752cf44906910a2fbbf8fc0eaaafd3afa1dde82168865b977a78547e12d6`.
+
+The fixed R12 run and source remain unchanged. A final bounded source inspection
+will check for concrete remaining duplicate work in this same read path before
+choosing further changes or resuming the original remaining case. The separate
+read-only tail grouping proposal is not included.
