@@ -38,6 +38,32 @@ export function blendObservedBallGaze(
 }
 
 /**
+ * Keep the batter watching a taken pitch only slightly behind the zone,
+ * without a 180-degree rotation all the way to the catcher.
+ * Canonical ball still continues to its true mitt reception point.
+ * The angular bounds apply to the presentation camera ONLY.
+ */
+export function capTakenPitchGaze(
+  atPlate: VisualGaze,
+  atBall: VisualGaze,
+  maxYawRadians = 0.42,
+  maxPitchDeltaRadians = 0.18,
+): VisualGaze {
+  if (![atPlate.yaw, atPlate.pitch, atBall.yaw, atBall.pitch,
+    maxYawRadians, maxPitchDeltaRadians].every(Number.isFinite)
+    || maxYawRadians < 0 || maxPitchDeltaRadians < 0) {
+    throw new Error('Invalid taken-pitch visual limits.');
+  }
+  const yawDelta = Math.atan2(Math.sin(atBall.yaw - atPlate.yaw),
+    Math.cos(atBall.yaw - atPlate.yaw));
+  return {
+    yaw: atPlate.yaw + Math.max(-maxYawRadians, Math.min(maxYawRadians, yawDelta)),
+    pitch: atPlate.pitch + Math.max(-maxPitchDeltaRadians,
+      Math.min(maxPitchDeltaRadians, atBall.pitch - atPlate.pitch)),
+  };
+}
+
+/**
  * On an unswung pitch, preserve the actual ball's plate crossing and the
  * catcher reception sample. This does not create or change physical samples.
  */
