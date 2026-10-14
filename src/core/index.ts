@@ -31,6 +31,7 @@ export * from './sim/fielding/TagContact';
 export * from './sim/fielding/ThrowRelease';
 export * from './sim/fielding/ThrowLaunch';
 export * from './sim/fielding/DefensiveReplan';
+export * from './sim/fielding/ReceivedUmpireDefenderReplan';
 export * from './sim/fielding/DefensiveDecisionTiming';
 export * from './sim/fielding/DefenderFirstStepTiming';
 export * from './sim/fielding/BallTransferTiming';

@@ -6,6 +6,8 @@
 
 Mini Baseball は Natural Baseball の簡易ルール版ではなく、将来の Natural Baseball でも再利用できる試合計算Coreを先に磨く製品です。Miniは同じ正史ワールド状態を軽量なPresentationで観測し、将来は同じ状態をNaturalの3D描画へ接続できる設計を目指します。具体的な見た目・画面構成・演出はCore仕様ではなく、承認済みのWorkデザインに従います。
 
+受信した審判callから守備再判断へつなぐpure Core adapterは、固定Source `e0bfaa78` のcompiler/catalogと56＋36件（計92件）で検証済みです。Native prerequisiteはwall-time gate未通過で、実採用・controller接続は未完です。[結果と範囲](docs/verification/2026-10-07-received-call-pure-core-qualification.md)を参照してください。
+
 ## 設計文書
 
 - [設計の決定記録](docs/game-design/00-decisions.md)
