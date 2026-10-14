@@ -1,0 +1,2684 @@
+{
+  "schema": "practice-origin-qualified-selection-v1",
+  "testedSourceCommit": "2945b6df259efdb8fa62d33d0dec8fd89e8ffbe1",
+  "testedSourceTree": "da0820b2bf26e0d68b95c09c49c54b83affa2641",
+  "qualification": {
+    "retainedCases": 233,
+    "freshContinuationCases": 28,
+    "distinctSelectedCases": 261,
+    "focusedCases": 108,
+    "adjacentCases": 153,
+    "selectedCasesQualifiedByClosedReceipts": true,
+    "all261FreshlyRunTogether": false,
+    "fullPracticeOriginContractComplete": false,
+    "wholeProjectGreen": false,
+    "generalCareerComplete": false
+  },
+  "legacyArchive": {
+    "sha256": "f373bcb8d1445ceaf6fc6626b6fd5235e3543b15ca15f0baac88569e7faf18a0",
+    "rawContentIncluded": false,
+    "exactSerializedBytesUnchanged": true
+  },
+  "firstAttempt": {
+    "terminalSha256": "fa552ce747d95fabedea24640ca63fa26446c58adda7af7e8c54849f64edebbd",
+    "sourceCommit": "2945b6df259efdb8fa62d33d0dec8fd89e8ffbe1",
+    "sourceTree": "da0820b2bf26e0d68b95c09c49c54b83affa2641",
+    "sourceManifestSha256": "ada260cff192f790faca95af660ad687a93e7d48949896128909e7b5384b79f5",
+    "dependencyManifestSha256": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+    "reviewedControllerSha256": "954a5a068f750b3fda6e6aab3eb9d58d3dc25521cbac5d0118070938202ba057",
+    "startedAt": "2026-10-06T21:50:26.070248+00:00",
+    "terminalAt": "2026-10-06T21:57:03.521946+00:00",
+    "passed": false,
+    "counts": {
+      "numTotalTests": 233,
+      "numPassedTests": 233,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0
+    },
+    "perFileCounts": {
+      "src/core/world/development/PracticeDevelopmentLearningEpisode.test.ts": 3,
+      "src/host/world/PracticeOriginDevelopmentLegacyBaseline.test.ts": 1,
+      "src/host/world/PracticeOriginDevelopmentDirectRead.test.ts": 8,
+      "src/host/world/PracticeOriginDevelopmentBehavior.test.ts": 20,
+      "src/host/world/PracticeOriginDevelopmentBridge.test.ts": 1,
+      "src/host/world/PracticeOriginDevelopmentPrerequisite.test.ts": 1,
+      "src/host/world/PracticeOriginDevelopmentEntry.test.ts": 1,
+      "src/host/world/PracticeOriginDevelopmentGuards.test.ts": 23,
+      "src/host/world/PracticeOriginOwnedOrderPrerequisite.test.ts": 2,
+      "src/host/world/PracticeOriginAssessmentRetry.test.ts": 4,
+      "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts": 44,
+      "src/host/world/ManagerPracticeLegacyReceipt.test.ts": 1,
+      "src/host/world/ManagerPracticeOrderFromBelief.test.ts": 25,
+      "src/host/world/OwnedPitchPracticeOrder.test.ts": 32,
+      "src/host/world/OwnedPitchPracticeOrderCollision.test.ts": 1,
+      "src/host/world/OwnedPitchPracticeOrderDuplicateClaim.test.ts": 1,
+      "src/host/world/OwnedPitchPracticeOrderOrphanMirror.test.ts": 2,
+      "src/host/world/OwnedPitchPracticeOrderReservation.test.ts": 10,
+      "src/host/world/OwnedPitchPracticeOrderReview.test.ts": 4,
+      "src/host/world/SqlitePitchPracticeAttemptStore.test.ts": 49,
+      "src/host/world/ActualPitchTimingLearningFromPractice.test.ts": 0
+    },
+    "legacyArchiveBytesUnchanged": true,
+    "failure": null,
+    "sourceDependenciesControlsUnchanged": true,
+    "reaped": true,
+    "remainingOwnedProcesses": [],
+    "cancellationSignal": null,
+    "stages": [
+      {
+        "stage": "compiler",
+        "startedAt": "2026-10-06T21:50:26.070776+00:00",
+        "terminalAt": "2026-10-06T21:51:25.214614+00:00",
+        "seconds": 59.14375064999331,
+        "exitCode": 0,
+        "stopReason": null,
+        "peakAggregateRssKiB": 1521880,
+        "runtimeVerified": true,
+        "sourceDependenciesControlsUnchanged": true,
+        "remainingOwnedProcesses": [],
+        "reaped": true,
+        "counts": {},
+        "unhandledErrors": [],
+        "selectionValid": true,
+        "resourceEvidenceValid": true,
+        "phaseVerified": true,
+        "cancellationSignal": null,
+        "receiptSha256": "8bf0da560e9aa17467adb52c0b117a1813154023e2231abec6d82df6a3ea1af4",
+        "profile": {
+          "oldSpaceMiB": 1408,
+          "heapMiB": 1504,
+          "rssMiB": 2048,
+          "wallSeconds": 180,
+          "stopReserveGiB": 5
+        },
+        "perTest": [],
+        "failure": null,
+        "artifactHashes": {
+          "compiler-rss.jsonl": "9866fac655ce5db3f84724b9fe60014c1dde6aa08f7aaa1f68a60888d9ce32ba",
+          "compiler-runtime.jsonl": "ec19990a44bce1c7da1dc54ab453ed0e0d905a677119f047e04c40b43e53020e",
+          "compiler-terminal.json": "8bf0da560e9aa17467adb52c0b117a1813154023e2231abec6d82df6a3ea1af4",
+          "compiler.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "stage": "catalog",
+        "startedAt": "2026-10-06T21:51:25.215716+00:00",
+        "terminalAt": "2026-10-06T21:51:27.206698+00:00",
+        "seconds": 1.9909488199991756,
+        "exitCode": 0,
+        "stopReason": null,
+        "peakAggregateRssKiB": 102460,
+        "runtimeVerified": true,
+        "sourceDependenciesControlsUnchanged": true,
+        "remainingOwnedProcesses": [],
+        "reaped": true,
+        "counts": {},
+        "unhandledErrors": [],
+        "selectionValid": true,
+        "resourceEvidenceValid": true,
+        "phaseVerified": true,
+        "cancellationSignal": null,
+        "receiptSha256": "68aca6b6a93709661ae4173d72c93a0a3c50b1a897d9d63afeab5dda42263aec",
+        "profile": {
+          "oldSpaceMiB": 192,
+          "heapMiB": 288,
+          "rssMiB": 384,
+          "wallSeconds": 30,
+          "stopReserveGiB": 6
+        },
+        "perTest": [],
+        "failure": null,
+        "artifactHashes": {
+          "catalog-rss.jsonl": "3332a0d3b5b974a645c826899356c0a818ca1744f1ca4bea10337e5dffd1678a",
+          "catalog-runtime.jsonl": "f10065db9e263999a146ec16a32cf6a5b70f9db138b653d71b9742d95a07aef8",
+          "catalog-terminal.json": "68aca6b6a93709661ae4173d72c93a0a3c50b1a897d9d63afeab5dda42263aec",
+          "catalog.log": "fdefbaf156a26f6c12ba54d7b779ed614428147498d21bf63402fa5a95158b3c"
+        }
+      },
+      {
+        "stage": "core",
+        "startedAt": "2026-10-06T21:51:27.207960+00:00",
+        "terminalAt": "2026-10-06T21:51:30.246225+00:00",
+        "seconds": 3.0381609949981794,
+        "exitCode": 0,
+        "stopReason": null,
+        "peakAggregateRssKiB": 274424,
+        "runtimeVerified": true,
+        "sourceDependenciesControlsUnchanged": true,
+        "remainingOwnedProcesses": [],
+        "reaped": true,
+        "counts": {
+          "numTotalTests": 3,
+          "numPassedTests": 3,
+          "numFailedTests": 0,
+          "numPendingTests": 0,
+          "numTodoTests": 0
+        },
+        "unhandledErrors": [],
+        "selectionValid": true,
+        "resourceEvidenceValid": true,
+        "phaseVerified": true,
+        "cancellationSignal": null,
+        "receiptSha256": "775034fcbee0868111e25c540bcc870b0385ea127635fd13a9e84b2f3d84882c",
+        "profile": {
+          "oldSpaceMiB": 1024,
+          "heapMiB": 1120,
+          "rssMiB": 1536,
+          "wallSeconds": 180,
+          "stopReserveGiB": 6,
+          "files": {
+            "src/core/world/development/PracticeDevelopmentLearningEpisode.test.ts": 3
+          },
+          "caseNames": {
+            "src/core/world/development/PracticeDevelopmentLearningEpisode.test.ts": [
+              "starts only a technical catalyst and rejects a future Person or learning policy",
+              "uses technical motif equality for dismissals while preserving shared cross-family cooldown and open counts",
+              "retains the single salted draw when only engagement probability changes"
+            ]
+          }
+        },
+        "perTest": [
+          {
+            "file": "src/core/world/development/PracticeDevelopmentLearningEpisode.test.ts",
+            "name": "starts only a technical catalyst and rejects a future Person or learning policy",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/core/world/development/PracticeDevelopmentLearningEpisode.test.ts",
+            "name": "uses technical motif equality for dismissals while preserving shared cross-family cooldown and open counts",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/core/world/development/PracticeDevelopmentLearningEpisode.test.ts",
+            "name": "retains the single salted draw when only engagement probability changes",
+            "status": "passed",
+            "failureMessages": []
+          }
+        ],
+        "failure": null,
+        "artifactHashes": {
+          "core-results.json": "01064db0b7def63edc5fefbef6634a185fe117b19a840716abbf76d61c40684a",
+          "core-rss.jsonl": "81f4938a50eafe75fae19f431ea16b91d9316be6dd9e29fbc130e375b1f82bad",
+          "core-runtime.jsonl": "efb60db18d9d5470a28787a66a5a2e35c801539382e54052e6bcedb8da52a700",
+          "core-terminal.json": "775034fcbee0868111e25c540bcc870b0385ea127635fd13a9e84b2f3d84882c",
+          "core-unhandled.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "core.log": "b81c482630ce4f2e0c40f75e231bc472590eeb7e200a199bc8c9648d3e4e08a6"
+        }
+      },
+      {
+        "stage": "legacy_compatibility",
+        "startedAt": "2026-10-06T21:51:30.246697+00:00",
+        "terminalAt": "2026-10-06T21:51:36.648647+00:00",
+        "seconds": 6.4019150719977915,
+        "exitCode": 0,
+        "stopReason": null,
+        "peakAggregateRssKiB": 382604,
+        "runtimeVerified": true,
+        "sourceDependenciesControlsUnchanged": true,
+        "remainingOwnedProcesses": [],
+        "reaped": true,
+        "counts": {
+          "numTotalTests": 1,
+          "numPassedTests": 1,
+          "numFailedTests": 0,
+          "numPendingTests": 0,
+          "numTodoTests": 0
+        },
+        "unhandledErrors": [],
+        "selectionValid": true,
+        "resourceEvidenceValid": true,
+        "phaseVerified": true,
+        "cancellationSignal": null,
+        "receiptSha256": "2cff8c6e8b525238dea1cd78655c9818f29d1ab0e14f478203437629953f204b",
+        "profile": {
+          "oldSpaceMiB": 1024,
+          "heapMiB": 1120,
+          "rssMiB": 1536,
+          "wallSeconds": 180,
+          "stopReserveGiB": 6,
+          "files": {
+            "src/host/world/PracticeOriginDevelopmentLegacyBaseline.test.ts": 1
+          },
+          "caseNames": {
+            "src/host/world/PracticeOriginDevelopmentLegacyBaseline.test.ts": [
+              "captures authentic legacy initiation and later-practice archive bytes before practice-origin production changes"
+            ]
+          }
+        },
+        "perTest": [
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentLegacyBaseline.test.ts",
+            "name": "captures authentic legacy initiation and later-practice archive bytes before practice-origin production changes",
+            "status": "passed",
+            "failureMessages": []
+          }
+        ],
+        "failure": null,
+        "artifactHashes": {
+          "legacy_compatibility-results.json": "9423a7f994bcb657496a8f47b06cbc007b2cac4656c1719dcdc37309c9b8b99b",
+          "legacy_compatibility-rss.jsonl": "c1e6cd5c4b44cc40dd09bdf76d45f87e3744e2d9863ebeec77098f16e892c115",
+          "legacy_compatibility-runtime.jsonl": "bdd2a74ad54ab1ced9594aa17fb47402171f0db71ff1f0979ea95de40dfcc64b",
+          "legacy_compatibility-terminal.json": "2cff8c6e8b525238dea1cd78655c9818f29d1ab0e14f478203437629953f204b",
+          "legacy_compatibility-unhandled.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "legacy_compatibility.log": "dd8516729cf0cdf26ebd5e63a9da7780299236dcd858e5834cc66cdcb1791148"
+        }
+      },
+      {
+        "stage": "direct_read",
+        "startedAt": "2026-10-06T21:51:36.649337+00:00",
+        "terminalAt": "2026-10-06T21:51:50.408504+00:00",
+        "seconds": 13.756663328000286,
+        "exitCode": 0,
+        "stopReason": null,
+        "peakAggregateRssKiB": 398980,
+        "runtimeVerified": true,
+        "sourceDependenciesControlsUnchanged": true,
+        "remainingOwnedProcesses": [],
+        "reaped": true,
+        "counts": {
+          "numTotalTests": 8,
+          "numPassedTests": 8,
+          "numFailedTests": 0,
+          "numPendingTests": 0,
+          "numTodoTests": 0
+        },
+        "unhandledErrors": [],
+        "selectionValid": true,
+        "resourceEvidenceValid": true,
+        "phaseVerified": true,
+        "cancellationSignal": null,
+        "receiptSha256": "e0dbeacf32eb50d91e46ebb84d1645bdb5b902d049d3aef761f71e2ed885d73d",
+        "profile": {
+          "oldSpaceMiB": 1024,
+          "heapMiB": 1120,
+          "rssMiB": 1536,
+          "wallSeconds": 180,
+          "stopReserveGiB": 6,
+          "files": {
+            "src/host/world/PracticeOriginDevelopmentDirectRead.test.ts": 8
+          },
+          "caseNames": {
+            "src/host/world/PracticeOriginDevelopmentDirectRead.test.ts": [
+              "rejects direct-read of a later practice with its deleted accepted origin while preserving the original physical attempt",
+              "rejects begin-retry of a later practice with its deleted accepted origin while preserving the original physical attempt",
+              "rejects reopened-read of a later practice with its deleted accepted origin while preserving the original physical attempt",
+              "rejects reopened-begin of a later practice with its deleted accepted origin while preserving the original physical attempt",
+              "rejects direct-read of a later practice with its tampered accepted origin while preserving the original physical attempt",
+              "rejects begin-retry of a later practice with its tampered accepted origin while preserving the original physical attempt",
+              "rejects reopened-read of a later practice with its tampered accepted origin while preserving the original physical attempt",
+              "rejects reopened-begin of a later practice with its tampered accepted origin while preserving the original physical attempt"
+            ]
+          }
+        },
+        "perTest": [
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentDirectRead.test.ts",
+            "name": "rejects direct-read of a later practice with its deleted accepted origin while preserving the original physical attempt",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentDirectRead.test.ts",
+            "name": "rejects begin-retry of a later practice with its deleted accepted origin while preserving the original physical attempt",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentDirectRead.test.ts",
+            "name": "rejects reopened-read of a later practice with its deleted accepted origin while preserving the original physical attempt",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentDirectRead.test.ts",
+            "name": "rejects reopened-begin of a later practice with its deleted accepted origin while preserving the original physical attempt",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentDirectRead.test.ts",
+            "name": "rejects direct-read of a later practice with its tampered accepted origin while preserving the original physical attempt",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentDirectRead.test.ts",
+            "name": "rejects begin-retry of a later practice with its tampered accepted origin while preserving the original physical attempt",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentDirectRead.test.ts",
+            "name": "rejects reopened-read of a later practice with its tampered accepted origin while preserving the original physical attempt",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentDirectRead.test.ts",
+            "name": "rejects reopened-begin of a later practice with its tampered accepted origin while preserving the original physical attempt",
+            "status": "passed",
+            "failureMessages": []
+          }
+        ],
+        "failure": null,
+        "artifactHashes": {
+          "direct_read-results.json": "7863ceb393df190855faf2a74a3aa0532fa02dec08310f6445bea7f070f8afdb",
+          "direct_read-rss.jsonl": "58c18e086d6418c2c4b7dde4da37a77df0b86da0918381a463eee7f920cd2bcd",
+          "direct_read-runtime.jsonl": "2db6f0d7529ef3abb12335094e108fb2f526b99cb8f7e0dda0321302311a488b",
+          "direct_read-terminal.json": "e0dbeacf32eb50d91e46ebb84d1645bdb5b902d049d3aef761f71e2ed885d73d",
+          "direct_read-unhandled.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "direct_read.log": "fd8d64b2193ad5b1be4890531bc52dbdf9dcf80d44a144cac8ea33a74e9ad6ad"
+        }
+      },
+      {
+        "stage": "native",
+        "startedAt": "2026-10-06T21:51:50.413070+00:00",
+        "terminalAt": "2026-10-06T21:52:14.601015+00:00",
+        "seconds": 24.187876007999876,
+        "exitCode": 0,
+        "stopReason": null,
+        "peakAggregateRssKiB": 437964,
+        "runtimeVerified": true,
+        "sourceDependenciesControlsUnchanged": true,
+        "remainingOwnedProcesses": [],
+        "reaped": true,
+        "counts": {
+          "numTotalTests": 46,
+          "numPassedTests": 46,
+          "numFailedTests": 0,
+          "numPendingTests": 0,
+          "numTodoTests": 0
+        },
+        "unhandledErrors": [],
+        "selectionValid": true,
+        "resourceEvidenceValid": true,
+        "phaseVerified": true,
+        "cancellationSignal": null,
+        "receiptSha256": "0dadc41b81f5eb3efdcf56759e155e13d66afcbac95873ba990588b718226647",
+        "profile": {
+          "oldSpaceMiB": 1024,
+          "heapMiB": 1120,
+          "rssMiB": 1536,
+          "wallSeconds": 180,
+          "stopReserveGiB": 6,
+          "files": {
+            "src/host/world/PracticeOriginDevelopmentBehavior.test.ts": 20,
+            "src/host/world/PracticeOriginDevelopmentBridge.test.ts": 1,
+            "src/host/world/PracticeOriginDevelopmentPrerequisite.test.ts": 1,
+            "src/host/world/PracticeOriginDevelopmentEntry.test.ts": 1,
+            "src/host/world/PracticeOriginDevelopmentGuards.test.ts": 23
+          },
+          "caseNames": {
+            "src/host/world/PracticeOriginDevelopmentBehavior.test.ts": [
+              "adopts an explicitly accepted practice discovery as ENGAGED without roster or ability changes",
+              "reopens and retries the same ENGAGED assessment without live acceptance callbacks or a new draw",
+              "consumes the canonical ENGAGED discovery before a episode reroll",
+              "consumes the canonical ENGAGED discovery before a appraisal-alias reroll",
+              "consumes the canonical ENGAGED discovery before a record-version reroll",
+              "adopts an explicitly accepted practice discovery as ABANDONED without roster or ability changes",
+              "reopens and retries the same ABANDONED assessment without live acceptance callbacks or a new draw",
+              "consumes the canonical ABANDONED discovery before a episode reroll",
+              "consumes the canonical ABANDONED discovery before a appraisal-alias reroll",
+              "consumes the canonical ABANDONED discovery before a record-version reroll",
+              "rejects changed accepted content under its original source and version rather than returning a cached episode",
+              "requires explicit accepted appraisal and writes no default initiation",
+              "requires explicit accepted policies and writes no default initiation",
+              "admits distinct discoveries from one completion with same motifs after a dismissal",
+              "admits distinct discoveries from one completion with different motifs after a dismissal",
+              "rejects completion-hash scope before committing an origin",
+              "rejects discovery-before-practice scope before committing an origin",
+              "rejects appraisal-before-discovery scope before committing an origin",
+              "rejects foreign-player scope before committing an origin",
+              "rolls back writer-local original-practice corruption with the origin reservation and permits the corrected retry"
+            ],
+            "src/host/world/PracticeOriginDevelopmentBridge.test.ts": [
+              "records only a genuinely later practice after a separately accepted hypothesis and preserves its origin across reopen"
+            ],
+            "src/host/world/PracticeOriginDevelopmentPrerequisite.test.ts": [
+              "completes, assesses, settles and reopens an original null-episode practice with zero roster executions"
+            ],
+            "src/host/world/PracticeOriginDevelopmentEntry.test.ts": [
+              "exposes practice-origin initiation after authentic physical and workload prerequisites"
+            ],
+            "src/host/world/PracticeOriginDevelopmentGuards.test.ts": [
+              "rejects a caller-made completed DTO even when it copies a genuine attempt and completion hash",
+              "rejects a real incomplete practice origin without charging its workload",
+              "rejects a real unassessed practice origin without charging its workload",
+              "rejects a real unsettled practice origin without charging its workload",
+              "rejects invalid accepted person identity without a reservation",
+              "rejects invalid accepted career identity without a reservation",
+              "rejects invalid accepted version identity without a reservation",
+              "rejects invalid accepted motif identity without a reservation",
+              "rejects invalid accepted discovery-event identity without a reservation",
+              "rejects invalid accepted appraisal-event identity without a reservation",
+              "rejects a future accepted learning policy and releases its reservation",
+              "rejects a future accepted receptivity policy and releases its reservation",
+              "rejects a future accepted initiation policy and releases its reservation",
+              "rejects altered original assessment evidence on read and retry",
+              "rejects altered original workload evidence on read and retry",
+              "rejects altered original physical evidence on read and retry",
+              "uses shared cooldown for a distinct practice discovery without conflating its motif",
+              "uses the configured open-hypothesis cap across different technical motifs",
+              "cannot backdate a new practice discovery around a later accepted appraisal",
+              "rejects coherent post-insert origin and assessment replacement rather than adopting the substituted outcome",
+              "rejects an unknown source discriminator instead of falling back to roster replay",
+              "keeps an original initiation valid after real later practice, recovery and an accepted release change",
+              "retains settled workload while a stale later-practice learning revision stays pending"
+            ]
+          }
+        },
+        "perTest": [
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentBehavior.test.ts",
+            "name": "adopts an explicitly accepted practice discovery as ENGAGED without roster or ability changes",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentBehavior.test.ts",
+            "name": "adopts an explicitly accepted practice discovery as ABANDONED without roster or ability changes",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentBehavior.test.ts",
+            "name": "reopens and retries the same ENGAGED assessment without live acceptance callbacks or a new draw",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentBehavior.test.ts",
+            "name": "reopens and retries the same ABANDONED assessment without live acceptance callbacks or a new draw",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentBehavior.test.ts",
+            "name": "consumes the canonical ENGAGED discovery before a episode reroll",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentBehavior.test.ts",
+            "name": "consumes the canonical ENGAGED discovery before a appraisal-alias reroll",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentBehavior.test.ts",
+            "name": "consumes the canonical ENGAGED discovery before a record-version reroll",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentBehavior.test.ts",
+            "name": "consumes the canonical ABANDONED discovery before a episode reroll",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentBehavior.test.ts",
+            "name": "consumes the canonical ABANDONED discovery before a appraisal-alias reroll",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentBehavior.test.ts",
+            "name": "consumes the canonical ABANDONED discovery before a record-version reroll",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentBehavior.test.ts",
+            "name": "rejects changed accepted content under its original source and version rather than returning a cached episode",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentBehavior.test.ts",
+            "name": "requires explicit accepted appraisal and writes no default initiation",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentBehavior.test.ts",
+            "name": "requires explicit accepted policies and writes no default initiation",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentBehavior.test.ts",
+            "name": "admits distinct discoveries from one completion with same motifs after a dismissal",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentBehavior.test.ts",
+            "name": "admits distinct discoveries from one completion with different motifs after a dismissal",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentBehavior.test.ts",
+            "name": "rejects completion-hash scope before committing an origin",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentBehavior.test.ts",
+            "name": "rejects discovery-before-practice scope before committing an origin",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentBehavior.test.ts",
+            "name": "rejects appraisal-before-discovery scope before committing an origin",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentBehavior.test.ts",
+            "name": "rejects foreign-player scope before committing an origin",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentBehavior.test.ts",
+            "name": "rolls back writer-local original-practice corruption with the origin reservation and permits the corrected retry",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentBridge.test.ts",
+            "name": "records only a genuinely later practice after a separately accepted hypothesis and preserves its origin across reopen",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentPrerequisite.test.ts",
+            "name": "completes, assesses, settles and reopens an original null-episode practice with zero roster executions",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentEntry.test.ts",
+            "name": "exposes practice-origin initiation after authentic physical and workload prerequisites",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentGuards.test.ts",
+            "name": "rejects a caller-made completed DTO even when it copies a genuine attempt and completion hash",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentGuards.test.ts",
+            "name": "rejects a real incomplete practice origin without charging its workload",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentGuards.test.ts",
+            "name": "rejects a real unassessed practice origin without charging its workload",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentGuards.test.ts",
+            "name": "rejects a real unsettled practice origin without charging its workload",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentGuards.test.ts",
+            "name": "rejects invalid accepted person identity without a reservation",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentGuards.test.ts",
+            "name": "rejects invalid accepted career identity without a reservation",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentGuards.test.ts",
+            "name": "rejects invalid accepted version identity without a reservation",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentGuards.test.ts",
+            "name": "rejects invalid accepted motif identity without a reservation",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentGuards.test.ts",
+            "name": "rejects invalid accepted discovery-event identity without a reservation",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentGuards.test.ts",
+            "name": "rejects invalid accepted appraisal-event identity without a reservation",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentGuards.test.ts",
+            "name": "rejects a future accepted learning policy and releases its reservation",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentGuards.test.ts",
+            "name": "rejects a future accepted receptivity policy and releases its reservation",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentGuards.test.ts",
+            "name": "rejects a future accepted initiation policy and releases its reservation",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentGuards.test.ts",
+            "name": "rejects altered original assessment evidence on read and retry",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentGuards.test.ts",
+            "name": "rejects altered original workload evidence on read and retry",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentGuards.test.ts",
+            "name": "rejects altered original physical evidence on read and retry",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentGuards.test.ts",
+            "name": "uses shared cooldown for a distinct practice discovery without conflating its motif",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentGuards.test.ts",
+            "name": "uses the configured open-hypothesis cap across different technical motifs",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentGuards.test.ts",
+            "name": "cannot backdate a new practice discovery around a later accepted appraisal",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentGuards.test.ts",
+            "name": "rejects coherent post-insert origin and assessment replacement rather than adopting the substituted outcome",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentGuards.test.ts",
+            "name": "rejects an unknown source discriminator instead of falling back to roster replay",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentGuards.test.ts",
+            "name": "keeps an original initiation valid after real later practice, recovery and an accepted release change",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginDevelopmentGuards.test.ts",
+            "name": "retains settled workload while a stale later-practice learning revision stays pending",
+            "status": "passed",
+            "failureMessages": []
+          }
+        ],
+        "failure": null,
+        "artifactHashes": {
+          "native-results.json": "267c65eb42feac6bb397feca28aae6b3dba283071ba50e33b6b481817ac0427e",
+          "native-rss.jsonl": "fa31945efffd59a40767ea6805ce5daba89dacc4af4a613170840159b1c40b72",
+          "native-runtime.jsonl": "34a558500ae14df7daa1b7317bf4453c0c005d89c8c17b755bc84c65afd764b0",
+          "native-terminal.json": "0dadc41b81f5eb3efdcf56759e155e13d66afcbac95873ba990588b718226647",
+          "native-unhandled.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "native.log": "1c4a764c35f9e33dbfeddba5d4934a91e56a430a4290117e866f3dc93a5813dc"
+        }
+      },
+      {
+        "stage": "order_prerequisite",
+        "startedAt": "2026-10-06T21:52:14.601819+00:00",
+        "terminalAt": "2026-10-06T21:52:20.062003+00:00",
+        "seconds": 5.460016513003211,
+        "exitCode": 0,
+        "stopReason": null,
+        "peakAggregateRssKiB": 352120,
+        "runtimeVerified": true,
+        "sourceDependenciesControlsUnchanged": true,
+        "remainingOwnedProcesses": [],
+        "reaped": true,
+        "counts": {
+          "numTotalTests": 2,
+          "numPassedTests": 2,
+          "numFailedTests": 0,
+          "numPendingTests": 0,
+          "numTodoTests": 0
+        },
+        "unhandledErrors": [],
+        "selectionValid": true,
+        "resourceEvidenceValid": true,
+        "phaseVerified": true,
+        "cancellationSignal": null,
+        "receiptSha256": "273469fceeba5148925a5839c56ee7537e9261b89090422f579951a864ae205f",
+        "profile": {
+          "oldSpaceMiB": 1024,
+          "heapMiB": 1120,
+          "rssMiB": 1536,
+          "wallSeconds": 180,
+          "stopReserveGiB": 6,
+          "files": {
+            "src/host/world/PracticeOriginOwnedOrderPrerequisite.test.ts": 2
+          },
+          "caseNames": {
+            "src/host/world/PracticeOriginOwnedOrderPrerequisite.test.ts": [
+              "issues and reopens a genuine Human practice-origin order with zero roster executions",
+              "issues and reopens a genuine Manager practice-origin order with zero roster executions"
+            ]
+          }
+        },
+        "perTest": [
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderPrerequisite.test.ts",
+            "name": "issues and reopens a genuine Human practice-origin order with zero roster executions",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderPrerequisite.test.ts",
+            "name": "issues and reopens a genuine Manager practice-origin order with zero roster executions",
+            "status": "passed",
+            "failureMessages": []
+          }
+        ],
+        "failure": null,
+        "artifactHashes": {
+          "order_prerequisite-results.json": "0cb586d922f91ba717a2a20fc08c1552638e8a774c704cb0c089c31e057043cb",
+          "order_prerequisite-rss.jsonl": "0c0b48a4ac9407fd102797f502c420e170acf94702855772fa98018906f012de",
+          "order_prerequisite-runtime.jsonl": "4524b30a943cb69bba4824222c3b7576f9c5ad0091103246a003542964ab5e1c",
+          "order_prerequisite-terminal.json": "273469fceeba5148925a5839c56ee7537e9261b89090422f579951a864ae205f",
+          "order_prerequisite-unhandled.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "order_prerequisite.log": "2ab5058d9084c6a8b7d05e728a98d54c95aab886e7669d4a6d05edf21204de66"
+        }
+      },
+      {
+        "stage": "assessment_retry",
+        "startedAt": "2026-10-06T21:52:20.062793+00:00",
+        "terminalAt": "2026-10-06T21:52:27.751797+00:00",
+        "seconds": 7.688557506000507,
+        "exitCode": 0,
+        "stopReason": null,
+        "peakAggregateRssKiB": 356368,
+        "runtimeVerified": true,
+        "sourceDependenciesControlsUnchanged": true,
+        "remainingOwnedProcesses": [],
+        "reaped": true,
+        "counts": {
+          "numTotalTests": 4,
+          "numPassedTests": 4,
+          "numFailedTests": 0,
+          "numPendingTests": 0,
+          "numTodoTests": 0
+        },
+        "unhandledErrors": [],
+        "selectionValid": true,
+        "resourceEvidenceValid": true,
+        "phaseVerified": true,
+        "cancellationSignal": null,
+        "receiptSha256": "de8e7267ae3aa9f64fd53703879e56a8c2e5b8a2dba32d612176fec40339d001",
+        "profile": {
+          "oldSpaceMiB": 1024,
+          "heapMiB": 1120,
+          "rssMiB": 1536,
+          "wallSeconds": 180,
+          "stopReserveGiB": 6,
+          "files": {
+            "src/host/world/PracticeOriginAssessmentRetry.test.ts": 4
+          },
+          "caseNames": {
+            "src/host/world/PracticeOriginAssessmentRetry.test.ts": [
+              "rejects live saved-assessment retry after its accepted origin is deleted",
+              "rejects reopened saved-assessment retry after its accepted origin is deleted",
+              "rejects live saved-assessment retry after its accepted origin is tampered",
+              "rejects reopened saved-assessment retry after its accepted origin is tampered"
+            ]
+          }
+        },
+        "perTest": [
+          {
+            "file": "src/host/world/PracticeOriginAssessmentRetry.test.ts",
+            "name": "rejects live saved-assessment retry after its accepted origin is deleted",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginAssessmentRetry.test.ts",
+            "name": "rejects reopened saved-assessment retry after its accepted origin is deleted",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginAssessmentRetry.test.ts",
+            "name": "rejects live saved-assessment retry after its accepted origin is tampered",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginAssessmentRetry.test.ts",
+            "name": "rejects reopened saved-assessment retry after its accepted origin is tampered",
+            "status": "passed",
+            "failureMessages": []
+          }
+        ],
+        "failure": null,
+        "artifactHashes": {
+          "assessment_retry-results.json": "0d9309049e277fa36aabcbaa96b62033f891f2672d5b419d38dc3ef893861908",
+          "assessment_retry-rss.jsonl": "364cafa58d73f2cb4a57f7b76822d1302230d274e671918be7a204fb3e67e527",
+          "assessment_retry-runtime.jsonl": "0040262fe69aa7b4d0ffbb7d0cf95eca2b00e933d76017b50596bdc4da31a16a",
+          "assessment_retry-terminal.json": "de8e7267ae3aa9f64fd53703879e56a8c2e5b8a2dba32d612176fec40339d001",
+          "assessment_retry-unhandled.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "assessment_retry.log": "5fab06f131fd02b4138530d46ab464b17326c6631af17be9cfdc46592eca4fa8"
+        }
+      },
+      {
+        "stage": "origin_orders",
+        "startedAt": "2026-10-06T21:52:27.752536+00:00",
+        "terminalAt": "2026-10-06T21:52:58.165898+00:00",
+        "seconds": 30.41333244600537,
+        "exitCode": 0,
+        "stopReason": null,
+        "peakAggregateRssKiB": 410572,
+        "runtimeVerified": true,
+        "sourceDependenciesControlsUnchanged": true,
+        "remainingOwnedProcesses": [],
+        "reaped": true,
+        "counts": {
+          "numTotalTests": 44,
+          "numPassedTests": 44,
+          "numFailedTests": 0,
+          "numPendingTests": 0,
+          "numTodoTests": 0
+        },
+        "unhandledErrors": [],
+        "selectionValid": true,
+        "resourceEvidenceValid": true,
+        "phaseVerified": true,
+        "cancellationSignal": null,
+        "receiptSha256": "64d01dd363a061092065987acb824664a0fc42d667e6661965f3234dd2d1466d",
+        "profile": {
+          "oldSpaceMiB": 1024,
+          "heapMiB": 1120,
+          "rssMiB": 1536,
+          "wallSeconds": 180,
+          "stopReserveGiB": 6,
+          "files": {
+            "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts": 44
+          },
+          "caseNames": {
+            "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts": [
+              "rejects live Human read-decision after its accepted practice origin is deleted",
+              "rejects live Human prepare-retry after its accepted practice origin is deleted",
+              "rejects live Human first-issue after its accepted practice origin is deleted",
+              "rejects live Human read-order after its accepted practice origin is deleted",
+              "rejects live Human issue-retry after its accepted practice origin is deleted",
+              "rejects reopened Human read-decision after its accepted practice origin is deleted",
+              "rejects reopened Human prepare-retry after its accepted practice origin is deleted",
+              "rejects reopened Human first-issue after its accepted practice origin is deleted",
+              "rejects reopened Human read-order after its accepted practice origin is deleted",
+              "rejects reopened Human issue-retry after its accepted practice origin is deleted",
+              "rejects live Human read-decision after its accepted practice origin is tampered",
+              "rejects live Human prepare-retry after its accepted practice origin is tampered",
+              "rejects live Human first-issue after its accepted practice origin is tampered",
+              "rejects live Human read-order after its accepted practice origin is tampered",
+              "rejects live Human issue-retry after its accepted practice origin is tampered",
+              "rejects reopened Human read-decision after its accepted practice origin is tampered",
+              "rejects reopened Human prepare-retry after its accepted practice origin is tampered",
+              "rejects reopened Human first-issue after its accepted practice origin is tampered",
+              "rejects reopened Human read-order after its accepted practice origin is tampered",
+              "rejects reopened Human issue-retry after its accepted practice origin is tampered",
+              "rolls back Human preparation when its writer-local INSERT removes the accepted origin",
+              "rolls back Human issuance when its writer-local INSERT removes the accepted origin",
+              "rejects live Manager read-decision after its accepted practice origin is deleted",
+              "rejects live Manager prepare-retry after its accepted practice origin is deleted",
+              "rejects live Manager first-issue after its accepted practice origin is deleted",
+              "rejects live Manager read-order after its accepted practice origin is deleted",
+              "rejects live Manager issue-retry after its accepted practice origin is deleted",
+              "rejects reopened Manager read-decision after its accepted practice origin is deleted",
+              "rejects reopened Manager prepare-retry after its accepted practice origin is deleted",
+              "rejects reopened Manager first-issue after its accepted practice origin is deleted",
+              "rejects reopened Manager read-order after its accepted practice origin is deleted",
+              "rejects reopened Manager issue-retry after its accepted practice origin is deleted",
+              "rejects live Manager read-decision after its accepted practice origin is tampered",
+              "rejects live Manager prepare-retry after its accepted practice origin is tampered",
+              "rejects live Manager first-issue after its accepted practice origin is tampered",
+              "rejects live Manager read-order after its accepted practice origin is tampered",
+              "rejects live Manager issue-retry after its accepted practice origin is tampered",
+              "rejects reopened Manager read-decision after its accepted practice origin is tampered",
+              "rejects reopened Manager prepare-retry after its accepted practice origin is tampered",
+              "rejects reopened Manager first-issue after its accepted practice origin is tampered",
+              "rejects reopened Manager read-order after its accepted practice origin is tampered",
+              "rejects reopened Manager issue-retry after its accepted practice origin is tampered",
+              "rolls back Manager preparation when its writer-local INSERT removes the accepted origin",
+              "rolls back Manager issuance when its writer-local INSERT removes the accepted origin"
+            ]
+          }
+        },
+        "perTest": [
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects live Human read-decision after its accepted practice origin is deleted",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects live Human prepare-retry after its accepted practice origin is deleted",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects live Human first-issue after its accepted practice origin is deleted",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects live Human read-order after its accepted practice origin is deleted",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects live Human issue-retry after its accepted practice origin is deleted",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects reopened Human read-decision after its accepted practice origin is deleted",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects reopened Human prepare-retry after its accepted practice origin is deleted",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects reopened Human first-issue after its accepted practice origin is deleted",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects reopened Human read-order after its accepted practice origin is deleted",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects reopened Human issue-retry after its accepted practice origin is deleted",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects live Human read-decision after its accepted practice origin is tampered",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects live Human prepare-retry after its accepted practice origin is tampered",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects live Human first-issue after its accepted practice origin is tampered",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects live Human read-order after its accepted practice origin is tampered",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects live Human issue-retry after its accepted practice origin is tampered",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects reopened Human read-decision after its accepted practice origin is tampered",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects reopened Human prepare-retry after its accepted practice origin is tampered",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects reopened Human first-issue after its accepted practice origin is tampered",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects reopened Human read-order after its accepted practice origin is tampered",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects reopened Human issue-retry after its accepted practice origin is tampered",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rolls back Human preparation when its writer-local INSERT removes the accepted origin",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rolls back Human issuance when its writer-local INSERT removes the accepted origin",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects live Manager read-decision after its accepted practice origin is deleted",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects live Manager prepare-retry after its accepted practice origin is deleted",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects live Manager first-issue after its accepted practice origin is deleted",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects live Manager read-order after its accepted practice origin is deleted",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects live Manager issue-retry after its accepted practice origin is deleted",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects reopened Manager read-decision after its accepted practice origin is deleted",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects reopened Manager prepare-retry after its accepted practice origin is deleted",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects reopened Manager first-issue after its accepted practice origin is deleted",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects reopened Manager read-order after its accepted practice origin is deleted",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects reopened Manager issue-retry after its accepted practice origin is deleted",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects live Manager read-decision after its accepted practice origin is tampered",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects live Manager prepare-retry after its accepted practice origin is tampered",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects live Manager first-issue after its accepted practice origin is tampered",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects live Manager read-order after its accepted practice origin is tampered",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects live Manager issue-retry after its accepted practice origin is tampered",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects reopened Manager read-decision after its accepted practice origin is tampered",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects reopened Manager prepare-retry after its accepted practice origin is tampered",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects reopened Manager first-issue after its accepted practice origin is tampered",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects reopened Manager read-order after its accepted practice origin is tampered",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rejects reopened Manager issue-retry after its accepted practice origin is tampered",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rolls back Manager preparation when its writer-local INSERT removes the accepted origin",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/PracticeOriginOwnedOrderProvenance.test.ts",
+            "name": "rolls back Manager issuance when its writer-local INSERT removes the accepted origin",
+            "status": "passed",
+            "failureMessages": []
+          }
+        ],
+        "failure": null,
+        "artifactHashes": {
+          "origin_orders-results.json": "25b935eb9c4a244285e14138abb8e2e93fe68062a67870bbb8866d5419765197",
+          "origin_orders-rss.jsonl": "5e96966392715d96568de098bc794ee2aed13df0f38c7c6b01c629462b8575d2",
+          "origin_orders-runtime.jsonl": "02dc8522cc4674e1b2a9961a63ad3b6815bc5f0d77eb88d2a825dc37ae5d6145",
+          "origin_orders-terminal.json": "64d01dd363a061092065987acb824664a0fc42d667e6661965f3234dd2d1466d",
+          "origin_orders-unhandled.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "origin_orders.log": "b361ff95c4b39a2d404cf99db401d7915faef206d7086d900af7c4d9238f048e"
+        }
+      },
+      {
+        "stage": "compatibility_manager",
+        "startedAt": "2026-10-06T21:52:58.166626+00:00",
+        "terminalAt": "2026-10-06T21:53:09.453342+00:00",
+        "seconds": 11.28668460600602,
+        "exitCode": 0,
+        "stopReason": null,
+        "peakAggregateRssKiB": 379084,
+        "runtimeVerified": true,
+        "sourceDependenciesControlsUnchanged": true,
+        "remainingOwnedProcesses": [],
+        "reaped": true,
+        "counts": {
+          "numTotalTests": 26,
+          "numPassedTests": 26,
+          "numFailedTests": 0,
+          "numPendingTests": 0,
+          "numTodoTests": 0
+        },
+        "unhandledErrors": [],
+        "selectionValid": true,
+        "resourceEvidenceValid": true,
+        "phaseVerified": true,
+        "cancellationSignal": null,
+        "receiptSha256": "5b79edbcee15259bb6667bdea831fb67f3c52f5a9b3bfa6ef12a6bd5867da982",
+        "profile": {
+          "oldSpaceMiB": 1024,
+          "heapMiB": 1120,
+          "rssMiB": 1536,
+          "wallSeconds": 180,
+          "stopReserveGiB": 6,
+          "files": {
+            "src/host/world/ManagerPracticeLegacyReceipt.test.ts": 1,
+            "src/host/world/ManagerPracticeOrderFromBelief.test.ts": 25
+          },
+          "caseNames": {
+            "src/host/world/ManagerPracticeLegacyReceipt.test.ts": [
+              "preserves the original Human receipt schema and hash inputs byte for byte through issuance and reopen"
+            ],
+            "src/host/world/ManagerPracticeOrderFromBelief.test.ts": [
+              "prepares the real existing selector result from an accepted practice action and historical Person without World or body effects",
+              "issues and retries one actual delegated World order with its generated trace and no fabricated repetition",
+              "consumes the Manager order through real delivery phases and independently accepted PRACTICE exactly once",
+              "supports the appointed autonomous Manager while preserving the existing Human controlled-Club restriction",
+              "returns Human-required for a manual domain before attempting missing Manager belief selection",
+              "leaves missing Manager Person pending without bootstrap and accepts later explicit existing-owner enrollment",
+              "keeps missing accepted prescription pending with no reservation and accepts corrected intake",
+              "requires an explicit accepted practice-action binding and accepts later corrected input without a poisoned reservation",
+              "rejects a ROSTER action alias before intake despite its genuine existing belief and accepts the exact practice identity",
+              "rejects an accepted practice action absent from the original Manager Person instead of constructing an estimate",
+              "rejects a wrong quoted Manager manager before intake",
+              "rejects a wrong quoted Manager appointment before intake",
+              "rejects a wrong quoted Manager revision before intake",
+              "rejects caller-supplied selectionAgent as unaccepted extra decision input",
+              "rejects caller-supplied selection as unaccepted extra decision input",
+              "rejects unregistered practice capability without modifying domain permissions",
+              "rejects stale first Manager issuance after a real belief-only observation without rewriting the proposal",
+              "consumes the original Manager proposal Source through explicit Human override after belief-only advance=false",
+              "consumes the original Manager proposal Source through explicit Human override after belief-only advance=true",
+              "does not borrow a Human-only prepared decision as an actual Manager selection proof",
+              "freezes the complete accepted action binding and request even when a changed trace would select the same action",
+              "reopens the exact historical Manager order after later observation and control changes without accepted live inputs",
+              "rolls back a witnessed original Manager source mutation during the actual prepare INSERT",
+              "rolls back a witnessed original Manager source mutation during the actual issue INSERT",
+              "rejects corruption of original Manager seed evidence on historical proposal, order and consumed-attempt reads"
+            ]
+          }
+        },
+        "perTest": [
+          {
+            "file": "src/host/world/ManagerPracticeLegacyReceipt.test.ts",
+            "name": "preserves the original Human receipt schema and hash inputs byte for byte through issuance and reopen",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "prepares the real existing selector result from an accepted practice action and historical Person without World or body effects",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "issues and retries one actual delegated World order with its generated trace and no fabricated repetition",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "consumes the Manager order through real delivery phases and independently accepted PRACTICE exactly once",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "supports the appointed autonomous Manager while preserving the existing Human controlled-Club restriction",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "returns Human-required for a manual domain before attempting missing Manager belief selection",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "leaves missing Manager Person pending without bootstrap and accepts later explicit existing-owner enrollment",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "keeps missing accepted prescription pending with no reservation and accepts corrected intake",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "requires an explicit accepted practice-action binding and accepts later corrected input without a poisoned reservation",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "rejects a ROSTER action alias before intake despite its genuine existing belief and accepts the exact practice identity",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "rejects an accepted practice action absent from the original Manager Person instead of constructing an estimate",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "rejects a wrong quoted Manager manager before intake",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "rejects a wrong quoted Manager appointment before intake",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "rejects a wrong quoted Manager revision before intake",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "rejects caller-supplied selectionAgent as unaccepted extra decision input",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "rejects caller-supplied selection as unaccepted extra decision input",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "rejects unregistered practice capability without modifying domain permissions",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "rejects stale first Manager issuance after a real belief-only observation without rewriting the proposal",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "consumes the original Manager proposal Source through explicit Human override after belief-only advance=false",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "consumes the original Manager proposal Source through explicit Human override after belief-only advance=true",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "does not borrow a Human-only prepared decision as an actual Manager selection proof",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "freezes the complete accepted action binding and request even when a changed trace would select the same action",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "reopens the exact historical Manager order after later observation and control changes without accepted live inputs",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "rolls back a witnessed original Manager source mutation during the actual prepare INSERT",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "rolls back a witnessed original Manager source mutation during the actual issue INSERT",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ManagerPracticeOrderFromBelief.test.ts",
+            "name": "rejects corruption of original Manager seed evidence on historical proposal, order and consumed-attempt reads",
+            "status": "passed",
+            "failureMessages": []
+          }
+        ],
+        "failure": null,
+        "artifactHashes": {
+          "compatibility_manager-results.json": "a6cb5c1d9f3559857ca6570695f4a68b3e9381a83ee60b4549d9a37f77a1dbd9",
+          "compatibility_manager-rss.jsonl": "45bd0e272edcfab1609a147e34c5f369e177d85bcba9462b00598c280d4d529d",
+          "compatibility_manager-runtime.jsonl": "4a01244b2f478f256a9e954da6b1b70a522754aab146e87f794659c5cef4e6b0",
+          "compatibility_manager-terminal.json": "5b79edbcee15259bb6667bdea831fb67f3c52f5a9b3bfa6ef12a6bd5867da982",
+          "compatibility_manager-unhandled.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "compatibility_manager.log": "43478345451255ad01281923c3c476fa35a5bc5a1e9ac8c8f716c17996244d7b"
+        }
+      },
+      {
+        "stage": "compatibility_orders",
+        "startedAt": "2026-10-06T21:53:09.454069+00:00",
+        "terminalAt": "2026-10-06T21:53:40.684157+00:00",
+        "seconds": 31.230052772996714,
+        "exitCode": 0,
+        "stopReason": null,
+        "peakAggregateRssKiB": 403620,
+        "runtimeVerified": true,
+        "sourceDependenciesControlsUnchanged": true,
+        "remainingOwnedProcesses": [],
+        "reaped": true,
+        "counts": {
+          "numTotalTests": 50,
+          "numPassedTests": 50,
+          "numFailedTests": 0,
+          "numPendingTests": 0,
+          "numTodoTests": 0
+        },
+        "unhandledErrors": [],
+        "selectionValid": true,
+        "resourceEvidenceValid": true,
+        "phaseVerified": true,
+        "cancellationSignal": null,
+        "receiptSha256": "65cbc42049ebfbd79d5f3d6c307b6b9f5e112778e92964cc24f63749f9958e5c",
+        "profile": {
+          "oldSpaceMiB": 1024,
+          "heapMiB": 1120,
+          "rssMiB": 1536,
+          "wallSeconds": 180,
+          "stopReserveGiB": 6,
+          "files": {
+            "src/host/world/OwnedPitchPracticeOrder.test.ts": 32,
+            "src/host/world/OwnedPitchPracticeOrderCollision.test.ts": 1,
+            "src/host/world/OwnedPitchPracticeOrderDuplicateClaim.test.ts": 1,
+            "src/host/world/OwnedPitchPracticeOrderOrphanMirror.test.ts": 2,
+            "src/host/world/OwnedPitchPracticeOrderReservation.test.ts": 10,
+            "src/host/world/OwnedPitchPracticeOrderReview.test.ts": 4
+          },
+          "caseNames": {
+            "src/host/world/OwnedPitchPracticeOrder.test.ts": [
+              "keeps missing prescription pending with zero intake rows and accepts later corrected input",
+              "issues one actual Human World order without producing body motion, workload or learning",
+              "retains the existing explicit Human override when the practice domain is delegated",
+              "rejects Manager submissions without fabricating their missing durable selection trace",
+              "requires prior host registration of its own domain without changing control permissions",
+              "rejects invalid Human selection controller without order or World writes",
+              "rejects invalid Human selection action without order or World writes",
+              "rejects invalid Human selection control_revision without order or World writes",
+              "rejects invalid Human selection world_revision without order or World writes",
+              "rejects stale prospective worldRevision before freezing any intake row",
+              "rejects stale prospective controlRevision before freezing any intake row",
+              "rejects stale prospective clubRevision before freezing any intake row",
+              "rejects stale prospective rosterRevision before freezing any intake row",
+              "rejects stale prospective workloadRevision before freezing any intake row",
+              "rejects stale prospective timingRevision before freezing any intake row",
+              "rejects stale prospective releaseRevision before freezing any intake row",
+              "rejects an invalid prescribed club without a pending row or physical effect",
+              "rejects an invalid prescribed player without a pending row or physical effect",
+              "rejects an invalid prescribed assignment without a pending row or physical effect",
+              "rejects an invalid prescribed availability without a pending row or physical effect",
+              "rejects an invalid prescribed outside_window without a pending row or physical effect",
+              "rejects an invalid prescribed window_too_short without a pending row or physical effect",
+              "freezes the complete prescription and decision identity across changed accepted input",
+              "does not issue another order from an already consumed decision under an execution alias",
+              "consumes the owned order directly before one actual workload and eligible episode event",
+              "fails stale first issuance after a real control event without rewriting its frozen decision",
+              "keeps an issued order frozen when later workload invalidates its first actual begin",
+              "reopens historical order and body evidence after later World control changes without live inputs",
+              "issues and consumes a legitimate later order while authenticating the earlier order once historically",
+              "rejects original order corruption on direct reads and later physical progress",
+              "rolls back actual order insertion when its original decision is mutated on the writer connection",
+              "does not allocate the same canonical practice opportunity through a second World decision"
+            ],
+            "src/host/world/OwnedPitchPracticeOrderCollision.test.ts": [
+              "does not reinterpret an ordinary durable attempt when a later order generates the same Source ID"
+            ],
+            "src/host/world/OwnedPitchPracticeOrderDuplicateClaim.test.ts": [
+              "retains an unbegun World order claim hidden behind a duplicate JSON Source key"
+            ],
+            "src/host/world/OwnedPitchPracticeOrderOrphanMirror.test.ts": [
+              "rejects an orphan owned order whose source_kind mirror hides the original JSON identity",
+              "rejects an orphan owned order whose source_event_id mirror hides the original JSON identity"
+            ],
+            "src/host/world/OwnedPitchPracticeOrderReservation.test.ts": [
+              "preserves a first pair reservation against a conflicting order canonical claim",
+              "preserves a first pair reservation against a conflicting order source claim",
+              "preserves a first owned order against a conflicting pair canonical claim and permits an exact pair",
+              "preserves a first owned order against a conflicting pair source claim and permits an exact pair",
+              "composes a prospective pair with real NORMAL and later QUICK orders while separating frame and consumed authority evidence",
+              "reserves the prospective derived Source at preparation against an existing prepared",
+              "reserves the prospective derived Source at preparation against an existing attempt",
+              "reserves the prospective derived Source at preparation against an existing order",
+              "reserves the prospective derived Source at preparation against an existing probe",
+              "rejects a coherent later probe reservation takeover on the actual World issuance write"
+            ],
+            "src/host/world/OwnedPitchPracticeOrderReview.test.ts": [
+              "rejects a coherent post-INSERT decision substitution and rolls back the original admitted input",
+              "rejects a coherent post-INSERT order substitution even when its decision and World hash agree",
+              "preserves an ordinary legacy accepted opportunity whose unrestricted Source ID uses the new prefix",
+              "rejects a deleted owned order from its real World evidence and the begun attempt fingerprint"
+            ]
+          }
+        },
+        "perTest": [
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "keeps missing prescription pending with zero intake rows and accepts later corrected input",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "issues one actual Human World order without producing body motion, workload or learning",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "retains the existing explicit Human override when the practice domain is delegated",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "rejects Manager submissions without fabricating their missing durable selection trace",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "requires prior host registration of its own domain without changing control permissions",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "rejects invalid Human selection controller without order or World writes",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "rejects invalid Human selection action without order or World writes",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "rejects invalid Human selection control_revision without order or World writes",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "rejects invalid Human selection world_revision without order or World writes",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "rejects stale prospective worldRevision before freezing any intake row",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "rejects stale prospective controlRevision before freezing any intake row",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "rejects stale prospective clubRevision before freezing any intake row",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "rejects stale prospective rosterRevision before freezing any intake row",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "rejects stale prospective workloadRevision before freezing any intake row",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "rejects stale prospective timingRevision before freezing any intake row",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "rejects stale prospective releaseRevision before freezing any intake row",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "rejects an invalid prescribed club without a pending row or physical effect",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "rejects an invalid prescribed player without a pending row or physical effect",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "rejects an invalid prescribed assignment without a pending row or physical effect",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "rejects an invalid prescribed availability without a pending row or physical effect",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "rejects an invalid prescribed outside_window without a pending row or physical effect",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "rejects an invalid prescribed window_too_short without a pending row or physical effect",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "freezes the complete prescription and decision identity across changed accepted input",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "does not issue another order from an already consumed decision under an execution alias",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "consumes the owned order directly before one actual workload and eligible episode event",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "fails stale first issuance after a real control event without rewriting its frozen decision",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "keeps an issued order frozen when later workload invalidates its first actual begin",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "reopens historical order and body evidence after later World control changes without live inputs",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "issues and consumes a legitimate later order while authenticating the earlier order once historically",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "rejects original order corruption on direct reads and later physical progress",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "rolls back actual order insertion when its original decision is mutated on the writer connection",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrder.test.ts",
+            "name": "does not allocate the same canonical practice opportunity through a second World decision",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrderCollision.test.ts",
+            "name": "does not reinterpret an ordinary durable attempt when a later order generates the same Source ID",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrderDuplicateClaim.test.ts",
+            "name": "retains an unbegun World order claim hidden behind a duplicate JSON Source key",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrderOrphanMirror.test.ts",
+            "name": "rejects an orphan owned order whose source_kind mirror hides the original JSON identity",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrderOrphanMirror.test.ts",
+            "name": "rejects an orphan owned order whose source_event_id mirror hides the original JSON identity",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrderReservation.test.ts",
+            "name": "preserves a first pair reservation against a conflicting order canonical claim",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrderReservation.test.ts",
+            "name": "preserves a first pair reservation against a conflicting order source claim",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrderReservation.test.ts",
+            "name": "preserves a first owned order against a conflicting pair canonical claim and permits an exact pair",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrderReservation.test.ts",
+            "name": "preserves a first owned order against a conflicting pair source claim and permits an exact pair",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrderReservation.test.ts",
+            "name": "composes a prospective pair with real NORMAL and later QUICK orders while separating frame and consumed authority evidence",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrderReservation.test.ts",
+            "name": "reserves the prospective derived Source at preparation against an existing prepared",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrderReservation.test.ts",
+            "name": "reserves the prospective derived Source at preparation against an existing attempt",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrderReservation.test.ts",
+            "name": "reserves the prospective derived Source at preparation against an existing order",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrderReservation.test.ts",
+            "name": "reserves the prospective derived Source at preparation against an existing probe",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrderReservation.test.ts",
+            "name": "rejects a coherent later probe reservation takeover on the actual World issuance write",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrderReview.test.ts",
+            "name": "rejects a coherent post-INSERT decision substitution and rolls back the original admitted input",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrderReview.test.ts",
+            "name": "rejects a coherent post-INSERT order substitution even when its decision and World hash agree",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrderReview.test.ts",
+            "name": "preserves an ordinary legacy accepted opportunity whose unrestricted Source ID uses the new prefix",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/OwnedPitchPracticeOrderReview.test.ts",
+            "name": "rejects a deleted owned order from its real World evidence and the begun attempt fingerprint",
+            "status": "passed",
+            "failureMessages": []
+          }
+        ],
+        "failure": null,
+        "artifactHashes": {
+          "compatibility_orders-results.json": "258e9409f49a6d6a9d1e71e89c2234e31c899b999396fb297edded559c6ebaef",
+          "compatibility_orders-rss.jsonl": "9e604417fd6f1db285c87a7e54a2f99164880757afc8dc153b2380922e96787f",
+          "compatibility_orders-runtime.jsonl": "3364a9f79773e87d0ac8720140b641a91820191cf6e24991a2266ce7537742f3",
+          "compatibility_orders-terminal.json": "65cbc42049ebfbd79d5f3d6c307b6b9f5e112778e92964cc24f63749f9958e5c",
+          "compatibility_orders-unhandled.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "compatibility_orders.log": "ea61e9ebd58c5b91a4452a64406d96a1338f505e368710597ec54ad14b5e60a4"
+        }
+      },
+      {
+        "stage": "compatibility_practice",
+        "startedAt": "2026-10-06T21:53:40.685156+00:00",
+        "terminalAt": "2026-10-06T21:54:01.114833+00:00",
+        "seconds": 20.42964666399348,
+        "exitCode": 0,
+        "stopReason": null,
+        "peakAggregateRssKiB": 421756,
+        "runtimeVerified": true,
+        "sourceDependenciesControlsUnchanged": true,
+        "remainingOwnedProcesses": [],
+        "reaped": true,
+        "counts": {
+          "numTotalTests": 49,
+          "numPassedTests": 49,
+          "numFailedTests": 0,
+          "numPendingTests": 0,
+          "numTodoTests": 0
+        },
+        "unhandledErrors": [],
+        "selectionValid": true,
+        "resourceEvidenceValid": true,
+        "phaseVerified": true,
+        "cancellationSignal": null,
+        "receiptSha256": "75ccf6923cb36398814634d03d48dab02ef7137747ae68fc45736a94909add0f",
+        "profile": {
+          "oldSpaceMiB": 1024,
+          "heapMiB": 1120,
+          "rssMiB": 1536,
+          "wallSeconds": 180,
+          "stopReserveGiB": 6,
+          "files": {
+            "src/host/world/SqlitePitchPracticeAttemptStore.test.ts": 49
+          },
+          "caseNames": {
+            "src/host/world/SqlitePitchPracticeAttemptStore.test.ts": [
+              "opens a real practice producer without a Match and keeps planned motion unconsumed",
+              "executes the existing body/timing/fatigue model and observes release only after consuming it",
+              "requires a completion-bound assessment before charging exactly one practice and one eligible episode event",
+              "rejects prospective opportunity mismatch before creating an attempt: missing",
+              "rejects prospective opportunity mismatch before creating an attempt: foreign_player",
+              "rejects prospective opportunity mismatch before creating an attempt: foreign_person",
+              "rejects prospective opportunity mismatch before creating an attempt: workload_revision",
+              "rejects prospective opportunity mismatch before creating an attempt: timing_revision",
+              "rejects prospective opportunity mismatch before creating an attempt: release_revision",
+              "rejects prospective opportunity mismatch before creating an attempt: ordinal_gap",
+              "rejects prospective opportunity mismatch before creating an attempt: future_source",
+              "rejects source aliases and altered opportunity input without amplifying repetitions",
+              "does not admit another ordinal until its predecessor has consumed delivery and settled workload",
+              "rejects a competing Player body owner under a different opportunity: moving_same_day",
+              "rejects a competing Player body owner under a different opportunity: moving_later_day",
+              "rejects a competing Player body owner under a different opportunity: unsettled_same_day",
+              "rejects a competing Player body owner under a different opportunity: unsettled_later_day",
+              "shares the Player day clock across opportunity IDs and permits the exact completed boundary",
+              "allows a later accepted day to use a new local clock without converting time or granting recovery",
+              "reauthenticates the prior completed Player clock when reading a later opportunity",
+              "rejects malformed assessment without accepting a workload source: wrong_attempt",
+              "rejects malformed assessment without accepting a workload source: wrong_hash",
+              "rejects malformed assessment without accepting a workload source: negative_effort",
+              "rejects malformed assessment without accepting a workload source: invalid_health",
+              "rejects malformed assessment without accepting a workload source: missing_provenance",
+              "freezes accepted effort and health instead of accepting a changed assessment under the same identity",
+              "keeps partial execution and exact original inputs across reopen without live opportunity input",
+              "retries completed adoption after real later recovery without recapturing fatigue or duplicating effects",
+              "reads and reopens a normal second attempt without cycling through its own episode guard",
+              "preserves a first-write workload conflict instead of rebasing or replaying execution",
+              "authenticates the original exact timing revision after a later accepted same-day source change",
+              "authenticates the original exact release revision after a later accepted same-day source change",
+              "rejects archived frame corruption after reopen rather than trusting a cached completion",
+              "reauthenticates the original timing owner rather than trusting only copied attempt data",
+              "reauthenticates the original release owner rather than trusting only copied attempt data",
+              "reauthenticates the original workload owner rather than trusting only copied attempt data",
+              "reauthenticates the original person_link owner rather than trusting only copied attempt data",
+              "retains settled workload when episode admission becomes stale and never manufactures feedback or consolidation",
+              "rolls back a failed physical-prefix write and resumes the same actual phases",
+              "detects writer-local attempt mutation and rolls back the workload effect",
+              "detects writer-local attempt mutation and rolls back the learning effect",
+              "does not turn two real NORMAL/QUICK attempts into standardized measurements or capability updates",
+              "can own an explicitly requested delivery without inventing a learning target",
+              "rejects consumer-local original workload-write timing-source corruption before committing",
+              "rejects consumer-local original workload-write release-source corruption before committing",
+              "rejects consumer-local original learning-write timing-source corruption before committing",
+              "rejects consumer-local original learning-write release-source corruption before committing",
+              "rejects a copied learning receipt under another durable source and destination",
+              "authenticates each earlier physical attempt once per learning-guard call without a persistent cache"
+            ]
+          }
+        },
+        "perTest": [
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "opens a real practice producer without a Match and keeps planned motion unconsumed",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "executes the existing body/timing/fatigue model and observes release only after consuming it",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "requires a completion-bound assessment before charging exactly one practice and one eligible episode event",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rejects prospective opportunity mismatch before creating an attempt: missing",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rejects prospective opportunity mismatch before creating an attempt: foreign_player",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rejects prospective opportunity mismatch before creating an attempt: foreign_person",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rejects prospective opportunity mismatch before creating an attempt: workload_revision",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rejects prospective opportunity mismatch before creating an attempt: timing_revision",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rejects prospective opportunity mismatch before creating an attempt: release_revision",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rejects prospective opportunity mismatch before creating an attempt: ordinal_gap",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rejects prospective opportunity mismatch before creating an attempt: future_source",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rejects source aliases and altered opportunity input without amplifying repetitions",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "does not admit another ordinal until its predecessor has consumed delivery and settled workload",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rejects a competing Player body owner under a different opportunity: moving_same_day",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rejects a competing Player body owner under a different opportunity: moving_later_day",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rejects a competing Player body owner under a different opportunity: unsettled_same_day",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rejects a competing Player body owner under a different opportunity: unsettled_later_day",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "shares the Player day clock across opportunity IDs and permits the exact completed boundary",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "allows a later accepted day to use a new local clock without converting time or granting recovery",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "reauthenticates the prior completed Player clock when reading a later opportunity",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rejects malformed assessment without accepting a workload source: wrong_attempt",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rejects malformed assessment without accepting a workload source: wrong_hash",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rejects malformed assessment without accepting a workload source: negative_effort",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rejects malformed assessment without accepting a workload source: invalid_health",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rejects malformed assessment without accepting a workload source: missing_provenance",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "freezes accepted effort and health instead of accepting a changed assessment under the same identity",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "keeps partial execution and exact original inputs across reopen without live opportunity input",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "retries completed adoption after real later recovery without recapturing fatigue or duplicating effects",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "reads and reopens a normal second attempt without cycling through its own episode guard",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "preserves a first-write workload conflict instead of rebasing or replaying execution",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "authenticates the original exact timing revision after a later accepted same-day source change",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "authenticates the original exact release revision after a later accepted same-day source change",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rejects archived frame corruption after reopen rather than trusting a cached completion",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "reauthenticates the original timing owner rather than trusting only copied attempt data",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "reauthenticates the original release owner rather than trusting only copied attempt data",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "reauthenticates the original workload owner rather than trusting only copied attempt data",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "reauthenticates the original person_link owner rather than trusting only copied attempt data",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "retains settled workload when episode admission becomes stale and never manufactures feedback or consolidation",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rolls back a failed physical-prefix write and resumes the same actual phases",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "detects writer-local attempt mutation and rolls back the workload effect",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "detects writer-local attempt mutation and rolls back the learning effect",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "does not turn two real NORMAL/QUICK attempts into standardized measurements or capability updates",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "can own an explicitly requested delivery without inventing a learning target",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rejects consumer-local original workload-write timing-source corruption before committing",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rejects consumer-local original workload-write release-source corruption before committing",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rejects consumer-local original learning-write timing-source corruption before committing",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rejects consumer-local original learning-write release-source corruption before committing",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "rejects a copied learning receipt under another durable source and destination",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/SqlitePitchPracticeAttemptStore.test.ts",
+            "name": "authenticates each earlier physical attempt once per learning-guard call without a persistent cache",
+            "status": "passed",
+            "failureMessages": []
+          }
+        ],
+        "failure": null,
+        "artifactHashes": {
+          "compatibility_practice-results.json": "bcd858bb34ec43e34b49a4d1be1afa36585d122b9a91a0cc01dda20a88e7e7b6",
+          "compatibility_practice-rss.jsonl": "a3498e1dfca127c13fbc62037fae1c94811150c09a6d6aba259563288ac5d4cc",
+          "compatibility_practice-runtime.jsonl": "3bafd7603fc8740a59e8acfd9acd286f63b3dcf5ed8e1718115cf304a773b3a4",
+          "compatibility_practice-terminal.json": "75ccf6923cb36398814634d03d48dab02ef7137747ae68fc45736a94909add0f",
+          "compatibility_practice-unhandled.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "compatibility_practice.log": "3ebbcc400ca5c093e49411cadcd211f9111aa755677f3f97a97b64f8796f7e19"
+        }
+      },
+      {
+        "stage": "compatibility_learning",
+        "startedAt": "2026-10-06T21:54:01.115744+00:00",
+        "terminalAt": "2026-10-06T21:57:01.215991+00:00",
+        "seconds": 180.09987190500397,
+        "exitCode": -15,
+        "stopReason": "wall_cap",
+        "peakAggregateRssKiB": 420104,
+        "runtimeVerified": true,
+        "sourceDependenciesControlsUnchanged": false,
+        "remainingOwnedProcesses": [],
+        "reaped": true,
+        "counts": {},
+        "unhandledErrors": null,
+        "selectionValid": false,
+        "resourceEvidenceValid": false,
+        "phaseVerified": false,
+        "cancellationSignal": null,
+        "receiptSha256": "1064bf0f5643ccb2561a1fc97d965427eb2f7eb80ab20b67482a8e25b4305fb1",
+        "profile": {
+          "oldSpaceMiB": 1024,
+          "heapMiB": 1120,
+          "rssMiB": 1536,
+          "wallSeconds": 180,
+          "stopReserveGiB": 6,
+          "files": {
+            "src/host/world/ActualPitchTimingLearningFromPractice.test.ts": 28
+          },
+          "caseNames": {
+            "src/host/world/ActualPitchTimingLearningFromPractice.test.ts": [
+              "prospectively owns two future probe commands without executing either or requiring QUICK future workload now",
+              "retains the original event and both actually consumed probes without duplicating a measurement or workload",
+              "rejects a plan accepted after a probe already started without relabeling the actual attempt",
+              "rejects a changed frozen prospective probe mode before body execution",
+              "rejects a changed frozen prospective probe target before body execution",
+              "rejects a changed frozen prospective probe physics before body execution",
+              "rejects a reserved probe Source whose canonical opportunity identity changes before execution",
+              "rejects QUICK before its paired NORMAL even when unrelated accepted workload reaches its revision",
+              "rejects a same-day QUICK when its intervening accepted recovery cannot fit the local interval",
+              "reserves canonical probe identities across source aliases and different original practice events",
+              "reserves a probe Source across different canonical identities and original practice events",
+              "does not let a later day substitute for comparable BEFORE-fatigue",
+              "rejects changed standardized report completion binding without accepting numeric learning",
+              "rejects changed standardized report frame binding without accepting numeric learning",
+              "rejects changed standardized report raw binding without accepting numeric learning",
+              "rejects changed standardized report protocol binding without accepting numeric learning",
+              "rejects changed standardized report normalizer binding without accepting numeric learning",
+              "rejects changed standardized report missing_calibration binding without accepting numeric learning",
+              "keeps missing feedback, consolidation and final accepted input pending instead of freezing a fabricated final DTO",
+              "reserves each report for one final learning Source while its first request is pending",
+              "reserves each report for one final learning Source while its first request is ready",
+              "uses distinct reports and historical exposure with later accepted feedback/consolidation, preserving NO_SOURCE_CHANGE",
+              "rejects duplicated reports and accepted numeric values that differ from the bound report without poisoning corrected intake",
+              "rejects supplied missing or insufficient exposure without poisoning corrected accepted intake",
+              "keeps original physical proofs and direct timing reads acyclic after a supplied measured source change and reopen",
+              "rejects original probe corruption on timing write through the consumer guard",
+              "rejects original probe corruption on timing retry through the consumer guard",
+              "freezes accepted plan/report versions and rejects another Source for the same physical pair"
+            ]
+          }
+        },
+        "perTest": [],
+        "failure": {
+          "kind": "MISSING_COMPLETED_REPORT_AFTER_WALL_CAP",
+          "report": "compatibility_learning-unhandled.json"
+        },
+        "artifactHashes": {
+          "compatibility_learning-rss.jsonl": "cd32452f4e49ce5b031868a3a9b0f3b5ca4254f61df80dc8c1db0f67d41e1066",
+          "compatibility_learning-runtime.jsonl": "4c1fa43c3d2c93fbcbfe7ddb68a04819c9a95a180723fab698be3bf727d6fbf3",
+          "compatibility_learning-terminal.json": "1064bf0f5643ccb2561a1fc97d965427eb2f7eb80ab20b67482a8e25b4305fb1",
+          "compatibility_learning.log": "6ea510733ea20e3e58fa515e7c02fa56a6f6ddfbc58260338f970fc3f19f10dc"
+        }
+      }
+    ]
+  },
+  "continuation": {
+    "terminalSha256": "6017c0614f0b0fd599c4bd79f01c32ee301df3c491227e2e2b94951e026b126f",
+    "sourceCommit": "2945b6df259efdb8fa62d33d0dec8fd89e8ffbe1",
+    "sourceTree": "da0820b2bf26e0d68b95c09c49c54b83affa2641",
+    "sourceManifestSha256": "ada260cff192f790faca95af660ad687a93e7d48949896128909e7b5384b79f5",
+    "dependencyManifestSha256": "e9624551894fd127f81b5e475c928741bce41fac2012d369b6cd62b9b08fc542",
+    "reviewedControllerSha256": "7eed3e2218702d17257a7569e1d446f2a95158d73a303855111a43ce9204033d",
+    "startedAt": "2026-10-06T22:06:50.182115+00:00",
+    "terminalAt": "2026-10-06T22:09:47.377872+00:00",
+    "passed": true,
+    "counts": {
+      "numTotalTests": 28,
+      "numPassedTests": 28,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0
+    },
+    "perFileCounts": {
+      "src/host/world/ActualPitchTimingLearningFromPractice.test.ts": 28
+    },
+    "legacyArchiveBytesUnchanged": true,
+    "failure": null,
+    "sourceDependenciesControlsUnchanged": true,
+    "reaped": true,
+    "remainingOwnedProcesses": [],
+    "cancellationSignal": null,
+    "stages": [
+      {
+        "stage": "compatibility_learning",
+        "startedAt": "2026-10-06T22:06:50.183535+00:00",
+        "terminalAt": "2026-10-06T22:09:46.619520+00:00",
+        "seconds": 176.43572198900074,
+        "exitCode": 0,
+        "stopReason": null,
+        "peakAggregateRssKiB": 427388,
+        "runtimeVerified": true,
+        "sourceDependenciesControlsUnchanged": true,
+        "remainingOwnedProcesses": [],
+        "reaped": true,
+        "counts": {
+          "numTotalTests": 28,
+          "numPassedTests": 28,
+          "numFailedTests": 0,
+          "numPendingTests": 0,
+          "numTodoTests": 0
+        },
+        "unhandledErrors": [],
+        "selectionValid": true,
+        "resourceEvidenceValid": true,
+        "phaseVerified": true,
+        "cancellationSignal": null,
+        "receiptSha256": "370794c8b991d20cef1665596db1eb8311b7faeeddeb3b7152d53ffd75a9cbf7",
+        "profile": {
+          "oldSpaceMiB": 1024,
+          "heapMiB": 1120,
+          "rssMiB": 1536,
+          "wallSeconds": 900,
+          "stopReserveGiB": 6,
+          "files": {
+            "src/host/world/ActualPitchTimingLearningFromPractice.test.ts": 28
+          },
+          "caseNames": {
+            "src/host/world/ActualPitchTimingLearningFromPractice.test.ts": [
+              "prospectively owns two future probe commands without executing either or requiring QUICK future workload now",
+              "retains the original event and both actually consumed probes without duplicating a measurement or workload",
+              "rejects a plan accepted after a probe already started without relabeling the actual attempt",
+              "rejects a changed frozen prospective probe mode before body execution",
+              "rejects a changed frozen prospective probe target before body execution",
+              "rejects a changed frozen prospective probe physics before body execution",
+              "rejects a reserved probe Source whose canonical opportunity identity changes before execution",
+              "rejects QUICK before its paired NORMAL even when unrelated accepted workload reaches its revision",
+              "rejects a same-day QUICK when its intervening accepted recovery cannot fit the local interval",
+              "reserves canonical probe identities across source aliases and different original practice events",
+              "reserves a probe Source across different canonical identities and original practice events",
+              "does not let a later day substitute for comparable BEFORE-fatigue",
+              "rejects changed standardized report completion binding without accepting numeric learning",
+              "rejects changed standardized report frame binding without accepting numeric learning",
+              "rejects changed standardized report raw binding without accepting numeric learning",
+              "rejects changed standardized report protocol binding without accepting numeric learning",
+              "rejects changed standardized report normalizer binding without accepting numeric learning",
+              "rejects changed standardized report missing_calibration binding without accepting numeric learning",
+              "keeps missing feedback, consolidation and final accepted input pending instead of freezing a fabricated final DTO",
+              "reserves each report for one final learning Source while its first request is pending",
+              "reserves each report for one final learning Source while its first request is ready",
+              "uses distinct reports and historical exposure with later accepted feedback/consolidation, preserving NO_SOURCE_CHANGE",
+              "rejects duplicated reports and accepted numeric values that differ from the bound report without poisoning corrected intake",
+              "rejects supplied missing or insufficient exposure without poisoning corrected accepted intake",
+              "keeps original physical proofs and direct timing reads acyclic after a supplied measured source change and reopen",
+              "rejects original probe corruption on timing write through the consumer guard",
+              "rejects original probe corruption on timing retry through the consumer guard",
+              "freezes accepted plan/report versions and rejects another Source for the same physical pair"
+            ]
+          }
+        },
+        "perTest": [
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "prospectively owns two future probe commands without executing either or requiring QUICK future workload now",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "retains the original event and both actually consumed probes without duplicating a measurement or workload",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "rejects a plan accepted after a probe already started without relabeling the actual attempt",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "rejects a changed frozen prospective probe mode before body execution",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "rejects a changed frozen prospective probe target before body execution",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "rejects a changed frozen prospective probe physics before body execution",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "rejects a reserved probe Source whose canonical opportunity identity changes before execution",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "rejects QUICK before its paired NORMAL even when unrelated accepted workload reaches its revision",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "rejects a same-day QUICK when its intervening accepted recovery cannot fit the local interval",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "reserves canonical probe identities across source aliases and different original practice events",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "reserves a probe Source across different canonical identities and original practice events",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "does not let a later day substitute for comparable BEFORE-fatigue",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "rejects changed standardized report completion binding without accepting numeric learning",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "rejects changed standardized report frame binding without accepting numeric learning",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "rejects changed standardized report raw binding without accepting numeric learning",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "rejects changed standardized report protocol binding without accepting numeric learning",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "rejects changed standardized report normalizer binding without accepting numeric learning",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "rejects changed standardized report missing_calibration binding without accepting numeric learning",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "keeps missing feedback, consolidation and final accepted input pending instead of freezing a fabricated final DTO",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "reserves each report for one final learning Source while its first request is pending",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "reserves each report for one final learning Source while its first request is ready",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "uses distinct reports and historical exposure with later accepted feedback/consolidation, preserving NO_SOURCE_CHANGE",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "rejects duplicated reports and accepted numeric values that differ from the bound report without poisoning corrected intake",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "rejects supplied missing or insufficient exposure without poisoning corrected accepted intake",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "keeps original physical proofs and direct timing reads acyclic after a supplied measured source change and reopen",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "rejects original probe corruption on timing write through the consumer guard",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "rejects original probe corruption on timing retry through the consumer guard",
+            "status": "passed",
+            "failureMessages": []
+          },
+          {
+            "file": "src/host/world/ActualPitchTimingLearningFromPractice.test.ts",
+            "name": "freezes accepted plan/report versions and rejects another Source for the same physical pair",
+            "status": "passed",
+            "failureMessages": []
+          }
+        ],
+        "failure": null,
+        "artifactHashes": {
+          "compatibility_learning-results.json": "26a4cfb83c69aa5a8cda2ea404050576c3cb126d52e5e548a964cbd4fd2d2daa",
+          "compatibility_learning-rss.jsonl": "126b8fe505eb3deaebc4fd66db697b9ad7cff8f614acc16db52c19a37c24f4b0",
+          "compatibility_learning-runtime.jsonl": "b880b4db2f73bdf520ea2f52e97e191cc012184968d95c0a3959e2efd6fad9c1",
+          "compatibility_learning-terminal.json": "370794c8b991d20cef1665596db1eb8311b7faeeddeb3b7152d53ffd75a9cbf7",
+          "compatibility_learning-unhandled.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "compatibility_learning.log": "f760d0dd21a40965fa43e22cd67cd6bc3f75f6203e8904deb7e2e43d32c63a6a"
+        }
+      }
+    ]
+  },
+  "failureInterpretation": {
+    "kind": "SUPERVISED_WALL_CAP_FAILURE",
+    "firstAttemptPassed": false,
+    "failedStageCreditedCases": 0,
+    "stageSourceEvidenceCheck": "Not completed after missing reporter exception; false remains recorded",
+    "finalOverallInputCheck": "Separately completed and true",
+    "originalFailedReceiptsPreserved": true
+  },
+  "continuationBudget": {
+    "fileWallSeconds": 900,
+    "testTimeoutMs": 180000,
+    "hookTimeoutMs": 180000,
+    "existingFrozenBudgetConfigSha256": "285951b57c0c90d82f5e3defa5c93084e202b0b4372a8cfdfa1d996184016e10",
+    "existingStageId": "src-0628"
+  },
+  "privacy": {
+    "databaseFilesIncluded": false,
+    "rawLegacyArchiveIncluded": false,
+    "domainRowsIncluded": false,
+    "processTelemetryIncluded": false,
+    "metadataOnly": true,
+    "failureLocalPathOmitted": true
+  }
+}
