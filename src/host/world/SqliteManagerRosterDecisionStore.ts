@@ -25,6 +25,7 @@ import type { ExecutedRosterDecisionMoodInput } from
 import type { TeamMoodState } from '../../core/world/team/TeamMood';
 import { canonicalRosterEvidenceJson as canonicalJson } from './RosterEvidenceJson';
 import { assertCurrentMedicalRosterAction } from './SqlitePlayerHealthRehabStore';
+import { assertManagerBeliefBoundary, readManagerBeliefBoundary } from './ManagerBeliefBoundary';
 
 export type DurableRosterHead = Readonly<{
   careerId: string;
@@ -468,6 +469,8 @@ export const openSqliteManagerRosterDecisionStore = (
           .get(input.careerId, manager.value.managerId) as
             { revision: number; state_json: string } | undefined
           : undefined;
+        const personBoundary = personRow ? readManagerBeliefBoundary(db,
+          input.careerId, manager.value.managerId, personRow.revision) : null;
         if (personRow) {
           const person = JSON.parse(personRow.state_json) as {
             careerId: string; managerId: string; revision: number;
@@ -480,6 +483,8 @@ export const openSqliteManagerRosterDecisionStore = (
               !== canonicalJson(input.selectionAgent.state)) {
             throw new Error('caller Manager Person belief differs from durable head');
           }
+          if (!personBoundary) throw new Error('Manager Person belief boundary is absent');
+          assertManagerBeliefBoundary(db, personBoundary, 'current');
         } else {
           // Pre-history saves may have issued opportunities. A different
           // snapshot cannot become an implicit replacement Person seed.
@@ -588,6 +593,7 @@ export const openSqliteManagerRosterDecisionStore = (
           VALUES (?, ?, ?, ?)`).run(input.careerId,
           input.clubId, input.decisionId, issuedJson);
         for (const binding of input.candidates) assertCurrentMedicalRosterAction(db, input.careerId, binding);
+        if (personBoundary) assertManagerBeliefBoundary(db, personBoundary, 'current');
         return frozenJson<DurableRosterOpportunity>(issuedJson);
       });
     },
