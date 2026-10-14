@@ -83,6 +83,9 @@ evidenceGuard?: SqliteEvidenceGuard<OfficialPitchWorkloadRequest>): SqliteOffici
     const raw = sources.scoring.readAcceptedPlay(request.scoringApplicationId);
     if (!raw) throw new Error('accepted official scored play is missing');
     const play = cloneInert(raw), application = play.application;
+    if ('mode' in application && application.mode === 'non_live_pending_post_play_v1') {
+      throw new Error('terminal pending scoring cannot supply legacy pitch workload');
+    }
     if (play.scoring.scoringApplicationId !== request.scoringApplicationId || play.scoring.officialApplicationId !== application.applicationId
       || play.scoring.matchId !== application.matchId) throw new Error('accepted official scored play scope differs');
     const timeline = application.kind === 'non_live' ? application.timeline : application.physicalTimeline;

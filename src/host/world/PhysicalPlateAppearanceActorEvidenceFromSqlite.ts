@@ -73,6 +73,9 @@ export const derivePhysicalPlateAppearanceActor = (db: ActorDb, source: Accepted
       } | undefined;
       const saved = score ? JSON.parse(score.request_json) as { input: PersistOfficialScoringInput; evidence: OfficialFairBallScoringEvidence | null } : null;
       const input = saved?.input.officialApplication;
+      if (input && 'mode' in input && input.mode === 'non_live_pending_post_play_v1') {
+        throw new Error('terminal pending scoring cannot supply legacy actor activation');
+      }
       if (!row || !score || !input || 'game' in input || score.match_id !== source.gameId || input.matchId !== source.gameId
         || input.applicationId !== source.activationApplicationId || actorJson(saved) !== score.request_json) throw new Error('physical batter actual activation Source is missing');
       const result = deriveOfficialPlayResult(input as PersistOfficialPlayInput, input.expectedDurableRevision + 1);

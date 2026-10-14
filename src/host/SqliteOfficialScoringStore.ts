@@ -1,20 +1,9 @@
-import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
-import type { DatabaseSync as DatabaseSyncType } from 'node:sqlite';
-import { cloneInert } from '../core/adjudication/OfficialWindowPolicy';
-import { deriveClosedNonLiveMatchState } from
-  '../core/adjudication/NonLiveOfficialApplication';
-import { deriveClosedLiveBallMatchState,
-  getOfficialPlayClosure } from
-  '../core/adjudication/PlayAdjudicationLedger';
-import { classifyClosedPlayForOfficialScoring,
-  type OfficialFairBallScoringEvidence,
-  type SupportedOfficialScoringRecord } from
-  '../core/adjudication/OfficialScoring';
-import type { PersistOfficialFinalInput,
-  PersistOfficialPlayInput } from './SqliteOfficialStateStore';
+import type { PersistOfficialFinalInput, PersistOfficialPlayInput } from './SqliteOfficialStateStore';
+import type { OfficialFairBallScoringEvidence, SupportedOfficialScoringRecord } from '../core/adjudication/OfficialScoring';
 import type { SqliteEvidenceGuard } from './SqliteEvidenceGuard';
-
+import { createSqliteOfficialScoringWriter } from './SqliteOfficialScoringWriter';
+import type { DatabaseSync as DatabaseSyncType } from 'node:sqlite';
 type OfficialInput = PersistOfficialPlayInput | PersistOfficialFinalInput;
 export type PersistOfficialScoringInput = Readonly<{
   scoringApplicationId: string;
@@ -48,39 +37,8 @@ export type SqliteOfficialScoringStore = Readonly<{
   close(): void;
 }>;
 
-type OfficialApplicationRow = { match_id: string; closure_id: string;
-  request_hash: string; result_json: string };
-type ScoringRow = { scoring_application_id: string; match_id: string;
-  official_application_id: string; closure_id: string;
-  source_event_id: string; request_json: string; result_json: string };
-type StoredRequest = Readonly<{ input: PersistOfficialScoringInput;
-  evidence: OfficialFairBallScoringEvidence | null }>;
 
-const id = (value: unknown): value is string =>
-  typeof value === 'string' && value.length > 0
-  && value === value.trim();
-const stable = (value: unknown): unknown => {
-  if (Array.isArray(value)) return value.map(stable);
-  if (value !== null && typeof value === 'object') {
-    const result: Record<string, unknown> = Object.create(null);
-    for (const key of Object.keys(value).sort()) {
-      result[key] = stable((value as Record<string, unknown>)[key]);
-    }
-    return result;
-  }
-  return value;
-};
-const serialized = (value: unknown): string => JSON.stringify(stable(value));
-const hash = (value: unknown): string => createHash('sha256')
-  .update(serialized(value)).digest('hex');
-const officialHash = (input: PersistOfficialScoringInput['officialApplication']): string =>
-  hash('game' in input ? { kind: 'game_final', request: input } : input);
-const scoringSourceId = (input: PersistOfficialScoringInput): string =>
-  input.officialApplication.kind === 'non_live'
-    ? `official-non-live:${input.officialApplication.applicationId}`
-    : 'sourceEventId' in input ? input.sourceEventId ?? ''
-      : `official-foul-out:${input.officialApplication.applicationId}`;
-
+const id = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value === value.trim();
 /** Persists scoring after a durable official closure, without changing MatchState. */
 export const openSqliteOfficialScoringStore = (
   databasePath: string,
@@ -107,176 +65,17 @@ export const openSqliteOfficialScoringStore = (
     result_json TEXT NOT NULL,
     UNIQUE(match_id, closure_id)
   );`);
-  const getOfficial = db.prepare(`SELECT match_id, closure_id,
-    request_hash, result_json FROM applications WHERE application_id=?`);
-  const getScoring = db.prepare(`SELECT scoring_application_id, match_id,
-    official_application_id, closure_id, source_event_id,
-    request_json, result_json FROM official_scoring_applications
-    WHERE scoring_application_id=?`);
-  const officialRow = (applicationId: string): OfficialApplicationRow | null =>
-    (getOfficial.get(applicationId) as OfficialApplicationRow | undefined) ?? null;
-  const scoringRow = (applicationId: string): ScoringRow | null =>
-    (getScoring.get(applicationId) as ScoringRow | undefined) ?? null;
-  const requireOfficialApplication = (
-    input: PersistOfficialScoringInput['officialApplication'],
-  ): string => {
-    evidenceGuard?.(db, input, 'retry');
-    if (!id(input.matchId) || !id(input.applicationId)) {
-      throw new Error('official scoring requires an application');
-    }
-    const closure = getOfficialPlayClosure(input.adjudication);
-    const row = officialRow(input.applicationId);
-    if (!closure || !row || row.match_id !== input.matchId
-      || row.closure_id !== closure.closureId
-      || row.request_hash !== officialHash(input)) {
-      throw new Error('scoring evidence does not match durable official application');
-    }
-    const stored = JSON.parse(row.result_json) as {
-      receipt?: { applicationId: string; closureId: string;
-        previousPlayId: number; durableRevision: number;
-        appliedMatchState: unknown };
-    };
-    if (stored.receipt?.applicationId !== input.applicationId
-      || stored.receipt.closureId !== closure.closureId
-      || stored.receipt.previousPlayId !== input.match.playId
-      || stored.receipt.durableRevision
-        !== input.expectedDurableRevision + 1
-      || serialized(stored.receipt.appliedMatchState)
-        !== serialized(input.kind === 'live_ball'
-          ? deriveClosedLiveBallMatchState(input.match,
-            input.physicalTimeline, input.adjudication)
-          : deriveClosedNonLiveMatchState({ match: input.match,
-            timeline: input.timeline, adjudication: input.adjudication,
-            context: input.context }))) {
-      throw new Error('corrupt durable official application receipt');
-    }
-    return closure.closureId;
-  };
-  const acceptedEvidence = (sourceEventId: string): OfficialFairBallScoringEvidence => {
-    const evidence = authority?.readAcceptedOfficialScoringEvidence(sourceEventId);
-    if (!evidence || evidence.sourceEventId !== sourceEventId) {
-      throw new Error('accepted scoring evidence is missing');
-    }
-    return cloneInert(evidence);
-  };
-  const score = (input: PersistOfficialScoringInput,
-    evidence: OfficialFairBallScoringEvidence | null,
-    closureId: string): PersistedOfficialScoring => {
-    const official = input.officialApplication;
-    const result = official.kind === 'non_live'
-      ? classifyClosedPlayForOfficialScoring({ kind: 'non_live',
-        match: official.match, timeline: official.timeline,
-        adjudication: official.adjudication, context: official.context })
-      : classifyClosedPlayForOfficialScoring({ kind: 'live_ball',
-        match: official.match, timeline: official.physicalTimeline,
-        adjudication: official.adjudication,
-        ...(evidence ? { scoringEvidence: evidence } : {}) });
-    if (result.kind !== 'supported') {
-      throw new Error('official scoring evidence remains unsupported');
-    }
-    return Object.freeze({
-      scoringApplicationId: input.scoringApplicationId,
-      matchId: official.matchId,
-      officialApplicationId: official.applicationId,
-      closureId,
-      sourceEventId: scoringSourceId(input),
-      record: result.record,
-    });
-  };
-  const decode = (row: ScoringRow): { input: PersistOfficialScoringInput;
-    result: PersistedOfficialScoring } => {
-    try {
-      const stored = JSON.parse(row.request_json) as StoredRequest;
-      const result = JSON.parse(row.result_json) as PersistedOfficialScoring;
-      const input = stored.input;
-      // Acceptance is checked at first apply. The accepted snapshot is
-      // durable so read/retry never depends on the source process.
-      const evidence = cloneInert(stored.evidence);
-      const closureId = requireOfficialApplication(input.officialApplication);
-      const replayed = score(input, evidence, closureId);
-      if (serialized(stored) !== row.request_json
-        || serialized(result) !== row.result_json
-        || ('sourceEventId' in input
-          ? evidence?.sourceEventId !== row.source_event_id
-          : evidence !== null)
-        || (input.officialApplication.kind === 'non_live'
-          && Object.hasOwn(input, 'sourceEventId'))
-        || input.scoringApplicationId !== row.scoring_application_id
-        || scoringSourceId(input) !== row.source_event_id
-        || input.officialApplication.matchId !== row.match_id
-        || input.officialApplication.applicationId
-          !== row.official_application_id
-        || closureId !== row.closure_id
-        || serialized(replayed) !== row.result_json) {
-        throw new Error('durable official scoring row mismatch');
-      }
-      return { input, result };
-    } catch (cause) {
-      throw new Error('corrupt durable official scoring application', { cause });
-    }
-  };
+  const writer = createSqliteOfficialScoringWriter(db,authority,evidenceGuard);
   let closed = false;
-  const api: SqliteOfficialScoringStore = Object.freeze({
-    apply(rawInput): PersistedOfficialScoring {
-      if (closed) throw new Error('official scoring store is closed');
-      const input = cloneInert(rawInput);
-      if (!input || !id(input.scoringApplicationId)
-        || (input.officialApplication?.kind === 'non_live'
-          ? Object.hasOwn(input, 'sourceEventId')
-          : 'sourceEventId' in input && !id(input.sourceEventId))) {
-        throw new Error('invalid official scoring application');
-      }
-      db.exec('BEGIN IMMEDIATE');
-      try {
-        const prior = scoringRow(input.scoringApplicationId);
-        if (prior) {
-          const decoded = decode(prior);
-          if (serialized(decoded.input) !== serialized(input)) {
-            throw new Error('scoringApplicationId was used for different input');
-          }
-          db.exec('COMMIT');
-          return decoded.result;
-        }
-        const closureId = requireOfficialApplication(input.officialApplication);
-        const evidence = 'sourceEventId' in input
-          ? acceptedEvidence(scoringSourceId(input)) : null;
-        const result = score(input, evidence, closureId);
-        const requestJson = serialized({ input, evidence });
-        const resultJson = serialized(result);
-        db.prepare(`INSERT INTO official_scoring_applications
-          (scoring_application_id, match_id, official_application_id,
-           closure_id, source_event_id, request_json, result_json)
-          VALUES (?, ?, ?, ?, ?, ?, ?)`).run(
-          input.scoringApplicationId, result.matchId,
-          result.officialApplicationId, closureId,
-          scoringSourceId(input), requestJson, resultJson);
-        evidenceGuard?.(db, input.officialApplication, 'written');
-        db.exec('COMMIT');
-        return result;
-      } catch (error) {
-        db.exec('ROLLBACK');
-        throw error;
-      }
+  const check = () => { if (closed) throw new Error('official scoring store is closed'); };
+  return Object.freeze({
+    apply(input) {
+      check(); db.exec('BEGIN IMMEDIATE');
+      try { const result = writer.apply(input); db.exec('COMMIT'); return result; }
+      catch (error) { db.exec('ROLLBACK'); throw error; }
     },
-    readApplication(applicationId): PersistedOfficialScoring | null {
-      if (closed) throw new Error('official scoring store is closed');
-      if (!id(applicationId)) throw new Error('invalid scoringApplicationId');
-      const row = scoringRow(applicationId);
-      return row ? decode(row).result : null;
-    },
-    readAcceptedPlay(applicationId): AcceptedScoredOfficialPlay | null {
-      if (closed) throw new Error('official scoring store is closed');
-      if (!id(applicationId)) throw new Error('invalid scoringApplicationId');
-      const row = scoringRow(applicationId);
-      if (!row) return null;
-      const decoded = decode(row);
-      return Object.freeze({ scoring: cloneInert(decoded.result),
-        application: cloneInert(decoded.input.officialApplication) });
-    },
-    close(): void {
-      if (!closed) db.close();
-      closed = true;
-    },
+    readApplication(applicationId) { check(); return writer.readApplication(applicationId); },
+    readAcceptedPlay(applicationId) { check(); return writer.readAcceptedPlay(applicationId); },
+    close() { if (!closed) db.close(); closed = true; },
   });
-  return api;
 };
