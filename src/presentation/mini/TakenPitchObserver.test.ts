@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { blendObservedBallGaze, lookAtObservedBall, observedTakenPitchProgress } from './TakenPitchObserver';
+import { blendObservedBallGaze, capTakenPitchGaze, lookAtObservedBall, observedTakenPitchProgress } from './TakenPitchObserver';
 
 describe('taken pitch batter POV', () => {
   it('rotates toward real catcher-reception position behind the strike zone', () => {
@@ -12,6 +12,15 @@ describe('taken pitch batter POV', () => {
     expect(observedTakenPitchProgress(43, 38, 43)).toBe(1);
     expect(observedTakenPitchProgress(50, 38, 43)).toBe(1);
     expect(blendObservedBallGaze(plate, catcher, 1)).toEqual(catcher);
+  });
+  it('limits taken-pitch gaze to shallow angle after the strike zone', () => {
+    const plate = { yaw: 0, pitch: 0.08 };
+    const behind = { yaw: -Math.PI + 0.1, pitch: 0.6 };
+    const capped = capTakenPitchGaze(plate, behind);
+    expect(Math.abs(capped.yaw)).toBeCloseTo(0.42);
+    expect(capped.pitch).toBeCloseTo(0.26);
+    expect(plate).toEqual({ yaw: 0, pitch: 0.08 });
+    expect(() => capTakenPitchGaze(plate, behind, -1)).toThrow('Invalid taken-pitch');
   });
   it('always turns via the short direction and never mutates canonical ball', () => {
     const source = { yaw: Math.PI - 0.1, pitch: 0.05 };
