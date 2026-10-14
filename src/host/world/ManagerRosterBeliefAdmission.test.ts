@@ -12,10 +12,11 @@ const sourceError = 'corrupt Manager belief boundary source or prefix';
 it('rejects direct roster issue after old observation corruption with unchanged Manager head and count', () => {
   const { f, roster, accepted, direct } = managerRosterAdmissionFixture(cleanup);
   const headExtent = managerRosterAdmissionHeadExtent(f.db);
-  const head = f.history.readHead('career-a', 'manager-a');
+  expect(f.history.readHead('career-a', 'manager-a')).toEqual(accepted.state);
   corruptManagerRosterAdmissionBefore(f.db);
+  // Raw head bytes/count stay fixed, but authenticated reads must replay history.
   expect(managerRosterAdmissionHeadExtent(f.db)).toEqual(headExtent);
-  expect(f.history.readHead('career-a', 'manager-a')).toEqual(head);
+  expect(() => f.history.readHead('career-a', 'manager-a')).toThrow(sourceError);
   expect(() => readManagerBeliefBoundary(f.db, 'career-a', 'manager-a', 1)).toThrow(sourceError);
   expect(() => assertManagerBeliefBoundary(f.db, accepted, 'current')).toThrow(sourceError);
   const before = managerRosterAdmissionSnapshot(f.db);
@@ -28,10 +29,10 @@ it('rejects direct roster issue after old observation corruption with unchanged 
 it('rejects belief-derived roster issue after old observation corruption with unchanged Manager head and count', () => {
   const { f, roster, accepted, input } = managerRosterAdmissionFixture(cleanup);
   const headExtent = managerRosterAdmissionHeadExtent(f.db);
-  const head = f.history.readHead('career-a', 'manager-a');
+  expect(f.history.readHead('career-a', 'manager-a')).toEqual(accepted.state);
   corruptManagerRosterAdmissionBefore(f.db);
   expect(managerRosterAdmissionHeadExtent(f.db)).toEqual(headExtent);
-  expect(f.history.readHead('career-a', 'manager-a')).toEqual(head);
+  expect(() => f.history.readHead('career-a', 'manager-a')).toThrow(sourceError);
   expect(() => readManagerBeliefBoundary(f.db, 'career-a', 'manager-a', 1)).toThrow(sourceError);
   expect(() => assertManagerBeliefBoundary(f.db, accepted, 'current')).toThrow(sourceError);
   const before = managerRosterAdmissionSnapshot(f.db);

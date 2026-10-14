@@ -3,7 +3,7 @@ import { resolveCatchRetention, type CatchRetentionResolution } from '../fieldin
 import { respondToGroundContact } from './BallFlight';
 import { respondToBallContact } from './BallContactResponse';
 import { deriveBallWorldContinuation, type BallWorldCollider, type BallWorldContinuation, type BallWorldMoment } from './BallWorldContinuation';
-import { deriveBattedBallContactResponse, type BattedBallContactResponse, type BattedBallContactResponseInput } from './BattedBallContactResponse';
+import { deriveBattedBallContactResponse, type BattedBallContactResponse, type BattedBallContactResponseInput, type BallWorldResponseInput } from './BattedBallContactResponse';
 
 export type BattedWorldBallCursor = Readonly<{ moment: BallWorldMoment; previousContacts: readonly BallWorldCollider[] }>;
 export type BattedWorldContinuationStepResponse = Readonly<{
@@ -18,7 +18,7 @@ const key = (c: BallWorldCollider) => JSON.stringify(c.kind === 'actor' ? [c.kin
 const addCollider = (previous: readonly BallWorldCollider[], contact: BallWorldCollider): readonly BallWorldCollider[] =>
   previous.some((c) => key(c) === key(contact)) ? previous : [...previous, contact];
 
-export const respondToBattedWorldBoundary = (input: BattedBallContactResponseInput, prior: BattedWorldBallCursor, world: BallWorldContinuation): BattedWorldContinuationStepResponse => {
+export const respondToBallWorldBoundary = (input: BallWorldResponseInput, prior: BattedWorldBallCursor, world: BallWorldContinuation): BattedWorldContinuationStepResponse => {
   if (world.kind !== 'boundary') return { kind: world.kind, cursor: { ...prior, moment: world.moment } };
   if (world.pendingReason) return { kind: 'unresolved', cursor: null, reason: world.pendingReason };
   if (world.contacts.length !== 1) return { kind: 'unresolved', cursor: null, reason: 'simultaneous' };
@@ -47,6 +47,8 @@ export const respondToBattedWorldBoundary = (input: BattedBallContactResponseInp
   return { kind: 'rebound', cursor: { previousContacts, moment: { ...moment, ball: respondToBallContact({ ball: moment.ball,
     normal: c.normal, surfaceVelocity: { x: 0, y: 0, z: 0 }, material }) } } };
 };
+
+export const respondToBattedWorldBoundary = respondToBallWorldBoundary;
 
 /** Full original response and actual previous steps own the prefix; no caller ball, catch or result is accepted. */
 export const deriveBattedWorldContinuation = (raw: Readonly<{ response: BattedBallContactResponseInput; throughTicks: readonly number[] }>): BattedWorldContinuation => {

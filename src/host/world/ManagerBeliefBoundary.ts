@@ -1,3 +1,7 @@
+import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
+import { createCompetitionSourceReader, withCompetitionSourceReadPhase } from './CompetitionSourceReadScope';
+import type { PracticeOrderExecutionReader } from './OwnedPitchPracticeOrder';
+import { MANAGER_PRACTICE_OBSERVATION_KIND, managerPracticeExecutionObservation, type ManagerPracticeObservationSource } from './ManagerPracticeExecutionObservation';
 import { createHash } from 'node:crypto';
 import type { DatabaseSync } from 'node:sqlite';
 import { createHumanControlState } from '../../core/world/control/HumanControl';
@@ -138,7 +142,7 @@ const observation = (source: DurableRosterExecution): ManagerExecutionObservatio
  * Only the selected earlier prefix is replayed. Its digest keeps consumer proof
  * size bounded without treating a stored hash as a substitute for replay.
  */
-export const readManagerBeliefBoundary = (db: Db, careerId: string, managerId: string, requestedRevision: number): ManagerBeliefBoundary | null => {
+const readManagerBeliefBoundaryUncached = (db: Db, careerId: string, managerId: string, requestedRevision: number, practiceReader?: PracticeOrderExecutionReader): ManagerBeliefBoundary | null => {
   if (!id(careerId) || !id(managerId) || !revision(requestedRevision)) throw new Error('invalid Manager belief boundary scope or revision');
   if (!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='world_manager_person_heads'").get()) return null;
   const head = db.prepare('SELECT career_id,manager_id,revision,seed_json FROM world_manager_person_heads WHERE career_id=? AND manager_id=?')
@@ -161,21 +165,35 @@ export const readManagerBeliefBoundary = (db: Db, careerId: string, managerId: s
       WHERE career_id=? AND manager_id=? AND revision<=? ORDER BY revision`).all(careerId, managerId, requestedRevision) as ObservationRow[];
     if (rows.length !== requestedRevision) return corrupt('observation prefix is incomplete');
     for (const row of rows) {
-      const request = parse<{ careerId: string; managerId: string; expectedRevision: number; executionId: string }>(row.request_json, 'Manager observation request');
+      const request = parse<{ careerId: string; managerId: string; expectedRevision: number; executionId: string; kind?: unknown }>(row.request_json, 'Manager observation request');
       const before = parse<ManagerBeliefHistory>(row.before_json, 'Manager observation BEFORE');
-      const savedSource = parse<DurableRosterExecution>(row.source_json, 'Manager observation source');
+      const savedSource = parse<DurableRosterExecution | ManagerPracticeObservationSource>(row.source_json, 'Manager observation source');
+      const isPractice = Object.hasOwn(request, 'kind');
+      if (isPractice && request.kind !== MANAGER_PRACTICE_OBSERVATION_KIND
+        || Object.hasOwn(savedSource, 'kind') !== isPractice) return corrupt('observation source kind differs');
       const saved = parse<unknown>(row.result_json, 'Manager observation result');
-      if (!fields(request, ['careerId', 'managerId', 'expectedRevision', 'executionId']) || !id(row.execution_id)
+      if (!fields(request, ['careerId', 'managerId', 'expectedRevision', 'executionId', ...(isPractice ? ['kind'] : [])]) || !id(row.execution_id)
         || row.career_id !== careerId || row.manager_id !== managerId || row.revision !== state.revision + 1
         || request.careerId !== careerId || request.managerId !== managerId || request.executionId !== row.execution_id
         || request.expectedRevision !== state.revision || !same(before, state)) return corrupt('observation BEFORE or revision chain differs');
-      const source = execution(db, row.execution_id);
-      if (!same(source.value, savedSource)) return corrupt('observation original execution source differs');
-      const next = applyManagerExecutionObservation(state, state.revision, observation(source.value));
+      let actualObservation: ManagerExecutionObservation;
+      let sourceProof: unknown;
+      if (isPractice) {
+        if (!practiceReader) throw new Error('Manager practice observation requires its genuine practice order reader');
+        const actual = practiceReader(db, row.execution_id, { careerId, managerId, revision: row.revision });
+        const source = actual ? { kind: MANAGER_PRACTICE_OBSERVATION_KIND, order: actual.order } : null;
+        if (!source || !same(source, savedSource)) return corrupt('practice observation original execution source differs');
+        actualObservation = managerPracticeExecutionObservation(source); sourceProof = actual!.proof;
+      } else {
+        const source = execution(db, row.execution_id);
+        if (!same(source.value, savedSource)) return corrupt('observation original execution source differs');
+        actualObservation = observation(source.value); sourceProof = source.proof;
+      }
+      const next = applyManagerExecutionObservation(state, state.revision, actualObservation);
       const expected = { executionId: row.execution_id, careerId, managerId, revision: next.revision,
         event: next.recent.at(-1), state: next };
       if (!same(saved, expected)) return corrupt('observation result differs from replay');
-      prefixHash = hash({ prior: prefixHash, observation: row, source: source.proof });
+      prefixHash = hash({ prior: prefixHash, observation: row, source: sourceProof });
       state = next;
     }
     if (state.revision !== requestedRevision) return corrupt('selected revision was not reached');
@@ -191,13 +209,38 @@ export const readManagerBeliefBoundary = (db: Db, careerId: string, managerId: s
   }
 };
 
+// Reuse the existing guarded, operation-local source traversal. A sequence of
+// practice orders can refer to earlier Manager prefixes without replaying the
+// same immutable ancestry exponentially. No result survives this root read.
+const noPracticeReader = Object.freeze({});
+const boundaryReaders = new WeakMap<Db, WeakMap<object, (careerId: string, managerId: string, revision: number) => ManagerBeliefBoundary | null>>();
+const activeReads = new WeakSet<Db>();
+export const readManagerBeliefBoundary = (db: Db, careerId: string, managerId: string, requestedRevision: number,
+  practiceReader?: PracticeOrderExecutionReader): ManagerBeliefBoundary | null => {
+  let readers = boundaryReaders.get(db);
+  if (!readers) { readers = new WeakMap(); boundaryReaders.set(db, readers); }
+  const identity = practiceReader ?? noPracticeReader;
+  let reader = readers.get(identity);
+  if (!reader) {
+    reader = createCompetitionSourceReader((career: string, manager: string, selected: number) =>
+      readManagerBeliefBoundaryUncached(db, career, manager, selected, practiceReader));
+    readers.set(identity, reader);
+  }
+  if (activeReads.has(db)) return reader(careerId, managerId, requestedRevision);
+  return withBattedVenueLegalReadSnapshot(db as DatabaseSync, () => withCompetitionSourceReadPhase(() => {
+    activeReads.add(db);
+    try { return reader!(careerId, managerId, requestedRevision); }
+    finally { activeReads.delete(db); }
+  }));
+};
+
 /** Historical reads retain their original prefix; a first writer must separately
  * demand currentness on its own connection before and after the consuming write.
  */
-export const assertManagerBeliefBoundary = (db: Db, boundary: ManagerBeliefBoundary, mode: 'historical' | 'current'): void => {
+export const assertManagerBeliefBoundary = (db: Db, boundary: ManagerBeliefBoundary, mode: 'historical' | 'current', practiceReader?: PracticeOrderExecutionReader): void => {
   if (!['historical', 'current'].includes(mode) || !fields(boundary, ['version', 'careerId', 'managerId', 'revision', 'state', 'evidence', 'hash'])
     || boundary.version !== 'manager_belief_boundary_v1') throw new Error('invalid Manager belief consumer boundary');
-  const actual = readManagerBeliefBoundary(db, boundary.careerId, boundary.managerId, boundary.revision);
+  const actual = readManagerBeliefBoundary(db, boundary.careerId, boundary.managerId, boundary.revision, practiceReader);
   if (!actual || !same(actual, boundary)) throw new Error('Manager belief boundary original source evidence differs');
   if (mode === 'current') {
     const head = db.prepare('SELECT revision,state_json FROM world_manager_person_heads WHERE career_id=? AND manager_id=?')

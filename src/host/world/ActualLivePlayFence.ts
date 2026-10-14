@@ -1,3 +1,5 @@
+import { assertNoReceivedDefenderClaims } from './ActualReceivedUmpireDefenderClaims';
+import { assertNoSamePaWorkReservation } from './SamePlateAppearanceReservationGuard';
 import { actualFoulTerminalClaims } from './ActualFoulPlayEndOwnership';
 import { actualLiveRuntimeClaims } from './ActualLivePlayOwnerMetadata';
 /** Transaction-local guard shared by every original-pitch live admission route.
@@ -27,8 +29,10 @@ const runtimes = (db: Db, scope: ActualLivePlayWriteScope) => {
 };
 const journal = (db: Db, runtimeId: string) => db.prepare('SELECT * FROM actual_live_play_admissions WHERE runtime_source_id=? ORDER BY sequence').all(runtimeId);
 const id = (v: unknown): v is string => typeof v === 'string' && v.length > 0 && v === v.trim();
-const state = (db: Db, scope: ActualLivePlayWriteScope, includeRuntime = true): string => {
+const state = (db: Db, scope: ActualLivePlayWriteScope, includeRuntime = true, legacyIngress = true): string => {
   if (!db.isTransaction) throw new Error('actual live-play fence requires an active write transaction');
+  assertNoSamePaWorkReservation(db, scope);
+  if (legacyIngress) assertNoReceivedDefenderClaims(db, scope);
   if (actualFoulTerminalClaims(db, { gameId: scope.gameId, playId: scope.playId,
     physicalPitchSourceId: scope.physicalPitchSourceId ?? '' }).length) {
     throw new Error('actual live play has foul terminal closure ownership and is sealed');
@@ -139,3 +143,7 @@ export const assertActualLivePlayRegistrationUnchanged = (db: Db, token: ActualL
   const original = registrationTokens.get(token);
   if (!original || original.db !== db || state(db, token.scope, false) !== original.state) throw new Error('actual live-play registration seal state changed');
 };
+
+/** Separate closure/runtime census for the fixed prospective extension writer.
+ * It does not issue a legacy admission token or widen its producer list. */
+export const actualLivePlayExtensionOpenState = (db: Db, scope: ActualLivePlayWriteScope): string => state(db, scope, true, false);

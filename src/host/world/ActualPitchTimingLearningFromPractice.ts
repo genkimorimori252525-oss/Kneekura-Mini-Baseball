@@ -69,6 +69,7 @@ type Tools = Readonly<{
   frameEvidence(db: EvidenceDb, opportunity: PitchPracticeOpportunity, frame: PitchPracticeFrame, bodyFrameOnly?: boolean): unknown;
   assertPlanOpportunity(db: EvidenceDb, opportunity: PitchPracticeOpportunity, bodyFrameOnly: boolean): void;
   assertLearningEvidence(db: EvidenceDb, event: DevelopmentLearningEventInput, phase: string): void;
+  readEpisodePrefix?(db: EvidenceDb, episodeId: string, revision: number): DevelopmentLearningEpisode | null;
 }>;
 type PlanRow = { source_id: string; original_activity_id: string; source_json: string; reference_frame_json: string; reference_evidence_json: string;
   after_sequence: number; source_hash: string };
@@ -117,7 +118,7 @@ const acceptedPlan = (raw: ActualPracticePairPlan, sourceId: string): ActualPrac
 
 /** Installs reference intake in the existing practice owner's connection and transaction scope. */
 export const installActualPracticeLearning = (db: DatabaseSync, sources: Sources,
-  authority: ActualPracticeLearningAuthority | undefined, tools: Tools): ActualPracticeLearningMethods & Readonly<{
+  authority: ActualPracticeLearningAuthority | undefined, tools: Tools, initialize = true): ActualPracticeLearningMethods & Readonly<{
     assertProbeAdmission(opportunity: PitchPracticeOpportunity): void;
     assertProbeReservation(db: EvidenceDb, opportunity: PitchPracticeOpportunity): void;
     probeReservationEvidence(db: EvidenceDb, opportunity: PitchPracticeOpportunity): unknown | null;
@@ -125,7 +126,7 @@ export const installActualPracticeLearning = (db: DatabaseSync, sources: Sources
   for (const key of ['readAcceptedPairPlan', 'readAcceptedStandardizedMeasurement', 'readAcceptedTimingLearning'] as const) {
     if (authority?.[key] !== undefined && typeof authority[key] !== 'function') throw new Error('invalid actual learning authority');
   }
-  db.exec(`CREATE TABLE IF NOT EXISTS pitch_practice_pair_plans (
+  if (initialize) db.exec(`CREATE TABLE IF NOT EXISTS pitch_practice_pair_plans (
     source_id TEXT PRIMARY KEY, original_activity_id TEXT NOT NULL UNIQUE, source_json TEXT NOT NULL,
     reference_frame_json TEXT NOT NULL, reference_evidence_json TEXT NOT NULL, after_sequence INTEGER NOT NULL CHECK(after_sequence>=0), source_hash TEXT NOT NULL
   );
@@ -315,8 +316,10 @@ export const installActualPracticeLearning = (db: DatabaseSync, sources: Sources
       if (json(current) !== row.state_json) throw new Error('actual learning episode result prefix differs');
     }
     if (!same(current, expected)) throw new Error('actual learning episode evidence differs');
-    const accepted = sources.episodes.read(expected.episodeId);
-    if (!accepted || !same(accepted.episode, expected)) throw new Error('actual learning episode owner differs');
+    const accepted = tools.readEpisodePrefix
+      ? tools.readEpisodePrefix(connection, expected.episodeId, expected.revision)
+      : sources.episodes.read(expected.episodeId)?.episode;
+    if (!accepted || !same(accepted, expected)) throw new Error('actual learning episode owner differs');
   };
   const validateLearning = (connection: EvidenceDb, request: LearningRequest, raw: AcceptedPitchTimingLearning): AcceptedPitchTimingLearning => {
     const input = cloneInert(raw);

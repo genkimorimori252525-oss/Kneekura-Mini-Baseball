@@ -5,7 +5,7 @@ import type { SqliteManagerBeliefHistoryStore } from
   './SqliteManagerBeliefHistoryStore';
 
 export type ManagerRosterOpportunityFromBeliefInput = Omit<
-  IssueRosterOpportunityInput, 'selectionAgent'> & Readonly<{
+  IssueRosterOpportunityInput, 'selectionAgent' | 'managerBeliefRevision'> & Readonly<{
     managerId: string;
     appointmentId: string;
   }>;
@@ -15,13 +15,16 @@ export const issueManagerRosterOpportunityFromBelief = (
   rosterStore: SqliteManagerRosterDecisionStore,
   historyStore: SqliteManagerBeliefHistoryStore,
   input: ManagerRosterOpportunityFromBeliefInput,
+  expectedBeliefRevision?: number,
 ): DurableRosterOpportunity => {
   const { managerId, appointmentId, ...opportunity } = input;
-  const person = historyStore.readHead(input.careerId, managerId);
+  const person = expectedBeliefRevision === undefined ? historyStore.readHead(input.careerId, managerId)
+    : historyStore.readAtRevision(input.careerId, managerId, expectedBeliefRevision);
   if (!person) {
     throw new Error('Manager Person belief head is absent; bootstrap from an issued opportunity');
   }
   return rosterStore.issueOpportunity({ ...opportunity,
+    ...(expectedBeliefRevision === undefined ? {} : { managerBeliefRevision: expectedBeliefRevision }),
     selectionAgent: { managerId, appointmentId,
       state: person.agent } });
 };

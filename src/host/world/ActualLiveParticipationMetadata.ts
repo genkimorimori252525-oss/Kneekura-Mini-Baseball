@@ -26,15 +26,17 @@ const absent = (db: Db, document: string, path: Path): void => {
 };
 export const participationHasRawDiscriminator = (db: Db, document: string): boolean =>
   !!db.prepare(`SELECT 1 FROM (${nodes('$document', ['evidenceKind'])})`).get({ document });
-export const assertParticipationV1Fields = (db: Db, document: string): void => {
+export const assertTaggedParticipationFields = (db: Db, document: string, kind: string): void => {
   assertParticipationMetadataNode(db, document, [], 'object');
   const keys = db.prepare('SELECT key FROM json_each(?) ORDER BY key').all(document).map(row => row.key);
   const expected = ['evidenceKind', 'receiptId', 'binding', 'actorKind', 'closureSourceId', 'closureApplicationId',
     'closureProposalHash', 'playedPlayId', 'durableRevision'].sort();
-  if (JSON.stringify(keys) !== JSON.stringify(expected)) fail('invalid ACTUAL_LIVE_V1 receipt fields');
-  assertParticipationMetadataNode(db, document, ['evidenceKind'], 'text', 'ACTUAL_LIVE_V1');
+  if (JSON.stringify(keys) !== JSON.stringify(expected)) fail(`invalid ${kind} receipt fields`);
+  assertParticipationMetadataNode(db, document, ['evidenceKind'], 'text', kind);
   assertParticipationMetadataNode(db, document, ['binding'], 'object');
 };
+export const assertParticipationV1Fields = (db: Db, document: string): void =>
+  assertTaggedParticipationFields(db, document, 'ACTUAL_LIVE_V1');
 const receiptCandidates = (db: Db, receiptId: string, gameId?: string, playerId?: string) => {
   const scoped = gameId !== undefined && playerId !== undefined;
   return db.prepare(`SELECT * FROM official_participation_receipts WHERE receipt_id=$receipt
@@ -82,7 +84,8 @@ const applicationPaths = [['receipt', 'applicationId'], ['activation', 'applicat
 const closurePaths = [['receipt', 'closureId'], ['activation', 'closureId'], ['result', 'closureId']] as const;
 const gamePaths = [['result', 'gameId'], ['result', 'venueBinding', 'gameId']] as const;
 /** A globally owned application OR a game/closure pair in the SAME row; never game/play uniqueness. */
-export const assertParticipationApplicationOwnership = (db: Db, p: ActualLivePlayClosureProposal): void => {
+export const assertParticipationApplicationOwnership = (db: Db, p: Pick<ActualLivePlayClosureProposal,
+  'gameId' | 'playId' | 'expectedOfficial'> & Readonly<{ application: { applicationId: string }; source: { sourceId: string } }>): void => {
   const application = ['application_id=$application', ...applicationPaths.map(path => claim('result_json', path, '$application'))].join(' OR ');
   const game = ['match_id=$game', ...gamePaths.map(path => claim('result_json', path, '$game'))].join(' OR ');
   const closure = ['closure_id=$closure', ...closurePaths.map(path => claim('result_json', path, '$closure'))].join(' OR ');

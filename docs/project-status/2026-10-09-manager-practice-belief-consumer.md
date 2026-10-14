@@ -1,0 +1,17 @@
+# Owned Manager practice execution → existing Manager belief history
+
+The existing Core `ManagerBeliefHistory` policy defines successful execution as evidence about `executionFeasibility`. `OwnedPitchPracticeOrder` already persists a World execution and its original self-chosen projection. The missing consumer connection is implemented here without adding a reward, skill, win/loss, player-growth, or performance-attribution model.
+
+`SqliteManagerBeliefHistoryStore.applyPracticeOrder` accepts an existing execution ID, Career/Manager identity and expected belief revision. The store optionally takes the real installed practice owner. A private capability binding reuses that owner's existing decoder on the belief writer's Native connection; a look-alike callback or caller-supplied order DTO cannot authorize an observation. First admission requires the issued order and original Manager projection, not a prepared proposal or Human override. The event is the existing World order event and its accepted opportunity day.
+
+New requests and source snapshots use `PITCH_PRACTICE_ORDER_V1`; legacy roster observations retain their stored representation. Both source families share the existing execution-ID uniqueness, revision CAS and versioned learning policy. Head reads replay every original prefix, including legacy entries; removing a discriminator cannot downgrade an observation into unchecked history. Valid legacy bytes remain unchanged. Post-INSERT replay rejects trigger substitution and rolls back both the belief write and trigger changes.
+
+The practice decision reader receives its own decoder for earlier tagged history. Roster stores can receive the same genuine practice owner when issuing from a mixed Manager history. Historical reads require only the selected earlier prefix; reading a prefix containing practice observations requires the real reopened practice owner. Source authority is never recovered from a DTO when that owner is absent.
+
+Each observed practice order must originate from an earlier belief revision for that same Career/Manager. The check precedes recursive decoding. The existing Native read guard and operation-local source scope reuse already completed prefixes during one traversal, with no cached result surviving the root read or a write phase. Later beliefs do not rewrite the earlier order's selection.
+
+Successful issuance does not mean that the Player completed practice. Actual delivery, workload and learning still have their separate existing owners and evidence requirements. This component only consumes the already persisted successful order execution under the existing feasibility policy.
+
+The final author check passed 10/10 cases in 7.95 seconds under an external 35-second cap, one worker and a 512 MiB heap. It covers the new five cases plus the existing Manager belief store. The earlier four-file check completed in 12.70 seconds: its 49 existing cases passed; two of the five new cases exposed test-input/assertion errors, which were corrected. Those earlier results precede the final head-read guard change and retain that narrower attribution. Later five-case checks and all initial failures remain in private evidence; they do not count as additional distinct coverage.
+
+Affected-only TypeScript verification and `git diff --check` passed. No full compiler, large genuine regeneration, external publication or home-PC CI is part of this component. The separate National integration still has only its capped/unqualified attempt and is reserved for consolidated verification.

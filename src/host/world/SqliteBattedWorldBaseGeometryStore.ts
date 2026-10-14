@@ -1,5 +1,10 @@
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
+import { actualLiveClosureApplicationRows } from './ActualLivePlayClosureEvidenceFromSqlite';
+import { actualLivePlayReadinessFromSqlite } from './ActualLivePlayReadinessFromSqlite';
+import { actualLiveScoringEvidenceFromSqlite, assertActualLiveScoringStage } from './ActualLiveScoringEvidenceFromSqlite';
+import { scoringOwnershipRows } from './ActualLiveScoringMetadata';
+import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import type { BetweenPlayWorldSetup } from '../../core/adjudication/BetweenPlayWorldReset';
 import { replayClubEvents } from '../../core/world/club/ClubEvents';
 import type { MatchdayClubHistory } from '../../core/world/club/OfficialMatchdayRevenue';
@@ -29,20 +34,120 @@ const input = (raw: AcceptedBattedWorldBaseGeometry, sourceId: string) => {
   return s;
 };
 
-/** Read only the setup already verified by this own original physical frame's directed replay. */
+/** Independent actual scoring may coexist, but can never become a setup owner. */
+const assertCompatibleActualSetupScoring = (db: Pick<import('node:sqlite').DatabaseSync, 'prepare'>,
+  closure: Extract<ReturnType<ReturnType<typeof actualLivePlayReadinessFromSqlite>['readHistorical']>, { kind: 'ready' }>['closure']) => {
+  const p = closure.proposal;
+  if (!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='official_scoring_applications'").get()) return;
+  const rows = scoringOwnershipRows(db, 'official_scoring_applications', [
+    [{ column: 'official_application_id', value: p.application.applicationId, mirrors: [
+      ['request_json', ['input', 'officialApplication', 'applicationId']], ['result_json', ['officialApplicationId']],
+    ] }],
+    [{ column: 'closure_id', value: closure.source.sourceId, mirrors: [
+      ['request_json', ['evidence', 'closureId']], ['result_json', ['closureId']], ['result_json', ['record', 'closureId']],
+      ['request_json', ['input', 'officialApplication', 'adjudication', 'events', { array: 'all' }, 'closureId']],
+    ] }],
+    [{ column: 'match_id', value: p.gameId, mirrors: [['request_json', ['input', 'officialApplication', 'matchId']], ['result_json', ['matchId']]] },
+      { column: 'NULL', value: p.playId, mirrors: [['request_json', ['evidence', 'playId']],
+        ['request_json', ['input', 'officialApplication', 'match', 'playId']], ['result_json', ['record', 'playId']]] }],
+  ]);
+  if (!rows.length) return;
+  if (rows.length !== 1 || typeof rows[0].source_event_id !== 'string'
+    || !db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='actual_live_scoring_sources'").get()) {
+    throw new Error('actual setup scoring claim lacks its unique owner');
+  }
+  const score = actualLiveScoringEvidenceFromSqlite(db).readSource(rows[0].source_event_id);
+  if (!score || score.source.closureReference.sourceId !== closure.source.sourceId
+    || score.source.closureReference.proposalHash !== hash(p) || json(score.proposal.application) !== json(p.application)) {
+    throw new Error('actual setup independent scoring owner differs');
+  }
+  assertActualLiveScoringStage(db, score.proposal, true);
+};
+
+/** Read only this original physical frame's accepted setup, on its Native snapshot. */
 export const battedWorldFrameBaseCenters = (db: Pick<import('node:sqlite').DatabaseSync, 'prepare'>,
   flight: DurableBattedBallFlight): BetweenPlayWorldSetup['baseCenters'] => {
   const frame = flight.physicalPitch.frame;
-  let centers = frame.initialWorld?.source.worldSetup.baseCenters;
-  if (!centers && frame.activationApplicationId) {
-    const row = db.prepare('SELECT request_json FROM official_scoring_applications WHERE official_application_id=?')
-      .get(frame.activationApplicationId) as { request_json: string } | undefined;
-    const saved = row ? JSON.parse(row.request_json) as { input?: { officialApplication?: { worldSetup?: BetweenPlayWorldSetup } } } : null;
-    centers = saved?.input?.officialApplication?.worldSetup?.baseCenters;
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  const read = () => {
+    if (frame.initialWorld && (frame.activationApplicationId || frame.batterActor?.origin.actualLiveReadiness)) {
+      throw new Error('actual physical frame has competing initial and activation setups');
+    }
+    let centers = frame.initialWorld?.source.worldSetup.baseCenters;
+    if (!centers && frame.activationApplicationId) {
+      const applicationId = frame.activationApplicationId, actor = frame.batterActor, origin = actor?.origin.actualLiveReadiness;
+      const claims = freeze(cloneInert(actualLiveClosureApplicationRows(db, applicationId)));
+      if (claims.length || origin) {
+        if (!(db instanceof DatabaseSync) || !db.isTransaction) throw new Error('actual live setup requires a Native read snapshot');
+        if (claims.length !== 1) throw new Error('actual live setup owner is missing or ambiguous');
+        if (!actor || !origin || origin.closureSourceId !== claims[0].source_id || origin.applicationId !== applicationId
+          || origin.gameId !== frame.gameId || origin.previousPlayId + 1 !== frame.match.playId
+          || !('activationApplicationId' in actor.source) || actor.source.activationApplicationId !== applicationId
+          || actor.source.gameId !== frame.gameId || json(actor.match) !== json(frame.match) || json(actor.world) !== json(frame.world)
+          || actor.officialRevision !== frame.officialRevision
+          || !('activationApplicationId' in flight.physicalPitch.source) || flight.physicalPitch.source.activationApplicationId !== applicationId
+          || flight.physicalPitch.source.gameId !== frame.gameId || flight.source.physicalPitchSourceId !== flight.physicalPitch.source.sourceId) {
+          throw new Error('actual live setup physical frame scope differs');
+        }
+        const ready = actualLivePlayReadinessFromSqlite(db).readHistorical(String(claims[0].source_id));
+        if (ready.kind !== 'ready' || ready.closure.status !== 'OFFICIAL_APPLIED' || !ready.closure.officialApplied) {
+          throw new Error('actual live setup original effects are pending');
+        }
+        const closure = ready.closure, p = closure.proposal, official = p.expectedOfficial;
+        if (!('activation' in official) || !('worldSetup' in p.application) || !closure.source.worldSetup
+          || p.gameId !== frame.gameId || p.application.applicationId !== applicationId || closure.source.applicationId !== applicationId
+          || official.receipt.applicationId !== applicationId || official.receipt.previousPlayId !== p.playId
+          || official.activation.previousPlayId !== p.playId || official.activation.nextMatchState.playId !== frame.match.playId
+          || official.receipt.durableRevision !== frame.officialRevision || json(official.activation) !== json(frame.activation)
+          || json(official.activation.nextMatchState) !== json(frame.match) || json(official.nextWorld) !== json(frame.world)
+          || json(ready.reference) !== json(origin) || json(p.application.worldSetup) !== json(closure.source.worldSetup)
+          || p.fixture.game_id !== frame.gameId || p.fixture.fixture_event_id !== actor.binding.fixtureEventId
+          || hash(p.fixture) !== actor.fixtureHash || p.fixture.venue_id !== flight.source.execution.venueId) {
+          throw new Error('actual live setup original activation, World or fixture differs');
+        }
+        assertCompatibleActualSetupScoring(db, closure);
+        if (json(actualLiveClosureApplicationRows(db, applicationId)) !== json(claims)) throw new Error('actual live setup owner changed during read');
+        centers = closure.source.worldSetup.baseCenters;
+      } else {
+        const row = db.prepare('SELECT request_json FROM official_scoring_applications WHERE official_application_id=?')
+          .get(applicationId) as { request_json: string } | undefined;
+        const saved = row ? JSON.parse(row.request_json) as { input?: { officialApplication?: { worldSetup?: BetweenPlayWorldSetup } } } : null;
+        centers = saved?.input?.officialApplication?.worldSetup?.baseCenters;
+      }
+    }
+    if (!fields(centers, ['first', 'second', 'third']) || Object.values(centers!).some(point => !fields(point, ['x', 'z'])
+      || ![point.x, point.z].every(Number.isFinite))) throw new Error('actual physical frame base centers are missing');
+    return centers!;
+  };
+  if (!frame.activationApplicationId || !(db instanceof DatabaseSync)) return read();
+  const owned = !db.isTransaction, queryOnly = () => db.prepare('PRAGMA query_only').get()!.query_only;
+  const beforeQueryOnly = queryOnly();
+  if (beforeQueryOnly !== 0 && beforeQueryOnly !== 1) throw new Error('actual setup query-only state is unavailable');
+  try {
+    // BEGIN can acquire and then throw through a Native boundary observer.
+    if (owned) db.exec('BEGIN');
+    if (!db.isTransaction || queryOnly() !== beforeQueryOnly) throw new Error('actual setup read snapshot acquisition differs');
+    const value = withBattedWorldPhysicalReadTraversal(db, read);
+    if (!db.isTransaction || queryOnly() !== beforeQueryOnly) throw new Error('actual setup read snapshot completion differs');
+    if (owned) {
+      db.exec('COMMIT');
+      if (db.isTransaction) throw new Error('actual setup read transaction did not end');
+    }
+    if (queryOnly() !== beforeQueryOnly) throw new Error('actual setup query-only setting changed during completion');
+    return value;
+  } catch (error) {
+    const cleanup: unknown[] = [];
+    if (owned) try {
+      if (db.isTransaction) db.exec('ROLLBACK');
+      if (db.isTransaction) throw new Error('actual setup read rollback did not end its transaction');
+    } catch (failure) { cleanup.push(failure); }
+    try {
+      if (queryOnly() !== beforeQueryOnly) db.exec(`PRAGMA query_only=${beforeQueryOnly}`);
+      if (queryOnly() !== beforeQueryOnly) throw new Error('actual setup query-only setting could not be restored');
+    } catch (failure) { cleanup.push(failure); }
+    if (cleanup.length) throw new AggregateError([error, ...cleanup], 'actual setup read cleanup failed', { cause: error });
+    throw error;
   }
-  if (!fields(centers, ['first', 'second', 'third']) || Object.values(centers!).some((point) => !fields(point, ['x', 'z'])
-    || ![point.x, point.z].every(Number.isFinite))) throw new Error('actual physical frame base centers are missing');
-  return centers!;
 };
 
 /** This calibration is owned by its original accepted fixture, not a caller control window or a home-Club guess. */

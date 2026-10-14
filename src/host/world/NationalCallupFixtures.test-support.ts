@@ -18,9 +18,9 @@ import type { ClubWorldRegion } from '../../core/world/competition/ClubWorldBert
 export const nationalCallupFixture = (withoutLegalFacts: readonly number[] = [], population?: Readonly<{
   playerNationIds: readonly string[];
   nations: readonly Readonly<{ nationId: string; region: ClubWorldRegion }>[];
-}>) => {
+}>, databasePath?: string) => {
   const playerCount = population?.playerNationIds.length ?? 6;
-  const path = `file:national-callup-${crypto.randomUUID()}?mode=memory&cache=shared`;
+  const path = databasePath ?? `file:national-callup-${crypto.randomUUID()}?mode=memory&cache=shared`;
   const world = openSqliteWorldSettlementStore(path);
   world.initialize({ careerId: 'career-a', clubs: [state()], schedule: {
     seasonId: 'league-season-1', leagueId: 'league-a', memberClubIds: ['club-a', 'club-b'],

@@ -121,7 +121,14 @@ export function actualDomesticFixture(physical: MockPhysicalBoundary, cleanup: (
   const request = { closureSourceId: 'closure', attendanceFactId: 'gate', expectedSeasonRevision: 0, expectedClubRevision: 0,
     wageSchedules: createClubWageScheduleLedger('career-a', 'club-a'), finalizedAtDay: 11,
     revenuePolicy: { version: 'fixture-v1', availableAtDay: 11, seasonId: 'league-season-1', currency: 'SIM', recognizedMinorUnitsPerAttendee: 5 } };
-  const stores = { world, archive, match, outbox, attendance, closure };
+  // Outcome attribution is a substituted downstream boundary in this existing
+  // physical-input fixture; its Native owner has separate finite coverage.
+  const outcomesFor = (match: SqliteOfficialStateStore) => ({ applyCompletedGame: () => {
+    const finalResult = match.getMatch('series:1')!.finalResult;
+    if (!finalResult) throw new Error('fixture outcome requires final Match');
+    return { finalResult, coverage: 'attributed_supported_plays_only' as const, plays: [] };
+  } });
+  const stores = { world, archive, match, outbox, attendance, closure, outcomes: outcomesFor(match) };
   const close = () => { while (handles.length) handles.pop()!.close(); phase('handles_closed'); };
   cleanup.push(close);
   const complete = () => { closure.submit('closure'); phase('closure_applied'); settleRoles(); attendance.accept('gate', 'league-season-1'); phase('fixture_complete'); };
@@ -131,7 +138,7 @@ export function actualDomesticFixture(physical: MockPhysicalBoundary, cleanup: (
     const outbox = keep(openSqliteOfficialWorldSettlementOutbox(path)), closure = keep(openSqliteActualLivePlayClosureStore(path));
     const attendance = keep(openSqliteMatchdayAttendanceStore(path, { world, archive, match }));
     const db = keep(new DatabaseSync(path));
-    return { world, archive, match, outbox, closure, attendance, db };
+    return { world, archive, match, outbox, closure, attendance, db, outcomes: outcomesFor(match) };
   };
   phase('fixture_owners_open');
   return { path, db, keep, world, archive, match, outbox, closure, attendance, workload, personLinks, request, source, gate, before, stores, settleRoles, complete, reopen };

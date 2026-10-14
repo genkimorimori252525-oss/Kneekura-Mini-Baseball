@@ -29,6 +29,8 @@ it('CP-G02 genuine continuing completion updates exactly three mirrors and prese
   expect(result.status).toBe('POST_PLAY_COMPLETED_CONTINUING');expect(result.result.sourceId).toBe(f.sourceId);
   expect(result.result.official).toEqual(old.official);expect(result.result.acknowledgement).toEqual(old.acknowledgement);
   expect(json(result.source)).toBe(terminal.source_json);expect(json(result.proposal)).toBe(terminal.proposal_json);
+  const completion=result.result.completion;
+  if('finalResult'in completion)throw new Error('v1 fixture unexpectedly finalized');
   expect(result.result.completion.source).toEqual(f.source);expect(result.result.completion.controllerRetirement.retired).toHaveLength(10);
   expect(result.result.completion.workloadReference.participantEffects).toHaveLength(10);
   const {snapshotHash,...payload}=result.result.completion;expect(snapshotHash).toBe(hash(payload));
@@ -39,12 +41,12 @@ it('CP-G02 genuine continuing completion updates exactly three mirrors and prese
   expect(Object.keys(official).sort()).toEqual(['activation','completion','nextWorld','pendingPostPlay','receipt']);
   expect(Object.keys(result.result).sort()).toEqual(['acknowledgement','completion','official','sourceId']);
   const expected=before.map(table=>({...table,rows:table.rows.map(row=>table.table==='applications'&&row.application_id===p.source.applicationId?{...row,result_json:json(official)}:
-   table.table==='matches'&&row.match_id===p.gameId?{...row,activation_json:json({activation:result.result.completion.activation,nextWorld:result.result.completion.nextWorld})}:
+   table.table==='matches'&&row.match_id===p.gameId?{...row,activation_json:json({activation:completion.activation,nextWorld:completion.nextWorld})}:
    table.table==='actual_foul_terminal_applications'&&row.source_id===f.sourceId?{...row,status:'POST_PLAY_COMPLETED_CONTINUING',result_json:json(result.result)}:row)}));
   expect(rawCensus(db)).toEqual(expected);expect(schemaCensus(db)).toEqual(schema);
   const match=new SqliteOfficialStateWriter(db).getMatch(p.gameId)!;
   expect(match.durableRevision).toBe(old.official.receipt.durableRevision);expect(match.matchState).toEqual(old.official.receipt.appliedMatchState);
-  expect(match.activation).toEqual(result.result.completion.activation);expect(match.nextWorld).toEqual(result.result.completion.nextWorld);expect(match.pendingPostPlay).toBeUndefined();
+  expect(match.activation).toEqual(completion.activation);expect(match.nextWorld).toEqual(completion.nextWorld);expect(match.pendingPostPlay).toBeUndefined();
   expect(runner.read(f.sourceId)).toEqual(result);expect(runner.apply(f.sourceId)).toEqual(result);expect(runner.acknowledge(f.sourceId)).toEqual(result);
   expect(runner.completePostPlay(f.source.sourceId)).toEqual(result);
   queue=openSqliteActualFoulTerminalApplicationStore(f.path,{readAcceptedApplication:()=>{throw new Error('COMPLETED_ENQUEUE_CALLED_AUTHORITY');}});

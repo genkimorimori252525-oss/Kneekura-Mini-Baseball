@@ -7,7 +7,9 @@ import { playerBattingModelEvidenceFromSqlite } from './PlayerBattingModelEviden
 import { battingModelSourceInput, type AcceptedPlayerBattingModelV1, type BattingModelAuthority,
   type BattingModelStore, type BattingModelParameters } from './PlayerBattingModel';
 
-/** Immutable model compositions, with explicit accepted calibration inputs and original native body evidence. */
+/** Immutable model compositions, with explicit accepted calibration inputs and
+ * original Native evidence. Tagged development is authenticated by the same
+ * reader on fresh writes, retries, historical reads and after INSERT. */
 export const openSqlitePlayerBattingModelStore = (path: string, authority?: BattingModelAuthority): BattingModelStore => {
   if (!id(path) || authority !== undefined && ['readAcceptedModel', 'readAcceptedCapability', 'readAcceptedRepertoire',
     'readAcceptedDecisionModel', 'readAcceptedEquipment', 'readAcceptedObservationCalibration', 'readAcceptedPredictionCalibration']

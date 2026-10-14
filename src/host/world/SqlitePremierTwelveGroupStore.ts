@@ -1,3 +1,4 @@
+import type { DatabaseSync } from 'node:sqlite';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { finalizePremierTwelveGroups, planPremierTwelveGroups,
@@ -52,8 +53,8 @@ const canonicalJson = (value: unknown): string => JSON.stringify(
         left < right ? -1 : left > right ? 1 : 0)) : item);
 
 /** Freeze two national pools and rank 30 official venue-bound games. */
-export const openSqlitePremierTwelveGroupStore = (
-  databasePath: string,
+const createSqlitePremierTwelveGroupStore = (
+  databasePath: string | DatabaseSync,
   sources: Readonly<{
     rankings: Pick<SqliteWorldNationalRankingSnapshotStore, 'authority'>;
     editionCutoff: PremierTwelveAuthority['editionCutoff'];
@@ -62,13 +63,17 @@ export const openSqlitePremierTwelveGroupStore = (
     editions?: Pick<SqliteNationalCompetitionEditionStore, 'readPremierEdition'>;
     matches: PostseasonMatchSource;
   }>,
+  originalFixtureInputs = false,
 ): SqlitePremierTwelveGroupStore => {
-  if (!id(databasePath)) {
+  if (typeof databasePath === 'string' && !id(databasePath)) {
     throw new Error('invalid Premier12 group database path');
   }
   const sqlite: typeof import('node:sqlite') =
     createRequire(import.meta.url)('node:sqlite');
-  const db = new sqlite.DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new sqlite.DatabaseSync(databasePath);
+  if (!(db instanceof sqlite.DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_premier_twelve_groups (
     career_id TEXT NOT NULL, edition_id TEXT NOT NULL,
@@ -76,6 +81,7 @@ export const openSqlitePremierTwelveGroupStore = (
     outcome_json TEXT,
     PRIMARY KEY (career_id, edition_id)
   );`);
+  }
   const get = db.prepare(`SELECT request_json, plan_json, outcome_json
     FROM world_premier_twelve_groups WHERE career_id=? AND edition_id=?`);
   const row = (careerId: string, editionId: string): Row | null =>
@@ -162,7 +168,7 @@ export const openSqlitePremierTwelveGroupStore = (
         throw new Error('Premier12 group plan replay differs');
       }
       let outcome: PremierTwelveGroupOutcome | null = null;
-      if (stored.outcome_json !== null) {
+      if (stored.outcome_json !== null && !originalFixtureInputs) {
         const saved = JSON.parse(stored.outcome_json) as
           PremierTwelveGroupOutcome;
         outcome = projectOutcome(request, plan);
@@ -270,8 +276,24 @@ export const openSqlitePremierTwelveGroupStore = (
         authority: authority(request), plan, results, outcome });
     },
     close(): void {
-      if (!closed) db.close();
+      if (!closed && !borrowed) db.close();
       closed = true;
     },
   });
+};
+
+/** Existing path facade retains connection/schema ownership. */
+export const openSqlitePremierTwelveGroupStore = (databasePath: string, sources: Parameters<typeof createSqlitePremierTwelveGroupStore>[1]): SqlitePremierTwelveGroupStore =>
+  createSqlitePremierTwelveGroupStore(databasePath, sources);
+
+/** Same owner replay on the consuming Native connection; no writer or close capability escapes. */
+export const premierTwelveGroupEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqlitePremierTwelveGroupStore>[1]): Pick<SqlitePremierTwelveGroupStore, 'readEdition' | 'readPlan' | 'readOutcome' | 'readEvidence'> => {
+  const owner = createSqlitePremierTwelveGroupStore(db, sources);
+  return Object.freeze({ readEdition: owner.readEdition, readPlan: owner.readPlan, readOutcome: owner.readOutcome, readEvidence: owner.readEvidence });
+};
+
+/** Fixture inputs stop before the target round's results and later tournament outcomes. */
+export const premierTwelveGroupInputEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqlitePremierTwelveGroupStore>[1]): Pick<SqlitePremierTwelveGroupStore, 'readEdition' | 'readPlan'> => {
+  const owner = createSqlitePremierTwelveGroupStore(db, sources, true);
+  return Object.freeze({ readEdition: owner.readEdition, readPlan: owner.readPlan });
 };

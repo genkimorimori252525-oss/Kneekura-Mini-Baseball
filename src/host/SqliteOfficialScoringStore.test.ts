@@ -21,6 +21,16 @@ import { SqliteOfficialStateStore,
   type PersistOfficialPlayInput } from './SqliteOfficialStateStore';
 import { openSqliteOfficialScoringStore } from
   './SqliteOfficialScoringStore';
+import { fixture as airborneFixture } from '../core/sim/ball/BattedWorldScheduledFieldThrow.test-support';
+import { deriveInitialBattedWorldFieldMotion } from '../core/sim/ball/BattedWorldFieldMotion';
+import { prepareBattedWorldScheduledFieldAcquisition, advanceBattedWorldScheduledFieldAcquisition } from '../core/sim/ball/BattedWorldScheduledFieldAcquisition';
+import { projectActualFairFieldTimeline, type ActualFairFieldTimelineInput } from '../core/sim/plateAppearance/ActualFairFieldTimeline';
+import type { OfficialFairCatchScoringEvidence } from './SqliteOfficialScoringStore';
+import { officialPitchWorkloadFixture } from './world/OfficialPitchWorkloadFixtures.test-support';
+import { openSqliteOfficialInitialWorldStore } from './world/SqliteOfficialInitialWorldStore';
+import { openSqlitePhysicalPlateAppearanceActorStore } from './world/SqlitePhysicalPlateAppearanceActorStore';
+import { readPhysicalClosureScoringHistory } from './world/PhysicalPlayClosureEvidenceFromSqlite';
+import { actorJson } from './world/PhysicalPlateAppearanceActorEvidenceFromSqlite';
 
 const directories: string[] = [];
 const databasePath = () => {
@@ -97,6 +107,85 @@ const setup = (judgment: OfficialFairBallScoringEvidence['judgment']) => {
   };
   return { officialApplication, evidence };
 };
+// These finite writer tests provide an explicit end and closed ledger; the
+// scheduled physical capture is real, but this is not a reserved owner proof.
+const caughtSetup=(original?: Pick<PersistOfficialPlayInput, 'match' | 'worldSetup'>)=>{
+  const old={...setup({kind:'base_hit'}).officialApplication,...original},match={...old.match,bases:{first:null,second:null,third:null}};
+  const physical=airborneFixture(1_000_000,1,5,5),field=deriveInitialBattedWorldFieldMotion(physical);
+  const plan=prepareBattedWorldScheduledFieldAcquisition({response:physical.response,geometry:physical.geometry,field});
+  const secured=advanceBattedWorldScheduledFieldAcquisition({plan,previous:null,throughElapsedSeconds:plan.fenceElapsedSeconds});
+  if(secured.kind!=='secured')throw new Error('actual catch fixture failed');
+  const playEnd=createPlayEndFact(secured.world.moment.ball.tick,'live_action_complete');
+  const sidecar:ActualFairFieldTimelineInput={originalTimeline:recordBatBallContact(createCanonicalPlateAppearanceTimeline(match,0),physical.response.world.flight.contact),
+    playEnd,field:{baseContacts:[],evidence:{batterRunnerId:'batter',defenderIds:['carrier','receiver'],field:physical.geometry.baseGeometry.field,
+      bases:physical.geometry.baseGeometry.gates,ballRadiusMeters:physical.response.world.parameters.ballRadius,originTick:1_000_000,
+      ticksPerSecond:physical.response.world.parameters.ticksPerSecond,horizon:secured.world.moment,
+      contacts:[{moment:plan.contactMoment,contacts:[{kind:'actor',playerId:plan.acquirerPlayerId,role:'glove'}]}],acquisitions:[secured.acquisition]}}};
+  const projected=projectActualFairFieldTimeline(sidecar);if(projected.kind!=='projected')throw new Error('actual catch projection failed');
+  let ledger=createPlayAdjudicationLedger({playId:match.playId,ruleProfileId:match.ruleProfileId,playEnd});
+  ledger=recordCorrectRuleSnapshot(ledger,ledger.revision,{eventId:'catch-rule',tick:playEnd.tick,snapshotId:'catch-rule',evidenceRevision:1,
+    ruling:{outsAfter:match.outs+1,basesAfter:match.bases,scoredRunnerIds:[]}});
+  ledger=closeOfficialPlay(ledger,ledger.revision,{eventId:'catch-close',closureId:'catch-close',tick:playEnd.tick+1});
+  const officialApplication:PersistOfficialPlayInput={...old,kind:'live_ball',match,physicalTimeline:projected.timeline,adjudication:ledger,nextStartedAtTick:playEnd.tick+2};
+  const evidence:OfficialFairCatchScoringEvidence={schemaVersion:1,sourceKind:'owned_fair_catch',sourceEventId:'owned-catch',physical:sidecar};
+  return{officialApplication,evidence};
+};
+it('persists physical fair catch scoring and replays the accepted sidecar without a callback',()=>{
+  const path=databasePath(),h=caughtSetup(),official=new SqliteOfficialStateStore(path);official.initializeMatch('game-1',h.officialApplication.match);
+  official.applyAndActivate(h.officialApplication);official.close();
+  const scoring=openSqliteOfficialScoringStore(path,{readAcceptedOfficialScoringEvidence:id=>id===h.evidence.sourceEventId?h.evidence:null});
+  const request={scoringApplicationId:'catch-score',officialApplication:h.officialApplication,sourceEventId:h.evidence.sourceEventId};
+  const saved=scoring.apply(request);expect(saved.record).toMatchObject({classification:'fly_out',runsScored:0,hitsCredited:0,errorsCharged:0});scoring.close();
+  const reopened=openSqliteOfficialScoringStore(path);expect(reopened.readApplication('catch-score')).toEqual(saved);expect(reopened.apply(request)).toEqual(saved);reopened.close();
+});
+it('rejects a catch sidecar without its actual secured acquisition before writing a score',()=>{
+  const path=databasePath(),h=caughtSetup(),official=new SqliteOfficialStateStore(path);official.initializeMatch('game-1',h.officialApplication.match);
+  official.applyAndActivate(h.officialApplication);official.close();
+  const altered={...h.evidence,physical:{...h.evidence.physical,field:{...h.evidence.physical.field,evidence:{...h.evidence.physical.field.evidence,acquisitions:[]}}}};
+  const scoring=openSqliteOfficialScoringStore(path,{readAcceptedOfficialScoringEvidence:()=>altered});
+  expect(()=>scoring.apply({scoringApplicationId:'catch-score',officialApplication:h.officialApplication,sourceEventId:h.evidence.sourceEventId})).toThrow(/fair catch scoring/);
+  expect(scoring.readApplication('catch-score')).toBeNull();scoring.close();
+});
+
+it('rederives the same stored fair catch for next-batter activation and later scoring history', () => {
+  // Real original registration and archive owners surround the finite Core
+  // capture above. The explicit test end is not a reserved finalization proof.
+  const f = officialPitchWorkloadFixture(false, true, databasePath(), true, undefined, { ruleProfileId: asRuleProfileId('npb-2026') });
+  try {
+    const setupSource = { sourceId: 'initial-world', sourceVersion: 'fixture-v1', gameId: 'game-1', fixtureEventId: 'fixture-1',
+      startedAtTick: 0, worldSetup: f.firstInput.worldSetup };
+    const initialWorlds = f.track(openSqliteOfficialInitialWorldStore(f.path, { matches: f.official, participation: f.participation },
+      { readAcceptedSetup: () => setupSource }));
+    initialWorlds.accept(setupSource.sourceId);
+    const firstSource = { sourceId: 'first-batter', sourceVersion: 'fixture-v1', gameId: 'game-1', playerId: 'away-1', initialWorldSourceId: setupSource.sourceId };
+    const nextSource = { sourceId: 'next-batter', sourceVersion: 'fixture-v1', gameId: 'game-1', playerId: 'away-2', activationApplicationId: 'official-1' };
+    const sources = { matches: f.official, participation: f.participation, initialWorlds };
+    const actors = f.track(openSqlitePhysicalPlateAppearanceActorStore(f.path, sources,
+      { readAcceptedActor: id => id === firstSource.sourceId ? firstSource : id === nextSource.sourceId ? nextSource : null }));
+    actors.accept(firstSource.sourceId);
+    const h = caughtSetup({ match: f.initial, worldSetup: setupSource.worldSetup });
+    const official = f.official.applyAndActivate(h.officialApplication);
+    const scoring = f.track(openSqliteOfficialScoringStore(f.path, { readAcceptedOfficialScoringEvidence: () => h.evidence }));
+    const saved = scoring.apply({ scoringApplicationId: 'catch-score', officialApplication: h.officialApplication, sourceEventId: h.evidence.sourceEventId });
+    const history = () => readPhysicalClosureScoringHistory(f.db, { gameId: 'game-1', officialRevision: 1 });
+    const request = f.db.prepare('SELECT request_json FROM official_scoring_applications WHERE scoring_application_id=?').get('catch-score') as { request_json: string };
+    const archive = JSON.parse(request.request_json);
+    archive.evidence.physical.field.evidence.acquisitions = [];
+    f.db.prepare('UPDATE official_scoring_applications SET request_json=? WHERE scoring_application_id=?').run(actorJson(archive), 'catch-score');
+    expect(() => actors.accept(nextSource.sourceId)).toThrow(/fair catch scoring/);
+    expect(() => history()).toThrow(/fair catch scoring/);
+    expect(f.db.prepare('SELECT count(*) AS n FROM physical_plate_appearance_actors WHERE source_id=?').get(nextSource.sourceId)).toEqual({ n: 0 });
+    f.db.prepare('UPDATE official_scoring_applications SET request_json=? WHERE scoring_application_id=?').run(request.request_json, 'catch-score');
+    const next = actors.accept(nextSource.sourceId);
+    expect(next.match).toEqual(official.activation.nextMatchState);
+    expect(next.binding.playerId).toBe('away-2');
+    expect(history()).toMatchObject([{ scoring: saved, after: official.receipt.appliedMatchState }]);
+    const reopened = f.track(openSqlitePhysicalPlateAppearanceActorStore(f.path, sources));
+    expect(reopened.read(nextSource.sourceId)).toEqual(next);
+    expect(reopened.accept(nextSource.sourceId)).toEqual(next);
+    expect(history()).toHaveLength(1);
+  } finally { f.close(); }
+});
 
 it.each([
   [{ kind: 'base_hit' } as const, 1, 0],

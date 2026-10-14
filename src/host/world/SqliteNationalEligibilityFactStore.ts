@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
+import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { snapshotNationalEligibilityFact, type NationalEligibilityFact } from '../../core/world/competition/NationalEligibility';
 import type { SqlitePlayerPersonLinkStore, DurablePlayerPersonLink } from './SqlitePlayerPersonLinkStore';
@@ -36,19 +37,23 @@ const freeze = <T>(value: T): T => {
 };
 
 /** Accepted legal facts are World evidence; they never alter Club affiliation or ability. */
-export const openSqliteNationalEligibilityFactStore = (databasePath: string, sources: Readonly<{
+const createSqliteNationalEligibilityFactStore = (databasePath: string | DatabaseSync, sources: Readonly<{
   personLinks: Pick<SqlitePlayerPersonLinkStore, 'readLink'>;
   nations: Pick<SqliteNationCompetitionRegionStore, 'readRegion'>;
 }>): SqliteNationalEligibilityFactStore => {
-  if (!id(databasePath)) throw new Error('invalid national eligibility database path');
+  if (typeof databasePath === 'string' && !id(databasePath)) throw new Error('invalid national eligibility database path');
   const { DatabaseSync }: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
-  const db = new DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new DatabaseSync(databasePath);
+  if (!(db instanceof DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_national_eligibility_facts (
     career_id TEXT NOT NULL, player_id TEXT NOT NULL, revision INTEGER NOT NULL,
     evidence_id TEXT NOT NULL, effective_from_day INTEGER NOT NULL, snapshot_id TEXT NOT NULL, entry_json TEXT NOT NULL,
     PRIMARY KEY(career_id, player_id, revision), UNIQUE(career_id, evidence_id), UNIQUE(career_id, snapshot_id)
   );`);
+  }
   const rows = db.prepare(`SELECT revision, snapshot_id, evidence_id, effective_from_day, entry_json
     FROM world_national_eligibility_facts WHERE career_id=? AND player_id=? AND effective_from_day<=? AND revision<=? ORDER BY revision`);
   let closed = false;
@@ -138,6 +143,16 @@ export const openSqliteNationalEligibilityFactStore = (databasePath: string, sou
       if (accepted?.snapshotId !== snapshotId) throw new Error('corrupt national eligibility snapshot prefix');
       return accepted;
     },
-    close(): void { if (!closed) db.close(); closed = true; },
+    close(): void { if (!closed && !borrowed) db.close(); closed = true; },
   });
+};
+
+/** Existing string-path facade owns its connection and schema. */
+export const openSqliteNationalEligibilityFactStore = (databasePath: string, sources: Parameters<typeof createSqliteNationalEligibilityFactStore>[1]): SqliteNationalEligibilityFactStore =>
+  createSqliteNationalEligibilityFactStore(databasePath, sources);
+
+/** Read-only projection of the same owner on a consumer connection. No opener, schema writes or close capability. */
+export const nationalEligibilityFactEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteNationalEligibilityFactStore>[1]): Pick<SqliteNationalEligibilityFactStore, 'readFacts' | 'readFactsSnapshot'> => {
+  const owner = createSqliteNationalEligibilityFactStore(db, sources);
+  return Object.freeze({ readFacts: owner.readFacts, readFactsSnapshot: owner.readFactsSnapshot });
 };

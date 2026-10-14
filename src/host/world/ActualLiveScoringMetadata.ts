@@ -34,16 +34,12 @@ export const actualScoringIdentityRow = (db: ActualAdjudicationDb, sourceId: str
   }
   return row;
 };
-export const assertActualScoringOwnership = (db: ActualAdjudicationDb, value: Readonly<{
-  source: { sourceId: string; gameId: string; scoringApplicationId: string; closureReference: { sourceId: string } };
+type OriginalScoringScope = Readonly<{
+  source: { gameId: string; closureReference: { sourceId: string } };
   playId: number; application: { applicationId: string };
-}>, required: boolean) => {
+}>;
+const originalScoringClaims = (value: OriginalScoringScope): readonly (readonly Claim[])[] => {
   const s = value.source;
-  const sourceClaim: Claim = { column: 'source_id', value: s.sourceId, mirrors: sourceMirrors };
-  const scoringClaim: Claim = { column: 'scoring_application_id', value: s.scoringApplicationId, mirrors: [
-    ['source_json', ['scoringApplicationId']], ['proposal_json', ['source', 'scoringApplicationId']],
-    ['proposal_json', ['expectedScoring', 'scoringApplicationId']], ['result_json', ['scoringApplicationId']],
-  ] };
   const closureClaim: Claim = { column: 'closure_id', value: s.closureReference.sourceId, mirrors: [
     ['source_json', ['closureReference', 'sourceId']], ['source_json', ['evidence', 'closureId']],
     ['proposal_json', ['source', 'closureReference', 'sourceId']], ['proposal_json', ['source', 'evidence', 'closureId']],
@@ -72,7 +68,24 @@ export const assertActualScoringOwnership = (db: ActualAdjudicationDb, value: Re
     ['proposal_json', ['originalReceipt', 'receipt', 'previousPlayId']], ['proposal_json', ['originalReceipt', 'activation', 'previousPlayId']],
     ['proposal_json', ['expectedScoring', 'record', 'playId']], ['result_json', ['record', 'playId']],
   ] };
-  const rows = scoringOwnershipRows(db, 'actual_live_scoring_sources', [[sourceClaim], [scoringClaim], [closureClaim], [officialClaim], [gameClaim, playClaim]]);
+  return [[closureClaim], [officialClaim], [gameClaim, playClaim]];
+};
+/** Discover every original closure/application/game-play claim before reporting
+ * missing scoring. Keep the exact same raw mirrors as writer ownership. */
+export const actualScoringOriginalOwnershipRows = (db: ActualAdjudicationDb, value: OriginalScoringScope) =>
+  scoringOwnershipRows(db, 'actual_live_scoring_sources', originalScoringClaims(value));
+
+export const assertActualScoringOwnership = (db: ActualAdjudicationDb, value: Readonly<{
+  source: { sourceId: string; gameId: string; scoringApplicationId: string; closureReference: { sourceId: string } };
+  playId: number; application: { applicationId: string };
+}>, required: boolean) => {
+  const s = value.source;
+  const sourceClaim: Claim = { column: 'source_id', value: s.sourceId, mirrors: sourceMirrors };
+  const scoringClaim: Claim = { column: 'scoring_application_id', value: s.scoringApplicationId, mirrors: [
+    ['source_json', ['scoringApplicationId']], ['proposal_json', ['source', 'scoringApplicationId']],
+    ['proposal_json', ['expectedScoring', 'scoringApplicationId']], ['result_json', ['scoringApplicationId']],
+  ] };
+  const rows = scoringOwnershipRows(db, 'actual_live_scoring_sources', [[sourceClaim], [scoringClaim], ...originalScoringClaims(value)]);
   if (rows.length !== (required ? 1 : 0) || required && rows[0].source_id !== s.sourceId) {
     throw new Error('actual scoring closure/application/play identity ownership differs');
   }

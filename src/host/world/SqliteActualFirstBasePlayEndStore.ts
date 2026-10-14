@@ -1,3 +1,5 @@
+import { receivedUnionReferenceClaims } from './ActualReceivedUmpireDefenderClaims';
+import { assertReceivedTerminalClaimsCovered } from './ActualReceivedUmpireTerminalCoverage';
 import { actualFoulTerminalClaims } from './ActualFoulPlayEndOwnership';
 import { actualLivePlayOwnerIdentityRow, actualFirstBaseTerminalClaims } from './ActualLivePlayOwnerMetadata';
 import { createRequire } from 'node:module';
@@ -91,18 +93,22 @@ export const openSqliteActualFirstBasePlayEndStore = (path: string,
         });
       }
       if (!requested) throw new Error('accepted actual first-base PlayEnd Source missing');
+      snapshot(() => receivedUnionReferenceClaims(db, [{ owner: 'batted_world_field_executions', sourceId: requested.executionSourceId }, { owner: 'actual_live_play_runtimes', sourceId: requested.runtimeSourceId }]));
       const proposed = snapshot(() => own.derive(requested, true));
       if (proposed.kind !== 'ended') throw new Error(`actual first-base PlayEnd pending: ${proposed.pendingReasons.join(', ')}`);
-      snapshot(() => assertTerminalClaims(db, proposed, false));
+      snapshot(() => {assertReceivedTerminalClaimsCovered(db,proposed);assertTerminalClaims(db, proposed, false);});
       const encoded = json(projection(proposed)), proofCleanupErrors: unknown[] = []; db.exec('BEGIN IMMEDIATE');
       try {
+        assertReceivedTerminalClaimsCovered(db, proposed);
         assertTerminalClaims(db, proposed, false);
         const current = own.derive(requested, true);
         if (current.kind !== 'ended' || json(projection(current)) !== encoded) throw new Error('actual PlayEnd complete proof changed before write');
         db.prepare('INSERT INTO actual_first_base_play_ends VALUES(?,?,?,?,?,?,?,?)').run(sourceId, proposed.gameId, proposed.playId,
           proposed.physicalPitchSourceId, json(requested), hash(requested), encoded, hash(projection(proposed)));
+        assertReceivedTerminalClaimsCovered(db, proposed);
         assertTerminalClaims(db, proposed, true);
         db.prepare('INSERT INTO actual_live_play_fences VALUES(?,?,?,?)').run(proposed.gameId, proposed.playId, proposed.physicalPitchSourceId, sourceId);
+        assertReceivedTerminalClaimsCovered(db, proposed);
         assertTerminalClaims(db, proposed, true);
         // current=true adds head/dependency assertions to the same immutable
         // historical result. Reuse only this post-trigger proof, before commit.
@@ -153,6 +159,7 @@ export const openSqliteActualFirstBasePlayEndStore = (path: string,
         })();
         db.exec('RELEASE actual_end_closed_proof');
         if (!db.isTransaction) throw new Error('actual PlayEnd proof transaction ended during read');
+        assertReceivedTerminalClaimsCovered(db, proposed);
         db.exec('COMMIT'); return saved;
       } catch (error) {
         // A failing proof/read may already have rolled back. Preserve that

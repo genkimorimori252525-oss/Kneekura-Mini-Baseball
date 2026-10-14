@@ -45,12 +45,10 @@ export type WinterChampionshipState = Readonly<{
   runnerUpClubId: string | null;
 }>;
 
-/** Dominican v1: four-club double round robin, then a best-of-seven final. */
-export const resolveWinterChampionship = (
-  input: WinterChampionshipInput,
-  final: Readonly<{ plan: PostseasonSeriesPlan;
-    results: readonly OfficialGameResult[] }> | null,
-): WinterChampionshipState => {
+/** Validate and prepare the championship round before official results exist. */
+export const createWinterChampionshipRoundSchedule = (
+  input: Pick<WinterChampionshipInput, 'version' | 'regularSeasonStandings' | 'games'>,
+): OfficialStandingsSchedule => {
   const regular = input.regularSeasonStandings;
   const ranking = regular.orderedClubIds;
   if (!input.version || !regular.seasonId || !regular.leagueId
@@ -62,8 +60,6 @@ export const resolveWinterChampionship = (
     throw new Error('winter championship requires resolved six-club regular-season standings');
   }
   const entrants = ranking.slice(0, 4);
-  const regularSeasonBasis = captureOfficialStandingsBasis(regular);
-  const regularSeasonOrder = Object.freeze([...ranking]);
   const entrantSet = new Set(entrants);
   const gameIds = new Set<string>();
   const occupied = new Set<string>();
@@ -88,7 +84,7 @@ export const resolveWinterChampionship = (
   if (directedPairs.size !== 12 || [...directedPairs.values()].some((count) => count !== 1)) {
     throw new Error('winter championship requires one home game per directed pair');
   }
-  const schedule: OfficialStandingsSchedule = {
+  return {
     seasonId: regular.seasonId,
     leagueId: `${regular.leagueId}:championship-round`,
     memberClubIds: entrants,
@@ -96,6 +92,19 @@ export const resolveWinterChampionship = (
     revisionEventIds: [],
     games: input.games.map((game) => ({ ...game, seriesId: input.version })),
   };
+};
+
+/** Dominican v1: four-club double round robin, then a best-of-seven final. */
+export const resolveWinterChampionship = (
+  input: WinterChampionshipInput,
+  final: Readonly<{ plan: PostseasonSeriesPlan;
+    results: readonly OfficialGameResult[] }> | null,
+): WinterChampionshipState => {
+  const schedule = createWinterChampionshipRoundSchedule(input);
+  const regular = input.regularSeasonStandings;
+  const regularSeasonBasis = captureOfficialStandingsBasis(regular);
+  const regularSeasonOrder = Object.freeze([...regular.orderedClubIds!]);
+  const gameIds = new Set(schedule.games.map((game) => game.gameId));
   let roundStandings = buildOfficialStandings(schedule, input.results, input.tiebreakPolicy);
   const regularApplications = new Set([
     ...regular.resultApplicationIds,
@@ -116,7 +125,7 @@ export const resolveWinterChampionship = (
     if (final !== null) throw new Error('winter final cannot start before round ties are resolved');
     return Object.freeze({ seasonId: regular.seasonId,
       regularSeasonBasis, regularSeasonOrder, policyVersion: input.version,
-      status: 'ROUND_TIE_UNRESOLVED', regularSeasonWinnerClubId: ranking[0],
+      status: 'ROUND_TIE_UNRESOLVED', regularSeasonWinnerClubId: regularSeasonOrder[0],
       championshipRoundStandings: roundStandings,
       championshipRoundWinnerClubId: null, nextFinal: null, final: null,
       championClubId: null, runnerUpClubId: null });
@@ -145,7 +154,7 @@ export const resolveWinterChampionship = (
   return Object.freeze({ seasonId: regular.seasonId,
     regularSeasonBasis, regularSeasonOrder, policyVersion: input.version,
     status: finalState?.status === 'COMPLETE' ? 'COMPLETE' : 'PENDING',
-    regularSeasonWinnerClubId: ranking[0],
+    regularSeasonWinnerClubId: regularSeasonOrder[0],
     championshipRoundStandings: roundStandings,
     championshipRoundWinnerClubId: roundRanking[0], nextFinal,
     final: finalState,

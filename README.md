@@ -2,7 +2,7 @@
 
 軽量な自動試合エンジンを土台に、采配と野球らしい結果の因果関係を中心に据える野球ゲームです。
 
-現在は **P0〜P9のロードマップ基盤まで実装・CI検証済み** で、ロードマップ後の最初のproduction causal live-ball結果境界（無走者ゴロ→一塁フォースアウト）と、runner controller / explicit rebase基盤まで実装済みです。一方、一般multi-runner、ActionFrontier / OfficialPlayClosure、完成ゲームUI、心理・Trait・ペナント/世界リーグ等は未実装または設計段階です。最新の区分は [2026-09-20 03:30 JST Current State Snapshot](docs/project-status/2026-09-20-0330-current-state.md) を参照してください。
+**非デザイン実装を引き継ぐ方は、最初に [引継ぎ入口（2026-10-14）](HANDOFF.md) を読んでください。** 最新の統合コード、元9領域の実装・実証・未確定仕様、保存データからの再開方法をまとめています。非デザイン計画全体と完成ゲームUIは未完了です。P0〜P9の基盤完了や個別ケースの成功は、その範囲だけの証拠です。[2026-09-20の状態](docs/project-status/2026-09-20-0330-current-state.md) は過去の記録として保持します。
 
 Mini Baseball は Natural Baseball の簡易ルール版ではなく、将来の Natural Baseball でも再利用できる試合計算Coreを先に磨く製品です。Miniは同じ正史ワールド状態を軽量なPresentationで観測し、将来は同じ状態をNaturalの3D描画へ接続できる設計を目指します。具体的な見た目・画面構成・演出はCore仕様ではなく、承認済みのWorkデザインに従います。
 

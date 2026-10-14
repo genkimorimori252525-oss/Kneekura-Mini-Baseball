@@ -167,7 +167,7 @@ export const foulTerminalScoringEvidenceFromSqlite = (db: DatabaseSync) => ({
       if (foulTerminalScoringClaimRows(db,{ terminalSourceId:sourceId }).length) throw new Error('terminal scoring claims survive missing original owner');
       return null;
     }
-    if (ancestry.archiveStage !== 'OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY' && ancestry.archiveStage !== 'POST_PLAY_COMPLETED_CONTINUING' || !ancestry.evidence) {
+    if (ancestry.archiveStage !== 'OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY' && (ancestry.archiveStage !== 'POST_PLAY_COMPLETED_CONTINUING' && ancestry.archiveStage !== 'POST_PLAY_COMPLETED_FINAL') || !ancestry.evidence) {
       throw new Error('terminal scoring requires acknowledged pending original source');
     }
     const saved = freeze({ ...ancestry.evidence, status: ancestry.archiveStage });
@@ -186,7 +186,7 @@ export const foulTerminalScoringEvidenceFromSqlite = (db: DatabaseSync) => ({
       closure_id:sourceId,source_event_id:expected.sourceEventId,request_json:json({ input,evidence:null }),result_json:json(expected) };
     const claims = foulTerminalScoringClaimRows(db,{ terminalSourceId:sourceId,applicationId:p.source.applicationId,matchId:p.gameId,playId:p.playId });
     if (claims.length) same(claims,[row],'terminal scoring canonical row or competing claims differ');
-    if (ancestry.archiveStage === 'POST_PLAY_COMPLETED_CONTINUING' && !claims.length) {
+    if ((ancestry.archiveStage === 'POST_PLAY_COMPLETED_CONTINUING' || ancestry.archiveStage === 'POST_PLAY_COMPLETED_FINAL') && !claims.length) {
       throw new Error('completed terminal scoring effect is missing; repair is forbidden');
     }
     return { saved,input,expected,row,result:claims.length ? expected : null };

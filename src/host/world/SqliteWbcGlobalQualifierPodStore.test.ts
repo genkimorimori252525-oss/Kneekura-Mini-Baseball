@@ -11,7 +11,7 @@ import type { WbcQualifierSelection } from
 import type { WbcGlobalQualifierEdition,
   WbcQualifierGame } from
   '../../core/world/competition/WbcGlobalQualifierPods';
-import { openSqliteWbcGlobalQualifierPodStore } from
+import { wbcGlobalQualifierPodFixtureEvidenceFromSqlite, openSqliteWbcGlobalQualifierPodStore } from
   './SqliteWbcGlobalQualifierPodStore';
 import { openSqliteNationalQualificationHistoryStore,
   type SqliteNationalQualificationHistoryStore } from
@@ -122,6 +122,22 @@ it('advances four qualifier pods only after durable official finals', () => {
     expect(outcome.winners).toHaveLength(4);
     expect(store.readEvidence('career-1',
       edition.editionId)?.outcome).toEqual(outcome);
+    const originalDb = new DatabaseSync(path);
+    try {
+      originalDb.exec('PRAGMA query_only=ON');
+      const forbidden = new Set(finalGames.map(game => game.gameId));
+      const prior = wbcGlobalQualifierPodFixtureEvidenceFromSqlite(originalDb, { ...sources, matches: {
+        getMatch: gameId => { if (forbidden.has(gameId)) throw new Error('qualifier final is not an original input'); return sources.matches.getMatch(gameId); },
+        getOfficialFixture: sources.matches.getOfficialFixture,
+      } });
+      expect(prior.readPlan('career-1', edition.editionId)).toEqual(plan);
+      expect(prior.finalGames('career-1', edition.editionId)).toEqual(finalGames);
+      expect(Object.keys(prior).sort()).toEqual(['finalGames', 'readEdition', 'readPlan']);
+      originalDb.exec('PRAGMA query_only=OFF'); originalDb.exec('BEGIN');
+      originalDb.prepare("UPDATE world_wbc_qualifier_pods SET outcome_json='{}'").run();
+      expect(prior.finalGames('career-1', edition.editionId)).toEqual(finalGames);
+      originalDb.exec('ROLLBACK');
+    } finally { if (originalDb.isTransaction) originalDb.exec('ROLLBACK'); originalDb.close(); }
     qualification = openSqliteNationalQualificationHistoryStore(path,
       { knockouts: { readEvidence: () => null },
         qualifiers: { readEvidence: () =>

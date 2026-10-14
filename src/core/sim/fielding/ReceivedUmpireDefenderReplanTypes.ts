@@ -1,3 +1,4 @@
+import type { OfficialGameplayRuling } from '../../adjudication/PlayAdjudicationLedger';
 import type { Vec2 } from '../../model/geometry';
 import type { ReceivedCommunication } from '../perception/Communication';
 import type { PlayerPerceivedWorldState } from '../perception/PlayerPerceivedWorldState';
@@ -18,20 +19,29 @@ export type ReceivedUmpireCallContent = Readonly<{
     ruling: Readonly<{ outsAfter: number; basesAfter: Readonly<{ first: string | null; second: null; third: null }>;
       scoredRunnerIds: readonly [] }> }>;
 }>;
-export type ReceivedUmpireCallReception = Readonly<{ kind: 'scheduled'; dueAt: ReceivedUmpireCallMoment }>
+/** A caught batter OUT carries its original occupied bases. This is distinct
+ * from the legacy first-base payload, whose second/third-base limits remain. */
+export type ReceivedUmpireCaughtOutContent = Readonly<{
+  callSourceId: string; call: 'out'; calledAt: ReceivedUmpireCallMoment;
+  onFieldCall: Readonly<Omit<ReceivedUmpireCallContent['onFieldCall'], 'ruling'> & {
+    ruling: OfficialGameplayRuling & Readonly<{ scoredRunnerIds: readonly [] }>;
+  }>;
+}>;
+export type ReceivedUmpireCallReception<Content = ReceivedUmpireCallContent> = Readonly<{ kind: 'scheduled'; dueAt: ReceivedUmpireCallMoment }>
   | Readonly<{ kind: 'received'; receivedAt: ReceivedUmpireCallMoment; order: ReceivedUmpireCallOrder;
-    received: ReceivedCommunication<ReceivedUmpireCallContent> }>;
+    received: ReceivedCommunication<Content> }>;
+export type ReceivedUmpireCaughtOutReception = Extract<ReceivedUmpireCallReception<ReceivedUmpireCaughtOutContent>, { kind: 'received' }>;
 
 /**
  * Internal rederived dependencies only. This is not a caller-accepted Source or proof
  * of Native ownership, physical execution, monotonic scheduler progress or persistence.
  */
-export type ReceivedUmpireDefenderReplanInput = Readonly<{
+export type ReceivedUmpireDefenderReplanInput<Content extends ReceivedUmpireCallContent | ReceivedUmpireCaughtOutContent = ReceivedUmpireCallContent> = Readonly<{
   processSourceId: string; physicalPitchSourceId: string; playerId: string; receiverRole: 'defender' | 'batter';
   ticksPerSecond: number; currentCut: ReceivedUmpireCallMoment;
   communication: Readonly<{ sourceId: string; hash: string; originCommunicationSourceId: string; callSourceId: string }>;
   observation: Readonly<{ sourceId: string; hash: string; at: ReceivedUmpireCallMoment;
-    perceived: PlayerPerceivedWorldState<null>; reception: ReceivedUmpireCallReception }>;
+    perceived: PlayerPerceivedWorldState<null>; reception: ReceivedUmpireCallReception<Content> }>;
   predecessor: Readonly<{
     originDecisionSourceId: string; originObservationSourceId: string; originObservationHash: string;
     availability: ReceivedUmpireCallMoment; informationOrder: ReceivedUmpireCallOrder;
@@ -46,9 +56,9 @@ export type ReceivedUmpireDefenderReplanInput = Readonly<{
   contextualPlan: Readonly<{ sourceId: string; hash: string; priorities: PrePlayDefensivePlan }>;
   policy: Readonly<{ sourceId: string; hash: string; availableAt: ReceivedUmpireCallMoment;
     profiles: Readonly<{ out: LocalUmpireCallPriorities | null; safe: LocalUmpireCallPriorities | null }> }> | null;
-  previous: ReceivedUmpireDefenderReplan | null;
+  previous: ReceivedUmpireDefenderReplan<Content> | null;
 }>;
-export type ReceivedUmpireDefenderOriginEvidence = Readonly<Pick<ReceivedUmpireDefenderReplanInput,
+export type ReceivedUmpireDefenderOriginEvidence<Content extends ReceivedUmpireCallContent | ReceivedUmpireCaughtOutContent = ReceivedUmpireCallContent> = Readonly<Pick<ReceivedUmpireDefenderReplanInput<Content>,
   'physicalPitchSourceId' | 'playerId' | 'receiverRole' | 'ticksPerSecond' | 'communication' | 'observation' | 'model' | 'contextualPlan'> & {
   predecessor: Pick<ReceivedUmpireDefenderReplanInput['predecessor'],
     'originDecisionSourceId' | 'originObservationSourceId' | 'originObservationHash' | 'availability' | 'informationOrder' | 'command' | 'motor'>;
@@ -56,9 +66,9 @@ export type ReceivedUmpireDefenderOriginEvidence = Readonly<Pick<ReceivedUmpireD
 export type ReceivedUmpireDefenderPolicyBinding = Readonly<{
   policy: NonNullable<ReceivedUmpireDefenderReplanInput['policy']>; boundAt: ReceivedUmpireCallMoment;
 }>;
-export type ReceivedUmpireDefenderReplan = Readonly<{
+export type ReceivedUmpireDefenderReplan<Content extends ReceivedUmpireCallContent | ReceivedUmpireCaughtOutContent = ReceivedUmpireCallContent> = Readonly<{
   processSourceId: string; cause: ReceivedUmpireCallCause | null;
-  originEvidence: ReceivedUmpireDefenderOriginEvidence | null; policyBinding: ReceivedUmpireDefenderPolicyBinding | null;
+  originEvidence: ReceivedUmpireDefenderOriginEvidence<Content> | null; policyBinding: ReceivedUmpireDefenderPolicyBinding | null;
   trigger: 'no_new_trigger' | 'communication_received';
   semantic: 'ready' | 'call_profile_unavailable' | 'receiver_role_unavailable' | 'intent_adapter_unavailable'
     | 'predecessor_work_pending' | 'same_moment_order_unavailable';

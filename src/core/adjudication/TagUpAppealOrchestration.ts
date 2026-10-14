@@ -2,17 +2,19 @@ import type { RuleProfile } from '../rules/RuleProfile';
 import { createFlyBallFirstFielderTouchFact } from '../rules/PhysicalRuleFacts';
 import type { CanonicalPlateAppearanceTimeline } from '../sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 import { resolveTagUpAppeal, type TagUpAppealResult } from '../rules/TagUpAppealRule';
-import { evaluateTagUpCompliance, type TagUpComplianceResult } from '../rules/TagUpCompliance';
+import { evaluateTagUpCompliance, type TagUpComplianceInput, type TagUpComplianceResult } from '../rules/TagUpCompliance';
+import { evaluateBallWorldTagUpCompliance } from '../rules/BallWorldTagUpCompliance';
 import {
   getOfficialStateWindows,
   recordDefensiveAppealAttempt,
   type DefensiveAppealAttemptInput,
+  type BallWorldAppealComplianceEvidence,
   type PlayAdjudicationLedger,
 } from './PlayAdjudicationLedger';
 import { cloneInert, evaluateRuleProfileOfficialWindowTiming } from './OfficialWindowPolicy';
 
-export type TagUpAppealAttemptInput = Omit<DefensiveAppealAttemptInput, 'timing'> & Readonly<{
-  profile: RuleProfile;
+export type TagUpAppealAttemptInput = Omit<DefensiveAppealAttemptInput, 'timing' | 'complianceEvidence'> & Readonly<{
+  profile: RuleProfile; complianceEvidence: TagUpComplianceInput;
 }>;
 
 export type TagUpAppealAttemptResolution = Readonly<{
@@ -21,11 +23,19 @@ export type TagUpAppealAttemptResolution = Readonly<{
   result: TagUpAppealResult;
 }>;
 
-export const orchestrateTagUpAppealAttempt = (
-  ledgerInput: PlayAdjudicationLedger,
-  expectedRevision: number,
-  input: TagUpAppealAttemptInput,
-): TagUpAppealAttemptResolution => {
+export type ExactTagUpAppealAttemptInput = Omit<TagUpAppealAttemptInput, 'complianceEvidence'>
+  & Readonly<{ complianceEvidence: BallWorldAppealComplianceEvidence }>;
+type ExactCompliance = Exclude<ReturnType<typeof evaluateBallWorldTagUpCompliance>, { kind: 'pending' }>;
+export type ExactTagUpAppealAttemptResolution = Omit<TagUpAppealAttemptResolution, 'compliance'> & Readonly<{ compliance: ExactCompliance }>;
+export function orchestrateTagUpAppealAttempt(ledgerInput: PlayAdjudicationLedger, expectedRevision: number,
+  input: ExactTagUpAppealAttemptInput): ExactTagUpAppealAttemptResolution;
+// Keep the legacy signature last for existing Parameters/ReturnType consumers.
+export function orchestrateTagUpAppealAttempt(ledgerInput: PlayAdjudicationLedger, expectedRevision: number,
+  input: TagUpAppealAttemptInput): TagUpAppealAttemptResolution;
+export function orchestrateTagUpAppealAttempt(
+  ledgerInput: PlayAdjudicationLedger, expectedRevision: number,
+  input: TagUpAppealAttemptInput | ExactTagUpAppealAttemptInput,
+): Readonly<{ ledger: PlayAdjudicationLedger; compliance: TagUpComplianceResult | ExactCompliance; result: TagUpAppealResult }> {
   const ledger = cloneInert(ledgerInput);
   const request = cloneInert(input);
   if (ledger.ruleProfileId !== request.profile.id) {
@@ -49,7 +59,9 @@ export const orchestrateTagUpAppealAttempt = (
   if (recorded?.kind !== 'DefensiveAppealAttemptRecorded') {
     throw new Error('appeal attempt was not recorded');
   }
-  const compliance = evaluateTagUpCompliance(recorded.complianceEvidence);
+  const compliance = 'kind' in recorded.complianceEvidence
+    ? evaluateBallWorldTagUpCompliance(recorded.complianceEvidence) : evaluateTagUpCompliance(recorded.complianceEvidence);
+  if (compliance.kind === 'pending') throw new Error('recorded exact appeal lost its original contact evidence');
   const ruleResult = resolveTagUpAppeal({
     compliance,
     appeal: recorded.attempt,
@@ -74,7 +86,7 @@ export const orchestrateTagUpAppealAttempt = (
     });
   }
   return Object.freeze({ ledger: next, compliance, result });
-};
+}
 
 export type TimelineTagUpAppealAttemptInput = Omit<TagUpAppealAttemptInput, 'complianceEvidence'> & Readonly<{
   physicalTimeline: CanonicalPlateAppearanceTimeline;

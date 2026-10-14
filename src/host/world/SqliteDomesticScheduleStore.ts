@@ -1,8 +1,13 @@
 import { createRequire } from 'node:module';
+import { createHash } from 'node:crypto';
+import type { DatabaseSync } from 'node:sqlite';
 import { isDeepStrictEqual } from 'node:util';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
+import { bindDomesticFixtureVenue, matchesDomesticFixtureRevision } from '../../core/world/competition/DomesticFixtureVenue';
+import type { OfficialGameVenueBinding } from '../../core/world/competition/OfficialGameCompletion';
+import { readAcceptedClubHistory } from './SqliteClubEventJournal';
 import { applyScheduleRevisions, createBaseScheduleSnapshot,
-  type BaseScheduleSnapshot, type ScheduleRevisionEvent } from
+  type BaseScheduleSnapshot, type ScheduleGame, type ScheduleRevisionEvent } from
   '../../core/world/competition/LeagueSchedule';
 import { createLeagueSeasonEventSnapshot, marketDecisionTriggersOnDay,
   type LeagueSeasonEventProfile, type LeagueSeasonEventSnapshot,
@@ -31,7 +36,25 @@ export type DurableLeagueSeasonEvents = Readonly<{
   profile: LeagueSeasonEventProfile;
   snapshot: LeagueSeasonEventSnapshot;
 }>;
+export type DomesticMarketTriggerReference = Readonly<{
+  owner: 'world_league_season_events';
+  careerId: string;
+  baseScheduleHash: string;
+  seasonEventsHash: string;
+  trigger: MarketDecisionTrigger;
+}>;
+export type DomesticCareerDay = Readonly<{
+  careerId: string; day: number;
+  /** The selected original calendar, also retained outside its game window. */
+  seasonId?: string;
+  missingScheduleSeasonIds: readonly string[];
+  seasons: readonly Readonly<{ schedule: DurableDomesticSchedule; games: readonly ScheduleGame[];
+    marketTriggers: readonly DomesticMarketTriggerReference[]; eventsMissing: boolean }>[];
+}>;
 export type SqliteDomesticScheduleStore = Readonly<{
+  assertFixtureDayAtWrite(writer: Pick<DatabaseSync, 'prepare'>,
+    scope: Readonly<{ careerId: string; seasonId: string; gameId: string; day: number }>, fixture: OfficialGameVenueBinding): void;
+  readCareerDay(careerId: string, day: number, seasonId?: string): DomesticCareerDay;
   initialize(careerId: string,
     baseSchedule: BaseScheduleSnapshot): DurableDomesticSchedule;
   read(careerId: string, seasonId: string): DurableDomesticSchedule | null;
@@ -44,6 +67,7 @@ export type SqliteDomesticScheduleStore = Readonly<{
     DurableLeagueSeasonEvents | null;
   marketTriggersOnDay(careerId: string, seasonId: string,
     day: number): readonly MarketDecisionTrigger[];
+  captureMarketTriggerReference(careerId: string, trigger: MarketDecisionTrigger): DomesticMarketTriggerReference;
   close(): void;
 }>;
 
@@ -63,6 +87,132 @@ const canonicalJson = (value: unknown): string => JSON.stringify(cloneInert(valu
     && !Array.isArray(item)
     ? Object.fromEntries(Object.entries(item).sort(([left], [right]) =>
       left < right ? -1 : left > right ? 1 : 0)) : item);
+
+const parse = (careerId: string, seasonId: string,
+  row: ArchiveRow, season: SeasonRow): DurableDomesticSchedule => {
+  const baseSchedule = JSON.parse(row.base_json) as BaseScheduleSnapshot;
+  const records = JSON.parse(row.records_json) as RevisionRecord[];
+  const reconstructed = createBaseScheduleSnapshot(baseSchedule);
+  if (!Array.isArray(records) || !day(row.revision)
+    || row.revision !== records.length
+    || canonicalJson(baseSchedule) !== row.base_json
+    || canonicalJson(records) !== row.records_json
+    || !isDeepStrictEqual(reconstructed, baseSchedule)
+    || baseSchedule.seasonId !== seasonId
+    || records.some((record, index) => !day(record.acceptedAtDay)
+      || !id(record.event?.eventId)
+      || record.acceptedAtDay > record.event.newDay
+      || (index > 0 && record.acceptedAtDay
+        < records[index - 1]!.acceptedAtDay))) {
+    throw new Error('corrupt durable domestic schedule');
+  }
+  const revisions = records.map((record) => record.event);
+  const current = captureOfficialStandingsSchedule(baseSchedule, revisions);
+  if (!isDeepStrictEqual(JSON.parse(season.schedule_json), current)) {
+    throw new Error('durable domestic schedule diverges from World season');
+  }
+  return Object.freeze({ careerId, seasonId, revision: row.revision,
+    baseSchedule, revisions: Object.freeze(revisions),
+    acceptedAtDays: Object.freeze(records.map((record) =>
+      record.acceptedAtDay)) });
+};
+/** The accepted day is a write precondition on the actual Match connection.
+ * Legacy preparation without a day guard can still use separate databases. */
+const assertDomesticFixtureDayFromSqlite = (
+  db: Pick<DatabaseSync, 'prepare'>,
+  scope: Readonly<{ careerId: string; seasonId: string; gameId: string; day: number }>,
+  fixture: OfficialGameVenueBinding,
+): void => {
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  if (!(db instanceof DatabaseSync) || !db.isTransaction) throw new Error('accepted domestic day requires an actual Native write transaction');
+  if (!id(scope.careerId) || !id(scope.seasonId) || !id(scope.gameId) || !day(scope.day)
+    || db.prepare('PRAGMA database_list').all().some(row => row.name !== 'main' && row.name !== 'temp')
+    || db.prepare("SELECT name FROM temp.sqlite_master WHERE type IN ('table','view') LIMIT 1").get()) {
+    throw new Error('invalid accepted domestic day evidence scope');
+  }
+  const archive = db.prepare('SELECT revision,base_json,records_json FROM main.world_domestic_schedules WHERE career_id=? AND season_id=?')
+    .get(scope.careerId, scope.seasonId) as ArchiveRow | undefined;
+  const season = db.prepare('SELECT revision,schedule_json,policy_json,results_json FROM main.world_season_heads WHERE career_id=? AND season_id=?')
+    .get(scope.careerId, scope.seasonId) as SeasonRow | undefined;
+  if (!archive || !season) throw new Error('accepted domestic day requires its calendar and World on the Match writer connection');
+  const schedule = parse(scope.careerId, scope.seasonId, archive, season);
+  const game = applyScheduleRevisions(schedule.baseSchedule, schedule.revisions).games.find(item => item.gameId === scope.gameId);
+  if (!game || game.day !== scope.day || fixture.gameId !== game.gameId
+    || !matchesDomesticFixtureRevision(fixture, scope.careerId, schedule.baseSchedule, schedule.revisions)
+    || (JSON.parse(season.results_json) as OfficialGameResult[]).some(result => result.gameId === scope.gameId)) {
+    throw new Error('domestic fixture differs from the accepted day at write');
+  }
+  const history = readAcceptedClubHistory(db, scope.careerId, game.homeClubId);
+  if (!history) throw new Error('accepted domestic day lacks original Club history');
+  const parts = JSON.parse(fixture.fixtureEventId) as unknown[];
+  const venueRevisionAtGame = parts[parts.length - 2] as number;
+  const original = bindDomesticFixtureVenue({ baseSchedule: schedule.baseSchedule, revisions: schedule.revisions,
+    gameId: scope.gameId, venueRevisionAtGame, history: { ...history,
+      acceptedEvents: history.acceptedEvents.filter(event => event.afterRevision <= venueRevisionAtGame) } });
+  if (!isDeepStrictEqual(original.binding, fixture)) throw new Error('accepted domestic day fixture differs from its original Club prefix');
+};
+
+const parseEvents = (careerId: string, seasonId: string,
+  schedule: DurableDomesticSchedule,
+  row: EventsRow): DurableLeagueSeasonEvents => {
+  const profile = JSON.parse(row.profile_json) as LeagueSeasonEventProfile;
+  const snapshot = JSON.parse(row.snapshot_json) as LeagueSeasonEventSnapshot;
+  const recomputed = createLeagueSeasonEventSnapshot(
+    schedule.baseSchedule, profile);
+  const current = applyScheduleRevisions(schedule.baseSchedule,
+    schedule.revisions);
+  if (canonicalJson(profile) !== row.profile_json
+    || canonicalJson(snapshot) !== row.snapshot_json
+    || !isDeepStrictEqual(snapshot, recomputed)
+    || (snapshot.allStarEvent !== null && current.games.some((game) =>
+      game.day === snapshot.allStarEvent!.day))) {
+    throw new Error('corrupt durable league season events');
+  }
+  return Object.freeze({ careerId, seasonId, profile, snapshot });
+};
+/** Read the calendar owner's original trigger on the consumer's SQLite connection.
+ * Event timing is frozen against the base calendar, not later rainout revisions. */
+export const readDomesticMarketTriggerFromSqlite = (
+  db: DatabaseSync, careerId: string, rawTrigger: MarketDecisionTrigger,
+): Readonly<{ reference: DomesticMarketTriggerReference; baseSchedule: BaseScheduleSnapshot }> => {
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  if (!(db instanceof DatabaseSync)) throw new Error('domestic market evidence requires an actual Native SQLite connection');
+  const trigger = cloneInert(rawTrigger);
+  const keys = ['seasonId', 'leagueId', 'windowId', 'type', 'day', 'policyVersion'];
+  if (!id(careerId) || !trigger || Object.keys(trigger).length !== keys.length
+    || keys.some(key => !Object.hasOwn(trigger, key)) || !day(trigger.day)
+    || ![trigger.seasonId, trigger.leagueId, trigger.windowId, trigger.policyVersion].every(id)) {
+    throw new Error('invalid domestic market trigger');
+  }
+  if (db.prepare('PRAGMA database_list').all().some(row => row.name !== 'main' && row.name !== 'temp')
+    || db.prepare("SELECT name FROM temp.sqlite_master WHERE type IN ('table','view') LIMIT 1").get()) {
+    throw new Error('domestic market evidence requires main-only storage');
+  }
+  const reading = () => {
+    const { seasonId } = trigger;
+    const archive = db.prepare('SELECT revision,base_json,records_json FROM main.world_domestic_schedules WHERE career_id=? AND season_id=?')
+      .get(careerId, seasonId) as ArchiveRow | undefined;
+    const season = db.prepare('SELECT revision,schedule_json,policy_json,results_json FROM main.world_season_heads WHERE career_id=? AND season_id=?')
+      .get(careerId, seasonId) as SeasonRow | undefined;
+    const events = db.prepare('SELECT profile_json,snapshot_json FROM main.world_league_season_events WHERE career_id=? AND season_id=?')
+      .get(careerId, seasonId) as EventsRow | undefined;
+    if (!archive || !season || !events) throw new Error('original domestic market calendar is missing');
+    const schedule = parse(careerId, seasonId, archive, season);
+    const original = parseEvents(careerId, seasonId, schedule, events);
+    const actual = marketDecisionTriggersOnDay(original.snapshot, trigger.day)
+      .find(item => item.windowId === trigger.windowId);
+    if (!actual || !isDeepStrictEqual(actual, trigger)) throw new Error('domestic market trigger differs from original calendar');
+    const hash = (value: unknown) => createHash('sha256').update(canonicalJson(value)).digest('hex');
+    return Object.freeze({ baseSchedule: schedule.baseSchedule, reference: Object.freeze({
+      owner: 'world_league_season_events' as const, careerId,
+      baseScheduleHash: hash(schedule.baseSchedule), seasonEventsHash: hash(original), trigger: actual,
+    }) });
+  };
+  if (db.isTransaction) return reading();
+  db.exec('BEGIN');
+  try { const result = reading(); db.exec('COMMIT'); return result; }
+  catch (error) { if (db.isTransaction) db.exec('ROLLBACK'); throw error; }
+};
 
 /** Stores the frozen generator output and accepted revisions beside World heads. */
 export const openSqliteDomesticScheduleStore = (
@@ -108,52 +258,6 @@ export const openSqliteDomesticScheduleStore = (
       throw error;
     }
   };
-  const parse = (careerId: string, seasonId: string,
-    row: ArchiveRow, season: SeasonRow): DurableDomesticSchedule => {
-    const baseSchedule = JSON.parse(row.base_json) as BaseScheduleSnapshot;
-    const records = JSON.parse(row.records_json) as RevisionRecord[];
-    const reconstructed = createBaseScheduleSnapshot(baseSchedule);
-    if (!Array.isArray(records) || !day(row.revision)
-      || row.revision !== records.length
-      || canonicalJson(baseSchedule) !== row.base_json
-      || canonicalJson(records) !== row.records_json
-      || !isDeepStrictEqual(reconstructed, baseSchedule)
-      || baseSchedule.seasonId !== seasonId
-      || records.some((record, index) => !day(record.acceptedAtDay)
-        || !id(record.event?.eventId)
-        || record.acceptedAtDay > record.event.newDay
-        || (index > 0 && record.acceptedAtDay
-          < records[index - 1]!.acceptedAtDay))) {
-      throw new Error('corrupt durable domestic schedule');
-    }
-    const revisions = records.map((record) => record.event);
-    const current = captureOfficialStandingsSchedule(baseSchedule, revisions);
-    if (!isDeepStrictEqual(JSON.parse(season.schedule_json), current)) {
-      throw new Error('durable domestic schedule diverges from World season');
-    }
-    return Object.freeze({ careerId, seasonId, revision: row.revision,
-      baseSchedule, revisions: Object.freeze(revisions),
-      acceptedAtDays: Object.freeze(records.map((record) =>
-        record.acceptedAtDay)) });
-  };
-  const parseEvents = (careerId: string, seasonId: string,
-    schedule: DurableDomesticSchedule,
-    row: EventsRow): DurableLeagueSeasonEvents => {
-    const profile = JSON.parse(row.profile_json) as LeagueSeasonEventProfile;
-    const snapshot = JSON.parse(row.snapshot_json) as LeagueSeasonEventSnapshot;
-    const recomputed = createLeagueSeasonEventSnapshot(
-      schedule.baseSchedule, profile);
-    const current = applyScheduleRevisions(schedule.baseSchedule,
-      schedule.revisions);
-    if (canonicalJson(profile) !== row.profile_json
-      || canonicalJson(snapshot) !== row.snapshot_json
-      || !isDeepStrictEqual(snapshot, recomputed)
-      || (snapshot.allStarEvent !== null && current.games.some((game) =>
-        game.day === snapshot.allStarEvent!.day))) {
-      throw new Error('corrupt durable league season events');
-    }
-    return Object.freeze({ careerId, seasonId, profile, snapshot });
-  };
   const readSchedule = (careerId: string,
     seasonId: string): DurableDomesticSchedule | null => {
     if (!id(careerId) || !id(seasonId)) {
@@ -177,6 +281,51 @@ export const openSqliteDomesticScheduleStore = (
     return parseEvents(careerId, seasonId, schedule, row);
   };
   return Object.freeze({
+    assertFixtureDayAtWrite(writer, scope, fixture) {
+      if (!(writer instanceof sqlite.DatabaseSync)) throw new Error('accepted domestic day requires its actual Native Match writer');
+      const ownerFile = db.prepare('PRAGMA database_list').all().find(row => row.name === 'main')?.file;
+      const writerFile = writer.prepare('PRAGMA database_list').all().find(row => row.name === 'main')?.file;
+      if (ownerFile !== writerFile || (!ownerFile && db !== writer)) {
+        throw new Error('accepted domestic day calendar is not on its Match writer connection');
+      }
+      assertDomesticFixtureDayFromSqlite(writer, scope, fixture);
+    },
+    readCareerDay(careerId: string, eventDay: number, requestedSeasonId?: string): DomesticCareerDay {
+      if (!id(careerId) || !day(eventDay) || (requestedSeasonId !== undefined && !id(requestedSeasonId))) {
+        throw new Error('invalid domestic Career day');
+      }
+      db.exec('BEGIN');
+      try {
+        const scopes = db.prepare(`SELECT season_id FROM world_season_heads WHERE career_id=?
+          UNION SELECT season_id FROM world_domestic_schedules WHERE career_id=? ORDER BY season_id`)
+          .all(careerId, careerId) as { season_id: string }[];
+        // These day numbers can have different seasonDayOne origins. A common
+        // number does not authorize dispatch across the Career's calendars.
+        if (requestedSeasonId === undefined && scopes.length > 1) {
+          throw new Error('domestic Career day requires an explicit season scope');
+        }
+        if (requestedSeasonId !== undefined && !scopes.some(scope => scope.season_id === requestedSeasonId)) {
+          throw new Error('domestic Career day season is not registered');
+        }
+        const selectedSeasonId = requestedSeasonId ?? scopes[0]?.season_id;
+        const missingScheduleSeasonIds: string[] = [], seasons: DomesticCareerDay['seasons'][number][] = [];
+        for (const { season_id: seasonId } of scopes.filter(scope => scope.season_id === selectedSeasonId)) {
+          const schedule = readSchedule(careerId, seasonId);
+          if (!schedule) { missingScheduleSeasonIds.push(seasonId); continue; }
+          const current = applyScheduleRevisions(schedule.baseSchedule, schedule.revisions);
+          const days = [...schedule.baseSchedule.games, ...current.games].map(game => game.day);
+          if (eventDay < Math.min(...days) || eventDay > Math.max(...days)) continue;
+          const events = readEvents(careerId, seasonId);
+          const marketTriggers = events ? marketDecisionTriggersOnDay(events.snapshot, eventDay)
+            .map(trigger => readDomesticMarketTriggerFromSqlite(db, careerId, trigger).reference) : [];
+          seasons.push(Object.freeze({ schedule, games: Object.freeze(current.games.filter(game => game.day === eventDay)),
+            marketTriggers: Object.freeze(marketTriggers), eventsMissing: events === null }));
+        }
+        db.exec('COMMIT');
+        return Object.freeze({ careerId, day: eventDay, ...(selectedSeasonId === undefined ? {} : { seasonId: selectedSeasonId }),
+          missingScheduleSeasonIds: Object.freeze(missingScheduleSeasonIds), seasons: Object.freeze(seasons) });
+      } catch (error) { if (db.isTransaction) db.exec('ROLLBACK'); throw error; }
+    },
     initialize(careerId: string,
       baseSchedule: BaseScheduleSnapshot): DurableDomesticSchedule {
       if (!id(careerId) || !baseSchedule) {
@@ -333,6 +482,9 @@ export const openSqliteDomesticScheduleStore = (
       const events = readEvents(careerId, seasonId);
       if (!events) throw new Error('league season events are not initialized');
       return marketDecisionTriggersOnDay(events.snapshot, eventDay);
+    },
+    captureMarketTriggerReference(careerId: string, trigger: MarketDecisionTrigger): DomesticMarketTriggerReference {
+      return readDomesticMarketTriggerFromSqlite(db, careerId, trigger).reference;
     },
     close(): void { db.close(); },
   });

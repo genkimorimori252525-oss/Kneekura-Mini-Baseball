@@ -36,6 +36,7 @@ export type ActualFirstBaseEndedEvidence = Readonly<{
     fence: Readonly<{ owner: 'actual_first_base_play_ends'; sourceId: string }>;
   }>;
 
+  receivedControllerExtension?: import('./ActualReceivedUmpireTerminalCoverage').ReceivedControllerExtension;
   registry: import('../../core/sim/liveAction/LivePlayRegistry').LivePlayRegistryResolution;
   generation: Readonly<{ boundary: import('../../core/sim/liveAction/QuantizerClosedGenerationBoundary').QuantizerClosedGenerationBoundary;
     admissionJournalHash: string; producerIds: readonly string[]; consumed: readonly Readonly<{ cause: string; consumer: string }>[];

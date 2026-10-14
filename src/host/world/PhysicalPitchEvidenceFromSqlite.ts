@@ -1,3 +1,4 @@
+import { assertNationalMatchBindings } from './NationalMatchOriginFromSqlite';
 import { assertFoulTerminalPriorActivation } from './FoulTerminalCompletionAncestryGuard';
 import { originalBattingIntentInput } from './OriginalBattingIntent';
 import { derivePrePitchRunnerExecution } from './PrePitchRunnerEvidenceFromSqlite';
@@ -11,7 +12,7 @@ import type { AcceptedPhysicalPitchActionSource, DurablePhysicalPitch } from './
 import { createCanonicalPlateAppearanceTimeline, type CanonicalPlateAppearanceTimeline } from '../../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 import { resolveContinuousPlayerPitchAgainstBatterFromWorld } from './ContinuousPlayerPitchRuntime';
 import { readPhysicalPlateAppearanceActorFromSqlite } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
-import { activeBattedWorldFieldReadFrame } from './SqliteBattedWorldFieldStore';
+import { activeBattedWorldFieldReadFrame, assertBattedWorldFieldReadFrame } from './SqliteBattedWorldFieldStore';
 
 type Frame = DurablePhysicalPitch['frame'];
 type Row = { source_id: string; game_id: string; play_id: number; progress_revision: number; source_json: string;
@@ -46,6 +47,9 @@ export const capturePhysicalPitchEvidence = (db: Pick<DatabaseSync, 'prepare'>,
       || binding.clubId !== first.clubId || binding.side !== first.side) throw new Error('physical pitch actor binding evidence differs');
     readOfficialActorPersonLink(db, binding);
   }
+  const national = assertNationalMatchBindings(db, [...frame.bindings,
+    ...(frame.batterActor ? [frame.batterActor.binding] : []), ...(frame.prePitchRunner ? [frame.prePitchRunner.binding] : [])]);
+  if (national) result.nationalMatchOrigin = [hash(national)];
   const scope = [frame.workload.careerId, frame.workload.playerId];
   for (const table of ['world_pitch_timing_baselines', 'world_pitch_timing_updates', 'world_player_release_baselines',
     'world_player_release_changes', 'world_player_workload_baselines', 'world_player_workload_activities']) {
@@ -181,6 +185,7 @@ export const readPhysicalPitchProgressFromSqlite = (db: PhysicalPitchDb, gameId:
 
 /** Replay only the original owned prefix, without executing later Sources that may depend on this evidence. */
 export const readOriginalPhysicalPitchPrefixFromSqlite = (db: PhysicalPitchDb, sourceId: string): DurablePhysicalPitch[] => {
+  if (activeBattedWorldFieldReadFrame(db)) return [...readOriginalPhysicalPitchWithRowsFromSqlite(db, sourceId).prefix];
   try {
     if (!id(sourceId)) throw new Error('invalid original physical pitch Source');
     const endpoint = db.prepare('SELECT source_id,game_id,play_id,progress_revision FROM physical_pitch_progress_actions WHERE source_id=?')
@@ -217,6 +222,15 @@ type OriginalPhysicalPitchWithRows = Readonly<{
   prefix: readonly DurablePhysicalPitch[];
   originalPitchRows: Readonly<{ actions: readonly string[]; head: string }>;
 }>;
+type PhysicalPitchPairIdentity = Readonly<{ endpoint: string; head: string; metadata: readonly string[]; rows: readonly string[] }>;
+// No result crosses an owner frame, including its fresh child frames. Only the
+// full successful replay and both raw audits can install a completed proof.
+const completedPhysicalPitchPairs = new WeakMap<object, { failed: boolean; namespace: string;
+  values: Map<string, Readonly<{ identity: PhysicalPitchPairIdentity; value: OriginalPhysicalPitchWithRows }>> }>();
+const samePairIdentity = (left: PhysicalPitchPairIdentity, right: PhysicalPitchPairIdentity): boolean =>
+  left.endpoint === right.endpoint && left.head === right.head
+  && left.metadata.length === right.metadata.length && left.metadata.every((row, index) => row === right.metadata[index])
+  && left.rows.length === right.rows.length && left.rows.every((row, index) => row === right.rows[index]);
 
 // Private to the paired owner: detach each SQL value before any authentication
 // callback. Each row keeps the existing inert encoding budget independently.
@@ -242,28 +256,54 @@ const loadOriginalPhysicalPitchPairRows = (db: PhysicalPitchDb, sourceId: string
   return { endpoint, head, metadata, rows };
 };
 
-/** One fresh replay and its exact owned-row identity, confined to the active owner read frame. */
+/** A fully authenticated replay and its exact rows, confined to one unchanged owner read frame. */
 export const readOriginalPhysicalPitchWithRowsFromSqlite = (db: PhysicalPitchDb, sourceId: string): OriginalPhysicalPitchWithRows => {
   const frame = activeBattedWorldFieldReadFrame(db);
   if (!frame) throw new Error('original physical pitch pair requires an owned read frame');
+  let completed = completedPhysicalPitchPairs.get(frame);
+  const checkFrame = () => {
+    try { assertBattedWorldFieldReadFrame(db, frame); }
+    catch (error) { if (completed) { completed.failed = true; completed.values.clear(); } throw error; }
+  };
+  checkFrame();
+  let value: OriginalPhysicalPitchWithRows, identities: PhysicalPitchPairIdentity;
+  let reusable = false;
   try {
+    const databases = db.prepare('PRAGMA database_list').all(), namespace = json(databases);
+    // Attached owners may be replaced without changing the main/temp stamp.
+    // Preserve their original fresh-read route rather than caching their proof.
+    reusable = databases.every(database => database.name === 'main' || database.name === 'temp');
+    if (!completed) {
+      completed = { failed: false, namespace, values: new Map() };
+      completedPhysicalPitchPairs.set(frame, completed);
+    }
+    if (completed.failed || completed.namespace !== namespace) throw new Error('original physical pitch completed proof expired');
     const owned = loadOriginalPhysicalPitchPairRows(db, sourceId);
-    const identities = { endpoint: json(owned.endpoint), head: json(owned.head),
+    identities = { endpoint: json(owned.endpoint), head: json(owned.head),
       metadata: owned.metadata.map(json), rows: owned.rows.map(json) };
-    const prefix = replayPhysicalPitchRows(db, owned.rows, owned.endpoint.game_id, owned.endpoint.play_id);
+    const prior = reusable ? completed.values.get(sourceId) : undefined;
+    if (prior && !samePairIdentity(identities, prior.identity)) throw new Error('original physical pitch paired identity changed');
+    const prefix = prior?.value.prefix ?? replayPhysicalPitchRows(db, owned.rows, owned.endpoint.game_id, owned.endpoint.play_id);
     // Recheck SQL structure and raw bytes only; the audit never authenticates or
     // replays again, and its rows never replace the replayed copies for hashing.
     const audit = loadOriginalPhysicalPitchPairRows(db, sourceId);
-    if (json(audit.endpoint) !== identities.endpoint || json(audit.head) !== identities.head
-      || audit.metadata.length !== identities.metadata.length || audit.metadata.some((row, index) => json(row) !== identities.metadata[index])
-      || audit.rows.length !== identities.rows.length || audit.rows.some((row, index) => json(row) !== identities.rows[index])) {
+    if (!samePairIdentity({ endpoint: json(audit.endpoint), head: json(audit.head),
+      metadata: audit.metadata.map(json), rows: audit.rows.map(json) }, identities)) {
       throw new Error('original physical pitch paired identity changed');
     }
     const pitch = prefix.at(-1)!;
     const originalPitchRows = freeze({ actions: owned.rows.map(hash),
       head: hash({ game_id: pitch.frame.gameId, play_id: pitch.frame.match.playId,
         revision: pitch.progressRevision, last_source_id: sourceId }) });
-    if (activeBattedWorldFieldReadFrame(db) !== frame) throw new Error('original physical pitch owned read frame changed');
-    return Object.freeze({ prefix: Object.freeze(prefix), originalPitchRows });
-  } catch (cause) { throw new Error('corrupt original physical pitch prefix', { cause }); }
+    if (json(db.prepare('PRAGMA database_list').all()) !== namespace) throw new Error('original physical pitch namespace changed');
+    value = prior?.value ?? Object.freeze({ prefix: Object.freeze(prefix), originalPitchRows });
+  } catch (cause) {
+    if (completed) { completed.failed = true; completed.values.clear(); }
+    throw new Error('corrupt original physical pitch prefix', { cause });
+  }
+  checkFrame();
+  if (completed!.failed) throw new Error('corrupt original physical pitch prefix', {
+    cause: new Error('original physical pitch completed proof expired') });
+  if (reusable) completed!.values.set(sourceId, { identity: identities, value });
+  return value;
 };

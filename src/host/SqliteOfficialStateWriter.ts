@@ -1,7 +1,7 @@
 import { assertFoulTerminalApplicationStorage } from './world/ActualFoulTerminalApplicationStorage';
 import { foulTerminalPostPlayCompletionEvidenceFromSqlite } from './world/ActualFoulTerminalPostPlayCompletionEvidenceFromSqlite';
-import { readFoulTerminalCompletionMirrors, foulTerminalCompletedOfficial } from './OfficialTerminalPostPlayCompletion';
-import type { AcceptedFoulTerminalPostPlaySetup } from './world/ActualFoulTerminalPostPlaySetup';
+import { readFoulTerminalCompletionMirrors, foulTerminalCompletedOfficial, foulTerminalCompletionMatchEnvelope } from './OfficialTerminalPostPlayCompletion';
+import { actualFoulTerminalPostPlayInput, type AcceptedFoulTerminalPostPlayInput } from './world/ActualFoulTerminalPostPlayBoundary';
 import type { PersistOfficialCompletedTerminalResult } from './world/ActualFoulTerminalPostPlayCompletion';
 import { readOfficialCompletedTerminalMatch } from './OfficialTerminalPostPlayCompletion';
 import { officialStateSerialized as serialized, officialStateHash as hash } from './OfficialStateEncoding';
@@ -226,12 +226,12 @@ export class SqliteOfficialStateWriter {
   getMatch(matchId: string): PersistedMatch | null {
     const id = nonEmpty(matchId, 'matchId');
     const row = this.database.prepare(`
-      SELECT durable_revision, state_json, activation_json FROM matches WHERE match_id=?
+      SELECT durable_revision, state_json, activation_json FROM main.matches WHERE match_id=?
     `).get(id) as MatchRow | undefined;
     if (row === undefined) return null;
     const completed = readOfficialCompletedTerminalMatch(this.database, id, row);
     if (completed) return Object.freeze({ durableRevision: revision(row.durable_revision, 'stored durable revision'),
-      matchState: validateMatchState(completed.receipt.appliedMatchState), activation: completed.activation, nextWorld: completed.nextWorld, finalResult: null });
+      matchState: validateMatchState(completed.receipt.appliedMatchState), activation: 'finalResult'in completed?null:completed.activation, nextWorld: 'finalResult'in completed?null:completed.nextWorld, finalResult: 'finalResult'in completed?completed.finalResult:null });
     const pending = readOfficialPendingMatch(this.database, id, row);
     if (pending) return Object.freeze({ durableRevision: revision(row.durable_revision, 'stored durable revision'),
       matchState: validateMatchState(pending.receipt.appliedMatchState), activation: null, nextWorld: null, finalResult: null,
@@ -437,8 +437,9 @@ export class SqliteOfficialStateWriter {
 
   /** Exactly two borrowed-connection updates. The terminal owner must append
    * its third archive update before readResult can authenticate local mirrors. */
-  prepareTerminalPostPlayCompletion(source: AcceptedFoulTerminalPostPlaySetup): PreparedOfficialStateWrite<PersistOfficialCompletedTerminalResult> {
-    if (!assertFoulTerminalApplicationStorage(this.database,'completion')) throw new Error('terminal completion exact storage is missing');
+  prepareTerminalPostPlayCompletion(raw: AcceptedFoulTerminalPostPlayInput): PreparedOfficialStateWrite<PersistOfficialCompletedTerminalResult> {
+    const captured=cloneInert(raw),source=actualFoulTerminalPostPlayInput(captured,captured?.sourceId);
+    if (!assertFoulTerminalApplicationStorage(this.database,source.capability==='actual_foul_terminal_post_play_setup_v2'&&source.kind==='game_final'?'finalCompletion':'completion')) throw new Error('terminal completion exact storage is missing');
     const prepared = foulTerminalPostPlayCompletionEvidenceFromSqlite(this.database).prepare(source);
     const original = prepared.original, result = foulTerminalCompletedOfficial(original.result.official,prepared.completion);
     const applicationId = original.source.applicationId, matchId = original.proposal.gameId;
@@ -454,7 +455,7 @@ export class SqliteOfficialStateWriter {
     };
     return this.prepareWrite(() => {
       update('applications',application,'result_json',serialized(result));
-      update('matches',match,'activation_json',serialized({ activation:result.activation,nextWorld:result.nextWorld }));
+      update('matches',match,'activation_json',serialized(foulTerminalCompletionMatchEnvelope(result)));
       return Object.freeze({ readResult: () => {
         const after = readFoulTerminalCompletionMirrors(this.database,original.source.sourceId,true).applicationResult;
         if (serialized(after) !== serialized(result)) throw new Error('terminal completion official result changed');

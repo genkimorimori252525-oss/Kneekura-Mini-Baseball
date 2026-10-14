@@ -33,7 +33,11 @@ const deriveWholePlayPhysicalHistory = (input: Prefix,
   for (const value of input.executions) {
     const execution = value.execution, source: WholePlaySourceRef = { owner: 'field_execution', sourceId: value.source.sourceId,
       revision: value.revision, physicalPitchSourceId }, previousSourceId = value.source.previousExecutionSourceId;
-    if (execution.kind === 'owned_acquisition_plan_v1' || execution.kind === 'owned_throw_plan_v1') {
+    if (execution.kind === 'received_renewal_adoption_v1' || execution.kind === 'received_renewal_continuation_v1') {
+      if (!cursor) throw new Error('whole-play received renewal lacks its actual physical cursor');
+      steps.push({ source, previousSourceId, kind: execution.kind, startCursor: cursor, field: execution.field });
+      cursor = execution.field.motion.cursor; horizon = execution.field.motion.world.moment; basis = source;
+    } else if (execution.kind === 'owned_acquisition_plan_v1' || execution.kind === 'owned_throw_plan_v1') {
       if (!basis) throw new Error('whole-play owned plan lacks its physical basis');
       steps.push(execution.kind === 'owned_acquisition_plan_v1'
         ? { source, previousSourceId, kind: execution.kind, basis, horizon, plan: execution.plan }

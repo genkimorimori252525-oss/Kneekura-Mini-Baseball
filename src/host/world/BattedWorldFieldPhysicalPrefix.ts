@@ -1,4 +1,4 @@
-import { battedWorldFieldGeometry, battedWorldFieldRootIdentity } from './BattedWorldFieldRoot';
+import { battedWorldFieldGeometry, battedWorldFieldRootIdentity, isBattedEpisodeFieldRoot } from './BattedWorldFieldRoot';
 export { battedWorldOriginalContactPrefix, type BattedWorldOriginalContactPrefix } from './BattedWorldOriginalContactPrefix';
 import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
 import { createOwnedScheduledMotionDependencyEncoding, createOwnedScheduledMotionPlanEncoding } from './OwnedScheduledMotionDependencyEncoding';
@@ -82,7 +82,7 @@ const projectPhysicalPrefix = (input: PrefixInput, reference: (snapshot: Durable
   if (!batter || flight.source.searchDurationTicks !== 0 || world.source.previousContactSourceId !== null
     || world.result.kind !== 'airborne' || world.result.throughTick !== originTick || json(world.result.ball) !== json(initial)
     || base.response.result.kind !== 'airborne' || json(base.response.result.ball) !== json(initial)
-    || base.rootKind !== 'episode_field_binding_v1' && (base.geometry.baseGeometry.source.flightSourceId !== flight.source.sourceId || json(base.geometry.baseGeometry.flight) !== json(flight))
+    || !isBattedEpisodeFieldRoot(base) && (base.geometry.baseGeometry.source.flightSourceId !== flight.source.sourceId || json(base.geometry.baseGeometry.flight) !== json(flight))
     || base.geometry.source.baseGeometrySourceId !== base.geometry.baseGeometry.source.sourceId
     || json(geometry.baseGeometry) !== json(base.geometry.baseGeometry.geometry)
     || json(createBattedWorldFieldGeometry({ baseGeometry: geometry.baseGeometry, baseModels: base.geometry.source.baseModels })) !== json(geometry)
@@ -269,7 +269,12 @@ const projectPhysicalPrefix = (input: PrefixInput, reference: (snapshot: Durable
       || value.source.action.kind !== value.execution.kind) throw new Error('actual field execution Source prefix differs');
     sources.add(value.source.sourceId);
     const execution = value.execution;
-    if (execution.kind === 'owned_acquisition_plan_v1') {
+    if(execution.kind==='received_renewal_adoption_v1'){
+      const motion=execution.field.motion;
+      if(pendingOwned||pendingThrow||pendingAcquisition||!cursor||json(motion.world.moment)!==json(horizon)
+        ||json(motion.cursor)!==json(cursor)||motion.carrierPlayerId!==carrierPlayerId||execution.field.baseContacts.length||motion.world.kind==='boundary')throw new Error('actual field received renewal changed its zero-horizon cut');
+      segment(motion.actors,motion.world.moment,true);currentField=execution.field;
+    } else if (execution.kind === 'owned_acquisition_plan_v1') {
       const plan = execution.plan;
       if (pendingOwned || pendingThrow || pendingAcquisition || cursor !== null || carrierPlayerId !== null
         || currentField.motion.response.kind !== 'capture_candidate' || json(execution.field) !== json(currentField)
@@ -467,13 +472,13 @@ const projectPhysicalPrefix = (input: PrefixInput, reference: (snapshot: Durable
         return { incoming: expected.contactMoment, constrained: { ...expected.contactMoment, ball: { ...expected.contactMoment.ball,
           velocity: contact.velocity, spin: { x: 0, y: 0, z: 0 } } } };
       });
-    } else if (execution.kind === 'owned_motion_v1' || execution.kind === 'motion' || execution.kind === 'motion_checkpoint_v1' || execution.kind === 'retained_motion_checkpoint_v1' || execution.kind === 'throw') {
+    } else if (execution.kind === 'received_renewal_continuation_v1' || execution.kind === 'owned_motion_v1' || execution.kind === 'motion' || execution.kind === 'motion_checkpoint_v1' || execution.kind === 'retained_motion_checkpoint_v1' || execution.kind === 'throw') {
       if (pendingOwned || pendingThrow || pendingAcquisition) throw new Error('actual field pending scheduled operation owns physical work');
       if (!cursor) throw new Error('actual field execution lacks a resolved prior cursor');
       const start = horizon.elapsedSeconds, priorCarrier = carrierPlayerId;
       if (execution.kind !== 'throw') {
         if (execution.field.motion.carrierPlayerId !== priorCarrier) throw new Error('actual field motion custody differs');
-        appendField(execution.field, priorCarrier === null ? cursor.moment : null, execution.kind !== 'retained_motion_checkpoint_v1' && !(execution.kind === 'owned_motion_v1' && execution.composition.mode === 'retained'));
+        appendField(execution.field, priorCarrier === null ? cursor.moment : null, execution.kind !== 'received_renewal_continuation_v1' && execution.kind !== 'retained_motion_checkpoint_v1' && !(execution.kind === 'owned_motion_v1' && execution.composition.mode === 'retained'));
         if (priorCarrier) control(priorCarrier, start, horizon.elapsedSeconds, execution.field.motion.world.kind !== 'boundary');
       } else {
         const thrown = execution.throw, model = execution.model, actor = world.modelActorEvidence.find((actor) => actor.binding.playerId === priorCarrier);

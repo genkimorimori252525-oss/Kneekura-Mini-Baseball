@@ -62,7 +62,7 @@ export const foulTerminalCompletionRawIdentities = (m: FoulTerminalCompletionMet
   const root = [...prefix,'completion'];
   const value = (path: readonly string[]) => strings(m.value(column,[...root,...path]));
   const found = Object.fromEntries(domains.map(key => [key,paths[key].flatMap(path => value(path))])) as FoulTerminalCompletionIdentities;
-  const completions = found.completionIds.map(value => embedded(value,completionVersion,3));
+  const completions = found.completionIds.flatMap(value => [embedded(value,completionVersion,3),embedded(value,'actual_foul_terminal_post_play_completion_v2',3)]);
   found.setupSourceIds.push(...completions.flatMap(value => value.length ? [value[1]] : []));
   found.physicalEndSourceIds.push(...strings(m.reference(column,[...root,'controllerRetirement','physicalEndReference'],'actual_foul_play_ends')));
   const sourceIds = [
@@ -73,8 +73,8 @@ export const foulTerminalCompletionRawIdentities = (m: FoulTerminalCompletionMet
     ...found.scoringApplicationIds.flatMap(value => embedded(value,scoringVersion,2)),
   ];
   return { ...found,sourceIds:strings(sourceIds),
-    applicationIds:[...value(['officialReference','applicationId']),...value(['activation','applicationId'])],
-    closureIds:value(['activation','closureId']) };
+    applicationIds:[...value(['officialReference','applicationId']),...value(['activation','applicationId']),...value(['finalResult','applicationId'])],
+    closureIds:[...value(['activation','closureId']),...value(['finalResult','closureId'])] };
 };
 
 /** Only previousPlayId means the consumed PA. A next play or current Match

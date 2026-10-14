@@ -9,7 +9,7 @@ import type { SqliteOfficialParticipationStore } from './SqliteOfficialParticipa
 import type { SqliteNationalRosterSnapshotStore } from './SqliteNationalRosterSnapshotStore';
 import type { SqliteManagerRosterDecisionStore } from './SqliteManagerRosterDecisionStore';
 import { clinicalJson as json, clinicalHash as hash, clinicalFreeze as freeze, readClinicalPersonLink, captureClinicalWorkloadRows,
-  captureClinicalGameRows, projectRehabRosterProof, deriveClinicalEffectEvidence, type ClinicalEffectProof } from './HealthRehabEvidenceFromSqlite';
+  captureClinicalGameRows, projectRehabRosterProof, readClinicalParticipationReceipt, deriveClinicalEffectEvidence, type ClinicalEffectProof } from './HealthRehabEvidenceFromSqlite';
 
 export type AcceptedHealthDiagnosis = Readonly<{
   sourceId: string; sourceVersion: string; clinicalRecordId: string; personLinkSourceId: string; previousCaseId: string | null; diagnosis: PlayerHealthDiagnosis;
@@ -227,7 +227,9 @@ export const openSqlitePlayerHealthRehabStore = (databasePath: string, sources: 
       if (source.kind === 'REHAB_GAME') {
         const rows = captureClinicalGameRows(db, snapshot.source.diagnosis, source.participationReceiptId, source.rosterSnapshotId);
         const acceptedReceipt = sources.participation.readReceipt(source.participationReceiptId);
-        if (acceptedReceipt && 'evidenceKind' in acceptedReceipt) throw new Error('rehabilitation does not support tagged participation receipts');
+        if (json(acceptedReceipt) !== json(readClinicalParticipationReceipt(db, source.participationReceiptId))) {
+          throw new Error('clinical peer participation differs from local original proof');
+        }
         const receipt = cloneInert(acceptedReceipt);
         const roster = sources.rosterSnapshots.readSnapshot(before.careerId, source.rosterSnapshotId);
         if (!receipt || !roster) throw new Error('actual played clinical game Source is missing');

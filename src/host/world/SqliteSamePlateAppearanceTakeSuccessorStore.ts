@@ -1,0 +1,1 @@
+export { openSqliteSamePlateAppearanceTakeSuccessorStore } from './SamePlateAppearanceTakeSuccessorFromSqlite';

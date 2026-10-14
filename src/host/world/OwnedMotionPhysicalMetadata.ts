@@ -1,13 +1,17 @@
+import { assertReceivedHandoffPhysicalMetadata } from './ActualReceivedUmpireHandoffPhysicalMetadata';
+import { assertReceivedContinuationPhysicalAdmission } from './ActualReceivedUmpireContinuationAdmission';
+import { receivedContinuationInput } from './ActualReceivedUmpireContinuation';
 import { sqliteMetadataGet, sqliteMetadataAll } from './SqliteMetadataStatementScope';
 import { sqliteJsonMetadataNodes as nodes, sqliteJsonMetadataProjection as projection, sqliteJsonMetadataMatches as matches,
   type SqliteJsonMetadataPath } from './SqliteOwnershipMetadata';
 import type { DefensiveDb } from './ActualDefensiveContext';
-import { ownedScheduledMotionSnapshotFormat } from './OwnedScheduledMotionArchive';
+import { ownedScheduledMotionSnapshotFormat,receivedRenewalAdoptionSnapshotFormat,receivedContinuationSnapshotFormat } from './OwnedScheduledMotionArchive';
 type Row = Readonly<{ source_id: string; physical_pitch_source_id: string; base_field_source_id: string; previous_source_id: string | null;
   revision: number; game_id: string; source_json: string; snapshot_json: string }>;
 const id = (v: unknown): v is string => typeof v === 'string' && v.length > 0 && v === v.trim();
 /** Ownership metadata only; opaque future domain payload remains outside the requested replay. */
 export const assertOwnedMotionPhysicalMetadata = (db: DefensiveDb, row: Row, prefix: readonly Row[]) => {
+  assertReceivedHandoffPhysicalMetadata(db,row,prefix);
   const valid = (document: string) => !!sqliteMetadataGet(db, 'SELECT json_valid(?) AS valid', document)!.valid;
   const sourceIdentity = (r: Row) => ({ sourceId: r.source_id, baseFieldSourceId: r.base_field_source_id, previousExecutionSourceId: r.previous_source_id });
   const object = (document: string, path: SqliteJsonMetadataPath, expected: Record<string, string | number | null>) => {
@@ -45,8 +49,36 @@ export const assertOwnedMotionPhysicalMetadata = (db: DefensiveDb, row: Row, pre
     // manifest or require replaying opaque future Source/action payloads. The own
     // bounded reader separately rederives and compares every expected archive byte.
     const formats = sqliteMetadataAll(db, `SELECT type,atom FROM (${nodes('$document', ['snapshotFormat'])})`, row.snapshot_json);
-    if (formats.length && (formats.length !== 1 || formats[0].type !== 'text' || formats[0].atom !== ownedScheduledMotionSnapshotFormat)) {
+    if (formats.length && (formats.length !== 1 || formats[0].type !== 'text' || ![ownedScheduledMotionSnapshotFormat,receivedRenewalAdoptionSnapshotFormat,receivedContinuationSnapshotFormat].includes(formats[0].atom as typeof ownedScheduledMotionSnapshotFormat))) {
       throw new Error('actual field execution archive format metadata differs');
+    }
+    const renewalFormat=formats.length===1&&formats[0].atom===receivedRenewalAdoptionSnapshotFormat;
+    const continuationFormat=formats.length===1&&formats[0].atom===receivedContinuationSnapshotFormat;
+    const kinds=(document:string,path:SqliteJsonMetadataPath)=>sqliteMetadataAll(db,`SELECT type,atom FROM (${nodes('$document',path)})`,document);
+    const sourceKinds=sourceValid?kinds(row.source_json,['action','kind']):[],snapshotKinds=kinds(row.snapshot_json,['source','action','kind']);
+    const continuationSource=[...sourceKinds,...snapshotKinds].some(k=>k.type==='text'&&k.atom==='received_renewal_continuation_v1');
+    if(continuationSource!==continuationFormat||continuationFormat&&(!sourceValid||sourceKinds.length!==1||snapshotKinds.length!==1
+      ||sourceKinds[0].type!=='text'||sourceKinds[0].atom!=='received_renewal_continuation_v1'||snapshotKinds[0].type!=='text'||snapshotKinds[0].atom!=='received_renewal_continuation_v1'))throw new Error('received continuation archive kind or format differs');
+    if(continuationFormat){
+      const source=receivedContinuationInput(JSON.parse(row.source_json),row.source_id);
+      shape(row.source_json,['action'],['kind','renewalEnrollmentSourceId','renewalAdoptionSourceId']);
+      shape(row.snapshot_json,['source','action'],['kind','renewalEnrollmentSourceId','renewalAdoptionSourceId']);
+      object(row.snapshot_json,['source','action'],source.action);
+      const prior=prefix.at(-2);if(!prior||prior.source_id!==source.action.renewalAdoptionSourceId||prior.revision!==row.revision-1)throw new Error('received continuation strict physical rank differs');
+      assertReceivedContinuationPhysicalAdmission(db,source,row.revision);
+    }
+    const renewalSource=[...sourceKinds,...snapshotKinds].some(k=>k.type==='text'&&k.atom==='received_renewal_adoption_v1');
+    if(renewalSource!==renewalFormat||renewalFormat&&(!sourceValid||sourceKinds.length!==1||snapshotKinds.length!==1
+      ||sourceKinds[0].type!=='text'||sourceKinds[0].atom!=='received_renewal_adoption_v1'||snapshotKinds[0].type!=='text'||snapshotKinds[0].atom!=='received_renewal_adoption_v1'))throw new Error('received renewal physical archive format or Source kind differs');
+    if(renewalFormat){
+      const keys=['kind','renewalEnrollmentSourceId','renewalMotorSourceId'];
+      shape(row.source_json,['action'],keys);shape(row.snapshot_json,['source','action'],keys);
+      const expected:Record<string,string>={kind:'received_renewal_adoption_v1'};
+      for(const key of ['renewalEnrollmentSourceId','renewalMotorSourceId']){
+        text(row.source_json,['action',key]);
+        expected[key]=String(kinds(row.source_json,['action',key])[0].atom);
+      }
+      object(row.snapshot_json,['source','action'],expected);
     }
     const manifest = formats.length === 1;
     object(row.snapshot_json, [], { revision: row.revision }); object(row.snapshot_json, ['source'], sourceIdentity(row));

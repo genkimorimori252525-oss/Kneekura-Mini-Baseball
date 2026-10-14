@@ -1,3 +1,4 @@
+import type { ManagerHireWageReference } from '../../core/world/manager/ManagerHireTransaction';
 import type { StructuralRevenuePolicy,
   StructuralRevenueReceiptFact } from
   '../../core/world/club/ClubStructuralRevenue';
@@ -21,8 +22,11 @@ export type PlayerWageOperation = Readonly<CommonOperation & {
   payrollRunEventId: string;
   policy: AnnualWagePaymentPolicy;
 }>;
+export type StaffWageOperation = Readonly<Omit<PlayerWageOperation, 'kind'> & {
+  kind: 'STAFF_WAGE'; managerHire: ManagerHireWageReference;
+}>;
 export type ClubEconomyOperation =
-  | StructuralRevenueOperation | PlayerWageOperation;
+  | StructuralRevenueOperation | PlayerWageOperation | StaffWageOperation;
 
 /**
  * Adopts one source-backed non-Matchday operation. Keep the exact operation
@@ -48,6 +52,12 @@ export const persistClubEconomyOperation = (
       kind: 'PLAYER_WAGE', commitmentId: operation.commitmentId,
       payrollRunEventId: operation.payrollRunEventId,
       policy: operation.policy,
+    }] });
+  }
+  if (operation.kind === 'STAFF_WAGE') {
+    return store.apply({ ...common, sources: [{ kind: 'STAFF_WAGE',
+      commitmentId: operation.commitmentId, managerHire: operation.managerHire,
+      payrollRunEventId: operation.payrollRunEventId, policy: operation.policy,
     }] });
   }
   throw new Error('unknown club economy operation');

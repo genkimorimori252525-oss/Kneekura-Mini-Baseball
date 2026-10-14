@@ -1,3 +1,5 @@
+import type { DatabaseSync as NativeDatabase } from 'node:sqlite';
+import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
@@ -5,10 +7,12 @@ import type { RosterState } from '../../core/world/roster/RosterTypes';
 import { evaluateRosterParticipation } from '../../core/world/roster/RosterQueries';
 import type { AcceptedPublicCareerEvent } from '../../core/world/popularity/PopularityObservationSource';
 import type { PersistOfficialPlayResult, PersistOfficialFinalResult } from '../SqliteOfficialStateStore';
-import { actorJson, actorFreeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { actorJson } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { deriveActualLiveParticipationEvidence, assertActualLiveParticipationCurrent } from './ActualLiveParticipationEvidenceFromSqlite';
 import { participationReceiptId, readOwnedParticipationReceiptRow, readOwnedParticipationBindingJson,
-  participationHasRawDiscriminator, assertParticipationV1Fields } from './ActualLiveParticipationMetadata';
+  participationHasRawDiscriminator, assertTaggedParticipationFields } from './ActualLiveParticipationMetadata';
+import { deriveCompletedPlayParticipationEvidence, assertCompletedPlayParticipationCurrent } from './CompletedPlayParticipationEvidenceFromSqlite';
+import { readTaggedParticipationReceipt } from './TaggedParticipationEvidenceFromSqlite';
 
 const DatabaseSync = (createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite')).DatabaseSync;
 
@@ -48,11 +52,16 @@ export type DurableParticipationReceipt = Readonly<{
   playedPlayId: number; durableRevision: number;
 }>;
 export type ActualLiveParticipationReceipt = Readonly<{
-  evidenceKind: 'ACTUAL_LIVE_V1'; receiptId: string; binding: OfficialParticipantBinding;
+  evidenceKind: 'ACTUAL_LIVE_V1' | 'NATIONAL_ACTUAL_LIVE_V1'; receiptId: string; binding: OfficialParticipantBinding;
   actorKind: 'DEFENDER' | 'BATTER_RUNNER'; closureSourceId: string; closureApplicationId: string;
   closureProposalHash: string; playedPlayId: number; durableRevision: number;
 }>;
-export type OfficialParticipationReceipt = DurableParticipationReceipt | ActualLiveParticipationReceipt;
+export type CompletedPlayParticipationReceipt = Readonly<{
+  evidenceKind: 'PHYSICAL_PLAY_V1' | 'FOUL_TERMINAL_V1' | 'NATIONAL_PHYSICAL_PLAY_V1' | 'NATIONAL_FOUL_TERMINAL_V1'; receiptId: string; binding: OfficialParticipantBinding;
+  actorKind: 'DEFENDER' | 'BATTER' | 'RUNNER'; closureSourceId: string; closureApplicationId: string;
+  closureProposalHash: string; playedPlayId: number; durableRevision: number;
+}>;
+export type OfficialParticipationReceipt = DurableParticipationReceipt | ActualLiveParticipationReceipt | CompletedPlayParticipationReceipt;
 export type AcceptedPitcherPlay = Omit<DurableParticipationReceipt, 'receiptId' | 'actorKind'> & Readonly<{
   activatedMatchState: CanonicalMatchState;
 }>;
@@ -71,13 +80,17 @@ const same = (left: unknown, right: unknown): boolean =>
 /** Reads the actual official application ledger; no caller-provided play result is trusted. */
 export class SqliteOfficialParticipationStore {
   private readonly db: InstanceType<typeof DatabaseSync>;
-  constructor(path: string, private readonly authority?: ParticipationAuthority) {
-    if (!id(path) || authority !== undefined && (!authority || typeof authority.readGame !== 'function'
+  private readonly ownsConnection: boolean;
+  constructor(path: string | NativeDatabase, private readonly authority?: ParticipationAuthority) {
+    if (typeof path === 'string' && !id(path) || authority !== undefined && (!authority || typeof authority.readGame !== 'function'
       || typeof authority.readRoster !== 'function'
       || typeof authority.readPersonLink !== 'function')) {
       throw new Error('participation requires an accepted source authority');
     }
-    this.db = new DatabaseSync(path);
+    this.ownsConnection = typeof path === 'string';
+    this.db = typeof path === 'string' ? new DatabaseSync(path) : path;
+    if (!(this.db instanceof DatabaseSync)) throw new Error('participation evidence requires a Native connection');
+    if (this.ownsConnection) {
     this.db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;');
     this.db.exec(`CREATE TABLE IF NOT EXISTS official_participant_bindings (
       game_id TEXT NOT NULL, player_id TEXT NOT NULL, binding_json TEXT NOT NULL,
@@ -88,9 +101,10 @@ export class SqliteOfficialParticipationStore {
       receipt_json TEXT NOT NULL, UNIQUE(game_id, player_id),
       FOREIGN KEY(game_id, player_id) REFERENCES official_participant_bindings(game_id, player_id)
     );`);
+    }
   }
 
-  close(): void { this.db.close(); }
+  close(): void { if (this.ownsConnection) this.db.close(); }
 
   bindPregame(input: OfficialParticipantBinding): OfficialParticipantBinding {
     if (!this.authority) throw new Error('pregame participation requires an accepted source authority');
@@ -288,16 +302,7 @@ export class SqliteOfficialParticipationStore {
       throw new Error('participation receipt does not match binding');
     }
     if (participationHasRawDiscriminator(this.db, row.receipt_json)) {
-      if (!('evidenceKind' in receipt) || receipt.evidenceKind !== 'ACTUAL_LIVE_V1') {
-        throw new Error('unsupported participation receipt format');
-      }
-      assertParticipationV1Fields(this.db, row.receipt_json);
-      const evidence = deriveActualLiveParticipationEvidence(this.db, row.game_id, row.player_id, receipt.closureSourceId);
-      if (row.receipt_json !== actorJson(receipt) || row.receipt_json !== actorJson(evidence.receipt)
-        || actorJson(JSON.parse(bindingJson)) !== actorJson(receipt.binding)) {
-        throw new Error('actual-live participation receipt differs from original evidence');
-      }
-      return actorFreeze(receipt);
+      return readTaggedParticipationReceipt(this.db, receiptId);
     }
     if ('evidenceKind' in receipt || !id(receipt.activationApplicationId) || !id(receipt.closureApplicationId)
       || !same(JSON.parse(bindingJson), receipt.binding)) throw new Error('participation receipt does not match binding');
@@ -319,32 +324,88 @@ export class SqliteOfficialParticipationStore {
 
   /** One binary game fact, derived exclusively from its original applied actual-live closure. */
   confirmActualLivePlayed(gameId: string, playerId: string, closureSourceId: string): ActualLiveParticipationReceipt {
+    return this.confirmActualLive(gameId, playerId, closureSourceId, 'ACTUAL_LIVE_V1');
+  }
+
+  confirmNationalActualLivePlayed(gameId: string, playerId: string, closureSourceId: string): ActualLiveParticipationReceipt {
+    return this.confirmActualLive(gameId, playerId, closureSourceId, 'NATIONAL_ACTUAL_LIVE_V1');
+  }
+
+  private confirmActualLive(gameId: string, playerId: string, closureSourceId: string,
+    evidenceKind: ActualLiveParticipationReceipt['evidenceKind']): ActualLiveParticipationReceipt {
     if (![gameId, playerId, closureSourceId].every(id)) throw new Error('invalid actual-live participation reference');
     this.db.exec('BEGIN IMMEDIATE');
     try {
       const receiptId = participationReceiptId(gameId, playerId);
       const existing = this.readStoredReceipt(receiptId, gameId, playerId);
       if (existing) {
-        if (!('evidenceKind' in existing) || existing.closureSourceId !== closureSourceId) {
+        if (!('evidenceKind' in existing) || existing.evidenceKind !== evidenceKind || existing.closureSourceId !== closureSourceId) {
           throw new Error('player participation already recorded differently');
         }
         // readStoredReceipt freshly rederived the complete original candidate on this transaction.
         this.db.exec('COMMIT'); return existing;
       }
-      const evidence = deriveActualLiveParticipationEvidence(this.db, gameId, playerId, closureSourceId);
+      const evidence = deriveActualLiveParticipationEvidence(this.db, gameId, playerId, closureSourceId, evidenceKind);
       assertActualLiveParticipationCurrent(this.db, evidence);
       const receiptJson = actorJson(evidence.receipt);
       this.db.prepare(`INSERT INTO official_participation_receipts
         (receipt_id, game_id, player_id, receipt_json) VALUES (?, ?, ?, ?)`)
         .run(receiptId, gameId, playerId, receiptJson);
       // No outer physical-read traversal spans INSERT: this is a fresh proof of writer-local rows.
-      const after = deriveActualLiveParticipationEvidence(this.db, gameId, playerId, closureSourceId);
+      const after = deriveActualLiveParticipationEvidence(this.db, gameId, playerId, closureSourceId, evidenceKind);
       assertActualLiveParticipationCurrent(this.db, after);
       const saved = readOwnedParticipationReceiptRow(this.db, receiptId, gameId, playerId);
       if (!saved || saved.receipt_json !== receiptJson || actorJson(after.receipt) !== receiptJson) {
         throw new Error('actual-live participation changed during admission');
       }
-      assertParticipationV1Fields(this.db, saved.receipt_json);
+      assertTaggedParticipationFields(this.db, saved.receipt_json, evidenceKind);
+      this.db.exec('COMMIT'); return after.receipt;
+    } catch (error) {
+      if (this.db.isTransaction) this.db.exec('ROLLBACK');
+      throw error;
+    }
+  }
+
+  confirmPhysicalPlayed(gameId: string, playerId: string, closureSourceId: string): CompletedPlayParticipationReceipt {
+    return this.confirmCompletedPlayed(gameId, playerId, closureSourceId, 'PHYSICAL_PLAY_V1');
+  }
+
+  confirmNationalPhysicalPlayed(gameId: string, playerId: string, closureSourceId: string): CompletedPlayParticipationReceipt {
+    return this.confirmCompletedPlayed(gameId, playerId, closureSourceId, 'NATIONAL_PHYSICAL_PLAY_V1');
+  }
+
+  confirmFoulTerminalPlayed(gameId: string, playerId: string, closureSourceId: string): CompletedPlayParticipationReceipt {
+    return this.confirmCompletedPlayed(gameId, playerId, closureSourceId, 'FOUL_TERMINAL_V1');
+  }
+
+  confirmNationalFoulTerminalPlayed(gameId: string, playerId: string, closureSourceId: string): CompletedPlayParticipationReceipt {
+    return this.confirmCompletedPlayed(gameId, playerId, closureSourceId, 'NATIONAL_FOUL_TERMINAL_V1');
+  }
+
+  private confirmCompletedPlayed(gameId: string, playerId: string, closureSourceId: string,
+    evidenceKind: CompletedPlayParticipationReceipt['evidenceKind']): CompletedPlayParticipationReceipt {
+    if (![gameId, playerId, closureSourceId].every(id)) throw new Error('invalid completed participation reference');
+    this.db.exec('BEGIN IMMEDIATE');
+    try {
+      const receiptId = participationReceiptId(gameId, playerId), existing = this.readStoredReceipt(receiptId, gameId, playerId);
+      if (existing) {
+        if (!('evidenceKind' in existing) || existing.evidenceKind !== evidenceKind || existing.closureSourceId !== closureSourceId) {
+          throw new Error('player participation already recorded differently');
+        }
+        this.db.exec('COMMIT'); return existing;
+      }
+      const evidence = deriveCompletedPlayParticipationEvidence(this.db, gameId, playerId, closureSourceId, evidenceKind);
+      assertCompletedPlayParticipationCurrent(this.db, evidence);
+      const receiptJson = actorJson(evidence.receipt);
+      this.db.prepare(`INSERT INTO official_participation_receipts
+        (receipt_id, game_id, player_id, receipt_json) VALUES (?, ?, ?, ?)`).run(receiptId, gameId, playerId, receiptJson);
+      // Each pass owns its original read traversal; no evidence cache crosses the actual write.
+      const after = deriveCompletedPlayParticipationEvidence(this.db, gameId, playerId, closureSourceId, evidenceKind);
+      assertCompletedPlayParticipationCurrent(this.db, after);
+      const saved = readOwnedParticipationReceiptRow(this.db, receiptId, gameId, playerId);
+      if (!saved || saved.receipt_json !== receiptJson || actorJson(after.receipt) !== receiptJson) {
+        throw new Error('completed participation changed during admission');
+      }
       this.db.exec('COMMIT'); return after.receipt;
     } catch (error) {
       if (this.db.isTransaction) this.db.exec('ROLLBACK');
@@ -356,12 +417,23 @@ export class SqliteOfficialParticipationStore {
   readAcceptedPopularityEvent(receiptId: string): AcceptedPublicCareerEvent | null {
     const receipt = this.readReceipt(receiptId);
     if (!receipt) return null;
-    const binding = receipt.binding;
-    return Object.freeze({ eventId: receipt.receiptId,
-      careerId: binding.careerId, personId: binding.personId,
-      kind: 'OFFICIAL_GAME', sourceRecordId: receipt.receiptId,
-      acceptedRevision: receipt.durableRevision,
-      occurredAtDay: binding.gameDay, acceptedAtDay: binding.gameDay,
-      transfer: null });
+    return officialParticipationCareerEvent(receipt);
   }
 }
+
+/** Projection only; the consuming persistence boundary authenticates the receipt first. */
+export const officialParticipationCareerEvent = (receipt: OfficialParticipationReceipt): AcceptedPublicCareerEvent => {
+  const binding = receipt.binding;
+  return Object.freeze({ eventId: receipt.receiptId,
+    careerId: binding.careerId, personId: binding.personId,
+    kind: 'OFFICIAL_GAME', sourceRecordId: receipt.receiptId,
+    acceptedRevision: receipt.durableRevision,
+    occurredAtDay: binding.gameDay, acceptedAtDay: binding.gameDay,
+    transfer: null });
+};
+
+/** Same receipt owner on the consumer's snapshot; no DDL, writer or close capability escapes. */
+export const officialParticipationEvidenceFromSqlite = (db: NativeDatabase): Pick<SqliteOfficialParticipationStore, 'readReceipt'> => {
+  const owner = new SqliteOfficialParticipationStore(db);
+  return Object.freeze({ readReceipt: (receiptId: string) => withBattedVenueLegalReadSnapshot(db, () => owner.readReceipt(receiptId)) });
+};

@@ -1,3 +1,4 @@
+import { domesticPostseasonPreparation, type DomesticPostseasonPreparation, type DomesticPostseasonPreparationSources } from './SqliteDomesticPostseasonPreparation';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { DomesticCompetitionSeasonSnapshot } from
@@ -24,7 +25,7 @@ export type DomesticCompetitionSourceRequest =
   | Readonly<{ kind: 'NORTH_AMERICA';
       input: NorthAmericaDomesticCompetitionRequest }>
   | Readonly<{ kind: 'WINTER'; input: WinterDomesticCompetitionRequest }>;
-export type SqliteDomesticCompetitionSeasonStore = Readonly<{
+export type SqliteDomesticCompetitionSeasonStore = DomesticPostseasonPreparation & Readonly<{
   finalize(request: DomesticCompetitionSourceRequest):
     DomesticCompetitionSeasonSnapshot;
   readSnapshot(careerId: string, seasonId: string):
@@ -62,7 +63,7 @@ const project = (stores: CompletionStores,
 /** Store only a title/berth snapshot reproducible from World and Match. */
 export const openSqliteDomesticCompetitionSeasonStore = (
   databasePath: string,
-  sources: CompletionStores,
+  sources: DomesticPostseasonPreparationSources,
 ): SqliteDomesticCompetitionSeasonStore => {
   if (!id(databasePath)) {
     throw new Error('invalid domestic competition database path');
@@ -94,6 +95,7 @@ export const openSqliteDomesticCompetitionSeasonStore = (
         || canonicalJson(snapshot) !== stored.snapshot_json) {
         throw new Error('domestic title scope or serialization differs');
       }
+      preparation.assertFinalRequest(request);
       const replayed = project(sources, request);
       if (replayed.seasonId !== seasonId
         || canonicalJson(replayed) !== stored.snapshot_json) {
@@ -106,7 +108,11 @@ export const openSqliteDomesticCompetitionSeasonStore = (
     }
   };
   let closed = false;
+  const preparation = domesticPostseasonPreparation(db, sources, () => {
+    if (closed) throw new Error('domestic competition store is closed');
+  });
   return Object.freeze({
+    ...preparation,
     finalize(rawRequest: DomesticCompetitionSourceRequest):
       DomesticCompetitionSeasonSnapshot {
       if (closed) throw new Error('domestic competition store is closed');
@@ -115,6 +121,7 @@ export const openSqliteDomesticCompetitionSeasonStore = (
         || !id(request.input.seasonId)) {
         throw new Error('invalid domestic competition scope');
       }
+      preparation.assertFinalRequest(request);
       const snapshot = project(sources, request);
       const requestJson = canonicalJson(request);
       const snapshotJson = canonicalJson(snapshot);
@@ -135,6 +142,11 @@ export const openSqliteDomesticCompetitionSeasonStore = (
           (career_id, season_id, request_json, snapshot_json)
           VALUES (?, ?, ?, ?)`).run(request.input.careerId,
           request.input.seasonId, requestJson, snapshotJson);
+        const saved = row(request.input.careerId, request.input.seasonId);
+        if (!saved || saved.request_json !== requestJson || saved.snapshot_json !== snapshotJson) {
+          throw new Error('domestic title changed during acceptance');
+        }
+        parse(request.input.careerId, request.input.seasonId, saved);
         db.exec('COMMIT');
         return snapshot;
       } catch (error) {

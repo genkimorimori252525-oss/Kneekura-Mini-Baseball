@@ -24,7 +24,10 @@ for (const kind of ['observation', 'communication'] as const) {
       const retryFrames = new Set(x.events.slice(retryOffset).map(e => e.frame));
       expect(retryFrames.size).toBe(2); expect([...retryFrames].every(frame => !readFrames.has(frame))).toBe(true);
       expect(x.events.filter(e => !e.writer).every(e => e.transaction && e.queryOnly === 1 && e.frame !== null && e.traversal)).toBe(true);
-      expect(x.events.some(e => e.writer && e.transaction && e.queryOnly === 0)).toBe(true);
+      const writerReads = append.filter(e => e.writer), writerFrames = new Set(writerReads.map(e => e.frame));
+      expect(writerReads.length).toBeGreaterThan(0);
+      expect(writerReads.every(e => e.transaction && e.queryOnly === 1 && e.frame !== null && e.traversal)).toBe(true);
+      expect(writerFrames.size).toBe(2); expect([...writerFrames].every(frame => !appendFrames.has(frame))).toBe(true);
       if (kind === 'communication') expect(x.events.some(e => !e.writer && e.name === 'execution-pair')).toBe(true);
       expect(x.callbacks).toHaveLength(2);
       expect(x.callbacks.every(e => !e.transaction && e.queryOnly === 0 && e.frame === null)).toBe(true);

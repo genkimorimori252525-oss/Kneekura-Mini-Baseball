@@ -3,10 +3,13 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { DatabaseSync } from 'node:sqlite';
-import { beforeEach, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { actorFreeze as freeze, actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { createPlayAdjudicationLedger, recordCorrectRuleSnapshot } from '../../core/adjudication/PlayAdjudicationLedger';
 import { asRuleProfileId } from '../../core/model/RuleProfileRef';
+type FieldModule=typeof import('./SqliteBattedWorldFieldStore');
+type ExecutionModule=typeof import('./SqliteBattedWorldFieldExecutionStore');
+const real=vi.hoisted(()=>({field:null as FieldModule|null,execution:null as ExecutionModule|null}));
 
 // Pair/transaction boundary controls only. Real SQLite end/fence and adjudication
 // identity/archive checks, closure fixture/binding checks and transaction guards
@@ -19,13 +22,17 @@ const state = vi.hoisted(() => ({ end: null as any, base: null as any, execution
 vi.mock('./ActualFirstBasePlayEndEvidenceFromSqlite', () => ({ actualFirstBasePlayEndEvidenceFromSqlite: (db: DatabaseSync) => ({
   derive: (source: unknown) => { state.endReads++; state.endHook?.(db); return freeze({ ...state.end, source }); },
 }) }));
-vi.mock('./SqliteBattedWorldFieldStore', async original => ({
-  ...await original<typeof import('./SqliteBattedWorldFieldStore')>(),
+vi.mock('./SqliteBattedWorldFieldStore', () => ({
+  withBattedWorldFieldReadTraversal:<T>(db:Parameters<FieldModule['withBattedWorldFieldReadTraversal']>[0],body:()=>T)=>real.field!.withBattedWorldFieldReadTraversal(db,body),
+  activeBattedWorldFieldReadFrame:(...args:Parameters<FieldModule['activeBattedWorldFieldReadFrame']>)=>real.field!.activeBattedWorldFieldReadFrame(...args),
+  activeBattedWorldFieldReadSnapshot:(...args:Parameters<FieldModule['activeBattedWorldFieldReadSnapshot']>)=>real.field!.activeBattedWorldFieldReadSnapshot(...args),
+  assertBattedWorldFieldReadFrame:(...args:Parameters<FieldModule['assertBattedWorldFieldReadFrame']>)=>real.field!.assertBattedWorldFieldReadFrame(...args),
+  isAuthenticatedBattedWorldFieldTraversalValue:(...args:Parameters<FieldModule['isAuthenticatedBattedWorldFieldTraversalValue']>)=>real.field!.isAuthenticatedBattedWorldFieldTraversalValue(...args),
   battedWorldFieldEvidenceFromSqlite: () => ({ read: () => { state.fieldReads++; return state.base; },
     scope: () => { state.fieldScopes++; return [state.base]; } }),
 }));
-vi.mock('./SqliteBattedWorldFieldExecutionStore', async original => ({
-  ...await original<typeof import('./SqliteBattedWorldFieldExecutionStore')>(),
+vi.mock('./SqliteBattedWorldFieldExecutionStore', () => ({
+  withBattedWorldPhysicalReadTraversal:<T>(db:Parameters<ExecutionModule['withBattedWorldPhysicalReadTraversal']>[0],body:()=>T)=>real.execution!.withBattedWorldPhysicalReadTraversal(db,body),
   battedWorldFieldExecutionEvidenceFromSqlite: () => ({ read: () => state.execution,
     scope: () => { state.executionScopes++; return [state.execution]; } }),
 }));
@@ -52,6 +59,13 @@ vi.mock('./ActualPlayerKinematicsFromPrefix', () => ({ actualPlayersKinematicsFr
 import { actualFirstBaseEndArchiveEncoding } from './SqliteActualFirstBasePlayEndStore';
 import { actualLiveAdjudicationEvidenceFromSqlite } from './ActualLiveAdjudicationFromSqlite';
 import { deriveActualLivePlayClosureProposal } from './ActualLivePlayClosureEvidenceFromSqlite';
+import * as closureEvidence from './ActualLivePlayClosureEvidenceFromSqlite';
+import { activeBattedWorldFieldReadFrame, activeBattedWorldFieldReadSnapshot } from './SqliteBattedWorldFieldStore';
+import { openSqliteActualLiveAdjudicationStore } from './SqliteActualLiveAdjudicationStore';
+import { openSqliteActualLivePlayClosureStore } from './SqliteActualLivePlayClosureStore';
+import { SqliteOfficialStateStore } from '../SqliteOfficialStateStore';
+real.field=await vi.importActual<FieldModule>('./SqliteBattedWorldFieldStore');
+real.execution=await vi.importActual<ExecutionModule>('./SqliteBattedWorldFieldExecutionStore');
 const { DatabaseSync: Sqlite } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
 const endSource = { sourceId: 'end', sourceVersion: 'v1', runtimeSourceId: 'runtime', baseFieldSourceId: 'field',
   executionSourceId: 'rule', ruleConsumptionSourceId: 'consumption', umpireCallSourceId: 'call', communicationSourceId: 'communication' };
@@ -90,7 +104,8 @@ beforeEach(() => {
     wholeHistoryHashConvention:'owned_scheduled_whole_history_manifest_v1',physicalPrefixReference:{physicalPrefixHash:'prefix'},
     finalRuleReference:{sourceId:'rule',snapshotHash:'rule-hash'},operativeCallReferences:state.references,firstBaseEvidenceApplicability:{},futureWork:{}});
 });
-const fixture = () => {
+afterEach(() => vi.restoreAllMocks());
+const fixture = (seedAdjudication = true) => {
   const directory=mkdtempSync(join(tmpdir(),'adjudication-closure-pair-')),path=join(directory,'state.sqlite'),db=new Sqlite(path);
   db.exec(`PRAGMA journal_mode=WAL;CREATE TABLE mutation_witness(value TEXT);
     CREATE TABLE actual_first_base_play_ends(source_id TEXT,game_id TEXT,play_id INTEGER,physical_pitch_source_id TEXT,source_json TEXT,source_hash TEXT,snapshot_json TEXT,snapshot_hash TEXT);
@@ -107,8 +122,8 @@ const fixture = () => {
   for(const b of [binding('away-1','AWAY'),...defenders.map(d=>binding(d.playerId,'HOME'))])
     db.prepare('INSERT INTO official_participant_bindings VALUES(?,?,?)').run('game',b.playerId,JSON.stringify(b));
   const owner=actualLiveAdjudicationEvidenceFromSqlite(db),value=owner.derive(adjudicationSource);
-  db.prepare('INSERT INTO actual_live_adjudications VALUES(?,?,?,?,?,?,?,?)').run('adjudication','game',7,'end',json(adjudicationSource),hash(adjudicationSource),json(value),hash(value));
-  expect(json(owner.read('adjudication'))).toBe(json(value));
+  if(seedAdjudication){db.prepare('INSERT INTO actual_live_adjudications VALUES(?,?,?,?,?,?,?,?)').run('adjudication','game',7,'end',json(adjudicationSource),hash(adjudicationSource),json(value),hash(value));
+    expect(json(owner.read('adjudication'))).toBe(json(value));}
   state.endReads=state.fieldReads=state.fieldScopes=state.executionScopes=0;
   return {db,path,owner,value,close(){state.endHook=null;state.consumeHook=null;if(db.isTransaction)db.exec('ROLLBACK');db.close();rmSync(directory,{recursive:true,force:true});}};
 };
@@ -173,4 +188,104 @@ it('keeps the original peer WAL snapshot and rejects its changed end in the next
 });
 it('does not turn a missing end into caller-provided proof',()=>{
   const x=fixture();try{x.db.exec('DELETE FROM actual_first_base_play_ends;BEGIN');expect(()=>proposal(x.db)).toThrow(/physical end|missing/);}finally{x.close();}
+});
+
+// Instrument only the existing owner boundaries. SQL, archive authentication,
+// official CAS/application and all proof-scope machinery remain real.
+const phases = () => {
+  const reads: {name:string;db:DatabaseSync;frame:object|null;snapshot:object|null;queryOnly:unknown}[]=[];
+  const writes: {frame:object|null;queryOnly:unknown}[]=[],connections=new Set<DatabaseSync>();
+  let afterOfficialWrite:((db:DatabaseSync)=>void)|undefined,beforeReceiptWrite:((db:DatabaseSync)=>void)|undefined;
+  const observe=(name:string,db:Pick<DatabaseSync,'prepare'>)=>{
+    if(!(db instanceof Sqlite))throw new Error('expected original Native connection');
+    if(!connections.has(db)){connections.add(db);const prepare=db.prepare.bind(db);
+      vi.spyOn(db,'prepare').mockImplementation(sql=>{
+        const statement=prepare(sql);
+        const official=/^\s*INSERT\s+INTO\s+applications\b/i.test(sql),receipt=/^\s*UPDATE\s+actual_live_play_closures\b/i.test(sql);
+        if(official||receipt||/^\s*INSERT\s+INTO\s+actual_live_play_closures\b/i.test(sql)){
+          const run=statement.run.bind(statement);statement.run=(...args)=>{
+            writes.push({frame:activeBattedWorldFieldReadFrame(db),queryOnly:prepare('PRAGMA query_only').get()!.query_only});
+            if(receipt)beforeReceiptWrite?.(db);
+            const result=Reflect.apply(run,statement,args);if(official)afterOfficialWrite?.(db);return result;
+          };
+        }
+        return statement;
+      });db.function('terminal_write_phase',()=>{
+      writes.push({frame:activeBattedWorldFieldReadFrame(db),queryOnly:db.prepare('PRAGMA query_only').get()!.query_only});return 0;
+    });}
+    reads.push({name,db,frame:activeBattedWorldFieldReadFrame(db),snapshot:activeBattedWorldFieldReadSnapshot(db),queryOnly:db.prepare('PRAGMA query_only').get()!.query_only});
+  };
+  state.endHook=db=>observe('end',db);
+  const owner=closureEvidence.actualLivePlayClosureEvidenceFromSqlite,derive=closureEvidence.deriveActualLivePlayClosureProposal;
+  const open=closureEvidence.assertActualLiveClosureOpenMatch,stage=closureEvidence.assertActualLiveClosureStage;
+  vi.spyOn(closureEvidence,'actualLivePlayClosureEvidenceFromSqlite').mockImplementation(db=>{
+    const original=owner(db);return{read:id=>{observe('closure-read',db);return original.read(id);}};
+  });
+  vi.spyOn(closureEvidence,'deriveActualLivePlayClosureProposal').mockImplementation((db,...args)=>{observe('derive',db);return derive(db,...args);});
+  vi.spyOn(closureEvidence,'assertActualLiveClosureOpenMatch').mockImplementation((db,...args)=>{observe('open',db);return open(db,...args);});
+  vi.spyOn(closureEvidence,'assertActualLiveClosureStage').mockImplementation((db,...args)=>{observe('stage',db);return stage(db,...args);});
+  const released=()=>{for(const db of connections){expect(db.isTransaction).toBe(false);expect(activeBattedWorldFieldReadFrame(db)).toBeNull();expect(db.prepare('PRAGMA query_only').get()!.query_only).toBe(0);}};
+  return{reads,writes,connections,released,setAfterOfficialWrite(hook:(db:DatabaseSync)=>void){afterOfficialWrite=hook;},
+    setBeforeReceiptWrite(hook:(db:DatabaseSync)=>void){beforeReceiptWrite=hook;}};
+};
+const closureFixture=()=>{
+  const x=fixture(),official=new SqliteOfficialStateStore(x.path);official.initializeMatch('game',match);official.close();return x;
+};
+it('terminal adjudication isolates prewrite, postwrite, public read and independent retry scopes',()=>{
+  const x=fixture(false),p=phases(),owner=openSqliteActualLiveAdjudicationStore(x.path,{readAcceptedAdjudication:()=>{p.released();return adjudicationSource;}});
+  try{
+    x.db.exec('CREATE TRIGGER inspect_adjudication_insert AFTER INSERT ON actual_live_adjudications BEGIN SELECT terminal_write_phase(); END');
+    const first=owner.accept('adjudication');expect(first).toEqual(x.value);
+    expect(p.reads.every(r=>r.frame!==null&&r.queryOnly===1)).toBe(true);expect(new Set(p.reads.map(r=>r.snapshot)).size).toBe(2);
+    expect(p.writes).toEqual([{frame:null,queryOnly:0}]);const before=x.db.prepare('SELECT * FROM actual_live_adjudications').all();
+    const count=new Set(p.reads.map(r=>r.snapshot)).size;expect(owner.read('adjudication')).toEqual(first);expect(owner.accept('adjudication')).toEqual(first);
+    expect(new Set(p.reads.map(r=>r.snapshot)).size).toBe(count+2);expect(x.db.prepare('SELECT * FROM actual_live_adjudications').all()).toEqual(before);p.released();
+  }finally{owner.close();x.close();}
+});
+it('terminal closure isolates official validation and receipt phases from writes and accepted callbacks',()=>{
+  const x=closureFixture(),p=phases(),owner=openSqliteActualLivePlayClosureStore(x.path,{readAcceptedClosure:()=>{p.released();return closureSource;}});
+  try{
+    const queued=owner.enqueue('closure'),result=owner.resume('closure');expect(result.official).toEqual(queued.proposal.expectedOfficial);
+    expect(p.reads.every(r=>r.frame!==null&&r.queryOnly===1)).toBe(true);expect(p.connections.size).toBe(2);
+    expect(p.writes).toEqual(Array.from({length:3},()=>({frame:null,queryOnly:0})));
+    const officialReads=p.reads.filter(r=>r.name==='closure-read'&&r.db!==p.reads[0].db);
+    expect(officialReads).toHaveLength(2);expect(new Set(officialReads.map(r=>r.snapshot)).size).toBe(2);
+    const before=x.db.prepare('SELECT * FROM actual_live_play_closures').all(),offset=p.reads.length;
+    expect(owner.resume('closure')).toEqual(result);expect(owner.read('closure')!.result).toEqual(result);
+    expect(new Set(p.reads.slice(offset).filter(r=>r.name==='closure-read').map(r=>r.snapshot)).size).toBe(3);
+    expect(x.db.prepare('SELECT * FROM actual_live_play_closures').all()).toEqual(before);p.released();
+  }finally{owner.close();x.close();}
+});
+it.each(['adjudication','enqueue','official','receipt'] as const)('terminal %s rejects write-side original corruption and preserves its actual transaction boundary',boundary=>{
+  const x=closureFixture();if(boundary==='adjudication')x.db.exec('DELETE FROM actual_live_adjudications');
+  const p=phases(),adjudication=openSqliteActualLiveAdjudicationStore(x.path,{readAcceptedAdjudication:()=>adjudicationSource});
+  const closure=openSqliteActualLivePlayClosureStore(x.path,{readAcceptedClosure:()=>closureSource});
+  try{
+    if(boundary==='official'||boundary==='receipt')closure.enqueue('closure');
+    const before=x.db.prepare('SELECT * FROM actual_first_base_play_ends').all();
+    const table=boundary==='adjudication'?'actual_live_adjudications':boundary==='official'?'applications':'actual_live_play_closures';
+    const corruptTrigger=`CREATE TRIGGER corrupt_terminal_origin AFTER ${boundary==='receipt'?'UPDATE':'INSERT'} ON ${table}
+      BEGIN UPDATE actual_first_base_play_ends SET snapshot_hash='corrupt'; END;`;
+    if(boundary==='official')p.setAfterOfficialWrite(db=>db.exec("UPDATE actual_first_base_play_ends SET snapshot_hash='corrupt'"));
+    // The official owner rejects pre-existing closure triggers. Install this real
+    // receipt trigger only at its later UPDATE, inside the closure transaction.
+    else if(boundary==='receipt')p.setBeforeReceiptWrite(db=>db.exec(corruptTrigger));
+    else x.db.exec(corruptTrigger);
+    const run=()=>boundary==='adjudication'?adjudication.accept('adjudication'):boundary==='enqueue'?closure.enqueue('closure'):closure.resume('closure');
+    expect(run).toThrow(/archive|fence/);expect(x.db.prepare('SELECT * FROM actual_first_base_play_ends').all()).toEqual(before);
+    expect(x.db.prepare('SELECT count(*) n FROM applications').get()!.n).toBe(boundary==='receipt'?1:0);
+    expect(x.db.prepare('SELECT status FROM actual_live_play_closures').all()).toEqual(boundary==='official'||boundary==='receipt'?[{status:'QUEUED'}]:[]);p.released();
+    if(boundary==='official')p.setAfterOfficialWrite(()=>{});else if(boundary==='receipt')p.setBeforeReceiptWrite(()=>{});else x.db.exec('DROP TRIGGER corrupt_terminal_origin');
+    expect(run).not.toThrow();expect(p.reads.every(r=>r.frame!==null&&r.queryOnly===1)).toBe(true);p.released();
+  }finally{closure.close();adjudication.close();x.close();}
+});
+it('terminal completed resume reauthenticates after callback-side authority mutation',()=>{
+  const x=closureFixture();let corrupt=false;
+  const owner=openSqliteActualLivePlayClosureStore(x.path,{readAcceptedClosure:()=>{
+    if(corrupt)x.db.exec("UPDATE actual_first_base_play_ends SET snapshot_hash='callback-corrupt'");return closureSource;
+  }});
+  try{
+    owner.enqueue('closure');owner.resume('closure');const before=x.db.prepare('SELECT * FROM actual_live_play_closures').all();corrupt=true;
+    expect(()=>owner.resume('closure')).toThrow(/archive/);expect(x.db.prepare('SELECT * FROM actual_live_play_closures').all()).toEqual(before);
+  }finally{owner.close();x.close();}
 });

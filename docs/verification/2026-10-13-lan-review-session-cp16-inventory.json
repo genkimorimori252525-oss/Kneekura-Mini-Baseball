@@ -1,0 +1,238 @@
+{
+  "totalCases": 69,
+  "files": [
+    {
+      "file": "src/host/world/LAN01RetainedCheckpoint.test.ts",
+      "sha256": "6c9b943abf908cdc1b60ced5e6cfee29cc02fa9abc30f0bf67ca10a517afd04b",
+      "cases": [
+        {
+          "name": "exact LAN01-R11 cp24 received boundary, without opening Native owners pins only complete cut21 after receiver capture and preserves earlier failed lineage evidence"
+        },
+        {
+          "name": "exact LAN01-R11 cp24 received boundary, without opening Native owners preserves exact cp21 input bytes and its cp27 historical provenance"
+        },
+        {
+          "name": "exact LAN01-R11 cp24 received boundary, without opening Native owners extends the unchanged delivery pins through accepted input and complete cut9 only"
+        },
+        {
+          "name": "exact LAN01-R11 cp24 received boundary, without opening Native owners keeps canonical authentication before exclusive cp24 materialization and readback"
+        },
+        {
+          "name": "exact LAN01-R11 cp24 received boundary, without opening Native owners rejects unreleased execution before attempting filesystem access"
+        },
+        {
+          "name": "exact LAN01-R11 cp24 received boundary, without opening Native owners rejects an injected baseline or alternate result even with otherwise valid controls"
+        },
+        {
+          "name": "exact LAN01-R11 cp24 received boundary, without opening Native owners does not execute caller getters and keeps captured paths independent"
+        },
+        {
+          "name": "exact LAN01-R11 cp24 received boundary, without opening Native owners rejects a substituted gzip before creating the destination, without private witness files"
+        },
+        {
+          "name": "keeps the original twenty LAN callback assertions and the final eleven byte-identical"
+        },
+        {
+          "name": "loads the exact remaining entry without invoking Native owners"
+        },
+        {
+          "name": "retains the exact original post-right body for fresh and retained occupied callers"
+        }
+      ]
+    },
+    {
+      "file": "src/host/world/LAN01RetainedThrowPlanSeam.test.ts",
+      "sha256": "3af703a18f08b8725668842e0af49aea823359d5871cec9241a6c1835bb96f95",
+      "cases": [
+        {
+          "name": "admits the already-owned plan as cut17 before any new physical writer and continues only ordinals 4 through 8"
+        },
+        {
+          "name": "stops at the first cut17 admission failure without saving or accepting a transfer"
+        },
+        {
+          "name": "starts the exact received cut21 tail with original appeal 8 and then advances that receipt as cut22"
+        },
+        {
+          "name": "excludes all already completed throw owners and their lifecycle admissions from the received tail"
+        },
+        {
+          "name": "does not advance cut21 when original appeal acceptance throws or remains pending"
+        },
+        {
+          "name": "rejects changed retained operation identities or receipt kinds before the first appeal writer"
+        },
+        {
+          "name": "keeps the fresh IFN/LAN append path and its optional original appeal (appeal=false)"
+        },
+        {
+          "name": "keeps the fresh IFN/LAN append path and its optional original appeal (appeal=true)"
+        },
+        {
+          "name": "refreshes from the authenticated catch dependencies with only the new sealed communication and work"
+        },
+        {
+          "name": "restores exact cut16, cut21 and sealed cut24 and rejects changed admitted events while preserving earlier seams"
+        },
+        {
+          "name": "rejoins the extracted original appeal line and preserves append, capture, throw, catch Source and catch assertion bodies"
+        }
+      ]
+    },
+    {
+      "file": "src/host/world/LAN01RetainedThrowBoundary.test.ts",
+      "sha256": "e95e542d2fccc38606bfed647f43190a258399bf109892d4f2549ad542057414",
+      "cases": [
+        {
+          "name": "adopts the exact accepted plan outside cut16 and fences its seventeen-row current coverage without writers"
+        },
+        {
+          "name": "rejects missing retained planned ownership"
+        },
+        {
+          "name": "rejects missing retained caught ownership"
+        },
+        {
+          "name": "rejects missing retained throwCalibration ownership"
+        },
+        {
+          "name": "rejects changed retained planned against its exact hash"
+        },
+        {
+          "name": "rejects changed retained caught against its exact hash"
+        },
+        {
+          "name": "rejects changed retained throwCalibration against its exact hash"
+        },
+        {
+          "name": "rejects missing admitted work instead of extending cut16"
+        },
+        {
+          "name": "rejects extra admitted work instead of extending cut16"
+        },
+        {
+          "name": "rejects premature-plan admitted work instead of extending cut16"
+        },
+        {
+          "name": "rejects a substituted indication pin before interpreting the later plan"
+        },
+        {
+          "name": "rejects a changed current member baseline even when the current basis object is substituted"
+        },
+        {
+          "name": "rejects an omitted member in the eleven-player current basis"
+        },
+        {
+          "name": "rejects changed current world after historical authentication"
+        },
+        {
+          "name": "rejects changed current control after historical authentication"
+        },
+        {
+          "name": "rejects changed current hash after historical authentication"
+        },
+        {
+          "name": "propagates the independent current reserved fence"
+        },
+        {
+          "name": "propagates the independent current coverage fence"
+        },
+        {
+          "name": "propagates committed physical head rejection without using an in-flight reader"
+        },
+        {
+          "name": "adopts the exact received boundary and fences only its twenty-one admitted events without writers"
+        },
+        {
+          "name": "rejects a missing received owner instead of treating a candidate as possession"
+        },
+        {
+          "name": "rejects changed received-boundary transfer ownership"
+        },
+        {
+          "name": "rejects changed received-boundary released ownership"
+        },
+        {
+          "name": "rejects changed received-boundary reception ownership"
+        },
+        {
+          "name": "rejects changed received-boundary received ownership"
+        },
+        {
+          "name": "rejects missing work at the complete cut21 boundary"
+        },
+        {
+          "name": "rejects extra work at the complete cut21 boundary"
+        },
+        {
+          "name": "rejects future-appeal work at the complete cut21 boundary"
+        },
+        {
+          "name": "rejects rehashed transfer semantics instead of adopting a matching label"
+        },
+        {
+          "name": "rejects rehashed released semantics instead of adopting a matching label"
+        },
+        {
+          "name": "rejects rehashed received semantics instead of adopting a matching label"
+        },
+        {
+          "name": "rejects changed current member at cut21 after authenticating history"
+        },
+        {
+          "name": "rejects changed current world at cut21 after authenticating history"
+        },
+        {
+          "name": "rejects changed current view at cut21 after authenticating history"
+        },
+        {
+          "name": "propagates the received boundary current reserved fence"
+        },
+        {
+          "name": "propagates the received boundary current coverage fence"
+        },
+        {
+          "name": "propagates the received physical head rejection before a future appeal can run"
+        },
+        {
+          "name": "still authenticates the original caught history before adopting a received boundary"
+        },
+        {
+          "name": "adopts the sealed cut24 with distinct admitted CatchWork and physical seal and only current coverage24"
+        },
+        {
+          "name": "rejects changed seal, CatchWork predecessor, admitted ordering or physical cut before current admission"
+        },
+        {
+          "name": "propagates independent current reservation and coverage rejection after sealed history reads"
+        }
+      ]
+    },
+    {
+      "file": "src/host/world/LAN01RetainedReviewSessionSeam.test.ts",
+      "sha256": "aa19c0ee7ffd919cad9cd7200f3a7772329f959631e628be98d810ee509f08f2",
+      "cases": [
+        {
+          "name": "pins only returned cp16 with cut24 and revision-zero review session before original import"
+        },
+        {
+          "name": "rejects unreleased or substituted cp16 before creating a destination"
+        },
+        {
+          "name": "adopts exactly the independently read initial session without invoking an accepted-owner retry"
+        },
+        {
+          "name": "rejects substituted Sources, missing sessions, later heads, events, seeds and projection bytes"
+        },
+        {
+          "name": "preserves the original journal body including all events, assertions and independent reopen retry"
+        },
+        {
+          "name": "loads the cp16 entry and connects it to the shared post-seal body without calling completed writers"
+        }
+      ]
+    }
+  ],
+  "kind": "lan_cp16_review_session_declared_finite_inventory_v1",
+  "basis": "Preserve all 60 prior cp24 declarations, rename the one expanded closure-guard case, add 3 sealed-boundary and 6 review-session cases. Parameterized prior case names remain the previously qualified names."
+}

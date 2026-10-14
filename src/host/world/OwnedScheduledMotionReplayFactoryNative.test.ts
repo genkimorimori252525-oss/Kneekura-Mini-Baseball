@@ -67,9 +67,14 @@ it('constructs separate initial, pretransaction, transaction, admission, saved a
   });
   try {
     const saved = x.executions.accept(source.sourceId);
-    expect(phases.map(p => p.snapshots.length)).toEqual([2, 2, 2, 3, 3]);
-    expect(phases.map(p => p.derives.length)).toEqual([3, 3, 3, 3, 3]);
-    for (const phase of phases) expect(phase.encodings).toEqual(phase.snapshots);
+    // The second service remains fresh, while the enclosing immutable preflight
+    // can reuse its already authenticated predecessor nodes from the first.
+    expect(phases.map(p => p.snapshots.length)).toEqual([2, 0, 2, 3, 3]);
+    expect(phases.map(p => p.derives.length)).toEqual([3, 1, 3, 3, 3]);
+    // Reused predecessors still get exact archive encoding through the existing
+    // traversal codec; the new service does not repeat their physical derivation.
+    for (const [index, phase] of phases.entries()) expect(phase.encodings)
+      .toEqual(index === 1 ? ['replay-plan', 'replay-init'] : phase.snapshots);
     phases.length = 0;
     expect(x.executions.read(source.sourceId)).toEqual(saved);
     expect(phases.map(p => p.encodings.length)).toEqual([3]);

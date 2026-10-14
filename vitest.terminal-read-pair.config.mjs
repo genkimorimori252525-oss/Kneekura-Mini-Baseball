@@ -1,0 +1,2 @@
+const cacheDir=process.env.BASEBALL_GATE_CACHE;
+export default {...(cacheDir?{cacheDir}:{}),test:{cache:false,include:["src/host/world/FoulTerminalActivationReadPair.test.ts", "src/host/world/FoulTerminalMixedHistoryCensus.test.ts", "src/host/world/FoulTerminalNextPlayReadiness.test.ts", "src/host/world/FoulTerminalActivationOrphanGuard.test.ts", "src/host/world/ActualLivePhysicalActivationReadPair.test.ts", "src/host/world/ActualLivePhysicalActivationReadPairGuard.test.ts", "src/host/world/ActualLivePhysicalActivationReadPairContract.test.ts"]}};

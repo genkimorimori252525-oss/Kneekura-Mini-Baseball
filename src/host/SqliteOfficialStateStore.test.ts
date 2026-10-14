@@ -13,6 +13,7 @@ import {
   type CanonicalPlateAppearanceTimeline,
 } from '../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 import { SqliteOfficialStateStore } from './SqliteOfficialStateStore';
+import { witnessSqliteWrite } from './world/SqliteWriteWitness.test-support';
 
 const directories: string[] = [];
 const pathForTest = (): string => {
@@ -237,11 +238,29 @@ describe('SQLite official state store', () => {
     store.initializeMatch('game-1', match());
     const DatabaseSync = (createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite')).DatabaseSync;
     const external = new DatabaseSync(path);
-    external.exec(`CREATE TRIGGER fail_application BEFORE INSERT ON applications
-      BEGIN SELECT RAISE(ABORT, 'injected insert failure'); END;`);
-    expect(() => store.applyAndActivate(liveRequest())).toThrow('injected insert failure');
+    const before = external.prepare('SELECT * FROM matches WHERE match_id=?').get('game-1');
+    // The ownership census correctly rejects a preinstalled application trigger.
+    // Inject only after the real writer has updated Match inside its transaction.
+    const witness = witnessSqliteWrite(/UPDATE matches SET durable_revision=/, db => {
+      expect(db).not.toBe(external);
+      expect(db.isTransaction).toBe(true);
+      const updated = db.prepare('SELECT * FROM matches WHERE match_id=?').get('game-1')!;
+      expect(updated.durable_revision).toBe(1);
+      expect(JSON.parse(updated.state_json as string)).toMatchObject({ playId: 8, outs: 2 });
+      expect(JSON.parse(updated.activation_json as string).activation.applicationId).toBe('application-1');
+      expect(external.prepare('SELECT * FROM matches WHERE match_id=?').get('game-1')).toEqual(before);
+      db.exec(`CREATE TRIGGER fail_application BEFORE INSERT ON applications
+        BEGIN SELECT RAISE(ABORT, 'injected insert failure'); END;`);
+      return true;
+    });
+    try {
+      expect(() => store.applyAndActivate(liveRequest())).toThrow('injected insert failure');
+      expect(witness.wasReached()).toBe(true);
+    } finally { witness.close(); }
+    expect(external.prepare('SELECT * FROM matches WHERE match_id=?').get('game-1')).toEqual(before);
+    expect(external.prepare('SELECT * FROM applications').all()).toEqual([]);
+    expect(external.prepare("SELECT name FROM sqlite_master WHERE name='fail_application'").get()).toBeUndefined();
     expect(store.getMatch('game-1')).toMatchObject({ durableRevision: 0, matchState: { playId: 7 } });
-    external.exec('DROP TRIGGER fail_application');
     expect(store.applyAndActivate(liveRequest()).receipt.durableRevision).toBe(1);
     external.close();
     store.close();
@@ -359,11 +378,28 @@ describe('SQLite official state store', () => {
     expect(store.getMatch('game-1')?.durableRevision).toBe(0);
     const DatabaseSync = (createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite')).DatabaseSync;
     const external = new DatabaseSync(path);
-    external.exec(`CREATE TRIGGER fail_final BEFORE INSERT ON applications
-      BEGIN SELECT RAISE(ABORT, 'injected final insert failure'); END;`);
-    expect(() => store.applyAndFinalize(request)).toThrow('injected final insert failure');
+    const beforeWrite = external.prepare('SELECT * FROM matches WHERE match_id=?').get('game-1');
+    const witness = witnessSqliteWrite(/UPDATE matches SET durable_revision=/, db => {
+      expect(db).not.toBe(external);
+      expect(db.isTransaction).toBe(true);
+      const updated = db.prepare('SELECT * FROM matches WHERE match_id=?').get('game-1')!;
+      expect(updated.durable_revision).toBe(1);
+      expect(JSON.parse(updated.activation_json as string).finalResult).toMatchObject({
+        applicationId: 'final-1', gameId: 'game-1', winnerClubId: 'home',
+      });
+      expect(external.prepare('SELECT * FROM matches WHERE match_id=?').get('game-1')).toEqual(beforeWrite);
+      db.exec(`CREATE TRIGGER fail_final BEFORE INSERT ON applications
+        BEGIN SELECT RAISE(ABORT, 'injected final insert failure'); END;`);
+      return true;
+    });
+    try {
+      expect(() => store.applyAndFinalize(request)).toThrow('injected final insert failure');
+      expect(witness.wasReached()).toBe(true);
+    } finally { witness.close(); }
+    expect(external.prepare('SELECT * FROM matches WHERE match_id=?').get('game-1')).toEqual(beforeWrite);
+    expect(external.prepare('SELECT * FROM applications').all()).toEqual([]);
+    expect(external.prepare("SELECT name FROM sqlite_master WHERE name='fail_final'").get()).toBeUndefined();
     expect(store.getMatch('game-1')).toMatchObject({ durableRevision: 0, finalResult: null });
-    external.exec('DROP TRIGGER fail_final');
     external.close();
     const finalized = store.applyAndFinalize(request);
     expect(finalized.result).toMatchObject({

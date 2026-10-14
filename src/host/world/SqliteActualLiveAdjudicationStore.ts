@@ -2,6 +2,7 @@ import { createRequire } from 'node:module';
 import { actualLiveAdjudicationInput as input, type AcceptedActualLiveAdjudication } from './ActualLiveAdjudicationSource';
 import { actualLiveAdjudicationEvidenceFromSqlite } from './ActualLiveAdjudicationFromSqlite';
 import { actorJson as json, actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 export { openSqliteActualPostPlayReviewStore } from './SqliteActualPostPlayReviewStore';
 export const openSqliteActualLiveAdjudicationStore = (path: string,
   authority?: Readonly<{ readAcceptedAdjudication(sourceId: string): AcceptedActualLiveAdjudication | null }>) => {
@@ -13,20 +14,24 @@ export const openSqliteActualLiveAdjudicationStore = (path: string,
   const check = () => { if (closed) throw new Error('closed actual live adjudication store'); };
   const transaction = <T>(mode: string, body: () => T): T => { db.exec(mode); try { const result = body(); db.exec('COMMIT'); return result; }
     catch (error) { db.exec('ROLLBACK'); throw error; } };
-  return Object.freeze({ read(sourceId: string) { check(); return transaction('BEGIN', () => owner.read(sourceId)); },
+  const proof = <T>(body: () => T): T => withBattedWorldPhysicalReadTraversal(db, body);
+  return Object.freeze({ read(sourceId: string) { check(); return transaction('BEGIN', () => proof(() => owner.read(sourceId))); },
     accept(sourceId: string) {
       check(); const raw = authority?.readAcceptedAdjudication(sourceId) ?? null;
       const requested = raw === null ? null : input(raw, sourceId);
       return transaction('BEGIN IMMEDIATE', () => {
-        const prior = owner.read(sourceId);
+        const prior = proof(() => owner.read(sourceId));
         if (prior) { if (requested && json(prior.source) !== json(requested)) throw new Error('actual adjudication Source frozen differently'); return prior; }
         if (!requested) throw new Error('accepted actual adjudication Source missing');
-        const value = owner.derive(requested);
+        const value = proof(() => owner.derive(requested));
         db.prepare('INSERT INTO actual_live_adjudications VALUES(?,?,?,?,?,?,?,?)').run(sourceId, value.gameId, value.playId,
           requested.physicalEndSourceId, json(requested), hash(requested), json(value), hash(value));
-        const saved = owner.read(sourceId);
-        if (!saved || json(saved) !== json(value)) throw new Error('actual adjudication changed during acceptance');
-        return saved;
+        // INSERT and its triggers cannot share the earlier immutable proof.
+        return proof(() => {
+          const saved = owner.read(sourceId);
+          if (!saved || json(saved) !== json(value)) throw new Error('actual adjudication changed during acceptance');
+          return saved;
+        });
       });
     }, close() { if (!closed) { db.close(); closed = true; } } });
 };

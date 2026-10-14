@@ -6,10 +6,12 @@ import type { PlayerHealthDiagnosis, HealthRehabEvidence } from '../../core/worl
 import { isAcceptedPlayerIntakeSource, type DurablePlayerPersonLink } from './SqlitePlayerPersonLinkStore';
 import { assertArchivedPlayerWorkloadActivity, type DurablePlayerWorkloadActivity } from './SqlitePlayerWorkloadRecoveryStore';
 import { readGlobalRosterSnapshotFromSqlite, type AcceptedNationalRosterSnapshot } from './SqliteNationalRosterSnapshotStore';
-import type { DurableParticipationReceipt } from './SqliteOfficialParticipationStore';
+import type { DurableParticipationReceipt, OfficialParticipationReceipt } from './SqliteOfficialParticipationStore';
 import type { PersistOfficialPlayResult, PersistOfficialFinalResult } from '../SqliteOfficialStateStore';
 import type { AcceptedHealthRehabEffect } from './SqlitePlayerHealthRehabStore';
 import { participationHasRawDiscriminator } from './ActualLiveParticipationMetadata';
+import { isNationalParticipationKind, readTaggedParticipationReceipt } from './TaggedParticipationEvidenceFromSqlite';
+import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
 
 type Db = Pick<DatabaseSync, 'prepare'>;
 export const clinicalJson = (value: unknown): string => JSON.stringify(cloneInert(value), (_key, item: unknown) => item !== null && typeof item === 'object' && !Array.isArray(item)
@@ -51,7 +53,7 @@ export type RehabRosterProof = Readonly<{
   unit: AcceptedNationalRosterSnapshot['roster']['units'][number];
   profile: AcceptedNationalRosterSnapshot['roster']['profiles'][number];
 }>;
-export const projectRehabRosterProof = (snapshot: AcceptedNationalRosterSnapshot, receipt: DurableParticipationReceipt): RehabRosterProof => {
+export const projectRehabRosterProof = (snapshot: AcceptedNationalRosterSnapshot, receipt: OfficialParticipationReceipt): RehabRosterProof => {
   const b = receipt.binding, player = snapshot.roster.players.find((p) => p.playerId === b.playerId);
   const unit = snapshot.roster.units.find((u) => u.unitId === player?.assignment?.unitId);
   const profile = snapshot.roster.profiles.find((p) => p.competitionEditionId === b.competitionEditionId);
@@ -63,12 +65,12 @@ export const projectRehabRosterProof = (snapshot: AcceptedNationalRosterSnapshot
   return clinicalFreeze({ snapshotId: snapshot.snapshotId, careerId: snapshot.careerId, revision: snapshot.revision,
     effectiveDay: snapshot.effectiveDay, player, unit, profile });
 };
-const ownReceipt = (db: Db, receiptId: string): DurableParticipationReceipt => {
+export const readClinicalParticipationReceipt = (db: Db, receiptId: string): OfficialParticipationReceipt => {
   const row = db.prepare('SELECT * FROM official_participation_receipts WHERE receipt_id=?').get(receiptId) as {
     receipt_id: string; game_id: string; player_id: string; receipt_json: string;
   } | undefined;
   if (!row) throw new Error('actual played rehabilitation receipt is missing');
-  if (participationHasRawDiscriminator(db, row.receipt_json)) throw new Error('rehabilitation does not support tagged participation receipts');
+  if (participationHasRawDiscriminator(db, row.receipt_json)) return readTaggedParticipationReceipt(db, receiptId);
   const receipt = JSON.parse(row.receipt_json) as DurableParticipationReceipt, b = receipt.binding;
   const binding = db.prepare('SELECT binding_json FROM official_participant_bindings WHERE game_id=? AND player_id=?')
     .get(b.gameId, b.playerId) as { binding_json: string } | undefined;
@@ -91,23 +93,31 @@ const ownReceipt = (db: Db, receiptId: string): DurableParticipationReceipt => {
     || actors?.filter((actor) => actor.playerId === b.playerId).length !== 1) throw new Error('rehabilitation played actor chain differs');
   return receipt;
 };
-export const captureClinicalGameRows = (db: Db, diagnosis: PlayerHealthDiagnosis, receiptId: string, snapshotId: string): readonly string[] => {
-  const receipt = ownReceipt(db, receiptId), b = receipt.binding;
+export const captureClinicalGameRows = (db: Db, diagnosis: PlayerHealthDiagnosis, receiptId: string, snapshotId: string): readonly string[] => withBattedVenueLegalReadSnapshot(db as DatabaseSync, () => {
+  const receipt = readClinicalParticipationReceipt(db, receiptId), b = receipt.binding;
+  if ('evidenceKind' in receipt && isNationalParticipationKind(receipt.evidenceKind)) throw new Error('clinical rehabilitation requires an eligible domestic REHAB fixture');
   if (b.careerId !== diagnosis.careerId || b.playerId !== diagnosis.playerId) throw new Error('clinical played actor scope differs');
+  if (!db.prepare("SELECT 1 FROM main.sqlite_master WHERE type='table' AND name='world_national_roster_snapshots'").get()) {
+    throw new Error('clinical played original evidence is missing');
+  }
   const queries = [db.prepare('SELECT * FROM official_participation_receipts WHERE receipt_id=?').get(receiptId),
     db.prepare('SELECT * FROM official_participant_bindings WHERE game_id=? AND player_id=?').get(b.gameId, b.playerId),
     db.prepare('SELECT * FROM official_fixtures WHERE game_id=?').get(b.gameId),
     db.prepare('SELECT * FROM world_national_roster_snapshots WHERE career_id=? AND snapshot_id=?').get(b.careerId, snapshotId),
-    ...[receipt.activationApplicationId, receipt.closureApplicationId].map((id) => db.prepare('SELECT * FROM applications WHERE application_id=?').get(id))];
+    ...('evidenceKind' in receipt
+      ? [db.prepare('SELECT * FROM applications WHERE application_id=?').get(receipt.closureApplicationId),
+        db.prepare(`SELECT * FROM ${receipt.evidenceKind === 'ACTUAL_LIVE_V1' ? 'actual_live_play_closures'
+          : receipt.evidenceKind === 'PHYSICAL_PLAY_V1' ? 'physical_play_closures' : 'actual_foul_terminal_applications'} WHERE source_id=?`).get(receipt.closureSourceId)]
+      : [receipt.activationApplicationId, receipt.closureApplicationId].map((id) => db.prepare('SELECT * FROM applications WHERE application_id=?').get(id)))];
   if (queries.some((row) => !row)) throw new Error('clinical played original evidence is missing');
   return queries.map((row) => rowHash(row!));
-};
+});
 export type ClinicalEffectProof = Readonly<{ workload: DurablePlayerWorkloadActivity; rows: readonly string[] }>
-  | Readonly<{ receipt: DurableParticipationReceipt; roster: RehabRosterProof; rows: readonly string[] }>;
+  | Readonly<{ receipt: OfficialParticipationReceipt; roster: RehabRosterProof; rows: readonly string[] }>;
 
 /** Re-read and verify original facts on the owning consumer connection, not a stale peer snapshot. */
 export const deriveClinicalEffectEvidence = (db: Db, source: AcceptedHealthRehabEffect,
-  diagnosis: PlayerHealthDiagnosis, patient: DurablePlayerPersonLink, proof: ClinicalEffectProof): HealthRehabEvidence => {
+  diagnosis: PlayerHealthDiagnosis, patient: DurablePlayerPersonLink, proof: ClinicalEffectProof): HealthRehabEvidence => withBattedVenueLegalReadSnapshot(db as DatabaseSync, () => {
   const expectedKeys = source.kind === 'REHAB_GAME' ? ['receipt', 'roster', 'rows'] : ['workload', 'rows'];
   if (!proof || Object.keys(proof).sort().join('|') !== expectedKeys.sort().join('|')) throw new Error('clinical proof fields differ');
   const common = { sourceId: source.sourceId, sourceVersion: source.sourceVersion, caseId: diagnosis.caseId,
@@ -129,10 +139,10 @@ export const deriveClinicalEffectEvidence = (db: Db, source: AcceptedHealthRehab
     || clinicalJson(captureClinicalGameRows(db, diagnosis, source.participationReceiptId, source.rosterSnapshotId)) !== clinicalJson(proof.rows)) {
     throw new Error('clinical original game evidence changed');
   }
-  const receipt = ownReceipt(db, source.participationReceiptId), b = receipt.binding;
+  const receipt = readClinicalParticipationReceipt(db, source.participationReceiptId), b = receipt.binding;
   const snapshot = readGlobalRosterSnapshotFromSqlite(db, diagnosis.careerId, source.rosterSnapshotId);
   if (clinicalJson(receipt) !== clinicalJson(proof.receipt) || b.personId !== patient.personId || b.personLinkSourceId !== patient.sourceId
     || !snapshot || clinicalJson(projectRehabRosterProof(snapshot, receipt)) !== clinicalJson(proof.roster)) throw new Error('clinical pregame played proof differs');
   return { ...common, kind: source.kind, atDay: b.gameDay, gameId: b.gameId,
     participationReceiptId: receipt.receiptId, rosterSnapshotId: snapshot.snapshotId };
-};
+});

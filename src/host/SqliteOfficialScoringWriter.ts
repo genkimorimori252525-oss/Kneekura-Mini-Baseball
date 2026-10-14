@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { officialScoringEvidenceArguments } from './OfficialScoringEvidence';
 import type { DatabaseSync as DatabaseSyncType } from 'node:sqlite';
 import { cloneInert } from '../core/adjudication/OfficialWindowPolicy';
 import { deriveClosedNonLiveMatchState } from
@@ -6,14 +7,13 @@ import { deriveClosedNonLiveMatchState } from
 import { deriveClosedLiveBallMatchState,
   getOfficialPlayClosure } from
   '../core/adjudication/PlayAdjudicationLedger';
-import { classifyClosedPlayForOfficialScoring,
-  type OfficialFairBallScoringEvidence } from
+import { classifyClosedPlayForOfficialScoring } from
   '../core/adjudication/OfficialScoring';
 import type { PersistOfficialFinalInput,
   PersistOfficialPlayInput } from './SqliteOfficialStateStore';
 import type { SqliteEvidenceGuard } from './SqliteEvidenceGuard';
 
-import type { PersistOfficialScoringInput, PersistedOfficialScoring, AcceptedOfficialScoringEvidenceAuthority, AcceptedScoredOfficialPlay } from './SqliteOfficialScoringStore';
+import type { PersistOfficialScoringInput, PersistedOfficialScoring, AcceptedOfficialScoringEvidenceAuthority, AcceptedScoredOfficialPlay, AcceptedOfficialScoringEvidence } from './SqliteOfficialScoringStore';
 import { deriveOfficialPendingNonLiveResult, type PersistOfficialPendingNonLiveInput } from './OfficialPendingPostPlay';
 import { foulTerminalScoringEvidenceFromSqlite, terminalScoringProof, terminalScoringRows } from './world/ActualFoulTerminalScoringEvidenceFromSqlite';
 type OfficialInput = PersistOfficialPlayInput | PersistOfficialFinalInput;
@@ -27,7 +27,7 @@ type ScoringRow = { scoring_application_id: string; match_id: string;
   source_event_id: string; request_json: string; result_json: string };
 type InternalInput = PersistOfficialScoringInput | Readonly<{ scoringApplicationId: string; officialApplication: PersistOfficialPendingNonLiveInput }>;
 type StoredRequest = Readonly<{ input: InternalInput;
-  evidence: OfficialFairBallScoringEvidence | null }>;
+  evidence: AcceptedOfficialScoringEvidence | null }>;
 
 const id = (value: unknown): value is string =>
   typeof value === 'string' && value.length > 0
@@ -108,7 +108,7 @@ export const createSqliteOfficialScoringWriter = (db: DatabaseSyncType,
     }
     return closure.closureId;
   };
-  const acceptedEvidence = (sourceEventId: string): OfficialFairBallScoringEvidence => {
+  const acceptedEvidence = (sourceEventId: string): AcceptedOfficialScoringEvidence => {
     const evidence = authority?.readAcceptedOfficialScoringEvidence(sourceEventId);
     if (!evidence || evidence.sourceEventId !== sourceEventId) {
       throw new Error('accepted scoring evidence is missing');
@@ -116,7 +116,7 @@ export const createSqliteOfficialScoringWriter = (db: DatabaseSyncType,
     return cloneInert(evidence);
   };
   const score = (input: InternalInput,
-    evidence: OfficialFairBallScoringEvidence | null,
+    evidence: AcceptedOfficialScoringEvidence | null,
     closureId: string): PersistedOfficialScoring => {
     const official = input.officialApplication;
     const result = official.kind === 'non_live'
@@ -126,7 +126,7 @@ export const createSqliteOfficialScoringWriter = (db: DatabaseSyncType,
       : classifyClosedPlayForOfficialScoring({ kind: 'live_ball',
         match: official.match, timeline: official.physicalTimeline,
         adjudication: official.adjudication,
-        ...(evidence ? { scoringEvidence: evidence } : {}) });
+        ...officialScoringEvidenceArguments(evidence, scoringSourceId(input)) });
     if (result.kind !== 'supported') {
       throw new Error('official scoring evidence remains unsupported');
     }
@@ -173,7 +173,7 @@ export const createSqliteOfficialScoringWriter = (db: DatabaseSyncType,
       throw new Error('corrupt durable official scoring application', { cause });
     }
   };
-  const insert = (input: InternalInput, evidence: OfficialFairBallScoringEvidence | null, result: PersistedOfficialScoring) =>
+  const insert = (input: InternalInput, evidence: AcceptedOfficialScoringEvidence | null, result: PersistedOfficialScoring) =>
     db.prepare(`INSERT INTO official_scoring_applications
       (scoring_application_id, match_id, official_application_id, closure_id, source_event_id, request_json, result_json)
       VALUES (?, ?, ?, ?, ?, ?, ?)`).run(input.scoringApplicationId,result.matchId,result.officialApplicationId,

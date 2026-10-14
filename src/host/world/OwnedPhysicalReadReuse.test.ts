@@ -11,7 +11,7 @@ const real = vi.hoisted(() => ({ field: null as FieldOwnerModule | null, executi
 // Tiny owner-wiring tests: physics sampling is replaced by deterministic outputs.
 // SQLite identity, snapshots, transactions and all umpire/communication reads are real.
 const state = vi.hoisted(() => ({ reads: 0, scopes: 0, pairs: 0, fieldScopes: 0,
-  missing: false, generation: 0, fieldHook: null as null | (() => void) }));
+  missing: false, generation: 0, fieldHook: null as null | ((db: Parameters<FieldOwnerModule['battedWorldFieldEvidenceFromSqlite']>[0]) => void) }));
 vi.mock('./PhysicalPitchEvidenceFromSqlite', () => ({ readOriginalPhysicalPitchPrefixFromSqlite: () => [{
   source: { sourceId: 'pitch' }, frame: { gameId: 'game', batterActor: { binding: { playerId: 'batter' } }, world: { runners: [], defenders: [] } },
 }] }));
@@ -25,8 +25,8 @@ vi.mock('./SqliteBattedWorldFieldStore', () => ({
     real.field!.activeBattedWorldFieldReadFrame(...args),
   isAuthenticatedBattedWorldFieldTraversalValue: (...args: Parameters<FieldOwnerModule['isAuthenticatedBattedWorldFieldTraversalValue']>) =>
     real.field!.isAuthenticatedBattedWorldFieldTraversalValue(...args),
-  battedWorldFieldEvidenceFromSqlite: () => ({ scope: () => {
-  state.fieldScopes++; state.fieldHook?.(); return [];
+  battedWorldFieldEvidenceFromSqlite: (db: Parameters<FieldOwnerModule['battedWorldFieldEvidenceFromSqlite']>[0]) => ({ scope: () => {
+  state.fieldScopes++; state.fieldHook?.(db); return [];
 } }) }));
 vi.mock('./SqliteBattedWorldFieldExecutionStore', () => {
   const value = (id: string) => ({ source: { sourceId: id }, generation: state.generation, baseField: { source: { sourceId: 'field' } } });
@@ -154,5 +154,35 @@ it('keeps acceptance and identical retries fresh while preserving every stored c
     expect(x.db.prepare('SELECT * FROM actual_call_communications').all()).toEqual(before);
     x.db.prepare('UPDATE actual_communication_models SET snapshot_hash=?').run('changed-before-retry');
     expect(() => x.comm.accept('communication')).toThrow(/corrupt actual communication model/);
+  } finally { x.close(); }
+});
+
+it('isolates communication proposal, prewrite and postwrite proofs while leaving INSERT writable', () => {
+  const x = fixture();
+  const reads: { frame: object | null; queryOnly: unknown }[] = [];
+  const writes: { frame: object | null; queryOnly: unknown }[] = [];
+  let connection: import('node:sqlite').DatabaseSync | undefined;
+  try {
+    x.db.exec(`CREATE TRIGGER inspect_communication_write AFTER INSERT ON actual_call_communications
+      BEGIN SELECT communication_write_phase(); END;`);
+    state.fieldHook = db => {
+      if (!(db instanceof DatabaseSync)) throw new Error('expected private Native connection');
+      if (!connection) {
+        connection = db;
+        db.function('communication_write_phase', () => {
+          writes.push({ frame: real.field!.activeBattedWorldFieldReadFrame(db), queryOnly: db.prepare('PRAGMA query_only').get()!.query_only });
+          return 0;
+        });
+      }
+      reads.push({ frame: real.field!.activeBattedWorldFieldReadFrame(db), queryOnly: db.prepare('PRAGMA query_only').get()!.query_only });
+    };
+    expect(x.comm.accept('communication').revision).toBe(1);
+    expect(reads.length).toBeGreaterThan(3);
+    expect(reads.every(read => read.frame !== null && read.queryOnly === 1)).toBe(true);
+    expect(new Set(reads.map(read => read.frame)).size).toBe(3);
+    expect(writes).toEqual([{ frame: null, queryOnly: 0 }]);
+    expect(connection!.isTransaction).toBe(false);
+    expect(real.field!.activeBattedWorldFieldReadFrame(connection!)).toBeNull();
+    expect(connection!.prepare('PRAGMA query_only').get()!.query_only).toBe(0);
   } finally { x.close(); }
 });

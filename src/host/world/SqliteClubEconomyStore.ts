@@ -2,12 +2,13 @@ import { createRequire } from 'node:module';
 import { applyClubEconomyBatch,
   type ClubEconomyBatchResult,
   type ClubEconomySource } from '../../core/world/club/ClubEconomyBatch';
+import { readManagerHireWageEvidenceFromSqlite } from './SqliteManagerHireStore';
 import { replayClubEvents } from '../../core/world/club/ClubEvents';
 import { readState } from '../../core/world/club/ClubSchemas';
 import type { ClubWorldState } from '../../core/world/club/ClubTypes';
 import { assessCurrentSeasonFinancialRegulation } from
   '../../core/world/club/FinancialRegulationAssessment';
-import type { ClubWageScheduleLedger } from
+import { getClubSeasonStaffWageAllocations, type ClubWageScheduleLedger } from
   '../../core/world/club/ClubWageScheduleLedger';
 import type { MatchdayClubHistory } from
   '../../core/world/club/OfficialMatchdayRevenue';
@@ -147,7 +148,46 @@ export const openSqliteClubEconomyStore = (
     Array.isArray(sources) && sources.length > 0
       && sources.every((source) => source?.kind === 'DOMESTIC_PRIZE'
         || source?.kind === 'STRUCTURAL_REVENUE'
-        || source?.kind === 'PLAYER_WAGE');
+        || source?.kind === 'PLAYER_WAGE' || source?.kind === 'STAFF_WAGE');
+  const assertStaffWageOrigins = (request: ClubEconomyStoreRequest, admission = false): MatchdayClubHistory | null => {
+    const staff = request.sources.filter(source => source.kind === 'STAFF_WAGE');
+    if (staff.length === 0) return null;
+    const { careerId, identity: { clubId } } = request.club;
+    const history = readAcceptedClubHistory(db, careerId, clubId);
+    const originalHistory = history && { checkpoint: history.checkpoint,
+      acceptedEvents: history.acceptedEvents.filter(event => event.afterRevision <= request.expectedClubRevision) };
+    if (!originalHistory || canonicalJson(originalHistory) !== canonicalJson(request.history)) {
+      throw new Error('staff wage original Club history differs');
+    }
+    const wage = db.prepare('SELECT revision,ledger_json FROM main.world_wage_schedule_heads WHERE career_id=? AND club_id=?')
+      .get(careerId, clubId) as { revision: number; ledger_json: string } | undefined;
+    const ledger = wage && JSON.parse(wage.ledger_json) as ClubWageScheduleLedger | undefined;
+    const saved = request.wageSchedules;
+    if (!wage || !ledger || ledger.careerId !== careerId || ledger.clubId !== clubId
+      || !revision(wage.revision) || ledger.revision !== wage.revision || ledger.schedules.length !== wage.revision
+      || canonicalJson(ledger) !== wage.ledger_json || wage.revision < saved.revision
+      || canonicalJson({ ...ledger, revision: saved.revision, schedules: ledger.schedules.slice(0, saved.revision) }) !== canonicalJson(saved)
+      || admission && (wage.revision !== saved.revision || wage.ledger_json !== canonicalJson(saved))) {
+      throw new Error('staff wage schedule differs from its persisted original prefix');
+    }
+    getClubSeasonStaffWageAllocations(saved, request.club);
+    for (const source of staff) {
+      if (Object.keys(source).length !== 5 || !['kind', 'commitmentId', 'managerHire', 'policy', 'payrollRunEventId']
+        .every(key => Object.hasOwn(source, key)) || !id(source.managerHire?.applicationId)) {
+        throw new Error('staff wage requires an original Manager hire reference');
+      }
+      const original = readManagerHireWageEvidenceFromSqlite(db, source.managerHire.applicationId);
+      if (!original || canonicalJson(original.reference) !== canonicalJson(source.managerHire)
+        || original.application.hire.event.careerId !== careerId || original.application.hire.event.clubId !== clubId
+        || original.application.hire.event.commitmentId !== source.commitmentId
+        || original.application.schedules.revision > saved.revision
+        || canonicalJson({ ...saved, revision: original.application.schedules.revision,
+          schedules: saved.schedules.slice(0, original.application.schedules.revision) }) !== canonicalJson(original.application.schedules)) {
+        throw new Error('staff wage original Manager hire differs');
+      }
+    }
+    return history;
+  };
   const decode = (row: ApplicationRow): DurableClubEconomyApplication => {
     try {
       const request = JSON.parse(row.request_json) as
@@ -171,9 +211,11 @@ export const openSqliteClubEconomyStore = (
         || canonicalJson(stored) !== row.result_json) {
         throw new Error('application row mismatch');
       }
+      const staffHistory = assertStaffWageOrigins(request);
       const recomputed = applyClubEconomyBatch(request.club,
         request.history, request.wageSchedules, request.sources);
       if (canonicalJson(recomputed) !== canonicalJson(stored.batch)
+        || staffHistory && stored.batch.events.some(event => !staffHistory.acceptedEvents.some(accepted => canonicalJson(accepted) === canonicalJson(event)))
         || (current.revision === row.to_revision
           && canonicalJson(JSON.parse(current.state_json))
             !== canonicalJson(stored.batch.state))) {
@@ -218,6 +260,7 @@ export const openSqliteClubEconomyStore = (
           !== canonicalJson(acceptedHistory)) {
           throw new Error('club economy history does not match accepted journal');
         }
+        assertStaffWageOrigins(request, true);
         const batch = applyClubEconomyBatch(club, request.history,
           request.wageSchedules, request.sources);
         if (batch.events.length !== request.sources.length
@@ -262,7 +305,10 @@ export const openSqliteClubEconomyStore = (
           club.careerId, club.identity.clubId,
           request.expectedClubRevision, nextRevision, requestJson,
           canonicalJson(durable));
-        return decode(applicationRow(request.applicationId)!);
+        const saved = applicationRow(request.applicationId);
+        if (!saved || saved.request_json !== requestJson) throw new Error('club economy application changed during admission');
+        assertStaffWageOrigins(JSON.parse(requestJson) as ClubEconomyStoreRequest, true);
+        return decode(saved);
       });
     },
     readApplication(applicationId: string):
@@ -270,8 +316,11 @@ export const openSqliteClubEconomyStore = (
       if (!id(applicationId)) {
         throw new Error('invalid club economy applicationId');
       }
-      const row = applicationRow(applicationId);
-      return row ? decode(row) : null;
+      db.exec('BEGIN');
+      try {
+        const row = applicationRow(applicationId), result = row ? decode(row) : null;
+        db.exec('COMMIT'); return result;
+      } catch (error) { if (db.isTransaction) db.exec('ROLLBACK'); throw error; }
     },
     close(): void {
       if (!closed) { db.close(); closed = true; }

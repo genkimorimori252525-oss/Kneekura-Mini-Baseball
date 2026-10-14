@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { OfficialGameResult } from
   '../../core/world/competition/OfficialGameCompletion';
@@ -43,45 +44,20 @@ const canonicalJson = (value: unknown): string => JSON.stringify(
       ? Object.fromEntries(Object.entries(item).sort(([left], [right]) =>
         left < right ? -1 : left > right ? 1 : 0)) : item);
 
-/** The Edition draw and historical region are frozen before Match play. */
-export const openSqliteRegionalNationalGroupStore = (
-  databasePath: string,
-  sources: Readonly<{
-    regions: Pick<SqliteNationCompetitionRegionStore, 'authority'>;
-    matches: PostseasonMatchSource;
-    selections?: Pick<SqliteNationalCompetitionSelectionStore, 'readSelection'>;
-    draws?: Pick<SqliteRegionalNationalDrawStore, 'readDraw'>;
-    editions?: Pick<SqliteRegionalNationalEditionStore, 'readEdition'>;
-  }>,
-): SqliteRegionalNationalGroupStore => {
-  if (!id(databasePath)) {
-    throw new Error('invalid regional national database path');
-  }
-  const readAcceptedEdition = sources.editions ? createCompetitionSourceReader(sources.editions.readEdition, sources.editions) : undefined;
-  const readDraw = sources.draws ? createCompetitionSourceReader(sources.draws.readDraw, sources.draws) : undefined;
-  const sqlite: typeof import('node:sqlite') =
-    createRequire(import.meta.url)('node:sqlite');
-  const db = new sqlite.DatabaseSync(databasePath);
-  db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
-  db.exec(`CREATE TABLE IF NOT EXISTS world_regional_national_groups (
-    career_id TEXT NOT NULL, edition_id TEXT NOT NULL,
-    edition_json TEXT NOT NULL, plan_json TEXT NOT NULL,
-    outcome_json TEXT,
-    PRIMARY KEY (career_id, edition_id)
-  );`);
-  const get = db.prepare(`SELECT edition_json, plan_json, outcome_json
-    FROM world_regional_national_groups
-    WHERE career_id=? AND edition_id=?`);
-  const row = (careerId: string, editionId: string): GroupRow | null =>
-    (get.get(careerId, editionId) as GroupRow | undefined) ?? null;
-  const projectPlan = (careerId: string,
+type RegionalPlanSources = Readonly<{
+  regions: Pick<SqliteNationCompetitionRegionStore, 'authority'>;
+  selections?: Pick<SqliteNationalCompetitionSelectionStore, 'readSelection'>;
+  draws?: Pick<SqliteRegionalNationalDrawStore, 'readDraw'>;
+  editions?: Pick<SqliteRegionalNationalEditionStore, 'readEdition'>;
+}>;
+const projectRegionalNationalPlan = (sources: RegionalPlanSources, careerId: string,
     edition: RegionalNationalEdition): RegionalNationalGroupPlan => withCompetitionSourceReadScope(() => {
-    if (readAcceptedEdition) {
-      const accepted = readAcceptedEdition(careerId, edition.editionId);
+    if (sources.editions) {
+      const accepted = createCompetitionSourceReader(sources.editions.readEdition, sources.editions)(careerId, edition.editionId);
       if (!accepted || canonicalJson(accepted) !== canonicalJson(edition)) throw new Error('regional groups differ from accepted regional Edition');
     }
-    if (readDraw) {
-      const accepted = readDraw(careerId, edition.editionId);
+    if (sources.draws) {
+      const accepted = createCompetitionSourceReader(sources.draws.readDraw, sources.draws)(careerId, edition.editionId);
       if (!accepted || accepted.draw.editionId !== edition.editionId
         || accepted.source.selection.region !== edition.region
         || accepted.drawSnapshotId !== edition.drawSnapshotId
@@ -104,6 +80,58 @@ export const openSqliteRegionalNationalGroupStore = (
     return planRegionalNationalGroups(edition,
       sources.regions.authority(careerId));
   });
+
+/** Original group inputs exclude future outcome replay and preserve the existing plan derivation. */
+export const regionalNationalGroupInputEvidenceFromSqlite = (db: Pick<DatabaseSync, 'prepare'>, sources: RegionalPlanSources) => {
+  const read = (careerId: string, editionId: string) => {
+    if (!id(careerId) || !id(editionId)) throw new Error('invalid regional original plan scope');
+    const row = db.prepare('SELECT edition_json,plan_json FROM world_regional_national_groups WHERE career_id=? AND edition_id=?').get(careerId, editionId);
+    if (!row) return null;
+    const edition = JSON.parse(String(row.edition_json)) as RegionalNationalEdition;
+    const plan = projectRegionalNationalPlan(sources, careerId, edition);
+    if (edition.editionId !== editionId || canonicalJson(edition) !== row.edition_json || canonicalJson(plan) !== row.plan_json) {
+      throw new Error('regional original group plan differs');
+    }
+    return { edition, plan };
+  };
+  return Object.freeze({ readEdition: (careerId: string, editionId: string) => read(careerId, editionId)?.edition ?? null,
+    readPlan: (careerId: string, editionId: string) => read(careerId, editionId)?.plan ?? null });
+};
+
+/** The Edition draw and historical region are frozen before Match play. */
+const createSqliteRegionalNationalGroupStore = (
+  databasePath: string | DatabaseSync,
+  sources: Readonly<{
+    regions: Pick<SqliteNationCompetitionRegionStore, 'authority'>;
+    matches: PostseasonMatchSource;
+    selections?: Pick<SqliteNationalCompetitionSelectionStore, 'readSelection'>;
+    draws?: Pick<SqliteRegionalNationalDrawStore, 'readDraw'>;
+    editions?: Pick<SqliteRegionalNationalEditionStore, 'readEdition'>;
+  }>,
+): SqliteRegionalNationalGroupStore => {
+  if (typeof databasePath === 'string' && !id(databasePath)) {
+    throw new Error('invalid regional national database path');
+  }
+  const sqlite: typeof import('node:sqlite') =
+    createRequire(import.meta.url)('node:sqlite');
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new sqlite.DatabaseSync(databasePath);
+  if (!(db instanceof sqlite.DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
+  db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
+  db.exec(`CREATE TABLE IF NOT EXISTS world_regional_national_groups (
+    career_id TEXT NOT NULL, edition_id TEXT NOT NULL,
+    edition_json TEXT NOT NULL, plan_json TEXT NOT NULL,
+    outcome_json TEXT,
+    PRIMARY KEY (career_id, edition_id)
+  );`);
+  }
+  const get = db.prepare(`SELECT edition_json, plan_json, outcome_json
+    FROM world_regional_national_groups
+    WHERE career_id=? AND edition_id=?`);
+  const row = (careerId: string, editionId: string): GroupRow | null =>
+    (get.get(careerId, editionId) as GroupRow | undefined) ?? null;
+  const projectPlan = (careerId: string, edition: RegionalNationalEdition) => projectRegionalNationalPlan(sources, careerId, edition);
   const readFinals = (plan: RegionalNationalGroupPlan):
     readonly OfficialGameResult[] | null => {
     const games = plan.groups.flatMap((group) => group.games);
@@ -247,8 +275,18 @@ export const openSqliteRegionalNationalGroupStore = (
       return prior.outcome ? readFinals(prior.plan) : null;
     },
     close(): void {
-      if (!closed) db.close();
+      if (!closed && !borrowed) db.close();
       closed = true;
     },
   });
+};
+
+/** Existing path facade retains connection/schema ownership. */
+export const openSqliteRegionalNationalGroupStore = (databasePath: string, sources: Parameters<typeof createSqliteRegionalNationalGroupStore>[1]): SqliteRegionalNationalGroupStore =>
+  createSqliteRegionalNationalGroupStore(databasePath, sources);
+
+/** Same owner replay on the consuming Native connection; no writer or close capability escapes. */
+export const regionalNationalGroupEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteRegionalNationalGroupStore>[1]): Pick<SqliteRegionalNationalGroupStore, 'readEdition' | 'readPlan' | 'readResults' | 'readOutcome'> => {
+  const owner = createSqliteRegionalNationalGroupStore(db, sources);
+  return Object.freeze({ readEdition: owner.readEdition, readPlan: owner.readPlan, readResults: owner.readResults, readOutcome: owner.readOutcome });
 };

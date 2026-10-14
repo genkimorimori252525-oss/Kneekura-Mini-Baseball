@@ -1,4 +1,5 @@
-import { expect, it } from 'vitest';
+import { createRequire } from 'node:module';
+import { expect, it, vi } from 'vitest';
 import { actualLocomotionFixture as fixture } from './ActualLocomotionFixtures.test-support';
 import { openSqliteActualLocomotionStore } from './SqliteActualLocomotionStore';
 import { actualPlayerKinematicsEvidenceFromSqlite } from './SqliteActualPlayerKinematicsReader';
@@ -46,3 +47,68 @@ it('uses null-target hold without claiming physical settlement', () => {
     expect(r).not.toHaveProperty('settled'); expect(r).not.toHaveProperty('playEnd');
   } finally { x.f.close(); }
 });
+
+// Passive instrumentation of the real fixture/owners. Removing the public motor
+// read phases must fail this test without substituting any original evidence.
+it('shares completed original roots only within fresh locomotion owner phases', async () => {
+  const physical = await import('./SqliteBattedWorldFieldStore');
+  const responses = await import('./SqliteBattedContactResponseStore');
+  const x = fixture();
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  let connection: import('node:sqlite').DatabaseSync | undefined, responseReads = 0, corruptInCallback = false;
+  const reads: { frame: object | null; roots: number }[] = [];
+  const responseOwner = responses.battedContactResponseEvidenceFromSqlite;
+  const responseWitness = vi.spyOn(responses, 'battedContactResponseEvidenceFromSqlite').mockImplementation(db => {
+    const own = responseOwner(db);
+    return { ...own, read(id: string) { responseReads++; return own.read(id); } };
+  });
+  const fieldOwner = physical.battedWorldFieldEvidenceFromSqlite;
+  const fieldWitness = vi.spyOn(physical, 'battedWorldFieldEvidenceFromSqlite').mockImplementation(db => {
+    if (!(db instanceof DatabaseSync)) throw new Error('locomotion phase witness requires Native ownership');
+    connection ??= db;
+    const own = fieldOwner(db);
+    return { ...own, read(id: string) {
+      const before = responseReads, frame = physical.activeBattedWorldFieldReadFrame(db);
+      const value = own.read(id); reads.push({ frame, roots: responseReads - before }); return value;
+    } };
+  });
+  const outsidePhase = () => {
+    expect(connection!.isTransaction).toBe(false);
+    expect(physical.activeBattedWorldFieldReadFrame(connection!)).toBeNull();
+    expect(connection!.prepare('PRAGMA query_only').get()!.query_only).toBe(0);
+  };
+  const store = x.f.track(openSqliteActualLocomotionStore(x.f.path, { readAcceptedLocomotion() {
+    // First admission has no prior receipt/dependency factory yet. Retried
+    // admission must end its first read before calling the external authority.
+    if (connection) outsidePhase();
+    if (corruptInCallback) x.f.db.prepare("UPDATE batted_contact_responses SET snapshot_hash='callback-corruption' WHERE source_id=?")
+      .run(x.baseField.response.source.sourceId);
+    return x.locomotionSource;
+  } }));
+  const rows = () => ['actual_locomotion_receipts', 'actual_locomotion_heads', 'actual_defensive_decisions',
+    'actual_defensive_decision_heads', 'actual_field_observations', 'batted_world_field_actions',
+    'batted_world_field_executions', 'batted_contact_responses']
+    .map(name => x.f.db.prepare(`SELECT rowid,* FROM ${name} ORDER BY rowid`).all());
+  const threeFreshRoots = () => {
+    expect(reads.every(read => read.frame !== null)).toBe(true);
+    const frames = [...new Set(reads.map(read => read.frame))];
+    expect(frames).toHaveLength(3);
+    const phases = frames.map(frame => reads.filter(read => read.frame === frame));
+    expect(phases.map(phase => phase.reduce((sum, read) => sum + read.roots, 0))).toEqual([1, 1, 1]);
+    expect(phases.every(phase => phase.length > 1 && phase.some(read => read.roots === 0))).toBe(true);
+    return frames;
+  };
+  try {
+    const saved = store.accept(x.locomotionSource.sourceId);
+    expect(saved.source).toEqual(x.locomotionSource);
+    const firstFrames = threeFreshRoots(), accepted = rows(); reads.length = 0;
+    expect(store.accept(saved.source.sourceId)).toEqual(saved);
+    expect(store.read(saved.source.sourceId)).toEqual(saved);
+    const laterFrames = threeFreshRoots();
+    expect(laterFrames.every(frame => !firstFrames.includes(frame))).toBe(true);
+    expect(rows()).toEqual(accepted);
+    corruptInCallback = true;
+    expect(() => store.accept(saved.source.sourceId)).toThrow(/corrupt original batted response archive/);
+    outsidePhase();
+  } finally { fieldWitness.mockRestore(); responseWitness.mockRestore(); x.f.close(); }
+}, 60_000);

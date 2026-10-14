@@ -1,4 +1,6 @@
 import { createRequire } from 'node:module';
+import { mkdirSync } from 'node:fs';
+import { join } from 'node:path';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
 import { createCanonicalPlateAppearanceTimeline, recordCountedPitch } from '../../core/sim/plateAppearance/CanonicalPlateAppearanceTimeline';
 import { resolveAndRecordPitchAgainstBatter } from '../../core/sim/pitching/PitchAgainstBatter';
@@ -15,11 +17,32 @@ import { openSqliteWorldSettlementStore } from './SqliteWorldSettlementStore';
 import { openSqliteManagerRosterDecisionStore } from './SqliteManagerRosterDecisionStore';
 import { openSqlitePlayerPersonLinkStore } from './SqlitePlayerPersonLinkStore';
 
+/** Existing synthetic game/roster authority, reusable when reopening its own checkpoint. */
+export const officialPitchWorkloadParticipationAuthority = (
+  world: Pick<ReturnType<typeof openSqliteWorldSettlementStore>, 'readSeason'>,
+  roster: Pick<ReturnType<typeof openSqliteManagerRosterDecisionStore>, 'readHead'>,
+  links: Pick<ReturnType<typeof openSqlitePlayerPersonLinkStore>, 'readLink'>,
+  fixtureBinding: { fixtureEventId: string }) => {
+  return { readGame: (gameId: string) => gameId === 'game-1' && world.readSeason('career-a', 'league-season-1') ? {
+    careerId: 'career-a', competitionEditionId: 'league-season-1', gameDay: 10, homeClubId: 'club-a', awayClubId: 'club-b', fixtureEventId: fixtureBinding.fixtureEventId } : null,
+    readRoster: (careerId: string, clubId: string) => roster.readHead(careerId, clubId)?.roster ?? null,
+    readPersonLink: (playerId: string, sourceId: string) => { const link = links.readLink(sourceId); return link?.playerId === playerId ? {
+      personId: link.personId, sourceId: link.sourceId } : null; } };
+};
+
 /** Explicit physical/profile fixtures; no production counts or calibration defaults. */
 export const officialPitchWorkloadFixture = (physical = true, deferPlay = false, databasePath?: string, bothSides = false,
-  fixture?: Parameters<SqliteOfficialStateStore['registerOfficialFixture']>[0], profile?: OriginalFixtureRuleProfile) => {
+  fixture?: Parameters<SqliteOfficialStateStore['registerOfficialFixture']>[0], profile?: OriginalFixtureRuleProfile,
+  rehabPlayerIds: readonly string[] = []) => {
   const initial = match(profile); // Validate before opening stores or persisting the initial Match.
-  const path = databasePath ?? `file:official-pitch-workload-${crypto.randomUUID()}?mode=memory&cache=shared`;
+  // Optional private test evidence; explicit caller paths retain precedence.
+  // The same Native owners use the retained file, so interrupted stages remain
+  // inspectable without rebuilding an expensive genuine fixture prefix.
+  const retainedDirectory = databasePath === undefined ? process.env.BASEBALL_NATIVE_DATABASE_DIRECTORY : undefined;
+  if (retainedDirectory) mkdirSync(retainedDirectory, { recursive: true });
+  const path = databasePath ?? (retainedDirectory
+    ? join(retainedDirectory, `official-pitch-workload-${crypto.randomUUID()}.sqlite`)
+    : `file:official-pitch-workload-${crypto.randomUUID()}?mode=memory&cache=shared`);
   const stores: { close(): void }[] = [];
   const track = <T extends { close(): void }>(store: T): T => { stores.push(store); return store; };
   const world = track(openSqliteWorldSettlementStore(path)), roster = track(openSqliteManagerRosterDecisionStore(path));
@@ -39,13 +62,13 @@ export const officialPitchWorkloadFixture = (physical = true, deferPlay = false,
   const playerIds = [...homeIds, ...awayIds];
   const initialRoster = createRosterState({ careerId: 'career-a', effectiveDay: 1,
     profiles: [{ profileId: 'fixture-league', version: 'v1', season: 1, competitionEditionId: 'league-season-1', activeLimit: null,
-      allowedAssignmentKinds: ['FIRST_TEAM'], rehabParticipationAllowed: false }],
+      allowedAssignmentKinds: ['FIRST_TEAM'], rehabParticipationAllowed: rehabPlayerIds.length > 0 }],
     units: [{ unitId: 'first-a', clubId: 'club-a', kind: 'FIRST_TEAM' }, ...(bothSides ? [{ unitId: 'first-b', clubId: 'club-b', kind: 'FIRST_TEAM' as const }] : [])],
     players: playerIds.map((playerId) => {
       const clubId = homeIds.includes(playerId) ? 'club-a' : 'club-b', unitId = clubId === 'club-a' ? 'first-a' : 'first-b';
       return { playerId, clubRights: { rightsHolderClubId: clubId, contractId: `contract-${playerId}` }, assignment: { unitId, clubId },
         registrations: [{ competitionEditionId: 'league-season-1', clubId, status: 'ACTIVE', eligibility: 'ELIGIBLE', evidenceId: 'fixture-registration' }],
-        availability: { status: 'AVAILABLE', evidenceId: 'fixture-health' } };
+        availability: { status: rehabPlayerIds.includes(playerId) ? 'REHAB' : 'AVAILABLE', evidenceId: 'fixture-health' } };
     }) });
   for (const clubId of bothSides ? ['club-a', 'club-b'] : ['club-a']) roster.initialize({ careerId: 'career-a', clubId, mood: null, roster: initialRoster });
   const links = track(openSqlitePlayerPersonLinkStore(path, { readAcceptedPlayerIntake: (sourceId) => playerIds.some((playerId) => sourceId === `intake-${playerId}`) ? {
@@ -55,11 +78,7 @@ export const officialPitchWorkloadFixture = (physical = true, deferPlay = false,
   const official = track(new SqliteOfficialStateStore(path));
   const fixtureBinding = fixture ?? { gameId: 'game-1', venueId: 'venue-1', fixtureEventId: 'fixture-1', fixtureRevision: 0 };
   official.registerOfficialFixture(fixtureBinding);
-  const authority = { readGame: (gameId: string) => gameId === 'game-1' && world.readSeason('career-a', 'league-season-1') ? {
-    careerId: 'career-a', competitionEditionId: 'league-season-1', gameDay: 10, homeClubId: 'club-a', awayClubId: 'club-b', fixtureEventId: fixtureBinding.fixtureEventId } : null,
-    readRoster: (careerId: string, clubId: string) => roster.readHead(careerId, clubId)?.roster ?? null,
-    readPersonLink: (playerId: string, sourceId: string) => { const link = links.readLink(sourceId); return link?.playerId === playerId ? {
-      personId: link.personId, sourceId: link.sourceId } : null; } };
+  const authority = officialPitchWorkloadParticipationAuthority(world, roster, links, fixtureBinding);
   const participation = track(new SqliteOfficialParticipationStore(path, authority));
   for (const playerId of playerIds) participation.bindPregame({ gameId: 'game-1', careerId: 'career-a', competitionEditionId: 'league-season-1', gameDay: 10,
     clubId: homeIds.includes(playerId) ? 'club-a' : 'club-b', side: homeIds.includes(playerId) ? 'HOME' : 'AWAY',

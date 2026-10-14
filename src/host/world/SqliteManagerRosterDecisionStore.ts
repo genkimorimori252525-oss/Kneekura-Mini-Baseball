@@ -1,3 +1,7 @@
+import { practiceOrderExecutionEvidenceFromOwner, type OwnedPracticeOrderMethods, type PracticeOrderExecutionReader } from './OwnedPitchPracticeOrder';
+import type { DatabaseSync } from 'node:sqlite';
+import { assertBodyCompositionNativeConnection } from './BodyMaterializationSqliteOwnership';
+import { readNativePracticeOrderExecutionFromSqlite } from './NativePitchPracticeEvidenceFromSqlite';
 import { createRequire } from 'node:module';
 import { readState as readClubState } from
   '../../core/world/club/ClubSchemas';
@@ -47,6 +51,8 @@ export type IssueRosterOpportunityInput = Readonly<{
   worldRevision: number;
   candidates: readonly LegalRosterActionBinding[];
   selectionAgent: ManagerDecisionAgent;
+  /** Optional accepted original history identity; legacy receipts omit it. */
+  managerBeliefRevision?: number;
   candidateActionIds?: readonly string[];
 }>;
 export type DurableRosterOpportunity = Readonly<{
@@ -59,6 +65,8 @@ export type DurableRosterOpportunity = Readonly<{
   opportunity: DecisionOpportunity;
   bindings: readonly LegalRosterActionBinding[];
   selectionAgent: ManagerDecisionAgent;
+  /** Optional accepted original history identity; legacy receipts omit it. */
+  managerBeliefRevision?: number;
   candidateActionIds?: readonly string[];
 }>;
 export type RosterExecutionRequest = Omit<
@@ -74,6 +82,12 @@ export type RosterExecutionRequest = Omit<
       | 'rosterCommand' | 'rosterEvent' | 'decision'
       | 'execution' | 'mood'>;
   }>;
+export type IssuedRosterExecutionRequest = Readonly<{
+  careerId: string; clubId: string; decisionId: string;
+  traceId: string; executionId: string;
+  /** Consequence evidence stays explicit; selection and administrative writes are derived. */
+  moodContext?: RosterExecutionRequest['moodContext'];
+}>;
 export type DurableRosterExecution = Readonly<{
   executionId: string;
   careerId: string;
@@ -98,6 +112,7 @@ export type SqliteManagerRosterDecisionStore = Readonly<{
   readDevelopmentRosterChange(executionId: string):
     DurableDevelopmentRosterChange | null;
   apply(request: RosterExecutionRequest): DurableRosterExecution;
+  executeIssued(request: IssuedRosterExecutionRequest): DurableRosterExecution;
   close(): void;
 }>;
 
@@ -138,13 +153,18 @@ type ExecutionRow = { career_id: string; club_id: string;
 type OpportunityRow = { issued_json: string };
 
 /** A separate roster head shares the world DB without writing its club head. */
-export const openSqliteManagerRosterDecisionStore = (
-  databasePath: string,
+const createRosterOwner = (
+  databasePath: string | DatabaseSync,
+  practiceReader?: PracticeOrderExecutionReader,
 ): SqliteManagerRosterDecisionStore => {
-  if (!id(databasePath)) throw new Error('invalid world database path');
   const sqlite: typeof import('node:sqlite') =
     createRequire(import.meta.url)('node:sqlite');
-  const db = new sqlite.DatabaseSync(databasePath);
+  const ownsConnection = typeof databasePath === 'string';
+  if (ownsConnection ? !id(databasePath) : !(databasePath instanceof sqlite.DatabaseSync) || !databasePath.isTransaction) {
+    throw new Error('invalid world database path or Native roster snapshot');
+  }
+  const db = typeof databasePath === 'string' ? new sqlite.DatabaseSync(databasePath) : databasePath;
+  if (ownsConnection) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL;');
   const rosterColumns = db.prepare(`PRAGMA table_info(world_roster_heads)`)
     .all() as { name: string }[];
@@ -176,6 +196,7 @@ export const openSqliteManagerRosterDecisionStore = (
     decision_id TEXT NOT NULL, issued_json TEXT NOT NULL,
     PRIMARY KEY (career_id, club_id, decision_id)
   );`);
+  }
   const clubStatement = db.prepare(`SELECT revision, state_json
     FROM world_club_heads WHERE career_id=? AND club_id=?`);
   const headStatement = db.prepare(`SELECT revision, roster_json
@@ -233,6 +254,13 @@ export const openSqliteManagerRosterDecisionStore = (
       || issued.bindings.some((binding, index) =>
         binding.actionId !== issued.opportunity.legalActionIds[index])) {
       throw new Error('corrupt issued roster opportunity');
+    }
+    if (issued.managerBeliefRevision !== undefined) {
+      if (!revision(issued.managerBeliefRevision)) throw new Error('invalid issued Manager belief revision');
+      const belief = readManagerBeliefBoundary(db, careerId, issued.selectionAgent.managerId, issued.managerBeliefRevision, practiceReader);
+      if (!belief || canonicalJson(belief.state.agent) !== canonicalJson(issued.selectionAgent.state)) {
+        throw new Error('issued opportunity differs from its original Manager belief');
+      }
     }
     return issued;
   };
@@ -351,7 +379,7 @@ export const openSqliteManagerRosterDecisionStore = (
       throw new Error('corrupt durable roster execution', { cause });
     }
   };
-  return Object.freeze({
+  const api: SqliteManagerRosterDecisionStore = Object.freeze({
     initialize(input: InitializeRosterHead): void {
       if (!input || !id(input.careerId) || !id(input.clubId)) {
         throw new Error('invalid roster head initialization');
@@ -427,6 +455,8 @@ export const openSqliteManagerRosterDecisionStore = (
         || input.candidates.length === 0) {
         throw new Error('invalid roster opportunity request');
       }
+      const managerBeliefRevision = input.managerBeliefRevision;
+      if (managerBeliefRevision !== undefined && !revision(managerBeliefRevision)) throw new Error('invalid accepted Manager belief revision');
       return transaction(() => {
         const clubRecord = clubRow(input.careerId, input.clubId);
         const rosterRecord = headRow(input.careerId);
@@ -469,8 +499,11 @@ export const openSqliteManagerRosterDecisionStore = (
           .get(input.careerId, manager.value.managerId) as
             { revision: number; state_json: string } | undefined
           : undefined;
+        if (managerBeliefRevision !== undefined && personRow?.revision !== managerBeliefRevision) {
+          throw new Error('stale accepted Manager belief revision');
+        }
         const personBoundary = personRow ? readManagerBeliefBoundary(db,
-          input.careerId, manager.value.managerId, personRow.revision) : null;
+          input.careerId, manager.value.managerId, personRow.revision, practiceReader) : null;
         if (personRow) {
           const person = JSON.parse(personRow.state_json) as {
             careerId: string; managerId: string; revision: number;
@@ -484,7 +517,7 @@ export const openSqliteManagerRosterDecisionStore = (
             throw new Error('caller Manager Person belief differs from durable head');
           }
           if (!personBoundary) throw new Error('Manager Person belief boundary is absent');
-          assertManagerBeliefBoundary(db, personBoundary, 'current');
+          assertManagerBeliefBoundary(db, personBoundary, 'current', practiceReader);
         } else {
           // Pre-history saves may have issued opportunities. A different
           // snapshot cannot become an implicit replacement Person seed.
@@ -576,6 +609,7 @@ export const openSqliteManagerRosterDecisionStore = (
           clubAsOfDay: input.clubAsOfDay,
           control, opportunity, bindings: input.candidates,
           selectionAgent: input.selectionAgent,
+          ...(managerBeliefRevision === undefined ? {} : { managerBeliefRevision }),
           ...(input.candidateActionIds === undefined ? {}
             : { candidateActionIds: input.candidateActionIds }),
         });
@@ -593,8 +627,10 @@ export const openSqliteManagerRosterDecisionStore = (
           VALUES (?, ?, ?, ?)`).run(input.careerId,
           input.clubId, input.decisionId, issuedJson);
         for (const binding of input.candidates) assertCurrentMedicalRosterAction(db, input.careerId, binding);
-        if (personBoundary) assertManagerBeliefBoundary(db, personBoundary, 'current');
-        return frozenJson<DurableRosterOpportunity>(issuedJson);
+        if (personBoundary) assertManagerBeliefBoundary(db, personBoundary, 'current', practiceReader);
+        const saved = opportunityRow(input.careerId, input.clubId, input.decisionId);
+        if (!saved || saved.issued_json !== issuedJson) throw new Error('issued roster opportunity changed during admission');
+        return parsedOpportunity(input.careerId, input.clubId, input.decisionId, saved);
       });
     },
     readOpportunity(careerId: string, clubId: string,
@@ -630,6 +666,47 @@ export const openSqliteManagerRosterDecisionStore = (
         throw new Error('development roster source revision mismatch');
       }
       return Object.freeze({ before, after, event });
+    },
+    executeIssued(raw: IssuedRosterExecutionRequest): DurableRosterExecution {
+      const input = frozenJson<IssuedRosterExecutionRequest>(canonicalJson(raw));
+      const fields = ['careerId', 'clubId', 'decisionId', 'traceId', 'executionId',
+        ...(input && Object.hasOwn(input, 'moodContext') ? ['moodContext'] : [])];
+      if (!input || Object.keys(input).length !== fields.length || fields.some(key => !Object.hasOwn(input, key))
+        || ![input.careerId, input.clubId, input.decisionId, input.traceId, input.executionId].every(id)
+        || (input.moodContext !== undefined && (input.moodContext === null || typeof input.moodContext !== 'object'))) {
+        throw new Error('invalid issued roster execution');
+      }
+      const issued = api.readOpportunity(input.careerId, input.clubId, input.decisionId);
+      if (!issued) throw new Error('issued roster opportunity is missing');
+      const selection = selectManagerControlledDecision(issued.control, issued.opportunity,
+        issued.selectionAgent, input.traceId, issued.candidateActionIds);
+      if (!selection.ok) throw new Error(`issued roster selection failed: ${selection.reason.code}`);
+      const binding = issued.bindings.find(candidate => candidate.actionId === selection.value.decision.actionId);
+      if (!binding || issued.opportunity.worldRevision === Number.MAX_SAFE_INTEGER) {
+        throw new Error('issued roster execution lacks a binding or next World revision');
+      }
+      const prior = executionRow(input.executionId);
+      let expectedMoodRevision: number | null;
+      if (prior) {
+        // Reuse only authenticated original request evidence. A later mood or
+        // Manager/control head cannot change an exact completed retry.
+        parsedExecution(input.executionId, prior);
+        expectedMoodRevision = (JSON.parse(prior.request_json) as RosterExecutionRequest).expectedMoodRevision;
+      } else {
+        const head = api.readHead(input.careerId, input.clubId);
+        if (!head) throw new Error('issued roster execution lacks its current roster head');
+        expectedMoodRevision = head.mood?.revision ?? null;
+      }
+      // The existing writer reauthenticates these originals and current CAS in
+      // its own Native transaction. A race is rejected, never silently rebased.
+      return api.apply({ careerId: input.careerId, clubId: input.clubId,
+        expectedClubRevision: issued.clubRevision, expectedRosterRevision: issued.rosterRevision,
+        expectedMoodRevision, control: issued.control, opportunity: issued.opportunity,
+        selection: selection.value, selectionAgent: issued.selectionAgent, binding,
+        ...(issued.candidateActionIds === undefined ? {} : { candidateActionIds: issued.candidateActionIds }),
+        clubAsOfDay: issued.clubAsOfDay, currentWorldRevision: issued.opportunity.worldRevision,
+        afterWorldRevision: issued.opportunity.worldRevision + 1, executionId: input.executionId,
+        ...(input.moodContext === undefined ? {} : { moodContext: input.moodContext }) });
     },
     apply(request: RosterExecutionRequest): DurableRosterExecution {
       if (!request || !id(request.careerId)
@@ -793,6 +870,28 @@ export const openSqliteManagerRosterDecisionStore = (
         return durable;
       });
     },
-    close(): void { db.close(); },
+    close(): void { if (ownsConnection) db.close(); },
+  });
+  return api;
+};
+
+export const openSqliteManagerRosterDecisionStore = (databasePath: string,
+  practiceOwner?: Pick<OwnedPracticeOrderMethods, 'readOrder'>): SqliteManagerRosterDecisionStore =>
+  createRosterOwner(databasePath, practiceOwner === undefined ? undefined : practiceOrderExecutionEvidenceFromOwner(practiceOwner));
+
+/** Reuse the original roster decoder on its consumer's active Native snapshot,
+ * without schema setup, writes, a second connection or a fabricated execution. */
+export const managerRosterEvidenceFromSqlite = (db: DatabaseSync):
+  Pick<SqliteManagerRosterDecisionStore, 'readDevelopmentRosterChange' | 'readExecution' | 'readOpportunity'> => {
+  const owner = createRosterOwner(db, readNativePracticeOrderExecutionFromSqlite);
+  const read = <T>(body: () => T): T => {
+    if (!db.isTransaction) throw new Error('Native roster evidence requires an active transaction');
+    assertBodyCompositionNativeConnection(db); return body();
+  };
+  return Object.freeze({
+    readDevelopmentRosterChange: (id: string) => read(() => owner.readDevelopmentRosterChange(id)),
+    readExecution: (id: string) => read(() => owner.readExecution(id)),
+    readOpportunity: (careerId: string, clubId: string, decisionId: string) =>
+      read(() => owner.readOpportunity(careerId, clubId, decisionId)),
   });
 };

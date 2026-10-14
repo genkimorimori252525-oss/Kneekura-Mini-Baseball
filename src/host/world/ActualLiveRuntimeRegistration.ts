@@ -146,3 +146,43 @@ export const assertActualLiveRegistrationBeforeWork = (db: Db, scope: Scope): vo
     if ([...ids].some(sourceId => !seen.has(sourceId))) fail();
   }
 };
+
+/** Prospective enrollment admits no physical/configuration work at all. It
+ * uses the declared original owner graph and typed original PA/pitch mirrors;
+ * a shared Player identity never links otherwise unrelated PA histories. */
+export const assertSamePaRegistrationBeforeWork = (db:Db,scope:Scope & Readonly<{actorSourceId:string;initialWorldSourceId?:string;activationApplicationId?:string}>):void => {
+  const owners=new Set(['physical_pitch_progress_actions','physical_pitch_progress_heads','actual_live_play_runtimes',
+    'actual_live_play_fences','actual_first_base_play_ends','actual_foul_play_ends',...domains.flatMap(d=>[d.owner,...(d.head?[d.head.owner]:[])])]);
+  const paths:readonly Path[]=[[],['source'],['history',{array:'all'}],['history'],['history',{array:'all'},'source'],['history','source'],
+    ['frame'],['scope'],['physicalPitch','frame'],['frame','batterActor'],['frame','batterActor','source'],
+    ...contexts,...flights.flatMap(p=>[[...p,'physicalPitch','frame'] as Path,[...p,'physicalPitch'] as Path,
+      [...p,'physicalPitch','frame','batterActor'] as Path,[...p,'physicalPitch','frame','batterActor','source'] as Path])];
+  for(const owner of owners){
+    const schema=db.prepare('SELECT type,name FROM main.sqlite_master WHERE lower(name)=lower(?)').all(owner);
+    if(!schema.length)continue;
+    if(schema.length!==1||schema[0].type!=='table'||schema[0].name!==owner)fail();
+    const cols=new Set(db.prepare(`PRAGMA main.table_info(${owner})`).all().map(c=>String(c.name)));
+    const clauses:string[]=[];
+    if(cols.has('game_id')&&cols.has('play_id'))clauses.push('(game_id=$game AND play_id=$play)');
+    if(cols.has('physical_pitch_source_id'))clauses.push('physical_pitch_source_id=$pitch');
+    if(owner==='physical_pitch_progress_actions'&&cols.has('source_id'))clauses.push('source_id=$pitch');
+    if(owner==='physical_pitch_progress_heads'&&cols.has('last_source_id'))clauses.push('last_source_id=$pitch');
+    for(const document of ['source_json','snapshot_json','proof_json'])if(cols.has(document)){
+      for(const path of paths){
+        clauses.push(claim(document,[...path,'physicalPitchSourceId'],'$pitch'));
+        clauses.push(claim(document,[...path,'initialWorldSourceId'],'$initial'));
+        clauses.push(claim(document,[...path,'activationApplicationId'],'$activation'));
+        if(path.includes('batterActor'))clauses.push(claim(document,[...path,'sourceId'],'$actor'));
+        clauses.push(`(${claim(document,[...path,'gameId'],'$game')} AND EXISTS(SELECT 1 FROM (${nodes(document,[...path,'playId'])}) n WHERE n.type IN ('integer','real') AND n.atom=$play))`);
+        clauses.push(`(${claim(document,[...path,'gameId'],'$game')} AND EXISTS(SELECT 1 FROM (${nodes(document,[...path,'match','playId'])}) n WHERE n.type IN ('integer','real') AND n.atom=$play))`);
+      }
+      if(owner==='physical_pitch_progress_actions')for(const path of [[],['source']] as const)clauses.push(claim(document,[...path,'sourceId'],'$pitch'));
+    }
+    const predicate=clauses.join(' OR '),parameters={game:scope.gameId,play:scope.playId,pitch:scope.physicalPitchSourceId,
+      actor:scope.actorSourceId,initial:scope.initialWorldSourceId??null,activation:scope.activationApplicationId??null};
+    if(clauses.length&&db.prepare(`SELECT 1 FROM main.${owner} WHERE ${predicate} LIMIT 1`)
+      .get(Object.fromEntries(Object.entries(parameters).filter(([key])=>predicate.includes('$'+key))))){
+      throw new Error('same-PA enrollment must precede every original physical work/pitch claim');
+    }
+  }
+};

@@ -15,18 +15,19 @@ import { buildPlayerPerceivedWorldState } from '../../core/sim/perception/Player
 import type { ReceivedCommunication } from '../../core/sim/perception/Communication';
 import { hasUnmodeledObservationSurface } from './ActualObservationSurfaceGuard';
 import type { DurablePlayerObservationModel } from './SqlitePlayerObservationModelStore';
+import { createPlayerObservationCalibration, type PlayerObservationCalibration } from '../../core/sim/perception/PlayerObservationCalibration';
 import type { AcceptedActualFieldObservation, ActualFieldObservationReceipt, ActualObservationMoment, ActualObservationTarget } from './ActualFieldObservation';
 import { actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 
-type ExecutedObservationBasis = Readonly<{ at: ActualObservationMoment; ticksPerSecond: number; matchSeed: number; playId: number;
+export type ExecutedObservationBasis = Readonly<{ at: ActualObservationMoment; ticksPerSecond: number; matchSeed: number; playId: number;
   playerIds: readonly string[]; actors: readonly BallWorldMotionActor[]; surfaces: readonly BattedWorldSurface[];
   bases: readonly BattedBallBasePrism[]; ballMoment: BallWorldMoment | null }>;
 const vector = (value: Vec3) => Object.keys(value).sort().join('|') === 'x|y|z' && Object.values(value).every(Number.isFinite);
 
 /** Shared sensory calculation only. Native callers must supply their own fully authenticated executed basis.
  * This owns no observation history, signal consumption, decision, physical action or calibration. */
-export const sampleExecutedFieldObservation = (source: AcceptedActualFieldObservation, basis: ExecutedObservationBasis,
-  model: DurablePlayerObservationModel, previous: Readonly<{ source: AcceptedActualFieldObservation; receipt: ActualFieldObservationReceipt }> | null,
+export const sampleExecutedFieldObservationWithCalibration = (source: AcceptedActualFieldObservation, basis: ExecutedObservationBasis,
+  rawCalibration: PlayerObservationCalibration, previous: Readonly<{ source: AcceptedActualFieldObservation; receipt: ActualFieldObservationReceipt }> | null,
   communicationEvidence?: NonNullable<ActualFieldObservationReceipt['communicationEvidence']>): ActualFieldObservationReceipt => {
   const at = basis.at;
   if ((source.communicationSourceId === undefined) !== (communicationEvidence === undefined)
@@ -35,7 +36,7 @@ export const sampleExecutedFieldObservation = (source: AcceptedActualFieldObserv
   }
   const communications: readonly ReceivedCommunication[] = communicationEvidence?.result.kind === 'received'
     ? [communicationEvidence.result.received] : [];
-  const calibration = model.source.calibration, p = basis.ticksPerSecond;
+  const calibration = createPlayerObservationCalibration(rawCalibration), p = basis.ticksPerSecond;
   if (calibration.memoryDecayParameters.ticksPerSecond !== p) throw new Error('observation model clock differs from actual physical clock');
   const players = [...basis.playerIds].sort();
   if (!players.includes(source.playerId) || source.view.attentionTarget.kind === 'player' && !players.includes(source.view.attentionTarget.playerId)) {
@@ -128,3 +129,11 @@ export const sampleExecutedFieldObservation = (source: AcceptedActualFieldObserv
   // Finite inputs can still overflow capture or memory arithmetic; reject before returning or serializing.
   return freeze(cloneInert(receipt));
 };
+
+/** Legacy owner wrapper retains its nominal model and original result bytes.
+ * New Native adapters authenticate effective calibration separately and call
+ * the shared calculation; no altered v1 model Source is manufactured. */
+export const sampleExecutedFieldObservation = (source: AcceptedActualFieldObservation, basis: ExecutedObservationBasis,
+  model: DurablePlayerObservationModel, previous: Readonly<{ source: AcceptedActualFieldObservation; receipt: ActualFieldObservationReceipt }> | null,
+  communicationEvidence?: NonNullable<ActualFieldObservationReceipt['communicationEvidence']>): ActualFieldObservationReceipt =>
+  sampleExecutedFieldObservationWithCalibration(source, basis, model.source.calibration, previous, communicationEvidence);

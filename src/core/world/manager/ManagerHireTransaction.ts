@@ -11,6 +11,10 @@ import type { ManagerCandidateEvidenceLedger } from './ManagerCandidateEvidence'
 import { applyShortlistedManagerHire } from './ShortlistedManagerHire';
 import type { ShortlistedManagerHire } from './ShortlistedManagerHire';
 
+/** Immutable accepted hiring application referenced by a later wage payment. */
+export type ManagerHireWageReference = Readonly<{
+  applicationId: string; requestHash: string; snapshotHash: string;
+}>;
 export type ManagerHireTransactionIds = Readonly<{
   clubEventId: string;
   commitmentId: string;

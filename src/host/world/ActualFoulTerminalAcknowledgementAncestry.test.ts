@@ -6,6 +6,10 @@ import { expect, it, vi } from 'vitest';
 import * as terminalEvidence from './ActualFoulTerminalApplicationEvidenceFromSqlite';
 import { foulTerminalScoringEvidenceFromSqlite } from './ActualFoulTerminalScoringEvidenceFromSqlite';
 import { foulTerminalRoleWorkloadContextFromSqlite } from './ActualFoulTerminalRoleWorkloadEvidenceFromSqlite';
+import * as terminalOwnership from './ActualFoulTerminalApplicationOwnership';
+import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
+import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
+import { activeBattedWorldFieldReadSnapshot } from './SqliteBattedWorldFieldStore';
 
 type AncestryReader = (db: Database) => { read(sourceId: string): unknown };
 const reader = (): AncestryReader => db => {
@@ -108,4 +112,44 @@ it('AN08 workload uses immutable ancestry while retaining pending-only eligibili
       .toThrow('terminal workload requires authentic acknowledged pending post-play'));
     expect(publicReader).not.toHaveBeenCalled();
   } finally { publicReader.mockRestore(); db.close(); }
+});
+it('AN09 missing original owners remain fresh across sibling consumers and independent reads', () => {
+  const db = fixture(), internal = reader(), original = terminalOwnership.foulTerminalApplicationIdentityRows;
+  const identities = vi.spyOn(terminalOwnership, 'foulTerminalApplicationIdentityRows').mockImplementation(original);
+  try {
+    unchanged(db, () => {
+      withBattedVenueLegalReadSnapshot(db, () => {
+        expect(internal(db).read('missing')).toBeNull();
+        expect(withBattedWorldPhysicalReadTraversal(db, () => internal(db).read('missing'))).toBeNull();
+        expect(identities).toHaveBeenCalledTimes(2);
+      });
+      expect(internal(db).read('missing')).toBeNull(); expect(identities).toHaveBeenCalledTimes(3);
+    });
+  } finally { identities.mockRestore(); db.close(); }
+});
+it('AN10 a caught original-reader failure poisons snapshot reuse while independent retries stay fresh', () => {
+  const db = fixture(), internal = reader();
+  try {
+    unchanged(db, () => {
+      withBattedVenueLegalReadSnapshot(db, () => {
+        expect(activeBattedWorldFieldReadSnapshot(db)).not.toBeNull();
+        expect(() => internal(db).read('')).toThrow('invalid foul terminal queue identity');
+        expect(() => activeBattedWorldFieldReadSnapshot(db)).toThrow('physical read snapshot failed');
+      });
+      expect(activeBattedWorldFieldReadSnapshot(db)).toBeNull();
+      expect(internal(db).read('missing')).toBeNull();
+    });
+  } finally { db.close(); }
+});
+it('AN11 an earlier missing result cannot hide a newly attached owner namespace', () => {
+  const db = fixture(), internal = reader();
+  try {
+    withBattedVenueLegalReadSnapshot(db, () => {
+      expect(internal(db).read('missing')).toBeNull();
+      db.exec("ATTACH ':memory:' AS original_namespace_probe");
+      expect(() => internal(db).read('missing')).toThrow('main-only authority storage');
+      expect(() => activeBattedWorldFieldReadSnapshot(db)).toThrow('physical read snapshot failed');
+    });
+    db.exec('DETACH original_namespace_probe'); expect(internal(db).read('missing')).toBeNull();
+  } finally { db.close(); }
 });

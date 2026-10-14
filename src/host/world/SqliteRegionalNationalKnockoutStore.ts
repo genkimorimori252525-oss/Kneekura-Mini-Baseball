@@ -1,3 +1,4 @@
+import type { DatabaseSync } from 'node:sqlite';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { OfficialGameResult } from
@@ -56,8 +57,8 @@ const canonicalJson = (value: unknown): string => JSON.stringify(
         left < right ? -1 : left > right ? 1 : 0)) : item);
 
 /** Advance each national knockout round only through durable Match finals. */
-export const openSqliteRegionalNationalKnockoutStore = (
-  databasePath: string,
+const createSqliteRegionalNationalKnockoutStore = (
+  databasePath: string | DatabaseSync,
   sources: Readonly<{
     groups: Pick<SqliteRegionalNationalGroupStore,
       'readEdition' | 'readPlan' | 'readResults' | 'readOutcome'>;
@@ -65,13 +66,17 @@ export const openSqliteRegionalNationalKnockoutStore = (
     matches: PostseasonMatchSource;
     editions?: Pick<SqliteRegionalNationalEditionStore, 'readEdition' | 'readKnockoutEdition'>;
   }>,
+  originalFixtureInputs = false,
 ): SqliteRegionalNationalKnockoutStore => {
-  if (!id(databasePath)) {
+  if (typeof databasePath === 'string' && !id(databasePath)) {
     throw new Error('invalid regional national knockout database path');
   }
   const sqlite: typeof import('node:sqlite') =
     createRequire(import.meta.url)('node:sqlite');
-  const db = new sqlite.DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new sqlite.DatabaseSync(databasePath);
+  if (!(db instanceof sqlite.DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_regional_national_knockouts (
     career_id TEXT NOT NULL, edition_id TEXT NOT NULL,
@@ -79,6 +84,7 @@ export const openSqliteRegionalNationalKnockoutStore = (
     outcome_json TEXT,
     PRIMARY KEY (career_id, edition_id)
   );`);
+  }
   const get = db.prepare(`SELECT edition_json, plan_json, outcome_json
     FROM world_regional_national_knockouts
     WHERE career_id=? AND edition_id=?`);
@@ -129,7 +135,7 @@ export const openSqliteRegionalNationalKnockoutStore = (
     planRegionalNationalKnockout(readSource(careerId, edition));
   const projectStages = (careerId: string,
     edition: RegionalNationalKnockoutEdition,
-    plan: RegionalNationalKnockoutPlan): Readonly<{
+    plan: RegionalNationalKnockoutPlan, stopAt?: 'SEMIFINAL' | 'FINAL'): Readonly<{
       semifinals: readonly RegionalNationalKnockoutGame[] | null;
       final: RegionalNationalKnockoutGame | null;
       outcome: RegionalNationalKnockoutOutcome | null;
@@ -145,6 +151,7 @@ export const openSqliteRegionalNationalKnockoutStore = (
     const semifinals = hasQuarters
       ? planRegionalNationalSemifinals(plan, openingResults, source)
       : plan.openingGames;
+    if (stopAt === 'SEMIFINAL') return Object.freeze({ semifinals, final: null, outcome: null });
     const semifinalResults = readComplete(semifinals);
     if (!semifinalResults) {
       return Object.freeze({ semifinals, final: null,
@@ -152,6 +159,7 @@ export const openSqliteRegionalNationalKnockoutStore = (
     }
     const final = planRegionalNationalFinal(plan, openingResults,
       semifinalResults, source);
+    if (stopAt === 'FINAL') return Object.freeze({ semifinals, final, outcome: null });
     const finalResult = readDurableOfficialGameResult(sources.matches,
       final.gameId);
     const outcome = finalResult
@@ -181,7 +189,7 @@ export const openSqliteRegionalNationalKnockoutStore = (
         throw new Error('regional knockout plan replay differs');
       }
       let outcome: RegionalNationalKnockoutOutcome | null = null;
-      if (stored.outcome_json !== null) {
+      if (stored.outcome_json !== null && !originalFixtureInputs) {
         const savedOutcome = JSON.parse(stored.outcome_json) as
           RegionalNationalKnockoutOutcome;
         outcome = projectStages(careerId, edition, plan).outcome;
@@ -202,12 +210,12 @@ export const openSqliteRegionalNationalKnockoutStore = (
       throw new Error('invalid regional national knockout scope');
     }
   };
-  const stages = (careerId: string, editionId: string) => {
+  const stages = (careerId: string, editionId: string, stopAt?: 'SEMIFINAL' | 'FINAL') => {
     assertScope(careerId, editionId);
     const stored = row(careerId, editionId);
     if (!stored) return null;
     const prior = replay(careerId, editionId, stored);
-    return projectStages(careerId, prior.edition, prior.plan);
+    return projectStages(careerId, prior.edition, prior.plan, stopAt);
   };
   return Object.freeze({
     initialize(careerId: string,
@@ -253,11 +261,11 @@ export const openSqliteRegionalNationalKnockoutStore = (
     },
     readSemifinalGames(careerId: string, editionId: string):
       readonly RegionalNationalKnockoutGame[] | null {
-      return stages(careerId, editionId)?.semifinals ?? null;
+      return stages(careerId, editionId, originalFixtureInputs ? 'SEMIFINAL' : undefined)?.semifinals ?? null;
     },
     readFinalGame(careerId: string, editionId: string):
       RegionalNationalKnockoutGame | null {
-      return stages(careerId, editionId)?.final ?? null;
+      return stages(careerId, editionId, originalFixtureInputs ? 'FINAL' : undefined)?.final ?? null;
     },
     finalize(careerId: string, editionId: string):
       RegionalNationalKnockoutOutcome | null {
@@ -313,8 +321,24 @@ export const openSqliteRegionalNationalKnockoutStore = (
         semifinalResults, finalResult });
     },
     close(): void {
-      if (!closed) db.close();
+      if (!closed && !borrowed) db.close();
       closed = true;
     },
   });
+};
+
+/** Existing path facade retains connection/schema ownership. */
+export const openSqliteRegionalNationalKnockoutStore = (databasePath: string, sources: Parameters<typeof createSqliteRegionalNationalKnockoutStore>[1]): SqliteRegionalNationalKnockoutStore =>
+  createSqliteRegionalNationalKnockoutStore(databasePath, sources);
+
+/** Same owner replay on the consuming Native connection; no writer or close capability escapes. */
+export const regionalNationalKnockoutEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteRegionalNationalKnockoutStore>[1]): Pick<SqliteRegionalNationalKnockoutStore, 'readEdition' | 'readPlan' | 'readSemifinalGames' | 'readFinalGame' | 'readOutcome' | 'readEvidence'> => {
+  const owner = createSqliteRegionalNationalKnockoutStore(db, sources);
+  return Object.freeze({ readEdition: owner.readEdition, readPlan: owner.readPlan, readSemifinalGames: owner.readSemifinalGames, readFinalGame: owner.readFinalGame, readOutcome: owner.readOutcome, readEvidence: owner.readEvidence });
+};
+
+/** Fixture inputs stop before the target round's results and later tournament outcomes. */
+export const regionalNationalKnockoutFixtureEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteRegionalNationalKnockoutStore>[1]): Pick<SqliteRegionalNationalKnockoutStore, 'readEdition' | 'readPlan' | 'readSemifinalGames' | 'readFinalGame'> => {
+  const owner = createSqliteRegionalNationalKnockoutStore(db, sources, true);
+  return Object.freeze({ readEdition: owner.readEdition, readPlan: owner.readPlan, readSemifinalGames: owner.readSemifinalGames, readFinalGame: owner.readFinalGame });
 };

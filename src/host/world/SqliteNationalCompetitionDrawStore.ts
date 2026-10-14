@@ -1,3 +1,4 @@
+import type { DatabaseSync } from 'node:sqlite';
 import { createCompetitionSourceReader, withCompetitionSourceReadScope } from './CompetitionSourceReadScope';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
@@ -55,8 +56,8 @@ const canonicalJson = (value: unknown): string => JSON.stringify(
         left < right ? -1 : left > right ? 1 : 0)) : item);
 
 /** Pots consume cutoff ranking, qualification and historical regions; no ability input exists. */
-export const openSqliteNationalCompetitionDrawStore = (
-  databasePath: string,
+const createSqliteNationalCompetitionDrawStore = (
+  databasePath: string | DatabaseSync,
   sources: Readonly<{
     selections: Pick<SqliteNationalCompetitionSelectionStore, 'readSelection'>;
     rankings: Pick<SqliteWorldNationalRankingSnapshotStore, 'readRanking'>;
@@ -65,14 +66,17 @@ export const openSqliteNationalCompetitionDrawStore = (
     wbcBerths?: Pick<SqliteWbcBerthStore, 'readAllocation'>;
   }>,
 ): SqliteNationalCompetitionDrawStore => {
-  if (!id(databasePath)) throw new Error('invalid national draw database path');
+  if (typeof databasePath === 'string' && !id(databasePath)) throw new Error('invalid national draw database path');
   const readSelection = createCompetitionSourceReader(sources.selections.readSelection, sources.selections);
   const readRanking = createCompetitionSourceReader(sources.rankings.readRanking, sources.rankings);
   const readHistory = createCompetitionSourceReader<[string, number], ReturnType<typeof sources.history.readHistory>>(sources.history.readHistory, sources.history);
   const readRegion = createCompetitionSourceReader(sources.nations.readRegion, sources.nations);
   const readAllocation = sources.wbcBerths ? createCompetitionSourceReader(sources.wbcBerths.readAllocation, sources.wbcBerths) : undefined;
   const sqlite: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
-  const db = new sqlite.DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new sqlite.DatabaseSync(databasePath);
+  if (!(db instanceof sqlite.DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_national_draw_policies (
     career_id TEXT NOT NULL, policy_version TEXT NOT NULL, policy_json TEXT NOT NULL,
@@ -83,6 +87,7 @@ export const openSqliteNationalCompetitionDrawStore = (
     request_json TEXT NOT NULL, draw_json TEXT NOT NULL,
     PRIMARY KEY (career_id, edition_id)
   );`);
+  }
   const get = db.prepare(`SELECT request_json, draw_json FROM world_national_draws
     WHERE career_id=? AND edition_id=?`);
   const getPolicy = db.prepare(`SELECT policy_json FROM world_national_draw_policies
@@ -222,8 +227,18 @@ export const openSqliteNationalCompetitionDrawStore = (
     },
     close(): void {
       computedDraw = undefined;
-      if (!closed) db.close();
+      if (!closed && !borrowed) db.close();
       closed = true;
     },
   });
+};
+
+/** Existing path facade retains connection/schema ownership. */
+export const openSqliteNationalCompetitionDrawStore = (databasePath: string, sources: Parameters<typeof createSqliteNationalCompetitionDrawStore>[1]): SqliteNationalCompetitionDrawStore =>
+  createSqliteNationalCompetitionDrawStore(databasePath, sources);
+
+/** Same owner replay on a consuming Native connection; only read capabilities escape. */
+export const nationalCompetitionDrawEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteNationalCompetitionDrawStore>[1]): Pick<SqliteNationalCompetitionDrawStore, 'readDraw'> => {
+  const owner = createSqliteNationalCompetitionDrawStore(db, sources);
+  return Object.freeze({ readDraw: owner.readDraw });
 };

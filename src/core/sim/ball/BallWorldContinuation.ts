@@ -48,6 +48,22 @@ const id = (v: unknown): v is string => typeof v === 'string' && v.length > 0 &&
 const vector = (v: Vec3) => v && [v.x, v.y, v.z].every(finite);
 const unit = (v: number) => finite(v) && v >= 0 && v <= 1;
 const freeze = <T>(v: T): T => { if (v && typeof v === 'object') { Object.values(v).forEach(freeze); Object.freeze(v); } return v; };
+/** The existing free-motion polynomial, valid only until the first physical
+ * boundary. Rolling ends at its owned stop; continuing its acceleration past
+ * that instant would invent reverse motion. This projection adds no policy. */
+export const ballWorldFreeMotionCurve = (initial: BattedBallInitialState, p: BallFlightParameters) => {
+  if (!initial || !p || !vector(initial.position) || !vector(initial.velocity)
+    || !finite(p.ballRadius) || p.ballRadius <= 0 || !finite(p.gravityY)
+    || !finite(p.groundRollingDecelerationMps2) || p.groundRollingDecelerationMps2 < 0
+    || initial.position.y < p.ballRadius - 1e-12) throw new Error('invalid ball World free motion basis');
+  const speed = Math.hypot(initial.velocity.x, initial.velocity.z), onFloor = initial.position.y <= p.ballRadius + 1e-12 && initial.velocity.y === 0;
+  if (!finite(speed)) throw new Error('ball World speed arithmetic overflow');
+  const phase = onFloor ? speed === 0 ? 'resting' as const : 'rolling' as const : 'airborne' as const;
+  const acceleration = onFloor ? { x: speed === 0 ? 0 : -initial.velocity.x / speed * p.groundRollingDecelerationMps2,
+    y: 0, z: speed === 0 ? 0 : -initial.velocity.z / speed * p.groundRollingDecelerationMps2 } : { x: 0, y: p.gravityY, z: 0 };
+  return { phase, acceleration, rollingStopAfterSeconds: phase === 'rolling' && p.groundRollingDecelerationMps2 > 0
+    ? speed / p.groundRollingDecelerationMps2 : null };
+};
 const distance = (a: Vec3, b: Vec3) => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
 const colliderKey = (c: BallWorldCollider) => JSON.stringify(c.kind === 'actor' ? [c.kind, c.playerId, c.role] : [c.kind, c.surfaceId]);
 const normal = (a: Vec3, b: Vec3): Vec3 | null => {
@@ -199,11 +215,9 @@ const deriveWorldSegment = (raw: BallWorldContinuationInput,
     if (!key || prior.has(colliderKey(c)) || (c.kind === 'actor' ? !actorKeys.has(key) : !surfaceIds.has(key))) throw new Error('invalid prior ball World collider');
     prior.add(colliderKey(c));
   }
-  const speed = Math.hypot(initial.velocity.x, initial.velocity.z), onFloor = initial.position.y <= p.ballRadius + 1e-12 && initial.velocity.y === 0;
-  if (!finite(speed)) throw new Error('ball World speed arithmetic overflow');
-  const phase = constrained ? 'airborne' : onFloor ? speed === 0 ? 'resting' : 'rolling' : 'airborne';
-  const acceleration = constrained?.acceleration ?? (onFloor ? { x: speed === 0 ? 0 : -initial.velocity.x / speed * p.groundRollingDecelerationMps2,
-    y: 0, z: speed === 0 ? 0 : -initial.velocity.z / speed * p.groundRollingDecelerationMps2 } : { x: 0, y: p.gravityY, z: 0 });
+  const free = ballWorldFreeMotionCurve(initial, p);
+  const phase = constrained ? 'airborne' : free.phase;
+  const acceleration = constrained?.acceleration ?? free.acceleration;
   const duration = exactThroughElapsedSeconds !== undefined ? exactThroughElapsedSeconds - moment.elapsedSeconds
     : constrained ? constrained.throughElapsedSeconds - moment.elapsedSeconds
     : Math.max(0, (input.throughTick - moment.originTick) / p.ticksPerSecond - moment.elapsedSeconds);
@@ -213,8 +227,8 @@ const deriveWorldSegment = (raw: BallWorldContinuationInput,
       .find((t) => t > 0 && t <= duration && (initial.velocity.y + acceleration.y * t < 0
         // A constrained glove may reverse exactly at the floor; that new touch is still a physical boundary.
         || constrained && acceleration.y > 0 && t === -initial.velocity.y / acceleration.y)) ?? null;
-  const stop = phase === 'rolling' && p.groundRollingDecelerationMps2 > 0 && speed / p.groundRollingDecelerationMps2 <= duration
-    ? speed / p.groundRollingDecelerationMps2 : null;
+  const stop = phase === 'rolling' && free.rollingStopAfterSeconds !== null && free.rollingStopAfterSeconds <= duration
+    ? free.rollingStopAfterSeconds : null;
   const horizon = Math.min(duration, ground ?? duration, stop ?? duration);
   const atMoment = (seconds: number): BallWorldMoment => {
     const state = sample(initial.position, initial.velocity, acceleration, seconds), elapsedSeconds = moment.elapsedSeconds + seconds;

@@ -3,6 +3,7 @@ import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
 import type { PlayAdjudicationLedger } from '../../core/adjudication/PlayAdjudicationLedger';
 import * as closure from './ActualLivePlayClosureEvidenceFromSqlite';
+import * as fieldStore from './SqliteBattedWorldFieldStore';
 import { actualLivePlayClosureInput } from './ActualLivePlayClosureSource';
 import { accepted, assertReviewFixtureConnectionsClosed, nativeReviewFactory, nativeReviewFixture,
   type NativeReviewStore } from './ActualPostPlayReviewNativeFixtures.test-support';
@@ -22,10 +23,10 @@ vi.mock('./SqliteActualFirstBasePlayEndStore', () => ({ actualFirstBaseClosedEvi
   reference: (id: string) => { const row = db.prepare("SELECT reference_json FROM fixture_review_inputs WHERE kind='end' AND source_id=?").get(id);
     return row ? JSON.parse(String(row.reference_json)) : null; },
 }) }));
-vi.mock('./SqliteBattedWorldFieldStore', () => ({ battedWorldFieldEvidenceFromSqlite: (db: DatabaseSync) => ({
+vi.spyOn(fieldStore, 'battedWorldFieldEvidenceFromSqlite').mockImplementation(db => ({
   read: (id: string) => { const row = db.prepare("SELECT value_json FROM fixture_review_inputs WHERE kind='field' AND source_id=?").get(id);
     return row ? JSON.parse(String(row.value_json)) : null; },
-}) }));
+}) as ReturnType<typeof fieldStore.battedWorldFieldEvidenceFromSqlite>);
 const { DatabaseSync: Database } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
 const parseClosure = actualLivePlayClosureInput as (raw: unknown, sourceId: string) => unknown;
 type Pin = Readonly<{ sessionSourceId: string; revision: number; headSourceId: string; headHash: string }>;

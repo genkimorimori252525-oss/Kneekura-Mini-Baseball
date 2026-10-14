@@ -1,11 +1,19 @@
 import { expect, it, vi } from 'vitest';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import * as encoders from './OwnedScheduledMotionDependencyEncoding';
 import { ownedScheduledMotionFixture } from './OwnedScheduledMotionFixtures.test-support';
 import { installOwnedScheduledDecision } from './OwnedScheduledMotionDecisionFixtures.test-support';
 
 it('rechecks predecessor row bytes after an immutable encoding cache hit and discards the failed context', () => {
-  const x = ownedScheduledMotionFixture(undefined, 1000);
+  // This is a committed peer write during the owner's pinned read. Shared-cache
+  // memory databases table-lock that write; use the real WAL interleaving.
+  const directory = mkdtempSync(join(tmpdir(), 'dependency-encoding-wal-')), path = join(directory, 'state.sqlite');
+  const x = ownedScheduledMotionFixture(path, 1000);
   try {
+    expect(x.f.db.prepare('PRAGMA database_list').all().find(row => row.name === 'main')!.file).toBe(path);
+    expect(x.f.db.prepare('PRAGMA journal_mode').get()!.journal_mode).toBe('wal');
     const plan = x.plan('encoding-cache-plan');
     if (plan.execution.kind !== 'owned_acquisition_plan_v1') throw new Error('plan');
     let current = x.step('encoding-cache-init', plan.source.sourceId,
@@ -30,8 +38,10 @@ it('rechecks predecessor row bytes after an immutable encoding cache hit and dis
         if (prior === result && value.source.sourceId === current.source.sourceId) {
           hits++;
           if (!changed) {
+            expect(x.f.db.isTransaction).toBe(false);
+            const mutation = x.f.db.prepare("UPDATE batted_world_field_executions SET snapshot_hash='changed-after-encoding-hit' WHERE source_id=?").run(current.source.sourceId);
+            expect(mutation.changes).toBe(1);
             changed = true;
-            x.f.db.prepare("UPDATE batted_world_field_executions SET snapshot_hash='changed-after-encoding-hit' WHERE source_id=?").run(current.source.sourceId);
           }
         }
         seen.set(value, result); return result;
@@ -40,6 +50,8 @@ it('rechecks predecessor row bytes after an immutable encoding cache hit and dis
     try {
       expect(() => x.executions.accept(source.sourceId)).toThrow(/predecessor changed|corrupt actual field execution snapshot/);
       expect(changed).toBe(true); expect(hits).toBeGreaterThan(0); expect(contexts).toBeGreaterThan(0);
+      expect(x.f.db.prepare('SELECT snapshot_hash FROM batted_world_field_executions WHERE source_id=?').get(current.source.sourceId)!.snapshot_hash)
+        .toBe('changed-after-encoding-hit');
       expect(x.f.db.prepare('SELECT * FROM batted_world_field_execution_heads').all()).toEqual(before);
       expect(x.f.db.prepare('SELECT source_id FROM batted_world_field_executions WHERE source_id=?').get(source.sourceId)).toBeUndefined();
     } finally {
@@ -49,5 +61,5 @@ it('rechecks predecessor row bytes after an immutable encoding cache hit and dis
     // The next independent call has a fresh private scope after the previous throw.
     expect(x.executions.accept(source.sourceId).execution.kind).toBe('owned_motion_v2');
     expect(x.executions.read(source.sourceId)!.execution.kind).toBe('owned_motion_v2');
-  } finally { x.f.close(); }
+  } finally { x.f.close(); rmSync(directory, { recursive: true, force: true }); }
 });

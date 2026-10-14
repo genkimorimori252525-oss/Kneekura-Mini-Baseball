@@ -13,6 +13,7 @@ import { battedWorldFieldExecutionEvidenceFromSqlite, type DurableBattedWorldFie
 import { battedWorldFieldPhysicalPrefix } from './BattedWorldFieldPhysicalPrefix';
 import { actualObservationPhysicalPrefixEvidence } from './ActualObservationPhysicalPrefixHash';
 import { ownedScheduledMotionArchiveHash } from './OwnedScheduledMotionArchive';
+import { battedWorldFieldEpisodeBindingHash } from './BattedWorldFieldRoot';
 
 export type BattedVenueLegalObservation = Readonly<{
   version: 'batted_venue_legal_observation_v1'; policySourceId: string;
@@ -80,7 +81,7 @@ export const battedVenueLegalEvidenceFromSqlite = (db: DatabaseSync): Readonly<{
       || pitch.frame.gameId !== policy.source.gameId || pitch.frame.match.ruleProfileId !== policy.source.rulePolicy.ruleProfileId
       || fixture.fixture_event_id !== policy.source.fixtureEventId || fixture.venue_id !== policy.source.venueId
       || fixture.fixture_revision !== policy.fixtureRevision
-      || (baseField.rootKind === 'episode_field_binding_v1' ? hash(baseField.episodeFieldBinding) : undefined) !== policy.dependencies.episodeFieldBindingHash
+      || battedWorldFieldEpisodeBindingHash(baseField) !== policy.dependencies.episodeFieldBindingHash
       || hash(pitch) !== policy.dependencies.physicalPitchHash || hash(fixture) !== policy.dependencies.fixtureHash
       || hash(world.model) !== policy.dependencies.worldModelHash || hash(baseField.response.model) !== policy.dependencies.responseModelHash
       || hash(geometry) !== policy.dependencies.fieldGeometryHash || hash(geometry.baseGeometry) !== policy.dependencies.baseGeometryHash) {

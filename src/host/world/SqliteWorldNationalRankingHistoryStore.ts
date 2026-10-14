@@ -1,3 +1,4 @@
+import type { DatabaseSync } from 'node:sqlite';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { createWorldNationalRankingHistory,
@@ -49,8 +50,8 @@ export type SqliteWorldNationalRankingHistoryStore = Readonly<{
 }>;
 
 /** Official regional, WBC and Premier12 Match results feed one ranking history. */
-export const openSqliteWorldNationalRankingHistoryStore = (
-  databasePath: string,
+const createSqliteWorldNationalRankingHistoryStore = (
+  databasePath: string | DatabaseSync,
   sources: Readonly<{
     regional: Pick<SqliteRegionalNationalKnockoutStore,
       'readEvidence'>;
@@ -59,13 +60,16 @@ export const openSqliteWorldNationalRankingHistoryStore = (
     nations: Pick<SqliteNationCompetitionRegionStore, 'readRegion'>;
   }>,
 ): SqliteWorldNationalRankingHistoryStore => {
-  if (!id(databasePath)) {
+  if (typeof databasePath === 'string' && !id(databasePath)) {
     throw new Error('invalid world national ranking database path');
   }
   const readRegional = createCompetitionSourceReader(sources.regional.readEvidence, sources.regional);
   const sqlite: typeof import('node:sqlite') =
     createRequire(import.meta.url)('node:sqlite');
-  const db = new sqlite.DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new sqlite.DatabaseSync(databasePath);
+  if (!(db instanceof sqlite.DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_national_ranking_events (
     career_id TEXT NOT NULL, ordinal INTEGER NOT NULL,
@@ -74,6 +78,7 @@ export const openSqliteWorldNationalRankingHistoryStore = (
     PRIMARY KEY (career_id, ordinal),
     UNIQUE (career_id, edition_id)
   );`);
+  }
   const get = db.prepare(`SELECT ordinal, kind, edition_id, history_json
     FROM world_national_ranking_events
     WHERE career_id=? ORDER BY ordinal`);
@@ -223,8 +228,18 @@ export const openSqliteWorldNationalRankingHistoryStore = (
     },
     readRegionalHostingEdition,
     close(): void {
-      if (!closed) db.close();
+      if (!closed && !borrowed) db.close();
       closed = true;
     },
   });
+};
+
+/** Existing path facade retains connection/schema ownership. */
+export const openSqliteWorldNationalRankingHistoryStore = (databasePath: string, sources: Parameters<typeof createSqliteWorldNationalRankingHistoryStore>[1]): SqliteWorldNationalRankingHistoryStore =>
+  createSqliteWorldNationalRankingHistoryStore(databasePath, sources);
+
+/** Same owner replay on the consuming Native connection; no writer or close capability escapes. */
+export const worldNationalRankingHistoryEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteWorldNationalRankingHistoryStore>[1]): Pick<SqliteWorldNationalRankingHistoryStore, 'readHistory'> => {
+  const owner = createSqliteWorldNationalRankingHistoryStore(db, sources);
+  return Object.freeze({ readHistory: owner.readHistory });
 };

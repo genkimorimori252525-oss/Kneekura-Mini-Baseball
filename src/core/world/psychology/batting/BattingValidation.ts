@@ -87,21 +87,8 @@ function readSource(raw:unknown,frame:ExecutionFrame):BattingSource {
  for(const k of ['massKg','transverseMomentOfInertiaKgM2','axialMomentOfInertiaKgM2'])numberValue(bat[k],p+'.bat.'+k,true);
  fraction(bat.centerOfMassT,p+'.bat.centerOfMassT');coreCall(p+'.radius',()=>sampleBatRadius(s.batPhysical.radiusProfile,0.5));
  if(s.batPhysical.normalEffectiveMassProfile)coreCall(p+'.massProfile',()=>sampleBatEffectiveMass(s.batPhysical.normalEffectiveMassProfile!,0.5));
- const model=obj(s.decisionModel,['modelId','version','threshold','aggressionWeight'],p+'.decisionModel');
- text(model.modelId,p+'.modelId');text(model.version,p+'.modelVersion');fraction(model.threshold,p+'.threshold');fraction(model.aggressionWeight,p+'.aggressionWeight');
- const profiles=list(s.profiles,(row,q)=>{
-  const r=obj(row,['minimumAggression','profile'],q);fraction(r.minimumAggression,q+'.minimumAggression');
-  const profile=obj(r.profile,Object.keys(EVIDENCE_BOUNDED_SWING_COURSE_PROFILE_V1),q+'.profile');
-  text(profile.profileId,q+'.profileId');text(profile.version,q+'.version');
-  coreCall(q,()=>resolvePreferredContactDepthV1({heightNormalized:0,insideOutsideNormalized:0},r.profile as BattingSource['profiles'][number]['profile']));return row as BattingSource['profiles'][number];
- },p+'.profiles');
- if(!profiles.length || profiles.length>32 || profiles[0].minimumAggression!==0)fail('INVALID_INPUT',p+'.profiles');
- const ids=new Set<string>();
- for(let i=0;i<profiles.length;i++){
-  const r=profiles[i];if(ids.has(r.profile.profileId) || (i>0 && r.minimumAggression<=profiles[i-1].minimumAggression)
-   || r.profile.batLengthM!==profiles[0].profile.batLengthM || r.profile.sweetSpotT!==profiles[0].profile.sweetSpotT)
-   fail('INVALID_INPUT',p+'.repertoire');ids.add(r.profile.profileId);
- }
+ readBattingDecisionValues(s.decisionModel,p);
+ readBattingRepertoireValues({repertoireId:s.repertoireId,repertoireVersion:s.repertoireVersion,profiles:s.profiles},p);
  const predictions=list(s.predictions,(row,q)=>{
   const r=obj(row,['predictionId','observedTick','availableTick','validUntilTick','trajectory','swingScore'],q);
   text(r.predictionId,q+'.id');for(const k of ['observedTick','availableTick','validUntilTick'])integer(r[k],q+'.'+k);fraction(r.swingScore,q+'.swingScore');
@@ -119,4 +106,29 @@ export function readBattingRequest(input:unknown):BattingExecutionRequest {
  bindCurrentFrame(currentFrame,acceptedExecution.expectedFrame,acceptedExecution.afterWorldRevision);
  if(!same(currentEmotion,acceptedExecution.proposal.appraisal.state))fail('STALE_REVISION','batting.currentEmotion');
  return {currentFrame,currentEmotion,acceptedExecution,source:readSource(v.source,currentFrame)};
+}
+
+/** Shared value validation; these values are calculations, never authenticated model Sources. */
+export function readBattingDecisionValues(raw:unknown,p:string):BattingSource['decisionModel'] {
+ const model=obj(raw,['modelId','version','threshold','aggressionWeight'],p+'.decisionModel');
+ text(model.modelId,p+'.modelId');text(model.version,p+'.modelVersion');fraction(model.threshold,p+'.threshold');fraction(model.aggressionWeight,p+'.aggressionWeight');
+ return model as BattingSource['decisionModel'];
+}
+export function readBattingRepertoireValues(raw:unknown,p:string):Pick<BattingSource,'repertoireId'|'repertoireVersion'|'profiles'> {
+ const v=obj(raw,['repertoireId','repertoireVersion','profiles'],p);
+ text(v.repertoireId,p+'.repertoireId');text(v.repertoireVersion,p+'.repertoireVersion');
+ const profiles=list(v.profiles,(row,q)=>{
+  const r=obj(row,['minimumAggression','profile'],q);fraction(r.minimumAggression,q+'.minimumAggression');
+  const profile=obj(r.profile,Object.keys(EVIDENCE_BOUNDED_SWING_COURSE_PROFILE_V1),q+'.profile');
+  text(profile.profileId,q+'.profileId');text(profile.version,q+'.version');
+  coreCall(q,()=>resolvePreferredContactDepthV1({heightNormalized:0,insideOutsideNormalized:0},r.profile as BattingSource['profiles'][number]['profile']));return row as BattingSource['profiles'][number];
+ },p+'.profiles');
+ if(!profiles.length || profiles.length>32 || profiles[0].minimumAggression!==0)fail('INVALID_INPUT',p+'.profiles');
+ const ids=new Set<string>();
+ for(let i=0;i<profiles.length;i++){
+  const r=profiles[i];if(ids.has(r.profile.profileId) || (i>0 && r.minimumAggression<=profiles[i-1].minimumAggression)
+   || r.profile.batLengthM!==profiles[0].profile.batLengthM || r.profile.sweetSpotT!==profiles[0].profile.sweetSpotT)
+   fail('INVALID_INPUT',p+'.repertoire');ids.add(r.profile.profileId);
+ }
+ return v as Pick<BattingSource,'repertoireId'|'repertoireVersion'|'profiles'>;
 }

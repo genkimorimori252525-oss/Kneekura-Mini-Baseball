@@ -1,0 +1,5 @@
+{
+  "nativeReleased": false,
+  "checkpointGzip": "./owner-input/lan01-import-accepted.sqlite.gz",
+  "destinationDirectory": "./lan01-resume-001/suffix"
+}

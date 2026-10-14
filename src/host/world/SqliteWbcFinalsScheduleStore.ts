@@ -1,3 +1,4 @@
+import type { DatabaseSync } from 'node:sqlite';
 import { createCompetitionSourceReader } from './CompetitionSourceReadScope';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
@@ -27,21 +28,25 @@ const canonicalJson = (value: unknown): string => JSON.stringify(
         left < right ? -1 : left > right ? 1 : 0)) : item);
 
 /** All US group/knockout calendar slots and their accepted sources remain frozen. */
-export const openSqliteWbcFinalsScheduleStore = (
-  databasePath: string,
+const createSqliteWbcFinalsScheduleStore = (
+  databasePath: string | DatabaseSync,
   sources: Readonly<{ groups: Pick<SqliteWbcFinalsGroupStore, 'readEdition' | 'readPlan'> }>,
 ): SqliteWbcFinalsScheduleStore => {
-  if (!id(databasePath)) throw new Error('invalid WBC schedule database path');
+  if (typeof databasePath === 'string' && !id(databasePath)) throw new Error('invalid WBC schedule database path');
   const readEdition = createCompetitionSourceReader(sources.groups.readEdition, sources.groups);
   const readPlan = createCompetitionSourceReader(sources.groups.readPlan, sources.groups);
   const sqlite: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
-  const db = new sqlite.DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new sqlite.DatabaseSync(databasePath);
+  if (!(db instanceof sqlite.DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_wbc_finals_schedules (
     career_id TEXT NOT NULL, edition_id TEXT NOT NULL,
     request_json TEXT NOT NULL, schedule_json TEXT NOT NULL,
     PRIMARY KEY (career_id, edition_id)
   );`);
+  }
   const get = db.prepare(`SELECT request_json, schedule_json
     FROM world_wbc_finals_schedules WHERE career_id=? AND edition_id=?`);
   const row = (careerId: string, editionId: string): Row | null =>
@@ -108,8 +113,18 @@ export const openSqliteWbcFinalsScheduleStore = (
       return stored ? replay(careerId, editionId, stored) : null;
     },
     close(): void {
-      if (!closed) db.close();
+      if (!closed && !borrowed) db.close();
       closed = true;
     },
   });
+};
+
+/** Existing path facade retains connection/schema ownership. */
+export const openSqliteWbcFinalsScheduleStore = (databasePath: string, sources: Parameters<typeof createSqliteWbcFinalsScheduleStore>[1]): SqliteWbcFinalsScheduleStore =>
+  createSqliteWbcFinalsScheduleStore(databasePath, sources);
+
+/** Same owner replay on a consuming Native connection; only read capabilities escape. */
+export const wbcFinalsScheduleEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteWbcFinalsScheduleStore>[1]): Pick<SqliteWbcFinalsScheduleStore, 'readSchedule'> => {
+  const owner = createSqliteWbcFinalsScheduleStore(db, sources);
+  return Object.freeze({ readSchedule: owner.readSchedule });
 };

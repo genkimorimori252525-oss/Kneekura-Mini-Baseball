@@ -28,6 +28,16 @@ export const foulTerminalCompletionTableSql = `CREATE TABLE IF NOT EXISTS main.a
     OR (status='OFFICIAL_APPLIED_PENDING_POST_PLAY' AND result_json IS NOT NULL)
     OR (status='OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY' AND result_json IS NOT NULL)
     OR (status='POST_PLAY_COMPLETED_CONTINUING' AND result_json IS NOT NULL)))`;
+/** Final capability is explicit; opening/read/completion never installs it. */
+export const foulTerminalFinalCompletionTableSql = `CREATE TABLE IF NOT EXISTS main.actual_foul_terminal_applications(
+  source_id TEXT PRIMARY KEY,game_id TEXT NOT NULL,play_id INTEGER NOT NULL,application_id TEXT NOT NULL UNIQUE,
+  physical_pitch_source_id TEXT NOT NULL UNIQUE,physical_end_source_id TEXT NOT NULL UNIQUE,official_obligation_key TEXT NOT NULL UNIQUE,
+  status TEXT NOT NULL,source_json TEXT NOT NULL,source_hash TEXT NOT NULL,proposal_json TEXT NOT NULL,proposal_hash TEXT NOT NULL,result_json TEXT,
+  UNIQUE(game_id,play_id),CHECK((status='QUEUED' AND result_json IS NULL)
+    OR (status='OFFICIAL_APPLIED_PENDING_POST_PLAY' AND result_json IS NOT NULL)
+    OR (status='OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY' AND result_json IS NOT NULL)
+    OR (status='POST_PLAY_COMPLETED_CONTINUING' AND result_json IS NOT NULL)
+    OR (status='POST_PLAY_COMPLETED_FINAL' AND result_json IS NOT NULL)))`;
 const table = 'actual_foul_terminal_applications';
 const columnNames = ['source_id','game_id','play_id','application_id','physical_pitch_source_id','physical_end_source_id',
   'official_obligation_key','status','source_json','source_hash','proposal_json','proposal_hash','result_json'] as const;
@@ -36,19 +46,25 @@ const columnNames = ['source_id','game_id','play_id','application_id','physical_
 const compactSchema = (sql: string) => sql.replace(/'(?:[^']|'')*'|"(?:[^"]|"")*"|\s+/g,
   token => token[0] === "'" || token[0] === '"' ? token : '').replace(/^CREATETABLE(?:IFNOTEXISTS)?(?:main\.)?/i,'');
 /** Validate installed constraints as well as the columns; no migration or DDL. */
-export const assertFoulTerminalApplicationStorage = (db: DatabaseSync, required?: 'acknowledgement' | 'completion'): boolean => {
-  const schema = db.prepare('SELECT type,sql FROM main.sqlite_master WHERE name=?').all(table);
+export const assertFoulTerminalApplicationStorage = (db: DatabaseSync, required?: 'acknowledgement' | 'completion' | 'finalCompletion'): boolean => {
+  const schema = db.prepare('SELECT name,type,sql FROM main.sqlite_master WHERE lower(name)=lower(?)').all(table);
+  const shadows = db.prepare('SELECT name FROM temp.sqlite_master WHERE lower(name)=lower(?) OR lower(tbl_name)=lower(?)').all(table,table);
+  const triggers = db.prepare("SELECT name FROM main.sqlite_master WHERE type='trigger' AND lower(tbl_name)=lower(?)").all(table);
+  if(shadows.length||triggers.length)throw new Error('foul terminal queue schema shadows or triggers differ');
   if (!schema.length) return false;
-  if (schema.length !== 1 || schema[0].type !== 'table' || typeof schema[0].sql !== 'string'
-    || ![foulTerminalApplicationTableSql,foulTerminalAcknowledgementTableSql,foulTerminalCompletionTableSql].map(compactSchema).includes(compactSchema(schema[0].sql))) {
+  if (schema.length !== 1 || schema[0].name !== table || schema[0].type !== 'table' || typeof schema[0].sql !== 'string'
+    || ![foulTerminalApplicationTableSql,foulTerminalAcknowledgementTableSql,foulTerminalCompletionTableSql,foulTerminalFinalCompletionTableSql].map(compactSchema).includes(compactSchema(schema[0].sql))) {
     throw new Error('foul terminal queue schema or constraints differ');
   }
-  if (required === 'acknowledgement' && ![foulTerminalAcknowledgementTableSql,foulTerminalCompletionTableSql]
+  if (required === 'acknowledgement' && ![foulTerminalAcknowledgementTableSql,foulTerminalCompletionTableSql,foulTerminalFinalCompletionTableSql]
     .map(compactSchema).includes(compactSchema(schema[0].sql))) {
     throw new Error('foul terminal acknowledgement storage prerequisite requires its exact CHECK schema');
   }
-  if (required === 'completion' && compactSchema(schema[0].sql) !== compactSchema(foulTerminalCompletionTableSql)) {
+  if (required === 'completion' && ![foulTerminalCompletionTableSql,foulTerminalFinalCompletionTableSql].map(compactSchema).includes(compactSchema(schema[0].sql))) {
     throw new Error('foul terminal completion storage prerequisite requires its exact CHECK schema');
+  }
+  if(required === 'finalCompletion' && compactSchema(schema[0].sql)!==compactSchema(foulTerminalFinalCompletionTableSql)) {
+    throw new Error('foul terminal final completion storage prerequisite requires its exact CHECK schema');
   }
   const columns = db.prepare('PRAGMA main.table_info(actual_foul_terminal_applications)').all();
   same(columns.map(c => [c.name,c.type,c.notnull,c.pk,c.dflt_value]), columnNames.map((name,i) =>

@@ -49,11 +49,12 @@ export const deriveBallWorldFieldFirstBaseRaceWithPossessionEvidence = (
   raw: BallWorldFieldFirstBaseRaceWithPossessionEvidenceInput,
 ): BallWorldFieldFirstBaseRaceWithPossessionEvidence => {
   const input = cloneInert(raw);
-  if (!fields(input, ['field', 'race', 'possessionEvidence'])) throw new Error('invalid actual field possession wrapper scope');
+  if (!fields(input, ['field', 'race', 'possessionEvidence', ...('playableWalls' in input ? ['playableWalls'] : [])])) throw new Error('invalid actual field possession wrapper scope');
 
   // Keep all legacy field/contact/Player/chronology validation even when the new
   // guard will withhold its result. Never pass the qualifier into strict race records.
-  const original = deriveBallWorldFieldFirstBaseRace({ field: input.field, race: input.race });
+  const original = deriveBallWorldFieldFirstBaseRace({ field: input.field, race: input.race,
+    ...('playableWalls' in input ? { playableWalls: input.playableWalls } : {}) });
   const ball = input.field.evidence, evidence = input.possessionEvidence;
   if (!fields(evidence, ['policy', 'originTick', 'ticksPerSecond', 'throughElapsedSeconds', 'pending'])
     || evidence.policy !== 'scheduled_capture_confirmation_v1'

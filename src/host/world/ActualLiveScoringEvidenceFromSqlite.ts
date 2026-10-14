@@ -5,6 +5,8 @@ import { actualLivePlayClosureEvidenceFromSqlite, actualLiveClosureApplicationRo
 import { actualLiveScoringInput as input, type AcceptedActualLiveScoringSource } from './ActualLiveScoringSource';
 import { actualScoringIdentityRow, assertActualScoringOwnership, scoringOwnershipRows } from './ActualLiveScoringMetadata';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { deriveActualGroundOutScoringEvidence } from './ActualGroundOutScoringEvidenceFromSqlite';
+import type { AcceptedOfficialScoringEvidence } from '../SqliteOfficialScoringStore';
 
 /** Authenticate original historical application/closure, not the later Match
  * head. Exact proposal hash includes original physics and selected review head. */
@@ -52,11 +54,21 @@ export const deriveActualLiveScoringProposal = (db: ActualAdjudicationDb, source
   if (official.length !== 1 || official[0].application_id !== a.applicationId) throw new Error('actual scoring official application ownership differs');
   const batter = p.workload.participants.filter(participant => participant.role === 'BATTER_RUNNER');
   if (batter.length !== 1 || batter[0].playerId !== s.evidence.batterRunnerId) throw new Error('actual scoring original batter identity differs');
-  const judgment = s.evidence.judgment;
-  if (judgment.kind === 'reached_on_error' && !p.workload.participants.some(participant => participant.role === 'DEFENDER'
+  const judgment = s.evidence.sourceKind === 'official_scorer_judgment' ? s.evidence.judgment : null;
+  if (judgment?.kind === 'reached_on_error' && !p.workload.participants.some(participant => participant.role === 'DEFENDER'
     && participant.playerId === judgment.chargedFielderId)) throw new Error('actual scoring charged fielder is not an original defensive participant');
+  if (s.evidence.sourceKind === 'official_caught_foul_scorer_judgment') {
+    const catcher = s.evidence.catcherPlayerId;
+    if (!p.workload.participants.some(participant => participant.role === 'DEFENDER' && participant.playerId === catcher)) {
+      throw new Error('caught-foul scorer catcher is not an original defender');
+    }
+  }
+  const ownedGroundOutEvidence = s.evidence.sourceKind === 'owned_ground_out'
+    ? deriveActualGroundOutScoringEvidence(db, p, s.sourceId) : undefined;
   const classified = classifyClosedPlayForOfficialScoring({ kind: 'live_ball', match: a.match,
-    timeline: a.physicalTimeline, adjudication: a.adjudication, scoringEvidence: s.evidence });
+    timeline: a.physicalTimeline, adjudication: a.adjudication,
+    ...(s.evidence.sourceKind === 'owned_ground_out' ? { groundOutEvidence: ownedGroundOutEvidence!.ground } : s.evidence.sourceKind === 'official_caught_foul_scorer_judgment'
+      ? { caughtFoulEvidence: s.evidence } : { scoringEvidence: s.evidence }) });
   if (classified.kind !== 'supported') throw new Error('actual live scoring remains unsupported');
   const expectedScoring: PersistedOfficialScoring = { scoringApplicationId: s.scoringApplicationId, matchId: s.gameId,
     officialApplicationId: a.applicationId, closureId: closure.source.sourceId, sourceEventId: s.sourceId, record: classified.record };
@@ -64,11 +76,17 @@ export const deriveActualLiveScoringProposal = (db: ActualAdjudicationDb, source
     physicalEndReference: p.physicalEndReference, wholeHistoryReference: p.wholeHistoryReference,
     adjudicationReference: p.adjudicationReference,
     ...(p.postPlayReviewReference ? { postPlayReviewReference: p.postPlayReviewReference } : {}),
-    application: a, originalReceipt: p.expectedOfficial, expectedScoring });
+    application: a, originalReceipt: p.expectedOfficial, expectedScoring,
+    ...(ownedGroundOutEvidence === undefined ? {} : { ownedGroundOutEvidence }) });
 };
 export type ActualLiveScoringProposal = ReturnType<typeof deriveActualLiveScoringProposal>;
 export type ActualLiveScoringArchive = Readonly<{ source: AcceptedActualLiveScoringSource; proposal: ActualLiveScoringProposal;
   status: 'QUEUED' | 'SCORED'; result: PersistedOfficialScoring | null }>;
+export const actualLiveAcceptedScoringEvidence = (p: ActualLiveScoringProposal): AcceptedOfficialScoringEvidence => {
+  if (p.source.evidence.sourceKind !== 'owned_ground_out') return p.source.evidence;
+  if (!p.ownedGroundOutEvidence) throw new Error('actual ground-out scoring physical sidecar missing');
+  return p.ownedGroundOutEvidence;
+};
 export const actualLiveScoringRequest = (p: ActualLiveScoringProposal): PersistOfficialScoringInput => ({
   scoringApplicationId: p.source.scoringApplicationId, officialApplication: p.application, sourceEventId: p.source.sourceId,
 });
@@ -104,7 +122,7 @@ export const assertActualLiveScoringStage = (db: ActualAdjudicationDb, p: Actual
   const row = rows[0];
   if (rows.length !== 1 || row.scoring_application_id !== e.scoringApplicationId || row.match_id !== e.matchId
     || row.official_application_id !== e.officialApplicationId || row.closure_id !== e.closureId || row.source_event_id !== e.sourceEventId
-    || row.request_json !== json({ input: actualLiveScoringRequest(p), evidence: s.evidence }) || row.result_json !== json(e)) {
+    || row.request_json !== json({ input: actualLiveScoringRequest(p), evidence: actualLiveAcceptedScoringEvidence(p) }) || row.result_json !== json(e)) {
     throw new Error('actual live scoring application archive differs or is missing');
   }
   return e;

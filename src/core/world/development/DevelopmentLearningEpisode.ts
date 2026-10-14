@@ -31,6 +31,10 @@ export type PracticeDevelopmentCatalyst = Readonly<{
   family: 'TECHNICAL_DISCOVERY'; careerId: string; playerId: string;
   occurredAtDay: number; sourceEventId: string; causeEventId: string; motifId: string;
 }>;
+export type NationalExposureDevelopmentCatalyst = Readonly<{
+  family: 'ELITE_EXPOSURE'; careerId: string; playerId: string;
+  occurredAtDay: number; sourceEventId: string; competitionEditionId: string; motifId: string;
+}>;
 export type DevelopmentLearningEpisode = Readonly<{
   episodeId: string;
   careerId: string;
@@ -39,7 +43,7 @@ export type DevelopmentLearningEpisode = Readonly<{
   revision: number;
   startedAtDay: number;
   effectiveDay: number;
-  catalyst: RosterDevelopmentCatalyst | PracticeDevelopmentCatalyst;
+  catalyst: RosterDevelopmentCatalyst | PracticeDevelopmentCatalyst | NationalExposureDevelopmentCatalyst;
   policy: DevelopmentLearningPolicy;
   stage: DevelopmentLearningStage;
   domain: DevelopmentDomain | null;
@@ -90,6 +94,19 @@ export const startPracticeDevelopmentLearningEpisode = (
     throw new Error('invalid accepted practice discovery catalyst');
   }
   return startEpisode(episodeId, Object.freeze({ family: 'TECHNICAL_DISCOVERY', ...discovery }), discovery.playerId, profile, policy);
+};
+
+/** Actual National participation supplies an opportunity, never an automatic response or ability change. */
+export const startNationalExposureDevelopmentLearningEpisode = (
+  episodeId: string,
+  exposure: Omit<NationalExposureDevelopmentCatalyst, 'family'>,
+  profile: Pick<DevelopmentCatalystProfile, 'careerId' | 'playerId' | 'createdAtDay' | 'profileVersion'>,
+  policy: DevelopmentLearningPolicy,
+): DevelopmentLearningEpisode => {
+  if (!fields(exposure, ['careerId', 'playerId', 'occurredAtDay', 'sourceEventId', 'competitionEditionId', 'motifId'])
+    || ![exposure.careerId, exposure.playerId, exposure.sourceEventId, exposure.competitionEditionId, exposure.motifId].every(id)
+    || !day(exposure.occurredAtDay)) throw new Error('invalid accepted National exposure catalyst');
+  return startEpisode(episodeId, Object.freeze({ family: 'ELITE_EXPOSURE', ...exposure }), exposure.playerId, profile, policy);
 };
 
 const startEpisode = (

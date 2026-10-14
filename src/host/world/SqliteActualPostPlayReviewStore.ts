@@ -45,7 +45,8 @@ export const openSqliteActualPostPlayReviewStore = (path: string, authority?: Ac
   };
   const intentInput = (source: AcceptedActualPostPlayReviewEvent) => {
     const action = source.action;
-    if (action.kind !== 'request' && action.kind !== 'decline' && action.kind !== 'official_request') return null;
+    if (action.kind !== 'request' && action.kind !== 'decline' && action.kind !== 'official_request'
+      && action.kind !== 'accept_live_appeal_result') return null;
     const raw = authority?.readAcceptedIntent(action.intentSourceId) ?? null;
     return raw === null ? null : actualPostPlayReviewIntentInput(raw, action.intentSourceId);
   };

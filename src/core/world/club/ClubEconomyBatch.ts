@@ -17,6 +17,8 @@ import { applyReceivedStructuralRevenue,
 import { applyScheduledPlayerWagePayment,
   type AnnualWagePaymentPolicy,
   type ScheduledPlayerWagePaymentBasis } from './ScheduledPlayerWagePayment';
+import { applyScheduledStaffWagePayment } from './ScheduledStaffWagePayment';
+import type { ManagerHireWageReference } from '../manager/ManagerHireTransaction';
 import { getClubSeasonWageAllocations,
   type ClubWageScheduleLedger } from './ClubWageScheduleLedger';
 import { assessCurrentSeasonFinancialRegulation,
@@ -35,6 +37,8 @@ export type ClubEconomySource =
     fact: StructuralRevenueReceiptFact;
     policy: StructuralRevenuePolicy }>
   | Readonly<{ kind: 'PLAYER_WAGE'; commitmentId: string;
+    policy: AnnualWagePaymentPolicy; payrollRunEventId: string }>
+  | Readonly<{ kind: 'STAFF_WAGE'; commitmentId: string; managerHire: ManagerHireWageReference;
     policy: AnnualWagePaymentPolicy; payrollRunEventId: string }>;
 export type ClubEconomyApplication = Readonly<{
   kind: ClubEconomySource['kind'];
@@ -108,6 +112,13 @@ export const applyClubEconomyBatch = (
       const applied = applyScheduledPlayerWagePayment(current,
         wageSchedules, source.commitmentId, source.policy,
         source.payrollRunEventId);
+      current = applied.state;
+      events.push(applied.event);
+      applications.push(Object.freeze({ kind: source.kind,
+        event: applied.event, basis: applied.basis }));
+    } else if (source.kind === 'STAFF_WAGE') {
+      const applied = applyScheduledStaffWagePayment(current, wageSchedules,
+        source.commitmentId, source.policy, source.payrollRunEventId);
       current = applied.state;
       events.push(applied.event);
       applications.push(Object.freeze({ kind: source.kind,

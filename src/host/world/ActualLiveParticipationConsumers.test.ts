@@ -57,14 +57,15 @@ it.each([...tags, undefined])('National rejects any public discriminator before 
   } finally { callups.close(); f.close(); }
 });
 
-it.each([...tags, undefined])('public rehab rejects a tagged reader result independently of valid raw legacy proof: %j', evidenceKind => {
+it.each([...tags, 'PHYSICAL_PLAY_V1', 'FOUL_TERMINAL_V1', undefined])('public rehab rejects a tagged peer result that differs from valid local legacy proof: %j', evidenceKind => {
   const { f, health, sources, authority, prepareGame } = healthRehabStoreFixture();
   try {
     const { receipt } = prepareGame(), before = f.db.prepare('SELECT * FROM world_health_rehab_effects ORDER BY source_id').all();
     const guarded = f.track(openSqlitePlayerHealthRehabStore(f.path, { ...sources,
       participation: { readReceipt: () => ({ ...receipt, evidenceKind }) as unknown as OfficialParticipationReceipt },
     }, authority));
-    expect(() => guarded.apply('game', 2)).toThrow('does not support tagged participation receipts');
+    expect(() => guarded.apply('game', 2)).toThrow(evidenceKind === undefined
+      ? 'inert data only' : 'peer participation differs from local original proof');
     expect(f.db.prepare('SELECT * FROM world_health_rehab_effects ORDER BY source_id').all()).toEqual(before);
     expect(health.readHead('career-a', 'p2')!.revision).toBe(2);
     expect(health.apply('game', 2).phase).toBe('READY');
@@ -75,7 +76,7 @@ it.each([
   '"evidenceKind":"ACTUAL_LIVE_V1"', '"evidenceKind":null',
   '"evidenceKind":"ACTUAL_LIVE_V1","evidenceKind":"ACTUAL_LIVE_V2"',
   '"evidenc\\u0065Kind":false,"evidenceKind":"ACTUAL_LIVE_V1"',
-])('raw rehab rejects tag metadata before legacy application reads: %s', tagFields => {
+])('raw rehab rejects invalid tag metadata before legacy application reads: %s', tagFields => {
   const { f, health, prepareGame } = healthRehabStoreFixture();
   try {
     const { receipt } = prepareGame();
@@ -85,7 +86,7 @@ it.each([
     const corrupted = `{${tagFields},${JSON.stringify(value).slice(1)}`;
     f.db.prepare('UPDATE official_participation_receipts SET receipt_json=? WHERE receipt_id=?').run(corrupted, receipt.receiptId);
     const before = f.db.prepare('SELECT * FROM world_health_rehab_effects ORDER BY source_id').all();
-    expect(() => health.apply('game', 2)).toThrow('does not support tagged participation receipts');
+    expect(() => health.apply('game', 2)).toThrow(/receipt fields|receipt format|metadata differs/);
     expect(f.db.prepare('SELECT * FROM world_health_rehab_effects ORDER BY source_id').all()).toEqual(before);
     f.db.prepare('UPDATE official_participation_receipts SET receipt_json=? WHERE receipt_id=?').run(original.receipt_json, receipt.receiptId);
     expect(health.apply('game', 2).phase).toBe('READY');

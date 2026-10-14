@@ -39,6 +39,8 @@ export type BatterSwingExitRecoverySample = Readonly<{
 type ScalarRecoverySample = Readonly<{
   displacementMeters: number;
   velocityMps: number;
+  accelerationMps2: number;
+  endElapsedSeconds: number;
 }>;
 
 const EPSILON = 1e-12;
@@ -83,6 +85,7 @@ const sampleAdverseRecovery = (
     return {
       displacementMeters: 0,
       velocityMps: 0,
+      accelerationMps2: 0, endElapsedSeconds: Infinity,
     };
   }
 
@@ -100,11 +103,12 @@ const sampleAdverseRecovery = (
     return {
       displacementMeters: 0,
       velocityMps: 0,
+      accelerationMps2: 0, endElapsedSeconds: Infinity,
     };
   }
 
   const firstAcceleration = -sign * accelerationMps2;
-  if (elapsedSeconds <= firstPhaseSeconds) {
+  if (elapsedSeconds < firstPhaseSeconds) {
     return {
       displacementMeters: canonicalZero(
         initialVelocityMps * elapsedSeconds
@@ -117,6 +121,7 @@ const sampleAdverseRecovery = (
         initialVelocityMps
         + firstAcceleration * elapsedSeconds,
       ),
+      accelerationMps2: firstAcceleration, endElapsedSeconds: firstPhaseSeconds,
     };
   }
 
@@ -147,6 +152,7 @@ const sampleAdverseRecovery = (
       firstVelocity
       + secondAcceleration * secondElapsed,
     ),
+    accelerationMps2: secondAcceleration, endElapsedSeconds: totalSeconds,
   };
 };
 
@@ -226,26 +232,7 @@ export const buildBatterSwingExitRecoveryTrajectory = (
   };
 };
 
-export const sampleBatterSwingExitRecoveryTrajectory = (
-  trajectory: BatterSwingExitRecoveryTrajectory,
-  tick: number,
-): BatterSwingExitRecoverySample => {
-  if (!Number.isSafeInteger(tick) || tick < 0) {
-    throw new Error(
-      'recovery sample tick must be a non-negative safe integer',
-    );
-  }
-  if (tick < trajectory.startTick || tick > trajectory.endTick) {
-    throw new Error(
-      'recovery sample tick must lie inside the trajectory interval',
-    );
-  }
-
-  const elapsedSeconds = Math.min(
-    trajectory.transition.recoverySeconds,
-    (tick - trajectory.startTick) / trajectory.ticksPerSecond,
-  );
-
+const sampleRecoveryRoot = (trajectory: BatterSwingExitRecoveryTrajectory, elapsedSeconds: number) => {
   const forward = (
     trajectory.initialForwardVelocityMps >= 0
       ? {
@@ -253,6 +240,7 @@ export const sampleBatterSwingExitRecoveryTrajectory = (
             trajectory.initialForwardVelocityMps * elapsedSeconds,
           velocityMps:
             trajectory.initialForwardVelocityMps,
+          accelerationMps2: 0, endElapsedSeconds: Infinity,
         }
       : sampleAdverseRecovery(
           trajectory.initialForwardVelocityMps,
@@ -292,6 +280,47 @@ export const sampleBatterSwingExitRecoveryTrajectory = (
       + trajectory.lateralUnit.z * lateral.velocityMps
     ),
   });
+
+  return { position, velocity, forward, lateral };
+};
+
+/** Exact coefficients of the existing root law only. Relative part offsets and
+ * facing remain separately owned. No rounded tick may cross an adverse knot. */
+export const batterSwingExitRecoveryMotionPieceAt = (trajectory: BatterSwingExitRecoveryTrajectory, elapsedSeconds: number) => {
+  const launchSeconds = trajectory.transition.recoverySeconds;
+  if (!Number.isFinite(elapsedSeconds) || elapsedSeconds < 0 || elapsedSeconds >= launchSeconds)
+    throw new Error('recovery root piece is exhausted or its elapsed cut is invalid');
+  const sampled = sampleRecoveryRoot(trajectory, elapsedSeconds);
+  const acceleration = canonicalVec2({
+    x: trajectory.routeTangent.x * sampled.forward.accelerationMps2 + trajectory.lateralUnit.x * sampled.lateral.accelerationMps2,
+    z: trajectory.routeTangent.z * sampled.forward.accelerationMps2 + trajectory.lateralUnit.z * sampled.lateral.accelerationMps2,
+  });
+  const endElapsedSeconds = Math.min(launchSeconds, sampled.forward.endElapsedSeconds, sampled.lateral.endElapsedSeconds);
+  if (endElapsedSeconds <= elapsedSeconds) throw new Error('recovery root analytic boundary is exhausted');
+  return { position: sampled.position, velocity: sampled.velocity, acceleration, endElapsedSeconds };
+};
+
+export const sampleBatterSwingExitRecoveryTrajectory = (
+  trajectory: BatterSwingExitRecoveryTrajectory,
+  tick: number,
+): BatterSwingExitRecoverySample => {
+  if (!Number.isSafeInteger(tick) || tick < 0) {
+    throw new Error(
+      'recovery sample tick must be a non-negative safe integer',
+    );
+  }
+  if (tick < trajectory.startTick || tick > trajectory.endTick) {
+    throw new Error(
+      'recovery sample tick must lie inside the trajectory interval',
+    );
+  }
+
+  const elapsedSeconds = Math.min(
+    trajectory.transition.recoverySeconds,
+    (tick - trajectory.startTick) / trajectory.ticksPerSecond,
+  );
+
+  const { position, velocity } = sampleRecoveryRoot(trajectory, elapsedSeconds);
 
   const turnDirection = Math.sign(trajectory.signedTurnRadians);
   const completedTurnRadians = Math.min(

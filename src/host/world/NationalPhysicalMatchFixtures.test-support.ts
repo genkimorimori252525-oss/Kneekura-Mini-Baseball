@@ -1,0 +1,122 @@
+import { nationalPhysicalPitchCalibration, nationalPhysicalPitchFixtureSource } from './NationalPhysicalPitchCalibration.test-support';
+import { createCompetitionSourceReader } from './CompetitionSourceReadScope';
+import { openSqliteOfficialInitialWorldStore } from './SqliteOfficialInitialWorldStore';
+import { openSqlitePlayerWorkloadRecoveryStore } from './SqlitePlayerWorkloadRecoveryStore';
+import { openSqlitePlayerPitchTimingStore } from './SqlitePlayerPitchTimingStore';
+import { openSqlitePlayerReleaseGeometryStore } from './SqlitePlayerReleaseGeometryStore';
+import { openSqlitePitchFatiguePolicyStore } from './SqlitePitchFatiguePolicyStore';
+import { openSqlitePhysicalPlateAppearanceActorStore } from './SqlitePhysicalPlateAppearanceActorStore';
+import { openSqlitePhysicalPitchProgressStore, type AcceptedPhysicalPitchActionSource } from './SqlitePhysicalPitchProgressStore';
+import { openSqlitePhysicalPlayClosureStore, type AcceptedPhysicalPlayClosure } from './SqlitePhysicalPlayClosureStore';
+import { createRequire } from 'node:module';
+import { nationalCallupFixture } from './NationalCallupFixtures.test-support';
+import { regionalNationalInput } from './RegionalNationalFixtures.test-support';
+import { openSqliteNationalCallupStore } from './SqliteNationalCallupStore';
+import { openSqliteRegionalNationalGroupStore } from './SqliteRegionalNationalGroupStore';
+import { openSqliteRegionalNationalKnockoutStore } from './SqliteRegionalNationalKnockoutStore';
+import { openSqliteRegionalNationalScheduleStore } from './SqliteRegionalNationalScheduleStore';
+import { registerRegionalNationalFixtureFromWorld } from './RegionalNationalFixtureFromWorld';
+import { createNationalParticipationAuthority } from './SqliteNationalParticipationAuthority';
+import { SqliteOfficialParticipationStore } from './SqliteOfficialParticipationStore';
+import { SqliteOfficialStateStore } from '../SqliteOfficialStateStore';
+import { match, worldSetup } from './OfficialParticipationPlayFixtures.test-support';
+import { openSqliteNationalMatchOriginStore, type NationalMatchOriginSource } from './NationalMatchOriginFromSqlite';
+import type { AcceptedPhysicalPlateAppearanceActor } from './SqlitePhysicalPlateAppearanceActorStore';
+
+/** Existing explicit Regional policy fixture, 18 actual team members, one unused reserve and an unregistered replacement candidate. */
+export const nationalPhysicalPregameFixture = (options: Readonly<{ initializeMatch?: boolean; groupCount?: number;
+  databasePath?: string; profile?: Parameters<typeof match>[0] }> = {}) => {
+  const input = regionalNationalInput('ASIA_PACIFIC', options.groupCount ?? 2, { startsOnDay: 121, endsOnDay: 130 });
+  const edition = { ...input.edition, groups: input.edition.groups.map((g, i) => i ? g : { ...g, nationIds: ['JP', 'AP-2', 'AP-3', 'KR'] }) };
+  const playerNationIds = Array.from({ length: 20 }, (_, i) => i < 9 || i >= 18 ? 'JP' : 'KR');
+  const nationIds = [...new Set([...edition.groups.flatMap(g => g.nationIds), ...edition.hostNationIds])];
+  const f = nationalCallupFixture([], { playerNationIds, nations: nationIds.map(nationId => ({ nationId, region: 'ASIA_PACIFIC' as const })) }, options.databasePath);
+  const stores: { close(): void }[] = [];
+  const track = <T extends { close(): void }>(s: T): T => { stores.push(s); return s; };
+  const official = track(new SqliteOfficialStateStore(f.path));
+  f.selections.initialize({ careerId: 'career-a', editionId: edition.editionId, kind: 'REGIONAL_NATIONAL', region: edition.region,
+    cycleOrdinal: 0, careerDayOne: '2031-01-01', cutoffDay: 100 });
+  const matches = { getMatch: createCompetitionSourceReader((id: string) => official.getMatch(id)),
+    getOfficialFixture: createCompetitionSourceReader((id: string) => official.getOfficialFixture(id)) };
+  const groups = track(openSqliteRegionalNationalGroupStore(f.path, { regions: f.nations, selections: f.selections, matches }));
+  const knockout = track(openSqliteRegionalNationalKnockoutStore(f.path, { groups, regions: f.nations, matches }));
+  const schedules = track(openSqliteRegionalNationalScheduleStore(f.path, { groups, selections: f.selections }));
+  groups.initialize('career-a', edition);
+  const schedule = schedules.initialize({ careerId: 'career-a', editionId: edition.editionId, knockoutEdition: input.knockoutEdition,
+    policy: { version: 'regional-schedule-fixture-v1', gamesPerVenuePerDay: 2, minimumOffDaysBetweenRounds: 0 } });
+  const slot = schedule.games.find(g => g.stage === 'GROUP')!;
+  const fixture = registerRegionalNationalFixtureFromWorld({ groups, knockout, schedules, matches: official },
+    { careerId: 'career-a', editionId: edition.editionId, gameId: slot.gameId, gameDay: slot.gameDay });
+  const registrations = track(openSqliteNationalCallupStore(f.path, f.sources));
+  playerNationIds.slice(0, 19).forEach((nationId, i) => registrations.register({ ...f.request(i), nationId, editionId: edition.editionId,
+    registeredAtDay: 120, callupPolicy: { ...f.request(i).callupPolicy, rosterLimit: 10, initialRegistrationCutoffDay: 120, replacementCutoffDay: 124 } }));
+  const authority = createNationalParticipationAuthority({ careerId: 'career-a', editionId: edition.editionId,
+    fixtures: { kind: 'REGIONAL_NATIONAL', groups, knockout, schedules }, matches: official,
+    callups: registrations, roster: f.roster, rosterSnapshots: f.snapshots, personLinks: f.links });
+  const participation = track(new SqliteOfficialParticipationStore(f.path, authority));
+  const callupSources = { ...f.sources, games: authority, participation };
+  const callups = track(openSqliteNationalCallupStore(f.path, callupSources));
+  const roster = f.snapshots.capture('career-a', 'club-a');
+  playerNationIds.slice(0, 19).forEach((nationId, i) => participation.bindPregame({ gameId: slot.gameId, careerId: 'career-a', competitionEditionId: edition.editionId,
+    gameDay: slot.gameDay, clubId: nationId, side: fixture.game.homeNationId === nationId ? 'HOME' : 'AWAY',
+    playerId: `p${i}`, personId: `person-${i}`, personLinkSourceId: `link-${i}`, rosterRevision: roster.revision,
+    fixtureEventId: fixture.binding.fixtureEventId, nationalRegistrationEventId: `call-${i}`, nationalRosterSnapshotId: roster.snapshotId }));
+  if (options.initializeMatch !== false) official.initializeMatch(slot.gameId, match(options.profile));
+  const origins = track(openSqliteNationalMatchOriginStore(f.path));
+  const source: NationalMatchOriginSource = { sourceId: 'national-origin', sourceVersion: 'national-regional-group-origin-v1',
+    careerId: 'career-a', editionId: edition.editionId, gameId: slot.gameId };
+  const setup = { ...worldSetup('p0'), defenders: worldSetup('p0').defenders.map((d, i) => ({ ...d, playerId: `p${i}` })) };
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  const db = new DatabaseSync(f.path);
+  let closed = false;
+  return { ...f, track, official, participation, callups, callupSources, fixture, source, origins, setup, db, edition, knockoutEdition: input.knockoutEdition, groups, knockout, schedules, schedule, fixtureMatches: matches,
+    close() { if (!closed) { closed = true; db.close(); stores.reverse().forEach(s => s.close()); f.close(); } } };
+};
+
+/** Same explicit synthetic calibration as ContinuousPitchFixtures; no National fatigue reset. */
+export const nationalPhysicalFixture = (options: Parameters<typeof nationalPhysicalPregameFixture>[0] = {}) => {
+  const f = nationalPhysicalPregameFixture(options);
+  const origin = f.origins.capture(f.source), gameId = f.source.gameId;
+  const { baseline, timingInput, releaseInput, response, effort } = nationalPhysicalPitchCalibration();
+  const setup = { sourceId: 'initial-world', sourceVersion: 'fixture-v1', gameId,
+    fixtureEventId: f.fixture.binding.fixtureEventId, startedAtTick: 0, worldSetup: f.setup };
+  const initialWorlds = f.track(openSqliteOfficialInitialWorldStore(f.path, { matches: f.official, participation: f.participation }, { readAcceptedSetup: () => setup }));
+  const initial = initialWorlds.accept(setup.sourceId);
+  const workload = f.track(openSqlitePlayerWorkloadRecoveryStore(f.path, f.links, { readAcceptedBaseline: () => baseline,
+    readAcceptedActivity: () => null }));
+  workload.initialize(baseline.sourceId);
+  const timing = f.track(openSqlitePlayerPitchTimingStore(f.path, f.links, { readAcceptedBaseline: () => timingInput, readAcceptedLearning: () => null })); timing.initialize('timing');
+  const release = f.track(openSqlitePlayerReleaseGeometryStore(f.path, f.links, { readAcceptedBaseline: () => releaseInput, readAcceptedChange: () => null })); release.initialize('release');
+  const policies = f.track(openSqlitePitchFatiguePolicyStore(f.path, { readAcceptedPolicy: () => response })); policies.accept(response.sourceId);
+
+  const actorSource = { sourceId: 'batter-1', sourceVersion: 'fixture-v1', gameId, playerId: 'p9', initialWorldSourceId: 'initial-world' };
+  const actorSources = { matches: f.official, initialWorlds, participation: f.participation };
+  const actorInputs = new Map<string, AcceptedPhysicalPlateAppearanceActor>([[actorSource.sourceId, actorSource]]);
+  const actors = f.track(openSqlitePhysicalPlateAppearanceActorStore(f.path, actorSources, { readAcceptedActor: id => actorInputs.get(id) ?? null }));
+  const actor = actors.accept(actorSource.sourceId);
+  const stores = { workload, timing, release, policies, effortPolicies: { readAcceptedPolicy: () => effort } };
+  const actions = new Map<string, AcceptedPhysicalPitchActionSource>();
+  const pitches = f.track(openSqlitePhysicalPitchProgressStore(f.path, { ...actorSources, runtime: stores }, { readAcceptedAction: id => actions.get(id) ?? null }));
+  const pitchSource = (index: number, readyAtUs: number) =>
+    nationalPhysicalPitchFixtureSource(gameId, origin.fixture.gameDay, effort, response.sourceId, index, readyAtUs);
+  const pitch = (index: number, readyAtUs: number) => {
+    const source = pitchSource(index, readyAtUs); actions.set(source.sourceId, source); return pitches.accept(source.sourceId, index);
+  };
+  const closes = new Map<string, AcceptedPhysicalPlayClosure>();
+  const closure = f.track(openSqlitePhysicalPlayClosureStore(f.path, { physicalPitches: pitches, initialWorlds, participation: f.participation, personLinks: f.links },
+    { readAcceptedClosure: id => closes.get(id) ?? null }));
+  const close = () => {
+    let tick = 0; for (let i = 0; i < 3; i++) tick = pitch(i, tick).result.pitch.resolution.timeline.lastEventTick;
+    const source: AcceptedPhysicalPlayClosure = { sourceId: 'close-1', sourceVersion: 'fixture-v1', physicalPitchSourceId: 'pitch-2',
+      applicationId: 'application-1', scoringApplicationId: 'scoring-1', snapshotId: 'rule-1', ruleTick: tick + 1, closureTick: tick + 2,
+      nextStartedAtTick: tick + 3, batterRunnerId: null, worldSetup: f.setup,
+      game: { seasonId: origin.fixture.competitionEditionId, homeClubId: origin.fixture.homeClubId, awayClubId: origin.fixture.awayClubId,
+        policy: { version: 'fixture-v1', minimumInnings: 9, maximumInnings: 9, tiesAllowed: true } } };
+    closes.set(source.sourceId, source); return closure.submit(source.sourceId);
+  };
+  return { ...f, origin, actor, actors, actorInputs, actorSources, initialWorlds, initial, workload, closePlay: close, closure, pitches, pitch,
+    stores, baseline, response, effort, actions, pitchSource };
+};
+
+
+export { nationalPhysicalPitchFixtureSource } from './NationalPhysicalPitchCalibration.test-support';

@@ -1,4 +1,4 @@
-import { battedWorldFieldGeometry } from './BattedWorldFieldRoot';
+import { battedWorldFieldGeometry, battedWorldFieldEpisodeBindingHash } from './BattedWorldFieldRoot';
 import { createRequire } from 'node:module';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { BallWorldSettledFoulDeadEvidenceInput } from '../../core/rules/BallWorldSettledFoulDeadEvidence';
@@ -128,13 +128,14 @@ const policyOwner = (db: Db) => {
       || pitch.source.sourceId !== world.flight.source.physicalPitchSourceId) throw new Error('venue legal original pitch/fixture/model scope differs');
     const profile = getRuleProfile(source.rulePolicy.ruleProfileId);
     if (source.rulePolicy.rulesRevision !== profile.rulesRevision) throw new Error('venue legal registered profile changed');
+    const episodeFieldBindingHash = battedWorldFieldEpisodeBindingHash(anchor);
     return freeze({ source, physicalPitchSourceId: pitch.source.sourceId, playId: pitch.frame.match.playId,
       fixtureRevision: fixture.fixture_revision, ruleProfileHash: hash(profile),
       anchor: { owner: 'batted_world_field_actions', sourceId: anchor.source.sourceId, sourceVersion: anchor.source.sourceVersion,
         revision: anchor.revision, sourceHash: hash(anchor.source), snapshotHash: hash(anchor) },
       dependencies: { physicalPitchHash: hash(pitch), fixtureHash: hash(fixture), worldModelHash: hash(world.model),
         responseModelHash: hash(response.model), fieldGeometryHash: hash(geometry), baseGeometryHash: hash(baseGeometry),
-        ...(anchor.rootKind === 'episode_field_binding_v1' ? { episodeFieldBindingHash: hash(anchor.episodeFieldBinding) } : {}) } });
+        ...(episodeFieldBindingHash === undefined ? {} : { episodeFieldBindingHash }) } });
   };
   const read = (sourceId: string): DurableBattedVenueLegalPolicy | null => {
     if (!id(sourceId)) throw new Error('invalid venue legal policy scope');

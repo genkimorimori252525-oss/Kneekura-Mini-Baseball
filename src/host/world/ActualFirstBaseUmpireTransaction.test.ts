@@ -7,7 +7,9 @@ import { join } from 'node:path';
 const state = vi.hoisted(() => ({ currentId: 'cut-one', currentSeconds: 1 }));
 vi.mock('./PhysicalPitchEvidenceFromSqlite', () => ({ readOriginalPhysicalPitchPrefixFromSqlite: () => [{ source: { sourceId: 'pitch' }, frame: { gameId: 'game' } }] }));
 vi.mock('./SqliteBattedWorldFieldStore', () => ({ battedWorldFieldEvidenceFromSqlite: () => ({ scope: () => [] }) }));
-vi.mock('./SqliteBattedWorldFieldExecutionStore', () => ({ battedWorldFieldExecutionEvidenceFromSqlite: () => ({
+vi.mock('./SqliteBattedWorldFieldExecutionStore', () => ({
+  withBattedWorldPhysicalReadTraversal: <T>(_db: unknown, body: () => T): T => body(),
+  battedWorldFieldExecutionEvidenceFromSqlite: () => ({
   read: (id: string) => ({ source: { sourceId: id }, seconds: id === 'cut-one' ? 1 : 2, baseField: { source: { sourceId: 'field' } } }),
   readWithExecutions: (id: string) => ({ value: { source: { sourceId: id }, seconds: id === 'cut-one' ? 1 : 2, baseField: { source: { sourceId: 'field' } } }, executions: [] }),
   scope: () => [], current: (value: { source: {sourceId: string} }) => { if (value.source.sourceId !== state.currentId) throw Error('stale cut'); },

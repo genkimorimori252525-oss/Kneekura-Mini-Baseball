@@ -1,10 +1,11 @@
-import { actualFoulTerminalPostPlaySetupInput, type FoulTerminalPostPlaySetupAuthority } from './ActualFoulTerminalPostPlaySetup';
+import {actualFoulTerminalPostPlayInput} from './ActualFoulTerminalPostPlayBoundary';
+import { type FoulTerminalPostPlaySetupAuthority } from './ActualFoulTerminalPostPlaySetup';
 import type { DurableFoulTerminalCompletedApplication } from './ActualFoulTerminalPostPlayCompletion';
 import { foulTerminalPostPlayCompletionEvidenceFromSqlite } from './ActualFoulTerminalPostPlayCompletionEvidenceFromSqlite';
 import { foulTerminalPostPlaySetupIdentityRows } from './ActualFoulTerminalApplicationOwnership';
 import { officialApplicationPostPlaySetupIdentityClaims } from '../OfficialApplicationOwnershipFromSqlite';
 import { terminalScoringRows, terminalScoringSchema } from './ActualFoulTerminalScoringEvidenceFromSqlite';
-import { foulTerminalCompletedOfficial } from '../OfficialTerminalPostPlayCompletion';
+import { foulTerminalCompletedOfficial, foulTerminalCompletionMatchEnvelope } from '../OfficialTerminalPostPlayCompletion';
 import { createRequire } from 'node:module';
 import { randomUUID } from 'node:crypto';
 import { lstatSync, realpathSync } from 'node:fs';
@@ -193,7 +194,7 @@ export const openSqliteActualFoulTerminalApplicationRunner = (path: string,
   const captureSetup = (setupSourceId: string) => {
     const raw = completionAuthority?.readAcceptedPostPlaySetup(setupSourceId);
     check(setupSourceId);
-    return actualFoulTerminalPostPlaySetupInput(raw,setupSourceId);
+    return actualFoulTerminalPostPlayInput(raw,setupSourceId);
   };
   return Object.freeze({
     read(sourceId: string) { return transaction(sourceId,false,() => ({ value:proof(() => owner.read(sourceId)),changes:0 })); },
@@ -255,13 +256,13 @@ export const openSqliteActualFoulTerminalApplicationRunner = (path: string,
       if (retry) return retry;
       const source = captureSetup(setupSourceId);
       const preflight = transaction(setupSourceId,false,() => ({ value:proof(() => {
-        if (!assertFoulTerminalApplicationStorage(db,'completion')) throw new Error('terminal completion storage must be explicitly installed');
+        if (!assertFoulTerminalApplicationStorage(db,source.capability==='actual_foul_terminal_post_play_setup_v2'&&source.kind==='game_final'?'finalCompletion':'completion')) throw new Error('terminal completion storage must be explicitly installed');
         return { prepared:completionOwner.prepare(source),pin:completionPin() };
       }),changes:0 }));
       same(captureSetup(setupSourceId),source,'terminal completion accepted setup changed after preflight');
       return transaction(setupSourceId,true,() => {
         const before = proof(() => {
-          if (!assertFoulTerminalApplicationStorage(db,'completion')) throw new Error('terminal completion storage is missing');
+          if (!assertFoulTerminalApplicationStorage(db,source.capability==='actual_foul_terminal_post_play_setup_v2'&&source.kind==='game_final'?'finalCompletion':'completion')) throw new Error('terminal completion storage is missing');
           same(completionPin(),preflight.pin,'terminal completion dependencies changed before writer acquisition');
           same(captureSetup(setupSourceId),source,'terminal completion accepted setup changed at writer boundary');
           const prepared = completionOwner.prepare(source);
@@ -271,10 +272,11 @@ export const openSqliteActualFoulTerminalApplicationRunner = (path: string,
         });
         const official = before.official.write(), p = before.prepared.original.proposal;
         const result = { ...before.prepared.original.result,completion:before.prepared.completion };
+        const status='finalResult'in result.completion?'POST_PLAY_COMPLETED_FINAL':'POST_PLAY_COMPLETED_CONTINUING';
         const keys = Object.keys(before.row).filter(key => key !== '__owner_rowid');
-        const changed = db.prepare("UPDATE main.actual_foul_terminal_applications SET status='POST_PLAY_COMPLETED_CONTINUING',result_json=? WHERE rowid=? AND "
+        const changed = db.prepare("UPDATE main.actual_foul_terminal_applications SET status=?,result_json=? WHERE rowid=? AND "
           + keys.map(key => '"' + key.replaceAll('"','""') + '" IS ?').join(' AND '))
-          .run(json(result),before.row.__owner_rowid,...keys.map(key => before.row[key]));
+          .run(status,json(result),before.row.__owner_rowid,...keys.map(key => before.row[key]));
         if (changed.changes !== 1) throw new Error('terminal completion archive CAS differs');
         const saved = proof(() => {
           same(captureSetup(setupSourceId),source,'terminal completion accepted setup changed after writes');
@@ -285,8 +287,8 @@ export const openSqliteActualFoulTerminalApplicationRunner = (path: string,
           same(official.readResult(),application,'terminal completion shared official writer differs');
           const expectedRows = preflight.pin.rows.map(table => ({ ...table,rows:table.rows.map(row => {
             if (table.table === 'applications' && row.application_id === p.source.applicationId) return { ...row,result_json:json(application) };
-            if (table.table === 'matches' && row.match_id === p.gameId) return { ...row,activation_json:json({ activation:result.completion.activation,nextWorld:result.completion.nextWorld }) };
-            if (table.table === 'actual_foul_terminal_applications' && row.source_id === p.source.sourceId) return { ...row,status:'POST_PLAY_COMPLETED_CONTINUING',result_json:json(result) };
+            if (table.table === 'matches' && row.match_id === p.gameId) return { ...row,activation_json:json(foulTerminalCompletionMatchEnvelope(result.completion)) };
+            if (table.table === 'actual_foul_terminal_applications' && row.source_id === p.source.sourceId) return { ...row,status,result_json:json(result) };
             return row;
           }) }));
           same(completionPin(),{ ...preflight.pin,rows:expectedRows },'terminal completion changed original, unrelated, schema or row identity');

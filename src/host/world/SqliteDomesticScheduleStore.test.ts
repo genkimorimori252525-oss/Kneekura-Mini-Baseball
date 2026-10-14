@@ -8,7 +8,7 @@ import { createBaseScheduleSnapshot } from
 import { captureOfficialStandingsSchedule } from
   '../../core/world/competition/OfficialStandingsScheduleSource';
 import { openSqliteWorldSettlementStore } from './SqliteWorldSettlementStore';
-import { openSqliteDomesticScheduleStore } from './SqliteDomesticScheduleStore';
+import { openSqliteDomesticScheduleStore, readDomesticMarketTriggerFromSqlite } from './SqliteDomesticScheduleStore';
 
 const directories: string[] = [];
 const stores: { close(): void }[] = [];
@@ -34,6 +34,19 @@ const base = () => createBaseScheduleSnapshot({
     gameCount: 2 }], allowedDays: [11, 12, 13], reservedWindows: [],
   series: [{ seriesId: 'series-a', homeClubId: 'club-a',
     awayClubId: 'club-b', startsOnDay: 11, gameCount: 2 }],
+});
+
+it('rejects a non-Native market evidence facade before reaching SQL', () => {
+  let sqlCalls = 0;
+  const facade = { isTransaction: true, prepare() {
+    sqlCalls += 1;
+    throw new Error('facade SQL was reached');
+  } };
+  expect(() => readDomesticMarketTriggerFromSqlite(facade as never, 'career-a', {
+    seasonId: 'league-season-1', leagueId: 'league-a', windowId: 'trade',
+    type: 'TRADE_DEADLINE', day: 12, policyVersion: 'trade-v1',
+  })).toThrow(/actual Native SQLite connection/);
+  expect(sqlCalls).toBe(0);
 });
 
 it('pins the base schedule and applies accepted revision to the durable World season', () => {

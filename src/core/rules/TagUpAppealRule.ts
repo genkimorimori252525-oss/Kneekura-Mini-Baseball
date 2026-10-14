@@ -10,7 +10,9 @@ import type {
 } from './TagUpCompliance';
 
 export type TagUpAppealInput = Readonly<{
-  compliance: TagUpComplianceResult;
+  // Only the rule interpretation and original identity are needed here. Exact
+  // history may prove continuous contact without a synthetic departure fact.
+  compliance: Pick<TagUpComplianceResult, 'kind' | 'runnerId' | 'originBase'>;
   appeal: DefensiveAppealAttemptFact;
   window: AppealWindowState;
 }>;

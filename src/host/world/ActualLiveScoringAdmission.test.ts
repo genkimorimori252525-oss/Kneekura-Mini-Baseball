@@ -332,3 +332,30 @@ it.each(['staging', 'closure_proposal', 'closure_result', 'application'] as cons
     expect(owner.read(f.source.sourceId)).toEqual(accepted);
     expect(rows(f.db, sourceTable)).toEqual(archives); expect(f.preserved()).toEqual(preserved); expect(scoredRows(f.db)).toBe(0);
   });
+
+it('persists explicit versioned RBI and hit awards without changing legacy closure bytes', async () => {
+  const { deriveOfficialPlayerScoringFromSqlite } = await import('./OfficialPlayerScoringEvidenceFromSqlite');
+  const f = fixture(), source: ScoringSource = { ...f.source, evidence: { ...f.source.evidence,
+    schemaVersion: 2, playerStatistics: { rbiRunnerIds: [], hitBases: 1 } } };
+  f.sources.set(source.sourceId, source);
+  const original = f.preserved(), owner = f.open(), saved = owner.submit(source.sourceId);
+  expect(saved.record.playerStatistics).toEqual({ runsBattedIn: 0, hitBases: 1 });
+  expect(f.preserved()).toEqual(original);
+  const sourceRows = rows(f.db, sourceTable), scores = rows(f.db, 'official_scoring_applications');
+  owner.close();
+  const reopened = f.keep(scoringFactory()(f.path));
+  expect(reopened.resume(source.sourceId)).toEqual(saved);
+  expect(rows(f.db, sourceTable)).toEqual(sourceRows); expect(rows(f.db, 'official_scoring_applications')).toEqual(scores);
+  // Original actor attribution is substituted here. Native scoring replay and
+  // the standard-fact adapter consume the real accepted application above.
+  const attribution = { gameId: source.gameId, playId: saved.record.playId, officialApplicationId: saved.officialApplicationId,
+    classification: saved.record.classification, scoring: saved,
+    source: { owner: 'actual_live_play_closures', sourceId: source.closureReference.sourceId } } as
+      import('./OfficialPlayerOutcomeEvidenceFromSqlite').OfficialPlayerOutcomeAttribution;
+  f.db.exec('BEGIN');
+  try {
+    expect(deriveOfficialPlayerScoringFromSqlite(f.db, attribution)).toEqual({
+      atBats: { kind: 'known', value: 1 }, runsBattedIn: { kind: 'known', value: 0 }, hitBases: { kind: 'known', value: 1 }, pitchingOuts: 0 });
+    expect(() => deriveOfficialPlayerScoringFromSqlite(f.db, { ...attribution, officialApplicationId: 'other' })).toThrow('accepted original');
+  } finally { f.db.exec('ROLLBACK'); }
+});

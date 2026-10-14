@@ -1,3 +1,4 @@
+import { assertNoSamePaWorkReservation } from './SamePlateAppearanceReservationGuard';
 import { assertFoulTerminalPhysicalActivationCurrent } from './FoulTerminalNextPlayReadiness';
 import type { AcceptedOriginalBattingIntent } from './OriginalBattingIntent';
 import { derivePrePitchRunnerExecution, type DurablePrePitchRunnerExecution } from './PrePitchRunnerEvidenceFromSqlite';
@@ -179,7 +180,12 @@ export const openSqlitePhysicalPitchProgressStore = (databasePath: string, sourc
         return original;
       }
       if (!source) throw new Error('accepted physical pitch action is missing');
+      reading(() => {
+        const current = db.prepare('SELECT state_json FROM matches WHERE match_id=?').get(source.gameId);
+        if (current) assertNoSamePaWorkReservation(db, { gameId: source.gameId, playId: JSON.parse(String(current.state_json)).playId, physicalPitchSourceId: sourceId });
+      });
       const fresh = frameInput(source), previous = history(source.gameId, fresh.match.playId);
+      reading(() => assertNoSamePaWorkReservation(db, { gameId: source.gameId, playId: fresh.match.playId, physicalPitchSourceId: sourceId }));
       const frame = previous[0]?.frame ?? fresh;
       if (previous.length !== expectedProgressRevision || json(fresh.match) !== json(frame.match) || fresh.officialRevision !== frame.officialRevision
         || json(fresh.workload) !== json(frame.workload) || json(fresh.timing) !== json(frame.timing) || json(fresh.release) !== json(frame.release)

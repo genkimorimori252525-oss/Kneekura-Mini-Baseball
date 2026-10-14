@@ -1,4 +1,6 @@
+import type { SqliteDomesticCompetitionSeasonStore } from './SqliteDomesticCompetitionSeasonStore';
 import { isDeepStrictEqual } from 'node:util';
+import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { replayClubEvents } from '../../core/world/club/ClubEvents';
 import type { MatchdayClubHistory } from
   '../../core/world/club/OfficialMatchdayRevenue';
@@ -16,7 +18,7 @@ import type { SqliteManagerRosterDecisionStore } from
   './SqliteManagerRosterDecisionStore';
 import type { AcceptedPlayerPersonLinkAuthority } from
   './SqliteFreeAgentContractStore';
-import type { ParticipationAuthority } from
+import type { ParticipationAuthority, OfficialParticipantBinding, SqliteOfficialParticipationStore } from
   './SqliteOfficialParticipationStore';
 
 const id = (value: unknown): value is string =>
@@ -40,6 +42,7 @@ export const createDomesticParticipationAuthority = (sources: Readonly<{
   match: SqliteOfficialStateStore;
   /** The accepted global Player–Person link source. */
   personLinks: AcceptedPlayerPersonLinkAuthority;
+  postseason?: Pick<SqliteDomesticCompetitionSeasonStore, 'readPostseasonGame'>;
 }>): ParticipationAuthority => {
   if (!sources || !id(sources.careerId) || !id(sources.seasonId)
     || !sources.world || !sources.schedule || !sources.roster
@@ -59,6 +62,13 @@ export const createDomesticParticipationAuthority = (sources: Readonly<{
       const schedule = applyScheduleRevisions(archive.baseSchedule,
         archive.revisions);
       const game = schedule.games.find((item) => item.gameId === gameId);
+      if (!game && sources.postseason) {
+        const accepted = sources.postseason.readPostseasonGame(sources.careerId, sources.seasonId, gameId);
+        if (!accepted || accepted.careerId !== sources.careerId || accepted.seasonId !== sources.seasonId
+          || accepted.gameId !== gameId || !isDeepStrictEqual(accepted.fixture, fixture)) return null;
+        return Object.freeze({ careerId: accepted.careerId, competitionEditionId: accepted.seasonId, gameDay: accepted.gameDay,
+          homeClubId: accepted.homeClubId, awayClubId: accepted.awayClubId, fixtureEventId: fixture.fixtureEventId });
+      }
       if (!game || !isDeepStrictEqual(season.schedule,
         captureOfficialStandingsSchedule(archive.baseSchedule,
           archive.revisions))
@@ -111,4 +121,40 @@ export const createDomesticParticipationAuthority = (sources: Readonly<{
       return Object.freeze({ personId: link.personId, sourceId });
     },
   });
+};
+
+/** Resolve only the identity fields of an explicitly selected participant. The
+ * existing participation owner still validates eligibility and commits the
+ * binding; this neither chooses a lineup nor records an actual appearance. */
+export const bindDomesticPregameParticipantFromWorld = (
+  sources: Parameters<typeof createDomesticParticipationAuthority>[0] & Readonly<{
+    participation: Pick<SqliteOfficialParticipationStore, 'bindPregame' | 'readPregameBinding'>;
+  }>,
+  raw: Readonly<{ gameId: string; clubId: string; playerId: string; personLinkSourceId: string }>,
+): OfficialParticipantBinding => {
+  const input = cloneInert(raw), fields = ['gameId', 'clubId', 'playerId', 'personLinkSourceId'];
+  if (!input || Object.keys(input).length !== fields.length || fields.some(key => !Object.hasOwn(input, key))
+    || ![input.gameId, input.clubId, input.playerId, input.personLinkSourceId].every(id)) {
+    throw new Error('invalid domestic pregame participant input');
+  }
+  const authority = createDomesticParticipationAuthority(sources);
+  const game = authority.readGame(input.gameId), link = authority.readPersonLink(input.playerId, input.personLinkSourceId);
+  if (!game || !link || ![game.homeClubId, game.awayClubId].includes(input.clubId)) {
+    throw new Error('domestic pregame participant lacks accepted game or Person evidence');
+  }
+  const identity = { gameId: input.gameId, careerId: game.careerId, competitionEditionId: game.competitionEditionId,
+    gameDay: game.gameDay, clubId: input.clubId, side: input.clubId === game.homeClubId ? 'HOME' as const : 'AWAY' as const,
+    playerId: input.playerId, personId: link.personId, personLinkSourceId: link.sourceId, fixtureEventId: game.fixtureEventId };
+  const prior = sources.participation.readPregameBinding(input.gameId, input.playerId);
+  if (prior) {
+    if (prior.nationalRegistrationEventId !== undefined || prior.nationalRosterSnapshotId !== undefined
+      || Object.entries(identity).some(([key, value]) => prior[key as keyof OfficialParticipantBinding] !== value)) {
+      throw new Error('domestic pregame binding already differs');
+    }
+    // Later roster or Match progress cannot rewrite the original accepted revision.
+    return prior;
+  }
+  const roster = authority.readRoster(game.careerId, input.clubId);
+  if (!roster) throw new Error('domestic pregame participant lacks accepted roster evidence');
+  return sources.participation.bindPregame({ ...identity, rosterRevision: roster.revision });
 };

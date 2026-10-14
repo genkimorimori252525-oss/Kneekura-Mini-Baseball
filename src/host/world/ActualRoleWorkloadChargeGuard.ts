@@ -1,3 +1,4 @@
+import { assertNoSamePaWorkReservation } from './SamePlateAppearanceReservationGuard';
 import { createHash } from 'node:crypto';
 import type { DefensiveDb } from './ActualDefensiveContext';
 import { defensiveMetadataId as identity } from './ActualDefensiveMetadata';
@@ -140,7 +141,8 @@ export const assertNoArchivedActualRoleWorkloadCharge = (db: DefensiveDb, scope:
 };
 
 /** Called by the legacy pitch producer before/within writes and when replaying a Source. */
-export const assertNoActualRoleWorkloadCharge = (db: DefensiveDb, scope: ActualRoleWorkloadChargeScope): void => {
+export const assertNoActualRoleWorkloadCharge = (db: DefensiveDb, scope: ActualRoleWorkloadChargeScope, ownEnrollmentSourceId?: string): void => {
+  assertNoSamePaWorkReservation(db,scope,ownEnrollmentSourceId);
   assertNoArchivedActualRoleWorkloadCharge(db,scope);
   assertNoTerminalOrSettlementCharge(db,scope);
   assertUncharged(db, scope, 'actual_role_workload_assessments', 'play_id', {
@@ -171,7 +173,8 @@ export const assertNoActualRoleWorkloadCharge = (db: DefensiveDb, scope: ActualR
 };
 
 /** Called by the total-play producer; the existing global workload owner stays unchanged. */
-export const assertNoLegacyPitchWorkloadCharge = (db: DefensiveDb, scope: ActualRoleWorkloadChargeScope): void => {
+export const assertNoLegacyPitchWorkloadCharge = (db: DefensiveDb, scope: ActualRoleWorkloadChargeScope, ownEnrollmentSourceId?: string): void => {
+  assertNoSamePaWorkReservation(db,scope,ownEnrollmentSourceId);
   assertNoArchivedCharge(db,scope,'official-physical-pitch-workload','legacy pitch');
   assertUncharged(db, scope, 'official_pitch_workload_sources', 'played_play_id', {
     careerId: [['source_json', ['careerId']], ['proof_json', ['pitcher', 'binding', 'careerId']],

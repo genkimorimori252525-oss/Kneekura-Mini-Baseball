@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { continuousPitchFixture, continuousPitchAction } from './ContinuousPitchFixtures.test-support';
 import { openSqlitePhysicalPitchProgressStore, type AcceptedPhysicalPitchActionSource } from './SqlitePhysicalPitchProgressStore';
 import { openSqlitePhysicalPlayClosureStore, type AcceptedPhysicalPlayClosure } from './SqlitePhysicalPlayClosureStore';
+import { witnessSqliteWrite } from './SqliteWriteWitness.test-support';
 
 const fixture = (databasePath?: string) => {
   const f = continuousPitchFixture(databasePath), actions = new Map<string, AcceptedPhysicalPitchActionSource>();
@@ -67,11 +68,21 @@ it('rolls back official Match adoption if its transaction alters the original ac
   const { f, store, source } = fixture();
   try {
     store.enqueue(source.sourceId);
-    f.db.exec("CREATE TRIGGER alter_physical_origin AFTER INSERT ON applications BEGIN UPDATE physical_pitch_progress_actions SET source_hash='changed' WHERE source_id='pitch-0'; END");
-    expect(() => store.resume(source.sourceId)).toThrow();
+    const original = f.db.prepare("SELECT source_hash FROM physical_pitch_progress_actions WHERE source_id='pitch-0'").get();
+    const mutation = witnessSqliteWrite(/^\s*INSERT INTO applications\(/, connection => {
+      expect(connection.isTransaction).toBe(true);
+      expect(connection.prepare('SELECT count(*) AS n FROM applications WHERE application_id=?').get(source.applicationId)).toEqual({ n: 1 });
+      expect(connection.prepare("UPDATE physical_pitch_progress_actions SET source_hash='changed' WHERE source_id='pitch-0'").run().changes).toBe(1);
+      return true;
+    });
+    try {
+      expect(() => store.resume(source.sourceId)).toThrow();
+      expect(mutation.wasReached(), 'the real official INSERT must precede the physical-origin fault').toBe(true);
+    } finally { mutation.close(); }
     expect(f.official.getMatch('game-1')!.durableRevision).toBe(0);
     expect(f.db.prepare('SELECT count(*) AS n FROM applications').get()).toEqual({ n: 0 });
-    f.db.exec('DROP TRIGGER alter_physical_origin'); expect(store.resume(source.sourceId).workload.after.revision).toBe(1);
+    expect(f.db.prepare("SELECT source_hash FROM physical_pitch_progress_actions WHERE source_id='pitch-0'").get()).toEqual(original);
+    expect(store.resume(source.sourceId).workload.after.revision).toBe(1);
   } finally { f.close(); }
 });
 
@@ -116,14 +127,28 @@ it.each([
   try {
     expect(f.db.prepare('PRAGMA journal_mode').get()).toEqual({ journal_mode: 'wal' });
     store.enqueue(source.sourceId);
-    f.db.exec(`CREATE TRIGGER interrupted BEFORE ${stage.operation} ON ${stage.table} BEGIN SELECT RAISE(ABORT,'stage interruption'); END`);
-    expect(() => store.resume(source.sourceId)).toThrow('stage interruption');
+    // Schema guards reject persistent triggers before reaching these stages.
+    // Interrupt after the real Native write, while its transaction still owns it.
+    let interruptedWrites = 0;
+    const statement = stage.operation === 'INSERT' ? `^\\s*INSERT INTO ${stage.table}(?:\\s|\\()` : `^UPDATE ${stage.table} SET status='COMPLETED',`;
+    const interruption = witnessSqliteWrite(new RegExp(statement), connection => {
+      expect(connection.isTransaction).toBe(true);
+      if (stage.operation === 'UPDATE') {
+        expect(connection.prepare('SELECT status FROM physical_play_closures WHERE source_id=?').get(source.sourceId)).toEqual({ status: 'COMPLETED' });
+      } else expect(connection.prepare(`SELECT count(*) AS n FROM ${stage.table}`).get()).toEqual({ n: 1 });
+      interruptedWrites++;
+      throw new Error('stage interruption');
+    });
+    try {
+      expect(() => store.resume(source.sourceId)).toThrow('stage interruption');
+      expect(interruptedWrites, 'the intended real Native write must be reached exactly once').toBe(1);
+    } finally { interruption.close(); }
     for (const [table, count] of [['applications', stage.official], ['official_scoring_applications', stage.scored],
       ['official_pitch_workload_sources', stage.effort], ['world_player_workload_activities', stage.workload]] as const) {
       expect(f.db.prepare(`SELECT count(*) AS n FROM ${table}`).get()).toEqual({ n: count });
     }
     expect(store.read(source.sourceId)!.status).toBe('PENDING');
-    store.close(); accepted.clear(); f.db.exec('DROP TRIGGER interrupted');
+    store.close(); accepted.clear();
     const reopened = f.track(openSqlitePhysicalPlayClosureStore(path, sources));
     const result = reopened.resume(source.sourceId);
     expect(result.workload.after.revision).toBe(1);
@@ -138,11 +163,21 @@ it('rolls back completion checkpoint changes to its own scoring evidence and res
   const { f, store, source } = fixture(join(mkdtempSync(join(tmpdir(), 'physical-closure-')), 'state.sqlite'));
   try {
     store.enqueue(source.sourceId);
-    f.db.exec("CREATE TRIGGER alter_completed_origin AFTER UPDATE ON physical_play_closures BEGIN UPDATE official_scoring_applications SET source_event_id='changed'; END");
-    expect(() => store.resume(source.sourceId)).toThrow();
+    let original: unknown;
+    const mutation = witnessSqliteWrite(/^UPDATE physical_play_closures SET status='COMPLETED',/, connection => {
+      expect(connection.isTransaction).toBe(true);
+      expect(connection.prepare('SELECT status FROM physical_play_closures WHERE source_id=?').get(source.sourceId)).toEqual({ status: 'COMPLETED' });
+      original = connection.prepare('SELECT source_event_id FROM official_scoring_applications WHERE scoring_application_id=?').get(source.scoringApplicationId);
+      expect(connection.prepare("UPDATE official_scoring_applications SET source_event_id='changed' WHERE scoring_application_id=?").run(source.scoringApplicationId).changes).toBe(1);
+      return true;
+    });
+    try {
+      expect(() => store.resume(source.sourceId)).toThrow();
+      expect(mutation.wasReached(), 'the real completion UPDATE must precede the scoring-evidence fault').toBe(true);
+    } finally { mutation.close(); }
     expect(f.workload.readHead('career-a', 'p2')!.revision).toBe(1);
     expect(store.read(source.sourceId)!.status).toBe('PENDING');
-    f.db.exec('DROP TRIGGER alter_completed_origin');
+    expect(f.db.prepare('SELECT source_event_id FROM official_scoring_applications WHERE scoring_application_id=?').get(source.scoringApplicationId)).toEqual(original);
     expect(store.resume(source.sourceId).workload.after.revision).toBe(1);
   } finally { f.close(); }
 });
@@ -185,11 +220,19 @@ it('keeps completed historical closure readable after actual later rest and reje
 it('rolls back enqueue if its own transaction changes the actual current World activation', () => {
   const { f, store, source } = fixture();
   try {
-    f.db.exec("CREATE TRIGGER alter_open_world AFTER INSERT ON physical_play_closures BEGIN UPDATE matches SET activation_json='{}' WHERE match_id='game-1'; END");
-    expect(() => store.enqueue(source.sourceId)).toThrow();
+    const mutation = witnessSqliteWrite(/^INSERT INTO physical_play_closures VALUES /, connection => {
+      expect(connection.isTransaction).toBe(true);
+      expect(connection.prepare('SELECT status FROM physical_play_closures WHERE source_id=?').get(source.sourceId)).toEqual({ status: 'PENDING' });
+      expect(connection.prepare("UPDATE matches SET activation_json='{}' WHERE match_id='game-1'").run().changes).toBe(1);
+      return true;
+    });
+    try {
+      expect(() => store.enqueue(source.sourceId)).toThrow();
+      expect(mutation.wasReached(), 'the real queue INSERT must precede the current-World fault').toBe(true);
+    } finally { mutation.close(); }
     expect(f.db.prepare('SELECT count(*) AS n FROM physical_play_closures').get()).toEqual({ n: 0 });
     expect(f.official.getMatch('game-1')!.activation).toBeNull();
-    f.db.exec('DROP TRIGGER alter_open_world'); expect(store.submit(source.sourceId).workload.after.revision).toBe(1);
+    expect(store.submit(source.sourceId).workload.after.revision).toBe(1);
   } finally { f.close(); }
 });
 
@@ -208,11 +251,21 @@ it('rolls back enqueue when a later activated play changes its current World ins
     const second = { ...source, sourceId: 'second-close', physicalPitchSourceId: 'second-pitch-2', applicationId: 'second-application',
       scoringApplicationId: 'second-scoring', snapshotId: 'second-rule', ruleTick: readyAtUs + 1, closureTick: readyAtUs + 2, nextStartedAtTick: readyAtUs + 3 };
     accepted.set(second.sourceId, second);
-    f.db.exec("CREATE TRIGGER alter_activated_world AFTER INSERT ON physical_play_closures WHEN NEW.source_id='second-close' BEGIN UPDATE matches SET activation_json='{}' WHERE match_id='game-1'; END");
-    expect(() => store.enqueue(second.sourceId)).toThrow('frame');
+    const original = f.db.prepare("SELECT activation_json FROM matches WHERE match_id='game-1'").get();
+    const mutation = witnessSqliteWrite(/^INSERT INTO physical_play_closures VALUES /, connection => {
+      expect(connection.isTransaction).toBe(true);
+      expect(connection.prepare('SELECT status FROM physical_play_closures WHERE source_id=?').get(second.sourceId)).toEqual({ status: 'PENDING' });
+      expect(connection.prepare("UPDATE matches SET activation_json='{}' WHERE match_id='game-1'").run().changes).toBe(1);
+      return true;
+    });
+    try {
+      expect(() => store.enqueue(second.sourceId)).toThrow('frame');
+      expect(mutation.wasReached(), 'the real later-play queue INSERT must precede the current-World fault').toBe(true);
+    } finally { mutation.close(); }
     expect(f.db.prepare('SELECT count(*) AS n FROM physical_play_closures').get()).toEqual({ n: 1 });
     expect(f.official.getMatch('game-1')!.activation).not.toBeNull();
-    f.db.exec('DROP TRIGGER alter_activated_world'); expect(store.submit(second.sourceId).workload.after.revision).toBe(2);
+    expect(f.db.prepare("SELECT activation_json FROM matches WHERE match_id='game-1'").get()).toEqual(original);
+    expect(store.submit(second.sourceId).workload.after.revision).toBe(2);
   } finally { f.close(); }
 });
 

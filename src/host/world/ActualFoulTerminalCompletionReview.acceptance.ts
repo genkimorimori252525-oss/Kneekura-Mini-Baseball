@@ -41,9 +41,10 @@ it('CP-F01 actual three completion updates roll back when COMMIT is replaced and
   try{
    retry=openSqliteActualFoulTerminalApplicationRunner(f.path,{readAcceptedPostPlaySetup:()=>f.source});
    const completed=retry.completePostPlay(f.source.sourceId);expect(completed.status).toBe('POST_PLAY_COMPLETED_CONTINUING');
+   const completion=completed.result.completion;if('finalResult'in completion)throw new Error('v1 fixture unexpectedly finalized');
    const official=foulTerminalCompletedOfficial(completed.result.official,completed.result.completion),p=completed.proposal;
    const expected=before.map(table=>({...table,rows:table.rows.map(row=>table.table==='applications'&&row.application_id===p.source.applicationId?{...row,result_json:json(official)}:
-    table.table==='matches'&&row.match_id===p.gameId?{...row,activation_json:json({activation:completed.result.completion.activation,nextWorld:completed.result.completion.nextWorld})}:
+    table.table==='matches'&&row.match_id===p.gameId?{...row,activation_json:json({activation:completion.activation,nextWorld:completion.nextWorld})}:
     table.table==='actual_foul_terminal_applications'&&row.source_id===f.sourceId?{...row,status:'POST_PLAY_COMPLETED_CONTINUING',result_json:json(completed.result)}:row)}));
    expect(rawCensus(f.db)).toEqual(expected);expect(schemaCensus(f.db)).toEqual(schema);accounting.assertChanges(3);
   }finally{accounting.close();retry?.close();}

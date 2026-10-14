@@ -1,3 +1,4 @@
+import { assertNationalMatchBindings } from './NationalMatchOriginFromSqlite';
 import type { FoulTerminalReadinessReference } from './ActualFoulTerminalPostPlayCompletion';
 import { readFoulTerminalPhysicalActivation, assertFoulTerminalPhysicalActivationCurrent } from './FoulTerminalNextPlayReadiness';
 import { assertFoulTerminalPriorActivation } from './FoulTerminalCompletionAncestryGuard';
@@ -9,8 +10,9 @@ import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { CanonicalMatchState } from '../../core/model/CanonicalMatchState';
 import type { CanonicalWorldSnapshot } from '../../core/model/CanonicalWorldSnapshot';
 import { deriveOfficialPlayResult, type PersistOfficialPlayInput } from '../SqliteOfficialStateStore';
-import type { PersistOfficialScoringInput, PersistedOfficialScoring } from '../SqliteOfficialScoringStore';
-import { classifyClosedPlayForOfficialScoring, type OfficialFairBallScoringEvidence } from '../../core/adjudication/OfficialScoring';
+import type { PersistOfficialScoringInput, PersistedOfficialScoring, AcceptedOfficialScoringEvidence } from '../SqliteOfficialScoringStore';
+import { classifyClosedPlayForOfficialScoring } from '../../core/adjudication/OfficialScoring';
+import { officialScoringEvidenceArguments } from '../OfficialScoringEvidence';
 import { assertInitialOfficialWorldEvidence, readOfficialActorPersonLink, type DurableInitialOfficialWorld } from './SqliteOfficialInitialWorldStore';
 import type { OfficialParticipantBinding } from './SqliteOfficialParticipationStore';
 
@@ -45,7 +47,7 @@ export const physicalActorInput = (raw: AcceptedPhysicalPlateAppearanceActor, so
   }
   return s;
 };
-const readBinding = (db: ActorDb, gameId: string, playerId: string): OfficialParticipantBinding => {
+export const readPhysicalActorBinding = (db: ActorDb, gameId: string, playerId: string): OfficialParticipantBinding => {
   const row = db.prepare('SELECT binding_json FROM official_participant_bindings WHERE game_id=? AND player_id=?').get(gameId, playerId) as { binding_json: string } | undefined;
   const binding = row ? JSON.parse(row.binding_json) as OfficialParticipantBinding : null;
   if (!binding || JSON.stringify(binding) !== row!.binding_json || binding.gameId !== gameId || binding.playerId !== playerId) throw new Error('physical batter actor binding differs');
@@ -79,7 +81,7 @@ export const derivePhysicalPlateAppearanceActor = (db: ActorDb, source: Accepted
         scoring_application_id: string; official_application_id: string; match_id: string; closure_id: string; source_event_id: string;
         request_json: string; result_json: string;
       } | undefined;
-      const saved = score ? JSON.parse(score.request_json) as { input: PersistOfficialScoringInput; evidence: OfficialFairBallScoringEvidence | null } : null;
+      const saved = score ? JSON.parse(score.request_json) as { input: PersistOfficialScoringInput; evidence: AcceptedOfficialScoringEvidence | null } : null;
       const input = saved?.input.officialApplication;
       if (input && 'mode' in input && input.mode === 'non_live_pending_post_play_v1') {
         throw new Error('terminal pending scoring cannot supply legacy actor activation');
@@ -88,13 +90,13 @@ export const derivePhysicalPlateAppearanceActor = (db: ActorDb, source: Accepted
         || input.applicationId !== source.activationApplicationId || actorJson(saved) !== score.request_json) throw new Error('physical batter actual activation Source is missing');
       const result = deriveOfficialPlayResult(input as PersistOfficialPlayInput, input.expectedDurableRevision + 1);
       if (row.result_json !== actorJson(result) || row.request_hash !== actorHash(input) || row.closure_id !== result.receipt.closureId) throw new Error('physical batter activation evidence differs');
+      const sourceEventId = input.kind === 'non_live' ? `official-non-live:${input.applicationId}`
+        : 'sourceEventId' in saved!.input ? saved!.input.sourceEventId! : `official-foul-out:${input.applicationId}`;
       const classified = classifyClosedPlayForOfficialScoring(input.kind === 'non_live'
         ? { kind: input.kind, match: input.match, timeline: input.timeline, adjudication: input.adjudication, context: input.context }
         : { kind: input.kind, match: input.match, timeline: input.physicalTimeline, adjudication: input.adjudication,
-          ...(saved!.evidence ? { scoringEvidence: saved!.evidence } : {}) });
+          ...officialScoringEvidenceArguments(saved!.evidence, sourceEventId) });
       if (classified.kind !== 'supported') throw new Error('physical batter prior scoring is unsupported');
-      const sourceEventId = input.kind === 'non_live' ? `official-non-live:${input.applicationId}`
-        : 'sourceEventId' in saved!.input ? saved!.input.sourceEventId! : `official-foul-out:${input.applicationId}`;
       const expected: PersistedOfficialScoring = { scoringApplicationId: saved!.input.scoringApplicationId, matchId: input.matchId,
         officialApplicationId: input.applicationId, closureId: result.receipt.closureId, sourceEventId, record: classified.record };
       if (score.scoring_application_id !== expected.scoringApplicationId || score.official_application_id !== expected.officialApplicationId
@@ -105,17 +107,19 @@ export const derivePhysicalPlateAppearanceActor = (db: ActorDb, source: Accepted
       applicationHash = actorHash(row); scoringHash = actorHash(score);
     }
   }
-  const binding = readBinding(db, source.gameId, source.playerId), battingSide = match.half === 'top' ? 'AWAY' : 'HOME';
+  const binding = readPhysicalActorBinding(db, source.gameId, source.playerId), battingSide = match.half === 'top' ? 'AWAY' : 'HOME';
   const fixture = db.prepare('SELECT * FROM official_fixtures WHERE game_id=?').get(source.gameId) as { fixture_event_id: string } | undefined;
-  const season = db.prepare('SELECT schedule_json FROM world_season_heads WHERE career_id=? AND season_id=?')
+  const defenderBindings = world.defenders.map((d) => readPhysicalActorBinding(db, source.gameId, d.playerId));
+  const national = assertNationalMatchBindings(db, [binding, ...defenderBindings]);
+  const season = national ? null : db.prepare('SELECT schedule_json FROM world_season_heads WHERE career_id=? AND season_id=?')
     .get(binding.careerId, binding.competitionEditionId) as { schedule_json: string } | undefined;
   const schedule = season ? JSON.parse(season.schedule_json) as { seasonId: string; games: { gameId: string; homeClubId: string; awayClubId: string }[] } : null;
-  const games = schedule?.games?.filter((g) => g.gameId === source.gameId);
-  if (!schedule || schedule.seasonId !== binding.competitionEditionId || !games || games.length !== 1
-    || games[0].homeClubId === games[0].awayClubId || binding.clubId !== (battingSide === 'HOME' ? games[0].homeClubId : games[0].awayClubId)) throw new Error('physical batter actor actual World fixture differs');
+  const games = national ? [{ gameId: source.gameId, homeClubId: national.fixture.homeClubId, awayClubId: national.fixture.awayClubId }]
+    : schedule?.seasonId === binding.competitionEditionId ? schedule.games?.filter((g) => g.gameId === source.gameId) : undefined;
+  if (!games || games.length !== 1 || games[0].homeClubId === games[0].awayClubId
+    || binding.clubId !== (battingSide === 'HOME' ? games[0].homeClubId : games[0].awayClubId)) throw new Error('physical batter actor actual World fixture differs');
   const worldFixture = { careerId: binding.careerId, competitionEditionId: binding.competitionEditionId,
     game: { gameId: games[0].gameId, homeClubId: games[0].homeClubId, awayClubId: games[0].awayClubId } };
-  const defenderBindings = world.defenders.map((d) => readBinding(db, source.gameId, d.playerId));
   if (!fixture || world.defenders.length !== 9 || new Set(world.defenders.map((d) => d.playerId)).size !== 9
     || binding.side !== battingSide || Object.values(match.bases).includes(binding.playerId)
     || defenderBindings.some((d) => d.side !== (battingSide === 'HOME' ? 'AWAY' : 'HOME') || d.clubId !== (d.side === 'HOME' ? games[0].homeClubId : games[0].awayClubId)

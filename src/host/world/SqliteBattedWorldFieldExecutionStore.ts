@@ -1,4 +1,14 @@
+import { receivedHandoffSchema,receivedHandoffTable } from './ActualReceivedUmpireHandoffSchema';
+import { assertReceivedHandoffPhysicalWrite,openSqliteActualReceivedUmpireHandoffStore } from './SqliteActualReceivedUmpireHandoffStore';
+import { receivedContinuationInput,type ReceivedContinuationSource } from './ActualReceivedUmpireContinuation';
+import { deriveReceivedContinuationExecution,type ReceivedContinuationExecution } from './ActualReceivedUmpireContinuationExecution';
+import { assertReceivedContinuationPhysicalWrite,openSqliteActualReceivedUmpireContinuationStore } from './SqliteActualReceivedUmpireContinuationStore';
 import { battedWorldFieldGeometry } from './BattedWorldFieldRoot';
+import { assertReceivedRenewalPhysicalWrite,openSqliteActualReceivedUmpireRenewalAdoptionStore } from './SqliteActualReceivedUmpireRenewalAdoptionStore';
+import { renewalAdoptionInput,renewalExactCut,type RenewalAdoptionExecutionSource } from './ActualReceivedUmpireRenewal';
+import { preflightReceivedRenewalAdoption } from './ActualReceivedUmpireRenewalPhysicalMetadata';
+import { deriveReceivedRenewalPhysicalExecution,type ReceivedRenewalPhysicalExecution } from './ActualReceivedUmpireRenewalPhysicalExecution';
+import { ownedScheduledMotionActualState } from './OwnedScheduledMotionState';
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { ownedScheduledMotionActionInput, isOwnedScheduledMotionKind, type OwnedScheduledMotionAction, type OwnedScheduledMotionExecution } from './OwnedScheduledBattedWorldMotion';
 import { createOwnedScheduledMotionExecutionReplay, pendingOwnedScheduledPlan } from './OwnedScheduledMotionExecution';
@@ -25,6 +35,7 @@ import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './P
 import { battedWorldResponseInput } from './SqliteBattedWorldContinuationStore';
 import { battedWorldMotionCommandsInput, battedWorldMotionPrimitiveCommands, type AcceptedBattedWorldMotion } from './SqliteBattedWorldMotionStore';
 import { battedWorldFieldEvidenceFromSqlite, withBattedWorldFieldReadTraversal, activeBattedWorldFieldReadFrame, isAuthenticatedBattedWorldFieldTraversalValue, type DurableBattedWorldFieldAction, type SqliteBattedWorldFieldStore } from './SqliteBattedWorldFieldStore';
+import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
 import { playerFieldingModelEvidenceFromSqlite, type DurablePlayerFieldingModel } from './SqlitePlayerFieldingModelStore';
 import { battedWorldFieldPhysicalPrefix, battedWorldFieldBaseTouchHistoryFromPrefix, type BattedWorldFieldCustodyPolicy } from './BattedWorldFieldPhysicalPrefix';
 import { wholePlayPhysicalHistoryFromPrefix } from './WholePlayPhysicalHistoryFromPrefix';
@@ -37,11 +48,13 @@ import { actualDefensiveDecisionEvidenceFromSqlite } from './SqliteActualDefensi
 import { ownedMotionLiveWork, type OwnedMotionLiveWork } from './OwnedMotionLiveWork';
 import { assertOwnedMotionPhysicalMetadata } from './OwnedMotionPhysicalMetadata';
 import { defensiveMetadataId as metadataId } from './ActualDefensiveMetadata';
+import { battedVenuePlayableWallPolicyInput, bindBattedVenuePlayableWalls,
+  type AcceptedBattedVenuePlayableWallPolicy, type BattedVenuePlayableWallReference } from './BattedVenuePlayableWallPolicy';
 
-type Action = OwnedScheduledMotionAction | OwnedMotionAction | Readonly<{ kind: 'acquisition' }>
+type Action = ReceivedContinuationSource['action'] | RenewalAdoptionExecutionSource['action'] | OwnedScheduledMotionAction | OwnedMotionAction | Readonly<{ kind: 'acquisition' }>
   | Readonly<{ kind: 'acquisition_plan' }>
   | Readonly<{ kind: 'base_touch_history'; playerId: string; base: BattedWorldBaseId; custodyPolicy?: BattedWorldFieldCustodyPolicy }>
-  | Readonly<{ kind: 'first_base_race'; custodyPolicy?: BattedWorldFieldCustodyPolicy }>
+  | Readonly<{ kind: 'first_base_race'; custodyPolicy?: BattedWorldFieldCustodyPolicy; venuePolicy?: AcceptedBattedVenuePlayableWallPolicy }>
   | Readonly<{ kind: 'whole_play_history' }>
   | Readonly<{ kind: 'motion_checkpoint_v1'; availableAtTick: number; coverageThroughTick: number; checkpointThroughTick: number; commands: AcceptedBattedWorldMotion['commands'] }>
   | Readonly<{ kind: 'retained_motion_checkpoint_v1'; checkpointThroughTick: number }>
@@ -52,7 +65,7 @@ type Action = OwnedScheduledMotionAction | OwnedMotionAction | Readonly<{ kind: 
     modelSourceId: string; receiverPlayerId: string }>;
 export type AcceptedBattedWorldFieldExecution = Readonly<{ sourceId: string; sourceVersion: string;
   baseFieldSourceId: string; previousExecutionSourceId: string | null; action: Action }>;
-type Execution = OwnedScheduledMotionExecution | Readonly<{ kind: 'owned_motion_v1'; field: BattedWorldFieldMotion; composition: OwnedMotionComposition; adoption: OwnedMotionAdoption; liveWork: OwnedMotionLiveWork }>
+type Execution = ReceivedContinuationExecution | ReceivedRenewalPhysicalExecution | OwnedScheduledMotionExecution | Readonly<{ kind: 'owned_motion_v1'; field: BattedWorldFieldMotion; composition: OwnedMotionComposition; adoption: OwnedMotionAdoption; liveWork: OwnedMotionLiveWork }>
   | Readonly<{ kind: 'motion' | 'motion_checkpoint_v1' | 'retained_motion_checkpoint_v1'; field: BattedWorldFieldMotion }>
   | Readonly<{ kind: 'whole_play_history'; field: BattedWorldFieldMotion; physicalHistory: ReturnType<typeof wholePlayPhysicalHistoryFromPrefix> }>
   | Readonly<{ kind: 'acquisition'; field: BattedWorldFieldMotion; acquisition: BattedWorldFieldAcquisition }>
@@ -67,6 +80,7 @@ type Execution = OwnedScheduledMotionExecution | Readonly<{ kind: 'owned_motion_
     physicalRuleFacts: readonly (ReturnType<typeof createRunnerBaseFactsFromBallWorldHistory>[number] | ReturnType<typeof createControlledBaseFactsFromBallWorldContacts>[number])[] }>
     & ReturnType<typeof battedWorldFieldBaseTouchHistoryFromPrefix>)
   | (Readonly<{ kind: 'first_base_race'; field: BattedWorldFieldMotion;
+    venuePolicyReference?: BattedVenuePlayableWallReference;
     batterFirstBase: ReturnType<typeof battedWorldFieldBaseTouchHistoryFromPrefix>;
     defendersFirstBase: readonly ReturnType<typeof battedWorldFieldBaseTouchHistoryFromPrefix>[] }>
     & ReturnType<typeof deriveBallWorldFieldFirstBaseRace>
@@ -92,16 +106,21 @@ const input = (raw: AcceptedBattedWorldFieldExecution, sourceId: string): Accept
     throw new Error('invalid accepted actual field execution Source');
   }
   const action = source.action;
+  if(action?.kind==='received_renewal_continuation_v1')return receivedContinuationInput(source as ReceivedContinuationSource,sourceId);
+  if(action?.kind==='received_renewal_adoption_v1')return renewalAdoptionInput(source as RenewalAdoptionExecutionSource,sourceId);
   if (action?.kind === 'owned_motion_v1') return { ...source, action: ownedMotionActionInput(action) };
   if (action && isOwnedScheduledMotionKind(action.kind)) return { ...source, action: ownedScheduledMotionActionInput(action as OwnedScheduledMotionAction) };
   if ((action?.kind === 'acquisition' || action?.kind === 'acquisition_plan' || action?.kind === 'whole_play_history') && fields(action, ['kind'])) return source;
   if (action?.kind === 'base_touch_history' || action?.kind === 'first_base_race') {
     const policyFields = 'custodyPolicy' in action ? ['custodyPolicy'] : [];
-    if (!fields(action, ['kind', ...(action.kind === 'base_touch_history' ? ['playerId', 'base'] : []), ...policyFields])
+    const venueFields = action.kind === 'first_base_race' && 'venuePolicy' in action ? ['venuePolicy'] : [];
+    if (!fields(action, ['kind', ...(action.kind === 'base_touch_history' ? ['playerId', 'base'] : []), ...policyFields, ...venueFields])
       || policyFields.length && action.custodyPolicy !== 'release_exclusive_v1'
       || action.kind === 'base_touch_history' && (!id(action.playerId) || !['home', 'first', 'second', 'third'].includes(action.base))) {
       throw new Error('invalid actual field observation Source or custody policy');
     }
+    if (action.kind === 'first_base_race' && venueFields.length) return { ...source,
+      action: { ...action, venuePolicy: battedVenuePlayableWallPolicyInput(action.venuePolicy!) } };
     return source;
   }
   if (action?.kind === 'throw_advance' || action?.kind === 'acquisition_advance') {
@@ -131,8 +150,12 @@ const physicalId = (field: DurableBattedWorldFieldAction) => field.response.touc
 // Private, synchronous dependency-replay context. Only this owner installs already
 // validated predecessors. Every reuse rechecks the exact rows on this same connection;
 // this is neither a caller evidence callback nor a cross-operation validation cache.
-const dependencyPrefixes = new WeakMap<Db, Readonly<{ baseField: DurableBattedWorldFieldAction;
-  values: readonly DurableBattedWorldFieldExecution[]; encoding: ReturnType<typeof createOwnedScheduledMotionDependencyEncoding> }>>();
+// A newer pitch may authenticate its completed earlier-pitch origin while reading
+// a motor. Rank ceilings belong to their physical pitch, not the whole connection.
+// Copy the active map on descent so other pitches and same-pitch parents survive
+// nested return/throw; finally restores the exact preceding map.
+const dependencyPrefixes = new WeakMap<Db, ReadonlyMap<string, Readonly<{ baseField: DurableBattedWorldFieldAction;
+  values: readonly DurableBattedWorldFieldExecution[]; encoding: ReturnType<typeof createOwnedScheduledMotionDependencyEncoding> }>>>();
 
 // This map only exists on the stack of one root PlayEnd derive. It holds
 // completed immutable physical nodes, never cross-owner result proofs.
@@ -175,6 +198,27 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
   };
   const executeWithReplay = (replay: ReturnType<typeof createOwnedScheduledMotionExecutionReplay>, source: AcceptedBattedWorldFieldExecution, baseField: DurableBattedWorldFieldAction,
     previous: DurableBattedWorldFieldExecution | null, prefix: readonly DurableBattedWorldFieldExecution[]): DurableBattedWorldFieldExecution => {
+    if(source.action.kind==='received_renewal_continuation_v1'){
+      const continuation=receivedContinuationInput(source as ReceivedContinuationSource);
+      if(!previous||previous.execution.kind!=='received_renewal_adoption_v1'||previous.source.sourceId!==continuation.action.renewalAdoptionSourceId
+        ||previous.execution.adoption.renewalEnrollmentSourceId!==continuation.action.renewalEnrollmentSourceId)throw new Error('received continuation predecessor rank or owner differs');
+      const context=dependencyPrefixes.get(db);
+      dependencyPrefixes.set(db,new Map(context).set(physicalId(baseField),{baseField,values:prefix,encoding:createOwnedScheduledMotionDependencyEncoding()}));
+      try{return freeze({source:continuation,baseField,revision:previous.revision+1,history:[...previous.history,continuation],
+        execution:deriveReceivedContinuationExecution(db as import('node:sqlite').DatabaseSync,continuation,baseField,prefix)});}
+      finally{if(context)dependencyPrefixes.set(db,context);else dependencyPrefixes.delete(db);}
+    }
+    if(source.action.kind==='received_renewal_adoption_v1'){
+      const renewal=renewalAdoptionInput(source as RenewalAdoptionExecutionSource),state=ownedScheduledMotionActualState(baseField.field,prefix);
+      if(!previous)throw new Error('received renewal physical predecessor missing');
+      const native=db as import('node:sqlite').DatabaseSync;
+      preflightReceivedRenewalAdoption(native,{source:renewal,gameId:baseField.response.model.gameId,physicalPitchSourceId:physicalId(baseField),
+        predecessor:{sourceId:previous.source.sourceId,revision:previous.revision},cut:renewalExactCut({originTick:state.moment.originTick,elapsedSeconds:state.moment.elapsedSeconds,tick:state.moment.ball.tick},baseField.response.touch.worldContact.flight.source.execution.ballFlightParameters.ticksPerSecond)});
+      const context=dependencyPrefixes.get(db);
+      dependencyPrefixes.set(db,new Map(context).set(physicalId(baseField),{baseField,values:prefix,encoding:createOwnedScheduledMotionDependencyEncoding()}));
+      try{return freeze({source:renewal,baseField,revision:previous.revision+1,history:[...previous.history,renewal],execution:deriveReceivedRenewalPhysicalExecution(native,renewal,baseField,prefix)});}
+      finally{if(context)dependencyPrefixes.set(db,context);else dependencyPrefixes.delete(db);}
+    }
     if (source.action.kind === 'owned_motion_v2' || source.action.kind === 'owned_acquisition_plan_v1' || source.action.kind === 'owned_throw_plan_v1') {
       const action = source.action as OwnedScheduledMotionAction;
       const motorSourceIds = action.kind === 'owned_motion_v2' ? action.contributions.flatMap(c => c.kind === 'motor' ? [c.motorSourceId] : []) : [];
@@ -186,7 +230,7 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
       preflightOwnedMotionCausality(db, { baseField, executionPrefix: prefix, motorSourceIds, decisionSourceIds,
         ...(action.kind === 'owned_motion_v2' ? { motorCutPolicy: 'observer_suffix_v2' as const } : {}) });
       const context = dependencyPrefixes.get(db);
-      dependencyPrefixes.set(db, { baseField, values: prefix, encoding: createOwnedScheduledMotionDependencyEncoding() });
+      dependencyPrefixes.set(db, new Map(context).set(physicalId(baseField), { baseField, values: prefix, encoding: createOwnedScheduledMotionDependencyEncoding() }));
       try {
         const motors = motorSourceIds.map(sourceId => { const value = actualLocomotionEvidenceFromSqlite(db).read(sourceId);
           if (!value) throw new Error('owned operation motor receipt is missing'); return value; });
@@ -283,13 +327,15 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
         };
         const batterFirstBase = historyFor(batter.binding.playerId), defendersFirstBase = batter.defenderBindings.map((binding) => historyFor(binding.playerId));
         const ball = physical.field.evidence;
-        const raceInput = { field: physical.field, race: { outsAtStart: world.flight.physicalPitch.frame.match.outs,
+        const venue = source.action.venuePolicy === undefined ? undefined : bindBattedVenuePlayableWalls(source.action.venuePolicy, prefixInput);
+        const raceInput = { field: physical.field, ...(venue === undefined ? {} : { playableWalls: venue.playableWalls }), race: { outsAtStart: world.flight.physicalPitch.frame.match.outs,
           batterRunnerId: ball.batterRunnerId, defenderIds: ball.defenderIds, originTick: ball.originTick, ticksPerSecond: ball.ticksPerSecond,
           horizonElapsedSeconds: ball.horizon.elapsedSeconds, runnerHistory: batterFirstBase.history, defenders: defendersFirstBase } };
         const result = physical.possessionEvidence
           ? deriveBallWorldFieldFirstBaseRaceWithPossessionEvidence({ ...raceInput, possessionEvidence: physical.possessionEvidence })
           : deriveBallWorldFieldFirstBaseRace(raceInput);
-        execution = { kind: 'first_base_race', field: original, ...result, batterFirstBase, defendersFirstBase };
+        execution = { kind: 'first_base_race', field: original, ...result, batterFirstBase, defendersFirstBase,
+          ...(venue === undefined ? {} : { venuePolicyReference: venue.venuePolicyReference }) };
       }
     } else {
       let cursor: BattedWorldBallCursor | null = motion.cursor, carrierPlayerId = motion.carrierPlayerId;
@@ -312,7 +358,7 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
         // Strict decreasing physical rank is proved before entering any dependency reader.
         preflightOwnedMotionCausality(db, { baseField, executionPrefix: prefix, motorSourceIds, decisionSourceIds });
         const previousContext = dependencyPrefixes.get(db);
-        dependencyPrefixes.set(db, { baseField, values: prefix, encoding: createOwnedScheduledMotionDependencyEncoding() });
+        dependencyPrefixes.set(db, new Map(previousContext).set(physicalId(baseField), { baseField, values: prefix, encoding: createOwnedScheduledMotionDependencyEncoding() }));
         try {
           const motors = motorSourceIds.map(sourceId => {
             const value = actualLocomotionEvidenceFromSqlite(db).read(sourceId);
@@ -430,7 +476,7 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
     }
     const bound = throughSourceId === null ? -1 : throughSourceId === undefined ? rows.length - 1 : rows.findIndex((row) => row.source_id === throughSourceId);
     if (bound < 0 && throughSourceId !== null) throw new Error('actual field execution Source is outside original prefix');
-    const original = dependencyPrefixes.get(db);
+    const original = dependencyPrefixes.get(db)?.get(pitchId);
     if (original) {
       // Keep the proven ceiling at the actual reader descent too: a concurrent WAL
       // mutation between metadata preflight and dereference cannot reopen replay.
@@ -509,7 +555,7 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
     const baseField = root(source), prefix = scopeWithReplay(replay, baseField), previous = prefix.at(-1) ?? null;
     if (source.previousExecutionSourceId !== (previous?.source.sourceId ?? null)) throw new Error('actual field execution predecessor differs');
     const observer = ['whole_play_history', 'base_touch_history', 'first_base_race'].includes(source.action.kind);
-    if (!observer && (source.action.kind !== 'owned_motion_v1' && !isOwnedScheduledMotionKind(source.action.kind)
+    if (!observer && source.action.kind !== 'received_renewal_continuation_v1' && source.action.kind !== 'received_renewal_adoption_v1' && (source.action.kind !== 'owned_motion_v1' && !isOwnedScheduledMotionKind(source.action.kind)
       && prefix.some(p => p.execution.kind === 'owned_motion_v1' || isOwnedScheduledMotionKind(p.execution.kind))
       || source.action.kind === 'owned_motion_v1' && prefix.some(p => isOwnedScheduledMotionKind(p.execution.kind)))) {
       throw new Error('owned motion guard requires a versioned guarded physical action');
@@ -543,6 +589,46 @@ export const battedWorldFieldExecutionEvidenceFromSqlite = (db: Db) => {
   return { read, readWithExecutions, derive, scope, currentBefore, current, currentAdmission };
 };
 
+/** Internal physical row/head mechanics; the renewal owner holds its private
+ * transaction-bound grant and performs the remaining head/journal writes. */
+export const writeReceivedRenewalPhysicalRows=(db:import('node:sqlite').DatabaseSync,value:DurableBattedWorldFieldExecution)=>{
+  assertReceivedRenewalPhysicalWrite(db,value,0);
+  const source=renewalAdoptionInput(value.source as RenewalAdoptionExecutionSource),pitchId=physicalId(value.baseField),encoded=snapshotEncoding(value);
+  if(value.execution.kind!=='received_renewal_adoption_v1'||value.revision<2)throw new Error('received renewal physical output kind or revision differs');
+  db.prepare('INSERT INTO batted_world_field_executions VALUES (?,?,?,?,?,?,?,?,?,?)').run(source.sourceId,pitchId,source.baseFieldSourceId,source.previousExecutionSourceId,
+    value.revision,value.baseField.response.model.gameId,json(source),hash(source),encoded.json,encoded.hash);
+  assertReceivedRenewalPhysicalWrite(db,value,1);
+  const result=db.prepare('UPDATE batted_world_field_execution_heads SET source_id=?,revision=? WHERE physical_pitch_source_id=? AND base_field_source_id=? AND source_id=? AND revision=?')
+    .run(source.sourceId,value.revision,pitchId,source.baseFieldSourceId,source.previousExecutionSourceId,value.revision-1);
+  if(result.changes!==1)throw new Error('received renewal physical predecessor CAS failed');
+  assertReceivedRenewalPhysicalWrite(db,value,2);
+};
+
+/** Only the distinct continuation owner can install this three-write grant. */
+export const writeReceivedContinuationPhysicalRows=(db:import('node:sqlite').DatabaseSync,value:DurableBattedWorldFieldExecution)=>{
+  assertReceivedContinuationPhysicalWrite(db,value,0);
+  const source=receivedContinuationInput(value.source as ReceivedContinuationSource),pitchId=physicalId(value.baseField),encoded=snapshotEncoding(value);
+  if(value.execution.kind!=='received_renewal_continuation_v1'||value.revision<3)throw new Error('received continuation physical output kind or rank differs');
+  db.prepare('INSERT INTO batted_world_field_executions VALUES (?,?,?,?,?,?,?,?,?,?)').run(source.sourceId,pitchId,source.baseFieldSourceId,source.previousExecutionSourceId,
+    value.revision,value.baseField.response.model.gameId,json(source),hash(source),encoded.json,encoded.hash);
+  assertReceivedContinuationPhysicalWrite(db,value,1);
+  const result=db.prepare('UPDATE batted_world_field_execution_heads SET source_id=?,revision=? WHERE physical_pitch_source_id=? AND base_field_source_id=? AND source_id=? AND revision=?')
+    .run(source.sourceId,value.revision,pitchId,source.baseFieldSourceId,source.previousExecutionSourceId,value.revision-1);
+  if(result.changes!==1)throw new Error('received continuation physical predecessor CAS failed');
+  assertReceivedContinuationPhysicalWrite(db,value,2);
+};
+
+/** Exact existing physical Source admitted by the received handoff owner only. */
+export const writeReceivedHandoffPhysicalRows=(db:import('node:sqlite').DatabaseSync,value:DurableBattedWorldFieldExecution)=>{
+  assertReceivedHandoffPhysicalWrite(db,value,0);
+  const source=input(value.source,value.source.sourceId),pitch=physicalId(value.baseField),encoded=snapshotEncoding(value);
+  if(source.action.kind!=='owned_motion_v2'||value.execution.kind!=='owned_motion_v2'||value.execution.composition.mode!=='retained')throw new Error('received handoff physical kind differs');
+  db.prepare('INSERT INTO batted_world_field_executions VALUES(?,?,?,?,?,?,?,?,?,?)').run(source.sourceId,pitch,source.baseFieldSourceId,source.previousExecutionSourceId,value.revision,value.baseField.response.model.gameId,json(source),hash(source),encoded.json,encoded.hash);
+  assertReceivedHandoffPhysicalWrite(db,value,1);
+  const changed=db.prepare('UPDATE batted_world_field_execution_heads SET source_id=?,revision=? WHERE physical_pitch_source_id=? AND base_field_source_id=? AND source_id=? AND revision=?').run(source.sourceId,value.revision,pitch,source.baseFieldSourceId,source.previousExecutionSourceId,value.revision-1);
+  if(changed.changes!==1)throw new Error('received handoff physical head CAS failed');assertReceivedHandoffPhysicalWrite(db,value,2);
+};
+
 export const openSqliteBattedWorldFieldExecutionStore = (path: string, fieldsOwner: Pick<SqliteBattedWorldFieldStore, 'read'>,
   authority?: Authority): SqliteBattedWorldFieldExecutionStore => {
   if (!id(path) || typeof fieldsOwner?.read !== 'function' || authority != null && typeof authority.readAcceptedExecution !== 'function') {
@@ -557,21 +643,39 @@ export const openSqliteBattedWorldFieldExecutionStore = (path: string, fieldsOwn
     source_id TEXT NOT NULL UNIQUE,revision INTEGER NOT NULL);`);
   const own = battedWorldFieldExecutionEvidenceFromSqlite(db); let closed = false;
   const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed actual field execution scope'); };
-  return Object.freeze({ read(sourceId) { check(sourceId); return own.read(sourceId); },
+  // One immutable local phase only. The existing snapshot installs the physical
+  // traversal; delegated owners, authority/peer calls and writes stay outside.
+  const snapshot = <T>(work: () => T): T => withBattedVenueLegalReadSnapshot(db, work);
+  const readOwner=(sourceId:string)=>{
+    const row=db.prepare('SELECT source_json FROM batted_world_field_executions WHERE source_id=?').get(sourceId);
+    if(row&&JSON.parse(String(row.source_json))?.action?.kind==='received_renewal_continuation_v1'){
+      const reader=openSqliteActualReceivedUmpireContinuationStore(path);try{return reader.read(sourceId);}finally{reader.close();}
+    }
+    if(row&&JSON.parse(String(row.source_json))?.action?.kind==='received_renewal_adoption_v1'){
+      const reader=openSqliteActualReceivedUmpireRenewalAdoptionStore(path);try{return reader.read(sourceId);}finally{reader.close();}
+    }
+    if(receivedHandoffSchema(db)==='installed'&&db.prepare(`SELECT 1 FROM ${receivedHandoffTable} WHERE execution_source_id=?`).get(sourceId)){
+      const reader=openSqliteActualReceivedUmpireHandoffStore(path);try{return reader.readPhysical(sourceId);}finally{reader.close();}
+    }return snapshot(() => own.read(sourceId));
+  };
+  return Object.freeze({ read(sourceId) { check(sourceId); return readOwner(sourceId); },
     accept(sourceId) {
-      check(sourceId); const prior = own.read(sourceId), raw = authority?.readAcceptedExecution(sourceId) ?? null;
+      check(sourceId); const prior = readOwner(sourceId), raw = authority?.readAcceptedExecution(sourceId) ?? null;
       const source = raw === null ? null : input(raw, sourceId);
       if (prior) {
         if (source && json(source) !== json(prior.source)) throw new Error('actual field execution Source is frozen differently');
-        const saved = own.read(sourceId); if (!saved || snapshotJson(saved) !== snapshotJson(prior)) throw new Error('actual field execution original changed during retry'); return saved;
+        const saved = readOwner(sourceId); if (!saved || snapshotJson(saved) !== snapshotJson(prior)) throw new Error('actual field execution original changed during retry'); return saved;
       }
       if (!source) throw new Error('accepted actual field execution Source is missing');
-      const value = own.derive(source); own.currentBefore(value); const peer = fieldsOwner.read(source.baseFieldSourceId);
+      if(source.action.kind==='received_renewal_continuation_v1')throw new Error('received continuation requires its private three-write owner');
+      if(source.action.kind==='received_renewal_adoption_v1')throw new Error('received renewal adoption requires its private four-write owner');
+      const value = snapshot(() => { const proposed = own.derive(source); own.currentBefore(proposed); return proposed; });
+      const peer = fieldsOwner.read(source.baseFieldSourceId);
       if (!peer || json(peer) !== json(value.baseField)) throw new Error('actual field execution peer original differs');
       db.exec('BEGIN IMMEDIATE');
       try {
         const liveFence = beginActualLivePitchWrite(db, physicalId(value.baseField), { owner: 'batted_world_field_executions', sourceId });
-        own.currentBefore(value); const pitchId = physicalId(value.baseField);
+        snapshot(() => own.currentBefore(value)); const pitchId = physicalId(value.baseField);
         const encoded = snapshotEncoding(value);
         db.prepare('INSERT INTO batted_world_field_executions VALUES (?,?,?,?,?,?,?,?,?,?)').run(sourceId, pitchId, source.baseFieldSourceId,
           source.previousExecutionSourceId, value.revision, value.baseField.response.model.gameId, json(source), hash(source), encoded.json, encoded.hash);
@@ -582,8 +686,12 @@ export const openSqliteBattedWorldFieldExecutionStore = (path: string, fieldsOwn
           if (Number(changed.changes) !== 1) throw new Error('actual field execution predecessor changed during write');
         }
         recordActualLivePlayAdmission(db, liveFence);
-        own.currentAdmission(value); const saved = own.read(sourceId);
-        if (!saved || snapshotJson(saved) !== snapshotJson(value)) throw new Error('actual field execution original changed during write'); assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved;
+        const saved = snapshot(() => {
+          own.currentAdmission(value); const saved = own.read(sourceId);
+          if (!saved || snapshotJson(saved) !== snapshotJson(value)) throw new Error('actual field execution original changed during write');
+          assertActualLivePlayWriteUnchanged(db, liveFence); return saved;
+        });
+        db.exec('COMMIT'); return saved;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     }, close() { if (!closed) { db.close(); closed = true; } },
   });

@@ -3,16 +3,28 @@ import { buildDefenderMotionTrajectory, sampleDefenderMotionSegment } from '../.
 import { deriveRatedDefenderMotionParameters, planRatedDefenderRoute } from '../../core/sim/fielding/DefensiveRatingAdapters';
 import { actualDefensiveBoundary, defensiveTick } from './ActualDefensiveContext';
 import { actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
-import type { DurableActualDefensiveDecision } from './SqliteActualDefensiveDecisionStore';
+import type { DurableActualDefensiveDecision, ActualDefensiveDecisionReceipt } from './SqliteActualDefensiveDecisionStore';
 import type { OwnedActualPlayerKinematics } from './SqliteActualPlayerKinematicsReader';
 import type { DurablePlayerLocomotionModel } from './SqlitePlayerLocomotionModelStore';
+import { createPlayerLocomotionCalibration, type PlayerLocomotionCalibration } from '../../core/sim/fielding/PlayerLocomotionCalibration';
 
 /** Internal calculation only: Native supplies rederived original dependencies on its own connection.
  * This creates intent-to-command evidence, never an execution or a route-progress transition. */
-export const deriveActualLocomotionReceipt = (decision: DurableActualDefensiveDecision, model: DurablePlayerLocomotionModel,
-  self: OwnedActualPlayerKinematics) => {
-  const d = decision.receipt, c = model.source.calibration, ratings = model.fieldingModel.source.ratings;
-  if (d.lifecycle.status !== 'issued' || !d.lifecycle.issuedAt || d.lifecycle.issuedBySourceId !== decision.source.sourceId) {
+export type IssuedDefenderMotionDecision = Readonly<{ sourceId: string; playerId: string; physicalPitchSourceId: string }> &
+  Pick<ActualDefensiveDecisionReceipt, 'lifecycle' | 'ticksPerSecond' | 'availability' | 'scheduling' | 'selected' | 'target'>;
+/** Shared pure motion input. A new versioned decision is never cast or relabeled
+ * as a DurableActualDefensiveDecision; Native owns its distinct provenance. */
+export type IssuedDefenderMotionSelf = Pick<OwnedActualPlayerKinematics,
+  'playerId' | 'personId' | 'personLinkSourceId' | 'gameDay' | 'physicalPitchSourceId' | 'at' | 'ticksPerSecond' | 'root'> & Readonly<{
+  origin: Pick<OwnedActualPlayerKinematics['origin'], 'kind'>;
+  roles: readonly Pick<OwnedActualPlayerKinematics['roles'][number], 'role' | 'radiusMeters' | 'relativeAcceleration' | 'declaredPose' | 'canonicalRoundingResidual' | 'canonicalActor'>[];
+  activeCommand: Pick<OwnedActualPlayerKinematics['activeCommand'], 'acceptedThroughTick'>;
+}>;
+/** A structural self seam preserves each Native family's own provenance. */
+export const deriveIssuedDefenderMotionReceipt = <Self extends IssuedDefenderMotionSelf>(decision: IssuedDefenderMotionDecision, model: DurablePlayerLocomotionModel,
+  self: Self, rawCalibration: PlayerLocomotionCalibration) => {
+  const d = decision, c = createPlayerLocomotionCalibration(rawCalibration), ratings = model.fieldingModel.source.ratings;
+  if (d.lifecycle.status !== 'issued' || !d.lifecycle.issuedAt || d.lifecycle.issuedBySourceId !== decision.sourceId) {
     throw new Error('actual locomotion requires an actually issued decision');
   }
   const startTick = actualDefensiveBoundary(self.at, self.ticksPerSecond);
@@ -20,8 +32,8 @@ export const deriveActualLocomotionReceipt = (decision: DurableActualDefensiveDe
     throw new Error('actual locomotion requires an exact executed integer boundary');
   }
   if (self.origin.kind !== 'defender_world_projection' || self.root.velocity.y !== 0 || self.root.acceleration.y !== 0
-    || self.ticksPerSecond !== d.ticksPerSecond || self.playerId !== decision.source.playerId
-    || self.physicalPitchSourceId !== decision.source.physicalPitchSourceId || model.source.playerId !== self.playerId
+    || self.ticksPerSecond !== d.ticksPerSecond || self.playerId !== decision.playerId
+    || self.physicalPitchSourceId !== decision.physicalPitchSourceId || model.source.playerId !== self.playerId
     || model.source.personLinkSourceId !== self.personLinkSourceId || model.fieldingModel.person.personId !== self.personId
     || model.source.acceptedAtDay > self.gameDay) throw new Error('actual locomotion original self/model identity differs');
   for (const at of [d.availability, d.lifecycle.issuedAt]) {
@@ -43,8 +55,9 @@ export const deriveActualLocomotionReceipt = (decision: DurableActualDefensiveDe
     || JSON.stringify(p.relativeAcceleration) !== JSON.stringify(p.declaredPose.relativeAcceleration))) {
     throw new Error('actual locomotion retained acceleration residual is unsupported');
   }
+  const activeCommand: Self['activeCommand'] = self.activeCommand;
   const retainedRoles = self.roles.map(p => ({ role: p.role, radiusMeters: p.radiusMeters,
-    command: self.activeCommand, acceptedThroughTick: Math.min(p.canonicalActor.primitive.endTick, self.activeCommand.acceptedThroughTick),
+    command: activeCommand, acceptedThroughTick: Math.min(p.canonicalActor.primitive.endTick, self.activeCommand.acceptedThroughTick),
     offsetAcceleration: p.declaredPose.relativeAcceleration }));
   const maximumEnd = startTick + c.maxIntegrationStepTicks;
   if (!defensiveTick(maximumEnd)) throw new Error('actual locomotion end tick overflow');
@@ -62,4 +75,17 @@ export const deriveActualLocomotionReceipt = (decision: DurableActualDefensiveDe
       primitiveMotions: retainedRoles.map(p => ({ role: p.role, offsetAcceleration: p.offsetAcceleration })) },
     lifecycle: { status: 'adoption_pending' as const, executedThrough: null } }));
 };
+/** Unchanged v1 owner projection into the shared pure issued-decision input. */
+export const deriveActualLocomotionReceiptWithCalibration = (decision: DurableActualDefensiveDecision, model: DurablePlayerLocomotionModel,
+  self: OwnedActualPlayerKinematics, calibration: PlayerLocomotionCalibration) => {
+  const receipt = decision.receipt;
+  return deriveIssuedDefenderMotionReceipt({ sourceId: decision.source.sourceId, playerId: decision.source.playerId,
+    physicalPitchSourceId: decision.source.physicalPitchSourceId, lifecycle: receipt.lifecycle, ticksPerSecond: receipt.ticksPerSecond,
+    availability: receipt.availability, scheduling: receipt.scheduling, selected: receipt.selected, target: receipt.target }, model, self, calibration);
+};
+/** Existing Native v1 callers retain the unchanged nominal calibration.
+ * New Native adapters authenticate a separate effective Source before calling
+ * the shared calculation; the original model object and its hashes stay intact. */
+export const deriveActualLocomotionReceipt = (decision: DurableActualDefensiveDecision, model: DurablePlayerLocomotionModel,
+  self: OwnedActualPlayerKinematics) => deriveActualLocomotionReceiptWithCalibration(decision, model, self, model.source.calibration);
 export type ActualLocomotionReceipt = ReturnType<typeof deriveActualLocomotionReceipt>;

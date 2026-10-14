@@ -34,10 +34,12 @@ export const sortFoulApplicationOwnershipRows = (rows: Row[]): Row[] => rows.sor
  * column must exist with its native type; a missing mirror cannot prove absence.
  * The owner, not this rejection-only reader, authenticates its constraints. */
 export const foulApplicationOwnershipRows = (db: Db, table: string, columns: Readonly<Record<string, 'TEXT' | 'INTEGER'>>): Row[] => {
-  if (!/^[a-z_]+$/.test(table)) throw new Error('invalid foul application ownership table');
-  const schema = db.prepare('SELECT type FROM main.sqlite_master WHERE name=?').all(table);
+  if (!/^[a-z_][a-z_0-9]*$/.test(table)) throw new Error('invalid foul application ownership table');
+  const schema = db.prepare('SELECT name,type FROM main.sqlite_master WHERE lower(name)=lower(?)').all(table);
+  if(db.prepare('SELECT name FROM temp.sqlite_master WHERE lower(name)=lower(?) OR lower(tbl_name)=lower(?)').all(table,table).length
+    ||db.prepare("SELECT name FROM main.sqlite_master WHERE type='trigger' AND lower(tbl_name)=lower(?)").all(table).length)throw new Error('foul application ownership schema shadow or trigger differs: '+table);
   if (!schema.length) return [];
-  if (schema.length !== 1 || schema[0].type !== 'table') throw new Error('foul application ownership schema differs: ' + table);
+  if (schema.length !== 1 || schema[0].name !== table || schema[0].type !== 'table') throw new Error('foul application ownership schema differs: ' + table);
   const info = db.prepare('PRAGMA main.table_info(' + table + ')').all();
   if (Object.entries(columns).some(([name, type]) => info.filter(c => c.name === name && c.type === type).length !== 1)) {
     throw new Error('foul application ownership columns differ: ' + table);
@@ -215,7 +217,7 @@ const scoped = (row: Row, m: Metadata, scope: FoulTerminalApplicationScope,
 const terminalOriginalScopeClaim = (row:Row,m:Metadata,gameId:string,playId:number):boolean => {
   const game = row.game_id === gameId || m.value('proposal_json', ['gameId']).includes(gameId)
     || m.value('proposal_json', ['applicationBody', 'matchId']).includes(gameId);
-  const completionGame = game || m.value('result_json',['official','pendingPostPlay','matchId']).includes(gameId)
+  const completionGame = game || m.value('result_json',['completion','finalResult','gameId']).includes(gameId) || m.value('result_json',['official','pendingPostPlay','matchId']).includes(gameId)
     || m.value('result_json',['acknowledgement','applicationReference','matchId']).includes(gameId);
   if (row.game_id === gameId && row.play_id === playId
     || m.value('proposal_json',['gameId']).includes(gameId) && m.value('proposal_json',['playId']).includes(playId)

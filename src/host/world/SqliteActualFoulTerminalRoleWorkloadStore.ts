@@ -1,3 +1,4 @@
+import { assertNoSamePaPlayerReservation } from './SamePlateAppearanceReservationGuard';
 import { createRequire } from 'node:module';
 import { lstatSync, realpathSync } from 'node:fs';
 import { isAbsolute } from 'node:path';
@@ -83,6 +84,7 @@ export const openSqliteActualFoulTerminalRoleWorkloadStore = (path: string,
           const prior = existing.find(prior => prior.playerId === value.playerId);
           if (prior) same(prior, value, 'terminal workload canonical charge already assessed');
         }
+        for (const value of added) assertNoSamePaPlayerReservation(db,value);
         if (added.length && identity(db, 'actual_role_workload_settlements', terminalSourceId)) throw new Error('terminal assessment set is already frozen');
         return { c, existing, values, added, heads, settlement, original: pin(c) };
       });
@@ -90,6 +92,7 @@ export const openSqliteActualFoulTerminalRoleWorkloadStore = (path: string,
         .run(value.source.sourceId, before.c.reference.terminalSourceId, value.careerId, value.gameId, value.playId,
           value.playerId, json(value.source), hash(value.source), json(value), hash(value));
       tx.proof(() => {
+        for (const value of before.added) assertNoSamePaPlayerReservation(db,value);
         const c = context(db, before.c.reference.terminalSourceId), saved = readFoulTerminalWorkloadAssessments(db, c);
         same(pin(c), before.original, 'terminal assessment changed original physical/official evidence');
         same(currentHeads(c), before.heads, 'terminal assessment changed original participant heads');
@@ -109,6 +112,7 @@ export const openSqliteActualFoulTerminalRoleWorkloadStore = (path: string,
         if (current.kind !== 'pending' || current.missingAssessments.length || current.missingBaselines.length) return { kind: 'no_write' as const, current };
         const c = context(db, terminalSourceId), plan = prepareFoulTerminalWorkloadPlan(db, c);
         if (plan.kind !== 'frozen') return { kind: 'no_write' as const, current: plan };
+        for (const p of plan.participants) assertNoSamePaPlayerReservation(db,{careerId:plan.careerId,playerId:p.playerId});
         return { kind: 'freeze' as const, c, plan, heads: currentHeads(c), original: pin(c) };
       });
       if (before.kind === 'no_write') return { value: before.current, changes: 0 };
@@ -116,6 +120,7 @@ export const openSqliteActualFoulTerminalRoleWorkloadStore = (path: string,
       db.prepare('INSERT INTO actual_role_workload_settlements VALUES(?,?,?,?,?,?)')
         .run(terminalSourceId, plan.careerId, plan.gameId, plan.playId, json(plan), hash(plan));
       const saved = tx.proof(() => {
+        for (const p of plan.participants) assertNoSamePaPlayerReservation(db,{careerId:plan.careerId,playerId:p.playerId});
         const c = context(db, terminalSourceId), saved = evidence(db).readSettlement(terminalSourceId);
         same(pin(c), before.original, 'terminal freeze changed original physical/official evidence');
         same(currentHeads(c), before.heads, 'terminal workload BEFORE changed during freeze');
@@ -155,7 +160,7 @@ export const openSqliteActualFoulTerminalRoleWorkloadStore = (path: string,
               baseline: null, prior: participant.applied, changes: participant.applied ? 0 : 2 };
           }
           const row = db.prepare('SELECT * FROM main.world_player_workload_baselines WHERE source_id=?').get(requested.sourceId);
-          if (c.terminal.status === 'POST_PLAY_COMPLETED_CONTINUING' && !row) throw new Error('completed terminal baseline repair is forbidden');
+          if ((c.terminal.status === 'POST_PLAY_COMPLETED_CONTINUING' || c.terminal.status === 'POST_PLAY_COMPLETED_FINAL') && !row) throw new Error('completed terminal baseline repair is forbidden');
           const raw = authority?.readAcceptedBaseline?.(requested.sourceId) ?? null;
           const source = raw === null ? row ? JSON.parse(String(row.source_json)) as AcceptedPlayerWorkloadBaseline : null : cloneInert(raw);
           if (!source || source.sourceId !== requested.sourceId) throw new Error('accepted terminal workload baseline missing');

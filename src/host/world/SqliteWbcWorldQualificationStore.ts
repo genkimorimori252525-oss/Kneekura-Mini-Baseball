@@ -1,3 +1,4 @@
+import type { DatabaseSync } from 'node:sqlite';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { createCompetitionSourceReader, withCompetitionSourceReadScope } from './CompetitionSourceReadScope';
@@ -13,8 +14,8 @@ import type { NationalCompetitionSelection, SqliteNationalCompetitionSelectionSt
 import type { SqliteOfficialWbcHistoryStore } from './SqliteOfficialWbcHistoryStore';
 import type { SqliteNationalQualificationHistoryStore } from './SqliteNationalQualificationHistoryStore';
 import type { SqliteNationCompetitionRegionStore } from './SqliteNationCompetitionRegionStore';
-import { openSqliteWbcRegionalCoefficientStore } from './SqliteWbcRegionalCoefficientStore';
-import { openSqliteWbcDirectBerthStore } from './SqliteWbcDirectBerthStore';
+import { openSqliteWbcRegionalCoefficientStore, wbcRegionalCoefficientEvidenceFromSqlite } from './SqliteWbcRegionalCoefficientStore';
+import { openSqliteWbcDirectBerthStore, wbcDirectBerthEvidenceFromSqlite } from './SqliteWbcDirectBerthStore';
 
 const REGIONS: readonly ClubWorldRegion[] = ['ASIA_PACIFIC', 'AMERICAS', 'EUROPE', 'AFRICA'];
 export type WbcWorldQualificationRequest = Readonly<{
@@ -55,8 +56,8 @@ const freezeSnapshot = <T>(value: T): T => {
 type Row = { request_json: string; snapshot_json: string };
 
 /** Derive source identities from World history; absent bootstrap evidence is never fabricated. */
-export const openSqliteWbcWorldQualificationStore = (
-  databasePath: string,
+const createSqliteWbcWorldQualificationStore = (
+  databasePath: string | DatabaseSync,
   sources: Readonly<{
     selections: Pick<SqliteNationalCompetitionSelectionStore, 'readSelection' | 'readWbcPredecessors'>;
     history: Pick<SqliteOfficialWbcHistoryStore, 'readEdition'>;
@@ -64,21 +65,28 @@ export const openSqliteWbcWorldQualificationStore = (
     nations: Pick<SqliteNationCompetitionRegionStore, 'authority'>;
   }>,
 ): SqliteWbcWorldQualificationStore => {
-  if (!id(databasePath)) throw new Error('invalid World WBC qualification database path');
+  if (typeof databasePath === 'string' && !id(databasePath)) throw new Error('invalid World WBC qualification database path');
   const sqlite: typeof import('node:sqlite') = createRequire(import.meta.url)('node:sqlite');
-  const db = new sqlite.DatabaseSync(databasePath);
+  const borrowed = typeof databasePath !== 'string';
+  const db = borrowed ? databasePath : new sqlite.DatabaseSync(databasePath);
+  if (!(db instanceof sqlite.DatabaseSync)) throw new Error('National evidence requires a Native connection');
+  if (!borrowed) {
   db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;');
   db.exec(`CREATE TABLE IF NOT EXISTS world_wbc_world_qualifications (
     career_id TEXT NOT NULL, edition_id TEXT NOT NULL,
     request_json TEXT NOT NULL, snapshot_json TEXT NOT NULL,
     PRIMARY KEY (career_id, edition_id)
   );`);
-  const coefficients = openSqliteWbcRegionalCoefficientStore(databasePath, { history: sources.history });
+  }
+  const coefficientWriter = borrowed ? null : openSqliteWbcRegionalCoefficientStore(databasePath, { history: sources.history });
+  const coefficients = coefficientWriter ?? wbcRegionalCoefficientEvidenceFromSqlite(db, { history: sources.history });
   const readEdition = createCompetitionSourceReader(sources.history.readEdition, sources.history);
-  const direct = openSqliteWbcDirectBerthStore(databasePath, { coefficients,
+  const directSources = { coefficients,
     regional: sources.regional, nations: sources.nations, editionCutoff: () => null,
-    editionCutoffForCareer: (careerId, editionId) =>
-      sources.selections.readSelection(careerId, editionId)?.qualificationCutoff ?? null });
+    editionCutoffForCareer: (careerId: string, editionId: string) =>
+      sources.selections.readSelection(careerId, editionId)?.qualificationCutoff ?? null };
+  const directWriter = borrowed ? null : openSqliteWbcDirectBerthStore(databasePath, directSources);
+  const direct = directWriter ?? wbcDirectBerthEvidenceFromSqlite(db, directSources);
   const get = db.prepare(`SELECT request_json, snapshot_json
     FROM world_wbc_world_qualifications WHERE career_id=? AND edition_id=?`);
   const row = (careerId: string, editionId: string): Row | null =>
@@ -185,8 +193,9 @@ export const openSqliteWbcWorldQualificationStore = (
         return prior;
       }
       const current = project(request); // Validate all sources/policies before any component writes.
-      coefficients.initialize(current.coefficientRequest);
-      const accepted = direct.initialize({ careerId: request.careerId, input: current.snapshot.input });
+      if (!coefficientWriter || !directWriter) throw new Error('National evidence is read-only');
+      coefficientWriter.initialize(current.coefficientRequest);
+      const accepted = directWriter.initialize({ careerId: request.careerId, input: current.snapshot.input });
       if (canonicalJson(accepted) !== canonicalJson(current.snapshot.direct)) throw new Error('World WBC direct source differs');
       db.exec('BEGIN IMMEDIATE');
       try {
@@ -207,6 +216,13 @@ export const openSqliteWbcWorldQualificationStore = (
     readDirect(careerId: string, editionId: string): WbcDirectBerths | null {
       return readSnapshot(careerId, editionId)?.direct ?? null;
     },
-    close(): void { if (!closed) { direct.close(); coefficients.close(); db.close(); } closed = true; },
+    close(): void { if (!closed && !borrowed) { directWriter!.close(); coefficientWriter!.close(); db.close(); } closed = true; },
   });
+};
+
+export const openSqliteWbcWorldQualificationStore = (databasePath: string, sources: Parameters<typeof createSqliteWbcWorldQualificationStore>[1]): SqliteWbcWorldQualificationStore =>
+  createSqliteWbcWorldQualificationStore(databasePath, sources);
+export const wbcWorldQualificationEvidenceFromSqlite = (db: DatabaseSync, sources: Parameters<typeof createSqliteWbcWorldQualificationStore>[1]): Pick<SqliteWbcWorldQualificationStore, 'readSnapshot' | 'readDirect'> => {
+  const owner = createSqliteWbcWorldQualificationStore(db, sources);
+  return Object.freeze({ readSnapshot: owner.readSnapshot, readDirect: owner.readDirect });
 };

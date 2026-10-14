@@ -222,6 +222,25 @@ describe('official scoring boundary', () => {
         hitsCredited: item.hitsCredited,
         errorsCharged: item.errorsCharged,
       } });
+      const upgraded = { ...source, schemaVersion: 2 as const, judgment: item.judgment,
+        playerStatistics: { rbiRunnerIds: [], ...(item.classification === 'base_hit' ? { hitBases: 1 as const } : {}) } };
+      const result = classifyClosedPlayForOfficialScoring({ kind: 'live_ball', match: before, timeline, adjudication, scoringEvidence: upgraded });
+      expect(result).toMatchObject({ kind: 'supported', record: { playerStatistics: {
+        runsBattedIn: 0, ...(item.classification === 'base_hit' ? { hitBases: 1 } : {}),
+      } } });
+      expect(() => classifyClosedPlayForOfficialScoring({ kind: 'live_ball', match: before, timeline, adjudication,
+        scoringEvidence: { ...upgraded, playerStatistics: { ...upgraded.playerStatistics, rbiRunnerIds: ['unscored-runner'] } } }))
+        .toThrow('player awards');
+      if (item.classification === 'reached_on_error') {
+        expect(classifyClosedPlayForOfficialScoring({ kind: 'live_ball', match: before, timeline, adjudication,
+          scoringEvidence: { ...upgraded, playerStatistics: { rbiRunnerIds: [], sacrifice: 'bunt' } } }))
+          .toMatchObject({ record: { playerStatistics: { sacrifice: 'bunt', runsBattedIn: 0 } } });
+      }
+      if (item.classification === 'base_hit') {
+        expect(() => classifyClosedPlayForOfficialScoring({ kind: 'live_ball', match: before, timeline, adjudication,
+          scoringEvidence: { ...upgraded, playerStatistics: { rbiRunnerIds: [], hitBases: 4 } } })).toThrow('player awards');
+      }
+
     }
   });
 

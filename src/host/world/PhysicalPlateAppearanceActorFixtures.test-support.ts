@@ -3,8 +3,15 @@ import { openSqlitePhysicalPitchProgressStore, type AcceptedPhysicalPitchActionS
 import { openSqlitePhysicalPlayClosureStore, type AcceptedPhysicalPlayClosure } from './SqlitePhysicalPlayClosureStore';
 import { openSqlitePhysicalPlateAppearanceActorStore, type AcceptedPhysicalPlateAppearanceActor } from './SqlitePhysicalPlateAppearanceActorStore';
 
-export const physicalPlateAppearanceActorFixture = (databasePath?: string, fixture?: Parameters<typeof continuousPitchFixture>[2], profile?: Parameters<typeof continuousPitchFixture>[3]) => {
-  const f = continuousPitchFixture(databasePath, true, fixture, profile);
+/** The existing explicit closure recipe, also used by retained PL01. */
+export const physicalPlateAppearanceFixtureGame = (): AcceptedPhysicalPlayClosure['game'] => ({
+  seasonId: 'league-season-1', homeClubId: 'club-a', awayClubId: 'club-b',
+  policy: { version: 'fixture-v1', minimumInnings: 9, maximumInnings: 9, tiesAllowed: true },
+});
+
+export const physicalPlateAppearanceActorFixture = (databasePath?: string, fixture?: Parameters<typeof continuousPitchFixture>[2], profile?: Parameters<typeof continuousPitchFixture>[3], rehabPlayerIds: readonly string[] = [],
+  originalBaseCenters?: Parameters<typeof continuousPitchFixture>[5], originalDefenders?: Parameters<typeof continuousPitchFixture>[6]) => {
+  const f = continuousPitchFixture(databasePath, true, fixture, profile, rehabPlayerIds, originalBaseCenters, originalDefenders);
   const source: AcceptedPhysicalPlateAppearanceActor = { sourceId: 'batter-1', sourceVersion: 'fixture-v1', gameId: 'game-1', playerId: 'away-1', initialWorldSourceId: 'initial-world' };
   const accepted = new Map<string, AcceptedPhysicalPlateAppearanceActor>([[source.sourceId, source]]);
   const sources = { matches: f.official, initialWorlds: f.initialWorlds, participation: f.participation };
@@ -19,7 +26,7 @@ export const physicalPlateAppearanceActorFixture = (databasePath?: string, fixtu
       sourceId: 'close-1', sourceVersion: 'fixture-v1', physicalPitchSourceId,
       applicationId: 'application-1', scoringApplicationId: 'scoring-1', snapshotId: 'rule-1', ruleTick: tick + 1, closureTick: tick + 2,
       nextStartedAtTick: tick + 3, batterRunnerId, worldSetup: f.firstInput.worldSetup,
-      game: { seasonId: 'league-season-1', homeClubId: 'club-a', awayClubId: 'club-b', policy: { version: 'fixture-v1', minimumInnings: 9, maximumInnings: 9, tiesAllowed: true } } });
+      game: physicalPlateAppearanceFixtureGame() });
   const close = () => {
     let tick = 0; for (let i = 0; i < 3; i++) tick = pitch(i, tick).result.pitch.resolution.timeline.lastEventTick;
     const source = closeInput(tick);

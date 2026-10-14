@@ -60,8 +60,9 @@ export class SqliteOfficialStateStore {
   }
 
   /** Pins an official venue before the match is initialized or played. */
-  registerOfficialFixture(input: OfficialGameVenueBinding):
+  registerOfficialFixture(input: OfficialGameVenueBinding, evidenceGuard?: SqliteEvidenceGuard<OfficialGameVenueBinding>):
   OfficialGameVenueBinding {
+    if (evidenceGuard !== undefined && typeof evidenceGuard !== 'function') throw new Error('invalid fixture evidence guard');
     const fixture = cloneInert(input);
     nonEmpty(fixture.gameId, 'fixture gameId');
     nonEmpty(fixture.venueId, 'fixture venueId');
@@ -69,11 +70,13 @@ export class SqliteOfficialStateStore {
     revision(fixture.fixtureRevision, 'fixture revision');
     this.database.exec('BEGIN IMMEDIATE');
     try {
+      evidenceGuard?.(this.database, fixture, 'write');
       const existing = this.getOfficialFixture(fixture.gameId);
       if (existing) {
         if (serialized(existing) !== serialized(fixture)) {
           throw new Error('official fixture is already pinned differently');
         }
+        evidenceGuard?.(this.database, fixture, 'retry');
         this.database.exec('COMMIT');
         return existing;
       }
@@ -85,6 +88,7 @@ export class SqliteOfficialStateStore {
           fixture_event_id, fixture_revision) VALUES (?, ?, ?, ?)
       `).run(fixture.gameId, fixture.venueId,
         fixture.fixtureEventId, fixture.fixtureRevision);
+      evidenceGuard?.(this.database, fixture, 'written');
       this.database.exec('COMMIT');
       return Object.freeze({ ...fixture });
     } catch (error) {
@@ -101,22 +105,28 @@ export class SqliteOfficialStateStore {
     return this.writer.getMatch(matchId);
   }
 
-  initializeMatch(matchId: string, matchInput: CanonicalMatchState): PersistedMatch {
+  initializeMatch(matchId: string, matchInput: CanonicalMatchState,
+    evidenceGuard?: SqliteEvidenceGuard<Readonly<{ matchId: string; matchState: CanonicalMatchState }>>): PersistedMatch {
+    if (evidenceGuard !== undefined && typeof evidenceGuard !== 'function') throw new Error('invalid initial Match evidence guard');
     const id = nonEmpty(matchId, 'matchId');
     const match = validateMatchState(cloneInert(matchInput));
+    const evidence = Object.freeze({ matchId: id, matchState: match });
     this.database.exec('BEGIN IMMEDIATE');
     try {
+      evidenceGuard?.(this.database, evidence, 'write');
       const existing = this.getMatch(id);
       if (existing !== null) {
         if (existing.durableRevision !== 0 || serialized(existing.matchState) !== serialized(match)) {
           throw new Error('match is already initialized with different state');
         }
+        evidenceGuard?.(this.database, evidence, 'retry');
         this.database.exec('COMMIT');
         return existing;
       }
       this.database.prepare(`
         INSERT INTO matches(match_id, durable_revision, state_json, activation_json) VALUES (?, 0, ?, NULL)
       `).run(id, serialized(match));
+      evidenceGuard?.(this.database, evidence, 'written');
       this.database.exec('COMMIT');
       return Object.freeze({ durableRevision: 0, matchState: match,
         activation: null, nextWorld: null, finalResult: null });

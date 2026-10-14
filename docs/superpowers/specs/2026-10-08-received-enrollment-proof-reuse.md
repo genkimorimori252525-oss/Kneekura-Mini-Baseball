@@ -1,0 +1,17 @@
+# Within-proof received enrollment evidence reuse
+
+Approved scope: remove repeated authentication of the same enrollment inside one existing received read proof. The genuine null-policy attempt on `0c1a5820` exceeded its unchanged 600-second cap and earns zero process credit. Immutable inspection found its main file byte-identical to the accepted enrollment checkpoint: 75 tables, 138 rows, enrollment plus admission sequence 1, and no durable replan/head/availability. That failed run and the qualified enrollment source remain immutable.
+
+## Contract
+
+1. The enrollment evidence reader adds an internal continuation that supplies the complete original derived envelope only after validating the durable enrollment's exact Source, metadata, canonical snapshot/hash and journal. The continuation executes inside the existing Native read-proof bracket. Ordinary `read` still returns only the durable enrollment. No caller-supplied dependency, durable format or Source wire changes.
+2. Replan derivation consumes that same authenticated envelope for both enrollment equality and the original bridge input. Its current-proposal path performs the existing journal/head-stage checks and current qualification while still inside that proof. The envelope is discarded before the proposal returns; only the existing durable process/enrollment values cross the transaction boundary.
+3. Initial lookup, preflight, in-write proposal, pre-insert qualification, each post-write qualification, saved-owner read and committed-row verification remain separate. Every independent proof derives afresh. Source callbacks stay at their existing sites. No envelope survives an independent read/proof, DML step, commit, rollback, cleanup failure or another call.
+4. Transaction ownership sentinels, private savepoints, query-only restoration, counter/schema conservation, uncertainty reporting and retirement are unchanged. The original v1 bridge and physical traversal owners are unchanged. No global, per-connection or cross-call cache is introduced.
+5. A complete first null-policy acceptance should perform seven full enrollment derivations rather than twelve: one each for preflight and in-write proposal, four separate current qualifications surrounding the three writes, and one saved-owner read. All six current qualifications remain. Enrollment acceptance stays at five derivations. These are static call-count goals, not a wall-time promise.
+
+## Discriminating checks
+
+Use the existing isolated Native enrollment fixture, explicitly retaining its original-owner seam limitation. Observe reduced full derivations and unchanged durable Core output; also mutate a Native original-dependency row between independent proofs, change the Native current-cut fixture after a real owner INSERT, and change the accepted Source callback after a real INSERT. Each mutation must reject at its original evidence/cut/callback boundary and roll back replan/head/journal changes. Verify independent reads and authority-free retries authenticate again rather than reusing prior results.
+
+Run the focused new REDs before production edits, then GREEN and the relevant existing finite regression set, including historical later-header opacity and all five lifecycle/schema corrections. Run the full compiler on the final isolated source. Any genuine retry needs independent source/control review and fresh exact-source inputs; no cap increase or root/call/reception reconstruction is authorized by this change.

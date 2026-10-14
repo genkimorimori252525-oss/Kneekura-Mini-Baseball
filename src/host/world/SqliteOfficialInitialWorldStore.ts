@@ -1,3 +1,4 @@
+import { assertNationalMatchBindings } from './NationalMatchOriginFromSqlite';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
@@ -85,6 +86,7 @@ export const assertInitialOfficialWorldEvidence = (db: Pick<DatabaseSync, 'prepa
   if (!match || match.durable_revision === 0 && (match.activation_json !== null || json(JSON.parse(match.state_json)) !== json(snapshot.match))
     || !fixture || fixture.fixture_event_id !== snapshot.fixture.fixtureEventId || fixture.venue_id !== snapshot.fixture.venueId
     || fixture.fixture_revision !== snapshot.fixture.fixtureRevision) throw new Error('initial Match or fixture evidence differs');
+  assertNationalMatchBindings(db, snapshot.bindings);
   for (const [index, binding] of snapshot.bindings.entries()) {
     const row = db.prepare('SELECT binding_json FROM official_participant_bindings WHERE game_id=? AND player_id=?')
       .get(binding.gameId, binding.playerId) as { binding_json: string } | undefined;

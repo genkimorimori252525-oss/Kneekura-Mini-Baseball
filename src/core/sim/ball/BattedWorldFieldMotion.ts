@@ -247,3 +247,24 @@ export const advanceBattedWorldFieldMotionExactCheckpointV1 = (raw: BattedWorldF
   }
   return executeFieldMotion({ ...input, throughTick: checkpointThroughTick }, input.actors, true, endpoint);
 };
+
+export type BattedWorldFieldMotionExactCheckpointInputV1 = Omit<BattedWorldFieldMotionCheckpointInput, 'checkpointThroughTick'> & Readonly<{
+  checkpointThroughElapsedSeconds: number; availableAtElapsedSeconds?: number;
+}>;
+/** Adopt an owned command at the exact current cut and execute only to the exact
+ * query horizon. The Native controller owner retains any narrower command knot.
+ * Equal endpoints adopt without claiming positive-time execution. */
+export const deriveBattedWorldFieldMotionExactCheckpointV1 = (raw: BattedWorldFieldMotionExactCheckpointInputV1): BattedWorldFieldMotion => {
+  const input = cloneInert(raw);
+  if (!fields(input, ['response', 'geometry', 'cursor', 'actors', 'carrierPlayerId', 'availableAtTick', 'coverageThroughTick', 'checkpointThroughElapsedSeconds', 'commands',
+    ...(Object.hasOwn(input,'availableAtElapsedSeconds')?['availableAtElapsedSeconds']:[])])
+    || !input.cursor?.moment || !input.response?.world?.parameters) throw new Error('invalid exact field command checkpoint scope');
+  const moment = input.cursor.moment, p = input.response.world.parameters, endpoint = input.checkpointThroughElapsedSeconds;
+  if (!Number.isFinite(endpoint) || endpoint < moment.elapsedSeconds || endpoint > (input.coverageThroughTick-moment.originTick)/p.ticksPerSecond)
+    throw new Error('invalid exact field command checkpoint horizon');
+  // Validate complete participant/model coverage over the original finite authority.
+  checkpointScope({ ...input, checkpointThroughTick: input.coverageThroughTick });
+  const actors = deriveBattedWorldMotionActorsAtExactCoverage({ response: input.response, cursor: input.cursor, actors: input.actors,
+    carrierPlayerId: input.carrierPlayerId, availableAtTick: input.availableAtTick, throughTick: input.coverageThroughTick, commands: input.commands },input.availableAtElapsedSeconds);
+  return executeFieldMotion({ ...input, throughTick: quantizeEventTick(moment.originTick, endpoint, p.ticksPerSecond) }, actors, true, endpoint);
+};

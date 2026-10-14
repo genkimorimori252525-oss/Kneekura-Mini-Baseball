@@ -1,0 +1,237 @@
+import type { AcceptedOfficialScoringEvidenceAuthority } from '../SqliteOfficialScoringStore';
+import { totalOfficialPitchingRuns, type OfficialPitchingRun } from '../../core/world/competition/OfficialPitchingRunResponsibility';
+import { readOfficialPitchingRunOriginal } from './OfficialPitchingRunEvidenceFromSqlite';
+import { officialPitchingRunJudgments } from './OfficialPitchingRunJudgments';
+import { aggregateOfficialPlayerScoring } from '../../core/world/competition/OfficialPlayerScoringStatistics';
+import { deriveOfficialPlayerScoringFromSqlite } from './OfficialPlayerScoringEvidenceFromSqlite';
+import { createRequire } from 'node:module';
+import { aggregateOfficialPlayerOutcomes, type OfficialPlayerOutcomeStatisticsScope } from '../../core/world/competition/OfficialPlayerOutcomeStatistics';
+import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { deriveOfficialPlayerOutcomeFromSqlite as derive, officialPlayerOutcomeSource as input,
+  type OfficialPlayerOutcomeSource, type OfficialPlayerOutcomeAttribution, type OfficialPlayerOutcomeEvidence } from './OfficialPlayerOutcomeEvidenceFromSqlite';
+import { readCompletedMatchPlayerOutcomeCensus, type CompletedMatchPlayerOutcomeCensus } from './CompletedMatchPlayerOutcomesFromSqlite';
+import { scoringOwnershipRows } from './ActualLiveScoringMetadata';
+import { physicalStoreTransactionBoundary } from './PhysicalStoreTransactionBoundary';
+
+const table = 'official_player_outcome_applications';
+const id = (v: unknown): v is string => typeof v === 'string' && !!v && v.trim() === v;
+export type CompletedMatchPlayerOutcomes = Readonly<{
+  finalResult: CompletedMatchPlayerOutcomeCensus['finalResult'];
+  coverage: 'all_official_plays_attributed' | 'attributed_supported_plays_only';
+  plays: readonly Readonly<{
+    applicationId: string; playId: number; durableRevision: number;
+    outcome: OfficialPlayerOutcomeEvidence | Readonly<{ kind: 'unavailable';
+      reason: 'original_owner_missing' | 'original_owner_ambiguous'; sources: readonly OfficialPlayerOutcomeSource[] }>;
+  }>[];
+}>;
+/** Append-only attribution; every read/retry and aggregate authenticates its
+ * complete edition history on this private connection. No statistics feed back
+ * into Match truth or become an implicit scoring/calibration policy. */
+export const openSqliteOfficialPlayerOutcomeStore = (path: string,
+  authority?: Pick<AcceptedOfficialScoringEvidenceAuthority, 'readAcceptedPitchingRunJudgment'>) => {
+  if (!id(path)) throw new Error('invalid official player outcome path');
+  const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+  const db = new DatabaseSync(path);
+  db.exec(`PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;
+    CREATE TABLE IF NOT EXISTS ${table}(
+      attribution_id TEXT PRIMARY KEY, career_id TEXT NOT NULL, competition_edition_id TEXT NOT NULL,
+      game_id TEXT NOT NULL, play_id INTEGER NOT NULL, game_day INTEGER NOT NULL,
+      owner TEXT NOT NULL, source_id TEXT NOT NULL, source_json TEXT NOT NULL,
+      snapshot_json TEXT NOT NULL, snapshot_hash TEXT NOT NULL,
+      UNIQUE(owner,source_id), UNIQUE(career_id,game_id,play_id));
+    CREATE TABLE IF NOT EXISTS official_player_outcome_heads(
+      career_id TEXT NOT NULL, competition_edition_id TEXT NOT NULL, revision INTEGER NOT NULL,
+      attribution_ids_json TEXT NOT NULL, history_hash TEXT NOT NULL,
+      PRIMARY KEY(career_id,competition_edition_id))`);
+  const tx = physicalStoreTransactionBoundary(db, 'official player outcome');
+  const rowFor = (value: OfficialPlayerOutcomeAttribution) => ({ attribution_id: value.attributionId,
+    career_id: value.careerId, competition_edition_id: value.competitionEditionId, game_id: value.gameId,
+    play_id: value.playId, game_day: value.gameDay, owner: value.source.owner, source_id: value.source.sourceId,
+    source_json: json(value.source), snapshot_json: json(value), snapshot_hash: hash(value) });
+  const identityRows = (source: OfficialPlayerOutcomeSource) => scoringOwnershipRows(db, 'main.' + table, [[
+    { column: 'owner', value: source.owner, mirrors: [['source_json', ['owner']], ['snapshot_json', ['source', 'owner']]] },
+    { column: 'source_id', value: source.sourceId, mirrors: [['source_json', ['sourceId']], ['snapshot_json', ['source', 'sourceId']]] },
+  ]]);
+  const scopeRows = (careerId: string, competitionEditionId: string) => scoringOwnershipRows(db, 'main.' + table, [[
+    { column: 'career_id', value: careerId, mirrors: [['snapshot_json', ['careerId']], ['snapshot_json', ['batter', 'careerId']], ['snapshot_json', ['pitcher', 'careerId']]] },
+    { column: 'competition_edition_id', value: competitionEditionId, mirrors: [['snapshot_json', ['competitionEditionId']],
+      ['snapshot_json', ['batter', 'competitionEditionId']], ['snapshot_json', ['pitcher', 'competitionEditionId']]] },
+  ]]);
+  const decode = (row: ReturnType<typeof identityRows>[number]): OfficialPlayerOutcomeAttribution => {
+    const source = input(JSON.parse(String(row.source_json)) as OfficialPlayerOutcomeSource);
+    const owned = derive(db, source);
+    if (owned.kind !== 'attributed' || json(row) !== json(rowFor(owned))) throw new Error('official player outcome archive or original proof differs');
+    const rivals = scoringOwnershipRows(db, 'main.' + table, [
+      [{ column: 'attribution_id', value: owned.attributionId, mirrors: [['snapshot_json', ['attributionId']]] }],
+      [{ column: 'career_id', value: owned.careerId, mirrors: [['snapshot_json', ['careerId']]] },
+        { column: 'game_id', value: owned.gameId, mirrors: [['snapshot_json', ['gameId']]] },
+        { column: 'play_id', value: owned.playId, mirrors: [['snapshot_json', ['playId']]] }],
+    ]);
+    if (rivals.length !== 1 || rivals[0].attribution_id !== owned.attributionId || identityRows(source).length !== 1) {
+      throw new Error('official player outcome canonical play ownership differs');
+    }
+    return owned;
+  };
+  const headFor = (careerId: string, competitionEditionId: string, values: readonly OfficialPlayerOutcomeAttribution[]) => ({
+    career_id: careerId, competition_edition_id: competitionEditionId, revision: values.length,
+    attribution_ids_json: json(values.map(v => v.attributionId)), history_hash: hash(values),
+  });
+  const history = (careerId: string, competitionEditionId: string, checkHead = true) => {
+    const values = scopeRows(careerId, competitionEditionId).map(decode);
+    if (values.some(v => v.careerId !== careerId || v.competitionEditionId !== competitionEditionId)
+      || new Set(values.map(v => v.attributionId)).size !== values.length) throw new Error('official player outcome edition history differs');
+    values.sort((a, b) => a.attributionId < b.attributionId ? -1 : a.attributionId > b.attributionId ? 1 : 0);
+    if (checkHead) {
+      const head = db.prepare('SELECT * FROM main.official_player_outcome_heads WHERE career_id=? AND competition_edition_id=?').get(careerId, competitionEditionId);
+      if (head ? json(head) !== json(headFor(careerId, competitionEditionId, values)) : values.length > 0) {
+        throw new Error('official player outcome complete history anchor differs');
+      }
+    }
+    return values;
+  };
+  const pitching = officialPitchingRunJudgments(db, (careerId, gameId) => {
+    const original = readOfficialPitchingRunOriginal(db, careerId, gameId);
+    if (original) {
+      const retained = history(careerId, original.competitionEditionId).filter(value => value.gameId === gameId);
+      if (retained.some(value => !original.outcomes.some(current => current && json(current) === json(value)))) {
+        throw new Error('pitching responsibility retained original ownership differs');
+      }
+    }
+    return original;
+  }, authority);
+  const apply = (source: OfficialPlayerOutcomeSource): OfficialPlayerOutcomeEvidence => {
+    const owned = derive(db, source);
+    if (owned.kind === 'unavailable') {
+      if (identityRows(source).length) throw new Error('official player outcome original proof became unavailable');
+      return owned;
+    }
+    const before = history(owned.careerId, owned.competitionEditionId), rows = identityRows(source);
+    if (rows.length) {
+      if (rows.length !== 1 || json(decode(rows[0])) !== json(owned)) throw new Error('official player outcome Source changed during retry');
+      return owned;
+    }
+    if (before.some(v => v.attributionId === owned.attributionId)) throw new Error('official player outcome play already attributed differently');
+    const row = rowFor(owned);
+    db.prepare(`INSERT INTO main.${table} VALUES(?,?,?,?,?,?,?,?,?,?,?)`).run(...Object.values(row));
+    // A fresh traversal after INSERT must authenticate both the new play and
+    // every earlier fact used by this edition's aggregates. Triggers cannot
+    // corrupt an earlier owner and leave a valid-looking new receipt.
+    const after = history(owned.careerId, owned.competitionEditionId, false);
+    const expected = [...before, owned].sort((a, b) => a.attributionId < b.attributionId ? -1 : a.attributionId > b.attributionId ? 1 : 0);
+    if (json(after) !== json(expected)) throw new Error('official player outcome history changed during admission');
+    const head = headFor(owned.careerId, owned.competitionEditionId, after);
+    if (!before.length) db.prepare('INSERT INTO main.official_player_outcome_heads VALUES(?,?,?,?,?)').run(...Object.values(head));
+    else {
+      const changed = db.prepare(`UPDATE main.official_player_outcome_heads SET revision=?,attribution_ids_json=?,history_hash=?
+        WHERE career_id=? AND competition_edition_id=? AND revision=? AND history_hash=?`)
+        .run(head.revision, head.attribution_ids_json, head.history_hash, owned.careerId, owned.competitionEditionId, before.length, hash(before));
+      if (changed.changes !== 1) throw new Error('official player outcome history anchor changed during admission');
+    }
+    if (json(history(owned.careerId, owned.competitionEditionId)) !== json(expected)) {
+      throw new Error('official player outcome anchored history changed during admission');
+    }
+    return owned;
+  };
+  return Object.freeze({
+    readCompletedGamePitching(scope: Readonly<{ careerId: string; gameId: string }>) {
+      if (!scope || Object.keys(scope).sort().join('|') !== 'careerId|gameId' || !id(scope.careerId) || !id(scope.gameId)) throw new Error('invalid pitching responsibility scope');
+      return tx.read(() => pitching.read(scope.careerId, scope.gameId));
+    },
+    applyPitchingRunJudgment(sourceEventId: string) {
+      if (!id(sourceEventId)) throw new Error('invalid pitching run judgment Source');
+      return tx.write(() => pitching.apply(sourceEventId));
+    },
+    apply(raw: OfficialPlayerOutcomeSource) {
+      const source = input(raw);
+      return tx.write(() => apply(source));
+    },
+    /** One private transaction: original census, existing per-play admission,
+     * and a fresh census/history after all writes. There is no second journal
+     * or game-level acknowledgement that can hide a later missing original. */
+    applyCompletedGame(scope: Readonly<{ careerId: string; gameId: string }>): CompletedMatchPlayerOutcomes {
+      if (!scope || Object.keys(scope).sort().join('|') !== 'careerId|gameId' || !id(scope.careerId) || !id(scope.gameId)) {
+        throw new Error('invalid completed Match outcome scope');
+      }
+      return tx.write(() => {
+        const census = readCompletedMatchPlayerOutcomeCensus(db, scope.gameId), final = census.finalResult;
+        const before = history(scope.careerId, final.seasonId);
+        const plays = census.plays.map(play => {
+          const base = { applicationId: play.applicationId, playId: play.playId, durableRevision: play.durableRevision };
+          if (play.sources.length !== 1) {
+            if (before.some(value => value.gameId === scope.gameId && value.playId === play.playId)) {
+              throw new Error('completed Match outcome retained original ownership differs');
+            }
+            return { ...base, outcome: { kind: 'unavailable' as const, sources: play.sources,
+              reason: play.sources.length ? 'original_owner_ambiguous' as const : 'original_owner_missing' as const } };
+          }
+          const outcome = apply(play.sources[0]);
+          if (outcome.kind === 'attributed' && (outcome.careerId !== scope.careerId || outcome.competitionEditionId !== final.seasonId
+            || outcome.gameId !== scope.gameId || outcome.playId !== play.playId || outcome.officialApplicationId !== play.applicationId
+            || outcome.durableRevision !== play.durableRevision || json(outcome.scoring) !== json(play.scoring)
+            || outcome.batter.fixtureEventId !== final.venueBinding!.fixtureEventId
+            || outcome.pitcher.fixtureEventId !== final.venueBinding!.fixtureEventId
+            || [outcome.batter, outcome.pitcher].some(binding => binding.clubId !== (binding.side === 'HOME' ? final.homeClubId : final.awayClubId)))) {
+            throw new Error('completed Match outcome attribution scope differs');
+          }
+          return { ...base, outcome };
+        });
+        if (json(readCompletedMatchPlayerOutcomeCensus(db, scope.gameId)) !== json(census)) {
+          throw new Error('completed Match outcome census changed during admission');
+        }
+        const after = history(scope.careerId, final.seasonId), admitted = plays.flatMap(play =>
+          play.outcome.kind === 'attributed' ? [play.outcome] : []);
+        // Unavailable originals have no attribution row for history() to
+        // reauthenticate. Later INSERT/head triggers may still change them.
+        for (const play of plays) if (play.outcome.kind === 'unavailable' && 'source' in play.outcome
+          && json(derive(db, play.outcome.source)) !== json(play.outcome)) {
+          throw new Error('completed Match outcome unavailable original changed during admission');
+        }
+        if (json(after.filter(value => value.gameId === scope.gameId).sort((a, b) => a.playId - b.playId))
+          !== json([...admitted].sort((a, b) => a.playId - b.playId))) {
+          throw new Error('completed Match outcome retained game history differs');
+        }
+        return freeze({ finalResult: final, plays, coverage: admitted.length === plays.length
+          ? 'all_official_plays_attributed' as const : 'attributed_supported_plays_only' as const });
+      });
+    },
+    readApplication(raw: OfficialPlayerOutcomeSource): OfficialPlayerOutcomeAttribution | null {
+      const source = input(raw);
+      return tx.read(() => {
+        const rows = identityRows(source);
+        if (!rows.length) {
+          const original = derive(db, source);
+          if (original.kind === 'attributed') history(original.careerId, original.competitionEditionId);
+          return null;
+        }
+        if (rows.length !== 1) throw new Error('official player outcome Source ownership differs');
+        const value = decode(rows[0]);
+        history(value.careerId, value.competitionEditionId);
+        return value;
+      });
+    },
+    aggregate(scope: OfficialPlayerOutcomeStatisticsScope) {
+      // Core validates the exact scope before any database query.
+      aggregateOfficialPlayerOutcomes([], scope);
+      return tx.read(() => {
+        const originals = history(scope.careerId, scope.competitionEditionId);
+        const scoring = aggregateOfficialPlayerScoring(originals.map(outcome => ({ outcome,
+          contribution: deriveOfficialPlayerScoringFromSqlite(db, outcome) })), scope);
+        const games = [...new Set(originals.filter(o => o.pitcherPlayerId === scope.playerId && o.gameDay <= scope.asOfDay).map(o => o.gameId))].sort();
+        const runs: OfficialPitchingRun[] = [], unavailableGames: string[] = [];
+        for (const gameId of games) {
+          const completed = pitching.read(scope.careerId, gameId);
+          if (!completed) { unavailableGames.push(gameId); continue; }
+          const sides = new Set(completed.outcomes.filter(o => o?.pitcherPlayerId === scope.playerId).map(o => o!.pitcher.side.toLowerCase()));
+          if (sides.size !== 1 || completed.competitionEditionId !== scope.competitionEditionId) throw new Error('pitching responsibility aggregate scope differs');
+          runs.push(...completed.runs.filter(run => sides.has(run.fieldingSide)));
+        }
+        const totals = totalOfficialPitchingRuns(runs, scope.playerId);
+        return freeze({ ...aggregateOfficialPlayerOutcomes(originals, scope), scoring,
+          pitchingResponsibility: { coverage: 'completed_attributed_games_only' as const, gameIds: games,
+            unavailableGames, runs, ...totals,
+            ...(unavailableGames.length ? { runsAllowed: { ...totals.runsAllowed, value: null }, earnedRuns: { ...totals.earnedRuns, value: null } } : {}) } });
+      });
+    },
+    close() { tx.close(); },
+  });
+};

@@ -1,5 +1,8 @@
 export { playerRunnerDecisionMotionModelEvidenceFromSqlite, openSqlitePlayerRunnerDecisionMotionModelStore } from './SqlitePlayerRunnerDecisionMotionModelStore';
 import { createRequire } from 'node:module';
+import { withPhysicalCapabilityReplay } from './AcceptedPhysicalCapabilityDevelopment';
+import { assertFieldingModelRebinding, fieldingModelRebindingInput, type AcceptedFieldingModelRebinding } from './AcceptedFieldingModelRebinding';
+import { bodyCompositionTableInstalled, withBodyCompositionTransaction } from './BodyMaterializationSqliteOwnership';
 import { sqliteJsonMetadataNodes as metadataNodes } from './SqliteOwnershipMetadata';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { createPlayerDecisionCalibration, type PlayerDecisionCalibration } from '../../core/sim/fielding/PlayerDecisionCalibration';
@@ -15,6 +18,7 @@ export type AcceptedPlayerDecisionModel = Readonly<{
   personLinkSourceId: string;
   fieldingModelSourceId: string;
   acceptedAtDay: number;
+  fieldingRebinding?: AcceptedFieldingModelRebinding;
   calibration: PlayerDecisionCalibration;
 }>;
 export type DurablePlayerDecisionModel = Readonly<{
@@ -47,74 +51,117 @@ const fields = (value: unknown, names: readonly string[]): boolean => value !== 
   && JSON.stringify(Object.keys(value).sort()) === JSON.stringify([...names].sort());
 const input = (raw: AcceptedPlayerDecisionModel, sourceId?: string): AcceptedPlayerDecisionModel => {
   const source = cloneInert(raw);
-  if (!fields(source, ['sourceId', 'sourceVersion', 'careerId', 'playerId', 'personLinkSourceId', 'fieldingModelSourceId', 'acceptedAtDay', 'calibration'])
+  if (!fields(source, ['sourceId', 'sourceVersion', 'careerId', 'playerId', 'personLinkSourceId', 'fieldingModelSourceId', 'acceptedAtDay', 'calibration', ...(source && Object.hasOwn(source, 'fieldingRebinding') ? ['fieldingRebinding'] : [])])
     || sourceId !== undefined && source.sourceId !== sourceId
     || ![source.sourceId, source.sourceVersion, source.careerId, source.playerId, source.personLinkSourceId, source.fieldingModelSourceId].every(id)
     || !day(source.acceptedAtDay)) throw new Error('invalid accepted Player decision model Source');
+  if (Object.hasOwn(source, 'fieldingRebinding')) fieldingModelRebindingInput(source.fieldingRebinding!);
   return { ...source, calibration: createPlayerDecisionCalibration(source.calibration) };
 };
 
-/** Reconstructs the exact immutable fielding Source and its original Player/Person link, never a peer-supplied profile. */
+const baselineTable = 'world_player_decision_models';
+const developmentTable = 'world_player_decision_model_rebindings';
+type HistoryRow = Row & { owner_table: string };
+/** Baseline bytes remain immutable. Tagged additions replay their original
+ * development prefix and dated predecessor on this same connection. */
 export const playerDecisionModelEvidenceFromSqlite = (db: Pick<import('node:sqlite').DatabaseSync, 'prepare'>) => {
-  const fielding = playerFieldingModelEvidenceFromSqlite(db);
+  const tables = () => [baselineTable, ...(bodyCompositionTableInstalled(db, developmentTable) ? [developmentTable] : [])];
+  const claims = (row: HistoryRow) => {
+    const source = input(JSON.parse(row.source_json), row.source_id), archived = JSON.parse(row.snapshot_json) as DurablePlayerDecisionModel;
+    if (!fields(archived, ['source', 'fieldingModel']) || json(archived.source) !== json(source)
+      || row.career_id !== source.careerId || row.player_id !== source.playerId || row.person_link_source_id !== source.personLinkSourceId
+      || row.source_version !== source.sourceVersion || row.fielding_model_source_id !== source.fieldingModelSourceId
+      || row.accepted_at_day !== source.acceptedAtDay || archived.fieldingModel?.source.careerId !== source.careerId
+      || archived.fieldingModel.source.playerId !== source.playerId || archived.fieldingModel.source.sourceId !== source.fieldingModelSourceId
+      || archived.fieldingModel.person.sourceId !== source.personLinkSourceId
+      || row.source_json !== json(source) || row.source_hash !== hash(source) || row.snapshot_json !== json(archived)
+      || row.snapshot_hash !== hash(archived) || (row.owner_table === developmentTable) !== !!source.fieldingRebinding) {
+      throw new Error('corrupt original Player decision model archive');
+    }
+    return { row, source };
+  };
+  const scope = (careerId: string, playerId: string) => {
+    const rows = tables().flatMap(table => db.prepare(`SELECT *, '${table}' AS owner_table FROM ${table} WHERE (career_id=? AND player_id=?)
+      OR ${playerClaim('source_json', [])} OR ${playerClaim('snapshot_json', ['source'])} OR ${playerClaim('snapshot_json', ['fieldingModel', 'source'])} OR ${playerClaim('snapshot_json', ['fieldingModel', 'person'])}`)
+      .all(careerId, playerId, careerId, playerId, careerId, playerId, careerId, playerId, careerId, playerId) as HistoryRow[]);
+    const values = rows.map(claims).sort((a, b) => a.source.acceptedAtDay - b.source.acceptedAtDay);
+    for (const [index, value] of values.entries()) {
+      const prior = values[index - 1], p = value.source.fieldingRebinding;
+      if (value.source.careerId !== careerId || value.source.playerId !== playerId
+        || (!prior ? !!p : !p || prior.source.acceptedAtDay >= value.source.acceptedAtDay
+          || p.originalModelRef.sourceId !== prior.source.sourceId || p.originalModelRef.sourceVersion !== prior.source.sourceVersion
+          || p.originalModelSourceHash !== prior.row.source_hash || p.originalModelSnapshotHash !== prior.row.snapshot_hash)) {
+        throw new Error('Player decision baseline scope or development history differs');
+      }
+    }
+    return values;
+  };
   const derive = (raw: AcceptedPlayerDecisionModel): DurablePlayerDecisionModel => {
     const source = input(raw);
-    const fieldingModel = fielding.read(source.fieldingModelSourceId);
-    if (!fieldingModel || fieldingModel.source.careerId !== source.careerId || fieldingModel.source.playerId !== source.playerId
-      || fieldingModel.source.personLinkSourceId !== source.personLinkSourceId || fieldingModel.person.sourceId !== source.personLinkSourceId
-      || source.acceptedAtDay < fieldingModel.source.acceptedAtDay) throw new Error('Player decision model original fielding/Person scope differs');
-    return freeze({ source, fieldingModel });
-  };
-  const scope = (careerId: string, playerId: string): readonly DurablePlayerDecisionModel[] => {
-    // Each ownership mirror participates, including pinned nested fielding/Person snapshots.
-    // Jointly changing the index and Source must not hide an archived original Player baseline.
-    const rows = db.prepare(`SELECT * FROM world_player_decision_models WHERE (career_id=? AND player_id=?)
-      OR ${playerClaim('source_json', [])}
-      OR ${playerClaim('snapshot_json', ['source'])}
-      OR ${playerClaim('snapshot_json', ['fieldingModel', 'source'])}
-      OR ${playerClaim('snapshot_json', ['fieldingModel', 'person'])}`)
-      .all(careerId, playerId, careerId, playerId, careerId, playerId, careerId, playerId, careerId, playerId) as Row[];
-    if (rows.length > 1) throw new Error('Player decision baseline scope differs');
-    return rows.map((row) => {
-      const source = input(JSON.parse(row.source_json) as AcceptedPlayerDecisionModel, row.source_id), value = derive(source);
-      if (source.careerId !== careerId || source.playerId !== playerId || row.career_id !== careerId || row.player_id !== playerId
-        || row.source_version !== source.sourceVersion || row.person_link_source_id !== source.personLinkSourceId
-        || row.fielding_model_source_id !== source.fieldingModelSourceId || row.accepted_at_day !== source.acceptedAtDay
-        || row.source_json !== json(source) || row.source_hash !== hash(source)
-        || row.snapshot_json !== json(value) || row.snapshot_hash !== hash(value)) throw new Error('corrupt original Player decision model archive');
+    return withPhysicalCapabilityReplay(db, 'defender_decision', source.sourceId, () => {
+      const fieldingModel = playerFieldingModelEvidenceFromSqlite(db).read(source.fieldingModelSourceId);
+      if (!fieldingModel || fieldingModel.source.careerId !== source.careerId || fieldingModel.source.playerId !== source.playerId
+        || fieldingModel.source.personLinkSourceId !== source.personLinkSourceId || fieldingModel.person.sourceId !== source.personLinkSourceId
+        || source.acceptedAtDay < fieldingModel.source.acceptedAtDay) throw new Error('Player decision model original fielding/Person scope differs');
+      const value = freeze({ source, fieldingModel });
+      if (source.fieldingRebinding) {
+        const prior = read(source.fieldingRebinding.originalModelRef.sourceId);
+        if (!prior) throw new Error('original decision development model is missing');
+        assertFieldingModelRebinding(value, prior);
+      }
       return value;
     });
   };
   const read = (sourceId: string): DurablePlayerDecisionModel | null => {
     if (!id(sourceId)) throw new Error('invalid Player decision model scope');
-    const rows = db.prepare(`SELECT * FROM world_player_decision_models WHERE source_id=?
+    const rows = tables().flatMap(table => db.prepare(`SELECT *, '${table}' AS owner_table FROM ${table} WHERE source_id=?
       OR EXISTS (SELECT 1 FROM (${metadataNodes('source_json', ['sourceId'])}) claim WHERE claim.type='text' AND claim.atom=?)
       OR EXISTS (SELECT 1 FROM (${metadataNodes('snapshot_json', ['source', 'sourceId'])}) claim WHERE claim.type='text' AND claim.atom=?)`)
-      .all(sourceId, sourceId, sourceId) as Row[];
-    if (rows.length > 1) throw new Error('Player decision Source ownership scope differs');
-    const row = rows[0];
-    if (!row) return null;
-    const source = input(JSON.parse(row.source_json) as AcceptedPlayerDecisionModel, sourceId);
-    const value = scope(source.careerId, source.playerId)[0];
-    if (!value || value.source.sourceId !== sourceId) throw new Error('Player decision model is outside its own baseline');
+      .all(sourceId, sourceId, sourceId) as HistoryRow[]);
+    if (rows.length > 1 || rows.length === 1 && rows[0].source_id !== sourceId) throw new Error('Player decision Source ownership scope differs');
+    if (!rows.length) return null;
+    const { source } = claims(rows[0]); scope(source.careerId, source.playerId);
+    const value = derive(source);
+    if (rows[0].snapshot_json !== json(value)) throw new Error('corrupt original Player decision model archive');
     return value;
   };
   const selectAtDay = (careerId: string, playerId: string, atDay: number): DurablePlayerDecisionModel => {
     if (!id(careerId) || !id(playerId) || !day(atDay)) throw new Error('invalid Player decision model day');
-    const value = scope(careerId, playerId)[0];
-    if (!value) throw new Error('accepted Player decision baseline is missing');
-    if (value.source.acceptedAtDay > atDay) throw new Error('Player decision model is from a future day');
-    return value;
+    const selected = scope(careerId, playerId).filter(value => value.source.acceptedAtDay <= atDay).at(-1);
+    if (!selected) throw new Error('accepted Player decision baseline is missing or from a future day');
+    return read(selected.source.sourceId)!;
   };
-  const before = (raw: DurablePlayerDecisionModel): void => {
+  const before = (raw: DurablePlayerDecisionModel) => {
     const value = cloneInert(raw);
-    if (scope(value.source.careerId, value.source.playerId).length) throw new Error('Player decision baseline already exists');
+    input(value.source);
+    const current = scope(value.source.careerId, value.source.playerId).at(-1), p = value.source.fieldingRebinding;
+    if (p ? !current || current.source.sourceId !== p.originalModelRef.sourceId || current.source.acceptedAtDay >= value.source.acceptedAtDay : !!current) {
+      throw new Error('Player decision baseline already exists or development predecessor differs');
+    }
+    if (json(playerFieldingModelEvidenceFromSqlite(db).selectAtDay(value.source.careerId, value.source.playerId, value.source.acceptedAtDay)) !== json(value.fieldingModel)) {
+      throw new Error('new decision model requires its current fielding model');
+    }
     if (json(derive(value.source)) !== json(value)) throw new Error('Player decision original changed before write');
   };
-  return { derive, read, selectAtDay, before };
+  const after = (raw: DurablePlayerDecisionModel) => {
+    const value = cloneInert(raw);
+    input(value.source);
+    if (scope(value.source.careerId, value.source.playerId).at(-1)?.source.sourceId !== value.source.sourceId) {
+      throw new Error('accepted model history changed during insertion');
+    }
+    if (json(playerFieldingModelEvidenceFromSqlite(db).selectAtDay(value.source.careerId, value.source.playerId, value.source.acceptedAtDay)) !== json(value.fieldingModel)) {
+      throw new Error('accepted model current fielding changed during insertion');
+    }
+  };
+  const snapshot = <T>(body: () => T): T => {
+    const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
+    return db instanceof DatabaseSync ? withBodyCompositionTransaction(db, false, body) : body();
+  };
+  return { derive, before, after, read: (id: string) => snapshot(() => read(id)),
+    selectAtDay: (career: string, player: string, day: number) => snapshot(() => selectAtDay(career, player, day)) };
 };
 
-/** One immutable accepted baseline per Player. Later development needs its own validated history, not an overwrite. */
+/** Original baseline bytes plus explicit append-only fielding rebindings. */
 export const openSqlitePlayerDecisionModelStore = (path: string, authority?: Authority): SqlitePlayerDecisionModelStore => {
   if (!id(path) || authority != null && typeof authority.readAcceptedModel !== 'function') throw new Error('invalid Player decision model sources');
   const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
@@ -125,6 +172,11 @@ export const openSqlitePlayerDecisionModelStore = (path: string, authority?: Aut
     person_link_source_id TEXT NOT NULL, fielding_model_source_id TEXT NOT NULL, accepted_at_day INTEGER NOT NULL,
     source_json TEXT NOT NULL, source_hash TEXT NOT NULL, snapshot_json TEXT NOT NULL, snapshot_hash TEXT NOT NULL,
     UNIQUE(career_id,player_id));`);
+  db.exec(`CREATE TABLE IF NOT EXISTS world_player_decision_model_rebindings (
+    source_id TEXT PRIMARY KEY, source_version TEXT NOT NULL, career_id TEXT NOT NULL, player_id TEXT NOT NULL,
+    person_link_source_id TEXT NOT NULL, fielding_model_source_id TEXT NOT NULL, accepted_at_day INTEGER NOT NULL,
+    source_json TEXT NOT NULL, source_hash TEXT NOT NULL, snapshot_json TEXT NOT NULL, snapshot_hash TEXT NOT NULL,
+    UNIQUE(career_id,player_id,accepted_at_day));`);
   const own = playerDecisionModelEvidenceFromSqlite(db);
   let closed = false;
   const check = (): void => { if (closed) throw new Error('closed Player decision model store'); };
@@ -132,28 +184,26 @@ export const openSqlitePlayerDecisionModelStore = (path: string, authority?: Aut
     read(sourceId) { check(); return own.read(sourceId); },
     selectAtDay(careerId, playerId, atDay) { check(); return own.selectAtDay(careerId, playerId, atDay); },
     accept(sourceId) {
-      check();
-      const prior = own.read(sourceId), raw = authority?.readAcceptedModel(sourceId) ?? null;
-      const source = raw === null ? null : input(raw, sourceId);
-      if (prior) {
-        if (source && json(source) !== json(prior.source)) throw new Error('Player decision Source is frozen differently');
-        const original = own.read(sourceId);
-        if (!original || json(original) !== json(prior)) throw new Error('Player decision original changed during retry');
-        return original;
-      }
-      if (!source) throw new Error('accepted Player decision model Source is missing');
-      const value = own.derive(source);
-      own.before(value);
-      db.exec('BEGIN IMMEDIATE');
-      try {
+      check(); return withBodyCompositionTransaction(db, true, () => {
+        const prior = own.read(sourceId), raw = authority?.readAcceptedModel(sourceId) ?? null;
+        const source = raw === null ? null : input(raw, sourceId);
+        if (prior) {
+          if (source && json(source) !== json(prior.source)) throw new Error('Player decision Source is frozen differently');
+          const original = own.read(sourceId);
+          if (!original || json(original) !== json(prior)) throw new Error('Player decision original changed during retry');
+          return original;
+        }
+        if (!source) throw new Error('accepted Player decision model Source is missing');
+        const value = own.derive(source);
         own.before(value);
-        db.prepare('INSERT INTO world_player_decision_models VALUES (?,?,?,?,?,?,?,?,?,?,?)').run(sourceId, source.sourceVersion,
+        const table = source.fieldingRebinding ? developmentTable : baselineTable;
+        db.prepare(`INSERT INTO ${table} VALUES (?,?,?,?,?,?,?,?,?,?,?)`).run(sourceId, source.sourceVersion,
           source.careerId, source.playerId, source.personLinkSourceId, source.fieldingModelSourceId, source.acceptedAtDay,
           json(source), hash(source), json(value), hash(value));
         const saved = own.read(sourceId);
         if (!saved || json(saved) !== json(value)) throw new Error('Player decision original changed during write');
-        db.exec('COMMIT'); return saved;
-      } catch (error) { db.exec('ROLLBACK'); throw error; }
+        own.after(saved); return saved;
+      });
     },
     close() { if (!closed) { db.close(); closed = true; } },
   });

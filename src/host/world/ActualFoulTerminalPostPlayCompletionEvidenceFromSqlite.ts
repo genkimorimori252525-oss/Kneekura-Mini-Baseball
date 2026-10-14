@@ -5,7 +5,11 @@ import type { DatabaseSync } from 'node:sqlite';
 import { activateNextNonLivePlateAppearance } from '../../core/adjudication/NonLiveOfficialApplication';
 import { prepareBetweenPlayWorld } from '../../core/adjudication/BetweenPlayWorldReset';
 import { actorJson as json, actorHash as hash, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
-import { actualFoulTerminalPostPlaySetupInput, type AcceptedFoulTerminalPostPlaySetup } from './ActualFoulTerminalPostPlaySetup';
+import {actualFoulTerminalPostPlayInput,type AcceptedFoulTerminalPostPlayInput} from './ActualFoulTerminalPostPlayBoundary';
+import {deriveFoulTerminalIncomingDefenders} from './ActualFoulTerminalHalfChange';
+import {deriveFoulTerminalFinalHistory} from './ActualFoulTerminalFinalHistory';
+import {resolveOfficialGameProgression} from '../../core/world/competition/OfficialGameCompletion';
+import type {FoulTerminalCompletion} from './ActualFoulTerminalPostPlayCompletion';
 import type { FoulTerminalPostPlayCompletionPayload, FoulTerminalCompletionEvidence,
   FoulTerminalPostPlayCompletionEvidenceReader } from './ActualFoulTerminalPostPlayCompletion';
 import { foulTerminalAcknowledgementAncestryFromSqlite } from './ActualFoulTerminalApplicationEvidenceFromSqlite';
@@ -26,12 +30,12 @@ import type { FoulEndedEvidence } from './ActualFoulPlayEnd';
 const same=(a:unknown,b:unknown,message:string)=>{if(json(a)!==json(b))throw new Error('terminal completion '+message);};
 type Ancestry=NonNullable<ReturnType<ReturnType<typeof foulTerminalAcknowledgementAncestryFromSqlite>['read']>>;
 const original=(value:Ancestry|null)=>{
-  if(!value?.evidence||value.archiveStage!=='OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY'&&value.archiveStage!=='POST_PLAY_COMPLETED_CONTINUING') {
+  if(!value?.evidence||value.archiveStage!=='OFFICIAL_ACKNOWLEDGED_PENDING_POST_PLAY'&&value.archiveStage!=='POST_PLAY_COMPLETED_CONTINUING'&&value.archiveStage!=='POST_PLAY_COMPLETED_FINAL') {
     throw new Error('terminal completion requires authentic original acknowledgement');
   }
   return value.evidence;
 };
-const derive=(db:DatabaseSync,source:AcceptedFoulTerminalPostPlaySetup,ancestry:Ancestry,current:boolean)=>{
+const derive=(db:DatabaseSync,source:AcceptedFoulTerminalPostPlayInput,ancestry:Ancestry,current:boolean,archived?:FoulTerminalCompletion)=>{
   assertFoulTerminalWorkloadStorage(db);
   const saved=original(ancestry),p=saved.proposal;
   return withFoulTerminalOriginalScope(db,p.source.sourceId,p.gameId,p.playId,()=>{
@@ -63,6 +67,35 @@ const derive=(db:DatabaseSync,source:AcceptedFoulTerminalPostPlaySetup,ancestry:
     const prefix={baseField,fields:fieldOwner.scope(baseField,end.source.baseFieldSourceId),executions:executionOwner.scope(baseField,end.source.executionSourceId)};
     if(prefix.executions.at(-1)?.source.sourceId!==end.source.executionSourceId)throw new Error('terminal completion original execution cut differs');
     const players=[...actualPlayersKinematicsFromPrefix(actors.map(a=>a.binding.playerId),prefix)].sort((a,b)=>a.playerId<b.playerId?-1:a.playerId>b.playerId?1:0);
+    if(source.capability==='actual_foul_terminal_post_play_setup_v2'){
+      const body=p.applicationBody,receipt=saved.result.official.receipt,atTick=source.kind==='game_final'?source.completedAtTick:source.nextStartedAtTick;
+      if(!body.game||body.match.outs!==2||body.context.kind!=='strikeout'||Object.values(body.match.bases).some(v=>v!==null)
+        ||atTick<p.clock.closureTick||atTick<end.exactEnd.tick)throw new Error('terminal boundary requires original third-out policy and post-closure time');
+      const progression=resolveOfficialGameProgression({...body.game,gameId:p.gameId,priorMatch:body.match,application:receipt});
+      same(progression,saved.result.official.pendingPostPlay.gameProgression,'original boundary progression differs');
+      const retirement={kind:'rule_system_retire_original_play' as const,sourceId:source.sourceId,previousPlayId:p.playId,atTick,physicalEndReference:p.physicalEndReference,
+        retired:players.map(a=>({playerId:a.playerId,personId:a.personId,activeCommand:a.activeCommand,ownedMotionCoverage:a.ownedMotionCoverage??null})),retainedOriginalFutureWork:end.futureWork};
+      const common={version:'actual_foul_terminal_post_play_completion_v2' as const,completionId:json(['actual_foul_terminal_post_play_completion_v2',p.source.sourceId,source.sourceId]),source,sourceHash:hash(source),terminalReference:source.terminalReference,
+        officialReference:{applicationId:receipt.applicationId,receiptHash:hash(receipt),pendingPostPlayHash:hash(saved.result.official.pendingPostPlay),acknowledgementHash:hash(saved.result.acknowledgement)},
+        scoringReference:{scoringApplicationId:scoring.result.scoringApplicationId,rowHash:hash(scoring.row)},
+        workloadReference:{terminalSourceId:p.source.sourceId,planHash:plan.plan_hash,participantEffects:settlement.participants.map(a=>({playerId:a.playerId,
+          activitySourceId:a.activity.sourceEventId,beforeRevision:a.before.revision,afterRevision:a.after.revision,activityHash:hash(a.activity),afterHash:hash(a.after)}))}};
+      let payload:unknown;
+      if(source.kind==='game_final'){
+        if(progression.kind!=='GAME_FINAL_PENDING_SCORING')throw new Error('terminal final Source cannot complete a continuing game');
+        payload={...common,kind:source.kind,controllerRetirement:{...retirement,version:'actual_foul_terminal_controller_retirement_v2'},...deriveFoulTerminalFinalHistory(db,saved.result,p)};
+      }else{
+        if(progression.kind!=='GAME_CONTINUES')throw new Error('terminal half-change Source cannot activate a final game');
+        const setup=source.worldSetup,geometry=battedWorldFieldGeometry(baseField);
+        for(const base of ['first','second','third']as const)same(setup.baseCenters[base],geometry.baseGeometry.bases[base].region.center,'accepted venue base center differs');
+        const incomingDefenders=deriveFoulTerminalIncomingDefenders(db,p,source,archived&&'incomingDefenders'in archived?archived.incomingDefenders:undefined);
+        const activation=activateNextNonLivePlateAppearance({match:body.match,timeline:body.timeline,adjudication:body.adjudication,context:body.context,application:receipt,nextStartedAtTick:source.nextStartedAtTick});
+        payload={...common,kind:source.kind,controllerRetirement:{...retirement,version:'actual_foul_terminal_controller_retirement_v1',nextPlayId:receipt.appliedMatchState.playId},
+          incomingDefenders,activation,nextWorld:prepareBetweenPlayWorld(activation.nextMatchState,source.nextStartedAtTick,setup)};
+      }
+      const completion=validateFoulTerminalCompletionWire({...payload as object,snapshotHash:hash(payload)},p,saved.result);
+      return freeze({original:saved,completion,settlement:{...settlement,kind:'complete' as const}});
+    }
     const geometry=battedWorldFieldGeometry(baseField),setup=source.worldSetup;
     const defenders=actors.filter(a=>a.role==='defender');
     if(defenders.length!==9||setup.defenders.length!==9||setup.defenders.some(d=>!defenders.some(a=>a.binding.playerId===d.playerId&&a.registeredPosition===d.registeredPosition))) {
@@ -105,14 +138,14 @@ export const foulTerminalPostPlayCompletionEvidenceFromSqlite=(db:DatabaseSync)=
   const readWithEffects:FoulTerminalPostPlayCompletionEvidenceReader['readWithEffects']=sourceId=>withFoulTerminalCompletionReader(db,sourceId,()=>snapshot(()=>{
     const ancestry=foulTerminalAcknowledgementAncestryFromSqlite(db).read(sourceId);
     if(!ancestry)return null;
-    if(ancestry.archiveStage!=='POST_PLAY_COMPLETED_CONTINUING')throw new Error('terminal completion is still pending');
-    const stored=readFoulTerminalCompletionMirrors(db,sourceId),derived=derive(db,stored.archive.result.completion.source,ancestry,false);
+    if(ancestry.archiveStage!=='POST_PLAY_COMPLETED_CONTINUING'&&ancestry.archiveStage!=='POST_PLAY_COMPLETED_FINAL')throw new Error('terminal completion is still pending');
+    const stored=readFoulTerminalCompletionMirrors(db,sourceId),derived=derive(db,stored.archive.result.completion.source,ancestry,false,stored.archive.result.completion);
     same(stored.archive.result.completion,derived.completion,'authenticated immutable effects differ');
     return freeze({archive:stored.archive,settlement:derived.settlement}) as FoulTerminalCompletionEvidence;
   }));
   return Object.freeze({read:(sourceId:string)=>readWithEffects(sourceId)?.archive??null,readWithEffects,
     prepare(raw:unknown){return snapshot(()=>{
-      const candidate=cloneInert(raw) as AcceptedFoulTerminalPostPlaySetup,source=actualFoulTerminalPostPlaySetupInput(candidate,candidate?.sourceId);
+      const candidate=cloneInert(raw) as AcceptedFoulTerminalPostPlayInput,source=actualFoulTerminalPostPlayInput(candidate,candidate?.sourceId);
       const terminal=foulTerminalPostPlaySetupIdentityRows(db,source.sourceId),official=officialApplicationPostPlaySetupIdentityClaims(db,source.sourceId);
       if(terminal.length||official.length)throw new Error('terminal completion accepted setup identity already has a durable claim');
       const ancestry=foulTerminalAcknowledgementAncestryFromSqlite(db).read(source.terminalReference.sourceId);
@@ -121,3 +154,6 @@ export const foulTerminalPostPlayCompletionEvidenceFromSqlite=(db:DatabaseSync)=
     });},
   });
 };
+
+export {deriveFoulTerminalIncomingDefenders,assertFoulTerminalIncomingDefendersCurrent} from './ActualFoulTerminalHalfChange';
+export {deriveFoulTerminalFinalHistory} from './ActualFoulTerminalFinalHistory';

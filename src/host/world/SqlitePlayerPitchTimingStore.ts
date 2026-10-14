@@ -1,5 +1,10 @@
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
+import { playerPersonLinkEvidenceFromSqlite } from './SqlitePlayerPersonLinkStore';
+import { nominalTable, nominalIdentity, nominalClaim, assertNominalReference, nominalSame } from './DispatchNominalSqliteOwnership';
+import { sqliteJsonMetadataNodes as metadataNodes } from './SqliteOwnershipMetadata';
+import { actorHash as hash } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import { applyConsolidatedPitchTimingEvidence,
   createPlayerPitchTimingSource, selectPlayerPitchTimingProfile,
@@ -83,6 +88,84 @@ const canonicalJson = (value: unknown): string => JSON.stringify(
 const fields = (value: unknown, names: readonly string[]): boolean =>
   value !== null && typeof value === 'object' && !Array.isArray(value)
   && Object.keys(value).sort().join('|') === names.join('|');
+
+/** Additive bounded normal-owner reader. It never opens a writer, follows a
+ * current head or parses payloads after the explicitly pinned endpoint. */
+const replayPlayerPitchTimingPrefixFromSqlite = (db: DatabaseSync,
+  ref: SamePaReference<'world_pitch_timing_baselines' | 'world_pitch_timing_updates'>) => {
+  const tables = ['world_pitch_timing_baselines', 'world_pitch_timing_updates'];
+  const endpoint = nominalIdentity(db, tables, ref.owner, ref.sourceId), endpointSource = JSON.parse(String(endpoint.source_json));
+  const cut = ref.owner === tables[0] ? 0 : endpoint.after_revision;
+  if (!day(cut)) throw new Error('invalid dispatch nominal timing cut');
+  const careerId = String(endpoint.career_id), playerId = String(endpoint.player_id);
+  const scope = `(career_id=$career OR ${nominalClaim('source_json', ['careerId'], '$career')} OR ${nominalClaim('source_json', ['episode', 'careerId'], '$career')})
+    AND (player_id=$player OR ${nominalClaim('source_json', ['playerId'], '$player')} OR ${nominalClaim('source_json', ['episode', 'playerId'], '$player')})`;
+  const bases = db.prepare(`SELECT * FROM main.world_pitch_timing_baselines WHERE ${scope}`).all({ career: careerId, player: playerId });
+  if (bases.length !== 1) throw new Error('dispatch nominal timing baseline is missing or ambiguous');
+  const row = bases[0], source = JSON.parse(String(row.source_json)) as AcceptedPitchTimingBaseline;
+  if (!fields(source, ['acceptedAtDay', 'careerId', 'personLinkSourceId', 'playerId', 'profile', 'sourceId', 'sourceVersion'])
+    || ![source.sourceId, source.sourceVersion, source.personLinkSourceId].every(id) || !day(source.acceptedAtDay)
+    || source.careerId !== careerId || source.playerId !== playerId || row.career_id !== careerId || row.player_id !== playerId
+    || row.source_id !== source.sourceId || canonicalJson(source) !== row.source_json) throw new Error('corrupt dispatch nominal timing baseline');
+  nominalIdentity(db, tables, tables[0], source.sourceId);
+  const person = playerPersonLinkEvidenceFromSqlite(db).readLink(source.personLinkSourceId);
+  if (!person || person.careerId !== careerId || person.playerId !== playerId || person.acceptedAtDay > source.acceptedAtDay) throw new Error('dispatch nominal timing Person differs');
+  let current = createPlayerPitchTimingSource({ careerId, playerId, createdAtDay: source.acceptedAtDay, profile: source.profile });
+  if (canonicalJson(current) !== row.initial_json) throw new Error('corrupt initial dispatch nominal timing state');
+  const states = [current];
+  const rawCut = `EXISTS(SELECT 1 FROM (${metadataNodes('state_json', ['revision'])}) n WHERE n.type IN ('integer','real') AND n.atom<=$cut)`;
+  const updates = db.prepare(`SELECT * FROM main.world_pitch_timing_updates WHERE (${scope}
+    OR ((${nominalClaim('state_json', ['careerId'], '$career')}) AND (${nominalClaim('state_json', ['playerId'], '$player')})))
+    AND (after_revision<=$cut OR before_revision<$cut OR ${rawCut}) ORDER BY after_revision`).all({ career: careerId, player: playerId, cut });
+  for (const [index, update] of updates.entries()) {
+    const accepted = JSON.parse(String(update.source_json)) as AcceptedPitchTimingLearning;
+    if (!fields(accepted, ['episode', 'measurements', 'practice', 'sourceId']) || !id(accepted.sourceId) || accepted.sourceId !== update.source_id
+      || update.career_id !== careerId || update.player_id !== playerId || update.before_revision !== index || update.after_revision !== index + 1
+      || canonicalJson(accepted) !== update.source_json || index + 1 > cut) throw new Error('corrupt dispatch nominal timing learning prefix');
+    nominalIdentity(db, tables, tables[1], accepted.sourceId);
+    current = applyConsolidatedPitchTimingEvidence(current, index, accepted.episode, accepted.measurements, accepted.practice);
+    if (canonicalJson(current) !== update.state_json) throw new Error('dispatch nominal timing prefix replay diverged');
+    states.push(current);
+  }
+  if (current.revision !== cut) throw new Error('dispatch nominal timing endpoint is missing');
+  nominalSame(endpoint, cut === 0 ? row : updates.at(-1));
+  assertNominalReference(ref, endpointSource, current, tables); return { source: current, states };
+};
+
+export const readPlayerPitchTimingPrefixFromSqlite = (db: DatabaseSync,
+  ref: SamePaReference<'world_pitch_timing_baselines' | 'world_pitch_timing_updates'>): PlayerPitchTimingSource =>
+  replayPlayerPitchTimingPrefixFromSqlite(db, ref).source;
+
+/** The endpoint hash covers its full prefix; later-day states inside that pin
+ * are authenticated but cannot supply this earlier game's numerical profile. */
+export const selectPlayerPitchTimingProfileFromSqlitePrefix = (db: DatabaseSync,
+  ref: SamePaReference<'world_pitch_timing_baselines' | 'world_pitch_timing_updates'>, atDay: number): PitchTimingProfile => {
+  const proof = replayPlayerPitchTimingPrefixFromSqlite(db, ref), selected = proof.states.filter(s => s.effectiveDay <= atDay).at(-1);
+  if (!selected) throw new Error('dispatch nominal timing unavailable at game day');
+  return selectPlayerPitchTimingProfile(selected, proof.source.playerId, atDay);
+};
+
+/** Fresh acceptance only. Normal current history and head must agree; another
+ * applicable revision beyond the immutable pin cannot be silently ignored. */
+export const assertCurrentPlayerPitchTimingPrefixFromSqlite = (db: DatabaseSync,
+  ref: SamePaReference<'world_pitch_timing_baselines' | 'world_pitch_timing_updates'>, atDay: number): void => {
+  const pinned = replayPlayerPitchTimingPrefixFromSqlite(db, ref).source;
+  nominalTable(db, 'world_pitch_timing_heads');
+  const heads = db.prepare(`SELECT * FROM main.world_pitch_timing_heads WHERE (career_id=$career OR ${nominalClaim('state_json', ['careerId'], '$career')})
+    AND (player_id=$player OR ${nominalClaim('state_json', ['playerId'], '$player')})`).all({ career: pinned.careerId, player: pinned.playerId });
+  if (heads.length !== 1 || heads[0].career_id !== pinned.careerId || heads[0].player_id !== pinned.playerId || !day(heads[0].revision)) throw new Error('dispatch current timing head differs');
+  const updates = db.prepare(`SELECT * FROM main.world_pitch_timing_updates WHERE (career_id=$career OR ${nominalClaim('source_json', ['episode', 'careerId'], '$career')} OR ${nominalClaim('state_json', ['careerId'], '$career')})
+    AND (player_id=$player OR ${nominalClaim('source_json', ['episode', 'playerId'], '$player')} OR ${nominalClaim('state_json', ['playerId'], '$player')}) ORDER BY after_revision`).all({ career: pinned.careerId, player: pinned.playerId });
+  if (updates.length !== heads[0].revision) throw new Error('dispatch current timing history or head differs');
+  const baseline = updates.length ? null : db.prepare('SELECT * FROM main.world_pitch_timing_baselines WHERE career_id=? AND player_id=?').get(pinned.careerId, pinned.playerId);
+  const endpoint = updates.at(-1) ?? baseline; if (!endpoint) throw new Error('dispatch current timing baseline missing');
+  const current = replayPlayerPitchTimingPrefixFromSqlite(db, { owner: updates.length ? 'world_pitch_timing_updates' : 'world_pitch_timing_baselines',
+    sourceId: String(endpoint.source_id), sourceHash: hash(JSON.parse(String(endpoint.source_json))), snapshotHash: hash(JSON.parse(String(updates.length ? endpoint.state_json : endpoint.initial_json))) });
+  if (heads[0].state_json !== canonicalJson(current.source) || heads[0].revision !== current.source.revision) throw new Error('dispatch current timing head diverged');
+  const selected = current.states.filter(s => s.effectiveDay <= atDay).at(-1);
+  if (!selected || selected.revision > pinned.revision) throw new Error('dispatch current timing has an unpinned applicable revision');
+  selectPlayerPitchTimingProfile(selected, pinned.playerId, atDay);
+};
 
 /** One versioned, replayable pitch-timing source per global Player. */
 export const openSqlitePlayerPitchTimingStore = (

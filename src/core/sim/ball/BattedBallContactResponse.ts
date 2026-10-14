@@ -13,11 +13,13 @@ export type BattedActorResponseProfile = Readonly<{
 }> | Readonly<{
   role: 'glove'; pocketCenterOffset: Vec3; bodyStability: number; parameters: CatchRetentionParameters;
 }>;
-export type BattedBallContactResponseInput = Readonly<{
-  world: BattedWorldContactInput;
+export type BallWorldResponseInput = Readonly<{
+  world: Pick<BattedWorldContactInput, 'parameters' | 'actors' | 'surfaces'>;
   actors: readonly Readonly<{ playerId: string; profile: BattedActorResponseProfile }>[];
   surfaces: readonly Readonly<{ surfaceId: string; material: BallContactMaterial }>[];
 }>;
+/** A bat-contact root remains required by the original batted-flight adapter. */
+export type BattedBallContactResponseInput = Omit<BallWorldResponseInput, 'world'> & Readonly<{ world: BattedWorldContactInput }>;
 export type BattedBallContactResponse = Readonly<{ kind: 'airborne' | 'ground'; world: BattedWorldContactResult; ball: BattedBallInitialState }>
   | Readonly<{ kind: 'unresolved'; reason: 'simultaneous' | 'degenerate_normal'; world: BattedWorldContactResult }>
   | Readonly<{ kind: 'rebound'; world: BattedWorldContactResult; geometry: BattedWorldContactGeometry;
@@ -42,7 +44,7 @@ export const assertBattedActorResponseProfile = (p: BattedActorResponseProfile, 
 };
 
 /** Complete explicit calibration is required even for colliders beyond the first physical contact. */
-export const assertBattedResponseProfiles = (input: BattedBallContactResponseInput): void => {
+export const assertBattedResponseProfiles = (input: BallWorldResponseInput): void => {
   if (!input.world || !Array.isArray(input.world.actors) || !Array.isArray(input.world.surfaces)
     || !Array.isArray(input.actors) || !Array.isArray(input.surfaces)) throw new Error('invalid batted response profiles');
   const actorKeys = new Set<string>(), surfaceIds = new Set<string>();

@@ -1,3 +1,5 @@
+import { quantizeEventTick } from '../ExactEventTime';
+
 export type RunnerDriveDirection = -1 | 0 | 1;
 export type RunnerBodyMode = 'upright' | 'sliding';
 
@@ -44,6 +46,14 @@ export type RunnerMotionTrajectory = Readonly<{
   endState: RunnerMotionState;
 }>;
 
+export type ExactRunnerMotionTrajectory = Readonly<{
+  origin: Readonly<{originTick:number;elapsedSeconds:number;tick:number}>;
+  ticksPerSecond: number;
+  durationSeconds: number;
+  segments: readonly RunnerMotionTrajectorySegment[];
+  endState: RunnerMotionState;
+}>;
+
 type ActiveRunnerControl = Readonly<{
   driveDirection: RunnerDriveDirection;
   bodyMode: RunnerBodyMode;
@@ -54,9 +64,11 @@ type MutableTrajectoryCursor = {
   routeDistanceMeters: number;
   speedMps: number;
   control: ActiveRunnerControl;
+  exactIntervals?: true;
 };
 
 const EPSILON = 1e-12;
+const durationTolerance = (cursor: MutableTrajectoryCursor) => cursor.exactIntervals ? 0 : EPSILON;
 
 const isDriveDirection = (value: number): value is RunnerDriveDirection => (
   value === -1 || value === 0 || value === 1
@@ -137,7 +149,7 @@ const appendSegment = (
   durationSeconds: number,
   accelerationMps2: number,
 ): void => {
-  if (durationSeconds <= EPSILON) {
+  if (durationSeconds <= durationTolerance(cursor)) {
     return;
   }
 
@@ -190,7 +202,7 @@ const appendBrakingToZero = (
   );
 
   const remainingSeconds = durationSeconds - brakingSeconds;
-  if (remainingSeconds > EPSILON) {
+  if (remainingSeconds > durationTolerance(cursor)) {
     cursor.speedMps = 0;
     appendStationary(segments, cursor, remainingSeconds);
   }
@@ -203,7 +215,7 @@ const appendAccelerationTowardDrive = (
   driveDirection: -1 | 1,
   parameters: RunnerMotionParameters,
 ): void => {
-  if (durationSeconds <= EPSILON) {
+  if (durationSeconds <= durationTolerance(cursor)) {
     return;
   }
 
@@ -212,7 +224,7 @@ const appendAccelerationTowardDrive = (
   const timeToTopSpeed = remainingSpeed / parameters.accelerationMps2;
   const accelerationSeconds = Math.min(durationSeconds, timeToTopSpeed);
 
-  if (accelerationSeconds > EPSILON) {
+  if (accelerationSeconds > durationTolerance(cursor)) {
     appendSegment(
       segments,
       cursor,
@@ -222,7 +234,7 @@ const appendAccelerationTowardDrive = (
   }
 
   const remainingSeconds = durationSeconds - accelerationSeconds;
-  if (remainingSeconds > EPSILON) {
+  if (remainingSeconds > durationTolerance(cursor)) {
     cursor.speedMps = driveDirection * parameters.topSpeedMps;
     appendSegment(segments, cursor, remainingSeconds, 0);
   }
@@ -256,7 +268,7 @@ const appendUprightDrive = (
     );
 
     const remainingSeconds = durationSeconds - brakingSeconds;
-    if (remainingSeconds <= EPSILON) {
+    if (remainingSeconds <= durationTolerance(cursor)) {
       return;
     }
     cursor.speedMps = 0;
@@ -288,7 +300,7 @@ const appendControlMotion = (
   durationSeconds: number,
   parameters: RunnerMotionParameters,
 ): void => {
-  if (durationSeconds <= EPSILON) {
+  if (durationSeconds <= durationTolerance(cursor)) {
     return;
   }
   if (cursor.control.bodyMode === 'sliding') {
@@ -463,3 +475,41 @@ export const advanceRunnerMotion = (
   deltaTicks,
   parameters,
 ).endState;
+
+/** Continuous sampling for an independently authenticated exact adoption origin.
+ * This returns kinematics only: the caller retains the real occurrence moment. */
+export const sampleRunnerMotionTrajectoryExact = (trajectory: RunnerMotionTrajectory | ExactRunnerMotionTrajectory, elapsedSeconds: number): Omit<RunnerMotionState, 'tick'> => {
+  const duration='durationSeconds' in trajectory?trajectory.durationSeconds:(trajectory.endState.tick-trajectory.startTick)/trajectory.ticksPerSecond;
+  if(!Number.isFinite(elapsedSeconds)||elapsedSeconds<0||elapsedSeconds>duration)throw new Error('exact runner sample is outside its original trajectory');
+  if(elapsedSeconds===duration){const {tick:_,...state}=trajectory.endState;return state;}
+  const segment=trajectory.segments.find(s=>elapsedSeconds>=s.startElapsedSeconds&&elapsedSeconds<s.endElapsedSeconds);
+  if(!segment)throw new Error('original runner trajectory does not cover exact sample');
+  const dt=elapsedSeconds-segment.startElapsedSeconds;
+  return {routeDistanceMeters:segment.startRouteDistanceMeters+segment.startSpeedMps*dt+0.5*segment.accelerationMps2*dt*dt,
+    speedMps:canonicalZero(segment.startSpeedMps+segment.accelerationMps2*dt),driveDirection:segment.driveDirection,bodyMode:segment.bodyMode};
+};
+
+/** The physical state is at an exact cut, while an accepted intent and its
+ * reaction retain their absolute integer times. Before reaction, the existing
+ * state control remains authoritative, including between the cut and issuance. */
+export const buildRunnerMotionTrajectoryAtExactOrigin = (state: RunnerMotionState, intent: RunnerMotionIntent,
+  endTick: number, parameters: RunnerMotionParameters, origin: ExactRunnerMotionTrajectory['origin']): ExactRunnerMotionTrajectory => {
+  validateParameters(parameters);validateState(state,parameters);validateIntent(intent);
+  const tps=parameters.ticksPerSecond,reactionTick=intent.issuedTick+parameters.reactionDelayTicks;
+  if(!Number.isSafeInteger(endTick)||endTick<state.tick||!Number.isSafeInteger(reactionTick)
+    ||!Number.isSafeInteger(origin.originTick)||origin.originTick<0||!Number.isFinite(origin.elapsedSeconds)||origin.elapsedSeconds<0
+    ||origin.tick!==state.tick||quantizeEventTick(origin.originTick,origin.elapsedSeconds,tps)!==state.tick)
+    throw new Error('exact runner origin or accepted absolute timing differs');
+  const durationSeconds=(endTick-origin.originTick)/tps-origin.elapsedSeconds;
+  const reactionSeconds=(reactionTick-origin.originTick)/tps-origin.elapsedSeconds;
+  if(!Number.isFinite(durationSeconds)||durationSeconds<0)throw new Error('exact runner end precedes its physical origin');
+  const segments:RunnerMotionTrajectorySegment[]=[],cursor:MutableTrajectoryCursor={elapsedSeconds:0,exactIntervals:true,
+    routeDistanceMeters:state.routeDistanceMeters,speedMps:state.speedMps,control:{driveDirection:state.driveDirection,bodyMode:state.bodyMode}};
+  if(reactionSeconds<=0){cursor.control=controlForIntent(intent);appendControlMotion(segments,cursor,durationSeconds,parameters);}
+  else if(reactionSeconds>=durationSeconds){appendControlMotion(segments,cursor,durationSeconds,parameters);
+    if(reactionSeconds===durationSeconds)cursor.control=controlForIntent(intent);
+  }else{appendControlMotion(segments,cursor,reactionSeconds,parameters);cursor.control=controlForIntent(intent);
+    appendControlMotion(segments,cursor,durationSeconds-reactionSeconds,parameters);}
+  return{origin:{...origin},ticksPerSecond:tps,durationSeconds,segments,endState:{tick:endTick,
+    routeDistanceMeters:cursor.routeDistanceMeters,speedMps:canonicalZero(cursor.speedMps),driveDirection:cursor.control.driveDirection,bodyMode:cursor.control.bodyMode}};
+};

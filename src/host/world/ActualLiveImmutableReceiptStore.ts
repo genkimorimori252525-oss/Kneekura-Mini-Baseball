@@ -1,3 +1,4 @@
+import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
 import { createRequire } from 'node:module';
 import { actualLivePlayId as id } from './ActualLivePlayScope';
@@ -97,7 +98,7 @@ export const openActualLiveImmutableReceiptStore = <S extends Source, V extends 
   const same = (a: V | null, b: V) => { if (!a) return false; const left = encode(a), right = encode(b); return left.json === right.json && left.hash === right.hash; };
   const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed actual live receipt Source'); };
   const snapshot = <T>(body: () => T): T => {
-    db.exec('BEGIN'); try { const result = body(); db.exec('COMMIT'); return result; }
+    db.exec('BEGIN'); try { const result = withBattedWorldPhysicalReadTraversal(db, body); db.exec('COMMIT'); return result; }
     catch (error) { db.exec('ROLLBACK'); throw error; }
   };
   return Object.freeze({
@@ -116,15 +117,25 @@ export const openActualLiveImmutableReceiptStore = <S extends Source, V extends 
       try {
         const liveFence = table === 'actual_live_rule_consumptions' ? beginActualLivePitchWrite(db,
           (value as V & { physicalPitchSourceId: string }).physicalPitchSourceId, { owner: table, sourceId }) : null;
-        if (evidence.read(sourceId)) throw new Error('actual live receipt Source appeared during write');
-        evidence.assertUnique(source, value.ownershipKey, 0);
-        if (!same(own.derive(source, true), value)) throw new Error('actual live receipt dependencies changed before write');
+        // Reuse completed original physical nodes only within this unchanged
+        // prewrite phase. The INSERT and its triggers remain outside the scope.
+        withBattedWorldPhysicalReadTraversal(db, () => {
+          if (evidence.read(sourceId)) throw new Error('actual live receipt Source appeared during write');
+          evidence.assertUnique(source, value.ownershipKey, 0);
+          if (!same(own.derive(source, true), value)) throw new Error('actual live receipt dependencies changed before write');
+        });
         db.prepare(`INSERT INTO ${table} VALUES (?,?,?,?,?,?)`).run(sourceId, value.ownershipKey, json(source), hash(source), encoded.json, encoded.hash);
         if (liveFence) recordActualLivePlayAdmission(db, liveFence);
-        if (!same(own.derive(source, true), value)) throw new Error('actual live receipt dependencies changed during write');
-        const saved = evidence.read(sourceId);
-        if (!same(saved, value)) throw new Error('actual live receipt changed during write');
-        if (liveFence) assertActualLivePlayWriteUnchanged(db, liveFence); db.exec('COMMIT'); return saved!;
+        // This fresh phase starts after all writes. It cannot inherit a proof
+        // from preflight or prewrite, but its two readers share the same snapshot.
+        const saved = withBattedWorldPhysicalReadTraversal(db, () => {
+          if (!same(own.derive(source, true), value)) throw new Error('actual live receipt dependencies changed during write');
+          const saved = evidence.read(sourceId);
+          if (!same(saved, value)) throw new Error('actual live receipt changed during write');
+          if (liveFence) assertActualLivePlayWriteUnchanged(db, liveFence);
+          return saved!;
+        });
+        db.exec('COMMIT'); return saved;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     },
     close() { if (!closed) { db.close(); closed = true; } },

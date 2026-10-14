@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module';
 import type { PersistOfficialFinalInput, PersistOfficialPlayInput } from './SqliteOfficialStateStore';
-import type { OfficialFairBallScoringEvidence, SupportedOfficialScoringRecord } from '../core/adjudication/OfficialScoring';
+import type { OfficialFairBallScoringEvidence, OfficialCaughtFoulScoringEvidence, SupportedOfficialScoringRecord } from '../core/adjudication/OfficialScoring';
 import type { SqliteEvidenceGuard } from './SqliteEvidenceGuard';
 import { createSqliteOfficialScoringWriter } from './SqliteOfficialScoringWriter';
 import type { DatabaseSync as DatabaseSyncType } from 'node:sqlite';
@@ -23,9 +23,19 @@ export type PersistedOfficialScoring = Readonly<{
   record: SupportedOfficialScoringRecord;
 }>;
 export type AcceptedOfficialScoringEvidenceAuthority = Readonly<{
+  /** Additive completed-game assessment; existing play scoring archives stay immutable. */
+  readAcceptedPitchingRunJudgment?(sourceEventId: string):
+    import('../core/world/competition/OfficialPitchingRunResponsibility').OfficialPitchingRunJudgment | null;
   readAcceptedOfficialScoringEvidence(sourceEventId: string):
-    OfficialFairBallScoringEvidence | null;
+    AcceptedOfficialScoringEvidence | null;
 }>;
+/** Physical rule sidecar from an independently authenticated closed catch owner.
+ * Its original end and complete timeline are rechecked by the shared classifier. */
+export type OfficialFairCatchScoringEvidence = Readonly<{ schemaVersion: 1; sourceKind: 'owned_fair_catch'; sourceEventId: string;
+  physical: import('../core/adjudication/ActualFairCatchScoring').ActualFairCatchScoringInput }>;
+export type OfficialGroundOutScoringEvidence = Readonly<{ schemaVersion: 1; sourceKind: 'owned_ground_out'; sourceEventId: string;
+  ground: import('../core/adjudication/ActualGroundOutScoring').ActualGroundOutScoringInput }>;
+export type AcceptedOfficialScoringEvidence = OfficialFairBallScoringEvidence | OfficialCaughtFoulScoringEvidence | OfficialFairCatchScoringEvidence | OfficialGroundOutScoringEvidence;
 export type AcceptedScoredOfficialPlay = Readonly<{
   scoring: PersistedOfficialScoring;
   application: OfficialInput;

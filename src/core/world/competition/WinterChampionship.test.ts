@@ -3,7 +3,8 @@ import { asRuleProfileId } from '../../model/RuleProfileRef';
 import type { OfficialGameResult } from './OfficialGameCompletion';
 import type { OfficialStandingsSnapshot } from './OfficialStandings';
 import type { PostseasonSeriesPlan } from './PostseasonSeries';
-import { resolveWinterChampionship } from './WinterChampionship';
+import { createWinterChampionshipRoundSchedule,
+  resolveWinterChampionship } from './WinterChampionship';
 
 const clubs = ['a', 'b', 'c', 'd'];
 const regularStandings: OfficialStandingsSnapshot = {
@@ -47,10 +48,52 @@ const finalPlan: PostseasonSeriesPlan = {
       awayClubId: homeClubId === 'a' ? 'b' : 'a' };
   }),
 };
-const input = { version: 'winter-v1', regularSeasonStandings: regularStandings,
-  games, results: roundResults,
+const roundScheduleInput = { version: 'winter-v1',
+  regularSeasonStandings: regularStandings, games };
+const input = { ...roundScheduleInput, results: roundResults,
   tiebreakPolicy: { version: 'round-v1', tieCreditNumerator: 1,
     tieCreditDenominator: 2, runDifferentialCapPerGame: 10 } };
+
+it('prepares the top-four championship round before any results or round tiebreak policy exist', () => {
+  const schedule = createWinterChampionshipRoundSchedule(roundScheduleInput);
+  expect(schedule).toEqual({
+    seasonId: 'season-1', leagueId: 'dominican:championship-round',
+    memberClubIds: ['a', 'b', 'c', 'd'], regularSeasonGamesPerClub: 6,
+    revisionEventIds: [], games: games.map((game) => ({ ...game, seriesId: 'winter-v1' })),
+  });
+  expect(schedule.games[0]).not.toBe(games[0]);
+  expect(schedule.memberClubIds).not.toBe(regularStandings.orderedClubIds);
+});
+
+it('requires resolved regular standings and limits round entrants to the top four', () => {
+  expect(() => createWinterChampionshipRoundSchedule({ ...roundScheduleInput,
+    regularSeasonStandings: { ...regularStandings, orderedClubIds: null },
+  })).toThrow('resolved six-club regular-season standings');
+  expect(() => createWinterChampionshipRoundSchedule({ ...roundScheduleInput,
+    games: games.map((game, index) => index === 0 ? { ...game, homeClubId: 'e' } : game),
+  })).toThrow('invalid winter championship round game');
+});
+
+it.each([-1, 0.5, Number.NaN, Number.POSITIVE_INFINITY])(
+  'rejects an invalid round day %s before results exist', (day) => {
+    expect(() => createWinterChampionshipRoundSchedule({ ...roundScheduleInput,
+      games: games.map((game, index) => index === 0 ? { ...game, day } : game),
+    })).toThrow('invalid winter championship round game');
+  },
+);
+
+it('rejects simultaneous games and incomplete or repeated directed pairs before results exist', () => {
+  expect(() => createWinterChampionshipRoundSchedule({ ...roundScheduleInput,
+    games: games.map((game, index) => index === 1 ? { ...game, day: games[0].day } : game),
+  })).toThrow('winter club has simultaneous games');
+  expect(() => createWinterChampionshipRoundSchedule({ ...roundScheduleInput, games: games.slice(1) }))
+    .toThrow('double round robin');
+  expect(() => createWinterChampionshipRoundSchedule({ ...roundScheduleInput,
+    games: games.map((game, index) => index === 1 ? {
+      ...game, homeClubId: games[0].homeClubId, awayClubId: games[0].awayClubId,
+    } : game),
+  })).toThrow('one home game per directed pair');
+});
 
 it('validates a double round robin and advances its top two to a best-of-seven final', () => {
   const pending = resolveWinterChampionship(input, null);
