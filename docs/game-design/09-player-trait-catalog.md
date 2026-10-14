@@ -1,7 +1,7 @@
 # Player Rating / Trait Catalog — CANONICAL v1
 
-更新日: 2026-09-22  
-状態: **CANONICAL / DESIGN FROZEN v1。Trait Family / UI分類 / Lifecycle ClassのSource of Truth。実装前。**  
+更新日: 2026-10-14（2026-09-22 CANONICAL v1の悪球打ち定義をユーザー指示で補足）  
+状態: **CANONICAL / DESIGN FROZEN v1＋2026-10-14 USER-DIRECTED REFINEMENT。Trait Family / UI分類 / Lifecycle ClassのSource of Truth。**  
 親設計: `docs/game-design/08-player-traits-design-seed.md`
 
 ## 1. 目的
@@ -628,6 +628,31 @@ Presentation上で複数表示する場合も、「独立した長所が複数�
 | 対ストレート○ | ADOPT | fastball-family recognition / timing skill |
 | 対変化球○ | ADOPT | breaking/off-speed recognition / adjustment skill |
 | 初球○ / 一球入魂 | MERGE | first-pitch approach / execution Family |
+| 悪球打ち | REINTERPRET | ゾーン外の実際にバットが届く球に対し、崩れやすい姿勢でも本人の意図したスイング軌道・面・タイミングの再現精度を維持する技術。選球眼やボール球への積極性とは別 |
+
+### 5.2.1 悪球打ち — ボール球に対するスイング軌道保持（2026-10-14 USER-DIRECTED REFINEMENT）
+
+**正本の意味:** ストライクゾーン外の球、または普通の打者なら窮屈な体勢になる球に対しても、身体各部の協調とバット制御によって、本人が意図した理想的なスイング軌道をできる限り崩さず再現できる高度な**実行技術**。単にボール球へよく手を出す傾向ではない。
+
+因果順序:
+
+```text
+実投球の位置・速度・変化・時間
+  -> 球種/ゾーンの認識と「振る／見送る」の判断（別能力）
+  -> 身体寸法・足場・重心・可動域・バットの到達可能性
+  -> 悪球打ちの技術による無理な体勢下の軌道保持・バット面制御・時刻再現
+  -> 正史のバット軌跡とボールとの連続接触判定
+  -> 実際の打球初速・角度・回転と守備/ルール
+```
+
+- 特に**ゾーン外／窮屈な姿勢**での、狙った軌道からのズレ・面のブレ・スイングタイミングの崩れを抑える。普通のストライクへの打撃、raw power、純粋な目の良さと別に比較する。
+- 身体・バットが届かない位置までリーチを延長しない。無理な捕捉を保証せず、接触速度・角度・力学的に不利な球で弱い打球になることもある。強い技術でも毎球成功は保証しない。
+- 選球眼／ゾーン認識／追いかける行動傾向とは独立。悪球打ち保持者が必ずボール球を振るわけではなく、四球や見逃し頻度をラベルから変更しない。
+- 捕捉可能な球への同じスイング意思決定・同じ身体・同じ投球で、軌道保持技術だけを変えると、実際のバット軌跡と接触品質に差が現れ得る。事後的な安打率／本塁打率／コンタクト成功率への直接Buffは付けない。
+- **Blue-Redの固定Tradeoffにはしない。** 無理な体勢そのものに伴う実在リスクや、選球眼不足の結果としてのchase/弱い打球は普通の因果結果として残るが、技術を所持した罰として機械的な追いかけ率・弱打率を加算しない。
+- UIの「悪球打ち」は、該当する身体制御・打撃技術から導出したTrait表示。Match Coreへ「悪球打ち=true」として結果確率を加算せず、本人の正史の技術状態を動作計算に入力する。
+
+**比較検証:** 同一球道・打者・意思決定・乱数系列で当該技術のみを変え、窮屈な姿勢におけるバット軌道誤差と接触品質の差を確認する。見送った球、到達不能球、通常球の挙動が根拠なく改善せず、球速や球種が同じ条件で描画FPS変更・描画OFFでも正史結果が一致することを確認する。
 
 ## 5.3 Two-strike / Failure Adaptation
 
@@ -830,7 +855,7 @@ Long-run Acceptance:
 
 ## 7.2 野手
 
-- 悪球打ち -> expanded contact/chase behavior benefit ↔ chase / weak-contact risk
+- 悪球打ち -> **Blue-Redから§5.2.1の身体制御／スイング軌道保持技術へ移動（2026-10-14修正）**。chase判断とそのリスクは独立し、保持者への自動的な弱打罰則は付けない。旧解釈「expanded contact/chase behavior benefit ↔ chase / weak-contact risk」は現在の定義ではない。
 - 死球集中 -> **Blue-Redから外す。** plate-crowding / avoidance tendencyを表すNeutral Behavior候補。死球率そのものを直接変更しない
 
 ---
