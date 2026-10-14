@@ -1,12 +1,13 @@
 import { playerObservationCalibrationFixture } from '../../core/sim/perception/PlayerObservationCalibrationFixtures.test-support';
 import type { AcceptedActualFirstBaseUmpireSetup, AcceptedActualFirstBaseUmpireObservation, AcceptedActualFirstBaseUmpireCall } from './ActualFirstBaseUmpire';
 import { openSqliteActualFirstBaseUmpireStore } from './SqliteActualFirstBaseUmpireStore';
-import { battedWorldFieldRaceFixture } from './BattedWorldFieldRaceFixtures.test-support';
+import { battedWorldFieldRaceFixture, type FieldRaceCheckpointFixture } from './BattedWorldFieldRaceFixtures.test-support';
 
 /** Explicit synthetic timing ranges, static pose and attention only. */
 export const actualFirstBaseUmpireFixture = (configure?: (setup: AcceptedActualFirstBaseUmpireSetup) => AcceptedActualFirstBaseUmpireSetup,
-  defenderSeconds = 0.04, batterSeconds = 0.08, throughSeconds = 0.1, databasePath?: string) => {
-  const x = battedWorldFieldRaceFixture(databasePath, defenderSeconds, batterSeconds, throughSeconds);
+  defenderSeconds = 0.04, batterSeconds = 0.08, throughSeconds = 0.1, databasePath?: string, checkpoint?: FieldRaceCheckpointFixture) => {
+  const x = battedWorldFieldRaceFixture(databasePath, defenderSeconds, batterSeconds, throughSeconds, undefined, checkpoint);
+  try {
   x.sources.set(x.source.sourceId, { ...x.source, action: { kind: 'first_base_race', custodyPolicy: 'release_exclusive_v1' } });
   const race = x.executions.accept(x.source.sourceId), world = x.baseField.response.touch.worldContact;
   const p = playerObservationCalibrationFixture(), center = x.geometry.geometry.baseGeometry.bases.first.region.center;
@@ -30,4 +31,5 @@ export const actualFirstBaseUmpireFixture = (configure?: (setup: AcceptedActualF
     readAcceptedObservation: (id: string) => observations.get(id) ?? null, readAcceptedCall: (id: string) => calls.get(id) ?? null };
   const umpires = x.f.track(openSqliteActualFirstBaseUmpireStore(x.f.path, authority));
   return { ...x, race, setup: selected, observation, call, setups, observations, calls, authority, umpires };
+  } catch (error) { x.f.close(); throw error; }
 };
