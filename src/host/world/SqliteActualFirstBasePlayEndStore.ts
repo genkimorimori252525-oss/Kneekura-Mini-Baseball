@@ -1,3 +1,4 @@
+import { actualFoulTerminalClaims } from './ActualFoulPlayEndOwnership';
 import { actualLivePlayOwnerIdentityRow, actualFirstBaseTerminalClaims } from './ActualLivePlayOwnerMetadata';
 import { createRequire } from 'node:module';
 import { actualFirstBasePlayEndInput as input, type AcceptedActualFirstBasePlayEnd, type ActualFirstBaseEndedEvidence, type ActualFirstBasePlayEndEvidence } from './ActualFirstBasePlayEnd';
@@ -13,7 +14,9 @@ const assertTerminalClaims = (db: Pick<import('node:sqlite').DatabaseSync, 'prep
   value: ActualFirstBaseEndedEvidence, inserted: boolean) => {
   const rows = actualFirstBaseTerminalClaims(db, { gameId: value.gameId, playId: value.playId,
     physicalPitchSourceId: value.physicalPitchSourceId, runtimeSourceId: value.source.runtimeSourceId });
-  if (rows.length !== (inserted ? 1 : 0) || inserted && rows[0].source_id !== value.source.sourceId) {
+  if (actualFoulTerminalClaims(db, { gameId: value.gameId, playId: value.playId,
+    physicalPitchSourceId: value.physicalPitchSourceId, runtimeSourceId: value.source.runtimeSourceId }).length
+    || rows.length !== (inserted ? 1 : 0) || inserted && rows[0].source_id !== value.source.sourceId) {
     throw new Error('actual first-base terminal closure ownership claims differ');
   }
 };

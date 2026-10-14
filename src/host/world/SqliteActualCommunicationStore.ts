@@ -3,7 +3,7 @@ import { createRequire } from 'node:module';
 import { readOriginalPhysicalPitchPrefixFromSqlite } from './PhysicalPitchEvidenceFromSqlite';
 import { actualFirstBaseUmpireEvidenceFromSqlite } from './SqliteActualFirstBaseUmpireStore';
 import { battedWorldFieldEvidenceFromSqlite } from './SqliteBattedWorldFieldStore';
-import { battedWorldFieldExecutionEvidenceFromSqlite } from './SqliteBattedWorldFieldExecutionStore';
+import { battedWorldFieldExecutionEvidenceFromSqlite, withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { defensiveMetadataId as metadataId } from './ActualDefensiveMetadata';
 import { sqliteJsonMetadataNodes as nodes, sqliteJsonMetadataProjection as projection, sqliteJsonMetadataMatches as matches } from './SqliteOwnershipMetadata';
 import { umpireId as id } from './ActualFirstBaseUmpire';
@@ -181,6 +181,18 @@ export const openSqliteActualCommunicationStore = (path: string, authority?: Act
     CREATE TABLE IF NOT EXISTS actual_call_communication_heads (call_source_id TEXT PRIMARY KEY,source_id TEXT NOT NULL UNIQUE,revision INTEGER NOT NULL);`);
   const own = actualCommunicationEvidenceFromSqlite(db); let closed = false;
   const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed actual communication Source'); };
+  // Only pure call reads share this private snapshot; accepted-Source callbacks
+  // remain outside it and the existing write transaction reauthenticates afresh.
+  const reading = <T>(work: () => T): T => {
+    if (db.isTransaction) return work();
+    db.exec('BEGIN');
+    try { const value = withBattedWorldPhysicalReadTraversal(db, work); db.exec('COMMIT'); return value; }
+    catch (error) {
+      if (db.isTransaction) try { db.exec('ROLLBACK'); }
+      catch (cleanup) { throw new AggregateError([error, cleanup], 'actual communication private read rollback failed', { cause: error }); }
+      throw error;
+    }
+  };
   const pinModel = (value: DurableActualCommunicationModel) => {
     if (json(own.deriveModel(value.source)) !== json(value)) throw new Error('communication model original pitch changed');
   };
@@ -205,16 +217,19 @@ export const openSqliteActualCommunicationStore = (path: string, authority?: Act
         db.exec('COMMIT'); return saved;
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     },
-    read(sourceId: string) { check(sourceId); return own.read(sourceId); },
+    read(sourceId: string) { check(sourceId); return reading(() => own.read(sourceId)); },
     accept(sourceId: string) {
-      check(sourceId); const prior = own.read(sourceId), raw = authority?.readAcceptedCommunication(sourceId) ?? null;
+      check(sourceId); const prior = reading(() => own.read(sourceId)), raw = authority?.readAcceptedCommunication(sourceId) ?? null;
       const source = raw === null ? null : actualCommunicationInput(raw, sourceId);
       if (prior) {
         if (source && json(source) !== json(prior.source)) throw new Error('actual communication Source is frozen differently');
-        const saved = own.read(sourceId); if (!saved || json(saved) !== json(prior)) throw new Error('actual communication changed during retry'); return saved;
+        const saved = reading(() => own.read(sourceId)); if (!saved || json(saved) !== json(prior)) throw new Error('actual communication changed during retry'); return saved;
       }
       if (!source) throw new Error('accepted actual communication Source is unavailable');
-      const value = own.derive(source); own.currentBefore(value); const pins = json(own.rowsFor(source.callSourceId));
+      const { value, pins } = reading(() => {
+        const value = own.derive(source); own.currentBefore(value);
+        return { value, pins: json(own.rowsFor(source.callSourceId)) };
+      });
       db.exec('BEGIN IMMEDIATE');
       try {
         const liveFence = beginActualLivePitchWrite(db, value.physicalPitchSourceId, { owner: 'actual_call_communications', sourceId });

@@ -1,3 +1,4 @@
+import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
 import { assertOwnedRunnerFieldRoot, type OwnedRunnerFieldRootCapability } from './OwnedRunnerFieldRoot';
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
@@ -83,19 +84,30 @@ export const openSqliteBattedFirstFielderTouchStore = (path: string, contacts: P
   let closed = false;
   const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed first-fielder touch scope'); };
   const { read, derive, current } = battedFirstFielderTouchEvidenceFromSqlite(db);
+  // End each owned read snapshot before authority/peer callbacks or writes.
+  const reading = <T>(work: () => T): T => {
+    if (db.isTransaction) return work();
+    db.exec('BEGIN');
+    try { const value = withBattedWorldPhysicalReadTraversal(db, work); db.exec('COMMIT'); return value; }
+    catch (error) {
+      if (db.isTransaction) try { db.exec('ROLLBACK'); }
+      catch (cleanup) { throw new AggregateError([error, cleanup], 'first-fielder touch private read rollback failed', { cause: error }); }
+      throw error;
+    }
+  };
   return Object.freeze({
-    read(sourceId) { check(sourceId); return read(sourceId); },
+    read(sourceId) { check(sourceId); return reading(() => read(sourceId)); },
     accept(sourceId) {
       check(sourceId);
-      const prior = read(sourceId), raw = authority?.readAcceptedTouch(sourceId) ?? null, s = raw === null ? null : input(raw, sourceId);
+      const prior = reading(() => read(sourceId)), raw = authority?.readAcceptedTouch(sourceId) ?? null, s = raw === null ? null : input(raw, sourceId);
       if (prior) {
         if (s && json(s) !== json(prior.source)) throw new Error('first-fielder touch Source is frozen differently');
-        const original = read(sourceId);
+        const original = reading(() => read(sourceId));
         if (!original || json(original) !== json(prior)) throw new Error('original first-fielder touch changed during retry');
         return original;
       }
       if (!s) throw new Error('accepted first-fielder touch Source is missing');
-      const value = derive(s); current(value);
+      const value = reading(() => { const derived = derive(s); current(derived); return derived; });
       const peer = contacts.read(s.worldContactSourceId);
       if (!peer || json(peer) !== json(value.worldContact)) throw new Error('first-fielder touch peer World contact differs');
       db.exec('BEGIN IMMEDIATE');

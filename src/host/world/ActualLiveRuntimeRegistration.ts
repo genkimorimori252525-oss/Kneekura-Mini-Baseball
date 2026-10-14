@@ -33,6 +33,8 @@ const domains: readonly Domain[] = [
   { owner: 'actual_first_base_umpire_calls', links: [['observationSourceId', 'dependency_source_id', 'actual_first_base_umpire_observations'], ['currentExecutionSourceId', 'current_execution_source_id', 'batted_world_field_executions']] },
   { owner: 'actual_call_communications', links: [['callSourceId', 'call_source_id', 'actual_first_base_umpire_calls'], ['modelSourceId', 'model_source_id', 'actual_communication_models'], ['currentExecutionSourceId', 'current_execution_source_id', 'batted_world_field_executions']], head: { owner: 'actual_call_communication_heads', links: [['callSourceId', 'call_source_id', 'actual_first_base_umpire_calls']] } },
 ];
+/** A private copy of the declared dependency graph; consumers cannot mutate registration. */
+export const originalLiveOwnerDomains = (): readonly Domain[] => structuredClone(domains);
 const mirrors: readonly (readonly [string, Path])[] = [['source_json', []], ['snapshot_json', ['source']],
   ['snapshot_json', ['history', { array: 'all' }]], ['snapshot_json', ['history']]];
 const contexts: readonly Path[] = [[], ['recipient'], ['receipt', 'self'], ['receipt', 'self', 'cut'], ['setup'], ['observation'], ['observation', 'setup'], ['baseField'], ['scope'], ['execution', 'physicalHistory', 'scope']];

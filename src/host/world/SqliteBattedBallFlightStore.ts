@@ -9,6 +9,7 @@ import { DEFAULT_CONTACT_PARAMETERS } from '../../core/sim/contact/BatBallContac
 import { actorJson as json, actorHash as hash, actorFreeze as freeze, assertPhysicalActorOpenFrame } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { assertPriorPhysicalClosureCompleted } from './PhysicalPlayClosureEvidenceFromSqlite';
 import { readPhysicalPitchProgressFromSqlite, readOriginalPhysicalPitchPrefixFromSqlite, captureOriginalPhysicalPitchRows } from './PhysicalPitchEvidenceFromSqlite';
+import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import type { DurablePhysicalPitch, SqlitePhysicalPitchProgressStore } from './SqlitePhysicalPitchProgressStore';
 
 export type AcceptedBattedBallFlight = Readonly<{
@@ -144,19 +145,31 @@ export const openSqliteBattedBallFlightStore = (path: string,
   let closed = false;
   const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed batted flight scope'); };
   const { read, derive, openFrame, currentHead, predecessor } = battedBallFlightEvidenceFromSqlite(db);
+  // Each pure read group owns one snapshot. End it before authority/peer
+  // callbacks so their committed changes remain visible to the next audit.
+  const reading = <T>(work: () => T): T => {
+    if (db.isTransaction) return work();
+    db.exec('BEGIN');
+    try { const value = withBattedWorldPhysicalReadTraversal(db, work); db.exec('COMMIT'); return value; }
+    catch (error) {
+      if (db.isTransaction) try { db.exec('ROLLBACK'); }
+      catch (cleanup) { throw new AggregateError([error, cleanup], 'batted flight private read rollback failed', { cause: error }); }
+      throw error;
+    }
+  };
   return Object.freeze({
-    read(sourceId) { check(sourceId); return read(sourceId); },
+    read(sourceId) { check(sourceId); return reading(() => read(sourceId)); },
     accept(sourceId) {
-      check(sourceId); const prior = read(sourceId), raw = authority?.readAcceptedFlight(sourceId) ?? null;
+      check(sourceId); const prior = reading(() => read(sourceId)), raw = authority?.readAcceptedFlight(sourceId) ?? null;
       const s = raw === null ? null : input(raw, sourceId);
       if (prior) {
         if (s && json(s) !== json(prior.source)) throw new Error('batted flight Source is frozen differently');
-        const original = read(sourceId);
+        const original = reading(() => read(sourceId));
         if (!original || json(original) !== json(prior)) throw new Error('batted flight original evidence changed during retry');
         return original;
       }
       if (!s) throw new Error('accepted batted flight Source is missing');
-      const value = derive(s, predecessor(s)); openFrame(value.physicalPitch);
+      const value = reading(() => { const derived = derive(s, predecessor(s)); openFrame(derived.physicalPitch); return derived; });
       const peer = physicalPitches.readAcceptedPitch(s.physicalPitchSourceId);
       if (!peer || json(peer) !== json(value.physicalPitch)) throw new Error('batted flight peer physical evidence differs');
       db.exec('BEGIN IMMEDIATE');

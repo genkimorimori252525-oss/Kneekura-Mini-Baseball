@@ -1,3 +1,4 @@
+import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { assertSupportedBattedWorldConsumer } from './BattedWorldRunnerConsumerBoundary';
 import { assertOwnedRunnerFieldRoot, type OwnedRunnerFieldRootCapability } from './OwnedRunnerFieldRoot';
 import { beginActualLivePitchWrite, recordActualLivePlayAdmission, assertActualLivePlayWriteUnchanged } from './ActualLivePlayFence';
@@ -138,21 +139,32 @@ export const openSqliteBattedContactResponseStore = (path: string, touches: Pick
   let closed = false;
   const check = (sourceId: string) => { if (closed || !id(sourceId)) throw new Error('invalid or closed batted response scope'); };
   const { read, readModel, sameModel, derive, current, own } = battedContactResponseEvidenceFromSqlite(db);
+  // End each owned read snapshot before authority/peer callbacks or writes.
+  const reading = <T>(work: () => T): T => {
+    if (db.isTransaction) return work();
+    db.exec('BEGIN');
+    try { const value = withBattedWorldPhysicalReadTraversal(db, work); db.exec('COMMIT'); return value; }
+    catch (error) {
+      if (db.isTransaction) try { db.exec('ROLLBACK'); }
+      catch (cleanup) { throw new AggregateError([error, cleanup], 'batted response private read rollback failed', { cause: error }); }
+      throw error;
+    }
+  };
   return Object.freeze({
-    read(sourceId) { check(sourceId); return read(sourceId); },
+    read(sourceId) { check(sourceId); return reading(() => read(sourceId)); },
     accept(sourceId) {
-      check(sourceId); const prior = read(sourceId), raw = authority?.readAcceptedResponse(sourceId) ?? null, s = raw === null ? null : input(raw, sourceId);
+      check(sourceId); const prior = reading(() => read(sourceId)), raw = authority?.readAcceptedResponse(sourceId) ?? null, s = raw === null ? null : input(raw, sourceId);
       if (prior) {
         if (s && json(s) !== json(prior.source)) throw new Error('batted response Source is frozen differently');
-        const original = read(sourceId);
+        const original = reading(() => read(sourceId));
         if (!original || json(original) !== json(prior)) throw new Error('batted response original changed during retry');
         return original;
       }
       if (!s) throw new Error('accepted batted response Source is missing');
-      const originalModel = readModel(s.responseModelSourceId), rawModel = authority?.readAcceptedModel(s.responseModelSourceId) ?? null;
+      const originalModel = reading(() => readModel(s.responseModelSourceId)), rawModel = authority?.readAcceptedModel(s.responseModelSourceId) ?? null;
       const m = rawModel === null ? originalModel : modelInput(rawModel, s.responseModelSourceId);
-      if (!m) throw new Error('accepted batted response model is missing'); sameModel(m);
-      const value = derive(s, m); own.current(value.touch);
+      if (!m) throw new Error('accepted batted response model is missing');
+      const value = reading(() => { sameModel(m); const derived = derive(s, m); own.current(derived.touch); return derived; });
       const peer = touches.read(s.firstFielderTouchSourceId);
       if (!peer || json(peer) !== json(value.touch)) throw new Error('batted response peer first-fielder touch differs');
       db.exec('BEGIN IMMEDIATE');

@@ -5,6 +5,9 @@ import { join } from 'node:path';
 import { beforeEach, expect, it, vi } from 'vitest';
 import { actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 
+type FieldOwnerModule = typeof import('./SqliteBattedWorldFieldStore');
+type ExecutionOwnerModule = typeof import('./SqliteBattedWorldFieldExecutionStore');
+const real = vi.hoisted(() => ({ field: null as FieldOwnerModule | null, execution: null as ExecutionOwnerModule | null }));
 // Tiny owner-wiring tests: physics sampling is replaced by deterministic outputs.
 // SQLite identity, snapshots, transactions and all umpire/communication reads are real.
 const state = vi.hoisted(() => ({ reads: 0, scopes: 0, pairs: 0, fieldScopes: 0,
@@ -12,12 +15,23 @@ const state = vi.hoisted(() => ({ reads: 0, scopes: 0, pairs: 0, fieldScopes: 0,
 vi.mock('./PhysicalPitchEvidenceFromSqlite', () => ({ readOriginalPhysicalPitchPrefixFromSqlite: () => [{
   source: { sourceId: 'pitch' }, frame: { gameId: 'game', batterActor: { binding: { playerId: 'batter' } }, world: { runners: [], defenders: [] } },
 }] }));
-vi.mock('./SqliteBattedWorldFieldStore', () => ({ battedWorldFieldEvidenceFromSqlite: () => ({ scope: () => {
+// Publish complete mocks before importing real traversal helpers. Loading either
+// original module inside its factory crosses back through umpire/communication
+// consumers while Vitest bypasses the still-resolving mock on that call stack.
+vi.mock('./SqliteBattedWorldFieldStore', () => ({
+  withBattedWorldFieldReadTraversal: <T>(db: Parameters<FieldOwnerModule['withBattedWorldFieldReadTraversal']>[0], body: () => T): T =>
+    real.field!.withBattedWorldFieldReadTraversal(db, body),
+  activeBattedWorldFieldReadFrame: (...args: Parameters<FieldOwnerModule['activeBattedWorldFieldReadFrame']>) =>
+    real.field!.activeBattedWorldFieldReadFrame(...args),
+  isAuthenticatedBattedWorldFieldTraversalValue: (...args: Parameters<FieldOwnerModule['isAuthenticatedBattedWorldFieldTraversalValue']>) =>
+    real.field!.isAuthenticatedBattedWorldFieldTraversalValue(...args),
+  battedWorldFieldEvidenceFromSqlite: () => ({ scope: () => {
   state.fieldScopes++; state.fieldHook?.(); return [];
 } }) }));
 vi.mock('./SqliteBattedWorldFieldExecutionStore', () => {
   const value = (id: string) => ({ source: { sourceId: id }, generation: state.generation, baseField: { source: { sourceId: 'field' } } });
-  return { battedWorldFieldExecutionEvidenceFromSqlite: () => ({
+  return { withBattedWorldPhysicalReadTraversal: <T>(db: Parameters<ExecutionOwnerModule['withBattedWorldPhysicalReadTraversal']>[0], body: () => T): T =>
+    real.execution!.withBattedWorldPhysicalReadTraversal(db, body), battedWorldFieldExecutionEvidenceFromSqlite: () => ({
     read: (id: string) => { state.reads++; return value(id); },
     scope: (_base: unknown, id: string) => { state.scopes++; return [value(id)]; },
     readWithExecutions: (id: string) => { state.pairs++; return state.missing ? null : { value: value(id), executions: [value(id)] }; },
@@ -43,6 +57,8 @@ vi.mock('./ActualCallCommunication', async importOriginal => ({
 }));
 import { openSqliteActualFirstBaseUmpireStore, actualFirstBaseUmpireEvidenceFromSqlite } from './SqliteActualFirstBaseUmpireStore';
 import { openSqliteActualCommunicationStore, actualCommunicationEvidenceFromSqlite } from './SqliteActualCommunicationStore';
+real.field = await vi.importActual<FieldOwnerModule>('./SqliteBattedWorldFieldStore');
+real.execution = await vi.importActual<ExecutionOwnerModule>('./SqliteBattedWorldFieldExecutionStore');
 const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite');
 const resetCounts = () => { state.reads = 0; state.scopes = 0; state.pairs = 0; state.fieldScopes = 0; };
 beforeEach(() => { resetCounts(); state.missing = false; state.generation = 0; state.fieldHook = null; });
@@ -134,7 +150,7 @@ it('keeps acceptance and identical retries fresh while preserving every stored c
     expect(state.pairs).toBeGreaterThan(0);
     const before = x.db.prepare('SELECT * FROM actual_call_communications').all(); resetCounts();
     expect(json(x.comm.accept('communication'))).toBe(json(first));
-    expect(state.reads).toBeGreaterThan(0); expect(state.scopes).toBe(state.reads); expect(state.pairs).toBe(0);
+    expect(state.reads).toBe(0); expect(state.scopes).toBe(0); expect(state.pairs).toBeGreaterThan(0);
     expect(x.db.prepare('SELECT * FROM actual_call_communications').all()).toEqual(before);
     x.db.prepare('UPDATE actual_communication_models SET snapshot_hash=?').run('changed-before-retry');
     expect(() => x.comm.accept('communication')).toThrow(/corrupt actual communication model/);

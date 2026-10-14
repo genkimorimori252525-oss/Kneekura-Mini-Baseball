@@ -1,3 +1,4 @@
+import { originalFoulMetadataValues } from './OriginalFoulOwnershipMetadata';
 import type { DatabaseSync } from 'node:sqlite';
 import { cloneInert } from '../../core/adjudication/OfficialWindowPolicy';
 import type { AcceptedActualSettledFoulStopProduction } from './ActualSettledFoulStopProducer';
@@ -55,17 +56,7 @@ export const settledFoulStopOwnership = (db: DatabaseSync) => {
     return true;
   };
   const all = (): SettledFoulStopRow[] => installed() ? db.prepare('SELECT * FROM main.' + settledFoulStopTable).all() as SettledFoulStopRow[] : [];
-  const values = (document: string, path: readonly string[]): Scalar[] => db.prepare(`
-    WITH RECURSIVE metadata(depth,value,type,atom) AS (
-      SELECT 0,CASE WHEN json_valid($document) THEN $document ELSE 'null' END,
-        json_type(CASE WHEN json_valid($document) THEN $document ELSE 'null' END),NULL
-      UNION ALL
-      SELECT m.depth+CASE WHEN m.type='object' THEN 1 ELSE 0 END,c.value,c.type,c.atom
-      FROM metadata m,json_each(CASE WHEN m.type IN ('object','array') THEN m.value ELSE '{}' END) c
-      WHERE (m.type='object' AND m.depth<$length AND c.key=json_extract($path,'$['||m.depth||']'))
-        OR (m.type='array' AND m.depth<=$length)
-    ) SELECT atom FROM metadata WHERE depth=$length AND type NOT IN ('object','array')`)
-    .all({ document, path: json(path), length: path.length }).map(r => r.atom as Scalar);
+  const values = (document: string, path: readonly string[]): Scalar[] => originalFoulMetadataValues(db, document, path);
   type IdentityRow = Pick<SettledFoulStopRow, 'source_id' | 'source_json' | 'snapshot_json'>;
   const sourceValues = (row: IdentityRow, key: string) => [
     ...values(row.source_json, [key]), ...values(row.snapshot_json, ['source', key]), ...values(row.snapshot_json, ['history', key]),

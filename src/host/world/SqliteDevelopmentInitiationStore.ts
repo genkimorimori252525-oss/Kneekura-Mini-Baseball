@@ -10,6 +10,10 @@ import type { RecordedDevelopmentInitiation } from
 import { resolveDevelopmentEpisodeFromAcceptedAppraisal,
   type DevelopmentAppraisalSources } from
   './DevelopmentEpisodeFromAcceptedAppraisal';
+import { readOwnedPitchPracticeAttempt } from './SqlitePitchPracticeAttemptStore';
+import { PRACTICE_DEVELOPMENT_KIND, capturePracticeOriginEvidence, practiceOriginRequest, practiceOriginRow,
+  readPracticeDevelopmentBoundary, resolvePracticeDevelopmentOrigin, validatePracticeDevelopmentIntake, validatePracticeDevelopmentRequest,
+  type PracticeDevelopmentRequest, type PracticeDevelopmentSources, type PracticeOrigin, type PracticeOriginRow } from './PracticeDevelopmentOrigin';
 
 export type DevelopmentInitiationSourceRequest = Readonly<{
   episodeId: string;
@@ -31,6 +35,7 @@ export type DevelopmentLearningEvidenceGuard = (
 export type SqliteDevelopmentInitiationStore = Readonly<{
   apply(input: DevelopmentInitiationSourceRequest):
     RecordedDevelopmentInitiation;
+  applyPractice(input: PracticeDevelopmentRequest): RecordedDevelopmentInitiation;
   advance(episodeId: string, sourceId: string,
     expectedRevision: number): DevelopmentLearningEpisode;
   read(episodeId: string): RecordedDevelopmentInitiation | null;
@@ -61,7 +66,7 @@ const canonicalJson = (value: unknown): string => JSON.stringify(
 /** Durable episode assessment and accepted learning progression for one Career. */
 export const openSqliteDevelopmentInitiationStore = (
   databasePath: string,
-  sources: Omit<DevelopmentAppraisalSources, 'history'>,
+  sources: Omit<DevelopmentAppraisalSources, 'history'> & Readonly<{ practice?: PracticeDevelopmentSources }>,
   learningAuthority?: AcceptedDevelopmentLearningAuthority | null,
   evidenceGuard?: DevelopmentLearningEvidenceGuard,
 ): SqliteDevelopmentInitiationStore => {
@@ -92,6 +97,13 @@ export const openSqliteDevelopmentInitiationStore = (
     after_revision INTEGER NOT NULL CHECK(after_revision > before_revision),
     event_json TEXT NOT NULL, state_json TEXT NOT NULL,
     UNIQUE(episode_id, after_revision)
+  );
+  CREATE TABLE IF NOT EXISTS world_development_practice_origins (
+    episode_id TEXT PRIMARY KEY, career_id TEXT NOT NULL, player_id TEXT NOT NULL,
+    discovery_event_id TEXT NOT NULL, motif_id TEXT NOT NULL, attempt_id TEXT NOT NULL,
+    appraisal_source_id TEXT NOT NULL UNIQUE, source_version TEXT NOT NULL,
+    origin_json TEXT NOT NULL, origin_hash TEXT NOT NULL,
+    UNIQUE(career_id, player_id, discovery_event_id)
   );`);
   const get = db.prepare(`SELECT * FROM world_development_initiations
     WHERE episode_id=?`);
@@ -103,6 +115,11 @@ export const openSqliteDevelopmentInitiationStore = (
     ORDER BY after_revision`);
   const getLearningSource = db.prepare(`SELECT * FROM
     world_development_learning_events WHERE source_id=?`);
+  const getOrigin = db.prepare('SELECT * FROM world_development_practice_origins WHERE episode_id=?');
+  const readPhysical = (attemptId: string) => {
+    if (!sources.practice) throw new Error('practice development physical source owner is required');
+    return readOwnedPitchPracticeAttempt(sources.practice.attempts, db, attemptId);
+  };
   const resolve = (input: DevelopmentInitiationSourceRequest,
     prior: readonly RecordedDevelopmentInitiation[]) =>
     resolveDevelopmentEpisodeFromAcceptedAppraisal({ ...sources,
@@ -110,9 +127,12 @@ export const openSqliteDevelopmentInitiationStore = (
   const read = (episodeId: string): RecordedDevelopmentInitiation | null => {
     if (!id(episodeId)) throw new Error('invalid development episodeId');
     const row = get.get(episodeId) as InitiationRow | undefined;
-    if (!row) return null;
+    if (!row) {
+      if (getOrigin.get(episodeId)) throw new Error('orphan practice development origin');
+      return null;
+    }
     const request = JSON.parse(row.request_json) as
-      DevelopmentInitiationSourceRequest;
+      DevelopmentInitiationSourceRequest & { kind?: unknown };
     const prior = JSON.parse(row.prior_json) as
       RecordedDevelopmentInitiation[];
     if (request.episodeId !== episodeId
@@ -121,7 +141,12 @@ export const openSqliteDevelopmentInitiationStore = (
       || canonicalJson(prior) !== row.prior_json) {
       throw new Error('corrupt development initiation source');
     }
-    const initial = resolve(request, prior);
+    if (Object.hasOwn(request, 'kind') && request.kind !== PRACTICE_DEVELOPMENT_KIND) {
+      throw new Error('invalid development initiation source kind');
+    }
+    if (!Object.hasOwn(request, 'kind') && getOrigin.get(episodeId)) throw new Error('practice origin cannot use a legacy request');
+    const initial = request.kind === PRACTICE_DEVELOPMENT_KIND
+      ? readPracticeDevelopmentBoundary(db, row, readPhysical).initial : resolve(request, prior);
     if (initial.assessment.careerId !== row.career_id
       || initial.assessment.playerId !== row.player_id
       || initial.assessment.atDay !== row.at_day
@@ -192,6 +217,64 @@ export const openSqliteDevelopmentInitiationStore = (
   };
   let closed = false;
   return Object.freeze({
+    applyPractice(rawInput): RecordedDevelopmentInitiation {
+      const input = validatePracticeDevelopmentRequest(rawInput);
+      return transaction(() => {
+        const existing = read(input.episodeId);
+        const raw = sources.practice?.readAcceptedAppraisal?.(input.appraisalSourceId) ?? null;
+        const policyInput = sources.policies.readAcceptedPolicies(input.policySourceId);
+        if (existing) {
+          const saved = getOrigin.get(input.episodeId) as PracticeOriginRow | undefined;
+          if (!saved) throw new Error('development episode already belongs to a different source');
+          const origin = JSON.parse(saved.origin_json) as PracticeOrigin;
+          if (canonicalJson(input) !== canonicalJson(origin.request)
+            || raw !== null && canonicalJson(raw) !== canonicalJson(origin.appraisal)
+            || policyInput !== null && canonicalJson(policyInput) !== canonicalJson(origin.policies)) {
+            throw new Error('practice development accepted source is frozen differently');
+          }
+          return existing;
+        }
+        if (!raw || !policyInput || !sources.practice) throw new Error('accepted practice appraisal or policies are missing');
+        const { appraisal, policies } = validatePracticeDevelopmentIntake(input, raw, policyInput);
+        if (db.prepare('SELECT episode_id FROM world_development_practice_origins WHERE career_id=? AND player_id=? AND discovery_event_id=?')
+          .get(appraisal.careerId, input.playerId, appraisal.discovery.sourceEventId)) {
+          throw new Error('canonical practice discovery has already been consumed');
+        }
+        const evidence = capturePracticeOriginEvidence(db, input, appraisal, readPhysical);
+        const prior = readAcceptedPrior(appraisal.careerId, input.playerId, Number.MAX_SAFE_INTEGER);
+        const origin: PracticeOrigin = { request: input, appraisal, policies, evidence, prior };
+        const reserved = practiceOriginRow(origin);
+        const assertOrigin = () => {
+          if (canonicalJson(getOrigin.get(input.episodeId)) !== canonicalJson(reserved)
+            || canonicalJson(capturePracticeOriginEvidence(db, input, appraisal, readPhysical)) !== canonicalJson(evidence)) {
+            throw new Error('practice development source or reservation differs on writer');
+          }
+        };
+        // Both engagement and dismissal consume this canonical event. The
+        // reservation and assessment share the existing initiation transaction.
+        db.prepare(`INSERT INTO world_development_practice_origins
+          (episode_id,career_id,player_id,discovery_event_id,motif_id,attempt_id,appraisal_source_id,source_version,origin_json,origin_hash)
+          VALUES (?,?,?,?,?,?,?,?,?,?)`).run(reserved.episode_id, reserved.career_id, reserved.player_id, reserved.discovery_event_id,
+          reserved.motif_id, reserved.attempt_id, reserved.appraisal_source_id, reserved.source_version, reserved.origin_json, reserved.origin_hash);
+        assertOrigin();
+        const result = resolvePracticeDevelopmentOrigin(origin);
+        const expected = { episode_id: input.episodeId, career_id: appraisal.careerId, player_id: input.playerId,
+          at_day: appraisal.appraisal.atDay, appraisal_source_id: input.appraisalSourceId,
+          request_json: canonicalJson(practiceOriginRequest(origin)), prior_json: canonicalJson(prior),
+          assessment_json: canonicalJson(result.assessment), initial_json: canonicalJson(result.episode),
+          current_json: canonicalJson(result.episode), revision: result.episode.revision };
+        db.prepare(`INSERT INTO world_development_initiations
+          (episode_id,career_id,player_id,at_day,appraisal_source_id,request_json,prior_json,assessment_json,initial_json,current_json,revision)
+          VALUES (?,?,?,?,?,?,?,?,?,?,?)`).run(expected.episode_id, expected.career_id, expected.player_id, expected.at_day,
+          expected.appraisal_source_id, expected.request_json, expected.prior_json, expected.assessment_json, expected.initial_json,
+          expected.current_json, expected.revision);
+        assertOrigin();
+        if (canonicalJson(get.get(input.episodeId)) !== canonicalJson(expected)) throw new Error('practice development written assessment differs');
+        const replayed = read(input.episodeId)!;
+        if (canonicalJson(replayed) !== canonicalJson(result)) throw new Error('practice development written replay differs');
+        return replayed;
+      });
+    },
     apply(input: DevelopmentInitiationSourceRequest):
     RecordedDevelopmentInitiation {
       if (!input || !id(input.episodeId)
