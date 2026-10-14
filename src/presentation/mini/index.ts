@@ -5,3 +5,4 @@ export * from './MiniPresentationTimeline';
 export * from './BallDoubleCadence';
 export * from './BroadcastScenePolicy';
 export * from './TakenPitchObserver';
+export * from './BatDoubleCadence';
