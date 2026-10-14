@@ -3,3 +3,4 @@ export * from './BatterPovCamera';
 export * from './BatterPovRenderState';
 export * from './MiniPresentationTimeline';
 export * from './BallDoubleCadence';
+export * from './BroadcastScenePolicy';
