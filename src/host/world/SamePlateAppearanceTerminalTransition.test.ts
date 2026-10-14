@@ -12,10 +12,12 @@ import { SqliteOfficialStateStore } from '../SqliteOfficialStateStore';
 import { openSqliteOfficialScoringStore } from '../SqliteOfficialScoringStore';
 import { openSqliteSamePlateAppearanceEnrollmentStore } from './SqliteSamePlateAppearanceEnrollmentStore';
 import { openSqliteSamePlateAppearanceTerminalTransitionStore } from './SqliteSamePlateAppearanceTerminalTransitionStore';
-import { actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { actorHash as hash, actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { samePaTerminalSchema } from './SamePlateAppearanceTerminalStorage';
 import { samePaTerminalTransitionInput, type AcceptedSamePaTerminalTransition } from './SamePlateAppearanceTerminalTransition';
-import { readSamePaTerminalTransitionFromSqlite } from './SamePlateAppearanceTerminalTransitionFromSqlite';
+import { deriveSamePaTerminalTransition, readSamePaTerminalTransitionFromSqlite } from './SamePlateAppearanceTerminalTransitionFromSqlite';
+import { memoSamePaLifecycleRead } from './SamePlateAppearanceLifecycleFromSqlite';
+import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
 import { assertSamePaTerminalApplicationCompleted } from './SamePlateAppearanceTerminalActivation';
 import { withBattedVenueLegalReadSnapshot } from './SqliteBattedVenueLegalPolicyStore';
 import type { SamePaTerminalEndpoint } from './SamePlateAppearanceTerminalEndpoint';
@@ -113,6 +115,40 @@ const setup = (outs = 1, final = false, terminalFoul = false) => {
   const owner = openSqliteSamePlateAppearanceTerminalTransitionStore(f.path, { readAcceptedTransition: id => sources.get(id) ?? null }); close.push(() => owner.close());
   return { f, endpoint, source, sources, owner, incomplete: () => { settled = { ...settled, kind: 'applying' }; } };
 };
+it('TTRP01 shares sequential terminal ancestry only inside each Native transition derivation', () => {
+  const x = setup(), db = x.f.db, observed: { stage: string; value: Readonly<{ revision: number }> }[] = [];
+  let reads = 0;
+  const observe = (stage: string) => observed.push({ stage, value: memoSamePaLifecycleRead(db, 'transition-test-ancestry', () => {
+    reads++; return freeze({ revision: Number(db.prepare('SELECT durable_revision FROM matches').get()!.durable_revision) });
+  }) });
+  // The existing endpoint and settlement fixtures remain explicit substitutes;
+  // the Native transaction, shared memo and complete transition body are real.
+  const settlement = vi.mocked(settlementReader.readSamePaTerminalSettlementFromSqlite).getMockImplementation()!;
+  vi.mocked(endpointReader.readSamePaTerminalEndpointFromSqlite).mockImplementation((connection, ref, mode) => {
+    expect(connection).toBe(db); expect(ref).toEqual(x.source.terminalReference); observe('endpoint:' + mode); return x.endpoint;
+  });
+  vi.mocked(settlementReader.readSamePaTerminalSettlementFromSqlite).mockImplementation((connection, ref, mode) => {
+    expect(connection).toBe(db); expect(ref).toEqual(x.source.settlementReference); observe('settlement:' + (mode ?? 'historical'));
+    return settlement(connection, ref, mode);
+  });
+  expect(() => deriveSamePaTerminalTransition(db, x.source)).toThrow('owned main-only Native read proof');
+  expect(observed).toEqual([]);
+  const before = json(db.prepare('SELECT * FROM matches').all()), changes = db.prepare('SELECT total_changes() n').get()!.n;
+  const results: string[] = [];
+  let prior: Readonly<{ revision: number }> | undefined;
+  withSqliteReadTransaction(db, () => {
+    for (const [index, mode] of (['historical', 'current', 'historical'] as const).entries()) {
+      const start = observed.length, value = deriveSamePaTerminalTransition(db, x.source, undefined, mode);
+      const calls = observed.slice(start), proof = calls[0].value;
+      expect(calls.map(call => call.stage)).toEqual(['endpoint:' + mode, 'settlement:historical']);
+      expect(calls.every(call => call.value === proof)).toBe(true); expect(proof).not.toBe(prior); prior = proof;
+      expect(reads).toBe(index + 1); expect(Object.isFrozen(value)).toBe(true); results.push(json(value));
+    }
+  });
+  expect(new Set(results).size).toBe(1); expect(json(db.prepare('SELECT * FROM matches').all())).toBe(before);
+  expect(db.prepare('SELECT total_changes() n').get()!.n).toBe(changes);
+  expect(db.isTransaction).toBe(false); expect(db.prepare('PRAGMA query_only').get()!.query_only).toBe(0);
+});
 it('rejects caller-supplied terminal snapshots or ambiguous continuation/final fields', () => {
   const x = setup(); expect(samePaTerminalTransitionInput(x.source)).toEqual(x.source);
   for (const change of [{ result: {} }, { kind: 'game_final' }, { worldSetup: { ...x.source.worldSetup, activePreviousPlayControllerIds: ['old'] } }])

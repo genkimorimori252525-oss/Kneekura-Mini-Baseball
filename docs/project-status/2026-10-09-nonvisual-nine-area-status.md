@@ -1,6 +1,6 @@
 # 元9領域の非デザイン実装状況
 
-2026-10-14 更新。現在の統合src treeは `9e498c7bce20ae015dfa43f2846c95e236b82aa2`。
+2026-10-14 更新。現在の統合src treeは `b8e99a25cb5aa9afce821f27071687d13893c225`。
 元計画の非デザイン接続を対象とし、UI・デザインと新しい球種体系は対象外。
 実装済みAPI、実際の経路で得た証拠、未定義の仕様を分ける。確定した作業量の分母がないため、正確な完了率は算出しない。
 
@@ -13,6 +13,8 @@
 - 実import受理後から元rights以後を続ける厳密な入口を追加。元20 callback assertionsと後半本文、旧入口の契約を保持し、改変Source・重複import・先へ進んだ状態を拒否する。全compiler38.148秒・関連23件7.351秒がPASS。
 
 [実装・測定条件・結果](2026-10-14-live-appeal-proof-read-sharing.md)。
+
+初期認証側でも、terminal transition内の2回、release内の3回の同じ祖先復元を、既存の同一transactionのread phaseへまとめた。検査本文とwriter/current/retry境界は維持する。独立review CLEAR、全compiler34.514秒、変更2files全43件199.469秒PASS。初回180秒上限の未完を保持し、同じ43件を360秒有限枠で再確認した。実時間の改善と認証全体への寄与は未測定。[最小変更と検証](2026-10-14-terminal-read-phase-sharing.md)。
 
 ## 残る元LAN経路
 

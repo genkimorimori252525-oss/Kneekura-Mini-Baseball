@@ -1,5 +1,6 @@
 import { createRequire } from 'node:module';
 import type { DatabaseSync } from 'node:sqlite';
+import { withSamePaLifecycleReadPhase } from './SamePlateAppearanceLifecycleFromSqlite';
 import { advancePlayerWorkloadRecovery } from '../../core/world/development/PlayerWorkloadRecovery';
 import { actorFreeze as freeze, actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { readActualRoleWorkloadState } from './ActualRoleWorkloadState';
@@ -82,20 +83,22 @@ export const readSamePaTerminalReleaseFromSqlite = (db: DatabaseSync, enrollment
   nativeRead(db);
   const release = readSamePaTerminalReleaseArchive(db, enrollmentSourceId);
   if (!release) return null;
-  same(readSamePaReleasedClaimCensus(db, enrollmentSourceId), release.claimCensus, 'released preparation/work claim census changed');
-  const settled = readSamePaTerminalSettlementFromSqlite(db, release.settlementReference);
-  if (settled.kind !== 'settled') throw new Error('same-PA release requires every exact durable effect');
-  const transition = readSamePaTerminalTransitionFromSqlite(db, release.terminalReference, 'historical');
-  if (transition.kind !== 'completed') throw new Error('same-PA release transition is incomplete');
-  same(transition.reference, release.transitionReference, 'release transition reference differs');
-  same(transition.terminalReference, release.terminalReference, 'release terminal differs');
-  same(transition.settlementReference, release.settlementReference, 'release settlement differs');
-  if (transition.gameId !== settled.plan.lineage.gameId || transition.playId !== settled.plan.lineage.playId) throw new Error('same-PA release transition scope differs');
-  const row = samePaEnrollmentRow(db, enrollmentSourceId);
-  if (!row) throw new Error('same-PA release original enrollment missing');
-  const enrollment = authenticateSamePaRow(db, row);
-  readSamePaReleasedMembers(db, enrollment);
-  if (db.prepare(`SELECT 1 FROM main.same_pa_participant_reservations WHERE enrollment_source_id=$id
-    OR ${claim('member_json', ['enrollmentSourceId'], '$id')}`).get({ id: enrollmentSourceId })) throw new Error('same-PA release retains an active member lease');
-  return freeze(release);
+  return withSamePaLifecycleReadPhase(db, () => {
+    same(readSamePaReleasedClaimCensus(db, enrollmentSourceId), release.claimCensus, 'released preparation/work claim census changed');
+    const settled = readSamePaTerminalSettlementFromSqlite(db, release.settlementReference);
+    if (settled.kind !== 'settled') throw new Error('same-PA release requires every exact durable effect');
+    const transition = readSamePaTerminalTransitionFromSqlite(db, release.terminalReference, 'historical');
+    if (transition.kind !== 'completed') throw new Error('same-PA release transition is incomplete');
+    same(transition.reference, release.transitionReference, 'release transition reference differs');
+    same(transition.terminalReference, release.terminalReference, 'release terminal differs');
+    same(transition.settlementReference, release.settlementReference, 'release settlement differs');
+    if (transition.gameId !== settled.plan.lineage.gameId || transition.playId !== settled.plan.lineage.playId) throw new Error('same-PA release transition scope differs');
+    const row = samePaEnrollmentRow(db, enrollmentSourceId);
+    if (!row) throw new Error('same-PA release original enrollment missing');
+    const enrollment = authenticateSamePaRow(db, row);
+    readSamePaReleasedMembers(db, enrollment);
+    if (db.prepare(`SELECT 1 FROM main.same_pa_participant_reservations WHERE enrollment_source_id=$id
+      OR ${claim('member_json', ['enrollmentSourceId'], '$id')}`).get({ id: enrollmentSourceId })) throw new Error('same-PA release retains an active member lease');
+    return freeze(release);
+  });
 };

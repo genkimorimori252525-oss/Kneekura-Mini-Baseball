@@ -3,7 +3,7 @@ import { witnessSqliteWrite } from './SqliteWriteWitness.test-support';
 import { enrollmentFixture, count } from './SamePlateAppearanceEnrollment.test-support';
 import { openSqliteSamePlateAppearanceEnrollmentStore } from './SqliteSamePlateAppearanceEnrollmentStore';
 import { openSqliteSamePlateAppearanceTerminalSettlementStore } from './SqliteSamePlateAppearanceTerminalSettlementStore';
-import { actorHash as hash, actorJson as json } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
+import { actorHash as hash, actorJson as json, actorFreeze as freeze } from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import * as actorOwner from './PhysicalPlateAppearanceActorEvidenceFromSqlite';
 import { advancePlayerWorkloadRecovery } from '../../core/world/development/PlayerWorkloadRecovery';
 import { samePaTerminalSettlementInput, type AcceptedSamePaTerminalSettlement } from './SamePlateAppearanceTerminalSettlement';
@@ -26,6 +26,8 @@ import { samePaPlayerClaimCanProceed, withSamePaSettlementActivityWrite, withSam
 import { playerWorkloadRecoveryStoreFromSqlite } from './SqlitePlayerWorkloadRecoveryStore';
 import { paDispatchSchema } from './SamePlateAppearanceDispatchStorage';
 import { withSamePaContinuationReadPhase } from './SamePlateAppearanceContinuationFromSqlite';
+import { memoSamePaLifecycleRead } from './SamePlateAppearanceLifecycleFromSqlite';
+import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
 import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { samePaTakeSuccessorSchema } from './SamePlateAppearanceTakeSuccessorStorage';
 import { openSqliteSamePlateAppearanceExecutionStore } from './SqliteSamePlateAppearanceExecutionStore';
@@ -120,6 +122,44 @@ const setup = (runnerCount = 0) => {
   };
   return { f, enroll, enrollment, endpoint, source, sources, owner, complete, fresh };
 };
+it('TRRP01 shares released ancestry within one Native read and reauthenticates the next invocation', () => {
+  const x = setup(), db = x.f.db;
+  x.owner.freeze(x.source.sourceId); x.owner.settle(x.source.sourceId); x.complete(); x.owner.release(x.source.sourceId);
+  const observed: { stage: string; value: Readonly<{ count: number }> }[] = [];
+  let reads = 0;
+  const observe = (stage: string) => observed.push({ stage, value: memoSamePaLifecycleRead(db, 'release-test-ancestry', () => {
+    reads++; return freeze({ count: Number(db.prepare('SELECT count(*) n FROM world_player_workload_activities').get()!.n) });
+  }) });
+  // Existing physical endpoint and transition substitutes delimit the siblings.
+  // Release/settlement checks, Native scope and workload rows remain real.
+  const endpoint = vi.mocked(terminal.readSamePaTerminalEndpointFromSqlite).getMockImplementation()!;
+  const transition = vi.mocked(transitions.readSamePaTerminalTransitionFromSqlite).getMockImplementation()!;
+  vi.mocked(terminal.readSamePaTerminalEndpointFromSqlite).mockImplementation((connection, ref, mode) => {
+    expect(connection).toBe(db); expect(mode).toBe('historical'); observe('endpoint'); return endpoint(connection, ref, mode);
+  });
+  vi.mocked(transitions.readSamePaTerminalTransitionFromSqlite).mockImplementation((connection, ref, mode) => {
+    expect(connection).toBe(db); expect(mode).toBe('historical'); observe('transition'); return transition(connection, ref, mode);
+  });
+  const read = () => settlementEvidence.readSamePaTerminalReleaseFromSqlite(db, x.enrollment.source.sourceId);
+  expect(read).toThrow('owned Native read proof'); expect(observed).toEqual([]);
+  const rows = () => json(['pa_settlement_v1_releases', 'world_player_workload_activities', 'same_pa_participant_reservations']
+    .map(table => db.prepare('SELECT * FROM ' + table + ' ORDER BY rowid').all()));
+  const before = rows(), changes = db.prepare('SELECT total_changes() n').get()!.n, results: string[] = [];
+  let prior: Readonly<{ count: number }> | undefined;
+  withSqliteReadTransaction(db, () => {
+    expect(settlementEvidence.readSamePaTerminalReleaseFromSqlite(db, 'absent-enrollment')).toBeNull();
+    expect(observed).toEqual([]);
+    for (let index = 0; index < 2; index++) {
+      const start = observed.length, value = read(), calls = observed.slice(start), proof = calls[0].value;
+      expect(value).not.toBeNull(); expect(calls.map(call => call.stage)).toEqual(['endpoint', 'transition']);
+      expect(calls.every(call => call.value === proof)).toBe(true); expect(proof).not.toBe(prior); prior = proof;
+      expect(reads).toBe(index + 1); expect(Object.isFrozen(value)).toBe(true); results.push(json(value));
+    }
+  });
+  expect(new Set(results).size).toBe(1); expect(rows()).toBe(before);
+  expect(db.prepare('SELECT total_changes() n').get()!.n).toBe(changes);
+  expect(db.isTransaction).toBe(false); expect(db.prepare('PRAGMA query_only').get()!.query_only).toBe(0);
+});
 // Metadata-only future dispatch claims. The existing endpoint/transition stubs
 // remain explicit; these rows qualify neither physical work nor a real PA.
 const releasedClaims = (runnerCount = 0, successor = false) => {
