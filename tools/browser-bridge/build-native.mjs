@@ -17,7 +17,7 @@ await build({
   sourcemap: false,
 });
 const bundled = await readFile(outfile);
-const header = '// Native physical pitch bridge compiled directly from src/core and src/presentation; no browser result simulator.\\n';
+const header = '// Native physical and aerodynamic rigid pitch bridge compiled directly from src/core and src/presentation; no browser result simulator.\n';
 await writeFile(outfile, header + bundled.toString('utf8'));
 const bytes = await readFile(outfile);
 if (bytes.includes(Buffer.from('require("node:')) || bytes.includes(Buffer.from('require("fs"'))) {
@@ -26,5 +26,12 @@ if (bytes.includes(Buffer.from('require("node:')) || bytes.includes(Buffer.from(
 console.log(JSON.stringify({
   outfile, bytes: bytes.length,
   sha256: createHash('sha256').update(bytes).digest('hex'),
-  exports: ['createNativeSinglePaSession', 'issueNativeCommandPitch', 'observeNativePitch'],
+  exports: [
+    'createNativeSinglePaSession',
+    'issueNativeCommandPitch',
+    'observeNativePitch',
+    'createNativeAerodynamicSession',
+    'observeNativeAerodynamicPitch',
+    'createReferenceAerodynamicPhysicalSource',
+  ],
 }));
