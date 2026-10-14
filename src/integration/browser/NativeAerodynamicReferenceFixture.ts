@@ -17,6 +17,14 @@ export type NativeAerodynamicReferenceFixtureInput = Readonly<{
   actorsAtTick: (tick: number) => Pick<CanonicalWorldSnapshot, 'defenders' | 'runners'>;
   pitchSpeedMps: number;
   batterAction: 'take' | 'swing';
+  /**
+   * Genuine Aero RK4 source parameter, rad/s in world coordinates. This
+   * changes physical Magnus/spin-decay calculations, NOT just the sprite.
+   * Reference comparison only: no actual pitcher rating implied.
+   */
+  spinVectorRadPerSec?: Readonly<{ x: number; y: number; z: number }>;
+  /** Fixture-authored material starting pose (NOT inferred from RPM). */
+  releaseOrientation?: Readonly<{ w: number; x: number; y: number; z: number }>;
 }>;
 
 /** Input fixture for the real rigid-body contact resolver, not a player ability. */
@@ -38,6 +46,20 @@ export function createReferenceAerodynamicPhysicalSource(
     || typeof spec.actorsAtTick !== 'function') {
     throw new Error('Reference aerodynamic fixture requires explicit speed <= 151 km/h, actors and action.');
   }
+  if (spec.spinVectorRadPerSec !== undefined
+    && (![spec.spinVectorRadPerSec.x,spec.spinVectorRadPerSec.y,spec.spinVectorRadPerSec.z]
+      .every(Number.isFinite)
+      || Math.hypot(spec.spinVectorRadPerSec.x, spec.spinVectorRadPerSec.y,
+        spec.spinVectorRadPerSec.z) > 5000 * 2 * Math.PI / 60)) {
+    throw new Error('Reference aerodynamic spin requires finite source angular velocity <= 5000rpm.');
+  }
+  if (spec.releaseOrientation !== undefined
+    && (![spec.releaseOrientation.w,spec.releaseOrientation.x,
+      spec.releaseOrientation.y,spec.releaseOrientation.z].every(Number.isFinite)
+      || Math.hypot(spec.releaseOrientation.w,spec.releaseOrientation.x,
+        spec.releaseOrientation.y,spec.releaseOrientation.z) < 1e-10)) {
+    throw new Error('Reference aerodynamic seam release orientation must be a valid quaternion.');
+  }
   return context => {
     const { pitcher, batter } = context.commandSession.command;
     const startTick = Math.max(
@@ -55,8 +77,11 @@ export function createReferenceAerodynamicPhysicalSource(
         tick: startTick,
         position: { x: 0, y: 1.7 + yOffset, z: 18 },
         velocity: { x: xSpeed, y: ySpeed, z: -spec.pitchSpeedMps },
-        spin: { x: 15, y: 65, z: 0 },
+        spin: spec.spinVectorRadPerSec ?? { x: 15, y: 65, z: 0 },
       },
+      ...(spec.releaseOrientation !== undefined
+        ? { releaseOrientation: spec.releaseOrientation }
+        : {}),
       endTick: startTick + 700_000,
       parameters: {
         ticksPerSecond: 1_000_000,

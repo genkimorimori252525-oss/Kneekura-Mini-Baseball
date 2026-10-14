@@ -10,7 +10,8 @@ import type { CanonicalPlateAppearanceEvent } from '../../core/sim/plateAppearan
 import { resolveAndRecordAerodynamicRigidPitchAgainstBatter, type AerodynamicRigidPitchAgainstBatterInput } from '../../core/sim/pitching/AerodynamicRigidPitchAgainstBatter';
 import { createRigidBatSwingWindowFromKinematicsV1 } from '../../core/sim/pitching/AerodynamicRigidBatSwingingPitchPhysicalResult';
 import { sampleAerodynamicPitchTrajectory, type AerodynamicPitchTrajectory } from '../../core/sim/pitching/AerodynamicPitchTrajectory';
-import { observeNativeAerodynamicPitch } from './NativeAerodynamicObserver';
+import { multiplyQuaternions, quaternionFromAxisAngle } from '../../core/sim/pitching/BaseballOrientation';
+import { observeNativeAerodynamicPitch, type NativeAerodynamicObserveInput } from './NativeAerodynamicObserver';
 
 const START_TICK = 1_000_000;
 
@@ -68,12 +69,18 @@ const take = (durationTicks = 6_000): AerodynamicRigidPitchAgainstBatterInput =>
   ballRadiusMeters: REALISTIC_BASEBALL_RIGID_BODY.radiusM,
 });
 
-function observe(pitch: AerodynamicRigidPitchAgainstBatterInput, balls = 0, strikes = 0) {
+function observe(
+  pitch: AerodynamicRigidPitchAgainstBatterInput,
+  balls = 0,
+  strikes = 0,
+  spinOptions: Pick<NativeAerodynamicObserveInput, 'spinFrameTicks' | 'spinShutterTicks'> = {},
+) {
   const timelineBefore = createCanonicalPlateAppearanceTimeline(match(balls, strikes), 900_000);
   const resolution = resolveAndRecordAerodynamicRigidPitchAgainstBatter(timelineBefore, pitch);
   const observation = observeNativeAerodynamicPitch({
     timelineBefore, resolution, pitch,
     batterHandedness: 'L', pitcherHandedness: 'R', actorsAtTick: () => actors,
+    ...spinOptions,
   });
   return { timelineBefore, resolution, observation };
 }
@@ -88,6 +95,9 @@ describe('Native production aerodynamic pitch read-only observation', () => {
     expect(observation.events[0]).toBe(resolution.timeline.events[0]);
     expect(observation.events[1]).toBe(resolution.timeline.events[1]);
     expect(observation.frames.flatMap(frame => frame.events)).toEqual(observation.events);
+    expect(observation.spinFrames.map(frame => frame.tick))
+      .toEqual(observation.samples.map(sample => sample.world.tick));
+    expect(observation.spinFrames.every(frame => frame.authority === 'PRESENTATION_ONLY_NATIVE_SPIN')).toBe(true);
     for (const sample of observation.samples) {
       const flight = sampleAerodynamicPitchTrajectory(pitch.trajectory, sample.world.tick);
       expect(sample.world.ball).toEqual({ position: flight.position, velocity: flight.velocity, spin: flight.spin });
@@ -95,6 +105,11 @@ describe('Native production aerodynamic pitch read-only observation', () => {
       expect(sample.world.runners).toBe(actors.runners);
       expect(sample.batter).toEqual({ handedness: 'L', action: 'idle', bat: null });
       expect(sample.pitcherHandedness).toBe('R');
+      const spin = observation.spinFrames.find(frame => frame.tick === sample.world.tick)!;
+      expect(spin.angularVelocityWorldRadPerSecond).toEqual(flight.spin);
+      expect(spin.orientationProvenance).toBe('identity_display_convention_uncalibrated');
+      expect(spin.hasSourceReleaseOrientation).toBe(false);
+      expect(spin.shutter.angularTravelRadians).toBe(0);
     }
     expect(observation.samples.map(s => s.world.tick)).toContain(observation.events[0].tick);
     expect(observation.result).toBe(resolution);
@@ -149,6 +164,7 @@ describe('Native production aerodynamic pitch read-only observation', () => {
     const observed = observeNativeAerodynamicPitch({
       timelineBefore: before, resolution, pitch,
       batterHandedness: 'L', pitcherHandedness: 'R', actorsAtTick: () => actors,
+      spinShutterTicks: 4_000,
     });
     const contact = resolution.physical.contact;
     expect(contactResolverCalls).toBe(callsBeforeObservation);
@@ -158,6 +174,13 @@ describe('Native production aerodynamic pitch read-only observation', () => {
     expect(observed.events[0]).toBe(resolution.timeline.events[0]);
     expect(observed.samples.at(-1)?.world.tick).toBe(contact.tick);
     expect(observed.samples.every(sample => sample.world.tick <= contact.tick)).toBe(true);
+    expect(observed.spinFrames.at(-1)?.tick).toBe(contact.tick);
+    expect(observed.spinFrames.every(frame => frame.tick <= contact.tick)).toBe(true);
+    expect(observed.spinFrames.at(-1)?.angularVelocityWorldRadPerSecond)
+      .toEqual(sampleAerodynamicPitchTrajectory(pitch.trajectory, contact.tick).spin);
+    expect(observed.spinFrames.at(-1)?.shutter.closeTick).toBe(contact.tick);
+    expect(observed.spinFrames.at(-1)?.shutter.openTick).toBeLessThan(contact.tick);
+    expect(observed.spinFrames.at(-1)?.shutter.angularTravelRadians).toBeGreaterThan(0);
     expect(observed.samples.at(-1)?.world.ball).toEqual({
       position: contact.ballCenter, velocity: contact.exitVelocity, spin: contact.exitSpin,
     });
@@ -171,6 +194,11 @@ describe('Native production aerodynamic pitch read-only observation', () => {
     expect(observed.nextMatchState).toBeNull();
     expect(resolution.timeline.status.kind).toBe('batted_ball_pending');
     expect(observed.frames.flatMap(f => f.events)).toEqual(observed.events);
+    expect(() => observeNativeAerodynamicPitch({
+      timelineBefore: before, resolution, pitch,
+      batterHandedness: 'L', pitcherHandedness: 'R', actorsAtTick: () => actors,
+      spinFrameTicks: [contact.tick + 1],
+    })).toThrow('inside the true source flight through physical contact');
   });
 
   it('reuses production Swing Kinematics v1 for a physical miss without drawing invented pre/post window swings', () => {
@@ -266,5 +294,145 @@ describe('Native production aerodynamic pitch read-only observation', () => {
       timelineBefore: before, pitch, resolution,
       batterHandedness: 'L', pitcherHandedness: 'R', actorsAtTick: () => actors,
     })).toThrow('exact rigid contact');
+  });
+});
+
+describe('Native aerodynamic rigid observation: physical material rotation for display', () => {
+  const asRadiansPerSecond = (rpm: number) => rpm * 2 * Math.PI / 60;
+
+  it.each([800, 2200])('preserves %i rpm Native spin with a source-authenticated release phase and unwrapped exposure', rpm => {
+    const velocity = asRadiansPerSecond(rpm);
+    const releaseOrientation = quaternionFromAxisAngle({ x: 0, y: 0, z: 1 }, Math.PI / 5);
+    const base = trajectory(32_000);
+    const pitch: AerodynamicRigidPitchAgainstBatterInput = {
+      ...take(32_000),
+      trajectory: {
+        ...base,
+        start: { ...base.start, spin: { x: 0, y: velocity, z: 0 } },
+        releaseOrientation,
+      },
+    };
+    const highFrequencyTicks = [START_TICK + 1_000, START_TICK + 18_000, START_TICK + 30_000];
+    const { observation, resolution } = observe(pitch, 0, 0, {
+      spinFrameTicks: highFrequencyTicks,
+      spinShutterTicks: 16_666,
+    });
+    expect(observation.result).toBe(resolution);
+    expect(observation.spinFrames.map(f => f.tick)).toEqual(
+      [...new Set([...observation.samples.map(s => s.world.tick), ...highFrequencyTicks])].sort((a, b) => a - b),
+    );
+    const initial = observation.spinFrames[0];
+    const later = observation.spinFrames.find(f => f.tick === START_TICK + 18_000)!;
+    expect(initial.orientationMaterialToWorld).toEqual(releaseOrientation);
+    expect(later.orientationProvenance).toBe('native_source_release_orientation');
+    expect(later.hasSourceReleaseOrientation).toBe(true);
+    expect(later.spinAxisWorld).toEqual({ x: 0, y: 1, z: 0 });
+    expect(later.angularSpeedRadPerSecond).toBeCloseTo(velocity, 11);
+    expect(later.angularVelocityWorldRadPerSecond)
+      .toEqual(sampleAerodynamicPitchTrajectory(pitch.trajectory, later.tick).spin);
+    expect(later.angularTravelSinceReleaseRadians).toBeCloseTo(velocity * 0.018, 9);
+    const expected = multiplyQuaternions(
+      quaternionFromAxisAngle({ x: 0, y: 1, z: 0 }, velocity * 0.018),
+      releaseOrientation,
+    );
+    const actual = later.orientationMaterialToWorld;
+    const orientationDot = actual.w * expected.w + actual.x * expected.x
+      + actual.y * expected.y + actual.z * expected.z;
+    expect(Math.abs(orientationDot)).toBeCloseTo(1, 10);
+    expect(later.shutter.openTick).toBe(START_TICK + 18_000 - 8_333);
+    expect(later.shutter.closeTick).toBe(START_TICK + 18_000 + 8_333);
+    expect(later.shutter.angularTravelRadians).toBeCloseTo(velocity * 0.016666, 8);
+    expect(later.shutter.rotationsDuringExposure)
+      .toBeCloseTo(velocity * 0.016666 / (2 * Math.PI), 9);
+    expect(later.shutter.singleSamplePhaseAliasingRisk).toBe(rpm === 2200);
+    expect(later.interframePhaseAliasingRisk).toBe(rpm === 2200);
+    // The canonical crossing itself is an exact observation tick between the
+    // two additional render frames, so it owns the previous-frame timestamp.
+    expect(later.previousFrameTick).toBe(observation.events[0].tick);
+    expect('rpm' in later).toBe(false);
+    expect(JSON.parse(JSON.stringify(observation.spinFrames))).toEqual(observation.spinFrames);
+    expect(Object.isFrozen(later.orientationMaterialToWorld)).toBe(true);
+    expect(Object.isFrozen(later.shutter)).toBe(true);
+  });
+
+  it('labels a missing release phase as uncalibrated and never pins subsequent seam pose to identity', () => {
+    const base = trajectory(30_000);
+    const pitch: AerodynamicRigidPitchAgainstBatterInput = {
+      ...take(30_000),
+      trajectory: { ...base, start: { ...base.start, spin: { x: asRadiansPerSecond(800), y: 0, z: 0 } } },
+    };
+    const { observation } = observe(pitch, 0, 0, {
+      spinFrameTicks: [START_TICK + 12_000],
+    });
+    const initial = observation.spinFrames[0];
+    const later = observation.spinFrames.find(f => f.tick === START_TICK + 12_000)!;
+    expect(initial.orientationMaterialToWorld).toEqual({ w: 1, x: 0, y: 0, z: 0 });
+    expect(later.orientationProvenance).toBe('identity_display_convention_uncalibrated');
+    expect(later.hasSourceReleaseOrientation).toBe(false);
+    expect(later.orientationMaterialToWorld).not.toEqual(initial.orientationMaterialToWorld);
+    expect(later.angularSpeedRadPerSecond).toBeCloseTo(asRadiansPerSecond(800), 11);
+    expect(later.shutter.angularTravelRadians).toBe(0);
+  });
+
+  it('tracks real source spin decay while leaving the accepted pitch and core samples unchanged by display frames', () => {
+    const base = trajectory(60_000);
+    const omega = asRadiansPerSecond(2200);
+    const pitch: AerodynamicRigidPitchAgainstBatterInput = {
+      ...take(60_000),
+      trajectory: {
+        ...base,
+        start: { ...base.start, spin: { x: 0, y: omega, z: 0 } },
+        parameters: {
+          ...base.parameters,
+          integrationStepTicks: 1_000,
+          gravityY: 0,
+          aerodynamics: {
+            ...REFERENCE_BASEBALL_AERODYNAMICS,
+            airDensityKgM3: 0,
+            dragCoefficient: 0,
+            spinDecay: {
+              referenceSpeedMps: 60,
+              timeConstantSecondsAtReferenceSpeed: 0.06,
+            },
+          },
+        },
+      },
+    };
+    const plain = observe(pitch);
+    const decorated = observe(pitch, 0, 0, {
+      spinFrameTicks: [START_TICK + 10_000, START_TICK + 25_000, START_TICK + 40_000],
+      spinShutterTicks: 10_000,
+    });
+    expect(JSON.stringify(decorated.observation.samples)).toBe(JSON.stringify(plain.observation.samples));
+    expect(JSON.stringify(decorated.observation.frames)).toBe(JSON.stringify(plain.observation.frames));
+    expect(JSON.stringify(decorated.resolution.timeline)).toBe(JSON.stringify(plain.resolution.timeline));
+    const early = decorated.observation.spinFrames.find(f => f.tick === START_TICK + 10_000)!;
+    const late = decorated.observation.spinFrames.find(f => f.tick === START_TICK + 40_000)!;
+    expect(late.angularVelocityWorldRadPerSecond)
+      .toEqual(sampleAerodynamicPitchTrajectory(pitch.trajectory, late.tick).spin);
+    expect(late.angularSpeedRadPerSecond).toBeLessThan(early.angularSpeedRadPerSecond);
+    expect(late.angularTravelSinceReleaseRadians).toBeGreaterThan(early.angularTravelSinceReleaseRadians);
+    expect(late.angularTravelSinceReleaseRadians).toBeLessThan(omega * 0.04);
+    expect(late.shutter.angularTravelRadians).toBeGreaterThan(0);
+    expect(late.shutter.angularTravelRadians).toBeLessThan(omega * 0.01);
+    expect(late.orientationMaterialToWorld).not.toEqual(early.orientationMaterialToWorld);
+    const plainAtLate = plain.observation.spinFrames.find(f => f.tick === START_TICK + 40_000);
+    // It may not be a canonical 55ms tick, but changing the source-clock
+    // display schedule must never change original physical observations.
+    expect(plainAtLate).toBeUndefined();
+    expect(decorated.observation.spinFrames[0].orientationMaterialToWorld)
+      .toEqual(plain.observation.spinFrames[0].orientationMaterialToWorld);
+  });
+
+  it('rejects nonphysical render ticks and invalid explicit shutter widths without modifying Core', () => {
+    const pitch = take(6_000);
+    expect(() => observe(pitch, 0, 0, { spinFrameTicks: [START_TICK + 20, START_TICK + 10] }))
+      .toThrow('strictly increasing');
+    expect(() => observe(pitch, 0, 0, { spinFrameTicks: [START_TICK + 6_001] }))
+      .toThrow('inside the true source flight');
+    expect(() => observe(pitch, 0, 0, { spinFrameTicks: [START_TICK + 0.5] }))
+      .toThrow('inside the true source flight');
+    expect(() => observe(pitch, 0, 0, { spinShutterTicks: -1 }))
+      .toThrow('safe integer');
   });
 });

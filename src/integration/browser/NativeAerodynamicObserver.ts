@@ -16,6 +16,10 @@ import { adaptRigidBatBallContactToCanonicalContact } from '../../core/sim/pitch
 import type { CanonicalPresentationSample, MiniPresentationFrame } from '../../presentation/mini/model';
 import { MINI_PRESENTATION_CADENCE_MICROS } from '../../presentation/mini/model';
 import { buildMiniPresentationTimeline, createMiniPresentationSampleSchedule } from '../../presentation/mini/MiniPresentationTimeline';
+import {
+  createNativeSpinOrientationObserver,
+  type NativeSpinOrientationFrame,
+} from '../../presentation/mini/NativeSpinOrientationObserver';
 
 /**
  * A renderer-neutral view of an ALREADY RESOLVED production aerodynamic pitch.
@@ -31,6 +35,12 @@ export type NativeAerodynamicObserveInput = Readonly<{
   /** Actual actors supplied by Native Core at each observation tick. */
   actorsAtTick: (tick: number) => Pick<CanonicalWorldSnapshot, 'defenders' | 'runners'>;
   camera?: 'BATTER_POV' | 'PITCHER_POV';
+  /** Optional, strictly increasing source-clock ticks for a higher frame rate.
+   * These augment the canonical presentation ticks; contact remains an exact stop. */
+  spinFrameTicks?: readonly number[];
+  /** Explicit optical shutter width in physical ticks. Defaults to an
+   * instantaneous (zero-width) exposure, never an invented camera setting. */
+  spinShutterTicks?: number;
 }>;
 
 export type NativeAerodynamicObservation = Readonly<{
@@ -41,6 +51,10 @@ export type NativeAerodynamicObservation = Readonly<{
   events: readonly CanonicalPlateAppearanceEvent[];
   samples: readonly CanonicalPresentationSample[];
   frames: readonly MiniPresentationFrame[];
+  /** Serialized physical spin/seam observations, including unwrapped shutter
+   * motion and release-phase provenance. On contact the last orientation is
+   * the incoming pitch at impact, not a post-impulse batted-ball trajectory. */
+  spinFrames: readonly NativeSpinOrientationFrame[];
   /** Physical rigid-body collision evidence, never an inferred batted-ball outcome. */
   rigidContact: RigidBatBallContactResult | null;
   /** Observation is never authorized to transition the Match Core state. */
@@ -200,6 +214,30 @@ function batterPose(input: NativeAerodynamicObserveInput, tick: number): Canonic
   return { handedness, action: 'normal_swing', bat: pose };
 }
 
+function observedSpinTicks(
+  canonicalTicks: readonly number[],
+  additionalTicks: readonly number[] | undefined,
+  startTick: number,
+  stopTick: number,
+): readonly number[] {
+  if (additionalTicks === undefined) return canonicalTicks;
+  if (!Array.isArray(additionalTicks)) {
+    throw new Error('Native spin render ticks must be an array of physical source ticks.');
+  }
+  for (let index = 0; index < additionalTicks.length; index++) {
+    const tick = additionalTicks[index];
+    if (!isTick(tick) || tick < startTick || tick > stopTick) {
+      throw new Error('Native spin render tick must lie inside the true source flight through physical contact.');
+    }
+    if (index > 0 && tick <= additionalTicks[index - 1]) {
+      throw new Error('Native spin render ticks must be strictly increasing.');
+    }
+  }
+  // Preserve exact event/impact ticks while permitting independently requested
+  // high-frequency render frames. These are all real integer Native ticks.
+  return [...new Set([...canonicalTicks, ...additionalTicks])].sort((a, b) => a - b);
+}
+
 export function observeNativeAerodynamicPitch(input: NativeAerodynamicObserveInput): NativeAerodynamicObservation {
   if ((input.batterHandedness !== 'R' && input.batterHandedness !== 'L')
     || (input.pitcherHandedness !== 'R' && input.pitcherHandedness !== 'L')) {
@@ -214,6 +252,11 @@ export function observeNativeAerodynamicPitch(input: NativeAerodynamicObserveInp
   const cadenceTicks = Math.max(1, Math.round(MINI_PRESENTATION_CADENCE_MICROS * ticksPerSecond / 1_000_000));
   const stopTick = contact?.tick ?? trajectory.endTick;
   const ticks = createMiniPresentationSampleSchedule(trajectory.start.tick, stopTick, cadenceTicks, events);
+  const spinTicks = observedSpinTicks(ticks, input.spinFrameTicks, trajectory.start.tick, stopTick);
+  const spinFrames = createNativeSpinOrientationObserver({
+    trajectory,
+    physicalStopTick: stopTick,
+  }).sampleFrameTicks(spinTicks, { shutterTicks: input.spinShutterTicks ?? 0 });
   const samples: CanonicalPresentationSample[] = ticks.map(tick => {
     const actors = input.actorsAtTick(tick);
     if (!actors || !Array.isArray(actors.defenders) || !Array.isArray(actors.runners)) {
@@ -238,6 +281,7 @@ export function observeNativeAerodynamicPitch(input: NativeAerodynamicObserveInp
     events,
     samples,
     frames: buildMiniPresentationTimeline(samples, events, input.camera ?? 'BATTER_POV'),
+    spinFrames,
     rigidContact: contact,
     nextMatchState: null,
     requiresOfficialLiveBallResolution: contact !== null,

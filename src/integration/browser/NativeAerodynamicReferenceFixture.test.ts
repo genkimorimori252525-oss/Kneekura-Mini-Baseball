@@ -86,5 +86,37 @@ describe('reference-only physical source, not a player ability', () => {
     expect(() => createReferenceAerodynamicPhysicalSource({
       actorsAtTick, pitchSpeedMps: 0, batterAction: 'take',
     })).toThrow();
+    expect(() => createReferenceAerodynamicPhysicalSource({
+      actorsAtTick, pitchSpeedMps: 40, batterAction: 'take',
+      spinVectorRadPerSec: { x: Number.NaN, y: 1, z: 0 },
+    })).toThrow('source angular velocity');
+    expect(() => createReferenceAerodynamicPhysicalSource({
+      actorsAtTick, pitchSpeedMps: 40, batterAction: 'take',
+      spinVectorRadPerSec: { x: 0, y: 1000, z: 0 },
+    })).toThrow('<= 5000rpm');
+  });
+
+  it('different declared REAL angular velocity changes the actual RK4 flight, not only visual seam RPM', () => {
+    const run = (rpm: number) => {
+      const pa = session();
+      pa.acceptNextCommand(command('inside', 'take'));
+      const source = createReferenceAerodynamicPhysicalSource({
+        actorsAtTick, pitchSpeedMps: 40, batterAction: 'take',
+        spinVectorRadPerSec: { x: 0, y: rpm * Math.PI * 2 / 60, z: 0 },
+        releaseOrientation: { w: 1, x: 0, y: 0, z: 0 },
+      });
+      return pa.issue(source);
+    };
+    const low = run(800);
+    const high = run(2200);
+    expect(low.eventKinds).toEqual(['TakenPitchPlateCrossed', 'PitchAdjudicated']);
+    expect(high.eventKinds).toEqual(['TakenPitchPlateCrossed', 'PitchAdjudicated']);
+    expect(low.result.samples[0].world.ball?.spin.y)
+      .toBeCloseTo(800 * Math.PI * 2 / 60, 10);
+    expect(high.result.samples[0].world.ball?.spin.y)
+      .toBeCloseTo(2200 * Math.PI * 2 / 60, 10);
+    expect(high.result.samples.at(-1)?.world.ball?.position.x)
+      .not.toBe(low.result.samples.at(-1)?.world.ball?.position.x);
+    expect(run(2200)).toEqual(high);
   });
 });
