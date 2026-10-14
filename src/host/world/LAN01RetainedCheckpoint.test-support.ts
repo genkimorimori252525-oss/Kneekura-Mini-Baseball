@@ -291,6 +291,37 @@ export const LAN01_RETAINED_REVIEW_SESSION_CHECKPOINT = Object.freeze({
   priorCp24: LAN01_RETAINED_CHECKPOINT,
 });
 
+/** Exact LAN01-R15 cp1: only the original import returned after R12 cp16.
+ * R15 was still running at audit time; its terminal/cleanup is not claimed. */
+export const LAN01_RETAINED_REVIEW_IMPORT_CHECKPOINT = Object.freeze({
+  ...LAN01_RETAINED_REVIEW_SESSION_CHECKPOINT,
+  sourceCommit: 'de3e5faa7beeea4bcfc0a0dca345eadfdd8afee5',
+  publicSourceCommit: 'dfbb1e88017d56dc5e42f1c013b603a311f5fabd',
+  sourceTree: 'b8cd9c0dfa7ed1e7b83ce8b833d03a754a21e698',
+  runControlSha256: '59b123759bcabffb885144367a37ff9e80fde624052385873cc46df5bd1757d7',
+  receiptSha256: '5257c2cb171ee560acb704f82062d7962c9641459d150c204c824ffe150c5a79',
+  censusSha256: 'c472f14a9ac7bb3863b0df3bded93167253085a0a129e7ca64fba97a81f0c483',
+  contentAuditSha256: '0c8cd920ee5ffef85605036d7ffe8ccc6f2ee915a2e20612116be1ea9f0bc666',
+  priorRunTerminalSha256: null,
+  priorRunOutcome: 'RUNNING_AFTER_RETURNED_IMPORT_AT_CHECKPOINT_AUDIT',
+  gzipSha256: '18605d0643eb51e69c9e290fef93c436a77275c16b172d059ce869dcd83fcd50',
+  databaseSha256: '60b73b1f5f5289cb9c86f128f129bde0d5ea7d8bda4be9805566589198082ee3',
+  gzipBytes: 1402518, databaseBytes: 22654976, tableCount: 121, rowCount: 1985,
+  checkpointSequence: 1, returnedOwnerCall: 1,
+  firstRemainingWriter: Object.freeze({ owner: 'ActualPostPlayReview', method: 'acceptEvent', sourceId: 'lan01:journal:rights',
+    argumentsHash: '7b560b75d07d5dca48a26e9ae8601f96bab08eed85f983cae811125d876d3538' }),
+  reviewImport: Object.freeze({ ...LAN01_RETAINED_REVIEW_SESSION_CHECKPOINT.reviewSession,
+    revision: 1 as const, headSourceId: 'lan01:journal:import', headHash: '9da947d628e0f4bffd6d4b6c1ea2a5c6ae7405f37c577f98f2b7de10615c2f2a',
+    projectionSnapshotHash: 'e9f260dd6d7688dac9483142855a9af0747c452a40d11d470b3d039fa3751d18',
+    admissionSnapshotHash: 'f3e9c0b84480787854d8c82b2483ea4a3bba0668cc52ef46a16cdb3bb34dd935',
+    importSource: Object.freeze({ sourceId: 'lan01:journal:import', sourceVersion: 'explicit-fixture-v1',
+      capability: 'actual_post_play_review_event_v1' as const, sessionSourceId: 'lan01:journal:session', expectedRevision: 0,
+      parent: { sourceId: 'lan01:journal:session', snapshotHash: '730e4e610a733eda1707b0f559c5414e7b46e7a082163e583f7b7d0e7788439b' },
+      action: { kind: 'import_live_appeal' as const, executionReference: LAN01_RETAINED_REVIEW_SESSION_CHECKPOINT.sealedBoundary.appealedReference } }),
+  }),
+  priorCp16: LAN01_RETAINED_REVIEW_SESSION_CHECKPOINT,
+});
+
 export type LAN01RetainedSuffixInput = Readonly<{
   nativeReleased: boolean; checkpointGzip: string; destinationDirectory: string;
 }>;
@@ -313,7 +344,11 @@ export const prepareLAN01RetainedCheckpoint = (raw: LAN01RetainedSuffixInput) =>
 export const prepareLAN01RetainedReviewSessionCheckpoint = (raw: LAN01RetainedSuffixInput) =>
   materializeLAN01RetainedCheckpoint(raw, LAN01_RETAINED_REVIEW_SESSION_CHECKPOINT, 'lan01-cp16-pending-import-suffix.sqlite');
 
-const materializeLAN01RetainedCheckpoint = <P extends typeof LAN01_RETAINED_CHECKPOINT | typeof LAN01_RETAINED_REVIEW_SESSION_CHECKPOINT>(
+export const prepareLAN01RetainedReviewImportCheckpoint = (raw: LAN01RetainedSuffixInput) =>
+  materializeLAN01RetainedCheckpoint(raw, LAN01_RETAINED_REVIEW_IMPORT_CHECKPOINT, 'lan01-r15-cp1-pending-rights-suffix.sqlite');
+
+const materializeLAN01RetainedCheckpoint = <P extends typeof LAN01_RETAINED_CHECKPOINT | typeof LAN01_RETAINED_REVIEW_SESSION_CHECKPOINT
+  | typeof LAN01_RETAINED_REVIEW_IMPORT_CHECKPOINT>(
   raw: LAN01RetainedSuffixInput, pin: P, filename: string,
 ) => {
   const input = captureLAN01RetainedSuffixInput(raw);

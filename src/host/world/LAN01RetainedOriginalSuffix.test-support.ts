@@ -27,7 +27,9 @@ import { openSqliteSamePlateAppearanceTerminalSettlementStore } from './SqliteSa
 import { openSqliteSamePlateAppearanceTerminalTransitionStore } from './SqliteSamePlateAppearanceTerminalTransitionStore';
 import { openSqlitePlayerRunnerDecisionMotionModelStore } from './SqlitePlayerRunnerDecisionMotionModelStore';
 import { readSamePaOriginalParticipants } from './SamePlateAppearanceOriginalParticipants';
-import { prepareLAN01RetainedCheckpoint, prepareLAN01RetainedReviewSessionCheckpoint, LAN01_RETAINED_REVIEW_SESSION_CHECKPOINT, type LAN01RetainedSuffixInput } from './LAN01RetainedCheckpoint.test-support';
+import { prepareLAN01RetainedCheckpoint, prepareLAN01RetainedReviewSessionCheckpoint, prepareLAN01RetainedReviewImportCheckpoint,
+  LAN01_RETAINED_REVIEW_SESSION_CHECKPOINT, LAN01_RETAINED_REVIEW_IMPORT_CHECKPOINT, type LAN01RetainedSuffixInput } from './LAN01RetainedCheckpoint.test-support';
+import { assertRetainedNativeLiveAppealImportRow } from './SamePlateAppearanceLiveAppealJournalNative.test-support';
 import type { AcceptedPlayerWorkloadBaseline } from './SqlitePlayerWorkloadRecoveryStore';
 import { liveAppealSceneFixture } from './SamePlateAppearanceLiveAppealScene.test-support';
 import { dispatchCalibrationValues } from './SamePlateAppearanceDispatchCalibration.test-support';
@@ -53,17 +55,25 @@ import type { BodyMaterializationRequest } from './PlayerBodyCapabilityMateriali
  * The first pending writer is the original appeal :8. Completed Sources and
  * nine original callback assertions remain historical evidence. */
 export const runLAN01RetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, log: (phase: string) => void = () => {}) =>
-  runRetainedOriginalSuffix(input, log, false);
+  runRetainedOriginalSuffix(prepareLAN01RetainedCheckpoint(input), log);
 
 /** Exact R12 cp16: session revision zero is committed, and import is absent.
  * Uses the same original journal/terminal body after authenticating cut24. */
 export const runLAN01RetainedReviewSessionSuffix = (input: LAN01RetainedSuffixInput, log: (phase: string) => void = () => {}) =>
-  runRetainedOriginalSuffix(input, log, true);
+  runRetainedOriginalSuffix(prepareLAN01RetainedReviewSessionCheckpoint(input), log);
 
-const runRetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, log: (phase: string) => void, reviewSession: boolean) => {
-  const { path, pin, input: capturedInput, witnessRecheck } = reviewSession
-    ? prepareLAN01RetainedReviewSessionCheckpoint(input) : prepareLAN01RetainedCheckpoint(input);
-  const sealedPins = reviewSession ? LAN01_RETAINED_REVIEW_SESSION_CHECKPOINT.sealedBoundary : null;
+/** Exact R15 cp1: original import accepted at revision one, rights absent.
+ * Reuses every original post-import assertion and the independent final retry. */
+export const runLAN01RetainedReviewImportSuffix = (input: LAN01RetainedSuffixInput, log: (phase: string) => void = () => {}) =>
+  runRetainedOriginalSuffix(prepareLAN01RetainedReviewImportCheckpoint(input), log);
+
+const runRetainedOriginalSuffix = (prepared: ReturnType<typeof prepareLAN01RetainedCheckpoint>
+  | ReturnType<typeof prepareLAN01RetainedReviewSessionCheckpoint> | ReturnType<typeof prepareLAN01RetainedReviewImportCheckpoint>,
+  log: (phase: string) => void) => {
+  const { path, pin, input: capturedInput, witnessRecheck } = prepared;
+  const reviewSession = 'sealedBoundary' in pin, reviewImport = 'reviewImport' in pin;
+  const sealedPins = 'sealedBoundary' in pin ? pin.sealedBoundary : null;
+  const retainedJournal = 'reviewImport' in pin ? pin.reviewImport : 'reviewSession' in pin ? pin.reviewSession : null;
   const stores: { close(): void }[] = [];
   const track = <T extends { close(): void }>(store: T): T => { stores.push(store); return store; };
   let phase = 'open-private-checkpoint', passed = false, originalPrefixHistoryUnchanged = false;
@@ -378,8 +388,12 @@ const runRetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, log: (phase:
       if (reviewSession) {
         for (const table of ['actual_post_play_review_sessions', 'actual_post_play_review_heads'])
           assert.equal(db.prepare('SELECT count(*) n FROM ' + table).get()!.n, 1, 'LAN01 retained journal extent differs');
-        assert.equal(db.prepare('SELECT count(*) n FROM actual_post_play_review_events').get()!.n, 0, 'LAN01 import is already present');
-        const retainedSession = LAN01_RETAINED_REVIEW_SESSION_CHECKPOINT.reviewSession;
+        assert.equal(db.prepare('SELECT count(*) n FROM actual_post_play_review_events').get()!.n, reviewImport ? 1 : 0,
+          reviewImport ? 'LAN01 retained journal must contain only the original import' : 'LAN01 import is already present');
+        if (reviewImport) assertRetainedNativeLiveAppealImportRow(
+          db.prepare('SELECT * FROM actual_post_play_review_events').get()!, LAN01_RETAINED_REVIEW_IMPORT_CHECKPOINT.reviewImport);
+        assert(retainedJournal, 'LAN01 retained journal pin missing');
+        const retainedSession = retainedJournal;
         const sessionRow = db.prepare('SELECT source_id,source_hash,snapshot_hash FROM actual_post_play_review_sessions').get()!;
         assert.deepEqual({ ...sessionRow }, { source_id: retainedSession.sourceId, source_hash: retainedSession.sourceHash,
           snapshot_hash: LAN01_RETAINED_REVIEW_SESSION_CHECKPOINT.sessionArchiveSnapshotHash });
@@ -427,9 +441,10 @@ const runRetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, log: (phase:
     if (reviewSession) {
       assert('sealedCaught' in restored.boundary, 'LAN01 retained sealed CatchWork boundary missing');
       const sealedBoundary = restored.boundary as ReturnType<typeof readLAN01RetainedSealedBoundary>;
-      mark('continue-original-pending-import-after-accepted-review-session');
+      mark(reviewImport ? 'continue-original-pending-rights-after-accepted-import' : 'continue-original-pending-import-after-accepted-review-session');
+      assert(retainedJournal, 'LAN01 retained journal pin missing');
       continueLAN01OriginalLiveAppealSealedAssertions(physical, sealedBoundary.sealedCaught,
-        sealedBoundary.appealed.operationReference, mark, LAN01_RETAINED_REVIEW_SESSION_CHECKPOINT.reviewSession);
+        sealedBoundary.appealed.operationReference, mark, retainedJournal);
     } else {
       const caught = resumeNativeLiveAppealCatch(physical, restored.boundary.caught, 'lan01:caught');
       mark('continue-original-pending-appeal-then-cut22');
@@ -446,20 +461,21 @@ const runRetainedOriginalSuffix = (input: LAN01RetainedSuffixInput, log: (phase:
     const closeErrors: unknown[] = [];
     for (const store of stores.reverse()) { try { store.close(); } catch (error) { closeErrors.push(error); } }
     const originalUnchanged = createHash('sha256').update(readFileSync(capturedInput.checkpointGzip)).digest('hex') === pin.gzipSha256;
-    const result = { kind: reviewSession ? 'lan01_cp16_original_remaining_suffix_result_v1' : 'lan01_cp24_original_remaining_suffix_result_v1',
+    const result = { kind: reviewImport ? 'lan01_r15_cp1_original_remaining_suffix_result_v1' : reviewSession ? 'lan01_cp16_original_remaining_suffix_result_v1' : 'lan01_cp24_original_remaining_suffix_result_v1',
       retainedPrefix: { sourceCommit: pin.sourceCommit, sourceTree: pin.sourceTree, databaseSha256: pin.databaseSha256,
-        boundary: reviewSession ? 'completed original walk, occupied TAKEs, corrected third physical pitch, original appeal, seal, sealed CatchWork and complete cut24; review session revision zero committed, import absent' : 'completed original walk, both occupied TAKEs, corrected third swing/contact, field-root/step, initial capture/caught work/indication, throw plan, transfer, release, receiver capture and complete cut21; appeal and its cut22 admission absent',
+        boundary: reviewImport ? 'complete cut24, review session and original live-appeal import committed at review revision one and ledger revision four; original rights, official judgment and terminal effects absent' : reviewSession ? 'completed original walk, occupied TAKEs, corrected third physical pitch, original appeal, seal, sealed CatchWork and complete cut24; review session revision zero committed, import absent' : 'completed original walk, both occupied TAKEs, corrected third swing/contact, field-root/step, initial capture/caught work/indication, throw plan, transfer, release, receiver capture and complete cut21; appeal and its cut22 admission absent',
         previouslyCompletedAssertions: reviewSession ? 'sixteen original callback assertions and original plus sealed CatchWork helper assertions completed before review session return are historical evidence only; the three post-seal read assertions are current revalidation' : 'first four original LAN callback assertions and five pre-field assertions completed before R9 throw plan are historical evidence only; original caught helper assertions are also historical',
-        originalRunOutcome: pin.priorRunOutcome, priorRunCleanupVerified: true,
+        originalRunOutcome: pin.priorRunOutcome, priorRunCleanupVerified: !reviewImport,
         priorOccupiedFirstPitchAndRetry: 'historical successful evidence only; no completed writer or retry replayed', retainedPrefixAssertionsRerun: reviewSession && passed,
         ...(reviewSession ? { historicalOriginalCallbackAssertionCount: 16, remainingOriginalCallbackAssertionCount: 4,
-          currentReadAssertionCount: 3, historicalSealedCatchHelperAssertionCount: 4, remainingOwnerCallCount: 22, terminalOwnerCallCount: 17 }
+          currentReadAssertionCount: 3, historicalSealedCatchHelperAssertionCount: 4,
+          ...(reviewImport ? { remainingOwnerCallCount: 21, terminalOwnerCallCount: 17 } : { remainingOwnerCallCount: 22, terminalOwnerCallCount: 17 }) }
           : { historicalOriginalCallbackAssertionCount: 9, remainingOriginalCallbackAssertionCount: 11 }),
         historicalInitialCallbackAssertionCount: 4, historicalR9CallbackAssertionCount: 5, historicalOriginalCatchHelperAssertionCount: 4,
         remainingOriginalCallbackAssertionsExecuted, originalPendingAppealExecuted,
         checkpointSequence: pin.checkpointSequence, returnedOwnerCall: pin.returnedOwnerCall, completedOccupiedWritersReplayed: false, completedThirdPitchWritersReplayed: false },
       historicalProvenance: { originalRunControlSha256: pin.runControlSha256, checkpointReceiptSha256: pin.receiptSha256, priorRunTerminalSha256: pin.priorRunTerminalSha256, priorRunObservationSha256: pin.priorRunObservationSha256, firstRemainingWriter: pin.firstRemainingWriter,
-        priorVitestReportSha256: pin.priorVitestReportSha256, returnedCalibrationSetSha256: pin.returnedCalibrationSetHash, returnedDeliverySha256: pin.returnedDeliveryHash, tableCensusSha256: pin.censusSha256, ...(reviewSession ? { priorCp24: LAN01_RETAINED_REVIEW_SESSION_CHECKPOINT.priorCp24 } : {}), priorCp39: pin.priorCp39, priorCp19: pin.priorCp19, priorCp14: pin.priorCp14, failedGroundContactLineage: pin.failedGroundContactLineage, priorCp21: pin.priorCp21, priorCp27: pin.priorCp27, priorCp23: pin.priorCp23, priorCp5: pin.priorCp5, failedCp11Continuation: pin.failedCp11Continuation, sourceIdentityBasis: 'exact_pinned_original_checkpoint', privateWitnessFilesRechecked: witnessRecheck },
+        priorVitestReportSha256: pin.priorVitestReportSha256, returnedCalibrationSetSha256: pin.returnedCalibrationSetHash, returnedDeliverySha256: pin.returnedDeliveryHash, tableCensusSha256: pin.censusSha256, ...(reviewImport ? { priorCp16: LAN01_RETAINED_REVIEW_IMPORT_CHECKPOINT.priorCp16 } : {}), ...(reviewSession ? { priorCp24: LAN01_RETAINED_REVIEW_SESSION_CHECKPOINT.priorCp24 } : {}), priorCp39: pin.priorCp39, priorCp19: pin.priorCp19, priorCp14: pin.priorCp14, failedGroundContactLineage: pin.failedGroundContactLineage, priorCp21: pin.priorCp21, priorCp27: pin.priorCp27, priorCp23: pin.priorCp23, priorCp5: pin.priorCp5, failedCp11Continuation: pin.failedCp11Continuation, sourceIdentityBasis: 'exact_pinned_original_checkpoint', privateWitnessFilesRechecked: witnessRecheck },
       continuedSuffix: passed && closeErrors.length === 0 && originalUnchanged ? 'PASS' : 'FAILED',
       lastPhase: phase, allHandlesClosed: closeErrors.length === 0, originalCheckpointUnchanged: originalUnchanged,
       originalPrefixHistoryUnchanged, wholeCasePass: false, databasePath: path };

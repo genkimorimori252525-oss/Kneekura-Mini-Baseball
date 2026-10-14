@@ -86,3 +86,33 @@ its work and external contention were recorded but not controlled. R15's full
 not establish a whole-owner, whole-case or remaining-time forecast. R15 remains
 on its original fixed source; completed operations will not be repeated when a
 later retained boundary is used.
+
+## Exact retained import boundary
+
+Fixture source `18517c9f43df25236ec4bcb78ea4947cd8fc939e`, src tree
+`9e498c7bce20ae015dfa43f2846c95e236b82aa2`, adds one exact import-accepted
+entry to the existing retained loader. It authenticates the saved Source,
+admission, projection, head and revision before beginning original rights.
+The earlier revision-zero cp16 entry still rejects this later state. Modified
+Sources, duplicate imports and later states are rejected. Completed import
+assertions are checked from the accepted evidence; the identical post-import
+body retains four journal calls and seventeen terminal calls. All original
+twenty callback assertion bodies remain intact. No production code changes
+were needed for this entry.
+
+Independent review is CLEAR. Full compiler passed in 38.148 seconds and all
+23 selected cases across RetainedCheckpoint, RetainedReviewSessionSeam and
+RetainedReviewImportSeam passed in 7.351 seconds. Exact case inventory matched,
+with no skips, unchanged source/dependency/runtime/control pins and process
+groups reaped. Qualification receipt SHA-256:
+`d776ddf845964e68c41eef6891e6bdc93b2c9be8770dfd62f5a4c0e548ccf680`.
+Formal report SHA-256:
+`91c2de65ffcb193acfa1542c7a352c292aff86fae8cc7d79981a2e57390e051d`.
+
+This is source and finite-entry qualification, not a completed Native retained
+run. R15 continues on its prior fixed source. Its audited cp1 contains the real
+accepted import, while rights remain pending and Match still has zero official
+outs. Any later run must use one complete independent lineage and retain the
+original remaining assertions; completed writes from separate runs cannot be
+combined. A handoff decision must account for R15's newest accepted boundary
+and the observed approximately 61-minute initial authentication cost.

@@ -12,12 +12,66 @@ import type { SamePaCatchReviewSeedSource } from './SamePlateAppearanceCatchRevi
 import type { SamePaPreparedPhysicalLifecycle } from './SamePlateAppearancePhysicalLifecycleFixture.test-support';
 import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import { openSqliteActualPostPlayReviewStore } from './SqliteActualPostPlayReviewStore';
+import type { PostPlayRow } from './ActualPostPlayReviewNativeMetadata';
 import { withSqliteReadTransaction } from './SqliteReadTransaction.test-support';
 
 export type RetainedNativeLiveAppealSession = Readonly<{
   sourceId: string; sourceHash: string; revision: 0; headSourceId: string; headHash: string;
   projectionSnapshotHash: string; seedSnapshotHash: string;
 }>;
+export type RetainedNativeLiveAppealImport = Readonly<Omit<RetainedNativeLiveAppealSession, 'revision'> & {
+  revision: 1; importSource: AcceptedActualPostPlayReviewEvent; admissionSnapshotHash: string;
+}>;
+
+/** Exact saved import bytes are checked in the loader's existing read phase.
+ * readCurrent below separately authenticates the Native admission and history. */
+export const assertRetainedNativeLiveAppealImportRow = (row: PostPlayRow, retained: RetainedNativeLiveAppealImport) => {
+  const source = retained.importSource;
+  assert.equal(retained.revision, 1, 'LAN01 retained import revision differs');
+  assert.equal(source.action.kind, 'import_live_appeal', 'LAN01 retained event is not the original import');
+  assert.equal(source.expectedRevision, 0, 'LAN01 retained import parent revision differs');
+  assert.equal(source.sessionSourceId, retained.sourceId, 'LAN01 retained import session differs');
+  assert.deepEqual({ ...row }, {
+    source_id: source.sourceId, session_source_id: retained.sourceId, revision: retained.revision,
+    parent_source_id: source.parent.sourceId, parent_snapshot_hash: source.parent.snapshotHash,
+    source_json: json(source), source_hash: hash(source), intent_json: null,
+    admission_json: row.admission_json, snapshot_json: row.snapshot_json, snapshot_hash: retained.projectionSnapshotHash,
+  }, 'LAN01 retained import row differs');
+  for (const [encoded, expected] of [[row.admission_json, retained.admissionSnapshotHash],
+    [row.snapshot_json, retained.projectionSnapshotHash]]) {
+    assert.equal(typeof encoded, 'string', 'LAN01 retained import encoding differs');
+    const value: unknown = JSON.parse(String(encoded));
+    assert.equal(json(value), encoded, 'LAN01 retained import canonical bytes differ');
+    assert.equal(hash(value), expected, 'LAN01 retained import admission or projection differs');
+  }
+};
+
+/** Adopt only the audited revision-one import, before original rights. This
+ * invokes no completed writer; later independent retries remain in the tail. */
+export const readRetainedNativeLiveAppealImport = (
+  owner: Pick<ReturnType<typeof openSqliteActualPostPlayReviewStore>, 'readCurrent'>,
+  session: AcceptedActualPostPlayReviewSession, retained: RetainedNativeLiveAppealImport,
+) => {
+  assert.equal(session.sourceId, retained.sourceId, 'LAN01 retained journal session identity differs');
+  assert.equal(hash(session), retained.sourceHash, 'LAN01 retained journal session Source differs');
+  assert.equal(retained.revision, 1, 'LAN01 retained journal must follow only the original import');
+  const value = owner.readCurrent(session.sourceId);
+  assert(value, 'LAN01 retained imported journal missing');
+  assert.deepEqual(value.source, session, 'LAN01 retained journal stored Source differs');
+  assert.equal(value.revision, 1, 'LAN01 retained imported journal revision differs');
+  assert.equal(value.headSourceId, retained.headSourceId, 'LAN01 retained imported journal head identity differs');
+  assert.equal(value.headHash, retained.headHash, 'LAN01 retained imported journal head hash differs');
+  assert.equal(value.events.length, 1, 'LAN01 retained journal must contain only the original import');
+  assert.deepEqual(value.events[0].source, retained.importSource, 'LAN01 retained import Source differs');
+  assert.equal(value.events[0].intent, null, 'LAN01 retained import intent differs');
+  assert.equal(value.events[0].liveAppealImport?.rights.kind, 'pending', 'LAN01 retained import rights already changed');
+  assert.equal(value.kind, 'official_pending', 'LAN01 retained import official state differs');
+  assert.equal(value.ledger.revision, 4, 'LAN01 retained import ledger differs');
+  assert(value.pendingReasons.includes('original_live_ball_and_appeal_rights_required'), 'LAN01 retained original rights are not pending');
+  assert.equal(value.seed.snapshotHash, retained.seedSnapshotHash, 'LAN01 retained journal seed differs');
+  assert.equal(hash(value), retained.projectionSnapshotHash, 'LAN01 retained journal projection differs');
+  return value;
+};
 
 /** Read the genuine revision-zero owner projection. The resumed entry supplies
  * an exact checkpoint pin; a later head or substituted Source is rejected.
@@ -47,7 +101,8 @@ export const readRetainedNativeLiveAppealSession = (
 export const appendNativeLiveAppealJournal = (h: SamePaPreparedPhysicalLifecycle,
   catchWorkReference: SamePaReference<'pa_catch_v1_work'>,
   executionReference: SamePaReference<'pa_physical_v1_field_steps'>,
-  policy: ActualLiveOfficialPolicy, label: string, schedulerId: string, retainedSession?: RetainedNativeLiveAppealSession) => {
+  policy: ActualLiveOfficialPolicy, label: string, schedulerId: string,
+  retainedSession?: RetainedNativeLiveAppealSession | RetainedNativeLiveAppealImport) => {
   const current = h.current(), physicalOperationReference = current.view.cut.physicalOperationReference;
   if (physicalOperationReference.owner !== 'pa_physical_v1_field_roots' && physicalOperationReference.owner !== 'pa_physical_v1_field_steps')
     throw new Error('Native live appeal journal requires its original sealed physical field');
@@ -86,6 +141,7 @@ export const appendNativeLiveAppealJournal = (h: SamePaPreparedPhysicalLifecycle
     return result.value;
   };
   let value = retainedSession === undefined ? accept(owner.acceptSession(session.sourceId))
+    : retainedSession.revision === 1 ? readRetainedNativeLiveAppealImport(owner, session, retainedSession)
     : readRetainedNativeLiveAppealSession(owner, session, retainedSession);
   expect(value.kind).toBe('official_pending');
   const append = (name: string, action: ActualPostPlayReviewEventAction) => {
@@ -96,7 +152,7 @@ export const appendNativeLiveAppealJournal = (h: SamePaPreparedPhysicalLifecycle
     return source;
   };
 
-  append('import', { kind: 'import_live_appeal', executionReference });
+  if (retainedSession?.revision !== 1) append('import', { kind: 'import_live_appeal', executionReference });
   const imported = value;
   expect(getPendingOwnedLiveAppealImports(imported.ledger)).toHaveLength(1);
   expect(imported.pendingReasons).toContain('original_live_ball_and_appeal_rights_required');

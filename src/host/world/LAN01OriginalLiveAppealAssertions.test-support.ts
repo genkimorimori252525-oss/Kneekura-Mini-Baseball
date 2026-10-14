@@ -8,7 +8,7 @@ import { prepareInFlightBattingSwing } from './InFlightBattingLifecycleFixture.t
 import { prepareFreshPhysicalFieldFixture } from './SamePlateAppearancePhysicalFieldFixture.test-support';
 import { appendNativePhysicalThrowReception } from './SamePlateAppearancePhysicalThrowReception.test-support';
 import { appendNativeLiveAppealCatch } from './SamePlateAppearanceLiveAppealCatchNative.test-support';
-import { appendNativeLiveAppealJournal, type RetainedNativeLiveAppealSession } from './SamePlateAppearanceLiveAppealJournalNative.test-support';
+import { appendNativeLiveAppealJournal, type RetainedNativeLiveAppealSession, type RetainedNativeLiveAppealImport } from './SamePlateAppearanceLiveAppealJournalNative.test-support';
 import { liveAppealSceneFixture } from './SamePlateAppearanceLiveAppealScene.test-support';
 import { SAME_PA_ACTOR_PRODUCER_POLICY } from './SamePlateAppearanceActorProducerPolicy';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
@@ -98,7 +98,7 @@ export const continueLAN01OriginalLiveAppealSealedAssertions = (
   h: SamePaPreparedPhysicalLifecycle,
   finalCall: Pick<ReturnType<typeof appendNativeLiveAppealCatch>, 'workReference'>,
   executionReference: NonNullable<ReturnType<typeof appendNativePhysicalThrowReception>['appealed']>['operationReference'],
-  stage: (name: string) => void, retainedSession?: RetainedNativeLiveAppealSession,
+  stage: (name: string) => void, retainedSession?: RetainedNativeLiveAppealSession | RetainedNativeLiveAppealImport,
 ) => {
     const current=h.current();
     const live=withSqliteReadTransaction(h.f.db,()=>readSamePaAdmittedLiveWorkFromSqlite(h.f.db,current.viewReference,'current'));

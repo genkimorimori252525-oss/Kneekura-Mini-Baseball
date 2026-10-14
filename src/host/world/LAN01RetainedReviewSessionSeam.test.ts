@@ -83,8 +83,11 @@ it('preserves the original journal body including all events, assertions and ind
   const source = readFileSync(new URL('./SamePlateAppearanceLiveAppealJournalNative.test-support.ts', import.meta.url), 'utf8');
   const body = source.slice(source.indexOf('  const current = h.current()'))
     .replace('  let value = retainedSession === undefined ? accept(owner.acceptSession(session.sourceId))\n'
+      + '    : retainedSession.revision === 1 ? readRetainedNativeLiveAppealImport(owner, session, retainedSession)\n'
       + '    : readRetainedNativeLiveAppealSession(owner, session, retainedSession);',
-      '  let value = accept(owner.acceptSession(session.sourceId));');
+      '  let value = accept(owner.acceptSession(session.sourceId));')
+    .replace("  if (retainedSession?.revision !== 1) append('import', { kind: 'import_live_appeal', executionReference });",
+      "  append('import', { kind: 'import_live_appeal', executionReference });");
   expect(createHash('sha256').update(body).digest('hex')).toBe('00e8bebcc177842976a946024bfd836ea3accb4b44bb510491e02d12d87f59fb');
   expect(body).toContain("append('import', { kind: 'import_live_appeal', executionReference })");
   expect(body).toContain('expect(accept(reopened.acceptSession(session.sourceId))).toEqual(reopened.readSession(session.sourceId))');
