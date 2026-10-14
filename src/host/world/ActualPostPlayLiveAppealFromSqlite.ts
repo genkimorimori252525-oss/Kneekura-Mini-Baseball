@@ -3,6 +3,7 @@ import { quantizeEventTick } from '../../core/sim/ExactEventTime';
 import { deriveSamePaCatchReviewNativeSeed } from './SamePlateAppearanceCatchReviewFromSqlite';
 import { readSamePaFieldRuleEvidenceWithInputsFromSqlite } from './SamePlateAppearanceFieldRuleEvidenceFromSqlite';
 import { readSamePaPhysicalOperationFromSqlite } from './SamePlateAppearancePhysicalEpisodeFromSqlite';
+import { withSamePaLifecycleReadPhase } from './SamePlateAppearanceLifecycleFromSqlite';
 import { samePaExecutionReference as reference } from './SamePlateAppearanceExecutionFromSqlite';
 import type { SamePaReference } from './SamePlateAppearanceWorkPrefix';
 import type { PostPlayReviewDb, PostPlayReviewNativeScope } from './ActualPostPlayReviewNativeScope';
@@ -27,6 +28,9 @@ export const readPostPlayOriginalLiveAppeal = (db: PostPlayReviewDb, scope: Post
   if (!(db instanceof Native) || !db.isTransaction) throw new Error('live appeal import requires the Native read transaction');
   const reserved = previous.source.reservedCatchSeed;
   if (!reserved) return pending('original_live_appeal_independent_play_end_owner_required');
+  // Share completed original evidence only across this pure read. Each current
+  // admission, journal write and independent retry keeps its own proof boundary.
+  return withSamePaLifecycleReadPhase(db, () => {
   const original = deriveSamePaCatchReviewNativeSeed(db, reserved, current);
   if (json(original.seed) !== json(previous.seed) || json(original.scope) !== json(scope))
     throw new Error('live appeal original end, ledger or scope differs');
@@ -108,6 +112,7 @@ export const readPostPlayOriginalLiveAppeal = (db: PostPlayReviewDb, scope: Post
       indication: indication.reference, throwPlan: throwPlan.reference,
       execution: { ...executionReference, sourceVersion: receipt.source.sourceVersion } }, rights: execution.rights };
   return freeze({kind:'ready' as const, liveAppealImport, receipt});
+  });
 };
 
 export const capturePostPlayLiveAppeal = (db: PostPlayReviewDb, scope: PostPlayReviewNativeScope,

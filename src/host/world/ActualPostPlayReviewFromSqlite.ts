@@ -1,5 +1,7 @@
+import { createRequire } from 'node:module';
 import { capturePostPlayLiveAppealRights, type PostPlayLiveAppealRightsAdmission } from './ActualPostPlayLiveAppealRightsFromSqlite';
 import { deriveSamePaCatchReviewNativeSeed } from './SamePlateAppearanceCatchReviewFromSqlite';
+import { withSamePaLifecycleReadPhase } from './SamePlateAppearanceLifecycleFromSqlite';
 import { withBattedWorldPhysicalReadTraversal } from './SqliteBattedWorldFieldExecutionStore';
 import { capturePostPlayBaseAppeal, type PostPlayBaseAppealAdmission } from './ActualPostPlayBaseAppealFromSqlite';
 import { capturePostPlayLiveAppeal, type PostPlayLiveAppealAdmission } from './ActualPostPlayLiveAppealFromSqlite';
@@ -20,7 +22,12 @@ export const actualPostPlayReviewEvidenceFromSqlite = (db: PostPlayReviewDb) => 
   // All evidence operations share the existing Native proof bracket, including
   // when called inside the journal's writable transaction. It restores the
   // caller's query_only setting before INSERT/UPDATE or Source callbacks.
-  const proof = <T>(read: () => T): T => withBattedWorldPhysicalReadTraversal(db, read);
+  const proof = <T>(read: () => T): T => withBattedWorldPhysicalReadTraversal(db, () => {
+    const Native = (createRequire(import.meta.url)('node:sqlite') as typeof import('node:sqlite')).DatabaseSync;
+    // The physical bracket establishes query_only before this pure read scope.
+    // Each owner operation ends it before callbacks, journal writes or retries.
+    return db instanceof Native && db.isTransaction ? withSamePaLifecycleReadPhase(db, read) : read();
+  });
   const session = (sourceId: string): NativePostPlaySessionArchive | null => {
     if (!postPlayTableExists(db, 'actual_post_play_review_sessions')) return null;
     const row = postPlayReviewIdentityRow(db, 'session', sourceId); if (!row) return null;
