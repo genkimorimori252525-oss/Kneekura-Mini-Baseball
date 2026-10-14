@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "noEmit": true, "incremental": false },
+  "include": [
+    "src/host/world/ActualFoulTerminalQueuedJournalRetained.acceptance.ts",
+    "src/host/world/ActualFoulTerminalQueuedJournalRetryRetained.acceptance.ts",
+    "src/host/world/ActualFoulTerminalQueuedJournalConflictRetained.acceptance.ts"
+  ]
+}
