@@ -52,7 +52,7 @@
 
 ## P-007 — 成長・調子・心理の既存契約を保全
 
-- [Trait 08 §15.12/15.21/15.36](../game-design/08-player-traits-design-seed.md): 普通の`Condition` は当日の物理・技術発揮に影響する。疲労・スタミナ・回復の同じ原因を2回適用しない。
+- [Trait 08 sections 15.12 / 15.21 / 15.36](../game-design/08-player-traits-design-seed.md): 普通の`Condition` は当日の物理・技術発揮に影響する。疲労・スタミナ・回復の同じ原因を2回適用しない。
 - [心理05](../game-design/05-psychology-emotion.md): 感情の小変化は `ActiveEmotion` 発火までは直接能力Buffにしない。
 - [育成53](../game-design/53-player-development-trajectory-breakthrough-v1.md): 選手の長期成長モデルは通常のCareer向けであり、固定OBモードでは恒常技能書換えを無効化/隔離する。
 - [Season Expression Proposal](SEASON-EXPRESSION-PROPOSAL.md) は**提案**。季節ごとの調子の具体的発生式と時間窓、4段階等は正式採用・計測されていない。旧「流れ」案もまだ未確定であり、OBの成績分散のために裏から正式化しない。
