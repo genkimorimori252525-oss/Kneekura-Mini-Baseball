@@ -14,6 +14,17 @@
 
 **Unified acceptance:** The three plans are interconnected, not three independently working products. Taken together their specified regression set is **CATCH-01..25 + BAT-01..29 + DIR-01..26 = 80 named acceptance cases**, subject to actual live-Core availability. Checking boxes in Markdown does not prove tests passed.
 
+### Cross-cutting quality department — **newly created; not a fourth Match Core implementation plan**
+
+| Topic | Entry | Status | Meaning |
+| --- | --- | --- | --- |
+| **選手再現部 / Historical OB reconstruction** | [Department README](player-reconstruction/README.md), [OB Prime Principles](player-reconstruction/PRINCIPLES.md) | **USER-DIRECTED PRINCIPLES / DOCUMENTATION & QA WORKFLOW / NOT IMPLEMENTED** | Frozen OB ability, full-career historical evidence, representative multi-year prime means, peak attainment without yearly scripted max. |
+| Reproduction methodology / quality gates | [METHOD-V1-PROPOSAL](player-reconstruction/METHOD-V1-PROPOSAL.md) | **METHOD PROPOSED / NOT CALIBRATED** | 14 future REC test gates; source-first normalization, season environment, no cherry-pick. |
+| Fixed OB + season fluctuation | [SEASON-EXPRESSION-PROPOSAL](player-reconstruction/SEASON-EXPRESSION-PROPOSAL.md) | **DESIGN OPTION / NOT APPROVED AS RUNTIME / NOT IMPLEMENTED** | First test daily Condition + matchup/physics variation; add slower coherent execution state only if evidence requires. |
+| Sadaharu Oh prime example | [Reconstruction case 001](player-reconstruction/cases/sadaharu-oh-prime.md) | **PROVISIONAL / NOT CALIBRATED** | 引っ張り屋 candidate, 広角打法 hold, fixed skills, 55-HR-capable with no yearly guarantee. |
+
+**This department does not change the earlier three CATCH/BAT/DIR implementation plans into four, and the hidden “流れ” discussion remains independently undecided.**
+
 ### Discussion / decision pending, not an implementation plan
 
 | Topic | Link | Status |
