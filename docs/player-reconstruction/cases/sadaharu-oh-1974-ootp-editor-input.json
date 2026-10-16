@@ -55,7 +55,7 @@
     "sourceMod": "lebronisbest/OOTP_NPB_Historical (personal/non-commercial with OOTP only)",
     "ratingsWindow": "5-year centered 1974, 1972-1976, no double weight",
     "targetYear": 1974,
-    "note": "A rounded 130-game representative stat line. OOTP editor 'Create Current Ratings based on stats' accepts AB/H/2B/3B/HR/BB/HBP/SO. This is an input, NOT an observed OOTP rating.",
+    "note": "A rounded 130-game representative stat line. OOTP editor 'Create Current Ratings based on stats' accepts AB/H/2B/3B/HR/BB/HBP/SO. This is an input, NOT an observed OOTP rating. SUPERSEDED / DO NOT USE: user explicitly requires no OOTP launch or Editor.",
     "AB": 419,
     "H": 133,
     "2B": 16,
@@ -72,7 +72,7 @@
     }
   },
   "ootpActualRatings": {
-    "status": "NOT_OBSERVED",
+    "status": "NOT_OBSERVED_AND_NOT_REQUIRED_FOR_MINI_NATIVE_WORKFLOW",
     "displayScale": null,
     "commissionerEditorUsed": false,
     "scoutingDisabled": null,
@@ -117,5 +117,6 @@
     "ootpToMiniMapper": "NOT_IMPLEMENTED",
     "fullMatchSimulation": "NOT_CONNECTED_ON_DOCUMENT_BRANCH",
     "multiSeasonCalibration": "NOT_RUN"
-  }
+  },
+  "workflowNote": "SUPERSEDED BY USER 2026-10-16: OOTP is never launched. Editor proposed stat inputs retained only as old historical notes; current benchmark uses Mini standalone year/league normalized stats. This file is NOT OOTP generated player ratings."
 }
