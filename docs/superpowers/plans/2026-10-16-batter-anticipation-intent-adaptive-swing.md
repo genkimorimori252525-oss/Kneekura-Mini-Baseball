@@ -406,6 +406,16 @@ docs/superpowers/plans/
 - 将来の2人の賢さの相互作用は**一球のタイムライン**を破らずに、各人がその時点に観測できるものだけを使う。
 - 捕手計画に「打者予測＝打者の思考スタイル」と読む記述がある場合、本計画の `Belief` と `Approach` を分離する精密化を優先するが、09/49等のCanonical変更権限を持つわけではない。
 
+### 11.1 Directional Intent / Spray 追加実装契約（2026-10-16）
+
+**本計画のAPPROACH / INTENTおよびSwingTrajectoryの実装時に、[Batter Directional Intent & Causal Spray — 実装計画 v1](2026-10-16-batter-directional-intent-and-spray.md) を必ず同時参照する。** 方向狙い用に新しい独立Match Coreやもう一組の `BatterApproachPolicy` / `BatterIntentTypes` / `SwingTrajectorySampler` を作らない。
+
+- 3方向 `PULL / CENTER / OPPOSITE` に加え、方向を意図的に指定しない `REACTIVE` を区別。球種・コースへの `priorReliance` と、打球方向への `directionCommitment` は別軸。
+- **流し打ち狙い0% ≠ 実際の流し方向打球0%**。引っ張り狙い0%も同様。厳密な0%を強制epsilonで破壊しない。センター狙いも流し/引っ張り結果を禁止しない。
+- 既存のプルヒッター/引っ張り屋、流し打ち/芸術的流し打ち、広角打法は`09`に定める**身体/接触技術**であって、本人の方向Intent頻度を直接変更するフラグではない。試合内Intentと技術Source、接触後の連続的打球角度/observed sprayを分離。
+- 方向Intentは目標Motor Actionにだけ接続し、すでに完成した物理的な打球の方向や安打率を補正しない。左右打者・フェア/ファウル・スイング中の対応変更は共通Coreの時刻/座標系を守る。
+- 既存 `BAT-01..29` に加えて、新計画の `DIR-01..26` を一括検証する。別のライフサイクル管理・独自Traitを増やさず、Guardの矛盾/未実装依存を `NOT CONNECTED` と記録する。
+
 ## 12. 受入条件・最終報告
 
 完了要件:
