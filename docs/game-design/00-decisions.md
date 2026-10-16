@@ -153,6 +153,14 @@
 - OBの基礎能力は固定し、試合前調子/相手/球場/打席機会/実打球の違いで年成績は変動する。全盛期成績は到達可能で毎年保証しない。王は引っ張り屋第一候補、広角打法保留。
 - OOTP実値未取得の状態で架空の「OOTP提供能力」を作らない。外部OOTP modの一括複製・無許諾再配布は行わず、個人研究の参照と区別する。計画を保存しただけで実Rating取得・実試合検証完了とみなさない。
 
+## D-019: OOTPゲームは起動せず、歴史データを参照しMini自身の物理だけでOBを作る（2026-10-16 LATER USER CORRECTION）
+
+- **OOTP起動・OOTP内Editor/Commissioner・OOTPの試合計算依存は禁止。** D-018の「OOTPで生成した選手Ratingスナップショットを取得」はこの後続決定により撤回。
+- 歴史DB`historical_database.odb`等は主に過去成績/名簿で、OOTP生成済み個人Contact/HR Power/Eye一覧ではない。必要なら[OOTPDBTools](https://github.com/sleffew80/OOTPDBTools)等でOOTPを起動せず研究可能（外部DBの利用条件は尊重）。**元データ→Mini独自の技能Source**として正史バット/投球/守備へ接続する。既存結果確率Buffは禁止。
+- 最初は[王貞治1972–1976五年の統計基準](../player-reconstruction/cases/sadaharu-oh-1974-ootp-editor-input.json)と[同年セ・リーグ比較](../player-reconstruction/cases/sadaharu-oh-1972-1976-league-reference.json)を使用。[Mini独立Pilot最新計画](../player-reconstruction/OOTP-FIRST-OH-PILOT-PLAN.md)優先。これらは**観測されたリーグ相対の成績目標**であって最終の真能力値ではない。
+- 実際の投球/バット/打球物理は別の[より進んだNativeソースブランチ](https://github.com/genkimorimori252525-oss/Kneekura-Mini-Baseball/tree/jolly/tbd-lad-native-browser-core-2026-10-14)に存在する。ローカル版の最新状況を確認して同Coreに接続し、別結果エンジンは作らない。**現状はバット接触後の9回統合が未完了**なので王55HRを実検証したと偽らない。
+- 王でうまく行けば、**ユーザーが指定した選手だけ**同じシード生成・簡易検証をする。全NPB選手の個別能力校正を始めない。
+
 ## 未決定事項
 
 - NPB 2026 プロファイルに含める延長戦、予告先発、登録・交代制限の対象モード
