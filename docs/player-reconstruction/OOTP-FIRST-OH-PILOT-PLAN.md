@@ -44,6 +44,21 @@
 
 **重要な未検証依存:** 今はOOTP実機を操作していないため**王の実際のOOTP Ratingsはまだ取得していない**。アクセスできない場合は`OOTP_RATINGS_NOT_AVAILABLE`とし、架空のOOTP値は絶対に書かない。公開modの成績表を“OOTP能力値”と偽らない。
 
+### 王の5年実績を集計、OOTPエディターへ入力できる数値を作成（2026-10-16作業済み）
+
+[機械可読・王貞治1972〜1976年5年集計＋OOTPエディター入力](cases/sadaharu-oh-1974-ootp-editor-input.json) を作成した。これは**NPB史実値から導出した入力データであり、OOTPが生成した能力値ではない**。
+
+| 区分 | 実測・集計値 |
+| --- | ---: |
+| 5年通算 | 640試合、2744打席、2062打数、657安打、230本塁打、638四球、235三振 |
+| 加重打率／出塁率／長打率 | **.319 / .480 / .693** |
+| 130試合換算の本塁打 | **46.7本** |
+| OOTP Editorの打撃成績入力（130試合相当へ丸め） | **AB419 / H133 / 2B16 / 3B0 / HR47 / BB130 / HBP4 / SO48** |
+
+OOTP Player Editorの[Batting Ratings Tab](https://wiki.ootpdevelopments.com/index.php?title=OOTP_Baseball:Important_Game_Concepts/Tools,_Functions,_and_Editors/In-Game_Editors/Player_Editor/Batting_Ratings_Tab)には、`Create Current Ratings based on stats` という機能がある。このため歴史modの自動Ratingsが読み取れないときの**同じOOTP内での代替**として、上記8入力値からOOTP自身にCurrent Ratingsを作らせられる。Editor操作にはCommissioner modeが必要。**本セッションでは実際にOOTPを操作できておらず、その生成後のContact/Power/Eye実数値は未取得。**
+
+OOTPの`Contact`はBABIPとAvoid K'sからOOTP内で算出される。`Contact + AvoidK`を別々の命中率Buffにしてはいけない。
+
 ## 4. 1つの共通OOTP → Mini能力変換器
 
 | OOTP | Mini既存Sourceの初期推定 | 注意 |
