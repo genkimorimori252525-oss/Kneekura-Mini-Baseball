@@ -21,7 +21,7 @@ One physically causal baseball Match Core
  → future Natural 3D broadcast from the SAME Core
 ```
 
-**2026-10-01 presentation choice:** retain the approved PNG originals (B1 style). Old Pixel/JSON/v1/v2 experiments are **ARCHIVED / ON HOLD**. Default 4px-grid/55ms sample remains the adopted discrete broadcast reference; later 2× **ball visual sampling** is a separate unverified plan, not twice the simulation or an overwrite of original visuals. See [broadcast details](architecture/WORLD-FIRST-BROADCAST.md).
+**2026-10-16 user clarification (after the 2026-10-01 PNG decision):** retain approved PNG originals (B1 style), 4px grid and the **55ms reference**, **but use scene-dependent drawing cadence**: pitching and batted-ball action can receive more display updates than static moments, and the owner says such increased rendering already exists locally (exact code unverified on this GitHub branch). **Do not selectively increase the ball's texture/resolution/image quality, nor implement an isolated ball-only FPS/sampling system.** Previous '2× ball visual sampling' wording is superseded; neither drawing frequency nor image quality can alter Core motion/rulings. Old Pixel/JSON/v1/v2 experiments remain **ARCHIVED / ON HOLD**. See [broadcast details](architecture/WORLD-FIRST-BROADCAST.md) and the [corrected 10/14 integration plan](implementation/2026-10-14-tbd-vs-lad-match-slice.md).
 
 ## Document authority — first check status, not file name
 
