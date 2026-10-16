@@ -131,6 +131,22 @@ type BatterPitchBelief = Readonly<{
 - Captured `BatterPrePitchBelief` は**実球種が決まる前かつ実PitchCallを知らない状態**で凍結。投球後に新Evidenceで次の一球用のBeliefを更新する。
 - 「捕手は何を要求した？」という予測と「打者は何を狙っている？」という捕手側推定を対称な真値として共用せず、各自の `KnowledgeEstimate` を分離する。
 
+
+### 4.1 部分的的中・予想差の方向/距離・残された修正時間
+
+予測の一致を `正解 / 不正解` の1ビットへ潰さない。次の4条件を、同じ投手・打者・身体能力・seedで対照する。
+
+| 球種予想 | コース予想 | 準備・対応の解釈 |
+| --- | --- | --- |
+| 的中 | 的中 | 球速/変化と到達位置の準備が一致してよいが接触は保証されない |
+| 的中 | 外れ | 始動テンポの準備は使える可能性。位置/スイング平面・バット面の修正が必要 |
+| 外れ | 的中 | 予定位置は使える可能性。球速・時間・変化の予測を修正する必要がある |
+| 外れ | 外れ | 双方の再予測が必要。ただし必ず上の二つの不利の単純和になるとは限らない |
+
+`mismatch` は、主観的な狙いコースの中心と実観測した打点の**連続的な幾何・時間差**として扱う。plate座標での距離（横/高さ）、移動方向（内→外、高→低）、実投球の速度・変化、すでに行った準備、観測から修正可能な時間を組み合わせる。たとえば外角低め待ちで真ん中への球は、静的な「真ん中は打ちやすい」という判断と、急な狙い変更による遅れが両立する。
+
+誤差が大きいほど必要な動作修正量が増えることは検証するが、**遠い＝必ず見逃し / 小さい＝必ずヒット** の単調な結果規則は作らない。初期予測は点1つではなく確率分布と注意・準備の広がりを持ち、強く絞り込まない打者には複数の候補に反応する余地を残す。
+
 ## 5. ストライクゾーン、狙い領域、到達可能領域
 
 1. **Official Strike Zone**: 大会RuleProfileと打者の合法姿勢による判定領域。スイングの可否や接触可能性を保証しない。
@@ -147,6 +163,19 @@ type BatterPitchBelief = Readonly<{
 - `PRECOMMITTED`: 事前に強く始動し、途中で外と気付いても物理/時間のため止められない。
 - `OVERRIDDEN_BY_DIRECTIVE`: 理解した監督の明示的な作戦を採用。
 - 実際に振った原因は戦術intent + timed observation + motor state。説明ラベルだけを確率抽選してはならない。
+
+
+### 意図的な見送りと、予想外で手が出ない見逃しを分離
+
+`no swing` だけでは「ボール球を見極めて見送った」「3-0だから意図して見送った」「打つと判断したが始動可能時間を過ぎた」「球道認識が遅れた」を説明できない。履歴とDecisionTraceには、少なくとも次の別原因を保持する。
+
+- `CHOSEN_TAKE`: 観測・カウントと本人の方針から自発的に見送った。
+- `RECOGNITION_LATE`: 振る判断に必要な観測が間に合わなかった。
+- `DECISION_TOO_LATE`: 「振る」が採択されても物理的な始動可能期限を過ぎていた。
+- `CANCELLED_BEFORE_SWING`: 振る準備から観測更新で見送る判断へ変更し、実際に停止できた。
+- `PHYSICALLY_STOPPED_CHECK`: 既に始動していたが減速し、RuleEngine/Umpireへハーフスイング判定を委譲する。
+
+説明用Reasonは、観測・判断・運動の**実時刻列から派生**させる。Reasonラベルを先に抽選して見逃しにすることは禁止。3-0の一球で打者が自発的に見送る場合と、真ん中で驚いて手が出なかった場合を、同じ表示結果でも区別できる。
 
 ## 6. 時間に沿う Batter Decision / Swing Controller
 
@@ -352,6 +381,12 @@ docs/superpowers/plans/
 | BAT-23 | Pitch intentは正しいがバット始動後に新しい視覚情報 | Future Knowledge使用なし。過去のpose不変・現在からのみbounded correction。 |
 | BAT-24 | 初対戦/対戦後/しばらく未対戦 | evidence age/confidenceに従うbelief更新、未来情報や隠し技術直読なし。 |
 
+| BAT-25 | 球種のみ一致、コースのみ一致、双方一致、双方不一致を同一能力・seedで比較 | 本来の予測準備/始動・軌道補正の差を別々に説明。ヒット率直加算・結果先決めはない。 |
+| BAT-26 | 横/高さの予測位置を近距離→中距離→遠距離と変える（残り時間・身体状態固定） | 要求される修正方向・距離と可動性が変化。単純な「大きな位置差なら自動見逃し」ではない。 |
+| BAT-27 | 真ん中見逃しを意図的3-0 Take、認識遅延、判断期限超過、途中中止の別原因で再現 | 同じSTRIKE結果でも時刻・observed Evidence・decision reasonが異なる。 |
+| BAT-28 | 同じ投手履歴でカウント/満塁/点差だけ変更 | 本人の予想分布、狙い方、Take/Chase戦術を再評価できる。状況ラベルによる強制球種予測なし。 |
+| BAT-29 | ボールゾーンだが本人の狙い領域に含まれる球、規則上ストライクでも腕が届かない球 | 公式ゾーン/選好ゾーン/動的到達範囲の独立性が保たれる。意図的Chaseと物理的接触能力は別。 |
+
 ### 校正・監査指標（閾値未Freeze）
 
 - Pitch family/region主観予測のcalibration、認識latency、Swing Decision timing、Take/Chase discriminability。
@@ -380,7 +415,7 @@ docs/superpowers/plans/
 4. ボール球の自発的Chase・誤認によるChase・途中止められないChaseを記録から区別できる。
 5. Actual bat motionが物理的に可能な範囲で修正され、届かない打球や時間遡及接触を作らない。
 6. 受理されたPitchCall、既存RuleEngine、Official Ruling、PNG/Batter POV、描画FPSの境界が守られる。
-7. `BAT-01..24` がPASS/FAIL/NOT RUNで明示され、`npm run typecheck`、`npm test`、`npm run verify` の実測がある。接触中CCDなど未実装依存は正直に `NOT CONNECTED`。
+7. `BAT-01..29` がPASS/FAIL/NOT RUNで明示され、`npm run typecheck`、`npm test`、`npm run verify` の実測がある。接触中CCDなど未実装依存は正直に `NOT CONNECTED`。
 8. 計画を実装したときには、単一の共有 Core と同一seed/同一入力による再現性が保たれ、Headless fixture成功を9回完走成功と混同しない。
 
 最終報告ではBranch/Before-After HEAD/変更ファイル・source契約・テスト実行コマンドと数・再現seed・各BAT gate・連続接触の検証結果・調整係数の未確定・旧試合/現行描画への非干渉を報告する。
