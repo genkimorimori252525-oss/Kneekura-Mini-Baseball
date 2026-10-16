@@ -1,5 +1,7 @@
 # Kneekura Mini Baseball — Current Design Handoff
 
+> **AI navigation (2026-10-16):** [AI Design Index](../AI-INDEX.md) / [Plan Register](../PLAN-REGISTER.md) / [World-First & low-FPS Broadcast philosophy](../architecture/WORLD-FIRST-BROADCAST.md) / [GitHub-vs-local status](../implementation/GITHUB-LOCAL-STATUS.md). These are navigation/safety supplements, **not** a replacement for this handoff's CANONICAL precedence rules. The recent three CATCH/BAT/DIR implementation plans are linked there; the proposed hidden `流れ` system is **discussion only**, not approved implementation.
+
 更新日: 2026-10-01
 対象branch: `jolly/core-foundation-plan-2026-09-17`
 
